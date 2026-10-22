@@ -1,29 +1,31 @@
+import { useRef, useState } from 'react';
+import { tr } from '../core/i18n';
 import { PARTS, PART_ORDER } from '../core/parts';
 import { volts } from '../core/format';
 import { holeLabel } from '../core/breadboard';
 import type { PartType } from '../core/types';
 import { useDerived } from '../state/derived';
 import { useStore, type Tool } from '../state/store';
-import { Scene } from '../three/Scene';
-import { useEmitCamera } from '../three/common';
+import { Scene, VIEWS, type ViewName } from '../three/Scene';
+import { emitCameraView } from '../three/common';
 import { Icon, PartIcon } from './Icons';
 
-const GROUPS: { title: string; items: Tool[] }[] = [
-  { title: '工具', items: ['select', 'probe'] },
-  { title: '电源', items: PART_ORDER.filter((t) => PARTS[t].category === 'power') },
-  { title: '连线', items: ['wire'] },
-  { title: '元件', items: PART_ORDER.filter((t) => PARTS[t].category === 'basic') },
-  { title: '输入', items: PART_ORDER.filter((t) => PARTS[t].category === 'input') },
+const groups = (): { title: string; items: Tool[] }[] => [
+  { title: tr('工具', 'Tools'), items: ['select', 'probe'] },
+  { title: tr('电源', 'Power'), items: PART_ORDER.filter((t) => PARTS[t].category === 'power') },
+  { title: tr('连线', 'Wiring'), items: ['wire'] },
+  { title: tr('元件', 'Parts'), items: PART_ORDER.filter((t) => PARTS[t].category === 'basic') },
+  { title: tr('输入', 'Inputs'), items: PART_ORDER.filter((t) => PARTS[t].category === 'input') },
 ];
 
-const toolName = (t: Tool) => (t === 'select' ? '选择 / 操作' : t === 'probe' ? '万用表' : PARTS[t].name);
+const toolName = (t: Tool) => (t === 'select' ? tr('选择 / 操作', 'Select / use') : t === 'probe' ? tr('万用表', 'Multimeter') : PARTS[t].name);
 
 function Toolbox() {
   const tool = useStore((s) => s.tool);
   const setTool = useStore((s) => s.setTool);
   return (
     <div className="toolbox">
-      {GROUPS.map((g) => (
+      {groups().map((g) => (
         <div key={g.title} className="tool-group">
           <div className="tool-group-title">{g.title}</div>
           {g.items.map((t) => (
@@ -41,19 +43,56 @@ function Toolbox() {
 function Prompt() {
   const tool = useStore((s) => s.tool);
   const firstHole = useStore((s) => s.firstHole);
+  const cancelPlacement = useStore((s) => s.cancelPlacement);
   let text: string;
-  if (tool === 'select') text = '鼠标悬停在孔上，看看哪些孔在内部是连通的 · 点击元件选中，点击按键 / 开关切换状态';
-  else if (tool === 'probe') text = '万用表：点击孔放红表笔；Shift + 点击放黑表笔（不放则默认接 GND）';
+  if (tool === 'select') text = tr('鼠标悬停在孔上，看看哪些孔在内部是连通的 · 点击元件选中，点击按键 / 开关切换状态', 'Hover a hole to see which holes are connected inside · click a part to select it, click a button / switch to flip it');
+  else if (tool === 'probe') text = tr('万用表：点击孔放红表笔；Shift + 点击放黑表笔（不放则默认接 GND）', 'Multimeter: click a hole for the red probe; Shift + click for the black probe (GND if not placed)');
   else {
     const pl = PARTS[tool as PartType].placement;
-    text = pl.kind === 'footprint' ? pl.prompt : pl.prompts[firstHole ? 1 : 0] + (firstHole ? `（起点 ${firstHole}）` : '');
+    text = pl.kind === 'footprint' ? pl.prompt : pl.prompts[firstHole ? 1 : 0] + (firstHole ? tr(`（起点 ${firstHole}）`, ` (from ${firstHole})`) : '');
   }
   return (
     <div className="prompt">
       {tool !== 'select' && <span className="prompt-tag">{toolName(tool)}</span>}
       {text}
-      {tool !== 'select' && <kbd>Esc</kbd>}
+      {firstHole ? (
+        <button className="prompt-cancel" onClick={cancelPlacement} title={tr('放弃这只还没放完的元件（Esc / 右键 / Ctrl+Z）', 'Drop this half-placed part (Esc / right-click / Ctrl+Z)')}>
+          {tr('取消这一步', 'Cancel')} <kbd>Esc</kbd>
+        </button>
+      ) : (
+        tool !== 'select' && <kbd>Esc</kbd>
+      )}
     </div>
+  );
+}
+
+const VIEW_NAME: Record<ViewName, () => string> = {
+  angle: () => tr('斜视', 'Angled'),
+  top: () => tr('俯视', 'Top'),
+  front: () => tr('平视', 'Front'),
+  side: () => tr('侧视', 'Side'),
+};
+
+/** One button, top-right of the stage: each press moves to the next preset view. */
+function ViewButton() {
+  const [view, setView] = useState<ViewName>('angle');
+  const next = VIEWS[(VIEWS.indexOf(view) + 1) % VIEWS.length];
+  return (
+    <button
+      className="view-btn"
+      onClick={() => {
+        setView(next);
+        emitCameraView(next);
+      }}
+      title={tr(
+        `切换视角（下一个：${VIEW_NAME[next]()}）· 也可以拖动旋转、滚轮缩放、右键拖动平移`,
+        `Switch view (next: ${VIEW_NAME[next]()}) · you can also drag to rotate, scroll to zoom, right-drag to pan`,
+      )}
+    >
+      <Icon name="eye" />
+      <span>{tr('视角', 'View')}</span>
+      <b>{VIEW_NAME[view]()}</b>
+    </button>
   );
 }
 
@@ -65,73 +104,59 @@ function Multimeter() {
   const vOf = (h: string | null) => {
     if (!h) return { v: 0, net: sim.ground ?? 'GND' };
     const net = nl.holeNet.get(h);
-    return { v: net ? (sim.nodeV.get(net) ?? 0) : NaN, net: net ?? '无连接' };
+    return { v: net ? (sim.nodeV.get(net) ?? 0) : NaN, net: net ?? tr('无连接', 'not connected') };
   };
   const r = vOf(probe.red);
   const b = vOf(probe.black);
   const reading = probe.red ? r.v - b.v : NaN;
   return (
     <div className="meter">
-      <div className="meter-screen">{Number.isFinite(reading) ? volts(reading) : probe.red ? '—— 悬空' : '-- V'}</div>
+      <div className="meter-screen">{Number.isFinite(reading) ? volts(reading) : probe.red ? tr('—— 悬空', '—— floating') : '-- V'}</div>
       <div className="meter-row">
         <span className="dot red" />
-        红：{probe.red ? holeLabel(probe.red) : '未放置'} {probe.red && `(${r.net})`}
+        {tr('红：', 'Red: ')}
+        {probe.red ? holeLabel(probe.red) : tr('未放置', 'not placed')} {probe.red && `(${r.net})`}
       </div>
       <div className="meter-row">
         <span className="dot black" />
-        黑：{probe.black ? holeLabel(probe.black) : 'GND（默认）'} {probe.black && `(${b.net})`}
+        {tr('黑：', 'Black: ')}
+        {probe.black ? holeLabel(probe.black) : tr('GND（默认）', 'GND (default)')} {probe.black && `(${b.net})`}
       </div>
-      <p className="meter-note">电压永远是“两点之间”的差。只放红表笔时，读数就是这一点相对 GND 的电压。</p>
+      <p className="meter-note">
+        {tr(
+          '电压永远是“两点之间”的差。只放红表笔时，读数就是这一点相对 GND 的电压。',
+          'Voltage is always a difference between two points. With only the red probe placed, the reading is that point relative to GND.',
+        )}
+      </p>
     </div>
   );
 }
 
 function Toolbar() {
-  const emit = useEmitCamera();
   const showNets = useStore((s) => s.showNets);
   const showLabels = useStore((s) => s.showLabels);
   const toggle = useStore((s) => s.toggle);
   const undo = useStore((s) => s.undo);
   const clear = useStore((s) => s.clear);
-  const past = useStore((s) => s.past);
+  const canUndo = useStore((s) => s.past.length > 0 || s.firstHole !== null);
   return (
     <div className="toolbar">
-      <button onClick={() => emit('left')} title="向左旋转">
-        <Icon name="left" />
-      </button>
-      <button onClick={() => emit('right')} title="向右旋转">
-        <Icon name="right" />
-      </button>
-      <i />
-      <button onClick={() => emit('out')} title="缩小">
-        <Icon name="out" />
-      </button>
-      <button onClick={() => emit('in')} title="放大">
-        <Icon name="in" />
-      </button>
-      <button onClick={() => emit('top')} title="俯视">
-        <Icon name="top" />
-      </button>
-      <button onClick={() => emit('reset')} title="重置视角">
-        <Icon name="reset" />
-      </button>
-      <i />
-      <button className={showNets ? 'on' : ''} onClick={() => toggle('showNets')} title="按节点着色：同一颜色 = 电气上连在一起">
+      <button className={showNets ? 'on' : ''} onClick={() => toggle('showNets')} title={tr('按节点着色：同一颜色 = 电气上连在一起', 'Colour by node: same colour = electrically connected')}>
         <Icon name="nets" />
-        <span>节点着色</span>
+        <span>{tr('节点着色', 'Node colours')}</span>
       </button>
-      <button className={showLabels ? 'on' : ''} onClick={() => toggle('showLabels')} title="显示元件标签">
+      <button className={showLabels ? 'on' : ''} onClick={() => toggle('showLabels')} title={tr('显示元件标签', 'Show part labels')}>
         <Icon name="label" />
       </button>
       <i />
-      <button onClick={undo} disabled={past.length === 0} title="撤销 (Ctrl+Z)">
+      <button onClick={undo} disabled={!canUndo} title={tr('撤销 (Ctrl+Z)', 'Undo (Ctrl+Z)')}>
         <Icon name="undo" />
       </button>
       <button
         onClick={() => {
-          if (confirm('清空面包板上的所有元件？')) clear();
+          if (confirm(tr('清空面包板上的所有元件？', 'Remove every part from the breadboard?'))) clear();
         }}
-        title="清空"
+        title={tr('清空', 'Clear board')}
       >
         <Icon name="trash" />
       </button>
@@ -141,11 +166,25 @@ function Toolbar() {
 
 export function Workbench() {
   const toast = useStore((s) => s.toast);
+  // a right click that isn't a drag (right-drag pans the view) drops a half-placed part
+  const rightDown = useRef<{ x: number; y: number } | null>(null);
   return (
     <div className="bench card">
       <Toolbox />
-      <div className="stage">
+      <div
+        className="stage"
+        onPointerDown={(e) => {
+          if (e.button === 2) rightDown.current = { x: e.clientX, y: e.clientY };
+        }}
+        onPointerUp={(e) => {
+          const d = rightDown.current;
+          rightDown.current = null;
+          if (e.button === 2 && d && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 5) useStore.getState().cancelPlacement();
+        }}
+        onContextMenu={(e) => e.preventDefault()}
+      >
         <Scene />
+        <ViewButton />
         <Prompt />
         <Multimeter />
         <Toolbar />

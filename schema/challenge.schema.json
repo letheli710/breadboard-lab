@@ -19,6 +19,20 @@
       "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
     },
     "concepts": { "type": "array", "items": { "type": "string" } },
+    "lang": {
+      "enum": ["zh", "en"],
+      "default": "zh",
+      "description": "Language of the top-level text fields (title, summary, description, concepts, steps, hints, test names). Default \"zh\"."
+    },
+    "i18n": {
+      "type": "object",
+      "description": "Translations of the text fields, keyed by language. Used when the UI is in that language; anything missing falls back to the top-level (base) text.",
+      "properties": {
+        "zh": { "$ref": "#/definitions/translation" },
+        "en": { "$ref": "#/definitions/translation" }
+      },
+      "additionalProperties": false
+    },
     "components": {
       "type": "array",
       "minItems": 1,
@@ -71,6 +85,35 @@
     }
   },
   "definitions": {
+    "translation": {
+      "type": "object",
+      "description": "Translated text. steps / hints / tests are matched to the top-level arrays by position and must have the same length.",
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" },
+        "description": {
+          "description": "Same as the top-level description: a string, or an array of lines joined with \\n.",
+          "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
+        },
+        "concepts": { "type": "array", "items": { "type": "string" } },
+        "hints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Same length and order as the top-level hints; ignored if the length differs."
+        },
+        "steps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Step texts only, same count and order as the top-level steps. Highlighted holes come from the top-level steps."
+        },
+        "tests": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Test names only, same order as the top-level tests."
+        }
+      },
+      "additionalProperties": false
+    },
     "value": {
       "description": "Number or engineering string: 330, \"330\", \"4.7k\", \"4k7\", \"1M\", \"100nF\", \"any\".",
       "oneOf": [{ "type": "number" }, { "type": "string", "pattern": "^(any|\\s*-?\\d*\\.?\\d+(e-?\\d+)?\\s*[pnuµmkKMG]?\\s*(ohms?|Ω|F|V|A)?\\s*|\\d+[pnuµmkKMG]\\d+\\s*(ohms?|Ω|F|V|A)?)$" }]

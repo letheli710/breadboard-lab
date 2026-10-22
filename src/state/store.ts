@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { HOLE_MAP } from '../core/breadboard';
 import type { Challenge } from '../core/challenge';
 import type { CheckResult } from '../core/check';
+import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS } from '../core/parts';
 import type { Layout, PartProps, PartType, PlacedPart } from '../core/types';
 
@@ -45,7 +46,16 @@ export interface Highlight {
   tone: 'error' | 'info';
 }
 
+/** Language: saved choice, else the browser's preference. Applied to core before anything renders. */
+function initialLang(): Lang {
+  const saved = LS.get<string | null>('bb.lang', null);
+  const l: Lang = isLang(saved) ? saved : typeof navigator !== 'undefined' && !navigator.language?.toLowerCase().startsWith('zh') ? 'en' : 'zh';
+  setCoreLang(l);
+  return l;
+}
+
 interface State {
+  lang: Lang;
   mode: Mode;
   panel: PanelTab;
   layout: Layout;
@@ -70,6 +80,7 @@ interface State {
   completed: Record<string, boolean>;
   toast: string | null;
 
+  setLang(l: Lang): void;
   setMode(m: Mode): void;
   setPanel(p: PanelTab): void;
   setTool(t: Tool): void;
@@ -81,6 +92,8 @@ interface State {
   updateProps(id: string, p: PartProps): void;
   togglePart(id: string): void;
   removePart(id: string): void;
+  /** Drop a half-placed part (first leg chosen, second not yet). Returns whether there was one. */
+  cancelPlacement(): boolean;
   undo(): void;
   clear(): void;
   loadLayout(l: Layout, remember?: boolean): void;
@@ -121,6 +134,7 @@ export const useStore = create<State>((set, get) => {
   };
 
   return {
+    lang: initialLang(),
     mode: 'learn',
     panel: 'task',
     layout: emptyLayout(),
@@ -145,6 +159,12 @@ export const useStore = create<State>((set, get) => {
     completed: LS.get('bb.completed', {} as Record<string, boolean>),
     toast: null,
 
+    setLang(lang) {
+      setCoreLang(lang);
+      LS.set('bb.lang', lang);
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+      set({ lang, check: null });
+    },
     setMode(mode) {
       const s = get();
       if (mode === s.mode) return;
@@ -186,14 +206,14 @@ export const useStore = create<State>((set, get) => {
       const props = { ...def.defaults, ...s.placingProps[s.tool] };
       if (def.placement.kind === 'footprint') {
         const fp = def.placement.footprint(h);
-        if (!fp) return get().notify('这里放不下：元件会超出面包板边缘');
+        if (!fp) return get().notify(tr('这里放不下：元件会超出面包板边缘', "Doesn't fit here: the part would hang off the edge of the board"));
         const clash = Object.values(fp).find((x) => occ.has(x));
-        if (clash) return get().notify(`孔 ${clash} 已经被 ${occ.get(clash)} 占用了——一个孔只能插一只脚`);
+        if (clash) return get().notify(busy(clash, occ.get(clash)!));
         const part: PlacedPart = { id: newId(), ref: nextRef(s.layout, s.tool), type: s.tool, props, pins: fp };
         commit({ ...s.layout, parts: [...s.layout.parts, part] }, { selectedId: part.id });
         return;
       }
-      if (occ.has(h)) return get().notify(`孔 ${h} 已经被 ${occ.get(h)} 占用了——一个孔只能插一只脚`);
+      if (occ.has(h)) return get().notify(busy(h, occ.get(h)!));
       if (!s.firstHole) {
         set({ firstHole: h });
         return;
@@ -235,7 +255,14 @@ export const useStore = create<State>((set, get) => {
       const s = get();
       commit({ ...s.layout, parts: s.layout.parts.filter((x) => x.id !== id) }, { selectedId: null });
     },
+    cancelPlacement() {
+      if (!get().firstHole) return false;
+      set({ firstHole: null });
+      return true;
+    },
     undo() {
+      // a half-placed part is the most recent "step": undo drops it first
+      if (get().cancelPlacement()) return;
       const s = get();
       const prev = s.past[s.past.length - 1];
       if (!prev) return;
@@ -307,6 +334,9 @@ export const useStore = create<State>((set, get) => {
     },
   };
 });
+
+const busy = (hole: string, ref: string) =>
+  tr(`孔 ${hole} 已经被 ${ref} 占用了——一个孔只能插一只脚`, `Hole ${hole} is already used by ${ref} — one leg per hole`);
 
 /** Red for wires touching a + rail, dark blue for − rails, otherwise a neutral colour. */
 function autoWireColor(a: string, b: string): string {

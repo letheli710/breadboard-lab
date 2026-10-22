@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { holeLabel } from '../core/breadboard';
 import { amps, ohms, parseValue, resistorBands, volts } from '../core/format';
-import { BATTERIES, LED_COLORS, PARTS, TERMINAL_LABEL } from '../core/parts';
+import { getLang, tr } from '../core/i18n';
+import { isFloating } from '../core/netlist';
+import { BATTERIES, LED_COLORS, PARTS, terminalName } from '../core/parts';
 import type { BatteryVariant, LedColor, PartProps, PartType } from '../core/types';
 import { useDerived } from '../state/derived';
 import { WIRE_COLORS, useStore } from '../state/store';
@@ -16,7 +18,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
       const bands = resistorBands(props.resistance ?? 330);
       return (
         <div className="editor">
-          <label>阻值 Resistance</label>
+          <label>{tr('阻值 Resistance', 'Resistance')}</label>
           <div className="chips">
             {R_VALUES.map((v) => (
               <button key={v} className={props.resistance === v ? 'on' : ''} onClick={() => onChange({ resistance: v })}>
@@ -26,7 +28,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
           </div>
           <div className="row">
             <input
-              placeholder="自定义，如 560 或 3.3k"
+              placeholder={tr('自定义，如 560 或 3.3k', 'Custom, e.g. 560 or 3.3k')}
               value={custom}
               onChange={(e) => setCustom(e.target.value)}
               onKeyDown={(e) => {
@@ -35,7 +37,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
               }}
             />
           </div>
-          <label>色环 Color code</label>
+          <label>{tr('色环 Color code', 'Colour code')}</label>
           <div className="bands">
             {bands.map((b, i) => (
               <div key={i} className="band">
@@ -50,7 +52,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
     case 'potentiometer':
       return (
         <div className="editor">
-          <label>总阻值</label>
+          <label>{tr('总阻值', 'Total resistance')}</label>
           <div className="chips">
             {[1000, 10000, 100000].map((v) => (
               <button key={v} className={props.resistance === v ? 'on' : ''} onClick={() => onChange({ resistance: v })}>
@@ -58,14 +60,17 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
               </button>
             ))}
           </div>
-          <label>旋钮位置（滑动端 2 脚）：{Math.round((props.wiper ?? 0.5) * 100)}%</label>
+          <label>
+            {tr('旋钮位置（滑动端 2 脚）：', 'Knob position (wiper, pin 2): ')}
+            {Math.round((props.wiper ?? 0.5) * 100)}%
+          </label>
           <input type="range" min={0} max={1} step={0.01} value={props.wiper ?? 0.5} onChange={(e) => onChange({ wiper: +e.target.value })} />
         </div>
       );
     case 'led':
       return (
         <div className="editor">
-          <label>颜色（不同颜色的导通压降 Vf 不同）</label>
+          <label>{tr('颜色（不同颜色的导通压降 Vf 不同）', 'Colour (each colour has a different forward voltage Vf)')}</label>
           <div className="chips">
             {(Object.keys(LED_COLORS) as LedColor[]).map((c) => (
               <button key={c} className={props.color === c ? 'on' : ''} onClick={() => onChange({ color: c })}>
@@ -79,11 +84,11 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
     case 'battery':
       return (
         <div className="editor">
-          <label>电池类型</label>
+          <label>{tr('电池类型', 'Battery type')}</label>
           <div className="chips col">
             {(Object.keys(BATTERIES) as BatteryVariant[]).map((v) => (
               <button key={v} className={(props.variant ?? '9V') === v ? 'on' : ''} onClick={() => onChange({ variant: v })}>
-                {BATTERIES[v].name} · 内阻 {BATTERIES[v].rint}Ω
+                {BATTERIES[v].name} · {tr('内阻', 'internal R')} {BATTERIES[v].rint}Ω
               </button>
             ))}
           </div>
@@ -92,9 +97,15 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
     case 'bench_supply':
       return (
         <div className="editor">
-          <label>输出电压设定（CV）：{(props.voltage ?? 5).toFixed(1)} V</label>
+          <label>
+            {tr('输出电压设定（CV）：', 'Output voltage (CV): ')}
+            {(props.voltage ?? 5).toFixed(1)} V
+          </label>
           <input type="range" min={0} max={30} step={0.1} value={props.voltage ?? 5} onChange={(e) => onChange({ voltage: +e.target.value })} />
-          <label>限流设定（CC）：{((props.currentLimit ?? 0.1) * 1000).toFixed(0)} mA</label>
+          <label>
+            {tr('限流设定（CC）：', 'Current limit (CC): ')}
+            {((props.currentLimit ?? 0.1) * 1000).toFixed(0)} mA
+          </label>
           <input
             type="range"
             min={0.01}
@@ -103,13 +114,18 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
             value={props.currentLimit ?? 0.1}
             onChange={(e) => onChange({ currentLimit: +e.target.value })}
           />
-          <p className="note">做实验时先把限流调小（例如 50–100 mA），万一接错短路，电源只会输出这么多电流，不会烧东西。</p>
+          <p className="note">
+            {tr(
+              '做实验时先把限流调小（例如 50–100 mA），万一接错短路，电源只会输出这么多电流，不会烧东西。',
+              'Start experiments with a low current limit (e.g. 50–100 mA): if you wire a short by mistake, the supply only delivers that much and nothing burns.',
+            )}
+          </p>
         </div>
       );
     case 'power_module':
       return (
         <div className="editor">
-          <label>输出电压（模块上的跳线帽）</label>
+          <label>{tr('输出电压（模块上的跳线帽）', 'Output voltage (jumper cap on the module)')}</label>
           <div className="chips">
             {[5, 3.3].map((v) => (
               <button key={v} className={(props.voltage ?? 5) === v ? 'on' : ''} onClick={() => onChange({ voltage: v })}>
@@ -123,15 +139,15 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
       return (
         <div className="editor">
           <button className={`big-toggle ${props.pressed ? 'on' : ''}`} onClick={() => onChange({ pressed: !props.pressed })}>
-            {props.pressed ? '● 已按下（接通）' : '○ 松开（断开）'}
+            {props.pressed ? tr('● 已按下（接通）', '● Pressed (closed)') : tr('○ 松开（断开）', '○ Released (open)')}
           </button>
-          <p className="note">也可以直接在 3D 视图里点击按键。</p>
+          <p className="note">{tr('也可以直接在 3D 视图里点击按键。', 'You can also click the button in the 3D view.')}</p>
         </div>
       );
     case 'switch':
       return (
         <div className="editor">
-          <label>拨杆位置</label>
+          <label>{tr('拨杆位置', 'Lever position')}</label>
           <div className="chips">
             {(['a', 'b'] as const).map((p) => (
               <button key={p} className={(props.position ?? 'a') === p ? 'on' : ''} onClick={() => onChange({ position: p })}>
@@ -144,7 +160,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
     case 'wire':
       return (
         <div className="editor">
-          <label>颜色（只为了好认，电气上没有区别）</label>
+          <label>{tr('颜色（只为了好认，电气上没有区别）', 'Colour (just to tell wires apart — electrically all the same)')}</label>
           <div className="chips">
             {WIRE_COLORS.map((c) => (
               <button key={c} className={props.wireColor === c ? 'on' : ''} onClick={() => onChange({ wireColor: c })}>
@@ -157,7 +173,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
     case 'capacitor':
       return (
         <div className="editor">
-          <label>电容值</label>
+          <label>{tr('电容值', 'Capacitance')}</label>
           <div className="chips">
             {[10e-9, 100e-9, 1e-6, 10e-6].map((v) => (
               <button key={v} className={props.capacitance === v ? 'on' : ''} onClick={() => onChange({ capacitance: v })}>
@@ -191,9 +207,9 @@ export function Inspector() {
           <div className="insp-head">
             <PartIcon type={tool} size={44} />
             <div>
-              <div className="eyebrow">即将放置</div>
+              <div className="eyebrow">{tr('即将放置', 'Placing next')}</div>
               <h3>
-                {def.name} <small>{def.nameEn}</small>
+                {def.name} {getLang() === 'zh' && <small>{def.nameEn}</small>}
               </h3>
             </div>
           </div>
@@ -204,19 +220,19 @@ export function Inspector() {
     }
     return (
       <div className="inspector empty">
-        <p>在 3D 视图中点击一个元件来查看和修改它的参数。</p>
-        <p>或者从左侧工具栏选择一个元件放到面包板上。</p>
+        <p>{tr('在 3D 视图中点击一个元件来查看和修改它的参数。', 'Click a part in the 3D view to see and change its settings.')}</p>
+        <p>{tr('或者从左侧工具栏选择一个元件放到面包板上。', 'Or pick a part from the toolbox on the left and put it on the breadboard.')}</p>
         <ul className="keys">
           <li>
-            <kbd>Esc</kbd> 取消放置
+            <kbd>Esc</kbd> / {tr('右键', 'right-click')} {tr('取消放置', 'cancel placing')}
           </li>
           <li>
-            <kbd>Delete</kbd> 删除选中的元件
+            <kbd>Delete</kbd> {tr('删除选中的元件', 'delete the selected part')}
           </li>
           <li>
-            <kbd>Ctrl</kbd>+<kbd>Z</kbd> 撤销
+            <kbd>Ctrl</kbd>+<kbd>Z</kbd> {tr('撤销（也会取消只放了一只脚的元件）', 'undo (also drops a half-placed part)')}
           </li>
-          <li>拖动旋转视角，滚轮缩放，右键平移</li>
+          <li>{tr('拖动旋转视角，滚轮缩放，右键拖动平移；右上角“视角”按钮一键切换预设视角', 'Drag to rotate, scroll to zoom, right-drag to pan; the "View" button (top right) cycles preset views')}</li>
         </ul>
       </div>
     );
@@ -234,11 +250,11 @@ export function Inspector() {
         <div>
           <div className="eyebrow">{part.ref}</div>
           <h3>
-            {def.name} <small>{def.nameEn}</small>
+            {def.name} {getLang() === 'zh' && <small>{def.nameEn}</small>}
           </h3>
         </div>
         <button className="danger" onClick={() => removePart(part.id)}>
-          删除
+          {tr('删除', 'Delete')}
         </button>
       </div>
       <p className="blurb">{def.blurb}</p>
@@ -246,38 +262,47 @@ export function Inspector() {
 
       {part.type !== 'wire' && (
         <div className="readout">
-          <div className="eyebrow">实时测量</div>
+          <div className="eyebrow">{tr('实时测量', 'Live readings')}</div>
           {src ? (
             <>
               <div>
-                端电压 <b>{volts(src.terminalVoltage)}</b>
+                {tr('端电压', 'Terminal voltage')} <b>{volts(src.terminalVoltage)}</b>
               </div>
               <div>
-                输出电流 <b>{amps(src.current)}</b>
+                {tr('输出电流', 'Output current')} <b>{amps(src.current)}</b>
               </div>
-              {src.ccMode && <div className="warn">限流中（CC 模式）</div>}
-              {src.shorted && <div className="bad">短路！</div>}
+              {src.ccMode && <div className="warn">{tr('限流中（CC 模式）', 'Current limiting (CC mode)')}</div>}
+              {src.shorted && <div className="bad">{tr('短路！', 'Short circuit!')}</div>}
             </>
           ) : (
             <>
               {Vd !== undefined && (
                 <div>
-                  两端电压 <b>{volts(Vd)}</b>
+                  {tr('两端电压', 'Voltage across')} <b>{volts(Vd)}</b>
                 </div>
               )}
               {I !== undefined && (
                 <div>
-                  电流 <b>{amps(Math.abs(I))}</b>
+                  {tr('电流', 'Current')} <b>{amps(Math.abs(I))}</b>
                 </div>
               )}
               {I !== undefined && Vd !== undefined && Math.abs(I) > 1e-6 && (
                 <div>
-                  功率 <b>{(Math.abs(I * Vd) * 1000).toFixed(1)} mW</b>
+                  {tr('功率', 'Power')} <b>{(Math.abs(I * Vd) * 1000).toFixed(1)} mW</b>
                 </div>
               )}
               {led && (
                 <div className={led.burnt ? 'bad' : led.overcurrent ? 'warn' : ''}>
-                  状态 <b>{led.burnt ? '烧坏了' : led.on ? '导通 / 发光' : led.reverse ? '反向截止' : '截止（不亮）'}</b>
+                  {tr('状态', 'State')}{' '}
+                  <b>
+                    {led.burnt
+                      ? tr('烧坏了', 'burnt out')
+                      : led.on
+                        ? tr('导通 / 发光', 'conducting / lit')
+                        : led.reverse
+                          ? tr('反向截止', 'reverse-biased (off)')
+                          : tr('截止（不亮）', 'off')}
+                  </b>
                 </div>
               )}
             </>
@@ -286,16 +311,16 @@ export function Inspector() {
       )}
 
       <div className="readout">
-        <div className="eyebrow">引脚位置</div>
+        <div className="eyebrow">{tr('引脚位置', 'Pin positions')}</div>
         {Object.entries(part.pins).map(([pin, hole]) => {
           const term = def.terminalOf[pin];
-          const tl = TERMINAL_LABEL[part.type]?.[term] ?? `${pin} 脚`;
+          const tl = terminalName(part.type, term);
           const net = nl.holeNet.get(hole);
           return (
             <div key={pin} className="pinrow">
-              <span>{part.type === 'wire' ? (pin === 'a' ? '起点' : '终点') : tl}</span>
+              <span>{part.type === 'wire' ? (pin === 'a' ? tr('起点', 'start') : tr('终点', 'end')) : tl}</span>
               <span>{holeLabel(hole)}</span>
-              {net && !net.startsWith('悬空') && <span className="net-chip">{net}</span>}
+              {!isFloating(net) && <span className="net-chip">{net}</span>}
             </div>
           );
         })}

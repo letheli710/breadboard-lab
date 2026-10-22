@@ -1,3 +1,4 @@
+import { tr } from '../core/i18n';
 import { useStore } from '../state/store';
 
 export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
@@ -10,14 +11,17 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
   return (
     <section className="carousel-wrap">
       <div className="section-title">
-        {kind === 'lesson' ? '课程 LESSONS' : '挑战 CHALLENGES'}
+        {kind === 'lesson' ? tr('课程 LESSONS', 'LESSONS') : tr('挑战 CHALLENGES', 'CHALLENGES')}
         <span className="muted">
-          {done}/{list.length} 完成
+          {done}/{list.length} {tr('完成', 'done')}
         </span>
       </div>
       {list.length === 0 ? (
         <div className="card empty-card">
-          {kind === 'lesson' ? '没有找到课程文件。' : '还没有挑战题。'} 把题目 JSON 放进项目的 <code>challenges/</code> 文件夹，或在“导入”页面导入。
+          {kind === 'lesson' ? tr('没有找到课程文件。', 'No lesson files found.') : tr('还没有挑战题。', 'No challenges yet.')}{' '}
+          {tr('把题目 JSON 放进项目的 ', 'Put challenge JSON files in the project\'s ')}
+          <code>challenges/</code>
+          {tr(' 文件夹，或在“导入”页面导入。', ' folder, or load them on the Import page.')}
         </div>
       ) : (
         <div className="carousel">
@@ -28,7 +32,7 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
                 <div className="lc-title">{c.title}</div>
                 <div className="lc-meta">
                   {'★'.repeat(c.level)}
-                  {c.source === 'imported' && <span className="badge src">导入</span>}
+                  {c.source === 'imported' && <span className="badge src">{tr('导入', 'Imported')}</span>}
                 </div>
               </div>
             </button>

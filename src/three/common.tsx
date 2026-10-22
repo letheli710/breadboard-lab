@@ -156,6 +156,7 @@ export function TextPlane({
   );
 }
 
-export function useEmitCamera() {
-  return (cmd: string) => window.dispatchEvent(new CustomEvent('bb-camera', { detail: cmd }));
+/** Ask the 3D scene to move the camera to a preset view (see VIEWS in Scene.tsx). */
+export function emitCameraView(view: string) {
+  window.dispatchEvent(new CustomEvent('bb-camera', { detail: view }));
 }

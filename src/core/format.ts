@@ -1,5 +1,7 @@
 // Engineering-value parsing / formatting and the resistor colour code.
 
+import { tr } from './i18n';
+
 const PREFIX: Record<string, number> = {
   p: 1e-12,
   n: 1e-9,
@@ -53,19 +55,27 @@ export const ohms = (v: number) => formatSI(v, 'Ω');
 export const volts = (v: number) => formatSI(Math.abs(v) < 5e-4 ? 0 : v, 'V');
 export const amps = (v: number) => formatSI(Math.abs(v) < 5e-7 ? 0 : v, 'A');
 
+/** Colour band; the name is bilingual in Chinese mode ("红 red"), English-only otherwise. */
+const band = (zh: string, en: string, hex: string) => ({
+  get name() {
+    return tr(`${zh} ${en}`, en);
+  },
+  hex,
+});
+
 export const BAND_COLORS = [
-  { name: '黑 black', hex: '#1b1b1b' },
-  { name: '棕 brown', hex: '#7a4a24' },
-  { name: '红 red', hex: '#d0312d' },
-  { name: '橙 orange', hex: '#ec7a1c' },
-  { name: '黄 yellow', hex: '#f2c81f' },
-  { name: '绿 green', hex: '#2f9e44' },
-  { name: '蓝 blue', hex: '#2563c9' },
-  { name: '紫 violet', hex: '#8048b8' },
-  { name: '灰 grey', hex: '#8a8a8a' },
-  { name: '白 white', hex: '#f4f4f4' },
+  band('黑', 'black', '#1b1b1b'),
+  band('棕', 'brown', '#7a4a24'),
+  band('红', 'red', '#d0312d'),
+  band('橙', 'orange', '#ec7a1c'),
+  band('黄', 'yellow', '#f2c81f'),
+  band('绿', 'green', '#2f9e44'),
+  band('蓝', 'blue', '#2563c9'),
+  band('紫', 'violet', '#8048b8'),
+  band('灰', 'grey', '#8a8a8a'),
+  band('白', 'white', '#f4f4f4'),
 ];
-export const GOLD = { name: '金 gold (±5%)', hex: '#c9a227' };
+export const GOLD = band('金', 'gold (±5%)', '#c9a227');
 
 /** 4-band colour code: [digit1, digit2, multiplier, tolerance] */
 export function resistorBands(r: number): { name: string; hex: string }[] {
@@ -82,7 +92,7 @@ export function resistorBands(r: number): { name: string; hex: string }[] {
     exp >= 0 && exp <= 9
       ? BAND_COLORS[exp]
       : exp === -1
-        ? { name: '金 gold (×0.1)', hex: '#c9a227' }
-        : { name: '银 silver (×0.01)', hex: '#bfc3c7' };
+        ? band('金', 'gold (×0.1)', '#c9a227')
+        : band('银', 'silver (×0.01)', '#bfc3c7');
   return [BAND_COLORS[d1], BAND_COLORS[d2], mult, GOLD];
 }

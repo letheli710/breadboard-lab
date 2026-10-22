@@ -8,6 +8,26 @@
   "summary": "面包板里面藏着金属条：哪些孔是连在一起的？",
   "concepts": ["breadboard", "terminal strip 金属条", "power rail 电源轨", "trench 中间凹槽"],
   "description": "面包板（breadboard）看起来是一排排独立的小孔，其实孔下面藏着金属夹片（metal strip），把一些孔【电气上连在一起】。插在同一条金属条上的两只脚，就等于用导线连起来了。\n\n【1. 主区（terminal strips）】：每一【列】（column，编号 1–30）被中间的凹槽（trench）分成上下两段：a–e 是一条，f–j 是另一条。所以 a5、b5、c5、d5、e5 五个孔是相通的；但 a5 和 a6 【不】相通（不同列），e5 和 f5 也【不】相通（隔着凹槽）。\n\n【2. 电源轨（power rails）】：板子上下边缘各有两条长横排。红线那条标 +（tp / bp），蓝线那条标 −（tn / bn）。每条轨道【整行】都是通的：tp1 到 tp30 全部连在一起。注意：上方的轨道和下方的轨道【彼此不相通】，红轨和蓝轨也不相通。\n\n【3. 一个孔只能插一只脚】。想把两个东西连起来，就把它们插进同一条金属条的不同孔里，或者用跳线（jumper wire）把两条金属条接起来。\n\n本课电路：9V 电池 → 电源轨 → 跳线 → 电阻 → LED → 跳线 → 回到 − 轨。跟着步骤做，注意观察每一步“为什么是这个孔”。",
+  "i18n": {
+    "en": {
+      "title": "Lesson 1 · Meet the breadboard",
+      "summary": "Hidden metal strips inside the breadboard: which holes are connected to each other?",
+      "concepts": ["breadboard", "terminal strip", "power rail", "trench"],
+      "description": "A breadboard looks like rows of separate little holes, but underneath them are metal clips (metal strips) that **electrically connect** certain holes. Two leads plugged into the same metal strip are connected, just as if you had joined them with a wire.\n\n**1. Main area (terminal strips)**: each **column** (numbered 1–30) is split in two by the trench in the middle: a–e is one strip and f–j is another. So the five holes a5, b5, c5, d5 and e5 are all connected; but a5 and a6 are **not** connected (different columns), and e5 and f5 are **not** connected either (the trench is between them).\n\n**2. Power rails**: along the top and bottom edges of the board there are two long rows each. The one with the red line is marked + (tp / bp) and the one with the blue line is marked − (tn / bn). Each rail is connected along its **whole length**: tp1 through tp30 are all joined together. Note: the top rails and the bottom rails are **not connected to each other**, and the red rail is not connected to the blue rail.\n\n**3. One hole holds only one lead.** To connect two things, plug them into different holes of the same metal strip, or join two strips with a jumper wire.\n\nCircuit in this lesson: 9V battery → power rail → jumper → resistor → LED → jumper → back to the − rail. Follow the steps and, at each one, ask yourself \"why this hole?\"",
+      "steps": [
+        "Plug the 9V battery's red lead (+) into the top red + rail at tp1 and the black lead (−) into the blue − rail at tn1. Now the whole tp rail is +9V and the whole tn rail is 0V.",
+        "Run a red jumper from tp5 to a5. Now all five holes a–e of column 5 are at +9V.",
+        "Place a 470Ω resistor: one lead in c5 (connected to +9V) and the other in c9. The resistor spans column 5 and column 9. Its two leads must be in different columns, otherwise the metal strip would short the resistor out.",
+        "Place the red LED: the long lead (anode, positive) goes in d9, in the same column as the resistor's second lead (so they are connected); the short lead (cathode, negative) goes in d12.",
+        "Finally, run a blue jumper from a12 to tn12 to connect the LED's cathode back to the − rail, giving the current a way back. The LED should light up!"
+      ],
+      "hints": [
+        "Holes a–e in the same column are connected, so c9 and d9 are electrically the same point.",
+        "Current needs a complete loop: it leaves +, passes through the parts and returns to −."
+      ],
+      "tests": ["LED is on"]
+    }
+  },
   "components": [
     { "ref": "BAT1", "type": "battery", "variant": "9V" },
     { "ref": "R1", "type": "resistor", "resistance": "470" },

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { tr, type Lang } from './core/i18n';
 import { loadAll } from './state/challenges';
 import { useActiveChallenge } from './state/derived';
 import { useStore, type Mode } from './state/store';
@@ -9,12 +10,12 @@ import { ImportPage } from './ui/ImportPage';
 import { SidePanel } from './ui/Panel';
 import { Workbench } from './ui/Workbench';
 
-const NAV: { mode: Mode; label: string; en: string; icon: string }[] = [
-  { mode: 'learn', label: '课程', en: 'Learn', icon: 'book' },
-  { mode: 'challenge', label: '挑战', en: 'Challenges', icon: 'target' },
-  { mode: 'sandbox', label: '自由编辑', en: 'Sandbox', icon: 'edit' },
-  { mode: 'guide', label: '知识', en: 'Guide', icon: 'bulb' },
-  { mode: 'import', label: '导入', en: 'Import', icon: 'folder' },
+const NAV: { mode: Mode; zh: string; en: string; icon: string }[] = [
+  { mode: 'learn', zh: '课程', en: 'Learn', icon: 'book' },
+  { mode: 'challenge', zh: '挑战', en: 'Challenges', icon: 'target' },
+  { mode: 'sandbox', zh: '自由编辑', en: 'Sandbox', icon: 'edit' },
+  { mode: 'guide', zh: '知识', en: 'Guide', icon: 'bulb' },
+  { mode: 'import', zh: '导入', en: 'Import', icon: 'folder' },
 ];
 
 function Logo() {
@@ -58,7 +59,7 @@ function ProgressCard() {
     <div className="progress-card">
       <Icon name={kind === 'lesson' ? 'book' : 'target'} size={22} />
       <div>
-        <div className="pc-title">{kind === 'lesson' ? 'BASICS 基础课程' : 'CHALLENGES 挑战'}</div>
+        <div className="pc-title">{kind === 'lesson' ? tr('BASICS 基础课程', 'BASICS') : tr('CHALLENGES 挑战', 'CHALLENGES')}</div>
         <div className="pc-bar">
           <div style={{ width: list.length ? `${(done / list.length) * 100}%` : 0 }} />
         </div>
@@ -84,13 +85,15 @@ function CelebrateModal() {
     <div className="modal-bg" onClick={() => setCelebrate(false)}>
       <div className="modal card" onClick={(e) => e.stopPropagation()}>
         <div className="big-emoji">🎉</div>
-        <h2>完全正确！</h2>
+        <h2>{tr('完全正确！', 'Perfect!')}</h2>
         <p>
-          你在面包板上搭出的电路与「{ch.title}」的目标电路完全一致
-          {ch.tests.length ? `，并通过了全部 ${ch.tests.length} 项功能测试` : ''}。
+          {tr(
+            `你在面包板上搭出的电路与「${ch.title}」的目标电路完全一致${ch.tests.length ? `，并通过了全部 ${ch.tests.length} 项功能测试` : ''}。`,
+            `The circuit on your breadboard matches the target circuit of "${ch.title}"${ch.tests.length ? ` and passes all ${ch.tests.length} function tests` : ''}.`,
+          )}
         </p>
         <div className="row center">
-          <button onClick={() => setCelebrate(false)}>留在这里</button>
+          <button onClick={() => setCelebrate(false)}>{tr('留在这里', 'Stay here')}</button>
           {next && (
             <button
               className="primary"
@@ -99,7 +102,8 @@ function CelebrateModal() {
                 open(next.id);
               }}
             >
-              下一个：{next.title} <Icon name="next" />
+              {tr('下一个：', 'Next: ')}
+              {next.title} <Icon name="next" />
             </button>
           )}
         </div>
@@ -108,12 +112,33 @@ function CelebrateModal() {
   );
 }
 
+function LangSwitch() {
+  const lang = useStore((s) => s.lang);
+  const setLang = useStore((s) => s.setLang);
+  const opts: { l: Lang; label: string }[] = [
+    { l: 'zh', label: '中文' },
+    { l: 'en', label: 'EN' },
+  ];
+  return (
+    <div className="lang-switch" role="group" aria-label="Language / 语言">
+      {opts.map((o) => (
+        <button key={o.l} className={lang === o.l ? 'on' : ''} onClick={() => setLang(o.l)}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
+  const lang = useStore((s) => s.lang);
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
   const setChallenges = useStore((s) => s.setChallenges);
 
+  // challenge text is localized while parsing, so (re)load whenever the language changes
   useEffect(() => {
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
     const r = loadAll();
     setChallenges(r.challenges, r.invalid);
     const st = useStore.getState();
@@ -121,7 +146,7 @@ export default function App() {
       const first = r.challenges.find((c) => c.kind === 'lesson' && !st.completed[c.id]) ?? r.challenges.find((c) => c.kind === 'lesson');
       if (first) st.openChallenge(first.id);
     }
-  }, [setChallenges]);
+  }, [setChallenges, lang]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -129,8 +154,7 @@ export default function App() {
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       const s = useStore.getState();
       if (e.key === 'Escape') {
-        if (s.firstHole) useStore.setState({ firstHole: null });
-        else s.setTool('select');
+        if (!s.cancelPlacement()) s.setTool('select');
       }
       if ((e.key === 'Delete' || e.key === 'Backspace') && s.selectedId) s.removePart(s.selectedId);
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
@@ -145,26 +169,28 @@ export default function App() {
   const bench = mode === 'learn' || mode === 'challenge' || mode === 'sandbox';
 
   return (
-    <div className="app">
+    // keyed by language: every component re-renders its text (and core-derived messages) from scratch
+    <div className="app" key={lang}>
       <header className="top">
         <div className="brand">
           <Logo />
           <div>
             <div className="brand-title">BREADBOARD LAB</div>
-            <div className="brand-sub">面包板实验室 · EXPLORE · CONNECT · BUILD</div>
+            <div className="brand-sub">{tr('面包板实验室 · ', '')}EXPLORE · CONNECT · BUILD</div>
           </div>
         </div>
         <nav className="nav">
           {NAV.map((n) => (
             <button key={n.mode} className={mode === n.mode ? 'on' : ''} onClick={() => setMode(n.mode)}>
               <Icon name={n.icon} />
-              <span>{n.label}</span>
-              <small>{n.en}</small>
+              <span>{tr(n.zh, n.en)}</span>
+              {lang === 'zh' && <small>{n.en}</small>}
             </button>
           ))}
         </nav>
         <div className="top-right">
           <ProgressCard />
+          <LangSwitch />
           <Clock />
         </div>
       </header>

@@ -8,6 +8,20 @@
   "summary": "把实验室电源调到 12V、限流 50mA，串联点亮两颗白光 LED。",
   "concepts": ["bench supply 稳压电源", "CV / CC mode", "current limit 限流", "white LED Vf ≈ 3.0V"],
   "description": "实验室直流稳压电源（bench supply）可以设定电压和限流（current limit）。电路正常时它工作在 CV（恒压）模式；如果接错导致电流超过限流值，它会进入 CC（恒流）模式，电压自动下降来保护电路。\n\n要求：稳压电源 12V（限流设 50mA 作为保护），+12V → 330Ω → 白光 LED1 → 白光 LED2 → GND。\n计算：两颗白光 LED 共 6.0V，电阻上 6V，I ≈ 6 / 330 ≈ 18mA，低于 50mA 限流，所以电源保持 CV 模式，输出稳稳的 12V。\n\n想一想：如果不小心把电阻插在同一列被短路，电流会想冲到 (12 − 6) / 24 ≈ 250mA，这时电源会卡在 50mA 并降低电压——这就是限流保护。",
+  "i18n": {
+    "en": {
+      "title": "Challenge 10 · 12V bench supply lights two white LEDs",
+      "summary": "Set the lab supply to 12V with a 50mA current limit and light two white LEDs in series.",
+      "concepts": ["bench supply", "CV / CC mode", "current limit", "white LED Vf ≈ 3.0V"],
+      "description": "A lab DC bench power supply lets you set both a voltage and a current limit. When the circuit is working normally it runs in CV (constant voltage) mode; if a wiring mistake makes the current exceed the limit, it enters CC (constant current) mode and automatically lowers the voltage to protect the circuit.\n\nTask: bench supply at 12V (current limit 50mA as protection), +12V → 330Ω → white LED1 → white LED2 → GND.\nCalculation: the two white LEDs take 6.0V together, leaving 6V across the resistor, so I ≈ 6 / 330 ≈ 18mA. That is below the 50mA limit, so the supply stays in CV mode with a steady 12V output.\n\nThink about it: if you accidentally put the resistor in a single column so it is shorted out, the current would try to rush up to (12 − 6) / 24 ≈ 250mA. The supply then holds it at 50mA and lowers the voltage: that is current-limit protection.",
+      "hints": [
+        "Select the bench supply, set its voltage to 12V and its current limit to 0.05A.",
+        "Red alligator clip (+) to the red rail, black (COM) to the blue rail.",
+        "The two LEDs are in series: LED1's short lead and LED2's long lead go in the same column."
+      ],
+      "tests": ["Both white LEDs on, supply holds 12V (CV mode)"]
+    }
+  },
   "components": [
     { "ref": "PSU1", "type": "bench_supply", "voltage": 12 },
     { "ref": "R1", "type": "resistor", "resistance": "330" },

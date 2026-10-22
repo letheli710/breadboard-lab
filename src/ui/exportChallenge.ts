@@ -1,4 +1,6 @@
 import { FORMAT_ID } from '../core/challenge';
+import { getLang, tr } from '../core/i18n';
+import { isFloating } from '../core/netlist';
 import type { Circuit, Layout } from '../core/types';
 
 /** Turn the current board into a challenge file (target = what's built, solution = this layout). */
@@ -10,9 +12,10 @@ export function buildChallengeFromBoard(layout: Layout, circuit: Circuit, id: st
     kind: 'challenge',
     level: 2,
     summary: '',
-    description: '按照电路图在面包板上搭出这个电路。',
+    lang: getLang(),
+    description: tr('按照电路图在面包板上搭出这个电路。', 'Build this circuit on the breadboard by following the schematic.'),
     components: circuit.components.map((c) => ({ ref: c.ref, type: c.type, ...c.props })),
-    nets: circuit.nets.filter((n) => !n.name.startsWith('悬空')).map((n) => ({ name: n.name, pins: n.pins })),
+    nets: circuit.nets.filter((n) => !isFloating(n.name)).map((n) => ({ name: n.name, pins: n.pins })),
     tests: [],
     hints: [],
     solution: {

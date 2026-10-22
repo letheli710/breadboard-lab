@@ -3,6 +3,7 @@ import type { ThreeEvent } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { tr } from '../core/i18n';
 import { BOARD, colX } from '../core/breadboard';
 import { amps, resistorBands, volts } from '../core/format';
 import { BATTERIES, LED_COLORS } from '../core/parts';
@@ -387,7 +388,7 @@ function BenchSupply({ part, slot, source, onClick }: PartViewProps) {
           color="#fff"
           position={[-1.3, 1.0, 2.33]}
         />
-        <TextPlane text={`设定 ${part.props.voltage ?? 5}V / ${part.props.currentLimit ?? 0.1}A`} width={3.2} height={0.4} color="#d9dce2" font='500 44px "Barlow", "Microsoft YaHei", sans-serif' position={[-1.3, 0.55, 2.33]} />
+        <TextPlane text={tr(`设定 ${part.props.voltage ?? 5}V / ${part.props.currentLimit ?? 0.1}A`, `SET ${part.props.voltage ?? 5}V / ${part.props.currentLimit ?? 0.1}A`)} width={3.2} height={0.4} color="#d9dce2" font='500 44px "Barlow", "Microsoft YaHei", sans-serif' position={[-1.3, 0.55, 2.33]} />
         {[1.6, 2.6].map((x, k) => (
           <mesh key={k} position={[x, 2.6, 2.4]} rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[0.38, 0.38, 0.35, 20]} />
@@ -500,7 +501,7 @@ export function PartView(props: PartViewProps) {
   const extra =
     part.type === 'led' && led
       ? led.burnt
-        ? ' 烧坏'
+        ? tr(' 烧坏', ' burnt')
         : led.on
           ? ` ${amps(led.current)}`
           : ''

@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { tr } from '../core/i18n';
+import { isFloating } from '../core/netlist';
 import { amps, ohms, volts } from '../core/format';
 import { BATTERIES, LED_COLORS, isPower, sourceVoltage } from '../core/parts';
 import { layoutSchematic, type SElement } from '../core/schematic';
@@ -29,7 +31,7 @@ function valueText(el: SElement, sim?: SimResult | null): string[] {
       if (p.resistance !== undefined) out.push(ohms(p.resistance));
       break;
     case 'led':
-      if (p.color) out.push(`${LED_COLORS[p.color].name}色`);
+      if (p.color) out.push(tr(`${LED_COLORS[p.color].name}色`, LED_COLORS[p.color].name.toLowerCase()));
       break;
     case 'battery':
       out.push(BATTERIES[p.variant ?? '9V'].name.replace(/ .*/, ''));
@@ -176,7 +178,7 @@ export function SchematicView({ circuit, sim, showValues = true, hoverNet, onHov
   const lay = useMemo(() => layoutSchematic(circuit, sim), [circuit, sim]);
   const hl = new Set(highlightRefs);
   if (circuit.components.length === 0)
-    return <div className="schem-empty">{emptyText ?? '面包板上还没有元件。放上元件后，这里会自动画出对应的电路图。'}</div>;
+    return <div className="schem-empty">{emptyText ?? tr('面包板上还没有元件。放上元件后，这里会自动画出对应的电路图。', 'No parts on the breadboard yet. Place some and the matching schematic is drawn here automatically.')}</div>;
 
   return (
     <div className="schem-wrap">
@@ -204,7 +206,7 @@ export function SchematicView({ circuit, sim, showValues = true, hoverNet, onHov
               ))}
               {dangling && <circle cx={x1 - 10} cy={b.y} r={3} fill="var(--paper)" stroke={INK} strokeWidth={1.5} />}
               <text x={x1 - (dangling ? 18 : 10)} y={b.y - 6} textAnchor="end" className={`net-label ${active ? 'on' : ''}`}>
-                {b.net.startsWith('悬空') ? '悬空' : b.net}
+                {isFloating(b.net) ? tr('悬空', 'floating') : b.net}
               </text>
               {showValues && b.voltage !== undefined && (
                 <text x={x1 - (dangling ? 18 : 10)} y={b.y + 13} textAnchor="end" className="net-volt">
@@ -255,7 +257,7 @@ export function SchematicView({ circuit, sim, showValues = true, hoverNet, onHov
               ))}
             {isPower(el.comp.type) && sim?.sources.get(el.ref)?.shorted && (
               <text x={el.x - 20} y={el.y - 26} className="val-label bad">
-                短路!
+                {tr('短路!', 'SHORT!')}
               </text>
             )}
           </g>

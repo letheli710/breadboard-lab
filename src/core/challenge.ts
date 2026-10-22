@@ -2,6 +2,7 @@
 // See docs/CHALLENGE_FORMAT.md for the human-readable spec.
 
 import { HOLE_MAP } from './breadboard';
+import { getLang, isLang, LANGS, tr, type Lang } from './i18n';
 import { parseValue } from './format';
 import { BATTERIES, LED_COLORS, PARTS, terminalsOf } from './parts';
 import type { BatteryVariant, CComponent, CompType, Circuit, Layout, LedColor, PartProps, PartType, PlacedPart } from './types';
@@ -36,6 +37,8 @@ export interface Challenge {
   start?: Layout;
   tolerance: number;
   allowExtraComponents: boolean;
+  /** language the text fields ended up in (the file's base language when no translation fits) */
+  textLang: Lang;
   /** where it came from: "builtin", "folder", "imported" */
   source: string;
   file?: string;
@@ -101,7 +104,7 @@ function parseProps(type: CompType, raw: Record<string, unknown>, where: string,
   const num = (key: string, out: keyof PartProps) => {
     if (raw[key] === undefined || raw[key] === 'any') return;
     const v = parseValue(raw[key] as string | number);
-    if (v === null) errors.push(`${where}: "${key}" 的值 ${JSON.stringify(raw[key])} 无法解析（示例："330"、"4.7k"、9）`);
+    if (v === null) errors.push(tr(`${where}: "${key}" 的值 ${JSON.stringify(raw[key])} 无法解析（示例："330"、"4.7k"、9）`, `${where}: can't parse ${JSON.stringify(raw[key])} as "${key}" (examples: "330", "4.7k", 9)`));
     else (props[out] as number) = v;
   };
   num('resistance', 'resistance');
@@ -113,21 +116,21 @@ function parseProps(type: CompType, raw: Record<string, unknown>, where: string,
     // generic "value" field: resistance for R/pot, capacitance for C, voltage for sources
     const key = type === 'capacitor' ? 'capacitance' : type === 'resistor' || type === 'potentiometer' ? 'resistance' : 'voltage';
     const v = parseValue(raw.value as string | number);
-    if (v === null) errors.push(`${where}: "value" ${JSON.stringify(raw.value)} 无法解析`);
+    if (v === null) errors.push(tr(`${where}: "value" ${JSON.stringify(raw.value)} 无法解析`, `${where}: can't parse "value" ${JSON.stringify(raw.value)}`));
     else (props as Record<string, number>)[key] = v;
   }
   if (raw.color !== undefined && raw.color !== 'any') {
     if (typeof raw.color === 'string' && raw.color in LED_COLORS) props.color = raw.color as LedColor;
-    else errors.push(`${where}: LED 颜色必须是 ${Object.keys(LED_COLORS).join(' / ')}`);
+    else errors.push(tr(`${where}: LED 颜色必须是 ${Object.keys(LED_COLORS).join(' / ')}`, `${where}: LED color must be ${Object.keys(LED_COLORS).join(' / ')}`));
   }
   if (raw.variant !== undefined) {
     if (typeof raw.variant === 'string' && raw.variant in BATTERIES) props.variant = raw.variant as BatteryVariant;
-    else errors.push(`${where}: 电池型号必须是 ${Object.keys(BATTERIES).join(' / ')}`);
+    else errors.push(tr(`${where}: 电池型号必须是 ${Object.keys(BATTERIES).join(' / ')}`, `${where}: battery variant must be ${Object.keys(BATTERIES).join(' / ')}`));
   }
   if (raw.pressed !== undefined) props.pressed = !!raw.pressed;
   if (raw.position !== undefined) {
     if (raw.position === 'a' || raw.position === 'b') props.position = raw.position;
-    else errors.push(`${where}: "position" 必须是 "a" 或 "b"`);
+    else errors.push(tr(`${where}: "position" 必须是 "a" 或 "b"`, `${where}: "position" must be "a" or "b"`));
   }
   return props;
 }
@@ -135,16 +138,16 @@ function parseProps(type: CompType, raw: Record<string, unknown>, where: string,
 function parseLayout(raw: unknown, refs: Set<string> | null, where: string, errors: string[]): Layout | undefined {
   if (raw === undefined) return undefined;
   if (!isObj(raw) || !Array.isArray(raw.parts)) {
-    errors.push(`${where}: 必须是 { "parts": [...] }`);
+    errors.push(tr(`${where}: 必须是 { "parts": [...] }`, `${where}: must be { "parts": [...] }`));
     return undefined;
   }
   const parts: PlacedPart[] = [];
   const used = new Map<string, string>();
   raw.parts.forEach((p: unknown, i: number) => {
     const w = `${where}.parts[${i}]`;
-    if (!isObj(p)) return errors.push(`${w}: 必须是对象`);
+    if (!isObj(p)) return errors.push(tr(`${w}: 必须是对象`, `${w}: must be an object`));
     const type = p.type as PartType;
-    if (!(type in PARTS)) return errors.push(`${w}: 未知类型 "${String(p.type)}"`);
+    if (!(type in PARTS)) return errors.push(tr(`${w}: 未知类型 "${String(p.type)}"`, `${w}: unknown type "${String(p.type)}"`));
     const def = PARTS[type];
     const ref = typeof p.ref === 'string' && p.ref ? p.ref : `${def.refPrefix}${i + 1}`;
     if (type !== 'wire' && refs && !refs.has(ref)) {
@@ -154,19 +157,19 @@ function parseLayout(raw: unknown, refs: Set<string> | null, where: string, erro
     let pinsRaw = isObj(p.pins) ? (p.pins as Record<string, unknown>) : {};
     if (def.placement.kind === 'footprint' && typeof p.at === 'string') {
       const fp = def.placement.footprint(p.at);
-      if (!fp) errors.push(`${w}: "at": "${p.at}" 放不下这个元件`);
+      if (!fp) errors.push(tr(`${w}: "at": "${p.at}" 放不下这个元件`, `${w}: the part doesn't fit at "at": "${p.at}"`));
       else pinsRaw = fp;
     }
     for (const [pin, hole] of Object.entries(pinsRaw)) {
       if (!(pin in def.terminalOf)) {
-        errors.push(`${w}: ${type} 没有名为 "${pin}" 的引脚（可用：${Object.keys(def.terminalOf).join(', ')}）`);
+        errors.push(tr(`${w}: ${type} 没有名为 "${pin}" 的引脚（可用：${Object.keys(def.terminalOf).join(', ')}）`, `${w}: ${type} has no pin called "${pin}" (available: ${Object.keys(def.terminalOf).join(', ')})`));
         continue;
       }
       if (typeof hole !== 'string' || !HOLE_MAP.has(hole)) {
-        errors.push(`${w}: 孔位 ${JSON.stringify(hole)} 不存在（主区 a1–j30，电源轨 tp/tn/bp/bn + 1–30）`);
+        errors.push(tr(`${w}: 孔位 ${JSON.stringify(hole)} 不存在（主区 a1–j30，电源轨 tp/tn/bp/bn + 1–30）`, `${w}: hole ${JSON.stringify(hole)} doesn't exist (main area a1–j30, rails tp/tn/bp/bn + 1–30)`));
         continue;
       }
-      if (used.has(hole)) errors.push(`${w}: 孔 ${hole} 已经被 ${used.get(hole)} 占用（一个孔只能插一只脚）`);
+      if (used.has(hole)) errors.push(tr(`${w}: 孔 ${hole} 已经被 ${used.get(hole)} 占用（一个孔只能插一只脚）`, `${w}: hole ${hole} is already used by ${used.get(hole)} (one leg per hole)`));
       used.set(hole, ref);
       pins[pin] = hole;
     }
@@ -182,28 +185,28 @@ function parseLayout(raw: unknown, refs: Set<string> | null, where: string, erro
 export function parseChallenge(json: unknown, source = 'builtin', file?: string): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
-  if (!isObj(json)) return { ok: false, errors: ['文件内容必须是一个 JSON 对象 { ... }'], warnings };
+  if (!isObj(json)) return { ok: false, errors: [tr('文件内容必须是一个 JSON 对象 { ... }', 'The file must contain one JSON object { ... }')], warnings };
 
-  if (json.format !== FORMAT_ID) errors.push(`"format" 必须是 "${FORMAT_ID}"（现在是 ${JSON.stringify(json.format)}）`);
+  if (json.format !== FORMAT_ID) errors.push(tr(`"format" 必须是 "${FORMAT_ID}"（现在是 ${JSON.stringify(json.format)}）`, `"format" must be "${FORMAT_ID}" (it is ${JSON.stringify(json.format)})`));
   const id = typeof json.id === 'string' ? json.id : '';
-  if (!/^[a-z0-9][a-z0-9-_]*$/i.test(id)) errors.push('"id" 必须是由字母、数字、- 或 _ 组成的字符串');
+  if (!/^[a-z0-9][a-z0-9-_]*$/i.test(id)) errors.push(tr('"id" 必须是由字母、数字、- 或 _ 组成的字符串', '"id" must be a string of letters, digits, - or _'));
   const title = typeof json.title === 'string' ? json.title : '';
-  if (!title) errors.push('"title" 不能为空');
+  if (!title) errors.push(tr('"title" 不能为空', '"title" must not be empty'));
 
   // components
   const components: CComponent[] = [];
   const refs = new Set<string>();
-  if (!Array.isArray(json.components) || json.components.length === 0) errors.push('"components" 必须是非空数组');
+  if (!Array.isArray(json.components) || json.components.length === 0) errors.push(tr('"components" 必须是非空数组', '"components" must be a non-empty array'));
   else
     json.components.forEach((c: unknown, i: number) => {
       const w = `components[${i}]`;
-      if (!isObj(c)) return errors.push(`${w}: 必须是对象`);
+      if (!isObj(c)) return errors.push(tr(`${w}: 必须是对象`, `${w}: must be an object`));
       const ref = c.ref;
       if (typeof ref !== 'string' || !/^[A-Za-z][A-Za-z0-9_]*$/.test(ref))
-        return errors.push(`${w}: "ref" 必须是字母开头的标识符，如 "R1"、"LED1"`);
-      if (refs.has(ref)) return errors.push(`${w}: ref "${ref}" 重复`);
+        return errors.push(tr(`${w}: "ref" 必须是字母开头的标识符，如 "R1"、"LED1"`, `${w}: "ref" must be an identifier starting with a letter, e.g. "R1", "LED1"`));
+      if (refs.has(ref)) return errors.push(tr(`${w}: ref "${ref}" 重复`, `${w}: duplicate ref "${ref}"`));
       const type = c.type as CompType;
-      if (!COMP_TYPES.includes(type)) return errors.push(`${w}: 未知类型 "${String(c.type)}"（可用：${COMP_TYPES.join(', ')}）`);
+      if (!COMP_TYPES.includes(type)) return errors.push(tr(`${w}: 未知类型 "${String(c.type)}"（可用：${COMP_TYPES.join(', ')}）`, `${w}: unknown type "${String(c.type)}" (available: ${COMP_TYPES.join(', ')})`));
       refs.add(ref);
       components.push({ ref, type, props: parseProps(type, c, `${w} (${ref})`, errors) });
     });
@@ -211,19 +214,19 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
 
   const resolvePin = (s: unknown, where: string): string | null => {
     if (typeof s !== 'string' || !s.includes('.')) {
-      errors.push(`${where}: 引脚 ${JSON.stringify(s)} 格式应为 "REF.pin"，例如 "R1.1"、"LED1.anode"`);
+      errors.push(tr(`${where}: 引脚 ${JSON.stringify(s)} 格式应为 "REF.pin"，例如 "R1.1"、"LED1.anode"`, `${where}: pin ${JSON.stringify(s)} should look like "REF.pin", e.g. "R1.1", "LED1.anode"`));
       return null;
     }
     const i = s.lastIndexOf('.');
     const ref = s.slice(0, i);
     const c = compOf.get(ref);
     if (!c) {
-      errors.push(`${where}: 找不到元件 "${ref}"`);
+      errors.push(tr(`${where}: 找不到元件 "${ref}"`, `${where}: no component "${ref}"`));
       return null;
     }
     const pin = normalizePin(c.type, s.slice(i + 1));
     if (!pin) {
-      errors.push(`${where}: ${ref}（${c.type}）没有引脚 "${s.slice(i + 1)}"，可用：${terminalsOf(c.type).join(', ')}`);
+      errors.push(tr(`${where}: ${ref}（${c.type}）没有引脚 "${s.slice(i + 1)}"，可用：${terminalsOf(c.type).join(', ')}`, `${where}: ${ref} (${c.type}) has no pin "${s.slice(i + 1)}"; available: ${terminalsOf(c.type).join(', ')}`));
       return null;
     }
     return `${ref}.${pin}`;
@@ -233,20 +236,20 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   const groups: { name?: string; pins: string[] }[] = [];
   if (Array.isArray(json.connections)) {
     json.connections.forEach((g: unknown, i: number) => {
-      if (!Array.isArray(g)) return errors.push(`connections[${i}]: 必须是引脚数组，如 ["R1.2", "LED1.anode"]`);
-      if (g.length < 2) warnings.push(`connections[${i}]: 只有一个引脚，没有意义`);
+      if (!Array.isArray(g)) return errors.push(tr(`connections[${i}]: 必须是引脚数组，如 ["R1.2", "LED1.anode"]`, `connections[${i}]: must be an array of pins, e.g. ["R1.2", "LED1.anode"]`));
+      if (g.length < 2) warnings.push(tr(`connections[${i}]: 只有一个引脚，没有意义`, `connections[${i}]: a single pin connects nothing`));
       const pins = g.map((p, j) => resolvePin(p, `connections[${i}][${j}]`)).filter((p): p is string => !!p);
       groups.push({ pins });
     });
   }
   if (Array.isArray(json.nets)) {
     json.nets.forEach((n: unknown, i: number) => {
-      if (!isObj(n) || !Array.isArray(n.pins)) return errors.push(`nets[${i}]: 必须是 { "name": "...", "pins": [...] }`);
+      if (!isObj(n) || !Array.isArray(n.pins)) return errors.push(tr(`nets[${i}]: 必须是 { "name": "...", "pins": [...] }`, `nets[${i}]: must be { "name": "...", "pins": [...] }`));
       const pins = n.pins.map((p, j) => resolvePin(p, `nets[${i}].pins[${j}]`)).filter((p): p is string => !!p);
       groups.push({ name: typeof n.name === 'string' ? n.name : undefined, pins });
     });
   }
-  if (!Array.isArray(json.connections) && !Array.isArray(json.nets)) errors.push('需要 "connections" 或 "nets" 来描述连接关系');
+  if (!Array.isArray(json.connections) && !Array.isArray(json.nets)) errors.push(tr('需要 "connections" 或 "nets" 来描述连接关系', '"connections" or "nets" is needed to describe the wiring'));
 
   // union groups that share a pin
   const parent = new Map<number, number>();
@@ -280,42 +283,42 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     });
   for (const c of components) {
     const unused = terminalsOf(c.type).filter((t) => !pinGroup.has(`${c.ref}.${t}`));
-    if (unused.length === terminalsOf(c.type).length) warnings.push(`${c.ref} 没有任何连接`);
+    if (unused.length === terminalsOf(c.type).length) warnings.push(tr(`${c.ref} 没有任何连接`, `${c.ref} isn't connected to anything`));
   }
 
   // tests
   const tests: ChallengeTest[] = [];
-  if (json.tests !== undefined && !Array.isArray(json.tests)) errors.push('"tests" 必须是数组');
+  if (json.tests !== undefined && !Array.isArray(json.tests)) errors.push(tr('"tests" 必须是数组', '"tests" must be an array'));
   (Array.isArray(json.tests) ? json.tests : []).forEach((t: unknown, i: number) => {
     const w = `tests[${i}]`;
-    if (!isObj(t)) return errors.push(`${w}: 必须是对象`);
+    if (!isObj(t)) return errors.push(tr(`${w}: 必须是对象`, `${w}: must be an object`));
     const set: Record<string, PartProps> = {};
     if (isObj(t.set))
       for (const [ref, v] of Object.entries(t.set)) {
         const c = compOf.get(ref);
-        if (!c) errors.push(`${w}.set: 找不到元件 "${ref}"`);
-        else if (!isObj(v)) errors.push(`${w}.set.${ref}: 必须是对象，如 {"pressed": true}`);
+        if (!c) errors.push(tr(`${w}.set: 找不到元件 "${ref}"`, `${w}.set: no component "${ref}"`));
+        else if (!isObj(v)) errors.push(tr(`${w}.set.${ref}: 必须是对象，如 {"pressed": true}`, `${w}.set.${ref}: must be an object, e.g. {"pressed": true}`));
         else set[ref] = parseProps(c.type, v, `${w}.set.${ref}`, errors);
       }
     const expect: Record<string, 'on' | 'off'> = {};
     if (isObj(t.expect))
       for (const [ref, v] of Object.entries(t.expect)) {
         const c = compOf.get(ref);
-        if (!c) errors.push(`${w}.expect: 找不到元件 "${ref}"`);
-        else if (c.type !== 'led') errors.push(`${w}.expect.${ref}: 只有 LED 可以写 "on"/"off"`);
-        else if (v !== 'on' && v !== 'off') errors.push(`${w}.expect.${ref}: 必须是 "on" 或 "off"`);
+        if (!c) errors.push(tr(`${w}.expect: 找不到元件 "${ref}"`, `${w}.expect: no component "${ref}"`));
+        else if (c.type !== 'led') errors.push(tr(`${w}.expect.${ref}: 只有 LED 可以写 "on"/"off"`, `${w}.expect.${ref}: only LEDs can be "on"/"off"`));
+        else if (v !== 'on' && v !== 'off') errors.push(tr(`${w}.expect.${ref}: 必须是 "on" 或 "off"`, `${w}.expect.${ref}: must be "on" or "off"`));
         else expect[ref] = v;
       }
     const voltages: ChallengeTest['voltages'] = [];
     if (Array.isArray(t.voltages))
       t.voltages.forEach((v: unknown, j: number) => {
-        if (!isObj(v)) return errors.push(`${w}.voltages[${j}]: 必须是对象`);
+        if (!isObj(v)) return errors.push(tr(`${w}.voltages[${j}]: 必须是对象`, `${w}.voltages[${j}]: must be an object`));
         const pin = resolvePin(v.pin, `${w}.voltages[${j}].pin`);
         const ref = v.ref === undefined ? undefined : resolvePin(v.ref, `${w}.voltages[${j}].ref`);
         if (pin && ref !== null)
           voltages.push({ pin, ref, min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
       });
-    tests.push({ name: typeof t.name === 'string' ? t.name : `测试 ${i + 1}`, set, expect, voltages });
+    tests.push({ name: typeof t.name === 'string' ? t.name : tr(`测试 ${i + 1}`, `Test ${i + 1}`), set, expect, voltages });
   });
 
   const steps: ChallengeStep[] = (Array.isArray(json.steps) ? json.steps : [])
@@ -331,6 +334,42 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     )
     .filter((s): s is ChallengeStep => !!s && !!s.text);
 
+  // translations: "lang" names the language of the top-level text, "i18n" holds the others
+  const baseLang: Lang = json.lang === undefined ? 'zh' : isLang(json.lang) ? json.lang : 'zh';
+  const langList = LANGS.map((l) => `"${l}"`).join(' / ');
+  if (json.lang !== undefined && !isLang(json.lang)) errors.push(tr(`"lang" 必须是 ${langList}`, `"lang" must be ${langList}`));
+  let tx: Record<string, unknown> = {};
+  if (json.i18n !== undefined) {
+    if (!isObj(json.i18n)) errors.push(tr('"i18n" 必须是对象，如 { "en": { "title": "..." } }', '"i18n" must be an object, e.g. { "en": { "title": "..." } }'));
+    else
+      for (const [l, v] of Object.entries(json.i18n)) {
+        if (!isLang(l)) errors.push(tr(`i18n: 不支持的语言 "${l}"（可用：${LANGS.join(', ')}）`, `i18n: unsupported language "${l}" (available: ${LANGS.join(', ')})`));
+        else if (!isObj(v)) errors.push(tr(`i18n.${l}: 必须是对象`, `i18n.${l}: must be an object`));
+        else {
+          const count = (key: string, n: number) => {
+            if (v[key] !== undefined && (!Array.isArray(v[key]) || (v[key] as unknown[]).length !== n))
+              warnings.push(tr(`i18n.${l}.${key}: 应该是和 "${key}" 一一对应的数组（${n} 项）`, `i18n.${l}.${key}: should be an array matching "${key}" item by item (${n} items)`));
+          };
+          count('steps', steps.length);
+          count('hints', Array.isArray(json.hints) ? json.hints.length : 0);
+          count('tests', tests.length);
+          if (l === getLang() && l !== baseLang) tx = v;
+        }
+      }
+  }
+  const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
+  const textOf = (v: unknown) => (typeof v === 'string' ? v : Array.isArray(v) ? strs(v).join('\n') : '');
+  const txList = (key: string) => (Array.isArray(tx[key]) ? (tx[key] as unknown[]) : []);
+  txList('steps').forEach((t, i) => {
+    const text = typeof t === 'string' ? t : isObj(t) && typeof t.text === 'string' ? t.text : '';
+    if (steps[i] && text) steps[i] = { ...steps[i], text };
+  });
+  txList('tests').forEach((t, i) => {
+    if (tests[i] && typeof t === 'string' && t) tests[i] = { ...tests[i], name: t };
+  });
+  const baseHints = strs(json.hints);
+  const txHints = strs(tx.hints);
+
   const solution = parseLayout(json.solution, refs, 'solution', errors);
   const start = parseLayout(json.start, refs, 'start', errors);
   const opts = isObj(json.options) ? json.options : {};
@@ -338,20 +377,21 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   const level = typeof json.level === 'number' ? Math.min(5, Math.max(1, Math.round(json.level))) : 1;
   const challenge: Challenge = {
     id,
-    title,
+    title: typeof tx.title === 'string' && tx.title ? tx.title : title,
     level,
     kind: json.kind === 'lesson' ? 'lesson' : 'challenge',
-    summary: typeof json.summary === 'string' ? json.summary : '',
-    description: typeof json.description === 'string' ? json.description : Array.isArray(json.description) ? json.description.join('\n') : '',
-    concepts: Array.isArray(json.concepts) ? json.concepts.filter((c): c is string => typeof c === 'string') : [],
+    summary: textOf(tx.summary) || textOf(json.summary),
+    description: textOf(tx.description) || textOf(json.description),
+    concepts: tx.concepts !== undefined ? strs(tx.concepts) : strs(json.concepts),
     target: { components, nets },
     tests,
-    hints: Array.isArray(json.hints) ? json.hints.filter((h): h is string => typeof h === 'string') : [],
+    hints: txHints.length === baseHints.length ? txHints : baseHints,
     steps,
     solution,
     start,
     tolerance: typeof opts.tolerance === 'number' ? opts.tolerance : 0.05,
     allowExtraComponents: opts.allowExtraComponents === true,
+    textLang: Object.keys(tx).length ? getLang() : baseLang,
     source,
     file,
   };

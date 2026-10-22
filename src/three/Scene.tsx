@@ -1,6 +1,6 @@
 import { OrbitControls } from '@react-three/drei';
-import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber';
-import { Suspense, useEffect, useMemo } from 'react';
+import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { PARTS } from '../core/parts';
@@ -13,43 +13,66 @@ import { PartView } from './Parts';
 const TARGET = new THREE.Vector3(0, 0, -3);
 const HOME = new THREE.Vector3(0, 30, 25);
 
+/** Camera presets the view button cycles through: polar angle from straight down, azimuth. */
+export const VIEWS = ['angle', 'top', 'front', 'side'] as const;
+export type ViewName = (typeof VIEWS)[number];
+const VIEW_ANGLES: Record<ViewName, { phi: number; theta: number }> = {
+  angle: { phi: new THREE.Spherical().setFromVector3(HOME.clone().sub(TARGET)).phi, theta: 0 },
+  top: { phi: 0.05, theta: 0 },
+  front: { phi: 1.3, theta: 0 },
+  side: { phi: 0.95, theta: -0.75 },
+};
+
 function CameraRig() {
   const camera = useThree((s) => s.camera);
   const controls = useThree((s) => s.controls) as unknown as OrbitControlsImpl | null;
+  // goal of an in-progress transition; null while the user is in control
+  const goal = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
+
   useEffect(() => {
     const on = (e: Event) => {
-      const cmd = (e as CustomEvent<string>).detail;
-      const target = controls?.target ?? new THREE.Vector3();
-      const off = camera.position.clone().sub(target);
-      const sph = new THREE.Spherical().setFromVector3(off);
-      if (cmd === 'left') sph.theta -= Math.PI / 8;
-      if (cmd === 'right') sph.theta += Math.PI / 8;
-      if (cmd === 'in') sph.radius = Math.max(10, sph.radius * 0.82);
-      if (cmd === 'out') sph.radius = Math.min(90, sph.radius / 0.82);
-      if (cmd === 'top') {
-        sph.phi = 0.05;
-        sph.theta = 0;
-      }
-      if (cmd === 'reset') {
-        target.copy(TARGET);
-        sph.setFromVector3(HOME.clone().sub(TARGET));
-        // fit ~38 units of width (board + margin) into the current viewport
-        const cam = camera as THREE.PerspectiveCamera;
-        const hfov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)) * cam.aspect);
-        sph.radius = Math.max(32, 21 / Math.tan(hfov / 2));
-      }
-      camera.position.copy(new THREE.Vector3().setFromSpherical(sph).add(target));
-      camera.lookAt(target);
-      controls?.update();
+      const view = (e as CustomEvent<ViewName>).detail;
+      const angles = VIEW_ANGLES[view] ?? VIEW_ANGLES.angle;
+      // fit ~38 units of width (board + margin) into the current viewport
+      const cam = camera as THREE.PerspectiveCamera;
+      const hfov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)) * cam.aspect);
+      const radius = Math.max(32, 21 / Math.tan(hfov / 2));
+      const pos = new THREE.Vector3().setFromSpherical(new THREE.Spherical(radius, angles.phi, angles.theta)).add(TARGET);
+      goal.current = { pos, target: TARGET.clone() };
     };
     window.addEventListener('bb-camera', on);
     return () => window.removeEventListener('bb-camera', on);
-  }, [camera, controls]);
+  }, [camera]);
+
   useEffect(() => {
     if (!controls) return;
-    const t = setTimeout(() => window.dispatchEvent(new CustomEvent('bb-camera', { detail: 'reset' })), 50);
-    return () => clearTimeout(t);
-  }, [controls]);
+    // the user grabbing the view cancels any transition
+    const stop = () => (goal.current = null);
+    controls.addEventListener('start', stop);
+    const t = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('bb-camera', { detail: 'angle' }));
+      if (goal.current) {
+        camera.position.copy(goal.current.pos);
+        controls.target.copy(goal.current.target);
+        controls.update();
+        goal.current = null;
+      }
+    }, 50);
+    return () => {
+      clearTimeout(t);
+      controls.removeEventListener('start', stop);
+    };
+  }, [controls, camera]);
+
+  useFrame((_, dt) => {
+    const g = goal.current;
+    if (!g || !controls) return;
+    const k = 1 - Math.exp(-dt * 7);
+    camera.position.lerp(g.pos, k);
+    controls.target.lerp(g.target, k);
+    controls.update();
+    if (camera.position.distanceTo(g.pos) < 0.05) goal.current = null;
+  });
   return null;
 }
 

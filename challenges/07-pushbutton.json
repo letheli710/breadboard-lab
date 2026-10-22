@@ -8,6 +8,27 @@
   "summary": "四只脚的按键为什么要横跨中间的凹槽？",
   "concepts": ["push button 轻触按键", "normally open 常开", "trench 凹槽", "bottom rails 下方电源轨"],
   "description": "【四脚按键的内部】\n常见的 6×6mm 轻触按键有 4 只脚，但电气上只有 2 个端子：\n• 1a 和 1b 内部永远相通（同一侧），2a 和 2b 也永远相通；\n• 按下时，1 侧和 2 侧接通；松开时断开（常开，normally open）。\n\n【为什么要横跨凹槽】\n把按键放在 e/f 两行、跨过中间凹槽：左边两只脚（e5、f5）在第 5 列，右边两只脚（e7、f7）在第 7 列。第 5 列是开关的一端、第 7 列是另一端，按下才接通。\n如果按键不跨凹槽、四只脚都插在 a–e 区，那么同一列上下两只脚本来就被金属条连着——要么开关永远是通的，要么完全没用。\n\n【本课电路】\n+5V → 按键 → 220Ω → LED → GND。按键放在凹槽上，所以电阻和 LED 接在下半区（f–j），GND 用下方蓝轨 bn。电源模块会同时给上下两组轨道供电，所以下方轨道也有电。\n\ntests 会分别检查：松开时 LED 灭，按下时 LED 亮。",
+  "i18n": {
+    "en": {
+      "title": "Lesson 7 · Push buttons",
+      "summary": "Why does a four-leg push button have to straddle the trench in the middle?",
+      "concepts": ["push button", "normally open", "trench", "bottom rails"],
+      "description": "**Inside a four-leg push button**\nThe common 6×6mm tactile push button has 4 legs, but electrically only 2 terminals:\n• 1a and 1b are always connected inside (same side), and so are 2a and 2b;\n• when pressed, side 1 and side 2 are connected; when released they are disconnected (normally open).\n\n**Why it straddles the trench**\nPut the button on rows e/f, across the trench in the middle: the two left legs (e5, f5) are in column 5 and the two right legs (e7, f7) are in column 7. Column 5 is one end of the switch and column 7 is the other end; they only connect when the button is pressed.\nIf the button does not straddle the trench and all four legs are in the a–e area, the top and bottom legs in each column are already joined by the metal strip, so the switch is either always on or completely useless.\n\n**Circuit in this lesson**\n+5V → push button → 220Ω → LED → GND. The button sits across the trench, so the resistor and LED go in the bottom half (f–j), and GND uses the bottom blue rail bn. The power module powers both the top and bottom pairs of rails, so the bottom rails are live too.\n\nThe tests check both cases: button released → LED off, button pressed → LED on.",
+      "steps": [
+        "Power module in column 1 (5V): all four rails, top and bottom, are powered.",
+        "Red jumper tp5 → a5: the top half of column 5 = +5V.",
+        "Place the push button at e5, straddling the trench: its four legs are in e5, e7, f5 and f7. Column 5 is the switch input and column 7 is the output.",
+        "The 220Ω resistor starts from the bottom half of column 7: h7 – h11.",
+        "LED long lead i11, short lead i14; blue jumper j14 → bn14 (bottom − rail).",
+        "Done! Click the button to try it: pressed → column 5 and column 7 connect → the LED lights."
+      ],
+      "hints": [
+        "The button must straddle the trench in the middle (placed on row e); then the left and right columns are the two ends of the switch.",
+        "Inside the button, the top and bottom legs on the same side are always connected."
+      ],
+      "tests": ["Button released: LED off", "Button pressed: LED on"]
+    }
+  },
   "components": [
     { "ref": "V1", "type": "dc_source", "voltage": 5 },
     { "ref": "SW1", "type": "pushbutton" },

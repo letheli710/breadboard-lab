@@ -85,8 +85,10 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `kind` | `"lesson"` \| `"challenge"` | | 默认 `"challenge"`。lesson = 带步骤引导的课；challenge = 自己解的题 |
 | `level` | number 1–5 | | 难度，默认 1（会四舍五入并限制在 1–5） |
 | `summary` | string | | 一句话简介，显示在列表里 |
-| `description` | string 或 string[] | | 正文讲解。纯文本，用 `\n` 换行；如果是数组，会用换行拼接 |
+| `description` | string 或 string[] | | 正文讲解。纯文本，用 `\n` 换行；如果是数组，会用换行拼接。支持少量格式：`**粗体**`、以 `- ` 或 `1. ` 开头的列表行 |
 | `concepts` | string[] | | 涉及的概念标签，例如 `["series 串联", "KVL"]` |
+| `lang` | `"zh"` \| `"en"` | | 上面这些文字字段（以及 steps / hints / tests 的名字）用的语言，默认 `"zh"`（见 §11） |
+| `i18n` | object | | 其他语言的翻译，例如 `{ "en": { "title": "..." } }`（见 §11） |
 | `components` | array | ✔ | 目标电路里的元件（见 §3） |
 | `connections` | array | ✔* | 连接关系（见 §4）。`connections` 和 `nets` 至少要有一个 |
 | `nets` | array | ✔* | 带名字的连接关系（见 §4） |
@@ -207,7 +209,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 
 布局里的引脚名**不支持别名**，必须用上表的原名。
 
-**跳线颜色**：请使用 `red` / `blue` / `green` / `yellow` / `white` 之一（习惯：红 = +，蓝 = GND）。当前解析器会把跳线的平铺 `color` 当成 LED 颜色来检查，所以 `"#d62828"`、`"black"` 这类写法暂时会报错。
+**跳线颜色**：请使用 `red` / `blue` / `green` / `yellow` / `white` 之一（习惯：红 = +，蓝 = GND）。也可以写 `black` / `orange`，或直接写十六进制颜色如 `"#d62828"`。
 
 ### 5.2 占位式元件（footprint）：写 `"at": "<孔>"`
 
@@ -314,7 +316,68 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 
 ---
 
-## 11. 完整示例
+## 11. 多语言：`lang` 与 `i18n`（translations）
+
+程序界面可以切换中文 / English。题目文件的文字也可以带翻译：
+
+- **`lang`**：顶层文字字段（`title`、`summary`、`description`、`concepts`、`steps`、`hints`、tests 的 `name`）是用哪种语言写的。可选 `"zh"` / `"en"`，**默认 `"zh"`**。用英文写题目时请加上 `"lang": "en"`。
+- **`i18n`**：其他语言的翻译，按语言分组：`{ "en": { ... } }` 或 `{ "zh": { ... } }`。界面是哪种语言，就用哪一组覆盖顶层文字。
+
+`i18n.<lang>` 里可以写的字段（都可选）：
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `title` | string | 标题 |
+| `summary` | string | 一句话简介 |
+| `description` | string 或 string[] | 正文，规则同顶层 |
+| `concepts` | string[] | 概念标签（可以和顶层数量不同） |
+| `steps` | string[] | **只写文字**，和顶层 `steps` **按位置一一对应、数量相同**。高亮孔位（`highlight`）沿用顶层 steps，不用重复写 |
+| `hints` | string[] | 和顶层 `hints` 按位置一一对应、数量相同 |
+| `tests` | string[] | **只写测试名**，和顶层 `tests` 按位置一一对应（`set` / `expect` / `voltages` 不用重复写） |
+
+回退规则（fallback）：
+- 缺少的字段一律用顶层（基础语言）的文字。例如只翻译了 `title` 和 `summary`，正文就还是原文。
+- 界面语言和 `lang` 相同时，`i18n` 不起作用。
+- `steps` / `hints` / `tests` 是**按位置**对应的：第 1 条翻译对应第 1 条原文。数组长度和顶层不一致时校验器会给出警告；其中 `hints` 长度不一致时整组翻译会被忽略（仍显示原文）。
+- 只翻译文字。元件、连接、测试条件、答案布局等都只写一次，和语言无关。
+
+例子（中文为基础语言，附英文翻译）：
+
+```json
+{
+  "format": "breadboard-challenge/1",
+  "id": "example-led",
+  "title": "示例 · 点亮 LED",
+  "summary": "+5V → 220Ω → LED → GND。",
+  "description": "LED 有方向：长脚（anode）接 + 那一侧。",
+  "concepts": ["polarity 极性"],
+  "i18n": {
+    "en": {
+      "title": "Example · Light an LED",
+      "summary": "+5V → 220Ω → LED → GND.",
+      "description": "An LED has a direction: the long lead (anode) goes toward the + side.",
+      "concepts": ["polarity"],
+      "steps": ["Plug the power module into column 1.", "Resistor from tp5 to b5; LED long lead c5, short lead c8."],
+      "hints": ["Long lead toward +, short lead toward GND."],
+      "tests": ["LED is on"]
+    }
+  },
+  "components": [ ... ],
+  "tests": [{ "name": "LED 亮", "expect": { "LED1": "on" } }],
+  "steps": [
+    { "text": "电源模块插在第 1 列。", "highlight": ["tp1", "tn1", "bp1", "bn1"] },
+    { "text": "电阻 tp5 – b5；LED 长脚 c5、短脚 c8。", "highlight": ["tp5", "b5", "c5", "c8"] }
+  ],
+  "hints": ["长脚朝 +，短脚朝 GND。"]
+}
+```
+
+反过来，用英文写的题目加 `"lang": "en"`，再在 `"i18n": { "zh": { ... } }` 里放中文翻译即可。
+建议把 `i18n` 放在 `description` / `concepts` 后面、`components` 前面，方便对照。内置的 `challenges/*.json` 都带有英文翻译，可以参考。
+
+---
+
+## 12. 完整示例
 
 一个带按键、有名字节点、带步骤和答案的完整 lesson：
 

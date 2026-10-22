@@ -25,6 +25,10 @@ class DSU {
   }
 }
 
+/** Prefix of the internal name given to a net with only one pin on it (nothing else connected). */
+export const FLOATING = 'NC:';
+export const isFloating = (net: string | null | undefined) => !net || net.startsWith(FLOATING);
+
 export interface BoardNetlist {
   circuit: Circuit;
   /** net name -> every hole electrically on that net (whole strips) */
@@ -123,7 +127,7 @@ export function buildNetlist(layout: Layout): BoardNetlist {
     .filter((r) => !rootName.has(r))
     .sort((a, b) => minCol(holesOfRoot.get(a)) - minCol(holesOfRoot.get(b)) || a.localeCompare(b));
   let n = 1;
-  for (const r of rest) rootName.set(r, r.startsWith('u:') ? `悬空:${r.slice(2)}` : `N${n++}`);
+  for (const r of rest) rootName.set(r, r.startsWith('u:') ? `${FLOATING}${r.slice(2)}` : `N${n++}`);
 
   const nets: CNet[] = [];
   const netHoles = new Map<string, string[]>();

@@ -3,6 +3,8 @@ import type { Challenge } from '../core/challenge';
 import { checkCircuit } from '../core/check';
 import type { Issue } from '../core/diagnostics';
 import { stripLabel, HOLE_MAP } from '../core/breadboard';
+import { tr } from '../core/i18n';
+import { isFloating } from '../core/netlist';
 import { describeComponent, PARTS, terminalLabel } from '../core/parts';
 import { simulate } from '../core/solver';
 import { useActiveChallenge, useDerived } from '../state/derived';
@@ -90,7 +92,7 @@ export function Md({ text }: { text: string }) {
 export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: string }) {
   const setHighlight = useStore((s) => s.setHighlight);
   const highlight = useStore((s) => s.highlight);
-  if (issues.length === 0) return <div className="ok-box">{emptyText ?? '没有发现问题 👍'}</div>;
+  if (issues.length === 0) return <div className="ok-box">{emptyText ?? tr('没有发现问题 👍', 'No problems found 👍')}</div>;
   return (
     <ul className="issues">
       {issues.map((i, k) => {
@@ -141,7 +143,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
     }
     if (nl.unplaced.length) {
       r.perfect = false;
-      r.issues.unshift(...issues.filter((i) => i.title.includes('还没有插好')));
+      r.issues.unshift(...issues.filter((i) => i.code === 'unplaced'));
     }
     setCheck(r);
     if (r.perfect) {
@@ -154,25 +156,30 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   return (
     <div className="task">
       <div className="task-head">
-        <span className={`badge ${ch.kind}`}>{ch.kind === 'lesson' ? '课程 LESSON' : '挑战 CHALLENGE'}</span>
+        <span className={`badge ${ch.kind}`}>{ch.kind === 'lesson' ? tr('课程 LESSON', 'LESSON') : tr('挑战 CHALLENGE', 'CHALLENGE')}</span>
         <Stars n={ch.level} />
-        {completed[ch.id] && <span className="badge done">✓ 已完成</span>}
-        {ch.source !== 'folder' && <span className="badge src">导入</span>}
+        {completed[ch.id] && <span className="badge done">✓ {tr('已完成', 'Done')}</span>}
+        {ch.source !== 'folder' && <span className="badge src">{tr('导入', 'Imported')}</span>}
       </div>
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
       <Md text={ch.description} />
 
-      <div className="eyebrow">目标电路图 TARGET SCHEMATIC</div>
+      <div className="eyebrow">{tr('目标电路图 TARGET SCHEMATIC', 'TARGET SCHEMATIC')}</div>
       <div className="schem-card">
         <SchematicView circuit={ch.target} sim={targetSim} showValues />
       </div>
-      <p className="note">原理图只说明“谁和谁连在一起”，不规定插在面包板哪个孔。只要连接关系一样就算对。</p>
+      <p className="note">
+        {tr(
+          '原理图只说明“谁和谁连在一起”，不规定插在面包板哪个孔。只要连接关系一样就算对。',
+          "A schematic only says what connects to what — not which breadboard holes to use. Any layout with the same connections counts as correct.",
+        )}
+      </p>
 
       {ch.steps.length > 0 && (
         <div className="steps">
           <div className="eyebrow">
-            步骤 {step + 1} / {ch.steps.length}
+            {tr('步骤', 'Step')} {step + 1} / {ch.steps.length}
           </div>
           <ol>
             {ch.steps.map((s, i) => (
@@ -183,10 +190,10 @@ function TaskPanel({ ch }: { ch: Challenge }) {
           </ol>
           <div className="row">
             <button disabled={step === 0} onClick={() => setStep(step - 1)}>
-              <Icon name="prev" /> 上一步
+              <Icon name="prev" /> {tr('上一步', 'Back')}
             </button>
             <button className="primary" disabled={step >= ch.steps.length - 1} onClick={() => setStep(step + 1)}>
-              下一步 <Icon name="next" />
+              {tr('下一步', 'Next')} <Icon name="next" />
             </button>
           </div>
         </div>
@@ -194,28 +201,28 @@ function TaskPanel({ ch }: { ch: Challenge }) {
 
       <div className="actions">
         <button className="primary big" onClick={runCheck}>
-          <Icon name="check" /> 检查我的电路
+          <Icon name="check" /> {tr('检查我的电路', 'Check my circuit')}
         </button>
         <div className="row">
           {ch.hints.length > 0 && (
             <button onClick={showHint} disabled={hintsShown >= ch.hints.length}>
-              <Icon name="bulb" /> 提示 ({hintsShown}/{ch.hints.length})
+              <Icon name="bulb" /> {tr('提示', 'Hint')} ({hintsShown}/{ch.hints.length})
             </button>
           )}
           <button
             onClick={() => {
-              if (confirm('重置面包板到初始状态？')) loadLayout(ch.start ?? { version: 1, parts: [] });
+              if (confirm(tr('重置面包板到初始状态？', 'Reset the breadboard to its starting state?'))) loadLayout(ch.start ?? { version: 1, parts: [] });
             }}
           >
-            <Icon name="reset" /> 重置
+            <Icon name="reset" /> {tr('重置', 'Reset')}
           </button>
           {ch.solution && (
             <button
               onClick={() => {
-                if (confirm('加载参考答案？当前面包板会被替换（可以撤销）。')) loadLayout(ch.solution!);
+                if (confirm(tr('加载参考答案？当前面包板会被替换（可以撤销）。', 'Load the reference answer? It replaces your current board (you can undo).'))) loadLayout(ch.solution!);
               }}
             >
-              <Icon name="eye" /> 看答案
+              <Icon name="eye" /> {tr('看答案', 'Show answer')}
             </button>
           )}
         </div>
@@ -234,17 +241,23 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       {check && (
         <div className="check-result">
           <div className="progress-row">
-            <span>连接正确度</span>
+            <span>{tr('连接正确度', 'Connections correct')}</span>
             <div className="bar">
               <div style={{ width: `${Math.round(check.progress * 100)}%` }} />
             </div>
             <b>{Math.round(check.progress * 100)}%</b>
           </div>
           {check.perfect ? (
-            <div className="ok-box big">🎉 完全正确！连接关系与目标电路一致{check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。</div>
+            <div className="ok-box big">
+              🎉{' '}
+              {tr(
+                `完全正确！连接关系与目标电路一致${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。`,
+                `Perfect! The connections match the target circuit${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}.`,
+              )}
+            </div>
           ) : (
             <>
-              <p className="note">把鼠标移到下面的条目上，3D 视图会高亮出相关的元件和孔位。</p>
+              <p className="note">{tr('把鼠标移到下面的条目上，3D 视图会高亮出相关的元件和孔位。', 'Hover an item below to highlight the parts and holes involved in the 3D view.')}</p>
               <IssueList issues={check.issues} />
             </>
           )}
@@ -266,23 +279,26 @@ function SchematicPanel() {
 
   return (
     <div className="schem-panel">
-      <div className="eyebrow">我的电路 · 由面包板自动生成</div>
+      <div className="eyebrow">{tr('我的电路 · 由面包板自动生成', 'My circuit · generated from the breadboard')}</div>
       <div className="schem-card">
         <SchematicView circuit={nl.circuit} sim={sim} hoverNet={activeNet} onHoverNet={setHoverNet} />
       </div>
       <p className="note">
-        电路图按电压从高到低排列：最上面是电源 +，最下面是 GND（⏚）。鼠标移到一条线上，3D 面包板里属于这个“节点”的所有孔都会亮起来。
+        {tr(
+          '电路图按电压从高到低排列：最上面是电源 +，最下面是 GND（⏚）。鼠标移到一条线上，3D 面包板里属于这个“节点”的所有孔都会亮起来。',
+          'The schematic is drawn from high to low voltage: supply + at the top, GND (⏚) at the bottom. Hover a line and every hole on that node lights up on the 3D breadboard.',
+        )}
       </p>
       {nl.circuit.nets.length > 0 && (
         <>
-          <div className="eyebrow">节点表 NETLIST</div>
+          <div className="eyebrow">{tr('节点表 NETLIST', 'NETLIST')}</div>
           <table className="netlist">
             <thead>
               <tr>
-                <th>节点</th>
-                <th>电压</th>
-                <th>连接的引脚</th>
-                <th>面包板位置</th>
+                <th>{tr('节点', 'Node')}</th>
+                <th>{tr('电压', 'Voltage')}</th>
+                <th>{tr('连接的引脚', 'Pins')}</th>
+                <th>{tr('面包板位置', 'Breadboard holes')}</th>
               </tr>
             </thead>
             <tbody>
@@ -291,7 +307,7 @@ function SchematicPanel() {
                 return (
                   <tr key={n.name} className={activeNet === n.name ? 'on' : ''} onMouseEnter={() => setHoverNet(n.name)} onMouseLeave={() => setHoverNet(null)}>
                     <td>
-                      <b>{n.name.startsWith('悬空') ? '悬空' : n.name}</b>
+                      <b>{isFloating(n.name) ? tr('悬空', 'floating') : n.name}</b>
                     </td>
                     <td>{(sim.nodeV.get(n.name) ?? 0).toFixed(2)}V</td>
                     <td>
@@ -313,16 +329,16 @@ function SchematicPanel() {
         <div className="row">
           <button
             onClick={() => {
-              const id = prompt('给这个题目起一个 id（字母/数字/-）', 'my-circuit');
+              const id = prompt(tr('给这个题目起一个 id（字母/数字/-）', 'Give the challenge an id (letters / digits / -)'), 'my-circuit');
               if (!id) return;
-              const title = prompt('题目标题', '我的电路') ?? id;
+              const title = prompt(tr('题目标题', 'Challenge title'), tr('我的电路', 'My circuit')) ?? id;
               downloadJson(`${id}.json`, buildChallengeFromBoard(layout, nl.circuit, id, title));
             }}
           >
-            <Icon name="download" /> 导出为题目 JSON
+            <Icon name="download" /> {tr('导出为题目 JSON', 'Export as challenge JSON')}
           </button>
           <button onClick={() => downloadJson('breadboard-layout.json', layout)}>
-            <Icon name="download" /> 导出面包板布局
+            <Icon name="download" /> {tr('导出面包板布局', 'Export board layout')}
           </button>
         </div>
       )}
@@ -335,12 +351,18 @@ function IssuesPanel() {
   const counts = nl.circuit.components.reduce<Record<string, number>>((m, c) => ((m[describeComponent(c)] = (m[describeComponent(c)] ?? 0) + 1), m), {});
   return (
     <div>
-      <div className="eyebrow">实时诊断 · 常见错误检测</div>
-      <IssueList issues={issues} emptyText="没有检测到常见错误 👍（这不代表电路一定符合题目要求——用“检查”按钮核对）" />
+      <div className="eyebrow">{tr('实时诊断 · 常见错误检测', 'Live diagnostics · common mistakes')}</div>
+      <IssueList
+        issues={issues}
+        emptyText={tr(
+          '没有检测到常见错误 👍（这不代表电路一定符合题目要求——用“检查”按钮核对）',
+          'No common mistakes found 👍 (that doesn\'t mean it matches the task — use the "Check" button for that)',
+        )}
+      />
       {Object.keys(counts).length > 0 && (
         <>
           <div className="eyebrow" style={{ marginTop: 16 }}>
-            元件清单 BOM
+            {tr('元件清单 BOM', 'Parts list (BOM)')}
           </div>
           <ul className="bom">
             {Object.entries(counts).map(([k, v]) => (
@@ -363,10 +385,10 @@ export function SidePanel() {
   const { issues } = useDerived();
   const nErr = issues.filter((i) => i.severity !== 'info').length;
   const tabs: [PanelTab, string][] = [
-    ...(ch ? ([['task', ch.kind === 'lesson' ? '课程' : '题目']] as [PanelTab, string][]) : []),
-    ['schematic', '我的电路图'],
-    ['issues', nErr ? `诊断 (${nErr})` : '诊断'],
-    ['inspect', '属性'],
+    ...(ch ? ([['task', ch.kind === 'lesson' ? tr('课程', 'Lesson') : tr('题目', 'Task')]] as [PanelTab, string][]) : []),
+    ['schematic', tr('我的电路图', 'My schematic')],
+    ['issues', tr('诊断', 'Diagnostics') + (nErr ? ` (${nErr})` : '')],
+    ['inspect', tr('属性', 'Properties')],
   ];
   const cur = panel === 'task' && !ch ? 'schematic' : panel;
   return (

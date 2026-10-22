@@ -32,7 +32,8 @@ npm run dev
 - `challenges/` —— 放入符合 `breadboard-challenge/1` 规范的 `.json` 即自动加载（开发模式热更新）。
 - 规范：[`docs/CHALLENGE_FORMAT.md`](docs/CHALLENGE_FORMAT.md)，JSON Schema：`schema/challenge.schema.json`
 - 让 AI 出题：[`docs/AI_PROMPT.md`](docs/AI_PROMPT.md)
-- 校验题目（含自洽性测试和参考答案验证）：`npm run validate` 或 `npm run validate -- 某个文件夹`
+- 校验题目（含自洽性测试和参考答案验证）：`npm run validate` 或 `npm run validate -- 某个文件夹`；加 `-- --lang en` 输出英文信息
+- 界面语言：右上角 **中文 / EN** 切换（记在浏览器里）。题目文件可以带 `i18n` 翻译，见规范第 11 节。
 
 ## 开发
 

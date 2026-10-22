@@ -5,7 +5,8 @@ import { useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { BOARD, COLS, HOLES, HOLE_MAP, MAIN_ROWS, ROW_Z, colX, stripLabel } from '../core/breadboard';
 import { volts } from '../core/format';
-import { connectedHoles } from '../core/netlist';
+import { tr } from '../core/i18n';
+import { connectedHoles, isFloating } from '../core/netlist';
 import { useDerived } from '../state/derived';
 import { occupied, useStore } from '../state/store';
 
@@ -267,11 +268,12 @@ export function Board() {
           <div className="hole-tip">
             <b>{hh.id}</b>
             <span>
-              {stripLabel(hh.strip)} 内部相连{occ.has(hh.id) ? ` · 已插 ${occ.get(hh.id)}` : ''}
+              {tr(`${stripLabel(hh.strip)} 内部相连`, `${stripLabel(hh.strip)}: connected inside`)}
+              {occ.has(hh.id) ? tr(` · 已插 ${occ.get(hh.id)}`, ` · holds ${occ.get(hh.id)}`) : ''}
             </span>
-            {hoverNetName && !hoverNetName.startsWith('悬空') && (
+            {hoverNetName && !isFloating(hoverNetName) && (
               <span>
-                节点 {hoverNetName} · {volts(sim.nodeV.get(hoverNetName) ?? 0)}
+                {tr('节点', 'Node')} {hoverNetName} · {volts(sim.nodeV.get(hoverNetName) ?? 0)}
               </span>
             )}
           </div>

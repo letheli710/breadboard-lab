@@ -10,4 +10,6 @@
 约定：
 - 文件名用两位数字前缀排序：`01-…` 到 `08-…` 是入门课，`09-…` 起是挑战题。
 - 以 `_` 开头的文件不会被加载（可以放草稿）。
+- 内置题目以中文为基础语言，`"i18n": { "en": { ... } }` 里是英文翻译（界面切到 English 时显示）。修改中文的 steps / hints / tests 时，记得同步修改对应位置的英文（按位置一一对应）。格式见 `CHALLENGE_FORMAT.md` §11。
+  Built-in challenges are written in Chinese with an English translation in `i18n.en`, shown when the UI is in English. When you edit the Chinese steps / hints / tests, update the English entry at the same position too.
 - 新增或修改后运行 `npm run validate`，确保全部 ✔。

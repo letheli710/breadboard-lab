@@ -8,6 +8,23 @@
   "summary": "并排连接：电压相同，电流分开。每个 LED 要有自己的电阻。",
   "concepts": ["parallel 并联", "branch 支路", "KCL 基尔霍夫电流定律", "each LED its own resistor"],
   "description": "【什么是并联】\n几个支路（branch）的两端分别接在同一对节点上，这叫并联（parallel）。这里两条支路都是从 VCC 接到 GND，所以每条支路两端的电压都是 5V。\n\n【并联的规律】\n1. 电压相同：每条支路两端都是电源电压。\n2. 电流相加（KCL）：电源输出的总电流 = 各支路电流之和。\n3. 支路彼此独立：拔掉一条支路，另一条照样工作。\n\n【为什么每个 LED 要有自己的电阻】\n如果两个 LED 直接并联、共用一个电阻，Vf 低的那个（比如红色 1.8V）会把电压“钳”在 1.8V，Vf 高的那个（绿色 2.1V）根本达不到导通电压，几乎不亮，所有电流都挤进红色 LED。所以正确做法是：每个 LED 串一个自己的限流电阻，再把这些“电阻 + LED”支路并联。\n\n【面包板小技巧】\n电阻的一只脚可以直接插进电源轨，另一只脚插到主区——这样省一根跳线。本课就是这么做的。",
+  "i18n": {
+    "en": {
+      "title": "Lesson 6 · LEDs in parallel",
+      "summary": "Side by side: same voltage, the current splits. Each LED needs its own resistor.",
+      "concepts": ["parallel", "branch", "KCL (Kirchhoff's current law)", "each LED its own resistor"],
+      "description": "**What \"parallel\" means**\nWhen several branches each have their two ends connected to the same pair of nodes, they are in parallel. Here both branches go from VCC to GND, so each branch has 5V across it.\n\n**Rules of parallel circuits**\n1. Same voltage: every branch has the full supply voltage across it.\n2. Currents add up (KCL): the total current from the supply = the sum of the branch currents.\n3. Branches are independent: remove one branch and the other keeps working.\n\n**Why each LED needs its own resistor**\nIf two LEDs are connected directly in parallel and share one resistor, the one with the lower Vf (for example red, 1.8V) \"clamps\" the voltage at 1.8V. The one with the higher Vf (green, 2.1V) never reaches its turn-on voltage and barely lights, while all the current crowds into the red LED. The right way: give each LED its own current-limiting resistor in series, then put these \"resistor + LED\" branches in parallel.\n\n**Breadboard tip**\nOne lead of a resistor can go straight into a power rail with the other lead in the main area, saving a jumper. That is what this lesson does.",
+      "steps": [
+        "Power module in column 1, 5V.",
+        "Branch 1: plug one lead of R1 straight into the red rail at tp5 and the other lead into b5.",
+        "Red LED1 long lead c5, short lead c8; blue jumper a8 → tn8.",
+        "Branch 2: one lead of R2 in tp12, the other in b12.",
+        "Green LED2 long lead c12, short lead c15; blue jumper a15 → tn15. Both branches have their top end on the red rail and their bottom end on the blue rail: the parallel circuit is done."
+      ],
+      "hints": ["Don't let two LEDs share one resistor: each branch = one resistor + one LED."],
+      "tests": ["Both LEDs on"]
+    }
+  },
   "components": [
     { "ref": "V1", "type": "dc_source", "voltage": 5 },
     { "ref": "R1", "type": "resistor", "resistance": "150" },
