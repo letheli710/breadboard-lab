@@ -1,0 +1,48 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-light-an-led",
+  "title": "第 3 课 · 点亮 LED：限流电阻与极性",
+  "kind": "lesson",
+  "level": 1,
+  "summary": "LED 有正负极，还必须串一个电阻。电阻值怎么算？",
+  "concepts": ["LED", "polarity 极性", "forward voltage Vf 正向压降", "current-limiting resistor 限流电阻", "Ohm's law 欧姆定律"],
+  "description": "【LED 有方向（polarity）】\nLED（发光二极管）只让电流从正极 anode（长脚）流向负极 cathode（短脚）。插反了不会坏，但不会亮。\n\n【LED 两端的电压几乎固定】\nLED 导通后两端的电压差约等于它的正向压降 Vf（forward voltage）：红 ≈ 1.8V，黄 ≈ 2.0V，绿 ≈ 2.1V，蓝 / 白 ≈ 3.0V。电源多出来的电压必须由别的元件“吃掉”，否则电流会非常大、LED 会烧掉。\n\n【限流电阻（current-limiting resistor）】\n电阻和 LED 串联（series），流过它们的电流相同。电阻两端的电压 = 电源电压 − Vf，所以：\n  R = (V电源 − Vf) / I\n例：5V 电源、绿色 LED（Vf ≈ 2.1V）、想要约 20mA：R = (5 − 2.1) / 0.02 ≈ 145Ω，选最接近的常用值 150Ω。实际电流约 18mA。一般 LED 电流 5–20mA 就够亮，不要超过 25mA。\n\n【顺序无所谓】\n电阻放在 LED 前面还是后面都可以：串联电路里电流处处相等。\n\n本课用 5V 面包板电源模块（power module）供电，tests 会检查 LED 亮，并测量电阻两端的电压（应该约 2.7V ≈ 5 − 2.1 − LED 内阻上的一点点）。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 5 },
+    { "ref": "R1", "type": "resistor", "resistance": "150" },
+    { "ref": "LED1", "type": "led", "color": "green" }
+  ],
+  "connections": [
+    ["V1.+", "R1.1"],
+    ["R1.2", "LED1.anode"],
+    ["LED1.cathode", "V1.-"]
+  ],
+  "tests": [
+    {
+      "name": "LED 亮，电阻上约 2.7V",
+      "expect": { "LED1": "on" },
+      "voltages": [{ "pin": "R1.1", "ref": "R1.2", "min": 2.4, "max": 3.0 }]
+    }
+  ],
+  "steps": [
+    { "text": "把面包板电源模块插在第 1 列（设为 5V）。它会同时插进 tp1 / tn1 / bp1 / bn1：上下两组电源轨都有电了。", "highlight": ["tp1", "tn1", "bp1", "bn1"] },
+    { "text": "红色跳线 tp4 → a4，把 +5V 引到第 4 列。", "highlight": ["tp4", "a4"] },
+    { "text": "150Ω 电阻插在 b4 和 b8 之间（电阻没有正负，哪只脚都行）。", "highlight": ["b4", "b8"] },
+    { "text": "绿色 LED：长脚（anode，正极）插 c8，接电阻；短脚（cathode，负极）插 c11。长脚要朝向 + 那一侧！", "highlight": ["c8", "c11"] },
+    { "text": "蓝色跳线 a11 → tn11，LED 负极回到 GND。算一算：I ≈ (5 − 2.1) / 150 ≈ 19mA。", "highlight": ["a11", "tn11"] }
+  ],
+  "hints": [
+    "LED 不亮？先看是不是插反了：长脚接电阻 / + 那侧，短脚接 GND。",
+    "R = (V − Vf) / I。绿色 LED 的 Vf 约 2.1V。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
+      { "type": "wire", "pins": { "a": "tp4", "b": "a4" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "150", "pins": { "1": "b4", "2": "b8" } },
+      { "type": "led", "ref": "LED1", "color": "green", "pins": { "anode": "c8", "cathode": "c11" } },
+      { "type": "wire", "pins": { "a": "a11", "b": "tn11" }, "color": "blue" }
+    ]
+  }
+}

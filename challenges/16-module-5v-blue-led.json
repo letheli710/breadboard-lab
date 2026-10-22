@@ -1,0 +1,40 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-module-blue-led",
+  "title": "挑战 8 · 蓝色 LED：3.3V 还是 5V？",
+  "kind": "challenge",
+  "level": 3,
+  "summary": "选择正确的电源模块电压，给蓝色 LED 足够的电流。",
+  "concepts": ["power module 3.3V / 5V", "blue LED Vf ≈ 3.0V", "headroom 电压余量"],
+  "description": "蓝色 LED 的正向压降 Vf 约 3.0V，比红色高很多。用电源模块供电，跳线帽可以选 3.3V 或 5V，该选哪个？\n\n• 3.3V：留给电阻的只有 3.3 − 3.0 = 0.3V。用 100Ω 时电流只有约 3mA，很暗；而且 Vf 稍有偏差就可能完全不亮。电压余量（headroom）太小。\n• 5V：电阻上有 2V，用 100Ω 得到约 18mA，亮度合适、也更稳定。\n\n要求：电源模块设为 5V，+5V → 100Ω → 蓝色 LED → GND。\n（本题指定了 power_module 类型和 5V 电压：用电池或 3.3V 都不算对。）",
+  "components": [
+    { "ref": "PM1", "type": "power_module", "voltage": 5 },
+    { "ref": "R1", "type": "resistor", "resistance": "100" },
+    { "ref": "LED1", "type": "led", "color": "blue" }
+  ],
+  "connections": [
+    ["PM1.+", "R1.1"],
+    ["R1.2", "LED1.anode"],
+    ["LED1.cathode", "PM1.-"]
+  ],
+  "tests": [
+    {
+      "name": "蓝色 LED 亮，模块输出 5V",
+      "expect": { "LED1": "on" },
+      "voltages": [{ "pin": "PM1.+", "ref": "PM1.-", "min": 4.9, "max": 5.05 }]
+    }
+  ],
+  "hints": [
+    "选中电源模块，在属性里把电压改成 5V。",
+    "R = (5 − 3.0) / 0.02 = 100Ω。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
+      { "type": "resistor", "ref": "R1", "resistance": "100", "pins": { "1": "tp5", "2": "b5" } },
+      { "type": "led", "ref": "LED1", "color": "blue", "pins": { "anode": "c5", "cathode": "c8" } },
+      { "type": "wire", "pins": { "a": "a8", "b": "tn8" }, "color": "blue" }
+    ]
+  }
+}

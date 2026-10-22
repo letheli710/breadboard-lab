@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-fix-the-circuit",
+  "title": "挑战 11 · 找错：这个 LED 为什么不亮？",
+  "kind": "challenge",
+  "level": 2,
+  "summary": "面包板上已经有一个搭错的电路，找出所有问题并修好它。",
+  "concepts": ["debugging 排错", "polarity 极性", "return path 回路", "shorted resistor 电阻被短路"],
+  "description": "同学搭了一个最简单的 LED 电路（+9V → 470Ω → 红色 LED → GND），但 LED 不亮。面包板上的电路已经摆好了，里面有 3 处错误。\n\n排错（debugging）的好习惯：\n1. 先找电源：+ 和 − 是不是接到了正确的轨道？\n2. 沿着电流的路径走一遍：从 + 出发，每经过一个元件，确认它的两只脚在两条不同的金属条上；\n3. 检查有极性的元件（LED、二极管、电源）方向对不对；\n4. 最后确认电流能回到 −（GND）。\n\n修好后 LED 应该亮。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "R1", "type": "resistor", "resistance": "470" },
+    { "ref": "LED1", "type": "led", "color": "red" }
+  ],
+  "connections": [
+    ["V1.+", "R1.1"],
+    ["R1.2", "LED1.anode"],
+    ["LED1.cathode", "V1.-"]
+  ],
+  "tests": [{ "name": "LED 亮", "expect": { "LED1": "on" } }],
+  "hints": [
+    "电阻的两只脚都在第 5 列：它被金属条短路了。把其中一只脚挪到别的列。",
+    "LED 的长脚应该朝电阻、短脚朝 GND。",
+    "LED 的负极那一列没有任何东西通到蓝轨：缺一根跳线。"
+  ],
+  "start": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "470", "pins": { "1": "b5", "2": "d5" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c12", "cathode": "c9" } }
+    ]
+  },
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "470", "pins": { "1": "b5", "2": "b9" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c9", "cathode": "c12" } },
+      { "type": "wire", "pins": { "a": "a12", "b": "tn12" }, "color": "blue" }
+    ]
+  }
+}

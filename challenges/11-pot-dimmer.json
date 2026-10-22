@@ -1,0 +1,43 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-pot-dimmer",
+  "title": "挑战 3 · 电位器调光",
+  "kind": "challenge",
+  "level": 3,
+  "summary": "用电位器当可变电阻，旋转旋钮改变 LED 亮度。",
+  "concepts": ["potentiometer 电位器", "wiper 滑动端", "rheostat 可变电阻"],
+  "description": "电位器（potentiometer）有 3 只脚：1、3 两端之间是固定的总电阻（10kΩ），中间 2 脚是滑动端（wiper）。旋钮转到 1 脚那头时，1–2 之间电阻≈0；转到 3 脚那头时，1–2 之间≈10kΩ。\n\n把电位器当可变电阻（rheostat）用：+5V 接 1 脚，2 脚和 3 脚连在一起，再串 220Ω 保护电阻和红色 LED 到 GND。\n• 旋到 0%（靠 1 脚）：只剩 220Ω，LED 很亮（≈14mA）。\n• 旋到 100%（靠 3 脚）：多了 10kΩ，电流 < 0.5mA，LED 灭。\n\n为什么要 220Ω 保护电阻？因为旋钮转到 0 时电位器的电阻是 0，没有它 LED 会直接接在 5V 上烧掉。\n\n本题请按上面的接法：电源接 1 脚（tests 中 wiper = 0 表示旋到 1 脚那头）。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 5 },
+    { "ref": "RV1", "type": "potentiometer", "resistance": "10k" },
+    { "ref": "R1", "type": "resistor", "resistance": "220" },
+    { "ref": "LED1", "type": "led", "color": "red" }
+  ],
+  "connections": [
+    ["V1.+", "RV1.1"],
+    ["RV1.2", "RV1.3", "R1.1"],
+    ["R1.2", "LED1.anode"],
+    ["LED1.cathode", "V1.-"]
+  ],
+  "tests": [
+    { "name": "旋到 0%：LED 亮", "set": { "RV1": { "wiper": 0 } }, "expect": { "LED1": "on" } },
+    { "name": "旋到 100%：LED 灭", "set": { "RV1": { "wiper": 1 } }, "expect": { "LED1": "off" } }
+  ],
+  "hints": [
+    "电位器三只脚占三个相邻的列；中间那列是滑动端 2 脚。",
+    "用一根短跳线把 2 脚所在的列和 3 脚所在的列连起来。",
+    "+5V 接 1 脚（最左边那列）。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
+      { "type": "wire", "pins": { "a": "tp4", "b": "a4" }, "color": "red" },
+      { "type": "potentiometer", "ref": "RV1", "resistance": "10k", "at": "c4" },
+      { "type": "wire", "pins": { "a": "a5", "b": "a6" }, "color": "yellow" },
+      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "d6", "2": "d10" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "e10", "cathode": "e13" } },
+      { "type": "wire", "pins": { "a": "a13", "b": "tn13" }, "color": "blue" }
+    ]
+  }
+}

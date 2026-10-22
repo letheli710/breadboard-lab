@@ -1,0 +1,42 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-breadboard-basics",
+  "title": "第 1 课 · 认识面包板",
+  "kind": "lesson",
+  "level": 1,
+  "summary": "面包板里面藏着金属条：哪些孔是连在一起的？",
+  "concepts": ["breadboard", "terminal strip 金属条", "power rail 电源轨", "trench 中间凹槽"],
+  "description": "面包板（breadboard）看起来是一排排独立的小孔，其实孔下面藏着金属夹片（metal strip），把一些孔【电气上连在一起】。插在同一条金属条上的两只脚，就等于用导线连起来了。\n\n【1. 主区（terminal strips）】：每一【列】（column，编号 1–30）被中间的凹槽（trench）分成上下两段：a–e 是一条，f–j 是另一条。所以 a5、b5、c5、d5、e5 五个孔是相通的；但 a5 和 a6 【不】相通（不同列），e5 和 f5 也【不】相通（隔着凹槽）。\n\n【2. 电源轨（power rails）】：板子上下边缘各有两条长横排。红线那条标 +（tp / bp），蓝线那条标 −（tn / bn）。每条轨道【整行】都是通的：tp1 到 tp30 全部连在一起。注意：上方的轨道和下方的轨道【彼此不相通】，红轨和蓝轨也不相通。\n\n【3. 一个孔只能插一只脚】。想把两个东西连起来，就把它们插进同一条金属条的不同孔里，或者用跳线（jumper wire）把两条金属条接起来。\n\n本课电路：9V 电池 → 电源轨 → 跳线 → 电阻 → LED → 跳线 → 回到 − 轨。跟着步骤做，注意观察每一步“为什么是这个孔”。",
+  "components": [
+    { "ref": "BAT1", "type": "battery", "variant": "9V" },
+    { "ref": "R1", "type": "resistor", "resistance": "470" },
+    { "ref": "LED1", "type": "led", "color": "red" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["BAT1.+", "R1.1"] },
+    { "name": "N1", "pins": ["R1.2", "LED1.anode"] },
+    { "name": "GND", "pins": ["LED1.cathode", "BAT1.-"] }
+  ],
+  "tests": [{ "name": "LED 亮", "expect": { "LED1": "on" } }],
+  "steps": [
+    { "text": "把 9V 电池的红线（+）插到上方红色 + 轨 tp1，黑线（−）插到蓝色 − 轨 tn1。现在整条 tp 轨都是 +9V，整条 tn 轨都是 0V。", "highlight": ["tp1", "tn1"] },
+    { "text": "用一根红色跳线从 tp5 连到 a5。这样第 5 列的 a–e 五个孔都变成了 +9V。", "highlight": ["tp5", "a5", "b5", "c5", "d5", "e5"] },
+    { "text": "放一个 470Ω 电阻：一只脚插 c5（和 +9V 相通），另一只脚插 c9。电阻跨在第 5 列和第 9 列之间——两只脚必须在不同的列，否则电阻会被金属条短路。", "highlight": ["c5", "c9"] },
+    { "text": "放红色 LED：长脚（正极 anode）插 d9，和电阻的第二只脚在同一列（相通）；短脚（负极 cathode）插 d12。", "highlight": ["d9", "d12"] },
+    { "text": "最后用蓝色跳线从 a12 连到 tn12，把 LED 的负极接回 − 轨，电流就有了回去的路。LED 应该亮了！", "highlight": ["a12", "tn12"] }
+  ],
+  "hints": [
+    "同一列的 a–e 是相通的，所以 c9 和 d9 在电气上是同一个点。",
+    "电流必须走一个完整的回路：从 + 出发，经过元件，回到 −。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "470", "pins": { "1": "c5", "2": "c9" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "d9", "cathode": "d12" } },
+      { "type": "wire", "pins": { "a": "a12", "b": "tn12" }, "color": "blue" }
+    ]
+  }
+}

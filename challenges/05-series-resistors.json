@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-series",
+  "title": "第 5 课 · 串联（series）",
+  "kind": "lesson",
+  "level": 2,
+  "summary": "首尾相接：电流相同，电压相加，电阻相加。",
+  "concepts": ["series 串联", "R_total = R1 + R2", "voltage drop 压降", "KVL 基尔霍夫电压定律"],
+  "description": "【什么是串联】\n元件首尾相接、中间没有分岔，电流只有一条路可走，这就叫串联（series）。在面包板上：R1 的第二只脚和 R2 的第一只脚在同一条金属条上，而且这条金属条上没有接别的东西。\n\n【串联的三条规律】\n1. 电流处处相同：流过 R1、R2、LED 的电流是同一个 I。\n2. 电阻相加：R_total = R1 + R2 = 220 + 220 = 440Ω。\n3. 电压相加（KVL）：V电源 = V_R1 + V_R2 + V_LED。每个元件“分走”一部分电压。\n\n【算一算】\nI ≈ (9 − 1.8) / 440 ≈ 16mA；每个 220Ω 电阻上的压降 V = I × R ≈ 3.5V。tests 会用电压表检查这两个值。\n\n用两个电阻串联，可以凑出手头没有的阻值（比如两个 220Ω 当 440Ω 用）。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "R1", "type": "resistor", "resistance": "220" },
+    { "ref": "R2", "type": "resistor", "resistance": "220" },
+    { "ref": "LED1", "type": "led", "color": "red" }
+  ],
+  "connections": [
+    ["V1.+", "R1.1"],
+    ["R1.2", "R2.1"],
+    ["R2.2", "LED1.anode"],
+    ["LED1.cathode", "V1.-"]
+  ],
+  "tests": [
+    {
+      "name": "LED 亮；R1、R2 各分到约 3.5V",
+      "expect": { "LED1": "on" },
+      "voltages": [
+        { "pin": "R1.1", "ref": "R1.2", "min": 3.2, "max": 3.8 },
+        { "pin": "R2.1", "ref": "R2.2", "min": 3.2, "max": 3.8 }
+      ]
+    }
+  ],
+  "steps": [
+    { "text": "电池 + 接 tp1，− 接 tn1；红色跳线 tp3 → a3。", "highlight": ["tp1", "tn1", "tp3", "a3"] },
+    { "text": "R1 插 b3 – b7。", "highlight": ["b3", "b7"] },
+    { "text": "R2 插 c7 – c11：它的第一只脚和 R1 的第二只脚都在第 7 列，首尾相接。", "highlight": ["c7", "c11"] },
+    { "text": "红色 LED 长脚插 d11，短脚插 d14。", "highlight": ["d11", "d14"] },
+    { "text": "蓝色跳线 a14 → tn14 回到 GND。整条路只有一条：+ → R1 → R2 → LED → GND。", "highlight": ["a14", "tn14"] }
+  ],
+  "hints": ["串联的连接点（第 7 列）上只能有 R1 和 R2 两只脚，不能再接别的东西。"],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "b3", "2": "b7" } },
+      { "type": "resistor", "ref": "R2", "resistance": "220", "pins": { "1": "c7", "2": "c11" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "d11", "cathode": "d14" } },
+      { "type": "wire", "pins": { "a": "a14", "b": "tn14" }, "color": "blue" }
+    ]
+  }
+}

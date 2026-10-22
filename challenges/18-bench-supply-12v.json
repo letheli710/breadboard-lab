@@ -1,0 +1,45 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-bench-supply",
+  "title": "挑战 10 · 稳压电源 12V 点亮两颗白光 LED",
+  "kind": "challenge",
+  "level": 3,
+  "summary": "把实验室电源调到 12V、限流 50mA，串联点亮两颗白光 LED。",
+  "concepts": ["bench supply 稳压电源", "CV / CC mode", "current limit 限流", "white LED Vf ≈ 3.0V"],
+  "description": "实验室直流稳压电源（bench supply）可以设定电压和限流（current limit）。电路正常时它工作在 CV（恒压）模式；如果接错导致电流超过限流值，它会进入 CC（恒流）模式，电压自动下降来保护电路。\n\n要求：稳压电源 12V（限流设 50mA 作为保护），+12V → 330Ω → 白光 LED1 → 白光 LED2 → GND。\n计算：两颗白光 LED 共 6.0V，电阻上 6V，I ≈ 6 / 330 ≈ 18mA，低于 50mA 限流，所以电源保持 CV 模式，输出稳稳的 12V。\n\n想一想：如果不小心把电阻插在同一列被短路，电流会想冲到 (12 − 6) / 24 ≈ 250mA，这时电源会卡在 50mA 并降低电压——这就是限流保护。",
+  "components": [
+    { "ref": "PSU1", "type": "bench_supply", "voltage": 12 },
+    { "ref": "R1", "type": "resistor", "resistance": "330" },
+    { "ref": "LED1", "type": "led", "color": "white" },
+    { "ref": "LED2", "type": "led", "color": "white" }
+  ],
+  "connections": [
+    ["PSU1.+", "R1.1"],
+    ["R1.2", "LED1.anode"],
+    ["LED1.cathode", "LED2.anode"],
+    ["LED2.cathode", "PSU1.-"]
+  ],
+  "tests": [
+    {
+      "name": "两颗白光 LED 亮，电源保持 12V（CV 模式）",
+      "expect": { "LED1": "on", "LED2": "on" },
+      "voltages": [{ "pin": "PSU1.+", "ref": "PSU1.-", "min": 11.9, "max": 12.05 }]
+    }
+  ],
+  "hints": [
+    "选中稳压电源，把电压设为 12V，限流设为 0.05A。",
+    "红色鳄鱼夹（+）接红轨，黑色（COM）接蓝轨。",
+    "两颗 LED 串联：LED1 的短脚和 LED2 的长脚在同一列。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "bench_supply", "ref": "PSU1", "voltage": 12, "currentLimit": 0.05, "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "330", "pins": { "1": "b3", "2": "b7" } },
+      { "type": "led", "ref": "LED1", "color": "white", "pins": { "anode": "c7", "cathode": "c10" } },
+      { "type": "led", "ref": "LED2", "color": "white", "pins": { "anode": "d10", "cathode": "d13" } },
+      { "type": "wire", "pins": { "a": "a13", "b": "tn13" }, "color": "blue" }
+    ]
+  }
+}

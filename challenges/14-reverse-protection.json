@@ -1,0 +1,43 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-reverse-protection",
+  "title": "挑战 6 · 二极管防反接保护",
+  "kind": "challenge",
+  "level": 3,
+  "summary": "在电源入口串一个二极管：电池接反时电路不会通电。",
+  "concepts": ["diode 二极管", "reverse polarity protection 防反接", "0.7V drop 压降"],
+  "description": "电池接反（+ 和 − 对调）可能损坏电路。最简单的保护：在电源 + 后面串联一个普通二极管（diode）。\n• 正接：二极管导通，只损失约 0.7V；\n• 反接：二极管截止，没有电流流过，后面的电路安全。\n\n要求：+9V → 二极管（anode 朝电源，cathode 朝电路）→ 470Ω → 绿色 LED → GND。\n二极管上有色环的一端是负极（cathode）。\n\ntests 会测量二极管负极的电压：应该比 9V 低大约 0.7V。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "D1", "type": "diode" },
+    { "ref": "R1", "type": "resistor", "resistance": "470" },
+    { "ref": "LED1", "type": "led", "color": "green" }
+  ],
+  "connections": [
+    ["V1.+", "D1.anode"],
+    ["D1.cathode", "R1.1"],
+    ["R1.2", "LED1.anode"],
+    ["LED1.cathode", "V1.-"]
+  ],
+  "tests": [
+    {
+      "name": "LED 亮，二极管后约 8.3V",
+      "expect": { "LED1": "on" },
+      "voltages": [{ "pin": "D1.cathode", "ref": "V1.-", "min": 8.0, "max": 8.6 }]
+    }
+  ],
+  "hints": [
+    "二极管和 LED 一样有方向：电流从 anode 流向 cathode（色环端）。",
+    "二极管的 anode 可以直接插在红色 + 轨上。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "diode", "ref": "D1", "pins": { "anode": "tp4", "cathode": "b4" } },
+      { "type": "resistor", "ref": "R1", "resistance": "470", "pins": { "1": "c4", "2": "c8" } },
+      { "type": "led", "ref": "LED1", "color": "green", "pins": { "anode": "d8", "cathode": "d11" } },
+      { "type": "wire", "pins": { "a": "a11", "b": "tn11" }, "color": "blue" }
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-button-parallel",
+  "title": "挑战 5 · 一个按键控制两个 LED",
+  "kind": "challenge",
+  "level": 3,
+  "summary": "按下按键，两条并联的 LED 支路同时点亮。",
+  "concepts": ["push button", "parallel 并联", "bottom rails 下方电源轨"],
+  "description": "要求：+5V → 按键 → 节点 SWOUT；从 SWOUT 分出两条支路：220Ω + 红色 LED、220Ω + 黄色 LED，都回到 GND。\n• 松开按键：两个 LED 都灭；\n• 按下按键：两个 LED 都亮。\n\n按键是两条支路共用的“总开关”，所以它要放在分岔点之前。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 5 },
+    { "ref": "SW1", "type": "pushbutton" },
+    { "ref": "R1", "type": "resistor", "resistance": "220" },
+    { "ref": "LED1", "type": "led", "color": "red" },
+    { "ref": "R2", "type": "resistor", "resistance": "220" },
+    { "ref": "LED2", "type": "led", "color": "yellow" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["V1.+", "SW1.1"] },
+    { "name": "SWOUT", "pins": ["SW1.2", "R1.1", "R2.1"] },
+    { "pins": ["R1.2", "LED1.anode"] },
+    { "pins": ["R2.2", "LED2.anode"] },
+    { "name": "GND", "pins": ["LED1.cathode", "LED2.cathode", "V1.-"] }
+  ],
+  "tests": [
+    { "name": "松开：都灭", "set": { "SW1": { "pressed": false } }, "expect": { "LED1": "off", "LED2": "off" } },
+    { "name": "按下：都亮", "set": { "SW1": { "pressed": true } }, "expect": { "LED1": "on", "LED2": "on" } }
+  ],
+  "hints": [
+    "按键横跨凹槽放在 e 行；它右边那一列（上下两段都算）就是 SWOUT。",
+    "两个电阻的一只脚都插在 SWOUT 那一列。",
+    "用电源模块的话，下方的 bn 轨也是 GND。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
+      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
+      { "type": "pushbutton", "ref": "SW1", "at": "e5" },
+      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "h7", "2": "h11" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "i11", "cathode": "i14" } },
+      { "type": "wire", "pins": { "a": "j14", "b": "bn14" }, "color": "blue" },
+      { "type": "resistor", "ref": "R2", "resistance": "220", "pins": { "1": "g7", "2": "g17" } },
+      { "type": "led", "ref": "LED2", "color": "yellow", "pins": { "anode": "h17", "cathode": "h20" } },
+      { "type": "wire", "pins": { "a": "j20", "b": "bn20" }, "color": "blue" }
+    ]
+  }
+}

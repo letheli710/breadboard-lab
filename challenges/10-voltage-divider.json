@@ -1,0 +1,40 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-voltage-divider",
+  "title": "挑战 2 · 分压器：从 9V 得到 3V",
+  "kind": "challenge",
+  "level": 2,
+  "summary": "用两个电阻把 9V 分成 3V，并用电压测试验证。",
+  "concepts": ["voltage divider 分压器", "Vout = Vin × R2 / (R1 + R2)"],
+  "description": "分压器（voltage divider）是两个串联电阻，从中间点取出一个较低的电压：\n  Vout = Vin × R2 / (R1 + R2)\n\n要求：用 9V 电源、R1 = 2kΩ（接 +9V 一侧）、R2 = 1kΩ（接 GND 一侧），使中间节点 VOUT 相对 GND 约为 3V。\n\n验证：9 × 1k / (2k + 1k) = 3V。tests 会测量 VOUT 的电压（2.85–3.15V）。\n\n注意：分压器的输出接上负载以后电压会变（负载和 R2 并联），所以它适合给“几乎不取电流”的东西提供参考电压。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "R1", "type": "resistor", "resistance": "2k" },
+    { "ref": "R2", "type": "resistor", "resistance": "1k" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["V1.+", "R1.1"] },
+    { "name": "VOUT", "pins": ["R1.2", "R2.1"] },
+    { "name": "GND", "pins": ["R2.2", "V1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "VOUT ≈ 3V",
+      "voltages": [{ "pin": "R2.1", "ref": "V1.-", "min": 2.85, "max": 3.15 }]
+    }
+  ],
+  "hints": [
+    "R1 和 R2 串联，中间的连接点就是 VOUT。",
+    "大电阻分到的电压多：R1 是 R2 的两倍，所以 R1 上 6V、R2 上 3V。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "2k", "pins": { "1": "b3", "2": "b8" } },
+      { "type": "resistor", "ref": "R2", "resistance": "1k", "pins": { "1": "c8", "2": "c12" } },
+      { "type": "wire", "pins": { "a": "a12", "b": "tn12" }, "color": "blue" }
+    ]
+  }
+}

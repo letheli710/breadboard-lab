@@ -1,0 +1,55 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-schematic-to-breadboard",
+  "title": "第 4 课 · 从原理图到面包板",
+  "kind": "lesson",
+  "level": 2,
+  "summary": "一个固定的方法：原理图里的每个节点 = 面包板上的一条金属条。",
+  "concepts": ["schematic 原理图", "node 节点", "net 网络", "strip 金属条", "VCC / GND rail"],
+  "description": "原理图（schematic）只关心“谁和谁连在一起”，不关心元件放在哪里。把原理图搬到面包板上，可以按下面 4 步机械地做：\n\n【第 1 步：找节点（node）】\n节点 = 原理图里所有用导线连在一起的点的集合。本题有 4 个节点：VCC（电源 +）、A（R1 和 LED 之间）、B（LED 和 R2 之间）、GND（电源 −）。数一数：每两个元件之间的连接点就是一个节点。\n\n【第 2 步：VCC → 红轨，GND → 蓝轨】\n电源 + 节点用红色 + 轨，GND 节点用蓝色 − 轨。原理图上所有的地符号都去蓝轨。\n\n【第 3 步：其余每个节点分配一条空的金属条】\n例如 A = 第 7 列（a–e），B = 第 10 列（a–e）。同一个节点的所有引脚，都插进同一条金属条（或用跳线连到它）。\n\n【第 4 步：元件跨在两条金属条之间】\n每个两脚元件连接两个节点，所以它的两只脚插在两条不同的金属条上：R1 一脚在 VCC 那条、一脚在 A 那条；LED 从 A 跨到 B；R2 从 B 跨到 GND。\n\n常见错误：把元件的两只脚插在同一列的 a–e 里——两只脚被金属条短接，元件等于不存在。\n\n检查方法：对照原理图，逐个节点问自己“这个节点的所有引脚，是不是都在同一条金属条上？”",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "R1", "type": "resistor", "resistance": "330" },
+    { "ref": "LED1", "type": "led", "color": "red" },
+    { "ref": "R2", "type": "resistor", "resistance": "330" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["V1.+", "R1.1"] },
+    { "name": "A", "pins": ["R1.2", "LED1.anode"] },
+    { "name": "B", "pins": ["LED1.cathode", "R2.1"] },
+    { "name": "GND", "pins": ["R2.2", "V1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "LED 亮；节点 A ≈ 5.5V，节点 B ≈ 3.5V",
+      "expect": { "LED1": "on" },
+      "voltages": [
+        { "pin": "R1.2", "min": 5.1, "max": 5.8 },
+        { "pin": "R2.1", "min": 3.2, "max": 3.9 }
+      ]
+    }
+  ],
+  "steps": [
+    { "text": "节点 VCC 和 GND：电池 + 接 tp1，− 接 tn1。", "highlight": ["tp1", "tn1"] },
+    { "text": "给 VCC 分一条金属条给 R1 用：红色跳线 tp3 → a3，第 3 列（a–e）现在属于 VCC 节点。", "highlight": ["tp3", "a3", "b3", "c3", "d3", "e3"] },
+    { "text": "节点 A = 第 7 列。R1 一脚插 b3（VCC），一脚插 b7（A）。", "highlight": ["b3", "b7", "a7", "c7", "d7", "e7"] },
+    { "text": "节点 B = 第 10 列。LED1 长脚插 c7（A），短脚插 c10（B）。", "highlight": ["c7", "c10", "a10", "b10", "d10", "e10"] },
+    { "text": "R2 从节点 B 跨到一条新的金属条：一脚 d10，一脚 d14。", "highlight": ["d10", "d14"] },
+    { "text": "第 14 列要接到 GND：蓝色跳线 a14 → tn14。对照原理图逐个节点检查，全部对上了！", "highlight": ["a14", "tn14"] }
+  ],
+  "hints": [
+    "先数节点，再分配金属条。4 个节点 = 2 条电源轨 + 2 条列（这里另用了一列把 R2 接到 GND）。",
+    "一个两脚元件永远连接两个不同的节点，所以两只脚一定在两条不同的金属条上。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "330", "pins": { "1": "b3", "2": "b7" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c7", "cathode": "c10" } },
+      { "type": "resistor", "ref": "R2", "resistance": "330", "pins": { "1": "d10", "2": "d14" } },
+      { "type": "wire", "pins": { "a": "a14", "b": "tn14" }, "color": "blue" }
+    ]
+  }
+}

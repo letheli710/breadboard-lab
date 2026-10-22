@@ -1,0 +1,179 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://breadboard-lab.local/schema/challenge.schema.json",
+  "title": "Breadboard Lab challenge (breadboard-challenge/1)",
+  "description": "Lesson / challenge file for Breadboard Lab. Mirrors src/core/challenge.ts (parseChallenge). See docs/CHALLENGE_FORMAT.md.",
+  "type": "object",
+  "required": ["format", "id", "title", "components"],
+  "anyOf": [{ "required": ["connections"] }, { "required": ["nets"] }],
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": "breadboard-challenge/1", "description": "Format identifier. Must be exactly \"breadboard-challenge/1\"." },
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$", "description": "Unique id: letters, digits, - and _." },
+    "title": { "type": "string", "minLength": 1 },
+    "kind": { "enum": ["lesson", "challenge"], "default": "challenge", "description": "lesson = guided (steps); challenge = solve it yourself (hints)." },
+    "level": { "type": "number", "minimum": 1, "maximum": 5, "default": 1, "description": "Difficulty 1–5 (rounded and clamped)." },
+    "summary": { "type": "string", "description": "One-line summary shown in the list." },
+    "description": {
+      "description": "Teaching text. Plain text; \\n for line breaks. An array of strings is joined with \\n.",
+      "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
+    },
+    "concepts": { "type": "array", "items": { "type": "string" } },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Target circuit components (logical). Wires are NOT components.",
+      "items": { "$ref": "#/definitions/component" }
+    },
+    "connections": {
+      "type": "array",
+      "description": "Each item = a group of terminals that are electrically connected (one node). Groups sharing a terminal are merged.",
+      "items": { "type": "array", "items": { "$ref": "#/definitions/pinRef" } }
+    },
+    "nets": {
+      "type": "array",
+      "description": "Named nodes. Same meaning as connections, but with a name (shown in messages, e.g. VCC / GND / VOUT).",
+      "items": {
+        "type": "object",
+        "required": ["pins"],
+        "properties": {
+          "name": { "type": "string" },
+          "pins": { "type": "array", "items": { "$ref": "#/definitions/pinRef" } }
+        }
+      }
+    },
+    "tests": { "type": "array", "items": { "$ref": "#/definitions/test" } },
+    "hints": { "type": "array", "items": { "type": "string" } },
+    "steps": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "type": "string", "minLength": 1 },
+          {
+            "type": "object",
+            "required": ["text"],
+            "properties": {
+              "text": { "type": "string", "minLength": 1 },
+              "highlight": { "type": "array", "items": { "$ref": "#/definitions/hole" } }
+            }
+          }
+        ]
+      }
+    },
+    "solution": { "$ref": "#/definitions/layout" },
+    "start": { "$ref": "#/definitions/layout" },
+    "options": {
+      "type": "object",
+      "properties": {
+        "tolerance": { "type": "number", "minimum": 0, "default": 0.05, "description": "Relative tolerance for component values (0.05 = ±5%)." },
+        "allowExtraComponents": { "type": "boolean", "default": false, "description": "If true, extra parts on the board are not errors." }
+      }
+    }
+  },
+  "definitions": {
+    "value": {
+      "description": "Number or engineering string: 330, \"330\", \"4.7k\", \"4k7\", \"1M\", \"100nF\", \"any\".",
+      "oneOf": [{ "type": "number" }, { "type": "string", "pattern": "^(any|\\s*-?\\d*\\.?\\d+(e-?\\d+)?\\s*[pnuµmkKMG]?\\s*(ohms?|Ω|F|V|A)?\\s*|\\d+[pnuµmkKMG]\\d+\\s*(ohms?|Ω|F|V|A)?)$" }]
+    },
+    "ledColor": { "enum": ["red", "yellow", "green", "blue", "white", "any"] },
+    "batteryVariant": { "enum": ["9V", "2xAA", "3xAA", "4xAA", "CR2032"] },
+    "hole": {
+      "type": "string",
+      "pattern": "^([a-j]|tp|tn|bp|bn)([1-9]|[12][0-9]|30)$",
+      "description": "Main area a1–j30; rails tp1–tp30 (top +), tn1–tn30 (top −), bp1–bp30 (bottom +), bn1–bn30 (bottom −)."
+    },
+    "pinRef": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*\\.[^.]+$",
+      "description": "\"REF.pin\", e.g. \"R1.1\", \"LED1.anode\", \"V1.+\", \"SW1.2\", \"RV1.2\", \"S1.com\"."
+    },
+    "props": {
+      "type": "object",
+      "properties": {
+        "resistance": { "$ref": "#/definitions/value" },
+        "value": { "$ref": "#/definitions/value" },
+        "voltage": { "$ref": "#/definitions/value" },
+        "capacitance": { "$ref": "#/definitions/value" },
+        "currentLimit": { "$ref": "#/definitions/value" },
+        "wiper": { "$ref": "#/definitions/value" },
+        "color": { "$ref": "#/definitions/ledColor" },
+        "variant": { "$ref": "#/definitions/batteryVariant" },
+        "pressed": { "type": "boolean" },
+        "position": { "enum": ["a", "b"] }
+      }
+    },
+    "component": {
+      "allOf": [
+        { "$ref": "#/definitions/props" },
+        {
+          "type": "object",
+          "required": ["ref", "type"],
+          "properties": {
+            "ref": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$", "description": "Unique reference, e.g. R1, LED1, V1." },
+            "type": {
+              "enum": ["resistor", "led", "diode", "capacitor", "pushbutton", "switch", "potentiometer", "battery", "bench_supply", "power_module", "dc_source"],
+              "description": "dc_source matches any battery / bench_supply / power_module (with the same voltage if given)."
+            }
+          }
+        }
+      ]
+    },
+    "test": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "set": {
+          "type": "object",
+          "description": "Temporary property overrides per component ref, e.g. {\"SW1\": {\"pressed\": true}}, {\"S1\": {\"position\": \"b\"}}, {\"RV1\": {\"wiper\": 0.2}}.",
+          "additionalProperties": { "$ref": "#/definitions/props" }
+        },
+        "expect": {
+          "type": "object",
+          "description": "LED ref -> \"on\" | \"off\" (on = more than 0.5 mA).",
+          "additionalProperties": { "enum": ["on", "off"] }
+        },
+        "voltages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["pin"],
+            "properties": {
+              "pin": { "$ref": "#/definitions/pinRef" },
+              "ref": { "$ref": "#/definitions/pinRef", "description": "Reference terminal. Omitted = GND (the − of the first power source)." },
+              "min": { "type": "number" },
+              "max": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "layoutPart": {
+      "allOf": [
+        { "$ref": "#/definitions/props" },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "enum": ["wire", "resistor", "led", "diode", "capacitor", "pushbutton", "switch", "potentiometer", "battery", "bench_supply", "power_module"]
+            },
+            "ref": { "type": "string" },
+            "pins": {
+              "type": "object",
+              "description": "Physical pin -> hole. wire a/b; resistor 1/2; led & diode anode/cathode; capacitor 1/2; battery & bench_supply +/-; pushbutton 1a/2a/1b/2b; switch a/com/b; potentiometer 1/2/3; power_module +t/-t/+b/-b.",
+              "additionalProperties": { "$ref": "#/definitions/hole" }
+            },
+            "at": { "$ref": "#/definitions/hole", "description": "Footprint anchor for pushbutton / switch / potentiometer / power_module (instead of pins)." },
+            "color": { "type": "string", "description": "LED colour, or the wire colour for type \"wire\" (use red/blue/green/yellow/white)." },
+            "props": { "$ref": "#/definitions/props", "description": "Alternative to flat properties." }
+          }
+        }
+      ]
+    },
+    "layout": {
+      "type": "object",
+      "required": ["parts"],
+      "properties": { "parts": { "type": "array", "items": { "$ref": "#/definitions/layoutPart" } } }
+    }
+  }
+}

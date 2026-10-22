@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-coin-cell",
+  "title": "挑战 9 · 纽扣电池点灯（还是要电阻！）",
+  "kind": "challenge",
+  "level": 3,
+  "summary": "CR2032 有 15Ω 内阻，但这不是省掉限流电阻的理由。",
+  "concepts": ["CR2032 coin cell 纽扣电池", "internal resistance 内阻", "terminal voltage 端电压"],
+  "description": "网上常说“纽扣电池可以直接点 LED，不用电阻”，因为 CR2032 的内阻（约 15Ω）会限制电流。算一算：\n  不加电阻：I ≈ (3 − 1.8) / (15 + 12) ≈ 44mA —— 远超 LED 的 20mA，而且对纽扣电池也是重负载。\n  加 47Ω：I ≈ (3 − 1.8) / (15 + 12 + 47) ≈ 16mA —— 刚好。\n\n要求：CR2032 → 47Ω → 红色 LED → GND。\n\n观察内阻的效果：电流流过内阻会“吃掉”一部分电压，所以电池端电压会从 3V 降到约 2.75V。tests 会测量这个端电压。",
+  "components": [
+    { "ref": "BAT1", "type": "battery", "variant": "CR2032" },
+    { "ref": "R1", "type": "resistor", "resistance": "47" },
+    { "ref": "LED1", "type": "led", "color": "red" }
+  ],
+  "connections": [
+    ["BAT1.+", "R1.1"],
+    ["R1.2", "LED1.anode"],
+    ["LED1.cathode", "BAT1.-"]
+  ],
+  "tests": [
+    {
+      "name": "LED 亮，电池端电压被内阻拉低到约 2.75V",
+      "expect": { "LED1": "on" },
+      "voltages": [{ "pin": "BAT1.+", "ref": "BAT1.-", "min": 2.6, "max": 2.9 }]
+    }
+  ],
+  "hints": ["选中电池，在属性里把型号改成 CR2032。", "47Ω 电阻的一只脚可以直接插红轨。"],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "CR2032", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "resistor", "ref": "R1", "resistance": "47", "pins": { "1": "tp5", "2": "b5" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c5", "cathode": "c8" } },
+      { "type": "wire", "pins": { "a": "a8", "b": "tn8" }, "color": "blue" }
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-power-and-ground",
+  "title": "第 2 课 · 电源与 GND（地）",
+  "kind": "lesson",
+  "level": 1,
+  "summary": "GND 到底是什么？为什么每个元件最后都要接到蓝色轨？",
+  "concepts": ["GND / ground 地", "0 V reference 参考点", "VCC", "return path 回路", "power rail 电源轨"],
+  "description": "【电压是两点之间的差】\n电压（voltage）永远是“A 点相对 B 点”高多少伏。说“这个点是 5V”时，省略了“相对谁”——那个默认的参考点就叫 GND（ground，地），规定它是 0 V。\n\n【GND 就是电源的 − 极】\n在电池或电源电路里，我们通常把电源的 − 端定义为 GND。所以：电源 + 端 = VCC（比如 +9V），电源 − 端 = GND（0V）。GND 不是“大地”，也不是“电流消失的地方”，它只是电路里大家约定的 0V 参考点。\n\n【电流需要回家的路（return path）】\n电流从电源 + 出发，流过元件，最后必须回到电源 −。原理图里画的那个“地”符号（⏚），意思就是“这根线接到电源 − 端”。原理图上可能画了 5 个地符号，它们在实物上全部是同一个节点——在面包板上就是蓝色 − 轨。\n\n【为什么要有电源轨】\n几乎每个元件都需要接 VCC 或 GND。把电源接到长长的红 / 蓝轨上，任何一列都能就近取电、就近接地，不用把所有线都拉回电池。\n\n本课：两个 LED 支路共用同一个 VCC（红轨）和同一个 GND（蓝轨）。tests 里还会测量电压：VCC 相对 GND 约 9V；LED 负极就在 GND 上，所以是 0V。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "R1", "type": "resistor", "resistance": "470" },
+    { "ref": "LED1", "type": "led", "color": "red" },
+    { "ref": "R2", "type": "resistor", "resistance": "470" },
+    { "ref": "LED2", "type": "led", "color": "yellow" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["V1.+", "R1.1", "R2.1"] },
+    { "name": "A", "pins": ["R1.2", "LED1.anode"] },
+    { "name": "B", "pins": ["R2.2", "LED2.anode"] },
+    { "name": "GND", "pins": ["LED1.cathode", "LED2.cathode", "V1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "两个 LED 都亮，VCC≈9V，GND=0V",
+      "expect": { "LED1": "on", "LED2": "on" },
+      "voltages": [
+        { "pin": "V1.+", "ref": "V1.-", "min": 8.7, "max": 9.1 },
+        { "pin": "LED1.cathode", "min": -0.05, "max": 0.05 },
+        { "pin": "LED2.cathode", "min": -0.05, "max": 0.05 }
+      ]
+    }
+  ],
+  "steps": [
+    { "text": "电池 + 接红轨 tp1，− 接蓝轨 tn1。从现在起：整条红轨 = VCC（+9V），整条蓝轨 = GND（0V）。", "highlight": ["tp1", "tn1"] },
+    { "text": "第一条支路：红色跳线 tp5 → a5，把 VCC 引到第 5 列。", "highlight": ["tp5", "a5"] },
+    { "text": "R1（470Ω）插在 c5 和 c8 之间；红色 LED1 的长脚插 d8、短脚插 d10。", "highlight": ["c5", "c8", "d8", "d10"] },
+    { "text": "蓝色跳线 a10 → tn10：LED1 的负极回到 GND。这就是它的 return path。", "highlight": ["a10", "tn10"] },
+    { "text": "第二条支路完全一样，只是换到右边：tp15 → a15，R2 插 c15–c18，黄色 LED2 长脚 d18、短脚 d20。", "highlight": ["tp15", "a15", "c15", "c18", "d18", "d20"] },
+    { "text": "蓝色跳线 a20 → tn20。两条支路的“地”都接到同一条蓝轨——原理图里两个地符号，实物上就是同一个 GND 节点。", "highlight": ["a20", "tn20"] }
+  ],
+  "hints": [
+    "红轨不需要每条支路都连回电池：整条轨道本来就是通的。",
+    "如果某个 LED 不亮，先检查它的负极有没有一条路通到蓝轨。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "470", "pins": { "1": "c5", "2": "c8" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "d8", "cathode": "d10" } },
+      { "type": "wire", "pins": { "a": "a10", "b": "tn10" }, "color": "blue" },
+      { "type": "wire", "pins": { "a": "tp15", "b": "a15" }, "color": "red" },
+      { "type": "resistor", "ref": "R2", "resistance": "470", "pins": { "1": "c15", "2": "c18" } },
+      { "type": "led", "ref": "LED2", "color": "yellow", "pins": { "anode": "d18", "cathode": "d20" } },
+      { "type": "wire", "pins": { "a": "a20", "b": "tn20" }, "color": "blue" }
+    ]
+  }
+}

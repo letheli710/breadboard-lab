@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-spdt-selector",
+  "title": "挑战 4 · 拨动开关选红灯 / 绿灯",
+  "kind": "challenge",
+  "level": 3,
+  "summary": "SPDT 开关拨到一边亮红灯，拨到另一边亮绿灯。",
+  "concepts": ["SPDT switch 单刀双掷开关", "com 公共端"],
+  "description": "单刀双掷（SPDT）拨动开关有 3 只脚：中间的 com 是公共端，拨杆在 a 侧时 com 接 a，在 b 侧时 com 接 b。\n\n要求：+5V 接开关的 com；a 脚 → 220Ω → 红色 LED → GND；b 脚 → 220Ω → 绿色 LED → GND。\n• 拨到 a：红灯亮、绿灯灭；\n• 拨到 b：绿灯亮、红灯灭。\n\n请把红灯接在 a 侧（开关最左边那只脚），绿灯接在 b 侧（最右边那只脚）。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 5 },
+    { "ref": "S1", "type": "switch" },
+    { "ref": "R1", "type": "resistor", "resistance": "220" },
+    { "ref": "LED1", "type": "led", "color": "red" },
+    { "ref": "R2", "type": "resistor", "resistance": "220" },
+    { "ref": "LED2", "type": "led", "color": "green" }
+  ],
+  "connections": [
+    ["V1.+", "S1.com"],
+    ["S1.a", "R1.1"],
+    ["R1.2", "LED1.anode"],
+    ["S1.b", "R2.1"],
+    ["R2.2", "LED2.anode"],
+    ["LED1.cathode", "LED2.cathode", "V1.-"]
+  ],
+  "tests": [
+    { "name": "拨到 a：红亮绿灭", "set": { "S1": { "position": "a" } }, "expect": { "LED1": "on", "LED2": "off" } },
+    { "name": "拨到 b：绿亮红灭", "set": { "S1": { "position": "b" } }, "expect": { "LED1": "off", "LED2": "on" } }
+  ],
+  "hints": [
+    "开关三只脚占三个相邻的列：左 a、中 com、右 b。",
+    "+5V 要接到中间那一列（com）。",
+    "两个 LED 的负极都回到 GND 蓝轨。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
+      { "type": "switch", "ref": "S1", "at": "c10" },
+      { "type": "wire", "pins": { "a": "tp11", "b": "a11" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "b10", "2": "b6" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c6", "cathode": "c3" } },
+      { "type": "wire", "pins": { "a": "a3", "b": "tn3" }, "color": "blue" },
+      { "type": "resistor", "ref": "R2", "resistance": "220", "pins": { "1": "b12", "2": "b16" } },
+      { "type": "led", "ref": "LED2", "color": "green", "pins": { "anode": "c16", "cathode": "c19" } },
+      { "type": "wire", "pins": { "a": "a19", "b": "tn19" }, "color": "blue" }
+    ]
+  }
+}

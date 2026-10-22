@@ -1,0 +1,48 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "challenge-series-parallel",
+  "title": "挑战 7 · 串并联电阻网络",
+  "kind": "challenge",
+  "level": 4,
+  "summary": "搭一个串并联混合网络，并用两个电压测试检查你的计算。",
+  "concepts": ["series-parallel 串并联", "equivalent resistance 等效电阻", "voltage divider 分压"],
+  "description": "电路：R1（1kΩ）从 +9V 接到节点 M；从 M 到 GND 有两条并联支路：\n• 支路甲：R2（2kΩ）；\n• 支路乙：R3（1kΩ）和 R4（1kΩ）串联，中间节点叫 X。\n\n计算：\n1. 支路乙 = 1k + 1k = 2kΩ；\n2. 两条支路并联 = 2k ∥ 2k = 1kΩ；\n3. M 点电压 = 9 × 1k / (1k + 1k) = 4.5V；\n4. X 点在 R3、R4 中间，电压 = 4.5 / 2 = 2.25V。\n\ntests 会测量 M 和 X 相对 GND 的电压。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "R1", "type": "resistor", "resistance": "1k" },
+    { "ref": "R2", "type": "resistor", "resistance": "2k" },
+    { "ref": "R3", "type": "resistor", "resistance": "1k" },
+    { "ref": "R4", "type": "resistor", "resistance": "1k" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["V1.+", "R1.1"] },
+    { "name": "M", "pins": ["R1.2", "R2.1", "R3.1"] },
+    { "name": "X", "pins": ["R3.2", "R4.1"] },
+    { "name": "GND", "pins": ["R2.2", "R4.2", "V1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "M ≈ 4.5V，X ≈ 2.25V",
+      "voltages": [
+        { "pin": "R1.2", "min": 4.3, "max": 4.7 },
+        { "pin": "R3.2", "min": 2.1, "max": 2.4 }
+      ]
+    }
+  ],
+  "hints": [
+    "先给每个节点分一条金属条：M、X 各一列，再加一列接 GND。",
+    "R2 和（R3 + R4）的两端都分别在 M 和 GND 上。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
+      { "type": "resistor", "ref": "R1", "resistance": "1k", "pins": { "1": "b3", "2": "b8" } },
+      { "type": "resistor", "ref": "R2", "resistance": "2k", "pins": { "1": "c8", "2": "c15" } },
+      { "type": "resistor", "ref": "R3", "resistance": "1k", "pins": { "1": "d8", "2": "d11" } },
+      { "type": "resistor", "ref": "R4", "resistance": "1k", "pins": { "1": "c11", "2": "d15" } },
+      { "type": "wire", "pins": { "a": "a15", "b": "tn15" }, "color": "blue" }
+    ]
+  }
+}

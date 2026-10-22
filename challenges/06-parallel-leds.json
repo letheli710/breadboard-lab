@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-parallel",
+  "title": "第 6 课 · 并联 LED（parallel）",
+  "kind": "lesson",
+  "level": 2,
+  "summary": "并排连接：电压相同，电流分开。每个 LED 要有自己的电阻。",
+  "concepts": ["parallel 并联", "branch 支路", "KCL 基尔霍夫电流定律", "each LED its own resistor"],
+  "description": "【什么是并联】\n几个支路（branch）的两端分别接在同一对节点上，这叫并联（parallel）。这里两条支路都是从 VCC 接到 GND，所以每条支路两端的电压都是 5V。\n\n【并联的规律】\n1. 电压相同：每条支路两端都是电源电压。\n2. 电流相加（KCL）：电源输出的总电流 = 各支路电流之和。\n3. 支路彼此独立：拔掉一条支路，另一条照样工作。\n\n【为什么每个 LED 要有自己的电阻】\n如果两个 LED 直接并联、共用一个电阻，Vf 低的那个（比如红色 1.8V）会把电压“钳”在 1.8V，Vf 高的那个（绿色 2.1V）根本达不到导通电压，几乎不亮，所有电流都挤进红色 LED。所以正确做法是：每个 LED 串一个自己的限流电阻，再把这些“电阻 + LED”支路并联。\n\n【面包板小技巧】\n电阻的一只脚可以直接插进电源轨，另一只脚插到主区——这样省一根跳线。本课就是这么做的。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 5 },
+    { "ref": "R1", "type": "resistor", "resistance": "150" },
+    { "ref": "LED1", "type": "led", "color": "red" },
+    { "ref": "R2", "type": "resistor", "resistance": "150" },
+    { "ref": "LED2", "type": "led", "color": "green" }
+  ],
+  "connections": [
+    ["V1.+", "R1.1", "R2.1"],
+    ["R1.2", "LED1.anode"],
+    ["R2.2", "LED2.anode"],
+    ["LED1.cathode", "LED2.cathode", "V1.-"]
+  ],
+  "tests": [{ "name": "两个 LED 都亮", "expect": { "LED1": "on", "LED2": "on" } }],
+  "steps": [
+    { "text": "电源模块插在第 1 列，5V。", "highlight": ["tp1", "tn1", "bp1", "bn1"] },
+    { "text": "支路 1：R1 一只脚直接插红轨 tp5，另一只脚插 b5。", "highlight": ["tp5", "b5"] },
+    { "text": "红色 LED1 长脚 c5、短脚 c8；蓝色跳线 a8 → tn8。", "highlight": ["c5", "c8", "a8", "tn8"] },
+    { "text": "支路 2：R2 一只脚插 tp12，另一只脚插 b12。", "highlight": ["tp12", "b12"] },
+    { "text": "绿色 LED2 长脚 c12、短脚 c15；蓝色跳线 a15 → tn15。两条支路的上端都在红轨、下端都在蓝轨：并联完成。", "highlight": ["c12", "c15", "a15", "tn15"] }
+  ],
+  "hints": ["两个 LED 不要共用一个电阻：每条支路 = 一个电阻 + 一个 LED。"],
+  "solution": {
+    "parts": [
+      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
+      { "type": "resistor", "ref": "R1", "resistance": "150", "pins": { "1": "tp5", "2": "b5" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c5", "cathode": "c8" } },
+      { "type": "wire", "pins": { "a": "a8", "b": "tn8" }, "color": "blue" },
+      { "type": "resistor", "ref": "R2", "resistance": "150", "pins": { "1": "tp12", "2": "b12" } },
+      { "type": "led", "ref": "LED2", "color": "green", "pins": { "anode": "c12", "cathode": "c15" } },
+      { "type": "wire", "pins": { "a": "a15", "b": "tn15" }, "color": "blue" }
+    ]
+  }
+}

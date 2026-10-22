@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-pushbutton",
+  "title": "第 7 课 · 按键开关（push button）",
+  "kind": "lesson",
+  "level": 2,
+  "summary": "四只脚的按键为什么要横跨中间的凹槽？",
+  "concepts": ["push button 轻触按键", "normally open 常开", "trench 凹槽", "bottom rails 下方电源轨"],
+  "description": "【四脚按键的内部】\n常见的 6×6mm 轻触按键有 4 只脚，但电气上只有 2 个端子：\n• 1a 和 1b 内部永远相通（同一侧），2a 和 2b 也永远相通；\n• 按下时，1 侧和 2 侧接通；松开时断开（常开，normally open）。\n\n【为什么要横跨凹槽】\n把按键放在 e/f 两行、跨过中间凹槽：左边两只脚（e5、f5）在第 5 列，右边两只脚（e7、f7）在第 7 列。第 5 列是开关的一端、第 7 列是另一端，按下才接通。\n如果按键不跨凹槽、四只脚都插在 a–e 区，那么同一列上下两只脚本来就被金属条连着——要么开关永远是通的，要么完全没用。\n\n【本课电路】\n+5V → 按键 → 220Ω → LED → GND。按键放在凹槽上，所以电阻和 LED 接在下半区（f–j），GND 用下方蓝轨 bn。电源模块会同时给上下两组轨道供电，所以下方轨道也有电。\n\ntests 会分别检查：松开时 LED 灭，按下时 LED 亮。",
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 5 },
+    { "ref": "SW1", "type": "pushbutton" },
+    { "ref": "R1", "type": "resistor", "resistance": "220" },
+    { "ref": "LED1", "type": "led", "color": "red" }
+  ],
+  "connections": [
+    ["V1.+", "SW1.1"],
+    ["SW1.2", "R1.1"],
+    ["R1.2", "LED1.anode"],
+    ["LED1.cathode", "V1.-"]
+  ],
+  "tests": [
+    { "name": "松开按键：LED 灭", "set": { "SW1": { "pressed": false } }, "expect": { "LED1": "off" } },
+    { "name": "按下按键：LED 亮", "set": { "SW1": { "pressed": true } }, "expect": { "LED1": "on" } }
+  ],
+  "steps": [
+    { "text": "电源模块插在第 1 列（5V），上下四条轨道都通电。", "highlight": ["tp1", "tn1", "bp1", "bn1"] },
+    { "text": "红色跳线 tp5 → a5：第 5 列上半段 = +5V。", "highlight": ["tp5", "a5"] },
+    { "text": "按键放在 e5，横跨凹槽：四只脚在 e5、e7、f5、f7。第 5 列是开关输入端，第 7 列是输出端。", "highlight": ["e5", "e7", "f5", "f7"] },
+    { "text": "220Ω 电阻从第 7 列下半段出发：h7 – h11。", "highlight": ["h7", "h11"] },
+    { "text": "LED 长脚 i11、短脚 i14；蓝色跳线 j14 → bn14（下方 − 轨）。", "highlight": ["i11", "i14", "j14", "bn14"] },
+    { "text": "完成！点击按键试试：按下 → 第 5 列和第 7 列接通 → LED 亮。", "highlight": ["e5", "e7"] }
+  ],
+  "hints": [
+    "按键要横跨中间凹槽（放在 e 行），左右两列才是开关的两端。",
+    "按键内部同一侧的上下两只脚永远相通。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
+      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
+      { "type": "pushbutton", "ref": "SW1", "at": "e5" },
+      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "h7", "2": "h11" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "i11", "cathode": "i14" } },
+      { "type": "wire", "pins": { "a": "j14", "b": "bn14" }, "color": "blue" }
+    ]
+  }
+}
