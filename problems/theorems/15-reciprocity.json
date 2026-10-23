@@ -1,0 +1,91 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "theorems-15-reciprocity",
+  "chapter": "theorems",
+  "title": "互易定理：电流源激励、开路电压响应",
+  "level": 4,
+  "tags": ["互易定理", "线性电阻网络"],
+  "statement": [
+    "Ra、Rb、Rc 组成的线性电阻网络 N_R 数值未知（图中未标出），端口 1-1' 在左，端口 2-2' 在右。",
+    "**实验（a）：** 在端口 1-1' 接电流源 3 A（电流从 1 端流入网络），端口 2-2' 开路，测得 u_22' = 6 V（2 端为正）。",
+    "**实验（b）（如图）：** 电流源 Is = 5 A 改接到端口 2-2'（电流从 2 端流入网络），端口 1-1' 接理想电压表。求电压表的读数。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "V1", "type": "voltmeter", "from": [0, 0], "to": [0, 4] },
+      { "ref": "Rb", "type": "R", "from": [4, 0], "to": [4, 4], "value": 4, "hideValue": true },
+      { "ref": "Ra", "type": "R", "from": [6, 0], "to": [10, 0], "value": 2, "hideValue": true },
+      { "ref": "Rc", "type": "R", "from": [12, 0], "to": [12, 4], "value": 6, "hideValue": true },
+      { "ref": "Is", "type": "I", "from": [16, 4], "to": [16, 0], "value": 5 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[10, 0], [16, 0]],
+      [[16, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [2, 0], "name": "1" }, { "at": [14, 0], "name": "2" }],
+    "grounds": [[8, 4]],
+    "notes": [{ "at": [2, 5], "text": "1'" }, { "at": [14, 5], "text": "2'" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "v1",
+      "ask": "电压表读数 u_11' = ?",
+      "find": { "kind": "meter", "el": "V1" },
+      "answer": 10,
+      "unit": "V",
+      "explain": "互易定理第二种形式：电流源激励、开路电压响应，转移电阻相同：u_11'/5 = 6/3 → u_11' = 10 V。"
+    },
+    {
+      "id": "cond",
+      "ask": "下列哪种网络不能直接使用互易定理？",
+      "choices": ["含受控源的网络", "只含线性电阻的网络", "电阻数值未知的线性电阻网络"],
+      "correct": 0,
+      "explain": "互易定理只适用于只含线性电阻（无独立源、一般也无受控源）的网络；受控源一般破坏互易性。"
+    }
+  ],
+  "hints": [
+    "互易定理（形式二）：在端口 1 加电流源 i_s、端口 2 开路得到的电压，等于在端口 2 加同样的电流源、端口 1 开路得到的电压。",
+    "网络是线性的，响应与激励成正比：先求“转移电阻” u_2/i_s1。"
+  ],
+  "solution": [
+    "**1. 转移电阻。** 由实验（a）：r = u_22'/i_s1 = 6/3 = 2 Ω。",
+    "**2. 互易定理（形式二）。** 对线性电阻网络，端口 2 加电流源、端口 1 开路时 u_11'/i_s2 = u_22'/i_s1 = 2 Ω（激励与响应都按图示方向取：电流从“1”、“2”端流入，电压以“1”、“2”端为正）。",
+    "**3. 读数。** u_11' = 2 × 5 = **10 V**。",
+    "**验算（用图中实际数值 Ra = 2 Ω，Rb = 4 Ω，Rc = 6 Ω）：** 端口 2 看进去 Rc ∥ (Ra + Rb) = 3 Ω，u_22' = 15 V，分压 u_11' = 15 × 4/6 = 10 V ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Reciprocity: current-source excitation, open-circuit voltage response",
+      "tags": ["reciprocity theorem", "linear resistive network"],
+      "statement": [
+        "Ra, Rb, Rc form a linear resistive network N_R with unknown values (not shown); port 1-1' is on the left, port 2-2' on the right.",
+        "**Experiment (a):** a 3 A current source is connected to port 1-1' (current entering the network at terminal 1), port 2-2' is open, and u_22' = 6 V is measured (terminal 2 positive).",
+        "**Experiment (b) (as drawn):** the current source, now Is = 5 A, is moved to port 2-2' (current entering at terminal 2), and an ideal voltmeter is connected to port 1-1'. Find the voltmeter reading."
+      ],
+      "questions": [
+        {
+          "ask": "Voltmeter reading u_11' = ?",
+          "explain": "Second form of reciprocity: current-source excitation and open-circuit voltage response have the same transfer resistance: u_11'/5 = 6/3 → u_11' = 10 V."
+        },
+        {
+          "ask": "For which network can reciprocity NOT be used directly?",
+          "choices": ["A network containing dependent sources", "A network of linear resistors only", "A linear resistive network with unknown values"],
+          "explain": "Reciprocity holds only for networks of linear resistors (no independent sources and, in general, no dependent sources); dependent sources usually destroy reciprocity."
+        }
+      ],
+      "hints": [
+        "Reciprocity (second form): the voltage at port 2 (open) produced by a current source i_s at port 1 equals the voltage at port 1 (open) produced by the same current source at port 2.",
+        "The network is linear, so response ∝ excitation: first find the transfer resistance u_2/i_s1."
+      ],
+      "solution": [
+        "**1. Transfer resistance.** From experiment (a): r = u_22'/i_s1 = 6/3 = 2 Ω.",
+        "**2. Reciprocity (second form).** For a linear resistive network, with the current source at port 2 and port 1 open, u_11'/i_s2 = u_22'/i_s1 = 2 Ω (both excitation and response taken as drawn: currents entering at terminals 1, 2; voltages positive at 1, 2).",
+        "**3. Reading.** u_11' = 2 × 5 = **10 V**.",
+        "**Check (with the actual values Ra = 2 Ω, Rb = 4 Ω, Rc = 6 Ω):** seen from port 2, Rc ∥ (Ra + Rb) = 3 Ω, u_22' = 15 V, divider u_11' = 15 × 4/6 = 10 V ✓."
+      ]
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "theorems-17-tellegen",
+  "chapter": "theorems",
+  "title": "特勒根定理：两次实验求未知电压",
+  "level": 5,
+  "tags": ["特勒根定理", "似功率守恒", "线性电阻网络"],
+  "statement": [
+    "Ra、Rb、Rc 组成的线性电阻网络 N_R 数值未知（图中未标出）。端口 1-1' 在左，端口 2-2' 在右。",
+    "**实验（a）：** 端口 1-1' 接电压源 Us = 12 V（1 端为正），端口 2-2' 接电阻 R2 = 2 Ω。测得电流 i1 = 3 A（从 1 端流入 N_R），u2 = 3 V（2 端为正）。",
+    "**实验（b）（如图）：** 端口 1-1' 改接电阻 R1 = 4 Ω；端口 2-2' 仍接 R2 = 2 Ω，并在其两端并联电流源 Is = 3 A（电流从 2 端流入 N_R）。",
+    "用特勒根定理求实验（b）中 R1 两端的电压 û1（1 端为正）。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R1", "type": "R", "from": [0, 0], "to": [0, 4], "value": 4 },
+      { "ref": "Ra", "type": "R", "from": [3, 0], "to": [7, 0], "value": 2, "hideValue": true },
+      { "ref": "Rb", "type": "R", "from": [9, 0], "to": [9, 4], "value": 4, "hideValue": true },
+      { "ref": "Rc", "type": "R", "from": [11, 0], "to": [15, 0], "value": 2, "hideValue": true },
+      { "ref": "R2", "type": "R", "from": [18, 0], "to": [18, 4], "value": 2 },
+      { "ref": "Is", "type": "I", "from": [22, 4], "to": [22, 0], "value": 3 }
+    ],
+    "wires": [
+      [[0, 0], [3, 0]],
+      [[7, 0], [11, 0]],
+      [[15, 0], [22, 0]],
+      [[22, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [2, 0], "name": "1" }, { "at": [16, 0], "name": "2" }],
+    "grounds": [[9, 4]],
+    "notes": [{ "at": [2, 5], "text": "1'" }, { "at": [16, 5], "text": "2'" }],
+    "marks": [{ "kind": "v", "el": "R1", "name": "û1" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "u1",
+      "ask": "û1 = ?",
+      "find": { "kind": "v", "el": "R1" },
+      "answer": 1.5,
+      "unit": "V",
+      "explain": "u1·î1 + u2·î2 = û1·i1 + û2·i2，其中 î1 = −û1/4，î2 = 3 − û2/2，i2 = −u2/2 = −1.5 A。含 û2 的项相消：−3û1 + 9 = 3û1 → û1 = 1.5 V。"
+    },
+    {
+      "id": "cond",
+      "ask": "上面用到的关系式 u1·î1 + u2·î2 = û1·i1 + û2·i2（两次实验“交叉相乘”）成立的条件是：",
+      "choices": [
+        "两次实验中 N_R 内部是同一组线性电阻（由特勒根定理两次相减得到）",
+        "对任何网络都成立，只要满足 KCL、KVL",
+        "两次实验的端口电压必须相同"
+      ],
+      "correct": 0,
+      "explain": "特勒根定理 Σu_k·î_k = 0 对任何拓扑相同的两个网络都成立；但要把内部支路项消掉，需要内部是相同的线性电阻（u_k·î_k = R_k·i_k·î_k = û_k·i_k）。"
+    }
+  ],
+  "hints": [
+    "两次实验网络 N_R 相同，写出特勒根定理的“似功率”形式：u1·î1 + u2·î2 = û1·i1 + û2·i2（端口电流都取流入 N_R 的方向）。",
+    "实验（a）：u1 = 12 V，i1 = 3 A，u2 = 3 V，i2 = −u2/R2。实验（b）：î1 = −û1/R1，î2 = Is − û2/R2。",
+    "代入后含 û2 的两项会相互抵消——这正是在端口 2 保留同一个 R2 的用意。"
+  ],
+  "solution": [
+    "**1. 两次实验的端口量**（电流都以流入 N_R 为正，电压以 1、2 端为正）：",
+    "- 实验（a）：u1 = 12 V，i1 = 3 A，u2 = 3 V，i2 = −u2/R2 = −1.5 A；",
+    "- 实验（b）：î1 = −û1/R1 = −û1/4，î2 = Is − û2/R2 = 3 − û2/2，û1、û2 未知。",
+    "**2. 特勒根定理**（N_R 为同一线性电阻网络）：u1·î1 + u2·î2 = û1·i1 + û2·i2。",
+    "左边 = 12 × (−û1/4) + 3 × (3 − û2/2) = −3û1 + 9 − 1.5û2；右边 = 3û1 + û2 × (−1.5) = 3û1 − 1.5û2。",
+    "−1.5û2 两边相消：−3û1 + 9 = 3û1 → **û1 = 1.5 V**。",
+    "**3. 验算**（用图中实际数值 Ra = 2 Ω，Rb = 4 Ω，Rc = 2 Ω 列结点方程）：中间结点电压 2.25 V，û1 = 2.25 × 4/(4 + 2) = 1.5 V ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Tellegen's theorem: an unknown voltage from two experiments",
+      "tags": ["Tellegen's theorem", "quasi-power conservation", "linear resistive network"],
+      "statement": [
+        "Ra, Rb, Rc form a linear resistive network N_R with unknown values (not shown). Port 1-1' is on the left, port 2-2' on the right.",
+        "**Experiment (a):** a voltage source Us = 12 V (terminal 1 positive) is connected to port 1-1' and a resistor R2 = 2 Ω to port 2-2'. Measured: i1 = 3 A (entering N_R at terminal 1) and u2 = 3 V (terminal 2 positive).",
+        "**Experiment (b) (as drawn):** port 1-1' now has a resistor R1 = 4 Ω; port 2-2' still has R2 = 2 Ω, with a current source Is = 3 A in parallel (current entering N_R at terminal 2).",
+        "Use Tellegen's theorem to find the voltage û1 across R1 in experiment (b) (terminal 1 positive)."
+      ],
+      "questions": [
+        {
+          "ask": "û1 = ?",
+          "explain": "u1·î1 + u2·î2 = û1·i1 + û2·i2 with î1 = −û1/4, î2 = 3 − û2/2, i2 = −u2/2 = −1.5 A. The û2 terms cancel: −3û1 + 9 = 3û1 → û1 = 1.5 V."
+        },
+        {
+          "ask": "The relation u1·î1 + u2·î2 = û1·i1 + û2·i2 used above (\"cross-multiplying\" two experiments) holds when:",
+          "choices": [
+            "N_R contains the same linear resistors in both experiments (it follows from subtracting Tellegen's theorem applied twice)",
+            "It holds for any network, as long as KCL and KVL are satisfied",
+            "The port voltages in the two experiments must be equal"
+          ],
+          "explain": "Tellegen's theorem Σu_k·î_k = 0 holds for any two networks with the same graph; but cancelling the internal branch terms needs identical linear resistors inside (u_k·î_k = R_k·i_k·î_k = û_k·i_k)."
+        }
+      ],
+      "hints": [
+        "N_R is the same in both experiments, so use the quasi-power form of Tellegen's theorem: u1·î1 + u2·î2 = û1·i1 + û2·i2 (port currents taken as entering N_R).",
+        "Experiment (a): u1 = 12 V, i1 = 3 A, u2 = 3 V, i2 = −u2/R2. Experiment (b): î1 = −û1/R1, î2 = Is − û2/R2.",
+        "After substituting, the two terms with û2 cancel — that is exactly why the same R2 is kept at port 2."
+      ],
+      "solution": [
+        "**1. Port quantities of the two experiments** (currents positive entering N_R, voltages positive at terminals 1, 2):",
+        "- Experiment (a): u1 = 12 V, i1 = 3 A, u2 = 3 V, i2 = −u2/R2 = −1.5 A;",
+        "- Experiment (b): î1 = −û1/R1 = −û1/4, î2 = Is − û2/R2 = 3 − û2/2; û1, û2 unknown.",
+        "**2. Tellegen's theorem** (same linear resistive N_R): u1·î1 + u2·î2 = û1·i1 + û2·i2.",
+        "Left side = 12 × (−û1/4) + 3 × (3 − û2/2) = −3û1 + 9 − 1.5û2; right side = 3û1 + û2 × (−1.5) = 3û1 − 1.5û2.",
+        "The −1.5û2 terms cancel: −3û1 + 9 = 3û1 → **û1 = 1.5 V**.",
+        "**3. Check** (nodal analysis with the actual values Ra = 2 Ω, Rb = 4 Ω, Rc = 2 Ω): the middle node is at 2.25 V, û1 = 2.25 × 4/(4 + 2) = 1.5 V ✓."
+      ]
+    }
+  }
+}
