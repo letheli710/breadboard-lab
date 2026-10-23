@@ -1,0 +1,124 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "two-port-08-lattice-t-equivalent",
+  "chapter": "two-port",
+  "title": "对称格形网络及其 T 形等效电路",
+  "level": 4,
+  "tags": ["Z 参数", "对称二端口", "T 形等效电路", "格形网络"],
+  "statement": [
+    "图示对称格形（桥形）二端口：两个“串臂”电阻 Ra1 = Ra2 = 2 Ω（1–2、1'–2'），两个“交叉臂”电阻 Rb1 = Rb2 = 6 Ω（1'–2、1–2'）。图中两条引线交叉处**不相连**。端口 2 的两个端子都不接地。",
+    "求 Z 参数 z11、z21，并求它的 T 形等效电路。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Ra1", "type": "R", "from": [6, 0], "to": [10, 0], "value": 2 },
+      { "ref": "Rb1", "type": "R", "from": [12, 1], "to": [12, 5], "value": 6 },
+      { "ref": "Ra2", "type": "R", "from": [6, 6], "to": [10, 6], "value": 2 },
+      { "ref": "Rb2", "type": "R", "from": [4, 1], "to": [4, 5], "value": 6 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[10, 0], [16, 0]],
+      [[4, 0], [4, 1]],
+      [[12, 0], [12, 1]],
+      [[4, 5], [4, 6], [6, 6]],
+      [[10, 6], [12, 6], [12, 5]],
+      [[12, 6], [12, 10], [0, 10]],
+      [[4, 6], [4, 8], [16, 8], [16, 10]]
+    ],
+    "terminals": [
+      { "at": [0, 0], "name": "1" },
+      { "at": [0, 10], "name": "1'" },
+      { "at": [16, 0], "name": "2" },
+      { "at": [16, 10], "name": "2'" }
+    ],
+    "grounds": [[6, 10]]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "z11",
+      "ask": "z11 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11" },
+      "answer": 4,
+      "unit": "Ω",
+      "explain": "端口 2 开路时，从 1–1' 看进去是两条并联支路 1→Ra1→2→Rb1→1' 和 1→Rb2→2'→Ra2→1'，每条 2 + 6 = 8 Ω，z11 = 8 ∥ 8 = 4 Ω。"
+    },
+    {
+      "id": "z21",
+      "ask": "z21 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z21" },
+      "answer": 2,
+      "unit": "Ω",
+      "explain": "i1 = 1 A 时每条支路 0.5 A，取 1' 为参考：u1 = 4 V，V(2) = 4 − 0.5 × 2 = 3 V，V(2') = 4 − 0.5 × 6 = 1 V，u2 = 2 V，z21 = 2 Ω = (Rb − Ra)/2。"
+    },
+    {
+      "id": "teq",
+      "ask": "它的 T 形等效电路（两个串臂 Z1、Z2，中间并臂 Z3）是……",
+      "choices": [
+        "Z1 = Z2 = 2 Ω，Z3 = 2 Ω",
+        "Z1 = Z2 = 4 Ω，Z3 = 2 Ω",
+        "Z1 = Z2 = 2 Ω，Z3 = 6 Ω",
+        "Z1 = Z2 = 1 Ω，Z3 = 3 Ω"
+      ],
+      "correct": 0,
+      "explain": "互易二端口的 T 形等效：Z1 = z11 − z12 = 4 − 2 = 2 Ω，Z2 = z22 − z12 = 2 Ω，Z3 = z12 = 2 Ω。对称格形网络一般有 Z1 = Z2 = Ra，Z3 = (Rb − Ra)/2。"
+    },
+    {
+      "id": "bal",
+      "ask": "如果交叉臂也改成 2 Ω（Ra = Rb），会怎样？",
+      "choices": ["z12 = z21 = 0，电桥平衡，端口 2 得不到任何信号", "z11 变为 0", "z12 = z21 = 2 Ω 不变", "网络变得不互易"],
+      "correct": 0,
+      "explain": "z12 = (Rb − Ra)/2 = 0：四个臂相等时是平衡电桥，端口 1 加电流在端口 2 产生的电压为零。"
+    }
+  ],
+  "hints": [
+    "求 z11、z21 时端口 2 开路：从 1–1' 看进去是两条各含一个 Ra、一个 Rb 的并联支路。",
+    "取 1' 为参考点，分别算出 2 和 2' 的电位，u2 = V(2) − V(2')。T 形等效：Z1 = z11 − z12，Z2 = z22 − z12，Z3 = z12。"
+  ],
+  "solution": [
+    "**1. 端口 2 开路，在 1–1' 加电流 i1。** 两条并联支路 1→Ra1→2→Rb1→1'、1→Rb2→2'→Ra2→1' 电阻都是 8 Ω，各分得 i1/2。",
+    "u1 = 8 ∥ 8 · i1 = 4i1 → **z11 = 4 Ω**。",
+    "**2. 端口电压。** 以 1' 为参考：V(2) = u1 − Ra·i1/2 = 3i1，V(2') = u1 − Rb·i1/2 = i1，u2 = V(2) − V(2') = 2i1 → **z21 = 2 Ω**。",
+    "**3. 对称、互易。** 网络左右对称，z22 = z11 = 4 Ω；纯电阻网络互易，z12 = z21 = 2 Ω。一般地，对称格形网络 z11 = (Ra + Rb)/2，z12 = (Rb − Ra)/2。",
+    "**4. T 形等效。** Z1 = z11 − z12 = **2 Ω**，Z2 = z22 − z12 = **2 Ω**，Z3 = z12 = **2 Ω**。验算：T 形网络 z11 = Z1 + Z3 = 4 Ω ✓。",
+    "**注意：** T 形等效电路的 1' 与 2' 相连，原格形网络中 1' 与 2' 并不等电位——等效只对端口的外部特性成立。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "A symmetric lattice network and its T equivalent",
+      "tags": ["Z parameters", "symmetric two-port", "T equivalent circuit", "lattice network"],
+      "statement": [
+        "The symmetric lattice (bridge) two-port has two series-arm resistors Ra1 = Ra2 = 2 Ω (1–2 and 1'–2') and two cross-arm resistors Rb1 = Rb2 = 6 Ω (1'–2 and 1–2'). The two leads that cross in the drawing are **not connected**. Neither terminal of port 2 is grounded.",
+        "Find the Z parameters z11 and z21, and the T equivalent circuit."
+      ],
+      "questions": [
+        { "ask": "z11 = ?", "explain": "With port 2 open, port 1 sees two parallel paths 1→Ra1→2→Rb1→1' and 1→Rb2→2'→Ra2→1', each 2 + 6 = 8 Ω: z11 = 8 ∥ 8 = 4 Ω." },
+        { "ask": "z21 = ?", "explain": "With i1 = 1 A each path carries 0.5 A. Taking 1' as reference: v1 = 4 V, V(2) = 4 − 0.5 × 2 = 3 V, V(2') = 4 − 0.5 × 6 = 1 V, v2 = 2 V, z21 = 2 Ω = (Rb − Ra)/2." },
+        {
+          "ask": "Its T equivalent (series arms Z1, Z2 and shunt arm Z3) is …",
+          "choices": ["Z1 = Z2 = 2 Ω, Z3 = 2 Ω", "Z1 = Z2 = 4 Ω, Z3 = 2 Ω", "Z1 = Z2 = 2 Ω, Z3 = 6 Ω", "Z1 = Z2 = 1 Ω, Z3 = 3 Ω"],
+          "explain": "T equivalent of a reciprocal two-port: Z1 = z11 − z12 = 4 − 2 = 2 Ω, Z2 = z22 − z12 = 2 Ω, Z3 = z12 = 2 Ω. For a symmetric lattice in general Z1 = Z2 = Ra and Z3 = (Rb − Ra)/2."
+        },
+        {
+          "ask": "What happens if the cross arms are also 2 Ω (Ra = Rb)?",
+          "choices": ["z12 = z21 = 0: the bridge is balanced and port 2 receives no signal", "z11 becomes 0", "z12 = z21 = 2 Ω, unchanged", "The network becomes non-reciprocal"],
+          "explain": "z12 = (Rb − Ra)/2 = 0: with four equal arms the bridge is balanced, so a current into port 1 produces no voltage at port 2."
+        }
+      ],
+      "hints": [
+        "For z11 and z21 port 2 is open: port 1 sees two parallel paths, each containing one Ra and one Rb.",
+        "Take 1' as reference and find the potentials of 2 and 2'; v2 = V(2) − V(2'). T equivalent: Z1 = z11 − z12, Z2 = z22 − z12, Z3 = z12."
+      ],
+      "solution": [
+        "**1. Port 2 open, drive port 1 with i1.** The parallel paths 1→Ra1→2→Rb1→1' and 1→Rb2→2'→Ra2→1' are both 8 Ω, so each carries i1/2.",
+        "v1 = (8 ∥ 8)·i1 = 4i1 → **z11 = 4 Ω**.",
+        "**2. Port voltage.** With 1' as reference: V(2) = v1 − Ra·i1/2 = 3i1, V(2') = v1 − Rb·i1/2 = i1, v2 = V(2) − V(2') = 2i1 → **z21 = 2 Ω**.",
+        "**3. Symmetric and reciprocal.** The network is left–right symmetric, so z22 = z11 = 4 Ω; it is purely resistive, so z12 = z21 = 2 Ω. In general a symmetric lattice has z11 = (Ra + Rb)/2, z12 = (Rb − Ra)/2.",
+        "**4. T equivalent.** Z1 = z11 − z12 = **2 Ω**, Z2 = z22 − z12 = **2 Ω**, Z3 = z12 = **2 Ω**. Check: for the T network z11 = Z1 + Z3 = 4 Ω ✓.",
+        "**Note:** in the T equivalent 1' and 2' are joined, whereas in the lattice they are not at the same potential — the equivalence holds only for the behaviour at the ports."
+      ]
+    }
+  }
+}
