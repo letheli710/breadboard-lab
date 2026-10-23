@@ -1,0 +1,110 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "theorems-18-reciprocity-norton",
+  "chapter": "theorems",
+  "title": "综合：互易定理 + 诺顿定理求负载电流",
+  "level": 5,
+  "tags": ["综合", "互易定理", "诺顿定理", "线性电阻网络"],
+  "statement": [
+    "Ra、Rb、Rc 组成的线性电阻网络 N_R 数值未知（图中未标出）。",
+    "**实验（a）：** 在端口 1-1' 接电压源 18 V（1 端为正），端口 2-2' 短路。测得从 1 端流入 N_R 的电流 i1 = 3 A，2-2' 短路线中的电流为 1.5 A（从 2 端经短路线流向 2'）。",
+    "**实验（b）（如图）：** 端口 2-2' 接电压源 Us = 12 V（2 端为正），端口 1-1' 接负载 R = 3 Ω。",
+    "把端口 1-1' 左侧的 R 断开，求 N_R 与 Us 组成的有源二端网络在 1-1' 端的诺顿等效电路，再求负载电流 i（参考方向见图）。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R", "type": "R", "from": [0, 0], "to": [0, 4], "value": 3 },
+      { "ref": "Ra", "type": "R", "from": [4, 0], "to": [8, 0], "value": 3, "hideValue": true },
+      { "ref": "Rb", "type": "R", "from": [10, 0], "to": [10, 4], "value": 6, "hideValue": true },
+      { "ref": "Rc", "type": "R", "from": [12, 0], "to": [16, 0], "value": 6, "hideValue": true },
+      { "ref": "Us", "type": "V", "from": [19, 0], "to": [19, 4], "value": 12 }
+    ],
+    "wires": [
+      [[0, 0], [4, 0]],
+      [[8, 0], [12, 0]],
+      [[16, 0], [19, 0]],
+      [[19, 4], [0, 4]]
+    ],
+    "terminals": [{ "at": [2, 0], "name": "1" }, { "at": [2, 4], "name": "1'" }],
+    "labels": [{ "at": [17, 0], "name": "2" }],
+    "notes": [{ "at": [17, 4.6], "text": "2'" }],
+    "grounds": [[10, 4]],
+    "marks": [{ "kind": "i", "el": "R", "name": "i" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "isc",
+      "ask": "1-1' 端短路电流 i_sc（从 1 经短路线流向 1'）= ?",
+      "find": { "kind": "isc", "port": ["1", "1'"], "exclude": ["R"] },
+      "answer": 1,
+      "unit": "A",
+      "explain": "互易定理（形式一）：电压源激励、短路电流响应，转移电导相同：i_sc/12 = 1.5/18 → i_sc = 1 A。"
+    },
+    {
+      "id": "req",
+      "ask": "1-1' 端等效电阻 R_eq = ?",
+      "find": { "kind": "req", "port": ["1", "1'"], "exclude": ["R"] },
+      "answer": 6,
+      "unit": "Ω",
+      "explain": "Us 置零即端口 2-2' 短路，这正是实验（a）的情形：R_eq = 18/3 = 6 Ω。"
+    },
+    {
+      "id": "i",
+      "ask": "负载电流 i = ?",
+      "find": { "kind": "i", "el": "R" },
+      "answer": 0.666667,
+      "unit": "A",
+      "explain": "诺顿电路（1 A 电流源并 6 Ω）对 R = 3 Ω 分流：i = 1 × 6/(6 + 3) = 2/3 ≈ 0.667 A。"
+    }
+  ],
+  "hints": [
+    "负载以外的部分 = N_R + Us，是一个有源二端网络：求它在 1-1' 端的诺顿等效（i_sc 和 R_eq）。",
+    "i_sc：把 1-1' 短路后，就是“电压源在端口 2、短路电流在端口 1”——与实验（a）互易。",
+    "R_eq：Us 置零 = 端口 2-2' 短路，与实验（a）中从端口 1 看进去的情况完全相同。"
+  ],
+  "solution": [
+    "**1. 短路电流（互易定理形式一）。** 实验（a）的转移电导 g = 1.5/18 = 1/12 S。实验（b）中把 1-1' 短路，激励 Us = 12 V 在端口 2，由互易定理 i_sc = g·Us = 12/12 = **1 A**（方向：从 1 端经短路线流向 1'，与实验（a）中 2 → 2' 对应）。",
+    "**2. 等效电阻。** 将 Us 置零，端口 2-2' 被短路——这正是实验（a）的结构，所以 R_eq = 18/3 = **6 Ω**。",
+    "**3. 负载电流。** 诺顿等效：1 A 电流源（流向 1 端）并联 6 Ω，接 R = 3 Ω：i = 1 × 6/(6 + 3) = **2/3 A ≈ 0.667 A**。",
+    "**4. 验算**（用图中实际数值 Ra = 3 Ω，Rb = 6 Ω，Rc = 6 Ω）：实验（a）中 Rb ∥ Rc = 3 Ω，i1 = 18/6 = 3 A，短路电流 1.5 A ✓；实验（b）结点方程得中间结点 4 V，1 端 2 V，i = 2/3 A ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Combined: reciprocity + Norton for a load current",
+      "tags": ["combined", "reciprocity theorem", "Norton's theorem", "linear resistive network"],
+      "statement": [
+        "Ra, Rb, Rc form a linear resistive network N_R with unknown values (not shown).",
+        "**Experiment (a):** an 18 V voltage source (terminal 1 positive) is connected to port 1-1' and port 2-2' is shorted. Measured: the current entering N_R at terminal 1 is i1 = 3 A, and the current in the short at 2-2' is 1.5 A (flowing from 2 through the short to 2').",
+        "**Experiment (b) (as drawn):** a voltage source Us = 12 V (terminal 2 positive) is connected to port 2-2', and a load R = 3 Ω to port 1-1'.",
+        "Disconnect R and find the Norton equivalent at 1-1' of the active one-port formed by N_R and Us; then find the load current i (reference direction as drawn)."
+      ],
+      "questions": [
+        {
+          "ask": "Short-circuit current at 1-1' (from 1 through the short to 1'), i_sc = ?",
+          "explain": "Reciprocity (first form): voltage-source excitation and short-circuit current response have the same transfer conductance: i_sc/12 = 1.5/18 → i_sc = 1 A."
+        },
+        {
+          "ask": "Equivalent resistance at 1-1', R_eq = ?",
+          "explain": "Zeroing Us shorts port 2-2', which is exactly the situation of experiment (a): R_eq = 18/3 = 6 Ω."
+        },
+        {
+          "ask": "Load current i = ?",
+          "explain": "The Norton circuit (1 A in parallel with 6 Ω) feeds R = 3 Ω; current divider: i = 1 × 6/(6 + 3) = 2/3 ≈ 0.667 A."
+        }
+      ],
+      "hints": [
+        "Everything except the load — N_R plus Us — is an active one-port: find its Norton equivalent at 1-1' (i_sc and R_eq).",
+        "i_sc: with 1-1' shorted you have \"voltage source at port 2, short-circuit current at port 1\" — the reciprocal of experiment (a).",
+        "R_eq: zeroing Us shorts port 2-2', exactly as in experiment (a) when looking into port 1."
+      ],
+      "solution": [
+        "**1. Short-circuit current (reciprocity, first form).** The transfer conductance in experiment (a) is g = 1.5/18 = 1/12 S. In experiment (b) short 1-1' with the 12 V excitation at port 2; by reciprocity i_sc = g·Us = 12/12 = **1 A** (from 1 through the short to 1', matching 2 → 2' in experiment (a)).",
+        "**2. Equivalent resistance.** Zero Us: port 2-2' becomes a short — exactly the structure of experiment (a) — so R_eq = 18/3 = **6 Ω**.",
+        "**3. Load current.** Norton equivalent: a 1 A source (pointing toward terminal 1) in parallel with 6 Ω, loaded by R = 3 Ω: i = 1 × 6/(6 + 3) = **2/3 A ≈ 0.667 A**.",
+        "**4. Check** (with the actual values Ra = 3 Ω, Rb = 6 Ω, Rc = 6 Ω): in experiment (a) Rb ∥ Rc = 3 Ω, i1 = 18/6 = 3 A and the short current is 1.5 A ✓; in experiment (b) nodal analysis gives 4 V at the middle node and 2 V at terminal 1, so i = 2/3 A ✓."
+      ]
+    }
+  }
+}
