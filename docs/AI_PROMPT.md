@@ -42,6 +42,7 @@ AI 返回后：
   "title": "...",
   "kind": "lesson" 或 "challenge",               // lesson 要写 steps；challenge 要写 hints
   "level": 1-5,
+  "phase": 1-4,                                  // 可选：课程第几期（1 基本定律、2 分析方法/定理/运放、3 暂态、4 交流）；入门题不写
   "summary": "一句话",
   "description": "讲解正文，教会概念",
   "concepts": ["英文术语 中文", ...],
@@ -141,6 +142,7 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 === 填写区 ===
 主题：___________（例如：分压器 / 按键 + LED / 认识 GND / 二极管 / 电位器）
 难度（1–5）：___
+课程期数 phase（1–4，可选；文件名编号：第 1 期 201 起，第 2 期 221 起）：___
 类型：lesson / challenge / 都要
 数量：___
 文件名编号从：___ 开始（例如 20）
@@ -201,6 +203,7 @@ Output challenge files as JSON, following the format below exactly.
   "title": "...",
   "kind": "lesson" or "challenge",               // lesson needs steps; challenge needs hints
   "level": 1-5,
+  "phase": 1-4,                                  // optional: course phase (1 basic laws, 2 methods/theorems/op-amps, 3 transients, 4 AC); omit for intro challenges
   "summary": "one sentence",
   "description": "explanation that teaches the concept",
   "concepts": ["English term", ...],
@@ -300,6 +303,7 @@ Name the key nodes: the supply + node "VCC", the supply − node "GND", others e
 === Fill in ===
 Topic: ___________ (e.g. voltage divider / push button + LED / what GND is / diodes / potentiometers)
 Difficulty (1–5): ___
+Course phase (1–4, optional; file numbers: phase 1 from 201, phase 2 from 221): ___
 Type: lesson / challenge / both
 How many: ___
 Start file numbering at: ___ (e.g. 20)
