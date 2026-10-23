@@ -1,0 +1,80 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-power-14-matching-with-ccvs",
+  "chapter": "ac-power",
+  "title": "含受控源电路的共轭匹配",
+  "level": 5,
+  "tags": ["最大功率传输", "共轭匹配", "受控源 CCVS", "外加电源法"],
+  "statement": [
+    "Us = 20∠0° V（有效值），ω = 1000 rad/s，R1 = 4 Ω，C = 250 µF。电流控制电压源的电压为 4I1（+ 极在 a 侧），I1 是 R1 中的电流（方向如图）。",
+    "负载 Z_L 接在 b 与地之间，电阻和电抗均可调。求 b 与地之间的戴维宁等效电路，Z_L 为何值时获得最大功率，以及最大功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "20∠0° V" },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 4 },
+      { "ref": "C", "type": "C", "from": [7, 0], "to": [7, 4], "value": "250u" },
+      { "ref": "H", "type": "CCVS", "from": [9, 0], "to": [12, 0], "value": 4, "ctrl": { "i": "R1" }, "label": "4I_1" },
+      { "ref": "ZL", "type": "Z", "from": [14, 0], "to": [14, 4], "value": { "re": 4, "im": 4 }, "label": "Z_L", "hideValue": true }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [9, 0]],
+      [[12, 0], [14, 0]],
+      [[14, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [7, 0], "name": "a" }, { "at": [14, 0], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "I1" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "Uoc", "ask": "断开 Z_L 后 b 点开路电压的有效值 U_oc = ?", "find": { "kind": "vth", "port": ["b", "0"], "exclude": ["ZL"] }, "answer": 20, "unit": "V", "explain": "开路时 CCVS 中无电流，I1 = 20/(4 − j4) = 2.5 + j2.5 A，U_a = −j4·I1 = 10 − j10 V，U_oc = U_a − 4I1 = −j20 V，有效值 20 V。" },
+    { "id": "R", "ask": "Re Z_eq = ?", "find": { "kind": "req", "port": ["b", "0"], "exclude": ["ZL"], "part": "re" }, "answer": 4, "unit": "Ω", "explain": "外加电源法（Us 短路）：I1 = −U_a/4，U_b = U_a − 4I1 = 2U_a；流入 b 的电流 I = U_a/4 + U_a/(−j4) = U_a(1 + j)/4。Z_eq = U_b/I = 8/(1 + j) = 4 − j4 Ω。" },
+    { "id": "X", "ask": "Im Z_eq = ?", "find": { "kind": "req", "port": ["b", "0"], "exclude": ["ZL"], "part": "im" }, "answer": -4, "unit": "Ω", "explain": "Z_eq = 4 − j4 Ω（容性），所以共轭匹配的负载 Z_L = Z_eq* = 4 + j4 Ω（感性）。受控源使 Z_eq 变为 R1 ∥ (−j4) = 2 − j2 Ω 的 2 倍。" },
+    { "id": "Pm", "ask": "最大功率 P_max = ?", "find": { "kind": "pmax", "port": ["b", "0"], "exclude": ["ZL"] }, "answer": 25, "unit": "W", "explain": "P_max = U_oc²/(4R_eq) = 400/16 = 25 W。" }
+  ],
+  "hints": [
+    "分两步求戴维宁等效：开路电压 U_oc（断开 Z_L）和等效阻抗 Z_eq（Us 短路、受控源保留）。",
+    "含受控源时用外加电源法求 Z_eq：在 b 加电压 U_b，求流入的电流 I，Z_eq = U_b/I。注意 Us 短路后 I1 = −U_a/R1。",
+    "共轭匹配 Z_L = Z_eq*，P_max = U_oc²/(4R_eq)。"
+  ],
+  "solution": [
+    "**1. 开路电压。** X_C = 1/(ωC) = 4 Ω。Z_L 断开时 CCVS 支路无电流，I1 = Us/(R1 − j4) = 20/(4 − j4) = 2.5 + j2.5 A，U_a = −j4·I1 = 10 − j10 V。",
+    "KVL（CCVS 的 + 极在 a 侧）：U_oc = U_a − 4I1 = (10 − j10) − (10 + j10) = **−j20 V = 20∠−90° V**。",
+    "**2. 等效阻抗（外加电源法）。** Us 短路，在 b 加 U_b，电流 I 从 b 经 CCVS 流入 a。R1 中 I1 = (0 − U_a)/4 = −U_a/4；U_b = U_a − 4I1 = 2U_a。",
+    "a 点 KCL：I = U_a/R1 + U_a/(−j4) = U_a(0.25 + j0.25)。所以 Z_eq = 2U_a/[U_a(0.25 + j0.25)] = 8/(1 + j) = **4 − j4 Ω**。",
+    "**3. 共轭匹配。** Z_L = Z_eq* = **4 + j4 Ω**（例如 4 Ω 电阻串 4 mH 电感）。",
+    "**4. 最大功率。** P_max = U_oc²/(4R_eq) = 20²/16 = **25 W**。验算：匹配时 I = U_oc/(2R_eq) = 2.5 A，P = I² × 4 = 25 W ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Conjugate matching with a dependent source",
+      "tags": ["maximum power transfer", "conjugate matching", "dependent source CCVS", "test-source method"],
+      "statement": [
+        "Us = 20∠0° V (rms), ω = 1000 rad/s, R1 = 4 Ω, C = 250 µF. The current-controlled voltage source has voltage 4I1 (+ on the a side), where I1 is the current in R1 (direction as drawn).",
+        "A load Z_L, with adjustable resistance and reactance, is connected between b and ground. Find the Thevenin equivalent between b and ground, the Z_L that receives maximum power, and that maximum power."
+      ],
+      "questions": [
+        { "ask": "With Z_L removed, rms open-circuit voltage at b, U_oc = ?", "explain": "With b open the CCVS carries no current, I1 = 20/(4 − j4) = 2.5 + j2.5 A, U_a = −j4·I1 = 10 − j10 V, U_oc = U_a − 4I1 = −j20 V, rms value 20 V." },
+        { "ask": "Re Z_eq = ?", "explain": "Test-source method (Us shorted): I1 = −U_a/4, U_b = U_a − 4I1 = 2U_a; the current into b is I = U_a/4 + U_a/(−j4) = U_a(1 + j)/4. Z_eq = U_b/I = 8/(1 + j) = 4 − j4 Ω." },
+        { "ask": "Im Z_eq = ?", "explain": "Z_eq = 4 − j4 Ω (capacitive), so the conjugate-matched load is Z_L = Z_eq* = 4 + j4 Ω (inductive). The dependent source doubles R1 ∥ (−j4) = 2 − j2 Ω." },
+        { "ask": "Maximum power P_max = ?", "explain": "P_max = U_oc²/(4R_eq) = 400/16 = 25 W." }
+      ],
+      "hints": [
+        "Find the Thevenin equivalent in two steps: the open-circuit voltage U_oc (Z_L removed) and the equivalent impedance Z_eq (Us shorted, dependent source kept).",
+        "With a dependent source use the test-source method: apply U_b at b, find the current I flowing in, Z_eq = U_b/I. Note that with Us shorted I1 = −U_a/R1.",
+        "Conjugate matching Z_L = Z_eq*, P_max = U_oc²/(4R_eq)."
+      ],
+      "solution": [
+        "**1. Open-circuit voltage.** X_C = 1/(ωC) = 4 Ω. With Z_L removed no current flows in the CCVS branch, so I1 = Us/(R1 − j4) = 20/(4 − j4) = 2.5 + j2.5 A and U_a = −j4·I1 = 10 − j10 V.",
+        "KVL (the CCVS's + is on the a side): U_oc = U_a − 4I1 = (10 − j10) − (10 + j10) = **−j20 V = 20∠−90° V**.",
+        "**2. Equivalent impedance (test source).** Short Us and apply U_b at b; the current I flows from b through the CCVS into a. In R1, I1 = (0 − U_a)/4 = −U_a/4, so U_b = U_a − 4I1 = 2U_a.",
+        "KCL at a: I = U_a/R1 + U_a/(−j4) = U_a(0.25 + j0.25). Hence Z_eq = 2U_a/[U_a(0.25 + j0.25)] = 8/(1 + j) = **4 − j4 Ω**.",
+        "**3. Conjugate matching.** Z_L = Z_eq* = **4 + j4 Ω** (e.g. a 4 Ω resistor in series with a 4 mH inductor).",
+        "**4. Maximum power.** P_max = U_oc²/(4R_eq) = 20²/16 = **25 W**. Check: at matching I = U_oc/(2R_eq) = 2.5 A, P = I² × 4 = 25 W ✓."
+      ]
+    }
+  }
+}

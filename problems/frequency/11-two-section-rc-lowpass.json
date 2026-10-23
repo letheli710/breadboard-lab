@@ -1,0 +1,87 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "frequency-11-two-section-rc-lowpass",
+  "chapter": "frequency",
+  "title": "两节 RC 低通电路的网络函数",
+  "level": 4,
+  "tags": ["网络函数 H(jω)", "二阶低通", "负载效应", "相频特性"],
+  "statement": [
+    "两节相同的 RC 低通电路直接级联：R₁ = R₂ = R = 1 kΩ，C₁ = C₂ = C = 1 µF，输出端 o 开路。H(jω) = U_o/U_s。",
+    "取 ω = 1/(RC) = 1000 rad/s。求 |U_a/U_s|、|H(jω)| 和 H(jω) 的相位，并与“两节互不影响”的情况比较。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "U_s" },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": "1k" },
+      { "ref": "C1", "type": "C", "from": [7, 0], "to": [7, 4], "value": "1u" },
+      { "ref": "R2", "type": "R", "from": [9, 0], "to": [12, 0], "value": "1k" },
+      { "ref": "C2", "type": "C", "from": [14, 0], "to": [14, 4], "value": "1u" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [9, 0]],
+      [[12, 0], [17, 0]],
+      [[17, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [7, 0], "name": "a" }],
+    "terminals": [{ "at": [17, 0], "name": "o" }, { "at": [17, 4], "name": "o'" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "v", "el": "C2", "name": "U_o" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "ua", "ask": "|U_a/U_s| = ?", "find": { "kind": "gain", "out": ["a"], "input": "Us", "part": "mag" }, "answer": 0.4714045, "unit": "", "explain": "从 a 往右看：Z₂ = R + 1/(jωC) = 1000 − j1000 Ω，与 C₁（−j1000 Ω）并联得 Z_p = 200 − j600 Ω。U_a/U_s = Z_p/(R + Z_p) = (200 − j600)/(1200 − j600) = (1 − j)/3，模 √2/3 ≈ 0.4714。" },
+    { "id": "mag", "ask": "|H(jω)| = |U_o/U_s| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "mag" }, "answer": 0.3333333, "unit": "", "explain": "第二节分压：U_o/U_a = 1/(1 + jωRC) = 1/(1 + j)。H = (1 − j)/3 × 1/(1 + j) = −j/3，|H| = 1/3。" },
+    { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": -90, "unit": "°", "explain": "H = −j/3，相位 −90°。一般式 H = 1/(1 − (ωRC)² + j3ωRC)，ωRC = 1 时实部为零。" },
+    {
+      "id": "buf",
+      "ask": "如果在 a 点后插入理想电压跟随器，使第二节不再从第一节取电流，ω = 1/(RC) 时 |H| 变为多少？",
+      "choices": ["1/2（每节 1/√2，相乘）", "1/3（不变）", "1/√2", "2/3"],
+      "correct": 0,
+      "explain": "隔离后两节各自 H₁ = H₂ = 1/(1 + j)，|H| = (1/√2)² = 1/2，相位 −90°。直接级联时第二节是第一节的负载，|U_a/U_s| 从 0.7071 降到 0.4714，总的 |H| 从 1/2 降到 1/3。网络函数不能简单地把各节“单独算的” H 相乘，除非后级不取电流。"
+    }
+  ],
+  "hints": [
+    "先算 a 点右边的等效阻抗：C₁ 与 (R₂ + C₂) 并联，再对 R₁ 分压得 U_a。",
+    "第二节开路，U_o/U_a = 1/(1 + jωRC)；最后 H = (U_a/U_s)·(U_o/U_a)。"
+  ],
+  "solution": [
+    "**1. 阻抗。** ω = 1000 rad/s：1/(ωC) = 1000 Ω。Z₂ = R₂ + 1/(jωC₂) = 1000 − j1000 Ω；Z_p = Z_C₁ ∥ Z₂ = (−j1000)(1000 − j1000)/(1000 − j2000) = 200 − j600 Ω。",
+    "**2. 第一节。** U_a/U_s = Z_p/(R₁ + Z_p) = (200 − j600)/(1200 − j600) = (1 − j)/3，|U_a/U_s| = **0.4714**。",
+    "**3. 第二节。** U_o/U_a = (−j1000)/(1000 − j1000) = 1/(1 + j)。",
+    "**4. 网络函数。** H = (1 − j)/3 · 1/(1 + j) = −j/3：|H| = **1/3**，相位 **−90°**。一般地 H(jω) = 1/(1 − ω²R²C² + j3ωRC)，ω = 1/(RC) 时为 1/(j3)。",
+    "**5. 比较。** 两节互不影响时 |H| = 1/2；直接级联由于负载效应只有 1/3。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Network function of a two-section RC low-pass",
+      "tags": ["network function H(jω)", "second-order low-pass", "loading effect", "phase response"],
+      "statement": [
+        "Two identical RC low-pass sections are cascaded directly: R₁ = R₂ = R = 1 kΩ, C₁ = C₂ = C = 1 µF, and the output o is open. H(jω) = V_o/V_s.",
+        "Take ω = 1/(RC) = 1000 rad/s. Find |V_a/V_s|, |H(jω)| and the phase of H(jω), and compare with the case where the sections don't affect each other."
+      ],
+      "questions": [
+        { "ask": "|V_a/V_s| = ?", "explain": "Looking right from a: Z₂ = R + 1/(jωC) = 1000 − j1000 Ω, in parallel with C₁ (−j1000 Ω) gives Z_p = 200 − j600 Ω. V_a/V_s = Z_p/(R + Z_p) = (200 − j600)/(1200 − j600) = (1 − j)/3, magnitude √2/3 ≈ 0.4714." },
+        { "ask": "|H(jω)| = |V_o/V_s| = ?", "explain": "Second-section divider: V_o/V_a = 1/(1 + jωRC) = 1/(1 + j). H = (1 − j)/3 × 1/(1 + j) = −j/3, |H| = 1/3." },
+        { "ask": "Phase of H(jω) = ?", "explain": "H = −j/3, phase −90°. In general H = 1/(1 − (ωRC)² + j3ωRC), whose real part vanishes at ωRC = 1." },
+        {
+          "ask": "If an ideal voltage follower is inserted after a, so that the second section draws no current from the first, what does |H| become at ω = 1/(RC)?",
+          "choices": ["1/2 (1/√2 per section, multiplied)", "1/3 (unchanged)", "1/√2", "2/3"],
+          "explain": "With a buffer each section has H₁ = H₂ = 1/(1 + j), so |H| = (1/√2)² = 1/2 with phase −90°. Cascaded directly, the second section loads the first: |V_a/V_s| drops from 0.7071 to 0.4714 and the overall |H| from 1/2 to 1/3. You can't just multiply the sections' stand-alone H's unless the later stage draws no current."
+        }
+      ],
+      "hints": [
+        "First find the impedance to the right of a: C₁ in parallel with (R₂ + C₂); then use the divider with R₁ to get V_a.",
+        "The second section is unloaded, so V_o/V_a = 1/(1 + jωRC); finally H = (V_a/V_s)·(V_o/V_a)."
+      ],
+      "solution": [
+        "**1. Impedances.** At ω = 1000 rad/s, 1/(ωC) = 1000 Ω. Z₂ = R₂ + 1/(jωC₂) = 1000 − j1000 Ω; Z_p = Z_C₁ ∥ Z₂ = (−j1000)(1000 − j1000)/(1000 − j2000) = 200 − j600 Ω.",
+        "**2. First section.** V_a/V_s = Z_p/(R₁ + Z_p) = (200 − j600)/(1200 − j600) = (1 − j)/3, |V_a/V_s| = **0.4714**.",
+        "**3. Second section.** V_o/V_a = (−j1000)/(1000 − j1000) = 1/(1 + j).",
+        "**4. Network function.** H = (1 − j)/3 · 1/(1 + j) = −j/3: |H| = **1/3**, phase **−90°**. In general H(jω) = 1/(1 − ω²R²C² + j3ωRC), which is 1/(j3) at ω = 1/(RC).",
+        "**5. Comparison.** If the sections didn't interact, |H| would be 1/2; cascaded directly the loading effect brings it down to 1/3."
+      ]
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "two-port-05-reciprocity-ccvs",
+  "chapter": "two-port",
+  "title": "受控源破坏互易性与对称性",
+  "level": 3,
+  "tags": ["Z 参数", "互易二端口", "对称二端口", "受控源 CCVS"],
+  "statement": [
+    "图示 T 形二端口中，R1 = R2 = 3 Ω，R3 = 2 Ω；公共支路中串有电流控制电压源 2i1（“+”在上），i1 是从 1 端流入、流过 R1 的电流。端口电流 i1、i2 都以流入端口为正。",
+    "求 Z 参数 z11、z21、z12，并判断网络是否互易、是否对称。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 3 },
+      { "ref": "R2", "type": "R", "from": [14, 0], "to": [10, 0], "value": 3 },
+      { "ref": "R3", "type": "R", "from": [8, 0], "to": [8, 3], "value": 2 },
+      { "ref": "H1", "type": "CCVS", "from": [8, 3], "to": [8, 6], "value": 2, "ctrl": { "i": "R1" }, "label": "2i_1" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [10, 0]],
+      [[14, 0], [16, 0]],
+      [[0, 6], [16, 6]]
+    ],
+    "terminals": [
+      { "at": [0, 0], "name": "1" },
+      { "at": [0, 6], "name": "1'" },
+      { "at": [16, 0], "name": "2" },
+      { "at": [16, 6], "name": "2'" }
+    ],
+    "grounds": [[8, 6]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }, { "kind": "i", "el": "R2", "name": "i2" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "z11",
+      "ask": "z11 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11" },
+      "answer": 7,
+      "unit": "Ω",
+      "explain": "i2 = 0：i1 流过 R1、R3 和受控源，u1 = 3i1 + 2i1 + 2i1 = 7i1，z11 = 7 Ω。"
+    },
+    {
+      "id": "z21",
+      "ask": "z21 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z21" },
+      "answer": 4,
+      "unit": "Ω",
+      "explain": "i2 = 0 时 R2 无压降，u2 = 公共支路电压 = 2i1 + 2i1 = 4i1，z21 = 4 Ω。"
+    },
+    {
+      "id": "z12",
+      "ask": "z12 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z12" },
+      "answer": 2,
+      "unit": "Ω",
+      "explain": "i1 = 0 时受控源电压 2i1 = 0（相当于短路），u1 = 公共支路电压 = R3·i2 = 2i2，z12 = 2 Ω。"
+    },
+    {
+      "id": "kind",
+      "ask": "这个二端口……",
+      "choices": ["既不互易也不对称", "互易但不对称", "对称但不互易", "既互易又对称"],
+      "correct": 0,
+      "explain": "z12 = 2 Ω ≠ z21 = 4 Ω，不互易；z22 = 3 + 2 = 5 Ω ≠ z11 = 7 Ω，也不对称。若去掉受控源（短接），Z = [5 2; 2 5] Ω，网络就既互易又对称。"
+    }
+  ],
+  "hints": [
+    "按定义分两次求：先令 i2 = 0 求 z11、z21，再令 i1 = 0 求 z12、z22。",
+    "i1 = 0 时受控源 2i1 的电压为零，相当于一根导线；i2 = 0 时它的电压是 2i1。互易要求 z12 = z21，对称还要求 z11 = z22。"
+  ],
+  "solution": [
+    "**1. 令 i2 = 0（2–2' 开路）。** i1 依次流过 R1、R3、受控源：公共支路电压 u_c = R3·i1 + 2i1 = 4i1。",
+    "u1 = R1·i1 + u_c = 7i1 → **z11 = 7 Ω**；u2 = u_c = 4i1 → **z21 = 4 Ω**。",
+    "**2. 令 i1 = 0（1–1' 开路）。** 受控源电压为零；i2 流过 R2、R3：",
+    "u2 = (R2 + R3)·i2 = 5i2 → z22 = 5 Ω；u1 = R3·i2 = 2i2 → **z12 = 2 Ω**。",
+    "**3. 判断：** Z = [7 2; 4 5] Ω。z12 ≠ z21 → **不互易**；z11 ≠ z22 → **不对称**。",
+    "**对比：** 没有受控源时 Z = [5 2; 2 5] Ω，互易（z12 = z21）且对称（z11 = z22）。互易定理只适用于不含受控源的线性网络。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "A dependent source breaks reciprocity and symmetry",
+      "tags": ["Z parameters", "reciprocal two-port", "symmetric two-port", "dependent source CCVS"],
+      "statement": [
+        "In the T two-port, R1 = R2 = 3 Ω, R3 = 2 Ω; the shared branch also contains a current-controlled voltage source 2i1 (+ at the top), where i1 is the current entering terminal 1 and flowing through R1. Both port currents i1, i2 are positive into the port.",
+        "Find the Z parameters z11, z21 and z12, and decide whether the network is reciprocal and whether it is symmetric."
+      ],
+      "questions": [
+        { "ask": "z11 = ?", "explain": "i2 = 0: i1 flows through R1, R3 and the dependent source, v1 = 3i1 + 2i1 + 2i1 = 7i1, z11 = 7 Ω." },
+        { "ask": "z21 = ?", "explain": "With i2 = 0 there is no drop across R2, so v2 = voltage of the shared branch = 2i1 + 2i1 = 4i1, z21 = 4 Ω." },
+        { "ask": "z12 = ?", "explain": "With i1 = 0 the source voltage 2i1 is zero (a short), so v1 = voltage of the shared branch = R3·i2 = 2i2, z12 = 2 Ω." },
+        {
+          "ask": "This two-port is …",
+          "choices": ["neither reciprocal nor symmetric", "reciprocal but not symmetric", "symmetric but not reciprocal", "both reciprocal and symmetric"],
+          "explain": "z12 = 2 Ω ≠ z21 = 4 Ω, so it is not reciprocal; z22 = 3 + 2 = 5 Ω ≠ z11 = 7 Ω, so it is not symmetric either. Without the dependent source (shorted) Z = [5 2; 2 5] Ω and the network would be both reciprocal and symmetric."
+        }
+      ],
+      "hints": [
+        "Use the definitions twice: first set i2 = 0 to find z11 and z21, then set i1 = 0 to find z12 and z22.",
+        "With i1 = 0 the source 2i1 has zero voltage and acts as a wire; with i2 = 0 its voltage is 2i1. Reciprocity requires z12 = z21; symmetry also requires z11 = z22."
+      ],
+      "solution": [
+        "**1. Set i2 = 0 (port 2 open).** i1 flows through R1, R3 and the source: the shared-branch voltage is v_c = R3·i1 + 2i1 = 4i1.",
+        "v1 = R1·i1 + v_c = 7i1 → **z11 = 7 Ω**; v2 = v_c = 4i1 → **z21 = 4 Ω**.",
+        "**2. Set i1 = 0 (port 1 open).** The source voltage is zero; i2 flows through R2 and R3:",
+        "v2 = (R2 + R3)·i2 = 5i2 → z22 = 5 Ω; v1 = R3·i2 = 2i2 → **z12 = 2 Ω**.",
+        "**3. Verdict:** Z = [7 2; 4 5] Ω. z12 ≠ z21 → **not reciprocal**; z11 ≠ z22 → **not symmetric**.",
+        "**Compare:** without the dependent source Z = [5 2; 2 5] Ω, which is reciprocal (z12 = z21) and symmetric (z11 = z22). The reciprocity theorem holds only for linear networks without dependent sources."
+      ]
+    }
+  }
+}

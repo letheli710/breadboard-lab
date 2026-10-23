@@ -1,0 +1,108 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "two-port-02-y-params-pi",
+  "chapter": "two-port",
+  "title": "Π 形电阻二端口的 Y 参数",
+  "level": 1,
+  "tags": ["Y 参数", "短路导纳参数", "Π 形网络"],
+  "statement": [
+    "图示 Π 形电阻二端口中，R1 = 2 Ω，R2 = 5 Ω，R3 = 4 Ω。端口电压、电流取关联参考方向（电流从 1、2 端流入）。",
+    "Y 参数方程：i1 = y11·u1 + y12·u2，i2 = y21·u1 + y22·u2。按定义（令另一端口短路）求 Y 参数。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R1", "type": "R", "from": [3, 0], "to": [3, 4], "value": 2 },
+      { "ref": "R3", "type": "R", "from": [6, 0], "to": [10, 0], "value": 4 },
+      { "ref": "R2", "type": "R", "from": [13, 0], "to": [13, 4], "value": 5 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[10, 0], [16, 0]],
+      [[0, 4], [16, 4]]
+    ],
+    "terminals": [
+      { "at": [0, 0], "name": "1" },
+      { "at": [0, 4], "name": "1'" },
+      { "at": [16, 0], "name": "2" },
+      { "at": [16, 4], "name": "2'" }
+    ],
+    "grounds": [[8, 4]]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "y11",
+      "ask": "y11 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "y11" },
+      "answer": 0.75,
+      "unit": "S",
+      "explain": "2–2' 短路（u2 = 0）时 R2 被短接，R1 与 R3 都直接接在 u1 上：y11 = 1/2 + 1/4 = 0.75 S。"
+    },
+    {
+      "id": "y21",
+      "ask": "y21 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "y21" },
+      "answer": -0.25,
+      "unit": "S",
+      "explain": "u2 = 0 时 R3 中电流 u1/4 从左向右流进短路线，经 2' 回去——它是从 2 端“流出”的，所以 i2 = −u1/4，y21 = −0.25 S。"
+    },
+    {
+      "id": "y22",
+      "ask": "y22 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "y22" },
+      "answer": 0.45,
+      "unit": "S",
+      "explain": "1–1' 短路（u1 = 0）时 R1 被短接，从 2–2' 看进去是 R2 与 R3 并联：y22 = 1/5 + 1/4 = 0.45 S。"
+    },
+    {
+      "id": "sign",
+      "ask": "无源 Π 形网络的 y12（= y21）总是……",
+      "choices": ["负的，等于 −1/R3", "正的，等于 1/R3", "零", "等于 y11 − y22"],
+      "correct": 0,
+      "explain": "y12 = i1/u2（u1 = 0）：在 2 端加正电压，电流经 R3 流向 1 端、从 1 端流出到短路线，与 i1 的参考方向相反，所以 y12 = −1/R3 < 0。"
+    }
+  ],
+  "hints": [
+    "Y 参数又叫短路导纳参数：求 y11、y21 时令 u2 = 0（2–2' 短路），在 1–1' 加电压 u1。",
+    "端口被短路时，并在这个端口上的电阻被短接，不起作用；注意 i2 的参考方向是流入 2 端。"
+  ],
+  "solution": [
+    "**1. 令 u2 = 0（2–2' 短路），在 1–1' 加电压 u1。** R2 两端被短接；R1 和 R3 两端电压都是 u1：",
+    "i1 = u1/R1 + u1/R3 = (0.5 + 0.25)u1 → **y11 = 0.75 S**；",
+    "R3 中电流 u1/4 流入短路线并从 2 端“流出”，i2 = −u1/4 → **y21 = −0.25 S**。",
+    "**2. 令 u1 = 0（1–1' 短路），在 2–2' 加电压 u2。** 同理 i2 = u2/R2 + u2/R3 → **y22 = 0.45 S**，i1 = −u2/R3 → y12 = −0.25 S。",
+    "**3. 结论：** Y = [0.75 −0.25; −0.25 0.45] S。Π 形网络的 Y 参数可以直接“读”出来：y11 = G1 + G3，y22 = G2 + G3，y12 = y21 = −G3。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Y parameters of a resistive Π network",
+      "tags": ["Y parameters", "short-circuit admittance parameters", "Π network"],
+      "statement": [
+        "In the resistive Π two-port, R1 = 2 Ω, R2 = 5 Ω, R3 = 4 Ω. Port voltages and currents follow the passive convention (currents flow into terminals 1 and 2).",
+        "Y-parameter equations: i1 = y11·v1 + y12·v2, i2 = y21·v1 + y22·v2. Find the Y parameters from their definitions (with the other port shorted)."
+      ],
+      "questions": [
+        { "ask": "y11 = ?", "explain": "With 2–2' shorted (v2 = 0), R2 is shorted out and both R1 and R3 have v1 across them: y11 = 1/2 + 1/4 = 0.75 S." },
+        { "ask": "y21 = ?", "explain": "With v2 = 0 the current v1/4 in R3 flows left to right into the short and returns via 2' — it leaves terminal 2, so i2 = −v1/4 and y21 = −0.25 S." },
+        { "ask": "y22 = ?", "explain": "With 1–1' shorted (v1 = 0), R1 is shorted out and port 2 sees R2 in parallel with R3: y22 = 1/5 + 1/4 = 0.45 S." },
+        {
+          "ask": "For a passive Π network, y12 (= y21) is always …",
+          "choices": ["negative, equal to −1/R3", "positive, equal to 1/R3", "zero", "equal to y11 − y22"],
+          "explain": "y12 = i1/v2 with v1 = 0: a positive voltage at port 2 drives current through R3 towards terminal 1 and out of it into the short, opposite to the reference direction of i1, so y12 = −1/R3 < 0."
+        }
+      ],
+      "hints": [
+        "Y parameters are the short-circuit admittance parameters: for y11 and y21 set v2 = 0 (port 2 shorted) and drive port 1 with a voltage v1.",
+        "A resistor across a shorted port is shorted out and plays no part; remember that i2 is defined as flowing into terminal 2."
+      ],
+      "solution": [
+        "**1. Set v2 = 0 (2–2' shorted) and drive port 1 with v1.** R2 is shorted out; R1 and R3 both have v1 across them:",
+        "i1 = v1/R1 + v1/R3 = (0.5 + 0.25)v1 → **y11 = 0.75 S**;",
+        "the current v1/4 in R3 flows into the short and out of terminal 2, so i2 = −v1/4 → **y21 = −0.25 S**.",
+        "**2. Set v1 = 0 (1–1' shorted) and drive port 2 with v2.** Likewise i2 = v2/R2 + v2/R3 → **y22 = 0.45 S**, and i1 = −v2/R3 → y12 = −0.25 S.",
+        "**3. Result:** Y = [0.75 −0.25; −0.25 0.45] S. The Y parameters of a Π network can be read off directly: y11 = G1 + G3, y22 = G2 + G3, y12 = y21 = −G3."
+      ]
+    }
+  }
+}

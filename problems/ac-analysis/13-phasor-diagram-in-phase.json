@@ -1,0 +1,93 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-analysis-13-phasor-diagram-in-phase",
+  "chapter": "ac-analysis",
+  "title": "相量图法：端口电压与电流同相",
+  "level": 4,
+  "tags": ["相量图", "定性分析", "电压电流同相"],
+  "statement": [
+    "图示电路中 R、C 并联后与 L 串联，参数未知。已知电源电压有效值 U = 100 V，R 与 C 中电流的有效值 I1 = I2 = 10 A，并且端口电压 u 与总电流 i 同相。",
+    "求总电流 I、并联部分电压 U_2 和电感电压 U_L 的有效值，进而确定 R、X_C、X_L。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 100, "phase": 0 } }, "label": "u" },
+      { "ref": "L", "type": "L", "from": [2, 0], "to": [6, 0], "value": "7.0710678m", "hideValue": true },
+      { "ref": "R", "type": "R", "from": [9, 0], "to": [9, 4], "value": 14.1421356, "hideValue": true },
+      { "ref": "C", "type": "C", "from": [13, 0], "to": [13, 4], "value": "70.710678u", "hideValue": true }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [13, 0]],
+      [[13, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "i", "el": "L", "name": "i" },
+      { "kind": "v", "el": "L", "name": "u_L" },
+      { "kind": "v", "el": "R", "name": "u_2" },
+      { "kind": "i", "el": "R", "name": "i_1" },
+      { "kind": "i", "el": "C", "name": "i_2" }
+    ]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "I", "ask": "总电流有效值 I = ?", "find": { "kind": "i", "el": "L" }, "answer": 14.14214, "unit": "A", "explain": "以 U_2 为参考：I1 与 U_2 同相，I2 超前 90°，两者相等 → I = 10√2 ≈ 14.14 A，超前 U_2 45°。" },
+    { "id": "U2", "ask": "并联部分电压有效值 U_2 = ?", "find": { "kind": "v", "el": "R" }, "answer": 141.4214, "unit": "V", "explain": "U 与 I 同相，即 U 与 U_2 的夹角为 45°；U_L 超前 I 90°，与 U 垂直。直角三角形中 U_2 是斜边：U_2 = U/cos 45° = 100√2 ≈ 141.4 V。" },
+    { "id": "UL", "ask": "电感电压有效值 U_L = ?", "find": { "kind": "v", "el": "L" }, "answer": 100, "unit": "V", "explain": "直角三角形 U_2² = U² + U_L² → U_L = √(20000 − 10000) = 100 V（等腰直角三角形）。" },
+    {
+      "id": "par",
+      "ask": "由此得到的元件参数是？",
+      "choices": ["R = X_C = 14.14 Ω，X_L = 7.07 Ω", "R = X_C = 10 Ω，X_L = 10 Ω", "R = X_C = 14.14 Ω，X_L = 14.14 Ω"],
+      "correct": 0,
+      "explain": "R = U_2/I1 = 141.4/10 = 14.14 Ω，X_C = U_2/I2 = 14.14 Ω，X_L = U_L/I = 100/14.14 = 7.07 Ω。验算：Z = j7.07 + 14.14 ∥ (−j14.14) = j7.07 + 7.07 − j7.07 = 7.07 Ω，纯电阻，确实同相。"
+    }
+  ],
+  "hints": [
+    "并联部分以电压 U_2 为参考相量最方便：I1 与 U_2 同相，I2 超前 U_2 90°。",
+    "I = I1 + I2，I1 = I2 → I 超前 U_2 45°。U_L 超前 I 90°，而 U 与 I 同相，所以 U ⊥ U_L。",
+    "画出 U = U_L + U_2 的三角形：它是以 U_2 为斜边的直角三角形，且有一个 45° 角。"
+  ],
+  "solution": [
+    "**1. 并联部分。** 取 U_2 = U_2∠0°。I1 = 10∠0° A，I2 = 10∠90° A，I = I1 + I2 = 10 + j10 = **14.14∠45° A**。",
+    "**2. 电感电压。** U_L = jX_L·I 超前 I 90°，相位为 135°。",
+    "**3. 同相条件。** U 与 I 同相，相位 45°，所以 U ⊥ U_L。KVL：U_2 = U − U_L，三个相量构成直角三角形，U_2 为斜边，它与 U 的夹角为 45°。",
+    "**4. 求三角形。** U_2 = U/cos 45° = **141.4 V**，U_L = U·tan 45° = **100 V**。",
+    "**5. 参数。** R = U_2/I1 = 14.14 Ω，X_C = U_2/I2 = 14.14 Ω，X_L = U_L/I = 100/14.14 = 7.07 Ω。",
+    "验算：Z = jX_L + R ∥ (−jX_C) = j7.07 + (7.07 − j7.07) = 7.07 Ω，I = 100/7.07 = 14.14 A ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Phasor diagram: port voltage in phase with the current",
+      "tags": ["phasor diagram", "qualitative analysis", "voltage and current in phase"],
+      "statement": [
+        "R and C in parallel are in series with L; the element values are unknown. The source voltage has rms value U = 100 V, the rms currents in R and C are I1 = I2 = 10 A, and the port voltage u is in phase with the total current i.",
+        "Find the rms total current I, the rms voltage U_2 across the parallel part and the rms inductor voltage U_L, and from them R, X_C and X_L."
+      ],
+      "questions": [
+        { "ask": "rms total current I = ?", "explain": "Take U_2 as reference: I1 is in phase with U_2, I2 leads by 90°, and they are equal → I = 10√2 ≈ 14.14 A, leading U_2 by 45°." },
+        { "ask": "rms voltage across the parallel part, U_2 = ?", "explain": "U is in phase with I, so the angle between U and U_2 is 45°; U_L leads I by 90°, so it is perpendicular to U. In this right triangle U_2 is the hypotenuse: U_2 = U/cos 45° = 100√2 ≈ 141.4 V." },
+        { "ask": "rms inductor voltage U_L = ?", "explain": "Right triangle: U_2² = U² + U_L² → U_L = √(20000 − 10000) = 100 V (an isosceles right triangle)." },
+        {
+          "ask": "Which element values follow from this?",
+          "choices": ["R = X_C = 14.14 Ω, X_L = 7.07 Ω", "R = X_C = 10 Ω, X_L = 10 Ω", "R = X_C = 14.14 Ω, X_L = 14.14 Ω"],
+          "explain": "R = U_2/I1 = 141.4/10 = 14.14 Ω, X_C = U_2/I2 = 14.14 Ω, X_L = U_L/I = 100/14.14 = 7.07 Ω. Check: Z = j7.07 + 14.14 ∥ (−j14.14) = j7.07 + 7.07 − j7.07 = 7.07 Ω, purely resistive, so u and i are indeed in phase."
+        }
+      ],
+      "hints": [
+        "For the parallel part take its voltage U_2 as the reference phasor: I1 is in phase with U_2, I2 leads U_2 by 90°.",
+        "I = I1 + I2 with I1 = I2, so I leads U_2 by 45°. U_L leads I by 90°, and U is in phase with I, so U ⊥ U_L.",
+        "Draw the triangle U = U_L + U_2: a right triangle with U_2 as the hypotenuse and a 45° angle."
+      ],
+      "solution": [
+        "**1. Parallel part.** Let U_2 = U_2∠0°. I1 = 10∠0° A, I2 = 10∠90° A, I = I1 + I2 = 10 + j10 = **14.14∠45° A**.",
+        "**2. Inductor voltage.** U_L = jX_L·I leads I by 90°, i.e. its angle is 135°.",
+        "**3. In-phase condition.** U is in phase with I (angle 45°), so U ⊥ U_L. KVL: U_2 = U − U_L; the three phasors form a right triangle with hypotenuse U_2, at 45° to U.",
+        "**4. Solve the triangle.** U_2 = U/cos 45° = **141.4 V**, U_L = U·tan 45° = **100 V**.",
+        "**5. Parameters.** R = U_2/I1 = 14.14 Ω, X_C = U_2/I2 = 14.14 Ω, X_L = U_L/I = 100/14.14 = 7.07 Ω.",
+        "Check: Z = jX_L + R ∥ (−jX_C) = j7.07 + (7.07 − j7.07) = 7.07 Ω, I = 100/7.07 = 14.14 A ✓."
+      ]
+    }
+  }
+}

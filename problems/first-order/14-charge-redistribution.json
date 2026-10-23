@@ -1,0 +1,83 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "first-order-14-charge-redistribution",
+  "chapter": "first-order",
+  "title": "两个电容经电阻重新分配电荷",
+  "level": 4,
+  "tags": ["电荷守恒", "电容串联", "时间常数 τ", "能量损耗"],
+  "statement": [
+    "图示电路中 Us = 10 V，C1 = 30 µF，C2 = 20 µF，R = 5 kΩ，C2 原来不带电。t < 0 时 S1 闭合、S2 断开，电路已稳定；t = 0 时 S1 断开，同时 S2 闭合，C1 经 R 向 C2 充电。",
+    "求时间常数 τ、u_C2(∞)、t = 0.06 s 时的 u_C1，并分析电阻上消耗的能量。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
+      { "ref": "S1", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "closed", "after": "open" } },
+      { "ref": "C1", "type": "C", "from": [6, 0], "to": [6, 4], "value": "30u" },
+      { "ref": "S2", "type": "SW", "from": [8, 0], "to": [10, 0], "state": { "before": "open", "after": "closed" } },
+      { "ref": "R", "type": "R", "from": [11, 0], "to": [15, 0], "value": "5k" },
+      { "ref": "C2", "type": "C", "from": [17, 0], "to": [17, 4], "value": "20u" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[4, 0], [8, 0]],
+      [[10, 0], [11, 0]],
+      [[15, 0], [17, 0]],
+      [[17, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "v", "el": "C1", "name": "u_C1" },
+      { "kind": "v", "el": "C2", "name": "u_C2" },
+      { "kind": "i", "el": "R", "name": "i" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.06, "unit": "s", "explain": "换路后回路中 C1、R、C2 串联，两个电容串联的等效电容 C = C1C2/(C1 + C2) = 12 µF，τ = RC = 5×10³ × 12×10⁻⁶ = 0.06 s。" },
+    { "id": "u2inf", "ask": "u_C2(∞) = ?", "find": { "kind": "v", "el": "C2", "t": "inf" }, "answer": 6, "unit": "V", "explain": "稳态时 R 中无电流，两电容电压相等；上极板总电荷守恒：30 µF × 10 V = (30 + 20) µF × u → u = 6 V。" },
+    { "id": "u1", "ask": "t = 0.06 s 时 u_C1 = ?", "find": { "kind": "v", "el": "C1", "t": 0.06 }, "answer": 7.471518, "unit": "V", "explain": "u_C1(0₊) = 10 V，u_C1(∞) = 6 V，u_C1(t) = 6 + 4e^(−t/0.06) V，t = τ 时 u_C1 = 6 + 4e⁻¹ ≈ 7.472 V。" },
+    { "id": "energy", "ask": "整个过程中电阻 R 消耗的能量是多少？它与 R 的大小有什么关系？", "choices": ["0.6 mJ，与 R 无关（R 只影响放电快慢）", "0.6 mJ，R 越大消耗越多", "0，因为电荷守恒所以能量也守恒", "1.5 mJ，C1 的储能全部消耗在 R 上"], "correct": 0, "explain": "初始储能 ½ × 30µ × 10² = 1.5 mJ，最终储能 ½ × 50µ × 6² = 0.9 mJ，差值 0.6 mJ 消耗在 R 上。也可以直接积分：∫i²R dt = ½ C_串 (ΔU)² = ½ × 12µ × 10² = 0.6 mJ，结果与 R 无关。" }
+  ],
+  "hints": [
+    "换路后 C1 → R → C2 → 地 → C1 构成一个单回路：两个电容是串联的，可以合并成一个等效电容求 τ。",
+    "终值：R 中无电流时两电容电压相等。两电容上极板之间只通过 R 相连，总电荷守恒。",
+    "能量：比较换路前后电容的总储能。"
+  ],
+  "solution": [
+    "**1. 初值。** t < 0：u_C1(0₋) = Us = 10 V；C2 与电路隔开，不带电：u_C2(0₋) = 0。换路后 u_C1(0₊) = 10 V，u_C2(0₊) = 0，i(0₊) = (10 − 0)/5k = 2 mA。",
+    "**2. 时间常数。** 回路中 C1、C2 串联：C = 30 × 20/50 = 12 µF，**τ = RC = 0.06 s**。",
+    "**3. 终值（电荷守恒）。** q = C1·u_C1(0₊) + C2·u_C2(0₊) = 300 µC，终态 u_C1 = u_C2 = 300/50 = **6 V**。",
+    "**4. 响应。** u_C1(t) = 6 + 4e^(−t/0.06) V，u_C2(t) = 6(1 − e^(−t/0.06)) V，i(t) = 2e^(−t/0.06) mA。t = 0.06 s：u_C1 = 6 + 4e⁻¹ ≈ **7.472 V**。",
+    "**5. 能量。** W(0) = ½ × 30µ × 100 = 1.5 mJ，W(∞) = ½ × 50µ × 36 = 0.9 mJ，**R 消耗 0.6 mJ**；∫i²R dt = (2 mA)² × 5 kΩ × τ/2 = 0.02 × 0.03 = 0.6 mJ ✓。R 越小电流越大但时间越短，乘积不变，所以损耗与 R 无关。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Charge sharing between two capacitors through a resistor",
+      "tags": ["charge conservation", "capacitors in series", "time constant τ", "energy loss"],
+      "statement": [
+        "In the circuit, Us = 10 V, C1 = 30 µF, C2 = 20 µF, R = 5 kΩ, and C2 is initially uncharged. For t < 0, S1 is closed and S2 open, and the circuit is in steady state; at t = 0, S1 opens and S2 closes at the same time, so C1 charges C2 through R.",
+        "Find the time constant τ, u_C2(∞), u_C1 at t = 0.06 s, and analyse the energy dissipated in the resistor."
+      ],
+      "questions": [
+        { "ask": "τ = ?", "explain": "After switching, C1, R and C2 are in series in one loop; the two capacitors in series give C = C1C2/(C1 + C2) = 12 µF, τ = RC = 5×10³ × 12×10⁻⁶ = 0.06 s." },
+        { "ask": "u_C2(∞) = ?", "explain": "In steady state R carries no current and the two capacitor voltages are equal; the total charge on the top plates is conserved: 30 µF × 10 V = (30 + 20) µF × u → u = 6 V." },
+        { "ask": "u_C1 at t = 0.06 s = ?", "explain": "u_C1(0+) = 10 V, u_C1(∞) = 6 V, u_C1(t) = 6 + 4e^(−t/0.06) V; at t = τ, u_C1 = 6 + 4e⁻¹ ≈ 7.472 V." },
+        { "ask": "How much energy is dissipated in R during the whole process, and how does it depend on R?", "choices": ["0.6 mJ, independent of R (R only sets how fast it happens)", "0.6 mJ, more for a larger R", "0, because charge is conserved so energy is conserved too", "1.5 mJ, all the energy stored in C1 is dissipated in R"], "explain": "Initial energy ½ × 30µ × 10² = 1.5 mJ, final energy ½ × 50µ × 6² = 0.9 mJ; the difference, 0.6 mJ, is dissipated in R. Integrating directly: ∫i²R dt = ½ C_series (ΔU)² = ½ × 12µ × 10² = 0.6 mJ, independent of R." }
+      ],
+      "hints": [
+        "After switching, C1 → R → C2 → ground → C1 is a single loop: the two capacitors are in series and can be combined into one equivalent capacitor to find τ.",
+        "Final value: with no current in R the two capacitor voltages are equal. The top plates are connected only through R, so their total charge is conserved.",
+        "Energy: compare the total stored energy before and after."
+      ],
+      "solution": [
+        "**1. Initial values.** t < 0: u_C1(0−) = Us = 10 V; C2 is isolated and uncharged: u_C2(0−) = 0. After switching u_C1(0+) = 10 V, u_C2(0+) = 0, i(0+) = (10 − 0)/5k = 2 mA.",
+        "**2. Time constant.** C1 and C2 are in series in the loop: C = 30 × 20/50 = 12 µF, **τ = RC = 0.06 s**.",
+        "**3. Final value (charge conservation).** q = C1·u_C1(0+) + C2·u_C2(0+) = 300 µC; finally u_C1 = u_C2 = 300/50 = **6 V**.",
+        "**4. Responses.** u_C1(t) = 6 + 4e^(−t/0.06) V, u_C2(t) = 6(1 − e^(−t/0.06)) V, i(t) = 2e^(−t/0.06) mA. At t = 0.06 s: u_C1 = 6 + 4e⁻¹ ≈ **7.472 V**.",
+        "**5. Energy.** W(0) = ½ × 30µ × 100 = 1.5 mJ, W(∞) = ½ × 50µ × 36 = 0.9 mJ, so **R dissipates 0.6 mJ**; ∫i²R dt = (2 mA)² × 5 kΩ × τ/2 = 0.02 × 0.03 = 0.6 mJ ✓. A smaller R gives a larger current but for a shorter time; the product is unchanged, so the loss doesn't depend on R."
+      ]
+    }
+  }
+}

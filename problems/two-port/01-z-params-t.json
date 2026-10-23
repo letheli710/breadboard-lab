@@ -1,0 +1,110 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "two-port-01-z-params-t",
+  "chapter": "two-port",
+  "title": "T 形电阻二端口的 Z 参数",
+  "level": 1,
+  "tags": ["Z 参数", "开路阻抗参数", "互易二端口"],
+  "statement": [
+    "图示 T 形电阻二端口中，R1 = 2 Ω，R2 = 3 Ω，R3 = 4 Ω。端口电压 u1、u2 的“+”分别在 1、2 端，端口电流 i1、i2 分别从 1、2 端流入（关联参考方向）。",
+    "Z 参数方程：u1 = z11·i1 + z12·i2，u2 = z21·i1 + z22·i2。按定义（令另一端口开路）求 Z 参数。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+      { "ref": "R2", "type": "R", "from": [14, 0], "to": [10, 0], "value": 3 },
+      { "ref": "R3", "type": "R", "from": [8, 0], "to": [8, 4], "value": 4 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [10, 0]],
+      [[14, 0], [16, 0]],
+      [[0, 4], [16, 4]]
+    ],
+    "terminals": [
+      { "at": [0, 0], "name": "1" },
+      { "at": [0, 4], "name": "1'" },
+      { "at": [16, 0], "name": "2" },
+      { "at": [16, 4], "name": "2'" }
+    ],
+    "grounds": [[8, 4]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }, { "kind": "i", "el": "R2", "name": "i2" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "z11",
+      "ask": "z11 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11" },
+      "answer": 6,
+      "unit": "Ω",
+      "explain": "2–2' 开路（i2 = 0）时 R2 中无电流，从 1–1' 看进去是 R1 与 R3 串联：z11 = u1/i1 = 2 + 4 = 6 Ω。"
+    },
+    {
+      "id": "z21",
+      "ask": "z21 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z21" },
+      "answer": 4,
+      "unit": "Ω",
+      "explain": "i2 = 0 时 R2 上无压降，u2 等于 R3 上的电压 4·i1，所以 z21 = u2/i1 = 4 Ω。"
+    },
+    {
+      "id": "z22",
+      "ask": "z22 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z22" },
+      "answer": 7,
+      "unit": "Ω",
+      "explain": "1–1' 开路（i1 = 0）时，从 2–2' 看进去是 R2 与 R3 串联：z22 = 3 + 4 = 7 Ω。"
+    },
+    {
+      "id": "z12",
+      "ask": "不用再算，z12 等于多少？",
+      "choices": ["4 Ω，与 z21 相等", "0（1–1' 开路时 u1 = 0）", "6 Ω，与 z11 相等", "7 Ω，与 z22 相等"],
+      "correct": 0,
+      "explain": "i1 = 0 时 R1 无电流，u1 = R3·i2，z12 = 4 Ω = z21。只由线性电阻（无受控源）构成的二端口是互易的，总有 z12 = z21。"
+    }
+  ],
+  "hints": [
+    "Z 参数又叫开路阻抗参数：求 z11、z21 时令 i2 = 0（2–2' 开路），在 1–1' 加电流 i1。",
+    "端口开路时与它串联的电阻里没有电流，也没有压降；z11、z21 只和 R1、R3 有关。"
+  ],
+  "solution": [
+    "**1. 令 i2 = 0（2–2' 开路），在 1–1' 加电流 i1。** R2 中无电流，i1 全部流过 R1、R3：",
+    "u1 = (R1 + R3)·i1 = 6i1 → **z11 = 6 Ω**；u2 = R3·i1 = 4i1 → **z21 = 4 Ω**。",
+    "**2. 令 i1 = 0（1–1' 开路），在 2–2' 加电流 i2。** R1 中无电流：",
+    "u2 = (R2 + R3)·i2 = 7i2 → **z22 = 7 Ω**；u1 = R3·i2 = 4i2 → **z12 = 4 Ω**。",
+    "**3. 结论：** Z = [6 4; 4 7] Ω。z12 = z21 = R3（公共支路电阻），网络互易；z11 ≠ z22，网络不对称。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Z parameters of a resistive T network",
+      "tags": ["Z parameters", "open-circuit impedance parameters", "reciprocal two-port"],
+      "statement": [
+        "In the resistive T two-port, R1 = 2 Ω, R2 = 3 Ω, R3 = 4 Ω. The port voltages v1, v2 are + at terminals 1 and 2, and the port currents i1, i2 flow into terminals 1 and 2 (passive convention).",
+        "Z-parameter equations: v1 = z11·i1 + z12·i2, v2 = z21·i1 + z22·i2. Find the Z parameters from their definitions (with the other port open)."
+      ],
+      "questions": [
+        { "ask": "z11 = ?", "explain": "With 2–2' open (i2 = 0) there is no current in R2, so port 1 sees R1 in series with R3: z11 = v1/i1 = 2 + 4 = 6 Ω." },
+        { "ask": "z21 = ?", "explain": "With i2 = 0 there is no drop across R2, so v2 equals the voltage across R3, 4·i1: z21 = v2/i1 = 4 Ω." },
+        { "ask": "z22 = ?", "explain": "With 1–1' open (i1 = 0), port 2 sees R2 in series with R3: z22 = 3 + 4 = 7 Ω." },
+        {
+          "ask": "Without further calculation, what is z12?",
+          "choices": ["4 Ω, equal to z21", "0 (v1 = 0 when 1–1' is open)", "6 Ω, equal to z11", "7 Ω, equal to z22"],
+          "explain": "With i1 = 0 there is no current in R1, so v1 = R3·i2 and z12 = 4 Ω = z21. A two-port made only of linear resistors (no dependent sources) is reciprocal, so z12 = z21 always."
+        }
+      ],
+      "hints": [
+        "Z parameters are the open-circuit impedance parameters: for z11 and z21 set i2 = 0 (port 2 open) and drive port 1 with a current i1.",
+        "A resistor in series with an open port carries no current and has no voltage drop; z11 and z21 involve only R1 and R3."
+      ],
+      "solution": [
+        "**1. Set i2 = 0 (2–2' open) and drive port 1 with i1.** R2 carries no current, so i1 flows through R1 and R3:",
+        "v1 = (R1 + R3)·i1 = 6i1 → **z11 = 6 Ω**; v2 = R3·i1 = 4i1 → **z21 = 4 Ω**.",
+        "**2. Set i1 = 0 (1–1' open) and drive port 2 with i2.** R1 carries no current:",
+        "v2 = (R2 + R3)·i2 = 7i2 → **z22 = 7 Ω**; v1 = R3·i2 = 4i2 → **z12 = 4 Ω**.",
+        "**3. Result:** Z = [6 4; 4 7] Ω. z12 = z21 = R3 (the shared branch), so the network is reciprocal; z11 ≠ z22, so it is not symmetric."
+      ]
+    }
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "coupled-10-perfect-coupling",
+  "chapter": "coupled",
+  "title": "全耦合变压器与理想变压器",
+  "level": 4,
+  "tags": ["全耦合 k = 1", "理想变压器", "励磁电流", "空心变压器"],
+  "statement": [
+    "U̇s = 40∠0° V（有效值），ω = 100 rad/s。耦合电感 L1 = 0.16 H、L2 = 0.04 H，耦合系数 k = 1（全耦合），副边接 RL = 4 Ω。",
+    "求负载电压 U2、原边电流 İ1 的有效值和相位，并说明它与理想变压器的区别。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 40, "phase": 0 } }, "label": "40∠0° V" },
+      { "ref": "L1", "type": "L", "from": [6, 0], "to": [6, 4], "value": 0.16 },
+      { "ref": "L2", "type": "L", "from": [10, 0], "to": [10, 4], "value": 0.04 },
+      { "ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "k": 1 },
+      { "ref": "RL", "type": "R", "from": [14, 0], "to": [14, 4], "value": 4 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[6, 4], [0, 4]],
+      [[10, 0], [14, 0]],
+      [[14, 4], [10, 4]]
+    ],
+    "grounds": [[0, 4], [12, 4]],
+    "marks": [
+      { "kind": "i", "el": "L1", "name": "I1" },
+      { "kind": "i", "el": "RL", "name": "I2" },
+      { "kind": "v", "el": "RL", "name": "U2" }
+    ]
+  },
+  "analysis": { "type": "ac", "omega": 100 },
+  "questions": [
+    {
+      "id": "u2",
+      "ask": "负载电压 U2 = ?",
+      "find": { "kind": "v", "el": "RL" },
+      "answer": 20,
+      "unit": "V",
+      "explain": "全耦合时 u1/u2 = √(L1/L2) = n = 2，与负载无关：U2 = 40 / 2 = 20 V（I2 = 5 A）。"
+    },
+    {
+      "id": "i1",
+      "ask": "原边电流有效值 I1 = ?",
+      "find": { "kind": "i", "el": "L1" },
+      "answer": 3.535534,
+      "unit": "A",
+      "explain": "İ1 = 励磁电流 U̇s/(jωL1) + 折算的负载电流 İ2/n = 40/j16 + 5/2 = 2.5 − j2.5 A，I1 = 2.5√2 ≈ 3.536 A。"
+    },
+    {
+      "id": "ph1",
+      "ask": "İ1 的相位 = ?",
+      "find": { "kind": "i", "el": "L1", "part": "phase" },
+      "answer": -45,
+      "unit": "°",
+      "explain": "İ1 = 2.5 − j2.5 A = 3.536∠−45° A：从电源看进去是 jωL1 ∥ n²RL = j16 ∥ 16 = 8 + j8 Ω。"
+    },
+    {
+      "id": "ideal",
+      "ask": "保持 L1/L2 = 4、k = 1，让 L1、L2 都趋于无穷大，I1 趋于多少？",
+      "choices": ["2.5 A（理想变压器）", "3.536 A（不变）", "0"],
+      "correct": 0,
+      "explain": "励磁电流 U1/(ωL1) → 0，只剩折算的负载电流 I2/n = 2.5 A：全耦合 + L1 → ∞ 就是 n = 2 的理想变压器。"
+    }
+  ],
+  "hints": [
+    "k = 1 时 M = √(L1L2) = 0.08 H。列原、副边两个回路方程即可求解。",
+    "全耦合变压器 = 理想变压器（n = √(L1/L2)）+ 原边并联励磁电感 L1。"
+  ],
+  "solution": [
+    "**1. 参数。** M = k√(L1L2) = 0.08 H；ωL1 = 16 Ω，ωL2 = 4 Ω，ωM = 8 Ω；n = √(L1/L2) = 2。",
+    "**2. 回路方程（İ2 方向如图，从副边同名端流出）。** 原边：U̇s = j16İ1 − j8İ2；副边：j8İ1 − j4İ2 = 4İ2 → İ2 = j8İ1/(4 + j4) = √2∠45°·İ1。",
+    "**3. 求解。** U̇s = (j16 − j8 × √2∠45°)İ1 = (j16 + 8 − j8)İ1 = (8 + j8)İ1 → **İ1 = 3.536∠−45° A**；İ2 = √2∠45° × 3.536∠−45° = 5∠0° A，**U2 = 20 V**。",
+    "**4. 等效电路解释。** 全耦合时 U̇1/U̇2 = n = 2 恒成立；原边电流 = 励磁电流 U̇1/(jωL1) = −j2.5 A + 折算负载电流 İ2/n = 2.5 A。理想变压器（L1 → ∞）没有励磁电流，I1 = 2.5 A。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Perfectly coupled transformer vs. ideal transformer",
+      "tags": ["perfect coupling k = 1", "ideal transformer", "magnetizing current", "linear transformer"],
+      "statement": [
+        "Us = 40∠0° V (rms), ω = 100 rad/s. Coupled inductors L1 = 0.16 H and L2 = 0.04 H have coupling coefficient k = 1 (perfect coupling); the secondary feeds RL = 4 Ω.",
+        "Find the load voltage U2 and the rms value and phase of the primary current I1, and explain how this differs from an ideal transformer."
+      ],
+      "questions": [
+        { "ask": "Load voltage U2 = ?", "explain": "With perfect coupling v1/v2 = √(L1/L2) = n = 2 regardless of the load: U2 = 40 / 2 = 20 V (I2 = 5 A)." },
+        { "ask": "rms primary current I1 = ?", "explain": "I1 = magnetizing current Us/(jωL1) + reflected load current I2/n = 40/j16 + 5/2 = 2.5 − j2.5 A, I1 = 2.5√2 ≈ 3.536 A." },
+        { "ask": "Phase of I1 = ?", "explain": "I1 = 2.5 − j2.5 A = 3.536∠−45° A: the source sees jωL1 ∥ n²RL = j16 ∥ 16 = 8 + j8 Ω." },
+        {
+          "ask": "Keeping L1/L2 = 4 and k = 1, let L1 and L2 both go to infinity. I1 tends to…",
+          "choices": ["2.5 A (ideal transformer)", "3.536 A (unchanged)", "0"],
+          "explain": "The magnetizing current U1/(ωL1) → 0 and only the reflected load current I2/n = 2.5 A is left: perfect coupling with L1 → ∞ is exactly an ideal transformer with n = 2."
+        }
+      ],
+      "hints": [
+        "With k = 1, M = √(L1L2) = 0.08 H. Two loop equations (primary and secondary) solve the circuit.",
+        "Perfectly coupled transformer = ideal transformer (n = √(L1/L2)) + the magnetizing inductance L1 across the primary."
+      ],
+      "solution": [
+        "**1. Parameters.** M = k√(L1L2) = 0.08 H; ωL1 = 16 Ω, ωL2 = 4 Ω, ωM = 8 Ω; n = √(L1/L2) = 2.",
+        "**2. Loop equations (I2 as drawn, leaving the secondary dot).** Primary: Us = j16I1 − j8I2; secondary: j8I1 − j4I2 = 4I2 → I2 = j8I1/(4 + j4) = √2∠45°·I1.",
+        "**3. Solve.** Us = (j16 − j8 × √2∠45°)I1 = (j16 + 8 − j8)I1 = (8 + j8)I1 → **I1 = 3.536∠−45° A**; I2 = √2∠45° × 3.536∠−45° = 5∠0° A, **U2 = 20 V**.",
+        "**4. Equivalent-circuit view.** With perfect coupling U1/U2 = n = 2 always; the primary current = magnetizing current U1/(jωL1) = −j2.5 A + reflected load current I2/n = 2.5 A. An ideal transformer (L1 → ∞) has no magnetizing current, so I1 = 2.5 A."
+      ]
+    }
+  }
+}
