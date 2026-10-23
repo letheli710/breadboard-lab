@@ -52,3 +52,10 @@ New `PartType`s (src/core/types.ts) and their physical pins:
 Simulation: when the board contains a `function_gen`, the board is also simulated in the time domain (`src/core/transient.ts`) until periodic steady state, and the scope shows each probe's `V(tip) − V(gnd)` over the last periods. Without a generator, everything works as before (DC). Circuit-level types: the same names are valid in challenge `components` (`opamp` as one component with logical pins `outA, inA-, inA+, v-, inB+, inB-, outB, v+` — aliases allowed per docs; `function_gen` matches any generator).
 
 Challenge tests can measure with the scope: `"scope": [{ "pin": "C1.1", "ref": "V1.-", "measure": "vpp" | "vmax" | "vmin" | "vavg" | "vrms" | "freq" | "phase", "vs"?: "<pin>", "min", "max" }]` and `"set"` may change a generator's `frequency` / `amplitude` / `waveform`. Ammeter readings: `"currents": [{ "el": "AM1"?..., }]` — exact shape defined in docs/CHALLENGE_FORMAT.md by the implementer.
+
+## 待办 / Backlog (engine gaps reported by problem authors)
+
+- 单刀双掷开关（SPDT `SW` 三端）/ an SPDT switch element (currently two `SW` acting at t = 0)
+- 开关在 t ≠ 0 时再次动作（两次换路问题）/ switching events at times other than 0 (classic "switch again at t = t1" problems)
+- 正弦源用 `omega` 指定角频率 / `sin.omega` so authors don't write f = 15.9155 Hz for ω = 100 rad/s
+- 暂态中的稳态振幅 / steady-state amplitude of a sinusoidal transient response as a checkable quantity
