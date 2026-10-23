@@ -127,6 +127,39 @@ describe('dependent sources', () => {
   });
 });
 
+describe('port quantities with exclude', () => {
+  // 12 V, R1 = 6 Ω to a, R2 = 3 Ω a–0, load RL drawn across a–0
+  const d: Spec[] = [
+    { ref: 'V', type: 'V', nodes: ['x', '0'], value: 12 },
+    { ref: 'R1', type: 'R', nodes: ['x', 'a'], value: 6 },
+    { ref: 'R2', type: 'R', nodes: ['a', '0'], value: 3 },
+    { ref: 'RL', type: 'R', nodes: ['a', '0'], value: 10 }, // terminal b sits on ground
+  ];
+  const al = { b: '0' };
+  const Q = (find: Find) => computeQuantity(net(d, al), DC, find);
+  it('max power with the load drawn across the port', () => {
+    close(Q({ kind: 'pmax', port: ['a', 'b'], exclude: ['RL'] }), 16 / 8); // Vth = 4, Rth = 2
+    close(Q({ kind: 'vth', port: ['a', 'b'], exclude: ['RL'] }), 4);
+    close(Q({ kind: 'isc', port: ['a', 'b'], exclude: ['RL'] }), 2);
+    close(Q({ kind: 'vth', port: ['a', 'b'] }), 12 * (30 / 13) / (6 + 30 / 13)); // load kept
+  });
+  it('req with the drawn load excluded (and kept)', () => {
+    close(Q({ kind: 'req', port: ['a', 'b'], exclude: ['RL'] }), 2);
+    close(Q({ kind: 'req', port: ['a', 'b'] }), 1 / (1 / 2 + 1 / 10));
+  });
+  it('AC pmax with exclude', () => {
+    const e: Spec[] = [
+      { ref: 'Vs', type: 'V', nodes: ['s', '0'], value: { ac: { mag: 10 } } },
+      { ref: 'Zs', type: 'Z', nodes: ['s', 'a'], value: { re: 3, im: 4 } },
+      { ref: 'ZL', type: 'Z', nodes: ['a', '0'], value: { re: 3, im: -4 } },
+    ];
+    close(q(e, { type: 'ac', freq: 50 }, { kind: 'pmax', port: ['a', '0'], exclude: ['ZL'] }), 100 / 12);
+  });
+  it('unknown excluded ref is an error', () => {
+    expect(() => Q({ kind: 'pmax', port: ['a', 'b'], exclude: ['RX'] })).toThrow(/exclude.*"RX"/);
+  });
+});
+
 describe('ideal op-amps', () => {
   const op = (minus: string, plus: string, out: string): Spec => ({ ref: 'U1', type: 'OPAMP', nodes: [minus, plus, out] });
   it('inverting', () => {

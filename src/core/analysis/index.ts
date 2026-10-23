@@ -14,8 +14,10 @@
 //     {step}/{sin} sources are rejected (use {ac: {mag, phase}}).
 //   - pf is |P|/|S| (always ≥ 0; for a source this is the power factor of its load).
 //   - Transient t = 0 is treated as 0+. A capacitor/inductor `ic` overrides its t = 0− value.
-//   - Port quantities (req/vth/isc/pmax) use the circuit as drawn: a load drawn across the port
-//     is part of the network. In transient problems they use the resistive (DC) circuit before
+//   - DC: nodes connected to the rest only through capacitors get zero net charge, loops of
+//     shorted inductors zero flux ("initially uncharged / de-energised").
+//   - Port quantities (req/vth/isc/pmax) use the circuit as drawn, minus the elements listed in
+//     find.exclude (open-circuited; typically the load R_L drawn across the port). In transient problems they use the resistive (DC) circuit before
 //     (t = "0-") or after switching, with any C/L directly across the port taken out.
 
 import type { Analysis, Complex, Netlist } from '../problem/types';

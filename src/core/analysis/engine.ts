@@ -101,18 +101,18 @@ export class StaticAnalysis {
     return sol.vIdx(a, b);
   }
 
-  vth(a: number, b: number): Complex {
-    const rem = this.portRemoved(a, b);
+  vth(a: number, b: number, removedExtra?: Set<string>): Complex {
+    const rem = this.portRemoved(a, b, removedExtra);
     const sol = rem.size ? this.solve({ removed: rem }) : this.base();
     return sol.vIdx(a, b);
   }
 
-  isc(a: number, b: number): Complex {
+  isc(a: number, b: number, removedExtra?: Set<string>): Complex {
     if (a === b) throw new AnalysisError('isc: the two port nodes are the same node');
     const sh = testSource('__short', 'V', a, b, 0);
     let sol: Solution;
     try {
-      sol = this.solve({ extra: [sh], removed: this.portRemoved(a, b) });
+      sol = this.solve({ extra: [sh], removed: this.portRemoved(a, b, removedExtra) });
     } catch (e) {
       if (e instanceof AnalysisError) throw new AnalysisError(`isc: shorting the port makes the circuit unsolvable (e.g. an ideal voltage source directly across the port). ${e.message}`);
       throw e;
@@ -206,26 +206,43 @@ function portNodes(ckt: Circuit, port: unknown, what: string): [number, number] 
   return [ckt.node(String(port[0])), ckt.node(String(port[1]))];
 }
 
+/** `exclude`: element refs taken out (open-circuited) before a port calculation */
+function excluded(ckt: Circuit, find: Find): Set<string> | undefined {
+  const ex = (find as { exclude?: unknown }).exclude;
+  if (ex === undefined) return undefined;
+  if (!Array.isArray(ex)) throw new AnalysisError(`${find.kind}: "exclude" must be a list of element refs, e.g. ["RL"]`);
+  const out = new Set<string>();
+  for (const r of ex) {
+    const ref = String(r);
+    const el = ckt.byRef.get(ref);
+    if (!el) throw new AnalysisError(`${find.kind}: exclude lists "${ref}", but there is no element with that ref`);
+    if (!isTwoTerminal(el)) throw new AnalysisError(`${find.kind}: exclude can only remove two-terminal elements (${ref} is a ${el.type})`);
+    out.add(ref);
+  }
+  return out;
+}
+
 function networkQuantity(find: Find, an: StaticAnalysis): Val {
   const ckt = an.ckt;
   const ac = an.kind === 'ac';
   switch (find.kind) {
     case 'req': {
       const [a, b] = portNodes(ckt, find.port, 'req');
-      return { value: an.portZ(a, b), complex: ac };
+      return { value: an.portZ(a, b, excluded(ckt, find)), complex: ac };
     }
     case 'vth': {
       const [a, b] = portNodes(ckt, find.port, 'vth');
-      return { value: an.vth(a, b), complex: ac };
+      return { value: an.vth(a, b, excluded(ckt, find)), complex: ac };
     }
     case 'isc': {
       const [a, b] = portNodes(ckt, find.port, 'isc');
-      return { value: an.isc(a, b), complex: ac };
+      return { value: an.isc(a, b, excluded(ckt, find)), complex: ac };
     }
     case 'pmax': {
       const [a, b] = portNodes(ckt, find.port, 'pmax');
-      const vth = an.vth(a, b);
-      const z = an.portZ(a, b);
+      const ex = excluded(ckt, find);
+      const vth = an.vth(a, b, ex);
+      const z = an.portZ(a, b, ex);
       if (!(z.re > 0))
         throw new AnalysisError(`pmax: the Thevenin resistance at the port is ${fmt(z.re)} Ω (not positive), so maximum power transfer is undefined`);
       const p = (abs(vth) ** 2 / (4 * z.re)) * (ac && an.peak ? 0.5 : 1);

@@ -119,8 +119,8 @@ npm run validate -- --lang en       # 英文报错信息
 | `type` | 元件 | `value` | 其他字段 |
 |---|---|---|---|
 | `R` | 电阻 | Ω | |
-| `C` | 电容 | F | `ic`（一般不用，初值由 t<0 稳态决定） |
-| `L` | 电感 | H | `ic` |
+| `C` | 电容 | F | `ic`：t = 0− 时的电压（一般不用，初值由 t<0 稳态决定；写了就以 `ic` 为准） |
+| `L` | 电感 | H | `ic`：t = 0− 时的电流（写了就以 `ic` 为准） |
 | `V` | 独立电压源 | 见 §4 | p 端是 **“+”** |
 | `I` | 独立电流源 | 见 §4 | 箭头从 p 指向 n |
 | `VCVS` | 电压控制电压源 | 增益 (V/V) | `ctrl: {"v": "R1"}` 或 `{"vnodes": ["a","b"]}` |
@@ -189,7 +189,14 @@ npm run validate -- --lang en       # 英文报错信息
 - t < 0：电路处于**直流稳态**，开关取 `state.before`，阶跃源取 `before`。电容电压、电感电流的初值由此决定。
 - t = 0：开关切到 `state.after`，阶跃源变为 `after`。
 - 问题用 `find.t` 指定时刻：`"0-"`（换路前）、`"0+"`（换路后瞬间：电容电压、电感电流连续，其他量可以跳变）、一个秒数（如 `0.4`）、`"inf"`（t → ∞ 的新稳态）。暂态题里除 `tau` 外每个问题都**必须**写 `t`。
-- `tau`：t > 0 一阶电路的时间常数（RC 或 L/R，从储能元件看进去的等效电阻）。
+- `tau`：t > 0 一阶电路的时间常数（RC 或 L/R，从储能元件看进去的等效电阻）。并联电容、串联电感等可以合并成一个储能元件的电路也算一阶。不是一阶时引擎报错。
+- `find.t` 写 `0` 等同于 `"0+"`；负的秒数表示 t < 0 时的值。
+- **默认“初始不带电”**：t < 0 时，如果某些结点只通过电容（以及断开的开关）和电路其余部分相连——例如被断开的开关隔开的电容——引擎认为这部分**不带电荷**（电容初始电压按电荷为零算出，常见的就是 0）。同理，只由电感（和短路线）构成的回路按**零磁链**处理（并联电感的电流按 1/L 分配）。题目里电容原来带电，就写 `ic`。
+- t < 0 时如果接着 `sin` 源，初值取 t < 0 的正弦稳态在 t = 0 的值。
+- `"inf"`：t → ∞ 的直流稳态。有 `sin` 源、电路不稳定或无损振荡（纯 LC）时没有终值，引擎报错。
+- 电感、电容的初值在任何时刻都由电路算出；换路瞬间电容被并联到不同电压上（电荷重新分配）也能正确处理。
+
+**Semantics (English summary).** DC analysis uses each switch's `after` state and each step's `after` value (unless `t` is `"0-"` or negative). AC analysis uses `after` too. In AC a bare number source is a 0° phasor and `{ "dc": … }` alone contributes nothing; `step` / `sin` sources are rejected in AC (write `{ "ac": { "mag", "phase" } }`), and `ac` phasor sources are rejected in transient analysis (write `{ "sin": … }`). Nodes that reach the rest of the circuit only through capacitors are taken as **uncharged** (zero net charge) and loops of inductors as carrying zero flux, unless `ic` says otherwise. Transient values are exact (matrix exponential), not time-stepped.
 
 ---
 
@@ -232,16 +239,28 @@ npm run validate -- --lang en       # 英文报错信息
 | `p` | `{"kind":"p","el":"Us"}` | 元件**吸收**的功率（直流 u·i；交流为平均功率 P） | W |
 | `q` | `{"kind":"q","el":"L1"}` | 交流：元件吸收的无功功率 | var |
 | `s` | `{"kind":"s","el":"Us"}` | 交流：视在功率 \|S\| | VA |
-| `pf` | `{"kind":"pf","el":"Us"}` | 功率因数 cos φ（对电源：它所带负载的功率因数） | — |
-| `req` | `{"kind":"req","port":["a","b"]}` | 端口等效电阻（交流为 \|Z\|），独立源置零、受控源保留 | Ω |
-| `vth` | `{"kind":"vth","port":["a","b"]}` | 开路电压 V(a) − V(b)（戴维宁电压） | V |
-| `isc` | `{"kind":"isc","port":["a","b"]}` | 短路电流：用导线短接 a、b，从 a 经短路线流到 b 的电流（诺顿电流） | A |
-| `pmax` | `{"kind":"pmax","port":["a","b"]}` | 端口能输出给负载的最大功率 | W |
+| `pf` | `{"kind":"pf","el":"Us"}` | 功率因数 \|P\|/\|S\|，总是 ≥ 0（对电源：它所带负载的功率因数）。**不带超前/滞后符号**——问“超前还是滞后”请用选择题 | — |
+| `req` | `{"kind":"req","port":["a","b"]}` | 端口等效电阻（交流为 \|Z\|），独立源置零、受控源保留。可加 `exclude`（§6.1.1） | Ω |
+| `vth` | `{"kind":"vth","port":["a","b"]}` | 开路电压 V(a) − V(b)（戴维宁电压）。可加 `exclude` | V |
+| `isc` | `{"kind":"isc","port":["a","b"]}` | 短路电流：用导线短接 a、b，从 a 经短路线流到 b 的电流（诺顿电流）。可加 `exclude` | A |
+| `pmax` | `{"kind":"pmax","port":["a","b"],"exclude":["RL"]}` | 端口能输出给负载的最大功率（直流 Uoc²/(4R₀)，交流 \|Uoc\|²/(4·Re Z₀)）。负载画在图上时用 `exclude` 去掉它 | W |
 | `tau` | `{"kind":"tau"}` | 一阶电路 t > 0 的时间常数 | s |
 | `meter` | `{"kind":"meter","el":"A1"}` | 电流表 / 电压表读数 | A / V |
 | `gain` | `{"kind":"gain","out":["o"],"input":"Ui"}` | 网络函数 V(out) / 输入源的值（交流为复数，用 `part` 取模、相位或 dB） | — |
 | `f0` | `{"kind":"f0"}` / `{"kind":"f0","port":["a","b"]}` | 谐振频率：输入阻抗为纯电阻时的频率 | Hz |
 | `twoport` | `{"kind":"twoport","ports":[["1","1'"],["2","2'"]],"param":"z11"}` | 二端口参数 z11…z22、y11…y22、h11…h22、a/b/c/d | 视参数而定 |
+
+#### 6.1.1 去掉负载：`exclude` / Removing the drawn load
+
+`req`、`vth`、`isc`、`pmax` 默认按**图上画的电路**计算：画在端口上的负载电阻也算在网络里。题目是“R_L 为多少时获得最大功率、最大功率是多少”而 R_L 画在 a、b 之间时，用 `exclude` 列出要先拿掉（断开）的元件：
+
+By default the port quantities use the circuit exactly as drawn, so a load drawn across the port is part of the network. List the elements to take out (open-circuit) first in `exclude`:
+
+```json
+{ "id": "pm", "ask": "R_L 为多少时获得最大功率？最大功率是多少？", "find": { "kind": "pmax", "port": ["a", "b"], "exclude": ["RL"] }, "answer": 2, "unit": "W" }
+```
+
+同样 `{"kind":"req","port":["a","b"],"exclude":["RL"]}` 就是 R_L 应取的值（R_L = R₀）。`exclude` 里的 ref 必须存在，否则报错；列出的元件一律按开路处理（列一个电源也只是把它断开）。暂态题里，直接跨接在端口上的电容/电感会被自动拿掉（“从储能元件看进去”）。
 
 ### 6.2 复数结果取哪一部分 / `part`
 
@@ -250,6 +269,15 @@ npm run validate -- --lang en       # 英文报错信息
 ```json
 { "id": "ph", "ask": "电流 I 的相位", "find": { "kind": "i", "el": "R", "part": "phase" }, "answer": -53.1301, "unit": "°" }
 ```
+
+### 6.3 引擎的限制 / Engine limitations
+
+- 耦合系数 k = 1（全耦合电感）只能用于交流题；暂态题请用 k < 1 或理想变压器。 / k = 1 coupling works in AC only.
+- 运放积分器（反馈只有电容）在 t < 0 没有确定的直流状态：给电容写 `ic`（通常 `0`）。 / An op-amp integrator needs `ic` on its capacitor.
+- `gain`、`f0`、`twoport` 不能用于暂态题；`q`、`s`、`pf` 只用于交流题；`part: "rms"` 不能用于暂态的瞬时值。 / `gain`/`f0`/`twoport` are not available in transient problems.
+- 变压器两侧没有公共地时，跨两侧的电压没有定义，引擎报错（同一侧内的电压、元件电压没问题）。 / Voltages between galvanically isolated sides of a transformer are undefined and throw.
+- 交流分析只有一个频率。`f0` 在电路特征频率的 10⁻⁴～10⁴ 倍范围内搜索，有多个谐振点时给最低的。 / AC is single-frequency; `f0` returns the lowest resonance.
+- 电路方程奇异（电压源回路、电流源割集、悬空结点、没有负反馈的运放、恰好在谐振频率上的无损 LC）时引擎给出说明并拒绝。
 
 ---
 
@@ -490,6 +518,9 @@ Us 在 t = 0 从 0 跳到 10 V，R = 5 Ω，L = 0.5 H。i_L(0+) = 0，i_L(∞) =
 | `transient questions need a time "t"` | 暂态题每个问题（除 `tau`）都要写 `t`：`"0-"`、`"0+"`、秒数或 `"inf"`。 |
 | `"freq" and "omega" disagree` | 只写一个。 |
 | 受控源控制量不对 | `{"i": "R1"}` 是 R1 **关联方向**（p→n）的电流；`{"v": "R1"}` 是 V(p) − V(n)。画控制元件时先想好方向，并加 `marks`。 |
+| `pmax` / `req` 和预期不一样 | 负载画在端口上时被算进网络了：加 `"exclude": ["RL"]`。 |
+| `pf` 想要负数 / 想区分超前滞后 | `pf` 总是 ≥ 0；超前/滞后用选择题问。 |
+| `Cannot determine the initial state at t = 0−` | t < 0 的直流状态不确定（例如运放积分器）：给电容/电感写 `ic`。 |
 | 电流源方向反了 | 箭头从 p（from）指向 n（to），电流从 n 端流出。要向结点 a 注入电流，`to` 放在 a 上。 |
 | `i18n.en.questions: should be an array matching …` | 翻译的小题数量必须和原文一样，一一对应。 |
 | `JSON syntax error` | 注释、尾随逗号、`...` 占位符。 |
