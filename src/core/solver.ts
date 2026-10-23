@@ -460,10 +460,15 @@ export function updatePwl(c: Compiled, x: Float64Array | number[], emf: (src: CS
       const lo = V(o.vn);
       const ideal = OPAMP.gain * (V(o.inp) - V(o.inn));
       const eps = 1e-6;
-      if (mode === 'off') mode = ideal > hi ? 'high' : ideal < lo ? 'low' : 'linear';
+      // A clamped output breaks the feedback loop, so `ideal` (open-loop gain × the input
+      // difference seen while clamped) only tells us whether the clamp still pushes the right
+      // way. Leaving a rail always goes back to 'linear' first; the linear solution then
+      // decides whether the other rail is really reached (jumping straight to the opposite
+      // rail turned every amplifier into a comparator).
+      if (mode === 'off') mode = 'linear';
       else if (mode === 'linear') mode = ideal > hi + eps ? 'high' : ideal < lo - eps ? 'low' : 'linear';
-      else if (mode === 'high' && ideal < hi - eps) mode = ideal < lo ? 'low' : 'linear';
-      else if (mode === 'low' && ideal > lo + eps) mode = ideal > hi ? 'high' : 'linear';
+      else if (mode === 'high' && ideal < hi - eps) mode = 'linear';
+      else if (mode === 'low' && ideal > lo + eps) mode = 'linear';
     }
     if (mode !== o.mode && !frozen) {
       o.mode = mode;

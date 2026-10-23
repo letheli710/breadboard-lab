@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { simulate } from './solver';
-import { freq, simulateTransient } from './transient';
+import { freq, fundamental, simulateTransient } from './transient';
 import type { CComponent, Circuit, CompType, PartProps } from './types';
 
 const comp = (ref: string, type: CompType, props: PartProps = {}): CComponent => ({ ref, type, props });
@@ -366,5 +366,100 @@ describe('freq() on whole-period windows', () => {
     expect(tr.measure('freq', 'C1.1')).toBeCloseTo(1000, 3);
     const t3 = simulateTransient(c, { periods: 3 });
     expect(t3.measure('freq', 'FG1.+')).toBeCloseTo(1000, 3);
+  });
+});
+
+describe('op-amp clipping regressions (single 9 V supply)', () => {
+  const thd = (tr: ReturnType<typeof simulateTransient>, pin: string) => {
+    const x = tr.pin(pin);
+    const mean = x.reduce((s, v) => s + v, 0) / x.length;
+    const acRms = Math.sqrt(x.reduce((s, v) => s + (v - mean) ** 2, 0) / x.length);
+    const f = fundamental(x, tr.periods).amp / Math.SQRT2;
+    return Math.sqrt(Math.max(0, acRms * acRms - f * f)) / f;
+  };
+  // inverting active low-pass: Rin 4.7k, Rf 10k ∥ 15n, CIN 10µ, IN+ biased at 4.5 V
+  const activeLowpass = (amp: number) =>
+    ckt(
+      [
+        comp('V1', 'dc_source', { voltage: 9 }),
+        comp('U1', 'opamp'),
+        gen({ amplitude: amp, frequency: 106 }),
+        comp('RB1', 'resistor', { resistance: 10000 }),
+        comp('RB2', 'resistor', { resistance: 10000 }),
+        comp('CIN', 'capacitor', { capacitance: 10e-6 }),
+        comp('RIN', 'resistor', { resistance: 4700 }),
+        comp('RF', 'resistor', { resistance: 10000 }),
+        comp('CF', 'capacitor', { capacitance: 15e-9 }),
+      ],
+      {
+        VCC: ['V1.+', 'U1.v+', 'RB1.1'],
+        GND: ['V1.-', 'U1.v-', 'RB2.2', 'FG1.-'],
+        VREF: ['RB1.2', 'RB2.1', 'U1.inA+'],
+        VIN: ['FG1.+', 'CIN.1'],
+        N1: ['CIN.2', 'RIN.1'],
+        SUM: ['RIN.2', 'U1.inA-', 'RF.1', 'CF.1'],
+        VOUT: ['U1.outA', 'RF.2', 'CF.2'],
+      },
+    );
+
+  it('inverting, 1.4 V in: no clipping, clean sine with gain ≈ 2.12', () => {
+    const tr = simulateTransient(activeLowpass(1.4));
+    expect(tr.clipping.size).toBe(0);
+    expect(tr.measure('gain', 'U1.outA', undefined, 'FG1.+')).toBeCloseTo(2.12, 1);
+    expect(tr.measure('vmax', 'U1.outA')).toBeLessThan(7.5);
+    expect(thd(tr, 'U1.outA')).toBeLessThan(0.01);
+    expect(simulate(activeLowpass(1.4)).opamps.get('U1')!.A.mode).toBe('linear');
+  });
+
+  it('inverting, 2 V in: top clipped at 7.5 V, bottom still linear (~0.26 V)', () => {
+    const tr = simulateTransient(activeLowpass(2));
+    expect(tr.measure('vmax', 'U1.outA')).toBeCloseTo(7.5, 1);
+    const lo = tr.measure('vmin', 'U1.outA');
+    expect(lo).toBeGreaterThan(0.1);
+    expect(lo).toBeLessThan(0.6); // CIN re-centres a little once the top is clipped
+    expect(tr.clipping.has('U1.A')).toBe(true);
+    // clipped, but not a comparator square: most of the period is between the rails
+    const x = tr.pin('U1.outA');
+    const atRail = x.filter((v) => v > 7.45 || v < 0.05).length / x.length;
+    expect(atRail).toBeLessThan(0.35);
+  });
+
+  it('non-inverting gain 2 (offset 2.5 V, amplitude 1.75 V): clips at 7.5 V, bottom reaches 1.5 V', () => {
+    const c = ckt(
+      [comp('V1', 'dc_source', { voltage: 9 }), comp('U1', 'opamp'), gen({ amplitude: 1.75, offset: 2.5, frequency: 1000 }), comp('RF', 'resistor', { resistance: 10000 }), comp('RG', 'resistor', { resistance: 10000 })],
+      {
+        VCC: ['V1.+', 'U1.v+'],
+        GND: ['V1.-', 'U1.v-', 'FG1.-', 'RG.2'],
+        VIN: ['FG1.+', 'U1.inA+'],
+        FB: ['U1.inA-', 'RF.2', 'RG.1'],
+        VOUT: ['U1.outA', 'RF.1'],
+      },
+    );
+    const tr = simulateTransient(c);
+    expect(tr.measure('vmax', 'U1.outA')).toBeCloseTo(7.5, 1);
+    expect(tr.measure('vmin', 'U1.outA')).toBeCloseTo(1.5, 1);
+    // in-range sample follows 2·Vin
+    const vin = tr.pin('FG1.+');
+    const out = tr.pin('U1.outA');
+    const j = out.findIndex((v, i) => v > 2 && v < 7 && Math.abs(v - 2 * vin[i]) < 0.05);
+    expect(j).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('differential scope measures (vsref)', () => {
+  it('series RL: phase of V_L (floating) vs V_R is +90°', () => {
+    const c = ckt([gen({ frequency: 1000, amplitude: 1 }), comp('R1', 'resistor', { resistance: 100 }), comp('L1', 'inductor', { inductance: 10e-3 })], {
+      VIN: ['FG1.+', 'L1.1'],
+      N1: ['L1.2', 'R1.1'],
+      GND: ['R1.2', 'FG1.-'],
+    });
+    const tr = simulateTransient(c);
+    // V_L = V(L1.1) − V(L1.2); V_R = V(R1.1) − GND. Inductor winding R (1 Ω) adds a small lag.
+    const ph = tr.measure('phase', 'L1.1', 'L1.2', 'R1.1', 'R1.2');
+    expect(ph).toBeGreaterThan(85);
+    expect(ph).toBeLessThan(91);
+    const g = tr.measure('gain', 'L1.1', 'L1.2', 'R1.1', 'R1.2');
+    const xl = 2 * Math.PI * 1000 * 10e-3;
+    expect(g).toBeCloseTo(Math.hypot(xl, 1) / 100, 2);
   });
 });

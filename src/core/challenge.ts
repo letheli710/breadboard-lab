@@ -12,12 +12,14 @@ export const FORMAT_ID = 'breadboard-challenge/1';
 
 /** Oscilloscope measurement of V(pin) − V(ref) (ref omitted = GND) over the steady-state window.
  *  phase / gain compare with V(vs) − V(ref): phase in degrees (−180, 180], > 0 = pin leads vs;
- *  gain = ratio of the fundamental amplitudes. */
+ *  gain = ratio of the fundamental amplitudes. `vsref` = reference for the vs signal
+ *  (omitted = same as ref), so a floating V_L can be compared with V_R. */
 export interface ScopeTest {
   pin: string;
   ref?: string;
   measure: Measure;
   vs?: string;
+  vsref?: string;
   min?: number;
   max?: number;
 }
@@ -411,11 +413,13 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
         const pin = resolvePin(v.pin, `${wj}.pin`);
         const ref = v.ref === undefined ? undefined : resolvePin(v.ref, `${wj}.ref`);
         const vs = v.vs === undefined ? undefined : resolvePin(v.vs, `${wj}.vs`);
+        const vsref = v.vsref === undefined ? undefined : resolvePin(v.vsref, `${wj}.vsref`);
+        if (v.vsref !== undefined && v.vs === undefined) errors.push(tr(`${wj}: 写了 "vsref" 就必须写 "vs"`, `${wj}: "vsref" needs "vs"`));
         if ((measure === 'phase' || measure === 'gain') && v.vs === undefined)
           errors.push(tr(`${wj}: "${measure}" 需要 "vs"（和哪个引脚比较）`, `${wj}: "${measure}" needs "vs" (the pin to compare with)`));
         if (typeof v.min !== 'number' && typeof v.max !== 'number') warnings.push(tr(`${wj}: 没有 min / max，什么都不检查`, `${wj}: no min / max, so it checks nothing`));
-        if (pin && ref !== null && vs !== null)
-          scope.push({ pin, ref, vs, measure, min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
+        if (pin && ref !== null && vs !== null && vsref !== null)
+          scope.push({ pin, ref, vs, vsref, measure, min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
       });
     const currents: CurrentTest[] = [];
     if (t.currents !== undefined && !Array.isArray(t.currents)) errors.push(tr(`${w}.currents: 必须是数组`, `${w}.currents: must be an array`));

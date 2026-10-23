@@ -92,7 +92,7 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 - currents：{"el": "R1", "min": 0.009, "max": 0.011}（安培；el 可以是电流表、电阻、电感、LED、二极管；"mode": "rms" 测有效值）。
 - 有信号发生器时：set 里设定它，如 {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}；用 scope 测波形：
   {"pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73}
-  measure 可用：vpp vmax vmin vavg vrms（V）、freq（Hz）、phase（度，正数 = pin 超前 vs）、gain（基波幅度比）；phase 和 gain 必须写 vs；ref 省略 = 相对 GND。
+  measure 可用：vpp vmax vmin vavg vrms（V）、freq（Hz）、phase（度，正数 = pin 超前 vs）、gain（基波幅度比）；phase 和 gain 必须写 vs；ref 省略 = 相对 GND；vs 默认也相对 ref，要比较两个浮地电压（如电感电压对电阻电压）时加 "vsref": "R1.2" 作为 vs 的参考。
   有信号发生器时 voltages 取平均值，LED 亮灭按平均电流判断。
 - 所有 ref 和引脚都用 components 里的名字。
 
@@ -253,7 +253,7 @@ Name the key nodes: the supply + node "VCC", the supply − node "GND", others e
 - currents: {"el": "R1", "min": 0.009, "max": 0.011} (amps; el may be an ammeter, resistor, inductor, LED or diode; "mode": "rms" for RMS).
 - With a function generator: set it in "set", e.g. {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}, and measure waveforms with "scope":
   {"pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73}
-  measure: vpp vmax vmin vavg vrms (V), freq (Hz), phase (degrees, positive = pin leads vs), gain (ratio of fundamental amplitudes); phase and gain need vs; omitting ref = relative to GND.
+  measure: vpp vmax vmin vavg vrms (V), freq (Hz), phase (degrees, positive = pin leads vs), gain (ratio of fundamental amplitudes); phase and gain need vs; omitting ref = relative to GND; vs uses the same ref unless you add "vsref" (its own reference pin), e.g. to compare a floating inductor voltage with the resistor voltage.
   With a generator present, voltages use the average and LED on/off uses the average current.
 - All refs and pins use the names from components.
 

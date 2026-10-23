@@ -236,3 +236,34 @@ describe('diagnostics + schematic for the op-amp', () => {
     for (const e of s.elements) for (const l of e.leads) expect([l.x1, l.y1, l.x2, l.y2].every(Number.isFinite)).toBe(true);
   });
 });
+
+describe('scope vsref (differential compare)', () => {
+  const base = {
+    format: 'breadboard-challenge/1',
+    id: 'rl-vsref',
+    title: 'RL',
+    components: [
+      { ref: 'FG1', type: 'function_gen' },
+      { ref: 'L1', type: 'inductor', inductance: '10m' },
+      { ref: 'R1', type: 'resistor', resistance: '100' },
+    ],
+    connections: [
+      ['FG1.+', 'L1.1'],
+      ['L1.2', 'R1.1'],
+      ['R1.2', 'FG1.-'],
+    ],
+  };
+  it('V_L leads V_R by ~90°', () => {
+    const res = parseChallenge({
+      ...base,
+      tests: [{ name: 'phase', set: { FG1: { frequency: 1000 } }, scope: [{ pin: 'L1.1', ref: 'L1.2', measure: 'phase', vs: 'R1.1', vsref: 'R1.2', min: 85, max: 91 }] }],
+    });
+    expect(res.errors).toEqual([]);
+    expect(res.challenge!.tests[0].scope[0].vsref).toBe('R1.2');
+    expect(titles(checkCircuit(res.challenge!, res.challenge!.target).issues)).toEqual([]);
+  });
+  it('vsref without vs is an error', () => {
+    const res = parseChallenge({ ...base, tests: [{ name: 'x', scope: [{ pin: 'L1.1', measure: 'vpp', vsref: 'R1.2', min: 0 }] }] });
+    expect(res.errors.join()).toMatch(/vsref/);
+  });
+});

@@ -22,6 +22,7 @@
 //     tr.clipping               Set of "U1.A" / "U1.B" op-amp halves that hit a rail in the window
 //     tr.measure('vpp', 'C1.1', 'FG1.-')         scalar measurements (see Measure below)
 //     tr.measure('phase', 'C1.1', undefined, 'FG1.+')  phase of C1.1 relative to FG1.+ (degrees)
+//     tr.measure('phase', 'L1.1', 'L1.2', 'R1.1', 'R1.2')  differential: V_L vs V_R (vsref = 5th arg)
 //     tr.frequency / tr.period / tr.dt / tr.stepsPerPeriod / tr.periods
 //     tr.converged              periodic steady state reached within the work budget
 //     tr.warnings               bilingual messages (already translated via tr())
@@ -154,8 +155,9 @@ export interface TransientResult {
   meters: Map<string, MeterReading>;
   leds: Map<string, AcLedState>;
   clipping: Set<string>;
-  /** measurement of V(pin) − V(ref) (ref omitted = GND); `vs` (same ref) for phase / gain */
-  measure(kind: Measure, pin: string, ref?: string, vs?: string): number;
+  /** measurement of V(pin) − V(ref) (ref omitted = GND); phase / gain compare with
+   *  V(vs) − V(vsref) (vsref omitted = the same ref as pin) */
+  measure(kind: Measure, pin: string, ref?: string, vs?: string, vsref?: string): number;
   stats: { steps: number; periodsSimulated: number; extrapolations: number; ms: number };
   warnings: string[];
 }
@@ -659,10 +661,10 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
     });
   });
 
-  const measure = (kind: Measure, p: string, ref?: string, vs?: string) => {
+  const measure = (kind: Measure, p: string, ref?: string, vs?: string, vsref?: string) => {
     const r = ref ? pinTr(ref) : zeros;
     const a = sub(pinTr(p), r);
-    const bv = vs ? sub(pinTr(vs), r) : undefined;
+    const bv = vs ? sub(pinTr(vs), vsref ? pinTr(vsref) : r) : undefined;
     return measureTrace(kind, a, { dt: h, cycles: keep, vs: bv });
   };
 

@@ -565,13 +565,14 @@ export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<str
     const p = mapPin(sc.pin);
     const r = sc.ref ? mapPin(sc.ref) : undefined;
     const vs = sc.vs ? mapPin(sc.vs) : undefined;
-    const val = tran().measure(sc.measure, p, r, vs);
+    const vsr = sc.vsref ? mapPin(sc.vsref) : undefined;
+    const val = tran().measure(sc.measure, p, r, vs, vsr);
     if ((sc.min !== undefined && val < sc.min) || (sc.max !== undefined && val > sc.max)) {
       const [zh, en] = MEASURE_NAME[sc.measure];
       const f = (x: number) => fmtMeasure(sc.measure, x);
       return tr(
-        `${prefix}示波器上 ${p}${r ? `（相对 ${r}）` : ''}的${zh}${vs ? `（对比 ${vs}）` : ''}是 ${f(val)}，应在 ${range(sc.min, sc.max, f)} 之间。`,
-        `${prefix}on the scope, the ${en} of ${p}${r ? ` (relative to ${r})` : ''}${vs ? ` vs ${vs}` : ''} is ${f(val)}; it should be between ${range(sc.min, sc.max, f)}.`,
+        `${prefix}示波器上 ${p}${r ? `（相对 ${r}）` : ''}的${zh}${vs ? `（对比 ${vs}${vsr ? ` 相对 ${vsr}` : ''}）` : ''}是 ${f(val)}，应在 ${range(sc.min, sc.max, f)} 之间。`,
+        `${prefix}on the scope, the ${en} of ${p}${r ? ` (relative to ${r})` : ''}${vs ? ` vs ${vs}${vsr ? ` (relative to ${vsr})` : ''}` : ''} is ${f(val)}; it should be between ${range(sc.min, sc.max, f)}.`,
       );
     }
   }

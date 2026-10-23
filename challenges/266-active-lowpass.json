@@ -31,7 +31,8 @@
     "- **10.6 kHz**：|H| ≈ 2.13 × 0.0995 ≈ 0.21，相位 ≈ 180° − 84° ≈ +96°。",
     "和无源 RC 低通（实验 4-1）比：通带增益可以大于 1；输出由运放驱动，接上负载也不会改变滤波特性；截止频率只由 RF·CF 决定，和信号源内阻无关。",
     "",
-    "**单电源的限制**：LM358 输出只能在 0 ~ 7.5 V（V+ − 1.5 V）之间。中心 4.5 V 时，往上只有 3 V 的空间，往下 4.5 V。所以在通带里输入幅度最大约 3 V / 2.13 ≈ 1.4 V；再大，输出峰值超过 7.5 V，波形的顶部就会被削平（失真）。想要更大的不失真摆幅，可以把偏置点调到 3.75 V（0 和 7.5 V 的中点），或者用双电源。"
+    "**单电源的限制**：LM358 输出只能在 0 ~ 7.5 V（V+ − 1.5 V）之间。中心 4.5 V 时，往上只有 3 V 的空间，往下 4.5 V。所以在通带里输入幅度最大约 3 V / 2.13 ≈ 1.4 V；再大，输出峰值超过 7.5 V，波形的顶部就会被削平（失真）。想要更大的不失真摆幅，可以把偏置点调到 3.75 V（0 和 7.5 V 的中点），或者用双电源。",
+    "**削顶实验**：把幅度调到 2 V（106 Hz）。理想输出峰值应是 4.5 + 2 × 2.12 ≈ 8.7 V，超过了 7.5 V，所以波形顶部被削平在 7.5 V；底部 4.5 − 4.2 ≈ 0.3 V 还在 0 V 以上，没有被削（被削的顶部让 CIN 的平均电流变化，中心会略微移动，所以底部大约在 0.3–0.5 V）。最后一个测试检查的就是这一点。"
   ],
   "i18n": {
     "en": {
@@ -61,7 +62,8 @@
         "- **10.6 kHz**: |H| ≈ 2.13 × 0.0995 ≈ 0.21, phase ≈ 180° − 84° ≈ +96°.",
         "Compared with the passive RC low-pass (Experiment 4-1): the passband gain can exceed 1; the op-amp drives the output, so a load doesn't change the response; and fc depends only on RF·CF, not on the source resistance.",
         "",
-        "**The single-supply limit**: the LM358 output can only move between 0 and 7.5 V (V+ − 1.5 V). Centred at 4.5 V there are 3 V of room upwards and 4.5 V downwards, so in the passband the input amplitude can be at most about 3 V / 2.13 ≈ 1.4 V; beyond that the output peak would exceed 7.5 V and the top of the wave gets flattened (distortion). For a larger undistorted swing, bias at 3.75 V (midway between 0 and 7.5 V) or use a split supply."
+        "**The single-supply limit**: the LM358 output can only move between 0 and 7.5 V (V+ − 1.5 V). Centred at 4.5 V there are 3 V of room upwards and 4.5 V downwards, so in the passband the input amplitude can be at most about 3 V / 2.13 ≈ 1.4 V; beyond that the output peak would exceed 7.5 V and the top of the wave gets flattened (distortion). For a larger undistorted swing, bias at 3.75 V (midway between 0 and 7.5 V) or use a split supply.",
+        "**Clipping experiment**: turn the amplitude up to 2 V (106 Hz). The ideal output peak would be 4.5 + 2 × 2.12 ≈ 8.7 V, above 7.5 V, so the top of the wave is flattened at 7.5 V; the bottom, 4.5 − 4.2 ≈ 0.3 V, is still above 0 V and is not clipped (the flattened top changes CIN's average current, so the centre shifts slightly and the bottom lands around 0.3–0.5 V). The last test checks exactly this."
       ],
       "hints": [
         "Power the op-amp first: pin 8 to +9 V, pin 4 to GND.",
@@ -71,7 +73,8 @@
       "tests": [
         "106 Hz: passband gain ≈ 2.12, inverted (≈ +176°), centred on 4.5 V",
         "1061 Hz (fc): gain ≈ 1.50 = 2.13 × 0.707, phase ≈ +135°",
-        "10.6 kHz: gain ≈ 0.21, phase ≈ +96°"
+        "10.6 kHz: gain ≈ 0.21, phase ≈ +96°",
+        "106 Hz, amplitude 2 V: the top is flattened at 7.5 V, the bottom stays above 0 V"
       ]
     }
   },
@@ -263,6 +266,31 @@
           "vs": "FG1.+",
           "min": 93,
           "max": 99
+        }
+      ]
+    },
+    {
+      "name": "106 Hz，幅度 2 V：顶部在 7.5 V 被削平，底部仍在 0 V 以上",
+      "set": {
+        "FG1": {
+          "waveform": "sine",
+          "frequency": 106,
+          "amplitude": 2,
+          "offset": 0
+        }
+      },
+      "scope": [
+        {
+          "pin": "U1.out",
+          "measure": "vmax",
+          "min": 7.3,
+          "max": 7.6
+        },
+        {
+          "pin": "U1.out",
+          "measure": "vmin",
+          "min": 0.05,
+          "max": 1.0
         }
       ]
     }

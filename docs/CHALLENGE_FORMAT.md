@@ -518,6 +518,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `ref` | 参考引脚，省略 = GND。测的是 V(pin) − V(ref) |
 | `measure` | `vpp` 峰峰值；`vmax` / `vmin` 最大 / 最小值；`vavg` 平均值；`vrms` 有效值（含直流分量）；`freq` 频率（Hz，用过均值点计算）；`phase` 相位差（度，−180 ~ 180，**正数 = pin 超前 vs**，用基波计算，方波也适用）；`gain` 基波幅度之比 \|pin\| / \|vs\| |
 | `vs` | `phase` 和 `gain` 必填：用来比较的引脚（同样相对 `ref`） |
+| `vsref` | 可选：`vs` 信号的参考引脚，省略 = 和 `ref` 相同。比较的是 V(pin) − V(ref) 和 V(vs) − V(vsref)，用来比较两个“浮地”的电压，例如串联 RL 里电感电压和电阻电压：`{ "pin": "L1.1", "ref": "L1.2", "measure": "phase", "vs": "R1.1", "vsref": "R1.2", "min": 85, "max": 91 }`（V_L 超前 V_R 约 90°） |
 | `min` / `max` | 范围（V、Hz、度或倍数），至少写一个 |
 
 小贴士：
