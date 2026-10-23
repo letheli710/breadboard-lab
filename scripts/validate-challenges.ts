@@ -1,7 +1,12 @@
-// Validate challenge files ("breadboard-challenge/1").
-// Usage: npm run validate [--lang zh|en] [folder-or-file ...]   (default: ./challenges, messages in Chinese)
+// Validate content files: breadboard challenges ("breadboard-challenge/1") and theory
+// problems ("circuit-problem/1"). Each file is dispatched by its "format".
+// Usage: npm run validate [--lang zh|en] [folder-or-file ...]
+//        (default: ./challenges and ./problems, messages in Chinese)
 //
-// For every *.json (recursive; skips *.schema.json and files starting with "_"):
+// Theory problems: parseProblem → schematic geometry, structure, and every numeric answer
+// recomputed by the analysis engine (must agree within 0.5 %).
+//
+// Challenges — for every *.json (recursive; skips *.schema.json and files starting with "_"):
 //   1. parseChallenge → errors / warnings
 //   2. self-consistency: every test must pass on the target circuit itself
 //   3. if `solution` exists: it must build and be judged perfect by checkCircuit
@@ -9,10 +14,12 @@
 //   4. if `start` exists: it must build (warning if it already solves the challenge)
 // Exit code 1 on any error.
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseChallenge } from '../src/core/challenge';
+import { chapterById } from '../src/core/problem/chapters';
+import { isProblemJson, parseProblem } from '../src/core/problem/parse';
 import { isLang, setLang, tr } from '../src/core/i18n';
 import { applySet, checkCircuit } from '../src/core/check';
 import { buildNetlist } from '../src/core/netlist';
@@ -35,6 +42,8 @@ export interface FileReport {
   id?: string;
   title?: string;
   kind?: string;
+  /** "challenge" | "problem" */
+  format?: 'challenge' | 'problem';
   errors: string[];
   warnings: string[];
 }
@@ -110,6 +119,39 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
   return rep;
 }
 
+export function validateProblemJson(json: unknown, file: string): FileReport {
+  const rep: FileReport = { file, format: 'problem', errors: [], warnings: [] };
+  let res;
+  try {
+    res = parseProblem(json, 'folder', file);
+  } catch (e) {
+    rep.errors.push(tr(`解析时出错：${(e as Error).message}`, `Error while parsing: ${(e as Error).message}`));
+    return rep;
+  }
+  rep.errors.push(...res.errors);
+  rep.warnings.push(...res.warnings);
+  const p = res.problem;
+  const raw = json as Record<string, unknown>;
+  rep.id = p?.id ?? (typeof raw?.id === 'string' ? raw.id : undefined);
+  rep.title = p?.title ?? (typeof raw?.title === 'string' ? raw.title : undefined);
+  rep.kind = p?.chapter ?? (typeof raw?.chapter === 'string' ? raw.chapter : undefined);
+  // the file should live in problems/<chapter>/
+  if (rep.kind && chapterById(rep.kind)) {
+    const dir = file.replace(/\\/g, '/').split('/').slice(-2, -1)[0];
+    if (dir && dir !== rep.kind && file.replace(/\\/g, '/').includes('problems/'))
+      rep.warnings.push(tr(`文件在 ${dir}/ 文件夹里，但 chapter 是 "${rep.kind}"——建议放进 problems/${rep.kind}/`, `the file is in ${dir}/ but its chapter is "${rep.kind}" — put it in problems/${rep.kind}/`));
+  }
+  return rep;
+}
+
+/** Route a JSON file to the right validator by its "format" (or by folder when it has none). */
+export function validateJson(json: unknown, file: string): FileReport {
+  const inProblems = /(^|[\\/])problems[\\/]/.test(file);
+  const fmt = (json as { format?: unknown })?.format;
+  if (isProblemJson(json) || (inProblems && fmt === undefined)) return validateProblemJson(json, file);
+  return { ...validateChallengeJson(json, file), format: 'challenge' };
+}
+
 function main() {
   const args = process.argv.slice(2);
   const li = args.indexOf('--lang');
@@ -122,10 +164,12 @@ function main() {
     setLang(l);
     args.splice(li, 2);
   }
-  const roots = (args.length ? args : ['challenges']).map((a) => resolve(a));
+  const defaults = !args.length;
+  const roots = (defaults ? ['challenges', 'problems'] : args).map((a) => resolve(a));
   const files: string[] = [];
   for (const r of roots) {
     try {
+      if (defaults && !existsSync(r)) continue;
       collect(r, files);
     } catch (e) {
       console.error(red(tr(`✘ 找不到 ${r}：${(e as Error).message}`, `✘ can't find ${r}: ${(e as Error).message}`)));
@@ -137,27 +181,29 @@ function main() {
     return;
   }
 
-  let bad = 0;
-  let warnCount = 0;
-  const ids = new Map<string, string>();
+  const stats = { challenge: { files: 0, bad: 0, warn: 0 }, problem: { files: 0, bad: 0, warn: 0 } };
+  const ids = { challenge: new Map<string, string>(), problem: new Map<string, string>() };
   for (const f of files) {
     const r0 = relative(process.cwd(), f);
     const rel = !r0 || r0.startsWith('..') ? f : r0;
     let rep: FileReport;
     try {
       const text = readFileSync(f, 'utf8').replace(/^﻿/, '');
-      rep = validateChallengeJson(JSON.parse(text), rel);
+      rep = validateJson(JSON.parse(text), rel);
     } catch (e) {
-      rep = { file: rel, errors: [tr(`JSON 语法错误：${(e as Error).message}`, `JSON syntax error: ${(e as Error).message}`)], warnings: [] };
+      const format = /(^|[\\/])problems[\\/]/.test(rel) ? 'problem' : 'challenge';
+      rep = { file: rel, format, errors: [tr(`JSON 语法错误：${(e as Error).message}`, `JSON syntax error: ${(e as Error).message}`)], warnings: [] };
     }
+    const fmt = rep.format ?? 'challenge';
     if (rep.id) {
-      const prev = ids.get(rep.id);
+      const prev = ids[fmt].get(rep.id);
       if (prev) rep.errors.push(tr(`id "${rep.id}" 与 ${prev} 重复`, `id "${rep.id}" duplicates ${prev}`));
-      else ids.set(rep.id, rel);
+      else ids[fmt].set(rep.id, rel);
     }
     const ok = rep.errors.length === 0;
-    if (!ok) bad++;
-    warnCount += rep.warnings.length;
+    stats[fmt].files++;
+    if (!ok) stats[fmt].bad++;
+    stats[fmt].warn += rep.warnings.length;
     const head = ok ? green('✔') : red('✘');
     const info = rep.id ? `${rep.id} ${dim(`[${rep.kind}]`)} ${rep.title}` : '';
     console.log(`${head} ${rel}  ${info}`);
@@ -165,8 +211,18 @@ function main() {
     for (const w of rep.warnings) console.log(`    ${yellow('warn')}   ${w}`);
   }
   console.log('');
-  const summary = tr(`${files.length} 个文件：${files.length - bad} 通过，${bad} 失败，${warnCount} 条警告`, `${files.length} files: ${files.length - bad} passed, ${bad} failed, ${warnCount} warnings`);
-  console.log(bad ? red(summary) : green(summary));
+  const label = { challenge: tr('面包板题 breadboard-challenge/1', 'breadboard-challenge/1'), problem: tr('理论题 circuit-problem/1', 'circuit-problem/1') };
+  let bad = 0;
+  for (const k of ['challenge', 'problem'] as const) {
+    const st = stats[k];
+    if (!st.files) continue;
+    bad += st.bad;
+    const line = tr(
+      `${label[k]}：${st.files} 个文件，${st.files - st.bad} 通过，${st.bad} 失败，${st.warn} 条警告`,
+      `${label[k]}: ${st.files} files, ${st.files - st.bad} passed, ${st.bad} failed, ${st.warn} warnings`,
+    );
+    console.log(st.bad ? red(line) : green(line));
+  }
   if (bad) process.exit(1);
 }
 

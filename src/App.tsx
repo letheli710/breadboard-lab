@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
 import { tr, type Lang } from './core/i18n';
 import { loadAll } from './state/challenges';
+import { loadProblems } from './state/problems';
 import { useActiveChallenge } from './state/derived';
 import { useStore, type Mode } from './state/store';
 import { Carousel } from './ui/Carousel';
 import { Guide } from './ui/Guide';
 import { Icon } from './ui/Icons';
 import { ImportPage } from './ui/ImportPage';
+import { Practice } from './ui/Practice';
 import { SidePanel } from './ui/Panel';
 import { Workbench } from './ui/Workbench';
 
 const NAV: { mode: Mode; zh: string; en: string; icon: string }[] = [
   { mode: 'learn', zh: '课程', en: 'Learn', icon: 'book' },
   { mode: 'challenge', zh: '挑战', en: 'Challenges', icon: 'target' },
+  { mode: 'practice', zh: '练习', en: 'Practice', icon: 'practice' },
   { mode: 'sandbox', zh: '自由编辑', en: 'Sandbox', icon: 'edit' },
   { mode: 'guide', zh: '知识', en: 'Guide', icon: 'bulb' },
   { mode: 'import', zh: '导入', en: 'Import', icon: 'folder' },
@@ -48,10 +51,31 @@ function Clock() {
   );
 }
 
+function PracticeProgressCard() {
+  const problems = useStore((s) => s.problems);
+  const done = useStore((s) => s.practiceDone);
+  const n = problems.filter((p) => done[p.id]).length;
+  return (
+    <div className="progress-card">
+      <Icon name="practice" size={22} />
+      <div>
+        <div className="pc-title">{tr('PRACTICE 理论练习', 'PRACTICE')}</div>
+        <div className="pc-bar">
+          <div style={{ width: problems.length ? `${(n / problems.length) * 100}%` : 0 }} />
+        </div>
+      </div>
+      <b>
+        {n}/{problems.length}
+      </b>
+    </div>
+  );
+}
+
 function ProgressCard() {
   const challenges = useStore((s) => s.challenges);
   const completed = useStore((s) => s.completed);
   const mode = useStore((s) => s.mode);
+  if (mode === 'practice') return <PracticeProgressCard />;
   const kind = mode === 'challenge' ? 'challenge' : 'lesson';
   const list = challenges.filter((c) => c.kind === kind);
   const done = list.filter((c) => completed[c.id]).length;
@@ -135,18 +159,21 @@ export default function App() {
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
   const setChallenges = useStore((s) => s.setChallenges);
+  const setProblems = useStore((s) => s.setProblems);
 
   // challenge text is localized while parsing, so (re)load whenever the language changes
   useEffect(() => {
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
     const r = loadAll();
     setChallenges(r.challenges, r.invalid);
+    const pr = loadProblems();
+    setProblems(pr.problems, pr.invalid);
     const st = useStore.getState();
     if (st.mode === 'learn' && !st.activeId) {
       const first = r.challenges.find((c) => c.kind === 'lesson' && !st.completed[c.id]) ?? r.challenges.find((c) => c.kind === 'lesson');
       if (first) st.openChallenge(first.id);
     }
-  }, [setChallenges, lang]);
+  }, [setChallenges, setProblems, lang]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -204,6 +231,7 @@ export default function App() {
           <SidePanel />
         </main>
       )}
+      {mode === 'practice' && <Practice />}
       {mode === 'guide' && <Guide />}
       {mode === 'import' && <ImportPage />}
       <CelebrateModal />

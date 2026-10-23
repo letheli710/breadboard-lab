@@ -1,0 +1,76 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-power-rl-load",
+  "chapter": "ac-power",
+  "title": "RL 负载的有功、无功与功率因数",
+  "level": 2,
+  "tags": ["有功功率 P", "无功功率 Q", "功率因数 pf"],
+  "statement": [
+    "正弦电压源 Us = 100∠0° V（有效值），角频率 ω = 1000 rad/s，向 R = 6 Ω 与 L = 8 mH 串联的负载供电。",
+    "求电流有效值、电阻吸收的有功功率、电感吸收的无功功率，以及电源看到的功率因数。"
+  ],
+  "i18n": {
+    "en": {
+      "tags": ["real power P", "reactive power Q", "power factor"],
+      "title": "Real power, reactive power and power factor of an RL load",
+      "statement": [
+        "A sinusoidal source Us = 100∠0° V (rms), ω = 1000 rad/s, feeds a load made of R = 6 Ω in series with L = 8 mH.",
+        "Find the rms current, the real power absorbed by the resistor, the reactive power absorbed by the inductor, and the power factor seen by the source."
+      ],
+      "questions": [
+        { "ask": "rms current I = ?", "explain": "X_L = ωL = 1000 × 0.008 = 8 Ω, Z = 6 + j8 = 10∠53.13° Ω, I = 100 / 10 = 10 A." },
+        { "ask": "Real power absorbed by R, P = ?", "explain": "P = I²R = 10² × 6 = 600 W." },
+        { "ask": "Reactive power absorbed by L, Q = ?", "explain": "Q = I²X_L = 10² × 8 = 800 var (positive: inductive)." },
+        { "ask": "Power factor seen by the source, λ = cos φ = ?", "explain": "cos φ = R / |Z| = 6 / 10 = 0.6 (lagging), or P / S = 600 / 1000." },
+        {
+          "ask": "To raise the power factor without changing the load, what do we usually connect?",
+          "choices": ["A capacitor in parallel with the load", "An inductor in series with the load", "A resistor in parallel with the load"],
+          "explain": "A parallel capacitor supplies reactive power locally (negative Q), cancelling part of the load's 800 var, so the source sees a smaller current and a higher power factor."
+        }
+      ],
+      "hints": ["First find X_L = ωL and the impedance Z = R + jX_L.", "With rms phasors: P = I²R, Q = I²X, S = U·I, cos φ = P / S."],
+      "solution": [
+        "**1. Impedance.** X_L = ωL = 1000 × 8×10⁻³ = 8 Ω, so Z = 6 + j8 Ω = 10∠53.13° Ω.",
+        "**2. Current.** I = U / |Z| = 100 / 10 = **10 A** (rms), lagging the voltage by 53.13°.",
+        "**3. Power.** P = I²R = **600 W**; Q = I²X_L = **800 var**; S = U·I = 1000 VA; check S² = P² + Q².",
+        "**4. Power factor.** λ = cos 53.13° = P / S = **0.6** (lagging)."
+      ]
+    }
+  },
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 100, "phase": 0 } }, "label": "100∠0° V" },
+      { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 6 },
+      { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": "8m" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [8, 0]],
+      [[8, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R", "name": "I" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "I", "ask": "电流有效值 I = ?", "find": { "kind": "i", "el": "R", "part": "mag" }, "answer": 10, "unit": "A", "explain": "X_L = ωL = 1000 × 0.008 = 8 Ω，Z = 6 + j8 = 10∠53.13° Ω，I = 100 / 10 = 10 A。" },
+    { "id": "P", "ask": "电阻吸收的有功功率 P = ?", "find": { "kind": "p", "el": "R" }, "answer": 600, "unit": "W", "explain": "P = I²R = 10² × 6 = 600 W。" },
+    { "id": "Q", "ask": "电感吸收的无功功率 Q = ?", "find": { "kind": "q", "el": "L" }, "answer": 800, "unit": "var", "explain": "Q = I²X_L = 10² × 8 = 800 var（正值，感性）。" },
+    { "id": "pf", "ask": "电源看到的功率因数 λ = cos φ = ?", "find": { "kind": "pf", "el": "Us" }, "answer": 0.6, "unit": "", "explain": "cos φ = R / |Z| = 6 / 10 = 0.6（滞后），也等于 P / S = 600 / 1000。" },
+    {
+      "id": "fix",
+      "ask": "不改变负载本身，想提高功率因数，通常怎么做？",
+      "choices": ["在负载两端并联电容", "与负载串联一个电感", "在负载两端并联电阻"],
+      "correct": 0,
+      "explain": "并联电容就地提供无功功率（Q 为负），抵消负载的一部分 800 var，电源电流减小、功率因数提高。"
+    }
+  ],
+  "hints": ["先算 X_L = ωL，再写出阻抗 Z = R + jX_L。", "用有效值相量：P = I²R，Q = I²X，S = U·I，cos φ = P / S。"],
+  "solution": [
+    "**1. 阻抗。** X_L = ωL = 1000 × 8×10⁻³ = 8 Ω，Z = 6 + j8 Ω = 10∠53.13° Ω。",
+    "**2. 电流。** I = U / |Z| = 100 / 10 = **10 A**（有效值），滞后电压 53.13°。",
+    "**3. 功率。** P = I²R = **600 W**；Q = I²X_L = **800 var**；S = U·I = 1000 VA，满足 S² = P² + Q²。",
+    "**4. 功率因数。** λ = cos 53.13° = P / S = **0.6**（滞后）。"
+  ]
+}

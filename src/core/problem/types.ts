@@ -155,6 +155,7 @@ export interface Question {
   find?: Quantity & { part?: Part; t?: number | '0-' | '0+' | 'inf' };
   /** the author's answer, in SI base units (V, A, W, Ω, Hz, s, degrees for phase) */
   answer?: number;
+  /** unit shown to the student; a prefixed unit (e.g. "mA") means a bare number they type is read in that unit */
   unit?: string;
   /** relative tolerance accepted from the student (default 0.02) */
   tol?: number;
@@ -164,8 +165,11 @@ export interface Question {
   explain?: string;
 }
 
+/** Text fields (statement, solution, ask, explain) may also be written as an array of lines. */
 export interface ProblemText {
   title?: string;
+  /** tags translated by position */
+  tags?: string[];
   statement?: string;
   questions?: { ask?: string; explain?: string; choices?: string[] }[];
   hints?: string[];

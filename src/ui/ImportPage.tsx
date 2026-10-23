@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import { getLang, tr } from '../core/i18n';
+import { chapterById } from '../core/problem/chapters';
 import { importFiles, loadAll, readImported, writeImported } from '../state/challenges';
+import { loadProblems } from '../state/problems';
 import { useStore } from '../state/store';
 import { Icon } from './Icons';
 import { Md } from './Panel';
@@ -16,6 +18,8 @@ function aiPromptFor(doc: string): string {
   return m ? m[1] : doc;
 }
 const formatDoc = Object.entries(docs).find(([k]) => k.endsWith('CHALLENGE_FORMAT.md'))?.[1] ?? '';
+const problemPromptDoc = Object.entries(docs).find(([k]) => k.endsWith('AI_PROMPT_PROBLEMS.md'))?.[1] ?? '';
+const problemFormatDoc = Object.entries(docs).find(([k]) => k.endsWith('PROBLEM_FORMAT.md'))?.[1] ?? '';
 
 /** Collect File objects from a drag-and-drop, descending into dropped folders. */
 async function filesFromDrop(dt: DataTransfer): Promise<File[]> {
@@ -42,25 +46,33 @@ async function filesFromDrop(dt: DataTransfer): Promise<File[]> {
 
 export function ImportPage() {
   const challenges = useStore((s) => s.challenges);
-  const invalid = useStore((s) => s.invalid);
+  const problems = useStore((s) => s.problems);
+  const challengeInvalid = useStore((s) => s.invalid);
+  const problemInvalid = useStore((s) => s.problemInvalid);
+  const invalid = [...challengeInvalid.map((f) => ({ ...f, fmt: 'breadboard-challenge/1' })), ...problemInvalid.map((f) => ({ ...f, fmt: 'circuit-problem/1' }))];
   const setChallenges = useStore((s) => s.setChallenges);
+  const setProblems = useStore((s) => s.setProblems);
   const open = useStore((s) => s.openChallenge);
+  const openProblem = useStore((s) => s.openProblem);
   const notify = useStore((s) => s.notify);
   const aiPrompt = aiPromptFor(aiPromptDoc);
+  const problemPrompt = problemPromptDoc ? aiPromptFor(problemPromptDoc) : '';
   const [drag, setDrag] = useState(false);
   const [showDoc, setShowDoc] = useState(false);
+  const [showProblemDoc, setShowProblemDoc] = useState(false);
   const dirInput = useRef<HTMLInputElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
   const refresh = () => {
     const r = loadAll();
     setChallenges(r.challenges, r.invalid);
-    return r;
+    const pr = loadProblems();
+    setProblems(pr.problems, pr.invalid);
+    return [...r.invalid, ...pr.invalid];
   };
   const handle = async (files: File[]) => {
     const { added, skipped } = await importFiles(files);
-    const r = refresh();
-    const bad = r.invalid.filter((i) => i.errors.length).length;
+    const bad = refresh().filter((i) => i.errors.length).length;
     notify(
       tr(
         `导入了 ${added} 个文件${skipped ? `，跳过 ${skipped} 个非 JSON 文件` : ''}${bad ? `，其中有 ${bad} 个格式错误（见下方）` : ''}`,
@@ -73,7 +85,7 @@ export function ImportPage() {
     refresh();
   };
   const clearAll = () => {
-    if (!confirm(tr('移除所有导入的题目？（challenges/ 文件夹里的题目不受影响）', 'Remove all imported challenges? (Challenges in the challenges/ folder are not affected.)'))) return;
+    if (!confirm(tr('移除所有导入的题目？（challenges/ 和 problems/ 文件夹里的题目不受影响）', 'Remove all imported files? (Files in the challenges/ and problems/ folders are not affected.)'))) return;
     writeImported([]);
     refresh();
   };
@@ -82,14 +94,16 @@ export function ImportPage() {
     <div className="import-page">
       <div className="card import-hero">
         <div className="eyebrow">{tr('题库导入 IMPORT', 'IMPORT')}</div>
-        <h1>{tr('导入题目文件夹', 'Import a challenge folder')}</h1>
+        <h1>{tr('导入题目文件夹', 'Import a challenge or problem folder')}</h1>
         <p>
-          {tr('题目是符合', 'Challenges are JSON files in the')} <code>breadboard-challenge/1</code> {tr('规范的 JSON 文件。有两种方式加载：', 'format. There are two ways to load them:')}
+          {tr('题目都是 JSON 文件，有两种格式：面包板题', 'All content is JSON, in two formats: breadboard challenges')} <code>breadboard-challenge/1</code>
+          {tr('，和理论练习题', ', and theory practice problems')} <code>circuit-problem/1</code>
+          {tr('。程序按每个文件的 "format" 自动分类，一个文件夹里两种可以混放。有两种方式加载：', '. Each file is routed by its "format", so one folder may mix both. There are two ways to load them:')}
         </p>
         <ol>
           <li>
             <b>
-              {tr('放进项目的', 'Put them in the project\'s')} <code>challenges/</code> {tr('文件夹', 'folder')}
+              {tr('放进项目的', 'Put them in the project\'s')} <code>challenges/</code> {tr('或', 'or')} <code>problems/&lt;chapter&gt;/</code> {tr('文件夹', 'folder')}
             </b>
             {tr('——开发模式下自动加载并实时刷新（适合长期保存的题库）。', ' — loaded automatically and refreshed live in dev mode (best for a collection you keep).')}
           </li>
@@ -112,7 +126,7 @@ export function ImportPage() {
           }}
         >
           <Icon name="folder" size={38} />
-          <div>{tr('把题目文件夹或 .json 文件拖到这里', 'Drop a challenge folder or .json files here')}</div>
+          <div>{tr('把题目文件夹或 .json 文件拖到这里', 'Drop a folder or .json files here')}</div>
           <div className="row">
             <button className="primary" onClick={() => dirInput.current?.click()}>
               <Icon name="folder" /> {tr('选择文件夹', 'Choose folder')}
@@ -150,8 +164,8 @@ export function ImportPage() {
                     const list = [...f.errors, ...f.warnings].map((e) => '- ' + e).join('\n');
                     navigator.clipboard.writeText(
                       tr(
-                        `文件 ${f.file} 未通过 breadboard-challenge/1 校验：\n${list}\n请修正并输出完整 JSON。`,
-                        `The file ${f.file} failed breadboard-challenge/1 validation:\n${list}\nPlease fix it and output the complete JSON.`,
+                        `文件 ${f.file} 未通过 ${f.fmt} 校验：\n${list}\n请修正并输出完整 JSON。`,
+                        `The file ${f.file} failed ${f.fmt} validation:\n${list}\nPlease fix it and output the complete JSON.`,
                       ),
                     );
                     notify(tr('已复制错误信息', 'Messages copied'));
@@ -178,7 +192,7 @@ export function ImportPage() {
       <div className="card">
         <div className="section-title row between">
           <span>
-            {tr('已加载的题目', 'Loaded challenges')} ({challenges.length})
+            {tr('已加载的题目', 'Loaded content')} ({challenges.length + problems.length})
           </span>
           {readImported().length > 0 && (
             <button onClick={clearAll}>
@@ -213,6 +227,27 @@ export function ImportPage() {
                     {tr('打开', 'Open')}
                   </button>
                   {c.source === 'imported' && c.file && <button onClick={() => remove(c.file!)}>{tr('移除', 'Remove')}</button>}
+                </td>
+              </tr>
+            ))}
+            {problems.map((p) => (
+              <tr key={`p:${p.id}`}>
+                <td>
+                  <b>{p.title}</b>
+                  <div className="muted small">
+                    {p.id} · {p.file}
+                  </div>
+                </td>
+                <td>
+                  {tr('理论题', 'Problem')} <span className="muted small">· {chapterById(p.chapter)?.title()}</span>
+                </td>
+                <td>{'★'.repeat(p.level)}</td>
+                <td>{p.source === 'folder' ? tr('problems/ 文件夹', 'problems/ folder') : tr('导入', 'Imported')}</td>
+                <td className="row">
+                  <button className="primary" onClick={() => openProblem(p.id)}>
+                    {tr('打开', 'Open')}
+                  </button>
+                  {p.source === 'imported' && p.file && <button onClick={() => remove(p.file!)}>{tr('移除', 'Remove')}</button>}
                 </td>
               </tr>
             ))}
@@ -252,6 +287,43 @@ export function ImportPage() {
             {showDoc && (
               <div className="doc-box">
                 <Md text={formatDoc} />
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <div className="card">
+        <div className="section-title row between">
+          <span>{tr('让 AI 出理论练习题', 'Let an AI write theory problems')}</span>
+          {problemPrompt && (
+            <button
+              className="primary"
+              onClick={() => {
+                navigator.clipboard.writeText(problemPrompt);
+                notify(tr('提示词已复制，粘贴给 ChatGPT / Claude 即可', 'Prompt copied — paste it into ChatGPT / Claude'));
+              }}
+            >
+              {tr('复制理论题提示词', 'Copy problem prompt')}
+            </button>
+          )}
+        </div>
+        <p>
+          {tr('理论题（看电路图、算数）由 AI 出题，每个数值答案都会被理想电路分析引擎重算核对。填写章节、知识点和难度后发给 AI，把生成的文件放进 ', 'Theory problems (read a schematic, compute values) are written by an AI, and every numeric answer is recomputed by the ideal circuit-analysis engine. Fill in the chapter, topic and difficulty, send it to an AI, and put the files in ')}
+          <code>problems/&lt;chapter&gt;/</code>
+          {tr('，运行 ', ', run ')}
+          <code>npm run validate</code>
+          {tr('，或直接在上方导入。规范见 ', ', or import them above. Spec: ')}
+          <code>docs/PROBLEM_FORMAT.md</code>
+          {tr('。', '.')}
+        </p>
+        {problemPrompt ? <pre className="prompt-box">{problemPrompt}</pre> : <p className="muted">{tr('（docs/AI_PROMPT_PROBLEMS.md 尚未生成）', '(docs/AI_PROMPT_PROBLEMS.md is missing)')}</p>}
+        {problemFormatDoc && (
+          <>
+            <button onClick={() => setShowProblemDoc(!showProblemDoc)}>{showProblemDoc ? tr('收起完整格式规范', 'Hide the full format spec') : tr('展开完整格式规范', 'Show the full format spec')}</button>
+            {showProblemDoc && (
+              <div className="doc-box">
+                <Md text={problemFormatDoc} />
               </div>
             )}
           </>

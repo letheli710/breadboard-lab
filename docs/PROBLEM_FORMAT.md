@@ -1,0 +1,495 @@
+# 理论题文件格式 `circuit-problem/1` / Theory problem format
+
+「练习 Practice」模式里的每一道理论题（看电路图、算数、填答案）都是一个 **JSON 文件**，放在 `problems/<chapter>/` 文件夹里。
+题目通常由 AI 来写（提示词见 [`AI_PROMPT_PROBLEMS.md`](./AI_PROMPT_PROBLEMS.md)），程序负责把关：
+
+- **电路由画图决定**：元件和导线画在整数网格上，网表（谁和谁相连）从几何关系自动推出。学生看到的图和引擎计算的电路永远一致。
+- **答案由引擎核对**：每个数值答案都会被理想电路分析引擎重新计算；和作者写的 `answer` 相差超过 0.5% 就拒绝这个文件，并报出两个数。
+
+Every theory problem is one JSON file in `problems/<chapter>/`. The circuit is defined by its **drawing** (elements and wires on an integer grid; the netlist is derived from the geometry), and **every numeric answer is recomputed** by the ideal analysis engine — a file whose `answer` is more than 0.5 % off is rejected.
+
+标准 / Source of truth: `src/core/problem/types.ts`（契约 contract）、`src/core/problem/parse.ts`（解析与校验 parser）、`src/core/problem/geometry.ts`（画图 → 网表）。编辑器用的 JSON Schema：[`schema/problem.schema.json`](../schema/problem.schema.json)。
+
+---
+
+## 0. 加载与校验 / Loading and validating
+
+| 方式 Way | 说明 |
+|---|---|
+| `problems/<chapter>/*.json` | 启动时自动加载，开发模式下热更新。文件夹名就是章节 id（见 §2）。 |
+| 导入 Import 页面 | 拖入文件夹或 `.json` 文件。面包板题和理论题可以混放，程序按 `"format"` 自动分类。 |
+
+- 以 `_` 开头的文件和 `*.schema.json` 会被跳过（可以放草稿）。
+- 同一章节内按 `level`、再按文件名排序，建议文件名用两位数字前缀：`01-…json`。
+- `id` 必须全局唯一。
+
+```bash
+npm run validate                    # 校验 challenges/ 和 problems/（按 format 分别处理）
+npm run validate problems/basics    # 只校验一个文件夹（递归）或一个文件
+npm run validate -- --lang en       # 英文报错信息
+```
+
+在文件开头写 `"$schema": "../../schema/problem.schema.json"` 可以在 VS Code 里获得补全和检查（程序会忽略这个字段）。
+
+---
+
+## 1. 顶层字段 / Top-level fields
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `format` | string | ✔ | 必须是 `"circuit-problem/1"` |
+| `id` | string | ✔ | 字母、数字、`-`、`_`，例如 `"theorems-thevenin-03"` |
+| `chapter` | string | ✔ | 章节 id，见 §2 |
+| `title` | string | ✔ | 标题 |
+| `level` | 1–5 | ✔ | 难度（整数）。1 = 直接套公式，3 = 典型课后题，5 = 综合/考研难度 |
+| `tags` | string[] | | 知识点标签，例如 `["KVL", "受控源 CCVS"]` |
+| `statement` | string 或 string[] | ✔ | 题干。数组会用换行拼接。支持 `**粗体**`、`` `代码` ``、`- ` 列表、`#` 小标题 |
+| `schematic` | object | ✔ | 电路图（§3） |
+| `analysis` | object | ✔ | 分析类型（§5） |
+| `questions` | array | ✔ | 小题（§6） |
+| `hints` | string[] | 建议 | 提示，由浅入深，学生点一次显示一条 |
+| `solution` | string 或 string[] | 建议 | 完整的解题过程（Markdown 子集，同 statement） |
+| `lang` | `"zh"` \| `"en"` | | 顶层文字用的语言，默认 `"zh"` |
+| `i18n` | object | 建议 | 另一种语言的翻译（§8） |
+| `$schema` | string | | 只给编辑器用 |
+
+缺少 `hints`、`solution`、翻译，或计算题缺少 `unit` 时，校验器给出**警告**（不算错误，但内置题目要求零警告）。
+
+---
+
+## 2. 章节 / Chapters
+
+| 期 phase | `chapter` | 内容 |
+|---|---|---|
+| 1 | `basics` | 电路模型与基本定律：参考方向、功率、独立源、受控源、KCL/KVL |
+| 1 | `equivalence` | 电阻电路的等效变换：串并联、Y–Δ、电源等效变换、输入电阻 |
+| 2 | `methods` | 支路电流法、网孔/回路电流法、结点电压法 |
+| 2 | `theorems` | 叠加、替代、戴维宁/诺顿、最大功率传输、互易 |
+| 2 | `opamp` | 含理想运放的电阻电路 |
+| 3 | `storage` | 电容与电感 |
+| 3 | `first-order` | 一阶电路：零输入/零状态/全响应、三要素法、阶跃响应 |
+| 3 | `second-order` | 二阶 RLC 电路：过阻尼/临界/欠阻尼 |
+| 4 | `phasors` | 相量法 |
+| 4 | `ac-analysis` | 阻抗导纳、正弦稳态分析 |
+| 4 | `ac-power` | 有功/无功/视在/复功率、功率因数校正 |
+| 4 | `coupled` | 互感、理想变压器 |
+| 4 | `frequency` | 网络函数、串并联谐振、滤波器 |
+| 4 | `three-phase` | 三相电路 |
+| 4 | `two-port` | 二端口网络 |
+
+章节列表定义在 `src/core/problem/chapters.ts`。
+
+---
+
+## 3. 电路图 / The schematic
+
+```json
+"schematic": {
+  "elements": [ ... ],
+  "wires":    [ [[0,0],[2,0]], [[6,0],[8,0],[8,2]] ],
+  "labels":   [ { "at": [8,0], "name": "a" } ],
+  "grounds":  [ [0,4] ],
+  "terminals":[ { "at": [12,0], "name": "a" }, { "at": [12,4], "name": "b" } ],
+  "marks":    [ { "kind": "i", "el": "R1", "name": "i1" }, { "kind": "v", "el": "C", "name": "u_C" } ],
+  "notes":    [ { "at": [3,-1], "text": "t = 0", "i18n": { "en": "t = 0" } } ]
+}
+```
+
+### 3.1 网格 / Grid
+
+- 坐标是**整数** `[x, y]`：x 向右，**y 向下**（和 SVG 一样）。所以“上面”是 y 更小。
+- 二端元件从 `from`（端子 **p**）画到 `to`（端子 **n**），必须**水平或竖直**，长度至少 2；建议 3–4，给符号和标签留出空间。元件符号画在线段中间。
+- 典型布局：电源竖放在左边 `x = 0`（`from: [0,0]` 在上、`to: [0,4]` 在下），顶边一条导线，元件往右排，底边一条导线回到电源，地放在左下角。元件之间留 2 格间距。
+
+### 3.2 连接规则 / Connectivity
+
+1. 导线 `wires` 是折线：`[[x1,y1],[x2,y2],...]`，相邻两点必须水平或竖直对齐。
+2. **端点或折点落在另一条导线上就相连**（包括落在导线中间——T 形接点）。程序会在 ≥3 条连接的地方画实心圆点。
+3. 两条导线只是**交叉**（没有共同的点）**不相连**。
+4. 元件端子坐标相同就相连；元件的端子落在导线上也相连。
+5. 元件**本体**（两端之间的线段）不和任何东西相连；导线压在元件上会产生警告。
+6. `grounds` 里的每个点都是地，结点名 `"0"`。至少要有一个地。
+7. `labels`、`terminals` 必须放在导线或元件端子上，用来给结点**命名**；题目里引用结点都用这些名字。没有名字的结点自动叫 `_1`、`_2`……（不要在题目里引用它们）。
+8. 名字 `"0"` / `"gnd"` 保留给地。一个端子（例如戴维宁题的 `b`）如果放在地上，它就是 `"0"` 的别名，可以在 `port` 里直接写 `"b"`。
+
+### 3.3 元件 / Elements
+
+所有元件都有唯一的 `ref`（例如 `"R1"`、`"Us"`、`"Is"`、`"G1"`）。数值可以写数字或带 SI 前缀的字符串：`2`、`"4.7k"`、`"50u"`、`"8m"`、`"1M"`（`m` = 毫，`M` = 兆）。
+
+| `type` | 元件 | `value` | 其他字段 |
+|---|---|---|---|
+| `R` | 电阻 | Ω | |
+| `C` | 电容 | F | `ic`（一般不用，初值由 t<0 稳态决定） |
+| `L` | 电感 | H | `ic` |
+| `V` | 独立电压源 | 见 §4 | p 端是 **“+”** |
+| `I` | 独立电流源 | 见 §4 | 箭头从 p 指向 n |
+| `VCVS` | 电压控制电压源 | 增益 (V/V) | `ctrl: {"v": "R1"}` 或 `{"vnodes": ["a","b"]}` |
+| `VCCS` | 电压控制电流源 | 跨导 (S) | `ctrl: {"v": ...}` 或 `{"vnodes": ...}` |
+| `CCVS` | 电流控制电压源 | 转移电阻 (Ω) | `ctrl: {"i": "R1"}` |
+| `CCCS` | 电流控制电流源 | 电流增益 (A/A) | `ctrl: {"i": "R1"}` |
+| `SW` | 理想开关 | — | `state: {"before": "closed", "after": "open"}`（默认 before 断开、after 闭合） |
+| `Z` | 一般阻抗（交流题） | `{"re": 3, "im": 4}` Ω | 只在给定频率下有效 |
+| `ammeter` | 理想电流表（0 Ω） | — | 读数 = 从 p 流到 n 的电流 |
+| `voltmeter` | 理想电压表（开路） | — | 读数 = V(p) − V(n) |
+| `OPAMP` | 理想运放 | — | `at`, `orient`, `flip`（见下） |
+| `XFMR` | 理想变压器 n:1 | — | `at`, `n` |
+| `K` | 耦合电感 | — | `l1`, `l2`, `k` 或 `M` |
+
+二端元件的可选字段：`label`（图上显示的文字，代替自动的 “R1 = 2 Ω”，例如 `"3i"`、`"jωL"`、`"R"`）、`hideValue: true`（题目要求解这个值时隐藏数值）。
+
+**受控源的控制量**：`{"v": "R1"}` = R1 两端电压（R1 的 p 减 n）；`{"i": "R1"}` = 流过 R1 的电流（R1 的关联参考方向，从 p 到 n）；`{"vnodes": ["a","b"]}` = V(a) − V(b)。把控制量画进图里：给控制元件加一个 `marks` 并在题干里写清楚。
+
+**理想运放 `OPAMP`**（V+ = V−，输入电流为零）：端子相对 `at`：反相输入 (−) 在 (−2, −1)，同相输入 (+) 在 (−2, +1)，输出在 (+2, 0)（`orient: "right"`，默认）。`flip: true` 上下交换两个输入；`orient: "left"` 左右镜像。输出对地。网表引脚名：`minus`、`plus`、`out`。
+
+**理想变压器 `XFMR`**（n:1，u1 = n·u2，i1 = −i2/n，电流以流入同名端为正）：端子相对 `at`：p1 (−2, −1)、n1 (−2, +1)、p2 (+2, −1)、n2 (+2, +1)；同名端（黑点）在 p1 和 p2。
+
+**耦合电感 `K`**：`{"ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "k": 0.5}` 或 `"M": "2m"`。同名端在两个电感各自的 **p 端**——所以要靠 `from`/`to` 的方向来摆同名端。
+
+### 3.4 参考方向与符号约定 / Sign conventions
+
+- **关联参考方向（passive sign convention）**：每个二端元件 u = V(p) − V(n)，i 从 p 经元件流向 n，**吸收**功率 P = u·i。负值表示实际发出功率。
+- **电压源**：p 端为 “+”。它的电流 i 也按关联方向（从 + 端流进去）——正常供电的电源，i 是负的，吸收功率也是负的。
+- **电流源**：箭头从 p 指向 n，源内部从 p 推 `value` 安培到 n（电流从 n 端流出）。它的关联电流就是 +value。想让电流源向结点 a 注入电流，就让 `to`（n）接 a。
+- 想让学生用某个方向，就**画出来**：`marks` 里的 `{"kind": "i", "el": "R1", "name": "i1"}` 在 R1 上画一个从 p 指向 n 的电流箭头，标 `i1`；`{"kind": "v", "el": "C", "name": "u_C"}` 在 p 端标 “+”、n 端标 “−”。所以**元件的 from/to 方向就是参考方向**——先想好方向再画。
+- 题目问到某个元件的电流（`kind: "i"`）或电压（`kind: "v"` + `el`）而图里还没有对应的标记时，程序**自动加一个**，名字是 `i_R1`、`u_R1`（英文界面 `v_R1`）。题干里如果用了自己的符号（如 i₁），请自己写 `marks` 并用同一个名字。
+
+### 3.5 标签、端子、注释 / labels, terminals, notes
+
+- `labels: [{ "at": [x,y], "name": "a", "hidden": false }]`：结点名，画在该点旁边；`hidden: true` 只命名不显示。
+- `terminals: [{ "at": [x,y], "name": "a" }]`：开路端子（小圆圈），用于戴维宁/二端口题，同时也是结点名。
+- `notes: [{ "at": [x,y], "text": "t = 0", "i18n": { "en": "..." } }]`：图上的自由文字（例如开关旁边的 “t = 0”）。
+
+---
+
+## 4. 独立源的取值 / Source values
+
+| 写法 | 含义 |
+|---|---|
+| `12` 或 `"12"` | 直流 12 V（或 12 A） |
+| `{ "dc": 5 }` | 同上 |
+| `{ "ac": { "mag": 100, "phase": 30 } }` | 正弦稳态相量 100∠30°；`mag` 按 `analysis.phasor` 的约定（默认**有效值 rms**），`phase` 单位是度 |
+| `{ "dc": 2, "ac": { "mag": 1 } }` | 直流 + 交流（正弦稳态分析只用 ac 部分，直流分析只用 dc 部分） |
+| `{ "step": { "before": 0, "after": 10 } }` | 阶跃：t < 0 为 0，t ≥ 0 为 10（暂态分析） |
+| `{ "sin": { "amp": 10, "freq": 50, "phase": 0, "offset": 0 } }` | 时域正弦 offset + amp·sin(2πft + phase°)（暂态分析） |
+
+---
+
+## 5. 分析类型 / `analysis`
+
+| 写法 | 含义 |
+|---|---|
+| `{ "type": "dc" }` | 直流电阻电路（电容开路、电感短路） |
+| `{ "type": "ac", "freq": 50 }` 或 `{ "type": "ac", "omega": 1000 }` | 正弦稳态，单一频率。只写 `freq`（Hz）或 `omega`（rad/s）中的一个 |
+| `{ "type": "ac", "omega": 1000, "phasor": "peak" }` | 相量取**幅值**（默认 `"rms"` 有效值，与大多数教材一致） |
+| `{ "type": "tran" }` | 暂态：开关、阶跃源在 **t = 0** 动作 |
+
+**相量约定（phasor）**：`"rms"`（默认）时 |U| 是有效值，P = Re(U·I*)；`"peak"` 时 |U| 是幅值，P = ½·Re(U·I*)。题干要写明“有效值”还是“幅值”。
+
+**暂态语义（tran）**：
+- t < 0：电路处于**直流稳态**，开关取 `state.before`，阶跃源取 `before`。电容电压、电感电流的初值由此决定。
+- t = 0：开关切到 `state.after`，阶跃源变为 `after`。
+- 问题用 `find.t` 指定时刻：`"0-"`（换路前）、`"0+"`（换路后瞬间：电容电压、电感电流连续，其他量可以跳变）、一个秒数（如 `0.4`）、`"inf"`（t → ∞ 的新稳态）。暂态题里除 `tau` 外每个问题都**必须**写 `t`。
+- `tau`：t > 0 一阶电路的时间常数（RC 或 L/R，从储能元件看进去的等效电阻）。
+
+---
+
+## 6. 小题 / `questions`
+
+每道题至少一个小题。两种小题：
+
+**计算题**（引擎核对）：
+
+```json
+{ "id": "i1", "ask": "求 i1。", "find": { "kind": "i", "el": "R1" }, "answer": 0.25, "unit": "mA", "tol": 0.02, "explain": "……" }
+```
+
+**选择题**（概念题）：
+
+```json
+{ "id": "why", "ask": "受控源在这里是……", "choices": ["吸收功率", "发出功率"], "correct": 1, "explain": "……" }
+```
+
+| 字段 | 说明 |
+|---|---|
+| `id` | 小题 id，题内唯一（如 `"a"`、`"i1"`、`"P"`） |
+| `ask` | 问题文字（string 或 string[]） |
+| `find` | 要计算的量（见下表），可加 `part`、`t` |
+| `answer` | 作者算出的答案，**SI 基本单位**：V、A、W、var、VA、Ω、S、Hz、s、F、H；相位用**度** |
+| `unit` | 输入框旁边显示给学生的单位。可以带前缀，例如 `"mA"`：学生只输入数字时按 mA 理解（`answer` 仍然写安培）。无量纲写 `""` |
+| `tol` | 学生答案的相对误差，默认 `0.02`（2%）。接近 0 的答案绝对误差 1e-9；相位按 360° 取模比较，至少放宽 0.5° |
+| `choices` / `correct` | 选择题的选项和正确选项下标（从 0 开始） |
+| `explain` | 答对或点“看答案”后显示的解释 |
+
+学生可以输入 `2.5k`、`2.5 kΩ`、`-3mA`、`1.2e-3`、`1.2×10^-3`、`45°`、全角 `－3`、`1，5` 等。输入的单位和 `unit` 不一致（例如要 A 却写 V）会提示“单位不对”；符号相反、差 1000 倍也会给出提示。
+
+### 6.1 可计算的量 / Quantities (`find.kind`)
+
+| `kind` | 写法 | 含义 | 单位 |
+|---|---|---|---|
+| `v` | `{"kind":"v","nodes":["a"]}` / `{"kind":"v","nodes":["a","b"]}` | 结点电压 V(a)（对地）或 V(a) − V(b) | V |
+| `v` | `{"kind":"v","el":"R2"}` | 元件电压 V(p) − V(n) | V |
+| `i` | `{"kind":"i","el":"R1"}` | 元件电流（关联方向 p → n） | A |
+| `p` | `{"kind":"p","el":"Us"}` | 元件**吸收**的功率（直流 u·i；交流为平均功率 P） | W |
+| `q` | `{"kind":"q","el":"L1"}` | 交流：元件吸收的无功功率 | var |
+| `s` | `{"kind":"s","el":"Us"}` | 交流：视在功率 \|S\| | VA |
+| `pf` | `{"kind":"pf","el":"Us"}` | 功率因数 cos φ（对电源：它所带负载的功率因数） | — |
+| `req` | `{"kind":"req","port":["a","b"]}` | 端口等效电阻（交流为 \|Z\|），独立源置零、受控源保留 | Ω |
+| `vth` | `{"kind":"vth","port":["a","b"]}` | 开路电压 V(a) − V(b)（戴维宁电压） | V |
+| `isc` | `{"kind":"isc","port":["a","b"]}` | 短路电流：用导线短接 a、b，从 a 经短路线流到 b 的电流（诺顿电流） | A |
+| `pmax` | `{"kind":"pmax","port":["a","b"]}` | 端口能输出给负载的最大功率 | W |
+| `tau` | `{"kind":"tau"}` | 一阶电路 t > 0 的时间常数 | s |
+| `meter` | `{"kind":"meter","el":"A1"}` | 电流表 / 电压表读数 | A / V |
+| `gain` | `{"kind":"gain","out":["o"],"input":"Ui"}` | 网络函数 V(out) / 输入源的值（交流为复数，用 `part` 取模、相位或 dB） | — |
+| `f0` | `{"kind":"f0"}` / `{"kind":"f0","port":["a","b"]}` | 谐振频率：输入阻抗为纯电阻时的频率 | Hz |
+| `twoport` | `{"kind":"twoport","ports":[["1","1'"],["2","2'"]],"param":"z11"}` | 二端口参数 z11…z22、y11…y22、h11…h22、a/b/c/d | 视参数而定 |
+
+### 6.2 复数结果取哪一部分 / `part`
+
+交流结果是复数，用 `find.part` 选择：`"mag"`（**交流默认**，模）、`"phase"`（相位，度）、`"re"`、`"im"`、`"db"`（20·lg|x|）、`"rms"`（换算成有效值——在 `phasor: "peak"` 时有用）。直流和暂态的结果是实数，默认 `"re"`。
+
+```json
+{ "id": "ph", "ask": "电流 I 的相位", "find": { "kind": "i", "el": "R", "part": "phase" }, "answer": -53.1301, "unit": "°" }
+```
+
+---
+
+## 7. 答案的精度 / Precision
+
+- 校验器把 `answer` 和引擎结果比较：相对误差 ≤ 0.5%（绝对 1e-9；相位按 360° 取模，至少 0.01°）。**请至少写 4 位有效数字**：`2.943036`，不要写 `2.9`。
+- 学生的答案用 `tol`（默认 2%）比较，所以题干里给的数据应能让学生算到 3 位有效数字。
+
+---
+
+## 8. 多语言 / `lang` 与 `i18n`
+
+规则和面包板题一样（见 `CHALLENGE_FORMAT.md` §11）：
+
+- 顶层文字的语言由 `lang` 决定，默认 `"zh"`。另一种语言写在 `i18n.<lang>` 里。
+- `i18n.<lang>` 可写：`title`、`statement`、`tags`、`hints`、`solution`、`notes`、`questions`。
+- `questions` 是**按位置**一一对应的数组，每项只写文字：`{ "ask": "...", "explain": "...", "choices": [...] }`（`choices` 数量必须和原文相同）。`find`、`answer`、`unit` 不用重复写。
+- `tags`、`hints`、`questions`、`notes` 的数量和原文不一致时校验器警告；`tags`、`hints` 数量不一致时整组翻译被忽略。
+- `notes` 也可以在每条注释里写 `"i18n": { "en": "..." }`。
+- 缺少的字段回退到顶层文字。
+
+---
+
+## 9. 完整示例 / Worked examples
+
+下面三个例子都能通过校验（`src/core/problem/parse.test.ts` 会自动校验本文件和 `AI_PROMPT_PROBLEMS.md` 里所有完整的 JSON 示例）。另见 `problems/` 里的内置题。
+
+### 例 1：含受控源的直流电路（结点电压法）/ DC with a dependent source
+
+电流源 Is = 2 A 向结点 a 注入电流；R1 = 4 Ω 接在 a 与地之间；R2 = 2 Ω 连接 a、b；R3 = 4 Ω 接在 b 与地之间；VCCS 从 b 抽走 0.25·u1 的电流到地，u1 是 R1 上的电压。
+
+结点方程：a：2 = Va/4 + (Va − Vb)/2；b：(Va − Vb)/2 = 0.25·Va + Vb/4 → Va = 3Vb → Vb = 8/7 V，Va = 24/7 ≈ 3.428571 V。R2 电流 (Va − Vb)/2 = 8/7 ≈ 1.142857 A。VCCS 吸收功率 Vb × 0.25·Va = 48/49 ≈ 0.979592 W。
+
+```json
+{
+  "format": "circuit-problem/1",
+  "id": "example-nodal-vccs",
+  "chapter": "methods",
+  "title": "含 VCCS 的结点电压法",
+  "level": 3,
+  "tags": ["结点电压法", "受控源 VCCS"],
+  "statement": "图中 Is = 2 A，R1 = 4 Ω，R2 = 2 Ω，R3 = 4 Ω。电压控制电流源 G 的电流为 0.25·u1（方向向下），u1 是 R1 两端电压（+ 在上）。求 u_a、R2 的电流 i2，以及 G 吸收的功率。",
+  "schematic": {
+    "elements": [
+      { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": 2 },
+      { "ref": "R1", "type": "R", "from": [3, 0], "to": [3, 4], "value": 4 },
+      { "ref": "R2", "type": "R", "from": [6, 0], "to": [10, 0], "value": 2 },
+      { "ref": "G", "type": "VCCS", "from": [13, 0], "to": [13, 4], "value": 0.25, "ctrl": { "v": "R1" }, "label": "0.25u1" },
+      { "ref": "R3", "type": "R", "from": [16, 0], "to": [16, 4], "value": 4 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[10, 0], [16, 0]],
+      [[16, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [6, 0], "name": "a" }, { "at": [10, 0], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "v", "el": "R1", "name": "u1" }, { "kind": "i", "el": "R2", "name": "i2" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 3.428571, "unit": "V", "explain": "两个结点方程联立：Va = 3Vb，1.75Vb = 2 → Vb = 8/7 V，Va = 24/7 V。" },
+    { "id": "i2", "ask": "i2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": 1.142857, "unit": "A", "explain": "i2 = (Va − Vb)/R2 = (16/7)/2 = 8/7 A。" },
+    { "id": "pg", "ask": "G 吸收的功率 = ?", "find": { "kind": "p", "el": "G" }, "answer": 0.979592, "unit": "W", "explain": "G 两端电压 Vb，电流 0.25·Va 从上往下（关联方向），P = Vb × 0.25Va = 48/49 W。" }
+  ],
+  "hints": ["对 a、b 两个结点列 KCL；控制量 u1 就是 Va。", "先用 b 的方程得到 Va 与 Vb 的关系。"],
+  "solution": [
+    "**结点 a：** Is = Va/R1 + (Va − Vb)/R2 → 2 = 0.75Va − 0.5Vb。",
+    "**结点 b：** (Va − Vb)/R2 = 0.25·u1 + Vb/R3，u1 = Va → 0.25Va = 0.75Vb，即 Va = 3Vb。",
+    "代入：2 = 2.25Vb − 0.5Vb = 1.75Vb → **Vb = 8/7 V，Va = 24/7 ≈ 3.429 V**。",
+    "i2 = (Va − Vb)/2 = **8/7 ≈ 1.143 A**；P_G = Vb × 0.25Va = **48/49 ≈ 0.980 W**（吸收）。"
+  ],
+  "i18n": {
+    "en": {
+      "tags": ["nodal analysis", "dependent source VCCS"],
+      "title": "Nodal analysis with a VCCS",
+      "statement": "Is = 2 A, R1 = 4 Ω, R2 = 2 Ω, R3 = 4 Ω. The voltage-controlled current source G carries 0.25·u1 (downwards), where u1 is the voltage across R1 (+ at the top). Find u_a, the current i2 in R2 and the power absorbed by G.",
+      "questions": [
+        { "ask": "u_a = ?", "explain": "Solve the two node equations: Va = 3Vb, 1.75Vb = 2 → Vb = 8/7 V, Va = 24/7 V." },
+        { "ask": "i2 = ?", "explain": "i2 = (Va − Vb)/R2 = (16/7)/2 = 8/7 A." },
+        { "ask": "Power absorbed by G = ?", "explain": "G has voltage Vb and current 0.25·Va flowing downwards (passive convention): P = Vb × 0.25Va = 48/49 W." }
+      ],
+      "hints": ["Write KCL at nodes a and b; the controlling voltage u1 is just Va.", "The equation at b gives the relation between Va and Vb first."],
+      "solution": [
+        "**Node a:** Is = Va/R1 + (Va − Vb)/R2 → 2 = 0.75Va − 0.5Vb.",
+        "**Node b:** (Va − Vb)/R2 = 0.25·u1 + Vb/R3 with u1 = Va → 0.25Va = 0.75Vb, i.e. Va = 3Vb.",
+        "Substitute: 2 = 2.25Vb − 0.5Vb = 1.75Vb → **Vb = 8/7 V, Va = 24/7 ≈ 3.429 V**.",
+        "i2 = (Va − Vb)/2 = **8/7 ≈ 1.143 A**; P_G = Vb × 0.25Va = **48/49 ≈ 0.980 W** (absorbed)."
+      ]
+    }
+  }
+}
+```
+
+注意 Is 是从 `[0,4]`（p，下）画到 `[0,0]`（n，上）：箭头向上，电流从顶端流出、注入 a。R1 的上端 `[3,0]` 落在顶边导线中间，形成 T 形接点。
+
+### 例 2：功率因数校正（交流功率）/ AC power and power-factor correction
+
+Us = 220 V（有效值），ω = 100 rad/s，负载 R = 30 Ω 串 L = 0.4 H（X_L = 40 Ω，Z = 50∠53.13° Ω），负载两端并联 C = 160 µF。负载电流 4.4∠−53.13° A，P = 580.8 W，Q_L = 774.4 var；Q_C = −U²ωC = −774.4 var，正好补偿，电源电流 = P/U = 2.64 A，功率因数 = 1。
+
+```json
+{
+  "format": "circuit-problem/1",
+  "id": "example-pf-correction",
+  "chapter": "ac-power",
+  "title": "并联电容提高功率因数",
+  "level": 3,
+  "tags": ["功率因数校正", "无功功率"],
+  "statement": "Us = 220∠0° V（有效值），ω = 100 rad/s。感性负载 R = 30 Ω、L = 0.4 H，并联电容 C = 160 µF。求负载电流的相位、电容的无功功率、电源电流和电源的功率因数。",
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 220, "phase": 0 } } },
+      { "ref": "C", "type": "C", "from": [4, 0], "to": [4, 6], "value": "160u" },
+      { "ref": "R", "type": "R", "from": [8, 0], "to": [8, 3], "value": 30 },
+      { "ref": "L", "type": "L", "from": [8, 3], "to": [8, 6], "value": 0.4 }
+    ],
+    "wires": [
+      [[0, 0], [8, 0]],
+      [[8, 6], [0, 6]]
+    ],
+    "grounds": [[0, 6]],
+    "marks": [{ "kind": "i", "el": "R", "name": "I_L" }]
+  },
+  "analysis": { "type": "ac", "omega": 100 },
+  "questions": [
+    { "id": "ph", "ask": "负载电流 I_L 的相位 = ?", "find": { "kind": "i", "el": "R", "part": "phase" }, "answer": -53.1301, "unit": "°", "explain": "I_L = 220 / (30 + j40) = 4.4∠−53.13° A。" },
+    { "id": "qc", "ask": "电容吸收的无功功率 Q_C = ?", "find": { "kind": "q", "el": "C" }, "answer": -774.4, "unit": "var", "explain": "Q_C = −U²ωC = −220² × 100 × 160×10⁻⁶ = −774.4 var（电容发出无功）。" },
+    { "id": "is", "ask": "电源电流有效值 I = ?", "find": { "kind": "i", "el": "Us" }, "answer": 2.64, "unit": "A", "explain": "无功完全补偿后只剩有功：I = P / U = 580.8 / 220 = 2.64 A（补偿前是 4.4 A）。" },
+    { "id": "pf", "ask": "电源的功率因数 = ?", "find": { "kind": "pf", "el": "Us" }, "answer": 1, "unit": "", "explain": "Q_L + Q_C = 774.4 − 774.4 = 0，所以 cos φ = 1。" }
+  ],
+  "hints": ["先算负载电流和负载的 P、Q。", "电容的无功 Q_C = −U²ωC；总无功为零时功率因数为 1。"],
+  "solution": [
+    "**负载：** Z = 30 + j40 = 50∠53.13° Ω，I_L = 220/Z = **4.4∠−53.13° A**；P = I_L²R = 580.8 W，Q_L = I_L²X_L = 774.4 var。",
+    "**电容：** Q_C = −U²ωC = **−774.4 var**。",
+    "**电源：** Q = Q_L + Q_C = 0，S = P = 580.8 VA，I = S/U = **2.64 A**，cos φ = **1**。"
+  ],
+  "i18n": {
+    "en": {
+      "tags": ["power-factor correction", "reactive power"],
+      "title": "Power-factor correction with a parallel capacitor",
+      "statement": "Us = 220∠0° V (rms), ω = 100 rad/s. An inductive load R = 30 Ω, L = 0.4 H has a capacitor C = 160 µF in parallel. Find the phase of the load current, the reactive power of the capacitor, the source current and the source power factor.",
+      "questions": [
+        { "ask": "Phase of the load current I_L = ?", "explain": "I_L = 220 / (30 + j40) = 4.4∠−53.13° A." },
+        { "ask": "Reactive power absorbed by the capacitor, Q_C = ?", "explain": "Q_C = −U²ωC = −220² × 100 × 160×10⁻⁶ = −774.4 var (the capacitor supplies reactive power)." },
+        { "ask": "rms source current I = ?", "explain": "With the reactive power fully compensated only real power is left: I = P / U = 580.8 / 220 = 2.64 A (it was 4.4 A without C)." },
+        { "ask": "Power factor of the source = ?", "explain": "Q_L + Q_C = 774.4 − 774.4 = 0, so cos φ = 1." }
+      ],
+      "hints": ["Start with the load current and the load's P and Q.", "The capacitor's reactive power is Q_C = −U²ωC; when the total Q is zero the power factor is 1."],
+      "solution": [
+        "**Load:** Z = 30 + j40 = 50∠53.13° Ω, I_L = 220/Z = **4.4∠−53.13° A**; P = I_L²R = 580.8 W, Q_L = I_L²X_L = 774.4 var.",
+        "**Capacitor:** Q_C = −U²ωC = **−774.4 var**.",
+        "**Source:** Q = Q_L + Q_C = 0, S = P = 580.8 VA, I = S/U = **2.64 A**, cos φ = **1**."
+      ]
+    }
+  }
+}
+```
+
+R 和 L 首尾相接（R 的 n 端和 L 的 p 端都在 `[8,3]`），不需要导线。C 的两端落在上下两条导线的中间。
+
+### 例 3：RL 电路的阶跃响应（暂态）/ RL step response
+
+Us 在 t = 0 从 0 跳到 10 V，R = 5 Ω，L = 0.5 H。i_L(0+) = 0，i_L(∞) = 2 A，τ = L/R = 0.1 s，i_L(t) = 2(1 − e^(−10t)) A，i_L(0.1) = 2(1 − e⁻¹) ≈ 1.264241 A，u_L(0+) = 10 V。
+
+```json
+{
+  "format": "circuit-problem/1",
+  "id": "example-rl-step",
+  "chapter": "first-order",
+  "title": "RL 电路的阶跃响应",
+  "level": 2,
+  "tags": ["三要素法", "零状态响应"],
+  "statement": "电压源在 t = 0 由 0 V 跳变为 10 V，R = 5 Ω，L = 0.5 H。求 u_L(0₊)、i_L(∞)、τ 和 t = 0.1 s 时的 i_L。",
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 10 } }, "label": "10ε(t) V" },
+      { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 5 },
+      { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": 0.5 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [8, 0]],
+      [[8, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "L", "name": "i_L" }, { "kind": "v", "el": "L", "name": "u_L" }]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "u0", "ask": "u_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": 10, "unit": "V", "explain": "i_L(0₊) = i_L(0₋) = 0，R 上没有压降，电源电压全部加在 L 上。" },
+    { "id": "iinf", "ask": "i_L(∞) = ?", "find": { "kind": "i", "el": "L", "t": "inf" }, "answer": 2, "unit": "A", "explain": "新稳态时电感短路：i_L = 10 / 5 = 2 A。" },
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.1, "unit": "s", "explain": "τ = L / R = 0.5 / 5 = 0.1 s。" },
+    { "id": "i1", "ask": "t = 0.1 s 时 i_L = ?", "find": { "kind": "i", "el": "L", "t": 0.1 }, "answer": 1.264241, "unit": "A", "explain": "三要素法：i_L(t) = 2 + (0 − 2)e^(−t/0.1)，t = 0.1 s 时 = 2(1 − e⁻¹) ≈ 1.264 A。" }
+  ],
+  "hints": ["电感电流不能跃变。", "三要素：初值、终值、时间常数。"],
+  "solution": [
+    "**初值：** i_L(0₊) = i_L(0₋) = 0，所以 u_L(0₊) = 10 − 5×0 = **10 V**。",
+    "**终值：** 电感短路，i_L(∞) = 10/5 = **2 A**。",
+    "**时间常数：** τ = L/R = **0.1 s**。",
+    "**三要素公式：** i_L(t) = 2(1 − e^(−t/0.1)) A，i_L(0.1) = 2(1 − e⁻¹) ≈ **1.264 A**。"
+  ],
+  "i18n": {
+    "en": {
+      "tags": ["three-element method", "zero-state response"],
+      "title": "Step response of an RL circuit",
+      "statement": "The source jumps from 0 V to 10 V at t = 0, R = 5 Ω, L = 0.5 H. Find u_L(0+), i_L(∞), τ and i_L at t = 0.1 s.",
+      "questions": [
+        { "ask": "u_L(0+) = ?", "explain": "i_L(0+) = i_L(0−) = 0, so there is no drop across R and the whole source voltage is across L." },
+        { "ask": "i_L(∞) = ?", "explain": "In the new steady state the inductor is a short: i_L = 10 / 5 = 2 A." },
+        { "ask": "τ = ?", "explain": "τ = L / R = 0.5 / 5 = 0.1 s." },
+        { "ask": "i_L at t = 0.1 s = ?", "explain": "Three-element formula: i_L(t) = 2 + (0 − 2)e^(−t/0.1); at t = 0.1 s it is 2(1 − e⁻¹) ≈ 1.264 A." }
+      ],
+      "hints": ["The inductor current can't jump.", "Three elements: initial value, final value, time constant."],
+      "solution": [
+        "**Initial value:** i_L(0+) = i_L(0−) = 0, so u_L(0+) = 10 − 5×0 = **10 V**.",
+        "**Final value:** the inductor is a short, i_L(∞) = 10/5 = **2 A**.",
+        "**Time constant:** τ = L/R = **0.1 s**.",
+        "**Formula:** i_L(t) = 2(1 − e^(−t/0.1)) A, i_L(0.1) = 2(1 − e⁻¹) ≈ **1.264 A**."
+      ]
+    }
+  }
+}
+```
+
+---
+
+## 10. 常见错误 / Common mistakes
+
+| 校验器报错 / 现象 | 原因与修正 |
+|---|---|
+| `答案不对——作者写的 answer = …，引擎算出 …` / `wrong answer — the file says …, the engine computes …` | ① 真的算错了：重算，保留 ≥4 位有效数字。② **符号**：元件的 from/to 方向就是参考方向——电压源正常供电时它的关联电流和吸收功率都是负的。③ **单位**：`answer` 必须是 SI 基本单位（1 mA 写 `0.001`），`unit` 只是显示用。④ 交流题默认 `part` 是模；相量默认**有效值**。⑤ 图画得和想的不一样（见下几行）。 |
+| `… lies on the body of R1` / `落在 R1 的元件体上` | 导线端点或别的端子落在元件两端之间：元件本体不连接任何东西。把导线接到元件的端点上。 |
+| `… is not connected to anything` / `没有连接任何东西` | 端点差一格没接上。逐个核对每个元件的 from/to 是否正好在导线上。 |
+| `Both terminals of X are on the same node` / `被短路` | 一条导线从元件一端连到了另一端（例如顶边导线穿过了水平放置的元件），或者元件放在一条连续导线上。导线要在元件两端断开。 |
+| 两条导线交叉却没连上 | 交叉不相连。要连接就让一条导线的端点/折点落在另一条上。 |
+| `no node "a"` / `找不到结点` | 结点名只来自 `labels` / `terminals`，而且要放在导线或端子上。地写 `"0"`。 |
+| `No ground symbol` / `没有接地符号` | `grounds` 至少一个点，并且要在导线或端子上。 |
+| `transient questions need a time "t"` | 暂态题每个问题（除 `tau`）都要写 `t`：`"0-"`、`"0+"`、秒数或 `"inf"`。 |
+| `"freq" and "omega" disagree` | 只写一个。 |
+| 受控源控制量不对 | `{"i": "R1"}` 是 R1 **关联方向**（p→n）的电流；`{"v": "R1"}` 是 V(p) − V(n)。画控制元件时先想好方向，并加 `marks`。 |
+| 电流源方向反了 | 箭头从 p（from）指向 n（to），电流从 n 端流出。要向结点 a 注入电流，`to` 放在 a 上。 |
+| `i18n.en.questions: should be an array matching …` | 翻译的小题数量必须和原文一样，一一对应。 |
+| `JSON syntax error` | 注释、尾随逗号、`...` 占位符。 |

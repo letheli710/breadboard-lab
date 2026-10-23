@@ -1,0 +1,294 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://breadboard-lab.local/schema/problem.schema.json",
+  "title": "Breadboard Lab theory problem (circuit-problem/1)",
+  "description": "Theory practice problem. Mirrors src/core/problem/types.ts and parse.ts (parseProblem). See docs/PROBLEM_FORMAT.md. The validator additionally recomputes every numeric answer with the analysis engine.",
+  "type": "object",
+  "required": ["format", "id", "chapter", "title", "level", "statement", "schematic", "analysis", "questions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": "circuit-problem/1" },
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$", "description": "Unique id: letters, digits, - and _." },
+    "lang": { "enum": ["zh", "en"], "default": "zh", "description": "Language of the top-level text. Default \"zh\"." },
+    "chapter": {
+      "enum": ["basics", "equivalence", "methods", "theorems", "opamp", "storage", "first-order", "second-order", "phasors", "ac-analysis", "ac-power", "coupled", "frequency", "three-phase", "two-port"],
+      "description": "Chapter id (src/core/problem/chapters.ts). Put the file in problems/<chapter>/."
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "level": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "statement": { "$ref": "#/definitions/text" },
+    "schematic": { "$ref": "#/definitions/schematic" },
+    "analysis": { "$ref": "#/definitions/analysis" },
+    "questions": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/question" } },
+    "hints": { "type": "array", "items": { "type": "string" } },
+    "solution": { "$ref": "#/definitions/text" },
+    "i18n": {
+      "type": "object",
+      "properties": { "zh": { "$ref": "#/definitions/translation" }, "en": { "$ref": "#/definitions/translation" } },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "text": {
+      "description": "A string, or an array of lines joined with \\n. Markdown subset: **bold**, `code`, \"- \" lists, \"#\" headings.",
+      "oneOf": [{ "type": "string", "minLength": 1 }, { "type": "array", "items": { "type": "string" } }]
+    },
+    "pt": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2, "description": "Grid point [x, y]; x right, y DOWN." },
+    "num": {
+      "description": "Number or SI string: 4.7, \"4.7k\", \"50u\", \"8m\", \"1M\".",
+      "oneOf": [{ "type": "number" }, { "type": "string", "pattern": "^\\s*-?\\d*\\.?\\d+(e-?\\d+)?\\s*[pnuµmkKMG]?\\s*(ohms?|Ω|F|H|V|A|S)?\\s*$" }]
+    },
+    "sourceValue": {
+      "oneOf": [
+        { "$ref": "#/definitions/num" },
+        {
+          "type": "object",
+          "properties": {
+            "dc": { "type": "number" },
+            "ac": {
+              "type": "object",
+              "required": ["mag"],
+              "properties": { "mag": { "type": "number" }, "phase": { "type": "number", "description": "degrees" } },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["step"],
+          "properties": {
+            "step": { "type": "object", "required": ["before", "after"], "properties": { "before": { "type": "number" }, "after": { "type": "number" } }, "additionalProperties": false }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["sin"],
+          "properties": {
+            "sin": {
+              "type": "object",
+              "required": ["amp", "freq"],
+              "properties": { "amp": { "type": "number" }, "freq": { "type": "number" }, "phase": { "type": "number" }, "offset": { "type": "number" } },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ctrl": {
+      "oneOf": [
+        { "type": "object", "required": ["v"], "properties": { "v": { "type": "string" } }, "additionalProperties": false },
+        { "type": "object", "required": ["i"], "properties": { "i": { "type": "string" } }, "additionalProperties": false },
+        {
+          "type": "object",
+          "required": ["vnodes"],
+          "properties": { "vnodes": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 } },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "twoTerminal": {
+      "type": "object",
+      "required": ["ref", "type", "from", "to"],
+      "properties": {
+        "ref": { "type": "string", "minLength": 1 },
+        "type": { "enum": ["R", "C", "L", "V", "I", "VCVS", "VCCS", "CCVS", "CCCS", "SW", "Z", "ammeter", "voltmeter"] },
+        "from": { "$ref": "#/definitions/pt", "description": "terminal p (\"+\" of a voltage source; tail of a current source's arrow)" },
+        "to": { "$ref": "#/definitions/pt", "description": "terminal n" },
+        "value": {
+          "description": "R/C/L: Ω/F/H; V/I: source value; dependent sources: gain; Z: {re, im}.",
+          "oneOf": [
+            { "$ref": "#/definitions/sourceValue" },
+            { "type": "object", "required": ["re", "im"], "properties": { "re": { "type": "number" }, "im": { "type": "number" } }, "additionalProperties": false }
+          ]
+        },
+        "ctrl": { "$ref": "#/definitions/ctrl" },
+        "state": {
+          "type": "object",
+          "properties": { "before": { "enum": ["open", "closed"] }, "after": { "enum": ["open", "closed"] } },
+          "additionalProperties": false
+        },
+        "ic": { "type": "number" },
+        "label": { "type": "string" },
+        "hideValue": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "opamp": {
+      "type": "object",
+      "required": ["ref", "type", "at"],
+      "properties": {
+        "ref": { "type": "string" },
+        "type": { "const": "OPAMP" },
+        "at": { "$ref": "#/definitions/pt" },
+        "orient": { "enum": ["right", "left"] },
+        "flip": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "xfmr": {
+      "type": "object",
+      "required": ["ref", "type", "at", "n"],
+      "properties": { "ref": { "type": "string" }, "type": { "const": "XFMR" }, "at": { "$ref": "#/definitions/pt" }, "n": { "type": "number" } },
+      "additionalProperties": false
+    },
+    "coupling": {
+      "type": "object",
+      "required": ["ref", "type", "l1", "l2"],
+      "properties": {
+        "ref": { "type": "string" },
+        "type": { "const": "K" },
+        "l1": { "type": "string" },
+        "l2": { "type": "string" },
+        "k": { "type": "number" },
+        "M": { "$ref": "#/definitions/num" }
+      },
+      "additionalProperties": false
+    },
+    "schematic": {
+      "type": "object",
+      "required": ["elements", "wires", "grounds"],
+      "properties": {
+        "elements": {
+          "type": "array",
+          "items": {
+            "if": { "properties": { "type": { "const": "OPAMP" } } },
+            "then": { "$ref": "#/definitions/opamp" },
+            "else": {
+              "if": { "properties": { "type": { "const": "XFMR" } } },
+              "then": { "$ref": "#/definitions/xfmr" },
+              "else": {
+                "if": { "properties": { "type": { "const": "K" } } },
+                "then": { "$ref": "#/definitions/coupling" },
+                "else": { "$ref": "#/definitions/twoTerminal" }
+              }
+            }
+          }
+        },
+        "wires": { "type": "array", "items": { "type": "array", "minItems": 2, "items": { "$ref": "#/definitions/pt" } } },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["at", "name"],
+            "properties": { "at": { "$ref": "#/definitions/pt" }, "name": { "type": "string" }, "hidden": { "type": "boolean" } },
+            "additionalProperties": false
+          }
+        },
+        "grounds": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/pt" } },
+        "terminals": {
+          "type": "array",
+          "items": { "type": "object", "required": ["at", "name"], "properties": { "at": { "$ref": "#/definitions/pt" }, "name": { "type": "string" } }, "additionalProperties": false }
+        },
+        "marks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "el"],
+            "properties": { "kind": { "enum": ["i", "v"] }, "el": { "type": "string" }, "name": { "type": "string" } },
+            "additionalProperties": false
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["at", "text"],
+            "properties": {
+              "at": { "$ref": "#/definitions/pt" },
+              "text": { "type": "string" },
+              "i18n": { "type": "object", "properties": { "zh": { "type": "string" }, "en": { "type": "string" } }, "additionalProperties": false }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "analysis": {
+      "oneOf": [
+        { "type": "object", "required": ["type"], "properties": { "type": { "const": "dc" } }, "additionalProperties": false },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "ac" },
+            "freq": { "type": "number", "exclusiveMinimum": 0 },
+            "omega": { "type": "number", "exclusiveMinimum": 0 },
+            "phasor": { "enum": ["rms", "peak"], "default": "rms" }
+          },
+          "anyOf": [{ "required": ["freq"] }, { "required": ["omega"] }],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": { "type": { "const": "tran" }, "tstop": { "type": "number", "exclusiveMinimum": 0 } },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "nodePair": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 },
+    "find": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["v", "i", "p", "q", "s", "pf", "req", "vth", "isc", "pmax", "tau", "meter", "gain", "f0", "twoport"] },
+        "el": { "type": "string" },
+        "nodes": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 2 },
+        "port": { "$ref": "#/definitions/nodePair" },
+        "out": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 2 },
+        "input": { "type": "string" },
+        "ports": { "type": "array", "items": { "$ref": "#/definitions/nodePair" }, "minItems": 2, "maxItems": 2 },
+        "param": { "enum": ["z11", "z12", "z21", "z22", "y11", "y12", "y21", "y22", "h11", "h12", "h21", "h22", "a", "b", "c", "d"] },
+        "part": { "enum": ["re", "im", "mag", "phase", "db", "rms"] },
+        "t": { "oneOf": [{ "type": "number", "minimum": 0 }, { "enum": ["0-", "0+", "inf"] }] }
+      },
+      "additionalProperties": false
+    },
+    "question": {
+      "type": "object",
+      "required": ["id", "ask"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "ask": { "$ref": "#/definitions/text" },
+        "find": { "$ref": "#/definitions/find" },
+        "answer": { "type": "number", "description": "SI base units (V, A, W, var, VA, Ω, S, Hz, s; degrees for phase). Must match the engine within 0.5 %." },
+        "unit": { "type": "string", "description": "Unit shown to the student; may carry a prefix (\"mA\"): a bare number typed is read in that unit." },
+        "tol": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1, "default": 0.02 },
+        "choices": { "type": "array", "items": { "type": "string" }, "minItems": 2 },
+        "correct": { "type": "integer", "minimum": 0 },
+        "explain": { "$ref": "#/definitions/text" }
+      },
+      "oneOf": [
+        { "required": ["find", "answer"], "not": { "required": ["choices"] } },
+        { "required": ["choices", "correct"], "not": { "required": ["find"] } }
+      ],
+      "additionalProperties": false
+    },
+    "translation": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "statement": { "$ref": "#/definitions/text" },
+        "questions": {
+          "type": "array",
+          "description": "Same count and order as the top-level questions; text only.",
+          "items": {
+            "type": "object",
+            "properties": { "ask": { "$ref": "#/definitions/text" }, "explain": { "$ref": "#/definitions/text" }, "choices": { "type": "array", "items": { "type": "string" } } },
+            "additionalProperties": false
+          }
+        },
+        "hints": { "type": "array", "items": { "type": "string" }, "description": "Same count and order as the top-level hints." },
+        "tags": { "type": "array", "items": { "type": "string" }, "description": "Same count and order as the top-level tags." },
+        "solution": { "$ref": "#/definitions/text" },
+        "notes": { "type": "array", "items": { "type": "string" }, "description": "Texts of schematic.notes, by position." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

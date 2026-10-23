@@ -1,12 +1,16 @@
 import { create } from 'zustand';
 import { HOLE_MAP } from '../core/breadboard';
 import type { Challenge } from '../core/challenge';
+import type { Problem } from '../core/problem/parse';
 import type { CheckResult } from '../core/check';
 import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS } from '../core/parts';
 import type { Layout, PartProps, PartType, PlacedPart } from '../core/types';
 
-export type Mode = 'learn' | 'challenge' | 'sandbox' | 'guide' | 'import';
+export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import';
+
+/** Practice progress of one problem: question id → answered correctly. */
+export type PracticeRecord = Record<string, boolean>;
 export type Tool = PartType | 'select' | 'probe';
 export type PanelTab = 'task' | 'schematic' | 'issues' | 'inspect';
 
@@ -79,6 +83,14 @@ interface State {
   celebrate: boolean;
   completed: Record<string, boolean>;
   toast: string | null;
+  /** theory practice ("circuit-problem/1") */
+  problems: Problem[];
+  problemInvalid: InvalidFile[];
+  problemId: string | null;
+  /** problem id → true once every question was answered correctly */
+  practiceDone: Record<string, boolean>;
+  /** problem id → which questions were answered correctly */
+  practiceAnswers: Record<string, PracticeRecord>;
 
   setLang(l: Lang): void;
   setMode(m: Mode): void;
@@ -107,6 +119,11 @@ interface State {
   setHighlight(h: Highlight | null): void;
   toggle(k: 'showNets' | 'showLabels'): void;
   notify(msg: string | null): void;
+  setProblems(list: Problem[], invalid: InvalidFile[]): void;
+  openProblem(id: string): void;
+  /** record a correct answer; marks the problem done when all its questions are correct */
+  markQuestion(problemId: string, questionId: string): void;
+  resetProblem(problemId: string): void;
 }
 
 let uid = Date.now();
@@ -158,6 +175,11 @@ export const useStore = create<State>((set, get) => {
     celebrate: false,
     completed: LS.get('bb.completed', {} as Record<string, boolean>),
     toast: null,
+    problems: [],
+    problemInvalid: [],
+    problemId: LS.get<string | null>('bb.practice.current', null),
+    practiceDone: LS.get('bb.practice.done', {} as Record<string, boolean>),
+    practiceAnswers: LS.get('bb.practice.answers', {} as Record<string, PracticeRecord>),
 
     setLang(lang) {
       setCoreLang(lang);
@@ -178,6 +200,12 @@ export const useStore = create<State>((set, get) => {
         set({ ...base, panel: 'task' });
         if (first) get().openChallenge(first.id);
         else set({ activeId: null, layout: emptyLayout() });
+      } else if (mode === 'practice') {
+        set({ ...base });
+        if (!s.problems.some((p) => p.id === s.problemId)) {
+          const first = s.problems.find((p) => !s.practiceDone[p.id]) ?? s.problems[0];
+          if (first) get().openProblem(first.id);
+        }
       } else set({ ...base });
     },
     setPanel(panel) {
@@ -327,6 +355,41 @@ export const useStore = create<State>((set, get) => {
     },
     toggle(k) {
       set({ [k]: !get()[k] } as Partial<State>);
+    },
+    setProblems(problems, problemInvalid) {
+      set({ problems, problemInvalid });
+      const s = get();
+      if (!problems.some((p) => p.id === s.problemId)) {
+        const first = problems.find((p) => !s.practiceDone[p.id]) ?? problems[0];
+        set({ problemId: first ? first.id : null });
+      }
+    },
+    openProblem(problemId) {
+      LS.set('bb.practice.current', problemId);
+      set({ problemId, mode: 'practice' });
+    },
+    markQuestion(pid, qid) {
+      const s = get();
+      const rec = { ...s.practiceAnswers[pid], [qid]: true };
+      const practiceAnswers = { ...s.practiceAnswers, [pid]: rec };
+      LS.set('bb.practice.answers', practiceAnswers);
+      const p = s.problems.find((x) => x.id === pid);
+      let practiceDone = s.practiceDone;
+      if (p && p.questions.every((q) => rec[q.id]) && !practiceDone[pid]) {
+        practiceDone = { ...practiceDone, [pid]: true };
+        LS.set('bb.practice.done', practiceDone);
+      }
+      set({ practiceAnswers, practiceDone });
+    },
+    resetProblem(pid) {
+      const s = get();
+      const practiceAnswers = { ...s.practiceAnswers };
+      delete practiceAnswers[pid];
+      const practiceDone = { ...s.practiceDone };
+      delete practiceDone[pid];
+      LS.set('bb.practice.answers', practiceAnswers);
+      LS.set('bb.practice.done', practiceDone);
+      set({ practiceAnswers, practiceDone });
     },
     notify(toast) {
       set({ toast });

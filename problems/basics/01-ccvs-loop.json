@@ -1,0 +1,79 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "basics-ccvs-loop",
+  "chapter": "basics",
+  "title": "含受控源的单回路",
+  "level": 2,
+  "tags": ["KVL", "受控源 CCVS", "功率 power"],
+  "statement": [
+    "图示电路中，Us = 12 V，R1 = 2 Ω，R2 = 4 Ω。电流控制电压源（CCVS）的电压为 3i，其中 i 是流过 R1 的电流（参考方向见图中箭头），“+” 端在左侧。",
+    "求回路电流、结点 a 的电压，以及受控源**吸收**的功率。"
+  ],
+  "i18n": {
+    "en": {
+      "tags": ["KVL", "dependent source CCVS", "power"],
+      "title": "Single loop with a dependent source",
+      "statement": [
+        "In the circuit, Us = 12 V, R1 = 2 Ω, R2 = 4 Ω. The current-controlled voltage source (CCVS) has voltage 3i, where i is the current through R1 (reference direction: the arrow in the drawing), with its \"+\" terminal on the left.",
+        "Find the loop current, the voltage of node a, and the power **absorbed** by the dependent source."
+      ],
+      "questions": [
+        { "ask": "Loop current i = ?", "explain": "KVL clockwise: 12 − 2i − 4i + 3i = 0 → i = 4 A. The CCVS's \"+\" is on the left, so going clockwise across it you climb by 3i." },
+        { "ask": "Voltage of node a relative to ground, u_a = ?", "explain": "u_a = Us − R1·i = 12 − 2×4 = 4 V (or: u_a = R2·i − 3i = 16 − 12 = 4 V)." },
+        { "ask": "Power absorbed by the CCVS, P = ?", "explain": "Passive convention: u = 3i = 12 V (+ on the left), and the current entering \"+\" is −i = −4 A, so P = 12 × (−4) = −48 W: it delivers 48 W." },
+        {
+          "ask": "Which statement is true?",
+          "choices": ["A dependent source only absorbs power, like a resistor", "In this circuit the dependent source delivers power to the resistors", "The power balance doesn't hold when there is a dependent source"],
+          "explain": "A dependent source is an active element: it can deliver power. Check: 32 + 64 − 48 − 48 = 0, so absorbed power still balances."
+        }
+      ],
+      "hints": ["Write KVL once around the loop with the clockwise current i; every element carries the same i.", "Going clockwise across the CCVS you enter at \"−\" and leave at \"+\": that's a rise of 3i, just like going up through Us."],
+      "solution": [
+        "**1. KVL.** Take i clockwise (same as the arrow on R1). Sum of rises = sum of drops:",
+        "Us + 3i = R1·i + R2·i → 12 + 3i = 6i → **i = 4 A**.",
+        "**2. Node a.** u_a = Us − R1·i = 12 − 8 = **4 V**.",
+        "**3. Power of the CCVS.** Its voltage (+ on the left) is u = 3i = 12 V. The current entering its \"+\" terminal flows left to right, i.e. against i: −4 A. P = u·i = 12 × (−4) = **−48 W** (it delivers 48 W).",
+        "**Check:** P_R1 = 32 W, P_R2 = 64 W, P_Us = −48 W, P_CCVS = −48 W; the sum is 0."
+      ]
+    }
+  },
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+      { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 4 },
+      { "ref": "H1", "type": "CCVS", "from": [2, 4], "to": [6, 4], "value": 3, "ctrl": { "i": "R1" }, "label": "3i" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [8, 0]],
+      [[8, 4], [6, 4]],
+      [[2, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [8, 0], "name": "a" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "i", "ask": "回路电流 i = ?", "find": { "kind": "i", "el": "R1" }, "answer": 4, "unit": "A", "explain": "顺时针列 KVL：12 − 2i − 4i + 3i = 0 → i = 4 A。受控源“+”在左，顺时针经过它是电压升高 3i。" },
+    { "id": "ua", "ask": "结点 a 对地电压 u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 4, "unit": "V", "explain": "u_a = Us − R1·i = 12 − 2×4 = 4 V（也可以 u_a = R2·i − 3i = 16 − 12 = 4 V）。" },
+    { "id": "p", "ask": "受控源吸收的功率 P = ?", "find": { "kind": "p", "el": "H1" }, "answer": -48, "unit": "W", "explain": "关联参考方向：u = 3i = 12 V（+ 在左），从“+”端流入的电流是 −i = −4 A，P = 12 × (−4) = −48 W，即实际发出 48 W。" },
+    {
+      "id": "concept",
+      "ask": "下列说法正确的是？",
+      "choices": ["受控源和电阻一样，只会吸收功率", "本电路中受控源向电阻提供功率", "有受控源时功率不再守恒"],
+      "correct": 1,
+      "explain": "受控源是有源元件，可以发出功率。验算：32 + 64 − 48 − 48 = 0，吸收功率之和仍为零。"
+    }
+  ],
+  "hints": ["沿顺时针方向用电流 i 列一次 KVL：所有元件流过同一个 i。", "顺时针经过受控源是从“−”进、“+”出，相当于电压升高 3i，和经过 Us 时一样。"],
+  "solution": [
+    "**1. KVL。** 取 i 顺时针（与 R1 上的箭头一致）。电压升 = 电压降：",
+    "Us + 3i = R1·i + R2·i → 12 + 3i = 6i → **i = 4 A**。",
+    "**2. 结点 a。** u_a = Us − R1·i = 12 − 8 = **4 V**。",
+    "**3. 受控源功率。** 受控源电压（+ 在左）u = 3i = 12 V；从它“+”端流入的电流是从左往右的，与 i 相反，为 −4 A。P = u·i = 12 × (−4) = **−48 W**（实际发出 48 W）。",
+    "**验算：** P_R1 = 32 W，P_R2 = 64 W，P_Us = −48 W，P_CCVS = −48 W，总和为 0。"
+  ]
+}

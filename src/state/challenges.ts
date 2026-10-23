@@ -3,6 +3,7 @@
 
 import { parseChallenge, type Challenge } from '../core/challenge';
 import { tr } from '../core/i18n';
+import { isProblemJson } from '../core/problem/parse';
 import type { InvalidFile } from './store';
 
 const folder = import.meta.glob('../../challenges/**/*.json', { eager: true, import: 'default' }) as Record<string, unknown>;
@@ -67,6 +68,7 @@ export function loadAll(): { challenges: Challenge[]; invalid: InvalidFile[] } {
       invalid.push({ file: f.file, source: 'imported', errors: [tr(`JSON 语法错误：${(e as Error).message}`, `JSON syntax error: ${(e as Error).message}`)], warnings: [] });
       continue;
     }
+    if (isProblemJson(json)) continue; // theory problems are loaded by state/problems.ts
     add(json, 'imported', f.file);
   }
   return { challenges, invalid };
