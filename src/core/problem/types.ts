@@ -38,7 +38,7 @@ export type CtrlRef =
 
 export type TwoTerminalType =
   | 'R' // value: ohms
-  | 'C' // value: farads, ic?: initial voltage (only used if `tran.ic` says so; normally from t<0 steady state)
+  | 'C' // value: farads, ic?: initial voltage (overrides the t<0 steady state when given)
   | 'L' // value: henries, ic?: initial current
   | 'V' // independent voltage source
   | 'I' // independent current source
@@ -135,10 +135,12 @@ export type Quantity =
   | { kind: 'q'; el: string } // AC reactive power absorbed (var)
   | { kind: 's'; el: string } // AC apparent power |S| (VA)
   | { kind: 'pf'; el: string } // power factor cos φ of element (or of the source's load)
-  | { kind: 'req'; port: [string, string] } // equivalent resistance / |Z| seen at port, independent sources zeroed (dependent sources kept)
-  | { kind: 'vth'; port: [string, string] } // open-circuit voltage V(a) − V(b) (Thevenin voltage)
-  | { kind: 'isc'; port: [string, string] } // short-circuit current from a to b through the short (Norton current)
-  | { kind: 'pmax'; port: [string, string] } // maximum power deliverable to a load at the port
+  // port quantities: `exclude` lists elements removed before the calculation — typically the load
+  // R_L / Z_L drawn across the port in "find R_L for maximum power" problems
+  | { kind: 'req'; port: [string, string]; exclude?: string[] } // equivalent resistance / |Z| seen at port, independent sources zeroed (dependent sources kept)
+  | { kind: 'vth'; port: [string, string]; exclude?: string[] } // open-circuit voltage V(a) − V(b) (Thevenin voltage)
+  | { kind: 'isc'; port: [string, string]; exclude?: string[] } // short-circuit current from a to b through the short (Norton current)
+  | { kind: 'pmax'; port: [string, string]; exclude?: string[] } // maximum power deliverable to a load at the port
   | { kind: 'tau' } // time constant of a first-order circuit for t > 0
   | { kind: 'meter'; el: string } // reading of an ammeter / voltmeter element
   | { kind: 'gain'; out: [string, string?]; input: string } // network function V(out)/source value (AC: complex)
