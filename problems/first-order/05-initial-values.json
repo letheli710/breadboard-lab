@@ -1,0 +1,88 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "first-order-05-initial-values",
+  "chapter": "first-order",
+  "title": "换路后的初始值：0₊ 等效电路",
+  "level": 2,
+  "tags": ["初始值", "换路定则", "0₊ 等效电路"],
+  "statement": [
+    "图示电路中 Us = 12 V，R1 = 2 Ω，R2 = 4 Ω，R3 = 2 Ω，L = 0.5 H，C = 100 µF。开关 S 闭合已久，t = 0 时断开。",
+    "求换路后瞬间的 u_C(0₊)、i_C(0₊) 和 u_L(0₊)，并判断哪些量发生了跃变。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 1], "to": [0, 5], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
+      { "ref": "L", "type": "L", "from": [7, 0], "to": [10, 0], "value": 0.5 },
+      { "ref": "R3", "type": "R", "from": [12, 0], "to": [12, 3], "value": 2 },
+      { "ref": "C", "type": "C", "from": [12, 3], "to": [12, 6], "value": "100u" },
+      { "ref": "S", "type": "SW", "from": [14, 0], "to": [16, 0], "state": { "before": "closed", "after": "open" } },
+      { "ref": "R2", "type": "R", "from": [18, 1], "to": [18, 5], "value": 4 }
+    ],
+    "wires": [
+      [[0, 1], [0, 0], [2, 0]],
+      [[5, 0], [7, 0]],
+      [[10, 0], [14, 0]],
+      [[16, 0], [18, 0], [18, 1]],
+      [[18, 5], [18, 6], [0, 6], [0, 5]]
+    ],
+    "labels": [{ "at": [12, 0], "name": "b" }],
+    "grounds": [[0, 6]],
+    "marks": [
+      { "kind": "i", "el": "L", "name": "i_L" },
+      { "kind": "v", "el": "L", "name": "u_L" },
+      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "i", "el": "R3", "name": "i_C" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "uc", "ask": "u_C(0₊) = ?", "find": { "kind": "v", "el": "C", "t": "0+" }, "answer": 8, "unit": "V", "explain": "t < 0 时 C 开路、L 短路：i_L(0₋) = 12/(2 + 4) = 2 A，R3 中无电流，u_C(0₋) = R2·i_L = 8 V；电容电压不跃变，u_C(0₊) = 8 V。" },
+    { "id": "ic", "ask": "i_C(0₊) = ?", "find": { "kind": "i", "el": "C", "t": "0+" }, "answer": 2, "unit": "A", "explain": "S 断开后 R2 支路没有电流，电感电流 i_L(0₊) = 2 A 只能流进电容支路：i_C(0₊) = 2 A（换路前为 0）。" },
+    { "id": "ul", "ask": "u_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": -4, "unit": "V", "explain": "u_b(0₊) = R3·i_C + u_C = 2×2 + 8 = 12 V。KVL：u_L(0₊) = Us − R1·i_L − u_b = 12 − 4 − 12 = −4 V（换路前为 0）。" },
+    { "id": "jump", "ask": "关于换路前后（0₋ → 0₊）的变化，下列说法正确的是：", "choices": ["u_C、i_L 不变；i_C、u_L 以及 R2 中的电流都发生跃变", "所有电压、电流都不能跃变", "只有电容电流 i_C 跃变，u_L 不变", "u_C 跃变为 12 V，因为 b 点电位跃变为 12 V"], "correct": 0, "explain": "换路定则只保证电容电压和电感电流连续。i_C 由 0 跳到 2 A，u_L 由 0 跳到 −4 V，R2 电流由 2 A 跳到 0；b 点电位由 8 V 跳到 12 V，多出的 4 V 落在 R3 上，u_C 仍为 8 V。" }
+  ],
+  "hints": [
+    "先画 t = 0₋ 的直流稳态电路（C 开路、L 短路），求 u_C(0₋)、i_L(0₋)。",
+    "画 0₊ 等效电路：电容用电压为 u_C(0₊) 的电压源代替，电感用电流为 i_L(0₊) 的电流源代替，开关取断开状态。",
+    "在 0₊ 等效电路中，R2 支路已断开，电感电流只能流向 R3–C 支路。"
+  ],
+  "solution": [
+    "**1. t = 0₋（S 闭合，直流稳态）。** C 开路，L 短路：i_L(0₋) = Us/(R1 + R2) = 12/6 = 2 A；R3 中无电流，u_C(0₋) = u_b = R2·i_L = 8 V。此时 i_C = 0，u_L = 0。",
+    "**2. 换路定则。** u_C(0₊) = u_C(0₋) = **8 V**，i_L(0₊) = i_L(0₋) = 2 A。",
+    "**3. 0₊ 等效电路。** 电容换成 8 V 电压源，电感换成 2 A 电流源，S 断开。电感电流只能进入 R3–C 支路：**i_C(0₊) = 2 A**。",
+    "b 点电位：u_b(0₊) = R3·i_C(0₊) + u_C(0₊) = 4 + 8 = 12 V。",
+    "沿 Us → R1 → L → b → 地 列 KVL：u_L(0₊) = Us − R1·i_L(0₊) − u_b(0₊) = 12 − 4 − 12 = **−4 V**。",
+    "**4. 结论。** u_C、i_L 连续；i_C（0 → 2 A）、u_L（0 → −4 V）、R2 中电流（2 A → 0）、u_b（8 V → 12 V）都发生了跃变。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Initial values after switching: the 0+ equivalent circuit",
+      "tags": ["initial values", "switching rule", "0+ equivalent circuit"],
+      "statement": [
+        "In the circuit, Us = 12 V, R1 = 2 Ω, R2 = 4 Ω, R3 = 2 Ω, L = 0.5 H, C = 100 µF. Switch S has been closed for a long time and opens at t = 0.",
+        "Find u_C(0+), i_C(0+) and u_L(0+) just after switching, and decide which quantities jump."
+      ],
+      "questions": [
+        { "ask": "u_C(0+) = ?", "explain": "For t < 0, C is open and L is a short: i_L(0−) = 12/(2 + 4) = 2 A, R3 carries no current, u_C(0−) = R2·i_L = 8 V. The capacitor voltage can't jump: u_C(0+) = 8 V." },
+        { "ask": "i_C(0+) = ?", "explain": "With S open the R2 branch carries no current, so the inductor current i_L(0+) = 2 A must flow into the capacitor branch: i_C(0+) = 2 A (it was 0 before)." },
+        { "ask": "u_L(0+) = ?", "explain": "u_b(0+) = R3·i_C + u_C = 2×2 + 8 = 12 V. KVL: u_L(0+) = Us − R1·i_L − u_b = 12 − 4 − 12 = −4 V (it was 0 before)." },
+        { "ask": "Which statement about the change from 0− to 0+ is correct?", "choices": ["u_C and i_L stay the same; i_C, u_L and the current in R2 all jump", "No voltage or current can jump", "Only the capacitor current i_C jumps; u_L stays the same", "u_C jumps to 12 V because the potential of b jumps to 12 V"], "explain": "The switching rule only guarantees continuity of the capacitor voltage and the inductor current. i_C jumps from 0 to 2 A, u_L from 0 to −4 V, the R2 current from 2 A to 0; the potential of b jumps from 8 V to 12 V, the extra 4 V being across R3 while u_C stays 8 V." }
+      ],
+      "hints": [
+        "First draw the DC steady-state circuit at t = 0− (C open, L short) and find u_C(0−), i_L(0−).",
+        "Draw the 0+ equivalent circuit: replace the capacitor by a voltage source u_C(0+), the inductor by a current source i_L(0+), with the switch open.",
+        "In the 0+ circuit the R2 branch is cut off, so the inductor current can only go into the R3–C branch."
+      ],
+      "solution": [
+        "**1. t = 0− (S closed, DC steady state).** C open, L short: i_L(0−) = Us/(R1 + R2) = 12/6 = 2 A; R3 carries no current, so u_C(0−) = u_b = R2·i_L = 8 V. Here i_C = 0 and u_L = 0.",
+        "**2. Switching rule.** u_C(0+) = u_C(0−) = **8 V**, i_L(0+) = i_L(0−) = 2 A.",
+        "**3. 0+ equivalent circuit.** Replace the capacitor by an 8 V source and the inductor by a 2 A source, with S open. The inductor current can only enter the R3–C branch: **i_C(0+) = 2 A**.",
+        "Potential of b: u_b(0+) = R3·i_C(0+) + u_C(0+) = 4 + 8 = 12 V.",
+        "KVL along Us → R1 → L → b → ground: u_L(0+) = Us − R1·i_L(0+) − u_b(0+) = 12 − 4 − 12 = **−4 V**.",
+        "**4. Conclusion.** u_C and i_L are continuous; i_C (0 → 2 A), u_L (0 → −4 V), the current in R2 (2 A → 0) and u_b (8 V → 12 V) all jump."
+      ]
+    }
+  }
+}

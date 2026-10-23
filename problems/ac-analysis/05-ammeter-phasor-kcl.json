@@ -1,0 +1,87 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-analysis-05-ammeter-phasor-kcl",
+  "chapter": "ac-analysis",
+  "title": "电流表读数：用相量图求总电流",
+  "level": 2,
+  "tags": ["相量图", "相量形式的 KCL", "电流表读数（有效值）"],
+  "statement": [
+    "图示 R、L、C 并联电路接正弦电压源 u_s（有效值 20 V），各电流表都是理想电流表，读数为有效值。",
+    "已知电流表 A1、A2、A3 的读数分别为 4 A、10 A、7 A。求总电流表 A 的读数，以及总电流 I 与电压的相位差。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 2], "to": [0, 6], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "u_s" },
+      { "ref": "A", "type": "ammeter", "from": [2, 0], "to": [5, 0] },
+      { "ref": "A1", "type": "ammeter", "from": [8, 0], "to": [8, 3] },
+      { "ref": "R", "type": "R", "from": [8, 3], "to": [8, 8], "value": 5, "hideValue": true },
+      { "ref": "A2", "type": "ammeter", "from": [12, 0], "to": [12, 3] },
+      { "ref": "L", "type": "L", "from": [12, 3], "to": [12, 8], "value": "2m", "hideValue": true },
+      { "ref": "A3", "type": "ammeter", "from": [16, 0], "to": [16, 3] },
+      { "ref": "C", "type": "C", "from": [16, 3], "to": [16, 8], "value": "350u", "hideValue": true }
+    ],
+    "wires": [
+      [[0, 2], [0, 0], [2, 0]],
+      [[5, 0], [16, 0]],
+      [[16, 8], [0, 8], [0, 6]]
+    ],
+    "grounds": [[0, 8]],
+    "marks": [{ "kind": "i", "el": "A", "name": "I" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "A", "ask": "电流表 A 的读数 = ?", "find": { "kind": "meter", "el": "A" }, "answer": 5, "unit": "A", "explain": "以电压为参考相量：I_R = 4∠0°，I_L = 10∠−90°，I_C = 7∠90°。I = 4 − j10 + j7 = 4 − j3 A，|I| = 5 A。" },
+    { "id": "ph", "ask": "总电流 I 的相位（电压 u_s 的初相为 0°）= ?", "find": { "kind": "i", "el": "A", "part": "phase" }, "answer": -36.8699, "unit": "°", "explain": "I = 4 − j3 = 5∠−36.87° A，即电流滞后电压 36.87°。" },
+    {
+      "id": "why",
+      "ask": "为什么 A 的读数不是 4 + 10 + 7 = 21 A？",
+      "choices": [
+        "KCL 对相量成立：三个支路电流相位不同（0°、−90°、+90°），要按相量相加，I_L 与 I_C 还会互相抵消",
+        "因为电流表有内阻，分走了一部分电流",
+        "因为 KCL 在交流电路中不成立"
+      ],
+      "correct": 0,
+      "explain": "瞬时值和相量都满足 KCL，但有效值一般不满足。画出相量图：I_L 与 I_C 反相，合成 j(7 − 10) = −j3 A，再与 I_R = 4 A 垂直合成得 5 A。"
+    }
+  ],
+  "hints": ["并联电路以电压为参考相量最方便：U = 20∠0° V。", "电阻电流与电压同相，电感电流滞后 90°，电容电流超前 90°。", "I = I_R + j(I_C − I_L)，读数是它的模。"],
+  "solution": [
+    "**1. 选参考相量。** 并联各支路电压相同，取 U = 20∠0° V。",
+    "**2. 写出支路电流相量。** I_R = 4∠0° A（与电压同相），I_L = 10∠−90° = −j10 A（滞后 90°），I_C = 7∠90° = j7 A（超前 90°）。",
+    "**3. 相量 KCL。** I = I_R + I_L + I_C = 4 − j10 + j7 = **4 − j3 A = 5∠−36.87° A**。",
+    "**4. 结论。** A 的读数为 **5 A**；I_L > I_C，电路呈感性，电流滞后电压 **36.87°**。",
+    "（由读数还可以反推参数：R = 20/4 = 5 Ω，X_L = 20/10 = 2 Ω，X_C = 20/7 ≈ 2.857 Ω。）"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Ammeter readings: total current from a phasor diagram",
+      "tags": ["phasor diagram", "phasor KCL", "ammeter reading (rms)"],
+      "statement": [
+        "R, L and C in parallel are fed by the sinusoidal voltage u_s (rms value 20 V). All ammeters are ideal and read rms values.",
+        "Ammeters A1, A2 and A3 read 4 A, 10 A and 7 A. Find the reading of the total-current ammeter A and the phase difference between the total current I and the voltage."
+      ],
+      "questions": [
+        { "ask": "Reading of ammeter A = ?", "explain": "Take the voltage as reference: I_R = 4∠0°, I_L = 10∠−90°, I_C = 7∠90°. I = 4 − j10 + j7 = 4 − j3 A, |I| = 5 A." },
+        { "ask": "Phase of the total current I (the voltage u_s has initial phase 0°) = ?", "explain": "I = 4 − j3 = 5∠−36.87° A, i.e. the current lags the voltage by 36.87°." },
+        {
+          "ask": "Why does A not read 4 + 10 + 7 = 21 A?",
+          "choices": [
+            "KCL holds for phasors: the three branch currents have different phases (0°, −90°, +90°), so they add as phasors and I_L, I_C partly cancel",
+            "Because the ammeters have internal resistance that takes some of the current",
+            "Because KCL does not hold in AC circuits"
+          ],
+          "explain": "KCL holds for instantaneous values and for phasors, but generally not for rms values. In the phasor diagram I_L and I_C are in antiphase and combine to j(7 − 10) = −j3 A, which then combines at right angles with I_R = 4 A to give 5 A."
+        }
+      ],
+      "hints": ["In a parallel circuit it is easiest to take the voltage as the reference phasor: U = 20∠0° V.", "The resistor current is in phase with the voltage, the inductor current lags by 90°, the capacitor current leads by 90°.", "I = I_R + j(I_C − I_L); the reading is its magnitude."],
+      "solution": [
+        "**1. Reference phasor.** All branches share the same voltage; take U = 20∠0° V.",
+        "**2. Branch current phasors.** I_R = 4∠0° A (in phase), I_L = 10∠−90° = −j10 A (lagging 90°), I_C = 7∠90° = j7 A (leading 90°).",
+        "**3. Phasor KCL.** I = I_R + I_L + I_C = 4 − j10 + j7 = **4 − j3 A = 5∠−36.87° A**.",
+        "**4. Result.** A reads **5 A**; I_L > I_C, so the circuit is inductive and the current lags the voltage by **36.87°**.",
+        "(The readings also give the parameters: R = 20/4 = 5 Ω, X_L = 20/10 = 2 Ω, X_C = 20/7 ≈ 2.857 Ω.)"
+      ]
+    }
+  }
+}

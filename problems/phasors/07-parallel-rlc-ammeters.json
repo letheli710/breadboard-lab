@@ -1,0 +1,110 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "phasors-07-parallel-rlc-ammeters",
+  "chapter": "phasors",
+  "title": "RLC 并联电路的电流表读数与相量图",
+  "level": 3,
+  "tags": ["相量形式的 KCL", "RLC 并联", "电流表读数", "相量图"],
+  "statement": [
+    "U̇_s = 120∠0° V（有效值），ω = 1000 rad/s，R = 30 Ω，L = 20 mH，C = 25 µF 并联。电流表 A1、A2、A3 分别串在 R、L、C 支路中，A 测总电流。",
+    "求 A2 和 A 的读数、总电流 i 的初相，并讨论改变 C 对总电流的影响。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 2], "to": [0, 6], "value": { "ac": { "mag": 120, "phase": 0 } } },
+      { "ref": "A", "type": "ammeter", "from": [2, 0], "to": [5, 0] },
+      { "ref": "A1", "type": "ammeter", "from": [8, 0], "to": [8, 3] },
+      { "ref": "R", "type": "R", "from": [8, 3], "to": [8, 7], "value": 30 },
+      { "ref": "A2", "type": "ammeter", "from": [13, 0], "to": [13, 3] },
+      { "ref": "L", "type": "L", "from": [13, 3], "to": [13, 7], "value": "20m" },
+      { "ref": "A3", "type": "ammeter", "from": [18, 0], "to": [18, 3] },
+      { "ref": "C", "type": "C", "from": [18, 3], "to": [18, 7], "value": "25u" }
+    ],
+    "wires": [
+      [[0, 2], [0, 0], [2, 0]],
+      [[5, 0], [18, 0]],
+      [[18, 7], [0, 7], [0, 6]]
+    ],
+    "grounds": [[0, 7]],
+    "marks": [{ "kind": "i", "el": "A", "name": "i" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    {
+      "id": "A2",
+      "ask": "电流表 A2（电感支路）的读数 = ?",
+      "find": { "kind": "meter", "el": "A2" },
+      "answer": 6,
+      "unit": "A",
+      "explain": "X_L = ωL = 20 Ω，I_L = U/X_L = 120/20 = 6 A。"
+    },
+    {
+      "id": "A",
+      "ask": "电流表 A 的读数 = ?",
+      "find": { "kind": "meter", "el": "A" },
+      "answer": 5,
+      "unit": "A",
+      "explain": "İ_R = 4∠0° A，İ_L = 6∠−90° A，İ_C = 3∠90° A（X_C = 40 Ω）。KCL：İ = 4 − j6 + j3 = 4 − j3 = 5∠−36.87° A，读数 5 A。"
+    },
+    {
+      "id": "psi",
+      "ask": "总电流 i 的初相 = ?",
+      "find": { "kind": "i", "el": "A", "part": "phase" },
+      "answer": -36.8699,
+      "unit": "°",
+      "explain": "İ = 4 − j3，辐角 −arctan(3/4) = −36.87°：总电流滞后电压，电路呈感性（I_L > I_C）。"
+    },
+    {
+      "id": "Cmin",
+      "ask": "U̇_s、R、L 不变，只调 C。C 取多大时电流表 A 的读数最小？最小读数是多少？",
+      "choices": ["C = 25 µF，5 A", "C = 50 µF，4 A", "C = 50 µF，0 A", "C = 12.5 µF，4 A"],
+      "correct": 1,
+      "explain": "İ = 4 + j(I_C − 6)，当 I_C = I_L = 6 A 时虚部为零，读数最小 = I_R = 4 A。I_C = ωCU = 6 A → C = 6/(1000 × 120) = 50 µF。"
+    }
+  ],
+  "hints": [
+    "并联电路各支路电压相同，都等于 U̇_s。先算 X_L = ωL、X_C = 1/(ωC)，再求三个支路电流相量。",
+    "以 U̇_s 为参考：İ_R 与它同相，İ_L 滞后 90°，İ_C 超前 90°。",
+    "电流表读的是有效值，总电流要用相量形式的 KCL 求：I = √(I_R² + (I_L − I_C)²)。"
+  ],
+  "solution": [
+    "**1. 电抗。** X_L = ωL = 1000 × 0.02 = 20 Ω；X_C = 1/(ωC) = 1/(1000 × 25×10⁻⁶) = 40 Ω。",
+    "**2. 支路电流（以 U̇_s = 120∠0° 为参考）。** İ_R = 120/30 = 4∠0° A（A1 读 4 A）；İ_L = 120/(j20) = 6∠−90° A（A2 读 **6 A**）；İ_C = 120/(−j40) = 3∠90° A（A3 读 3 A）。",
+    "**3. 相量形式的 KCL。** İ = İ_R + İ_L + İ_C = 4 − j6 + j3 = 4 − j3 = **5∠−36.87° A**：A 读 **5 A**，ψ_i = **−36.87°**（电流滞后电压，感性）。",
+    "**4. 相量图。** İ_L 与 İ_C 反相相消，剩下 3 A 的感性分量与 4 A 的 İ_R 垂直，组成 3-4-5 直角三角形。注意 4 + 6 + 3 = 13 A ≠ 5 A。",
+    "**5. 调节 C。** 当 I_C = I_L，即 C = 50 µF 时，İ = İ_R = 4∠0° A，读数最小为 4 A（电路呈纯电阻性）。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Ammeter readings and the phasor diagram of a parallel RLC circuit",
+      "tags": ["phasor KCL", "parallel RLC", "ammeter reading", "phasor diagram"],
+      "statement": [
+        "U_s = 120∠0° V (rms), ω = 1000 rad/s, with R = 30 Ω, L = 20 mH and C = 25 µF in parallel. Ammeters A1, A2 and A3 are in series with the R, L and C branches; A measures the total current.",
+        "Find the readings of A2 and A, the initial phase of the total current i, and discuss how changing C affects the total current."
+      ],
+      "questions": [
+        { "ask": "Reading of ammeter A2 (inductor branch) = ?", "explain": "X_L = ωL = 20 Ω, I_L = U/X_L = 120/20 = 6 A." },
+        { "ask": "Reading of ammeter A = ?", "explain": "I_R = 4∠0° A, I_L = 6∠−90° A, I_C = 3∠90° A (X_C = 40 Ω). KCL: I = 4 − j6 + j3 = 4 − j3 = 5∠−36.87° A, so it reads 5 A." },
+        { "ask": "Initial phase of the total current i = ?", "explain": "I = 4 − j3 has angle −arctan(3/4) = −36.87°: the total current lags the voltage and the circuit is inductive (I_L > I_C)." },
+        {
+          "ask": "Keeping U_s, R and L, only C is adjusted. For which C is the reading of A smallest, and what is that reading?",
+          "choices": ["C = 25 µF, 5 A", "C = 50 µF, 4 A", "C = 50 µF, 0 A", "C = 12.5 µF, 4 A"],
+          "explain": "I = 4 + j(I_C − 6); the imaginary part vanishes when I_C = I_L = 6 A, leaving the minimum I = I_R = 4 A. I_C = ωCU = 6 A gives C = 6/(1000 × 120) = 50 µF."
+        }
+      ],
+      "hints": [
+        "All branches share the voltage U_s. Compute X_L = ωL and X_C = 1/(ωC), then the three branch current phasors.",
+        "With U_s as reference: I_R is in phase, I_L lags by 90°, I_C leads by 90°.",
+        "Ammeters read rms values; the total current needs phasor KCL: I = √(I_R² + (I_L − I_C)²)."
+      ],
+      "solution": [
+        "**1. Reactances.** X_L = ωL = 1000 × 0.02 = 20 Ω; X_C = 1/(ωC) = 1/(1000 × 25×10⁻⁶) = 40 Ω.",
+        "**2. Branch currents (U_s = 120∠0° as reference).** I_R = 120/30 = 4∠0° A (A1 reads 4 A); I_L = 120/(j20) = 6∠−90° A (A2 reads **6 A**); I_C = 120/(−j40) = 3∠90° A (A3 reads 3 A).",
+        "**3. Phasor KCL.** I = I_R + I_L + I_C = 4 − j6 + j3 = 4 − j3 = **5∠−36.87° A**: A reads **5 A**, ψ_i = **−36.87°** (current lags, inductive).",
+        "**4. Phasor diagram.** I_L and I_C are in antiphase and partly cancel; the remaining 3 A inductive part is perpendicular to the 4 A of I_R, forming a 3-4-5 right triangle. Note 4 + 6 + 3 = 13 A ≠ 5 A.",
+        "**5. Adjusting C.** When I_C = I_L, i.e. C = 50 µF, I = I_R = 4∠0° A and the reading is at its minimum of 4 A (the circuit looks purely resistive)."
+      ]
+    }
+  }
+}

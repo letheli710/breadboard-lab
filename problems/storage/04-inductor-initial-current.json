@@ -1,0 +1,75 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "storage-04-inductor-initial-current",
+  "chapter": "storage",
+  "title": "电感的记忆性：有初始电流时加恒定电压",
+  "level": 2,
+  "tags": ["电感 VCR", "积分形式", "初始值", "电感储能"],
+  "statement": [
+    "电感 L = 2 H 在 t = 0 时已有电流 i_L(0) = −3 A（即实际电流 3 A 从下往上流过电感，参考方向见图）。从 t = 0 起，在电感两端加恒定电压 Us = 6 V（t < 0 时 Us = 0）。",
+    "求 t = 0.5 s 时的 i_L 和电感吸收的功率 p_L，以及 t = 2 s 时的 i_L；再判断 0 < t < 1 s 期间电感储能的变化。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 6 } }, "label": "6ε(t) V" },
+      { "ref": "L", "type": "L", "from": [6, 0], "to": [6, 4], "value": 2, "ic": -3 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[6, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "v", "el": "L", "name": "u_L" },
+      { "kind": "i", "el": "L", "name": "i_L" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "i05", "ask": "t = 0.5 s 时 i_L = ?", "find": { "kind": "i", "el": "L", "t": 0.5 }, "answer": -1.5, "unit": "A", "explain": "i_L(t) = i_L(0) + (1/L)∫₀ᵗ u_L dt = −3 + (6/2)t = −3 + 3t A，t = 0.5 s 时 i_L = −1.5 A。" },
+    { "id": "p05", "ask": "t = 0.5 s 时电感吸收的功率 p_L = ?", "find": { "kind": "p", "el": "L", "t": 0.5 }, "answer": -9, "unit": "W", "explain": "p_L = u_L·i_L = 6 × (−1.5) = −9 W。功率为负：电感在向电源释放能量。" },
+    { "id": "i2", "ask": "t = 2 s 时 i_L = ?", "find": { "kind": "i", "el": "L", "t": 2 }, "answer": 3, "unit": "A", "explain": "i_L(2) = −3 + 3 × 2 = 3 A。电流在 t = 1 s 过零后改变了实际方向。" },
+    { "id": "w", "ask": "0 < t < 1 s 期间电感的储能 W_L：", "choices": ["从 9 J 减小到 0", "从 0 增大到 9 J", "保持 9 J 不变", "一直为 0"], "correct": 0, "explain": "W_L = ½·L·i_L²：t = 0 时 ½ × 2 × 9 = 9 J；t = 1 s 时 i_L = 0，W_L = 0。这段时间 |i_L| 减小，p_L < 0，电感把磁场能量还给电源；t > 1 s 后 |i_L| 增大，电感又开始储能。" }
+  ],
+  "hints": [
+    "电感的积分关系：i_L(t) = i_L(0) + (1/L)∫₀ᵗ u_L(ξ) dξ——别忘了初始电流。",
+    "u_L 恒为 6 V，所以 i_L 每秒增加 6/2 = 3 A。",
+    "储能 W_L = ½·L·i_L² 只和电流大小有关，与电流方向无关。"
+  ],
+  "solution": [
+    "**1. 电流表达式。** 电感直接接在电源两端，u_L = 6 V（t > 0）。由 i_L(t) = i_L(0) + (1/L)∫₀ᵗ u_L dt：i_L(t) = −3 + 3t A。",
+    "**2. t = 0.5 s。** i_L = **−1.5 A**；p_L = u_L·i_L = 6 × (−1.5) = **−9 W**（实际发出 9 W）。",
+    "**3. t = 2 s。** i_L = −3 + 6 = **3 A**。",
+    "**4. 储能。** W_L(0) = ½ × 2 × (−3)² = 9 J，W_L(1) = 0，W_L(2) = 9 J。0~1 s 内电感释放 9 J，1~2 s 内又吸收 9 J。验算：∫₀¹ p_L dt = ∫₀¹ 6(−3 + 3t) dt = 6 × (−1.5) = −9 J ✓。",
+    "**结论：** 电感电流取决于全部“历史”（初始值 i_L(0) 记录了 t < 0 的作用），这就是电感的记忆性；同一电压下，电感是吸收还是释放能量取决于 u、i 的符号是否相同。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Inductor memory: constant voltage on an inductor with initial current",
+      "tags": ["inductor v–i relation", "integral form", "initial value", "inductor energy"],
+      "statement": [
+        "At t = 0 the inductor L = 2 H already carries i_L(0) = −3 A (an actual current of 3 A flowing upwards through it; reference direction as drawn). From t = 0 on, a constant voltage Us = 6 V is applied across the inductor (Us = 0 for t < 0).",
+        "Find i_L and the power p_L absorbed by the inductor at t = 0.5 s, and i_L at t = 2 s; then describe how the stored energy changes during 0 < t < 1 s."
+      ],
+      "questions": [
+        { "ask": "i_L at t = 0.5 s = ?", "explain": "i_L(t) = i_L(0) + (1/L)∫₀ᵗ u_L dt = −3 + (6/2)t = −3 + 3t A, so i_L = −1.5 A at t = 0.5 s." },
+        { "ask": "Power absorbed by the inductor at t = 0.5 s, p_L = ?", "explain": "p_L = u_L·i_L = 6 × (−1.5) = −9 W. The power is negative: the inductor is giving energy back to the source." },
+        { "ask": "i_L at t = 2 s = ?", "explain": "i_L(2) = −3 + 3 × 2 = 3 A. The current crosses zero at t = 1 s and then reverses its actual direction." },
+        { "ask": "During 0 < t < 1 s the stored energy W_L:", "choices": ["Decreases from 9 J to 0", "Increases from 0 to 9 J", "Stays at 9 J", "Is always 0"], "explain": "W_L = ½·L·i_L²: at t = 0 it is ½ × 2 × 9 = 9 J; at t = 1 s, i_L = 0 and W_L = 0. In this interval |i_L| shrinks and p_L < 0, so the inductor returns its magnetic energy to the source; after t = 1 s |i_L| grows and the inductor stores energy again." }
+      ],
+      "hints": [
+        "Integral form of the inductor law: i_L(t) = i_L(0) + (1/L)∫₀ᵗ u_L(ξ) dξ — don't forget the initial current.",
+        "u_L is a constant 6 V, so i_L increases by 6/2 = 3 A every second.",
+        "The stored energy W_L = ½·L·i_L² depends only on the size of the current, not its direction."
+      ],
+      "solution": [
+        "**1. Current.** The inductor is connected directly across the source, so u_L = 6 V for t > 0. From i_L(t) = i_L(0) + (1/L)∫₀ᵗ u_L dt: i_L(t) = −3 + 3t A.",
+        "**2. t = 0.5 s.** i_L = **−1.5 A**; p_L = u_L·i_L = 6 × (−1.5) = **−9 W** (it actually delivers 9 W).",
+        "**3. t = 2 s.** i_L = −3 + 6 = **3 A**.",
+        "**4. Energy.** W_L(0) = ½ × 2 × (−3)² = 9 J, W_L(1) = 0, W_L(2) = 9 J. The inductor releases 9 J during 0–1 s and absorbs 9 J again during 1–2 s. Check: ∫₀¹ p_L dt = ∫₀¹ 6(−3 + 3t) dt = 6 × (−1.5) = −9 J ✓.",
+        "**Conclusion:** the inductor current depends on the whole history (the initial value i_L(0) records the effect of everything before t = 0) — the inductor has memory. Under the same voltage, whether it absorbs or releases energy depends on whether u and i have the same sign."
+      ]
+    }
+  }
+}

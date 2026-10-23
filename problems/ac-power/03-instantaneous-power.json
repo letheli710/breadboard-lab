@@ -1,0 +1,86 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-power-03-instantaneous-power",
+  "chapter": "ac-power",
+  "title": "瞬时功率：电阻与电感的能量往返",
+  "level": 2,
+  "tags": ["瞬时功率 p(t)", "平均功率", "能量交换"],
+  "statement": [
+    "电路已处于正弦稳态。u_s = 100 sin(100πt) V（f = 50 Hz），R = 6 Ω，电感的感抗 ωL = 8 Ω（L = 0.08/π H ≈ 25.46 mH）。",
+    "电流 i 和电感电压 u_L 的参考方向如图（关联参考方向）。求指定时刻电阻和电感吸收的瞬时功率，并判断电路吸收的平均功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "sin": { "amp": 100, "freq": 50, "phase": 0 } }, "label": "100sin(100πt) V" },
+      { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 6 },
+      { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": 0.025464790894703253, "label": "ωL = 8 Ω" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [8, 0]],
+      [[8, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R", "name": "i" }, { "kind": "v", "el": "L", "name": "u_L" }]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "pR5", "ask": "t = 5 ms 时电阻吸收的瞬时功率 p_R = ?", "find": { "kind": "p", "el": "R", "t": 0.005 }, "answer": 216, "unit": "W", "explain": "Z = 6 + j8 = 10∠53.13° Ω，i = 10 sin(100πt − 53.13°) A。t = 5 ms 时 100πt = 90°，i = 10 sin 36.87° = 6 A，p_R = i²R = 36 × 6 = 216 W。" },
+    { "id": "pL5", "ask": "t = 5 ms 时电感吸收的瞬时功率 p_L = ?", "find": { "kind": "p", "el": "L", "t": 0.005 }, "answer": 384, "unit": "W", "explain": "u_L 超前 i 90°：u_L = 80 cos(100πt − 53.13°) V，t = 5 ms 时 u_L = 80 cos 36.87° = 64 V，p_L = u_L·i = 64 × 6 = 384 W（电感在储能）。验算：p_R + p_L = 600 W = u_s·i = 100 × 6。" },
+    { "id": "pL10", "ask": "t = 10 ms 时电感吸收的瞬时功率 p_L = ?", "find": { "kind": "p", "el": "L", "t": 0.01 }, "answer": -384, "unit": "W", "explain": "100πt = 180°：i = 10 sin 126.87° = 8 A，u_L = 80 cos 126.87° = −48 V，p_L = −384 W——负值表示电感把储存的能量送回电路。" },
+    {
+      "id": "Pav",
+      "ask": "整个负载（R 与 L）吸收的平均功率 P 是多少？",
+      "choices": ["300 W", "500 W", "600 W", "0 W"],
+      "correct": 0,
+      "explain": "p(t) = u_s·i = 300 − 500 cos(200πt − 53.13°) W，平均值 P = U·I·cos φ = (100/√2)(10/√2)·0.6 = 300 W，也等于 I²R = 50 × 6。电感的 p_L 平均值为 0，只在电源与电感之间往返。"
+    }
+  ],
+  "hints": [
+    "先用相量法求稳态电流：Z = R + jωL，得到 i(t) 的幅值和初相。",
+    "电感电压 u_L 超前电流 90°；瞬时功率 p = u·i，把 t 代进去即可。",
+    "平均功率 P = U·I·cos φ（U、I 用有效值），或 P = I²R。"
+  ],
+  "solution": [
+    "**1. 稳态电流。** Z = 6 + j8 = 10∠53.13° Ω，I_m = 100/10 = 10 A，所以 i = 10 sin(100πt − 53.13°) A。",
+    "**2. 各元件电压。** u_R = 60 sin(100πt − 53.13°) V，u_L = ωL·I_m sin(100πt − 53.13° + 90°) = 80 cos(100πt − 53.13°) V。",
+    "**3. t = 5 ms（100πt = 90°）。** i = 10 sin 36.87° = 6 A，u_L = 80 cos 36.87° = 64 V：p_R = 6² × 6 = **216 W**，p_L = 64 × 6 = **384 W**；p_R + p_L = 600 W = u_s·i = 100 × 6 ✓。",
+    "**4. t = 10 ms（100πt = 180°）。** i = 10 sin 126.87° = 8 A，u_L = 80 cos 126.87° = −48 V：p_L = **−384 W**（电感释放能量），此时 p_R = 64 × 6 = 384 W，u_s = 0。",
+    "**5. 平均功率。** p(t) = u_s·i = 1000 sin(100πt)·sin(100πt − 53.13°) = 300 − 500 cos(200πt − 53.13°) W：恒定分量就是平均功率 **P = 300 W** = U·I·cos φ，以两倍频率波动的分量振幅 500 W = S。",
+    "电阻的 p_R ≥ 0 始终吸收能量；电感的 p_L 正负交替、平均为 0，其最大值 Q = I²X_L = 50 × 8 = 400 var 就是无功功率。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Instantaneous power: energy shuttling between R and L",
+      "tags": ["instantaneous power p(t)", "average power", "energy exchange"],
+      "statement": [
+        "The circuit is in sinusoidal steady state. u_s = 100 sin(100πt) V (f = 50 Hz), R = 6 Ω, and the inductor's reactance is ωL = 8 Ω (L = 0.08/π H ≈ 25.46 mH).",
+        "The reference directions of the current i and the inductor voltage u_L are shown (passive convention). Find the instantaneous power absorbed by the resistor and the inductor at the given instants, and the average power absorbed by the circuit."
+      ],
+      "questions": [
+        { "ask": "Instantaneous power absorbed by the resistor at t = 5 ms, p_R = ?", "explain": "Z = 6 + j8 = 10∠53.13° Ω, so i = 10 sin(100πt − 53.13°) A. At t = 5 ms, 100πt = 90°, i = 10 sin 36.87° = 6 A, p_R = i²R = 36 × 6 = 216 W." },
+        { "ask": "Instantaneous power absorbed by the inductor at t = 5 ms, p_L = ?", "explain": "u_L leads i by 90°: u_L = 80 cos(100πt − 53.13°) V. At t = 5 ms, u_L = 80 cos 36.87° = 64 V and p_L = u_L·i = 64 × 6 = 384 W (the inductor is storing energy). Check: p_R + p_L = 600 W = u_s·i = 100 × 6." },
+        { "ask": "Instantaneous power absorbed by the inductor at t = 10 ms, p_L = ?", "explain": "100πt = 180°: i = 10 sin 126.87° = 8 A, u_L = 80 cos 126.87° = −48 V, p_L = −384 W — negative means the inductor is returning its stored energy to the circuit." },
+        {
+          "ask": "What is the average power P absorbed by the whole load (R and L)?",
+          "choices": ["300 W", "500 W", "600 W", "0 W"],
+          "explain": "p(t) = u_s·i = 300 − 500 cos(200πt − 53.13°) W, whose average is P = U·I·cos φ = (100/√2)(10/√2)·0.6 = 300 W, which also equals I²R = 50 × 6. The inductor's p_L averages to 0: that energy only shuttles between the source and the inductor."
+        }
+      ],
+      "hints": [
+        "First find the steady-state current with phasors: Z = R + jωL gives the amplitude and phase of i(t).",
+        "The inductor voltage u_L leads the current by 90°; the instantaneous power is p = u·i — just plug in t.",
+        "Average power P = U·I·cos φ (rms U and I), or P = I²R."
+      ],
+      "solution": [
+        "**1. Steady-state current.** Z = 6 + j8 = 10∠53.13° Ω, I_m = 100/10 = 10 A, so i = 10 sin(100πt − 53.13°) A.",
+        "**2. Element voltages.** u_R = 60 sin(100πt − 53.13°) V, u_L = ωL·I_m sin(100πt − 53.13° + 90°) = 80 cos(100πt − 53.13°) V.",
+        "**3. t = 5 ms (100πt = 90°).** i = 10 sin 36.87° = 6 A, u_L = 80 cos 36.87° = 64 V: p_R = 6² × 6 = **216 W**, p_L = 64 × 6 = **384 W**; p_R + p_L = 600 W = u_s·i = 100 × 6 ✓.",
+        "**4. t = 10 ms (100πt = 180°).** i = 10 sin 126.87° = 8 A, u_L = 80 cos 126.87° = −48 V: p_L = **−384 W** (the inductor releases energy); at this instant p_R = 64 × 6 = 384 W and u_s = 0.",
+        "**5. Average power.** p(t) = u_s·i = 1000 sin(100πt)·sin(100πt − 53.13°) = 300 − 500 cos(200πt − 53.13°) W: the constant term is the average power **P = 300 W** = U·I·cos φ, and the double-frequency term has amplitude 500 W = S.",
+        "The resistor's p_R ≥ 0 always absorbs energy; the inductor's p_L alternates in sign and averages to 0, and its peak Q = I²X_L = 50 × 8 = 400 var is the reactive power."
+      ]
+    }
+  }
+}

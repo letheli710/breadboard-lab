@@ -1,0 +1,103 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "phasors-02-sinusoid-to-phasor",
+  "chapter": "phasors",
+  "title": "正弦量与相量的互换（sin 化为 cos）",
+  "level": 2,
+  "tags": ["相量", "有效值相量", "复数的代数形式与极坐标形式"],
+  "statement": [
+    "电流源 i_s(t) = 10√2 sin(1000t + 60°) A 向电阻 R = 2 Ω 供电，电压 u 的参考方向如图（上 + 下 −）。",
+    "本题相量一律用**有效值相量**，并以 cos 函数为基准。写出 İ_s，求电压相量 U̇ 的有效值、初相和实部（代数形式 U̇ = a + jb 中的 a）。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": { "ac": { "mag": 10, "phase": -30 } }, "label": "i_s(t)" },
+      { "ref": "R", "type": "R", "from": [6, 0], "to": [6, 4], "value": 2 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[6, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "v", "el": "R", "name": "u" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    {
+      "id": "U",
+      "ask": "电压有效值 U = ?",
+      "find": { "kind": "v", "el": "R", "part": "mag" },
+      "answer": 20,
+      "unit": "V",
+      "explain": "İ_s 的有效值是 10√2/√2 = 10 A，U = R·I = 2 × 10 = 20 V。"
+    },
+    {
+      "id": "psi",
+      "ask": "U̇ 的初相 ψ_u = ?",
+      "find": { "kind": "v", "el": "R", "part": "phase" },
+      "answer": -30,
+      "unit": "°",
+      "explain": "sin(1000t + 60°) = cos(1000t + 60° − 90°) = cos(1000t − 30°)，所以 İ_s = 10∠−30° A；电阻上 U̇ = R·İ_s = 20∠−30° V。"
+    },
+    {
+      "id": "re",
+      "ask": "U̇ 的实部 a = Re U̇ = ?",
+      "find": { "kind": "v", "el": "R", "part": "re" },
+      "answer": 17.32051,
+      "unit": "V",
+      "explain": "极坐标化代数形式：U̇ = 20cos(−30°) + j20sin(−30°) = 17.32 − j10 V，实部 10√3 ≈ 17.32 V。"
+    },
+    {
+      "id": "conv",
+      "ask": "同一电路中另一电流 i_2(t) = −5√2 cos(1000t + 30°) A，它的有效值相量 İ_2 是？",
+      "choices": ["5∠30° A", "−5∠30° A，即 5∠−30° A", "5∠−150° A", "5√2∠210° A"],
+      "correct": 2,
+      "explain": "负号相当于相位改变 180°：−cos(x) = cos(x − 180°)，所以 i_2 = 5√2 cos(1000t − 150°) A，İ_2 = 5∠−150° A（也可写成 5∠210° A，但相量的模用有效值 5，不是 5√2）。"
+    }
+  ],
+  "hints": [
+    "先把 sin 化成 cos：sin(ωt + ψ) = cos(ωt + ψ − 90°)。",
+    "有效值相量的模 = 幅值/√2，辐角 = 初相；电阻上 U̇ = R·İ。",
+    "代数形式：a = U cos ψ，b = U sin ψ。"
+  ],
+  "solution": [
+    "**1. 化为 cos。** i_s = 10√2 sin(1000t + 60°) = 10√2 cos(1000t − 30°) A。",
+    "**2. 写相量。** 有效值 10√2/√2 = 10 A，所以 **İ_s = 10∠−30° A**。",
+    "**3. 电阻的相量关系。** U̇ = R·İ_s = 2 × 10∠−30° = **20∠−30° V**：U = **20 V**，ψ_u = **−30°**。",
+    "**4. 代数形式。** U̇ = 20cos30° − j20sin30° = **17.32** − j10 V。",
+    "**5. 写回时域。** u(t) = 20√2 cos(1000t − 30°) V ≈ 28.28cos(1000t − 30°) V。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Sinusoid ↔ phasor (turning sin into cos)",
+      "tags": ["phasor", "rms phasor", "rectangular and polar form"],
+      "statement": [
+        "The current source i_s(t) = 10√2 sin(1000t + 60°) A feeds a resistor R = 2 Ω; the reference polarity of u is shown (+ at the top).",
+        "Use **rms phasors** referenced to the cosine throughout. Write Ī_s and find the rms value, the initial phase and the real part (a in the rectangular form U = a + jb) of the voltage phasor U."
+      ],
+      "questions": [
+        { "ask": "rms voltage U = ?", "explain": "The rms value of Ī_s is 10√2/√2 = 10 A, so U = R·I = 2 × 10 = 20 V." },
+        { "ask": "Initial phase of the phasor U, ψ_u = ?", "explain": "sin(1000t + 60°) = cos(1000t + 60° − 90°) = cos(1000t − 30°), so Ī_s = 10∠−30° A; across the resistor U = R·Ī_s = 20∠−30° V." },
+        { "ask": "Real part of the phasor, a = Re U = ?", "explain": "Polar to rectangular: U = 20cos(−30°) + j20sin(−30°) = 17.32 − j10 V; the real part is 10√3 ≈ 17.32 V." },
+        {
+          "ask": "Another current in the same circuit is i_2(t) = −5√2 cos(1000t + 30°) A. Its rms phasor Ī_2 is:",
+          "choices": ["5∠30° A", "−5∠30° A, i.e. 5∠−30° A", "5∠−150° A", "5√2∠210° A"],
+          "explain": "A minus sign is a 180° phase shift: −cos(x) = cos(x − 180°), so i_2 = 5√2 cos(1000t − 150°) A and Ī_2 = 5∠−150° A (5∠210° A is the same, but the rms magnitude is 5, not 5√2)."
+        }
+      ],
+      "hints": [
+        "Turn sin into cos first: sin(ωt + ψ) = cos(ωt + ψ − 90°).",
+        "rms phasor magnitude = amplitude/√2, angle = initial phase; for a resistor U = R·Ī.",
+        "Rectangular form: a = U cos ψ, b = U sin ψ."
+      ],
+      "solution": [
+        "**1. Cosine form.** i_s = 10√2 sin(1000t + 60°) = 10√2 cos(1000t − 30°) A.",
+        "**2. Phasor.** rms value 10√2/√2 = 10 A, so **Ī_s = 10∠−30° A**.",
+        "**3. Resistor phasor relation.** U = R·Ī_s = 2 × 10∠−30° = **20∠−30° V**: U = **20 V**, ψ_u = **−30°**.",
+        "**4. Rectangular form.** U = 20cos30° − j20sin30° = **17.32** − j10 V.",
+        "**5. Back to the time domain.** u(t) = 20√2 cos(1000t − 30°) V ≈ 28.28cos(1000t − 30°) V."
+      ]
+    }
+  }
+}

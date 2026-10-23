@@ -1,0 +1,80 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "first-order-04-rl-zero-input",
+  "chapter": "first-order",
+  "title": "RL 电路的零输入响应（磁场能量释放）",
+  "level": 2,
+  "tags": ["零输入响应", "RL 电路", "换路定则", "电感电压跃变"],
+  "statement": [
+    "图示电路中 Us = 12 V，R0 = 3 Ω，R = 6 Ω，L = 0.6 H。开关 S 闭合已久，t = 0 时断开。",
+    "求 i_L(0₊)、u_L(0₊)、时间常数 τ，以及 t = 0.2 s 时的 i_L。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "closed", "after": "open" } },
+      { "ref": "R0", "type": "R", "from": [5, 0], "to": [9, 0], "value": 3 },
+      { "ref": "L", "type": "L", "from": [11, 0], "to": [11, 4], "value": 0.6 },
+      { "ref": "R", "type": "R", "from": [15, 0], "to": [15, 4], "value": 6 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[4, 0], [5, 0]],
+      [[9, 0], [15, 0]],
+      [[15, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "i", "el": "L", "name": "i_L" },
+      { "kind": "v", "el": "L", "name": "u_L" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "i0", "ask": "i_L(0₊) = ?", "find": { "kind": "i", "el": "L", "t": "0+" }, "answer": 4, "unit": "A", "explain": "t < 0 时电感短路，R 被短接没有电流：i_L(0₋) = 12/3 = 4 A；电感电流不能跃变，i_L(0₊) = 4 A。" },
+    { "id": "u0", "ask": "u_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": -24, "unit": "V", "explain": "断开后 L 与 R 构成回路，4 A 的电流向下流过 L、向上流过 R：u_L(0₊) = −R·i_L(0₊) = −6 × 4 = −24 V（换路前 u_L = 0，发生了跃变）。" },
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.1, "unit": "s", "explain": "从电感看进去只有 R：τ = L/R = 0.6/6 = 0.1 s。" },
+    { "id": "i2", "ask": "t = 0.2 s 时 i_L = ?", "find": { "kind": "i", "el": "L", "t": 0.2 }, "answer": 0.5413411, "unit": "A", "explain": "i_L(t) = 4e^(−10t) A，t = 0.2 s 时 i_L = 4e⁻² ≈ 0.541 A。" }
+  ],
+  "hints": [
+    "t < 0 是直流稳态：电感相当于短路，与它并联的 R 中没有电流。",
+    "电感电流不能跃变，但电感电压可以；断开后 i_L 只能经 R 流通。",
+    "零输入响应 i_L(t) = i_L(0₊)e^(−t/τ)，τ = L/R。"
+  ],
+  "solution": [
+    "**1. t = 0₋。** 电感短路，R 被短接：i_L(0₋) = Us/R0 = 12/3 = 4 A。",
+    "**2. t = 0₊。** 换路定则 i_L(0₊) = **4 A**。电源支路断开，L 和 R 构成回路：R 中电流为 −4 A（自下而上），u_L(0₊) = u_R(0₊) = 6 × (−4) = **−24 V**。电感电压的实际极性是下正上负，比电源电压还高——这就是断开电感电路时的“反电势”。",
+    "**3. 时间常数。** τ = L/R = 0.6/6 = **0.1 s**。",
+    "**4. 零输入响应。** i_L(t) = 4e^(−10t) A，u_L(t) = −24e^(−10t) V（t > 0）。t = 0.2 s：i_L = 4e⁻² ≈ **0.541 A**。",
+    "**5. 能量。** 电感原来储存 W = ½Li² = ½ × 0.6 × 16 = 4.8 J，最终全部消耗在 R 上。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Zero-input response of an RL circuit (releasing the magnetic energy)",
+      "tags": ["zero-input response", "RL circuit", "switching rule", "inductor voltage jump"],
+      "statement": [
+        "In the circuit, Us = 12 V, R0 = 3 Ω, R = 6 Ω, L = 0.6 H. Switch S has been closed for a long time and opens at t = 0.",
+        "Find i_L(0+), u_L(0+), the time constant τ, and i_L at t = 0.2 s."
+      ],
+      "questions": [
+        { "ask": "i_L(0+) = ?", "explain": "For t < 0 the inductor is a short and R, shorted by it, carries no current: i_L(0−) = 12/3 = 4 A. The inductor current can't jump: i_L(0+) = 4 A." },
+        { "ask": "u_L(0+) = ?", "explain": "After opening, L and R form a loop; the 4 A flows down through L and up through R: u_L(0+) = −R·i_L(0+) = −6 × 4 = −24 V (it was 0 before switching — it jumps)." },
+        { "ask": "τ = ?", "explain": "Looking from the inductor only R is seen: τ = L/R = 0.6/6 = 0.1 s." },
+        { "ask": "i_L at t = 0.2 s = ?", "explain": "i_L(t) = 4e^(−10t) A; at t = 0.2 s, i_L = 4e⁻² ≈ 0.541 A." }
+      ],
+      "hints": [
+        "For t < 0 the circuit is in DC steady state: the inductor is a short, and R in parallel with it carries no current.",
+        "The inductor current can't jump, but its voltage can; after the switch opens, i_L can only flow through R.",
+        "Zero-input response: i_L(t) = i_L(0+)e^(−t/τ) with τ = L/R."
+      ],
+      "solution": [
+        "**1. t = 0−.** The inductor is a short and R is shorted out: i_L(0−) = Us/R0 = 12/3 = 4 A.",
+        "**2. t = 0+.** Switching rule: i_L(0+) = **4 A**. The source branch is disconnected and L and R form a loop: the current in R is −4 A (flowing upwards), so u_L(0+) = u_R(0+) = 6 × (−4) = **−24 V**. The actual polarity across the inductor is + at the bottom, and it is larger than the source voltage — this is the 'back EMF' when an inductive circuit is opened.",
+        "**3. Time constant.** τ = L/R = 0.6/6 = **0.1 s**.",
+        "**4. Zero-input response.** i_L(t) = 4e^(−10t) A, u_L(t) = −24e^(−10t) V (t > 0). At t = 0.2 s: i_L = 4e⁻² ≈ **0.541 A**.",
+        "**5. Energy.** The inductor initially stores W = ½Li² = ½ × 0.6 × 16 = 4.8 J, all of which is finally dissipated in R."
+      ]
+    }
+  }
+}

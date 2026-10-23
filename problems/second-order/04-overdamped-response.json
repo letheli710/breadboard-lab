@@ -1,0 +1,123 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "second-order-04-overdamped-response",
+  "chapter": "second-order",
+  "title": "过阻尼零输入响应：初值都不为零",
+  "level": 3,
+  "tags": ["RLC 串联", "零输入响应", "过阻尼", "初始条件"],
+  "statement": [
+    "图示电路中 Us = 12 V，R1 = 3 Ω，R = 5 Ω，L = 0.5 H，C = 0.125 F。开关 S 闭合已久，t = 0 时断开。",
+    "求 u_C(0₊)、i_L(0₊)、t > 0 时的特征根，以及 t = 0.5 s 时的 i_L。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [1, 0], "to": [4, 0], "value": 3 },
+      { "ref": "S", "type": "SW", "from": [5, 0], "to": [7, 0], "state": { "before": "closed", "after": "open" } },
+      { "ref": "C", "type": "C", "from": [9, 0], "to": [9, 4], "value": 0.125 },
+      { "ref": "R", "type": "R", "from": [10, 0], "to": [13, 0], "value": 5 },
+      { "ref": "L", "type": "L", "from": [15, 0], "to": [15, 4], "value": 0.5 }
+    ],
+    "wires": [
+      [[0, 0], [1, 0]],
+      [[4, 0], [5, 0]],
+      [[7, 0], [10, 0]],
+      [[13, 0], [15, 0]],
+      [[15, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "i", "el": "L", "name": "i_L" }
+    ],
+    "notes": [{ "at": [6, -1], "text": "t = 0" }]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    {
+      "id": "uc0",
+      "ask": "u_C(0₊) = ?",
+      "find": { "kind": "v", "el": "C", "t": "0+" },
+      "answer": 7.5,
+      "unit": "V",
+      "explain": "t < 0 直流稳态：电容开路、电感短路，i_L = 12/(3 + 5) = 1.5 A，u_C = R·i_L = 7.5 V。换路定则：u_C(0₊) = u_C(0₋) = 7.5 V。"
+    },
+    {
+      "id": "il0",
+      "ask": "i_L(0₊) = ?",
+      "find": { "kind": "i", "el": "L", "t": "0+" },
+      "answer": 1.5,
+      "unit": "A",
+      "explain": "i_L(0₊) = i_L(0₋) = Us/(R1 + R) = 1.5 A。"
+    },
+    {
+      "id": "roots",
+      "ask": "t > 0 时电路的特征根为",
+      "choices": ["s₁ = −2 s⁻¹，s₂ = −8 s⁻¹", "s₁ = −5 s⁻¹，s₂ = −5 s⁻¹", "s = −5 ± j3 s⁻¹", "s₁ = −1 s⁻¹，s₂ = −16 s⁻¹"],
+      "correct": 0,
+      "explain": "t > 0 时 Us、R1 被断开，剩下 C、R、L 串联：s² + (R/L)s + 1/(LC) = s² + 10s + 16 = 0 → s₁ = −2，s₂ = −8（R = 5 Ω > 2√(L/C) = 4 Ω，过阻尼）。"
+    },
+    {
+      "id": "il",
+      "ask": "t = 0.5 s 时 i_L = ?",
+      "find": { "kind": "i", "el": "L", "t": 0.5 },
+      "answer": 0.7266011,
+      "unit": "A",
+      "explain": "u_C = 8e^(−2t) − 0.5e^(−8t) V，i_L = −C·du_C/dt = 2e^(−2t) − 0.5e^(−8t) A。t = 0.5 s：i_L = 2e⁻¹ − 0.5e⁻⁴ ≈ 0.7358 − 0.0092 = 0.7266 A。"
+    }
+  ],
+  "hints": [
+    "t < 0 为直流稳态：电容开路、电感短路，求出 u_C(0₋)、i_L(0₋)。",
+    "t > 0 时只剩 C、R、L 构成的串联回路。i_L 从电容正极板流出，所以 du_C/dt(0₊) = −i_L(0₊)/C。",
+    "通解 u_C = A₁e^(s₁t) + A₂e^(s₂t)，用 u_C(0₊) 和 du_C/dt(0₊) 两个条件解出 A₁、A₂。"
+  ],
+  "solution": [
+    "**1. t = 0₋。** 电容开路、电感短路：i_L(0₋) = 12/(3 + 5) = 1.5 A，u_C(0₋) = 5 × 1.5 = 7.5 V。",
+    "**2. 换路定则。** **u_C(0₊) = 7.5 V，i_L(0₊) = 1.5 A**。i_L 从电容正极板流出：du_C/dt(0₊) = −i_L(0₊)/C = −1.5/0.125 = −12 V/s。",
+    "**3. 特征根。** C、R、L 串联：s² + (R/L)s + 1/(LC) = s² + 10s + 16 = 0 → **s₁ = −2 s⁻¹，s₂ = −8 s⁻¹**（过阻尼）。",
+    "**4. 定常数。** u_C = A₁e^(−2t) + A₂e^(−8t)：A₁ + A₂ = 7.5，−2A₁ − 8A₂ = −12 → A₂ = −0.5，A₁ = 8。u_C(t) = 8e^(−2t) − 0.5e^(−8t) V。",
+    "**5. 电感电流。** i_L = −C·du_C/dt = −0.125 × (−16e^(−2t) + 4e^(−8t)) = 2e^(−2t) − 0.5e^(−8t) A。验算 i_L(0) = 1.5 A ✓。t = 0.5 s：**i_L = 2e⁻¹ − 0.5e⁻⁴ ≈ 0.7266 A**。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Overdamped zero-input response with two nonzero initial values",
+      "tags": ["series RLC", "zero-input response", "overdamped", "initial conditions"],
+      "statement": [
+        "In the circuit Us = 12 V, R1 = 3 Ω, R = 5 Ω, L = 0.5 H, C = 0.125 F. Switch S has been closed for a long time and opens at t = 0.",
+        "Find u_C(0+), i_L(0+), the characteristic roots for t > 0, and i_L at t = 0.5 s."
+      ],
+      "questions": [
+        {
+          "ask": "u_C(0+) = ?",
+          "explain": "DC steady state for t < 0: C open, L shorted, i_L = 12/(3 + 5) = 1.5 A and u_C = R·i_L = 7.5 V. Switching rule: u_C(0+) = u_C(0−) = 7.5 V."
+        },
+        {
+          "ask": "i_L(0+) = ?",
+          "explain": "i_L(0+) = i_L(0−) = Us/(R1 + R) = 1.5 A."
+        },
+        {
+          "ask": "The characteristic roots for t > 0 are",
+          "choices": ["s₁ = −2 s⁻¹, s₂ = −8 s⁻¹", "s₁ = −5 s⁻¹, s₂ = −5 s⁻¹", "s = −5 ± j3 s⁻¹", "s₁ = −1 s⁻¹, s₂ = −16 s⁻¹"],
+          "explain": "For t > 0, Us and R1 are cut off, leaving C, R, L in series: s² + (R/L)s + 1/(LC) = s² + 10s + 16 = 0 → s₁ = −2, s₂ = −8 (R = 5 Ω > 2√(L/C) = 4 Ω, overdamped)."
+        },
+        {
+          "ask": "i_L at t = 0.5 s = ?",
+          "explain": "u_C = 8e^(−2t) − 0.5e^(−8t) V and i_L = −C·du_C/dt = 2e^(−2t) − 0.5e^(−8t) A. At t = 0.5 s: i_L = 2e⁻¹ − 0.5e⁻⁴ ≈ 0.7358 − 0.0092 = 0.7266 A."
+        }
+      ],
+      "hints": [
+        "For t < 0 the circuit is in DC steady state: C open, L shorted — find u_C(0−) and i_L(0−).",
+        "For t > 0 only the series loop C, R, L is left. i_L leaves the capacitor's + plate, so du_C/dt(0+) = −i_L(0+)/C.",
+        "The general solution is u_C = A₁e^(s₁t) + A₂e^(s₂t); solve for A₁, A₂ from u_C(0+) and du_C/dt(0+)."
+      ],
+      "solution": [
+        "**1. t = 0−.** C open, L shorted: i_L(0−) = 12/(3 + 5) = 1.5 A, u_C(0−) = 5 × 1.5 = 7.5 V.",
+        "**2. Switching rules.** **u_C(0+) = 7.5 V, i_L(0+) = 1.5 A**. i_L leaves the + plate of C: du_C/dt(0+) = −i_L(0+)/C = −1.5/0.125 = −12 V/s.",
+        "**3. Roots.** C, R, L in series: s² + (R/L)s + 1/(LC) = s² + 10s + 16 = 0 → **s₁ = −2 s⁻¹, s₂ = −8 s⁻¹** (overdamped).",
+        "**4. Constants.** u_C = A₁e^(−2t) + A₂e^(−8t): A₁ + A₂ = 7.5, −2A₁ − 8A₂ = −12 → A₂ = −0.5, A₁ = 8. u_C(t) = 8e^(−2t) − 0.5e^(−8t) V.",
+        "**5. Inductor current.** i_L = −C·du_C/dt = −0.125 × (−16e^(−2t) + 4e^(−8t)) = 2e^(−2t) − 0.5e^(−8t) A. Check i_L(0) = 1.5 A ✓. At t = 0.5 s: **i_L = 2e⁻¹ − 0.5e⁻⁴ ≈ 0.7266 A**."
+      ]
+    }
+  }
+}

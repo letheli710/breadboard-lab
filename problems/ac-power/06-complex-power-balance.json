@@ -1,0 +1,88 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-power-06-complex-power-balance",
+  "chapter": "ac-power",
+  "title": "复功率守恒",
+  "level": 3,
+  "tags": ["复功率守恒", "混联电路", "关联参考方向"],
+  "statement": [
+    "Us = 100∠0° V（有效值），ω = 1000 rad/s。R1 = 2 Ω，L1 = 8 mH；支路 2：R2 = 6 Ω 与 L2 = 2 mH 串联；支路 3：R3 = 8 Ω 与 C3 = 250 µF 串联。",
+    "求各支路的复功率，并用复功率守恒（ΣS̄ = 0，各元件均取关联参考方向）求电源吸收的有功和无功功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 100, "phase": 0 } }, "label": "100∠0° V" },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
+      { "ref": "L1", "type": "L", "from": [6, 0], "to": [9, 0], "value": "8m" },
+      { "ref": "R2", "type": "R", "from": [11, 0], "to": [11, 3], "value": 6 },
+      { "ref": "L2", "type": "L", "from": [11, 3], "to": [11, 6], "value": "2m" },
+      { "ref": "R3", "type": "R", "from": [15, 0], "to": [15, 3], "value": 8 },
+      { "ref": "C3", "type": "C", "from": [15, 3], "to": [15, 6], "value": "250u" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [6, 0]],
+      [[9, 0], [15, 0]],
+      [[15, 6], [0, 6]]
+    ],
+    "labels": [{ "at": [11, 0], "name": "a" }],
+    "grounds": [[0, 6]],
+    "marks": [{ "kind": "i", "el": "R2", "name": "I2" }, { "kind": "i", "el": "R3", "name": "I3" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "P2", "ask": "R2 吸收的有功功率 P_R2 = ?", "find": { "kind": "p", "el": "R2" }, "answer": 240, "unit": "W", "explain": "Z2 ∥ Z3 = (6 + j2)(8 − j4)/(14 − j2) = 4 Ω，Z = 2 + j8 + 4 = 6 + j8 Ω，I = 10∠−53.13° A，U_a = 4I = 40∠−53.13° V；|I2| = 40/|6 + j2| = 40/√40，P_R2 = I2²R2 = 40 × 6 = 240 W。" },
+    { "id": "Q3", "ask": "C3 吸收的无功功率 Q_C3 = ?", "find": { "kind": "q", "el": "C3" }, "answer": -80, "unit": "var", "explain": "|I3| = 40/|8 − j4| = 40/√80，I3² = 20 A²，Q_C3 = −I3²X_C3 = −20 × 4 = −80 var。" },
+    { "id": "Ps", "ask": "电源吸收的有功功率 P_Us（关联参考方向）= ?", "find": { "kind": "p", "el": "Us" }, "answer": -600, "unit": "W", "explain": "其余元件吸收的有功：P_R1 + P_R2 + P_R3 = 200 + 240 + 160 = 600 W。ΣP = 0 → P_Us = −600 W，即电源发出 600 W。" },
+    { "id": "Qs", "ask": "电源吸收的无功功率 Q_Us（关联参考方向）= ?", "find": { "kind": "q", "el": "Us" }, "answer": -800, "unit": "var", "explain": "Q_L1 + Q_L2 + Q_C3 = 800 + 80 − 80 = 800 var，ΣQ = 0 → Q_Us = −800 var（电源发出 800 var）。也可直接算：电源发出的 S̄ = U·I* = 100 × 10∠53.13° = 600 + j800 VA。" }
+  ],
+  "hints": [
+    "先求 a 点右侧两条并联支路的等效阻抗，再求总电流 I 和 U_a。",
+    "每个电阻 P = I²R，每个电抗 Q = ±I²X（电感 +，电容 −）。",
+    "复功率守恒：全部元件（含电源，关联方向）吸收的复功率之和为零，所以 P、Q 分别守恒。"
+  ],
+  "solution": [
+    "**1. 等效阻抗。** Z2 = 6 + j2 Ω，Z3 = 8 − j4 Ω（X_L2 = 2 Ω，X_C3 = 1/(1000 × 250×10⁻⁶) = 4 Ω）。Z2 ∥ Z3 = (6 + j2)(8 − j4)/(14 − j2) = (56 − j8)/(14 − j2) = 4 Ω（纯电阻）。",
+    "**2. 总电流。** Z = R1 + jωL1 + 4 = 6 + j8 = 10∠53.13° Ω，I = 100/Z = 10∠−53.13° A，U_a = 4I = 40∠−53.13° V。",
+    "**3. 支路电流。** I2 = U_a/Z2，I2² = 1600/40 = 40 A²；I3 = U_a/Z3，I3² = 1600/80 = 20 A²。",
+    "**4. 各元件复功率（吸收）：**",
+    "- R1 + L1：S̄1 = I²(2 + j8) = 200 + j800 VA",
+    "- 支路 2：S̄2 = I2²(6 + j2) = **240** + j80 VA",
+    "- 支路 3：S̄3 = I3²(8 − j4) = 160 **− j80** VA",
+    "**5. 守恒。** 负载共吸收 600 + j800 VA，所以电源吸收 S̄_Us = −600 − j800 VA：P_Us = **−600 W**，Q_Us = **−800 var**（发出 600 W、800 var）。",
+    "**验算：** 电源发出的复功率 U·I* = 100 × 10∠53.13° = 600 + j800 VA ✓。注意视在功率不守恒：|S̄1| + |S̄2| + |S̄3| ≠ 1000 VA。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Conservation of complex power",
+      "tags": ["conservation of complex power", "series-parallel circuit", "passive sign convention"],
+      "statement": [
+        "Us = 100∠0° V (rms), ω = 1000 rad/s. R1 = 2 Ω, L1 = 8 mH; branch 2: R2 = 6 Ω in series with L2 = 2 mH; branch 3: R3 = 8 Ω in series with C3 = 250 µF.",
+        "Find the complex power of each branch, and use conservation of complex power (ΣS̄ = 0 with every element in the passive sign convention) to find the real and reactive power absorbed by the source."
+      ],
+      "questions": [
+        { "ask": "Real power absorbed by R2, P_R2 = ?", "explain": "Z2 ∥ Z3 = (6 + j2)(8 − j4)/(14 − j2) = 4 Ω, Z = 2 + j8 + 4 = 6 + j8 Ω, I = 10∠−53.13° A, U_a = 4I = 40∠−53.13° V; |I2| = 40/|6 + j2| = 40/√40, P_R2 = I2²R2 = 40 × 6 = 240 W." },
+        { "ask": "Reactive power absorbed by C3, Q_C3 = ?", "explain": "|I3| = 40/|8 − j4| = 40/√80, I3² = 20 A², Q_C3 = −I3²X_C3 = −20 × 4 = −80 var." },
+        { "ask": "Real power absorbed by the source, P_Us (passive convention) = ?", "explain": "The other elements absorb P_R1 + P_R2 + P_R3 = 200 + 240 + 160 = 600 W. ΣP = 0 → P_Us = −600 W, i.e. the source delivers 600 W." },
+        { "ask": "Reactive power absorbed by the source, Q_Us (passive convention) = ?", "explain": "Q_L1 + Q_L2 + Q_C3 = 800 + 80 − 80 = 800 var, ΣQ = 0 → Q_Us = −800 var (the source delivers 800 var). Directly: the complex power delivered by the source is U·I* = 100 × 10∠53.13° = 600 + j800 VA." }
+      ],
+      "hints": [
+        "First find the equivalent impedance of the two parallel branches to the right of a, then the total current I and U_a.",
+        "For each resistor P = I²R; for each reactance Q = ±I²X (+ for an inductor, − for a capacitor).",
+        "Conservation of complex power: the complex powers absorbed by all elements (source included, passive convention) add up to zero, so P and Q are each conserved."
+      ],
+      "solution": [
+        "**1. Equivalent impedance.** Z2 = 6 + j2 Ω, Z3 = 8 − j4 Ω (X_L2 = 2 Ω, X_C3 = 1/(1000 × 250×10⁻⁶) = 4 Ω). Z2 ∥ Z3 = (6 + j2)(8 − j4)/(14 − j2) = (56 − j8)/(14 − j2) = 4 Ω (purely resistive).",
+        "**2. Total current.** Z = R1 + jωL1 + 4 = 6 + j8 = 10∠53.13° Ω, I = 100/Z = 10∠−53.13° A, U_a = 4I = 40∠−53.13° V.",
+        "**3. Branch currents.** I2 = U_a/Z2, I2² = 1600/40 = 40 A²; I3 = U_a/Z3, I3² = 1600/80 = 20 A².",
+        "**4. Complex power absorbed by each part:**",
+        "- R1 + L1: S̄1 = I²(2 + j8) = 200 + j800 VA",
+        "- branch 2: S̄2 = I2²(6 + j2) = **240** + j80 VA",
+        "- branch 3: S̄3 = I3²(8 − j4) = 160 **− j80** VA",
+        "**5. Conservation.** The loads absorb 600 + j800 VA in total, so the source absorbs S̄_Us = −600 − j800 VA: P_Us = **−600 W**, Q_Us = **−800 var** (it delivers 600 W and 800 var).",
+        "**Check:** the complex power delivered by the source is U·I* = 100 × 10∠53.13° = 600 + j800 VA ✓. Apparent power is not conserved: |S̄1| + |S̄2| + |S̄3| ≠ 1000 VA."
+      ]
+    }
+  }
+}

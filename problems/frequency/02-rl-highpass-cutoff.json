@@ -1,0 +1,83 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "frequency-02-rl-highpass-cutoff",
+  "chapter": "frequency",
+  "title": "RL 高通电路的截止频率",
+  "level": 2,
+  "tags": ["RL 高通", "截止频率", "−3 dB", "半功率点"],
+  "statement": [
+    "R = 100 Ω，L = 50 mH，输出取电感电压 U_L（o、o′ 两端开路）。电源 U_s = 10∠0° V（有效值），角频率恰好取 ω = R/L = 2000 rad/s。",
+    "求这个频率下网络函数 H(jω) = U_L/U_s 的分贝值 20lg|H|、H 的相位和 U_L 的有效值，并判断电路的滤波类型。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } }, "label": "10∠0° V" },
+      { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 100 },
+      { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": "50m" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [11, 0]],
+      [[11, 4], [0, 4]]
+    ],
+    "terminals": [{ "at": [11, 0], "name": "o" }, { "at": [11, 4], "name": "o'" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "v", "el": "L", "name": "U_L" }]
+  },
+  "analysis": { "type": "ac", "omega": 2000 },
+  "questions": [
+    { "id": "db", "ask": "20lg|H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "db" }, "answer": -3.0103, "unit": "dB", "explain": "H = jωL/(R + jωL) = 1/(1 − jR/(ωL))。ωL = 2000 × 0.05 = 100 Ω = R，所以 H = j/(1 + j)，|H| = 1/√2，20lg(1/√2) ≈ −3.01 dB。" },
+    { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": 45, "unit": "°", "explain": "H = j/(1 + j) = 90° − 45° = +45°：高通电路在截止频率处输出超前输入 45°。" },
+    { "id": "ul", "ask": "U_L 的有效值 = ?", "find": { "kind": "v", "el": "L", "part": "mag" }, "answer": 7.071068, "unit": "V", "explain": "U_L = 10/√2 ≈ 7.071 V，此时 U_R 也是 7.071 V（两者相位差 90°，不能直接相加）。" },
+    {
+      "id": "type",
+      "ask": "这个电路（输出取电感电压）属于哪一类滤波电路？截止角频率是多少？",
+      "choices": ["低通，ω_c = L/R", "高通，ω_c = R/L = 2000 rad/s", "高通，ω_c = 1/(RL)", "带通，中心角频率 2000 rad/s"],
+      "correct": 1,
+      "explain": "ω → 0 时电感短路，U_L → 0；ω → ∞ 时电感开路，U_L → U_s。所以是高通。|H| = 1/√2（−3 dB，输出功率减半）的频率是 ωL = R，即 ω_c = R/L = 2000 rad/s（f_c ≈ 318.3 Hz）。"
+    }
+  ],
+  "hints": [
+    "先写出 H(jω) = jωL/(R + jωL)，再看 ω → 0 和 ω → ∞ 时的极限。",
+    "截止频率定义为 |H| 降到最大值的 1/√2（−3 dB）处；这里最大值是 1，看 ωL 与 R 的关系。"
+  ],
+  "solution": [
+    "**1. 网络函数。** 分压：H(jω) = U_L/U_s = jωL/(R + jωL) = 1/(1 − jω_c/ω)，其中 ω_c = R/L = 100/0.05 = 2000 rad/s。",
+    "**2. 类型。** ω → 0：H → 0；ω → ∞：H → 1。低频被衰减、高频通过，是**高通**电路。",
+    "**3. 截止频率处。** ω = ω_c 时 H = 1/(1 − j) = j/(1 + j) = 0.7071∠45°：|H| = 1/√2，20lg|H| = **−3.01 dB**，相位 **+45°**。",
+    "**4. 输出。** U_L = 0.7071 × 10 = **7.071 V**；电阻上的电压同样是 7.071 V，二者互相垂直，√(7.071² + 7.071²) = 10 V ✓。",
+    "在 ω_c 处输出功率（∝ U_L²）只有通带的一半，所以截止频率又叫半功率点（half-power frequency）。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Cut-off frequency of an RL high-pass circuit",
+      "tags": ["RL high-pass", "cut-off frequency", "−3 dB", "half-power point"],
+      "statement": [
+        "R = 100 Ω, L = 50 mH, and the output is the inductor voltage V_L (terminals o, o′ open). The source is V_s = 10∠0° V (rms) at exactly ω = R/L = 2000 rad/s.",
+        "At this frequency find the network function H(jω) = V_L/V_s in decibels, 20lg|H|, the phase of H and the rms value of V_L, and decide what kind of filter this is."
+      ],
+      "questions": [
+        { "ask": "20lg|H(jω)| = ?", "explain": "H = jωL/(R + jωL) = 1/(1 − jR/(ωL)). ωL = 2000 × 0.05 = 100 Ω = R, so H = j/(1 + j), |H| = 1/√2 and 20lg(1/√2) ≈ −3.01 dB." },
+        { "ask": "Phase of H(jω) = ?", "explain": "H = j/(1 + j) → 90° − 45° = +45°: at its cut-off frequency a high-pass circuit's output leads the input by 45°." },
+        { "ask": "rms value of V_L = ?", "explain": "V_L = 10/√2 ≈ 7.071 V; V_R is also 7.071 V (they are 90° apart, so they don't add arithmetically)." },
+        {
+          "ask": "What kind of filter is this circuit (output across the inductor), and what is its cut-off angular frequency?",
+          "choices": ["Low-pass, ω_c = L/R", "High-pass, ω_c = R/L = 2000 rad/s", "High-pass, ω_c = 1/(RL)", "Band-pass, centre angular frequency 2000 rad/s"],
+          "explain": "As ω → 0 the inductor is a short and V_L → 0; as ω → ∞ it is an open circuit and V_L → V_s, so it is high-pass. |H| = 1/√2 (−3 dB, half the output power) where ωL = R, i.e. ω_c = R/L = 2000 rad/s (f_c ≈ 318.3 Hz)."
+        }
+      ],
+      "hints": [
+        "Write H(jω) = jωL/(R + jωL) first, then look at the limits ω → 0 and ω → ∞.",
+        "The cut-off frequency is where |H| has dropped to 1/√2 of its maximum (−3 dB); the maximum here is 1 — compare ωL with R."
+      ],
+      "solution": [
+        "**1. Network function.** Voltage divider: H(jω) = V_L/V_s = jωL/(R + jωL) = 1/(1 − jω_c/ω), with ω_c = R/L = 100/0.05 = 2000 rad/s.",
+        "**2. Type.** ω → 0: H → 0; ω → ∞: H → 1. Low frequencies are attenuated and high ones pass: a **high-pass** circuit.",
+        "**3. At the cut-off frequency.** For ω = ω_c, H = 1/(1 − j) = j/(1 + j) = 0.7071∠45°: |H| = 1/√2, 20lg|H| = **−3.01 dB**, phase **+45°**.",
+        "**4. Output.** V_L = 0.7071 × 10 = **7.071 V**; the resistor voltage is also 7.071 V, at right angles to it: √(7.071² + 7.071²) = 10 V ✓.",
+        "At ω_c the output power (∝ V_L²) is half its pass-band value, which is why the cut-off frequency is also called the half-power frequency."
+      ]
+    }
+  }
+}

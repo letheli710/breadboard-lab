@@ -1,0 +1,67 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "storage-02-constant-current-charging",
+  "chapter": "storage",
+  "title": "恒流源给电容充电",
+  "level": 1,
+  "tags": ["电容 VCR", "积分形式", "电容储能"],
+  "statement": [
+    "电容 C = 100 µF 原来不带电（u_C(0) = 0）。从 t = 0 起，电流源以恒定电流 Is = 2 mA 给它充电（t < 0 时 Is = 0）。",
+    "求 t = 0.5 s 时的电容电压 u_C、电容吸收的功率 p_C，以及此时电容的储能 W_C。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": { "step": { "before": 0, "after": "2m" } }, "label": "2ε(t) mA" },
+      { "ref": "C", "type": "C", "from": [5, 0], "to": [5, 4], "value": "100u", "ic": 0 }
+    ],
+    "wires": [
+      [[0, 0], [5, 0]],
+      [[5, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "i", "el": "C", "name": "i_C" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "u", "ask": "t = 0.5 s 时 u_C = ?", "find": { "kind": "v", "el": "C", "t": 0.5 }, "answer": 10, "unit": "V", "explain": "u_C(t) = u_C(0) + (1/C)∫₀ᵗ i_C dt = 0 + (2×10⁻³ / 100×10⁻⁶)·t = 20t V，t = 0.5 s 时 u_C = 10 V。" },
+    { "id": "p", "ask": "t = 0.5 s 时电容吸收的功率 p_C = ?", "find": { "kind": "p", "el": "C", "t": 0.5 }, "answer": 0.02, "unit": "mW", "explain": "关联参考方向下 p_C = u_C·i_C = 10 × 2×10⁻³ = 0.02 W = 20 mW，为正，电容在吸收能量。" },
+    { "id": "w", "ask": "t = 0.5 s 时电容的储能 W_C = ?", "choices": ["5 mJ", "10 mJ", "1 mJ", "0.5 J"], "correct": 0, "explain": "W_C = ½·C·u_C² = ½ × 100×10⁻⁶ × 10² = 5×10⁻³ J = 5 mJ。也可以对功率积分：∫₀^0.5 (20t)(0.002) dt = 0.02 × 0.5² = 5 mJ。" }
+  ],
+  "hints": [
+    "电容的积分关系：u_C(t) = u_C(0) + (1/C)∫₀ᵗ i_C(ξ) dξ。电流恒定时积分就是 i·t。",
+    "电容储能只取决于此刻的电压：W_C = ½·C·u_C²。"
+  ],
+  "solution": [
+    "**1. 电压。** 电流源与电容串联，i_C = Is = 2 mA（方向与 i_C 参考方向一致）。由 u_C(t) = u_C(0) + (1/C)∫₀ᵗ i_C dt：u_C(t) = (2×10⁻³ / 10⁻⁴)·t = **20t V**，电压随时间线性上升。t = 0.5 s 时 u_C = **10 V**。",
+    "**2. 功率。** u_C、i_C 为关联参考方向，p_C = u_C·i_C = 10 × 0.002 = **20 mW**（吸收）。p_C(t) = 0.04t W 也随时间线性增大。",
+    "**3. 储能。** W_C = ½Cu_C² = ½ × 10⁻⁴ × 100 = **5 mJ**。验算：∫₀^0.5 p_C dt = 0.04 × 0.5²/2 = 5 mJ ✓——电源送出的能量全部储存在电场中，理想电容不消耗能量。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Charging a capacitor with a constant current",
+      "tags": ["capacitor v–i relation", "integral form", "capacitor energy"],
+      "statement": [
+        "The capacitor C = 100 µF is initially uncharged (u_C(0) = 0). From t = 0 on, a current source charges it with a constant current Is = 2 mA (Is = 0 for t < 0).",
+        "Find the capacitor voltage u_C, the power p_C absorbed by the capacitor and the stored energy W_C at t = 0.5 s."
+      ],
+      "questions": [
+        { "ask": "u_C at t = 0.5 s = ?", "explain": "u_C(t) = u_C(0) + (1/C)∫₀ᵗ i_C dt = 0 + (2×10⁻³ / 100×10⁻⁶)·t = 20t V, so u_C = 10 V at t = 0.5 s." },
+        { "ask": "Power absorbed by the capacitor at t = 0.5 s, p_C = ?", "explain": "With the passive sign convention p_C = u_C·i_C = 10 × 2×10⁻³ = 0.02 W = 20 mW; it is positive, so the capacitor is absorbing energy." },
+        { "ask": "Energy stored in the capacitor at t = 0.5 s, W_C = ?", "choices": ["5 mJ", "10 mJ", "1 mJ", "0.5 J"], "explain": "W_C = ½·C·u_C² = ½ × 100×10⁻⁶ × 10² = 5×10⁻³ J = 5 mJ. Integrating the power gives the same: ∫₀^0.5 (20t)(0.002) dt = 0.02 × 0.5² = 5 mJ." }
+      ],
+      "hints": [
+        "Integral form of the capacitor law: u_C(t) = u_C(0) + (1/C)∫₀ᵗ i_C(ξ) dξ. With a constant current the integral is just i·t.",
+        "The stored energy depends only on the present voltage: W_C = ½·C·u_C²."
+      ],
+      "solution": [
+        "**1. Voltage.** The current source is in series with the capacitor, so i_C = Is = 2 mA (in the direction of the i_C arrow). From u_C(t) = u_C(0) + (1/C)∫₀ᵗ i_C dt: u_C(t) = (2×10⁻³ / 10⁻⁴)·t = **20t V**, a linear ramp. At t = 0.5 s, u_C = **10 V**.",
+        "**2. Power.** u_C and i_C follow the passive sign convention, so p_C = u_C·i_C = 10 × 0.002 = **20 mW** (absorbed). p_C(t) = 0.04t W also grows linearly.",
+        "**3. Energy.** W_C = ½Cu_C² = ½ × 10⁻⁴ × 100 = **5 mJ**. Check: ∫₀^0.5 p_C dt = 0.04 × 0.5²/2 = 5 mJ ✓ — all the energy delivered by the source is stored in the electric field; an ideal capacitor dissipates nothing."
+      ]
+    }
+  }
+}

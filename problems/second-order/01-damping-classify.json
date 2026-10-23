@@ -1,0 +1,121 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "second-order-01-damping-classify",
+  "chapter": "second-order",
+  "title": "RLC 串联零输入响应：判断阻尼状态",
+  "level": 1,
+  "tags": ["RLC 串联", "零输入响应", "过阻尼", "特征根"],
+  "statement": [
+    "图示电路中电容原已充电，u_C(0₋) = 10 V；R = 5 Ω，L = 1 H，C = 0.25 F。t = 0 时开关 S 闭合，电容经 R、L 放电。",
+    "判断放电过程的阻尼状态，求特征根和 u_L(0₊)，并求临界阻尼时的电阻值。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "C", "type": "C", "from": [0, 0], "to": [0, 4], "value": 0.25, "ic": 10 },
+      { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "open", "after": "closed" } },
+      { "ref": "R", "type": "R", "from": [6, 0], "to": [9, 0], "value": 5 },
+      { "ref": "L", "type": "L", "from": [11, 0], "to": [11, 4], "value": 1 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[4, 0], [6, 0]],
+      [[9, 0], [11, 0]],
+      [[11, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "i", "el": "L", "name": "i" },
+      { "kind": "v", "el": "L", "name": "u_L" }
+    ],
+    "notes": [{ "at": [3, -1], "text": "t = 0" }]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    {
+      "id": "state",
+      "ask": "开关闭合后，电路的放电过程属于哪种情况？",
+      "choices": ["过阻尼（非振荡放电）", "临界阻尼", "欠阻尼（衰减振荡）", "无阻尼（等幅振荡）"],
+      "correct": 0,
+      "explain": "临界电阻 2√(L/C) = 2√(1/0.25) = 4 Ω。R = 5 Ω > 4 Ω，所以是过阻尼，u_C 单调衰减到零，不振荡。"
+    },
+    {
+      "id": "roots",
+      "ask": "特征根 s₁、s₂ = ?",
+      "choices": ["−1 s⁻¹ 和 −4 s⁻¹", "−2 s⁻¹ 和 −2 s⁻¹", "−2.5 ± j1.5 s⁻¹", "1 s⁻¹ 和 4 s⁻¹"],
+      "correct": 0,
+      "explain": "特征方程 LCs² + RCs + 1 = 0，即 s² + (R/L)s + 1/(LC) = s² + 5s + 4 = 0，(s + 1)(s + 4) = 0 → s₁ = −1，s₂ = −4（两个不等的负实根）。"
+    },
+    {
+      "id": "uL0",
+      "ask": "u_L(0₊) = ?",
+      "find": { "kind": "v", "el": "L", "t": "0+" },
+      "answer": 10,
+      "unit": "V",
+      "explain": "换路定则：u_C(0₊) = 10 V，i(0₊) = i(0₋) = 0，R 上无压降。KVL：u_L(0₊) = u_C(0₊) − R·i(0₊) = 10 V。"
+    },
+    {
+      "id": "rcrit",
+      "ask": "L、C 不变，R 取多大时放电过程恰好为临界阻尼？",
+      "choices": ["4 Ω", "2 Ω", "1 Ω", "16 Ω"],
+      "correct": 0,
+      "explain": "临界阻尼条件 R = 2√(L/C) = 2√(1/0.25) = 4 Ω。R 大于它为过阻尼，小于它为欠阻尼。"
+    }
+  ],
+  "hints": [
+    "RLC 串联放电的阻尼状态由 R 与 2√(L/C) 的大小关系决定。",
+    "特征方程：s² + (R/L)s + 1/(LC) = 0。",
+    "u_L(0₊) 用换路定则：电感电流不能跃变，所以 0₊ 时 R 上没有电压。"
+  ],
+  "solution": [
+    "**1. 判别阻尼。** 2√(L/C) = 2√(1/0.25) = 4 Ω，R = 5 Ω > 4 Ω → **过阻尼**。",
+    "**2. 特征根。** t > 0 时 KVL：LC·d²u_C/dt² + RC·du_C/dt + u_C = 0，特征方程 s² + 5s + 4 = 0 → **s₁ = −1 s⁻¹，s₂ = −4 s⁻¹**。",
+    "（等价地，α = R/(2L) = 2.5 s⁻¹，ω₀ = 1/√(LC) = 2 rad/s，s = −α ± √(α² − ω₀²) = −2.5 ± 1.5。）",
+    "**3. 初始值。** u_C(0₊) = u_C(0₋) = 10 V，i(0₊) = i(0₋) = 0，所以 u_L(0₊) = u_C(0₊) − R·i(0₊) = **10 V**。",
+    "**4. 临界电阻。** R_cr = 2√(L/C) = **4 Ω**；R > 4 Ω 过阻尼，R = 4 Ω 临界阻尼，R < 4 Ω 欠阻尼，R = 0 等幅振荡。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Series RLC zero-input response: classifying the damping",
+      "tags": ["series RLC", "zero-input response", "overdamped", "characteristic roots"],
+      "statement": [
+        "The capacitor is initially charged, u_C(0−) = 10 V; R = 5 Ω, L = 1 H, C = 0.25 F. Switch S closes at t = 0 and the capacitor discharges through R and L.",
+        "Classify the damping of the discharge, find the characteristic roots and u_L(0+), and find the resistance that gives critical damping."
+      ],
+      "questions": [
+        {
+          "ask": "After the switch closes, which case describes the discharge?",
+          "choices": ["Overdamped (non-oscillatory discharge)", "Critically damped", "Underdamped (decaying oscillation)", "Undamped (sustained oscillation)"],
+          "explain": "The critical resistance is 2√(L/C) = 2√(1/0.25) = 4 Ω. R = 5 Ω > 4 Ω, so the response is overdamped: u_C decays to zero monotonically without oscillating."
+        },
+        {
+          "ask": "Characteristic roots s₁, s₂ = ?",
+          "choices": ["−1 s⁻¹ and −4 s⁻¹", "−2 s⁻¹ and −2 s⁻¹", "−2.5 ± j1.5 s⁻¹", "1 s⁻¹ and 4 s⁻¹"],
+          "explain": "The characteristic equation LCs² + RCs + 1 = 0 is s² + (R/L)s + 1/(LC) = s² + 5s + 4 = 0, (s + 1)(s + 4) = 0 → s₁ = −1, s₂ = −4 (two distinct negative real roots)."
+        },
+        {
+          "ask": "u_L(0+) = ?",
+          "explain": "Switching rules: u_C(0+) = 10 V and i(0+) = i(0−) = 0, so there is no drop across R. KVL: u_L(0+) = u_C(0+) − R·i(0+) = 10 V."
+        },
+        {
+          "ask": "With L and C unchanged, what value of R makes the discharge critically damped?",
+          "choices": ["4 Ω", "2 Ω", "1 Ω", "16 Ω"],
+          "explain": "Critical damping requires R = 2√(L/C) = 2√(1/0.25) = 4 Ω. A larger R is overdamped, a smaller one underdamped."
+        }
+      ],
+      "hints": [
+        "For a series RLC discharge the damping case is decided by comparing R with 2√(L/C).",
+        "Characteristic equation: s² + (R/L)s + 1/(LC) = 0.",
+        "For u_L(0+) use the switching rule: the inductor current can't jump, so at 0+ there is no voltage across R."
+      ],
+      "solution": [
+        "**1. Damping.** 2√(L/C) = 2√(1/0.25) = 4 Ω and R = 5 Ω > 4 Ω → **overdamped**.",
+        "**2. Characteristic roots.** For t > 0, KVL gives LC·d²u_C/dt² + RC·du_C/dt + u_C = 0, so s² + 5s + 4 = 0 → **s₁ = −1 s⁻¹, s₂ = −4 s⁻¹**.",
+        "(Equivalently α = R/(2L) = 2.5 s⁻¹, ω₀ = 1/√(LC) = 2 rad/s, s = −α ± √(α² − ω₀²) = −2.5 ± 1.5.)",
+        "**3. Initial values.** u_C(0+) = u_C(0−) = 10 V and i(0+) = i(0−) = 0, so u_L(0+) = u_C(0+) − R·i(0+) = **10 V**.",
+        "**4. Critical resistance.** R_cr = 2√(L/C) = **4 Ω**; R > 4 Ω is overdamped, R = 4 Ω critically damped, R < 4 Ω underdamped, R = 0 undamped (sustained oscillation)."
+      ]
+    }
+  }
+}

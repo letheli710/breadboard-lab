@@ -1,0 +1,75 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-power-02-rlc-element-power",
+  "chapter": "ac-power",
+  "title": "R、L、C 各自吸收的功率",
+  "level": 1,
+  "tags": ["有功功率 P", "无功功率 Q", "视在功率 S"],
+  "statement": [
+    "正弦电压源 Us = 100∠0° V（有效值），ω = 1000 rad/s，两端并联 R = 50 Ω、L = 25 mH、C = 20 µF。",
+    "求电阻吸收的有功功率 P_R、电感吸收的无功功率 Q_L、电容吸收的无功功率 Q_C，以及电源的视在功率 S。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 100, "phase": 0 } }, "label": "100∠0° V" },
+      { "ref": "R", "type": "R", "from": [4, 0], "to": [4, 4], "value": 50 },
+      { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": "25m" },
+      { "ref": "C", "type": "C", "from": [12, 0], "to": [12, 4], "value": "20u" }
+    ],
+    "wires": [
+      [[0, 0], [12, 0]],
+      [[12, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "PR", "ask": "电阻吸收的有功功率 P_R = ?", "find": { "kind": "p", "el": "R" }, "answer": 200, "unit": "W", "explain": "并联元件两端电压都是 U = 100 V：P_R = U²/R = 10000/50 = 200 W。" },
+    { "id": "QL", "ask": "电感吸收的无功功率 Q_L = ?", "find": { "kind": "q", "el": "L" }, "answer": 400, "unit": "var", "explain": "X_L = ωL = 1000 × 0.025 = 25 Ω，Q_L = U²/X_L = 10000/25 = 400 var（正值：电感吸收无功）。" },
+    { "id": "QC", "ask": "电容吸收的无功功率 Q_C = ?", "find": { "kind": "q", "el": "C" }, "answer": -200, "unit": "var", "explain": "X_C = 1/(ωC) = 1/(1000 × 20×10⁻⁶) = 50 Ω，Q_C = −U²/X_C = −200 var（负值：电容发出无功）。" },
+    { "id": "S", "ask": "电源的视在功率 S = ?", "find": { "kind": "s", "el": "Us" }, "answer": 282.8427, "unit": "VA", "explain": "P = 200 W，Q = 400 − 200 = 200 var，S = √(P² + Q²) = 200√2 ≈ 282.8 VA。注意 S ≠ 各元件视在功率之和。" }
+  ],
+  "hints": [
+    "并联元件两端的电压都等于电源电压 U = 100 V。",
+    "P_R = U²/R，Q_L = U²/X_L，Q_C = −U²/X_C；总的 P、Q 分别相加，S = √(P² + Q²)。"
+  ],
+  "solution": [
+    "**1. 电抗。** X_L = ωL = 1000 × 25×10⁻³ = 25 Ω；X_C = 1/(ωC) = 1/(1000 × 20×10⁻⁶) = 50 Ω。",
+    "**2. 各元件的功率**（电压都是 U = 100 V）：",
+    "- 电阻只吸收有功：P_R = U²/R = 10000/50 = **200 W**，Q_R = 0；",
+    "- 电感只吸收无功：Q_L = U²/X_L = 10000/25 = **400 var**，P_L = 0；",
+    "- 电容只发出无功：Q_C = −U²/X_C = −10000/50 = **−200 var**，P_C = 0。",
+    "**3. 电源。** 有功、无功分别守恒：P = 200 W，Q = 400 − 200 = 200 var，S = √(200² + 200²) = **282.8 VA**，功率因数 cos φ = P/S = 0.707（感性）。",
+    "视在功率不守恒：各元件的 S 之和 200 + 400 + 200 = 800 VA ≠ 282.8 VA。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Power absorbed by R, L and C",
+      "tags": ["real power P", "reactive power Q", "apparent power S"],
+      "statement": [
+        "A sinusoidal source Us = 100∠0° V (rms), ω = 1000 rad/s, has R = 50 Ω, L = 25 mH and C = 20 µF connected in parallel across it.",
+        "Find the real power P_R absorbed by the resistor, the reactive power Q_L absorbed by the inductor, the reactive power Q_C absorbed by the capacitor, and the apparent power S of the source."
+      ],
+      "questions": [
+        { "ask": "Real power absorbed by the resistor, P_R = ?", "explain": "All parallel elements see U = 100 V: P_R = U²/R = 10000/50 = 200 W." },
+        { "ask": "Reactive power absorbed by the inductor, Q_L = ?", "explain": "X_L = ωL = 1000 × 0.025 = 25 Ω, Q_L = U²/X_L = 10000/25 = 400 var (positive: the inductor absorbs reactive power)." },
+        { "ask": "Reactive power absorbed by the capacitor, Q_C = ?", "explain": "X_C = 1/(ωC) = 1/(1000 × 20×10⁻⁶) = 50 Ω, Q_C = −U²/X_C = −200 var (negative: the capacitor supplies reactive power)." },
+        { "ask": "Apparent power of the source, S = ?", "explain": "P = 200 W, Q = 400 − 200 = 200 var, S = √(P² + Q²) = 200√2 ≈ 282.8 VA. Note that S is not the sum of the elements' apparent powers." }
+      ],
+      "hints": [
+        "Every parallel element has the full source voltage U = 100 V across it.",
+        "P_R = U²/R, Q_L = U²/X_L, Q_C = −U²/X_C; add the P's and the Q's separately, then S = √(P² + Q²)."
+      ],
+      "solution": [
+        "**1. Reactances.** X_L = ωL = 1000 × 25×10⁻³ = 25 Ω; X_C = 1/(ωC) = 1/(1000 × 20×10⁻⁶) = 50 Ω.",
+        "**2. Power of each element** (all at U = 100 V):",
+        "- the resistor absorbs only real power: P_R = U²/R = 10000/50 = **200 W**, Q_R = 0;",
+        "- the inductor absorbs only reactive power: Q_L = U²/X_L = 10000/25 = **400 var**, P_L = 0;",
+        "- the capacitor only supplies reactive power: Q_C = −U²/X_C = −10000/50 = **−200 var**, P_C = 0.",
+        "**3. Source.** Real and reactive power are each conserved: P = 200 W, Q = 400 − 200 = 200 var, S = √(200² + 200²) = **282.8 VA**, power factor cos φ = P/S = 0.707 (inductive).",
+        "Apparent power is not conserved: the elements' S values add up to 200 + 400 + 200 = 800 VA ≠ 282.8 VA."
+      ]
+    }
+  }
+}

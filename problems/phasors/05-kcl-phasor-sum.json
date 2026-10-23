@@ -1,0 +1,113 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "phasors-05-kcl-phasor-sum",
+  "chapter": "phasors",
+  "title": "相量形式的 KCL：有效值不能直接相加",
+  "level": 2,
+  "tags": ["相量形式的 KCL", "相量加法", "电流表读数"],
+  "statement": [
+    "两个同频电流源 i_s1(t) = 3√2 cos(1000t) A，i_s2(t) = −4√2 sin(1000t) A 一起向结点 a 注入电流，经理想电流表 A 流入电阻 R = 10 Ω。",
+    "求电流表读数（有效值）、电阻电流 i_R 的初相和结点电压 u_a 的有效值。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Is1", "type": "I", "from": [0, 4], "to": [0, 0], "value": { "ac": { "mag": 3, "phase": 0 } }, "label": "i_s1" },
+      { "ref": "Is2", "type": "I", "from": [4, 4], "to": [4, 0], "value": { "ac": { "mag": 4, "phase": 90 } }, "label": "i_s2" },
+      { "ref": "A", "type": "ammeter", "from": [6, 0], "to": [9, 0] },
+      { "ref": "R", "type": "R", "from": [11, 0], "to": [11, 4], "value": 10 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[9, 0], [11, 0]],
+      [[11, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [5, 0], "name": "a" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R", "name": "i_R" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    {
+      "id": "A",
+      "ask": "电流表 A 的读数 = ?",
+      "find": { "kind": "meter", "el": "A" },
+      "answer": 5,
+      "unit": "A",
+      "explain": "İ_s1 = 3∠0° A，İ_s2 = 4∠90° A，KCL：İ_R = İ_s1 + İ_s2 = 3 + j4 = 5∠53.13° A，电流表读有效值 5 A。"
+    },
+    {
+      "id": "psi",
+      "ask": "i_R 的初相 = ?",
+      "find": { "kind": "i", "el": "R", "part": "phase" },
+      "answer": 53.1301,
+      "unit": "°",
+      "explain": "İ_R = 3 + j4，辐角 arctan(4/3) = 53.13°，i_R = 5√2 cos(1000t + 53.13°) A。"
+    },
+    {
+      "id": "Ua",
+      "ask": "u_a 的有效值 = ?",
+      "find": { "kind": "v", "nodes": ["a"], "part": "mag" },
+      "answer": 50,
+      "unit": "V",
+      "explain": "U̇_a = R·İ_R = 10 × 5∠53.13° = 50∠53.13° V。"
+    },
+    {
+      "id": "why",
+      "ask": "为什么读数不是 3 + 4 = 7 A？",
+      "choices": [
+        "电流表有内阻，读数偏小",
+        "KCL 对瞬时值和相量成立，对有效值一般不成立；两电流相差 90°，要按相量相加",
+        "正弦电路中 KCL 不成立",
+        "i_s2 前面有负号，应为 4 − 3 = 1 A"
+      ],
+      "correct": 1,
+      "explain": "Σi = 0 对每一瞬间成立，所以对相量成立：İ = İ_s1 + İ_s2。有效值只是模，两电流相位不同时 |İ_s1 + İ_s2| ≠ I_s1 + I_s2；这里相差 90°，I = √(3² + 4²) = 5 A。"
+    }
+  ],
+  "hints": [
+    "先把两个电流都化成 cos 形式的有效值相量：−sin x = cos(x + 90°)。",
+    "对结点 a 用相量形式的 KCL：İ_R = İ_s1 + İ_s2，再化成极坐标形式。"
+  ],
+  "solution": [
+    "**1. 写相量。** i_s1 = 3√2 cos(1000t) A → İ_s1 = 3∠0° A；i_s2 = −4√2 sin(1000t) = 4√2 cos(1000t + 90°) A → İ_s2 = 4∠90° = j4 A。",
+    "**2. 相量形式的 KCL。** İ_R = İ_s1 + İ_s2 = 3 + j4 = **5∠53.13° A**。电流表读数 **5 A**，ψ = **53.13°**。",
+    "**3. 电阻电压。** U̇_a = R·İ_R = **50∠53.13° V**，有效值 50 V。",
+    "**4. 时域表达式。** i_R(t) = 5√2 cos(1000t + 53.13°) A。验算：t = 0 时 i_s1 + i_s2 = 3√2 + 0 = 4.243 A，而 5√2 cos53.13° = 5√2 × 0.6 = 4.243 A，一致。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "KCL in phasor form: rms values don't simply add",
+      "tags": ["phasor KCL", "phasor addition", "ammeter reading"],
+      "statement": [
+        "Two current sources of the same frequency, i_s1(t) = 3√2 cos(1000t) A and i_s2(t) = −4√2 sin(1000t) A, both inject current into node a; it flows through the ideal ammeter A into the resistor R = 10 Ω.",
+        "Find the ammeter reading (rms), the initial phase of the resistor current i_R and the rms value of the node voltage u_a."
+      ],
+      "questions": [
+        { "ask": "Reading of ammeter A = ?", "explain": "I_s1 = 3∠0° A, I_s2 = 4∠90° A; KCL: I_R = I_s1 + I_s2 = 3 + j4 = 5∠53.13° A, and the ammeter reads the rms value 5 A." },
+        { "ask": "Initial phase of i_R = ?", "explain": "I_R = 3 + j4 has angle arctan(4/3) = 53.13°, so i_R = 5√2 cos(1000t + 53.13°) A." },
+        { "ask": "rms value of u_a = ?", "explain": "U_a = R·I_R = 10 × 5∠53.13° = 50∠53.13° V." },
+        {
+          "ask": "Why is the reading not 3 + 4 = 7 A?",
+          "choices": [
+            "The ammeter has internal resistance, so it reads low",
+            "KCL holds for instantaneous values and phasors, not in general for rms values; the two currents are 90° apart and must be added as phasors",
+            "KCL does not hold in sinusoidal circuits",
+            "i_s2 has a minus sign, so it should be 4 − 3 = 1 A"
+          ],
+          "explain": "Σi = 0 holds at every instant, hence for phasors: I = I_s1 + I_s2. An rms value is only a magnitude, and when the phases differ |I_s1 + I_s2| ≠ I_s1 + I_s2; here they are 90° apart, so I = √(3² + 4²) = 5 A."
+        }
+      ],
+      "hints": [
+        "Write both currents as cosine-based rms phasors first: −sin x = cos(x + 90°).",
+        "Apply phasor KCL at node a: I_R = I_s1 + I_s2, then convert to polar form."
+      ],
+      "solution": [
+        "**1. Phasors.** i_s1 = 3√2 cos(1000t) A → I_s1 = 3∠0° A; i_s2 = −4√2 sin(1000t) = 4√2 cos(1000t + 90°) A → I_s2 = 4∠90° = j4 A.",
+        "**2. Phasor KCL.** I_R = I_s1 + I_s2 = 3 + j4 = **5∠53.13° A**. The ammeter reads **5 A**, ψ = **53.13°**.",
+        "**3. Resistor voltage.** U_a = R·I_R = **50∠53.13° V**, rms 50 V.",
+        "**4. Time domain.** i_R(t) = 5√2 cos(1000t + 53.13°) A. Check at t = 0: i_s1 + i_s2 = 3√2 + 0 = 4.243 A and 5√2 cos53.13° = 5√2 × 0.6 = 4.243 A — consistent."
+      ]
+    }
+  }
+}

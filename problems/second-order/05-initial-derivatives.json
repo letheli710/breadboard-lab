@@ -1,0 +1,127 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "second-order-05-initial-derivatives",
+  "chapter": "second-order",
+  "title": "0₊ 时刻的 du_C/dt 与 di_L/dt",
+  "level": 3,
+  "tags": ["初始值", "换路定则", "du_C/dt(0₊)", "di_L/dt(0₊)"],
+  "statement": [
+    "图示电路中 Us = 12 V，R1 = 2 Ω，R2 = 2 Ω，R3 = 4 Ω，L = 2 H，C = 0.1 F。开关 S 闭合已久，t = 0 时断开。",
+    "求 i_C(0₊)、u_L(0₊)，进而求 du_C/dt(0₊) 和 di_L/dt(0₊)。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 1], "to": [0, 5], "value": 12 },
+      { "ref": "S", "type": "SW", "from": [1, 0], "to": [3, 0], "state": { "before": "closed", "after": "open" } },
+      { "ref": "R1", "type": "R", "from": [4, 0], "to": [7, 0], "value": 2 },
+      { "ref": "R3", "type": "R", "from": [9, 0], "to": [9, 3], "value": 4 },
+      { "ref": "L", "type": "L", "from": [9, 3], "to": [9, 6], "value": 2 },
+      { "ref": "R2", "type": "R", "from": [11, 0], "to": [14, 0], "value": 2 },
+      { "ref": "C", "type": "C", "from": [16, 0], "to": [16, 6], "value": 0.1 }
+    ],
+    "wires": [
+      [[0, 1], [0, 0], [1, 0]],
+      [[3, 0], [4, 0]],
+      [[7, 0], [11, 0]],
+      [[14, 0], [16, 0]],
+      [[16, 6], [0, 6], [0, 5]]
+    ],
+    "labels": [{ "at": [9, 0], "name": "a" }],
+    "grounds": [[0, 6]],
+    "marks": [
+      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "i", "el": "C", "name": "i_C" },
+      { "kind": "i", "el": "L", "name": "i_L" },
+      { "kind": "v", "el": "L", "name": "u_L" }
+    ],
+    "notes": [{ "at": [2, -1], "text": "t = 0" }]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    {
+      "id": "ic0",
+      "ask": "i_C(0₊) = ?（参考方向见图）",
+      "find": { "kind": "i", "el": "C", "t": "0+" },
+      "answer": -2,
+      "unit": "A",
+      "explain": "t < 0：i_L = 12/(2 + 4) = 2 A，u_C = u_a = 4 × 2 = 8 V（R2 中无电流）。t = 0₊：S 断开后 C、R2、R3、L 串成一个回路，电感电流 2 A 必须由电容提供，从电容正极板流出：i_C(0₊) = −2 A。"
+    },
+    {
+      "id": "ul0",
+      "ask": "u_L(0₊) = ?",
+      "find": { "kind": "v", "el": "L", "t": "0+" },
+      "answer": -4,
+      "unit": "V",
+      "explain": "沿回路 KVL：u_L(0₊) = u_C(0₊) − (R2 + R3)·i_L(0₊) = 8 − 6 × 2 = −4 V。"
+    },
+    {
+      "id": "duc",
+      "ask": "du_C/dt(0₊) = ?",
+      "choices": ["−20 V/s", "−2 V/s", "0", "20 V/s"],
+      "correct": 0,
+      "explain": "i_C = C·du_C/dt（关联方向），du_C/dt(0₊) = i_C(0₊)/C = −2/0.1 = −20 V/s。"
+    },
+    {
+      "id": "dil",
+      "ask": "di_L/dt(0₊) = ?",
+      "choices": ["−2 A/s", "−8 A/s", "0", "2 A/s"],
+      "correct": 0,
+      "explain": "u_L = L·di_L/dt（关联方向），di_L/dt(0₊) = u_L(0₊)/L = −4/2 = −2 A/s。"
+    }
+  ],
+  "hints": [
+    "先由 t < 0 的直流稳态求 u_C(0₋)、i_L(0₋)（电容开路、电感短路）。",
+    "画 0₊ 等效电路：电容换成 8 V 电压源，电感换成 2 A 电流源，再用 KCL、KVL 求 i_C(0₊)、u_L(0₊)。",
+    "du_C/dt(0₊) = i_C(0₊)/C，di_L/dt(0₊) = u_L(0₊)/L，注意都要用关联参考方向。"
+  ],
+  "solution": [
+    "**1. t = 0₋ 直流稳态。** 电容开路，R2 中无电流；电感短路：i_L(0₋) = Us/(R1 + R3) = 12/6 = 2 A，u_a = R3·i_L = 8 V，u_C(0₋) = u_a = 8 V。",
+    "**2. 0₊ 等效电路。** 换路定则：u_C(0₊) = 8 V（电压源），i_L(0₊) = 2 A（电流源）。S 断开后 Us、R1 被断开，剩下回路 C → R2 → a → R3 → L → 地。",
+    "**3. 求 i_C、u_L。** 回路中只有一个电流 2 A，它在 L 中向下流，因而从电容正极板流出：**i_C(0₊) = −2 A**。u_a = u_C − R2 × 2 = 4 V，**u_L(0₊) = u_a − R3 × 2 = 4 − 8 = −4 V**。",
+    "**4. 导数。** **du_C/dt(0₊) = i_C(0₊)/C = −20 V/s**，**di_L/dt(0₊) = u_L(0₊)/L = −2 A/s**。",
+    "**5. 用途。** 这两个导数正是求二阶电路通解中待定常数所需的第二个初始条件。（本题 t > 0 回路总电阻 R = 6 Ω < 2√(L/C) ≈ 8.94 Ω，随后的响应是欠阻尼。）"
+  ],
+  "i18n": {
+    "en": {
+      "title": "du_C/dt and di_L/dt at 0+",
+      "tags": ["initial values", "switching rules", "du_C/dt(0+)", "di_L/dt(0+)"],
+      "statement": [
+        "In the circuit Us = 12 V, R1 = 2 Ω, R2 = 2 Ω, R3 = 4 Ω, L = 2 H, C = 0.1 F. Switch S has been closed for a long time and opens at t = 0.",
+        "Find i_C(0+) and u_L(0+), and from them du_C/dt(0+) and di_L/dt(0+)."
+      ],
+      "questions": [
+        {
+          "ask": "i_C(0+) = ? (reference direction as drawn)",
+          "explain": "For t < 0: i_L = 12/(2 + 4) = 2 A and u_C = u_a = 4 × 2 = 8 V (no current in R2). At t = 0+, with S open, C, R2, R3 and L form one loop; the 2 A inductor current must come from the capacitor and leaves its + plate: i_C(0+) = −2 A."
+        },
+        {
+          "ask": "u_L(0+) = ?",
+          "explain": "KVL around the loop: u_L(0+) = u_C(0+) − (R2 + R3)·i_L(0+) = 8 − 6 × 2 = −4 V."
+        },
+        {
+          "ask": "du_C/dt(0+) = ?",
+          "choices": ["−20 V/s", "−2 V/s", "0", "20 V/s"],
+          "explain": "i_C = C·du_C/dt (passive convention), so du_C/dt(0+) = i_C(0+)/C = −2/0.1 = −20 V/s."
+        },
+        {
+          "ask": "di_L/dt(0+) = ?",
+          "choices": ["−2 A/s", "−8 A/s", "0", "2 A/s"],
+          "explain": "u_L = L·di_L/dt (passive convention), so di_L/dt(0+) = u_L(0+)/L = −4/2 = −2 A/s."
+        }
+      ],
+      "hints": [
+        "First find u_C(0−) and i_L(0−) from the DC steady state for t < 0 (C open, L shorted).",
+        "Draw the 0+ equivalent circuit: replace C by an 8 V voltage source and L by a 2 A current source, then use KCL and KVL to get i_C(0+) and u_L(0+).",
+        "du_C/dt(0+) = i_C(0+)/C and di_L/dt(0+) = u_L(0+)/L — both with the passive reference directions."
+      ],
+      "solution": [
+        "**1. t = 0−, DC steady state.** C is open, so R2 carries no current; L is a short: i_L(0−) = Us/(R1 + R3) = 12/6 = 2 A, u_a = R3·i_L = 8 V, u_C(0−) = u_a = 8 V.",
+        "**2. 0+ equivalent circuit.** Switching rules: u_C(0+) = 8 V (voltage source), i_L(0+) = 2 A (current source). With S open, Us and R1 are cut off, leaving the loop C → R2 → a → R3 → L → ground.",
+        "**3. i_C and u_L.** The loop carries a single current of 2 A, flowing down through L and therefore out of the capacitor's + plate: **i_C(0+) = −2 A**. u_a = u_C − R2 × 2 = 4 V, **u_L(0+) = u_a − R3 × 2 = 4 − 8 = −4 V**.",
+        "**4. Derivatives.** **du_C/dt(0+) = i_C(0+)/C = −20 V/s**, **di_L/dt(0+) = u_L(0+)/L = −2 A/s**.",
+        "**5. Why it matters.** These derivatives are exactly the second initial condition needed to fix the constants of a second-order solution. (Here the t > 0 loop has R = 6 Ω < 2√(L/C) ≈ 8.94 Ω, so the response that follows is underdamped.)"
+      ]
+    }
+  }
+}

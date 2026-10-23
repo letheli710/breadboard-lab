@@ -1,0 +1,73 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-analysis-01-rc-series-impedance",
+  "chapter": "ac-analysis",
+  "title": "RC 串联的复阻抗",
+  "level": 1,
+  "tags": ["复阻抗 Z", "容抗", "阻抗角"],
+  "statement": [
+    "图示 R = 30 Ω 与 C = 25 µF 串联，正弦稳态角频率 ω = 1000 rad/s。",
+    "求 a、b 端的复阻抗 Z = R + jX 的实部、虚部和阻抗角 φ_Z，并判断这个二端网络的性质。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 30 },
+      { "ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": "25u" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [8, 0]],
+      [[8, 4], [0, 4]]
+    ],
+    "terminals": [{ "at": [0, 0], "name": "a" }, { "at": [0, 4], "name": "b" }],
+    "grounds": [[0, 4]]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "R", "ask": "Z 的实部（电阻）R = ?", "find": { "kind": "req", "port": ["a", "b"], "part": "re" }, "answer": 30, "unit": "Ω", "explain": "串联阻抗直接相加，实部就是电阻 30 Ω。" },
+    { "id": "X", "ask": "Z 的虚部（电抗）X = ?", "find": { "kind": "req", "port": ["a", "b"], "part": "im" }, "answer": -40, "unit": "Ω", "explain": "容抗 X_C = 1/(ωC) = 1/(1000 × 25×10⁻⁶) = 40 Ω；电容的阻抗是 −jX_C，所以 X = −40 Ω。" },
+    { "id": "phi", "ask": "阻抗角 φ_Z = ?", "find": { "kind": "req", "port": ["a", "b"], "part": "phase" }, "answer": -53.1301, "unit": "°", "explain": "Z = 30 − j40 = 50∠−53.13° Ω，φ_Z = arctan(−40/30) = −53.13°。" },
+    {
+      "id": "nature",
+      "ask": "这个二端网络呈什么性质？端口电压与电流的相位关系如何？",
+      "choices": ["容性：电压滞后电流 53.13°", "感性：电压超前电流 53.13°", "阻性：电压与电流同相"],
+      "correct": 0,
+      "explain": "X < 0（φ_Z < 0）为容性。由 U = Z·I，电压的相位 = 电流的相位 + φ_Z，所以电压滞后电流 53.13°。"
+    }
+  ],
+  "hints": ["先算容抗 X_C = 1/(ωC)，电容的复阻抗是 −jX_C。", "串联：Z = R − jX_C；再把它写成极坐标形式 |Z|∠φ_Z。"],
+  "solution": [
+    "**1. 容抗。** X_C = 1/(ωC) = 1/(1000 × 25×10⁻⁶) = 40 Ω，电容的复阻抗 Z_C = −j40 Ω。",
+    "**2. 串联阻抗。** Z = R + Z_C = **30 − j40 Ω**，即 R = 30 Ω，X = −40 Ω。",
+    "**3. 极坐标形式。** |Z| = √(30² + 40²) = 50 Ω，φ_Z = arctan(−40/30) = **−53.13°**，Z = 50∠−53.13° Ω。",
+    "**4. 性质。** φ_Z < 0，网络呈**容性**，端口电压滞后电流 53.13°。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Complex impedance of a series RC",
+      "tags": ["complex impedance Z", "capacitive reactance", "impedance angle"],
+      "statement": [
+        "R = 30 Ω is in series with C = 25 µF; the sinusoidal steady state has ω = 1000 rad/s.",
+        "Find the real part, the imaginary part and the angle φ_Z of the impedance Z = R + jX seen at terminals a, b, and decide what kind of load this two-terminal network is."
+      ],
+      "questions": [
+        { "ask": "Real part of Z (resistance) R = ?", "explain": "Series impedances simply add; the real part is the 30 Ω resistance." },
+        { "ask": "Imaginary part of Z (reactance) X = ?", "explain": "Capacitive reactance X_C = 1/(ωC) = 1/(1000 × 25×10⁻⁶) = 40 Ω; the capacitor's impedance is −jX_C, so X = −40 Ω." },
+        { "ask": "Impedance angle φ_Z = ?", "explain": "Z = 30 − j40 = 50∠−53.13° Ω, φ_Z = arctan(−40/30) = −53.13°." },
+        {
+          "ask": "What kind of network is this, and how are the port voltage and current related in phase?",
+          "choices": ["Capacitive: the voltage lags the current by 53.13°", "Inductive: the voltage leads the current by 53.13°", "Resistive: voltage and current are in phase"],
+          "explain": "X < 0 (φ_Z < 0) means capacitive. From U = Z·I, the phase of the voltage = phase of the current + φ_Z, so the voltage lags the current by 53.13°."
+        }
+      ],
+      "hints": ["First compute the capacitive reactance X_C = 1/(ωC); the capacitor's complex impedance is −jX_C.", "Series: Z = R − jX_C; then write it in polar form |Z|∠φ_Z."],
+      "solution": [
+        "**1. Reactance.** X_C = 1/(ωC) = 1/(1000 × 25×10⁻⁶) = 40 Ω, so Z_C = −j40 Ω.",
+        "**2. Series impedance.** Z = R + Z_C = **30 − j40 Ω**, i.e. R = 30 Ω, X = −40 Ω.",
+        "**3. Polar form.** |Z| = √(30² + 40²) = 50 Ω, φ_Z = arctan(−40/30) = **−53.13°**, Z = 50∠−53.13° Ω.",
+        "**4. Nature.** φ_Z < 0, so the network is **capacitive**: the port voltage lags the current by 53.13°."
+      ]
+    }
+  }
+}

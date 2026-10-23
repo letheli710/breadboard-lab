@@ -1,0 +1,86 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "first-order-07-rc-discharge-network",
+  "chapter": "first-order",
+  "title": "并联电容经电阻网络放电",
+  "level": 2,
+  "tags": ["零输入响应", "RC 放电", "电容并联", "等效电阻"],
+  "statement": [
+    "图示电路中 Us = 10 V，R1 = 1 kΩ，R2 = 6 kΩ，R3 = 3 kΩ，R4 = 2 kΩ，C1 = 20 µF，C2 = 30 µF。开关 S 闭合已久，t = 0 时断开。",
+    "求时间常数 τ、C1 的电流 i_C1(0₊)、R3 的电流 i_3(0₊)，以及 t = 0.4 s 时的 u_C。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
+      { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "closed", "after": "open" } },
+      { "ref": "R1", "type": "R", "from": [5, 0], "to": [8, 0], "value": "1k" },
+      { "ref": "C1", "type": "C", "from": [10, 0], "to": [10, 4], "value": "20u" },
+      { "ref": "C2", "type": "C", "from": [13, 0], "to": [13, 4], "value": "30u" },
+      { "ref": "R4", "type": "R", "from": [15, 0], "to": [18, 0], "value": "2k" },
+      { "ref": "R2", "type": "R", "from": [20, 0], "to": [20, 4], "value": "6k" },
+      { "ref": "R3", "type": "R", "from": [23, 0], "to": [23, 4], "value": "3k" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[4, 0], [5, 0]],
+      [[8, 0], [15, 0]],
+      [[18, 0], [23, 0]],
+      [[23, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [10, 0], "name": "a" }, { "at": [20, 0], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "v", "el": "C1", "name": "u_C" },
+      { "kind": "i", "el": "C1", "name": "i_C1" },
+      { "kind": "i", "el": "R3", "name": "i_3" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "C1 ∥ C2 = 50 µF；从电容看进去 R_eq = R4 + R2 ∥ R3 = 2 + 2 = 4 kΩ（R1 已随 S 断开），τ = 4×10³ × 50×10⁻⁶ = 0.2 s。" },
+    { "id": "ic1", "ask": "i_C1(0₊) = ?", "find": { "kind": "i", "el": "C1", "t": "0+" }, "answer": -0.0008, "unit": "mA", "explain": "u_C(0₊) = 8 V，放电电流 8 V / 4 kΩ = 2 mA 由两个电容按电容量分担：C1 提供 2 × 20/50 = 0.8 mA，从上极板流出，所以 i_C1(0₊) = −0.8 mA。" },
+    { "id": "i3", "ask": "i_3(0₊) = ?", "find": { "kind": "i", "el": "R3", "t": "0+" }, "answer": 0.001333333, "unit": "mA", "explain": "R4 中 2 mA 在 R2、R3 间分流：i_3 = 2 × 6/(6 + 3) = 4/3 ≈ 1.333 mA。" },
+    { "id": "u04", "ask": "t = 0.4 s 时 u_C = ?", "find": { "kind": "v", "el": "C1", "t": 0.4 }, "answer": 1.082682, "unit": "V", "explain": "u_C(t) = 8e^(−5t) V，t = 0.4 s 时 u_C = 8e⁻² ≈ 1.083 V。" }
+  ],
+  "hints": [
+    "C1、C2 直接并联，可以合并成一个 50 µF 的电容。",
+    "t < 0 时电容开路，u_C(0₋) 由 R1 与 (R4 + R2 ∥ R3) 分压得到。",
+    "并联电容的电流按电容量成正比分配：i = C du/dt，两电容 du/dt 相同。"
+  ],
+  "solution": [
+    "**1. t = 0₋。** 电容开路，a 点右侧电阻 R4 + R2 ∥ R3 = 2 + 2 = 4 kΩ，与 R1 分压：u_C(0₋) = 10 × 4/(1 + 4) = 8 V。",
+    "**2. 换路后。** S 断开，Us 与 R1 不再起作用。等效电容 C = C1 + C2 = 50 µF，等效电阻 R_eq = 4 kΩ，**τ = R_eq·C = 0.2 s**。",
+    "**3. 零输入响应。** u_C(t) = 8e^(−5t) V。t = 0.4 s：u_C = 8e⁻² ≈ **1.083 V**。",
+    "**4. 0₊ 时刻的电流。** 总放电电流 i_R4(0₊) = 8/4 = 2 mA（从 a 流向 b）。两个电容端电压相同，电流与电容量成正比：C1 提供 0.8 mA，C2 提供 1.2 mA。按图中参考方向 **i_C1(0₊) = −0.8 mA**。",
+    "R2、R3 分流：**i_3(0₊) = 2 × 6/9 ≈ 1.333 mA**，i_2(0₊) = 0.667 mA。所有电流都按同一个 e^(−5t) 规律衰减。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Parallel capacitors discharging through a resistor network",
+      "tags": ["zero-input response", "RC discharge", "capacitors in parallel", "equivalent resistance"],
+      "statement": [
+        "In the circuit, Us = 10 V, R1 = 1 kΩ, R2 = 6 kΩ, R3 = 3 kΩ, R4 = 2 kΩ, C1 = 20 µF, C2 = 30 µF. Switch S has been closed for a long time and opens at t = 0.",
+        "Find the time constant τ, the current i_C1(0+) of C1, the current i_3(0+) in R3, and u_C at t = 0.4 s."
+      ],
+      "questions": [
+        { "ask": "τ = ?", "explain": "C1 ∥ C2 = 50 µF; seen from the capacitors R_eq = R4 + R2 ∥ R3 = 2 + 2 = 4 kΩ (R1 is cut off by S), τ = 4×10³ × 50×10⁻⁶ = 0.2 s." },
+        { "ask": "i_C1(0+) = ?", "explain": "u_C(0+) = 8 V; the discharge current 8 V / 4 kΩ = 2 mA is shared by the two capacitors in proportion to their capacitance: C1 supplies 2 × 20/50 = 0.8 mA, leaving its top plate, so i_C1(0+) = −0.8 mA." },
+        { "ask": "i_3(0+) = ?", "explain": "The 2 mA in R4 divides between R2 and R3: i_3 = 2 × 6/(6 + 3) = 4/3 ≈ 1.333 mA." },
+        { "ask": "u_C at t = 0.4 s = ?", "explain": "u_C(t) = 8e^(−5t) V; at t = 0.4 s, u_C = 8e⁻² ≈ 1.083 V." }
+      ],
+      "hints": [
+        "C1 and C2 are directly in parallel and can be combined into one 50 µF capacitor.",
+        "For t < 0 the capacitors are open; u_C(0−) comes from the divider formed by R1 and (R4 + R2 ∥ R3).",
+        "Parallel capacitors share current in proportion to capacitance: i = C du/dt with the same du/dt for both."
+      ],
+      "solution": [
+        "**1. t = 0−.** The capacitors are open; the resistance to the right of a is R4 + R2 ∥ R3 = 2 + 2 = 4 kΩ, which forms a divider with R1: u_C(0−) = 10 × 4/(1 + 4) = 8 V.",
+        "**2. After switching.** S is open, so Us and R1 play no part. Equivalent capacitance C = C1 + C2 = 50 µF, equivalent resistance R_eq = 4 kΩ, **τ = R_eq·C = 0.2 s**.",
+        "**3. Zero-input response.** u_C(t) = 8e^(−5t) V. At t = 0.4 s: u_C = 8e⁻² ≈ **1.083 V**.",
+        "**4. Currents at 0+.** Total discharge current i_R4(0+) = 8/4 = 2 mA (from a to b). Both capacitors have the same voltage, so their currents are proportional to capacitance: C1 supplies 0.8 mA and C2 1.2 mA. With the reference arrow, **i_C1(0+) = −0.8 mA**.",
+        "Current division between R2 and R3: **i_3(0+) = 2 × 6/9 ≈ 1.333 mA**, i_2(0+) = 0.667 mA. All currents decay with the same e^(−5t)."
+      ]
+    }
+  }
+}

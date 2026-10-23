@@ -1,0 +1,107 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "coupled-04-series-opposing",
+  "chapter": "coupled",
+  "title": "耦合电感的反接串联",
+  "level": 2,
+  "tags": ["反接串联", "顺接串联", "等效电感", "互感电压"],
+  "statement": [
+    "U̇s = 100∠0° V（有效值），ω = 100 rad/s，R = 8 Ω。耦合电感 L1 = 40 mH、L2 = 140 mH、M = 60 mH 串联，同名端如图：电流 İ 从 L1 的同名端流入，却从 L2 的同名端流出（反接）。",
+    "求电流有效值 I、线圈 L1 两端电压 U̇ab 的有效值和相位，并判断顺接时的等效电感。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 100, "phase": 0 } }, "label": "100∠0° V" },
+      { "ref": "L1", "type": "L", "from": [7, 0], "to": [7, 4], "value": "40m" },
+      { "ref": "L2", "type": "L", "from": [11, 0], "to": [11, 4], "value": "140m" },
+      { "ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "M": "60m" },
+      { "ref": "R", "type": "R", "from": [9, 6], "to": [5, 6], "value": 8 }
+    ],
+    "wires": [
+      [[0, 0], [7, 0]],
+      [[7, 4], [11, 4]],
+      [[11, 0], [14, 0], [14, 6], [9, 6]],
+      [[5, 6], [0, 6]]
+    ],
+    "labels": [{ "at": [7, 0], "name": "a" }, { "at": [9, 4], "name": "b" }],
+    "grounds": [[0, 6]],
+    "marks": [{ "kind": "i", "el": "L1", "name": "I" }]
+  },
+  "analysis": { "type": "ac", "omega": 100 },
+  "questions": [
+    {
+      "id": "i",
+      "ask": "电流有效值 I = ?",
+      "find": { "kind": "i", "el": "L1" },
+      "answer": 10,
+      "unit": "A",
+      "explain": "反接：L_eq = L1 + L2 − 2M = 40 + 140 − 120 = 60 mH，ωL_eq = 6 Ω，Z = 8 + j6 = 10∠36.87° Ω，I = 100 / 10 = 10 A。"
+    },
+    {
+      "id": "uab",
+      "ask": "L1 两端电压 U_ab（有效值）= ?",
+      "find": { "kind": "v", "nodes": ["a", "b"] },
+      "answer": 20,
+      "unit": "V",
+      "explain": "U̇ab = jωL1·İ − jωM·İ = j(4 − 6)·İ = −j2·İ，U_ab = 2 × 10 = 20 V。"
+    },
+    {
+      "id": "ph",
+      "ask": "U̇ab 的相位 = ?",
+      "find": { "kind": "v", "nodes": ["a", "b"], "part": "phase" },
+      "answer": -126.8699,
+      "unit": "°",
+      "explain": "İ = 10∠−36.87° A，U̇ab = −j2·İ = 20∠(−36.87° − 90°) = 20∠−126.87° V：L1 两端电压滞后电流 90°，因为 M > L1，这个线圈在反接时表现得“像电容”。"
+    },
+    {
+      "id": "aid",
+      "ask": "若把 L2 的两端对调改为顺接，等效电感 L_eq 为多少？",
+      "choices": ["60 mH", "180 mH", "300 mH"],
+      "correct": 2,
+      "explain": "顺接：L_eq = L1 + L2 + 2M = 40 + 140 + 120 = 300 mH。顺接与反接的差为 4M，实验上常用它测互感：M = (L顺 − L反) / 4。"
+    }
+  ],
+  "hints": [
+    "沿电流方向看：电流都从同名端流入（或都流出）是顺接，一进一出是反接。",
+    "反接串联 L_eq = L1 + L2 − 2M；每个线圈的电压 = 自感电压 − 互感电压。"
+  ],
+  "solution": [
+    "**1. 判断连接方式。** İ 从 L1 上端（同名端）流入，经下面的导线从 L2 下端流入、上端（同名端）流出：一进一出，是**反接**。",
+    "**2. 等效电感。** L_eq = L1 + L2 − 2M = 40 + 140 − 2 × 60 = 60 mH，ωL_eq = 100 × 0.06 = 6 Ω。",
+    "**3. 电流。** Z = R + jωL_eq = 8 + j6 = 10∠36.87° Ω，İ = 100∠0° / Z = **10∠−36.87° A**。",
+    "**4. L1 的电压。** U̇ab = jωL1·İ − jωM·İ = j(4 − 6)·İ = −j2·İ = **20∠−126.87° V**。同理 L2 上的电压（沿电流方向）为 j(14 − 6)·İ = j8·İ，两者之和 j6·İ 正是等效电感的电压。",
+    "**5. 顺接。** L顺 = L1 + L2 + 2M = **300 mH**。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Coupled inductors in series opposition",
+      "tags": ["series opposing", "series aiding", "equivalent inductance", "mutual voltage"],
+      "statement": [
+        "Us = 100∠0° V (rms), ω = 100 rad/s, R = 8 Ω. The coupled inductors L1 = 40 mH, L2 = 140 mH, M = 60 mH are in series with the dots as drawn: the current I enters L1 at its dot but leaves L2 at its dot (series opposing).",
+        "Find the rms current I, the rms value and phase of the voltage U_ab across L1, and the equivalent inductance of the series-aiding connection."
+      ],
+      "questions": [
+        { "ask": "rms current I = ?", "explain": "Opposing: L_eq = L1 + L2 − 2M = 40 + 140 − 120 = 60 mH, ωL_eq = 6 Ω, Z = 8 + j6 = 10∠36.87° Ω, I = 100 / 10 = 10 A." },
+        { "ask": "rms voltage across L1, U_ab = ?", "explain": "U_ab = jωL1·I − jωM·I = j(4 − 6)·I = −j2·I, so U_ab = 2 × 10 = 20 V." },
+        { "ask": "Phase of U_ab = ?", "explain": "I = 10∠−36.87° A, U_ab = −j2·I = 20∠(−36.87° − 90°) = 20∠−126.87° V: the voltage across L1 lags its current by 90°. Because M > L1, this coil behaves 'like a capacitor' in the opposing connection." },
+        {
+          "ask": "If the ends of L2 are swapped to make a series-aiding connection, what is L_eq?",
+          "choices": ["60 mH", "180 mH", "300 mH"],
+          "explain": "Aiding: L_eq = L1 + L2 + 2M = 40 + 140 + 120 = 300 mH. Aiding minus opposing is 4M, which is the usual way to measure M: M = (L_aid − L_opp) / 4."
+        }
+      ],
+      "hints": [
+        "Follow the current: if it enters (or leaves) both coils at their dots the connection is aiding; in at one dot and out at the other is opposing.",
+        "Series opposing: L_eq = L1 + L2 − 2M; each coil's voltage is its self-induced voltage minus the mutual voltage."
+      ],
+      "solution": [
+        "**1. Type of connection.** I enters L1 at the top (dot), then through the lower wire enters L2 at the bottom and leaves at the top (dot): in at one dot, out at the other — **opposing**.",
+        "**2. Equivalent inductance.** L_eq = L1 + L2 − 2M = 40 + 140 − 2 × 60 = 60 mH, ωL_eq = 100 × 0.06 = 6 Ω.",
+        "**3. Current.** Z = R + jωL_eq = 8 + j6 = 10∠36.87° Ω, I = 100∠0° / Z = **10∠−36.87° A**.",
+        "**4. Voltage of L1.** U_ab = jωL1·I − jωM·I = j(4 − 6)·I = −j2·I = **20∠−126.87° V**. Likewise the voltage of L2 (along the current) is j(14 − 6)·I = j8·I; the two add to j6·I, the voltage of the equivalent inductance.",
+        "**5. Aiding.** L_aid = L1 + L2 + 2M = **300 mH**."
+      ]
+    }
+  }
+}
