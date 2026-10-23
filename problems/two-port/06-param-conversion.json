@@ -1,0 +1,105 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "two-port-06-param-conversion",
+  "chapter": "two-port",
+  "title": "由 Y 参数换算 Z 参数和 T 参数",
+  "level": 3,
+  "tags": ["参数换算", "Y 参数", "Z 参数", "T 参数", "对称二端口"],
+  "statement": [
+    "图示 Π 形电阻二端口中，Ra = Rb = 2 Ω，Rc = 1 Ω。端口电流都以流入端口为正。",
+    "先直接写出 Y 参数，再用参数换算公式求 Z 参数中的 z11、z12 和 T 参数中的 A、C（T 参数方程 u1 = A·u2 − B·i2，i1 = C·u2 − D·i2）。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Ra", "type": "R", "from": [3, 0], "to": [3, 4], "value": 2 },
+      { "ref": "Rc", "type": "R", "from": [6, 0], "to": [10, 0], "value": 1 },
+      { "ref": "Rb", "type": "R", "from": [13, 0], "to": [13, 4], "value": 2 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[10, 0], [16, 0]],
+      [[0, 4], [16, 4]]
+    ],
+    "terminals": [
+      { "at": [0, 0], "name": "1" },
+      { "at": [0, 4], "name": "1'" },
+      { "at": [16, 0], "name": "2" },
+      { "at": [16, 4], "name": "2'" }
+    ],
+    "grounds": [[8, 4]]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "z11",
+      "ask": "z11 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11" },
+      "answer": 1.2,
+      "unit": "Ω",
+      "explain": "Y = [1.5 −1; −1 1.5] S，Δ_Y = 1.5² − 1² = 1.25 S²；z11 = y22/Δ_Y = 1.5/1.25 = 1.2 Ω。验算：2–2' 开路时 z11 = Ra ∥ (Rc + Rb) = 2 ∥ 3 = 1.2 Ω。"
+    },
+    {
+      "id": "z12",
+      "ask": "z12 = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z12" },
+      "answer": 0.8,
+      "unit": "Ω",
+      "explain": "z12 = −y12/Δ_Y = 1/1.25 = 0.8 Ω。"
+    },
+    {
+      "id": "A",
+      "ask": "A = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "a" },
+      "answer": 1.5,
+      "unit": "",
+      "explain": "A = −y22/y21 = −1.5/(−1) = 1.5。也可用 Z 参数：A = z11/z21 = 1.2/0.8 = 1.5。"
+    },
+    {
+      "id": "C",
+      "ask": "C = ?",
+      "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "c" },
+      "answer": 1.25,
+      "unit": "S",
+      "explain": "C = −Δ_Y/y21 = 1.25 S，或 C = 1/z21 = 1/0.8 = 1.25 S。"
+    }
+  ],
+  "hints": [
+    "Π 形网络的 Y 参数可以直接写：y11 = Ga + Gc，y22 = Gb + Gc，y12 = y21 = −Gc。",
+    "Z 矩阵是 Y 矩阵的逆：z11 = y22/Δ_Y，z12 = −y12/Δ_Y。T 参数：A = −y22/y21，C = −Δ_Y/y21（也可以先换成 Z 再用 A = z11/z21，C = 1/z21）。"
+  ],
+  "solution": [
+    "**1. Y 参数。** Ga = Gb = 0.5 S，Gc = 1 S：y11 = y22 = 1.5 S，y12 = y21 = −1 S。",
+    "**2. 换算成 Z 参数。** Δ_Y = y11·y22 − y12·y21 = 2.25 − 1 = 1.25：",
+    "**z11** = y22/Δ_Y = **1.2 Ω**，**z12** = z21 = −y12/Δ_Y = **0.8 Ω**，z22 = y11/Δ_Y = 1.2 Ω。",
+    "**3. 换算成 T 参数。** A = −y22/y21 = **1.5**，B = −1/y21 = 1 Ω，**C** = −Δ_Y/y21 = **1.25 S**，D = −y11/y21 = 1.5。",
+    "**4. 验算：** AD − BC = 2.25 − 1.25 = 1（互易）；A = D、z11 = z22、y11 = y22（对称）。对称二端口只需要两个独立参数。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Converting Y parameters to Z and ABCD parameters",
+      "tags": ["parameter conversion", "Y parameters", "Z parameters", "ABCD parameters", "symmetric two-port"],
+      "statement": [
+        "In the resistive Π two-port, Ra = Rb = 2 Ω and Rc = 1 Ω. Both port currents are positive into the port.",
+        "Write down the Y parameters directly, then use the conversion formulas to find z11 and z12 of the Z parameters and A and C of the transmission parameters (v1 = A·v2 − B·i2, i1 = C·v2 − D·i2)."
+      ],
+      "questions": [
+        { "ask": "z11 = ?", "explain": "Y = [1.5 −1; −1 1.5] S, Δ_Y = 1.5² − 1² = 1.25 S²; z11 = y22/Δ_Y = 1.5/1.25 = 1.2 Ω. Check: with port 2 open, z11 = Ra ∥ (Rc + Rb) = 2 ∥ 3 = 1.2 Ω." },
+        { "ask": "z12 = ?", "explain": "z12 = −y12/Δ_Y = 1/1.25 = 0.8 Ω." },
+        { "ask": "A = ?", "explain": "A = −y22/y21 = −1.5/(−1) = 1.5. With Z parameters: A = z11/z21 = 1.2/0.8 = 1.5." },
+        { "ask": "C = ?", "explain": "C = −Δ_Y/y21 = 1.25 S, or C = 1/z21 = 1/0.8 = 1.25 S." }
+      ],
+      "hints": [
+        "The Y parameters of a Π network can be written directly: y11 = Ga + Gc, y22 = Gb + Gc, y12 = y21 = −Gc.",
+        "The Z matrix is the inverse of the Y matrix: z11 = y22/Δ_Y, z12 = −y12/Δ_Y. ABCD: A = −y22/y21, C = −Δ_Y/y21 (or convert to Z first and use A = z11/z21, C = 1/z21)."
+      ],
+      "solution": [
+        "**1. Y parameters.** Ga = Gb = 0.5 S, Gc = 1 S: y11 = y22 = 1.5 S, y12 = y21 = −1 S.",
+        "**2. Convert to Z.** Δ_Y = y11·y22 − y12·y21 = 2.25 − 1 = 1.25:",
+        "**z11** = y22/Δ_Y = **1.2 Ω**, **z12** = z21 = −y12/Δ_Y = **0.8 Ω**, z22 = y11/Δ_Y = 1.2 Ω.",
+        "**3. Convert to ABCD.** A = −y22/y21 = **1.5**, B = −1/y21 = 1 Ω, **C** = −Δ_Y/y21 = **1.25 S**, D = −y11/y21 = 1.5.",
+        "**4. Check:** AD − BC = 2.25 − 1.25 = 1 (reciprocal); A = D, z11 = z22, y11 = y22 (symmetric). A symmetric two-port has only two independent parameters."
+      ]
+    }
+  }
+}

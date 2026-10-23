@@ -1,0 +1,88 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "frequency-14-active-bandpass",
+  "chapter": "frequency",
+  "title": "由一阶高通、低通组合的有源带通滤波器",
+  "level": 5,
+  "tags": ["有源滤波器", "带通滤波", "通频带", "网络函数 H(jω)"],
+  "statement": [
+    "反相放大器的输入支路为 C₁ 与 R₁ 串联，反馈支路为 R_f 与 C_f 并联：C₁ = 10 µF，R₁ = 1 kΩ，R_f = 10 kΩ，C_f = 10 nF，运放为理想运放。H(jω) = U_o/U_s。",
+    "写出 H(jω)，求 ω = 1000 rad/s 时的 20lg|H(jω)| 和 H(jω) 的相位，并确定通带的上、下截止频率与中频增益。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "U_s" },
+      { "ref": "C1", "type": "C", "from": [2, 3], "to": [5, 3], "value": "10u" },
+      { "ref": "R1", "type": "R", "from": [7, 3], "to": [10, 3], "value": "1k" },
+      { "ref": "Rf", "type": "R", "from": [12, 0], "to": [16, 0], "value": "10k" },
+      { "ref": "Cf", "type": "C", "from": [12, -3], "to": [16, -3], "value": "10n" },
+      { "ref": "A", "type": "OPAMP", "at": [14, 4] }
+    ],
+    "wires": [
+      [[0, 3], [2, 3]],
+      [[5, 3], [7, 3]],
+      [[10, 3], [12, 3]],
+      [[11, 3], [11, 0], [12, 0]],
+      [[11, 0], [11, -3], [12, -3]],
+      [[16, -3], [18, -3], [18, 0]],
+      [[16, 0], [18, 0], [18, 4]],
+      [[16, 4], [21, 4]],
+      [[12, 5], [11, 5], [11, 7]],
+      [[0, 7], [21, 7]]
+    ],
+    "terminals": [{ "at": [21, 4], "name": "o" }, { "at": [21, 7], "name": "o'" }],
+    "grounds": [[0, 7]]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "db", "ask": "ω = 1000 rad/s 时 20lg|H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "db" }, "answer": 19.91357, "unit": "dB", "explain": "H = −jωR_fC₁/((1 + jωR₁C₁)(1 + jωR_fC_f))。ω = 1000：jωR_fC₁ = j100，(1 + j10)(1 + j0.1) = 1 − 1 + j10.1 = j10.1，H = −100/10.1 ≈ −9.901，20lg 9.901 ≈ 19.91 dB。" },
+    { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": 180, "unit": "°", "explain": "H = −9.901 是负实数，相位 180°（±180° 都对）：标准形式中高通因子 j10/(1 + j10) 的相位是 90° − 84.3° = +5.7°，低通因子 1/(1 + j0.1) 的相位是 −5.7°，两者正好抵消，只剩反相（负号）带来的 180°。" },
+    {
+      "id": "band",
+      "ask": "这个带通滤波器的下截止频率、上截止频率和中频增益约为？",
+      "choices": ["ω_L = 1/(R₁C₁) = 100 rad/s，ω_H = 1/(R_fC_f) = 10⁴ rad/s，中频增益 ≈ −10（20 dB）", "ω_L = 1/(R_fC₁) = 10 rad/s，ω_H = 1/(R₁C_f) = 10⁵ rad/s，中频增益 −10", "ω_L = 100 rad/s，ω_H = 10⁴ rad/s，中频增益 −1", "中心频率 1000 rad/s，带宽 100 rad/s"],
+      "correct": 0,
+      "explain": "H = −(R_f/R₁)·[jω/ω_L/(1 + jω/ω_L)]·[1/(1 + jω/ω_H)]，ω_L = 1/(R₁C₁) = 100 rad/s，ω_H = 1/(R_fC_f) = 10⁴ rad/s。ω_L ≪ ω ≪ ω_H 时两个方括号都 ≈ 1，增益 ≈ −R_f/R₁ = −10。两个转折频率相差 100 倍，所以通带近似为 100 ~ 10⁴ rad/s，ω = 1000 rad/s 处 |H| = 9.90 已经很接近 10。"
+    }
+  ],
+  "hints": [
+    "用阻抗形式：H = −Z_f/Z₁，Z₁ = R₁ + 1/(jωC₁)，Z_f = R_f/(1 + jωR_fC_f)。",
+    "把 H 整理成“增益 × 一阶高通 × 一阶低通”的形式，两个转折频率分别是 1/(R₁C₁) 和 1/(R_fC_f)。"
+  ],
+  "solution": [
+    "**1. 网络函数。** Z₁ = (1 + jωR₁C₁)/(jωC₁)，Z_f = R_f/(1 + jωR_fC_f)，H = −Z_f/Z₁ = −jωR_fC₁/((1 + jωR₁C₁)(1 + jωR_fC_f))。",
+    "**2. 标准形式。** H = −(R_f/R₁)·(jω/ω_L)/(1 + jω/ω_L) · 1/(1 + jω/ω_H)，ω_L = 1/(R₁C₁) = 1/(10³ × 10⁻⁵) = **100 rad/s**，ω_H = 1/(R_fC_f) = 1/(10⁴ × 10⁻⁸) = **10⁴ rad/s**，中频增益 −R_f/R₁ = **−10（20 dB）**。",
+    "**3. ω = 1000 rad/s。** 分子 jωR_fC₁ = j1000 × 10⁴ × 10⁻⁵ = j100；分母 (1 + j10)(1 + j0.1) = j10.1。H = −j100/(j10.1) = −9.901：20lg|H| = **19.91 dB**，相位 **180°**。",
+    "**4. 说明。** 1000 rad/s 是 ω_L 与 ω_H 的几何中点 √(ω_Lω_H)，在这里高通因子的相位 +5.7° 与低通因子的 −5.7° 正好抵消，H 为负实数。两个转折频率相距较远时，可以把它看成一个高通与一个低通的级联，通频带约为 ω_H − ω_L ≈ 9900 rad/s。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Active band-pass filter built from first-order high-pass and low-pass",
+      "tags": ["active filter", "band-pass filter", "bandwidth", "network function H(jω)"],
+      "statement": [
+        "An inverting amplifier has C₁ in series with R₁ as its input branch and R_f in parallel with C_f as its feedback branch: C₁ = 10 µF, R₁ = 1 kΩ, R_f = 10 kΩ, C_f = 10 nF, and the op-amp is ideal. H(jω) = V_o/V_s.",
+        "Write H(jω), find 20lg|H(jω)| and the phase of H(jω) at ω = 1000 rad/s, and determine the upper and lower cut-off frequencies of the pass band and the mid-band gain."
+      ],
+      "questions": [
+        { "ask": "20lg|H(jω)| at ω = 1000 rad/s = ?", "explain": "H = −jωR_fC₁/((1 + jωR₁C₁)(1 + jωR_fC_f)). At ω = 1000: jωR_fC₁ = j100 and (1 + j10)(1 + j0.1) = 1 − 1 + j10.1 = j10.1, so H = −100/10.1 ≈ −9.901 and 20lg 9.901 ≈ 19.91 dB." },
+        { "ask": "Phase of H(jω) = ?", "explain": "H = −9.901 is a negative real number, so the phase is 180° (±180° are both fine): in the standard form the high-pass factor j10/(1 + j10) has phase 90° − 84.3° = +5.7° and the low-pass factor 1/(1 + j0.1) has −5.7°; they cancel exactly, leaving only the 180° of the inversion (the minus sign)." },
+        {
+          "ask": "What are, approximately, the lower and upper cut-off frequencies and the mid-band gain of this band-pass filter?",
+          "choices": ["ω_L = 1/(R₁C₁) = 100 rad/s, ω_H = 1/(R_fC_f) = 10⁴ rad/s, mid-band gain ≈ −10 (20 dB)", "ω_L = 1/(R_fC₁) = 10 rad/s, ω_H = 1/(R₁C_f) = 10⁵ rad/s, mid-band gain −10", "ω_L = 100 rad/s, ω_H = 10⁴ rad/s, mid-band gain −1", "Centre frequency 1000 rad/s, bandwidth 100 rad/s"],
+          "explain": "H = −(R_f/R₁)·[(jω/ω_L)/(1 + jω/ω_L)]·[1/(1 + jω/ω_H)] with ω_L = 1/(R₁C₁) = 100 rad/s and ω_H = 1/(R_fC_f) = 10⁴ rad/s. For ω_L ≪ ω ≪ ω_H both brackets are ≈ 1 and the gain is ≈ −R_f/R₁ = −10. The two corner frequencies are a factor of 100 apart, so the pass band is roughly 100 to 10⁴ rad/s; at ω = 1000 rad/s |H| = 9.90 is already close to 10."
+        }
+      ],
+      "hints": [
+        "Use impedances: H = −Z_f/Z₁ with Z₁ = R₁ + 1/(jωC₁) and Z_f = R_f/(1 + jωR_fC_f).",
+        "Rearrange H as 'gain × first-order high-pass × first-order low-pass'; the corner frequencies are 1/(R₁C₁) and 1/(R_fC_f)."
+      ],
+      "solution": [
+        "**1. Network function.** Z₁ = (1 + jωR₁C₁)/(jωC₁), Z_f = R_f/(1 + jωR_fC_f), H = −Z_f/Z₁ = −jωR_fC₁/((1 + jωR₁C₁)(1 + jωR_fC_f)).",
+        "**2. Standard form.** H = −(R_f/R₁)·(jω/ω_L)/(1 + jω/ω_L) · 1/(1 + jω/ω_H), with ω_L = 1/(R₁C₁) = 1/(10³ × 10⁻⁵) = **100 rad/s**, ω_H = 1/(R_fC_f) = 1/(10⁴ × 10⁻⁸) = **10⁴ rad/s**, and mid-band gain −R_f/R₁ = **−10 (20 dB)**.",
+        "**3. At ω = 1000 rad/s.** Numerator jωR_fC₁ = j1000 × 10⁴ × 10⁻⁵ = j100; denominator (1 + j10)(1 + j0.1) = j10.1. H = −j100/(j10.1) = −9.901: 20lg|H| = **19.91 dB**, phase **180°**.",
+        "**4. Remarks.** 1000 rad/s is the geometric mean √(ω_Lω_H); there the high-pass factor's phase +5.7° and the low-pass factor's −5.7° cancel exactly and H is a negative real number. When the two corners are far apart the circuit behaves like a high-pass cascaded with a low-pass, and the bandwidth is about ω_H − ω_L ≈ 9900 rad/s."
+      ]
+    }
+  }
+}

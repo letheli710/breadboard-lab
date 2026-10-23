@@ -1,0 +1,93 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "first-order-18-vcvs-overcharge",
+  "chapter": "first-order",
+  "title": "含 VCVS 的 RC 电路：电容电压超过电源电压",
+  "level": 5,
+  "tags": ["受控源 VCVS", "时间常数 τ", "三要素法", "功率平衡", "稳定性"],
+  "statement": [
+    "图示电路中 Us = 20 V，R1 = 2 kΩ，R2 = 2 kΩ，C = 25 µF。电压控制电压源的电压为 1.5u_C（“+” 在上）。电容原来不带电，开关 S 在 t = 0 时闭合。",
+    "求时间常数 τ、u_C(∞)、t = 0.1 s 时的 u_C，以及达到稳态后受控源吸收的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 20 },
+      { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "open", "after": "closed" } },
+      { "ref": "R1", "type": "R", "from": [5, 0], "to": [9, 0], "value": "2k" },
+      { "ref": "C", "type": "C", "from": [11, 0], "to": [11, 4], "value": "25u" },
+      { "ref": "R2", "type": "R", "from": [13, 0], "to": [17, 0], "value": "2k" },
+      { "ref": "E", "type": "VCVS", "from": [19, 0], "to": [19, 4], "value": 1.5, "ctrl": { "v": "C" }, "label": "1.5u_C" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[4, 0], [5, 0]],
+      [[9, 0], [13, 0]],
+      [[17, 0], [19, 0]],
+      [[19, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [11, 0], "name": "a" }, { "at": [19, 0], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "i", "el": "R1", "name": "i_1" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.1, "unit": "s", "explain": "Us 短路，在 a 加电压 u：R1 取走 u/2k，R2 取走 (u − 1.5u)/2k = −0.25u/k，共 u/4k，R_eq = 4 kΩ（比 R1 ∥ R2 = 1 kΩ 大）。τ = 4×10³ × 25×10⁻⁶ = 0.1 s。" },
+    { "id": "uinf", "ask": "u_C(∞) = ?", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": 40, "unit": "V", "explain": "电容开路，结点 a：(20 − u)/2 = (u − 1.5u)/2 → 20 − u = −0.5u → u_C(∞) = 40 V，比 Us 还高。" },
+    { "id": "u01", "ask": "t = 0.1 s 时 u_C = ?", "find": { "kind": "v", "el": "C", "t": 0.1 }, "answer": 25.28482, "unit": "V", "explain": "u_C(0₊) = 0，u_C(t) = 40(1 − e^(−10t)) V，t = τ 时 u_C = 40(1 − e⁻¹) ≈ 25.28 V。" },
+    { "id": "pe", "ask": "稳态时受控源 E 吸收的功率 = ?", "find": { "kind": "p", "el": "E", "t": "inf" }, "answer": -0.6, "unit": "W", "explain": "u_b = 1.5 × 40 = 60 V，R2 中电流 (40 − 60)/2k = −10 mA（实际从 b 流向 a），即电流从 E 的 “+” 端流出 10 mA：P_E = 60 × (−0.01) = −0.6 W，受控源发出 0.6 W。" }
+  ],
+  "hints": [
+    "求 R_eq 用外加电源法，受控源保留：Us 短路，在电容两端加电压 u，控制量 u_C 就是 u。",
+    "终值：电容开路，对结点 a 列 KCL，受控源电压用 u_C 表示。",
+    "功率：先求稳态时各支路电流，再用 P = u·i（关联方向）。可以用功率平衡验算。"
+  ],
+  "solution": [
+    "**1. 等效电阻。** Us 短路，在 a 加电压 u（u_C = u，u_b = 1.5u）：流出 a 的电流 i = u/R1 + (u − 1.5u)/R2 = u/2k − u/4k = u/4k，**R_eq = 4 kΩ**。受控源让 R2 支路相当于一个 −4 kΩ 的电阻，与 R1 并联得 4 kΩ。",
+    "**2. 时间常数。** **τ = R_eq·C = 0.1 s**。",
+    "**3. 终值。** 电容开路，结点 a：(20 − u)/2k = (u − 1.5u)/2k → **u_C(∞) = 40 V**。也可以用戴维宁等效：U_oc = 40 V（就是这个结果），R_eq = 4 kΩ，短路电流 = 20/2k = 10 mA，40/10 = 4 kΩ ✓。",
+    "**4. 响应。** u_C(t) = 40(1 − e^(−10t)) V，t = 0.1 s：u_C = 40(1 − e⁻¹) ≈ **25.28 V**。",
+    "**5. 稳态功率。** u_C = 40 V，u_b = 60 V；i_1 = (20 − 40)/2k = −10 mA，R2 中电流（a → b）(40 − 60)/2k = −10 mA。",
+    "- E：电流从 “+” 端流出 10 mA，**P_E = 60 × (−0.01) = −0.6 W**（发出 0.6 W）；",
+    "- R1、R2 各吸收 (0.01)² × 2000 = 0.2 W；",
+    "- Us：电流从 “+” 端流入 10 mA，吸收 20 × 0.01 = 0.2 W（Us 在这里被充电）。",
+    "功率平衡：−0.6 + 0.2 + 0.2 + 0.2 = 0 ✓。电容最终电压超过 Us，所需能量来自受控源。",
+    "**6. 稳定性的讨论。** 若受控源增益为 μ，R_eq = 2k/(2 − μ)。μ → 2 时 τ → ∞；μ > 2 时 R_eq < 0，电路不稳定，u_C 将指数增长，不存在稳态。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "RC circuit with a VCVS: the capacitor charges above the source voltage",
+      "tags": ["dependent source VCVS", "time constant τ", "three-element method", "power balance", "stability"],
+      "statement": [
+        "In the circuit, Us = 20 V, R1 = 2 kΩ, R2 = 2 kΩ, C = 25 µF. The voltage-controlled voltage source has voltage 1.5u_C (\"+\" at the top). The capacitor is initially uncharged and switch S closes at t = 0.",
+        "Find the time constant τ, u_C(∞), u_C at t = 0.1 s, and the power absorbed by the dependent source in steady state."
+      ],
+      "questions": [
+        { "ask": "τ = ?", "explain": "Short Us and apply a voltage u at a: R1 draws u/2k, R2 draws (u − 1.5u)/2k = −0.25u/k, u/4k in total, so R_eq = 4 kΩ (larger than R1 ∥ R2 = 1 kΩ). τ = 4×10³ × 25×10⁻⁶ = 0.1 s." },
+        { "ask": "u_C(∞) = ?", "explain": "Capacitor open, node a: (20 − u)/2 = (u − 1.5u)/2 → 20 − u = −0.5u → u_C(∞) = 40 V, higher than Us." },
+        { "ask": "u_C at t = 0.1 s = ?", "explain": "u_C(0+) = 0, u_C(t) = 40(1 − e^(−10t)) V; at t = τ, u_C = 40(1 − e⁻¹) ≈ 25.28 V." },
+        { "ask": "Power absorbed by the dependent source E in steady state = ?", "explain": "u_b = 1.5 × 40 = 60 V; the current in R2 is (40 − 60)/2k = −10 mA (actually flowing from b to a), so 10 mA leaves the \"+\" terminal of E: P_E = 60 × (−0.01) = −0.6 W, i.e. the dependent source delivers 0.6 W." }
+      ],
+      "hints": [
+        "Find R_eq with a test source, keeping the dependent source: short Us and apply a voltage u across the capacitor; the controlling voltage u_C is just u.",
+        "Final value: capacitor open, KCL at node a, with the dependent source voltage written in terms of u_C.",
+        "Power: find the steady-state branch currents first, then use P = u·i (passive convention). Check with the power balance."
+      ],
+      "solution": [
+        "**1. Equivalent resistance.** Short Us and apply u at a (u_C = u, u_b = 1.5u): the current leaving a is i = u/R1 + (u − 1.5u)/R2 = u/2k − u/4k = u/4k, **R_eq = 4 kΩ**. The dependent source makes the R2 branch behave like a −4 kΩ resistor, which in parallel with R1 gives 4 kΩ.",
+        "**2. Time constant.** **τ = R_eq·C = 0.1 s**.",
+        "**3. Final value.** Capacitor open, node a: (20 − u)/2k = (u − 1.5u)/2k → **u_C(∞) = 40 V**. Thevenin check: U_oc = 40 V (this result), R_eq = 4 kΩ, short-circuit current = 20/2k = 10 mA, and 40/10 = 4 kΩ ✓.",
+        "**4. Response.** u_C(t) = 40(1 − e^(−10t)) V; at t = 0.1 s: u_C = 40(1 − e⁻¹) ≈ **25.28 V**.",
+        "**5. Steady-state power.** u_C = 40 V, u_b = 60 V; i_1 = (20 − 40)/2k = −10 mA, and the current in R2 (a → b) is (40 − 60)/2k = −10 mA.",
+        "- E: 10 mA leaves its \"+\" terminal, **P_E = 60 × (−0.01) = −0.6 W** (it delivers 0.6 W);",
+        "- R1 and R2 each absorb (0.01)² × 2000 = 0.2 W;",
+        "- Us: 10 mA enters its \"+\" terminal, so it absorbs 20 × 0.01 = 0.2 W (Us is being charged here).",
+        "Power balance: −0.6 + 0.2 + 0.2 + 0.2 = 0 ✓. The capacitor ends up above Us; the energy comes from the dependent source.",
+        "**6. Stability.** With a gain μ, R_eq = 2k/(2 − μ). As μ → 2, τ → ∞; for μ > 2, R_eq < 0 and the circuit is unstable: u_C grows exponentially and there is no steady state."
+      ]
+    }
+  }
+}
