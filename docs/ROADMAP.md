@@ -28,8 +28,8 @@ Goal: cover a full first/second-year circuit analysis course in four phases, plu
   - [x] A2 电路图格式 + 渲染 `src/core/problem/geometry.ts`、`src/ui/ProblemSchematic.tsx`（从画图几何推出网表）
   - [x] A3 理论题格式解析与校验 `src/core/problem/parse.ts`，`npm run validate` 同时校验 `problems/`，「练习」模式界面，`docs/PROBLEM_FORMAT.md` 和出题提示词
 - [x] **B. 理论题内容**：15 章共 216 题，全部由引擎核对答案 / 216 problems across 15 chapters, all engine-checked
-- [ ] **C. 面包板引擎扩展**：电流表、运放 LM358、电感、信号发生器、示波器、面包板电路的暂态/交流仿真
-- [ ] **D. 面包板题内容**（每期 4–8 题）
+- [x] **C. 面包板引擎扩展**：电流表、运放 LM358、电感、信号发生器、示波器、面包板电路的暂态/交流仿真
+- [x] **D. 面包板题内容**：第 1–4 期共 31 个实验（201–208、221–228、241–247、261–268）
 
 ## 约定 / Conventions
 
@@ -61,4 +61,5 @@ Challenge tests can measure with the scope: `"scope": [{ "pin": "C1.1", "ref": "
 - 暂态中的稳态振幅 / steady-state amplitude of a sinusoidal transient response as a checkable quantity
 - `twoport` 支持 `exclude`（图中画了负载时仍能求参数）/ `exclude` on `twoport` so parameters can be asked with a load drawn
 - 导纳量 `{ kind: 'yeq', port }` / an admittance quantity
+- 打包体积约 2.7 MB（题库全部内嵌）：可以按章节懒加载 / bundle is ~2.7 MB because every problem is bundled; lazy-load per chapter
 - 图上参考标记名的翻译（中文 u、英文 v）/ translatable mark names (zh "u", en "v") — today English text reuses the drawn u/U
