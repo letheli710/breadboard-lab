@@ -1,0 +1,129 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "three-phase-09-neutral-displacement",
+  "chapter": "three-phase",
+  "title": "中线断开：中性点位移",
+  "level": 4,
+  "tags": ["不对称三相电路", "中性点位移", "弥尔曼定理"],
+  "statement": [
+    "上一题的照明负载（R_A = 11 Ω，R_B = R_C = 22 Ω，纯电阻），电源仍为对称正序、U̇_A = 220∠0° V，但中线断开了。在断口两侧（N' 与 N 之间）接一个理想电压表 V。",
+    "求电压表读数（中性点位移电压 U_N'N）、A 相负载电压 U_AN' 和 B 相负载电压 U_BN'（均为有效值），并判断各灯的工作情况。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "UA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 220, "phase": 0 } } },
+      { "ref": "UB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 220, "phase": -120 } } },
+      { "ref": "UC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 220, "phase": 120 } } },
+      { "ref": "RA", "type": "R", "from": [10, 0], "to": [14, 0], "value": 11 },
+      { "ref": "RB", "type": "R", "from": [10, 3], "to": [14, 3], "value": 22 },
+      { "ref": "RC", "type": "R", "from": [10, 6], "to": [14, 6], "value": 22 },
+      { "ref": "V", "type": "voltmeter", "from": [9, 9], "to": [6, 9] }
+    ],
+    "wires": [
+      [[5, 0], [10, 0]],
+      [[5, 3], [10, 3]],
+      [[5, 6], [10, 6]],
+      [[14, 0], [14, 9], [9, 9]],
+      [[1, 0], [1, 9], [6, 9]]
+    ],
+    "labels": [
+      { "at": [7, 0], "name": "A" },
+      { "at": [7, 3], "name": "B" },
+      { "at": [7, 6], "name": "C" },
+      { "at": [1, 9], "name": "N" },
+      { "at": [14, 9], "name": "N'" }
+    ],
+    "grounds": [[1, 9]],
+    "marks": [
+      { "kind": "v", "el": "RA", "name": "U_{AN'}" },
+      { "kind": "v", "el": "RB", "name": "U_{BN'}" }
+    ]
+  },
+  "analysis": { "type": "ac", "freq": 50 },
+  "questions": [
+    {
+      "id": "UNN",
+      "ask": "电压表 V 的读数 U_N'N = ?",
+      "find": { "kind": "meter", "el": "V" },
+      "answer": 55,
+      "unit": "V",
+      "explain": "弥尔曼定理：U̇_N'N = (U̇_A/11 + U̇_B/22 + U̇_C/22)/(1/11 + 1/22 + 1/22) = (20 − 10)/(4/22) = 55∠0° V。"
+    },
+    {
+      "id": "UA",
+      "ask": "A 相负载电压 U_AN' = ?",
+      "find": { "kind": "v", "el": "RA", "part": "mag" },
+      "answer": 165,
+      "unit": "V",
+      "explain": "U̇_AN' = U̇_A − U̇_N'N = 220 − 55 = 165 V，低于额定电压 220 V。"
+    },
+    {
+      "id": "UB",
+      "ask": "B 相负载电压 U_BN' = ?",
+      "find": { "kind": "v", "el": "RB", "part": "mag" },
+      "answer": 252.0417,
+      "unit": "V",
+      "explain": "U̇_BN' = U̇_B − U̇_N'N = (−110 − j190.53) − 55 = −165 − j190.53 V，模 √(165² + 190.53²) ≈ 252.0 V；C 相同理也是 252.0 V。"
+    },
+    {
+      "id": "lamps",
+      "ask": "中线断开后，各相的灯会怎样？",
+      "choices": [
+        "A 相（负载最重、电阻最小）的灯变暗，B、C 相的灯电压超过 220 V，过亮甚至烧毁",
+        "三相的灯亮度都不变",
+        "A 相的灯变亮，B、C 相的灯变暗",
+        "三相的灯都熄灭"
+      ],
+      "correct": 0,
+      "explain": "中性点向负载最重（导纳最大）的 A 相偏移，A 相电压降到 165 V，而 B、C 相升到 252 V。负载越不对称，位移越大——这就是中线不能断、中线上不装熔断器的原因。"
+    }
+  ],
+  "hints": [
+    "没有中线时，N' 是一个独立结点。以 N 为参考点，对 N' 用结点电压法（弥尔曼定理）。",
+    "U̇_N'N = ΣU̇_k·Y_k / ΣY_k，注意分子要做相量加法。",
+    "各相负载电压 = 电源相电压 − U̇_N'N。"
+  ],
+  "solution": [
+    "**1. 中性点电压（弥尔曼定理）。** 导纳 Y_A = 1/11 S，Y_B = Y_C = 1/22 S。分子 U̇_A·Y_A + U̇_B·Y_B + U̇_C·Y_C = 20∠0° + 10∠−120° + 10∠120° = 20 − 10 = 10 A；分母 ΣY = 4/22 S。U̇_N'N = 10 × 22/4 = **55∠0° V**。",
+    "**2. 各相负载电压。** U̇_AN' = 220 − 55 = **165∠0° V**；U̇_BN' = 220∠−120° − 55 = −165 − j190.53 = **252.0∠−130.9° V**；U̇_CN' = −165 + j190.53 = 252.0∠130.9° V。",
+    "**3. 验算（KCL 于 N'）。** İ_A = 165/11 = 15 A，İ_B + İ_C = (−330)/22 = −15 A，和为零。✓",
+    "**4. 结论。** 与有中线时相比（各相都是 220 V），中性点位移使负载电压严重不对称：A 相欠压，B、C 相过压约 15%。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Broken neutral: neutral-point displacement",
+      "tags": ["unbalanced three-phase circuit", "neutral-point displacement", "Millman's theorem"],
+      "statement": [
+        "Take the lighting load of the previous problem (R_A = 11 Ω, R_B = R_C = 22 Ω, pure resistances) and the same balanced positive-sequence source, U̇_A = 220∠0° V, but now the neutral wire is broken. An ideal voltmeter V is connected across the break (between N' and N).",
+        "Find the voltmeter reading (the neutral-displacement voltage U_N'N), the phase-A load voltage U_AN' and the phase-B load voltage U_BN' (all rms), and judge how the lamps behave."
+      ],
+      "questions": [
+        { "ask": "Reading of voltmeter V, U_N'N = ?", "explain": "Millman's theorem: U̇_N'N = (U̇_A/11 + U̇_B/22 + U̇_C/22)/(1/11 + 1/22 + 1/22) = (20 − 10)/(4/22) = 55∠0° V." },
+        { "ask": "Phase-A load voltage U_AN' = ?", "explain": "U̇_AN' = U̇_A − U̇_N'N = 220 − 55 = 165 V, below the rated 220 V." },
+        { "ask": "Phase-B load voltage U_BN' = ?", "explain": "U̇_BN' = U̇_B − U̇_N'N = (−110 − j190.53) − 55 = −165 − j190.53 V, magnitude √(165² + 190.53²) ≈ 252.0 V; phase C is also 252.0 V." },
+        {
+          "ask": "With the neutral broken, what happens to the lamps?",
+          "choices": [
+            "The phase-A lamps (heaviest load, smallest resistance) dim, while the B and C lamps get more than 220 V and glow too bright or burn out",
+            "All lamps keep their brightness",
+            "The phase-A lamps get brighter and the B and C lamps dimmer",
+            "All lamps go out"
+          ],
+          "explain": "The neutral point shifts towards the most heavily loaded phase (largest admittance), A: its voltage drops to 165 V while B and C rise to 252 V. The more unbalanced the load, the larger the shift — which is why the neutral must never be broken and carries no fuse."
+        }
+      ],
+      "hints": [
+        "Without a neutral, N' is an independent node. Take N as reference and apply nodal analysis at N' (Millman's theorem).",
+        "U̇_N'N = ΣU̇_k·Y_k / ΣY_k — the numerator is a phasor sum.",
+        "Each load phase voltage = source phase voltage − U̇_N'N."
+      ],
+      "solution": [
+        "**1. Neutral-point voltage (Millman).** Admittances Y_A = 1/11 S, Y_B = Y_C = 1/22 S. Numerator U̇_A·Y_A + U̇_B·Y_B + U̇_C·Y_C = 20∠0° + 10∠−120° + 10∠120° = 20 − 10 = 10 A; denominator ΣY = 4/22 S. U̇_N'N = 10 × 22/4 = **55∠0° V**.",
+        "**2. Load phase voltages.** U̇_AN' = 220 − 55 = **165∠0° V**; U̇_BN' = 220∠−120° − 55 = −165 − j190.53 = **252.0∠−130.9° V**; U̇_CN' = −165 + j190.53 = 252.0∠130.9° V.",
+        "**3. Check (KCL at N').** İ_A = 165/11 = 15 A, İ_B + İ_C = (−330)/22 = −15 A; the sum is zero. ✓",
+        "**4. Conclusion.** Compared with the four-wire case (220 V on every phase), the neutral shift makes the load voltages badly unbalanced: phase A is under-voltage, phases B and C are about 15 % over-voltage."
+      ]
+    }
+  }
+}
