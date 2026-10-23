@@ -36,7 +36,7 @@ AI 返回后：
   "level": 1-5,
   "tags": ["知识点", ...],
   "statement": "题干：给出所有已知量（带单位），说明要求什么",
-  "schematic": { "elements": [...], "wires": [...], "labels": [...], "grounds": [...], "terminals": [...], "marks": [...] },
+  "schematic": { "elements": [...], "wires": [...], "labels": [...], "grounds": [...], "terminals": [...], "marks": [...], "loops": [...] },
   "analysis": {"type": "dc"} | {"type": "ac", "omega": 1000} | {"type": "ac", "freq": 50} | {"type": "tran"},
   "questions": [ ... ],
   "hints": ["由浅入深的 2–3 条提示"],
@@ -68,6 +68,8 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
 - 电压源 V：p 端（from）是 “+”。正常供电的电源，它的关联电流和吸收功率都是负的。
 - 电流源 I：箭头从 p 指向 n，电流从 n 端（to）流出。要向结点 a 注入电流，就让 to 接 a。
 - 题目问到的电流、电压，用 "marks" 画出参考方向，并在题干里用同样的符号：{"kind": "i", "el": "R1", "name": "i1"}（从 p 指向 n 的箭头）、{"kind": "v", "el": "C", "name": "u_C"}（p 端 +，n 端 −）。所以元件的 from/to 方向 = 你想要的参考方向，画之前先想好。
+- 运放的输出电流：{"kind": "i", "el": "A1", "name": "i_o"}，箭头画在输出引线上、背离运放；它等于 find {"kind": "i", "el": "A1"}（从输出端流出的电流）。运放不能加 "v" 标记，变压器 / 耦合电感不能加任何标记。
+- 网孔电流法 / 回路电流法的题目：把题干定义的每个网孔（回路）电流用 "loops" 画出来，名字、方向和题干一致：{"at": [4, 2], "name": "i_m1"}（默认顺时针；逆时针加 "dir": "ccw"）。at 取网孔中心的空白处（可以是半格，如 [3.5, 2]），不能压在导线或元件上。loops 只是标注，不影响计算，也不能用 find 求——要问网孔电流的值，就问与它相等的支路电流。
 
 === 独立源的值 ===
 直流：12。正弦稳态：{"ac": {"mag": 100, "phase": 30}}（mag 默认是有效值，phase 用度）。阶跃：{"step": {"before": 0, "after": 10}}。
@@ -174,7 +176,7 @@ Students look at a schematic, compute values and type answers. The app derives t
   "level": 1-5,
   "tags": ["topic", ...],
   "statement": "all given values with units, and what to find",
-  "schematic": { "elements": [...], "wires": [...], "labels": [...], "grounds": [...], "terminals": [...], "marks": [...] },
+  "schematic": { "elements": [...], "wires": [...], "labels": [...], "grounds": [...], "terminals": [...], "marks": [...], "loops": [...] },
   "analysis": {"type": "dc"} | {"type": "ac", "omega": 1000} | {"type": "ac", "freq": 50} | {"type": "tran"},
   "questions": [ ... ],
   "hints": ["2–3 hints from gentle to specific"],
@@ -206,6 +208,8 @@ R (Ω), C (F), L (H), V independent voltage source, I independent current source
 - Voltage source V: p ("from") is "+". A source that supplies power normally has a negative passive current and negative absorbed power.
 - Current source I: the arrow points from p to n; the current leaves at n ("to"). To inject current into node a, put "to" on a.
 - Draw the reference directions of asked currents/voltages with "marks" and use the same symbol in the text: {"kind": "i", "el": "R1", "name": "i1"} (arrow from p to n), {"kind": "v", "el": "C", "name": "v_C"} (+ at p, − at n). So an element's from/to direction IS the reference direction you want — decide it before drawing.
+- Op-amp output current: {"kind": "i", "el": "A1", "name": "i_o"} draws an arrow on the output lead pointing away from the op-amp; it equals find {"kind": "i", "el": "A1"} (current flowing out of the output terminal). No "v" marks on op-amps, no marks at all on transformers / coupled inductors.
+- Mesh-current / loop-current problems: draw every mesh (loop) current the text defines with "loops", same names and directions as the text: {"at": [4, 2], "name": "i_m1"} (clockwise by default; add "dir": "ccw" for counter-clockwise). Put "at" in the empty middle of the mesh (half units allowed, e.g. [3.5, 2]); never on a wire or element. Loops are annotation only — they don't affect the circuit and can't be asked with find; to ask for a mesh current, ask for a branch current equal to it.
 
 === Source values ===
 DC: 12. Sinusoidal steady state: {"ac": {"mag": 100, "phase": 30}} (mag is rms by default, phase in degrees). Step: {"step": {"before": 0, "after": 10}}.

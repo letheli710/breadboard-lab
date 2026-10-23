@@ -91,6 +91,7 @@ npm run validate -- --lang en       # 英文报错信息
   "grounds":  [ [0,4] ],
   "terminals":[ { "at": [12,0], "name": "a" }, { "at": [12,4], "name": "b" } ],
   "marks":    [ { "kind": "i", "el": "R1", "name": "i1" }, { "kind": "v", "el": "C", "name": "u_C" } ],
+  "loops":    [ { "at": [4,2], "name": "i_m1" }, { "at": [10,2], "name": "i_m2", "dir": "ccw" } ],
   "notes":    [ { "at": [3,-1], "text": "t = 0", "i18n": { "en": "t = 0" } } ]
 }
 ```
@@ -111,6 +112,7 @@ npm run validate -- --lang en       # 英文报错信息
 6. `grounds` 里的每个点都是地，结点名 `"0"`。至少要有一个地。
 7. `labels`、`terminals` 必须放在导线或元件端子上，用来给结点**命名**；题目里引用结点都用这些名字。没有名字的结点自动叫 `_1`、`_2`……（不要在题目里引用它们）。
 8. 名字 `"0"` / `"gnd"` 保留给地。一个端子（例如戴维宁题的 `b`）如果放在地上，它就是 `"0"` 的别名，可以在 `port` 里直接写 `"b"`。
+9. **地结点可以有多个名字**：例如二端口题把 `1'` 和 `2'` 两个端子都画在底部的接地导线上，它们都是 `"0"` 的别名，`"ports": [["1","1'"],["2","2'"]]` 可以直接用。**其他**结点只能有一个名字（同一结点两个不同名字是错误）。名字可以带撇号，如 `1'`、`a'`。 / The ground node may carry several names (e.g. two-port terminals `1'` and `2'` both on the bottom ground wire) — all are aliases of `"0"`. Any other node may have only one name. Primed names such as `1'` work everywhere.
 
 ### 3.3 元件 / Elements
 
@@ -139,7 +141,7 @@ npm run validate -- --lang en       # 英文报错信息
 
 **受控源的控制量**：`{"v": "R1"}` = R1 两端电压（R1 的 p 减 n）；`{"i": "R1"}` = 流过 R1 的电流（R1 的关联参考方向，从 p 到 n）；`{"vnodes": ["a","b"]}` = V(a) − V(b)。把控制量画进图里：给控制元件加一个 `marks` 并在题干里写清楚。
 
-**理想运放 `OPAMP`**（V+ = V−，输入电流为零）：端子相对 `at`：反相输入 (−) 在 (−2, −1)，同相输入 (+) 在 (−2, +1)，输出在 (+2, 0)（`orient: "right"`，默认）。`flip: true` 上下交换两个输入；`orient: "left"` 左右镜像。输出对地。网表引脚名：`minus`、`plus`、`out`。
+**理想运放 `OPAMP`**（V+ = V−，输入电流为零）：端子相对 `at`：反相输入 (−) 在 (−2, −1)，同相输入 (+) 在 (−2, +1)，输出在 (+2, 0)（`orient: "right"`，默认）。`flip: true` 上下交换两个输入；`orient: "left"` 左右镜像。输出对地。网表引脚名：`minus`、`plus`、`out`。`{"kind": "i", "el": "A"}` 是**从运放输出端流出**（流进输出结点）的电流；负值表示电流流入输出端（运放在“吸收”电流）。 / `{"kind":"i","el":<op-amp>}` is the current flowing **out of the output terminal** into the output node.
 
 **理想变压器 `XFMR`**（n:1，u1 = n·u2，i1 = −i2/n，电流以流入同名端为正）：端子相对 `at`：p1 (−2, −1)、n1 (−2, +1)、p2 (+2, −1)、n2 (+2, +1)；同名端（黑点）在 p1 和 p2。
 
@@ -151,13 +153,33 @@ npm run validate -- --lang en       # 英文报错信息
 - **电压源**：p 端为 “+”。它的电流 i 也按关联方向（从 + 端流进去）——正常供电的电源，i 是负的，吸收功率也是负的。
 - **电流源**：箭头从 p 指向 n，源内部从 p 推 `value` 安培到 n（电流从 n 端流出）。它的关联电流就是 +value。想让电流源向结点 a 注入电流，就让 `to`（n）接 a。
 - 想让学生用某个方向，就**画出来**：`marks` 里的 `{"kind": "i", "el": "R1", "name": "i1"}` 在 R1 上画一个从 p 指向 n 的电流箭头，标 `i1`；`{"kind": "v", "el": "C", "name": "u_C"}` 在 p 端标 “+”、n 端标 “−”。所以**元件的 from/to 方向就是参考方向**——先想好方向再画。
-- 题目问到某个元件的电流（`kind: "i"`）或电压（`kind: "v"` + `el`）而图里还没有对应的标记时，程序**自动加一个**，名字是 `i_R1`、`u_R1`（英文界面 `v_R1`）。题干里如果用了自己的符号（如 i₁），请自己写 `marks` 并用同一个名字。
+- **运放的输出电流**：`{"kind": "i", "el": "A", "name": "i_o"}` 在运放的输出引线上画一个**背离运放**（指向输出结点）的箭头，和引擎的 `{"kind": "i", "el": "A"}`（从输出端流出的电流）同号。运放不能加 `"v"` 标记（它没有“元件电压”，用结点标签）；变压器 `XFMR`、耦合 `K` 不能加任何标记（给与绕组串联的元件加）。 / On an op-amp, `{"kind":"i","el":"A","name":"i_o"}` draws an arrow on the output lead pointing **away from the op-amp**, matching the engine's sign (current out of the output terminal). `"v"` marks on op-amps and any mark on `XFMR` / `K` are errors.
+- 题目问到某个元件的电流（`kind: "i"`）或电压（`kind: "v"` + `el`）而图里还没有对应的标记时，程序**自动加一个**，名字是 `i_R1`、`u_R1`（英文界面 `v_R1`）；问运放的输出电流时自动加 `i_A`。题干里如果用了自己的符号（如 i₁、i_o），请自己写 `marks` 并用同一个名字。 / Asked element currents/voltages (and op-amp output currents) get a mark automatically unless one is listed; write your own to use the symbol from the text.
 
 ### 3.5 标签、端子、注释 / labels, terminals, notes
 
 - `labels: [{ "at": [x,y], "name": "a", "hidden": false }]`：结点名，画在该点旁边；`hidden: true` 只命名不显示。
 - `terminals: [{ "at": [x,y], "name": "a" }]`：开路端子（小圆圈），用于戴维宁/二端口题，同时也是结点名。
 - `notes: [{ "at": [x,y], "text": "t = 0", "i18n": { "en": "..." } }]`：图上的自由文字（例如开关旁边的 “t = 0”）。
+
+### 3.6 网孔 / 回路电流 / Mesh and loop currents: `loops`
+
+网孔电流法、回路电流法的题目，把题干里定义的网孔电流画出来：
+
+```json
+"loops": [
+  { "at": [4, 3], "name": "i_m1" },
+  { "at": [12, 3], "name": "i_m2", "dir": "ccw" }
+]
+```
+
+- 在 `at` 处画一个直径约 1.4 格的圆弧箭头（开口约 60°），`name` 写在圆心（`i_m1` → i 带下标 m1，规则同 `marks`）。颜色比电路浅一些。
+- `dir`：`"cw"` 顺时针（**默认**）或 `"ccw"` 逆时针——指**屏幕上看到的**方向。
+- `at` 一般取网孔的中心，可以是半格（如 `[3.5, 2]`）；不能压在导线或元件上（校验器报错）。
+- **只是标注**：不影响网表和任何计算。网孔电流本身不能用 `find` 求；要问它的值，就问与它相等的支路电流（例如只属于这个网孔的电阻的电流），题干里说明。
+- 题干里写的名字和方向要与 `loops` 一致；回路电流法中跨过多个网孔的回路，箭头放在只有它经过的那部分。
+
+`loops` draws a circular arrow (≈ 1.4 grid units across, clockwise by default as seen on screen, `"dir": "ccw"` for counter-clockwise) centred at `at` with `name` in the middle. Put it in the empty middle of the mesh (half units allowed; it must not sit on a wire or element). It is a pure annotation: it does not change the netlist and cannot be asked with `find` — ask for a branch current that equals the mesh current instead, and use the same names and directions in the text.
 
 ---
 
@@ -235,7 +257,7 @@ npm run validate -- --lang en       # 英文报错信息
 |---|---|---|---|
 | `v` | `{"kind":"v","nodes":["a"]}` / `{"kind":"v","nodes":["a","b"]}` | 结点电压 V(a)（对地）或 V(a) − V(b) | V |
 | `v` | `{"kind":"v","el":"R2"}` | 元件电压 V(p) − V(n) | V |
-| `i` | `{"kind":"i","el":"R1"}` | 元件电流（关联方向 p → n） | A |
+| `i` | `{"kind":"i","el":"R1"}` | 元件电流（关联方向 p → n）；运放：从输出端**流出**的电流 | A |
 | `p` | `{"kind":"p","el":"Us"}` | 元件**吸收**的功率（直流 u·i；交流为平均功率 P） | W |
 | `q` | `{"kind":"q","el":"L1"}` | 交流：元件吸收的无功功率 | var |
 | `s` | `{"kind":"s","el":"Us"}` | 交流：视在功率 \|S\| | VA |
@@ -513,6 +535,8 @@ Us 在 t = 0 从 0 跳到 10 V，R = 5 Ω，L = 0.5 H。i_L(0+) = 0，i_L(∞) =
 | `… is not connected to anything` / `没有连接任何东西` | 端点差一格没接上。逐个核对每个元件的 from/to 是否正好在导线上。 |
 | `Both terminals of X are on the same node` / `被短路` | 一条导线从元件一端连到了另一端（例如顶边导线穿过了水平放置的元件），或者元件放在一条连续导线上。导线要在元件两端断开。 |
 | 两条导线交叉却没连上 | 交叉不相连。要连接就让一条导线的端点/折点落在另一条上。 |
+| `Loop current … sits on …` / `回路电流 … 压在 … 上` | `loops` 的圆心要放在网孔中间的空白处，不能在导线或元件上。 |
+| `Op-amp A only takes a current mark` / `Reference marks need a two-terminal element` | 运放只能加 `"i"` 标记（输出电流）；变压器、耦合电感不能加标记，给与绕组串联的元件加。 |
 | `no node "a"` / `找不到结点` | 结点名只来自 `labels` / `terminals`，而且要放在导线或端子上。地写 `"0"`。 |
 | `No ground symbol` / `没有接地符号` | `grounds` 至少一个点，并且要在导线或端子上。 |
 | `transient questions need a time "t"` | 暂态题每个问题（除 `tau`）都要写 `t`：`"0-"`、`"0+"`、秒数或 `"inf"`。 |

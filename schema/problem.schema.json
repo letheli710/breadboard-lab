@@ -184,11 +184,26 @@
           "items": { "type": "object", "required": ["at", "name"], "properties": { "at": { "$ref": "#/definitions/pt" }, "name": { "type": "string" } }, "additionalProperties": false }
         },
         "marks": {
+          "description": "Reference directions: kind \"i\" = current arrow p → n, kind \"v\" = +/− at p/n. On an OPAMP only kind \"i\" is allowed: arrow on the output lead pointing away from the op-amp (current flowing OUT of the output terminal). No marks on XFMR / K.",
           "type": "array",
           "items": {
             "type": "object",
             "required": ["kind", "el"],
             "properties": { "kind": { "enum": ["i", "v"] }, "el": { "type": "string" }, "name": { "type": "string" } },
+            "additionalProperties": false
+          }
+        },
+        "loops": {
+          "description": "Mesh / loop current arrows (annotation only, no effect on the netlist): a circular arrow centred at `at` (mesh centre; half units allowed; not on a wire or element) with `name` in the middle.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["at"],
+            "properties": {
+              "at": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2, "description": "Centre [x, y] in grid units, e.g. [3.5, 2]." },
+              "name": { "type": "string", "description": "Symbol shown in the middle, e.g. \"i_m1\"." },
+              "dir": { "enum": ["cw", "ccw"], "description": "Direction as seen on screen; default \"cw\" (clockwise)." }
+            },
             "additionalProperties": false
           }
         },

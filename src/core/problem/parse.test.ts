@@ -149,6 +149,79 @@ describe('parseProblem', () => {
     expect(r.ok).toBe(false);
     expect(r.errors.join()).toMatch(/接地|ground/i);
   });
+
+  it('auto-adds an output-current mark for an asked op-amp current, keeps loops', () => {
+    const b = clone(base) as Record<string, any>;
+    b.schematic = {
+      elements: [
+        { ref: 'Ui', type: 'V', from: [0, 3], to: [0, 5], value: 1 },
+        { ref: 'R1', type: 'R', from: [0, 3], to: [3, 3], value: 1 },
+        { ref: 'Rf', type: 'R', from: [3, 1], to: [7, 1], value: 2 },
+        { ref: 'A', type: 'OPAMP', at: [5, 4] },
+      ],
+      wires: [
+        [[3, 1], [3, 3]],
+        [[7, 1], [7, 4]],
+        [[0, 5], [3, 5]],
+      ],
+      grounds: [[0, 5]],
+      terminals: [{ at: [7, 4], name: 'o' }],
+      loops: [{ at: [1, 4], name: 'i_m1' }],
+    };
+    // the op-amp output drives −1 A: 1 A flows R1 → Rf INTO the output terminal
+    b.questions = [
+      { id: 'io', ask: 'i_o', find: { kind: 'i', el: 'A' }, answer: -1, unit: 'A' },
+      { id: 'vo', ask: 'u_o', find: { kind: 'v', nodes: ['o'] }, answer: -2, unit: 'V' },
+    ];
+    b.i18n.en.questions = [{ ask: 'i_o' }, { ask: 'v_o' }];
+    const r = parseProblem(b);
+    expect(r.errors).toEqual([]);
+    expect(r.problem!.schematic.marks).toEqual([{ kind: 'i', el: 'A', name: 'i_A' }]);
+    expect(r.problem!.schematic.loops).toEqual([{ at: [1, 4], name: 'i_m1' }]);
+    // no auto mark for a quantity a mark can't show (voltage of an op-amp is rejected by the engine anyway)
+    b.questions = [{ id: 'io', ask: 'i_o', find: { kind: 'i', el: 'A' }, answer: -1, unit: 'A' }];
+    b.schematic.marks = [{ kind: 'i', el: 'A', name: 'i_o' }];
+    b.i18n.en.questions = [{ ask: 'i_o' }];
+    const r2 = parseProblem(b);
+    expect(r2.errors).toEqual([]);
+    expect(r2.problem!.schematic.marks).toEqual([{ kind: 'i', el: 'A', name: 'i_o' }]);
+  });
+
+  it('two-port with primed terminal names on the ground wire', () => {
+    const b = clone(base) as Record<string, any>;
+    b.chapter = 'two-port';
+    b.schematic = {
+      elements: [
+        { ref: 'R1', type: 'R', from: [2, 0], to: [5, 0], value: 2 },
+        { ref: 'R2', type: 'R', from: [7, 0], to: [10, 0], value: 4 },
+        { ref: 'R3', type: 'R', from: [6, 0], to: [6, 4], value: 3 },
+      ],
+      wires: [
+        [[0, 0], [2, 0]],
+        [[5, 0], [7, 0]],
+        [[10, 0], [12, 0]],
+        [[0, 4], [12, 4]],
+      ],
+      terminals: [
+        { at: [0, 0], name: '1' },
+        { at: [0, 4], name: "1'" },
+        { at: [12, 0], name: '2' },
+        { at: [12, 4], name: "2'" },
+      ],
+      grounds: [[6, 4]],
+    };
+    const ports = [['1', "1'"], ['2', "2'"]];
+    b.questions = [
+      { id: 'z11', ask: 'z11', find: { kind: 'twoport', ports, param: 'z11' }, answer: 5, unit: 'Ω' },
+      { id: 'z21', ask: 'z21', find: { kind: 'twoport', ports, param: 'z21' }, answer: 3, unit: 'Ω' },
+      { id: 'r', ask: 'R', find: { kind: 'req', port: ['2', "2'"] }, answer: 7, unit: 'Ω' },
+    ];
+    b.i18n.en.questions = [{ ask: 'z11' }, { ask: 'z21' }, { ask: 'R' }];
+    const r = parseProblem(b);
+    expect(r.errors).toEqual([]);
+    expect(r.problem!.computed.z11).toBeCloseTo(5, 9);
+    expect(r.problem!.computed.z21).toBeCloseTo(3, 9);
+  });
 });
 
 describe('checkAnswer', () => {

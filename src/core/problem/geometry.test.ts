@@ -305,6 +305,93 @@ describe('extractNetlist', () => {
     expect(r.aliases.get('b')).toBe('0');
   });
 
+  it('several names on the ground node are all aliases of "0" (primed two-port terminals)', () => {
+    const s = divider();
+    s.terminals = [
+      { at: [0, 4], name: "1'" },
+      { at: [4, 4], name: "2'" },
+    ];
+    s.labels!.push({ at: [2, 4], name: 'gnd' });
+    const r = extractNetlist(s);
+    expect(r.errors).toEqual([]);
+    expect(r.aliases.get("1'")).toBe('0');
+    expect(r.aliases.get("2'")).toBe('0');
+    expect(r.netlist.nodes).not.toContain("1'");
+  });
+
+  it('primed names on an ordinary node work', () => {
+    const s = divider();
+    s.labels = [{ at: [4, 0], name: "a'" }];
+    const r = extractNetlist(s);
+    expect(r.errors).toEqual([]);
+    expect(r.netlist.nodeOf.get('R2.p')).toBe("a'");
+  });
+
+  describe('loops (mesh-current arrows)', () => {
+    const errs = (s: Schematic) => extractNetlist(s).errors;
+    it('an arrow in the middle of a mesh is fine and does not change the netlist', () => {
+      const s = divider();
+      const before = extractNetlist(s).netlist;
+      s.loops = [
+        { at: [2, 2], name: 'i_m1' },
+        { at: [2, 1], name: 'i_m2', dir: 'ccw' },
+      ];
+      const r = extractNetlist(s);
+      expect(r.errors).toEqual([]);
+      expect(r.warnings).toEqual([]);
+      expect([...r.netlist.nodeOf]).toEqual([...before.nodeOf]);
+      expect(r.netlist.nodes).toEqual(before.nodes);
+    });
+    it('rejects a centre on a wire, on an element, on an op-amp, and a bad dir', () => {
+      setLang('en');
+      const s = divider();
+      s.loops = [{ at: [2, 4], name: 'w' }];
+      expect(errs(s).join()).toMatch(/Loop current w at \(2,4\) sits on a wire/);
+      s.loops = [{ at: [2, 0], name: 'e' }];
+      expect(errs(s).join()).toMatch(/Loop current e at \(2,0\) sits on R1/);
+      s.loops = [{ at: [4, 2] }];
+      expect(errs(s).join()).toMatch(/sits on R2/);
+      s.elements.push({ ref: 'A', type: 'OPAMP', at: [10, 2] });
+      s.loops = [{ at: [11, 3], name: 'x' }];
+      expect(errs(s).join()).toMatch(/sits on A/);
+      s.loops = [{ at: [2, 2], name: 'd', dir: 'left' as 'cw' }];
+      expect(errs(s).join()).toMatch(/dir must be "cw"/);
+      s.loops = [{ at: [2] as unknown as Pt, name: 'p' }];
+      expect(errs(s).join()).toMatch(/invalid position/);
+      setLang('zh');
+      s.loops = [{ at: [2, 4], name: 'w' }];
+      expect(errs(s).join()).toMatch(/压在导线上/);
+    });
+  });
+
+  describe('marks on multi-terminal elements', () => {
+    const errs = (s: Schematic) => extractNetlist(s).errors;
+    const withParts = (): Schematic => {
+      const s = divider();
+      s.elements.push(
+        { ref: 'A', type: 'OPAMP', at: [10, 2] },
+        { ref: 'T', type: 'XFMR', at: [20, 2], n: 2 },
+        { ref: 'K1', type: 'K', l1: 'R1', l2: 'R2', k: 0.5 },
+      );
+      return s;
+    };
+    it('allows the output-current mark on an op-amp', () => {
+      const s = withParts();
+      s.marks = [{ kind: 'i', el: 'A', name: 'i_o' }];
+      expect(errs(s).filter((e) => !/K1/.test(e))).toEqual([]);
+    });
+    it('rejects voltage marks on op-amps and any mark on XFMR / K', () => {
+      setLang('en');
+      const s = withParts();
+      s.marks = [{ kind: 'v', el: 'A' }];
+      expect(errs(s).join()).toMatch(/Op-amp A only takes a current mark/);
+      s.marks = [{ kind: 'i', el: 'T' }];
+      expect(errs(s).join()).toMatch(/T \(XFMR\) can't take one/);
+      s.marks = [{ kind: 'v', el: 'K1' }];
+      expect(errs(s).join()).toMatch(/K1 \(K\) can't take one/);
+    });
+  });
+
   describe('errors', () => {
     const errs = (s: Schematic) => extractNetlist(s).errors;
     it('diagonal wire', () => {

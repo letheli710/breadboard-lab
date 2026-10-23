@@ -648,7 +648,7 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
       // terminal, so the arrow sits on the output lead and points away from the op-amp
       const om = (s.marks ?? []).find((m) => m?.el === el.ref && m.kind === 'i');
       if (om) {
-        const cx = (apex + o[0]) / 2;
+        const cx = apex + (o[0] - apex) * 0.6;
         const dir: V2 = [sx, 0];
         decor.push(<polygon key={`mo${el.ref}`} points={arrowHead([cx + sx * 4.5, y], dir, 9, 4)} fill={col} />);
         const runs = richRuns(symbolText(om.name ?? `i_{${el.ref}}`));
@@ -756,7 +756,7 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
     // the 60° gap is centred at the top; the arrowhead ends at the gap's far side
     const th0 = -90 * deg + sg * 30 * deg;
     const th1 = th0 + sg * 300 * deg;
-    const head = 9;
+    const head = 10;
     const thArc = th1 - sg * (head / LOOP_R); // stop the line where the arrowhead starts
     const a = pt(th0);
     const b = pt(thArc);
@@ -765,8 +765,8 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
     const dir: V2 = [(tip[0] - b[0]) / tl, (tip[1] - b[1]) / tl];
     decor.push(
       <g key={`lp${i}`} className="ps-loop">
-        <path d={`M${a[0]},${a[1]} A${LOOP_R},${LOOP_R} 0 1 ${cw ? 1 : 0} ${b[0]},${b[1]}`} fill="none" stroke="var(--muted)" strokeWidth={1.3} strokeLinecap="round" />
-        <polygon points={arrowHead(tip, dir, head, 4)} fill="var(--muted)" />
+        <path d={`M${a[0]},${a[1]} A${LOOP_R},${LOOP_R} 0 1 ${cw ? 1 : 0} ${b[0]},${b[1]}`} fill="none" stroke="var(--muted)" strokeWidth={1.4} strokeLinecap="round" />
+        <polygon points={arrowHead(tip, dir, head, 4.5)} fill="var(--muted)" />
       </g>,
     );
     ext({ x0: cx - LOOP_R - 4, y0: cy - LOOP_R - 4, x1: cx + LOOP_R + 4, y1: cy + LOOP_R + 4 });
