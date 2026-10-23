@@ -1,0 +1,89 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "methods-03-nodal-two-nodes",
+  "chapter": "methods",
+  "title": "结点电压法：两个独立结点",
+  "level": 2,
+  "tags": ["结点电压法", "自电导", "互电导"],
+  "statement": [
+    "图示电路中 Is1 = 4 A（向上，注入结点 a），Is2 = 1 A（向下，从结点 b 流出），R1 = 4 Ω，R2 = 2 Ω，R3 = 4 Ω。以底部为参考结点。",
+    "用**结点电压法**求结点电压 u_a、u_b，R2 中的电流 i2，以及 Is2 吸收的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Is1", "type": "I", "from": [0, 4], "to": [0, 0], "value": 4 },
+      { "ref": "R1", "type": "R", "from": [4, 0], "to": [4, 4], "value": 4 },
+      { "ref": "R2", "type": "R", "from": [6, 0], "to": [10, 0], "value": 2 },
+      { "ref": "R3", "type": "R", "from": [12, 0], "to": [12, 4], "value": 4 },
+      { "ref": "Is2", "type": "I", "from": [16, 0], "to": [16, 4], "value": 1 }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[10, 0], [16, 0]],
+      [[16, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [4, 0], "name": "a" }, { "at": [12, 0], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R2", "name": "i2" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "g",
+      "ask": "按标准形式 G_aa·u_a + G_ab·u_b = i_sa 列结点 a 的方程，互电导 G_ab = ?",
+      "choices": ["+1/2 S", "−1/2 S", "+3/4 S", "0"],
+      "correct": 1,
+      "explain": "互电导是连接 a、b 两结点的支路电导之和再取负号：G_ab = −1/R2 = −1/2 S。自电导 G_aa = 1/R1 + 1/R2 = 3/4 S 总是正的。"
+    },
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 8, "unit": "V", "explain": "0.75u_a − 0.5u_b = 4，−0.5u_a + 0.75u_b = −1，解得 u_a = 8 V。" },
+    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 4, "unit": "V", "explain": "同一组方程解得 u_b = 4 V。" },
+    { "id": "p", "ask": "Is2 吸收的功率 P = ?", "find": { "kind": "p", "el": "Is2" }, "answer": 4, "unit": "W", "explain": "Is2 的电流 1 A 从高电位端（b，4 V）流向参考结点，电压与电流为关联方向：P = 4 × 1 = 4 W（吸收）。" }
+  ],
+  "hints": [
+    "两个独立结点 a、b，各列一个 KCL：流出结点的电阻电流之和 = 注入结点的电流源电流。",
+    "注入 b 的电流源电流是 −Is2 = −1 A（Is2 是从 b 流出的）。",
+    "求出 u_a、u_b 后，i2 = (u_a − u_b)/R2。"
+  ],
+  "solution": [
+    "**1. 结点 a：** (1/R1 + 1/R2)·u_a − (1/R2)·u_b = Is1 → 0.75u_a − 0.5u_b = 4。",
+    "**2. 结点 b：** −(1/R2)·u_a + (1/R2 + 1/R3)·u_b = −Is2 → −0.5u_a + 0.75u_b = −1。",
+    "**3. 求解：** 第一式 ×3 加第二式 ×2：2.25u_a − 1.5u_b − u_a + 1.5u_b = 12 − 2 → 1.25u_a = 10 → **u_a = 8 V**，代回得 **u_b = 4 V**。",
+    "**4. 支路电流：** i2 = (u_a − u_b)/R2 = 4/2 = **2 A**。",
+    "**5. Is2 的功率：** P = u_b × Is2 = 4 × 1 = **4 W**（吸收）。",
+    "**验算：** Is1 发出 8 × 4 = 32 W；电阻吸收 8²/4 + 4²/2 + 4²/4 = 16 + 8 + 4 = 28 W；Is2 吸收 4 W。28 + 4 = 32 W。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Nodal analysis: two independent nodes",
+      "tags": ["nodal analysis", "self-conductance", "mutual conductance"],
+      "statement": [
+        "In the circuit, Is1 = 4 A (upwards, into node a), Is2 = 1 A (downwards, out of node b), R1 = 4 Ω, R2 = 2 Ω, R3 = 4 Ω. The bottom node is the reference.",
+        "Use **nodal analysis** to find the node voltages u_a and u_b, the current i2 in R2, and the power absorbed by Is2."
+      ],
+      "questions": [
+        {
+          "ask": "Writing the equation of node a in the standard form G_aa·u_a + G_ab·u_b = i_sa, the mutual conductance G_ab = ?",
+          "choices": ["+1/2 S", "−1/2 S", "+3/4 S", "0"],
+          "explain": "The mutual conductance is minus the sum of the conductances joining a and b: G_ab = −1/R2 = −1/2 S. The self-conductance G_aa = 1/R1 + 1/R2 = 3/4 S is always positive."
+        },
+        { "ask": "u_a = ?", "explain": "0.75u_a − 0.5u_b = 4 and −0.5u_a + 0.75u_b = −1 give u_a = 8 V." },
+        { "ask": "u_b = ?", "explain": "The same equations give u_b = 4 V." },
+        { "ask": "Power absorbed by Is2, P = ?", "explain": "The 1 A of Is2 flows from the higher-potential end (b, 4 V) to the reference: passive convention, P = 4 × 1 = 4 W (absorbed)." }
+      ],
+      "hints": [
+        "There are two independent nodes, a and b. At each, write KCL: resistor currents leaving the node = current-source currents injected into it.",
+        "The source current injected into b is −Is2 = −1 A (Is2 takes current out of b).",
+        "Once you have u_a and u_b, i2 = (u_a − u_b)/R2."
+      ],
+      "solution": [
+        "**1. Node a:** (1/R1 + 1/R2)·u_a − (1/R2)·u_b = Is1 → 0.75u_a − 0.5u_b = 4.",
+        "**2. Node b:** −(1/R2)·u_a + (1/R2 + 1/R3)·u_b = −Is2 → −0.5u_a + 0.75u_b = −1.",
+        "**3. Solve:** 3 × (first) + 2 × (second): 2.25u_a − 1.5u_b − u_a + 1.5u_b = 12 − 2 → 1.25u_a = 10 → **u_a = 8 V**; back-substituting, **u_b = 4 V**.",
+        "**4. Branch current:** i2 = (u_a − u_b)/R2 = 4/2 = **2 A**.",
+        "**5. Power of Is2:** P = u_b × Is2 = 4 × 1 = **4 W** (absorbed).",
+        "**Check:** Is1 delivers 8 × 4 = 32 W; the resistors absorb 8²/4 + 4²/2 + 4²/4 = 16 + 8 + 4 = 28 W; Is2 absorbs 4 W. 28 + 4 = 32 W."
+      ]
+    }
+  }
+}

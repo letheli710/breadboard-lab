@@ -1,0 +1,78 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "basics-15-meters-ccvs",
+  "chapter": "basics",
+  "title": "含 CCVS 电路中电表的读数",
+  "level": 4,
+  "tags": ["受控源 CCVS", "KCL", "KVL", "理想电表"],
+  "statement": [
+    "图示电路中 Us = 12 V，R1 = 2 Ω，R2 = 4 Ω，R3 = 2 Ω。A1 为理想电流表，V1 为理想电压表（读数为 u_a − u_b）。电流控制电压源 H 的电压为 2i2，**“+”在下端**，i2 为流过 R2 的电流（向下）。",
+    "求电流表、电压表的读数，b 点电位 u_b，以及 H 吸收的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
+      { "ref": "A1", "type": "ammeter", "from": [7, 0], "to": [7, 2] },
+      { "ref": "R2", "type": "R", "from": [7, 2], "to": [7, 6], "value": 4 },
+      { "ref": "R3", "type": "R", "from": [11, 0], "to": [11, 3], "value": 2 },
+      { "ref": "H", "type": "CCVS", "from": [11, 6], "to": [11, 3], "value": 2, "ctrl": { "i": "R2" }, "label": "2i_2" },
+      { "ref": "V1", "type": "voltmeter", "from": [14, 0], "to": [14, 3] }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [14, 0]],
+      [[11, 3], [14, 3]],
+      [[11, 6], [0, 6]]
+    ],
+    "labels": [{ "at": [7, 0], "name": "a" }, { "at": [11, 3], "name": "b" }],
+    "grounds": [[0, 6]],
+    "marks": [{ "kind": "i", "el": "R2", "name": "i2" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "ia", "ask": "电流表读数 = ?", "find": { "kind": "meter", "el": "A1" }, "answer": 1, "unit": "A", "explain": "设 u_a 为未知数：i2 = u_a/4，u_b = −2i2 = −u_a/2，i3 = (u_a − u_b)/2 = 0.75u_a；KCL：(12 − u_a)/2 = i2 + i3 = u_a → u_a = 4 V，读数 i2 = 1 A。" },
+    { "id": "uv", "ask": "电压表读数 = ?", "find": { "kind": "meter", "el": "V1" }, "answer": 6, "unit": "V", "explain": "电压表并在 R3 两端：u_ab = R3·i3 = 2 × 3 = 6 V（i3 = 0.75 × 4 = 3 A）。" },
+    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": -2, "unit": "V", "explain": "H 的“+”在下（接地），所以 u_b = 0 − 2i2 = −2 V。也可以 u_b = u_a − 6 = −2 V。" },
+    { "id": "ph", "ask": "H 吸收的功率 = ?", "find": { "kind": "p", "el": "H" }, "answer": -6, "unit": "W", "explain": "H 的电压 2 V（下“+”上“−”），i3 = 3 A 从上（“−”端）流进、从下（“+”端）流出，非关联：P吸 = −2 × 3 = −6 W，H 发出 6 W。" }
+  ],
+  "hints": [
+    "理想电流表相当于短路、理想电压表相当于开路；电流表的读数就是 i2。",
+    "取 u_a 为未知数，把 i2、u_b、i3 都写成 u_a 的函数（注意 H 的“+”在下端），最后在结点 a 列 KCL。"
+  ],
+  "solution": [
+    "**1. 用 u_a 表示各量。** i2 = u_a/R2 = u_a/4；H 的“+”在下、接地，所以 u_b = −2i2 = −u_a/2；i3 = (u_a − u_b)/R3 = (1.5u_a)/2 = 0.75u_a。",
+    "**2. KCL（结点 a）。** i1 = (12 − u_a)/2 = i2 + i3 = u_a → 12 − u_a = 2u_a → **u_a = 4 V**。",
+    "**3. 读数。** 电流表 **i2 = 1 A**；i3 = 3 A，电压表 **u_ab = R3·i3 = 6 V**；**u_b = −2 V**。",
+    "**4. H 的功率。** 关联参考方向下（电流从“+”端即下端流入）电流为 −3 A，**P_H = 2 × (−3) = −6 W**。",
+    "**验算：** i1 = 4 A，P_Us = −48 W，P_R1 = 32 W，P_R2 = 4 W，P_R3 = 18 W，P_H = −6 W；32 + 4 + 18 − 48 − 6 = 0。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Meter readings in a circuit with a CCVS",
+      "tags": ["dependent source CCVS", "KCL", "KVL", "ideal meters"],
+      "statement": [
+        "In the circuit, Us = 12 V, R1 = 2 Ω, R2 = 4 Ω, R3 = 2 Ω. A1 is an ideal ammeter and V1 an ideal voltmeter (it reads v_a − v_b). The current-controlled voltage source H has voltage 2i2 with its **\"+\" at the bottom**, where i2 is the current through R2 (downwards).",
+        "Find the ammeter and voltmeter readings, the potential v_b of point b, and the power absorbed by H."
+      ],
+      "questions": [
+        { "ask": "Ammeter reading = ?", "explain": "Take v_a as the unknown: i2 = v_a/4, v_b = −2i2 = −v_a/2, i3 = (v_a − v_b)/2 = 0.75v_a; KCL: (12 − v_a)/2 = i2 + i3 = v_a → v_a = 4 V, so the reading is i2 = 1 A." },
+        { "ask": "Voltmeter reading = ?", "explain": "The voltmeter is across R3: v_ab = R3·i3 = 2 × 3 = 6 V (i3 = 0.75 × 4 = 3 A)." },
+        { "ask": "v_b = ?", "explain": "H has its \"+\" at the bottom (ground), so v_b = 0 − 2i2 = −2 V. Or v_b = v_a − 6 = −2 V." },
+        { "ask": "Power absorbed by H = ?", "explain": "H has 2 V across it (+ at the bottom), and i3 = 3 A enters at the top (\"−\") and leaves at the bottom (\"+\") — active convention: P_abs = −2 × 3 = −6 W, H delivers 6 W." }
+      ],
+      "hints": [
+        "An ideal ammeter is a short circuit and an ideal voltmeter an open circuit; the ammeter reads i2.",
+        "Take v_a as the unknown and write i2, v_b and i3 in terms of it (mind that H's \"+\" is at the bottom), then write KCL at node a."
+      ],
+      "solution": [
+        "**1. Everything in terms of v_a.** i2 = v_a/R2 = v_a/4; H has \"+\" at the bottom, which is grounded, so v_b = −2i2 = −v_a/2; i3 = (v_a − v_b)/R3 = (1.5v_a)/2 = 0.75v_a.",
+        "**2. KCL at node a.** i1 = (12 − v_a)/2 = i2 + i3 = v_a → 12 − v_a = 2v_a → **v_a = 4 V**.",
+        "**3. Readings.** Ammeter **i2 = 1 A**; i3 = 3 A, voltmeter **v_ab = R3·i3 = 6 V**; **v_b = −2 V**.",
+        "**4. Power of H.** With the passive convention (current entering \"+\", the bottom end) its current is −3 A: **P_H = 2 × (−3) = −6 W**.",
+        "**Check:** i1 = 4 A, P_Us = −48 W, P_R1 = 32 W, P_R2 = 4 W, P_R3 = 18 W, P_H = −6 W; 32 + 4 + 18 − 48 − 6 = 0."
+      ]
+    }
+  }
+}

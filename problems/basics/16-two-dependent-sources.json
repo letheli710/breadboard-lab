@@ -1,0 +1,86 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "basics-16-two-dependent-sources",
+  "chapter": "basics",
+  "title": "含两个受控源的综合题",
+  "level": 5,
+  "tags": ["受控源 CCVS", "受控源 VCCS", "KCL", "KVL", "功率守恒"],
+  "statement": [
+    "图示电路中 Us = 12 V，R1 = 2 Ω，R2 = 4 Ω，R3 = 1 Ω。电流控制电压源 H 的电压为 2i（“+”在上），i 为流过 R1 的电流（向右）；电压控制电流源 G 的电流为 0.5u（方向向上，注入结点 a），u 为 R2 两端的电压（“+”在上）。",
+    "求控制量 i 和 u，以及两个受控源各自吸收的功率，并验证整个电路的功率平衡。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
+      { "ref": "R2", "type": "R", "from": [7, 0], "to": [7, 6], "value": 4 },
+      { "ref": "R3", "type": "R", "from": [10, 0], "to": [10, 3], "value": 1 },
+      { "ref": "H", "type": "CCVS", "from": [10, 3], "to": [10, 6], "value": 2, "ctrl": { "i": "R1" }, "label": "2i" },
+      { "ref": "G", "type": "VCCS", "from": [14, 6], "to": [14, 0], "value": 0.5, "ctrl": { "v": "R2" }, "label": "0.5u" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [14, 0]],
+      [[14, 6], [0, 6]]
+    ],
+    "labels": [{ "at": [7, 0], "name": "a" }],
+    "grounds": [[0, 6]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i" }, { "kind": "v", "el": "R2", "name": "u" }, { "kind": "i", "el": "R3", "name": "i3" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "i", "ask": "i = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "KVL：u = 12 − 2i，i3 = (u − 2i)/1。KCL（结点 a）：i + 0.5u = u/4 + (u − 2i) → 3i = 0.75u → u = 4i。代入 4i = 12 − 2i → i = 2 A。" },
+    { "id": "u", "ask": "u = ?", "find": { "kind": "v", "el": "R2" }, "answer": 8, "unit": "V", "explain": "u = 4i = 8 V（或 u = 12 − 2 × 2 = 8 V）。" },
+    { "id": "ph", "ask": "H 吸收的功率 = ?", "find": { "kind": "p", "el": "H" }, "answer": 16, "unit": "W", "explain": "H 的电压 2i = 4 V（上“+”），i3 = (8 − 4)/1 = 4 A 从“+”端流入，关联：P = 4 × 4 = 16 W（吸收）。" },
+    { "id": "pg", "ask": "G 吸收的功率 = ?", "find": { "kind": "p", "el": "G" }, "answer": -32, "unit": "W", "explain": "G 两端电压 u = 8 V（上“+”），电流 0.5u = 4 A 从“+”端流出，非关联：P吸 = −8 × 4 = −32 W（发出 32 W）。" }
+  ],
+  "hints": [
+    "两个控制量 i、u 都当作未知数。KVL（左边回路）给出 u 与 i 的一个关系。",
+    "R3–H 支路的电流 i3 = (u − 2i)/R3；在结点 a 列 KCL，就得到第二个关系。",
+    "联立得 u = 4i，再代回 KVL。功率平衡：所有元件吸收功率之和为零。"
+  ],
+  "solution": [
+    "**1. KVL（Us–R1–R2 回路）。** u = Us − R1·i = 12 − 2i。",
+    "**2. 右支路。** 沿 a → R3 → H → 地：u = R3·i3 + 2i → i3 = u − 2i。",
+    "**3. KCL（结点 a）。** 流入 i + 0.5u，流出 u/R2 + i3：i + 0.5u = 0.25u + u − 2i → 3i = 0.75u → **u = 4i**。",
+    "**4. 求解。** 4i = 12 − 2i → **i = 2 A，u = 8 V**；i3 = 8 − 4 = 4 A，G 的电流 0.5u = 4 A。",
+    "**5. 功率（吸收为正）。**",
+    "- Us：电流 2 A 从“+”端流出，P = −24 W；R1：2² × 2 = 8 W；R2：8²/4 = 16 W；R3：4² × 1 = 16 W。",
+    "- H：4 V × 4 A（关联）= **16 W**，在吸收功率。",
+    "- G：8 V，4 A 从“+”端流出，**P_G = −32 W**，在发出功率。",
+    "**6. 功率平衡。** −24 + 8 + 16 + 16 + 16 − 32 = 0。电阻共吸收 40 W，比 Us 发出的 24 W 还多——多出的部分来自受控源 G（G 发出 32 W，其中 16 W 又被 H 吸收）。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Two dependent sources: a combined problem",
+      "tags": ["dependent source CCVS", "dependent source VCCS", "KCL", "KVL", "power balance"],
+      "statement": [
+        "In the circuit, Us = 12 V, R1 = 2 Ω, R2 = 4 Ω, R3 = 1 Ω. The current-controlled voltage source H has voltage 2i (\"+\" at the top), where i is the current through R1 (to the right); the voltage-controlled current source G carries 0.5u (upwards, into node a), where u is the voltage across R2 (\"+\" at the top).",
+        "Find the controlling quantities i and u and the power absorbed by each dependent source, and check the power balance of the whole circuit."
+      ],
+      "questions": [
+        { "ask": "i = ?", "explain": "KVL: u = 12 − 2i and i3 = (u − 2i)/1. KCL at node a: i + 0.5u = u/4 + (u − 2i) → 3i = 0.75u → u = 4i. Then 4i = 12 − 2i → i = 2 A." },
+        { "ask": "u = ?", "explain": "u = 4i = 8 V (or u = 12 − 2 × 2 = 8 V)." },
+        { "ask": "Power absorbed by H = ?", "explain": "H's voltage is 2i = 4 V (+ at the top) and i3 = (8 − 4)/1 = 4 A enters its \"+\" end — passive convention: P = 4 × 4 = 16 W (absorbed)." },
+        { "ask": "Power absorbed by G = ?", "explain": "G has u = 8 V across it (+ at the top) and its 0.5u = 4 A leaves the \"+\" end — active convention: P_abs = −8 × 4 = −32 W (it delivers 32 W)." }
+      ],
+      "hints": [
+        "Treat both controlling quantities i and u as unknowns. KVL around the left loop gives one relation between u and i.",
+        "The current in the R3–H branch is i3 = (u − 2i)/R3; KCL at node a then gives the second relation.",
+        "Together they give u = 4i; substitute back into the KVL equation. Power balance: the absorbed powers of all elements add up to zero."
+      ],
+      "solution": [
+        "**1. KVL (loop Us–R1–R2).** u = Us − R1·i = 12 − 2i.",
+        "**2. Right branch.** Along a → R3 → H → ground: u = R3·i3 + 2i → i3 = u − 2i.",
+        "**3. KCL at node a.** In: i + 0.5u; out: u/R2 + i3. So i + 0.5u = 0.25u + u − 2i → 3i = 0.75u → **u = 4i**.",
+        "**4. Solve.** 4i = 12 − 2i → **i = 2 A, u = 8 V**; i3 = 8 − 4 = 4 A, and G carries 0.5u = 4 A.",
+        "**5. Power (absorbed is positive).**",
+        "- Us: 2 A leaves its \"+\" terminal, P = −24 W; R1: 2² × 2 = 8 W; R2: 8²/4 = 16 W; R3: 4² × 1 = 16 W.",
+        "- H: 4 V × 4 A (passive) = **16 W**, it absorbs power.",
+        "- G: 8 V, 4 A leaving \"+\": **P_G = −32 W**, it delivers power.",
+        "**6. Power balance.** −24 + 8 + 16 + 16 + 16 − 32 = 0. The resistors absorb 40 W in total, more than the 24 W delivered by Us — the rest comes from the dependent source G (it delivers 32 W, of which 16 W is absorbed again by H)."
+      ]
+    }
+  }
+}

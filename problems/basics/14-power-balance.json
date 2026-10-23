@@ -1,0 +1,92 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "basics-14-power-balance",
+  "chapter": "basics",
+  "title": "含 CCCS 电路的功率平衡",
+  "level": 4,
+  "tags": ["受控源 CCCS", "功率守恒", "KCL", "KVL"],
+  "statement": [
+    "图示电路中 Us1 = 15 V，Us2 = 3 V，R1 = 3 Ω，R3 = 1 Ω。电流控制电流源 F 的电流为 2i1（方向向上，注入结点 a），i1 为流过 R1 的电流（向右）。",
+    "求 i1、F 和 Us2 吸收的功率，并说明哪些元件实际发出功率、验证功率平衡。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 15 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 3 },
+      { "ref": "F", "type": "CCCS", "from": [8, 4], "to": [8, 0], "value": 2, "ctrl": { "i": "R1" }, "label": "2i_1" },
+      { "ref": "R3", "type": "R", "from": [10, 0], "to": [13, 0], "value": 1 },
+      { "ref": "Us2", "type": "V", "from": [15, 0], "to": [15, 4], "value": 3 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [10, 0]],
+      [[13, 0], [15, 0]],
+      [[15, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [8, 0], "name": "a" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }, { "kind": "i", "el": "R3", "name": "i3" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "i1", "ask": "i1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "KVL：u_a = 15 − 3i1；KCL（结点 a）：i3 = i1 + 2i1 = 3i1；KVL：u_a = R3·i3 + 3 = 3i1 + 3。联立 15 − 3i1 = 3i1 + 3 → i1 = 2 A。" },
+    { "id": "pf", "ask": "F 吸收的功率 = ?", "find": { "kind": "p", "el": "F" }, "answer": -36, "unit": "W", "explain": "u_a = 15 − 6 = 9 V，F 的电流 2i1 = 4 A 从“+”端（a，上端）流出，非关联：P吸 = −9 × 4 = −36 W。" },
+    { "id": "p2", "ask": "Us2 吸收的功率 = ?", "find": { "kind": "p", "el": "Us2" }, "answer": 18, "unit": "W", "explain": "i3 = 3i1 = 6 A 从 Us2 的“+”端流入，关联：P = 3 × 6 = 18 W，Us2 在吸收功率（被充电）。" },
+    {
+      "id": "who",
+      "ask": "本电路中实际发出功率的元件是：",
+      "choices": ["只有 Us1", "Us1 和 F", "Us1、Us2 和 F", "只有 F"],
+      "correct": 1,
+      "explain": "P_Us1 = −15 × 2 = −30 W，P_F = −36 W，二者发出共 66 W；R1 吸收 12 W，R3 吸收 36 W，Us2 吸收 18 W，合计 66 W，功率平衡。"
+    }
+  ],
+  "hints": [
+    "以控制量 i1 为未知数：用 KCL 把 R3 的电流写成 i1 的倍数。",
+    "u_a 可以从左边（经 Us1、R1）求，也可以从右边（经 R3、Us2）求，两者相等就是 KVL 方程。"
+  ],
+  "solution": [
+    "**1. KCL（结点 a）。** 流入 i1 + 2i1，流出 i3：**i3 = 3i1**。",
+    "**2. KVL。** 左边：u_a = Us1 − R1·i1 = 15 − 3i1；右边：u_a = R3·i3 + Us2 = 3i1 + 3。",
+    "15 − 3i1 = 3i1 + 3 → **i1 = 2 A**，i3 = 6 A，u_a = 9 V。",
+    "**3. 各元件吸收的功率。**",
+    "- Us1：电流从“+”端流出，P = −15 × 2 = −30 W；R1：2² × 3 = 12 W。",
+    "- F：端电压 9 V（上“+”），4 A 从“+”端流出，**P_F = −36 W**。",
+    "- R3：6² × 1 = 36 W；Us2：6 A 从“+”端流入，**P_Us2 = 18 W**。",
+    "**4. 功率平衡。** −30 + 12 − 36 + 36 + 18 = 0。发出功率的是 Us1 和受控源 F；受控源发出的功率比独立源 Us1 还多。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Power balance in a circuit with a CCCS",
+      "tags": ["dependent source CCCS", "power balance", "KCL", "KVL"],
+      "statement": [
+        "In the circuit, Us1 = 15 V, Us2 = 3 V, R1 = 3 Ω, R3 = 1 Ω. The current-controlled current source F carries 2i1 (upwards, into node a), where i1 is the current through R1 (to the right).",
+        "Find i1 and the power absorbed by F and by Us2; state which elements actually deliver power and check the power balance."
+      ],
+      "questions": [
+        { "ask": "i1 = ?", "explain": "KVL: v_a = 15 − 3i1; KCL at node a: i3 = i1 + 2i1 = 3i1; KVL: v_a = R3·i3 + 3 = 3i1 + 3. So 15 − 3i1 = 3i1 + 3 → i1 = 2 A." },
+        { "ask": "Power absorbed by F = ?", "explain": "v_a = 15 − 6 = 9 V; F's current 2i1 = 4 A leaves its \"+\" end (a, the top) — active convention: P_abs = −9 × 4 = −36 W." },
+        { "ask": "Power absorbed by Us2 = ?", "explain": "i3 = 3i1 = 6 A enters the \"+\" terminal of Us2 (passive convention): P = 3 × 6 = 18 W, so Us2 absorbs power (it is being charged)." },
+        {
+          "ask": "Which elements actually deliver power in this circuit?",
+          "choices": ["only Us1", "Us1 and F", "Us1, Us2 and F", "only F"],
+          "explain": "P_Us1 = −15 × 2 = −30 W and P_F = −36 W: together they deliver 66 W; R1 absorbs 12 W, R3 36 W and Us2 18 W, 66 W in total — the power balances."
+        }
+      ],
+      "hints": [
+        "Take the controlling current i1 as the unknown: KCL gives the current in R3 as a multiple of i1.",
+        "v_a can be written from the left (through Us1, R1) or from the right (through R3, Us2); setting the two equal is the KVL equation."
+      ],
+      "solution": [
+        "**1. KCL at node a.** i1 + 2i1 enter, i3 leaves: **i3 = 3i1**.",
+        "**2. KVL.** Left side: v_a = Us1 − R1·i1 = 15 − 3i1; right side: v_a = R3·i3 + Us2 = 3i1 + 3.",
+        "15 − 3i1 = 3i1 + 3 → **i1 = 2 A**, i3 = 6 A, v_a = 9 V.",
+        "**3. Power absorbed by each element.**",
+        "- Us1: its current leaves \"+\", P = −15 × 2 = −30 W; R1: 2² × 3 = 12 W.",
+        "- F: 9 V across it (+ at the top), 4 A leaving \"+\": **P_F = −36 W**.",
+        "- R3: 6² × 1 = 36 W; Us2: 6 A entering \"+\": **P_Us2 = 18 W**.",
+        "**4. Power balance.** −30 + 12 − 36 + 36 + 18 = 0. The elements delivering power are Us1 and the dependent source F — and F delivers even more than the independent source Us1."
+      ]
+    }
+  }
+}

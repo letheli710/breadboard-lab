@@ -1,0 +1,101 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "methods-14-mesh-vs-nodal-bridge",
+  "chapter": "methods",
+  "title": "方法选择：不平衡电桥用结点法和网孔法各做一遍",
+  "level": 4,
+  "tags": ["方法选择", "结点电压法", "网孔电流法", "电桥"],
+  "statement": [
+    "图示电桥电路中 Us = 16 V，R1 = 2 Ω，R2 = 4 Ω，R3 = 4 Ω，R4 = 2 Ω，桥支路 R5 = 8 Ω。",
+    "分别用**结点电压法**和**网孔电流法**求解，比较两种方法的方程数，并求 u_b、桥支路电流 i5（从 b 流向 c）和电源吸收的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 8], "value": 16 },
+      { "ref": "R1", "type": "R", "from": [5, 0], "to": [5, 4], "value": 2 },
+      { "ref": "R3", "type": "R", "from": [5, 4], "to": [5, 8], "value": 4 },
+      { "ref": "R2", "type": "R", "from": [11, 0], "to": [11, 4], "value": 4 },
+      { "ref": "R4", "type": "R", "from": [11, 4], "to": [11, 8], "value": 2 },
+      { "ref": "R5", "type": "R", "from": [6, 4], "to": [10, 4], "value": 8 }
+    ],
+    "wires": [
+      [[0, 0], [11, 0]],
+      [[5, 4], [6, 4]],
+      [[10, 4], [11, 4]],
+      [[11, 8], [0, 8]]
+    ],
+    "labels": [{ "at": [0, 0], "name": "a" }, { "at": [5, 4], "name": "b" }, { "at": [11, 4], "name": "c" }],
+    "grounds": [[0, 8]],
+    "marks": [{ "kind": "i", "el": "R5", "name": "i5" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "n",
+      "ask": "以底部为参考结点，结点法需要几个方程？网孔法需要几个方程？",
+      "choices": ["结点法 3 个，网孔法 3 个", "结点法 2 个，网孔法 3 个", "结点法 3 个，网孔法 2 个", "结点法 2 个，网孔法 2 个"],
+      "correct": 1,
+      "explain": "共 4 个结点，其中 a 的电压由 Us 直接给定，只剩 b、c 两个未知结点电压；b = 6 条支路，网孔数 b − n + 1 = 3。本题用结点法更省事。"
+    },
+    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 10, "unit": "V", "explain": "结点方程 0.875u_b − 0.125u_c = 8，−0.125u_b + 0.875u_c = 4，解得 u_b = 10 V，u_c = 6 V。" },
+    { "id": "i5", "ask": "i5 = ?", "find": { "kind": "i", "el": "R5" }, "answer": 0.5, "unit": "A", "explain": "i5 = (u_b − u_c)/R5 = (10 − 6)/8 = 0.5 A。网孔法中 i5 = i_m3 − i_m2 = 3 − 2.5 = 0.5 A，结果一致。" },
+    { "id": "p", "ask": "Us 吸收的功率 P = ?", "find": { "kind": "p", "el": "Us" }, "answer": -88, "unit": "W", "explain": "电源电流 = 网孔电流 i_m1 = (16 − 10)/2 + (16 − 6)/4 = 3 + 2.5 = 5.5 A，P = −16 × 5.5 = −88 W（发出 88 W）。" }
+  ],
+  "hints": [
+    "结点法：u_a = 16 V 已知，只对 b、c 列方程。",
+    "结点 b：(1/R1 + 1/R3 + 1/R5)u_b − (1/R5)u_c = u_a/R1；结点 c：−(1/R5)u_b + (1/R2 + 1/R4 + 1/R5)u_c = u_a/R2。",
+    "网孔法（均顺时针）：网孔 1 = Us、R1、R3；网孔 2 = R1、R2、R5；网孔 3 = R3、R5、R4。"
+  ],
+  "solution": [
+    "**方法一：结点电压法**（2 个方程）",
+    "结点 b：(1/2 + 1/4 + 1/8)·u_b − (1/8)·u_c = 16/2 → 0.875u_b − 0.125u_c = 8。",
+    "结点 c：−(1/8)·u_b + (1/4 + 1/2 + 1/8)·u_c = 16/4 → −0.125u_b + 0.875u_c = 4。",
+    "两式相加：0.75(u_b + u_c) = 12 → u_b + u_c = 16；相减：u_b − u_c = 4 → **u_b = 10 V**，u_c = 6 V，**i5 = 4/8 = 0.5 A**。",
+    "**方法二：网孔电流法**（3 个方程，均顺时针；i_m1：Us–R1–R3，i_m2：R1–R2–R5，i_m3：R3–R5–R4）",
+    "网孔 1：(R1 + R3)i_m1 − R1·i_m2 − R3·i_m3 = Us → 6i_m1 − 2i_m2 − 4i_m3 = 16。",
+    "网孔 2：−R1·i_m1 + (R1 + R2 + R5)i_m2 − R5·i_m3 = 0 → −2i_m1 + 14i_m2 − 8i_m3 = 0。",
+    "网孔 3：−R3·i_m1 − R5·i_m2 + (R3 + R4 + R5)i_m3 = 0 → −4i_m1 − 8i_m2 + 14i_m3 = 0。",
+    "解得 i_m1 = 5.5 A，i_m2 = 2.5 A，i_m3 = 3 A；i5 = i_m3 − i_m2 = 0.5 A，u_b = R3(i_m1 − i_m3) = 4 × 2.5 = 10 V，与结点法一致。",
+    "**电源功率：** P = −Us·i_m1 = −16 × 5.5 = **−88 W**。",
+    "**验算：** 电阻吸收 2×3² + 4×2.5² + 4×2.5² + 2×3² + 8×0.5² = 18 + 25 + 25 + 18 + 2 = 88 W。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Choosing a method: an unbalanced bridge solved by nodal and mesh analysis",
+      "tags": ["choosing a method", "nodal analysis", "mesh-current method", "bridge"],
+      "statement": [
+        "In the bridge circuit, Us = 16 V, R1 = 2 Ω, R2 = 4 Ω, R3 = 4 Ω, R4 = 2 Ω, and the bridge resistor R5 = 8 Ω.",
+        "Solve it both with **nodal analysis** and with the **mesh-current method**, compare the number of equations, and find u_b, the bridge current i5 (from b to c) and the power absorbed by the source."
+      ],
+      "questions": [
+        {
+          "ask": "With the bottom node as reference, how many equations does nodal analysis need, and how many does mesh analysis need?",
+          "choices": ["nodal 3, mesh 3", "nodal 2, mesh 3", "nodal 3, mesh 2", "nodal 2, mesh 2"],
+          "explain": "There are 4 nodes; the voltage of a is fixed by Us, leaving only u_b and u_c unknown. With b = 6 branches there are b − n + 1 = 3 meshes. Nodal analysis is the cheaper choice here."
+        },
+        { "ask": "u_b = ?", "explain": "The node equations 0.875u_b − 0.125u_c = 8 and −0.125u_b + 0.875u_c = 4 give u_b = 10 V and u_c = 6 V." },
+        { "ask": "i5 = ?", "explain": "i5 = (u_b − u_c)/R5 = (10 − 6)/8 = 0.5 A. With mesh currents, i5 = i_m3 − i_m2 = 3 − 2.5 = 0.5 A, the same result." },
+        { "ask": "Power absorbed by Us, P = ?", "explain": "The source current is the mesh current i_m1 = (16 − 10)/2 + (16 − 6)/4 = 3 + 2.5 = 5.5 A, so P = −16 × 5.5 = −88 W (it delivers 88 W)." }
+      ],
+      "hints": [
+        "Nodal: u_a = 16 V is known, so write equations only for b and c.",
+        "Node b: (1/R1 + 1/R3 + 1/R5)u_b − (1/R5)u_c = u_a/R1; node c: −(1/R5)u_b + (1/R2 + 1/R4 + 1/R5)u_c = u_a/R2.",
+        "Mesh (all clockwise): mesh 1 = Us, R1, R3; mesh 2 = R1, R2, R5; mesh 3 = R3, R5, R4."
+      ],
+      "solution": [
+        "**Method 1: nodal analysis** (2 equations)",
+        "Node b: (1/2 + 1/4 + 1/8)·u_b − (1/8)·u_c = 16/2 → 0.875u_b − 0.125u_c = 8.",
+        "Node c: −(1/8)·u_b + (1/4 + 1/2 + 1/8)·u_c = 16/4 → −0.125u_b + 0.875u_c = 4.",
+        "Adding: 0.75(u_b + u_c) = 12 → u_b + u_c = 16; subtracting: u_b − u_c = 4 → **u_b = 10 V**, u_c = 6 V, **i5 = 4/8 = 0.5 A**.",
+        "**Method 2: mesh analysis** (3 equations, all clockwise; i_m1: Us–R1–R3, i_m2: R1–R2–R5, i_m3: R3–R5–R4)",
+        "Mesh 1: (R1 + R3)i_m1 − R1·i_m2 − R3·i_m3 = Us → 6i_m1 − 2i_m2 − 4i_m3 = 16.",
+        "Mesh 2: −R1·i_m1 + (R1 + R2 + R5)i_m2 − R5·i_m3 = 0 → −2i_m1 + 14i_m2 − 8i_m3 = 0.",
+        "Mesh 3: −R3·i_m1 − R5·i_m2 + (R3 + R4 + R5)i_m3 = 0 → −4i_m1 − 8i_m2 + 14i_m3 = 0.",
+        "Solution: i_m1 = 5.5 A, i_m2 = 2.5 A, i_m3 = 3 A; i5 = i_m3 − i_m2 = 0.5 A and u_b = R3(i_m1 − i_m3) = 4 × 2.5 = 10 V, matching the nodal result.",
+        "**Source power:** P = −Us·i_m1 = −16 × 5.5 = **−88 W**.",
+        "**Check:** the resistors absorb 2×3² + 4×2.5² + 4×2.5² + 2×3² + 8×0.5² = 18 + 25 + 25 + 18 + 2 = 88 W."
+      ]
+    }
+  }
+}

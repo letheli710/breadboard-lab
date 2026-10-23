@@ -1,0 +1,83 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "methods-11-nodal-cccs",
+  "chapter": "methods",
+  "title": "结点电压法：含电流控制电流源",
+  "level": 4,
+  "tags": ["结点电压法", "受控源 CCCS", "控制量方程"],
+  "statement": [
+    "图示电路中 Us = 10 V，R1 = 2 Ω，R2 = 4 Ω，R3 = 4 Ω，R4 = 4 Ω。电流控制电流源（CCCS）向上注入结点 b 的电流为 2i2，i2 是 R2 中向下的电流。",
+    "用**结点电压法**求 u_a、u_b、R3 中的电流 i3（从 a 流向 b），以及受控源吸收的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
+      { "ref": "R2", "type": "R", "from": [7, 0], "to": [7, 4], "value": 4 },
+      { "ref": "R3", "type": "R", "from": [9, 0], "to": [12, 0], "value": 4 },
+      { "ref": "F", "type": "CCCS", "from": [14, 4], "to": [14, 0], "value": 2, "ctrl": { "i": "R2" }, "label": "2i_2" },
+      { "ref": "R4", "type": "R", "from": [17, 0], "to": [17, 4], "value": 4 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [9, 0]],
+      [[12, 0], [17, 0]],
+      [[17, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [7, 0], "name": "a" }, { "at": [14, 0], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R2", "name": "i2" }, { "kind": "i", "el": "R3", "name": "i3" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 8, "unit": "V", "explain": "补充 i2 = u_a/4 后，结点 b 的方程给出 u_b = 1.5u_a；代入结点 a 的方程 u_a − u_b/4 = 5，得 u_a = 8 V。" },
+    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 12, "unit": "V", "explain": "u_b = 1.5u_a = 12 V。注意 u_b 比 u_a 还高——是受控源把电流“推”进了结点 b。" },
+    { "id": "i3", "ask": "i3 = ?", "find": { "kind": "i", "el": "R3" }, "answer": -1, "unit": "A", "explain": "i3 = (u_a − u_b)/R3 = (8 − 12)/4 = −1 A，实际电流从 b 流向 a。" },
+    { "id": "p", "ask": "受控源 F 吸收的功率 P = ?", "find": { "kind": "p", "el": "F" }, "answer": -48, "unit": "W", "explain": "受控源电流 2i2 = 2 × 2 = 4 A，从高电位端 b（12 V）流出：P = −12 × 4 = −48 W，即发出 48 W。" }
+  ],
+  "hints": [
+    "先把受控源当作独立电流源（电流 2i2）列结点方程，再补充一个“控制量方程”，用结点电压表示 i2。",
+    "控制量：i2 = u_a/R2 = u_a/4。",
+    "结点 b：−(1/R3)u_a + (1/R3 + 1/R4)u_b = 2i2。"
+  ],
+  "solution": [
+    "**1. 结点 a：** (1/R1 + 1/R2 + 1/R3)·u_a − (1/R3)·u_b = Us/R1 → u_a − 0.25u_b = 5。",
+    "**2. 结点 b：** −(1/R3)·u_a + (1/R3 + 1/R4)·u_b = 2i2 → −0.25u_a + 0.5u_b = 2i2。",
+    "**3. 控制量方程：** i2 = u_a/R2 = 0.25u_a。代入第 2 步：−0.25u_a + 0.5u_b = 0.5u_a → **u_b = 1.5u_a**。",
+    "**4. 求解：** u_a − 0.375u_a = 5 → **u_a = 8 V**，**u_b = 12 V**。i2 = 2 A，受控源电流 4 A。",
+    "**5. i3：** (8 − 12)/4 = **−1 A**。",
+    "**6. 受控源功率：** P = −u_b × 2i2 = −12 × 4 = **−48 W**（发出 48 W）。",
+    "**验算：** Us 输出 (10 − 8)/2 = 1 A，发出 10 W；受控源发出 48 W，共 58 W。电阻吸收 2×1 + 4×4 + 4×1 + 4×9 = 2 + 16 + 4 + 36 = 58 W。注意：含受控源时，结点电导矩阵不再对称。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Nodal analysis with a current-controlled current source",
+      "tags": ["nodal analysis", "dependent source CCCS", "controlling-variable equation"],
+      "statement": [
+        "In the circuit, Us = 10 V, R1 = 2 Ω, R2 = 4 Ω, R3 = 4 Ω, R4 = 4 Ω. The current-controlled current source (CCCS) injects 2i2 upwards into node b, where i2 is the downward current in R2.",
+        "Use **nodal analysis** to find u_a, u_b, the current i3 in R3 (from a to b), and the power absorbed by the dependent source."
+      ],
+      "questions": [
+        { "ask": "u_a = ?", "explain": "With i2 = u_a/4, the equation of node b gives u_b = 1.5u_a; substituting into the node-a equation u_a − u_b/4 = 5 gives u_a = 8 V." },
+        { "ask": "u_b = ?", "explain": "u_b = 1.5u_a = 12 V. Note that u_b is even higher than u_a: the dependent source pushes current into node b." },
+        { "ask": "i3 = ?", "explain": "i3 = (u_a − u_b)/R3 = (8 − 12)/4 = −1 A: the actual current flows from b to a." },
+        { "ask": "Power absorbed by the dependent source F, P = ?", "explain": "The source current is 2i2 = 2 × 2 = 4 A and leaves at the higher-potential end b (12 V): P = −12 × 4 = −48 W, i.e. it delivers 48 W." }
+      ],
+      "hints": [
+        "First treat the dependent source as an independent current source (current 2i2) when writing the node equations, then add a \"controlling-variable equation\" expressing i2 in node voltages.",
+        "Controlling variable: i2 = u_a/R2 = u_a/4.",
+        "Node b: −(1/R3)u_a + (1/R3 + 1/R4)u_b = 2i2."
+      ],
+      "solution": [
+        "**1. Node a:** (1/R1 + 1/R2 + 1/R3)·u_a − (1/R3)·u_b = Us/R1 → u_a − 0.25u_b = 5.",
+        "**2. Node b:** −(1/R3)·u_a + (1/R3 + 1/R4)·u_b = 2i2 → −0.25u_a + 0.5u_b = 2i2.",
+        "**3. Controlling-variable equation:** i2 = u_a/R2 = 0.25u_a. Substituting into step 2: −0.25u_a + 0.5u_b = 0.5u_a → **u_b = 1.5u_a**.",
+        "**4. Solve:** u_a − 0.375u_a = 5 → **u_a = 8 V**, **u_b = 12 V**. i2 = 2 A, so the dependent source carries 4 A.",
+        "**5. i3:** (8 − 12)/4 = **−1 A**.",
+        "**6. Dependent-source power:** P = −u_b × 2i2 = −12 × 4 = **−48 W** (delivers 48 W).",
+        "**Check:** Us supplies (10 − 8)/2 = 1 A, i.e. 10 W; the dependent source delivers 48 W; 58 W in total. The resistors absorb 2×1 + 4×4 + 4×1 + 4×9 = 2 + 16 + 4 + 36 = 58 W. Note: with a dependent source the nodal conductance matrix is no longer symmetric."
+      ]
+    }
+  }
+}

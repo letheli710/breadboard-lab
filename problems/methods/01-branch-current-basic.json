@@ -1,0 +1,94 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "methods-01-branch-current-basic",
+  "chapter": "methods",
+  "title": "支路电流法：两个电压源的三支路电路",
+  "level": 1,
+  "tags": ["支路电流法", "KCL", "KVL"],
+  "statement": [
+    "图示电路中 Us1 = 14 V，Us2 = 4 V，R1 = 2 Ω，R2 = 4 Ω，R3 = 4 Ω。三条支路电流 i1、i2、i3 的参考方向如图（i1、i2 流向结点 a，i3 向下）。",
+    "用**支路电流法**求 i1、i2，以及 Us2 **吸收**的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 14 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+      { "ref": "R3", "type": "R", "from": [8, 0], "to": [8, 4], "value": 4 },
+      { "ref": "R2", "type": "R", "from": [14, 0], "to": [10, 0], "value": 4 },
+      { "ref": "Us2", "type": "V", "from": [16, 0], "to": [16, 4], "value": 4 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [10, 0]],
+      [[14, 0], [16, 0]],
+      [[16, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [8, 0], "name": "a" }],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "i", "el": "R1", "name": "i1" },
+      { "kind": "i", "el": "R2", "name": "i2" },
+      { "kind": "i", "el": "R3", "name": "i3" }
+    ]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "eqs",
+      "ask": "本电路有 n = 2 个结点、b = 3 条支路。支路电流法需要列几个独立的 KCL 方程和几个独立的 KVL 方程？",
+      "choices": ["2 个 KCL，1 个 KVL", "1 个 KCL，2 个 KVL", "1 个 KCL，3 个 KVL", "2 个 KCL，3 个 KVL"],
+      "correct": 1,
+      "explain": "独立 KCL 方程数 n − 1 = 1，独立 KVL 方程数 b − n + 1 = 2（取两个网孔），合计 b = 3 个方程，正好解出 3 个支路电流。"
+    },
+    { "id": "i1", "ask": "i1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 3, "unit": "A", "explain": "联立 i1 + i2 = i3、2i1 + 4i3 = 14、4i2 + 4i3 = 4，解得 i1 = 3 A。" },
+    { "id": "i2", "ask": "i2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": -1, "unit": "A", "explain": "i2 = −1 A：负号说明实际电流从 a 流向右边，与参考方向相反。" },
+    { "id": "p", "ask": "Us2 吸收的功率 P = ?", "find": { "kind": "p", "el": "Us2" }, "answer": 4, "unit": "W", "explain": "实际有 1 A 从 Us2 的“+”端流入，与 Us2 的电压为关联方向：P = 4 × 1 = 4 W，Us2 在吸收功率（相当于被充电）。" }
+  ],
+  "hints": [
+    "未知量是三个支路电流：对结点 a 列 1 个 KCL，再对左、右两个网孔各列 1 个 KVL。",
+    "左网孔：Us1 = R1·i1 + R3·i3；右网孔：Us2 = R2·i2 + R3·i3。",
+    "用 i3 = i1 + i2 消去 i3，得到两个关于 i1、i2 的方程。"
+  ],
+  "solution": [
+    "**1. KCL（结点 a）：** i1 + i2 = i3。",
+    "**2. KVL（左网孔，顺时针）：** R1·i1 + R3·i3 = Us1 → 2i1 + 4i3 = 14。",
+    "**3. KVL（右网孔，沿 Us2 → R2 → R3 方向）：** R2·i2 + R3·i3 = Us2 → 4i2 + 4i3 = 4。",
+    "**4. 求解：** 代入 i3 = i1 + i2：6i1 + 4i2 = 14，4i1 + 8i2 = 4。由第二式 i1 = 1 − 2i2，代入第一式 6 − 12i2 + 4i2 = 14 → **i2 = −1 A**，**i1 = 3 A**，i3 = 2 A。",
+    "**5. Us2 的功率：** 流入 Us2 “+”端的电流为 −i2 = 1 A，P = Us2 × 1 = **4 W（吸收）**。",
+    "**验算：** Us1 发出 14 × 3 = 42 W；电阻吸收 2×3² + 4×1² + 4×2² = 18 + 4 + 16 = 38 W；Us2 吸收 4 W。38 + 4 = 42 W，功率平衡。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Branch-current method: three branches, two voltage sources",
+      "tags": ["branch-current method", "KCL", "KVL"],
+      "statement": [
+        "In the circuit, Us1 = 14 V, Us2 = 4 V, R1 = 2 Ω, R2 = 4 Ω, R3 = 4 Ω. The reference directions of the branch currents i1, i2, i3 are shown (i1 and i2 flow towards node a, i3 flows down).",
+        "Use the **branch-current method** to find i1, i2 and the power **absorbed** by Us2."
+      ],
+      "questions": [
+        {
+          "ask": "The circuit has n = 2 nodes and b = 3 branches. How many independent KCL and KVL equations does the branch-current method need?",
+          "choices": ["2 KCL, 1 KVL", "1 KCL, 2 KVL", "1 KCL, 3 KVL", "2 KCL, 3 KVL"],
+          "explain": "There are n − 1 = 1 independent KCL equation and b − n + 1 = 2 independent KVL equations (the two meshes): b = 3 equations in total for the 3 branch currents."
+        },
+        { "ask": "i1 = ?", "explain": "Solving i1 + i2 = i3, 2i1 + 4i3 = 14 and 4i2 + 4i3 = 4 gives i1 = 3 A." },
+        { "ask": "i2 = ?", "explain": "i2 = −1 A: the minus sign means the actual current flows from a to the right, opposite to the reference arrow." },
+        { "ask": "Power absorbed by Us2, P = ?", "explain": "An actual current of 1 A enters the \"+\" terminal of Us2 (passive convention): P = 4 × 1 = 4 W, so Us2 absorbs power (it is being charged)." }
+      ],
+      "hints": [
+        "The unknowns are the three branch currents: write 1 KCL equation at node a and 1 KVL equation for each of the two meshes.",
+        "Left mesh: Us1 = R1·i1 + R3·i3; right mesh: Us2 = R2·i2 + R3·i3.",
+        "Eliminate i3 with i3 = i1 + i2 to get two equations in i1 and i2."
+      ],
+      "solution": [
+        "**1. KCL (node a):** i1 + i2 = i3.",
+        "**2. KVL (left mesh, clockwise):** R1·i1 + R3·i3 = Us1 → 2i1 + 4i3 = 14.",
+        "**3. KVL (right mesh, going Us2 → R2 → R3):** R2·i2 + R3·i3 = Us2 → 4i2 + 4i3 = 4.",
+        "**4. Solve:** with i3 = i1 + i2: 6i1 + 4i2 = 14 and 4i1 + 8i2 = 4. From the second, i1 = 1 − 2i2; substituting, 6 − 12i2 + 4i2 = 14 → **i2 = −1 A**, **i1 = 3 A**, i3 = 2 A.",
+        "**5. Power of Us2:** the current entering its \"+\" terminal is −i2 = 1 A, so P = Us2 × 1 = **4 W (absorbed)**.",
+        "**Check:** Us1 delivers 14 × 3 = 42 W; the resistors absorb 2×3² + 4×1² + 4×2² = 18 + 4 + 16 = 38 W; Us2 absorbs 4 W. 38 + 4 = 42 W, so power balances."
+      ]
+    }
+  }
+}

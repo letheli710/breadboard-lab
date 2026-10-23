@@ -1,0 +1,86 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "basics-07-voltmeter-bridge",
+  "chapter": "basics",
+  "title": "电桥中电压表的读数",
+  "level": 2,
+  "tags": ["KVL", "电位", "理想电压表"],
+  "statement": [
+    "图示电路中 Us = 12 V，R1 = 2 Ω，R2 = 4 Ω，R3 = 3 Ω，R4 = 1 Ω。V1 为理想电压表（内阻无穷大），读数为 u_cd = u_c − u_d。",
+    "以图中接地点为参考点，求 c、d 两点的电位和电压表的读数。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 2], "to": [0, 6], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [5, 0], "to": [5, 4], "value": 2 },
+      { "ref": "R2", "type": "R", "from": [5, 4], "to": [5, 8], "value": 4 },
+      { "ref": "R3", "type": "R", "from": [11, 0], "to": [11, 4], "value": 3 },
+      { "ref": "R4", "type": "R", "from": [11, 4], "to": [11, 8], "value": 1 },
+      { "ref": "V1", "type": "voltmeter", "from": [7, 4], "to": [9, 4] }
+    ],
+    "wires": [
+      [[0, 2], [0, 0], [11, 0]],
+      [[0, 6], [0, 8], [11, 8]],
+      [[5, 4], [7, 4]],
+      [[9, 4], [11, 4]]
+    ],
+    "labels": [{ "at": [5, 4], "name": "c" }, { "at": [11, 4], "name": "d" }],
+    "grounds": [[0, 8]]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "uc", "ask": "u_c = ?", "find": { "kind": "v", "nodes": ["c"] }, "answer": 8, "unit": "V", "explain": "电压表不取电流，R1、R2 串联：电流 12/6 = 2 A，u_c = R2 × 2 = 8 V。" },
+    { "id": "ud", "ask": "u_d = ?", "find": { "kind": "v", "nodes": ["d"] }, "answer": 3, "unit": "V", "explain": "R3、R4 串联：电流 12/4 = 3 A，u_d = R4 × 3 = 3 V。" },
+    { "id": "uv", "ask": "电压表读数 = ?", "find": { "kind": "meter", "el": "V1" }, "answer": 5, "unit": "V", "explain": "沿 c → R1 → 顶边 → R3 → d 列 KVL：u_cd = −R1·2 + R3·3 = −4 + 9 = 5 V，也就是 u_c − u_d = 8 − 3。" },
+    {
+      "id": "bal",
+      "ask": "保持 Us 不变，电压表读数为零（电桥平衡）的条件是：",
+      "choices": ["R1·R4 = R2·R3", "R1·R3 = R2·R4", "R1 + R2 = R3 + R4"],
+      "correct": 0,
+      "explain": "读数为零即 u_c = u_d：Us·R2/(R1 + R2) = Us·R4/(R3 + R4) ⇔ R1/R2 = R3/R4 ⇔ R1·R4 = R2·R3。本题 2 × 1 ≠ 4 × 3，所以不平衡。"
+    }
+  ],
+  "hints": [
+    "理想电压表相当于开路，左右两条支路各自是简单的串联分压。",
+    "电压表读数就是 c、d 两点的电位差，可以用 KVL 沿任一条路径计算。"
+  ],
+  "solution": [
+    "**1. 左支路。** 电压表开路，R1、R2 串联接在 Us 上：i_左 = 12/(2 + 4) = 2 A，**u_c = R2·i_左 = 8 V**。",
+    "**2. 右支路。** R3、R4 串联：i_右 = 12/(3 + 1) = 3 A，**u_d = R4·i_右 = 3 V**。",
+    "**3. 电压表读数。** u_cd = u_c − u_d = **5 V**。",
+    "也可以用开口回路的 KVL：从 c 出发经 R1 到顶边（逆着 i_左，电位升 4 V），再经 R3 到 d（顺着 i_右，电位降 9 V）：u_cd = −4 + 9 = 5 V。",
+    "**4. 平衡条件。** u_c = u_d ⇔ R2/(R1 + R2) = R4/(R3 + R4) ⇔ **R1·R4 = R2·R3**。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Voltmeter reading in a bridge",
+      "tags": ["KVL", "node potential", "ideal voltmeter"],
+      "statement": [
+        "In the circuit, Us = 12 V, R1 = 2 Ω, R2 = 4 Ω, R3 = 3 Ω, R4 = 1 Ω. V1 is an ideal voltmeter (infinite resistance); it reads v_cd = v_c − v_d.",
+        "With the ground symbol as reference, find the potentials of points c and d and the voltmeter reading."
+      ],
+      "questions": [
+        { "ask": "v_c = ?", "explain": "The voltmeter draws no current, so R1 and R2 are in series: current 12/6 = 2 A, v_c = R2 × 2 = 8 V." },
+        { "ask": "v_d = ?", "explain": "R3 and R4 in series: current 12/4 = 3 A, v_d = R4 × 3 = 3 V." },
+        { "ask": "Voltmeter reading = ?", "explain": "KVL along c → R1 → top wire → R3 → d: v_cd = −R1·2 + R3·3 = −4 + 9 = 5 V, i.e. v_c − v_d = 8 − 3." },
+        {
+          "ask": "With Us unchanged, the voltmeter reads zero (balanced bridge) when:",
+          "choices": ["R1·R4 = R2·R3", "R1·R3 = R2·R4", "R1 + R2 = R3 + R4"],
+          "explain": "Zero reading means v_c = v_d: Us·R2/(R1 + R2) = Us·R4/(R3 + R4) ⇔ R1/R2 = R3/R4 ⇔ R1·R4 = R2·R3. Here 2 × 1 ≠ 4 × 3, so the bridge is not balanced."
+        }
+      ],
+      "hints": [
+        "An ideal voltmeter is an open circuit, so each side is a simple series voltage divider.",
+        "The reading is the potential difference between c and d; you can get it with KVL along any path."
+      ],
+      "solution": [
+        "**1. Left branch.** The voltmeter is open, so R1 and R2 are in series across Us: i_left = 12/(2 + 4) = 2 A, **v_c = R2·i_left = 8 V**.",
+        "**2. Right branch.** R3 and R4 in series: i_right = 12/(3 + 1) = 3 A, **v_d = R4·i_right = 3 V**.",
+        "**3. Voltmeter reading.** v_cd = v_c − v_d = **5 V**.",
+        "Or by KVL on the open path: from c through R1 to the top wire (against i_left, a rise of 4 V), then through R3 to d (with i_right, a drop of 9 V): v_cd = −4 + 9 = 5 V.",
+        "**4. Balance condition.** v_c = v_d ⇔ R2/(R1 + R2) = R4/(R3 + R4) ⇔ **R1·R4 = R2·R3**."
+      ]
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "theorems-01-superposition-basic",
+  "chapter": "theorems",
+  "title": "叠加定理入门：一个电压源加一个电流源",
+  "level": 1,
+  "tags": ["叠加定理", "电源置零"],
+  "statement": [
+    "图示电路中 Us = 12 V，Is = 1.5 A，R1 = 4 Ω，R2 = 2 Ω。",
+    "用**叠加定理**求 R2 中的电流 i2（参考方向见图）和结点 a 的电压 u_a。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4 },
+      { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 2 },
+      { "ref": "Is", "type": "I", "from": [12, 4], "to": [12, 0], "value": 1.5 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [12, 0]],
+      [[12, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [8, 0], "name": "a" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R2", "name": "i2" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "zero",
+      "ask": "求 Is 单独作用的分量 i2'' 时，电压源 Us 应该怎样处理？",
+      "choices": ["用短路线代替（Us 置零）", "用开路代替", "保持 12 V 不变"],
+      "correct": 0,
+      "explain": "某个独立源单独作用时，其余独立**电压源置零 = 短路**，独立**电流源置零 = 开路**。"
+    },
+    {
+      "id": "i2",
+      "ask": "i2 = ?",
+      "find": { "kind": "i", "el": "R2" },
+      "answer": 3,
+      "unit": "A",
+      "explain": "Us 单独作用（Is 开路）：i2' = 12/(4 + 2) = 2 A；Is 单独作用（Us 短路）：分流 i2'' = 1.5 × 4/(4 + 2) = 1 A；i2 = 2 + 1 = 3 A。"
+    },
+    {
+      "id": "ua",
+      "ask": "u_a = ?",
+      "find": { "kind": "v", "nodes": ["a"] },
+      "answer": 6,
+      "unit": "V",
+      "explain": "u_a = R2·i2 = 2 × 3 = 6 V（也可以叠加：u_a' = 4 V，u_a'' = 2 V）。"
+    }
+  ],
+  "hints": [
+    "分别画出 Us 单独作用和 Is 单独作用的两个分电路。",
+    "Us 单独作用时 Is 开路，R1、R2 串联；Is 单独作用时 Us 短路，R1、R2 并联分流。"
+  ],
+  "solution": [
+    "**1. Us 单独作用**（Is 置零 → 开路）：R1、R2 串联，i2' = Us/(R1 + R2) = 12/6 = 2 A，u_a' = 2 × 2 = 4 V。",
+    "**2. Is 单独作用**（Us 置零 → 短路）：R1 与 R2 并联，Is 从下向上注入结点 a，按分流公式 i2'' = Is·R1/(R1 + R2) = 1.5 × 4/6 = 1 A（向下，与参考方向一致），u_a'' = 2 × 1 = 2 V。",
+    "**3. 叠加：** i2 = i2' + i2'' = **3 A**，u_a = 4 + 2 = **6 V**。",
+    "**验算（结点法）：** (12 − u_a)/4 + 1.5 = u_a/2 → 4.5 = 0.75u_a → u_a = 6 V ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Superposition basics: one voltage source and one current source",
+      "tags": ["superposition", "zeroing a source"],
+      "statement": [
+        "In the circuit, Us = 12 V, Is = 1.5 A, R1 = 4 Ω, R2 = 2 Ω.",
+        "Use **superposition** to find the current i2 in R2 (reference direction as drawn) and the voltage u_a of node a."
+      ],
+      "questions": [
+        {
+          "ask": "When finding the contribution i2'' of Is acting alone, what do you do with the voltage source Us?",
+          "choices": ["Replace it by a short circuit (Us set to zero)", "Replace it by an open circuit", "Keep it at 12 V"],
+          "explain": "When one independent source acts alone, every other independent **voltage source is zeroed = shorted**, and every other independent **current source is zeroed = opened**."
+        },
+        {
+          "ask": "i2 = ?",
+          "explain": "Us alone (Is open): i2' = 12/(4 + 2) = 2 A; Is alone (Us shorted): current divider i2'' = 1.5 × 4/(4 + 2) = 1 A; i2 = 2 + 1 = 3 A."
+        },
+        {
+          "ask": "u_a = ?",
+          "explain": "u_a = R2·i2 = 2 × 3 = 6 V (or by superposition: u_a' = 4 V, u_a'' = 2 V)."
+        }
+      ],
+      "hints": [
+        "Draw two sub-circuits: Us acting alone and Is acting alone.",
+        "With Us alone, Is is open and R1, R2 are in series; with Is alone, Us is a short and R1, R2 share the current in parallel."
+      ],
+      "solution": [
+        "**1. Us alone** (Is zeroed → open): R1 and R2 in series, i2' = Us/(R1 + R2) = 12/6 = 2 A, u_a' = 2 × 2 = 4 V.",
+        "**2. Is alone** (Us zeroed → short): R1 and R2 in parallel; Is is injected upward into node a, so by the current divider i2'' = Is·R1/(R1 + R2) = 1.5 × 4/6 = 1 A (downward, same as the reference), u_a'' = 2 × 1 = 2 V.",
+        "**3. Add:** i2 = i2' + i2'' = **3 A**, u_a = 4 + 2 = **6 V**.",
+        "**Check (nodal):** (12 − u_a)/4 + 1.5 = u_a/2 → 4.5 = 0.75u_a → u_a = 6 V ✓."
+      ]
+    }
+  }
+}

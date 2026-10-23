@@ -1,0 +1,130 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "theorems-13-negative-resistance",
+  "chapter": "theorems",
+  "title": "只含受控源的单口：等效电阻可以为负",
+  "level": 4,
+  "tags": ["戴维宁定理", "受控源 CCCS", "负电阻"],
+  "statement": [
+    "图示单口网络中 R1 = 2 Ω，R2 = 2 Ω，电流控制电流源 F 从结点 c 向下抽走电流 3i1，i1 是 R1 中的电流（参考方向见图）。网络内部没有独立源。",
+    "求 a、b 端的戴维宁等效电路，并讨论结果的物理意义。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R1", "type": "R", "from": [3, 0], "to": [7, 0], "value": 2 },
+      { "ref": "R2", "type": "R", "from": [9, 0], "to": [9, 4], "value": 2 },
+      { "ref": "F", "type": "CCCS", "from": [13, 0], "to": [13, 4], "value": 3, "ctrl": { "i": "R1" }, "label": "3i1" }
+    ],
+    "wires": [
+      [[0, 0], [3, 0]],
+      [[7, 0], [13, 0]],
+      [[13, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [9, 0], "name": "c" }],
+    "terminals": [{ "at": [0, 0], "name": "a" }, { "at": [0, 4], "name": "b" }],
+    "grounds": [[9, 4]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "uoc",
+      "ask": "开路电压 u_oc = ?",
+      "find": { "kind": "vth", "port": ["a", "b"] },
+      "answer": 0,
+      "unit": "V",
+      "explain": "端口开路时 i1 = 0，受控源电流 3i1 = 0，网络内没有任何激励，各处电压电流都为零：u_oc = 0。"
+    },
+    {
+      "id": "req",
+      "ask": "R_eq = ?",
+      "find": { "kind": "req", "port": ["a", "b"] },
+      "answer": -2,
+      "unit": "Ω",
+      "explain": "外加电流 i_x 流入 a：i1 = i_x，R2 中电流 i1 − 3i1 = −2i_x，u = 2i_x + 2 × (−2i_x) = −2i_x，R_eq = −2 Ω。"
+    },
+    {
+      "id": "mean",
+      "ask": "R_eq = −2 Ω 说明：",
+      "choices": [
+        "端口电压与流入电流方向相反，网络实际向外部提供功率，能量来自受控源",
+        "计算一定有错，等效电阻不可能为负",
+        "该网络的开路电压为负"
+      ],
+      "correct": 0,
+      "explain": "端口吸收的功率 u·i_x = −2i_x² < 0。受控源是有源元件，可以使端口呈现负电阻；只含电阻的网络才不可能。"
+    },
+    {
+      "id": "ext",
+      "ask": "若在 a、b 间只接一个 2 Ω 电阻（不接任何电源），会怎样？",
+      "choices": [
+        "总电阻 R_eq + 2 = 0，电路方程没有唯一解（数学模型失效）",
+        "电流为 0，一切正常",
+        "电阻中电流为 1 A"
+      ],
+      "correct": 0,
+      "explain": "回路方程变成 (R_eq + R)·i = 0·i = 0，i 可以取任意值：理想模型下解不唯一，实际电路会因非理想因素而不稳定。"
+    }
+  ],
+  "hints": [
+    "没有独立源的网络，开路电压一定为零，戴维宁等效电路只剩一个电阻。",
+    "外加电源法：从 a 注入电流 i_x，则 i1 = i_x；对结点 c 列 KCL 求 R2 中的电流。"
+  ],
+  "solution": [
+    "**1. 开路电压。** 网络内无独立源，端口开路时 i1 = 0 → 受控源电流为 0，整个网络零状态：**u_oc = 0**。",
+    "**2. 外加电源法。** 在 a、b 间外加电流 i_x（流入 a）。R1 中 i1 = i_x；结点 c 的 KCL：R2 中向下的电流 = i1 − 3i1 = −2i_x。",
+    "端口电压 u = R1·i1 + R2·(−2i_x) = 2i_x − 4i_x = −2i_x → **R_eq = −2 Ω**。",
+    "**3. 等效电路：** 一个 −2 Ω 的电阻（u_oc = 0，没有电压源）。",
+    "**4. 物理意义：** 端口吸收功率 p = u·i_x = −2i_x² < 0，网络对外发出功率，能量由受控源提供（受控源吸收功率 = u_c·3i_x，u_c = −4i_x，为 −12i_x²）。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "A one-port with only a dependent source: negative resistance",
+      "tags": ["Thevenin's theorem", "dependent source CCCS", "negative resistance"],
+      "statement": [
+        "In the one-port, R1 = 2 Ω, R2 = 2 Ω, and the current-controlled current source F draws a current 3i1 downward out of node c, where i1 is the current in R1 (reference direction as drawn). There is no independent source inside.",
+        "Find the Thevenin equivalent at a, b and discuss the physical meaning of the result."
+      ],
+      "questions": [
+        {
+          "ask": "Open-circuit voltage u_oc = ?",
+          "explain": "With the port open, i1 = 0, so the dependent source current 3i1 = 0; there is no excitation and every voltage and current is zero: u_oc = 0."
+        },
+        {
+          "ask": "R_eq = ?",
+          "explain": "Drive a current i_x into a: i1 = i_x, the current in R2 is i1 − 3i1 = −2i_x, u = 2i_x + 2 × (−2i_x) = −2i_x, R_eq = −2 Ω."
+        },
+        {
+          "ask": "R_eq = −2 Ω means:",
+          "choices": [
+            "The port voltage is opposite to the entering current: the network actually delivers power, supplied by the dependent source",
+            "There must be a mistake: an equivalent resistance can't be negative",
+            "The open-circuit voltage of the network is negative"
+          ],
+          "explain": "The power absorbed at the port is u·i_x = −2i_x² < 0. A dependent source is an active element and can make a port look like a negative resistance; a network of resistors alone never can."
+        },
+        {
+          "ask": "What happens if only a 2 Ω resistor (and no source) is connected across a, b?",
+          "choices": [
+            "The total resistance R_eq + 2 = 0 and the circuit equation has no unique solution (the model breaks down)",
+            "The current is 0 and nothing special happens",
+            "The resistor carries 1 A"
+          ],
+          "explain": "The loop equation becomes (R_eq + R)·i = 0·i = 0, satisfied by any i: the ideal model has no unique solution, and a real circuit would be unstable because of non-ideal effects."
+        }
+      ],
+      "hints": [
+        "A network without independent sources always has zero open-circuit voltage: its Thevenin equivalent is just a resistor.",
+        "Test-source method: inject i_x into a, so i1 = i_x; write KCL at node c to get the current in R2."
+      ],
+      "solution": [
+        "**1. Open-circuit voltage.** No independent source inside; with the port open i1 = 0 → the dependent source current is 0 and the whole network is at rest: **u_oc = 0**.",
+        "**2. Test source.** Drive a current i_x into a. R1 carries i1 = i_x; KCL at c: the downward current in R2 = i1 − 3i1 = −2i_x.",
+        "Port voltage u = R1·i1 + R2·(−2i_x) = 2i_x − 4i_x = −2i_x → **R_eq = −2 Ω**.",
+        "**3. Equivalent circuit:** a single −2 Ω resistor (u_oc = 0, no voltage source).",
+        "**4. Physical meaning:** the port absorbs p = u·i_x = −2i_x² < 0, i.e. the network delivers power, supplied by the dependent source (it absorbs u_c·3i_x with u_c = −4i_x, i.e. −12i_x²)."
+      ]
+    }
+  }
+}

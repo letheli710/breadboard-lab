@@ -1,0 +1,80 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "basics-06-kvl-open-path",
+  "chapter": "basics",
+  "title": "用 KVL 求开口两端的电压",
+  "level": 2,
+  "tags": ["KVL", "开口回路", "参考方向"],
+  "statement": [
+    "图示电路中 Us1 = 12 V，Us2 = 5 V（“+”在左），R1 = 2 Ω，R2 = 4 Ω，R3 = 3 Ω。a、b 两端开路。",
+    "求回路电流 i、R3 两端的电压、开路电压 u_ab，以及 a 与 d 两点间的电压 u_ad。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+      { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 4 },
+      { "ref": "R3", "type": "R", "from": [9, 0], "to": [12, 0], "value": 3 },
+      { "ref": "Us2", "type": "V", "from": [12, 0], "to": [15, 0], "value": 5 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [9, 0]],
+      [[15, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [0, 0], "name": "d" }, { "at": [8, 0], "name": "c" }],
+    "terminals": [{ "at": [15, 0], "name": "a" }, { "at": [15, 4], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "i", "ask": "i = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "a、b 开路，R3、Us2 中没有电流，左边只剩 Us1、R1、R2 组成的单回路：i = 12/(2 + 4) = 2 A。" },
+    { "id": "u3", "ask": "R3 两端的电压 u_R3 = ?", "find": { "kind": "v", "el": "R3" }, "answer": 0, "unit": "V", "explain": "开路支路电流为零，由欧姆定律 u_R3 = 3 × 0 = 0：电阻上没有压降。" },
+    { "id": "uab", "ask": "u_ab = ?", "find": { "kind": "v", "nodes": ["a", "b"] }, "answer": 3, "unit": "V", "explain": "沿 a → Us2 → R3 → c → R2 → b 列 KVL：u_ab = −5 + 0 + 4 × 2 = 3 V（经过 Us2 从“−”到“+”是电位升高，反过来从 a 走向“+”端说明 a 比“+”端低 5 V）。" },
+    { "id": "uad", "ask": "u_ad = ?", "find": { "kind": "v", "nodes": ["a", "d"] }, "answer": -9, "unit": "V", "explain": "沿 a → Us2 → R3 → c → R1 → d：u_ad = −5 + 0 − 2 × 2 = −9 V（从 c 到 d 逆着电流 i 走，电位升高 4 V，所以 u_cd = −4 V）。" }
+  ],
+  "hints": [
+    "开路的支路里没有电流，所以先只看左边的单回路求 i。",
+    "两点间电压 = 从起点沿任一路径走到终点，各段电压降之和（KVL 用于开口回路）。"
+  ],
+  "solution": [
+    "**1. 回路电流。** a、b 开路，R3、Us2 中电流为零。左边单回路：**i = Us1/(R1 + R2) = 12/6 = 2 A**。",
+    "**2. R3 的电压。** 电流为零，**u_R3 = 0**。",
+    "**3. u_ab。** 从 a 出发，沿 a → Us2 → R3 → c → R2 → b 把各段电压降相加：",
+    "经过 Us2 是从“−”端到“+”端，电压降为 −5 V；R3 上降 0；c → b 经 R2 顺着电流方向，降 R2·i = 8 V。",
+    "u_ab = (−5) + 0 + 8 = **3 V**。",
+    "**4. u_ad。** 换一条路径：u_ad = (−5) + 0 + u_cd，其中 u_cd = −R1·i = −4 V（电流 i 从 d 流向 c，c 比 d 低），所以 **u_ad = −9 V**。",
+    "**验算：** u_ad = u_ab + u_bd = 3 + (0 − 12) = −9 V，与路径无关。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "KVL across an open pair of terminals",
+      "tags": ["KVL", "open path", "reference direction"],
+      "statement": [
+        "In the circuit, Us1 = 12 V, Us2 = 5 V (\"+\" on the left), R1 = 2 Ω, R2 = 4 Ω, R3 = 3 Ω. Terminals a and b are open.",
+        "Find the loop current i, the voltage across R3, the open-circuit voltage v_ab, and the voltage v_ad between points a and d."
+      ],
+      "questions": [
+        { "ask": "i = ?", "explain": "With a–b open, no current flows in R3 and Us2. Only the single loop Us1–R1–R2 is left: i = 12/(2 + 4) = 2 A." },
+        { "ask": "Voltage across R3, v_R3 = ?", "explain": "The open branch carries no current, so by Ohm's law v_R3 = 3 × 0 = 0: there is no drop across the resistor." },
+        { "ask": "v_ab = ?", "explain": "KVL along a → Us2 → R3 → c → R2 → b: v_ab = −5 + 0 + 4 × 2 = 3 V (going from a to the \"+\" end of Us2 is a rise of 5 V, i.e. a is 5 V below that end)." },
+        { "ask": "v_ad = ?", "explain": "Along a → Us2 → R3 → c → R1 → d: v_ad = −5 + 0 − 2 × 2 = −9 V (going from c to d against the current i is a rise of 4 V, so v_cd = −4 V)." }
+      ],
+      "hints": [
+        "An open branch carries no current, so first solve the single loop on the left for i.",
+        "The voltage between two points is the sum of the voltage drops along any path from the first point to the second (KVL for an open path)."
+      ],
+      "solution": [
+        "**1. Loop current.** With a–b open, R3 and Us2 carry no current. The loop on the left gives **i = Us1/(R1 + R2) = 12/6 = 2 A**.",
+        "**2. Voltage across R3.** No current, so **v_R3 = 0**.",
+        "**3. v_ab.** Start at a and add the drops along a → Us2 → R3 → c → R2 → b:",
+        "Through Us2 we go from \"−\" to \"+\", a drop of −5 V; R3 drops 0; from c to b through R2 we go with the current, a drop of R2·i = 8 V.",
+        "v_ab = (−5) + 0 + 8 = **3 V**.",
+        "**4. v_ad.** Use another path: v_ad = (−5) + 0 + v_cd, where v_cd = −R1·i = −4 V (i flows from d to c, so c is lower than d). Hence **v_ad = −9 V**.",
+        "**Check:** v_ad = v_ab + v_bd = 3 + (0 − 12) = −9 V — the result does not depend on the path."
+      ]
+    }
+  }
+}
