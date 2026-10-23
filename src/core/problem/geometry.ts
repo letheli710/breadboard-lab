@@ -342,8 +342,8 @@ export function extractNetlist(s: Schematic): ExtractResult {
   for (const [r, names] of rootNames) {
     const list = [...names];
     if (rootGround.has(r)) {
-      // e.g. terminal "b" of a port that is grounded: the name is an alias of "0"
-      if (list.length > 1) errors.push(tr(`接地结点有多个名字：${list.join('、')}`, `The ground node has several names: ${list.join(', ')}`));
+      // e.g. terminal "b" of a port that is grounded, or two-port terminals "1'" and "2'" on
+      // the bottom ground wire: every name on the ground node is an alias of "0"
       continue;
     }
     if (list.length > 1) {
@@ -447,7 +447,52 @@ export function extractNetlist(s: Schematic): ExtractResult {
   for (const m of s?.marks ?? []) {
     const t = byRef.get(m?.el);
     if (!t) errors.push(tr(`参考方向标记引用了不存在的元件 ${String(m?.el)}`, `A reference mark refers to missing element ${String(m?.el)}`));
-    else if (!isTwoTerminal(t)) errors.push(tr(`参考方向标记只能用于二端元件，${t.ref} 不是`, `Reference marks need a two-terminal element; ${t.ref} is not`));
+    else if (t.type === 'OPAMP') {
+      if (m?.kind !== 'i')
+        errors.push(
+          tr(
+            `运放 ${t.ref} 只能加电流标记 {"kind": "i"}（输出端电流）；运放没有“元件电压”，电压请用结点标签`,
+            `Op-amp ${t.ref} only takes a current mark {"kind": "i"} (its output current); an op-amp has no element voltage — label the nodes instead`,
+          ),
+        );
+    } else if (!isTwoTerminal(t))
+      errors.push(
+        tr(
+          `参考方向标记只能用于二端元件（或运放的输出电流），${t.ref}（${t.type}）不行——请给与它串联的元件加标记`,
+          `Reference marks need a two-terminal element (or an op-amp's output current); ${t.ref} (${t.type}) can't take one — mark an element in series with it instead`,
+        ),
+      );
+  }
+
+  // mesh / loop current arrows: annotation only, but they must sit in an empty spot
+  const loops: unknown = s?.loops;
+  if (loops !== undefined && !Array.isArray(loops)) errors.push(tr('"loops" 必须是数组', '"loops" must be an array'));
+  for (const lp of Array.isArray(loops) ? (loops as NonNullable<Schematic['loops']>) : []) {
+    const nm = typeof lp?.name === 'string' ? lp.name : '';
+    if (!validPt(lp?.at)) {
+      errors.push(tr(`回路电流 ${nm || '?'} 的位置 at 无效`, `Loop current ${nm || '?'} has an invalid position "at"`));
+      continue;
+    }
+    if (lp.dir !== undefined && lp.dir !== 'cw' && lp.dir !== 'ccw')
+      errors.push(tr(`回路电流 ${nm} 的 dir 必须是 "cw"（顺时针）或 "ccw"（逆时针）`, `Loop current ${nm}: dir must be "cw" (clockwise) or "ccw" (counter-clockwise)`));
+    const at = lp.at;
+    let hit: string | null = null; // element ref, or '' for a wire
+    if (segs.some(([a, b]) => onSegment(at, a, b))) hit = '';
+    for (const el of elements) {
+      if (hit !== null || !geomOk.has(el)) continue;
+      if (isTwoTerminal(el)) {
+        if (onSegment(at, el.from, el.to)) hit = el.ref;
+      } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
+        if (Math.abs(at[0] - el.at[0]) <= 2 && Math.abs(at[1] - el.at[1]) <= 1) hit = el.ref;
+      }
+    }
+    if (hit !== null)
+      errors.push(
+        tr(
+          `回路电流 ${nm} 的圆心 ${P(at)} 压在${hit ? ` ${hit} ` : '导线'}上——请放在网孔中间的空白处`,
+          `Loop current ${nm} at ${P(at)} sits on ${hit ? hit : 'a wire'}; put it in the empty middle of the mesh`,
+        ),
+      );
   }
 
   const netlist: Netlist & { aliases: Map<string, string> } = { nodeOf, nodes, elements, aliases };

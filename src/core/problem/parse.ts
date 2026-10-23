@@ -8,7 +8,7 @@
 import { computeQuantity } from '../analysis';
 import { getLang, isLang, LANGS, tr, type Lang } from '../i18n';
 import { chapterById, CHAPTERS } from './chapters';
-import { extractNetlist } from './geometry';
+import { extractNetlist, isTwoTerminal } from './geometry';
 import {
   PROBLEM_FORMAT_ID,
   type Analysis,
@@ -388,6 +388,9 @@ export function parseProblem(json: unknown, source = 'folder', file?: string): P
       const f = q.find;
       if (!f || (f.kind !== 'i' && f.kind !== 'v') || !('el' in f) || typeof f.el !== 'string') continue;
       const el = f.el;
+      // two-terminal elements take both kinds; an op-amp only its output current (arrow out of the output)
+      const t = els.get(el);
+      if (!t || !(isTwoTerminal(t) || (t.type === 'OPAMP' && f.kind === 'i'))) continue;
       if (!marks.some((m) => m.kind === f.kind && m.el === el)) marks.push({ kind: f.kind, el, name: markName(f.kind, el) });
     }
     outSchematic = {

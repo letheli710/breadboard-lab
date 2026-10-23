@@ -112,8 +112,14 @@ export interface Schematic {
   terminals?: { at: Pt; name: string }[];
   /** reference directions drawn on the picture: a current arrow from p to n, or +/− marks at
    *  p/n. `name` is the symbol shown, e.g. "i1", "u_R". The parser adds one automatically for
-   *  every element current / voltage a question asks about, unless one is already listed. */
+   *  every element current / voltage a question asks about, unless one is already listed.
+   *  On an OPAMP only kind "i" is allowed: an arrow on the output lead pointing away from the
+   *  op-amp (the engine's {kind:'i', el:<opamp>} is the current flowing OUT of the output). */
   marks?: ({ kind: 'i'; el: string; name?: string } | { kind: 'v'; el: string; name?: string })[];
+  /** mesh / loop current arrows (pure annotation, no effect on the netlist): a circular arrow
+   *  centred at `at` (usually the centre of a mesh; must not sit on a wire or element) with
+   *  `name` (e.g. "i_m1") in the middle. dir: 'cw' (default) or 'ccw' as seen on screen. */
+  loops?: { at: Pt; name?: string; dir?: 'cw' | 'ccw' }[];
   /** free text annotations */
   notes?: { at: Pt; text: string; i18n?: Partial<Record<Lang, string>> }[];
 }

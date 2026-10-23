@@ -11,6 +11,7 @@ import type { CtrlRef, Pt, ProblemElement, Schematic, TwoTerminalElement } from 
 const U = 40; // px per grid unit
 const SW = 1.7; // stroke width
 const FS = 13; // label font size
+const LOOP_R = 0.7 * U; // radius of a mesh-current arrow (1.4 grid units across)
 
 type V2 = [number, number];
 interface Box {
@@ -307,6 +308,12 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
     const g1 = geos.find((q) => q.el.ref === el.l1);
     const g2 = geos.find((q) => q.el.ref === el.l2);
     if (g1 && g2) obstacles.push(segBox(g1.mid, g2.mid, 14));
+  }
+  // mesh / loop current arrows: reserve their circles so element labels go elsewhere
+  const loops = (Array.isArray(s.loops) ? s.loops : []).filter((l) => Array.isArray(l?.at) && Number.isFinite(l.at[0]) && Number.isFinite(l.at[1]));
+  for (const l of loops) {
+    const [x, y] = px(l.at);
+    obstacles.push({ x0: x - LOOP_R - 3, y0: y - LOOP_R - 3, x1: x + LOOP_R + 3, y1: y + LOOP_R + 3 });
   }
   for (const w of s.wires ?? []) for (const p of w) if (Array.isArray(p)) ext(segBox(px(p), px(p), 0));
   for (const el of elements) for (const q of Object.values(terminalPoints(el))) if (Array.isArray(q)) ext(segBox(px(q), px(q), 0));
@@ -637,6 +644,20 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         </g>,
       );
       addText(richRuns(symbolText(el.ref)), x + sx * 0.35 * U, y - 0.75 * U, sx > 0 ? 'start' : 'end', 'ps-ref', hl.has(el.ref) ? col : undefined);
+      // output-current mark: {kind:'i', el:<opamp>} is the current flowing OUT of the output
+      // terminal, so the arrow sits on the output lead and points away from the op-amp
+      const om = (s.marks ?? []).find((m) => m?.el === el.ref && m.kind === 'i');
+      if (om) {
+        const cx = (apex + o[0]) / 2;
+        const dir: V2 = [sx, 0];
+        decor.push(<polygon key={`mo${el.ref}`} points={arrowHead([cx + sx * 4.5, y], dir, 9, 4)} fill={col} />);
+        const runs = richRuns(symbolText(om.name ?? `i_{${el.ref}}`));
+        const w = textWidth(runs);
+        const above = { x0: cx - w / 2, x1: cx + w / 2, y0: y - 8 - FS * 0.8, y1: y - 8 + FS * 0.3 };
+        const below = { x0: cx - w / 2, x1: cx + w / 2, y0: y + 19 - FS * 0.8, y1: y + 19 + FS * 0.3 };
+        const up = hits(above) <= hits(below);
+        addText(runs, cx, up ? y - 8 : y + 19, 'middle', 'ps-mark', col);
+      }
     } else if (el.type === 'XFMR') {
       if (!Array.isArray(el.at)) continue;
       const [x, y] = px(el.at);
@@ -723,6 +744,37 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
     const [x, y] = px(p);
     decor.push(<circle key={`j${x},${y}`} cx={x} cy={y} r={3.4} fill="var(--ink)" />);
   }
+
+  // ---- mesh / loop currents: an open circular arc (300°) with an arrowhead, name in the middle.
+  // Angles are screen angles (y down), so increasing θ turns clockwise as seen on screen.
+  loops.forEach((l, i) => {
+    const [cx, cy] = px(l.at);
+    const cw = l.dir !== 'ccw';
+    const sg = cw ? 1 : -1;
+    const deg = Math.PI / 180;
+    const pt = (th: number): V2 => [cx + LOOP_R * Math.cos(th), cy + LOOP_R * Math.sin(th)];
+    // the 60° gap is centred at the top; the arrowhead ends at the gap's far side
+    const th0 = -90 * deg + sg * 30 * deg;
+    const th1 = th0 + sg * 300 * deg;
+    const head = 9;
+    const thArc = th1 - sg * (head / LOOP_R); // stop the line where the arrowhead starts
+    const a = pt(th0);
+    const b = pt(thArc);
+    const tip = pt(th1);
+    const tl = Math.hypot(tip[0] - b[0], tip[1] - b[1]) || 1;
+    const dir: V2 = [(tip[0] - b[0]) / tl, (tip[1] - b[1]) / tl];
+    decor.push(
+      <g key={`lp${i}`} className="ps-loop">
+        <path d={`M${a[0]},${a[1]} A${LOOP_R},${LOOP_R} 0 1 ${cw ? 1 : 0} ${b[0]},${b[1]}`} fill="none" stroke="var(--muted)" strokeWidth={1.3} strokeLinecap="round" />
+        <polygon points={arrowHead(tip, dir, head, 4)} fill="var(--muted)" />
+      </g>,
+    );
+    ext({ x0: cx - LOOP_R - 4, y0: cy - LOOP_R - 4, x1: cx + LOOP_R + 4, y1: cy + LOOP_R + 4 });
+    if (typeof l.name === 'string' && l.name) {
+      const runs = richRuns(symbolText(l.name));
+      texts.push(<Rich key={`lt${i}`} runs={runs} x={cx} y={cy + 4.5} anchor="middle" className="ps-loop-name" />);
+    }
+  });
 
   // ---- grounds
   (s.grounds ?? []).forEach((p, i) => {
