@@ -1,0 +1,95 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "opamp-12-howland-current-source",
+  "chapter": "opamp",
+  "title": "豪兰德（Howland）电流源",
+  "level": 4,
+  "tags": ["电压控制电流源", "结点电压法", "接地负载"],
+  "statement": [
+    "图示为豪兰德电流源，负载 RL 一端接地。u_s = 2 V，R1 = R2 = R3 = R4 = 10 kΩ，RL = 15 kΩ，运放为理想运放。",
+    "用结点电压法求负载电流 i_L、输出电压 u_o 和 R3 中的电流 i3（参考方向见图）。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": 2, "label": "u_s" },
+      { "ref": "R3", "type": "R", "from": [2, 3], "to": [6, 3], "value": "10k" },
+      { "ref": "RL", "type": "R", "from": [7, 3], "to": [7, 7], "value": "15k" },
+      { "ref": "R4", "type": "R", "from": [15, 0], "to": [11, 0], "value": "10k" },
+      { "ref": "A", "type": "OPAMP", "at": [15, 4], "flip": true },
+      { "ref": "R1", "type": "R", "from": [11, 5], "to": [11, 9], "value": "10k" },
+      { "ref": "R2", "type": "R", "from": [13, 7], "to": [17, 7], "value": "10k" }
+    ],
+    "wires": [
+      [[0, 3], [2, 3]],
+      [[6, 3], [13, 3]],
+      [[8, 3], [8, 0], [11, 0]],
+      [[15, 0], [19, 0], [19, 4]],
+      [[17, 4], [21, 4]],
+      [[13, 5], [11, 5]],
+      [[12, 5], [12, 7], [13, 7]],
+      [[17, 7], [19, 7], [19, 4]],
+      [[7, 7], [7, 9]],
+      [[0, 7], [0, 9], [11, 9]]
+    ],
+    "labels": [{ "at": [7, 3], "name": "L" }, { "at": [11, 5], "name": "n" }],
+    "terminals": [{ "at": [21, 4], "name": "o" }],
+    "grounds": [[0, 9]],
+    "marks": [
+      { "kind": "i", "el": "RL", "name": "i_L" },
+      { "kind": "i", "el": "R3", "name": "i3" },
+      { "kind": "i", "el": "R4", "name": "i4" }
+    ]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "il", "ask": "i_L = ?", "find": { "kind": "i", "el": "RL" }, "answer": 0.0002, "unit": "mA", "explain": "u_o = 2u_L（R1 = R2 的同相放大），结点 L：(2 − u_L)/10 + (2u_L − u_L)/10 = u_L/15 → 0.2 = u_L/15 → u_L = 3 V，i_L = 3/15k = 0.2 mA = u_s/R3。" },
+    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 6, "unit": "V", "explain": "u_o = (1 + R2/R1)·u_n = 2 × 3 = 6 V。" },
+    { "id": "i3", "ask": "i3 = ?", "find": { "kind": "i", "el": "R3" }, "answer": -0.0001, "unit": "mA", "explain": "i3 = (u_s − u_L)/R3 = (2 − 3)/10k = −0.1 mA：电流实际流回 u_s。运放经 R4 送出 i4 = (6 − 3)/10k = 0.3 mA，其中 0.2 mA 流入负载，0.1 mA 经 R3 流回 u_s。" },
+    {
+      "id": "rl",
+      "ask": "若 RL 改为 5 kΩ，i_L = ?",
+      "choices": ["0.2 mA，不变", "0.6 mA", "0.4 mA", "0.1 mA"],
+      "correct": 0,
+      "explain": "当 R2/R1 = R4/R3 时，结点 L 的方程化为 u_s/R3 = u_L/RL，即 i_L = u_s/R3，与 RL 无关（RL = 5 kΩ 时 u_L = 1 V，u_o = 2 V）。这就是能驱动接地负载的电压控制电流源。"
+    }
+  ],
+  "hints": ["左边 R1、R2 与运放构成同相放大器：先用 u_L 表示 u_o（虚短 u_n = u_L）。", "再对结点 L 列结点方程（同相端不取电流），只剩 u_L 一个未知量。"],
+  "solution": [
+    "**1. 反相端：** 虚短 u_n = u_+ = u_L；虚断使 R1、R2 电流相等：u_o = (1 + R2/R1)·u_L = 2u_L。",
+    "**2. 结点 L（虚断）：** (u_L − u_s)/R3 + (u_L − u_o)/R4 + u_L/RL = 0。",
+    "代入 u_o = 2u_L（单位 kΩ、mA）：(u_L − 2)/10 − u_L/10 + u_L/15 = 0 → u_L/15 = 0.2 → u_L = 3 V。",
+    "**3. 结果：** i_L = u_L/RL = **0.2 mA**，u_o = **6 V**，i3 = (2 − 3)/10k = **−0.1 mA**，i4 = (6 − 3)/10k = 0.3 mA。",
+    "**验算：** 结点 L：i3 + i4 = −0.1 + 0.3 = 0.2 mA = i_L ✓。",
+    "**一般结论：** R2/R1 = R4/R3 时 i_L = u_s/R3，负载电流只由 u_s 控制，负载可以一端接地。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "The Howland current source",
+      "tags": ["voltage-controlled current source", "nodal analysis", "grounded load"],
+      "statement": [
+        "The circuit is a Howland current source driving a grounded load RL. v_s = 2 V, R1 = R2 = R3 = R4 = 10 kΩ, RL = 15 kΩ; the op-amp is ideal.",
+        "Using nodal analysis, find the load current i_L, the output voltage v_o and the current i3 in R3 (reference as drawn)."
+      ],
+      "questions": [
+        { "ask": "i_L = ?", "explain": "v_o = 2v_L (R1 = R2, non-inverting gain); node L: (2 − v_L)/10 + (2v_L − v_L)/10 = v_L/15 → 0.2 = v_L/15 → v_L = 3 V, i_L = 3/15k = 0.2 mA = v_s/R3." },
+        { "ask": "v_o = ?", "explain": "v_o = (1 + R2/R1)·v_n = 2 × 3 = 6 V." },
+        { "ask": "i3 = ?", "explain": "i3 = (v_s − v_L)/R3 = (2 − 3)/10k = −0.1 mA: the current actually flows back into v_s. The op-amp sends i4 = (6 − 3)/10k = 0.3 mA through R4: 0.2 mA goes into the load and 0.1 mA flows back to v_s through R3." },
+        {
+          "ask": "If RL is changed to 5 kΩ, i_L = ?",
+          "choices": ["0.2 mA, unchanged", "0.6 mA", "0.4 mA", "0.1 mA"],
+          "explain": "With R2/R1 = R4/R3 the equation at node L reduces to v_s/R3 = v_L/RL, i.e. i_L = v_s/R3 regardless of RL (for RL = 5 kΩ, v_L = 1 V and v_o = 2 V). This is a voltage-controlled current source that can drive a grounded load."
+        }
+      ],
+      "hints": ["R1, R2 and the op-amp form a non-inverting amplifier: express v_o in terms of v_L first (virtual short v_n = v_L).", "Then write the node equation at L (the + input draws no current); v_L is the only unknown left."],
+      "solution": [
+        "**1. Inverting input:** virtual short v_n = v+ = v_L; virtual open makes R1 and R2 carry the same current: v_o = (1 + R2/R1)·v_L = 2v_L.",
+        "**2. Node L (virtual open):** (v_L − v_s)/R3 + (v_L − v_o)/R4 + v_L/RL = 0.",
+        "Substitute v_o = 2v_L (kΩ, mA): (v_L − 2)/10 − v_L/10 + v_L/15 = 0 → v_L/15 = 0.2 → v_L = 3 V.",
+        "**3. Results:** i_L = v_L/RL = **0.2 mA**, v_o = **6 V**, i3 = (2 − 3)/10k = **−0.1 mA**, i4 = (6 − 3)/10k = 0.3 mA.",
+        "**Check:** node L: i3 + i4 = −0.1 + 0.3 = 0.2 mA = i_L ✓.",
+        "**In general:** with R2/R1 = R4/R3, i_L = v_s/R3: the load current is set by v_s alone, and the load can be grounded."
+      ]
+    }
+  }
+}

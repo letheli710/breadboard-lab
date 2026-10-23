@@ -1,0 +1,85 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "equivalence-10-symmetric-y-delta",
+  "chapter": "equivalence",
+  "title": "对称 Y 形与 Δ 形并存的网络",
+  "level": 3,
+  "tags": ["Y–Δ 变换", "对称 Y–Δ", "等效电阻"],
+  "statement": [
+    "图示网络由两部分组成：R1、R2、R3 构成接在 a、b、c 之间的 Δ 形连接，每个 3 Ω；R4、R5、R6 构成以 o 为中心、接在 a、b、c 上的 Y 形连接，每个也是 3 Ω。",
+    "c 端开路，求 a、b 端的等效电阻 R_ab。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R1", "type": "R", "from": [0, 2], "to": [0, 6], "value": 3 },
+      { "ref": "R2", "type": "R", "from": [16, 2], "to": [16, 6], "value": 3 },
+      { "ref": "R3", "type": "R", "from": [6, 8], "to": [10, 8], "value": 3 },
+      { "ref": "R4", "type": "R", "from": [8, 0], "to": [8, 4], "value": 3 },
+      { "ref": "R5", "type": "R", "from": [8, 4], "to": [4, 4], "value": 3 },
+      { "ref": "R6", "type": "R", "from": [8, 4], "to": [12, 4], "value": 3 }
+    ],
+    "wires": [
+      [[0, 2], [0, 0], [16, 0], [16, 2]],
+      [[0, 6], [0, 8], [6, 8]],
+      [[10, 8], [16, 8], [16, 6]],
+      [[4, 4], [4, 8]],
+      [[12, 4], [12, 8]],
+      [[8, -2], [8, 0]],
+      [[-2, 8], [0, 8]],
+      [[16, 8], [18, 8]]
+    ],
+    "terminals": [{ "at": [8, -2], "name": "a" }, { "at": [-2, 8], "name": "b" }, { "at": [18, 8], "name": "c" }],
+    "labels": [{ "at": [8, 4], "name": "o" }],
+    "grounds": [[-2, 8]]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "c",
+      "ask": "把 Y 形部分（每个 3 Ω）变换为 Δ 形，每个 Δ 电阻是多少？",
+      "choices": ["1 Ω", "3 Ω", "9 Ω", "6 Ω"],
+      "correct": 2,
+      "explain": "对称时 R_Δ = 3R_Y = 9 Ω（反过来 R_Y = R_Δ/3）。"
+    },
+    { "id": "rab", "ask": "R_ab = ?", "find": { "kind": "req", "port": ["a", "b"] }, "answer": 1.5, "unit": "Ω", "explain": "Y→Δ 后每条边是 9 ∥ 3 = 2.25 Ω；R_ab = 2.25 ∥ (2.25 + 2.25) = 1.5 Ω。" }
+  ],
+  "hints": [
+    "Y 形和 Δ 形接在同样的三个结点 a、b、c 上。把其中一个变换成另一种形式，就能和另一个逐边并联。",
+    "对称情形：R_Δ = 3R_Y。把 Y 变成 Δ 后，每条边上有两个电阻并联。"
+  ],
+  "solution": [
+    "**1. Y→Δ。** Y 形三个电阻相等，R_Δ = 3 × 3 = 9 Ω，接在 a–b、b–c、c–a 之间。",
+    "**2. 与原 Δ 逐边并联。** 每条边：9 ∥ 3 = 27/12 = 2.25 Ω，得到一个每边 2.25 Ω 的 Δ。",
+    "**3. 求 R_ab。** c 开路：a–b 边直接 2.25 Ω，另一路 a–c–b 为 2.25 + 2.25 = 4.5 Ω，R_ab = 2.25 ∥ 4.5 = **1.5 Ω**。",
+    "**另解（Δ→Y）：** 原 Δ 化为 Y，每个 1 Ω，中心 o′。两个 Y 都对称，o 与 o′ 等电位，可以用导线相连，于是每个“臂”为 3 ∥ 1 = 0.75 Ω，R_ab = 0.75 + 0.75 = 1.5 Ω（c 臂开路无电流）。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "A network with a symmetric Y and Δ together",
+      "tags": ["Y–Δ transformation", "symmetric Y–Δ", "equivalent resistance"],
+      "statement": [
+        "The network has two parts: R1, R2, R3 form a Δ between a, b and c, each 3 Ω; R4, R5, R6 form a Y with centre o connected to a, b and c, each also 3 Ω.",
+        "With terminal c open, find the equivalent resistance R_ab between a and b."
+      ],
+      "questions": [
+        {
+          "ask": "When the Y part (3 Ω each) is transformed into a Δ, what is each Δ resistor?",
+          "choices": ["1 Ω", "3 Ω", "9 Ω", "6 Ω"],
+          "explain": "In the symmetric case R_Δ = 3R_Y = 9 Ω (conversely R_Y = R_Δ/3)."
+        },
+        { "ask": "R_ab = ?", "explain": "After Y→Δ each side is 9 ∥ 3 = 2.25 Ω; R_ab = 2.25 ∥ (2.25 + 2.25) = 1.5 Ω." }
+      ],
+      "hints": [
+        "The Y and the Δ are connected to the same three nodes a, b, c. Transform one into the form of the other and you can combine them side by side in parallel.",
+        "Symmetric case: R_Δ = 3R_Y. After turning the Y into a Δ, every side has two resistors in parallel."
+      ],
+      "solution": [
+        "**1. Y→Δ.** The three Y resistors are equal, so R_Δ = 3 × 3 = 9 Ω, connected a–b, b–c and c–a.",
+        "**2. Combine side by side with the original Δ.** Each side: 9 ∥ 3 = 27/12 = 2.25 Ω, giving a Δ of 2.25 Ω per side.",
+        "**3. R_ab.** With c open: the a–b side is 2.25 Ω directly, the path a–c–b is 2.25 + 2.25 = 4.5 Ω, so R_ab = 2.25 ∥ 4.5 = **1.5 Ω**.",
+        "**Alternative (Δ→Y):** the original Δ becomes a Y of 1 Ω each with centre o′. Both Y's are symmetric, so o and o′ are at the same potential and can be joined by a wire; each arm is then 3 ∥ 1 = 0.75 Ω and R_ab = 0.75 + 0.75 = 1.5 Ω (the c arm is open and carries no current)."
+      ]
+    }
+  }
+}

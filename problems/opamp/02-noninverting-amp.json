@@ -1,0 +1,80 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "opamp-02-noninverting-amp",
+  "chapter": "opamp",
+  "title": "同相比例放大器",
+  "level": 1,
+  "tags": ["理想运放", "同相比例放大器", "电压放大倍数"],
+  "statement": [
+    "图示为理想运放构成的同相比例放大器，u_s = 2 V，R1 = 10 kΩ，Rf = 20 kΩ。",
+    "求电压放大倍数 u_o/u_s、输出电压 u_o 和 R1 中的电流 i1。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": 2, "label": "u_s" },
+      { "ref": "A", "type": "OPAMP", "at": [10, 4], "flip": true },
+      { "ref": "R1", "type": "R", "from": [6, 5], "to": [6, 10], "value": "10k" },
+      { "ref": "Rf", "type": "R", "from": [8, 8], "to": [12, 8], "value": "20k" }
+    ],
+    "wires": [
+      [[0, 3], [8, 3]],
+      [[8, 5], [6, 5]],
+      [[7, 5], [7, 8], [8, 8]],
+      [[12, 8], [14, 8], [14, 4]],
+      [[12, 4], [16, 4]],
+      [[0, 7], [0, 10], [16, 10]]
+    ],
+    "labels": [{ "at": [7, 5], "name": "n" }],
+    "terminals": [{ "at": [16, 4], "name": "o" }, { "at": [16, 10], "name": "o'" }],
+    "grounds": [[0, 10]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "gain", "ask": "电压放大倍数 u_o/u_s = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us" }, "answer": 3, "unit": "", "explain": "同相比例放大器：u_o/u_s = 1 + Rf/R1 = 1 + 20/10 = 3。" },
+    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 6, "unit": "V", "explain": "u_o = 3 × 2 V = 6 V，与 u_s 同相（同号）。" },
+    { "id": "i1", "ask": "i1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 0.0002, "unit": "mA", "explain": "虚短：u_n = u_+ = u_s = 2 V，i1 = u_n/R1 = 2/10k = 0.2 mA；虚断使这一电流全部来自 Rf。" },
+    {
+      "id": "rin",
+      "ask": "从电压源 u_s 看进去，放大器的输入电阻是多少？",
+      "choices": ["R1 = 10 kΩ", "R1 + Rf = 30 kΩ", "无穷大（u_s 不提供电流）"],
+      "correct": 2,
+      "explain": "u_s 直接接在同相输入端，由“虚断”i_+ = 0，电源不输出电流，所以输入电阻为无穷大——这是同相放大器相对反相放大器的主要优点。"
+    }
+  ],
+  "hints": ["先用“虚短”求反相端 n 的电位。", "R1 与 Rf 串联构成对 u_o 的分压器：u_n = u_o·R1/(R1 + Rf)。"],
+  "solution": [
+    "**1. 虚短：** u_n = u_− = u_+ = u_s = 2 V。",
+    "**2. 虚断：** 反相端不取电流，R1 与 Rf 中是同一个电流 i1 = u_n/R1 = 2/10 kΩ = **0.2 mA**。",
+    "**3. 输出：** u_o = u_n + Rf·i1 = 2 + 20 kΩ × 0.2 mA = **6 V**。",
+    "**4. 放大倍数：** u_o/u_s = 1 + Rf/R1 = **3**（总是 ≥ 1，输出与输入同相）。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Non-inverting amplifier",
+      "tags": ["ideal op-amp", "non-inverting amplifier", "voltage gain"],
+      "statement": [
+        "The ideal op-amp forms a non-inverting amplifier with v_s = 2 V, R1 = 10 kΩ, Rf = 20 kΩ.",
+        "Find the voltage gain v_o/v_s, the output voltage v_o and the current i1 in R1."
+      ],
+      "questions": [
+        { "ask": "Voltage gain v_o/v_s = ?", "explain": "Non-inverting amplifier: v_o/v_s = 1 + Rf/R1 = 1 + 20/10 = 3." },
+        { "ask": "v_o = ?", "explain": "v_o = 3 × 2 V = 6 V, in phase (same sign) with v_s." },
+        { "ask": "i1 = ?", "explain": "Virtual short: v_n = v+ = v_s = 2 V, so i1 = v_n/R1 = 2/10k = 0.2 mA; by the virtual open this whole current comes through Rf." },
+        {
+          "ask": "What is the input resistance of the amplifier seen by the source v_s?",
+          "choices": ["R1 = 10 kΩ", "R1 + Rf = 30 kΩ", "Infinite (v_s supplies no current)"],
+          "explain": "v_s is connected straight to the non-inverting input, which draws no current (virtual open). The source delivers no current, so the input resistance is infinite — the main advantage over the inverting amplifier."
+        }
+      ],
+      "hints": ["Use the virtual short to get the potential of the inverting node n.", "R1 and Rf in series form a voltage divider across v_o: v_n = v_o·R1/(R1 + Rf)."],
+      "solution": [
+        "**1. Virtual short:** v_n = v− = v+ = v_s = 2 V.",
+        "**2. Virtual open:** no current enters the inverting input, so R1 and Rf carry the same current i1 = v_n/R1 = 2/10 kΩ = **0.2 mA**.",
+        "**3. Output:** v_o = v_n + Rf·i1 = 2 + 20 kΩ × 0.2 mA = **6 V**.",
+        "**4. Gain:** v_o/v_s = 1 + Rf/R1 = **3** (always ≥ 1, output in phase with the input)."
+      ]
+    }
+  }
+}

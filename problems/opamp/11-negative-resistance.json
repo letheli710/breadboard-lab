@@ -1,0 +1,88 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "opamp-11-negative-resistance",
+  "chapter": "opamp",
+  "title": "负阻抗变换器的输入电阻",
+  "level": 4,
+  "tags": ["输入电阻", "负电阻", "负阻抗变换器 NIC", "外加电源法"],
+  "statement": [
+    "运放与 R1、R2、R3 组成负阻抗变换器（NIC），其输入端 a 并联电阻 R4 = 3 kΩ，并由电流源 Is = 0.5 mA 激励。R1 = 2 kΩ，R2 = R3 = 10 kΩ，运放为理想运放。",
+    "求 NIC 本身的输入电阻、a 端对地的等效电阻 R_ab、电压 u_a 以及 R1 中的电流 i1（参考方向见图）。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Is", "type": "I", "from": [0, 9], "to": [0, 5], "value": "0.5m" },
+      { "ref": "R4", "type": "R", "from": [4, 5], "to": [4, 9], "value": "3k" },
+      { "ref": "R1", "type": "R", "from": [8, 2], "to": [12, 2], "value": "2k" },
+      { "ref": "A", "type": "OPAMP", "at": [12, 6], "flip": true },
+      { "ref": "R3", "type": "R", "from": [8, 7], "to": [8, 11], "value": "10k" },
+      { "ref": "R2", "type": "R", "from": [15, 9], "to": [11, 9], "value": "10k" }
+    ],
+    "wires": [
+      [[0, 5], [10, 5]],
+      [[6, 5], [6, 2], [8, 2]],
+      [[12, 2], [16, 2], [16, 6]],
+      [[14, 6], [16, 6]],
+      [[10, 7], [8, 7]],
+      [[9, 7], [9, 9], [11, 9]],
+      [[15, 9], [16, 9], [16, 6]],
+      [[4, 9], [4, 11]],
+      [[0, 9], [0, 11], [8, 11]]
+    ],
+    "labels": [{ "at": [2, 5], "name": "a" }, { "at": [15, 6], "name": "o" }],
+    "grounds": [[0, 11]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "nic",
+      "ask": "不含 R4 时，从 a 端看进 NIC 的输入电阻 u_a/i1 = ?",
+      "choices": ["2 kΩ", "−2 kΩ", "−10 kΩ", "无穷大"],
+      "correct": 1,
+      "explain": "外加电压 u_a：虚短 u_− = u_a，R2、R3 构成同相放大，u_o = (1 + R2/R3)·u_a = 2u_a；虚断使流入 a 的电流全部经 R1：i1 = (u_a − u_o)/R1 = −u_a/R1，所以 R_in = −R1·R3/R2 = −2 kΩ。"
+    },
+    { "id": "rab", "ask": "a 端对地的等效电阻 R_ab = ?（Is 置零）", "find": { "kind": "req", "port": ["a", "0"] }, "answer": -6000, "unit": "kΩ", "explain": "R4 与 −2 kΩ 并联：R_ab = 3 × (−2)/(3 + (−2)) = −6 kΩ。负电阻并联正电阻，结果可能是更大的负电阻。" },
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": -3, "unit": "V", "explain": "u_a = Is·R_ab = 0.5 mA × (−6 kΩ) = −3 V：电流源向 a 注入电流，a 点电位却为负。" },
+    { "id": "i1", "ask": "i1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 0.0015, "unit": "mA", "explain": "u_o = 2u_a = −6 V，i1 = (u_a − u_o)/R1 = (−3 + 6)/2k = 1.5 mA。验算 KCL：R4 电流 −3/3k = −1 mA，−1 + 1.5 = 0.5 mA = Is。" }
+  ],
+  "hints": ["求 NIC 的输入电阻用外加电源法：设 a 端电压为 u_a，求流入的电流 i1。", "虚短让反相端也等于 u_a，R2、R3 与运放构成同相放大器，u_o 用 u_a 表示；再用 R1 两端电压求 i1。"],
+  "solution": [
+    "**1. NIC 的输入电阻（外加电源法）：** 设 a 端电压为 u_a。虚短：u_− = u_+ = u_a；虚断：R2、R3 串联分压，u_a = u_o·R3/(R2 + R3) → u_o = 2u_a。",
+    "流入 a 的电流只能经 R1（同相端不取电流）：i1 = (u_a − u_o)/R1 = −u_a/2k，所以 R_in = u_a/i1 = **−2 kΩ**（= −R1·R3/R2）。",
+    "**2. 等效电阻：** R_ab = R4 ∥ R_in = 3 × (−2)/(3 − 2) = **−6 kΩ**。",
+    "**3. 电压：** u_a = Is·R_ab = **−3 V**，u_o = 2u_a = −6 V。",
+    "**4. 电流：** i1 = (−3 − (−6))/2k = **1.5 mA**；R4 中电流 u_a/R4 = −1 mA。KCL：Is = −1 + 1.5 = 0.5 mA ✓。",
+    "负电阻意味着该端口实际向外电路**发出**功率：P = u_a·i1 = −3 × 1.5 = −4.5 mW，能量来自运放的电源。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Input resistance of a negative-impedance converter",
+      "tags": ["input resistance", "negative resistance", "negative-impedance converter (NIC)", "test-source method"],
+      "statement": [
+        "The op-amp with R1, R2, R3 forms a negative-impedance converter (NIC). Its input a has R4 = 3 kΩ in parallel and is driven by a current source Is = 0.5 mA. R1 = 2 kΩ, R2 = R3 = 10 kΩ; the op-amp is ideal.",
+        "Find the input resistance of the NIC itself, the equivalent resistance R_ab from a to ground, the voltage v_a and the current i1 in R1 (reference as drawn)."
+      ],
+      "questions": [
+        {
+          "ask": "Without R4, the input resistance of the NIC seen at a, v_a/i1 = ?",
+          "choices": ["2 kΩ", "−2 kΩ", "−10 kΩ", "Infinite"],
+          "explain": "Apply a voltage v_a. Virtual short: v− = v_a, and R2, R3 make a non-inverting amplifier: v_o = (1 + R2/R3)·v_a = 2v_a. By the virtual open all the current into a flows through R1: i1 = (v_a − v_o)/R1 = −v_a/R1, so R_in = −R1·R3/R2 = −2 kΩ."
+        },
+        { "ask": "Equivalent resistance from a to ground, R_ab = ? (Is set to zero)", "explain": "R4 in parallel with −2 kΩ: R_ab = 3 × (−2)/(3 + (−2)) = −6 kΩ. A negative resistance in parallel with a positive one can give a larger negative resistance." },
+        { "ask": "v_a = ?", "explain": "v_a = Is·R_ab = 0.5 mA × (−6 kΩ) = −3 V: the current source pushes current into a, yet a sits at a negative potential." },
+        { "ask": "i1 = ?", "explain": "v_o = 2v_a = −6 V, i1 = (v_a − v_o)/R1 = (−3 + 6)/2k = 1.5 mA. KCL check: R4 carries −3/3k = −1 mA, and −1 + 1.5 = 0.5 mA = Is." }
+      ],
+      "hints": ["Find the NIC's input resistance with a test source: assume a voltage v_a at a and find the current i1 flowing in.", "The virtual short puts the inverting input at v_a too, so R2, R3 and the op-amp form a non-inverting amplifier: express v_o in terms of v_a, then get i1 from the voltage across R1."],
+      "solution": [
+        "**1. NIC input resistance (test source):** let the voltage at a be v_a. Virtual short: v− = v+ = v_a; virtual open: R2 and R3 divide v_o, v_a = v_o·R3/(R2 + R3) → v_o = 2v_a.",
+        "The current into a can only go through R1 (the + input draws none): i1 = (v_a − v_o)/R1 = −v_a/2k, so R_in = v_a/i1 = **−2 kΩ** (= −R1·R3/R2).",
+        "**2. Equivalent resistance:** R_ab = R4 ∥ R_in = 3 × (−2)/(3 − 2) = **−6 kΩ**.",
+        "**3. Voltage:** v_a = Is·R_ab = **−3 V**, v_o = 2v_a = −6 V.",
+        "**4. Current:** i1 = (−3 − (−6))/2k = **1.5 mA**; R4 carries v_a/R4 = −1 mA. KCL: Is = −1 + 1.5 = 0.5 mA ✓.",
+        "A negative resistance means the port actually **delivers** power to the outside: P = v_a·i1 = −3 × 1.5 = −4.5 mW, supplied by the op-amp's power supply."
+      ]
+    }
+  }
+}

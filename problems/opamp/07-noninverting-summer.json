@@ -1,0 +1,75 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "opamp-07-noninverting-summer",
+  "chapter": "opamp",
+  "title": "同相加法器（弥尔曼定理）",
+  "level": 3,
+  "tags": ["同相加法器", "弥尔曼定理", "结点电压法"],
+  "statement": [
+    "图示电路中 u_1 = 1 V，u_2 = 4 V，R1 = 10 kΩ，R2 = 20 kΩ，Rg = 10 kΩ，Rf = 20 kΩ，运放为理想运放。",
+    "求同相端电位 u_p、R1 中的电流 i1（参考方向见图）和输出电压 u_o。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "U1", "type": "V", "from": [0, 2], "to": [0, 6], "value": 1, "label": "u_1" },
+      { "ref": "U2", "type": "V", "from": [3, 5], "to": [3, 9], "value": 4, "label": "u_2" },
+      { "ref": "R1", "type": "R", "from": [2, 2], "to": [6, 2], "value": "10k" },
+      { "ref": "R2", "type": "R", "from": [3, 5], "to": [7, 5], "value": "20k" },
+      { "ref": "A", "type": "OPAMP", "at": [13, 6], "flip": true },
+      { "ref": "Rg", "type": "R", "from": [9, 7], "to": [9, 11], "value": "10k" },
+      { "ref": "Rf", "type": "R", "from": [11, 9], "to": [15, 9], "value": "20k" }
+    ],
+    "wires": [
+      [[0, 2], [2, 2]],
+      [[6, 2], [7, 2], [7, 5], [11, 5]],
+      [[11, 7], [9, 7]],
+      [[10, 7], [10, 9], [11, 9]],
+      [[15, 9], [17, 9], [17, 6]],
+      [[15, 6], [20, 6]],
+      [[0, 6], [0, 11], [20, 11]],
+      [[3, 9], [3, 11]]
+    ],
+    "labels": [{ "at": [9, 5], "name": "p" }, { "at": [9, 7], "name": "n" }],
+    "terminals": [{ "at": [20, 6], "name": "o" }, { "at": [20, 11], "name": "o'" }],
+    "grounds": [[0, 11]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "up", "ask": "u_p = ?", "find": { "kind": "v", "nodes": ["p"] }, "answer": 2, "unit": "V", "explain": "虚断：结点 p 只连 R1、R2。弥尔曼定理：u_p = (u_1/R1 + u_2/R2)/(1/R1 + 1/R2) = (0.1 + 0.2)/0.15 = 2 V（电流单位 mA，电导单位 mS）。" },
+    { "id": "i1", "ask": "i1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": -0.0001, "unit": "mA", "explain": "i1 = (u_1 − u_p)/R1 = (1 − 2)/10k = −0.1 mA。R2 中电流 (4 − 2)/20k = 0.1 mA 从 u_2 流向 p，再经 R1 流进 u_1——同相端不取电流。" },
+    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 6, "unit": "V", "explain": "虚短 u_n = u_p = 2 V，同相放大：u_o = (1 + Rf/Rg)·u_p = 3 × 2 = 6 V。" }
+  ],
+  "hints": ["同相端不取电流，结点 p 是一个只有两条支路的两结点电路，用弥尔曼定理（结点电压法）求 u_p。", "求出 u_p 后，右半部分就是一个同相比例放大器。"],
+  "solution": [
+    "**1. 结点 p（虚断，i_+ = 0）：** (u_p − u_1)/R1 + (u_p − u_2)/R2 = 0。",
+    "u_p = (u_1/R1 + u_2/R2)/(1/R1 + 1/R2) = (1/10 + 4/20)/(1/10 + 1/20) = 0.3/0.15 = **2 V**。",
+    "**2. R1 的电流：** i1 = (1 − 2)/10 kΩ = **−0.1 mA**；R2 的电流 (4 − 2)/20 kΩ = 0.1 mA，两者在 p 点平衡。",
+    "**3. 同相放大：** u_n = u_p = 2 V，Rg 电流 2/10k = 0.2 mA 全部来自 Rf，u_o = 2 + 20k × 0.2 mA = **6 V** = (1 + Rf/Rg)·u_p。",
+    "一般式：u_o = (1 + Rf/Rg)·(R2·u_1 + R1·u_2)/(R1 + R2) = 3 × (20 + 40)/30 = 6 V。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Non-inverting summer (Millman's theorem)",
+      "tags": ["non-inverting summer", "Millman's theorem", "nodal analysis"],
+      "statement": [
+        "In the circuit v_1 = 1 V, v_2 = 4 V, R1 = 10 kΩ, R2 = 20 kΩ, Rg = 10 kΩ, Rf = 20 kΩ; the op-amp is ideal.",
+        "Find the potential v_p of the non-inverting input, the current i1 in R1 (reference as drawn) and the output voltage v_o."
+      ],
+      "questions": [
+        { "ask": "v_p = ?", "explain": "Virtual open: node p only connects R1 and R2. Millman's theorem: v_p = (v_1/R1 + v_2/R2)/(1/R1 + 1/R2) = (0.1 + 0.2)/0.15 = 2 V (currents in mA, conductances in mS)." },
+        { "ask": "i1 = ?", "explain": "i1 = (v_1 − v_p)/R1 = (1 − 2)/10k = −0.1 mA. R2 carries (4 − 2)/20k = 0.1 mA from v_2 to p, which then flows through R1 into v_1 — the non-inverting input takes none of it." },
+        { "ask": "v_o = ?", "explain": "Virtual short v_n = v_p = 2 V, non-inverting gain: v_o = (1 + Rf/Rg)·v_p = 3 × 2 = 6 V." }
+      ],
+      "hints": ["The non-inverting input draws no current, so node p is a two-node circuit with just two branches: use Millman's theorem (nodal analysis) for v_p.", "Once v_p is known, the right half is simply a non-inverting amplifier."],
+      "solution": [
+        "**1. Node p (virtual open, i+ = 0):** (v_p − v_1)/R1 + (v_p − v_2)/R2 = 0.",
+        "v_p = (v_1/R1 + v_2/R2)/(1/R1 + 1/R2) = (1/10 + 4/20)/(1/10 + 1/20) = 0.3/0.15 = **2 V**.",
+        "**2. Current in R1:** i1 = (1 − 2)/10 kΩ = **−0.1 mA**; R2 carries (4 − 2)/20 kΩ = 0.1 mA, and the two balance at p.",
+        "**3. Non-inverting stage:** v_n = v_p = 2 V, Rg carries 2/10k = 0.2 mA, all of it from Rf: v_o = 2 + 20k × 0.2 mA = **6 V** = (1 + Rf/Rg)·v_p.",
+        "General form: v_o = (1 + Rf/Rg)·(R2·v_1 + R1·v_2)/(R1 + R2) = 3 × (20 + 40)/30 = 6 V."
+      ]
+    }
+  }
+}

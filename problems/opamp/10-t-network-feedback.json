@@ -1,0 +1,86 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "opamp-10-t-network-feedback",
+  "chapter": "opamp",
+  "title": "T 形反馈网络的反相放大器",
+  "level": 4,
+  "tags": ["结点电压法", "T 形网络", "反相放大器"],
+  "statement": [
+    "反相放大器的反馈支路是由 R2、R3、R4 组成的 T 形网络。u_s = 0.2 V，R1 = 10 kΩ，R2 = R3 = 50 kΩ，R4 = 10 kΩ，运放为理想运放。",
+    "用结点电压法求结点 m 的电位 u_m、R4 中的电流 i4（参考方向见图）、输出电压 u_o。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 5], "to": [0, 9], "value": 0.2, "label": "u_s" },
+      { "ref": "R1", "type": "R", "from": [2, 5], "to": [6, 5], "value": "10k" },
+      { "ref": "R2", "type": "R", "from": [8, 0], "to": [12, 0], "value": "50k" },
+      { "ref": "R3", "type": "R", "from": [14, 0], "to": [18, 0], "value": "50k" },
+      { "ref": "R4", "type": "R", "from": [13, 0], "to": [13, 3], "value": "10k" },
+      { "ref": "A", "type": "OPAMP", "at": [12, 6] }
+    ],
+    "wires": [
+      [[0, 5], [2, 5]],
+      [[6, 5], [10, 5]],
+      [[7, 5], [7, 0], [8, 0]],
+      [[12, 0], [14, 0]],
+      [[18, 0], [19, 0], [19, 6]],
+      [[14, 6], [21, 6]],
+      [[10, 7], [9, 7], [9, 9]],
+      [[0, 9], [21, 9]]
+    ],
+    "labels": [{ "at": [7, 5], "name": "n" }, { "at": [13, 0], "name": "m" }],
+    "terminals": [{ "at": [21, 6], "name": "o" }, { "at": [21, 9], "name": "o'" }],
+    "grounds": [[0, 9], [13, 3]],
+    "marks": [{ "kind": "i", "el": "R4", "name": "i4" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "um", "ask": "u_m = ?", "find": { "kind": "v", "nodes": ["m"] }, "answer": -1, "unit": "V", "explain": "结点 n（虚地、虚断）：u_s/R1 = (0 − u_m)/R2 → 0.02 mA = −u_m/50k → u_m = −1 V。" },
+    { "id": "i4", "ask": "i4 = ?", "find": { "kind": "i", "el": "R4" }, "answer": -0.0001, "unit": "mA", "explain": "i4 = (u_m − 0)/R4 = −1/10k = −0.1 mA，实际方向从地流向 m。" },
+    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": -7, "unit": "V", "explain": "结点 m 的 KCL：(u_m − 0)/R2 + u_m/R4 + (u_m − u_o)/R3 = 0 → −0.02 − 0.1 + (−1 − u_o)/50 = 0（mA）→ u_o = −7 V。" },
+    {
+      "id": "eq",
+      "ask": "若改用普通反相放大器（只有一个反馈电阻 Rf）得到相同的放大倍数，Rf 应为多少？",
+      "choices": ["100 kΩ", "110 kΩ", "350 kΩ", "50 kΩ"],
+      "correct": 2,
+      "explain": "u_o/u_s = −7/0.2 = −35 = −Rf/R1 → Rf = 350 kΩ。T 形网络用 50 kΩ、10 kΩ 这样较小的电阻就实现了很大的放大倍数：u_o/u_s = −(R2 + R3 + R2R3/R4)/R1。"
+    }
+  ],
+  "hints": ["反相端 n 是虚地，对 n 列结点方程（虚断）可直接求出 u_m。", "再对 m 列结点方程，未知量只剩 u_o。注意运放输出端不能列 KCL（输出电流未知）。"],
+  "solution": [
+    "设地为参考点，u_n = 0（虚短）。运放输出端电流未知，所以只对 n、m 两个结点列方程。",
+    "**结点 n（虚断 i_− = 0）：** (u_n − u_s)/R1 + (u_n − u_m)/R2 = 0 → −0.2/10 − u_m/50 = 0 → **u_m = −1 V**。",
+    "**R4：** i4 = u_m/R4 = **−0.1 mA**。",
+    "**结点 m：** (u_m − u_n)/R2 + u_m/R4 + (u_m − u_o)/R3 = 0 → −0.02 − 0.1 + (−1 − u_o)/50 = 0 → −1 − u_o = 6 → **u_o = −7 V**。",
+    "**放大倍数：** u_o/u_s = −35 = −(R2 + R3 + R2R3/R4)/R1 = −(50 + 50 + 250)/10。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Inverting amplifier with a T feedback network",
+      "tags": ["nodal analysis", "T network", "inverting amplifier"],
+      "statement": [
+        "The feedback path of this inverting amplifier is a T network made of R2, R3 and R4. v_s = 0.2 V, R1 = 10 kΩ, R2 = R3 = 50 kΩ, R4 = 10 kΩ; the op-amp is ideal.",
+        "Using nodal analysis, find the potential v_m of node m, the current i4 in R4 (reference as drawn) and the output voltage v_o."
+      ],
+      "questions": [
+        { "ask": "v_m = ?", "explain": "Node n (virtual ground, virtual open): v_s/R1 = (0 − v_m)/R2 → 0.02 mA = −v_m/50k → v_m = −1 V." },
+        { "ask": "i4 = ?", "explain": "i4 = (v_m − 0)/R4 = −1/10k = −0.1 mA; it actually flows from ground up into m." },
+        { "ask": "v_o = ?", "explain": "KCL at m: (v_m − 0)/R2 + v_m/R4 + (v_m − v_o)/R3 = 0 → −0.02 − 0.1 + (−1 − v_o)/50 = 0 (mA) → v_o = −7 V." },
+        {
+          "ask": "An ordinary inverting amplifier (a single feedback resistor Rf) with the same gain would need Rf = ?",
+          "choices": ["100 kΩ", "110 kΩ", "350 kΩ", "50 kΩ"],
+          "explain": "v_o/v_s = −7/0.2 = −35 = −Rf/R1 → Rf = 350 kΩ. The T network reaches a large gain with modest resistors such as 50 kΩ and 10 kΩ: v_o/v_s = −(R2 + R3 + R2R3/R4)/R1."
+        }
+      ],
+      "hints": ["The inverting node n is a virtual ground; the node equation at n (virtual open) gives v_m directly.", "Then write the node equation at m, where only v_o is unknown. Don't write KCL at the op-amp output — its output current is unknown."],
+      "solution": [
+        "Take ground as reference; v_n = 0 (virtual short). The op-amp output current is unknown, so write node equations only at n and m.",
+        "**Node n (virtual open, i− = 0):** (v_n − v_s)/R1 + (v_n − v_m)/R2 = 0 → −0.2/10 − v_m/50 = 0 → **v_m = −1 V**.",
+        "**R4:** i4 = v_m/R4 = **−0.1 mA**.",
+        "**Node m:** (v_m − v_n)/R2 + v_m/R4 + (v_m − v_o)/R3 = 0 → −0.02 − 0.1 + (−1 − v_o)/50 = 0 → −1 − v_o = 6 → **v_o = −7 V**.",
+        "**Gain:** v_o/v_s = −35 = −(R2 + R3 + R2R3/R4)/R1 = −(50 + 50 + 250)/10."
+      ]
+    }
+  }
+}

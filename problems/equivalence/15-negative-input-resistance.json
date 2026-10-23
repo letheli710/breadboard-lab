@@ -1,0 +1,95 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "equivalence-15-negative-input-resistance",
+  "chapter": "equivalence",
+  "title": "负的输入电阻",
+  "level": 4,
+  "tags": ["输入电阻", "负电阻", "受控源 CCVS", "加压求流法"],
+  "statement": [
+    "图示单口网络中，R1 = 2 Ω，R2 = 4 Ω；电流控制电压源（CCVS）的电压为 r·i1，r = 10 Ω，“+”在上，i1 是流过 R1 的电流（参考方向见图）。",
+    "用加压求流法求 a、b 端的输入电阻 R_in，并讨论 r 取何值时 R_in 为无穷大。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R1", "type": "R", "from": [3, 0], "to": [3, 4], "value": 2 },
+      { "ref": "R2", "type": "R", "from": [6, 0], "to": [10, 0], "value": 4 },
+      { "ref": "H1", "type": "CCVS", "from": [12, 0], "to": [12, 4], "value": 10, "ctrl": { "i": "R1" }, "label": "10i_1" }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[10, 0], [12, 0]],
+      [[12, 4], [0, 4]]
+    ],
+    "terminals": [{ "at": [0, 0], "name": "a" }, { "at": [0, 4], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }, { "kind": "i", "el": "R2", "name": "i2" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "rin", "ask": "R_in = ?", "find": { "kind": "req", "port": ["a", "b"] }, "answer": -2, "unit": "Ω", "explain": "加电压 u：i1 = u/2，i2 = (u − 10i1)/4 = (u − 5u)/4 = −u；i = i1 + i2 = −u/2，R_in = u/i = −2 Ω。" },
+    {
+      "id": "inf",
+      "ask": "保持 R1、R2 不变，r 取多大时 R_in → ∞（端口电流恒为零）？",
+      "choices": ["2 Ω", "4 Ω", "6 Ω", "8 Ω"],
+      "correct": 2,
+      "explain": "一般地 i = u/2 + (u − r·u/2)/4 = u(6 − r)/8，所以 R_in = 8/(6 − r)。r = 6 Ω 时 i ≡ 0，R_in → ∞；r > 6 Ω 时 R_in < 0。"
+    },
+    {
+      "id": "c",
+      "ask": "R_in = −2 Ω 意味着什么？",
+      "choices": ["电路计算错误，电阻不可能为负", "在端口加电压 u > 0 时，电流从 a 端流出：这个单口网络向外部电路提供功率", "这个单口网络中所有电阻吸收的功率都为负"],
+      "correct": 1,
+      "explain": "端口吸收功率 P = u²/R_in < 0，即网络向外发出功率。能量来自受控源（有源元件）；电阻本身仍然吸收功率。"
+    }
+  ],
+  "hints": [
+    "在 a、b 端加电压 u，用 u 表示控制量 i1，再求端口电流 i = i1 + i2。",
+    "R2 支路：KVL u = R2·i2 + r·i1。",
+    "R_in = u / i；若 i 与 u 符号相反，R_in 就是负的。"
+  ],
+  "solution": [
+    "**1. 外加电压 u**（a 为“+”），端口电流 i 从 a 流入。",
+    "**2. 控制量。** R1 直接接在端口上：i1 = u/R1 = u/2。",
+    "**3. R2 支路。** KVL：u = 4i2 + 10i1 = 4i2 + 5u → i2 = −u。",
+    "**4. KCL。** i = i1 + i2 = u/2 − u = −u/2，**R_in = u/i = −2 Ω**。",
+    "**5. 一般情形。** i = u/2 + (u − r·u/2)/4 = u(6 − r)/8，R_in = 8/(6 − r)：r < 6 Ω 时为正，r = 6 Ω 时为无穷大，r > 6 Ω 时为负。",
+    "**物理意义：** 负电阻的单口网络对外发出功率，能量由受控源提供——这只在含受控源（有源）的网络中才可能出现。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "A negative input resistance",
+      "tags": ["input resistance", "negative resistance", "dependent source CCVS", "test-voltage method"],
+      "statement": [
+        "In the one-port, R1 = 2 Ω, R2 = 4 Ω; the current-controlled voltage source (CCVS) has voltage r·i1 with r = 10 Ω, + at the top, where i1 is the current through R1 (reference direction as drawn).",
+        "Apply a test voltage to find the input resistance R_in at a, b, and discuss for which r the input resistance becomes infinite."
+      ],
+      "questions": [
+        { "ask": "R_in = ?", "explain": "Apply u: i1 = u/2, i2 = (u − 10i1)/4 = (u − 5u)/4 = −u; i = i1 + i2 = −u/2, so R_in = u/i = −2 Ω." },
+        {
+          "ask": "Keeping R1 and R2, for which r does R_in → ∞ (the port current is always zero)?",
+          "choices": ["2 Ω", "4 Ω", "6 Ω", "8 Ω"],
+          "explain": "In general i = u/2 + (u − r·u/2)/4 = u(6 − r)/8, so R_in = 8/(6 − r). At r = 6 Ω, i ≡ 0 and R_in → ∞; for r > 6 Ω, R_in < 0."
+        },
+        {
+          "ask": "What does R_in = −2 Ω mean?",
+          "choices": ["The calculation is wrong — a resistance can't be negative", "With u > 0 applied at the port, current flows out of terminal a: the one-port delivers power to the external circuit", "Every resistor in the one-port absorbs negative power"],
+          "explain": "The power absorbed at the port is P = u²/R_in < 0, i.e. the network delivers power. The energy comes from the dependent source (an active element); the resistors themselves still absorb power."
+        }
+      ],
+      "hints": [
+        "Apply a voltage u at a, b; express the controlling current i1 in terms of u, then find the port current i = i1 + i2.",
+        "R2 branch: KVL u = R2·i2 + r·i1.",
+        "R_in = u / i; if i and u have opposite signs, R_in is negative."
+      ],
+      "solution": [
+        "**1. Apply a test voltage u** (+ at a); the port current i flows into a.",
+        "**2. Controlling current.** R1 sits directly across the port: i1 = u/R1 = u/2.",
+        "**3. R2 branch.** KVL: u = 4i2 + 10i1 = 4i2 + 5u → i2 = −u.",
+        "**4. KCL.** i = i1 + i2 = u/2 − u = −u/2, so **R_in = u/i = −2 Ω**.",
+        "**5. General case.** i = u/2 + (u − r·u/2)/4 = u(6 − r)/8, R_in = 8/(6 − r): positive for r < 6 Ω, infinite at r = 6 Ω, negative for r > 6 Ω.",
+        "**Physical meaning:** a one-port with negative resistance delivers power to the outside; the energy is supplied by the dependent source — this is only possible in a network containing dependent (active) sources."
+      ]
+    }
+  }
+}

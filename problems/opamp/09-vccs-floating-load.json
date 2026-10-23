@@ -1,0 +1,91 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "opamp-09-vccs-floating-load",
+  "chapter": "opamp",
+  "title": "运放构成的电压控制电流源",
+  "level": 3,
+  "tags": ["电压控制电流源", "负载电流", "反相比例放大器"],
+  "statement": [
+    "负载 RL 接在理想运放的反馈支路中（“浮地负载”）。u_s = 3 V，R1 = 1.5 kΩ，RL = 2 kΩ。",
+    "求负载电流 i_L（参考方向见图）和输出电压 u_o，并讨论 RL 改变时的情况。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": 3, "label": "u_s" },
+      { "ref": "R1", "type": "R", "from": [2, 3], "to": [6, 3], "value": "1.5k" },
+      { "ref": "RL", "type": "R", "from": [8, 0], "to": [12, 0], "value": "2k" },
+      { "ref": "A", "type": "OPAMP", "at": [10, 4] }
+    ],
+    "wires": [
+      [[0, 3], [2, 3]],
+      [[6, 3], [8, 3]],
+      [[7, 3], [7, 0], [8, 0]],
+      [[12, 0], [14, 0], [14, 4]],
+      [[12, 4], [16, 4]],
+      [[8, 5], [7, 5], [7, 7]],
+      [[0, 7], [16, 7]]
+    ],
+    "labels": [{ "at": [7, 3], "name": "n" }],
+    "terminals": [{ "at": [16, 4], "name": "o" }, { "at": [16, 7], "name": "o'" }],
+    "grounds": [[0, 7]],
+    "marks": [{ "kind": "i", "el": "RL", "name": "i_L" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "il", "ask": "i_L = ?", "find": { "kind": "i", "el": "RL" }, "answer": 0.002, "unit": "mA", "explain": "n 是虚地，R1 电流 u_s/R1 = 3/1.5k = 2 mA；虚断使它全部流过 RL：i_L = u_s/R1 = 2 mA，与 RL 无关。" },
+    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": -4, "unit": "V", "explain": "u_o = u_n − RL·i_L = 0 − 2k × 2 mA = −4 V。" },
+    {
+      "id": "rl",
+      "ask": "把 RL 换成 3 kΩ，i_L 和 u_o 分别变为多少？",
+      "choices": ["i_L = 2 mA，u_o = −6 V", "i_L = 1.33 mA，u_o = −4 V", "i_L = 1 mA，u_o = −3 V"],
+      "correct": 0,
+      "explain": "i_L = u_s/R1 只由控制电压 u_s 决定，RL 变化时不变（电压控制电流源，跨导 1/R1）；运放自动调整 u_o = −RL·i_L = −6 V 来维持这个电流。"
+    },
+    {
+      "id": "sat",
+      "ask": "实际运放的输出电压被限制在 ±12 V 以内。为保持 i_L = 2 mA，RL 最大可以取多少？",
+      "choices": ["1.5 kΩ", "6 kΩ", "12 kΩ", "任意大"],
+      "correct": 1,
+      "explain": "|u_o| = RL·i_L ≤ 12 V → RL ≤ 12/2 mA = 6 kΩ。超出后运放饱和，理想模型（虚短）不再成立。"
+    }
+  ],
+  "hints": ["反相端仍然是虚地，R1 的电流由 u_s 和 R1 唯一确定。", "由虚断，这个电流只能经过 RL 流向输出端。"],
+  "solution": [
+    "**1. 虚地：** u_n = u_+ = 0，R1 中电流 i1 = u_s/R1 = 3/1.5 kΩ = 2 mA。",
+    "**2. 虚断：** i_L = i1 = **2 mA**——负载电流只取决于 u_s，与 RL 无关，电路相当于跨导 g = 1/R1 的电压控制电流源（VCCS）。",
+    "**3. 输出：** u_o = 0 − RL·i_L = **−4 V**。",
+    "**4. 适用范围：** u_o 随 RL 线性变化，输出电压受电源限制（如 ±12 V），所以 RL ≤ 12 V/2 mA = 6 kΩ。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "An op-amp voltage-controlled current source",
+      "tags": ["voltage-controlled current source", "load current", "inverting amplifier"],
+      "statement": [
+        "The load RL sits in the feedback path of an ideal op-amp (a \"floating load\"). v_s = 3 V, R1 = 1.5 kΩ, RL = 2 kΩ.",
+        "Find the load current i_L (reference as drawn) and the output voltage v_o, then discuss what happens when RL changes."
+      ],
+      "questions": [
+        { "ask": "i_L = ?", "explain": "n is a virtual ground, so R1 carries v_s/R1 = 3/1.5k = 2 mA; by the virtual open all of it flows through RL: i_L = v_s/R1 = 2 mA, independent of RL." },
+        { "ask": "v_o = ?", "explain": "v_o = v_n − RL·i_L = 0 − 2k × 2 mA = −4 V." },
+        {
+          "ask": "If RL is replaced by 3 kΩ, what are i_L and v_o?",
+          "choices": ["i_L = 2 mA, v_o = −6 V", "i_L = 1.33 mA, v_o = −4 V", "i_L = 1 mA, v_o = −3 V"],
+          "explain": "i_L = v_s/R1 depends only on the control voltage v_s, not on RL (a voltage-controlled current source with transconductance 1/R1); the op-amp adjusts v_o = −RL·i_L = −6 V to keep that current flowing."
+        },
+        {
+          "ask": "A real op-amp's output is limited to ±12 V. What is the largest RL that still gets i_L = 2 mA?",
+          "choices": ["1.5 kΩ", "6 kΩ", "12 kΩ", "Any value"],
+          "explain": "|v_o| = RL·i_L ≤ 12 V → RL ≤ 12/2 mA = 6 kΩ. Beyond that the op-amp saturates and the ideal model (virtual short) no longer holds."
+        }
+      ],
+      "hints": ["The inverting input is still a virtual ground, so R1's current is fixed by v_s and R1 alone.", "By the virtual open, that current has nowhere to go except through RL to the output."],
+      "solution": [
+        "**1. Virtual ground:** v_n = v+ = 0, so R1 carries i1 = v_s/R1 = 3/1.5 kΩ = 2 mA.",
+        "**2. Virtual open:** i_L = i1 = **2 mA** — the load current depends only on v_s, not on RL: the circuit is a voltage-controlled current source (VCCS) with transconductance g = 1/R1.",
+        "**3. Output:** v_o = 0 − RL·i_L = **−4 V**.",
+        "**4. Compliance:** v_o grows linearly with RL and is limited by the supply (e.g. ±12 V), so RL ≤ 12 V/2 mA = 6 kΩ."
+      ]
+    }
+  }
+}

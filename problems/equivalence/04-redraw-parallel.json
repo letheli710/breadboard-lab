@@ -1,0 +1,79 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "equivalence-04-redraw-parallel",
+  "chapter": "equivalence",
+  "title": "需要重画的电路：短接线",
+  "level": 2,
+  "tags": ["混联", "等效电阻", "重画电路", "短接线"],
+  "statement": [
+    "图示网络中，R1 = 3 Ω，R2 = 6 Ω，R3 = 6 Ω 画成一排，但下方的导线把端子 a 和 R2、R3 之间的点连在一起，上方的导线把 R1、R2 之间的点和端子 b 连在一起。",
+    "先找出各电阻两端分别是哪个结点，再求 R_ab。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "R1", "type": "R", "from": [2, 2], "to": [5, 2], "value": 3 },
+      { "ref": "R2", "type": "R", "from": [7, 2], "to": [10, 2], "value": 6 },
+      { "ref": "R3", "type": "R", "from": [12, 2], "to": [15, 2], "value": 6 }
+    ],
+    "wires": [
+      [[0, 2], [2, 2]],
+      [[5, 2], [7, 2]],
+      [[10, 2], [12, 2]],
+      [[15, 2], [17, 2]],
+      [[1, 2], [1, 5], [11, 5], [11, 2]],
+      [[6, 2], [6, 0], [16, 0], [16, 2]]
+    ],
+    "terminals": [{ "at": [0, 2], "name": "a" }, { "at": [17, 2], "name": "b" }],
+    "grounds": [[6, 5]]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    {
+      "id": "c",
+      "ask": "R1、R2、R3 三个电阻的连接关系是？",
+      "choices": ["三者串联", "三者都接在 a、b 之间，互相并联", "R1 与 R3 串联后再与 R2 并联", "R2 被短路，R1 与 R3 并联"],
+      "correct": 1,
+      "explain": "R1：左端是 a，右端经上方导线接到 b；R2：左端是 b，右端经下方导线接到 a；R3：左端是 a，右端是 b。三个电阻都跨接在 a、b 之间，所以是并联。"
+    },
+    { "id": "rab", "ask": "R_ab = ?", "find": { "kind": "req", "port": ["a", "b"] }, "answer": 1.5, "unit": "Ω", "explain": "G = 1/3 + 1/6 + 1/6 = 2/3 S，R_ab = 1.5 Ω。" }
+  ],
+  "hints": [
+    "用导线直接相连的点是同一个结点。给每个结点起名（a 或 b），把它写在每个电阻的两端。",
+    "如果每个电阻的两端都是 a 和 b，它们就是并联。"
+  ],
+  "solution": [
+    "**1. 标结点。** 端子 a 与下方导线、R2 和 R3 之间的点是同一结点 a；R1 和 R2 之间的点经上方导线与端子 b 是同一结点 b。",
+    "**2. 看每个电阻。** R1：a–b；R2：b–a；R3：a–b。三个电阻都跨在 a、b 之间——**并联**。",
+    "**3. 重画。** 把 a、b 画成两条竖线，三个电阻并排连在中间。",
+    "**4. 计算。** G_ab = 1/3 + 1/6 + 1/6 = 2/3 S，R_ab = **1.5 Ω**。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Redrawing a circuit with shorting wires",
+      "tags": ["series–parallel", "equivalent resistance", "redrawing", "shorting wire"],
+      "statement": [
+        "In the network, R1 = 3 Ω, R2 = 6 Ω and R3 = 6 Ω are drawn in a row, but the lower wire joins terminal a to the point between R2 and R3, and the upper wire joins the point between R1 and R2 to terminal b.",
+        "First find which node each resistor end is on, then find R_ab."
+      ],
+      "questions": [
+        {
+          "ask": "How are R1, R2 and R3 connected?",
+          "choices": ["All three in series", "All three are connected between a and b, i.e. in parallel", "R1 in series with R3, then in parallel with R2", "R2 is shorted; R1 is in parallel with R3"],
+          "explain": "R1: left end a, right end tied to b by the upper wire; R2: left end b, right end tied to a by the lower wire; R3: left end a, right end b. All three span a and b, so they are in parallel."
+        },
+        { "ask": "R_ab = ?", "explain": "G = 1/3 + 1/6 + 1/6 = 2/3 S, so R_ab = 1.5 Ω." }
+      ],
+      "hints": [
+        "Points joined by a plain wire are the same node. Name every node (a or b) and write the names at both ends of each resistor.",
+        "If every resistor has a and b at its two ends, they are all in parallel."
+      ],
+      "solution": [
+        "**1. Label the nodes.** Terminal a, the lower wire and the point between R2 and R3 form node a; the point between R1 and R2 and terminal b (joined by the upper wire) form node b.",
+        "**2. Each resistor.** R1: a–b; R2: b–a; R3: a–b. All three span a and b — they are **in parallel**.",
+        "**3. Redraw.** Draw a and b as two vertical rails with the three resistors side by side between them.",
+        "**4. Compute.** G_ab = 1/3 + 1/6 + 1/6 = 2/3 S, R_ab = **1.5 Ω**."
+      ]
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "opamp-05-inverting-summer",
+  "chapter": "opamp",
+  "title": "反相加法器",
+  "level": 2,
+  "tags": ["反相加法器", "虚地", "KCL"],
+  "statement": [
+    "图示反相加法器中，u_1 = 1 V，u_2 = 2 V，R1 = 10 kΩ，R2 = 20 kΩ，Rf = 30 kΩ，运放为理想运放。",
+    "求反馈电阻中的电流 i_f 和输出电压 u_o。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "U1", "type": "V", "from": [0, 2], "to": [0, 6], "value": 1, "label": "u_1" },
+      { "ref": "U2", "type": "V", "from": [3, 5], "to": [3, 9], "value": 2, "label": "u_2" },
+      { "ref": "R1", "type": "R", "from": [2, 2], "to": [6, 2], "value": "10k" },
+      { "ref": "R2", "type": "R", "from": [3, 5], "to": [7, 5], "value": "20k" },
+      { "ref": "Rf", "type": "R", "from": [9, 0], "to": [13, 0], "value": "30k" },
+      { "ref": "A", "type": "OPAMP", "at": [12, 7] }
+    ],
+    "wires": [
+      [[0, 2], [2, 2]],
+      [[6, 2], [8, 2], [8, 6], [10, 6]],
+      [[7, 5], [8, 5]],
+      [[8, 2], [8, 0], [9, 0]],
+      [[13, 0], [15, 0], [15, 7]],
+      [[14, 7], [18, 7]],
+      [[10, 8], [9, 8], [9, 10]],
+      [[0, 6], [0, 10], [18, 10]],
+      [[3, 9], [3, 10]]
+    ],
+    "labels": [{ "at": [8, 4], "name": "n" }],
+    "terminals": [{ "at": [18, 7], "name": "o" }, { "at": [18, 10], "name": "o'" }],
+    "grounds": [[0, 10]],
+    "marks": [
+      { "kind": "i", "el": "R1", "name": "i1" },
+      { "kind": "i", "el": "R2", "name": "i2" },
+      { "kind": "i", "el": "Rf", "name": "i_f" }
+    ]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "if", "ask": "i_f = ?", "find": { "kind": "i", "el": "Rf" }, "answer": 0.0002, "unit": "mA", "explain": "n 是虚地：i1 = 1/10k = 0.1 mA，i2 = 2/20k = 0.1 mA；由虚断，i_f = i1 + i2 = 0.2 mA。" },
+    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": -6, "unit": "V", "explain": "u_o = 0 − Rf·i_f = −30k × 0.2 mA = −6 V，即 u_o = −(Rf/R1·u_1 + Rf/R2·u_2) = −(3 × 1 + 1.5 × 2)。" },
+    {
+      "id": "iso",
+      "ask": "若 u_2 改为 4 V，R1 中的电流 i1 会怎样变化？",
+      "choices": ["不变，仍为 0.1 mA", "变大", "变小"],
+      "correct": 0,
+      "explain": "n 点是虚地，电位始终为 0，所以 i1 = u_1/R1 只取决于 u_1。各路输入互不影响，这正是反相加法器能做“加权求和”的原因。"
+    }
+  ],
+  "hints": ["反相端 n 是虚地，每一路输入电流都可以单独算。", "虚断：流入 n 的各路电流之和全部流经 Rf。"],
+  "solution": [
+    "**1. 虚地：** u_+ = 0 → u_n = 0。",
+    "**2. 各路输入电流：** i1 = u_1/R1 = 0.1 mA，i2 = u_2/R2 = 0.1 mA。",
+    "**3. 结点 n 的 KCL（虚断）：** i_f = i1 + i2 = **0.2 mA**。",
+    "**4. 输出：** u_o = −Rf·i_f = **−6 V**。",
+    "公式形式：u_o = −(Rf/R1·u_1 + Rf/R2·u_2) = −(3u_1 + 1.5u_2)，各输入按 Rf/Rk 加权后相加再反相。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Inverting summing amplifier",
+      "tags": ["inverting summer", "virtual ground", "KCL"],
+      "statement": [
+        "In the inverting summer, v_1 = 1 V, v_2 = 2 V, R1 = 10 kΩ, R2 = 20 kΩ, Rf = 30 kΩ; the op-amp is ideal.",
+        "Find the current i_f in the feedback resistor and the output voltage v_o."
+      ],
+      "questions": [
+        { "ask": "i_f = ?", "explain": "n is a virtual ground: i1 = 1/10k = 0.1 mA, i2 = 2/20k = 0.1 mA; by the virtual open, i_f = i1 + i2 = 0.2 mA." },
+        { "ask": "v_o = ?", "explain": "v_o = 0 − Rf·i_f = −30k × 0.2 mA = −6 V, i.e. v_o = −(Rf/R1·v_1 + Rf/R2·v_2) = −(3 × 1 + 1.5 × 2)." },
+        {
+          "ask": "If v_2 is changed to 4 V, what happens to the current i1 in R1?",
+          "choices": ["Unchanged, still 0.1 mA", "It increases", "It decreases"],
+          "explain": "Node n is a virtual ground, always at 0 V, so i1 = v_1/R1 depends only on v_1. The inputs don't interact — which is exactly why the circuit computes a weighted sum."
+        }
+      ],
+      "hints": ["The inverting node n is a virtual ground, so each input current can be computed on its own.", "Virtual open: the sum of the currents into n all flows through Rf."],
+      "solution": [
+        "**1. Virtual ground:** v+ = 0 → v_n = 0.",
+        "**2. Input currents:** i1 = v_1/R1 = 0.1 mA, i2 = v_2/R2 = 0.1 mA.",
+        "**3. KCL at n (virtual open):** i_f = i1 + i2 = **0.2 mA**.",
+        "**4. Output:** v_o = −Rf·i_f = **−6 V**.",
+        "As a formula: v_o = −(Rf/R1·v_1 + Rf/R2·v_2) = −(3v_1 + 1.5v_2): each input is weighted by Rf/Rk, summed and inverted."
+      ]
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "opamp-13-two-opamp-loop",
+  "chapter": "opamp",
+  "title": "带级间反馈的两级运放电路",
+  "level": 5,
+  "tags": ["多级运放电路", "结点电压法", "级间反馈"],
+  "statement": [
+    "图示电路中第二级的输出 u_o2 经 R2 反馈到第一级的反相输入端。u_s = 3 V，R1 = 10 kΩ，R2 = 40 kΩ，Rf1 = 20 kΩ，R4 = R5 = 10 kΩ，运放均为理想运放。",
+    "求 u_o1、u_o2 以及 R2 中的电流 i2（参考方向见图）。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 5], "to": [0, 9], "value": 3, "label": "u_s" },
+      { "ref": "R1", "type": "R", "from": [2, 5], "to": [6, 5], "value": "10k" },
+      { "ref": "Rf1", "type": "R", "from": [8, 3], "to": [12, 3], "value": "20k" },
+      { "ref": "R2", "type": "R", "from": [17, 0], "to": [13, 0], "value": "40k" },
+      { "ref": "A1", "type": "OPAMP", "at": [10, 6] },
+      { "ref": "A2", "type": "OPAMP", "at": [20, 7], "flip": true },
+      { "ref": "R4", "type": "R", "from": [16, 8], "to": [16, 12], "value": "10k" },
+      { "ref": "R5", "type": "R", "from": [18, 10], "to": [22, 10], "value": "10k" }
+    ],
+    "wires": [
+      [[0, 5], [2, 5]],
+      [[6, 5], [8, 5]],
+      [[7, 5], [7, 0], [13, 0]],
+      [[7, 3], [8, 3]],
+      [[12, 3], [13, 3], [13, 6]],
+      [[12, 6], [18, 6]],
+      [[17, 0], [26, 0], [26, 7]],
+      [[18, 8], [16, 8]],
+      [[17, 8], [17, 10], [18, 10]],
+      [[22, 10], [24, 10], [24, 7]],
+      [[22, 7], [28, 7]],
+      [[8, 7], [7, 7], [7, 12]],
+      [[0, 9], [0, 12], [28, 12]]
+    ],
+    "labels": [{ "at": [7, 4], "name": "n" }, { "at": [15, 6], "name": "o1" }],
+    "terminals": [{ "at": [28, 7], "name": "o2" }, { "at": [28, 12], "name": "o'" }],
+    "grounds": [[0, 12]],
+    "marks": [{ "kind": "i", "el": "R2", "name": "i2" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "uo1", "ask": "u_o1 = ?", "find": { "kind": "v", "nodes": ["o1"] }, "answer": -3, "unit": "V", "explain": "A2 是同相放大：u_o2 = 2u_o1。结点 n（虚地）：u_s/R1 + u_o2/R2 + u_o1/Rf1 = 0 → 0.3 + 2u_o1/40 + u_o1/20 = 0 → u_o1 = −3 V。" },
+    { "id": "uo2", "ask": "u_o2 = ?", "find": { "kind": "v", "nodes": ["o2"] }, "answer": -6, "unit": "V", "explain": "u_o2 = (1 + R5/R4)·u_o1 = 2 × (−3) = −6 V。" },
+    { "id": "i2", "ask": "i2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": -0.00015, "unit": "mA", "explain": "i2 = (u_o2 − u_n)/R2 = (−6 − 0)/40k = −0.15 mA，实际从 n 流向 o2。" },
+    {
+      "id": "open",
+      "ask": "若把 R2 断开（去掉级间反馈），u_o2 变为多少？",
+      "choices": ["−6 V", "−12 V", "−3 V", "+6 V"],
+      "correct": 1,
+      "explain": "无级间反馈时两级直接级联：u_o1 = −(Rf1/R1)u_s = −6 V，u_o2 = 2 × (−6) = −12 V。加上 R2 后总放大倍数从 −4 降为 −2：负反馈降低放大倍数。"
+    }
+  ],
+  "hints": ["两个运放都工作在线性区，先分别写出每个运放的约束：A2 给出 u_o2 与 u_o1 的关系。", "对 A1 的反相端 n（虚地）列结点方程：三条支路 R1、R2、Rf1 的电流之和为零（虚断）。"],
+  "solution": [
+    "**1. 第二级（同相放大）：** 虚短 u_−2 = u_o1，R4、R5 电流相同：u_o2 = (1 + R5/R4)·u_o1 = 2u_o1。",
+    "**2. 结点 n（A1 反相端）：** 虚短 u_n = 0，虚断 i_− = 0，结点方程（单位 kΩ、mA）：",
+    "(u_s − 0)/R1 + (u_o2 − 0)/R2 + (u_o1 − 0)/Rf1 = 0 → 3/10 + 2u_o1/40 + u_o1/20 = 0 → 0.1·u_o1 = −0.3。",
+    "**3. 结果：** **u_o1 = −3 V**，**u_o2 = −6 V**，i2 = (u_o2 − 0)/R2 = **−0.15 mA**。",
+    "**验算：** 流入 n 的电流 0.3 − 0.15 − 0.15 = 0 ✓（Rf1 中电流 (−3)/20k = −0.15 mA）。总放大倍数 u_o2/u_s = −2。",
+    "注意：不要对运放输出端列 KCL（输出电流未知），只对输入端所在结点列方程。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Two op-amp stages with overall feedback",
+      "tags": ["multi-stage op-amp circuits", "nodal analysis", "overall feedback"],
+      "statement": [
+        "The second-stage output v_o2 is fed back through R2 to the inverting input of the first stage. v_s = 3 V, R1 = 10 kΩ, R2 = 40 kΩ, Rf1 = 20 kΩ, R4 = R5 = 10 kΩ; both op-amps are ideal.",
+        "Find v_o1, v_o2 and the current i2 in R2 (reference as drawn)."
+      ],
+      "questions": [
+        { "ask": "v_o1 = ?", "explain": "A2 is a non-inverting amplifier: v_o2 = 2v_o1. Node n (virtual ground): v_s/R1 + v_o2/R2 + v_o1/Rf1 = 0 → 0.3 + 2v_o1/40 + v_o1/20 = 0 → v_o1 = −3 V." },
+        { "ask": "v_o2 = ?", "explain": "v_o2 = (1 + R5/R4)·v_o1 = 2 × (−3) = −6 V." },
+        { "ask": "i2 = ?", "explain": "i2 = (v_o2 − v_n)/R2 = (−6 − 0)/40k = −0.15 mA; it actually flows from n to o2." },
+        {
+          "ask": "If R2 is removed (no overall feedback), what does v_o2 become?",
+          "choices": ["−6 V", "−12 V", "−3 V", "+6 V"],
+          "explain": "Without overall feedback the stages are simply cascaded: v_o1 = −(Rf1/R1)v_s = −6 V, v_o2 = 2 × (−6) = −12 V. Adding R2 reduces the overall gain from −4 to −2: negative feedback lowers the gain."
+        }
+      ],
+      "hints": ["Both op-amps operate linearly; write each op-amp's constraint first. A2 relates v_o2 to v_o1.", "Write the node equation at A1's inverting node n (virtual ground): the currents in R1, R2 and Rf1 sum to zero (virtual open)."],
+      "solution": [
+        "**1. Second stage (non-inverting):** virtual short v−2 = v_o1, R4 and R5 carry the same current: v_o2 = (1 + R5/R4)·v_o1 = 2v_o1.",
+        "**2. Node n (A1's inverting input):** virtual short v_n = 0, virtual open i− = 0; node equation (kΩ, mA):",
+        "(v_s − 0)/R1 + (v_o2 − 0)/R2 + (v_o1 − 0)/Rf1 = 0 → 3/10 + 2v_o1/40 + v_o1/20 = 0 → 0.1·v_o1 = −0.3.",
+        "**3. Results:** **v_o1 = −3 V**, **v_o2 = −6 V**, i2 = (v_o2 − 0)/R2 = **−0.15 mA**.",
+        "**Check:** currents into n: 0.3 − 0.15 − 0.15 = 0 ✓ (Rf1 carries (−3)/20k = −0.15 mA). Overall gain v_o2/v_s = −2.",
+        "Note: don't write KCL at an op-amp output (its current is unknown); write node equations only at the nodes of the inputs."
+      ]
+    }
+  }
+}

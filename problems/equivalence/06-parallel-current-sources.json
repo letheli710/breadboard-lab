@@ -1,0 +1,71 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "equivalence-06-parallel-current-sources",
+  "chapter": "equivalence",
+  "title": "电流源的并联",
+  "level": 2,
+  "tags": ["电流源并联", "等效变换", "功率"],
+  "statement": [
+    "图示电路中，Is1 = 5 A（方向向上），Is2 = 2 A（方向向下），R1 = 6 Ω，负载 R_L = 3 Ω，四个元件并联在结点 a 与地之间。",
+    "把两个电流源合并为一个等效电流源，求 u_a、负载电流 i_L，以及 Is2 吸收的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Is1", "type": "I", "from": [0, 4], "to": [0, 0], "value": 5 },
+      { "ref": "Is2", "type": "I", "from": [4, 0], "to": [4, 4], "value": 2 },
+      { "ref": "R1", "type": "R", "from": [8, 0], "to": [8, 4], "value": 6 },
+      { "ref": "RL", "type": "R", "from": [12, 0], "to": [12, 4], "value": 3 }
+    ],
+    "wires": [
+      [[0, 0], [12, 0]],
+      [[12, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [2, 0], "name": "a" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "RL", "name": "i_L" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 6, "unit": "V", "explain": "等效电流源 Is = 5 − 2 = 3 A（向上），R1 ∥ R_L = 2 Ω，u_a = 3 × 2 = 6 V。" },
+    { "id": "il", "ask": "i_L = ?", "find": { "kind": "i", "el": "RL" }, "answer": 2, "unit": "A", "explain": "i_L = u_a / R_L = 6 / 3 = 2 A（或分流：3 × 6/9 = 2 A）。" },
+    { "id": "p2", "ask": "Is2 吸收的功率 P = ?（发出为负）", "find": { "kind": "p", "el": "Is2" }, "answer": 12, "unit": "W", "explain": "Is2 的电流 2 A 从 a 端（高电位 6 V）流进、从地端流出，关联方向下 P = 6 × 2 = +12 W：它在吸收功率。" }
+  ],
+  "hints": [
+    "并联的电流源可以合并为一个电流源：方向相同的相加，方向相反的相减。",
+    "合并只对外部等效；求 Is2 自己的功率时要回到原电路，用它两端的实际电压 u_a。"
+  ],
+  "solution": [
+    "**1. 合并电流源。** 两个电流源都接在 a 与地之间：向上为正，Is = Is1 − Is2 = 5 − 2 = 3 A（向上，注入 a）。",
+    "**2. 合并电阻。** R1 ∥ R_L = 6 × 3 / 9 = 2 Ω。",
+    "**3. 电压。** u_a = 3 × 2 = **6 V**，i_L = 6 / 3 = **2 A**（R1 中 1 A）。",
+    "**4. 回到原电路求 Is2 的功率。** Is2 两端电压 u_a = 6 V，电流 2 A 从“+”端（a）流入：P = 6 × 2 = **12 W**（吸收）。",
+    "**验算：** P_Is1 = −6 × 5 = −30 W，P_R1 = 6 W，P_RL = 12 W，P_Is2 = 12 W，总和为 0 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Current sources in parallel",
+      "tags": ["current sources in parallel", "equivalent circuit", "power"],
+      "statement": [
+        "In the circuit, Is1 = 5 A (up), Is2 = 2 A (down), R1 = 6 Ω and the load R_L = 3 Ω are all connected in parallel between node a and ground.",
+        "Combine the two current sources into one equivalent source and find u_a, the load current i_L and the power absorbed by Is2."
+      ],
+      "questions": [
+        { "ask": "u_a = ?", "explain": "Equivalent source Is = 5 − 2 = 3 A (up), R1 ∥ R_L = 2 Ω, so u_a = 3 × 2 = 6 V." },
+        { "ask": "i_L = ?", "explain": "i_L = u_a / R_L = 6 / 3 = 2 A (or by the divider: 3 × 6/9 = 2 A)." },
+        { "ask": "Power absorbed by Is2, P = ? (negative = delivered)", "explain": "Is2's 2 A enters at a (6 V, the higher potential) and leaves at ground, so with the passive convention P = 6 × 2 = +12 W: it absorbs power." }
+      ],
+      "hints": [
+        "Current sources in parallel combine into one: add those pointing the same way, subtract those pointing the opposite way.",
+        "The combination is equivalent only externally; for Is2's own power go back to the original circuit and use its actual voltage u_a."
+      ],
+      "solution": [
+        "**1. Combine the sources.** Both sit between a and ground; taking up as positive, Is = Is1 − Is2 = 5 − 2 = 3 A (up, into a).",
+        "**2. Combine the resistors.** R1 ∥ R_L = 6 × 3 / 9 = 2 Ω.",
+        "**3. Voltage.** u_a = 3 × 2 = **6 V**, i_L = 6 / 3 = **2 A** (1 A in R1).",
+        "**4. Back to the original circuit for Is2.** Its voltage is u_a = 6 V and its 2 A enters at the + end (a): P = 6 × 2 = **12 W** (absorbed).",
+        "**Check:** P_Is1 = −6 × 5 = −30 W, P_R1 = 6 W, P_RL = 12 W, P_Is2 = 12 W; the sum is 0 ✓."
+      ]
+    }
+  }
+}

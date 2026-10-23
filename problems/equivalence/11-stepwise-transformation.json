@@ -1,0 +1,81 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "equivalence-11-stepwise-transformation",
+  "chapter": "equivalence",
+  "title": "用电源等效变换逐步化简",
+  "level": 3,
+  "tags": ["电源等效变换", "逐步化简", "分流公式"],
+  "statement": [
+    "图示电路中，Us = 12 V，Is = 3 A（方向向上），R1 = 6 Ω，R2 = 3 Ω，R3 = 2 Ω，R_L = 4 Ω。",
+    "用电源等效变换把 R_L 左边的电路逐步化简，求负载电流 i_L；再回到原电路求 R3 中的电流 i3 和 R1 中的电流 i1（参考方向见图）。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 6 },
+      { "ref": "R2", "type": "R", "from": [7, 0], "to": [7, 4], "value": 3 },
+      { "ref": "R3", "type": "R", "from": [9, 0], "to": [12, 0], "value": 2 },
+      { "ref": "Is", "type": "I", "from": [14, 4], "to": [14, 0], "value": 3 },
+      { "ref": "RL", "type": "R", "from": [18, 0], "to": [18, 4], "value": 4 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [9, 0]],
+      [[12, 0], [18, 0]],
+      [[18, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [7, 0], "name": "a" }, { "at": [16, 0], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }, { "kind": "i", "el": "R3", "name": "i3" }, { "kind": "i", "el": "RL", "name": "i_L" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "il", "ask": "i_L = ?", "find": { "kind": "i", "el": "RL" }, "answer": 2, "unit": "A", "explain": "化简到最后：4 A 电流源并联 4 Ω，再并 R_L = 4 Ω，i_L = 4 × 4/(4 + 4) = 2 A。" },
+    { "id": "i3", "ask": "i3 = ?", "find": { "kind": "i", "el": "R3" }, "answer": -1, "unit": "A", "explain": "u_b = 2 × 4 = 8 V；a 左边等效为 4 V 串 2 Ω，KVL：4 − 2·i3 − 2·i3 = u_b → i3 = (4 − 8)/(2 + 2) = −1 A，实际电流从 b 流向 a。" },
+    { "id": "i1", "ask": "i1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 1, "unit": "A", "explain": "u_a = u_b + 2·i3 = 8 − 2 = 6 V，i1 = (12 − 6)/6 = 1 A。" }
+  ],
+  "hints": [
+    "从左往右：电压源串电阻 → 电流源并电阻；并联电阻合并；再变回电压源串电阻，与 R3 串联合并；……",
+    "每一步只变换“电压源–电阻串联”或“电流源–电阻并联”这一对；R_L 是要求的支路，保留不动。",
+    "求 i3、i1 时，回到原电路：先求 u_b，再用 a 左边的等效电路或 KVL 求 u_a。"
+  ],
+  "solution": [
+    "**1.** Us 串 R1 → 电流源 12/6 = 2 A（向上）并 6 Ω。",
+    "**2.** 6 Ω ∥ R2 = 6 ∥ 3 = 2 Ω：2 A 并 2 Ω。",
+    "**3.** 变回电压源：2 × 2 = 4 V 串 2 Ω；再串 R3：4 V 串 4 Ω。",
+    "**4.** 变为电流源：4/4 = 1 A 并 4 Ω；与 Is = 3 A 同向并联，合并为 4 A 并 4 Ω。",
+    "**5.** 分流：i_L = 4 × 4/(4 + 4) = **2 A**，u_b = 8 V。",
+    "**6. 回到原电路。** 第 3 步的 4 V 串 2 Ω 是 a 点左边全部电路的等效。从它出发经 R3 到 b 列 KVL：4 − 2·i3 − 2·i3 = u_b → i3 = (4 − 8)/4 = **−1 A**（实际从 b 流向 a，Is 的一部分电流“倒灌”回左边）。",
+    "**7.** u_a = u_b + R3·i3 = 8 − 2 = 6 V，i1 = (12 − 6)/6 = **1 A**，R2 中 6/3 = 2 A；验算 a 点 KCL：i1 − i3 = 1 + 1 = 2 A ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Step-by-step source transformation",
+      "tags": ["source transformation", "step-by-step reduction", "current divider"],
+      "statement": [
+        "In the circuit, Us = 12 V, Is = 3 A (up), R1 = 6 Ω, R2 = 3 Ω, R3 = 2 Ω, R_L = 4 Ω.",
+        "Reduce the circuit to the left of R_L step by step with source transformations and find the load current i_L; then go back to the original circuit and find the current i3 in R3 and the current i1 in R1 (reference directions as drawn)."
+      ],
+      "questions": [
+        { "ask": "i_L = ?", "explain": "At the end: a 4 A current source in parallel with 4 Ω, and R_L = 4 Ω in parallel, so i_L = 4 × 4/(4 + 4) = 2 A." },
+        { "ask": "i3 = ?", "explain": "u_b = 2 × 4 = 8 V; to the left of a the circuit is equivalent to 4 V in series with 2 Ω, so 4 − 2·i3 − 2·i3 = u_b → i3 = (4 − 8)/(2 + 2) = −1 A: the actual current flows from b to a." },
+        { "ask": "i1 = ?", "explain": "u_a = u_b + 2·i3 = 8 − 2 = 6 V, so i1 = (12 − 6)/6 = 1 A." }
+      ],
+      "hints": [
+        "Work left to right: voltage source with series resistor → current source with parallel resistor; merge parallel resistors; turn it back into a voltage source with series resistor and add R3; …",
+        "Each step transforms only a \"voltage source in series with a resistor\" or \"current source in parallel with a resistor\" pair; R_L is the branch you want, so leave it alone.",
+        "For i3 and i1 go back to the original circuit: find u_b first, then u_a from the equivalent of the left part or from KVL."
+      ],
+      "solution": [
+        "**1.** Us in series with R1 → a current source 12/6 = 2 A (up) in parallel with 6 Ω.",
+        "**2.** 6 Ω ∥ R2 = 6 ∥ 3 = 2 Ω: 2 A in parallel with 2 Ω.",
+        "**3.** Back to a voltage source: 2 × 2 = 4 V in series with 2 Ω; add R3: 4 V in series with 4 Ω.",
+        "**4.** To a current source: 4/4 = 1 A in parallel with 4 Ω; together with Is = 3 A (same direction) this gives 4 A in parallel with 4 Ω.",
+        "**5.** Current divider: i_L = 4 × 4/(4 + 4) = **2 A**, u_b = 8 V.",
+        "**6. Back to the original circuit.** The 4 V in series with 2 Ω of step 3 is the equivalent of everything to the left of a. KVL from it through R3 to b: 4 − 2·i3 − 2·i3 = u_b → i3 = (4 − 8)/4 = **−1 A** (the current really flows from b to a: part of Is flows back to the left).",
+        "**7.** u_a = u_b + R3·i3 = 8 − 2 = 6 V, i1 = (12 − 6)/6 = **1 A**, R2 carries 6/3 = 2 A; KCL check at a: i1 − i3 = 1 + 1 = 2 A ✓."
+      ]
+    }
+  }
+}
