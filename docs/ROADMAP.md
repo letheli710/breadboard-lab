@@ -36,3 +36,19 @@ Goal: cover a full first/second-year circuit analysis course in four phases, plu
 - 题目文件一律双语：基础语言写在顶层，另一种语言写在 `i18n`。
 - 理论题的数值答案用 SI 基本单位（V、A、W、Ω、Hz、s；相位用度）。
 - 任何题目合并前必须通过 `npm run validate` 和 `npm test`。
+
+## C 阶段契约 / Stage C contract (breadboard instruments)
+
+New `PartType`s (src/core/types.ts) and their physical pins:
+
+| type | name | placement | pins | props |
+|---|---|---|---|---|
+| `inductor` | 电感 Inductor | two-point | `1`, `2` | `inductance` (H, default 10 mH); winding resistance 1 Ω in DC |
+| `ammeter` | 电流表 Ammeter (multimeter in A mode, red/black leads) | two-point | `+` (red), `-` (black, COM) | — ; 0.1 Ω burden; reading = current flowing in at `+` |
+| `opamp` | 运放 LM358 (dual, DIP-8, straddles the centre gap) | footprint, anchor = pin 1 in row e | `1` OUT A, `2` IN− A, `3` IN+ A, `4` V−/GND, `5` IN+ B, `6` IN− B, `7` OUT B, `8` V+ (pins 1–4 in row e, columns c..c+3; pins 8..5 in row f, columns c..c+3) | — ; model: open-loop gain 1e5, output clamped to [V− , V+ − 1.5 V], output resistance ~10 Ω, no input current |
+| `function_gen` | 信号发生器 Function generator (red + / black COM leads) | two-point | `+`, `-` | `waveform: 'sine' | 'square' | 'triangle'`, `frequency` (Hz, default 1 kHz), `amplitude` (V peak, default 1), `offset` (V, default 0); 50 Ω output resistance |
+| `scope_probe` | 示波器探头 Scope probe (tip + ground clip) | two-point | `tip`, `gnd` | `channel: 1 | 2` (auto: first probe CH1, second CH2) |
+
+Simulation: when the board contains a `function_gen`, the board is also simulated in the time domain (`src/core/transient.ts`) until periodic steady state, and the scope shows each probe's `V(tip) − V(gnd)` over the last periods. Without a generator, everything works as before (DC). Circuit-level types: the same names are valid in challenge `components` (`opamp` as one component with logical pins `outA, inA-, inA+, v-, inB+, inB-, outB, v+` — aliases allowed per docs; `function_gen` matches any generator).
+
+Challenge tests can measure with the scope: `"scope": [{ "pin": "C1.1", "ref": "V1.-", "measure": "vpp" | "vmax" | "vmin" | "vavg" | "vrms" | "freq" | "phase", "vs"?: "<pin>", "min", "max" }]` and `"set"` may change a generator's `frequency` / `amplitude` / `waveform`. Ammeter readings: `"currents": [{ "el": "AM1"?..., }]` — exact shape defined in docs/CHALLENGE_FORMAT.md by the implementer.
