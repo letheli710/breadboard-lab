@@ -1,0 +1,124 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "second-order-12-step-full-response",
+  "chapter": "second-order",
+  "title": "电源跳变下的二阶全响应",
+  "level": 5,
+  "tags": ["全响应", "二阶微分方程", "欠阻尼", "di_L/dt(0₊)"],
+  "statement": [
+    "图示电路中电压源 u_s 在 t < 0 时为 4 V（电路已稳定），t = 0 时跳变为 12 V，即 u_s = 4 + 8ε(t) V；R1 = 2 Ω，L = 1 H，C = 0.25 F，R2 = 2 Ω。",
+    "求 u_L(0₊)（从而得到 di_L/dt(0₊)）、t > 0 时的特征根，以及 t = π/4 s 时的 u_C 和 i_L。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 4, "after": 12 } }, "label": "4+8ε(t) V" },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
+      { "ref": "L", "type": "L", "from": [7, 0], "to": [10, 0], "value": 1 },
+      { "ref": "C", "type": "C", "from": [12, 0], "to": [12, 4], "value": 0.25 },
+      { "ref": "R2", "type": "R", "from": [15, 0], "to": [15, 4], "value": 2 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [7, 0]],
+      [[10, 0], [15, 0]],
+      [[15, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [12, 0], "name": "a" }],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "i", "el": "L", "name": "i_L" },
+      { "kind": "v", "el": "L", "name": "u_L" },
+      { "kind": "v", "el": "C", "name": "u_C" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    {
+      "id": "ul0",
+      "ask": "u_L(0₊) = ?",
+      "find": { "kind": "v", "el": "L", "t": "0+" },
+      "answer": 8,
+      "unit": "V",
+      "explain": "t < 0：i_L = 4/(2 + 2) = 1 A，u_C = 2 × 1 = 2 V。t = 0₊：KVL u_L = u_s − R1·i_L − u_C = 12 − 2 − 2 = 8 V，所以 di_L/dt(0₊) = u_L/L = 8 A/s。"
+    },
+    {
+      "id": "roots",
+      "ask": "t > 0 时的特征根为",
+      "choices": ["s = −2 ± j2 s⁻¹", "s = −1 ± j2 s⁻¹", "s₁ = −2 s⁻¹，s₂ = −4 s⁻¹", "s = −2 ± j2√2 s⁻¹"],
+      "correct": 0,
+      "explain": "LC·u_C″ + (L/R2 + R1·C)·u_C′ + (1 + R1/R2)·u_C = u_s → 0.25u_C″ + u_C′ + 2u_C = u_s → s² + 4s + 8 = 0 → s = −2 ± j2。"
+    },
+    {
+      "id": "uc",
+      "ask": "t = π/4 s（≈ 0.7854 s）时 u_C = ?",
+      "find": { "kind": "v", "el": "C", "t": 0.7853982 },
+      "answer": 5.168482,
+      "unit": "V",
+      "explain": "u_C = 6 − 4e^(−2t)(cos 2t + sin 2t) V。t = π/4：cos(π/2) = 0，sin(π/2) = 1，u_C = 6 − 4e^(−π/2) ≈ 5.168 V。"
+    },
+    {
+      "id": "il",
+      "ask": "t = π/4 s 时 i_L = ?",
+      "find": { "kind": "i", "el": "L", "t": 0.7853982 },
+      "answer": 3.415759,
+      "unit": "A",
+      "explain": "i_L = C·du_C/dt + u_C/R2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A。t = π/4：i_L = 3 + 2e^(−π/2) ≈ 3.416 A（已超过终值 3 A）。"
+    }
+  ],
+  "hints": [
+    "t < 0 是 u_s = 4 V 下的直流稳态，由它求 i_L(0₋)、u_C(0₋)。",
+    "列方程：结点 a 的 KCL i_L = C·du_C/dt + u_C/R2，回路 KVL L·di_L/dt + R1·i_L + u_C = u_s，消去 i_L。",
+    "u_C 的第二个初始条件：du_C/dt(0₊) = [i_L(0₊) − u_C(0₊)/R2]/C；终值 u_C(∞) = 12 × R2/(R1 + R2) = 6 V。"
+  ],
+  "solution": [
+    "**1. t = 0₋。** u_s = 4 V，电感短路、电容开路：i_L(0₋) = 4/(R1 + R2) = 1 A，u_C(0₋) = 2 V。",
+    "**2. t = 0₊。** i_L(0₊) = 1 A，u_C(0₊) = 2 V。**u_L(0₊) = 12 − 2 × 1 − 2 = 8 V** → di_L/dt(0₊) = 8 A/s；i_C(0₊) = i_L − u_C/R2 = 1 − 1 = 0 → du_C/dt(0₊) = 0。",
+    "**3. 方程。** 消去 i_L：LC·u_C″ + (L/R2 + R1·C)·u_C′ + (1 + R1/R2)·u_C = u_s，即 0.25u_C″ + u_C′ + 2u_C = 12 → u_C″ + 4u_C′ + 8u_C = 48。特征根 **s = −2 ± j2**（欠阻尼），特解 u_C(∞) = 6 V。",
+    "**4. 定常数。** u_C = 6 + e^(−2t)(A₁cos 2t + A₂sin 2t)。u_C(0₊) = 2 → A₁ = −4；u_C′(0₊) = −2A₁ + 2A₂ = 0 → A₂ = −4。u_C = 6 − 4e^(−2t)(cos 2t + sin 2t) V。",
+    "**5. 电感电流。** du_C/dt = 16e^(−2t) sin 2t，i_L = 0.25 × 16e^(−2t) sin 2t + u_C/2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A。验算 i_L(0) = 1 A，i_L′(0) = 8 A/s ✓。",
+    "**6. t = π/4 s。** **u_C = 6 − 4e^(−π/2) ≈ 5.168 V**，**i_L = 3 + 2e^(−π/2) ≈ 3.416 A**。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Second-order complete response to a source jump",
+      "tags": ["complete response", "second-order differential equation", "underdamped", "di_L/dt(0+)"],
+      "statement": [
+        "The source u_s is 4 V for t < 0 (the circuit has settled) and jumps to 12 V at t = 0, i.e. u_s = 4 + 8ε(t) V; R1 = 2 Ω, L = 1 H, C = 0.25 F, R2 = 2 Ω.",
+        "Find u_L(0+) (and hence di_L/dt(0+)), the characteristic roots for t > 0, and u_C and i_L at t = π/4 s."
+      ],
+      "questions": [
+        {
+          "ask": "u_L(0+) = ?",
+          "explain": "For t < 0: i_L = 4/(2 + 2) = 1 A and u_C = 2 × 1 = 2 V. At t = 0+, KVL gives u_L = u_s − R1·i_L − u_C = 12 − 2 − 2 = 8 V, so di_L/dt(0+) = u_L/L = 8 A/s."
+        },
+        {
+          "ask": "The characteristic roots for t > 0 are",
+          "choices": ["s = −2 ± j2 s⁻¹", "s = −1 ± j2 s⁻¹", "s₁ = −2 s⁻¹, s₂ = −4 s⁻¹", "s = −2 ± j2√2 s⁻¹"],
+          "explain": "LC·u_C″ + (L/R2 + R1·C)·u_C′ + (1 + R1/R2)·u_C = u_s → 0.25u_C″ + u_C′ + 2u_C = u_s → s² + 4s + 8 = 0 → s = −2 ± j2."
+        },
+        {
+          "ask": "u_C at t = π/4 s (≈ 0.7854 s) = ?",
+          "explain": "u_C = 6 − 4e^(−2t)(cos 2t + sin 2t) V. At t = π/4, cos(π/2) = 0 and sin(π/2) = 1: u_C = 6 − 4e^(−π/2) ≈ 5.168 V."
+        },
+        {
+          "ask": "i_L at t = π/4 s = ?",
+          "explain": "i_L = C·du_C/dt + u_C/R2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A. At t = π/4: i_L = 3 + 2e^(−π/2) ≈ 3.416 A (already above the final value of 3 A)."
+        }
+      ],
+      "hints": [
+        "For t < 0 the circuit is in DC steady state with u_s = 4 V; use it to find i_L(0−) and u_C(0−).",
+        "Equations: KCL at node a, i_L = C·du_C/dt + u_C/R2; KVL around the loop, L·di_L/dt + R1·i_L + u_C = u_s; eliminate i_L.",
+        "Second initial condition for u_C: du_C/dt(0+) = [i_L(0+) − u_C(0+)/R2]/C; final value u_C(∞) = 12 × R2/(R1 + R2) = 6 V."
+      ],
+      "solution": [
+        "**1. t = 0−.** u_s = 4 V, L shorted, C open: i_L(0−) = 4/(R1 + R2) = 1 A, u_C(0−) = 2 V.",
+        "**2. t = 0+.** i_L(0+) = 1 A, u_C(0+) = 2 V. **u_L(0+) = 12 − 2 × 1 − 2 = 8 V** → di_L/dt(0+) = 8 A/s; i_C(0+) = i_L − u_C/R2 = 1 − 1 = 0 → du_C/dt(0+) = 0.",
+        "**3. Equation.** Eliminating i_L: LC·u_C″ + (L/R2 + R1·C)·u_C′ + (1 + R1/R2)·u_C = u_s, i.e. 0.25u_C″ + u_C′ + 2u_C = 12 → u_C″ + 4u_C′ + 8u_C = 48. Roots **s = −2 ± j2** (underdamped), particular solution u_C(∞) = 6 V.",
+        "**4. Constants.** u_C = 6 + e^(−2t)(A₁cos 2t + A₂sin 2t). u_C(0+) = 2 → A₁ = −4; u_C′(0+) = −2A₁ + 2A₂ = 0 → A₂ = −4. u_C = 6 − 4e^(−2t)(cos 2t + sin 2t) V.",
+        "**5. Inductor current.** du_C/dt = 16e^(−2t) sin 2t, so i_L = 0.25 × 16e^(−2t) sin 2t + u_C/2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A. Check: i_L(0) = 1 A and i_L′(0) = 8 A/s ✓.",
+        "**6. t = π/4 s.** **u_C = 6 − 4e^(−π/2) ≈ 5.168 V**, **i_L = 3 + 2e^(−π/2) ≈ 3.416 A**."
+      ]
+    }
+  }
+}
