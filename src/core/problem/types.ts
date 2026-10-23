@@ -204,6 +204,9 @@ export interface Netlist {
   nodeOf: Map<string, string>;
   nodes: string[];
   elements: ProblemElement[];
+  /** extra names for nodes, name → node in `nodes` (e.g. a terminal "b" sitting on ground → "0").
+   *  Anything that looks up a node by name must resolve it through here first. */
+  aliases?: Map<string, string>;
 }
 
 /** Pin names used in Netlist.nodeOf ("REF.pin"):
