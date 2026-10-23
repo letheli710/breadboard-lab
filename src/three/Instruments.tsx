@@ -373,21 +373,21 @@ export function FunctionGen({ part, slot, onClick }: PartViewProps) {
           </group>
         ))}
         {/* frequency knob */}
-        <mesh position={[1.9, 2.35, 2.4]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.92, 0.92, 0.1, 32]} />
+        <mesh position={[1.9, 2.5, 2.4]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.8, 0.8, 0.1, 32]} />
           <Mat color="#b9bec6" metalness={0.5} roughness={0.35} />
         </mesh>
-        <group position={[1.9, 2.35, 2.6]} rotation={[Math.PI / 2, 0, 0]}>
+        <group position={[1.9, 2.5, 2.55]} rotation={[Math.PI / 2, 0, 0]}>
           <mesh castShadow>
-            <cylinderGeometry args={[0.72, 0.78, 0.5, 32]} />
+            <cylinderGeometry args={[0.6, 0.66, 0.4, 32]} />
             <Mat color="#23262d" roughness={0.45} />
           </mesh>
-          <mesh position={[0, -0.26, -0.45]} rotation={[0, 0, 0]}>
-            <boxGeometry args={[0.1, 0.03, 0.4]} />
+          <mesh position={[0, -0.21, -0.36]}>
+            <boxGeometry args={[0.1, 0.03, 0.34]} />
             <meshBasicMaterial color="#f8f9fa" toneMapped={false} />
           </mesh>
         </group>
-        <TextPlane text="FREQ" width={0.9} height={0.28} color="#3a4560" position={[1.75, 1.2, 2.33]} />
+        <TextPlane text="FREQ" width={0.9} height={0.28} color="#3a4560" position={[1.9, 1.45, 2.33]} />
         {/* power LED */}
         <mesh position={[3.5, 3.15, 2.36]}>
           <sphereGeometry args={[0.1, 10, 8]} />

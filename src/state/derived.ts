@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { boardDiagnostics, type Issue } from '../core/diagnostics';
 import { buildNetlist, isFloating, type BoardNetlist } from '../core/netlist';
 import { simulate, type LedState, type SimResult } from '../core/solver';
@@ -11,39 +11,115 @@ export interface Derived {
   /** DC operating point (with every generator at its offset) */
   sim: SimResult;
   issues: Issue[];
-  /** time-domain result when a function generator is on the board (periodic steady state) */
+  /** time-domain result when a function generator is on the board (periodic steady state).
+   *  Only filled by useDerived(); may briefly belong to the previous layout while recomputing. */
   ac: TransientResult | null;
   /** transient failure message, if any */
   acError: string | null;
+  /** `ac` is from an earlier layout (a new one is being computed) */
+  acStale: boolean;
 }
+
+type Base = Omit<Derived, 'ac' | 'acError' | 'acStale'>;
 
 let cacheKey: Layout | null = null;
 let cacheVal: Derived | null = null;
 
-/** Netlist + DC solve + (if a generator is present) transient. Memoised per layout object, so
- *  the transient only re-runs when the layout or a part's settings change. */
+/** Netlist + DC solve + diagnostics, memoised per layout object. Synchronous and cheap; it does
+ *  not include the transient (see useDerived). */
 export function derive(layout: Layout): Derived {
   if (cacheKey === layout && cacheVal) return cacheVal;
   const nl = buildNetlist(layout);
   const sim = simulate(nl.circuit);
   const issues = boardDiagnostics(nl, sim);
-  let ac: TransientResult | null = null;
-  let acError: string | null = null;
-  if (hasGenerator(nl.circuit)) {
-    try {
-      ac = simulateTransient(nl.circuit);
-    } catch (e) {
-      acError = e instanceof Error ? e.message : String(e);
-    }
-  }
   cacheKey = layout;
-  cacheVal = { nl, sim, issues, ac, acError };
+  cacheVal = { nl, sim, issues, ac: null, acError: null, acStale: false };
   return cacheVal;
 }
 
+// ---- transient, computed off the render path -----------------------------------------
+// A typical board takes 2–10 ms, but ringing L–C circuits at low generator frequencies can
+// take ~100 ms. Dragging a slider changes the layout many times a second, so the transient
+// runs in a macrotask, debounced while changes keep coming; until it lands, the previous
+// result keeps showing (marked stale).
+
+interface AcEntry {
+  ac: TransientResult | null;
+  error: string | null;
+}
+const acCache = new WeakMap<Layout, AcEntry>();
+let lastAc: AcEntry = { ac: null, error: null };
+let acVersion = 0;
+const acListeners = new Set<() => void>();
+let acTimer: ReturnType<typeof setTimeout> | null = null;
+let acPending: Layout | null = null;
+let lastRequest = 0;
+
+function computeAc(layout: Layout): AcEntry {
+  const hit = acCache.get(layout);
+  if (hit) return hit;
+  const { nl } = derive(layout);
+  let e: AcEntry = { ac: null, error: null };
+  try {
+    e = { ac: simulateTransient(nl.circuit), error: null };
+  } catch (err) {
+    e = { ac: null, error: err instanceof Error ? err.message : String(err) };
+  }
+  acCache.set(layout, e);
+  return e;
+}
+
+function requestAc(layout: Layout) {
+  if (acCache.has(layout) || acPending === layout) return;
+  acPending = layout;
+  if (acTimer) clearTimeout(acTimer);
+  const now = performance.now();
+  // first change after a quiet spell: run right away; during a burst (slider drag): debounce
+  const delay = now - lastRequest > 250 ? 0 : 90;
+  lastRequest = now;
+  acTimer = setTimeout(() => {
+    acTimer = null;
+    const l = acPending;
+    acPending = null;
+    if (!l) return;
+    lastAc = computeAc(l);
+    acVersion++;
+    acListeners.forEach((f) => f());
+  }, delay);
+}
+
+const subscribeAc = (f: () => void) => {
+  acListeners.add(f);
+  return () => acListeners.delete(f);
+};
+const getAcVersion = () => acVersion;
+
+/** Transient result for a layout, computing it synchronously if needed (tests, checks). */
+export function deriveAc(layout: Layout): TransientResult | null {
+  return hasGenerator(derive(layout).nl.circuit) ? computeAc(layout).ac : null;
+}
+
+const merged = new WeakMap<Base, Map<AcEntry, Derived>>();
+
 export function useDerived(): Derived {
   const layout = useStore((s) => s.layout);
-  return useMemo(() => derive(layout), [layout]);
+  useSyncExternalStore(subscribeAc, getAcVersion);
+  const base = useMemo(() => derive(layout), [layout]);
+  const gen = hasGenerator(base.nl.circuit);
+  const exact = gen ? acCache.get(layout) : undefined;
+  useEffect(() => {
+    if (gen && !exact) requestAc(layout);
+  }, [layout, gen, exact]);
+  if (!gen) return base;
+  const entry = exact ?? lastAc;
+  let m = merged.get(base);
+  if (!m) merged.set(base, (m = new Map()));
+  let d = m.get(entry);
+  if (!d) {
+    d = { ...base, ac: entry.ac, acError: entry.error, acStale: !exact };
+    m.set(entry, d);
+  }
+  return d;
 }
 
 /** LED state to show: the time-averaged one under AC, else the DC one. */
@@ -84,6 +160,8 @@ export interface ScopeData {
   channels: ScopeChannelData[];
   error: string | null;
   converged: boolean;
+  /** traces are from before the latest change (recomputing) */
+  stale: boolean;
   /** transient compute time (ms) */
   ms: number;
 }
@@ -120,6 +198,7 @@ export function deriveScope(d: Derived, layout: Layout): ScopeData {
     channels,
     error: d.acError,
     converged: ac ? ac.converged : true,
+    stale: d.acStale,
     ms: ac ? ac.stats.ms : 0,
   };
   return scopeVal;
@@ -127,7 +206,8 @@ export function deriveScope(d: Derived, layout: Layout): ScopeData {
 
 export function useScopeData(): ScopeData {
   const layout = useStore((s) => s.layout);
-  return useMemo(() => deriveScope(derive(layout), layout), [layout]);
+  const d = useDerived();
+  return useMemo(() => deriveScope(d, layout), [d, layout]);
 }
 
 export function useActiveChallenge() {
@@ -142,8 +222,7 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   (window as unknown as Record<string, unknown>).__bbTiming = () => {
     const l = useStore.getState().layout;
     const t0 = performance.now();
-    cacheKey = null;
-    const d = derive(l);
-    return { deriveMs: performance.now() - t0, transientMs: d.ac?.stats.ms ?? null, steps: d.ac?.stats.steps ?? null, converged: d.ac?.converged ?? null };
+    const ac = deriveAc(l);
+    return { deriveMs: performance.now() - t0, transientMs: ac?.stats.ms ?? null, steps: ac?.stats.steps ?? null, converged: ac?.converged ?? null };
   };
 }

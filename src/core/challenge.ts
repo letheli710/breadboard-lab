@@ -50,6 +50,8 @@ export interface Challenge {
   title: string;
   level: number;
   kind: 'lesson' | 'challenge';
+  /** course phase (docs/ROADMAP.md) this experiment belongs to; undefined = the original intro set */
+  phase?: ChallengePhase;
   summary: string;
   description: string;
   concepts: string[];
@@ -67,6 +69,10 @@ export interface Challenge {
   source: string;
   file?: string;
 }
+
+/** Course phases (docs/ROADMAP.md): 1 basic laws, 2 methods/theorems/op-amps, 3 transients, 4 AC. */
+export const PHASES = [1, 2, 3, 4] as const;
+export type ChallengePhase = (typeof PHASES)[number];
 
 export interface ValidationResult {
   ok: boolean;
@@ -471,12 +477,19 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   const start = parseLayout(json.start, refs, 'start', errors);
   const opts = isObj(json.options) ? json.options : {};
 
+  let phase: ChallengePhase | undefined;
+  if (json.phase !== undefined) {
+    if (PHASES.includes(json.phase as ChallengePhase)) phase = json.phase as ChallengePhase;
+    else errors.push(tr(`"phase" 必须是 ${PHASES.join(' / ')}（课程第几期，见 docs/ROADMAP.md）`, `"phase" must be ${PHASES.join(' / ')} (the course phase, see docs/ROADMAP.md)`));
+  }
+
   const level = typeof json.level === 'number' ? Math.min(5, Math.max(1, Math.round(json.level))) : 1;
   const challenge: Challenge = {
     id,
     title: typeof tx.title === 'string' && tx.title ? tx.title : title,
     level,
     kind: json.kind === 'lesson' ? 'lesson' : 'challenge',
+    phase,
     summary: textOf(tx.summary) || textOf(json.summary),
     description: textOf(tx.description) || textOf(json.description),
     concepts: tx.concepts !== undefined ? strs(tx.concepts) : strs(json.concepts),

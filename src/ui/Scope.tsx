@@ -302,6 +302,7 @@ export function Scope() {
         <span className={`sc-mode ${data.ac ? 'ac' : ''}`}>
           {data.ac && data.period ? `AC · ${fmtFreq(1 / data.period)}` : tr('DC · 没有信号发生器', 'DC · no generator')}
         </span>
+        {data.stale && <span className="sc-busy">{tr('计算中…', 'updating…')}</span>}
         {scope.collapsed &&
           data.channels.map((c) => (
             <span key={c.ref} className="sc-mini" style={{ color: CH_COLORS[c.channel] }}>
