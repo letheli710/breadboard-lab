@@ -1,0 +1,123 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "second-order-10-gcl-zero-input",
+  "chapter": "second-order",
+  "title": "GCL 并联零输入响应：电感释放磁场能",
+  "level": 4,
+  "tags": ["GCL 并联", "零输入响应", "过阻尼", "并联判据"],
+  "statement": [
+    "图示电路中 Us = 12 V，R1 = 4 Ω，C = 10 mF，R = 2 Ω，L = 0.25 H。开关 S 闭合已久，t = 0 时断开，此后 R、L、C 并联电路无外加激励。",
+    "判断阻尼状态，求 i_C(0₊)，以及 t = 0.05 s 时的 u 和 i_L。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [1, 0], "to": [4, 0], "value": 4 },
+      { "ref": "S", "type": "SW", "from": [5, 0], "to": [7, 0], "state": { "before": "closed", "after": "open" } },
+      { "ref": "C", "type": "C", "from": [9, 0], "to": [9, 4], "value": "10m" },
+      { "ref": "R", "type": "R", "from": [12, 0], "to": [12, 4], "value": 2 },
+      { "ref": "L", "type": "L", "from": [15, 0], "to": [15, 4], "value": 0.25 }
+    ],
+    "wires": [
+      [[0, 0], [1, 0]],
+      [[4, 0], [5, 0]],
+      [[7, 0], [15, 0]],
+      [[15, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "v", "el": "C", "name": "u" },
+      { "kind": "i", "el": "C", "name": "i_C" },
+      { "kind": "i", "el": "L", "name": "i_L" }
+    ],
+    "notes": [{ "at": [6, -1], "text": "t = 0" }]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    {
+      "id": "state",
+      "ask": "t > 0 时 GCL 并联电路的响应属于哪种情况？",
+      "choices": ["过阻尼", "临界阻尼", "欠阻尼", "无阻尼"],
+      "correct": 0,
+      "explain": "并联判据：R < ½√(L/C) 时过阻尼。½√(0.25/0.01) = 2.5 Ω，R = 2 Ω < 2.5 Ω → 过阻尼。注意与串联相反：并联电阻越小，阻尼越强。"
+    },
+    {
+      "id": "ic0",
+      "ask": "i_C(0₊) = ?（参考方向见图）",
+      "find": { "kind": "i", "el": "C", "t": "0+" },
+      "answer": -3,
+      "unit": "A",
+      "explain": "t < 0：电感短路，u = 0，i_L = 12/4 = 3 A。t = 0₊：u(0₊) = 0，R 中无电流，电感的 3 A 只能由电容提供：i_C(0₊) = −i_L(0₊) = −3 A。"
+    },
+    {
+      "id": "u",
+      "ask": "t = 0.05 s 时 u = ?",
+      "find": { "kind": "v", "el": "C", "t": 0.05 },
+      "answer": -4.711954,
+      "unit": "V",
+      "explain": "u = L·di_L/dt = −10e^(−10t) + 10e^(−40t) V。t = 0.05 s：u = −10e^(−0.5) + 10e^(−2) ≈ −6.065 + 1.353 = −4.712 V。"
+    },
+    {
+      "id": "il",
+      "ask": "t = 0.05 s 时 i_L = ?",
+      "find": { "kind": "i", "el": "L", "t": 0.05 },
+      "answer": 2.290787,
+      "unit": "A",
+      "explain": "i_L = 4e^(−10t) − e^(−40t) A。t = 0.05 s：i_L = 4e^(−0.5) − e^(−2) ≈ 2.4261 − 0.1353 = 2.2908 A。"
+    }
+  ],
+  "hints": [
+    "t < 0 电感短路，所以 u(0₋) = 0；i_L(0₋) 由 Us 和 R1 决定。",
+    "以 i_L 为变量：LC·i_L″ + (L/R)·i_L′ + i_L = 0；并联电路过阻尼的条件是 R < ½√(L/C)。",
+    "第二个初始条件：di_L/dt(0₊) = u(0₊)/L = 0。"
+  ],
+  "solution": [
+    "**1. 初值。** t < 0：电感短路 → u(0₋) = 0，i_L(0₋) = 12/4 = 3 A。换路定则：u(0₊) = 0，i_L(0₊) = 3 A；KCL：**i_C(0₊) = −i_L − u/R = −3 A**。",
+    "**2. 方程与特征根。** C·du/dt + u/R + i_L = 0，u = L·di_L/dt → 0.0025i_L″ + 0.125i_L′ + i_L = 0 → s² + 50s + 400 = 0 → s₁ = −10 s⁻¹，s₂ = −40 s⁻¹，**过阻尼**（R = 2 Ω < ½√(L/C) = 2.5 Ω）。",
+    "**3. 定常数。** i_L = A₁e^(−10t) + A₂e^(−40t)：A₁ + A₂ = 3；i_L′(0₊) = u(0₊)/L = 0 → −10A₁ − 40A₂ = 0 → A₁ = 4，A₂ = −1。i_L = 4e^(−10t) − e^(−40t) A。",
+    "**4. 电压。** u = L·di_L/dt = 0.25 × (−40e^(−10t) + 40e^(−40t)) = −10e^(−10t) + 10e^(−40t) V。验算：C·du/dt(0₊) = 0.01 × (100 − 400) = −3 A = i_C(0₊) ✓。",
+    "**5. t = 0.05 s。** **u ≈ −4.712 V**，**i_L ≈ 2.291 A**。能量：电感初始储能 ½L·i_L² = 1.125 J 最终全部消耗在 R 上。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Parallel GCL zero-input response: the inductor releases its energy",
+      "tags": ["parallel GCL", "zero-input response", "overdamped", "parallel damping test"],
+      "statement": [
+        "In the circuit Us = 12 V, R1 = 4 Ω, C = 10 mF, R = 2 Ω, L = 0.25 H. Switch S has been closed for a long time and opens at t = 0; after that the parallel R, L, C circuit has no external source.",
+        "Classify the damping, find i_C(0+), and u and i_L at t = 0.05 s."
+      ],
+      "questions": [
+        {
+          "ask": "Which case describes the response of the parallel GCL circuit for t > 0?",
+          "choices": ["Overdamped", "Critically damped", "Underdamped", "Undamped"],
+          "explain": "Parallel test: overdamped when R < ½√(L/C). ½√(0.25/0.01) = 2.5 Ω and R = 2 Ω < 2.5 Ω → overdamped. Note it is the opposite of the series case: the smaller the parallel resistance, the heavier the damping."
+        },
+        {
+          "ask": "i_C(0+) = ? (reference direction as drawn)",
+          "explain": "For t < 0 the inductor is a short, u = 0 and i_L = 12/4 = 3 A. At t = 0+, u(0+) = 0 so R carries no current, and the inductor's 3 A can only come from the capacitor: i_C(0+) = −i_L(0+) = −3 A."
+        },
+        {
+          "ask": "u at t = 0.05 s = ?",
+          "explain": "u = L·di_L/dt = −10e^(−10t) + 10e^(−40t) V. At t = 0.05 s: u = −10e^(−0.5) + 10e^(−2) ≈ −6.065 + 1.353 = −4.712 V."
+        },
+        {
+          "ask": "i_L at t = 0.05 s = ?",
+          "explain": "i_L = 4e^(−10t) − e^(−40t) A. At t = 0.05 s: i_L = 4e^(−0.5) − e^(−2) ≈ 2.4261 − 0.1353 = 2.2908 A."
+        }
+      ],
+      "hints": [
+        "For t < 0 the inductor is a short, so u(0−) = 0; i_L(0−) is set by Us and R1.",
+        "With i_L as the unknown: LC·i_L″ + (L/R)·i_L′ + i_L = 0; a parallel circuit is overdamped when R < ½√(L/C).",
+        "The second initial condition: di_L/dt(0+) = u(0+)/L = 0."
+      ],
+      "solution": [
+        "**1. Initial values.** For t < 0 the inductor is a short → u(0−) = 0, i_L(0−) = 12/4 = 3 A. Switching rules: u(0+) = 0, i_L(0+) = 3 A; KCL: **i_C(0+) = −i_L − u/R = −3 A**.",
+        "**2. Equation and roots.** C·du/dt + u/R + i_L = 0 with u = L·di_L/dt → 0.0025i_L″ + 0.125i_L′ + i_L = 0 → s² + 50s + 400 = 0 → s₁ = −10 s⁻¹, s₂ = −40 s⁻¹, **overdamped** (R = 2 Ω < ½√(L/C) = 2.5 Ω).",
+        "**3. Constants.** i_L = A₁e^(−10t) + A₂e^(−40t): A₁ + A₂ = 3; i_L′(0+) = u(0+)/L = 0 → −10A₁ − 40A₂ = 0 → A₁ = 4, A₂ = −1. i_L = 4e^(−10t) − e^(−40t) A.",
+        "**4. Voltage.** u = L·di_L/dt = 0.25 × (−40e^(−10t) + 40e^(−40t)) = −10e^(−10t) + 10e^(−40t) V. Check: C·du/dt(0+) = 0.01 × (100 − 400) = −3 A = i_C(0+) ✓.",
+        "**5. t = 0.05 s.** **u ≈ −4.712 V**, **i_L ≈ 2.291 A**. Energy: the inductor's initial ½L·i_L² = 1.125 J is eventually all dissipated in R."
+      ]
+    }
+  }
+}

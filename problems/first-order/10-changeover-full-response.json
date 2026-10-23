@@ -1,0 +1,88 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "first-order-10-changeover-full-response",
+  "chapter": "first-order",
+  "title": "换向开关：全响应的两种分解",
+  "level": 3,
+  "tags": ["全响应", "零输入响应", "零状态响应", "开关换向"],
+  "statement": [
+    "图示电路中 Us1 = 4 V，Us2 = 8 V（注意 Us2 的 “+” 在下），R = 10 kΩ，C = 20 µF。S1、S2 组成一个换向开关：t < 0 时 S1 闭合、S2 断开，电路已稳定；t = 0 时 S1 断开、S2 同时闭合。",
+    "求 R 中的电流 i(0₊)、u_C(∞)、t = 0.2 s 时的 u_C，并写出 u_C 的零输入响应分量和零状态响应分量。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us1", "type": "V", "from": [0, 1], "to": [0, 5], "value": 4 },
+      { "ref": "S1", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "closed", "after": "open" } },
+      { "ref": "S2", "type": "SW", "from": [6, 0], "to": [6, 2], "state": { "before": "open", "after": "closed" } },
+      { "ref": "Us2", "type": "V", "from": [6, 6], "to": [6, 2], "value": 8 },
+      { "ref": "R", "type": "R", "from": [8, 0], "to": [12, 0], "value": "10k" },
+      { "ref": "C", "type": "C", "from": [14, 1], "to": [14, 5], "value": "20u" }
+    ],
+    "wires": [
+      [[0, 1], [0, 0], [2, 0]],
+      [[4, 0], [8, 0]],
+      [[12, 0], [14, 0], [14, 1]],
+      [[14, 5], [14, 6], [0, 6], [0, 5]]
+    ],
+    "labels": [{ "at": [6, 0], "name": "c" }],
+    "grounds": [[0, 6]],
+    "marks": [
+      { "kind": "i", "el": "R", "name": "i" },
+      { "kind": "v", "el": "C", "name": "u_C" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "i0", "ask": "i(0₊) = ?", "find": { "kind": "i", "el": "R", "t": "0+" }, "answer": -0.0012, "unit": "mA", "explain": "u_C(0₊) = u_C(0₋) = 4 V；换向后 c 点电位为 −8 V：i(0₊) = (−8 − 4)/10 kΩ = −1.2 mA（实际方向从电容流向 Us2）。" },
+    { "id": "uinf", "ask": "u_C(∞) = ?", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": -8, "unit": "V", "explain": "稳态时电容开路，R 中无电流，u_C(∞) = u_c = −8 V（Us2 的 “+” 在下）。" },
+    { "id": "u02", "ask": "t = 0.2 s 时 u_C = ?", "find": { "kind": "v", "el": "C", "t": 0.2 }, "answer": -3.585447, "unit": "V", "explain": "τ = RC = 0.2 s，u_C(t) = −8 + (4 + 8)e^(−5t) = −8 + 12e^(−5t) V，t = 0.2 s 时 u_C = −8 + 12e⁻¹ ≈ −3.585 V。" },
+    { "id": "split", "ask": "u_C(t) 的零输入响应分量和零状态响应分量分别是（t > 0）：", "choices": ["4e^(−5t) V 和 −8(1 − e^(−5t)) V", "−8 V 和 12e^(−5t) V", "4e^(−5t) V 和 8(1 − e^(−5t)) V", "12e^(−5t) V 和 −8 V"], "correct": 0, "explain": "零输入：只有初始储能（u_C(0₊) = 4 V）、外加激励置零时的响应 4e^(−5t)；零状态：初始电压为零、只有 Us2 作用时的响应 −8(1 − e^(−5t))。两者之和 = −8 + 12e^(−5t)。选项 B 是另一种分解：稳态分量 −8 V 加暂态分量 12e^(−5t) V。" }
+  ],
+  "hints": [
+    "换向前电容被 Us1 充电到多少伏？换向后电容接到哪个电源上？注意 Us2 的极性。",
+    "换向后 Us1 与电路断开，电容只经 R 接到 Us2：τ = RC。",
+    "零输入分量 = 只有初始状态、没有激励；零状态分量 = 没有初始状态、只有激励。"
+  ],
+  "solution": [
+    "**1. t = 0₋。** S1 闭合，电容开路：u_C(0₋) = Us1 = 4 V。",
+    "**2. t = 0₊。** u_C(0₊) = 4 V；c 点经 S2 接到 Us2，u_c = −8 V。**i(0₊) = (u_c − u_C)/R = (−8 − 4)/10 kΩ = −1.2 mA**。",
+    "**3. 终值与时间常数。** **u_C(∞) = −8 V**；τ = RC = 10×10³ × 20×10⁻⁶ = 0.2 s。",
+    "**4. 全响应（三要素）。** u_C(t) = −8 + [4 − (−8)]e^(−5t) = −8 + 12e^(−5t) V。t = 0.2 s：u_C = −8 + 12e⁻¹ ≈ **−3.585 V**。u_C 在 t = 0.2 ln 1.5 ≈ 0.081 s 时过零。",
+    "**5. 两种分解。**",
+    "- 全响应 = 零输入响应 + 零状态响应 = 4e^(−5t) + [−8(1 − e^(−5t))] V；",
+    "- 全响应 = 稳态分量 + 暂态分量 = (−8) + 12e^(−5t) V。",
+    "两种写法相加结果相同，只是观察角度不同：前者按“原因”（初始储能 / 外加激励）分，后者按“形式”（强制分量 / 自由分量）分。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Changeover switch: two ways to split the complete response",
+      "tags": ["complete response", "zero-input response", "zero-state response", "changeover switch"],
+      "statement": [
+        "In the circuit, Us1 = 4 V, Us2 = 8 V (note that the \"+\" of Us2 is at the bottom), R = 10 kΩ, C = 20 µF. S1 and S2 form a changeover switch: for t < 0, S1 is closed and S2 open, and the circuit is in steady state; at t = 0, S1 opens and S2 closes at the same time.",
+        "Find the current i(0+) in R, u_C(∞), u_C at t = 0.2 s, and write the zero-input and zero-state components of u_C."
+      ],
+      "questions": [
+        { "ask": "i(0+) = ?", "explain": "u_C(0+) = u_C(0−) = 4 V; after the changeover node c is at −8 V: i(0+) = (−8 − 4)/10 kΩ = −1.2 mA (it actually flows from the capacitor towards Us2)." },
+        { "ask": "u_C(∞) = ?", "explain": "In steady state the capacitor is open and R carries no current: u_C(∞) = u_c = −8 V (the \"+\" of Us2 is at the bottom)." },
+        { "ask": "u_C at t = 0.2 s = ?", "explain": "τ = RC = 0.2 s, u_C(t) = −8 + (4 + 8)e^(−5t) = −8 + 12e^(−5t) V; at t = 0.2 s, u_C = −8 + 12e⁻¹ ≈ −3.585 V." },
+        { "ask": "The zero-input and zero-state components of u_C(t) (t > 0) are:", "choices": ["4e^(−5t) V and −8(1 − e^(−5t)) V", "−8 V and 12e^(−5t) V", "4e^(−5t) V and 8(1 − e^(−5t)) V", "12e^(−5t) V and −8 V"], "explain": "Zero-input: the response to the initial energy alone (u_C(0+) = 4 V) with the source zeroed, 4e^(−5t); zero-state: the response to Us2 alone with zero initial voltage, −8(1 − e^(−5t)). Their sum is −8 + 12e^(−5t). Choice B is the other split: steady-state component −8 V plus transient component 12e^(−5t) V." }
+      ],
+      "hints": [
+        "To what voltage does Us1 charge the capacitor before the changeover? Which source is the capacitor connected to afterwards? Watch the polarity of Us2.",
+        "After the changeover Us1 is disconnected and the capacitor is connected to Us2 through R only: τ = RC.",
+        "Zero-input component = initial state only, no source; zero-state component = no initial state, source only."
+      ],
+      "solution": [
+        "**1. t = 0−.** S1 closed, capacitor open: u_C(0−) = Us1 = 4 V.",
+        "**2. t = 0+.** u_C(0+) = 4 V; node c is connected to Us2 through S2, u_c = −8 V. **i(0+) = (u_c − u_C)/R = (−8 − 4)/10 kΩ = −1.2 mA**.",
+        "**3. Final value and time constant.** **u_C(∞) = −8 V**; τ = RC = 10×10³ × 20×10⁻⁶ = 0.2 s.",
+        "**4. Complete response (three elements).** u_C(t) = −8 + [4 − (−8)]e^(−5t) = −8 + 12e^(−5t) V. At t = 0.2 s: u_C = −8 + 12e⁻¹ ≈ **−3.585 V**. u_C crosses zero at t = 0.2 ln 1.5 ≈ 0.081 s.",
+        "**5. Two decompositions.**",
+        "- complete response = zero-input + zero-state = 4e^(−5t) + [−8(1 − e^(−5t))] V;",
+        "- complete response = steady-state + transient = (−8) + 12e^(−5t) V.",
+        "Both add up to the same function; they just look at it differently: the first splits by cause (initial energy / external source), the second by form (forced / natural component)."
+      ]
+    }
+  }
+}

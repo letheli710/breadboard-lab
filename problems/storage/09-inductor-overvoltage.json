@@ -1,0 +1,80 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "storage-09-inductor-overvoltage",
+  "chapter": "storage",
+  "title": "断开电感电路时的过电压",
+  "level": 3,
+  "tags": ["换路定则", "电感电流连续", "过电压"],
+  "statement": [
+    "一个线圈可以看作电阻 R = 4 Ω 与电感 L = 0.5 H 串联，由 Us = 12 V 供电，线圈两端并接一只内阻 R_V = 2 kΩ 的电压表。开关 S 闭合已久，t = 0 时断开。",
+    "求 i_L(0₋)、电压表两端电压 u_V(0₊)，以及开关断开后的时间常数 τ。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": 12 },
+      { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "closed", "after": "open" } },
+      { "ref": "R", "type": "R", "from": [8, 0], "to": [8, 3], "value": 4 },
+      { "ref": "L", "type": "L", "from": [8, 3], "to": [8, 6], "value": 0.5 },
+      { "ref": "RV", "type": "R", "from": [12, 0], "to": [12, 6], "value": "2k", "label": "R_V 2 kΩ" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[4, 0], [12, 0]],
+      [[12, 6], [0, 6]]
+    ],
+    "grounds": [[0, 6]],
+    "notes": [{ "at": [3, -1], "text": "t = 0", "i18n": { "en": "t = 0" } }],
+    "marks": [
+      { "kind": "i", "el": "L", "name": "i_L" },
+      { "kind": "v", "el": "RV", "name": "u_V" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "iL0", "ask": "i_L(0₋) = ?", "find": { "kind": "i", "el": "L", "t": "0-" }, "answer": 3, "unit": "A", "explain": "t < 0 时电感短路，线圈直接接在电源上：i_L = 12/4 = 3 A（电压表另取 12/2000 = 6 mA，不影响线圈电流）。" },
+    { "id": "uV", "ask": "u_V(0₊) = ?", "find": { "kind": "v", "el": "RV", "t": "0+" }, "answer": -6000, "unit": "V", "explain": "开关断开后，电感电流 3 A 不能突变，只能经电压表形成回路：它向下流过线圈、向上流过 R_V，所以 u_V = −R_V·i_L = −2000 × 3 = −6000 V。" },
+    { "id": "tau", "ask": "开关断开后的时间常数 τ = ?", "find": { "kind": "tau" }, "answer": 0.0002495010, "unit": "ms", "explain": "从电感看进去的电阻为 R + R_V = 2004 Ω，τ = L/(R + R_V) = 0.5/2004 ≈ 0.2495 ms。" },
+    { "id": "why", "ask": "实际工程中，为避免这种过电压损坏电压表或开关触点，通常：", "choices": ["在断开开关前先取下电压表，或在线圈两端反向并联续流二极管", "换一只内阻更大的电压表", "把电源电压提高", "在线圈中串联一个更大的电感"], "correct": 0, "explain": "u_V(0₊) = −R_V·i_L(0₋)，内阻越大过电压越高；续流二极管为电感电流提供低阻通路，使线圈两端电压被限制在约 0.7 V。" }
+  ],
+  "hints": [
+    "t = 0₋ 时电感短路，先求线圈电流。",
+    "电感电流不能跃变：t = 0₊ 时 3 A 仍在流，它能走的路只有电压表。",
+    "注意 u_V 的参考方向：电流向上流过 R_V，与 u_V 的 “+”、“−” 是非关联的。"
+  ],
+  "solution": [
+    "**1. t = 0₋。** 电感短路，i_L(0₋) = Us/R = 12/4 = **3 A**。",
+    "**2. 换路定则。** i_L(0₊) = i_L(0₋) = 3 A。S 断开后，电源被切除，线圈与 R_V 构成单回路。",
+    "**3. 过电压。** 3 A 向下流过线圈、向上流过 R_V：u_V(0₊) = −R_V × 3 = **−6000 V**（换路前只有 12 V，是原来的 500 倍）。此时 u_L(0₊) = u_V − R·i_L = −6000 − 12 = −6012 V。",
+    "**4. 时间常数。** τ = L/(R + R_V) = 0.5/2004 ≈ **0.2495 ms**——电感能量 ½ × 0.5 × 3² = 2.25 J 在不到 1 ms 内释放，所以电压极高。",
+    "**结论：** 切断电感电流时，电感会产生足以击穿空气或损坏仪表的高电压（继电器、电机线圈常见）。这正是 i_L 不能突变的直接后果。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Overvoltage when an inductive circuit is opened",
+      "tags": ["switching rule", "inductor current continuity", "overvoltage"],
+      "statement": [
+        "A coil is modelled as R = 4 Ω in series with L = 0.5 H and is supplied by Us = 12 V; a voltmeter with internal resistance R_V = 2 kΩ is connected across the coil. Switch S has been closed for a long time and opens at t = 0.",
+        "Find i_L(0−), the voltmeter voltage u_V(0+), and the time constant τ after the switch opens."
+      ],
+      "questions": [
+        { "ask": "i_L(0−) = ?", "explain": "For t < 0 the inductor is a short and the coil sits directly across the source: i_L = 12/4 = 3 A (the voltmeter draws another 12/2000 = 6 mA, which does not affect the coil current)." },
+        { "ask": "u_V(0+) = ?", "explain": "After the switch opens, the 3 A inductor current cannot jump and its only path is through the voltmeter: down through the coil, up through R_V, so u_V = −R_V·i_L = −2000 × 3 = −6000 V." },
+        { "ask": "Time constant after the switch opens, τ = ?", "explain": "The resistance seen by the inductor is R + R_V = 2004 Ω, τ = L/(R + R_V) = 0.5/2004 ≈ 0.2495 ms." },
+        { "ask": "In practice, to keep this overvoltage from damaging the voltmeter or the switch contacts, one usually:", "choices": ["Removes the voltmeter before opening the switch, or puts a freewheeling diode (reverse-biased) across the coil", "Uses a voltmeter with a higher internal resistance", "Raises the supply voltage", "Adds a larger inductor in series with the coil"], "explain": "u_V(0+) = −R_V·i_L(0−): the higher the internal resistance, the higher the overvoltage. A freewheeling diode gives the inductor current a low-resistance path and clamps the coil voltage to about 0.7 V." }
+      ],
+      "hints": [
+        "At t = 0− the inductor is a short; find the coil current first.",
+        "The inductor current can't jump: at t = 0+ the 3 A is still flowing, and its only path is through the voltmeter.",
+        "Watch the reference direction of u_V: the current flows up through R_V, which is opposite to the passive convention for u_V's \"+\" and \"−\"."
+      ],
+      "solution": [
+        "**1. t = 0−.** The inductor is a short: i_L(0−) = Us/R = 12/4 = **3 A**.",
+        "**2. Switching rule.** i_L(0+) = i_L(0−) = 3 A. With S open the source is cut off and the coil and R_V form a single loop.",
+        "**3. Overvoltage.** The 3 A flows down through the coil and up through R_V: u_V(0+) = −R_V × 3 = **−6000 V** (500 times the 12 V before switching). At this instant u_L(0+) = u_V − R·i_L = −6000 − 12 = −6012 V.",
+        "**4. Time constant.** τ = L/(R + R_V) = 0.5/2004 ≈ **0.2495 ms** — the inductor's energy ½ × 0.5 × 3² = 2.25 J is released in under 1 ms, hence the huge voltage.",
+        "**Conclusion:** interrupting an inductor current produces a voltage high enough to arc across contacts or damage instruments (common with relay and motor coils). It is a direct consequence of i_L not being able to jump."
+      ]
+    }
+  }
+}

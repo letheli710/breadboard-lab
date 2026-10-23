@@ -1,0 +1,86 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "frequency-08-active-lowpass",
+  "chapter": "frequency",
+  "title": "一阶有源低通滤波器",
+  "level": 3,
+  "tags": ["有源滤波器", "一阶低通", "理想运放", "dB"],
+  "statement": [
+    "反相放大器的反馈电阻 R_f 两端并联电容 C_f：R₁ = 10 kΩ，R_f = 20 kΩ，C_f = 0.05 µF，运放为理想运放。网络函数 H(jω) = U_o/U_s。",
+    "求 ω = 1000 rad/s 时的 20lg|H(jω)| 和 H(jω) 的相位，并说明这个电路的通带增益与截止角频率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "U_s" },
+      { "ref": "R1", "type": "R", "from": [2, 3], "to": [6, 3], "value": "10k" },
+      { "ref": "Rf", "type": "R", "from": [8, 0], "to": [12, 0], "value": "20k" },
+      { "ref": "Cf", "type": "C", "from": [8, -3], "to": [12, -3], "value": "0.05u" },
+      { "ref": "A", "type": "OPAMP", "at": [10, 4] }
+    ],
+    "wires": [
+      [[0, 3], [2, 3]],
+      [[6, 3], [8, 3]],
+      [[7, 3], [7, 0], [8, 0]],
+      [[7, 0], [7, -3], [8, -3]],
+      [[12, -3], [14, -3], [14, 0]],
+      [[12, 0], [14, 0], [14, 4]],
+      [[12, 4], [17, 4]],
+      [[8, 5], [7, 5], [7, 7]],
+      [[0, 7], [17, 7]]
+    ],
+    "terminals": [{ "at": [17, 4], "name": "o" }, { "at": [17, 7], "name": "o'" }],
+    "grounds": [[0, 7]]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "db", "ask": "ω = 1000 rad/s 时 20lg|H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "db" }, "answer": 3.0103, "unit": "dB", "explain": "H = −Z_f/R₁ = −(R_f/R₁)/(1 + jωR_fC_f)。ωR_fC_f = 1000 × 2×10⁴ × 5×10⁻⁸ = 1，|H| = 2/√2 = √2，20lg√2 ≈ 3.01 dB。" },
+    { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": 135, "unit": "°", "explain": "H = −2/(1 + j) = −1 + j：反相带来 180°，RC 带来 −45°，合计 135°（也可写作 −225°）。" },
+    {
+      "id": "type",
+      "ask": "这个电路的通带增益和截止角频率是？",
+      "choices": ["低通，通带增益 −2（6.02 dB），ω_c = 1/(R_fC_f) = 1000 rad/s", "低通，通带增益 −2，ω_c = 1/(R₁C_f) = 2000 rad/s", "高通，高频增益 −2，ω_c = 1000 rad/s", "低通，通带增益 −3，ω_c = 1000 rad/s"],
+      "correct": 0,
+      "explain": "ω → 0 时 C_f 开路，H → −R_f/R₁ = −2（6.02 dB）；ω → ∞ 时 C_f 把输出短接到虚地，H → 0。所以是低通。|H| 降到 2/√2（比通带低 3 dB）的频率由 ωR_fC_f = 1 决定：ω_c = 1/(R_fC_f) = 1000 rad/s，本题的 ω 正好是截止频率。"
+    }
+  ],
+  "hints": [
+    "反相放大器的公式对阻抗同样成立：H = −Z_f/Z₁，这里 Z_f = R_f ∥ (1/jωC_f)。",
+    "Z_f = R_f/(1 + jωR_fC_f)；先算 ωR_fC_f。"
+  ],
+  "solution": [
+    "**1. 网络函数。** 反相端虚地，I₁ = U_s/R₁ 全部流过反馈阻抗 Z_f = R_f/(1 + jωR_fC_f)：H(jω) = −Z_f/R₁ = −(R_f/R₁)·1/(1 + jω/ω_c)，ω_c = 1/(R_fC_f) = 1/(2×10⁴ × 5×10⁻⁸) = 1000 rad/s。",
+    "**2. 特性。** 直流增益 −R_f/R₁ = −2（6.02 dB），高频增益 → 0：一阶**有源低通**。",
+    "**3. ω = 1000 rad/s。** H = −2/(1 + j) = −1 + j = 1.414∠135°：20lg|H| = **3.01 dB**（= 6.02 − 3.01），相位 **135°**。",
+    "**4. 有源的好处。** 输出由运放驱动，接负载不会改变 H（对比第 5 题无源 RC 加负载时增益和截止频率都变了），而且通带增益可以大于 1。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "First-order active low-pass filter",
+      "tags": ["active filter", "first-order low-pass", "ideal op-amp", "dB"],
+      "statement": [
+        "An inverting amplifier has a capacitor C_f in parallel with its feedback resistor R_f: R₁ = 10 kΩ, R_f = 20 kΩ, C_f = 0.05 µF, and the op-amp is ideal. The network function is H(jω) = V_o/V_s.",
+        "Find 20lg|H(jω)| and the phase of H(jω) at ω = 1000 rad/s, and state the pass-band gain and the cut-off angular frequency of this circuit."
+      ],
+      "questions": [
+        { "ask": "20lg|H(jω)| at ω = 1000 rad/s = ?", "explain": "H = −Z_f/R₁ = −(R_f/R₁)/(1 + jωR_fC_f). ωR_fC_f = 1000 × 2×10⁴ × 5×10⁻⁸ = 1, so |H| = 2/√2 = √2 and 20lg√2 ≈ 3.01 dB." },
+        { "ask": "Phase of H(jω) = ?", "explain": "H = −2/(1 + j) = −1 + j: the inversion gives 180°, the RC gives −45°, 135° in total (or −225°)." },
+        {
+          "ask": "What are the pass-band gain and the cut-off angular frequency of this circuit?",
+          "choices": ["Low-pass, pass-band gain −2 (6.02 dB), ω_c = 1/(R_fC_f) = 1000 rad/s", "Low-pass, pass-band gain −2, ω_c = 1/(R₁C_f) = 2000 rad/s", "High-pass, high-frequency gain −2, ω_c = 1000 rad/s", "Low-pass, pass-band gain −3, ω_c = 1000 rad/s"],
+          "explain": "As ω → 0, C_f is open and H → −R_f/R₁ = −2 (6.02 dB); as ω → ∞, C_f shorts the output to the virtual ground and H → 0. So it is low-pass. |H| drops to 2/√2 (3 dB below the pass band) where ωR_fC_f = 1: ω_c = 1/(R_fC_f) = 1000 rad/s — the ω in this problem is exactly the cut-off frequency."
+        }
+      ],
+      "hints": [
+        "The inverting-amplifier formula also works with impedances: H = −Z_f/Z₁, here with Z_f = R_f ∥ (1/jωC_f).",
+        "Z_f = R_f/(1 + jωR_fC_f); work out ωR_fC_f first."
+      ],
+      "solution": [
+        "**1. Network function.** The inverting input is a virtual ground, so I₁ = V_s/R₁ flows entirely through the feedback impedance Z_f = R_f/(1 + jωR_fC_f): H(jω) = −Z_f/R₁ = −(R_f/R₁)·1/(1 + jω/ω_c), with ω_c = 1/(R_fC_f) = 1/(2×10⁴ × 5×10⁻⁸) = 1000 rad/s.",
+        "**2. Behaviour.** DC gain −R_f/R₁ = −2 (6.02 dB), high-frequency gain → 0: a first-order **active low-pass**.",
+        "**3. At ω = 1000 rad/s.** H = −2/(1 + j) = −1 + j = 1.414∠135°: 20lg|H| = **3.01 dB** (= 6.02 − 3.01), phase **135°**.",
+        "**4. Why active.** The op-amp drives the output, so a load doesn't change H (compare problem 5, where loading a passive RC changed both its gain and its cut-off), and the pass-band gain can exceed 1."
+      ]
+    }
+  }
+}

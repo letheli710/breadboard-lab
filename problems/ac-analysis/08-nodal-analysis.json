@@ -1,0 +1,80 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-analysis-08-nodal-analysis",
+  "chapter": "ac-analysis",
+  "title": "正弦稳态的结点电压法",
+  "level": 3,
+  "tags": ["结点电压法", "复导纳", "正弦稳态分析"],
+  "statement": [
+    "ω = 1000 rad/s，Us = 10∠0° V，Is = 2∠0° A（均为有效值相量），R1 = R2 = 5 Ω，C = 200 µF，L = 5 mH。",
+    "以地为参考结点，用结点电压法求结点电压 U_a、U_b。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } } },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 5 },
+      { "ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": "200u" },
+      { "ref": "L", "type": "L", "from": [10, 0], "to": [14, 0], "value": "5m" },
+      { "ref": "R2", "type": "R", "from": [16, 0], "to": [16, 4], "value": 5 },
+      { "ref": "Is", "type": "I", "from": [20, 4], "to": [20, 0], "value": { "ac": { "mag": 2, "phase": 0 } } }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [10, 0]],
+      [[14, 0], [20, 0]],
+      [[20, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [8, 0], "name": "a" }, { "at": [16, 0], "name": "b" }],
+    "grounds": [[0, 4]]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "Ua", "ask": "|U_a| = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 10, "unit": "V", "explain": "解出 U_a = 8 − j6 V，|U_a| = 10 V。" },
+    { "id": "Uaph", "ask": "U_a 的相位 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "phase" }, "answer": -36.8699, "unit": "°", "explain": "U_a = 8 − j6 = 10∠−36.87° V。" },
+    { "id": "Ubre", "ask": "U_b 的实部 = ?", "find": { "kind": "v", "nodes": ["b"], "part": "re" }, "answer": 6, "unit": "V", "explain": "由结点 b 的方程 (2 − j)U_b = 10 − j10 得 U_b = (10 − j10)(2 + j)/5 = 6 − j2 V。" },
+    { "id": "Ubim", "ask": "U_b 的虚部 = ?", "find": { "kind": "v", "nodes": ["b"], "part": "im" }, "answer": -2, "unit": "V", "explain": "U_b = 6 − j2 V ≈ 6.32∠−18.43° V。" }
+  ],
+  "hints": [
+    "各元件先写成复导纳：1/R1 = 0.2 S，jωC = j0.2 S，1/(jωL) = −j0.2 S，1/R2 = 0.2 S。",
+    "结点 a：(0.2 + j0.2 − j0.2)U_a − (−j0.2)U_b = Us/R1；结点 b：−(−j0.2)U_a + (0.2 − j0.2)U_b = Is。",
+    "结点 a 的方程化简为 U_a + jU_b = 10，代入 b 的方程消去 U_a。"
+  ],
+  "solution": [
+    "**1. 复导纳。** G1 = 1/5 = 0.2 S，Y_C = jωC = j0.2 S，Y_L = 1/(jωL) = 1/(j5) = −j0.2 S，G2 = 0.2 S。",
+    "**2. 结点 a：** (G1 + Y_C + Y_L)U_a − Y_L·U_b = G1·Us → 0.2U_a + j0.2U_b = 2，即 **U_a + jU_b = 10**。",
+    "**3. 结点 b：** −Y_L·U_a + (Y_L + G2)U_b = Is → j0.2U_a + (0.2 − j0.2)U_b = 2，即 jU_a + (1 − j)U_b = 10。",
+    "**4. 联立。** 把 U_a = 10 − jU_b 代入：j10 + U_b + (1 − j)U_b = 10 → (2 − j)U_b = 10 − j10 → **U_b = 6 − j2 V** ≈ 6.32∠−18.43° V。",
+    "U_a = 10 − j(6 − j2) = **8 − j6 V = 10∠−36.87° V**。",
+    "**5. 验算（结点 b 的 KCL）。** I_L = (U_a − U_b)/(j5) = (2 − j4)/(j5) = −0.8 − j0.4 A，I_R2 = U_b/5 = 1.2 − j0.4 A；I_L + Is = −0.8 − j0.4 + 2 = 1.2 − j0.4 A = I_R2 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Nodal analysis in sinusoidal steady state",
+      "tags": ["nodal analysis", "complex admittance", "sinusoidal steady state"],
+      "statement": [
+        "ω = 1000 rad/s, Us = 10∠0° V, Is = 2∠0° A (rms phasors), R1 = R2 = 5 Ω, C = 200 µF, L = 5 mH.",
+        "With ground as the reference node, use nodal analysis to find the node voltages U_a and U_b."
+      ],
+      "questions": [
+        { "ask": "|U_a| = ?", "explain": "The solution is U_a = 8 − j6 V, so |U_a| = 10 V." },
+        { "ask": "Phase of U_a = ?", "explain": "U_a = 8 − j6 = 10∠−36.87° V." },
+        { "ask": "Real part of U_b = ?", "explain": "From the node-b equation (2 − j)U_b = 10 − j10: U_b = (10 − j10)(2 + j)/5 = 6 − j2 V." },
+        { "ask": "Imaginary part of U_b = ?", "explain": "U_b = 6 − j2 V ≈ 6.32∠−18.43° V." }
+      ],
+      "hints": [
+        "First write every element as a complex admittance: 1/R1 = 0.2 S, jωC = j0.2 S, 1/(jωL) = −j0.2 S, 1/R2 = 0.2 S.",
+        "Node a: (0.2 + j0.2 − j0.2)U_a − (−j0.2)U_b = Us/R1; node b: −(−j0.2)U_a + (0.2 − j0.2)U_b = Is.",
+        "The node-a equation simplifies to U_a + jU_b = 10; substitute it into the node-b equation to eliminate U_a."
+      ],
+      "solution": [
+        "**1. Admittances.** G1 = 1/5 = 0.2 S, Y_C = jωC = j0.2 S, Y_L = 1/(jωL) = 1/(j5) = −j0.2 S, G2 = 0.2 S.",
+        "**2. Node a:** (G1 + Y_C + Y_L)U_a − Y_L·U_b = G1·Us → 0.2U_a + j0.2U_b = 2, i.e. **U_a + jU_b = 10**.",
+        "**3. Node b:** −Y_L·U_a + (Y_L + G2)U_b = Is → j0.2U_a + (0.2 − j0.2)U_b = 2, i.e. jU_a + (1 − j)U_b = 10.",
+        "**4. Solve.** Substitute U_a = 10 − jU_b: j10 + U_b + (1 − j)U_b = 10 → (2 − j)U_b = 10 − j10 → **U_b = 6 − j2 V** ≈ 6.32∠−18.43° V.",
+        "U_a = 10 − j(6 − j2) = **8 − j6 V = 10∠−36.87° V**.",
+        "**5. Check (KCL at b).** I_L = (U_a − U_b)/(j5) = (2 − j4)/(j5) = −0.8 − j0.4 A, I_R2 = U_b/5 = 1.2 − j0.4 A; I_L + Is = −0.8 − j0.4 + 2 = 1.2 − j0.4 A = I_R2 ✓."
+      ]
+    }
+  }
+}

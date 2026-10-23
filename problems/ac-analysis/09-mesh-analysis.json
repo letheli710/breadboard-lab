@@ -1,0 +1,89 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-analysis-09-mesh-analysis",
+  "chapter": "ac-analysis",
+  "title": "正弦稳态的网孔电流法",
+  "level": 3,
+  "tags": ["网孔电流法", "自阻抗与互阻抗", "正弦稳态分析"],
+  "statement": [
+    "ω = 1000 rad/s，Us1 = Us2 = 20∠0° V（有效值），R1 = R2 = 4 Ω，L = 4 mH，C = 250 µF。",
+    "取网孔电流 I1、I2 均为顺时针（分别等于 R1、R2 中的电流，方向见图），用网孔电流法求 I1，以及电感中的电流 I3。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } } },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 4 },
+      { "ref": "L", "type": "L", "from": [7, 0], "to": [7, 4], "value": "4m" },
+      { "ref": "R2", "type": "R", "from": [9, 0], "to": [12, 0], "value": 4 },
+      { "ref": "C", "type": "C", "from": [14, 0], "to": [17, 0], "value": "250u" },
+      { "ref": "Us2", "type": "V", "from": [19, 0], "to": [19, 4], "value": { "ac": { "mag": 20, "phase": 0 } } }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [9, 0]],
+      [[12, 0], [14, 0]],
+      [[17, 0], [19, 0]],
+      [[19, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "i", "el": "R1", "name": "I1" },
+      { "kind": "i", "el": "R2", "name": "I2" },
+      { "kind": "i", "el": "L", "name": "I3" }
+    ]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "I1re", "ask": "I1 的实部 = ?", "find": { "kind": "i", "el": "R1", "part": "re" }, "answer": 1, "unit": "A", "explain": "网孔方程解得 I1 = 1 − j3 A。" },
+    { "id": "I1im", "ask": "I1 的虚部 = ?", "find": { "kind": "i", "el": "R1", "part": "im" }, "answer": -3, "unit": "A", "explain": "I1 = 1 − j3 A ≈ 3.16∠−71.57° A。" },
+    { "id": "I3", "ask": "电感电流有效值 I3 = ?", "find": { "kind": "i", "el": "L" }, "answer": 5, "unit": "A", "explain": "I3 = I1 − I2 = (1 − j3) − (−2 + j) = 3 − j4 A，|I3| = 5 A。" },
+    { "id": "I3ph", "ask": "I3 的相位 = ?", "find": { "kind": "i", "el": "L", "part": "phase" }, "answer": -53.1301, "unit": "°", "explain": "I3 = 3 − j4 = 5∠−53.13° A。" }
+  ],
+  "hints": [
+    "复阻抗：Z_L = jωL = j4 Ω，Z_C = −j/(ωC) = −j4 Ω。",
+    "网孔 1 自阻抗 R1 + jX_L，网孔 2 自阻抗 R2 + jX_L − jX_C，互阻抗 j4 Ω（两个网孔电流在 L 中方向相反，取负号）。",
+    "Us2 的“+”在上，网孔 2 顺时针时从“+”到“−”穿过它，方程右边是 −Us2。"
+  ],
+  "solution": [
+    "**1. 复阻抗。** Z_L = jωL = j4 Ω，Z_C = −j/(ωC) = −j/(1000 × 250×10⁻⁶) = −j4 Ω。",
+    "**2. 网孔方程。**",
+    "- 网孔 1：(R1 + j4)I1 − j4·I2 = Us1 → (4 + j4)I1 − j4I2 = 20",
+    "- 网孔 2：−j4·I1 + (R2 + j4 − j4)I2 = −Us2 → −j4I1 + 4I2 = −20",
+    "**3. 求解。** 由网孔 2：I2 = −5 + jI1。代入网孔 1：(4 + j4)I1 − j4(−5 + jI1) = 20 → (8 + j4)I1 = 20 − j20 → I1 = (20 − j20)(8 − j4)/80 = **1 − j3 A**。",
+    "I2 = −5 + j(1 − j3) = **−2 + j A**。",
+    "**4. 电感电流。** I3 = I1 − I2 = 3 − j4 A = **5∠−53.13° A**。",
+    "**5. 验算。** L 两端电压 j4 × (3 − j4) = 16 + j12 V；左边支路：Us1 − R1·I1 = 20 − 4 + j12 = 16 + j12 V ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Mesh analysis in sinusoidal steady state",
+      "tags": ["mesh analysis", "self- and mutual impedance", "sinusoidal steady state"],
+      "statement": [
+        "ω = 1000 rad/s, Us1 = Us2 = 20∠0° V (rms), R1 = R2 = 4 Ω, L = 4 mH, C = 250 µF.",
+        "Take both mesh currents I1, I2 clockwise (they are the currents in R1 and R2, directions as drawn). Use mesh analysis to find I1 and the inductor current I3."
+      ],
+      "questions": [
+        { "ask": "Real part of I1 = ?", "explain": "Solving the mesh equations gives I1 = 1 − j3 A." },
+        { "ask": "Imaginary part of I1 = ?", "explain": "I1 = 1 − j3 A ≈ 3.16∠−71.57° A." },
+        { "ask": "rms inductor current I3 = ?", "explain": "I3 = I1 − I2 = (1 − j3) − (−2 + j) = 3 − j4 A, |I3| = 5 A." },
+        { "ask": "Phase of I3 = ?", "explain": "I3 = 3 − j4 = 5∠−53.13° A." }
+      ],
+      "hints": [
+        "Impedances: Z_L = jωL = j4 Ω, Z_C = −j/(ωC) = −j4 Ω.",
+        "Mesh 1 self-impedance R1 + jX_L, mesh 2 self-impedance R2 + jX_L − jX_C, mutual impedance j4 Ω (the two mesh currents flow in opposite directions through L, so it enters with a minus sign).",
+        "Us2 has \"+\" at the top; clockwise mesh 2 passes through it from \"+\" to \"−\", so the right-hand side is −Us2."
+      ],
+      "solution": [
+        "**1. Impedances.** Z_L = jωL = j4 Ω, Z_C = −j/(ωC) = −j/(1000 × 250×10⁻⁶) = −j4 Ω.",
+        "**2. Mesh equations.**",
+        "- Mesh 1: (R1 + j4)I1 − j4·I2 = Us1 → (4 + j4)I1 − j4I2 = 20",
+        "- Mesh 2: −j4·I1 + (R2 + j4 − j4)I2 = −Us2 → −j4I1 + 4I2 = −20",
+        "**3. Solve.** From mesh 2: I2 = −5 + jI1. Into mesh 1: (4 + j4)I1 − j4(−5 + jI1) = 20 → (8 + j4)I1 = 20 − j20 → I1 = (20 − j20)(8 − j4)/80 = **1 − j3 A**.",
+        "I2 = −5 + j(1 − j3) = **−2 + j A**.",
+        "**4. Inductor current.** I3 = I1 − I2 = 3 − j4 A = **5∠−53.13° A**.",
+        "**5. Check.** Voltage across L: j4 × (3 − j4) = 16 + j12 V; left branch: Us1 − R1·I1 = 20 − 4 + j12 = 16 + j12 V ✓."
+      ]
+    }
+  }
+}

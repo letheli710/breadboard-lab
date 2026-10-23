@@ -1,0 +1,91 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "storage-12-dependent-source-switching",
+  "chapter": "storage",
+  "title": "含受控源电路的换路：稳态、初始值与终值",
+  "level": 5,
+  "tags": ["换路定则", "0₊ 等效电路", "受控源 VCCS", "直流稳态"],
+  "statement": [
+    "图示电路中 Us = 12 V，R1 = 2 Ω，R2 = R3 = 4 Ω，C = 0.5 F，L = 1 H。电压控制电流源 G 的电流为 0.25·u_2（从 a 向下流到地），u_2 是 R2 两端电压（+ 在上）。",
+    "开关 S 断开已久，t = 0 时闭合。求 u_C(0₋)、i_C(0₊)、u_L(0₊) 和 u_C(∞)。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
+      { "ref": "C", "type": "C", "from": [7, 0], "to": [7, 4], "value": 0.5 },
+      { "ref": "G", "type": "VCCS", "from": [10, 0], "to": [10, 4], "value": 0.25, "ctrl": { "v": "R2" }, "label": "0.25u_2" },
+      { "ref": "L", "type": "L", "from": [12, 0], "to": [15, 0], "value": 1 },
+      { "ref": "R2", "type": "R", "from": [17, 0], "to": [17, 4], "value": 4 },
+      { "ref": "S", "type": "SW", "from": [18, 0], "to": [20, 0], "state": { "before": "open", "after": "closed" } },
+      { "ref": "R3", "type": "R", "from": [21, 0], "to": [21, 4], "value": 4 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [12, 0]],
+      [[15, 0], [18, 0]],
+      [[20, 0], [21, 0]],
+      [[21, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [6, 0], "name": "a" }, { "at": [16, 0], "name": "b" }],
+    "grounds": [[0, 4]],
+    "notes": [{ "at": [19, -1], "text": "t = 0", "i18n": { "en": "t = 0" } }],
+    "marks": [
+      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "i", "el": "C", "name": "i_C" },
+      { "kind": "i", "el": "L", "name": "i_L" },
+      { "kind": "v", "el": "L", "name": "u_L" },
+      { "kind": "v", "el": "R2", "name": "u_2" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "u0", "ask": "u_C(0₋) = ?", "find": { "kind": "v", "el": "C", "t": "0-" }, "answer": 6, "unit": "V", "explain": "t < 0：L 短路、C 开路、S 断开，a、b 同电位 u，u_2 = u。KCL：(12 − u)/2 = 0.25u + u/4 → 12 − u = u → u = 6 V。同时 i_L(0₋) = u/4 = 1.5 A。" },
+    { "id": "iC", "ask": "i_C(0₊) = ?", "find": { "kind": "i", "el": "C", "t": "0+" }, "answer": 0.75, "unit": "A", "explain": "0₊：C → 6 V 电压源，L → 1.5 A 电流源。结点 b：1.5 = u_b/4 + u_b/4 → u_b = u_2 = 3 V。结点 a：(12 − 6)/2 = i_C + 0.25 × 3 + 1.5 → i_C = 3 − 0.75 − 1.5 = 0.75 A。" },
+    { "id": "uL", "ask": "u_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": 3, "unit": "V", "explain": "u_L = u_a − u_b = u_C(0₊) − u_2(0₊) = 6 − 3 = 3 V。" },
+    { "id": "uinf", "ask": "u_C(∞) = ?", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": 4.8, "unit": "V", "explain": "新稳态：L 短路、C 开路，a、b 同电位 u，R2、R3 都接在 b 上。KCL：(12 − u)/2 = 0.25u + u/4 + u/4 → 12 − u = 1.5u → u = 4.8 V。" }
+  ],
+  "hints": [
+    "t = 0₋ 时电感短路，a、b 两点同电位，控制量 u_2 就等于 u_C。",
+    "0₊ 等效电路：电容 → 电压源 6 V，电感 → 电流源 1.5 A。先对结点 b 列 KCL 求出新的 u_2，受控源电流随之跳变。",
+    "再对结点 a 列 KCL 求 i_C；u_L 用 KVL：u_L = u_C − u_2。"
+  ],
+  "solution": [
+    "**1. t = 0₋（S 断开，直流稳态）。** L 短路，C 开路，a、b 同电位 u，u_2 = u。结点 KCL：(Us − u)/R1 = 0.25u + u/R2 → (12 − u)/2 = 0.5u → **u_C(0₋) = 6 V**，i_L(0₋) = 6/4 = 1.5 A，G 中电流 1.5 A，R1 中电流 3 A ✓。",
+    "**2. 换路定则。** u_C(0₊) = 6 V，i_L(0₊) = 1.5 A。",
+    "**3. 0₊ 等效电路，结点 b。** 1.5 A 电流源流入 b，R2、R3 并联（2 Ω）：u_b = u_2 = 1.5 × 2 = 3 V（从 6 V 跳到 3 V），G 的电流 0.25 × 3 = 0.75 A 也随之跳变。",
+    "**4. 结点 a。** R1 电流 (12 − 6)/2 = 3 A = i_C + 0.75 + 1.5 → **i_C(0₊) = 0.75 A**。KVL：**u_L(0₊) = u_C − u_2 = 6 − 3 = 3 V**。",
+    "**5. t → ∞。** L 短路、C 开路：(12 − u)/2 = 0.25u + u/4 + u/4 → **u_C(∞) = 4.8 V**（i_L(∞) = 4.8/2 = 2.4 A）。",
+    "**小结：** 受控源的量在换路瞬间可以跳变，必须在 0₊ 等效电路中与其他非状态量一起重新求解；只有 u_C、i_L 可以直接沿用 0₋ 的值。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Switching in a circuit with a dependent source: steady state, initial and final values",
+      "tags": ["switching rule", "t = 0+ equivalent circuit", "dependent source VCCS", "DC steady state"],
+      "statement": [
+        "Us = 12 V, R1 = 2 Ω, R2 = R3 = 4 Ω, C = 0.5 F, L = 1 H. The voltage-controlled current source G carries 0.25·u_2 (from a down to ground), where u_2 is the voltage across R2 (+ at the top).",
+        "Switch S has been open for a long time and closes at t = 0. Find u_C(0−), i_C(0+), u_L(0+) and u_C(∞)."
+      ],
+      "questions": [
+        { "ask": "u_C(0−) = ?", "explain": "t < 0: L short, C open, S open; a and b are at the same potential u and u_2 = u. KCL: (12 − u)/2 = 0.25u + u/4 → 12 − u = u → u = 6 V. Also i_L(0−) = u/4 = 1.5 A." },
+        { "ask": "i_C(0+) = ?", "explain": "At 0+: C → 6 V voltage source, L → 1.5 A current source. Node b: 1.5 = u_b/4 + u_b/4 → u_b = u_2 = 3 V. Node a: (12 − 6)/2 = i_C + 0.25 × 3 + 1.5 → i_C = 3 − 0.75 − 1.5 = 0.75 A." },
+        { "ask": "u_L(0+) = ?", "explain": "u_L = u_a − u_b = u_C(0+) − u_2(0+) = 6 − 3 = 3 V." },
+        { "ask": "u_C(∞) = ?", "explain": "New steady state: L short, C open, a and b at the same potential u, with both R2 and R3 on b. KCL: (12 − u)/2 = 0.25u + u/4 + u/4 → 12 − u = 1.5u → u = 4.8 V." }
+      ],
+      "hints": [
+        "At t = 0− the inductor is a short, so a and b are at the same potential and the controlling voltage u_2 equals u_C.",
+        "The t = 0+ equivalent: capacitor → 6 V voltage source, inductor → 1.5 A current source. Write KCL at node b first to get the new u_2; the dependent source current jumps with it.",
+        "Then KCL at node a gives i_C; for u_L use KVL: u_L = u_C − u_2."
+      ],
+      "solution": [
+        "**1. t = 0− (S open, DC steady state).** L is a short and C open; a and b are at the same potential u, and u_2 = u. KCL: (Us − u)/R1 = 0.25u + u/R2 → (12 − u)/2 = 0.5u → **u_C(0−) = 6 V**, i_L(0−) = 6/4 = 1.5 A, G carries 1.5 A and R1 carries 3 A ✓.",
+        "**2. Switching rule.** u_C(0+) = 6 V, i_L(0+) = 1.5 A.",
+        "**3. t = 0+ equivalent, node b.** The 1.5 A current source feeds b, where R2 ∥ R3 = 2 Ω: u_b = u_2 = 1.5 × 2 = 3 V (it jumps from 6 V to 3 V), and the current of G, 0.25 × 3 = 0.75 A, jumps with it.",
+        "**4. Node a.** R1 carries (12 − 6)/2 = 3 A = i_C + 0.75 + 1.5 → **i_C(0+) = 0.75 A**. KVL: **u_L(0+) = u_C − u_2 = 6 − 3 = 3 V**.",
+        "**5. t → ∞.** L short, C open: (12 − u)/2 = 0.25u + u/4 + u/4 → **u_C(∞) = 4.8 V** (i_L(∞) = 4.8/2 = 2.4 A).",
+        "**Summary:** dependent-source quantities can jump at the switching instant and must be recomputed in the t = 0+ equivalent together with all other non-state quantities; only u_C and i_L carry over directly from 0−."
+      ]
+    }
+  }
+}

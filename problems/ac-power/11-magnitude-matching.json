@@ -1,0 +1,87 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-power-11-magnitude-matching",
+  "chapter": "ac-power",
+  "title": "纯电阻负载的最大功率：模匹配",
+  "level": 4,
+  "tags": ["最大功率传输", "模匹配", "共轭匹配"],
+  "statement": [
+    "Us = 20∠0° V（有效值），ω = 1000 rad/s，R1 = R2 = 6 Ω，L = 4 mH。负载是一个纯电阻 R_L（只能调阻值，不能加电抗），接在 a 与地之间。",
+    "求 R_L 获得最大功率时的阻值和功率，并与允许共轭匹配时的最大功率比较。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "20∠0° V" },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 6 },
+      { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 6 },
+      { "ref": "L", "type": "L", "from": [10, 0], "to": [14, 0], "value": "4m" },
+      { "ref": "RL", "type": "R", "from": [16, 0], "to": [16, 4], "value": 5, "label": "R_L", "hideValue": true }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [10, 0]],
+      [[14, 0], [16, 0]],
+      [[16, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [16, 0], "name": "a" }],
+    "grounds": [[0, 4]]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "RL", "ask": "R_L 获得最大功率时的阻值 R_L = |Z_eq| = ?", "find": { "kind": "req", "port": ["a", "0"], "exclude": ["RL"], "part": "mag" }, "answer": 5, "unit": "Ω", "explain": "Z_eq = R1 ∥ R2 + jωL = 3 + j4 Ω。负载只能是电阻时，最佳 R_L = |Z_eq| = √(3² + 4²) = 5 Ω（模匹配）。" },
+    { "id": "P", "ask": "此时 R_L 获得的功率 P = ?（图中 R_L 已调到该值）", "find": { "kind": "p", "el": "RL" }, "answer": 6.25, "unit": "W", "explain": "U_oc = 20 × 6/(6 + 6) = 10 V，I = 10/|3 + 5 + j4| = 10/√80 A，P = I²R_L = (100/80) × 5 = 6.25 W。" },
+    { "id": "Pm", "ask": "若允许负载为任意阻抗（共轭匹配），最大功率 P_max = ?", "find": { "kind": "pmax", "port": ["a", "0"], "exclude": ["RL"] }, "answer": 8.333333, "unit": "W", "explain": "P_max = U_oc²/(4R_eq) = 100/12 ≈ 8.33 W，比模匹配的 6.25 W 大：共轭匹配能把电源内部的电抗也抵消掉。" },
+    {
+      "id": "Req",
+      "ask": "有同学照搬直流结论，取 R_L = R_eq = 3 Ω。此时负载功率与 6.25 W 相比",
+      "choices": ["更小", "更大", "相等"],
+      "correct": 0,
+      "explain": "R_L = 3 Ω 时 P = 100 × 3/|6 + j4|² = 300/52 ≈ 5.77 W < 6.25 W。纯电阻负载的最佳值是 |Z_eq| 而不是 R_eq。"
+    }
+  ],
+  "hints": [
+    "先求 a 与地之间的戴维宁等效：U_oc 和 Z_eq = R_eq + jX_eq。",
+    "负载为纯电阻时 P = U_oc²R_L/[(R_eq + R_L)² + X_eq²]，对 R_L 求导令其为零。",
+    "结果是 R_L = √(R_eq² + X_eq²) = |Z_eq|。"
+  ],
+  "solution": [
+    "**1. 戴维宁等效。** 断开 R_L：U_oc = 20 × R2/(R1 + R2) = **10 V**（L 中无电流）；Us 短路：Z_eq = R1 ∥ R2 + jωL = **3 + j4 Ω**。",
+    "**2. 模匹配。** P(R_L) = U_oc²R_L/[(R_eq + R_L)² + X_eq²]，dP/dR_L = 0 → R_L² = R_eq² + X_eq²，即 **R_L = |Z_eq| = 5 Ω**。",
+    "**3. 功率。** I = 10/|8 + j4| = 10/√80 A，P = I²R_L = **6.25 W**。",
+    "**4. 对比共轭匹配。** 若负载可以是 3 − j4 Ω，P_max = U_oc²/(4R_eq) = 100/12 ≈ **8.33 W**。模匹配得不到这么多，因为电源内部的 j4 Ω 没被抵消。",
+    "**5. 常见错误。** 取 R_L = R_eq = 3 Ω：P = 300/52 ≈ 5.77 W，比 R_L = 5 Ω 时还小。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Maximum power to a resistive load: magnitude matching",
+      "tags": ["maximum power transfer", "magnitude matching", "conjugate matching"],
+      "statement": [
+        "Us = 20∠0° V (rms), ω = 1000 rad/s, R1 = R2 = 6 Ω, L = 4 mH. The load is a pure resistor R_L (only its resistance can be adjusted; no reactance may be added), connected between a and ground.",
+        "Find the value of R_L that receives maximum power and that power, and compare it with the maximum power available under conjugate matching."
+      ],
+      "questions": [
+        { "ask": "Value of R_L for maximum power, R_L = |Z_eq| = ?", "explain": "Z_eq = R1 ∥ R2 + jωL = 3 + j4 Ω. With a purely resistive load the best choice is R_L = |Z_eq| = √(3² + 4²) = 5 Ω (magnitude matching)." },
+        { "ask": "Power received by R_L at that value, P = ? (R_L in the figure is set to it)", "explain": "U_oc = 20 × 6/(6 + 6) = 10 V, I = 10/|3 + 5 + j4| = 10/√80 A, P = I²R_L = (100/80) × 5 = 6.25 W." },
+        { "ask": "If the load could be any impedance (conjugate matching), P_max = ?", "explain": "P_max = U_oc²/(4R_eq) = 100/12 ≈ 8.33 W, more than the 6.25 W of magnitude matching: conjugate matching also cancels the source's internal reactance." },
+        {
+          "ask": "A student copies the DC result and takes R_L = R_eq = 3 Ω. Compared with 6.25 W, the load power is then",
+          "choices": ["smaller", "larger", "the same"],
+          "explain": "With R_L = 3 Ω, P = 100 × 3/|6 + j4|² = 300/52 ≈ 5.77 W < 6.25 W. For a resistive load the optimum is |Z_eq|, not R_eq."
+        }
+      ],
+      "hints": [
+        "First find the Thevenin equivalent between a and ground: U_oc and Z_eq = R_eq + jX_eq.",
+        "With a purely resistive load P = U_oc²R_L/[(R_eq + R_L)² + X_eq²]; set the derivative with respect to R_L to zero.",
+        "The result is R_L = √(R_eq² + X_eq²) = |Z_eq|."
+      ],
+      "solution": [
+        "**1. Thevenin equivalent.** With R_L removed: U_oc = 20 × R2/(R1 + R2) = **10 V** (no current in L); with Us shorted: Z_eq = R1 ∥ R2 + jωL = **3 + j4 Ω**.",
+        "**2. Magnitude matching.** P(R_L) = U_oc²R_L/[(R_eq + R_L)² + X_eq²], dP/dR_L = 0 → R_L² = R_eq² + X_eq², i.e. **R_L = |Z_eq| = 5 Ω**.",
+        "**3. Power.** I = 10/|8 + j4| = 10/√80 A, P = I²R_L = **6.25 W**.",
+        "**4. Compare with conjugate matching.** If the load could be 3 − j4 Ω, P_max = U_oc²/(4R_eq) = 100/12 ≈ **8.33 W**. Magnitude matching gets less because the source's internal j4 Ω is not cancelled.",
+        "**5. A common mistake.** Taking R_L = R_eq = 3 Ω gives P = 300/52 ≈ 5.77 W, less than with R_L = 5 Ω."
+      ]
+    }
+  }
+}

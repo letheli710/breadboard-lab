@@ -1,0 +1,111 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "coupled-07-t-decoupling",
+  "chapter": "coupled",
+  "title": "T 形去耦等效",
+  "level": 3,
+  "tags": ["去耦等效", "T 形等效电路", "输入阻抗", "含耦合电感的正弦稳态"],
+  "statement": [
+    "U̇s = 20∠0° V（有效值），ω = 1000 rad/s。耦合电感 L1 = L2 = 5 mH，M = 1 mH，两线圈的非同名端都接在结点 o 上；o 与地之间接电容 C = 200 µF，负载 RL = 4 Ω。",
+    "用 T 形去耦等效求从 a 端看进去的输入阻抗 Z_in（不含 Us），以及负载电流 İ2、电容电流 İC。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 2], "to": [0, 6], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "20∠0° V" },
+      { "ref": "L1", "type": "L", "from": [5, 0], "to": [5, 4], "value": "5m" },
+      { "ref": "L2", "type": "L", "from": [11, 0], "to": [11, 4], "value": "5m" },
+      { "ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "M": "1m" },
+      { "ref": "C", "type": "C", "from": [8, 4], "to": [8, 8], "value": "200u" },
+      { "ref": "RL", "type": "R", "from": [15, 2], "to": [15, 6], "value": 4 }
+    ],
+    "wires": [
+      [[0, 2], [0, 0], [5, 0]],
+      [[5, 4], [11, 4]],
+      [[11, 0], [15, 0], [15, 2]],
+      [[15, 6], [15, 8], [0, 8], [0, 6]]
+    ],
+    "labels": [{ "at": [2, 0], "name": "a" }, { "at": [8, 4], "name": "o" }],
+    "grounds": [[0, 8]],
+    "marks": [
+      { "kind": "i", "el": "L1", "name": "I1" },
+      { "kind": "i", "el": "C", "name": "IC" },
+      { "kind": "i", "el": "RL", "name": "I2" }
+    ]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    {
+      "id": "zin",
+      "ask": "输入阻抗的模 |Z_in| = ?",
+      "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us"] },
+      "answer": 4,
+      "unit": "Ω",
+      "explain": "去耦后：a–中心 j4 Ω，中心–o–地 j1 − j5 = −j4 Ω，中心–RL j4 Ω。Z_in = j4 + (−j4)∥(4 + j4) = j4 + (4 − j4) = 4 Ω（纯电阻）。"
+    },
+    {
+      "id": "i2",
+      "ask": "负载电流有效值 I2 = ?",
+      "find": { "kind": "i", "el": "RL" },
+      "answer": 5,
+      "unit": "A",
+      "explain": "İ1 = 20/4 = 5∠0° A，中心点电压 U̇ = 20 − j4 × 5 = 20 − j20 V，İ2 = U̇/(4 + j4) = −j5 A，I2 = 5 A。"
+    },
+    {
+      "id": "ph2",
+      "ask": "İ2 的相位 = ?",
+      "find": { "kind": "i", "el": "RL", "part": "phase" },
+      "answer": -90,
+      "unit": "°",
+      "explain": "İ2 = (20 − j20)/(4 + j4) = 5(1 − j)/(1 + j) = −j5 = 5∠−90° A。"
+    },
+    {
+      "id": "ic",
+      "ask": "电容电流有效值 IC = ?",
+      "find": { "kind": "i", "el": "C" },
+      "answer": 7.071068,
+      "unit": "A",
+      "explain": "KCL：İC = İ1 − İ2 = 5 − (−j5) = 5 + j5 A，IC = 5√2 ≈ 7.071 A。"
+    }
+  ],
+  "hints": [
+    "L1、L2 有一个公共结点 o，可以用 T 形去耦：两线圈在 o 处是同名端还是非同名端相连？",
+    "o 处接的都是非同名端（同侧）：两臂为 L1 − M、L2 − M，第三条支路为 +M，并且 M 要和原来接在 o 上的电容串联。",
+    "算出 Z_in 后，由中心点电压分流求 İ2。"
+  ],
+  "solution": [
+    "**1. 判断。** L1 的同名端在左（a 侧），L2 的同名端在右（RL 侧），两者都以非同名端接到 o——相对 o 是“同侧”连接。",
+    "**2. T 形去耦。** 两臂：L1 − M = 4 mH（j4 Ω），L2 − M = 4 mH（j4 Ω）；第三臂 M = 1 mH（j1 Ω），它接在新的中心点与 o 之间，再串电容 1/(ωC) = 5 Ω：中间支路共 j1 − j5 = −j4 Ω。",
+    "**3. 输入阻抗。** (−j4)∥(4 + j4) = (16 − j16)/4 = 4 − j4 Ω，Z_in = j4 + 4 − j4 = **4 Ω**。",
+    "**4. 电流。** İ1 = 20/4 = 5∠0° A；中心点电压 20 − j20 V；İ2 = (20 − j20)/(4 + j4) = **5∠−90° A**；İC = İ1 − İ2 = 5 + j5 A，IC ≈ **7.071 A**。",
+    "**验算：** 电源发出 P = 20 × 5 = 100 W = RL 吸收 5² × 4 = 100 W（电感、电容不消耗有功）。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "T-equivalent (decoupled) circuit",
+      "tags": ["decoupling", "T equivalent", "input impedance", "AC analysis with coupled inductors"],
+      "statement": [
+        "Us = 20∠0° V (rms), ω = 1000 rad/s. The coupled inductors L1 = L2 = 5 mH, M = 1 mH both have their undotted terminals on node o; a capacitor C = 200 µF connects o to ground, and the load is RL = 4 Ω.",
+        "Using the T (decoupled) equivalent, find the input impedance Z_in seen at a (without Us), the load current I2 and the capacitor current IC."
+      ],
+      "questions": [
+        { "ask": "Magnitude of the input impedance |Z_in| = ?", "explain": "Decoupled: a–centre j4 Ω, centre–o–ground j1 − j5 = −j4 Ω, centre–RL j4 Ω. Z_in = j4 + (−j4)∥(4 + j4) = j4 + (4 − j4) = 4 Ω (purely resistive)." },
+        { "ask": "rms load current I2 = ?", "explain": "I1 = 20/4 = 5∠0° A, the centre-node voltage is 20 − j4 × 5 = 20 − j20 V, I2 = (20 − j20)/(4 + j4) = −j5 A, so I2 = 5 A." },
+        { "ask": "Phase of I2 = ?", "explain": "I2 = (20 − j20)/(4 + j4) = 5(1 − j)/(1 + j) = −j5 = 5∠−90° A." },
+        { "ask": "rms capacitor current IC = ?", "explain": "KCL: IC = I1 − I2 = 5 − (−j5) = 5 + j5 A, IC = 5√2 ≈ 7.071 A." }
+      ],
+      "hints": [
+        "L1 and L2 share node o, so the T equivalent applies: are they joined at o by dotted or by undotted terminals?",
+        "Both undotted ends are at o (same side): the arms are L1 − M and L2 − M, the third branch is +M, and that M is in series with the capacitor originally attached to o.",
+        "Once you have Z_in, split the current at the centre node to get I2."
+      ],
+      "solution": [
+        "**1. Identify.** L1's dot is on the left (side a), L2's dot on the right (side RL); both join o with their undotted ends — a same-side connection with respect to o.",
+        "**2. T equivalent.** Arms: L1 − M = 4 mH (j4 Ω) and L2 − M = 4 mH (j4 Ω); the third arm M = 1 mH (j1 Ω) lies between the new centre node and o, in series with the capacitor 1/(ωC) = 5 Ω: the middle branch is j1 − j5 = −j4 Ω.",
+        "**3. Input impedance.** (−j4)∥(4 + j4) = (16 − j16)/4 = 4 − j4 Ω, Z_in = j4 + 4 − j4 = **4 Ω**.",
+        "**4. Currents.** I1 = 20/4 = 5∠0° A; centre-node voltage 20 − j20 V; I2 = (20 − j20)/(4 + j4) = **5∠−90° A**; IC = I1 − I2 = 5 + j5 A, IC ≈ **7.071 A**.",
+        "**Check:** the source delivers P = 20 × 5 = 100 W = the power in RL, 5² × 4 = 100 W (L and C absorb no real power)."
+      ]
+    }
+  }
+}

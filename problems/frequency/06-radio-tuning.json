@@ -1,0 +1,83 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "frequency-06-radio-tuning",
+  "chapter": "frequency",
+  "title": "收音机调谐回路",
+  "level": 3,
+  "tags": ["串联谐振", "调谐", "品质因数 Q", "选择性"],
+  "statement": [
+    "收音机输入回路可等效为 RLC 串联电路：线圈电感 L = 0.5 mH，线圈电阻 R = 5 Ω，C 为可调电容。天线感应到某电台信号 U_s = 1∠0° mV（有效值），角频率 ω = 10⁶ rad/s。",
+    "调节 C 使回路对该电台谐振。求所需的 C、谐振时回路电流 I、电容电压 U_C 的有效值和相位（相对于 U_s）。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 0.001, "phase": 0 } }, "label": "1∠0° mV" },
+      { "ref": "R", "type": "R", "from": [2, 0], "to": [5, 0], "value": 5 },
+      { "ref": "L", "type": "L", "from": [7, 0], "to": [10, 0], "value": "0.5m" },
+      { "ref": "C", "type": "C", "from": [12, 0], "to": [12, 4], "value": "2n", "label": "C", "hideValue": true }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [7, 0]],
+      [[10, 0], [12, 0]],
+      [[12, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [12, 0], "name": "c" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "R", "name": "I" }, { "kind": "v", "el": "C", "name": "U_C" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000000 },
+  "questions": [
+    {
+      "id": "C",
+      "ask": "使回路在 ω = 10⁶ rad/s 谐振，C 应调到多少？",
+      "choices": ["2 nF", "2 µF", "0.5 nF", "200 pF"],
+      "correct": 0,
+      "explain": "谐振条件 ωL = 1/(ωC)：C = 1/(ω²L) = 1/(10¹² × 0.5 × 10⁻³) = 2 × 10⁻⁹ F = 2 nF。此时 X_L = X_C = 500 Ω。"
+    },
+    { "id": "I", "ask": "谐振时回路电流有效值 I = ?", "find": { "kind": "i", "el": "R", "part": "mag" }, "answer": 0.0002, "unit": "mA", "explain": "谐振时 Z = R = 5 Ω，I = 1 mV / 5 Ω = 0.2 mA。" },
+    { "id": "UC", "ask": "电容电压有效值 U_C = ?", "find": { "kind": "v", "el": "C", "part": "mag" }, "answer": 0.1, "unit": "mV", "explain": "U_C = I·X_C = 0.2 mA × 500 Ω = 0.1 V = 100 mV，是天线信号的 Q = ω₀L/R = 500/5 = 100 倍。" },
+    { "id": "ph", "ask": "U_C 的相位（U_s 为 0°）= ?", "find": { "kind": "v", "el": "C", "part": "phase" }, "answer": -90, "unit": "°", "explain": "谐振时电流与 U_s 同相；电容电压滞后电流 90°，所以 U_C = −j100 mV，相位 −90°。" }
+  ],
+  "hints": [
+    "谐振时 X_L = X_C，先算 X_L = ωL，再由 X_C = 1/(ωC) 求 C。",
+    "谐振时 Z = R，I = U_s/R；U_C = I·X_C = Q·U_s。"
+  ],
+  "solution": [
+    "**1. 调谐电容。** X_L = ωL = 10⁶ × 0.5 × 10⁻³ = 500 Ω。谐振要求 X_C = 500 Ω：C = 1/(ωX_C) = 1/(10⁶ × 500) = **2 nF**。",
+    "**2. 电流。** 谐振时 Z = R = 5 Ω（最小），I = 1 mV/5 Ω = **0.2 mA**，与 U_s 同相。",
+    "**3. 电容电压。** U_C = −jX_C·I = −j500 × 0.2 mA = −j0.1 V：有效值 **100 mV**，相位 **−90°**。",
+    "**4. 品质因数。** Q = ω₀L/R = 500/5 = 100 = U_C/U_s。串联谐振把微弱的电台信号“放大”了 100 倍送到后级；其他频率的电台不谐振，阻抗大得多，电流和 U_C 都很小——这就是谐振回路的选择性，Q 越高选择性越好。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Radio tuning circuit",
+      "tags": ["series resonance", "tuning", "quality factor Q", "selectivity"],
+      "statement": [
+        "The input circuit of a radio is modelled as a series RLC circuit: coil inductance L = 0.5 mH, coil resistance R = 5 Ω, and a variable capacitor C. The antenna picks up a station's signal V_s = 1∠0° mV (rms) at ω = 10⁶ rad/s.",
+        "C is adjusted so that the circuit resonates with this station. Find the required C, the loop current I at resonance, and the rms value and phase (relative to V_s) of the capacitor voltage V_C."
+      ],
+      "questions": [
+        {
+          "ask": "To resonate at ω = 10⁶ rad/s, what must C be set to?",
+          "choices": ["2 nF", "2 µF", "0.5 nF", "200 pF"],
+          "explain": "Resonance needs ωL = 1/(ωC): C = 1/(ω²L) = 1/(10¹² × 0.5 × 10⁻³) = 2 × 10⁻⁹ F = 2 nF. Then X_L = X_C = 500 Ω."
+        },
+        { "ask": "rms loop current at resonance I = ?", "explain": "At resonance Z = R = 5 Ω, so I = 1 mV / 5 Ω = 0.2 mA." },
+        { "ask": "rms capacitor voltage V_C = ?", "explain": "V_C = I·X_C = 0.2 mA × 500 Ω = 0.1 V = 100 mV, which is Q = ω₀L/R = 500/5 = 100 times the antenna signal." },
+        { "ask": "Phase of V_C (with V_s at 0°) = ?", "explain": "At resonance the current is in phase with V_s, and the capacitor voltage lags the current by 90°: V_C = −j100 mV, phase −90°." }
+      ],
+      "hints": [
+        "At resonance X_L = X_C: compute X_L = ωL first, then find C from X_C = 1/(ωC).",
+        "At resonance Z = R, I = V_s/R, and V_C = I·X_C = Q·V_s."
+      ],
+      "solution": [
+        "**1. Tuning capacitor.** X_L = ωL = 10⁶ × 0.5 × 10⁻³ = 500 Ω. Resonance needs X_C = 500 Ω: C = 1/(ωX_C) = 1/(10⁶ × 500) = **2 nF**.",
+        "**2. Current.** At resonance Z = R = 5 Ω (minimum), I = 1 mV/5 Ω = **0.2 mA**, in phase with V_s.",
+        "**3. Capacitor voltage.** V_C = −jX_C·I = −j500 × 0.2 mA = −j0.1 V: rms value **100 mV**, phase **−90°**.",
+        "**4. Quality factor.** Q = ω₀L/R = 500/5 = 100 = V_C/V_s. Series resonance 'amplifies' the weak station signal 100 times for the next stage; other stations are off resonance, see a much larger impedance and produce a far smaller current and V_C — that is the selectivity of a resonant circuit, and the higher Q, the better it is."
+      ]
+    }
+  }
+}

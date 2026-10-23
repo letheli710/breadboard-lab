@@ -1,0 +1,81 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "storage-11-charge-redistribution",
+  "chapter": "storage",
+  "title": "两个电容之间的电荷重新分配与能量损失",
+  "level": 4,
+  "tags": ["电荷守恒", "电容储能", "换路定则"],
+  "statement": [
+    "C1 = 6 µF 已充电到 12 V（上正下负），C2 = 3 µF 不带电，R = 1 kΩ。t = 0 时开关 S 闭合，C1 经 R 向 C2 充电。",
+    "求 i(0₊)、充电结束后的 u_C2(∞)、时间常数 τ，以及整个过程中 R 消耗的能量。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "C1", "type": "C", "from": [0, 0], "to": [0, 4], "value": "6u", "ic": 12 },
+      { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "open", "after": "closed" } },
+      { "ref": "R", "type": "R", "from": [5, 0], "to": [8, 0], "value": "1k" },
+      { "ref": "C2", "type": "C", "from": [10, 0], "to": [10, 4], "value": "3u", "ic": 0 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[4, 0], [5, 0]],
+      [[8, 0], [10, 0]],
+      [[10, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "notes": [{ "at": [3, -1], "text": "t = 0", "i18n": { "en": "t = 0" } }],
+    "marks": [
+      { "kind": "v", "el": "C1", "name": "u_C1" },
+      { "kind": "i", "el": "R", "name": "i" },
+      { "kind": "v", "el": "C2", "name": "u_C2" }
+    ]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "i0", "ask": "i(0₊) = ?", "find": { "kind": "i", "el": "R", "t": "0+" }, "answer": 0.012, "unit": "mA", "explain": "换路定则：u_C1(0₊) = 12 V，u_C2(0₊) = 0。R 两端电压为 12 − 0 = 12 V，i(0₊) = 12 V / 1 kΩ = 12 mA。" },
+    { "id": "uinf", "ask": "u_C2(∞) = ?", "find": { "kind": "v", "el": "C2", "t": "inf" }, "answer": 8, "unit": "V", "explain": "最终电流为零，两电容电压相等。上方结点的总电荷守恒：6 × 12 = (6 + 3)·u → u = 72/9 = 8 V。" },
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.002, "unit": "ms", "explain": "从 R 两端看，C1 与 C2 经地串联：C_eq = 6 × 3/(6 + 3) = 2 µF，τ = R·C_eq = 1000 × 2×10⁻⁶ = 2 ms。" },
+    { "id": "w", "ask": "整个过程中 R 消耗的能量为：", "choices": ["144 µJ", "432 µJ", "288 µJ", "0"], "correct": 0, "explain": "开始时 W = ½ × 6µ × 12² = 432 µJ；结束时 W = ½ × (6 + 3)µ × 8² = 288 µJ。少掉的 144 µJ（原来的 1/3）全部变成 R 中的热量，而且与 R 的大小无关。" }
+  ],
+  "hints": [
+    "t = 0₊ 时两个电容的电压都不能跃变，R 两端电压就是两者之差。",
+    "充电结束时电流为零，两电容电压相等；连接两个上极板的结点在换路前后电荷守恒。",
+    "比较前后的总储能 ½Cu²，差值就是电阻消耗的能量。"
+  ],
+  "solution": [
+    "**1. t = 0₊。** u_C1(0₊) = 12 V，u_C2(0₊) = 0，KVL：R·i = u_C1 − u_C2 → **i(0₊) = 12 mA**。",
+    "**2. 终值（电荷守恒）。** 换路后上方结点只连接两个电容的上极板（和 R），总电荷 q = C1·12 + C2·0 = 72 µC 不变。终态 u_C1 = u_C2 = u：(C1 + C2)·u = 72 µC → **u = 8 V**。",
+    "**3. 时间常数。** 对 R 而言 C1、C2 串联：C_eq = 2 µF，**τ = R·C_eq = 2 ms**。（i(t) = 12e^(−t/2ms) mA。）",
+    "**4. 能量。** W(0) = ½ × 6×10⁻⁶ × 144 = 432 µJ，W(∞) = ½ × 9×10⁻⁶ × 64 = 288 µJ，**R 消耗 144 µJ**。验算：∫₀^∞ i²R dt = (0.012)² × 1000 × τ/2 = 0.144 × 10⁻³ J = 144 µJ ✓。",
+    "**思考：** 结果与 R 无关——即使 R → 0，也会有 1/3 的能量损失（以电磁辐射、火花等形式），这是“两个理想电容直接并联”时能量不守恒的著名悖论的答案。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Charge redistribution between two capacitors and the energy lost",
+      "tags": ["charge conservation", "capacitor energy", "switching rule"],
+      "statement": [
+        "C1 = 6 µF is charged to 12 V (+ at the top), C2 = 3 µF is uncharged, R = 1 kΩ. At t = 0 switch S closes and C1 charges C2 through R.",
+        "Find i(0+), the final voltage u_C2(∞), the time constant τ, and the energy dissipated in R during the whole process."
+      ],
+      "questions": [
+        { "ask": "i(0+) = ?", "explain": "Switching rule: u_C1(0+) = 12 V, u_C2(0+) = 0. The voltage across R is 12 − 0 = 12 V, so i(0+) = 12 V / 1 kΩ = 12 mA." },
+        { "ask": "u_C2(∞) = ?", "explain": "Finally the current is zero and the two capacitor voltages are equal. The total charge on the top node is conserved: 6 × 12 = (6 + 3)·u → u = 72/9 = 8 V." },
+        { "ask": "τ = ?", "explain": "Seen from R, C1 and C2 are in series through ground: C_eq = 6 × 3/(6 + 3) = 2 µF, τ = R·C_eq = 1000 × 2×10⁻⁶ = 2 ms." },
+        { "ask": "The energy dissipated in R during the whole process is:", "choices": ["144 µJ", "432 µJ", "288 µJ", "0"], "explain": "Initially W = ½ × 6µ × 12² = 432 µJ; finally W = ½ × (6 + 3)µ × 8² = 288 µJ. The missing 144 µJ (one third) is all turned into heat in R — and it does not depend on the value of R." }
+      ],
+      "hints": [
+        "At t = 0+ neither capacitor voltage can jump, so the voltage across R is their difference.",
+        "When charging ends the current is zero and the two voltages are equal; the charge on the node joining the two top plates is conserved through the switching.",
+        "Compare the total stored energy ½Cu² before and after; the difference is what R dissipates."
+      ],
+      "solution": [
+        "**1. t = 0+.** u_C1(0+) = 12 V, u_C2(0+) = 0; KVL: R·i = u_C1 − u_C2 → **i(0+) = 12 mA**.",
+        "**2. Final value (charge conservation).** After switching, the top node joins only the two top plates (through R); the total charge q = C1·12 + C2·0 = 72 µC is unchanged. Finally u_C1 = u_C2 = u: (C1 + C2)·u = 72 µC → **u = 8 V**.",
+        "**3. Time constant.** As seen by R, C1 and C2 are in series: C_eq = 2 µF, **τ = R·C_eq = 2 ms** (i(t) = 12e^(−t/2ms) mA).",
+        "**4. Energy.** W(0) = ½ × 6×10⁻⁶ × 144 = 432 µJ, W(∞) = ½ × 9×10⁻⁶ × 64 = 288 µJ, so **R dissipates 144 µJ**. Check: ∫₀^∞ i²R dt = (0.012)² × 1000 × τ/2 = 0.144 × 10⁻³ J = 144 µJ ✓.",
+        "**Food for thought:** the result does not depend on R — even as R → 0, one third of the energy is lost (as radiation, sparks, …). This resolves the famous \"two ideal capacitors connected in parallel\" energy paradox."
+      ]
+    }
+  }
+}

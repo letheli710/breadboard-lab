@@ -1,0 +1,122 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "second-order-11-ccvs-negative-resistance",
+  "chapter": "second-order",
+  "title": "受控源改变阻尼状态",
+  "level": 5,
+  "tags": ["RLC 串联", "受控源 CCVS", "等效电阻", "欠阻尼"],
+  "statement": [
+    "图示电路中电容原已充电，u_C(0₋) = 10 V；R = 6 Ω，L = 1 H，C = 0.2 F。回路中串有电流控制电压源，电压为 4i（“+” 在左端），i 是电感中向下的电流。t = 0 时开关 S 闭合。",
+    "比较有无受控源时的阻尼状态，并求 t = 0.5 s 时的 i 和 u_C，以及此时受控源吸收的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "C", "type": "C", "from": [0, 0], "to": [0, 4], "value": 0.2, "ic": 10 },
+      { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "open", "after": "closed" } },
+      { "ref": "R", "type": "R", "from": [6, 0], "to": [9, 0], "value": 6 },
+      { "ref": "L", "type": "L", "from": [11, 0], "to": [11, 4], "value": 1 },
+      { "ref": "H", "type": "CCVS", "from": [4, 4], "to": [8, 4], "value": 4, "ctrl": { "i": "L" }, "label": "4i" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[4, 0], [6, 0]],
+      [[9, 0], [11, 0]],
+      [[11, 4], [8, 4]],
+      [[4, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [
+      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "i", "el": "L", "name": "i" }
+    ],
+    "notes": [{ "at": [3, -1], "text": "t = 0" }]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    {
+      "id": "without",
+      "ask": "如果把受控源换成短路线，放电过程属于哪种情况？",
+      "choices": ["过阻尼（s₁ = −1，s₂ = −5）", "临界阻尼（s = −3）", "欠阻尼（s = −1 ± j2）", "无阻尼"],
+      "correct": 0,
+      "explain": "无受控源：s² + 6s + 5 = 0 → s₁ = −1，s₂ = −5；R = 6 Ω > 2√(L/C) = 2√5 ≈ 4.47 Ω，过阻尼。"
+    },
+    {
+      "id": "with",
+      "ask": "接入受控源后，α 和 ω_d 为",
+      "choices": ["α = 1 s⁻¹，ω_d = 2 rad/s", "α = 3 s⁻¹，ω_d = 4 rad/s", "α = 5 s⁻¹，ω_d = 0（临界）", "α = 1 s⁻¹，ω_d = √5 rad/s"],
+      "correct": 0,
+      "explain": "沿电流 i 的方向绕行，受控源的电压是升高 4i，相当于 −4 Ω 的电阻：等效电阻 R_eq = 6 − 4 = 2 Ω。s² + 2s + 5 = 0 → s = −1 ± j2，α = 1 s⁻¹，ω_d = 2 rad/s，变成欠阻尼。"
+    },
+    {
+      "id": "i",
+      "ask": "t = 0.5 s 时 i = ?",
+      "find": { "kind": "i", "el": "L", "t": 0.5 },
+      "answer": 2.55189,
+      "unit": "A",
+      "explain": "i = U₀/(ω_d L)·e^(−αt) sin ω_d t = 5e^(−t) sin 2t A。t = 0.5 s：i = 5e^(−0.5) sin 1 ≈ 5 × 0.6065 × 0.8415 ≈ 2.552 A。"
+    },
+    {
+      "id": "ph",
+      "ask": "t = 0.5 s 时受控源吸收的功率 = ?",
+      "find": { "kind": "p", "el": "H", "t": 0.5 },
+      "answer": -26.04857,
+      "unit": "W",
+      "explain": "受控源电压 4i，电流 i 从它的 “−” 端流入、“+” 端流出（非关联），吸收功率 = −4i² = −4 × 2.552² ≈ −26.05 W，实际在发出功率——这就是它能“抵消”一部分电阻的原因。"
+    }
+  ],
+  "hints": [
+    "沿回路列 KVL：受控源的电压 4i 与 R 上的压降 6i 方向相反还是相同？",
+    "把受控源和 R 合并成等效电阻 R_eq = 6 − 4 = 2 Ω，再按普通 RLC 串联放电处理。",
+    "初始条件：u_C(0₊) = 10 V，i(0₊) = 0，所以 i = A·e^(−αt) sin ω_d t，A 由 di/dt(0₊) = u_C(0₊)/L 确定。"
+  ],
+  "solution": [
+    "**1. KVL。** 沿 i 的方向（C 正极板 → S → R → L → 受控源 → C 负极板）：u_C = R·i + L·di/dt − 4i（经过受控源时电压升高 4i）。所以 L·di/dt + (R − 4)i = u_C，i = −C·du_C/dt。",
+    "**2. 有无受控源对比。** 无受控源：s² + 6s + 5 = 0，**过阻尼**。有受控源：R_eq = 2 Ω，s² + 2s + 5 = 0 → **s = −1 ± j2**，α = 1 s⁻¹，ω_d = 2 rad/s，**欠阻尼**。",
+    "**3. i(t)。** i(0₊) = 0，di/dt(0₊) = [u_C(0₊) − R_eq·0]/L = 10 A/s。i = A·e^(−t) sin 2t，A·2 = 10 → A = 5：i = 5e^(−t) sin 2t A。t = 0.5 s：**i ≈ 2.552 A**。",
+    "**4. u_C(t)。** u_C = 10e^(−t)(cos 2t + 0.5 sin 2t) V，t = 0.5 s 时 u_C = 10e^(−0.5)(cos 1 + 0.5 sin 1) ≈ 5.829 V。",
+    "**5. 受控源功率。** 关联方向下它的电压为 −4i（电流从 “−” 到 “+”），P_H = −4i² ≈ **−26.05 W**（发出）。同一时刻 R 吸收 6i² ≈ 39.07 W，两者之和恰好是 R_eq = 2 Ω 吸收的 2i² ≈ 13.02 W。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "A dependent source changes the damping",
+      "tags": ["series RLC", "dependent source CCVS", "equivalent resistance", "underdamped"],
+      "statement": [
+        "The capacitor is initially charged, u_C(0−) = 10 V; R = 6 Ω, L = 1 H, C = 0.2 F. A current-controlled voltage source of 4i (\"+\" on the left) is in the loop, where i is the downward current in the inductor. Switch S closes at t = 0.",
+        "Compare the damping with and without the dependent source, and find i and u_C at t = 0.5 s and the power absorbed by the dependent source at that instant."
+      ],
+      "questions": [
+        {
+          "ask": "If the dependent source were replaced by a short, which case would the discharge be?",
+          "choices": ["Overdamped (s₁ = −1, s₂ = −5)", "Critically damped (s = −3)", "Underdamped (s = −1 ± j2)", "Undamped"],
+          "explain": "Without the dependent source: s² + 6s + 5 = 0 → s₁ = −1, s₂ = −5; R = 6 Ω > 2√(L/C) = 2√5 ≈ 4.47 Ω, overdamped."
+        },
+        {
+          "ask": "With the dependent source in place, α and ω_d are",
+          "choices": ["α = 1 s⁻¹, ω_d = 2 rad/s", "α = 3 s⁻¹, ω_d = 4 rad/s", "α = 5 s⁻¹, ω_d = 0 (critical)", "α = 1 s⁻¹, ω_d = √5 rad/s"],
+          "explain": "Going around the loop in the direction of i, the dependent source is a voltage rise of 4i — it acts like a −4 Ω resistor: R_eq = 6 − 4 = 2 Ω. s² + 2s + 5 = 0 → s = −1 ± j2, α = 1 s⁻¹, ω_d = 2 rad/s: now underdamped."
+        },
+        {
+          "ask": "i at t = 0.5 s = ?",
+          "explain": "i = U₀/(ω_d L)·e^(−αt) sin ω_d t = 5e^(−t) sin 2t A. At t = 0.5 s: i = 5e^(−0.5) sin 1 ≈ 5 × 0.6065 × 0.8415 ≈ 2.552 A."
+        },
+        {
+          "ask": "Power absorbed by the dependent source at t = 0.5 s = ?",
+          "explain": "The source has voltage 4i and the current i enters at its \"−\" end and leaves at \"+\" (not the passive convention), so the absorbed power is −4i² = −4 × 2.552² ≈ −26.05 W: it actually delivers power — that is how it cancels part of the resistance."
+        }
+      ],
+      "hints": [
+        "Write KVL around the loop: does the dependent source voltage 4i point the same way as the 6i drop across R, or the opposite way?",
+        "Combine the dependent source and R into an equivalent resistance R_eq = 6 − 4 = 2 Ω, then treat it as an ordinary series RLC discharge.",
+        "Initial conditions: u_C(0+) = 10 V and i(0+) = 0, so i = A·e^(−αt) sin ω_d t, with A from di/dt(0+) = u_C(0+)/L."
+      ],
+      "solution": [
+        "**1. KVL.** In the direction of i (C's + plate → S → R → L → dependent source → C's − plate): u_C = R·i + L·di/dt − 4i (the dependent source is a rise of 4i). So L·di/dt + (R − 4)i = u_C with i = −C·du_C/dt.",
+        "**2. With and without.** Without it: s² + 6s + 5 = 0, **overdamped**. With it: R_eq = 2 Ω, s² + 2s + 5 = 0 → **s = −1 ± j2**, α = 1 s⁻¹, ω_d = 2 rad/s, **underdamped**.",
+        "**3. i(t).** i(0+) = 0 and di/dt(0+) = [u_C(0+) − R_eq·0]/L = 10 A/s. i = A·e^(−t) sin 2t with 2A = 10 → A = 5: i = 5e^(−t) sin 2t A. At t = 0.5 s: **i ≈ 2.552 A**.",
+        "**4. u_C(t).** u_C = 10e^(−t)(cos 2t + 0.5 sin 2t) V; at t = 0.5 s, u_C = 10e^(−0.5)(cos 1 + 0.5 sin 1) ≈ 5.829 V.",
+        "**5. Dependent source power.** With the passive convention its voltage is −4i (the current goes from \"−\" to \"+\"), so P_H = −4i² ≈ **−26.05 W** (delivered). At the same instant R absorbs 6i² ≈ 39.07 W; the two add up to the 2i² ≈ 13.02 W absorbed by R_eq = 2 Ω."
+      ]
+    }
+  }
+}
