@@ -34,7 +34,7 @@
   "questions": [
     { "id": "uoc", "ask": "|U_oc| = ?", "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["ZL"] }, "answer": 7.071068, "unit": "V", "explain": "开路时 L 中电流 = −0.5U_c（全部来自受控源），结点方程解得 U_c = −j5 V，U_oc = (1 + j)U_c = 5 − j5 V，模 7.07 V。" },
     { "id": "zre", "ask": "Z_eq 的实部 = ?", "find": { "kind": "req", "port": ["a", "b"], "exclude": ["ZL"], "part": "re" }, "answer": 1, "unit": "Ω", "explain": "外加电源法：Us 置零、受控源保留，在 a 注入 1 A，解得 U_c = −j V，U_a = 1 + j V，所以 Z_eq = 1 + j1 Ω。" },
-    { "id": "zim", "ask": "Z_eq 的虚部 = ?", "find": { "kind": "req", "port": ["a", "b"], "exclude": ["ZL"], "part": "im" }, "answer": 1, "unit": "Ω", "explain": "Z_eq = 1 + j1 Ω（感性）。可用 U_oc/I_sc 验证：短路时 I_sc = 5 − j5 … 见完整解答。" },
+    { "id": "zim", "ask": "Z_eq 的虚部 = ?", "find": { "kind": "req", "port": ["a", "b"], "exclude": ["ZL"], "part": "im" }, "answer": 1, "unit": "Ω", "explain": "Z_eq = 1 + j1 Ω（感性）。也可用 U_oc/I_sc 验证：短路电流 I_sc = −j5 A，(5 − j5)/(−j5) = 1 + j Ω。" },
     { "id": "IL", "ask": "负载电流有效值 I_L = ?", "find": { "kind": "i", "el": "ZL" }, "answer": 1.414214, "unit": "A", "explain": "I_L = U_oc/(Z_eq + Z_L) = (5 − j5)/(1 + j + 4 − j) = (5 − j5)/5 = 1 − j A，|I_L| = 1.414 A。" }
   ],
   "hints": [
@@ -48,7 +48,7 @@
     "- 结点 c：(0.5 + j1 − j0.5)U_c − (−j0.5)U_a = 0.5 × 10 → (0.5 + j0.5)U_c + j0.5U_a = 5",
     "- 结点 a：−(−j0.5)U_c + (−j0.5)U_a = 0.5U_c → (j0.5 − 0.5)U_c = j0.5U_a → U_a = (1 + j)U_c",
     "代入：(0.5 + j0.5)U_c + j0.5(1 + j)U_c = jU_c = 5 → U_c = −j5 V，**U_oc = U_a = (1 + j)(−j5) = 5 − j5 V = 7.07∠−45° V**。",
-    "**3. 等效阻抗（外加电源法）。** Us 置零，从 a 注入 1 A：结点 c：(0.5 + j0.5)U_c + j0.5U_a = 0；结点 a：(−0.5 + j0.5)U_c − j0.5U_a = 1。两式相加：jU_c = 1 → U_c = −j，U_a = (−0.5 + j0.5)/(j0.5)… 即 U_a = 1 + j V，**Z_eq = 1 + j1 Ω**。",
+    "**3. 等效阻抗（外加电源法）。** Us 置零，从 a 注入 1 A：结点 c：(0.5 + j0.5)U_c + j0.5U_a = 0；结点 a：(−0.5 + j0.5)U_c − j0.5U_a = 1。两式相加：jU_c = 1 → U_c = −j V；再由结点 c：j0.5U_a = −(0.5 + j0.5)(−j) = −0.5 + j0.5 → U_a = 1 + j V，**Z_eq = 1 + j1 Ω**。",
     "**4. 验证（短路电流）。** a、b 短路时 U_a = 0：结点 c：(0.5 + j0.5)U_c = 5 → U_c = 5 − j5 V；短路电流 = L 中电流 + 受控源电流 = −j0.5U_c + 0.5U_c = (0.5 − j0.5)(5 − j5) = −j5 A。U_oc/I_sc = (5 − j5)/(−j5) = 1 + j Ω ✓。",
     "**5. 负载电流。** I_L = U_oc/(Z_eq + Z_L) = (5 − j5)/(5 + j0) = **1 − j A = 1.414∠−45° A**。"
   ],
@@ -63,7 +63,7 @@
       "questions": [
         { "ask": "|U_oc| = ?", "explain": "With the port open, the current in L is −0.5U_c (it all comes from the dependent source); the node equations give U_c = −j5 V and U_oc = (1 + j)U_c = 5 − j5 V, magnitude 7.07 V." },
         { "ask": "Real part of Z_eq = ?", "explain": "Test source: zero Us, keep the dependent source, inject 1 A into a. The solution is U_c = −j V, U_a = 1 + j V, so Z_eq = 1 + j1 Ω." },
-        { "ask": "Imaginary part of Z_eq = ?", "explain": "Z_eq = 1 + j1 Ω (inductive). It can be checked with U_oc/I_sc — see the full solution." },
+        { "ask": "Imaginary part of Z_eq = ?", "explain": "Z_eq = 1 + j1 Ω (inductive). Check with U_oc/I_sc: the short-circuit current is I_sc = −j5 A, and (5 − j5)/(−j5) = 1 + j Ω." },
         { "ask": "rms load current I_L = ?", "explain": "I_L = U_oc/(Z_eq + Z_L) = (5 − j5)/(1 + j + 4 − j) = (5 − j5)/5 = 1 − j A, |I_L| = 1.414 A." }
       ],
       "hints": [
@@ -77,7 +77,7 @@
         "- Node c: (0.5 + j1 − j0.5)U_c − (−j0.5)U_a = 0.5 × 10 → (0.5 + j0.5)U_c + j0.5U_a = 5",
         "- Node a: −(−j0.5)U_c + (−j0.5)U_a = 0.5U_c → (j0.5 − 0.5)U_c = j0.5U_a → U_a = (1 + j)U_c",
         "Substitute: (0.5 + j0.5)U_c + j0.5(1 + j)U_c = jU_c = 5 → U_c = −j5 V, **U_oc = U_a = (1 + j)(−j5) = 5 − j5 V = 7.07∠−45° V**.",
-        "**3. Equivalent impedance (test source).** Zero Us and inject 1 A into a: node c: (0.5 + j0.5)U_c + j0.5U_a = 0; node a: (−0.5 + j0.5)U_c − j0.5U_a = 1. Adding them: jU_c = 1 → U_c = −j, and then U_a = 1 + j V, so **Z_eq = 1 + j1 Ω**.",
+        "**3. Equivalent impedance (test source).** Zero Us and inject 1 A into a: node c: (0.5 + j0.5)U_c + j0.5U_a = 0; node a: (−0.5 + j0.5)U_c − j0.5U_a = 1. Adding them: jU_c = 1 → U_c = −j V; then node c gives j0.5U_a = −(0.5 + j0.5)(−j) = −0.5 + j0.5 → U_a = 1 + j V, so **Z_eq = 1 + j1 Ω**.",
         "**4. Check (short-circuit current).** With a, b shorted U_a = 0: node c: (0.5 + j0.5)U_c = 5 → U_c = 5 − j5 V; the short-circuit current = current in L + dependent-source current = −j0.5U_c + 0.5U_c = (0.5 − j0.5)(5 − j5) = −j5 A. U_oc/I_sc = (5 − j5)/(−j5) = 1 + j Ω ✓.",
         "**5. Load current.** I_L = U_oc/(Z_eq + Z_L) = (5 − j5)/(5 + j0) = **1 − j A = 1.414∠−45° A**."
       ]
