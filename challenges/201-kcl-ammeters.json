@@ -1,0 +1,83 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-kcl-ammeters",
+  "title": "实验 1-1 · 用三块电流表验证 KCL",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 1,
+  "summary": "在一个结点的三条支路里各串一块电流表：流进的电流 = 流出的电流之和。",
+  "concepts": ["KCL 基尔霍夫电流定律", "ammeter 电流表", "node 结点", "reference direction 参考方向"],
+  "description": "**实验目的**：亲手测量一个结点（node）上的所有电流，验证基尔霍夫电流定律（KCL）：流入任一结点的电流之和等于流出的电流之和，即 ΣI = 0。\n\n**电路**（面包板上已经搭好，只是还没有电流表）：+9V → R1（330Ω）→ 结点 N；从 N 分出两条支路到 GND：R2（1kΩ）和 R3（2.2kΩ）。\n三根黄色跳线就是要接电流表的位置：\n- AM1：R1 和 N 之间（测总电流 I1）；\n- AM2：N 和 R2 之间（测 I2）；\n- AM3：N 和 R3 之间（测 I3）。\n\n**怎么接电流表**：电流表必须**串联**——拔掉那根跳线，把电流表的两个表笔插在跳线原来的两个孔里。红表笔（+）放在电流流进来的一侧，黑表笔（COM）放在流出去的一侧。\n\n**先算一算**：R2 ∥ R3 = 1k × 2.2k / 3.2k = 687.5Ω，总电阻 330 + 687.5 = 1017.5Ω。\n- I1 = 9 / 1017.5 ≈ 8.84 mA；\n- N 点电压 = 8.84 mA × 687.5Ω ≈ 6.08 V；\n- I2 = 6.08 / 1000 ≈ 6.08 mA，I3 = 6.08 / 2200 ≈ 2.76 mA。\n\n**你应该看到**：AM1 ≈ 8.84 mA，AM2 ≈ 6.08 mA，AM3 ≈ 2.76 mA，而 6.08 + 2.76 = 8.84。每块电流表自己有 0.1Ω 内阻，对这个电路的影响不到 0.01%，可以忽略。\n\n**想一想**：如果把 AM3 的表笔接反，它会显示 −2.76 mA。电流并没有变，只是你选的参考方向（reference direction）和实际方向相反。KCL 用代数和来写就是 −I1 + I2 + I3 = 0，不管表笔怎么接，代数和永远是 0。（判分要求按上面说的方向接。）",
+  "i18n": {
+    "en": {
+      "title": "Experiment 1-1 · Verify KCL with three ammeters",
+      "summary": "Put an ammeter in each of the three branches at one node: the current flowing in equals the sum of the currents flowing out.",
+      "concepts": ["KCL (Kirchhoff's current law)", "ammeter", "node", "reference direction"],
+      "description": "**Goal**: measure every current at one node yourself and check Kirchhoff's current law (KCL): the currents flowing into any node add up to the currents flowing out, i.e. ΣI = 0.\n\n**Circuit** (already on the breadboard, just without ammeters): +9V → R1 (330Ω) → node N; from N two branches go to GND: R2 (1kΩ) and R3 (2.2kΩ).\nThe three yellow jumpers mark where the ammeters go:\n- AM1: between R1 and N (measures the total current I1);\n- AM2: between N and R2 (measures I2);\n- AM3: between N and R3 (measures I3).\n\n**How to connect an ammeter**: an ammeter must go **in series**. Pull out the jumper and plug the ammeter's two leads into the two holes the jumper used. The red lead (+) goes on the side the current comes from, the black lead (COM) on the side it leaves.\n\n**Work it out first**: R2 ∥ R3 = 1k × 2.2k / 3.2k = 687.5Ω, so the total resistance is 330 + 687.5 = 1017.5Ω.\n- I1 = 9 / 1017.5 ≈ 8.84 mA;\n- voltage at N = 8.84 mA × 687.5Ω ≈ 6.08 V;\n- I2 = 6.08 / 1000 ≈ 6.08 mA, I3 = 6.08 / 2200 ≈ 2.76 mA.\n\n**What you should see**: AM1 ≈ 8.84 mA, AM2 ≈ 6.08 mA, AM3 ≈ 2.76 mA, and 6.08 + 2.76 = 8.84. Each ammeter has 0.1Ω of internal resistance, which changes this circuit by less than 0.01%, so you can ignore it.\n\n**Think about it**: if you swap AM3's leads it shows −2.76 mA. The current hasn't changed; the reference direction you picked is simply opposite to the real one. Written as an algebraic sum, KCL is −I1 + I2 + I3 = 0, and that sum is always 0 however the leads are connected. (The checker wants the directions described above.)",
+      "hints": [
+        "Pull out one yellow jumper and plug the ammeter's two leads into the two free holes. That is what \"in series\" means.",
+        "Red lead toward where the current comes from: AM1's red lead on the R1 side; AM2's and AM3's red leads on the node N side (column 10).",
+        "A negative reading means the leads are reversed: swap that meter's two leads."
+      ],
+      "tests": ["Three ammeters: I1 ≈ 8.84 mA = I2 ≈ 6.08 mA + I3 ≈ 2.76 mA; N ≈ 6.08 V"]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "R1", "type": "resistor", "resistance": "330"},
+    {"ref": "AM1", "type": "ammeter"},
+    {"ref": "AM2", "type": "ammeter"},
+    {"ref": "AM3", "type": "ammeter"},
+    {"ref": "R2", "type": "resistor", "resistance": "1k"},
+    {"ref": "R3", "type": "resistor", "resistance": "2.2k"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "R1.1"]},
+    {"pins": ["R1.2", "AM1.+"]},
+    {"name": "N", "pins": ["AM1.-", "AM2.+", "AM3.+"]},
+    {"pins": ["AM2.-", "R2.1"]},
+    {"pins": ["AM3.-", "R3.1"]},
+    {"name": "GND", "pins": ["R2.2", "R3.2", "V1.-"]}
+  ],
+  "tests": [
+    {
+      "name": "三块电流表：I1 ≈ 8.84 mA = I2 ≈ 6.08 mA + I3 ≈ 2.76 mA；N 点 ≈ 6.08 V",
+      "currents": [
+        {"el": "AM1", "min": 0.0084, "max": 0.0093},
+        {"el": "AM2", "min": 0.0058, "max": 0.0064},
+        {"el": "AM3", "min": 0.00263, "max": 0.00291}
+      ],
+      "voltages": [{"pin": "AM1.-", "ref": "V1.-", "min": 5.8, "max": 6.4}]
+    }
+  ],
+  "hints": [
+    "拔掉一根黄色跳线，把电流表的两个表笔插进它空出来的两个孔：这就是“串联进电路”。",
+    "红表笔朝电流来的方向：AM1 的红表笔在 R1 那一侧，AM2 和 AM3 的红表笔都在结点 N（第 10 列）那一侧。",
+    "读数是负数说明表笔接反了：把这块表的两个表笔对调。"
+  ],
+  "start": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "330", "pins": {"1": "b3", "2": "b7"}},
+      {"type": "wire", "pins": {"a": "c7", "b": "c10"}, "color": "yellow"},
+      {"type": "resistor", "ref": "R2", "resistance": "1k", "pins": {"1": "b14", "2": "tn14"}},
+      {"type": "wire", "pins": {"a": "d10", "b": "d14"}, "color": "yellow"},
+      {"type": "resistor", "ref": "R3", "resistance": "2.2k", "pins": {"1": "b18", "2": "tn18"}},
+      {"type": "wire", "pins": {"a": "a10", "b": "a18"}, "color": "yellow"}
+    ]
+  },
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "330", "pins": {"1": "b3", "2": "b7"}},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "c7", "-": "c10"}},
+      {"type": "ammeter", "ref": "AM2", "pins": {"+": "d10", "-": "d14"}},
+      {"type": "resistor", "ref": "R2", "resistance": "1k", "pins": {"1": "b14", "2": "tn14"}},
+      {"type": "ammeter", "ref": "AM3", "pins": {"+": "a10", "-": "a18"}},
+      {"type": "resistor", "ref": "R3", "resistance": "2.2k", "pins": {"1": "b18", "2": "tn18"}}
+    ]
+  }
+}

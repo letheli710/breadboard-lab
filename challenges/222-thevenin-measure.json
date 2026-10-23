@@ -1,0 +1,75 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-thevenin-measure",
+  "title": "实验 2-2 · 测戴维宁等效：开路电压 + 短路电流",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 2,
+  "summary": "不拆电路，量两次：松开按键测开路电压 Uoc，按下按键用电流表测短路电流 Isc，Req = Uoc / Isc。",
+  "concepts": ["Thevenin equivalent 戴维宁等效", "open-circuit voltage 开路电压 Uoc", "short-circuit current 短路电流 Isc", "Req = Uoc / Isc"],
+  "description": "**实验目的**：任何线性有源二端网络，对外都等效于一个电压源 Uoc 串联一个电阻 Req。实验室里最直接的测法：测开路电压，再测短路电流。\n\n**被测网络**：+9V → R1（1kΩ）→ A；A → R2（2.2kΩ）→ GND；A → R3（470Ω）→ 端口 T。端口是 T 和 GND。\n**测量装置**：T → 按键 SW1 → 电流表 AM1（红表笔接按键）→ GND。\n\n**1. 开路电压**（按键松开，端口什么都不接）：R3 中没有电流，T 点电压就是 A 点电压：Uoc = 9 × 2.2 / 3.2 ≈ **6.19 V**（用万用表测 T 对 GND）。\n\n**2. 短路电流**（按下按键，电流表把 T 直接接到 GND）：电流表只有 0.1Ω，几乎就是短路。模拟器读数 Isc ≈ **5.34 mA**。\n\n**3. 算等效电阻**：Req = Uoc / Isc = 6.19 / 5.345 mA ≈ **1158Ω**。\n用“电源置零”法验证：9 V 电源换成短路，从 T 看进去是 R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5Ω ✔。\n\n所以这个网络对外等效于“6.19 V 串 1.16kΩ”。下一个实验（2-3）会用这个结果找最大功率。\n\n**安全提示**：短路电流法只适合 Isc 很小的网络（这里 5 mA）。千万不要直接短路电池或电源的输出端！",
+  "i18n": {
+    "en": {
+      "title": "Experiment 2-2 · Measure a Thevenin equivalent: open-circuit voltage + short-circuit current",
+      "summary": "Without taking the circuit apart, measure twice: button released for the open-circuit voltage Uoc, button pressed for the short-circuit current Isc on the ammeter; Req = Uoc / Isc.",
+      "concepts": ["Thevenin equivalent", "open-circuit voltage Uoc", "short-circuit current Isc", "Req = Uoc / Isc"],
+      "description": "**Goal**: any linear two-terminal network with sources is equivalent, from outside, to a voltage source Uoc in series with a resistance Req. The most direct lab method: measure the open-circuit voltage, then the short-circuit current.\n\n**Network under test**: +9V → R1 (1kΩ) → A; A → R2 (2.2kΩ) → GND; A → R3 (470Ω) → port T. The port is T and GND.\n**Measuring setup**: T → push button SW1 → ammeter AM1 (red lead at the button) → GND.\n\n**1. Open-circuit voltage** (button released, nothing on the port): no current in R3, so T is at the same voltage as A: Uoc = 9 × 2.2 / 3.2 ≈ **6.19 V** (measure T against GND with the multimeter).\n\n**2. Short-circuit current** (button pressed, the ammeter connects T straight to GND): the ammeter is only 0.1Ω, practically a short. The simulator reads Isc ≈ **5.34 mA**.\n\n**3. Equivalent resistance**: Req = Uoc / Isc = 6.19 / 5.345 mA ≈ **1158Ω**.\nCheck with the \"zero the sources\" method: replace the 9 V source by a short; looking in from T you see R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5Ω ✔.\n\nSo from outside, this network is \"6.19 V in series with 1.16kΩ\". The next experiment (2-3) uses this to find the maximum power.\n\n**Safety note**: the short-circuit method only suits networks with a small Isc (5 mA here). Never short the output of a battery or a power supply directly!",
+      "hints": [
+        "The push button straddles the gap: one side to T (the far end of R3), the other side to the ammeter's red lead.",
+        "The ammeter's black lead goes to GND.",
+        "With the button released, measure T against GND with the multimeter: that is the open-circuit voltage."
+      ],
+      "tests": [
+        "Released: open-circuit voltage Uoc ≈ 6.19 V, ammeter reads 0",
+        "Pressed: short-circuit current Isc ≈ 5.34 mA (port voltage ≈ 0)"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "R1", "type": "resistor", "resistance": "1k"},
+    {"ref": "R2", "type": "resistor", "resistance": "2.2k"},
+    {"ref": "R3", "type": "resistor", "resistance": "470"},
+    {"ref": "SW1", "type": "pushbutton"},
+    {"ref": "AM1", "type": "ammeter"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "R1.1"]},
+    {"name": "A", "pins": ["R1.2", "R2.1", "R3.1"]},
+    {"name": "T", "pins": ["R3.2", "SW1.1"]},
+    {"pins": ["SW1.2", "AM1.+"]},
+    {"name": "GND", "pins": ["AM1.-", "R2.2", "V1.-"]}
+  ],
+  "tests": [
+    {
+      "name": "松开：开路电压 Uoc ≈ 6.19 V，电流表读 0",
+      "set": {"SW1": {"pressed": false}},
+      "voltages": [{"pin": "R3.2", "ref": "V1.-", "min": 6.0, "max": 6.35}],
+      "currents": [{"el": "AM1", "min": -1e-06, "max": 1e-06}]
+    },
+    {
+      "name": "按下：短路电流 Isc ≈ 5.34 mA（端口电压 ≈ 0）",
+      "set": {"SW1": {"pressed": true}},
+      "currents": [{"el": "AM1", "min": 0.0052, "max": 0.0055}],
+      "voltages": [{"pin": "R3.2", "ref": "V1.-", "max": 0.01}]
+    }
+  ],
+  "hints": [
+    "按键横跨凹槽：一边接 T（R3 的另一端），另一边接电流表的红表笔。",
+    "电流表黑表笔接 GND。",
+    "松开按键时用万用表测 T 对 GND 的电压，就是开路电压。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b3", "2": "b7"}},
+      {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c7", "2": "tn8"}},
+      {"type": "resistor", "ref": "R3", "resistance": "470", "pins": {"1": "d7", "2": "d11"}},
+      {"type": "pushbutton", "ref": "SW1", "at": "e11"},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "g13", "-": "bn13"}},
+      {"type": "wire", "pins": {"a": "tn20", "b": "bn20"}, "color": "blue"}
+    ]
+  }
+}

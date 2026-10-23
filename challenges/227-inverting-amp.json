@@ -1,0 +1,93 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-inverting-amp",
+  "title": "实验 2-7 · 反相放大器：±9 V 双电源 + 信号发生器",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 2,
+  "summary": "RIN 10kΩ、RF 22kΩ，增益 −2.2：用示波器看 1 kHz 正弦被放大并反相，用直流偏置看符号，再输入过大看削顶。",
+  "concepts": ["inverting amplifier 反相放大器", "gain = −RF/RIN", "virtual ground 虚地", "dual supply 双电源"],
+  "description": "**实验目的**：搭反相放大器 Uo = −(RF/RIN) × Ui，用信号发生器和示波器观察放大、反相和削顶。\n\n**双电源**：两台 9 V 电源串联：V1 的 − 和 V2 的 + 接在一起作为 GND；V1 的 + 是 +9 V，接运放 8 脚 V+；V2 的 − 是 −9 V，接运放 4 脚 V−。这样输出可以是负的，交流信号不用加偏置。\n\n**电路**：IN+ 接 GND；信号发生器 FG1（黑夹子接 GND）→ RIN（10kΩ）→ IN−；RF（22kΩ）从 IN− 接到 OUT。\nLM358 横跨凹槽，每只脚独占一列：凹槽上方一排从左到右是 1 脚 OUT A、2 脚 IN− A、3 脚 IN+ A、4 脚 V−（这里接 −9 V）；下方一排从左到右是 8 脚 V+、7 脚 OUT B、6 脚 IN− B、5 脚 IN+ B。芯片里有两个运放，用 A、B 哪一个都可以。\n\n**原理**：IN+ 接地，虚短让 IN− 也是 0 V（**虚地**）。RIN 上的电流 Ui / RIN 全部流进 RF，所以 Uo = 0 − RF × Ui / RIN = **−2.2 Ui**。这个电路的输入电阻就是 RIN = 10kΩ。\n\n**测量**（在示波器上放两个探头：CH1 看输入，CH2 看输出）：\n1. 1 kHz 正弦、幅度 0.5 V（1 Vpp）：输出 ≈ **2.19 Vpp**，平均 0 V，和输入反相（相差 180°）。为什么不是 2.2 Vpp？信号发生器有 50Ω 输出电阻，接上 10kΩ 输入电阻后它的端口电压只有 1 × 10000 / 10050 ≈ 0.995 Vpp，以端口电压算增益正好 2.20；\n2. 加 1 V 直流偏置：输出平均值 ≈ **−2.19 V**——直流也被放大并反相；IN− 一直在 0 V（虚地）；\n3. 幅度 5 V（10 Vpp）：理论输出 22 Vpp，但输出最高只到 V+ − 1.5 = **+7.5 V**，最低到 V− = **−9 V**——上下削顶不对称，这是 LM358 的特点（输出能到负电源，到不了正电源）。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 2-7 · Inverting amplifier: ±9 V dual supply + function generator",
+      "summary": "RIN 10kΩ and RF 22kΩ give a gain of −2.2: watch a 1 kHz sine get amplified and inverted on the scope, use a DC offset to see the sign, then overdrive it to see clipping.",
+      "concepts": ["inverting amplifier", "gain = −RF/RIN", "virtual ground", "dual supply"],
+      "description": "**Goal**: build an inverting amplifier, Uo = −(RF/RIN) × Ui, and watch amplification, inversion and clipping with a function generator and a scope.\n\n**Dual supply**: two 9 V supplies in series: V1's − and V2's + joined as GND; V1's + is +9 V, to op-amp pin 8 (V+); V2's − is −9 V, to op-amp pin 4 (V−). Now the output can go negative and an AC signal needs no offset.\n\n**Circuit**: IN+ to GND; function generator FG1 (black clip to GND) → RIN (10kΩ) → IN−; RF (22kΩ) from IN− to OUT.\nThe LM358 straddles the gap, each pin on its own column: the row above the gap is, left to right, pin 1 OUT A, pin 2 IN− A, pin 3 IN+ A, pin 4 V− (−9 V here); the row below is, left to right, pin 8 V+, pin 7 OUT B, pin 6 IN− B, pin 5 IN+ B. The chip holds two op-amps; either A or B is fine.\n\n**How it works**: IN+ is grounded, and the virtual short keeps IN− at 0 V too (a **virtual ground**). The current Ui / RIN in RIN all flows on into RF, so Uo = 0 − RF × Ui / RIN = **−2.2 Ui**. The input resistance of this circuit is just RIN = 10kΩ.\n\n**Measure** (put two scope probes on the board: CH1 on the input, CH2 on the output):\n1. 1 kHz sine, amplitude 0.5 V (1 Vpp): the output is ≈ **2.19 Vpp**, average 0 V, inverted (180° apart). Why not 2.2 Vpp? The generator has a 50Ω output resistance, so with the 10kΩ input resistance its terminal voltage is only 1 × 10000 / 10050 ≈ 0.995 Vpp; measured against the terminal voltage, the gain is exactly 2.20;\n2. add a 1 V DC offset: the output average is ≈ **−2.19 V**: DC is amplified and inverted too; IN− stays at 0 V (virtual ground);\n3. amplitude 5 V (10 Vpp): in theory 22 Vpp out, but the output only reaches V+ − 1.5 = **+7.5 V** at the top and V− = **−9 V** at the bottom. The clipping is lopsided, typical of the LM358 (its output reaches the negative rail but not the positive one).",
+      "hints": [
+        "Dual supply: two 9 V supplies in series, the middle point is GND. V1 + → op-amp pin 8, V2 − → op-amp pin 4.",
+        "IN+ (pin 3) to GND; generator + → RIN → IN− (pin 2); RF between IN− and OUT (pin 1).",
+        "Place two scope probes (CH1 input, CH2 output), both ground clips on GND, and compare the two traces on the scope."
+      ],
+      "tests": [
+        "1 kHz, 1 Vpp sine: output ≈ 2.19 Vpp, gain ≈ 2.2, average 0 V",
+        "1 V offset added: output average ≈ −2.19 V, IN− ≈ 0 V (virtual ground)",
+        "10 Vpp input: the output clips at +7.5 V and −9 V"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "V2", "type": "dc_source", "voltage": 9},
+    {"ref": "U1", "type": "opamp"},
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "RIN", "type": "resistor", "resistance": "10k"},
+    {"ref": "RF", "type": "resistor", "resistance": "22k"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "U1.v+"]},
+    {"name": "GND", "pins": ["V1.-", "V2.+", "U1.in+", "FG1.-"]},
+    {"name": "VEE", "pins": ["V2.-", "U1.v-"]},
+    {"name": "VIN", "pins": ["FG1.+", "RIN.1"]},
+    {"name": "SUM", "pins": ["RIN.2", "RF.2", "U1.in-"]},
+    {"name": "VOUT", "pins": ["U1.out", "RF.1"]}
+  ],
+  "tests": [
+    {
+      "name": "1 kHz、1 Vpp 正弦：输出 ≈ 2.19 Vpp，增益 ≈ 2.2，平均 0 V",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 0}},
+      "scope": [
+        {"pin": "U1.out", "ref": "V1.-", "measure": "vpp", "min": 2.1, "max": 2.3},
+        {"pin": "U1.out", "ref": "V1.-", "measure": "gain", "vs": "FG1.+", "min": 2.1, "max": 2.3}
+      ],
+      "voltages": [{"pin": "U1.out", "ref": "V1.-", "min": -0.05, "max": 0.05}]
+    },
+    {
+      "name": "加 1 V 偏置：输出平均 ≈ −2.19 V，IN− ≈ 0 V（虚地）",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1}},
+      "voltages": [
+        {"pin": "U1.out", "ref": "V1.-", "min": -2.3, "max": -2.1},
+        {"pin": "U1.in-", "ref": "V1.-", "min": -0.01, "max": 0.01}
+      ]
+    },
+    {
+      "name": "输入 10 Vpp：输出在 +7.5 V 和 −9 V 处削顶",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 5, "offset": 0}},
+      "scope": [
+        {"pin": "U1.out", "ref": "V1.-", "measure": "vmax", "min": 7.3, "max": 7.6},
+        {"pin": "U1.out", "ref": "V1.-", "measure": "vmin", "min": -9.05, "max": -8.8}
+      ]
+    }
+  ],
+  "hints": [
+    "双电源：两台 9 V 电源串联，中点是 GND。V1 + → 运放 8 脚，V2 − → 运放 4 脚。",
+    "IN+（3 脚）接 GND；信号发生器 + → RIN → IN−（2 脚）；RF 在 IN− 和 OUT（1 脚）之间。",
+    "放两个示波器探头（CH1 输入、CH2 输出），黑夹子都接 GND，在示波器上对比两条波形。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "bench_supply", "ref": "PSU2", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tn2", "-": "bn1"}},
+      {"type": "opamp", "ref": "U1", "at": "e10"},
+      {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "d13", "b": "bn13"}, "color": "white"},
+      {"type": "wire", "pins": {"a": "a12", "b": "tn12"}, "color": "blue"},
+      {"type": "function_gen", "ref": "FG1", "pins": {"+": "a20", "-": "tn20"}},
+      {"type": "resistor", "ref": "RIN", "resistance": "10k", "pins": {"1": "b20", "2": "b11"}},
+      {"type": "resistor", "ref": "RF", "resistance": "22k", "pins": {"1": "c10", "2": "c11"}},
+      {"type": "scope_probe", "ref": "PR1", "pins": {"tip": "a10", "gnd": "tn22"}},
+      {"type": "scope_probe", "ref": "PR2", "pins": {"tip": "c20", "gnd": "tn23"}}
+    ]
+  }
+}

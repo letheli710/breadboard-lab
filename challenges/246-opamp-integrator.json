@@ -1,0 +1,149 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp3-opamp-integrator",
+  "title": "实验 3-6 · 运放积分器：方波变三角波",
+  "kind": "challenge",
+  "level": 5,
+  "phase": 3,
+  "summary": "用 LM358（单电源 9 V）搭一个反相积分器：1 kHz 方波输入，输出 0.5 Vpp 的三角波；正弦输入则输出余弦。",
+  "concepts": ["反相积分器 inverting integrator", "u_o = −(1/RC)∫u_i dt", "虚短 virtual short", "单电源偏置 single-supply bias", "直流反馈电阻 DC feedback resistor"],
+  "description": [
+    "**要搭的电路**（LM358 用 A 半或 B 半都行）：",
+    "- 电源：9 V 接 8 脚 V+，GND 接 4 脚 V−。",
+    "- 偏置：RB1（10 kΩ）从 +9 V 到 IN+，RB2（10 kΩ）从 IN+ 到 GND，IN+ 被定在 VREF = 4.5 V（电源中点）。",
+    "- 输入：信号发生器红夹子 → CIN（10 µF，隔直）→ RIN（10 kΩ）→ IN−。黑夹子接 GND。",
+    "- 反馈：CF（100 nF）接在 IN− 和 OUT 之间；RP（100 kΩ）和 CF 并联。",
+    "**信号发生器**：方波，幅度 1 V、偏置 0，频率 1 kHz。",
+    "**示波器**：CH1 看信号发生器输出，CH2 看运放 OUT。",
+    "",
+    "**原理**：负反馈让 IN− 跟着 IN+ 保持在 4.5 V（虚短），输入不取电流（虚断）。于是流过 RIN 的电流 i = u_i/RIN 全部流进 CF，电容电压 = 输入电流的积分：u_o − 4.5 V = −(1/(RIN·CF))∫u_i dt。",
+    "方波 ±1 V 时，每半周期输出以恒定斜率 1 V/(10 kΩ × 100 nF) = 1000 V/s 直线变化，半周期 0.5 ms 走 0.5 V：**输出是 0.5 Vpp 的三角波，中心 4.5 V**。输入为正时输出下降（反相）。",
+    "和实验 3-2 的 RC 积分电路比：RC 电路要求 τ ≫ T 才“像”积分，输出也很小；运放积分器靠虚短让电阻电流不受输出影响，在很宽的频率范围里都是真正的积分，幅度可以做大。",
+    "",
+    "**为什么需要这些“辅助”元件**：",
+    "- **RB1/RB2**：单电源运放的输出只能在 0 ~ 7.5 V（V+ − 1.5 V）之间，所以把参考点抬到 4.5 V，三角波才能上下摆动。",
+    "- **CIN**：信号发生器的输出以 GND 为中心，而 IN− 在 4.5 V；CIN 隔开这 4.5 V 的直流差（CIN·RIN = 0.1 s，对 1 kHz 来说就是一根导线）。",
+    "- **RP**：电容对直流开路，没有 RP 时运放在直流下是开环的，任何一点点直流误差都会被一直积分下去，输出很快撞到电源轨不动了（在仿真里会卡在 7.5 V）。RP 给直流一条反馈路径（直流增益 −RP/RIN = −10），代价是低频时不再是理想积分：在 1 kHz，RP·CF = 10 ms 远大于半周期，几乎看不出影响。",
+    "",
+    "**多试几个设置**：",
+    "- 2 kHz 方波：三角波斜率不变，时间减半，Vpp 减半到 ≈ 0.25 V。",
+    "- 1 kHz 正弦（幅度 1 V）：积分 sin 得到 −cos，输出是同频正弦，幅度 1 V/(ωRC) = 1/(2π × 1000 × 1 ms) ≈ 0.16 V（≈ 0.32 Vpp），相位超前输入约 90°（反相 180° + 积分 −90°；RP 让它多出约 1°，示波器读数约 91°）。",
+    "- 100 Hz 方波：半周期 5 ms 已经和 RP·CF = 10 ms 相当，RP 的影响出来了——边沿变成指数曲线，Vpp ≈ 2 × 10 × tanh(T/(4·RP·CF)) ≈ 4.9 V，比理想积分的 10 V 小得多。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 3-6 · Op-amp integrator: square in, triangle out",
+      "summary": "Build an inverting integrator with an LM358 on a single 9 V supply: a 1 kHz square wave in, a 0.5 Vpp triangle out; a sine in gives a cosine out.",
+      "concepts": ["inverting integrator", "u_o = −(1/RC)∫u_i dt", "virtual short", "single-supply bias", "DC feedback resistor"],
+      "description": [
+        "**What you build** (either half of the LM358 is fine):",
+        "- Power: 9 V to pin 8 (V+), GND to pin 4 (V−).",
+        "- Bias: RB1 (10 kΩ) from +9 V to IN+, RB2 (10 kΩ) from IN+ to GND, fixing IN+ at VREF = 4.5 V (mid-supply).",
+        "- Input: generator red clip → CIN (10 µF, DC block) → RIN (10 kΩ) → IN−. Black clip to GND.",
+        "- Feedback: CF (100 nF) between IN− and OUT; RP (100 kΩ) in parallel with CF.",
+        "**Generator**: square wave, amplitude 1 V, offset 0, 1 kHz.",
+        "**Scope**: CH1 on the generator output, CH2 on the op-amp OUT.",
+        "",
+        "**Theory**: negative feedback holds IN− at the same 4.5 V as IN+ (virtual short), and the inputs draw no current (virtual open). So the current through RIN, i = u_i/RIN, all flows into CF, and the capacitor voltage is the integral of the input: u_o − 4.5 V = −(1/(RIN·CF))∫u_i dt.",
+        "With a ±1 V square wave the output ramps at a constant slope of 1 V/(10 kΩ × 100 nF) = 1000 V/s for each half period, covering 0.5 V in 0.5 ms: **the output is a 0.5 Vpp triangle centred on 4.5 V**. While the input is positive the output falls (inverting).",
+        "Compared with the RC integrator of Experiment 3-2: the RC circuit only \"looks like\" an integrator when τ ≫ T, and its output is tiny; the op-amp integrator uses the virtual short so the resistor current doesn't depend on the output, giving a true integral over a wide frequency range and a large output.",
+        "",
+        "**Why the \"helper\" parts are needed**:",
+        "- **RB1/RB2**: a single-supply op-amp output can only move between 0 and 7.5 V (V+ − 1.5 V), so the reference is lifted to 4.5 V to give the triangle room to swing both ways.",
+        "- **CIN**: the generator output is centred on GND, but IN− sits at 4.5 V; CIN blocks that 4.5 V DC difference (CIN·RIN = 0.1 s, so at 1 kHz it is just a wire).",
+        "- **RP**: a capacitor is open at DC, so without RP the op-amp runs open-loop at DC and integrates any tiny DC error forever — the output soon hits a rail and stays there (in the simulator it sticks at 7.5 V). RP gives DC a feedback path (DC gain −RP/RIN = −10); the price is a less-than-ideal integrator at low frequencies. At 1 kHz, RP·CF = 10 ms is far longer than half a period and the effect is hardly visible.",
+        "",
+        "**Try more settings**:",
+        "- 2 kHz square: same slope, half the time, so Vpp halves to ≈ 0.25 V.",
+        "- 1 kHz sine (1 V amplitude): integrating sin gives −cos, so the output is a sine of the same frequency with amplitude 1 V/(ωRC) = 1/(2π × 1000 × 1 ms) ≈ 0.16 V (≈ 0.32 Vpp), leading the input by about 90° (inversion 180° + integration −90°; RP adds about 1°, so the scope reads about 91°).",
+        "- 100 Hz square: the 5 ms half period is now comparable with RP·CF = 10 ms and RP shows: the edges turn exponential and Vpp ≈ 2 × 10 × tanh(T/(4·RP·CF)) ≈ 4.9 V, far below the 10 V an ideal integrator would give."
+      ],
+      "hints": [
+        "Power first: pin 8 to +9 V, pin 4 to GND. The chip must straddle the centre gap.",
+        "RB1 and RB2 form a divider whose middle goes to IN+ (4.5 V).",
+        "CF and RP both go between IN− and OUT (in parallel); the input path is generator → CIN → RIN → IN−."
+      ],
+      "tests": [
+        "1 kHz square: a ≈ 0.5 Vpp triangle centred on 4.5 V, ≈ +90° from the input",
+        "2 kHz square: half the time, half the height (≈ 0.25 Vpp)",
+        "1 kHz sine: integral of a sine is a (−)cosine — ≈ 0.32 Vpp, ≈ +90°",
+        "100 Hz square: RP's leak shows — ≈ 4.9 Vpp instead of 10 V, no clipping"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "U1", "type": "opamp" },
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "RB1", "type": "resistor", "resistance": "10k" },
+    { "ref": "RB2", "type": "resistor", "resistance": "10k" },
+    { "ref": "CIN", "type": "capacitor", "capacitance": "10u" },
+    { "ref": "RIN", "type": "resistor", "resistance": "10k" },
+    { "ref": "CF", "type": "capacitor", "capacitance": "100n" },
+    { "ref": "RP", "type": "resistor", "resistance": "100k" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["V1.+", "U1.v+", "RB1.1"] },
+    { "name": "GND", "pins": ["V1.-", "U1.v-", "RB2.2", "FG1.-"] },
+    { "name": "VREF", "pins": ["RB1.2", "RB2.1", "U1.in+"] },
+    { "name": "VIN", "pins": ["FG1.+", "CIN.1"] },
+    { "name": "N1", "pins": ["CIN.2", "RIN.1"] },
+    { "name": "SUM", "pins": ["RIN.2", "U1.in-", "CF.1", "RP.1"] },
+    { "name": "VOUT", "pins": ["U1.out", "CF.2", "RP.2"] }
+  ],
+  "tests": [
+    {
+      "name": "1 kHz 方波：≈ 0.5 Vpp 三角波，中心 4.5 V，相对输入 ≈ +90°",
+      "set": { "FG1": { "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "U1.out", "measure": "vpp", "min": 0.47, "max": 0.53 },
+        { "pin": "U1.out", "measure": "vavg", "min": 4.4, "max": 4.6 },
+        { "pin": "U1.out", "measure": "phase", "vs": "FG1.+", "min": 87, "max": 95 }
+      ]
+    },
+    {
+      "name": "2 kHz 方波：时间减半，三角波高度减半（≈ 0.25 Vpp）",
+      "set": { "FG1": { "waveform": "square", "frequency": 2000, "amplitude": 1, "offset": 0 } },
+      "scope": [{ "pin": "U1.out", "measure": "vpp", "min": 0.235, "max": 0.265 }]
+    },
+    {
+      "name": "1 kHz 正弦：正弦的积分是（负）余弦——≈ 0.32 Vpp，≈ +90°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "U1.out", "measure": "vpp", "min": 0.3, "max": 0.335 },
+        { "pin": "U1.out", "measure": "phase", "vs": "FG1.+", "min": 87, "max": 95 }
+      ]
+    },
+    {
+      "name": "100 Hz 方波：RP 的“漏电”显现——≈ 4.9 Vpp 而不是 10 V，且不削顶",
+      "set": { "FG1": { "waveform": "square", "frequency": 100, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "U1.out", "measure": "vpp", "min": 4.6, "max": 5.1 },
+        { "pin": "U1.out", "measure": "vmax", "max": 7.3 }
+      ]
+    }
+  ],
+  "hints": [
+    "先供电：8 脚接 +9 V，4 脚接 GND。芯片要横跨中间凹槽。",
+    "RB1、RB2 组成分压器，中点接 IN+（4.5 V）。",
+    "CF 和 RP 都接在 IN− 和 OUT 之间（并联）；输入路径是 信号发生器 → CIN → RIN → IN−。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "opamp", "ref": "U1", "at": "e10" },
+      { "type": "wire", "pins": { "a": "tp10", "b": "j10" }, "color": "red" },
+      { "type": "wire", "pins": { "a": "a13", "b": "tn13" }, "color": "blue" },
+      { "type": "resistor", "ref": "RB1", "resistance": "10k", "pins": { "1": "tp12", "2": "a12" } },
+      { "type": "resistor", "ref": "RB2", "resistance": "10k", "pins": { "1": "b12", "2": "tn12" } },
+      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "capacitor", "ref": "CIN", "capacitance": "10u", "pins": { "1": "b3", "2": "b7" } },
+      { "type": "resistor", "ref": "RIN", "resistance": "10k", "pins": { "1": "c7", "2": "c11" } },
+      { "type": "capacitor", "ref": "CF", "capacitance": "100n", "pins": { "1": "d11", "2": "d10" } },
+      { "type": "resistor", "ref": "RP", "resistance": "100k", "pins": { "1": "b11", "2": "b10" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "d3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "a10", "gnd": "tn21" } }
+    ]
+  }
+}

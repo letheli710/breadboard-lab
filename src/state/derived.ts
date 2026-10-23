@@ -2,7 +2,7 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { boardDiagnostics, type Issue } from '../core/diagnostics';
 import { buildNetlist, isFloating, type BoardNetlist } from '../core/netlist';
 import { simulate, type LedState, type SimResult } from '../core/solver';
-import { hasGenerator, simulateTransient, type AcLedState, type MeterReading, type TransientResult } from '../core/transient';
+import { hasGenerator, simulateTransient, vavg, vpp, type AcLedState, type MeterReading, type TransientResult } from '../core/transient';
 import type { Layout } from '../core/types';
 import { useStore } from './store';
 
@@ -136,6 +136,33 @@ export function ammeterReading(d: Pick<Derived, 'sim' | 'ac'>, ref: string): num
 /** AC statistics of an ammeter (null without a generator). */
 export function ammeterAc(d: Pick<Derived, 'ac'>, ref: string): MeterReading | null {
   return d.ac?.meters.get(ref) ?? null;
+}
+
+/** Average (DC) value and peak-to-peak swing of a node under AC. */
+export interface NodeAc {
+  avg: number;
+  pp: number;
+}
+
+const nodeAcCache = new WeakMap<TransientResult, Map<string, NodeAc | null>>();
+
+/** A node's average + peak-to-peak from the memoised transient result (vs. ground); null when
+ *  there is no transient result or the net is not in it (DC board, floating node, or a stale
+ *  result from an earlier layout), in which case callers show the DC operating point. */
+export function nodeAc(d: Pick<Derived, 'ac'>, net: string | null | undefined): NodeAc | null {
+  const ac = d.ac;
+  if (!ac || !net) return null;
+  let m = nodeAcCache.get(ac);
+  if (!m) nodeAcCache.set(ac, (m = new Map()));
+  if (m.has(net)) return m.get(net)!;
+  let r: NodeAc | null = null;
+  if (net === ac.ground) r = { avg: 0, pp: 0 };
+  else if (ac.nets.includes(net)) {
+    const x = ac.v(net);
+    r = { avg: vavg(x), pp: vpp(x) };
+  }
+  m.set(net, r);
+  return r;
 }
 
 // ---------------------------------------------------------------------------------------

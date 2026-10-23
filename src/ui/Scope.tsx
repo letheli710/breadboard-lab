@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { formatSI, volts } from '../core/format';
 import { tr } from '../core/i18n';
-import { phaseDeg, vavg, vmax, vmin, vpp, vrms } from '../core/transient';
+import { freq, phaseDeg, vavg, vmax, vmin, vpp, vrms } from '../core/transient';
 import { useScopeData, type ScopeChannelData, type ScopeData } from '../state/derived';
 import { useStore } from '../state/store';
 import { CH_COLORS } from '../three/common';
@@ -46,36 +46,12 @@ function stats(ch: ScopeChannelData, data: ScopeData): ChStats {
     vrms: vrms(v),
     vmax: vmax(v),
     vmin: vmin(v),
-    freq: data.ac ? periodicFreq(v, data.dt) : 0,
+    freq: data.ac ? freq(v, data.dt) : 0,
   };
 }
 
 /** Frequency from rising mid-level crossings, treating the window as periodic (it holds whole
  *  periods), so a crossing right at the start of the window is counted too. */
-function periodicFreq(v: ArrayLike<number>, dt: number): number {
-  const n = v.length;
-  const hi = vmax(v);
-  const lo = vmin(v);
-  if (!(hi - lo > 1e-4 * Math.max(1, Math.abs(hi), Math.abs(lo))) || n < 4) return 0;
-  const level = (hi + lo) / 2;
-  const hy = (hi - lo) * 0.1;
-  // start from the lowest sample so we begin "armed"
-  let start = 0;
-  for (let i = 1; i < n; i++) if (v[i] < v[start]) start = i;
-  let armed = true;
-  let count = 0;
-  for (let k = 1; k <= n; k++) {
-    const a = v[(start + k - 1) % n];
-    const b = v[(start + k) % n];
-    if (b < level - hy) armed = true;
-    if (armed && a < level && b >= level) {
-      count++;
-      armed = false;
-    }
-  }
-  return count / (n * dt);
-}
-
 function autoTdiv(data: ScopeData): number {
   // about 2.5 periods across the screen
   return data.period ? ceilStep(T_STEPS, (data.period * 2.5) / DIV_X) : 1e-3;

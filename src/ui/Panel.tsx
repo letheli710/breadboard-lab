@@ -3,11 +3,12 @@ import type { Challenge } from '../core/challenge';
 import { checkCircuit } from '../core/check';
 import type { Issue } from '../core/diagnostics';
 import { stripLabel, HOLE_MAP } from '../core/breadboard';
+import { formatSI, volts } from '../core/format';
 import { tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
 import { describeComponent, PARTS, terminalLabel } from '../core/parts';
 import { simulate } from '../core/solver';
-import { useActiveChallenge, useDerived } from '../state/derived';
+import { nodeAc, useActiveChallenge, useDerived, type Derived } from '../state/derived';
 import { useStore, type PanelTab } from '../state/store';
 import { Icon } from './Icons';
 import { Inspector } from './Inspector';
@@ -267,8 +268,23 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   );
 }
 
+/** Netlist voltage cell: DC value, or average + AC swing when a generator is on the board. */
+function NodeVolt({ d, net }: { d: Derived; net: string }) {
+  const a = nodeAc(d, net);
+  if (!a) return <>{(d.sim.nodeV.get(net) ?? 0).toFixed(2)}V</>;
+  return (
+    <>
+      <div>
+        {tr('平均', 'avg')} {volts(a.avg)}
+      </div>
+      <div className="ac">{a.pp >= 1e-3 ? `${tr('交流', 'AC')} ${formatSI(a.pp, 'Vpp')}` : tr('无交流', 'no AC')}</div>
+    </>
+  );
+}
+
 function SchematicPanel() {
-  const { nl, sim } = useDerived();
+  const d = useDerived();
+  const { nl, sim, ac } = d;
   const hoverNet = useStore((s) => s.hoverNet);
   const hoverHole = useStore((s) => s.hoverHole);
   const setHoverNet = useStore((s) => s.setHoverNet);
@@ -281,7 +297,7 @@ function SchematicPanel() {
     <div className="schem-panel">
       <div className="eyebrow">{tr('我的电路 · 由面包板自动生成', 'My circuit · generated from the breadboard')}</div>
       <div className="schem-card">
-        <SchematicView circuit={nl.circuit} sim={sim} hoverNet={activeNet} onHoverNet={setHoverNet} />
+        <SchematicView circuit={nl.circuit} sim={sim} ac={ac} hoverNet={activeNet} onHoverNet={setHoverNet} />
       </div>
       <p className="note">
         {tr(
@@ -309,7 +325,9 @@ function SchematicPanel() {
                     <td>
                       <b>{isFloating(n.name) ? tr('悬空', 'floating') : n.name}</b>
                     </td>
-                    <td>{(sim.nodeV.get(n.name) ?? 0).toFixed(2)}V</td>
+                    <td className="volt">
+                      <NodeVolt d={d} net={n.name} />
+                    </td>
                     <td>
                       {n.pins.map((p) => {
                         const [ref, pin] = [p.slice(0, p.lastIndexOf('.')), p.slice(p.lastIndexOf('.') + 1)];

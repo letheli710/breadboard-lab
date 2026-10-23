@@ -1,0 +1,83 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-max-power",
+  "title": "实验 2-3 · 最大功率传输：转电位器找功率最大点",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 2,
+  "summary": "给实验 2-2 的网络接一个可变负载，测电压和电流算功率：RL = Req ≈ 1.16kΩ 时功率最大，约 8.27 mW。",
+  "concepts": ["maximum power transfer 最大功率传输", "RL = Req", "Pmax = Uoc² / (4Req)", "efficiency 效率"],
+  "description": "**实验目的**：负载电阻取多大时，从电源网络得到的功率最大？\n\n**电路**：实验 2-2 的网络（+9V → R1 1kΩ → A；A → R2 2.2kΩ → GND；A → R3 470Ω → T），T → 电流表 AM1（红表笔接 T）→ 负载 RV1 → GND。\nRV1 是 2.2kΩ 电位器当可变电阻：1 脚接电流表黑表笔，滑动端和 3 脚连在一起接 GND，RL = 2.2kΩ × 旋钮位置。\n\n**理论**：网络等效为 Uoc = 6.19 V 串 Req = 1158Ω（实验 2-2）。负载功率 P = Uoc² × RL / (Req + RL)²，当 **RL = Req** 时最大：Pmax = Uoc² / (4Req) = 6.19² / 4632 ≈ **8.27 mW**。\n\n**测量**（P = 负载电压 × 电流表读数）：\n- 25%（RL = 550Ω）：U ≈ 1.99 V，I ≈ 3.62 mA，P ≈ **7.2 mW**；\n- 53%（RL ≈ 1166Ω ≈ Req）：U ≈ 3.10 V，I ≈ 2.66 mA，P ≈ **8.27 mW**（最大）；\n- 100%（RL = 2.2kΩ）：U ≈ 4.05 V，I ≈ 1.84 mA，P ≈ **7.5 mW**。\n可以多试几个位置，把 P–RL 曲线画出来：它在 RL = Req 处有一个平缓的峰。\n\n**效率只有一半吗？** 对等效电路来说，最大功率时负载和 Req 各分一半，效率 50%。但对真实电路要重新算：53% 时 9 V 电源输出 4.64 mA，也就是 41.8 mW，只有 8.27 mW（约 20%）到了负载。等效电路只对外等效，内部功率不能用它来算（和实验 1-8 一样）。\n这也是为什么电力系统追求高效率（RL ≫ Req），而通信、传感器电路才追求“匹配”取最大功率。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 2-3 · Maximum power transfer: turn the pot to find the peak",
+      "summary": "Put a variable load on the network from Experiment 2-2, measure voltage and current and compute the power: it peaks at about 8.27 mW when RL = Req ≈ 1.16kΩ.",
+      "concepts": ["maximum power transfer", "RL = Req", "Pmax = Uoc² / (4Req)", "efficiency"],
+      "description": "**Goal**: which load resistance gets the most power out of a source network?\n\n**Circuit**: the network from Experiment 2-2 (+9V → R1 1kΩ → A; A → R2 2.2kΩ → GND; A → R3 470Ω → T), then T → ammeter AM1 (red lead at T) → load RV1 → GND.\nRV1 is a 2.2kΩ pot used as a variable resistor: pin 1 to the ammeter's black lead, wiper and pin 3 joined to GND, RL = 2.2kΩ × knob position.\n\n**Theory**: the network is equivalent to Uoc = 6.19 V in series with Req = 1158Ω (Experiment 2-2). The load power is P = Uoc² × RL / (Req + RL)², largest when **RL = Req**: Pmax = Uoc² / (4Req) = 6.19² / 4632 ≈ **8.27 mW**.\n\n**Measure** (P = load voltage × ammeter reading):\n- 25% (RL = 550Ω): U ≈ 1.99 V, I ≈ 3.62 mA, P ≈ **7.2 mW**;\n- 53% (RL ≈ 1166Ω ≈ Req): U ≈ 3.10 V, I ≈ 2.66 mA, P ≈ **8.27 mW** (the maximum);\n- 100% (RL = 2.2kΩ): U ≈ 4.05 V, I ≈ 1.84 mA, P ≈ **7.5 mW**.\nTry more positions and sketch the P–RL curve: it has a flat peak at RL = Req.\n\n**Is the efficiency only one half?** For the equivalent circuit, at maximum power the load and Req get half each: 50%. For the real circuit you must recalculate: at 53% the 9 V supply delivers 4.64 mA, i.e. 41.8 mW, and only 8.27 mW (about 20%) reaches the load. The equivalent is only equivalent to the outside; it can't tell you the power inside (just like Experiment 1-8).\nThat is why power systems aim for high efficiency (RL ≫ Req), while communication and sensor circuits aim for \"matching\" to get the most power.",
+      "hints": [
+        "First build the Experiment 2-2 network (R1, R2, R3); the port is the far end of R3, T.",
+        "Ammeter red lead at T, black lead to pin 1 of the pot; join the pot's wiper and pin 3 and take them to GND.",
+        "At 0% the knob gives RL = 0 (a short); at 100% RL = 2.2kΩ."
+      ],
+      "tests": [
+        "25% (RL = 550 Ω): I ≈ 3.62 mA, U ≈ 1.99 V → P ≈ 7.2 mW",
+        "53% (RL ≈ 1.17 kΩ ≈ Req): I ≈ 2.66 mA, U ≈ 3.10 V → P ≈ 8.27 mW (maximum)",
+        "100% (RL = 2.2 kΩ): I ≈ 1.84 mA, U ≈ 4.05 V → P ≈ 7.5 mW"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "R1", "type": "resistor", "resistance": "1k"},
+    {"ref": "R2", "type": "resistor", "resistance": "2.2k"},
+    {"ref": "R3", "type": "resistor", "resistance": "470"},
+    {"ref": "AM1", "type": "ammeter"},
+    {"ref": "RV1", "type": "potentiometer", "resistance": "2.2k"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "R1.1"]},
+    {"name": "A", "pins": ["R1.2", "R2.1", "R3.1"]},
+    {"name": "T", "pins": ["R3.2", "AM1.+"]},
+    {"name": "L", "pins": ["AM1.-", "RV1.1"]},
+    {"name": "GND", "pins": ["RV1.2", "RV1.3", "R2.2", "V1.-"]}
+  ],
+  "tests": [
+    {
+      "name": "25%（RL = 550 Ω）：I ≈ 3.62 mA，U ≈ 1.99 V → P ≈ 7.2 mW",
+      "set": {"RV1": {"wiper": 0.25}},
+      "currents": [{"el": "AM1", "min": 0.00345, "max": 0.0038}],
+      "voltages": [{"pin": "RV1.1", "ref": "V1.-", "min": 1.98, "max": 2.2}]
+    },
+    {
+      "name": "53%（RL ≈ 1.17 kΩ ≈ Req）：I ≈ 2.66 mA，U ≈ 3.10 V → P ≈ 8.27 mW（最大）",
+      "set": {"RV1": {"wiper": 0.53}},
+      "currents": [{"el": "AM1", "min": 0.00255, "max": 0.0028}],
+      "voltages": [{"pin": "RV1.1", "ref": "V1.-", "min": 2.98, "max": 3.22}]
+    },
+    {
+      "name": "100%（RL = 2.2 kΩ）：I ≈ 1.84 mA，U ≈ 4.05 V → P ≈ 7.5 mW",
+      "set": {"RV1": {"wiper": 1}},
+      "currents": [{"el": "AM1", "min": 0.00175, "max": 0.0019}],
+      "voltages": [{"pin": "RV1.1", "ref": "V1.-", "min": 4.0, "max": 4.3}]
+    }
+  ],
+  "hints": [
+    "先搭好实验 2-2 的网络（R1、R2、R3），端口是 R3 的另一端 T。",
+    "电流表红表笔接 T，黑表笔接电位器的 1 脚；电位器滑动端和 3 脚连起来接 GND。",
+    "旋钮 0% 时 RL = 0（短路），100% 时 RL = 2.2kΩ。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b3", "2": "b7"}},
+      {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c7", "2": "tn8"}},
+      {"type": "resistor", "ref": "R3", "resistance": "470", "pins": {"1": "d7", "2": "d11"}},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "c11", "-": "c14"}},
+      {"type": "potentiometer", "ref": "RV1", "resistance": "2.2k", "at": "a14"},
+      {"type": "wire", "pins": {"a": "b15", "b": "b16"}, "color": "yellow"},
+      {"type": "wire", "pins": {"a": "c16", "b": "tn16"}, "color": "blue"}
+    ]
+  }
+}

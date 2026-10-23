@@ -1,0 +1,103 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp3-rl-square",
+  "title": "实验 3-3 · RL 电路：电感电压的尖峰与电流的斜坡",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 3,
+  "summary": "方波驱动 100 Ω + 10 mH 串联电路：电感两端是一跳一衰减的尖峰，电阻电压（= 电流 × R）是慢慢爬升的斜坡。",
+  "concepts": ["RL 电路 RL circuit", "τ = L/R", "电感电流不能突变 continuity of inductor current", "u_L = L·di/dt", "用电阻电压观察电流 current via a sense resistor"],
+  "description": [
+    "**要搭的电路**：信号发生器红夹子 → R1（100 Ω）→ 节点 VL → L1（10 mH）→ GND，黑夹子接 GND。",
+    "**信号发生器**：方波，幅度 1 V、偏置 0（±1 V，每次跳 2 V），频率 1 kHz（半周期 0.5 ms）。",
+    "**示波器**：CH1 接信号发生器输出 VIN，CH2 接 VL（电感上端）。电阻电压 u_R = CH1 − CH2，许多示波器有 MATH 功能直接相减；u_R / 100 Ω 就是电流。",
+    "为什么不直接把探头夹在电阻两端？真实示波器的地夹是接大地的，信号发生器的黑夹子也是，所以地夹只能夹在 GND 上，否则会把电路某一点短路到地。这就是把电感放在接地一侧、用“两个通道相减”看电阻电压的原因。",
+    "",
+    "**原理**：电感电流不能突变（i_L(0+) = i_L(0−)），u_L = L·di/dt。回路总电阻要算上信号发生器 50 Ω 和电感线圈电阻 1 Ω：R总 = 100 + 50 + 1 = 151 Ω，τ = L/R总 = 10 mH / 151 Ω ≈ 66 µs。",
+    "- 稳态电流 I = 1 V / 151 Ω ≈ 6.6 mA。半周期 0.5 ms ≈ 7.5τ，所以每半周期电流都能从 −6.6 mA 走到 +6.6 mA：电阻电压在 ±0.66 V 之间（Vpp ≈ 1.32 V），边沿处是指数形状的斜坡。",
+    "- 方波跳变的瞬间电流还来不及变，这 2 V 的跳变几乎全部落在电感上：u_L 跳到约 ±2 V（理想值 1 + 150/151 ≈ 1.99 V），随后以 τ 衰减到只剩线圈电阻上的 ±6.6 mV。仿真示波器每 3.9 µs 取一个点，读到的尖峰约 1.88 V。",
+    "",
+    "**把频率调到 10 kHz（半周期 50 µs < τ）**：电流来不及走完，只在中间来回爬，电阻电压变成近似三角波，Vpp ≈ 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V；而电感电压一直很大（大部分电压都落在电感上，因为电流一直在变）。",
+    "",
+    "**和 RC 对比**：RC 中电容**电压**连续、电流可以跳；RL 中电感**电流**连续、电压可以跳。实际电路里突然切断电感电流（di/dt 极大）会产生很高的反向电压，这就是继电器线圈旁边要并一个续流二极管的原因。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 3-3 · RL circuit: inductor voltage spikes and a current ramp",
+      "summary": "A square wave drives 100 Ω + 10 mH in series: the inductor shows a jump-and-decay spike, the resistor voltage (= current × R) a slow ramp.",
+      "concepts": ["RL circuit", "τ = L/R", "inductor current cannot jump", "u_L = L·di/dt", "seeing current through a sense resistor"],
+      "description": [
+        "**What you build**: generator red clip → R1 (100 Ω) → node VL → L1 (10 mH) → GND; black clip to GND.",
+        "**Generator**: square wave, amplitude 1 V, offset 0 (±1 V, 2 V per jump), 1 kHz (half period 0.5 ms).",
+        "**Scope**: CH1 on the generator output VIN, CH2 on VL (top of the inductor). The resistor voltage is u_R = CH1 − CH2 — many scopes have a MATH function that subtracts them; u_R / 100 Ω is the current.",
+        "Why not clip a probe straight across the resistor? A real scope's ground clip is tied to mains earth, and so is the generator's black clip, so the ground clip may only go on GND — anywhere else it shorts that point to ground. That is why the inductor sits on the grounded side and the resistor voltage is seen as the difference of two channels.",
+        "",
+        "**Theory**: inductor current cannot jump (i_L(0+) = i_L(0−)), and u_L = L·di/dt. The loop resistance includes the generator's 50 Ω and the coil's 1 Ω winding: R_total = 100 + 50 + 1 = 151 Ω, τ = L/R_total = 10 mH / 151 Ω ≈ 66 µs.",
+        "- Steady current I = 1 V / 151 Ω ≈ 6.6 mA. Half a period, 0.5 ms ≈ 7.5τ, is long enough for the current to travel all the way from −6.6 mA to +6.6 mA: the resistor voltage swings between ±0.66 V (Vpp ≈ 1.32 V), with an exponential ramp after each edge.",
+        "- At the instant of a jump the current hasn't changed yet, so practically the whole 2 V step lands on the inductor: u_L jumps to about ±2 V (ideally 1 + 150/151 ≈ 1.99 V), then decays with τ down to just the ±6.6 mV across the winding resistance. The simulated scope samples every 3.9 µs and reads a spike of about 1.88 V.",
+        "",
+        "**Turn the frequency up to 10 kHz (half period 50 µs < τ)**: the current has no time to finish, it just climbs back and forth in the middle; the resistor voltage becomes a near-triangle with Vpp ≈ 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V, while the inductor voltage stays large (most of the voltage sits on the inductor because the current keeps changing).",
+        "",
+        "**Compare with RC**: in RC the capacitor *voltage* is continuous and its current may jump; in RL the inductor *current* is continuous and its voltage may jump. Suddenly interrupting an inductor's current (huge di/dt) produces a large reverse voltage — that's why relay coils get a flyback diode across them."
+      ],
+      "hints": [
+        "The inductor goes from VL to GND, the resistor between the generator's red clip and VL.",
+        "τ = L / (R + 50 Ω + 1 Ω). Compare it with half a period.",
+        "The current is the resistor voltage divided by 100 Ω: watch CH1 − CH2."
+      ],
+      "tests": [
+        "1 kHz: u_L spikes to ≈ ±1.9 V; u_R swings between ±0.66 V (≈ 1.32 Vpp)",
+        "10 kHz (T/2 < τ): the current can't finish its ramp — u_R shrinks to ≈ 0.48 Vpp"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "R1", "type": "resistor", "resistance": "100" },
+    { "ref": "L1", "type": "inductor", "inductance": "10m" }
+  ],
+  "nets": [
+    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
+    { "name": "VL", "pins": ["R1.2", "L1.1"] },
+    { "name": "GND", "pins": ["L1.2", "FG1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "1 kHz：u_L 尖峰 ≈ ±1.9 V；u_R 在 ±0.66 V 之间（≈ 1.32 Vpp）",
+      "set": { "FG1": { "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "L1.1", "measure": "vmax", "min": 1.75, "max": 2.0 },
+        { "pin": "L1.1", "measure": "vmin", "min": -2.0, "max": -1.75 },
+        { "pin": "R1.1", "ref": "R1.2", "measure": "vpp", "min": 1.27, "max": 1.37 },
+        { "pin": "R1.1", "ref": "R1.2", "measure": "vmax", "min": 0.63, "max": 0.69 }
+      ]
+    },
+    {
+      "name": "10 kHz（T/2 < τ）：电流来不及走完，u_R 缩小到 ≈ 0.48 Vpp",
+      "set": { "FG1": { "waveform": "square", "frequency": 10000, "amplitude": 1, "offset": 0 } },
+      "scope": [{ "pin": "R1.1", "ref": "R1.2", "measure": "vpp", "min": 0.44, "max": 0.52 }]
+    }
+  ],
+  "hints": [
+    "电感从 VL 接到 GND，电阻接在信号发生器红夹子和 VL 之间。",
+    "τ = L / (R + 50 Ω + 1 Ω)，和半个周期比一比。",
+    "电流 = 电阻电压 / 100 Ω：看 CH1 − CH2。"
+  ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+    ]
+  },
+  "solution": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "resistor", "ref": "R1", "resistance": "100", "pins": { "1": "b3", "2": "b10" } },
+      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "c10", "2": "tn10" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+    ]
+  }
+}

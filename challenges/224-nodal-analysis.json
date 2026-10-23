@@ -1,0 +1,80 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-nodal-analysis",
+  "title": "实验 2-4 · 结点电压法：一个电压源 + 一个电流源",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 2,
+  "summary": "9 V 电压源和 5 mA 电流源（CC 模式）同时接在一个两结点网络上：列结点方程算 U1、U2，再测出来对照。",
+  "concepts": ["nodal analysis 结点电压法", "current source 电流源", "reference direction 参考方向", "negative current 负电流"],
+  "description": "**实验目的**：用结点电压法求解一个含电压源和电流源的电路，然后在面包板上测量验证。\n\n**电路**（GND 为参考结点）：\n- V1：9 V 电压源，+ 端经 R1（1kΩ）接结点 N1；\n- N1 → R2（2.2kΩ）→ GND；N1 → R3（1kΩ）→ 结点 N2；N2 → R4（3.3kΩ）→ GND；\n- PSU2：稳压电源 12 V、限流 0.005 A（CC 模式 = 5 mA 电流源），+ 端接 N2，− 端接 GND。\n\n**结点方程**（单位 V、mA、kΩ，电导 mS）：\n- N1：(1/1 + 1/2.2 + 1/1) U1 − (1/1) U2 = 9/1，即 2.4545 U1 − U2 = 9；\n- N2：−(1/1) U1 + (1/1 + 1/3.3) U2 = 5，即 −U1 + 1.3030 U2 = 5。\n解得 **U1 ≈ 7.61 V，U2 ≈ 9.68 V**。\n\n**测量**（模拟器读数）：U1 ≈ 7.60 V，U2 ≈ 9.67 V，电流源输出 ≈ 4.99 mA（CC 模式比 5 mA 少 0.01 mA，所以比计算略低一点点）。\n支路电流（参考方向都按“从前一个结点流向后一个”）：\n- I_R1 = (9 − 7.60) / 1k ≈ **1.40 mA**；\n- I_R3 = (U1 − U2) / 1k ≈ **−2.06 mA**：负号说明电流实际是从 N2 流向 N1；\n- I_R4 = 9.67 / 3.3k ≈ **2.93 mA**；N2 处 KCL：4.99 = 2.06 + 2.93 ✔。\n\n**注意两点**：\n1. U2 ≈ 9.67 V 比电压源的 9 V 还高——电流源会把结点电压“推”到需要的值。只要它低于 PSU2 设的 12 V，电源就保持 CC 模式，仍然是电流源。\n2. 结点电压法里电流源直接写在方程右边（流入结点为正），电压源串电阻则写成 V/R。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 2-4 · Nodal analysis: a voltage source plus a current source",
+      "summary": "A 9 V voltage source and a 5 mA current source (CC mode) feed a two-node network: write the node equations for U1 and U2, then measure them.",
+      "concepts": ["nodal analysis", "current source", "reference direction", "negative current"],
+      "description": "**Goal**: solve a circuit with a voltage source and a current source by nodal analysis, then check it on the breadboard.\n\n**Circuit** (GND is the reference node):\n- V1: 9 V voltage source, its + terminal through R1 (1kΩ) to node N1;\n- N1 → R2 (2.2kΩ) → GND; N1 → R3 (1kΩ) → node N2; N2 → R4 (3.3kΩ) → GND;\n- PSU2: bench supply at 12 V with a 0.005 A limit (CC mode = a 5 mA current source), + to N2, − to GND.\n\n**Node equations** (units V, mA, kΩ; conductances in mS):\n- N1: (1/1 + 1/2.2 + 1/1) U1 − (1/1) U2 = 9/1, i.e. 2.4545 U1 − U2 = 9;\n- N2: −(1/1) U1 + (1/1 + 1/3.3) U2 = 5, i.e. −U1 + 1.3030 U2 = 5.\nSolution: **U1 ≈ 7.61 V, U2 ≈ 9.68 V**.\n\n**Measure** (simulator readings): U1 ≈ 7.60 V, U2 ≈ 9.67 V, current source output ≈ 4.99 mA (CC mode gives 0.01 mA less than 5 mA, hence the slightly lower values).\nBranch currents (each reference direction \"from the first node to the second\"):\n- I_R1 = (9 − 7.60) / 1k ≈ **1.40 mA**;\n- I_R3 = (U1 − U2) / 1k ≈ **−2.06 mA**: the minus sign says the current really flows from N2 to N1;\n- I_R4 = 9.67 / 3.3k ≈ **2.93 mA**; KCL at N2: 4.99 = 2.06 + 2.93 ✔.\n\n**Two things to notice**:\n1. U2 ≈ 9.67 V is higher than the 9 V voltage source: a current source pushes its node to whatever voltage it takes. As long as that is below PSU2's 12 V setting, the supply stays in CC mode and remains a current source.\n2. In nodal analysis a current source goes straight to the right-hand side (positive when it flows into the node); a voltage source in series with a resistor becomes V/R.",
+      "hints": [
+        "Two supplies: one on the top rails, one on the bottom rails, and a jumper joining the two blue rails as GND.",
+        "PSU2 at 12 V with a 0.005 A limit; its + goes to N2 (R3, R4 and the supply share a column).",
+        "A short jumper across the centre gap joins the top and bottom halves of a column, which makes it easy to bring N2 down to the bottom rail."
+      ],
+      "tests": [
+        "Node voltages: U1 ≈ 7.6 V, U2 ≈ 9.67 V; current source delivers ≈ 5 mA",
+        "Branch currents: I_R1 ≈ 1.40 mA, I_R3 ≈ −2.06 mA (really from N2 to N1), I_R4 ≈ 2.93 mA"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "PSU2", "type": "bench_supply", "voltage": 12, "currentLimit": 0.005},
+    {"ref": "R1", "type": "resistor", "resistance": "1k"},
+    {"ref": "R2", "type": "resistor", "resistance": "2.2k"},
+    {"ref": "R3", "type": "resistor", "resistance": "1k"},
+    {"ref": "R4", "type": "resistor", "resistance": "3.3k"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "R1.1"]},
+    {"name": "N1", "pins": ["R1.2", "R2.1", "R3.1"]},
+    {"name": "N2", "pins": ["R3.2", "R4.1", "PSU2.+"]},
+    {"name": "GND", "pins": ["R2.2", "R4.2", "V1.-", "PSU2.-"]}
+  ],
+  "tests": [
+    {
+      "name": "结点电压：U1 ≈ 7.6 V，U2 ≈ 9.67 V；电流源输出 ≈ 5 mA",
+      "voltages": [
+        {"pin": "R1.2", "ref": "V1.-", "min": 7.3, "max": 7.9},
+        {"pin": "R3.2", "ref": "V1.-", "min": 9.3, "max": 10.0}
+      ],
+      "currents": [{"el": "PSU2", "min": 0.0049, "max": 0.0051}]
+    },
+    {
+      "name": "支路电流：I_R1 ≈ 1.40 mA，I_R3 ≈ −2.06 mA（实际从 N2 流向 N1），I_R4 ≈ 2.93 mA",
+      "currents": [
+        {"el": "R1", "min": 0.0012, "max": 0.0016},
+        {"el": "R3", "min": -0.0022, "max": -0.0019},
+        {"el": "R4", "min": 0.0028, "max": 0.003}
+      ]
+    }
+  ],
+  "hints": [
+    "两台电源：一台用上方电源轨，一台用下方电源轨，两条蓝轨用跳线连起来作为 GND。",
+    "PSU2 设 12 V、限流 0.005 A，它的 + 端接 N2（R3、R4 和它共用一列）。",
+    "可以用一根跨凹槽的短跳线把同一列的上下两半连起来，方便把 N2 引到下方电源轨。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "bench_supply", "ref": "PSU2", "voltage": 12, "currentLimit": 0.005, "pins": {"+": "bp1", "-": "bn1"}},
+      {"type": "wire", "pins": {"a": "tn3", "b": "bn3"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "tp4", "b": "a4"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b4", "2": "b8"}},
+      {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c8", "2": "tn10"}},
+      {"type": "resistor", "ref": "R3", "resistance": "1k", "pins": {"1": "d8", "2": "d13"}},
+      {"type": "resistor", "ref": "R4", "resistance": "3.3k", "pins": {"1": "c13", "2": "tn15"}},
+      {"type": "wire", "pins": {"a": "e13", "b": "f13"}, "color": "yellow"},
+      {"type": "wire", "pins": {"a": "j13", "b": "bp13"}, "color": "red"}
+    ]
+  }
+}

@@ -236,7 +236,19 @@ export function Ammeter({ part, slot, reading, onClick }: PartViewProps) {
               </mesh>
             </group>
           ))}
-          <TextPlane text="A          COM          VΩ" width={3.4} height={0.34} color="#e9ecef" font='700 40px "Barlow Condensed", sans-serif' position={[0, 1.065, jackZ + 0.5]} rotation={[-Math.PI / 2, 0, 0]} />
+          {/* one label above each jack (the test leads run out below them), so they line up whatever the font metrics */}
+          {(Object.entries(jacks) as [keyof typeof jacks, number][]).map(([k, x]) => (
+            <TextPlane
+              key={k}
+              text={k === 'V' ? 'VΩ' : k}
+              width={0.9}
+              height={0.32}
+              color={k === 'COM' ? '#e9ecef' : '#ff8a8a'}
+              font='700 36px "Barlow Condensed", sans-serif'
+              position={[x, 1.065, jackZ - 0.62]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            />
+          ))}
           {/* plugs in the A and COM jacks */}
           {part.pins['+'] && (
             <mesh position={[jacks.A, 1.4, jackZ]} castShadow>
@@ -372,29 +384,34 @@ export function FunctionGen({ part, slot, onClick }: PartViewProps) {
             />
           </group>
         ))}
-        {/* frequency knob */}
-        <mesh position={[1.9, 2.5, 2.4]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.8, 0.8, 0.1, 32]} />
+        {/* frequency knob, its label underneath */}
+        <mesh position={[1.6, 2.45, 2.4]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.72, 0.72, 0.1, 32]} />
           <Mat color="#b9bec6" metalness={0.5} roughness={0.35} />
         </mesh>
-        <group position={[1.9, 2.5, 2.55]} rotation={[Math.PI / 2, 0, 0]}>
+        <group position={[1.6, 2.45, 2.55]} rotation={[Math.PI / 2, 0, 0]}>
           <mesh castShadow>
-            <cylinderGeometry args={[0.6, 0.66, 0.4, 32]} />
+            <cylinderGeometry args={[0.56, 0.62, 0.4, 32]} />
             <Mat color="#23262d" roughness={0.45} />
           </mesh>
-          <mesh position={[0, -0.21, -0.36]}>
-            <boxGeometry args={[0.1, 0.03, 0.34]} />
+          <mesh position={[0, -0.21, -0.34]}>
+            <boxGeometry args={[0.1, 0.03, 0.3]} />
             <meshBasicMaterial color="#f8f9fa" toneMapped={false} />
           </mesh>
         </group>
-        <TextPlane text="FREQ" width={0.9} height={0.28} color="#3a4560" position={[1.9, 1.45, 2.33]} />
+        <TextPlane text="FREQ" width={0.9} height={0.3} color="#3a4560" font='700 32px "Barlow Condensed", sans-serif' position={[1.6, 1.42, 2.33]} />
         {/* power LED */}
         <mesh position={[3.5, 3.15, 2.36]}>
           <sphereGeometry args={[0.1, 10, 8]} />
           <meshBasicMaterial color="#5cff7a" toneMapped={false} />
         </mesh>
+        {/* output section: its own darker inset so the label reads as belonging to the BNC */}
+        <mesh position={[3.0, 0.98, 2.316]}>
+          <planeGeometry args={[1.2, 1.4]} />
+          <Mat color="#cdd2d9" roughness={0.7} />
+        </mesh>
+        <TextPlane text="OUTPUT 50Ω" width={1.1} height={0.26} color="#3a4560" font='700 28px "Barlow Condensed", sans-serif' position={[3.0, 1.48, 2.33]} />
         {/* BNC output with coax splitting into red / black clip leads */}
-        <TextPlane text="OUTPUT 50Ω" width={1.3} height={0.26} color="#3a4560" position={[3.1, 1.3, 2.33]} />
         <mesh position={[3.0, 0.75, 2.5]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.36, 0.36, 0.3, 20]} />
           <Mat color="#cfd3d9" metalness={0.8} roughness={0.25} />

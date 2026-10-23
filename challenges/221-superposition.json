@@ -1,0 +1,92 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-superposition",
+  "title": "实验 2-1 · 叠加定理：两台电源分别作用再相加",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 2,
+  "summary": "9 V 和 5 V 两台电源一起驱动 R3。用两个开关把电源换成导线，分别测，再一起测：电流正好相加。",
+  "concepts": ["superposition 叠加定理", "zeroing a voltage source = short 电压源置零 = 短路", "linearity 线性", "power is not superposable 功率不能叠加"],
+  "description": "**实验目的**：线性电路中，多个独立源共同作用的响应 = 每个源单独作用的响应之和。\n\n**电路**：两台稳压电源 V1 = 9 V、V2 = 5 V，负极连在一起作为 GND。\n- S1：a 侧接 V1 的 +，b 侧接 GND，com → R1（1kΩ）→ 结点 N；\n- S2：a 侧接 V2 的 +，b 侧接 GND，com → R2（2.2kΩ）→ 结点 N；\n- N → 电流表 AM1（红表笔接 N）→ R3（3.3kΩ）→ GND。\n\n**怎么让一个电源“不起作用”**：叠加定理里“电压源置零”是把它换成**短路**，不是断开！开关拨到 b，就是把 R1（或 R2）的那一端从电源上拿下来接到 GND——相当于这个电源变成了一根导线。\n\n**结点 N 的电压**（结点电压法）：U_N = (V1/R1 + V2/R2) / (1/R1 + 1/R2 + 1/R3)，分母 = 1 + 0.4545 + 0.3030 = 1.7576 mS。\n- 只有 V1（S1→a，S2→b）：U_N = 9 / 1.7576 ≈ **5.12 V**，I3 ≈ **1.55 mA**；\n- 只有 V2（S1→b，S2→a）：U_N = 2.273 / 1.7576 ≈ **1.29 V**，I3 ≈ **0.39 mA**；\n- 两个都接（a，a）：U_N ≈ **6.41 V**，I3 ≈ **1.94 mA** = 1.55 + 0.39 ✔。\n\n**功率不能叠加**：R3 的功率 P = I²R。单独作用时 1.55² × 3.3 ≈ 7.9 mW、0.39² × 3.3 ≈ 0.5 mW，加起来 8.4 mW；但两个一起时是 1.94² × 3.3 ≈ 12.5 mW。功率和电流是平方关系，不是线性的。\n\n有意思的一点：只有 V2 时，R1 的电流是 −1.29 mA——电流从 N 经 R1 流到 GND，方向和两个电源都接时相反。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 2-1 · Superposition: two supplies one at a time, then together",
+      "summary": "A 9 V and a 5 V supply drive R3 together. Two switches replace each supply with a wire; measure each one alone, then both: the currents add up exactly.",
+      "concepts": ["superposition", "zeroing a voltage source = short circuit", "linearity", "power is not superposable"],
+      "description": "**Goal**: in a linear circuit, the response to several independent sources together equals the sum of the responses to each source alone.\n\n**Circuit**: two bench supplies V1 = 9 V and V2 = 5 V, negatives joined as GND.\n- S1: side a to V1 +, side b to GND, com → R1 (1kΩ) → node N;\n- S2: side a to V2 +, side b to GND, com → R2 (2.2kΩ) → node N;\n- N → ammeter AM1 (red lead at N) → R3 (3.3kΩ) → GND.\n\n**How to \"switch off\" a source**: in superposition, zeroing a voltage source means replacing it with a **short circuit**, not opening it! Switching to b takes that end of R1 (or R2) off the supply and puts it on GND: the source has become a wire.\n\n**Voltage at node N** (nodal analysis): U_N = (V1/R1 + V2/R2) / (1/R1 + 1/R2 + 1/R3), with denominator 1 + 0.4545 + 0.3030 = 1.7576 mS.\n- V1 only (S1→a, S2→b): U_N = 9 / 1.7576 ≈ **5.12 V**, I3 ≈ **1.55 mA**;\n- V2 only (S1→b, S2→a): U_N = 2.273 / 1.7576 ≈ **1.29 V**, I3 ≈ **0.39 mA**;\n- both on (a, a): U_N ≈ **6.41 V**, I3 ≈ **1.94 mA** = 1.55 + 0.39 ✔.\n\n**Power does not superpose**: R3's power is P = I²R. Alone: 1.55² × 3.3 ≈ 7.9 mW and 0.39² × 3.3 ≈ 0.5 mW, together 8.4 mW; but with both sources on it is 1.94² × 3.3 ≈ 12.5 mW. Power goes with the square of the current, so it is not linear.\n\nA curious detail: with V2 alone, R1's current is −1.29 mA: current flows from N through R1 to GND, the opposite way to when both sources are on.",
+      "hints": [
+        "Two supplies: one on the top rails, one on the bottom rails, and a jumper joining the two blue rails as GND.",
+        "Each switch: side a to the supply +, side b to GND (really to GND, not left open), the middle com to the resistor.",
+        "Ammeter red lead at node N, black lead toward R3."
+      ],
+      "tests": [
+        "V1 only (S1→a, S2→b): I3 ≈ 1.55 mA, N ≈ 5.12 V",
+        "V2 only (S1→b, S2→a): I3 ≈ 0.39 mA, N ≈ 1.29 V",
+        "Both on (a, a): I3 ≈ 1.94 mA = 1.55 + 0.39, N ≈ 6.41 V"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "V2", "type": "dc_source", "voltage": 5},
+    {"ref": "S1", "type": "switch"},
+    {"ref": "S2", "type": "switch"},
+    {"ref": "R1", "type": "resistor", "resistance": "1k"},
+    {"ref": "R2", "type": "resistor", "resistance": "2.2k"},
+    {"ref": "R3", "type": "resistor", "resistance": "3.3k"},
+    {"ref": "AM1", "type": "ammeter"}
+  ],
+  "nets": [
+    {"name": "V1+", "pins": ["V1.+", "S1.a"]},
+    {"name": "V2+", "pins": ["V2.+", "S2.a"]},
+    {"pins": ["S1.com", "R1.1"]},
+    {"pins": ["S2.com", "R2.1"]},
+    {"name": "N", "pins": ["R1.2", "R2.2", "AM1.+"]},
+    {"pins": ["AM1.-", "R3.1"]},
+    {"name": "GND", "pins": ["V1.-", "V2.-", "S1.b", "S2.b", "R3.2"]}
+  ],
+  "tests": [
+    {
+      "name": "只有 V1（S1→a，S2→b）：I3 ≈ 1.55 mA，N ≈ 5.12 V",
+      "set": {"S1": {"position": "a"}, "S2": {"position": "b"}},
+      "currents": [{"el": "AM1", "min": 0.00148, "max": 0.00162}],
+      "voltages": [{"pin": "R3.1", "ref": "V1.-", "min": 4.9, "max": 5.35}]
+    },
+    {
+      "name": "只有 V2（S1→b，S2→a）：I3 ≈ 0.39 mA，N ≈ 1.29 V",
+      "set": {"S1": {"position": "b"}, "S2": {"position": "a"}},
+      "currents": [{"el": "AM1", "min": 0.00037, "max": 0.00041}],
+      "voltages": [{"pin": "R3.1", "ref": "V1.-", "min": 1.23, "max": 1.36}]
+    },
+    {
+      "name": "两个都接（a，a）：I3 ≈ 1.94 mA = 1.55 + 0.39，N ≈ 6.41 V",
+      "set": {"S1": {"position": "a"}, "S2": {"position": "a"}},
+      "currents": [{"el": "AM1", "min": 0.00185, "max": 0.00204}],
+      "voltages": [{"pin": "R3.1", "ref": "V1.-", "min": 6.1, "max": 6.7}]
+    }
+  ],
+  "hints": [
+    "两台电源：一台接上方电源轨，一台接下方电源轨，用跳线把两条蓝轨连起来当 GND。",
+    "开关的 a 侧接电源 +，b 侧接 GND（一定是接 GND，不是空着），中间 com 接电阻。",
+    "电流表红表笔接结点 N，黑表笔接 R3。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "bench_supply", "ref": "PSU2", "voltage": 5, "currentLimit": 0.1, "pins": {"+": "bp1", "-": "bn1"}},
+      {"type": "wire", "pins": {"a": "tn3", "b": "bn3"}, "color": "blue"},
+      {"type": "switch", "ref": "S1", "at": "c5"},
+      {"type": "wire", "pins": {"a": "tp5", "b": "a5"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "a7", "b": "tn7"}, "color": "blue"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "d6", "2": "d12"}},
+      {"type": "switch", "ref": "S2", "at": "h5"},
+      {"type": "wire", "pins": {"a": "bp5", "b": "j5"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "j7", "b": "bn7"}, "color": "blue"},
+      {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "g6", "2": "g12"}},
+      {"type": "wire", "pins": {"a": "f12", "b": "e12"}, "color": "yellow"},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "c12", "-": "c16"}},
+      {"type": "resistor", "ref": "R3", "resistance": "3.3k", "pins": {"1": "b16", "2": "tn17"}}
+    ]
+  }
+}

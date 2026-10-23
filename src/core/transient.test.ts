@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { simulate } from './solver';
-import { simulateTransient } from './transient';
+import { freq, simulateTransient } from './transient';
 import type { CComponent, Circuit, CompType, PartProps } from './types';
 
 const comp = (ref: string, type: CompType, props: PartProps = {}): CComponent => ({ ref, type, props });
@@ -299,5 +299,72 @@ describe('transient performance', () => {
     // AC gain of the bias-coupled non-inverting stage ≈ 1 + 22k/10k
     expect(tr.measure('gain', 'U1.outA', undefined, 'FG1.+')).toBeCloseTo(3.2, 1);
     expect(tr.measure('vavg', 'U1.outA')).toBeCloseTo(4.5, 1);
+  });
+});
+
+describe('freq() on whole-period windows', () => {
+  const N = 256; // samples per period
+  const dt = 1e-3 / N; // 1 kHz
+  const shape = (w: 'sine' | 'square' | 'triangle', ph: number) => {
+    const f = ((ph % 1) + 1) % 1;
+    if (w === 'sine') return Math.sin(2 * Math.PI * f);
+    if (w === 'square') return f < 0.5 ? 1 : -1;
+    return f <= 0.25 ? 4 * f : f <= 0.75 ? 2 - 4 * f : 4 * f - 4;
+  };
+  const make = (w: 'sine' | 'square' | 'triangle', periods: number, o: { amp?: number; off?: number; phase?: number } = {}) => {
+    const x = new Float64Array(N * periods);
+    for (let i = 0; i < x.length; i++) x[i] = (o.off ?? 0) + (o.amp ?? 1) * shape(w, i / N + (o.phase ?? 0));
+    return x;
+  };
+
+  for (const w of ['sine', 'square', 'triangle'] as const)
+    for (const periods of [1, 2, 3])
+      for (const phase of [0, 0.25, 0.5, 0.75, 0.13])
+        it(`${w}, ${periods} period(s), phase ${phase}`, () => {
+          expect(freq(make(w, periods, { phase }), dt)).toBeCloseTo(1000, 6);
+          // DC offset
+          expect(freq(make(w, periods, { phase, off: 2.5 }), dt)).toBeCloseTo(1000, 6);
+        });
+
+  it('sine starting exactly at its mid level (regression: reported 500 Hz)', () => {
+    expect(freq(make('sine', 2, { off: 2.5, amp: 1.2 }), dt)).toBeCloseTo(1000, 6);
+    expect(freq(make('sine', 3), dt)).toBeCloseTo(1000, 6);
+  });
+
+  it('low amplitude on a large offset', () => {
+    expect(freq(make('sine', 2, { amp: 0.5e-3, off: 5 }), dt)).toBeCloseTo(1000, 6);
+    expect(freq(make('triangle', 3, { amp: 1e-4, off: -3 }), dt)).toBeCloseTo(1000, 6);
+  });
+
+  it('flat / numerically-flat traces give 0', () => {
+    expect(freq(new Float64Array(512).fill(2.5), dt)).toBe(0);
+    const x = new Float64Array(512).fill(5);
+    x[100] += 1e-12;
+    expect(freq(x, dt)).toBe(0);
+  });
+
+  it('small ringing does not double-count', () => {
+    const x = make('square', 2, { phase: 0.1 });
+    for (let i = 0; i < x.length; i++) x[i] += 0.15 * Math.sin((2 * Math.PI * 20 * i) / N);
+    expect(freq(x, dt)).toBeCloseTo(1000, 6);
+  });
+
+  it('non-periodic slice uses the crossing span', () => {
+    const x = make('sine', 3, { phase: 0.3 }).subarray(0, Math.round(N * 2.6));
+    expect(freq(x, dt, false)).toBeCloseTo(1000, 0);
+    expect(freq(make('sine', 1).subarray(0, N / 2), dt, false)).toBe(0);
+  });
+
+  it('RC board: 1 kHz sine measures 1 kHz at both nodes', () => {
+    const c = ckt([gen({ frequency: 1000, amplitude: 1, offset: 2.5 }), comp('R1', 'resistor', { resistance: 1000 }), comp('C1', 'capacitor', { capacitance: 100e-9 })], {
+      VIN: ['FG1.+', 'R1.1'],
+      VOUT: ['R1.2', 'C1.1'],
+      GND: ['C1.2', 'FG1.-'],
+    });
+    const tr = simulateTransient(c);
+    expect(tr.measure('freq', 'FG1.+')).toBeCloseTo(1000, 3);
+    expect(tr.measure('freq', 'C1.1')).toBeCloseTo(1000, 3);
+    const t3 = simulateTransient(c, { periods: 3 });
+    expect(t3.measure('freq', 'FG1.+')).toBeCloseTo(1000, 3);
   });
 });

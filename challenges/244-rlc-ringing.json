@@ -1,0 +1,121 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp3-rlc-ringing",
+  "title": "实验 3-4 · RLC 串联电路的振铃：欠阻尼、临界阻尼、过阻尼",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 3,
+  "summary": "方波给 RLC 串联电路一个又一个阶跃；转动电位器改变电阻，看电容电压从“叮——”地振荡到平稳上升。",
+  "concepts": ["二阶电路 second-order circuit", "阻尼比 ζ = (R/2)·√(C/L)", "临界电阻 R = 2√(L/C)", "欠阻尼 / 临界阻尼 / 过阻尼", "超调量 overshoot"],
+  "description": [
+    "**要搭的电路**：信号发生器红夹子 → 电位器 RV1（1 kΩ，当可变电阻用：1 脚接信号，2 脚和 3 脚连在一起）→ L1（10 mH）→ 节点 VC → C1（100 nF）→ GND，黑夹子接 GND。",
+    "**信号发生器**：方波，幅度 1 V、偏置 1 V（0 ↔ 2 V），频率 200 Hz。每个上升沿都是一次 0 → 2 V 的阶跃，半周期 2.5 ms 足够让振荡衰减完，所以示波器上每个边沿都是一次完整的阶跃响应。",
+    "**示波器**：CH1 接 VIN，CH2 接 VC（电容上端）。",
+    "",
+    "**原理**：KVL 得 LC·u_C'' + RC·u_C' + u_C = u_s。特征根 s = −α ± √(α² − ω0²)，其中 α = R/(2L)，ω0 = 1/√(LC)。",
+    "- 无阻尼振荡频率 f0 = 1/(2π√(LC)) = 1/(2π√(10 mH × 100 nF)) ≈ 5.03 kHz。",
+    "- 阻尼比 ζ = α/ω0 = (R/2)·√(C/L)。ζ = 1 时的电阻叫临界电阻：R = 2√(L/C) = 2√(10 mH / 100 nF) ≈ 632 Ω。",
+    "- 这里的 R 是**回路总电阻**：电位器 + 信号发生器 50 Ω + 电感线圈 1 Ω。",
+    "",
+    "**转动电位器**（wiper = 电位器 1–2 之间的电阻占 1 kΩ 的比例）：",
+    "- **5%（50 Ω，R总 ≈ 101 Ω，ζ ≈ 0.16，欠阻尼）**：u_C 冲过 2 V 后来回振荡，振荡频率 ≈ 5 kHz，包络按 e^(−αt) 衰减（1/α = 2L/R ≈ 0.2 ms）。第一个峰的超调量 = e^(−πζ/√(1−ζ²)) ≈ 60%，峰值 ≈ 2 + 2 × 0.6 ≈ 3.2 V——电容电压比电源电压还高！下降沿同样会冲到 0 V 以下，最低约 −1.2 V。",
+    "- **30%（300 Ω，R总 ≈ 351 Ω，ζ ≈ 0.56，欠阻尼）**：只剩一个小鼓包，超调 ≈ 12%，峰值 ≈ 2.25 V。",
+    "- **60%（600 Ω，R总 ≈ 651 Ω，ζ ≈ 1.03，约等于临界阻尼）**：不再超调，最快地平稳到达 2 V。",
+    "- **100%（1 kΩ，R总 ≈ 1051 Ω，ζ ≈ 1.66，过阻尼）**：也不超调，但上升明显变慢（像一个较慢的 RC 充电）。",
+    "",
+    "**想一想**：为什么这里不能把信号发生器的 50 Ω 忽略？（提示：和临界电阻 632 Ω 比，50 Ω 并不算小；把电位器拧到 0，ζ 也只能降到约 0.08。）"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 3-4 · Series RLC ringing: under-, critically and over-damped",
+      "summary": "A square wave gives a series RLC circuit one step after another; turn a potentiometer to change R and watch the capacitor voltage go from a ringing \"ding\" to a smooth rise.",
+      "concepts": ["second-order circuit", "damping ratio ζ = (R/2)·√(C/L)", "critical resistance R = 2√(L/C)", "under- / critically / over-damped", "overshoot"],
+      "description": [
+        "**What you build**: generator red clip → potentiometer RV1 (1 kΩ used as a variable resistor: pin 1 to the signal, pins 2 and 3 tied together) → L1 (10 mH) → node VC → C1 (100 nF) → GND; black clip to GND.",
+        "**Generator**: square wave, amplitude 1 V, offset 1 V (0 ↔ 2 V), 200 Hz. Every rising edge is a 0 → 2 V step, and the 2.5 ms half period is long enough for the ringing to die out, so each edge on the scope is a complete step response.",
+        "**Scope**: CH1 on VIN, CH2 on VC (top of the capacitor).",
+        "",
+        "**Theory**: KVL gives LC·u_C'' + RC·u_C' + u_C = u_s. The characteristic roots are s = −α ± √(α² − ω0²) with α = R/(2L) and ω0 = 1/√(LC).",
+        "- Undamped ringing frequency f0 = 1/(2π√(LC)) = 1/(2π√(10 mH × 100 nF)) ≈ 5.03 kHz.",
+        "- Damping ratio ζ = α/ω0 = (R/2)·√(C/L). The resistance giving ζ = 1 is the critical resistance R = 2√(L/C) = 2√(10 mH / 100 nF) ≈ 632 Ω.",
+        "- R here is the **total loop resistance**: potentiometer + generator 50 Ω + inductor winding 1 Ω.",
+        "",
+        "**Turn the potentiometer** (wiper = the share of the 1 kΩ between pins 1 and 2):",
+        "- **5% (50 Ω, R_total ≈ 101 Ω, ζ ≈ 0.16, underdamped)**: u_C shoots past 2 V and rings at ≈ 5 kHz inside an e^(−αt) envelope (1/α = 2L/R ≈ 0.2 ms). The first peak overshoots by e^(−πζ/√(1−ζ²)) ≈ 60%, reaching ≈ 2 + 2 × 0.6 ≈ 3.2 V — the capacitor voltage exceeds the source voltage! The falling edge likewise undershoots below 0 V, down to about −1.2 V.",
+        "- **30% (300 Ω, R_total ≈ 351 Ω, ζ ≈ 0.56, underdamped)**: just one small bump, ≈ 12% overshoot, peak ≈ 2.25 V.",
+        "- **60% (600 Ω, R_total ≈ 651 Ω, ζ ≈ 1.03, about critical)**: no overshoot; the fastest smooth arrival at 2 V.",
+        "- **100% (1 kΩ, R_total ≈ 1051 Ω, ζ ≈ 1.66, overdamped)**: no overshoot either, but a noticeably slower rise (like a slow RC charge).",
+        "",
+        "**Think**: why can't the generator's 50 Ω be ignored here? (Hint: compared with the 632 Ω critical resistance, 50 Ω is not small; even with the pot at 0, ζ only drops to about 0.08.)"
+      ],
+      "hints": [
+        "Use the pot as a variable resistor: pin 1 to the generator, pins 2 and 3 joined with a short wire.",
+        "Series order: generator → pot → inductor → capacitor → GND. Watch the capacitor voltage.",
+        "Critical damping: R_total = 2√(L/C) ≈ 632 Ω, and R_total includes the generator's 50 Ω."
+      ],
+      "tests": [
+        "Pot at 5% (ζ ≈ 0.16): strong ringing, peak ≈ 3.2 V, dip ≈ −1.2 V",
+        "Pot at 30% (ζ ≈ 0.56): small overshoot, peak ≈ 2.25 V",
+        "Pot at 60% (ζ ≈ 1, critical): no overshoot, settles at 2 V",
+        "Pot at 100% (ζ ≈ 1.66, overdamped): no overshoot"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "RV1", "type": "potentiometer", "resistance": "1k" },
+    { "ref": "L1", "type": "inductor", "inductance": "10m" },
+    { "ref": "C1", "type": "capacitor", "capacitance": "100n" }
+  ],
+  "nets": [
+    { "name": "VIN", "pins": ["FG1.+", "RV1.1"] },
+    { "name": "N1", "pins": ["RV1.2", "RV1.3", "L1.1"] },
+    { "name": "VC", "pins": ["L1.2", "C1.1"] },
+    { "name": "GND", "pins": ["C1.2", "FG1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "电位器 5%（ζ ≈ 0.16）：强烈振铃，峰值 ≈ 3.2 V、谷值 ≈ −1.2 V",
+      "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 0.05 } },
+      "scope": [
+        { "pin": "C1.1", "measure": "vmax", "min": 3.05, "max": 3.35 },
+        { "pin": "C1.1", "measure": "vmin", "min": -1.35, "max": -1.05 }
+      ]
+    },
+    {
+      "name": "电位器 30%（ζ ≈ 0.56）：小超调，峰值 ≈ 2.25 V",
+      "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 0.3 } },
+      "scope": [{ "pin": "C1.1", "measure": "vmax", "min": 2.15, "max": 2.35 }]
+    },
+    {
+      "name": "电位器 60%（ζ ≈ 1，临界阻尼）：不超调，稳定在 2 V",
+      "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 0.6 } },
+      "scope": [
+        { "pin": "C1.1", "measure": "vmax", "min": 1.98, "max": 2.02 },
+        { "pin": "C1.1", "measure": "vmin", "min": -0.02, "max": 0.02 }
+      ]
+    },
+    {
+      "name": "电位器 100%（ζ ≈ 1.66，过阻尼）：不超调",
+      "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 1 } },
+      "scope": [{ "pin": "C1.1", "measure": "vmax", "min": 1.97, "max": 2.01 }]
+    }
+  ],
+  "hints": [
+    "电位器当可变电阻用：1 脚接信号发生器，2 脚和 3 脚用一根短跳线连起来。",
+    "串联顺序：信号发生器 → 电位器 → 电感 → 电容 → GND，看电容电压。",
+    "临界阻尼：R总 = 2√(L/C) ≈ 632 Ω，R总里要算上信号发生器的 50 Ω。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1, "pins": { "+": "b5", "-": "tn3" } },
+      { "type": "potentiometer", "ref": "RV1", "resistance": "1k", "wiper": 0.05, "at": "a5" },
+      { "type": "wire", "pins": { "a": "b6", "b": "b7" }, "color": "yellow" },
+      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "c7", "2": "c14" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "d14", "2": "tn14" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e5", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e14", "gnd": "tn21" } }
+    ]
+  }
+}

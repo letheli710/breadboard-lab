@@ -71,3 +71,39 @@ describe('built-in challenges', () => {
     });
   }
 });
+
+describe('challenge "phase"', () => {
+  const base = {
+    format: 'breadboard-challenge/1',
+    id: 'phase-test',
+    title: 'phase',
+    components: [
+      { ref: 'V1', type: 'dc_source', voltage: 9 },
+      { ref: 'R1', type: 'resistor', resistance: '1k' },
+    ],
+    connections: [
+      ['V1.+', 'R1.1'],
+      ['R1.2', 'V1.-'],
+    ],
+  };
+  it('is optional (undefined = intro set)', () => {
+    const r = parseChallenge(base);
+    expect(r.ok).toBe(true);
+    expect(r.challenge!.phase).toBeUndefined();
+  });
+  it('accepts 1–4', () => {
+    for (const phase of [1, 2, 3, 4]) expect(parseChallenge({ ...base, phase }).challenge!.phase).toBe(phase);
+  });
+  it('rejects anything else', () => {
+    for (const phase of [0, 5, 1.5, '2', null]) expect(parseChallenge({ ...base, phase }).ok).toBe(false);
+  });
+  it('file numbers match the phase (2NN files carry one)', () => {
+    for (const f of files) {
+      const name = f.slice(DIR.length);
+      const n = Number(/^(\d+)-/.exec(name)?.[1]);
+      const phase = JSON.parse(readFileSync(f, 'utf8')).phase;
+      if (n >= 200) expect(phase, name).toBe(Math.floor((n - 200) / 20) + 1);
+      else expect(phase, name).toBeUndefined();
+    }
+  });
+});

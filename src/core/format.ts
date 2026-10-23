@@ -55,6 +55,16 @@ export const ohms = (v: number) => formatSI(v, 'Ω');
 export const volts = (v: number) => formatSI(Math.abs(v) < 5e-4 ? 0 : v, 'V');
 export const amps = (v: number) => formatSI(Math.abs(v) < 5e-7 ? 0 : v, 'A');
 
+/** Node voltage under AC: average (DC) value plus its peak-to-peak swing.
+ *  short: "2.5 V ~1.2 Vpp" (schematic labels); long: "平均 2.5 V，交流 1.2 Vpp" / "avg 2.5 V, AC 1.2 Vpp".
+ *  A swing under 1 mVpp counts as none and only the average is shown. */
+export function acVolts(avg: number, pp: number, long = false): string {
+  const a = volts(avg);
+  if (!(pp >= 1e-3)) return long ? tr(`${a}（无交流）`, `${a} (no AC)`) : a;
+  const s = formatSI(pp, 'Vpp');
+  return long ? tr(`平均 ${a}，交流 ${s}`, `avg ${a}, AC ${s}`) : `${a} ~${s}`;
+}
+
 /** Colour band; the name is bilingual in Chinese mode ("红 red"), English-only otherwise. */
 const band = (zh: string, en: string, hex: string) => ({
   get name() {

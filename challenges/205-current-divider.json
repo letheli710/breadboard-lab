@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-current-divider",
+  "title": "实验 1-5 · 分流：10 mA 怎么分给几条支路",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 1,
+  "summary": "用 CC 模式的电源灌进 10 mA，看它在 1kΩ、3.3kΩ（再加 2.2kΩ）之间怎么分。板上的电流表接错了，先修好它。",
+  "concepts": ["current divider 分流", "conductance 电导", "parallel 并联", "ammeter in parallel 电流表并联（错误）"],
+  "description": "**实验目的**：并联支路分电流的规律——电阻越小（电导越大），分到的电流越多。\n\n**电源**：稳压电源 12 V、限流 0.01 A，让它工作在 CC 模式，当作 10 mA 的电流源（见实验 1-4）。\n\n**电路**：电源 + 接结点 N，N 和 GND 之间并联：R1（1kΩ）、R2（3.3kΩ），以及“按键 SW1 + R3（2.2kΩ）”这一条可以接通的支路。\n\n**先修一个错误**：板上那块电流表被**并联**在 N 和 GND 之间。电流表的内阻只有 0.1Ω，并联上去等于用一根导线把 N 短接到 GND：10 mA 全部从电流表走了，电阻上几乎没有电流。（幸好电源在 CC 模式，电流被限制在 10 mA；如果是电池，真实万用表的保险丝会烧掉。）把它拿掉，或者把它**串联**进某一条支路里——这道题判分时把串联的电流表当作导线，所以想看哪条支路的电流就串在哪里。\n\n**两条支路**（按键松开）：\n- 分流公式：I1 = I × R2 / (R1 + R2) = 10 × 3.3 / 4.3 ≈ **7.67 mA**，I2 = 10 × 1 / 4.3 ≈ **2.33 mA**；\n- N 点电压 = 10 mA × (1k ∥ 3.3k = 767Ω) ≈ 7.67 V。\n\n**三条支路**（按下按键）：用电导更方便，Ik = I × Gk / ΣG。G1 = 1 mS，G2 = 0.303 mS，G3 = 0.455 mS，ΣG = 1.758 mS：\n- I1 ≈ **5.69 mA**，I2 ≈ **1.72 mA**，I3 ≈ **2.58 mA**，加起来还是 10 mA；\n- N 点电压降到 10 / 1.758 ≈ 5.69 V。\n\n注意：因为电源是电流源，加一条支路后**总电流不变**，变的是电压和每条支路分到的份额。如果换成电压源，结果完全不同——总电流会变大。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 1-5 · Current divider: how 10 mA is shared between branches",
+      "summary": "Push 10 mA from a supply in CC mode and see how it splits between 1kΩ, 3.3kΩ (and then 2.2kΩ). The ammeter on the board is connected wrongly; fix it first.",
+      "concepts": ["current divider", "conductance", "parallel", "ammeter in parallel (mistake)"],
+      "description": "**Goal**: learn how parallel branches share a current: the smaller the resistance (the larger the conductance), the bigger its share.\n\n**Supply**: bench supply at 12 V with a 0.01 A current limit, so it runs in CC mode as a 10 mA current source (see Experiment 1-4).\n\n**Circuit**: supply + goes to node N; between N and GND, in parallel: R1 (1kΩ), R2 (3.3kΩ), and a branch \"push button SW1 + R3 (2.2kΩ)\" that you can switch in.\n\n**Fix a mistake first**: the ammeter on the board is connected **in parallel**, between N and GND. An ammeter is only 0.1Ω, so across the circuit it is a wire shorting N to GND: all 10 mA goes through the meter and almost none through the resistors. (Luckily the supply is in CC mode and holds the current at 10 mA; with a battery a real multimeter would blow its fuse.) Remove it, or put it **in series** with one branch. In this experiment the checker treats a series ammeter as a wire, so put one in whichever branch you want to watch.\n\n**Two branches** (button released):\n- current divider rule: I1 = I × R2 / (R1 + R2) = 10 × 3.3 / 4.3 ≈ **7.67 mA**, I2 = 10 × 1 / 4.3 ≈ **2.33 mA**;\n- voltage at N = 10 mA × (1k ∥ 3.3k = 767Ω) ≈ 7.67 V.\n\n**Three branches** (button pressed): conductances are easier, Ik = I × Gk / ΣG. G1 = 1 mS, G2 = 0.303 mS, G3 = 0.455 mS, ΣG = 1.758 mS:\n- I1 ≈ **5.69 mA**, I2 ≈ **1.72 mA**, I3 ≈ **2.58 mA**, still 10 mA in total;\n- the voltage at N drops to 10 / 1.758 ≈ 5.69 V.\n\nNote: because the supply is a current source, adding a branch does **not** change the total current; the voltage and each branch's share change instead. With a voltage source it would be completely different: the total current would grow.",
+      "hints": [
+        "An ammeter between N and GND shorts the circuit. Remove it first; to measure a branch, open that branch and put the ammeter in series.",
+        "Supply: 12 V, current limit 0.01 A.",
+        "The push button straddles the gap: one side to N, the other side to R3, and R3's other end back to GND."
+      ],
+      "tests": [
+        "Two branches: I1 ≈ 7.67 mA, I2 ≈ 2.33 mA (sum = 10 mA), N ≈ 7.67 V",
+        "Button pressed, third branch added: 5.69 + 1.72 + 2.58 ≈ 10 mA, N drops to ≈ 5.69 V"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "PSU1", "type": "bench_supply", "voltage": 12, "currentLimit": 0.01},
+    {"ref": "R1", "type": "resistor", "resistance": "1k"},
+    {"ref": "R2", "type": "resistor", "resistance": "3.3k"},
+    {"ref": "SW1", "type": "pushbutton"},
+    {"ref": "R3", "type": "resistor", "resistance": "2.2k"}
+  ],
+  "nets": [
+    {"name": "N", "pins": ["PSU1.+", "R1.1", "R2.1", "SW1.1"]},
+    {"pins": ["SW1.2", "R3.1"]},
+    {"name": "GND", "pins": ["R1.2", "R2.2", "R3.2", "PSU1.-"]}
+  ],
+  "tests": [
+    {
+      "name": "两条支路：I1 ≈ 7.67 mA，I2 ≈ 2.33 mA（和 = 10 mA），N ≈ 7.67 V",
+      "set": {"SW1": {"pressed": false}},
+      "currents": [
+        {"el": "R1", "min": 0.0074, "max": 0.0079},
+        {"el": "R2", "min": 0.00225, "max": 0.0024}
+      ],
+      "voltages": [{"pin": "PSU1.+", "ref": "PSU1.-", "min": 7.4, "max": 7.9}]
+    },
+    {
+      "name": "按下按键，加上第三条支路：5.69 + 1.72 + 2.58 ≈ 10 mA，N 降到 ≈ 5.69 V",
+      "set": {"SW1": {"pressed": true}},
+      "currents": [
+        {"el": "R1", "min": 0.0055, "max": 0.0059},
+        {"el": "R2", "min": 0.00167, "max": 0.00178},
+        {"el": "R3", "min": 0.0025, "max": 0.00268}
+      ],
+      "voltages": [{"pin": "PSU1.+", "ref": "PSU1.-", "min": 5.5, "max": 5.85}]
+    }
+  ],
+  "hints": [
+    "电流表接在 N 和 GND 之间就是把电路短路了。先拿掉它；想测某条支路时，把那条支路断开，再把电流表串进去。",
+    "电源：12 V、限流 0.01 A。",
+    "按键横跨凹槽：一边接 N，另一边接 R3，R3 的另一端回 GND。"
+  ],
+  "start": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 12, "currentLimit": 0.01, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b3", "2": "tn6"}},
+      {"type": "resistor", "ref": "R2", "resistance": "3.3k", "pins": {"1": "c3", "2": "tn8"}},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "d3", "-": "tn10"}}
+    ]
+  },
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 12, "currentLimit": 0.01, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b3", "2": "tn6"}},
+      {"type": "resistor", "ref": "R2", "resistance": "3.3k", "pins": {"1": "c3", "2": "tn8"}},
+      {"type": "pushbutton", "ref": "SW1", "at": "e3"},
+      {"type": "resistor", "ref": "R3", "resistance": "2.2k", "pins": {"1": "g5", "2": "g9"}},
+      {"type": "wire", "pins": {"a": "h9", "b": "bn9"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "tn12", "b": "bn12"}, "color": "blue"}
+    ]
+  }
+}

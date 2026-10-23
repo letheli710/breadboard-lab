@@ -1,0 +1,83 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-wheatstone-bridge",
+  "title": "实验 1-6 · 惠斯通电桥：把电流表调到零",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 1,
+  "summary": "两个分压器并排，中点之间接一块电流表；转动电位器让读数归零，就测出了电阻。",
+  "concepts": ["Wheatstone bridge 惠斯通电桥", "balance 平衡", "null measurement 零点测量", "R1/R2 = R3/Rx"],
+  "description": "**实验目的**：惠斯通电桥（Wheatstone bridge）是精确测电阻的经典方法：调节一个已知电阻，直到电桥中间的电流为零。\n\n**电路**：+9V 和 GND 之间并排放两个分压器：\n- 左臂：R1（1kΩ，上）→ 中点 A → R2（2.2kΩ，下）→ GND；\n- 右臂：R3（1kΩ，上）→ 中点 B → RV1（下）→ GND。RV1 是 10kΩ 电位器当可变电阻用：1 脚接 B，滑动端和 3 脚连在一起接 GND，电阻 = 10kΩ × 旋钮位置。\n- 电流表 AM1 跨接在 A、B 之间：红表笔接 A，黑表笔接 B。\n\n**平衡条件**：当 A、B 两点电位相等时，电流表里没有电流。这要求两个分压比相同：R1 / R2 = R3 / RV1，所以 RV1 = R3 × R2 / R1 = **2.2kΩ**，也就是旋钮在 **22%**。\n此时 V(A) = V(B) = 9 × 2.2 / 3.2 ≈ **6.19 V**，AM1 ≈ 0。\n\n**不平衡时**（模拟器读数）：\n- 10%（RV1 = 1kΩ）：右臂分压比左臂低（不接电流表时 B = 4.50 V，A = 6.19 V），电流从 A 流向 B，AM1 ≈ **+1.42 mA**；\n- 50%（RV1 = 5kΩ）：右臂分压比左臂高（B = 7.50 V），电流反过来，AM1 ≈ **−0.86 mA**。\n\n**为什么准**：平衡点只取决于电阻的**比值**，和电源电压是多少、电流表准不准都无关——我们只需要判断“是不是零”。把 R2 换成一个未知电阻，调到平衡，就能算出它的值。\n\n小提示：电流表只有 0.1Ω，不平衡时它也会把 A、B 两点“拉”到几乎同一个电压，所以这时用万用表量 A、B 看不出差别——要看电流表的读数。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 1-6 · Wheatstone bridge: null the ammeter",
+      "summary": "Two dividers side by side with an ammeter between their midpoints; turn the pot until the reading is zero and you have measured a resistance.",
+      "concepts": ["Wheatstone bridge", "balance", "null measurement", "R1/R2 = R3/Rx"],
+      "description": "**Goal**: the Wheatstone bridge is the classic way to measure a resistance precisely: adjust a known resistor until no current flows through the middle of the bridge.\n\n**Circuit**: two dividers side by side between +9V and GND:\n- left arm: R1 (1kΩ, top) → midpoint A → R2 (2.2kΩ, bottom) → GND;\n- right arm: R3 (1kΩ, top) → midpoint B → RV1 (bottom) → GND. RV1 is a 10kΩ pot used as a variable resistor: pin 1 to B, wiper and pin 3 joined to GND, resistance = 10kΩ × knob position.\n- ammeter AM1 bridges A and B: red lead at A, black lead at B.\n\n**Balance condition**: when A and B are at the same potential, no current flows through the ammeter. That needs equal divider ratios: R1 / R2 = R3 / RV1, so RV1 = R3 × R2 / R1 = **2.2kΩ**, i.e. the knob at **22%**.\nThen V(A) = V(B) = 9 × 2.2 / 3.2 ≈ **6.19 V** and AM1 ≈ 0.\n\n**Out of balance** (simulator readings):\n- 10% (RV1 = 1kΩ): the right divider gives less than the left one (without the ammeter B = 4.50 V, A = 6.19 V), so current flows from A to B, AM1 ≈ **+1.42 mA**;\n- 50% (RV1 = 5kΩ): the right divider gives more (B = 7.50 V), the current reverses, AM1 ≈ **−0.86 mA**.\n\n**Why it is accurate**: the balance point depends only on resistance **ratios**, not on the supply voltage or on how accurate the ammeter is: we only need to see \"zero or not\". Replace R2 with an unknown resistor, balance the bridge, and you can calculate its value.\n\nTip: the ammeter is only 0.1Ω, so even out of balance it pulls A and B to almost the same voltage. A multimeter across A and B shows no difference then; watch the ammeter instead.",
+      "hints": [
+        "Build the two dividers first: R1 + R2 on the left, R3 + RV1 on the right, tops to +9V, bottoms to GND.",
+        "RV1 as a variable resistor: pin 1 to B, wiper and pin 3 joined to GND. 22% is 2.2kΩ.",
+        "Ammeter red lead at A (between R1 and R2), black lead at B (between R3 and RV1)."
+      ],
+      "tests": [
+        "RV1 at 22%: bridge balanced, AM1 ≈ 0, A and B both ≈ 6.19 V",
+        "RV1 at 10%: AM1 ≈ +1.42 mA (current flows from A to B)",
+        "RV1 at 50%: AM1 ≈ −0.86 mA (current reversed)"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "R1", "type": "resistor", "resistance": "1k"},
+    {"ref": "R2", "type": "resistor", "resistance": "2.2k"},
+    {"ref": "R3", "type": "resistor", "resistance": "1k"},
+    {"ref": "RV1", "type": "potentiometer", "resistance": "10k"},
+    {"ref": "AM1", "type": "ammeter"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "R1.1", "R3.1"]},
+    {"name": "A", "pins": ["R1.2", "R2.1", "AM1.+"]},
+    {"name": "B", "pins": ["R3.2", "RV1.1", "AM1.-"]},
+    {"name": "GND", "pins": ["R2.2", "RV1.2", "RV1.3", "V1.-"]}
+  ],
+  "tests": [
+    {
+      "name": "RV1 在 22%：电桥平衡，AM1 ≈ 0，A、B 都 ≈ 6.19 V",
+      "set": {"RV1": {"wiper": 0.22}},
+      "currents": [{"el": "AM1", "min": -1e-05, "max": 1e-05}],
+      "voltages": [
+        {"pin": "R1.2", "ref": "V1.-", "min": 6.0, "max": 6.35},
+        {"pin": "R3.2", "ref": "V1.-", "min": 6.0, "max": 6.35}
+      ]
+    },
+    {
+      "name": "RV1 在 10%：AM1 ≈ +1.42 mA（电流从 A 流向 B）",
+      "set": {"RV1": {"wiper": 0.1}},
+      "currents": [{"el": "AM1", "min": 0.0013, "max": 0.00155}]
+    },
+    {
+      "name": "RV1 在 50%：AM1 ≈ −0.86 mA（电流反向）",
+      "set": {"RV1": {"wiper": 0.5}},
+      "currents": [{"el": "AM1", "min": -0.00095, "max": -0.00078}]
+    }
+  ],
+  "hints": [
+    "先搭两个分压器：左边 R1 + R2，右边 R3 + RV1，上端都接 +9V，下端都接 GND。",
+    "RV1 当可变电阻：1 脚接 B，滑动端和 3 脚连起来接 GND。旋到 22% 就是 2.2kΩ。",
+    "电流表红表笔接 A（R1 和 R2 之间），黑表笔接 B（R3 和 RV1 之间）。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b3", "2": "b7"}},
+      {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c7", "2": "tn9"}},
+      {"type": "resistor", "ref": "R3", "resistance": "1k", "pins": {"1": "tp12", "2": "b12"}},
+      {"type": "potentiometer", "ref": "RV1", "resistance": "10k", "at": "c12"},
+      {"type": "wire", "pins": {"a": "d13", "b": "d14"}, "color": "yellow"},
+      {"type": "wire", "pins": {"a": "a14", "b": "tn14"}, "color": "blue"},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "d7", "-": "d12"}}
+    ]
+  }
+}

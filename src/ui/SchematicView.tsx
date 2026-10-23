@@ -1,15 +1,19 @@
 import { useMemo } from 'react';
 import { tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
-import { amps, ohms, volts } from '../core/format';
+import { acVolts, amps, ohms, volts } from '../core/format';
 import { BATTERIES, LED_COLORS, isPower, sourceVoltage } from '../core/parts';
 import { layoutSchematic, type SElement } from '../core/schematic';
 import type { SimResult } from '../core/solver';
+import type { TransientResult } from '../core/transient';
+import { nodeAc } from '../state/derived';
 import type { Circuit } from '../core/types';
 
 interface Props {
   circuit: Circuit;
   sim?: SimResult | null;
+  /** transient result (generator on the board): node labels show average + AC swing */
+  ac?: TransientResult | null;
   showValues?: boolean;
   hoverNet?: string | null;
   onHoverNet?: (n: string | null) => void;
@@ -174,7 +178,7 @@ function SwitchSymbol({ el, hl }: { el: SElement; hl: boolean }) {
   );
 }
 
-export function SchematicView({ circuit, sim, showValues = true, hoverNet, onHoverNet, highlightRefs = [], emptyText }: Props) {
+export function SchematicView({ circuit, sim, ac, showValues = true, hoverNet, onHoverNet, highlightRefs = [], emptyText }: Props) {
   const lay = useMemo(() => layoutSchematic(circuit, sim), [circuit, sim]);
   const hl = new Set(highlightRefs);
   if (circuit.components.length === 0)
@@ -210,7 +214,10 @@ export function SchematicView({ circuit, sim, showValues = true, hoverNet, onHov
               </text>
               {showValues && b.voltage !== undefined && (
                 <text x={x1 - (dangling ? 18 : 10)} y={b.y + 13} textAnchor="end" className="net-volt">
-                  {volts(b.voltage)}
+                  {(() => {
+                    const a = nodeAc({ ac: ac ?? null }, b.net);
+                    return a ? acVolts(a.avg, a.pp) : volts(b.voltage);
+                  })()}
                 </text>
               )}
               {b.isGround && (

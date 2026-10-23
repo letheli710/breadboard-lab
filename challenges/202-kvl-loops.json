@@ -1,0 +1,77 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-kvl-loops",
+  "title": "实验 1-2 · 用万用表沿回路验证 KVL",
+  "kind": "challenge",
+  "level": 2,
+  "phase": 1,
+  "summary": "一个电源、三个电阻和一颗 LED 组成三个回路：沿任意回路走一圈，电压加起来都等于 0。",
+  "concepts": ["KVL 基尔霍夫电压定律", "loop 回路", "multimeter 万用表", "voltage drop 电压降"],
+  "description": "**实验目的**：用万用表测量每个元件两端的电压，验证基尔霍夫电压定律（KVL）：沿任意闭合回路（loop）绕一圈，各段电压的代数和为 0。\n\n**电路**：+9V → R1（470Ω）→ 结点 M。从 M 到 GND 有两条路：\n- 红色 LED（长脚 anode 接 M，短脚接 GND）；\n- R2（1kΩ）→ 结点 X → R3（2.2kΩ）→ GND。\n\n**怎么测电压**：选“万用表”工具，点一个孔放红表笔，Shift + 点击另一个孔放黑表笔，读数 = V(红) − V(黑)。测元件电压时，红表笔放在它的一端，黑表笔放在另一端。\n\n**你应该测到**（模拟器读数）：\n- 电源：9.00 V\n- R1：≈ 7.03 V（电流 ≈ 14.95 mA）\n- LED：≈ 1.97 V（不是 1.8 V：LED 模型 = 1.8 V + 12Ω 内阻，14.3 mA × 12Ω ≈ 0.17 V）\n- R2：≈ 0.62 V，R3：≈ 1.36 V（这条支路电流只有 0.62 mA）\n\n**三个回路**：\n1. 电源 → R1 → LED → 回到电源：9.00 = 7.03 + 1.97；\n2. LED 和 R2、R3 组成的回路（里面**没有电源**）：1.97 = 0.62 + 1.36，绕一圈 1.97 − 0.62 − 1.36 = 0；\n3. 电源 → R1 → R2 → R3：9.00 = 7.03 + 0.62 + 1.36。\n\nKVL 对 LED 这种非线性元件同样成立：它只关心电压，不关心元件的伏安特性。第 2 个回路说明：并联的两条支路两端电压一定相等。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 1-2 · Verify KVL around loops with a multimeter",
+      "summary": "One supply, three resistors and an LED form three loops: go around any loop and the voltages add up to 0.",
+      "concepts": ["KVL (Kirchhoff's voltage law)", "loop", "multimeter", "voltage drop"],
+      "description": "**Goal**: measure the voltage across every part with the multimeter and check Kirchhoff's voltage law (KVL): going once around any closed loop, the voltages add up (with signs) to 0.\n\n**Circuit**: +9V → R1 (470Ω) → node M. From M there are two paths to GND:\n- a red LED (long lead, anode, at M; short lead at GND);\n- R2 (1kΩ) → node X → R3 (2.2kΩ) → GND.\n\n**How to measure a voltage**: pick the \"Multimeter\" tool, click a hole for the red probe and Shift + click another hole for the black probe; the reading is V(red) − V(black). To measure a part, put the red probe on one of its ends and the black probe on the other.\n\n**What you should measure** (simulator readings):\n- supply: 9.00 V\n- R1: ≈ 7.03 V (current ≈ 14.95 mA)\n- LED: ≈ 1.97 V (not 1.8 V: the LED model is 1.8 V plus 12Ω, and 14.3 mA × 12Ω ≈ 0.17 V)\n- R2: ≈ 0.62 V, R3: ≈ 1.36 V (only 0.62 mA flows in this branch)\n\n**Three loops**:\n1. supply → R1 → LED → back to the supply: 9.00 = 7.03 + 1.97;\n2. the loop made of the LED, R2 and R3 (it has **no source**): 1.97 = 0.62 + 1.36, i.e. once around, 1.97 − 0.62 − 1.36 = 0;\n3. supply → R1 → R2 → R3: 9.00 = 7.03 + 0.62 + 1.36.\n\nKVL holds for a non-linear part like the LED too: it only talks about voltages, not about how a part behaves. Loop 2 shows that two branches in parallel always have the same voltage across them.",
+      "hints": [
+        "M is a node: one end of R1, the LED's long lead and one end of R2 must share a column (one metal strip).",
+        "The LED's short lead (cathode) and the far end of R3 both go to GND (the blue rail).",
+        "To measure R2: click the red probe onto R2's lead at M, then Shift + click the black probe onto R2's lead at X."
+      ],
+      "tests": [
+        "LED on; loop 1: supply 9 V = ≈ 7.03 V across R1 + ≈ 1.97 V across the LED",
+        "Loop 2 (no source): the LED's 1.97 V = ≈ 0.62 V across R2 + ≈ 1.36 V across R3"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "R1", "type": "resistor", "resistance": "470"},
+    {"ref": "LED1", "type": "led", "color": "red"},
+    {"ref": "R2", "type": "resistor", "resistance": "1k"},
+    {"ref": "R3", "type": "resistor", "resistance": "2.2k"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "R1.1"]},
+    {"name": "M", "pins": ["R1.2", "LED1.anode", "R2.1"]},
+    {"name": "X", "pins": ["R2.2", "R3.1"]},
+    {"name": "GND", "pins": ["LED1.cathode", "R3.2", "V1.-"]}
+  ],
+  "tests": [
+    {
+      "name": "LED 亮；回路 1：电源 9 V = R1 上 ≈ 7.03 V + LED 上 ≈ 1.97 V",
+      "expect": {"LED1": "on"},
+      "voltages": [
+        {"pin": "V1.+", "ref": "V1.-", "min": 8.85, "max": 9.05},
+        {"pin": "R1.1", "ref": "R1.2", "min": 6.9, "max": 7.3},
+        {"pin": "LED1.anode", "ref": "LED1.cathode", "min": 1.9, "max": 2.05}
+      ]
+    },
+    {
+      "name": "回路 2（无电源）：LED 上的 1.97 V = R2 上 ≈ 0.62 V + R3 上 ≈ 1.36 V",
+      "voltages": [
+        {"pin": "R2.1", "ref": "R2.2", "min": 0.58, "max": 0.65},
+        {"pin": "R3.1", "ref": "R3.2", "min": 1.3, "max": 1.4}
+      ]
+    }
+  ],
+  "hints": [
+    "M 是一个结点：R1 的一端、LED 的长脚和 R2 的一端要在同一列（同一条金属条）。",
+    "LED 的短脚（cathode）和 R3 的另一端都要接到 GND（蓝轨）。",
+    "测 R2 的电压：红表笔点 R2 靠 M 的那只脚，Shift + 点击放黑表笔在 R2 靠 X 的那只脚。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "470", "pins": {"1": "b3", "2": "b7"}},
+      {"type": "led", "ref": "LED1", "color": "red", "pins": {"anode": "c7", "cathode": "c10"}},
+      {"type": "wire", "pins": {"a": "a10", "b": "tn10"}, "color": "blue"},
+      {"type": "resistor", "ref": "R2", "resistance": "1k", "pins": {"1": "d7", "2": "d13"}},
+      {"type": "resistor", "ref": "R3", "resistance": "2.2k", "pins": {"1": "c13", "2": "c18"}},
+      {"type": "wire", "pins": {"a": "a18", "b": "tn18"}, "color": "blue"}
+    ]
+  }
+}

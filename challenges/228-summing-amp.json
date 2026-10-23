@@ -1,0 +1,100 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-summing-amp",
+  "title": "实验 2-8 · 反相加法器：把直流和交流加在一起",
+  "kind": "challenge",
+  "level": 5,
+  "phase": 2,
+  "summary": "两路输入经 47kΩ 和 10kΩ 汇到虚地：开关加上一个 −1.91 V 的直流，信号发生器的正弦被整体“搬”下去。",
+  "concepts": ["summing amplifier 加法器", "virtual ground 虚地", "KCL at the summing node 求和点 KCL", "superposition 叠加"],
+  "description": "**实验目的**：反相加法器 Uo = −(RF/R1 × U1 + RF/R2 × U2)。用一个开关提供直流输入、信号发生器提供交流输入，看输出是两者之和（并反相）。\n\n**电路**（±9 V 双电源，接法同实验 2-7）：\n- IN+ 接 GND，RF（10kΩ）从 IN−（求和点 SUM）接到 OUT；\n- 输入 1：拨动开关 S1，a 侧接 +9V，b 侧接 GND，com → R1（47kΩ）→ SUM；\n- 输入 2：信号发生器 FG1（黑夹子接 GND）→ R2（10kΩ）→ SUM。\n\n**原理**：SUM 是虚地（0 V），所以两路输入电流互不影响：I1 = U1 / R1，I2 = U2 / R2，它们在 SUM 处汇合后全部流过 RF（KCL）：Uo = −RF (I1 + I2)。\n- S1 拨到 a：直流部分 = −10k × 9 / 47k ≈ **−1.91 V**；\n- 信号部分 = −10k / 10k × u_fg = **−u_fg**（增益 −1）。\n\n**测量**（信号发生器 1 kHz 正弦）：\n1. S1→b，幅度 1 V：只有交流，输出 ≈ **1.99 Vpp**、平均 0 V（不是 2.00 Vpp，原因是信号发生器的 50Ω 输出电阻，见实验 2-7）；\n2. S1→a，幅度 1 V：同样 1.99 Vpp，但整条波形下移到 **−0.92 V ~ −2.91 V** 之间，平均 −1.91 V；\n3. S1→a，信号设成幅度 0.5 V、偏置 1 V：输出平均 ≈ **−2.91 V** = −(1.91 + 1.00)。万用表直流档量电流：R1 ≈ 0.19 mA，R2 平均 ≈ 0.10 mA，合起来 0.29 mA 全部流过 RF（从 SUM 流向 OUT）。\n\n这就是混音器、电平平移和数模转换器（DAC）的基本原理。因为求和点是虚地，增加一路输入不会影响其他输入——这是运放加法器比“用电阻直接把信号连在一起”好的地方。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 2-8 · Inverting summing amplifier: add DC and AC together",
+      "summary": "Two inputs meet at the virtual ground through 47kΩ and 10kΩ: the switch adds −1.91 V of DC, and the generator's sine wave is shifted down as a whole.",
+      "concepts": ["summing amplifier", "virtual ground", "KCL at the summing node", "superposition"],
+      "description": "**Goal**: the inverting summing amplifier gives Uo = −(RF/R1 × U1 + RF/R2 × U2). A switch provides a DC input and the function generator an AC input; the output is their sum (inverted).\n\n**Circuit** (±9 V dual supply, wired as in Experiment 2-7):\n- IN+ to GND, RF (10kΩ) from IN− (the summing node SUM) to OUT;\n- input 1: slide switch S1, side a to +9V, side b to GND, com → R1 (47kΩ) → SUM;\n- input 2: function generator FG1 (black clip to GND) → R2 (10kΩ) → SUM.\n\n**How it works**: SUM is a virtual ground (0 V), so the two input currents don't disturb each other: I1 = U1 / R1, I2 = U2 / R2. They meet at SUM and all of it flows through RF (KCL): Uo = −RF (I1 + I2).\n- S1 on a: DC part = −10k × 9 / 47k ≈ **−1.91 V**;\n- signal part = −10k / 10k × u_fg = **−u_fg** (gain −1).\n\n**Measure** (generator at 1 kHz sine):\n1. S1→b, amplitude 1 V: AC only, the output is ≈ **1.99 Vpp** with a 0 V average (not 2.00 Vpp because of the generator's 50Ω output resistance, see Experiment 2-7);\n2. S1→a, amplitude 1 V: still 1.99 Vpp, but the whole waveform moves down to between **−0.92 V and −2.91 V**, average −1.91 V;\n3. S1→a, generator set to amplitude 0.5 V with a 1 V offset: output average ≈ **−2.91 V** = −(1.91 + 1.00). DC currents: R1 ≈ 0.19 mA, R2 ≈ 0.10 mA on average, together 0.29 mA, all of which flows through RF (from SUM toward OUT).\n\nThis is the basic idea behind audio mixers, level shifters and digital-to-analog converters (DACs). Because the summing node is a virtual ground, adding another input doesn't affect the others; that is what makes an op-amp summer better than just tying signals together with resistors.",
+      "hints": [
+        "Dual supply: two 9 V supplies in series, the middle point is GND; V1 + → op-amp pin 8, V2 − → op-amp pin 4. IN+ to GND.",
+        "S1: side a to +9V, side b to GND, com through R1 (47kΩ) to IN−.",
+        "Generator + through R2 (10kΩ) to IN−; RF (10kΩ) between IN− and OUT."
+      ],
+      "tests": [
+        "S1→b (AC only): output ≈ 1.99 Vpp, average 0 V",
+        "S1→a (−1.91 V DC added): still 1.99 Vpp, shifted down to −0.92 … −2.91 V",
+        "S1→a with a 1 V offset on the signal: average ≈ −2.91 V; KCL at the virtual ground: 0.19 + 0.10 = 0.29 mA, all through RF"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "V2", "type": "dc_source", "voltage": 9},
+    {"ref": "U1", "type": "opamp"},
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "S1", "type": "switch"},
+    {"ref": "R1", "type": "resistor", "resistance": "47k"},
+    {"ref": "R2", "type": "resistor", "resistance": "10k"},
+    {"ref": "RF", "type": "resistor", "resistance": "10k"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "U1.v+", "S1.a"]},
+    {"name": "GND", "pins": ["V1.-", "V2.+", "U1.in+", "FG1.-", "S1.b"]},
+    {"name": "VEE", "pins": ["V2.-", "U1.v-"]},
+    {"pins": ["S1.com", "R1.1"]},
+    {"pins": ["FG1.+", "R2.1"]},
+    {"name": "SUM", "pins": ["R1.2", "R2.2", "RF.2", "U1.in-"]},
+    {"name": "VOUT", "pins": ["U1.out", "RF.1"]}
+  ],
+  "tests": [
+    {
+      "name": "S1→b（只有交流）：输出 ≈ 1.99 Vpp，平均 0 V",
+      "set": {"S1": {"position": "b"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "scope": [{"pin": "U1.out", "ref": "V1.-", "measure": "vpp", "min": 1.9, "max": 2.1}],
+      "voltages": [{"pin": "U1.out", "ref": "V1.-", "min": -0.05, "max": 0.05}]
+    },
+    {
+      "name": "S1→a（加上 −1.91 V 直流）：同样 1.99 Vpp，整体下移到 −0.92 ~ −2.91 V",
+      "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "scope": [
+        {"pin": "U1.out", "ref": "V1.-", "measure": "vpp", "min": 1.9, "max": 2.1},
+        {"pin": "U1.out", "ref": "V1.-", "measure": "vmax", "min": -1.0, "max": -0.8},
+        {"pin": "U1.out", "ref": "V1.-", "measure": "vmin", "min": -3.0, "max": -2.8}
+      ],
+      "voltages": [{"pin": "U1.out", "ref": "V1.-", "min": -2.0, "max": -1.83}]
+    },
+    {
+      "name": "S1→a、信号带 1 V 偏置：平均 ≈ −2.91 V；虚地 KCL：0.19 + 0.10 = 0.29 mA 全部流过 RF",
+      "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1}},
+      "voltages": [{"pin": "U1.out", "ref": "V1.-", "min": -3.0, "max": -2.83}],
+      "currents": [
+        {"el": "R1", "min": 0.000182, "max": 0.000201},
+        {"el": "R2", "min": 9.4e-05, "max": 0.000105},
+        {"el": "RF", "min": -0.000306, "max": -0.000276}
+      ]
+    }
+  ],
+  "hints": [
+    "双电源：两台 9 V 电源串联，中点为 GND；V1 + → 运放 8 脚，V2 − → 运放 4 脚。IN+ 接 GND。",
+    "S1：a 侧接 +9V，b 侧接 GND，com 经 R1（47kΩ）接 IN−。",
+    "信号发生器 + 经 R2（10kΩ）接 IN−；RF（10kΩ）在 IN− 和 OUT 之间。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "bench_supply", "ref": "PSU2", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tn2", "-": "bn1"}},
+      {"type": "opamp", "ref": "U1", "at": "e10"},
+      {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "d13", "b": "bn13"}, "color": "white"},
+      {"type": "wire", "pins": {"a": "a12", "b": "tn12"}, "color": "blue"},
+      {"type": "resistor", "ref": "RF", "resistance": "10k", "pins": {"1": "c10", "2": "c11"}},
+      {"type": "switch", "ref": "S1", "at": "c16"},
+      {"type": "wire", "pins": {"a": "tp16", "b": "a16"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "a18", "b": "tn18"}, "color": "blue"},
+      {"type": "resistor", "ref": "R1", "resistance": "47k", "pins": {"1": "b17", "2": "b11"}},
+      {"type": "function_gen", "ref": "FG1", "pins": {"+": "a22", "-": "tn22"}},
+      {"type": "resistor", "ref": "R2", "resistance": "10k", "pins": {"1": "b22", "2": "a11"}},
+      {"type": "scope_probe", "ref": "PR1", "pins": {"tip": "a10", "gnd": "tn24"}}
+    ]
+  }
+}

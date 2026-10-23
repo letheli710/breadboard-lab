@@ -30,7 +30,7 @@
 //   Pure helpers on any trace (window must be a whole number of periods, as returned):
 //     vmax, vmin, vpp, vavg, vrms(trace)            vrms = true RMS (includes DC)
 //     fundamental(trace, cycles) → { amp, phase }   DFT bin at the generator frequency
-//     freq(trace, dt)                               from mean-crossings (0 if flat)
+//     freq(trace, dt, periodic?)                    Schmitt-trigger crossings (0 if flat)
 //     phaseDeg(a, b, cycles)                        phase(a) − phase(b) in (−180, 180]; >0 = a leads
 //     gain(a, b, cycles)                            |fundamental(a)| / |fundamental(b)|
 //     measureTrace(kind, trace, { dt, cycles, vs })
@@ -223,26 +223,62 @@ export function gain(a: ArrayLike<number>, b: ArrayLike<number>, cycles: number)
   return fb > 1e-12 ? fundamental(a, cycles).amp / fb : 0;
 }
 
-/** Frequency from crossings of the mean (with 10 % hysteresis); 0 for a flat trace. */
-export function freq(x: ArrayLike<number>, dt: number): number {
-  const pp = vpp(x);
-  if (!(pp > 1e-6) || x.length < 4) return 0;
-  const mean = vavg(x);
-  const hy = pp * 0.1;
-  let armed = x[0] < mean - hy;
+/** Frequency from level crossings with a Schmitt trigger (thresholds at the mid level
+ *  (max+min)/2 ± 20 % of Vpp, so ringing or noise below that cannot double-count); 0 for a
+ *  flat trace.
+ *
+ *  `periodic` (default true — every transient window holds whole periods): the window is
+ *  treated as circular, the trigger state is primed from the end of the window, and the
+ *  result is (rising events) / (window length). That is exact for any phase, including a
+ *  sine that starts exactly at its mid level, and needs no interpolation.
+ *  `periodic = false`: an arbitrary slice; uses the span between the first and last rising
+ *  mid-level crossings (0 when fewer than two are found). */
+export function freq(x: ArrayLike<number>, dt: number, periodic = true): number {
+  const n = x.length;
+  if (n < 4 || !(dt > 0)) return 0;
+  const hi = vmax(x);
+  const lo = vmin(x);
+  const pp = hi - lo;
+  if (!(pp > 1e-6 * Math.max(1, Math.abs(hi), Math.abs(lo)))) return 0;
+  const mid = (hi + lo) / 2;
+  const up = mid + pp * 0.2;
+  const dn = mid - pp * 0.2;
+  if (periodic) {
+    // prime the trigger with the last sample outside the hysteresis band (wrap-around)
+    let high = false;
+    for (let i = n - 1; i >= 0; i--) {
+      if (x[i] >= up) { high = true; break; }
+      if (x[i] <= dn) { high = false; break; }
+    }
+    let count = 0;
+    for (let i = 0; i < n; i++) {
+      if (!high && x[i] >= up) {
+        high = true;
+        count++;
+      } else if (high && x[i] <= dn) high = false;
+    }
+    return count / (n * dt);
+  }
+  // non-periodic: interpolated mid-level crossing on each rising Schmitt event
+  let armed = false;
   const ups: number[] = [];
-  for (let i = 1; i < x.length; i++) {
-    if (x[i] < mean - hy) armed = true;
-    if (armed && x[i - 1] < mean && x[i] >= mean) {
-      const f = (mean - x[i - 1]) / (x[i] - x[i - 1]);
-      ups.push(i - 1 + f);
+  let lastLow = -1; // last sample index ≤ dn before the current rise
+  for (let i = 0; i < n; i++) {
+    if (x[i] <= dn) {
+      armed = true;
+      lastLow = i;
+    } else if (armed && x[i] >= up) {
       armed = false;
+      // find the mid crossing between lastLow and i
+      for (let j = lastLow + 1; j <= i; j++) {
+        if (x[j - 1] < mid && x[j] >= mid) {
+          ups.push(j - 1 + (mid - x[j - 1]) / (x[j] - x[j - 1]));
+          break;
+        }
+      }
     }
   }
-  if (ups.length < 2) {
-    // fewer than two rising crossings in the window: periodic wrap (window = whole periods)
-    return ups.length === 1 ? 1 / (x.length * dt) : 0;
-  }
+  if (ups.length < 2) return 0;
   return (ups.length - 1) / ((ups[ups.length - 1] - ups[0]) * dt);
 }
 

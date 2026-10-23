@@ -4,10 +4,10 @@ import { useFrame } from '@react-three/fiber';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { BOARD, COLS, HOLES, HOLE_MAP, MAIN_ROWS, ROW_Z, colX, stripLabel } from '../core/breadboard';
-import { volts } from '../core/format';
+import { acVolts, volts } from '../core/format';
 import { tr } from '../core/i18n';
 import { connectedHoles, isFloating } from '../core/netlist';
-import { useDerived } from '../state/derived';
+import { nodeAc, useDerived } from '../state/derived';
 import { occupied, useStore } from '../state/store';
 
 const NET_PALETTE = ['#f4a261', '#2a9d8f', '#9b5de5', '#00bbf9', '#f15bb5', '#90be6d', '#fee440', '#e76f51', '#4cc9f0', '#b5838d'];
@@ -109,7 +109,8 @@ export function Board() {
   const activeId = useStore((s) => s.activeId);
   const challenges = useStore((s) => s.challenges);
   const mode = useStore((s) => s.mode);
-  const { nl, sim } = useDerived();
+  const d = useDerived();
+  const { nl, sim } = d;
 
   const stepHoles = useMemo(() => {
     if (mode !== 'learn' && mode !== 'challenge') return [];
@@ -273,7 +274,11 @@ export function Board() {
             </span>
             {hoverNetName && !isFloating(hoverNetName) && (
               <span>
-                {tr('节点', 'Node')} {hoverNetName} · {volts(sim.nodeV.get(hoverNetName) ?? 0)}
+                {tr('节点', 'Node')} {hoverNetName} ·{' '}
+                {(() => {
+                  const a = nodeAc(d, hoverNetName);
+                  return a ? acVolts(a.avg, a.pp, true) : volts(sim.nodeV.get(hoverNetName) ?? 0);
+                })()}
               </span>
             )}
           </div>

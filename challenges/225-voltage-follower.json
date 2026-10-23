@@ -1,0 +1,86 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-voltage-follower",
+  "title": "实验 2-5 · 电压跟随器：给分压器加一个“缓冲”",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 2,
+  "summary": "实验 1-3 里 1kΩ 负载把 4.5 V 拉到 0.75 V。在中间加一个 LM358 电压跟随器，负载上就是稳稳的 4.5 V。",
+  "concepts": ["voltage follower 电压跟随器", "buffer 缓冲", "op-amp LM358 运放", "input / output resistance 输入 / 输出电阻"],
+  "description": "**实验目的**：认识运放最简单的电路——电压跟随器（voltage follower，增益 1），看它怎么解决分压器带不动负载的问题（实验 1-3）。\n\n**电路**：\n- 分压器：+9V → R1（10kΩ）→ VD → R2（10kΩ）→ GND；\n- LM358：8 脚 V+ 接 +9V，4 脚 V− 接 GND；IN+ 接 VD；OUT 直接连到 IN−（这就是跟随器）；\n- 拨动开关 S1：a 侧接 VD（分压器直接带负载），b 侧接运放 OUT（经跟随器带负载），com → RL（1kΩ）→ GND。\nLM358 横跨凹槽，每只脚独占一列：凹槽上方一排从左到右是 1 脚 OUT A、2 脚 IN− A、3 脚 IN+ A、4 脚 V−（单电源时接 GND）；下方一排从左到右是 8 脚 V+、7 脚 OUT B、6 脚 IN− B、5 脚 IN+ B。芯片里有两个运放，用 A、B 哪一个都可以。\n\n**测量**：\n- 拨到 a：和实验 1-3 一样，VD 跌到 ≈ **0.75 V**（负载和 R2 并联，10k ∥ 1k = 909Ω）；\n- 拨到 b：负载上 ≈ **4.50 V**，VD 也保持 4.50 V。RL 的 4.5 mA 由运放输出端提供（能量来自运放的 V+ 电源脚），分压器自己仍然只流 0.45 mA。\n\n**为什么**：负反馈让 OUT 一直追着 IN+（虚短：U− = U+），所以 OUT = VD。运放的输入几乎不取电流（虚断），所以分压器“感觉不到”负载；而运放的输出电阻很小（模型 10Ω，再经过负反馈变得更小），1kΩ 负载也拉不动它。跟随器的作用是**阻抗变换**：高输入电阻、低输出电阻。\n\n**单电源 LM358 的限制**：输出只能在 0 V 到 V+ − 1.5 V = 7.5 V 之间。4.5 V 在范围内；如果 VD 超过 7.5 V，输出就跟不上了。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 2-5 · Voltage follower: a buffer for the divider",
+      "summary": "In Experiment 1-3 a 1kΩ load dragged 4.5 V down to 0.75 V. Put an LM358 voltage follower in between and the load gets a steady 4.5 V.",
+      "concepts": ["voltage follower", "buffer", "op-amp LM358", "input / output resistance"],
+      "description": "**Goal**: meet the simplest op-amp circuit, the voltage follower (gain 1), and see how it fixes the divider that couldn't drive a load (Experiment 1-3).\n\n**Circuit**:\n- divider: +9V → R1 (10kΩ) → VD → R2 (10kΩ) → GND;\n- LM358: pin 8 V+ to +9V, pin 4 V− to GND; IN+ to VD; OUT wired straight to IN− (that makes it a follower);\n- slide switch S1: side a to VD (the divider drives the load directly), side b to the op-amp OUT (the load is driven through the follower), com → RL (1kΩ) → GND.\nThe LM358 straddles the gap, each pin on its own column: the row above the gap is, left to right, pin 1 OUT A, pin 2 IN− A, pin 3 IN+ A, pin 4 V− (GND on a single supply); the row below is, left to right, pin 8 V+, pin 7 OUT B, pin 6 IN− B, pin 5 IN+ B. The chip holds two op-amps; either A or B is fine.\n\n**Measure**:\n- switch on a: just like Experiment 1-3, VD drops to ≈ **0.75 V** (the load is in parallel with R2, 10k ∥ 1k = 909Ω);\n- switch on b: the load gets ≈ **4.50 V** and VD stays at 4.50 V. RL's 4.5 mA comes from the op-amp output (the energy comes in through its V+ pin), while the divider itself still carries only 0.45 mA.\n\n**Why**: negative feedback makes OUT chase IN+ (virtual short: U− = U+), so OUT = VD. The op-amp's input draws almost no current (virtual open), so the divider doesn't \"feel\" the load; and the output resistance is tiny (10Ω in the model, made even smaller by the feedback), so a 1kΩ load can't pull it down. A follower is an **impedance converter**: high input resistance, low output resistance.\n\n**Single-supply LM358 limit**: the output can only go from 0 V up to V+ − 1.5 V = 7.5 V. 4.5 V is fine; if VD were above 7.5 V, the output could not follow.",
+      "hints": [
+        "Power the op-amp first: pin 8 to +9V, pin 4 to GND. An unpowered op-amp does nothing.",
+        "Follower: join OUT (pin 1) and IN− (pin 2) with a short jumper; IN+ (pin 3) goes to the divider midpoint VD.",
+        "S1 side a to VD, side b to OUT, the middle com to RL."
+      ],
+      "tests": [
+        "Switch on a (1 kΩ load directly): VD drops to ≈ 0.75 V",
+        "Switch on b (through the follower): the load gets ≈ 4.50 V, 4.5 mA from the op-amp, the divider still carries only 0.45 mA"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "U1", "type": "opamp"},
+    {"ref": "R1", "type": "resistor", "resistance": "10k"},
+    {"ref": "R2", "type": "resistor", "resistance": "10k"},
+    {"ref": "S1", "type": "switch"},
+    {"ref": "RL", "type": "resistor", "resistance": "1k"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "U1.v+", "R1.1"]},
+    {"name": "VD", "pins": ["R1.2", "R2.1", "U1.in+", "S1.a"]},
+    {"name": "VOUT", "pins": ["U1.out", "U1.in-", "S1.b"]},
+    {"name": "LOAD", "pins": ["S1.com", "RL.1"]},
+    {"name": "GND", "pins": ["V1.-", "U1.v-", "R2.2", "RL.2"]}
+  ],
+  "tests": [
+    {
+      "name": "拨到 a（直接带 1 kΩ）：VD 跌到 ≈ 0.75 V",
+      "set": {"S1": {"position": "a"}},
+      "voltages": [
+        {"pin": "RL.1", "ref": "V1.-", "min": 0.71, "max": 0.79},
+        {"pin": "U1.out", "ref": "V1.-", "min": 0.71, "max": 0.79}
+      ]
+    },
+    {
+      "name": "拨到 b（经跟随器）：负载上 ≈ 4.50 V，4.5 mA 由运放提供，分压器仍只流 0.45 mA",
+      "set": {"S1": {"position": "b"}},
+      "voltages": [
+        {"pin": "RL.1", "ref": "V1.-", "min": 4.4, "max": 4.6},
+        {"pin": "R2.1", "ref": "V1.-", "min": 4.4, "max": 4.6}
+      ],
+      "currents": [
+        {"el": "RL", "min": 0.0044, "max": 0.0046},
+        {"el": "R1", "min": 0.00044, "max": 0.00046}
+      ]
+    }
+  ],
+  "hints": [
+    "先给运放供电：8 脚接 +9V，4 脚接 GND。没有电源的运放什么都不做。",
+    "跟随器：OUT（1 脚）和 IN−（2 脚）用一根短跳线连起来；IN+（3 脚）接分压器中点 VD。",
+    "S1 的 a 侧接 VD，b 侧接 OUT，中间 com 接 RL。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "opamp", "ref": "U1", "at": "e10"},
+      {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "c10", "b": "c11"}, "color": "green"},
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "tp12", "2": "a12"}},
+      {"type": "resistor", "ref": "R2", "resistance": "10k", "pins": {"1": "b12", "2": "tn14"}},
+      {"type": "switch", "ref": "S1", "at": "c16"},
+      {"type": "wire", "pins": {"a": "d12", "b": "d16"}, "color": "yellow"},
+      {"type": "wire", "pins": {"a": "d10", "b": "d18"}, "color": "green"},
+      {"type": "resistor", "ref": "RL", "resistance": "1k", "pins": {"1": "b17", "2": "tn19"}}
+    ]
+  }
+}

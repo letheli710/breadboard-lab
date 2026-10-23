@@ -9,6 +9,8 @@
 
 约定：
 - 文件名用两位数字前缀排序：`01-…` 到 `08-…` 是入门课，`09-…` 起是挑战题。
+- 课程各期的实验（`"phase": 1–4`，见 `../docs/ROADMAP.md`）用三位编号：第 1 期 `201-…`，第 2 期 `221-…`，第 3 期 `241-…`，第 4 期 `261-…`。挑战列表会按“入门 / 第1期 / …”分组显示。
+  Course-phase experiments (`"phase": 1–4`) use three-digit numbers: phase 1 `201-…`, phase 2 `221-…`, phase 3 `241-…`, phase 4 `261-…`; the challenge list groups them by phase.
 - 以 `_` 开头的文件不会被加载（可以放草稿）。
 - 内置题目以中文为基础语言，`"i18n": { "en": { ... } }` 里是英文翻译（界面切到 English 时显示）。修改中文的 steps / hints / tests 时，记得同步修改对应位置的英文（按位置一一对应）。格式见 `CHALLENGE_FORMAT.md` §11。
   Built-in challenges are written in Chinese with an English translation in `i18n.en`, shown when the UI is in English. When you edit the Chinese steps / hints / tests, update the English entry at the same position too.

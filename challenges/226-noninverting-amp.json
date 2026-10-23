@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-noninverting-amp",
+  "title": "实验 2-6 · 同相放大器：电位器给输入，测出增益 3.2",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 2,
+  "summary": "LM358 + RF 22kΩ + RG 10kΩ：输入 0.9 V 输出 2.88 V，输入 1.8 V 输出 5.76 V，输入 4.5 V 时输出卡在 7.5 V。",
+  "concepts": ["non-inverting amplifier 同相放大器", "gain = 1 + RF/RG", "virtual short 虚短", "saturation 饱和"],
+  "description": "**实验目的**：搭一个同相放大器，用直流电压逐点测它的输入—输出关系，验证 Uo = (1 + RF/RG) × Ui，并看看输出饱和。\n\n**电路**（单电源 9 V）：\n- LM358：8 脚 V+ 接 +9V，4 脚 V− 接 GND；\n- 输入：电位器 RV1（10kΩ）**1 脚接 GND、3 脚接 +9V**，滑动端接 IN+。这样 Ui ≈ 9 V × 旋钮位置（10% ≈ 0.9 V）。运放输入不取电流，所以电位器不受影响；\n- 反馈：RF（22kΩ）从 OUT 接到 IN−，RG（10kΩ）从 IN− 接到 GND。\nLM358 横跨凹槽，每只脚独占一列：凹槽上方一排从左到右是 1 脚 OUT A、2 脚 IN− A、3 脚 IN+ A、4 脚 V−（单电源时接 GND）；下方一排从左到右是 8 脚 V+、7 脚 OUT B、6 脚 IN− B、5 脚 IN+ B。芯片里有两个运放，用 A、B 哪一个都可以。\n\n**增益**：虚短 U− = U+ = Ui，RG 上的电流 Ui / RG 全部流过 RF（虚断），所以 Uo = Ui + RF × Ui / RG = (1 + 22/10) Ui = **3.2 Ui**。\n\n**测量**：\n- 10%：Ui ≈ 0.90 V → Uo ≈ **2.88 V**，IN− 也是 0.90 V（虚短）；\n- 20%：Ui ≈ 1.80 V → Uo ≈ **5.76 V**；RG 电流 = 1.80 / 10k = 0.18 mA，RF 里也是 0.18 mA；\n- 50%：Ui = 4.50 V → 理论 14.4 V，但 LM358 输出最高只有 V+ − 1.5 V = **7.5 V**，输出被“削顶”（饱和）。这时 IN− = 7.5 × 10 / 32 ≈ 2.34 V，不再等于 IN+——饱和时虚短不成立。\n\n所以这个放大器的线性输入范围是 0 到约 7.5 / 3.2 ≈ 2.3 V。多转几个位置，把 Uo–Ui 画成一条线：斜率 3.2，在 7.5 V 处变平。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 2-6 · Non-inverting amplifier: a pot for the input, a gain of 3.2",
+      "summary": "LM358 + RF 22kΩ + RG 10kΩ: 0.9 V in gives 2.88 V out, 1.8 V in gives 5.76 V out, and 4.5 V in gets stuck at 7.5 V.",
+      "concepts": ["non-inverting amplifier", "gain = 1 + RF/RG", "virtual short", "saturation"],
+      "description": "**Goal**: build a non-inverting amplifier, measure its input–output relation point by point with DC voltages, check Uo = (1 + RF/RG) × Ui, and see the output saturate.\n\n**Circuit** (single 9 V supply):\n- LM358: pin 8 V+ to +9V, pin 4 V− to GND;\n- input: pot RV1 (10kΩ) with **pin 1 to GND and pin 3 to +9V**, wiper to IN+. Then Ui ≈ 9 V × knob position (10% ≈ 0.9 V). The op-amp input draws no current, so it doesn't disturb the pot;\n- feedback: RF (22kΩ) from OUT to IN−, RG (10kΩ) from IN− to GND.\nThe LM358 straddles the gap, each pin on its own column: the row above the gap is, left to right, pin 1 OUT A, pin 2 IN− A, pin 3 IN+ A, pin 4 V− (GND on a single supply); the row below is, left to right, pin 8 V+, pin 7 OUT B, pin 6 IN− B, pin 5 IN+ B. The chip holds two op-amps; either A or B is fine.\n\n**Gain**: virtual short U− = U+ = Ui; the current Ui / RG in RG all flows through RF (virtual open), so Uo = Ui + RF × Ui / RG = (1 + 22/10) Ui = **3.2 Ui**.\n\n**Measure**:\n- 10%: Ui ≈ 0.90 V → Uo ≈ **2.88 V**, and IN− is 0.90 V too (virtual short);\n- 20%: Ui ≈ 1.80 V → Uo ≈ **5.76 V**; the current in RG = 1.80 / 10k = 0.18 mA, and RF carries the same 0.18 mA;\n- 50%: Ui = 4.50 V → 14.4 V in theory, but the LM358 output can only reach V+ − 1.5 V = **7.5 V**, so it is clipped (saturated). Now IN− = 7.5 × 10 / 32 ≈ 2.34 V, no longer equal to IN+: the virtual short fails in saturation.\n\nSo the linear input range of this amplifier is 0 to about 7.5 / 3.2 ≈ 2.3 V. Try more knob positions and plot Uo against Ui: a line with slope 3.2 that goes flat at 7.5 V.",
+      "hints": [
+        "Power the op-amp first: pin 8 to +9V, pin 4 to GND.",
+        "Pot direction: pin 1 to GND, pin 3 to +9V, the middle wiper to IN+ (pin 3 of the chip). Wired the other way, the knob works backwards.",
+        "RF goes between OUT and IN− (not IN+); RG from IN− to GND."
+      ],
+      "tests": [
+        "10%: IN+ ≈ 0.90 V → OUT ≈ 2.88 V (×3.2), IN− follows IN+ (virtual short)",
+        "20%: OUT ≈ 5.76 V; 0.18 mA in RG (all of it also flows through RF)",
+        "50%: 14.4 V in theory, saturates at ≈ 7.5 V"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "U1", "type": "opamp"},
+    {"ref": "RV1", "type": "potentiometer", "resistance": "10k"},
+    {"ref": "RF", "type": "resistor", "resistance": "22k"},
+    {"ref": "RG", "type": "resistor", "resistance": "10k"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "U1.v+", "RV1.3"]},
+    {"name": "VIN", "pins": ["RV1.2", "U1.in+"]},
+    {"name": "FB", "pins": ["U1.in-", "RF.2", "RG.1"]},
+    {"name": "VOUT", "pins": ["U1.out", "RF.1"]},
+    {"name": "GND", "pins": ["V1.-", "U1.v-", "RV1.1", "RG.2"]}
+  ],
+  "tests": [
+    {
+      "name": "10%：IN+ ≈ 0.90 V → OUT ≈ 2.88 V（×3.2），IN− 跟着 IN+（虚短）",
+      "set": {"RV1": {"wiper": 0.1}},
+      "voltages": [
+        {"pin": "U1.in+", "ref": "V1.-", "min": 0.85, "max": 0.95},
+        {"pin": "U1.out", "ref": "V1.-", "min": 2.75, "max": 3.0},
+        {"pin": "U1.in-", "ref": "V1.-", "min": 0.85, "max": 0.95}
+      ]
+    },
+    {
+      "name": "20%：OUT ≈ 5.76 V；RG 电流 0.18 mA（也全部流过 RF）",
+      "set": {"RV1": {"wiper": 0.2}},
+      "voltages": [{"pin": "U1.out", "ref": "V1.-", "min": 5.5, "max": 6.0}],
+      "currents": [{"el": "RG", "min": 0.00017, "max": 0.00019}]
+    },
+    {
+      "name": "50%：理论 14.4 V，实际在 ≈ 7.5 V 处饱和",
+      "set": {"RV1": {"wiper": 0.5}},
+      "voltages": [
+        {"pin": "U1.in+", "ref": "V1.-", "min": 4.4, "max": 4.6},
+        {"pin": "U1.out", "ref": "V1.-", "min": 7.35, "max": 7.55}
+      ]
+    }
+  ],
+  "hints": [
+    "先给运放供电：8 脚 +9V，4 脚 GND。",
+    "电位器方向：1 脚接 GND，3 脚接 +9V，中间滑动端接 IN+（3 脚）。反了的话旋钮方向也反了。",
+    "RF 接在 OUT 和 IN− 之间（不是 IN+），RG 从 IN− 接到 GND。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "opamp", "ref": "U1", "at": "e10"},
+      {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"},
+      {"type": "potentiometer", "ref": "RV1", "resistance": "10k", "at": "b15"},
+      {"type": "wire", "pins": {"a": "a15", "b": "tn15"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "tp17", "b": "a17"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "c16", "b": "c12"}, "color": "yellow"},
+      {"type": "resistor", "ref": "RF", "resistance": "22k", "pins": {"1": "b10", "2": "b11"}},
+      {"type": "resistor", "ref": "RG", "resistance": "10k", "pins": {"1": "c11", "2": "tn11"}}
+    ]
+  }
+}

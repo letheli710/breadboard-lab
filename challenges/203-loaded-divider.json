@@ -1,0 +1,84 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-loaded-divider",
+  "title": "实验 1-3 · 分压器接上负载会怎样",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 1,
+  "summary": "两个 10kΩ 把 9V 分成 4.5V；接上 100kΩ 负载只掉一点，接上 1kΩ 负载直接跌到 0.75V。",
+  "concepts": ["voltage divider 分压器", "load 负载", "loading effect 负载效应", "parallel resistance 并联电阻"],
+  "description": "**实验目的**：分压公式 VOUT = V × R2 / (R1 + R2) 只在**空载**（没有东西从 VOUT 取电流）时成立。这个实验测量负载对分压器的影响。\n\n**电路**：+9V → R1（10kΩ）→ VOUT → R2（10kΩ）→ GND。VOUT 经过按键 SW1 接到拨动开关 S1 的中间脚（com）：\n- S1 的 a 侧 → RL1（1kΩ）→ GND；\n- S1 的 b 侧 → RL2（100kΩ）→ GND。\n按键松开 = 不接负载；按下 = 接上 S1 选中的那个负载。\n\n**测量 VOUT（相对 GND）**：\n1. 松开按键（空载）：9 × 10k / 20k = **4.50 V**；\n2. 按下，拨到 b（100kΩ）：下半边变成 10k ∥ 100k = 9.09kΩ，VOUT = 9 × 9.09 / 19.09 ≈ **4.29 V**（只低了约 5%）；\n3. 按下，拨到 a（1kΩ）：下半边变成 10k ∥ 1k = 909Ω，VOUT = 9 × 0.909 / 10.909 ≈ **0.75 V**（几乎全没了！）。\n\n**为什么**：负载和 R2 是并联的，并联后电阻变小，分到的电压就变小。从 VOUT 往里看，这个分压器相当于一个 4.5 V 电源串一个 R1 ∥ R2 = 5kΩ 的内阻（这就是第 2 期要学的戴维宁等效）。负载电阻比 5kΩ 大得多时影响小；和 5kΩ 差不多或更小时，电压就塌了。\n\n经验：负载电阻至少是分压电阻的 10 倍以上，分压器才“准”。要给 1kΩ 这种重负载提供 4.5 V，可以用运放做一个电压跟随器（实验 2-5）。",
+  "i18n": {
+    "en": {
+      "title": "Experiment 1-3 · What a load does to a voltage divider",
+      "summary": "Two 10kΩ resistors split 9V into 4.5V; a 100kΩ load barely changes it, a 1kΩ load drags it down to 0.75V.",
+      "concepts": ["voltage divider", "load", "loading effect", "parallel resistance"],
+      "description": "**Goal**: the divider formula VOUT = V × R2 / (R1 + R2) is only true with **no load** (nothing drawing current from VOUT). This lab measures how a load changes a divider.\n\n**Circuit**: +9V → R1 (10kΩ) → VOUT → R2 (10kΩ) → GND. VOUT goes through push button SW1 to the middle pin (com) of slide switch S1:\n- S1 side a → RL1 (1kΩ) → GND;\n- S1 side b → RL2 (100kΩ) → GND.\nButton released = no load; pressed = the load S1 selects is connected.\n\n**Measure VOUT (relative to GND)**:\n1. Button released (no load): 9 × 10k / 20k = **4.50 V**;\n2. Pressed, switched to b (100kΩ): the lower half becomes 10k ∥ 100k = 9.09kΩ, VOUT = 9 × 9.09 / 19.09 ≈ **4.29 V** (only about 5% lower);\n3. Pressed, switched to a (1kΩ): the lower half becomes 10k ∥ 1k = 909Ω, VOUT = 9 × 0.909 / 10.909 ≈ **0.75 V** (almost nothing left!).\n\n**Why**: the load is in parallel with R2; in parallel the resistance gets smaller, so it gets a smaller share of the voltage. Seen from VOUT, the divider behaves like a 4.5 V source with an internal resistance of R1 ∥ R2 = 5kΩ (the Thevenin equivalent you will meet in phase 2). A load much larger than 5kΩ hardly matters; a load near 5kΩ or smaller makes the voltage collapse.\n\nRule of thumb: the load should be at least 10 times the divider resistors for the divider to be \"accurate\". To give a heavy 1kΩ load a steady 4.5 V, use an op-amp voltage follower (Experiment 2-5).",
+      "hints": [
+        "S1's three pins sit in three neighbouring columns of one row, com in the middle. Side a goes to 1kΩ, side b to 100kΩ; don't mix them up, the tests rely on it.",
+        "The push button straddles the centre gap: its left column connects to VOUT, its right column to S1's com.",
+        "The other ends of RL1 and RL2 must go back to GND. If you use the bottom blue rail, join the top and bottom blue rails with a jumper."
+      ],
+      "tests": [
+        "Button released (no load): VOUT ≈ 4.50 V",
+        "Pressed, switch on b (100 kΩ load): VOUT ≈ 4.29 V",
+        "Pressed, switch on a (1 kΩ load): VOUT drops to ≈ 0.75 V"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "dc_source", "voltage": 9},
+    {"ref": "R1", "type": "resistor", "resistance": "10k"},
+    {"ref": "R2", "type": "resistor", "resistance": "10k"},
+    {"ref": "SW1", "type": "pushbutton"},
+    {"ref": "S1", "type": "switch"},
+    {"ref": "RL1", "type": "resistor", "resistance": "1k"},
+    {"ref": "RL2", "type": "resistor", "resistance": "100k"}
+  ],
+  "nets": [
+    {"name": "VCC", "pins": ["V1.+", "R1.1"]},
+    {"name": "VOUT", "pins": ["R1.2", "R2.1", "SW1.1"]},
+    {"name": "LOAD", "pins": ["SW1.2", "S1.com"]},
+    {"pins": ["S1.a", "RL1.1"]},
+    {"pins": ["S1.b", "RL2.1"]},
+    {"name": "GND", "pins": ["R2.2", "RL1.2", "RL2.2", "V1.-"]}
+  ],
+  "tests": [
+    {
+      "name": "松开按键（空载）：VOUT ≈ 4.50 V",
+      "set": {"SW1": {"pressed": false}},
+      "voltages": [{"pin": "R2.1", "ref": "V1.-", "min": 4.4, "max": 4.6}]
+    },
+    {
+      "name": "按下、拨到 b（100 kΩ 负载）：VOUT ≈ 4.29 V",
+      "set": {"SW1": {"pressed": true}, "S1": {"position": "b"}},
+      "voltages": [{"pin": "R2.1", "ref": "V1.-", "min": 4.2, "max": 4.38}]
+    },
+    {
+      "name": "按下、拨到 a（1 kΩ 负载）：VOUT 跌到 ≈ 0.75 V",
+      "set": {"SW1": {"pressed": true}, "S1": {"position": "a"}},
+      "voltages": [{"pin": "R2.1", "ref": "V1.-", "min": 0.71, "max": 0.79}]
+    }
+  ],
+  "hints": [
+    "S1 的三个脚在同一行连续三列：中间是 com。a 侧接 1kΩ，b 侧接 100kΩ——别接反，测试按这个来判。",
+    "按键要横跨中间凹槽：左边一列接 VOUT，右边一列接 S1 的 com。",
+    "RL1、RL2 的另一端都要回到 GND。如果用下方的蓝轨，记得用跳线把上下两条蓝轨连起来。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "b3", "2": "b8"}},
+      {"type": "resistor", "ref": "R2", "resistance": "10k", "pins": {"1": "c8", "2": "c12"}},
+      {"type": "wire", "pins": {"a": "a12", "b": "tn12"}, "color": "blue"},
+      {"type": "pushbutton", "ref": "SW1", "at": "e8"},
+      {"type": "switch", "ref": "S1", "at": "g9"},
+      {"type": "wire", "pins": {"a": "h10", "b": "h12"}, "color": "yellow"},
+      {"type": "resistor", "ref": "RL1", "resistance": "1k", "pins": {"1": "h9", "2": "bn9"}},
+      {"type": "resistor", "ref": "RL2", "resistance": "100k", "pins": {"1": "h11", "2": "bn11"}},
+      {"type": "wire", "pins": {"a": "tn5", "b": "bn5"}, "color": "blue"}
+    ]
+  }
+}
