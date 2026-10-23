@@ -351,9 +351,12 @@ function OpAmpInfo({ part }: { part: PlacedPart }) {
   const d = useDerived();
   const st = d.sim.opamps.get(part.ref);
   const names: Record<string, string> = { '1': 'OUT A', '2': 'IN− A', '3': 'IN+ A', '4': 'V− / GND', '5': 'IN+ B', '6': 'IN− B', '7': 'OUT B', '8': 'V+' };
+  // a pin counts as wired when its net reaches some other terminal
   const netOf = (pin: string) => {
     const n = d.nl.pinNet.get(`${part.ref}.${PARTS.opamp.terminalOf[pin]}`);
-    return isFloating(n) ? null : n;
+    if (isFloating(n)) return null;
+    const pins = d.nl.circuit.nets.find((x) => x.name === n)?.pins ?? [];
+    return pins.some((p) => !p.startsWith(`${part.ref}.`)) ? n : null;
   };
   const pinBox = (pin: string, x: number, y: number, labelAbove: boolean) => {
     const net = netOf(pin);
