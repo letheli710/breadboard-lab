@@ -13,9 +13,9 @@
 
 import type { Complex } from '../problem/types';
 import { Circuit, type CEl, isTwoTerminal } from './circuit';
-import { ONE, ZERO, abs, cx, polarDeg } from './complex';
+import { ONE, ZERO, abs, cx, div, polarDeg } from './complex';
 import { AnalysisError } from './errors';
-import { type Mat, eigenvalues, expm, eye, matVec, realSolve, zeros } from './linalg';
+import { type Mat, eigenvalues, expm, eye, luFactor, matVec, realSolve, zeros } from './linalg';
 import { MnaSystem, Solution, combine, switchClosed } from './mna';
 
 interface AfterModel {
@@ -324,6 +324,53 @@ export class Transient {
     return new Solution(m.sys, sol.x.map((v) => cx(v.re)));
   }
 
+  private basisDeriv(t: number): number[] {
+    const m = this.model();
+    const w = [0];
+    for (const o of m.omegas) w.push(o * Math.cos(o * t), -o * Math.sin(o * t));
+    return w;
+  }
+
+  /** dx/dt for t > 0 given the state at t */
+  private derivFrom(s: number[], t: number): Solution {
+    const m = this.model();
+    const w = this.basis(t);
+    const dw = this.basisDeriv(t);
+    const ds = m.states.map((_, i) => m.A[i].reduce((a, v, j) => a + v * s[j], 0) + m.Bw[i].reduce((a, v, b) => a + v * w[b], 0));
+    const parts: { k: number; x: Complex[] }[] = [];
+    ds.forEach((v, j) => parts.push({ k: v, x: m.Xs[j] }));
+    m.srcs.forEach((_, k) => parts.push({ k: m.P[k].reduce((a, c, b) => a + c * dw[b], 0), x: m.Xu[k] }));
+    const sol = combine(m.sys, parts);
+    return new Solution(m.sys, sol.x.map((v) => cx(v.re)));
+  }
+
+  /** time derivative of every circuit quantity at an instant (same instants as `at`) */
+  derivAt(t: number | '0-' | '0+' | 'inf'): Solution {
+    if (t === 'inf') {
+      const f = this.final();
+      return new Solution(f.sys, f.x.map(() => ZERO));
+    }
+    if (typeof t === 'number' && !Number.isFinite(t)) throw new AnalysisError(`find.t must be finite (got ${t})`);
+    if (t === '0-' || (typeof t === 'number' && t < 0)) {
+      const tt = t === '0-' ? 0 : t;
+      const { sys, x } = this.preDC();
+      const parts: { k: Complex | number; x: Complex[] }[] = [{ k: 0, x }];
+      for (const w of this.omegas()) parts.push({ k: cx(-w * Math.sin(w * tt), w * Math.cos(w * tt)), x: this.preAC(w) }); // Re(jω X e^{jωt})
+      const sol = combine(sys, parts);
+      return new Solution(sys, sol.x.map((v) => cx(v.re)));
+    }
+    if (typeof t !== 'number' && t !== '0+') throw new AnalysisError(`find.t must be a number of seconds, "0-", "0+" or "inf" (got ${JSON.stringify(t)})`);
+    const m = this.model();
+    if (t === '0+' || t === 0) {
+      if (m.parasitic.size === 0) return this.derivFrom(this.s0(), 0);
+      const te = 40 * m.tauPar;
+      const d1 = this.derivFrom(this.statesAt(te), te);
+      const d2 = this.derivFrom(this.statesAt(2 * te), 2 * te);
+      return new Solution(m.sys, d1.x.map((v, i) => cx(2 * v.re - d2.x[i].re)));
+    }
+    return this.derivFrom(this.statesAt(t), t);
+  }
+
   /** Solution at an instant: '0-', '0+', 'inf' or a time in seconds (t = 0 means 0+). */
   at(t: number | '0-' | '0+' | 'inf'): Solution {
     if (t === '0-') return this.pre(0);
@@ -343,10 +390,16 @@ export class Transient {
     return this.solutionFrom(this.statesAt(t), t);
   }
 
-  /** natural frequencies of the t > 0 circuit without the parasitic (regularisation) modes */
+  private _nat?: Complex[];
+
+  /** Natural frequencies of the t > 0 circuit (1/s). Parasitic (regularisation) modes are
+   *  removed, structural zero modes (conserved charge of capacitor-only node groups, conserved
+   *  flux of inductor-only loops) are exactly 0, and the others are polished by Newton's method
+   *  on det(G + sE) of the unregularised circuit equations. */
   naturalFrequencies(): Complex[] {
+    if (this._nat) return this._nat;
     const m = this.model();
-    if (!m.states.length) return [];
+    if (!m.states.length) return (this._nat = []);
     let lam: Complex[];
     try {
       lam = eigenvalues(m.A);
@@ -364,7 +417,48 @@ export class Transient {
         throw new AnalysisError('Could not separate the natural frequencies of a circuit with capacitor loops / inductor cut-sets');
       lam = rest;
     }
-    return lam;
+    const k0 = new MnaSystem(this.ckt, { kind: 'dc', phase: 'after', conserve: true, label: '' }).conservedCount;
+    lam.sort((a, b) => abs(a) - abs(b));
+    const zeros = lam.slice(0, k0).map(() => ZERO);
+    const rest = lam.slice(k0).map((l) => this.polish(l));
+    return (this._nat = [...zeros, ...rest]);
+  }
+
+  private pencil?: { M0: Complex[][]; E: Complex[][] };
+
+  private polish(l0: Complex): Complex {
+    if (!this.pencil) {
+      const mk = (sv: Complex) => new MnaSystem(this.ckt, { kind: 'ac', s: sv, phase: 'after', label: '' }).matrix;
+      const M0 = mk(ZERO);
+      const M1 = mk(ONE);
+      this.pencil = { M0, E: M1.map((r, i) => r.map((v, j) => cx(v.re - M0[i][j].re, v.im - M0[i][j].im))) };
+    }
+    const { M0, E } = this.pencil;
+    const n = M0.length;
+    let sv = l0;
+    for (let it = 0; it < 60; it++) {
+      const M = M0.map((r, i) => r.map((v, j) => cx(v.re + sv.re * E[i][j].re - sv.im * E[i][j].im, v.im + sv.re * E[i][j].im + sv.im * E[i][j].re)));
+      let lu;
+      try {
+        lu = luFactor(M);
+      } catch {
+        break; // numerically singular: converged
+      }
+      let tr = ZERO;
+      for (let j = 0; j < n; j++) {
+        const col = E.map((r) => r[j]);
+        if (col.every((v) => v.re === 0 && v.im === 0)) continue;
+        const x = lu.solve(col)[j];
+        tr = cx(tr.re + x.re, tr.im + x.im);
+      }
+      if (abs(tr) === 0) break;
+      const ds = div(ONE, tr);
+      sv = cx(sv.re - ds.re, sv.im - ds.im);
+      if (!Number.isFinite(sv.re) || !Number.isFinite(sv.im)) return l0;
+      if (abs(ds) <= 1e-14 * abs(sv)) break;
+    }
+    if (abs(cx(sv.re - l0.re, sv.im - l0.im)) > 1e-2 * abs(l0)) return l0;
+    return sv;
   }
 
   tau(): number {
@@ -373,7 +467,7 @@ export class Transient {
     const lam = this.naturalFrequencies();
     const maxAbs = Math.max(0, ...lam.map(abs));
     if (maxAbs === 0) throw new AnalysisError('tau: the energy-storage element has no (dis)charging path for t > 0 (time constant is infinite)');
-    const nz = lam.filter((l) => abs(l) > 1e-9 * maxAbs);
+    const nz = lam.filter((l) => abs(l) > 1e-12 * maxAbs);
     const fmt = () => lam.map((l) => (Math.abs(l.im) > 1e-9 * abs(l) ? `${l.re.toPrecision(4)}${l.im >= 0 ? '+' : '−'}j${Math.abs(l.im).toPrecision(4)}` : l.re.toPrecision(4))).join(', ');
     const first = nz[0];
     const ok = nz.every((l) => Math.abs(l.im) <= 1e-7 * abs(l) && Math.abs(l.re - first.re) <= 1e-6 * Math.abs(first.re));
@@ -386,39 +480,33 @@ export class Transient {
   final(): Solution {
     if (this.sinSources.length)
       throw new AnalysisError('t = "inf": with a sinusoidal source the response has no constant final value (ask for a time instead, or use AC analysis)');
-    const sys = new MnaSystem(this.ckt, { kind: 'dc', phase: 'after', label: 'the DC steady state for t → ∞' });
-    if (!sys.error) {
-      let lam: Complex[] = [];
-      try {
-        lam = this.naturalFrequencies();
-      } catch {
-        lam = [];
-      }
-      const maxAbs = Math.max(0, ...lam.map(abs));
-      for (const l of lam) {
-        if (abs(l) <= 1e-9 * maxAbs) continue;
-        if (l.re > 1e-9 * abs(l)) throw new AnalysisError('t = "inf": the circuit is unstable for t > 0 (a natural frequency has a positive real part); there is no final value');
-        if (l.re >= -1e-9 * abs(l)) throw new AnalysisError('t = "inf": the circuit for t > 0 oscillates forever (undamped, lossless); there is no final value');
-      }
-      return sys.solve((el) => {
-        const s = el.src!;
-        if (s.kind === 'num') return cx(s.value);
-        if (s.kind === 'dcac') return cx(s.dc);
-        if (s.kind === 'step') return cx(s.after);
-        return cx(s.offset);
-      });
+    const label = 'the DC steady state for t → ∞';
+    let sys = new MnaSystem(this.ckt, { kind: 'dc', phase: 'after', conserve: true, label });
+    if (sys.conservedCount > 0) {
+      // charge of capacitor-only node groups / flux of inductor-only loops is conserved from t = 0−
+      const m = this.model();
+      const s0 = this.s0();
+      const init = new Map(m.states.map((st, i) => [st.ref, s0[i]] as [string, number]));
+      sys = new MnaSystem(this.ckt, { kind: 'dc', phase: 'after', conserve: true, conserveInit: init, label });
     }
-    // DC operating point undefined (e.g. parallel inductors, series capacitors): the final
-    // value then depends on the initial state; take the limit of the transient.
-    const lam = this.naturalFrequencies();
-    const maxAbs = Math.max(0, ...lam.map(abs));
-    const decaying = lam.filter((l) => abs(l) > 1e-9 * maxAbs);
-    if (!decaying.length || decaying.some((l) => l.re >= -1e-9 * abs(l))) throw new AnalysisError(`t = "inf": ${sys.error.message}`);
-    const T = 60 / Math.min(...decaying.map((l) => -l.re));
-    const s1 = this.statesAt(T);
-    const s2 = this.statesAt(2 * T);
-    const scale = Math.max(1e-30, ...s2.map(Math.abs));
-    if (s1.some((v, i) => Math.abs(v - s2[i]) > 1e-7 * scale)) throw new AnalysisError(`t = "inf": ${sys.error.message}`);
-    return this.solutionFrom(s2, 2 * T);
+    if (sys.error) throw new AnalysisError(`t = "inf": ${sys.error.message}`);
+    let lam: Complex[] = [];
+    try {
+      lam = this.naturalFrequencies();
+    } catch {
+      lam = [];
+    }
+    for (const l of lam) {
+      if (abs(l) === 0) continue;
+      if (l.re > 1e-9 * abs(l)) throw new AnalysisError('t = "inf": the circuit is unstable for t > 0 (a natural frequency has a positive real part); there is no final value');
+      if (l.re >= -1e-9 * abs(l)) throw new AnalysisError('t = "inf": the circuit for t > 0 oscillates forever (undamped, lossless); there is no final value');
+    }
+    return sys.solve((el) => {
+      const s = el.src!;
+      if (s.kind === 'num') return cx(s.value);
+      if (s.kind === 'dcac') return cx(s.dc);
+      if (s.kind === 'step') return cx(s.after);
+      return cx(s.offset);
+    });
   }
 }

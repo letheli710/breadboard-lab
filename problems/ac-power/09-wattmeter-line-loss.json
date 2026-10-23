@@ -26,19 +26,28 @@
       [[9, 0], [15, 0]],
       [[15, 6], [0, 6]]
     ],
-    "labels": [{ "at": [11, 0], "name": "a" }],
+    "labels": [{ "at": [11, 0], "name": "a" },
+    { "at": [0, 0], "name": "s", "hidden": true }],
     "grounds": [[0, 6]]
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
     { "id": "A", "ask": "电流表读数 = ?", "find": { "kind": "meter", "el": "A" }, "answer": 10, "unit": "A", "explain": "负载 Z = 9 + j12 Ω，总阻抗 (3 + j4) + (9 + j12) = 12 + j16 = 20∠53.13° Ω，I = 200/20 = 10 A。" },
     { "id": "V", "ask": "电压表读数 = ?", "find": { "kind": "meter", "el": "V" }, "answer": 150, "unit": "V", "explain": "U_a = I·|9 + j12| = 10 × 15 = 150 V，低于电源电压 200 V：线路阻抗上有压降。" },
-    { "id": "W", "ask": "功率表读数 = ?", "find": { "kind": "p", "el": "R" }, "answer": 900, "unit": "W", "explain": "功率表读数 = U_a·I·cos(φ_u − φ_i)，就是 a 点右侧负载吸收的有功功率；只有 R 消耗有功：P = I²R = 100 × 9 = 900 W。" },
+    {
+      "id": "W",
+      "ask": "功率表读数 = ?",
+      "find": { "kind": "wattmeter", "current": "A", "nodes": ["a", "0"] },
+      "answer": 900,
+      "unit": "W",
+      "explain": "功率表读数 = U_a·I·cos(φ_u − φ_i)，就是 a 点右侧负载吸收的有功功率；只有 R 消耗有功：P = I²R = 100 × 9 = 900 W。"
+    },
     {
       "id": "move",
-      "ask": "若功率表的电流线圈不动、电压线圈改接到电源两端，读数变为",
-      "choices": ["900 W", "1200 W", "1500 W", "2000 W"],
-      "correct": 1,
+      "ask": "若功率表的电流线圈不动、电压线圈改接到电源两端，读数变为多少？",
+      "find": { "kind": "wattmeter", "current": "A", "nodes": ["s", "0"] },
+      "answer": 1200,
+      "unit": "W",
       "explain": "此时测的是电源输出的有功功率 = 负载 900 W + 线路损耗 I²·3 = 300 W = 1200 W（= U·I·cos 53.13° = 200 × 10 × 0.6）。2000 VA 是视在功率，不是功率表的读数。"
     }
   ],
@@ -66,11 +75,13 @@
       "questions": [
         { "ask": "Ammeter reading = ?", "explain": "The load is Z = 9 + j12 Ω, the total impedance (3 + j4) + (9 + j12) = 12 + j16 = 20∠53.13° Ω, I = 200/20 = 10 A." },
         { "ask": "Voltmeter reading = ?", "explain": "U_a = I·|9 + j12| = 10 × 15 = 150 V, less than the 200 V source: part of the voltage drops across the line impedance." },
-        { "ask": "Wattmeter reading = ?", "explain": "The wattmeter reads U_a·I·cos(φ_u − φ_i), i.e. the real power absorbed by the load to the right of a; only R consumes real power: P = I²R = 100 × 9 = 900 W." },
         {
-          "ask": "If the current coil stays put and the voltage coil is moved across the source, the reading becomes",
-          "choices": ["900 W", "1200 W", "1500 W", "2000 W"],
-          "explain": "It now measures the real power delivered by the source = load 900 W + line loss I²·3 = 300 W = 1200 W (= U·I·cos 53.13° = 200 × 10 × 0.6). 2000 VA is the apparent power, not a wattmeter reading."
+          "ask": "Wattmeter reading = ?",
+          "explain": "The wattmeter reads U_a·I·cos(φ_u − φ_i), i.e. the real power absorbed by the load to the right of a; only R consumes real power: P = I²R = 100 × 9 = 900 W."
+        },
+        {
+          "ask": "If the current coil stays put and the voltage coil is moved across the source, what does the wattmeter read?",
+          "explain": "It now measures the real power delivered by the source = 900 W in the load + line loss I²·3 = 300 W = 1200 W (= U·I·cos 53.13° = 200 × 10 × 0.6). 2000 VA is the apparent power, not a wattmeter reading."
         }
       ],
       "hints": [

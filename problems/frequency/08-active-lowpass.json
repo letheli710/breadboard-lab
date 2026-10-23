@@ -8,7 +8,7 @@
   "tags": ["有源滤波器", "一阶低通", "理想运放", "dB"],
   "statement": [
     "反相放大器的反馈电阻 R_f 两端并联电容 C_f：R₁ = 10 kΩ，R_f = 20 kΩ，C_f = 0.05 µF，运放为理想运放。网络函数 H(jω) = U_o/U_s。",
-    "求 ω = 1000 rad/s 时的 20lg|H(jω)| 和 H(jω) 的相位，并说明这个电路的通带增益与截止角频率。"
+    "求 ω = 1000 rad/s 时的 20lg|H(jω)| 和 H(jω) 的相位，并求这个电路的通带增益与截止频率 f_c。"
   ],
   "schematic": {
     "elements": [
@@ -37,11 +37,20 @@
     { "id": "db", "ask": "ω = 1000 rad/s 时 20lg|H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "db" }, "answer": 3.0103, "unit": "dB", "explain": "H = −Z_f/R₁ = −(R_f/R₁)/(1 + jωR_fC_f)。ωR_fC_f = 1000 × 2×10⁴ × 5×10⁻⁸ = 1，|H| = 2/√2 = √2，20lg√2 ≈ 3.01 dB。" },
     { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": 135, "unit": "°", "explain": "H = −2/(1 + j) = −1 + j：反相带来 180°，RC 带来 −45°，合计 135°（也可写作 −225°）。" },
     {
-      "id": "type",
-      "ask": "这个电路的通带增益和截止角频率是？",
-      "choices": ["低通，通带增益 −2（6.02 dB），ω_c = 1/(R_fC_f) = 1000 rad/s", "低通，通带增益 −2，ω_c = 1/(R₁C_f) = 2000 rad/s", "高通，高频增益 −2，ω_c = 1000 rad/s", "低通，通带增益 −3，ω_c = 1000 rad/s"],
-      "correct": 0,
-      "explain": "ω → 0 时 C_f 开路，H → −R_f/R₁ = −2（6.02 dB）；ω → ∞ 时 C_f 把输出短接到虚地，H → 0。所以是低通。|H| 降到 2/√2（比通带低 3 dB）的频率由 ωR_fC_f = 1 决定：ω_c = 1/(R_fC_f) = 1000 rad/s，本题的 ω 正好是截止频率。"
+      "id": "gain",
+      "ask": "通带增益（ω = 1 rad/s 时的 H，取实部）= ?",
+      "find": { "kind": "gain", "out": ["o"], "input": "Us", "omega": 1, "part": "re" },
+      "answer": -2,
+      "unit": "",
+      "explain": "通带（直流）增益：在很低的频率 ω = 1 rad/s 下 C_f 相当于开路，H ≈ −R_f/R₁ = −2（6.02 dB）；ω → ∞ 时 C_f 把输出短接到虚地，H → 0，所以是低通。"
+    },
+    {
+      "id": "fc",
+      "ask": "截止频率 f_c = ?",
+      "find": { "kind": "fc", "out": ["o"], "input": "Us" },
+      "answer": 159.1549,
+      "unit": "Hz",
+      "explain": "|H| 降到 2/√2（比通带低 3 dB）的频率由 ωR_fC_f = 1 决定：ω_c = 1/(R_fC_f) = 1000 rad/s，f_c ≈ 159.2 Hz——本题的 ω 正好是截止频率。"
     }
   ],
   "hints": [
@@ -60,15 +69,18 @@
       "tags": ["active filter", "first-order low-pass", "ideal op-amp", "dB"],
       "statement": [
         "An inverting amplifier has a capacitor C_f in parallel with its feedback resistor R_f: R₁ = 10 kΩ, R_f = 20 kΩ, C_f = 0.05 µF, and the op-amp is ideal. The network function is H(jω) = V_o/V_s.",
-        "Find 20lg|H(jω)| and the phase of H(jω) at ω = 1000 rad/s, and state the pass-band gain and the cut-off angular frequency of this circuit."
+        "Find 20lg|H(jω)| and the phase of H(jω) at ω = 1000 rad/s, and find the pass-band gain and the cut-off frequency f_c of this circuit."
       ],
       "questions": [
         { "ask": "20lg|H(jω)| at ω = 1000 rad/s = ?", "explain": "H = −Z_f/R₁ = −(R_f/R₁)/(1 + jωR_fC_f). ωR_fC_f = 1000 × 2×10⁴ × 5×10⁻⁸ = 1, so |H| = 2/√2 = √2 and 20lg√2 ≈ 3.01 dB." },
         { "ask": "Phase of H(jω) = ?", "explain": "H = −2/(1 + j) = −1 + j: the inversion gives 180°, the RC gives −45°, 135° in total (or −225°)." },
         {
-          "ask": "What are the pass-band gain and the cut-off angular frequency of this circuit?",
-          "choices": ["Low-pass, pass-band gain −2 (6.02 dB), ω_c = 1/(R_fC_f) = 1000 rad/s", "Low-pass, pass-band gain −2, ω_c = 1/(R₁C_f) = 2000 rad/s", "High-pass, high-frequency gain −2, ω_c = 1000 rad/s", "Low-pass, pass-band gain −3, ω_c = 1000 rad/s"],
-          "explain": "As ω → 0, C_f is open and H → −R_f/R₁ = −2 (6.02 dB); as ω → ∞, C_f shorts the output to the virtual ground and H → 0. So it is low-pass. |H| drops to 2/√2 (3 dB below the pass band) where ωR_fC_f = 1: ω_c = 1/(R_fC_f) = 1000 rad/s — the ω in this problem is exactly the cut-off frequency."
+          "ask": "Pass-band gain (H at ω = 1 rad/s, real part) = ?",
+          "explain": "Pass-band (DC) gain: at a very low frequency, ω = 1 rad/s, C_f is practically open and H ≈ −R_f/R₁ = −2 (6.02 dB); as ω → ∞ C_f shorts the output to the virtual ground and H → 0, so this is a low-pass filter."
+        },
+        {
+          "ask": "Cut-off frequency f_c = ?",
+          "explain": "|H| drops to 2/√2 (3 dB below the pass band) where ωR_fC_f = 1: ω_c = 1/(R_fC_f) = 1000 rad/s, f_c ≈ 159.2 Hz — the ω in this problem is exactly the cut-off."
         }
       ],
       "hints": [

@@ -5,15 +5,39 @@ import { HOLE_MAP } from './breadboard';
 import { getLang, isLang, LANGS, tr, type Lang } from './i18n';
 import { parseValue } from './format';
 import { BATTERIES, LED_COLORS, PARTS, terminalsOf } from './parts';
-import type { BatteryVariant, CComponent, CompType, Circuit, Layout, LedColor, PartProps, PartType, PlacedPart } from './types';
+import { MEASURES, type Measure } from './transient';
+import type { BatteryVariant, CComponent, CompType, Circuit, Layout, LedColor, PartProps, PartType, PlacedPart, Waveform } from './types';
 
 export const FORMAT_ID = 'breadboard-challenge/1';
+
+/** Oscilloscope measurement of V(pin) − V(ref) (ref omitted = GND) over the steady-state window.
+ *  phase / gain compare with V(vs) − V(ref): phase in degrees (−180, 180], > 0 = pin leads vs;
+ *  gain = ratio of the fundamental amplitudes. */
+export interface ScopeTest {
+  pin: string;
+  ref?: string;
+  measure: Measure;
+  vs?: string;
+  min?: number;
+  max?: number;
+}
+
+/** Current through a component (A): an ammeter's reading (in at +), or the current from a
+ *  part's first terminal to its second. mode "dc" = average (default), "rms" = true RMS. */
+export interface CurrentTest {
+  el: string;
+  mode: 'dc' | 'rms';
+  min?: number;
+  max?: number;
+}
 
 export interface ChallengeTest {
   name: string;
   set: Record<string, PartProps>;
   expect: Record<string, 'on' | 'off'>;
   voltages: { pin: string; ref?: string; min?: number; max?: number }[];
+  scope: ScopeTest[];
+  currents: CurrentTest[];
 }
 
 export interface ChallengeStep {
@@ -63,7 +87,14 @@ const COMP_TYPES: CompType[] = [
   'bench_supply',
   'power_module',
   'dc_source',
+  'inductor',
+  'ammeter',
+  'opamp',
+  'function_gen',
 ];
+
+/** Components whose current a test may check ("currents"). */
+export const CURRENT_TYPES: CompType[] = ['ammeter', 'resistor', 'led', 'diode', 'inductor', 'battery', 'bench_supply', 'power_module', 'dc_source', 'function_gen'];
 
 const WIRE_NAMES: Record<string, string> = {
   red: '#d62828',
@@ -90,6 +121,20 @@ const PIN_ALIASES: Record<string, Record<string, string>> = {
   pushbutton: { '1': '1', '2': '2', a: '1', b: '2' },
   resistor: { '1': '1', '2': '2' },
   capacitor: { '1': '1', '2': '2' },
+  inductor: { '1': '1', '2': '2' },
+  ammeter: { '+': '+', red: '+', pos: '+', in: '+', a: '+', '-': '-', com: '-', black: '-', neg: '-', out: '-' },
+  function_gen: { '+': '+', out: '+', sig: '+', signal: '+', pos: '+', red: '+', '-': '-', com: '-', gnd: '-', neg: '-', black: '-' },
+  opamp: {
+    // physical pin numbers
+    '1': 'outA', '2': 'inA-', '3': 'inA+', '4': 'v-', '5': 'inB+', '6': 'inB-', '7': 'outB', '8': 'v+',
+    // logical names (case-insensitive)
+    outa: 'outA', 'ina-': 'inA-', 'ina+': 'inA+', outb: 'outB', 'inb-': 'inB-', 'inb+': 'inB+',
+    out1: 'outA', 'in1-': 'inA-', 'in1+': 'inA+', out2: 'outB', 'in2-': 'inB-', 'in2+': 'inB+',
+    '-ina': 'inA-', '+ina': 'inA+', '-inb': 'inB-', '+inb': 'inB+',
+    // single op-amp usage: half A
+    out: 'outA', 'in-': 'inA-', 'in+': 'inA+', inv: 'inA-', noninv: 'inA+',
+    'v+': 'v+', vcc: 'v+', vdd: 'v+', 'vs+': 'v+', 'v-': 'v-', vee: 'v-', vss: 'v-', gnd: 'v-', 'vs-': 'v-',
+  },
 };
 
 export function normalizePin(type: CompType, pin: string): string | null {
@@ -112,9 +157,21 @@ function parseProps(type: CompType, raw: Record<string, unknown>, where: string,
   num('capacitance', 'capacitance');
   num('currentLimit', 'currentLimit');
   num('wiper', 'wiper');
+  num('inductance', 'inductance');
+  num('frequency', 'frequency');
+  num('amplitude', 'amplitude');
+  num('offset', 'offset');
+  if (raw.waveform !== undefined && raw.waveform !== 'any') {
+    if (raw.waveform === 'sine' || raw.waveform === 'square' || raw.waveform === 'triangle') props.waveform = raw.waveform as Waveform;
+    else errors.push(tr(`${where}: "waveform" 必须是 "sine" / "square" / "triangle"`, `${where}: "waveform" must be "sine" / "square" / "triangle"`));
+  }
+  if (raw.channel !== undefined) {
+    if (raw.channel === 1 || raw.channel === 2) props.channel = raw.channel;
+    else errors.push(tr(`${where}: "channel" 必须是 1 或 2`, `${where}: "channel" must be 1 or 2`));
+  }
   if (raw.value !== undefined && raw.value !== 'any') {
-    // generic "value" field: resistance for R/pot, capacitance for C, voltage for sources
-    const key = type === 'capacitor' ? 'capacitance' : type === 'resistor' || type === 'potentiometer' ? 'resistance' : 'voltage';
+    // generic "value" field: resistance for R/pot, capacitance for C, inductance for L, voltage for sources
+    const key = type === 'capacitor' ? 'capacitance' : type === 'inductor' ? 'inductance' : type === 'resistor' || type === 'potentiometer' ? 'resistance' : 'voltage';
     const v = parseValue(raw.value as string | number);
     if (v === null) errors.push(tr(`${where}: "value" ${JSON.stringify(raw.value)} 无法解析`, `${where}: can't parse "value" ${JSON.stringify(raw.value)}`));
     else (props as Record<string, number>)[key] = v;
@@ -206,6 +263,13 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
         return errors.push(tr(`${w}: "ref" 必须是字母开头的标识符，如 "R1"、"LED1"`, `${w}: "ref" must be an identifier starting with a letter, e.g. "R1", "LED1"`));
       if (refs.has(ref)) return errors.push(tr(`${w}: ref "${ref}" 重复`, `${w}: duplicate ref "${ref}"`));
       const type = c.type as CompType;
+      if (type === 'scope_probe')
+        return errors.push(
+          tr(
+            `${w}: scope_probe（示波器探头）是测量工具，不要写进目标电路；用 tests 里的 "scope" 测量波形`,
+            `${w}: scope_probe is a measuring tool, not part of the target circuit; measure waveforms with "scope" in tests instead`,
+          ),
+        );
       if (!COMP_TYPES.includes(type)) return errors.push(tr(`${w}: 未知类型 "${String(c.type)}"（可用：${COMP_TYPES.join(', ')}）`, `${w}: unknown type "${String(c.type)}" (available: ${COMP_TYPES.join(', ')})`));
       refs.add(ref);
       components.push({ ref, type, props: parseProps(type, c, `${w} (${ref})`, errors) });
@@ -318,7 +382,40 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
         if (pin && ref !== null)
           voltages.push({ pin, ref, min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
       });
-    tests.push({ name: typeof t.name === 'string' ? t.name : tr(`测试 ${i + 1}`, `Test ${i + 1}`), set, expect, voltages });
+    const scope: ScopeTest[] = [];
+    if (t.scope !== undefined && !Array.isArray(t.scope)) errors.push(tr(`${w}.scope: 必须是数组`, `${w}.scope: must be an array`));
+    if (Array.isArray(t.scope))
+      t.scope.forEach((v: unknown, j: number) => {
+        const wj = `${w}.scope[${j}]`;
+        if (!isObj(v)) return errors.push(tr(`${wj}: 必须是对象`, `${wj}: must be an object`));
+        const measure = v.measure as Measure;
+        if (!MEASURES.includes(measure)) return errors.push(tr(`${wj}.measure: 必须是 ${MEASURES.join(' / ')}`, `${wj}.measure: must be ${MEASURES.join(' / ')}`));
+        const pin = resolvePin(v.pin, `${wj}.pin`);
+        const ref = v.ref === undefined ? undefined : resolvePin(v.ref, `${wj}.ref`);
+        const vs = v.vs === undefined ? undefined : resolvePin(v.vs, `${wj}.vs`);
+        if ((measure === 'phase' || measure === 'gain') && v.vs === undefined)
+          errors.push(tr(`${wj}: "${measure}" 需要 "vs"（和哪个引脚比较）`, `${wj}: "${measure}" needs "vs" (the pin to compare with)`));
+        if (typeof v.min !== 'number' && typeof v.max !== 'number') warnings.push(tr(`${wj}: 没有 min / max，什么都不检查`, `${wj}: no min / max, so it checks nothing`));
+        if (pin && ref !== null && vs !== null)
+          scope.push({ pin, ref, vs, measure, min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
+      });
+    const currents: CurrentTest[] = [];
+    if (t.currents !== undefined && !Array.isArray(t.currents)) errors.push(tr(`${w}.currents: 必须是数组`, `${w}.currents: must be an array`));
+    if (Array.isArray(t.currents))
+      t.currents.forEach((v: unknown, j: number) => {
+        const wj = `${w}.currents[${j}]`;
+        if (!isObj(v)) return errors.push(tr(`${wj}: 必须是对象`, `${wj}: must be an object`));
+        const el = v.el ?? v.meter ?? v.ref;
+        const c = typeof el === 'string' ? compOf.get(el) : undefined;
+        if (!c) return errors.push(tr(`${wj}.el: 找不到元件 ${JSON.stringify(el)}`, `${wj}.el: no component ${JSON.stringify(el)}`));
+        if (!CURRENT_TYPES.includes(c.type))
+          return errors.push(tr(`${wj}.el: ${c.ref}（${c.type}）不能测电流（可用：${CURRENT_TYPES.join(', ')}）`, `${wj}.el: can't measure the current of ${c.ref} (${c.type}); allowed: ${CURRENT_TYPES.join(', ')}`));
+        const mode = v.mode === undefined ? 'dc' : v.mode;
+        if (mode !== 'dc' && mode !== 'rms') return errors.push(tr(`${wj}.mode: 必须是 "dc" 或 "rms"`, `${wj}.mode: must be "dc" or "rms"`));
+        if (typeof v.min !== 'number' && typeof v.max !== 'number') warnings.push(tr(`${wj}: 没有 min / max，什么都不检查`, `${wj}: no min / max, so it checks nothing`));
+        currents.push({ el: c.ref, mode, min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
+      });
+    tests.push({ name: typeof t.name === 'string' ? t.name : tr(`测试 ${i + 1}`, `Test ${i + 1}`), set, expect, voltages, scope, currents });
   });
 
   const steps: ChallengeStep[] = (Array.isArray(json.steps) ? json.steps : [])

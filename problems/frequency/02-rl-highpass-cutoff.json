@@ -32,10 +32,18 @@
     { "id": "ul", "ask": "U_L 的有效值 = ?", "find": { "kind": "v", "el": "L", "part": "mag" }, "answer": 7.071068, "unit": "V", "explain": "U_L = 10/√2 ≈ 7.071 V，此时 U_R 也是 7.071 V（两者相位差 90°，不能直接相加）。" },
     {
       "id": "type",
-      "ask": "这个电路（输出取电感电压）属于哪一类滤波电路？截止角频率是多少？",
-      "choices": ["低通，ω_c = L/R", "高通，ω_c = R/L = 2000 rad/s", "高通，ω_c = 1/(RL)", "带通，中心角频率 2000 rad/s"],
+      "ask": "这个电路（输出取电感电压）属于哪一类滤波电路？",
+      "choices": ["低通", "高通", "带通", "带阻"],
       "correct": 1,
-      "explain": "ω → 0 时电感短路，U_L → 0；ω → ∞ 时电感开路，U_L → U_s。所以是高通。|H| = 1/√2（−3 dB，输出功率减半）的频率是 ωL = R，即 ω_c = R/L = 2000 rad/s（f_c ≈ 318.3 Hz）。"
+      "explain": "ω → 0 时电感短路，U_L → 0；ω → ∞ 时电感开路，U_L → U_s。所以是高通。"
+    },
+    {
+      "id": "fc",
+      "ask": "截止频率 f_c = ?（|H| 比高频值低 3 dB 处）",
+      "find": { "kind": "fc", "out": ["o"], "input": "Us" },
+      "answer": 318.3099,
+      "unit": "Hz",
+      "explain": "|H| = ωL/√(R² + (ωL)²) = 1/√2 时 ωL = R，即 ω_c = R/L = 2000 rad/s，f_c = ω_c/(2π) ≈ 318.3 Hz——本题的电源频率正好是截止频率。"
     }
   ],
   "hints": [
@@ -62,9 +70,13 @@
         { "ask": "Phase of H(jω) = ?", "explain": "H = j/(1 + j) → 90° − 45° = +45°: at its cut-off frequency a high-pass circuit's output leads the input by 45°." },
         { "ask": "rms value of V_L = ?", "explain": "V_L = 10/√2 ≈ 7.071 V; V_R is also 7.071 V (they are 90° apart, so they don't add arithmetically)." },
         {
-          "ask": "What kind of filter is this circuit (output across the inductor), and what is its cut-off angular frequency?",
-          "choices": ["Low-pass, ω_c = L/R", "High-pass, ω_c = R/L = 2000 rad/s", "High-pass, ω_c = 1/(RL)", "Band-pass, centre angular frequency 2000 rad/s"],
-          "explain": "As ω → 0 the inductor is a short and V_L → 0; as ω → ∞ it is an open circuit and V_L → V_s, so it is high-pass. |H| = 1/√2 (−3 dB, half the output power) where ωL = R, i.e. ω_c = R/L = 2000 rad/s (f_c ≈ 318.3 Hz)."
+          "ask": "What kind of filter is this circuit (output across the inductor)?",
+          "choices": ["Low-pass", "High-pass", "Band-pass", "Band-stop"],
+          "explain": "As ω → 0 the inductor is a short and U_L → 0; as ω → ∞ it is open and U_L → U_s. So it is a high-pass filter."
+        },
+        {
+          "ask": "Cut-off frequency f_c = ? (where |H| is 3 dB below its high-frequency value)",
+          "explain": "|H| = ωL/√(R² + (ωL)²) = 1/√2 when ωL = R, i.e. ω_c = R/L = 2000 rad/s, f_c = ω_c/(2π) ≈ 318.3 Hz — the source frequency in this problem is exactly the cut-off."
         }
       ],
       "hints": [

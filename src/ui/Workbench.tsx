@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { tr } from '../core/i18n';
-import { PARTS, PART_ORDER } from '../core/parts';
+import { PARTS, PART_ORDER, nextScopeChannel } from '../core/parts';
 import { volts } from '../core/format';
+import { vavg } from '../core/transient';
 import { holeLabel } from '../core/breadboard';
 import type { PartType } from '../core/types';
 import { useDerived } from '../state/derived';
@@ -9,13 +10,16 @@ import { useStore, type Tool } from '../state/store';
 import { Scene, VIEWS, type ViewName } from '../three/Scene';
 import { emitCameraView } from '../three/common';
 import { Icon, PartIcon } from './Icons';
+import { Scope } from './Scope';
 
 const groups = (): { title: string; items: Tool[] }[] => [
   { title: tr('工具', 'Tools'), items: ['select', 'probe'] },
   { title: tr('电源', 'Power'), items: PART_ORDER.filter((t) => PARTS[t].category === 'power') },
   { title: tr('连线', 'Wiring'), items: ['wire'] },
-  { title: tr('元件', 'Parts'), items: PART_ORDER.filter((t) => PARTS[t].category === 'basic') },
+  { title: tr('元件', 'Parts'), items: PART_ORDER.filter((t) => PARTS[t].category === 'basic' && t !== 'opamp') },
+  { title: tr('芯片 ICs', 'ICs'), items: ['opamp'] },
   { title: tr('输入', 'Inputs'), items: PART_ORDER.filter((t) => PARTS[t].category === 'input') },
+  { title: tr('仪器', 'Instruments'), items: (['ammeter', 'function_gen', 'scope_probe'] as PartType[]).filter((t) => PARTS[t].category === 'instrument') },
 ];
 
 const toolName = (t: Tool) => (t === 'select' ? tr('选择 / 操作', 'Select / use') : t === 'probe' ? tr('万用表', 'Multimeter') : PARTS[t].name);
@@ -44,12 +48,17 @@ function Prompt() {
   const tool = useStore((s) => s.tool);
   const firstHole = useStore((s) => s.firstHole);
   const cancelPlacement = useStore((s) => s.cancelPlacement);
+  const layout = useStore((s) => s.layout);
   let text: string;
   if (tool === 'select') text = tr('鼠标悬停在孔上，看看哪些孔在内部是连通的 · 点击元件选中，点击按键 / 开关切换状态', 'Hover a hole to see which holes are connected inside · click a part to select it, click a button / switch to flip it');
   else if (tool === 'probe') text = tr('万用表：点击孔放红表笔；Shift + 点击放黑表笔（不放则默认接 GND）', 'Multimeter: click a hole for the red probe; Shift + click for the black probe (GND if not placed)');
   else {
     const pl = PARTS[tool as PartType].placement;
     text = pl.kind === 'footprint' ? pl.prompt : pl.prompts[firstHole ? 1 : 0] + (firstHole ? tr(`（起点 ${firstHole}）`, ` (from ${firstHole})`) : '');
+    if (tool === 'scope_probe') {
+      const ch = nextScopeChannel(layout);
+      text += ch ? tr(` · 这个探头接 CH${ch}`, ` · this probe goes to CH${ch}`) : tr(' · 两个通道都已占用', ' · both channels are in use');
+    }
   }
   return (
     <div className="prompt">
@@ -99,12 +108,14 @@ function ViewButton() {
 function Multimeter() {
   const tool = useStore((s) => s.tool);
   const probe = useStore((s) => s.probe);
-  const { nl, sim } = useDerived();
+  const { nl, sim, ac } = useDerived();
   if (tool !== 'probe') return null;
+  // under AC the meter (DC mode) shows the average of the waveform
+  const nodeV = (net: string) => (ac && ac.nets.includes(net) ? vavg(ac.v(net)) : ac && net === ac.ground ? 0 : (sim.nodeV.get(net) ?? 0));
   const vOf = (h: string | null) => {
     if (!h) return { v: 0, net: sim.ground ?? 'GND' };
     const net = nl.holeNet.get(h);
-    return { v: net ? (sim.nodeV.get(net) ?? 0) : NaN, net: net ?? tr('无连接', 'not connected') };
+    return { v: net ? nodeV(net) : NaN, net: net ?? tr('无连接', 'not connected') };
   };
   const r = vOf(probe.red);
   const b = vOf(probe.black);
@@ -127,6 +138,7 @@ function Multimeter() {
           '电压永远是“两点之间”的差。只放红表笔时，读数就是这一点相对 GND 的电压。',
           'Voltage is always a difference between two points. With only the red probe placed, the reading is that point relative to GND.',
         )}
+        {ac && tr(' 电路里有交流信号：万用表（直流档）显示的是平均值，看波形请用示波器探头。', ' The circuit carries an AC signal: the multimeter (DC mode) shows the average — use a scope probe to see the waveform.')}
       </p>
     </div>
   );
@@ -187,6 +199,7 @@ export function Workbench() {
         <ViewButton />
         <Prompt />
         <Multimeter />
+        <Scope />
         <Toolbar />
         {toast && <div className="toast">{toast}</div>}
       </div>

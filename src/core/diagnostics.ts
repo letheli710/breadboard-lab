@@ -3,7 +3,7 @@
 import { HOLE_MAP, stripLabel } from './breadboard';
 import { tr } from './i18n';
 import { isFloating, type BoardNetlist } from './netlist';
-import { PARTS, describeComponent, isPower, terminalLabel, terminalsOf } from './parts';
+import { OPAMP_HALVES, PARTS, describeComponent, groundSource, isPower, terminalLabel, terminalsOf } from './parts';
 import type { SimResult } from './solver';
 import { pinId } from './types';
 import { amps, volts } from './format';
@@ -27,7 +27,7 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
   const { circuit } = nl;
   const netSize = new Map(circuit.nets.map((n) => [n.name, n.pins.length]));
 
-  if (!circuit.components.some((c) => isPower(c.type)))
+  if (!circuit.components.some((c) => isPower(c.type) || c.type === 'function_gen'))
     out.push({
       severity: 'info',
       title: tr('还没有电源', 'No power source yet'),
@@ -117,7 +117,7 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
   // component whose terminals all sit on one net (shorted out / bypassed)
   for (const c of circuit.components) {
     const terms = terminalsOf(c.type);
-    if (c.type === 'switch' || isPower(c.type)) continue;
+    if (c.type === 'switch' || isPower(c.type) || c.type === 'opamp' || c.type === 'scope_probe') continue;
     const nets = terms.map((t) => nl.pinNet.get(pinId(c.ref, t)));
     if (nets.some(isFloating)) continue;
     if (new Set(nets).size === 1) {
@@ -144,6 +144,7 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
     if (nl.unplaced.includes(c.ref)) continue;
     for (const t of terminalsOf(c.type)) {
       if (c.type === 'switch' && t !== 'com') continue;
+      if (c.type === 'opamp') continue; // see the op-amp checks below
       const net = nl.pinNet.get(pinId(c.ref, t));
       if (net && netSize.get(net) === 1)
         out.push({
@@ -159,8 +160,10 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
     }
   }
 
+  out.push(...instrumentDiagnostics(nl, sim));
+
   // multiple supplies without a common ground
-  const srcs = circuit.components.filter((c) => isPower(c.type) && !nl.unplaced.includes(c.ref));
+  const srcs = circuit.components.filter((c) => (isPower(c.type) || c.type === 'function_gen') && !nl.unplaced.includes(c.ref));
   const grounds = new Set(srcs.map((s) => nl.pinNet.get(pinId(s.ref, '-'))));
   if (srcs.length > 1 && grounds.size > 1)
     out.push({
@@ -174,6 +177,132 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
       holes: [],
     });
 
+  return out;
+}
+
+/** Stage-C checks: op-amps, ammeters, scope probes. */
+function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
+  const out: Issue[] = [];
+  const { circuit } = nl;
+  const netSize = new Map(circuit.nets.map((n) => [n.name, n.pins.length]));
+  const netOf = (ref: string, t: string) => nl.pinNet.get(pinId(ref, t));
+  const connected = (ref: string, t: string) => {
+    const n = netOf(ref, t);
+    return !!n && (netSize.get(n) ?? 0) > 1;
+  };
+  const holesOf = (ref: string, ts: string[]) => ts.flatMap((t) => nl.pinHoles.get(pinId(ref, t)) ?? []);
+  // nets that are a supply terminal (DC source +/−) — an op-amp output must never sit on one
+  const supplyNets = new Set<string>();
+  for (const c of circuit.components)
+    if (isPower(c.type) && !nl.unplaced.includes(c.ref))
+      for (const t of ['+', '-']) {
+        const n = netOf(c.ref, t);
+        if (n) supplyNets.add(n);
+      }
+  const outputsOnNet = new Map<string, string[]>();
+
+  for (const c of circuit.components) {
+    if (c.type !== 'opamp' || nl.unplaced.includes(c.ref)) continue;
+    const st = sim.opamps.get(c.ref);
+    const used = OPAMP_HALVES.filter((h) => connected(c.ref, h.out) || connected(c.ref, h.inp) || connected(c.ref, h.inn));
+    if (used.length === 0) continue;
+    const vpOk = connected(c.ref, 'v+');
+    const vnOk = connected(c.ref, 'v-');
+    if (!vpOk || !vnOk || !st?.powered)
+      out.push({
+        severity: 'warning',
+        title: tr(`${c.ref} 没有接电源`, `${c.ref} has no power`),
+        detail: tr(
+          `运放必须供电才能工作：8 脚 V+ 接电源正极（+ 轨），4 脚 V− 接 GND（或负电源）。${!vpOk ? '现在 8 脚悬空。' : ''}${!vnOk ? '现在 4 脚悬空。' : ''}${vpOk && vnOk ? `现在 V+ 和 V− 之间只有 ${volts(st?.supply ?? 0)}（LM358 至少要 3 V）。` : ''}`,
+          `An op-amp needs power to work: pin 8 (V+) to the supply + (the + rail), pin 4 (V−) to GND (or a negative supply).${!vpOk ? ' Pin 8 is floating now.' : ''}${!vnOk ? ' Pin 4 is floating now.' : ''}${vpOk && vnOk ? ` There is only ${volts(st?.supply ?? 0)} between V+ and V− now (the LM358 needs at least 3 V).` : ''}`,
+        ),
+        refs: [c.ref],
+        holes: holesOf(c.ref, ['v+', 'v-']),
+      });
+    for (const h of used) {
+      const floating = [h.inp, h.inn].filter((t) => !connected(c.ref, t));
+      if (floating.length)
+        out.push({
+          severity: 'warning',
+          title: tr(`${c.ref} 的输入悬空：${floating.map((t) => terminalLabel(c, t)).join('、')}`, `${c.ref} input floating: ${floating.map((t) => terminalLabel(c, t)).join(', ')}`),
+          detail: tr(
+            '运放的输入几乎不取电流，悬空的输入电压是不确定的（会拾取噪声），输出会乱跳或撞到电源轨。每个用到的运放，IN+ 和 IN− 都必须接到电路上。',
+            "An op-amp input draws almost no current, so a floating input sits at an undefined voltage (it picks up noise) and the output jumps around or slams into a rail. For every half you use, both IN+ and IN− must be connected.",
+          ),
+          refs: [c.ref],
+          holes: holesOf(c.ref, floating),
+        });
+      const on = netOf(c.ref, h.out);
+      if (on && (netSize.get(on) ?? 0) > 1) {
+        outputsOnNet.set(on, [...(outputsOnNet.get(on) ?? []), terminalLabel(c, h.out)]);
+        if (supplyNets.has(on))
+          out.push({
+            severity: 'warning',
+            title: tr(`${c.ref} 的输出直接接在电源上`, `${c.ref}'s output is wired straight to a supply`),
+            detail: tr(
+              `${terminalLabel(c, h.out)} 和电源的 + 或 − 在同一个节点上。运放输出是“电压源”，不能和另一个电压源硬连在一起——会有很大的电流，输出被短路。检查是不是插错了列。`,
+              `${terminalLabel(c, h.out)} is on the same node as a supply terminal. An op-amp output is a voltage source and must not be tied straight to another voltage source — a large current flows and the output is shorted. Check for a leg in the wrong column.`,
+            ),
+            refs: [c.ref],
+            holes: holesOf(c.ref, [h.out]),
+          });
+      }
+      if (st?.[h.half].mode === 'high' || st?.[h.half].mode === 'low')
+        out.push({
+          severity: 'info',
+          title: tr(`${c.ref}${h.half} 的输出到顶了（饱和）`, `${c.ref}${h.half}'s output is saturated`),
+          detail: tr(
+            `输出停在 ${volts(st[h.half].out)}，已经到了电源能给的极限（LM358 最高约 V+ − 1.5 V，最低约 V−）。要么输入太大、增益太高，要么反馈没接好（反馈要接到 IN−）。`,
+            `The output is stuck at ${volts(st[h.half].out)}, as far as the supply allows (LM358: about V+ − 1.5 V at the top, V− at the bottom). Either the input or the gain is too large, or the feedback isn't wired right (feedback goes to IN−).`,
+          ),
+          refs: [c.ref],
+          holes: [],
+        });
+    }
+  }
+  for (const [net, outs] of outputsOnNet)
+    if (outs.length > 1)
+      out.push({
+        severity: 'warning',
+        title: tr('两个运放输出连在了一起', 'Two op-amp outputs are connected together'),
+        detail: tr(
+          `${outs.join('、')} 在同一个节点（${net}）上。两个输出都想决定这个点的电压，会互相“打架”，大电流从一个流进另一个。每个输出只能驱动输入或负载。`,
+          `${outs.join(', ')} are on the same node (${net}). Both outputs try to set that voltage and fight each other, with a large current flowing between them. Each output should drive only inputs or loads.`,
+        ),
+        refs: [...new Set(outs.map((o) => o.split(' ')[0]))],
+        holes: [],
+      });
+
+  for (const [ref, m] of sim.meters)
+    if (Math.abs(m.current) > 0.5)
+      out.push({
+        severity: 'error',
+        title: tr(`${ref} 把电路短路了！电流 ${amps(m.current)}`, `${ref} is shorting the circuit! Current ${amps(m.current)}`),
+        detail: tr(
+          '电流表的内阻几乎为零，相当于一根导线。它必须串联：把电路在要测电流的地方断开，让电流从红表笔流进、从黑表笔流出。并联在元件或电源两端就是短路（真实的万用表会烧保险丝）。',
+          'An ammeter has almost zero resistance — it is like a wire. It must go in series: open the circuit where you want to measure and let the current flow in at the red lead and out at the black lead. Across a part or a supply it is a short circuit (a real multimeter blows its fuse).',
+        ),
+        refs: [ref],
+        holes: [...(nl.pinHoles.get(pinId(ref, '+')) ?? []), ...(nl.pinHoles.get(pinId(ref, '-')) ?? [])],
+      });
+
+  const gs = groundSource(circuit.components.filter((c) => !nl.unplaced.includes(c.ref)));
+  const gnd = gs ? netOf(gs.ref, '-') : undefined;
+  for (const c of circuit.components) {
+    if (c.type !== 'scope_probe' || nl.unplaced.includes(c.ref) || !gnd) continue;
+    const g = netOf(c.ref, 'gnd');
+    if (g && g !== gnd && (netSize.get(g) ?? 0) > 1)
+      out.push({
+        severity: 'info',
+        title: tr(`${c.ref} 的接地夹没有夹在 GND 上`, `${c.ref}'s ground clip isn't on GND`),
+        detail: tr(
+          '这里的探头只测“针尖 − 接地夹”的电压差，所以读数没问题。但真实示波器的接地夹都连在大地（和信号发生器的地）上，夹在非 GND 的点会把那一点短路到地。想测两点之间的电压，用两个探头都接 GND，再看 CH1 − CH2。',
+          'This probe just measures tip minus ground clip, so the reading is fine here. But on a real scope every ground clip is tied to earth (and to the generator\'s ground), so clipping it to a non-GND point shorts that point to ground. To measure between two points, use two probes with grounds on GND and look at CH1 − CH2.',
+        ),
+        refs: [c.ref],
+        holes: nl.pinHoles.get(pinId(c.ref, 'gnd')) ?? [],
+      });
+  }
   return out;
 }
 

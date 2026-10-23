@@ -33,11 +33,20 @@
     { "id": "Uo", "ask": "谐振时输出电压有效值 U_o = ?", "find": { "kind": "v", "nodes": ["o"], "part": "mag" }, "answer": 5, "unit": "V", "explain": "谐振时 L、C 并联部分相当于开路，回路阻抗为 R = 2 kΩ：U_o = 10 × 2/(2 + 2) = 5 V，与 U_s 同相。" },
     { "id": "IC", "ask": "谐振时电容电流有效值 I_C = ?", "find": { "kind": "i", "el": "C", "part": "mag" }, "answer": 0.05, "unit": "mA", "explain": "I_C = ω₀C·U_o = 10⁵ × 10⁻⁷ × 5 = 0.05 A = 50 mA，而信号源只提供 (10 − 5)/2k = 2.5 mA。" },
     {
+      "id": "Q",
+      "ask": "考虑信号源内阻后，回路的品质因数 Q = ?（从 o、o′ 看进去）",
+      "find": { "kind": "Q", "port": ["o", "o'"] },
+      "answer": 10,
+      "unit": "",
+      "explain": "把 U_s、R_s 化成诺顿等效，回路两端的总电导是 1/R_s + 1/R，即等效电阻 R_s∥R = 1 kΩ。有载 Q = (R_s∥R)/(ω₀L) = 1000/100 = 10。只看回路本身（R = 2 kΩ）会得到 Q = 20——信号源内阻使 Q 下降。"
+    },
+    {
       "id": "bw",
-      "ask": "考虑信号源内阻后，电路的品质因数和通频带是？",
-      "choices": ["Q = 10，BW = 10⁴ rad/s（≈ 1.59 kHz）", "Q = 20，BW = 5000 rad/s（≈ 796 Hz）", "Q = 5，BW = 2×10⁴ rad/s", "Q = 10，BW = 10⁵ rad/s"],
-      "correct": 0,
-      "explain": "把 U_s、R_s 化成诺顿等效，回路两端的总电导是 1/R_s + 1/R，即等效电阻 R_s∥R = 1 kΩ。有载 Q = (R_s∥R)/(ω₀L) = 1000/100 = 10，BW = ω₀/Q = 1/((R_s∥R)C) = 10⁴ rad/s。只看回路本身（R = 2 kΩ）会得到 Q = 20、BW = 5000 rad/s——信号源内阻使 Q 下降、通带变宽。"
+      "ask": "电路的通频带 BW = ?（用 Hz 表示）",
+      "find": { "kind": "bw", "out": ["o"], "input": "Us" },
+      "answer": 1591.549,
+      "unit": "Hz",
+      "explain": "BW = ω₀/Q = 1/((R_s∥R)C) = 10⁴ rad/s，即 10⁴/(2π) ≈ 1592 Hz。不计 R_s 时 BW 只有 5000 rad/s——内阻使通带变宽。"
     }
   ],
   "hints": [
@@ -64,9 +73,12 @@
         { "ask": "rms output voltage at resonance V_o = ?", "explain": "At resonance the parallel L–C pair acts as an open circuit and the tank is just R = 2 kΩ: V_o = 10 × 2/(2 + 2) = 5 V, in phase with V_s." },
         { "ask": "rms capacitor current at resonance I_C = ?", "explain": "I_C = ω₀C·V_o = 10⁵ × 10⁻⁷ × 5 = 0.05 A = 50 mA, while the source only supplies (10 − 5)/2k = 2.5 mA." },
         {
-          "ask": "Taking the source resistance into account, what are the quality factor and the bandwidth?",
-          "choices": ["Q = 10, BW = 10⁴ rad/s (≈ 1.59 kHz)", "Q = 20, BW = 5000 rad/s (≈ 796 Hz)", "Q = 5, BW = 2×10⁴ rad/s", "Q = 10, BW = 10⁵ rad/s"],
-          "explain": "Turn V_s, R_s into a Norton equivalent: the total conductance across the tank is 1/R_s + 1/R, i.e. an equivalent resistance R_s∥R = 1 kΩ. Loaded Q = (R_s∥R)/(ω₀L) = 1000/100 = 10 and BW = ω₀/Q = 1/((R_s∥R)C) = 10⁴ rad/s. The tank alone (R = 2 kΩ) would give Q = 20 and BW = 5000 rad/s — the source resistance lowers Q and widens the pass band."
+          "ask": "Taking the source resistance into account, the quality factor seen from o, o′ is Q = ?",
+          "explain": "Turning U_s, R_s into a Norton equivalent, the total conductance across the tank is 1/R_s + 1/R, i.e. R_s∥R = 1 kΩ. Loaded Q = (R_s∥R)/(ω₀L) = 1000/100 = 10. The tank alone (R = 2 kΩ) would give Q = 20 — the source resistance lowers Q."
+        },
+        {
+          "ask": "Bandwidth BW = ? (in Hz)",
+          "explain": "BW = ω₀/Q = 1/((R_s∥R)C) = 10⁴ rad/s, i.e. 10⁴/(2π) ≈ 1592 Hz. Without R_s it would be only 5000 rad/s — the source resistance widens the pass band."
         }
       ],
       "hints": [

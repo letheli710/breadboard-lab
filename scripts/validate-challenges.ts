@@ -24,6 +24,7 @@ import { isLang, setLang, tr } from '../src/core/i18n';
 import { applySet, checkCircuit } from '../src/core/check';
 import { buildNetlist } from '../src/core/netlist';
 import { simulate } from '../src/core/solver';
+import { hasGenerator, simulateTransient } from '../src/core/transient';
 import type { Layout } from '../src/core/types';
 
 const LED_MAX = 0.025;
@@ -98,14 +99,19 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
     const states = [{ name: tr('默认状态', 'default state'), set: {} }, ...ch.tests];
     const seen = new Set<string>();
     for (const t of states) {
-      const sim = simulate(applySet(nl.circuit, t.set, r.mapping));
-      for (const [ref, led] of sim.leds) {
+      const circ = applySet(nl.circuit, t.set, r.mapping);
+      const sim = simulate(circ);
+      // with a function generator, LED current = steady-state average (what the checker uses)
+      const ledStates = hasGenerator(circ) ? simulateTransient(circ).leds : sim.leds;
+      for (const [ref, led] of ledStates) {
         if (led.burnt) rep.errors.push(tr(`solution: ${ref} 在「${t.name}」时电流 ${(led.current * 1000).toFixed(0)} mA，会烧坏`, `solution: ${ref} draws ${(led.current * 1000).toFixed(0)} mA in "${t.name}" and burns out`));
         else if (led.current > LED_MAX && !seen.has(ref)) {
           seen.add(ref);
           rep.warnings.push(tr(`solution: ${ref} 在「${t.name}」时电流 ${(led.current * 1000).toFixed(1)} mA，超过 25 mA`, `solution: ${ref} draws ${(led.current * 1000).toFixed(1)} mA in "${t.name}", above 25 mA`));
         }
       }
+      for (const [ref, m] of sim.meters)
+        if (Math.abs(m.current) > 0.5) rep.errors.push(tr(`solution: 电流表 ${ref} 在「${t.name}」时把电路短路了`, `solution: ammeter ${ref} shorts the circuit in "${t.name}"`));
       for (const [ref, s] of sim.sources) if (s.shorted) rep.errors.push(tr(`solution: 电源 ${ref} 在「${t.name}」时短路/过载`, `solution: supply ${ref} is shorted / overloaded in "${t.name}"`));
     }
   }

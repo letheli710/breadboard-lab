@@ -39,11 +39,20 @@
     { "id": "db", "ask": "ω = 1000 rad/s 时 20lg|H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "db" }, "answer": 19.91357, "unit": "dB", "explain": "H = −jωR_fC₁/((1 + jωR₁C₁)(1 + jωR_fC_f))。ω = 1000：jωR_fC₁ = j100，(1 + j10)(1 + j0.1) = 1 − 1 + j10.1 = j10.1，H = −100/10.1 ≈ −9.901，20lg 9.901 ≈ 19.91 dB。" },
     { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": 180, "unit": "°", "explain": "H = −9.901 是负实数，相位 180°（±180° 都对）：标准形式中高通因子 j10/(1 + j10) 的相位是 90° − 84.3° = +5.7°，低通因子 1/(1 + j0.1) 的相位是 −5.7°，两者正好抵消，只剩反相（负号）带来的 180°。" },
     {
-      "id": "band",
-      "ask": "这个带通滤波器的下截止频率、上截止频率和中频增益约为？",
-      "choices": ["ω_L = 1/(R₁C₁) = 100 rad/s，ω_H = 1/(R_fC_f) = 10⁴ rad/s，中频增益 ≈ −10（20 dB）", "ω_L = 1/(R_fC₁) = 10 rad/s，ω_H = 1/(R₁C_f) = 10⁵ rad/s，中频增益 −10", "ω_L = 100 rad/s，ω_H = 10⁴ rad/s，中频增益 −1", "中心频率 1000 rad/s，带宽 100 rad/s"],
-      "correct": 0,
-      "explain": "H = −(R_f/R₁)·[jω/ω_L/(1 + jω/ω_L)]·[1/(1 + jω/ω_H)]，ω_L = 1/(R₁C₁) = 100 rad/s，ω_H = 1/(R_fC_f) = 10⁴ rad/s。ω_L ≪ ω ≪ ω_H 时两个方括号都 ≈ 1，增益 ≈ −R_f/R₁ = −10。两个转折频率相差 100 倍，所以通带近似为 100 ~ 10⁴ rad/s，ω = 1000 rad/s 处 |H| = 9.90 已经很接近 10。"
+      "id": "fl",
+      "ask": "下截止频率 f_L = ?",
+      "find": { "kind": "fc", "out": ["o"], "input": "Us", "which": "low" },
+      "answer": 15.6064,
+      "unit": "Hz",
+      "explain": "H = −(R_f/R₁)·[jω/ω_L/(1 + jω/ω_L)]·[1/(1 + jω/ω_H)]，ω_L = 1/(R₁C₁) = 100 rad/s，ω_H = 1/(R_fC_f) = 10⁴ rad/s。近似地 f_L ≈ 100/(2π) ≈ 15.9 Hz；准确地说，−3 dB 是相对中频最大值 9.90 而言，两节相互影响，f_L ≈ 15.6 Hz（ω ≈ 98 rad/s）。"
+    },
+    {
+      "id": "fh",
+      "ask": "上截止频率 f_H = ?",
+      "find": { "kind": "fc", "out": ["o"], "input": "Us", "which": "high" },
+      "answer": 1623.071,
+      "unit": "Hz",
+      "explain": "近似地 f_H ≈ 10⁴/(2π) ≈ 1592 Hz；准确值 ≈ 1623 Hz（ω ≈ 1.02×10⁴ rad/s）。两个转折频率相差 100 倍，中频（如 ω = 1000 rad/s）增益 |H| = 9.90 ≈ R_f/R₁ = 10。"
     }
   ],
   "hints": [
@@ -68,9 +77,12 @@
         { "ask": "20lg|H(jω)| at ω = 1000 rad/s = ?", "explain": "H = −jωR_fC₁/((1 + jωR₁C₁)(1 + jωR_fC_f)). At ω = 1000: jωR_fC₁ = j100 and (1 + j10)(1 + j0.1) = 1 − 1 + j10.1 = j10.1, so H = −100/10.1 ≈ −9.901 and 20lg 9.901 ≈ 19.91 dB." },
         { "ask": "Phase of H(jω) = ?", "explain": "H = −9.901 is a negative real number, so the phase is 180° (±180° are both fine): in the standard form the high-pass factor j10/(1 + j10) has phase 90° − 84.3° = +5.7° and the low-pass factor 1/(1 + j0.1) has −5.7°; they cancel exactly, leaving only the 180° of the inversion (the minus sign)." },
         {
-          "ask": "What are, approximately, the lower and upper cut-off frequencies and the mid-band gain of this band-pass filter?",
-          "choices": ["ω_L = 1/(R₁C₁) = 100 rad/s, ω_H = 1/(R_fC_f) = 10⁴ rad/s, mid-band gain ≈ −10 (20 dB)", "ω_L = 1/(R_fC₁) = 10 rad/s, ω_H = 1/(R₁C_f) = 10⁵ rad/s, mid-band gain −10", "ω_L = 100 rad/s, ω_H = 10⁴ rad/s, mid-band gain −1", "Centre frequency 1000 rad/s, bandwidth 100 rad/s"],
-          "explain": "H = −(R_f/R₁)·[(jω/ω_L)/(1 + jω/ω_L)]·[1/(1 + jω/ω_H)] with ω_L = 1/(R₁C₁) = 100 rad/s and ω_H = 1/(R_fC_f) = 10⁴ rad/s. For ω_L ≪ ω ≪ ω_H both brackets are ≈ 1 and the gain is ≈ −R_f/R₁ = −10. The two corner frequencies are a factor of 100 apart, so the pass band is roughly 100 to 10⁴ rad/s; at ω = 1000 rad/s |H| = 9.90 is already close to 10."
+          "ask": "Lower cut-off frequency f_L = ?",
+          "explain": "H = −(R_f/R₁)·[jω/ω_L/(1 + jω/ω_L)]·[1/(1 + jω/ω_H)] with ω_L = 1/(R₁C₁) = 100 rad/s and ω_H = 1/(R_fC_f) = 10⁴ rad/s. Approximately f_L ≈ 100/(2π) ≈ 15.9 Hz; exactly (−3 dB below the mid-band maximum 9.90, the two sections interacting) f_L ≈ 15.6 Hz (ω ≈ 98 rad/s)."
+        },
+        {
+          "ask": "Upper cut-off frequency f_H = ?",
+          "explain": "Approximately f_H ≈ 10⁴/(2π) ≈ 1592 Hz; exactly ≈ 1623 Hz (ω ≈ 1.02×10⁴ rad/s). The corners are a factor of 100 apart, so the mid-band gain (e.g. at ω = 1000 rad/s) is |H| = 9.90 ≈ R_f/R₁ = 10."
         }
       ],
       "hints": [

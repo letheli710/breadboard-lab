@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "example-rc-lowpass-scope",
+  "title": "示例 · RC 低通滤波器",
+  "kind": "challenge",
+  "level": 3,
+  "summary": "用 1 kΩ 和 100 nF 搭一个 RC 低通滤波器，用示波器看截止频率处的增益和相位。",
+  "concepts": ["low-pass filter 低通滤波器", "cutoff frequency 截止频率 fc = 1/(2πRC)", "phase shift 相移"],
+  "description": "信号发生器 → R1 (1 kΩ) → 输出节点 VOUT → C1 (100 nF) → GND。\nfc = 1/(2π × 1k × 100n) ≈ 1592 Hz。在 fc 处，输出幅度是输入的 1/√2 ≈ 0.707，相位落后 45°。\n用示波器 CH1 看输入，CH2 看 VOUT。",
+  "i18n": {
+    "en": {
+      "title": "Example · RC low-pass filter",
+      "summary": "Build an RC low-pass filter from 1 kΩ and 100 nF and look at its gain and phase at the cutoff frequency on the scope.",
+      "concepts": ["low-pass filter", "cutoff frequency fc = 1/(2πRC)", "phase shift"],
+      "description": "Function generator → R1 (1 kΩ) → output node VOUT → C1 (100 nF) → GND.\nfc = 1/(2π × 1k × 100n) ≈ 1592 Hz. At fc the output amplitude is 1/√2 ≈ 0.707 of the input and lags it by 45°.\nWatch the input on CH1 and VOUT on CH2.",
+      "hints": ["The generator's black clip goes to GND.", "The capacitor goes from VOUT to GND."],
+      "tests": ["At fc: gain ≈ 0.707, phase ≈ −45°", "At fc/10 the signal passes almost unchanged"]
+    }
+  },
+  "components": [
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "R1", "type": "resistor", "resistance": "1k" },
+    { "ref": "C1", "type": "capacitor", "capacitance": "100n" }
+  ],
+  "nets": [
+    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
+    { "name": "VOUT", "pins": ["R1.2", "C1.1"] },
+    { "name": "GND", "pins": ["C1.2", "FG1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "在 fc：增益 ≈ 0.707，相位 ≈ −45°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1592, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
+        { "pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -48, "max": -42 },
+        { "pin": "C1.1", "measure": "freq", "min": 1550, "max": 1630 }
+      ]
+    },
+    {
+      "name": "fc/10：信号几乎不变",
+      "set": { "FG1": { "waveform": "sine", "frequency": 159, "amplitude": 1, "offset": 0 } },
+      "scope": [{ "pin": "C1.1", "measure": "vpp", "min": 1.9, "max": 2.0 }]
+    }
+  ],
+  "hints": ["信号发生器的黑夹子接 GND。", "电容从 VOUT 接到 GND。"],
+  "solution": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1592, "amplitude": 1, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "resistor", "ref": "R1", "resistance": "1k", "pins": { "1": "b3", "2": "b8" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "c8", "2": "tn9" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "d3", "gnd": "tn14" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "d8", "gnd": "tn15" } }
+    ]
+  }
+}

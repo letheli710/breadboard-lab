@@ -271,6 +271,18 @@ npm run validate -- --lang en       # 英文报错信息
 | `gain` | `{"kind":"gain","out":["o"],"input":"Ui"}` | 网络函数 V(out) / 输入源的值（交流为复数，用 `part` 取模、相位或 dB） | — |
 | `f0` | `{"kind":"f0"}` / `{"kind":"f0","port":["a","b"]}` | 谐振频率：输入阻抗为纯电阻时的频率 | Hz |
 | `twoport` | `{"kind":"twoport","ports":[["1","1'"],["2","2'"]],"param":"z11"}` | 二端口参数 z11…z22、y11…y22、h11…h22、a/b/c/d | 视参数而定 |
+| `w` | `{"kind":"w","el":"C"}` | 储能：电容 ½Cu²、电感 ½Li²（直流；暂态在 `t` 时刻）。`el` 写耦合 `K` 的 ref 得这对耦合电感的总能量 ½L₁i₁² + ½L₂i₂² + M·i₁i₂；写单个电感只算它自己的 ½Li²（**不含**互感储能） | J |
+| `val` | `{"kind":"val","el":"C"}` | 元件自身的值（R、C、L、受控源增益、变压器 n、K 的 M、Z、电源值），用于“求 C 使……”（§6.1.4） | 元件的单位 |
+| `wattmeter` | `{"kind":"wattmeter","current":"W1","nodes":["A","B"]}` | 功率表读数（§6.1.5） | W |
+| `root` | `{"kind":"root","n":1}` | t > 0 电路的第 n 个固有频率（特征根），按实部从大到小、再按虚部从大到小排列；`part`：`"re"`（默认）、`"im"`、`"mag"`（§6.1.3） | 1/s |
+| `alpha` | `{"kind":"alpha"}` | 衰减系数 α：二阶电路 −(s₁+s₂)/2；更高阶取主导共轭复根的 −Re | 1/s |
+| `omega_d` | `{"kind":"omega_d"}` | 阻尼振荡角频率 ω_d = 主导共轭复根的 \|Im\|（特征根为实数时报错） | rad/s |
+| `omega0` | `{"kind":"omega0"}` | 二阶电路的谐振（无阻尼）角频率 ω₀ = √(s₁s₂) | rad/s |
+| `fc` | `{"kind":"fc","out":["o"],"input":"Ui","which":"low"}` | −3 dB 截止频率：\|H\| = max\|H\|/√2 处的频率（H = V(out)/输入源）。只有一个截止频率时可省略 `which`（§6.1.6） | Hz |
+| `bw` | `{"kind":"bw","out":["o"],"input":"Ui"}` | −3 dB 带宽 = 上截止频率 − 下截止频率 | Hz |
+| `Q` | `{"kind":"Q"}` / `{"kind":"Q","port":["a","b"]}` | 品质因数（§6.1.6） | — |
+
+**修饰字段 / Modifiers**：`"deriv": 1`（暂态题的 `v` / `i`：求 t 时刻的导数，§6.1.2）；`"freq"` / `"omega"`（交流题：这个小题在另一个频率下计算，§6.1.6）。
 
 #### 6.1.1 去掉负载：`exclude` / Removing the drawn load
 
@@ -284,6 +296,67 @@ By default the port quantities use the circuit exactly as drawn, so a load drawn
 
 同样 `{"kind":"req","port":["a","b"],"exclude":["RL"]}` 就是 R_L 应取的值（R_L = R₀）。`exclude` 里的 ref 必须存在，否则报错；列出的元件一律按开路处理（列一个电源也只是把它断开）。暂态题里，直接跨接在端口上的电容/电感会被自动拿掉（“从储能元件看进去”）。
 
+#### 6.1.2 导数 / Time derivatives (`deriv`)
+
+暂态题里 `v`、`i` 可以加 `"deriv": 1`，得到 t 时刻的导数（V/s、A/s）。`t: "0+"` 用换路后瞬间的值：例如 du_C/dt(0₊) = i_C(0₊)/C，di_L/dt(0₊) = u_L(0₊)/L——二阶电路求两个初始条件时常用。`"0-"` 是换路前稳态的导数（直流稳态为 0），`"inf"` 为 0。
+
+`"deriv": 1` on `v` / `i` in a transient problem gives d/dt at `t` (V/s, A/s); at `"0+"` it uses the values right after switching (du_C/dt(0+) = i_C(0+)/C, di_L/dt(0+) = u_L(0+)/L).
+
+```json
+{ "id": "dudt", "ask": "du_C/dt(0₊) = ?", "find": { "kind": "v", "el": "C", "t": "0+", "deriv": 1 }, "answer": 0, "unit": "V/s" }
+```
+
+#### 6.1.3 固有频率 / Natural frequencies: `root`, `alpha`, `omega_d`, `omega0`
+
+这些量描述 t > 0 的电路本身（与激励无关），暂态题里**不用写 `t`**。串联 RLC（R = 2 Ω、L = 1 H、C = 0.25 F）：特征方程 s² + (R/L)s + 1/(LC) = s² + 2s + 4 = 0，s₁,₂ = −1 ± j√3，所以
+
+These describe the t > 0 circuit itself (no `t` needed). For the series RLC with R = 2 Ω, L = 1 H, C = 0.25 F (s² + 2s + 4 = 0, s = −1 ± j√3):
+
+| find | 结果 / result |
+|---|---|
+| `{"kind":"root","n":1}` | −1（实部 / real part） |
+| `{"kind":"root","n":1,"part":"im"}` | 1.732051（= √3；n = 2 的虚部是 −√3） |
+| `{"kind":"alpha"}` | 1（α = R/2L） |
+| `{"kind":"omega_d"}` | 1.732051（ω_d = √(ω₀² − α²)） |
+| `{"kind":"omega0"}` | 2（ω₀ = 1/√(LC)） |
+
+过阻尼时两个根都是实数（`root` 1、2 按从大到小，即 n = 1 是衰减最慢的那个），`omega_d` 报错；临界阻尼时两个根相等。电容只通过电容相连的结点（电荷守恒）、只由电感构成的回路（磁链守恒）带来的零根不算在内。完整例子见 §9 例 4。
+
+Over-damped circuits have two real roots (n = 1 is the slowest one) and `omega_d` is an error. Zero roots caused by charge / flux conservation are not listed. See worked example 4 in §9.
+
+#### 6.1.4 元件值 / `val` — “求 C 使……”
+
+题目要求“求电容 C 使功率因数为 1”这类问题时：作者先算出 C，把它写进图里并加 `"hideValue": true`（学生看不到），再用 `{"kind":"val","el":"C"}` 问它。`val` 只是读出作者写的值，**不检验条件本身**，所以**必须再加一个由引擎核对条件的小题**（例如 `{"kind":"pf","el":"Us"}` 答案 1，或 `{"kind":"f0"}`、`{"kind":"q","el":"Us"}` 为 0），这样隐藏的值确实满足题目说的条件。
+
+For "find C such that …": put the value you computed into the drawing with `"hideValue": true` and ask `{"kind":"val","el":"C"}`. `val` only reads the value back — **also add a question the engine checks against the condition** (e.g. pf = 1, Q = 0, f0), so the hidden value is verified to do what the problem says.
+
+#### 6.1.5 功率表 / Wattmeter
+
+画法：电流线圈画成一个**串联**在线路里的 `ammeter`，`label` 写 `"W"`（或 `"W1"`）；电压线圈的两个接点各放一个结点名（`labels`），例如 `A`、`B`。读数：
+
+Draw the current coil as an `ammeter` in series with the line (label `"W"`), and name the two nodes of the voltage coil with `labels`. The reading is:
+
+- 交流：P_W = Re(U_AB · I*)（`phasor: "peak"` 时为 ½Re(U_AB·I*)），I 是该电流表从 p 流向 n 的电流；直流 / 暂态：U_AB · I。 / AC: Re(U_AB·I*) (½ for peak phasors), I = the ammeter's p→n current; DC / transient: U_AB·I.
+- 电流从电流表的 p 端（from）进入、电压线圈的 `nodes[0]` 接“同名端（*）”一侧时，读数就是一般教材的读法。 / With current entering the ammeter's p end and `nodes[0]` on the ± (starred) side, this is the usual textbook reading.
+
+**二瓦计法 / Two-wattmeter method**（三相三线制）：W1 的电流线圈串在 A 线（ammeter `W1`，从电源侧到负载侧），电压线圈接 A、B；W2 的电流线圈串在 C 线，电压线圈接 C、B。总功率 P = P_W1 + P_W2：
+
+```json
+[
+  { "id": "w1", "ask": "W1 的读数", "find": { "kind": "wattmeter", "current": "W1", "nodes": ["A", "B"] }, "answer": 1229.169, "unit": "W" },
+  { "id": "w2", "ask": "W2 的读数", "find": { "kind": "wattmeter", "current": "W2", "nodes": ["C", "B"] }, "answer": 2226.831, "unit": "W" }
+]
+```
+
+（数值对应线电压 207.8 V、每相 Z = 10 + j5 Ω 的对称 Y 负载；两读数之和 = 3I²R = 3456 W。/ Values for a balanced Y load Z = 10 + j5 Ω per phase at 120 V phase voltage.）
+
+#### 6.1.6 频率响应 / Frequency response: `freq` / `omega`, `fc`, `bw`, `Q`
+
+- **改频率**：交流题的小题可以写 `"freq"`（Hz）或 `"omega"`（rad/s），只在这个小题里替换 `analysis` 的频率。同一道题就能问 100 Hz 和 1 kHz 时的 \|H\|。/ A question may override the analysis frequency with its own `freq` / `omega`.
+- **`fc`**：网络函数 H = V(out)/输入源（与 `gain` 相同）的 −3 dB 频率，即 \|H\| 降到最大值的 1/√2 处。低通、高通只有一个；带通有下、上两个，用 `"which": "low"` / `"high"` 选。引擎在电路特征频率的 10⁻⁴～10⁴ 倍范围内搜索。/ −3 dB frequency of V(out)/input relative to max \|H\|; band-pass needs `which`.
+- **`bw`**：上截止频率 − 下截止频率（Hz）。只有一个截止频率时报错。
+- **`Q`**：谐振频率 f₀ 处（与 `f0` 同样从 `port` 或唯一独立源看进去）的品质因数，定义为 **Q = ω₀ · W / P**，W 为平均储能（所有电感、电容和互感），P 为平均有功功率。它与教材公式一致：串联 RLC 的 Q = ω₀L/R = 1/(ω₀RC)，并联 GCL 的 Q = ω₀C/G = R/(ω₀L)，高 Q 时也等于 f₀/BW。无损电路（Q 无穷大）报错。/ Q = ω₀·(average stored energy)/(average power) at resonance — equals ω₀L/R for series RLC and ω₀C/G for parallel GCL.
+
 ### 6.2 复数结果取哪一部分 / `part`
 
 交流结果是复数，用 `find.part` 选择：`"mag"`（**交流默认**，模）、`"phase"`（相位，度）、`"re"`、`"im"`、`"db"`（20·lg|x|）、`"rms"`（换算成有效值——在 `phasor: "peak"` 时有用）。直流和暂态的结果是实数，默认 `"re"`。
@@ -296,7 +369,7 @@ By default the port quantities use the circuit exactly as drawn, so a load drawn
 
 - 耦合系数 k = 1（全耦合电感）只能用于交流题；暂态题请用 k < 1 或理想变压器。 / k = 1 coupling works in AC only.
 - 运放积分器（反馈只有电容）在 t < 0 没有确定的直流状态：给电容写 `ic`（通常 `0`）。 / An op-amp integrator needs `ic` on its capacitor.
-- `gain`、`f0`、`twoport` 不能用于暂态题；`q`、`s`、`pf` 只用于交流题；`part: "rms"` 不能用于暂态的瞬时值。 / `gain`/`f0`/`twoport` are not available in transient problems.
+- `gain`、`f0`、`twoport` 不能用于暂态题；`q`、`s`、`pf` 只用于交流题；`w` 不能用于交流题；`deriv` 只用于暂态题；`part: "rms"` 不能用于暂态的瞬时值。 / `gain`/`f0`/`twoport` are not available in transient problems; `w` is DC / transient only; `deriv` is transient only.
 - 变压器两侧没有公共地时，跨两侧的电压没有定义，引擎报错（同一侧内的电压、元件电压没问题）。 / Voltages between galvanically isolated sides of a transformer are undefined and throw.
 - 交流分析只有一个频率。`f0` 在电路特征频率的 10⁻⁴～10⁴ 倍范围内搜索，有多个谐振点时给最低的。 / AC is single-frequency; `f0` returns the lowest resonance.
 - 电路方程奇异（电压源回路、电流源割集、悬空结点、没有负反馈的运放、恰好在谐振频率上的无损 LC）时引擎给出说明并拒绝。
@@ -524,6 +597,72 @@ Us 在 t = 0 从 0 跳到 10 V，R = 5 Ω，L = 0.5 H。i_L(0+) = 0，i_L(∞) =
 }
 ```
 
+### 例 4：RLC 串联电路的固有频率与初始条件（二阶）/ Series RLC: natural frequencies
+
+Us 在 t = 0 从 0 跳到 10 V，R = 2 Ω，L = 1 H，C = 0.25 F，换路前电路不带电。特征方程 s² + 2s + 4 = 0，s₁,₂ = −1 ± j√3：欠阻尼，α = 1 s⁻¹，ω_d = √3 ≈ 1.732051 rad/s，ω₀ = 2 rad/s。初始条件：u_C(0₊) = 0，du_C/dt(0₊) = i_L(0₊)/C = 0，di_L/dt(0₊) = u_L(0₊)/L = 10 A/s。
+
+```json
+{
+  "format": "circuit-problem/1",
+  "id": "example-rlc-roots",
+  "chapter": "second-order",
+  "title": "RLC 串联电路的固有频率",
+  "level": 3,
+  "tags": ["特征根", "欠阻尼"],
+  "statement": "电压源在 t = 0 由 0 V 跳变为 10 V，R = 2 Ω，L = 1 H，C = 0.25 F，换路前电路不带电。求 t > 0 电路的衰减系数 α、阻尼振荡角频率 ω_d、谐振角频率 ω₀，以及 di_L/dt(0₊)。",
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 10 } }, "label": "10ε(t) V" },
+      { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+      { "ref": "L", "type": "L", "from": [8, 0], "to": [12, 0], "value": 1 },
+      { "ref": "C", "type": "C", "from": [14, 0], "to": [14, 4], "value": 0.25 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [8, 0]],
+      [[12, 0], [14, 0]],
+      [[14, 4], [0, 4]]
+    ],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "L", "name": "i_L" }, { "kind": "v", "el": "C", "name": "u_C" }]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "alpha", "ask": "α = ?", "find": { "kind": "alpha" }, "answer": 1, "unit": "1/s", "explain": "α = R/(2L) = 2/2 = 1 s⁻¹。" },
+    { "id": "wd", "ask": "ω_d = ?", "find": { "kind": "omega_d" }, "answer": 1.732051, "unit": "rad/s", "explain": "ω_d = √(ω₀² − α²) = √(4 − 1) = √3 rad/s。" },
+    { "id": "w0", "ask": "ω₀ = ?", "find": { "kind": "omega0" }, "answer": 2, "unit": "rad/s", "explain": "ω₀ = 1/√(LC) = 1/√0.25 = 2 rad/s。" },
+    { "id": "s1", "ask": "特征根 s₁ = −α + jω_d 的虚部 = ?", "find": { "kind": "root", "n": 1, "part": "im" }, "answer": 1.732051, "unit": "rad/s", "explain": "s₁,₂ = −1 ± j√3。" },
+    { "id": "didt", "ask": "di_L/dt(0₊) = ?", "find": { "kind": "i", "el": "L", "t": "0+", "deriv": 1 }, "answer": 10, "unit": "A/s", "explain": "i_L(0₊) = 0、u_C(0₊) = 0，所以 u_L(0₊) = 10 V，di_L/dt = u_L/L = 10 A/s。" }
+  ],
+  "hints": ["写出 t > 0 的特征方程 LCs² + RCs + 1 = 0。", "初始条件来自 u_C(0₊)、i_L(0₊)。"],
+  "solution": [
+    "**特征方程：** s² + (R/L)s + 1/(LC) = s² + 2s + 4 = 0，s₁,₂ = −1 ± j√3，欠阻尼。",
+    "**参数：** α = **1 s⁻¹**，ω_d = **√3 ≈ 1.732 rad/s**，ω₀ = **2 rad/s**。",
+    "**初始条件：** u_L(0₊) = 10 − 2×0 − 0 = 10 V，di_L/dt(0₊) = **10 A/s**。"
+  ],
+  "i18n": {
+    "en": {
+      "tags": ["characteristic roots", "under-damped"],
+      "title": "Natural frequencies of a series RLC circuit",
+      "statement": "The source jumps from 0 V to 10 V at t = 0, R = 2 Ω, L = 1 H, C = 0.25 F, and the circuit is de-energised before t = 0. Find the damping coefficient α, the damped frequency ω_d, the undamped frequency ω₀ of the t > 0 circuit, and di_L/dt(0+).",
+      "questions": [
+        { "ask": "α = ?", "explain": "α = R/(2L) = 2/2 = 1 1/s." },
+        { "ask": "ω_d = ?", "explain": "ω_d = √(ω₀² − α²) = √(4 − 1) = √3 rad/s." },
+        { "ask": "ω₀ = ?", "explain": "ω₀ = 1/√(LC) = 1/√0.25 = 2 rad/s." },
+        { "ask": "Imaginary part of the root s₁ = −α + jω_d = ?", "explain": "s₁,₂ = −1 ± j√3." },
+        { "ask": "di_L/dt(0+) = ?", "explain": "i_L(0+) = 0 and v_C(0+) = 0, so v_L(0+) = 10 V and di_L/dt = v_L/L = 10 A/s." }
+      ],
+      "hints": ["Write the characteristic equation of the t > 0 circuit: LCs² + RCs + 1 = 0.", "The initial conditions come from v_C(0+) and i_L(0+)."],
+      "solution": [
+        "**Characteristic equation:** s² + (R/L)s + 1/(LC) = s² + 2s + 4 = 0, s₁,₂ = −1 ± j√3 (under-damped).",
+        "**Parameters:** α = **1 1/s**, ω_d = **√3 ≈ 1.732 rad/s**, ω₀ = **2 rad/s**.",
+        "**Initial condition:** v_L(0+) = 10 − 2×0 − 0 = 10 V, di_L/dt(0+) = **10 A/s**."
+      ]
+    }
+  }
+}
+```
+
 ---
 
 ## 10. 常见错误 / Common mistakes
@@ -543,6 +682,8 @@ Us 在 t = 0 从 0 跳到 10 V，R = 5 Ω，L = 0.5 H。i_L(0+) = 0，i_L(∞) =
 | `"freq" and "omega" disagree` | 只写一个。 |
 | 受控源控制量不对 | `{"i": "R1"}` 是 R1 **关联方向**（p→n）的电流；`{"v": "R1"}` 是 V(p) − V(n)。画控制元件时先想好方向，并加 `marks`。 |
 | `pmax` / `req` 和预期不一样 | 负载画在端口上时被算进网络了：加 `"exclude": ["RL"]`。 |
+| `tau: … not first-order` / `omega_d: … real` | 电路的阶数或阻尼类型和题目想的不一样：先用 `root` 看看引擎算出的特征根（报错信息里会列出来）。 |
+| “求 C 使……”只能出选择题 | 用 `val` + `hideValue`，并加一个核对条件的小题（§6.1.4）。 |
 | `pf` 想要负数 / 想区分超前滞后 | `pf` 总是 ≥ 0；超前/滞后用选择题问。 |
 | `Cannot determine the initial state at t = 0−` | t < 0 的直流状态不确定（例如运放积分器）：给电容/电感写 `ic`。 |
 | 电流源方向反了 | 箭头从 p（from）指向 n（to），电流从 n 端流出。要向结点 a 注入电流，`to` 放在 a 上。 |

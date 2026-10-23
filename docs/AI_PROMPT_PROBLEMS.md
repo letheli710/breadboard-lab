@@ -97,6 +97,14 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
   {"kind": "gain", "out": ["o"], "input": "Ui"}：网络函数 V(o)/输入源
   {"kind": "f0"}：谐振频率（Hz）
   {"kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11"}：二端口参数
+  端口量可加 "exclude": ["RL"]：先把画在端口上的负载拿掉再算（“R_L 取何值时获得最大功率”）
+  {"kind": "w", "el": "C"}：储能 ½Cu² / ½Li²（直流、暂态；耦合电感对写 K 的 ref 得总能量）
+  {"kind": "v"/"i", ..., "deriv": 1}：暂态中 t 时刻的导数 du/dt、di/dt（如 du_C/dt(0+)）
+  {"kind": "root", "n": 1}、{"kind": "alpha"}、{"kind": "omega_d"}、{"kind": "omega0"}：t>0 电路的固有频率（特征根，part 取 re/im/mag）、衰减系数 α、阻尼振荡角频率 ω_d、谐振角频率 ω0
+  {"kind": "val", "el": "C"}：元件自身的值（“求 C 使……”，图上用 hideValue 隐藏；必须再用另一个引擎核对的小题验证条件，如 pf 或 f0）
+  {"kind": "wattmeter", "current": "W1", "nodes": ["A", "B"]}：功率表读数（电流线圈 = 一个 label 为 "W" 的 ammeter，电压线圈接 A、B）
+  {"kind": "fc", "out": ["o"], "input": "Ui", "which": "low"}、{"kind": "bw", ...}、{"kind": "Q"}：−3 dB 截止频率（Hz）、带宽（Hz）、品质因数
+  交流题的小题可加 "freq" / "omega" 在另一个频率下计算（例如分别问 100 Hz 和 1 kHz 时的 |H|）
 - 交流结果是复数，用 "part" 选：mag（默认）、phase（度）、re、im、db、rms。
 
 === 教学要求 ===
@@ -237,6 +245,14 @@ Multiple choice (concepts): {"id": "c", "ask": "...", "choices": ["...", "...", 
   {"kind": "gain", "out": ["o"], "input": "Vi"}: network function V(o)/input source
   {"kind": "f0"}: resonant frequency (Hz)
   {"kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11"}: two-port parameters
+  port quantities take "exclude": ["RL"] to remove the drawn load first ("find R_L for maximum power")
+  {"kind": "w", "el": "C"}: stored energy ½Cv² / ½Li² (DC, transient; a K ref gives the pair's total energy)
+  {"kind": "v"/"i", ..., "deriv": 1}: time derivative dv/dt, di/dt at t in transient problems (e.g. dv_C/dt(0+))
+  {"kind": "root", "n": 1}, {"kind": "alpha"}, {"kind": "omega_d"}, {"kind": "omega0"}: natural frequencies of the t>0 circuit (part re/im/mag), damping coefficient α, damped frequency ω_d, undamped ω0
+  {"kind": "val", "el": "C"}: the element's own value ("find C so that …", hidden with hideValue; ALSO verify the condition with another engine-checked question, e.g. pf or f0)
+  {"kind": "wattmeter", "current": "W1", "nodes": ["A", "B"]}: wattmeter reading (current coil = an ammeter with label "W", voltage coil across A, B)
+  {"kind": "fc", "out": ["o"], "input": "Vi", "which": "low"}, {"kind": "bw", ...}, {"kind": "Q"}: −3 dB cutoff (Hz), bandwidth (Hz), quality factor
+  AC questions may add "freq" / "omega" to be evaluated at another frequency (e.g. |H| at 100 Hz and at 1 kHz)
 - AC results are complex; pick with "part": mag (default), phase (degrees), re, im, db, rms.
 
 === Teaching quality ===

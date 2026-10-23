@@ -8,8 +8,8 @@
   "tags": ["不对称三相电路", "Δ 形负载", "二瓦计法"],
   "statement": [
     "线电压 380 V 的对称三相电源（正序，U̇_A = (380/√3)∠0° V，故 U̇_AB = 380∠30° V）向不对称三角形负载供电：Z_AB = R = 38 Ω，Z_BC = jX_L = j38 Ω，Z_CA = −jX_C = −j38 Ω。端线上的电流表 A_A、A_B、A_C 测线电流。",
-    "另用二瓦计法测功率：W1 的电流线圈串在 A 线、电压线圈接 A、C；W2 的电流线圈串在 B 线、电压线圈接 B、C（功率表图中未画出）。",
-    "求线电流 I_A、I_C，两功率表读数之和，并判断两表各自的读数。"
+    "另用二瓦计法测功率：W1 的电流线圈串在 A 线、电压线圈接 A、C；W2 的电流线圈串在 B 线、电压线圈接 B、C（功率表图中未画出，电流线圈与电流表 A_A、A_B 串联）。",
+    "求线电流 I_A、I_C，两功率表读数之和，以及两表各自的读数。"
   ],
   "schematic": {
     "elements": [
@@ -75,16 +75,20 @@
       "explain": "电感、电容不消耗有功，总有功功率只在 R 上：P = 380²/38 = 3800 W。二瓦计法对任何三相三线制负载（对称或不对称）都给出 W1 + W2 = P。"
     },
     {
-      "id": "W",
-      "ask": "两功率表各自的读数是：",
-      "choices": [
-        "W1 = 1900 W，W2 = 1900 W",
-        "W1 = 3800 W，W2 = 0",
-        "W1 = 0，W2 = 3800 W",
-        "W1 = 2687 W，W2 = 1113 W"
-      ],
-      "correct": 0,
-      "explain": "W1 = Re(U̇_AC·İ_A*) = 380 × 19.32 × cos(−30° − 45°) = 7341 × cos75° = 1900 W；W2 = Re(U̇_BC·İ_B*)，İ_B = İ_BC − İ_AB = 19.32∠−165° A，W2 = 380 × 19.32 × cos(−90° + 165°) = 1900 W。不对称负载时不能再用 U_l·I_l·cos(φ ± 30°) 公式。"
+      "id": "W1",
+      "ask": "功率表 W1 的读数 = ?",
+      "find": { "kind": "wattmeter", "current": "AA", "nodes": ["A", "C"] },
+      "answer": 1900,
+      "unit": "W",
+      "explain": "W1 = Re(U̇_AC·İ_A*) = 380 × 19.32 × cos(−30° − 45°) = 7341 × cos75° = 1900 W。"
+    },
+    {
+      "id": "W2",
+      "ask": "功率表 W2 的读数 = ?",
+      "find": { "kind": "wattmeter", "current": "AB", "nodes": ["B", "C"] },
+      "answer": 1900,
+      "unit": "W",
+      "explain": "W2 = Re(U̇_BC·İ_B*)，İ_B = İ_BC − İ_AB = 19.32∠−165° A，W2 = 380 × 19.32 × cos(−90° + 165°) = 1900 W。两表之和 3800 W 与上一问一致；不对称负载时不能再用 U_l·I_l·cos(φ ± 30°) 公式。"
     }
   ],
   "hints": [
@@ -105,7 +109,7 @@
       "tags": ["unbalanced three-phase circuit", "Δ load", "two-wattmeter method"],
       "statement": [
         "A balanced three-phase source with 380 V line voltage (positive sequence, U̇_A = (380/√3)∠0° V, so U̇_AB = 380∠30° V) feeds an unbalanced delta load: Z_AB = R = 38 Ω, Z_BC = jX_L = j38 Ω, Z_CA = −jX_C = −j38 Ω. Ammeters A_A, A_B and A_C in the lines measure the line currents.",
-        "The power is also measured by the two-wattmeter method: W1 has its current coil in line A and its voltage coil between A and C; W2 has its current coil in line B and its voltage coil between B and C (the wattmeters are not drawn).",
+        "The power is also measured by the two-wattmeter method: W1 has its current coil in line A and its voltage coil between A and C; W2 has its current coil in line B and its voltage coil between B and C (the wattmeters are not drawn; their current coils are in series with ammeters A_A and A_B).",
         "Find the line currents I_A and I_C, the sum of the two wattmeter readings, and decide the individual readings."
       ],
       "questions": [
@@ -113,14 +117,12 @@
         { "ask": "Reading of ammeter A_C, I_C = ?", "explain": "İ_BC = 380∠−90°/(j38) = 10∠180° A; İ_C = İ_CA − İ_BC = (−5 − j8.660) + 10 = 5 − j8.660 = 10∠−60° A. All three phase currents have the same magnitude, yet the line currents are not √3 times larger." },
         { "ask": "Sum of the two wattmeter readings W1 + W2 = ? (it equals the total real power absorbed by the load, i.e. the power absorbed by R)", "explain": "The inductor and capacitor absorb no real power, so all of it goes into R: P = 380²/38 = 3800 W. For any three-wire load, balanced or not, the two-wattmeter method gives W1 + W2 = P." },
         {
-          "ask": "The individual wattmeter readings are:",
-          "choices": [
-            "W1 = 1900 W, W2 = 1900 W",
-            "W1 = 3800 W, W2 = 0",
-            "W1 = 0, W2 = 3800 W",
-            "W1 = 2687 W, W2 = 1113 W"
-          ],
-          "explain": "W1 = Re(U̇_AC·İ_A*) = 380 × 19.32 × cos(−30° − 45°) = 7341 × cos75° = 1900 W; W2 = Re(U̇_BC·İ_B*) with İ_B = İ_BC − İ_AB = 19.32∠−165° A, so W2 = 380 × 19.32 × cos(−90° + 165°) = 1900 W. For an unbalanced load the formulas U_L·I_L·cos(φ ± 30°) no longer apply."
+          "ask": "Reading of wattmeter W1 = ?",
+          "explain": "W1 = Re(U_AC·I_A*) = 380 × 19.32 × cos(−30° − 45°) = 7341 × cos 75° = 1900 W."
+        },
+        {
+          "ask": "Reading of wattmeter W2 = ?",
+          "explain": "W2 = Re(U_BC·I_B*) with I_B = I_BC − I_AB = 19.32∠−165° A: W2 = 380 × 19.32 × cos(−90° + 165°) = 1900 W. The sum, 3800 W, agrees with the previous question; for an unbalanced load the U_l·I_l·cos(φ ± 30°) formulas no longer apply."
         }
       ],
       "hints": [

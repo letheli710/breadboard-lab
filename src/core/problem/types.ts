@@ -151,7 +151,31 @@ export type Quantity =
   | { kind: 'meter'; el: string } // reading of an ammeter / voltmeter element
   | { kind: 'gain'; out: [string, string?]; input: string } // network function V(out)/source value (AC: complex)
   | { kind: 'f0'; port?: [string, string] } // resonant frequency (Hz) where the input impedance is purely real
-  | { kind: 'twoport'; ports: [[string, string], [string, string]]; param: 'z11' | 'z12' | 'z21' | 'z22' | 'y11' | 'y12' | 'y21' | 'y22' | 'h11' | 'h12' | 'h21' | 'h22' | 'a' | 'b' | 'c' | 'd' };
+  | { kind: 'twoport'; ports: [[string, string], [string, string]]; param: 'z11' | 'z12' | 'z21' | 'z22' | 'y11' | 'y12' | 'y21' | 'y22' | 'h11' | 'h12' | 'h21' | 'h22' | 'a' | 'b' | 'c' | 'd' }
+  /** stored energy (J): C ½Cu², L ½Li² (the inductor's own energy only); el = a K ref gives the
+   *  total energy of the coupled pair ½L1i1² + ½L2i2² + M·i1·i2. DC and tran (at t). */
+  | { kind: 'w'; el: string }
+  /** the element's own value in SI (R Ω, C F, L H, gain, XFMR n, K → M, Z complex, source value) */
+  | { kind: 'val'; el: string }
+  /** wattmeter: current coil = the ammeter `current` (p→n current), voltage coil across nodes a, b.
+   *  AC: Re(U_ab·I*) (½ for peak phasors); DC / tran: U_ab·I */
+  | { kind: 'wattmeter'; current: string; nodes: [string, string] }
+  /** natural frequencies (1/s) of the t > 0 circuit, non-zero ones sorted by real part descending,
+   *  then imaginary part descending; n = 1, 2, … (part 're' default, 'im', 'mag') */
+  | { kind: 'root'; n: number }
+  /** damping coefficient α: second-order −(s1+s2)/2; otherwise −Re of the dominant complex pair */
+  | { kind: 'alpha' }
+  /** damped natural frequency ω_d = |Im| of the dominant complex pair (error if all roots are real) */
+  | { kind: 'omega_d' }
+  /** undamped natural frequency ω0 = √(s1·s2) of a second-order circuit */
+  | { kind: 'omega0' }
+  /** −3 dB cutoff frequency (Hz) of V(out)/input: |H| = max|H|/√2; `which` picks the lower/upper one */
+  | { kind: 'fc'; out: [string, string?]; input: string; which?: 'low' | 'high' }
+  /** −3 dB bandwidth (Hz) of V(out)/input: upper − lower cutoff */
+  | { kind: 'bw'; out: [string, string?]; input: string }
+  /** quality factor at resonance: Q = ω0 · (average stored energy) / (average power), seen from
+   *  `port` (or the single independent source). Series RLC: ω0L/R; parallel GCL: ω0C/G. */
+  | { kind: 'Q'; port?: [string, string] };
 
 /** Which part of a (possibly complex) result is asked. Default: 're' for DC/tran (plain number), 'mag' for AC. */
 export type Part = 're' | 'im' | 'mag' | 'phase' | 'db' | 'rms';
@@ -160,7 +184,15 @@ export interface Question {
   id: string;
   ask: string;
   /** what is computed; omit for multiple-choice or free-form questions */
-  find?: Quantity & { part?: Part; t?: number | '0-' | '0+' | 'inf' };
+  find?: Quantity & {
+    part?: Part;
+    t?: number | '0-' | '0+' | 'inf';
+    /** tran, kinds 'v' / 'i': time derivative d/dt at t (V/s, A/s) */
+    deriv?: 1;
+    /** AC: evaluate this question at another frequency (Hz or rad/s) than analysis.freq/omega */
+    freq?: number;
+    omega?: number;
+  };
   /** the author's answer, in SI base units (V, A, W, Ω, Hz, s, degrees for phase) */
   answer?: number;
   /** unit shown to the student; a prefixed unit (e.g. "mA") means a bare number they type is read in that unit */

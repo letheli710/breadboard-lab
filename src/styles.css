@@ -1865,3 +1865,255 @@ button,
     display: none;
   }
 }
+
+/* ---------- oscilloscope panel (stage C) ---------- */
+.sc {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 350px;
+  max-width: calc(100% - 28px);
+  background: #2b313c;
+  color: #e9ecef;
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(31, 42, 68, 0.28);
+  padding: 0 10px 10px;
+  z-index: 5;
+  user-select: none;
+  font-size: 12px;
+}
+.sc.collapsed {
+  width: auto;
+  padding-bottom: 0;
+}
+.sc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0 6px;
+  cursor: grab;
+}
+.sc-head:active {
+  cursor: grabbing;
+}
+.sc-title {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.sc-mode {
+  font-family: var(--cond);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: #454d5b;
+  color: #c9d1db;
+  border-radius: 99px;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+.sc-mode.ac {
+  background: var(--accent);
+  color: #fff;
+}
+.sc-mini {
+  font-family: var(--cond);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sc-collapse {
+  margin-left: auto;
+  background: #454d5b;
+  border-color: #5b6474;
+  color: #fff;
+  padding: 0 9px;
+  line-height: 20px;
+}
+.sc-screen-wrap {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 3px solid #161a20;
+  box-shadow: inset 0 0 0 1px rgba(110, 255, 160, 0.2);
+}
+.sc-screen {
+  display: block;
+  width: 100%;
+  aspect-ratio: 10 / 7;
+}
+.sc-overlay-tl,
+.sc-overlay-br {
+  position: absolute;
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+.sc-overlay-tl {
+  top: 4px;
+  left: 26px;
+  display: flex;
+  gap: 10px;
+}
+.sc-overlay-br {
+  bottom: 4px;
+  right: 8px;
+  color: #b7f5c8;
+}
+.sc-error {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 24px;
+  background: rgba(214, 69, 69, 0.9);
+  color: #fff;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+}
+.sc-error.warn {
+  background: rgba(201, 138, 26, 0.9);
+}
+.sc-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+}
+.sc-knob {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: #3a414e;
+  border-radius: 9px;
+  padding: 2px 3px 2px 8px;
+}
+.sc-knob span {
+  font-family: var(--cond);
+  font-weight: 600;
+  color: #c9d1db;
+  margin-right: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.sc-knob b {
+  font-family: var(--cond);
+  font-size: 13px;
+  min-width: 44px;
+  text-align: center;
+}
+.sc-knob button,
+.sc-auto {
+  background: #535c6b;
+  border-color: #646e7e;
+  color: #fff;
+  padding: 0 7px;
+  line-height: 18px;
+  border-radius: 6px;
+}
+.sc-auto {
+  margin-left: auto;
+  font-family: var(--cond);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 22px;
+}
+.sc-auto.on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.sc-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.sc-meas {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-family: var(--cond);
+  font-size: 13px;
+}
+.sc-meas th,
+.sc-meas td {
+  text-align: right;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+.sc-meas thead th {
+  color: #9aa4b2;
+  font-weight: 600;
+  border-bottom: 1px solid #454d5b;
+}
+.sc-meas tbody th {
+  text-align: left;
+  font-weight: 700;
+}
+.sc-meas tbody th small {
+  color: #9aa4b2;
+  font-weight: 600;
+}
+.sc-meas td {
+  font-weight: 600;
+}
+.sc-meas .sc-nc {
+  text-align: left;
+  color: #f4a261;
+  font-family: var(--body);
+  font-size: 11.5px;
+}
+.sc-phase {
+  margin-top: 6px;
+  background: #3a414e;
+  border-radius: 8px;
+  padding: 3px 8px;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.sc-phase b {
+  font-family: var(--cond);
+  font-size: 15px;
+  color: #fff;
+}
+.sc-phase span {
+  color: #c9d1db;
+}
+
+/* ---------- inspector extras (stage C) ---------- */
+.am-lcd {
+  background: #cfdcc0;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 28px;
+  text-align: right;
+  padding: 0 10px;
+  margin: 2px 0 4px;
+}
+.ac-tag {
+  font-size: 11.5px;
+  color: var(--accent);
+  font-weight: 600;
+}
+.pinout {
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin: 4px auto;
+}
+.editor input[type='range'] {
+  width: 100%;
+}
+.chips button svg {
+  flex-shrink: 0;
+}

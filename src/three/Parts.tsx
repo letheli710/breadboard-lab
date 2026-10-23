@@ -4,19 +4,23 @@ import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { tr } from '../core/i18n';
-import { BOARD, colX } from '../core/breadboard';
+import { colX } from '../core/breadboard';
 import { amps, resistorBands, volts } from '../core/format';
 import { BATTERIES, LED_COLORS } from '../core/parts';
 import type { LedState, SourceState } from '../core/solver';
 import type { PlacedPart } from '../core/types';
 import { Leg, Mat, PartCtx, type PartCtxValue, Seg, TextPlane, Tube, holeVec } from './common';
+import { Ammeter, FunctionGen, Inductor, OpAmp, ScopeProbe, instrumentAnchor, instrumentLabel } from './Instruments';
+import { slotPosition } from './slots';
 
 export interface PartViewProps {
   part: PlacedPart;
   led?: LedState;
   source?: SourceState;
-  /** slot index for off-board power supplies */
+  /** slot index for off-board equipment (see slots.ts) */
   slot: number;
+  /** ammeter: live reading in amps (current flowing in at the red lead) */
+  reading?: number;
   ctx: PartCtxValue;
   label: boolean;
   labelTone?: 'error' | 'normal';
@@ -26,7 +30,7 @@ export interface PartViewProps {
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 
 /** Frame aligned with the line between two holes: origin at the midpoint, +x towards b. */
-function useSpan(a: string | undefined, b: string | undefined) {
+export function useSpan(a: string | undefined, b: string | undefined) {
   return useMemo(() => {
     const pa = holeVec(a ?? '');
     const pb = holeVec(b ?? '');
@@ -250,15 +254,7 @@ function Pot({ part, onClick }: PartViewProps) {
   );
 }
 
-/** Off-board slots where batteries / bench supplies sit. */
-export function slotPosition(slot: number): THREE.Vector3 {
-  const back = -BOARD.depth / 2 - 4.5;
-  const left = -BOARD.width / 2 - 5.5;
-  const slots = [V(-9, 0, back), V(3, 0, back), V(left, 0, -3), V(14, 0, back), V(left, 0, 6)];
-  return slots[slot % slots.length].clone();
-}
-
-function leadPoints(from: THREE.Vector3, hole: string | undefined, sag = 2.2): THREE.Vector3[] | null {
+export function leadPoints(from: THREE.Vector3, hole: string | undefined, sag = 2.2): THREE.Vector3[] | null {
   if (!hole) return null;
   const to = holeVec(hole);
   const mid = from.clone().lerp(to, 0.5);
@@ -266,7 +262,7 @@ function leadPoints(from: THREE.Vector3, hole: string | undefined, sag = 2.2): T
   return [from, from.clone().lerp(mid, 0.5).setY(from.y + 0.6), mid, to.clone().setY(1.0), to.clone().setY(0.2)];
 }
 
-function Leads({ base, part, plusAt, minusAt }: { base: THREE.Vector3; part: PlacedPart; plusAt: THREE.Vector3; minusAt: THREE.Vector3 }) {
+export function Leads({ base, part, plusAt, minusAt }: { base: THREE.Vector3; part: PlacedPart; plusAt: THREE.Vector3; minusAt: THREE.Vector3 }) {
   const lp = leadPoints(base.clone().add(plusAt), part.pins['+']);
   const ln = leadPoints(base.clone().add(minusAt), part.pins['-']);
   return (
@@ -455,6 +451,8 @@ export function PartView(props: PartViewProps) {
   const anchor = useMemo(() => {
     const holes = Object.values(part.pins).map((h) => holeVec(h));
     if (part.type === 'battery' || part.type === 'bench_supply') return slotPosition(props.slot).add(V(0, part.type === 'bench_supply' ? 4.4 : 2.6, 0));
+    const inst = instrumentAnchor(part, props.slot);
+    if (inst) return inst;
     if (holes.length === 0) return V(0, 0, 0);
     const c = holes.reduce((s, p) => s.add(p), V(0, 0, 0)).multiplyScalar(1 / holes.length);
     c.y = part.type === 'wire' ? 1.4 : 2.4;
@@ -497,6 +495,21 @@ export function PartView(props: PartViewProps) {
     case 'power_module':
       body = <PowerModule {...props} />;
       break;
+    case 'inductor':
+      body = <Inductor {...props} />;
+      break;
+    case 'opamp':
+      body = <OpAmp {...props} />;
+      break;
+    case 'ammeter':
+      body = <Ammeter {...props} />;
+      break;
+    case 'function_gen':
+      body = <FunctionGen {...props} />;
+      break;
+    case 'scope_probe':
+      body = <ScopeProbe {...props} />;
+      break;
   }
   const extra =
     part.type === 'led' && led
@@ -507,10 +520,10 @@ export function PartView(props: PartViewProps) {
           : ''
       : (part.type === 'battery' || part.type === 'power_module') && source
         ? ` ${volts(source.terminalVoltage)}`
-        : '';
+        : instrumentLabel(part, props.reading);
   return (
     <PartCtx.Provider value={ctx}>
-      <group onClick={part.type === 'pushbutton' || part.type === 'switch' || part.type === 'potentiometer' || part.type === 'battery' || part.type === 'bench_supply' || part.type === 'power_module' ? undefined : props.onClick}>
+      <group onClick={part.type === 'pushbutton' || part.type === 'switch' || part.type === 'potentiometer' || part.type === 'battery' || part.type === 'bench_supply' || part.type === 'power_module' || part.type === 'ammeter' || part.type === 'function_gen' ? undefined : props.onClick}>
         {body}
       </group>
       {label && !ctx.ghost && part.type !== 'wire' && (

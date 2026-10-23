@@ -1,7 +1,7 @@
 // Layout (parts in holes) -> Circuit (components + nets).
 
 import { HOLE_MAP, HOLES } from './breadboard';
-import { PARTS, isPower } from './parts';
+import { PARTS, groundSource, isPower } from './parts';
 import type { CComponent, CNet, Circuit, Layout } from './types';
 import { pinId } from './types';
 
@@ -100,19 +100,30 @@ export function buildNetlist(layout: Layout): BoardNetlist {
   }
 
   const rootName = new Map<string, string>();
-  const primary = components.find((c) => isPower(c.type) && !unplaced.includes(c.ref));
+  const placed = components.filter((c) => !unplaced.includes(c.ref));
+  const primary = groundSource(placed);
   let vIdx = 1;
-  for (const c of components) {
-    if (!isPower(c.type) || unplaced.includes(c.ref)) continue;
+  for (const c of placed) {
+    if (!isPower(c.type) && c !== primary) continue;
     const rp = termRoot.get(pinId(c.ref, '+'))!;
     const rn = termRoot.get(pinId(c.ref, '-'))!;
     if (c === primary) {
       if (!rootName.has(rn)) rootName.set(rn, 'GND');
-      if (!rootName.has(rp)) rootName.set(rp, 'VCC');
+      if (!rootName.has(rp) && c.type !== 'function_gen') rootName.set(rp, 'VCC');
     } else {
       if (!rootName.has(rp)) rootName.set(rp, `V${++vIdx}+`);
       if (!rootName.has(rn)) rootName.set(rn, `V${vIdx}−`);
     }
+  }
+  // function generators: the signal net is VIN (VIN2, ...); a black clip not on GND gets its own name
+  let gIdx = 0;
+  for (const c of placed) {
+    if (c.type !== 'function_gen') continue;
+    gIdx++;
+    const rp = termRoot.get(pinId(c.ref, '+'))!;
+    const rn = termRoot.get(pinId(c.ref, '-'))!;
+    if (!rootName.has(rp)) rootName.set(rp, gIdx === 1 ? 'VIN' : `VIN${gIdx}`);
+    if (!rootName.has(rn)) rootName.set(rn, `${c.ref}−`);
   }
 
   // order remaining nets left-to-right by their leftmost hole, for stable names

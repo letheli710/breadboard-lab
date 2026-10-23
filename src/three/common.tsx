@@ -156,6 +156,45 @@ export function TextPlane({
   );
 }
 
+/** A plane whose texture is painted by `draw` on a 2D canvas (LCD screens with glyphs).
+ *  `deps` lists everything `draw` depends on; the texture is repainted only when they change. */
+export function CanvasPlane({
+  width,
+  height,
+  draw,
+  deps,
+  ppu = 128,
+  ...rest
+}: {
+  width: number;
+  height: number;
+  draw: (g: CanvasRenderingContext2D, w: number, h: number) => void;
+  deps: unknown[];
+  ppu?: number;
+} & JSX.IntrinsicElements['mesh']) {
+  const tex = useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = Math.round(ppu * width);
+    c.height = Math.round(ppu * height);
+    draw(c.getContext('2d')!, c.width, c.height);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 4;
+    return t;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width, height, ppu, ...deps]);
+  useEffect(() => () => tex.dispose(), [tex]);
+  return (
+    <mesh {...rest}>
+      <planeGeometry args={[width, height]} />
+      <meshBasicMaterial map={tex} transparent toneMapped={false} />
+    </mesh>
+  );
+}
+
+/** Oscilloscope channel colours: shared by the 3D probes and the scope screen traces. */
+export const CH_COLORS: Record<1 | 2, string> = { 1: '#f5d90a', 2: '#22d3ee' };
+
 /** Ask the 3D scene to move the camera to a preset view (see VIEWS in Scene.tsx). */
 export function emitCameraView(view: string) {
   window.dispatchEvent(new CustomEvent('bb-camera', { detail: view }));

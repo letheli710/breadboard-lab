@@ -5,10 +5,11 @@ import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { PARTS } from '../core/parts';
 import type { PlacedPart } from '../core/types';
-import { useDerived } from '../state/derived';
-import { useStore } from '../state/store';
+import { ammeterReading, ledOf, useDerived } from '../state/derived';
+import { scopeChannelFor, useStore } from '../state/store';
 import { Board } from './Board';
 import { PartView } from './Parts';
+import { assignSlots, nextSlot } from './slots';
 
 const TARGET = new THREE.Vector3(0, 0, -3);
 const HOME = new THREE.Vector3(0, 30, 25);
@@ -87,22 +88,18 @@ function Parts() {
   const placingProps = useStore((s) => s.placingProps);
   const select = useStore((s) => s.select);
   const togglePart = useStore((s) => s.togglePart);
-  const { sim, issues } = useDerived();
+  const derived = useDerived();
+  const { sim, issues } = derived;
 
   const errorRefs = useMemo(() => new Set(issues.filter((i) => i.severity === 'error').flatMap((i) => i.refs)), [issues]);
   const hlRefs = useMemo(() => new Set(highlight?.refs ?? []), [highlight]);
 
-  const slots = useMemo(() => {
-    const m = new Map<string, number>();
-    let i = 0;
-    for (const p of layout.parts) if (p.type === 'battery' || p.type === 'bench_supply') m.set(p.id, i++);
-    return m;
-  }, [layout]);
+  const slots = useMemo(() => assignSlots(layout.parts), [layout]);
 
   const ghost = useMemo((): PlacedPart | null => {
     if (tool === 'select' || tool === 'probe' || !hoverHole) return null;
     const def = PARTS[tool];
-    const props = { ...def.defaults, ...placingProps[tool] };
+    const props = { ...def.defaults, ...placingProps[tool], ...(tool === 'scope_probe' ? { channel: scopeChannelFor(layout) } : {}) };
     if (def.placement.kind === 'footprint') {
       const fp = def.placement.footprint(hoverHole);
       return fp ? { id: 'ghost', ref: '', type: tool, props, pins: fp } : null;
@@ -110,7 +107,7 @@ function Parts() {
     if (!firstHole || firstHole === hoverHole) return null;
     const [a, b] = def.placement.pins;
     return { id: 'ghost', ref: '', type: tool, props: { ...props, wireColor: props.wireColor ?? '#2a9d8f' }, pins: { [a]: firstHole, [b]: hoverHole } };
-  }, [tool, hoverHole, firstHole, placingProps]);
+  }, [tool, hoverHole, firstHole, placingProps, layout]);
 
   const handle = (p: PlacedPart) => (e: ThreeEvent<MouseEvent>) => {
     if (tool !== 'select' || e.delta > 5) return;
@@ -126,15 +123,16 @@ function Parts() {
           key={p.id}
           part={p}
           slot={slots.get(p.id) ?? 0}
-          led={sim.leds.get(p.ref)}
+          led={ledOf(derived, p.ref)}
           source={sim.sources.get(p.ref)}
+          reading={p.type === 'ammeter' ? ammeterReading(derived, p.ref) : undefined}
           ctx={{ ghost: false, tint: p.id === selectedId ? 'select' : hlRefs.has(p.ref) ? (highlight?.tone === 'error' ? 'error' : 'hover') : 'none' }}
           label={showLabels}
           labelTone={errorRefs.has(p.ref) ? 'error' : 'normal'}
           onClick={handle(p)}
         />
       ))}
-      {ghost && <PartView part={ghost} slot={slots.size} ctx={{ ghost: true, tint: 'none' }} label={false} />}
+      {ghost && <PartView part={ghost} slot={nextSlot(layout.parts, ghost.type)} ctx={{ ghost: true, tint: 'none' }} label={false} />}
     </group>
   );
 }

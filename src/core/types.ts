@@ -15,11 +15,19 @@ export type PartType =
   | 'potentiometer'
   | 'battery'
   | 'bench_supply'
-  | 'power_module';
+  | 'power_module'
+  // stage C: instruments and new parts
+  | 'inductor'
+  | 'ammeter'
+  | 'opamp'
+  | 'function_gen'
+  | 'scope_probe';
 
 /** Component types allowed in a Circuit. `dc_source` only appears in challenge targets
  *  and matches any power part (battery / bench_supply / power_module) of that voltage. */
 export type CompType = Exclude<PartType, 'wire'> | 'dc_source';
+
+export type Waveform = 'sine' | 'square' | 'triangle';
 
 export type LedColor = 'red' | 'yellow' | 'green' | 'blue' | 'white';
 export type BatteryVariant = '9V' | '2xAA' | '3xAA' | '4xAA' | 'CR2032';
@@ -35,6 +43,12 @@ export interface PartProps {
   position?: 'a' | 'b'; // switch: which outer leg is connected to com
   wiper?: number; // potentiometer 0..1 (0 = at pin 1)
   wireColor?: string; // wire
+  inductance?: number; // henries (inductor)
+  waveform?: Waveform; // function_gen
+  frequency?: number; // Hz (function_gen)
+  amplitude?: number; // V peak (function_gen)
+  offset?: number; // V DC offset (function_gen)
+  channel?: 1 | 2; // scope_probe
 }
 
 export interface PlacedPart {

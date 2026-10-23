@@ -5,7 +5,7 @@
 // checks it recomputes every numeric answer with the ideal analysis engine and rejects the
 // file if the author's `answer` disagrees.
 
-import { computeQuantity } from '../analysis';
+import { Circuit, computeQuantity } from '../analysis';
 import { getLang, isLang, LANGS, tr, type Lang } from '../i18n';
 import { chapterById, CHAPTERS } from './chapters';
 import { extractNetlist, isTwoTerminal } from './geometry';
@@ -58,7 +58,9 @@ const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => ty
 /** a text field may be a string or an array of lines */
 const textOf = (v: unknown) => (typeof v === 'string' ? v : Array.isArray(v) ? strs(v).join('\n') : '');
 
-const KINDS = ['v', 'i', 'p', 'q', 's', 'pf', 'req', 'vth', 'isc', 'pmax', 'tau', 'meter', 'gain', 'f0', 'twoport'] as const;
+const KINDS = ['v', 'i', 'p', 'q', 's', 'pf', 'req', 'vth', 'isc', 'pmax', 'tau', 'meter', 'gain', 'f0', 'twoport', 'w', 'val', 'wattmeter', 'root', 'alpha', 'omega_d', 'omega0', 'fc', 'bw', 'Q'] as const;
+/** kinds that describe the whole circuit (no time instant needed in transient problems) */
+const TIMELESS = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw'];
 const PARTS: Part[] = ['re', 'im', 'mag', 'phase', 'db', 'rms'];
 const TIMES = ['0-', '0+', 'inf'];
 const isGroundName = (n: string) => /^(0|gnd)$/i.test(n);
@@ -156,6 +158,50 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
     case 'isc':
     case 'pmax':
       pair('port');
+      if (find.exclude !== undefined) {
+        if (!Array.isArray(find.exclude) || !find.exclude.every((x) => typeof x === 'string')) {
+          errors.push(tr(`${where}.find.exclude: 必须是元件 ref 的数组，如 ["RL"]`, `${where}.find.exclude: must be a list of element refs, e.g. ["RL"]`));
+          ok = false;
+        } else
+          for (const r of find.exclude as string[])
+            if (els.size > 0 && !els.has(r)) {
+              errors.push(tr(`${where}.find.exclude: 找不到元件 ${JSON.stringify(r)}`, `${where}.find.exclude: no element ${JSON.stringify(r)}`));
+              ok = false;
+            }
+      }
+      break;
+    case 'w':
+    case 'val':
+      if (typeof find.el !== 'string' || (els.size > 0 && !els.has(find.el))) el('el');
+      break;
+    case 'wattmeter':
+      el('current');
+      pair('nodes');
+      break;
+    case 'root':
+      if (!(typeof find.n === 'number' && Number.isInteger(find.n) && find.n >= 1)) {
+        errors.push(tr(`${where}.find.n: 必须是 1、2、… （第几个固有频率）`, `${where}.find.n: must be 1, 2, … (which natural frequency)`));
+        ok = false;
+      }
+      break;
+    case 'alpha':
+    case 'omega_d':
+    case 'omega0':
+      break;
+    case 'Q':
+      if (find.port !== undefined) pair('port');
+      break;
+    case 'fc':
+    case 'bw':
+      if (!Array.isArray(find.out) || find.out.length < 1 || find.out.length > 2) {
+        errors.push(tr(`${where}.find.out: 必须是 ["a"] 或 ["a", "b"]`, `${where}.find.out: must be ["a"] or ["a", "b"]`));
+        ok = false;
+      } else find.out.forEach((n, i) => node(n, `out[${i}]`));
+      el('input');
+      if (kind === 'fc' && find.which !== undefined && find.which !== 'low' && find.which !== 'high') {
+        errors.push(tr(`${where}.find.which: 必须是 "low" 或 "high"`, `${where}.find.which: must be "low" or "high"`));
+        ok = false;
+      }
       break;
     case 'gain':
       if (!Array.isArray(find.out) || find.out.length < 1 || find.out.length > 2) {
@@ -180,11 +226,26 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
         });
       break;
   }
+  if (find.deriv !== undefined) {
+    if (find.deriv !== 1 || (kind !== 'v' && kind !== 'i')) {
+      errors.push(tr(`${where}.find.deriv: 只能是 1，且只用于 "v" / "i"`, `${where}.find.deriv: must be 1, and only for "v" / "i"`));
+      ok = false;
+    } else if (analysis && analysis.type !== 'tran')
+      errors.push(tr(`${where}.find.deriv: 只有暂态分析（tran）才能求导数`, `${where}.find.deriv: derivatives are only available in transient analysis (tran)`));
+  }
+  for (const k of ['freq', 'omega'] as const)
+    if (find[k] !== undefined) {
+      if (!(typeof find[k] === 'number' && (find[k] as number) > 0)) {
+        errors.push(tr(`${where}.find.${k}: 必须是正数`, `${where}.find.${k}: must be a positive number`));
+        ok = false;
+      } else if (analysis && analysis.type !== 'ac')
+        errors.push(tr(`${where}.find.${k}: 只有正弦稳态（ac）题才能改频率`, `${where}.find.${k}: only AC problems can override the frequency`));
+    }
   if (find.part !== undefined && !PARTS.includes(find.part as Part)) {
     errors.push(tr(`${where}.find.part: 必须是 ${PARTS.join(' / ')}`, `${where}.find.part: must be ${PARTS.join(' / ')}`));
     ok = false;
   }
-  if (analysis && analysis.type !== 'ac' && find.part !== undefined && find.part !== 're')
+  if (analysis && analysis.type !== 'ac' && kind !== 'root' && find.part !== undefined && find.part !== 're')
     warnings.push(tr(`${where}.find.part: "${String(find.part)}" 只对正弦稳态（ac）有意义`, `${where}.find.part: "${String(find.part)}" only makes sense for sinusoidal steady state (ac)`));
   if (find.t !== undefined) {
     if (!(typeof find.t === 'number' && find.t >= 0) && !TIMES.includes(find.t as string)) {
@@ -192,7 +253,7 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
       ok = false;
     } else if (analysis && analysis.type !== 'tran')
       warnings.push(tr(`${where}.find.t: 只有暂态分析（tran）才用 "t"`, `${where}.find.t: "t" is only used by transient analysis (tran)`));
-  } else if (analysis?.type === 'tran' && kind !== 'tau')
+  } else if (analysis?.type === 'tran' && !TIMELESS.includes(kind))
     errors.push(tr(`${where}.find.t: 暂态题必须给出时刻 "t"（秒，或 "0-" / "0+" / "inf"）`, `${where}.find.t: transient questions need a time "t" (seconds, or "0-" / "0+" / "inf")`));
   return ok;
 }
@@ -259,6 +320,15 @@ export function parseProblem(json: unknown, source = 'folder', file?: string): P
       aliases = r.aliases ? [...r.aliases.keys()] : [];
     } catch (e) {
       errors.push(tr(`schematic: 无法解析电路图：${(e as Error).message}`, `schematic: can't read the drawing: ${(e as Error).message}`));
+    }
+  }
+  if (netlist) {
+    // element values (numbers / SI strings, sources, controls, couplings) must be readable by the engine and the renderer
+    try {
+      new Circuit(netlist);
+    } catch (e) {
+      errors.push(tr(`schematic: 元件参数有误：${(e as Error).message}`, `schematic: invalid element value: ${(e as Error).message}`));
+      netlist = null;
     }
   }
   const els = schematic ? elementRefs(schematic) : new Map<string, ProblemElement>();

@@ -27,7 +27,7 @@ import { StaticAnalysis } from './engine';
 import { Transient } from './transient';
 
 export { AnalysisError } from './errors';
-export { computeQuantity, computeComplex, reduce, resonance } from './engine';
+export { computeQuantity, computeComplex, cutoffs, qualityFactor, reduce, resonance } from './engine';
 export { parseNum } from './circuit';
 export { Circuit };
 

@@ -7,11 +7,12 @@
 import { tr } from './i18n';
 import type { Challenge, ChallengeTest } from './challenge';
 import type { Issue } from './diagnostics';
-import { BATTERIES, describeComponent, isPower, sourceVoltage, symmetricOf, terminalLabel, terminalsOf } from './parts';
+import { BATTERIES, describeComponent, genSettings, isPower, pinPermutations, sourceVoltage, terminalLabel, terminalsOf } from './parts';
 import { simulate } from './solver';
-import type { CComponent, Circuit } from './types';
+import { hasGenerator, simulateTransient, vavg, vrms, type Measure, type TransientResult } from './transient';
+import type { CComponent, CNet, Circuit } from './types';
 import { pinId, splitPin } from './types';
-import { volts } from './format';
+import { amps, formatSI, volts } from './format';
 
 export interface CheckResult {
   perfect: boolean;
@@ -28,16 +29,79 @@ export interface CheckResult {
 
 type Perm = Record<string, string>;
 
-function permutations(type: CComponent['type']): Perm[] {
-  const terms = terminalsOf(type);
-  let perms: Perm[] = [Object.fromEntries(terms.map((t) => [t, t]))];
-  for (const group of symmetricOf(type)) {
-    if (group.length !== 2) continue;
-    const [a, b] = group;
-    perms = perms.flatMap((p) => [p, { ...p, [a]: p[b], [b]: p[a] }]);
+const permutations = (type: CComponent['type']): Perm[] => pinPermutations(type);
+
+/**
+ * The student's circuit as the checker sees it:
+ *  - scope probes are removed (ideal measuring tools: never part of a target circuit);
+ *  - when the target has no ammeter, every ammeter is treated as a plain wire (its two nets are
+ *    merged): a student who puts a meter in series to look at the current still matches the
+ *    target, while a meter wrongly connected *across* a part shorts it and is reported as an
+ *    extra connection.
+ * `collapsed` maps a merged net name -> the ammeter refs that joined it.
+ */
+export function checkerView(user: Circuit, targetHasAmmeter: boolean): { circuit: Circuit; collapsed: Map<string, string[]> } {
+  const drop = new Set(user.components.filter((c) => c.type === 'scope_probe' || (!targetHasAmmeter && c.type === 'ammeter')).map((c) => c.ref));
+  const collapsed = new Map<string, string[]>();
+  if (drop.size === 0) return { circuit: user, collapsed };
+  const parent = new Map<string, string>();
+  const find = (n: string): string => {
+    const p = parent.get(n) ?? n;
+    if (p === n) return n;
+    const r = find(p);
+    parent.set(n, r);
+    return r;
+  };
+  const netOf = new Map<string, string>();
+  user.nets.forEach((n) => n.pins.forEach((p) => netOf.set(p, n.name)));
+  const isNC = (n: string) => n.startsWith('NC:');
+  const meterOfRoot = new Map<string, string[]>();
+  for (const c of user.components) {
+    if (c.type !== 'ammeter' || !drop.has(c.ref)) continue;
+    const a = netOf.get(pinId(c.ref, '+'));
+    const b = netOf.get(pinId(c.ref, '-'));
+    if (!a || !b) continue;
+    let ra = find(a);
+    let rb = find(b);
+    if (ra !== rb) {
+      // keep a meaningful name as the root (not a floating "NC:" net)
+      if (isNC(ra) && !isNC(rb)) [ra, rb] = [rb, ra];
+      parent.set(rb, ra);
+    }
+    const r = find(a);
+    meterOfRoot.set(r, [...(meterOfRoot.get(r) ?? []), ...(meterOfRoot.get(rb) ?? []), c.ref]);
   }
-  return perms;
+  const merged = new Map<string, CNet>();
+  for (const n of user.nets) {
+    const r = find(n.name);
+    const pins = n.pins.filter((p) => !drop.has(splitPin(p)[0]));
+    if (!merged.has(r)) merged.set(r, { name: r, pins: [] });
+    merged.get(r)!.pins.push(...pins);
+  }
+  for (const [r, refs] of meterOfRoot) collapsed.set(find(r), [...new Set(refs)]);
+  return {
+    circuit: { components: user.components.filter((c) => !drop.has(c.ref)), nets: [...merged.values()].filter((n) => n.pins.length > 0) },
+    collapsed,
+  };
 }
+
+/** Typical wiring mistakes worth naming: user-terminal relabelling that would fix the wiring. */
+const MISTAKES: Partial<Record<CComponent['type'], { swap: Record<string, string>; zh: (r: string) => string; en: (r: string) => string; title: [string, string] }[]>> = {
+  opamp: [
+    {
+      swap: { outA: 'inB+', 'inB+': 'outA', 'inA-': 'inB-', 'inB-': 'inA-', 'inA+': 'outB', outB: 'inA+', 'v-': 'v+', 'v+': 'v-' },
+      title: [' 插反了（转了 180°）', ' is rotated 180°'],
+      zh: (r) => `${r} 的 1 脚应该在缺口 / 小圆点旁边，1–4 脚在 e 行（从左到右），8–5 脚在 f 行。现在芯片转了半圈：电源脚接反会烧坏真实的芯片。`,
+      en: (r) => `${r}'s pin 1 is next to the notch / dot: pins 1–4 run left to right in row e, pins 8–5 in row f. The chip is turned around — with its supply pins reversed a real chip would burn.`,
+    },
+    {
+      swap: { 'inA-': 'inA+', 'inA+': 'inA-', 'inB-': 'inB+', 'inB+': 'inB-' },
+      title: [' 的 + 和 − 输入接反了', "'s + and − inputs are swapped"],
+      zh: (r) => `${r} 的反相输入（IN−）和同相输入（IN+）对调了。反馈必须接到 IN−（负反馈）；接到 IN+ 会变成正反馈，输出直接撞到电源轨。`,
+      en: (r) => `${r}'s inverting (IN−) and non-inverting (IN+) inputs are swapped. Feedback must go to IN− (negative feedback); feeding IN+ makes positive feedback and the output slams into a rail.`,
+    },
+  ],
+};
 
 function compatible(t: CComponent, u: CComponent): boolean {
   if (t.type === 'dc_source') return isPower(u.type);
@@ -60,6 +124,21 @@ function valueProblem(t: CComponent, u: CComponent, tol: number): string | null 
     );
   if (isPower(t.type) && tp.voltage !== undefined && !close(sourceVoltage(u), tp.voltage))
     return tr(`${u.ref} 输出 ${sourceVoltage(u)} V，题目要求 ${tp.voltage} V`, `${u.ref} outputs ${sourceVoltage(u)} V; the task needs ${tp.voltage} V`);
+  if (t.type === 'inductor' && tp.inductance !== undefined && !close(up.inductance ?? 0, tp.inductance))
+    return tr(`${u.ref} 是 ${describeComponent(u)}，题目要求 ${describeComponent(t)}`, `${u.ref} is a ${describeComponent(u)}; the task needs a ${describeComponent(t)}`);
+  if (t.type === 'function_gen') {
+    const g = genSettings(up);
+    const bad =
+      (tp.waveform && g.waveform !== tp.waveform) ||
+      (tp.frequency !== undefined && !close(g.frequency, tp.frequency)) ||
+      (tp.amplitude !== undefined && !close(g.amplitude, tp.amplitude)) ||
+      (tp.offset !== undefined && Math.abs(g.offset - tp.offset) > Math.max(Math.abs(tp.offset) * tol, 0.01));
+    if (bad)
+      return tr(
+        `${u.ref} 的设置是 ${describeComponent({ type: 'function_gen', props: g })}，题目要求 ${describeComponent(t)}${tp.offset !== undefined ? `，偏置 ${tp.offset} V` : ''}`,
+        `${u.ref} is set to ${describeComponent({ type: 'function_gen', props: g })}; the task needs ${describeComponent(t)}${tp.offset !== undefined ? `, offset ${tp.offset} V` : ''}`,
+      );
+  }
   return null;
 }
 
@@ -108,8 +187,9 @@ function buildPinMap(assign: (null | { u: CComponent; perm: Perm })[], targets: 
   return pm;
 }
 
-export function checkCircuit(ch: Challenge, user: Circuit, userPinHoles?: Map<string, string[]>): CheckResult {
+export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<string, string[]>): CheckResult {
   const target = ch.target;
+  const { circuit: user, collapsed } = checkerView(board, target.components.some((c) => c.type === 'ammeter'));
   const tNetOf = new Map<string, number>();
   target.nets.forEach((n, i) => n.pins.forEach((p) => tNetOf.set(p, i)));
   const uNetOf = new Map<string, string>();
@@ -210,10 +290,38 @@ export function checkCircuit(ch: Challenge, user: Circuit, userPinHoles?: Map<st
   // polarity: would flipping a polarised part make things better?
   let pinMap = buildPinMap(finalAssign, targets);
   let ev = evaluate(ctx, pinMap);
+  // named wiring mistakes (op-amp rotated / inputs swapped), tried on top of every equivalent orientation
   finalAssign.forEach((a, i) => {
     if (!a) return;
     const t = targets[i];
-    const pol = t.type === 'led' || t.type === 'diode' || isPower(t.type);
+    const mistakes = MISTAKES[t.type];
+    if (!mistakes) return;
+    let bestAlt: { alt: Map<string, string>; ea: ReturnType<typeof evaluate>; mk: (typeof mistakes)[number] } | null = null;
+    for (const mk of mistakes)
+      for (const perm of permutations(t.type)) {
+        const alt = new Map(pinMap);
+        for (const tTerm of terminalsOf(t.type)) alt.set(pinId(t.ref, tTerm), pinId(a.u.ref, mk.swap[perm[tTerm]] ?? perm[tTerm]));
+        const ea = evaluate(ctx, alt);
+        if (ea.good - ea.bad > (bestAlt ? bestAlt.ea.good - bestAlt.ea.bad : ev.good - ev.bad) && ea.bad <= ev.bad) bestAlt = { alt, ea, mk };
+      }
+    if (bestAlt) {
+      const { mk } = bestAlt;
+      issues.push({
+        severity: 'error',
+        title: tr(`${a.u.ref}${mk.title[0]}`, `${a.u.ref}${mk.title[1]}`),
+        detail: tr(mk.zh(a.u.ref), mk.en(a.u.ref)),
+        refs: [a.u.ref],
+        holes: holesOf(terminalsOf(a.u.type).map((x) => pinId(a.u.ref, x))),
+      });
+      pinMap = bestAlt.alt;
+      ev = bestAlt.ea;
+    }
+  });
+  finalAssign.forEach((a, i) => {
+    if (!a) return;
+    const t = targets[i];
+    if (MISTAKES[t.type]) return;
+    const pol = t.type === 'led' || t.type === 'diode' || isPower(t.type) || t.type === 'ammeter' || t.type === 'function_gen';
     if (!pol) return;
     const [p1, p2] = terminalsOf(t.type);
     const flipped = new Map(pinMap);
@@ -231,7 +339,17 @@ export function checkCircuit(ch: Challenge, user: Circuit, userPinHoles?: Map<st
                 `${u.ref} 的长脚（正极）应该朝向电源 + 那一侧，短脚（负极）朝向 GND。把它的两只脚对调。`,
                 `${u.ref}'s long leg (anode) should face the + supply side and the short leg (cathode) GND. Swap its two legs.`,
               )
-            : isPower(u.type)
+            : u.type === 'ammeter'
+              ? tr(
+                  `${u.ref} 的表笔接反了：电流应该从红表笔（+）流进、从黑表笔（COM）流出，否则读数是负的。`,
+                  `${u.ref}'s leads are swapped: current should flow in at the red lead (+) and out at the black lead (COM), otherwise the reading is negative.`,
+                )
+              : u.type === 'function_gen'
+                ? tr(
+                    `${u.ref} 的红夹子（信号）和黑夹子（COM）接反了：黑夹子应该接 GND。`,
+                    `${u.ref}'s red (signal) and black (COM) clips are swapped: the black clip belongs on GND.`,
+                  )
+              : isPower(u.type)
               ? tr(
                   `${u.ref} 的 + 和 − 接反了：红线应接到原理图中电源 + 的那个节点。`,
                   `${u.ref}'s + and − are swapped: the red lead belongs on the node that the supply's + connects to in the schematic.`,
@@ -291,8 +409,14 @@ export function checkCircuit(ch: Challenge, user: Circuit, userPinHoles?: Map<st
             return tr(`第${k + 1}组${tNetLabel(ti)}：${pins.join('、')}`, `Group ${k + 1}${tNetLabel(ti)}: ${pins.join(', ')}`);
           })
           .join('\n') +
-        tr(`\n→ 它们现在都在同一个节点（${un}）上。检查是否插错了列，或多了一根跳线。`, `\n→ They are all on one node (${un}) now. Check for a leg in the wrong column or an extra jumper.`),
-      refs: [...new Set(userPins.map((p) => splitPin(p)[0]))],
+        tr(`\n→ 它们现在都在同一个节点（${un}）上。检查是否插错了列，或多了一根跳线。`, `\n→ They are all on one node (${un}) now. Check for a leg in the wrong column or an extra jumper.`) +
+        (collapsed.has(un)
+          ? tr(
+              `\n→ 注意：电流表 ${collapsed.get(un)!.join('、')} 的内阻几乎为零，相当于一根导线。它把这些点连在了一起——电流表要串联在断开处，不能并联在元件两端。`,
+              `\n→ Note: ammeter ${collapsed.get(un)!.join(', ')} has almost zero resistance — it acts like a wire and joins these points. An ammeter goes in series (in a break in the circuit), never across a part.`,
+            )
+          : ''),
+      refs: [...new Set([...userPins.map((p) => splitPin(p)[0]), ...(collapsed.get(un) ?? [])])],
       holes: holesOf(userPins),
     });
   }
@@ -341,23 +465,57 @@ export function applySet(
   };
 }
 
-/** Returns null on success or a human message describing the failure. */
+const MEASURE_NAME: Record<Measure, [string, string]> = {
+  vpp: ['峰峰值 Vpp', 'peak-to-peak (Vpp)'],
+  vmax: ['最大值', 'maximum'],
+  vmin: ['最小值', 'minimum'],
+  vavg: ['平均值', 'average'],
+  vrms: ['有效值 RMS', 'RMS'],
+  freq: ['频率', 'frequency'],
+  phase: ['相位差', 'phase difference'],
+  gain: ['幅度比（增益）', 'amplitude ratio (gain)'],
+};
+
+function fmtMeasure(kind: Measure, v: number): string {
+  if (kind === 'freq') return formatSI(v, 'Hz');
+  if (kind === 'phase') return `${v.toFixed(1)}°`;
+  if (kind === 'gain') return `${+v.toPrecision(3)}×`;
+  return volts(v);
+}
+
+const range = (min: number | undefined, max: number | undefined, f: (v: number) => string) =>
+  tr(`${min !== undefined ? f(min) : '-∞'} ~ ${max !== undefined ? f(max) : '∞'}`, `${min !== undefined ? f(min) : '-∞'} and ${max !== undefined ? f(max) : '∞'}`);
+
+/**
+ * Returns null on success or a human message describing the failure.
+ * Without a function generator everything is a DC operating point. With a generator the
+ * circuit is simulated in the time domain (transient.ts) and DMM-style checks read the
+ * steady-state AVERAGE: `voltages` = average voltage, `currents` (mode "dc") = average current,
+ * LED "on" = average current > 0.5 mA. `scope` tests always use the time-domain result.
+ */
 export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<string, string>, pinMap?: Map<string, string>): string | null {
   const c = applySet(circuit, test.set, mapping, pinMap);
+  const gen = hasGenerator(c);
+  const scope = test.scope ?? [];
+  const currents = test.currents ?? [];
   const sim = simulate(c);
+  let trc: TransientResult | null = null;
+  const tran = () => (trc ??= simulateTransient(c));
   const setDesc = Object.entries(test.set)
     .map(([ref, p]) => {
       const u = mapping?.get(ref) ?? ref;
       if (p.pressed !== undefined) return p.pressed ? tr(`按下 ${u}`, `${u} is pressed`) : tr(`松开 ${u}`, `${u} is released`);
       if (p.position) return tr(`把 ${u} 拨到 ${p.position} 侧`, `${u} is switched to side ${p.position}`);
       if (p.wiper !== undefined) return tr(`把 ${u} 旋到 ${Math.round(p.wiper * 100)}%`, `${u} is turned to ${Math.round(p.wiper * 100)}%`);
+      if (p.frequency !== undefined || p.amplitude !== undefined || p.waveform !== undefined || p.offset !== undefined)
+        return tr(`${u} 设为 ${describeComponent({ type: 'function_gen', props: p })}`, `${u} is set to ${describeComponent({ type: 'function_gen', props: p })}`);
       return u;
     })
     .join(tr('、', ' and '));
   const prefix = setDesc ? tr(`当${setDesc}时，`, `When ${setDesc}, `) : '';
   for (const [tRef, want] of Object.entries(test.expect)) {
     const u = mapping?.get(tRef) ?? tRef;
-    const on = sim.leds.get(u)?.on ?? false;
+    const on = (gen ? tran().leds.get(u)?.on : sim.leds.get(u)?.on) ?? false;
     if ((want === 'on') !== on)
       return tr(
         `${prefix}${u} 应该${want === 'on' ? '亮' : '灭'}，但实际是${on ? '亮' : '灭'}的。`,
@@ -366,17 +524,56 @@ export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<str
   }
   const netOf = new Map<string, string>();
   c.nets.forEach((n) => n.pins.forEach((p) => netOf.set(p, n.name)));
+  const mapPin = (p: string) => pinMap?.get(p) ?? p;
   for (const v of test.voltages) {
-    const p = pinMap?.get(v.pin) ?? v.pin;
-    const r = v.ref ? (pinMap?.get(v.ref) ?? v.ref) : null;
-    const vp = sim.nodeV.get(netOf.get(p) ?? '') ?? 0;
-    const vr = r ? (sim.nodeV.get(netOf.get(r) ?? '') ?? 0) : 0;
-    const val = vp - vr;
+    const p = mapPin(v.pin);
+    const r = v.ref ? mapPin(v.ref) : null;
+    let val: number;
+    if (gen) val = tran().measure('vavg', p, r ?? undefined);
+    else {
+      const vp = sim.nodeV.get(netOf.get(p) ?? '') ?? 0;
+      const vr = r ? (sim.nodeV.get(netOf.get(r) ?? '') ?? 0) : 0;
+      val = vp - vr;
+    }
     if ((v.min !== undefined && val < v.min) || (v.max !== undefined && val > v.max))
       return tr(
-        `${prefix}${p}${r ? ` 相对 ${r}` : ''} 的电压是 ${volts(val)}，应在 ${v.min ?? '-∞'} ~ ${v.max ?? '∞'} V 之间。`,
-        `${prefix}the voltage at ${p}${r ? ` relative to ${r}` : ''} is ${volts(val)}; it should be between ${v.min ?? '-∞'} and ${v.max ?? '∞'} V.`,
+        `${prefix}${p}${r ? ` 相对 ${r}` : ''} 的${gen ? '平均' : ''}电压是 ${volts(val)}，应在 ${v.min ?? '-∞'} ~ ${v.max ?? '∞'} V 之间。`,
+        `${prefix}the ${gen ? 'average ' : ''}voltage at ${p}${r ? ` relative to ${r}` : ''} is ${volts(val)}; it should be between ${v.min ?? '-∞'} and ${v.max ?? '∞'} V.`,
       );
+  }
+  for (const it of currents) {
+    const u = mapping?.get(it.el) ?? it.el;
+    const comp = c.components.find((x) => x.ref === u);
+    // the matcher may have mirrored a non-polarised part: keep the target's direction
+    const first = comp ? terminalsOf(comp.type)[0] : '';
+    const sign = pinMap && comp && pinMap.get(pinId(it.el, first)) !== undefined && pinMap.get(pinId(it.el, first)) !== pinId(u, first) ? -1 : 1;
+    let val: number;
+    if (gen || it.mode === 'rms') {
+      const i = tran().current(u);
+      val = i ? (it.mode === 'rms' ? vrms(i) : sign * vavg(i)) : 0;
+    } else val = sign * (sim.current.get(u) ?? 0);
+    if ((it.min !== undefined && val < it.min) || (it.max !== undefined && val > it.max)) {
+      const what = comp?.type === 'ammeter' ? tr(`电流表 ${u} 的读数`, `ammeter ${u} reads`) : tr(`流过 ${u} 的电流`, `the current through ${u} is`);
+      const mode = it.mode === 'rms' ? ' (RMS)' : gen ? tr('（平均）', ' (average)') : '';
+      return tr(
+        `${prefix}${what}${mode}是 ${amps(val)}，应在 ${range(it.min, it.max, amps)} 之间。`,
+        `${prefix}${what}${mode} ${amps(val)}; it should be between ${range(it.min, it.max, amps)}.`,
+      );
+    }
+  }
+  for (const sc of scope) {
+    const p = mapPin(sc.pin);
+    const r = sc.ref ? mapPin(sc.ref) : undefined;
+    const vs = sc.vs ? mapPin(sc.vs) : undefined;
+    const val = tran().measure(sc.measure, p, r, vs);
+    if ((sc.min !== undefined && val < sc.min) || (sc.max !== undefined && val > sc.max)) {
+      const [zh, en] = MEASURE_NAME[sc.measure];
+      const f = (x: number) => fmtMeasure(sc.measure, x);
+      return tr(
+        `${prefix}示波器上 ${p}${r ? `（相对 ${r}）` : ''}的${zh}${vs ? `（对比 ${vs}）` : ''}是 ${f(val)}，应在 ${range(sc.min, sc.max, f)} 之间。`,
+        `${prefix}on the scope, the ${en} of ${p}${r ? ` (relative to ${r})` : ''}${vs ? ` vs ${vs}` : ''} is ${f(val)}; it should be between ${range(sc.min, sc.max, f)}.`,
+      );
+    }
   }
   return null;
 }

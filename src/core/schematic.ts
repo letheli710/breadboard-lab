@@ -3,7 +3,7 @@
 // downhill on the page, and GND is always the bottom line). Components hang vertically
 // between the buses of the nets they connect.
 
-import { isPower } from './parts';
+import { OPAMP_HALVES, groundSource, isSource } from './parts';
 import type { SimResult } from './solver';
 import type { CComponent, Circuit } from './types';
 import { pinId } from './types';
@@ -38,6 +38,14 @@ export interface SElement {
   leads: SLead[];
   /** for 3-terminal parts */
   extra?: Record<string, number>;
+  /**
+   * Op-amp halves only: which half this element draws ('A' or 'B'; ref stays e.g. "U1").
+   * The triangle is centred on (x, y) pointing right: IN− at (x − 26, y − 10), IN+ at
+   * (x − 26, y + 10), OUT at (x + 30, y). `extra.power` = 1 when this element also carries the
+   * shared V+ (lead from (x, y − 14) up/down to its bus) and V− (from (x, y + 14)) leads.
+   * Leads are L-shaped (several SLead segments per pin).
+   */
+  half?: 'A' | 'B';
 }
 
 export interface SchematicLayout {
@@ -60,14 +68,14 @@ export function layoutSchematic(circuit: Circuit, sim?: SimResult | null): Schem
 
   // ---- order nets ----
   const allNets = circuit.nets.map((n) => n.name);
-  const src = circuit.components.find((c) => isPower(c.type));
+  const src = groundSource(circuit.components);
   const gnd = src ? net(src.ref, '-') : sim?.ground ?? null;
   const vcc = src ? net(src.ref, '+') : null;
 
   // BFS distance from the supply net through components (tie-breaker for equal voltages)
   const adj = new Map<string, Set<string>>();
   for (const c of circuit.components) {
-    if (isPower(c.type)) continue;
+    if (isSource(c.type)) continue;
     const ns = circuit.nets.filter((n) => n.pins.some((p) => p.startsWith(c.ref + '.'))).map((n) => n.name);
     for (const a of ns) for (const b of ns) if (a !== b) (adj.get(a) ?? adj.set(a, new Set()).get(a)!).add(b);
   }
@@ -95,10 +103,13 @@ export function layoutSchematic(circuit: Circuit, sim?: SimResult | null): Schem
   const Y = (n: string) => TOP + (level.get(n) ?? 0) * ROW_H;
 
   // ---- order components into columns ----
-  const terms = (c: CComponent) => circuit.nets.filter((n) => n.pins.some((p) => p.startsWith(c.ref + '.'))).map((n) => level.get(n.name)!);
+  const terms = (c: CComponent) => {
+    const ls = circuit.nets.filter((n) => n.pins.some((p) => p.startsWith(c.ref + '.'))).map((n) => level.get(n.name)!);
+    return ls.length ? ls : [0];
+  };
   const comps = [...circuit.components].sort((a, b) => {
-    const pa = isPower(a.type) ? 0 : 1;
-    const pb = isPower(b.type) ? 0 : 1;
+    const pa = isSource(a.type) ? 0 : 1;
+    const pb = isSource(b.type) ? 0 : 1;
     if (pa !== pb) return pa - pb;
     const ta = terms(a);
     const tb = terms(b);
@@ -110,7 +121,44 @@ export function layoutSchematic(circuit: Circuit, sim?: SimResult | null): Schem
   const addAttach = (n: string, x: number) => (attach.get(n) ?? attach.set(n, []).get(n)!).push(x);
   let x = LEFT;
 
+  const netSize = new Map(circuit.nets.map((n) => [n.name, n.pins.length]));
+  const hasNet = (ref: string, pin: string) => (netSize.get(netOf.get(pinId(ref, pin)) ?? '') ?? 0) > 1;
   for (const c of comps) {
+    if (c.type === 'opamp') {
+      const halves = OPAMP_HALVES.filter((h) => hasNet(c.ref, h.out) || hasNet(c.ref, h.inp) || hasNet(c.ref, h.inn));
+      let first = true;
+      for (const h of halves) {
+        const nOut = net(c.ref, h.out);
+        const nInn = net(c.ref, h.inn);
+        const nInp = net(c.ref, h.inp);
+        const ys = [nOut, nInn, nInp].filter((n) => level.has(n)).map(Y);
+        // between the buses it touches (never exactly on one), defaulting to the top
+        const cy = ys.length ? (Math.min(...ys) + Math.max(...ys)) / 2 + (Math.min(...ys) === Math.max(...ys) ? -ROW_H / 2 : ROW_H / 4) : TOP + ROW_H / 2;
+        const cx = x + 40;
+        const leads: SLead[] = [];
+        const pinLead = (px: number, py: number, bx: number, n: string) => {
+          if (!level.has(n)) return;
+          leads.push({ x1: px, y1: py, x2: bx, y2: py, net: n }, { x1: bx, y1: py, x2: bx, y2: Y(n), net: n });
+          addAttach(n, bx);
+        };
+        pinLead(cx - 26, cy - 10, cx - 40, nInn);
+        pinLead(cx - 26, cy + 10, cx - 52, nInp);
+        pinLead(cx + 30, cy, cx + 44, nOut);
+        const power = first && (hasNet(c.ref, 'v+') || hasNet(c.ref, 'v-'));
+        if (power) {
+          for (const [pin, dy] of [['v+', -14], ['v-', 14]] as const) {
+            const n = net(c.ref, pin);
+            if (!level.has(n)) continue;
+            leads.push({ x1: cx, y1: cy + dy, x2: cx, y2: Y(n), net: n });
+            addAttach(n, cx);
+          }
+        }
+        elements.push({ ref: c.ref, comp: c, x: cx, y: cy, rot: 0, leads, half: h.half, extra: { power: power ? 1 : 0 } });
+        first = false;
+        x += COL_W + 40;
+      }
+      continue;
+    }
     if (c.type === 'potentiometer') {
       const n1 = net(c.ref, '1');
       const n2 = net(c.ref, '2');
@@ -172,7 +220,14 @@ export function layoutSchematic(circuit: Circuit, sim?: SimResult | null): Schem
       x += COL_W;
       continue;
     }
-    const [t1, t2] = c.type === 'led' || c.type === 'diode' ? ['anode', 'cathode'] : isPower(c.type) ? ['+', '-'] : c.type === 'pushbutton' ? ['1', '2'] : ['1', '2'];
+    const [t1, t2] =
+      c.type === 'led' || c.type === 'diode'
+        ? ['anode', 'cathode']
+        : isSource(c.type) || c.type === 'ammeter'
+          ? ['+', '-']
+          : c.type === 'scope_probe'
+            ? ['tip', 'gnd']
+            : ['1', '2'];
     const n1 = net(c.ref, t1);
     const n2 = net(c.ref, t2);
     if (n1 === n2) {

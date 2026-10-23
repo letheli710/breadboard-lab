@@ -3,9 +3,11 @@
 
 import { HOLE_MAP, holeId, isRail, offsetHole } from './breadboard';
 import { getLang, tr } from './i18n';
-import type { BatteryVariant, CComponent, CompType, LedColor, PartProps, PartType } from './types';
+import type { BatteryVariant, CComponent, Circuit, CompType, Layout, LedColor, PartProps, PartType } from './types';
+import { pinId } from './types';
 
-export type Category = 'power' | 'basic' | 'input' | 'wire';
+/** 'instrument' = measuring / signal tools (ammeter, function generator, scope probe). */
+export type Category = 'power' | 'basic' | 'input' | 'wire' | 'instrument';
 
 export interface TwoPointPlacement {
   kind: 'two-point';
@@ -319,6 +321,143 @@ export const PARTS: Record<PartType, PartDef> = {
     get blurb() {
       return tr('常见的 MB102 面包板电源模块：插在面包板一端，同时给上下两组电源轨供电（5 V 或 3.3 V），用 USB 或 DC 插头取电。注意它的 + 和 − 方向必须对准轨道上的红线和蓝线。', 'The common MB102 breadboard power module: it plugs into one end of the board and powers both pairs of rails (5 V or 3.3 V) from USB or a DC jack. Its + and − must line up with the red and blue lines on the rails.');
     },
+  },  inductor: {
+    type: 'inductor',
+    get name() {
+      return tr('电感', 'Inductor');
+    },
+    nameEn: 'Inductor',
+    category: 'basic',
+    refPrefix: 'L',
+    placement: { kind: 'two-point', pins: ['1', '2'], get prompts(): [string, string] {
+        return [tr('点击电感第一只脚', 'Click where the inductor\'s first leg goes'), tr('点击电感第二只脚', 'Click where the inductor\'s second leg goes')];
+      } },
+    terminals: ['1', '2'],
+    terminalOf: identity('1', '2'),
+    internal: [],
+    symmetric: [['1', '2']],
+    defaults: { inductance: 10e-3 },
+    get blurb() {
+      return tr(
+        '色环电感 / 工字电感（无极性）：一圈圈绕起来的导线。它“抗拒电流的变化”（v = L·di/dt）：直流下就是一段导线（这里按线圈电阻 1 Ω 计算），电流突然变化时两端会出现电压。和电阻串联得到 RL 电路，和电容一起得到会“振铃”的 RLC 电路。',
+        'Axial / drum-core inductor (no polarity): a coil of wire. It "resists changes in current" (v = L·di/dt): at DC it is just a piece of wire (simulated as its 1 Ω winding resistance), but when the current changes suddenly a voltage appears across it. With a resistor it forms an RL circuit; with a capacitor, an RLC circuit that "rings".',
+      );
+    },
+  },
+  ammeter: {
+    type: 'ammeter',
+    get name() {
+      return tr('电流表', 'Ammeter');
+    },
+    nameEn: 'Ammeter',
+    category: 'instrument',
+    refPrefix: 'AM',
+    placement: {
+      kind: 'two-point',
+      pins: ['+', '-'],
+      get prompts(): [string, string] {
+        return [tr('点击红表笔（+，电流流入端）要插的孔', 'Click the hole for the red lead (+, where current flows in)'), tr('点击黑表笔（COM，电流流出端）要插的孔', 'Click the hole for the black lead (COM, where current flows out)')];
+      },
+    },
+    terminals: ['+', '-'],
+    terminalOf: identity('+', '-'),
+    internal: [],
+    symmetric: [],
+    defaults: {},
+    get blurb() {
+      return tr(
+        '万用表拨到电流档（A）。电流表必须串联在电路里：先把电路断开，再让电流从红表笔流进、从黑表笔（COM）流出。它的内阻很小（约 0.1 Ω），所以千万不要把它直接并联在元件或电源两端——那等于短路。读数为负说明电流方向和表笔方向相反。',
+        'A multimeter switched to current (A) mode. An ammeter must go in series: break the circuit open and let the current flow in at the red lead and out at the black (COM) lead. Its resistance is tiny (about 0.1 Ω), so never connect it straight across a part or a supply — that is a short circuit. A negative reading means the current flows the other way.',
+      );
+    },
+  },
+  opamp: {
+    type: 'opamp',
+    get name() {
+      return tr('运放 LM358', 'Op-amp LM358');
+    },
+    nameEn: 'Op-amp LM358',
+    category: 'basic',
+    refPrefix: 'U',
+    placement: {
+      kind: 'footprint',
+      get prompt() {
+        return tr(
+          '点击 1 脚（缺口旁、有小圆点的那只脚）的位置——必须在 e 行，让芯片横跨中间凹槽；芯片占 4 列（1–4 脚在 e 行，8–5 脚在 f 行）',
+          'Click where pin 1 goes (next to the notch, marked with a dot) — it must be in row e so the chip straddles the centre gap; the chip takes 4 columns (pins 1–4 in row e, pins 8–5 in row f)',
+        );
+      },
+      footprint: (anchor) => {
+        const h = HOLE_MAP.get(anchor);
+        if (!h || h.row !== 'e') return null;
+        return rowFootprint({ '1': [0, 0], '2': [0, 1], '3': [0, 2], '4': [0, 3], '8': [1, 0], '7': [1, 1], '6': [1, 2], '5': [1, 3] })(anchor);
+      },
+    },
+    terminals: ['outA', 'inA-', 'inA+', 'v-', 'inB+', 'inB-', 'outB', 'v+'],
+    terminalOf: { '1': 'outA', '2': 'inA-', '3': 'inA+', '4': 'v-', '5': 'inB+', '6': 'inB-', '7': 'outB', '8': 'v+' },
+    internal: [],
+    symmetric: [],
+    defaults: {},
+    get blurb() {
+      return tr(
+        'LM358 双运放（DIP-8 封装，里面有 A、B 两个独立的运放，共用电源脚）。必须横跨中间凹槽插，否则两排脚会被金属条短路。8 脚 V+ 接电源正极，4 脚 V− 接 GND（或负电源）——不接电源运放就不工作。运放把 (IN+ − IN−) 放大约 10 万倍，所以几乎总是配合负反馈电阻使用：反相放大 Vout = −Rf/Rin·Vin，同相放大 Vout = (1 + Rf/Rg)·Vin。输出只能在 V− 到 V+ − 1.5 V 之间摆动，超出就“削顶”（clipping）。',
+        'LM358 dual op-amp (DIP-8 package with two independent op-amps, A and B, sharing the power pins). It must straddle the centre gap, or the metal strips short its pins together. Pin 8 (V+) goes to the supply +, pin 4 (V−) to GND (or a negative supply) — without power the op-amp does nothing. It amplifies (IN+ − IN−) about 100 000 times, so it is almost always used with negative-feedback resistors: inverting amplifier Vout = −Rf/Rin·Vin, non-inverting Vout = (1 + Rf/Rg)·Vin. The output can only swing between V− and V+ − 1.5 V; beyond that it clips.',
+      );
+    },
+  },
+  function_gen: {
+    type: 'function_gen',
+    get name() {
+      return tr('信号发生器', 'Function generator');
+    },
+    nameEn: 'Function generator',
+    category: 'instrument',
+    refPrefix: 'FG',
+    placement: {
+      kind: 'two-point',
+      pins: ['+', '-'],
+      get prompts(): [string, string] {
+        return [tr('点击红色输出夹（信号 +）要插的孔', 'Click the hole for the red output clip (signal +)'), tr('点击黑色夹子（COM / 地）要插的孔', 'Click the hole for the black clip (COM / ground)')];
+      },
+    },
+    terminals: ['+', '-'],
+    terminalOf: identity('+', '-'),
+    internal: [],
+    symmetric: [],
+    defaults: { waveform: 'sine', frequency: 1000, amplitude: 1, offset: 0 },
+    get blurb() {
+      return tr(
+        '台式信号发生器：输出正弦波、方波或三角波。可以设定频率、幅度（峰值 Vp；峰峰值 Vpp = 2 × 幅度）和直流偏置。黑夹子（COM）一般接电路的 GND。仪器内部有 50 Ω 输出电阻，所以接上较小的负载时输出会变小。',
+        'Bench function generator: outputs a sine, square or triangle wave. You set the frequency, the amplitude (peak Vp; peak-to-peak Vpp = 2 × amplitude) and a DC offset. The black clip (COM) normally goes to the circuit\'s GND. It has a 50 Ω output resistance inside, so a low-resistance load makes the output smaller.',
+      );
+    },
+  },
+  scope_probe: {
+    type: 'scope_probe',
+    get name() {
+      return tr('示波器探头', 'Scope probe');
+    },
+    nameEn: 'Scope probe',
+    category: 'instrument',
+    refPrefix: 'PR',
+    placement: {
+      kind: 'two-point',
+      pins: ['tip', 'gnd'],
+      get prompts(): [string, string] {
+        return [tr('点击探头针尖要测量的孔', 'Click the hole the probe tip should measure'), tr('点击探头接地夹要夹的孔（一般是 GND）', 'Click the hole for the probe\'s ground clip (normally GND)')];
+      },
+    },
+    terminals: ['tip', 'gnd'],
+    terminalOf: identity('tip', 'gnd'),
+    internal: [],
+    symmetric: [],
+    defaults: { channel: 1 },
+    get blurb() {
+      return tr(
+        '示波器探头：把针尖处电压（相对接地夹）随时间变化的波形显示在示波器屏幕上。第一个探头是 CH1，第二个是 CH2，两条波形一起看可以比较幅度和相位。探头输入电阻很大，几乎不影响电路。注意：真实示波器的接地夹都连在大地上，所以接地夹只能夹在电路的 GND 上。',
+        'Oscilloscope probe: shows the voltage at its tip (relative to its ground clip) as a waveform over time on the scope screen. The first probe is CH1, the second CH2; viewing both lets you compare amplitude and phase. A probe has a very high input resistance, so it barely affects the circuit. Note: on a real scope all ground clips are tied to earth, so clip them only to the circuit\'s GND.',
+      );
+    },
   },
 };
 
@@ -334,6 +473,11 @@ export const PART_ORDER: PartType[] = [
   'pushbutton',
   'switch',
   'potentiometer',
+  'inductor',
+  'opamp',
+  'function_gen',
+  'scope_probe',
+  'ammeter',
 ];
 
 export const LED_COLORS: Record<LedColor, { hex: string; vf: number; name: string }> = {
@@ -372,8 +516,84 @@ export const BATTERIES: Record<BatteryVariant, { voltage: number; rint: number; 
     }, maxCurrent: 0.05 },
 };
 
+/** DC power sources. The function generator is *not* one of them (see isSource). */
 export const POWER_TYPES: CompType[] = ['battery', 'bench_supply', 'power_module', 'dc_source'];
 export const isPower = (t: CompType) => POWER_TYPES.includes(t);
+/** Anything that drives the circuit: a DC power source or a function generator. */
+export const isSource = (t: CompType) => isPower(t) || t === 'function_gen';
+/** Measuring tools that the challenge checker ignores / sees through. */
+export const isInstrument = (t: CompType) => t === 'scope_probe' || t === 'ammeter';
+
+/** The component whose − terminal is the circuit's GND (0 V reference): the first DC power
+ *  source, or — on a board powered only by a function generator — the first generator. */
+export function groundSource<C extends { type: CompType }>(components: C[]): C | undefined {
+  return components.find((c) => isPower(c.type)) ?? components.find((c) => c.type === 'function_gen');
+}
+
+// ---- electrical models of the stage-C parts (shared by the DC solver and transient.ts) ----
+/** Inductor winding resistance (Ω). */
+export const INDUCTOR_R = 1;
+/** Ammeter burden resistance (Ω). */
+export const AMMETER_R = 0.1;
+/** Function generator output resistance (Ω). */
+export const GEN_R = 50;
+/** LM358 model: open-loop gain, output resistance, headroom below V+, minimum supply. */
+export const OPAMP = { gain: 1e5, rout: 10, headroom: 1.5, minSupply: 3 } as const;
+
+/** The two halves of the LM358: logical terminal names of each. */
+export const OPAMP_HALVES = [
+  { half: 'A', out: 'outA', inn: 'inA-', inp: 'inA+' },
+  { half: 'B', out: 'outB', inn: 'inB-', inp: 'inB+' },
+] as const;
+
+/** Generator settings with defaults filled in. */
+export function genSettings(p: PartProps) {
+  const d = PARTS.function_gen.defaults;
+  return {
+    waveform: p.waveform ?? d.waveform!,
+    frequency: Math.max(p.frequency ?? d.frequency!, 1e-3),
+    amplitude: p.amplitude ?? d.amplitude!,
+    offset: p.offset ?? d.offset!,
+  };
+}
+
+/** Scope channel for a new probe: CH1 if free, else CH2, else null (both taken). */
+export function nextScopeChannel(layout: Layout): 1 | 2 | null {
+  const used = new Set(layout.parts.filter((p) => p.type === 'scope_probe').map((p) => p.props.channel ?? 1));
+  if (!used.has(1)) return 1;
+  if (!used.has(2)) return 2;
+  return null;
+}
+
+/**
+ * Every way the terminals of a part can be re-labelled without changing what it does
+ * (identity first). Two-element `symmetric` groups give pin swaps; the LM358 additionally
+ * allows using half B instead of half A (outA↔outB, inA−↔inB−, inA+↔inB+; power pins shared).
+ * Each map is target terminal -> user terminal.
+ */
+export function pinPermutations(type: CompType): Record<string, string>[] {
+  const terms = terminalsOf(type);
+  let perms: Record<string, string>[] = [Object.fromEntries(terms.map((t) => [t, t]))];
+  for (const group of symmetricOf(type)) {
+    if (group.length !== 2) continue;
+    const [a, b] = group;
+    perms = perms.flatMap((p) => [p, { ...p, [a]: p[b], [b]: p[a] }]);
+  }
+  if (type === 'opamp') {
+    const [A, B] = OPAMP_HALVES;
+    perms = perms.flatMap((p) => [p, { ...p, [A.out]: p[B.out], [B.out]: p[A.out], [A.inn]: p[B.inn], [B.inn]: p[A.inn], [A.inp]: p[B.inp], [B.inp]: p[A.inp] }]);
+  }
+  return perms;
+}
+
+/** Net names of each terminal of a component in a circuit (undefined = not on any net). */
+export function componentNets(circuit: Circuit, ref: string): Map<string, string | undefined> {
+  const c = circuit.components.find((x) => x.ref === ref);
+  const out = new Map<string, string | undefined>();
+  if (!c) return out;
+  for (const t of terminalsOf(c.type)) out.set(t, circuit.nets.find((n) => n.pins.includes(pinId(ref, t)))?.name);
+  return out;
+}
 
 /** Nominal (open-circuit) voltage of a power component. */
 export function sourceVoltage(c: { type: CompType; props: PartProps }): number {
@@ -409,6 +629,20 @@ const TERMINAL_LABEL_ZH: Record<string, Record<string, string>> = {
   potentiometer: { '1': '1 脚', '2': '2 脚（滑动端）', '3': '3 脚' },
   switch: { a: 'a 脚', com: 'com 中间脚', b: 'b 脚' },
   pushbutton: { '1': '左侧', '2': '右侧' },
+  inductor: { '1': '1 脚', '2': '2 脚' },
+  ammeter: { '+': '红表笔（+）', '-': '黑表笔（COM）' },
+  function_gen: { '+': '红色输出夹（+）', '-': '黑夹子（COM）' },
+  scope_probe: { tip: '探头针尖', gnd: '探头接地夹' },
+  opamp: {
+    outA: '1 脚 OUT A（输出 A）',
+    'inA-': '2 脚 IN− A（反相输入 A）',
+    'inA+': '3 脚 IN+ A（同相输入 A）',
+    'v-': '4 脚 V−（电源负 / GND）',
+    'inB+': '5 脚 IN+ B（同相输入 B）',
+    'inB-': '6 脚 IN− B（反相输入 B）',
+    outB: '7 脚 OUT B（输出 B）',
+    'v+': '8 脚 V+（电源正）',
+  },
 };
 
 const TERMINAL_LABEL_EN: Record<string, Record<string, string>> = {
@@ -421,6 +655,20 @@ const TERMINAL_LABEL_EN: Record<string, Record<string, string>> = {
   potentiometer: { '1': 'pin 1', '2': 'pin 2 (wiper)', '3': 'pin 3' },
   switch: { a: 'pin a', com: 'middle pin com', b: 'pin b' },
   pushbutton: { '1': 'left side', '2': 'right side' },
+  inductor: { '1': 'pin 1', '2': 'pin 2' },
+  ammeter: { '+': 'red lead (+)', '-': 'black lead (COM)' },
+  function_gen: { '+': 'red output clip (+)', '-': 'black clip (COM)' },
+  scope_probe: { tip: 'probe tip', gnd: 'probe ground clip' },
+  opamp: {
+    outA: 'pin 1 OUT A (output A)',
+    'inA-': 'pin 2 IN− A (inverting input A)',
+    'inA+': 'pin 3 IN+ A (non-inverting input A)',
+    'v-': 'pin 4 V− (supply − / GND)',
+    'inB+': 'pin 5 IN+ B (non-inverting input B)',
+    'inB-': 'pin 6 IN− B (inverting input B)',
+    outB: 'pin 7 OUT B (output B)',
+    'v+': 'pin 8 V+ (supply +)',
+  },
 };
 
 /** Friendly name of a terminal, e.g. "anode (long leg)". */
@@ -451,10 +699,28 @@ export function describeComponent(c: Pick<CComponent, 'type' | 'props'>): string
     case 'dc_source':
       return tr(`${p.voltage ?? '?'}V 直流电源`, `${p.voltage ?? '?'}V DC source`);
     case 'capacitor':
-      return tr('电容', 'Capacitor');
+      return p.capacitance !== undefined ? tr(`${fmtSI(p.capacitance, 'F')} 电容`, `${fmtSI(p.capacitance, 'F')} capacitor`) : tr('电容', 'Capacitor');
+    case 'inductor':
+      return p.inductance !== undefined ? tr(`${fmtSI(p.inductance, 'H')} 电感`, `${fmtSI(p.inductance, 'H')} inductor`) : tr('电感', 'Inductor');
+    case 'function_gen': {
+      const w = p.waveform ? { sine: tr('正弦', 'sine'), square: tr('方波', 'square'), triangle: tr('三角波', 'triangle') }[p.waveform] : '';
+      const f = p.frequency !== undefined ? fmtSI(p.frequency, 'Hz') : '';
+      const a = p.amplitude !== undefined ? tr(`幅度 ${fmtSI(p.amplitude, 'V')}`, `${fmtSI(p.amplitude, 'V')} peak`) : '';
+      const extra = [w, f, a].filter(Boolean).join(' ');
+      return tr(`信号发生器${extra ? `（${extra}）` : ''}`, `Function generator${extra ? ` (${extra})` : ''}`);
+    }
+    case 'scope_probe':
+      return tr(`示波器探头 CH${p.channel ?? 1}`, `Scope probe CH${p.channel ?? 1}`);
     default:
       return PARTS[c.type].name;
   }
+}
+
+function fmtSI(v: number, unit: string) {
+  const a = Math.abs(v);
+  const table: [number, string][] = [[1e6, 'M'], [1e3, 'k'], [1, ''], [1e-3, 'm'], [1e-6, 'µ'], [1e-9, 'n'], [1e-12, 'p']];
+  for (const [f, pre] of table) if (a >= f * 0.9995) return `${+(v / f).toPrecision(3)}${pre}${unit}`;
+  return `${v}${unit}`;
 }
 
 function fmtR(r?: number) {

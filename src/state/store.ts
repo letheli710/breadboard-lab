@@ -4,7 +4,7 @@ import type { Challenge } from '../core/challenge';
 import type { Problem } from '../core/problem/parse';
 import type { CheckResult } from '../core/check';
 import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
-import { PARTS } from '../core/parts';
+import { PARTS, nextScopeChannel } from '../core/parts';
 import type { Layout, PartProps, PartType, PlacedPart } from '../core/types';
 
 export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import';
@@ -44,6 +44,24 @@ const layoutKey = (mode: Mode, chId: string | null) => (mode === 'sandbox' || !c
 
 export const WIRE_COLORS = ['#d62828', '#1d3557', '#2a9d8f', '#e9c46a', '#f4a261', '#7b2cbf', '#222222', '#f1f1f1'];
 
+/** Oscilloscope panel settings. `null` time/volt scales mean "auto" (set from the signal). */
+export interface ScopeSettings {
+  collapsed: boolean;
+  /** seconds per division */
+  tdiv: number | null;
+  /** volts per division per channel */
+  vdiv: { 1: number | null; 2: number | null };
+  /** panel offset from its docked bottom-right corner (px, dragged) */
+  drag: { x: number; y: number };
+}
+
+const defaultScope = (): ScopeSettings => ({ collapsed: false, tdiv: null, vdiv: { 1: null, 2: null }, drag: { x: 0, y: 0 } });
+
+/** Channel for a newly placed scope probe (CH1 first, then CH2; CH1 if both are taken). */
+export function scopeChannelFor(layout: Layout): 1 | 2 {
+  return nextScopeChannel(layout) ?? 1;
+}
+
 export interface Highlight {
   refs: string[];
   holes: string[];
@@ -74,6 +92,7 @@ interface State {
   showNets: boolean;
   showLabels: boolean;
   probe: { red: string | null; black: string | null };
+  scope: ScopeSettings;
   challenges: Challenge[];
   invalid: InvalidFile[];
   activeId: string | null;
@@ -118,6 +137,7 @@ interface State {
   markCompleted(id: string): void;
   setHighlight(h: Highlight | null): void;
   toggle(k: 'showNets' | 'showLabels'): void;
+  setScope(p: Partial<ScopeSettings>): void;
   notify(msg: string | null): void;
   setProblems(list: Problem[], invalid: InvalidFile[]): void;
   openProblem(id: string): void;
@@ -166,6 +186,7 @@ export const useStore = create<State>((set, get) => {
     showNets: false,
     showLabels: true,
     probe: { red: null, black: null },
+    scope: { ...defaultScope(), ...LS.get<Partial<ScopeSettings>>('bb.scope', {}) },
     challenges: [],
     invalid: [],
     activeId: null,
@@ -232,6 +253,8 @@ export const useStore = create<State>((set, get) => {
       }
       const def = PARTS[s.tool];
       const props = { ...def.defaults, ...s.placingProps[s.tool] };
+      if (s.tool === 'scope_probe' && !s.firstHole && nextScopeChannel(s.layout) === null)
+        return get().notify(tr('示波器只有 CH1、CH2 两个通道，两个探头都已经用上了', 'The scope has two channels (CH1, CH2) and both probes are already in use'));
       if (def.placement.kind === 'footprint') {
         const fp = def.placement.footprint(h);
         if (!fp) return get().notify(tr('这里放不下：元件会超出面包板边缘', "Doesn't fit here: the part would hang off the edge of the board"));
@@ -255,7 +278,12 @@ export const useStore = create<State>((set, get) => {
         id: newId(),
         ref: nextRef(s.layout, s.tool),
         type: s.tool,
-        props: s.tool === 'wire' ? { ...props, wireColor: s.placingProps.wire?.wireColor ?? autoWireColor(s.firstHole, h) } : props,
+        props:
+          s.tool === 'wire'
+            ? { ...props, wireColor: s.placingProps.wire?.wireColor ?? autoWireColor(s.firstHole, h) }
+            : s.tool === 'scope_probe'
+              ? { ...props, channel: scopeChannelFor(s.layout) }
+              : props,
         pins: { [p1]: s.firstHole, [p2]: h },
       };
       commit({ ...s.layout, parts: [...s.layout.parts, part] }, { firstHole: null, selectedId: part.id });
@@ -353,6 +381,11 @@ export const useStore = create<State>((set, get) => {
     setHighlight(highlight) {
       set({ highlight });
     },
+    setScope(p) {
+      const scope = { ...get().scope, ...p };
+      LS.set('bb.scope', scope);
+      set({ scope });
+    },
     toggle(k) {
       set({ [k]: !get()[k] } as Partial<State>);
     },
@@ -407,4 +440,15 @@ function autoWireColor(a: string, b: string): string {
   if (rows.some((r) => r === 'tp' || r === 'bp')) return '#d62828';
   if (rows.some((r) => r === 'tn' || r === 'bn')) return '#1d3557';
   return '#2a9d8f';
+}
+
+// dev-only hooks for automated UI checks (stripped from production builds)
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  const w = window as unknown as Record<string, unknown>;
+  w.__bbSelect = (ref: string) => {
+    const p = useStore.getState().layout.parts.find((x) => x.ref === ref);
+    if (p) useStore.getState().select(p.id);
+  };
+  w.__bbTool = (t: Tool) => useStore.getState().setTool(t);
+  w.__bbStore = useStore;
 }

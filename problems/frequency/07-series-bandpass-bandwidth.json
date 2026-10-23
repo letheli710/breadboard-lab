@@ -34,10 +34,19 @@
     { "id": "ph", "ask": "ω = 1250 rad/s 时 H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": -45, "unit": "°", "explain": "ω > ω₀，电路呈感性，电流（即 U_o）滞后 U_s：−arctan(45/45) = −45°。" },
     {
       "id": "bw",
-      "ask": "这个带通电路的通频带（−3 dB 带宽）BW 是多少？",
-      "choices": ["450 rad/s（≈ 71.6 Hz），从 800 到 1250 rad/s", "250 rad/s，从 1000 到 1250 rad/s", "500 rad/s，从 750 到 1250 rad/s", "1000 rad/s"],
-      "correct": 0,
-      "explain": "|H| = 1/√2 的两个频率满足 |ωL − 1/(ωC)| = R，且 ω₁ω₂ = ω₀²。已知 ω₂ = 1250 rad/s，ω₁ = 10⁶/1250 = 800 rad/s（ωL = 80，1/ωC = 125，X = −45 Ω）。BW = ω₂ − ω₁ = 450 rad/s = R/L，Q = ω₀/BW = 20/9 ≈ 2.22。"
+      "ask": "这个带通电路的通频带（−3 dB 带宽）BW = ?（用 Hz 表示）",
+      "find": { "kind": "bw", "out": ["o"], "input": "Us" },
+      "answer": 71.61972,
+      "unit": "Hz",
+      "explain": "|H| = 1/√2 的两个频率满足 |ωL − 1/(ωC)| = R，且 ω₁ω₂ = ω₀²。已知 ω₂ = 1250 rad/s，ω₁ = 10⁶/1250 = 800 rad/s。BW = ω₂ − ω₁ = 450 rad/s = R/L，换成频率 450/(2π) ≈ 71.62 Hz。"
+    },
+    {
+      "id": "Q",
+      "ask": "电路的品质因数 Q = ?",
+      "find": { "kind": "Q" },
+      "answer": 2.222222,
+      "unit": "",
+      "explain": "Q = ω₀L/R = 1000 × 0.1/45 = 20/9 ≈ 2.22，也等于 ω₀/BW = 1000/450。"
     }
   ],
   "hints": [
@@ -64,9 +73,12 @@
         { "ask": "|H(jω)| at ω = 1250 rad/s = ?", "explain": "X = ωL − 1/(ωC) = 125 − 80 = 45 Ω = R, H = 45/(45 + j45), |H| = 1/√2 ≈ 0.7071." },
         { "ask": "Phase of H(jω) at ω = 1250 rad/s = ?", "explain": "Above ω₀ the circuit is inductive and the current (i.e. V_o) lags V_s: −arctan(45/45) = −45°." },
         {
-          "ask": "What is the bandwidth (−3 dB bandwidth) BW of this band-pass circuit?",
-          "choices": ["450 rad/s (≈ 71.6 Hz), from 800 to 1250 rad/s", "250 rad/s, from 1000 to 1250 rad/s", "500 rad/s, from 750 to 1250 rad/s", "1000 rad/s"],
-          "explain": "The two frequencies with |H| = 1/√2 satisfy |ωL − 1/(ωC)| = R, and ω₁ω₂ = ω₀². With ω₂ = 1250 rad/s, ω₁ = 10⁶/1250 = 800 rad/s (ωL = 80, 1/ωC = 125, X = −45 Ω). BW = ω₂ − ω₁ = 450 rad/s = R/L, Q = ω₀/BW = 20/9 ≈ 2.22."
+          "ask": "Bandwidth (−3 dB) of this band-pass circuit, BW = ? (in Hz)",
+          "explain": "The two frequencies with |H| = 1/√2 satisfy |ωL − 1/(ωC)| = R and ω₁ω₂ = ω₀². With ω₂ = 1250 rad/s, ω₁ = 10⁶/1250 = 800 rad/s. BW = ω₂ − ω₁ = 450 rad/s = R/L, i.e. 450/(2π) ≈ 71.62 Hz."
+        },
+        {
+          "ask": "Quality factor Q = ?",
+          "explain": "Q = ω₀L/R = 1000 × 0.1/45 = 20/9 ≈ 2.22, which is also ω₀/BW = 1000/450."
         }
       ],
       "hints": [

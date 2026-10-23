@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { holeLabel } from '../core/breadboard';
-import { amps, ohms, parseValue, resistorBands, volts } from '../core/format';
+import { amps, formatSI, ohms, parseValue, resistorBands, volts } from '../core/format';
 import { getLang, tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
-import { BATTERIES, LED_COLORS, PARTS, terminalName } from '../core/parts';
-import type { BatteryVariant, LedColor, PartProps, PartType } from '../core/types';
-import { useDerived } from '../state/derived';
+import { BATTERIES, LED_COLORS, PARTS, nextScopeChannel, terminalName } from '../core/parts';
+import type { BatteryVariant, LedColor, PartProps, PartType, PlacedPart, Waveform } from '../core/types';
+import { vavg, vmax, vmin, vrms } from '../core/transient';
+import { ammeterAc, ammeterReading, ledOf, useDerived } from '../state/derived';
+import { CH_COLORS } from '../three/common';
 import { WIRE_COLORS, useStore } from '../state/store';
 import { PartIcon } from './Icons';
 
@@ -183,9 +185,236 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
           </div>
         </div>
       );
+    case 'inductor':
+      return (
+        <div className="editor">
+          <label>{tr('电感量', 'Inductance')}</label>
+          <div className="chips">
+            {L_VALUES.map((v) => (
+              <button key={v} className={props.inductance === v ? 'on' : ''} onClick={() => onChange({ inductance: v })}>
+                {formatSI(v, 'H').replace(' ', '')}
+              </button>
+            ))}
+          </div>
+          <div className="row">
+            <input
+              placeholder={tr('自定义，如 2.2m 或 330u', 'Custom, e.g. 2.2m or 330u')}
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              onKeyDown={(e) => {
+                const v = parseValue(custom);
+                if (e.key === 'Enter' && v && v > 0) onChange({ inductance: v });
+              }}
+            />
+          </div>
+        </div>
+      );
+    case 'function_gen': {
+      const g = { waveform: props.waveform ?? 'sine', frequency: props.frequency ?? 1000, amplitude: props.amplitude ?? 1, offset: props.offset ?? 0 };
+      return (
+        <div className="editor">
+          <label>{tr('波形', 'Waveform')}</label>
+          <div className="chips">
+            {(['sine', 'square', 'triangle'] as Waveform[]).map((w) => (
+              <button key={w} className={g.waveform === w ? 'on' : ''} onClick={() => onChange({ waveform: w })}>
+                <WaveGlyph w={w} />
+                {w === 'sine' ? tr('正弦波', 'Sine') : w === 'square' ? tr('方波', 'Square') : tr('三角波', 'Triangle')}
+              </button>
+            ))}
+          </div>
+          <label>
+            {tr('频率：', 'Frequency: ')}
+            {formatSI(g.frequency, 'Hz', 4)}
+          </label>
+          <div className="chips">
+            {F_VALUES.map((v) => (
+              <button key={v} className={g.frequency === v ? 'on' : ''} onClick={() => onChange({ frequency: v })}>
+                {formatSI(v, 'Hz').replace(' ', '')}
+              </button>
+            ))}
+          </div>
+          <div className="row">
+            <input
+              placeholder={tr('自定义频率，如 2.5k 或 60', 'Custom frequency, e.g. 2.5k or 60')}
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              onKeyDown={(e) => {
+                const v = parseValue(custom);
+                if (e.key === 'Enter' && v && v > 0) onChange({ frequency: Math.min(v, 1e6) });
+              }}
+            />
+          </div>
+          <label>
+            {tr('幅度（峰值）：', 'Amplitude (peak): ')}
+            {g.amplitude.toFixed(2)} Vp · {(2 * g.amplitude).toFixed(2)} Vpp
+          </label>
+          <input type="range" min={0} max={10} step={0.05} value={g.amplitude} onChange={(e) => onChange({ amplitude: +e.target.value })} />
+          <label>
+            {tr('直流偏置：', 'DC offset: ')}
+            {g.offset >= 0 ? '+' : ''}
+            {g.offset.toFixed(2)} V
+          </label>
+          <input type="range" min={-5} max={5} step={0.05} value={g.offset} onChange={(e) => onChange({ offset: +e.target.value })} />
+          <p className="note">
+            {tr(
+              `输出在 ${(g.offset - g.amplitude).toFixed(2)} V 到 ${(g.offset + g.amplitude).toFixed(2)} V 之间变化（空载时）。把示波器探头接到电路上就能看到波形。`,
+              `The output swings between ${(g.offset - g.amplitude).toFixed(2)} V and ${(g.offset + g.amplitude).toFixed(2)} V (with no load). Put a scope probe on the circuit to see the waveform.`,
+            )}
+          </p>
+        </div>
+      );
+    }
+    case 'scope_probe':
+      return (
+        <div className="editor">
+          <label>{tr('示波器通道', 'Scope channel')}</label>
+          <div className="chips">
+            {([1, 2] as const).map((c) => (
+              <button key={c} className={(props.channel ?? 1) === c ? 'on' : ''} onClick={() => onChange({ channel: c })}>
+                <span className="swatch" style={{ background: CH_COLORS[c] }} />
+                CH{c}
+              </button>
+            ))}
+          </div>
+          <p className="note">
+            {tr('探头和屏幕上的波形颜色一致：CH1 黄色，CH2 青色。', 'Probe colour matches its trace on the screen: CH1 yellow, CH2 cyan.')}
+          </p>
+        </div>
+      );
     default:
       return null;
   }
+}
+
+function LedStateRow({ led }: { led: NonNullable<ReturnType<typeof ledOf>> }) {
+  const flicker = 'flicker' in led && led.flicker;
+  return (
+    <div className={led.burnt ? 'bad' : led.overcurrent ? 'warn' : ''}>
+      {tr('状态', 'State')}{' '}
+      <b>
+        {led.burnt
+          ? tr('烧坏了', 'burnt out')
+          : flicker
+            ? tr('一闪一闪（频率太低）', 'blinking (low frequency)')
+            : led.on
+              ? tr('导通 / 发光', 'conducting / lit')
+              : led.reverse
+                ? tr('反向截止', 'reverse-biased (off)')
+                : tr('截止（不亮）', 'off')}
+      </b>
+    </div>
+  );
+}
+
+function AmmeterReadout({ refName }: { refName: string }) {
+  const d = useDerived();
+  const I = ammeterReading(d, refName);
+  const acm = ammeterAc(d, refName);
+  return (
+    <div className="readout">
+      <div className="eyebrow">{tr('电流表读数', 'Ammeter reading')}</div>
+      <div className="am-lcd">{amps(I)}</div>
+      {acm && (
+        <>
+          <div className="ac-tag">{tr('交流电路：电流表（DC 档）显示平均值', 'AC circuit: the meter (DC mode) shows the average')}</div>
+          <div>
+            {tr('有效值 RMS', 'RMS')} <b>{amps(acm.rms)}</b>
+          </div>
+          <div>
+            {tr('最小 / 最大', 'Min / max')} <b>{`${amps(acm.min)} / ${amps(acm.max)}`}</b>
+          </div>
+        </>
+      )}
+      <p className="note">
+        {I < -5e-7
+          ? tr('读数为负：电流是从黑表笔流进、红表笔流出的，表笔反了。', 'Negative reading: current flows in at the black lead and out at the red one — the leads are swapped.')
+          : tr('电流从红表笔流入、黑表笔（COM）流出时读数为正。', 'The reading is positive when current flows in at the red lead and out at the black (COM) lead.')}
+      </p>
+    </div>
+  );
+}
+
+const L_VALUES = [100e-6, 1e-3, 4.7e-3, 10e-3, 47e-3, 100e-3, 1];
+const F_VALUES = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000];
+
+function WaveGlyph({ w }: { w: Waveform }) {
+  const d = w === 'sine' ? 'M1 7 Q 4 -1, 7 7 T 13 7' : w === 'square' ? 'M1 11 V3 H7 V11 H13 V3' : 'M1 11 L4 3 L7 11 L10 3 L13 11';
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+      <path d={d} fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** LM358 top view with pin numbers and what each pin is doing on this board. */
+function OpAmpInfo({ part }: { part: PlacedPart }) {
+  const d = useDerived();
+  const st = d.sim.opamps.get(part.ref);
+  const names: Record<string, string> = { '1': 'OUT A', '2': 'IN− A', '3': 'IN+ A', '4': 'V− / GND', '5': 'IN+ B', '6': 'IN− B', '7': 'OUT B', '8': 'V+' };
+  const netOf = (pin: string) => {
+    const n = d.nl.pinNet.get(`${part.ref}.${PARTS.opamp.terminalOf[pin]}`);
+    return isFloating(n) ? null : n;
+  };
+  const pinBox = (pin: string, x: number, y: number, labelAbove: boolean) => {
+    const net = netOf(pin);
+    const power = pin === '4' || pin === '8';
+    return (
+      <g key={pin}>
+        <rect x={x - 7} y={y - 7} width="14" height="14" rx="2" fill={net ? (power ? (pin === '8' ? '#e63946' : '#2b59c3') : '#2ba59b') : '#c9ccd1'} />
+        <text x={x} y={y + 3.5} textAnchor="middle" fontSize="10" fontWeight="700" fill={net ? '#fff' : '#1f2a44'}>
+          {pin}
+        </text>
+        <text x={x} y={labelAbove ? y - 12 : y + 21} textAnchor="middle" fontSize="9" fill="#3a4560" fontWeight="600">
+          {names[pin]}
+        </text>
+        {net && (
+          <text x={x} y={labelAbove ? y - 23 : y + 32} textAnchor="middle" fontSize="8.5" fill="#2ba59b" fontWeight="700">
+            {net}
+          </text>
+        )}
+      </g>
+    );
+  };
+  const xs = [38, 86, 134, 182];
+  const half = (h: 'A' | 'B') => {
+    const s = st?.[h];
+    if (!s || !s.used) return tr('未使用', 'unused');
+    if (s.mode === 'off') return tr('没有供电', 'no power');
+    const clip = d.ac?.clipping.has(`${part.ref}.${h}`);
+    const m = s.mode === 'linear' ? tr('线性放大', 'linear') : s.mode === 'high' ? tr('输出顶到上限（饱和）', 'stuck at the top rail (saturated)') : tr('输出顶到下限（饱和）', 'stuck at the bottom rail (saturated)');
+    return `${m}${d.ac ? '' : ` · OUT ${volts(s.out)}`}${clip ? tr(' · 交流时削顶', ' · clips on AC') : ''}`;
+  };
+  return (
+    <div className="readout">
+      <div className="eyebrow">{tr('引脚图（俯视）', 'Pinout (top view)')}</div>
+      <svg viewBox="0 0 220 150" className="pinout">
+        <rect x="22" y="52" width="176" height="46" rx="4" fill="#1c1d21" />
+        <path d="M22 66 A9 9 0 0 1 22 84" fill="#4a4c53" />
+        <circle cx="38" cy="86" r="4" fill="#4a4c53" />
+        <text x="115" y="80" textAnchor="middle" fontSize="15" fill="#d9dce2" fontWeight="700">
+          LM358
+        </text>
+        {['8', '7', '6', '5'].map((p, i) => pinBox(p, xs[i], 40, true))}
+        {['1', '2', '3', '4'].map((p, i) => pinBox(p, xs[i], 110, false))}
+      </svg>
+      <p className="note">
+        {tr(
+          '缺口和圆点所在的一端是 1 脚，逆时针数到 8 脚。上面 8–5 脚插在 f 行，下面 1–4 脚插在 e 行。绿色 = 已接线，红/蓝 = 电源脚已接。',
+          'Pin 1 is at the notch / dot end; count anticlockwise to pin 8. Pins 8–5 sit in row f, pins 1–4 in row e. Green = wired, red/blue = power pin wired.',
+        )}
+      </p>
+      <div className={st?.powered ? '' : 'warn'}>
+        {tr('电源', 'Power')}{' '}
+        <b>{st?.powered ? `${volts(st.supply)} (V+ − V−)` : tr('未供电：8 脚接 +，4 脚接 GND', 'not powered: pin 8 to +, pin 4 to GND')}</b>
+      </div>
+      <div>
+        {tr('运放 A（1–3 脚）', 'Op-amp A (pins 1–3)')} <b>{half('A')}</b>
+      </div>
+      <div>
+        {tr('运放 B（5–7 脚）', 'Op-amp B (pins 5–7)')} <b>{half('B')}</b>
+      </div>
+    </div>
+  );
 }
 
 export function Inspector() {
@@ -196,7 +425,8 @@ export function Inspector() {
   const setPlacingProps = useStore((s) => s.setPlacingProps);
   const updateProps = useStore((s) => s.updateProps);
   const removePart = useStore((s) => s.removePart);
-  const { sim, nl } = useDerived();
+  const derived = useDerived();
+  const { sim, nl, ac } = derived;
   const part = layout.parts.find((p) => p.id === selectedId);
 
   if (!part) {
@@ -214,7 +444,15 @@ export function Inspector() {
             </div>
           </div>
           <p className="blurb">{def.blurb}</p>
-          <PropEditor type={tool} props={{ ...def.defaults, ...placingProps[tool] }} onChange={(p) => setPlacingProps(tool, p)} />
+          {tool === 'scope_probe' ? (
+            <p className="note">
+              {nextScopeChannel(layout)
+                ? tr(`通道自动分配：这个探头将接到 CH${nextScopeChannel(layout)}。放好后可以在这里改。`, `Channel is assigned automatically: this probe will be CH${nextScopeChannel(layout)}. You can change it after placing.`)
+                : tr('CH1 和 CH2 都已经有探头了——先删掉一个探头。', 'CH1 and CH2 both have a probe already — delete one first.')}
+            </p>
+          ) : (
+            <PropEditor type={tool} props={{ ...def.defaults, ...placingProps[tool] }} onChange={(p) => setPlacingProps(tool, p)} />
+          )}
         </div>
       );
     }
@@ -241,8 +479,9 @@ export function Inspector() {
   const def = PARTS[part.type];
   const I = sim.current.get(part.ref);
   const Vd = sim.vdrop.get(part.ref);
-  const led = sim.leds.get(part.ref);
-  const src = sim.sources.get(part.ref);
+  const led = ledOf(derived, part.ref);
+  const src = part.type === 'function_gen' ? undefined : sim.sources.get(part.ref);
+  const acI = ac && part.type !== 'scope_probe' && part.type !== 'opamp' ? ac.current(part.ref) : null;
   return (
     <div className="inspector">
       <div className="insp-head">
@@ -260,7 +499,9 @@ export function Inspector() {
       <p className="blurb">{def.blurb}</p>
       <PropEditor type={part.type} props={part.props} onChange={(p) => updateProps(part.id, p)} />
 
-      {part.type !== 'wire' && (
+      {part.type === 'opamp' && <OpAmpInfo part={part} />}
+      {part.type === 'ammeter' && <AmmeterReadout refName={part.ref} />}
+      {part.type !== 'wire' && part.type !== 'opamp' && part.type !== 'ammeter' && part.type !== 'scope_probe' && (
         <div className="readout">
           <div className="eyebrow">{tr('实时测量', 'Live readings')}</div>
           {src ? (
@@ -273,6 +514,20 @@ export function Inspector() {
               </div>
               {src.ccMode && <div className="warn">{tr('限流中（CC 模式）', 'Current limiting (CC mode)')}</div>}
               {src.shorted && <div className="bad">{tr('短路！', 'Short circuit!')}</div>}
+            </>
+          ) : acI ? (
+            <>
+              <div className="ac-tag">{tr('交流（信号发生器驱动）', 'AC (driven by the generator)')}</div>
+              <div>
+                {tr('电流 平均值', 'Current, average')} <b>{amps(vavg(acI))}</b>
+              </div>
+              <div>
+                {tr('电流 有效值', 'Current, RMS')} <b>{amps(vrms(acI))}</b>
+              </div>
+              <div>
+                {tr('电流 峰值', 'Current, peak')} <b>{amps(Math.max(Math.abs(vmax(acI)), Math.abs(vmin(acI))))}</b>
+              </div>
+              {led && <LedStateRow led={led} />}
             </>
           ) : (
             <>
@@ -291,20 +546,7 @@ export function Inspector() {
                   {tr('功率', 'Power')} <b>{(Math.abs(I * Vd) * 1000).toFixed(1)} mW</b>
                 </div>
               )}
-              {led && (
-                <div className={led.burnt ? 'bad' : led.overcurrent ? 'warn' : ''}>
-                  {tr('状态', 'State')}{' '}
-                  <b>
-                    {led.burnt
-                      ? tr('烧坏了', 'burnt out')
-                      : led.on
-                        ? tr('导通 / 发光', 'conducting / lit')
-                        : led.reverse
-                          ? tr('反向截止', 'reverse-biased (off)')
-                          : tr('截止（不亮）', 'off')}
-                  </b>
-                </div>
-              )}
+              {led && <LedStateRow led={led} />}
             </>
           )}
         </div>

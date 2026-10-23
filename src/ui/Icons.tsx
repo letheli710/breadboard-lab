@@ -121,6 +121,79 @@ export function PartIcon({ type, size = 34 }: { type: PartType | 'select' | 'pro
         </g>
       );
       break;
+    case 'inductor':
+      g = (
+        <g>
+          <line x1="16" y1="30" x2="14" y2="38" {...S} stroke="#9aa0a6" />
+          <line x1="24" y1="30" x2="26" y2="38" {...S} stroke="#9aa0a6" />
+          <rect x="9" y="27" width="22" height="4" rx="1.5" fill="#3b3d43" />
+          <rect x="9" y="6" width="22" height="4" rx="1.5" fill="#3b3d43" />
+          <rect x="12" y="10" width="16" height="17" fill="#b8743a" />
+          {[12, 15, 18, 21, 24].map((y) => (
+            <line key={y} x1="11.5" y1={y} x2="28.5" y2={y + 1.5} stroke="#7a4518" strokeWidth={1.2} />
+          ))}
+        </g>
+      );
+      break;
+    case 'ammeter':
+      g = (
+        <g>
+          <rect x="9" y="4" width="22" height="32" rx="4" fill="#f2c14e" stroke="#1f2a44" strokeWidth={1.5} />
+          <rect x="12" y="7" width="16" height="8" rx="1" fill="#cfdcc0" stroke="#1f2a44" strokeWidth={1} />
+          <text x="20" y="13.5" textAnchor="middle" fontSize="6" fill="#1d281e" fontWeight="700">
+            mA
+          </text>
+          <circle cx="20" cy="22" r="4.5" fill="#1e2128" />
+          <line x1="20" y1="22" x2="23" y2="19" stroke="#fff" strokeWidth={1.5} />
+          <circle cx="15" cy="31" r="1.8" fill="#d62828" />
+          <circle cx="20" cy="31" r="1.8" fill="#1b1b1b" />
+        </g>
+      );
+      break;
+    case 'opamp':
+      g = (
+        <g>
+          {[11, 17, 23, 29].map((x) => (
+            <g key={x}>
+              <rect x={x - 1.3} y="4" width="2.6" height="6" fill="#9aa0a6" />
+              <rect x={x - 1.3} y="30" width="2.6" height="6" fill="#9aa0a6" />
+            </g>
+          ))}
+          <rect x="6" y="9" width="28" height="22" rx="2" fill="#1c1d21" />
+          <path d="M6 16 A4 4 0 0 1 6 24" fill="#555" />
+          <circle cx="10" cy="13" r="1.4" fill="#5a5c63" />
+          <text x="21" y="23" textAnchor="middle" fontSize="7" fill="#d9dce2" fontWeight="700">
+            358
+          </text>
+        </g>
+      );
+      break;
+    case 'function_gen':
+      g = (
+        <g>
+          <rect x="3" y="9" width="34" height="24" rx="3" fill="#3a4a5c" stroke="#1f2a44" strokeWidth={1.5} />
+          <rect x="6" y="12" width="18" height="11" rx="1" fill="#0d1b2a" />
+          <path d="M8 17.5 Q 10.5 12, 13 17.5 T 18 17.5 T 22 17" fill="none" stroke="#7fdbff" strokeWidth={1.6} />
+          <circle cx="30" cy="18" r="3.6" fill="#23262d" stroke="#b9bec6" strokeWidth={1.2} />
+          <circle cx="29" cy="28.5" r="2.2" fill="#d62828" />
+          <circle cx="34" cy="28.5" r="2.2" fill="#1b1b1b" />
+        </g>
+      );
+      break;
+    case 'scope_probe':
+      g = (
+        <g>
+          <path d="M26 4 C 26 8, 24 9, 24 11" fill="none" stroke="#2b2d33" strokeWidth={2} />
+          <rect x="21" y="10" width="6" height="15" rx="2" fill="#33363e" transform="rotate(25 24 18)" />
+          <rect x="21" y="11" width="6" height="3" fill="#f5d90a" transform="rotate(25 24 18)" />
+          <line x1="19" y1="26" x2="15" y2="35" stroke="#c9ccd1" strokeWidth={2} strokeLinecap="round" />
+          <path d="M19 25 C 10 24, 8 30, 9 35" fill="none" stroke="#1b1b1b" strokeWidth={1.6} />
+          <rect x="6" y="33" width="5" height="4" rx="1" fill="#1b1b1b" />
+        </g>
+      );
+      break;
+    default:
+      g = <g />;
   }
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden>

@@ -59,7 +59,7 @@ AI 返回后：
 === components（目标电路）===
 写法：{"ref": "R1", "type": "resistor", "resistance": "330"}，属性直接平铺。省略属性 = 任何值都接受。
 ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、PSU1。
-只允许以下 type（不要发明其它元件，例如没有晶体管、IC、蜂鸣器、电机、交流电源）：
+只允许以下 type（不要发明其它元件，例如没有晶体管、蜂鸣器、电机；唯一的 IC 是运放 LM358，唯一的交流电源是信号发生器）：
 - dc_source      引脚 + -              属性 voltage       ← 首选电源：匹配任何电池/电源模块/稳压电源
 - battery        引脚 + -              属性 variant: "9V" | "2xAA"(3V) | "3xAA"(4.5V) | "4xAA"(6V) | "CR2032"(3V)
 - power_module   引脚 + -              属性 voltage: 5 或 3.3
@@ -71,7 +71,12 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 - pushbutton     引脚 1 2              测试用属性 pressed: true/false
 - switch (SPDT)  引脚 a com b          测试用属性 position: "a" | "b"
 - potentiometer  引脚 1 2 3（2=滑动端） 属性 resistance；测试用属性 wiper: 0..1（0=靠 1 脚）
-除非这一题就是讲某种电源，否则一律用 dc_source。整个电路只放一个电源。
+- inductor       引脚 1 2              属性 inductance，如 "10m"（10 mH）
+- opamp          LM358 双运放          引脚 outA inA- inA+ v- inB+ inB- outB v+（只用一个运放时写 out、in-、in+ 即 A 半；判分时 A、B 两半可互换）
+- function_gen   引脚 + -（- 是 COM）  属性一般不写，在 tests 的 set 里设定 waveform: sine|square|triangle、frequency（Hz）、amplitude（峰值 V）、offset（V）
+- ammeter        引脚 + -              只有本题要练习“怎么接电流表”时才写；否则用 tests 的 currents 直接测元件电流
+（scope_probe 示波器探头绝对不要写进 components；用 tests 的 scope 测量。）
+除非这一题就是讲某种电源，否则一律用 dc_source。整个电路只放一个直流电源（运放双电源除外：两个 dc_source 串联，中点接 GND）。
 
 === nets / connections ===
 引脚写成 "REF.pin"。每个节点（node）列出它包含的所有引脚。请把每个元件的每个引脚都放进某个节点（不要留空引脚）。
@@ -83,13 +88,20 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 - expect 只能用于 LED："on" 或 "off"（电流 > 0.5mA 算亮）。
 - voltages：pin 相对 ref 的电压（伏）在 [min, max] 之间；ref 省略 = 相对 GND。范围留 ±5% 左右余量。
 - 有按键/开关/电位器时，每种状态各写一个测试（例如松开→灭、按下→亮）。
+- currents：{"el": "R1", "min": 0.009, "max": 0.011}（安培；el 可以是电流表、电阻、电感、LED、二极管；"mode": "rms" 测有效值）。
+- 有信号发生器时：set 里设定它，如 {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}；用 scope 测波形：
+  {"pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73}
+  measure 可用：vpp vmax vmin vavg vrms（V）、freq（Hz）、phase（度，正数 = pin 超前 vs）、gain（基波幅度比）；phase 和 gain 必须写 vs；ref 省略 = 相对 GND。
+  有信号发生器时 voltages 取平均值，LED 亮灭按平均电流判断。
 - 所有 ref 和引脚都用 components 里的名字。
 
 === 直流仿真模型（DC only，用来算数值）===
 - LED 正向压降 Vf：红 1.8V，黄 2.0V，绿 2.1V，蓝/白 3.0V；另有约 12Ω 内阻。二极管 Vf ≈ 0.65V。
 - 电源内阻：9V 电池 1.5Ω，AA 每节 0.15Ω，CR2032 15Ω，电源模块 0.1Ω，稳压电源 0.02Ω。
 - 每个 LED 必须串联限流电阻，使电流在 5–20mA，绝不超过 25mA：R ≈ (V − Vf) / I。并联 LED 时每个 LED 有自己的电阻。
-- 电容在直流下是断路；没有交流、没有时间变化（不要出 RC 延时、闪烁、PWM 类题目）。
+- 电容在直流下是断路；电感直流下是 1Ω。没有信号发生器时只算直流。
+- 信号发生器：理想波形串 50Ω 输出电阻（所以测滤波器时用 "vs": "FG1.+" 比较）。RC 截止频率 fc = 1/(2πRC)：低通在 fc 处 gain≈0.707、phase≈−45°。
+- 运放 LM358：开环增益 1e5，输出只能在 V− 到 V+ − 1.5V 之间（超出削顶），V+ 必须接电源、V− 接 GND；单电源放大交流信号要给信号加 offset。同相 Vout=(1+Rf/Rg)Vin，反相 Vout=−Rf/Rin·Vin。
 
 === solution（强烈建议提供：证明题目可解）===
 {"parts": [
@@ -100,12 +112,13 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
   {"type": "wire", "pins": {"a": "a12", "b": "tn12"}, "color": "blue"}
 ]}
 - 布局里不能用 dc_source，要写具体电源（battery / power_module / bench_supply），电压要和 components 一致。
-- 两点式元件用 "pins"，引脚名必须是原名：wire a/b；resistor 1/2；led、diode anode/cathode；capacitor 1/2；battery、bench_supply +/-。
+- 两点式元件用 "pins"，引脚名必须是原名：wire a/b；resistor 1/2；led、diode anode/cathode；capacitor、inductor 1/2；battery、bench_supply、function_gen、ammeter +/-；scope_probe tip/gnd（布局里可以放探头，判分时忽略）。
 - 占位式元件用 "at"：
   · pushbutton  "at": "e5" → 占 e5、e7、f5、f7，横跨凹槽；第 5 列（e5/f5）是引脚 1，第 7 列（e7/f7）是引脚 2。按键的 at 一律用 e 行。
   · switch      "at": "c10" → a=c10, com=c11, b=c12（同一行连续 3 列）
   · potentiometer "at": "c4" → 1=c4, 2=c5, 3=c6
   · power_module "at": "tp1" → 插入 tp1、tn1、bp1、bn1，上下两组轨道都有电
+  · opamp       "at": "e10" → 必须在 e 行，横跨凹槽：1 脚 OUT A=e10、2 IN−A=e11、3 IN+A=e12、4 V−=e13、8 V+=f10、7 OUT B=f11、6 IN−B=f12、5 IN+B=f13（每只脚独占一列，用同列的 a–d 或 g–j 孔接线）
 - 跳线 color 只能用 red / blue / green / yellow / white（红=+，蓝=GND）。
 - 每个孔只用一次！写完后逐个孔检查有没有重复，检查每个节点的所有引脚确实在同一条金属条（或用跳线连通），不同节点没有误连。
 - 惯例：电源接在第 1 列的轨道上（tp1/tn1），元件从左往右排，用主区 a–e（或 f–j），GND 用跳线接回 tn（或 bn）。
@@ -205,7 +218,7 @@ Output challenge files as JSON, following the format below exactly.
 === components (target circuit) ===
 Form: {"ref": "R1", "type": "resistor", "resistance": "330"}, with properties written flat in the object. Omitting a property = any value is accepted.
 ref starts with a letter, e.g. V1, R1, LED1, D1, SW1, S1, RV1, C1, BAT1, PM1, PSU1.
-Only these types are allowed (do not invent other parts; there are no transistors, ICs, buzzers, motors or AC sources):
+Only these types are allowed (do not invent other parts; there are no transistors, buzzers or motors; the only IC is the LM358 op-amp and the only AC source is the function generator):
 - dc_source      pins + -              props voltage       ← preferred source: matches any battery / power module / bench supply
 - battery        pins + -              props variant: "9V" | "2xAA"(3V) | "3xAA"(4.5V) | "4xAA"(6V) | "CR2032"(3V)
 - power_module   pins + -              props voltage: 5 or 3.3
@@ -217,7 +230,12 @@ Only these types are allowed (do not invent other parts; there are no transistor
 - pushbutton     pins 1 2              test prop pressed: true/false
 - switch (SPDT)  pins a com b          test prop position: "a" | "b"
 - potentiometer  pins 1 2 3 (2=wiper)  props resistance; test prop wiper: 0..1 (0 = toward pin 1)
-Use dc_source unless the challenge is specifically about one kind of power source. Use only one power source per circuit.
+- inductor       pins 1 2              props inductance, e.g. "10m" (10 mH)
+- opamp          LM358 dual op-amp     pins outA inA- inA+ v- inB+ inB- outB v+ (for a single op-amp write out, in-, in+ = half A; halves A/B are interchangeable when grading)
+- function_gen   pins + - (- is COM)   usually no props here; set waveform: sine|square|triangle, frequency (Hz), amplitude (peak V), offset (V) in each test's "set"
+- ammeter        pins + -              only when the exercise is about wiring an ammeter; otherwise measure a part's current with "currents" in tests
+(Never put scope_probe in components; measure with "scope" in tests.)
+Use dc_source unless the challenge is specifically about one kind of power source. Use only one DC source per circuit (except a split op-amp supply: two dc_sources in series with their middle on GND).
 
 === nets / connections ===
 Write pins as "REF.pin". Each node lists all the pins it contains. Put every pin of every component into some node (no unconnected pins).
@@ -229,13 +247,20 @@ Name the key nodes: the supply + node "VCC", the supply − node "GND", others e
 - expect works only for LEDs: "on" or "off" (more than 0.5mA counts as on).
 - voltages: the voltage of pin relative to ref (in volts) must be within [min, max]; omitting ref = relative to GND. Leave about ±5% margin.
 - With a push button / switch / potentiometer, write one test per state (e.g. released → off, pressed → on).
+- currents: {"el": "R1", "min": 0.009, "max": 0.011} (amps; el may be an ammeter, resistor, inductor, LED or diode; "mode": "rms" for RMS).
+- With a function generator: set it in "set", e.g. {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}, and measure waveforms with "scope":
+  {"pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73}
+  measure: vpp vmax vmin vavg vrms (V), freq (Hz), phase (degrees, positive = pin leads vs), gain (ratio of fundamental amplitudes); phase and gain need vs; omitting ref = relative to GND.
+  With a generator present, voltages use the average and LED on/off uses the average current.
 - All refs and pins use the names from components.
 
 === DC simulation model (use it to work out values) ===
 - LED forward voltage Vf: red 1.8V, yellow 2.0V, green 2.1V, blue/white 3.0V; plus about 12Ω internal resistance. Diode Vf ≈ 0.65V.
 - Source internal resistance: 9V battery 1.5Ω, AA 0.15Ω per cell, CR2032 15Ω, power module 0.1Ω, bench supply 0.02Ω.
 - Every LED needs a current-limiting resistor in series so its current is 5–20mA, never above 25mA: R ≈ (V − Vf) / I. LEDs in parallel each get their own resistor.
-- Capacitors are open circuits at DC; there is no AC and nothing changes over time (no RC delay, blinking or PWM exercises).
+- Capacitors are open circuits at DC; inductors are 1Ω at DC. Without a function generator only DC is simulated.
+- Function generator: ideal waveform behind a 50Ω output resistance (so compare filters against "vs": "FG1.+"). RC cutoff fc = 1/(2πRC): a low-pass has gain≈0.707 and phase≈−45° at fc.
+- LM358 op-amp: open-loop gain 1e5, output only between V− and V+ − 1.5V (clips beyond), V+ must go to the supply and V− to GND; on a single supply give an AC input an offset. Non-inverting Vout=(1+Rf/Rg)Vin, inverting Vout=−Rf/Rin·Vin.
 
 === solution (strongly recommended: proves the challenge is solvable) ===
 {"parts": [
@@ -246,12 +271,13 @@ Name the key nodes: the supply + node "VCC", the supply − node "GND", others e
   {"type": "wire", "pins": {"a": "a12", "b": "tn12"}, "color": "blue"}
 ]}
 - A layout cannot use dc_source; use a concrete source (battery / power_module / bench_supply) with the same voltage as in components.
-- Two-point parts use "pins" with the original pin names only: wire a/b; resistor 1/2; led, diode anode/cathode; capacitor 1/2; battery, bench_supply +/-.
+- Two-point parts use "pins" with the original pin names only: wire a/b; resistor 1/2; led, diode anode/cathode; capacitor, inductor 1/2; battery, bench_supply, function_gen, ammeter +/-; scope_probe tip/gnd (probes may sit in a layout; grading ignores them).
 - Footprint parts use "at":
   · pushbutton  "at": "e5" → occupies e5, e7, f5, f7, straddling the trench; column 5 (e5/f5) is pin 1, column 7 (e7/f7) is pin 2. Always use row e for a push button's at.
   · switch      "at": "c10" → a=c10, com=c11, b=c12 (3 neighbouring columns in one row)
   · potentiometer "at": "c4" → 1=c4, 2=c5, 3=c6
   · power_module "at": "tp1" → plugs into tp1, tn1, bp1, bn1; both the top and bottom rails are powered
+  · opamp       "at": "e10" → must be in row e, straddling the trench: pin 1 OUT A=e10, 2 IN−A=e11, 3 IN+A=e12, 4 V−=e13, 8 V+=f10, 7 OUT B=f11, 6 IN−B=f12, 5 IN+B=f13 (each pin owns its column; wire to it from a–d or g–j of that column)
 - Jumper color must be one of red / blue / green / yellow / white (red = +, blue = GND).
 - Use every hole only once! When done, check every hole for duplicates, check that all pins of each node really are on the same metal strip (or joined by jumpers), and that different nodes are not accidentally connected.
 - Conventions: connect the source to the rails at column 1 (tp1/tn1), place parts left to right in the main area a–e (or f–j), and return to GND with a jumper to tn (or bn).

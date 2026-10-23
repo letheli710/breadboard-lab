@@ -147,6 +147,7 @@ interface Val {
   value: Complex;
   /** phasor-like result (reduce with part, default 'mag' in AC) vs real-valued quantity */
   complex: boolean;
+  defaultPart?: Part;
 }
 const real = (x: number): Val => ({ value: cx(x), complex: false });
 
@@ -336,25 +337,27 @@ function twoPort(an: StaticAnalysis, ports: unknown, param: string): Complex {
   }
 }
 
-// ---------------- resonance ----------------
+// ---------------- frequency search helpers ----------------
 
-/** lowest frequency (Hz) at which the impedance at the port is purely real */
-export function resonance(ckt: Circuit, port?: [string, string]): number {
-  let a: number;
-  let b: number;
-  let removed: Set<string> | undefined;
-  if (port) [a, b] = portNodes(ckt, port, 'f0');
-  else {
-    const srcs = ckt.els.filter(isIndependent);
-    if (srcs.length !== 1)
-      throw new AnalysisError(`f0: without "port" the circuit must have exactly one independent source (it has ${srcs.length}); give "port": ["a", "b"]`);
-    [a, b] = srcs[0].pins;
-    removed = new Set([srcs[0].ref]);
+/** port nodes for an input-impedance question: the given port, or the terminals of the single
+ *  independent source (which is then removed) */
+function inputPort(ckt: Circuit, port: [string, string] | undefined, what: string): { a: number; b: number; removed?: Set<string> } {
+  if (port) {
+    const [a, b] = portNodes(ckt, port, what);
+    return { a, b };
   }
+  const srcs = ckt.els.filter(isIndependent);
+  if (srcs.length !== 1)
+    throw new AnalysisError(`${what}: without "port" the circuit must have exactly one independent source (it has ${srcs.length}); give "port": ["a", "b"]`);
+  return { a: srcs[0].pins[0], b: srcs[0].pins[1], removed: new Set([srcs[0].ref]) };
+}
+
+/** log10 range of angular frequencies to search: 10⁻⁴…10⁴ × the characteristic frequencies */
+function freqRange(ckt: Circuit, what: string): [number, number] {
   const R = ckt.els.filter((e) => e.type === 'R' && e.value !== 0).map((e) => Math.abs(e.value));
   const C = ckt.els.filter((e) => e.type === 'C').map((e) => e.value);
   const L = ckt.els.filter((e) => e.type === 'L').map((e) => e.value);
-  if (!C.length && !L.length) throw new AnalysisError('f0: the circuit has no capacitor or inductor, so there is no resonance');
+  if (!C.length && !L.length) throw new AnalysisError(`${what}: the circuit has no capacitor or inductor, so its response does not depend on frequency`);
   const cands: number[] = [];
   for (const l of L) for (const c of C) cands.push(1 / Math.sqrt(l * c));
   for (const r of R) {
@@ -362,8 +365,43 @@ export function resonance(ckt: Circuit, port?: [string, string]): number {
     for (const l of L) cands.push(r / l);
   }
   if (!cands.length) cands.push(1);
-  const lo = Math.log10(Math.min(...cands)) - 4;
-  const hi = Math.log10(Math.max(...cands)) + 4;
+  return [Math.log10(Math.min(...cands)) - 4, Math.log10(Math.max(...cands)) + 4];
+}
+
+/** sample a function on a log grid (200 points per decade) */
+function sampleLog(lo: number, hi: number, f: (w: number) => number): { ws: number[]; vs: number[] } {
+  const steps = Math.ceil((hi - lo) * 200);
+  const ws: number[] = [];
+  const vs: number[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const w = 10 ** (lo + ((hi - lo) * i) / steps);
+    ws.push(w);
+    vs.push(f(w));
+  }
+  return { ws, vs };
+}
+
+/** bisection in log ω between two samples where f changes sign */
+function bisectLog(f: (w: number) => number, w1: number, w2: number): number {
+  let l = Math.log(w1);
+  let r = Math.log(w2);
+  const sl = Math.sign(f(w1));
+  for (let k = 0; k < 200 && r - l > 1e-15; k++) {
+    const mid = (l + r) / 2;
+    const v = f(Math.exp(mid));
+    if (v === 0) return Math.exp(mid);
+    if (Math.sign(v) === sl) l = mid;
+    else r = mid;
+  }
+  return Math.exp((l + r) / 2);
+}
+
+// ---------------- resonance, cutoff, bandwidth, Q ----------------
+
+/** lowest frequency (Hz) at which the impedance at the port is purely real */
+export function resonance(ckt: Circuit, port?: [string, string]): number {
+  const { a, b, removed } = inputPort(ckt, port, 'f0');
+  const [lo, hi] = freqRange(ckt, 'f0');
   // h(ω) = sin ∠Z ∈ [−1, 1]; every sign change is a frequency where Z is real (finite, 0 or ∞)
   const h = (w: number): number => {
     const an = new StaticAnalysis(ckt, 'ac', w);
@@ -378,34 +416,14 @@ export function resonance(ckt: Circuit, port?: [string, string]): number {
     const s = z.im / m;
     return Math.abs(s) < 1e-10 ? 0 : s;
   };
-  const steps = Math.ceil((hi - lo) * 200);
-  const ws: number[] = [];
-  const hs: number[] = [];
-  for (let i = 0; i <= steps; i++) {
-    const w = 10 ** (lo + ((hi - lo) * i) / steps);
-    ws.push(w);
-    hs.push(h(w));
-  }
+  const { ws, vs: hs } = sampleLog(lo, hi, h);
   if (hs.every((v) => v === 0)) throw new AnalysisError('f0: the impedance is purely real at all frequencies; there is no resonance');
   let prev = -1;
   for (let i = 0; i < hs.length; i++) {
     if (hs[i] === 0) continue;
     if (prev >= 0 && Math.sign(hs[i]) !== Math.sign(hs[prev])) {
       if (i - prev > 1) return ws[prev + 1] / (2 * Math.PI); // exact zero sample in between
-      let l = Math.log(ws[prev]);
-      let r = Math.log(ws[i]);
-      const sl = Math.sign(hs[prev]);
-      for (let k = 0; k < 200 && r - l > 1e-15; k++) {
-        const mid = (l + r) / 2;
-        const v = h(Math.exp(mid));
-        if (v === 0) {
-          l = r = mid;
-          break;
-        }
-        if (Math.sign(v) === sl) l = mid;
-        else r = mid;
-      }
-      return Math.exp((l + r) / 2) / (2 * Math.PI);
+      return bisectLog(h, ws[prev], ws[i]) / (2 * Math.PI);
     }
     prev = i;
   }
@@ -414,32 +432,233 @@ export function resonance(ckt: Circuit, port?: [string, string]): number {
   );
 }
 
+/** all −3 dB frequencies (Hz, ascending) of |V(out)/input| relative to its maximum */
+export function cutoffs(ckt: Circuit, out: unknown, inputRef: string): number[] {
+  const input = ckt.element(inputRef);
+  if (!isIndependent(input)) throw new AnalysisError(`fc/bw: input "${inputRef}" must be an independent V or I source`);
+  if (!Array.isArray(out) || out.length < 1) throw new AnalysisError('fc/bw: "out" must be ["a"] or ["a", "b"]');
+  const H = (w: number) => abs(new StaticAnalysis(ckt, 'ac', w).solve({ only: input }).v(String(out[0]), out[1] === undefined ? '0' : String(out[1])));
+  const [lo, hi] = freqRange(ckt, 'fc/bw');
+  const { ws, vs } = sampleLog(lo, hi, H);
+  let k = 0;
+  for (let i = 1; i < vs.length; i++) if (vs[i] > vs[k]) k = i;
+  let hmax = vs[k];
+  // maximum at an end of the sweep (low-/high-pass): take the limit further out
+  if (k === 0) hmax = Math.max(hmax, H(ws[0] * 1e-4));
+  if (k === vs.length - 1) hmax = Math.max(hmax, H(ws[k] * 1e4));
+  if (k > 0 && k < vs.length - 1) {
+    // golden-section refinement of an interior maximum (band-pass / resonant peak)
+    let a = Math.log(ws[k - 1]);
+    let b = Math.log(ws[k + 1]);
+    const g = (Math.sqrt(5) - 1) / 2;
+    for (let it = 0; it < 100 && b - a > 1e-13; it++) {
+      const c = b - g * (b - a);
+      const d = a + g * (b - a);
+      if (H(Math.exp(c)) > H(Math.exp(d))) b = d;
+      else a = c;
+    }
+    hmax = Math.max(hmax, H(Math.exp((a + b) / 2)));
+  }
+  if (!(hmax > 0)) throw new AnalysisError('fc/bw: the network function is zero at all frequencies');
+  const level = hmax / Math.SQRT2;
+  const f = (w: number) => H(w) - level;
+  const out_: number[] = [];
+  for (let i = 1; i < ws.length; i++) {
+    const a = vs[i - 1] - level;
+    const b = vs[i] - level;
+    if (a === 0) out_.push(ws[i - 1]);
+    else if (a * b < 0) out_.push(bisectLog(f, ws[i - 1], ws[i]));
+  }
+  return out_.map((w) => w / (2 * Math.PI));
+}
+
+/** Q = ω0 · (average stored energy) / (average power) at resonance, driven at the input port */
+export function qualityFactor(ckt: Circuit, port?: [string, string]): number {
+  const f0 = resonance(ckt, port);
+  const w0 = 2 * Math.PI * f0;
+  const { a, b, removed } = inputPort(ckt, port, 'Q');
+  const an = new StaticAnalysis(ckt, 'ac', w0);
+  const test = testSource('__test', 'I', b, a, 1); // 1 A (amplitude) into a
+  let sol: Solution;
+  try {
+    sol = an.solve({ extra: [test], removed: removed ?? new Set(), zero: true });
+  } catch {
+    throw new AnalysisError('Q: the circuit is lossless at resonance (infinite Q)');
+  }
+  let W = 0;
+  for (const el of ckt.els) {
+    if (removed?.has(el.ref)) continue;
+    if (el.type === 'L') W += 0.25 * el.value * abs(sol.i(el.ref)) ** 2;
+    if (el.type === 'C') W += 0.25 * el.value * abs(sol.vEl(el.ref)) ** 2;
+  }
+  for (const k of ckt.mutual) W += 0.5 * k.M * mul(sol.i(k.l1), conj(sol.i(k.l2))).re;
+  const P = 0.5 * sol.vIdx(a, b).re;
+  if (!(P > 0)) throw new AnalysisError('Q: no power is dissipated at resonance (lossless circuit, infinite Q)');
+  return (w0 * W) / P;
+}
+
+// ---------------- natural frequencies ----------------
+
+function roots(ckt: Circuit): Complex[] {
+  const lam = new Transient(ckt).naturalFrequencies().filter((l) => abs(l) > 0);
+  const scale = Math.max(0, ...lam.map(abs));
+  const clean = lam.map((l) => (Math.abs(l.im) <= 1e-9 * scale ? cx(l.re) : l));
+  return clean.sort((x, y) => (Math.abs(x.re - y.re) > 1e-12 * scale ? y.re - x.re : y.im - x.im));
+}
+
+function rootQuantity(ckt: Circuit, find: Find): Val {
+  const r = roots(ckt);
+  if (!r.length) throw new AnalysisError(`${find.kind}: the circuit for t > 0 has no (non-zero) natural frequencies`);
+  const list = () => r.map((l) => (l.im ? `${fmt(l.re)}${l.im > 0 ? '+' : '−'}j${fmt(Math.abs(l.im))}` : fmt(l.re))).join(', ');
+  const pair = r.find((l) => l.im > 0); // dominant complex pair (sorted by real part)
+  switch (find.kind) {
+    case 'root': {
+      const n = find.n;
+      if (!Number.isInteger(n) || n < 1 || n > r.length)
+        throw new AnalysisError(`root: n must be 1…${r.length} (the natural frequencies are s = ${list()} 1/s)`);
+      return { value: r[n - 1], complex: true, defaultPart: 're' };
+    }
+    case 'alpha':
+      if (r.length === 2) return real(-(r[0].re + r[1].re) / 2);
+      if (pair) return real(-pair.re);
+      throw new AnalysisError(`alpha: the circuit is not second-order and has no complex natural frequencies (s = ${list()} 1/s)`);
+    case 'omega_d':
+      if (!pair) throw new AnalysisError(`omega_d: the natural frequencies are real (s = ${list()} 1/s): the response is not oscillatory (over- or critically damped)`);
+      return real(pair.im);
+    case 'omega0': {
+      if (r.length !== 2) throw new AnalysisError(`omega0: the circuit for t > 0 is not second-order (s = ${list()} 1/s)`);
+      const p = mul(r[0], r[1]);
+      if (!(p.re > 0)) throw new AnalysisError(`omega0: s1·s2 = ${fmt(p.re)} is not positive (unstable circuit)`);
+      return real(Math.sqrt(p.re));
+    }
+    default:
+      throw new AnalysisError(`unexpected quantity ${find.kind}`);
+  }
+}
+
+// ---------------- energy, value, wattmeter ----------------
+
+function energy(ckt: Circuit, sol: Solution, ref: string): number {
+  const k = ckt.mutual.find((m) => m.ref === ref);
+  if (k) {
+    const i1 = sol.i(k.l1).re;
+    const i2 = sol.i(k.l2).re;
+    return 0.5 * ckt.element(k.l1).value * i1 * i1 + 0.5 * ckt.element(k.l2).value * i2 * i2 + k.M * i1 * i2;
+  }
+  const el = ckt.element(ref);
+  if (el.type === 'C') return 0.5 * el.value * sol.vEl(ref).re ** 2;
+  if (el.type === 'L') return 0.5 * el.value * sol.i(ref).re ** 2;
+  throw new AnalysisError(`w: ${ref} is not a capacitor, an inductor or a coupling K (it is ${el.type})`);
+}
+
+function wattmeter(ckt: Circuit, sol: Solution, find: Find & { kind: 'wattmeter' }, ac: boolean, peak: boolean): number {
+  const am = ckt.element(find.current);
+  if (am.type !== 'ammeter') throw new AnalysisError(`wattmeter: "current" must be the ammeter that stands for the current coil (${find.current} is ${am.type})`);
+  if (!Array.isArray(find.nodes) || find.nodes.length !== 2) throw new AnalysisError('wattmeter: "nodes" must be the two nodes of the voltage coil ["a", "b"]');
+  const u = sol.v(find.nodes[0], find.nodes[1]);
+  const p = mul(u, conj(sol.i(find.current))).re;
+  return ac && peak ? 0.5 * p : p;
+}
+
+function elementValue(ckt: Circuit, find: Find & { kind: 'val' }, an: StaticAnalysis | null): Val {
+  const k = ckt.mutual.find((m) => m.ref === find.el);
+  if (k) return real(k.M);
+  const el = ckt.element(find.el);
+  switch (el.type) {
+    case 'R':
+    case 'C':
+    case 'L':
+    case 'VCVS':
+    case 'VCCS':
+    case 'CCVS':
+    case 'CCCS':
+    case 'XFMR':
+      return real(el.value);
+    case 'Z':
+      return { value: el.z!, complex: true };
+    case 'V':
+    case 'I': {
+      if (an) return { value: an.sourceValue(el), complex: an.kind === 'ac' };
+      // transient: value at find.t
+      const s = el.src!;
+      const t = find.t;
+      if (s.kind === 'num') return real(s.value);
+      if (s.kind === 'dcac') return real(s.dc);
+      if (s.kind === 'step') return real(phaseOfT(t) === 'before' ? s.before : s.after);
+      if (t === undefined || t === 'inf') throw new AnalysisError(`val: ${el.ref} is a sinusoidal source; give a time "t"`);
+      const tt = typeof t === 'number' ? t : 0;
+      return real(s.offset + s.amp * Math.sin(2 * Math.PI * s.freq * tt + (s.phase * Math.PI) / 180));
+    }
+    default:
+      throw new AnalysisError(`val: ${el.ref} (${el.type}) has no value`);
+  }
+}
+
 // ---------------- entry points ----------------
+
+const NAT = ['root', 'alpha', 'omega_d', 'omega0'];
 
 export function computeComplex(netlist: Netlist, analysis: Analysis, find: Find): Val {
   if (!find || typeof find !== 'object') throw new AnalysisError('find must be an object');
   if (!analysis || typeof analysis !== 'object') throw new AnalysisError('analysis must be an object');
   const ckt = new Circuit(netlist);
+  const deriv = (find as { deriv?: unknown }).deriv;
+  if (deriv !== undefined) {
+    if (deriv !== 1) throw new AnalysisError('find.deriv must be 1 (first time derivative)');
+    if (analysis.type !== 'tran' || (find.kind !== 'v' && find.kind !== 'i'))
+      throw new AnalysisError('find.deriv is only available for "v" and "i" in transient analysis');
+  }
+  if ((find.freq !== undefined || find.omega !== undefined) && analysis.type !== 'ac')
+    throw new AnalysisError('find.freq / find.omega override the frequency of an AC problem; this problem is not AC');
 
   if (find.kind === 'f0') return real(resonance(ckt, find.port));
-  if (find.kind === 'tau') {
-    if (analysis.type === 'ac') throw new AnalysisError('tau is a transient quantity; use analysis {type: "tran"}');
-    return real(new Transient(ckt).tau());
+  if (find.kind === 'Q') return real(qualityFactor(ckt, find.port));
+  if (find.kind === 'fc' || find.kind === 'bw') {
+    const fs = cutoffs(ckt, find.out, find.input);
+    const list = fs.map((f) => `${fmt(f)} Hz`).join(', ') || 'none';
+    if (find.kind === 'bw') {
+      if (fs.length < 2) throw new AnalysisError(`bw: the response has ${fs.length} −3 dB frequency (${list}); a bandwidth needs a lower and an upper one (band-pass)`);
+      return real(fs[fs.length - 1] - fs[0]);
+    }
+    if (!fs.length) throw new AnalysisError('fc: |H| never drops to max/√2 in the searched range (no cutoff)');
+    if (find.which === 'low') return real(fs[0]);
+    if (find.which === 'high') return real(fs[fs.length - 1]);
+    if (find.which !== undefined) throw new AnalysisError('fc: "which" must be "low" or "high"');
+    if (fs.length > 1) throw new AnalysisError(`fc: there are ${fs.length} cutoff frequencies (${list}); say which one with "which": "low" or "high"`);
+    return real(fs[0]);
+  }
+  if (find.kind === 'tau' || NAT.includes(find.kind)) {
+    if (analysis.type === 'ac') throw new AnalysisError(`${find.kind} is a transient quantity; use analysis {type: "tran"}`);
+    if (find.kind === 'tau') return real(new Transient(ckt).tau());
+    return rootQuantity(ckt, find);
   }
 
   if (analysis.type === 'dc' || analysis.type === 'ac') {
-    const an =
-      analysis.type === 'dc'
-        ? new StaticAnalysis(ckt, 'dc', 0, phaseOfT(find.t))
-        : new StaticAnalysis(ckt, 'ac', omegaOf(analysis), 'after', analysis.phasor === 'peak');
+    let an: StaticAnalysis;
+    if (analysis.type === 'dc') an = new StaticAnalysis(ckt, 'dc', 0, phaseOfT(find.t));
+    else {
+      const o = find.omega !== undefined || find.freq !== undefined ? omegaOf({ type: 'ac', freq: find.freq, omega: find.omega }) : omegaOf(analysis);
+      an = new StaticAnalysis(ckt, 'ac', o, 'after', analysis.phasor === 'peak');
+    }
+    if (find.kind === 'val') return elementValue(ckt, find, an);
+    if (find.kind === 'w') {
+      if (analysis.type === 'ac') throw new AnalysisError('w (stored energy) is available in DC and transient analysis');
+      return real(energy(ckt, an.base(), find.el));
+    }
+    if (find.kind === 'wattmeter') return real(wattmeter(ckt, an.base(), find, analysis.type === 'ac', an.peak));
     const pq = ['v', 'i', 'p', 'q', 's', 'pf', 'meter'].includes(find.kind);
     if (pq) return pointQuantity(find, an.base(), ckt, analysis.type, an.peak)!;
     return networkQuantity(find, an);
   }
   if (analysis.type === 'tran') {
-    if (['v', 'i', 'p', 'meter'].includes(find.kind)) {
+    if (find.kind === 'val') return elementValue(ckt, find, null);
+    if (['v', 'i', 'p', 'meter', 'w', 'wattmeter'].includes(find.kind)) {
       if (find.t === undefined) throw new AnalysisError(`find.t is required in transient analysis ("0-", "0+", "inf" or a time in seconds)`);
-      const sol = new Transient(ckt).at(find.t);
+      const tr = new Transient(ckt);
+      if (deriv === 1) return pointQuantity(find, tr.derivAt(find.t), ckt, 'tran', false)!;
+      const sol = tr.at(find.t);
+      if (find.kind === 'w') return real(energy(ckt, sol, find.el));
+      if (find.kind === 'wattmeter') return real(wattmeter(ckt, sol, find, false, false));
       return pointQuantity(find, sol, ckt, 'tran', false)!;
     }
     if (['req', 'vth', 'isc', 'pmax'].includes(find.kind)) {
@@ -460,7 +679,7 @@ export function reduce(val: Val, part: Part | undefined, analysis: Analysis): nu
   if (Math.abs(im) <= 1e-12 * m) im = 0;
   if (Math.abs(re) <= 1e-12 * m) re = 0;
   const ac = analysis.type === 'ac';
-  const p: Part = part ?? (val.complex && ac ? 'mag' : 're');
+  const p: Part = part ?? val.defaultPart ?? (val.complex && ac ? 'mag' : 're');
   switch (p) {
     case 're':
       return re;

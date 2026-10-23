@@ -38,11 +38,20 @@
     { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": -135, "unit": "°", "explain": "H = −10/(1 − j) = −5 − j5：反相 180° 加上 RC 高通的 +45°，即 225°，等价于 −135°。" },
     { "id": "zin", "ask": "从 a 端（对地）看进去的输入阻抗模 |Z_in| = ?", "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us"] }, "answer": 1414.214, "unit": "Ω", "explain": "反相端虚地，从 a 看进去就是 C₁ 与 R₁ 串联到“地”：Z_in = 1000 − j1000 Ω，|Z_in| = 1000√2 ≈ 1414 Ω。它随频率变化，低频时很大。" },
     {
-      "id": "type",
-      "ask": "这个电路的高频增益和截止角频率是？",
-      "choices": ["高通，高频增益 −R_f/R₁ = −10（20 dB），ω_c = 1/(R₁C₁) = 1000 rad/s", "低通，直流增益 −10，ω_c = 1000 rad/s", "高通，高频增益 −10，ω_c = 1/(R_fC₁) = 100 rad/s", "带通，中心频率 1000 rad/s"],
-      "correct": 0,
-      "explain": "ω → 0 时 C₁ 开路，H → 0；ω → ∞ 时 C₁ 短路，H → −R_f/R₁ = −10（20 dB）。H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁)，截止频率 ω_c = 1/(R₁C₁) = 1000 rad/s，本题 |H| = 10/√2 正是比 20 dB 低 3 dB 的 16.99 dB。"
+      "id": "gain",
+      "ask": "高频增益（ω = 10⁷ rad/s 时的 H，取实部）= ?",
+      "find": { "kind": "gain", "out": ["o"], "input": "Us", "omega": 10000000.0, "part": "re" },
+      "answer": -10,
+      "unit": "",
+      "explain": "高频增益：在很高的频率 ω = 10⁷ rad/s 下 C₁ 相当于短路，H ≈ −R_f/R₁ = −10（20 dB）；ω → 0 时 C₁ 开路，H → 0，所以是高通。"
+    },
+    {
+      "id": "fc",
+      "ask": "截止频率 f_c = ?",
+      "find": { "kind": "fc", "out": ["o"], "input": "Us" },
+      "answer": 159.1549,
+      "unit": "Hz",
+      "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁)，截止频率 ω_c = 1/(R₁C₁) = 1000 rad/s，f_c ≈ 159.2 Hz；本题 |H| = 10/√2 正是比 20 dB 低 3 dB 的 16.99 dB。"
     }
   ],
   "hints": [
@@ -68,9 +77,12 @@
         { "ask": "Phase of H(jω) = ?", "explain": "H = −10/(1 − j) = −5 − j5: the inversion's 180° plus the RC high-pass's +45° gives 225°, which is the same as −135°." },
         { "ask": "Magnitude of the input impedance seen at a (to ground), |Z_in| = ?", "explain": "The inverting input is a virtual ground, so from a you see C₁ in series with R₁ to 'ground': Z_in = 1000 − j1000 Ω, |Z_in| = 1000√2 ≈ 1414 Ω. It depends on frequency and is large at low frequencies." },
         {
-          "ask": "What are the high-frequency gain and the cut-off angular frequency of this circuit?",
-          "choices": ["High-pass, high-frequency gain −R_f/R₁ = −10 (20 dB), ω_c = 1/(R₁C₁) = 1000 rad/s", "Low-pass, DC gain −10, ω_c = 1000 rad/s", "High-pass, high-frequency gain −10, ω_c = 1/(R_fC₁) = 100 rad/s", "Band-pass, centre frequency 1000 rad/s"],
-          "explain": "As ω → 0, C₁ is open and H → 0; as ω → ∞, C₁ is a short and H → −R_f/R₁ = −10 (20 dB). H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁), so ω_c = 1/(R₁C₁) = 1000 rad/s; here |H| = 10/√2, i.e. 16.99 dB, exactly 3 dB below 20 dB."
+          "ask": "High-frequency gain (H at ω = 10⁷ rad/s, real part) = ?",
+          "explain": "High-frequency gain: at a very high frequency, ω = 10⁷ rad/s, C₁ is practically a short and H ≈ −R_f/R₁ = −10 (20 dB); as ω → 0 C₁ is open and H → 0, so this is a high-pass filter."
+        },
+        {
+          "ask": "Cut-off frequency f_c = ?",
+          "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁), cut-off ω_c = 1/(R₁C₁) = 1000 rad/s, f_c ≈ 159.2 Hz; here |H| = 10/√2 is exactly 3 dB below 20 dB (16.99 dB)."
         }
       ],
       "hints": [

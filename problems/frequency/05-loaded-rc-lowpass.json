@@ -8,7 +8,7 @@
   "tags": ["RC 低通", "截止频率", "戴维宁等效", "负载效应"],
   "statement": [
     "RC 低通电路的输出端接有负载 R₂：R₁ = 2 kΩ，C = 0.5 µF，R₂ = 2 kΩ。网络函数 H(jω) = U_o/U_s。",
-    "电源角频率 ω = 2000 rad/s。求此时的 |H(jω)| 和 H(jω) 的相位，并确定这个电路的截止角频率 ω_c。"
+    "电源角频率 ω = 2000 rad/s。求此时的 |H(jω)| 和 H(jω) 的相位，并确定这个电路的截止频率。"
   ],
   "schematic": {
     "elements": [
@@ -31,11 +31,12 @@
     { "id": "mag", "ask": "ω = 2000 rad/s 时 |H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "mag" }, "answer": 0.3535534, "unit": "", "explain": "戴维宁等效：U_oc = U_s·R₂/(R₁ + R₂) = 0.5U_s，R_eq = R₁∥R₂ = 1 kΩ，H = 0.5/(1 + jωR_eqC) = 0.5/(1 + j1)，|H| = 0.5/√2 ≈ 0.3536。" },
     { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": -45, "unit": "°", "explain": "ωR_eqC = 2000 × 1000 × 0.5 × 10⁻⁶ = 1，相位 −arctan 1 = −45°。" },
     {
-      "id": "wc",
-      "ask": "这个电路的截止角频率 ω_c 是多少？",
-      "choices": ["1000 rad/s（= 1/(R₁C)）", "2000 rad/s（= 1/((R₁∥R₂)C)）", "500 rad/s（= 1/((R₁ + R₂)C)）", "4000 rad/s"],
-      "correct": 1,
-      "explain": "从电容两端看进去的等效电阻是 R₁∥R₂ = 1 kΩ，ω_c = 1/(R_eqC) = 2000 rad/s。在 ω_c 处 |H| = 0.3536 正好是低频值 0.5 的 1/√2（比直流增益低 3 dB）。接上负载后通带增益从 1 降到 0.5，截止频率从 1000 rad/s 升到 2000 rad/s。"
+      "id": "fc",
+      "ask": "这个电路的截止频率 f_c = ?（ω_c = 2πf_c）",
+      "find": { "kind": "fc", "out": ["o"], "input": "Us" },
+      "answer": 318.3099,
+      "unit": "Hz",
+      "explain": "从电容两端看进去的等效电阻是 R₁∥R₂ = 1 kΩ，ω_c = 1/(R_eqC) = 2000 rad/s，f_c = ω_c/(2π) ≈ 318.3 Hz。在 ω_c 处 |H| = 0.3536 正好是低频值 0.5 的 1/√2（比直流增益低 3 dB）。接上负载后通带增益从 1 降到 0.5，截止频率从 1000 rad/s 升到 2000 rad/s。"
     }
   ],
   "hints": [
@@ -54,15 +55,14 @@
       "tags": ["RC low-pass", "cut-off frequency", "Thevenin equivalent", "loading effect"],
       "statement": [
         "An RC low-pass circuit has a load R₂ across its output: R₁ = 2 kΩ, C = 0.5 µF, R₂ = 2 kΩ. The network function is H(jω) = V_o/V_s.",
-        "The source angular frequency is ω = 2000 rad/s. Find |H(jω)| and the phase of H(jω) at this frequency, and determine the circuit's cut-off angular frequency ω_c."
+        "The source angular frequency is ω = 2000 rad/s. Find |H(jω)| and the phase of H(jω) at this frequency, and determine the circuit's cut-off frequency."
       ],
       "questions": [
         { "ask": "|H(jω)| at ω = 2000 rad/s = ?", "explain": "Thevenin equivalent: V_oc = V_s·R₂/(R₁ + R₂) = 0.5V_s, R_eq = R₁∥R₂ = 1 kΩ, H = 0.5/(1 + jωR_eqC) = 0.5/(1 + j1), |H| = 0.5/√2 ≈ 0.3536." },
         { "ask": "Phase of H(jω) = ?", "explain": "ωR_eqC = 2000 × 1000 × 0.5 × 10⁻⁶ = 1, so the phase is −arctan 1 = −45°." },
         {
-          "ask": "What is the cut-off angular frequency ω_c of this circuit?",
-          "choices": ["1000 rad/s (= 1/(R₁C))", "2000 rad/s (= 1/((R₁∥R₂)C))", "500 rad/s (= 1/((R₁ + R₂)C))", "4000 rad/s"],
-          "explain": "The resistance seen by the capacitor is R₁∥R₂ = 1 kΩ, so ω_c = 1/(R_eqC) = 2000 rad/s. There |H| = 0.3536 is exactly 1/√2 of the low-frequency value 0.5 (3 dB below the DC gain). The load lowers the pass-band gain from 1 to 0.5 and raises the cut-off from 1000 rad/s to 2000 rad/s."
+          "ask": "Cut-off frequency of this circuit, f_c = ? (ω_c = 2πf_c)",
+          "explain": "The resistance seen by the capacitor is R₁∥R₂ = 1 kΩ, so ω_c = 1/(R_eqC) = 2000 rad/s and f_c = ω_c/(2π) ≈ 318.3 Hz. At ω_c, |H| = 0.3536 is exactly 1/√2 of the low-frequency value 0.5 (3 dB below the DC gain). The load lowers the pass-band gain from 1 to 0.5 and raises the cut-off from 1000 to 2000 rad/s."
         }
       ],
       "hints": [

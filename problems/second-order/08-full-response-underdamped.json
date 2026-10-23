@@ -43,11 +43,20 @@
       "explain": "t < 0 直流稳态：电感短路、电容开路，i_L = Us/(R + R2) = 12/4 = 3 A，u_C = R2·i_L = 9 V。换路定则：i_L(0₊) = 3 A，u_C(0₊) = 9 V。"
     },
     {
-      "id": "roots",
-      "ask": "t > 0 时的特征根为",
-      "choices": ["s = −1 ± j3 s⁻¹", "s = −1 ± j√10 s⁻¹", "s₁ = −1 s⁻¹，s₂ = −3 s⁻¹", "s = −2 ± j3 s⁻¹"],
-      "correct": 0,
-      "explain": "t > 0 为 Us、R、L、C 串联：s² + (R/L)s + 1/(LC) = s² + 2s + 10 = 0 → s = −1 ± j3（α = 1 s⁻¹，ω_d = 3 rad/s）。√10 是 ω₀ 而不是 ω_d。"
+      "id": "sre",
+      "ask": "特征根 s₁,₂ = −α ± jω_d 的实部 = ?",
+      "find": { "kind": "root", "n": 1 },
+      "answer": -1,
+      "unit": "1/s",
+      "explain": "t > 0 为 Us、R、L、C 串联：s² + (R/L)s + 1/(LC) = s² + 2s + 10 = 0 → s = −1 ± j3，实部 −α = −1 s⁻¹。注意 √10 是 ω₀ 而不是 ω_d。"
+    },
+    {
+      "id": "sim",
+      "ask": "特征根 s₁ = −α + jω_d 的虚部 ω_d = ?",
+      "find": { "kind": "root", "n": 1, "part": "im" },
+      "answer": 3,
+      "unit": "rad/s",
+      "explain": "虚部就是阻尼振荡角频率 ω_d = 3 rad/s。"
     },
     {
       "id": "uc",
@@ -92,9 +101,12 @@
           "explain": "DC steady state for t < 0: L shorted, C open, i_L = Us/(R + R2) = 12/4 = 3 A and u_C = R2·i_L = 9 V. Switching rules: i_L(0+) = 3 A, u_C(0+) = 9 V."
         },
         {
-          "ask": "The characteristic roots for t > 0 are",
-          "choices": ["s = −1 ± j3 s⁻¹", "s = −1 ± j√10 s⁻¹", "s₁ = −1 s⁻¹, s₂ = −3 s⁻¹", "s = −2 ± j3 s⁻¹"],
-          "explain": "For t > 0, Us, R, L, C are in series: s² + (R/L)s + 1/(LC) = s² + 2s + 10 = 0 → s = −1 ± j3 (α = 1 s⁻¹, ω_d = 3 rad/s). √10 is ω₀, not ω_d."
+          "ask": "Real part of the characteristic roots s₁,₂ = −α ± jω_d = ?",
+          "explain": "For t > 0 it is Us, R, L, C in series: s² + (R/L)s + 1/(LC) = s² + 2s + 10 = 0 → s = −1 ± j3, real part −α = −1 1/s. Note that √10 is ω₀, not ω_d."
+        },
+        {
+          "ask": "Imaginary part of s₁ = −α + jω_d, i.e. ω_d = ?",
+          "explain": "The imaginary part is the damped angular frequency ω_d = 3 rad/s."
         },
         {
           "ask": "u_C at t = π/6 s (≈ 0.5236 s) = ?",

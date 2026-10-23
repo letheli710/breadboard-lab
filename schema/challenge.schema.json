@@ -4,23 +4,85 @@
   "title": "Breadboard Lab challenge (breadboard-challenge/1)",
   "description": "Lesson / challenge file for Breadboard Lab. Mirrors src/core/challenge.ts (parseChallenge). See docs/CHALLENGE_FORMAT.md.",
   "type": "object",
-  "required": ["format", "id", "title", "components"],
-  "anyOf": [{ "required": ["connections"] }, { "required": ["nets"] }],
+  "required": [
+    "format",
+    "id",
+    "title",
+    "components"
+  ],
+  "anyOf": [
+    {
+      "required": [
+        "connections"
+      ]
+    },
+    {
+      "required": [
+        "nets"
+      ]
+    }
+  ],
   "properties": {
-    "$schema": { "type": "string" },
-    "format": { "const": "breadboard-challenge/1", "description": "Format identifier. Must be exactly \"breadboard-challenge/1\"." },
-    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$", "description": "Unique id: letters, digits, - and _." },
-    "title": { "type": "string", "minLength": 1 },
-    "kind": { "enum": ["lesson", "challenge"], "default": "challenge", "description": "lesson = guided (steps); challenge = solve it yourself (hints)." },
-    "level": { "type": "number", "minimum": 1, "maximum": 5, "default": 1, "description": "Difficulty 1–5 (rounded and clamped)." },
-    "summary": { "type": "string", "description": "One-line summary shown in the list." },
+    "$schema": {
+      "type": "string"
+    },
+    "format": {
+      "const": "breadboard-challenge/1",
+      "description": "Format identifier. Must be exactly \"breadboard-challenge/1\"."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+      "description": "Unique id: letters, digits, - and _."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "lesson",
+        "challenge"
+      ],
+      "default": "challenge",
+      "description": "lesson = guided (steps); challenge = solve it yourself (hints)."
+    },
+    "level": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "default": 1,
+      "description": "Difficulty 1–5 (rounded and clamped)."
+    },
+    "summary": {
+      "type": "string",
+      "description": "One-line summary shown in the list."
+    },
     "description": {
       "description": "Teaching text. Plain text; \\n for line breaks. An array of strings is joined with \\n.",
-      "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
     },
-    "concepts": { "type": "array", "items": { "type": "string" } },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "lang": {
-      "enum": ["zh", "en"],
+      "enum": [
+        "zh",
+        "en"
+      ],
       "default": "zh",
       "description": "Language of the top-level text fields (title, summary, description, concepts, steps, hints, test names). Default \"zh\"."
     },
@@ -28,8 +90,12 @@
       "type": "object",
       "description": "Translations of the text fields, keyed by language. Used when the UI is in that language; anything missing falls back to the top-level (base) text.",
       "properties": {
-        "zh": { "$ref": "#/definitions/translation" },
-        "en": { "$ref": "#/definitions/translation" }
+        "zh": {
+          "$ref": "#/definitions/translation"
+        },
+        "en": {
+          "$ref": "#/definitions/translation"
+        }
       },
       "additionalProperties": false
     },
@@ -37,50 +103,102 @@
       "type": "array",
       "minItems": 1,
       "description": "Target circuit components (logical). Wires are NOT components.",
-      "items": { "$ref": "#/definitions/component" }
+      "items": {
+        "$ref": "#/definitions/component"
+      }
     },
     "connections": {
       "type": "array",
       "description": "Each item = a group of terminals that are electrically connected (one node). Groups sharing a terminal are merged.",
-      "items": { "type": "array", "items": { "$ref": "#/definitions/pinRef" } }
+      "items": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/pinRef"
+        }
+      }
     },
     "nets": {
       "type": "array",
       "description": "Named nodes. Same meaning as connections, but with a name (shown in messages, e.g. VCC / GND / VOUT).",
       "items": {
         "type": "object",
-        "required": ["pins"],
+        "required": [
+          "pins"
+        ],
         "properties": {
-          "name": { "type": "string" },
-          "pins": { "type": "array", "items": { "$ref": "#/definitions/pinRef" } }
+          "name": {
+            "type": "string"
+          },
+          "pins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/pinRef"
+            }
+          }
         }
       }
     },
-    "tests": { "type": "array", "items": { "$ref": "#/definitions/test" } },
-    "hints": { "type": "array", "items": { "type": "string" } },
+    "tests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/test"
+      }
+    },
+    "hints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "steps": {
       "type": "array",
       "items": {
         "oneOf": [
-          { "type": "string", "minLength": 1 },
+          {
+            "type": "string",
+            "minLength": 1
+          },
           {
             "type": "object",
-            "required": ["text"],
+            "required": [
+              "text"
+            ],
             "properties": {
-              "text": { "type": "string", "minLength": 1 },
-              "highlight": { "type": "array", "items": { "$ref": "#/definitions/hole" } }
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "highlight": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/hole"
+                }
+              }
             }
           }
         ]
       }
     },
-    "solution": { "$ref": "#/definitions/layout" },
-    "start": { "$ref": "#/definitions/layout" },
+    "solution": {
+      "$ref": "#/definitions/layout"
+    },
+    "start": {
+      "$ref": "#/definitions/layout"
+    },
     "options": {
       "type": "object",
       "properties": {
-        "tolerance": { "type": "number", "minimum": 0, "default": 0.05, "description": "Relative tolerance for component values (0.05 = ±5%)." },
-        "allowExtraComponents": { "type": "boolean", "default": false, "description": "If true, extra parts on the board are not errors." }
+        "tolerance": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.05,
+          "description": "Relative tolerance for component values (0.05 = ±5%)."
+        },
+        "allowExtraComponents": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, extra parts on the board are not errors."
+        }
       }
     }
   },
@@ -89,26 +207,52 @@
       "type": "object",
       "description": "Translated text. steps / hints / tests are matched to the top-level arrays by position and must have the same length.",
       "properties": {
-        "title": { "type": "string", "minLength": 1 },
-        "summary": { "type": "string" },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string"
+        },
         "description": {
           "description": "Same as the top-level description: a string, or an array of lines joined with \\n.",
-          "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
         },
-        "concepts": { "type": "array", "items": { "type": "string" } },
+        "concepts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "hints": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Same length and order as the top-level hints; ignored if the length differs."
         },
         "steps": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Step texts only, same count and order as the top-level steps. Highlighted holes come from the top-level steps."
         },
         "tests": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Test names only, same order as the top-level tests."
         }
       },
@@ -116,10 +260,35 @@
     },
     "value": {
       "description": "Number or engineering string: 330, \"330\", \"4.7k\", \"4k7\", \"1M\", \"100nF\", \"any\".",
-      "oneOf": [{ "type": "number" }, { "type": "string", "pattern": "^(any|\\s*-?\\d*\\.?\\d+(e-?\\d+)?\\s*[pnuµmkKMG]?\\s*(ohms?|Ω|F|V|A)?\\s*|\\d+[pnuµmkKMG]\\d+\\s*(ohms?|Ω|F|V|A)?)$" }]
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "pattern": "^(any|\\s*-?\\d*\\.?\\d+(e-?\\d+)?\\s*[pnuµmkKMG]?\\s*(ohms?|Ω|Hz|F|V|A|H)?\\s*|\\d+[pnuµmkKMG]\\d+\\s*(ohms?|Ω|Hz|F|V|A|H)?)$"
+        }
+      ]
     },
-    "ledColor": { "enum": ["red", "yellow", "green", "blue", "white", "any"] },
-    "batteryVariant": { "enum": ["9V", "2xAA", "3xAA", "4xAA", "CR2032"] },
+    "ledColor": {
+      "enum": [
+        "red",
+        "yellow",
+        "green",
+        "blue",
+        "white",
+        "any"
+      ]
+    },
+    "batteryVariant": {
+      "enum": [
+        "9V",
+        "2xAA",
+        "3xAA",
+        "4xAA",
+        "CR2032"
+      ]
+    },
     "hole": {
       "type": "string",
       "pattern": "^([a-j]|tp|tn|bp|bn)([1-9]|[12][0-9]|30)$",
@@ -128,34 +297,113 @@
     "pinRef": {
       "type": "string",
       "pattern": "^[A-Za-z][A-Za-z0-9_]*\\.[^.]+$",
-      "description": "\"REF.pin\", e.g. \"R1.1\", \"LED1.anode\", \"V1.+\", \"SW1.2\", \"RV1.2\", \"S1.com\"."
+      "description": "\"REF.pin\", e.g. \"R1.1\", \"LED1.anode\", \"V1.+\", \"SW1.2\", \"RV1.2\", \"S1.com\", \"U1.outA\", \"U1.inA-\", \"U1.v+\", \"FG1.+\", \"AM1.-\"."
     },
     "props": {
       "type": "object",
       "properties": {
-        "resistance": { "$ref": "#/definitions/value" },
-        "value": { "$ref": "#/definitions/value" },
-        "voltage": { "$ref": "#/definitions/value" },
-        "capacitance": { "$ref": "#/definitions/value" },
-        "currentLimit": { "$ref": "#/definitions/value" },
-        "wiper": { "$ref": "#/definitions/value" },
-        "color": { "$ref": "#/definitions/ledColor" },
-        "variant": { "$ref": "#/definitions/batteryVariant" },
-        "pressed": { "type": "boolean" },
-        "position": { "enum": ["a", "b"] }
+        "resistance": {
+          "$ref": "#/definitions/value"
+        },
+        "value": {
+          "$ref": "#/definitions/value"
+        },
+        "voltage": {
+          "$ref": "#/definitions/value"
+        },
+        "capacitance": {
+          "$ref": "#/definitions/value"
+        },
+        "currentLimit": {
+          "$ref": "#/definitions/value"
+        },
+        "wiper": {
+          "$ref": "#/definitions/value"
+        },
+        "color": {
+          "$ref": "#/definitions/ledColor"
+        },
+        "variant": {
+          "$ref": "#/definitions/batteryVariant"
+        },
+        "pressed": {
+          "type": "boolean"
+        },
+        "position": {
+          "enum": [
+            "a",
+            "b"
+          ]
+        },
+        "inductance": {
+          "$ref": "#/definitions/value",
+          "description": "Inductor value in henries, e.g. \"10m\" or \"10mH\"."
+        },
+        "frequency": {
+          "$ref": "#/definitions/value",
+          "description": "function_gen frequency in Hz, e.g. 1000, \"1k\", \"1kHz\"."
+        },
+        "amplitude": {
+          "$ref": "#/definitions/value",
+          "description": "function_gen amplitude, PEAK volts (Vpp = 2 × amplitude)."
+        },
+        "offset": {
+          "$ref": "#/definitions/value",
+          "description": "function_gen DC offset in volts (may be negative)."
+        },
+        "waveform": {
+          "enum": [
+            "sine",
+            "square",
+            "triangle",
+            "any"
+          ]
+        },
+        "channel": {
+          "enum": [
+            1,
+            2
+          ],
+          "description": "scope_probe channel (layouts only)."
+        }
       }
     },
     "component": {
       "allOf": [
-        { "$ref": "#/definitions/props" },
+        {
+          "$ref": "#/definitions/props"
+        },
         {
           "type": "object",
-          "required": ["ref", "type"],
+          "required": [
+            "ref",
+            "type"
+          ],
           "properties": {
-            "ref": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$", "description": "Unique reference, e.g. R1, LED1, V1." },
+            "ref": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+              "description": "Unique reference, e.g. R1, LED1, V1."
+            },
             "type": {
-              "enum": ["resistor", "led", "diode", "capacitor", "pushbutton", "switch", "potentiometer", "battery", "bench_supply", "power_module", "dc_source"],
-              "description": "dc_source matches any battery / bench_supply / power_module (with the same voltage if given)."
+              "enum": [
+                "resistor",
+                "led",
+                "diode",
+                "capacitor",
+                "pushbutton",
+                "switch",
+                "potentiometer",
+                "battery",
+                "bench_supply",
+                "power_module",
+                "dc_source",
+                "inductor",
+                "ammeter",
+                "opamp",
+                "function_gen"
+              ],
+              "description": "dc_source matches any battery / bench_supply / power_module (with the same voltage if given). opamp = one LM358 (logical pins outA, inA-, inA+, v-, inB+, inB-, outB, v+; halves A/B are interchangeable when grading). scope_probe is NOT allowed here (use \"scope\" tests). An ammeter not listed in the target is treated as a wire on the student's board."
             }
           }
         }
@@ -164,27 +412,139 @@
     "test": {
       "type": "object",
       "properties": {
-        "name": { "type": "string" },
+        "name": {
+          "type": "string"
+        },
         "set": {
           "type": "object",
-          "description": "Temporary property overrides per component ref, e.g. {\"SW1\": {\"pressed\": true}}, {\"S1\": {\"position\": \"b\"}}, {\"RV1\": {\"wiper\": 0.2}}.",
-          "additionalProperties": { "$ref": "#/definitions/props" }
+          "description": "Temporary property overrides per component ref, e.g. {\"SW1\": {\"pressed\": true}}, {\"S1\": {\"position\": \"b\"}}, {\"RV1\": {\"wiper\": 0.2}}. Generators: {\"FG1\": {\"waveform\": \"square\", \"frequency\": 100, \"amplitude\": 2.5, \"offset\": 2.5}}.",
+          "additionalProperties": {
+            "$ref": "#/definitions/props"
+          }
         },
         "expect": {
           "type": "object",
-          "description": "LED ref -> \"on\" | \"off\" (on = more than 0.5 mA).",
-          "additionalProperties": { "enum": ["on", "off"] }
+          "description": "LED ref -> \"on\" | \"off\" (on = more than 0.5 mA; average current when a generator is present).",
+          "additionalProperties": {
+            "enum": [
+              "on",
+              "off"
+            ]
+          }
         },
         "voltages": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["pin"],
+            "required": [
+              "pin"
+            ],
             "properties": {
-              "pin": { "$ref": "#/definitions/pinRef" },
-              "ref": { "$ref": "#/definitions/pinRef", "description": "Reference terminal. Omitted = GND (the − of the first power source)." },
-              "min": { "type": "number" },
-              "max": { "type": "number" }
+              "pin": {
+                "$ref": "#/definitions/pinRef"
+              },
+              "ref": {
+                "$ref": "#/definitions/pinRef",
+                "description": "Reference terminal. Omitted = GND (the − of the first power source)."
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
+          },
+          "description": "DC voltage checks; with a function generator present the steady-state AVERAGE is used."
+        },
+        "currents": {
+          "type": "array",
+          "description": "Current checks in amps. el = ammeter (its reading, in at +) or a resistor / inductor (pin 1 → 2), LED / diode (anode → cathode), source / generator (out of +).",
+          "items": {
+            "type": "object",
+            "required": [
+              "el"
+            ],
+            "properties": {
+              "el": {
+                "type": "string",
+                "description": "Component ref (alias: meter)."
+              },
+              "meter": {
+                "type": "string"
+              },
+              "mode": {
+                "enum": [
+                  "dc",
+                  "rms"
+                ],
+                "default": "dc",
+                "description": "dc = DC / average current; rms = true RMS."
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "scope": {
+          "type": "array",
+          "description": "Oscilloscope measurements of V(pin) − V(ref) over the periodic steady state.",
+          "items": {
+            "type": "object",
+            "required": [
+              "pin",
+              "measure"
+            ],
+            "properties": {
+              "pin": {
+                "$ref": "#/definitions/pinRef"
+              },
+              "ref": {
+                "$ref": "#/definitions/pinRef",
+                "description": "Reference terminal. Omitted = GND."
+              },
+              "measure": {
+                "enum": [
+                  "vpp",
+                  "vmax",
+                  "vmin",
+                  "vavg",
+                  "vrms",
+                  "freq",
+                  "phase",
+                  "gain"
+                ],
+                "description": "vpp/vmax/vmin/vavg/vrms in V; freq in Hz; phase in degrees (−180..180, positive = pin leads vs); gain = |fundamental(pin)| / |fundamental(vs)|."
+              },
+              "vs": {
+                "$ref": "#/definitions/pinRef",
+                "description": "Required for phase and gain: the pin to compare with (same ref)."
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "if": {
+              "properties": {
+                "measure": {
+                  "enum": [
+                    "phase",
+                    "gain"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "vs"
+              ]
             }
           }
         }
@@ -192,31 +552,74 @@
     },
     "layoutPart": {
       "allOf": [
-        { "$ref": "#/definitions/props" },
+        {
+          "$ref": "#/definitions/props"
+        },
         {
           "type": "object",
-          "required": ["type"],
+          "required": [
+            "type"
+          ],
           "properties": {
             "type": {
-              "enum": ["wire", "resistor", "led", "diode", "capacitor", "pushbutton", "switch", "potentiometer", "battery", "bench_supply", "power_module"]
+              "enum": [
+                "wire",
+                "resistor",
+                "led",
+                "diode",
+                "capacitor",
+                "pushbutton",
+                "switch",
+                "potentiometer",
+                "battery",
+                "bench_supply",
+                "power_module",
+                "inductor",
+                "ammeter",
+                "opamp",
+                "function_gen",
+                "scope_probe"
+              ]
             },
-            "ref": { "type": "string" },
+            "ref": {
+              "type": "string"
+            },
             "pins": {
               "type": "object",
-              "description": "Physical pin -> hole. wire a/b; resistor 1/2; led & diode anode/cathode; capacitor 1/2; battery & bench_supply +/-; pushbutton 1a/2a/1b/2b; switch a/com/b; potentiometer 1/2/3; power_module +t/-t/+b/-b.",
-              "additionalProperties": { "$ref": "#/definitions/hole" }
+              "description": "Physical pin -> hole. wire a/b; resistor 1/2; led & diode anode/cathode; capacitor 1/2; battery & bench_supply +/-; pushbutton 1a/2a/1b/2b; switch a/com/b; potentiometer 1/2/3; power_module +t/-t/+b/-b. inductor 1/2; ammeter & function_gen +/-; scope_probe tip/gnd; opamp 1..8.",
+              "additionalProperties": {
+                "$ref": "#/definitions/hole"
+              }
             },
-            "at": { "$ref": "#/definitions/hole", "description": "Footprint anchor for pushbutton / switch / potentiometer / power_module (instead of pins)." },
-            "color": { "type": "string", "description": "LED colour, or the wire colour for type \"wire\" (use red/blue/green/yellow/white)." },
-            "props": { "$ref": "#/definitions/props", "description": "Alternative to flat properties." }
+            "at": {
+              "$ref": "#/definitions/hole",
+              "description": "Footprint anchor for pushbutton / switch / potentiometer / power_module / opamp (opamp: pin 1, must be in row e) instead of pins."
+            },
+            "color": {
+              "type": "string",
+              "description": "LED colour, or the wire colour for type \"wire\" (use red/blue/green/yellow/white)."
+            },
+            "props": {
+              "$ref": "#/definitions/props",
+              "description": "Alternative to flat properties."
+            }
           }
         }
       ]
     },
     "layout": {
       "type": "object",
-      "required": ["parts"],
-      "properties": { "parts": { "type": "array", "items": { "$ref": "#/definitions/layoutPart" } } }
+      "required": [
+        "parts"
+      ],
+      "properties": {
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/layoutPart"
+          }
+        }
+      }
     }
   }
 }

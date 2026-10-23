@@ -30,13 +30,30 @@
     { "id": "R", "ask": "等效阻抗的实部 R_eq = Re Z_eq = ?", "find": { "kind": "req", "port": ["a", "0"], "exclude": ["ZL"], "part": "re" }, "answer": 2, "unit": "Ω", "explain": "Us 置零（短路）后，R1 与 jωL 并联：Z_eq = 4 × j4/(4 + j4) = j16/(4 + j4) = 2 + j2 Ω。" },
     { "id": "X", "ask": "等效阻抗的虚部 X_eq = Im Z_eq = ?", "find": { "kind": "req", "port": ["a", "0"], "exclude": ["ZL"], "part": "im" }, "answer": 2, "unit": "Ω", "explain": "Z_eq = 2 + j2 Ω，X_eq = 2 Ω（感性）。" },
     {
-      "id": "ZL",
-      "ask": "Z_L 取何值时获得最大功率？",
-      "choices": ["Z_L = 2 − j2 Ω", "Z_L = 2 + j2 Ω", "Z_L = 2√2 Ω（纯电阻）", "Z_L = 2 Ω"],
-      "correct": 0,
-      "explain": "共轭匹配：Z_L = Z_eq* = 2 − j2 Ω。此时电抗互相抵消，回路总阻抗为 2R_eq = 4 Ω（纯电阻），负载电阻等于电源内阻。"
+      "id": "RL",
+      "ask": "获得最大功率时负载的电阻 R_L = Re Z_L = ?",
+      "find": { "kind": "val", "el": "ZL", "part": "re" },
+      "answer": 2,
+      "unit": "Ω",
+      "explain": "共轭匹配：Z_L = Z_eq* = 2 − j2 Ω，所以 R_L = R_eq = 2 Ω。"
     },
-    { "id": "Pm", "ask": "最大功率 P_max = ?", "find": { "kind": "pmax", "port": ["a", "0"], "exclude": ["ZL"] }, "answer": 25, "unit": "W", "explain": "U_oc = 20 × j4/(4 + j4) = 10 + j10 = 14.14∠45° V，P_max = U_oc²/(4R_eq) = 200/8 = 25 W。" }
+    {
+      "id": "XL",
+      "ask": "获得最大功率时负载的电抗 X_L = Im Z_L = ?",
+      "find": { "kind": "val", "el": "ZL", "part": "im" },
+      "answer": -2,
+      "unit": "Ω",
+      "explain": "X_L = −X_eq = −2 Ω（容性）：负载电抗与电源内电抗互相抵消，回路总阻抗为 2R_eq = 4 Ω（纯电阻）。"
+    },
+    { "id": "Pm", "ask": "最大功率 P_max = ?", "find": { "kind": "pmax", "port": ["a", "0"], "exclude": ["ZL"] }, "answer": 25, "unit": "W", "explain": "U_oc = 20 × j4/(4 + j4) = 10 + j10 = 14.14∠45° V，P_max = U_oc²/(4R_eq) = 200/8 = 25 W。" },
+    {
+      "id": "PZL",
+      "ask": "图中 Z_L 取上述共轭值，它实际吸收的功率 P = ?",
+      "find": { "kind": "p", "el": "ZL" },
+      "answer": 25,
+      "unit": "W",
+      "explain": "U_oc = 20 × j4/(4 + j4) = 10√2∠45° V；I = U_oc/(Z_eq + Z_L) = 10√2/4 ≈ 3.536 A，P = I²R_L = 12.5 × 2 = 25 W，正好等于 P_max——共轭匹配确实使负载功率最大。"
+    }
   ],
   "hints": [
     "先把 Z_L 断开，求 a 与地之间的开路电压 U_oc 和等效阻抗 Z_eq（Us 短路）。",
@@ -62,11 +79,18 @@
         { "ask": "Real part of the equivalent impedance, R_eq = Re Z_eq = ?", "explain": "With Us zeroed (shorted), R1 is in parallel with jωL: Z_eq = 4 × j4/(4 + j4) = j16/(4 + j4) = 2 + j2 Ω." },
         { "ask": "Imaginary part of the equivalent impedance, X_eq = Im Z_eq = ?", "explain": "Z_eq = 2 + j2 Ω, so X_eq = 2 Ω (inductive)." },
         {
-          "ask": "For which Z_L is the load power maximum?",
-          "choices": ["Z_L = 2 − j2 Ω", "Z_L = 2 + j2 Ω", "Z_L = 2√2 Ω (purely resistive)", "Z_L = 2 Ω"],
-          "explain": "Conjugate matching: Z_L = Z_eq* = 2 − j2 Ω. The reactances then cancel, the loop impedance is 2R_eq = 4 Ω (purely resistive), and the load resistance equals the source resistance."
+          "ask": "Load resistance for maximum power, R_L = Re Z_L = ?",
+          "explain": "Conjugate matching: Z_L = Z_eq* = 2 − j2 Ω, so R_L = R_eq = 2 Ω."
         },
-        { "ask": "Maximum power P_max = ?", "explain": "U_oc = 20 × j4/(4 + j4) = 10 + j10 = 14.14∠45° V, P_max = U_oc²/(4R_eq) = 200/8 = 25 W." }
+        {
+          "ask": "Load reactance for maximum power, X_L = Im Z_L = ?",
+          "explain": "X_L = −X_eq = −2 Ω (capacitive): the load reactance cancels the source reactance and the loop impedance is 2R_eq = 4 Ω (purely resistive)."
+        },
+        { "ask": "Maximum power P_max = ?", "explain": "U_oc = 20 × j4/(4 + j4) = 10 + j10 = 14.14∠45° V, P_max = U_oc²/(4R_eq) = 200/8 = 25 W." },
+        {
+          "ask": "With Z_L at this conjugate value (as drawn), the power it actually absorbs is P = ?",
+          "explain": "U_oc = 20 × j4/(4 + j4) = 10√2∠45° V; I = U_oc/(Z_eq + Z_L) = 10√2/4 ≈ 3.536 A, P = I²R_L = 12.5 × 2 = 25 W — exactly P_max, so the conjugate match really maximises the load power."
+        }
       ],
       "hints": [
         "Disconnect Z_L and find the open-circuit voltage U_oc and the equivalent impedance Z_eq between a and ground (Us shorted).",

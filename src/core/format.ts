@@ -18,7 +18,7 @@ const PREFIX: Record<string, number> = {
 export function parseValue(v: string | number | undefined | null): number | null {
   if (v === undefined || v === null) return null;
   if (typeof v === 'number') return Number.isFinite(v) ? v : null;
-  let s = v.trim().replace(/\s+/g, '').replace(/(ohms?|Ω|F|V|A)$/i, '');
+  let s = v.trim().replace(/\s+/g, '').replace(/(ohms?|Ω|Hz|F|V|A|H)$/i, '');
   // "4k7" style
   const mid = s.match(/^(\d+)([pnuµmkKMG])(\d+)$/);
   if (mid) s = `${mid[1]}.${mid[3]}${mid[2]}`;

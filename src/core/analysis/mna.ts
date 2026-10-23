@@ -5,7 +5,7 @@
 
 import type { Complex } from '../problem/types';
 import { Circuit, type CEl, isTwoTerminal } from './circuit';
-import { ONE, ZERO, cx, neg, sub } from './complex';
+import { ONE, ZERO, cx, neg, scale, sub } from './complex';
 import { AnalysisError } from './errors';
 import { type ComplexLU, SingularMatrixError, luFactor } from './linalg';
 
@@ -26,6 +26,11 @@ export interface Mode {
   /** dc: resolve capacitor-only cut-sets by zero net charge and inductor-only loops by zero
    *  loop flux (the "initially uncharged / de-energised" assumption) */
   conserve?: boolean;
+  /** with `conserve`: the charge / flux is not zero but taken from these element states
+   *  (capacitor voltage, inductor current at t = 0−), keyed by ref */
+  conserveInit?: ReadonlyMap<string, number>;
+  /** ac: complex frequency s instead of jω (natural-frequency computations) */
+  s?: Complex;
   /** res: tiny series resistance (C) or parallel conductance (L) for dependent states */
   parasitic?: ReadonlyMap<string, number>;
   /** for messages, e.g. "DC analysis" */
@@ -66,6 +71,9 @@ export class MnaSystem {
   readonly island: Int32Array;
   readonly matrix: Complex[][];
   readonly error: AnalysisError | null = null;
+  /** number of charge / flux conservation rows (structural zero natural frequencies) */
+  conservedCount = 0;
+  private readonly conserveRhs = new Map<number, number>();
   private readonly lu: ComplexLU | null = null;
 
   constructor(
@@ -221,7 +229,14 @@ export class MnaSystem {
       if (!boundary.length || !caps) continue;
       const row = Math.min(...nodes) - 1;
       A[row] = A[row].map(() => ZERO);
-      for (const el of boundary) putV(row, el.pins[0], el.pins[1], cx(inG.has(el.pins[0]) ? el.value : -el.value));
+      let q0 = 0;
+      for (const el of boundary) {
+        const sg = inG.has(el.pins[0]) ? 1 : -1;
+        putV(row, el.pins[0], el.pins[1], cx(sg * el.value));
+        q0 += sg * el.value * (this.mode.conserveInit?.get(el.ref) ?? 0);
+      }
+      this.conserveRhs.set(row, q0);
+      this.conservedCount++;
     }
     // (b) inductor loops
     for (let i = 0; i < N; i++) par[i] = i;
@@ -267,14 +282,22 @@ export class MnaSystem {
       }
       const row = this.varOf.get(el.ref)!;
       A[row] = A[row].map(() => ZERO);
+      const i0 = (ref: string) => this.mode.conserveInit?.get(ref) ?? 0;
+      let phi0 = 0;
       for (const { el: e, sign } of loop) {
         if (e.type !== 'L') continue;
         put(row, this.varOf.get(e.ref)!, cx(sign * e.value));
+        phi0 += sign * e.value * i0(e.ref);
         for (const k of this.ckt.mutual) {
           const other = k.l1 === e.ref ? k.l2 : k.l2 === e.ref ? k.l1 : null;
-          if (other) put(row, this.varOf.get(other)!, cx(sign * k.M));
+          if (other) {
+            put(row, this.varOf.get(other)!, cx(sign * k.M));
+            phi0 += sign * k.M * i0(other);
+          }
         }
       }
+      this.conserveRhs.set(row, phi0);
+      this.conservedCount++;
     }
   }
 
@@ -291,6 +314,7 @@ export class MnaSystem {
     const m = this.mode;
     if (m.removed?.has(el.ref)) return OPEN;
     const w = m.omega ?? 0;
+    const jw = m.s ?? cx(0, w);
     switch (el.type) {
       case 'R':
         return rel(ONE, cx(-el.value), { vlike: el.value === 0 });
@@ -302,7 +326,7 @@ export class MnaSystem {
           if (m.icFixed && el.ic !== undefined) return rel(ONE, ZERO, { rhs: el.ic, vlike: true });
           return rel(ZERO, ONE);
         }
-        if (m.kind === 'ac') return rel(cx(0, w * el.value), cx(-1));
+        if (m.kind === 'ac') return rel(scale(jw, el.value), cx(-1));
         {
           const r = m.parasitic?.get(el.ref) ?? 0;
           return rel(ONE, cx(-r), { rhs: 'state', vlike: r === 0 });
@@ -316,9 +340,9 @@ export class MnaSystem {
           const terms: Term[] = [];
           for (const k of this.ckt.mutual) {
             const other = k.l1 === el.ref ? k.l2 : k.l2 === el.ref ? k.l1 : null;
-            if (other && !m.removed?.has(other)) terms.push({ coef: cx(0, -w * k.M), cur: other });
+            if (other && !m.removed?.has(other)) terms.push({ coef: scale(jw, -k.M), cur: other });
           }
-          return { ...rel(ONE, cx(0, -w * el.value)), terms };
+          return { ...rel(ONE, scale(jw, -el.value)), terms };
         }
         return rel(cx(-(m.parasitic?.get(el.ref) ?? 0)), ONE, { rhs: 'state' });
       case 'V':
@@ -423,6 +447,7 @@ export class MnaSystem {
       else if (r.rhs === 'state') b[c] = cx(stateVal ? stateVal(el) : 0);
       else if (typeof r.rhs === 'number') b[c] = cx(r.rhs);
     }
+    for (const [row, v] of this.conserveRhs) b[row] = cx(v);
     return b;
   }
 

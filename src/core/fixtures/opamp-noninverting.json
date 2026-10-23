@@ -1,0 +1,67 @@
+{
+  "$schema": "../../../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "example-opamp-noninverting",
+  "lang": "en",
+  "title": "Example · Non-inverting amplifier (gain 2)",
+  "kind": "challenge",
+  "level": 4,
+  "summary": "Amplify a 1 Vpp signal (1 V offset) by 2 with an LM358 on a single 9 V supply.",
+  "concepts": ["op-amp", "non-inverting amplifier", "Vout = (1 + RF/RG)·Vin", "clipping"],
+  "description": "LM358: pin 8 (V+) to +9 V, pin 4 (V−) to GND. The generator drives IN+; RF (10 kΩ) goes from OUT to IN−, RG (10 kΩ) from IN− to GND. Either half of the chip may be used.\nGain = 1 + RF/RG = 2.",
+  "i18n": {
+    "zh": {
+      "title": "示例 · 同相放大器（增益 2）",
+      "summary": "用 LM358 和单电源 9 V，把 1 Vpp（偏置 1 V）的信号放大 2 倍。",
+      "concepts": ["运放 op-amp", "同相放大器", "Vout = (1 + RF/RG)·Vin", "削顶 clipping"],
+      "description": "LM358：8 脚 V+ 接 +9 V，4 脚 V− 接 GND。信号发生器接 IN+；RF（10 kΩ）从 OUT 接到 IN−，RG（10 kΩ）从 IN− 接到 GND。芯片的哪一半都可以用。\n增益 = 1 + RF/RG = 2。",
+      "hints": ["先给运放供电：8 脚 +9 V，4 脚 GND。", "反馈电阻接 IN−，不是 IN+。"],
+      "tests": ["增益 2：输出 2 Vpp，平均 2 V，同相", "输入太大：输出在 V+ − 1.5 V 处削顶"]
+    }
+  },
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "U1", "type": "opamp" },
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "RF", "type": "resistor", "resistance": "10k" },
+    { "ref": "RG", "type": "resistor", "resistance": "10k" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["V1.+", "U1.v+"] },
+    { "name": "GND", "pins": ["V1.-", "U1.v-", "FG1.-", "RG.2"] },
+    { "name": "VIN", "pins": ["FG1.+", "U1.in+"] },
+    { "name": "FB", "pins": ["U1.in-", "RF.2", "RG.1"] },
+    { "name": "VOUT", "pins": ["U1.out", "RF.1"] }
+  ],
+  "tests": [
+    {
+      "name": "Gain 2: 2 Vpp output, 2 V average, in phase",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1 } },
+      "scope": [
+        { "pin": "U1.out", "measure": "vpp", "min": 1.9, "max": 2.1 },
+        { "pin": "U1.out", "measure": "phase", "vs": "FG1.+", "min": -5, "max": 5 }
+      ],
+      "voltages": [{ "pin": "U1.out", "min": 1.9, "max": 2.1 }],
+      "currents": [{ "el": "RG", "min": 0.000095, "max": 0.000105 }]
+    },
+    {
+      "name": "Too much input: the output clips at V+ − 1.5 V",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1000, "amplitude": 3, "offset": 3 } },
+      "scope": [{ "pin": "U1.out", "measure": "vmax", "min": 7.3, "max": 7.6 }]
+    }
+  ],
+  "hints": ["Power the op-amp first: pin 8 to +9 V, pin 4 to GND.", "The feedback resistor goes to IN−, not IN+."],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "opamp", "ref": "U1", "at": "e10" },
+      { "type": "wire", "pins": { "a": "tp10", "b": "j10" }, "color": "red" },
+      { "type": "wire", "pins": { "a": "a13", "b": "tn13" }, "color": "blue" },
+      { "type": "function_gen", "ref": "FG1", "pins": { "+": "a20", "-": "tn20" } },
+      { "type": "ammeter", "ref": "AM1", "pins": { "+": "b20", "-": "h13" } },
+      { "type": "resistor", "ref": "RG", "resistance": "10k", "pins": { "1": "g12", "2": "tn12" } },
+      { "type": "resistor", "ref": "RF", "resistance": "10k", "pins": { "1": "h11", "2": "i12" } },
+      { "type": "scope_probe", "ref": "PR1", "pins": { "tip": "j11", "gnd": "tn25" } }
+    ]
+  }
+}

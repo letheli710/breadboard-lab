@@ -3,7 +3,8 @@
 // junctionPoints), so what the student sees is exactly the circuit the engine solves.
 
 import { useMemo, type ReactNode } from 'react';
-import { formatSI, parseValue } from '../core/format';
+import { parseNum } from '../core/analysis/circuit';
+import { formatSI } from '../core/format';
 import { getLang, tr } from '../core/i18n';
 import { isTwoTerminal, junctionPoints, onSegment, terminalPoints, wireSegments } from '../core/problem/geometry';
 import type { CtrlRef, Pt, ProblemElement, Schematic, TwoTerminalElement } from '../core/problem/types';
@@ -80,12 +81,26 @@ function Rich({ runs, ...p }: { runs: Run[]; x: number; y: number; anchor?: 'sta
 
 // ---------------------------------------------------------------- value labels
 
-const num = (v: number) => String(parseFloat(v.toPrecision(4)));
+/** number or SI string ("2m", "4.7k") → number, with the same parser as the engine; null if unreadable */
+function toNum(v: unknown): number | null {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  if (typeof v !== 'string') return null;
+  try {
+    return parseNum(v, '');
+  } catch {
+    return null;
+  }
+}
+/** 4 significant digits; unreadable input is shown as given */
+const num = (v: unknown): string => {
+  const n = toNum(v);
+  return n === null ? String(v) : String(parseFloat(n.toPrecision(4)));
+};
 
 function siOrRaw(v: unknown, unit: string): string | null {
   if (v === undefined || v === null) return null;
   if (typeof v === 'number' || typeof v === 'string') {
-    const n = parseValue(v as string | number);
+    const n = toNum(v);
     return n === null ? String(v) : formatSI(n, unit);
   }
   return null;
@@ -97,15 +112,19 @@ function sourceText(v: TwoTerminalElement['value'], unit: string): string | null
   const o = v as Record<string, any>;
   if (o.step) return `${num(o.step.before)}→${num(o.step.after)} ${unit}`;
   if (o.sin) {
-    const { amp, freq, phase, offset } = o.sin;
+    const { amp, freq: f0, phase: p0, offset: o0 } = o.sin;
+    const freq = toNum(f0) ?? NaN;
+    const phase = toNum(p0) ?? 0;
+    const offset = toNum(o0) ?? 0;
     const w = 2 * Math.PI * freq;
-    const wt = Math.abs(w - Math.round(w)) < 1e-6 * Math.max(1, w) ? `${Math.round(w)}t` : `2π·${num(freq)}t`;
+    const wt = Number.isFinite(w) && Math.abs(w - Math.round(w)) < 1e-6 * Math.max(1, w) ? `${Math.round(w)}t` : `2π·${num(f0)}t`;
     const ph = phase ? `${phase > 0 ? '+' : '−'}${num(Math.abs(phase))}°` : '';
     const off = offset ? `${num(offset)}+` : '';
     return `${off}${num(amp)}sin(${wt}${ph}) ${unit}`;
   }
   const parts: string[] = [];
-  if (typeof o.dc === 'number' && (o.dc !== 0 || !o.ac)) parts.push(formatSI(o.dc, unit));
+  const dc = o.dc === undefined ? null : toNum(o.dc);
+  if (o.dc !== undefined && (dc !== 0 || !o.ac)) parts.push(dc === null ? `${String(o.dc)} ${unit}` : formatSI(dc, unit));
   if (o.ac) parts.push(`${num(o.ac.mag)}∠${num(o.ac.phase ?? 0)}° ${unit}`);
   return parts.length ? parts.join(' + ') : null;
 }
@@ -135,7 +154,9 @@ export function elementValueText(el: TwoTerminalElement): string | null {
       return sourceText(v, 'A');
     case 'Z': {
       if (v && typeof v === 'object' && 're' in v) {
-        const { re, im } = v as { re: number; im: number };
+        const o = v as { re?: unknown; im?: unknown };
+        const re = toNum(o.re ?? 0) ?? 0;
+        const im = toNum(o.im ?? 0) ?? 0;
         if (!im) return formatSI(re, 'Ω');
         const j = `j${num(Math.abs(im))}`;
         return re ? `${num(re)}${im < 0 ? '−' : '+'}${j} Ω` : `${im < 0 ? '−' : ''}${j} Ω`;
@@ -146,7 +167,7 @@ export function elementValueText(el: TwoTerminalElement): string | null {
     case 'VCCS':
     case 'CCVS':
     case 'CCCS': {
-      const g = typeof v === 'number' || typeof v === 'string' ? parseValue(v as string | number) : null;
+      const g = toNum(v);
       const sym = ctrlSymbol(el.ctrl);
       return g === null ? sym : g === 1 ? sym : g === -1 ? `−${sym}` : `${num(g)}${sym}`;
     }
@@ -717,7 +738,7 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         </g>,
       );
       const top: V2 = [(s1[0] + 2 * ctrl[0] + s2[0]) / 4, (s1[1] + 2 * ctrl[1] + s2[1]) / 4];
-      const mv = el.M !== undefined ? parseValue(el.M) : null;
+      const mv = el.M !== undefined ? toNum(el.M) : null;
       const txt = el.M !== undefined ? `M = ${mv !== null ? formatSI(mv, 'H') : el.M}` : `k = ${num(el.k ?? 0)}`;
       const runs: Run[] = [{ t: txt[0], it: true }, { t: txt.slice(1) }];
       const w = textWidth(runs);
