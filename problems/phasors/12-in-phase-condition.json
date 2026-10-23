@@ -1,0 +1,111 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "phasors-12-in-phase-condition",
+  "chapter": "phasors",
+  "title": "由“同相”和“两表读数相等”反推电路参数",
+  "level": 5,
+  "tags": ["相量图", "相量形式的 KCL", "相量形式的 KVL", "同相条件"],
+  "statement": [
+    "U_s = 100 V（有效值），ω = 1000 rad/s，L = 10 mH，R、C 未知。实验测得：电流表 A1、A2 读数相等，且电源电压 u_s 与总电流 i 同相。",
+    "以 U̇_s = 100∠0° V 为参考，用相量图求总电流 I、a 点电压 U_a、电流表读数以及 R、C 的值。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 2], "to": [0, 5], "value": { "ac": { "mag": 100, "phase": 0 } } },
+      { "ref": "L", "type": "L", "from": [2, 0], "to": [6, 0], "value": "10m" },
+      { "ref": "A1", "type": "ammeter", "from": [10, 0], "to": [10, 3] },
+      { "ref": "R", "type": "R", "from": [10, 3], "to": [10, 7], "value": 20, "hideValue": true },
+      { "ref": "A2", "type": "ammeter", "from": [15, 0], "to": [15, 3] },
+      { "ref": "C", "type": "C", "from": [15, 3], "to": [15, 7], "value": "50u", "hideValue": true }
+    ],
+    "wires": [
+      [[0, 2], [0, 0], [2, 0]],
+      [[6, 0], [15, 0]],
+      [[15, 7], [0, 7], [0, 5]]
+    ],
+    "labels": [{ "at": [8, 0], "name": "a" }],
+    "grounds": [[0, 7]],
+    "marks": [{ "kind": "i", "el": "L", "name": "i" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    {
+      "id": "I",
+      "ask": "总电流有效值 I = ?",
+      "find": { "kind": "i", "el": "L", "part": "mag" },
+      "answer": 10,
+      "unit": "A",
+      "explain": "相量图是等腰直角三角形：U̇_L ⊥ U̇_s 且 U_L = U_s = 100 V，所以 I = U_L/X_L = 100/10 = 10 A。"
+    },
+    {
+      "id": "Ua",
+      "ask": "a 点电压 U_a（R、C 两端）= ?",
+      "find": { "kind": "v", "nodes": ["a"], "part": "mag" },
+      "answer": 141.4214,
+      "unit": "V",
+      "explain": "U̇_a 是直角三角形的斜边：U_a = √(U_s² + U_L²) = 100√2 ≈ 141.4 V，相位 −45°。"
+    },
+    {
+      "id": "A1",
+      "ask": "电流表 A1 的读数 = ?",
+      "find": { "kind": "meter", "el": "A1" },
+      "answer": 7.071068,
+      "unit": "A",
+      "explain": "İ_R 与 U̇_a 同相，İ_C 超前 U̇_a 90°，两者等长，合成 İ 与 U̇_a 成 45°：I_R = I_C = I/√2 = 7.071 A。"
+    },
+    {
+      "id": "RC",
+      "ask": "R 和 C 的值是？",
+      "choices": ["R = 10 Ω，C = 100 µF", "R = 20 Ω，C = 50 µF", "R = 14.14 Ω，C = 70.7 µF", "R = 20 Ω，C = 20 µF"],
+      "correct": 1,
+      "explain": "R = U_a/I_R = 141.4/7.071 = 20 Ω；X_C = U_a/I_C = 20 Ω，C = 1/(ωX_C) = 1/(1000 × 20) = 50 µF。验算：Z = j10 + 20∥(−j20) = j10 + (10 − j10) = 10 Ω，纯电阻，与“同相”一致。"
+    }
+  ],
+  "hints": [
+    "以并联部分的电压 U̇_a 为参考相量画图：İ_R 与 U̇_a 同相，İ_C 超前 90°，两者等长，所以 İ 超前 U̇_a 45°。",
+    "U̇_L = jX_L·İ 超前 İ 90°；而 U̇_s 与 İ 同相，所以 U̇_L ⊥ U̇_s。",
+    "KVL：U̇_a = U̇_s − U̇_L，三个电压构成一个直角三角形，再利用 45° 角。"
+  ],
+  "solution": [
+    "**1. 并联部分。** 设 U̇_a = U_a∠θ。I_R = I_C 且 İ_C 超前 İ_R 90°，所以 İ = İ_R + İ_C 的模 I = √2·I_R，且 İ 超前 U̇_a 45°。",
+    "**2. 同相条件。** u_s 与 i 同相，以 U̇_s = 100∠0° 为参考，则 İ = I∠0°，U̇_a = U_a∠−45°。",
+    "**3. KVL 与相量图。** U̇_s = U̇_L + U̇_a，U̇_L = jX_L·İ = 10I∠90°。于是 100∠0° = j10I + U_a∠−45°：实部 100 = U_a cos45°，虚部 0 = 10I − U_a sin45°。得 **U_a = 100√2 ≈ 141.4 V**，**I = 10 A**（U_L = 100 V，等腰直角三角形）。",
+    "**4. 两表读数。** I_R = I_C = I/√2 = **7.071 A**。",
+    "**5. 参数。** R = U_a/I_R = 20 Ω，X_C = U_a/I_C = 20 Ω → C = 1/(ωX_C) = **50 µF**；即 **R = 20 Ω，C = 50 µF**。",
+    "**6. 验算。** Z = jX_L + R∥(−jX_C) = j10 + 20(−j20)/(20 − j20) = j10 + 10 − j10 = 10 Ω（纯电阻），I = 100/10 = 10 A ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Recovering element values from “in phase” and “equal ammeter readings”",
+      "tags": ["phasor diagram", "phasor KCL", "phasor KVL", "in-phase condition"],
+      "statement": [
+        "U_s = 100 V (rms), ω = 1000 rad/s, L = 10 mH; R and C are unknown. Measurements show that ammeters A1 and A2 read the same, and that the source voltage u_s is in phase with the total current i.",
+        "Taking U_s = 100∠0° V as reference, use a phasor diagram to find the total current I, the voltage U_a at node a, the ammeter readings, and the values of R and C."
+      ],
+      "questions": [
+        { "ask": "rms total current I = ?", "explain": "The phasor diagram is an isosceles right triangle: U_L ⊥ U_s and U_L = U_s = 100 V, so I = U_L/X_L = 100/10 = 10 A." },
+        { "ask": "Voltage at node a, U_a (across R and C) = ?", "explain": "U_a is the hypotenuse of the right triangle: U_a = √(U_s² + U_L²) = 100√2 ≈ 141.4 V, at −45°." },
+        { "ask": "Reading of ammeter A1 = ?", "explain": "I_R is in phase with U_a and I_C leads U_a by 90°; with equal lengths their sum I makes 45° with U_a: I_R = I_C = I/√2 = 7.071 A." },
+        {
+          "ask": "What are R and C?",
+          "choices": ["R = 10 Ω, C = 100 µF", "R = 20 Ω, C = 50 µF", "R = 14.14 Ω, C = 70.7 µF", "R = 20 Ω, C = 20 µF"],
+          "explain": "R = U_a/I_R = 141.4/7.071 = 20 Ω; X_C = U_a/I_C = 20 Ω, C = 1/(ωX_C) = 1/(1000 × 20) = 50 µF. Check: Z = j10 + 20∥(−j20) = j10 + (10 − j10) = 10 Ω, purely resistive, consistent with “in phase”."
+        }
+      ],
+      "hints": [
+        "Draw the diagram with the parallel voltage U_a as reference: I_R is in phase with U_a, I_C leads by 90°, and they are equal, so I leads U_a by 45°.",
+        "U_L = jX_L·I leads I by 90°, while U_s is in phase with I, so U_L ⊥ U_s.",
+        "KVL: U_a = U_s − U_L; the three voltages form a right triangle — now use the 45° angle."
+      ],
+      "solution": [
+        "**1. Parallel part.** Let U_a = U_a∠θ. Since I_R = I_C and I_C leads I_R by 90°, the sum I = I_R + I_C has magnitude √2·I_R and leads U_a by 45°.",
+        "**2. In-phase condition.** u_s and i are in phase; with U_s = 100∠0° as reference, I = I∠0° and U_a = U_a∠−45°.",
+        "**3. KVL and the phasor diagram.** U_s = U_L + U_a with U_L = jX_L·I = 10I∠90°. So 100∠0° = j10I + U_a∠−45°: real part 100 = U_a cos45°, imaginary part 0 = 10I − U_a sin45°. Hence **U_a = 100√2 ≈ 141.4 V** and **I = 10 A** (U_L = 100 V, an isosceles right triangle).",
+        "**4. Ammeter readings.** I_R = I_C = I/√2 = **7.071 A**.",
+        "**5. Element values.** R = U_a/I_R = 20 Ω, X_C = U_a/I_C = 20 Ω → C = 1/(ωX_C) = **50 µF**; i.e. **R = 20 Ω, C = 50 µF**.",
+        "**6. Check.** Z = jX_L + R∥(−jX_C) = j10 + 20(−j20)/(20 − j20) = j10 + 10 − j10 = 10 Ω (purely resistive), I = 100/10 = 10 A ✓."
+      ]
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "phasors-10-rc-phase-shifter",
+  "chapter": "phasors",
+  "title": "RC 移相电路：输出有效值不变，只改变相位",
+  "level": 4,
+  "tags": ["移相电路", "相量形式的 KVL", "相量图", "相位差"],
+  "statement": [
+    "U̇_s = 10∠0° V（有效值），ω = 1000 rad/s。两条支路并联在电源上：左支路 R1 在上、C1 在下，中点为 a；右支路 C2 在上、R2 在下，中点为 b。R1 = R2 = R = 200 Ω，C1 = C2 = C = 10 µF。",
+    "求 U_a、输出电压 u_ab 的有效值和初相，并说明调节 R 时 u_ab 如何变化。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 1], "to": [0, 5], "value": { "ac": { "mag": 10, "phase": 0 } } },
+      { "ref": "R1", "type": "R", "from": [5, 0], "to": [5, 3], "value": 200 },
+      { "ref": "C1", "type": "C", "from": [5, 3], "to": [5, 6], "value": "10u" },
+      { "ref": "C2", "type": "C", "from": [12, 0], "to": [12, 3], "value": "10u" },
+      { "ref": "R2", "type": "R", "from": [12, 3], "to": [12, 6], "value": 200 }
+    ],
+    "wires": [
+      [[0, 1], [0, 0], [12, 0]],
+      [[12, 6], [0, 6], [0, 5]],
+      [[5, 3], [7, 3]],
+      [[12, 3], [10, 3]]
+    ],
+    "terminals": [{ "at": [7, 3], "name": "a" }, { "at": [10, 3], "name": "b" }],
+    "grounds": [[0, 6]]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    {
+      "id": "Ua",
+      "ask": "a 点对地电压的有效值 U_a = ?",
+      "find": { "kind": "v", "nodes": ["a"], "part": "mag" },
+      "answer": 4.472136,
+      "unit": "V",
+      "explain": "X_C = 1/(ωC) = 100 Ω。分压：U̇_a = U̇_s·(−j100)/(200 − j100) = 10/(1 + j2) = 4.472∠−63.43° V。"
+    },
+    {
+      "id": "Uab",
+      "ask": "u_ab 的有效值 = ?",
+      "find": { "kind": "v", "nodes": ["a", "b"], "part": "mag" },
+      "answer": 10,
+      "unit": "V",
+      "explain": "U̇_b = U̇_s·200/(200 − j100) = 10·j2/(1 + j2) = 8.944∠26.57° V。U̇_ab = U̇_s(1 − j2)/(1 + j2)，分子分母模相等，所以 U_ab = U_s = 10 V。"
+    },
+    {
+      "id": "psi",
+      "ask": "u_ab 的初相 = ?",
+      "find": { "kind": "v", "nodes": ["a", "b"], "part": "phase" },
+      "answer": -126.8699,
+      "unit": "°",
+      "explain": "(1 − j2)/(1 + j2) = (1 − j2)²/5 = (−3 − j4)/5 = −0.6 − j0.8 = 1∠−126.87°，即 U̇_ab = 10∠−126.87° V，u_ab 滞后 u_s 126.87°。"
+    },
+    {
+      "id": "vary",
+      "ask": "保持 C、ω 不变，R 从 0 增大到 ∞，u_ab 的变化是？",
+      "choices": [
+        "有效值始终等于 U_s，相位从 0° 逐渐变到 −180°",
+        "有效值从 0 增大到 U_s，相位不变",
+        "有效值和相位都不变",
+        "有效值始终为 U_s/2，相位从 0° 变到 −90°"
+      ],
+      "correct": 0,
+      "explain": "U̇_ab/U̇_s = (1 − jωRC)/(1 + jωRC)，模恒为 1，辐角 −2arctan(ωRC)：R = 0 时为 0°，ωRC = 1 时 −90°，R → ∞ 时趋于 −180°。这就是 RC 移相器。"
+    }
+  ],
+  "hints": [
+    "两条支路都直接接在 U̇_s 上，各自是一个分压器。先算 X_C = 1/(ωC)。",
+    "U̇_a 取电容 C1 上的分压，U̇_b 取电阻 R2 上的分压；U̇_ab = U̇_a − U̇_b。",
+    "把 U̇_ab/U̇_s 化成 (1 − jωRC)/(1 + jωRC)，注意分子、分母互为共轭。"
+  ],
+  "solution": [
+    "**1. 容抗。** X_C = 1/(ωC) = 1/(1000 × 10×10⁻⁶) = 100 Ω，ωRC = 200/100 = 2。",
+    "**2. 两个分压。** U̇_a = U̇_s·(−jX_C)/(R − jX_C) = U̇_s/(1 + jωRC) = 10/(1 + j2) = **4.472∠−63.43° V**；U̇_b = U̇_s·R/(R − jX_C) = U̇_s·jωRC/(1 + jωRC) = 8.944∠26.57° V。",
+    "**3. 相量形式的 KVL。** U̇_ab = U̇_a − U̇_b = U̇_s(1 − jωRC)/(1 + jωRC) = 10 × (1 − j2)/(1 + j2) = 10 × (−0.6 − j0.8) = **10∠−126.87° V**。",
+    "**4. 相量图。** U̇_a ⊥ U̇_b（−63.43° 与 26.57° 相差 90°），且 U̇_a + U̇_b = U̇_s，所以 a、b 两点都在以 U̇_s 为直径的圆上，U̇_ab 是这个圆的直径，长度恒为 U_s = **10 V**。",
+    "**5. 调节 R。** 改变 R 只让相位 −2arctan(ωRC) 在 0° ~ −180° 之间变化，有效值不变。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "RC phase shifter: constant rms output, adjustable phase",
+      "tags": ["phase-shift network", "phasor KVL", "phasor diagram", "phase difference"],
+      "statement": [
+        "U_s = 10∠0° V (rms), ω = 1000 rad/s. Two branches are connected across the source: in the left one R1 is on top and C1 below, with midpoint a; in the right one C2 is on top and R2 below, with midpoint b. R1 = R2 = R = 200 Ω, C1 = C2 = C = 10 µF.",
+        "Find U_a and the rms value and initial phase of the output u_ab, and explain how u_ab changes when R is adjusted."
+      ],
+      "questions": [
+        { "ask": "rms voltage of node a to ground, U_a = ?", "explain": "X_C = 1/(ωC) = 100 Ω. Divider: U_a = U_s·(−j100)/(200 − j100) = 10/(1 + j2) = 4.472∠−63.43° V." },
+        { "ask": "rms value of u_ab = ?", "explain": "U_b = U_s·200/(200 − j100) = 10·j2/(1 + j2) = 8.944∠26.57° V. U_ab = U_s(1 − j2)/(1 + j2); numerator and denominator have equal magnitude, so U_ab = U_s = 10 V." },
+        { "ask": "Initial phase of u_ab = ?", "explain": "(1 − j2)/(1 + j2) = (1 − j2)²/5 = (−3 − j4)/5 = −0.6 − j0.8 = 1∠−126.87°, so U_ab = 10∠−126.87° V and u_ab lags u_s by 126.87°." },
+        {
+          "ask": "With C and ω fixed, R is increased from 0 to ∞. What happens to u_ab?",
+          "choices": [
+            "Its rms value stays equal to U_s while its phase moves from 0° to −180°",
+            "Its rms value grows from 0 to U_s, the phase is unchanged",
+            "Neither the rms value nor the phase changes",
+            "Its rms value stays U_s/2 while the phase moves from 0° to −90°"
+          ],
+          "explain": "U_ab/U_s = (1 − jωRC)/(1 + jωRC) always has magnitude 1 and angle −2arctan(ωRC): 0° at R = 0, −90° at ωRC = 1, approaching −180° as R → ∞. This is the RC phase shifter."
+        }
+      ],
+      "hints": [
+        "Both branches sit directly across U_s, each is a voltage divider. Start with X_C = 1/(ωC).",
+        "U_a is the share across C1, U_b the share across R2; U_ab = U_a − U_b.",
+        "Write U_ab/U_s as (1 − jωRC)/(1 + jωRC) and notice that numerator and denominator are conjugates."
+      ],
+      "solution": [
+        "**1. Reactance.** X_C = 1/(ωC) = 1/(1000 × 10×10⁻⁶) = 100 Ω, ωRC = 200/100 = 2.",
+        "**2. The two dividers.** U_a = U_s·(−jX_C)/(R − jX_C) = U_s/(1 + jωRC) = 10/(1 + j2) = **4.472∠−63.43° V**; U_b = U_s·R/(R − jX_C) = U_s·jωRC/(1 + jωRC) = 8.944∠26.57° V.",
+        "**3. Phasor KVL.** U_ab = U_a − U_b = U_s(1 − jωRC)/(1 + jωRC) = 10 × (1 − j2)/(1 + j2) = 10 × (−0.6 − j0.8) = **10∠−126.87° V**.",
+        "**4. Phasor diagram.** U_a ⊥ U_b (−63.43° and 26.57° differ by 90°) and U_a + U_b = U_s, so both points lie on the circle with U_s as diameter, and U_ab is also a diameter of that circle: its length is always U_s = **10 V**.",
+        "**5. Adjusting R.** Changing R only moves the phase −2arctan(ωRC) between 0° and −180°; the rms value stays the same."
+      ]
+    }
+  }
+}
