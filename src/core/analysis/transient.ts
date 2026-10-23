@@ -148,7 +148,7 @@ export class Transient {
 
   private preDC(): { sys: MnaSystem; x: Complex[] } {
     if (this._preDC) return this._preDC;
-    const sys = new MnaSystem(this.ckt, { kind: 'dc', phase: 'before', icFixed: true, label: 'the DC steady state before t = 0' });
+    const sys = new MnaSystem(this.ckt, { kind: 'dc', phase: 'before', icFixed: true, conserve: true, label: 'the DC steady state before t = 0' });
     if (sys.error)
       throw new AnalysisError(
         `Cannot determine the initial state at t = 0−. ${sys.error.message} If a capacitor or inductor has no defined steady state before t = 0 (for example an uncharged capacitor cut off by an open switch), give it an initial value with "ic" (ic: 0 for an uncharged capacitor).`,
@@ -333,8 +333,11 @@ export class Transient {
     const m = this.model();
     if (t === '0+' || t === 0) {
       if (m.parasitic.size === 0) return this.solutionFrom(this.s0(), 0);
+      // after the (parasitic) charge redistribution; linear extrapolation back to t = 0
       const te = 40 * m.tauPar;
-      return this.solutionFrom(this.statesAt(te), te);
+      const s1 = this.statesAt(te);
+      const s2 = this.statesAt(2 * te);
+      return this.solutionFrom(s1.map((v, i) => 2 * v - s2[i]), 0);
     }
     if (typeof t !== 'number') throw new AnalysisError(`find.t must be a number of seconds, "0-", "0+" or "inf" (got ${JSON.stringify(t)})`);
     return this.solutionFrom(this.statesAt(t), t);

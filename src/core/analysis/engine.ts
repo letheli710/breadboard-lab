@@ -31,7 +31,7 @@ export class StaticAnalysis {
   }
 
   private mode(extra?: CEl[], removed?: Set<string>): Mode {
-    return { kind: this.kind, omega: this.omega, phase: this.phase, extra, removed, label: this.label };
+    return { kind: this.kind, omega: this.omega, phase: this.phase, extra, removed, label: this.label, conserve: true };
   }
 
   /** value of an independent source in this analysis */

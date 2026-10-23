@@ -255,6 +255,40 @@ describe('first-order transients', () => {
     close(q(sl, TRAN, { kind: 'i', el: 'L2', t: 1 }), 2 * (1 - Math.exp(-1)), 1e-5);
     close(q(sl, TRAN, { kind: 'v', el: 'L2', t: 1 }), 4 * Math.exp(-1), 1e-5);
   });
+  it('charge redistribution between capacitors through a closing switch', () => {
+    const d: Spec[] = [
+      { ref: 'C1', type: 'C', nodes: ['a', '0'], value: 1, ic: 10 },
+      { ref: 'S', type: 'SW', nodes: ['a', 'b'] },
+      { ref: 'C2', type: 'C', nodes: ['b', '0'], value: 1, ic: 0 },
+      { ref: 'R', type: 'R', nodes: ['b', '0'], value: 1 },
+    ];
+    close(q(d, TRAN, { kind: 'v', el: 'C2', t: '0+' }), 5, 1e-6);
+    close(q(d, TRAN, { kind: 'v', el: 'C2', t: 1 }), 5 * Math.exp(-0.5), 1e-6);
+    close(q(d, TRAN, { kind: 'tau' }), 2, 1e-6);
+  });
+  it('parallel inductors: zero loop flux before, conserved flux to t = inf', () => {
+    const d: Spec[] = [
+      { ref: 'Vs', type: 'V', nodes: ['s', '0'], value: { step: { before: 3, after: 6 } } },
+      { ref: 'R', type: 'R', nodes: ['s', 'a'], value: 2 },
+      { ref: 'L1', type: 'L', nodes: ['a', '0'], value: 1 },
+      { ref: 'L2', type: 'L', nodes: ['a', '0'], value: 2 },
+    ];
+    close(q(d, TRAN, { kind: 'i', el: 'L1', t: '0-' }), 1); // 1.5 A split 2:1
+    close(q(d, TRAN, { kind: 'tau' }), 1 / 3);
+    close(q(d, TRAN, { kind: 'i', el: 'L1', t: 'inf' }), 2);
+    close(q(d, TRAN, { kind: 'i', el: 'L2', t: 1 / 3 }), 0.5 + 0.5 * (1 - Math.exp(-1)));
+  });
+  it('very stiff circuit (time constants 1 ns and 1e6 s)', () => {
+    const d: Spec[] = [
+      { ref: 'Vs', type: 'V', nodes: ['s', '0'], value: { step: { before: 0, after: 1 } } },
+      { ref: 'R1', type: 'R', nodes: ['s', 'a'], value: 1 },
+      { ref: 'C1', type: 'C', nodes: ['a', '0'], value: 1e-9 },
+      { ref: 'R2', type: 'R', nodes: ['s', 'b'], value: 1e6 },
+      { ref: 'C2', type: 'C', nodes: ['b', '0'], value: 1 },
+    ];
+    close(q(d, TRAN, { kind: 'v', el: 'C2', t: 1e6 }), 1 - Math.exp(-1), 1e-8);
+    close(q(d, TRAN, { kind: 'v', el: 'C1', t: 1e-9 }), 1 - Math.exp(-1), 1e-8);
+  });
   it('op-amp integrator with ic', () => {
     const d: Spec[] = [
       { ref: 'Vi', type: 'V', nodes: ['i', '0'], value: { step: { before: 0, after: 1 } } },
@@ -550,14 +584,30 @@ describe('node aliases', () => {
 });
 
 describe('errors', () => {
-  it('floating node (only capacitors in DC) gives a readable message', () => {
+  it('series capacitors in DC share charge (initially uncharged)', () => {
     const d: Spec[] = [
       { ref: 'V', type: 'V', nodes: ['a', '0'], value: 5 },
-      { ref: 'C1', type: 'C', nodes: ['a', 'm'], value: 1e-6 },
-      { ref: 'C2', type: 'C', nodes: ['m', '0'], value: 1e-6 },
+      { ref: 'C1', type: 'C', nodes: ['a', 'm'], value: '1u' },
+      { ref: 'C2', type: 'C', nodes: ['m', '0'], value: '3u' },
+    ];
+    close(q(d, DC, { kind: 'v', el: 'C2' }), 1.25);
+  });
+  it('floating node (current source into a capacitor in DC) gives a readable message', () => {
+    const d: Spec[] = [
+      { ref: 'I', type: 'I', nodes: ['0', 'm'], value: 1 },
+      { ref: 'C', type: 'C', nodes: ['m', '0'], value: 1e-6 },
+      { ref: 'R', type: 'R', nodes: ['m', 'x'], value: 1 },
     ];
     expect(() => q(d, DC, { kind: 'v', nodes: ['m'] })).toThrow(AnalysisError);
     expect(() => q(d, DC, { kind: 'v', nodes: ['m'] })).toThrow(/"m".*capacitors/);
+  });
+  it('AC: lossless resonance exactly at the analysis frequency', () => {
+    const d: Spec[] = [
+      { ref: 'Is', type: 'I', nodes: ['0', 'a'], value: { ac: { mag: 1 } } },
+      { ref: 'L', type: 'L', nodes: ['a', '0'], value: 1 },
+      { ref: 'C', type: 'C', nodes: ['a', '0'], value: 1 },
+    ];
+    expect(() => q(d, { type: 'ac', omega: 1 }, { kind: 'v', nodes: ['a'] })).toThrow(/resonance/);
   });
   it('voltage-source loop', () => {
     const d: Spec[] = [
@@ -566,16 +616,26 @@ describe('errors', () => {
     ];
     expect(() => q(d, DC, { kind: 'v', nodes: ['a'] })).toThrow(/loop/);
   });
-  it('isolated capacitor before t=0 asks for ic', () => {
+  it('a capacitor cut off before t = 0 is uncharged unless ic is given', () => {
     const d: Spec[] = [
       { ref: 'V', type: 'V', nodes: ['s', '0'], value: 10 },
       { ref: 'S', type: 'SW', nodes: ['s', 'x'] },
       { ref: 'R', type: 'R', nodes: ['x', 'a'], value: 1 },
       { ref: 'C', type: 'C', nodes: ['a', '0'], value: 1 },
     ];
-    expect(() => q(d, TRAN, { kind: 'v', el: 'C', t: 1 })).toThrow(/ic/);
-    const e = d.map((x) => (x.ref === 'C' ? { ...x, ic: 0 } : x));
-    close(q(e, TRAN, { kind: 'v', el: 'C', t: 1 }), 10 * (1 - Math.exp(-1)));
+    close(q(d, TRAN, { kind: 'v', el: 'C', t: '0-' }), 0);
+    close(q(d, TRAN, { kind: 'v', el: 'C', t: 1 }), 10 * (1 - Math.exp(-1)));
+    const e = d.map((x) => (x.ref === 'C' ? { ...x, ic: 4 } : x));
+    close(q(e, TRAN, { kind: 'v', el: 'C', t: 1 }), 10 - 6 * Math.exp(-1));
+  });
+  it('inductor driven by a current source after t = 0 (cut-set)', () => {
+    const d: Spec[] = [
+      { ref: 'Is', type: 'I', nodes: ['0', 'a'], value: { step: { before: 0, after: 2 } } },
+      { ref: 'L', type: 'L', nodes: ['a', '0'], value: 1, ic: 0 },
+      { ref: 'S', type: 'SW', nodes: ['a', 'b'], state: { before: 'closed', after: 'open' } },
+      { ref: 'R', type: 'R', nodes: ['b', '0'], value: 1 },
+    ];
+    close(q(d, TRAN, { kind: 'i', el: 'L', t: 0.5 }), 2, 1e-6);
   });
   it('missing values, unknown nodes, unsupported kinds', () => {
     expect(() => q([{ ref: 'R1', type: 'R', nodes: ['a', '0'] }], DC, { kind: 'v', nodes: ['a'] })).toThrow(/R1.*missing/);

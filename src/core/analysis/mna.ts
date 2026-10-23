@@ -23,6 +23,9 @@ export interface Mode {
   extra?: readonly CEl[];
   /** dc: capacitors / inductors with `ic` are held at their initial value */
   icFixed?: boolean;
+  /** dc: resolve capacitor-only cut-sets by zero net charge and inductor-only loops by zero
+   *  loop flux (the "initially uncharged / de-energised" assumption) */
+  conserve?: boolean;
   /** res: tiny series resistance (C) or parallel conductance (L) for dependent states */
   parasitic?: ReadonlyMap<string, number>;
   /** for messages, e.g. "DC analysis" */
@@ -166,12 +169,112 @@ export class MnaSystem {
         put(r - 1, r - 1, ONE);
       }
     }
+    if (mode.kind === 'dc' && mode.conserve) this.conserve(A, putV, put, find);
     this.matrix = A;
     try {
       this.lu = luFactor(A);
     } catch (e) {
       if (!(e instanceof SingularMatrixError)) throw e;
       this.error = new AnalysisError(this.diagnose(e.column));
+    }
+  }
+
+  /** Replace redundant rows so that DC-floating capacitor islands carry zero net charge and
+   *  loops of shorted inductors carry zero flux. */
+  private conserve(
+    A: Complex[][],
+    putV: (r: number, p: number, q: number, c: Complex) => void,
+    put: (r: number, c: number, v: Complex) => void,
+    topo: (x: number) => number,
+  ): void {
+    const N = this.ckt.nodeNames.length;
+    const par = Array.from({ length: N }, (_, i) => i);
+    const f = (x: number): number => (par[x] === x ? x : (par[x] = f(par[x])));
+    const join = (a: number, b: number) => (par[f(a)] = f(b));
+    const two = this.all.filter(isTwoTerminal);
+    // (a) capacitor cut-sets
+    for (const el of two) {
+      const r = this.rels.get(el.ref)!;
+      if (!r.open && !(r.a.re === 0 && r.a.im === 0)) join(el.pins[0], el.pins[1]);
+    }
+    for (const el of this.all) {
+      if (el.type === 'OPAMP') {
+        join(el.pins[2], 0);
+        join(el.pins[0], el.pins[1]);
+      } else if (el.type === 'XFMR') {
+        join(el.pins[0], el.pins[1]);
+        join(el.pins[2], el.pins[3]);
+      }
+    }
+    for (let i = 1; i < N; i++) if (topo(i) !== topo(0)) join(i, 0);
+    const groups = new Map<number, number[]>();
+    for (let i = 1; i < N; i++) {
+      const r = f(i);
+      if (r === f(0)) continue;
+      if (!groups.has(r)) groups.set(r, []);
+      groups.get(r)!.push(i);
+    }
+    for (const nodes of groups.values()) {
+      const inG = new Set(nodes);
+      const boundary = two.filter((el) => !this.rels.get(el.ref)!.open && inG.has(el.pins[0]) !== inG.has(el.pins[1]));
+      const caps = boundary.every((el) => el.type === 'C' && this.rels.get(el.ref)!.a.re === 0 && this.rels.get(el.ref)!.a.im === 0);
+      if (!boundary.length || !caps) continue;
+      const row = Math.min(...nodes) - 1;
+      A[row] = A[row].map(() => ZERO);
+      for (const el of boundary) putV(row, el.pins[0], el.pins[1], cx(inG.has(el.pins[0]) ? el.value : -el.value));
+    }
+    // (b) inductor loops
+    for (let i = 0; i < N; i++) par[i] = i;
+    const adj = new Map<number, { el: CEl; to: number }[]>();
+    const addEdge = (el: CEl) => {
+      const [p, q] = el.pins;
+      if (!adj.has(p)) adj.set(p, []);
+      if (!adj.has(q)) adj.set(q, []);
+      adj.get(p)!.push({ el, to: q });
+      adj.get(q)!.push({ el, to: p });
+      join(p, q);
+    };
+    for (const el of two) {
+      const r = this.rels.get(el.ref)!;
+      if (r.vlike && !r.terms.length && (el.type === 'SW' || el.type === 'ammeter' || el.type === 'R')) addEdge(el);
+    }
+    for (const el of two) {
+      if (el.type !== 'L') continue;
+      const r = this.rels.get(el.ref)!;
+      if (!r.vlike) continue; // removed, or held at ic
+      const [p, q] = el.pins;
+      if (p === q || f(p) !== f(q)) {
+        if (p !== q) addEdge(el);
+        continue;
+      }
+      // path q → p through the edges added so far
+      const prev = new Map<number, { el: CEl; from: number }>();
+      const queue = [q];
+      prev.set(q, { el, from: -1 });
+      while (queue.length && !prev.has(p) ) {
+        const u = queue.shift()!;
+        for (const e of adj.get(u) ?? [])
+          if (!prev.has(e.to)) {
+            prev.set(e.to, { el: e.el, from: u });
+            queue.push(e.to);
+          }
+      }
+      const loop: { el: CEl; sign: number }[] = [{ el, sign: 1 }];
+      for (let v = p; v !== q; ) {
+        const { el: e, from } = prev.get(v)!;
+        loop.push({ el: e, sign: e.pins[0] === from ? 1 : -1 });
+        v = from;
+      }
+      const row = this.varOf.get(el.ref)!;
+      A[row] = A[row].map(() => ZERO);
+      for (const { el: e, sign } of loop) {
+        if (e.type !== 'L') continue;
+        put(row, this.varOf.get(e.ref)!, cx(sign * e.value));
+        for (const k of this.ckt.mutual) {
+          const other = k.l1 === e.ref ? k.l2 : k.l2 === e.ref ? k.l1 : null;
+          if (other) put(row, this.varOf.get(other)!, cx(sign * k.M));
+        }
+      }
     }
   }
 
