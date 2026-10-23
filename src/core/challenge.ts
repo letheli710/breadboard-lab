@@ -206,6 +206,7 @@ function parseLayout(raw: unknown, refs: Set<string> | null, where: string, erro
   }
   const parts: PlacedPart[] = [];
   const used = new Map<string, string>();
+  const autoChannel = new Set<number>();
   raw.parts.forEach((p: unknown, i: number) => {
     const w = `${where}.parts[${i}]`;
     if (!isObj(p)) return errors.push(tr(`${w}: 必须是对象`, `${w}: must be an object`));
@@ -240,8 +241,19 @@ function parseLayout(raw: unknown, refs: Set<string> | null, where: string, erro
       type === 'wire'
         ? { ...def.defaults, ...(typeof p.color === 'string' ? { wireColor: WIRE_NAMES[p.color] ?? p.color } : {}) }
         : { ...def.defaults, ...parseProps(type, isObj(p.props) ? p.props : p, w, errors) };
+    if (type === 'scope_probe' && (isObj(p.props) ? p.props : p).channel === undefined) autoChannel.add(parts.length);
     parts.push({ id: `${ref}-${i}`, ref, type, props, pins });
   });
+  // scope probes without an explicit "channel" (the part default is CH1): first free channel
+  // gets CH1, the next CH2 (as when placing probes by hand), so two probes don't both land on CH1
+  const chans = new Set(parts.filter((_, i) => !autoChannel.has(i) && parts[i].type === 'scope_probe').map((p) => p.props.channel));
+  for (const i of autoChannel) {
+    const ch = !chans.has(1) ? 1 : !chans.has(2) ? 2 : undefined;
+    if (ch) {
+      parts[i].props.channel = ch;
+      chans.add(ch);
+    }
+  }
   return { version: 1, parts };
 }
 

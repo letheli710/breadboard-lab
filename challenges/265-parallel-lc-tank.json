@@ -1,0 +1,119 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp4-parallel-lc-tank",
+  "title": "实验 4-5 · LC 并联谐振（槽路）：只让一个频率通过",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 4,
+  "summary": "10 kΩ 串一个 10 mH ∥ 100 nF 的并联槽路。在 f0 ≈ 5.03 kHz 槽路阻抗高达约 100 kΩ，输出几乎等于输入；偏离一倍频率，输出只剩 2%。槽路里的环流是外部电流的 300 多倍。",
+  "concepts": ["并联谐振 parallel resonance", "槽路阻抗 Z0 = L/(rC)", "谐振时导纳虚部为零 susceptance cancels", "环流 circulating current", "选频 frequency selection"],
+  "description": [
+    "**要搭的电路**：信号发生器红夹子 → R1（10 kΩ）→ 节点 VT；VT 到 GND 之间并联 L1（10 mH）和 C1（100 nF）。黑夹子接 GND。",
+    "**信号发生器**：正弦波，幅度 1 V、偏置 0。频率在 2.5 kHz ~ 10 kHz 之间扫，在 5.03 kHz 附近要非常慢地调（峰很尖）。",
+    "**示波器**：CH1 接 VIN，CH2 接 VT。",
+    "",
+    "**原理（用导纳）**：并联支路的导纳相加：Y = 1/(r + jωL) + jωC（r = 1 Ω 线圈电阻）。",
+    "- 在 f0 = 1/(2π√(LC)) ≈ 5033 Hz，电感和电容的电纳互相抵消，Y 只剩一个很小的实部，槽路阻抗达到最大：Z0 ≈ L/(rC) = 10 mH / (1 Ω × 100 nF) = 100 kΩ。",
+    "- 于是 R1 和 100 kΩ 分压：VT/VIN ≈ 100/(10 + 100) ≈ 0.91，相位 ≈ 0。",
+    "- 偏离谐振，槽路阻抗迅速变小：f0/2 = 2.5 kHz 时，Z ≈ jωL/(1 − ω²LC) ≈ j211 Ω（感性，电感支路电流大），VT/VIN ≈ 0.021，相位 ≈ +88°；2f0 = 10 kHz 时 Z ≈ −j105 Ω（容性），VT/VIN ≈ 0.021，相位 ≈ −89°。",
+    "- 带宽：整个电路的 Q ≈ (R1 ∥ Z0)/√(L/C) ≈ 9.1 kΩ / 316 Ω ≈ 29，BW = f0/Q ≈ 175 Hz——只有约 4.95 ~ 5.12 kHz 这一小段能通过。收音机的调谐回路就是这样“选台”的。",
+    "",
+    "**环流**：谐振时从 R1 流进槽路的电流只有约 6.5 µA（有效值），而在 L 和 C 之间来回流动的电流约 2.0 mA——是外部电流的 300 多倍（≈ 槽路自身的 Q = √(L/C)/r ≈ 316）。能量在电感的磁场和电容的电场之间来回交换，外面只需要补充线圈电阻上的损耗。（相量图：İL 和 İC 大小几乎相等、方向相反。）",
+    "",
+    "**和真实元件比**：仿真里线圈电阻只有 1 Ω，所以 Z0 高达 100 kΩ。真实的 10 mH 小电感线圈电阻常在 10 ~ 30 Ω，Z0 会降到几 kΩ，峰值也会低很多、宽很多——这正是“品质因数”这个名字的来历。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 4-5 · Parallel LC resonance (tank): let only one frequency through",
+      "summary": "10 kΩ feeding a 10 mH ∥ 100 nF parallel tank. At f0 ≈ 5.03 kHz the tank impedance is about 100 kΩ and the output almost equals the input; a factor of two away in frequency only 2% is left. The current circulating inside the tank is over 300× the current coming in.",
+      "concepts": ["parallel resonance", "tank impedance Z0 = L/(rC)", "susceptances cancel at resonance", "circulating current", "frequency selection"],
+      "description": [
+        "**What you build**: generator red clip → R1 (10 kΩ) → node VT; between VT and GND, L1 (10 mH) and C1 (100 nF) in parallel. Black clip to GND.",
+        "**Generator**: sine, amplitude 1 V, offset 0. Sweep from 2.5 kHz to 10 kHz, and turn the knob very slowly near 5.03 kHz (the peak is sharp).",
+        "**Scope**: CH1 on VIN, CH2 on VT.",
+        "",
+        "**Theory (use admittance)**: parallel admittances add: Y = 1/(r + jωL) + jωC (r = 1 Ω winding resistance).",
+        "- At f0 = 1/(2π√(LC)) ≈ 5033 Hz the inductor's and capacitor's susceptances cancel, leaving only a tiny real part, so the tank impedance peaks: Z0 ≈ L/(rC) = 10 mH / (1 Ω × 100 nF) = 100 kΩ.",
+        "- R1 and 100 kΩ then form a divider: VT/VIN ≈ 100/(10 + 100) ≈ 0.91, phase ≈ 0.",
+        "- Away from resonance the tank impedance collapses: at f0/2 = 2.5 kHz, Z ≈ jωL/(1 − ω²LC) ≈ j211 Ω (inductive — the inductor branch carries most current), VT/VIN ≈ 0.021, phase ≈ +88°; at 2f0 = 10 kHz, Z ≈ −j105 Ω (capacitive), VT/VIN ≈ 0.021, phase ≈ −89°.",
+        "- Bandwidth: the whole circuit's Q ≈ (R1 ∥ Z0)/√(L/C) ≈ 9.1 kΩ / 316 Ω ≈ 29, so BW = f0/Q ≈ 175 Hz — only about 4.95 to 5.12 kHz gets through. That is how a radio's tuned circuit \"picks a station\".",
+        "",
+        "**Circulating current**: at resonance only about 6.5 µA (RMS) flows into the tank through R1, while about 2.0 mA flows back and forth between L and C — over 300× the outside current (≈ the tank's own Q = √(L/C)/r ≈ 316). Energy sloshes between the inductor's magnetic field and the capacitor's electric field; the outside only has to make up the loss in the winding resistance. (Phasor diagram: I_L and I_C are almost equal and opposite.)",
+        "",
+        "**Compared with real parts**: the simulated coil has only 1 Ω of winding resistance, so Z0 reaches 100 kΩ. A real small 10 mH inductor often has 10–30 Ω, which brings Z0 down to a few kΩ and makes the peak much lower and wider — which is where the name \"quality factor\" comes from."
+      ],
+      "hints": [
+        "L1 and C1 are side by side, both from VT to GND; R1 connects the generator to VT.",
+        "At f0 the tank looks like a very large resistor; away from f0 it looks like a small L or C.",
+        "Sweep slowly near 5.03 kHz: the band is only about 175 Hz wide."
+      ],
+      "tests": [
+        "f0 = 5033 Hz: VT ≈ 0.91 of VIN, in phase",
+        "f0: the tank current (≈ 2.0 mA RMS) is over 300× the current through R1 (≈ 6.5 µA)",
+        "f0/2 = 2.5 kHz: inductive tank, VT ≈ 0.021 of VIN, ≈ +88°",
+        "2f0 = 10 kHz: capacitive tank, VT ≈ 0.021 of VIN, ≈ −89°"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "R1", "type": "resistor", "resistance": "10k" },
+    { "ref": "L1", "type": "inductor", "inductance": "10m" },
+    { "ref": "C1", "type": "capacitor", "capacitance": "100n" }
+  ],
+  "nets": [
+    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
+    { "name": "VT", "pins": ["R1.2", "L1.1", "C1.1"] },
+    { "name": "GND", "pins": ["L1.2", "C1.2", "FG1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "f0 = 5033 Hz：VT ≈ 0.91 倍 VIN，同相",
+      "set": { "FG1": { "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "L1.1", "measure": "gain", "vs": "FG1.+", "min": 0.87, "max": 0.94 },
+        { "pin": "L1.1", "measure": "phase", "vs": "FG1.+", "min": -4, "max": 4 }
+      ]
+    },
+    {
+      "name": "f0：槽路里的电流（≈ 2.0 mA 有效值）是 R1 电流（≈ 6.5 µA）的 300 多倍",
+      "set": { "FG1": { "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0 } },
+      "currents": [
+        { "el": "L1", "mode": "rms", "min": 0.0019, "max": 0.0021 },
+        { "el": "R1", "mode": "rms", "min": 0.0000055, "max": 0.0000075 }
+      ]
+    },
+    {
+      "name": "f0/2 = 2.5 kHz：槽路呈感性，VT ≈ 0.021 倍 VIN，≈ +88°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 2516, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "L1.1", "measure": "gain", "vs": "FG1.+", "min": 0.019, "max": 0.023 },
+        { "pin": "L1.1", "measure": "phase", "vs": "FG1.+", "min": 85, "max": 91 }
+      ]
+    },
+    {
+      "name": "2f0 = 10 kHz：槽路呈容性，VT ≈ 0.021 倍 VIN，≈ −89°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 10066, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "L1.1", "measure": "gain", "vs": "FG1.+", "min": 0.019, "max": 0.023 },
+        { "pin": "L1.1", "measure": "phase", "vs": "FG1.+", "min": -92, "max": -86 }
+      ]
+    }
+  ],
+  "hints": [
+    "L1 和 C1 并排放，都从 VT 接到 GND；R1 把信号发生器接到 VT。",
+    "f0 时槽路像一个很大的电阻；偏离 f0 时它像一个小电感或小电容。",
+    "在 5.03 kHz 附近要慢慢调：通带只有约 175 Hz 宽。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "resistor", "ref": "R1", "resistance": "10k", "pins": { "1": "b3", "2": "b10" } },
+      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "c10", "2": "tn10" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "d10", "2": "tn11" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+    ]
+  }
+}

@@ -107,3 +107,42 @@ describe('challenge "phase"', () => {
     }
   });
 });
+
+describe('layout scope probes', () => {
+  it('get CH1 then CH2 when "channel" is omitted', () => {
+    const r = parseChallenge({
+      format: 'breadboard-challenge/1',
+      id: 'probe-channels',
+      title: 'probes',
+      components: [
+        { ref: 'V1', type: 'dc_source', voltage: 9 },
+        { ref: 'R1', type: 'resistor', resistance: '1k' },
+      ],
+      connections: [['V1.+', 'R1.1'], ['R1.2', 'V1.-']],
+      solution: {
+        parts: [
+          { type: 'scope_probe', ref: 'PA', channel: 2, pins: { tip: 'a1', gnd: 'a5' } },
+          { type: 'scope_probe', ref: 'PB', pins: { tip: 'a10', gnd: 'a15' } },
+          { type: 'scope_probe', ref: 'PC', pins: { tip: 'a20', gnd: 'a25' } },
+        ],
+      },
+    });
+    expect(r.ok).toBe(true);
+    // a third probe has no free channel left and keeps the default
+    expect(r.challenge!.solution!.parts.map((p) => p.props.channel)).toEqual([2, 1, 1]);
+  });
+  it('two probes without "channel" become CH1 and CH2', () => {
+    const r = parseChallenge({
+      format: 'breadboard-challenge/1',
+      id: 'probe-channels-2',
+      title: 'probes',
+      components: [{ ref: 'V1', type: 'dc_source', voltage: 9 }, { ref: 'R1', type: 'resistor', resistance: '1k' }],
+      connections: [['V1.+', 'R1.1'], ['R1.2', 'V1.-']],
+      solution: { parts: [
+        { type: 'scope_probe', ref: 'PA', pins: { tip: 'a1', gnd: 'a5' } },
+        { type: 'scope_probe', ref: 'PB', pins: { tip: 'a10', gnd: 'a15' } },
+      ] },
+    });
+    expect(r.challenge!.solution!.parts.map((p) => p.props.channel)).toEqual([1, 2]);
+  });
+});

@@ -1,0 +1,124 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp4-rc-bandpass-loading",
+  "title": "实验 4-7 · 两级 RC 带通：负载效应让 0.5 变成 1/3",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 4,
+  "summary": "高通（15 nF + 10 kΩ）后面直接接低通（10 kΩ + 15 nF），中心频率 1061 Hz。按“0.707 × 0.707 = 0.5”算，实测却只有 1/3——第二级把第一级“压”低了。",
+  "concepts": ["带通滤波器 band-pass filter", "级联 cascading", "负载效应 loading effect", "网络函数 H = jωRC/(1 − ω²R²C² + 3jωRC)", "中心频率 f0 = 1/(2πRC)"],
+  "description": [
+    "**要搭的电路**：信号发生器红夹子 → C1（15 nF）→ 节点 A；A → R1（10 kΩ）→ GND（这是高通级）；A → R2（10 kΩ）→ 节点 B → C2（15 nF）→ GND（这是低通级）。黑夹子接 GND。",
+    "**信号发生器**：正弦波，幅度 1 V、偏置 0；频率依次 106 Hz、1061 Hz、10.6 kHz。",
+    "**示波器**：CH1 接 VIN，CH2 接 B（输出）；再把 CH2 挪到 A 看第一级的输出。",
+    "",
+    "**天真的算法**：两级的截止频率都是 fc = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz。高通在 fc 处是 0.707∠+45°，低通是 0.707∠−45°，串起来应该是 0.5∠0°。",
+    "**实际**：在 1061 Hz 输出 B 只有 VIN 的 **1/3**（相位 0°）。原因是第二级（R2 + C2）并联在 R1 上，成了第一级的**负载**：从 A 看进去，R1 ∥ (R2 + 1/(jωC2)) 比 R1 小，第一级的输出 A 被压低到 √2/3 ≈ 0.471∠+45°（不再是 0.707∠+45°）。",
+    "**用结点电压法算一遍**（令 x = ωRC）：对 A、B 两个结点列 KCL，解得",
+    "  H(jω) = U̇B/U̇in = jx / (1 − x² + 3jx)",
+    "- x = 1（1061 Hz）：H = j/(3j) = 1/3，相位 0°。分母里的“3”就是负载效应：不考虑负载时这里是 2。",
+    "- x = 0.1（106 Hz）：|H| = 0.1/|0.99 + 0.3j| ≈ 0.097，相位 ≈ +73°。",
+    "- x = 10（10.6 kHz）：|H| = 10/|−99 + 30j| ≈ 0.097，相位 ≈ −73°。",
+    "对数坐标上，响应以 f0 为中心左右对称：两边都按 ±20 dB/十倍频下降。",
+    "",
+    "**负载效应的一般规律**：后一级的输入阻抗必须远大于前一级的输出阻抗，才能把两级的网络函数直接相乘。这里两者是同一个数量级（10 kΩ 对 10 kΩ），所以误差很大。解决办法：把第二级的阻抗放大 10 倍以上（例如 100 kΩ + 1.5 nF），或者在两级之间加一个电压跟随器——见下一个实验。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 4-7 · Two-stage RC band-pass: loading turns 0.5 into 1/3",
+      "summary": "A high-pass (15 nF + 10 kΩ) feeding a low-pass (10 kΩ + 15 nF) directly, centred at 1061 Hz. \"0.707 × 0.707 = 0.5\" says one thing; the scope says 1/3 — the second stage drags the first one down.",
+      "concepts": ["band-pass filter", "cascading", "loading effect", "network function H = jωRC/(1 − ω²R²C² + 3jωRC)", "centre frequency f0 = 1/(2πRC)"],
+      "description": [
+        "**What you build**: generator red clip → C1 (15 nF) → node A; A → R1 (10 kΩ) → GND (the high-pass stage); A → R2 (10 kΩ) → node B → C2 (15 nF) → GND (the low-pass stage). Black clip to GND.",
+        "**Generator**: sine, amplitude 1 V, offset 0; frequency 106 Hz, 1061 Hz and 10.6 kHz in turn.",
+        "**Scope**: CH1 on VIN, CH2 on B (the output); then move CH2 to A to see the first stage's output.",
+        "",
+        "**The naive estimate**: both stages have cutoff fc = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz. At fc the high-pass gives 0.707∠+45° and the low-pass 0.707∠−45°, so in series they should give 0.5∠0°.",
+        "**What actually happens**: at 1061 Hz the output B is only **1/3** of VIN (phase 0°). The second stage (R2 + C2) sits in parallel with R1 and **loads** the first stage: looking in from A, R1 ∥ (R2 + 1/(jωC2)) is smaller than R1, so the first stage's output A drops to √2/3 ≈ 0.471∠+45° (instead of 0.707∠+45°).",
+        "**Work it out with nodal analysis** (let x = ωRC): KCL at nodes A and B gives",
+        "  H(jω) = U_B/U_in = jx / (1 − x² + 3jx)",
+        "- x = 1 (1061 Hz): H = j/(3j) = 1/3, phase 0°. The \"3\" in the denominator is the loading effect: without loading it would be 2.",
+        "- x = 0.1 (106 Hz): |H| = 0.1/|0.99 + 0.3j| ≈ 0.097, phase ≈ +73°.",
+        "- x = 10 (10.6 kHz): |H| = 10/|−99 + 30j| ≈ 0.097, phase ≈ −73°.",
+        "On log axes the response is symmetric about f0, falling at ±20 dB/decade on each side.",
+        "",
+        "**The general rule**: you may simply multiply the network functions of two stages only if the second stage's input impedance is much larger than the first stage's output impedance. Here they are the same size (10 kΩ vs 10 kΩ), so the error is large. Fixes: scale the second stage's impedance up 10× or more (e.g. 100 kΩ + 1.5 nF), or put a voltage follower between the stages — see the next experiment."
+      ],
+      "hints": [
+        "Stage 1 (high-pass): capacitor C1 in series, R1 from A to GND.",
+        "Stage 2 (low-pass): R2 from A to B, C2 from B to GND.",
+        "Node A has three things on it: C1, R1 and R2."
+      ],
+      "tests": [
+        "f0 = 1061 Hz: output B = 1/3 of VIN (not 0.5), phase 0°",
+        "f0: the first stage's output A is pulled down to ≈ 0.471∠+45° (not 0.707)",
+        "106 Hz: ≈ 0.097, phase ≈ +73°",
+        "10.6 kHz: ≈ 0.097, phase ≈ −73°"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "C1", "type": "capacitor", "capacitance": "15n" },
+    { "ref": "R1", "type": "resistor", "resistance": "10k" },
+    { "ref": "R2", "type": "resistor", "resistance": "10k" },
+    { "ref": "C2", "type": "capacitor", "capacitance": "15n" }
+  ],
+  "nets": [
+    { "name": "VIN", "pins": ["FG1.+", "C1.1"] },
+    { "name": "A", "pins": ["C1.2", "R1.1", "R2.1"] },
+    { "name": "B", "pins": ["R2.2", "C2.1"] },
+    { "name": "GND", "pins": ["R1.2", "C2.2", "FG1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "f0 = 1061 Hz：输出 B = VIN 的 1/3（不是 0.5），相位 0°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "C2.1", "measure": "gain", "vs": "FG1.+", "min": 0.32, "max": 0.347 },
+        { "pin": "C2.1", "measure": "phase", "vs": "FG1.+", "min": -3, "max": 3 }
+      ]
+    },
+    {
+      "name": "f0：第一级输出 A 被压低到 ≈ 0.471∠+45°（不是 0.707）",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.45, "max": 0.49 },
+        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 42, "max": 48 }
+      ]
+    },
+    {
+      "name": "106 Hz：≈ 0.097，相位 ≈ +73°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "C2.1", "measure": "gain", "vs": "FG1.+", "min": 0.092, "max": 0.102 },
+        { "pin": "C2.1", "measure": "phase", "vs": "FG1.+", "min": 70, "max": 76 }
+      ]
+    },
+    {
+      "name": "10.6 kHz：≈ 0.097，相位 ≈ −73°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "C2.1", "measure": "gain", "vs": "FG1.+", "min": 0.092, "max": 0.102 },
+        { "pin": "C2.1", "measure": "phase", "vs": "FG1.+", "min": -76, "max": -70 }
+      ]
+    }
+  ],
+  "hints": [
+    "第一级（高通）：电容 C1 串联，R1 从 A 接到 GND。",
+    "第二级（低通）：R2 从 A 接到 B，C2 从 B 接到 GND。",
+    "结点 A 上有三个元件：C1、R1、R2。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "15n", "pins": { "1": "b3", "2": "b8" } },
+      { "type": "resistor", "ref": "R1", "resistance": "10k", "pins": { "1": "c8", "2": "tn8" } },
+      { "type": "resistor", "ref": "R2", "resistance": "10k", "pins": { "1": "d8", "2": "d14" } },
+      { "type": "capacitor", "ref": "C2", "capacitance": "15n", "pins": { "1": "c14", "2": "tn14" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e14", "gnd": "tn21" } }
+    ]
+  }
+}

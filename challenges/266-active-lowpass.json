@@ -1,0 +1,393 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp4-active-lowpass",
+  "title": "实验 4-6 · 有源低通滤波器：LM358 反相放大 + 反馈电容",
+  "kind": "challenge",
+  "level": 5,
+  "phase": 4,
+  "summary": "反相放大器的反馈电阻上并一个电容：低频增益 −RF/RIN ≈ −2.13，截止频率 fc = 1/(2π·RF·CF) ≈ 1.06 kHz。单电源 9 V，偏置在 4.5 V。",
+  "concepts": [
+    "有源滤波器 active filter",
+    "H(jω) = −(RF/RIN)/(1 + jωRF·CF)",
+    "反相放大器 inverting amplifier",
+    "单电源偏置 single-supply bias",
+    "输出摆幅 output swing"
+  ],
+  "description": [
+    "**要搭的电路**（LM358 用哪一半都行）：",
+    "- 电源：+9 V 接 8 脚 V+，GND 接 4 脚 V−。",
+    "- 偏置：RB1、RB2（各 10 kΩ）从 +9 V 分压到 GND，中点 VREF = 4.5 V 接 IN+。",
+    "- 输入：信号发生器红夹子 → CIN（10 µF 隔直）→ RIN（4.7 kΩ）→ IN−。黑夹子接 GND。",
+    "- 反馈：RF（10 kΩ）和 CF（15 nF）并联，接在 IN− 和 OUT 之间。",
+    "**信号发生器**：正弦波，幅度 1 V、偏置 0；频率依次 106 Hz、1061 Hz、10.6 kHz。",
+    "**示波器**：CH1 看信号发生器输出，CH2 看 OUT（DC 耦合，能看到 4.5 V 的偏置）。",
+    "",
+    "**相量分析**：虚短让 IN− ≈ VREF，交流上 IN− 就是“地”。反馈支路阻抗 Z_F = RF ∥ (1/(jωCF)) = RF/(1 + jωRF·CF)，所以",
+    "  H(jω) = −Z_F/RIN = −(RF/RIN) · 1/(1 + jω·RF·CF)",
+    "它就是一个增益为 −RF/RIN = −10/4.7 ≈ −2.13 的反相放大器，再乘上一个 RC 低通，fc = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz。",
+    "- **106 Hz**：|H| ≈ 2.12，相位 ≈ 180° − 5.7° ≈ +176°（反相；CIN 再超前约 2°）。输出 ≈ 4.2 Vpp，中心 4.5 V。",
+    "- **1061 Hz**：|H| = 2.13 × 0.707 ≈ 1.50，相位 ≈ 180° − 45° = +135°。",
+    "- **10.6 kHz**：|H| ≈ 2.13 × 0.0995 ≈ 0.21，相位 ≈ 180° − 84° ≈ +96°。",
+    "和无源 RC 低通（实验 4-1）比：通带增益可以大于 1；输出由运放驱动，接上负载也不会改变滤波特性；截止频率只由 RF·CF 决定，和信号源内阻无关。",
+    "",
+    "**单电源的限制**：LM358 输出只能在 0 ~ 7.5 V（V+ − 1.5 V）之间。中心 4.5 V 时，往上只有 3 V 的空间，往下 4.5 V。所以在通带里输入幅度最大约 3 V / 2.13 ≈ 1.4 V；再大，输出峰值超过 7.5 V，波形的顶部就会被削平（失真）。想要更大的不失真摆幅，可以把偏置点调到 3.75 V（0 和 7.5 V 的中点），或者用双电源。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 4-6 · Active low-pass filter: LM358 inverting amplifier + feedback capacitor",
+      "summary": "Put a capacitor across the feedback resistor of an inverting amplifier: low-frequency gain −RF/RIN ≈ −2.13, cutoff fc = 1/(2π·RF·CF) ≈ 1.06 kHz. Single 9 V supply, biased at 4.5 V.",
+      "concepts": [
+        "active filter",
+        "H(jω) = −(RF/RIN)/(1 + jωRF·CF)",
+        "inverting amplifier",
+        "single-supply bias",
+        "output swing"
+      ],
+      "description": [
+        "**What you build** (either half of the LM358):",
+        "- Power: +9 V to pin 8 (V+), GND to pin 4 (V−).",
+        "- Bias: RB1 and RB2 (10 kΩ each) divide +9 V down to GND; the middle, VREF = 4.5 V, goes to IN+.",
+        "- Input: generator red clip → CIN (10 µF DC block) → RIN (4.7 kΩ) → IN−. Black clip to GND.",
+        "- Feedback: RF (10 kΩ) and CF (15 nF) in parallel, between IN− and OUT.",
+        "**Generator**: sine, amplitude 1 V, offset 0; frequency 106 Hz, 1061 Hz and 10.6 kHz in turn.",
+        "**Scope**: CH1 on the generator output, CH2 on OUT (DC-coupled, so you see the 4.5 V bias).",
+        "",
+        "**Phasor analysis**: the virtual short keeps IN− ≈ VREF, so for AC, IN− is \"ground\". The feedback impedance is Z_F = RF ∥ (1/(jωCF)) = RF/(1 + jωRF·CF), so",
+        "  H(jω) = −Z_F/RIN = −(RF/RIN) · 1/(1 + jω·RF·CF)",
+        "It's an inverting amplifier with gain −RF/RIN = −10/4.7 ≈ −2.13 times an RC low-pass with fc = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz.",
+        "- **106 Hz**: |H| ≈ 2.12, phase ≈ 180° − 5.7° ≈ +176° (inverted; CIN adds about 2° of lead). Output ≈ 4.2 Vpp centred on 4.5 V.",
+        "- **1061 Hz**: |H| = 2.13 × 0.707 ≈ 1.50, phase ≈ 180° − 45° = +135°.",
+        "- **10.6 kHz**: |H| ≈ 2.13 × 0.0995 ≈ 0.21, phase ≈ 180° − 84° ≈ +96°.",
+        "Compared with the passive RC low-pass (Experiment 4-1): the passband gain can exceed 1; the op-amp drives the output, so a load doesn't change the response; and fc depends only on RF·CF, not on the source resistance.",
+        "",
+        "**The single-supply limit**: the LM358 output can only move between 0 and 7.5 V (V+ − 1.5 V). Centred at 4.5 V there are 3 V of room upwards and 4.5 V downwards, so in the passband the input amplitude can be at most about 3 V / 2.13 ≈ 1.4 V; beyond that the output peak would exceed 7.5 V and the top of the wave gets flattened (distortion). For a larger undistorted swing, bias at 3.75 V (midway between 0 and 7.5 V) or use a split supply."
+      ],
+      "hints": [
+        "Power the op-amp first: pin 8 to +9 V, pin 4 to GND.",
+        "RF and CF are in parallel, both between IN− and OUT.",
+        "IN+ goes to the middle of the RB1/RB2 divider (4.5 V), not to GND."
+      ],
+      "tests": [
+        "106 Hz: passband gain ≈ 2.12, inverted (≈ +176°), centred on 4.5 V",
+        "1061 Hz (fc): gain ≈ 1.50 = 2.13 × 0.707, phase ≈ +135°",
+        "10.6 kHz: gain ≈ 0.21, phase ≈ +96°"
+      ]
+    }
+  },
+  "components": [
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "U1",
+      "type": "opamp"
+    },
+    {
+      "ref": "FG1",
+      "type": "function_gen"
+    },
+    {
+      "ref": "RB1",
+      "type": "resistor",
+      "resistance": "10k"
+    },
+    {
+      "ref": "RB2",
+      "type": "resistor",
+      "resistance": "10k"
+    },
+    {
+      "ref": "CIN",
+      "type": "capacitor",
+      "capacitance": "10u"
+    },
+    {
+      "ref": "RIN",
+      "type": "resistor",
+      "resistance": "4.7k"
+    },
+    {
+      "ref": "RF",
+      "type": "resistor",
+      "resistance": "10k"
+    },
+    {
+      "ref": "CF",
+      "type": "capacitor",
+      "capacitance": "15n"
+    }
+  ],
+  "nets": [
+    {
+      "name": "VCC",
+      "pins": [
+        "V1.+",
+        "U1.v+",
+        "RB1.1"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "V1.-",
+        "U1.v-",
+        "RB2.2",
+        "FG1.-"
+      ]
+    },
+    {
+      "name": "VREF",
+      "pins": [
+        "RB1.2",
+        "RB2.1",
+        "U1.in+"
+      ]
+    },
+    {
+      "name": "VIN",
+      "pins": [
+        "FG1.+",
+        "CIN.1"
+      ]
+    },
+    {
+      "name": "N1",
+      "pins": [
+        "CIN.2",
+        "RIN.1"
+      ]
+    },
+    {
+      "name": "SUM",
+      "pins": [
+        "RIN.2",
+        "U1.in-",
+        "RF.1",
+        "CF.1"
+      ]
+    },
+    {
+      "name": "VOUT",
+      "pins": [
+        "U1.out",
+        "RF.2",
+        "CF.2"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "name": "106 Hz：通带增益 ≈ 2.12，反相（≈ +176°），中心 4.5 V",
+      "set": {
+        "FG1": {
+          "waveform": "sine",
+          "frequency": 106,
+          "amplitude": 1,
+          "offset": 0
+        }
+      },
+      "scope": [
+        {
+          "pin": "U1.out",
+          "measure": "gain",
+          "vs": "FG1.+",
+          "min": 2.05,
+          "max": 2.2
+        },
+        {
+          "pin": "U1.out",
+          "measure": "phase",
+          "vs": "FG1.+",
+          "min": 172,
+          "max": 180
+        },
+        {
+          "pin": "U1.out",
+          "measure": "vavg",
+          "min": 4.4,
+          "max": 4.6
+        }
+      ]
+    },
+    {
+      "name": "1061 Hz（fc）：增益 ≈ 1.50 = 2.13 × 0.707，相位 ≈ +135°",
+      "set": {
+        "FG1": {
+          "waveform": "sine",
+          "frequency": 1061,
+          "amplitude": 1,
+          "offset": 0
+        }
+      },
+      "scope": [
+        {
+          "pin": "U1.out",
+          "measure": "gain",
+          "vs": "FG1.+",
+          "min": 1.44,
+          "max": 1.57
+        },
+        {
+          "pin": "U1.out",
+          "measure": "phase",
+          "vs": "FG1.+",
+          "min": 132,
+          "max": 138
+        }
+      ]
+    },
+    {
+      "name": "10.6 kHz：增益 ≈ 0.21，相位 ≈ +96°",
+      "set": {
+        "FG1": {
+          "waveform": "sine",
+          "frequency": 10610,
+          "amplitude": 1,
+          "offset": 0
+        }
+      },
+      "scope": [
+        {
+          "pin": "U1.out",
+          "measure": "gain",
+          "vs": "FG1.+",
+          "min": 0.2,
+          "max": 0.225
+        },
+        {
+          "pin": "U1.out",
+          "measure": "phase",
+          "vs": "FG1.+",
+          "min": 93,
+          "max": 99
+        }
+      ]
+    }
+  ],
+  "hints": [
+    "先给运放供电：8 脚接 +9 V，4 脚接 GND。",
+    "RF 和 CF 并联，都接在 IN− 和 OUT 之间。",
+    "IN+ 接 RB1/RB2 分压的中点（4.5 V），不是接 GND。"
+  ],
+  "solution": {
+    "parts": [
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "opamp",
+        "ref": "U1",
+        "at": "e10"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp10",
+          "b": "j10"
+        },
+        "color": "red"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a13",
+          "b": "tn13"
+        },
+        "color": "blue"
+      },
+      {
+        "type": "resistor",
+        "ref": "RB1",
+        "resistance": "10k",
+        "pins": {
+          "1": "tp12",
+          "2": "a12"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "RB2",
+        "resistance": "10k",
+        "pins": {
+          "1": "b12",
+          "2": "tn12"
+        }
+      },
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "sine",
+        "frequency": 1061,
+        "amplitude": 1,
+        "offset": 0,
+        "pins": {
+          "+": "a3",
+          "-": "tn3"
+        }
+      },
+      {
+        "type": "capacitor",
+        "ref": "CIN",
+        "capacitance": "10u",
+        "pins": {
+          "1": "b3",
+          "2": "b7"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "RIN",
+        "resistance": "4.7k",
+        "pins": {
+          "1": "c7",
+          "2": "c11"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "RF",
+        "resistance": "10k",
+        "pins": {
+          "1": "b11",
+          "2": "b10"
+        }
+      },
+      {
+        "type": "capacitor",
+        "ref": "CF",
+        "capacitance": "15n",
+        "pins": {
+          "1": "d11",
+          "2": "d10"
+        }
+      },
+      {
+        "type": "scope_probe",
+        "ref": "PR1",
+        "channel": 1,
+        "pins": {
+          "tip": "d3",
+          "gnd": "tn20"
+        }
+      },
+      {
+        "type": "scope_probe",
+        "ref": "PR2",
+        "channel": 2,
+        "pins": {
+          "tip": "a10",
+          "gnd": "tn21"
+        }
+      }
+    ]
+  }
+}

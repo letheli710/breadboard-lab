@@ -1,0 +1,144 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp4-buffered-bandpass",
+  "title": "实验 4-8 · 加一个电压跟随器：两级 RC 滤波器不再互相拖累",
+  "kind": "challenge",
+  "level": 5,
+  "phase": 4,
+  "summary": "RC 低通 → LM358 电压跟随器 → RC 高通。跟随器把两级隔开，中心频率处增益恢复成 0.707 × 0.707 = 0.5——和上一个实验的 1/3 对比。",
+  "concepts": ["电压跟随器 voltage follower / buffer", "输入阻抗高、输出阻抗低 high Z_in, low Z_out", "级联网络函数相乘 H = H1·H2", "单电源偏置 single-supply bias", "隔直 DC blocking"],
+  "description": [
+    "**要搭的电路**（LM358 用哪一半都行）：",
+    "- 电源：+9 V 接 8 脚 V+，GND 接 4 脚 V−。",
+    "- 第一级（低通）：信号发生器红夹子 → R1（10 kΩ）→ 节点 A → C1（15 nF）→ GND。A 接运放 IN+。",
+    "- 跟随器：运放 OUT 直接连到 IN−（100% 负反馈，增益 1）。",
+    "- 第二级（高通）：OUT → C2（15 nF）→ 节点 VOUT → R2（10 kΩ）→ GND。",
+    "**信号发生器**：正弦波，幅度 1 V，**偏置 2 V**；频率依次 106 Hz、1061 Hz、10.6 kHz。",
+    "**示波器**：CH1 接 VIN，CH2 接 VOUT；也可以把 CH2 挪到跟随器输出看第一级。",
+    "",
+    "**为什么要偏置 2 V**：单电源 LM358 的输出只能在 0 ~ 7.5 V 之间。低通会把直流原样传过去，所以跟随器的输入在 1 ~ 3 V 之间摆动，输出也一样，不会碰到 0 V。第二级是高通，电容 C2 把 2 V 直流挡掉，VOUT 又回到以 0 V 为中心。",
+    "",
+    "**跟随器做了什么**：它的输入几乎不取电流（输入阻抗极高），所以第一级的 A 点不受第二级影响；它的输出阻抗很低（约 10 Ω），第二级看到的是一个“理想电压源”。于是两级可以分开算、直接相乘：",
+    "  H = H_LP · H_HP = [1/(1 + jx)] · [jx/(1 + jx)] = jx/(1 + jx)²，x = f/f0，f0 = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz",
+    "- **1061 Hz**：跟随器输出 0.707∠−45°，VOUT = 0.707 × 0.707 = **0.5**∠0°（上一个实验不加跟随器只有 1/3）。VOUT ≈ 1.0 Vpp。",
+    "- **106 Hz**：|H| = 0.1/1.01 ≈ 0.099，相位 ≈ +84.3° − 5.7° ≈ +78.6°。",
+    "- **10.6 kHz**：|H| ≈ 0.099，相位 ≈ −78.6°。",
+    "注意分母从“1 − x² + 3jx”变成了“(1 + jx)² = 1 − x² + 2jx”：少掉的那个 jx 就是负载效应。",
+    "",
+    "**一般规律**：多级电路之间加缓冲器（跟随器），是工程上“让各级各算各的”的标准做法；代价是需要给运放供电，并处理好直流偏置。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 4-8 · Add a voltage follower: two RC stages that no longer drag each other down",
+      "summary": "RC low-pass → LM358 voltage follower → RC high-pass. The follower isolates the stages, so the gain at the centre frequency is back to 0.707 × 0.707 = 0.5 — compare with 1/3 in the previous experiment.",
+      "concepts": ["voltage follower / buffer", "high Z_in, low Z_out", "cascaded network functions multiply H = H1·H2", "single-supply bias", "DC blocking"],
+      "description": [
+        "**What you build** (either half of the LM358):",
+        "- Power: +9 V to pin 8 (V+), GND to pin 4 (V−).",
+        "- Stage 1 (low-pass): generator red clip → R1 (10 kΩ) → node A → C1 (15 nF) → GND. A goes to the op-amp's IN+.",
+        "- Follower: the op-amp's OUT straight to IN− (100% negative feedback, gain 1).",
+        "- Stage 2 (high-pass): OUT → C2 (15 nF) → node VOUT → R2 (10 kΩ) → GND.",
+        "**Generator**: sine, amplitude 1 V, **offset 2 V**; frequency 106 Hz, 1061 Hz and 10.6 kHz in turn.",
+        "**Scope**: CH1 on VIN, CH2 on VOUT; you can also move CH2 to the follower's output to see stage 1.",
+        "",
+        "**Why the 2 V offset**: a single-supply LM358's output can only move between 0 and 7.5 V. The low-pass passes DC unchanged, so the follower's input — and its output — swings between 1 and 3 V and never hits 0 V. Stage 2 is a high-pass: C2 blocks the 2 V, and VOUT is centred on 0 V again.",
+        "",
+        "**What the follower does**: its input draws almost no current (very high input impedance), so node A doesn't feel stage 2 at all; its output impedance is tiny (about 10 Ω), so stage 2 sees an ideal voltage source. The stages can be computed separately and multiplied:",
+        "  H = H_LP · H_HP = [1/(1 + jx)] · [jx/(1 + jx)] = jx/(1 + jx)², x = f/f0, f0 = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz",
+        "- **1061 Hz**: the follower's output is 0.707∠−45°, VOUT = 0.707 × 0.707 = **0.5**∠0° (only 1/3 without the follower in the previous experiment). VOUT ≈ 1.0 Vpp.",
+        "- **106 Hz**: |H| = 0.1/1.01 ≈ 0.099, phase ≈ +84.3° − 5.7° ≈ +78.6°.",
+        "- **10.6 kHz**: |H| ≈ 0.099, phase ≈ −78.6°.",
+        "Notice the denominator changed from \"1 − x² + 3jx\" to \"(1 + jx)² = 1 − x² + 2jx\": the missing jx is the loading effect.",
+        "",
+        "**The general rule**: a buffer (follower) between stages is the standard engineering way to let each stage be designed on its own; the price is powering the op-amp and taking care of the DC bias."
+      ],
+      "hints": [
+        "Power first: pin 8 to +9 V, pin 4 to GND; the follower is just a wire from OUT to IN−.",
+        "Stage 1 is R1 then C1 to GND, with its middle on IN+; stage 2 is C2 then R2 to GND, driven from OUT.",
+        "Keep the generator offset at 2 V so the follower never has to go below 0 V."
+      ],
+      "tests": [
+        "1061 Hz: VOUT = 0.5 × VIN (≈ 1.0 Vpp), phase 0°; the follower output is 0.707∠−45°",
+        "1061 Hz: the follower sits at 2 V average, VOUT at 0 V (C2 blocks the DC)",
+        "106 Hz: ≈ 0.099, ≈ +79°",
+        "10.6 kHz: ≈ 0.099, ≈ −79°"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "U1", "type": "opamp" },
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "R1", "type": "resistor", "resistance": "10k" },
+    { "ref": "C1", "type": "capacitor", "capacitance": "15n" },
+    { "ref": "C2", "type": "capacitor", "capacitance": "15n" },
+    { "ref": "R2", "type": "resistor", "resistance": "10k" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["V1.+", "U1.v+"] },
+    { "name": "GND", "pins": ["V1.-", "U1.v-", "FG1.-", "C1.2", "R2.2"] },
+    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
+    { "name": "A", "pins": ["R1.2", "C1.1", "U1.in+"] },
+    { "name": "BUF", "pins": ["U1.out", "U1.in-", "C2.1"] },
+    { "name": "VOUT", "pins": ["C2.2", "R2.1"] }
+  ],
+  "tests": [
+    {
+      "name": "1061 Hz：VOUT = 0.5 × VIN（≈ 1.0 Vpp），相位 0°；跟随器输出 0.707∠−45°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
+      "scope": [
+        { "pin": "R2.1", "measure": "gain", "vs": "FG1.+", "min": 0.48, "max": 0.52 },
+        { "pin": "R2.1", "measure": "phase", "vs": "FG1.+", "min": -3, "max": 3 },
+        { "pin": "R2.1", "measure": "vpp", "min": 0.95, "max": 1.05 },
+        { "pin": "U1.out", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
+        { "pin": "U1.out", "measure": "phase", "vs": "FG1.+", "min": -48, "max": -42 }
+      ]
+    },
+    {
+      "name": "1061 Hz：跟随器输出平均 2 V，VOUT 平均 0 V（C2 隔直）",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
+      "voltages": [
+        { "pin": "U1.out", "min": 1.95, "max": 2.05 },
+        { "pin": "R2.1", "min": -0.02, "max": 0.02 }
+      ]
+    },
+    {
+      "name": "106 Hz：≈ 0.099，≈ +79°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2 } },
+      "scope": [
+        { "pin": "R2.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.104 },
+        { "pin": "R2.1", "measure": "phase", "vs": "FG1.+", "min": 75.5, "max": 81.5 }
+      ]
+    },
+    {
+      "name": "10.6 kHz：≈ 0.099，≈ −79°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 2 } },
+      "scope": [
+        { "pin": "R2.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.104 },
+        { "pin": "R2.1", "measure": "phase", "vs": "FG1.+", "min": -81.5, "max": -75.5 }
+      ]
+    }
+  ],
+  "hints": [
+    "先供电：8 脚 +9 V，4 脚 GND；跟随器就是一根从 OUT 到 IN− 的线。",
+    "第一级：R1 再 C1 到 GND，中点接 IN+；第二级：从 OUT 出发，C2 再 R2 到 GND。",
+    "信号发生器偏置保持 2 V，跟随器就不用输出低于 0 V 的电压。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
+      { "type": "opamp", "ref": "U1", "at": "e10" },
+      { "type": "wire", "pins": { "a": "tp10", "b": "j10" }, "color": "red" },
+      { "type": "wire", "pins": { "a": "a13", "b": "tn13" }, "color": "blue" },
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "resistor", "ref": "R1", "resistance": "10k", "pins": { "1": "b3", "2": "b12" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "15n", "pins": { "1": "c12", "2": "tn12" } },
+      { "type": "wire", "pins": { "a": "b10", "b": "b11" }, "color": "yellow" },
+      { "type": "capacitor", "ref": "C2", "capacitance": "15n", "pins": { "1": "c10", "2": "c18" } },
+      { "type": "resistor", "ref": "R2", "resistance": "10k", "pins": { "1": "d18", "2": "tn18" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "d3", "gnd": "tn24" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e18", "gnd": "tn25" } }
+    ]
+  }
+}

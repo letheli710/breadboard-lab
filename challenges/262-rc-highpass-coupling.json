@@ -1,0 +1,126 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp4-rc-highpass-coupling",
+  "title": "实验 4-2 · RC 高通滤波器：隔直通交",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 4,
+  "summary": "10 nF + 15 kΩ 高通滤波器，fc ≈ 1.06 kHz。输入带 2 V 直流偏置的正弦波：输出的直流分量没了，交流部分按频率被放行或挡住，相位超前。",
+  "concepts": ["高通滤波器 high-pass filter", "H(jω) = jωRC/(1 + jωRC)", "相位超前 phase lead", "隔直电容 coupling capacitor", "叠加定理：直流和交流分开算 superposition of DC and AC"],
+  "description": [
+    "**要搭的电路**：信号发生器红夹子 → C1（10 nF）→ 节点 VOUT → R1（15 kΩ）→ GND，黑夹子接 GND。和低通相比，只是把 R 和 C 的位置对调。",
+    "**信号发生器**：正弦波，幅度 1 V，**偏置 2 V**（输入在 1 V 和 3 V 之间摆动）。频率依次调到 106 Hz、1061 Hz、10.6 kHz。",
+    "**示波器**：CH1 接 VIN，CH2 接 VOUT，两个通道都用 DC 耦合，这样能看见直流偏置。",
+    "",
+    "**用叠加定理分开看**：",
+    "- **直流部分（2 V）**：电容对直流开路，稳态下 R1 里没有电流，VOUT 的直流分量 = 0。电容两端稳稳地“存”着 2 V。CH1 的平均值 ≈ 2 V，CH2 的平均值 ≈ 0。这就是放大器之间常用的**隔直（耦合）电容**。",
+    "- **交流部分**：H(jω) = R/(R + 1/(jωC)) = jωRC/(1 + jωRC)，|H| = (f/fc)/√(1 + (f/fc)²)，∠H = 90° − arctan(f/fc)，fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz。",
+    "",
+    "**三个频率点**（和实验 4-1 的低通正好镜像）：",
+    "- **106 Hz（fc/10）**：|H| ≈ 0.0995（−20 dB），相位 **+84.3°**——低频几乎被挡住，剩下的一点还超前将近 90°（电容支路里电流超前电压）。",
+    "- **1061 Hz（fc）**：|H| ≈ 0.707（−3 dB），相位 **+45°**。",
+    "- **10.6 kHz（10fc）**：|H| ≈ 0.995，相位 +5.7°——高频时电容几乎是导线。",
+    "",
+    "**和实验 4-1 对比**：两个电路的 fc 相同。低通的相位从 0 走到 −90°（输出落后），高通的相位从 +90° 走到 0（输出超前）；在 fc 处，低通和高通的输出幅度都是 0.707，而且两者之和（相量相加）正好等于输入——因为 u_R + u_C = u_in。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 4-2 · RC high-pass filter: block DC, pass AC",
+      "summary": "A 10 nF + 15 kΩ high-pass filter with fc ≈ 1.06 kHz. Feed it a sine with a 2 V DC offset: the DC disappears at the output, the AC is passed or blocked depending on frequency, and the phase leads.",
+      "concepts": ["high-pass filter", "H(jω) = jωRC/(1 + jωRC)", "phase lead", "coupling (DC-blocking) capacitor", "superposition: DC and AC separately"],
+      "description": [
+        "**What you build**: generator red clip → C1 (10 nF) → node VOUT → R1 (15 kΩ) → GND; black clip to GND. Compared with the low-pass, R and C have simply swapped places.",
+        "**Generator**: sine, amplitude 1 V, **offset 2 V** (the input swings between 1 V and 3 V). Set the frequency to 106 Hz, 1061 Hz and 10.6 kHz in turn.",
+        "**Scope**: CH1 on VIN, CH2 on VOUT, both channels DC-coupled so you can see the offset.",
+        "",
+        "**Use superposition and look at the parts separately**:",
+        "- **The DC part (2 V)**: a capacitor is open at DC, so in steady state no current flows in R1 and the DC part of VOUT is 0; the capacitor quietly \"stores\" the 2 V. CH1 averages ≈ 2 V, CH2 averages ≈ 0. That's the **coupling (DC-blocking) capacitor** used between amplifier stages.",
+        "- **The AC part**: H(jω) = R/(R + 1/(jωC)) = jωRC/(1 + jωRC), |H| = (f/fc)/√(1 + (f/fc)²), ∠H = 90° − arctan(f/fc), fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz.",
+        "",
+        "**Three frequency points** (the mirror image of Experiment 4-1's low-pass):",
+        "- **106 Hz (fc/10)**: |H| ≈ 0.0995 (−20 dB), phase **+84.3°** — low frequencies are almost blocked, and what's left leads by nearly 90° (current in a capacitive branch leads the voltage).",
+        "- **1061 Hz (fc)**: |H| ≈ 0.707 (−3 dB), phase **+45°**.",
+        "- **10.6 kHz (10fc)**: |H| ≈ 0.995, phase +5.7° — at high frequency the capacitor is almost a wire.",
+        "",
+        "**Compare with Experiment 4-1**: both circuits have the same fc. The low-pass phase goes from 0 to −90° (output lags), the high-pass from +90° to 0 (output leads). At fc both outputs are 0.707 of the input, and their phasor sum is exactly the input — because u_R + u_C = u_in."
+      ],
+      "hints": [
+        "Capacitor in series first, resistor from VOUT to GND.",
+        "The DC offset cannot get through a capacitor: expect an average of ≈ 0 at VOUT.",
+        "fc = 1/(2πRC) ≈ 1061 Hz; at fc expect 0.707 and +45°."
+      ],
+      "tests": [
+        "DC blocked: VIN averages ≈ 2 V, VOUT ≈ 0 V",
+        "fc/10 = 106 Hz: gain ≈ 0.0995, phase ≈ +84°",
+        "fc = 1061 Hz: gain ≈ 0.707, phase ≈ +45°",
+        "10fc = 10.6 kHz: gain ≈ 0.995, phase ≈ +5.7°"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "C1", "type": "capacitor", "capacitance": "10n" },
+    { "ref": "R1", "type": "resistor", "resistance": "15k" }
+  ],
+  "nets": [
+    { "name": "VIN", "pins": ["FG1.+", "C1.1"] },
+    { "name": "VOUT", "pins": ["C1.2", "R1.1"] },
+    { "name": "GND", "pins": ["R1.2", "FG1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "隔直：VIN 平均 ≈ 2 V，VOUT 平均 ≈ 0 V",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
+      "voltages": [
+        { "pin": "FG1.+", "min": 1.95, "max": 2.05 },
+        { "pin": "R1.1", "min": -0.02, "max": 0.02 }
+      ]
+    },
+    {
+      "name": "fc/10 = 106 Hz：增益 ≈ 0.0995，相位 ≈ +84°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2 } },
+      "scope": [
+        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.105 },
+        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 81, "max": 87 }
+      ]
+    },
+    {
+      "name": "fc = 1061 Hz：增益 ≈ 0.707，相位 ≈ +45°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
+      "scope": [
+        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
+        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 42, "max": 48 }
+      ]
+    },
+    {
+      "name": "10fc = 10.6 kHz：增益 ≈ 0.995，相位 ≈ +5.7°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 2 } },
+      "scope": [
+        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.98, "max": 1.0 },
+        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 3.5, "max": 8 }
+      ]
+    }
+  ],
+  "hints": [
+    "电容串联在前，电阻从 VOUT 接到 GND。",
+    "直流偏置过不了电容：VOUT 的平均值应 ≈ 0。",
+    "fc = 1/(2πRC) ≈ 1061 Hz；在 fc 处应看到 0.707 和 +45°。"
+  ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+    ]
+  },
+  "solution": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "10n", "pins": { "1": "b3", "2": "b10" } },
+      { "type": "resistor", "ref": "R1", "resistance": "15k", "pins": { "1": "c10", "2": "tn10" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+    ]
+  }
+}

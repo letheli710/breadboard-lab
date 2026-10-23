@@ -1,0 +1,118 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp4-rc-lowpass-bode",
+  "title": "实验 4-1 · RC 低通滤波器：测三个频率点画伯德图",
+  "kind": "challenge",
+  "level": 2,
+  "phase": 4,
+  "summary": "1.5 kΩ + 100 nF 低通滤波器，fc ≈ 1.06 kHz。在 fc/10、fc、10fc 三个频率测增益和相位，画出伯德图的骨架。",
+  "concepts": ["网络函数 H(jω) = 1/(1 + jωRC)", "截止频率 fc = 1/(2πRC)", "−3 dB 点与 −45°", "−20 dB/十倍频 −20 dB/decade", "伯德图 Bode plot"],
+  "description": [
+    "**要搭的电路**：信号发生器红夹子 → R1（1.5 kΩ）→ 节点 VOUT → C1（100 nF）→ GND，黑夹子接 GND。",
+    "**信号发生器**：正弦波，幅度 1 V、偏置 0。频率依次调到 106 Hz、1061 Hz、10.6 kHz。",
+    "**示波器**：CH1 接信号发生器输出 VIN（R1 左端），CH2 接 VOUT。用两个通道的幅度之比得到增益，用两条正弦过零点的时间差 Δt 得到相位差 φ = −360° × Δt/T。",
+    "",
+    "**相量分析**：把电阻和电容看成阻抗 R 和 1/(jωC)，分压得网络函数",
+    "  H(jω) = U̇out/U̇in = (1/(jωC)) / (R + 1/(jωC)) = 1 / (1 + jωRC)",
+    "  |H| = 1/√(1 + (f/fc)²)，∠H = −arctan(f/fc)，fc = 1/(2πRC) = 1/(2π × 1.5 kΩ × 100 nF) ≈ 1061 Hz。",
+    "- **f = fc/10 = 106 Hz**：|H| = 1/√1.01 ≈ 0.995（−0.04 dB），相位 −5.7°。信号几乎原样通过。",
+    "- **f = fc = 1061 Hz**：|H| = 1/√2 ≈ 0.707（−3 dB），相位 −45°。这就是“截止频率”的定义。",
+    "- **f = 10fc = 10.6 kHz**：|H| ≈ 1/√101 ≈ 0.0995（−20 dB），相位 −84.3°。频率每升高 10 倍，幅度再降 10 倍（−20 dB/十倍频），相位趋近 −90°。",
+    "",
+    "**为什么用 VIN（信号发生器端子）而不是信号发生器的设定值做分母**：信号发生器有 50 Ω 输出电阻，接上负载后端子上的电压会比设定的 1 V 略小，而且随频率变（低频时滤波器输入阻抗大，掉得少；高频时电容几乎短路，输入阻抗只剩 1.5 kΩ，掉得多一点：10.6 kHz 时 VIN 约 1.94 Vpp 而不是 2 Vpp）。拿两个通道相比，这个误差自动抵消。",
+    "",
+    "**动手**：把三个点画在对数坐标上（横轴 lg f，纵轴 20 lg|H|），连起来就是伯德图的两条渐近线：fc 以下是 0 dB 水平线，fc 以上是每十倍频下降 20 dB 的斜线，两线在 fc 相交，实际曲线在交点处低 3 dB。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 4-1 · RC low-pass filter: three frequency points for a Bode plot",
+      "summary": "A 1.5 kΩ + 100 nF low-pass filter with fc ≈ 1.06 kHz. Measure gain and phase at fc/10, fc and 10fc to sketch the Bode plot.",
+      "concepts": ["network function H(jω) = 1/(1 + jωRC)", "cutoff frequency fc = 1/(2πRC)", "−3 dB point and −45°", "−20 dB/decade", "Bode plot"],
+      "description": [
+        "**What you build**: generator red clip → R1 (1.5 kΩ) → node VOUT → C1 (100 nF) → GND; black clip to GND.",
+        "**Generator**: sine, amplitude 1 V, offset 0. Set the frequency to 106 Hz, 1061 Hz and 10.6 kHz in turn.",
+        "**Scope**: CH1 on the generator output VIN (left end of R1), CH2 on VOUT. The ratio of the two amplitudes is the gain; the time shift Δt between the zero crossings gives the phase φ = −360° × Δt/T.",
+        "",
+        "**Phasor analysis**: treat the resistor and capacitor as impedances R and 1/(jωC); the divider gives the network function",
+        "  H(jω) = U_out/U_in = (1/(jωC)) / (R + 1/(jωC)) = 1 / (1 + jωRC)",
+        "  |H| = 1/√(1 + (f/fc)²), ∠H = −arctan(f/fc), fc = 1/(2πRC) = 1/(2π × 1.5 kΩ × 100 nF) ≈ 1061 Hz.",
+        "- **f = fc/10 = 106 Hz**: |H| = 1/√1.01 ≈ 0.995 (−0.04 dB), phase −5.7°. The signal passes almost unchanged.",
+        "- **f = fc = 1061 Hz**: |H| = 1/√2 ≈ 0.707 (−3 dB), phase −45°. That is what \"cutoff frequency\" means.",
+        "- **f = 10fc = 10.6 kHz**: |H| ≈ 1/√101 ≈ 0.0995 (−20 dB), phase −84.3°. Every 10× in frequency divides the amplitude by another 10 (−20 dB/decade), and the phase approaches −90°.",
+        "",
+        "**Why divide by VIN (the generator's terminals) rather than the generator setting**: the generator has a 50 Ω output resistance, so with a load its terminal voltage is a little below the 1 V you set, and that drop changes with frequency (at low frequency the filter's input impedance is high and little is lost; at high frequency the capacitor is almost a short, the input impedance is just 1.5 kΩ, and a bit more is lost: at 10.6 kHz VIN is about 1.94 Vpp instead of 2 Vpp). Taking the ratio of the two channels cancels that error.",
+        "",
+        "**Try it**: plot the three points on log axes (lg f across, 20 lg|H| up). Joined up they show the two asymptotes of the Bode plot: a flat 0 dB line below fc and a line falling 20 dB per decade above it, meeting at fc, where the real curve is 3 dB below the corner."
+      ],
+      "hints": [
+        "Resistor in series, capacitor from VOUT to GND.",
+        "fc = 1/(2πRC) ≈ 1061 Hz; at fc expect 0.707 and −45°.",
+        "Compare VOUT with the generator's terminals (CH1), not with the number on the generator's display."
+      ],
+      "tests": [
+        "fc/10 = 106 Hz: gain ≈ 0.995, phase ≈ −5.7°",
+        "fc = 1061 Hz: gain ≈ 0.707 (−3 dB), phase ≈ −45°",
+        "10fc = 10.6 kHz: gain ≈ 0.0995 (−20 dB), phase ≈ −84°"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "R1", "type": "resistor", "resistance": "1.5k" },
+    { "ref": "C1", "type": "capacitor", "capacitance": "100n" }
+  ],
+  "nets": [
+    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
+    { "name": "VOUT", "pins": ["R1.2", "C1.1"] },
+    { "name": "GND", "pins": ["C1.2", "FG1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "fc/10 = 106 Hz：增益 ≈ 0.995，相位 ≈ −5.7°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.98, "max": 1.0 },
+        { "pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -8, "max": -3.5 }
+      ]
+    },
+    {
+      "name": "fc = 1061 Hz：增益 ≈ 0.707（−3 dB），相位 ≈ −45°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
+        { "pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -48, "max": -42 }
+      ]
+    },
+    {
+      "name": "10fc = 10.6 kHz：增益 ≈ 0.0995（−20 dB），相位 ≈ −84°",
+      "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.105 },
+        { "pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -87, "max": -81 },
+        { "pin": "FG1.+", "measure": "vpp", "min": 1.9, "max": 1.97 }
+      ]
+    }
+  ],
+  "hints": [
+    "电阻串联在前，电容从 VOUT 接到 GND。",
+    "fc = 1/(2πRC) ≈ 1061 Hz；在 fc 处应看到 0.707 和 −45°。",
+    "拿 VOUT 和信号发生器端子上的电压（CH1）比，而不是和信号发生器面板上的数字比。"
+  ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+    ]
+  },
+  "solution": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "resistor", "ref": "R1", "resistance": "1.5k", "pins": { "1": "b3", "2": "b10" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "c10", "2": "tn10" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+    ]
+  }
+}
