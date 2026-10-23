@@ -59,3 +59,6 @@ Challenge tests can measure with the scope: `"scope": [{ "pin": "C1.1", "ref": "
 - 开关在 t ≠ 0 时再次动作（两次换路问题）/ switching events at times other than 0 (classic "switch again at t = t1" problems)
 - 正弦源用 `omega` 指定角频率 / `sin.omega` so authors don't write f = 15.9155 Hz for ω = 100 rad/s
 - 暂态中的稳态振幅 / steady-state amplitude of a sinusoidal transient response as a checkable quantity
+- `twoport` 支持 `exclude`（图中画了负载时仍能求参数）/ `exclude` on `twoport` so parameters can be asked with a load drawn
+- 导纳量 `{ kind: 'yeq', port }` / an admittance quantity
+- 图上参考标记名的翻译（中文 u、英文 v）/ translatable mark names (zh "u", en "v") — today English text reuses the drawn u/U
