@@ -23,11 +23,11 @@ Goal: cover a full first/second-year circuit analysis course in four phases, plu
 
 ## 阶段 / Stages
 
-- [ ] **A. 基础设施**
-  - [ ] A1 理想电路分析引擎 `src/core/analysis`（MNA：R、C、L、V、I、四种受控源、理想运放、理想开关、耦合电感、理想变压器；直流、暂态、正弦稳态；戴维宁、等效电阻、二端口参数等派生量）
-  - [ ] A2 电路图格式 + 渲染 `src/core/problem/geometry.ts`、`src/ui/ProblemSchematic.tsx`（从画图几何推出网表）
-  - [ ] A3 理论题格式解析与校验 `src/core/problem/parse.ts`，`npm run validate` 同时校验 `problems/`，「练习」模式界面，`docs/PROBLEM_FORMAT.md` 和出题提示词
-- [ ] **B. 理论题内容**（按章节并行出题，每章约 12–20 题，覆盖该章所有知识点，难度 1–5）
+- [x] **A. 基础设施**
+  - [x] A1 理想电路分析引擎 `src/core/analysis`（MNA：R、C、L、V、I、四种受控源、理想运放、理想开关、耦合电感、理想变压器；直流、暂态、正弦稳态；戴维宁、等效电阻、二端口参数等派生量）
+  - [x] A2 电路图格式 + 渲染 `src/core/problem/geometry.ts`、`src/ui/ProblemSchematic.tsx`（从画图几何推出网表）
+  - [x] A3 理论题格式解析与校验 `src/core/problem/parse.ts`，`npm run validate` 同时校验 `problems/`，「练习」模式界面，`docs/PROBLEM_FORMAT.md` 和出题提示词
+- [x] **B. 理论题内容**：15 章共 216 题，全部由引擎核对答案 / 216 problems across 15 chapters, all engine-checked
 - [ ] **C. 面包板引擎扩展**：电流表、运放 LM358、电感、信号发生器、示波器、面包板电路的暂态/交流仿真
 - [ ] **D. 面包板题内容**（每期 4–8 题）
 
