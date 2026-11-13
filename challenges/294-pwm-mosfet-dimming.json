@@ -32,15 +32,7 @@
     "- 电机的**平均电流**（在时域里 `currents` 测的就是平均值，相当于万用表直流档）：它决定转速 / 转矩；",
     "- 续流二极管 D1 的平均电流：MOSFET 关断时电机电流**去了哪里**；",
     "- 电机电流的**有效值**（RMS）：决定线圈发热；1 kHz 和 20 kHz 平均值几乎一样，但 RMS 不一样；",
-    "- 引脚平均电压 = D × 3.3 V，MOSFET 漏极的最高电压（被二极管钳在 5 V + 0.7 V）。",
-    "",
-    "**对比**（仿真，20 kHz）：",
-    "- **25 %**：引脚平均 0.82 V；电机平均 0.71 V、**89 mA**，其中 66 mA（75 %）在续流二极管里；89 mA 低于模型的 0.1 A 起转电流——**电机转不起来**。真实电机也有“死区”：静摩擦要靠一定的电流才能克服，低占空比只会嗡嗡响。",
-    "- **50 %**：平均 2.06 V、**258 mA**，二极管里 129 mA（一半时间在续流）；RMS 也是 258 mA——电流几乎没有纹波（50 µs 的周期 ≪ τ）。",
-    "- **100 %**：MOSFET 一直导通（Vgs = 3.26 V，在可变电阻区，Rds ≈ 44 mΩ），电机 **620 mA**，二极管不导通。",
-    "- 平均电流不是严格 ∝ 占空比：续流期间二极管的 0.7 V 也算在电机上，低占空比时这部分比例更大。",
-    "- 关断瞬间漏极只到 **5.7 V**（二极管把它钳在 5 V + 0.7 V）。把 D1 拿掉，漏极会冲到 IRLZ44N 的 55 V 雪崩电压。",
-    "- **1 kHz、50 %**：周期 1 ms 是 τ 的 4 倍，关断期间电流衰减很多。平均电流 263 mA 和 20 kHz 差不多，但 **RMS 317 mA**——线圈发热 ∝ I_rms²，多了约 45 %；而且 1 kHz 正好在人耳最敏感的频段，电机会“吱吱”叫。",
+    "- 引脚平均电压 = D × 3.3 V，MOSFET 漏极的最高电压（被二极管钳在 5 V + 0.7 V）。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**PWM 频率怎么选**：",
     "- 电机：**≥ 20 kHz**，在听觉范围以外，电流平稳。但频率越高，MOSFET 每秒开关次数越多，开关损耗越大；栅极电容（IRLZ44N 约 1.7 nF）靠 GPIO 的 20 mA 充放电，太高的频率会让开关边沿变慢、MOSFET 发热。20–25 kHz 是常见折中。",
@@ -86,15 +78,7 @@
         "- the motor's **average current** (in the time domain `currents` gives the average, like a DMM on DC amps): it sets speed / torque;",
         "- the average current in D1: **where the motor current goes** while the MOSFET is off;",
         "- the motor's **RMS current**: it sets the winding's heating; 1 kHz and 20 kHz give almost the same average but not the same RMS;",
-        "- the pin's average voltage = D × 3.3 V, and the drain's peak voltage (clamped by the diode to 5 V + 0.7 V).",
-        "",
-        "**Compare** (simulated, 20 kHz):",
-        "- **25 %**: pin average 0.82 V; motor average 0.71 V, **89 mA**, of which 66 mA (75 %) flows in the diode. 89 mA is below the model's 0.1 A start current — **the motor doesn't turn**. Real motors have this dead band too: static friction needs a minimum current, and a low duty just hums.",
-        "- **50 %**: average 2.06 V, **258 mA**, 129 mA in the diode (it freewheels half the time); the RMS is also 258 mA — almost no ripple (the 50 µs period is ≪ τ).",
-        "- **100 %**: the MOSFET stays on (Vgs = 3.26 V, ohmic region, Rds ≈ 44 mΩ), the motor takes **620 mA** and the diode is idle.",
-        "- The average current is not exactly ∝ duty: during freewheeling the diode's 0.7 V also appears across the motor, and at low duty that part weighs more.",
-        "- At turn-off the drain only reaches **5.7 V** (the diode clamps it to 5 V + 0.7 V). Without D1 it would fly up to the IRLZ44N's 55 V avalanche voltage.",
-        "- **1 kHz, 50 %**: the 1 ms period is 4 τ, so the current decays a lot while off. The average (263 mA) is about the same as at 20 kHz, but the **RMS is 317 mA** — winding heat ∝ I_rms², about 45 % more — and 1 kHz is right where the ear is most sensitive: the motor whines.",
+        "- the pin's average voltage = D × 3.3 V, and the drain's peak voltage (clamped by the diode to 5 V + 0.7 V). Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Choosing the PWM frequency**:",
         "- Motors: **≥ 20 kHz**, above hearing, smooth current. But higher frequency means more switching per second and more switching loss; the gate capacitance (≈ 1.7 nF for the IRLZ44N) is charged by a GPIO's ≈ 20 mA, so too high a frequency slows the edges and heats the MOSFET. 20–25 kHz is the usual compromise.",
@@ -111,6 +95,22 @@
         "",
         "**Model note**: the motor is 8 Ω + 2 mH with no back-EMF (a real spinning motor generates a back-EMF ∝ speed, so its current is lower than here); \"running\" means an average current ≥ 0.1 A; the MOSFET has no gate capacitance, so switching is instantaneous with no switching loss; `regions` uses the DC model (PWM as its average), so it is only meaningful at 100 % or output LOW; the diode is 0.65 V + 0.8 Ω."
       ],
+      "compare": [
+        "**Compare** (simulated, 20 kHz):",
+        "- **25 %**: pin average 0.82 V; motor average 0.71 V, **89 mA**, of which 66 mA (75 %) flows in the diode. 89 mA is below the model's 0.1 A start current — **the motor doesn't turn**. Real motors have this dead band too: static friction needs a minimum current, and a low duty just hums.",
+        "- **50 %**: average 2.06 V, **258 mA**, 129 mA in the diode (it freewheels half the time); the RMS is also 258 mA — almost no ripple (the 50 µs period is ≪ τ).",
+        "- **100 %**: the MOSFET stays on (Vgs = 3.26 V, ohmic region, Rds ≈ 44 mΩ), the motor takes **620 mA** and the diode is idle.",
+        "- The average current is not exactly ∝ duty: during freewheeling the diode's 0.7 V also appears across the motor, and at low duty that part weighs more.",
+        "- At turn-off the drain only reaches **5.7 V** (the diode clamps it to 5 V + 0.7 V). Without D1 it would fly up to the IRLZ44N's 55 V avalanche voltage.",
+        "- **1 kHz, 50 %**: the 1 ms period is 4 τ, so the current decays a lot while off. The average (263 mA) is about the same as at 20 kHz, but the **RMS is 317 mA** — winding heat ∝ I_rms², about 45 % more — and 1 kHz is right where the ear is most sensitive: the motor whines."
+      ],
+      "measurements": [
+        {"ask": "20 kHz, 25 %: the motor's average current (DMM on DC amps in series with the motor)", "explain": "The motor averages only about 0.71 V, ≈ 89 mA, below the model's 0.1 A starting current: it hums but does not turn."},
+        {"ask": "20 kHz, 50 %: the motor's average current", "explain": "≈ 258 mA. The average is not strictly ∝ duty: the diode's 0.7 V is also across the motor while freewheeling."},
+        {"ask": "Same state: the average current in the flyback diode D1", "explain": "During the half of each period the MOSFET is off, the motor current flows back through D1 to +5 V: ≈ 129 mA."},
+        {"ask": "From your two readings, the fraction of the motor current that goes through the diode, I_D1 / I_M1", "explain": "≈ 0.5 = 1 − D: the 50 µs period at 20 kHz ≪ τ = L/R, so the current barely changes; it just flows through the MOSFET half the time and through D1 the other half."},
+        {"ask": "Now 1 kHz, 50 %: the RMS motor current (true-RMS range)", "explain": "A 1 ms period is 4τ, so the current sags a lot while off: the average (263 mA) is about the same, but RMS ≈ 317 mA and winding heat ∝ I_rms² rises by about 45%; 1 kHz also whines audibly. Motors use ≥ 20 kHz."}
+      ],
       "hints": [
         "Gate path: PWM pin → 100 Ω → G, plus 10 kΩ from G to GND. Source to GND, drain to the motor's − lead.",
         "The diode's band (cathode) goes to the 5 V end of the motor, its anode to the drain — it must be reverse-biased while the MOSFET is on.",
@@ -118,10 +118,10 @@
         "Set the PWM pin to 20 kHz."
       ],
       "tests": [
-        "20 kHz, 25 %: average ≈ 89 mA (66 mA freewheeling in D1) — too little, the motor stalls",
-        "20 kHz, 50 %: average ≈ 258 mA, RMS ≈ average, 129 mA through D1",
-        "20 kHz, 100 %: MOSFET fully on (ohmic), ≈ 620 mA, no diode current",
-        "1 kHz, 50 %: same average but RMS ≈ 317 mA (more heating, audible whine)",
+        "20 kHz, 25 %: too little average current, the motor does not start",
+        "20 kHz, 50 %: motor runs, RMS ≈ average, part of the current freewheels through the diode",
+        "20 kHz, 100 %: MOSFET fully on (ohmic), diode off",
+        "1 kHz, 50 %: about the same average but a larger RMS (hotter, audible whine)",
         "Output LOW: MOSFET off, motor stopped"
       ]
     }
@@ -204,7 +204,7 @@
   ],
   "tests": [
     {
-      "name": "20 kHz、25 %：平均 ≈ 89 mA（续流 66 mA）——电流太小，电机转不起来",
+      "name": "20 kHz、25 %：平均电流太小，电机转不起来",
       "set": {
         "U1": {
           "modes": {
@@ -249,7 +249,7 @@
       ]
     },
     {
-      "name": "20 kHz、50 %：平均 ≈ 258 mA，RMS ≈ 平均，D1 里 129 mA",
+      "name": "20 kHz、50 %：电机转，RMS ≈ 平均，一部分电流走续流二极管",
       "set": {
         "U1": {
           "modes": {
@@ -301,7 +301,7 @@
       ]
     },
     {
-      "name": "20 kHz、100 %：MOSFET 完全导通（可变电阻区），≈ 620 mA，二极管不导通",
+      "name": "20 kHz、100 %：MOSFET 完全导通（可变电阻区），二极管不导通",
       "set": {
         "U1": {
           "modes": {
@@ -341,7 +341,7 @@
       ]
     },
     {
-      "name": "1 kHz、50 %：平均差不多，但 RMS ≈ 317 mA（更热、能听见啸叫）",
+      "name": "1 kHz、50 %：平均差不多，但 RMS 更大（更热、能听见啸叫）",
       "set": {
         "U1": {
           "modes": {
@@ -398,6 +398,22 @@
         }
       ]
     }
+  ],
+  "compare": [
+    "**对比**（仿真，20 kHz）：",
+    "- **25 %**：引脚平均 0.82 V；电机平均 0.71 V、**89 mA**，其中 66 mA（75 %）在续流二极管里；89 mA 低于模型的 0.1 A 起转电流——**电机转不起来**。真实电机也有“死区”：静摩擦要靠一定的电流才能克服，低占空比只会嗡嗡响。",
+    "- **50 %**：平均 2.06 V、**258 mA**，二极管里 129 mA（一半时间在续流）；RMS 也是 258 mA——电流几乎没有纹波（50 µs 的周期 ≪ τ）。",
+    "- **100 %**：MOSFET 一直导通（Vgs = 3.26 V，在可变电阻区，Rds ≈ 44 mΩ），电机 **620 mA**，二极管不导通。",
+    "- 平均电流不是严格 ∝ 占空比：续流期间二极管的 0.7 V 也算在电机上，低占空比时这部分比例更大。",
+    "- 关断瞬间漏极只到 **5.7 V**（二极管把它钳在 5 V + 0.7 V）。把 D1 拿掉，漏极会冲到 IRLZ44N 的 55 V 雪崩电压。",
+    "- **1 kHz、50 %**：周期 1 ms 是 τ 的 4 倍，关断期间电流衰减很多。平均电流 263 mA 和 20 kHz 差不多，但 **RMS 317 mA**——线圈发热 ∝ I_rms²，多了约 45 %；而且 1 kHz 正好在人耳最敏感的频段，电机会“吱吱”叫。"
+  ],
+  "measurements": [
+    {"id": "i25", "current": "M1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 25, "frequency": 20000}}}}, "unit": "mA", "predict": true, "range": [0.0841, 0.0929], "ask": "20 kHz、25 %：电机的平均电流（万用表直流档串在电机支路里）", "explain": "电机平均只有约 0.71 V，≈ 89 mA，低于模型的 0.1 A 起转电流：转不起来，只会嗡嗡响。"},
+    {"id": "i50", "current": "M1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 20000}}}}, "unit": "mA", "predict": true, "range": [0.245, 0.271], "ask": "20 kHz、50 %：电机的平均电流", "explain": "≈ 258 mA。平均电流不严格 ∝ 占空比：续流时二极管的 0.7 V 也算在电机上。"},
+    {"id": "id50", "current": "D1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 20000}}}}, "unit": "mA", "predict": true, "range": [0.122, 0.135], "ask": "同一状态：续流二极管 D1 的平均电流", "explain": "MOSFET 关断的那一半时间里，电机电流全部经 D1 流回 +5 V：≈ 129 mA。"},
+    {"id": "frac", "formula": "id50 / i50", "predict": true, "range": [0.474, 0.524], "ask": "用你的两个读数算电机电流里走二极管的比例 I_D1 / I_M1", "explain": "≈ 0.5 = 1 − D：20 kHz 的周期 50 µs ≪ τ = L/R，电流几乎不变，只是一半时间走 MOSFET、一半时间走 D1。"},
+    {"id": "rms1k", "current": "M1", "mode": "rms", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 1000}}}}, "unit": "mA", "predict": true, "range": [0.301, 0.332], "ask": "改成 1 kHz、50 %：电机电流的有效值（真有效值档）", "explain": "周期 1 ms 是 τ 的 4 倍，关断时电流衰减很多：平均 263 mA 差不多，但 RMS ≈ 317 mA，线圈发热 ∝ I_rms²，多约 45%；而且 1 kHz 能听见啸叫。电机用 ≥ 20 kHz。"}
   ],
   "hints": [
     "栅极：PWM 引脚 → 100 Ω → G，再从 G 接 10 kΩ 到 GND。S 接 GND，D 接电机的 − 端。",

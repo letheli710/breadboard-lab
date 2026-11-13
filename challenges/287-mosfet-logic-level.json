@@ -371,7 +371,7 @@
   ],
   "measurements": [
     {"id": "im", "current": "M1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "A", "predict": true, "range": [0.589, 0.651], "ask": "输出高：电机电流（电流表串在 +5 V 和电机之间）", "explain": "电机约 8 Ω 接 5 V：≈ 0.62 A——GPIO 能给的 30 倍。"},
-    {"id": "vds", "voltage": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mV", "predict": true, "range": [0.0253, 0.0279], "ask": "输出高：Vds（红表笔 D，黑表笔 S）", "explain": "完全导通（可变电阻区），Vds ≈ 27 mV。"},
+    {"id": "vds", "tolAbs": 0.001, "voltage": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mV", "predict": true, "range": [0.0253, 0.0279], "ask": "输出高：Vds（红表笔 D，黑表笔 S）", "explain": "完全导通（可变电阻区），Vds ≈ 27 mV。"},
     {"id": "rds", "formula": "vds / im", "unit": "mΩ", "predict": true, "range": [0.0408, 0.045], "ask": "用你的两个读数算导通电阻 Rds = Vds / Id", "explain": "≈ 43 mΩ：数据手册的 22 mΩ 是 Vgs = 5 V 时的值，3.3 V 栅压时大约翻倍。Q1 只发热约 17 mW。"},
     {"id": "vpk", "scope": "vmax", "pin": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": {"mode": "pwm", "duty": 50, "frequency": 1000}}}}, "unit": "V", "predict": true, "range": [5.77, 6.38], "ask": "PWM 50 %、1 kHz：示波器看漏极电压的最大值", "explain": "关断的半个周期里电机电感的电流经 D1 流回 +5 V，漏极被钳在 5 V + 二极管压降 ≈ 6.1 V，不会冲到几十伏。"},
     {"id": "vds540", "voltage": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}, "Q1": {"model": "IRF540N"}}, "unit": "V", "predict": true, "range": [3.68, 4.07], "ask": "把 Q1 换成 IRF540N（栅极仍是 3.3 V）：Vds", "explain": "Vth ≈ 3 V，只比 3.3 V 低一点：它卡在恒流（饱和）区，Id ≈ 0.14 A，Vds ≈ 3.9 V，自己发热 0.54 W。Vth 只是“开始导通”的栅压。"}

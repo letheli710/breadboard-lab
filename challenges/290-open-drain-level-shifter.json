@@ -146,7 +146,7 @@
     "**为什么必须是 FT 引脚**：开漏“高”时引脚上是 5 V。普通引脚内部有接 3V3 的保护二极管，会把 OUT5 钳在约 3.9 V（3.3 V + 二极管压降），电流从 5 V 经上拉、二极管灌进 3V3——既输出不了 5 V，又在倒灌电源。FT 引脚没有这个二极管，可以承受 5 V。"
   ],
   "measurements": [
-    {"id": "vl", "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_low", "openDrain": true}}}}, "unit": "mV", "predict": true, "range": [0.0376, 0.0416], "ask": "开漏输出低：OUT5 对 GND 的电压", "explain": "N 管约 40 Ω：40 Ω × 0.99 mA ≈ 40 mV。"},
+    {"id": "vl", "tolAbs": 0.002, "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_low", "openDrain": true}}}}, "unit": "mV", "predict": true, "range": [0.0376, 0.0416], "ask": "开漏输出低：OUT5 对 GND 的电压", "explain": "N 管约 40 Ω：40 Ω × 0.99 mA ≈ 40 mV。"},
     {"id": "il", "current": "R1", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_low", "openDrain": true}}}}, "unit": "mA", "predict": true, "range": [0.00094, 0.00104], "ask": "开漏输出低：上拉 R1 的电流（也就是引脚灌进的电流）", "explain": "4.69 V / 4.7 kΩ ≈ 0.99 mA。上拉越小上升沿越快，但输出低时灌电流越大。"},
     {"id": "vh", "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_high", "openDrain": true}}}}, "unit": "V", "predict": true, "range": [4.46, 4.92], "ask": "开漏输出高（引脚松开）：OUT5 对 GND", "explain": "引脚不再拉，R1 里没有电流，OUT5 等于 5V 脚的 4.69 V——FT 引脚没有接 3V3 的保护二极管，所以不会被钳住。"},
     {"id": "vpp", "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": "out_high"}}}, "unit": "V", "predict": true, "range": [3.15, 3.48], "ask": "改成推挽输出高：OUT5 对 GND", "explain": "上管把 OUT5 拉在约 3.3 V，低于 5 V CMOS 的 VIH ≈ 3.5 V：不一定能被认作高电平。"},
