@@ -1,0 +1,438 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://breadboard-lab.local/schema/summary.schema.json",
+  "title": "Breadboard Lab chapter summary (chapter-summary/1)",
+  "description": "Key-points page of a Practice chapter. Mirrors src/core/summary/types.ts and parse.ts (parseSummary). See docs/SUMMARY_FORMAT.md. The validator additionally recomputes every worked-example result with the analysis engine, checks every number with a unit in the steps, and checks the problem links.",
+  "type": "object",
+  "required": [
+    "format",
+    "chapter",
+    "ideas",
+    "formulas",
+    "examples",
+    "mistakes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "format": {
+      "const": "chapter-summary/1"
+    },
+    "chapter": {
+      "enum": [
+        "basics",
+        "equivalence",
+        "methods",
+        "theorems",
+        "opamp",
+        "storage",
+        "first-order",
+        "second-order",
+        "phasors",
+        "ac-analysis",
+        "ac-power",
+        "coupled",
+        "frequency",
+        "three-phase",
+        "two-port"
+      ],
+      "description": "Chapter id; the file must be summaries/<chapter>.json."
+    },
+    "lang": {
+      "enum": [
+        "zh",
+        "en"
+      ],
+      "default": "zh"
+    },
+    "intro": {
+      "$ref": "#/definitions/text"
+    },
+    "ideas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/idea"
+      }
+    },
+    "formulas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/formula"
+      }
+    },
+    "examples": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/definitions/example"
+      }
+    },
+    "mistakes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/mistake"
+      }
+    },
+    "i18n": {
+      "type": "object",
+      "properties": {
+        "zh": {
+          "type": "object",
+          "properties": {
+            "intro": {
+              "$ref": "#/definitions/text"
+            }
+          },
+          "additionalProperties": false
+        },
+        "en": {
+          "type": "object",
+          "properties": {
+            "intro": {
+              "$ref": "#/definitions/text"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "text": {
+      "description": "A string, or an array of lines joined with \\n. Markdown subset plus X_sub, \\frac{a}{b}, \\sqrt{x}, ^{sup}.",
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "idea": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "text",
+        "problems"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "$ref": "#/definitions/text"
+        },
+        "problems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "description": "Ids of this chapter's problems that practise the idea. Every problem of the chapter must be linked from at least one idea."
+        },
+        "i18n": {
+          "type": "object",
+          "properties": {
+            "zh": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "text": {
+                  "$ref": "#/definitions/text"
+                }
+              },
+              "additionalProperties": false
+            },
+            "en": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "text": {
+                  "$ref": "#/definitions/text"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "formula": {
+      "type": "object",
+      "required": [
+        "id",
+        "idea",
+        "name",
+        "expr",
+        "when"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+        },
+        "idea": {
+          "type": "string",
+          "description": "id of the key idea it belongs to"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expr": {
+          "type": "string",
+          "minLength": 1
+        },
+        "when": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Conditions under which it holds; reference-direction conventions."
+        },
+        "note": {
+          "type": "string"
+        },
+        "i18n": {
+          "type": "object",
+          "properties": {
+            "zh": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "expr": {
+                  "type": "string"
+                },
+                "when": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "en": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "expr": {
+                  "type": "string"
+                },
+                "when": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "example": {
+      "type": "object",
+      "required": [
+        "id",
+        "ideas",
+        "title",
+        "statement",
+        "schematic",
+        "analysis",
+        "results",
+        "steps"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+        },
+        "ideas": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "statement": {
+          "$ref": "#/definitions/text"
+        },
+        "schematic": {
+          "$ref": "problem.schema.json#/definitions/schematic"
+        },
+        "analysis": {
+          "$ref": "problem.schema.json#/definitions/analysis"
+        },
+        "results": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "problem.schema.json#/definitions/question"
+              },
+              {
+                "required": [
+                  "find",
+                  "answer"
+                ]
+              }
+            ]
+          }
+        },
+        "steps": {
+          "$ref": "#/definitions/text"
+        },
+        "i18n": {
+          "type": "object",
+          "properties": {
+            "zh": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "statement": {
+                  "$ref": "#/definitions/text"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "ask": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "steps": {
+                  "$ref": "#/definitions/text"
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "en": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "statement": {
+                  "$ref": "#/definitions/text"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "ask": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "steps": {
+                  "$ref": "#/definitions/text"
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "mistake": {
+      "type": "object",
+      "required": [
+        "id",
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+        },
+        "idea": {
+          "type": "string"
+        },
+        "text": {
+          "$ref": "#/definitions/text"
+        },
+        "i18n": {
+          "type": "object",
+          "properties": {
+            "zh": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "$ref": "#/definitions/text"
+                }
+              },
+              "additionalProperties": false
+            },
+            "en": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "$ref": "#/definitions/text"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,13 @@
-// Validate content files: breadboard challenges ("breadboard-challenge/1") and theory
-// problems ("circuit-problem/1"). Each file is dispatched by its "format".
+// Validate content files: breadboard challenges ("breadboard-challenge/1"), theory problems
+// ("circuit-problem/1") and chapter summaries ("chapter-summary/1"). Each file is dispatched by
+// its "format".
 // Usage: npm run validate [--lang zh|en] [folder-or-file ...]
-//        (default: ./challenges and ./problems, messages in Chinese)
+//        (default: ./challenges, ./problems and ./summaries, messages in Chinese)
+//
+// Chapter summaries: parseSummary → structure, translations, every worked-example result
+// recomputed by the engine (the problem path), every number with a unit in the steps given or
+// verified, and links: every linked problem exists in the chapter, every problem of the chapter
+// is linked from a key idea.
 //
 // Theory problems: parseProblem → schematic geometry, structure, and every numeric answer
 // recomputed by the analysis engine (must agree within 0.5 %).
@@ -21,6 +27,8 @@ import { fileURLToPath } from 'node:url';
 import { parseChallenge } from '../src/core/challenge';
 import { chapterById } from '../src/core/problem/chapters';
 import { isProblemJson, parseProblem } from '../src/core/problem/parse';
+import { isSummaryJson, parseSummary } from '../src/core/summary/parse';
+import { buildProblemIndex } from './problem-index-plugin';
 import { isLang, setLang, tr } from '../src/core/i18n';
 import { applySet, checkCircuit } from '../src/core/check';
 import { acDiagnostics, boardDiagnostics } from '../src/core/diagnostics';
@@ -45,8 +53,8 @@ export interface FileReport {
   id?: string;
   title?: string;
   kind?: string;
-  /** "challenge" | "problem" */
-  format?: 'challenge' | 'problem';
+  /** "challenge" | "problem" | "summary" */
+  format?: 'challenge' | 'problem' | 'summary';
   errors: string[];
   warnings: string[];
 }
@@ -173,10 +181,37 @@ export function validateProblemJson(json: unknown, file: string): FileReport {
   return rep;
 }
 
+let problemList: { id: string; chapter: string }[] | null = null;
+/** The built-in problems (for the summaries' link checks). */
+function builtinProblems(): { id: string; chapter: string }[] {
+  const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
+  return (problemList ??= buildProblemIndex(root).entries.map((e) => ({ id: e.id, chapter: e.chapter })));
+}
+
+export function validateSummaryJson(json: unknown, file: string, problems = builtinProblems()): FileReport {
+  const rep: FileReport = { file, format: 'summary', errors: [], warnings: [] };
+  let res;
+  try {
+    res = parseSummary(json, file, { problems });
+  } catch (e) {
+    rep.errors.push(tr(`解析时出错：${(e as Error).message}`, `Error while parsing: ${(e as Error).message}`));
+    return rep;
+  }
+  rep.errors.push(...res.errors);
+  rep.warnings.push(...res.warnings);
+  const raw = json as Record<string, unknown>;
+  rep.kind = typeof raw?.chapter === 'string' ? raw.chapter : undefined;
+  rep.id = rep.kind ? `summary:${rep.kind}` : undefined;
+  const s = res.summary;
+  if (s) rep.title = tr(`${s.ideas.length} 个要点，${s.formulas.length} 个公式，${s.examples.length} 道例题，${s.mistakes.length} 个易错点`, `${s.ideas.length} key ideas, ${s.formulas.length} formulas, ${s.examples.length} worked examples, ${s.mistakes.length} mistakes`);
+  return rep;
+}
+
 /** Route a JSON file to the right validator by its "format" (or by folder when it has none). */
 export function validateJson(json: unknown, file: string): FileReport {
   const inProblems = /(^|[\\/])problems[\\/]/.test(file);
   const fmt = (json as { format?: unknown })?.format;
+  if (isSummaryJson(json) || (/(^|[\\/])summaries[\\/]/.test(file) && fmt === undefined)) return validateSummaryJson(json, file);
   if (isProblemJson(json) || (inProblems && fmt === undefined)) return validateProblemJson(json, file);
   return { ...validateChallengeJson(json, file), format: 'challenge' };
 }
@@ -194,7 +229,7 @@ function main() {
     args.splice(li, 2);
   }
   const defaults = !args.length;
-  const roots = (defaults ? ['challenges', 'problems'] : args).map((a) => resolve(a));
+  const roots = (defaults ? ['challenges', 'problems', 'summaries'] : args).map((a) => resolve(a));
   const files: string[] = [];
   for (const r of roots) {
     try {
@@ -210,8 +245,8 @@ function main() {
     return;
   }
 
-  const stats = { challenge: { files: 0, bad: 0, warn: 0 }, problem: { files: 0, bad: 0, warn: 0 } };
-  const ids = { challenge: new Map<string, string>(), problem: new Map<string, string>() };
+  const stats = { challenge: { files: 0, bad: 0, warn: 0 }, problem: { files: 0, bad: 0, warn: 0 }, summary: { files: 0, bad: 0, warn: 0 } };
+  const ids = { challenge: new Map<string, string>(), problem: new Map<string, string>(), summary: new Map<string, string>() };
   for (const f of files) {
     const r0 = relative(process.cwd(), f);
     const rel = !r0 || r0.startsWith('..') ? f : r0;
@@ -220,7 +255,7 @@ function main() {
       const text = readFileSync(f, 'utf8').replace(/^﻿/, '');
       rep = validateJson(JSON.parse(text), rel);
     } catch (e) {
-      const format = /(^|[\\/])problems[\\/]/.test(rel) ? 'problem' : 'challenge';
+      const format = /(^|[\\/])problems[\\/]/.test(rel) ? 'problem' : /(^|[\\/])summaries[\\/]/.test(rel) ? 'summary' : 'challenge';
       rep = { file: rel, format, errors: [tr(`JSON 语法错误：${(e as Error).message}`, `JSON syntax error: ${(e as Error).message}`)], warnings: [] };
     }
     const fmt = rep.format ?? 'challenge';
@@ -240,9 +275,13 @@ function main() {
     for (const w of rep.warnings) console.log(`    ${yellow('warn')}   ${w}`);
   }
   console.log('');
-  const label = { challenge: tr('面包板题 breadboard-challenge/1', 'breadboard-challenge/1'), problem: tr('理论题 circuit-problem/1', 'circuit-problem/1') };
+  const label = {
+    challenge: tr('面包板题 breadboard-challenge/1', 'breadboard-challenge/1'),
+    problem: tr('理论题 circuit-problem/1', 'circuit-problem/1'),
+    summary: tr('章节要点 chapter-summary/1', 'chapter-summary/1'),
+  };
   let bad = 0;
-  for (const k of ['challenge', 'problem'] as const) {
+  for (const k of ['challenge', 'problem', 'summary'] as const) {
     const st = stats[k];
     if (!st.files) continue;
     bad += st.bad;

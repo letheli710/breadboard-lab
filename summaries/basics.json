@@ -1,0 +1,435 @@
+{
+  "$schema": "../schema/summary.schema.json",
+  "format": "chapter-summary/1",
+  "chapter": "basics",
+  "intro": "这一章只有两条定律（KCL、KVL）和几种元件的伏安关系（VCR），但后面每一章都建立在它们之上。最要紧的习惯是：**先在图上标出参考方向，再列方程**；算出负值只说明实际方向与参考方向相反。",
+  "i18n": {
+    "en": {
+      "intro": "This chapter has only two laws (KCL, KVL) and the voltage–current relations (VCR) of a few elements, but every later chapter builds on them. The one habit that matters most: **mark the reference directions on the drawing first, then write the equations**; a negative result only means the actual direction is opposite to the reference."
+    }
+  },
+  "ideas": [
+    {
+      "id": "ref-dir",
+      "title": "参考方向与关联参考方向",
+      "text": [
+        "电流、电压的方向事先不一定知道，所以先**任意假定**一个参考方向：电流画箭头，电压标“+”“−”（或双下标 u_ab = 从 a 到 b 的电压降）。计算结果为正，实际方向与参考方向相同；为负则相反。",
+        "对一个元件，如果电流从电压的“+”端流入、从“−”端流出，称 u、i 为**关联参考方向**；否则为**非关联参考方向**。关联与否只看同一个元件上 u 和 i 的箭头与极性怎样搭配，与实际方向无关。"
+      ],
+      "problems": ["basics-02-reference-direction", "basics-05-source-properties"],
+      "i18n": {
+        "en": {
+          "title": "Reference directions and the passive sign convention",
+          "text": [
+            "The actual directions are usually not known in advance, so **choose** a reference direction first: an arrow for a current, “+” and “−” (or a double subscript: u_ab = voltage drop from a to b) for a voltage. A positive result means the actual direction agrees with the reference; a negative one means it is opposite.",
+            "For one element, if the current enters at the “+” terminal of its voltage and leaves at “−”, u and i follow the **passive sign convention** (关联参考方向); otherwise they don't. Whether they are associated depends only on how the arrow and the polarity on the same element are drawn, not on the actual directions."
+          ]
+        }
+      }
+    },
+    {
+      "id": "ohm",
+      "title": "电阻与欧姆定律（注意负号）",
+      "text": [
+        "线性电阻在关联参考方向下 u = Ri；在非关联参考方向下 u = −Ri。负号来自参考方向的选取，不是电阻变成了负的。",
+        "电阻吸收的功率 P = Ri² = u²/R，总是 ≥ 0：电阻只吸收功率。"
+      ],
+      "problems": ["basics-02-reference-direction", "basics-07-voltmeter-bridge"],
+      "i18n": {
+        "en": {
+          "title": "Resistors and Ohm's law (mind the sign)",
+          "text": [
+            "A linear resistor obeys u = Ri with the passive sign convention and u = −Ri without it. The minus sign comes from the choice of reference directions; the resistance does not become negative.",
+            "The power absorbed by a resistor, P = Ri² = u²/R, is always ≥ 0: a resistor only absorbs power."
+          ]
+        }
+      }
+    },
+    {
+      "id": "power",
+      "title": "功率：吸收还是发出，功率守恒",
+      "text": [
+        "约定一律算**吸收**功率：关联参考方向下 P = ui，非关联参考方向下 P = −ui。P > 0 表示实际吸收，P < 0 表示实际发出。",
+        "电源不一定发出功率：电流从电压源“+”端流入时，电压源在吸收功率（例如被充电的电池）。受控源也可能吸收或发出功率。",
+        "**功率守恒**：一个电路中所有元件吸收的功率之和为零（发出的 = 吸收的）。这是检查答案最快的办法。"
+      ],
+      "problems": ["basics-03-power-sign", "basics-ccvs-loop", "basics-14-power-balance", "basics-12-vccs-absorbs"],
+      "i18n": {
+        "en": {
+          "title": "Power: absorbed or delivered; conservation of power",
+          "text": [
+            "Always compute the **absorbed** power: P = ui with the passive sign convention, P = −ui without it. P > 0 means the element actually absorbs power, P < 0 that it delivers power.",
+            "A source does not necessarily deliver power: when current enters the “+” terminal of a voltage source, the source absorbs power (like a battery being charged). Dependent sources may also absorb or deliver.",
+            "**Conservation of power**: the absorbed powers of all elements in a circuit add up to zero (delivered = absorbed). It is the quickest check of an answer."
+          ]
+        }
+      }
+    },
+    {
+      "id": "sources",
+      "title": "独立电压源与独立电流源",
+      "text": [
+        "**电压源**的端电压由它自己决定（U_s），与外电路无关；但**流过它的电流由外电路决定**，要用 KCL 或回路方程求。与电压源并联的元件，电压就是 U_s。",
+        "**电流源**的电流由它自己决定（I_s），与外电路无关；但**它两端的电压由外电路决定**，要用 KVL 求。与电流源串联的支路，电流就是 I_s。",
+        "所以：电压源的电流、电流源的电压，都不能“想当然”地取零或取某个值。"
+      ],
+      "problems": ["basics-05-source-properties", "basics-03-power-sign"],
+      "i18n": {
+        "en": {
+          "title": "Independent voltage and current sources",
+          "text": [
+            "A **voltage source** fixes its terminal voltage (U_s) whatever the rest of the circuit does, but **the current through it is set by the external circuit** — find it with KCL or a loop equation. Anything in parallel with a voltage source has voltage U_s.",
+            "A **current source** fixes its current (I_s), but **the voltage across it is set by the external circuit** — find it with KVL. A branch in series with a current source carries I_s.",
+            "So never assume the current of a voltage source, or the voltage of a current source, is zero or any fixed value."
+          ]
+        }
+      }
+    },
+    {
+      "id": "dependent",
+      "title": "受控源：四种类型与识别",
+      "text": [
+        "受控源的电压或电流由电路中另一处的电压或电流（**控制量**）决定。按“谁控制谁”分为四种：电压控制电压源 VCVS（u = μu_1）、电压控制电流源 VCCS（i = gu_1）、电流控制电压源 CCVS（u = ri_1）、电流控制电流源 CCCS（i = βi_1）。符号是**菱形**。",
+        "识别方法：先看菱形里画的是电压源符号（+ −）还是电流源符号（箭头），决定后两个字母（VS / CS）；再看系数后面的控制量是电压还是电流，决定前两个字母（VC / CC）。",
+        "受控源反映的是电子器件（晶体管、放大器）的放大作用，**本身不是激励**：电路中没有独立源时，受控源不会产生任何电压、电流。它可以吸收也可以发出功率。"
+      ],
+      "problems": ["basics-09-vcvs-amplifier", "basics-11-cccs-amplifier", "basics-12-vccs-absorbs", "basics-ccvs-loop", "basics-15-meters-ccvs", "basics-16-two-dependent-sources"],
+      "i18n": {
+        "en": {
+          "title": "Dependent sources: four types and how to tell them apart",
+          "text": [
+            "The voltage or current of a dependent source is set by a voltage or current elsewhere in the circuit (the **controlling quantity**). There are four kinds: voltage-controlled voltage source VCVS (u = μu_1), voltage-controlled current source VCCS (i = gu_1), current-controlled voltage source CCVS (u = ri_1), current-controlled current source CCCS (i = βi_1). The symbol is a **diamond**.",
+            "To identify one: the symbol inside the diamond (+ − for a voltage source, an arrow for a current source) gives the last two letters (VS / CS); the controlling quantity after the coefficient (a voltage or a current) gives the first two (VC / CC).",
+            "Dependent sources model the amplifying action of devices such as transistors and amplifiers; **they are not excitations**: with no independent source in the circuit they produce no voltage or current. They can absorb or deliver power."
+          ]
+        }
+      }
+    },
+    {
+      "id": "kcl",
+      "title": "基尔霍夫电流定律 KCL：结点与闭合面",
+      "text": [
+        "任一时刻，流出任一结点的电流代数和为零：Σi = 0（也可以说“流入 = 流出”）。只要按参考方向统一规定“流出取正、流入取负”，符号就不会错。",
+        "KCL 对**任意闭合面（广义结点）**也成立：只看穿过闭合面的支路电流，闭合面内部有多复杂都不用管。",
+        "KCL 与元件性质无关（电阻、电源、受控源都适用），它表达的是电荷守恒。"
+      ],
+      "problems": ["basics-04-kcl-node", "basics-10-generalized-node", "basics-13-kcl-chain"],
+      "i18n": {
+        "en": {
+          "title": "Kirchhoff's current law (KCL): nodes and closed surfaces",
+          "text": [
+            "At every instant the algebraic sum of the currents leaving any node is zero: Σi = 0 (equivalently, in = out). Fix one rule — leaving positive, entering negative, by the reference arrows — and the signs take care of themselves.",
+            "KCL also holds for **any closed surface (a generalised node)**: only the branch currents crossing the surface count, however complicated the inside is.",
+            "KCL does not depend on what the elements are (resistors, sources, dependent sources); it expresses conservation of charge."
+          ]
+        }
+      }
+    },
+    {
+      "id": "kvl",
+      "title": "基尔霍夫电压定律 KVL：回路、开口回路与电位",
+      "text": [
+        "任一时刻，沿任一闭合回路绕行一周，各段电压降的代数和为零：Σu = 0。先选绕行方向，电压参考方向与绕行方向一致（从“+”走到“−”）的取正，相反的取负。",
+        "**开口回路**：两点间电压 u_ab 等于从 a 沿**任意一条路径**走到 b 的各段电压降之和，与路径无关。开路的两端没有电流，但可以有电压。",
+        "**电位**：选一个参考点（接地点，电位为零），某点电位 φ_a 就是该点到参考点的电压；u_ab = φ_a − φ_b。换参考点，各点电位都变，但两点间电压不变。"
+      ],
+      "problems": ["basics-06-kvl-open-path", "basics-07-voltmeter-bridge", "basics-08-potential-reference", "basics-ccvs-loop"],
+      "i18n": {
+        "en": {
+          "title": "Kirchhoff's voltage law (KVL): loops, open paths and potentials",
+          "text": [
+            "At every instant the algebraic sum of the voltage drops around any closed loop is zero: Σu = 0. Choose a direction of travel; a voltage whose reference agrees with it (going from “+” to “−”) counts positive, the others negative.",
+            "**Open paths**: the voltage u_ab is the sum of the drops along **any path** from a to b — the result does not depend on the path. Open terminals carry no current but can have a voltage.",
+            "**Potential**: choose a reference node (ground, potential zero); the potential φ_a of a point is its voltage to the reference, and u_ab = φ_a − φ_b. Changing the reference changes every potential but no voltage between two points."
+          ]
+        }
+      }
+    },
+    {
+      "id": "meters",
+      "title": "理想电表",
+      "text": [
+        "理想电流表内阻为零，在电路里相当于**短路**，读数是流过它的电流；理想电压表内阻无穷大，相当于**开路**，读数是它两端的电压。",
+        "解题时先把电流表换成导线、把电压表拿掉，解出电路后再按电表的接法和方向读数。"
+      ],
+      "problems": ["basics-04-kcl-node", "basics-07-voltmeter-bridge", "basics-15-meters-ccvs"],
+      "i18n": {
+        "en": {
+          "title": "Ideal meters",
+          "text": [
+            "An ideal ammeter has zero resistance — it is a **short circuit** — and reads the current through it; an ideal voltmeter has infinite resistance — an **open circuit** — and reads the voltage across it.",
+            "Replace ammeters by wires and remove voltmeters, solve the circuit, then read each meter according to how and in which direction it is connected."
+          ]
+        }
+      }
+    },
+    {
+      "id": "strategy",
+      "title": "含受控源电路的解题步骤",
+      "text": [
+        "1. 把**控制量**当作一个未知数，在图上标出它的参考方向。",
+        "2. 先把受控源当作普通电源，用 KCL、KVL 和元件 VCR 列方程。",
+        "3. 补一个“控制量 = 用未知数表示”的方程，联立求解。",
+        "4. 求出控制量后，受控源就相当于一个已知数值的电源；最后用功率守恒验算。",
+        "不要把受控源“置零”或者当作独立源处理——它的值随电路状态变化。"
+      ],
+      "problems": ["basics-12-vccs-absorbs", "basics-14-power-balance", "basics-15-meters-ccvs", "basics-16-two-dependent-sources", "basics-09-vcvs-amplifier", "basics-11-cccs-amplifier"],
+      "i18n": {
+        "en": {
+          "title": "Solving a circuit with dependent sources",
+          "text": [
+            "1. Treat the **controlling quantity** as an unknown and mark its reference direction on the drawing.",
+            "2. Treat the dependent source as an ordinary source and write KCL, KVL and the element VCRs.",
+            "3. Add one equation expressing the controlling quantity in terms of the unknowns, and solve the set.",
+            "4. Once the controlling quantity is known, the dependent source behaves like a source of known value; finally check with conservation of power.",
+            "Never set a dependent source to zero or treat it as an independent source — its value changes with the state of the circuit."
+          ]
+        }
+      }
+    }
+  ],
+  "formulas": [
+    {
+      "id": "p-assoc",
+      "idea": "power",
+      "name": "吸收功率",
+      "expr": "P = ui　（非关联：P = −ui）",
+      "when": "u、i 为同一元件的电压、电流，关联参考方向（电流从“+”端流入）。P > 0 吸收，P < 0 发出。",
+      "i18n": { "en": { "name": "Absorbed power", "expr": "P = ui　(not associated: P = −ui)", "when": "u and i of the same element, passive sign convention (current enters at “+”). P > 0 absorbs, P < 0 delivers." } }
+    },
+    {
+      "id": "p-balance",
+      "idea": "power",
+      "name": "功率守恒",
+      "expr": "Σ P_{吸} = 0",
+      "when": "对整个电路的所有元件（含独立源、受控源）求和，每个元件都按吸收功率计算。",
+      "i18n": { "en": { "name": "Conservation of power", "expr": "Σ P_{abs} = 0", "when": "Sum over every element of the whole circuit (independent and dependent sources included), each counted as absorbed power." } }
+    },
+    {
+      "id": "ohm",
+      "idea": "ohm",
+      "name": "欧姆定律",
+      "expr": "u = Ri　（非关联：u = −Ri）",
+      "when": "线性电阻；u、i 为关联参考方向时取正号。",
+      "i18n": { "en": { "name": "Ohm's law", "expr": "u = Ri　(not associated: u = −Ri)", "when": "Linear resistor; plus sign with the passive sign convention." } }
+    },
+    {
+      "id": "p-r",
+      "idea": "ohm",
+      "name": "电阻的功率",
+      "expr": "P = Ri^{2} = \\frac{u^{2}}{R} ≥ 0",
+      "when": "任何参考方向下都成立；电阻总是吸收功率。",
+      "i18n": { "en": { "name": "Power of a resistor", "expr": "P = Ri^{2} = \\frac{u^{2}}{R} ≥ 0", "when": "Holds for any reference directions; a resistor always absorbs." } }
+    },
+    {
+      "id": "src",
+      "idea": "sources",
+      "name": "独立源",
+      "expr": "电压源：u = U_s，i 由外电路定；电流源：i = I_s，u 由外电路定",
+      "when": "理想独立源；电压源不能短路，电流源不能开路。",
+      "i18n": { "en": { "name": "Independent sources", "expr": "voltage source: u = U_s, i set by the circuit; current source: i = I_s, u set by the circuit", "when": "Ideal independent sources; never short a voltage source or open a current source." } }
+    },
+    {
+      "id": "dep",
+      "idea": "dependent",
+      "name": "受控源",
+      "expr": "VCVS u = μu_1；VCCS i = gu_1；CCVS u = ri_1；CCCS i = βi_1",
+      "when": "u_1、i_1 为控制量（按图中标出的参考方向）；μ、β 无量纲，g 单位 S，r 单位 Ω。",
+      "i18n": { "en": { "name": "Dependent sources", "expr": "VCVS u = μu_1; VCCS i = gu_1; CCVS u = ri_1; CCCS i = βi_1", "when": "u_1, i_1 are the controlling quantities (with the reference directions drawn); μ and β are dimensionless, g in S, r in Ω." } }
+    },
+    {
+      "id": "kcl",
+      "idea": "kcl",
+      "name": "KCL",
+      "expr": "Σ i_{流出} = 0　（Σ i_{流入} = Σ i_{流出}）",
+      "when": "任一结点或任一闭合面，任一时刻；按参考方向计正负，与元件性质无关。",
+      "i18n": { "en": { "name": "KCL", "expr": "Σ i_{out} = 0　(Σ i_{in} = Σ i_{out})", "when": "Any node or closed surface, at every instant; signs by the reference arrows, whatever the elements are." } }
+    },
+    {
+      "id": "kvl",
+      "idea": "kvl",
+      "name": "KVL",
+      "expr": "Σ u = 0",
+      "when": "沿任一闭合回路；与绕行方向一致的电压降取正。",
+      "i18n": { "en": { "name": "KVL", "expr": "Σ u = 0", "when": "Around any closed loop; voltage drops along the direction of travel count positive." } }
+    },
+    {
+      "id": "uab",
+      "idea": "kvl",
+      "name": "两点间电压与电位",
+      "expr": "u_ab = Σ u_{a→b} = φ_a − φ_b",
+      "when": "沿从 a 到 b 的任意路径求和（开口回路也适用）；φ 以参考点为零。",
+      "i18n": { "en": { "name": "Voltage between two points; potential", "expr": "u_ab = Σ u_{a→b} = φ_a − φ_b", "when": "Sum the drops along any path from a to b (open paths too); φ is measured from the reference node." } }
+    },
+    {
+      "id": "meters",
+      "idea": "meters",
+      "name": "理想电表",
+      "expr": "电流表：R = 0（短路）；电压表：R = ∞（开路）",
+      "when": "读数的正负按电表标注的方向（电流从“+”端流入、电压为“+”端减“−”端）。",
+      "i18n": { "en": { "name": "Ideal meters", "expr": "ammeter: R = 0 (short); voltmeter: R = ∞ (open)", "when": "The sign of a reading follows the meter's marked direction (current into “+”; voltage = “+” minus “−”)." } }
+    }
+  ],
+  "examples": [
+    {
+      "id": "power-signs",
+      "ideas": ["power", "kcl", "sources"],
+      "title": "两个电源，谁在发出功率？",
+      "statement": "图示电路中 U_s = 10 V，R_1 = 2 Ω，R_2 = 4 Ω，电流源 I_s = 1 A（箭头向上，注入结点 a）。求结点 a 的电位 u_a、电流 i_1、i_2，各元件吸收的功率，并验证功率守恒。",
+      "schematic": {
+        "elements": [
+          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
+          { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+          { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 4 },
+          { "ref": "Is", "type": "I", "from": [12, 4], "to": [12, 0], "value": 1 }
+        ],
+        "wires": [
+          [[0, 0], [2, 0]],
+          [[6, 0], [12, 0]],
+          [[12, 4], [0, 4]]
+        ],
+        "labels": [{ "at": [8, 0], "name": "a" }],
+        "grounds": [[0, 4]],
+        "marks": [
+          { "kind": "i", "el": "R1", "name": "i1" },
+          { "kind": "i", "el": "R2", "name": "i2" }
+        ]
+      },
+      "analysis": { "type": "dc" },
+      "results": [
+        { "id": "ua", "ask": "u_a", "find": { "kind": "v", "nodes": ["a"] }, "answer": 8, "unit": "V" },
+        { "id": "i1", "ask": "i_1", "find": { "kind": "i", "el": "R1" }, "answer": 1, "unit": "A" },
+        { "id": "i2", "ask": "i_2", "find": { "kind": "i", "el": "R2" }, "answer": 2, "unit": "A" },
+        { "id": "pus", "ask": "P_Us（吸收）", "find": { "kind": "p", "el": "Us" }, "answer": -10, "unit": "W" },
+        { "id": "pis", "ask": "P_Is（吸收）", "find": { "kind": "p", "el": "Is" }, "answer": -8, "unit": "W" },
+        { "id": "pr1", "ask": "P_R1", "find": { "kind": "p", "el": "R1" }, "answer": 2, "unit": "W" },
+        { "id": "pr2", "ask": "P_R2", "find": { "kind": "p", "el": "R2" }, "answer": 16, "unit": "W" }
+      ],
+      "steps": [
+        "1. **找未知数。** 只有结点 a 的电位未知（U_s 的“+”端电位就是 10 V）。用 u_a 表示各支路电流：i_1 = (10 − u_a)/2（欧姆定律，R_1 上 u、i 关联），i_2 = u_a/4。",
+        "2. **KCL（结点 a）。** 流入 = 流出：i_1 + I_s = i_2，即 (10 − u_a)/2 + 1 = u_a/4，解得 **u_a = 8 V**，于是 **i_1 = 1 A**，**i_2 = 2 A**。",
+        "3. **逐个判断关联与否，算吸收功率。**",
+        "- U_s：i_1 从它的“+”端**流出**，非关联：P = −10 × 1 = **−10 W**（发出 10 W）。",
+        "- I_s：两端电压上“+”下“−”、为 8 V，电流从上端（“+”端）流出，非关联：P = −8 × 1 = **−8 W**（发出 8 W）。",
+        "- R_1：P = 1² × 2 = **2 W**；R_2：P = 2² × 4 = **16 W**。",
+        "4. **验算功率守恒：** −10 − 8 + 2 + 16 = 0 ✓。两个电源都在发出功率，全部被电阻吸收。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Two sources: which one delivers power?",
+          "statement": "In the circuit U_s = 10 V, R_1 = 2 Ω, R_2 = 4 Ω and the current source I_s = 1 A (arrow up, into node a). Find the potential u_a of node a, the currents i_1 and i_2, the power absorbed by every element, and check conservation of power.",
+          "results": [{ "ask": "u_a" }, { "ask": "i_1" }, { "ask": "i_2" }, { "ask": "P_Us (absorbed)" }, { "ask": "P_Is (absorbed)" }, { "ask": "P_R1" }, { "ask": "P_R2" }],
+          "steps": [
+            "1. **Unknowns.** Only the potential of node a is unknown (the “+” terminal of U_s is at 10 V). Write the branch currents in terms of u_a: i_1 = (10 − u_a)/2 (Ohm's law, u and i of R_1 associated), i_2 = u_a/4.",
+            "2. **KCL at node a.** In = out: i_1 + I_s = i_2, i.e. (10 − u_a)/2 + 1 = u_a/4, so **u_a = 8 V**, hence **i_1 = 1 A** and **i_2 = 2 A**.",
+            "3. **Decide associated or not for each element; compute the absorbed power.**",
+            "- U_s: i_1 **leaves** its “+” terminal — not associated: P = −10 × 1 = **−10 W** (delivers 10 W).",
+            "- I_s: its voltage is 8 V, “+” at the top, and the current leaves at the top (“+”) — not associated: P = −8 × 1 = **−8 W** (delivers 8 W).",
+            "- R_1: P = 1² × 2 = **2 W**; R_2: P = 2² × 4 = **16 W**.",
+            "4. **Check conservation of power:** −10 − 8 + 2 + 16 = 0 ✓. Both sources deliver power, all of it absorbed by the resistors."
+          ]
+        }
+      }
+    },
+    {
+      "id": "vccs",
+      "ideas": ["dependent", "strategy", "power", "ref-dir"],
+      "title": "受控源发出功率、电压源反而吸收",
+      "statement": "图示电路中 U_s = 12 V，R_1 = 4 Ω，R_2 = 6 Ω。电压控制电流源 G 的电流为 0.25u_2（单位 A，箭头向上，注入结点 a），u_2 为 R_2 两端的电压（“+”在上）。求 u_2、i_1、G 的电流，以及各元件吸收的功率。",
+      "schematic": {
+        "elements": [
+          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+          { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4 },
+          { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 6 },
+          { "ref": "G", "type": "VCCS", "from": [12, 4], "to": [12, 0], "value": 0.25, "ctrl": { "v": "R2" }, "label": "0.25u_2" }
+        ],
+        "wires": [
+          [[0, 0], [2, 0]],
+          [[6, 0], [12, 0]],
+          [[12, 4], [0, 4]]
+        ],
+        "labels": [{ "at": [8, 0], "name": "a" }],
+        "grounds": [[0, 4]],
+        "marks": [
+          { "kind": "i", "el": "R1", "name": "i1" },
+          { "kind": "v", "el": "R2", "name": "u2" }
+        ]
+      },
+      "analysis": { "type": "dc" },
+      "results": [
+        { "id": "u2", "ask": "u_2", "find": { "kind": "v", "el": "R2" }, "answer": 18, "unit": "V" },
+        { "id": "i1", "ask": "i_1", "find": { "kind": "i", "el": "R1" }, "answer": -1.5, "unit": "A" },
+        { "id": "ig", "ask": "G 的电流 0.25u_2", "find": { "kind": "i", "el": "G" }, "answer": 4.5, "unit": "A" },
+        { "id": "pg", "ask": "P_G（吸收）", "find": { "kind": "p", "el": "G" }, "answer": -81, "unit": "W" },
+        { "id": "pus", "ask": "P_Us（吸收）", "find": { "kind": "p", "el": "Us" }, "answer": 18, "unit": "W" },
+        { "id": "pr1", "ask": "P_R1", "find": { "kind": "p", "el": "R1" }, "answer": 9, "unit": "W" },
+        { "id": "pr2", "ask": "P_R2", "find": { "kind": "p", "el": "R2" }, "answer": 54, "unit": "W" }
+      ],
+      "steps": [
+        "1. **控制量当未知数。** 结点 a 的电位就是 u_2（R_2 接在 a 与地之间，“+”在上）。",
+        "2. **KCL（结点 a），受控源先当普通电流源：** i_1 + 0.25u_2 = u_2/6，其中 i_1 = (12 − u_2)/4。",
+        "3. **解方程：** (12 − u_2)/4 + 0.25u_2 = u_2/6 → 3 = u_2/6 → **u_2 = 18 V**。于是 **i_1 = −1.5 A**（负号：实际电流从 a 流向 U_s，与箭头相反），G 的电流 0.25 × 18 = **4.5 A**。",
+        "4. **功率（吸收为正）。**",
+        "- G：两端电压上“+”、为 18 V，电流从上端流出，非关联：P = −18 × 4.5 = **−81 W**（发出）。",
+        "- U_s：实际电流 1.5 A 从“+”端流入，P = 12 × 1.5 = **18 W**——电压源在**吸收**功率。",
+        "- R_1：P = 1.5² × 4 = **9 W**；R_2：P = 18²/6 = **54 W**。",
+        "5. **验算：** −81 + 18 + 9 + 54 = 0 ✓。受控源发出的功率来自它所代表的器件的外部电源，这里它把 u_a 抬到了比 U_s 还高。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "A dependent source delivers, the voltage source absorbs",
+          "statement": "In the circuit U_s = 12 V, R_1 = 4 Ω, R_2 = 6 Ω. The voltage-controlled current source G carries 0.25u_2 (in A, arrow up, into node a), where u_2 is the voltage across R_2 (“+” at the top). Find u_2, i_1, the current of G and the power absorbed by every element.",
+          "results": [{ "ask": "u_2" }, { "ask": "i_1" }, { "ask": "current of G, 0.25u_2" }, { "ask": "P_G (absorbed)" }, { "ask": "P_Us (absorbed)" }, { "ask": "P_R1" }, { "ask": "P_R2" }],
+          "steps": [
+            "1. **Controlling quantity as an unknown.** The potential of node a is u_2 itself (R_2 is between a and ground, “+” at the top).",
+            "2. **KCL at node a, treating the dependent source as an ordinary current source:** i_1 + 0.25u_2 = u_2/6, with i_1 = (12 − u_2)/4.",
+            "3. **Solve:** (12 − u_2)/4 + 0.25u_2 = u_2/6 → 3 = u_2/6 → **u_2 = 18 V**. Hence **i_1 = −1.5 A** (negative: the actual current flows from a into U_s, against the arrow), and G carries 0.25 × 18 = **4.5 A**.",
+            "4. **Powers (absorbed positive).**",
+            "- G: 18 V across it, “+” at the top, current leaving at the top — not associated: P = −18 × 4.5 = **−81 W** (delivers).",
+            "- U_s: the actual 1.5 A enters its “+” terminal, P = 12 × 1.5 = **18 W** — the voltage source **absorbs** power.",
+            "- R_1: P = 1.5² × 4 = **9 W**; R_2: P = 18²/6 = **54 W**.",
+            "5. **Check:** −81 + 18 + 9 + 54 = 0 ✓. The power delivered by a dependent source comes from the external supply of the device it models; here it lifts u_a above U_s."
+          ]
+        }
+      }
+    }
+  ],
+  "mistakes": [
+    {
+      "id": "ohm-sign",
+      "idea": "ohm",
+      "text": "u、i 非关联时仍写 u = Ri（或 P = ui）。每写一个 VCR 或功率之前，先看这一个元件上箭头和“+”“−”怎样搭配。",
+      "i18n": { "en": { "text": "Writing u = Ri (or P = ui) when u and i are not associated. Before each VCR or power, look at how the arrow and the “+ −” sit on that one element." } }
+    },
+    {
+      "id": "source-delivers",
+      "idea": "power",
+      "text": "以为电源一定发出功率、电阻以外的元件一定不吸收功率。电压源的电流方向由外电路决定，电流从“+”端流入时它在吸收功率。",
+      "i18n": { "en": { "text": "Assuming a source always delivers power. The current of a voltage source is set by the external circuit; when it enters the “+” terminal the source absorbs power." } }
+    },
+    {
+      "id": "source-zero",
+      "idea": "sources",
+      "text": "把电流源两端的电压当成零，或者把电压源的电流当成零。电流源的电压、电压源的电流都要用 KVL / KCL 求出来。",
+      "i18n": { "en": { "text": "Taking the voltage across a current source, or the current through a voltage source, as zero. Both must be found with KVL / KCL." } }
+    },
+    {
+      "id": "dep-as-indep",
+      "idea": "strategy",
+      "text": "把受控源当成独立源（或在列方程时把它置零），漏了控制量方程。受控源的值是未知数的函数，要补一个控制量方程。",
+      "i18n": { "en": { "text": "Treating a dependent source as an independent one (or zeroing it) and forgetting the controlling-quantity equation. Its value is a function of the unknowns." } }
+    },
+    {
+      "id": "kvl-path",
+      "idea": "kvl",
+      "text": "开口回路求 u_ab 时方向弄反：u_ab 是从 a 走到 b 的电压降之和，走过一个电源时从“+”到“−”是降（取正），从“−”到“+”是升（取负）。",
+      "i18n": { "en": { "text": "Getting the direction wrong for u_ab along an open path: u_ab is the sum of drops walking from a to b; through a source, “+” to “−” is a drop (positive), “−” to “+” a rise (negative)." } }
+    },
+    {
+      "id": "potential",
+      "idea": "kvl",
+      "text": "混淆电位与电压：换参考点后各点电位都会变，但任意两点间的电压不变。",
+      "i18n": { "en": { "text": "Mixing up potential and voltage: changing the reference changes every potential, but not the voltage between any two points." } }
+    }
+  ]
+}

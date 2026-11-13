@@ -2,7 +2,7 @@
 // Left: chapters grouped by course phase with progress. Main: the problem card — statement,
 // schematic, questions with answer checking, progressive hints and the worked solution.
 
-import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { tr } from '../core/i18n';
 import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
 import { answerTolerance, checkAnswer, formatAnswer, isPhaseQuestion, type AnswerCheck, type Problem } from '../core/problem/parse';
@@ -10,9 +10,14 @@ import type { Analysis, Question } from '../core/problem/types';
 import { countsAsDone, exportPractice, parsePracticeExport, problemStatus, type QStatus } from '../state/practice';
 import { entryTitle, useProblem, type ProblemEntry } from '../state/problems';
 import { useLang, useStore } from '../state/store';
+import { hasSummary, useSummaryView } from '../state/summaries';
 import { celebrate } from './celebrate';
 import { Icon } from './Icons';
-import { ProblemSchematic, richRuns } from './ProblemSchematic';
+import { ProblemSchematic } from './ProblemSchematic';
+import { PrMd, Sym } from './richText';
+import { SummaryPage } from './Summary';
+
+export { Sym };
 
 const PHASES: { n: 1 | 2 | 3 | 4; zh: string; en: string }[] = [
   { n: 1, zh: '电阻电路基础', en: 'Resistive circuit basics' },
@@ -20,53 +25,6 @@ const PHASES: { n: 1 | 2 | 3 | 4; zh: string; en: string }[] = [
   { n: 3, zh: '动态电路', en: 'Dynamic circuits' },
   { n: 4, zh: '正弦稳态与交流', en: 'Sinusoidal steady state & AC' },
 ];
-
-/** Text with textbook symbols: "u_C(0+)" → u with subscript C (same rules as the drawing). */
-export function Sym({ text }: { text: string }) {
-  return <>{richRuns(text).map((r, i) => (r.sub ? <sub key={i}>{r.t}</sub> : r.it ? <i key={i}>{r.t}</i> : <Fragment key={i}>{r.t}</Fragment>))}</>;
-}
-
-/** Markdown subset of the app's Md renderer (paragraphs, "- "/"1. " lists, "#" headings, **bold**,
- *  `code`) plus symbol subscripts, for problem text. */
-function PrMd({ text }: { text: string }) {
-  const inline = (s: string) =>
-    s.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((t, i) =>
-      t.startsWith('**') && t.endsWith('**') && t.length > 4 ? (
-        <b key={i}>
-          <Sym text={t.slice(2, -2)} />
-        </b>
-      ) : t.startsWith('`') && t.endsWith('`') && t.length > 1 ? (
-        <code key={i}>{t.slice(1, -1)}</code>
-      ) : (
-        <Sym key={i} text={t} />
-      ),
-    );
-  const blocks: ReactNode[] = [];
-  let list: { ordered: boolean; items: string[] } | null = null;
-  const flush = () => {
-    if (!list) return;
-    const items = list.items.map((l, i) => <li key={i}>{inline(l)}</li>);
-    blocks.push(list.ordered ? <ol key={blocks.length}>{items}</ol> : <ul key={blocks.length}>{items}</ul>);
-    list = null;
-  };
-  for (const raw of text.split('\n')) {
-    const line = raw.trimEnd();
-    const ul = /^\s*[-*] (.*)$/.exec(line);
-    const ol = /^\s*\d+\. (.*)$/.exec(line);
-    if (ul || ol) {
-      const ordered = !!ol;
-      if (list && list.ordered !== ordered) flush();
-      if (!list) list = { ordered, items: [] };
-      list.items.push((ul ?? ol)![1]);
-      continue;
-    }
-    flush();
-    if (line.startsWith('#')) blocks.push(<h4 key={blocks.length}>{inline(line.replace(/^#+\s*/, ''))}</h4>);
-    else if (line.trim()) blocks.push(<p key={blocks.length}>{inline(line)}</p>);
-  }
-  flush();
-  return <div className="md">{blocks}</div>;
-}
 
 function Stars({ n }: { n: number }) {
   return <span className="stars">{'★'.repeat(n) + '☆'.repeat(5 - n)}</span>;
@@ -175,15 +133,22 @@ function ProgressFile() {
   );
 }
 
-function ChapterList({ problems, current }: { problems: ProblemEntry[]; current: ProblemEntry | null }) {
+function ChapterList({ problems, current, summary }: { problems: ProblemEntry[]; current: ProblemEntry | null; summary: string | null }) {
   useLang();
   const statusOf = useStatusOf();
   const done = (p: ProblemEntry) => countsAsDone(statusOf(p));
-  const open = useStore((s) => s.openProblem);
-  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => (current ? { [current.chapter]: true } : {}));
+  const openProblem = useStore((s) => s.openProblem);
+  const openSummary = useSummaryView((s) => s.openSummary);
+  const closeSummary = useSummaryView((s) => s.closeSummary);
+  const open = (id: string) => {
+    closeSummary();
+    openProblem(id);
+  };
+  const curChapter = summary ?? current?.chapter;
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => (curChapter ? { [curChapter]: true } : {}));
   useEffect(() => {
-    if (current) setExpanded((e) => (e[current.chapter] ? e : { ...e, [current.chapter]: true }));
-  }, [current]);
+    if (curChapter) setExpanded((e) => (e[curChapter] ? e : { ...e, [curChapter]: true }));
+  }, [curChapter, current]);
 
   const byChapter = useMemo(() => {
     const m = new Map<string, ProblemEntry[]>();
@@ -196,7 +161,7 @@ function ChapterList({ problems, current }: { problems: ProblemEntry[]; current:
     const n = list.filter(done).length;
     const isOpen = !!expanded[c.id] && list.length > 0;
     return (
-      <div key={c.id} className={`pr-chapter ${list.length ? '' : 'empty'} ${current?.chapter === c.id ? 'cur' : ''}`}>
+      <div key={c.id} className={`pr-chapter ${list.length ? '' : 'empty'} ${curChapter === c.id ? 'cur' : ''}`}>
         <button className="pr-ch-head" disabled={!list.length} onClick={() => setExpanded({ ...expanded, [c.id]: !isOpen })} aria-expanded={isOpen}>
           <span className="pr-ch-num">{num}</span>
           <span className="pr-ch-title">{c.title()}</span>
@@ -204,11 +169,21 @@ function ChapterList({ problems, current }: { problems: ProblemEntry[]; current:
         </button>
         {isOpen && (
           <ul className="pr-plist">
+            {hasSummary(c.id) && (
+              <li>
+                <button className={`pr-pitem pr-sumitem ${summary === c.id ? 'on' : ''}`} onClick={() => openSummary({ chapter: c.id })}>
+                  <span className="pr-tick pr-sumicon" aria-hidden>
+                    <Icon name="book" size={11} />
+                  </span>
+                  <span className="pr-ptitle">{tr('要点', 'Key points')}</span>
+                </button>
+              </li>
+            )}
             {list.map((p) => {
               const st = statusOf(p);
               return (
                 <li key={p.id}>
-                  <button className={`pr-pitem ${p.id === current?.id ? 'on' : ''} ${st ? `done st-${st}` : ''}`} onClick={() => open(p.id)} title={st ? statusLabel(st) : undefined}>
+                  <button className={`pr-pitem ${p.id === current?.id && !summary ? 'on' : ''} ${st ? `done st-${st}` : ''}`} onClick={() => open(p.id)} title={st ? statusLabel(st) : undefined}>
                     <span className="pr-tick" aria-label={st ? statusLabel(st) : undefined}>
                       {st ? STATUS_MARK[st] : ''}
                     </span>
@@ -255,6 +230,17 @@ function ChapterList({ problems, current }: { problems: ProblemEntry[]; current:
 }
 
 // ---------------------------------------------------------------- questions
+
+/** "本章要点" link: opens the chapter's key-points page at the key idea that practises this problem. */
+function KeyPointsLink({ p, label }: { p: Problem; label?: string }) {
+  const openSummary = useSummaryView((s) => s.openSummary);
+  if (!hasSummary(p.chapter)) return null;
+  return (
+    <button className="pr-link pr-keypoints" onClick={() => openSummary({ chapter: p.chapter, problem: p.id }, p.id)} title={tr('打开本章要点：方法、公式、例题', "Open the chapter's key points: methods, formulas, worked examples")}>
+      <Icon name="book" size={15} /> {label ?? tr('本章要点', 'Chapter key points')}
+    </button>
+  );
+}
 
 interface QState {
   input: string;
@@ -357,6 +343,7 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
             <>
               <b>{st.result.value === undefined ? `✗ ${tr('无法判断', "Can't check")}` : st.result.close ? `≈ ${tr('很接近', 'Close')}` : `✗ ${tr('不对', 'Not quite')}`}</b>
               {st.result.reason ? ` — ${st.result.reason}` : tr(' — 再算一次，或看看提示。', ' — try again, or take a hint.')}
+              {st.result.value !== undefined && <KeyPointsLink p={p} label={tr('复习本章要点', 'Review the key points')} />}
             </>
           )}
         </div>
@@ -372,6 +359,7 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
           ) : st.choice !== q.correct ? (
             tr(' — 再想想。', ' — think again.')
           ) : null}
+          {st.choice !== q.correct && <KeyPointsLink p={p} label={tr('复习本章要点', 'Review the key points')} />}
         </div>
       )}
       {solvedBefore && !correctNow && !st.result && st.choice === null && (
@@ -464,6 +452,7 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
             {tr(`第 ${chapter?.phase ?? '?'} 期`, `Phase ${chapter?.phase ?? '?'}`)} · {chapter?.title()}
           </span>
           <div className="row">
+            <KeyPointsLink p={p} />
             <button disabled={!prev} onClick={() => prev && open(prev.id)} title={tr('上一题', 'Previous problem')}>
               <Icon name="prev" size={16} />
             </button>
@@ -619,15 +608,25 @@ export function Practice() {
   const current = problems.find((p) => p.id === problemId) ?? problems[0] ?? null;
   const full = useProblem(current);
   const bad = invalid.filter((f) => f.errors.length).length;
+  const summary = useSummaryView((s) => s.open);
+  const closeSummary = useSummaryView((s) => s.closeSummary);
 
+  // opening a problem from anywhere (sidebar, next button, progress card) leaves the key points
+  const lastId = useRef(problemId);
+  useEffect(() => {
+    if (lastId.current !== problemId) closeSummary();
+    lastId.current = problemId;
+  }, [problemId, closeSummary]);
   useEffect(() => {
     window.scrollTo({ top: 0 });
-  }, [current?.id]);
+  }, [current?.id, summary?.chapter]);
 
   return (
     <main className="pr-page">
-      <ChapterList problems={problems} current={current} />
-      {current && full?.problem ? (
+      <ChapterList problems={problems} current={current} summary={summary?.chapter ?? null} />
+      {summary ? (
+        <SummaryPage key={summary.chapter} target={summary} problems={problems} />
+      ) : current && full?.problem ? (
         <ProblemView key={current.id} p={full.problem} list={problems} />
       ) : current ? (
         <div className="pr-main card pr-empty">

@@ -142,9 +142,9 @@ export function contentIndexPlugin<E extends { file: string }>(opts: {
 
 /** Chunk name for a content group module (manualChunks), e.g. "problems-basics". */
 export function contentChunkName(id: string): string | null {
-  const m = /^\0virtual:(problem-index|challenge-index)\/(.+)$/.exec(id);
+  const m = /^\0virtual:(problem-index|challenge-index|summary-index)\/(.+)$/.exec(id);
   if (!m) return null;
-  return m[1] === 'problem-index' ? `problems-${m[2]}` : m[2];
+  return m[1] === 'problem-index' ? `problems-${m[2]}` : m[1] === 'summary-index' ? `summary-${m[2]}` : m[2];
 }
 
 export function problemIndexPlugin(): Plugin {
@@ -153,5 +153,41 @@ export function problemIndexPlugin(): Plugin {
     dir: 'problems',
     groupOf: (e) => e.chapter,
     build: buildProblemIndex,
+  });
+}
+
+// ---- chapter summaries (summaries/<chapter>.json, "chapter-summary/1") ----------------------
+
+export interface SummaryIndexEntry {
+  chapter: string;
+  /** path relative to the project root, e.g. "summaries/basics.json" */
+  file: string;
+}
+
+/** Which chapters have a summary (tiny, eager); the files themselves are one lazy chunk each. */
+export function buildSummaryIndex(root: string): { entries: SummaryIndexEntry[]; broken: { file: string; error: string }[] } {
+  const files: string[] = [];
+  collectJson(join(root, 'summaries'), files);
+  const entries: SummaryIndexEntry[] = [];
+  const broken: { file: string; error: string }[] = [];
+  for (const abs of files) {
+    const file = relative(root, abs).split(sep).join('/');
+    try {
+      const json = JSON.parse(readFileSync(abs, 'utf8'));
+      if (!isObj(json) || typeof json.chapter !== 'string') throw new Error('missing "chapter"');
+      entries.push({ chapter: json.chapter, file });
+    } catch (e) {
+      broken.push({ file, error: (e as Error).message });
+    }
+  }
+  return { entries, broken };
+}
+
+export function summaryIndexPlugin(): Plugin {
+  return contentIndexPlugin({
+    name: 'summary-index',
+    dir: 'summaries',
+    groupOf: (e) => e.chapter,
+    build: buildSummaryIndex,
   });
 }

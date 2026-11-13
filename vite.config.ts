@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { contentChunkName, problemIndexPlugin } from './scripts/problem-index-plugin';
+import { contentChunkName, problemIndexPlugin, summaryIndexPlugin } from './scripts/problem-index-plugin';
 import { challengeIndexPlugin } from './scripts/challenge-index-plugin';
 
 // three.js and everything that only the 3D workbench uses (react-three-fiber pulls in
@@ -11,7 +11,7 @@ const THREE_DEPS =
 const REACT_DEPS = /\/node_modules\/(react|react-dom|scheduler|zustand|use-sync-external-store)\//;
 
 export default defineConfig({
-  plugins: [react(), problemIndexPlugin(), challengeIndexPlugin()],
+  plugins: [react(), problemIndexPlugin(), challengeIndexPlugin(), summaryIndexPlugin()],
   server: { port: 5180 },
   build: {
     chunkSizeWarningLimit: 1200,
