@@ -11,6 +11,8 @@ import { CH_COLORS } from './scopeColors';
 import { WIRE_COLORS, useStore } from '../state/store';
 import { PartIcon } from './Icons';
 import { DeviceEditor, DeviceReadout, McuInspector, OWN_READOUT } from './McuInspector';
+import { HiddenReadingsNote } from './HiddenReadings';
+import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { isMcuBoard } from '../core/mcu';
 
 const R_VALUES = [10, 47, 100, 150, 220, 330, 470, 680, 1000, 2200, 4700, 10000, 22000, 47000, 100000, 1000000];
@@ -352,6 +354,7 @@ function WaveGlyph({ w }: { w: Waveform }) {
 function OpAmpInfo({ part }: { part: PlacedPart }) {
   const d = useDerived();
   const st = d.sim.opamps.get(part.ref);
+  const hide = useReadingsHidden();
   const names: Record<string, string> = { '1': 'OUT A', '2': 'IN− A', '3': 'IN+ A', '4': 'V− / GND', '5': 'IN+ B', '6': 'IN− B', '7': 'OUT B', '8': 'V+' };
   // a pin counts as wired when its net reaches some other terminal
   const netOf = (pin: string) => {
@@ -387,7 +390,7 @@ function OpAmpInfo({ part }: { part: PlacedPart }) {
     if (s.mode === 'off') return tr('没有供电', 'no power');
     const clip = d.ac?.clipping.has(`${part.ref}.${h}`);
     const m = s.mode === 'linear' ? tr('线性放大', 'linear') : s.mode === 'high' ? tr('输出顶到上限（饱和）', 'stuck at the top rail (saturated)') : tr('输出顶到下限（饱和）', 'stuck at the bottom rail (saturated)');
-    return `${m}${d.ac ? '' : ` · OUT ${volts(s.out)}`}${clip ? tr(' · 交流时削顶', ' · clips on AC') : ''}`;
+    return `${m}${d.ac ? '' : ` · OUT ${hide ? HIDDEN : volts(s.out)}`}${clip ? tr(' · 交流时削顶', ' · clips on AC') : ''}`;
   };
   return (
     <div className="readout">
@@ -410,7 +413,7 @@ function OpAmpInfo({ part }: { part: PlacedPart }) {
       </p>
       <div className={st?.powered ? '' : 'warn'}>
         {tr('电源', 'Power')}{' '}
-        <b>{st?.powered ? `${volts(st.supply)} (V+ − V−)` : tr('未供电：8 脚接 +，4 脚接 GND', 'not powered: pin 8 to +, pin 4 to GND')}</b>
+        <b>{st?.powered ? `${hide ? HIDDEN : volts(st.supply)} (V+ − V−)` : tr('未供电：8 脚接 +，4 脚接 GND', 'not powered: pin 8 to +, pin 4 to GND')}</b>
       </div>
       <div>
         {tr('运放 A（1–3 脚）', 'Op-amp A (pins 1–3)')} <b>{half('A')}</b>
@@ -423,6 +426,7 @@ function OpAmpInfo({ part }: { part: PlacedPart }) {
 }
 
 export function Inspector() {
+  const hideReadings = useReadingsHidden();
   const selectedId = useStore((s) => s.selectedId);
   const layout = useStore((s) => s.layout);
   const tool = useStore((s) => s.tool);
@@ -524,6 +528,11 @@ export function Inspector() {
               </div>
               {src.ccMode && <div className="warn">{tr('限流中（CC 模式）', 'Current limiting (CC mode)')}</div>}
               {src.shorted && <div className="bad">{tr('短路！', 'Short circuit!')}</div>}
+            </>
+          ) : hideReadings ? (
+            <>
+              <HiddenReadingsNote />
+              {led && <LedStateRow led={led} />}
             </>
           ) : acI ? (
             <>

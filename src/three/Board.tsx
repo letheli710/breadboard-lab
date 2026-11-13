@@ -9,6 +9,8 @@ import { tr } from '../core/i18n';
 import { connectedHoles, isFloating } from '../core/netlist';
 import { nodeAc, useDerived } from '../state/derived';
 import { occupied, useStore } from '../state/store';
+import { useReadingsHidden } from '../state/readingsHidden';
+import { hiddenReadingsText } from '../ui/HiddenReadings';
 
 const NET_PALETTE = ['#f4a261', '#2a9d8f', '#9b5de5', '#00bbf9', '#f15bb5', '#90be6d', '#fee440', '#e76f51', '#4cc9f0', '#b5838d'];
 
@@ -138,6 +140,7 @@ export function Board() {
   const challenges = useStore((s) => s.challenges);
   const mode = useStore((s) => s.mode);
   const d = useDerived();
+  const hideReadings = useReadingsHidden();
   const { nl, sim } = d;
   // the canvas renders on demand: imperative instance updates must ask for a frame
   const invalidate = useThree((s) => s.invalidate);
@@ -312,7 +315,7 @@ export function Board() {
             {hoverNetName && !isFloating(hoverNetName) && (
               <span>
                 {tr('结点', 'Node')} {hoverNetName} ·{' '}
-                {(() => {
+                {hideReadings ? hiddenReadingsText() : (() => {
                   const a = nodeAc(d, hoverNetName);
                   return a ? acVolts(a.avg, a.pp, true) : volts(sim.nodeV.get(hoverNetName) ?? 0);
                 })()}

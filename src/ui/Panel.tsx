@@ -18,6 +18,8 @@ import { SchematicView } from './SchematicView';
 import { celebrate } from './celebrate';
 import { buildChallengeFromBoard, downloadJson } from './exportChallenge';
 import { MeasurementSection, StageBar, useMeasureState } from './Measurements';
+import { HiddenReadingsNote } from './HiddenReadings';
+import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { allAnswered, emptyReadings, matchBoard, revalidate, structureKey } from '../core/readings';
 
 /** Tiny markdown subset: paragraphs, "- " lists, "## " headings, **bold**, `code`. */
@@ -339,7 +341,8 @@ function TaskPanel({ ch }: { ch: Challenge }) {
 }
 
 /** Netlist voltage cell: DC value, or average + AC swing when a generator is on the board. */
-function NodeVolt({ d, net }: { d: Derived; net: string }) {
+function NodeVolt({ d, net, hide }: { d: Derived; net: string; hide?: boolean }) {
+  if (hide) return <>{HIDDEN}</>;
   const a = nodeAc(d, net);
   if (!a) return <>{(d.sim.nodeV.get(net) ?? 0).toFixed(2)}V</>;
   return (
@@ -423,6 +426,7 @@ function SchematicPanel() {
   const mode = useStore((s) => s.mode);
   const layout = useStore((s) => s.layout);
   const activeNet = hoverNet ?? (hoverHole ? (nl.holeNet.get(hoverHole) ?? null) : null);
+  const hide = useReadingsHidden();
   const compOf = new Map(nl.circuit.components.map((c) => [c.ref, c]));
   // a dev board's unwired pins each sit on a one-pin net: keep them out of the netlist table
   const boardRefs = new Set(nl.circuit.components.filter((c) => isMcu(c.type)).map((c) => c.ref));
@@ -431,8 +435,9 @@ function SchematicPanel() {
     <div className="schem-panel">
       <div className="eyebrow">{tr('我的电路 · 由面包板自动生成', 'My circuit · generated from the breadboard')}</div>
       <div className="schem-card">
-        <SchematicView circuit={nl.circuit} sim={sim} ac={ac} hoverNet={activeNet} onHoverNet={setHoverNet} />
+        <SchematicView circuit={nl.circuit} sim={sim} ac={ac} hideReadings={hide} hoverNet={activeNet} onHoverNet={setHoverNet} />
       </div>
+      {hide && <HiddenReadingsNote />}
       <p className="note">
         {tr(
           '电路图按电压从高到低排列：最上面是电源 +，最下面是 GND（⏚）。鼠标移到一条线上，3D 面包板里属于这个“结点”的所有孔都会亮起来。',
@@ -462,7 +467,7 @@ function SchematicPanel() {
                         <b>{isFloating(n.name) ? tr('悬空', 'floating') : n.name}</b>
                       </td>
                       <td className="volt">
-                        <NodeVolt d={d} net={n.name} />
+                        <NodeVolt d={d} net={n.name} hide={hide} />
                       </td>
                       <td>
                         {n.pins.map((p) => {

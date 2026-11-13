@@ -15,6 +15,9 @@ import { Buzzer, Ldo, Ldr, Motor, Nmos, Npn, Ntc, Relay, deviceAnchor, deviceLab
 import { Ammeter, FunctionGen, Inductor, OpAmp, ScopeProbe, instrumentAnchor, instrumentLabel } from './Instruments';
 import { McuBoard, mcuAnchor, mcuLabel } from './Mcu';
 import { slotPosition } from './slots';
+import { useReadingsHidden } from '../state/readingsHidden';
+
+const LABEL_KEEPS = new Set<PlacedPart['type']>(['ammeter', 'function_gen', 'battery', 'power_module', 'bench_supply']);
 
 export interface PartViewProps {
   part: PlacedPart;
@@ -571,7 +574,8 @@ function PartBody(props: PartViewProps) {
       body = <Ntc {...props} />;
       break;
   }
-  const extra =
+  const hideReadings = useReadingsHidden();
+  const shown =
     part.type === 'led' && led
       ? led.burnt
         ? tr(' 烧坏', ' burnt')
@@ -583,6 +587,9 @@ function PartBody(props: PartViewProps) {
         : isMcuBoard(part.type)
           ? mcuLabel(props.sim?.mcus.get(part.ref))
           : instrumentLabel(part, props.reading) || deviceLabel(part, props.sim);
+  // a lab with unanswered measurement questions: no simulated numbers on labels (instruments and
+  // supplies, which show their own displays, keep theirs)
+  const extra = hideReadings && !LABEL_KEEPS.has(part.type) && /\d/.test(shown) ? '' : shown;
   return (
     <PartCtx.Provider value={ctx}>
       <group onClick={part.type === 'pushbutton' || part.type === 'switch' || part.type === 'potentiometer' || part.type === 'battery' || part.type === 'bench_supply' || part.type === 'power_module' || part.type === 'ammeter' || part.type === 'function_gen' ? undefined : props.onClick}>

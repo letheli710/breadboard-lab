@@ -10,6 +10,8 @@ import { MCU_BOARDS, adcRaw, isOutputMode, modeName, modesFor, pinConfig, type M
 import type { LogicLevel, McuState, PinState, RegMode } from '../core/solver';
 import type { MosfetModel, PartProps, PartType, PinConfig, PinMode, PlacedPart } from '../core/types';
 import { useDerived } from '../state/derived';
+import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
+import { HiddenReadingsNote } from './HiddenReadings';
 import { useStore } from '../state/store';
 
 const T = (p: [string, string]) => tr(p[0], p[1]);
@@ -21,6 +23,10 @@ const mA = (a: number) => {
   const s = Math.abs(v) < 0.0005 ? '0' : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2);
   return `${s} mA`;
 };
+
+/** Formatters for simulated values: "—" while a lab hides its readings (state/readingsHidden.ts). */
+const readoutFormat = (hide: boolean) =>
+  hide ? { volts: () => HIDDEN, amps: () => HIDDEN, mA: () => HIDDEN, adc: () => HIDDEN } : { volts, amps, mA, adc: (a: { volts: number; raw: number }) => `ADC ${a.volts.toFixed(2)} V · ${a.raw}` };
 
 const LOGIC: Record<LogicLevel, [string, string]> = {
   high: ['高 HIGH', 'HIGH'],
@@ -169,6 +175,7 @@ function PinRow({
   setPin: (c: PinConfig | null) => void;
   rowRef: (el: HTMLDivElement | null) => void;
 }) {
+  const { volts, mA, adc } = readoutFormat(useReadingsHidden());
   const cfg = pinConfig(part.props, def.name);
   const can = editable(def);
   const modes = modesFor(def.gpio);
@@ -216,7 +223,7 @@ function PinRow({
               <span title={tr('流出引脚为正，流入（灌电流）为负', 'positive = out of the pin, negative = into it (sinking)')}>{mA(ps.current)}</span>
               {cfg.mode === 'pwm' ? null : cfg.mode === 'adc' && ps.adc ? (
                 <span className="pin-adc">
-                  ADC {ps.adc.volts.toFixed(2)} V · {ps.adc.raw}
+                  {adc(ps.adc)}
                 </span>
               ) : (
                 <span className={`pin-logic ${isInput && (ps.logic === 'floating' || ps.logic === 'undefined') ? 'warn' : ps.logic}`}>{T(LOGIC[ps.logic])}</span>
@@ -280,7 +287,7 @@ function PinRow({
               )}
               {cfg.mode === 'adc' && (
                 <div>
-                  ADC <b>{ps.adc ? `${ps.adc.volts.toFixed(3)} V · ${ps.adc.raw} / 4095` : `${adcRaw(ps.voltage)} / 4095`}</b>
+                  ADC <b>{volts(0) === HIDDEN ? HIDDEN : ps.adc ? `${ps.adc.volts.toFixed(3)} V · ${ps.adc.raw} / 4095` : `${adcRaw(ps.voltage)} / 4095`}</b>
                 </div>
               )}
               {ps.clamp > 1e-6 && (
@@ -302,6 +309,7 @@ function PinRow({
 }
 
 export function McuInspector({ part }: { part: PlacedPart }) {
+  const { volts, mA } = readoutFormat(useReadingsHidden());
   const type = part.type as McuType;
   const b = MCU_BOARDS[type];
   const d = useDerived();
@@ -582,6 +590,7 @@ const Row = ({ k, v, cls }: { k: string; v: string; cls?: string }) => (
 /** Live readout block for a phase-5 device (null if the type has none). */
 export function DeviceReadout({ part }: { part: PlacedPart }) {
   const { sim } = useDerived();
+  const hide = useReadingsHidden();
   const ref = part.ref;
   const none = <div className="muted">{tr('（暂时没有仿真结果）', '(no simulation result yet)')}</div>;
   let body: JSX.Element | null = null;
@@ -690,7 +699,7 @@ export function DeviceReadout({ part }: { part: PlacedPart }) {
   return (
     <div className="readout">
       <div className="eyebrow">{tr('实时测量', 'Live readings')}</div>
-      {body}
+      {hide ? <HiddenReadingsNote /> : body}
     </div>
   );
 }
