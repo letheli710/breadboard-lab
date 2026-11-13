@@ -33,10 +33,11 @@ interface Run {
 }
 
 /** "u_R1" → u + subscript R1, "U_{ab}" → U + subscript ab; single letters are italic. A phasor dot
- *  (combining U+0307, e.g. "U̇_s", or precomposed "İ_1") stays on the base letter. */
+ *  (combining U+0307, e.g. "U̇_s", or precomposed "İ_1"), a hat (combining U+0302, or precomposed
+ *  "û_1", "î_k", "Û", "Î") or a bar (combining U+0304, complex power "S̄_Us") stays on the base letter. */
 export function richRuns(s: string): Run[] {
   const out: Run[] = [];
-  const re = /([A-Za-zα-ωΑ-Ω]\u0307?|\u0130)_(\{([^}]*)\}|([A-Za-z0-9]+))/g;
+  const re = /([A-Za-zα-ωΑ-Ω][\u0307\u0302\u0304]?|[\u0130ûîÛÎ])_(\{([^}]*)\}|([A-Za-z0-9]+))/g;
   let last = 0;
   let m: RegExpExecArray | null;
   while ((m = re.exec(s))) {
@@ -45,7 +46,7 @@ export function richRuns(s: string): Run[] {
     // juxtaposed products without braces ("U_lI_l", "z_12z_21", "U̇_AY_A"): a run that runs into the
     // next symbol's "_" gives its last letter back as that symbol
     let end = re.lastIndex;
-    if (m[4] && sub.length > 1 && /[A-Za-zα-ωΑ-Ω]$/.test(sub) && (s[end] === '_' || (s[end] === '\u0307' && s[end + 1] === '_'))) {
+    if (m[4] && sub.length > 1 && /[A-Za-zα-ωΑ-Ω]$/.test(sub) && (s[end] === '_' || (/[\u0307\u0302\u0304]/.test(s[end]) && s[end + 1] === '_'))) {
       sub = sub.slice(0, -1);
       end -= 1;
       re.lastIndex = end;
@@ -54,7 +55,7 @@ export function richRuns(s: string): Run[] {
     last = end;
   }
   if (last < s.length) out.push({ t: s.slice(last) });
-  if (out.length === 1 && /^(?:[A-Za-zα-ω]\u0307?|\u0130)$/.test(out[0].t)) out[0].it = true;
+  if (out.length === 1 && /^(?:[A-Za-zα-ω][\u0307\u0302\u0304]?|[\u0130ûîÛÎ])$/.test(out[0].t)) out[0].it = true;
   return out;
 }
 

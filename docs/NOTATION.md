@@ -44,11 +44,17 @@ This file fixes the symbols and wording used in theory problems (`problems/`), b
 
 - 相量上面加点：**U̇**（字母 U 后接组合字符 U+0307）、**İ**（U+0130）。带下标时写 `U̇_s`、`İ_1`、`U̇_ab`、`U̇_{线圈}`，不写 `U̇s`、`İ1`。
   Phasors carry a dot: **U̇** (U followed by combining U+0307) and **İ** (U+0130), with the subscript markup: `U̇_s`, `İ_1`, `U̇_ab`.
+- 其他字母的点用组合字符 U+0307（如电动势 `Ė_3` 写成 E + U+0307），不要用预组合的 `Ė`（U+0116）——它后面的 `_` 不会变成下标。
+  Dot other letters with combining U+0307 (`Ė_3` = E + U+0307), not the precomposed Ė (U+0116), whose `_` would not become a subscript.
 - **只有相量加点**。下面这些不加点：有效值或模（`U_s = 100 V`、`I_1 = 0.25 A`、`|U̇_a| = 10 V`）、极坐标形式中 ∠ 前面的模（`U̇_2 = U_2∠0°`）、平方（`I²R`、`I_2²(6 + j2)`）、阻抗 Z、导纳 Y。
   Only phasors are dotted. Magnitudes and rms values (`U_s = 100 V`, `|U̇_a|`), the magnitude in front of ∠ (`U̇_2 = U_2∠0°`), squares (`I²R`) and impedances/admittances Z, Y are not.
 - 共轭写 `İ*`；复功率 `S̄ = U̇·İ*`。振幅相量写 `U̇_m`、`İ_m`。默认相量是**有效值相量**（`analysis.phasor` 默认 `"rms"`），题干里写“（有效值）/ (rms)”。
 - 渲染：`richRuns`（`src/ui/ProblemSchematic.tsx`）把“带点字母 + `_` 下标”画成带点的斜体字母加下标（`U̇_s`、`İ_1`、`U̇_{AB}`）。挑战文字（`Md`）没有下标，写 `U̇L`、`İC` 这样的普通文字即可。
   Rendering: `richRuns` subscripts a dotted letter (`U̇_s`, `İ_1`); challenge text (`Md`) has no subscripts, so write plain `U̇L`, `İC` there.
+- **第二组量的“^”**：特勒根定理、互易定理里另一次实验的量写成带帽的字母加下标：`û_1`、`î_2`、`î_k`（预组合 û U+00FB、î U+00EE、Û、Î，或字母后接组合字符 U+0302）。复功率的横线 `S̄`（U+0304）后面同样可以带下标：`S̄_Us`。不要写成 `û1`、`î2`。
+  **Hats for the second set of quantities** (Tellegen, reciprocity): `û_1`, `î_2`, `î_k` (precomposed û U+00FB, î U+00EE, Û, Î, or a letter followed by combining U+0302); the complex-power bar also takes a subscript, `S̄_Us`. Never `û1`, `î2`. `richRuns` keeps the dot (U+0307), hat (U+0302) or bar (U+0304) on the italic base letter.
+- 只有上面这些带符号的字母（U+0307/U+0302/U+0304 组合字符，以及预组合的 İ、û、î、Û、Î）能带下标；其他带变音符号的字母后面的 `_` 会原样显示。
+  Only these marked letters take subscripts; after any other accented letter the `_` is shown literally.
 
 ## 5. 正弦量的参考函数 / Sinusoid reference
 

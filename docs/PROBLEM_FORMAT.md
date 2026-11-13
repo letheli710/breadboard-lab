@@ -594,10 +594,11 @@ RL 串联，u_s = 10ε(t) V，R = 2 Ω，L = 1 H，i(0₋) = 1 A：I(s) = \frac{
 - 变量名用下标标记，和图一致：`R_1`、`U_s`、`i_1`、`u_ab`、`z_11`（不写 `R1`、`Us`、`i1`）；直接相乘的两个带下标的量要加花括号：`R_{1}R_{4}`；中文或 `+`/`−` 下标写 `u_{+}`、`R_{左}`。`schematic` 里的 `ref` 和 `marks` 的 `name` 照常写 `R1`、`i1`（图上自动加下标）。
 - 电压在中英文里都用 u / U（和图一致，英文不用 v / V），电流 i / I；小写 = 瞬时值，大写 = 直流量或有效值。
 - 相量加点：`U̇_s`、`İ_1`；有效值、模、∠ 前的模、`I²R` 里的 I、阻抗 Z、导纳 Y 不加点。复功率 `S̄ = U̇·İ*`。
+- 特勒根定理、互易定理中第二次实验的量带帽：`û_1`、`î_k`（不写 `û1`）；复功率可写 `S̄_Us`。
 - 正弦量以 cos 为参考：u = √2·U·cos(ωt + ψ) ↔ U̇ = U∠ψ。
 - 中文用“结点”。提示由浅入深：方向 → 方法 → 接近答案。
 
-Write symbols as described in [`NOTATION.md`](./NOTATION.md): subscript markup for variable names (`R_1`, `U_s`, `i_1`, braces for products `R_{1}R_{4}`), u / U for voltage in both languages, dotted phasors (`U̇_s`, `İ_1`) but undotted magnitudes, the cosine reference for sinusoids, 结点 in Chinese, and graded hints.
+Write symbols as described in [`NOTATION.md`](./NOTATION.md): subscript markup for variable names (`R_1`, `U_s`, `i_1`, braces for products `R_{1}R_{4}`), u / U for voltage in both languages, dotted phasors (`U̇_s`, `İ_1`) but undotted magnitudes, hatted second-experiment quantities (`û_1`, `î_k`), the cosine reference for sinusoids, 结点 in Chinese, and graded hints.
 
 ---
 

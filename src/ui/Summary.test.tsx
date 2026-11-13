@@ -44,6 +44,15 @@ describe('formula markup', () => {
   });
 });
 
+describe('hatted symbols inside formula markup', () => {
+  it('û_1 / î_2 keep their subscripts inside \\frac and \\mat', () => {
+    const html = renderToStaticMarkup(<MathText text="\\frac{û_1}{î_2} + \\mat{û_1 & î_1 ; u_1 & i_1}" />);
+    expect(html).not.toContain('_');
+    expect(html).toContain('class="mx-frac"');
+    expect(html.match(/<sub[^>]*>1<\/sub>/g)?.length).toBeGreaterThanOrEqual(4);
+  });
+});
+
 describe('matrix markup', () => {
   it('parses \\mat{…} into rows and cells, with nested markup', () => {
     expect(mathNodes('A = \\mat{1 & −1 ; 0 & \\frac{1}{2}}')).toEqual([

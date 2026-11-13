@@ -46,7 +46,7 @@ function closeBrace(s: string, open: number): number {
 }
 
 // a "_" after one of these belongs to richRuns' X_sub rule
-const SYMBOL_END = /(?:[A-Za-zα-ωΑ-Ω\u0130]|\u0307)$/;
+const SYMBOL_END = /(?:[A-Za-zα-ωΑ-Ω\u0130ûîÛÎ]|[\u0307\u0302\u0304])$/;
 
 /** Parse the formula markup; unmatched or unknown markup stays text. */
 export function mathNodes(s: string): MathNode[] {

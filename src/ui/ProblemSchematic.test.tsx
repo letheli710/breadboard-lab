@@ -95,6 +95,40 @@ describe('richRuns: subscripts on dotted phasor letters', () => {
   });
 });
 
+describe('richRuns: subscripts on hatted letters (Tellegen / reciprocity second experiment)', () => {
+  it('precomposed û_1 and î_k → italic hatted letter + subscript', () => {
+    expect(richRuns('û_1')).toEqual([
+      { t: 'û', it: true },
+      { t: '1', sub: true },
+    ]);
+    expect(richRuns('Σu_k·î_k = 0')).toEqual([{ t: 'Σ' }, { t: 'u', it: true }, { t: 'k', sub: true }, { t: '·' }, { t: 'î', it: true }, { t: 'k', sub: true }, { t: ' = 0' }]);
+  });
+  it('combining hat (U+0302) and precomposed capitals', () => {
+    expect(richRuns('u\u0302_2')).toEqual([
+      { t: 'u\u0302', it: true },
+      { t: '2', sub: true },
+    ]);
+    expect(richRuns('Û_{ab}')).toEqual([
+      { t: 'Û', it: true },
+      { t: 'ab', sub: true },
+    ]);
+    expect(richRuns('î')).toEqual([{ t: 'î', it: true }]);
+  });
+  it('the complex-power bar (U+0304) also keeps its subscript: S̄_Us', () => {
+    expect(richRuns('S̄_Us = −600 − j800 VA')).toEqual([{ t: 'S̄', it: true }, { t: 'Us', sub: true }, { t: ' = −600 − j800 VA' }]);
+  });
+  it('u_1 and U̇_s are unchanged', () => {
+    expect(richRuns('u_1')).toEqual([
+      { t: 'u', it: true },
+      { t: '1', sub: true },
+    ]);
+    expect(richRuns('U̇_s')).toEqual([
+      { t: 'U̇', it: true },
+      { t: 's', sub: true },
+    ]);
+  });
+});
+
 describe('richRuns: juxtaposed products without braces', () => {
   const flat = (s: string) =>
     richRuns(s)
