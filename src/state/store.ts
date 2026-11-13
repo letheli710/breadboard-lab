@@ -6,6 +6,7 @@ import type { CheckResult } from '../core/check';
 import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS, nextScopeChannel } from '../core/parts';
 import type { Layout, PartProps, PartType, PlacedPart } from '../core/types';
+import { boolRecord, boolRecordMap, readStored, sanitizeLayout, sanitizeScope, writeStored, writeStoredLater } from './persist';
 
 export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import';
 
@@ -21,26 +22,20 @@ export interface InvalidFile {
   warnings: string[];
 }
 
+/** localStorage, validated on read (state/persist.ts): `check` returns the cleaned value or
+ *  undefined to discard it. */
 const LS = {
-  get<T>(k: string, d: T): T {
-    try {
-      const v = localStorage.getItem(k);
-      return v ? (JSON.parse(v) as T) : d;
-    } catch {
-      return d;
-    }
+  get<T>(k: string, d: T, check: (v: unknown) => T | undefined): T {
+    return readStored(k, d, check);
   },
   set(k: string, v: unknown) {
-    try {
-      localStorage.setItem(k, JSON.stringify(v));
-    } catch {
-      /* storage unavailable */
-    }
+    writeStored(k, v);
   },
 };
+const str = (v: unknown) => (typeof v === 'string' ? v : undefined);
 
 const emptyLayout = (): Layout => ({ version: 1, parts: [] });
-const layoutKey = (mode: Mode, chId: string | null) => (mode === 'sandbox' || !chId ? 'bb.layout.sandbox' : `bb.layout.ch.${chId}`);
+export const layoutKey = (mode: Mode, chId: string | null) => (mode === 'sandbox' || !chId ? 'bb.layout.sandbox' : `bb.layout.ch.${chId}`);
 
 export const WIRE_COLORS = ['#d62828', '#1d3557', '#2a9d8f', '#e9c46a', '#f4a261', '#7b2cbf', '#222222', '#f1f1f1'];
 
@@ -70,7 +65,7 @@ export interface Highlight {
 
 /** Language: saved choice, else the browser's preference. Applied to core before anything renders. */
 function initialLang(): Lang {
-  const saved = LS.get<string | null>('bb.lang', null);
+  const saved = LS.get<string | null>('bb.lang', null, str);
   const l: Lang = isLang(saved) ? saved : typeof navigator !== 'undefined' && !navigator.language?.toLowerCase().startsWith('zh') ? 'en' : 'zh';
   setCoreLang(l);
   return l;
@@ -81,7 +76,11 @@ interface State {
   mode: Mode;
   panel: PanelTab;
   layout: Layout;
+  /** undo stack (oldest first) and redo stack (next redo last) */
   past: Layout[];
+  future: Layout[];
+  /** layout before the slider drag in progress (beginEdit … endEdit): the whole drag is one undo step */
+  editBase: Layout | null;
   tool: Tool;
   firstHole: string | null;
   placingProps: Partial<Record<PartType, PartProps>>;
@@ -104,6 +103,8 @@ interface State {
   celebrate: boolean;
   completed: Record<string, boolean>;
   toast: string | null;
+  /** the toast offers an "Undo" button (after a delete) */
+  toastUndo: boolean;
   /** theory practice ("circuit-problem/1") */
   problems: ProblemEntry[];
   problemInvalid: InvalidFile[];
@@ -124,7 +125,14 @@ interface State {
   select(id: string | null): void;
   /** select a dev board pin (also selects its board) */
   selectPin(partId: string, pin: string | null): void;
+  /** Change part properties. One undo step — or none while a slider drag is in progress
+   *  (beginEdit/endEdit), and none for the operating state of a button or switch
+   *  (`pressed` / `position`), which is not part of the build. */
   updateProps(id: string, p: PartProps): void;
+  /** start of a continuous edit (slider drag): property changes until endEdit are one undo step */
+  beginEdit(): void;
+  endEdit(): void;
+  /** press / release a pushbutton, flip a switch (not an undo step) */
   togglePart(id: string): void;
   removePart(id: string): void;
   /** Move a placed part to new holes (physical pin → hole id). Validated like placement
@@ -134,6 +142,7 @@ interface State {
   /** Drop a half-placed part (first leg chosen, second not yet). Returns whether there was one. */
   cancelPlacement(): boolean;
   undo(): void;
+  redo(): void;
   clear(): void;
   loadLayout(l: Layout, remember?: boolean): void;
   setChallenges(list: Challenge[], invalid: InvalidFile[]): void;
@@ -146,7 +155,7 @@ interface State {
   setHighlight(h: Highlight | null): void;
   toggle(k: 'showNets' | 'showLabels'): void;
   setScope(p: Partial<ScopeSettings>): void;
-  notify(msg: string | null): void;
+  notify(msg: string | null, opts?: { undo?: boolean }): void;
   setProblems(list: ProblemEntry[], invalid: InvalidFile[]): void;
   openProblem(id: string): void;
   /** record a correct answer; marks the problem done when all its questions are correct */
@@ -156,6 +165,25 @@ interface State {
 
 let uid = Date.now();
 const newId = () => `p${(uid++).toString(36)}`;
+
+/** undo steps kept */
+export const HISTORY = 61;
+
+/** A saved layout, validated; null if there is none (or it was unusable and has been discarded).
+ *  Parts that can't be restored are dropped with a toast. */
+function savedLayout(key: string): Layout | null {
+  let dropped = 0;
+  const l = readStored<Layout | null>(key, null, (v) => {
+    const r = sanitizeLayout(v, newId);
+    dropped = r?.dropped ?? 0;
+    return r?.layout;
+  });
+  if (dropped)
+    setTimeout(() =>
+      useStore.getState().notify(tr(`保存的电路里有 ${dropped} 个元件读不出来，已经去掉`, `${dropped} saved part(s) couldn't be restored and were removed`)),
+    );
+  return l;
+}
 
 function nextRef(layout: Layout, type: PartType): string {
   const prefix = PARTS[type].refPrefix;
@@ -196,11 +224,41 @@ export function moveError(layout: Layout, id: string, pins: Record<string, strin
 }
 
 export const useStore = create<State>((set, get) => {
-  const commit = (layout: Layout, extra: Partial<State> = {}) => {
+  const save = (layout: Layout) => {
     const s = get();
-    LS.set(layoutKey(s.mode, s.activeId), layout);
-    set({ layout, past: [...s.past.slice(-60), s.layout], check: null, ...extra });
+    writeStoredLater(layoutKey(s.mode, s.activeId), layout);
   };
+  /** close a slider drag: its starting layout becomes one undo step */
+  const finishEdit = () => {
+    const s = get();
+    if (!s.editBase) return;
+    if (s.editBase !== s.layout) set({ past: [...s.past.slice(-(HISTORY - 1)), s.editBase], future: [] });
+    set({ editBase: null });
+  };
+  const commit = (layout: Layout, extra: Partial<State> = {}) => {
+    finishEdit();
+    const s = get();
+    save(layout);
+    set({ layout, past: [...s.past.slice(-(HISTORY - 1)), s.layout], future: [], check: null, ...extra });
+  };
+  /** change the layout without an undo step */
+  const transient = (layout: Layout) => {
+    save(layout);
+    set({ layout, check: null });
+  };
+  /** a layout from history, keeping the current button / switch states (they aren't history) */
+  const restore = (l: Layout): Layout => {
+    const now = new Map(get().layout.parts.map((p) => [p.id, p]));
+    return {
+      ...l,
+      parts: l.parts.map((p) => {
+        const c = now.get(p.id);
+        if (!c || (p.type !== 'pushbutton' && p.type !== 'switch')) return p;
+        return { ...p, props: { ...p.props, pressed: c.props.pressed, position: c.props.position } };
+      }),
+    };
+  };
+  const fresh = { past: [] as Layout[], future: [] as Layout[], editBase: null };
 
   return {
     lang: initialLang(),
@@ -208,6 +266,8 @@ export const useStore = create<State>((set, get) => {
     panel: 'task',
     layout: emptyLayout(),
     past: [],
+    future: [],
+    editBase: null,
     tool: 'select',
     firstHole: null,
     placingProps: {},
@@ -219,7 +279,7 @@ export const useStore = create<State>((set, get) => {
     showNets: false,
     showLabels: true,
     probe: { red: null, black: null },
-    scope: { ...defaultScope(), ...LS.get<Partial<ScopeSettings>>('bb.scope', {}) },
+    scope: { ...defaultScope(), ...LS.get<Partial<ScopeSettings>>('bb.scope', {}, sanitizeScope) },
     challenges: [],
     invalid: [],
     activeId: null,
@@ -227,13 +287,14 @@ export const useStore = create<State>((set, get) => {
     hintsShown: 0,
     check: null,
     celebrate: false,
-    completed: LS.get('bb.completed', {} as Record<string, boolean>),
+    completed: LS.get('bb.completed', {} as Record<string, boolean>, boolRecord),
     toast: null,
+    toastUndo: false,
     problems: [],
     problemInvalid: [],
-    problemId: LS.get<string | null>('bb.practice.current', null),
-    practiceDone: LS.get('bb.practice.done', {} as Record<string, boolean>),
-    practiceAnswers: LS.get('bb.practice.answers', {} as Record<string, PracticeRecord>),
+    problemId: LS.get<string | null>('bb.practice.current', null, str),
+    practiceDone: LS.get('bb.practice.done', {} as Record<string, boolean>, boolRecord),
+    practiceAnswers: LS.get('bb.practice.answers', {} as Record<string, PracticeRecord>, boolRecordMap),
 
     setLang(lang) {
       setCoreLang(lang);
@@ -244,9 +305,9 @@ export const useStore = create<State>((set, get) => {
     setMode(mode) {
       const s = get();
       if (mode === s.mode) return;
-      const base = { mode, tool: 'select' as Tool, firstHole: null, selectedId: null, highlight: null, check: null, past: [] };
+      const base = { mode, tool: 'select' as Tool, firstHole: null, selectedId: null, highlight: null, check: null, ...fresh };
       if (mode === 'sandbox') {
-        set({ ...base, panel: 'schematic', layout: LS.get('bb.layout.sandbox', emptyLayout()) });
+        set({ ...base, panel: 'schematic', layout: savedLayout('bb.layout.sandbox') ?? emptyLayout() });
       } else if (mode === 'learn' || mode === 'challenge') {
         const kind = mode === 'learn' ? 'lesson' : 'challenge';
         const keep = s.challenges.find((c) => c.id === s.activeId && c.kind === kind);
@@ -335,7 +396,17 @@ export const useStore = create<State>((set, get) => {
     },
     updateProps(id, p) {
       const s = get();
-      commit({ ...s.layout, parts: s.layout.parts.map((x) => (x.id === id ? { ...x, props: { ...x.props, ...p } } : x)) });
+      const layout = { ...s.layout, parts: s.layout.parts.map((x) => (x.id === id ? { ...x, props: { ...x.props, ...p } } : x)) };
+      const operating = Object.keys(p).every((k) => k === 'pressed' || k === 'position');
+      if (s.editBase || operating) transient(layout);
+      else commit(layout);
+    },
+    beginEdit() {
+      finishEdit();
+      set({ editBase: get().layout });
+    },
+    endEdit() {
+      finishEdit();
     },
     togglePart(id) {
       const p = get().layout.parts.find((x) => x.id === id);
@@ -345,7 +416,10 @@ export const useStore = create<State>((set, get) => {
     },
     removePart(id) {
       const s = get();
+      const part = s.layout.parts.find((x) => x.id === id);
+      if (!part) return;
       commit({ ...s.layout, parts: s.layout.parts.filter((x) => x.id !== id) }, { selectedId: null });
+      get().notify(tr(`已删除 ${part.ref}`, `Deleted ${part.ref}`), { undo: true });
     },
     movePart(id, pins) {
       const s = get();
@@ -367,11 +441,22 @@ export const useStore = create<State>((set, get) => {
     undo() {
       // a half-placed part is the most recent "step": undo drops it first
       if (get().cancelPlacement()) return;
+      finishEdit();
       const s = get();
       const prev = s.past[s.past.length - 1];
       if (!prev) return;
-      LS.set(layoutKey(s.mode, s.activeId), prev);
-      set({ layout: prev, past: s.past.slice(0, -1), check: null, selectedId: null });
+      const layout = restore(prev);
+      save(layout);
+      set({ layout, past: s.past.slice(0, -1), future: [...s.future, s.layout], check: null, selectedId: null, toast: null, toastUndo: false });
+    },
+    redo() {
+      finishEdit();
+      const s = get();
+      const next = s.future[s.future.length - 1];
+      if (!next) return;
+      const layout = restore(next);
+      save(layout);
+      set({ layout, future: s.future.slice(0, -1), past: [...s.past.slice(-(HISTORY - 1)), s.layout], firstHole: null, check: null, selectedId: null });
     },
     clear() {
       commit(emptyLayout(), { selectedId: null });
@@ -379,7 +464,7 @@ export const useStore = create<State>((set, get) => {
     loadLayout(l, remember = true) {
       const layout: Layout = { version: 1, parts: l.parts.map((p) => ({ ...p, id: newId(), props: { ...p.props }, pins: { ...p.pins } })) };
       if (remember) commit(layout, { selectedId: null });
-      else set({ layout, past: [], check: null, selectedId: null });
+      else set({ layout, ...fresh, check: null, selectedId: null });
     },
     setChallenges(challenges, invalid) {
       set({ challenges, invalid });
@@ -393,7 +478,7 @@ export const useStore = create<State>((set, get) => {
     openChallenge(id) {
       const ch = get().challenges.find((c) => c.id === id);
       if (!ch) return;
-      const saved = LS.get<Layout | null>(`bb.layout.ch.${id}`, null);
+      const saved = savedLayout(`bb.layout.ch.${id}`);
       const start = saved ?? ch.start ?? emptyLayout();
       set({
         activeId: id,
@@ -405,7 +490,7 @@ export const useStore = create<State>((set, get) => {
         selectedId: null,
         firstHole: null,
         panel: 'task',
-        past: [],
+        ...fresh,
         layout: { version: 1, parts: start.parts.map((p) => ({ ...p, id: p.id ?? newId() })) },
       });
     },
@@ -431,7 +516,7 @@ export const useStore = create<State>((set, get) => {
     },
     setScope(p) {
       const scope = { ...get().scope, ...p };
-      LS.set('bb.scope', scope);
+      writeStoredLater('bb.scope', scope);
       set({ scope });
     },
     toggle(k) {
@@ -472,9 +557,10 @@ export const useStore = create<State>((set, get) => {
       LS.set('bb.practice.done', practiceDone);
       set({ practiceAnswers, practiceDone });
     },
-    notify(toast) {
-      set({ toast });
-      if (toast) setTimeout(() => get().toast === toast && set({ toast: null }), 2800);
+    notify(toast, opts) {
+      const toastUndo = !!(toast && opts?.undo);
+      set({ toast, toastUndo });
+      if (toast) setTimeout(() => get().toast === toast && set({ toast: null, toastUndo: false }), toastUndo ? 5000 : 2800);
     },
   };
 });
@@ -499,6 +585,18 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   };
   w.__bbTool = (t: Tool) => useStore.getState().setTool(t);
   w.__bbStore = useStore;
+}
+
+// A slider drag (or holding an arrow key on a slider) is one continuous edit: one undo step
+// when it is released, however many values it went through. Covers every inspector slider.
+if (typeof window !== 'undefined') {
+  const isRange = (t: EventTarget | null) => t instanceof HTMLInputElement && t.type === 'range';
+  window.addEventListener('pointerdown', (e) => isRange(e.target) && useStore.getState().beginEdit(), true);
+  window.addEventListener('keydown', (e) => isRange(e.target) && !e.repeat && !useStore.getState().editBase && useStore.getState().beginEdit(), true);
+  const end = () => useStore.getState().editBase && useStore.getState().endEdit();
+  window.addEventListener('pointerup', end, true);
+  window.addEventListener('pointercancel', end, true);
+  window.addEventListener('keyup', (e) => isRange(e.target) && end(), true);
 }
 
 /** Current UI language. Components that render text subscribe with this so a language switch
