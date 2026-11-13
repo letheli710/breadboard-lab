@@ -23,7 +23,7 @@
     "- 电机 M1：+ 接电源 +5 V，− 接漏极 D。",
     "- 续流二极管 D1 反向并联在电机两端：**负极（有环的一端）接 +5 V**，正极接漏极 D。",
     "",
-    "**引脚设置**：不用设，测试会依次设成输出高、输出低、输入（模拟上电复位）。也可以自己在属性里把引脚设成 PWM 50 %，用示波器看漏极波形。",
+    "**引脚设置**：不用设，测试会依次设成输出高、输出低、输入（模拟上电复位）、PWM 50 %。",
     "",
     "**为什么要 MOSFET**：电机约 8 Ω，5 V 时要 **0.62 A**——GPIO 的 30 倍，2N2222 的基极也要 60 mA 才能饱和。MOSFET 的栅极是一个电容，**直流下不取电流**，只要栅压够高，D–S 就变成几十毫欧的电阻。",
     "",
@@ -38,6 +38,7 @@
     "- 区域：开关用的 MOSFET 应该在 **ohmic（可变电阻区）**，不是“饱和区”——MOSFET 的饱和区是恒流区，恰好和三极管的“饱和”相反。",
     "- Vds 很小（< 50 mV）才说明完全导通；电机电流约 0.6 A。",
     "- 输入模式（复位）下电机也必须停：这就是下拉电阻的作用。",
+    "- PWM 时漏极峰值被续流二极管钳住，不会冲到几十伏。",
     "",
     "**看数据手册的陷阱**：IRF540N 的 Vth 写着 2–4 V，看起来 3.3 V“够了”；但 **Vth 是 Id = 250 µA 时的栅压**，只是“开始导通”。Rds(on) = 44 mΩ 是在 **Vgs = 10 V** 时测的。3.3 V 单片机要找 Rds(on) 在 **Vgs = 2.5 V 或 4.5 V** 下有规定值的“逻辑电平”MOSFET：IRLZ44N、IRLB8721、AO3400（SOT-23）、Si2302。",
     "",
@@ -70,7 +71,7 @@
         "- Motor M1: + to the supply's +5 V, − to the drain D.",
         "- Flyback diode D1 reversed across the motor: **cathode (the band) to +5 V**, anode to the drain D.",
         "",
-        "**Pin table settings**: nothing to set; the tests switch the pin to output HIGH, output LOW and input (as during reset). You can also set the pin to PWM 50 % in the inspector and watch the drain on the scope.",
+        "**Pin table settings**: nothing to set; the tests switch the pin to output HIGH, output LOW, input (as during reset) and PWM 50 %.",
         "",
         "**Why a MOSFET**: the motor is about 8 Ω and draws **0.62 A** at 5 V — 30 times what a GPIO gives, and a 2N2222 would need 60 mA of base current to saturate. A MOSFET's gate is a capacitor and **draws no DC current**: with enough gate voltage D–S becomes a resistance of tens of milliohms.",
         "",
@@ -85,6 +86,7 @@
         "- Region: a MOSFET used as a switch must be in the **ohmic region**, not \"saturation\" — a MOSFET's saturation region is its constant-current region, the opposite of a BJT's \"saturation\".",
         "- A tiny Vds (< 50 mV) proves it is fully on; the motor draws about 0.6 A.",
         "- In input mode (reset) the motor must stay off too: that is the pull-down's job.",
+        "- With PWM the drain peak is clamped by the flyback diode instead of shooting up to tens of volts.",
         "",
         "**The datasheet trap**: the IRF540N's Vth is listed as 2–4 V, so 3.3 V looks \"enough\"; but **Vth is the gate voltage at Id = 250 µA** — just starting to conduct. Its Rds(on) = 44 mΩ is measured at **Vgs = 10 V**. With a 3.3 V MCU pick a \"logic-level\" MOSFET whose Rds(on) is specified at **Vgs = 2.5 V or 4.5 V**: IRLZ44N, IRLB8721, AO3400 (SOT-23), Si2302.",
         "",
@@ -106,6 +108,7 @@
         "Output HIGH: motor runs, Q1 ohmic (fully on), Vds < 50 mV, ≈ 0.62 A",
         "Output LOW: Q1 off, motor stopped",
         "Pin as input (reset): the pull-down keeps the gate at 0 V, motor stopped",
+        "PWM 50 % 1 kHz: average ≈ 0.26 A, drain peak clamped at ≈ 6.1 V by D1",
         "IRF540N instead: stuck in saturation (constant current), only ≈ 0.14 A, Vds ≈ 3.9 V"
       ]
     }
@@ -260,6 +263,48 @@
           "pin": "Q1.g",
           "ref": "Q1.s",
           "max": 0.1
+        }
+      ]
+    },
+    {
+      "name": "PWM 50 % 1 kHz：平均 ≈ 0.26 A，漏极峰值被 D1 钳在 ≈ 6.1 V",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": {
+              "mode": "pwm",
+              "duty": 50,
+              "frequency": 1000
+            }
+          }
+        }
+      },
+      "currents": [
+        {
+          "el": "M1",
+          "min": 0.25,
+          "max": 0.28
+        },
+        {
+          "el": "D1",
+          "min": 0.08,
+          "max": 0.092
+        }
+      ],
+      "scope": [
+        {
+          "pin": "Q1.d",
+          "ref": "Q1.s",
+          "measure": "vmax",
+          "min": 5.6,
+          "max": 6.4
+        },
+        {
+          "pin": "Q1.d",
+          "ref": "Q1.s",
+          "measure": "vavg",
+          "min": 2.75,
+          "max": 3.05
         }
       ]
     },

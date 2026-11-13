@@ -602,7 +602,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | 器件 | 模型 |
 |---|---|
 | `npn` | BE 结 0.65 V + 20 Ω；放大区 Ic = β·Ib（β 默认 150）；饱和 Vce = 0.15 V + 1 Ω × Ic；C–E 击穿 40 V；Ic 最大 600 mA，功耗 625 mW |
-| `nmos` | IRLZ44N：Vth 1.5 V，Rds(on) 22 mΩ @ 5 V（3.3 V 栅压时 ≈ 31 mΩ）；IRF540N：Vth 3 V，44 mΩ @ 10 V（3.3 V 栅压时几乎不导通）。Id = min(K·Vov·Vds, K·Vov²/2)；栅极不取电流；体二极管 S→D |
+| `nmos` | IRLZ44N：Vth 1.5 V，Rds(on) 22 mΩ @ 5 V（3.3 V 栅压时 ≈ 43 mΩ）；IRF540N：Vth 3 V，44 mΩ @ 10 V（3.3 V 栅压时几乎不导通）。Id = min(K·Vov·Vds, K·Vov²/2)；栅极不取电流；体二极管 S→D |
 | `relay` | 线圈 70 Ω + 150 mH；电流 ≥ 53 mA 吸合，< 7 mA 释放；触点 0.05 Ω |
 | `motor` | 8 Ω + 2 mH（不考虑反电动势）；电流 ≥ 0.1 A 算“转动” |
 | `buzzer` | 1.0 V + 140 Ω（5 V 时约 28 mA）；≥ 2.5 V 才响 |

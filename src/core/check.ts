@@ -700,6 +700,10 @@ export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<str
       }
       if (p.lux !== undefined) parts.push(tr(`${u} 的光照为 ${p.lux} lux`, `${u} sees ${p.lux} lux`));
       if (p.temperature !== undefined) parts.push(tr(`${u} 的温度为 ${p.temperature} °C`, `${u} is at ${p.temperature} °C`));
+      if (p.voltage !== undefined) parts.push(tr(`${u} 设为 ${p.voltage} V`, `${u} is set to ${p.voltage} V`));
+      if (p.resistance !== undefined) parts.push(tr(`${u} 换成 ${formatSI(Number(p.resistance), 'Ω')}`, `${u} is ${formatSI(Number(p.resistance), 'Ω')}`));
+      if (p.model !== undefined) parts.push(tr(`${u} 换成 ${p.model}`, `${u} is a ${p.model}`));
+      if (p.beta !== undefined) parts.push(tr(`${u} 的 β = ${p.beta}`, `${u} has β = ${p.beta}`));
       if (parts.length) return parts.join(tr('、', ' and '));
       return u;
     })
