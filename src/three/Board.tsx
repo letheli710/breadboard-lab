@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useLayoutEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { BOARD, COLS, HOLES, HOLE_MAP, MAIN_ROWS, ROW_Z, colX, stripLabel } from '../core/breadboard';
 import { acVolts, volts } from '../core/format';
@@ -18,76 +18,104 @@ export function netColor(name: string, index: number): string {
   return NET_PALETTE[index % NET_PALETTE.length];
 }
 
-/** Printed board surface: holes, rail stripes, row letters, column numbers. */
+const LABEL_FONT = '"Barlow Condensed", sans-serif';
+
+/** Paint the printed board surface: holes, rail stripes, row letters, column numbers. */
+function paintBoard(c: HTMLCanvasElement, ppu: number) {
+  const W = BOARD.width;
+  const D = BOARD.depth;
+  const g = c.getContext('2d')!;
+  const X = (x: number) => (x + W / 2) * ppu;
+  const Z = (z: number) => (z + D / 2) * ppu;
+  g.fillStyle = '#f7f2e7';
+  g.fillRect(0, 0, c.width, c.height);
+
+  // rail stripes
+  const stripe = (z: number, color: string) => {
+    g.strokeStyle = color;
+    g.lineWidth = 0.09 * ppu;
+    g.beginPath();
+    g.moveTo(X(colX(1) - 0.6), Z(z));
+    g.lineTo(X(colX(COLS) + 0.6), Z(z));
+    g.stroke();
+  };
+  stripe(ROW_Z.tp - 0.62, '#e63946');
+  stripe(ROW_Z.tn + 0.62, '#2b59c3');
+  stripe(ROW_Z.bp - 0.62, '#e63946');
+  stripe(ROW_Z.bn + 0.62, '#2b59c3');
+
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.font = `800 ${0.8 * ppu}px ${LABEL_FONT}`;
+  const sign = (z: number, s: string, color: string) => {
+    g.fillStyle = color;
+    g.fillText(s, X(colX(1) - 1.05), Z(z));
+    g.fillText(s, X(colX(COLS) + 1.05), Z(z));
+  };
+  sign(ROW_Z.tp, '+', '#e63946');
+  sign(ROW_Z.tn, '−', '#2b59c3');
+  sign(ROW_Z.bp, '+', '#e63946');
+  sign(ROW_Z.bn, '−', '#2b59c3');
+
+  // row letters: large, dark ink, both ends of every row
+  g.fillStyle = '#2b3040';
+  g.font = `700 ${0.74 * ppu}px ${LABEL_FONT}`;
+  for (const r of MAIN_ROWS) {
+    g.fillText(r, X(colX(1) - 1.02), Z(ROW_Z[r]) - 0.04 * ppu);
+    g.fillText(r, X(colX(COLS) + 1.02), Z(ROW_Z[r]) - 0.04 * ppu);
+  }
+  // column numbers: every column above row a and below row j; every 5th larger and bolder
+  for (let col = 1; col <= COLS; col++) {
+    const major = col === 1 || col % 5 === 0;
+    g.fillStyle = major ? '#1f2a44' : '#555b6a';
+    g.font = major ? `800 ${0.74 * ppu}px ${LABEL_FONT}` : `600 ${0.56 * ppu}px ${LABEL_FONT}`;
+    g.fillText(String(col), X(colX(col)), Z(ROW_Z.a - 0.98));
+    g.fillText(String(col), X(colX(col)), Z(ROW_Z.j + 0.98));
+  }
+
+  // holes
+  for (const h of HOLES) {
+    const s = 0.36 * ppu;
+    const rim = 0.05 * ppu;
+    g.fillStyle = '#d9d2c3';
+    g.fillRect(X(h.x) - s / 2 - rim, Z(h.z) - s / 2 - rim, s + 2 * rim, s + 2 * rim);
+    g.fillStyle = '#2f3138';
+    g.fillRect(X(h.x) - s / 2, Z(h.z) - s / 2, s, s);
+  }
+}
+
+/** Printed board surface as a texture; repainted once the label web font has loaded. */
 function useBoardTexture() {
-  return useMemo(() => {
-    const ppu = 64; // pixels per unit
-    const W = BOARD.width;
-    const D = BOARD.depth;
+  const invalidate = useThree((s) => s.invalidate);
+  const tex = useMemo(() => {
+    const ppu = 96; // pixels per unit: labels stay crisp at the default camera distance
     const c = document.createElement('canvas');
-    c.width = Math.round(W * ppu);
-    c.height = Math.round(D * ppu);
-    const g = c.getContext('2d')!;
-    const X = (x: number) => (x + W / 2) * ppu;
-    const Z = (z: number) => (z + D / 2) * ppu;
-    g.fillStyle = '#f7f2e7';
-    g.fillRect(0, 0, c.width, c.height);
-
-    // rail stripes
-    const stripe = (z: number, color: string) => {
-      g.strokeStyle = color;
-      g.lineWidth = 0.09 * ppu;
-      g.beginPath();
-      g.moveTo(X(colX(1) - 0.6), Z(z));
-      g.lineTo(X(colX(COLS) + 0.6), Z(z));
-      g.stroke();
-    };
-    stripe(ROW_Z.tp - 0.62, '#e63946');
-    stripe(ROW_Z.tn + 0.62, '#2b59c3');
-    stripe(ROW_Z.bp - 0.62, '#e63946');
-    stripe(ROW_Z.bn + 0.62, '#2b59c3');
-
-    g.font = `700 ${0.62 * ppu}px "Barlow Condensed", sans-serif`;
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    const sign = (z: number, s: string, color: string) => {
-      g.fillStyle = color;
-      g.fillText(s, X(colX(1) - 1.05), Z(z));
-      g.fillText(s, X(colX(COLS) + 1.05), Z(z));
-    };
-    sign(ROW_Z.tp, '+', '#e63946');
-    sign(ROW_Z.tn, '−', '#2b59c3');
-    sign(ROW_Z.bp, '+', '#e63946');
-    sign(ROW_Z.bn, '−', '#2b59c3');
-
-    // row letters
-    g.fillStyle = '#6b6f7a';
-    g.font = `600 ${0.5 * ppu}px "Barlow Condensed", sans-serif`;
-    for (const r of MAIN_ROWS) {
-      g.fillText(r, X(colX(1) - 1.0), Z(ROW_Z[r]));
-      g.fillText(r, X(colX(COLS) + 1.0), Z(ROW_Z[r]));
-    }
-    // column numbers
-    g.font = `600 ${0.42 * ppu}px "Barlow Condensed", sans-serif`;
-    for (let col = 1; col <= COLS; col++) {
-      if (col !== 1 && col % 5 !== 0) continue;
-      g.fillText(String(col), X(colX(col)), Z(ROW_Z.a - 0.95));
-      g.fillText(String(col), X(colX(col)), Z(ROW_Z.j + 0.95));
-    }
-
-    // holes
-    for (const h of HOLES) {
-      const s = 0.36 * ppu;
-      g.fillStyle = '#d9d2c3';
-      g.fillRect(X(h.x) - s / 2 - 3, Z(h.z) - s / 2 - 3, s + 6, s + 6);
-      g.fillStyle = '#2f3138';
-      g.fillRect(X(h.x) - s / 2, Z(h.z) - s / 2, s, s);
-    }
+    c.width = Math.round(BOARD.width * ppu);
+    c.height = Math.round(BOARD.depth * ppu);
+    paintBoard(c, ppu);
     const t = new THREE.CanvasTexture(c);
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 8;
+    t.userData.ppu = ppu;
     return t;
   }, []);
+  useEffect(() => {
+    let live = true;
+    const fonts = typeof document !== 'undefined' ? document.fonts : undefined;
+    if (!fonts) return;
+    Promise.all([fonts.load(`800 40px ${LABEL_FONT}`), fonts.load(`600 40px ${LABEL_FONT}`)])
+      .then(() => {
+        if (!live) return;
+        paintBoard(tex.image as HTMLCanvasElement, tex.userData.ppu as number);
+        tex.needsUpdate = true;
+        invalidate();
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [tex, invalidate]);
+  return tex;
 }
 
 const dummy = new THREE.Object3D();
@@ -272,8 +300,10 @@ export function Board() {
       })}
 
       {hh && (
-        <Html position={[hh.x, 0.4, hh.z]} style={{ pointerEvents: 'none' }} zIndexRange={[20, 0]}>
-          <div className="hole-tip">
+        // Anchored 1.6 pitches diagonally up-and-away from the hole, so the tip never covers the
+        // hovered hole or its eight neighbours; on the right half it opens to the left instead.
+        <Html position={[hh.x + (hh.x > 2 ? -1.6 : 1.6), 0.4, hh.z - 1.6]} style={{ pointerEvents: 'none' }} zIndexRange={[20, 0]}>
+          <div className="hole-tip" style={{ transform: `translate(${hh.x > 2 ? '-100%' : '0'}, -100%)` }}>
             <b>{hh.id}</b>
             <span>
               {tr(`${stripLabel(hh.strip)} 内部相连`, `${stripLabel(hh.strip)}: connected inside`)}
