@@ -116,6 +116,17 @@ function siOrRaw(v: unknown, unit: string): string | null {
   return null;
 }
 
+const SUP: Record<string, string> = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+/** e⁻²ᵗ for integer rates, e^(−0.5t) otherwise */
+function expText(alpha: number | null): string {
+  if (alpha === null) return 'e^(−αt)';
+  if (alpha === 0) return '';
+  const a = Math.abs(alpha);
+  const sign = alpha > 0 ? '⁻' : '';
+  if (Number.isInteger(a)) return `e${sign}${a === 1 ? '' : [...String(a)].map((c) => SUP[c]).join('')}ᵗ`;
+  return `e^(${alpha > 0 ? '−' : ''}${num(a)}t)`;
+}
+
 function sourceText(v: TwoTerminalElement['value'], unit: string): string | null {
   if (v === undefined || v === null) return null;
   if (typeof v === 'number' || typeof v === 'string') return siOrRaw(v, unit);
@@ -136,6 +147,12 @@ function sourceText(v: TwoTerminalElement['value'], unit: string): string | null
     return parts.length ? `${parts.join(' + ')} ${unit}` : null;
   }
   if (o.wave) return `${num(o.wave.amp)} ${unit}`;
+  // s-domain chapter: area·δ(t), amp·e^(−αt) (t ≥ 0)
+  if (o.impulse) {
+    const a = toNum(o.impulse.area);
+    return `${a === 1 ? '' : a === -1 ? '−' : num(o.impulse.area)}δ(t) ${unit}`;
+  }
+  if (o.exp) return `${num(o.exp.amp)}${expText(toNum(o.exp.alpha))} ${unit}`;
   if (o.sin) {
     const { amp, freq: f0, phase: p0, offset: o0 } = o.sin;
     const freq = toNum(f0) ?? NaN;

@@ -11,6 +11,7 @@ import { chapterById, CHAPTERS } from './chapters';
 import { angleDiff, fmtNum, isPhaseQuestion } from './answer';
 import { extractNetlist, isTwoTerminal } from './geometry';
 import { checkPlot } from './plot';
+import { SDOMAIN_KINDS, checkSdomainFind, isSdomainKind, sdomainMark } from './sdomainFind';
 import {
   PROBLEM_FORMAT_ID,
   type Analysis,
@@ -60,9 +61,9 @@ const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => ty
 /** a text field may be a string or an array of lines */
 const textOf = (v: unknown) => (typeof v === 'string' ? v : Array.isArray(v) ? strs(v).join('\n') : '');
 
-const KINDS = ['v', 'i', 'p', 'q', 's', 'pf', 'req', 'vth', 'isc', 'pmax', 'tau', 'meter', 'gain', 'f0', 'twoport', 'w', 'val', 'wattmeter', 'root', 'alpha', 'omega_d', 'omega0', 'fc', 'bw', 'Q', 'rs', 'rd', 'nop'] as const;
+const KINDS = ['v', 'i', 'p', 'q', 's', 'pf', 'req', 'vth', 'isc', 'pmax', 'tau', 'meter', 'gain', 'f0', 'twoport', 'w', 'val', 'wattmeter', 'root', 'alpha', 'omega_d', 'omega0', 'fc', 'bw', 'Q', 'rs', 'rd', 'nop', ...SDOMAIN_KINDS] as const;
 /** kinds that describe the whole circuit (no time instant needed in transient problems) */
-const TIMELESS = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw'];
+const TIMELESS: readonly string[] = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw', ...SDOMAIN_KINDS];
 const PARTS: Part[] = ['re', 'im', 'mag', 'phase', 'db', 'rms', 'avg', 'absavg', 'peak'];
 const TIMES = ['0-', '0+', 'inf'];
 const isGroundName = (n: string) => /^(0|gnd)$/i.test(n);
@@ -214,6 +215,9 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
           } else p.forEach((n, j) => node(n, `ports[${i}][${j}]`));
         });
       break;
+    default:
+      // s-domain chapter: H, pole, zero, hcoef, residue
+      if (isSdomainKind(kind)) ok = checkSdomainFind(find, where, el, (r) => typeof r === 'string' && (els.size === 0 || els.has(r)), node, analysis?.type, errors) && ok;
   }
   if (find.deriv !== undefined) {
     if (find.deriv !== 1 || (kind !== 'v' && kind !== 'i')) {
@@ -256,7 +260,7 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
   }
   if (analysis && analysis.type !== 'periodic' && (find.part === 'avg' || find.part === 'absavg' || find.part === 'peak'))
     errors.push(tr(`${where}.find.part: "${find.part}" 只用于非正弦周期分析（periodic）`, `${where}.find.part: "${find.part}" is only for periodic (non-sinusoidal) analysis`));
-  if (analysis && analysis.type !== 'ac' && analysis.type !== 'periodic' && kind !== 'root' && find.part !== undefined && find.part !== 're')
+  if (analysis && analysis.type !== 'ac' && analysis.type !== 'periodic' && kind !== 'root' && !isSdomainKind(kind) && find.part !== undefined && find.part !== 're')
     warnings.push(tr(`${where}.find.part: "${String(find.part)}" 只对正弦稳态（ac）有意义`, `${where}.find.part: "${String(find.part)}" only makes sense for sinusoidal steady state (ac)`));
   if (find.t !== undefined) {
     if (!(typeof find.t === 'number' && find.t >= 0) && !TIMES.includes(find.t as string)) {
@@ -498,7 +502,8 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
   if (schematic) {
     const marks = [...(Array.isArray(schematic.marks) ? schematic.marks : [])];
     for (const q of questions) {
-      const f = q.find;
+      const sm = q.find ? sdomainMark(q.find as unknown as Record<string, unknown>) : null;
+      const f = sm ?? q.find;
       if (!f || (f.kind !== 'i' && f.kind !== 'v') || !('el' in f) || typeof f.el !== 'string') continue;
       const el = f.el;
       // two-terminal elements take both kinds; an op-amp only its output current (arrow out of the output)

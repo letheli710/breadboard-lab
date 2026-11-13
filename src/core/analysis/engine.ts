@@ -6,6 +6,7 @@ import { ONE, ZERO, abs, conj, cx, div, mul, neg, polarDeg } from './complex';
 import { AnalysisError } from './errors';
 import { type Mode, MnaSystem, Solution } from './mna';
 import { type Solver, dynamicR, operatingPoints, piecesAt, tangent } from './nonlinear';
+import { isSdomainKind, sdomainQuantity } from './sdomain';
 import { Transient } from './transient';
 import { computePeriodic } from './periodic';
 
@@ -51,6 +52,11 @@ export class StaticAnalysis {
           return cx(this.phase === 'before' ? s.before : s.after);
         case 'sin':
           return cx(s.offset);
+        case 'impulse':
+          return ZERO; // δ(t) is zero except at t = 0
+        case 'exp':
+          if (this.phase === 'before') return ZERO;
+          throw new AnalysisError(`${el.ref}: an exponential source {exp} has no constant (DC) value after t = 0`);
       }
     }
     switch (s.kind) {
@@ -61,7 +67,9 @@ export class StaticAnalysis {
       case 'step':
         throw new AnalysisError(`${el.ref}: a step source cannot be used in AC (sinusoidal steady-state) analysis`);
       case 'sin':
-        throw new AnalysisError(`${el.ref}: in AC analysis give the source as a phasor {ac: {mag, phase}} instead of {sin: …}`);
+        throw new AnalysisError(`${el.ref}: in AC analysis give the source as a phasor {ac: {mag, phase}} instead of {sin: …}`);      case 'exp':
+      case 'impulse':
+        throw new AnalysisError(`${el.ref}: {exp} / {impulse} sources are only available in transient analysis`);
     }
   }
 
@@ -589,6 +597,12 @@ function elementValue(ckt: Circuit, find: Find & { kind: 'val' }, an: StaticAnal
       if (s.kind === 'num') return real(s.value);
       if (s.kind === 'dcac') return real(s.dc);
       if (s.kind === 'step') return real(phaseOfT(t) === 'before' ? s.before : s.after);
+      if (s.kind === 'impulse') return real(s.area); // the strength (area) of the impulse
+      if (s.kind === 'exp') {
+        if (t === undefined) throw new AnalysisError(`val: ${el.ref} is an exponential source; give a time "t"`);
+        if (t === 'inf' || t === '0-' || (typeof t === 'number' && t < 0)) return real(0);
+        return real(s.amp * Math.exp(-s.alpha * (typeof t === 'number' ? t : 0)));
+      }
       if (t === undefined || t === 'inf') throw new AnalysisError(`val: ${el.ref} is a sinusoidal source; give a time "t"`);
       const tt = typeof t === 'number' ? t : 0;
       return real(s.offset + s.amp * Math.sin(2 * Math.PI * s.freq * tt + (s.phase * Math.PI) / 180));
@@ -615,6 +629,7 @@ export function computeComplex(netlist: Netlist, analysis: Analysis, find: Find)
   if ((find.freq !== undefined || find.omega !== undefined) && analysis.type !== 'ac')
     throw new AnalysisError('find.freq / find.omega override the frequency of an AC problem; this problem is not AC');
 
+  if (isSdomainKind(find.kind)) return sdomainQuantity(netlist, analysis.type, find as unknown as Record<string, unknown>);
   const nls = ckt.els.filter((e) => e.type === 'NR');
   if (nls.length) return nonlinearComplex(ckt, nls, analysis, find);
   if (find.kind === 'rs' || find.kind === 'rd' || find.kind === 'nop') throw new AnalysisError(`"${find.kind}" needs a nonlinear resistor (type NR) in the circuit`);

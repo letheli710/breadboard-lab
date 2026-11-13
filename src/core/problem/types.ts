@@ -34,7 +34,9 @@ export type SourceValue =
   /** dc + Σ amp_k·cos(kω₁t + phase_k°); amp is the AMPLITUDE (peak) of each harmonic */
   | { harmonics: { dc?: number; terms: PeriodicTerm[] } }
   /** a standard waveform given by its Fourier series up to harmonic `upTo` (see WaveShape), plus `offset` */
-  | { wave: { shape: WaveShape; amp: number; upTo: number; offset?: number } };
+  | { wave: { shape: WaveShape; amp: number; upTo: number; offset?: number } }
+  | { exp: { amp: number; alpha: number } } // tran only: amp·e^(−alpha·t) for t ≥ 0, 0 for t < 0
+  | { impulse: { area: number } }; // tran only: area·δ(t) at t = 0
 
 /** one harmonic of a periodic source: amplitude (peak) and initial phase in degrees, cosine reference */
 export interface PeriodicTerm {
@@ -234,7 +236,21 @@ export type Quantity =
   /** dynamic (incremental) resistance du/di of an NR element at the operating point */
   | { kind: 'rd'; el: string }
   /** number of DC operating points */
-  | { kind: 'nop' };
+  | { kind: 'nop' }
+  // ---- s-domain chapter (complex-frequency analysis); see analysis/sdomain.ts ----
+  /** network function H(s) = output / input source (zero initial state, other sources zero) at a complex s;
+   *  out: ["a"] / ["a", "b"] node voltage, {v: ref} element voltage, {i: ref} element current. Complex: part re (default) / im / mag / phase */
+  | { kind: 'H'; out: SOut; input: string; s: number | { re?: number; im?: number } }
+  /** n-th pole / finite zero of H(s) after pole–zero cancellation (sorted by real part descending, then imaginary part descending) */
+  | { kind: 'pole'; out: SOut; input: string; n: number }
+  | { kind: 'zero'; out: SOut; input: string; n: number }
+  /** coefficient of s^power in the numerator / denominator of H(s), with the denominator made monic (leading coefficient 1) */
+  | { kind: 'hcoef'; out: SOut; input: string; of: 'num' | 'den'; power: number }
+  /** tran: partial-fraction coefficient of 1/(s − at)^order (order 1 = residue) in the transform Y(s) of the actual response for t > 0 */
+  | { kind: 'residue'; out: SOut; at: number | { re?: number; im?: number }; order?: number };
+
+/** s-domain output: node voltage ["a"] / ["a", "b"], element voltage {v: ref}, element current {i: ref} */
+export type SOut = [string, string?] | { v: string } | { i: string };
 
 /** Which part of a (possibly complex) result is asked. Default: 're' for DC/tran (plain number), 'mag' for AC. */
 export type Part = 're' | 'im' | 'mag' | 'phase' | 'db' | 'rms'

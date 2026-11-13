@@ -29,7 +29,11 @@ interface AfterModel {
   Bw: Mat;
   /** P[k][b]: coefficient of basis b in source k */
   P: Mat;
+  /** B: effect of each source (unit value) on s' — an impulse of area a makes s jump by a·B[:, k] */
+  Bu: Mat;
   omegas: number[];
+  /** decay rates of {exp} sources: basis signals e^(−α t) after the sinusoids */
+  alphas: number[];
   parasitic: Map<string, number>;
   tauPar: number;
 }
@@ -162,6 +166,7 @@ export class Transient {
         if (s.kind === 'num') return cx(s.value);
         if (s.kind === 'dcac') return cx(s.dc);
         if (s.kind === 'step') return cx(s.before);
+        if (s.kind === 'exp' || s.kind === 'impulse') return ZERO;
         return cx(s.offset);
       }),
     );
@@ -198,15 +203,29 @@ export class Transient {
     return new Solution(sys, sol.x.map((v) => cx(v.re)));
   }
 
-  private s0(): number[] {
-    if (this._s0) return this._s0;
+  /** capacitor voltages / inductor currents at t = 0− (`ic` when given), keyed by ref */
+  initialStates(): Map<string, number> {
     const m = this.model();
     const needPre = m.states.some((s) => s.ic === undefined);
     const pre = needPre ? this.pre(0) : null;
-    return (this._s0 = m.states.map((s) => {
-      if (s.ic !== undefined) return s.ic;
-      return s.type === 'C' ? pre!.vEl(s.ref).re : pre!.i(s.ref).re;
-    }));
+    return new Map(m.states.map((s) => [s.ref, s.ic !== undefined ? s.ic : s.type === 'C' ? pre!.vEl(s.ref).re : pre!.i(s.ref).re] as [string, number]));
+  }
+
+  /** state at t = 0+: the 0− state plus the jump caused by impulse sources (a·B per impulse of area a) */
+  private s0(): number[] {
+    if (this._s0) return this._s0;
+    const m = this.model();
+    const init = this.initialStates();
+    const s = m.states.map((st) => init.get(st.ref)!);
+    m.srcs.forEach((el, k) => {
+      if (el.src?.kind !== 'impulse' || el.src.area === 0) return;
+      if (m.parasitic.size)
+        throw new AnalysisError(
+          `${el.ref}: impulse sources are not supported in a circuit with capacitor loops or inductor cut-sets (the impulse would make a capacitor voltage or an inductor current impulsive)`,
+        );
+      for (let i = 0; i < s.length; i++) s[i] += el.src.area * m.Bu[i][k];
+    });
+    return (this._s0 = s);
   }
 
   // ---------------- t > 0 model ----------------
@@ -267,14 +286,20 @@ export class Transient {
     Xu.forEach((x, k) => der(x).forEach((v, i) => (Bu[i][k] = v)));
 
     const omegas = this.omegas();
-    const nb = 1 + 2 * omegas.length;
+    const alphas: number[] = [];
+    for (const el of srcs) if (el.src?.kind === 'exp' && el.src.amp !== 0 && !alphas.includes(el.src.alpha)) alphas.push(el.src.alpha);
+    const nb = 1 + 2 * omegas.length + alphas.length;
     const P = zeros(srcs.length, nb);
     srcs.forEach((el, k) => {
       const s = el.src!;
       if (s.kind === 'num') P[k][0] = s.value;
       else if (s.kind === 'dcac') P[k][0] = s.dc;
       else if (s.kind === 'step') P[k][0] = s.after;
-      else {
+      else if (s.kind === 'exp') {
+        if (s.amp !== 0) P[k][1 + 2 * omegas.length + alphas.indexOf(s.alpha)] = s.amp;
+      } else if (s.kind === 'impulse') {
+        // zero for t > 0; its effect is the jump of the state at t = 0 (see s0)
+      } else {
         P[k][0] = s.offset;
         const q = omegas.findIndex((w) => sameOmega(w, 2 * Math.PI * s.freq));
         if (q >= 0) {
@@ -286,13 +311,14 @@ export class Transient {
     });
     const Bw = zeros(n, nb);
     for (let i = 0; i < n; i++) for (let b = 0; b < nb; b++) for (let k = 0; k < srcs.length; k++) Bw[i][b] += Bu[i][k] * P[k][b];
-    return (this._model = { sys, states, srcs, Xs, Xu, A, Bw, P, omegas, parasitic, tauPar });
+    return (this._model = { sys, states, srcs, Xs, Xu, A, Bw, P, Bu, omegas, alphas, parasitic, tauPar });
   }
 
   private basis(t: number): number[] {
     const m = this.model();
     const w = [1];
     for (const o of m.omegas) w.push(Math.sin(o * t), Math.cos(o * t));
+    for (const a of m.alphas) w.push(Math.exp(-a * t));
     return w;
   }
 
@@ -300,7 +326,7 @@ export class Transient {
     const m = this.model();
     const n = m.states.length;
     if (n === 0) return [];
-    const nb = 1 + 2 * m.omegas.length;
+    const nb = 1 + 2 * m.omegas.length + m.alphas.length;
     const M = zeros(n + nb, n + nb);
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) M[i][j] = m.A[i][j] * t;
@@ -309,6 +335,10 @@ export class Transient {
     m.omegas.forEach((w, q) => {
       M[n + 1 + 2 * q][n + 2 + 2 * q] = w * t;
       M[n + 2 + 2 * q][n + 1 + 2 * q] = -w * t;
+    });
+    m.alphas.forEach((a, q) => {
+      const b = n + 1 + 2 * m.omegas.length + q;
+      M[b][b] = -a * t;
     });
     const z0 = [...this.s0(), ...this.basis(0)];
     const E = expm(M);
@@ -331,6 +361,7 @@ export class Transient {
     const m = this.model();
     const w = [0];
     for (const o of m.omegas) w.push(o * Math.cos(o * t), -o * Math.sin(o * t));
+    for (const a of m.alphas) w.push(-a * Math.exp(-a * t));
     return w;
   }
 
@@ -509,6 +540,7 @@ export class Transient {
       if (s.kind === 'num') return cx(s.value);
       if (s.kind === 'dcac') return cx(s.dc);
       if (s.kind === 'step') return cx(s.after);
+      if (s.kind === 'exp' || s.kind === 'impulse') return ZERO;
       return cx(s.offset);
     });
   }

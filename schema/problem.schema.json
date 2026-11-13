@@ -11,7 +11,7 @@
     "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$", "description": "Unique id: letters, digits, - and _." },
     "lang": { "enum": ["zh", "en"], "default": "zh", "description": "Language of the top-level text. Default \"zh\"." },
     "chapter": {
-      "enum": ["basics", "equivalence", "methods", "theorems", "opamp", "storage", "first-order", "second-order", "phasors", "ac-analysis", "ac-power", "coupled", "frequency", "three-phase", "non-sinusoidal", "two-port", "nonlinear"],
+      "enum": ["basics", "equivalence", "methods", "theorems", "opamp", "storage", "first-order", "second-order", "phasors", "ac-analysis", "ac-power", "coupled", "frequency", "three-phase", "non-sinusoidal", "s-domain", "two-port", "nonlinear"],
       "description": "Chapter id (src/core/problem/chapters.ts). Put the file in problems/<chapter>/."
     },
     "title": { "type": "string", "minLength": 1 },
@@ -60,6 +60,24 @@
           "required": ["step"],
           "properties": {
             "step": { "type": "object", "required": ["before", "after"], "properties": { "before": { "type": "number" }, "after": { "type": "number" } }, "additionalProperties": false }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["exp"],
+          "description": "s-domain chapter, transient only: amp·e^(−alpha·t) for t ≥ 0, 0 for t < 0",
+          "properties": {
+            "exp": { "type": "object", "required": ["amp", "alpha"], "properties": { "amp": { "type": "number" }, "alpha": { "type": "number" } }, "additionalProperties": false }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["impulse"],
+          "description": "s-domain chapter, transient only: area·δ(t)",
+          "properties": {
+            "impulse": { "type": "object", "required": ["area"], "properties": { "area": { "type": "number" } }, "additionalProperties": false }
           },
           "additionalProperties": false
         },
@@ -328,23 +346,41 @@
         }
       ]
     },
+    "complexArg": {
+      "oneOf": [
+        { "type": "number" },
+        { "type": "object", "properties": { "re": { "type": "number" }, "im": { "type": "number" } }, "additionalProperties": false }
+      ]
+    },
     "nodePair": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 },
     "find": {
       "type": "object",
       "required": ["kind"],
       "properties": {
-        "kind": { "enum": ["v", "i", "p", "q", "s", "pf", "req", "vth", "isc", "pmax", "tau", "meter", "gain", "f0", "twoport", "w", "val", "wattmeter", "root", "alpha", "omega_d", "omega0", "fc", "bw", "Q", "rs", "rd", "nop"], "description": "rs / rd: static / dynamic resistance of a nonlinear resistor at the operating point; nop: number of operating points" },
+        "kind": { "enum": ["v", "i", "p", "q", "s", "pf", "req", "vth", "isc", "pmax", "tau", "meter", "gain", "f0", "twoport", "w", "val", "wattmeter", "root", "alpha", "omega_d", "omega0", "fc", "bw", "Q", "rs", "rd", "nop", "H", "pole", "zero", "hcoef", "residue"], "description": "rs / rd: static / dynamic resistance of a nonlinear resistor at the operating point; nop: number of operating points" },
         "el": { "type": "string" },
         "nodes": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 2 },
         "port": { "$ref": "#/definitions/nodePair" },
         "exclude": { "type": "array", "items": { "type": "string" }, "description": "req/vth/isc/pmax: element refs removed (open-circuited) first, e.g. the drawn load [\"RL\"]" },
         "current": { "type": "string", "description": "wattmeter: ref of the ammeter element that is the current coil" },
-        "n": { "type": "integer", "minimum": 1, "description": "root: which natural frequency (sorted by real part descending, then imaginary part descending)" },
+        "n": { "type": "integer", "minimum": 1, "description": "root / pole / zero: which one (sorted by real part descending, then imaginary part descending)" },
         "which": { "enum": ["low", "high"], "description": "fc: lower or upper −3 dB frequency" },
         "deriv": { "const": 1, "description": "tran, kinds v / i: time derivative at t" },
         "freq": { "type": "number", "exclusiveMinimum": 0, "description": "AC: evaluate this question at another frequency (Hz)" },
         "omega": { "type": "number", "exclusiveMinimum": 0, "description": "AC: evaluate this question at another angular frequency (rad/s)" },
-        "out": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 2 },
+        "out": {
+          "oneOf": [
+            { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 2 },
+            { "type": "object", "required": ["v"], "properties": { "v": { "type": "string" } }, "additionalProperties": false },
+            { "type": "object", "required": ["i"], "properties": { "i": { "type": "string" } }, "additionalProperties": false }
+          ],
+          "description": "gain / fc / bw: node(s) [\"a\"] or [\"a\", \"b\"]; s-domain kinds also take {\"v\": ref} (element voltage) or {\"i\": ref} (element current)"
+        },
+        "s": { "$ref": "#/definitions/complexArg", "description": "H: the complex frequency s (number, or {re, im})" },
+        "at": { "$ref": "#/definitions/complexArg", "description": "residue: the pole p (number, or {re, im})" },
+        "order": { "type": "integer", "minimum": 1, "description": "residue: k in 1/(s − p)^k (default 1)" },
+        "of": { "enum": ["num", "den"], "description": "hcoef: numerator or (monic) denominator of H(s)" },
+        "power": { "type": "integer", "minimum": 0, "description": "hcoef: power of s" },
         "input": { "type": "string" },
         "ports": { "type": "array", "items": { "$ref": "#/definitions/nodePair" }, "minItems": 2, "maxItems": 2 },
         "param": { "enum": ["z11", "z12", "z21", "z22", "y11", "y12", "y21", "y22", "h11", "h12", "h21", "h22", "a", "b", "c", "d"] },

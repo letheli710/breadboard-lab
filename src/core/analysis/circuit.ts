@@ -14,7 +14,10 @@ export type SrcSpec =
   | { kind: 'num'; value: number } // bare number: DC, or a 0° phasor in AC analysis
   | { kind: 'dcac'; dc: number; ac?: { mag: number; phase: number } }
   | { kind: 'step'; before: number; after: number }
-  | { kind: 'sin'; amp: number; freq: number; phase: number; offset: number };
+  | { kind: 'sin'; amp: number; freq: number; phase: number; offset: number }
+  // s-domain chapter (transient analysis only): amp·e^(−alpha·t) for t ≥ 0 (0 before), and area·δ(t)
+  | { kind: 'exp'; amp: number; alpha: number }
+  | { kind: 'impulse'; area: number };
 
 export interface CEl {
   ref: string;
@@ -102,6 +105,14 @@ function parseSource(ref: string, v: unknown): SrcSpec {
       offset: s.offset === undefined ? 0 : parseNum(s.offset, `${ref}.sin.offset`),
     };
   }
+  if ('exp' in o) {
+    const s = (o.exp ?? {}) as Record<string, unknown>;
+    return { kind: 'exp', amp: parseNum(s.amp, `${ref}.exp.amp`), alpha: parseNum(s.alpha, `${ref}.exp.alpha`) };
+  }
+  if ('impulse' in o) {
+    const s = (o.impulse ?? {}) as Record<string, unknown>;
+    return { kind: 'impulse', area: parseNum(s.area, `${ref}.impulse.area`) };
+  }
   if ('dc' in o || 'ac' in o) {
     const dc = o.dc === undefined ? 0 : parseNum(o.dc, `${ref}.dc`);
     let ac: { mag: number; phase: number } | undefined;
@@ -112,7 +123,7 @@ function parseSource(ref: string, v: unknown): SrcSpec {
     return { kind: 'dcac', dc, ac };
   }
   if ('re' in o || 'im' in o) throw new AnalysisError(`${ref}: a complex {re, im} value is only allowed for Z elements`);
-  throw new AnalysisError(`${ref}: unrecognised source value ${JSON.stringify(v)} (use a number, {dc, ac}, {step}, {sin}, {harmonics} or {wave})`);
+  throw new AnalysisError(`${ref}: unrecognised source value ${JSON.stringify(v)} (use a number, {dc, ac}, {step}, {sin}, {harmonics}, {wave}, {exp} or {impulse})`);
 }
 
 export class Circuit {
