@@ -31,14 +31,7 @@
     "- 两种接法下**线圈电流**和继电器是否吸合；",
     "- 三极管的**工作区**（regions）：开关必须在饱和区；",
     "- 高边时**发射极电压**：负载上到底能拿到多少电压；",
-    "- 换一个 β = 1000 的管子，高边能不能好起来。",
-    "",
-    "**对比：高边**：V_E = 3.29 V − 0.23 mA × 1 kΩ − 0.65 V ≈ **2.41 V**（仿真 2.41 V）。线圈只拿到 2.41 V / 70 Ω ≈ **34 mA**，低于 53 mA 的吸合电流——**K1 不吸合**。剩下的 5V − 2.41 V ≈ **2.26 V** 落在三极管 C–E 上，Q1 在**放大区**，白白耗散 77 mW。",
-    "- 把 5V 换成 12V 也没用：发射极仍然只有 2.4 V，只是三极管上的电压和发热更大。",
-    "- 换 β = 1000 的管子也没用：基极电流变小、RB 上的压降少了，V_E 只升到 **2.61 V**（37 mA），还是吸不上。限制它的不是放大倍数，而是“发射极永远比基极低 0.65 V”。",
-    "- 开着高边时实时诊断会给出警告“K1 线圈电流不够，吸合不了：34 mA”，以及提示“Q1 工作在放大区（没有完全导通）”——这正是这个电路的毛病。",
-    "",
-    "**对比：低边**：V_BE 永远是 0.65 V，基极电流 Ib = (3.23 − 0.70) V / 1 kΩ ≈ **2.5 mA**，β·Ib ≈ 380 mA ≫ 线圈需要的 63 mA，三极管**饱和**，Vce 只有 **0.21 V**；线圈上 4.44 V（5V 引脚 4.65 V − 0.21 V），**63 mA**，K2 吸合。引脚只出 2.5 mA，三极管只耗 15 mW。",
+    "- 换一个 β = 1000 的管子，高边能不能好起来。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**那什么时候必须用高边？** 负载必须一端接地的时候：例如给一个传感器模块断电（它的 GND 还和别的信号连在一起）、汽车电路（车身就是地）、LED 共阴的数码管。正确做法：",
     "- **P 沟道 MOSFET**（如 AO3401、IRF9540）放在上面，源极接 5V；栅极由一个**低边 NPN / N-MOS 电平转换**拉到 GND 导通、靠上拉电阻到 5V 关断（3.3 V 引脚直接驱动 P-MOS 的栅极关不断 5 V 的管子）；",
@@ -83,14 +76,7 @@
         "- the **coil current** and whether each relay pulls in;",
         "- the transistors' **region**: a switch must be saturated;",
         "- the **emitter voltage** on the high side: how much voltage the load really gets;",
-        "- whether a β = 1000 transistor rescues the high side.",
-        "",
-        "**Compare: high side**: V_E = 3.29 V − 0.23 mA × 1 kΩ − 0.65 V ≈ **2.41 V** (simulated 2.41 V). The coil only gets 2.41 V / 70 Ω ≈ **34 mA**, below the 53 mA pull-in current — **K1 does not pull in**. The remaining 5V − 2.41 V ≈ **2.26 V** sits across C–E: Q1 is in the **active region** and wastes 77 mW.",
-        "- A 12 V supply instead of 5V doesn't help: the emitter is still at 2.4 V, there is just more voltage (and heat) across the transistor.",
-        "- A β = 1000 transistor doesn't help either: less base current means less drop across RB, so V_E only rises to **2.61 V** (37 mA) — still no pull-in. The limit is not the gain but \"the emitter is always 0.65 V below the base\".",
-        "- With the high side on, the live diagnostics show a warning \"K1 coil current too low to pull in: 34 mA\" and a note \"Q1 is in the active region (not fully on)\" — exactly what is wrong with this circuit.",
-        "",
-        "**Compare: low side**: V_BE is always 0.65 V and Ib = (3.23 − 0.70) V / 1 kΩ ≈ **2.5 mA**. β·Ib ≈ 380 mA ≫ the 63 mA the coil needs, so the transistor **saturates** with Vce only **0.21 V**; the coil gets 4.44 V (5V pin 4.65 V − 0.21 V), **63 mA**, and K2 pulls in. The pin only supplies 2.5 mA and the transistor dissipates 15 mW.",
+        "- whether a β = 1000 transistor rescues the high side. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**So when do you need a high-side switch?** When the load must keep one end at ground: cutting power to a sensor module (its GND is shared with other signals), automotive circuits (the chassis is ground), common-cathode LED displays. The proper way:",
         "- a **P-channel MOSFET** (AO3401, IRF9540) on top with its source at 5V; its gate is pulled to GND to turn on by a **low-side NPN / N-MOS level shifter** and pulled up to 5V to turn off (a 3.3 V pin driving the P-MOS gate directly can't turn off a 5 V switch);",
@@ -107,6 +93,21 @@
         "",
         "**Model note**: the NPN is a 0.65 V + 20 Ω B–E junction with constant β and saturation Vce = 0.15 V + 1 Ω × Ic; the relay coil is 70 Ω + 150 mH, pulling in at 53 mA and dropping out at 7 mA (the DC tests ignore that the hold current is lower than the pull-in current); the ESP32 output stage is 25 Ω."
       ],
+      "compare": [
+        "**Compare: high side**: V_E = 3.29 V − 0.23 mA × 1 kΩ − 0.65 V ≈ **2.41 V** (simulated 2.41 V). The coil only gets 2.41 V / 70 Ω ≈ **34 mA**, below the 53 mA pull-in current — **K1 does not pull in**. The remaining 5V − 2.41 V ≈ **2.26 V** sits across C–E: Q1 is in the **active region** and wastes 77 mW.",
+        "- A 12 V supply instead of 5V doesn't help: the emitter is still at 2.4 V, there is just more voltage (and heat) across the transistor.",
+        "- A β = 1000 transistor doesn't help either: less base current means less drop across RB, so V_E only rises to **2.61 V** (37 mA) — still no pull-in. The limit is not the gain but \"the emitter is always 0.65 V below the base\".",
+        "- With the high side on, the live diagnostics show a warning \"K1 coil current too low to pull in: 34 mA\" and a note \"Q1 is in the active region (not fully on)\" — exactly what is wrong with this circuit.",
+        "",
+        "**Compare: low side**: V_BE is always 0.65 V and Ib = (3.23 − 0.70) V / 1 kΩ ≈ **2.5 mA**. β·Ib ≈ 380 mA ≫ the 63 mA the coil needs, so the transistor **saturates** with Vce only **0.21 V**; the coil gets 4.44 V (5V pin 4.65 V − 0.21 V), **63 mA**, and K2 pulls in. The pin only supplies 2.5 mA and the transistor dissipates 15 mW."
+      ],
+      "measurements": [
+        {"ask": "High side on only: Q1's emitter to GND (the voltage the coil gets)", "explain": "An emitter follower: V_E = 3.29 V − 0.23 mA × 1 kΩ − 0.65 V ≈ 2.41 V. The emitter is always 0.65 V below the base, and the base can't exceed 3.3 V."},
+        {"ask": "Same state: K1's coil current", "explain": "2.41 V / 70 Ω ≈ 34 mA < 53 mA: K1 does not pull in. The remaining ≈ 2.3 V sits across Q1's C–E; Q1 is in the active region, just getting warm."},
+        {"ask": "Low side on only: Q2's Vce", "explain": "Ib ≈ 2.5 mA, β·Ib ≈ 380 mA ≫ 63 mA: Q2 saturates, Vce ≈ 0.21 V."},
+        {"ask": "Same state: K2's coil current", "explain": "The coil gets 4.65 − 0.21 ≈ 4.44 V, ≈ 63 mA, and K2 pulls in. The pin supplies only 2.5 mA and the transistor dissipates 15 mW."},
+        {"ask": "Give the high side a β = 1000 transistor (change Q1's β in its properties). Does K1 pull in?", "explain": "Ib gets smaller and RB drops less, but V_E only reaches ≈ 2.61 V (37 mA). The limit is not the gain; a 12 V supply wouldn't help either. If you must switch the high side, use a P-channel MOSFET with a level shifter, or a ready-made high-side switch.", "choices": ["no: the emitter is still capped at \"base voltage − 0.65 V\" and only rises to about 2.6 V", "yes: a bigger β means a bigger coil current", "yes: the transistor saturates"]}
+      ],
       "hints": [
         "High side: collector to 5V, emitter to the relay coil, the coil's other end to GND.",
         "Low side: the coil from 5V to the collector, emitter to GND.",
@@ -114,10 +115,10 @@
         "Each base gets its own 1 kΩ from a different output GPIO."
       ],
       "tests": [
-        "High side on: emitter only ≈ 2.41 V, coil ≈ 34 mA — K1 doesn't pull in, Q1 is in the active region with Vce ≈ 2.3 V",
-        "Low side on: Q2 saturated (Vce ≈ 0.21 V), coil ≈ 63 mA at 4.44 V — K2 pulls in; pin gives ≈ 2.5 mA",
-        "High side with β = 1000: emitter only ≈ 2.61 V, 37 mA — still no pull-in",
-        "Both on: only the low-side relay pulls in"
+        "High side on: K1 does not pull in, Q1 in the active region",
+        "Low side on: Q2 saturated, K2 pulls in; little pin current",
+        "High side with a β = 1000 transistor: still no pull-in",
+        "Both on: only the low-side K2 pulls in"
       ]
     }
   },
@@ -227,7 +228,7 @@
   ],
   "tests": [
     {
-      "name": "打开高边：发射极只有 ≈ 2.41 V，线圈 ≈ 34 mA——K1 吸不上，Q1 在放大区，Vce ≈ 2.3 V",
+      "name": "打开高边：K1 吸不上，Q1 在放大区",
       "set": {
         "U1": {
           "modes": {
@@ -274,7 +275,7 @@
       ]
     },
     {
-      "name": "打开低边：Q2 饱和（Vce ≈ 0.21 V），线圈 4.44 V、≈ 63 mA——K2 吸合；引脚只出 ≈ 2.5 mA",
+      "name": "打开低边：Q2 饱和，K2 吸合；引脚电流很小",
       "set": {
         "U1": {
           "modes": {
@@ -321,7 +322,7 @@
       ]
     },
     {
-      "name": "高边换 β = 1000 的管子：发射极也只有 ≈ 2.61 V、37 mA——还是吸不上",
+      "name": "高边换 β = 1000 的管子：还是吸不上",
       "set": {
         "Q1": {
           "beta": 1000
@@ -369,6 +370,21 @@
         "K2": "on"
       }
     }
+  ],
+  "compare": [
+    "**对比：高边**：V_E = 3.29 V − 0.23 mA × 1 kΩ − 0.65 V ≈ **2.41 V**（仿真 2.41 V）。线圈只拿到 2.41 V / 70 Ω ≈ **34 mA**，低于 53 mA 的吸合电流——**K1 不吸合**。剩下的 5V − 2.41 V ≈ **2.26 V** 落在三极管 C–E 上，Q1 在**放大区**，白白耗散 77 mW。",
+    "- 把 5V 换成 12V 也没用：发射极仍然只有 2.4 V，只是三极管上的电压和发热更大。",
+    "- 换 β = 1000 的管子也没用：基极电流变小、RB 上的压降少了，V_E 只升到 **2.61 V**（37 mA），还是吸不上。限制它的不是放大倍数，而是“发射极永远比基极低 0.65 V”。",
+    "- 开着高边时实时诊断会给出警告“K1 线圈电流不够，吸合不了：34 mA”，以及提示“Q1 工作在放大区（没有完全导通）”——这正是这个电路的毛病。",
+    "",
+    "**对比：低边**：V_BE 永远是 0.65 V，基极电流 Ib = (3.23 − 0.70) V / 1 kΩ ≈ **2.5 mA**，β·Ib ≈ 380 mA ≫ 线圈需要的 63 mA，三极管**饱和**，Vce 只有 **0.21 V**；线圈上 4.44 V（5V 引脚 4.65 V − 0.21 V），**63 mA**，K2 吸合。引脚只出 2.5 mA，三极管只耗 15 mW。"
+  ],
+  "measurements": [
+    {"id": "ve", "voltage": "Q1.e", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "V", "predict": true, "range": [2.29, 2.53], "ask": "只打开高边：Q1 发射极对 GND 的电压（线圈上拿到的电压）", "explain": "射极跟随器：V_E = 3.29 V − 0.23 mA × 1 kΩ − 0.65 V ≈ 2.41 V。发射极永远比基极低 0.65 V，而基极最高只有 3.3 V。"},
+    {"id": "ik1", "current": "K1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "mA", "predict": true, "range": [0.0327, 0.0361], "ask": "同一状态：K1 的线圈电流", "explain": "2.41 V / 70 Ω ≈ 34 mA < 53 mA：K1 不吸合。剩下的约 2.3 V 落在 Q1 的 C–E 上，Q1 在放大区，白白发热。"},
+    {"id": "vce2", "voltage": "Q2.c", "ref": "Q2.e", "set": {"U1": {"modes": {"GPIO_OUT1": "out_low", "GPIO_OUT2": "out_high"}}}, "unit": "V", "predict": true, "range": [0.203, 0.224], "ask": "只打开低边：Q2 的 Vce", "explain": "Ib ≈ 2.5 mA，β·Ib ≈ 380 mA ≫ 63 mA：Q2 饱和，Vce ≈ 0.21 V。"},
+    {"id": "ik2", "current": "K2", "set": {"U1": {"modes": {"GPIO_OUT1": "out_low", "GPIO_OUT2": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.0602, 0.0666], "ask": "同一状态：K2 的线圈电流", "explain": "线圈上 4.65 − 0.21 ≈ 4.44 V，≈ 63 mA，K2 吸合。引脚只出 2.5 mA，三极管只耗 15 mW。"},
+    {"id": "beta", "choices": ["不能：发射极电压仍被“基极电压 − 0.65 V”限制，只升到约 2.6 V", "能：β 大了，线圈电流就大了", "能：三极管会进入饱和区"], "correct": 0, "ask": "高边换一个 β = 1000 的管子（在 Q1 的属性里改 β 试试），K1 能吸合吗？", "explain": "Ib 变小、RB 上压降少了，V_E 只升到 ≈ 2.61 V（37 mA）。限制它的不是放大倍数；把 5V 换成 12V 也没用。必须高边时用 P 沟道 MOSFET 加电平转换，或现成的高边开关。"}
   ],
   "hints": [
     "高边：集电极接 5V，发射极接继电器线圈，线圈另一端接 GND。",

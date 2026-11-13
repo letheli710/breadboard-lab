@@ -34,23 +34,7 @@
     "**测量**：",
     "- 冷态（25 °C）和热态（60 °C）的 **ADC 读数**：确定固件的阈值；",
     "- 热态时风扇转、MOSFET 在**可变电阻区**（完全导通，Vds 只有十几 mV）、灯亮；",
-    "- **电源预算**：3V3 和 5V 引脚在风扇全速时还稳不稳、USB 电流有没有超。",
-    "",
-    "**对比：测温部分**：",
-    "- 0 °C：R_NTC ≈ 33.6 kΩ → 0.756 V → ADC **938**；",
-    "- 25 °C：10 kΩ → 1.649 V → ADC **2046**（冷态）；",
-    "- 40 °C：≈ 5.3 kΩ → 2.155 V → ADC **2674**（建议的开风扇阈值）；",
-    "- 60 °C：≈ 2.49 kΩ → 2.641 V → ADC **3277**（热态）；",
-    "- 90 °C：≈ 0.94 kΩ → 3.016 V → ADC **3742**，曲线越来越平，而且已经接近 ESP32 ADC 不准的上端。",
-    "",
-    "把 RF 选成和“最关心的温度”时的 R_NTC 相等，那附近的灵敏度最高；这里 RF = 10 kΩ 让 25–60 °C 落在 ADC 的中段。",
-    "",
-    "**对比：风扇部分**：GPIO 高电平 3.29 V → Vgs = 3.26 V，IRLZ44N 完全导通（Rds ≈ 44 mΩ），Vds ≈ **16 mV**，MOSFET 只耗 6 mW，不用散热片。风扇电流 = (4.53 − 0.016) V / (4.7 + 8) Ω ≈ **356 mA**；风扇两端 2.85 V，RS 上 1.67 V（0.6 W，要用 1 W 电阻）。栅极引脚只给 RPD 提供 **0.33 mA**；灯引脚 **3.3 mA**。",
-    "",
-    "**对比：电源预算表**（热态，风扇全速）：",
-    "- 3V3（AMS1117，1 A）：芯片约 50 mA + 电源灯 1.5 mA + 状态灯 3.3 mA + 栅极 0.3 mA + NTC 分压 0.26 mA ≈ **55 mA** → 3V3 = **3.30 V**；",
-    "- 5V 引脚：风扇 356 mA + AMS1117 输入 ≈ 59 mA → **USB ≈ 415 mA**（500 mA 的 83 %）；5V 引脚从 4.68 V 掉到 **4.53 V**，仍高于 AMS1117 需要的 3.3 + 1.1 = 4.4 V。",
-    "- 为什么要 RS：130 电机直接接 5V 时约 0.55 A，加上板子就超过 500 mA 了。RS 4.7 Ω 把它限制在 0.36 A；真实项目里直接选一个 5 V / 0.2 A 的小风扇，或者从独立电源供电。",
+    "- **电源预算**：3V3 和 5V 引脚在风扇全速时还稳不稳、USB 电流有没有超。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**接线检查清单**（通电前逐条打勾）：",
     "1. 所有 GND 连在一起：上下两条 − 轨都接到了板子的 GND；",
@@ -102,23 +86,7 @@
         "**Measure**:",
         "- the **ADC reading** cold (25 °C) and hot (60 °C): to pick the firmware's threshold;",
         "- hot: the fan runs, the MOSFET is in the **ohmic region** (fully on, Vds only about a dozen mV), the LED is on;",
-        "- the **power budget**: are 3V3 and the 5V pin still fine with the fan at full speed, and is the USB current within budget?",
-        "",
-        "**Compare: temperature part**:",
-        "- 0 °C: R_NTC ≈ 33.6 kΩ → 0.756 V → ADC **938**;",
-        "- 25 °C: 10 kΩ → 1.649 V → ADC **2046** (cold);",
-        "- 40 °C: ≈ 5.3 kΩ → 2.155 V → ADC **2674** (a sensible fan-on threshold);",
-        "- 60 °C: ≈ 2.49 kΩ → 2.641 V → ADC **3277** (hot);",
-        "- 90 °C: ≈ 0.94 kΩ → 3.016 V → ADC **3742** — the curve flattens and is already near the inaccurate top end of the ESP32 ADC.",
-        "",
-        "Choosing RF equal to R_NTC at the temperature you care about most gives the best sensitivity there; RF = 10 kΩ puts 25–60 °C in the middle of the ADC range.",
-        "",
-        "**Compare: fan part**: GPIO HIGH is 3.29 V → Vgs = 3.26 V and the IRLZ44N is fully on (Rds ≈ 44 mΩ), Vds ≈ **16 mV**, only 6 mW in the MOSFET — no heatsink needed. Fan current = (4.53 − 0.016) V / (4.7 + 8) Ω ≈ **356 mA**; 2.85 V across the fan, 1.67 V across RS (0.6 W — use a 1 W resistor). The gate pin only supplies **0.33 mA** (into RPD); the LED pin **3.3 mA**.",
-        "",
-        "**Compare: power budget table** (hot, fan at full speed):",
-        "- 3V3 (AMS1117, 1 A): chip ≈ 50 mA + power LED 1.5 mA + status LED 3.3 mA + gate 0.3 mA + NTC divider 0.26 mA ≈ **55 mA** → 3V3 = **3.30 V**;",
-        "- 5V pin: fan 356 mA + AMS1117 input ≈ 59 mA → **USB ≈ 415 mA** (83 % of 500 mA); the 5V pin drops from 4.68 V to **4.53 V**, still above the 3.3 + 1.1 = 4.4 V the AMS1117 needs.",
-        "- Why RS: a 130 motor straight on 5V draws about 0.55 A, which with the board is over 500 mA. RS = 4.7 Ω limits it to 0.36 A. In a real project just pick a 5 V / 0.2 A fan, or power it separately.",
+        "- the **power budget**: are 3V3 and the 5V pin still fine with the fan at full speed, and is the USB current within budget? Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Wiring checklist** (tick each before powering up):",
         "1. All grounds joined: both − rails go to the board's GND;",
@@ -139,6 +107,30 @@
         "",
         "**Model note**: the fan is the 130 DC-motor model (8 Ω, no back-EMF) plus RS; the NTC is an ideal B-parameter model; the ADC is an ideal 12-bit 0–3.3 V converter without the ESP32's non-linearity or attenuation settings; the chip draws a fixed ≈ 50 mA; above 500 mA USB only gives a diagnostic."
       ],
+      "compare": [
+        "**Compare: temperature part**:",
+        "- 0 °C: R_NTC ≈ 33.6 kΩ → 0.756 V → ADC **938**;",
+        "- 25 °C: 10 kΩ → 1.649 V → ADC **2046** (cold);",
+        "- 40 °C: ≈ 5.3 kΩ → 2.155 V → ADC **2674** (a sensible fan-on threshold);",
+        "- 60 °C: ≈ 2.49 kΩ → 2.641 V → ADC **3277** (hot);",
+        "- 90 °C: ≈ 0.94 kΩ → 3.016 V → ADC **3742** — the curve flattens and is already near the inaccurate top end of the ESP32 ADC.",
+        "",
+        "Choosing RF equal to R_NTC at the temperature you care about most gives the best sensitivity there; RF = 10 kΩ puts 25–60 °C in the middle of the ADC range.",
+        "",
+        "**Compare: fan part**: GPIO HIGH is 3.29 V → Vgs = 3.26 V and the IRLZ44N is fully on (Rds ≈ 44 mΩ), Vds ≈ **16 mV**, only 6 mW in the MOSFET — no heatsink needed. Fan current = (4.53 − 0.016) V / (4.7 + 8) Ω ≈ **356 mA**; 2.85 V across the fan, 1.67 V across RS (0.6 W — use a 1 W resistor). The gate pin only supplies **0.33 mA** (into RPD); the LED pin **3.3 mA**.",
+        "",
+        "**Compare: power budget table** (hot, fan at full speed):",
+        "- 3V3 (AMS1117, 1 A): chip ≈ 50 mA + power LED 1.5 mA + status LED 3.3 mA + gate 0.3 mA + NTC divider 0.26 mA ≈ **55 mA** → 3V3 = **3.30 V**;",
+        "- 5V pin: fan 356 mA + AMS1117 input ≈ 59 mA → **USB ≈ 415 mA** (83 % of 500 mA); the 5V pin drops from 4.68 V to **4.53 V**, still above the 3.3 + 1.1 = 4.4 V the AMS1117 needs.",
+        "- Why RS: a 130 motor straight on 5V draws about 0.55 A, which with the board is over 500 mA. RS = 4.7 Ω limits it to 0.36 A. In a real project just pick a 5 V / 0.2 A fan, or power it separately."
+      ],
+      "measurements": [
+        {"ask": "Hot (60 °C): multimeter on V_TEMP (the ADC pin) to GND", "explain": "R_NTC ≈ 2.49 kΩ: 3.3 × 10 / 12.49 ≈ 2.64 V."},
+        {"ask": "The 12-bit ADC reading for that voltage (the number firmware compares with its threshold)", "explain": "≈ 3277. Cold (25 °C) is 2046 and 40 °C about 2674, so a threshold in between turns the fan on around 40 °C."},
+        {"ask": "Hot: the fan current (ammeter between 5V and RS)", "explain": "(4.53 − 0.016) V / (4.7 + 8) Ω ≈ 356 mA; the IRLZ44N is fully on with Vds only about 16 mV."},
+        {"ask": "From your current reading, the power in RS (4.7 Ω), P = I²R", "explain": "≈ 0.6 W: use a 1 W resistor; a 1/4 W one would burn. In a real project a small 5 V / 0.2 A fan is the better choice."},
+        {"ask": "Hot: the 5V pin to GND (fan at full speed)", "explain": "USB carries about 415 mA (83 % of 500 mA); the 5V pin drops from 4.68 V to ≈ 4.53 V, still above the 3.3 + 1.1 = 4.4 V the AMS1117 needs, so 3V3 holds at 3.30 V."}
+      ],
       "hints": [
         "Start with the rails: 3V3 on the top + rail, 5V on the bottom + rail, both − rails to GND.",
         "NTC from 3V3 to VTEMP, 10 kΩ from VTEMP to GND, VTEMP to GPIO32–39.",
@@ -147,12 +139,12 @@
         "Set the ADC pin to analog input and both output pins to output LOW."
       ],
       "tests": [
-        "Cold (25 °C), outputs LOW: ADC ≈ 2046 (1.65 V), fan off, MOSFET off, LED off",
-        "Hot (60 °C), outputs HIGH: ADC ≈ 3277, fan running ≈ 356 mA, MOSFET fully on (Vds ≈ 16 mV), LED on",
-        "Power budget with the fan on: 3V3 ≈ 3.30 V, 5V pin ≈ 4.53 V (USB ≈ 415 mA), pins give 0.33 mA / 3.3 mA",
-        "40 °C threshold: ADC ≈ 2674",
-        "0 °C: ADC ≈ 938",
-        "90 °C: ADC ≈ 3742 (the curve flattens near the top)"
+        "Cold (25 °C), outputs LOW: sensible ADC reading; fan stopped, MOSFET off, LED off",
+        "Hot (60 °C), outputs HIGH: fan runs, MOSFET fully on, LED on",
+        "Power budget at full fan: 3V3 and the 5V pin both hold, small pin currents",
+        "40 °C threshold: sensible ADC reading",
+        "0 °C: sensible ADC reading",
+        "90 °C: sensible ADC reading (the curve flattens at the top)"
       ]
     }
   },
@@ -290,7 +282,7 @@
   ],
   "tests": [
     {
-      "name": "冷态（25 °C）、输出低：ADC ≈ 2046（1.65 V），风扇停、MOSFET 截止、灯灭",
+      "name": "冷态（25 °C）、输出低：ADC 读数合理，风扇停、MOSFET 截止、灯灭",
       "set": {
         "RT1": {
           "temperature": 25
@@ -325,7 +317,7 @@
       ]
     },
     {
-      "name": "热态（60 °C）、输出高：ADC ≈ 3277，风扇转 ≈ 356 mA，MOSFET 完全导通（Vds ≈ 16 mV），灯亮",
+      "name": "热态（60 °C）、输出高：风扇转，MOSFET 完全导通，灯亮",
       "set": {
         "RT1": {
           "temperature": 60
@@ -373,7 +365,7 @@
       ]
     },
     {
-      "name": "风扇全速时的电源预算：3V3 ≈ 3.30 V，5V 引脚 ≈ 4.53 V（USB ≈ 415 mA），引脚只给 0.33 mA / 3.3 mA",
+      "name": "风扇全速时的电源预算：3V3 和 5V 引脚都还够用，引脚电流很小",
       "set": {
         "RT1": {
           "temperature": 60
@@ -413,7 +405,7 @@
       ]
     },
     {
-      "name": "40 °C 阈值：ADC ≈ 2674",
+      "name": "40 °C 阈值：ADC 读数合理",
       "set": {
         "RT1": {
           "temperature": 40
@@ -429,7 +421,7 @@
       ]
     },
     {
-      "name": "0 °C：ADC ≈ 938",
+      "name": "0 °C：ADC 读数合理",
       "set": {
         "RT1": {
           "temperature": 0
@@ -445,7 +437,7 @@
       ]
     },
     {
-      "name": "90 °C：ADC ≈ 3742（曲线在上端变平）",
+      "name": "90 °C：ADC 读数合理（曲线在上端变平）",
       "set": {
         "RT1": {
           "temperature": 90
@@ -460,6 +452,30 @@
         }
       ]
     }
+  ],
+  "compare": [
+    "**对比：测温部分**：",
+    "- 0 °C：R_NTC ≈ 33.6 kΩ → 0.756 V → ADC **938**；",
+    "- 25 °C：10 kΩ → 1.649 V → ADC **2046**（冷态）；",
+    "- 40 °C：≈ 5.3 kΩ → 2.155 V → ADC **2674**（建议的开风扇阈值）；",
+    "- 60 °C：≈ 2.49 kΩ → 2.641 V → ADC **3277**（热态）；",
+    "- 90 °C：≈ 0.94 kΩ → 3.016 V → ADC **3742**，曲线越来越平，而且已经接近 ESP32 ADC 不准的上端。",
+    "",
+    "把 RF 选成和“最关心的温度”时的 R_NTC 相等，那附近的灵敏度最高；这里 RF = 10 kΩ 让 25–60 °C 落在 ADC 的中段。",
+    "",
+    "**对比：风扇部分**：GPIO 高电平 3.29 V → Vgs = 3.26 V，IRLZ44N 完全导通（Rds ≈ 44 mΩ），Vds ≈ **16 mV**，MOSFET 只耗 6 mW，不用散热片。风扇电流 = (4.53 − 0.016) V / (4.7 + 8) Ω ≈ **356 mA**；风扇两端 2.85 V，RS 上 1.67 V（0.6 W，要用 1 W 电阻）。栅极引脚只给 RPD 提供 **0.33 mA**；灯引脚 **3.3 mA**。",
+    "",
+    "**对比：电源预算表**（热态，风扇全速）：",
+    "- 3V3（AMS1117，1 A）：芯片约 50 mA + 电源灯 1.5 mA + 状态灯 3.3 mA + 栅极 0.3 mA + NTC 分压 0.26 mA ≈ **55 mA** → 3V3 = **3.30 V**；",
+    "- 5V 引脚：风扇 356 mA + AMS1117 输入 ≈ 59 mA → **USB ≈ 415 mA**（500 mA 的 83 %）；5V 引脚从 4.68 V 掉到 **4.53 V**，仍高于 AMS1117 需要的 3.3 + 1.1 = 4.4 V。",
+    "- 为什么要 RS：130 电机直接接 5V 时约 0.55 A，加上板子就超过 500 mA 了。RS 4.7 Ω 把它限制在 0.36 A；真实项目里直接选一个 5 V / 0.2 A 的小风扇，或者从独立电源供电。"
+  ],
+  "measurements": [
+    {"id": "vh", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"RT1": {"temperature": 60}, "U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_high"}}}, "unit": "V", "predict": true, "range": [2.51, 2.77], "ask": "热态（60 °C）：万用表测 V_TEMP（ADC 引脚）对 GND", "explain": "R_NTC ≈ 2.49 kΩ：3.3 × 10 / 12.49 ≈ 2.64 V。"},
+    {"id": "raw", "formula": "vh / 3.3 * 4095", "predict": true, "range": [3110.0, 3440.0], "ask": "这个电压对应的 12 位 ADC 读数（固件里拿来和阈值比较的数）", "explain": "≈ 3277。冷态 25 °C 是 2046，40 °C 约 2674——阈值取在中间，风扇在 40 °C 左右打开。"},
+    {"id": "ifan", "current": "M1", "set": {"RT1": {"temperature": 60}, "U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.338, 0.374], "ask": "热态：风扇电流（电流表串在 5V 和 RS 之间）", "explain": "(4.53 − 0.016) V / (4.7 + 8) Ω ≈ 356 mA；IRLZ44N 完全导通，Vds 只有约 16 mV。"},
+    {"id": "prs", "formula": "ifan^2 * 4.7", "unit": "W", "range": [0.565, 0.625], "ask": "用你的电流读数算 RS（4.7 Ω）上的功耗 P = I²R", "explain": "≈ 0.6 W：要用 1 W 的电阻，1/4 W 的会烧。真实项目里直接选一个 5 V / 0.2 A 的小风扇更好。"},
+    {"id": "v5", "voltage": "U1.5V", "ref": "U1.GND", "set": {"RT1": {"temperature": 60}, "U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_high"}}}, "unit": "V", "predict": true, "range": [4.31, 4.76], "ask": "热态：5V 引脚对 GND（风扇全速时）", "explain": "USB 约 415 mA（500 mA 的 83 %），5V 引脚从 4.68 V 掉到 ≈ 4.53 V，仍高于 AMS1117 需要的 3.3 + 1.1 = 4.4 V，3V3 还稳在 3.30 V。"}
   ],
   "hints": [
     "先接电源轨：3V3 到上方 + 轨，5V 到下方 + 轨，两条 − 轨都接 GND。",
