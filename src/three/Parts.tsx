@@ -65,9 +65,15 @@ function Wire({ part }: PartViewProps) {
     const dir = pb.clone().sub(pa).normalize();
     return [
       pa.clone().setY(0.25),
-      pa.clone().setY(h * 0.75).add(dir.clone().multiplyScalar(Math.min(0.4, len * 0.15))),
+      pa
+        .clone()
+        .setY(h * 0.75)
+        .add(dir.clone().multiplyScalar(Math.min(0.4, len * 0.15))),
       pa.clone().lerp(pb, 0.5).setY(h),
-      pb.clone().setY(h * 0.75).sub(dir.clone().multiplyScalar(Math.min(0.4, len * 0.15))),
+      pb
+        .clone()
+        .setY(h * 0.75)
+        .sub(dir.clone().multiplyScalar(Math.min(0.4, len * 0.15))),
       pb.clone().setY(0.25),
     ];
   }, [pa, pb, len]);
@@ -124,8 +130,14 @@ function Led({ part, led }: PartViewProps) {
     const pk = holeVec(part.pins.cathode ?? '');
     const mid = pa.clone().add(pk).multiplyScalar(0.5);
     const sep = pk.clone().sub(pa).setY(0).normalize().multiplyScalar(0.22);
-    const la = mid.clone().sub(sep).setY(top - 0.2);
-    const lk = mid.clone().add(sep).setY(top - 0.2);
+    const la = mid
+      .clone()
+      .sub(sep)
+      .setY(top - 0.2);
+    const lk = mid
+      .clone()
+      .add(sep)
+      .setY(top - 0.2);
     return {
       mid,
       legA: [pa.clone().setY(-0.3), pa.clone().setY(0.6), pa.clone().lerp(la, 0.5).setY(0.85), la],
@@ -283,7 +295,16 @@ export function leadPoints(from: THREE.Vector3, hole: string | undefined, sag = 
   const to = holeVec(hole);
   const mid = from.clone().lerp(to, 0.5);
   mid.y = Math.max(from.y, 1) + sag * 0.4;
-  return [from, from.clone().lerp(mid, 0.5).setY(from.y + 0.6), mid, to.clone().setY(1.0), to.clone().setY(0.2)];
+  return [
+    from,
+    from
+      .clone()
+      .lerp(mid, 0.5)
+      .setY(from.y + 0.6),
+    mid,
+    to.clone().setY(1.0),
+    to.clone().setY(0.2),
+  ];
 }
 
 export function Leads({ base, part, plusAt, minusAt }: { base: THREE.Vector3; part: PlacedPart; plusAt: THREE.Vector3; minusAt: THREE.Vector3 }) {
@@ -400,15 +421,15 @@ function BenchSupply({ part, slot, source, onClick }: PartViewProps) {
           font='700 92px "Barlow Condensed", monospace'
           position={[-1.3, 2.25, 2.33]}
         />
+        <TextPlane text={cc ? 'CC' : 'CV'} width={0.9} height={0.5} bg={cc ? '#e63946' : '#2ba59b'} color="#fff" position={[-1.3, 1.0, 2.33]} />
         <TextPlane
-          text={cc ? 'CC' : 'CV'}
-          width={0.9}
-          height={0.5}
-          bg={cc ? '#e63946' : '#2ba59b'}
-          color="#fff"
-          position={[-1.3, 1.0, 2.33]}
+          text={tr(`设定 ${part.props.voltage ?? 5}V / ${part.props.currentLimit ?? 0.1}A`, `SET ${part.props.voltage ?? 5}V / ${part.props.currentLimit ?? 0.1}A`)}
+          width={3.2}
+          height={0.4}
+          color="#d9dce2"
+          font='500 44px "Barlow", "Microsoft YaHei", sans-serif'
+          position={[-1.3, 0.55, 2.33]}
         />
-        <TextPlane text={tr(`设定 ${part.props.voltage ?? 5}V / ${part.props.currentLimit ?? 0.1}A`, `SET ${part.props.voltage ?? 5}V / ${part.props.currentLimit ?? 0.1}A`)} width={3.2} height={0.4} color="#d9dce2" font='500 44px "Barlow", "Microsoft YaHei", sans-serif' position={[-1.3, 0.55, 2.33]} />
         {[1.6, 2.6].map((x, k) => (
           <mesh key={k} position={[x, 2.6, 2.4]} rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry args={[0.38, 0.38, 0.35, 20]} />
@@ -456,15 +477,7 @@ function PowerModule({ part, onClick }: PartViewProps) {
         <meshBasicMaterial color="#5cff7a" toneMapped={false} />
       </mesh>
       {[-6.5, 6.5].map((z) => (
-        <TextPlane
-          key={z}
-          text={`${part.props.voltage ?? 5}V`}
-          width={2.2}
-          height={1}
-          color="#fff"
-          position={[x - 0.6, y + 0.17, z]}
-          rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-        />
+        <TextPlane key={z} text={`${part.props.voltage ?? 5}V`} width={2.2} height={1} color="#fff" position={[x - 0.6, y + 0.17, z]} rotation={[-Math.PI / 2, 0, Math.PI / 2]} />
       ))}
     </group>
   );
@@ -592,7 +605,20 @@ function PartBody(props: PartViewProps) {
   const extra = hideReadings && !LABEL_KEEPS.has(part.type) && /\d/.test(shown) ? '' : shown;
   return (
     <PartCtx.Provider value={ctx}>
-      <group onClick={part.type === 'pushbutton' || part.type === 'switch' || part.type === 'potentiometer' || part.type === 'battery' || part.type === 'bench_supply' || part.type === 'power_module' || part.type === 'ammeter' || part.type === 'function_gen' ? undefined : props.onClick}>
+      <group
+        onClick={
+          part.type === 'pushbutton' ||
+          part.type === 'switch' ||
+          part.type === 'potentiometer' ||
+          part.type === 'battery' ||
+          part.type === 'bench_supply' ||
+          part.type === 'power_module' ||
+          part.type === 'ammeter' ||
+          part.type === 'function_gen'
+            ? undefined
+            : props.onClick
+        }
+      >
         {body}
       </group>
       {label && !ctx.ghost && part.type !== 'wire' && (

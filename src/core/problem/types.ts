@@ -79,10 +79,7 @@ export type TwoTerminalType =
  *  {pwl: [[u0, i0], …]} polyline in the u–i plane, end segments extended as rays;
  *  {diode: {uon?, ron?}} ideal diode (anode = p), optional threshold voltage and on-resistance. */
 export type NonlinearLaw =
-  | { i: number[]; umin?: number; umax?: number }
-  | { u: number[]; imin?: number; imax?: number }
-  | { pwl: [number, number][] }
-  | { diode: { uon?: number; ron?: number } };
+  { i: number[]; umin?: number; umax?: number } | { u: number[]; imin?: number; imax?: number } | { pwl: [number, number][] } | { diode: { uon?: number; ron?: number } };
 
 export interface TwoTerminalElement {
   ref: string; // unique, e.g. "R1", "Us", "I2"; shown as label
@@ -205,7 +202,11 @@ export type Quantity =
   | { kind: 'meter'; el: string } // reading of an ammeter / voltmeter element
   | { kind: 'gain'; out: [string, string?]; input: string } // network function V(out)/source value (AC: complex)
   | { kind: 'f0'; port?: [string, string] } // resonant frequency (Hz) where the input impedance is purely real
-  | { kind: 'twoport'; ports: [[string, string], [string, string]]; param: 'z11' | 'z12' | 'z21' | 'z22' | 'y11' | 'y12' | 'y21' | 'y22' | 'h11' | 'h12' | 'h21' | 'h22' | 'a' | 'b' | 'c' | 'd' }
+  | {
+      kind: 'twoport';
+      ports: [[string, string], [string, string]];
+      param: 'z11' | 'z12' | 'z21' | 'z22' | 'y11' | 'y12' | 'y21' | 'y22' | 'h11' | 'h12' | 'h21' | 'h22' | 'a' | 'b' | 'c' | 'd';
+    }
   /** stored energy (J): C ½Cu², L ½Li² (the inductor's own energy only); el = a K ref gives the
    *  total energy of the coupled pair ½L1i1² + ½L2i2² + M·i1·i2. DC and tran (at t). */
   | { kind: 'w'; el: string }
@@ -253,10 +254,18 @@ export type Quantity =
 export type SOut = [string, string?] | { v: string } | { i: string };
 
 /** Which part of a (possibly complex) result is asked. Default: 're' for DC/tran (plain number), 'mag' for AC. */
-export type Part = 're' | 'im' | 'mag' | 'phase' | 'db' | 'rms'
+export type Part =
+  | 're'
+  | 'im'
+  | 'mag'
+  | 'phase'
+  | 'db'
+  | 'rms'
   // periodic analysis, whole waveform (no `harmonic`): average (DC component), rectified average
   // (average of |x|), peak (max |x(t)|); the default there is 'rms' = √(X₀² + Σ X_k²)
-  | 'avg' | 'absavg' | 'peak';
+  | 'avg'
+  | 'absavg'
+  | 'peak';
 
 export interface Question {
   id: string;

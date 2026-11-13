@@ -14,8 +14,14 @@ describe('formula markup', () => {
       { k: 'text', t: 'P = ' },
       {
         k: 'frac',
-        num: [{ k: 'text', t: 'u' }, { k: 'sup', x: [{ k: 'text', t: '2' }] }],
-        den: [{ k: 'text', t: 'R_{1} + ' }, { k: 'sqrt', x: [{ k: 'text', t: '2' }] }],
+        num: [
+          { k: 'text', t: 'u' },
+          { k: 'sup', x: [{ k: 'text', t: '2' }] },
+        ],
+        den: [
+          { k: 'text', t: 'R_{1} + ' },
+          { k: 'sqrt', x: [{ k: 'text', t: '2' }] },
+        ],
       },
     ]);
     expect(mathNodes('∫_{0}^{t}i dξ')).toEqual([

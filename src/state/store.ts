@@ -207,9 +207,7 @@ function savedLayout(key: string): Layout | null {
     return r?.layout;
   });
   if (dropped)
-    setTimeout(() =>
-      useStore.getState().notify(tr(`保存的电路里有 ${dropped} 个元件读不出来，已经去掉`, `${dropped} saved part(s) couldn't be restored and were removed`)),
-    );
+    setTimeout(() => useStore.getState().notify(tr(`保存的电路里有 ${dropped} 个元件读不出来，已经去掉`, `${dropped} saved part(s) couldn't be restored and were removed`)));
   return l;
 }
 
@@ -649,8 +647,7 @@ export const useStore = create<State>((set, get) => {
   };
 });
 
-const busy = (hole: string, ref: string) =>
-  tr(`孔 ${hole} 已经被 ${ref} 占用了——一个孔只能插一只脚`, `Hole ${hole} is already used by ${ref} — one leg per hole`);
+const busy = (hole: string, ref: string) => tr(`孔 ${hole} 已经被 ${ref} 占用了——一个孔只能插一只脚`, `Hole ${hole} is already used by ${ref} — one leg per hole`);
 
 /** Red for wires touching a + rail, dark blue for − rails, otherwise a neutral colour. */
 function autoWireColor(a: string, b: string): string {

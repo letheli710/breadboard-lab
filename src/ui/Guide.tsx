@@ -29,17 +29,31 @@ function BoardDiagram() {
           ))}
         </g>
       ))}
-      <text x="22" y="29" fontSize="12" fill="#e63946" fontWeight="700">+</text>
-      <text x="22" y="47" fontSize="12" fill="#2b59c3" fontWeight="700">−</text>
+      <text x="22" y="29" fontSize="12" fill="#e63946" fontWeight="700">
+        +
+      </text>
+      <text x="22" y="47" fontSize="12" fill="#2b59c3" fontWeight="700">
+        −
+      </text>
       {['a', 'b', 'c', 'd', 'e'].map((r, i) => (
-        <text key={r} x="22" y={rowsTop[i] + 4} fontSize="10" fill="#6b6f7a">{r}</text>
+        <text key={r} x="22" y={rowsTop[i] + 4} fontSize="10" fill="#6b6f7a">
+          {r}
+        </text>
       ))}
       {['f', 'g', 'h', 'i', 'j'].map((r, i) => (
-        <text key={r} x="22" y={rowsBot[i] + 4} fontSize="10" fill="#6b6f7a">{r}</text>
+        <text key={r} x="22" y={rowsBot[i] + 4} fontSize="10" fill="#6b6f7a">
+          {r}
+        </text>
       ))}
-      <text x={X(3)} y={60} fontSize="10" textAnchor="middle" fill="#1f7f77">{tr('相通', 'connected')}</text>
-      <text x={X(3)} y={258 - 8} fontSize="10" textAnchor="middle" fill="#c26a2b">{tr('相通', 'connected')}</text>
-      <text x={X(8)} y={60} fontSize="10" textAnchor="middle" fill="#7a3fc0">{tr('另一组', 'another group')}</text>
+      <text x={X(3)} y={60} fontSize="10" textAnchor="middle" fill="#1f7f77">
+        {tr('相通', 'connected')}
+      </text>
+      <text x={X(3)} y={258 - 8} fontSize="10" textAnchor="middle" fill="#c26a2b">
+        {tr('相通', 'connected')}
+      </text>
+      <text x={X(8)} y={60} fontSize="10" textAnchor="middle" fill="#7a3fc0">
+        {tr('另一组', 'another group')}
+      </text>
       <text x="170" y="168" fontSize="9" textAnchor="middle" fill="#6b6f7a">
         {tr('中间凹槽：上下两半不相通', 'centre gap: the two halves are NOT connected')}
       </text>
@@ -52,10 +66,14 @@ function GroundDiagram() {
     <svg viewBox="0 0 340 170" className="diagram">
       <g stroke="#1f2a44" strokeWidth="2" fill="none" strokeLinecap="round">
         {/* schematic without battery */}
-        <text x="20" y="22" fontSize="12" fill="#1f2a44" stroke="none">{tr('原理图常这样画：', 'Schematics often look like this:')}</text>
+        <text x="20" y="22" fontSize="12" fill="#1f2a44" stroke="none">
+          {tr('原理图常这样画：', 'Schematics often look like this:')}
+        </text>
         <line x1="60" y1="40" x2="80" y2="40" />
         <line x1="70" y1="40" x2="70" y2="55" />
-        <text x="60" y="35" fontSize="11" fill="#e63946" stroke="none">+5V</text>
+        <text x="60" y="35" fontSize="11" fill="#e63946" stroke="none">
+          +5V
+        </text>
         <polyline points="70,55 70,60 76,63 64,69 76,75 64,81 70,84 70,90" />
         <polygon points="62,95 78,95 70,108" fill="#ff5a4f" />
         <line x1="62" y1="108" x2="78" y2="108" />
@@ -63,15 +81,27 @@ function GroundDiagram() {
         <line x1="58" y1="122" x2="82" y2="122" />
         <line x1="63" y1="127" x2="77" y2="127" />
         <line x1="67" y1="132" x2="73" y2="132" />
-        <text x="90" y="128" fontSize="11" fill="#1d3557" stroke="none">GND ⏚</text>
-        <text x="150" y="70" fontSize="22" fill="#1f2a44" stroke="none">⇒</text>
+        <text x="90" y="128" fontSize="11" fill="#1d3557" stroke="none">
+          GND ⏚
+        </text>
+        <text x="150" y="70" fontSize="22" fill="#1f2a44" stroke="none">
+          ⇒
+        </text>
         {/* rails */}
         <rect x="190" y="30" width="135" height="16" rx="8" fill="#e63946" opacity="0.2" stroke="none" />
-        <text x="198" y="42" fontSize="11" fill="#e63946" stroke="none">{tr('+5V 就是红色 + 轨', '+5V = the red + rail')}</text>
+        <text x="198" y="42" fontSize="11" fill="#e63946" stroke="none">
+          {tr('+5V 就是红色 + 轨', '+5V = the red + rail')}
+        </text>
         <rect x="190" y="112" width="135" height="16" rx="8" fill="#2b59c3" opacity="0.2" stroke="none" />
-        <text x="198" y="124" fontSize="11" fill="#2b59c3" stroke="none">{tr('⏚ 就是蓝色 − 轨', '⏚ = the blue − rail')}</text>
-        <text x="198" y="80" fontSize="10" fill="#555" stroke="none">{tr('电源本身接在两条轨之间', 'The supply goes between')}</text>
-        <text x="198" y="95" fontSize="10" fill="#555" stroke="none">{tr('（电池/模块/稳压电源）', 'the rails (battery/PSU)')}</text>
+        <text x="198" y="124" fontSize="11" fill="#2b59c3" stroke="none">
+          {tr('⏚ 就是蓝色 − 轨', '⏚ = the blue − rail')}
+        </text>
+        <text x="198" y="80" fontSize="10" fill="#555" stroke="none">
+          {tr('电源本身接在两条轨之间', 'The supply goes between')}
+        </text>
+        <text x="198" y="95" fontSize="10" fill="#555" stroke="none">
+          {tr('（电池/模块/稳压电源）', 'the rails (battery/PSU)')}
+        </text>
       </g>
     </svg>
   );
@@ -104,16 +134,14 @@ export function Guide() {
           {en ? (
             <ul>
               <li>
-                In each <b>column</b>, the five holes a–e sit on the same metal clip underneath → any legs plugged into them are{' '}
-                <b>automatically connected</b>. f–j is a separate clip.
+                In each <b>column</b>, the five holes a–e sit on the same metal clip underneath → any legs plugged into them are <b>automatically connected</b>. f–j is a separate
+                clip.
               </li>
               <li>
-                The centre gap separates the top and bottom halves: e12 and f12 are <b>NOT connected</b>. Chips and push buttons
-                "straddle" the gap.
+                The centre gap separates the top and bottom halves: e12 and f12 are <b>NOT connected</b>. Chips and push buttons "straddle" the gap.
               </li>
               <li>
-                The long strips along the outer edges are the <b>power rails</b>: each one is connected along its whole length. The
-                red line marks +, the blue line marks −.
+                The long strips along the outer edges are the <b>power rails</b>: each one is connected along its whole length. The red line marks +, the blue line marks −.
               </li>
               <li>Only one leg per hole. In the 3D view, hover over a hole to highlight every hole connected to it.</li>
             </ul>
@@ -122,7 +150,9 @@ export function Guide() {
               <li>
                 每一<b>列</b>的 a–e 五个孔，底下是同一片金属夹 → 插在里面的脚<b>自动连在一起</b>。f–j 是另一片。
               </li>
-              <li>中间的凹槽把上下两半隔开：e12 和 f12 <b>不相通</b>。芯片、按键会“骑”在凹槽上。</li>
+              <li>
+                中间的凹槽把上下两半隔开：e12 和 f12 <b>不相通</b>。芯片、按键会“骑”在凹槽上。
+              </li>
               <li>
                 最外侧的长条是<b>电源轨</b>：整条横向相通。红线标 +，蓝线标 −。
               </li>
@@ -140,20 +170,17 @@ export function Guide() {
           {en ? (
             <ul>
               <li>
-                Voltage is always a difference <b>between two points</b>. For convenience we pick one point as the "0 V reference",
-                and call it <b>GND (ground)</b>.
+                Voltage is always a difference <b>between two points</b>. For convenience we pick one point as the "0 V reference", and call it <b>GND (ground)</b>.
               </li>
               <li>
-                In a circuit powered by a battery or power supply, GND is simply the <b>negative (−) side of the supply</b>. It does
-                not need to be connected to the actual earth.
+                In a circuit powered by a battery or power supply, GND is simply the <b>negative (−) side of the supply</b>. It does not need to be connected to the actual earth.
               </li>
               <li>
-                Schematics often draw several ⏚ symbols — they are <b>all the same node</b>. On the breadboard, every ⏚ goes to the
-                blue − rail.
+                Schematics often draw several ⏚ symbols — they are <b>all the same node</b>. On the breadboard, every ⏚ goes to the blue − rail.
               </li>
               <li>
-                Likewise, labels like "+5V" or "VCC" mean the supply's positive side → connect to the red + rail. Many schematics{' '}
-                <b>don't draw the battery at all</b>, only these two symbols.
+                Likewise, labels like "+5V" or "VCC" mean the supply's positive side → connect to the red + rail. Many schematics <b>don't draw the battery at all</b>, only these
+                two symbols.
               </li>
               <li>Current through every component must eventually "return" to GND, forming a closed loop — otherwise no current flows.</li>
             </ul>
@@ -184,23 +211,20 @@ export function Guide() {
           {en ? (
             <ol>
               <li>
-                <b>Wire the power first</b>: supply + → red rail, supply − → blue rail. (A power module plugs straight into the
-                rails.)
+                <b>Wire the power first</b>: supply + → red rail, supply − → blue rail. (A power module plugs straight into the rails.)
               </li>
               <li>
-                <b>Number every node in the schematic</b>: a "node" = a set of points joined by wire (one continuous stretch of line
-                on the schematic).
+                <b>Number every node in the schematic</b>: a "node" = a set of points joined by wire (one continuous stretch of line on the schematic).
               </li>
               <li>
                 <b>Give each node its own column</b> (a 5-hole metal strip). The VCC node = red rail, the GND node = blue rail.
               </li>
               <li>
-                <b>Components bridge two columns</b>: plug each leg into the column of the node it connects to.{' '}
-                <i>Never put both legs of one component in the same column</i> — that shorts it out.
+                <b>Components bridge two columns</b>: plug each leg into the column of the node it connects to. <i>Never put both legs of one component in the same column</i> —
+                that shorts it out.
               </li>
               <li>
-                <b>Use jumper wires</b> to connect columns that need power to the + or − rail. Finally, turn on "Node colours" to
-                check: same colour = same node.
+                <b>Use jumper wires</b> to connect columns that need power to the + or − rail. Finally, turn on "Node colours" to check: same colour = same node.
               </li>
             </ol>
           ) : (
@@ -249,10 +273,7 @@ export function Guide() {
                   <td>{b.name}</td>
                   <td>{b.voltage} V</td>
                   <td>
-                    {tr(
-                      `内阻约 ${b.rint} Ω。电流越大，电压掉得越多。`,
-                      `Internal resistance ≈ ${b.rint} Ω. The more current you draw, the more the voltage drops.`,
-                    )}
+                    {tr(`内阻约 ${b.rint} Ω。电流越大，电压掉得越多。`, `Internal resistance ≈ ${b.rint} Ω. The more current you draw, the more the voltage drops.`)}
                     {k === 'CR2032' ? tr('只适合很小的电流（几 mA）。', ' Only suitable for very small currents (a few mA).') : ''}
                   </td>
                 </tr>
@@ -281,9 +302,8 @@ export function Guide() {
           </table>
           {en ? (
             <p className="note">
-              Batteries have + and − terminals too: battery + goes to the red rail, − to the blue rail, so the battery's negative
-              terminal becomes GND for the whole circuit. Note: <b>when using several supplies together, connect their GNDs to
-              each other (common ground)</b>.
+              Batteries have + and − terminals too: battery + goes to the red rail, − to the blue rail, so the battery's negative terminal becomes GND for the whole circuit. Note:{' '}
+              <b>when using several supplies together, connect their GNDs to each other (common ground)</b>.
             </p>
           ) : (
             <p className="note">
@@ -300,17 +320,15 @@ export function Guide() {
           {en ? (
             <ul>
               <li>
-                <b>Series</b>: components joined end to end, one after another. On the breadboard, one component's leg and the next
-                component's leg <b>share a column</b>. The current is the same everywhere; the voltage is divided up.
+                <b>Series</b>: components joined end to end, one after another. On the breadboard, one component's leg and the next component's leg <b>share a column</b>. The
+                current is the same everywhere; the voltage is divided up.
               </li>
               <li>
-                <b>Parallel</b>: each component's two ends connect to <b>the same two nodes</b>. On the breadboard, one end of each
-                goes into the same column (or rail) and the other ends all go into another column. Every branch has the same
-                voltage.
+                <b>Parallel</b>: each component's two ends connect to <b>the same two nodes</b>. On the breadboard, one end of each goes into the same column (or rail) and the
+                other ends all go into another column. Every branch has the same voltage.
               </li>
               <li>
-                <b>Mixed</b>: first find the group that is in parallel, treat it as one block, then see whether it is in series
-                with the other components.
+                <b>Mixed</b>: first find the group that is in parallel, treat it as one block, then see whether it is in series with the other components.
               </li>
             </ul>
           ) : (
@@ -337,12 +355,11 @@ export function Guide() {
             <ul>
               <li>LEDs have a direction: long leg = positive (anode), short leg = negative (cathode). Current only flows from anode to cathode.</li>
               <li>
-                When an LED is on, the voltage across it stays roughly fixed (red ≈1.8 V, green ≈2.1 V, blue/white ≈3 V), so you must
-                add a resistor in series to limit the current.
+                When an LED is on, the voltage across it stays roughly fixed (red ≈1.8 V, green ≈2.1 V, blue/white ≈3 V), so you must add a resistor in series to limit the current.
               </li>
               <li>
-                Calculation: <code>R = (supply voltage − LED drop) ÷ current</code>. Example: 9 V battery, red LED, target 20 mA →
-                (9 − 1.8) ÷ 0.02 = 360 Ω; pick the nearest standard value, 330 Ω or 390 Ω.
+                Calculation: <code>R = (supply voltage − LED drop) ÷ current</code>. Example: 9 V battery, red LED, target 20 mA → (9 − 1.8) ÷ 0.02 = 360 Ω; pick the nearest
+                standard value, 330 Ω or 390 Ω.
               </li>
               <li>The resistor can go on either the anode side or the cathode side — in a series circuit the current is the same everywhere.</li>
             </ul>
@@ -365,28 +382,25 @@ export function Guide() {
           <h3>{tr('新手最常犯的错误', 'Common beginner mistakes')}</h3>
           <ul>
             <li>{tr('元件两只脚插在同一列 → 被短路，完全不起作用。', 'Both legs of a component in the same column → it is shorted out and does nothing.')}</li>
-            <li>{tr('LED 插反 → 不亮（没有电流）。常见 LED 的反向耐压只有约 5V：低压电路里插反一般不会坏，电源电压更高时就可能损坏。', "LED in backwards → it doesn't light (no current flows). A typical LED only tolerates about 5V in reverse: at low supply voltages a reversed LED is usually unharmed, at higher ones it can be damaged.")}</li>
-            <li>{tr('忘了接 GND / 回路不闭合 → 没有电流。', 'Forgot to connect GND / loop not closed → no current.')}</li>
-            <li>{tr('把 + 轨和 − 轨直接连起来 → 短路！电池发烫。', 'Connecting the + rail straight to the − rail → short circuit! The battery gets hot.')}</li>
             <li>
               {tr(
-                '按键没有横跨凹槽，或者方向转了 90° → 一直导通或一直断开。',
-                "Push button not straddling the gap, or rotated 90° → it's always on or always off.",
+                'LED 插反 → 不亮（没有电流）。常见 LED 的反向耐压只有约 5V：低压电路里插反一般不会坏，电源电压更高时就可能损坏。',
+                "LED in backwards → it doesn't light (no current flows). A typical LED only tolerates about 5V in reverse: at low supply voltages a reversed LED is usually unharmed, at higher ones it can be damaged.",
               )}
             </li>
+            <li>{tr('忘了接 GND / 回路不闭合 → 没有电流。', 'Forgot to connect GND / loop not closed → no current.')}</li>
+            <li>{tr('把 + 轨和 − 轨直接连起来 → 短路！电池发烫。', 'Connecting the + rail straight to the − rail → short circuit! The battery gets hot.')}</li>
+            <li>{tr('按键没有横跨凹槽，或者方向转了 90° → 一直导通或一直断开。', "Push button not straddling the gap, or rotated 90° → it's always on or always off.")}</li>
             <li>{tr('LED 不串电阻 → 电流过大烧坏。', 'LED without a series resistor → too much current burns it out.')}</li>
             <li>
               {tr(
                 '以为上下两组电源轨是相通的（其实要用跳线连起来，或者用电源模块同时供电）。',
-                'Assuming the top and bottom pairs of power rails are connected (they aren\'t — link them with jumper wires, or use a power module that feeds both).',
+                "Assuming the top and bottom pairs of power rails are connected (they aren't — link them with jumper wires, or use a power module that feeds both).",
               )}
             </li>
           </ul>
           <p className="note">
-            {tr(
-              '这些错误在“诊断”面板里都会被自动检测并给出提示。',
-              'The "Diagnostics" panel detects all of these mistakes automatically and gives you hints.',
-            )}
+            {tr('这些错误在“诊断”面板里都会被自动检测并给出提示。', 'The "Diagnostics" panel detects all of these mistakes automatically and gives you hints.')}
           </p>
         </article>
 
@@ -398,12 +412,10 @@ export function Guide() {
           {en ? (
             <ul>
               <li>
-                <b>Voltage V</b> (volts): the "pressure difference" that pushes charge, like a difference in water level. Always
-                measured between two points.
+                <b>Voltage V</b> (volts): the "pressure difference" that pushes charge, like a difference in water level. Always measured between two points.
               </li>
               <li>
-                <b>Current I</b> (amps): how much charge flows past per second, like the rate of water flow. The same everywhere in
-                a series circuit.
+                <b>Current I</b> (amps): how much charge flows past per second, like the rate of water flow. The same everywhere in a series circuit.
               </li>
               <li>
                 <b>Resistance R</b> (ohms): how much something resists current, like a narrower pipe.

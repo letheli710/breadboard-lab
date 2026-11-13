@@ -63,16 +63,7 @@ export function Mat({
   }, [shared, key]);
   if (mat) return <primitive object={mat} attach="material" />;
   return (
-    <meshStandardMaterial
-      color={color}
-      roughness={roughness}
-      metalness={metalness}
-      emissive={emi}
-      emissiveIntensity={ei}
-      transparent={transp}
-      opacity={op}
-      depthWrite={op >= 1}
-    />
+    <meshStandardMaterial color={color} roughness={roughness} metalness={metalness} emissive={emi} emissiveIntensity={ei} transparent={transp} opacity={op} depthWrite={op >= 1} />
   );
 }
 

@@ -16,13 +16,7 @@ export function slotKind(t: PartType): SlotKind | null {
 export function slotPosition(slot: number, _kind: SlotKind = 'bench'): THREE.Vector3 {
   const back = -BOARD.depth / 2 - 4.5;
   const left = -BOARD.width / 2 - 5.5;
-  const slots = [
-    new THREE.Vector3(-9, 0, back),
-    new THREE.Vector3(3, 0, back),
-    new THREE.Vector3(14, 0, back),
-    new THREE.Vector3(left, 0, -3),
-    new THREE.Vector3(left, 0, 6),
-  ];
+  const slots = [new THREE.Vector3(-9, 0, back), new THREE.Vector3(3, 0, back), new THREE.Vector3(14, 0, back), new THREE.Vector3(left, 0, -3), new THREE.Vector3(left, 0, 6)];
   return slots[slot % slots.length].clone();
 }
 

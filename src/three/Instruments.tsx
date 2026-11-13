@@ -153,7 +153,10 @@ export function Ammeter({ part, slot, reading, onClick }: PartViewProps) {
   const base = slotPosition(slot, 'bench').add(V(0, 0, -1.6));
   // pivot at the near bottom edge; the stand lifts the far (display) end
   const toWorld = useMemo(() => {
-    const m = new THREE.Matrix4().makeTranslation(base.x, 0, base.z + METER_LEN / 2).multiply(new THREE.Matrix4().makeRotationX(METER_TILT)).multiply(new THREE.Matrix4().makeTranslation(0, 0, -METER_LEN / 2));
+    const m = new THREE.Matrix4()
+      .makeTranslation(base.x, 0, base.z + METER_LEN / 2)
+      .multiply(new THREE.Matrix4().makeRotationX(METER_TILT))
+      .multiply(new THREE.Matrix4().makeTranslation(0, 0, -METER_LEN / 2));
     return (x: number, y: number, z: number) => V(x, y, z).applyMatrix4(m);
   }, [base.x, base.z]);
   const I = reading ?? 0;
@@ -355,13 +358,7 @@ export function FunctionGen({ part, slot, onClick }: PartViewProps) {
           font='700 40px "Barlow Condensed", "Microsoft YaHei", sans-serif'
           position={[-1.55, 3.15, 2.33]}
         />
-        <CanvasPlane
-          width={4.3}
-          height={1.75}
-          draw={(g, w, h) => drawGenLcd(g, w, h, wf, f, a, off)}
-          deps={[wf, f, a, off]}
-          position={[-1.55, 2.0, 2.33]}
-        />
+        <CanvasPlane width={4.3} height={1.75} draw={(g, w, h) => drawGenLcd(g, w, h, wf, f, a, off)} deps={[wf, f, a, off]} position={[-1.55, 2.0, 2.33]} />
         {/* waveform keys, the active one lit */}
         {(['sine', 'square', 'triangle'] as Waveform[]).map((k, i) => (
           <group key={k} position={[-3.0 + i * 1.0, 0.65, 2.36]}>

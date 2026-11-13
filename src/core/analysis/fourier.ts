@@ -47,17 +47,17 @@ export function waveSpectrum(shape: WaveShape, A: number, upTo: number): Spectru
         if (k % 2) push(k, (4 * A) / (k * Math.PI), -90);
         break;
       case 'triangle':
-        if (k % 2) push(k, ((8 * A) / (k * k * Math.PI * Math.PI)) * ((k - 1) / 2 % 2 ? -1 : 1), -90);
+        if (k % 2) push(k, ((8 * A) / (k * k * Math.PI * Math.PI)) * (((k - 1) / 2) % 2 ? -1 : 1), -90);
         break;
       case 'sawtooth':
         push(k, A / (k * Math.PI), 90);
         break;
       case 'half-rect':
         if (k === 1) push(1, A / 2, 0);
-        else if (k % 2 === 0) push(k, ((2 * A) / Math.PI) * ((k / 2) % 2 ? 1 : -1) / (k * k - 1), 0);
+        else if (k % 2 === 0) push(k, (((2 * A) / Math.PI) * ((k / 2) % 2 ? 1 : -1)) / (k * k - 1), 0);
         break;
       case 'full-rect':
-        push(k, ((4 * A) / Math.PI) * (k % 2 ? 1 : -1) / (4 * k * k - 1), 0);
+        push(k, (((4 * A) / Math.PI) * (k % 2 ? 1 : -1)) / (4 * k * k - 1), 0);
         break;
     }
   }
@@ -100,8 +100,7 @@ export const isPeriodicValue = (v: unknown): boolean => isObj(v) && ('harmonics'
 export function parsePeriodic(ref: string, v: Record<string, unknown>): Spectrum {
   if ('harmonics' in v) {
     const h = v.harmonics;
-    if (!isObj(h) || !Array.isArray(h.terms))
-      throw new AnalysisError(`${ref}.harmonics must be {"dc": …, "terms": [{"k": 1, "amp": …, "phase": …}, …]}`);
+    if (!isObj(h) || !Array.isArray(h.terms)) throw new AnalysisError(`${ref}.harmonics must be {"dc": …, "terms": [{"k": 1, "amp": …, "phase": …}, …]}`);
     const dc = h.dc === undefined ? 0 : parseNum(h.dc, `${ref}.harmonics.dc`);
     const seen = new Set<number>();
     const terms: Term[] = [];

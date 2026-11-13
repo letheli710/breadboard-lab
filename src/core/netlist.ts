@@ -156,9 +156,7 @@ export function buildNetlist(layout: Layout): BoardNetlist {
     if (!holesOfRoot.has(r)) holesOfRoot.set(r, []);
     holesOfRoot.get(r)!.push(h.id);
   }
-  const rest = [...byRoot.keys()]
-    .filter((r) => !rootName.has(r))
-    .sort((a, b) => minCol(holesOfRoot.get(a)) - minCol(holesOfRoot.get(b)) || a.localeCompare(b));
+  const rest = [...byRoot.keys()].filter((r) => !rootName.has(r)).sort((a, b) => minCol(holesOfRoot.get(a)) - minCol(holesOfRoot.get(b)) || a.localeCompare(b));
   let n = 1;
   for (const r of rest) rootName.set(r, r.startsWith('u:') ? `${FLOATING}${r.slice(2)}` : `N${n++}`);
 

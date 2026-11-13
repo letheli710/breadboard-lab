@@ -23,7 +23,10 @@ const finite = (c: Circuit) => {
 let n = 0;
 const part = (type: PartType, anchor: string | [string, string], props = {}): PlacedPart => {
   const def = PARTS[type];
-  const pins = def.placement.kind === 'footprint' ? def.placement.footprint(anchor as string)! : { [def.placement.pins[0]]: (anchor as string[])[0], [def.placement.pins[1]]: (anchor as string[])[1] };
+  const pins =
+    def.placement.kind === 'footprint'
+      ? def.placement.footprint(anchor as string)!
+      : { [def.placement.pins[0]]: (anchor as string[])[0], [def.placement.pins[1]]: (anchor as string[])[1] };
   expect(pins).toBeTruthy();
   return { id: `p${n++}`, ref: `${def.refPrefix}${n}`, type, props: { ...def.defaults, ...props }, pins };
 };

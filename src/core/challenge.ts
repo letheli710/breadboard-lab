@@ -201,8 +201,24 @@ export const EXPECT_TYPES: CompType[] = ['led', 'relay', 'motor', 'buzzer'];
 
 /** Components whose current a test may check ("currents"). */
 export const CURRENT_TYPES: CompType[] = [
-  'ammeter', 'resistor', 'led', 'diode', 'inductor', 'battery', 'bench_supply', 'power_module', 'dc_source', 'function_gen',
-  'npn', 'nmos', 'relay', 'motor', 'buzzer', 'ldo', 'ldr', 'ntc',
+  'ammeter',
+  'resistor',
+  'led',
+  'diode',
+  'inductor',
+  'battery',
+  'bench_supply',
+  'power_module',
+  'dc_source',
+  'function_gen',
+  'npn',
+  'nmos',
+  'relay',
+  'motor',
+  'buzzer',
+  'ldo',
+  'ldr',
+  'ntc',
 ];
 
 const WIRE_NAMES: Record<string, string> = {
@@ -243,14 +259,46 @@ const PIN_ALIASES: Record<string, Record<string, string>> = {
   ntc: { '1': '1', '2': '2' },
   opamp: {
     // physical pin numbers
-    '1': 'outA', '2': 'inA-', '3': 'inA+', '4': 'v-', '5': 'inB+', '6': 'inB-', '7': 'outB', '8': 'v+',
+    '1': 'outA',
+    '2': 'inA-',
+    '3': 'inA+',
+    '4': 'v-',
+    '5': 'inB+',
+    '6': 'inB-',
+    '7': 'outB',
+    '8': 'v+',
     // logical names (case-insensitive)
-    outa: 'outA', 'ina-': 'inA-', 'ina+': 'inA+', outb: 'outB', 'inb-': 'inB-', 'inb+': 'inB+',
-    out1: 'outA', 'in1-': 'inA-', 'in1+': 'inA+', out2: 'outB', 'in2-': 'inB-', 'in2+': 'inB+',
-    '-ina': 'inA-', '+ina': 'inA+', '-inb': 'inB-', '+inb': 'inB+',
+    outa: 'outA',
+    'ina-': 'inA-',
+    'ina+': 'inA+',
+    outb: 'outB',
+    'inb-': 'inB-',
+    'inb+': 'inB+',
+    out1: 'outA',
+    'in1-': 'inA-',
+    'in1+': 'inA+',
+    out2: 'outB',
+    'in2-': 'inB-',
+    'in2+': 'inB+',
+    '-ina': 'inA-',
+    '+ina': 'inA+',
+    '-inb': 'inB-',
+    '+inb': 'inB+',
     // single op-amp usage: half A
-    out: 'outA', 'in-': 'inA-', 'in+': 'inA+', inv: 'inA-', noninv: 'inA+',
-    'v+': 'v+', vcc: 'v+', vdd: 'v+', 'vs+': 'v+', 'v-': 'v-', vee: 'v-', vss: 'v-', gnd: 'v-', 'vs-': 'v-',
+    out: 'outA',
+    'in-': 'inA-',
+    'in+': 'inA+',
+    inv: 'inA-',
+    noninv: 'inA+',
+    'v+': 'v+',
+    vcc: 'v+',
+    vdd: 'v+',
+    'vs+': 'v+',
+    'v-': 'v-',
+    vee: 'v-',
+    vss: 'v-',
+    gnd: 'v-',
+    'vs-': 'v-',
   },
 };
 
@@ -267,7 +315,13 @@ function parseProps(type: CompType, raw: Record<string, unknown>, where: string,
   const num = (key: string, out: keyof PartProps) => {
     if (raw[key] === undefined || raw[key] === 'any') return;
     const v = parseValue(raw[key] as string | number);
-    if (v === null) errors.push(tr(`${where}: "${key}" 的值 ${JSON.stringify(raw[key])} 无法解析（示例："330"、"4.7k"、9）`, `${where}: can't parse ${JSON.stringify(raw[key])} as "${key}" (examples: "330", "4.7k", 9)`));
+    if (v === null)
+      errors.push(
+        tr(
+          `${where}: "${key}" 的值 ${JSON.stringify(raw[key])} 无法解析（示例："330"、"4.7k"、9）`,
+          `${where}: can't parse ${JSON.stringify(raw[key])} as "${key}" (examples: "330", "4.7k", 9)`,
+        ),
+      );
     else (props[out] as number) = v;
   };
   num('resistance', 'resistance');
@@ -332,12 +386,23 @@ function parsePinConfigs(type: CompType, raw: unknown, where: string, errors: st
     const pin = normalizeMcuPin(type, k);
     const def = pin ? mcuPin(type, pin) : null;
     if (!pin || !def || def.kind !== 'gpio') {
-      errors.push(tr(`${where}.pins: "${k}" 不是这块板子的 GPIO（也可以写逻辑引脚 GPIO_OUT1 / GPIO_IN1 / ADC1 / PWM1 / GPIO_FT1 / IO1）`, `${where}.pins: "${k}" is not a GPIO of this board (logical pins GPIO_OUT1 / GPIO_IN1 / ADC1 / PWM1 / GPIO_FT1 / IO1 are fine too)`));
+      errors.push(
+        tr(
+          `${where}.pins: "${k}" 不是这块板子的 GPIO（也可以写逻辑引脚 GPIO_OUT1 / GPIO_IN1 / ADC1 / PWM1 / GPIO_FT1 / IO1）`,
+          `${where}.pins: "${k}" is not a GPIO of this board (logical pins GPIO_OUT1 / GPIO_IN1 / ADC1 / PWM1 / GPIO_FT1 / IO1 are fine too)`,
+        ),
+      );
       continue;
     }
     const cfg: Partial<PinConfig> = typeof v === 'string' ? { mode: v as PinMode } : isObj(v) ? { mode: v.mode as PinMode } : {};
     if (isObj(v) && v.openDrain !== undefined) {
-      if (cfg.mode !== 'out_high' && cfg.mode !== 'out_low' && cfg.mode !== 'pwm') errors.push(tr(`${where}.pins.${k}: "openDrain" 只用于输出模式（out_high / out_low / pwm）`, `${where}.pins.${k}: "openDrain" only applies to output modes (out_high / out_low / pwm)`));
+      if (cfg.mode !== 'out_high' && cfg.mode !== 'out_low' && cfg.mode !== 'pwm')
+        errors.push(
+          tr(
+            `${where}.pins.${k}: "openDrain" 只用于输出模式（out_high / out_low / pwm）`,
+            `${where}.pins.${k}: "openDrain" only applies to output modes (out_high / out_low / pwm)`,
+          ),
+        );
       else cfg.openDrain = !!v.openDrain;
     }
     if (!cfg.mode || !PIN_MODES.includes(cfg.mode)) {
@@ -345,7 +410,12 @@ function parsePinConfigs(type: CompType, raw: unknown, where: string, errors: st
       continue;
     }
     if (!modesFor(def.gpio).includes(cfg.mode)) {
-      errors.push(tr(`${where}.pins.${k}: 这个引脚不支持 "${cfg.mode}"（可用：${modesFor(def.gpio).join(', ')}）`, `${where}.pins.${k}: this pin can't do "${cfg.mode}" (available: ${modesFor(def.gpio).join(', ')})`));
+      errors.push(
+        tr(
+          `${where}.pins.${k}: 这个引脚不支持 "${cfg.mode}"（可用：${modesFor(def.gpio).join(', ')}）`,
+          `${where}.pins.${k}: this pin can't do "${cfg.mode}" (available: ${modesFor(def.gpio).join(', ')})`,
+        ),
+      );
       continue;
     }
     if (isObj(v)) {
@@ -353,7 +423,12 @@ function parsePinConfigs(type: CompType, raw: unknown, where: string, errors: st
         if (v[key] === undefined) continue;
         const n = parseValue(v[key] as string | number);
         if (n === null || (key === 'duty' && (n < 0 || n > 100)) || (key === 'frequency' && n <= 0))
-          errors.push(tr(`${where}.pins.${k}.${key}: ${key === 'duty' ? '占空比是 0–100（%）' : '频率必须 > 0（Hz）'}`, `${where}.pins.${k}.${key}: ${key === 'duty' ? 'duty is 0–100 (%)' : 'frequency must be > 0 (Hz)'}`));
+          errors.push(
+            tr(
+              `${where}.pins.${k}.${key}: ${key === 'duty' ? '占空比是 0–100（%）' : '频率必须 > 0（Hz）'}`,
+              `${where}.pins.${k}.${key}: ${key === 'duty' ? 'duty is 0–100 (%)' : 'frequency must be > 0 (Hz)'}`,
+            ),
+          );
         else cfg[key] = n;
       }
     }
@@ -390,14 +465,25 @@ function parseLayout(raw: unknown, refs: Set<string> | null, where: string, erro
     }
     for (const [pin, hole] of Object.entries(pinsRaw)) {
       if (!(pin in def.terminalOf)) {
-        errors.push(tr(`${w}: ${type} 没有名为 "${pin}" 的引脚（可用：${Object.keys(def.terminalOf).join(', ')}）`, `${w}: ${type} has no pin called "${pin}" (available: ${Object.keys(def.terminalOf).join(', ')})`));
+        errors.push(
+          tr(
+            `${w}: ${type} 没有名为 "${pin}" 的引脚（可用：${Object.keys(def.terminalOf).join(', ')}）`,
+            `${w}: ${type} has no pin called "${pin}" (available: ${Object.keys(def.terminalOf).join(', ')})`,
+          ),
+        );
         continue;
       }
       if (typeof hole !== 'string' || !HOLE_MAP.has(hole)) {
-        errors.push(tr(`${w}: 孔位 ${JSON.stringify(hole)} 不存在（主区 a1–j30，电源轨 tp/tn/bp/bn + 1–30）`, `${w}: hole ${JSON.stringify(hole)} doesn't exist (main area a1–j30, rails tp/tn/bp/bn + 1–30)`));
+        errors.push(
+          tr(
+            `${w}: 孔位 ${JSON.stringify(hole)} 不存在（主区 a1–j30，电源轨 tp/tn/bp/bn + 1–30）`,
+            `${w}: hole ${JSON.stringify(hole)} doesn't exist (main area a1–j30, rails tp/tn/bp/bn + 1–30)`,
+          ),
+        );
         continue;
       }
-      if (used.has(hole)) errors.push(tr(`${w}: 孔 ${hole} 已经被 ${used.get(hole)} 占用（一个孔只能插一只脚）`, `${w}: hole ${hole} is already used by ${used.get(hole)} (one leg per hole)`));
+      if (used.has(hole))
+        errors.push(tr(`${w}: 孔 ${hole} 已经被 ${used.get(hole)} 占用（一个孔只能插一只脚）`, `${w}: hole ${hole} is already used by ${used.get(hole)} (one leg per hole)`));
       used.set(hole, ref);
       pins[pin] = hole;
     }
@@ -426,7 +512,8 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   const warnings: string[] = [];
   if (!isObj(json)) return { ok: false, errors: [tr('文件内容必须是一个 JSON 对象 { ... }', 'The file must contain one JSON object { ... }')], warnings };
 
-  if (json.format !== FORMAT_ID) errors.push(tr(`"format" 必须是 "${FORMAT_ID}"（现在是 ${JSON.stringify(json.format)}）`, `"format" must be "${FORMAT_ID}" (it is ${JSON.stringify(json.format)})`));
+  if (json.format !== FORMAT_ID)
+    errors.push(tr(`"format" 必须是 "${FORMAT_ID}"（现在是 ${JSON.stringify(json.format)}）`, `"format" must be "${FORMAT_ID}" (it is ${JSON.stringify(json.format)})`));
   const id = typeof json.id === 'string' ? json.id : '';
   if (!/^[a-z0-9][a-z0-9-_]*$/i.test(id)) errors.push(tr('"id" 必须是由字母、数字、- 或 _ 组成的字符串', '"id" must be a string of letters, digits, - or _'));
   const title = typeof json.title === 'string' ? json.title : '';
@@ -452,7 +539,10 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
             `${w}: scope_probe is a measuring tool, not part of the target circuit; measure waveforms with "scope" in tests instead`,
           ),
         );
-      if (!COMP_TYPES.includes(type)) return errors.push(tr(`${w}: 未知类型 "${String(c.type)}"（可用：${COMP_TYPES.join(', ')}）`, `${w}: unknown type "${String(c.type)}" (available: ${COMP_TYPES.join(', ')})`));
+      if (!COMP_TYPES.includes(type))
+        return errors.push(
+          tr(`${w}: 未知类型 "${String(c.type)}"（可用：${COMP_TYPES.join(', ')}）`, `${w}: unknown type "${String(c.type)}" (available: ${COMP_TYPES.join(', ')})`),
+        );
       refs.add(ref);
       components.push({ ref, type, props: parseProps(type, c, `${w} (${ref})`, errors) });
     });
@@ -460,7 +550,12 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
 
   const resolvePin = (s: unknown, where: string): string | null => {
     if (typeof s !== 'string' || !s.includes('.')) {
-      errors.push(tr(`${where}: 引脚 ${JSON.stringify(s)} 格式应为 "REF.pin"，例如 "R1.1"、"LED1.anode"`, `${where}: pin ${JSON.stringify(s)} should look like "REF.pin", e.g. "R1.1", "LED1.anode"`));
+      errors.push(
+        tr(
+          `${where}: 引脚 ${JSON.stringify(s)} 格式应为 "REF.pin"，例如 "R1.1"、"LED1.anode"`,
+          `${where}: pin ${JSON.stringify(s)} should look like "REF.pin", e.g. "R1.1", "LED1.anode"`,
+        ),
+      );
       return null;
     }
     const i = s.lastIndexOf('.');
@@ -472,7 +567,12 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     }
     const pin = normalizePin(c.type, s.slice(i + 1));
     if (!pin) {
-      errors.push(tr(`${where}: ${ref}（${c.type}）没有引脚 "${s.slice(i + 1)}"，可用：${terminalsOf(c.type).join(', ')}`, `${where}: ${ref} (${c.type}) has no pin "${s.slice(i + 1)}"; available: ${terminalsOf(c.type).join(', ')}`));
+      errors.push(
+        tr(
+          `${where}: ${ref}（${c.type}）没有引脚 "${s.slice(i + 1)}"，可用：${terminalsOf(c.type).join(', ')}`,
+          `${where}: ${ref} (${c.type}) has no pin "${s.slice(i + 1)}"; available: ${terminalsOf(c.type).join(', ')}`,
+        ),
+      );
       return null;
     }
     return `${ref}.${pin}`;
@@ -482,7 +582,8 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   const groups: { name?: string; pins: string[] }[] = [];
   if (Array.isArray(json.connections)) {
     json.connections.forEach((g: unknown, i: number) => {
-      if (!Array.isArray(g)) return errors.push(tr(`connections[${i}]: 必须是引脚数组，如 ["R1.2", "LED1.anode"]`, `connections[${i}]: must be an array of pins, e.g. ["R1.2", "LED1.anode"]`));
+      if (!Array.isArray(g))
+        return errors.push(tr(`connections[${i}]: 必须是引脚数组，如 ["R1.2", "LED1.anode"]`, `connections[${i}]: must be an array of pins, e.g. ["R1.2", "LED1.anode"]`));
       if (g.length < 2) warnings.push(tr(`connections[${i}]: 只有一个引脚，没有意义`, `connections[${i}]: a single pin connects nothing`));
       const pins = g.map((p, j) => resolvePin(p, `connections[${i}][${j}]`)).filter((p): p is string => !!p);
       groups.push({ pins });
@@ -490,16 +591,18 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   }
   if (Array.isArray(json.nets)) {
     json.nets.forEach((n: unknown, i: number) => {
-      if (!isObj(n) || !Array.isArray(n.pins)) return errors.push(tr(`nets[${i}]: 必须是 { "name": "...", "pins": [...] }`, `nets[${i}]: must be { "name": "...", "pins": [...] }`));
+      if (!isObj(n) || !Array.isArray(n.pins))
+        return errors.push(tr(`nets[${i}]: 必须是 { "name": "...", "pins": [...] }`, `nets[${i}]: must be { "name": "...", "pins": [...] }`));
       const pins = n.pins.map((p, j) => resolvePin(p, `nets[${i}].pins[${j}]`)).filter((p): p is string => !!p);
       groups.push({ name: typeof n.name === 'string' ? n.name : undefined, pins });
     });
   }
-  if (!Array.isArray(json.connections) && !Array.isArray(json.nets)) errors.push(tr('需要 "connections" 或 "nets" 来描述连接关系', '"connections" or "nets" is needed to describe the wiring'));
+  if (!Array.isArray(json.connections) && !Array.isArray(json.nets))
+    errors.push(tr('需要 "connections" 或 "nets" 来描述连接关系', '"connections" or "nets" is needed to describe the wiring'));
 
   // union groups that share a pin
   const parent = new Map<number, number>();
-  const find = (i: number): number => (parent.get(i) ?? i) === i ? i : find(parent.get(i)!);
+  const find = (i: number): number => ((parent.get(i) ?? i) === i ? i : find(parent.get(i)!));
   const pinGroup = new Map<string, number>();
   groups.forEach((g, gi) => {
     parent.set(gi, gi);
@@ -551,7 +654,8 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
       for (const [ref, v] of Object.entries(t.expect)) {
         const c = compOf.get(ref);
         if (!c) errors.push(tr(`${w}.expect: 找不到元件 "${ref}"`, `${w}.expect: no component "${ref}"`));
-        else if (!EXPECT_TYPES.includes(c.type)) errors.push(tr(`${w}.expect.${ref}: 只有 LED、继电器、电机、蜂鸣器可以写 "on"/"off"`, `${w}.expect.${ref}: only LEDs, relays, motors and buzzers can be "on"/"off"`));
+        else if (!EXPECT_TYPES.includes(c.type))
+          errors.push(tr(`${w}.expect.${ref}: 只有 LED、继电器、电机、蜂鸣器可以写 "on"/"off"`, `${w}.expect.${ref}: only LEDs, relays, motors and buzzers can be "on"/"off"`));
         else if (v !== 'on' && v !== 'off') errors.push(tr(`${w}.expect.${ref}: 必须是 "on" 或 "off"`, `${w}.expect.${ref}: must be "on" or "off"`));
         else expect[ref] = v;
       }
@@ -561,8 +665,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
         if (!isObj(v)) return errors.push(tr(`${w}.voltages[${j}]: 必须是对象`, `${w}.voltages[${j}]: must be an object`));
         const pin = resolvePin(v.pin, `${w}.voltages[${j}].pin`);
         const ref = v.ref === undefined ? undefined : resolvePin(v.ref, `${w}.voltages[${j}].ref`);
-        if (pin && ref !== null)
-          voltages.push({ pin, ref, min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
+        if (pin && ref !== null) voltages.push({ pin, ref, min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
       });
     const scope: ScopeTest[] = [];
     if (t.scope !== undefined && !Array.isArray(t.scope)) errors.push(tr(`${w}.scope: 必须是数组`, `${w}.scope: must be an array`));
@@ -593,7 +696,12 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
         const c = typeof el === 'string' ? compOf.get(el) : undefined;
         if (!c) return errors.push(tr(`${wj}.el: 找不到元件 ${JSON.stringify(el)}`, `${wj}.el: no component ${JSON.stringify(el)}`));
         if (!CURRENT_TYPES.includes(c.type))
-          return errors.push(tr(`${wj}.el: ${c.ref}（${c.type}）不能测电流（可用：${CURRENT_TYPES.join(', ')}）`, `${wj}.el: can't measure the current of ${c.ref} (${c.type}); allowed: ${CURRENT_TYPES.join(', ')}`));
+          return errors.push(
+            tr(
+              `${wj}.el: ${c.ref}（${c.type}）不能测电流（可用：${CURRENT_TYPES.join(', ')}）`,
+              `${wj}.el: can't measure the current of ${c.ref} (${c.type}); allowed: ${CURRENT_TYPES.join(', ')}`,
+            ),
+          );
         const mode = v.mode === undefined ? 'dc' : v.mode;
         if (mode !== 'dc' && mode !== 'rms') return errors.push(tr(`${wj}.mode: 必须是 "dc" 或 "rms"`, `${wj}.mode: must be "dc" or "rms"`));
         if (typeof v.min !== 'number' && typeof v.max !== 'number') warnings.push(tr(`${wj}: 没有 min / max，什么都不检查`, `${wj}: no min / max, so it checks nothing`));
@@ -613,14 +721,24 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
         if (!isMcu(c.type) || !def || def.kind !== 'gpio') return errors.push(tr(`${wj}.pin: ${pin} 不是开发板的 GPIO`, `${wj}.pin: ${pin} is not a dev-board GPIO`));
         const read = v.read;
         const measure = v.measure;
-        if (read !== undefined && read !== 'high' && read !== 'low' && read !== 'floating') return errors.push(tr(`${wj}.read: 必须是 "high" / "low" / "floating"`, `${wj}.read: must be "high" / "low" / "floating"`));
-        if (measure !== undefined && !(GPIO_MEASURES as readonly unknown[]).includes(measure)) return errors.push(tr(`${wj}.measure: 必须是 ${GPIO_MEASURES.join(' / ')}`, `${wj}.measure: must be ${GPIO_MEASURES.join(' / ')}`));
+        if (read !== undefined && read !== 'high' && read !== 'low' && read !== 'floating')
+          return errors.push(tr(`${wj}.read: 必须是 "high" / "low" / "floating"`, `${wj}.read: must be "high" / "low" / "floating"`));
+        if (measure !== undefined && !(GPIO_MEASURES as readonly unknown[]).includes(measure))
+          return errors.push(tr(`${wj}.measure: 必须是 ${GPIO_MEASURES.join(' / ')}`, `${wj}.measure: must be ${GPIO_MEASURES.join(' / ')}`));
         if (read === undefined && measure === undefined) return errors.push(tr(`${wj}: 需要 "read" 或 "measure"`, `${wj}: needs "read" or "measure"`));
-        if (measure !== undefined && typeof v.min !== 'number' && typeof v.max !== 'number') warnings.push(tr(`${wj}: 没有 min / max，什么都不检查`, `${wj}: no min / max, so it checks nothing`));
-        gpio.push({ pin, read: read as GpioTest['read'], measure: measure as GpioTest['measure'], min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
+        if (measure !== undefined && typeof v.min !== 'number' && typeof v.max !== 'number')
+          warnings.push(tr(`${wj}: 没有 min / max，什么都不检查`, `${wj}: no min / max, so it checks nothing`));
+        gpio.push({
+          pin,
+          read: read as GpioTest['read'],
+          measure: measure as GpioTest['measure'],
+          min: typeof v.min === 'number' ? v.min : undefined,
+          max: typeof v.max === 'number' ? v.max : undefined,
+        });
       });
     const regions: Record<string, string> = {};
-    if (t.regions !== undefined && !isObj(t.regions)) errors.push(tr(`${w}.regions: 必须是对象，如 { "Q1": "saturation" }`, `${w}.regions: must be an object, e.g. { "Q1": "saturation" }`));
+    if (t.regions !== undefined && !isObj(t.regions))
+      errors.push(tr(`${w}.regions: 必须是对象，如 { "Q1": "saturation" }`, `${w}.regions: must be an object, e.g. { "Q1": "saturation" }`));
     if (isObj(t.regions))
       for (const [ref, v] of Object.entries(t.regions)) {
         const c = compOf.get(ref);
@@ -628,17 +746,18 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
         if (!c) errors.push(tr(`${w}.regions: 找不到元件 "${ref}"`, `${w}.regions: no component "${ref}"`));
         else if (c.type === 'npn') {
           const r = v === 'sat' ? 'saturation' : v;
-          if (!(BJT_REGIONS as readonly unknown[]).includes(r)) errors.push(tr(`${w}.regions.${ref}: 三极管必须是 ${BJT_REGIONS.join(' / ')}`, `${w}.regions.${ref}: a transistor region is ${BJT_REGIONS.join(' / ')}`));
+          if (!(BJT_REGIONS as readonly unknown[]).includes(r))
+            errors.push(tr(`${w}.regions.${ref}: 三极管必须是 ${BJT_REGIONS.join(' / ')}`, `${w}.regions.${ref}: a transistor region is ${BJT_REGIONS.join(' / ')}`));
           else regions[ref] = r as string;
         } else if (c.type === 'nmos') {
           const r = typeof v === 'string' ? (alias[v] ?? v) : v;
-          if (!(MOS_REGIONS as readonly unknown[]).includes(r)) errors.push(tr(`${w}.regions.${ref}: MOSFET 必须是 ${MOS_REGIONS.join(' / ')}`, `${w}.regions.${ref}: a MOSFET region is ${MOS_REGIONS.join(' / ')}`));
+          if (!(MOS_REGIONS as readonly unknown[]).includes(r))
+            errors.push(tr(`${w}.regions.${ref}: MOSFET 必须是 ${MOS_REGIONS.join(' / ')}`, `${w}.regions.${ref}: a MOSFET region is ${MOS_REGIONS.join(' / ')}`));
           else regions[ref] = r as string;
         } else errors.push(tr(`${w}.regions.${ref}: 只有 npn / nmos 有工作区`, `${w}.regions.${ref}: only npn / nmos have regions`));
       }
     tests.push({ name: typeof t.name === 'string' ? t.name : tr(`测试 ${i + 1}`, `Test ${i + 1}`), set, expect, voltages, scope, currents, gpio, regions });
   });
-
 
   const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
   const textOf = (v: unknown) => (typeof v === 'string' ? v : Array.isArray(v) ? strs(v).join('\n') : '');
@@ -652,7 +771,12 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     if (!isObj(m)) return errors.push(tr(`${w}: 必须是对象`, `${w}: must be an object`));
     const id = m.id;
     if (typeof id !== 'string' || !/^[A-Za-z][A-Za-z0-9_]*$/.test(id) || RESERVED_IDS.has(id.toLowerCase()))
-      return errors.push(tr(`${w}: "id" 必须是字母开头的标识符（不能是 pi、e、sqrt、ln、log、exp），如 "i1"`, `${w}: "id" must be an identifier starting with a letter (not pi, e, sqrt, ln, log, exp), e.g. "i1"`));
+      return errors.push(
+        tr(
+          `${w}: "id" 必须是字母开头的标识符（不能是 pi、e、sqrt、ln、log、exp），如 "i1"`,
+          `${w}: "id" must be an identifier starting with a letter (not pi, e, sqrt, ln, log, exp), e.g. "i1"`,
+        ),
+      );
     if (qIds.has(id)) return errors.push(tr(`${w}: id "${id}" 重复`, `${w}: duplicate id "${id}"`));
     const wi = `${w} (${id})`;
     const ask = textOf(m.ask);
@@ -684,7 +808,8 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     if (kind === 'current') {
       const c = typeof m.current === 'string' ? compOf.get(m.current) : undefined;
       if (!c) return errors.push(tr(`${wi}.current: 找不到元件 ${JSON.stringify(m.current)}`, `${wi}.current: no component ${JSON.stringify(m.current)}`));
-      if (!CURRENT_TYPES.includes(c.type)) return errors.push(tr(`${wi}.current: ${c.ref}（${c.type}）不能测电流`, `${wi}.current: can't measure the current of ${c.ref} (${c.type})`));
+      if (!CURRENT_TYPES.includes(c.type))
+        return errors.push(tr(`${wi}.current: ${c.ref}（${c.type}）不能测电流`, `${wi}.current: can't measure the current of ${c.ref} (${c.type})`));
       const mode = m.mode === undefined ? 'dc' : m.mode;
       if (mode !== 'dc' && mode !== 'rms') return errors.push(tr(`${wi}.mode: 必须是 "dc" 或 "rms"`, `${wi}.mode: must be "dc" or "rms"`));
       what = { kind: 'current', el: c.ref, mode };
@@ -699,7 +824,8 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
       tolAbs = 0.005;
     } else if (kind === 'scope') {
       const measure = m.scope as QuestionMeasure;
-      if (!(QUESTION_MEASURES as readonly string[]).includes(measure)) return errors.push(tr(`${wi}.scope: 必须是 ${QUESTION_MEASURES.join(' / ')}`, `${wi}.scope: must be ${QUESTION_MEASURES.join(' / ')}`));
+      if (!(QUESTION_MEASURES as readonly string[]).includes(measure))
+        return errors.push(tr(`${wi}.scope: 必须是 ${QUESTION_MEASURES.join(' / ')}`, `${wi}.scope: must be ${QUESTION_MEASURES.join(' / ')}`));
       const pin = resolvePin(m.pin, `${wi}.pin`);
       const ref = m.ref === undefined ? undefined : resolvePin(m.ref, `${wi}.ref`);
       const vs = m.vs === undefined ? undefined : resolvePin(m.vs, `${wi}.vs`);
@@ -726,14 +852,18 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
       tol = measure === 'rise' || measure === 'fall' || measure === 'ring' ? 0.08 : 0.03;
       tolAbs = measure === 'gain' || measure === 'phase' || solve || measure === 'freq' || measure === 'ring' || measure === 'rise' || measure === 'fall' ? 0 : 0.005;
     } else if (kind === 'formula') {
-      if (typeof m.formula !== 'string' || !m.formula.trim()) return errors.push(tr(`${wi}.formula: 必须是算式字符串，如 "uoc / isc"`, `${wi}.formula: must be an expression string, e.g. "uoc / isc"`));
+      if (typeof m.formula !== 'string' || !m.formula.trim())
+        return errors.push(tr(`${wi}.formula: 必须是算式字符串，如 "uoc / isc"`, `${wi}.formula: must be an expression string, e.g. "uoc / isc"`));
       const names = [...new Set(m.formula.match(/[A-Za-z_][A-Za-z0-9_]*/g) ?? [])].filter((n) => !RESERVED_IDS.has(n.toLowerCase()));
       const unknown = names.filter((n) => !qIds.has(n));
       if (unknown.length)
-        return errors.push(tr(`${wi}.formula: ${unknown.join(', ')} 不是前面某个测量题的 id`, `${wi}.formula: ${unknown.join(', ')} is not the id of an earlier measurement question`));
+        return errors.push(
+          tr(`${wi}.formula: ${unknown.join(', ')} 不是前面某个测量题的 id`, `${wi}.formula: ${unknown.join(', ')} is not the id of an earlier measurement question`),
+        );
       if (!names.length) return errors.push(tr(`${wi}.formula: 至少要用到一个前面测量题的 id`, `${wi}.formula: must use the id of at least one earlier question`));
       const choiceQ = names.find((n) => measurements.find((q) => q.id === n)?.what === null);
-      if (choiceQ) return errors.push(tr(`${wi}.formula: ${choiceQ} 是选择题，不能参与计算`, `${wi}.formula: ${choiceQ} is a multiple-choice question and can't be used in a calculation`));
+      if (choiceQ)
+        return errors.push(tr(`${wi}.formula: ${choiceQ} 是选择题，不能参与计算`, `${wi}.formula: ${choiceQ} is a multiple-choice question and can't be used in a calculation`));
       what = { kind: 'formula', expr: m.formula, uses: names };
     } else {
       choices = strs(m.choices);
@@ -753,10 +883,12 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     let range: [number, number] | undefined;
     if (m.range !== undefined) {
       const r = Array.isArray(m.range) ? m.range.map((x) => (typeof x === 'number' || typeof x === 'string' ? parseValue(x) : null)) : [];
-      if (r.length !== 2 || r[0] === null || r[1] === null || r[0] > r[1]) errors.push(tr(`${wi}.range: 必须是 [最小值, 最大值]（SI 单位）`, `${wi}.range: must be [min, max] (SI units)`));
+      if (r.length !== 2 || r[0] === null || r[1] === null || r[0] > r[1])
+        errors.push(tr(`${wi}.range: 必须是 [最小值, 最大值]（SI 单位）`, `${wi}.range: must be [min, max] (SI units)`));
       else range = [r[0], r[1]];
     }
-    if (what && range === undefined) warnings.push(tr(`${wi}: 没有 "range"——validator 无法核对参考答案的读数是否合理`, `${wi}: no "range" — the validator can't sanity-check the reference reading`));
+    if (what && range === undefined)
+      warnings.push(tr(`${wi}: 没有 "range"——validator 无法核对参考答案的读数是否合理`, `${wi}: no "range" — the validator can't sanity-check the reference reading`));
     qIds.add(id);
     measurements.push({
       id,
@@ -804,7 +936,9 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
         else {
           const count = (key: string, n: number) => {
             if (v[key] !== undefined && (!Array.isArray(v[key]) || (v[key] as unknown[]).length !== n))
-              warnings.push(tr(`i18n.${l}.${key}: 应该是和 "${key}" 一一对应的数组（${n} 项）`, `i18n.${l}.${key}: should be an array matching "${key}" item by item (${n} items)`));
+              warnings.push(
+                tr(`i18n.${l}.${key}: 应该是和 "${key}" 一一对应的数组（${n} 项）`, `i18n.${l}.${key}: should be an array matching "${key}" item by item (${n} items)`),
+              );
           };
           count('steps', steps.length);
           count('hints', Array.isArray(json.hints) ? json.hints.length : 0);

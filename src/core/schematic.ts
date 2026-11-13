@@ -80,7 +80,7 @@ export function layoutSchematic(circuit: Circuit, sim?: SimResult | null): Schem
   const onlyBoard = (n: { pins: string[] }) => n.pins.length <= 1 && n.pins.every((p) => mcuRefs.has(p.slice(0, p.lastIndexOf('.'))));
   const allNets = circuit.nets.filter((n) => !onlyBoard(n)).map((n) => n.name);
   const src = groundSource(circuit.components);
-  const gnd = src ? net(src.ref, groundTerminal(src)) : sim?.ground ?? null;
+  const gnd = src ? net(src.ref, groundTerminal(src)) : (sim?.ground ?? null);
   const vcc = src ? net(src.ref, supplyTerminal(src)) : null;
 
   // BFS distance from the supply net through components (tie-breaker for equal voltages)
@@ -98,7 +98,7 @@ export function layoutSchematic(circuit: Circuit, sim?: SimResult | null): Schem
   }
   while (queue.length) {
     const n = queue.shift()!;
-    for (const m of adj.get(n) ?? []) if (!dist.has(m)) dist.set(m, dist.get(n)! + 1), queue.push(m);
+    for (const m of adj.get(n) ?? []) if (!dist.has(m)) (dist.set(m, dist.get(n)! + 1), queue.push(m));
   }
 
   const v = (n: string) => sim?.nodeV.get(n) ?? 0;
@@ -311,7 +311,10 @@ export function layoutSchematic(circuit: Circuit, sim?: SimResult | null): Schem
         pinLead(cx + 30, cy, cx + 44, nOut);
         const power = first && (hasNet(c.ref, 'v+') || hasNet(c.ref, 'v-'));
         if (power) {
-          for (const [pin, dy] of [['v+', -14], ['v-', 14]] as const) {
+          for (const [pin, dy] of [
+            ['v+', -14],
+            ['v-', 14],
+          ] as const) {
             const n = net(c.ref, pin);
             if (!level.has(n)) continue;
             leads.push({ x1: cx, y1: cy + dy, x2: cx, y2: Y(n), net: n });

@@ -99,7 +99,15 @@ export function ImportPage() {
     refresh();
   };
   const clearAll = () => {
-    if (!confirm(tr('移除所有导入的题目？（challenges/ 和 problems/ 文件夹里的题目不受影响）', 'Remove all imported files? (Files in the challenges/ and problems/ folders are not affected.)'))) return;
+    if (
+      !confirm(
+        tr(
+          '移除所有导入的题目？（challenges/ 和 problems/ 文件夹里的题目不受影响）',
+          'Remove all imported files? (Files in the challenges/ and problems/ folders are not affected.)',
+        ),
+      )
+    )
+      return;
     writeImported([]);
     refresh();
   };
@@ -112,12 +120,15 @@ export function ImportPage() {
         <p>
           {tr('题目都是 JSON 文件，有两种格式：面包板题', 'All content is JSON, in two formats: breadboard challenges')} <code>breadboard-challenge/1</code>
           {tr('，和理论练习题', ', and theory practice problems')} <code>circuit-problem/1</code>
-          {tr('。程序按每个文件的 "format" 自动分类，一个文件夹里两种可以混放。有两种方式加载：', '. Each file is routed by its "format", so one folder may mix both. There are two ways to load them:')}
+          {tr(
+            '。程序按每个文件的 "format" 自动分类，一个文件夹里两种可以混放。有两种方式加载：',
+            '. Each file is routed by its "format", so one folder may mix both. There are two ways to load them:',
+          )}
         </p>
         <ol>
           <li>
             <b>
-              {tr('放进项目的', 'Put them in the project\'s')} <code>challenges/</code> {tr('或', 'or')} <code>problems/&lt;chapter&gt;/</code> {tr('文件夹', 'folder')}
+              {tr('放进项目的', "Put them in the project's")} <code>challenges/</code> {tr('或', 'or')} <code>problems/&lt;chapter&gt;/</code> {tr('文件夹', 'folder')}
             </b>
             {tr('——开发模式下自动加载并实时刷新（适合长期保存的题库）。', ' — loaded automatically and refreshed live in dev mode (best for a collection you keep).')}
           </li>
@@ -176,7 +187,9 @@ export function ImportPage() {
             {tr('需要修正的文件', 'Files to fix')} ({invalid.filter((i) => i.errors.length).length} {tr('错误', 'errors')} / {invalid.filter((i) => !i.errors.length).length}{' '}
             {tr('警告', 'warnings')})
           </div>
-          <p className="note">{tr('把下面的错误信息复制给生成题目的 AI，让它修正后重新导出。', 'Copy these messages to the AI that wrote the challenge and ask it to fix and re-export the file.')}</p>
+          <p className="note">
+            {tr('把下面的错误信息复制给生成题目的 AI，让它修正后重新导出。', 'Copy these messages to the AI that wrote the challenge and ask it to fix and re-export the file.')}
+          </p>
           {invalid.map((f, i) => (
             <div key={i} className={`invalid ${f.errors.length ? 'err' : 'warn'}`}>
               <div className="row between">
@@ -307,7 +320,9 @@ export function ImportPage() {
         {aiPrompt ? <pre className="prompt-box">{aiPrompt}</pre> : <p className="muted">{tr('（docs/AI_PROMPT.md 尚未生成）', '(docs/AI_PROMPT.md is missing)')}</p>}
         {formatDoc && (
           <>
-            <button onClick={() => setShowDoc(!showDoc)}>{showDoc ? tr('收起完整格式规范', 'Hide the full format spec') : tr('展开完整格式规范', 'Show the full format spec')}</button>
+            <button onClick={() => setShowDoc(!showDoc)}>
+              {showDoc ? tr('收起完整格式规范', 'Hide the full format spec') : tr('展开完整格式规范', 'Show the full format spec')}
+            </button>
             {showDoc && (
               <div className="doc-box">
                 <Md text={formatDoc} />
@@ -333,7 +348,10 @@ export function ImportPage() {
           )}
         </div>
         <p>
-          {tr('理论题（看电路图、算数）由 AI 出题，每个数值答案都会被理想电路分析引擎重算核对。填写章节、知识点和难度后发给 AI，把生成的文件放进 ', 'Theory problems (read a schematic, compute values) are written by an AI, and every numeric answer is recomputed by the ideal circuit-analysis engine. Fill in the chapter, topic and difficulty, send it to an AI, and put the files in ')}
+          {tr(
+            '理论题（看电路图、算数）由 AI 出题，每个数值答案都会被理想电路分析引擎重算核对。填写章节、知识点和难度后发给 AI，把生成的文件放进 ',
+            'Theory problems (read a schematic, compute values) are written by an AI, and every numeric answer is recomputed by the ideal circuit-analysis engine. Fill in the chapter, topic and difficulty, send it to an AI, and put the files in ',
+          )}
           <code>problems/&lt;chapter&gt;/</code>
           {tr('，运行 ', ', run ')}
           <code>npm run validate</code>
@@ -341,10 +359,16 @@ export function ImportPage() {
           <code>docs/PROBLEM_FORMAT.md</code>
           {tr('。', '.')}
         </p>
-        {problemPrompt ? <pre className="prompt-box">{problemPrompt}</pre> : <p className="muted">{tr('（docs/AI_PROMPT_PROBLEMS.md 尚未生成）', '(docs/AI_PROMPT_PROBLEMS.md is missing)')}</p>}
+        {problemPrompt ? (
+          <pre className="prompt-box">{problemPrompt}</pre>
+        ) : (
+          <p className="muted">{tr('（docs/AI_PROMPT_PROBLEMS.md 尚未生成）', '(docs/AI_PROMPT_PROBLEMS.md is missing)')}</p>
+        )}
         {problemFormatDoc && (
           <>
-            <button onClick={() => setShowProblemDoc(!showProblemDoc)}>{showProblemDoc ? tr('收起完整格式规范', 'Hide the full format spec') : tr('展开完整格式规范', 'Show the full format spec')}</button>
+            <button onClick={() => setShowProblemDoc(!showProblemDoc)}>
+              {showProblemDoc ? tr('收起完整格式规范', 'Hide the full format spec') : tr('展开完整格式规范', 'Show the full format spec')}
+            </button>
             {showProblemDoc && (
               <div className="doc-box">
                 <Md text={problemFormatDoc} />

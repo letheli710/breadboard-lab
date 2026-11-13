@@ -28,8 +28,38 @@
 //                      conductances to 3V3 / GND; pulls; ESD clamps; brown-out + EN
 
 import { BODY_DIODE, BUZZER, LDO, MOS_GDS, MOTOR, NPN, RELAY, VOV_STEP, ldrResistance, mosfetParams, ntcResistance } from './devices';
-import { CLAMP_DIODE, FLOAT_Z, USB_DIODE, USB_SOURCE, VPIN_MAX, VPIN_MAX_FT, VPIN_MIN, adcRaw, boardOf, isMcu, isOutputMode, mcuPin, pinConfig, type GpioCaps, type McuBoardDef } from './mcu';
-import { AMMETER_R, BATTERIES, GEN_R, INDUCTOR_R, LED_COLORS, OPAMP, OPAMP_HALVES, genSettings, groundSource, groundTerminal, sourceRint, sourceVoltage, terminalsOfComp } from './parts';
+import {
+  CLAMP_DIODE,
+  FLOAT_Z,
+  USB_DIODE,
+  USB_SOURCE,
+  VPIN_MAX,
+  VPIN_MAX_FT,
+  VPIN_MIN,
+  adcRaw,
+  boardOf,
+  isMcu,
+  isOutputMode,
+  mcuPin,
+  pinConfig,
+  type GpioCaps,
+  type McuBoardDef,
+} from './mcu';
+import {
+  AMMETER_R,
+  BATTERIES,
+  GEN_R,
+  INDUCTOR_R,
+  LED_COLORS,
+  OPAMP,
+  OPAMP_HALVES,
+  genSettings,
+  groundSource,
+  groundTerminal,
+  sourceRint,
+  sourceVoltage,
+  terminalsOfComp,
+} from './parts';
 import type { CComponent, Circuit, PinMode } from './types';
 import { pinId } from './types';
 
@@ -631,7 +661,20 @@ function compileMcu(
     out.srcs.push(usb);
     usbDiode = hiddenDiode(c.ref, 'usb', un, v5, USB_DIODE.vf, USB_DIODE.rs);
   }
-  const reg: CReg = { ref: `${c.ref}#reg`, owner: c.ref, in: v5, out: vdd, gnd, vset: b.vdd, dropout: b.regulator.dropout, rd: 0.3, ro: 0.05, limit: b.regulator.limit, iq: 0.004, mode: 'off' };
+  const reg: CReg = {
+    ref: `${c.ref}#reg`,
+    owner: c.ref,
+    in: v5,
+    out: vdd,
+    gnd,
+    vset: b.vdd,
+    dropout: b.regulator.dropout,
+    rd: 0.3,
+    ro: 0.05,
+    limit: b.regulator.limit,
+    iq: 0.004,
+    mode: 'off',
+  };
   out.regs.push(reg);
   const core: CResistor = { ref: `${c.ref}#core`, kind: 'hidden', a: vdd, b: gnd, g: 1 / b.coreR };
   out.resistors.push(core);
@@ -639,7 +682,24 @@ function compileMcu(
   const enPull: CResistor = { ref: `${c.ref}#en`, kind: 'hidden', a: en, b: vdd, g: 1 / b.enPull };
   out.resistors.push(enPull);
   const powerLed = hiddenDiode(c.ref, 'boardLed', vdd, gnd, 1.8, b.powerLedR + 12, 'pwr');
-  const mcu: CMcu = { ref: c.ref, type: c.type as McuState['type'], board: b, vdd, gnd, v5, en, usb, usbDiode, reg, core, enPull, powerLed, userLed: null, pins: [], running: false };
+  const mcu: CMcu = {
+    ref: c.ref,
+    type: c.type as McuState['type'],
+    board: b,
+    vdd,
+    gnd,
+    v5,
+    en,
+    usb,
+    usbDiode,
+    reg,
+    core,
+    enPull,
+    powerLed,
+    userLed: null,
+    pins: [],
+    running: false,
+  };
 
   const terms = terminalsOfComp(c, circuit);
   for (const t of terms) {
@@ -1237,7 +1297,24 @@ export function simulate(circuit: Circuit): SimResult {
     }
   const mcus = new Map<string, McuState>();
   for (const mc of c.mcus) mcus.set(mc.ref, mcuState(mc, circuit, V, zAt, diodeI, regCurrent));
-  return { ground: c.ground?.startsWith('__float:') ? null : c.ground, nodeV, current, vdrop, leds, sources, meters, opamps, mcus, bjts, mosfets, regs, relays, motors, buzzers, converged };
+  return {
+    ground: c.ground?.startsWith('__float:') ? null : c.ground,
+    nodeV,
+    current,
+    vdrop,
+    leds,
+    sources,
+    meters,
+    opamps,
+    mcus,
+    bjts,
+    mosfets,
+    regs,
+    relays,
+    motors,
+    buzzers,
+    converged,
+  };
 }
 
 export function motorState(current: number, voltage: number): MotorState {
@@ -1273,14 +1350,7 @@ export function gpioDriverCurrent(mc: CMcu, p: CGpio, V: (i: number) => number):
   }
 }
 
-function mcuState(
-  mc: CMcu,
-  circuit: Circuit,
-  V: (i: number) => number,
-  zAt: (i: number) => number,
-  diodeI: (d: CDiode) => number,
-  regCurrent: (r: CReg) => number,
-): McuState {
+function mcuState(mc: CMcu, circuit: Circuit, V: (i: number) => number, zAt: (i: number) => number, diodeI: (d: CDiode) => number, regCurrent: (r: CReg) => number): McuState {
   const b = mc.board;
   const vg = V(mc.gnd);
   const v3 = V(mc.vdd) - vg;
@@ -1341,7 +1411,19 @@ function mcuState(
     if (pins.has(t)) continue;
     const def = mcuPin(comp.type, t);
     if (!def || def.kind !== 'gpio') continue;
-    pins.set(t, { mode: pinConfig(comp.props, t).mode, voltage: 0, vLocal: 0, current: 0, logic: 'floating', clamp: 0, overcurrent: false, damaged: false, overvoltage: false, undervoltage: false, connected: false });
+    pins.set(t, {
+      mode: pinConfig(comp.props, t).mode,
+      voltage: 0,
+      vLocal: 0,
+      current: 0,
+      logic: 'floating',
+      clamp: 0,
+      overcurrent: false,
+      damaged: false,
+      overvoltage: false,
+      undervoltage: false,
+      connected: false,
+    });
   }
   const usbCurrent = mc.usb ? (mc.usb.v - (V(mc.usb.p) - V(mc.usb.n))) / mc.usb.rint : 0;
   const iUsbIn = mc.usbDiode ? Math.max(0, diodeI(mc.usbDiode)) : 0;

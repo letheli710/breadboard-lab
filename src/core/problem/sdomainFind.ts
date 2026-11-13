@@ -10,7 +10,9 @@ export { SDOMAIN_KINDS, isSdomainKind };
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const isCplx = (v: unknown) =>
   (typeof v === 'number' && Number.isFinite(v)) ||
-  (isObj(v) && Object.keys(v).every((k) => k === 're' || k === 'im') && ['re', 'im'].every((k) => v[k] === undefined || (typeof v[k] === 'number' && Number.isFinite(v[k] as number))));
+  (isObj(v) &&
+    Object.keys(v).every((k) => k === 're' || k === 'im') &&
+    ['re', 'im'].every((k) => v[k] === undefined || (typeof v[k] === 'number' && Number.isFinite(v[k] as number))));
 
 /** The element / node an `out` names, for the auto-added reference mark ({i: "L"} → current arrow on L). */
 export function sdomainMark(find: Record<string, unknown>): { kind: 'i' | 'v'; el: string } | null {
@@ -46,7 +48,11 @@ export function checkSdomainFind(
   else if (isObj(out) && Object.keys(out).length === 1 && (typeof out.v === 'string' || typeof out.i === 'string')) {
     const ref = (out.v ?? out.i) as string;
     if (!hasEl(ref)) err(`out: 找不到元件 ${JSON.stringify(ref)}`, `out: no element ${JSON.stringify(ref)}`);
-  } else err('out: 必须是 ["a"]、["a", "b"]（结点电压）、{"v": "R1"}（元件电压）或 {"i": "R1"}（元件电流）', 'out: must be ["a"], ["a", "b"] (node voltage), {"v": "R1"} (element voltage) or {"i": "R1"} (element current)');
+  } else
+    err(
+      'out: 必须是 ["a"]、["a", "b"]（结点电压）、{"v": "R1"}（元件电压）或 {"i": "R1"}（元件电流）',
+      'out: must be ["a"], ["a", "b"] (node voltage), {"v": "R1"} (element voltage) or {"i": "R1"} (element current)',
+    );
   if (kind !== 'residue') el('input');
   switch (kind) {
     case 'H':
@@ -58,7 +64,8 @@ export function checkSdomainFind(
       break;
     case 'hcoef':
       if (find.of !== 'num' && find.of !== 'den') err('of: 必须是 "num"（分子）或 "den"（分母）', 'of: must be "num" (numerator) or "den" (denominator)');
-      if (!(typeof find.power === 'number' && Number.isInteger(find.power) && find.power >= 0)) err('power: 必须是 0、1、2、…（s 的幂次）', 'power: must be 0, 1, 2, … (power of s)');
+      if (!(typeof find.power === 'number' && Number.isInteger(find.power) && find.power >= 0))
+        err('power: 必须是 0、1、2、…（s 的幂次）', 'power: must be 0, 1, 2, … (power of s)');
       break;
     case 'residue':
       if (!isCplx(find.at)) err('at: 必须是极点的值：数或 {"re": …, "im": …}', 'at: must be the pole: a number or {"re": …, "im": …}');

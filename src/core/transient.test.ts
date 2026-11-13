@@ -53,11 +53,14 @@ describe('transient: RC / RL / RLC', () => {
     const C = 1e-6; // tau = 1 ms
     const tau = (R + 50) * C;
     const T = 20 * tau;
-    const c = ckt([gen({ waveform: 'square', frequency: 1 / T, amplitude: 2.5, offset: 2.5 }), comp('R1', 'resistor', { resistance: R }), comp('C1', 'capacitor', { capacitance: C })], {
-      VIN: ['FG1.+', 'R1.1'],
-      VOUT: ['R1.2', 'C1.1'],
-      GND: ['C1.2', 'FG1.-'],
-    });
+    const c = ckt(
+      [gen({ waveform: 'square', frequency: 1 / T, amplitude: 2.5, offset: 2.5 }), comp('R1', 'resistor', { resistance: R }), comp('C1', 'capacitor', { capacitance: C })],
+      {
+        VIN: ['FG1.+', 'R1.1'],
+        VOUT: ['R1.2', 'C1.1'],
+        GND: ['C1.2', 'FG1.-'],
+      },
+    );
     const tr = simulateTransient(c, { periods: 1 });
     const v = tr.pin('C1.1');
     expect(tr.measure('vmax', 'C1.1')).toBeCloseTo(5, 2);
@@ -75,11 +78,14 @@ describe('transient: RC / RL / RLC', () => {
     const R = 49;
     const tau = L / (R + 1 + 50); // 0.1 ms
     const T = 20 * tau;
-    const c = ckt([gen({ waveform: 'square', frequency: 1 / T, amplitude: 0.5, offset: 0.5 }), comp('R1', 'resistor', { resistance: R }), comp('L1', 'inductor', { inductance: L })], {
-      VIN: ['FG1.+', 'R1.1'],
-      N1: ['R1.2', 'L1.1'],
-      GND: ['L1.2', 'FG1.-'],
-    });
+    const c = ckt(
+      [gen({ waveform: 'square', frequency: 1 / T, amplitude: 0.5, offset: 0.5 }), comp('R1', 'resistor', { resistance: R }), comp('L1', 'inductor', { inductance: L })],
+      {
+        VIN: ['FG1.+', 'R1.1'],
+        N1: ['R1.2', 'L1.1'],
+        GND: ['L1.2', 'FG1.-'],
+      },
+    );
     const tr = simulateTransient(c, { periods: 1 });
     const i = tr.current('L1')!;
     const imax = 1 / 100;
@@ -99,12 +105,20 @@ describe('transient: RC / RL / RLC', () => {
     const w0 = 1 / Math.sqrt(L * C);
     const alpha = Rt / (2 * L);
     const fd = Math.sqrt(w0 * w0 - alpha * alpha) / (2 * Math.PI); // ≈ 5 kHz
-    const c = ckt([gen({ waveform: 'square', frequency: 200, amplitude: 1, offset: 1 }), comp('R1', 'resistor', { resistance: R }), comp('L1', 'inductor', { inductance: L }), comp('C1', 'capacitor', { capacitance: C })], {
-      VIN: ['FG1.+', 'R1.1'],
-      N1: ['R1.2', 'L1.1'],
-      VOUT: ['L1.2', 'C1.1'],
-      GND: ['C1.2', 'FG1.-'],
-    });
+    const c = ckt(
+      [
+        gen({ waveform: 'square', frequency: 200, amplitude: 1, offset: 1 }),
+        comp('R1', 'resistor', { resistance: R }),
+        comp('L1', 'inductor', { inductance: L }),
+        comp('C1', 'capacitor', { capacitance: C }),
+      ],
+      {
+        VIN: ['FG1.+', 'R1.1'],
+        N1: ['R1.2', 'L1.1'],
+        VOUT: ['L1.2', 'C1.1'],
+        GND: ['C1.2', 'FG1.-'],
+      },
+    );
     const tr = simulateTransient(c, { periods: 1 });
     // find successive maxima of v(C) after the rising edge
     const v = tr.pin('C1.1');
@@ -117,8 +131,7 @@ describe('transient: RC / RL / RLC', () => {
   });
 });
 
-const opampBase = (extra: CComponent[], nets: Record<string, string[]>, supply = 9) =>
-  ckt([comp('V1', 'dc_source', { voltage: supply }), comp('U1', 'opamp'), ...extra], nets);
+const opampBase = (extra: CComponent[], nets: Record<string, string[]>, supply = 9) => ckt([comp('V1', 'dc_source', { voltage: supply }), comp('U1', 'opamp'), ...extra], nets);
 
 describe('op-amp', () => {
   it('non-inverting amplifier, DC: gain 1 + Rf/Rg', () => {
@@ -197,16 +210,13 @@ describe('op-amp', () => {
   });
 
   it('non-inverting amplifier in AC with offset on single supply', () => {
-    const c = opampBase(
-      [gen({ amplitude: 0.2, offset: 1, frequency: 500 }), comp('RF', 'resistor', { resistance: 10000 }), comp('RG', 'resistor', { resistance: 10000 })],
-      {
-        VCC: ['V1.+', 'U1.v+'],
-        GND: ['V1.-', 'U1.v-', 'FG1.-', 'RG.2'],
-        VIN: ['FG1.+', 'U1.inA+'],
-        FB: ['U1.inA-', 'RF.2', 'RG.1'],
-        VOUT: ['U1.outA', 'RF.1'],
-      },
-    );
+    const c = opampBase([gen({ amplitude: 0.2, offset: 1, frequency: 500 }), comp('RF', 'resistor', { resistance: 10000 }), comp('RG', 'resistor', { resistance: 10000 })], {
+      VCC: ['V1.+', 'U1.v+'],
+      GND: ['V1.-', 'U1.v-', 'FG1.-', 'RG.2'],
+      VIN: ['FG1.+', 'U1.inA+'],
+      FB: ['U1.inA-', 'RF.2', 'RG.1'],
+      VOUT: ['U1.outA', 'RF.1'],
+    });
     const tr = simulateTransient(c);
     expect(tr.measure('vavg', 'U1.outA')).toBeCloseTo(2, 2);
     expect(tr.measure('vpp', 'U1.outA')).toBeCloseTo(0.8, 2);
@@ -426,7 +436,13 @@ describe('op-amp clipping regressions (single 9 V supply)', () => {
 
   it('non-inverting gain 2 (offset 2.5 V, amplitude 1.75 V): clips at 7.5 V, bottom reaches 1.5 V', () => {
     const c = ckt(
-      [comp('V1', 'dc_source', { voltage: 9 }), comp('U1', 'opamp'), gen({ amplitude: 1.75, offset: 2.5, frequency: 1000 }), comp('RF', 'resistor', { resistance: 10000 }), comp('RG', 'resistor', { resistance: 10000 })],
+      [
+        comp('V1', 'dc_source', { voltage: 9 }),
+        comp('U1', 'opamp'),
+        gen({ amplitude: 1.75, offset: 2.5, frequency: 1000 }),
+        comp('RF', 'resistor', { resistance: 10000 }),
+        comp('RG', 'resistor', { resistance: 10000 }),
+      ],
       {
         VCC: ['V1.+', 'U1.v+'],
         GND: ['V1.-', 'U1.v-', 'FG1.-', 'RG.2'],

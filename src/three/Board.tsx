@@ -272,14 +272,7 @@ export function Board() {
         <meshBasicMaterial color="#2ba59b" transparent opacity={0.8} toneMapped={false} side={THREE.DoubleSide} />
       </instancedMesh>
 
-      <instancedMesh
-        ref={hit}
-        args={[undefined, undefined, HOLES.length]}
-        onPointerMove={onMove}
-        onPointerOut={() => setHoverHole(null)}
-        onClick={onClick}
-        frustumCulled={false}
-      >
+      <instancedMesh ref={hit} args={[undefined, undefined, HOLES.length]} onPointerMove={onMove} onPointerOut={() => setHoverHole(null)} onClick={onClick} frustumCulled={false}>
         <boxGeometry args={[0.95, 0.06, 0.95]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </instancedMesh>
@@ -315,10 +308,12 @@ export function Board() {
             {hoverNetName && !isFloating(hoverNetName) && (
               <span>
                 {tr('结点', 'Node')} {hoverNetName} ·{' '}
-                {hideReadings ? hiddenReadingsText() : (() => {
-                  const a = nodeAc(d, hoverNetName);
-                  return a ? acVolts(a.avg, a.pp, true) : volts(sim.nodeV.get(hoverNetName) ?? 0);
-                })()}
+                {hideReadings
+                  ? hiddenReadingsText()
+                  : (() => {
+                      const a = nodeAc(d, hoverNetName);
+                      return a ? acVolts(a.avg, a.pp, true) : volts(sim.nodeV.get(hoverNetName) ?? 0);
+                    })()}
               </span>
             )}
           </div>

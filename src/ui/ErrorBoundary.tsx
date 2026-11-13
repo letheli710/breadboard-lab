@@ -49,7 +49,15 @@ export class ErrorBoundary extends Component<Props, { error: Error | null }> {
   };
 
   private resetAll = () => {
-    if (!confirm(tr('清除本站保存的全部数据（所有电路、课程进度、练习记录、导入的题目）？', 'Delete everything this site has saved (all circuits, lesson progress, practice records, imported files)?'))) return;
+    if (
+      !confirm(
+        tr(
+          '清除本站保存的全部数据（所有电路、课程进度、练习记录、导入的题目）？',
+          'Delete everything this site has saved (all circuits, lesson progress, practice records, imported files)?',
+        ),
+      )
+    )
+      return;
     clearStored();
     location.reload();
   };

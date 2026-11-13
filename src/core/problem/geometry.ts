@@ -60,8 +60,7 @@ export function inSegmentInterior(p: Pt, a: Pt, b: Pt): boolean {
 }
 
 const isAxis = (a: Pt, b: Pt) => a[0] === b[0] || a[1] === b[1];
-const validPt = (p: unknown): p is Pt =>
-  Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]);
+const validPt = (p: unknown): p is Pt => Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]);
 const intPt = (p: Pt) => Number.isInteger(p[0]) && Number.isInteger(p[1]);
 
 /** Valid wire segments (axis-aligned, non-degenerate) of a schematic. */
@@ -231,9 +230,7 @@ export function extractNetlist(s: Schematic): ExtractResult {
   for (const g of grounds) if (validPt(g)) allPts.push(g);
   for (const p of allPts) uf.find(key(p));
   for (const [a, b] of segs) uf.union(key(a), key(b));
-  for (const p of allPts)
-    for (const [a, b] of segs)
-      if (onSegment(p, a, b)) uf.union(key(p), key(a));
+  for (const p of allPts) for (const [a, b] of segs) if (onSegment(p, a, b)) uf.union(key(p), key(a));
 
   // annotations must sit on something
   for (const l of labels) {
@@ -428,7 +425,8 @@ export function extractNetlist(s: Schematic): ExtractResult {
       continue;
     }
     if (needI && !('i' in c)) errors.push(tr(`${el.ref}（${el.type}）的控制量必须是电流 {i}`, `${el.ref} (${el.type}) must be controlled by a current {i}`));
-    if (needV && !('v' in c) && !('vnodes' in c)) errors.push(tr(`${el.ref}（${el.type}）的控制量必须是电压 {v} 或 {vnodes}`, `${el.ref} (${el.type}) must be controlled by a voltage {v} or {vnodes}`));
+    if (needV && !('v' in c) && !('vnodes' in c))
+      errors.push(tr(`${el.ref}（${el.type}）的控制量必须是电压 {v} 或 {vnodes}`, `${el.ref} (${el.type}) must be controlled by a voltage {v} or {vnodes}`));
     for (const k of ['i', 'v'] as const) {
       if (!(k in c)) continue;
       const t = byRef.get(c[k] as string);

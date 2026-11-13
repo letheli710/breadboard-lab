@@ -17,7 +17,9 @@ import { computeQuantity, naturalFrequencies, PeriodicCircuit } from './index';
 import { abs } from './complex';
 
 const DIR = new URL('../../../problems/non-sinusoidal/', import.meta.url);
-const files = readdirSync(DIR).filter((f) => f.endsWith('.json')).sort();
+const files = readdirSync(DIR)
+  .filter((f) => f.endsWith('.json'))
+  .sort();
 const TRAN: Analysis = { type: 'tran' };
 
 interface TimeCircuit {
@@ -67,7 +69,11 @@ function toTransient(net: Netlist, an: Analysis & { type: 'periodic' }): TimeCir
   const T = 1 / f1;
   // damped → start empty and wait; lossless loop → start in the solver's own steady state
   const base: Netlist = { ...net, nodeOf, nodes, elements };
-  const decay = Math.min(...naturalFrequencies(base).filter((s) => abs(s) > 1e-9).map((s) => -s.re));
+  const decay = Math.min(
+    ...naturalFrequencies(base)
+      .filter((s) => abs(s) > 1e-9)
+      .map((s) => -s.re),
+  );
   if (decay > 1e-6 * pc.omega) {
     const withIc = elements.map((e) => (e.type === 'C' || e.type === 'L' ? ({ ...e, ic: 0 } as ProblemElement) : e));
     const t0 = Math.ceil(40 / decay / T) * T; // whole number of periods, natural response < e^−40

@@ -164,8 +164,7 @@ export function matMul(A: Mat, B: Mat): Mat {
   return C;
 }
 
-export const matVec = (A: Mat, x: readonly number[]): number[] =>
-  A.map((row) => row.reduce((s, a, j) => s + a * x[j], 0));
+export const matVec = (A: Mat, x: readonly number[]): number[] => A.map((row) => row.reduce((s, a, j) => s + a * x[j], 0));
 
 /** Solve A X = B (A square, real) by Gaussian elimination with partial pivoting. */
 export function realSolve(A: Mat, B: Mat): Mat {
@@ -205,7 +204,11 @@ export function expm(A: Mat): Mat {
   const n = A.length;
   if (n === 0) return [];
   let norm = 0;
-  for (const r of A) norm = Math.max(norm, r.reduce((s, v) => s + Math.abs(v), 0));
+  for (const r of A)
+    norm = Math.max(
+      norm,
+      r.reduce((s, v) => s + Math.abs(v), 0),
+    );
   if (!Number.isFinite(norm)) throw new Error('expm: non-finite matrix');
   const s = norm > 0.5 ? Math.max(0, Math.ceil(Math.log2(norm / 0.5))) : 0;
   const f = 2 ** -s;
@@ -233,7 +236,10 @@ export function expm(A: Mat): Mat {
       }
   }
   // F = Q⁻¹P − I = Q⁻¹(P − Q) = 2·Q⁻¹·O
-  let F = realSolve(D, O.map((r) => r.map((v) => 2 * v)));
+  let F = realSolve(
+    D,
+    O.map((r) => r.map((v) => 2 * v)),
+  );
   for (let k = 0; k < s; k++) {
     const FF = matMul(F, F);
     F = F.map((r, i) => r.map((v, j) => 2 * v + FF[i][j]));

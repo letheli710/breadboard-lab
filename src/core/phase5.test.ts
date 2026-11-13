@@ -31,22 +31,54 @@ describe('dev board power', () => {
   });
 
   it('without USB or any supply the chip is off', () => {
-    const s = simulate(circ([esp({ GPIO2: { mode: 'out_high' } }, { usb: false }), ['R1', 'resistor', { resistance: 1000 }]], [['U1.GPIO2', 'R1.1'], ['R1.2', 'U1.GND']]));
+    const s = simulate(
+      circ(
+        [esp({ GPIO2: { mode: 'out_high' } }, { usb: false }), ['R1', 'resistor', { resistance: 1000 }]],
+        [
+          ['U1.GPIO2', 'R1.1'],
+          ['R1.2', 'U1.GND'],
+        ],
+      ),
+    );
     const m = s.mcus.get('U1')!;
     expect(m.running).toBe(false);
     expect(Math.abs(m.pins.get('GPIO2')!.voltage)).toBeLessThan(0.01);
   });
 
   it('a bench supply on the 5V pin powers the board when USB is unplugged', () => {
-    const s = simulate(circ([['PSU1', 'bench_supply', { voltage: 5, currentLimit: 1 }], esp({}, { usb: false })], [['PSU1.+', 'U1.5V'], ['PSU1.-', 'U1.GND']]));
+    const s = simulate(
+      circ(
+        [['PSU1', 'bench_supply', { voltage: 5, currentLimit: 1 }], esp({}, { usb: false })],
+        [
+          ['PSU1.+', 'U1.5V'],
+          ['PSU1.-', 'U1.GND'],
+        ],
+      ),
+    );
     expect(s.mcus.get('U1')!.running).toBe(true);
     expect(s.mcus.get('U1')!.v3).toBeCloseTo(3.3, 1);
   });
 
   it('the 3V3 pin powers the breadboard; overload pulls the onboard regulator into current limit', () => {
-    const ok = simulate(circ([esp(), ['R1', 'resistor', { resistance: 33 }]], [['U1.3V3', 'R1.1'], ['R1.2', 'U1.GND']]));
+    const ok = simulate(
+      circ(
+        [esp(), ['R1', 'resistor', { resistance: 33 }]],
+        [
+          ['U1.3V3', 'R1.1'],
+          ['R1.2', 'U1.GND'],
+        ],
+      ),
+    );
     expect(ok.mcus.get('U1')!.i3v3Out).toBeCloseTo(0.1, 2);
-    const blue = simulate(circ([stm(), ['R1', 'resistor', { resistance: 5 }]], [['U1.3V3', 'R1.1'], ['R1.2', 'U1.GND']]));
+    const blue = simulate(
+      circ(
+        [stm(), ['R1', 'resistor', { resistance: 5 }]],
+        [
+          ['U1.3V3', 'R1.1'],
+          ['R1.2', 'U1.GND'],
+        ],
+      ),
+    );
     const m = blue.mcus.get('U1')!;
     expect(m.reg.mode).toBe('limit');
     expect(m.v3).toBeLessThan(2);
@@ -57,7 +89,14 @@ describe('dev board power', () => {
 describe('GPIO outputs', () => {
   it('GPIO → 220 Ω → LED → GND lights the LED at ≈ 5.8 mA', () => {
     const s = simulate(
-      circ([esp({ GPIO2: { mode: 'out_high' } }), ['R1', 'resistor', { resistance: 220 }], ['LED1', 'led', { color: 'red' }]], [['U1.GPIO2', 'R1.1'], ['R1.2', 'LED1.anode'], ['LED1.cathode', 'U1.GND']]),
+      circ(
+        [esp({ GPIO2: { mode: 'out_high' } }), ['R1', 'resistor', { resistance: 220 }], ['LED1', 'led', { color: 'red' }]],
+        [
+          ['U1.GPIO2', 'R1.1'],
+          ['R1.2', 'LED1.anode'],
+          ['LED1.cathode', 'U1.GND'],
+        ],
+      ),
     );
     const p = s.mcus.get('U1')!.pins.get('GPIO2')!;
     expect(s.leds.get('LED1')!.on).toBe(true);
@@ -68,19 +107,40 @@ describe('GPIO outputs', () => {
 
   it('out_low turns it off; current limit: warning above 20 mA, damage above 40 mA', () => {
     const led = (pins: PartProps['pins'], r: number) =>
-      simulate(circ([esp(pins), ['R1', 'resistor', { resistance: r }], ['LED1', 'led', {}]], [['U1.GPIO2', 'R1.1'], ['R1.2', 'LED1.anode'], ['LED1.cathode', 'U1.GND']]));
+      simulate(
+        circ(
+          [esp(pins), ['R1', 'resistor', { resistance: r }], ['LED1', 'led', {}]],
+          [
+            ['U1.GPIO2', 'R1.1'],
+            ['R1.2', 'LED1.anode'],
+            ['LED1.cathode', 'U1.GND'],
+          ],
+        ),
+      );
     expect(led({ GPIO2: { mode: 'out_low' } }, 220).leds.get('LED1')!.on).toBe(false);
-    const hot = led({ GPIO2: { mode: 'out_high' } }, 22).mcus.get('U1')!.pins.get('GPIO2')!;
+    const hot = led({ GPIO2: { mode: 'out_high' } }, 22)
+      .mcus.get('U1')!
+      .pins.get('GPIO2')!;
     expect(hot.current).toBeGreaterThan(0.02);
     expect(hot.overcurrent).toBe(true);
     expect(hot.damaged).toBe(false);
-    const short = simulate(circ([esp({ GPIO2: { mode: 'out_high' } })], [['U1.GPIO2', 'U1.GND']])).mcus.get('U1')!.pins.get('GPIO2')!;
+    const short = simulate(circ([esp({ GPIO2: { mode: 'out_high' } })], [['U1.GPIO2', 'U1.GND']]))
+      .mcus.get('U1')!
+      .pins.get('GPIO2')!;
     expect(short.current).toBeGreaterThan(0.1);
     expect(short.damaged).toBe(true);
   });
 
   it('STM32 pins are weaker (40 Ω, 25 mA abs max)', () => {
-    const s = simulate(circ([stm({ PB12: { mode: 'out_low' } }), ['R1', 'resistor', { resistance: 100 }]], [['U1.3V3', 'R1.1'], ['R1.2', 'U1.PB12']]));
+    const s = simulate(
+      circ(
+        [stm({ PB12: { mode: 'out_low' } }), ['R1', 'resistor', { resistance: 100 }]],
+        [
+          ['U1.3V3', 'R1.1'],
+          ['R1.2', 'U1.PB12'],
+        ],
+      ),
+    );
     const p = s.mcus.get('U1')!.pins.get('PB12')!;
     expect(p.current).toBeCloseTo(-3.3 / 140, 3);
     expect(p.overcurrent).toBe(true);
@@ -105,9 +165,14 @@ describe('GPIO inputs', () => {
     simulate(
       circ(
         [type === 'esp' ? esp({ GPIO4: { mode } }) : stm({ PB4: { mode } }), ['SW1', 'pushbutton', { pressed }]],
-        [[type === 'esp' ? 'U1.GPIO4' : 'U1.PB4', 'SW1.1'], ['SW1.2', 'U1.GND']],
+        [
+          [type === 'esp' ? 'U1.GPIO4' : 'U1.PB4', 'SW1.1'],
+          ['SW1.2', 'U1.GND'],
+        ],
       ),
-    ).mcus.get('U1')!.pins.get(type === 'esp' ? 'GPIO4' : 'PB4')!;
+    )
+      .mcus.get('U1')!
+      .pins.get(type === 'esp' ? 'GPIO4' : 'PB4')!;
 
   it('button to GND with the internal pull-up reads HIGH released, LOW pressed', () => {
     expect(button('input_pullup', false).logic).toBe('high');
@@ -123,22 +188,56 @@ describe('GPIO inputs', () => {
   });
 
   it('an external 10 kΩ pull-up defines the input', () => {
-    const s = simulate(circ([esp({ GPIO34: { mode: 'input' } }), ['R1', 'resistor', { resistance: 10e3 }]], [['U1.3V3', 'R1.1'], ['R1.2', 'U1.GPIO34']]));
+    const s = simulate(
+      circ(
+        [esp({ GPIO34: { mode: 'input' } }), ['R1', 'resistor', { resistance: 10e3 }]],
+        [
+          ['U1.3V3', 'R1.1'],
+          ['R1.2', 'U1.GPIO34'],
+        ],
+      ),
+    );
     expect(s.mcus.get('U1')!.pins.get('GPIO34')!.logic).toBe('high');
   });
 
   it('input-only pins have no pull-up: GPIO34 + input_pullup still floats', () => {
-    const s = simulate(circ([esp({ GPIO34: { mode: 'input_pullup' } }), ['SW1', 'pushbutton', { pressed: false }]], [['U1.GPIO34', 'SW1.1'], ['SW1.2', 'U1.GND']]));
+    const s = simulate(
+      circ(
+        [esp({ GPIO34: { mode: 'input_pullup' } }), ['SW1', 'pushbutton', { pressed: false }]],
+        [
+          ['U1.GPIO34', 'SW1.1'],
+          ['SW1.2', 'U1.GND'],
+        ],
+      ),
+    );
     expect(s.mcus.get('U1')!.pins.get('GPIO34')!.logic).toBe('floating');
   });
 
   it('a voltage between VIL and VIH reads "undefined"', () => {
-    const s = simulate(circ([esp({ GPIO4: { mode: 'input' } }), ['R1', 'resistor', { resistance: 10e3 }], ['R2', 'resistor', { resistance: 10e3 }]], [['U1.3V3', 'R1.1'], ['R1.2', 'R2.1', 'U1.GPIO4'], ['R2.2', 'U1.GND']]));
+    const s = simulate(
+      circ(
+        [esp({ GPIO4: { mode: 'input' } }), ['R1', 'resistor', { resistance: 10e3 }], ['R2', 'resistor', { resistance: 10e3 }]],
+        [
+          ['U1.3V3', 'R1.1'],
+          ['R1.2', 'R2.1', 'U1.GPIO4'],
+          ['R2.2', 'U1.GND'],
+        ],
+      ),
+    );
     expect(s.mcus.get('U1')!.pins.get('GPIO4')!.logic).toBe('undefined');
   });
 
   it('ADC: a 10k/10k divider from 3V3 reads ≈ 1.65 V ≈ 2048', () => {
-    const s = simulate(circ([esp({ GPIO34: { mode: 'adc' } }), ['R1', 'resistor', { resistance: 10e3 }], ['R2', 'resistor', { resistance: 10e3 }]], [['U1.3V3', 'R1.1'], ['R1.2', 'R2.1', 'U1.GPIO34'], ['R2.2', 'U1.GND']]));
+    const s = simulate(
+      circ(
+        [esp({ GPIO34: { mode: 'adc' } }), ['R1', 'resistor', { resistance: 10e3 }], ['R2', 'resistor', { resistance: 10e3 }]],
+        [
+          ['U1.3V3', 'R1.1'],
+          ['R1.2', 'R2.1', 'U1.GPIO34'],
+          ['R2.2', 'U1.GND'],
+        ],
+      ),
+    );
     const adc = s.mcus.get('U1')!.pins.get('GPIO34')!.adc!;
     expect(adc.volts).toBeCloseTo(1.65, 2);
     expect(Math.abs(adc.raw - 2048)).toBeLessThan(8);
@@ -149,9 +248,20 @@ describe('GPIO inputs', () => {
       simulate(
         circ(
           [['PSU1', 'bench_supply', { voltage: 5, currentLimit: 1 }], board, ...(r ? [['R1', 'resistor', { resistance: r }] as Comp] : [])],
-          r ? [['PSU1.+', 'R1.1'], ['R1.2', `U1.${pin}`], ['PSU1.-', 'U1.GND']] : [['PSU1.+', `U1.${pin}`], ['PSU1.-', 'U1.GND']],
+          r
+            ? [
+                ['PSU1.+', 'R1.1'],
+                ['R1.2', `U1.${pin}`],
+                ['PSU1.-', 'U1.GND'],
+              ]
+            : [
+                ['PSU1.+', `U1.${pin}`],
+                ['PSU1.-', 'U1.GND'],
+              ],
         ),
-      ).mcus.get('U1')!.pins.get(pin)!;
+      )
+        .mcus.get('U1')!
+        .pins.get(pin)!;
     const viaR = five(esp({ GPIO4: { mode: 'input' } }), 'GPIO4', 1000);
     expect(viaR.overvoltage).toBe(true);
     expect(viaR.clamp).toBeGreaterThan(0.0005);
@@ -170,7 +280,14 @@ describe('transistors', () => {
     simulate(
       circ(
         [esp({ GPIO2: { mode } }), ['RB', 'resistor', { resistance: rb }], ['Q1', 'npn'], ['RC', 'resistor', { resistance: 220 }], ['LED1', 'led', {}]],
-        [['U1.GPIO2', 'RB.1'], ['RB.2', 'Q1.b'], ['U1.5V', 'RC.1'], ['RC.2', 'LED1.anode'], ['LED1.cathode', 'Q1.c'], ['Q1.e', 'U1.GND']],
+        [
+          ['U1.GPIO2', 'RB.1'],
+          ['RB.2', 'Q1.b'],
+          ['U1.5V', 'RC.1'],
+          ['RC.2', 'LED1.anode'],
+          ['LED1.cathode', 'Q1.c'],
+          ['Q1.e', 'U1.GND'],
+        ],
       ),
     );
 
@@ -181,7 +298,7 @@ describe('transistors', () => {
     expect(q.vce).toBeLessThan(0.25);
     expect(q.vbe).toBeGreaterThan(0.6);
     expect(q.ib).toBeCloseTo((3.3 - 0.69) / 1025, 4);
-    expect(on.leds.get('LED1')!.current).toBeGreaterThan(0.010);
+    expect(on.leds.get('LED1')!.current).toBeGreaterThan(0.01);
     const off = npnLed('out_low');
     expect(off.bjts.get('Q1')!.region).toBe('cutoff');
     expect(off.leds.get('LED1')!.on).toBe(false);
@@ -198,7 +315,13 @@ describe('transistors', () => {
     const s = simulate(
       circ(
         [esp({ GPIO2: { mode: 'out_high' } }), ['RB', 'resistor', { resistance: 1000 }], ['Q1', 'npn'], ['K1', 'relay'], ['D1', 'diode']],
-        [['U1.GPIO2', 'RB.1'], ['RB.2', 'Q1.b'], ['U1.5V', 'K1.coil1', 'D1.cathode'], ['K1.coil2', 'D1.anode', 'Q1.c'], ['Q1.e', 'U1.GND']],
+        [
+          ['U1.GPIO2', 'RB.1'],
+          ['RB.2', 'Q1.b'],
+          ['U1.5V', 'K1.coil1', 'D1.cathode'],
+          ['K1.coil2', 'D1.anode', 'Q1.c'],
+          ['Q1.e', 'U1.GND'],
+        ],
       ),
     );
     expect(s.relays.get('K1')!.energized).toBe(true);
@@ -208,7 +331,15 @@ describe('transistors', () => {
   });
 
   it('a GPIO alone cannot pull in a 5 V relay', () => {
-    const s = simulate(circ([esp({ GPIO2: { mode: 'out_high' } }), ['K1', 'relay']], [['U1.GPIO2', 'K1.coil1'], ['K1.coil2', 'U1.GND']]));
+    const s = simulate(
+      circ(
+        [esp({ GPIO2: { mode: 'out_high' } }), ['K1', 'relay']],
+        [
+          ['U1.GPIO2', 'K1.coil1'],
+          ['K1.coil2', 'U1.GND'],
+        ],
+      ),
+    );
     expect(s.relays.get('K1')!.energized).toBe(false);
     expect(s.mcus.get('U1')!.pins.get('GPIO2')!.overcurrent).toBe(true);
   });
@@ -216,8 +347,22 @@ describe('transistors', () => {
   const mosMotor = (mode: 'out_high' | 'out_low', model: 'IRLZ44N' | 'IRF540N' = 'IRLZ44N') =>
     simulate(
       circ(
-        [['PSU1', 'bench_supply', { voltage: 5, currentLimit: 3 }], esp({ GPIO2: { mode } }), ['RG', 'resistor', { resistance: 100 }], ['RPD', 'resistor', { resistance: 10e3 }], ['Q1', 'nmos', { model }], ['M1', 'motor'], ['D1', 'diode']],
-        [['PSU1.+', 'M1.+', 'D1.cathode'], ['M1.-', 'D1.anode', 'Q1.d'], ['U1.GPIO2', 'RG.1'], ['RG.2', 'Q1.g', 'RPD.1'], ['RPD.2', 'Q1.s', 'PSU1.-', 'U1.GND']],
+        [
+          ['PSU1', 'bench_supply', { voltage: 5, currentLimit: 3 }],
+          esp({ GPIO2: { mode } }),
+          ['RG', 'resistor', { resistance: 100 }],
+          ['RPD', 'resistor', { resistance: 10e3 }],
+          ['Q1', 'nmos', { model }],
+          ['M1', 'motor'],
+          ['D1', 'diode'],
+        ],
+        [
+          ['PSU1.+', 'M1.+', 'D1.cathode'],
+          ['M1.-', 'D1.anode', 'Q1.d'],
+          ['U1.GPIO2', 'RG.1'],
+          ['RG.2', 'Q1.g', 'RPD.1'],
+          ['RPD.2', 'Q1.s', 'PSU1.-', 'U1.GND'],
+        ],
       ),
     );
 
@@ -243,14 +388,36 @@ describe('transistors', () => {
   });
 
   it('MOSFET gate without a pull-down floats', () => {
-    const s = simulate(circ([['PSU1', 'bench_supply', { voltage: 5 }], ['Q1', 'nmos'], ['R1', 'resistor', { resistance: 100 }]], [['PSU1.+', 'R1.1'], ['R1.2', 'Q1.d'], ['Q1.s', 'PSU1.-'], ['Q1.g']]));
+    const s = simulate(
+      circ(
+        [
+          ['PSU1', 'bench_supply', { voltage: 5 }],
+          ['Q1', 'nmos'],
+          ['R1', 'resistor', { resistance: 100 }],
+        ],
+        [['PSU1.+', 'R1.1'], ['R1.2', 'Q1.d'], ['Q1.s', 'PSU1.-'], ['Q1.g']],
+      ),
+    );
     expect(s.mosfets.get('Q1')!.gateFloating).toBe(true);
   });
 });
 
 describe('LDO, buzzer, sensors', () => {
   const ldo = (vin: number, rload: number) =>
-    simulate(circ([['PSU1', 'bench_supply', { voltage: vin, currentLimit: 3 }], ['U2', 'ldo'], ['RL', 'resistor', { resistance: rload }]], [['PSU1.+', 'U2.in'], ['U2.out', 'RL.1'], ['RL.2', 'U2.gnd', 'PSU1.-']])).regs.get('U2')!;
+    simulate(
+      circ(
+        [
+          ['PSU1', 'bench_supply', { voltage: vin, currentLimit: 3 }],
+          ['U2', 'ldo'],
+          ['RL', 'resistor', { resistance: rload }],
+        ],
+        [
+          ['PSU1.+', 'U2.in'],
+          ['U2.out', 'RL.1'],
+          ['RL.2', 'U2.gnd', 'PSU1.-'],
+        ],
+      ),
+    ).regs.get('U2')!;
 
   it('regulates 3.3 V, drops out below Vin ≈ 4.4 V, current-limits at 800 mA', () => {
     expect(ldo(5, 100).mode).toBe('reg');
@@ -266,7 +433,23 @@ describe('LDO, buzzer, sensors', () => {
 
   it('active buzzer sounds at 5 V, not when reversed', () => {
     const bz = (rev: boolean) =>
-      simulate(circ([['PSU1', 'bench_supply', { voltage: 5 }], ['BZ1', 'buzzer']], rev ? [['PSU1.+', 'BZ1.-'], ['BZ1.+', 'PSU1.-']] : [['PSU1.+', 'BZ1.+'], ['BZ1.-', 'PSU1.-']])).buzzers.get('BZ1')!;
+      simulate(
+        circ(
+          [
+            ['PSU1', 'bench_supply', { voltage: 5 }],
+            ['BZ1', 'buzzer'],
+          ],
+          rev
+            ? [
+                ['PSU1.+', 'BZ1.-'],
+                ['BZ1.+', 'PSU1.-'],
+              ]
+            : [
+                ['PSU1.+', 'BZ1.+'],
+                ['BZ1.-', 'PSU1.-'],
+              ],
+        ),
+      ).buzzers.get('BZ1')!;
     expect(bz(false).on).toBe(true);
     expect(bz(false).current).toBeCloseTo(4 / 140, 3);
     expect(bz(true).on).toBe(false);
@@ -280,7 +463,18 @@ describe('LDO, buzzer, sensors', () => {
     expect(ntcResistance(0) / 1000).toBeCloseTo(33.6, 0);
     expect(ntcResistance(50) / 1000).toBeCloseTo(3.59, 1);
     const adc = (lux: number) =>
-      simulate(circ([esp({ GPIO34: { mode: 'adc' } }), ['LDR1', 'ldr', { lux }], ['R1', 'resistor', { resistance: 10e3 }]], [['U1.3V3', 'LDR1.1'], ['LDR1.2', 'R1.1', 'U1.GPIO34'], ['R1.2', 'U1.GND']])).mcus.get('U1')!.pins.get('GPIO34')!.adc!.raw;
+      simulate(
+        circ(
+          [esp({ GPIO34: { mode: 'adc' } }), ['LDR1', 'ldr', { lux }], ['R1', 'resistor', { resistance: 10e3 }]],
+          [
+            ['U1.3V3', 'LDR1.1'],
+            ['LDR1.2', 'R1.1', 'U1.GPIO34'],
+            ['R1.2', 'U1.GND'],
+          ],
+        ),
+      )
+        .mcus.get('U1')!
+        .pins.get('GPIO34')!.adc!.raw;
     expect(adc(1000)).toBeGreaterThan(adc(10));
     expect(adc(1000)).toBeGreaterThan(3500);
   });
@@ -291,7 +485,11 @@ describe('PWM in the time domain', () => {
     const { simulateTransient, hasGenerator } = await import('./transient');
     const c = circ(
       [esp({ GPIO25: { mode: 'pwm', duty: 25, frequency: 1000 } }), ['R1', 'resistor', { resistance: 10e3 }], ['C1', 'capacitor', { capacitance: 10e-6 }]],
-      [['U1.GPIO25', 'R1.1'], ['R1.2', 'C1.1'], ['C1.2', 'U1.GND']],
+      [
+        ['U1.GPIO25', 'R1.1'],
+        ['R1.2', 'C1.1'],
+        ['C1.2', 'U1.GND'],
+      ],
     );
     expect(hasGenerator(c)).toBe(true);
     const tr = simulateTransient(c);
@@ -309,7 +507,14 @@ describe('PWM in the time domain', () => {
     const { simulateTransient } = await import('./transient');
     const led = (duty: number) =>
       simulateTransient(
-        circ([esp({ GPIO2: { mode: 'pwm', duty, frequency: 500 } }), ['R1', 'resistor', { resistance: 220 }], ['LED1', 'led', {}]], [['U1.GPIO2', 'R1.1'], ['R1.2', 'LED1.anode'], ['LED1.cathode', 'U1.GND']]),
+        circ(
+          [esp({ GPIO2: { mode: 'pwm', duty, frequency: 500 } }), ['R1', 'resistor', { resistance: 220 }], ['LED1', 'led', {}]],
+          [
+            ['U1.GPIO2', 'R1.1'],
+            ['R1.2', 'LED1.anode'],
+            ['LED1.cathode', 'U1.GND'],
+          ],
+        ),
       ).leds.get('LED1')!;
     const full = 1.5 / (25 + 220 + 12);
     expect(led(50).avgCurrent).toBeCloseTo(full * 0.5, 3);
@@ -318,8 +523,20 @@ describe('PWM in the time domain', () => {
 
   const relayPwm = (diode: boolean) =>
     circ(
-      [esp({ GPIO2: { mode: 'pwm', duty: 50, frequency: 20 } }), ['RB', 'resistor', { resistance: 1000 }], ['Q1', 'npn'], ['K1', 'relay'], ...(diode ? [['D1', 'diode'] as Comp] : [])],
-      [['U1.GPIO2', 'RB.1'], ['RB.2', 'Q1.b'], ['U1.5V', 'K1.coil1', ...(diode ? ['D1.cathode'] : [])], ['K1.coil2', 'Q1.c', ...(diode ? ['D1.anode'] : [])], ['Q1.e', 'U1.GND']],
+      [
+        esp({ GPIO2: { mode: 'pwm', duty: 50, frequency: 20 } }),
+        ['RB', 'resistor', { resistance: 1000 }],
+        ['Q1', 'npn'],
+        ['K1', 'relay'],
+        ...(diode ? [['D1', 'diode'] as Comp] : []),
+      ],
+      [
+        ['U1.GPIO2', 'RB.1'],
+        ['RB.2', 'Q1.b'],
+        ['U1.5V', 'K1.coil1', ...(diode ? ['D1.cathode'] : [])],
+        ['K1.coil2', 'Q1.c', ...(diode ? ['D1.anode'] : [])],
+        ['Q1.e', 'U1.GND'],
+      ],
     );
 
   it('switching a relay coil off without a flyback diode kicks the collector into breakdown', async () => {
@@ -345,7 +562,12 @@ describe('PWM in the time domain', () => {
     const tr = simulateTransient(
       circ(
         [['PSU1', 'bench_supply', { voltage: 5, currentLimit: 3 }], esp({ GPIO2: { mode: 'pwm', duty: 40, frequency: 1000 } }), ['Q1', 'nmos'], ['M1', 'motor'], ['D1', 'diode']],
-        [['PSU1.+', 'M1.+', 'D1.cathode'], ['M1.-', 'D1.anode', 'Q1.d'], ['U1.GPIO2', 'Q1.g'], ['Q1.s', 'PSU1.-', 'U1.GND']],
+        [
+          ['PSU1.+', 'M1.+', 'D1.cathode'],
+          ['M1.-', 'D1.anode', 'Q1.d'],
+          ['U1.GPIO2', 'Q1.g'],
+          ['Q1.s', 'PSU1.-', 'U1.GND'],
+        ],
       ),
     );
     const m = tr.motors.get('M1')!;
@@ -469,7 +691,11 @@ describe('open drain + rise time (I²C pull-ups)', () => {
     const tr = simulateTransient(
       circ(
         [esp({ GPIO21: { mode: 'pwm', duty: 50, frequency: 100e3, openDrain: true } }), ['RP', 'resistor', { resistance: 4700 }], ['CB', 'capacitor', { capacitance: 200e-12 }]],
-        [['U1.3V3', 'RP.1'], ['RP.2', 'CB.1', 'U1.GPIO21'], ['CB.2', 'U1.GND']],
+        [
+          ['U1.3V3', 'RP.1'],
+          ['RP.2', 'CB.1', 'U1.GPIO21'],
+          ['CB.2', 'U1.GND'],
+        ],
       ),
     );
     const rise = tr.measure('rise', 'U1.GPIO21', 'U1.GND');
@@ -480,7 +706,15 @@ describe('open drain + rise time (I²C pull-ups)', () => {
   });
 
   it('open-drain out_high just releases the pin (floats without a pull-up)', () => {
-    const s = simulate(circ([esp({ GPIO21: { mode: 'out_high', openDrain: true } }), ['R1', 'resistor', { resistance: 10e3 }]], [['U1.GPIO21', 'R1.1'], ['R1.2', 'U1.GND']]));
+    const s = simulate(
+      circ(
+        [esp({ GPIO21: { mode: 'out_high', openDrain: true } }), ['R1', 'resistor', { resistance: 10e3 }]],
+        [
+          ['U1.GPIO21', 'R1.1'],
+          ['R1.2', 'U1.GND'],
+        ],
+      ),
+    );
     const p = s.mcus.get('U1')!.pins.get('GPIO21')!;
     expect(Math.abs(p.voltage)).toBeLessThan(0.01);
     expect(p.current).toBe(0);
@@ -491,7 +725,19 @@ describe('flyback diode is not "reversed"', () => {
   it('no reverse warning for a diode across an energised relay coil', async () => {
     const { buildNetlist } = await import('./netlist');
     const { boardDiagnostics } = await import('./diagnostics');
-    const nl = { circuit: circ([['PSU1', 'bench_supply', { voltage: 5, currentLimit: 1 }], ['K1', 'relay'], ['D1', 'diode']], [['PSU1.+', 'K1.coil1', 'D1.cathode'], ['K1.coil2', 'D1.anode', 'PSU1.-']]) };
+    const nl = {
+      circuit: circ(
+        [
+          ['PSU1', 'bench_supply', { voltage: 5, currentLimit: 1 }],
+          ['K1', 'relay'],
+          ['D1', 'diode'],
+        ],
+        [
+          ['PSU1.+', 'K1.coil1', 'D1.cathode'],
+          ['K1.coil2', 'D1.anode', 'PSU1.-'],
+        ],
+      ),
+    };
     void buildNetlist;
     const pinNet = new Map<string, string>();
     nl.circuit.nets.forEach((n) => n.pins.forEach((p) => pinNet.set(p, n.name)));
@@ -502,7 +748,20 @@ describe('flyback diode is not "reversed"', () => {
 
 describe('plain diode ratings', () => {
   it('a rectifier diode carrying 200 mA is fine (LED thresholds do not apply)', () => {
-    const s = simulate(circ([['V1', 'bench_supply', { voltage: 5, currentLimit: 1 }], ['R1', 'resistor', { resistance: 22 }], ['D1', 'diode', {}]], [['V1.+', 'R1.1'], ['R1.2', 'D1.anode'], ['D1.cathode', 'V1.-']]));
+    const s = simulate(
+      circ(
+        [
+          ['V1', 'bench_supply', { voltage: 5, currentLimit: 1 }],
+          ['R1', 'resistor', { resistance: 22 }],
+          ['D1', 'diode', {}],
+        ],
+        [
+          ['V1.+', 'R1.1'],
+          ['R1.2', 'D1.anode'],
+          ['D1.cathode', 'V1.-'],
+        ],
+      ),
+    );
     const d = s.leds.get('D1')!;
     expect(d.current).toBeGreaterThan(0.15);
     expect(d.burnt).toBe(false);
@@ -518,8 +777,17 @@ describe('netlist naming with a dev board and a separate supply', () => {
       format: 'breadboard-challenge/1',
       id: 'gnd-split',
       title: 'gnd split',
-      components: [{ ref: 'U1', type: 'esp32_devkit' }, { ref: 'BAT1', type: 'battery' }, { ref: 'R1', type: 'resistor' }, { ref: 'LED1', type: 'led' }],
-      connections: [['BAT1.+', 'R1.1'], ['R1.2', 'LED1.anode'], ['LED1.cathode', 'BAT1.-']],
+      components: [
+        { ref: 'U1', type: 'esp32_devkit' },
+        { ref: 'BAT1', type: 'battery' },
+        { ref: 'R1', type: 'resistor' },
+        { ref: 'LED1', type: 'led' },
+      ],
+      connections: [
+        ['BAT1.+', 'R1.1'],
+        ['R1.2', 'LED1.anode'],
+        ['LED1.cathode', 'BAT1.-'],
+      ],
       solution: {
         parts: [
           { type: 'esp32_devkit', ref: 'U1', at: 'b1', props: { usb: true } },

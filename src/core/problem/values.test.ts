@@ -15,7 +15,12 @@ const problem = (value: unknown, extraQ: object[] = []) => ({
       { ref: 'R1', type: 'R', from: [0, 0], to: [4, 0], value: '1k' },
       { ref: 'C1', type: 'C', from: [4, 0], to: [4, 4], value: '1u' },
     ],
-    wires: [[[0, 4], [4, 4]]],
+    wires: [
+      [
+        [0, 4],
+        [4, 4],
+      ],
+    ],
     grounds: [[0, 4]],
   },
   analysis: { type: 'tran' },

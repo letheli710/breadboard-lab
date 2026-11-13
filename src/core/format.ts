@@ -18,7 +18,10 @@ const PREFIX: Record<string, number> = {
 export function parseValue(v: string | number | undefined | null): number | null {
   if (v === undefined || v === null) return null;
   if (typeof v === 'number') return Number.isFinite(v) ? v : null;
-  let s = v.trim().replace(/\s+/g, '').replace(/(ohms?|Ω|Hz|F|V|A|H)$/i, '');
+  let s = v
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/(ohms?|Ω|Hz|F|V|A|H)$/i, '');
   // "4k7" style
   const mid = s.match(/^(\d+)([pnuµmkKMG])(\d+)$/);
   if (mid) s = `${mid[1]}.${mid[3]}${mid[2]}`;
@@ -98,11 +101,6 @@ export function resistorBands(r: number): { name: string; hex: string }[] {
   }
   const d1 = Math.floor(sig / 10);
   const d2 = sig % 10;
-  const mult =
-    exp >= 0 && exp <= 9
-      ? BAND_COLORS[exp]
-      : exp === -1
-        ? band('金', 'gold (×0.1)', '#c9a227')
-        : band('银', 'silver (×0.01)', '#bfc3c7');
+  const mult = exp >= 0 && exp <= 9 ? BAND_COLORS[exp] : exp === -1 ? band('金', 'gold (×0.1)', '#c9a227') : band('银', 'silver (×0.01)', '#bfc3c7');
   return [BAND_COLORS[d1], BAND_COLORS[d2], mult, GOLD];
 }

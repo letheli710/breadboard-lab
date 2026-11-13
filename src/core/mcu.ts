@@ -144,7 +144,18 @@ function esp32Pins(): Record<string, McuPinDef> {
 // STM32F103C8T6 Blue Pill (40 pins)
 
 const STM_FT = new Set(['PA8', 'PA9', 'PA10', 'PA11', 'PA12', 'PA15', 'PB3', 'PB4', 'PB6', 'PB7', 'PB8', 'PB9', 'PB10', 'PB11', 'PB12', 'PB13', 'PB14', 'PB15']);
-const STM_ADC: Record<string, string> = { PA0: 'ADC12_IN0', PA1: 'ADC12_IN1', PA2: 'ADC12_IN2', PA3: 'ADC12_IN3', PA4: 'ADC12_IN4', PA5: 'ADC12_IN5', PA6: 'ADC12_IN6', PA7: 'ADC12_IN7', PB0: 'ADC12_IN8', PB1: 'ADC12_IN9' };
+const STM_ADC: Record<string, string> = {
+  PA0: 'ADC12_IN0',
+  PA1: 'ADC12_IN1',
+  PA2: 'ADC12_IN2',
+  PA3: 'ADC12_IN3',
+  PA4: 'ADC12_IN4',
+  PA5: 'ADC12_IN5',
+  PA6: 'ADC12_IN6',
+  PA7: 'ADC12_IN7',
+  PB0: 'ADC12_IN8',
+  PB1: 'ADC12_IN9',
+};
 const STM_PWM = new Set(['PA0', 'PA1', 'PA2', 'PA3', 'PA6', 'PA7', 'PA8', 'PA9', 'PA10', 'PA11', 'PB0', 'PB1', 'PB6', 'PB7', 'PB8', 'PB9']);
 
 function stmPins(): Record<string, McuPinDef> {
@@ -194,8 +205,48 @@ function legsOf(upper: string[], lower: string[]): McuLeg[] {
   return legs;
 }
 
-const ESP32_UPPER = ['GND', 'GPIO23', 'GPIO22', 'GPIO1', 'GPIO3', 'GPIO21', 'GND', 'GPIO19', 'GPIO18', 'GPIO5', 'GPIO17', 'GPIO16', 'GPIO4', 'GPIO0', 'GPIO2', 'GPIO15', 'GPIO8', 'GPIO7', 'GPIO6'];
-const ESP32_LOWER = ['3V3', 'EN', 'GPIO36', 'GPIO39', 'GPIO34', 'GPIO35', 'GPIO32', 'GPIO33', 'GPIO25', 'GPIO26', 'GPIO27', 'GPIO14', 'GPIO12', 'GND', 'GPIO13', 'GPIO9', 'GPIO10', 'GPIO11', '5V'];
+const ESP32_UPPER = [
+  'GND',
+  'GPIO23',
+  'GPIO22',
+  'GPIO1',
+  'GPIO3',
+  'GPIO21',
+  'GND',
+  'GPIO19',
+  'GPIO18',
+  'GPIO5',
+  'GPIO17',
+  'GPIO16',
+  'GPIO4',
+  'GPIO0',
+  'GPIO2',
+  'GPIO15',
+  'GPIO8',
+  'GPIO7',
+  'GPIO6',
+];
+const ESP32_LOWER = [
+  '3V3',
+  'EN',
+  'GPIO36',
+  'GPIO39',
+  'GPIO34',
+  'GPIO35',
+  'GPIO32',
+  'GPIO33',
+  'GPIO25',
+  'GPIO26',
+  'GPIO27',
+  'GPIO14',
+  'GPIO12',
+  'GND',
+  'GPIO13',
+  'GPIO9',
+  'GPIO10',
+  'GPIO11',
+  '5V',
+];
 const STM_UPPER = ['GND', 'GND', '3V3', 'NRST', 'PB11', 'PB10', 'PB1', 'PB0', 'PA7', 'PA6', 'PA5', 'PA4', 'PA3', 'PA2', 'PA1', 'PA0', 'PC15', 'PC14', 'PC13', 'VBAT'];
 const STM_LOWER = ['PB12', 'PB13', 'PB14', 'PB15', 'PA8', 'PA9', 'PA10', 'PA11', 'PA12', 'PA15', 'PB3', 'PB4', 'PB5', 'PB6', 'PB7', 'PB8', 'PB9', '5V', 'GND', '3V3'];
 
@@ -354,7 +405,28 @@ export function normalizeMcuPin(type: CompType, raw: string): string | null {
   const u = p.toUpperCase().replace(/\s+/g, '');
   const role = parseRole(u);
   if (role) return `${role.role}${role.n}`;
-  const power: Record<string, string> = { '3V3': '3V3', '3.3V': '3V3', '3.3': '3V3', '3V': '3V3', VCC: '3V3', VDD: '3V3', '5V': '5V', VIN: '5V', VBUS: '5V', '5': '5V', GND: 'GND', G: 'GND', VSS: 'GND', EN: 'EN', RST: 'EN', RESET: 'EN', NRST: 'NRST', R: 'NRST', VBAT: 'VBAT', VB: 'VBAT' };
+  const power: Record<string, string> = {
+    '3V3': '3V3',
+    '3.3V': '3V3',
+    '3.3': '3V3',
+    '3V': '3V3',
+    VCC: '3V3',
+    VDD: '3V3',
+    '5V': '5V',
+    VIN: '5V',
+    VBUS: '5V',
+    '5': '5V',
+    GND: 'GND',
+    G: 'GND',
+    VSS: 'GND',
+    EN: 'EN',
+    RST: 'EN',
+    RESET: 'EN',
+    NRST: 'NRST',
+    R: 'NRST',
+    VBAT: 'VBAT',
+    VB: 'VBAT',
+  };
   if (power[u]) {
     let v = power[u];
     if (type === 'stm32_bluepill' && v === 'EN') v = 'NRST';
@@ -363,7 +435,26 @@ export function normalizeMcuPin(type: CompType, raw: string): string | null {
   }
   if (type === 'esp32_devkit') {
     const m = /^(?:GPIO|IO|D|P)?(\d{1,2})$/.exec(u);
-    const label: Record<string, number> = { TX: 1, TX0: 1, TXD0: 1, RX: 3, RX0: 3, RXD0: 3, VP: 36, SVP: 36, SENSOR_VP: 36, VN: 39, SVN: 39, SENSOR_VN: 39, CLK: 6, SD0: 7, SD1: 8, SD2: 9, SD3: 10, CMD: 11 };
+    const label: Record<string, number> = {
+      TX: 1,
+      TX0: 1,
+      TXD0: 1,
+      RX: 3,
+      RX0: 3,
+      RXD0: 3,
+      VP: 36,
+      SVP: 36,
+      SENSOR_VP: 36,
+      VN: 39,
+      SVN: 39,
+      SENSOR_VN: 39,
+      CLK: 6,
+      SD0: 7,
+      SD1: 8,
+      SD2: 9,
+      SD3: 10,
+      CMD: 11,
+    };
     const n = m ? Number(m[1]) : label[u];
     if (n !== undefined && MCU_BOARDS.esp32_devkit.pins[`GPIO${n}`]) return `GPIO${n}`;
     return null;

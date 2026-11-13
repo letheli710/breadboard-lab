@@ -112,14 +112,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
             {tr('限流设定（CC）：', 'Current limit (CC): ')}
             {((props.currentLimit ?? 0.1) * 1000).toFixed(0)} mA
           </label>
-          <input
-            type="range"
-            min={0.01}
-            max={2}
-            step={0.01}
-            value={props.currentLimit ?? 0.1}
-            onChange={(e) => onChange({ currentLimit: +e.target.value })}
-          />
+          <input type="range" min={0.01} max={2} step={0.01} value={props.currentLimit ?? 0.1} onChange={(e) => onChange({ currentLimit: +e.target.value })} />
           <p className="note">
             {tr(
               '做实验时先把限流调小（例如 50–100 mA），万一接错短路，电源只会输出这么多电流，不会烧东西。',
@@ -280,9 +273,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
               </button>
             ))}
           </div>
-          <p className="note">
-            {tr('探头和屏幕上的波形颜色一致：CH1 黄色，CH2 青色。', 'Probe colour matches its trace on the screen: CH1 yellow, CH2 cyan.')}
-          </p>
+          <p className="note">{tr('探头和屏幕上的波形颜色一致：CH1 黄色，CH2 青色。', 'Probe colour matches its trace on the screen: CH1 yellow, CH2 cyan.')}</p>
         </div>
       );
     default:
@@ -389,7 +380,12 @@ function OpAmpInfo({ part }: { part: PlacedPart }) {
     if (!s || !s.used) return tr('未使用', 'unused');
     if (s.mode === 'off') return tr('没有供电', 'no power');
     const clip = d.ac?.clipping.has(`${part.ref}.${h}`);
-    const m = s.mode === 'linear' ? tr('线性放大', 'linear') : s.mode === 'high' ? tr('输出顶到上限（饱和）', 'stuck at the top rail (saturated)') : tr('输出顶到下限（饱和）', 'stuck at the bottom rail (saturated)');
+    const m =
+      s.mode === 'linear'
+        ? tr('线性放大', 'linear')
+        : s.mode === 'high'
+          ? tr('输出顶到上限（饱和）', 'stuck at the top rail (saturated)')
+          : tr('输出顶到下限（饱和）', 'stuck at the bottom rail (saturated)');
     return `${m}${d.ac ? '' : ` · OUT ${hide ? HIDDEN : volts(s.out)}`}${clip ? tr(' · 交流时削顶', ' · clips on AC') : ''}`;
   };
   return (
@@ -412,8 +408,7 @@ function OpAmpInfo({ part }: { part: PlacedPart }) {
         )}
       </p>
       <div className={st?.powered ? '' : 'warn'}>
-        {tr('电源', 'Power')}{' '}
-        <b>{st?.powered ? `${hide ? HIDDEN : volts(st.supply)} (V+ − V−)` : tr('未供电：8 脚接 +，4 脚接 GND', 'not powered: pin 8 to +, pin 4 to GND')}</b>
+        {tr('电源', 'Power')} <b>{st?.powered ? `${hide ? HIDDEN : volts(st.supply)} (V+ − V−)` : tr('未供电：8 脚接 +，4 脚接 GND', 'not powered: pin 8 to +, pin 4 to GND')}</b>
       </div>
       <div>
         {tr('运放 A（1–3 脚）', 'Op-amp A (pins 1–3)')} <b>{half('A')}</b>
@@ -456,7 +451,10 @@ export function Inspector() {
           {tool === 'scope_probe' ? (
             <p className="note">
               {nextScopeChannel(layout)
-                ? tr(`通道自动分配：这个探头将接到 CH${nextScopeChannel(layout)}。放好后可以在这里改。`, `Channel is assigned automatically: this probe will be CH${nextScopeChannel(layout)}. You can change it after placing.`)
+                ? tr(
+                    `通道自动分配：这个探头将接到 CH${nextScopeChannel(layout)}。放好后可以在这里改。`,
+                    `Channel is assigned automatically: this probe will be CH${nextScopeChannel(layout)}. You can change it after placing.`,
+                  )
                 : tr('CH1 和 CH2 都已经有探头了——先删掉一个探头。', 'CH1 and CH2 both have a probe already — delete one first.')}
             </p>
           ) : (
@@ -482,7 +480,12 @@ export function Inspector() {
           <li>
             <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd> {tr('重做', 'redo')}
           </li>
-          <li>{tr('拖动旋转视角，滚轮缩放，右键拖动平移；右上角“视角”按钮一键切换预设视角', 'Drag to rotate, scroll to zoom, right-drag to pan; the "View" button (top right) cycles preset views')}</li>
+          <li>
+            {tr(
+              '拖动旋转视角，滚轮缩放，右键拖动平移；右上角“视角”按钮一键切换预设视角',
+              'Drag to rotate, scroll to zoom, right-drag to pan; the "View" button (top right) cycles preset views',
+            )}
+          </li>
         </ul>
       </div>
     );
@@ -537,7 +540,9 @@ export function Inspector() {
           ) : acI ? (
             <>
               <div className="ac-tag">
-                {layout.parts.some((p) => p.type === 'function_gen') ? tr('交流（信号发生器驱动）', 'AC (driven by the generator)') : tr('时域仿真（PWM 驱动）', 'time-domain (driven by PWM)')}
+                {layout.parts.some((p) => p.type === 'function_gen')
+                  ? tr('交流（信号发生器驱动）', 'AC (driven by the generator)')
+                  : tr('时域仿真（PWM 驱动）', 'time-domain (driven by PWM)')}
               </div>
               <div>
                 {tr('电流 平均值', 'Current, average')} <b>{amps(vavg(acI))}</b>
@@ -581,21 +586,21 @@ export function Inspector() {
           )}
         </p>
       ) : (
-      <div className="readout">
-        <div className="eyebrow">{tr('引脚位置', 'Pin positions')}</div>
-        {Object.entries(part.pins).map(([pin, hole]) => {
-          const term = def.terminalOf[pin];
-          const tl = terminalName(part.type, term);
-          const net = nl.holeNet.get(hole);
-          return (
-            <div key={pin} className="pinrow">
-              <span>{part.type === 'wire' ? (pin === 'a' ? tr('起点', 'start') : tr('终点', 'end')) : tl}</span>
-              <span>{holeLabel(hole)}</span>
-              {!isFloating(net) && <span className="net-chip">{net}</span>}
-            </div>
-          );
-        })}
-      </div>
+        <div className="readout">
+          <div className="eyebrow">{tr('引脚位置', 'Pin positions')}</div>
+          {Object.entries(part.pins).map(([pin, hole]) => {
+            const term = def.terminalOf[pin];
+            const tl = terminalName(part.type, term);
+            const net = nl.holeNet.get(hole);
+            return (
+              <div key={pin} className="pinrow">
+                <span>{part.type === 'wire' ? (pin === 'a' ? tr('起点', 'start') : tr('终点', 'end')) : tl}</span>
+                <span>{holeLabel(hole)}</span>
+                {!isFloating(net) && <span className="net-chip">{net}</span>}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

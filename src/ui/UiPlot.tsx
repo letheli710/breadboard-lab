@@ -77,7 +77,12 @@ export function UiPlot({ schematic }: { schematic: Schematic }) {
           <g key={n}>
             <circle cx={X(u)} cy={Y(i)} r={3.6} className="uiplot-q" />
             <text x={X(u) + 6} y={Y(i) - 6} className="uiplot-qlabel">
-              Q{points.length > 1 ? <tspan fontSize="0.75em" dy={3}>{n + 1}</tspan> : null}
+              Q
+              {points.length > 1 ? (
+                <tspan fontSize="0.75em" dy={3}>
+                  {n + 1}
+                </tspan>
+              ) : null}
             </text>
           </g>
         ))}

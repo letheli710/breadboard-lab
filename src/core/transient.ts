@@ -247,7 +247,7 @@ export function fundamental(x: ArrayLike<number>, cycles: number): { amp: number
 }
 
 const wrapDeg = (d: number) => {
-  let x = ((d + 180) % 360 + 360) % 360 - 180;
+  let x = ((((d + 180) % 360) + 360) % 360) - 180;
   if (x <= -180) x += 360;
   return x;
 };
@@ -287,8 +287,14 @@ export function freq(x: ArrayLike<number>, dt: number, periodic = true): number 
     // prime the trigger with the last sample outside the hysteresis band (wrap-around)
     let high = false;
     for (let i = n - 1; i >= 0; i--) {
-      if (x[i] >= up) { high = true; break; }
-      if (x[i] <= dn) { high = false; break; }
+      if (x[i] >= up) {
+        high = true;
+        break;
+      }
+      if (x[i] <= dn) {
+        high = false;
+        break;
+      }
     }
     let count = 0;
     for (let i = 0; i < n; i++) {
@@ -499,8 +505,7 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
   let kNow = 0;
   const emf = (src: CSource) => emfAt(src, kNow);
   const squares = gens.filter((g) => g.gen!.waveform === 'square');
-  const edgeBefore = (k: number) =>
-    squares.some((g) => wave('square', frac(g, k)) !== wave('square', frac(g, k - 1))) || pwms.some((p) => pwmHigh(p, k) !== pwmHigh(p, k - 1));
+  const edgeBefore = (k: number) => squares.some((g) => wave('square', frac(g, k)) !== wave('square', frac(g, k - 1))) || pwms.some((p) => pwmHigh(p, k) !== pwmHigh(p, k - 1));
 
   // ---- initial state: DC operating point with generators at their average (= offset)
   const dc = solveDcCompiled(c, (s) => (s.gen ? s.gen.offset : s.v));

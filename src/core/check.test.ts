@@ -60,7 +60,10 @@ const series = (n: number, ohms = 1000): Spec[] => [
   battery,
   ...Array.from({ length: n }, (_, i): Spec => ['R' + (i + 1), 'resistor', { resistance: ohms }, { '1': i === 0 ? 'VCC' : `N${i}`, '2': i === n - 1 ? 'GND' : `N${i + 1}` }]),
 ];
-const parallel = (n: number, ohms = 1000): Spec[] => [battery, ...Array.from({ length: n }, (_, i): Spec => ['R' + (i + 1), 'resistor', { resistance: ohms }, { '1': 'VCC', '2': 'GND' }])];
+const parallel = (n: number, ohms = 1000): Spec[] => [
+  battery,
+  ...Array.from({ length: n }, (_, i): Spec => ['R' + (i + 1), 'resistor', { resistance: ohms }, { '1': 'VCC', '2': 'GND' }]),
+];
 const mixed: Spec[] = [
   battery,
   ['R1', 'resistor', { resistance: 100 }, { '1': 'VCC', '2': 'A' }],

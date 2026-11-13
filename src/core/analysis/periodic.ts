@@ -71,8 +71,7 @@ export class PeriodicCircuit {
     this.rms = analysis.phasor !== 'peak';
     const ks = new Set<number>();
     for (const el of this.ckt.els) {
-      if (el.type === 'Z')
-        throw new AnalysisError(`${el.ref}: a Z element has a fixed impedance at one frequency; in periodic (harmonic) analysis use R, L and C`);
+      if (el.type === 'Z') throw new AnalysisError(`${el.ref}: a Z element has a fixed impedance at one frequency; in periodic (harmonic) analysis use R, L and C`);
       if (!isIndependent(el)) continue;
       const sp = this.spectrumOf(el);
       this.spectra.set(el.ref, sp);
@@ -241,8 +240,7 @@ function wholeWave(pc: PeriodicCircuit, find: Find): number {
 /** computeQuantity for analysis {type: "periodic"} */
 export function computePeriodic(netlist: Netlist, analysis: PeriodicAnalysis, find: Find): number {
   if (!find || typeof find !== 'object') throw new AnalysisError('find must be an object');
-  if (find.freq !== undefined || find.omega !== undefined)
-    throw new AnalysisError('find.freq / find.omega: in periodic analysis ask for a harmonic with "harmonic": k instead');
+  if (find.freq !== undefined || find.omega !== undefined) throw new AnalysisError('find.freq / find.omega: in periodic analysis ask for a harmonic with "harmonic": k instead');
   if ((find as { deriv?: unknown }).deriv !== undefined) throw new AnalysisError('find.deriv is only available in transient analysis');
   const pc = new PeriodicCircuit(netlist, analysis);
   const kind = find.kind;
@@ -256,8 +254,7 @@ export function computePeriodic(netlist: Netlist, analysis: PeriodicAnalysis, fi
     v = reduce(computeComplex(pc.netFor(1), { type: 'ac', omega: pc.omega }, { ...find, harmonic: undefined }), find.part, { type: 'dc' });
   } else if (find.harmonic !== undefined) {
     const k = checkHarmonic(find.harmonic);
-    if (!WHOLE_SIGNAL.includes(kind) && !WHOLE_POWER.includes(kind) && !PER_HARMONIC_ONLY.includes(kind))
-      throw new AnalysisError(`"${kind}" is not available per harmonic`);
+    if (!WHOLE_SIGNAL.includes(kind) && !WHOLE_POWER.includes(kind) && !PER_HARMONIC_ONLY.includes(kind)) throw new AnalysisError(`"${kind}" is not available per harmonic`);
     if (find.t !== undefined) throw new AnalysisError('find.t: ask either one harmonic or the instantaneous value, not both');
     v = perHarmonic(pc, find, k);
   } else if (PER_HARMONIC_ONLY.includes(kind)) {

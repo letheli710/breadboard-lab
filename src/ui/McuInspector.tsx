@@ -26,7 +26,9 @@ const mA = (a: number) => {
 
 /** Formatters for simulated values: "—" while a lab hides its readings (state/readingsHidden.ts). */
 const readoutFormat = (hide: boolean) =>
-  hide ? { volts: () => HIDDEN, amps: () => HIDDEN, mA: () => HIDDEN, adc: () => HIDDEN } : { volts, amps, mA, adc: (a: { volts: number; raw: number }) => `ADC ${a.volts.toFixed(2)} V · ${a.raw}` };
+  hide
+    ? { volts: () => HIDDEN, amps: () => HIDDEN, mA: () => HIDDEN, adc: () => HIDDEN }
+    : { volts, amps, mA, adc: (a: { volts: number; raw: number }) => `ADC ${a.volts.toFixed(2)} V · ${a.raw}` };
 
 const LOGIC: Record<LogicLevel, [string, string]> = {
   high: ['高 HIGH', 'HIGH'],
@@ -62,7 +64,12 @@ function Badges({ def }: { def: McuPinDef }) {
     if (c.pwm && c.output) out.push(['b-pwm', 'PWM', tr('可输出 PWM', 'PWM capable')]);
     if (!c.output) out.push(['b-warn', tr('仅输入', 'IN only'), tr('只能输入，没有内部上拉/下拉', 'input only, no internal pull-up/down')]);
     if (c.weak) out.push(['b-warn', '3 mA', tr('弱驱动：最多 3 mA', 'weak driver: 3 mA max')]);
-    if (c.note === 'strap') out.push(['b-note', tr('启动脚', 'strap'), tr('上电时决定启动模式：外部电路不要把它拉到错误电平', 'sampled at boot to pick the boot mode: keep external circuits from forcing the wrong level')]);
+    if (c.note === 'strap')
+      out.push([
+        'b-note',
+        tr('启动脚', 'strap'),
+        tr('上电时决定启动模式：外部电路不要把它拉到错误电平', 'sampled at boot to pick the boot mode: keep external circuits from forcing the wrong level'),
+      ]);
     if (c.note === 'tx' || c.note === 'rx') out.push(['b-note', c.note.toUpperCase(), tr('串口（下载 / 打印用）', 'serial port (used for upload / logs)')]);
     if (c.note === 'usb') out.push(['b-note', 'USB', tr('接着 USB 数据线', 'used by USB data')]);
     if (c.note === 'led') out.push(['b-note', 'LED', tr('板载 LED（低电平亮）', 'onboard LED (lit when LOW)')]);
@@ -82,15 +89,29 @@ function capsText(def: McuPinDef): string[] {
   const c = def.gpio;
   const out: string[] = [];
   if (def.kind === 'flash') {
-    out.push(tr('这只脚接着板载 SPI Flash（程序就存在里面）。动它会让芯片死机，所以不能设置模式。', 'This pin is wired to the onboard SPI flash (where the program lives). Touching it crashes the chip, so its mode cannot be changed.'));
+    out.push(
+      tr(
+        '这只脚接着板载 SPI Flash（程序就存在里面）。动它会让芯片死机，所以不能设置模式。',
+        'This pin is wired to the onboard SPI flash (where the program lives). Touching it crashes the chip, so its mode cannot be changed.',
+      ),
+    );
     return out;
   }
   if (!c) return out;
   out.push(c.output ? tr('可以输出（推挽）', 'can output (push-pull)') : tr('只能输入（没有输出驱动）', 'input only (no output driver)'));
   if (c.pull) out.push(tr('有内部上拉 / 下拉电阻', 'internal pull-up / pull-down available'));
   else out.push(tr('没有内部上拉 / 下拉：要自己加电阻', 'no internal pull-up / pull-down: add a resistor yourself'));
-  if (c.adc) out.push(c.adc2 ? tr(`模拟输入 ${c.adc}（ADC2：开 Wi-Fi 时不能用，优先用 ADC1 的 GPIO32–39）`, `analog input ${c.adc} (ADC2: unusable with Wi-Fi on — prefer ADC1, GPIO32–39)`) : tr(`模拟输入 ${c.adc}`, `analog input ${c.adc}`));
-  out.push(c.ft ? tr('耐 5 V（FT）：可以直接接 5 V 信号（作输入）', '5 V tolerant (FT): a 5 V signal may drive it (as an input)') : tr('不耐 5 V：电压不要超过 3.3 V', 'not 5 V tolerant: keep it at or below 3.3 V'));
+  if (c.adc)
+    out.push(
+      c.adc2
+        ? tr(`模拟输入 ${c.adc}（ADC2：开 Wi-Fi 时不能用，优先用 ADC1 的 GPIO32–39）`, `analog input ${c.adc} (ADC2: unusable with Wi-Fi on — prefer ADC1, GPIO32–39)`)
+        : tr(`模拟输入 ${c.adc}`, `analog input ${c.adc}`),
+    );
+  out.push(
+    c.ft
+      ? tr('耐 5 V（FT）：可以直接接 5 V 信号（作输入）', '5 V tolerant (FT): a 5 V signal may drive it (as an input)')
+      : tr('不耐 5 V：电压不要超过 3.3 V', 'not 5 V tolerant: keep it at or below 3.3 V'),
+  );
   if (c.weak) out.push(tr('弱驱动脚：输出电流最多 3 mA', 'weak driver: at most 3 mA output'));
   return out;
 }
@@ -106,7 +127,10 @@ function pinAlert(ps: PinState | undefined, mode: PinMode): { cls: string; text:
   if (ps.overcurrent) return { cls: 'warn', text: tr('电流超过建议值', 'over the recommended current') };
   if (ps.clamp > 1e-5) return { cls: 'warn', text: tr('保护二极管导通', 'clamp diode conducting') };
   if ((mode === 'input' || mode === 'input_pullup' || mode === 'input_pulldown') && (ps.logic === 'floating' || ps.logic === 'undefined'))
-    return { cls: 'warn', text: ps.logic === 'floating' ? tr('输入悬空，读数不定', 'input floating: reads random') : tr('电压在高低之间，读数不确定', 'between LOW and HIGH: read is undefined') };
+    return {
+      cls: 'warn',
+      text: ps.logic === 'floating' ? tr('输入悬空，读数不定', 'input floating: reads random') : tr('电压在高低之间，读数不确定', 'between LOW and HIGH: read is undefined'),
+    };
   return null;
 }
 
@@ -222,9 +246,7 @@ function PinRow({
               <span>{volts(ps.voltage)}</span>
               <span title={tr('流出引脚为正，流入（灌电流）为负', 'positive = out of the pin, negative = into it (sinking)')}>{mA(ps.current)}</span>
               {cfg.mode === 'pwm' ? null : cfg.mode === 'adc' && ps.adc ? (
-                <span className="pin-adc">
-                  {adc(ps.adc)}
-                </span>
+                <span className="pin-adc">{adc(ps.adc)}</span>
               ) : (
                 <span className={`pin-logic ${isInput && (ps.logic === 'floating' || ps.logic === 'undefined') ? 'warn' : ps.logic}`}>{T(LOGIC[ps.logic])}</span>
               )}
@@ -254,10 +276,17 @@ function PinRow({
           )}
           {isOut && (
             <label className="od-check">
-              <input type="checkbox" checked={cfg.openDrain} onChange={(e) => setPin({ ...(part.props.pins?.[def.name] ?? { mode: cfg.mode }), openDrain: e.target.checked || undefined })} />
+              <input
+                type="checkbox"
+                checked={cfg.openDrain}
+                onChange={(e) => setPin({ ...(part.props.pins?.[def.name] ?? { mode: cfg.mode }), openDrain: e.target.checked || undefined })}
+              />
               {tr('开漏输出（open-drain）', 'Open-drain output')}
               <small>
-                {tr('：“高”时引脚松开（高阻），只能往下拉——需要外部上拉电阻（I²C 就是这样）', ': "high" releases the pin (high-Z), it can only pull down — needs an external pull-up (like I²C)')}
+                {tr(
+                  '：“高”时引脚松开（高阻），只能往下拉——需要外部上拉电阻（I²C 就是这样）',
+                  ': "high" releases the pin (high-Z), it can only pull down — needs an external pull-up (like I²C)',
+                )}
               </small>
             </label>
           )}
@@ -297,7 +326,10 @@ function PinRow({
               )}
               {ps.damaged && (
                 <div className="bad">
-                  {tr('这只脚已经烧坏了：电流或电压超过了绝对最大值。改好电路后删掉开发板重新放一块。', 'This pin is damaged: current or voltage went past the absolute maximum. Fix the circuit, then delete the board and place a new one.')}
+                  {tr(
+                    '这只脚已经烧坏了：电流或电压超过了绝对最大值。改好电路后删掉开发板重新放一块。',
+                    'This pin is damaged: current or voltage went past the absolute maximum. Fix the circuit, then delete the board and place a new one.',
+                  )}
                 </div>
               )}
             </div>
@@ -355,8 +387,14 @@ export function McuInspector({ part }: { part: PlacedPart }) {
         </button>
         <p className="note">
           {usb
-            ? tr(`USB 给板子 5V 脚供电（最多约 ${(b.usbLimit * 1000).toFixed(0)} mA），板载 ${b.regulator.name} 降成 3.3 V。3V3 和 5V 脚都可以给面包板供电。`, `USB feeds the board's 5V pin (up to about ${(b.usbLimit * 1000).toFixed(0)} mA); the onboard ${b.regulator.name} makes 3.3 V. Both the 3V3 and 5V pins can power the breadboard.`)
-            : tr('拔掉 USB 后，板子要从 5V 脚（经稳压器）或 3V3 脚获得电源，否则不工作。', 'Without USB the board must be powered through its 5V pin (via the regulator) or its 3V3 pin, otherwise it does not run.')}
+            ? tr(
+                `USB 给板子 5V 脚供电（最多约 ${(b.usbLimit * 1000).toFixed(0)} mA），板载 ${b.regulator.name} 降成 3.3 V。3V3 和 5V 脚都可以给面包板供电。`,
+                `USB feeds the board's 5V pin (up to about ${(b.usbLimit * 1000).toFixed(0)} mA); the onboard ${b.regulator.name} makes 3.3 V. Both the 3V3 and 5V pins can power the breadboard.`,
+              )
+            : tr(
+                '拔掉 USB 后，板子要从 5V 脚（经稳压器）或 3V3 脚获得电源，否则不工作。',
+                'Without USB the board must be powered through its 5V pin (via the regulator) or its 3V3 pin, otherwise it does not run.',
+              )}
         </p>
       </div>
 
@@ -365,7 +403,14 @@ export function McuInspector({ part }: { part: PlacedPart }) {
         {st ? (
           <>
             <div className={st.running ? 'ok' : 'bad'}>
-              {tr('芯片', 'Chip')} <b>{st.running ? tr('运行中', 'running') : st.v3 > 0.3 ? tr(`欠压复位（3V3 < ${b.brownout} V）`, `brown-out reset (3V3 < ${b.brownout} V)`) : tr('没有供电', 'no power')}</b>
+              {tr('芯片', 'Chip')}{' '}
+              <b>
+                {st.running
+                  ? tr('运行中', 'running')
+                  : st.v3 > 0.3
+                    ? tr(`欠压复位（3V3 < ${b.brownout} V）`, `brown-out reset (3V3 < ${b.brownout} V)`)
+                    : tr('没有供电', 'no power')}
+              </b>
             </div>
             <div>
               {tr('3V3 电源轨', '3V3 rail')} <b>{volts(st.v3)}</b>
@@ -452,7 +497,17 @@ export function McuInspector({ part }: { part: PlacedPart }) {
 
 const LUX_STEPS = [0.1, 1, 10, 100, 1000, 10000, 100000];
 const luxName = (lux: number) =>
-  lux < 1 ? tr('几乎全黑', 'nearly dark') : lux < 20 ? tr('昏暗房间', 'dim room') : lux < 300 ? tr('室内灯光', 'indoor light') : lux < 3000 ? tr('明亮窗边', 'bright window') : lux < 30000 ? tr('阴天户外', 'overcast daylight') : tr('阳光直射', 'direct sunlight');
+  lux < 1
+    ? tr('几乎全黑', 'nearly dark')
+    : lux < 20
+      ? tr('昏暗房间', 'dim room')
+      : lux < 300
+        ? tr('室内灯光', 'indoor light')
+        : lux < 3000
+          ? tr('明亮窗边', 'bright window')
+          : lux < 30000
+            ? tr('阴天户外', 'overcast daylight')
+            : tr('阳光直射', 'direct sunlight');
 
 const fmtLux = (l: number) => (l >= 1000 ? `${+(l / 1000).toPrecision(3)}k` : l >= 10 ? l.toFixed(0) : l.toFixed(1));
 
@@ -536,7 +591,10 @@ export function DeviceEditor({ type, props, onChange }: { type: PartType; props:
             />
           </div>
           <p className="note">
-            {tr(`当前 β = ${bv}：放大区 Ic = β·Ib。做开关时让 Ib 大于 Ic/β（通常取 Ic/10），三极管就会饱和。`, `β = ${bv} now: in the active region Ic = β·Ib. As a switch, give it more than Ic/β of base current (Ic/10 is typical) and it saturates.`)}
+            {tr(
+              `当前 β = ${bv}：放大区 Ic = β·Ib。做开关时让 Ib 大于 Ic/β（通常取 Ic/10），三极管就会饱和。`,
+              `β = ${bv} now: in the active region Ic = β·Ib. As a switch, give it more than Ic/β of base current (Ic/10 is typical) and it saturates.`,
+            )}
           </p>
         </div>
       );
@@ -569,7 +627,10 @@ export function DeviceEditor({ type, props, onChange }: { type: PartType; props:
             ))}
           </div>
           <p className="note">
-            {tr(`输入至少要 ${(v + LDO.dropout).toFixed(1)} V（输出 + ${LDO.dropout} V 压差）才能稳压；最大 ${LDO.limit * 1000} mA。`, `The input needs at least ${(v + LDO.dropout).toFixed(1)} V (output + ${LDO.dropout} V dropout) to regulate; ${LDO.limit * 1000} mA max.`)}
+            {tr(
+              `输入至少要 ${(v + LDO.dropout).toFixed(1)} V（输出 + ${LDO.dropout} V 压差）才能稳压；最大 ${LDO.limit * 1000} mA。`,
+              `The input needs at least ${(v + LDO.dropout).toFixed(1)} V (output + ${LDO.dropout} V dropout) to regulate; ${LDO.limit * 1000} mA max.`,
+            )}
           </p>
         </div>
       );
@@ -597,7 +658,9 @@ export function DeviceReadout({ part }: { part: PlacedPart }) {
   switch (part.type) {
     case 'npn': {
       const s = sim.bjts.get(ref);
-      const region = s ? { cutoff: tr('截止（关）', 'cutoff (off)'), active: tr('放大区', 'active (amplifying)'), saturation: tr('饱和（完全导通）', 'saturation (fully on)') }[s.region] : '';
+      const region = s
+        ? { cutoff: tr('截止（关）', 'cutoff (off)'), active: tr('放大区', 'active (amplifying)'), saturation: tr('饱和（完全导通）', 'saturation (fully on)') }[s.region]
+        : '';
       body = s ? (
         <>
           <Row k={tr('工作区', 'Region')} v={region} cls={s.breakdown ? 'bad' : ''} />
@@ -617,7 +680,11 @@ export function DeviceReadout({ part }: { part: PlacedPart }) {
     }
     case 'nmos': {
       const s = sim.mosfets.get(ref);
-      const region = s ? { off: tr('截止（关）', 'off'), ohmic: tr('完全导通（线性区）', 'fully on (ohmic)'), saturation: tr('半导通（饱和区，会发热）', 'partly on (saturation, gets hot)') }[s.region] : '';
+      const region = s
+        ? { off: tr('截止（关）', 'off'), ohmic: tr('完全导通（线性区）', 'fully on (ohmic)'), saturation: tr('半导通（饱和区，会发热）', 'partly on (saturation, gets hot)') }[
+            s.region
+          ]
+        : '';
       body = s ? (
         <>
           <Row k={tr('工作区', 'Region')} v={region} cls={s.region === 'saturation' ? 'warn' : s.breakdown ? 'bad' : ''} />
@@ -638,10 +705,19 @@ export function DeviceReadout({ part }: { part: PlacedPart }) {
       const s = sim.relays.get(ref);
       body = s ? (
         <>
-          <Row k={tr('触点', 'Contacts')} v={s.energized ? tr('吸合：COM ↔ NO', 'energised: COM ↔ NO') : tr('释放：COM ↔ NC', 'released: COM ↔ NC')} cls={s.energized ? 'ok' : ''} />
+          <Row
+            k={tr('触点', 'Contacts')}
+            v={s.energized ? tr('吸合：COM ↔ NO', 'energised: COM ↔ NO') : tr('释放：COM ↔ NC', 'released: COM ↔ NC')}
+            cls={s.energized ? 'ok' : ''}
+          />
           <Row k={tr('线圈电流', 'Coil current')} v={mA(s.coilCurrent)} />
           <Row k={tr('线圈电压', 'Coil voltage')} v={volts(s.coilVoltage)} />
-          <p className="note">{tr(`吸合电流约 ${RELAY.pullIn * 1000} mA，低于 ${RELAY.dropOut * 1000} mA 才释放。`, `Pulls in at about ${RELAY.pullIn * 1000} mA; releases below ${RELAY.dropOut * 1000} mA.`)}</p>
+          <p className="note">
+            {tr(
+              `吸合电流约 ${RELAY.pullIn * 1000} mA，低于 ${RELAY.dropOut * 1000} mA 才释放。`,
+              `Pulls in at about ${RELAY.pullIn * 1000} mA; releases below ${RELAY.dropOut * 1000} mA.`,
+            )}
+          </p>
         </>
       ) : (
         none
@@ -652,11 +728,17 @@ export function DeviceReadout({ part }: { part: PlacedPart }) {
       const s = sim.motors.get(ref);
       body = s ? (
         <>
-          <Row k={tr('状态', 'State')} v={s.running ? (s.direction > 0 ? tr('正转', 'running forward') : tr('反转', 'running in reverse')) : tr('停止', 'stopped')} cls={s.running ? 'ok' : ''} />
+          <Row
+            k={tr('状态', 'State')}
+            v={s.running ? (s.direction > 0 ? tr('正转', 'running forward') : tr('反转', 'running in reverse')) : tr('停止', 'stopped')}
+            cls={s.running ? 'ok' : ''}
+          />
           <Row k={tr('电流', 'Current')} v={amps(Math.abs(s.current))} />
           <Row k={tr('电压', 'Voltage')} v={volts(s.voltage)} />
           <Row k={tr('转速（相对）', 'Speed (relative)')} v={`${Math.round(Math.abs(s.speed) * 100)} %`} />
-          {!s.running && Math.abs(s.current) > 1e-4 && <p className="note">{tr(`电流不到 ${MOTOR.runCurrent * 1000} mA，电机转不起来。`, `Below ${MOTOR.runCurrent * 1000} mA the motor cannot start.`)}</p>}
+          {!s.running && Math.abs(s.current) > 1e-4 && (
+            <p className="note">{tr(`电流不到 ${MOTOR.runCurrent * 1000} mA，电机转不起来。`, `Below ${MOTOR.runCurrent * 1000} mA the motor cannot start.`)}</p>
+          )}
         </>
       ) : (
         none
@@ -667,7 +749,11 @@ export function DeviceReadout({ part }: { part: PlacedPart }) {
       const s = sim.buzzers.get(ref);
       body = s ? (
         <>
-          <Row k={tr('状态', 'State')} v={s.on ? tr('响', 'beeping') : s.reverse ? tr('接反了（不响）', 'reversed (silent)') : tr('不响', 'silent')} cls={s.reverse ? 'warn' : s.on ? 'ok' : ''} />
+          <Row
+            k={tr('状态', 'State')}
+            v={s.on ? tr('响', 'beeping') : s.reverse ? tr('接反了（不响）', 'reversed (silent)') : tr('不响', 'silent')}
+            cls={s.reverse ? 'warn' : s.on ? 'ok' : ''}
+          />
           <Row k={tr('响度', 'Loudness')} v={`${Math.round(s.loudness * 100)} %`} />
           <Row k={tr('电流', 'Current')} v={mA(s.current)} />
           <Row k={tr('电压', 'Voltage')} v={volts(s.voltage)} />

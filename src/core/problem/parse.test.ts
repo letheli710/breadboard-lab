@@ -160,9 +160,18 @@ describe('parseProblem', () => {
         { ref: 'A', type: 'OPAMP', at: [5, 4] },
       ],
       wires: [
-        [[3, 1], [3, 3]],
-        [[7, 1], [7, 4]],
-        [[0, 5], [3, 5]],
+        [
+          [3, 1],
+          [3, 3],
+        ],
+        [
+          [7, 1],
+          [7, 4],
+        ],
+        [
+          [0, 5],
+          [3, 5],
+        ],
       ],
       grounds: [[0, 5]],
       terminals: [{ at: [7, 4], name: 'o' }],
@@ -197,10 +206,22 @@ describe('parseProblem', () => {
         { ref: 'R3', type: 'R', from: [6, 0], to: [6, 4], value: 3 },
       ],
       wires: [
-        [[0, 0], [2, 0]],
-        [[5, 0], [7, 0]],
-        [[10, 0], [12, 0]],
-        [[0, 4], [12, 4]],
+        [
+          [0, 0],
+          [2, 0],
+        ],
+        [
+          [5, 0],
+          [7, 0],
+        ],
+        [
+          [10, 0],
+          [12, 0],
+        ],
+        [
+          [0, 4],
+          [12, 4],
+        ],
       ],
       terminals: [
         { at: [0, 0], name: '1' },
@@ -210,7 +231,10 @@ describe('parseProblem', () => {
       ],
       grounds: [[6, 4]],
     };
-    const ports = [['1', "1'"], ['2', "2'"]];
+    const ports = [
+      ['1', "1'"],
+      ['2', "2'"],
+    ];
     b.questions = [
       { id: 'z11', ask: 'z11', find: { kind: 'twoport', ports, param: 'z11' }, answer: 5, unit: 'Ω' },
       { id: 'z21', ask: 'z21', find: { kind: 'twoport', ports, param: 'z21' }, answer: 3, unit: 'Ω' },

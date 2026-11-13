@@ -95,7 +95,8 @@ const MISTAKES: Partial<Record<CComponent['type'], { swap: Record<string, string
       swap: { e: 'c', c: 'e' },
       title: [' 的 E 和 C 接反了', "'s E and C are swapped"],
       zh: (r) => `${r} 平面朝向你时三只脚从左到右是 E、B、C。发射极 E 接 GND（低电位），集电极 C 接负载。E、C 对调后三极管只剩很小的“反向 β”，几乎不导通。`,
-      en: (r) => `With ${r}'s flat face towards you the legs are E, B, C from left to right. The emitter E goes to GND (the low side), the collector C to the load. With E and C swapped it has only a tiny "reverse β" and barely conducts.`,
+      en: (r) =>
+        `With ${r}'s flat face towards you the legs are E, B, C from left to right. The emitter E goes to GND (the low side), the collector C to the load. With E and C swapped it has only a tiny "reverse β" and barely conducts.`,
     },
   ],
   nmos: [
@@ -103,7 +104,8 @@ const MISTAKES: Partial<Record<CComponent['type'], { swap: Record<string, string
       swap: { d: 's', s: 'd' },
       title: [' 的 D 和 S 接反了', "'s D and S are swapped"],
       zh: (r) => `${r}（TO-220，正面朝向你）三只脚从左到右是 G、D、S。源极 S 接 GND，漏极 D 接负载。D、S 对调后体二极管会一直导通，开关失效。`,
-      en: (r) => `${r} (TO-220, printed face towards you) has legs G, D, S from left to right. The source S goes to GND, the drain D to the load. With D and S swapped the body diode conducts all the time and it no longer switches.`,
+      en: (r) =>
+        `${r} (TO-220, printed face towards you) has legs G, D, S from left to right. The source S goes to GND, the drain D to the load. With D and S swapped the body diode conducts all the time and it no longer switches.`,
     },
   ],
   ldo: [
@@ -111,7 +113,8 @@ const MISTAKES: Partial<Record<CComponent['type'], { swap: Record<string, string
       swap: { in: 'out', out: 'in' },
       title: [' 的 IN 和 OUT 接反了', "'s IN and OUT are swapped"],
       zh: (r) => `${r}（LM1117，TO-220 正面朝向你）三只脚从左到右是 GND、OUT、IN。高电压接 IN（3 脚），稳压输出从 OUT（2 脚，也就是散热片）出来。`,
-      en: (r) => `${r} (LM1117, TO-220 printed face towards you) has legs GND, OUT, IN from left to right. The higher voltage goes to IN (pin 3); the regulated output comes out of OUT (pin 2, which is also the tab).`,
+      en: (r) =>
+        `${r} (LM1117, TO-220 printed face towards you) has legs GND, OUT, IN from left to right. The higher voltage goes to IN (pin 3); the regulated output comes out of OUT (pin 2, which is also the tab).`,
     },
   ],
   opamp: [
@@ -119,13 +122,15 @@ const MISTAKES: Partial<Record<CComponent['type'], { swap: Record<string, string
       swap: { outA: 'inB+', 'inB+': 'outA', 'inA-': 'inB-', 'inB-': 'inA-', 'inA+': 'outB', outB: 'inA+', 'v-': 'v+', 'v+': 'v-' },
       title: [' 插反了（转了 180°）', ' is rotated 180°'],
       zh: (r) => `${r} 的 1 脚应该在缺口 / 小圆点旁边，1–4 脚在 e 行（从左到右），8–5 脚在 f 行。现在芯片转了半圈：电源脚接反会烧坏真实的芯片。`,
-      en: (r) => `${r}'s pin 1 is next to the notch / dot: pins 1–4 run left to right in row e, pins 8–5 in row f. The chip is turned around — with its supply pins reversed a real chip would burn.`,
+      en: (r) =>
+        `${r}'s pin 1 is next to the notch / dot: pins 1–4 run left to right in row e, pins 8–5 in row f. The chip is turned around — with its supply pins reversed a real chip would burn.`,
     },
     {
       swap: { 'inA-': 'inA+', 'inA+': 'inA-', 'inB-': 'inB+', 'inB+': 'inB-' },
       title: [' 的 + 和 − 输入接反了', "'s + and − inputs are swapped"],
       zh: (r) => `${r} 的反相输入（IN−）和同相输入（IN+）对调了。反馈必须接到 IN−（负反馈）；接到 IN+ 会变成正反馈，输出直接撞到电源轨。`,
-      en: (r) => `${r}'s inverting (IN−) and non-inverting (IN+) inputs are swapped. Feedback must go to IN− (negative feedback); feeding IN+ makes positive feedback and the output slams into a rail.`,
+      en: (r) =>
+        `${r}'s inverting (IN−) and non-inverting (IN+) inputs are swapped. Feedback must go to IN− (negative feedback); feeding IN+ makes positive feedback and the output slams into a rail.`,
     },
   ],
 };
@@ -142,7 +147,8 @@ function valueProblem(t: CComponent, u: CComponent, tol: number): string | null 
   const up = u.props;
   if ((t.type === 'resistor' || t.type === 'potentiometer') && tp.resistance !== undefined && !close(up.resistance ?? 0, tp.resistance))
     return tr(`${u.ref} 是 ${describeComponent(u)}，题目要求 ${describeComponent(t)}`, `${u.ref} is a ${describeComponent(u)}; the task needs a ${describeComponent(t)}`);
-  if (t.type === 'led' && tp.color && up.color !== tp.color) return tr(`${u.ref} 是${describeComponent(u)}，题目要求${describeComponent(t)}`, `${u.ref} is a ${describeComponent(u)}; the task needs a ${describeComponent(t)}`);
+  if (t.type === 'led' && tp.color && up.color !== tp.color)
+    return tr(`${u.ref} 是${describeComponent(u)}，题目要求${describeComponent(t)}`, `${u.ref} is a ${describeComponent(u)}; the task needs a ${describeComponent(t)}`);
   if (t.type === 'capacitor' && tp.capacitance !== undefined && !close(up.capacitance ?? 0, tp.capacitance))
     return tr(`${u.ref} 的电容值和题目不一致`, `${u.ref} has a different capacitance from the task`);
   if (t.type === 'battery' && tp.variant && up.variant !== tp.variant)
@@ -204,8 +210,7 @@ function roleCandidates(u: CComponent, tPin: string, uPinsInNets: Set<string>): 
   const r = parseRole(tPin)!;
   const out: string[] = [];
   if (uPinsInNets.has(pinId(u.ref, tPin))) out.push(tPin);
-  if (isMcuBoard(u.type))
-    for (const def of Object.values(MCU_BOARDS[u.type].pins)) if (def.kind === 'gpio' && def.gpio && roleMatches(r.role, def.gpio)) out.push(def.name);
+  if (isMcuBoard(u.type)) for (const def of Object.values(MCU_BOARDS[u.type].pins)) if (def.kind === 'gpio' && def.gpio && roleMatches(r.role, def.gpio)) out.push(def.name);
   return out;
 }
 
@@ -407,11 +412,18 @@ function matchComponents(ctx: Ctx, tol: number, budget: number) {
     return vpCache.get(k)!;
   };
   const classKey = (u: CComponent) =>
-    isMcu(u.type) ? u.ref : `${u.type}|${JSON.stringify(u.props)}|${terminalsOf(u.type).map((x) => uNet(pinId(u.ref, x))).join('|')}`;
+    isMcu(u.type)
+      ? u.ref
+      : `${u.type}|${JSON.stringify(u.props)}|${terminalsOf(u.type)
+          .map((x) => uNet(pinId(u.ref, x)))
+          .join('|')}`;
   const permsOf = new Map(targets.map((t) => [t.ref, permutations(t.type)]));
   // identical targets (same type, props and nets on every terminal) are interchangeable: they
   // take their user parts in increasing board order
-  const tNetsKey = (t: CComponent) => terminalsOf(t.type).map((x) => tNetOf.get(pinId(t.ref, x)) ?? `?${x}`).join('|');
+  const tNetsKey = (t: CComponent) =>
+    terminalsOf(t.type)
+      .map((x) => tNetOf.get(pinId(t.ref, x)) ?? `?${x}`)
+      .join('|');
   const twinOf: number[] = targets.map((t, i) => {
     if (isMcu(t.type)) return -1;
     const k = `${t.type}|${JSON.stringify(t.props)}|${tNetsKey(t)}`;
@@ -512,7 +524,10 @@ function matchComponents(ctx: Ctx, tol: number, budget: number) {
 
 export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<string, string[]>, budget = SEARCH_BUDGET): CheckResult {
   const target = ch.target;
-  const { circuit: user, collapsed } = checkerView(board, target.components.some((c) => c.type === 'ammeter'));
+  const { circuit: user, collapsed } = checkerView(
+    board,
+    target.components.some((c) => c.type === 'ammeter'),
+  );
   const tNetOf = new Map<string, number>();
   target.nets.forEach((n, i) => n.pins.forEach((p) => tNetOf.set(p, i)));
   const uNetOf = new Map<string, string>();
@@ -612,7 +627,10 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
           refs: [u.ref],
           holes: holesOf([up]),
         });
-      else if (cfg.mode === 'pwm' && ((cfg.duty !== undefined && Math.abs(have.duty - cfg.duty) > 1) || (cfg.frequency !== undefined && Math.abs(have.frequency - cfg.frequency) > cfg.frequency * ch.tolerance)))
+      else if (
+        cfg.mode === 'pwm' &&
+        ((cfg.duty !== undefined && Math.abs(have.duty - cfg.duty) > 1) || (cfg.frequency !== undefined && Math.abs(have.frequency - cfg.frequency) > cfg.frequency * ch.tolerance))
+      )
         issues.push({
           severity: 'error',
           title: tr(`${u.ref} ${uPin} 的 PWM 设置不对`, `${u.ref} ${uPin} has the wrong PWM settings`),
@@ -631,8 +649,15 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
       if (!role || splitPin(up)[1] !== splitPin(tp)[1] || !isMcuBoard(u.type)) continue;
       const ti = ctx.tNetOf.get(tp);
       if (ti === undefined) continue;
-      const nets = new Set(target.nets[ti].pins.filter((p) => p !== tp).map((p) => pinMap.get(p) && ctx.uNetOf.get(pinMap.get(p)!)).filter(Boolean));
-      const wrong = Object.values(MCU_BOARDS[u.type].pins).find((d) => nets.has(ctx.uNetOf.get(pinId(u.ref, d.name)) ?? '-') && (d.kind !== 'gpio' || !d.gpio || !roleMatches(role.role, d.gpio)));
+      const nets = new Set(
+        target.nets[ti].pins
+          .filter((p) => p !== tp)
+          .map((p) => pinMap.get(p) && ctx.uNetOf.get(pinMap.get(p)!))
+          .filter(Boolean),
+      );
+      const wrong = Object.values(MCU_BOARDS[u.type].pins).find(
+        (d) => nets.has(ctx.uNetOf.get(pinId(u.ref, d.name)) ?? '-') && (d.kind !== 'gpio' || !d.gpio || !roleMatches(role.role, d.gpio)),
+      );
       if (wrong)
         issues.push({
           severity: 'error',
@@ -705,14 +730,14 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
                     `${u.ref} 的红夹子（信号）和黑夹子（COM）接反了：黑夹子应该接 GND。`,
                     `${u.ref}'s red (signal) and black (COM) clips are swapped: the black clip belongs on GND.`,
                   )
-              : isPower(u.type)
-              ? tr(
-                  `${u.ref} 的 + 和 − 接反了：红线应接到原理图中电源 + 的那个结点。`,
-                  `${u.ref}'s + and − are swapped: the red lead belongs on the node that the supply's + connects to in the schematic.`,
-                )
-              : u.type === 'buzzer'
-                ? tr(`${u.ref} 接反了：长脚（+）接电源正。`, `${u.ref} is backwards: the long leg (+) goes to the supply.`)
-                : tr(`${u.ref} 的方向反了（色环一端是负极）。`, `${u.ref} is the wrong way round (the banded end is the cathode).`),
+                : isPower(u.type)
+                  ? tr(
+                      `${u.ref} 的 + 和 − 接反了：红线应接到原理图中电源 + 的那个结点。`,
+                      `${u.ref}'s + and − are swapped: the red lead belongs on the node that the supply's + connects to in the schematic.`,
+                    )
+                  : u.type === 'buzzer'
+                    ? tr(`${u.ref} 接反了：长脚（+）接电源正。`, `${u.ref} is backwards: the long leg (+) goes to the supply.`)
+                    : tr(`${u.ref} 的方向反了（色环一端是负极）。`, `${u.ref} is the wrong way round (the banded end is the cathode).`),
         refs: [u.ref],
         holes: holesOf([pinId(u.ref, p1), pinId(u.ref, p2)]),
       });
@@ -753,7 +778,8 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
   for (const [un, m] of ev.tNetsPerU) {
     if (m.size <= 1) continue;
     const userPins = [...m.values()].flat().map((tp) => pinMap.get(tp)!);
-    const isSourceShort = [...m.values()].some((tps) => tps.some((tp) => isPower(tComp.get(splitPin(tp)[0])!.type) && splitPin(tp)[1] === '+')) &&
+    const isSourceShort =
+      [...m.values()].some((tps) => tps.some((tp) => isPower(tComp.get(splitPin(tp)[0])!.type) && splitPin(tp)[1] === '+')) &&
       [...m.values()].some((tps) => tps.some((tp) => isPower(tComp.get(splitPin(tp)[0])!.type) && splitPin(tp)[1] === '-'));
     issues.push({
       severity: 'error',
@@ -767,7 +793,10 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
             return tr(`第${k + 1}组${tNetLabel(ti)}：${pins.join('、')}`, `Group ${k + 1}${tNetLabel(ti)}: ${pins.join(', ')}`);
           })
           .join('\n') +
-        tr(`\n→ 它们现在都在同一个结点（${un}）上。检查是否插错了列，或多了一根跳线。`, `\n→ They are all on one node (${un}) now. Check for a leg in the wrong column or an extra jumper.`) +
+        tr(
+          `\n→ 它们现在都在同一个结点（${un}）上。检查是否插错了列，或多了一根跳线。`,
+          `\n→ They are all on one node (${un}) now. Check for a leg in the wrong column or an extra jumper.`,
+        ) +
         (collapsed.has(un)
           ? tr(
               `\n→ 注意：电流表 ${collapsed.get(un)!.join('、')} 的内阻几乎为零，相当于一根导线。它把这些点连在了一起——电流表要串联在断开处，不能并联在元件两端。`,
@@ -801,12 +830,7 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
   };
 }
 
-export function applySet(
-  circuit: Circuit,
-  set: Record<string, Partial<CComponent['props']>>,
-  mapping?: Map<string, string>,
-  pinMap?: Map<string, string>,
-): Circuit {
+export function applySet(circuit: Circuit, set: Record<string, Partial<CComponent['props']>>, mapping?: Map<string, string>, pinMap?: Map<string, string>): Circuit {
   return {
     nets: circuit.nets,
     components: circuit.components.map((c) => {
@@ -824,8 +848,7 @@ export function applySet(
         p.pins = pins;
       }
       // the matcher may have mirrored a symmetric part: translate settings to the user's orientation
-      if (pinMap && p.position && c.type === 'switch' && pinMap.get(pinId(tRef, p.position)) !== pinId(c.ref, p.position))
-        p.position = p.position === 'a' ? 'b' : 'a';
+      if (pinMap && p.position && c.type === 'switch' && pinMap.get(pinId(tRef, p.position)) !== pinId(c.ref, p.position)) p.position = p.position === 'a' ? 'b' : 'a';
       if (pinMap && p.wiper !== undefined && c.type === 'potentiometer' && pinMap.get(pinId(tRef, '1')) === pinId(c.ref, '3')) p.wiper = 1 - p.wiper;
       return { ...c, props: { ...c.props, ...p } };
     }),
@@ -997,7 +1020,7 @@ export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<str
       const zh: Record<string, string> = { cutoff: '截止区', active: '放大区', saturation: '饱和区', off: '截止', ohmic: '可变电阻区（完全导通）' };
       const en: Record<string, string> = { cutoff: 'cut-off', active: 'the active region', saturation: 'saturation', off: 'off', ohmic: 'the ohmic region (fully on)' };
       const satZh = sim.mosfets.has(u) ? '恒流（饱和）区' : '饱和区';
-      const nameZh = (r?: string) => (r === 'saturation' ? satZh : zh[r ?? ''] ?? '?');
+      const nameZh = (r?: string) => (r === 'saturation' ? satZh : (zh[r ?? ''] ?? '?'));
       return tr(`${prefix}${u} 应该工作在${nameZh(want)}，实际在${nameZh(got)}。`, `${prefix}${u} should be in ${en[want]}, but it is in ${en[got ?? ''] ?? '?'}.`);
     }
   }
@@ -1011,7 +1034,10 @@ export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<str
       if (got !== g.read) {
         const zh: Record<string, string> = { high: '高电平（1）', low: '低电平（0）', floating: '浮空（不确定）', undefined: '不确定（在 VIL 和 VIH 之间）' };
         const en: Record<string, string> = { high: 'HIGH (1)', low: 'LOW (0)', floating: 'floating (undefined)', undefined: 'undefined (between VIL and VIH)' };
-        return tr(`${prefix}${uRef} ${uPin} 应该读到${zh[g.read]}，实际读到${zh[got]}（${volts(st.vLocal)}）。`, `${prefix}${uRef} ${uPin} should read ${en[g.read]}, but it reads ${en[got]} (${volts(st.vLocal)}).`);
+        return tr(
+          `${prefix}${uRef} ${uPin} 应该读到${zh[g.read]}，实际读到${zh[got]}（${volts(st.vLocal)}）。`,
+          `${prefix}${uRef} ${uPin} should read ${en[g.read]}, but it reads ${en[got]} (${volts(st.vLocal)}).`,
+        );
       }
     }
     if (g.measure) {

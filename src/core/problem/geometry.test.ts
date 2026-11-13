@@ -368,11 +368,7 @@ describe('extractNetlist', () => {
     const errs = (s: Schematic) => extractNetlist(s).errors;
     const withParts = (): Schematic => {
       const s = divider();
-      s.elements.push(
-        { ref: 'A', type: 'OPAMP', at: [10, 2] },
-        { ref: 'T', type: 'XFMR', at: [20, 2], n: 2 },
-        { ref: 'K1', type: 'K', l1: 'R1', l2: 'R2', k: 0.5 },
-      );
+      s.elements.push({ ref: 'A', type: 'OPAMP', at: [10, 2] }, { ref: 'T', type: 'XFMR', at: [20, 2], n: 2 }, { ref: 'K1', type: 'K', l1: 'R1', l2: 'R2', k: 0.5 });
       return s;
     };
     it('allows the output-current mark on an op-amp', () => {

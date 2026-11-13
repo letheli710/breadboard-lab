@@ -328,23 +328,72 @@ describe('transform table (summary formula sheet)', () => {
     });
   const a = 1.7;
   const w = 2.3;
-  check('ε(t) ↔ 1/s', () => 1, (s) => div(c(1), s));
-  check('tε(t) ↔ 1/s²', (t) => t, (s) => div(c(1), sq(s)));
-  check('e^(−at) ↔ 1/(s + a)', (t) => Math.exp(-a * t), (s) => div(c(1), add(s, c(a))));
-  check('te^(−at) ↔ 1/(s + a)²', (t) => t * Math.exp(-a * t), (s) => div(c(1), sq(add(s, c(a)))));
-  check('sin ωt ↔ ω/(s² + ω²)', (t) => Math.sin(w * t), (s) => div(c(w), add(sq(s), c(w * w))));
-  check('cos ωt ↔ s/(s² + ω²)', (t) => Math.cos(w * t), (s) => div(s, add(sq(s), c(w * w))));
-  check('e^(−αt)sin ωt ↔ ω/((s + α)² + ω²)', (t) => Math.exp(-a * t) * Math.sin(w * t), (s) => div(c(w), add(sq(add(s, c(a))), c(w * w))));
-  check('e^(−αt)cos ωt ↔ (s + α)/((s + α)² + ω²)', (t) => Math.exp(-a * t) * Math.cos(w * t), (s) => div(add(s, c(a)), add(sq(add(s, c(a))), c(w * w))));
+  check(
+    'ε(t) ↔ 1/s',
+    () => 1,
+    (s) => div(c(1), s),
+  );
+  check(
+    'tε(t) ↔ 1/s²',
+    (t) => t,
+    (s) => div(c(1), sq(s)),
+  );
+  check(
+    'e^(−at) ↔ 1/(s + a)',
+    (t) => Math.exp(-a * t),
+    (s) => div(c(1), add(s, c(a))),
+  );
+  check(
+    'te^(−at) ↔ 1/(s + a)²',
+    (t) => t * Math.exp(-a * t),
+    (s) => div(c(1), sq(add(s, c(a)))),
+  );
+  check(
+    'sin ωt ↔ ω/(s² + ω²)',
+    (t) => Math.sin(w * t),
+    (s) => div(c(w), add(sq(s), c(w * w))),
+  );
+  check(
+    'cos ωt ↔ s/(s² + ω²)',
+    (t) => Math.cos(w * t),
+    (s) => div(s, add(sq(s), c(w * w))),
+  );
+  check(
+    'e^(−αt)sin ωt ↔ ω/((s + α)² + ω²)',
+    (t) => Math.exp(-a * t) * Math.sin(w * t),
+    (s) => div(c(w), add(sq(add(s, c(a))), c(w * w))),
+  );
+  check(
+    'e^(−αt)cos ωt ↔ (s + α)/((s + α)² + ω²)',
+    (t) => Math.exp(-a * t) * Math.cos(w * t),
+    (s) => div(add(s, c(a)), add(sq(add(s, c(a))), c(w * w))),
+  );
   // derivative rule with f(0−) = f(0) = 1: f = e^(−αt)cos ωt
-  check('ℒ[f′] = sF(s) − f(0−)', (t) => Math.exp(-a * t) * (-a * Math.cos(w * t) - w * Math.sin(w * t)), (s) => add(mul(s, div(add(s, c(a)), add(sq(add(s, c(a))), c(w * w)))), c(-1)));
+  check(
+    'ℒ[f′] = sF(s) − f(0−)',
+    (t) => Math.exp(-a * t) * (-a * Math.cos(w * t) - w * Math.sin(w * t)),
+    (s) => add(mul(s, div(add(s, c(a)), add(sq(add(s, c(a))), c(w * w)))), c(-1)),
+  );
   // integral rule: ∫_0^t e^(−aξ)dξ = (1 − e^(−at))/a ↔ 1/(s(s + a))
-  check('ℒ[∫f] = F(s)/s', (t) => (1 - Math.exp(-a * t)) / a, (s) => div(c(1), mul(s, add(s, c(a)))));
+  check(
+    'ℒ[∫f] = F(s)/s',
+    (t) => (1 - Math.exp(-a * t)) / a,
+    (s) => div(c(1), mul(s, add(s, c(a)))),
+  );
   // time shift: e^(−a(t − t0))ε(t − t0) ↔ e^(−s t0)/(s + a)
   const t0 = 0.6;
-  check('f(t − t0)ε(t − t0) ↔ e^(−st0)F(s)', (t) => Math.exp(-a * (t - t0)), (s) => div(ex(c(-s.re * t0, -s.im * t0)), add(s, c(a))), t0);
+  check(
+    'f(t − t0)ε(t − t0) ↔ e^(−st0)F(s)',
+    (t) => Math.exp(-a * (t - t0)),
+    (s) => div(ex(c(-s.re * t0, -s.im * t0)), add(s, c(a))),
+    t0,
+  );
   // convolution theorem: (2e^(−2t)) * (e^(−t)) = 2(e^(−t) − e^(−2t)) ↔ 2/((s + 2)(s + 1))
-  check('convolution theorem', (t) => 2 * (Math.exp(-t) - Math.exp(-2 * t)), (s) => div(c(2), mul(add(s, c(2)), add(s, c(1)))));
+  check(
+    'convolution theorem',
+    (t) => 2 * (Math.exp(-t) - Math.exp(-2 * t)),
+    (s) => div(c(2), mul(add(s, c(2)), add(s, c(1)))),
+  );
   it('initial- and final-value theorems on F(s) = (s + 4)/(s(s + 1)) ↔ 4 − 3e^(−t)', () => {
     const F = (x: number) => (x + 4) / (x * (x + 1));
     expect(Math.abs(1e8 * F(1e8) - 1)).toBeLessThan(1e-6);

@@ -266,7 +266,7 @@ export class MnaSystem {
       const prev = new Map<number, { el: CEl; from: number }>();
       const queue = [q];
       prev.set(q, { el, from: -1 });
-      while (queue.length && !prev.has(p) ) {
+      while (queue.length && !prev.has(p)) {
         const u = queue.shift()!;
         for (const e of adj.get(u) ?? [])
           if (!prev.has(e.to)) {
@@ -275,7 +275,7 @@ export class MnaSystem {
           }
       }
       const loop: { el: CEl; sign: number }[] = [{ el, sign: 1 }];
-      for (let v = p; v !== q; ) {
+      for (let v = p; v !== q;) {
         const { el: e, from } = prev.get(v)!;
         loop.push({ el: e, sign: e.pins[0] === from ? 1 : -1 });
         v = from;
@@ -460,9 +460,7 @@ export class MnaSystem {
   solveVec(b: Complex[]): Complex[] {
     if (this.error || !this.lu) throw this.error ?? new AnalysisError(`No solution in ${this.mode.label}`);
     const x = this.lu.solve(b);
-    for (const v of x)
-      if (!Number.isFinite(v.re) || !Number.isFinite(v.im))
-        throw new AnalysisError(`Numerical failure in ${this.mode.label} (the circuit is nearly singular)`);
+    for (const v of x) if (!Number.isFinite(v.re) || !Number.isFinite(v.im)) throw new AnalysisError(`Numerical failure in ${this.mode.label} (the circuit is nearly singular)`);
     return x;
   }
 

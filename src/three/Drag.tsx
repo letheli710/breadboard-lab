@@ -100,8 +100,7 @@ function targetPins(d: Drag, to: string): Record<string, string> | null {
   return out;
 }
 
-const samePins = (a: Record<string, string>, b: Record<string, string>) =>
-  Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => b[k] === v);
+const samePins = (a: Record<string, string>, b: Record<string, string>) => Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => b[k] === v);
 
 /** Start a (potential) drag: pointer pressed on a placed part. Stable; passed to PartView. */
 export function grabPart(part: PlacedPart, e: ThreeEvent<PointerEvent>) {
@@ -130,10 +129,11 @@ export function grabPart(part: PlacedPart, e: ThreeEvent<PointerEvent>) {
   const def = PARTS[part.type];
   if (!end && def.placement.kind === 'footprint') {
     const fp = def.placement.footprint;
-    anchor = HOLES.find((h) => {
-      const f = fp(h.id);
-      return !!f && samePins(f, part.pins);
-    })?.id ?? null;
+    anchor =
+      HOLES.find((h) => {
+        const f = fp(h.id);
+        return !!f && samePins(f, part.pins);
+      })?.id ?? null;
     if (!anchor) return; // unknown shape: leave the part alone
   }
   e.stopPropagation();
@@ -143,7 +143,6 @@ export function grabPart(part: PlacedPart, e: ThreeEvent<PointerEvent>) {
   const gh = HOLE_MAP.get(grab)!;
   setDrag({ part, grab, end, anchor, dx: gh.x - hitPoint.x, dz: gh.z - hitPoint.z, x0: e.nativeEvent.clientX, y0: e.nativeEvent.clientY, active: false, pins: null });
 }
-
 
 const PREVIEW_OK: PartCtxValue = { ghost: true, tint: 'none' };
 const PREVIEW_BAD: PartCtxValue = { ghost: true, tint: 'error' };

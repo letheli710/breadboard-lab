@@ -22,9 +22,15 @@ export function checkPlot(s: Schematic, errors: string[]): void {
   }
   const el = (s.elements ?? []).find((e) => isObj(e) && e.ref === p.el);
   if (!el || el.type !== 'NR')
-    errors.push(tr(`schematic.plot.el: ${JSON.stringify(p.el)} 必须是图中的非线性电阻（type "NR"）`, `schematic.plot.el: ${JSON.stringify(p.el)} must be a nonlinear resistor (type "NR") in the drawing`));
+    errors.push(
+      tr(
+        `schematic.plot.el: ${JSON.stringify(p.el)} 必须是图中的非线性电阻（type "NR"）`,
+        `schematic.plot.el: ${JSON.stringify(p.el)} must be a nonlinear resistor (type "NR") in the drawing`,
+      ),
+    );
   for (const k of ['u', 'i'])
-    if (!range(p[k])) errors.push(tr(`schematic.plot.${k}: 必须是坐标范围 [min, max]（min < max，SI 单位）`, `schematic.plot.${k}: must be an axis range [min, max] (min < max, SI units)`));
+    if (!range(p[k]))
+      errors.push(tr(`schematic.plot.${k}: 必须是坐标范围 [min, max]（min < max，SI 单位）`, `schematic.plot.${k}: must be an axis range [min, max] (min < max, SI units)`));
   for (const k of ['loadLine', 'points'])
     if (p[k] !== undefined && typeof p[k] !== 'boolean') errors.push(tr(`schematic.plot.${k}: 必须是 true / false`, `schematic.plot.${k}: must be true / false`));
   if (p.iUnit !== undefined && !['A', 'mA', 'µA'].includes(p.iUnit as string))

@@ -10,7 +10,12 @@ const src = (value: unknown): Schematic =>
       { ref: 'R1', type: 'R', from: [0, 0], to: [4, 0], value: '4.7k' },
       { ref: 'C1', type: 'C', from: [4, 0], to: [4, 4], value: '100n' },
     ],
-    wires: [[[0, 4], [4, 4]]],
+    wires: [
+      [
+        [0, 4],
+        [4, 4],
+      ],
+    ],
     grounds: [[0, 4]],
   }) as unknown as Schematic;
 
@@ -42,7 +47,17 @@ describe('ProblemSchematic renders SI-string values', () => {
         { ref: 'L2', type: 'L', from: [8, 0], to: [8, 4], value: '1m' },
         { ref: 'K1', type: 'K', l1: 'L1', l2: 'L2', M: '0.5m' },
       ],
-      wires: [[[0, 0], [0, 4], [4, 4]], [[8, 0], [8, 4]]],
+      wires: [
+        [
+          [0, 0],
+          [0, 4],
+          [4, 4],
+        ],
+        [
+          [8, 0],
+          [8, 4],
+        ],
+      ],
       grounds: [[4, 4]],
     } as unknown as Schematic;
     expect(renderToStaticMarkup(<ProblemSchematic schematic={s} />)).toContain('<svg');
@@ -54,14 +69,23 @@ describe('richRuns: subscripts on dotted phasor letters', () => {
     expect(richRuns('U̇_s = 10∠0° V')).toEqual([{ t: 'U̇', it: true }, { t: 's', sub: true }, { t: ' = 10∠0° V' }]);
   });
   it('İ_1 (precomposed) and U̇_{AB} take subscripts', () => {
-    expect(richRuns('İ_1')).toEqual([{ t: 'İ', it: true }, { t: '1', sub: true }]);
-    expect(richRuns('U̇_{AB}')).toEqual([{ t: 'U̇', it: true }, { t: 'AB', sub: true }]);
+    expect(richRuns('İ_1')).toEqual([
+      { t: 'İ', it: true },
+      { t: '1', sub: true },
+    ]);
+    expect(richRuns('U̇_{AB}')).toEqual([
+      { t: 'U̇', it: true },
+      { t: 'AB', sub: true },
+    ]);
   });
   it('a lone dotted letter is italic', () => {
     expect(richRuns('U̇')).toEqual([{ t: 'U̇', it: true }]);
   });
   it('plain U_s is unchanged', () => {
-    expect(richRuns('U_s')).toEqual([{ t: 'U', it: true }, { t: 's', sub: true }]);
+    expect(richRuns('U_s')).toEqual([
+      { t: 'U', it: true },
+      { t: 's', sub: true },
+    ]);
     expect(richRuns('R_{1}R_{4}')).toEqual([
       { t: 'R', it: true },
       { t: '1', sub: true },
@@ -72,7 +96,10 @@ describe('richRuns: subscripts on dotted phasor letters', () => {
 });
 
 describe('richRuns: juxtaposed products without braces', () => {
-  const flat = (s: string) => richRuns(s).map((r) => (r.sub ? `_{${r.t}}` : r.t)).join('');
+  const flat = (s: string) =>
+    richRuns(s)
+      .map((r) => (r.sub ? `_{${r.t}}` : r.t))
+      .join('');
   it('gives the last letter of a run back to the next symbol', () => {
     expect(flat('√3U_lI_l cos φ')).toBe('√3U_{l}I_{l} cos φ');
     expect(flat('z_12z_21')).toBe('z_{12}z_{21}');

@@ -117,7 +117,7 @@ function drawSilk(g: CanvasRenderingContext2D, w: number, h: number, b: McuBoard
     g.fillText('AMS1117', X(10.6), Z(-0.4));
     // keep-out outline under the antenna
     g.setLineDash([0.18 * ppu, 0.14 * ppu]);
-    g.strokeRect(X(-2.6) + 2, Z(-3.15), (2.4) * ppu, 6.3 * ppu);
+    g.strokeRect(X(-2.6) + 2, Z(-3.15), 2.4 * ppu, 6.3 * ppu);
     g.setLineDash([]);
   } else {
     g.font = `700 ${0.42 * ppu}px "Barlow Condensed", sans-serif`;
@@ -273,14 +273,7 @@ function UsbCable({ xFace, dir, frameX, zc }: { xFace: number; dir: 1 | -1; fram
     void frameX;
     const back = -BOARD.depth / 2 - zc - 1.0;
     const X = (d: number) => xFace + dir * d;
-    return [
-      V(X(2.1), TOP + 0.5, 0),
-      V(X(3.2), TOP + 0.6, -0.3),
-      V(X(4.4), 2.6, -3.5),
-      V(X(5.2), 2.1, back),
-      V(X(5.8), -0.3, back - 1.8),
-      V(X(6.6), -0.86, back - 5.5),
-    ];
+    return [V(X(2.1), TOP + 0.5, 0), V(X(3.2), TOP + 0.6, -0.3), V(X(4.4), 2.6, -3.5), V(X(5.2), 2.1, back), V(X(5.8), -0.3, back - 1.8), V(X(6.6), -0.86, back - 5.5)];
   }, [xFace, dir, frameX, zc]);
   return (
     <group>

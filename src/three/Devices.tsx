@@ -47,14 +47,7 @@ export function Npn({ part }: PartViewProps) {
           <boxGeometry args={[2 * r, h, 0.01]} />
           <Mat color="#1a1b1f" roughness={0.45} />
         </mesh>
-        <TextPlane
-          text={['2N2222', 'E B C']}
-          width={1.6}
-          height={0.95}
-          color="#c9ccd1"
-          font='700 46px "Barlow Condensed", sans-serif'
-          position={[0, h / 2 + 0.1, 0.004]}
-        />
+        <TextPlane text={['2N2222', 'E B C']} width={1.6} height={0.95} color="#c9ccd1" font='700 46px "Barlow Condensed", sans-serif' position={[0, h / 2 + 0.1, 0.004]} />
       </group>
     </group>
   );
@@ -115,14 +108,7 @@ function To220({ part, pins, label }: { part: PlacedPart; pins: string[]; label:
         <mesh geometry={tab} position={[0, H, zb - D / 2 - 0.5]} castShadow>
           <Mat color="#c9ccd1" metalness={0.85} roughness={0.28} />
         </mesh>
-        <TextPlane
-          text={label}
-          width={3.6}
-          height={1.5}
-          color="#d9dce2"
-          font='700 58px "Barlow Condensed", sans-serif'
-          position={[0, H * 0.55, zb + D / 2 + 0.005]}
-        />
+        <TextPlane text={label} width={3.6} height={1.5} color="#d9dce2" font='700 58px "Barlow Condensed", sans-serif' position={[0, H * 0.55, zb + D / 2 + 0.005]} />
         <TextPlane
           text={pins.map((p) => p.toUpperCase()).join('   ')}
           width={3.2}
@@ -236,7 +222,15 @@ export function Relay({ part, sim }: PartViewProps) {
         </mesh>
         {!ctx.ghost && (
           <>
-            <CanvasPlane width={W - 0.5} height={D - 0.5} ppu={64} draw={(g, w, h) => drawRelayTop(g, w, h, on)} deps={[on]} position={[0, H + 0.004, 0]} rotation={[-Math.PI / 2, 0, 0]} />
+            <CanvasPlane
+              width={W - 0.5}
+              height={D - 0.5}
+              ppu={64}
+              draw={(g, w, h) => drawRelayTop(g, w, h, on)}
+              deps={[on]}
+              position={[0, H + 0.004, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            />
             <CanvasPlane width={W - 0.5} height={H - 1.2} ppu={64} draw={drawRelayFront} deps={[]} position={[0, H / 2, D / 2 + 0.004]} />
           </>
         )}
@@ -395,8 +389,28 @@ export function Buzzer({ part, sim }: PartViewProps) {
   const plusAt = dirPlus.lengthSq() > 1e-6 ? dirPlus.normalize().multiplyScalar(1.25) : V(-1.25, 0, 0);
   return (
     <group>
-      <Leg pts={[pa.clone().setY(-0.3), pa.clone().setY(y0 - 0.05), mid.clone().add(plusAt.clone().multiplyScalar(0.55)).setY(y0 + 0.1)]} r={0.06} />
-      <Leg pts={[pb.clone().setY(-0.3), pb.clone().setY(y0 - 0.05), mid.clone().sub(plusAt.clone().multiplyScalar(0.55)).setY(y0 + 0.1)]} r={0.06} />
+      <Leg
+        pts={[
+          pa.clone().setY(-0.3),
+          pa.clone().setY(y0 - 0.05),
+          mid
+            .clone()
+            .add(plusAt.clone().multiplyScalar(0.55))
+            .setY(y0 + 0.1),
+        ]}
+        r={0.06}
+      />
+      <Leg
+        pts={[
+          pb.clone().setY(-0.3),
+          pb.clone().setY(y0 - 0.05),
+          mid
+            .clone()
+            .sub(plusAt.clone().multiplyScalar(0.55))
+            .setY(y0 + 0.1),
+        ]}
+        r={0.06}
+      />
       <group position={[mid.x, y0, mid.z]}>
         <mesh position={[0, H / 2, 0]} castShadow>
           <cylinderGeometry args={[R, R, H, 36]} />
@@ -410,8 +424,24 @@ export function Buzzer({ part, sim }: PartViewProps) {
           <circleGeometry args={[0.3, 18]} />
           <meshBasicMaterial color="#050505" />
         </mesh>
-        <TextPlane text="+" width={0.8} height={0.8} color="#e9ecef" font='800 100px "Barlow", sans-serif' position={[plusAt.x, H + 0.012, plusAt.z]} rotation={[-Math.PI / 2, 0, 0]} />
-        <TextPlane text="BUZZER 5V" width={2.4} height={0.4} color="#9aa0a6" font='700 44px "Barlow Condensed", sans-serif' position={[0, H + 0.012, 0]} rotation={[-Math.PI / 2, 0, -angle + Math.PI / 2]} />
+        <TextPlane
+          text="+"
+          width={0.8}
+          height={0.8}
+          color="#e9ecef"
+          font='800 100px "Barlow", sans-serif'
+          position={[plusAt.x, H + 0.012, plusAt.z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        />
+        <TextPlane
+          text="BUZZER 5V"
+          width={2.4}
+          height={0.4}
+          color="#9aa0a6"
+          font='700 44px "Barlow Condensed", sans-serif'
+          position={[0, H + 0.012, 0]}
+          rotation={[-Math.PI / 2, 0, -angle + Math.PI / 2]}
+        />
         {loud > 0 && !ctx.ghost && (
           <group ref={rings} position={[0, H + 0.3, 0]}>
             {[0, 1, 2].map((i) => (
@@ -545,7 +575,10 @@ export function deviceLabel(part: PlacedPart, sim?: SimResult): string {
 
 /** Label anchor for devices whose body is not over their legs (the motor sits off the board). */
 export function deviceAnchor(part: PlacedPart): THREE.Vector3 | null {
-  if (part.type === 'motor') return motorFrame(part).pos.clone().add(V(0, 11.5 * MOTOR_SCALE, 0));
+  if (part.type === 'motor')
+    return motorFrame(part)
+      .pos.clone()
+      .add(V(0, 11.5 * MOTOR_SCALE, 0));
   if (part.type === 'relay') {
     const a = holeVec(part.pins.coil1 ?? '');
     const b = holeVec(part.pins.no ?? '');

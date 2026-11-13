@@ -141,7 +141,7 @@ describe('port quantities with exclude', () => {
     close(Q({ kind: 'pmax', port: ['a', 'b'], exclude: ['RL'] }), 16 / 8); // Vth = 4, Rth = 2
     close(Q({ kind: 'vth', port: ['a', 'b'], exclude: ['RL'] }), 4);
     close(Q({ kind: 'isc', port: ['a', 'b'], exclude: ['RL'] }), 2);
-    close(Q({ kind: 'vth', port: ['a', 'b'] }), 12 * (30 / 13) / (6 + 30 / 13)); // load kept
+    close(Q({ kind: 'vth', port: ['a', 'b'] }), (12 * (30 / 13)) / (6 + 30 / 13)); // load kept
   });
   it('req with the drawn load excluded (and kept)', () => {
     close(Q({ kind: 'req', port: ['a', 'b'], exclude: ['RL'] }), 2);
@@ -375,7 +375,9 @@ describe('second-order RLC step response (series, v_C)', () => {
     for (const t of [0.2, 1, 3]) close(q(rlc(5), TRAN, { kind: 'v', el: 'C', t }), 1 - (4 / 3) * Math.exp(-t) + (1 / 3) * Math.exp(-4 * t), 1e-8);
   });
   it('natural frequencies and tau rejection', () => {
-    const s = naturalFrequencies(net(rlc(5))).map((x) => x.re).sort((a, b) => a - b);
+    const s = naturalFrequencies(net(rlc(5)))
+      .map((x) => x.re)
+      .sort((a, b) => a - b);
     close(s[0], -4);
     close(s[1], -1);
     expect(() => q(rlc(2), TRAN, { kind: 'tau' })).toThrow(/not first-order/);

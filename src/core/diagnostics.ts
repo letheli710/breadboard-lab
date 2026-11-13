@@ -100,7 +100,10 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
       out.push({
         severity: 'warning',
         title: tr(`${ref} 电流偏大：${amps(l.current)}`, `${ref} current is high: ${amps(l.current)}`),
-        detail: tr('超过 30 mA，远高于 20 mA 的额定值，LED 寿命会缩短。换一个更大的电阻。', 'Above 30 mA — well over the 20 mA rating — the LED will wear out sooner. Use a bigger resistor.'),
+        detail: tr(
+          '超过 30 mA，远高于 20 mA 的额定值，LED 寿命会缩短。换一个更大的电阻。',
+          'Above 30 mA — well over the 20 mA rating — the LED will wear out sooner. Use a bigger resistor.',
+        ),
         refs: [ref],
         holes: [],
       });
@@ -110,7 +113,13 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
       comp.type === 'diode' &&
       circuit.components.some((x) => {
         const ts = x.type === 'relay' ? ['coil1', 'coil2'] : x.type === 'motor' || x.type === 'inductor' ? (x.type === 'motor' ? ['+', '-'] : ['1', '2']) : null;
-        return !!ts && ts.map((t) => nl.pinNet.get(pinId(x.ref, t))).sort().join('|') === dn;
+        return (
+          !!ts &&
+          ts
+            .map((t) => nl.pinNet.get(pinId(x.ref, t)))
+            .sort()
+            .join('|') === dn
+        );
       });
     if (l.reverse && !flyback)
       out.push({
@@ -237,10 +246,13 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
       if (floating.length)
         out.push({
           severity: 'warning',
-          title: tr(`${c.ref} 的输入悬空：${floating.map((t) => terminalLabel(c, t)).join('、')}`, `${c.ref} input floating: ${floating.map((t) => terminalLabel(c, t)).join(', ')}`),
+          title: tr(
+            `${c.ref} 的输入悬空：${floating.map((t) => terminalLabel(c, t)).join('、')}`,
+            `${c.ref} input floating: ${floating.map((t) => terminalLabel(c, t)).join(', ')}`,
+          ),
           detail: tr(
             '运放的输入几乎不取电流，悬空的输入电压是不确定的（会拾取噪声），输出会乱跳或撞到电源轨。每个用到的运放，IN+ 和 IN− 都必须接到电路上。',
-            "An op-amp input draws almost no current, so a floating input sits at an undefined voltage (it picks up noise) and the output jumps around or slams into a rail. For every half you use, both IN+ and IN− must be connected.",
+            'An op-amp input draws almost no current, so a floating input sits at an undefined voltage (it picks up noise) and the output jumps around or slams into a rail. For every half you use, both IN+ and IN− must be connected.',
           ),
           refs: [c.ref],
           holes: holesOf(c.ref, floating),
@@ -310,7 +322,7 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         title: tr(`${c.ref} 的接地夹没有夹在 GND 上`, `${c.ref}'s ground clip isn't on GND`),
         detail: tr(
           '这里的探头只测“针尖 − 接地夹”的电压差，所以读数没问题。但真实示波器的接地夹都连在大地（和信号发生器的地）上，夹在非 GND 的点会把那一点短路到地。想测两点之间的电压，用两个探头都接 GND，再看 CH1 − CH2。',
-          'This probe just measures tip minus ground clip, so the reading is fine here. But on a real scope every ground clip is tied to earth (and to the generator\'s ground), so clipping it to a non-GND point shorts that point to ground. To measure between two points, use two probes with grounds on GND and look at CH1 − CH2.',
+          "This probe just measures tip minus ground clip, so the reading is fine here. But on a real scope every ground clip is tied to earth (and to the generator's ground), so clipping it to a non-GND point shorts that point to ground. To measure between two points, use two probes with grounds on GND and look at CH1 − CH2.",
         ),
         refs: [c.ref],
         holes: nl.pinHoles.get(pinId(c.ref, 'gnd')) ?? [],

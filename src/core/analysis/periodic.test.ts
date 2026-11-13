@@ -79,7 +79,20 @@ describe('harmonic analysis of a series RL circuit', () => {
   const R = 10;
   const L = 0.0318;
   const specs: Spec[] = [
-    { ref: 'Us', type: 'V', nodes: ['s', '0'], value: { harmonics: { dc: 10, terms: [{ k: 1, amp: 100 }, { k: 3, amp: 30, phase: -30 }] } } },
+    {
+      ref: 'Us',
+      type: 'V',
+      nodes: ['s', '0'],
+      value: {
+        harmonics: {
+          dc: 10,
+          terms: [
+            { k: 1, amp: 100 },
+            { k: 3, amp: 30, phase: -30 },
+          ],
+        },
+      },
+    },
     { ref: 'R', type: 'R', nodes: ['s', 'm'], value: R },
     { ref: 'L', type: 'L', nodes: ['m', '0'], value: L },
   ];
@@ -110,7 +123,7 @@ describe('harmonic analysis of a series RL circuit', () => {
     // P = U0 I0 + Σ U_k I_k cos φ_k for the source
     const Pk = (Um: number, k: number) => ((Um * Um) / (2 * z(k) ** 2)) * R;
     close(q(specs, PER(w), { kind: 'p', el: 'Us', harmonic: 3 }), -Pk(30, 3));
-    close(q(specs, PER(w), { kind: 'q', el: 'L' }), ((I1m ** 2) / 2) * w * L + ((I3m ** 2) / 2) * 3 * w * L);
+    close(q(specs, PER(w), { kind: 'q', el: 'L' }), (I1m ** 2 / 2) * w * L + (I3m ** 2 / 2) * 3 * w * L);
     const U = Math.sqrt(100 + 100 ** 2 / 2 + 30 ** 2 / 2);
     close(q(specs, PER(w), { kind: 'v', el: 'Us' }), U);
     close(q(specs, PER(w), { kind: 's', el: 'Us' }), U * I);
@@ -124,7 +137,19 @@ describe('harmonic filters and resonance', () => {
   const L1 = 0.01;
   const C1 = 1 / (9 * w * w * L1);
   const specs: Spec[] = [
-    { ref: 'Us', type: 'V', nodes: ['s', '0'], value: { harmonics: { terms: [{ k: 1, amp: 100 }, { k: 3, amp: 20 }] } } },
+    {
+      ref: 'Us',
+      type: 'V',
+      nodes: ['s', '0'],
+      value: {
+        harmonics: {
+          terms: [
+            { k: 1, amp: 100 },
+            { k: 3, amp: 20 },
+          ],
+        },
+      },
+    },
     { ref: 'L1', type: 'L', nodes: ['s', 'a'], value: L1 },
     { ref: 'C1', type: 'C', nodes: ['s', 'a'], value: C1 },
     { ref: 'R', type: 'R', nodes: ['a', '0'], value: 50 },
@@ -150,7 +175,21 @@ describe('harmonic filters and resonance', () => {
     expect(() => q(specs, { type: 'tran' }, { kind: 'v', el: 'R', t: 0 })).toThrow(/periodic/);
     const z: Spec[] = [...specs, { ref: 'Z', type: 'Z', nodes: ['a', '0'], value: { re: 1, im: 1 } }];
     expect(() => q(z, PER(w), { kind: 'v', el: 'R' })).toThrow(/Z element/);
-    const bad: Spec[] = [{ ref: 'Us', type: 'V', nodes: ['s', '0'], value: { harmonics: { terms: [{ k: 1, amp: 1 }, { k: 1, amp: 2 }] } } }];
+    const bad: Spec[] = [
+      {
+        ref: 'Us',
+        type: 'V',
+        nodes: ['s', '0'],
+        value: {
+          harmonics: {
+            terms: [
+              { k: 1, amp: 1 },
+              { k: 1, amp: 2 },
+            ],
+          },
+        },
+      },
+    ];
     expect(() => q(bad, PER(w), { kind: 'v', el: 'Us' })).toThrow(/twice/);
     const wv: Spec[] = [{ ref: 'Us', type: 'V', nodes: ['s', '0'], value: { wave: { shape: 'square', amp: 1 } } }];
     expect(() => q(wv, PER(w), { kind: 'v', el: 'Us' })).toThrow(/upTo/);
@@ -160,7 +199,14 @@ describe('harmonic filters and resonance', () => {
 describe('three-phase harmonics (zero sequence)', () => {
   // phase EMFs e_A = 220√2 cos ωt + 30√2 cos 3ωt, B and C shifted by −120°, +120° (k·shift for harmonic k)
   const w = 314;
-  const emf = (shift: number) => ({ harmonics: { terms: [{ k: 1, amp: 220 * Math.SQRT2, phase: shift }, { k: 3, amp: 30 * Math.SQRT2, phase: 3 * shift }] } });
+  const emf = (shift: number) => ({
+    harmonics: {
+      terms: [
+        { k: 1, amp: 220 * Math.SQRT2, phase: shift },
+        { k: 3, amp: 30 * Math.SQRT2, phase: 3 * shift },
+      ],
+    },
+  });
   const Y = (neutral: boolean): Spec[] => [
     { ref: 'Ea', type: 'V', nodes: ['A', 'N'], value: emf(0) },
     { ref: 'Eb', type: 'V', nodes: ['B', 'N'], value: emf(-120) },
@@ -208,7 +254,20 @@ describe('cross-check with the time-domain (transient) solver', () => {
   const L = 0.05;
   const C = 40e-6;
   const per: Spec[] = [
-    { ref: 'Us', type: 'V', nodes: ['s', '0'], value: { harmonics: { dc: 20, terms: [{ k: 1, amp: 50 }, { k: 3, amp: 15, phase: 40 }] } } },
+    {
+      ref: 'Us',
+      type: 'V',
+      nodes: ['s', '0'],
+      value: {
+        harmonics: {
+          dc: 20,
+          terms: [
+            { k: 1, amp: 50 },
+            { k: 3, amp: 15, phase: 40 },
+          ],
+        },
+      },
+    },
     { ref: 'R', type: 'R', nodes: ['s', 'a'], value: R },
     { ref: 'L', type: 'L', nodes: ['a', 'b'], value: L },
     { ref: 'C', type: 'C', nodes: ['b', '0'], value: C },

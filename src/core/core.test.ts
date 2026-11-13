@@ -95,10 +95,7 @@ describe('netlist + solver', () => {
   it('bench supply current limits', () => {
     const lay: Layout = {
       version: 1,
-      parts: [
-        part('bench_supply', { '+': 'tp1', '-': 'tn1' }, { voltage: 5, currentLimit: 0.1 }, 'P'),
-        part('resistor', { '1': 'tp4', '2': 'tn4' }, { resistance: 10 }, 'R'),
-      ],
+      parts: [part('bench_supply', { '+': 'tp1', '-': 'tn1' }, { voltage: 5, currentLimit: 0.1 }, 'P'), part('resistor', { '1': 'tp4', '2': 'tn4' }, { resistance: 10 }, 'R')],
     };
     const sim = simulate(buildNetlist(lay).circuit);
     const s = sim.sources.get('P')!;

@@ -25,20 +25,29 @@ function lawResidual(law: Law, u: number, i: number): number {
   }
   let pts: number[][] = law.pwl;
   if (law.diode) {
-    const uon = law.diode.uon ?? 0, ron = law.diode.ron ?? 0;
-    pts = [[uon - 1, 0], [uon, 0], [uon + ron, 1]];
+    const uon = law.diode.uon ?? 0,
+      ron = law.diode.ron ?? 0;
+    pts = [
+      [uon - 1, 0],
+      [uon, 0],
+      [uon + ron, 1],
+    ];
   }
   // distance from the polyline (with extended ends), in a scaled metric
   let best = Infinity;
   for (let k = 0; k + 1 < pts.length; k++) {
-    const [u0, i0] = pts[k], [u1, i1] = pts[k + 1];
-    const du = u1 - u0, di = i1 - i0;
-    const su = Math.max(1e-12, Math.abs(du)), si = Math.max(1e-12, Math.abs(di));
+    const [u0, i0] = pts[k],
+      [u1, i1] = pts[k + 1];
+    const du = u1 - u0,
+      di = i1 - i0;
+    const su = Math.max(1e-12, Math.abs(du)),
+      si = Math.max(1e-12, Math.abs(di));
     // parameter along the segment (scaled coordinates)
-    let t = ((u - u0) / su * du / su + (i - i0) / si * di / si) / ((du / su) ** 2 + (di / si) ** 2);
+    let t = ((((u - u0) / su) * du) / su + (((i - i0) / si) * di) / si) / ((du / su) ** 2 + (di / si) ** 2);
     if (k > 0) t = Math.max(t, 0);
     if (k < pts.length - 2) t = Math.min(t, 1);
-    const eu = (u0 + t * du - u) / su, ei = (i0 + t * di - i) / si;
+    const eu = (u0 + t * du - u) / su,
+      ei = (i0 + t * di - i) / si;
     best = Math.min(best, Math.hypot(eu, ei) * Math.max(su, si));
   }
   return best;
@@ -96,7 +105,9 @@ const check = (json: any, name: string) => {
     worst = Math.max(worst, lawErr, kvl);
     expect(lawErr, `${name} op${op} law`).toBeLessThan(1e-9);
     expect(kvl, `${name} op${op} KCL/KVL`).toBeLessThan(1e-9);
-    report.push(`${name} op${op}: ${nrs.map((e) => `${e.ref}(u=${Q[e.ref].u.toPrecision(10)}, i=${Q[e.ref].i.toPrecision(10)})`).join(' ')}  law ${lawErr.toExponential(1)}  KCL/KVL ${kvl.toExponential(1)}`);
+    report.push(
+      `${name} op${op}: ${nrs.map((e) => `${e.ref}(u=${Q[e.ref].u.toPrecision(10)}, i=${Q[e.ref].i.toPrecision(10)})`).join(' ')}  law ${lawErr.toExponential(1)}  KCL/KVL ${kvl.toExponential(1)}`,
+    );
   }
   // 3. small signal: AC answers vs. difference of two full nonlinear DC solutions
   if (an.type === 'ac') {
@@ -128,6 +139,22 @@ describe('nonlinear chapter: every operating point and small-signal answer by a 
   const sum = JSON.parse(readFileSync('summaries/nonlinear.json', 'utf8'));
   for (const ex of sum.examples)
     it(`summaries/nonlinear.json example ${ex.id}`, () => {
-      check({ format: 'circuit-problem/1', id: 'x-' + ex.id, chapter: 'nonlinear', title: 't', level: 1, statement: 's', schematic: ex.schematic, analysis: ex.analysis, questions: ex.results, hints: ['h'], solution: 's', i18n: { en: {} } }, 'summary:' + ex.id);
+      check(
+        {
+          format: 'circuit-problem/1',
+          id: 'x-' + ex.id,
+          chapter: 'nonlinear',
+          title: 't',
+          level: 1,
+          statement: 's',
+          schematic: ex.schematic,
+          analysis: ex.analysis,
+          questions: ex.results,
+          hints: ['h'],
+          solution: 's',
+          i18n: { en: {} },
+        },
+        'summary:' + ex.id,
+      );
     });
 });

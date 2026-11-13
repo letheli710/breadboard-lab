@@ -12,8 +12,7 @@ const ckt = (components: CComponent[], nets: Record<string, string[]>): Circuit 
   components,
   nets: Object.entries(nets).map(([name, pins]) => ({ name, pins })),
 });
-const fakeNl = (circuit: Circuit) =>
-  ({ circuit, pinNet: new Map(), pinHoles: new Map(), netHoles: new Map(), holeNet: new Map(), unplaced: [] }) as unknown as BoardNetlist;
+const fakeNl = (circuit: Circuit) => ({ circuit, pinNet: new Map(), pinHoles: new Map(), netHoles: new Map(), holeNet: new Map(), unplaced: [] }) as unknown as BoardNetlist;
 
 /** square wave → R → series L–C tank: rings at 1/(2π√(LC)) = 159 kHz for 1 mH / 1 nF */
 const rlc = (frequency: number) =>
@@ -55,11 +54,7 @@ describe('simulation warnings', () => {
 
   it('counts time steps whose PWL states did not settle and reports them', () => {
     const c = ckt(
-      [
-        comp('FG1', 'function_gen', { waveform: 'sine', frequency: 1000, amplitude: 5, offset: 0 }),
-        comp('R1', 'resistor', { resistance: 1000 }),
-        comp('D1', 'diode'),
-      ],
+      [comp('FG1', 'function_gen', { waveform: 'sine', frequency: 1000, amplitude: 5, offset: 0 }), comp('R1', 'resistor', { resistance: 1000 }), comp('D1', 'diode')],
       { VIN: ['FG1.+', 'R1.1'], A: ['R1.2', 'D1.anode'], GND: ['D1.cathode', 'FG1.-'] },
     );
     const tr = simulateTransient(c);

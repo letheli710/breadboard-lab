@@ -34,31 +34,40 @@ for (const t of states) {
   const tr = gen ? simulateTransient(c) : null;
   const mp = (p: string) => r.pinMap.get(p) ?? p;
   for (const [ref, m] of sim.mcus) {
-    console.log(` ${ref} running=${m.running} v5=${f(m.v5)} v3=${f(m.v3)} usbI=${f(m.usbCurrent)} reg=${m.reg.mode} iout=${f(m.reg.iout)} i3v3Out=${f(m.i3v3Out)} i5vOut=${f(m.i5vOut)} usbOverload=${m.usbOverload}`);
+    console.log(
+      ` ${ref} running=${m.running} v5=${f(m.v5)} v3=${f(m.v3)} usbI=${f(m.usbCurrent)} reg=${m.reg.mode} iout=${f(m.reg.iout)} i3v3Out=${f(m.i3v3Out)} i5vOut=${f(m.i5vOut)} usbOverload=${m.usbOverload}`,
+    );
     for (const [pin, p] of m.pins)
       if (p.connected || p.mode !== 'input')
-        console.log(`   ${pin} ${p.mode} V=${f(p.vLocal)} I=${f(p.current * 1000)}mA logic=${p.logic}${p.adc ? ` adc=${p.adc.raw} (${f(p.adc.volts)} V)` : ''}${p.overcurrent ? ' OVERCURRENT' : ''}${p.damaged ? ' DAMAGED' : ''}${p.overvoltage ? ' OVERVOLT' : ''} clamp=${f(p.clamp * 1000)}mA${tr ? ` avgV=${f(tr.measure('vavg', `${ref}.${pin}`, `${ref}.GND`))} avgI=${f(vavg(tr.pinCurrent(`${ref}.${pin}`) ?? [0]) * 1000)}mA` : ''}`);
+        console.log(
+          `   ${pin} ${p.mode} V=${f(p.vLocal)} I=${f(p.current * 1000)}mA logic=${p.logic}${p.adc ? ` adc=${p.adc.raw} (${f(p.adc.volts)} V)` : ''}${p.overcurrent ? ' OVERCURRENT' : ''}${p.damaged ? ' DAMAGED' : ''}${p.overvoltage ? ' OVERVOLT' : ''} clamp=${f(p.clamp * 1000)}mA${tr ? ` avgV=${f(tr.measure('vavg', `${ref}.${pin}`, `${ref}.GND`))} avgI=${f(vavg(tr.pinCurrent(`${ref}.${pin}`) ?? [0]) * 1000)}mA` : ''}`,
+        );
   }
   for (const [ref, l] of sim.leds) console.log(` LED ${ref} on=${l.on} I=${f(l.current * 1000)}mA${tr ? ` avg=${f(tr.leds.get(ref)!.avgCurrent * 1000)}mA` : ''}`);
   for (const [ref, q] of sim.bjts) console.log(` BJT ${ref} ${q.region} ib=${f(q.ib * 1000)}mA ic=${f(q.ic * 1000)}mA vbe=${f(q.vbe)} vce=${f(q.vce)} P=${f(q.power)}`);
   for (const [ref, q] of sim.mosfets) console.log(` MOS ${ref} ${q.region} vgs=${f(q.vgs)} vds=${f(q.vds)} id=${f(q.id * 1000)}mA rds=${f(q.rds)} P=${f(q.power)}`);
   for (const [ref, q] of sim.regs) console.log(` LDO ${ref} ${q.mode} vin=${f(q.vin)} vout=${f(q.vout)} iout=${f(q.iout * 1000)}mA P=${f(q.power)}`);
   for (const [ref, q] of sim.relays) console.log(` RELAY ${ref} energized=${q.energized} I=${f(q.coilCurrent * 1000)}mA V=${f(q.coilVoltage)}`);
-  for (const [ref, q] of sim.motors) console.log(` MOTOR ${ref} running=${q.running} I=${f(q.current * 1000)}mA V=${f(q.voltage)}${tr ? ` avg: ${f(tr.motors.get(ref)!.current * 1000)}mA run=${tr.motors.get(ref)!.running}` : ''}`);
+  for (const [ref, q] of sim.motors)
+    console.log(
+      ` MOTOR ${ref} running=${q.running} I=${f(q.current * 1000)}mA V=${f(q.voltage)}${tr ? ` avg: ${f(tr.motors.get(ref)!.current * 1000)}mA run=${tr.motors.get(ref)!.running}` : ''}`,
+    );
   for (const [ref, q] of sim.buzzers) console.log(` BUZZ ${ref} on=${q.on} I=${f(q.current * 1000)}mA V=${f(q.voltage)}`);
   for (const [ref, s] of sim.sources) console.log(` SRC ${ref} I=${f(s.current * 1000)}mA Vt=${f(s.terminalVoltage)} shorted=${s.shorted} cc=${s.ccMode}`);
-  if (tr) console.log(` transient: breakdowns=${[...tr.breakdowns].join(',')} coilPeak=${[...tr.coilPeak].map(([k, v]) => `${k}:${f(v)}`).join(',')} warn=${tr.warnings.join(';')}`);
+  if (tr)
+    console.log(` transient: breakdowns=${[...tr.breakdowns].join(',')} coilPeak=${[...tr.coilPeak].map(([k, v]) => `${k}:${f(v)}`).join(',')} warn=${tr.warnings.join(';')}`);
   // values of every test item
   const netOf = new Map<string, string>();
   c.nets.forEach((n) => n.pins.forEach((p) => netOf.set(p, n.name)));
   for (const v of t.voltages ?? []) {
-    const p = mp(v.pin), rr = v.ref ? mp(v.ref) : undefined;
+    const p = mp(v.pin),
+      rr = v.ref ? mp(v.ref) : undefined;
     const val = tr ? tr.measure('vavg', p, rr) : (sim.nodeV.get(netOf.get(p) ?? '') ?? 0) - (rr ? (sim.nodeV.get(netOf.get(rr) ?? '') ?? 0) : 0);
     console.log(`  [V] ${v.pin}${v.ref ? '-' + v.ref : ''} = ${f(val)}  (want ${v.min}..${v.max})`);
   }
   for (const it of t.currents ?? []) {
     const u = r.mapping.get(it.el) ?? it.el;
-    const val = tr && it.mode !== undefined ? 0 : sim.current.get(u) ?? 0;
+    const val = tr && it.mode !== undefined ? 0 : (sim.current.get(u) ?? 0);
     const avg = tr ? tr.current(u) : null;
     console.log(`  [I] ${it.el} dc=${f(val)}${avg ? ` avg=${f(vavg(avg))}` : ''}  (want ${it.min}..${it.max})`);
   }

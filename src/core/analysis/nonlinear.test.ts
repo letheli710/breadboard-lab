@@ -39,7 +39,15 @@ describe('polynomial real roots', () => {
 describe('laws', () => {
   it('parse and reject', () => {
     expect(parseLaw('D', { i: [0, 0, 1], umin: 0 }).pieces.length).toBe(2);
-    expect(parseLaw('D', { pwl: [[0, 0], [1, 1], [2, 0]] }).pieces.length).toBe(2);
+    expect(
+      parseLaw('D', {
+        pwl: [
+          [0, 0],
+          [1, 1],
+          [2, 0],
+        ],
+      }).pieces.length,
+    ).toBe(2);
     expect(parseLaw('D', { diode: {} }).diode).toBe(true);
     expect(() => parseLaw('D', {})).toThrow(/law/);
     expect(() => parseLaw('D', { i: [0, 1], u: [0, 1] })).toThrow(/exactly one/);
@@ -139,7 +147,14 @@ describe('ideal diode models', () => {
 
 describe('operating point at a corner is found once', () => {
   it('Us = 3 V, R = 1 kΩ meets the PWL curve at u = 0.75 V and at the corner (2 V, 1 mA)', () => {
-    const c = divider(3, 1000, { pwl: [[0, 0], [1, 3e-3], [2, 1e-3], [4, 5e-3]] });
+    const c = divider(3, 1000, {
+      pwl: [
+        [0, 0],
+        [1, 3e-3],
+        [2, 1e-3],
+        [4, 5e-3],
+      ],
+    });
     expect(q(c, DC, { kind: 'nop' })).toBe(2);
     close(q(c, DC, { kind: 'v', el: 'D', op: 1 }), 0.75);
     close(q(c, DC, { kind: 'v', el: 'D', op: 2 }), 2);
@@ -147,7 +162,14 @@ describe('operating point at a corner is found once', () => {
 });
 
 describe('tunnel-diode-like PWL with three operating points', () => {
-  const law = { pwl: [[0, 0], [1, 3e-3], [2, 1e-3], [4, 5e-3]] };
+  const law = {
+    pwl: [
+      [0, 0],
+      [1, 3e-3],
+      [2, 1e-3],
+      [4, 5e-3],
+    ],
+  };
   it('Us = 2.5 V, R = 1 kΩ', () => {
     const c = divider(2.5, 1000, law);
     // seg 0: 3u = 2.5 − u → u = 0.625 ; seg 1: 5 − 2u = 2.5 − u → u = 2.5 (outside [1, 2]) ✗
@@ -219,11 +241,32 @@ describe('several curved elements (Newton) and errors', () => {
     // current source 5 A into an element whose current can never exceed 1 A
     const c: Spec[] = [
       { ref: 'Is', type: 'I', nodes: ['0', 'a'], value: 5 },
-      { ref: 'D', type: 'NR', nodes: ['a', '0'], law: { pwl: [[-1, -1], [0, 0], [1, 1], [2, 1]] } },
+      {
+        ref: 'D',
+        type: 'NR',
+        nodes: ['a', '0'],
+        law: {
+          pwl: [
+            [-1, -1],
+            [0, 0],
+            [1, 1],
+            [2, 1],
+          ],
+        },
+      },
     ];
     expect(() => q(c, DC, { kind: 'v', el: 'D' })).toThrow(/no DC operating point/);
     expect(() => q(divider(1, 1, { diode: {} }), { type: 'tran' }, { kind: 'v', el: 'D', t: 0 })).toThrow(/not in transient/);
-    expect(() => q([{ ref: 'R', type: 'R', nodes: ['a', '0'], value: 1 }, { ref: 'I', type: 'I', nodes: ['0', 'a'], value: 1 }], DC, { kind: 'rd', el: 'R' })).toThrow(/needs a nonlinear/);
+    expect(() =>
+      q(
+        [
+          { ref: 'R', type: 'R', nodes: ['a', '0'], value: 1 },
+          { ref: 'I', type: 'I', nodes: ['0', 'a'], value: 1 },
+        ],
+        DC,
+        { kind: 'rd', el: 'R' },
+      ),
+    ).toThrow(/needs a nonlinear/);
   });
   it('series PWL elements: graphical series combination', () => {
     // two ideal diodes with thresholds 0.6 V and 1.4 V in series + 1 kΩ from 5 V: i = 3 mA

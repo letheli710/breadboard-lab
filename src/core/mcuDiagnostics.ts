@@ -96,21 +96,30 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
       issue(
         'warning',
         tr(`${c.ref} 的 3V3 负载接近上限：${amps(st.reg.iout)}`, `${c.ref}'s 3V3 load is near the limit: ${amps(st.reg.iout)}`),
-        tr(`板载稳压器最多约 ${amps(b.regulator.limit)}，而且会发热（${(st.reg.power).toFixed(2)} W）。`, `The onboard regulator gives at most about ${amps(b.regulator.limit)} and gets hot (${st.reg.power.toFixed(2)} W).`),
+        tr(
+          `板载稳压器最多约 ${amps(b.regulator.limit)}，而且会发热（${st.reg.power.toFixed(2)} W）。`,
+          `The onboard regulator gives at most about ${amps(b.regulator.limit)} and gets hot (${st.reg.power.toFixed(2)} W).`,
+        ),
         [c.ref],
       );
     else if (st.reg.mode === 'dropout' && st.v5 > 1 && st.running)
       issue(
         'warning',
         tr(`${c.ref} 的稳压器压差不够：5V 只有 ${volts(st.v5)}`, `${c.ref}'s regulator is in dropout: 5V is only ${volts(st.v5)}`),
-        tr(`${b.regulator.name} 的输入要比 3.3 V 至少高 ${b.regulator.dropout} V，现在 3V3 只有 ${volts(st.v3)}。`, `The ${b.regulator.name} needs its input at least ${b.regulator.dropout} V above 3.3 V; 3V3 is only ${volts(st.v3)} now.`),
+        tr(
+          `${b.regulator.name} 的输入要比 3.3 V 至少高 ${b.regulator.dropout} V，现在 3V3 只有 ${volts(st.v3)}。`,
+          `The ${b.regulator.name} needs its input at least ${b.regulator.dropout} V above 3.3 V; 3V3 is only ${volts(st.v3)} now.`,
+        ),
         [c.ref],
       );
     if (st.i3v3Out < -0.005 && st.running)
       issue(
         'info',
         tr(`${c.ref} 的 3V3 引脚被外部电源供电`, `${c.ref}'s 3V3 pin is fed from outside`),
-        tr(`有 ${amps(-st.i3v3Out)} 从面包板流进 3V3 引脚。可以这样给板子供电，但电压不能超过 3.6 V，也不要同时插 USB 和外部 3.3 V 电源。`, `${amps(-st.i3v3Out)} flows into the 3V3 pin from the breadboard. You can power the board this way, but never above 3.6 V.`),
+        tr(
+          `有 ${amps(-st.i3v3Out)} 从面包板流进 3V3 引脚。可以这样给板子供电，但电压不能超过 3.6 V，也不要同时插 USB 和外部 3.3 V 电源。`,
+          `${amps(-st.i3v3Out)} flows into the 3V3 pin from the breadboard. You can power the board this way, but never above 3.6 V.`,
+        ),
         [c.ref],
         holes(c.ref, ['3V3']),
       );
@@ -124,7 +133,10 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         issue(
           'warning',
           tr(`${name} 只能做输入`, `${name} is input-only`),
-          tr(`ESP32 的 GPIO34–39 只有输入功能，设成输出没有用。换一个引脚（如 GPIO2、GPIO4、GPIO16–33）。`, `ESP32 GPIO34–39 are input-only; setting them as outputs does nothing. Use another pin (e.g. GPIO2, GPIO4, GPIO16–33).`),
+          tr(
+            `ESP32 的 GPIO34–39 只有输入功能，设成输出没有用。换一个引脚（如 GPIO2、GPIO4、GPIO16–33）。`,
+            `ESP32 GPIO34–39 are input-only; setting them as outputs does nothing. Use another pin (e.g. GPIO2, GPIO4, GPIO16–33).`,
+          ),
           [c.ref],
           h,
         );
@@ -132,14 +144,20 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         issue(
           'warning',
           tr(`${name} 没有内部上下拉电阻`, `${name} has no internal pull resistor`),
-          tr(`GPIO34–39 没有内部上拉 / 下拉，这个模式等于浮空输入。外接一个 10 kΩ 电阻到 3V3（上拉）或 GND（下拉）。`, `GPIO34–39 have no internal pull-up / pull-down, so this mode is just a floating input. Add an external 10 kΩ to 3V3 (pull-up) or GND (pull-down).`),
+          tr(
+            `GPIO34–39 没有内部上拉 / 下拉，这个模式等于浮空输入。外接一个 10 kΩ 电阻到 3V3（上拉）或 GND（下拉）。`,
+            `GPIO34–39 have no internal pull-up / pull-down, so this mode is just a floating input. Add an external 10 kΩ to 3V3 (pull-up) or GND (pull-down).`,
+          ),
           [c.ref],
           h,
         );
       if (p.damaged)
         issue(
           'error',
-          tr(`${name} 烧坏了！${p.clamp > b.iInjMax ? `保护二极管电流 ${mA(p.clamp)}` : `电流 ${mA(p.current)}`}`, `${name} is damaged! ${p.clamp > b.iInjMax ? `clamp-diode current ${mA(p.clamp)}` : `current ${mA(p.current)}`}`),
+          tr(
+            `${name} 烧坏了！${p.clamp > b.iInjMax ? `保护二极管电流 ${mA(p.clamp)}` : `电流 ${mA(p.current)}`}`,
+            `${name} is damaged! ${p.clamp > b.iInjMax ? `clamp-diode current ${mA(p.clamp)}` : `current ${mA(p.current)}`}`,
+          ),
           p.clamp > b.iInjMax
             ? tr(
                 `引脚电压超出了电源范围（${volts(p.vLocal)}），内部的保护二极管流过了 ${mA(p.clamp)}（最多约 ${mA(b.iInjMax)}）。不要把 5 V 或负电压直接接到 3.3 V 引脚上——用分压电阻或电平转换。`,
@@ -180,7 +198,10 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         issue(
           'warning',
           tr(`${name} 上出现负电压：${volts(p.vLocal)}`, `${name} sees a negative voltage: ${volts(p.vLocal)}`),
-          tr(`引脚电压低于 −0.3 V，保护二极管在导通（${mA(p.clamp)}）。常见原因：线圈 / 电机直接接在引脚上，断开时的反向电压。`, `The pin is below −0.3 V and its protection diode conducts (${mA(p.clamp)}). A common cause is a coil or motor wired straight to the pin, kicking back when it switches off.`),
+          tr(
+            `引脚电压低于 −0.3 V，保护二极管在导通（${mA(p.clamp)}）。常见原因：线圈 / 电机直接接在引脚上，断开时的反向电压。`,
+            `The pin is below −0.3 V and its protection diode conducts (${mA(p.clamp)}). A common cause is a coil or motor wired straight to the pin, kicking back when it switches off.`,
+          ),
           [c.ref],
           h,
         );
@@ -189,7 +210,10 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         issue(
           'warning',
           tr(`${name} 的 ADC 满量程了`, `${name}'s ADC is at full scale`),
-          tr(`ADC 只能测 0–3.3 V，现在是 ${volts(p.vLocal)}，读数卡在 4095。用分压电阻把被测电压降到 3.3 V 以内。`, `The ADC only measures 0–3.3 V; the pin is at ${volts(p.vLocal)}, so the reading is stuck at 4095. Scale the voltage down with a divider.`),
+          tr(
+            `ADC 只能测 0–3.3 V，现在是 ${volts(p.vLocal)}，读数卡在 4095。用分压电阻把被测电压降到 3.3 V 以内。`,
+            `The ADC only measures 0–3.3 V; the pin is at ${volts(p.vLocal)}, so the reading is stuck at 4095. Scale the voltage down with a divider.`,
+          ),
           [c.ref],
           h,
         );
@@ -222,13 +246,25 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
           issue(
             'warning',
             tr(`${name} 的电平不确定：${volts(p.vLocal)}`, `${name} level is undefined: ${volts(p.vLocal)}`),
-            tr(`数字输入低于 ${volts(b.vil)} 读 0、高于 ${volts(b.vih)} 读 1，中间的电压读数不可靠。`, `A digital input reads 0 below ${volts(b.vil)} and 1 above ${volts(b.vih)}; anything in between is unreliable.`),
+            tr(
+              `数字输入低于 ${volts(b.vil)} 读 0、高于 ${volts(b.vih)} 读 1，中间的电压读数不可靠。`,
+              `A digital input reads 0 below ${volts(b.vil)} and 1 above ${volts(b.vih)}; anything in between is unreliable.`,
+            ),
             [c.ref],
             h,
           );
       }
       if (def?.kind === 'gpio' && caps?.note && (caps.note === 'tx' || caps.note === 'rx') && c.type === 'esp32_devkit')
-        issue('info', tr(`${name} 是串口 ${caps.note.toUpperCase()}`, `${name} is serial ${caps.note.toUpperCase()}`), tr('GPIO1 / GPIO3 接着 USB 串口（下载程序和串口监视器）。尽量用别的引脚。', 'GPIO1 / GPIO3 carry the USB serial port (uploads and the serial monitor). Prefer other pins.'), [c.ref], h);
+        issue(
+          'info',
+          tr(`${name} 是串口 ${caps.note.toUpperCase()}`, `${name} is serial ${caps.note.toUpperCase()}`),
+          tr(
+            'GPIO1 / GPIO3 接着 USB 串口（下载程序和串口监视器）。尽量用别的引脚。',
+            'GPIO1 / GPIO3 carry the USB serial port (uploads and the serial monitor). Prefer other pins.',
+          ),
+          [c.ref],
+          h,
+        );
       const net = netOf(c.ref, pin);
       if (net && isOutputMode(p.mode) && caps?.output) {
         const lvl = p.mode === 'pwm' ? 'pwm' : p.mode;
@@ -238,7 +274,10 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
           issue(
             'error',
             tr(`${name} 的输出直接接在了电源上（${rail}）`, `${name}'s output is wired straight to a supply (${rail})`),
-            tr(`输出引脚是一个电压源，直接接到 3V3 / 5V / GND 上会流过很大的电流，把引脚烧坏。中间一定要有负载（例如电阻 + LED）。`, `An output pin is a voltage source; tied straight to 3V3 / 5V / GND a large current flows and burns the pin. There must be a load (e.g. a resistor + LED) in between.`),
+            tr(
+              `输出引脚是一个电压源，直接接到 3V3 / 5V / GND 上会流过很大的电流，把引脚烧坏。中间一定要有负载（例如电阻 + LED）。`,
+              `An output pin is a voltage source; tied straight to 3V3 / 5V / GND a large current flows and burns the pin. There must be a load (e.g. a resistor + LED) in between.`,
+            ),
             [c.ref],
             h,
           );
@@ -250,7 +289,10 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         issue(
           'warning',
           tr(`${c.ref} ${pin.name}（${pin.label}）接着板载 Flash`, `${c.ref} ${pin.name} (${pin.label}) is wired to the onboard flash`),
-          tr('GPIO6–11 是 ESP32 读取程序用的 SPI Flash 引脚，接任何东西都可能让板子死机。换一个引脚。', 'GPIO6–11 connect the ESP32 to its SPI flash; wiring anything to them can crash the board. Use another pin.'),
+          tr(
+            'GPIO6–11 是 ESP32 读取程序用的 SPI Flash 引脚，接任何东西都可能让板子死机。换一个引脚。',
+            'GPIO6–11 connect the ESP32 to its SPI flash; wiring anything to them can crash the board. Use another pin.',
+          ),
           [c.ref],
           holes(c.ref, [pin.name]),
         );
@@ -284,18 +326,48 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         const q = sim.bjts.get(c.ref);
         if (!q) break;
         if (q.breakdown)
-          issue('error', tr(`${c.ref} 击穿了：Vce = ${volts(q.vce)}`, `${c.ref} broke down: Vce = ${volts(q.vce)}`), tr(`2N2222 的 C–E 最多承受约 ${NPN.bv} V。`, `A 2N2222 withstands about ${NPN.bv} V across C–E.`), [c.ref]);
+          issue(
+            'error',
+            tr(`${c.ref} 击穿了：Vce = ${volts(q.vce)}`, `${c.ref} broke down: Vce = ${volts(q.vce)}`),
+            tr(`2N2222 的 C–E 最多承受约 ${NPN.bv} V。`, `A 2N2222 withstands about ${NPN.bv} V across C–E.`),
+            [c.ref],
+          );
         if (q.ic > NPN.icMax)
-          issue('error', tr(`${c.ref} 集电极电流过大：${amps(q.ic)}`, `${c.ref} collector current too high: ${amps(q.ic)}`), tr(`2N2222 最大约 ${amps(NPN.icMax)}。更大的负载用 MOSFET。`, `A 2N2222 handles about ${amps(NPN.icMax)} at most. Use a MOSFET for bigger loads.`), [c.ref]);
+          issue(
+            'error',
+            tr(`${c.ref} 集电极电流过大：${amps(q.ic)}`, `${c.ref} collector current too high: ${amps(q.ic)}`),
+            tr(`2N2222 最大约 ${amps(NPN.icMax)}。更大的负载用 MOSFET。`, `A 2N2222 handles about ${amps(NPN.icMax)} at most. Use a MOSFET for bigger loads.`),
+            [c.ref],
+          );
         else if (q.power > NPN.pMax)
-          issue('warning', tr(`${c.ref} 发热：${q.power.toFixed(2)} W`, `${c.ref} is getting hot: ${q.power.toFixed(2)} W`), tr(`TO-92 封装最多约 ${NPN.pMax} W。让三极管饱和（加大基极电流）可以减小 Vce 和发热。`, `A TO-92 part dissipates about ${NPN.pMax} W at most. Saturating the transistor (more base current) lowers Vce and the heat.`), [c.ref]);
+          issue(
+            'warning',
+            tr(`${c.ref} 发热：${q.power.toFixed(2)} W`, `${c.ref} is getting hot: ${q.power.toFixed(2)} W`),
+            tr(
+              `TO-92 封装最多约 ${NPN.pMax} W。让三极管饱和（加大基极电流）可以减小 Vce 和发热。`,
+              `A TO-92 part dissipates about ${NPN.pMax} W at most. Saturating the transistor (more base current) lowers Vce and the heat.`,
+            ),
+            [c.ref],
+          );
         if (q.ib > 0.05)
-          issue('warning', tr(`${c.ref} 的基极电流太大：${amps(q.ib)}`, `${c.ref} base current is too large: ${amps(q.ib)}`), tr('基极和驱动它的引脚之间要串一个电阻（例如 1 kΩ），否则 BE 结相当于一个二极管直接接在电源上。', 'Put a resistor (e.g. 1 kΩ) between the base and whatever drives it; otherwise the B–E junction is a diode straight across the supply.'), [c.ref], holes(c.ref, ['b']));
+          issue(
+            'warning',
+            tr(`${c.ref} 的基极电流太大：${amps(q.ib)}`, `${c.ref} base current is too large: ${amps(q.ib)}`),
+            tr(
+              '基极和驱动它的引脚之间要串一个电阻（例如 1 kΩ），否则 BE 结相当于一个二极管直接接在电源上。',
+              'Put a resistor (e.g. 1 kΩ) between the base and whatever drives it; otherwise the B–E junction is a diode straight across the supply.',
+            ),
+            [c.ref],
+            holes(c.ref, ['b']),
+          );
         if (q.region === 'active' && q.ic > 0.002 && q.vce > 1 && isConn(c.ref, 'c'))
           issue(
             'info',
             tr(`${c.ref} 工作在放大区（没有完全导通）`, `${c.ref} is in the active region (not fully on)`),
-            tr(`Ic = ${amps(q.ic)}，Vce = ${volts(q.vce)}。当开关用时，要让 Ib 大于 Ic/β 的 2–10 倍，三极管才会饱和（Vce ≈ 0.2 V）。减小基极电阻。`, `Ic = ${amps(q.ic)}, Vce = ${volts(q.vce)}. As a switch, drive Ib at 2–10 × Ic/β so it saturates (Vce ≈ 0.2 V). Use a smaller base resistor.`),
+            tr(
+              `Ic = ${amps(q.ic)}，Vce = ${volts(q.vce)}。当开关用时，要让 Ib 大于 Ic/β 的 2–10 倍，三极管才会饱和（Vce ≈ 0.2 V）。减小基极电阻。`,
+              `Ic = ${amps(q.ic)}, Vce = ${volts(q.vce)}. As a switch, drive Ib at 2–10 × Ic/β so it saturates (Vce ≈ 0.2 V). Use a smaller base resistor.`,
+            ),
             [c.ref],
           );
         break;
@@ -305,9 +377,26 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         if (!m) break;
         const spec = MOSFETS[c.props.model ?? 'IRLZ44N'] ?? MOSFETS.IRLZ44N;
         if (m.gateFloating && isConn(c.ref, 'd'))
-          issue('warning', tr(`${c.ref} 的栅极浮空`, `${c.ref}'s gate is floating`), tr('MOSFET 的栅极几乎不取电流，悬空时会随便导通或关断。加一个 10 kΩ – 100 kΩ 下拉电阻（G 到 S）。', 'A MOSFET gate draws almost no current, so a floating gate turns on and off at random. Add a 10 kΩ – 100 kΩ pull-down (G to S).'), [c.ref], holes(c.ref, ['g']));
+          issue(
+            'warning',
+            tr(`${c.ref} 的栅极浮空`, `${c.ref}'s gate is floating`),
+            tr(
+              'MOSFET 的栅极几乎不取电流，悬空时会随便导通或关断。加一个 10 kΩ – 100 kΩ 下拉电阻（G 到 S）。',
+              'A MOSFET gate draws almost no current, so a floating gate turns on and off at random. Add a 10 kΩ – 100 kΩ pull-down (G to S).',
+            ),
+            [c.ref],
+            holes(c.ref, ['g']),
+          );
         if (m.breakdown)
-          issue('error', tr(`${c.ref} 雪崩击穿：Vds = ${volts(m.vds)}`, `${c.ref} avalanche breakdown: Vds = ${volts(m.vds)}`), tr(`${spec.name[0]} 的 Vds 最高约 ${spec.bv} V。电感性负载要加续流二极管。`, `The ${spec.name[1]} takes about ${spec.bv} V on Vds at most. Inductive loads need a flyback diode.`), [c.ref]);
+          issue(
+            'error',
+            tr(`${c.ref} 雪崩击穿：Vds = ${volts(m.vds)}`, `${c.ref} avalanche breakdown: Vds = ${volts(m.vds)}`),
+            tr(
+              `${spec.name[0]} 的 Vds 最高约 ${spec.bv} V。电感性负载要加续流二极管。`,
+              `The ${spec.name[1]} takes about ${spec.bv} V on Vds at most. Inductive loads need a flyback diode.`,
+            ),
+            [c.ref],
+          );
         // with a PWM pin on the board the DC model averages the gate drive (duty × 3.3 V), which
         // would flag a PWM-driven logic-level MOSFET as "not fully on": skip the check there
         if (m.region === 'saturation' && Math.abs(m.id) > 0.01 && !pwmBoard)
@@ -321,7 +410,12 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
             [c.ref],
           );
         else if (m.power > spec.pMax)
-          issue('warning', tr(`${c.ref} 发热：${m.power.toFixed(2)} W`, `${c.ref} is getting hot: ${m.power.toFixed(2)} W`), tr('TO-220 不加散热片约 2 W 就很烫了。', 'Without a heatsink a TO-220 is very hot at about 2 W.'), [c.ref]);
+          issue(
+            'warning',
+            tr(`${c.ref} 发热：${m.power.toFixed(2)} W`, `${c.ref} is getting hot: ${m.power.toFixed(2)} W`),
+            tr('TO-220 不加散热片约 2 W 就很烫了。', 'Without a heatsink a TO-220 is very hot at about 2 W.'),
+            [c.ref],
+          );
         break;
       }
       case 'relay': {
@@ -332,7 +426,10 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
           issue(
             'warning',
             tr(`${c.ref} 线圈电流不够，吸合不了：${mA(I)}`, `${c.ref} coil current too low to pull in: ${mA(I)}`),
-            tr(`5 V 继电器要约 ${mA(RELAY.pullIn)} 才能吸合（线圈两端至少约 3.75 V）。3.3 V 的引脚直接驱动不了，用三极管或 MOSFET 从 5 V 供电。`, `A 5 V relay needs about ${mA(RELAY.pullIn)} to pull in (at least about 3.75 V across the coil). A 3.3 V pin can't drive it directly: switch it from 5 V with a transistor or MOSFET.`),
+            tr(
+              `5 V 继电器要约 ${mA(RELAY.pullIn)} 才能吸合（线圈两端至少约 3.75 V）。3.3 V 的引脚直接驱动不了，用三极管或 MOSFET 从 5 V 供电。`,
+              `A 5 V relay needs about ${mA(RELAY.pullIn)} to pull in (at least about 3.75 V across the coil). A 3.3 V pin can't drive it directly: switch it from 5 V with a transistor or MOSFET.`,
+            ),
             [c.ref],
           );
         const [plus, minus] = r.coilCurrent >= 0 ? ['coil1', 'coil2'] : ['coil2', 'coil1'];
@@ -342,7 +439,7 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
             tr(`${c.ref} 的线圈没有续流二极管`, `${c.ref}'s coil has no flyback diode`),
             tr(
               '线圈是电感：断电的一瞬间电流无处可去，会产生几十伏的反向电压，击穿驱动它的三极管 / 引脚。在线圈两端反向并联一个二极管（1N4148 / 1N4007，负极接线圈的 + 端）。',
-              'The coil is an inductor: the instant it switches off its current has nowhere to go and it produces tens of volts in reverse, which can destroy the transistor / pin driving it. Put a diode across the coil (1N4148 / 1N4007, cathode to the coil\'s + end).',
+              "The coil is an inductor: the instant it switches off its current has nowhere to go and it produces tens of volts in reverse, which can destroy the transistor / pin driving it. Put a diode across the coil (1N4148 / 1N4007, cathode to the coil's + end).",
             ),
             [c.ref],
             holes(c.ref, ['coil1', 'coil2']),
@@ -357,7 +454,10 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
           issue(
             'warning',
             tr(`${c.ref} 没有续流二极管`, `${c.ref} has no flyback diode`),
-            tr('电机线圈是电感，关断时会产生反向高压（还会产生火花干扰）。在电机两端反向并联一个二极管（负极接 + 端）。', 'A motor winding is an inductor: switching it off kicks back a high reverse voltage (and electrical noise). Put a diode across the motor, cathode to its + end.'),
+            tr(
+              '电机线圈是电感，关断时会产生反向高压（还会产生火花干扰）。在电机两端反向并联一个二极管（负极接 + 端）。',
+              'A motor winding is an inductor: switching it off kicks back a high reverse voltage (and electrical noise). Put a diode across the motor, cathode to its + end.',
+            ),
             [c.ref],
           );
         break;
@@ -365,28 +465,60 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
       case 'buzzer': {
         const bz = sim.buzzers.get(c.ref);
         if (bz?.reverse)
-          issue('warning', tr(`${c.ref} 接反了`, `${c.ref} is backwards`), tr('有源蜂鸣器有极性：长脚（+）接电源正，短脚接 GND。', 'An active buzzer is polarised: long leg (+) to the supply, short leg to GND.'), [c.ref]);
+          issue(
+            'warning',
+            tr(`${c.ref} 接反了`, `${c.ref} is backwards`),
+            tr('有源蜂鸣器有极性：长脚（+）接电源正，短脚接 GND。', 'An active buzzer is polarised: long leg (+) to the supply, short leg to GND.'),
+            [c.ref],
+          );
         break;
       }
       case 'ldo': {
         const r = sim.regs.get(c.ref);
         if (!r) break;
         if (r.mode === 'limit')
-          issue('error', tr(`${c.ref} 过流限流：${amps(r.iout)}`, `${c.ref} is current-limiting: ${amps(r.iout)}`), tr(`LM1117 最多约 800 mA，输出掉到了 ${volts(r.vout)}。`, `The LM1117 gives about 800 mA at most; its output dropped to ${volts(r.vout)}.`), [c.ref]);
+          issue(
+            'error',
+            tr(`${c.ref} 过流限流：${amps(r.iout)}`, `${c.ref} is current-limiting: ${amps(r.iout)}`),
+            tr(`LM1117 最多约 800 mA，输出掉到了 ${volts(r.vout)}。`, `The LM1117 gives about 800 mA at most; its output dropped to ${volts(r.vout)}.`),
+            [c.ref],
+          );
         else if (r.mode === 'dropout' && r.vin > 0.5)
           issue(
             'warning',
             tr(`${c.ref} 压差不够：输入 ${volts(r.vin)}，输出只有 ${volts(r.vout)}`, `${c.ref} is in dropout: ${volts(r.vin)} in, only ${volts(r.vout)} out`),
-            tr(`LDO 的输入至少要比输出高约 1.1 V（LM1117 的压差）。3.3 V 输出需要 ≥ 4.4 V 输入。`, `The input must be about 1.1 V above the output (the LM1117 dropout); a 3.3 V output needs ≥ 4.4 V in.`),
+            tr(
+              `LDO 的输入至少要比输出高约 1.1 V（LM1117 的压差）。3.3 V 输出需要 ≥ 4.4 V 输入。`,
+              `The input must be about 1.1 V above the output (the LM1117 dropout); a 3.3 V output needs ≥ 4.4 V in.`,
+            ),
             [c.ref],
           );
         if (r.power > 1)
-          issue('warning', tr(`${c.ref} 发热：${r.power.toFixed(2)} W`, `${c.ref} is getting hot: ${r.power.toFixed(2)} W`), tr('线性稳压器把 (Vin − Vout) × I 全部变成热量。降低输入电压或电流，或加散热片。', 'A linear regulator turns (Vin − Vout) × I into heat. Lower the input voltage or the current, or add a heatsink.'), [c.ref]);
+          issue(
+            'warning',
+            tr(`${c.ref} 发热：${r.power.toFixed(2)} W`, `${c.ref} is getting hot: ${r.power.toFixed(2)} W`),
+            tr(
+              '线性稳压器把 (Vin − Vout) × I 全部变成热量。降低输入电压或电流，或加散热片。',
+              'A linear regulator turns (Vin − Vout) × I into heat. Lower the input voltage or the current, or add a heatsink.',
+            ),
+            [c.ref],
+          );
         const nOut = netOf(c.ref, 'out');
         const nGnd = netOf(c.ref, 'gnd');
-        const cap = placed.some((x) => x.type === 'capacitor' && (x.props.capacitance ?? 0) >= 1e-6 && [netOf(x.ref, '1'), netOf(x.ref, '2')].sort().join() === [nOut, nGnd].sort().join());
+        const cap = placed.some(
+          (x) => x.type === 'capacitor' && (x.props.capacitance ?? 0) >= 1e-6 && [netOf(x.ref, '1'), netOf(x.ref, '2')].sort().join() === [nOut, nGnd].sort().join(),
+        );
         if (!cap && r.mode !== 'off' && isConn(c.ref, 'out'))
-          issue('info', tr(`${c.ref} 的输出端没有电容`, `${c.ref} has no output capacitor`), tr('LM1117 的输出端要接一个 ≥ 10 µF 的电容到 GND（输入端最好也接一个），否则可能自激振荡。', 'The LM1117 needs ≥ 10 µF from OUT to GND (and preferably one on the input too), or it may oscillate.'), [c.ref], holes(c.ref, ['out']));
+          issue(
+            'info',
+            tr(`${c.ref} 的输出端没有电容`, `${c.ref} has no output capacitor`),
+            tr(
+              'LM1117 的输出端要接一个 ≥ 10 µF 的电容到 GND（输入端最好也接一个），否则可能自激振荡。',
+              'The LM1117 needs ≥ 10 µF from OUT to GND (and preferably one on the input too), or it may oscillate.',
+            ),
+            [c.ref],
+            holes(c.ref, ['out']),
+          );
         break;
       }
     }

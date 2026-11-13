@@ -83,13 +83,14 @@ function collect(path: string, out: string[]) {
 function checkLayout(layout: Layout, label: string, errors: string[]) {
   const refs = new Map<string, number>();
   for (const p of layout.parts) if (p.type !== 'wire') refs.set(p.ref, (refs.get(p.ref) ?? 0) + 1);
-  for (const [ref, n] of refs) if (n > 1) errors.push(tr(`${label}: ref "${ref}" 用了 ${n} 次（每个元件的 ref 必须唯一）`, `${label}: ref "${ref}" is used ${n} times (every part needs a unique ref)`));
+  for (const [ref, n] of refs)
+    if (n > 1) errors.push(tr(`${label}: ref "${ref}" 用了 ${n} 次（每个元件的 ref 必须唯一）`, `${label}: ref "${ref}" is used ${n} times (every part needs a unique ref)`));
   return buildNetlist(layout);
 }
 
 /* ---- answer leaks: a lab's visible text must not state a reading its measurement questions ask for ---- */
 
-const LEAK_UNITS: Record<string, string> = { V: 'V', A: 'A', 'Ω': 'Ω', Hz: 'Hz', s: 's', W: 'W', '°C': '°C', '℃': '°C', K: 'K' };
+const LEAK_UNITS: Record<string, string> = { V: 'V', A: 'A', Ω: 'Ω', Hz: 'Hz', s: 's', W: 'W', '°C': '°C', '℃': '°C', K: 'K' };
 const LEAK_PREFIX: Record<string, number> = { p: 1e-12, n: 1e-9, u: 1e-6, µ: 1e-6, μ: 1e-6, m: 1e-3, k: 1e3, M: 1e6 };
 const NUM_UNIT = /(?<![\w.])([-−]?\d+(?:\.\d+)?)\s?([pnuµμmkM]?)(V|A|Ω|Hz|s|W|°C|℃|K)(?![A-Za-z0-9_/])/g;
 
@@ -117,7 +118,12 @@ function givenValues(json: Record<string, unknown>): number[] {
       if (m) out.push(Math.abs(parseFloat(m[1].replace('−', '-')) * (m[2] ? LEAK_PREFIX[m[2]] : 1)));
     }
   };
-  const j = json as { components?: unknown; tests?: { set?: unknown }[]; measurements?: { set?: unknown }[]; solution?: { parts?: { props?: unknown; voltage?: unknown; currentLimit?: unknown }[] } };
+  const j = json as {
+    components?: unknown;
+    tests?: { set?: unknown }[];
+    measurements?: { set?: unknown }[];
+    solution?: { parts?: { props?: unknown; voltage?: unknown; currentLimit?: unknown }[] };
+  };
   walk(j.components);
   for (const t of j.tests ?? []) walk(t.set);
   for (const q of j.measurements ?? []) walk(q.set);
@@ -186,7 +192,8 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
   // (b) solution must be perfect
   if (ch.solution) {
     const nl = checkLayout(ch.solution, 'solution', rep.errors);
-    if (nl.unplaced.length) rep.errors.push(tr(`solution: 这些元件有脚没插上：${nl.unplaced.join(', ')}`, `solution: these parts have legs not plugged in: ${nl.unplaced.join(', ')}`));
+    if (nl.unplaced.length)
+      rep.errors.push(tr(`solution: 这些元件有脚没插上：${nl.unplaced.join(', ')}`, `solution: these parts have legs not plugged in: ${nl.unplaced.join(', ')}`));
     const r = checkCircuit(ch, nl.circuit, nl.pinHoles);
     for (const i of r.issues) rep.errors.push(tr(`solution 不正确 — ${issueText(i, '：')}`, `solution is wrong — ${issueText(i, ': ')}`));
     // the app refuses to celebrate while the live board diagnostics show an error: the
@@ -195,7 +202,13 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
       const sim0 = simulate(nl.circuit);
       const diag = [...boardDiagnostics(nl, sim0), ...(hasGenerator(nl.circuit) ? acDiagnostics(nl, simulateTransient(nl.circuit)) : [])];
       for (const i of diag)
-        if (i.severity === 'error') rep.errors.push(tr(`solution: 面包板诊断报错「${issueText(i, '：')}」（界面会因此不判对）`, `solution: board diagnostic error "${issueText(i, ': ')}" (the app won't accept the answer)`));
+        if (i.severity === 'error')
+          rep.errors.push(
+            tr(
+              `solution: 面包板诊断报错「${issueText(i, '：')}」（界面会因此不判对）`,
+              `solution: board diagnostic error "${issueText(i, ': ')}" (the app won't accept the answer)`,
+            ),
+          );
     }
     // LED current sanity (with every test's settings, plus the default state)
     const states = [{ name: tr('默认状态', 'default state'), set: {} }, ...ch.tests];
@@ -207,27 +220,63 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
       const ledStates = hasGenerator(circ) ? simulateTransient(circ).leds : sim.leds;
       const isLed = (ref: string) => circ.components.find((x) => x.ref === ref)?.type === 'led';
       for (const [ref, led] of ledStates) {
-        if (led.burnt) rep.errors.push(tr(`solution: ${ref} 在「${t.name}」时电流 ${(led.current * 1000).toFixed(0)} mA，会烧坏`, `solution: ${ref} draws ${(led.current * 1000).toFixed(0)} mA in "${t.name}" and burns out`));
+        if (led.burnt)
+          rep.errors.push(
+            tr(
+              `solution: ${ref} 在「${t.name}」时电流 ${(led.current * 1000).toFixed(0)} mA，会烧坏`,
+              `solution: ${ref} draws ${(led.current * 1000).toFixed(0)} mA in "${t.name}" and burns out`,
+            ),
+          );
         else if (isLed(ref) && led.current > LED_MAX && !seen.has(ref)) {
           seen.add(ref);
-          rep.warnings.push(tr(`solution: ${ref} 在「${t.name}」时电流 ${(led.current * 1000).toFixed(1)} mA，超过 25 mA`, `solution: ${ref} draws ${(led.current * 1000).toFixed(1)} mA in "${t.name}", above 25 mA`));
+          rep.warnings.push(
+            tr(
+              `solution: ${ref} 在「${t.name}」时电流 ${(led.current * 1000).toFixed(1)} mA，超过 25 mA`,
+              `solution: ${ref} draws ${(led.current * 1000).toFixed(1)} mA in "${t.name}", above 25 mA`,
+            ),
+          );
         }
       }
       for (const [ref, m] of sim.meters)
         if (Math.abs(m.current) > 0.5) rep.errors.push(tr(`solution: 电流表 ${ref} 在「${t.name}」时把电路短路了`, `solution: ammeter ${ref} shorts the circuit in "${t.name}"`));
-      for (const [ref, s] of sim.sources) if (s.shorted) rep.errors.push(tr(`solution: 电源 ${ref} 在「${t.name}」时短路/过载`, `solution: supply ${ref} is shorted / overloaded in "${t.name}"`));
+      for (const [ref, s] of sim.sources)
+        if (s.shorted) rep.errors.push(tr(`solution: 电源 ${ref} 在「${t.name}」时短路/过载`, `solution: supply ${ref} is shorted / overloaded in "${t.name}"`));
       // dev boards: a solution must never damage a pin; warn above the recommended pin current
       for (const [ref, m] of sim.mcus)
         for (const [pin, p] of m.pins) {
-          if (p.damaged) rep.errors.push(tr(`solution: ${ref} ${pin} 在「${t.name}」时损坏（${(p.current * 1000).toFixed(0)} mA）`, `solution: ${ref} ${pin} is damaged in "${t.name}" (${(p.current * 1000).toFixed(0)} mA)`));
+          if (p.damaged)
+            rep.errors.push(
+              tr(
+                `solution: ${ref} ${pin} 在「${t.name}」时损坏（${(p.current * 1000).toFixed(0)} mA）`,
+                `solution: ${ref} ${pin} is damaged in "${t.name}" (${(p.current * 1000).toFixed(0)} mA)`,
+              ),
+            );
           else if (p.overcurrent && !seen.has(`${ref}.${pin}`)) {
             seen.add(`${ref}.${pin}`);
-            rep.warnings.push(tr(`solution: ${ref} ${pin} 在「${t.name}」时电流 ${(p.current * 1000).toFixed(1)} mA，超过建议值`, `solution: ${ref} ${pin} carries ${(p.current * 1000).toFixed(1)} mA in "${t.name}", above the recommended limit`));
+            rep.warnings.push(
+              tr(
+                `solution: ${ref} ${pin} 在「${t.name}」时电流 ${(p.current * 1000).toFixed(1)} mA，超过建议值`,
+                `solution: ${ref} ${pin} carries ${(p.current * 1000).toFixed(1)} mA in "${t.name}", above the recommended limit`,
+              ),
+            );
           }
-          if (p.overvoltage) rep.errors.push(tr(`solution: ${ref} ${pin} 在「${t.name}」时电压过高（${p.vLocal.toFixed(2)} V）`, `solution: ${ref} ${pin} is over-voltage in "${t.name}" (${p.vLocal.toFixed(2)} V)`));
+          if (p.overvoltage)
+            rep.errors.push(
+              tr(
+                `solution: ${ref} ${pin} 在「${t.name}」时电压过高（${p.vLocal.toFixed(2)} V）`,
+                `solution: ${ref} ${pin} is over-voltage in "${t.name}" (${p.vLocal.toFixed(2)} V)`,
+              ),
+            );
         }
       for (const [ref, q] of sim.bjts) if (q.breakdown) rep.errors.push(tr(`solution: ${ref} 在「${t.name}」时击穿`, `solution: ${ref} breaks down in "${t.name}"`));
-      if (hasGenerator(circ)) for (const ref of simulateTransient(circ).breakdowns) rep.errors.push(tr(`solution: ${ref} 在「${t.name}」时被线圈反电动势击穿（缺续流二极管）`, `solution: ${ref} breaks down from an inductive kick in "${t.name}" (missing flyback diode)`));
+      if (hasGenerator(circ))
+        for (const ref of simulateTransient(circ).breakdowns)
+          rep.errors.push(
+            tr(
+              `solution: ${ref} 在「${t.name}」时被线圈反电动势击穿（缺续流二极管）`,
+              `solution: ${ref} breaks down from an inductive kick in "${t.name}" (missing flyback diode)`,
+            ),
+          );
     }
   }
 
@@ -255,11 +304,21 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
             continue;
           }
           if (q.range && (v < q.range[0] || v > q.range[1]))
-            rep.errors.push(tr(`measurements (${q.id}): 参考答案读数 ${shown(v)} 不在 range [${q.range[0]}, ${q.range[1]}] 内`, `measurements (${q.id}): the reference reading ${shown(v)} is outside range [${q.range[0]}, ${q.range[1]}]`));
+            rep.errors.push(
+              tr(
+                `measurements (${q.id}): 参考答案读数 ${shown(v)} 不在 range [${q.range[0]}, ${q.range[1]}] 内`,
+                `measurements (${q.id}): the reference reading ${shown(v)} is outside range [${q.range[0]}, ${q.range[1]}]`,
+              ),
+            );
           // a student who reads the instrument to 3 significant figures must be accepted
           const typed = `${+(v / (splitUnit(q.unit)?.scale ?? 1)).toPrecision(3)}`;
           if (q.what.kind !== 'formula' && !gradeReading(q, v, typed).ok)
-            rep.errors.push(tr(`measurements (${q.id}): 容差太紧——按 3 位有效数字输入 ${typed} 被判错`, `measurements (${q.id}): tolerance too tight — typing ${typed} (3 significant figures) is marked wrong`));
+            rep.errors.push(
+              tr(
+                `measurements (${q.id}): 容差太紧——按 3 位有效数字输入 ${typed} 被判错`,
+                `measurements (${q.id}): tolerance too tight — typing ${typed} (3 significant figures) is marked wrong`,
+              ),
+            );
         }
         for (const leak of readingLeaks(json, ch.measurements, vals))
           rep.warnings.push(
@@ -276,7 +335,8 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
   if (ch.start) {
     const nl = checkLayout(ch.start, 'start', rep.errors);
     const r = checkCircuit(ch, nl.circuit, nl.pinHoles);
-    if (r.perfect && nl.unplaced.length === 0) rep.warnings.push(tr('start 已经是正确答案了（学生什么都不用做）', 'start is already a correct answer (the student has nothing to do)'));
+    if (r.perfect && nl.unplaced.length === 0)
+      rep.warnings.push(tr('start 已经是正确答案了（学生什么都不用做）', 'start is already a correct answer (the student has nothing to do)'));
   }
   return rep;
 }
@@ -301,7 +361,12 @@ export function validateProblemJson(json: unknown, file: string): FileReport {
   if (rep.kind && chapterById(rep.kind)) {
     const dir = file.replace(/\\/g, '/').split('/').slice(-2, -1)[0];
     if (dir && dir !== rep.kind && file.replace(/\\/g, '/').includes('problems/'))
-      rep.warnings.push(tr(`文件在 ${dir}/ 文件夹里，但 chapter 是 "${rep.kind}"——建议放进 problems/${rep.kind}/`, `the file is in ${dir}/ but its chapter is "${rep.kind}" — put it in problems/${rep.kind}/`));
+      rep.warnings.push(
+        tr(
+          `文件在 ${dir}/ 文件夹里，但 chapter 是 "${rep.kind}"——建议放进 problems/${rep.kind}/`,
+          `the file is in ${dir}/ but its chapter is "${rep.kind}" — put it in problems/${rep.kind}/`,
+        ),
+      );
   }
   return rep;
 }
@@ -328,7 +393,11 @@ export function validateSummaryJson(json: unknown, file: string, problems = buil
   rep.kind = typeof raw?.chapter === 'string' ? raw.chapter : undefined;
   rep.id = rep.kind ? `summary:${rep.kind}` : undefined;
   const s = res.summary;
-  if (s) rep.title = tr(`${s.ideas.length} 个要点，${s.formulas.length} 个公式，${s.examples.length} 道例题，${s.mistakes.length} 个易错点`, `${s.ideas.length} key ideas, ${s.formulas.length} formulas, ${s.examples.length} worked examples, ${s.mistakes.length} mistakes`);
+  if (s)
+    rep.title = tr(
+      `${s.ideas.length} 个要点，${s.formulas.length} 个公式，${s.examples.length} 道例题，${s.mistakes.length} 个易错点`,
+      `${s.ideas.length} key ideas, ${s.formulas.length} formulas, ${s.examples.length} worked examples, ${s.mistakes.length} mistakes`,
+    );
   return rep;
 }
 

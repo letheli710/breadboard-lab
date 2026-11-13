@@ -183,7 +183,11 @@ function ChapterList({ problems, current, summary }: { problems: ProblemEntry[];
               const st = statusOf(p);
               return (
                 <li key={p.id}>
-                  <button className={`pr-pitem ${p.id === current?.id && !summary ? 'on' : ''} ${st ? `done st-${st}` : ''}`} onClick={() => open(p.id)} title={st ? statusLabel(st) : undefined}>
+                  <button
+                    className={`pr-pitem ${p.id === current?.id && !summary ? 'on' : ''} ${st ? `done st-${st}` : ''}`}
+                    onClick={() => open(p.id)}
+                    title={st ? statusLabel(st) : undefined}
+                  >
                     <span className="pr-tick" aria-label={st ? statusLabel(st) : undefined}>
                       {st ? STATUS_MARK[st] : ''}
                     </span>
@@ -236,7 +240,11 @@ function KeyPointsLink({ p, label }: { p: Problem; label?: string }) {
   const openSummary = useStore((s) => s.openSummary);
   if (!hasSummary(p.chapter)) return null;
   return (
-    <button className="pr-link pr-keypoints" onClick={() => openSummary({ chapter: p.chapter, problem: p.id, from: p.id })} title={tr('打开本章要点：方法、公式、例题', "Open the chapter's key points: methods, formulas, worked examples")}>
+    <button
+      className="pr-link pr-keypoints"
+      onClick={() => openSummary({ chapter: p.chapter, problem: p.id, from: p.id })}
+      title={tr('打开本章要点：方法、公式、例题', "Open the chapter's key points: methods, formulas, worked examples")}
+    >
       <Icon name="book" size={15} /> {label ?? tr('本章要点', 'Chapter key points')}
     </button>
   );
@@ -442,7 +450,8 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
   const prev = i > 0 ? list[i - 1] : null;
   const next = list.slice(i + 1).find((x) => !done[x.id]) ?? list[i + 1] ?? null;
   const chapter = chapterById(p.chapter);
-  const highlight = hover?.find && 'el' in hover.find && typeof hover.find.el === 'string' ? [hover.find.el] : hover?.find && 'input' in hover.find ? [hover.find.input] : undefined;
+  const highlight =
+    hover?.find && 'el' in hover.find && typeof hover.find.el === 'string' ? [hover.find.el] : hover?.find && 'input' in hover.find ? [hover.find.input] : undefined;
 
   return (
     <article className="pr-main card">

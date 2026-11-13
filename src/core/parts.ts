@@ -69,16 +69,23 @@ export const PARTS: Record<PartType, PartDef> = {
     nameEn: 'Jumper wire',
     category: 'wire',
     refPrefix: 'W',
-    placement: { kind: 'two-point', pins: ['a', 'b'], get prompts(): [string, string] {
+    placement: {
+      kind: 'two-point',
+      pins: ['a', 'b'],
+      get prompts(): [string, string] {
         return [tr('点击跳线的起点孔', 'Click the hole where the wire starts'), tr('点击跳线的终点孔', 'Click the hole where the wire ends')];
-      } },
+      },
+    },
     terminals: ['a', 'b'],
     terminalOf: identity('a', 'b'),
     internal: [['a', 'b']],
     symmetric: [['a', 'b']],
     defaults: { wireColor: '#e8590c' },
     get blurb() {
-      return tr('跳线把两个孔直接连起来——相当于原理图里的一根导线。颜色只是方便辨认：习惯上红色接正极，黑/蓝色接 GND。', 'A jumper wire joins two holes directly — it\'s a plain wire in the schematic. The colour is only for you: by convention red goes to +, black/blue to GND.');
+      return tr(
+        '跳线把两个孔直接连起来——相当于原理图里的一根导线。颜色只是方便辨认：习惯上红色接正极，黑/蓝色接 GND。',
+        "A jumper wire joins two holes directly — it's a plain wire in the schematic. The colour is only for you: by convention red goes to +, black/blue to GND.",
+      );
     },
   },
   resistor: {
@@ -89,16 +96,23 @@ export const PARTS: Record<PartType, PartDef> = {
     nameEn: 'Resistor',
     category: 'basic',
     refPrefix: 'R',
-    placement: { kind: 'two-point', pins: ['1', '2'], get prompts(): [string, string] {
-        return [tr('点击电阻第一只脚的位置', 'Click where the resistor\'s first leg goes'), tr('点击电阻第二只脚的位置', 'Click where the resistor\'s second leg goes')];
-      } },
+    placement: {
+      kind: 'two-point',
+      pins: ['1', '2'],
+      get prompts(): [string, string] {
+        return [tr('点击电阻第一只脚的位置', "Click where the resistor's first leg goes"), tr('点击电阻第二只脚的位置', "Click where the resistor's second leg goes")];
+      },
+    },
     terminals: ['1', '2'],
     terminalOf: identity('1', '2'),
     internal: [],
     symmetric: [['1', '2']],
     defaults: { resistance: 330 },
     get blurb() {
-      return tr('电阻限制电流（V = I × R）。没有正负之分，两只脚可以随便插。注意：两只脚不能插在同一列的同一组（a–e）里，否则它就被短路了。', 'A resistor limits current (V = I × R). It has no polarity, so either leg can go anywhere. Careful: don\'t put both legs in the same 5-hole group (a–e of one column), or it\'s shorted out.');
+      return tr(
+        '电阻限制电流（V = I × R）。没有正负之分，两只脚可以随便插。注意：两只脚不能插在同一列的同一组（a–e）里，否则它就被短路了。',
+        "A resistor limits current (V = I × R). It has no polarity, so either leg can go anywhere. Careful: don't put both legs in the same 5-hole group (a–e of one column), or it's shorted out.",
+      );
     },
   },
   led: {
@@ -113,7 +127,10 @@ export const PARTS: Record<PartType, PartDef> = {
       kind: 'two-point',
       pins: ['anode', 'cathode'],
       get prompts(): [string, string] {
-        return [tr('点击 LED 长脚（正极 / anode）的位置', 'Click where the LED\'s long leg (anode, +) goes'), tr('点击 LED 短脚（负极 / cathode）的位置', 'Click where the LED\'s short leg (cathode, −) goes')];
+        return [
+          tr('点击 LED 长脚（正极 / anode）的位置', "Click where the LED's long leg (anode, +) goes"),
+          tr('点击 LED 短脚（负极 / cathode）的位置', "Click where the LED's short leg (cathode, −) goes"),
+        ];
       },
     },
     terminals: ['anode', 'cathode'],
@@ -122,7 +139,10 @@ export const PARTS: Record<PartType, PartDef> = {
     symmetric: [],
     defaults: { color: 'red' },
     get blurb() {
-      return tr('LED 只允许电流从长脚（正极 anode）流向短脚（负极 cathode）。几乎总要串联一个限流电阻，否则电流过大会烧坏。', 'An LED only lets current flow from the long leg (anode, +) to the short leg (cathode, −). It almost always needs a series current-limiting resistor, or too much current will burn it out.');
+      return tr(
+        'LED 只允许电流从长脚（正极 anode）流向短脚（负极 cathode）。几乎总要串联一个限流电阻，否则电流过大会烧坏。',
+        'An LED only lets current flow from the long leg (anode, +) to the short leg (cathode, −). It almost always needs a series current-limiting resistor, or too much current will burn it out.',
+      );
     },
   },
   diode: {
@@ -137,7 +157,10 @@ export const PARTS: Record<PartType, PartDef> = {
       kind: 'two-point',
       pins: ['anode', 'cathode'],
       get prompts(): [string, string] {
-        return [tr('点击二极管正极（anode，无色环一端）', 'Click where the diode\'s anode goes (the end without a band)'), tr('点击二极管负极（cathode，有银色环一端）', 'Click where the diode\'s cathode goes (the end with the silver band)')];
+        return [
+          tr('点击二极管正极（anode，无色环一端）', "Click where the diode's anode goes (the end without a band)"),
+          tr('点击二极管负极（cathode，有银色环一端）', "Click where the diode's cathode goes (the end with the silver band)"),
+        ];
       },
     },
     terminals: ['anode', 'cathode'],
@@ -146,7 +169,10 @@ export const PARTS: Record<PartType, PartDef> = {
     symmetric: [],
     defaults: {},
     get blurb() {
-      return tr('普通二极管（如 1N4148）：电流只能单向通过，导通时约有 0.7 V 压降。有色环的一端是负极。', 'A small signal diode (e.g. 1N4148): current flows one way only, with about 0.7 V drop when conducting. The end with the band is the cathode (−).');
+      return tr(
+        '普通二极管（如 1N4148）：电流只能单向通过，导通时约有 0.7 V 压降。有色环的一端是负极。',
+        'A small signal diode (e.g. 1N4148): current flows one way only, with about 0.7 V drop when conducting. The end with the band is the cathode (−).',
+      );
     },
   },
   capacitor: {
@@ -157,16 +183,23 @@ export const PARTS: Record<PartType, PartDef> = {
     nameEn: 'Capacitor',
     category: 'basic',
     refPrefix: 'C',
-    placement: { kind: 'two-point', pins: ['1', '2'], get prompts(): [string, string] {
-        return [tr('点击电容第一只脚', 'Click where the capacitor\'s first leg goes'), tr('点击电容第二只脚', 'Click where the capacitor\'s second leg goes')];
-      } },
+    placement: {
+      kind: 'two-point',
+      pins: ['1', '2'],
+      get prompts(): [string, string] {
+        return [tr('点击电容第一只脚', "Click where the capacitor's first leg goes"), tr('点击电容第二只脚', "Click where the capacitor's second leg goes")];
+      },
+    },
     terminals: ['1', '2'],
     terminalOf: identity('1', '2'),
     internal: [],
     symmetric: [['1', '2']],
     defaults: { capacitance: 100e-9 },
     get blurb() {
-      return tr('瓷片电容（无极性）。只有直流电源时，电容充满电后相当于断路，没有电流流过；接上信号发生器或 PWM 引脚时，面包板按时域仿真，可以看到充放电和交流电流。模拟的是理想电容（没有漏电和 ESR）。', 'Ceramic capacitor (no polarity). With only DC sources, a charged capacitor acts as an open circuit, so no current flows through it; with a function generator or a PWM pin on the board, the simulation runs in the time domain and you can see it charge, discharge and pass AC. It is simulated as an ideal capacitor (no leakage, no ESR).');
+      return tr(
+        '瓷片电容（无极性）。只有直流电源时，电容充满电后相当于断路，没有电流流过；接上信号发生器或 PWM 引脚时，面包板按时域仿真，可以看到充放电和交流电流。模拟的是理想电容（没有漏电和 ESR）。',
+        'Ceramic capacitor (no polarity). With only DC sources, a charged capacitor acts as an open circuit, so no current flows through it; with a function generator or a PWM pin on the board, the simulation runs in the time domain and you can see it charge, discharge and pass AC. It is simulated as an ideal capacitor (no leakage, no ESR).',
+      );
     },
   },
   pushbutton: {
@@ -180,7 +213,10 @@ export const PARTS: Record<PartType, PartDef> = {
     placement: {
       kind: 'footprint',
       get prompt() {
-        return tr('点击按键左上角那只脚的位置（推荐放在 e 行，让按键横跨中间凹槽）', 'Click where the button\'s top-left leg goes (row e is best, so the button straddles the centre gap)');
+        return tr(
+          '点击按键左上角那只脚的位置（推荐放在 e 行，让按键横跨中间凹槽）',
+          "Click where the button's top-left leg goes (row e is best, so the button straddles the centre gap)",
+        );
       },
       footprint: rowFootprint({ '1a': [0, 0], '2a': [0, 2], '1b': [1, 0], '2b': [1, 2] }),
     },
@@ -193,7 +229,10 @@ export const PARTS: Record<PartType, PartDef> = {
     symmetric: [['1', '2']],
     defaults: { pressed: false },
     get blurb() {
-      return tr('四脚轻触按键：同一侧上下两只脚（跨凹槽方向）内部永远相通；按下时左右两组才接通。所以按键要横跨凹槽放置，左右两列才是“开关的两端”。', '4-leg tactile button: the two legs on the same side (across the gap) are always connected inside; pressing joins the left pair to the right pair. Place it straddling the gap — its left and right columns are the two ends of the switch.');
+      return tr(
+        '四脚轻触按键：同一侧上下两只脚（跨凹槽方向）内部永远相通；按下时左右两组才接通。所以按键要横跨凹槽放置，左右两列才是“开关的两端”。',
+        '4-leg tactile button: the two legs on the same side (across the gap) are always connected inside; pressing joins the left pair to the right pair. Place it straddling the gap — its left and right columns are the two ends of the switch.',
+      );
     },
   },
   switch: {
@@ -207,7 +246,7 @@ export const PARTS: Record<PartType, PartDef> = {
     placement: {
       kind: 'footprint',
       get prompt() {
-        return tr('点击开关最左边那只脚的位置（三只脚横向占 3 列）', 'Click where the switch\'s leftmost leg goes (its 3 legs take 3 columns)');
+        return tr('点击开关最左边那只脚的位置（三只脚横向占 3 列）', "Click where the switch's leftmost leg goes (its 3 legs take 3 columns)");
       },
       footprint: rowFootprint({ a: [0, 0], com: [0, 1], b: [0, 2] }),
     },
@@ -217,7 +256,10 @@ export const PARTS: Record<PartType, PartDef> = {
     symmetric: [['a', 'b']],
     defaults: { position: 'a' },
     get blurb() {
-      return tr('单刀双掷（SPDT）拨动开关：中间脚 com 与左脚 a 或右脚 b 接通，取决于拨杆位置。只用 com 和一边，就是普通的通/断开关。', 'SPDT slide switch: the middle leg (com) connects to the left leg a or the right leg b, depending on the lever. Use only com and one side for a simple on/off switch.');
+      return tr(
+        '单刀双掷（SPDT）拨动开关：中间脚 com 与左脚 a 或右脚 b 接通，取决于拨杆位置。只用 com 和一边，就是普通的通/断开关。',
+        'SPDT slide switch: the middle leg (com) connects to the left leg a or the right leg b, depending on the lever. Use only com and one side for a simple on/off switch.',
+      );
     },
   },
   potentiometer: {
@@ -231,7 +273,7 @@ export const PARTS: Record<PartType, PartDef> = {
     placement: {
       kind: 'footprint',
       get prompt() {
-        return tr('点击电位器最左边那只脚（三只脚横向占 3 列，中间是滑动端）', 'Click where the pot\'s leftmost leg goes (3 legs in 3 columns; the middle one is the wiper)');
+        return tr('点击电位器最左边那只脚（三只脚横向占 3 列，中间是滑动端）', "Click where the pot's leftmost leg goes (3 legs in 3 columns; the middle one is the wiper)");
       },
       footprint: rowFootprint({ '1': [0, 0], '2': [0, 1], '3': [0, 2] }),
     },
@@ -241,7 +283,10 @@ export const PARTS: Record<PartType, PartDef> = {
     symmetric: [['1', '3']],
     defaults: { resistance: 10000, wiper: 0.5 },
     get blurb() {
-      return tr('可调电阻：1、3 脚之间是固定的总电阻，中间 2 脚（滑动端 wiper）随旋钮移动。两端接电源和 GND，中间脚输出可调电压（分压器）。', 'Adjustable resistor: pins 1 and 3 have the fixed total resistance; the middle pin 2 (the wiper) moves with the knob. Connect the ends to power and GND and the middle pin outputs an adjustable voltage (a voltage divider).');
+      return tr(
+        '可调电阻：1、3 脚之间是固定的总电阻，中间 2 脚（滑动端 wiper）随旋钮移动。两端接电源和 GND，中间脚输出可调电压（分压器）。',
+        'Adjustable resistor: pins 1 and 3 have the fixed total resistance; the middle pin 2 (the wiper) moves with the knob. Connect the ends to power and GND and the middle pin outputs an adjustable voltage (a voltage divider).',
+      );
     },
   },
   battery: {
@@ -265,7 +310,10 @@ export const PARTS: Record<PartType, PartDef> = {
     symmetric: [],
     defaults: { variant: '9V' },
     get blurb() {
-      return tr('电池有内阻：电流越大，端电压越低。9V 电池内阻约 1.5 Ω，AA 每节约 0.15 Ω，纽扣电池 CR2032 约 15 Ω（所以它只能带很小的负载）。', 'Batteries have internal resistance: the more current, the lower the terminal voltage. A 9V battery has about 1.5 Ω, each AA about 0.15 Ω, a CR2032 coin cell about 15 Ω (so it can only drive tiny loads).');
+      return tr(
+        '电池有内阻：电流越大，端电压越低。9V 电池内阻约 1.5 Ω，AA 每节约 0.15 Ω，纽扣电池 CR2032 约 15 Ω（所以它只能带很小的负载）。',
+        'Batteries have internal resistance: the more current, the lower the terminal voltage. A 9V battery has about 1.5 Ω, each AA about 0.15 Ω, a CR2032 coin cell about 15 Ω (so it can only drive tiny loads).',
+      );
     },
   },
   bench_supply: {
@@ -280,7 +328,10 @@ export const PARTS: Record<PartType, PartDef> = {
       kind: 'two-point',
       pins: ['+', '-'],
       get prompts(): [string, string] {
-        return [tr('点击红色鳄鱼夹线（+）要插的孔', 'Click the hole for the red clip lead (+)'), tr('点击黑色鳄鱼夹线（− / COM）要插的孔', 'Click the hole for the black clip lead (− / COM)')];
+        return [
+          tr('点击红色鳄鱼夹线（+）要插的孔', 'Click the hole for the red clip lead (+)'),
+          tr('点击黑色鳄鱼夹线（− / COM）要插的孔', 'Click the hole for the black clip lead (− / COM)'),
+        ];
       },
     },
     terminals: ['+', '-'],
@@ -289,7 +340,10 @@ export const PARTS: Record<PartType, PartDef> = {
     symmetric: [],
     defaults: { voltage: 5, currentLimit: 0.1 },
     get blurb() {
-      return tr('实验室可调电源：设定电压（CV 恒压），并设定限流值。电流超过限流值时自动进入 CC 恒流模式、电压下降——这正是它保护电路、防止短路烧坏东西的方式。', 'Lab bench supply: you set the voltage (CV, constant voltage) and a current limit. If the current tries to exceed the limit, it switches to CC (constant current) and the voltage drops — that is how it protects your circuit from shorts.');
+      return tr(
+        '实验室可调电源：设定电压（CV 恒压），并设定限流值。电流超过限流值时自动进入 CC 恒流模式、电压下降——这正是它保护电路、防止短路烧坏东西的方式。',
+        'Lab bench supply: you set the voltage (CV, constant voltage) and a current limit. If the current tries to exceed the limit, it switches to CC (constant current) and the voltage drops — that is how it protects your circuit from shorts.',
+      );
     },
   },
   power_module: {
@@ -321,9 +375,13 @@ export const PARTS: Record<PartType, PartDef> = {
     symmetric: [],
     defaults: { voltage: 5 },
     get blurb() {
-      return tr('常见的 MB102 面包板电源模块：插在面包板一端，同时给上下两组电源轨供电（5 V 或 3.3 V），用 USB 或 DC 插头取电。注意它的 + 和 − 方向必须对准轨道上的红线和蓝线。', 'The common MB102 breadboard power module: it plugs into one end of the board and powers both pairs of rails (5 V or 3.3 V) from USB or a DC jack. Its + and − must line up with the red and blue lines on the rails.');
+      return tr(
+        '常见的 MB102 面包板电源模块：插在面包板一端，同时给上下两组电源轨供电（5 V 或 3.3 V），用 USB 或 DC 插头取电。注意它的 + 和 − 方向必须对准轨道上的红线和蓝线。',
+        'The common MB102 breadboard power module: it plugs into one end of the board and powers both pairs of rails (5 V or 3.3 V) from USB or a DC jack. Its + and − must line up with the red and blue lines on the rails.',
+      );
     },
-  },  inductor: {
+  },
+  inductor: {
     type: 'inductor',
     get name() {
       return tr('电感', 'Inductor');
@@ -331,9 +389,13 @@ export const PARTS: Record<PartType, PartDef> = {
     nameEn: 'Inductor',
     category: 'basic',
     refPrefix: 'L',
-    placement: { kind: 'two-point', pins: ['1', '2'], get prompts(): [string, string] {
-        return [tr('点击电感第一只脚', 'Click where the inductor\'s first leg goes'), tr('点击电感第二只脚', 'Click where the inductor\'s second leg goes')];
-      } },
+    placement: {
+      kind: 'two-point',
+      pins: ['1', '2'],
+      get prompts(): [string, string] {
+        return [tr('点击电感第一只脚', "Click where the inductor's first leg goes"), tr('点击电感第二只脚', "Click where the inductor's second leg goes")];
+      },
+    },
     terminals: ['1', '2'],
     terminalOf: identity('1', '2'),
     internal: [],
@@ -358,7 +420,10 @@ export const PARTS: Record<PartType, PartDef> = {
       kind: 'two-point',
       pins: ['+', '-'],
       get prompts(): [string, string] {
-        return [tr('点击红表笔（+，电流流入端）要插的孔', 'Click the hole for the red lead (+, where current flows in)'), tr('点击黑表笔（COM，电流流出端）要插的孔', 'Click the hole for the black lead (COM, where current flows out)')];
+        return [
+          tr('点击红表笔（+，电流流入端）要插的孔', 'Click the hole for the red lead (+, where current flows in)'),
+          tr('点击黑表笔（COM，电流流出端）要插的孔', 'Click the hole for the black lead (COM, where current flows out)'),
+        ];
       },
     },
     terminals: ['+', '-'],
@@ -419,7 +484,10 @@ export const PARTS: Record<PartType, PartDef> = {
       kind: 'two-point',
       pins: ['+', '-'],
       get prompts(): [string, string] {
-        return [tr('点击红色输出夹（信号 +）要插的孔', 'Click the hole for the red output clip (signal +)'), tr('点击黑色夹子（COM / 地）要插的孔', 'Click the hole for the black clip (COM / ground)')];
+        return [
+          tr('点击红色输出夹（信号 +）要插的孔', 'Click the hole for the red output clip (signal +)'),
+          tr('点击黑色夹子（COM / 地）要插的孔', 'Click the hole for the black clip (COM / ground)'),
+        ];
       },
     },
     terminals: ['+', '-'],
@@ -430,7 +498,7 @@ export const PARTS: Record<PartType, PartDef> = {
     get blurb() {
       return tr(
         '台式信号发生器：输出正弦波、方波或三角波。可以设定频率、幅度（峰值 Vp；峰峰值 Vpp = 2 × 幅度）和直流偏置。黑夹子（COM）一般接电路的 GND。仪器内部有 50 Ω 输出电阻，所以接上较小的负载时输出会变小。',
-        'Bench function generator: outputs a sine, square or triangle wave. You set the frequency, the amplitude (peak Vp; peak-to-peak Vpp = 2 × amplitude) and a DC offset. The black clip (COM) normally goes to the circuit\'s GND. It has a 50 Ω output resistance inside, so a low-resistance load makes the output smaller.',
+        "Bench function generator: outputs a sine, square or triangle wave. You set the frequency, the amplitude (peak Vp; peak-to-peak Vpp = 2 × amplitude) and a DC offset. The black clip (COM) normally goes to the circuit's GND. It has a 50 Ω output resistance inside, so a low-resistance load makes the output smaller.",
       );
     },
   },
@@ -446,7 +514,10 @@ export const PARTS: Record<PartType, PartDef> = {
       kind: 'two-point',
       pins: ['tip', 'gnd'],
       get prompts(): [string, string] {
-        return [tr('点击探头针尖要测量的孔', 'Click the hole the probe tip should measure'), tr('点击探头接地夹要夹的孔（一般是 GND）', 'Click the hole for the probe\'s ground clip (normally GND)')];
+        return [
+          tr('点击探头针尖要测量的孔', 'Click the hole the probe tip should measure'),
+          tr('点击探头接地夹要夹的孔（一般是 GND）', "Click the hole for the probe's ground clip (normally GND)"),
+        ];
       },
     },
     terminals: ['tip', 'gnd'],
@@ -457,7 +528,7 @@ export const PARTS: Record<PartType, PartDef> = {
     get blurb() {
       return tr(
         '示波器探头：把针尖处电压（相对接地夹）随时间变化的波形显示在示波器屏幕上。第一个探头是 CH1，第二个是 CH2，两条波形一起看可以比较幅度和相位。探头输入电阻很大，几乎不影响电路。注意：真实示波器的接地夹都连在大地上，所以接地夹只能夹在电路的 GND 上。',
-        'Oscilloscope probe: shows the voltage at its tip (relative to its ground clip) as a waveform over time on the scope screen. The first probe is CH1, the second CH2; viewing both lets you compare amplitude and phase. A probe has a very high input resistance, so it barely affects the circuit. Note: on a real scope all ground clips are tied to earth, so clip them only to the circuit\'s GND.',
+        "Oscilloscope probe: shows the voltage at its tip (relative to its ground clip) as a waveform over time on the scope screen. The first probe is CH1, the second CH2; viewing both lets you compare amplitude and phase. A probe has a very high input resistance, so it barely affects the circuit. Note: on a real scope all ground clips are tied to earth, so clip them only to the circuit's GND.",
       );
     },
   },
@@ -474,7 +545,10 @@ export const PARTS: Record<PartType, PartDef> = {
     placement: {
       kind: 'footprint',
       get prompt() {
-        return tr('点击 E（发射极）脚的位置——平面朝向你时三只脚从左到右是 E、B、C，占 3 列', 'Click where the E (emitter) leg goes — with the flat face towards you the legs are E, B, C from left to right, in 3 columns');
+        return tr(
+          '点击 E（发射极）脚的位置——平面朝向你时三只脚从左到右是 E、B、C，占 3 列',
+          'Click where the E (emitter) leg goes — with the flat face towards you the legs are E, B, C from left to right, in 3 columns',
+        );
       },
       footprint: rowFootprint({ e: [0, 0], b: [0, 1], c: [0, 2] }),
     },
@@ -501,7 +575,10 @@ export const PARTS: Record<PartType, PartDef> = {
     placement: {
       kind: 'footprint',
       get prompt() {
-        return tr('点击 G（栅极）脚的位置——正面（有字的一面）朝向你时三只脚从左到右是 G、D、S，占 3 列', 'Click where the G (gate) leg goes — with the printed face towards you the legs are G, D, S from left to right, in 3 columns');
+        return tr(
+          '点击 G（栅极）脚的位置——正面（有字的一面）朝向你时三只脚从左到右是 G、D、S，占 3 列',
+          'Click where the G (gate) leg goes — with the printed face towards you the legs are G, D, S from left to right, in 3 columns',
+        );
       },
       footprint: rowFootprint({ g: [0, 0], d: [0, 1], s: [0, 2] }),
     },
@@ -528,7 +605,10 @@ export const PARTS: Record<PartType, PartDef> = {
     placement: {
       kind: 'footprint',
       get prompt() {
-        return tr('点击线圈 1 脚的位置（必须在 e 行，继电器横跨凹槽：e 行是线圈两脚，f 行是 COM、NC、NO 触点）', 'Click where coil pin 1 goes (row e: the relay straddles the gap — row e holds the two coil pins, row f the COM, NC and NO contacts)');
+        return tr(
+          '点击线圈 1 脚的位置（必须在 e 行，继电器横跨凹槽：e 行是线圈两脚，f 行是 COM、NC、NO 触点）',
+          'Click where coil pin 1 goes (row e: the relay straddles the gap — row e holds the two coil pins, row f the COM, NC and NO contacts)',
+        );
       },
       footprint: (anchor) => {
         const h = HOLE_MAP.get(anchor);
@@ -556,9 +636,13 @@ export const PARTS: Record<PartType, PartDef> = {
     nameEn: 'DC motor',
     category: 'device',
     refPrefix: 'M',
-    placement: { kind: 'two-point', pins: ['+', '-'], get prompts(): [string, string] {
+    placement: {
+      kind: 'two-point',
+      pins: ['+', '-'],
+      get prompts(): [string, string] {
         return [tr('点击电机红线（+）要插的孔', "Click the hole for the motor's red lead (+)"), tr('点击电机黑线（−）要插的孔', "Click the hole for the motor's black lead (−)")];
-      } },
+      },
+    },
     terminals: ['+', '-'],
     terminalOf: identity('+', '-'),
     internal: [],
@@ -579,9 +663,13 @@ export const PARTS: Record<PartType, PartDef> = {
     nameEn: 'Active buzzer',
     category: 'device',
     refPrefix: 'BZ',
-    placement: { kind: 'two-point', pins: ['+', '-'], get prompts(): [string, string] {
+    placement: {
+      kind: 'two-point',
+      pins: ['+', '-'],
+      get prompts(): [string, string] {
         return [tr('点击蜂鸣器长脚（+）的位置', "Click where the buzzer's long leg (+) goes"), tr('点击蜂鸣器短脚（−）的位置', "Click where the buzzer's short leg (−) goes")];
-      } },
+      },
+    },
     terminals: ['+', '-'],
     terminalOf: identity('+', '-'),
     internal: [],
@@ -605,7 +693,10 @@ export const PARTS: Record<PartType, PartDef> = {
     placement: {
       kind: 'footprint',
       get prompt() {
-        return tr('点击 1 脚 GND 的位置——正面朝向你时三只脚从左到右是 GND、OUT、IN，占 3 列', 'Click where pin 1 (GND) goes — with the printed face towards you the legs are GND, OUT, IN from left to right, in 3 columns');
+        return tr(
+          '点击 1 脚 GND 的位置——正面朝向你时三只脚从左到右是 GND、OUT、IN，占 3 列',
+          'Click where pin 1 (GND) goes — with the printed face towards you the legs are GND, OUT, IN from left to right, in 3 columns',
+        );
       },
       footprint: rowFootprint({ gnd: [0, 0], out: [0, 1], in: [0, 2] }),
     },
@@ -629,9 +720,13 @@ export const PARTS: Record<PartType, PartDef> = {
     nameEn: 'Photoresistor (LDR)',
     category: 'sensor',
     refPrefix: 'LDR',
-    placement: { kind: 'two-point', pins: ['1', '2'], get prompts(): [string, string] {
+    placement: {
+      kind: 'two-point',
+      pins: ['1', '2'],
+      get prompts(): [string, string] {
         return [tr('点击光敏电阻第一只脚', "Click where the LDR's first leg goes"), tr('点击光敏电阻第二只脚', "Click where the LDR's second leg goes")];
-      } },
+      },
+    },
     terminals: ['1', '2'],
     terminalOf: identity('1', '2'),
     internal: [],
@@ -652,9 +747,13 @@ export const PARTS: Record<PartType, PartDef> = {
     nameEn: 'NTC thermistor 10k',
     category: 'sensor',
     refPrefix: 'RT',
-    placement: { kind: 'two-point', pins: ['1', '2'], get prompts(): [string, string] {
+    placement: {
+      kind: 'two-point',
+      pins: ['1', '2'],
+      get prompts(): [string, string] {
         return [tr('点击热敏电阻第一只脚', "Click where the thermistor's first leg goes"), tr('点击热敏电阻第二只脚', "Click where the thermistor's second leg goes")];
-      } },
+      },
+    },
     terminals: ['1', '2'],
     terminalOf: identity('1', '2'),
     internal: [],
@@ -747,7 +846,7 @@ function mcuPartDef(type: McuType): PartDef {
       return esp
         ? tr(
             'ESP32-DevKitC 开发板（38 针）。这里没有程序：每个 GPIO 的“模式”就是程序——在右侧属性里把引脚设成输出高/低、输入（可加内部上拉/下拉）、PWM 或 ADC。逻辑电平 3.3 V，不耐 5 V；每个引脚建议 ≤ 20 mA，绝对最大 40 mA。GPIO34–39 只能输入、没有内部上下拉；ADC 用 ADC1（GPIO32–39）。GPIO6–11 接着板上的 Flash，不要用。板子用 USB 供电（属性里可以拔掉），板载 AMS1117 把 5 V 降到 3.3 V；3V3 和 5V 引脚可以给面包板供电。',
-            'ESP32-DevKitC board (38 pins). There is no program here: each GPIO\'s *mode* is the program — under Properties set a pin to output HIGH/LOW, input (optionally with the internal pull-up/down), PWM or ADC. Logic is 3.3 V and not 5 V tolerant; keep each pin ≤ 20 mA (40 mA absolute max). GPIO34–39 are input-only with no internal pulls; use ADC1 (GPIO32–39) for analog. GPIO6–11 are wired to the onboard flash: don\'t use them. The board runs from USB (you can unplug it under Properties); its AMS1117 regulator makes 3.3 V from 5 V, and the 3V3 and 5V pins can power the breadboard.',
+            "ESP32-DevKitC board (38 pins). There is no program here: each GPIO's *mode* is the program — under Properties set a pin to output HIGH/LOW, input (optionally with the internal pull-up/down), PWM or ADC. Logic is 3.3 V and not 5 V tolerant; keep each pin ≤ 20 mA (40 mA absolute max). GPIO34–39 are input-only with no internal pulls; use ADC1 (GPIO32–39) for analog. GPIO6–11 are wired to the onboard flash: don't use them. The board runs from USB (you can unplug it under Properties); its AMS1117 regulator makes 3.3 V from 5 V, and the 3V3 and 5V pins can power the breadboard.",
           )
         : tr(
             'STM32F103C8T6 “Blue Pill” 最小系统板（40 针）。每个 GPIO 的“模式”在右侧属性里设置。逻辑电平 3.3 V；标 FT 的引脚（PA8–PA15、PB3、PB4、PB6–PB15）耐 5 V，PA0–PA7、PB0、PB1、PB5、PC13–15 不耐 5 V。每个引脚建议 ≤ 20 mA，绝对最大 25 mA；PC13–15 只能给 3 mA。ADC 在 PA0–PA7、PB0、PB1。板载 LED 接在 PC13（输出低电平时亮）。板载稳压器只有约 300 mA。',
@@ -758,39 +857,84 @@ function mcuPartDef(type: McuType): PartDef {
 }
 
 export const LED_COLORS: Record<LedColor, { hex: string; vf: number; name: string }> = {
-  red: { hex: '#ff3b30', vf: 1.8, get name() {
+  red: {
+    hex: '#ff3b30',
+    vf: 1.8,
+    get name() {
       return tr('红', 'Red');
-    } },
-  yellow: { hex: '#ffcc00', vf: 2.0, get name() {
+    },
+  },
+  yellow: {
+    hex: '#ffcc00',
+    vf: 2.0,
+    get name() {
       return tr('黄', 'Yellow');
-    } },
-  green: { hex: '#34c759', vf: 2.1, get name() {
+    },
+  },
+  green: {
+    hex: '#34c759',
+    vf: 2.1,
+    get name() {
       return tr('绿', 'Green');
-    } },
-  blue: { hex: '#2f7bff', vf: 3.0, get name() {
+    },
+  },
+  blue: {
+    hex: '#2f7bff',
+    vf: 3.0,
+    get name() {
       return tr('蓝', 'Blue');
-    } },
-  white: { hex: '#f8f8ff', vf: 3.0, get name() {
+    },
+  },
+  white: {
+    hex: '#f8f8ff',
+    vf: 3.0,
+    get name() {
       return tr('白', 'White');
-    } },
+    },
+  },
 };
 
 export const BATTERIES: Record<BatteryVariant, { voltage: number; rint: number; name: string; maxCurrent: number }> = {
-  '9V': { voltage: 9, rint: 1.5, get name() {
+  '9V': {
+    voltage: 9,
+    rint: 1.5,
+    get name() {
       return tr('9V 方块电池', '9V battery');
-    }, maxCurrent: 1 },
-  '2xAA': { voltage: 3, rint: 0.3, get name() {
+    },
+    maxCurrent: 1,
+  },
+  '2xAA': {
+    voltage: 3,
+    rint: 0.3,
+    get name() {
       return tr('2 节 AA (3V)', '2 × AA (3V)');
-    }, maxCurrent: 2 },
-  '3xAA': { voltage: 4.5, rint: 0.45, get name() {
+    },
+    maxCurrent: 2,
+  },
+  '3xAA': {
+    voltage: 4.5,
+    rint: 0.45,
+    get name() {
       return tr('3 节 AA (4.5V)', '3 × AA (4.5V)');
-    }, maxCurrent: 2 },
-  '4xAA': { voltage: 6, rint: 0.6, get name() {
+    },
+    maxCurrent: 2,
+  },
+  '4xAA': {
+    voltage: 6,
+    rint: 0.6,
+    get name() {
       return tr('4 节 AA (6V)', '4 × AA (6V)');
-    }, maxCurrent: 2 },
-  CR2032: { voltage: 3, rint: 15, get name() {
+    },
+    maxCurrent: 2,
+  },
+  CR2032: {
+    voltage: 3,
+    rint: 15,
+    get name() {
       return tr('CR2032 纽扣电池 (3V)', 'CR2032 coin cell (3V)');
-    }, maxCurrent: 0.05 },
+    },
+    maxCurrent: 0.05,
+  },
 };
 
 /** DC power sources. The function generator is *not* one of them (see isSource). */
@@ -804,11 +948,7 @@ export const isInstrument = (t: CompType) => t === 'scope_probe' || t === 'ammet
 /** The component whose − terminal is the circuit's GND (0 V reference): the first DC power
  *  source, or — on a board powered only by a function generator — the first generator. */
 export function groundSource<C extends { type: CompType; props?: PartProps }>(components: C[]): C | undefined {
-  return (
-    components.find((c) => isPower(c.type)) ??
-    components.find((c) => isMcu(c.type) && c.props?.usb !== false) ??
-    components.find((c) => c.type === 'function_gen')
-  );
+  return components.find((c) => isPower(c.type)) ?? components.find((c) => isMcu(c.type) && c.props?.usb !== false) ?? components.find((c) => c.type === 'function_gen');
 }
 
 /** Terminal of a ground source that is GND ('-', or 'GND' on a dev board). */
@@ -1077,7 +1217,15 @@ export function describePinMode(pin: string, mode: Parameters<typeof modeName>[0
 
 function fmtSI(v: number, unit: string) {
   const a = Math.abs(v);
-  const table: [number, string][] = [[1e6, 'M'], [1e3, 'k'], [1, ''], [1e-3, 'm'], [1e-6, 'µ'], [1e-9, 'n'], [1e-12, 'p']];
+  const table: [number, string][] = [
+    [1e6, 'M'],
+    [1e3, 'k'],
+    [1, ''],
+    [1e-3, 'm'],
+    [1e-6, 'µ'],
+    [1e-9, 'n'],
+    [1e-12, 'p'],
+  ];
   for (const [f, pre] of table) if (a >= f * 0.9995) return `${+(v / f).toPrecision(3)}${pre}${unit}`;
   return `${v}${unit}`;
 }

@@ -17,8 +17,15 @@ const fixture = (name: string) => JSON.parse(readFileSync(fileURLToPath(new URL(
 const titles = (issues: { title: string; detail?: string }[]) => issues.map((i) => `${i.title} ${i.detail ?? ''}`);
 
 let n = 0;
-const part = (type: PlacedPart['type'], pins: Record<string, string>, props = {}, ref?: string): PlacedPart => ({ id: `p${n++}`, ref: ref ?? `${type}${n}`, type, props: { ...PARTS[type].defaults, ...props }, pins });
-const at = (type: PlacedPart['type'], anchor: string, props = {}, ref?: string) => part(type, (PARTS[type].placement as { footprint: (a: string) => Record<string, string> }).footprint(anchor), props, ref);
+const part = (type: PlacedPart['type'], pins: Record<string, string>, props = {}, ref?: string): PlacedPart => ({
+  id: `p${n++}`,
+  ref: ref ?? `${type}${n}`,
+  type,
+  props: { ...PARTS[type].defaults, ...props },
+  pins,
+});
+const at = (type: PlacedPart['type'], anchor: string, props = {}, ref?: string) =>
+  part(type, (PARTS[type].placement as { footprint: (a: string) => Record<string, string> }).footprint(anchor), props, ref);
 
 describe('parts', () => {
   it('op-amp must straddle the gap (anchor in row e)', () => {
@@ -36,7 +43,10 @@ describe('parts', () => {
     expect(nextScopeChannel(lay)).toBeNull();
   });
   it('generator-only board: GND at the black clip, signal net VIN', () => {
-    const nl = buildNetlist({ version: 1, parts: [part('function_gen', { '+': 'a3', '-': 'tn3' }, {}, 'FG1'), part('resistor', { '1': 'b3', '2': 'tn8' }, { resistance: 1000 }, 'R1')] });
+    const nl = buildNetlist({
+      version: 1,
+      parts: [part('function_gen', { '+': 'a3', '-': 'tn3' }, {}, 'FG1'), part('resistor', { '1': 'b3', '2': 'tn8' }, { resistance: 1000 }, 'R1')],
+    });
     expect(nl.pinNet.get('FG1.-')).toBe('GND');
     expect(nl.pinNet.get('FG1.+')).toBe('VIN');
     const sim = simulate(nl.circuit);
@@ -116,7 +126,10 @@ describe('checker: op-amp', () => {
     const lay = sol();
     lay.parts.find((p) => p.ref === 'RF')!.props.resistance = 10000;
     lay.parts.find((p) => p.ref === 'RG')!.props.resistance = 10000;
-    const ch2 = parseChallenge({ ...json, tests: [{ name: 'gain 3', set: json.tests[0].set, scope: [{ pin: 'U1.out', measure: 'gain', vs: 'FG1.+', min: 2.9, max: 3.1 }] }] }).challenge!;
+    const ch2 = parseChallenge({
+      ...json,
+      tests: [{ name: 'gain 3', set: json.tests[0].set, scope: [{ pin: 'U1.out', measure: 'gain', vs: 'FG1.+', min: 2.9, max: 3.1 }] }],
+    }).challenge!;
     const r = checkCircuit(ch2, buildNetlist(lay).circuit);
     expect(r.issues[0].detail).toMatch(/gain.*2×/);
   });

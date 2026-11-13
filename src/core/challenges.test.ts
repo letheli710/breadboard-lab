@@ -119,7 +119,10 @@ describe('layout scope probes', () => {
         { ref: 'V1', type: 'dc_source', voltage: 9 },
         { ref: 'R1', type: 'resistor', resistance: '1k' },
       ],
-      connections: [['V1.+', 'R1.1'], ['R1.2', 'V1.-']],
+      connections: [
+        ['V1.+', 'R1.1'],
+        ['R1.2', 'V1.-'],
+      ],
       solution: {
         parts: [
           { type: 'scope_probe', ref: 'PA', channel: 2, pins: { tip: 'a1', gnd: 'a5' } },
@@ -137,12 +140,20 @@ describe('layout scope probes', () => {
       format: 'breadboard-challenge/1',
       id: 'probe-channels-2',
       title: 'probes',
-      components: [{ ref: 'V1', type: 'dc_source', voltage: 9 }, { ref: 'R1', type: 'resistor', resistance: '1k' }],
-      connections: [['V1.+', 'R1.1'], ['R1.2', 'V1.-']],
-      solution: { parts: [
-        { type: 'scope_probe', ref: 'PA', pins: { tip: 'a1', gnd: 'a5' } },
-        { type: 'scope_probe', ref: 'PB', pins: { tip: 'a10', gnd: 'a15' } },
-      ] },
+      components: [
+        { ref: 'V1', type: 'dc_source', voltage: 9 },
+        { ref: 'R1', type: 'resistor', resistance: '1k' },
+      ],
+      connections: [
+        ['V1.+', 'R1.1'],
+        ['R1.2', 'V1.-'],
+      ],
+      solution: {
+        parts: [
+          { type: 'scope_probe', ref: 'PA', pins: { tip: 'a1', gnd: 'a5' } },
+          { type: 'scope_probe', ref: 'PB', pins: { tip: 'a10', gnd: 'a15' } },
+        ],
+      },
     });
     expect(r.challenge!.solution!.parts.map((p) => p.props.channel)).toEqual([1, 2]);
   });

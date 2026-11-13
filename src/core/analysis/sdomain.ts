@@ -37,8 +37,7 @@ export interface NetworkFunction {
 }
 
 const fmt = (x: number) => Number(x.toPrecision(6)).toString();
-export const fmtS = (z: Complex) =>
-  Math.abs(z.im) > 1e-12 * Math.max(1, abs(z)) ? `${fmt(z.re)}${z.im > 0 ? '+' : '−'}j${fmt(Math.abs(z.im))}` : fmt(z.re);
+export const fmtS = (z: Complex) => (Math.abs(z.im) > 1e-12 * Math.max(1, abs(z)) ? `${fmt(z.re)}${z.im > 0 ? '+' : '−'}j${fmt(Math.abs(z.im))}` : fmt(z.re));
 
 /** Read an output from a solution. */
 export function outValue(sol: Solution, out: unknown): Complex {
@@ -223,12 +222,19 @@ function rawFunction(ckt: Circuit, input: CEl, out: unknown): Poly2 {
   const K = storageCount(ckt);
   const sample = (rho: number) => {
     const D = interpolate((s) => det(systemAt(ckt, s).matrix), K, rho);
-    const N = interpolate((s) => {
-      const sys = systemAt(ckt, s);
-      if (sys.error) throw sys.error;
-      const y = outValue(sys.solve((el) => (el === input ? ONE : ZERO)), out);
-      return mul(y, det(sys.matrix));
-    }, K, rho);
+    const N = interpolate(
+      (s) => {
+        const sys = systemAt(ckt, s);
+        if (sys.error) throw sys.error;
+        const y = outValue(
+          sys.solve((el) => (el === input ? ONE : ZERO)),
+          out,
+        );
+        return mul(y, det(sys.matrix));
+      },
+      K,
+      rho,
+    );
     return { D, N };
   };
   let rho = typicalRate(ckt);
@@ -236,7 +242,9 @@ function rawFunction(ckt: Circuit, input: CEl, out: unknown): Poly2 {
   const d0 = cleanPoly(D, rho);
   if (d0.every((c) => c === 0)) throw new AnalysisError('s-domain analysis: the circuit equations are singular for every s (check the circuit)');
   // resample on a circle through the middle of the roots for better conditioning
-  const r0 = polyRoots(d0).map(abs).filter((m) => m > 1e-9 * rho);
+  const r0 = polyRoots(d0)
+    .map(abs)
+    .filter((m) => m > 1e-9 * rho);
   if (r0.length) {
     const rho2 = Math.exp(r0.reduce((a, m) => a + Math.log(m), 0) / r0.length);
     if (Math.abs(Math.log(rho2 / rho)) > 0.5) {
@@ -293,7 +301,11 @@ export function transferAt(netlist: Netlist, input: string, out: OutSpec, s: Com
   const ckt = structural(netlist);
   const src = inputSource(ckt, input);
   const sys = systemAt(ckt, s);
-  if (!sys.error) return outValue(sys.solve((el) => (el === src ? ONE : ZERO)), out);
+  if (!sys.error)
+    return outValue(
+      sys.solve((el) => (el === src ? ONE : ZERO)),
+      out,
+    );
   const h = networkFunction(netlist, input, out);
   const d = horner(h.den, s);
   if (abs(d) <= 1e-12 * Math.max(...h.den.map(Math.abs))) throw new AnalysisError(`H(s): s = ${fmtS(s)} is a pole of the network function`);
@@ -350,7 +362,8 @@ function sourcePoles(ckt: Circuit): Complex[] {
   for (const el of ckt.els) {
     const sp = el.src;
     if (!sp) continue;
-    if ((sp.kind === 'num' && sp.value !== 0) || (sp.kind === 'dcac' && sp.dc !== 0) || (sp.kind === 'step' && sp.after !== 0) || (sp.kind === 'sin' && sp.offset !== 0)) out.push(ZERO);
+    if ((sp.kind === 'num' && sp.value !== 0) || (sp.kind === 'dcac' && sp.dc !== 0) || (sp.kind === 'step' && sp.after !== 0) || (sp.kind === 'sin' && sp.offset !== 0))
+      out.push(ZERO);
     if (sp.kind === 'exp' && sp.amp !== 0) out.push(cx(-sp.alpha));
     if (sp.kind === 'sin' && sp.amp !== 0) {
       const w = 2 * Math.PI * sp.freq;
@@ -483,7 +496,8 @@ export function sdomainQuantity(netlist: Netlist, analysisType: string, find: Re
   const cplx = (z: Complex): SdomainVal => ({ value: z, complex: true, defaultPart: 're' });
   const out = find.out as OutSpec;
   if (kind === 'residue') {
-    if (analysisType !== 'tran') throw new AnalysisError('residue: needs a transient problem (analysis {"type": "tran"}): it is a partial-fraction coefficient of the response for t > 0');
+    if (analysisType !== 'tran')
+      throw new AnalysisError('residue: needs a transient problem (analysis {"type": "tran"}): it is a partial-fraction coefficient of the response for t > 0');
     const order = find.order === undefined ? 1 : (find.order as number);
     return cplx(new Laplace(netlist).residue(out, complexArg(find.at, 'residue.at'), order));
   }

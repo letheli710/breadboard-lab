@@ -77,7 +77,10 @@ function sync() {
   const route = routeOf(s);
   const hash = formatRoute(route);
   const shown = parseRoute(location.hash);
-  const replace = replaceNext || !shown || (shown.page === route.page && !('id' in shown && shown.id) && !('section' in shown && shown.section) && !('summary' in shown)) ||
+  const replace =
+    replaceNext ||
+    !shown ||
+    (shown.page === route.page && !('id' in shown && shown.id) && !('section' in shown && shown.section) && !('summary' in shown)) ||
     // a key-points page that resolved its section (opened from a problem) names it in place
     ('summary' in shown && 'summary' in route && shown.summary === route.summary && !shown.section);
   replaceNext = false;
@@ -97,8 +100,7 @@ function schedule() {
   queueMicrotask(sync);
 }
 
-const firstOf = (s: S, kind: 'lesson' | 'challenge') =>
-  s.challenges.find((c) => c.kind === kind && !s.completed[c.id]) ?? s.challenges.find((c) => c.kind === kind);
+const firstOf = (s: S, kind: 'lesson' | 'challenge') => s.challenges.find((c) => c.kind === kind && !s.completed[c.id]) ?? s.challenges.find((c) => c.kind === kind);
 
 function scrollToSection(section: string) {
   // the Guide is a lazy chunk: wait (briefly) for the card to exist
@@ -111,7 +113,8 @@ function scrollToSection(section: string) {
   go();
 }
 
-const notFound = () => useStore.getState().notify(tr('找不到这个链接指向的内容，已打开默认页面。', "That link points to something that doesn't exist; opened the default page instead."));
+const notFound = () =>
+  useStore.getState().notify(tr('找不到这个链接指向的内容，已打开默认页面。', "That link points to something that doesn't exist; opened the default page instead."));
 
 /** Open what the route names. */
 export function applyRoute(r: Route) {
@@ -138,7 +141,8 @@ export function applyRoute(r: Route) {
     // a chapter's key points (Back from a problem returns here; a direct load opens only Practice)
     if (chapterById(r.summary)) {
       const cur = st.practiceSummary;
-      if (st.mode !== 'practice' || cur?.chapter !== r.summary || cur.section !== r.section) st.openSummary({ chapter: r.summary, section: r.section, from: cur?.chapter === r.summary ? cur.from : undefined });
+      if (st.mode !== 'practice' || cur?.chapter !== r.summary || cur.section !== r.section)
+        st.openSummary({ chapter: r.summary, section: r.section, from: cur?.chapter === r.summary ? cur.from : undefined });
     } else {
       notFound();
       st.setMode('practice');
@@ -177,7 +181,16 @@ export function startRouting() {
   if (badUrl) notFound();
   applyRoute(route);
   useStore.subscribe((s, prev) => {
-    if (s.mode !== prev.mode || s.activeId !== prev.activeId || s.opening !== prev.opening || s.problemId !== prev.problemId || s.practiceSummary !== prev.practiceSummary || s.challenges !== prev.challenges || s.problems !== prev.problems || s.lang !== prev.lang) {
+    if (
+      s.mode !== prev.mode ||
+      s.activeId !== prev.activeId ||
+      s.opening !== prev.opening ||
+      s.problemId !== prev.problemId ||
+      s.practiceSummary !== prev.practiceSummary ||
+      s.challenges !== prev.challenges ||
+      s.problems !== prev.problems ||
+      s.lang !== prev.lang
+    ) {
       if (s.mode !== 'guide') guideSection = undefined;
       schedule();
     }

@@ -130,12 +130,12 @@ export class Transient {
   constructor(readonly ckt: Circuit) {
     for (const el of ckt.els)
       if (el.harmonics?.length)
-        throw new AnalysisError(`${el.ref}: a non-sinusoidal periodic source ({harmonics} / {wave}) needs analysis {type: "periodic"}; in transient analysis write each harmonic as its own {sin} source`);
+        throw new AnalysisError(
+          `${el.ref}: a non-sinusoidal periodic source ({harmonics} / {wave}) needs analysis {type: "periodic"}; in transient analysis write each harmonic as its own {sin} source`,
+        );
     for (const el of ckt.els)
       if (el.src?.kind === 'dcac' && el.src.ac && el.src.ac.mag !== 0)
-        throw new AnalysisError(
-          `${el.ref}: an AC phasor source ({ac: …}) cannot be used in transient analysis; describe it in the time domain with {sin: {amp, freq, phase}}`,
-        );
+        throw new AnalysisError(`${el.ref}: an AC phasor source ({ac: …}) cannot be used in transient analysis; describe it in the time domain with {sin: {amp, freq, phase}}`);
   }
 
   private get sinSources(): CEl[] {
@@ -200,7 +200,10 @@ export class Transient {
       parts.push({ k, x: X });
     }
     const sol = combine(sys, parts);
-    return new Solution(sys, sol.x.map((v) => cx(v.re)));
+    return new Solution(
+      sys,
+      sol.x.map((v) => cx(v.re)),
+    );
   }
 
   /** capacitor voltages / inductor currents at t = 0− (`ic` when given), keyed by ref */
@@ -247,7 +250,14 @@ export class Transient {
       sys = new MnaSystem(ckt, { kind: 'res', phase: 'after', label, parasitic });
       if (sys.error) throw new AnalysisError(`Transient analysis: ${sys.error.message}`);
     }
-    const Xs = states.map((st) => sys.solveVec(sys.rhs(() => ZERO, (e) => (e === st ? 1 : 0))));
+    const Xs = states.map((st) =>
+      sys.solveVec(
+        sys.rhs(
+          () => ZERO,
+          (e) => (e === st ? 1 : 0),
+        ),
+      ),
+    );
     const Xu = srcs.map((s) => sys.solveVec(sys.rhs((e) => (e === s ? ONE : ZERO))));
 
     // inductance matrix
@@ -354,7 +364,10 @@ export class Transient {
     s.forEach((v, j) => parts.push({ k: v, x: m.Xs[j] }));
     m.srcs.forEach((_, k) => parts.push({ k: m.P[k].reduce((a, c, b) => a + c * w[b], 0), x: m.Xu[k] }));
     const sol = combine(m.sys, parts);
-    return new Solution(m.sys, sol.x.map((v) => cx(v.re)));
+    return new Solution(
+      m.sys,
+      sol.x.map((v) => cx(v.re)),
+    );
   }
 
   private basisDeriv(t: number): number[] {
@@ -375,14 +388,20 @@ export class Transient {
     ds.forEach((v, j) => parts.push({ k: v, x: m.Xs[j] }));
     m.srcs.forEach((_, k) => parts.push({ k: m.P[k].reduce((a, c, b) => a + c * dw[b], 0), x: m.Xu[k] }));
     const sol = combine(m.sys, parts);
-    return new Solution(m.sys, sol.x.map((v) => cx(v.re)));
+    return new Solution(
+      m.sys,
+      sol.x.map((v) => cx(v.re)),
+    );
   }
 
   /** time derivative of every circuit quantity at an instant (same instants as `at`) */
   derivAt(t: number | '0-' | '0+' | 'inf'): Solution {
     if (t === 'inf') {
       const f = this.final();
-      return new Solution(f.sys, f.x.map(() => ZERO));
+      return new Solution(
+        f.sys,
+        f.x.map(() => ZERO),
+      );
     }
     if (typeof t === 'number' && !Number.isFinite(t)) throw new AnalysisError(`find.t must be finite (got ${t})`);
     if (t === '0-' || (typeof t === 'number' && t < 0)) {
@@ -391,7 +410,10 @@ export class Transient {
       const parts: { k: Complex | number; x: Complex[] }[] = [{ k: 0, x }];
       for (const w of this.omegas()) parts.push({ k: cx(-w * Math.sin(w * tt), w * Math.cos(w * tt)), x: this.preAC(w) }); // Re(jω X e^{jωt})
       const sol = combine(sys, parts);
-      return new Solution(sys, sol.x.map((v) => cx(v.re)));
+      return new Solution(
+        sys,
+        sol.x.map((v) => cx(v.re)),
+      );
     }
     if (typeof t !== 'number' && t !== '0+') throw new AnalysisError(`find.t must be a number of seconds, "0-", "0+" or "inf" (got ${JSON.stringify(t)})`);
     const m = this.model();
@@ -400,7 +422,10 @@ export class Transient {
       const te = 40 * m.tauPar;
       const d1 = this.derivFrom(this.statesAt(te), te);
       const d2 = this.derivFrom(this.statesAt(2 * te), 2 * te);
-      return new Solution(m.sys, d1.x.map((v, i) => cx(2 * v.re - d2.x[i].re)));
+      return new Solution(
+        m.sys,
+        d1.x.map((v, i) => cx(2 * v.re - d2.x[i].re)),
+      );
     }
     return this.derivFrom(this.statesAt(t), t);
   }
@@ -418,7 +443,10 @@ export class Transient {
       const te = 40 * m.tauPar;
       const s1 = this.statesAt(te);
       const s2 = this.statesAt(2 * te);
-      return this.solutionFrom(s1.map((v, i) => 2 * v - s2[i]), 0);
+      return this.solutionFrom(
+        s1.map((v, i) => 2 * v - s2[i]),
+        0,
+      );
     }
     if (typeof t !== 'number') throw new AnalysisError(`find.t must be a number of seconds, "0-", "0+" or "inf" (got ${JSON.stringify(t)})`);
     return this.solutionFrom(this.statesAt(t), t);
@@ -447,8 +475,7 @@ export class Transient {
       const rest = lam.slice(k);
       const minDrop = Math.min(...dropped.map(abs));
       const maxRest = rest.length ? Math.max(...rest.map(abs)) : 0;
-      if (!(maxRest <= 1e-3 * minDrop))
-        throw new AnalysisError('Could not separate the natural frequencies of a circuit with capacitor loops / inductor cut-sets');
+      if (!(maxRest <= 1e-3 * minDrop)) throw new AnalysisError('Could not separate the natural frequencies of a circuit with capacitor loops / inductor cut-sets');
       lam = rest;
     }
     const k0 = new MnaSystem(this.ckt, { kind: 'dc', phase: 'after', conserve: true, label: '' }).conservedCount;
@@ -502,11 +529,11 @@ export class Transient {
     const maxAbs = Math.max(0, ...lam.map(abs));
     if (maxAbs === 0) throw new AnalysisError('tau: the energy-storage element has no (dis)charging path for t > 0 (time constant is infinite)');
     const nz = lam.filter((l) => abs(l) > 1e-12 * maxAbs);
-    const fmt = () => lam.map((l) => (Math.abs(l.im) > 1e-9 * abs(l) ? `${l.re.toPrecision(4)}${l.im >= 0 ? '+' : '−'}j${Math.abs(l.im).toPrecision(4)}` : l.re.toPrecision(4))).join(', ');
+    const fmt = () =>
+      lam.map((l) => (Math.abs(l.im) > 1e-9 * abs(l) ? `${l.re.toPrecision(4)}${l.im >= 0 ? '+' : '−'}j${Math.abs(l.im).toPrecision(4)}` : l.re.toPrecision(4))).join(', ');
     const first = nz[0];
     const ok = nz.every((l) => Math.abs(l.im) <= 1e-7 * abs(l) && Math.abs(l.re - first.re) <= 1e-6 * Math.abs(first.re));
-    if (!ok)
-      throw new AnalysisError(`tau: the circuit for t > 0 is not first-order (natural frequencies s = ${fmt()} 1/s); a single time constant does not exist`);
+    if (!ok) throw new AnalysisError(`tau: the circuit for t > 0 is not first-order (natural frequencies s = ${fmt()} 1/s); a single time constant does not exist`);
     return -1 / first.re;
   }
 

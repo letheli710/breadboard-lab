@@ -14,7 +14,10 @@ const groupTip = (g: Group) =>
         tr('第 2 期：叠加、戴维宁、最大功率、运放', 'Phase 2: superposition, Thevenin, max power, op-amps'),
         tr('第 3 期：暂态（RC / RL / RLC）', 'Phase 3: transients (RC / RL / RLC)'),
         tr('第 4 期：正弦稳态与频率响应', 'Phase 4: AC steady state and frequency response'),
-        tr('第 5 期：单片机外围电路（GPIO、上拉、三极管/MOSFET、继电器、稳压、ADC、PWM）', 'Phase 5: MCU peripheral circuits (GPIO, pull-ups, transistors/MOSFETs, relays, regulators, ADC, PWM)'),
+        tr(
+          '第 5 期：单片机外围电路（GPIO、上拉、三极管/MOSFET、继电器、稳压、ADC、PWM）',
+          'Phase 5: MCU peripheral circuits (GPIO, pull-ups, transistors/MOSFETs, relays, regulators, ADC, PWM)',
+        ),
       ][g - 1];
 
 export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
@@ -66,7 +69,7 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
       {list.length === 0 ? (
         <div className="card empty-card">
           {kind === 'lesson' ? tr('没有找到课程文件。', 'No lesson files found.') : tr('还没有挑战题。', 'No challenges yet.')}{' '}
-          {tr('把题目 JSON 放进项目的 ', 'Put challenge JSON files in the project\'s ')}
+          {tr('把题目 JSON 放进项目的 ', "Put challenge JSON files in the project's ")}
           <code>challenges/</code>
           {tr(' 文件夹，或在“导入”页面导入。', ' folder, or load them on the Import page.')}
         </div>

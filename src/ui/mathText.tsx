@@ -10,11 +10,7 @@ import { richRuns } from './ProblemSchematic';
 import { subQ } from './subQ';
 
 export type MathNode =
-  | { k: 'text'; t: string }
-  | { k: 'frac'; num: MathNode[]; den: MathNode[] }
-  | { k: 'sqrt'; x: MathNode[] }
-  | { k: 'sup'; x: MathNode[] }
-  | { k: 'sub'; x: MathNode[] };
+  { k: 'text'; t: string } | { k: 'frac'; num: MathNode[]; den: MathNode[] } | { k: 'sqrt'; x: MathNode[] } | { k: 'sup'; x: MathNode[] } | { k: 'sub'; x: MathNode[] };
 
 /** Index just past the "}" matching the "{" at `open`, or -1. */
 function closeBrace(s: string, open: number): number {

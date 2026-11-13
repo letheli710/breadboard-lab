@@ -137,8 +137,7 @@ export function realRoots(c0: number[], lo: number, hi: number): number[] {
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
 function coefList(ref: string, v: unknown, what: string): number[] {
-  if (!Array.isArray(v) || v.length === 0 || !v.every(isNum))
-    throw new AnalysisError(`${ref}.law.${what}: must be a list of polynomial coefficients [c0, c1, c2, …] (numbers)`);
+  if (!Array.isArray(v) || v.length === 0 || !v.every(isNum)) throw new AnalysisError(`${ref}.law.${what}: must be a list of polynomial coefficients [c0, c1, c2, …] (numbers)`);
   if (v.length > 8) throw new AnalysisError(`${ref}.law.${what}: at most degree 7`);
   if (v.every((x) => x === 0)) throw new AnalysisError(`${ref}.law.${what}: all coefficients are zero`);
   return v as number[];
@@ -215,7 +214,14 @@ export function parseLaw(ref: string, raw: unknown): NlLaw {
       const uon = dd.uon === undefined ? 0 : dd.uon;
       const ron = dd.ron === undefined ? 0 : dd.ron;
       if (!isNum(uon) || !isNum(ron) || ron < 0) throw new AnalysisError(`${ref}.law.diode: "uon" must be a number and "ron" a number ≥ 0`);
-      return { pieces: pwlPieces(ref, [[uon - 1, 0], [uon, 0], [uon + ron, 1]]), diode: true };
+      return {
+        pieces: pwlPieces(ref, [
+          [uon - 1, 0],
+          [uon, 0],
+          [uon + ron, 1],
+        ]),
+        diode: true,
+      };
     }
   }
 }
@@ -455,7 +461,7 @@ function newtonCombo(nls: CEl[], pcs: Piece[], solver: Solver): OpPoint[] {
   const lists = pcs.map(starts);
   const out: OpPoint[] = [];
   let seed = 12345;
-  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
   for (let s = 0; s < 64; s++) {
     let xs = lists.map((l, k) => (s < l.length ? l[s] : l[Math.floor(rnd() * l.length)] * (0.5 + rnd()) + (k + 1) * (rnd() - 0.5)));
     let ok = false;

@@ -305,9 +305,20 @@ export function Scope() {
             <div className="sc-overlay-br">
               {formatSI(tdiv, 's')}/div{data.ac && trigCh ? ` · ${tr('触发', 'Trig')} CH${trigCh.channel}↑` : ''}
             </div>
-            {data.error && <div className="sc-error">{tr('仿真失败：', 'Simulation failed: ')}{data.error}</div>}
-            {!data.error && data.ac && !data.converged && <div className="sc-error warn">{tr('还没完全进入稳态，波形仅供参考', 'Not fully settled yet — the waveform is approximate')}</div>}
-            {!data.error && data.ac && data.underResolved && <div className="sc-error warn" style={data.converged ? undefined : { bottom: 48 }}>{tr('步长太粗，看不到 LC 振铃（见诊断）', 'Time step too coarse for the LC ringing (see diagnostics)')}</div>}
+            {data.error && (
+              <div className="sc-error">
+                {tr('仿真失败：', 'Simulation failed: ')}
+                {data.error}
+              </div>
+            )}
+            {!data.error && data.ac && !data.converged && (
+              <div className="sc-error warn">{tr('还没完全进入稳态，波形仅供参考', 'Not fully settled yet — the waveform is approximate')}</div>
+            )}
+            {!data.error && data.ac && data.underResolved && (
+              <div className="sc-error warn" style={data.converged ? undefined : { bottom: 48 }}>
+                {tr('步长太粗，看不到 LC 振铃（见诊断）', 'Time step too coarse for the LC ringing (see diagnostics)')}
+              </div>
+            )}
           </div>
           <div className="sc-controls">
             <div className="sc-knob">
@@ -327,7 +338,11 @@ export function Scope() {
                 <button onClick={() => setScope({ vdiv: { ...scope.vdiv, [c.channel]: stepBy(V_STEPS, vdiv[c.channel], 1) } })}>+</button>
               </div>
             ))}
-            <button className={`sc-auto ${isAuto ? 'on' : ''}`} onClick={() => setScope({ tdiv: null, vdiv: { 1: null, 2: null } })} title={tr('自动设置时间/格和 V/格', 'Auto-set time/div and V/div')}>
+            <button
+              className={`sc-auto ${isAuto ? 'on' : ''}`}
+              onClick={() => setScope({ tdiv: null, vdiv: { 1: null, 2: null } })}
+              title={tr('自动设置时间/格和 V/格', 'Auto-set time/div and V/div')}
+            >
               AUTO
             </button>
           </div>

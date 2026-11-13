@@ -40,8 +40,7 @@ export class StaticAnalysis {
   /** value of an independent source in this analysis */
   sourceValue(el: CEl): Complex {
     const s = el.src!;
-    if (el.harmonics?.length)
-      throw new AnalysisError(`${el.ref}: a non-sinusoidal periodic source ({harmonics} / {wave}) needs analysis {type: "periodic"}`);
+    if (el.harmonics?.length) throw new AnalysisError(`${el.ref}: a non-sinusoidal periodic source ({harmonics} / {wave}) needs analysis {type: "periodic"}`);
     if (this.kind === 'dc') {
       switch (s.kind) {
         case 'num':
@@ -67,7 +66,8 @@ export class StaticAnalysis {
       case 'step':
         throw new AnalysisError(`${el.ref}: a step source cannot be used in AC (sinusoidal steady-state) analysis`);
       case 'sin':
-        throw new AnalysisError(`${el.ref}: in AC analysis give the source as a phasor {ac: {mag, phase}} instead of {sin: …}`);      case 'exp':
+        throw new AnalysisError(`${el.ref}: in AC analysis give the source as a phasor {ac: {mag, phase}} instead of {sin: …}`);
+      case 'exp':
       case 'impulse':
         throw new AnalysisError(`${el.ref}: {exp} / {impulse} sources are only available in transient analysis`);
     }
@@ -91,8 +91,7 @@ export class StaticAnalysis {
   private portRemoved(a: number, b: number, extra?: Set<string>): Set<string> {
     const r = new Set(extra ?? []);
     if (this.removeStorageAcrossPort)
-      for (const el of this.ckt.els)
-        if ((el.type === 'C' || el.type === 'L') && ((el.pins[0] === a && el.pins[1] === b) || (el.pins[0] === b && el.pins[1] === a))) r.add(el.ref);
+      for (const el of this.ckt.els) if ((el.type === 'C' || el.type === 'L') && ((el.pins[0] === a && el.pins[1] === b) || (el.pins[0] === b && el.pins[1] === a))) r.add(el.ref);
     return r;
   }
 
@@ -126,7 +125,8 @@ export class StaticAnalysis {
     try {
       sol = this.solve({ extra: [sh], removed: this.portRemoved(a, b, removedExtra) });
     } catch (e) {
-      if (e instanceof AnalysisError) throw new AnalysisError(`isc: shorting the port makes the circuit unsolvable (e.g. an ideal voltage source directly across the port). ${e.message}`);
+      if (e instanceof AnalysisError)
+        throw new AnalysisError(`isc: shorting the port makes the circuit unsolvable (e.g. an ideal voltage source directly across the port). ${e.message}`);
       throw e;
     }
     return sol.i('__short');
@@ -256,8 +256,7 @@ function networkQuantity(find: Find, an: StaticAnalysis): Val {
       const ex = excluded(ckt, find);
       const vth = an.vth(a, b, ex);
       const z = an.portZ(a, b, ex);
-      if (!(z.re > 0))
-        throw new AnalysisError(`pmax: the Thevenin resistance at the port is ${fmt(z.re)} Ω (not positive), so maximum power transfer is undefined`);
+      if (!(z.re > 0)) throw new AnalysisError(`pmax: the Thevenin resistance at the port is ${fmt(z.re)} Ω (not positive), so maximum power transfer is undefined`);
       const p = (abs(vth) ** 2 / (4 * z.re)) * (ac && an.peak ? 0.5 : 1);
       return real(p);
     }
@@ -293,7 +292,8 @@ function twoPort(an: StaticAnalysis, ports: unknown, param: string): Complex {
     try {
       sol = an.solve({ extra, zero: true });
     } catch (e) {
-      if (e instanceof AnalysisError) throw new AnalysisError(`twoport ${param}: this parameter does not exist for the network (the required test condition has no solution). ${e.message}`);
+      if (e instanceof AnalysisError)
+        throw new AnalysisError(`twoport ${param}: this parameter does not exist for the network (the required test condition has no solution). ${e.message}`);
       throw e;
     }
     const I = (k: number, d: PortDrive): Complex => (d === 'I' ? ONE : d === 'open' ? ZERO : neg(sol.i(`__port${k + 1}`)));
@@ -359,8 +359,7 @@ function inputPort(ckt: Circuit, port: [string, string] | undefined, what: strin
     return { a, b };
   }
   const srcs = ckt.els.filter(isIndependent);
-  if (srcs.length !== 1)
-    throw new AnalysisError(`${what}: without "port" the circuit must have exactly one independent source (it has ${srcs.length}); give "port": ["a", "b"]`);
+  if (srcs.length !== 1) throw new AnalysisError(`${what}: without "port" the circuit must have exactly one independent source (it has ${srcs.length}); give "port": ["a", "b"]`);
   return { a: srcs[0].pins[0], b: srcs[0].pins[1], removed: new Set([srcs[0].ref]) };
 }
 
@@ -439,9 +438,7 @@ export function resonance(ckt: Circuit, port?: [string, string]): number {
     }
     prev = i;
   }
-  throw new AnalysisError(
-    `f0: the input impedance is never purely real between ${fmt(10 ** lo / (2 * Math.PI))} Hz and ${fmt(10 ** hi / (2 * Math.PI))} Hz (no resonance)`,
-  );
+  throw new AnalysisError(`f0: the input impedance is never purely real between ${fmt(10 ** lo / (2 * Math.PI))} Hz and ${fmt(10 ** hi / (2 * Math.PI))} Hz (no resonance)`);
 }
 
 /** all −3 dB frequencies (Hz, ascending) of |V(out)/input| relative to its maximum */
@@ -526,8 +523,7 @@ function rootQuantity(ckt: Circuit, find: Find): Val {
   switch (find.kind) {
     case 'root': {
       const n = find.n;
-      if (!Number.isInteger(n) || n < 1 || n > r.length)
-        throw new AnalysisError(`root: n must be 1…${r.length} (the natural frequencies are s = ${list()} 1/s)`);
+      if (!Number.isInteger(n) || n < 1 || n > r.length) throw new AnalysisError(`root: n must be 1…${r.length} (the natural frequencies are s = ${list()} 1/s)`);
       return { value: r[n - 1], complex: true, defaultPart: 're' };
     }
     case 'alpha':
@@ -623,8 +619,7 @@ export function computeComplex(netlist: Netlist, analysis: Analysis, find: Find)
   const deriv = (find as { deriv?: unknown }).deriv;
   if (deriv !== undefined) {
     if (deriv !== 1) throw new AnalysisError('find.deriv must be 1 (first time derivative)');
-    if (analysis.type !== 'tran' || (find.kind !== 'v' && find.kind !== 'i'))
-      throw new AnalysisError('find.deriv is only available for "v" and "i" in transient analysis');
+    if (analysis.type !== 'tran' || (find.kind !== 'v' && find.kind !== 'i')) throw new AnalysisError('find.deriv is only available for "v" and "i" in transient analysis');
   }
   if ((find.freq !== undefined || find.omega !== undefined) && analysis.type !== 'ac')
     throw new AnalysisError('find.freq / find.omega override the frequency of an AC problem; this problem is not AC');
@@ -720,7 +715,8 @@ const NOT_NONLINEAR = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'f0', 'Q', '
  *  response — the NR replaced by its dynamic resistance at Q, sources contribute their ac parts.
  *  find.dc in an AC problem evaluates at the operating point instead. */
 function nonlinearComplex(ckt: Circuit, nls: CEl[], analysis: Analysis, find: Find): Val {
-  if (analysis.type === 'tran') throw new AnalysisError('Nonlinear resistors (type NR) are supported in DC (operating point) and AC (small-signal) analysis, not in transient analysis');
+  if (analysis.type === 'tran')
+    throw new AnalysisError('Nonlinear resistors (type NR) are supported in DC (operating point) and AC (small-signal) analysis, not in transient analysis');
   if (NOT_NONLINEAR.includes(find.kind)) throw new AnalysisError(`"${find.kind}" is not defined for a circuit with nonlinear resistors`);
   const phase = phaseOfT(find.t);
   const ops = operatingPoints(nls, dcSolver(ckt, phase));
@@ -751,7 +747,9 @@ function nonlinearComplex(ckt: Circuit, nls: CEl[], analysis: Analysis, find: Fi
     const r = rds[0];
     const same = (x: number) => x === r || (Number.isFinite(x) && Number.isFinite(r) && Math.abs(x - r) <= 1e-9 * Math.max(1, Math.abs(r)));
     if (!rds.every(same))
-      throw new AnalysisError(`rd: the operating point of ${el.ref} (u = ${fmt(u)} V, i = ${fmt(i)} A) is a corner of its characteristic, where the dynamic resistance is not defined`);
+      throw new AnalysisError(
+        `rd: the operating point of ${el.ref} (u = ${fmt(u)} V, i = ${fmt(i)} A) is a corner of its characteristic, where the dynamic resistance is not defined`,
+      );
     if (!Number.isFinite(r)) throw new AnalysisError(`rd: the characteristic of ${el.ref} is horizontal at the operating point (di/du = 0): the dynamic resistance is infinite`);
     return real(r);
   }
@@ -830,4 +828,3 @@ export function computeQuantity(netlist: Netlist, analysis: Analysis, find: Find
   if (!Number.isFinite(v)) throw new AnalysisError('The result is not a finite number');
   return v;
 }
-

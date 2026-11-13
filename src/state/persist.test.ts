@@ -82,7 +82,13 @@ describe('corrupted storage', () => {
     ls.setItem('bb.lang', JSON.stringify({}));
     ls.setItem(
       'bb.layout.sandbox',
-      JSON.stringify({ version: 1, parts: [{ ref: 'Q1', type: 'nope', pins: {} }, { id: 'x', ref: 'R1', type: 'resistor', props: { resistance: 100 }, pins: { '1': 'a1', '2': 'a4' } }] }),
+      JSON.stringify({
+        version: 1,
+        parts: [
+          { ref: 'Q1', type: 'nope', pins: {} },
+          { id: 'x', ref: 'R1', type: 'resistor', props: { resistance: 100 }, pins: { '1': 'a1', '2': 'a4' } },
+        ],
+      }),
     );
     vi.stubGlobal('localStorage', ls);
     vi.resetModules();

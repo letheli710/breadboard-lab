@@ -12,17 +12,7 @@ import { angleDiff, fmtNum, isPhaseQuestion } from './answer';
 import { extractNetlist, isTwoTerminal } from './geometry';
 import { checkPlot } from './plot';
 import { SDOMAIN_KINDS, checkSdomainFind, isSdomainKind, sdomainMark } from './sdomainFind';
-import {
-  PROBLEM_FORMAT_ID,
-  type Analysis,
-  type Find,
-  type Netlist,
-  type Part,
-  type ProblemElement,
-  type ProblemFile,
-  type Question,
-  type Schematic,
-} from './types';
+import { PROBLEM_FORMAT_ID, type Analysis, type Find, type Netlist, type Part, type ProblemElement, type ProblemFile, type Question, type Schematic } from './types';
 
 /** A problem ready for the UI: text already localised for the current language. */
 export interface Problem {
@@ -61,7 +51,37 @@ const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => ty
 /** a text field may be a string or an array of lines */
 const textOf = (v: unknown) => (typeof v === 'string' ? v : Array.isArray(v) ? strs(v).join('\n') : '');
 
-const KINDS = ['v', 'i', 'p', 'q', 's', 'pf', 'req', 'vth', 'isc', 'pmax', 'tau', 'meter', 'gain', 'f0', 'twoport', 'w', 'val', 'wattmeter', 'root', 'alpha', 'omega_d', 'omega0', 'fc', 'bw', 'Q', 'rs', 'rd', 'nop', ...SDOMAIN_KINDS] as const;
+const KINDS = [
+  'v',
+  'i',
+  'p',
+  'q',
+  's',
+  'pf',
+  'req',
+  'vth',
+  'isc',
+  'pmax',
+  'tau',
+  'meter',
+  'gain',
+  'f0',
+  'twoport',
+  'w',
+  'val',
+  'wattmeter',
+  'root',
+  'alpha',
+  'omega_d',
+  'omega0',
+  'fc',
+  'bw',
+  'Q',
+  'rs',
+  'rd',
+  'nop',
+  ...SDOMAIN_KINDS,
+] as const;
 /** kinds that describe the whole circuit (no time instant needed in transient problems) */
 const TIMELESS: readonly string[] = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw', ...SDOMAIN_KINDS];
 const PARTS: Part[] = ['re', 'im', 'mag', 'phase', 'db', 'rms', 'avg', 'absavg', 'peak'];
@@ -75,7 +95,6 @@ export function answersAgree(author: number, engine: number, phase = false): boo
   return diff <= Math.max(0.005 * Math.abs(engine), phase ? 0.01 : 1e-9);
 }
 
-
 function elementRefs(s: Schematic): Map<string, ProblemElement> {
   const m = new Map<string, ProblemElement>();
   for (const e of Array.isArray(s.elements) ? s.elements : []) if (isObj(e) && typeof e.ref === 'string') m.set(e.ref, e as ProblemElement);
@@ -83,21 +102,36 @@ function elementRefs(s: Schematic): Map<string, ProblemElement> {
 }
 
 /** Light structural checks of a question's `find` (the engine does the rest). */
-function checkFind(find: unknown, where: string, els: Map<string, ProblemElement>, nodes: Set<string> | null, analysis: Analysis | null, errors: string[], warnings: string[]): find is Find {
+function checkFind(
+  find: unknown,
+  where: string,
+  els: Map<string, ProblemElement>,
+  nodes: Set<string> | null,
+  analysis: Analysis | null,
+  errors: string[],
+  warnings: string[],
+): find is Find {
   if (!isObj(find)) {
     errors.push(tr(`${where}.find: 必须是对象，如 {"kind": "i", "el": "R1"}`, `${where}.find: must be an object, e.g. {"kind": "i", "el": "R1"}`));
     return false;
   }
   const kind = find.kind as string;
   if (!(KINDS as readonly string[]).includes(kind)) {
-    errors.push(tr(`${where}.find.kind: 未知的量 "${String(kind)}"（可用：${KINDS.join(', ')}）`, `${where}.find.kind: unknown quantity "${String(kind)}" (available: ${KINDS.join(', ')})`));
+    errors.push(
+      tr(`${where}.find.kind: 未知的量 "${String(kind)}"（可用：${KINDS.join(', ')}）`, `${where}.find.kind: unknown quantity "${String(kind)}" (available: ${KINDS.join(', ')})`),
+    );
     return false;
   }
   let ok = true;
   const el = (key: string) => {
     const r = find[key];
     if (typeof r !== 'string' || (els.size > 0 && !els.has(r))) {
-      errors.push(tr(`${where}.find.${key}: 找不到元件 ${JSON.stringify(r)}（可用：${[...els.keys()].join(', ')}）`, `${where}.find.${key}: no element ${JSON.stringify(r)} (available: ${[...els.keys()].join(', ')})`));
+      errors.push(
+        tr(
+          `${where}.find.${key}: 找不到元件 ${JSON.stringify(r)}（可用：${[...els.keys()].join(', ')}）`,
+          `${where}.find.${key}: no element ${JSON.stringify(r)} (available: ${[...els.keys()].join(', ')})`,
+        ),
+      );
       ok = false;
     }
   };
@@ -232,12 +266,22 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
         errors.push(tr(`${where}.find.${k}: 必须是正数`, `${where}.find.${k}: must be a positive number`));
         ok = false;
       } else if (analysis?.type === 'periodic')
-        errors.push(tr(`${where}.find.${k}: 非正弦周期题用 "harmonic": k 指定第几次谐波，不要改频率`, `${where}.find.${k}: in a periodic problem ask for a harmonic with "harmonic": k instead of changing the frequency`));
+        errors.push(
+          tr(
+            `${where}.find.${k}: 非正弦周期题用 "harmonic": k 指定第几次谐波，不要改频率`,
+            `${where}.find.${k}: in a periodic problem ask for a harmonic with "harmonic": k instead of changing the frequency`,
+          ),
+        );
       else if (analysis && analysis.type !== 'ac')
         errors.push(tr(`${where}.find.${k}: 只有正弦稳态（ac）题才能改频率`, `${where}.find.${k}: only AC problems can override the frequency`));
     }
   if (find.op !== undefined && !(typeof find.op === 'number' && Number.isInteger(find.op) && find.op >= 1)) {
-    errors.push(tr(`${where}.find.op: 必须是 1、2、…（第几个工作点，按第一个非线性电阻的电压从小到大）`, `${where}.find.op: must be 1, 2, … (which operating point, by the voltage of the first nonlinear resistor, ascending)`));
+    errors.push(
+      tr(
+        `${where}.find.op: 必须是 1、2、…（第几个工作点，按第一个非线性电阻的电压从小到大）`,
+        `${where}.find.op: must be 1, 2, … (which operating point, by the voltage of the first nonlinear resistor, ascending)`,
+      ),
+    );
     ok = false;
   }
   if (find.dc !== undefined) {
@@ -253,7 +297,9 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
   }
   if (find.harmonic !== undefined) {
     if (!(typeof find.harmonic === 'number' && Number.isInteger(find.harmonic) && find.harmonic >= 0)) {
-      errors.push(tr(`${where}.find.harmonic: 必须是 ≥ 0 的整数（0 = 直流分量，1 = 基波……）`, `${where}.find.harmonic: must be an integer ≥ 0 (0 = DC component, 1 = fundamental, …)`));
+      errors.push(
+        tr(`${where}.find.harmonic: 必须是 ≥ 0 的整数（0 = 直流分量，1 = 基波……）`, `${where}.find.harmonic: must be an integer ≥ 0 (0 = DC component, 1 = fundamental, …)`),
+      );
       ok = false;
     } else if (analysis && analysis.type !== 'periodic')
       errors.push(tr(`${where}.find.harmonic: 只有非正弦周期分析（periodic）才能按谐波提问`, `${where}.find.harmonic: only periodic (non-sinusoidal) analysis has harmonics`));
@@ -261,50 +307,85 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
   if (analysis && analysis.type !== 'periodic' && (find.part === 'avg' || find.part === 'absavg' || find.part === 'peak'))
     errors.push(tr(`${where}.find.part: "${find.part}" 只用于非正弦周期分析（periodic）`, `${where}.find.part: "${find.part}" is only for periodic (non-sinusoidal) analysis`));
   if (analysis && analysis.type !== 'ac' && analysis.type !== 'periodic' && kind !== 'root' && !isSdomainKind(kind) && find.part !== undefined && find.part !== 're')
-    warnings.push(tr(`${where}.find.part: "${String(find.part)}" 只对正弦稳态（ac）有意义`, `${where}.find.part: "${String(find.part)}" only makes sense for sinusoidal steady state (ac)`));
+    warnings.push(
+      tr(`${where}.find.part: "${String(find.part)}" 只对正弦稳态（ac）有意义`, `${where}.find.part: "${String(find.part)}" only makes sense for sinusoidal steady state (ac)`),
+    );
   if (find.t !== undefined) {
     if (!(typeof find.t === 'number' && find.t >= 0) && !TIMES.includes(find.t as string)) {
       errors.push(tr(`${where}.find.t: 必须是 ≥ 0 的秒数，或 "0-" / "0+" / "inf"`, `${where}.find.t: must be a time ≥ 0 in seconds, or "0-" / "0+" / "inf"`));
       ok = false;
     } else if (analysis?.type === 'periodic') {
-      if (typeof find.t !== 'number') errors.push(tr(`${where}.find.t: 非正弦周期题的 "t" 是秒数（求瞬时值）`, `${where}.find.t: in a periodic problem "t" is a time in seconds (instantaneous value)`));
+      if (typeof find.t !== 'number')
+        errors.push(tr(`${where}.find.t: 非正弦周期题的 "t" 是秒数（求瞬时值）`, `${where}.find.t: in a periodic problem "t" is a time in seconds (instantaneous value)`));
     } else if (analysis && analysis.type !== 'tran')
       warnings.push(tr(`${where}.find.t: 只有暂态分析（tran）才用 "t"`, `${where}.find.t: "t" is only used by transient analysis (tran)`));
   } else if (analysis?.type === 'tran' && !TIMELESS.includes(kind))
-    errors.push(tr(`${where}.find.t: 暂态题必须给出时刻 "t"（秒，或 "0-" / "0+" / "inf"）`, `${where}.find.t: transient questions need a time "t" (seconds, or "0-" / "0+" / "inf")`));
+    errors.push(
+      tr(`${where}.find.t: 暂态题必须给出时刻 "t"（秒，或 "0-" / "0+" / "inf"）`, `${where}.find.t: transient questions need a time "t" (seconds, or "0-" / "0+" / "inf")`),
+    );
   return ok;
 }
 
 function parseAnalysis(raw: unknown, errors: string[]): Analysis | null {
   if (!isObj(raw)) {
-    errors.push(tr('"analysis" 必须是对象：{"type": "dc"} / {"type": "ac", "freq": 50} / {"type": "tran"}', '"analysis" must be an object: {"type": "dc"} / {"type": "ac", "freq": 50} / {"type": "tran"}'));
+    errors.push(
+      tr(
+        '"analysis" 必须是对象：{"type": "dc"} / {"type": "ac", "freq": 50} / {"type": "tran"}',
+        '"analysis" must be an object: {"type": "dc"} / {"type": "ac", "freq": 50} / {"type": "tran"}',
+      ),
+    );
     return null;
   }
   if (raw.type === 'dc') return { type: 'dc' };
   if (raw.type === 'tran') {
-    if (raw.tstop !== undefined && !(typeof raw.tstop === 'number' && raw.tstop > 0)) errors.push(tr('analysis.tstop: 必须是正数（秒）', 'analysis.tstop: must be a positive number (seconds)'));
+    if (raw.tstop !== undefined && !(typeof raw.tstop === 'number' && raw.tstop > 0))
+      errors.push(tr('analysis.tstop: 必须是正数（秒）', 'analysis.tstop: must be a positive number (seconds)'));
     return { type: 'tran', ...(typeof raw.tstop === 'number' ? { tstop: raw.tstop } : {}) };
   }
   if (raw.type === 'ac') {
     const freq = typeof raw.freq === 'number' ? raw.freq : undefined;
     const omega = typeof raw.omega === 'number' ? raw.omega : undefined;
-    if (!((freq ?? 0) > 0) && !((omega ?? 0) > 0)) errors.push(tr('analysis: 正弦稳态需要 "freq"（Hz）或 "omega"（rad/s），且大于 0', 'analysis: sinusoidal steady state needs "freq" (Hz) or "omega" (rad/s), greater than 0'));
+    if (!((freq ?? 0) > 0) && !((omega ?? 0) > 0))
+      errors.push(tr('analysis: 正弦稳态需要 "freq"（Hz）或 "omega"（rad/s），且大于 0', 'analysis: sinusoidal steady state needs "freq" (Hz) or "omega" (rad/s), greater than 0'));
     if (freq !== undefined && omega !== undefined && Math.abs(2 * Math.PI * freq - omega) > 1e-6 * omega)
       errors.push(tr('analysis: "freq" 和 "omega" 不一致（ω = 2πf），只写一个', 'analysis: "freq" and "omega" disagree (ω = 2πf); give only one'));
-    if (raw.phasor !== undefined && raw.phasor !== 'rms' && raw.phasor !== 'peak') errors.push(tr('analysis.phasor: 必须是 "rms" 或 "peak"', 'analysis.phasor: must be "rms" or "peak"'));
-    return { type: 'ac', ...(freq !== undefined ? { freq } : {}), ...(omega !== undefined ? { omega } : {}), ...(raw.phasor === 'peak' || raw.phasor === 'rms' ? { phasor: raw.phasor } : {}) };
+    if (raw.phasor !== undefined && raw.phasor !== 'rms' && raw.phasor !== 'peak')
+      errors.push(tr('analysis.phasor: 必须是 "rms" 或 "peak"', 'analysis.phasor: must be "rms" or "peak"'));
+    return {
+      type: 'ac',
+      ...(freq !== undefined ? { freq } : {}),
+      ...(omega !== undefined ? { omega } : {}),
+      ...(raw.phasor === 'peak' || raw.phasor === 'rms' ? { phasor: raw.phasor } : {}),
+    };
   }
   if (raw.type === 'periodic') {
     // non-sinusoidal periodic steady state: freq / omega is the FUNDAMENTAL (see analysis/periodic.ts)
     const freq = typeof raw.freq === 'number' ? raw.freq : undefined;
     const omega = typeof raw.omega === 'number' ? raw.omega : undefined;
-    if (!((freq ?? 0) > 0) && !((omega ?? 0) > 0)) errors.push(tr('analysis: 非正弦周期分析需要基波频率 "freq"（Hz）或 "omega"（rad/s），且大于 0', 'analysis: periodic analysis needs the fundamental "freq" (Hz) or "omega" (rad/s), greater than 0'));
+    if (!((freq ?? 0) > 0) && !((omega ?? 0) > 0))
+      errors.push(
+        tr(
+          'analysis: 非正弦周期分析需要基波频率 "freq"（Hz）或 "omega"（rad/s），且大于 0',
+          'analysis: periodic analysis needs the fundamental "freq" (Hz) or "omega" (rad/s), greater than 0',
+        ),
+      );
     if (freq !== undefined && omega !== undefined && Math.abs(2 * Math.PI * freq - omega) > 1e-6 * omega)
       errors.push(tr('analysis: "freq" 和 "omega" 不一致（ω = 2πf），只写一个', 'analysis: "freq" and "omega" disagree (ω = 2πf); give only one'));
-    if (raw.phasor !== undefined && raw.phasor !== 'rms' && raw.phasor !== 'peak') errors.push(tr('analysis.phasor: 必须是 "rms" 或 "peak"', 'analysis.phasor: must be "rms" or "peak"'));
-    return { type: 'periodic', ...(freq !== undefined ? { freq } : {}), ...(omega !== undefined ? { omega } : {}), ...(raw.phasor === 'peak' || raw.phasor === 'rms' ? { phasor: raw.phasor } : {}) };
+    if (raw.phasor !== undefined && raw.phasor !== 'rms' && raw.phasor !== 'peak')
+      errors.push(tr('analysis.phasor: 必须是 "rms" 或 "peak"', 'analysis.phasor: must be "rms" or "peak"'));
+    return {
+      type: 'periodic',
+      ...(freq !== undefined ? { freq } : {}),
+      ...(omega !== undefined ? { omega } : {}),
+      ...(raw.phasor === 'peak' || raw.phasor === 'rms' ? { phasor: raw.phasor } : {}),
+    };
   }
-  errors.push(tr(`analysis.type: 必须是 "dc" / "ac" / "tran" / "periodic"（现在是 ${JSON.stringify(raw.type)}）`, `analysis.type: must be "dc" / "ac" / "tran" / "periodic" (it is ${JSON.stringify(raw.type)})`));
+  errors.push(
+    tr(
+      `analysis.type: 必须是 "dc" / "ac" / "tran" / "periodic"（现在是 ${JSON.stringify(raw.type)}）`,
+      `analysis.type: must be "dc" / "ac" / "tran" / "periodic" (it is ${JSON.stringify(raw.type)})`,
+    ),
+  );
   return null;
 }
 
@@ -327,19 +408,28 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
   const warnings: string[] = [];
   if (!isObj(json)) return { ok: false, errors: [tr('文件内容必须是一个 JSON 对象 { ... }', 'The file must contain one JSON object { ... }')], warnings };
 
-  if (json.format !== PROBLEM_FORMAT_ID) errors.push(tr(`"format" 必须是 "${PROBLEM_FORMAT_ID}"（现在是 ${JSON.stringify(json.format)}）`, `"format" must be "${PROBLEM_FORMAT_ID}" (it is ${JSON.stringify(json.format)})`));
+  if (json.format !== PROBLEM_FORMAT_ID)
+    errors.push(
+      tr(`"format" 必须是 "${PROBLEM_FORMAT_ID}"（现在是 ${JSON.stringify(json.format)}）`, `"format" must be "${PROBLEM_FORMAT_ID}" (it is ${JSON.stringify(json.format)})`),
+    );
   const id = typeof json.id === 'string' ? json.id : '';
   if (!/^[a-z0-9][a-z0-9-_]*$/i.test(id)) errors.push(tr('"id" 必须是由字母、数字、- 或 _ 组成的字符串', '"id" must be a string of letters, digits, - or _'));
   const chapter = typeof json.chapter === 'string' ? json.chapter : '';
   if (!chapterById(chapter))
-    errors.push(tr(`"chapter" ${JSON.stringify(json.chapter)} 不存在（可用：${CHAPTERS.map((c) => c.id).join(', ')}）`, `"chapter" ${JSON.stringify(json.chapter)} doesn't exist (available: ${CHAPTERS.map((c) => c.id).join(', ')})`));
+    errors.push(
+      tr(
+        `"chapter" ${JSON.stringify(json.chapter)} 不存在（可用：${CHAPTERS.map((c) => c.id).join(', ')}）`,
+        `"chapter" ${JSON.stringify(json.chapter)} doesn't exist (available: ${CHAPTERS.map((c) => c.id).join(', ')})`,
+      ),
+    );
   const title = typeof json.title === 'string' ? json.title : '';
   if (!title) errors.push(tr('"title" 不能为空', '"title" must not be empty'));
   const level = json.level;
   if (typeof level !== 'number' || !Number.isInteger(level) || level < 1 || level > 5) errors.push(tr('"level" 必须是 1–5 的整数', '"level" must be an integer 1–5'));
   const statement = textOf(json.statement);
   if (!statement) errors.push(tr('"statement" 不能为空（题干）', '"statement" must not be empty (the problem text)'));
-  if (json.tags !== undefined && (!Array.isArray(json.tags) || strs(json.tags).length !== json.tags.length)) errors.push(tr('"tags" 必须是字符串数组', '"tags" must be an array of strings'));
+  if (json.tags !== undefined && (!Array.isArray(json.tags) || strs(json.tags).length !== json.tags.length))
+    errors.push(tr('"tags" 必须是字符串数组', '"tags" must be an array of strings'));
 
   // ---- schematic → netlist ----
   let netlist: Netlist | null = null;
@@ -393,15 +483,27 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
     const out: Question = { id: qid, ask };
     if (typeof q.explain === 'string' || Array.isArray(q.explain)) out.explain = textOf(q.explain);
     if (q.tol !== undefined) {
-      if (typeof q.tol !== 'number' || !(q.tol > 0 && q.tol < 1)) errors.push(tr(`${w}: "tol" 必须是 0–1 之间的相对误差，如 0.02`, `${w}: "tol" must be a relative tolerance between 0 and 1, e.g. 0.02`));
+      if (typeof q.tol !== 'number' || !(q.tol > 0 && q.tol < 1))
+        errors.push(tr(`${w}: "tol" 必须是 0–1 之间的相对误差，如 0.02`, `${w}: "tol" must be a relative tolerance between 0 and 1, e.g. 0.02`));
       else out.tol = q.tol;
     }
     if (q.find !== undefined) {
       if (q.choices !== undefined) errors.push(tr(`${w}: 不能同时有 "find" 和 "choices"`, `${w}: can't have both "find" and "choices"`));
       if (typeof q.answer !== 'number' || !Number.isFinite(q.answer))
-        errors.push(tr(`${w}: 计算题必须有数值 "answer"（SI 基本单位：V、A、W、Ω、Hz、s；相位用度）`, `${w}: a "find" question needs a numeric "answer" (SI base units: V, A, W, Ω, Hz, s; phase in degrees)`));
+        errors.push(
+          tr(
+            `${w}: 计算题必须有数值 "answer"（SI 基本单位：V、A、W、Ω、Hz、s；相位用度）`,
+            `${w}: a "find" question needs a numeric "answer" (SI base units: V, A, W, Ω, Hz, s; phase in degrees)`,
+          ),
+        );
       if (typeof q.unit === 'string') out.unit = q.unit;
-      else warnings.push(tr(`${w}: 没有 "unit"——学生不知道答案用什么单位（如 "V"、"mA"、"Ω"、"°"；无量纲写 ""）`, `${w}: no "unit" — the student can't tell what unit to answer in (e.g. "V", "mA", "Ω", "°"; "" if dimensionless)`));
+      else
+        warnings.push(
+          tr(
+            `${w}: 没有 "unit"——学生不知道答案用什么单位（如 "V"、"mA"、"Ω"、"°"；无量纲写 ""）`,
+            `${w}: no "unit" — the student can't tell what unit to answer in (e.g. "V", "mA", "Ω", "°"; "" if dimensionless)`,
+          ),
+        );
       if (checkFind(q.find, w, els, nodes, analysis, errors, warnings)) {
         out.find = q.find as Find;
         if (typeof q.answer === 'number') out.answer = q.answer;
@@ -426,17 +528,29 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
       if (!Array.isArray(q.choices) || choices.length !== q.choices.length || choices.length < 2)
         errors.push(tr(`${w}: "choices" 必须是至少 2 个字符串的数组`, `${w}: "choices" must be an array of at least 2 strings`));
       if (typeof q.correct !== 'number' || !Number.isInteger(q.correct) || q.correct < 0 || q.correct >= choices.length)
-        errors.push(tr(`${w}: "correct" 必须是正确选项的下标（从 0 开始，0–${Math.max(0, choices.length - 1)}）`, `${w}: "correct" must be the index of the right choice (from 0, 0–${Math.max(0, choices.length - 1)})`));
+        errors.push(
+          tr(
+            `${w}: "correct" 必须是正确选项的下标（从 0 开始，0–${Math.max(0, choices.length - 1)}）`,
+            `${w}: "correct" must be the index of the right choice (from 0, 0–${Math.max(0, choices.length - 1)})`,
+          ),
+        );
       out.choices = choices;
       if (typeof q.correct === 'number') out.correct = q.correct;
       if (q.choiceExplain !== undefined) {
         const ce = Array.isArray(q.choiceExplain) ? q.choiceExplain.map((x) => (typeof x === 'string' ? x : '')) : [];
         if (!Array.isArray(q.choiceExplain) || ce.length !== choices.length)
-          errors.push(tr(`${w}: "choiceExplain" 必须是和 "choices" 一样长的字符串数组（没有解释的选项写 ""）`, `${w}: "choiceExplain" must be an array of strings as long as "choices" ("" for an option without one)`));
+          errors.push(
+            tr(
+              `${w}: "choiceExplain" 必须是和 "choices" 一样长的字符串数组（没有解释的选项写 ""）`,
+              `${w}: "choiceExplain" must be an array of strings as long as "choices" ("" for an option without one)`,
+            ),
+          );
         else out.choiceExplain = ce;
       }
     } else
-      errors.push(tr(`${w}: 需要 "find" + "answer"（计算题）或 "choices" + "correct"（选择题）`, `${w}: needs "find" + "answer" (numeric) or "choices" + "correct" (multiple choice)`));
+      errors.push(
+        tr(`${w}: 需要 "find" + "answer"（计算题）或 "choices" + "correct"（选择题）`, `${w}: needs "find" + "answer" (numeric) or "choices" + "correct" (multiple choice)`),
+      );
     questions.push(out);
   });
 
@@ -462,7 +576,9 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
           if (l !== baseLang) translated = true;
           const count = (key: string, n: number) => {
             if (v[key] !== undefined && (!Array.isArray(v[key]) || (v[key] as unknown[]).length !== n))
-              warnings.push(tr(`i18n.${l}.${key}: 应该是和 "${key}" 一一对应的数组（${n} 项）`, `i18n.${l}.${key}: should be an array matching "${key}" item by item (${n} items)`));
+              warnings.push(
+                tr(`i18n.${l}.${key}: 应该是和 "${key}" 一一对应的数组（${n} 项）`, `i18n.${l}.${key}: should be an array matching "${key}" item by item (${n} items)`),
+              );
           };
           count('hints', hints.length);
           count('tags', strs(json.tags).length);
@@ -472,13 +588,24 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
             v.questions.forEach((tq: unknown, i: number) => {
               const q = questions[i];
               if (q && isObj(tq) && tq.choices !== undefined && (!Array.isArray(tq.choices) || tq.choices.length !== (q.choices?.length ?? 0)))
-                warnings.push(tr(`i18n.${l}.questions[${i}].choices: 数量应该和原文一样（${q.choices?.length ?? 0} 项）`, `i18n.${l}.questions[${i}].choices: should have the same count as the original (${q.choices?.length ?? 0})`));
+                warnings.push(
+                  tr(
+                    `i18n.${l}.questions[${i}].choices: 数量应该和原文一样（${q.choices?.length ?? 0} 项）`,
+                    `i18n.${l}.questions[${i}].choices: should have the same count as the original (${q.choices?.length ?? 0})`,
+                  ),
+                );
             });
           if (l === getLang() && l !== baseLang) tx = v;
         }
       }
   }
-  if (!translated) warnings.push(tr(`没有翻译：请在 "i18n" 里加上${baseLang === 'zh' ? '英文（en）' : '中文（zh）'}版本`, `no translation: add the ${baseLang === 'zh' ? 'English (en)' : 'Chinese (zh)'} text in "i18n"`));
+  if (!translated)
+    warnings.push(
+      tr(
+        `没有翻译：请在 "i18n" 里加上${baseLang === 'zh' ? '英文（en）' : '中文（zh）'}版本`,
+        `no translation: add the ${baseLang === 'zh' ? 'English (en)' : 'Chinese (zh)'} text in "i18n"`,
+      ),
+    );
 
   const txHints = strs(tx.hints);
   const txQs = Array.isArray(tx.questions) ? tx.questions : [];

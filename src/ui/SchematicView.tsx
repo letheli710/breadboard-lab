@@ -258,7 +258,11 @@ function Symbol({ el, sim, hl }: { el: SElement; sim?: SimResult | null; hl: boo
               <path d="M11,3 L19,-3 M15.5,-3.5 L19,-3 L18,0.5" />
             </g>
           )}
-          {st?.burnt && <text x={-26} y={4} fontSize={14}>💥</text>}
+          {st?.burnt && (
+            <text x={-26} y={4} fontSize={14}>
+              💥
+            </text>
+          )}
         </g>
       );
       break;
@@ -376,7 +380,15 @@ function ContactSymbol({ el, hl }: { el: SElement; hl: boolean }) {
 }
 
 const labelDx = (el: SElement) =>
-  el.comp.type === 'potentiometer' ? 40 : el.comp.type === 'switch' || el.sub === 'contact' ? 26 : el.comp.type === 'npn' || el.comp.type === 'nmos' ? 16 : el.comp.type === 'opamp' ? 8 : 18;
+  el.comp.type === 'potentiometer'
+    ? 40
+    : el.comp.type === 'switch' || el.sub === 'contact'
+      ? 26
+      : el.comp.type === 'npn' || el.comp.type === 'nmos'
+        ? 16
+        : el.comp.type === 'opamp'
+          ? 8
+          : 18;
 
 function SwitchSymbol({ el, hl }: { el: SElement; hl: boolean }) {
   const stroke = hl ? 'var(--bad)' : INK;
@@ -407,11 +419,22 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hideReading
   const lay = useMemo(() => layoutSchematic(circuit, sim), [circuit, sim]);
   const hl = new Set(highlightRefs);
   if (circuit.components.length === 0)
-    return <div className="schem-empty">{emptyText ?? tr('面包板上还没有元件。放上元件后，这里会自动画出对应的电路图。', 'No parts on the breadboard yet. Place some and the matching schematic is drawn here automatically.')}</div>;
+    return (
+      <div className="schem-empty">
+        {emptyText ??
+          tr('面包板上还没有元件。放上元件后，这里会自动画出对应的电路图。', 'No parts on the breadboard yet. Place some and the matching schematic is drawn here automatically.')}
+      </div>
+    );
 
   return (
     <div className="schem-wrap">
-      <svg viewBox={`0 0 ${lay.width} ${lay.height}`} width="100%" style={{ maxWidth: lay.width, minWidth: Math.min(lay.width, 380) }} className="schem" onMouseLeave={() => onHoverNet?.(null)}>
+      <svg
+        viewBox={`0 0 ${lay.width} ${lay.height}`}
+        width="100%"
+        style={{ maxWidth: lay.width, minWidth: Math.min(lay.width, 380) }}
+        className="schem"
+        onMouseLeave={() => onHoverNet?.(null)}
+      >
         {lay.buses.map((b) => {
           const active = hoverNet === b.net;
           const xs = [...b.attachX].sort((p, q) => p - q);
@@ -490,13 +513,13 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hideReading
               // the regulator's ref sits above its box; a dev board's is in its title row
               el.comp.type === 'ldo' && (
                 <text x={el.box.x + el.box.w / 2} y={el.box.y - 6} textAnchor="middle" className="ref-label">
-                {el.ref}
-                {showValues &&
-                  valueText(el, sim, !hideReadings).map((t, i) => (
-                    <tspan key={i} className="val-label" dx={6}>
-                      {t}
-                    </tspan>
-                  ))}
+                  {el.ref}
+                  {showValues &&
+                    valueText(el, sim, !hideReadings).map((t, i) => (
+                      <tspan key={i} className="val-label" dx={6}>
+                        {t}
+                      </tspan>
+                    ))}
                 </text>
               )
             ) : (

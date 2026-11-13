@@ -195,7 +195,15 @@ export function lawText(law: unknown): string | null {
       if (!n) return;
       const mag = Math.abs(n);
       const coef = k > 0 && mag === 1 ? '' : num(mag);
-      const pw = k === 0 ? '' : k === 1 ? x : `${x}${String(k).split('').map((d) => NR_SUP[+d]).join('')}`;
+      const pw =
+        k === 0
+          ? ''
+          : k === 1
+            ? x
+            : `${x}${String(k)
+                .split('')
+                .map((d) => NR_SUP[+d])
+                .join('')}`;
       terms.push(`${n < 0 ? (terms.length ? ' − ' : '−') : terms.length ? ' + ' : ''}${coef}${pw}`);
     });
     if (!terms.length) return null;
@@ -439,8 +447,7 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         if (el.from[0] === p[0] && el.from[1] === p[1]) mark(el.to[0] - p[0], el.to[1] - p[1]);
         if (el.to[0] === p[0] && el.to[1] === p[1]) mark(el.from[0] - p[0], el.from[1] - p[1]);
       } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
-        for (const q of Object.values(terminalPoints(el)))
-          if (q[0] === p[0] && q[1] === p[1]) mark(el.at[0] - p[0], 0);
+        for (const q of Object.values(terminalPoints(el))) if (q[0] === p[0] && q[1] === p[1]) mark(el.at[0] - p[0], 0);
       }
     }
     return out;

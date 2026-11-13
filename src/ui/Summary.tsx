@@ -22,7 +22,23 @@ type SectionKey = 'ideas' | 'formulas' | 'examples' | 'mistakes';
 /** DOM id of a section or key idea ("idea-<id>" targets a key idea). */
 const domId = (section: string) => `sum-${section}`;
 
-function Section({ k, title, count, open, onToggle, children, tools }: { k: SectionKey; title: string; count: number; open: boolean; onToggle: () => void; children: ReactNode; tools?: ReactNode }) {
+function Section({
+  k,
+  title,
+  count,
+  open,
+  onToggle,
+  children,
+  tools,
+}: {
+  k: SectionKey;
+  title: string;
+  count: number;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+  tools?: ReactNode;
+}) {
   return (
     <section className={`sum-sec sum-${k}`} id={domId(k)}>
       <div className="sum-sec-head">
@@ -54,11 +70,7 @@ function ProblemChips({ ids, problems }: { ids: string[]; problems: ProblemEntry
       {list.map((p) => {
         const st = problemStatus(answers[p.id], p.qids) ?? (done[p.id] ? 'unaided' : null);
         return (
-          <button
-            key={p.id}
-            className={`sum-chip ${countsAsDone(st) ? 'done' : ''}`}
-            onClick={() => openProblem(p.id)}
-          >
+          <button key={p.id} className={`sum-chip ${countsAsDone(st) ? 'done' : ''}`} onClick={() => openProblem(p.id)}>
             {countsAsDone(st) ? '✓ ' : ''}
             <Sym text={entryTitle(p)} />
             <span className="pr-plevel">{'★'.repeat(p.level)}</span>
@@ -290,17 +302,11 @@ export function SummaryPage({ target, problems }: { target: SummaryTarget; probl
             {tr(`第 ${chapter?.phase ?? '?'} 期`, `Phase ${chapter?.phase ?? '?'}`)} · {chapter?.title()}
           </span>
           {back ? (
-            <button
-              className="pr-link"
-              onClick={() => openProblem(back.id)}
-            >
+            <button className="pr-link" onClick={() => openProblem(back.id)}>
               <Icon name="prev" size={15} /> {tr('回到题目', 'Back to the problem')}
             </button>
           ) : first ? (
-            <button
-              className="pr-link"
-              onClick={() => openProblem(first.id)}
-            >
+            <button className="pr-link" onClick={() => openProblem(first.id)}>
               {tr('开始做题', 'Start the problems')} <Icon name="next" size={15} />
             </button>
           ) : null}

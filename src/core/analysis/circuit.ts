@@ -54,9 +54,8 @@ export const isTwoTerminal = (el: CEl): boolean => el.type !== 'OPAMP' && el.typ
 export const isIndependent = (el: CEl): boolean => el.type === 'V' || el.type === 'I';
 
 const GROUND = new Set(['0', 'gnd', 'GND', 'Gnd']);
-const PREFIX: Record<string, number> = { p: 1e-12, n: 1e-9, u: 1e-6, 'µ': 1e-6, 'μ': 1e-6, m: 1e-3, k: 1e3, K: 1e3, M: 1e6, meg: 1e6, Meg: 1e6, MEG: 1e6, G: 1e9 };
-const NUM_RE =
-  /^([+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)(meg|Meg|MEG|[pnuµμmkKMG])?(Ω|ohms?|Ohms?|F|H|V|A|S|W|Hz|s|VA|var)?$/;
+const PREFIX: Record<string, number> = { p: 1e-12, n: 1e-9, u: 1e-6, µ: 1e-6, μ: 1e-6, m: 1e-3, k: 1e3, K: 1e3, M: 1e6, meg: 1e6, Meg: 1e6, MEG: 1e6, G: 1e9 };
+const NUM_RE = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)(meg|Meg|MEG|[pnuµμmkKMG])?(Ω|ohms?|Ohms?|F|H|V|A|S|W|Hz|s|VA|var)?$/;
 
 /** Parses a number or an SI string ("4.7k", "4k7", "2.2u", "100n", "10mH", "1e-3", "1 kΩ"). */
 export function parseNum(v: unknown, what: string): number {

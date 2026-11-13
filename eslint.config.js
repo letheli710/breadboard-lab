@@ -6,25 +6,20 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
-  { ignores: ['dist/**', 'node_modules/**', '*.tsbuildinfo'] },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
-  {
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: { ecmaVersion: 2022, globals: { ...globals.browser, ...globals.node } },
-    plugins: { 'react-hooks': reactHooks },
-    rules: {
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-non-null-assertion': 'off',
-      'no-empty': ['warn', { allowEmptyCatch: true }],
-      'prefer-const': 'warn',
-      'no-useless-assignment': 'warn',
-      'no-irregular-whitespace': ['warn', { skipStrings: true, skipTemplates: true, skipRegExps: true }],
-      '@typescript-eslint/no-unused-expressions': ['warn', { allowShortCircuit: true, allowTernary: true }],
-    },
+export default tseslint.config({ ignores: ['dist/**', 'node_modules/**', '*.tsbuildinfo'] }, js.configs.recommended, ...tseslint.configs.recommended, {
+  files: ['**/*.{ts,tsx}'],
+  languageOptions: { ecmaVersion: 2022, globals: { ...globals.browser, ...globals.node } },
+  plugins: { 'react-hooks': reactHooks },
+  rules: {
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
+    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    'no-empty': ['warn', { allowEmptyCatch: true }],
+    'prefer-const': 'warn',
+    'no-useless-assignment': 'warn',
+    'no-irregular-whitespace': ['warn', { skipStrings: true, skipTemplates: true, skipRegExps: true }],
+    '@typescript-eslint/no-unused-expressions': ['warn', { allowShortCircuit: true, allowTernary: true }],
   },
-);
+});

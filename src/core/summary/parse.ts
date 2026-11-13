@@ -117,16 +117,29 @@ export function parseSummary(json: unknown, file?: string, opts: ParseSummaryOpt
   const errors: string[] = [];
   const warnings: string[] = [];
   if (!isObj(json)) return { ok: false, errors: [tr('文件内容必须是一个 JSON 对象 { ... }', 'The file must contain one JSON object { ... }')], warnings };
-  if (json.format !== SUMMARY_FORMAT_ID) errors.push(tr(`"format" 必须是 "${SUMMARY_FORMAT_ID}"（现在是 ${JSON.stringify(json.format)}）`, `"format" must be "${SUMMARY_FORMAT_ID}" (it is ${JSON.stringify(json.format)})`));
+  if (json.format !== SUMMARY_FORMAT_ID)
+    errors.push(
+      tr(`"format" 必须是 "${SUMMARY_FORMAT_ID}"（现在是 ${JSON.stringify(json.format)}）`, `"format" must be "${SUMMARY_FORMAT_ID}" (it is ${JSON.stringify(json.format)})`),
+    );
   const chapter = typeof json.chapter === 'string' ? json.chapter : '';
   if (!chapterById(chapter))
-    errors.push(tr(`"chapter" ${JSON.stringify(json.chapter)} 不存在（可用：${CHAPTERS.map((c) => c.id).join(', ')}）`, `"chapter" ${JSON.stringify(json.chapter)} doesn't exist (available: ${CHAPTERS.map((c) => c.id).join(', ')})`));
+    errors.push(
+      tr(
+        `"chapter" ${JSON.stringify(json.chapter)} 不存在（可用：${CHAPTERS.map((c) => c.id).join(', ')}）`,
+        `"chapter" ${JSON.stringify(json.chapter)} doesn't exist (available: ${CHAPTERS.map((c) => c.id).join(', ')})`,
+      ),
+    );
   else if (file) {
-    const base = file.replace(/\\/g, '/').split('/').pop()!.replace(/\.json$/i, '');
+    const base = file
+      .replace(/\\/g, '/')
+      .split('/')
+      .pop()!
+      .replace(/\.json$/i, '');
     if (base !== chapter) warnings.push(tr(`文件名应该是 ${chapter}.json`, `the file should be named ${chapter}.json`));
   }
   const baseLang: Lang = isLang(json.lang) ? json.lang : 'zh';
-  if (json.lang !== undefined && !isLang(json.lang)) errors.push(tr(`"lang" 必须是 ${LANGS.map((l) => `"${l}"`).join(' / ')}`, `"lang" must be ${LANGS.map((l) => `"${l}"`).join(' / ')}`));
+  if (json.lang !== undefined && !isLang(json.lang))
+    errors.push(tr(`"lang" 必须是 ${LANGS.map((l) => `"${l}"`).join(' / ')}`, `"lang" must be ${LANGS.map((l) => `"${l}"`).join(' / ')}`));
   const lang = getLang();
   const other: Lang = baseLang === 'zh' ? 'en' : 'zh';
 
@@ -184,7 +197,8 @@ export function parseSummary(json: unknown, file?: string, opts: ParseSummaryOpt
     if (!title) errors.push(tr(`${w}: "title" 不能为空`, `${w}: "title" must not be empty`));
     if (!text) errors.push(tr(`${w}: "text" 不能为空`, `${w}: "text" must not be empty`));
     const problems = strs(raw.problems);
-    if (!Array.isArray(raw.problems) || problems.length !== raw.problems.length) errors.push(tr(`${w}: "problems" 必须是题目 id 的数组`, `${w}: "problems" must be an array of problem ids`));
+    if (!Array.isArray(raw.problems) || problems.length !== raw.problems.length)
+      errors.push(tr(`${w}: "problems" 必须是题目 id 的数组`, `${w}: "problems" must be an array of problem ids`));
     else if (!problems.length) warnings.push(tr(`${w}: 没有链接任何练习题`, `${w}: links no practice problem`));
     if (new Set(problems).size !== problems.length) errors.push(tr(`${w}: "problems" 里有重复的 id`, `${w}: "problems" lists an id twice`));
     const tx = txOf(raw, w);
@@ -192,7 +206,10 @@ export function parseSummary(json: unknown, file?: string, opts: ParseSummaryOpt
   });
   const ideaIds = new Set(ideas.map((x) => x.id));
   const checkIdea = (v: unknown, where: string) => {
-    if (typeof v !== 'string' || !ideaIds.has(v)) errors.push(tr(`${where}: 找不到要点 ${JSON.stringify(v)}（可用：${[...ideaIds].join(', ')}）`, `${where}: no key idea ${JSON.stringify(v)} (available: ${[...ideaIds].join(', ')})`));
+    if (typeof v !== 'string' || !ideaIds.has(v))
+      errors.push(
+        tr(`${where}: 找不到要点 ${JSON.stringify(v)}（可用：${[...ideaIds].join(', ')}）`, `${where}: no key idea ${JSON.stringify(v)} (available: ${[...ideaIds].join(', ')})`),
+      );
   };
 
   // ---- formulas ----
@@ -231,7 +248,8 @@ export function parseSummary(json: unknown, file?: string, opts: ParseSummaryOpt
     if (!Array.isArray(raw.ideas) || !exIdeas.length) errors.push(tr(`${w}: "ideas" 必须是至少一个要点 id 的数组`, `${w}: "ideas" must list at least one key idea id`));
     exIdeas.forEach((x, k) => checkIdea(x, `${w}.ideas[${k}]`));
     const results = Array.isArray(raw.results) ? raw.results : [];
-    if (!results.length) errors.push(tr(`${w}: "results" 不能为空——例题的每个结果都要由引擎核对`, `${w}: "results" must not be empty — every result of the example is checked by the engine`));
+    if (!results.length)
+      errors.push(tr(`${w}: "results" 不能为空——例题的每个结果都要由引擎核对`, `${w}: "results" must not be empty — every result of the example is checked by the engine`));
     results.forEach((r, k) => {
       if (!isObj(r) || r.find === undefined) errors.push(tr(`${w}.results[${k}]: 必须有 "find" 和数值 "answer"`, `${w}.results[${k}]: needs "find" and a numeric "answer"`));
     });
@@ -315,7 +333,8 @@ export function parseSummary(json: unknown, file?: string, opts: ParseSummaryOpt
         linked.add(pid);
         const c = byId.get(pid);
         if (c === undefined) errors.push(tr(`ideas[${i}] (${idea.id}): 找不到题目 "${pid}"`, `ideas[${i}] (${idea.id}): no problem "${pid}"`));
-        else if (c !== chapter) errors.push(tr(`ideas[${i}] (${idea.id}): 题目 "${pid}" 属于 ${c} 章，不是 ${chapter}`, `ideas[${i}] (${idea.id}): problem "${pid}" is in chapter ${c}, not ${chapter}`));
+        else if (c !== chapter)
+          errors.push(tr(`ideas[${i}] (${idea.id}): 题目 "${pid}" 属于 ${c} 章，不是 ${chapter}`, `ideas[${i}] (${idea.id}): problem "${pid}" is in chapter ${c}, not ${chapter}`));
       }),
     );
     const unlinked = opts.problems.filter((p) => p.chapter === chapter && !linked.has(p.id)).map((p) => p.id);
