@@ -11,6 +11,7 @@ import { describeComponent, PARTS, terminalLabel } from '../core/parts';
 import { simulate } from '../core/solver';
 import { nodeAc, useActiveChallenge, useDerived, type Derived } from '../state/derived';
 import { useStore, type PanelTab } from '../state/store';
+import { ConfirmButton } from './Confirm';
 import { Icon } from './Icons';
 import { Inspector } from './Inspector';
 import { SchematicView } from './SchematicView';
@@ -168,6 +169,9 @@ function TaskPanel({ ch }: { ch: Challenge }) {
     }
   };
 
+  const nSteps = ch.steps.length;
+  const cur = Math.min(step, Math.max(0, nSteps - 1));
+
   return (
     <div className="task">
       <div className="task-head">
@@ -178,79 +182,39 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       </div>
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
-      <Md text={ch.description} />
 
-      <div className="eyebrow">{tr('目标电路图 TARGET SCHEMATIC', 'TARGET SCHEMATIC')}</div>
-      <div className="schem-card">
-        <SchematicView circuit={ch.target} sim={targetSim} showValues />
-      </div>
-      <p className="note">
-        {tr(
-          '原理图只说明“谁和谁连在一起”，不规定插在面包板哪个孔。只要连接关系一样就算对。',
-          "A schematic only says what connects to what — not which breadboard holes to use. Any layout with the same connections counts as correct.",
-        )}
-      </p>
-
-      {ch.steps.length > 0 && (
-        <div className="steps">
-          <div className="eyebrow">
-            {tr('步骤', 'Step')} {step + 1} / {ch.steps.length}
+      {nSteps > 0 && (
+        <section className="steps" aria-label={tr('步骤', 'Steps')}>
+          <div className="steps-head">
+            <span className="eyebrow">
+              {tr('步骤', 'Step')} {cur + 1} / {nSteps}
+            </span>
+            <span className="step-dots">
+              {ch.steps.map((_, i) => (
+                <button
+                  key={i}
+                  className={i === cur ? 'cur' : i < cur ? 'done' : ''}
+                  aria-current={i === cur ? 'step' : undefined}
+                  aria-label={tr(`第 ${i + 1} 步`, `Step ${i + 1}`)}
+                  onClick={() => setStep(i)}
+                >
+                  {i < cur ? '✓' : i + 1}
+                </button>
+              ))}
+            </span>
           </div>
-          <ol>
-            {ch.steps.map((s, i) => (
-              <li key={i} className={i === step ? 'cur' : i < step ? 'done' : ''} onClick={() => setStep(i)}>
-                <Md text={s.text} />
-              </li>
-            ))}
-          </ol>
+          <div className="step-cur" aria-live="polite">
+            <Md text={ch.steps[cur].text} />
+          </div>
           <div className="row">
-            <button disabled={step === 0} onClick={() => setStep(step - 1)}>
+            <button disabled={cur === 0} onClick={() => setStep(cur - 1)}>
               <Icon name="prev" /> {tr('上一步', 'Back')}
             </button>
-            <button className="primary" disabled={step >= ch.steps.length - 1} onClick={() => setStep(step + 1)}>
+            <button className="primary" disabled={cur >= nSteps - 1} onClick={() => setStep(cur + 1)}>
               {tr('下一步', 'Next')} <Icon name="next" />
             </button>
           </div>
-        </div>
-      )}
-
-      <div className="actions">
-        <button className="primary big" onClick={runCheck}>
-          <Icon name="check" /> {tr('检查我的电路', 'Check my circuit')}
-        </button>
-        <div className="row">
-          {ch.hints.length > 0 && (
-            <button onClick={showHint} disabled={hintsShown >= ch.hints.length}>
-              <Icon name="bulb" /> {tr('提示', 'Hint')} ({hintsShown}/{ch.hints.length})
-            </button>
-          )}
-          <button
-            onClick={() => {
-              if (confirm(tr('重置面包板到初始状态？', 'Reset the breadboard to its starting state?'))) loadLayout(ch.start ?? { version: 1, parts: [] });
-            }}
-          >
-            <Icon name="reset" /> {tr('重置', 'Reset')}
-          </button>
-          {ch.solution && (
-            <button
-              onClick={() => {
-                if (confirm(tr('加载参考答案？当前面包板会被替换（可以撤销）。', 'Load the reference answer? It replaces your current board (you can undo).'))) loadLayout(ch.solution!);
-              }}
-            >
-              <Icon name="eye" /> {tr('看答案', 'Show answer')}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {hintsShown > 0 && (
-        <ul className="hints">
-          {ch.hints.slice(0, hintsShown).map((h, i) => (
-            <li key={i}>
-              <Icon name="bulb" size={14} /> {h}
-            </li>
-          ))}
-        </ul>
+        </section>
       )}
 
       {check && (
@@ -282,6 +246,64 @@ function TaskPanel({ ch }: { ch: Challenge }) {
           )}
         </div>
       )}
+
+      {hintsShown > 0 && (
+        <ul className="hints">
+          {ch.hints.slice(0, hintsShown).map((h, i) => (
+            <li key={i}>
+              <Icon name="bulb" size={14} /> {h}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <details className="fold" open>
+        <summary>{ch.kind === 'lesson' ? tr('课程说明', 'About this lesson') : tr('题目说明', 'About this task')}</summary>
+        <Md text={ch.description} />
+      </details>
+
+      <details className="fold" open>
+        <summary>{tr('目标电路图 TARGET SCHEMATIC', 'Target schematic')}</summary>
+        <div className="schem-card">
+          <SchematicView circuit={ch.target} sim={targetSim} showValues />
+        </div>
+        <p className="note">
+          {tr(
+            '原理图只说明“谁和谁连在一起”，不规定插在面包板哪个孔。只要连接关系一样就算对。',
+            "A schematic only says what connects to what — not which breadboard holes to use. Any layout with the same connections counts as correct.",
+          )}
+        </p>
+      </details>
+
+      {/* sticky at the bottom of the scrolling panel: always on screen */}
+      <div className="actions">
+        <button className="primary big" onClick={runCheck}>
+          <Icon name="check" /> {tr('检查我的电路', 'Check my circuit')}
+        </button>
+        <div className="row">
+          {ch.hints.length > 0 && (
+            <button onClick={showHint} disabled={hintsShown >= ch.hints.length}>
+              <Icon name="bulb" /> {tr('提示', 'Hint')} ({hintsShown}/{ch.hints.length})
+            </button>
+          )}
+          <ConfirmButton
+            message={tr('重置面包板到初始状态？（可以撤销）', 'Reset the breadboard to its starting state? (You can undo.)')}
+            confirmLabel={tr('重置', 'Reset')}
+            onConfirm={() => loadLayout(ch.start ?? { version: 1, parts: [] })}
+          >
+            <Icon name="reset" /> {tr('重置', 'Reset')}
+          </ConfirmButton>
+          {ch.solution && (
+            <ConfirmButton
+              message={tr('加载参考答案？当前面包板会被替换（可以撤销）。', 'Load the reference answer? It replaces your current board (you can undo).')}
+              confirmLabel={tr('看答案', 'Show answer')}
+              onConfirm={() => loadLayout(ch.solution!)}
+            >
+              <Icon name="eye" /> {tr('看答案', 'Show answer')}
+            </ConfirmButton>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -431,14 +453,14 @@ export function SidePanel() {
   const cur = panel === 'task' && !ch ? 'schematic' : panel;
   return (
     <aside className="side card">
-      <div className="tabs">
+      <div className="tabs" role="tablist">
         {tabs.map(([k, label]) => (
-          <button key={k} className={cur === k ? 'on' : ''} onClick={() => setPanel(k)}>
+          <button key={k} role="tab" aria-selected={cur === k} className={cur === k ? 'on' : ''} onClick={() => setPanel(k)}>
             {label}
           </button>
         ))}
       </div>
-      <div className="side-body">
+      <div className="side-body" role="tabpanel">
         {cur === 'task' && ch && <TaskPanel ch={ch} />}
         {cur === 'schematic' && <SchematicPanel />}
         {cur === 'issues' && <IssuesPanel />}
