@@ -7,8 +7,8 @@
   "level": 5,
   "tags": ["空心变压器", "副边等效电路", "戴维宁等效", "共轭匹配", "最大功率传输"],
   "statement": [
-    "U̇s = 30∠0° V（有效值），ω = 1000 rad/s，R1 = 3 Ω，L1 = 4 mH，L2 = 10 mH，M = 5 mH。负载阻抗 Z_L 可任意调节。",
-    "(1) 把 Z_L 断开，求从 c、d 看进去的副边戴维宁等效阻抗 Z_eq = R_eq + jX_eq；(2) Z_L 取何值时获得最大功率，最大功率是多少；(3) Z_L 取该最佳值时，原边电流 I1 为多少。"
+    "U̇s = 30∠0° V（有效值），ω = 1000 rad/s，R_1 = 3 Ω，L_1 = 4 mH，L_2 = 10 mH，M = 5 mH。负载阻抗 Z_L 可任意调节。",
+    "(1) 把 Z_L 断开，求从 c、d 看进去的副边戴维宁等效阻抗 Z_eq = R_eq + jX_eq；(2) Z_L 取何值时获得最大功率，最大功率是多少；(3) Z_L 取该最佳值时，原边电流 I_1 为多少。"
   ],
   "schematic": {
     "elements": [
@@ -38,7 +38,7 @@
       "find": { "kind": "req", "port": ["c", "d"], "exclude": ["ZL"], "part": "re" },
       "answer": 3,
       "unit": "Ω",
-      "explain": "副边等效：Z_eq = jωL2 + (ωM)²/Z11，Z11 = R1 + jωL1 = 3 + j4 Ω。25/(3 + j4) = 3 − j4 Ω，Z_eq = j10 + 3 − j4 = 3 + j6 Ω，R_eq = 3 Ω。"
+      "explain": "副边等效：Z_eq = jωL_2 + (ωM)²/Z_11，Z_11 = R_1 + jωL_1 = 3 + j4 Ω。25/(3 + j4) = 3 − j4 Ω，Z_eq = j10 + 3 − j4 = 3 + j6 Ω，R_eq = 3 Ω。"
     },
     {
       "id": "xeq",
@@ -46,7 +46,7 @@
       "find": { "kind": "req", "port": ["c", "d"], "exclude": ["ZL"], "part": "im" },
       "answer": 6,
       "unit": "Ω",
-      "explain": "X_eq = ωL2 + Im[(ωM)²/Z11] = 10 − 4 = 6 Ω。"
+      "explain": "X_eq = ωL_2 + Im[(ωM)²/Z_11] = 10 − 4 = 6 Ω。"
     },
     {
       "id": "pmax",
@@ -58,52 +58,52 @@
     },
     {
       "id": "i1",
-      "ask": "(3) Z_L = 3 − j6 Ω 时原边电流 I1 = ?",
+      "ask": "(3) Z_L = 3 − j6 Ω 时原边电流 I_1 = ?",
       "find": { "kind": "i", "el": "R1" },
       "answer": 5,
       "unit": "A",
-      "explain": "副边回路 Z22 = j10 + 3 − j6 = 3 + j4 Ω，反映阻抗 25/(3 + j4) = 3 − j4 Ω，Z_in = 3 + j4 + 3 − j4 = 6 Ω，I1 = 30/6 = 5 A。"
+      "explain": "副边回路 Z_22 = j10 + 3 − j6 = 3 + j4 Ω，反映阻抗 25/(3 + j4) = 3 − j4 Ω，Z_in = 3 + j4 + 3 − j4 = 6 Ω，I_1 = 30/6 = 5 A。"
     }
   ],
   "hints": [
-    "空心变压器副边的戴维宁等效：U̇oc = jωM·U̇s/Z11（原边单独工作时的互感电压），Z_eq = Z22' + (ωM)²/Z11，其中 Z22' = jωL2 是副边线圈自身的阻抗。",
+    "空心变压器副边的戴维宁等效：U̇oc = jωM·U̇s/Z_11（原边单独工作时的互感电压），Z_eq = Z_22' + (ωM)²/Z_11，其中 Z_22' = jωL_2 是副边线圈自身的阻抗。",
     "共轭匹配：Z_L = Z_eq*，P_max = U_oc²/(4R_eq)。",
-    "第 (3) 问用原边等效电路：Z_in = Z11 + (ωM)²/Z22，Z22 = jωL2 + Z_L。"
+    "第 (3) 问用原边等效电路：Z_in = Z_11 + (ωM)²/Z_22，Z_22 = jωL_2 + Z_L。"
   ],
   "solution": [
-    "**1. 参数。** ωL1 = 4 Ω，ωL2 = 10 Ω，ωM = 5 Ω（k = 5/√40 ≈ 0.79）；Z11 = 3 + j4 = 5∠53.13° Ω。",
-    "**2. 开路电压。** Z_L 断开时 İ2 = 0，İ1 = 30/Z11 = 6∠−53.13° A，U̇oc = U̇cd = jωM·İ1 = 30∠36.87° V（c 为同名端，+）。",
-    "**3. 等效阻抗。** 原边电源置零后，从副边看进去原边回路被“反映”过来：Z_eq = jωL2 + (ωM)²/Z11 = j10 + 25/(3 + j4) = j10 + 3 − j4 = **3 + j6 Ω**。",
+    "**1. 参数。** ωL_1 = 4 Ω，ωL_2 = 10 Ω，ωM = 5 Ω（k = 5/√40 ≈ 0.79）；Z_11 = 3 + j4 = 5∠53.13° Ω。",
+    "**2. 开路电压。** Z_L 断开时 İ2 = 0，İ1 = 30/Z_11 = 6∠−53.13° A，U̇oc = U̇cd = jωM·İ1 = 30∠36.87° V（c 为同名端，+）。",
+    "**3. 等效阻抗。** 原边电源置零后，从副边看进去原边回路被“反映”过来：Z_eq = jωL_2 + (ωM)²/Z_11 = j10 + 25/(3 + j4) = j10 + 3 − j4 = **3 + j6 Ω**。",
     "**4. 最大功率。** Z_L = Z_eq* = **3 − j6 Ω**，P_max = U_oc²/(4R_eq) = 30²/12 = **75 W**。",
-    "**5. 原边电流。** Z22 = jωL2 + Z_L = 3 + j4 Ω，Z_in = Z11 + (ωM)²/Z22 = 3 + j4 + 3 − j4 = 6 Ω，I1 = 30/6 = **5 A**。",
-    "**验算：** I2 = ωM·I1/|Z22| = 25/5 = 5 A，P_L = 5² × 3 = 75 W ✓；电源发出 30 × 5 = 150 W = R1 的 75 W + 负载 75 W（效率 50%）。"
+    "**5. 原边电流。** Z_22 = jωL_2 + Z_L = 3 + j4 Ω，Z_in = Z_11 + (ωM)²/Z_22 = 3 + j4 + 3 − j4 = 6 Ω，I_1 = 30/6 = **5 A**。",
+    "**验算：** I_2 = ωM·I_1/|Z_22| = 25/5 = 5 A，P_L = 5² × 3 = 75 W ✓；电源发出 30 × 5 = 150 W = R_1 的 75 W + 负载 75 W（效率 50%）。"
   ],
   "i18n": {
     "en": {
       "title": "Air-core transformer: secondary Thevenin equivalent and maximum power",
       "tags": ["air-core (linear) transformer", "secondary equivalent circuit", "Thevenin equivalent", "conjugate matching", "maximum power transfer"],
       "statement": [
-        "Us = 30∠0° V (rms), ω = 1000 rad/s, R1 = 3 Ω, L1 = 4 mH, L2 = 10 mH, M = 5 mH. The load impedance Z_L can be adjusted freely.",
-        "(1) With Z_L removed, find the Thevenin impedance Z_eq = R_eq + jX_eq seen at c–d. (2) What Z_L receives maximum power, and what is that power? (3) With Z_L at that optimum, what is the primary current I1?"
+        "U_s = 30∠0° V (rms), ω = 1000 rad/s, R_1 = 3 Ω, L_1 = 4 mH, L_2 = 10 mH, M = 5 mH. The load impedance Z_L can be adjusted freely.",
+        "(1) With Z_L removed, find the Thevenin impedance Z_eq = R_eq + jX_eq seen at c–d. (2) What Z_L receives maximum power, and what is that power? (3) With Z_L at that optimum, what is the primary current I_1?"
       ],
       "questions": [
-        { "ask": "(1) R_eq = Re Z_eq = ?", "explain": "Secondary equivalent: Z_eq = jωL2 + (ωM)²/Z11 with Z11 = R1 + jωL1 = 3 + j4 Ω. 25/(3 + j4) = 3 − j4 Ω, Z_eq = j10 + 3 − j4 = 3 + j6 Ω, so R_eq = 3 Ω." },
-        { "ask": "(1) X_eq = Im Z_eq = ?", "explain": "X_eq = ωL2 + Im[(ωM)²/Z11] = 10 − 4 = 6 Ω." },
-        { "ask": "(2) The load receives maximum power for Z_L = Z_eq* = 3 − j6 Ω. P_max = ?", "explain": "With the secondary open, I1 = 30/(3 + j4) = 6∠−53.13° A and U_oc = jωM·I1 = 30∠36.87° V. P_max = U_oc²/(4R_eq) = 900/12 = 75 W." },
-        { "ask": "(3) Primary current I1 with Z_L = 3 − j6 Ω = ?", "explain": "Secondary loop Z22 = j10 + 3 − j6 = 3 + j4 Ω, reflected impedance 25/(3 + j4) = 3 − j4 Ω, Z_in = 3 + j4 + 3 − j4 = 6 Ω, I1 = 30/6 = 5 A." }
+        { "ask": "(1) R_eq = Re Z_eq = ?", "explain": "Secondary equivalent: Z_eq = jωL_2 + (ωM)²/Z_11 with Z_11 = R_1 + jωL_1 = 3 + j4 Ω. 25/(3 + j4) = 3 − j4 Ω, Z_eq = j10 + 3 − j4 = 3 + j6 Ω, so R_eq = 3 Ω." },
+        { "ask": "(1) X_eq = Im Z_eq = ?", "explain": "X_eq = ωL_2 + Im[(ωM)²/Z_11] = 10 − 4 = 6 Ω." },
+        { "ask": "(2) The load receives maximum power for Z_L = Z_eq* = 3 − j6 Ω. P_max = ?", "explain": "With the secondary open, I_1 = 30/(3 + j4) = 6∠−53.13° A and U_oc = jωM·I_1 = 30∠36.87° V. P_max = U_oc²/(4R_eq) = 900/12 = 75 W." },
+        { "ask": "(3) Primary current I_1 with Z_L = 3 − j6 Ω = ?", "explain": "Secondary loop Z_22 = j10 + 3 − j6 = 3 + j4 Ω, reflected impedance 25/(3 + j4) = 3 − j4 Ω, Z_in = 3 + j4 + 3 − j4 = 6 Ω, I_1 = 30/6 = 5 A." }
       ],
       "hints": [
-        "Thevenin equivalent at the secondary of an air-core transformer: U_oc = jωM·Us/Z11 (the mutual voltage with the secondary open), Z_eq = Z22' + (ωM)²/Z11, where Z22' = jωL2 is the secondary coil's own impedance.",
+        "Thevenin equivalent at the secondary of an air-core transformer: U_oc = jωM·U_s/Z_11 (the mutual voltage with the secondary open), Z_eq = Z_22' + (ωM)²/Z_11, where Z_22' = jωL_2 is the secondary coil's own impedance.",
         "Conjugate matching: Z_L = Z_eq*, P_max = U_oc²/(4R_eq).",
-        "For part (3) use the primary equivalent circuit: Z_in = Z11 + (ωM)²/Z22 with Z22 = jωL2 + Z_L."
+        "For part (3) use the primary equivalent circuit: Z_in = Z_11 + (ωM)²/Z_22 with Z_22 = jωL_2 + Z_L."
       ],
       "solution": [
-        "**1. Parameters.** ωL1 = 4 Ω, ωL2 = 10 Ω, ωM = 5 Ω (k = 5/√40 ≈ 0.79); Z11 = 3 + j4 = 5∠53.13° Ω.",
-        "**2. Open-circuit voltage.** With Z_L removed, I2 = 0, I1 = 30/Z11 = 6∠−53.13° A, U_oc = U_cd = jωM·I1 = 30∠36.87° V (c is the dotted end, +).",
-        "**3. Equivalent impedance.** With the source zeroed, the primary loop is reflected into the secondary: Z_eq = jωL2 + (ωM)²/Z11 = j10 + 25/(3 + j4) = j10 + 3 − j4 = **3 + j6 Ω**.",
+        "**1. Parameters.** ωL_1 = 4 Ω, ωL_2 = 10 Ω, ωM = 5 Ω (k = 5/√40 ≈ 0.79); Z_11 = 3 + j4 = 5∠53.13° Ω.",
+        "**2. Open-circuit voltage.** With Z_L removed, I_2 = 0, I_1 = 30/Z_11 = 6∠−53.13° A, U_oc = U_cd = jωM·I_1 = 30∠36.87° V (c is the dotted end, +).",
+        "**3. Equivalent impedance.** With the source zeroed, the primary loop is reflected into the secondary: Z_eq = jωL_2 + (ωM)²/Z_11 = j10 + 25/(3 + j4) = j10 + 3 − j4 = **3 + j6 Ω**.",
         "**4. Maximum power.** Z_L = Z_eq* = **3 − j6 Ω**, P_max = U_oc²/(4R_eq) = 30²/12 = **75 W**.",
-        "**5. Primary current.** Z22 = jωL2 + Z_L = 3 + j4 Ω, Z_in = Z11 + (ωM)²/Z22 = 3 + j4 + 3 − j4 = 6 Ω, I1 = 30/6 = **5 A**.",
-        "**Check:** I2 = ωM·I1/|Z22| = 25/5 = 5 A, P_L = 5² × 3 = 75 W ✓; the source delivers 30 × 5 = 150 W = 75 W in R1 + 75 W in the load (50 % efficiency)."
+        "**5. Primary current.** Z_22 = jωL_2 + Z_L = 3 + j4 Ω, Z_in = Z_11 + (ωM)²/Z_22 = 3 + j4 + 3 − j4 = 6 Ω, I_1 = 30/6 = **5 A**.",
+        "**Check:** I_2 = ωM·I_1/|Z_22| = 25/5 = 5 A, P_L = 5² × 3 = 75 W ✓; the source delivers 30 × 5 = 150 W = 75 W in R_1 + 75 W in the load (50 % efficiency)."
       ]
     }
   }

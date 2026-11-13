@@ -7,9 +7,9 @@
   "level": 5,
   "tags": ["无限梯形网络", "输入电阻", "自相似", "分流公式"],
   "statement": [
-    "一个向右无限延伸的梯形网络，每一节由串联电阻 1 Ω 和并联电阻 6 Ω 组成（图中 R1 = R3 = 1 Ω，R2 = R4 = 6 Ω）。",
+    "一个向右无限延伸的梯形网络，每一节由串联电阻 1 Ω 和并联电阻 6 Ω 组成（图中 R_1 = R_3 = 1 Ω，R_2 = R_4 = 6 Ω）。",
     "图中只画出前两节，后面无穷多节用一个电阻 R_x 代替——由于去掉前两节后剩下的仍是同样的无限网络，R_x 正好等于整个网络的输入电阻 R_in（数值待求）。",
-    "端口 a、b 接电流源 Is = 9 A。求 R_in、端口电压 u_a、结点 d 的电压 u_d 和 R4 中的电流 i4。"
+    "端口 a、b 接电流源 I_s = 9 A。求 R_in、端口电压 u_a、结点 d 的电压 u_d 和 R_4 中的电流 i_4。"
   ],
   "schematic": {
     "elements": [
@@ -39,50 +39,50 @@
   "analysis": { "type": "dc" },
   "questions": [
     { "id": "rin", "ask": "R_in = ?", "find": { "kind": "req", "port": ["a", "b"] }, "answer": 3, "unit": "Ω", "explain": "自相似：R_in = 1 + 6 ∥ R_in = 1 + 6R_in/(6 + R_in) → R_in² − R_in − 6 = 0 → R_in = 3 Ω（舍去负根 −2）。" },
-    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 27, "unit": "V", "explain": "u_a = Is·R_in = 9 × 3 = 27 V。" },
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 27, "unit": "V", "explain": "u_a = I_s·R_in = 9 × 3 = 27 V。" },
     { "id": "ud", "ask": "u_d = ?", "find": { "kind": "v", "nodes": ["d"] }, "answer": 12, "unit": "V", "explain": "每过一节，电压乘以 6∥3 / (1 + 6∥3) = 2/3：u_c = 27 × 2/3 = 18 V，u_d = 18 × 2/3 = 12 V。" },
-    { "id": "i4", "ask": "i4 = ?", "find": { "kind": "i", "el": "R4" }, "answer": 2, "unit": "A", "explain": "i4 = u_d / 6 = 2 A；或者：每个结点处电流按 6 Ω 与 3 Ω 分流，并联电阻取 1/3：R2 中 3 A，R3 中 6 A，R4 中 6/3 = 2 A。" }
+    { "id": "i4", "ask": "i_4 = ?", "find": { "kind": "i", "el": "R4" }, "answer": 2, "unit": "A", "explain": "i_4 = u_d / 6 = 2 A；或者：每个结点处电流按 6 Ω 与 3 Ω 分流，并联电阻取 1/3：R_2 中 3 A，R_3 中 6 A，R_4 中 6/3 = 2 A。" }
   ],
   "hints": [
-    "无限网络“少一节还是它自己”：从 c 往右看进去的电阻（含 R2 之后的全部）结构与从 a 看进去的一样，只是少了一节。",
-    "所以 R_in = R1 + R2 ∥ R_in，解一个一元二次方程，舍去负根。",
+    "无限网络“少一节还是它自己”：从 c 往右看进去的电阻（含 R_2 之后的全部）结构与从 a 看进去的一样，只是少了一节。",
+    "所以 R_in = R_1 + R_2 ∥ R_in，解一个一元二次方程，舍去负根。",
     "知道 R_in 后，每一节都是同一个分压比 / 分流比：在每个结点，并联电阻 6 Ω 与“剩下的网络”3 Ω 分流。"
   ],
   "solution": [
-    "**1. 自相似方程。** 从 c 向右看（R2 与其后的无限网络并联），后面那部分正是原网络：R_in = 1 + 6 ∥ R_in = 1 + 6R_in/(6 + R_in)。",
+    "**1. 自相似方程。** 从 c 向右看（R_2 与其后的无限网络并联），后面那部分正是原网络：R_in = 1 + 6 ∥ R_in = 1 + 6R_in/(6 + R_in)。",
     "**2. 求解。** (R_in − 1)(6 + R_in) = 6R_in → R_in² − R_in − 6 = 0 → (R_in − 3)(R_in + 2) = 0，取 **R_in = 3 Ω**。所以图中 R_x = 3 Ω，有限电路与无限网络完全等效。",
     "**3. 端口电压。** u_a = 9 × 3 = **27 V**。",
     "**4. 逐节传递。** 每节：u_下 = u_上 × (6∥3)/(1 + 6∥3) = u_上 × 2/3。u_c = 18 V，**u_d = 12 V**。",
-    "**5. 电流。** R1 中 9 A，在 c 点分流：R2 中 9 × 3/(6 + 3) = 3 A，R3 中 6 A；在 d 点：**i4 = 6 × 3/9 = 2 A**，R_x 中 4 A。电流每节变为 2/3。",
-    "**验算：** u_d / R4 = 12/6 = 2 A ✓；u_d / R_x = 12/3 = 4 A ✓，2 + 4 = 6 A = R3 中电流 ✓。"
+    "**5. 电流。** R_1 中 9 A，在 c 点分流：R_2 中 9 × 3/(6 + 3) = 3 A，R_3 中 6 A；在 d 点：**i_4 = 6 × 3/9 = 2 A**，R_x 中 4 A。电流每节变为 2/3。",
+    "**验算：** u_d / R_4 = 12/6 = 2 A ✓；u_d / R_x = 12/3 = 4 A ✓，2 + 4 = 6 A = R_3 中电流 ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Infinite ladder network",
       "tags": ["infinite ladder", "input resistance", "self-similarity", "current divider"],
       "statement": [
-        "A ladder network extends infinitely to the right; every section consists of a series 1 Ω resistor and a shunt 6 Ω resistor (in the drawing R1 = R3 = 1 Ω, R2 = R4 = 6 Ω).",
+        "A ladder network extends infinitely to the right; every section consists of a series 1 Ω resistor and a shunt 6 Ω resistor (in the drawing R_1 = R_3 = 1 Ω, R_2 = R_4 = 6 Ω).",
         "Only the first two sections are drawn; the infinitely many remaining sections are replaced by one resistor R_x. Since removing the first two sections leaves the same infinite network, R_x equals exactly the input resistance R_in of the whole network (its value is to be found).",
-        "A current source Is = 9 A drives the port a, b. Find R_in, the port voltage u_a, the voltage u_d of node d and the current i4 in R4."
+        "A current source I_s = 9 A drives the port a, b. Find R_in, the port voltage u_a, the voltage u_d of node d and the current i_4 in R_4."
       ],
       "questions": [
         { "ask": "R_in = ?", "explain": "Self-similarity: R_in = 1 + 6 ∥ R_in = 1 + 6R_in/(6 + R_in) → R_in² − R_in − 6 = 0 → R_in = 3 Ω (discard the negative root −2)." },
-        { "ask": "u_a = ?", "explain": "u_a = Is·R_in = 9 × 3 = 27 V." },
+        { "ask": "u_a = ?", "explain": "u_a = I_s·R_in = 9 × 3 = 27 V." },
         { "ask": "u_d = ?", "explain": "Each section multiplies the voltage by 6∥3 / (1 + 6∥3) = 2/3: u_c = 27 × 2/3 = 18 V, u_d = 18 × 2/3 = 12 V." },
-        { "ask": "i4 = ?", "explain": "i4 = u_d / 6 = 2 A; or: at every node the current divides between 6 Ω and 3 Ω, the shunt taking 1/3: 3 A in R2, 6 A in R3, 6/3 = 2 A in R4." }
+        { "ask": "i_4 = ?", "explain": "i_4 = u_d / 6 = 2 A; or: at every node the current divides between 6 Ω and 3 Ω, the shunt taking 1/3: 3 A in R_2, 6 A in R_3, 6/3 = 2 A in R_4." }
       ],
       "hints": [
-        "An infinite network \"minus one section is still itself\": looking right from c (everything beyond R1, in parallel with R2) has the same structure as looking in from a.",
-        "So R_in = R1 + R2 ∥ R_in; solve the quadratic and discard the negative root.",
+        "An infinite network \"minus one section is still itself\": looking right from c (everything beyond R_1, in parallel with R_2) has the same structure as looking in from a.",
+        "So R_in = R_1 + R_2 ∥ R_in; solve the quadratic and discard the negative root.",
         "Once R_in is known every section has the same voltage ratio / current ratio: at each node the 6 Ω shunt shares the current with the 3 Ω \"rest of the network\"."
       ],
       "solution": [
-        "**1. Self-similar equation.** Looking right from c (R2 in parallel with the infinite network behind it), the part behind is the original network again: R_in = 1 + 6 ∥ R_in = 1 + 6R_in/(6 + R_in).",
+        "**1. Self-similar equation.** Looking right from c (R_2 in parallel with the infinite network behind it), the part behind is the original network again: R_in = 1 + 6 ∥ R_in = 1 + 6R_in/(6 + R_in).",
         "**2. Solve.** (R_in − 1)(6 + R_in) = 6R_in → R_in² − R_in − 6 = 0 → (R_in − 3)(R_in + 2) = 0, so **R_in = 3 Ω**. Hence R_x = 3 Ω in the drawing and the finite circuit is exactly equivalent to the infinite one.",
         "**3. Port voltage.** u_a = 9 × 3 = **27 V**.",
         "**4. Section by section.** Each section: u_next = u_prev × (6∥3)/(1 + 6∥3) = u_prev × 2/3. u_c = 18 V, **u_d = 12 V**.",
-        "**5. Currents.** R1 carries 9 A; it divides at c: R2 gets 9 × 3/(6 + 3) = 3 A, R3 gets 6 A; at d: **i4 = 6 × 3/9 = 2 A**, R_x gets 4 A. The current shrinks by 2/3 per section.",
-        "**Check:** u_d / R4 = 12/6 = 2 A ✓; u_d / R_x = 12/3 = 4 A ✓, 2 + 4 = 6 A = the current in R3 ✓."
+        "**5. Currents.** R_1 carries 9 A; it divides at c: R_2 gets 9 × 3/(6 + 3) = 3 A, R_3 gets 6 A; at d: **i_4 = 6 × 3/9 = 2 A**, R_x gets 4 A. The current shrinks by 2/3 per section.",
+        "**Check:** u_d / R_4 = 12/6 = 2 A ✓; u_d / R_x = 12/3 = 4 A ✓, 2 + 4 = 6 A = the current in R_3 ✓."
       ]
     }
   }

@@ -7,7 +7,7 @@
   "level": 4,
   "tags": ["交流电桥", "平衡条件", "复阻抗", "测量电路"],
   "statement": [
-    "图示交流电桥用来测量线圈参数（R_x 与 L_x 串联，未知）。Us = 10∠0° V，ω = 1000 rad/s，R1 = 100 Ω，R4 = 100 Ω，R3 = 500 Ω 与 C3 = 1 µF 并联。调节到电桥平衡时，检流计 D（理想电流表）读数为零。",
+    "图示交流电桥用来测量线圈参数（R_x 与 L_x 串联，未知）。U_s = 10∠0° V，ω = 1000 rad/s，R_1 = 100 Ω，R_4 = 100 Ω，R_3 = 500 Ω 与 C_3 = 1 µF 并联。调节到电桥平衡时，检流计 D（理想电流表）读数为零。",
     "求平衡时检流计的读数，并由平衡条件求线圈的 R_x 和感抗 X_x = ωL_x。"
   ],
   "schematic": {
@@ -34,57 +34,57 @@
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
     { "id": "D", "ask": "平衡时检流计 D 的读数 = ?", "find": { "kind": "meter", "el": "D" }, "answer": 0, "unit": "A", "explain": "电桥平衡的定义就是 c、d 等电位，检流计中没有电流。" },
-    { "id": "Rx", "ask": "线圈电阻 R_x = ?", "find": { "kind": "req", "port": ["c", "b"], "exclude": ["R1", "D"], "part": "re" }, "answer": 20, "unit": "Ω", "explain": "平衡条件 Z1·Z4 = Z3·Z_x → Z_x = R1R4·Y3 = 10⁴ × (1/500 + j·1000 × 10⁻⁶) = 20 + j10 Ω，R_x = 20 Ω。" },
-    { "id": "Xx", "ask": "线圈感抗 X_x = ωL_x = ?", "find": { "kind": "req", "port": ["c", "b"], "exclude": ["R1", "D"], "part": "im" }, "answer": 10, "unit": "Ω", "explain": "X_x = 10 Ω，L_x = X_x/ω = 10 mH（= R1R4C3）。" },
+    { "id": "Rx", "ask": "线圈电阻 R_x = ?", "find": { "kind": "req", "port": ["c", "b"], "exclude": ["R1", "D"], "part": "re" }, "answer": 20, "unit": "Ω", "explain": "平衡条件 Z_1·Z_4 = Z_3·Z_x → Z_x = R_{1}R_{4}·Y_3 = 10⁴ × (1/500 + j·1000 × 10⁻⁶) = 20 + j10 Ω，R_x = 20 Ω。" },
+    { "id": "Xx", "ask": "线圈感抗 X_x = ωL_x = ?", "find": { "kind": "req", "port": ["c", "b"], "exclude": ["R1", "D"], "part": "im" }, "answer": 10, "unit": "Ω", "explain": "X_x = 10 Ω，L_x = X_x/ω = 10 mH（= R_{1}R_{4}C_{3}）。" },
     {
       "id": "freq",
-      "ask": "这个电桥的平衡条件 R_x = R1R4/R3、L_x = R1R4C3 有什么特点？",
+      "ask": "这个电桥的平衡条件 R_x = R_{1}R_{4}/R_3、L_x = R_{1}R_{4}C_{3} 有什么特点？",
       "choices": ["与电源频率无关，频率不稳定也不影响测量结果", "只在 ω = 1000 rad/s 时成立", "与电源电压大小有关"],
       "correct": 0,
-      "explain": "把 Z_x = R1R4(1/R3 + jωC3) 两边的实部、虚部分别相等：R_x = R1R4/R3，ωL_x = ωR1R4C3，ω 两边约掉。这正是麦克斯韦电桥的优点；平衡条件也与电源幅值无关。"
+      "explain": "把 Z_x = R_{1}R_{4}(1/R_3 + jωC_3) 两边的实部、虚部分别相等：R_x = R_{1}R_{4}/R_3，ωL_x = ωR_{1}R_{4}C_{3}，ω 两边约掉。这正是麦克斯韦电桥的优点；平衡条件也与电源幅值无关。"
     }
   ],
   "hints": [
     "交流电桥平衡：c、d 等电位，检流计电流为零，此时对边阻抗的乘积相等。",
-    "四个桥臂：Z1 = R1（a–c），Z_x = R_x + jωL_x（c–b），Z3 = R3 ∥ C3（a–d），Z4 = R4（d–b）。平衡条件 Z1·Z4 = Z3·Z_x。",
-    "Z_x = R1R4/Z3 = R1R4·Y3，而 Y3 = 1/R3 + jωC3 用导纳写最简单。"
+    "四个桥臂：Z_1 = R_1（a–c），Z_x = R_x + jωL_x（c–b），Z_3 = R_3 ∥ C_3（a–d），Z_4 = R_4（d–b）。平衡条件 Z_1·Z_4 = Z_3·Z_x。",
+    "Z_x = R_{1}R_{4}/Z_3 = R_{1}R_{4}·Y_3，而 Y_3 = 1/R_3 + jωC_3 用导纳写最简单。"
   ],
   "solution": [
-    "**1. 平衡条件。** 检流计电流为零时 U_c = U_d：Z1/(Z1 + Z_x) = Z3/(Z3 + Z4) → **Z1·Z4 = Z3·Z_x**（对边阻抗乘积相等）。",
-    "**2. 代入。** Z_x = Z1·Z4/Z3 = R1R4·Y3，Y3 = 1/R3 + jωC3 = 0.002 + j0.001 S。",
+    "**1. 平衡条件。** 检流计电流为零时 U_c = U_d：Z_1/(Z_1 + Z_x) = Z_3/(Z_3 + Z_4) → **Z_1·Z_4 = Z_3·Z_x**（对边阻抗乘积相等）。",
+    "**2. 代入。** Z_x = Z_1·Z_4/Z_3 = R_{1}R_{4}·Y_3，Y_3 = 1/R_3 + jωC_3 = 0.002 + j0.001 S。",
     "Z_x = 100 × 100 × (0.002 + j0.001) = **20 + j10 Ω** → R_x = 20 Ω，X_x = 10 Ω，L_x = 10 mH。",
-    "**3. 一般公式。** 实部、虚部分别相等：R_x = R1R4/R3，L_x = R1R4C3——与 ω 无关。",
-    "**4. 验算。** U_c = Us·Z_x/(Z1 + Z_x) = 10(20 + j10)/(120 + j10)；U_d = Us·Z4/(Z3 + Z4)，Z3 = 1/(0.002 + j0.001) = 400 − j200 Ω，U_d = 10 × 100/(500 − j200)。两者化简都等于 10/(5 − j2) ≈ 1.857∠21.8° V，相等 ✓，检流计读数 **0**。"
+    "**3. 一般公式。** 实部、虚部分别相等：R_x = R_{1}R_{4}/R_3，L_x = R_{1}R_{4}C_{3}——与 ω 无关。",
+    "**4. 验算。** U_c = U_s·Z_x/(Z_1 + Z_x) = 10(20 + j10)/(120 + j10)；U_d = U_s·Z_4/(Z_3 + Z_4)，Z_3 = 1/(0.002 + j0.001) = 400 − j200 Ω，U_d = 10 × 100/(500 − j200)。两者化简都等于 10/(5 − j2) ≈ 1.857∠21.8° V，相等 ✓，检流计读数 **0**。"
   ],
   "i18n": {
     "en": {
       "title": "AC bridge balance: measuring a coil with a Maxwell bridge",
       "tags": ["AC bridge", "balance condition", "complex impedance", "measurement circuit"],
       "statement": [
-        "The AC bridge measures a coil (R_x in series with L_x, unknown). Us = 10∠0° V, ω = 1000 rad/s, R1 = 100 Ω, R4 = 100 Ω, and R3 = 500 Ω is in parallel with C3 = 1 µF. When the bridge is balanced the detector D (an ideal ammeter) reads zero.",
+        "The AC bridge measures a coil (R_x in series with L_x, unknown). U_s = 10∠0° V, ω = 1000 rad/s, R_1 = 100 Ω, R_4 = 100 Ω, and R_3 = 500 Ω is in parallel with C_3 = 1 µF. When the bridge is balanced the detector D (an ideal ammeter) reads zero.",
         "Find the detector reading at balance, and from the balance condition the coil's R_x and reactance X_x = ωL_x."
       ],
       "questions": [
         { "ask": "Reading of detector D at balance = ?", "explain": "Balance means c and d are at the same potential, so no current flows in the detector." },
-        { "ask": "Coil resistance R_x = ?", "explain": "Balance condition Z1·Z4 = Z3·Z_x → Z_x = R1R4·Y3 = 10⁴ × (1/500 + j·1000 × 10⁻⁶) = 20 + j10 Ω, so R_x = 20 Ω." },
-        { "ask": "Coil reactance X_x = ωL_x = ?", "explain": "X_x = 10 Ω, L_x = X_x/ω = 10 mH (= R1R4C3)." },
+        { "ask": "Coil resistance R_x = ?", "explain": "Balance condition Z_1·Z_4 = Z_3·Z_x → Z_x = R_{1}R_{4}·Y_3 = 10⁴ × (1/500 + j·1000 × 10⁻⁶) = 20 + j10 Ω, so R_x = 20 Ω." },
+        { "ask": "Coil reactance X_x = ωL_x = ?", "explain": "X_x = 10 Ω, L_x = X_x/ω = 10 mH (= R_{1}R_{4}C_{3})." },
         {
-          "ask": "What is special about this bridge's balance conditions R_x = R1R4/R3, L_x = R1R4C3?",
+          "ask": "What is special about this bridge's balance conditions R_x = R_{1}R_{4}/R_3, L_x = R_{1}R_{4}C_{3}?",
           "choices": ["They do not depend on the source frequency, so an unstable frequency does not affect the measurement", "They hold only at ω = 1000 rad/s", "They depend on the source amplitude"],
-          "explain": "Equate real and imaginary parts of Z_x = R1R4(1/R3 + jωC3): R_x = R1R4/R3 and ωL_x = ωR1R4C3, where ω cancels. That is the advantage of the Maxwell bridge; the balance is also independent of the source amplitude."
+          "explain": "Equate real and imaginary parts of Z_x = R_{1}R_{4}(1/R_3 + jωC_3): R_x = R_{1}R_{4}/R_3 and ωL_x = ωR_{1}R_{4}C_{3}, where ω cancels. That is the advantage of the Maxwell bridge; the balance is also independent of the source amplitude."
         }
       ],
       "hints": [
         "AC bridge balance: c and d are equipotential, the detector current is zero, and the products of opposite arm impedances are equal.",
-        "The four arms: Z1 = R1 (a–c), Z_x = R_x + jωL_x (c–b), Z3 = R3 ∥ C3 (a–d), Z4 = R4 (d–b). Balance: Z1·Z4 = Z3·Z_x.",
-        "Z_x = R1R4/Z3 = R1R4·Y3, and Y3 = 1/R3 + jωC3 is easiest written as an admittance."
+        "The four arms: Z_1 = R_1 (a–c), Z_x = R_x + jωL_x (c–b), Z_3 = R_3 ∥ C_3 (a–d), Z_4 = R_4 (d–b). Balance: Z_1·Z_4 = Z_3·Z_x.",
+        "Z_x = R_{1}R_{4}/Z_3 = R_{1}R_{4}·Y_3, and Y_3 = 1/R_3 + jωC_3 is easiest written as an admittance."
       ],
       "solution": [
-        "**1. Balance condition.** With zero detector current U_c = U_d: Z1/(Z1 + Z_x) = Z3/(Z3 + Z4) → **Z1·Z4 = Z3·Z_x** (products of opposite arms are equal).",
-        "**2. Substitute.** Z_x = Z1·Z4/Z3 = R1R4·Y3, Y3 = 1/R3 + jωC3 = 0.002 + j0.001 S.",
+        "**1. Balance condition.** With zero detector current U_c = U_d: Z_1/(Z_1 + Z_x) = Z_3/(Z_3 + Z_4) → **Z_1·Z_4 = Z_3·Z_x** (products of opposite arms are equal).",
+        "**2. Substitute.** Z_x = Z_1·Z_4/Z_3 = R_{1}R_{4}·Y_3, Y_3 = 1/R_3 + jωC_3 = 0.002 + j0.001 S.",
         "Z_x = 100 × 100 × (0.002 + j0.001) = **20 + j10 Ω** → R_x = 20 Ω, X_x = 10 Ω, L_x = 10 mH.",
-        "**3. General formulas.** Equating real and imaginary parts: R_x = R1R4/R3, L_x = R1R4C3 — independent of ω.",
-        "**4. Check.** U_c = Us·Z_x/(Z1 + Z_x) = 10(20 + j10)/(120 + j10); U_d = Us·Z4/(Z3 + Z4) with Z3 = 1/(0.002 + j0.001) = 400 − j200 Ω, so U_d = 10 × 100/(500 − j200). Both simplify to 10/(5 − j2) ≈ 1.857∠21.8° V, equal ✓, so the detector reads **0**."
+        "**3. General formulas.** Equating real and imaginary parts: R_x = R_{1}R_{4}/R_3, L_x = R_{1}R_{4}C_{3} — independent of ω.",
+        "**4. Check.** U_c = U_s·Z_x/(Z_1 + Z_x) = 10(20 + j10)/(120 + j10); U_d = U_s·Z_4/(Z_3 + Z_4) with Z_3 = 1/(0.002 + j0.001) = 400 − j200 Ω, so U_d = 10 × 100/(500 − j200). Both simplify to 10/(5 − j2) ≈ 1.857∠21.8° V, equal ✓, so the detector reads **0**."
       ]
     }
   }

@@ -7,8 +7,8 @@
   "level": 4,
   "tags": ["Y 参数", "Π 形等效电路", "二端口并联", "对称二端口"],
   "statement": [
-    "图示桥 T 形二端口：T 形部分 R1 = R2 = 2 Ω、R3 = 1 Ω，跨接电阻 R4 = 4 Ω 直接连在 1、2 两端之间。",
-    "提示：这个网络可以看成 T 形网络与 R4（单独一个串臂）两个二端口的**并联**，并联时 Y 参数相加。求 Y 参数、z11，以及它的 Π 形等效电路。"
+    "图示桥 T 形二端口：T 形部分 R_1 = R_2 = 2 Ω、R_3 = 1 Ω，跨接电阻 R_4 = 4 Ω 直接连在 1、2 两端之间。",
+    "提示：这个网络可以看成 T 形网络与 R_4（单独一个串臂）两个二端口的**并联**，并联时 Y 参数相加。求 Y 参数、z_11，以及它的 Π 形等效电路。"
   ],
   "schematic": {
     "elements": [
@@ -37,84 +37,84 @@
   "questions": [
     {
       "id": "y11",
-      "ask": "y11 = ?",
+      "ask": "y_11 = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "y11" },
       "answer": 0.625,
       "unit": "S",
-      "explain": "T 形部分：Z_T = [3 1; 1 3] Ω，Δ = 8，Y_T = [3/8 −1/8; −1/8 3/8] S。R4 的 Y 矩阵为 [1/4 −1/4; −1/4 1/4] S。相加：y11 = 3/8 + 1/4 = 0.625 S。"
+      "explain": "T 形部分：Z_T = [3 1; 1 3] Ω，Δ = 8，Y_T = [3/8 −1/8; −1/8 3/8] S。R_4 的 Y 矩阵为 [1/4 −1/4; −1/4 1/4] S。相加：y_11 = 3/8 + 1/4 = 0.625 S。"
     },
     {
       "id": "y12",
-      "ask": "y12 = ?",
+      "ask": "y_12 = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "y12" },
       "answer": -0.375,
       "unit": "S",
-      "explain": "y12 = −1/8 − 1/4 = −3/8 = −0.375 S。"
+      "explain": "y_12 = −1/8 − 1/4 = −3/8 = −0.375 S。"
     },
     {
       "id": "z11",
-      "ask": "z11 = ?",
+      "ask": "z_11 = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11" },
       "answer": 2.5,
       "unit": "Ω",
-      "explain": "Δ_Y = 0.625² − 0.375² = 0.25 S²，z11 = y22/Δ_Y = 0.625/0.25 = 2.5 Ω。验算：端口 2 开路时，R4 与 R2 串联（6 Ω）再与 R1 并联得 1.5 Ω，再串 R3：2.5 Ω。"
+      "explain": "Δ_Y = 0.625² − 0.375² = 0.25 S²，z_11 = y_22/Δ_Y = 0.625/0.25 = 2.5 Ω。验算：端口 2 开路时，R_4 与 R_2 串联（6 Ω）再与 R_1 并联得 1.5 Ω，再串 R_3：2.5 Ω。"
     },
     {
       "id": "pi",
-      "ask": "它的 Π 形等效电路（两个并臂 Ra、Rb，中间串臂 Rc）是……",
+      "ask": "它的 Π 形等效电路（两个并臂 R_a、R_b，中间串臂 R_c）是……",
       "choices": [
-        "Ra = Rb = 4 Ω，Rc = 8/3 Ω",
-        "Ra = Rb = 1.6 Ω，Rc = 2.67 Ω",
-        "Ra = Rb = 4 Ω，Rc = 4 Ω",
-        "Ra = Rb = 2 Ω，Rc = 1 Ω"
+        "R_a = R_b = 4 Ω，R_c = 8/3 Ω",
+        "R_a = R_b = 1.6 Ω，R_c = 2.67 Ω",
+        "R_a = R_b = 4 Ω，R_c = 4 Ω",
+        "R_a = R_b = 2 Ω，R_c = 1 Ω"
       ],
       "correct": 0,
-      "explain": "Π 形等效：串臂导纳 Yc = −y12 = 0.375 S → Rc = 8/3 ≈ 2.67 Ω；并臂导纳 Ya = y11 + y12 = 0.25 S → Ra = 4 Ω，Yb = y22 + y21 = 0.25 S → Rb = 4 Ω。"
+      "explain": "Π 形等效：串臂导纳 Y_c = −y_12 = 0.375 S → R_c = 8/3 ≈ 2.67 Ω；并臂导纳 Y_a = y_11 + y_12 = 0.25 S → R_a = 4 Ω，Y_b = y_22 + y_21 = 0.25 S → R_b = 4 Ω。"
     }
   ],
   "hints": [
-    "两个二端口端口对端口并联时，Y 参数相加。先分别写出 T 形部分和 R4 的 Y 参数。",
-    "T 形部分先写 Z 参数（z11 = R1 + R3，z12 = R3，z22 = R2 + R3）再求逆；单独一个串臂 R 的 Y 矩阵是 (1/R)·[1 −1; −1 1]。Π 形等效：Ya = y11 + y12，Yb = y22 + y12，Yc = −y12。"
+    "两个二端口端口对端口并联时，Y 参数相加。先分别写出 T 形部分和 R_4 的 Y 参数。",
+    "T 形部分先写 Z 参数（z_11 = R_1 + R_3，z_12 = R_3，z_22 = R_2 + R_3）再求逆；单独一个串臂 R 的 Y 矩阵是 (1/R)·[1 −1; −1 1]。Π 形等效：Y_a = y_11 + y_12，Y_b = y_22 + y_12，Y_c = −y_12。"
   ],
   "solution": [
     "**1. T 形部分。** Z_T = [3 1; 1 3] Ω，Δ_Z = 9 − 1 = 8 Ω²，Y_T = Z_T⁻¹ = [3/8 −1/8; −1/8 3/8] S。",
-    "**2. 跨接电阻 R4。** 它单独构成的二端口（1–2 间一个串臂）：Y_4 = [0.25 −0.25; −0.25 0.25] S（Z 参数不存在）。",
+    "**2. 跨接电阻 R_4。** 它单独构成的二端口（1–2 间一个串臂）：Y_4 = [0.25 −0.25; −0.25 0.25] S（Z 参数不存在）。",
     "**3. 并联。** 两个二端口的输入端、输出端分别并联（1'、2' 都是公共底线），Y = Y_T + Y_4：",
-    "**y11** = y22 = 0.375 + 0.25 = **0.625 S**，**y12** = y21 = −0.125 − 0.25 = **−0.375 S**。",
-    "**4. 换回 Z。** Δ_Y = 0.625² − 0.375² = 0.25，**z11** = y22/Δ_Y = **2.5 Ω**，z12 = −y12/Δ_Y = 1.5 Ω。",
-    "**5. Π 形等效。** Ya = y11 + y12 = 0.25 S → **4 Ω**；Yb = y22 + y12 = 0.25 S → **4 Ω**；Yc = −y12 = 0.375 S → **8/3 Ω**。",
-    "**验算：** Π 形网络 y11 = Ya + Yc = 0.25 + 0.375 = 0.625 S ✓。"
+    "**y_11** = y_22 = 0.375 + 0.25 = **0.625 S**，**y_12** = y_21 = −0.125 − 0.25 = **−0.375 S**。",
+    "**4. 换回 Z。** Δ_Y = 0.625² − 0.375² = 0.25，**z_11** = y_22/Δ_Y = **2.5 Ω**，z_12 = −y_12/Δ_Y = 1.5 Ω。",
+    "**5. Π 形等效。** Y_a = y_11 + y_12 = 0.25 S → **4 Ω**；Y_b = y_22 + y_12 = 0.25 S → **4 Ω**；Y_c = −y_12 = 0.375 S → **8/3 Ω**。",
+    "**验算：** Π 形网络 y_11 = Y_a + Y_c = 0.25 + 0.375 = 0.625 S ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Y parameters of a bridged-T network and its Π equivalent",
       "tags": ["Y parameters", "Π equivalent circuit", "parallel connection of two-ports", "symmetric two-port"],
       "statement": [
-        "The bridged-T two-port consists of a T section R1 = R2 = 2 Ω, R3 = 1 Ω and a bridging resistor R4 = 4 Ω connected directly between terminals 1 and 2.",
-        "Hint: the network can be viewed as the **parallel connection** of two two-ports, the T section and R4 alone (a single series arm); in a parallel connection the Y parameters add. Find the Y parameters, z11, and the Π equivalent circuit."
+        "The bridged-T two-port consists of a T section R_1 = R_2 = 2 Ω, R_3 = 1 Ω and a bridging resistor R_4 = 4 Ω connected directly between terminals 1 and 2.",
+        "Hint: the network can be viewed as the **parallel connection** of two two-ports, the T section and R_4 alone (a single series arm); in a parallel connection the Y parameters add. Find the Y parameters, z_11, and the Π equivalent circuit."
       ],
       "questions": [
-        { "ask": "y11 = ?", "explain": "T section: Z_T = [3 1; 1 3] Ω, Δ = 8, Y_T = [3/8 −1/8; −1/8 3/8] S. The Y matrix of R4 is [1/4 −1/4; −1/4 1/4] S. Adding: y11 = 3/8 + 1/4 = 0.625 S." },
-        { "ask": "y12 = ?", "explain": "y12 = −1/8 − 1/4 = −3/8 = −0.375 S." },
-        { "ask": "z11 = ?", "explain": "Δ_Y = 0.625² − 0.375² = 0.25 S², z11 = y22/Δ_Y = 0.625/0.25 = 2.5 Ω. Check: with port 2 open, R4 in series with R2 (6 Ω) in parallel with R1 gives 1.5 Ω, plus R3 in series: 2.5 Ω." },
+        { "ask": "y_11 = ?", "explain": "T section: Z_T = [3 1; 1 3] Ω, Δ = 8, Y_T = [3/8 −1/8; −1/8 3/8] S. The Y matrix of R_4 is [1/4 −1/4; −1/4 1/4] S. Adding: y_11 = 3/8 + 1/4 = 0.625 S." },
+        { "ask": "y_12 = ?", "explain": "y_12 = −1/8 − 1/4 = −3/8 = −0.375 S." },
+        { "ask": "z_11 = ?", "explain": "Δ_Y = 0.625² − 0.375² = 0.25 S², z_11 = y_22/Δ_Y = 0.625/0.25 = 2.5 Ω. Check: with port 2 open, R_4 in series with R_2 (6 Ω) in parallel with R_1 gives 1.5 Ω, plus R_3 in series: 2.5 Ω." },
         {
-          "ask": "Its Π equivalent (shunt arms Ra, Rb and series arm Rc) is …",
-          "choices": ["Ra = Rb = 4 Ω, Rc = 8/3 Ω", "Ra = Rb = 1.6 Ω, Rc = 2.67 Ω", "Ra = Rb = 4 Ω, Rc = 4 Ω", "Ra = Rb = 2 Ω, Rc = 1 Ω"],
-          "explain": "Π equivalent: series-arm admittance Yc = −y12 = 0.375 S → Rc = 8/3 ≈ 2.67 Ω; shunt-arm admittances Ya = y11 + y12 = 0.25 S → Ra = 4 Ω and Yb = y22 + y21 = 0.25 S → Rb = 4 Ω."
+          "ask": "Its Π equivalent (shunt arms R_a, R_b and series arm R_c) is …",
+          "choices": ["R_a = R_b = 4 Ω, R_c = 8/3 Ω", "R_a = R_b = 1.6 Ω, R_c = 2.67 Ω", "R_a = R_b = 4 Ω, R_c = 4 Ω", "R_a = R_b = 2 Ω, R_c = 1 Ω"],
+          "explain": "Π equivalent: series-arm admittance Y_c = −y_12 = 0.375 S → R_c = 8/3 ≈ 2.67 Ω; shunt-arm admittances Y_a = y_11 + y_12 = 0.25 S → R_a = 4 Ω and Y_b = y_22 + y_21 = 0.25 S → R_b = 4 Ω."
         }
       ],
       "hints": [
-        "When two two-ports are connected in parallel port by port, their Y parameters add. Write the Y parameters of the T section and of R4 separately.",
-        "For the T section write the Z parameters first (z11 = R1 + R3, z12 = R3, z22 = R2 + R3) and invert; a lone series arm R has Y = (1/R)·[1 −1; −1 1]. Π equivalent: Ya = y11 + y12, Yb = y22 + y12, Yc = −y12."
+        "When two two-ports are connected in parallel port by port, their Y parameters add. Write the Y parameters of the T section and of R_4 separately.",
+        "For the T section write the Z parameters first (z_11 = R_1 + R_3, z_12 = R_3, z_22 = R_2 + R_3) and invert; a lone series arm R has Y = (1/R)·[1 −1; −1 1]. Π equivalent: Y_a = y_11 + y_12, Y_b = y_22 + y_12, Y_c = −y_12."
       ],
       "solution": [
         "**1. T section.** Z_T = [3 1; 1 3] Ω, Δ_Z = 9 − 1 = 8 Ω², Y_T = Z_T⁻¹ = [3/8 −1/8; −1/8 3/8] S.",
-        "**2. Bridging resistor R4.** As a two-port on its own (one series arm between 1 and 2): Y_4 = [0.25 −0.25; −0.25 0.25] S (its Z parameters do not exist).",
+        "**2. Bridging resistor R_4.** As a two-port on its own (one series arm between 1 and 2): Y_4 = [0.25 −0.25; −0.25 0.25] S (its Z parameters do not exist).",
         "**3. Parallel connection.** The inputs and the outputs of the two two-ports are in parallel (1' and 2' share the bottom wire), so Y = Y_T + Y_4:",
-        "**y11** = y22 = 0.375 + 0.25 = **0.625 S**, **y12** = y21 = −0.125 − 0.25 = **−0.375 S**.",
-        "**4. Back to Z.** Δ_Y = 0.625² − 0.375² = 0.25, **z11** = y22/Δ_Y = **2.5 Ω**, z12 = −y12/Δ_Y = 1.5 Ω.",
-        "**5. Π equivalent.** Ya = y11 + y12 = 0.25 S → **4 Ω**; Yb = y22 + y12 = 0.25 S → **4 Ω**; Yc = −y12 = 0.375 S → **8/3 Ω**.",
-        "**Check:** for the Π network y11 = Ya + Yc = 0.25 + 0.375 = 0.625 S ✓."
+        "**y_11** = y_22 = 0.375 + 0.25 = **0.625 S**, **y_12** = y_21 = −0.125 − 0.25 = **−0.375 S**.",
+        "**4. Back to Z.** Δ_Y = 0.625² − 0.375² = 0.25, **z_11** = y_22/Δ_Y = **2.5 Ω**, z_12 = −y_12/Δ_Y = 1.5 Ω.",
+        "**5. Π equivalent.** Y_a = y_11 + y_12 = 0.25 S → **4 Ω**; Y_b = y_22 + y_12 = 0.25 S → **4 Ω**; Y_c = −y_12 = 0.375 S → **8/3 Ω**.",
+        "**Check:** for the Π network y_11 = Y_a + Y_c = 0.25 + 0.375 = 0.625 S ✓."
       ]
     }
   }

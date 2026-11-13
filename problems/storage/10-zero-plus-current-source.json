@@ -7,7 +7,7 @@
   "level": 4,
   "tags": ["换路定则", "0₊ 等效电路", "直流稳态"],
   "statement": [
-    "图示电路中 Is = 6 A，R1 = 2 Ω，R2 = 4 Ω，R3 = 2 Ω，L = 1 H，C = 0.5 F。开关 S 断开已久，t = 0 时闭合，把 R3 接到结点 a 与地之间。",
+    "图示电路中 I_s = 6 A，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 2 Ω，L = 1 H，C = 0.5 F。开关 S 断开已久，t = 0 时闭合，把 R_3 接到结点 a 与地之间。",
     "求 u_a(0₊)、u_L(0₊)，判断 i_C(0₊)，并求新的稳态值 u_C(∞)。"
   ],
   "schematic": {
@@ -36,10 +36,10 @@
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "ua", "ask": "u_a(0₊) = ?", "find": { "kind": "v", "nodes": ["a"], "t": "0+" }, "answer": 4, "unit": "V", "explain": "t = 0₋：L 短路、C 开路，R1 ∥ R2 = 4/3 Ω，u_a = 6 × 4/3 = 8 V，i_L(0₋) = 8/4 = 2 A，u_C(0₋) = 8 V。t = 0₊：电感用 2 A 电流源代替，结点 a 的 KCL：6 = u_a/2 + u_a/2 + 2 → u_a = 4 V。" },
+    { "id": "ua", "ask": "u_a(0₊) = ?", "find": { "kind": "v", "nodes": ["a"], "t": "0+" }, "answer": 4, "unit": "V", "explain": "t = 0₋：L 短路、C 开路，R_1 ∥ R_2 = 4/3 Ω，u_a = 6 × 4/3 = 8 V，i_L(0₋) = 8/4 = 2 A，u_C(0₋) = 8 V。t = 0₊：电感用 2 A 电流源代替，结点 a 的 KCL：6 = u_a/2 + u_a/2 + 2 → u_a = 4 V。" },
     { "id": "uL", "ask": "u_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": -4, "unit": "V", "explain": "u_b(0₊) = u_C(0₊) = 8 V（电容用 8 V 电压源代替），u_L = u_a − u_b = 4 − 8 = −4 V。" },
-    { "id": "iC", "ask": "i_C(0₊) 等于：", "choices": ["0", "2 A", "−2 A", "6 A"], "correct": 0, "explain": "结点 b：i_C = i_L − u_C/R2 = 2 − 8/4 = 0。b 周围的 i_L 和 u_C 都没有跳变、R2 也没变，所以 i_C 仍是换路前的 0；开关只改变了结点 a。" },
-    { "id": "uinf", "ask": "u_C(∞) = ?", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": 4.8, "unit": "V", "explain": "新稳态：L 短路、C 开路，R1 ∥ R3 ∥ R2 = 2 ∥ 2 ∥ 4 = 0.8 Ω，u_C(∞) = 6 × 0.8 = 4.8 V。" }
+    { "id": "iC", "ask": "i_C(0₊) 等于：", "choices": ["0", "2 A", "−2 A", "6 A"], "correct": 0, "explain": "结点 b：i_C = i_L − u_C/R_2 = 2 − 8/4 = 0。b 周围的 i_L 和 u_C 都没有跳变、R_2 也没变，所以 i_C 仍是换路前的 0；开关只改变了结点 a。" },
+    { "id": "uinf", "ask": "u_C(∞) = ?", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": 4.8, "unit": "V", "explain": "新稳态：L 短路、C 开路，R_1 ∥ R_3 ∥ R_2 = 2 ∥ 2 ∥ 4 = 0.8 Ω，u_C(∞) = 6 × 0.8 = 4.8 V。" }
   ],
   "hints": [
     "先求 t = 0₋ 的直流稳态：u_C(0₋) 和 i_L(0₋)。",
@@ -47,11 +47,11 @@
     "对结点 a 列 KCL 求 u_a(0₊)；对结点 b 看 i_C 是否改变。"
   ],
   "solution": [
-    "**1. t = 0₋（S 断开）。** L 短路、C 开路，a、b 同电位：u = Is·(R1 ∥ R2) = 6 × 4/3 = 8 V。i_L(0₋) = 8/R2 = 2 A，u_C(0₋) = 8 V。",
+    "**1. t = 0₋（S 断开）。** L 短路、C 开路，a、b 同电位：u = I_s·(R_1 ∥ R_2) = 6 × 4/3 = 8 V。i_L(0₋) = 8/R_2 = 2 A，u_C(0₋) = 8 V。",
     "**2. 换路定则。** u_C(0₊) = 8 V，i_L(0₊) = 2 A。",
-    "**3. 0₊ 等效电路。** 电感 → 2 A 电流源（a → b），电容 → 8 V 电压源。结点 a：Is = u_a/R1 + u_a/R3 + i_L → 6 = u_a + 2 → **u_a(0₊) = 4 V**（从 8 V 跳变到 4 V）。",
-    "**4. 电感电压。** **u_L(0₊) = u_a − u_C = 4 − 8 = −4 V**。结点 b：i_C(0₊) = i_L − u_C/R2 = 2 − 2 = **0**。",
-    "**5. 新稳态。** R1 ∥ R3 ∥ R2 = 0.8 Ω，**u_C(∞) = 4.8 V**，i_L(∞) = 4.8/4 = 1.2 A。",
+    "**3. 0₊ 等效电路。** 电感 → 2 A 电流源（a → b），电容 → 8 V 电压源。结点 a：I_s = u_a/R_1 + u_a/R_3 + i_L → 6 = u_a + 2 → **u_a(0₊) = 4 V**（从 8 V 跳变到 4 V）。",
+    "**4. 电感电压。** **u_L(0₊) = u_a − u_C = 4 − 8 = −4 V**。结点 b：i_C(0₊) = i_L − u_C/R_2 = 2 − 2 = **0**。",
+    "**5. 新稳态。** R_1 ∥ R_3 ∥ R_2 = 0.8 Ω，**u_C(∞) = 4.8 V**，i_L(∞) = 4.8/4 = 1.2 A。",
     "**说明：** 换路后哪些量会跳变，要在 0₊ 等效电路里逐个算；“与开关不相邻”的量也可能跳变（如 u_L），而某些非状态量也可能恰好不变（如本题的 i_C）。"
   ],
   "i18n": {
@@ -59,14 +59,14 @@
       "title": "Closing a switch with a current-source drive: the t = 0+ equivalent",
       "tags": ["switching rule", "t = 0+ equivalent circuit", "DC steady state"],
       "statement": [
-        "Is = 6 A, R1 = 2 Ω, R2 = 4 Ω, R3 = 2 Ω, L = 1 H, C = 0.5 F. Switch S has been open for a long time and closes at t = 0, connecting R3 between node a and ground.",
+        "I_s = 6 A, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 2 Ω, L = 1 H, C = 0.5 F. Switch S has been open for a long time and closes at t = 0, connecting R_3 between node a and ground.",
         "Find u_a(0+) and u_L(0+), decide i_C(0+), and find the new steady-state value u_C(∞)."
       ],
       "questions": [
-        { "ask": "u_a(0+) = ?", "explain": "t = 0−: L short, C open, R1 ∥ R2 = 4/3 Ω, u_a = 6 × 4/3 = 8 V, i_L(0−) = 8/4 = 2 A, u_C(0−) = 8 V. t = 0+: replace the inductor by a 2 A current source; KCL at a: 6 = u_a/2 + u_a/2 + 2 → u_a = 4 V." },
+        { "ask": "u_a(0+) = ?", "explain": "t = 0−: L short, C open, R_1 ∥ R_2 = 4/3 Ω, u_a = 6 × 4/3 = 8 V, i_L(0−) = 8/4 = 2 A, u_C(0−) = 8 V. t = 0+: replace the inductor by a 2 A current source; KCL at a: 6 = u_a/2 + u_a/2 + 2 → u_a = 4 V." },
         { "ask": "u_L(0+) = ?", "explain": "u_b(0+) = u_C(0+) = 8 V (the capacitor acts as an 8 V source), so u_L = u_a − u_b = 4 − 8 = −4 V." },
-        { "ask": "i_C(0+) equals:", "choices": ["0", "2 A", "−2 A", "6 A"], "explain": "At node b: i_C = i_L − u_C/R2 = 2 − 8/4 = 0. Around b neither i_L nor u_C jumps and R2 is unchanged, so i_C keeps its pre-switching value 0; the switch only changes node a." },
-        { "ask": "u_C(∞) = ?", "explain": "New steady state: L short, C open, R1 ∥ R3 ∥ R2 = 2 ∥ 2 ∥ 4 = 0.8 Ω, u_C(∞) = 6 × 0.8 = 4.8 V." }
+        { "ask": "i_C(0+) equals:", "choices": ["0", "2 A", "−2 A", "6 A"], "explain": "At node b: i_C = i_L − u_C/R_2 = 2 − 8/4 = 0. Around b neither i_L nor u_C jumps and R_2 is unchanged, so i_C keeps its pre-switching value 0; the switch only changes node a." },
+        { "ask": "u_C(∞) = ?", "explain": "New steady state: L short, C open, R_1 ∥ R_3 ∥ R_2 = 2 ∥ 2 ∥ 4 = 0.8 Ω, u_C(∞) = 6 × 0.8 = 4.8 V." }
       ],
       "hints": [
         "Start with the DC steady state at t = 0−: u_C(0−) and i_L(0−).",
@@ -74,11 +74,11 @@
         "Write KCL at node a for u_a(0+); at node b, check whether i_C changes."
       ],
       "solution": [
-        "**1. t = 0− (S open).** L short, C open, a and b at the same potential: u = Is·(R1 ∥ R2) = 6 × 4/3 = 8 V. i_L(0−) = 8/R2 = 2 A, u_C(0−) = 8 V.",
+        "**1. t = 0− (S open).** L short, C open, a and b at the same potential: u = I_s·(R_1 ∥ R_2) = 6 × 4/3 = 8 V. i_L(0−) = 8/R_2 = 2 A, u_C(0−) = 8 V.",
         "**2. Switching rule.** u_C(0+) = 8 V, i_L(0+) = 2 A.",
-        "**3. t = 0+ equivalent.** Inductor → 2 A current source (a → b), capacitor → 8 V voltage source. Node a: Is = u_a/R1 + u_a/R3 + i_L → 6 = u_a + 2 → **u_a(0+) = 4 V** (it jumps from 8 V to 4 V).",
-        "**4. Inductor voltage.** **u_L(0+) = u_a − u_C = 4 − 8 = −4 V**. Node b: i_C(0+) = i_L − u_C/R2 = 2 − 2 = **0**.",
-        "**5. New steady state.** R1 ∥ R3 ∥ R2 = 0.8 Ω, **u_C(∞) = 4.8 V**, i_L(∞) = 4.8/4 = 1.2 A.",
+        "**3. t = 0+ equivalent.** Inductor → 2 A current source (a → b), capacitor → 8 V voltage source. Node a: I_s = u_a/R_1 + u_a/R_3 + i_L → 6 = u_a + 2 → **u_a(0+) = 4 V** (it jumps from 8 V to 4 V).",
+        "**4. Inductor voltage.** **u_L(0+) = u_a − u_C = 4 − 8 = −4 V**. Node b: i_C(0+) = i_L − u_C/R_2 = 2 − 2 = **0**.",
+        "**5. New steady state.** R_1 ∥ R_3 ∥ R_2 = 0.8 Ω, **u_C(∞) = 4.8 V**, i_L(∞) = 4.8/4 = 1.2 A.",
         "**Note:** which quantities jump after switching has to be worked out in the t = 0+ equivalent circuit; quantities away from the switch can jump too (here u_L), while some non-state quantities may happen not to change (here i_C)."
       ]
     }

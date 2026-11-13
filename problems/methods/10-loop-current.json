@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["回路电流法", "独立回路的选取", "电流源支路"],
   "statement": [
-    "图示电路中 Us = 16 V，Is = 1 A（向上），R1 = 2 Ω，R2 = 2 Ω，R3 = 6 Ω，R4 = 1 Ω，R5 = 2 Ω。",
+    "图示电路中 U_s = 16 V，I_s = 1 A（向上），R_1 = 2 Ω，R_2 = 2 Ω，R_3 = 6 Ω，R_4 = 1 Ω，R_5 = 2 Ω。",
     "用**回路电流法**求解。选三个独立回路（均为顺时针）：",
-    "- 回路 l1：Is → R2 → R3（只有它经过电流源）；",
-    "- 回路 l2：Us → R1 → R2 → R3（沿外围绕过电流源）；",
-    "- 回路 l3：R3 → R4 → R5。",
-    "求 R2 中的电流 i2、R5 中的电流 i5，以及电流源吸收的功率。"
+    "- 回路 l1：I_s → R_2 → R_3（只有它经过电流源）；",
+    "- 回路 l2：U_s → R_1 → R_2 → R_3（沿外围绕过电流源）；",
+    "- 回路 l3：R_3 → R_4 → R_5。",
+    "求 R_2 中的电流 i_2、R_5 中的电流 i_5，以及电流源吸收的功率。"
   ],
   "schematic": {
     "elements": [
@@ -42,61 +42,61 @@
       "ask": "按题中这样选回路，一共需要列几个 KVL 方程？",
       "choices": ["1 个", "2 个", "3 个", "4 个"],
       "correct": 1,
-      "explain": "电流源只属于回路 l1，所以 i_l1 = Is = 1 A 直接已知，只需对 l2、l3 列 2 个 KVL 方程，也不必引入电流源电压。"
+      "explain": "电流源只属于回路 l1，所以 i_l1 = I_s = 1 A 直接已知，只需对 l2、l3 列 2 个 KVL 方程，也不必引入电流源电压。"
     },
-    { "id": "i2", "ask": "i2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": 3, "unit": "A", "explain": "R2 同时属于 l1 和 l2，两个回路电流同向：i2 = i_l1 + i_l2 = 1 + 2 = 3 A。" },
-    { "id": "i5", "ask": "i5 = ?", "find": { "kind": "i", "el": "R5" }, "answer": 2, "unit": "A", "explain": "R5 只属于 l3：i5 = i_l3 = 2 A。" },
-    { "id": "p", "ask": "电流源吸收的功率 P = ?", "find": { "kind": "p", "el": "Is" }, "answer": -12, "unit": "W", "explain": "电流源上端电压 = Us − R1·i_l2 = 16 − 4 = 12 V，1 A 从高电位端流出：P = −12 × 1 = −12 W（发出 12 W）。" }
+    { "id": "i2", "ask": "i_2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": 3, "unit": "A", "explain": "R_2 同时属于 l1 和 l2，两个回路电流同向：i_2 = i_l1 + i_l2 = 1 + 2 = 3 A。" },
+    { "id": "i5", "ask": "i_5 = ?", "find": { "kind": "i", "el": "R5" }, "answer": 2, "unit": "A", "explain": "R_5 只属于 l3：i_5 = i_l3 = 2 A。" },
+    { "id": "p", "ask": "电流源吸收的功率 P = ?", "find": { "kind": "p", "el": "Is" }, "answer": -12, "unit": "W", "explain": "电流源上端电压 = U_s − R_1·i_l2 = 16 − 4 = 12 V，1 A 从高电位端流出：P = −12 × 1 = −12 W（发出 12 W）。" }
   ],
   "hints": [
-    "i_l1 = Is = 1 A。写出每个电阻中的电流：R1：i_l2；R2：i_l1 + i_l2；R3（向下）：i_l1 + i_l2 − i_l3；R4、R5：i_l3。",
-    "回路 l2：R1·i_l2 + R2(i_l1 + i_l2) + R3(i_l1 + i_l2 − i_l3) = Us。",
-    "回路 l3：−R3(i_l1 + i_l2 − i_l3) + (R4 + R5)·i_l3 = 0。"
+    "i_l1 = I_s = 1 A。写出每个电阻中的电流：R_1：i_l2；R_2：i_l1 + i_l2；R_3（向下）：i_l1 + i_l2 − i_l3；R_4、R_5：i_l3。",
+    "回路 l2：R_1·i_l2 + R_2(i_l1 + i_l2) + R_3(i_l1 + i_l2 − i_l3) = U_s。",
+    "回路 l3：−R_3(i_l1 + i_l2 − i_l3) + (R_4 + R_5)·i_l3 = 0。"
   ],
   "solution": [
-    "**1. 已知回路电流：** i_l1 = Is = 1 A。",
-    "**2. 回路 l2：** (R1 + R2 + R3)·i_l2 + (R2 + R3)·i_l1 − R3·i_l3 = Us → 10i_l2 + 8 − 6i_l3 = 16 → 10i_l2 − 6i_l3 = 8。",
-    "**3. 回路 l3：** (R3 + R4 + R5)·i_l3 − R3·(i_l1 + i_l2) = 0 → 9i_l3 − 6 − 6i_l2 = 0 → 9i_l3 − 6i_l2 = 6。",
+    "**1. 已知回路电流：** i_l1 = I_s = 1 A。",
+    "**2. 回路 l2：** (R_1 + R_2 + R_3)·i_l2 + (R_2 + R_3)·i_l1 − R_3·i_l3 = U_s → 10i_l2 + 8 − 6i_l3 = 16 → 10i_l2 − 6i_l3 = 8。",
+    "**3. 回路 l3：** (R_3 + R_4 + R_5)·i_l3 − R_3·(i_l1 + i_l2) = 0 → 9i_l3 − 6 − 6i_l2 = 0 → 9i_l3 − 6i_l2 = 6。",
     "**4. 求解：** 由第三步 i_l3 = (6 + 6i_l2)/9，代入：10i_l2 − 4 − 4i_l2 = 8 → **i_l2 = 2 A**，**i_l3 = 2 A**。",
-    "**5. 支路电流：** i2 = i_l1 + i_l2 = **3 A**；i3（向下）= 1 + 2 − 2 = 1 A；**i5 = i_l3 = 2 A**。",
-    "**6. 电流源功率：** 上端电压 u = Us − R1·i_l2 = 12 V（也等于 R2·i2 + R3·i3 = 6 + 6 = 12 V），P = −12 × 1 = **−12 W**（发出 12 W）。",
-    "**验算：** Us 发出 16 × 2 = 32 W，Is 发出 12 W，共 44 W；电阻吸收 2×4 + 2×9 + 6×1 + 1×4 + 2×4 = 8 + 18 + 6 + 4 + 8 = 44 W。"
+    "**5. 支路电流：** i_2 = i_l1 + i_l2 = **3 A**；i_3（向下）= 1 + 2 − 2 = 1 A；**i_5 = i_l3 = 2 A**。",
+    "**6. 电流源功率：** 上端电压 u = U_s − R_1·i_l2 = 12 V（也等于 R_2·i_2 + R_3·i_3 = 6 + 6 = 12 V），P = −12 × 1 = **−12 W**（发出 12 W）。",
+    "**验算：** U_s 发出 16 × 2 = 32 W，I_s 发出 12 W，共 44 W；电阻吸收 2×4 + 2×9 + 6×1 + 1×4 + 2×4 = 8 + 18 + 6 + 4 + 8 = 44 W。"
   ],
   "i18n": {
     "en": {
       "title": "Loop-current method: put the current source in one loop only",
       "tags": ["loop-current method", "choosing independent loops", "current-source branch"],
       "statement": [
-        "In the circuit, Us = 16 V, Is = 1 A (upwards), R1 = 2 Ω, R2 = 2 Ω, R3 = 6 Ω, R4 = 1 Ω, R5 = 2 Ω.",
+        "In the circuit, U_s = 16 V, I_s = 1 A (upwards), R_1 = 2 Ω, R_2 = 2 Ω, R_3 = 6 Ω, R_4 = 1 Ω, R_5 = 2 Ω.",
         "Solve with the **loop-current method**, using three independent loops (all clockwise):",
-        "- loop l1: Is → R2 → R3 (the only loop through the current source);",
-        "- loop l2: Us → R1 → R2 → R3 (around the outside, bypassing the current source);",
-        "- loop l3: R3 → R4 → R5.",
-        "Find the current i2 in R2, the current i5 in R5 and the power absorbed by the current source."
+        "- loop l1: I_s → R_2 → R_3 (the only loop through the current source);",
+        "- loop l2: U_s → R_1 → R_2 → R_3 (around the outside, bypassing the current source);",
+        "- loop l3: R_3 → R_4 → R_5.",
+        "Find the current i_2 in R_2, the current i_5 in R_5 and the power absorbed by the current source."
       ],
       "questions": [
         {
           "ask": "With these loops, how many KVL equations must be written?",
           "choices": ["1", "2", "3", "4"],
-          "explain": "The current source belongs only to loop l1, so i_l1 = Is = 1 A is known directly; only 2 KVL equations (l2 and l3) are needed, and the source voltage never enters."
+          "explain": "The current source belongs only to loop l1, so i_l1 = I_s = 1 A is known directly; only 2 KVL equations (l2 and l3) are needed, and the source voltage never enters."
         },
-        { "ask": "i2 = ?", "explain": "R2 belongs to both l1 and l2, and both loop currents go the same way through it: i2 = i_l1 + i_l2 = 1 + 2 = 3 A." },
-        { "ask": "i5 = ?", "explain": "R5 belongs only to l3: i5 = i_l3 = 2 A." },
-        { "ask": "Power absorbed by the current source, P = ?", "explain": "The top of the current source is at Us − R1·i_l2 = 16 − 4 = 12 V, and 1 A leaves at that higher-potential end: P = −12 × 1 = −12 W (it delivers 12 W)." }
+        { "ask": "i_2 = ?", "explain": "R_2 belongs to both l1 and l2, and both loop currents go the same way through it: i_2 = i_l1 + i_l2 = 1 + 2 = 3 A." },
+        { "ask": "i_5 = ?", "explain": "R_5 belongs only to l3: i_5 = i_l3 = 2 A." },
+        { "ask": "Power absorbed by the current source, P = ?", "explain": "The top of the current source is at U_s − R_1·i_l2 = 16 − 4 = 12 V, and 1 A leaves at that higher-potential end: P = −12 × 1 = −12 W (it delivers 12 W)." }
       ],
       "hints": [
-        "i_l1 = Is = 1 A. Write the current in every resistor: R1: i_l2; R2: i_l1 + i_l2; R3 (down): i_l1 + i_l2 − i_l3; R4 and R5: i_l3.",
-        "Loop l2: R1·i_l2 + R2(i_l1 + i_l2) + R3(i_l1 + i_l2 − i_l3) = Us.",
-        "Loop l3: −R3(i_l1 + i_l2 − i_l3) + (R4 + R5)·i_l3 = 0."
+        "i_l1 = I_s = 1 A. Write the current in every resistor: R_1: i_l2; R_2: i_l1 + i_l2; R_3 (down): i_l1 + i_l2 − i_l3; R_4 and R_5: i_l3.",
+        "Loop l2: R_1·i_l2 + R_2(i_l1 + i_l2) + R_3(i_l1 + i_l2 − i_l3) = U_s.",
+        "Loop l3: −R_3(i_l1 + i_l2 − i_l3) + (R_4 + R_5)·i_l3 = 0."
       ],
       "solution": [
-        "**1. Known loop current:** i_l1 = Is = 1 A.",
-        "**2. Loop l2:** (R1 + R2 + R3)·i_l2 + (R2 + R3)·i_l1 − R3·i_l3 = Us → 10i_l2 + 8 − 6i_l3 = 16 → 10i_l2 − 6i_l3 = 8.",
-        "**3. Loop l3:** (R3 + R4 + R5)·i_l3 − R3·(i_l1 + i_l2) = 0 → 9i_l3 − 6 − 6i_l2 = 0 → 9i_l3 − 6i_l2 = 6.",
+        "**1. Known loop current:** i_l1 = I_s = 1 A.",
+        "**2. Loop l2:** (R_1 + R_2 + R_3)·i_l2 + (R_2 + R_3)·i_l1 − R_3·i_l3 = U_s → 10i_l2 + 8 − 6i_l3 = 16 → 10i_l2 − 6i_l3 = 8.",
+        "**3. Loop l3:** (R_3 + R_4 + R_5)·i_l3 − R_3·(i_l1 + i_l2) = 0 → 9i_l3 − 6 − 6i_l2 = 0 → 9i_l3 − 6i_l2 = 6.",
         "**4. Solve:** from step 3, i_l3 = (6 + 6i_l2)/9; substituting, 10i_l2 − 4 − 4i_l2 = 8 → **i_l2 = 2 A**, **i_l3 = 2 A**.",
-        "**5. Branch currents:** i2 = i_l1 + i_l2 = **3 A**; i3 (down) = 1 + 2 − 2 = 1 A; **i5 = i_l3 = 2 A**.",
-        "**6. Current-source power:** its top is at u = Us − R1·i_l2 = 12 V (also R2·i2 + R3·i3 = 6 + 6 = 12 V), so P = −12 × 1 = **−12 W** (delivers 12 W).",
-        "**Check:** Us delivers 16 × 2 = 32 W and Is delivers 12 W, 44 W in total; the resistors absorb 2×4 + 2×9 + 6×1 + 1×4 + 2×4 = 8 + 18 + 6 + 4 + 8 = 44 W."
+        "**5. Branch currents:** i_2 = i_l1 + i_l2 = **3 A**; i_3 (down) = 1 + 2 − 2 = 1 A; **i_5 = i_l3 = 2 A**.",
+        "**6. Current-source power:** its top is at u = U_s − R_1·i_l2 = 12 V (also R_2·i_2 + R_3·i_3 = 6 + 6 = 12 V), so P = −12 × 1 = **−12 W** (delivers 12 W).",
+        "**Check:** U_s delivers 16 × 2 = 32 W and I_s delivers 12 W, 44 W in total; the resistors absorb 2×4 + 2×9 + 6×1 + 1×4 + 2×4 = 8 + 18 + 6 + 4 + 8 = 44 W."
       ]
     }
   }

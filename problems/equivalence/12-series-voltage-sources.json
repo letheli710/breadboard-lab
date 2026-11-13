@@ -7,8 +7,8 @@
   "level": 3,
   "tags": ["电压源串联", "电流源并联", "电源等效变换", "功率"],
   "statement": [
-    "图示电路中，左边支路由 Us1 = 10 V、Us2 = 4 V（极性见图）和 R1 = 2 Ω 串联组成；Is = 1 A（方向向下），R2 = 4 Ω，R_L = 4 Ω。",
-    "先把两个串联电压源合并，再用电源等效变换求结点 a 的电压 u_a、负载电流 i_L，以及 Us2 吸收的功率。"
+    "图示电路中，左边支路由 U_s1 = 10 V、U_s2 = 4 V（极性见图）和 R_1 = 2 Ω 串联组成；I_s = 1 A（方向向下），R_2 = 4 Ω，R_L = 4 Ω。",
+    "先把两个串联电压源合并，再用电源等效变换求结点 a 的电压 u_a、负载电流 i_L，以及 U_s2 吸收的功率。"
   ],
   "schematic": {
     "elements": [
@@ -34,22 +34,22 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 2, "unit": "V", "explain": "合并后 6 V 串 2 Ω → 3 A 并 2 Ω；与 Is 反向并联得 2 A；2 ∥ 4 ∥ 4 = 1 Ω，u_a = 2 × 1 = 2 V。" },
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 2, "unit": "V", "explain": "合并后 6 V 串 2 Ω → 3 A 并 2 Ω；与 I_s 反向并联得 2 A；2 ∥ 4 ∥ 4 = 1 Ω，u_a = 2 × 1 = 2 V。" },
     { "id": "il", "ask": "i_L = ?", "find": { "kind": "i", "el": "RL" }, "answer": 0.5, "unit": "A", "explain": "i_L = u_a / R_L = 2 / 4 = 0.5 A。" },
-    { "id": "p2", "ask": "Us2 吸收的功率 P = ?（发出为负）", "find": { "kind": "p", "el": "Us2" }, "answer": 8, "unit": "W", "explain": "左支路电流 (6 − 2)/2 = 2 A 向上流；它从 Us2 的“+”端（下端）流入，P = 4 × 2 = +8 W，Us2 在吸收功率（被“充电”）。" }
+    { "id": "p2", "ask": "U_s2 吸收的功率 P = ?（发出为负）", "find": { "kind": "p", "el": "Us2" }, "answer": 8, "unit": "W", "explain": "左支路电流 (6 − 2)/2 = 2 A 向上流；它从 U_s2 的“+”端（下端）流入，P = 4 × 2 = +8 W，U_s2 在吸收功率（被“充电”）。" }
   ],
   "hints": [
     "串联电压源的合并：沿同一方向，极性一致的相加、相反的相减。这里合并后“+”在上方。",
     "6 V 串 2 Ω 可以变为 3 A 并 2 Ω；它和向下的 1 A 电流源并联，合并时要相减。",
-    "求 Us2 的功率要回到原电路：先求左支路的实际电流，再看它从 Us2 的哪一端流入。"
+    "求 U_s2 的功率要回到原电路：先求左支路的实际电流，再看它从 U_s2 的哪一端流入。"
   ],
   "solution": [
-    "**1. 合并电压源。** 从下往上：经 Us2 是从“+”到“−”，电压降 4 V；经 Us1 是从“−”到“+”，升 10 V。等效 Us = 10 − 4 = 6 V，“+”在上方。",
-    "**2. 变换。** 6 V 串 R1 = 2 Ω → 3 A（向上，注入 a）并 2 Ω。",
-    "**3. 合并电流源。** 3 A 向上与 Is = 1 A 向下并联：2 A 向上。",
+    "**1. 合并电压源。** 从下往上：经 U_s2 是从“+”到“−”，电压降 4 V；经 U_s1 是从“−”到“+”，升 10 V。等效 U_s = 10 − 4 = 6 V，“+”在上方。",
+    "**2. 变换。** 6 V 串 R_1 = 2 Ω → 3 A（向上，注入 a）并 2 Ω。",
+    "**3. 合并电流源。** 3 A 向上与 I_s = 1 A 向下并联：2 A 向上。",
     "**4. 合并电阻。** 2 ∥ 4 ∥ 4 = 1 Ω（电导 1/2 + 1/4 + 1/4 = 1 S）。",
     "**5.** u_a = 2 × 1 = **2 V**，i_L = 2/4 = **0.5 A**。",
-    "**6. 回到原电路。** 左支路电流（向上）i = (6 − u_a)/R1 = (6 − 2)/2 = 2 A。它在 Us2 中从下端“+”流向上端“−”，与 Us2 的关联参考方向一致：P_Us2 = 4 × 2 = **8 W**（吸收）。",
+    "**6. 回到原电路。** 左支路电流（向上）i = (6 − u_a)/R_1 = (6 − 2)/2 = 2 A。它在 U_s2 中从下端“+”流向上端“−”，与 U_s2 的关联参考方向一致：P_Us2 = 4 × 2 = **8 W**（吸收）。",
     "**验算：** P_Us1 = −20 W，P_Us2 = 8 W，P_Is = 2 × 1 = 2 W（a 端电压 2 V，电流从 a 流入），P_R1 = 8 W，P_R2 = 1 W，P_RL = 1 W，总和 −20 + 8 + 2 + 8 + 1 + 1 = 0 ✓。"
   ],
   "i18n": {
@@ -57,26 +57,26 @@
       "title": "Series voltage sources and source transformation",
       "tags": ["voltage sources in series", "current sources in parallel", "source transformation", "power"],
       "statement": [
-        "In the circuit, the left branch is Us1 = 10 V, Us2 = 4 V (polarities as drawn) and R1 = 2 Ω in series; Is = 1 A (down), R2 = 4 Ω, R_L = 4 Ω.",
-        "First combine the two series voltage sources, then use source transformations to find the voltage u_a of node a, the load current i_L and the power absorbed by Us2."
+        "In the circuit, the left branch is U_s1 = 10 V, U_s2 = 4 V (polarities as drawn) and R_1 = 2 Ω in series; I_s = 1 A (down), R_2 = 4 Ω, R_L = 4 Ω.",
+        "First combine the two series voltage sources, then use source transformations to find the voltage u_a of node a, the load current i_L and the power absorbed by U_s2."
       ],
       "questions": [
-        { "ask": "u_a = ?", "explain": "Combined: 6 V in series with 2 Ω → 3 A in parallel with 2 Ω; with Is pointing the other way this leaves 2 A; 2 ∥ 4 ∥ 4 = 1 Ω, so u_a = 2 × 1 = 2 V." },
+        { "ask": "u_a = ?", "explain": "Combined: 6 V in series with 2 Ω → 3 A in parallel with 2 Ω; with I_s pointing the other way this leaves 2 A; 2 ∥ 4 ∥ 4 = 1 Ω, so u_a = 2 × 1 = 2 V." },
         { "ask": "i_L = ?", "explain": "i_L = u_a / R_L = 2 / 4 = 0.5 A." },
-        { "ask": "Power absorbed by Us2, P = ? (negative = delivered)", "explain": "The left branch carries (6 − 2)/2 = 2 A upwards; it enters Us2 at its + terminal (the lower end), so P = 4 × 2 = +8 W: Us2 absorbs power (it is being \"charged\")." }
+        { "ask": "Power absorbed by U_s2, P = ? (negative = delivered)", "explain": "The left branch carries (6 − 2)/2 = 2 A upwards; it enters U_s2 at its + terminal (the lower end), so P = 4 × 2 = +8 W: U_s2 absorbs power (it is being \"charged\")." }
       ],
       "hints": [
         "Combining series voltage sources: going one way round, add those with the same polarity and subtract the opposite ones. Here the result has its + at the top.",
         "6 V in series with 2 Ω becomes 3 A in parallel with 2 Ω; it is in parallel with the downward 1 A source, so subtract.",
-        "For Us2's power go back to the original circuit: find the actual current in the left branch and see which terminal of Us2 it enters."
+        "For U_s2's power go back to the original circuit: find the actual current in the left branch and see which terminal of U_s2 it enters."
       ],
       "solution": [
-        "**1. Combine the voltage sources.** Going upwards: through Us2 from + to −, a drop of 4 V; through Us1 from − to +, a rise of 10 V. Equivalent Us = 10 − 4 = 6 V with + at the top.",
-        "**2. Transform.** 6 V in series with R1 = 2 Ω → 3 A (up, into a) in parallel with 2 Ω.",
-        "**3. Combine the current sources.** 3 A up in parallel with Is = 1 A down: 2 A up.",
+        "**1. Combine the voltage sources.** Going upwards: through U_s2 from + to −, a drop of 4 V; through U_s1 from − to +, a rise of 10 V. Equivalent U_s = 10 − 4 = 6 V with + at the top.",
+        "**2. Transform.** 6 V in series with R_1 = 2 Ω → 3 A (up, into a) in parallel with 2 Ω.",
+        "**3. Combine the current sources.** 3 A up in parallel with I_s = 1 A down: 2 A up.",
         "**4. Combine the resistors.** 2 ∥ 4 ∥ 4 = 1 Ω (conductance 1/2 + 1/4 + 1/4 = 1 S).",
         "**5.** u_a = 2 × 1 = **2 V**, i_L = 2/4 = **0.5 A**.",
-        "**6. Back to the original circuit.** The left-branch current (upwards) is i = (6 − u_a)/R1 = (6 − 2)/2 = 2 A. In Us2 it flows from the lower + end to the upper − end, i.e. along Us2's passive reference: P_Us2 = 4 × 2 = **8 W** (absorbed).",
+        "**6. Back to the original circuit.** The left-branch current (upwards) is i = (6 − u_a)/R_1 = (6 − 2)/2 = 2 A. In U_s2 it flows from the lower + end to the upper − end, i.e. along U_s2's passive reference: P_Us2 = 4 × 2 = **8 W** (absorbed).",
         "**Check:** P_Us1 = −20 W, P_Us2 = 8 W, P_Is = 2 × 1 = 2 W (2 V at a, current entering at a), P_R1 = 8 W, P_R2 = 1 W, P_RL = 1 W; total −20 + 8 + 2 + 8 + 1 + 1 = 0 ✓."
       ]
     }

@@ -7,7 +7,7 @@
   "level": 5,
   "tags": ["全响应", "二阶微分方程", "欠阻尼", "di_L/dt(0₊)"],
   "statement": [
-    "图示电路中电压源 u_s 在 t < 0 时为 4 V（电路已稳定），t = 0 时跳变为 12 V，即 u_s = 4 + 8ε(t) V；R1 = 2 Ω，L = 1 H，C = 0.25 F，R2 = 2 Ω。",
+    "图示电路中电压源 u_s 在 t < 0 时为 4 V（电路已稳定），t = 0 时跳变为 12 V，即 u_s = 4 + 8ε(t) V；R_1 = 2 Ω，L = 1 H，C = 0.25 F，R_2 = 2 Ω。",
     "求 u_L(0₊)（从而得到 di_L/dt(0₊)）、t > 0 时的特征根，以及 t = π/4 s 时的 u_C 和 i_L。"
   ],
   "schematic": {
@@ -40,7 +40,7 @@
       "find": { "kind": "v", "el": "L", "t": "0+" },
       "answer": 8,
       "unit": "V",
-      "explain": "t < 0：i_L = 4/(2 + 2) = 1 A，u_C = 2 × 1 = 2 V。t = 0₊：KVL u_L = u_s − R1·i_L − u_C = 12 − 2 − 2 = 8 V，所以 di_L/dt(0₊) = u_L/L = 8 A/s。"
+      "explain": "t < 0：i_L = 4/(2 + 2) = 1 A，u_C = 2 × 1 = 2 V。t = 0₊：KVL u_L = u_s − R_1·i_L − u_C = 12 − 2 − 2 = 8 V，所以 di_L/dt(0₊) = u_L/L = 8 A/s。"
     },
     {
       "id": "sre",
@@ -48,7 +48,7 @@
       "find": { "kind": "root", "n": 1 },
       "answer": -2,
       "unit": "1/s",
-      "explain": "LC·u_C″ + (L/R2 + R1·C)·u_C′ + (1 + R1/R2)·u_C = u_s → 0.25u_C″ + u_C′ + 2u_C = u_s → s² + 4s + 8 = 0 → s = −2 ± j2，实部 −2 s⁻¹。"
+      "explain": "LC·u_C″ + (L/R_2 + R_1·C)·u_C′ + (1 + R_1/R_2)·u_C = u_s → 0.25u_C″ + u_C′ + 2u_C = u_s → s² + 4s + 8 = 0 → s = −2 ± j2，实部 −2 s⁻¹。"
     },
     {
       "id": "sim",
@@ -72,18 +72,18 @@
       "find": { "kind": "i", "el": "L", "t": 0.7853982 },
       "answer": 3.415759,
       "unit": "A",
-      "explain": "i_L = C·du_C/dt + u_C/R2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A。t = π/4：i_L = 3 + 2e^(−π/2) ≈ 3.416 A（已超过终值 3 A）。"
+      "explain": "i_L = C·du_C/dt + u_C/R_2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A。t = π/4：i_L = 3 + 2e^(−π/2) ≈ 3.416 A（已超过终值 3 A）。"
     }
   ],
   "hints": [
     "t < 0 是 u_s = 4 V 下的直流稳态，由它求 i_L(0₋)、u_C(0₋)。",
-    "列方程：结点 a 的 KCL i_L = C·du_C/dt + u_C/R2，回路 KVL L·di_L/dt + R1·i_L + u_C = u_s，消去 i_L。",
-    "u_C 的第二个初始条件：du_C/dt(0₊) = [i_L(0₊) − u_C(0₊)/R2]/C；终值 u_C(∞) = 12 × R2/(R1 + R2) = 6 V。"
+    "列方程：结点 a 的 KCL i_L = C·du_C/dt + u_C/R_2，回路 KVL L·di_L/dt + R_1·i_L + u_C = u_s，消去 i_L。",
+    "u_C 的第二个初始条件：du_C/dt(0₊) = [i_L(0₊) − u_C(0₊)/R_2]/C；终值 u_C(∞) = 12 × R_2/(R_1 + R_2) = 6 V。"
   ],
   "solution": [
-    "**1. t = 0₋。** u_s = 4 V，电感短路、电容开路：i_L(0₋) = 4/(R1 + R2) = 1 A，u_C(0₋) = 2 V。",
-    "**2. t = 0₊。** i_L(0₊) = 1 A，u_C(0₊) = 2 V。**u_L(0₊) = 12 − 2 × 1 − 2 = 8 V** → di_L/dt(0₊) = 8 A/s；i_C(0₊) = i_L − u_C/R2 = 1 − 1 = 0 → du_C/dt(0₊) = 0。",
-    "**3. 方程。** 消去 i_L：LC·u_C″ + (L/R2 + R1·C)·u_C′ + (1 + R1/R2)·u_C = u_s，即 0.25u_C″ + u_C′ + 2u_C = 12 → u_C″ + 4u_C′ + 8u_C = 48。特征根 **s = −2 ± j2**（欠阻尼），特解 u_C(∞) = 6 V。",
+    "**1. t = 0₋。** u_s = 4 V，电感短路、电容开路：i_L(0₋) = 4/(R_1 + R_2) = 1 A，u_C(0₋) = 2 V。",
+    "**2. t = 0₊。** i_L(0₊) = 1 A，u_C(0₊) = 2 V。**u_L(0₊) = 12 − 2 × 1 − 2 = 8 V** → di_L/dt(0₊) = 8 A/s；i_C(0₊) = i_L − u_C/R_2 = 1 − 1 = 0 → du_C/dt(0₊) = 0。",
+    "**3. 方程。** 消去 i_L：LC·u_C″ + (L/R_2 + R_1·C)·u_C′ + (1 + R_1/R_2)·u_C = u_s，即 0.25u_C″ + u_C′ + 2u_C = 12 → u_C″ + 4u_C′ + 8u_C = 48。特征根 **s = −2 ± j2**（欠阻尼），特解 u_C(∞) = 6 V。",
     "**4. 定常数。** u_C = 6 + e^(−2t)(A₁cos 2t + A₂sin 2t)。u_C(0₊) = 2 → A₁ = −4；u_C′(0₊) = −2A₁ + 2A₂ = 0 → A₂ = −4。u_C = 6 − 4e^(−2t)(cos 2t + sin 2t) V。",
     "**5. 电感电流。** du_C/dt = 16e^(−2t) sin 2t，i_L = 0.25 × 16e^(−2t) sin 2t + u_C/2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A。验算 i_L(0) = 1 A，i_L′(0) = 8 A/s ✓。",
     "**6. t = π/4 s。** **u_C = 6 − 4e^(−π/2) ≈ 5.168 V**，**i_L = 3 + 2e^(−π/2) ≈ 3.416 A**。"
@@ -93,17 +93,17 @@
       "title": "Second-order complete response to a source jump",
       "tags": ["complete response", "second-order differential equation", "underdamped", "di_L/dt(0+)"],
       "statement": [
-        "The source u_s is 4 V for t < 0 (the circuit has settled) and jumps to 12 V at t = 0, i.e. u_s = 4 + 8ε(t) V; R1 = 2 Ω, L = 1 H, C = 0.25 F, R2 = 2 Ω.",
+        "The source u_s is 4 V for t < 0 (the circuit has settled) and jumps to 12 V at t = 0, i.e. u_s = 4 + 8ε(t) V; R_1 = 2 Ω, L = 1 H, C = 0.25 F, R_2 = 2 Ω.",
         "Find u_L(0+) (and hence di_L/dt(0+)), the characteristic roots for t > 0, and u_C and i_L at t = π/4 s."
       ],
       "questions": [
         {
           "ask": "u_L(0+) = ?",
-          "explain": "For t < 0: i_L = 4/(2 + 2) = 1 A and u_C = 2 × 1 = 2 V. At t = 0+, KVL gives u_L = u_s − R1·i_L − u_C = 12 − 2 − 2 = 8 V, so di_L/dt(0+) = u_L/L = 8 A/s."
+          "explain": "For t < 0: i_L = 4/(2 + 2) = 1 A and u_C = 2 × 1 = 2 V. At t = 0+, KVL gives u_L = u_s − R_1·i_L − u_C = 12 − 2 − 2 = 8 V, so di_L/dt(0+) = u_L/L = 8 A/s."
         },
         {
           "ask": "Real part of the characteristic roots s₁,₂ = −α ± jω_d = ?",
-          "explain": "LC·u_C″ + (L/R2 + R1·C)·u_C′ + (1 + R1/R2)·u_C = u_s → 0.25u_C″ + u_C′ + 2u_C = u_s → s² + 4s + 8 = 0 → s = −2 ± j2, real part −2 1/s."
+          "explain": "LC·u_C″ + (L/R_2 + R_1·C)·u_C′ + (1 + R_1/R_2)·u_C = u_s → 0.25u_C″ + u_C′ + 2u_C = u_s → s² + 4s + 8 = 0 → s = −2 ± j2, real part −2 1/s."
         },
         {
           "ask": "Imaginary part of s₁ = −α + jω_d, i.e. ω_d = ?",
@@ -115,18 +115,18 @@
         },
         {
           "ask": "i_L at t = π/4 s = ?",
-          "explain": "i_L = C·du_C/dt + u_C/R2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A. At t = π/4: i_L = 3 + 2e^(−π/2) ≈ 3.416 A (already above the final value of 3 A)."
+          "explain": "i_L = C·du_C/dt + u_C/R_2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A. At t = π/4: i_L = 3 + 2e^(−π/2) ≈ 3.416 A (already above the final value of 3 A)."
         }
       ],
       "hints": [
         "For t < 0 the circuit is in DC steady state with u_s = 4 V; use it to find i_L(0−) and u_C(0−).",
-        "Equations: KCL at node a, i_L = C·du_C/dt + u_C/R2; KVL around the loop, L·di_L/dt + R1·i_L + u_C = u_s; eliminate i_L.",
-        "Second initial condition for u_C: du_C/dt(0+) = [i_L(0+) − u_C(0+)/R2]/C; final value u_C(∞) = 12 × R2/(R1 + R2) = 6 V."
+        "Equations: KCL at node a, i_L = C·du_C/dt + u_C/R_2; KVL around the loop, L·di_L/dt + R_1·i_L + u_C = u_s; eliminate i_L.",
+        "Second initial condition for u_C: du_C/dt(0+) = [i_L(0+) − u_C(0+)/R_2]/C; final value u_C(∞) = 12 × R_2/(R_1 + R_2) = 6 V."
       ],
       "solution": [
-        "**1. t = 0−.** u_s = 4 V, L shorted, C open: i_L(0−) = 4/(R1 + R2) = 1 A, u_C(0−) = 2 V.",
-        "**2. t = 0+.** i_L(0+) = 1 A, u_C(0+) = 2 V. **u_L(0+) = 12 − 2 × 1 − 2 = 8 V** → di_L/dt(0+) = 8 A/s; i_C(0+) = i_L − u_C/R2 = 1 − 1 = 0 → du_C/dt(0+) = 0.",
-        "**3. Equation.** Eliminating i_L: LC·u_C″ + (L/R2 + R1·C)·u_C′ + (1 + R1/R2)·u_C = u_s, i.e. 0.25u_C″ + u_C′ + 2u_C = 12 → u_C″ + 4u_C′ + 8u_C = 48. Roots **s = −2 ± j2** (underdamped), particular solution u_C(∞) = 6 V.",
+        "**1. t = 0−.** u_s = 4 V, L shorted, C open: i_L(0−) = 4/(R_1 + R_2) = 1 A, u_C(0−) = 2 V.",
+        "**2. t = 0+.** i_L(0+) = 1 A, u_C(0+) = 2 V. **u_L(0+) = 12 − 2 × 1 − 2 = 8 V** → di_L/dt(0+) = 8 A/s; i_C(0+) = i_L − u_C/R_2 = 1 − 1 = 0 → du_C/dt(0+) = 0.",
+        "**3. Equation.** Eliminating i_L: LC·u_C″ + (L/R_2 + R_1·C)·u_C′ + (1 + R_1/R_2)·u_C = u_s, i.e. 0.25u_C″ + u_C′ + 2u_C = 12 → u_C″ + 4u_C′ + 8u_C = 48. Roots **s = −2 ± j2** (underdamped), particular solution u_C(∞) = 6 V.",
         "**4. Constants.** u_C = 6 + e^(−2t)(A₁cos 2t + A₂sin 2t). u_C(0+) = 2 → A₁ = −4; u_C′(0+) = −2A₁ + 2A₂ = 0 → A₂ = −4. u_C = 6 − 4e^(−2t)(cos 2t + sin 2t) V.",
         "**5. Inductor current.** du_C/dt = 16e^(−2t) sin 2t, so i_L = 0.25 × 16e^(−2t) sin 2t + u_C/2 = 3 + 2e^(−2t)(sin 2t − cos 2t) A. Check: i_L(0) = 1 A and i_L′(0) = 8 A/s ✓.",
         "**6. t = π/4 s.** **u_C = 6 − 4e^(−π/2) ≈ 5.168 V**, **i_L = 3 + 2e^(−π/2) ≈ 3.416 A**."

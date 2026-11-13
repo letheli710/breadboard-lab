@@ -8,7 +8,7 @@
   "tags": ["Z 参数", "Y 参数", "参数换算", "正弦稳态"],
   "statement": [
     "图示 T 形二端口工作在 ω = 1000 rad/s 的正弦稳态下：L = 2 mH，C = 500 µF，R = 2 Ω。端口电流相量 İ1、İ2 都以流入端口为正。",
-    "求 Z 参数 z11，再由 Z 参数换算出 Y 参数 y11 和 y21（复数）。"
+    "求 Z 参数 z_11，再由 Z 参数换算出 Y 参数 y_11 和 y_21（复数）。"
   ],
   "schematic": {
     "elements": [
@@ -34,72 +34,72 @@
   "questions": [
     {
       "id": "z11",
-      "ask": "|z11| = ?",
+      "ask": "|z_11| = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11", "part": "mag" },
       "answer": 2.828427,
       "unit": "Ω",
-      "explain": "jωL = j2 Ω，1/(jωC) = −j2 Ω。2–2' 开路时 z11 = j2 + 2 = 2 + j2 Ω，|z11| = 2√2 ≈ 2.828 Ω（阻抗角 45°）。"
+      "explain": "jωL = j2 Ω，1/(jωC) = −j2 Ω。2–2' 开路时 z_11 = j2 + 2 = 2 + j2 Ω，|z_11| = 2√2 ≈ 2.828 Ω（阻抗角 45°）。"
     },
     {
       "id": "y11re",
-      "ask": "y11 的实部 = ?",
+      "ask": "y_11 的实部 = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "y11", "part": "re" },
       "answer": 0.5,
       "unit": "S",
-      "explain": "Z = [2 + j2, 2; 2, 2 − j2] Ω，Δ_Z = (2 + j2)(2 − j2) − 2² = 8 − 4 = 4 Ω²；y11 = z22/Δ_Z = (2 − j2)/4 = 0.5 − j0.5 S，实部 0.5 S。"
+      "explain": "Z = [2 + j2, 2; 2, 2 − j2] Ω，Δ_Z = (2 + j2)(2 − j2) − 2² = 8 − 4 = 4 Ω²；y_11 = z_22/Δ_Z = (2 − j2)/4 = 0.5 − j0.5 S，实部 0.5 S。"
     },
     {
       "id": "y11im",
-      "ask": "y11 的虚部 = ?",
+      "ask": "y_11 的虚部 = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "y11", "part": "im" },
       "answer": -0.5,
       "unit": "S",
-      "explain": "y11 = 0.5 − j0.5 S，虚部 −0.5 S。验算：2–2' 短路时从 1 端看进去 Z = j2 + 2 ∥ (−j2) = j2 + (1 − j1) = 1 + j1 Ω，y11 = 1/(1 + j1) = 0.5 − j0.5 S。"
+      "explain": "y_11 = 0.5 − j0.5 S，虚部 −0.5 S。验算：2–2' 短路时从 1 端看进去 Z = j2 + 2 ∥ (−j2) = j2 + (1 − j1) = 1 + j1 Ω，y_11 = 1/(1 + j1) = 0.5 − j0.5 S。"
     },
     {
       "id": "y21",
-      "ask": "y21 的实部 = ?（它的虚部为 0）",
+      "ask": "y_21 的实部 = ?（它的虚部为 0）",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "y21", "part": "re" },
       "answer": -0.5,
       "unit": "S",
-      "explain": "y21 = −z21/Δ_Z = −2/4 = −0.5 S（纯实数）。网络互易，y12 = y21 = −0.5 S；但 z11 ≠ z22，不对称。"
+      "explain": "y_21 = −z_21/Δ_Z = −2/4 = −0.5 S（纯实数）。网络互易，y_12 = y_21 = −0.5 S；但 z_11 ≠ z_22，不对称。"
     }
   ],
   "hints": [
-    "先算出 jωL 和 1/(jωC)，再像电阻 T 形网络一样写 Z 参数：z11 = Z_L + R，z22 = Z_C + R，z12 = z21 = R。",
-    "Y = Z⁻¹：y11 = z22/Δ_Z，y21 = −z21/Δ_Z，Δ_Z = z11·z22 − z12·z21。复数运算时 (2 + j2)(2 − j2) = 8。"
+    "先算出 jωL 和 1/(jωC)，再像电阻 T 形网络一样写 Z 参数：z_11 = Z_L + R，z_22 = Z_C + R，z_12 = z_21 = R。",
+    "Y = Z⁻¹：y_11 = z_22/Δ_Z，y_21 = −z_21/Δ_Z，Δ_Z = z_11·z_22 − z_12·z_21。复数运算时 (2 + j2)(2 − j2) = 8。"
   ],
   "solution": [
     "**1. 阻抗。** Z_L = jωL = j1000 × 0.002 = j2 Ω；Z_C = 1/(jωC) = −j/(1000 × 500×10⁻⁶) = −j2 Ω。",
-    "**2. Z 参数（开路）。** z11 = Z_L + R = **2 + j2 Ω（|z11| ≈ 2.828 Ω）**，z22 = Z_C + R = 2 − j2 Ω，z12 = z21 = R = 2 Ω。",
+    "**2. Z 参数（开路）。** z_11 = Z_L + R = **2 + j2 Ω（|z_11| ≈ 2.828 Ω）**，z_22 = Z_C + R = 2 − j2 Ω，z_12 = z_21 = R = 2 Ω。",
     "**3. 行列式。** Δ_Z = (2 + j2)(2 − j2) − 2 × 2 = 8 − 4 = 4 Ω²。",
-    "**4. 换算成 Y 参数。** **y11** = z22/Δ_Z = **0.5 − j0.5 S**，**y21** = y12 = −z21/Δ_Z = **−0.5 S**，y22 = z11/Δ_Z = 0.5 + j0.5 S。",
-    "**5. 用定义验算 y11：** 2–2' 短路，R 与 C 并联：2 ∥ (−j2) = 1 − j1 Ω，再串 j2 Ω 得 1 + j1 Ω，y11 = 1/(1 + j1) = 0.5 − j0.5 S ✓。"
+    "**4. 换算成 Y 参数。** **y_11** = z_22/Δ_Z = **0.5 − j0.5 S**，**y_21** = y_12 = −z_21/Δ_Z = **−0.5 S**，y_22 = z_11/Δ_Z = 0.5 + j0.5 S。",
+    "**5. 用定义验算 y_11：** 2–2' 短路，R 与 C 并联：2 ∥ (−j2) = 1 − j1 Ω，再串 j2 Ω 得 1 + j1 Ω，y_11 = 1/(1 + j1) = 0.5 − j0.5 S ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Z and Y parameters of a T network in AC steady state",
       "tags": ["Z parameters", "Y parameters", "parameter conversion", "sinusoidal steady state"],
       "statement": [
-        "The T two-port operates in sinusoidal steady state at ω = 1000 rad/s: L = 2 mH, C = 500 µF, R = 2 Ω. Both port current phasors I1, I2 are positive into the port.",
-        "Find the Z parameter z11, then convert the Z parameters to the Y parameters y11 and y21 (complex numbers)."
+        "The T two-port operates in sinusoidal steady state at ω = 1000 rad/s: L = 2 mH, C = 500 µF, R = 2 Ω. Both port current phasors I_1, I_2 are positive into the port.",
+        "Find the Z parameter z_11, then convert the Z parameters to the Y parameters y_11 and y_21 (complex numbers)."
       ],
       "questions": [
-        { "ask": "|z11| = ?", "explain": "jωL = j2 Ω, 1/(jωC) = −j2 Ω. With port 2 open, z11 = j2 + 2 = 2 + j2 Ω, |z11| = 2√2 ≈ 2.828 Ω (angle 45°)." },
-        { "ask": "Real part of y11 = ?", "explain": "Z = [2 + j2, 2; 2, 2 − j2] Ω, Δ_Z = (2 + j2)(2 − j2) − 2² = 8 − 4 = 4 Ω²; y11 = z22/Δ_Z = (2 − j2)/4 = 0.5 − j0.5 S, real part 0.5 S." },
-        { "ask": "Imaginary part of y11 = ?", "explain": "y11 = 0.5 − j0.5 S, imaginary part −0.5 S. Check: with port 2 shorted, port 1 sees Z = j2 + 2 ∥ (−j2) = j2 + (1 − j1) = 1 + j1 Ω, so y11 = 1/(1 + j1) = 0.5 − j0.5 S." },
-        { "ask": "Real part of y21 = ? (its imaginary part is 0)", "explain": "y21 = −z21/Δ_Z = −2/4 = −0.5 S (purely real). The network is reciprocal, y12 = y21 = −0.5 S, but z11 ≠ z22, so it is not symmetric." }
+        { "ask": "|z_11| = ?", "explain": "jωL = j2 Ω, 1/(jωC) = −j2 Ω. With port 2 open, z_11 = j2 + 2 = 2 + j2 Ω, |z_11| = 2√2 ≈ 2.828 Ω (angle 45°)." },
+        { "ask": "Real part of y_11 = ?", "explain": "Z = [2 + j2, 2; 2, 2 − j2] Ω, Δ_Z = (2 + j2)(2 − j2) − 2² = 8 − 4 = 4 Ω²; y_11 = z_22/Δ_Z = (2 − j2)/4 = 0.5 − j0.5 S, real part 0.5 S." },
+        { "ask": "Imaginary part of y_11 = ?", "explain": "y_11 = 0.5 − j0.5 S, imaginary part −0.5 S. Check: with port 2 shorted, port 1 sees Z = j2 + 2 ∥ (−j2) = j2 + (1 − j1) = 1 + j1 Ω, so y_11 = 1/(1 + j1) = 0.5 − j0.5 S." },
+        { "ask": "Real part of y_21 = ? (its imaginary part is 0)", "explain": "y_21 = −z_21/Δ_Z = −2/4 = −0.5 S (purely real). The network is reciprocal, y_12 = y_21 = −0.5 S, but z_11 ≠ z_22, so it is not symmetric." }
       ],
       "hints": [
-        "Compute jωL and 1/(jωC) first, then write the Z parameters as for a resistive T network: z11 = Z_L + R, z22 = Z_C + R, z12 = z21 = R.",
-        "Y = Z⁻¹: y11 = z22/Δ_Z, y21 = −z21/Δ_Z, with Δ_Z = z11·z22 − z12·z21. In complex arithmetic (2 + j2)(2 − j2) = 8."
+        "Compute jωL and 1/(jωC) first, then write the Z parameters as for a resistive T network: z_11 = Z_L + R, z_22 = Z_C + R, z_12 = z_21 = R.",
+        "Y = Z⁻¹: y_11 = z_22/Δ_Z, y_21 = −z_21/Δ_Z, with Δ_Z = z_11·z_22 − z_12·z_21. In complex arithmetic (2 + j2)(2 − j2) = 8."
       ],
       "solution": [
         "**1. Impedances.** Z_L = jωL = j1000 × 0.002 = j2 Ω; Z_C = 1/(jωC) = −j/(1000 × 500×10⁻⁶) = −j2 Ω.",
-        "**2. Z parameters (open circuit).** z11 = Z_L + R = **2 + j2 Ω (|z11| ≈ 2.828 Ω)**, z22 = Z_C + R = 2 − j2 Ω, z12 = z21 = R = 2 Ω.",
+        "**2. Z parameters (open circuit).** z_11 = Z_L + R = **2 + j2 Ω (|z_11| ≈ 2.828 Ω)**, z_22 = Z_C + R = 2 − j2 Ω, z_12 = z_21 = R = 2 Ω.",
         "**3. Determinant.** Δ_Z = (2 + j2)(2 − j2) − 2 × 2 = 8 − 4 = 4 Ω².",
-        "**4. Convert to Y.** **y11** = z22/Δ_Z = **0.5 − j0.5 S**, **y21** = y12 = −z21/Δ_Z = **−0.5 S**, y22 = z11/Δ_Z = 0.5 + j0.5 S.",
-        "**5. Check y11 from its definition:** with port 2 shorted, R is in parallel with C: 2 ∥ (−j2) = 1 − j1 Ω; adding j2 Ω in series gives 1 + j1 Ω, so y11 = 1/(1 + j1) = 0.5 − j0.5 S ✓."
+        "**4. Convert to Y.** **y_11** = z_22/Δ_Z = **0.5 − j0.5 S**, **y_21** = y_12 = −z_21/Δ_Z = **−0.5 S**, y_22 = z_11/Δ_Z = 0.5 + j0.5 S.",
+        "**5. Check y_11 from its definition:** with port 2 shorted, R is in parallel with C: 2 ∥ (−j2) = 1 − j1 Ω; adding j2 Ω in series gives 1 + j1 Ω, so y_11 = 1/(1 + j1) = 0.5 − j0.5 S ✓."
       ]
     }
   }

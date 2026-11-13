@@ -7,7 +7,7 @@
   "level": 1,
   "tags": ["戴维宁定理", "开路电压", "等效电阻"],
   "statement": [
-    "图示电路中 Us = 12 V，R1 = 6 Ω，R2 = 3 Ω，R3 = 2 Ω，负载 R_L = 4 Ω 接在端子 a、b 之间。",
+    "图示电路中 U_s = 12 V，R_1 = 6 Ω，R_2 = 3 Ω，R_3 = 2 Ω，负载 R_L = 4 Ω 接在端子 a、b 之间。",
     "求 a、b 左侧有源二端网络的戴维宁等效电路（开路电压 u_oc、等效电阻 R_eq），再求负载电流 i_L。"
   ],
   "schematic": {
@@ -36,7 +36,7 @@
       "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 4,
       "unit": "V",
-      "explain": "开路时 R3 中无电流，u_oc 就是 R2 上的电压：12 × 3/(6 + 3) = 4 V。"
+      "explain": "开路时 R_3 中无电流，u_oc 就是 R_2 上的电压：12 × 3/(6 + 3) = 4 V。"
     },
     {
       "id": "req",
@@ -44,7 +44,7 @@
       "find": { "kind": "req", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 4,
       "unit": "Ω",
-      "explain": "Us 置零（短路）：R1 ∥ R2 = 2 Ω，再串 R3：R_eq = 2 + 2 = 4 Ω。"
+      "explain": "U_s 置零（短路）：R_1 ∥ R_2 = 2 Ω，再串 R_3：R_eq = 2 + 2 = 4 Ω。"
     },
     {
       "id": "il",
@@ -56,31 +56,31 @@
     }
   ],
   "hints": [
-    "先把 R_L 拿掉，求 a、b 间的开路电压：此时 R3 中没有电流。",
-    "求 R_eq 时把 Us 换成短路线，从 a、b 往左看进去化简串并联。"
+    "先把 R_L 拿掉，求 a、b 间的开路电压：此时 R_3 中没有电流。",
+    "求 R_eq 时把 U_s 换成短路线，从 a、b 往左看进去化简串并联。"
   ],
   "solution": [
-    "**1. 开路电压。** 断开 R_L，R3 中电流为零，R1、R2 构成分压器：u_oc = Us·R2/(R1 + R2) = 12 × 3/9 = **4 V**。",
-    "**2. 等效电阻。** 独立电压源置零（短路），从 a、b 看进去：R_eq = R3 + R1 ∥ R2 = 2 + 6×3/9 = **4 Ω**。",
+    "**1. 开路电压。** 断开 R_L，R_3 中电流为零，R_1、R_2 构成分压器：u_oc = U_s·R_2/(R_1 + R_2) = 12 × 3/9 = **4 V**。",
+    "**2. 等效电阻。** 独立电压源置零（短路），从 a、b 看进去：R_eq = R_3 + R_1 ∥ R_2 = 2 + 6×3/9 = **4 Ω**。",
     "**3. 接上负载。** 戴维宁等效电路是 4 V 电压源串 4 Ω：i_L = u_oc/(R_eq + R_L) = 4/8 = **0.5 A**。",
-    "**验算：** 直接用结点法，设 R2 上端电压为 u：(12 − u)/6 = u/3 + u/6 → u = 3 V，i_L = 3/(2 + 4) = 0.5 A ✓。"
+    "**验算：** 直接用结点法，设 R_2 上端电压为 u：(12 − u)/6 = u/3 + u/6 → u = 3 V，i_L = 3/(2 + 4) = 0.5 A ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Load current by Thevenin's theorem",
       "tags": ["Thevenin's theorem", "open-circuit voltage", "equivalent resistance"],
       "statement": [
-        "In the circuit, Us = 12 V, R1 = 6 Ω, R2 = 3 Ω, R3 = 2 Ω, and a load R_L = 4 Ω is connected across terminals a, b.",
+        "In the circuit, U_s = 12 V, R_1 = 6 Ω, R_2 = 3 Ω, R_3 = 2 Ω, and a load R_L = 4 Ω is connected across terminals a, b.",
         "Find the Thevenin equivalent (open-circuit voltage u_oc and equivalent resistance R_eq) of the active one-port to the left of a, b, then find the load current i_L."
       ],
       "questions": [
         {
           "ask": "Open-circuit voltage with R_L removed, u_oc = u_ab = ?",
-          "explain": "With a, b open there is no current in R3, so u_oc is the voltage across R2: 12 × 3/(6 + 3) = 4 V."
+          "explain": "With a, b open there is no current in R_3, so u_oc is the voltage across R_2: 12 × 3/(6 + 3) = 4 V."
         },
         {
           "ask": "Equivalent resistance R_eq = ?",
-          "explain": "Zero Us (short it): R1 ∥ R2 = 2 Ω, in series with R3: R_eq = 2 + 2 = 4 Ω."
+          "explain": "Zero U_s (short it): R_1 ∥ R_2 = 2 Ω, in series with R_3: R_eq = 2 + 2 = 4 Ω."
         },
         {
           "ask": "Load current i_L = ?",
@@ -88,14 +88,14 @@
         }
       ],
       "hints": [
-        "Remove R_L first and find the open-circuit voltage across a, b: then no current flows in R3.",
-        "For R_eq replace Us by a short and simplify the series/parallel resistors seen from a, b."
+        "Remove R_L first and find the open-circuit voltage across a, b: then no current flows in R_3.",
+        "For R_eq replace U_s by a short and simplify the series/parallel resistors seen from a, b."
       ],
       "solution": [
-        "**1. Open-circuit voltage.** With R_L removed, R3 carries no current and R1, R2 form a divider: u_oc = Us·R2/(R1 + R2) = 12 × 3/9 = **4 V**.",
-        "**2. Equivalent resistance.** Zero the independent voltage source (short) and look in from a, b: R_eq = R3 + R1 ∥ R2 = 2 + 6×3/9 = **4 Ω**.",
+        "**1. Open-circuit voltage.** With R_L removed, R_3 carries no current and R_1, R_2 form a divider: u_oc = U_s·R_2/(R_1 + R_2) = 12 × 3/9 = **4 V**.",
+        "**2. Equivalent resistance.** Zero the independent voltage source (short) and look in from a, b: R_eq = R_3 + R_1 ∥ R_2 = 2 + 6×3/9 = **4 Ω**.",
         "**3. Reconnect the load.** The Thevenin equivalent is a 4 V source in series with 4 Ω: i_L = u_oc/(R_eq + R_L) = 4/8 = **0.5 A**.",
-        "**Check:** nodal analysis directly, with u the voltage at the top of R2: (12 − u)/6 = u/3 + u/6 → u = 3 V, i_L = 3/(2 + 4) = 0.5 A ✓."
+        "**Check:** nodal analysis directly, with u the voltage at the top of R_2: (12 − u)/6 = u/3 + u/6 → u = 3 V, i_L = 3/(2 + 4) = 0.5 A ✓."
       ]
     }
   }

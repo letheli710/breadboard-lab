@@ -7,8 +7,8 @@
   "level": 2,
   "tags": ["支路电流法", "电流源支路", "方程数目"],
   "statement": [
-    "图示电路中 Us = 20 V，Is = 2 A（向上注入结点 b），R1 = 4 Ω，R2 = 4 Ω，R3 = 2 Ω，R4 = 2 Ω。各支路电流参考方向如图。",
-    "用**支路电流法**求 i1、i3，以及电流源两端的电压 u_b（结点 b 对参考结点）。"
+    "图示电路中 U_s = 20 V，I_s = 2 A（向上注入结点 b），R_1 = 4 Ω，R_2 = 4 Ω，R_3 = 2 Ω，R_4 = 2 Ω。各支路电流参考方向如图。",
+    "用**支路电流法**求 i_1、i_3，以及电流源两端的电压 u_b（结点 b 对参考结点）。"
   ],
   "schematic": {
     "elements": [
@@ -41,55 +41,55 @@
       "ask": "本电路 n = 3、b = 5，其中电流源支路的电流已知。若列 KVL 时**避开**含电流源的回路，支路电流法一共需要列几个方程？",
       "choices": ["3 个", "4 个", "5 个", "6 个"],
       "correct": 1,
-      "explain": "未知支路电流只有 i1～i4 共 4 个：n − 1 = 2 个 KCL，加上 2 个不经过电流源的回路 KVL（左网孔和中间网孔）。如果对含电流源的网孔列 KVL，就必须再引入电流源电压 u 作为未知量。"
+      "explain": "未知支路电流只有 i_1～i_4 共 4 个：n − 1 = 2 个 KCL，加上 2 个不经过电流源的回路 KVL（左网孔和中间网孔）。如果对含电流源的网孔列 KVL，就必须再引入电流源电压 u 作为未知量。"
     },
-    { "id": "i1", "ask": "i1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 3, "unit": "A", "explain": "四个方程联立解得 i1 = 3 A，i2 = 2 A，i3 = 1 A，i4 = 3 A。" },
-    { "id": "i3", "ask": "i3 = ?", "find": { "kind": "i", "el": "R3" }, "answer": 1, "unit": "A", "explain": "i3 = i1 − i2 = 3 − 2 = 1 A。" },
-    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 6, "unit": "V", "explain": "电流源与 R4 并联：u_b = R4·i4 = 2 × 3 = 6 V（也等于 R2·i2 − R3·i3 = 8 − 2 = 6 V）。" }
+    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 3, "unit": "A", "explain": "四个方程联立解得 i_1 = 3 A，i_2 = 2 A，i_3 = 1 A，i_4 = 3 A。" },
+    { "id": "i3", "ask": "i_3 = ?", "find": { "kind": "i", "el": "R3" }, "answer": 1, "unit": "A", "explain": "i_3 = i_1 − i_2 = 3 − 2 = 1 A。" },
+    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 6, "unit": "V", "explain": "电流源与 R_4 并联：u_b = R_4·i_4 = 2 × 3 = 6 V（也等于 R_2·i_2 − R_3·i_3 = 8 − 2 = 6 V）。" }
   ],
   "hints": [
-    "KCL：结点 a：i1 = i2 + i3；结点 b：i3 + Is = i4。",
-    "KVL 选左网孔（Us、R1、R2）和中间网孔（R2、R3、R4），这两个回路都不经过电流源。",
-    "左网孔：4i1 + 4i2 = 20；中间网孔：2i3 + 2i4 = 4i2。"
+    "KCL：结点 a：i_1 = i_2 + i_3；结点 b：i_3 + I_s = i_4。",
+    "KVL 选左网孔（U_s、R_1、R_2）和中间网孔（R_2、R_3、R_4），这两个回路都不经过电流源。",
+    "左网孔：4i_1 + 4i_2 = 20；中间网孔：2i_3 + 2i_4 = 4i_2。"
   ],
   "solution": [
-    "**1. KCL：** 结点 a：i1 = i2 + i3；结点 b：i4 = i3 + 2。",
-    "**2. KVL（左网孔）：** R1·i1 + R2·i2 = Us → 4i1 + 4i2 = 20 → i1 + i2 = 5。",
-    "**3. KVL（中间网孔，经 R2 ↑、R3 →、R4 ↓）：** R3·i3 + R4·i4 = R2·i2 → 2i3 + 2(i3 + 2) = 4i2 → i2 = i3 + 1。",
-    "**4. 求解：** i1 = i2 + i3 = 2i3 + 1，代入 i1 + i2 = 5：3i3 + 2 = 5 → **i3 = 1 A**，i2 = 2 A，**i1 = 3 A**，i4 = 3 A。",
-    "**5. 电流源电压：** u_b = R4·i4 = **6 V**（上正下负）。电流源电流从 b 端流出，电压与电流为非关联方向，发出功率 6 × 2 = 12 W。",
-    "**验算：** 电阻吸收 4×9 + 4×4 + 2×1 + 2×9 = 72 W；Us 发出 20 × 3 = 60 W，Is 发出 12 W，共 72 W。"
+    "**1. KCL：** 结点 a：i_1 = i_2 + i_3；结点 b：i_4 = i_3 + 2。",
+    "**2. KVL（左网孔）：** R_1·i_1 + R_2·i_2 = U_s → 4i_1 + 4i_2 = 20 → i_1 + i_2 = 5。",
+    "**3. KVL（中间网孔，经 R_2 ↑、R_3 →、R_4 ↓）：** R_3·i_3 + R_4·i_4 = R_2·i_2 → 2i_3 + 2(i_3 + 2) = 4i_2 → i_2 = i_3 + 1。",
+    "**4. 求解：** i_1 = i_2 + i_3 = 2i_3 + 1，代入 i_1 + i_2 = 5：3i_3 + 2 = 5 → **i_3 = 1 A**，i_2 = 2 A，**i_1 = 3 A**，i_4 = 3 A。",
+    "**5. 电流源电压：** u_b = R_4·i_4 = **6 V**（上正下负）。电流源电流从 b 端流出，电压与电流为非关联方向，发出功率 6 × 2 = 12 W。",
+    "**验算：** 电阻吸收 4×9 + 4×4 + 2×1 + 2×9 = 72 W；U_s 发出 20 × 3 = 60 W，I_s 发出 12 W，共 72 W。"
   ],
   "i18n": {
     "en": {
       "title": "Branch-current method with a current-source branch",
       "tags": ["branch-current method", "current-source branch", "number of equations"],
       "statement": [
-        "In the circuit, Us = 20 V, Is = 2 A (upwards, into node b), R1 = 4 Ω, R2 = 4 Ω, R3 = 2 Ω, R4 = 2 Ω. The reference directions of the branch currents are shown.",
-        "Use the **branch-current method** to find i1, i3 and the voltage u_b across the current source (node b with respect to the reference)."
+        "In the circuit, U_s = 20 V, I_s = 2 A (upwards, into node b), R_1 = 4 Ω, R_2 = 4 Ω, R_3 = 2 Ω, R_4 = 2 Ω. The reference directions of the branch currents are shown.",
+        "Use the **branch-current method** to find i_1, i_3 and the voltage u_b across the current source (node b with respect to the reference)."
       ],
       "questions": [
         {
           "ask": "Here n = 3 and b = 5, and the current of the current-source branch is known. If the KVL loops are chosen to **avoid** the current source, how many equations does the branch-current method need in total?",
           "choices": ["3", "4", "5", "6"],
-          "explain": "Only i1…i4 are unknown: n − 1 = 2 KCL equations plus 2 KVL equations for loops that don't pass through the current source (the left and middle meshes). Writing KVL around a loop containing the current source would bring in its voltage u as an extra unknown."
+          "explain": "Only i_1…i_4 are unknown: n − 1 = 2 KCL equations plus 2 KVL equations for loops that don't pass through the current source (the left and middle meshes). Writing KVL around a loop containing the current source would bring in its voltage u as an extra unknown."
         },
-        { "ask": "i1 = ?", "explain": "Solving the four equations gives i1 = 3 A, i2 = 2 A, i3 = 1 A, i4 = 3 A." },
-        { "ask": "i3 = ?", "explain": "i3 = i1 − i2 = 3 − 2 = 1 A." },
-        { "ask": "u_b = ?", "explain": "The current source is in parallel with R4: u_b = R4·i4 = 2 × 3 = 6 V (also R2·i2 − R3·i3 = 8 − 2 = 6 V)." }
+        { "ask": "i_1 = ?", "explain": "Solving the four equations gives i_1 = 3 A, i_2 = 2 A, i_3 = 1 A, i_4 = 3 A." },
+        { "ask": "i_3 = ?", "explain": "i_3 = i_1 − i_2 = 3 − 2 = 1 A." },
+        { "ask": "u_b = ?", "explain": "The current source is in parallel with R_4: u_b = R_4·i_4 = 2 × 3 = 6 V (also R_2·i_2 − R_3·i_3 = 8 − 2 = 6 V)." }
       ],
       "hints": [
-        "KCL: node a: i1 = i2 + i3; node b: i3 + Is = i4.",
-        "For KVL use the left mesh (Us, R1, R2) and the middle mesh (R2, R3, R4); neither passes through the current source.",
-        "Left mesh: 4i1 + 4i2 = 20; middle mesh: 2i3 + 2i4 = 4i2."
+        "KCL: node a: i_1 = i_2 + i_3; node b: i_3 + I_s = i_4.",
+        "For KVL use the left mesh (U_s, R_1, R_2) and the middle mesh (R_2, R_3, R_4); neither passes through the current source.",
+        "Left mesh: 4i_1 + 4i_2 = 20; middle mesh: 2i_3 + 2i_4 = 4i_2."
       ],
       "solution": [
-        "**1. KCL:** node a: i1 = i2 + i3; node b: i4 = i3 + 2.",
-        "**2. KVL (left mesh):** R1·i1 + R2·i2 = Us → 4i1 + 4i2 = 20 → i1 + i2 = 5.",
-        "**3. KVL (middle mesh, up R2, across R3, down R4):** R3·i3 + R4·i4 = R2·i2 → 2i3 + 2(i3 + 2) = 4i2 → i2 = i3 + 1.",
-        "**4. Solve:** i1 = i2 + i3 = 2i3 + 1; with i1 + i2 = 5: 3i3 + 2 = 5 → **i3 = 1 A**, i2 = 2 A, **i1 = 3 A**, i4 = 3 A.",
-        "**5. Current-source voltage:** u_b = R4·i4 = **6 V** (+ at the top). The source current leaves at b, so voltage and current are not in the passive direction: it delivers 6 × 2 = 12 W.",
-        "**Check:** the resistors absorb 4×9 + 4×4 + 2×1 + 2×9 = 72 W; Us delivers 20 × 3 = 60 W and Is delivers 12 W, 72 W in total."
+        "**1. KCL:** node a: i_1 = i_2 + i_3; node b: i_4 = i_3 + 2.",
+        "**2. KVL (left mesh):** R_1·i_1 + R_2·i_2 = U_s → 4i_1 + 4i_2 = 20 → i_1 + i_2 = 5.",
+        "**3. KVL (middle mesh, up R_2, across R_3, down R_4):** R_3·i_3 + R_4·i_4 = R_2·i_2 → 2i_3 + 2(i_3 + 2) = 4i_2 → i_2 = i_3 + 1.",
+        "**4. Solve:** i_1 = i_2 + i_3 = 2i_3 + 1; with i_1 + i_2 = 5: 3i_3 + 2 = 5 → **i_3 = 1 A**, i_2 = 2 A, **i_1 = 3 A**, i_4 = 3 A.",
+        "**5. Current-source voltage:** u_b = R_4·i_4 = **6 V** (+ at the top). The source current leaves at b, so voltage and current are not in the passive direction: it delivers 6 × 2 = 12 W.",
+        "**Check:** the resistors absorb 4×9 + 4×4 + 2×1 + 2×9 = 72 W; U_s delivers 20 × 3 = 60 W and I_s delivers 12 W, 72 W in total."
       ]
     }
   }

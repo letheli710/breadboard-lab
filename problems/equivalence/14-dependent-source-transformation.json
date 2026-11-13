@@ -7,8 +7,8 @@
   "level": 4,
   "tags": ["受控源等效变换", "受控源 CCVS", "电源等效变换", "功率"],
   "statement": [
-    "图示电路中，Is = 6 A（方向向上），R1 = 6 Ω，R2 = 3 Ω；电流控制电压源（CCVS）的电压为 3i1（“+”在上），i1 是流过 R1 的电流（参考方向见图）。",
-    "把“CCVS 串联 R2”变换为受控电流源并联电阻，求结点 a 的电压 u_a、控制电流 i1，以及 CCVS 吸收的功率。"
+    "图示电路中，I_s = 6 A（方向向上），R_1 = 6 Ω，R_2 = 3 Ω；电流控制电压源（CCVS）的电压为 3i_1（“+”在上），i_1 是流过 R_1 的电流（参考方向见图）。",
+    "把“CCVS 串联 R_2”变换为受控电流源并联电阻，求结点 a 的电压 u_a、控制电流 i_1，以及 CCVS 吸收的功率。"
   ],
   "schematic": {
     "elements": [
@@ -28,20 +28,20 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 18, "unit": "V", "explain": "3i1 串 3 Ω → 受控电流源 i1（注入 a）并 3 Ω。a 点 KCL：6 + i1 = u_a/6 + u_a/3，i1 = u_a/6 → 6 = u_a/3，u_a = 18 V。" },
-    { "id": "i1", "ask": "i1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 3, "unit": "A", "explain": "i1 = u_a / R1 = 18 / 6 = 3 A。" },
-    { "id": "ph", "ask": "CCVS 吸收的功率 P = ?（发出为负）", "find": { "kind": "p", "el": "H1" }, "answer": 27, "unit": "W", "explain": "CCVS 电压 3i1 = 9 V；回到原电路，R2 中电流 (18 − 9)/3 = 3 A，从“+”端流入，P = 9 × 3 = 27 W（吸收）。" }
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 18, "unit": "V", "explain": "3i_1 串 3 Ω → 受控电流源 i_1（注入 a）并 3 Ω。a 点 KCL：6 + i_1 = u_a/6 + u_a/3，i_1 = u_a/6 → 6 = u_a/3，u_a = 18 V。" },
+    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 3, "unit": "A", "explain": "i_1 = u_a / R_1 = 18 / 6 = 3 A。" },
+    { "id": "ph", "ask": "CCVS 吸收的功率 P = ?（发出为负）", "find": { "kind": "p", "el": "H1" }, "answer": 27, "unit": "W", "explain": "CCVS 电压 3i_1 = 9 V；回到原电路，R_2 中电流 (18 − 9)/3 = 3 A，从“+”端流入，P = 9 × 3 = 27 W（吸收）。" }
   ],
   "hints": [
     "受控源也可以像独立源那样做等效变换：受控电压源 u 串 R ⇔ 受控电流源 u/R 并 R，方向规则相同。",
-    "变换时控制量所在的支路（R1）不能被变换掉，否则控制量就“消失”了。",
-    "变换后只有一个结点 a：列 KCL，再用 i1 = u_a/R1 消去控制量。"
+    "变换时控制量所在的支路（R_1）不能被变换掉，否则控制量就“消失”了。",
+    "变换后只有一个结点 a：列 KCL，再用 i_1 = u_a/R_1 消去控制量。"
   ],
   "solution": [
-    "**1. 变换。** CCVS 3i1（“+”在上）串 R2 = 3 Ω → 受控电流源 3i1/3 = i1，方向指向 a（向上），并联 3 Ω。R1 是控制支路，保留不动。",
-    "**2. a 点 KCL。** 流入：Is + i1 = 6 + i1；流出：u_a/R1 + u_a/3 = u_a/6 + u_a/3 = u_a/2。",
-    "**3. 控制量。** i1 = u_a/6，代入：6 + u_a/6 = u_a/2 → u_a/3 = 6 → **u_a = 18 V**，**i1 = 3 A**。",
-    "**4. 回到原电路求功率。** CCVS 电压 3i1 = 9 V，R2 中电流 (u_a − 9)/3 = 3 A 从 a 流向 c，再从“+”端流入 CCVS：P = 9 × 3 = **27 W**（吸收）。",
+    "**1. 变换。** CCVS 3i_1（“+”在上）串 R_2 = 3 Ω → 受控电流源 3i_1/3 = i_1，方向指向 a（向上），并联 3 Ω。R_1 是控制支路，保留不动。",
+    "**2. a 点 KCL。** 流入：I_s + i_1 = 6 + i_1；流出：u_a/R_1 + u_a/3 = u_a/6 + u_a/3 = u_a/2。",
+    "**3. 控制量。** i_1 = u_a/6，代入：6 + u_a/6 = u_a/2 → u_a/3 = 6 → **u_a = 18 V**，**i_1 = 3 A**。",
+    "**4. 回到原电路求功率。** CCVS 电压 3i_1 = 9 V，R_2 中电流 (u_a − 9)/3 = 3 A 从 a 流向 c，再从“+”端流入 CCVS：P = 9 × 3 = **27 W**（吸收）。",
     "**验算：** P_Is = −18 × 6 = −108 W；P_R1 = 54 W，P_R2 = 27 W，P_H1 = 27 W，合计 108 W ✓。"
   ],
   "i18n": {
@@ -49,24 +49,24 @@
       "title": "Transforming a dependent source",
       "tags": ["dependent-source transformation", "dependent source CCVS", "source transformation", "power"],
       "statement": [
-        "In the circuit, Is = 6 A (up), R1 = 6 Ω, R2 = 3 Ω; the current-controlled voltage source (CCVS) has voltage 3i1 (+ at the top), where i1 is the current through R1 (reference direction as drawn).",
-        "Transform \"CCVS in series with R2\" into a dependent current source in parallel with a resistor and find the voltage u_a of node a, the controlling current i1 and the power absorbed by the CCVS."
+        "In the circuit, I_s = 6 A (up), R_1 = 6 Ω, R_2 = 3 Ω; the current-controlled voltage source (CCVS) has voltage 3i_1 (+ at the top), where i_1 is the current through R_1 (reference direction as drawn).",
+        "Transform \"CCVS in series with R_2\" into a dependent current source in parallel with a resistor and find the voltage u_a of node a, the controlling current i_1 and the power absorbed by the CCVS."
       ],
       "questions": [
-        { "ask": "u_a = ?", "explain": "3i1 in series with 3 Ω → a dependent current source i1 (into a) in parallel with 3 Ω. KCL at a: 6 + i1 = u_a/6 + u_a/3 with i1 = u_a/6 → 6 = u_a/3, u_a = 18 V." },
-        { "ask": "i1 = ?", "explain": "i1 = u_a / R1 = 18 / 6 = 3 A." },
-        { "ask": "Power absorbed by the CCVS, P = ? (negative = delivered)", "explain": "The CCVS voltage is 3i1 = 9 V; back in the original circuit R2 carries (18 − 9)/3 = 3 A into its + terminal, so P = 9 × 3 = 27 W (absorbed)." }
+        { "ask": "u_a = ?", "explain": "3i_1 in series with 3 Ω → a dependent current source i_1 (into a) in parallel with 3 Ω. KCL at a: 6 + i_1 = u_a/6 + u_a/3 with i_1 = u_a/6 → 6 = u_a/3, u_a = 18 V." },
+        { "ask": "i_1 = ?", "explain": "i_1 = u_a / R_1 = 18 / 6 = 3 A." },
+        { "ask": "Power absorbed by the CCVS, P = ? (negative = delivered)", "explain": "The CCVS voltage is 3i_1 = 9 V; back in the original circuit R_2 carries (18 − 9)/3 = 3 A into its + terminal, so P = 9 × 3 = 27 W (absorbed)." }
       ],
       "hints": [
         "Dependent sources can be transformed just like independent ones: a dependent voltage source u in series with R ⇔ a dependent current source u/R in parallel with R, with the same direction rule.",
-        "The branch carrying the controlling quantity (R1) must not be transformed away, or the controlling variable \"disappears\".",
-        "After the transformation only node a is left: write KCL, then eliminate the controlling variable with i1 = u_a/R1."
+        "The branch carrying the controlling quantity (R_1) must not be transformed away, or the controlling variable \"disappears\".",
+        "After the transformation only node a is left: write KCL, then eliminate the controlling variable with i_1 = u_a/R_1."
       ],
       "solution": [
-        "**1. Transform.** CCVS 3i1 (+ at the top) in series with R2 = 3 Ω → dependent current source 3i1/3 = i1 pointing towards a (up), in parallel with 3 Ω. R1 is the controlling branch and is left untouched.",
-        "**2. KCL at a.** In: Is + i1 = 6 + i1; out: u_a/R1 + u_a/3 = u_a/6 + u_a/3 = u_a/2.",
-        "**3. Controlling variable.** i1 = u_a/6; substitute: 6 + u_a/6 = u_a/2 → u_a/3 = 6 → **u_a = 18 V**, **i1 = 3 A**.",
-        "**4. Back to the original for the power.** The CCVS voltage is 3i1 = 9 V; R2 carries (u_a − 9)/3 = 3 A from a to c, entering the CCVS at +: P = 9 × 3 = **27 W** (absorbed).",
+        "**1. Transform.** CCVS 3i_1 (+ at the top) in series with R_2 = 3 Ω → dependent current source 3i_1/3 = i_1 pointing towards a (up), in parallel with 3 Ω. R_1 is the controlling branch and is left untouched.",
+        "**2. KCL at a.** In: I_s + i_1 = 6 + i_1; out: u_a/R_1 + u_a/3 = u_a/6 + u_a/3 = u_a/2.",
+        "**3. Controlling variable.** i_1 = u_a/6; substitute: 6 + u_a/6 = u_a/2 → u_a/3 = 6 → **u_a = 18 V**, **i_1 = 3 A**.",
+        "**4. Back to the original for the power.** The CCVS voltage is 3i_1 = 9 V; R_2 carries (u_a − 9)/3 = 3 A from a to c, entering the CCVS at +: P = 9 × 3 = **27 W** (absorbed).",
         "**Check:** P_Is = −18 × 6 = −108 W; P_R1 = 54 W, P_R2 = 27 W, P_H1 = 27 W, total 108 W ✓."
       ]
     }

@@ -7,8 +7,8 @@
   "level": 3,
   "tags": ["空心变压器", "反映阻抗", "原边等效电路", "有功功率"],
   "statement": [
-    "空心变压器：U̇s = 150∠0° V（有效值），ω = 100 rad/s，原边电阻 R1 = 3 Ω，L1 = 0.2 H，L2 = 0.08 H，M = 0.1 H，副边接负载 RL = 6 Ω。",
-    "用原边等效电路（反映阻抗）求从 a 端看进去的输入阻抗 Z_in = R_in + jX_in（不含 Us），以及负载功率 P_L。"
+    "空心变压器：U̇s = 150∠0° V（有效值），ω = 100 rad/s，原边电阻 R_1 = 3 Ω，L_1 = 0.2 H，L_2 = 0.08 H，M = 0.1 H，副边接负载 R_L = 6 Ω。",
+    "用原边等效电路（反映阻抗）求从 a 端看进去的输入阻抗 Z_in = R_in + jX_in（不含 U_s），以及负载功率 P_L。"
   ],
   "schematic": {
     "elements": [
@@ -38,7 +38,7 @@
       "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us"], "part": "re" },
       "answer": 9,
       "unit": "Ω",
-      "explain": "Z22 = RL + jωL2 = 6 + j8 Ω，反映阻抗 Z_ref = (ωM)²/Z22 = 100/(6 + j8) = 6 − j8 Ω。Z_in = R1 + jωL1 + Z_ref = 3 + j20 + 6 − j8 = 9 + j12 Ω，R_in = 9 Ω。"
+      "explain": "Z_22 = R_L + jωL_2 = 6 + j8 Ω，反映阻抗 Z_ref = (ωM)²/Z_22 = 100/(6 + j8) = 6 − j8 Ω。Z_in = R_1 + jωL_1 + Z_ref = 3 + j20 + 6 − j8 = 9 + j12 Ω，R_in = 9 Ω。"
     },
     {
       "id": "xin",
@@ -46,7 +46,7 @@
       "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us"], "part": "im" },
       "answer": 12,
       "unit": "Ω",
-      "explain": "X_in = ωL1 + Im Z_ref = 20 − 8 = 12 Ω：副边的感性阻抗反映到原边变成了容性（−j8），使原边的电抗减小。"
+      "explain": "X_in = ωL_1 + Im Z_ref = 20 − 8 = 12 Ω：副边的感性阻抗反映到原边变成了容性（−j8），使原边的电抗减小。"
     },
     {
       "id": "pl",
@@ -54,55 +54,55 @@
       "find": { "kind": "p", "el": "RL" },
       "answer": 600,
       "unit": "W",
-      "explain": "I1 = 150 / |9 + j12| = 150 / 15 = 10 A。负载功率就是反映电阻吸收的功率：P_L = I1² × Re Z_ref = 100 × 6 = 600 W（也可由 I2 = ωM·I1/|Z22| = 10 A，P_L = I2²·RL 验证）。"
+      "explain": "I_1 = 150 / |9 + j12| = 150 / 15 = 10 A。负载功率就是反映电阻吸收的功率：P_L = I_1² × Re Z_ref = 100 × 6 = 600 W（也可由 I_2 = ωM·I_1/|Z_22| = 10 A，P_L = I_2²·R_L 验证）。"
     },
     {
       "id": "nature",
-      "ask": "副边回路 Z22 = 6 + j8 Ω 是感性的，它在原边的反映阻抗是：",
+      "ask": "副边回路 Z_22 = 6 + j8 Ω 是感性的，它在原边的反映阻抗是：",
       "choices": ["容性（电抗为负）", "感性（电抗为正）", "纯电阻"],
       "correct": 0,
-      "explain": "Z_ref = (ωM)²/Z22 = (ωM)²·Z22*/|Z22|²，与 Z22 共轭成比例：电阻部分同号，电抗部分变号。感性的副边反映为容性。"
+      "explain": "Z_ref = (ωM)²/Z_22 = (ωM)²·Z_22*/|Z_22|²，与 Z_22 共轭成比例：电阻部分同号，电抗部分变号。感性的副边反映为容性。"
     }
   ],
   "hints": [
-    "原边等效电路：Z_in = Z11 + (ωM)²/Z22，其中 Z11 = R1 + jωL1，Z22 = RL + jωL2。",
+    "原边等效电路：Z_in = Z_11 + (ωM)²/Z_22，其中 Z_11 = R_1 + jωL_1，Z_22 = R_L + jωL_2。",
     "反映阻抗的电阻部分吸收的功率，就是副边实际消耗的功率。"
   ],
   "solution": [
-    "**1. 回路阻抗。** ωL1 = 20 Ω，ωL2 = 8 Ω，ωM = 10 Ω。Z11 = 3 + j20 Ω，Z22 = 6 + j8 = 10∠53.13° Ω。",
-    "**2. 反映阻抗。** Z_ref = (ωM)²/Z22 = 100/(6 + j8) = 6 − j8 Ω。",
-    "**3. 输入阻抗。** Z_in = Z11 + Z_ref = **9 + j12 Ω** = 15∠53.13° Ω（R_in = 9 Ω，X_in = 12 Ω）。",
-    "**4. 原、副边电流。** İ1 = 150/Z_in = 10∠−53.13° A；由副边方程 (RL + jωL2)İ2 = jωM·İ1（İ2 方向如图）：I2 = ωM·I1/|Z22| = 10 × 10/10 = 10 A。",
-    "**5. 功率。** P_L = I2²·RL = **600 W** = I1²·Re Z_ref ✓；R1 消耗 300 W，电源发出 P = 150 × 10 × cos 53.13° = 900 W = 300 + 600 ✓。"
+    "**1. 回路阻抗。** ωL_1 = 20 Ω，ωL_2 = 8 Ω，ωM = 10 Ω。Z_11 = 3 + j20 Ω，Z_22 = 6 + j8 = 10∠53.13° Ω。",
+    "**2. 反映阻抗。** Z_ref = (ωM)²/Z_22 = 100/(6 + j8) = 6 − j8 Ω。",
+    "**3. 输入阻抗。** Z_in = Z_11 + Z_ref = **9 + j12 Ω** = 15∠53.13° Ω（R_in = 9 Ω，X_in = 12 Ω）。",
+    "**4. 原、副边电流。** İ1 = 150/Z_in = 10∠−53.13° A；由副边方程 (R_L + jωL_2)İ2 = jωM·İ1（İ2 方向如图）：I_2 = ωM·I_1/|Z_22| = 10 × 10/10 = 10 A。",
+    "**5. 功率。** P_L = I_2²·R_L = **600 W** = I_1²·Re Z_ref ✓；R_1 消耗 300 W，电源发出 P = 150 × 10 × cos 53.13° = 900 W = 300 + 600 ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Reflected impedance of an air-core transformer",
       "tags": ["air-core (linear) transformer", "reflected impedance", "primary equivalent circuit", "real power"],
       "statement": [
-        "Air-core transformer: Us = 150∠0° V (rms), ω = 100 rad/s, primary resistance R1 = 3 Ω, L1 = 0.2 H, L2 = 0.08 H, M = 0.1 H, and a load RL = 6 Ω on the secondary.",
-        "Using the primary equivalent circuit (reflected impedance), find the input impedance Z_in = R_in + jX_in seen at terminal a (without Us), and the load power P_L."
+        "Air-core transformer: U_s = 150∠0° V (rms), ω = 100 rad/s, primary resistance R_1 = 3 Ω, L_1 = 0.2 H, L_2 = 0.08 H, M = 0.1 H, and a load R_L = 6 Ω on the secondary.",
+        "Using the primary equivalent circuit (reflected impedance), find the input impedance Z_in = R_in + jX_in seen at terminal a (without U_s), and the load power P_L."
       ],
       "questions": [
-        { "ask": "Input resistance R_in = Re Z_in = ?", "explain": "Z22 = RL + jωL2 = 6 + j8 Ω, reflected impedance Z_ref = (ωM)²/Z22 = 100/(6 + j8) = 6 − j8 Ω. Z_in = R1 + jωL1 + Z_ref = 3 + j20 + 6 − j8 = 9 + j12 Ω, so R_in = 9 Ω." },
-        { "ask": "Input reactance X_in = Im Z_in = ?", "explain": "X_in = ωL1 + Im Z_ref = 20 − 8 = 12 Ω: the inductive secondary is reflected as a capacitive term (−j8), which reduces the primary reactance." },
-        { "ask": "Load power P_L = ?", "explain": "I1 = 150 / |9 + j12| = 150 / 15 = 10 A. The load power is the power absorbed by the reflected resistance: P_L = I1² × Re Z_ref = 100 × 6 = 600 W (check: I2 = ωM·I1/|Z22| = 10 A, P_L = I2²·RL)." },
+        { "ask": "Input resistance R_in = Re Z_in = ?", "explain": "Z_22 = R_L + jωL_2 = 6 + j8 Ω, reflected impedance Z_ref = (ωM)²/Z_22 = 100/(6 + j8) = 6 − j8 Ω. Z_in = R_1 + jωL_1 + Z_ref = 3 + j20 + 6 − j8 = 9 + j12 Ω, so R_in = 9 Ω." },
+        { "ask": "Input reactance X_in = Im Z_in = ?", "explain": "X_in = ωL_1 + Im Z_ref = 20 − 8 = 12 Ω: the inductive secondary is reflected as a capacitive term (−j8), which reduces the primary reactance." },
+        { "ask": "Load power P_L = ?", "explain": "I_1 = 150 / |9 + j12| = 150 / 15 = 10 A. The load power is the power absorbed by the reflected resistance: P_L = I_1² × Re Z_ref = 100 × 6 = 600 W (check: I_2 = ωM·I_1/|Z_22| = 10 A, P_L = I_2²·R_L)." },
         {
-          "ask": "The secondary loop Z22 = 6 + j8 Ω is inductive. Its reflected impedance in the primary is…",
+          "ask": "The secondary loop Z_22 = 6 + j8 Ω is inductive. Its reflected impedance in the primary is…",
           "choices": ["capacitive (negative reactance)", "inductive (positive reactance)", "purely resistive"],
-          "explain": "Z_ref = (ωM)²/Z22 = (ωM)²·Z22*/|Z22|² is proportional to the conjugate of Z22: the resistance keeps its sign and the reactance flips. An inductive secondary reflects as a capacitive impedance."
+          "explain": "Z_ref = (ωM)²/Z_22 = (ωM)²·Z_22*/|Z_22|² is proportional to the conjugate of Z_22: the resistance keeps its sign and the reactance flips. An inductive secondary reflects as a capacitive impedance."
         }
       ],
       "hints": [
-        "Primary equivalent circuit: Z_in = Z11 + (ωM)²/Z22 with Z11 = R1 + jωL1 and Z22 = RL + jωL2.",
+        "Primary equivalent circuit: Z_in = Z_11 + (ωM)²/Z_22 with Z_11 = R_1 + jωL_1 and Z_22 = R_L + jωL_2.",
         "The power absorbed by the resistive part of the reflected impedance is exactly the power consumed in the secondary."
       ],
       "solution": [
-        "**1. Loop impedances.** ωL1 = 20 Ω, ωL2 = 8 Ω, ωM = 10 Ω. Z11 = 3 + j20 Ω, Z22 = 6 + j8 = 10∠53.13° Ω.",
-        "**2. Reflected impedance.** Z_ref = (ωM)²/Z22 = 100/(6 + j8) = 6 − j8 Ω.",
-        "**3. Input impedance.** Z_in = Z11 + Z_ref = **9 + j12 Ω** = 15∠53.13° Ω (R_in = 9 Ω, X_in = 12 Ω).",
-        "**4. Primary and secondary currents.** I1 = 150/Z_in = 10∠−53.13° A; from the secondary equation (RL + jωL2)I2 = jωM·I1 (I2 as drawn): I2 = ωM·I1/|Z22| = 10 × 10/10 = 10 A.",
-        "**5. Power.** P_L = I2²·RL = **600 W** = I1²·Re Z_ref ✓; R1 dissipates 300 W, and the source delivers P = 150 × 10 × cos 53.13° = 900 W = 300 + 600 ✓."
+        "**1. Loop impedances.** ωL_1 = 20 Ω, ωL_2 = 8 Ω, ωM = 10 Ω. Z_11 = 3 + j20 Ω, Z_22 = 6 + j8 = 10∠53.13° Ω.",
+        "**2. Reflected impedance.** Z_ref = (ωM)²/Z_22 = 100/(6 + j8) = 6 − j8 Ω.",
+        "**3. Input impedance.** Z_in = Z_11 + Z_ref = **9 + j12 Ω** = 15∠53.13° Ω (R_in = 9 Ω, X_in = 12 Ω).",
+        "**4. Primary and secondary currents.** I_1 = 150/Z_in = 10∠−53.13° A; from the secondary equation (R_L + jωL_2)I_2 = jωM·I_1 (I_2 as drawn): I_2 = ωM·I_1/|Z_22| = 10 × 10/10 = 10 A.",
+        "**5. Power.** P_L = I_2²·R_L = **600 W** = I_1²·Re Z_ref ✓; R_1 dissipates 300 W, and the source delivers P = 150 × 10 × cos 53.13° = 900 W = 300 + 600 ✓."
       ]
     }
   }

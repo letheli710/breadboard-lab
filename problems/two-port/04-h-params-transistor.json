@@ -7,8 +7,8 @@
   "level": 2,
   "tags": ["H 参数", "混合参数", "受控源"],
   "statement": [
-    "图示是晶体管的小信号等效电路（一个含受控源的二端口）：R1 = 1 kΩ；输入回路中的电压控制电压源为 0.01u2（“+”在上），u2 是端口 2 的电压；输出回路中的电流控制电流源为 50i1（方向向下，从结点 2 流向 2'），i1 是从 1 端流入的电流；R2 = 10 kΩ。",
-    "H 参数（混合参数）方程：u1 = h11·i1 + h12·u2，i2 = h21·i1 + h22·u2（i2 从 2 端流入）。求四个 H 参数。"
+    "图示是晶体管的小信号等效电路（一个含受控源的二端口）：R_1 = 1 kΩ；输入回路中的电压控制电压源为 0.01u_2（“+”在上），u_2 是端口 2 的电压；输出回路中的电流控制电流源为 50i_1（方向向下，从结点 2 流向 2'），i_1 是从 1 端流入的电流；R_2 = 10 kΩ。",
+    "H 参数（混合参数）方程：u_1 = h_11·i_1 + h_12·u_2，i_2 = h_21·i_1 + h_22·u_2（i_2 从 2 端流入）。求四个 H 参数。"
   ],
   "schematic": {
     "elements": [
@@ -36,72 +36,72 @@
   "questions": [
     {
       "id": "h11",
-      "ask": "h11 = ?",
+      "ask": "h_11 = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "h11" },
       "answer": 1000,
       "unit": "kΩ",
-      "explain": "h11 = u1/i1（u2 = 0，输出短路）：受控电压源 0.01u2 = 0，u1 = R1·i1，h11 = 1 kΩ（短路输入电阻）。"
+      "explain": "h_11 = u_1/i_1（u_2 = 0，输出短路）：受控电压源 0.01u_2 = 0，u_1 = R_1·i_1，h_11 = 1 kΩ（短路输入电阻）。"
     },
     {
       "id": "h12",
-      "ask": "h12 = ?",
+      "ask": "h_12 = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "h12" },
       "answer": 0.01,
       "unit": "",
-      "explain": "h12 = u1/u2（i1 = 0，输入开路）：R1 无电流，u1 就是受控源电压 0.01u2，h12 = 0.01（开路反向电压比）。"
+      "explain": "h_12 = u_1/u_2（i_1 = 0，输入开路）：R_1 无电流，u_1 就是受控源电压 0.01u_2，h_12 = 0.01（开路反向电压比）。"
     },
     {
       "id": "h21",
-      "ask": "h21 = ?",
+      "ask": "h_21 = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "h21" },
       "answer": 50,
       "unit": "",
-      "explain": "h21 = i2/i1（u2 = 0）：R2 被短接，受控源从结点 2 向下抽走 50i1，这股电流只能由 2 端流入供给，i2 = 50i1，h21 = 50（短路电流放大倍数）。"
+      "explain": "h_21 = i_2/i_1（u_2 = 0）：R_2 被短接，受控源从结点 2 向下抽走 50i_1，这股电流只能由 2 端流入供给，i_2 = 50i_1，h_21 = 50（短路电流放大倍数）。"
     },
     {
       "id": "h22",
-      "ask": "h22 = ?",
+      "ask": "h_22 = ?",
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "h22" },
       "answer": 0.0001,
       "unit": "mS",
-      "explain": "h22 = i2/u2（i1 = 0）：受控电流源 50i1 = 0（开路），只剩 R2，h22 = 1/10 kΩ = 0.1 mS（开路输出导纳）。"
+      "explain": "h_22 = i_2/u_2（i_1 = 0）：受控电流源 50i_1 = 0（开路），只剩 R_2，h_22 = 1/10 kΩ = 0.1 mS（开路输出导纳）。"
     }
   ],
   "hints": [
-    "H 参数的测量条件是“混合”的：h11、h21 令 u2 = 0（输出短路），h12、h22 令 i1 = 0（输入开路）。",
-    "u2 = 0 时控制量为 u2 的受控电压源变成短路；i1 = 0 时控制量为 i1 的受控电流源变成开路。"
+    "H 参数的测量条件是“混合”的：h_11、h_21 令 u_2 = 0（输出短路），h_12、h_22 令 i_1 = 0（输入开路）。",
+    "u_2 = 0 时控制量为 u_2 的受控电压源变成短路；i_1 = 0 时控制量为 i_1 的受控电流源变成开路。"
   ],
   "solution": [
-    "**1. 输出短路（u2 = 0）。** 受控电压源 0.01u2 = 0，相当于短路；R2 被短接。",
-    "输入回路：u1 = R1·i1 → **h11 = 1 kΩ**。结点 2 的 KCL：i2 = 50i1 → **h21 = 50**。",
-    "**2. 输入开路（i1 = 0）。** 受控电流源 50i1 = 0，相当于开路；R1 中无电流。",
-    "输入回路：u1 = 0.01u2 → **h12 = 0.01**。输出回路：i2 = u2/R2 → **h22 = 10⁻⁴ S = 0.1 mS**。",
-    "**3. 说明：** H 参数各有量纲：h11 是电阻，h22 是电导，h12、h21 无量纲。含受控源的二端口一般不互易（对 H 参数，互易要求 h12 = −h21，这里 0.01 ≠ −50）。"
+    "**1. 输出短路（u_2 = 0）。** 受控电压源 0.01u_2 = 0，相当于短路；R_2 被短接。",
+    "输入回路：u_1 = R_1·i_1 → **h_11 = 1 kΩ**。结点 2 的 KCL：i_2 = 50i_1 → **h_21 = 50**。",
+    "**2. 输入开路（i_1 = 0）。** 受控电流源 50i_1 = 0，相当于开路；R_1 中无电流。",
+    "输入回路：u_1 = 0.01u_2 → **h_12 = 0.01**。输出回路：i_2 = u_2/R_2 → **h_22 = 10⁻⁴ S = 0.1 mS**。",
+    "**3. 说明：** H 参数各有量纲：h_11 是电阻，h_22 是电导，h_12、h_21 无量纲。含受控源的二端口一般不互易（对 H 参数，互易要求 h_12 = −h_21，这里 0.01 ≠ −50）。"
   ],
   "i18n": {
     "en": {
       "title": "H parameters of a transistor small-signal model",
       "tags": ["H parameters", "hybrid parameters", "dependent sources"],
       "statement": [
-        "The circuit is the small-signal model of a transistor (a two-port with dependent sources): R1 = 1 kΩ; in the input loop a voltage-controlled voltage source gives 0.01u2 (+ at the top), where u2 is the port-2 voltage; in the output loop a current-controlled current source carries 50i1 (downwards, from node 2 to 2'), where i1 is the current into terminal 1; R2 = 10 kΩ.",
-        "Hybrid (H) parameter equations: u1 = h11·i1 + h12·u2, i2 = h21·i1 + h22·u2 (i2 flows into terminal 2). Find the four H parameters."
+        "The circuit is the small-signal model of a transistor (a two-port with dependent sources): R_1 = 1 kΩ; in the input loop a voltage-controlled voltage source gives 0.01u_2 (+ at the top), where u_2 is the port-2 voltage; in the output loop a current-controlled current source carries 50i_1 (downwards, from node 2 to 2'), where i_1 is the current into terminal 1; R_2 = 10 kΩ.",
+        "Hybrid (H) parameter equations: u_1 = h_11·i_1 + h_12·u_2, i_2 = h_21·i_1 + h_22·u_2 (i_2 flows into terminal 2). Find the four H parameters."
       ],
       "questions": [
-        { "ask": "h11 = ?", "explain": "h11 = u1/i1 with u2 = 0 (output shorted): the source 0.01u2 is zero, u1 = R1·i1, h11 = 1 kΩ (short-circuit input resistance)." },
-        { "ask": "h12 = ?", "explain": "h12 = u1/u2 with i1 = 0 (input open): no current in R1, so u1 is the source voltage 0.01u2 and h12 = 0.01 (open-circuit reverse voltage ratio)." },
-        { "ask": "h21 = ?", "explain": "h21 = i2/i1 with u2 = 0: R2 is shorted out, the dependent source pulls 50i1 down out of node 2, and that current can only come in through terminal 2: i2 = 50i1, h21 = 50 (short-circuit current gain)." },
-        { "ask": "h22 = ?", "explain": "h22 = i2/u2 with i1 = 0: the source 50i1 is zero (open), only R2 remains, h22 = 1/10 kΩ = 0.1 mS (open-circuit output admittance)." }
+        { "ask": "h_11 = ?", "explain": "h_11 = u_1/i_1 with u_2 = 0 (output shorted): the source 0.01u_2 is zero, u_1 = R_1·i_1, h_11 = 1 kΩ (short-circuit input resistance)." },
+        { "ask": "h_12 = ?", "explain": "h_12 = u_1/u_2 with i_1 = 0 (input open): no current in R_1, so u_1 is the source voltage 0.01u_2 and h_12 = 0.01 (open-circuit reverse voltage ratio)." },
+        { "ask": "h_21 = ?", "explain": "h_21 = i_2/i_1 with u_2 = 0: R_2 is shorted out, the dependent source pulls 50i_1 down out of node 2, and that current can only come in through terminal 2: i_2 = 50i_1, h_21 = 50 (short-circuit current gain)." },
+        { "ask": "h_22 = ?", "explain": "h_22 = i_2/u_2 with i_1 = 0: the source 50i_1 is zero (open), only R_2 remains, h_22 = 1/10 kΩ = 0.1 mS (open-circuit output admittance)." }
       ],
       "hints": [
-        "The H parameters are measured under \"hybrid\" conditions: h11 and h21 with u2 = 0 (output shorted), h12 and h22 with i1 = 0 (input open).",
-        "With u2 = 0 a voltage source controlled by u2 becomes a short; with i1 = 0 a current source controlled by i1 becomes an open circuit."
+        "The H parameters are measured under \"hybrid\" conditions: h_11 and h_21 with u_2 = 0 (output shorted), h_12 and h_22 with i_1 = 0 (input open).",
+        "With u_2 = 0 a voltage source controlled by u_2 becomes a short; with i_1 = 0 a current source controlled by i_1 becomes an open circuit."
       ],
       "solution": [
-        "**1. Output shorted (u2 = 0).** The source 0.01u2 = 0 acts as a short; R2 is shorted out.",
-        "Input loop: u1 = R1·i1 → **h11 = 1 kΩ**. KCL at node 2: i2 = 50i1 → **h21 = 50**.",
-        "**2. Input open (i1 = 0).** The source 50i1 = 0 acts as an open circuit; R1 carries no current.",
-        "Input loop: u1 = 0.01u2 → **h12 = 0.01**. Output loop: i2 = u2/R2 → **h22 = 10⁻⁴ S = 0.1 mS**.",
-        "**3. Note:** the H parameters have mixed dimensions: h11 is a resistance, h22 a conductance, h12 and h21 are dimensionless. A two-port with dependent sources is generally not reciprocal (for H parameters reciprocity needs h12 = −h21; here 0.01 ≠ −50)."
+        "**1. Output shorted (u_2 = 0).** The source 0.01u_2 = 0 acts as a short; R_2 is shorted out.",
+        "Input loop: u_1 = R_1·i_1 → **h_11 = 1 kΩ**. KCL at node 2: i_2 = 50i_1 → **h_21 = 50**.",
+        "**2. Input open (i_1 = 0).** The source 50i_1 = 0 acts as an open circuit; R_1 carries no current.",
+        "Input loop: u_1 = 0.01u_2 → **h_12 = 0.01**. Output loop: i_2 = u_2/R_2 → **h_22 = 10⁻⁴ S = 0.1 mS**.",
+        "**3. Note:** the H parameters have mixed dimensions: h_11 is a resistance, h_22 a conductance, h_12 and h_21 are dimensionless. A two-port with dependent sources is generally not reciprocal (for H parameters reciprocity needs h_12 = −h_21; here 0.01 ≠ −50)."
       ]
     }
   }

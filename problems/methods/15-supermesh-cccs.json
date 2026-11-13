@@ -7,8 +7,8 @@
   "level": 5,
   "tags": ["网孔电流法", "超网孔", "受控源 CCCS", "功率平衡"],
   "statement": [
-    "图示电路中 Us = 16 V，R1 = 3 Ω，R2 = 1 Ω，R3 = 2 Ω，R4 = 2 Ω，R5 = 4 Ω。中间支路是电流控制电流源（CCCS）F，向上的电流为 2i_x，i_x 是 R5 中向下的电流。三个网孔电流 i_m1、i_m2、i_m3 从左到右，均取**顺时针**方向。",
-    "用**网孔电流法**求 i_x、R2 中的电流 i2、结点 a 的电压 u_a，以及受控源吸收的功率。"
+    "图示电路中 U_s = 16 V，R_1 = 3 Ω，R_2 = 1 Ω，R_3 = 2 Ω，R_4 = 2 Ω，R_5 = 4 Ω。中间支路是电流控制电流源（CCCS）F，向上的电流为 2i_x，i_x 是 R_5 中向下的电流。三个网孔电流 i_m1、i_m2、i_m3 从左到右，均取**顺时针**方向。",
+    "用**网孔电流法**求 i_x、R_2 中的电流 i_2、结点 a 的电压 u_a，以及受控源吸收的功率。"
   ],
   "schematic": {
     "elements": [
@@ -35,53 +35,53 @@
   "analysis": { "type": "dc" },
   "questions": [
     { "id": "ix", "ask": "i_x = ?", "find": { "kind": "i", "el": "R5" }, "answer": 1, "unit": "A", "explain": "网孔 3 给出 i_m2 = 4i_m3，约束给出 i_m1 = i_m2 − 2i_m3 = 2i_m3，代入超网孔方程得 16i_m3 = 16，i_x = i_m3 = 1 A。" },
-    { "id": "i2", "ask": "i2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": 4, "unit": "A", "explain": "R2 只属于网孔 2：i2 = i_m2 = 4i_m3 = 4 A。" },
-    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 10, "unit": "V", "explain": "u_a = Us − R1·i_m1 = 16 − 3 × 2 = 10 V（也等于 R2·i_m2 + R3(i_m2 − i_m3) = 4 + 6 = 10 V）。" },
+    { "id": "i2", "ask": "i_2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": 4, "unit": "A", "explain": "R_2 只属于网孔 2：i_2 = i_m2 = 4i_m3 = 4 A。" },
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 10, "unit": "V", "explain": "u_a = U_s − R_1·i_m1 = 16 − 3 × 2 = 10 V（也等于 R_2·i_m2 + R_3(i_m2 − i_m3) = 4 + 6 = 10 V）。" },
     { "id": "p", "ask": "受控源 F 吸收的功率 P = ?", "find": { "kind": "p", "el": "F" }, "answer": -20, "unit": "W", "explain": "F 的电流 2i_x = 2 A 从下往上，从高电位端 a（10 V）流出：P = −10 × 2 = −20 W（发出 20 W）。" }
   ],
   "hints": [
     "F 位于网孔 1、2 的公共支路，不能直接对这两个网孔分别列 KVL：用超网孔（沿网孔 1、2 的外围），并补充约束 i_m2 − i_m1 = 2i_x。",
-    "再补充控制量方程 i_x = i_m3；网孔 3 正常列 KVL：−R3·i_m2 + (R3 + R4 + R5)·i_m3 = 0。",
-    "超网孔：R1·i_m1 + R2·i_m2 + R3(i_m2 − i_m3) = Us。"
+    "再补充控制量方程 i_x = i_m3；网孔 3 正常列 KVL：−R_3·i_m2 + (R_3 + R_4 + R_5)·i_m3 = 0。",
+    "超网孔：R_1·i_m1 + R_2·i_m2 + R_3(i_m2 − i_m3) = U_s。"
   ],
   "solution": [
-    "**1. 超网孔（网孔 1 + 2，绕过 F）：** R1·i_m1 + R2·i_m2 + R3(i_m2 − i_m3) = Us → 3i_m1 + 3i_m2 − 2i_m3 = 16。",
+    "**1. 超网孔（网孔 1 + 2，绕过 F）：** R_1·i_m1 + R_2·i_m2 + R_3(i_m2 − i_m3) = U_s → 3i_m1 + 3i_m2 − 2i_m3 = 16。",
     "**2. 受控源约束：** F 支路向上的电流 = i_m2 − i_m1 = 2i_x。",
     "**3. 控制量方程：** i_x = i_m3。",
-    "**4. 网孔 3：** −R3·i_m2 + (R3 + R4 + R5)·i_m3 = 0 → −2i_m2 + 8i_m3 = 0 → i_m2 = 4i_m3。",
-    "**5. 求解：** i_m1 = i_m2 − 2i_m3 = 2i_m3；代入第 1 步：6i_m3 + 12i_m3 − 2i_m3 = 16i_m3 = 16 → **i_x = i_m3 = 1 A**，i_m1 = 2 A，**i2 = i_m2 = 4 A**。",
-    "**6. 结点 a：** u_a = Us − R1·i_m1 = **10 V**。",
+    "**4. 网孔 3：** −R_3·i_m2 + (R_3 + R_4 + R_5)·i_m3 = 0 → −2i_m2 + 8i_m3 = 0 → i_m2 = 4i_m3。",
+    "**5. 求解：** i_m1 = i_m2 − 2i_m3 = 2i_m3；代入第 1 步：6i_m3 + 12i_m3 − 2i_m3 = 16i_m3 = 16 → **i_x = i_m3 = 1 A**，i_m1 = 2 A，**i_2 = i_m2 = 4 A**。",
+    "**6. 结点 a：** u_a = U_s − R_1·i_m1 = **10 V**。",
     "**7. 受控源功率：** P_F = −u_a × 2i_x = **−20 W**（发出 20 W）。",
-    "**验算：** Us 发出 16 × 2 = 32 W，F 发出 20 W，共 52 W；电阻吸收 3×2² + 1×4² + 2×3² + 2×1² + 4×1² = 12 + 16 + 18 + 2 + 4 = 52 W。"
+    "**验算：** U_s 发出 16 × 2 = 32 W，F 发出 20 W，共 52 W；电阻吸收 3×2² + 1×4² + 2×3² + 2×1² + 4×1² = 12 + 16 + 18 + 2 + 4 = 52 W。"
   ],
   "i18n": {
     "en": {
       "title": "Mesh analysis: a dependent current source shared by two meshes",
       "tags": ["mesh-current method", "supermesh", "dependent source CCCS", "power balance"],
       "statement": [
-        "In the circuit, Us = 16 V, R1 = 3 Ω, R2 = 1 Ω, R3 = 2 Ω, R4 = 2 Ω, R5 = 4 Ω. The middle branch is a current-controlled current source (CCCS) F carrying 2i_x upwards, where i_x is the downward current in R5. The three mesh currents i_m1, i_m2, i_m3 (left to right) are all **clockwise**.",
-        "Use the **mesh-current method** to find i_x, the current i2 in R2, the voltage u_a of node a, and the power absorbed by the dependent source."
+        "In the circuit, U_s = 16 V, R_1 = 3 Ω, R_2 = 1 Ω, R_3 = 2 Ω, R_4 = 2 Ω, R_5 = 4 Ω. The middle branch is a current-controlled current source (CCCS) F carrying 2i_x upwards, where i_x is the downward current in R_5. The three mesh currents i_m1, i_m2, i_m3 (left to right) are all **clockwise**.",
+        "Use the **mesh-current method** to find i_x, the current i_2 in R_2, the voltage u_a of node a, and the power absorbed by the dependent source."
       ],
       "questions": [
         { "ask": "i_x = ?", "explain": "Mesh 3 gives i_m2 = 4i_m3 and the constraint gives i_m1 = i_m2 − 2i_m3 = 2i_m3; substituting into the supermesh equation gives 16i_m3 = 16, so i_x = i_m3 = 1 A." },
-        { "ask": "i2 = ?", "explain": "R2 belongs only to mesh 2: i2 = i_m2 = 4i_m3 = 4 A." },
-        { "ask": "u_a = ?", "explain": "u_a = Us − R1·i_m1 = 16 − 3 × 2 = 10 V (also R2·i_m2 + R3(i_m2 − i_m3) = 4 + 6 = 10 V)." },
+        { "ask": "i_2 = ?", "explain": "R_2 belongs only to mesh 2: i_2 = i_m2 = 4i_m3 = 4 A." },
+        { "ask": "u_a = ?", "explain": "u_a = U_s − R_1·i_m1 = 16 − 3 × 2 = 10 V (also R_2·i_m2 + R_3(i_m2 − i_m3) = 4 + 6 = 10 V)." },
         { "ask": "Power absorbed by the dependent source F, P = ?", "explain": "F carries 2i_x = 2 A upwards and it leaves at the higher-potential end a (10 V): P = −10 × 2 = −20 W (it delivers 20 W)." }
       ],
       "hints": [
         "F sits in the branch shared by meshes 1 and 2, so you can't write separate KVL equations for those meshes: use a supermesh (around the outside of meshes 1 and 2) plus the constraint i_m2 − i_m1 = 2i_x.",
-        "Add the controlling-variable equation i_x = i_m3; mesh 3 gets an ordinary KVL equation: −R3·i_m2 + (R3 + R4 + R5)·i_m3 = 0.",
-        "Supermesh: R1·i_m1 + R2·i_m2 + R3(i_m2 − i_m3) = Us."
+        "Add the controlling-variable equation i_x = i_m3; mesh 3 gets an ordinary KVL equation: −R_3·i_m2 + (R_3 + R_4 + R_5)·i_m3 = 0.",
+        "Supermesh: R_1·i_m1 + R_2·i_m2 + R_3(i_m2 − i_m3) = U_s."
       ],
       "solution": [
-        "**1. Supermesh (meshes 1 + 2, skipping F):** R1·i_m1 + R2·i_m2 + R3(i_m2 − i_m3) = Us → 3i_m1 + 3i_m2 − 2i_m3 = 16.",
+        "**1. Supermesh (meshes 1 + 2, skipping F):** R_1·i_m1 + R_2·i_m2 + R_3(i_m2 − i_m3) = U_s → 3i_m1 + 3i_m2 − 2i_m3 = 16.",
         "**2. Dependent-source constraint:** the upward current in the F branch = i_m2 − i_m1 = 2i_x.",
         "**3. Controlling-variable equation:** i_x = i_m3.",
-        "**4. Mesh 3:** −R3·i_m2 + (R3 + R4 + R5)·i_m3 = 0 → −2i_m2 + 8i_m3 = 0 → i_m2 = 4i_m3.",
-        "**5. Solve:** i_m1 = i_m2 − 2i_m3 = 2i_m3; into step 1: 6i_m3 + 12i_m3 − 2i_m3 = 16i_m3 = 16 → **i_x = i_m3 = 1 A**, i_m1 = 2 A, **i2 = i_m2 = 4 A**.",
-        "**6. Node a:** u_a = Us − R1·i_m1 = **10 V**.",
+        "**4. Mesh 3:** −R_3·i_m2 + (R_3 + R_4 + R_5)·i_m3 = 0 → −2i_m2 + 8i_m3 = 0 → i_m2 = 4i_m3.",
+        "**5. Solve:** i_m1 = i_m2 − 2i_m3 = 2i_m3; into step 1: 6i_m3 + 12i_m3 − 2i_m3 = 16i_m3 = 16 → **i_x = i_m3 = 1 A**, i_m1 = 2 A, **i_2 = i_m2 = 4 A**.",
+        "**6. Node a:** u_a = U_s − R_1·i_m1 = **10 V**.",
         "**7. Dependent-source power:** P_F = −u_a × 2i_x = **−20 W** (delivers 20 W).",
-        "**Check:** Us delivers 16 × 2 = 32 W and F delivers 20 W, 52 W in total; the resistors absorb 3×2² + 1×4² + 2×3² + 2×1² + 4×1² = 12 + 16 + 18 + 2 + 4 = 52 W."
+        "**Check:** U_s delivers 16 × 2 = 32 W and F delivers 20 W, 52 W in total; the resistors absorb 3×2² + 1×4² + 2×3² + 2×1² + 4×1² = 12 + 16 + 18 + 2 + 4 = 52 W."
       ]
     }
   }

@@ -7,8 +7,8 @@
   "level": 2,
   "tags": ["电感串联", "电感并联", "等效电感", "时间常数 τ"],
   "statement": [
-    "图中 R = 4 Ω，L1 = 1 H，L2 = 3 H，L3 = 6 H，三个电感原来都没有电流。电压源在 t = 0 由 0 跳变为 12 V。",
-    "求等效电感 L_eq 决定的时间常数 τ = L_eq/R、t = 0₊ 时 L1 两端的电压 u_L1，以及稳态（t → ∞）时 L2、L3 中的电流。"
+    "图中 R = 4 Ω，L_1 = 1 H，L_2 = 3 H，L_3 = 6 H，三个电感原来都没有电流。电压源在 t = 0 由 0 跳变为 12 V。",
+    "求等效电感 L_eq 决定的时间常数 τ = L_eq/R、t = 0₊ 时 L_1 两端的电压 u_L1，以及稳态（t → ∞）时 L_2、L_3 中的电流。"
   ],
   "schematic": {
     "elements": [
@@ -33,10 +33,10 @@
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "tau", "ask": "τ = L_eq/R = ?", "find": { "kind": "tau" }, "answer": 0.75, "unit": "s", "explain": "L2 ∥ L3 = 3 × 6/(3 + 6) = 2 H（并联像电阻并联）；再与 L1 串联：L_eq = 1 + 2 = 3 H。τ = 3/4 = 0.75 s。" },
-    { "id": "uL1", "ask": "u_L1(0₊) = ?", "find": { "kind": "v", "el": "L1", "t": "0+" }, "answer": 4, "unit": "V", "explain": "t = 0₊ 时所有电感电流仍为 0，R 上没有压降，12 V 全部加在 L1 与 (L2∥L3) 的串联上。串联电感电流相同、di/dt 相同，电压与电感成正比：u_L1 = 12 × 1/(1 + 2) = 4 V。" },
+    { "id": "tau", "ask": "τ = L_eq/R = ?", "find": { "kind": "tau" }, "answer": 0.75, "unit": "s", "explain": "L_2 ∥ L_3 = 3 × 6/(3 + 6) = 2 H（并联像电阻并联）；再与 L_1 串联：L_eq = 1 + 2 = 3 H。τ = 3/4 = 0.75 s。" },
+    { "id": "uL1", "ask": "u_L1(0₊) = ?", "find": { "kind": "v", "el": "L1", "t": "0+" }, "answer": 4, "unit": "V", "explain": "t = 0₊ 时所有电感电流仍为 0，R 上没有压降，12 V 全部加在 L_1 与 (L_2∥L_3) 的串联上。串联电感电流相同、di/dt 相同，电压与电感成正比：u_L1 = 12 × 1/(1 + 2) = 4 V。" },
     { "id": "i2", "ask": "i_2(∞) = ?", "find": { "kind": "i", "el": "L2", "t": "inf" }, "answer": 2, "unit": "A", "explain": "稳态时电感短路，总电流 12/4 = 3 A。并联电感电压相同，di/dt 与 L 成反比；从零开始，电流也按 1/L 分配：i_2 = 3 × 6/(3 + 6) = 2 A。" },
-    { "id": "i3", "ask": "i_3(∞) = ?", "find": { "kind": "i", "el": "L3", "t": "inf" }, "answer": 1, "unit": "A", "explain": "i_3 = 3 − 2 = 1 A（L3 电感大，分到的电流小）。" }
+    { "id": "i3", "ask": "i_3(∞) = ?", "find": { "kind": "i", "el": "L3", "t": "inf" }, "answer": 1, "unit": "A", "explain": "i_3 = 3 − 2 = 1 A（L_3 电感大，分到的电流小）。" }
   ],
   "hints": [
     "电感串联相加、并联按“积除以和”——和电阻的规律一样。",
@@ -44,9 +44,9 @@
     "并联电感两端电压相同，u = L di/dt 说明 di/dt ∝ 1/L。初始电流都为零时，最终电流也按 1/L 分配。"
   ],
   "solution": [
-    "**1. 等效电感。** L23 = L2·L3/(L2 + L3) = 18/9 = 2 H，L_eq = L1 + L23 = **3 H**。τ = L_eq/R = 3/4 = **0.75 s**。",
-    "**2. t = 0₊。** 换路定则：i_L(0₊) = i_L(0₋) = 0，R 上电压为零，L1 和 L23 承受全部 12 V。两者电流相同，u = L di/dt 中 di/dt 相同，所以 u_L1 : u_L23 = 1 : 2，**u_L1(0₊) = 4 V**，u_L23(0₊) = 8 V。",
-    "**3. t → ∞。** 电感短路，总电流 i = 12/4 = 3 A。L2、L3 电压始终相同：L2·di_2/dt = L3·di_3/dt，积分（初值都为 0）得 L2·i_2 = L3·i_3，即 3i_2 = 6i_3。结合 i_2 + i_3 = 3 A：**i_2 = 2 A，i_3 = 1 A**。",
+    "**1. 等效电感。** L_23 = L_2·L_3/(L_2 + L_3) = 18/9 = 2 H，L_eq = L_1 + L_23 = **3 H**。τ = L_eq/R = 3/4 = **0.75 s**。",
+    "**2. t = 0₊。** 换路定则：i_L(0₊) = i_L(0₋) = 0，R 上电压为零，L_1 和 L_23 承受全部 12 V。两者电流相同，u = L di/dt 中 di/dt 相同，所以 u_L1 : u_L23 = 1 : 2，**u_L1(0₊) = 4 V**，u_L23(0₊) = 8 V。",
+    "**3. t → ∞。** 电感短路，总电流 i = 12/4 = 3 A。L_2、L_3 电压始终相同：L_2·di_2/dt = L_3·di_3/dt，积分（初值都为 0）得 L_2·i_2 = L_3·i_3，即 3i_2 = 6i_3。结合 i_2 + i_3 = 3 A：**i_2 = 2 A，i_3 = 1 A**。",
     "**说明：** 若并联电感原来就有电流，稳态分配就不再是简单的 1/L 比例——要用“磁链守恒”的思路，看各自电流的变化量按 1/L 分配。"
   ],
   "i18n": {
@@ -54,14 +54,14 @@
       "title": "Inductors in series and parallel: equivalent inductance and current sharing",
       "tags": ["inductors in series", "inductors in parallel", "equivalent inductance", "time constant τ"],
       "statement": [
-        "R = 4 Ω, L1 = 1 H, L2 = 3 H, L3 = 6 H; all three inductors carry no current initially. The voltage source steps from 0 to 12 V at t = 0.",
-        "Find the time constant τ = L_eq/R set by the equivalent inductance, the voltage u_L1 across L1 at t = 0+, and the currents in L2 and L3 in steady state (t → ∞)."
+        "R = 4 Ω, L_1 = 1 H, L_2 = 3 H, L_3 = 6 H; all three inductors carry no current initially. The voltage source steps from 0 to 12 V at t = 0.",
+        "Find the time constant τ = L_eq/R set by the equivalent inductance, the voltage u_L1 across L_1 at t = 0+, and the currents in L_2 and L_3 in steady state (t → ∞)."
       ],
       "questions": [
-        { "ask": "τ = L_eq/R = ?", "explain": "L2 ∥ L3 = 3 × 6/(3 + 6) = 2 H (parallel inductors combine like parallel resistors); in series with L1: L_eq = 1 + 2 = 3 H. τ = 3/4 = 0.75 s." },
-        { "ask": "u_L1(0+) = ?", "explain": "At t = 0+ all inductor currents are still 0, so there is no drop across R and the full 12 V is across L1 in series with (L2 ∥ L3). Series inductors carry the same current, hence the same di/dt, so their voltages are proportional to L: u_L1 = 12 × 1/(1 + 2) = 4 V." },
+        { "ask": "τ = L_eq/R = ?", "explain": "L_2 ∥ L_3 = 3 × 6/(3 + 6) = 2 H (parallel inductors combine like parallel resistors); in series with L_1: L_eq = 1 + 2 = 3 H. τ = 3/4 = 0.75 s." },
+        { "ask": "u_L1(0+) = ?", "explain": "At t = 0+ all inductor currents are still 0, so there is no drop across R and the full 12 V is across L_1 in series with (L_2 ∥ L_3). Series inductors carry the same current, hence the same di/dt, so their voltages are proportional to L: u_L1 = 12 × 1/(1 + 2) = 4 V." },
         { "ask": "i_2(∞) = ?", "explain": "In steady state the inductors are shorts and the total current is 12/4 = 3 A. Parallel inductors have the same voltage, so di/dt is inversely proportional to L; starting from zero, the currents split as 1/L: i_2 = 3 × 6/(3 + 6) = 2 A." },
-        { "ask": "i_3(∞) = ?", "explain": "i_3 = 3 − 2 = 1 A (the larger inductance L3 gets the smaller current)." }
+        { "ask": "i_3(∞) = ?", "explain": "i_3 = 3 − 2 = 1 A (the larger inductance L_3 gets the smaller current)." }
       ],
       "hints": [
         "Inductors add in series and combine as \"product over sum\" in parallel — the same rules as resistors.",
@@ -69,9 +69,9 @@
         "Parallel inductors have the same voltage, and u = L di/dt means di/dt ∝ 1/L. Starting from zero current, the final currents also split as 1/L."
       ],
       "solution": [
-        "**1. Equivalent inductance.** L23 = L2·L3/(L2 + L3) = 18/9 = 2 H, L_eq = L1 + L23 = **3 H**. τ = L_eq/R = 3/4 = **0.75 s**.",
-        "**2. t = 0+.** Switching rule: i_L(0+) = i_L(0−) = 0, so the voltage across R is zero and L1 and L23 take the full 12 V. They carry the same current, so di/dt in u = L di/dt is the same and u_L1 : u_L23 = 1 : 2: **u_L1(0+) = 4 V**, u_L23(0+) = 8 V.",
-        "**3. t → ∞.** The inductors are shorts and the total current is i = 12/4 = 3 A. L2 and L3 always have the same voltage: L2·di_2/dt = L3·di_3/dt; integrating (both start at 0) gives L2·i_2 = L3·i_3, i.e. 3i_2 = 6i_3. Together with i_2 + i_3 = 3 A: **i_2 = 2 A, i_3 = 1 A**.",
+        "**1. Equivalent inductance.** L_23 = L_2·L_3/(L_2 + L_3) = 18/9 = 2 H, L_eq = L_1 + L_23 = **3 H**. τ = L_eq/R = 3/4 = **0.75 s**.",
+        "**2. t = 0+.** Switching rule: i_L(0+) = i_L(0−) = 0, so the voltage across R is zero and L_1 and L_23 take the full 12 V. They carry the same current, so di/dt in u = L di/dt is the same and u_L1 : u_L23 = 1 : 2: **u_L1(0+) = 4 V**, u_L23(0+) = 8 V.",
+        "**3. t → ∞.** The inductors are shorts and the total current is i = 12/4 = 3 A. L_2 and L_3 always have the same voltage: L_2·di_2/dt = L_3·di_3/dt; integrating (both start at 0) gives L_2·i_2 = L_3·i_3, i.e. 3i_2 = 6i_3. Together with i_2 + i_3 = 3 A: **i_2 = 2 A, i_3 = 1 A**.",
         "**Note:** if the parallel inductors already carried currents, the final split would not simply be in the ratio 1/L — by flux conservation it is the *changes* of the currents that divide as 1/L."
       ]
     }

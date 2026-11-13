@@ -7,8 +7,8 @@
   "level": 2,
   "tags": ["最大功率传输", "戴维宁定理", "传输效率"],
   "statement": [
-    "图示电路中 Is = 6 A，R1 = 6 Ω，R2 = 6 Ω，R3 = 12 Ω，负载电阻 R_L 可调。",
-    "R_L 为多大时可获得最大功率？最大功率 P_max 是多少？已知图中 R_L 已调到这个值，求此时电流源 Is 吸收的功率，并计算传输效率 η = P_max/P_Is发出。"
+    "图示电路中 I_s = 6 A，R_1 = 6 Ω，R_2 = 6 Ω，R_3 = 12 Ω，负载电阻 R_L 可调。",
+    "R_L 为多大时可获得最大功率？最大功率 P_max 是多少？已知图中 R_L 已调到这个值，求此时电流源 I_s 吸收的功率，并计算传输效率 η = P_max/P_Is发出。"
   ],
   "schematic": {
     "elements": [
@@ -34,7 +34,7 @@
       "find": { "kind": "req", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 6,
       "unit": "Ω",
-      "explain": "Is 置零（开路）：R_eq = (R1 + R2) ∥ R3 = 12 ∥ 12 = 6 Ω。"
+      "explain": "I_s 置零（开路）：R_eq = (R_1 + R_2) ∥ R_3 = 12 ∥ 12 = 6 Ω。"
     },
     {
       "id": "pmax",
@@ -42,76 +42,76 @@
       "find": { "kind": "pmax", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 13.5,
       "unit": "W",
-      "explain": "Is 与 R1 等效为 36 V 串 6 Ω，再经 R2 到 R3 分压：u_oc = 36 × 12/24 = 18 V；P_max = u_oc²/(4R_eq) = 324/24 = 13.5 W。"
+      "explain": "I_s 与 R_1 等效为 36 V 串 6 Ω，再经 R_2 到 R_3 分压：u_oc = 36 × 12/24 = 18 V；P_max = u_oc²/(4R_eq) = 324/24 = 13.5 W。"
     },
     {
       "id": "pis",
-      "ask": "此时电流源 Is 吸收的功率 = ?",
+      "ask": "此时电流源 I_s 吸收的功率 = ?",
       "find": { "kind": "p", "el": "Is" },
       "answer": -135,
       "unit": "W",
-      "explain": "u_ab = u_oc/2 = 9 V，i_L = 1.5 A；R3 电流 0.75 A，R2 电流 2.25 A，Is 两端电压 9 + 2.25 × 6 = 22.5 V（上正）。Is 吸收 −6 × 22.5 = −135 W，即发出 135 W。"
+      "explain": "u_ab = u_oc/2 = 9 V，i_L = 1.5 A；R_3 电流 0.75 A，R_2 电流 2.25 A，I_s 两端电压 9 + 2.25 × 6 = 22.5 V（上正）。I_s 吸收 −6 × 22.5 = −135 W，即发出 135 W。"
     },
     {
       "id": "eta",
-      "ask": "传输效率 η = P_max/(Is 发出的功率) 约为：",
+      "ask": "传输效率 η = P_max/(I_s 发出的功率) 约为：",
       "choices": ["50%", "10%", "25%", "100%"],
       "correct": 1,
       "explain": "η = 13.5/135 = 10%。“匹配时效率 50%” 只对戴维宁等效电路成立；等效只对外电路等效，内部的功率损耗并不相同。"
     }
   ],
   "hints": [
-    "先断开 R_L，求 a、b 左侧的戴维宁等效电路。可以先把 Is ∥ R1 变换成电压源串电阻。",
+    "先断开 R_L，求 a、b 左侧的戴维宁等效电路。可以先把 I_s ∥ R_1 变换成电压源串电阻。",
     "R_L = R_eq 时负载功率最大，P_max = u_oc²/(4R_eq)。",
-    "求 Is 的功率要回到原电路：知道 u_ab 后由右往左逐个用 KCL、KVL。"
+    "求 I_s 的功率要回到原电路：知道 u_ab 后由右往左逐个用 KCL、KVL。"
   ],
   "solution": [
-    "**1. 等效电阻。** Is 置零 → 开路：R_eq = (R1 + R2) ∥ R3 = 12 ∥ 12 = **6 Ω**，所以 R_L = 6 Ω 时功率最大。",
-    "**2. 开路电压。** Is ∥ R1 等效为 Is·R1 = 36 V 串 6 Ω；开路时 R3 与 (6 + 6) Ω 串联分压：u_oc = 36 × 12/24 = 18 V。",
+    "**1. 等效电阻。** I_s 置零 → 开路：R_eq = (R_1 + R_2) ∥ R_3 = 12 ∥ 12 = **6 Ω**，所以 R_L = 6 Ω 时功率最大。",
+    "**2. 开路电压。** I_s ∥ R_1 等效为 I_s·R_1 = 36 V 串 6 Ω；开路时 R_3 与 (6 + 6) Ω 串联分压：u_oc = 36 × 12/24 = 18 V。",
     "**3. 最大功率。** P_max = u_oc²/(4R_eq) = 18²/24 = **13.5 W**。",
-    "**4. 回到原电路。** u_ab = 18/2 = 9 V，i_L = 1.5 A，i_R3 = 9/12 = 0.75 A，i_R2 = 2.25 A，Is 上端电压 = 9 + 2.25 × 6 = 22.5 V，i_R1 = 22.5/6 = 3.75 A（KCL：3.75 + 2.25 = 6 ✓）。",
-    "Is 吸收功率 = **−135 W**（发出 135 W）。**η = 13.5/135 = 10%**。",
-    "**功率平衡：** R1 84.375 W + R2 30.375 W + R3 6.75 W + R_L 13.5 W = 135 W ✓。"
+    "**4. 回到原电路。** u_ab = 18/2 = 9 V，i_L = 1.5 A，i_R3 = 9/12 = 0.75 A，i_R2 = 2.25 A，I_s 上端电压 = 9 + 2.25 × 6 = 22.5 V，i_R1 = 22.5/6 = 3.75 A（KCL：3.75 + 2.25 = 6 ✓）。",
+    "I_s 吸收功率 = **−135 W**（发出 135 W）。**η = 13.5/135 = 10%**。",
+    "**功率平衡：** R_1 84.375 W + R_2 30.375 W + R_3 6.75 W + R_L 13.5 W = 135 W ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Maximum power transfer: matching and efficiency",
       "tags": ["maximum power transfer", "Thevenin's theorem", "efficiency"],
       "statement": [
-        "In the circuit, Is = 6 A, R1 = 6 Ω, R2 = 6 Ω, R3 = 12 Ω, and the load R_L is adjustable.",
-        "For which R_L does the load receive maximum power, and what is P_max? R_L in the drawing has already been set to that value: find the power absorbed by the current source Is and the efficiency η = P_max/(power delivered by Is)."
+        "In the circuit, I_s = 6 A, R_1 = 6 Ω, R_2 = 6 Ω, R_3 = 12 Ω, and the load R_L is adjustable.",
+        "For which R_L does the load receive maximum power, and what is P_max? R_L in the drawing has already been set to that value: find the power absorbed by the current source I_s and the efficiency η = P_max/(power delivered by I_s)."
       ],
       "questions": [
         {
           "ask": "For maximum power, R_L = R_eq = ?",
-          "explain": "Zero Is (open): R_eq = (R1 + R2) ∥ R3 = 12 ∥ 12 = 6 Ω."
+          "explain": "Zero I_s (open): R_eq = (R_1 + R_2) ∥ R_3 = 12 ∥ 12 = 6 Ω."
         },
         {
           "ask": "P_max = ?",
-          "explain": "Is with R1 is equivalent to 36 V in series with 6 Ω; through R2 into the divider with R3: u_oc = 36 × 12/24 = 18 V; P_max = u_oc²/(4R_eq) = 324/24 = 13.5 W."
+          "explain": "I_s with R_1 is equivalent to 36 V in series with 6 Ω; through R_2 into the divider with R_3: u_oc = 36 × 12/24 = 18 V; P_max = u_oc²/(4R_eq) = 324/24 = 13.5 W."
         },
         {
-          "ask": "Power absorbed by the current source Is in this case = ?",
-          "explain": "u_ab = u_oc/2 = 9 V, i_L = 1.5 A; R3 carries 0.75 A, R2 carries 2.25 A, the voltage across Is is 9 + 2.25 × 6 = 22.5 V (+ at the top). Is absorbs −6 × 22.5 = −135 W, i.e. it delivers 135 W."
+          "ask": "Power absorbed by the current source I_s in this case = ?",
+          "explain": "u_ab = u_oc/2 = 9 V, i_L = 1.5 A; R_3 carries 0.75 A, R_2 carries 2.25 A, the voltage across I_s is 9 + 2.25 × 6 = 22.5 V (+ at the top). I_s absorbs −6 × 22.5 = −135 W, i.e. it delivers 135 W."
         },
         {
-          "ask": "The efficiency η = P_max/(power delivered by Is) is about:",
+          "ask": "The efficiency η = P_max/(power delivered by I_s) is about:",
           "choices": ["50%", "10%", "25%", "100%"],
           "explain": "η = 13.5/135 = 10%. \"50 % at matching\" holds only for the Thevenin equivalent; the equivalent circuit is equivalent only to the outside, and the internal losses are different."
         }
       ],
       "hints": [
-        "Remove R_L and find the Thevenin equivalent to the left of a, b. You can first convert Is ∥ R1 into a voltage source with a series resistor.",
+        "Remove R_L and find the Thevenin equivalent to the left of a, b. You can first convert I_s ∥ R_1 into a voltage source with a series resistor.",
         "The load power is maximal for R_L = R_eq, with P_max = u_oc²/(4R_eq).",
-        "For the power of Is go back to the original circuit: knowing u_ab, apply KCL and KVL from right to left."
+        "For the power of I_s go back to the original circuit: knowing u_ab, apply KCL and KVL from right to left."
       ],
       "solution": [
-        "**1. Equivalent resistance.** Zero Is → open: R_eq = (R1 + R2) ∥ R3 = 12 ∥ 12 = **6 Ω**, so the power is maximal for R_L = 6 Ω.",
-        "**2. Open-circuit voltage.** Is ∥ R1 is equivalent to Is·R1 = 36 V in series with 6 Ω; with a, b open, R3 forms a divider with (6 + 6) Ω: u_oc = 36 × 12/24 = 18 V.",
+        "**1. Equivalent resistance.** Zero I_s → open: R_eq = (R_1 + R_2) ∥ R_3 = 12 ∥ 12 = **6 Ω**, so the power is maximal for R_L = 6 Ω.",
+        "**2. Open-circuit voltage.** I_s ∥ R_1 is equivalent to I_s·R_1 = 36 V in series with 6 Ω; with a, b open, R_3 forms a divider with (6 + 6) Ω: u_oc = 36 × 12/24 = 18 V.",
         "**3. Maximum power.** P_max = u_oc²/(4R_eq) = 18²/24 = **13.5 W**.",
-        "**4. Back to the original circuit.** u_ab = 18/2 = 9 V, i_L = 1.5 A, i_R3 = 9/12 = 0.75 A, i_R2 = 2.25 A, the voltage at the top of Is = 9 + 2.25 × 6 = 22.5 V, i_R1 = 22.5/6 = 3.75 A (KCL: 3.75 + 2.25 = 6 ✓).",
-        "Power absorbed by Is = **−135 W** (it delivers 135 W). **η = 13.5/135 = 10%**.",
-        "**Power balance:** R1 84.375 W + R2 30.375 W + R3 6.75 W + R_L 13.5 W = 135 W ✓."
+        "**4. Back to the original circuit.** u_ab = 18/2 = 9 V, i_L = 1.5 A, i_R3 = 9/12 = 0.75 A, i_R2 = 2.25 A, the voltage at the top of I_s = 9 + 2.25 × 6 = 22.5 V, i_R1 = 22.5/6 = 3.75 A (KCL: 3.75 + 2.25 = 6 ✓).",
+        "Power absorbed by I_s = **−135 W** (it delivers 135 W). **η = 13.5/135 = 10%**.",
+        "**Power balance:** R_1 84.375 W + R_2 30.375 W + R_3 6.75 W + R_L 13.5 W = 135 W ✓."
       ]
     }
   }

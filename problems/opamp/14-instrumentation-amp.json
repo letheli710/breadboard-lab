@@ -7,8 +7,8 @@
   "level": 5,
   "tags": ["仪表放大器", "多级运放电路", "减法器", "虚短"],
   "statement": [
-    "三运放仪表放大器（instrumentation amplifier）：u_1 = 1.0 V，u_2 = 1.2 V；第一级 Ra = Rb = 20 kΩ，Rg = 10 kΩ；第二级 R3 = R5 = 10 kΩ，Rf = R6 = 20 kΩ。运放均为理想运放。",
-    "求 Rg 中的电流 i_g（参考方向见图）、第一级输出 u_o1、u_o2 和最终输出 u_o。"
+    "三运放仪表放大器（instrumentation amplifier）：u_1 = 1.0 V，u_2 = 1.2 V；第一级 R_a = R_b = 20 kΩ，R_g = 10 kΩ；第二级 R_3 = R_5 = 10 kΩ，R_f = R_6 = 20 kΩ。运放均为理想运放。",
+    "求 R_g 中的电流 i_g（参考方向见图）、第一级输出 u_o1、u_o2 和最终输出 u_o。"
   ],
   "schematic": {
     "elements": [
@@ -54,42 +54,42 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "ig", "ask": "i_g = ?", "find": { "kind": "i", "el": "Rg" }, "answer": -0.00002, "unit": "mA", "explain": "虚短：u_a = u_1 = 1.0 V，u_b = u_2 = 1.2 V。i_g = (u_a − u_b)/Rg = −0.2/10k = −0.02 mA。" },
-    { "id": "uo1", "ask": "u_o1 = ?", "find": { "kind": "v", "nodes": ["o1"] }, "answer": 0.6, "unit": "V", "explain": "虚断：Ra、Rg、Rb 中是同一个电流 i_g。u_o1 = u_a + Ra·i_g = 1.0 + 20k × (−0.02 mA) = 0.6 V。" },
-    { "id": "uo2", "ask": "u_o2 = ?", "find": { "kind": "v", "nodes": ["o2"] }, "answer": 1.6, "unit": "V", "explain": "u_o2 = u_b − Rb·i_g = 1.2 + 0.4 = 1.6 V。差模电压被放大 (1 + 2Ra/Rg) = 5 倍：u_o2 − u_o1 = 5 × 0.2 = 1.0 V。" },
-    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 2, "unit": "V", "explain": "第二级是减法器（R6/R5 = Rf/R3 = 2）：u_o = 2(u_o2 − u_o1) = 2 V。总差模放大倍数 5 × 2 = 10。" }
+    { "id": "ig", "ask": "i_g = ?", "find": { "kind": "i", "el": "Rg" }, "answer": -0.00002, "unit": "mA", "explain": "虚短：u_a = u_1 = 1.0 V，u_b = u_2 = 1.2 V。i_g = (u_a − u_b)/R_g = −0.2/10k = −0.02 mA。" },
+    { "id": "uo1", "ask": "u_o1 = ?", "find": { "kind": "v", "nodes": ["o1"] }, "answer": 0.6, "unit": "V", "explain": "虚断：R_a、R_g、R_b 中是同一个电流 i_g。u_o1 = u_a + R_a·i_g = 1.0 + 20k × (−0.02 mA) = 0.6 V。" },
+    { "id": "uo2", "ask": "u_o2 = ?", "find": { "kind": "v", "nodes": ["o2"] }, "answer": 1.6, "unit": "V", "explain": "u_o2 = u_b − R_b·i_g = 1.2 + 0.4 = 1.6 V。差模电压被放大 (1 + 2R_a/R_g) = 5 倍：u_o2 − u_o1 = 5 × 0.2 = 1.0 V。" },
+    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 2, "unit": "V", "explain": "第二级是减法器（R_6/R_5 = R_f/R_3 = 2）：u_o = 2(u_o2 − u_o1) = 2 V。总差模放大倍数 5 × 2 = 10。" }
   ],
-  "hints": ["先看第一级：A1、A2 的虚短把 u_1、u_2 直接“搬”到 Rg 两端。", "A1、A2 的反相端不取电流，所以 Ra、Rg、Rb 串联、电流相同；第二级是熟悉的减法器。"],
+  "hints": ["先看第一级：A_1、A_2 的虚短把 u_1、u_2 直接“搬”到 R_g 两端。", "A_1、A_2 的反相端不取电流，所以 R_a、R_g、R_b 串联、电流相同；第二级是熟悉的减法器。"],
   "solution": [
-    "**1. 虚短：** u_a = u_1 = 1.0 V，u_b = u_2 = 1.2 V，Rg 两端电压就是输入差 u_1 − u_2 = −0.2 V。",
-    "**2. 虚断：** i_g = (u_a − u_b)/Rg = **−0.02 mA**，这个电流同样流过 Ra（o1 → a）和 Rb（b → o2）。",
-    "**3. 第一级输出：** u_o1 = u_a + Ra·i_g = **0.6 V**，u_o2 = u_b − Rb·i_g = **1.6 V**。",
-    "u_o2 − u_o1 = (1 + 2Ra/Rg)(u_2 − u_1) = 5 × 0.2 = 1.0 V；而共模部分 (u_o1 + u_o2)/2 = 1.1 V = (u_1 + u_2)/2 不被放大。",
-    "**4. 第二级（减法器）：** u_+3 = u_o2·R6/(R5 + R6) = 1.6 × 2/3 = 16/15 V，u_o = (1 + Rf/R3)u_+3 − (Rf/R3)u_o1 = 3 × 16/15 − 2 × 0.6 = 3.2 − 1.2 = **2 V**。",
-    "**总结：** u_o = (Rf/R3)(1 + 2Ra/Rg)(u_2 − u_1) = 10 × 0.2 = 2 V。两个输入都接同相端，输入电阻为无穷大；只需改变一个电阻 Rg 就能调节放大倍数。"
+    "**1. 虚短：** u_a = u_1 = 1.0 V，u_b = u_2 = 1.2 V，R_g 两端电压就是输入差 u_1 − u_2 = −0.2 V。",
+    "**2. 虚断：** i_g = (u_a − u_b)/R_g = **−0.02 mA**，这个电流同样流过 R_a（o1 → a）和 R_b（b → o2）。",
+    "**3. 第一级输出：** u_o1 = u_a + R_a·i_g = **0.6 V**，u_o2 = u_b − R_b·i_g = **1.6 V**。",
+    "u_o2 − u_o1 = (1 + 2R_a/R_g)(u_2 − u_1) = 5 × 0.2 = 1.0 V；而共模部分 (u_o1 + u_o2)/2 = 1.1 V = (u_1 + u_2)/2 不被放大。",
+    "**4. 第二级（减法器）：** u_+3 = u_o2·R_6/(R_5 + R_6) = 1.6 × 2/3 = 16/15 V，u_o = (1 + R_f/R_3)u_+3 − (R_f/R_3)u_o1 = 3 × 16/15 − 2 × 0.6 = 3.2 − 1.2 = **2 V**。",
+    "**总结：** u_o = (R_f/R_3)(1 + 2R_a/R_g)(u_2 − u_1) = 10 × 0.2 = 2 V。两个输入都接同相端，输入电阻为无穷大；只需改变一个电阻 R_g 就能调节放大倍数。"
   ],
   "i18n": {
     "en": {
       "title": "Three-op-amp instrumentation amplifier",
       "tags": ["instrumentation amplifier", "multi-stage op-amp circuits", "subtractor", "virtual short"],
       "statement": [
-        "A three-op-amp instrumentation amplifier: u_1 = 1.0 V, u_2 = 1.2 V; first stage Ra = Rb = 20 kΩ, Rg = 10 kΩ; second stage R3 = R5 = 10 kΩ, Rf = R6 = 20 kΩ. All op-amps are ideal.",
-        "Find the current i_g in Rg (reference as drawn), the first-stage outputs u_o1 and u_o2, and the final output u_o."
+        "A three-op-amp instrumentation amplifier: u_1 = 1.0 V, u_2 = 1.2 V; first stage R_a = R_b = 20 kΩ, R_g = 10 kΩ; second stage R_3 = R_5 = 10 kΩ, R_f = R_6 = 20 kΩ. All op-amps are ideal.",
+        "Find the current i_g in R_g (reference as drawn), the first-stage outputs u_o1 and u_o2, and the final output u_o."
       ],
       "questions": [
-        { "ask": "i_g = ?", "explain": "Virtual short: u_a = u_1 = 1.0 V, u_b = u_2 = 1.2 V. i_g = (u_a − u_b)/Rg = −0.2/10k = −0.02 mA." },
-        { "ask": "u_o1 = ?", "explain": "Virtual open: Ra, Rg and Rb carry the same current i_g. u_o1 = u_a + Ra·i_g = 1.0 + 20k × (−0.02 mA) = 0.6 V." },
-        { "ask": "u_o2 = ?", "explain": "u_o2 = u_b − Rb·i_g = 1.2 + 0.4 = 1.6 V. The differential voltage is amplified by (1 + 2Ra/Rg) = 5: u_o2 − u_o1 = 5 × 0.2 = 1.0 V." },
-        { "ask": "u_o = ?", "explain": "The second stage is a subtractor (R6/R5 = Rf/R3 = 2): u_o = 2(u_o2 − u_o1) = 2 V. Overall differential gain 5 × 2 = 10." }
+        { "ask": "i_g = ?", "explain": "Virtual short: u_a = u_1 = 1.0 V, u_b = u_2 = 1.2 V. i_g = (u_a − u_b)/R_g = −0.2/10k = −0.02 mA." },
+        { "ask": "u_o1 = ?", "explain": "Virtual open: R_a, R_g and R_b carry the same current i_g. u_o1 = u_a + R_a·i_g = 1.0 + 20k × (−0.02 mA) = 0.6 V." },
+        { "ask": "u_o2 = ?", "explain": "u_o2 = u_b − R_b·i_g = 1.2 + 0.4 = 1.6 V. The differential voltage is amplified by (1 + 2R_a/R_g) = 5: u_o2 − u_o1 = 5 × 0.2 = 1.0 V." },
+        { "ask": "u_o = ?", "explain": "The second stage is a subtractor (R_6/R_5 = R_f/R_3 = 2): u_o = 2(u_o2 − u_o1) = 2 V. Overall differential gain 5 × 2 = 10." }
       ],
-      "hints": ["Start with the first stage: the virtual shorts of A1 and A2 copy u_1 and u_2 straight onto the two ends of Rg.", "The inverting inputs of A1 and A2 draw no current, so Ra, Rg and Rb are in series with the same current; the second stage is the familiar subtractor."],
+      "hints": ["Start with the first stage: the virtual shorts of A_1 and A_2 copy u_1 and u_2 straight onto the two ends of R_g.", "The inverting inputs of A_1 and A_2 draw no current, so R_a, R_g and R_b are in series with the same current; the second stage is the familiar subtractor."],
       "solution": [
-        "**1. Virtual short:** u_a = u_1 = 1.0 V, u_b = u_2 = 1.2 V, so the voltage across Rg is the input difference u_1 − u_2 = −0.2 V.",
-        "**2. Virtual open:** i_g = (u_a − u_b)/Rg = **−0.02 mA**, and the same current flows through Ra (o1 → a) and Rb (b → o2).",
-        "**3. First-stage outputs:** u_o1 = u_a + Ra·i_g = **0.6 V**, u_o2 = u_b − Rb·i_g = **1.6 V**.",
-        "u_o2 − u_o1 = (1 + 2Ra/Rg)(u_2 − u_1) = 5 × 0.2 = 1.0 V, while the common-mode part (u_o1 + u_o2)/2 = 1.1 V = (u_1 + u_2)/2 is not amplified.",
-        "**4. Second stage (subtractor):** v+3 = u_o2·R6/(R5 + R6) = 1.6 × 2/3 = 16/15 V, u_o = (1 + Rf/R3)v+3 − (Rf/R3)u_o1 = 3 × 16/15 − 2 × 0.6 = 3.2 − 1.2 = **2 V**.",
-        "**Summary:** u_o = (Rf/R3)(1 + 2Ra/Rg)(u_2 − u_1) = 10 × 0.2 = 2 V. Both inputs go to non-inverting inputs, so the input resistance is infinite, and the gain is set by the single resistor Rg."
+        "**1. Virtual short:** u_a = u_1 = 1.0 V, u_b = u_2 = 1.2 V, so the voltage across R_g is the input difference u_1 − u_2 = −0.2 V.",
+        "**2. Virtual open:** i_g = (u_a − u_b)/R_g = **−0.02 mA**, and the same current flows through R_a (o1 → a) and R_b (b → o2).",
+        "**3. First-stage outputs:** u_o1 = u_a + R_a·i_g = **0.6 V**, u_o2 = u_b − R_b·i_g = **1.6 V**.",
+        "u_o2 − u_o1 = (1 + 2R_a/R_g)(u_2 − u_1) = 5 × 0.2 = 1.0 V, while the common-mode part (u_o1 + u_o2)/2 = 1.1 V = (u_1 + u_2)/2 is not amplified.",
+        "**4. Second stage (subtractor):** v+3 = u_o2·R_6/(R_5 + R_6) = 1.6 × 2/3 = 16/15 V, u_o = (1 + R_f/R_3)v+3 − (R_f/R_3)u_o1 = 3 × 16/15 − 2 × 0.6 = 3.2 − 1.2 = **2 V**.",
+        "**Summary:** u_o = (R_f/R_3)(1 + 2R_a/R_g)(u_2 − u_1) = 10 × 0.2 = 2 V. Both inputs go to non-inverting inputs, so the input resistance is infinite, and the gain is set by the single resistor R_g."
       ]
     }
   }

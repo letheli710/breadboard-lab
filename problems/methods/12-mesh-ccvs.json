@@ -7,7 +7,7 @@
   "level": 4,
   "tags": ["网孔电流法", "受控源 CCVS", "控制量方程"],
   "statement": [
-    "图示电路中 Us = 12 V，R1 = 2 Ω，R2 = 4 Ω，R3 = 2 Ω。右侧电流控制电压源（CCVS）的电压为 2i_x（“+”在下方），i_x 是 R2 中向下的电流。网孔电流 i_m1（左）、i_m2（右）均取**顺时针**方向。",
+    "图示电路中 U_s = 12 V，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 2 Ω。右侧电流控制电压源（CCVS）的电压为 2i_x（“+”在下方），i_x 是 R_2 中向下的电流。网孔电流 i_m1（左）、i_m2（右）均取**顺时针**方向。",
     "用**网孔电流法**求 i_m1、i_x，以及受控源吸收的功率。"
   ],
   "schematic": {
@@ -30,13 +30,13 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "im1", "ask": "i_m1 = ?（等于图中 R1 的电流 i1）", "find": { "kind": "i", "el": "R1" }, "answer": 4, "unit": "A", "explain": "代入 i_x = i_m1 − i_m2 后，网孔 2 的方程变为 −6i_m1 + 8i_m2 = 0，与 6i_m1 − 4i_m2 = 12 联立得 i_m1 = 4 A、i_m2 = 3 A。" },
+    { "id": "im1", "ask": "i_m1 = ?（等于图中 R_1 的电流 i_1）", "find": { "kind": "i", "el": "R1" }, "answer": 4, "unit": "A", "explain": "代入 i_x = i_m1 − i_m2 后，网孔 2 的方程变为 −6i_m1 + 8i_m2 = 0，与 6i_m1 − 4i_m2 = 12 联立得 i_m1 = 4 A、i_m2 = 3 A。" },
     { "id": "ix", "ask": "i_x = ?", "find": { "kind": "i", "el": "R2" }, "answer": 1, "unit": "A", "explain": "i_x = i_m1 − i_m2 = 4 − 3 = 1 A。" },
     { "id": "p", "ask": "受控源 H 吸收的功率 P = ?", "find": { "kind": "p", "el": "H" }, "answer": -6, "unit": "W", "explain": "H 的电压 2i_x = 2 V（下正上负），电流 i_m2 = 3 A 从下往上流过它、从“+”端流出：P = −2 × 3 = −6 W（发出 6 W）。" },
     {
       "id": "c",
       "ask": "含受控源时，网孔方程的系数矩阵通常……",
-      "choices": ["仍然对称，因为互电阻 R12 = R21", "不再对称，因为受控源项移到左边后改变了系数", "一定是对角矩阵", "行列式一定为零"],
+      "choices": ["仍然对称，因为互电阻 R_12 = R_21", "不再对称，因为受控源项移到左边后改变了系数", "一定是对角矩阵", "行列式一定为零"],
       "correct": 1,
       "explain": "把 2i_x = 2(i_m1 − i_m2) 移到方程左边后，网孔 2 方程中 i_m1 的系数变成 −6，而网孔 1 方程中 i_m2 的系数是 −4，矩阵不再对称。"
     }
@@ -44,46 +44,46 @@
   "hints": [
     "先把 CCVS 当作电压为 2i_x 的独立电压源列网孔方程，再补充控制量方程 i_x = i_m1 − i_m2。",
     "顺时针绕网孔 2 经过 H 时是从“−”到“+”，即电压升 2i_x，写在方程右边。",
-    "网孔 2：−R2·i_m1 + (R2 + R3)·i_m2 = 2i_x。"
+    "网孔 2：−R_2·i_m1 + (R_2 + R_3)·i_m2 = 2i_x。"
   ],
   "solution": [
-    "**1. 网孔 1：** (R1 + R2)·i_m1 − R2·i_m2 = Us → 6i_m1 − 4i_m2 = 12。",
-    "**2. 网孔 2：** −R2·i_m1 + (R2 + R3)·i_m2 = 2i_x → −4i_m1 + 6i_m2 = 2i_x。",
+    "**1. 网孔 1：** (R_1 + R_2)·i_m1 − R_2·i_m2 = U_s → 6i_m1 − 4i_m2 = 12。",
+    "**2. 网孔 2：** −R_2·i_m1 + (R_2 + R_3)·i_m2 = 2i_x → −4i_m1 + 6i_m2 = 2i_x。",
     "**3. 控制量方程：** i_x = i_m1 − i_m2。代入：−4i_m1 + 6i_m2 = 2i_m1 − 2i_m2 → −6i_m1 + 8i_m2 = 0 → i_m1 = (4/3)i_m2。",
     "**4. 求解：** 6 × (4/3)i_m2 − 4i_m2 = 4i_m2 = 12 → **i_m2 = 3 A**，**i_m1 = 4 A**，**i_x = 1 A**。",
     "**5. 受控源功率：** u_H = 2i_x = 2 V（下正），电流 3 A 从“+”端流出：P = **−6 W**（发出 6 W）。",
-    "**验算：** Us 发出 12 × 4 = 48 W，H 发出 6 W，共 54 W；电阻吸收 2×16 + 4×1 + 2×9 = 32 + 4 + 18 = 54 W。"
+    "**验算：** U_s 发出 12 × 4 = 48 W，H 发出 6 W，共 54 W；电阻吸收 2×16 + 4×1 + 2×9 = 32 + 4 + 18 = 54 W。"
   ],
   "i18n": {
     "en": {
       "title": "Mesh analysis with a current-controlled voltage source",
       "tags": ["mesh-current method", "dependent source CCVS", "controlling-variable equation"],
       "statement": [
-        "In the circuit, Us = 12 V, R1 = 2 Ω, R2 = 4 Ω, R3 = 2 Ω. The current-controlled voltage source (CCVS) on the right has voltage 2i_x (\"+\" at the bottom), where i_x is the downward current in R2. The mesh currents i_m1 (left) and i_m2 (right) are both **clockwise**.",
+        "In the circuit, U_s = 12 V, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 2 Ω. The current-controlled voltage source (CCVS) on the right has voltage 2i_x (\"+\" at the bottom), where i_x is the downward current in R_2. The mesh currents i_m1 (left) and i_m2 (right) are both **clockwise**.",
         "Use the **mesh-current method** to find i_m1, i_x and the power absorbed by the dependent source."
       ],
       "questions": [
-        { "ask": "i_m1 = ? (equal to the current i1 in R1 shown in the figure)", "explain": "With i_x = i_m1 − i_m2 the mesh-2 equation becomes −6i_m1 + 8i_m2 = 0; together with 6i_m1 − 4i_m2 = 12 it gives i_m1 = 4 A and i_m2 = 3 A." },
+        { "ask": "i_m1 = ? (equal to the current i_1 in R_1 shown in the figure)", "explain": "With i_x = i_m1 − i_m2 the mesh-2 equation becomes −6i_m1 + 8i_m2 = 0; together with 6i_m1 − 4i_m2 = 12 it gives i_m1 = 4 A and i_m2 = 3 A." },
         { "ask": "i_x = ?", "explain": "i_x = i_m1 − i_m2 = 4 − 3 = 1 A." },
         { "ask": "Power absorbed by the dependent source H, P = ?", "explain": "H has voltage 2i_x = 2 V (+ at the bottom); the current i_m2 = 3 A flows up through it and leaves at \"+\": P = −2 × 3 = −6 W (it delivers 6 W)." },
         {
           "ask": "With a dependent source, the coefficient matrix of the mesh equations is usually…",
-          "choices": ["still symmetric, because the mutual resistances satisfy R12 = R21", "no longer symmetric, because moving the dependent-source term to the left changes the coefficients", "always diagonal", "always singular"],
+          "choices": ["still symmetric, because the mutual resistances satisfy R_12 = R_21", "no longer symmetric, because moving the dependent-source term to the left changes the coefficients", "always diagonal", "always singular"],
           "explain": "After moving 2i_x = 2(i_m1 − i_m2) to the left-hand side, the coefficient of i_m1 in the mesh-2 equation becomes −6, while the coefficient of i_m2 in the mesh-1 equation is −4: the matrix is no longer symmetric."
         }
       ],
       "hints": [
         "First treat the CCVS as an independent voltage source of value 2i_x when writing the mesh equations, then add the controlling-variable equation i_x = i_m1 − i_m2.",
         "Going clockwise around mesh 2 you cross H from \"−\" to \"+\": a rise of 2i_x, which goes on the right-hand side.",
-        "Mesh 2: −R2·i_m1 + (R2 + R3)·i_m2 = 2i_x."
+        "Mesh 2: −R_2·i_m1 + (R_2 + R_3)·i_m2 = 2i_x."
       ],
       "solution": [
-        "**1. Mesh 1:** (R1 + R2)·i_m1 − R2·i_m2 = Us → 6i_m1 − 4i_m2 = 12.",
-        "**2. Mesh 2:** −R2·i_m1 + (R2 + R3)·i_m2 = 2i_x → −4i_m1 + 6i_m2 = 2i_x.",
+        "**1. Mesh 1:** (R_1 + R_2)·i_m1 − R_2·i_m2 = U_s → 6i_m1 − 4i_m2 = 12.",
+        "**2. Mesh 2:** −R_2·i_m1 + (R_2 + R_3)·i_m2 = 2i_x → −4i_m1 + 6i_m2 = 2i_x.",
         "**3. Controlling-variable equation:** i_x = i_m1 − i_m2. Substituting: −4i_m1 + 6i_m2 = 2i_m1 − 2i_m2 → −6i_m1 + 8i_m2 = 0 → i_m1 = (4/3)i_m2.",
         "**4. Solve:** 6 × (4/3)i_m2 − 4i_m2 = 4i_m2 = 12 → **i_m2 = 3 A**, **i_m1 = 4 A**, **i_x = 1 A**.",
         "**5. Dependent-source power:** u_H = 2i_x = 2 V (+ at the bottom), and 3 A leaves at \"+\": P = **−6 W** (delivers 6 W).",
-        "**Check:** Us delivers 12 × 4 = 48 W and H delivers 6 W, 54 W in total; the resistors absorb 2×16 + 4×1 + 2×9 = 32 + 4 + 18 = 54 W."
+        "**Check:** U_s delivers 12 × 4 = 48 W and H delivers 6 W, 54 W in total; the resistors absorb 2×16 + 4×1 + 2×9 = 32 + 4 + 18 = 54 W."
       ]
     }
   }

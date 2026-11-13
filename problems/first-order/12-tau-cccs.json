@@ -7,7 +7,7 @@
   "level": 3,
   "tags": ["时间常数 τ", "受控源 CCCS", "外加电源法", "零状态响应"],
   "statement": [
-    "图示电路中 Us = 12 V，R1 = 6 kΩ，R2 = 2 kΩ，C = 100 µF。电流控制电流源向结点 a 注入电流 2i_1，i_1 是 R1 中向右的电流。电容原来不带电，开关 S 在 t = 0 时闭合。",
+    "图示电路中 U_s = 12 V，R_1 = 6 kΩ，R_2 = 2 kΩ，C = 100 µF。电流控制电流源向结点 a 注入电流 2i_1，i_1 是 R_1 中向右的电流。电容原来不带电，开关 S 在 t = 0 时闭合。",
     "求 i_1(0₊)、u_C(∞)、时间常数 τ，以及 t = 0.1 s 时的 u_C。"
   ],
   "schematic": {
@@ -35,22 +35,22 @@
   "analysis": { "type": "tran" },
   "questions": [
     { "id": "i10", "ask": "i_1(0₊) = ?", "find": { "kind": "i", "el": "R1", "t": "0+" }, "answer": 0.002, "unit": "mA", "explain": "u_C(0₊) = 0，a 点电位为零：i_1(0₊) = 12/6 kΩ = 2 mA（受控源此时注入 4 mA，全部流进电容）。" },
-    { "id": "uinf", "ask": "u_C(∞) = ?", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": 6, "unit": "V", "explain": "电容开路，结点 a 的 KCL：i_1 + 2i_1 = u/R2，i_1 = (12 − u)/6 → (12 − u)/2 = u/2 → u_C(∞) = 6 V。" },
-    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.1, "unit": "s", "explain": "Us 短路，在 a 加电压 u：i_1 = −u/6k，左侧流入 a 的总电流 3i_1 = −u/2k，R2 取走 u/2k，所以端口电流 = u/2k + u/2k = u/1k，R_eq = 1 kΩ，τ = R_eq·C = 0.1 s。" },
+    { "id": "uinf", "ask": "u_C(∞) = ?", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": 6, "unit": "V", "explain": "电容开路，结点 a 的 KCL：i_1 + 2i_1 = u/R_2，i_1 = (12 − u)/6 → (12 − u)/2 = u/2 → u_C(∞) = 6 V。" },
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.1, "unit": "s", "explain": "U_s 短路，在 a 加电压 u：i_1 = −u/6k，左侧流入 a 的总电流 3i_1 = −u/2k，R_2 取走 u/2k，所以端口电流 = u/2k + u/2k = u/1k，R_eq = 1 kΩ，τ = R_eq·C = 0.1 s。" },
     { "id": "u01", "ask": "t = 0.1 s 时 u_C = ?", "find": { "kind": "v", "el": "C", "t": 0.1 }, "answer": 3.792723, "unit": "V", "explain": "u_C(t) = 6(1 − e^(−10t)) V，t = τ 时 u_C = 6(1 − e⁻¹) ≈ 3.793 V。" }
   ],
   "hints": [
     "受控源不能置零。求 R_eq 要用外加电源法：独立源置零，在电容两端加电压 u，求流入的电流 i，R_eq = u/i。",
-    "R1 左端接地（Us 短路）后，i_1 = −u/R1；受控源和 R1 合起来相当于一个 R1/3 的电阻。",
+    "R_1 左端接地（U_s 短路）后，i_1 = −u/R_1；受控源和 R_1 合起来相当于一个 R_1/3 的电阻。",
     "终值：电容开路，对结点 a 列 KCL，注意控制量 i_1 也要用 u_a 表示。"
   ],
   "solution": [
-    "**1. 初值。** 电容不带电：u_C(0₊) = 0，a 点电位为 0。**i_1(0₊) = 12/6 = 2 mA**，受控源电流 4 mA，R2 中无电流，i_C(0₊) = 6 mA。",
-    "**2. 终值。** 电容开路，结点 a：3i_1 = u/R2，i_1 = (12 − u)/6 kΩ → 3(12 − u)/6 = u/2 → **u_C(∞) = 6 V**（此时 i_1 = 1 mA）。",
-    "**3. 等效电阻（外加电源法）。** Us 短路，在 a 与地之间加电压 u，求从外电源流入 a 的电流 i：",
-    "- R1：i_1 = (0 − u)/6k = −u/6k；受控源向 a 注入 2i_1 = −u/3k。",
-    "- KCL：i = u/R2 − (i_1 + 2i_1) = u/2k + u/2k = u/1k → **R_eq = 1 kΩ**。",
-    "如果误把受控源也置零，会得到 R1 ∥ R2 = 1.5 kΩ，这是错的。",
+    "**1. 初值。** 电容不带电：u_C(0₊) = 0，a 点电位为 0。**i_1(0₊) = 12/6 = 2 mA**，受控源电流 4 mA，R_2 中无电流，i_C(0₊) = 6 mA。",
+    "**2. 终值。** 电容开路，结点 a：3i_1 = u/R_2，i_1 = (12 − u)/6 kΩ → 3(12 − u)/6 = u/2 → **u_C(∞) = 6 V**（此时 i_1 = 1 mA）。",
+    "**3. 等效电阻（外加电源法）。** U_s 短路，在 a 与地之间加电压 u，求从外电源流入 a 的电流 i：",
+    "- R_1：i_1 = (0 − u)/6k = −u/6k；受控源向 a 注入 2i_1 = −u/3k。",
+    "- KCL：i = u/R_2 − (i_1 + 2i_1) = u/2k + u/2k = u/1k → **R_eq = 1 kΩ**。",
+    "如果误把受控源也置零，会得到 R_1 ∥ R_2 = 1.5 kΩ，这是错的。",
     "**4. 时间常数与响应。** **τ = R_eq·C = 1×10³ × 100×10⁻⁶ = 0.1 s**。u_C(t) = 6(1 − e^(−10t)) V，t = 0.1 s：u_C = 6(1 − e⁻¹) ≈ **3.793 V**。",
     "**验算：** 用戴维宁等效 U_oc = 6 V、R_eq = 1 kΩ，短路电流应为 6 mA：a 短路时 i_1 = 2 mA，3i_1 = 6 mA ✓。"
   ],
@@ -59,27 +59,27 @@
       "title": "RC circuit with a CCCS: finding τ with a test source",
       "tags": ["time constant τ", "dependent source CCCS", "test-source method", "zero-state response"],
       "statement": [
-        "In the circuit, Us = 12 V, R1 = 6 kΩ, R2 = 2 kΩ, C = 100 µF. A current-controlled current source injects 2i_1 into node a, where i_1 is the rightward current in R1. The capacitor is initially uncharged and switch S closes at t = 0.",
+        "In the circuit, U_s = 12 V, R_1 = 6 kΩ, R_2 = 2 kΩ, C = 100 µF. A current-controlled current source injects 2i_1 into node a, where i_1 is the rightward current in R_1. The capacitor is initially uncharged and switch S closes at t = 0.",
         "Find i_1(0+), u_C(∞), the time constant τ, and u_C at t = 0.1 s."
       ],
       "questions": [
         { "ask": "i_1(0+) = ?", "explain": "u_C(0+) = 0, so node a is at zero potential: i_1(0+) = 12/6 kΩ = 2 mA (the dependent source then injects 4 mA, all of it into the capacitor)." },
-        { "ask": "u_C(∞) = ?", "explain": "Capacitor open; KCL at a: i_1 + 2i_1 = u/R2 with i_1 = (12 − u)/6 → (12 − u)/2 = u/2 → u_C(∞) = 6 V." },
-        { "ask": "τ = ?", "explain": "Short Us and apply a voltage u at a: i_1 = −u/6k, the total current into a from the left is 3i_1 = −u/2k, R2 draws u/2k, so the port current is u/2k + u/2k = u/1k, R_eq = 1 kΩ, τ = R_eq·C = 0.1 s." },
+        { "ask": "u_C(∞) = ?", "explain": "Capacitor open; KCL at a: i_1 + 2i_1 = u/R_2 with i_1 = (12 − u)/6 → (12 − u)/2 = u/2 → u_C(∞) = 6 V." },
+        { "ask": "τ = ?", "explain": "Short U_s and apply a voltage u at a: i_1 = −u/6k, the total current into a from the left is 3i_1 = −u/2k, R_2 draws u/2k, so the port current is u/2k + u/2k = u/1k, R_eq = 1 kΩ, τ = R_eq·C = 0.1 s." },
         { "ask": "u_C at t = 0.1 s = ?", "explain": "u_C(t) = 6(1 − e^(−10t)) V; at t = τ, u_C = 6(1 − e⁻¹) ≈ 3.793 V." }
       ],
       "hints": [
         "A dependent source can't be zeroed. Find R_eq with a test source: zero the independent sources, apply a voltage u across the capacitor terminals, find the current i that flows in, R_eq = u/i.",
-        "With the left end of R1 grounded (Us shorted), i_1 = −u/R1; R1 together with the dependent source acts like a resistor of R1/3.",
+        "With the left end of R_1 grounded (U_s shorted), i_1 = −u/R_1; R_1 together with the dependent source acts like a resistor of R_1/3.",
         "Final value: capacitor open, KCL at node a — express the controlling current i_1 in terms of u_a too."
       ],
       "solution": [
-        "**1. Initial values.** The capacitor is uncharged: u_C(0+) = 0, node a at 0 V. **i_1(0+) = 12/6 = 2 mA**, the dependent source gives 4 mA, R2 carries nothing, i_C(0+) = 6 mA.",
-        "**2. Final value.** Capacitor open, node a: 3i_1 = u/R2 with i_1 = (12 − u)/6 kΩ → 3(12 − u)/6 = u/2 → **u_C(∞) = 6 V** (then i_1 = 1 mA).",
-        "**3. Equivalent resistance (test source).** Short Us, apply a voltage u between a and ground, and find the current i flowing from the test source into a:",
-        "- R1: i_1 = (0 − u)/6k = −u/6k; the dependent source injects 2i_1 = −u/3k into a.",
-        "- KCL: i = u/R2 − (i_1 + 2i_1) = u/2k + u/2k = u/1k → **R_eq = 1 kΩ**.",
-        "Zeroing the dependent source by mistake would give R1 ∥ R2 = 1.5 kΩ, which is wrong.",
+        "**1. Initial values.** The capacitor is uncharged: u_C(0+) = 0, node a at 0 V. **i_1(0+) = 12/6 = 2 mA**, the dependent source gives 4 mA, R_2 carries nothing, i_C(0+) = 6 mA.",
+        "**2. Final value.** Capacitor open, node a: 3i_1 = u/R_2 with i_1 = (12 − u)/6 kΩ → 3(12 − u)/6 = u/2 → **u_C(∞) = 6 V** (then i_1 = 1 mA).",
+        "**3. Equivalent resistance (test source).** Short U_s, apply a voltage u between a and ground, and find the current i flowing from the test source into a:",
+        "- R_1: i_1 = (0 − u)/6k = −u/6k; the dependent source injects 2i_1 = −u/3k into a.",
+        "- KCL: i = u/R_2 − (i_1 + 2i_1) = u/2k + u/2k = u/1k → **R_eq = 1 kΩ**.",
+        "Zeroing the dependent source by mistake would give R_1 ∥ R_2 = 1.5 kΩ, which is wrong.",
         "**4. Time constant and response.** **τ = R_eq·C = 1×10³ × 100×10⁻⁶ = 0.1 s**. u_C(t) = 6(1 − e^(−10t)) V; at t = 0.1 s: u_C = 6(1 − e⁻¹) ≈ **3.793 V**.",
         "**Check:** with the Thevenin equivalent U_oc = 6 V, R_eq = 1 kΩ the short-circuit current should be 6 mA: with a shorted, i_1 = 2 mA and 3i_1 = 6 mA ✓."
       ]

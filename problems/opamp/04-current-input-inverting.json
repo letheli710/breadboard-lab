@@ -7,7 +7,7 @@
   "level": 2,
   "tags": ["反相比例放大器", "输入电阻", "运放输出电流"],
   "statement": [
-    "传感器等效为电流源 Is = 0.5 mA，接在反相放大器的输入端 a。R1 = 2 kΩ，Rf = 10 kΩ，负载 RL = 5 kΩ，运放为理想运放。",
+    "传感器等效为电流源 I_s = 0.5 mA，接在反相放大器的输入端 a。R_1 = 2 kΩ，R_f = 10 kΩ，负载 R_L = 5 kΩ，运放为理想运放。",
     "求输入端电压 u_a、输出电压 u_o、从 a 端看进去的输入电阻 R_in，以及流出运放输出端的电流 i_o。"
   ],
   "schematic": {
@@ -33,17 +33,17 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 1, "unit": "V", "explain": "Is 全部流过 R1（虚断），反相端是虚地：u_a = R1·Is = 2k × 0.5 mA = 1 V。" },
-    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": -5, "unit": "V", "explain": "Rf 中电流也是 Is，从左向右：u_o = 0 − Rf·Is = −10k × 0.5 mA = −5 V。" },
-    { "id": "rin", "ask": "输入电阻 R_in = u_a/Is = ?", "find": { "kind": "req", "port": ["a", "0"] }, "answer": 2000, "unit": "kΩ", "explain": "反相端是虚地，从 a 看进去只有 R1 接到“地”：R_in = R1 = 2 kΩ。（求 R_in 时 Is 置零即开路。）" },
-    { "id": "io", "ask": "流出运放输出端的电流 i_o = ?", "find": { "kind": "i", "el": "A" }, "answer": -0.0015, "unit": "mA", "explain": "对输出结点 o 列 KCL：i_o = u_o/RL + (u_o − 0)/Rf = −1 mA − 0.5 mA = −1.5 mA，负号表示电流实际流入运放输出端（运放“吸入” 1.5 mA）。" }
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 1, "unit": "V", "explain": "I_s 全部流过 R_1（虚断），反相端是虚地：u_a = R_1·I_s = 2k × 0.5 mA = 1 V。" },
+    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": -5, "unit": "V", "explain": "R_f 中电流也是 I_s，从左向右：u_o = 0 − R_f·I_s = −10k × 0.5 mA = −5 V。" },
+    { "id": "rin", "ask": "输入电阻 R_in = u_a/I_s = ?", "find": { "kind": "req", "port": ["a", "0"] }, "answer": 2000, "unit": "kΩ", "explain": "反相端是虚地，从 a 看进去只有 R_1 接到“地”：R_in = R_1 = 2 kΩ。（求 R_in 时 I_s 置零即开路。）" },
+    { "id": "io", "ask": "流出运放输出端的电流 i_o = ?", "find": { "kind": "i", "el": "A" }, "answer": -0.0015, "unit": "mA", "explain": "对输出结点 o 列 KCL：i_o = u_o/R_L + (u_o − 0)/R_f = −1 mA − 0.5 mA = −1.5 mA，负号表示电流实际流入运放输出端（运放“吸入” 1.5 mA）。" }
   ],
-  "hints": ["反相端是虚地（u_− = 0）；输入电流不进运放，只能沿 R1 → Rf 流到输出端。", "运放的输出电流不受“虚断”约束，要对输出结点列 KCL 求。"],
+  "hints": ["反相端是虚地（u_− = 0）；输入电流不进运放，只能沿 R_1 → R_f 流到输出端。", "运放的输出电流不受“虚断”约束，要对输出结点列 KCL 求。"],
   "solution": [
-    "**1. 虚短、虚断：** u_− = u_+ = 0；i_− = 0，所以 R1、Rf 中电流都等于 Is = 0.5 mA（从左向右）。",
-    "**2. 输入端：** u_a = 0 + R1·Is = **1 V**；R_in = u_a/Is = **2 kΩ = R1**。反相放大器的输入电阻就是 R1，比同相放大器小得多。",
-    "**3. 输出：** u_o = 0 − Rf·Is = **−5 V**（这是一个“电流—电压转换器”，u_o = −Rf·Is）。",
-    "**4. 输出电流：** 结点 o 的 KCL：i_o = u_o/RL + (u_o − u_−)/Rf = −5/5k + (−5)/10k = **−1.5 mA**。",
+    "**1. 虚短、虚断：** u_− = u_+ = 0；i_− = 0，所以 R_1、R_f 中电流都等于 I_s = 0.5 mA（从左向右）。",
+    "**2. 输入端：** u_a = 0 + R_1·I_s = **1 V**；R_in = u_a/I_s = **2 kΩ = R_1**。反相放大器的输入电阻就是 R_1，比同相放大器小得多。",
+    "**3. 输出：** u_o = 0 − R_f·I_s = **−5 V**（这是一个“电流—电压转换器”，u_o = −R_f·I_s）。",
+    "**4. 输出电流：** 结点 o 的 KCL：i_o = u_o/R_L + (u_o − u_−)/R_f = −5/5k + (−5)/10k = **−1.5 mA**。",
     "注意：运放两个输入端不取电流，但输出端电流可以很大，它由运放内部（电源）提供或吸收。"
   ],
   "i18n": {
@@ -51,21 +51,21 @@
       "title": "Input resistance and output current of an inverting amplifier",
       "tags": ["inverting amplifier", "input resistance", "op-amp output current"],
       "statement": [
-        "A sensor, modelled as a current source Is = 0.5 mA, feeds the input a of an inverting amplifier. R1 = 2 kΩ, Rf = 10 kΩ, load RL = 5 kΩ; the op-amp is ideal.",
+        "A sensor, modelled as a current source I_s = 0.5 mA, feeds the input a of an inverting amplifier. R_1 = 2 kΩ, R_f = 10 kΩ, load R_L = 5 kΩ; the op-amp is ideal.",
         "Find the input voltage u_a, the output voltage u_o, the input resistance R_in seen at terminal a, and the current i_o flowing out of the op-amp output."
       ],
       "questions": [
-        { "ask": "u_a = ?", "explain": "All of Is flows through R1 (virtual open) into a virtual ground: u_a = R1·Is = 2k × 0.5 mA = 1 V." },
-        { "ask": "u_o = ?", "explain": "Rf carries the same current Is from left to right: u_o = 0 − Rf·Is = −10k × 0.5 mA = −5 V." },
-        { "ask": "Input resistance R_in = u_a/Is = ?", "explain": "The inverting input is a virtual ground, so looking into a you only see R1 to \"ground\": R_in = R1 = 2 kΩ. (To find R_in, Is is set to zero, i.e. opened.)" },
-        { "ask": "Current flowing out of the op-amp output, i_o = ?", "explain": "KCL at the output node o: i_o = u_o/RL + (u_o − 0)/Rf = −1 mA − 0.5 mA = −1.5 mA. The minus sign means the current actually flows into the output (the op-amp sinks 1.5 mA)." }
+        { "ask": "u_a = ?", "explain": "All of I_s flows through R_1 (virtual open) into a virtual ground: u_a = R_1·I_s = 2k × 0.5 mA = 1 V." },
+        { "ask": "u_o = ?", "explain": "R_f carries the same current I_s from left to right: u_o = 0 − R_f·I_s = −10k × 0.5 mA = −5 V." },
+        { "ask": "Input resistance R_in = u_a/I_s = ?", "explain": "The inverting input is a virtual ground, so looking into a you only see R_1 to \"ground\": R_in = R_1 = 2 kΩ. (To find R_in, I_s is set to zero, i.e. opened.)" },
+        { "ask": "Current flowing out of the op-amp output, i_o = ?", "explain": "KCL at the output node o: i_o = u_o/R_L + (u_o − 0)/R_f = −1 mA − 0.5 mA = −1.5 mA. The minus sign means the current actually flows into the output (the op-amp sinks 1.5 mA)." }
       ],
-      "hints": ["The inverting input is a virtual ground (v− = 0); the input current can't enter the op-amp and must flow R1 → Rf to the output.", "The output current is not restricted by the virtual-open rule — find it with KCL at the output node."],
+      "hints": ["The inverting input is a virtual ground (v− = 0); the input current can't enter the op-amp and must flow R_1 → R_f to the output.", "The output current is not restricted by the virtual-open rule — find it with KCL at the output node."],
       "solution": [
-        "**1. Virtual short and open:** v− = v+ = 0; i− = 0, so R1 and Rf both carry Is = 0.5 mA (left to right).",
-        "**2. Input:** u_a = 0 + R1·Is = **1 V**; R_in = u_a/Is = **2 kΩ = R1**. The inverting amplifier's input resistance is just R1 — far smaller than a non-inverting amplifier's.",
-        "**3. Output:** u_o = 0 − Rf·Is = **−5 V** (a current-to-voltage converter, u_o = −Rf·Is).",
-        "**4. Output current:** KCL at o: i_o = u_o/RL + (u_o − v−)/Rf = −5/5k + (−5)/10k = **−1.5 mA**.",
+        "**1. Virtual short and open:** v− = v+ = 0; i− = 0, so R_1 and R_f both carry I_s = 0.5 mA (left to right).",
+        "**2. Input:** u_a = 0 + R_1·I_s = **1 V**; R_in = u_a/I_s = **2 kΩ = R_1**. The inverting amplifier's input resistance is just R_1 — far smaller than a non-inverting amplifier's.",
+        "**3. Output:** u_o = 0 − R_f·I_s = **−5 V** (a current-to-voltage converter, u_o = −R_f·I_s).",
+        "**4. Output current:** KCL at o: i_o = u_o/R_L + (u_o − v−)/R_f = −5/5k + (−5)/10k = **−1.5 mA**.",
         "Note: the two inputs draw no current, but the output can source or sink a large current, supplied by the op-amp's internal power supply."
       ]
     }

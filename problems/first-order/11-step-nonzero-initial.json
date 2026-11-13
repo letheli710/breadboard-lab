@@ -7,7 +7,7 @@
   "level": 3,
   "tags": ["阶跃响应", "全响应", "三要素法", "线性叠加"],
   "statement": [
-    "图示电路中电压源 u_s = 4 + 8ε(t) V（t < 0 时为 4 V，t ≥ 0 时为 12 V），R1 = 2 Ω，R2 = 2 Ω，R3 = 1 Ω，L = 0.4 H。t < 0 时电路已处于稳态。",
+    "图示电路中电压源 u_s = 4 + 8ε(t) V（t < 0 时为 4 V，t ≥ 0 时为 12 V），R_1 = 2 Ω，R_2 = 2 Ω，R_3 = 1 Ω，L = 0.4 H。t < 0 时电路已处于稳态。",
     "求 a 点电位的初值 u_a(0₊)、时间常数 τ、t = 0.2 s 时的 u_a，并判断 i_L(t) 的正确表达式。"
   ],
   "schematic": {
@@ -33,20 +33,20 @@
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "ua0", "ask": "u_a(0₊) = ?", "find": { "kind": "v", "nodes": ["a"], "t": "0+" }, "answer": 5, "unit": "V", "explain": "t < 0：电感短路，从 L 看进去的戴维宁电路是 u_s/2 串 1 Ω，再串 R3：i_L(0₋) = 2/2 = 1 A。0₊：i_L = 1 A，结点 a 的 KCL：(12 − u_a)/2 = u_a/2 + 1 → u_a(0₊) = 5 V。" },
-    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "电压源短路，从电感看进去 R_eq = R3 + R1 ∥ R2 = 1 + 1 = 2 Ω，τ = 0.4/2 = 0.2 s。" },
-    { "id": "ua1", "ask": "t = 0.2 s 时 u_a = ?", "find": { "kind": "v", "nodes": ["a"], "t": 0.2 }, "answer": 3.735759, "unit": "V", "explain": "u_a(∞) = R3·i_L(∞) = 1 × 3 = 3 V，u_a(t) = 3 + (5 − 3)e^(−5t) V，t = 0.2 s 时 u_a = 3 + 2e⁻¹ ≈ 3.736 V。" },
+    { "id": "ua0", "ask": "u_a(0₊) = ?", "find": { "kind": "v", "nodes": ["a"], "t": "0+" }, "answer": 5, "unit": "V", "explain": "t < 0：电感短路，从 L 看进去的戴维宁电路是 u_s/2 串 1 Ω，再串 R_3：i_L(0₋) = 2/2 = 1 A。0₊：i_L = 1 A，结点 a 的 KCL：(12 − u_a)/2 = u_a/2 + 1 → u_a(0₊) = 5 V。" },
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "电压源短路，从电感看进去 R_eq = R_3 + R_1 ∥ R_2 = 1 + 1 = 2 Ω，τ = 0.4/2 = 0.2 s。" },
+    { "id": "ua1", "ask": "t = 0.2 s 时 u_a = ?", "find": { "kind": "v", "nodes": ["a"], "t": 0.2 }, "answer": 3.735759, "unit": "V", "explain": "u_a(∞) = R_3·i_L(∞) = 1 × 3 = 3 V，u_a(t) = 3 + (5 − 3)e^(−5t) V，t = 0.2 s 时 u_a = 3 + 2e⁻¹ ≈ 3.736 V。" },
     { "id": "form", "ask": "t > 0 时 i_L(t) 的正确表达式是：", "choices": ["i_L = 3 − 2e^(−5t) A，即 1 A 的原稳态电流加上 8ε(t) 单独作用的零状态响应 2(1 − e^(−5t)) A", "i_L = 3(1 − e^(−5t)) A，因为阶跃响应总是从零开始", "i_L = 1 + 3(1 − e^(−5t)) A", "i_L = 3 + 2e^(−5t) A"], "correct": 0, "explain": "三要素：i_L(0₊) = 1 A，i_L(∞) = 12/4 = 3 A，τ = 0.2 s，i_L = 3 − 2e^(−5t) A。用线性叠加也可以得到：4 V 一直存在，单独作用时 i_L 恒为 1 A；8ε(t) 单独作用时是零状态阶跃响应 8 × ¼(1 − e^(−5t)) = 2(1 − e^(−5t)) A。“阶跃响应从零开始”只对零状态成立。" }
   ],
   "hints": [
     "先求 t < 0（u_s = 4 V）时的稳态电感电流 i_L(0₋)。",
-    "把电感以外的部分化成戴维宁等效：U_oc = u_s/2，R_eq = R3 + R1 ∥ R2。",
+    "把电感以外的部分化成戴维宁等效：U_oc = u_s/2，R_eq = R_3 + R_1 ∥ R_2。",
     "u_a 不是状态量，要用 0₊ 等效电路（电感换成电流源 i_L(0₊)）求初值。"
   ],
   "solution": [
-    "**1. 戴维宁等效（从电感看进去）。** U_oc = u_s × R2/(R1 + R2) = u_s/2，R_eq = R3 + R1 ∥ R2 = 2 Ω。所以 i_L 的稳态值总是 u_s/4。",
+    "**1. 戴维宁等效（从电感看进去）。** U_oc = u_s × R_2/(R_1 + R_2) = u_s/2，R_eq = R_3 + R_1 ∥ R_2 = 2 Ω。所以 i_L 的稳态值总是 u_s/4。",
     "**2. 初值。** t < 0 时 u_s = 4 V：i_L(0₋) = 1 A = i_L(0₊)。0₊ 等效电路中 u_s = 12 V、电感换成 1 A 电流源，结点 a：(12 − u_a)/2 = u_a/2 + 1 → **u_a(0₊) = 5 V**（换路前 u_a(0₋) = 1 V，发生了跃变）。",
-    "**3. 终值。** i_L(∞) = 12/4 = 3 A，u_a(∞) = R3·i_L(∞) = 3 V。",
+    "**3. 终值。** i_L(∞) = 12/4 = 3 A，u_a(∞) = R_3·i_L(∞) = 3 V。",
     "**4. 时间常数。** **τ = L/R_eq = 0.4/2 = 0.2 s**。",
     "**5. 响应。** i_L(t) = 3 − 2e^(−5t) A，u_a(t) = 3 + 2e^(−5t) V（t > 0）。t = 0.2 s：u_a = 3 + 2e⁻¹ ≈ **3.736 V**。",
     "**6. 线性叠加的看法。** u_s = 4 + 8ε(t)：4 V 一直存在，产生恒定的 1 A；8ε(t) 产生零状态阶跃响应 8 × s(t)，其中单位阶跃响应 s(t) = ¼(1 − e^(−5t)) A。合起来 i_L = 1 + 2(1 − e^(−5t)) = 3 − 2e^(−5t) A，与三要素法结果一致。"
@@ -56,24 +56,24 @@
       "title": "RL circuit with a step input and a nonzero initial state",
       "tags": ["step response", "complete response", "three-element method", "linearity"],
       "statement": [
-        "In the circuit the voltage source is u_s = 4 + 8ε(t) V (4 V for t < 0, 12 V for t ≥ 0), R1 = 2 Ω, R2 = 2 Ω, R3 = 1 Ω, L = 0.4 H. For t < 0 the circuit is in steady state.",
+        "In the circuit the voltage source is u_s = 4 + 8ε(t) V (4 V for t < 0, 12 V for t ≥ 0), R_1 = 2 Ω, R_2 = 2 Ω, R_3 = 1 Ω, L = 0.4 H. For t < 0 the circuit is in steady state.",
         "Find the initial value u_a(0+) of the potential of node a, the time constant τ, u_a at t = 0.2 s, and pick the correct expression for i_L(t)."
       ],
       "questions": [
-        { "ask": "u_a(0+) = ?", "explain": "t < 0: the inductor is a short; seen from L the Thevenin circuit is u_s/2 in series with 1 Ω, plus R3: i_L(0−) = 2/2 = 1 A. At 0+: i_L = 1 A, KCL at node a: (12 − u_a)/2 = u_a/2 + 1 → u_a(0+) = 5 V." },
-        { "ask": "τ = ?", "explain": "Short the voltage source; seen from the inductor R_eq = R3 + R1 ∥ R2 = 1 + 1 = 2 Ω, τ = 0.4/2 = 0.2 s." },
-        { "ask": "u_a at t = 0.2 s = ?", "explain": "u_a(∞) = R3·i_L(∞) = 1 × 3 = 3 V, u_a(t) = 3 + (5 − 3)e^(−5t) V; at t = 0.2 s, u_a = 3 + 2e⁻¹ ≈ 3.736 V." },
+        { "ask": "u_a(0+) = ?", "explain": "t < 0: the inductor is a short; seen from L the Thevenin circuit is u_s/2 in series with 1 Ω, plus R_3: i_L(0−) = 2/2 = 1 A. At 0+: i_L = 1 A, KCL at node a: (12 − u_a)/2 = u_a/2 + 1 → u_a(0+) = 5 V." },
+        { "ask": "τ = ?", "explain": "Short the voltage source; seen from the inductor R_eq = R_3 + R_1 ∥ R_2 = 1 + 1 = 2 Ω, τ = 0.4/2 = 0.2 s." },
+        { "ask": "u_a at t = 0.2 s = ?", "explain": "u_a(∞) = R_3·i_L(∞) = 1 × 3 = 3 V, u_a(t) = 3 + (5 − 3)e^(−5t) V; at t = 0.2 s, u_a = 3 + 2e⁻¹ ≈ 3.736 V." },
         { "ask": "For t > 0 the correct expression for i_L(t) is:", "choices": ["i_L = 3 − 2e^(−5t) A, i.e. the old 1 A steady current plus the zero-state response 2(1 − e^(−5t)) A to 8ε(t) alone", "i_L = 3(1 − e^(−5t)) A, because a step response always starts from zero", "i_L = 1 + 3(1 − e^(−5t)) A", "i_L = 3 + 2e^(−5t) A"], "explain": "Three elements: i_L(0+) = 1 A, i_L(∞) = 12/4 = 3 A, τ = 0.2 s, i_L = 3 − 2e^(−5t) A. By linearity: the 4 V is always there and alone gives a constant 1 A; 8ε(t) alone gives the zero-state step response 8 × ¼(1 − e^(−5t)) = 2(1 − e^(−5t)) A. 'A step response starts from zero' is only true for a zero initial state." }
       ],
       "hints": [
         "First find the steady inductor current i_L(0−) for t < 0 (u_s = 4 V).",
-        "Reduce everything except the inductor to a Thevenin equivalent: U_oc = u_s/2, R_eq = R3 + R1 ∥ R2.",
+        "Reduce everything except the inductor to a Thevenin equivalent: U_oc = u_s/2, R_eq = R_3 + R_1 ∥ R_2.",
         "u_a is not a state variable: get its initial value from the 0+ equivalent circuit (inductor replaced by a current source i_L(0+))."
       ],
       "solution": [
-        "**1. Thevenin equivalent (seen from the inductor).** U_oc = u_s × R2/(R1 + R2) = u_s/2, R_eq = R3 + R1 ∥ R2 = 2 Ω. So the steady value of i_L is always u_s/4.",
+        "**1. Thevenin equivalent (seen from the inductor).** U_oc = u_s × R_2/(R_1 + R_2) = u_s/2, R_eq = R_3 + R_1 ∥ R_2 = 2 Ω. So the steady value of i_L is always u_s/4.",
         "**2. Initial values.** For t < 0, u_s = 4 V: i_L(0−) = 1 A = i_L(0+). In the 0+ circuit u_s = 12 V and the inductor is a 1 A current source; at node a: (12 − u_a)/2 = u_a/2 + 1 → **u_a(0+) = 5 V** (before switching u_a(0−) = 1 V, so it jumps).",
-        "**3. Final values.** i_L(∞) = 12/4 = 3 A, u_a(∞) = R3·i_L(∞) = 3 V.",
+        "**3. Final values.** i_L(∞) = 12/4 = 3 A, u_a(∞) = R_3·i_L(∞) = 3 V.",
         "**4. Time constant.** **τ = L/R_eq = 0.4/2 = 0.2 s**.",
         "**5. Responses.** i_L(t) = 3 − 2e^(−5t) A, u_a(t) = 3 + 2e^(−5t) V (t > 0). At t = 0.2 s: u_a = 3 + 2e⁻¹ ≈ **3.736 V**.",
         "**6. The linearity view.** u_s = 4 + 8ε(t): the 4 V is always present and produces a constant 1 A; 8ε(t) produces the zero-state step response 8 × s(t), where the unit step response is s(t) = ¼(1 − e^(−5t)) A. Together i_L = 1 + 2(1 − e^(−5t)) = 3 − 2e^(−5t) A, the same as the three-element result."
