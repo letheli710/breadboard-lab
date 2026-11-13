@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { HOLE_MAP } from '../core/breadboard';
+import { HOLES, HOLE_MAP } from '../core/breadboard';
 import type { Challenge } from '../core/challenge';
 import type { ProblemEntry } from './problems';
 import type { CheckResult } from '../core/check';
@@ -127,6 +127,10 @@ interface State {
   updateProps(id: string, p: PartProps): void;
   togglePart(id: string): void;
   removePart(id: string): void;
+  /** Move a placed part to new holes (physical pin → hole id). Validated like placement
+   *  (holes exist, not used by another part, footprint shape kept); one undo step.
+   *  Returns false — with a toast — when the move is not allowed. */
+  movePart(id: string, pins: Record<string, string>): boolean;
   /** Drop a half-placed part (first leg chosen, second not yet). Returns whether there was one. */
   cancelPlacement(): boolean;
   undo(): void;
@@ -165,6 +169,30 @@ export function occupied(layout: Layout): Map<string, string> {
   const m = new Map<string, string>();
   for (const p of layout.parts) for (const h of Object.values(p.pins)) m.set(h, p.ref);
   return m;
+}
+
+/** Why `pins` is not a valid new position for part `id` in `layout`, or null when it is.
+ *  Two-point parts: both pins on distinct existing holes. Footprint parts: exactly the
+ *  footprint of some anchor hole. In both cases no hole may be used by another part. */
+export function moveError(layout: Layout, id: string, pins: Record<string, string>): string | null {
+  const part = layout.parts.find((p) => p.id === id);
+  if (!part) return tr('找不到这个元件', 'That part no longer exists');
+  const def = PARTS[part.type];
+  const holes = Object.values(pins);
+  const offBoard = tr('这里放不下：元件会超出面包板边缘', "Doesn't fit here: the part would hang off the edge of the board");
+  if (holes.some((h) => !HOLE_MAP.has(h))) return offBoard;
+  if (def.placement.kind === 'two-point') {
+    const [a, b] = def.placement.pins;
+    if (Object.keys(pins).length !== 2 || !pins[a] || !pins[b]) return offBoard;
+    if (pins[a] === pins[b]) return tr('两只脚不能插在同一个孔里', 'Both legs cannot go in the same hole');
+  } else {
+    const fp = def.placement.footprint;
+    const same = (f: Record<string, string> | null) => !!f && Object.keys(f).length === holes.length && Object.entries(f).every(([k, v]) => pins[k] === v);
+    if (!HOLES.some((h) => same(fp(h.id)))) return offBoard;
+  }
+  const occ = occupied({ ...layout, parts: layout.parts.filter((p) => p.id !== id) });
+  const clash = holes.find((h) => occ.has(h));
+  return clash ? busy(clash, occ.get(clash)!) : null;
 }
 
 export const useStore = create<State>((set, get) => {
@@ -318,6 +346,18 @@ export const useStore = create<State>((set, get) => {
     removePart(id) {
       const s = get();
       commit({ ...s.layout, parts: s.layout.parts.filter((x) => x.id !== id) }, { selectedId: null });
+    },
+    movePart(id, pins) {
+      const s = get();
+      const err = moveError(s.layout, id, pins);
+      if (err) {
+        get().notify(err);
+        return false;
+      }
+      const cur = s.layout.parts.find((p) => p.id === id)!;
+      if (Object.entries(pins).every(([k, v]) => cur.pins[k] === v)) return true;
+      commit({ ...s.layout, parts: s.layout.parts.map((p) => (p.id === id ? { ...p, pins: { ...pins } } : p)) });
+      return true;
     },
     cancelPlacement() {
       if (!get().firstHole) return false;
