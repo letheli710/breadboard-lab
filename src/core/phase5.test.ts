@@ -285,3 +285,113 @@ describe('LDO, buzzer, sensors', () => {
     expect(adc(1000)).toBeGreaterThan(3500);
   });
 });
+
+describe('PWM in the time domain', () => {
+  it('25 % PWM into an RC filter averages to ≈ 0.25 × 3.3 V with small ripple', async () => {
+    const { simulateTransient, hasGenerator } = await import('./transient');
+    const c = circ(
+      [esp({ GPIO25: { mode: 'pwm', duty: 25, frequency: 1000 } }), ['R1', 'resistor', { resistance: 10e3 }], ['C1', 'capacitor', { capacitance: 10e-6 }]],
+      [['U1.GPIO25', 'R1.1'], ['R1.2', 'C1.1'], ['C1.2', 'U1.GND']],
+    );
+    expect(hasGenerator(c)).toBe(true);
+    const tr = simulateTransient(c);
+    expect(tr.converged).toBe(true);
+    const avg = tr.measure('vavg', 'C1.1', 'U1.GND');
+    expect(avg).toBeCloseTo(0.25 * 3.3, 1);
+    expect(tr.measure('vpp', 'C1.1', 'U1.GND')).toBeLessThan(0.03);
+    expect(tr.measure('vpp', 'U1.GPIO25', 'U1.GND')).toBeGreaterThan(3.2);
+    expect(tr.measure('freq', 'U1.GPIO25', 'U1.GND')).toBeCloseTo(1000, -1);
+    // the DC solver sees the same average
+    expect(simulate(c).mcus.get('U1')!.pins.get('GPIO25')!.voltage).toBeCloseTo(0.25 * 3.3, 1);
+  });
+
+  it('PWM dims an LED: average current ∝ duty', async () => {
+    const { simulateTransient } = await import('./transient');
+    const led = (duty: number) =>
+      simulateTransient(
+        circ([esp({ GPIO2: { mode: 'pwm', duty, frequency: 500 } }), ['R1', 'resistor', { resistance: 220 }], ['LED1', 'led', {}]], [['U1.GPIO2', 'R1.1'], ['R1.2', 'LED1.anode'], ['LED1.cathode', 'U1.GND']]),
+      ).leds.get('LED1')!;
+    const full = 1.5 / (25 + 220 + 12);
+    expect(led(50).avgCurrent).toBeCloseTo(full * 0.5, 3);
+    expect(led(10).avgCurrent).toBeCloseTo(full * 0.1, 3);
+  });
+
+  const relayPwm = (diode: boolean) =>
+    circ(
+      [esp({ GPIO2: { mode: 'pwm', duty: 50, frequency: 20 } }), ['RB', 'resistor', { resistance: 1000 }], ['Q1', 'npn'], ['K1', 'relay'], ...(diode ? [['D1', 'diode'] as Comp] : [])],
+      [['U1.GPIO2', 'RB.1'], ['RB.2', 'Q1.b'], ['U1.5V', 'K1.coil1', ...(diode ? ['D1.cathode'] : [])], ['K1.coil2', 'Q1.c', ...(diode ? ['D1.anode'] : [])], ['Q1.e', 'U1.GND']],
+    );
+
+  it('switching a relay coil off without a flyback diode kicks the collector into breakdown', async () => {
+    const { simulateTransient } = await import('./transient');
+    const tr = simulateTransient(relayPwm(false));
+    expect(tr.breakdowns.has('Q1')).toBe(true);
+    expect(tr.coilPeak.get('K1')!).toBeGreaterThan(30);
+    expect(tr.measure('vmax', 'Q1.c', 'Q1.e')).toBeGreaterThan(39);
+    expect(tr.relays.get('K1')!.anyOn).toBe(true);
+    expect(tr.relays.get('K1')!.allOn).toBe(false);
+  });
+
+  it('a flyback diode clamps the kick to ≈ 5 V + 0.7 V', async () => {
+    const { simulateTransient } = await import('./transient');
+    const tr = simulateTransient(relayPwm(true));
+    expect(tr.breakdowns.size).toBe(0);
+    expect(tr.measure('vmax', 'Q1.c', 'Q1.e')).toBeLessThan(6.2);
+    expect(tr.coilPeak.get('K1')!).toBeLessThan(6);
+  });
+
+  it('PWM speed control of a motor through a MOSFET', async () => {
+    const { simulateTransient } = await import('./transient');
+    const tr = simulateTransient(
+      circ(
+        [['PSU1', 'bench_supply', { voltage: 5, currentLimit: 3 }], esp({ GPIO2: { mode: 'pwm', duty: 40, frequency: 1000 } }), ['Q1', 'nmos'], ['M1', 'motor'], ['D1', 'diode']],
+        [['PSU1.+', 'M1.+', 'D1.cathode'], ['M1.-', 'D1.anode', 'Q1.d'], ['U1.GPIO2', 'Q1.g'], ['Q1.s', 'PSU1.-', 'U1.GND']],
+      ),
+    );
+    const m = tr.motors.get('M1')!;
+    expect(m.current).toBeGreaterThan(0.15);
+    expect(m.current).toBeLessThan(0.45);
+    expect(tr.breakdowns.size).toBe(0);
+  });
+});
+
+describe('on the breadboard: footprint, nets, diagnostics', () => {
+  it('ESP32 at b1: headers in rows b and i, rails named, LED without resistor is flagged', async () => {
+    const { PARTS } = await import('./parts');
+    const { buildNetlist } = await import('./netlist');
+    const { boardDiagnostics } = await import('./diagnostics');
+    const { setLang } = await import('./i18n');
+    setLang('en');
+    const fp = (PARTS.esp32_devkit.placement as { footprint: (a: string) => Record<string, string> | null }).footprint;
+    expect(fp('c1')).toBeNull();
+    expect(fp('b13')).toBeNull(); // 19 columns don't fit
+    const pins = fp('b1')!;
+    expect(pins.GND).toBe('b1');
+    expect(pins.GPIO2).toBe('b15');
+    expect(pins['3V3']).toBe('i1');
+    expect(pins['5V']).toBe('i19');
+    expect(pins.GND_3).toBe('i14');
+    const layout = {
+      version: 1 as const,
+      parts: [
+        { id: 'u', ref: 'U1', type: 'esp32_devkit' as const, props: { usb: true, pins: { GPIO2: { mode: 'out_high' as const }, GPIO4: { mode: 'input' as const } } }, pins },
+        { id: 'w', ref: 'W1', type: 'wire' as const, props: {}, pins: { a: 'a1', b: 'tn1' } },
+        { id: 'l', ref: 'LED1', type: 'led' as const, props: { color: 'red' as const }, pins: { anode: 'a15', cathode: 'tn15' } },
+        { id: 's', ref: 'SW1', type: 'pushbutton' as const, props: { pressed: false }, pins: { '1a': 'a13', '1b': 'tn13', '2a': 'a11', '2b': 'tn11' } },
+      ],
+    };
+    // (the button here is only used as a 2-terminal switch between GPIO4 and GND)
+    layout.parts[3].pins = { '1a': 'a13', '2a': 'tn20', '1b': 'c30', '2b': 'h30' } as never;
+    const nl = buildNetlist(layout);
+    expect(nl.pinNet.get('U1.GND')).toBe('GND');
+    expect(nl.pinNet.get('U1.3V3')).toBe('3V3');
+    const sim = simulate(nl.circuit);
+    expect(sim.mcus.get('U1')!.running).toBe(true);
+    const titles = boardDiagnostics(nl, sim).map((i) => `${i.severity}: ${i.title}`);
+    expect(titles.some((t) => /GPIO2 (current is high|is damaged)/.test(t))).toBe(true);
+    expect(titles.some((t) => /GPIO4 is a floating input/.test(t))).toBe(true);
+    expect(titles.some((t) => /No power source/.test(t))).toBe(false);
+    expect(titles.some((t) => /floating$/.test(t) && t.includes('U1'))).toBe(false);
+    setLang('zh');
+  });
+});

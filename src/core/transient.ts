@@ -49,6 +49,14 @@
 //   Schematic (./schematic.ts): an op-amp gives one SElement per used half (`half: 'A'|'B'`,
 //   `extra.power` = 1 on the one carrying the V+/V− leads); see SElement.half.
 //
+// Phase 5: a dev-board pin in `pwm` mode also starts the time-domain simulation (hasGenerator()
+// is true). Its output switch toggles between 3V3 and GND at the pin's frequency with its duty
+// (quantised to the time grid); the time base is the first generator, else the first PWM pin.
+//     tr.pinCurrent('U1.GPIO2')  driver current out of a dev-board pin (A)
+//     tr.breakdowns              refs of NPN / MOSFETs whose C–E / D–S breakdown conducted
+//     tr.coilPeak.get('K1')      peak |V| across a relay coil / motor / inductor (inductive kick)
+//     tr.relays / tr.motors / tr.buzzers   time-averaged states
+//
 // ─── Method ──────────────────────────────────────────────────────────────────────────────
 //
 // Nodal analysis with companion models on a fixed time grid of N steps per generator period
@@ -76,16 +84,24 @@ import {
   GMIN,
   LU,
   Stamper,
+  buzzerState,
   compileCircuit,
+  gpioDriverCurrent,
+  hasPwm,
   ledState,
+  motorState,
+  updateRelays,
   pwlKey,
   solveDcCompiled,
   stampPwlMatrix,
   stampPwlRhs,
   updatePwl,
+  type BuzzerState,
+  type CGpio,
   type CSource,
   type Compiled,
   type LedState,
+  type MotorState,
 } from './solver';
 import type { Circuit } from './types';
 import { pinId } from './types';
@@ -155,6 +171,18 @@ export interface TransientResult {
   meters: Map<string, MeterReading>;
   leds: Map<string, AcLedState>;
   clipping: Set<string>;
+  // phase 5
+  /** owners of breakdown clamps that conducted in the window (NPN C–E, MOSFET avalanche) */
+  breakdowns: Set<string>;
+  /** peak |V| across each inductive load (relay coil, motor, inductor) in the window */
+  coilPeak: Map<string, number>;
+  /** relay coils energised at any time / for the whole window */
+  relays: Map<string, { anyOn: boolean; allOn: boolean; onFraction: number }>;
+  /** motors with their average current / voltage */
+  motors: Map<string, MotorState>;
+  buzzers: Map<string, BuzzerState>;
+  /** dev-board pin driver current trace ("U1.GPIO2"), out of the pin (A) */
+  pinCurrent(pin: string): Float64Array | null;
   /** measurement of V(pin) − V(ref) (ref omitted = GND); phase / gain compare with
    *  V(vs) − V(vsref) (vsref omitted = the same ref as pin) */
   measure(kind: Measure, pin: string, ref?: string, vs?: string, vsref?: string): number;
@@ -162,8 +190,10 @@ export interface TransientResult {
   warnings: string[];
 }
 
+/** True when the board needs a time-domain simulation: a function generator, or a dev-board
+ *  pin in PWM mode. */
 export function hasGenerator(circuit: Circuit): boolean {
-  return circuit.components.some((c) => c.type === 'function_gen');
+  return circuit.components.some((c) => c.type === 'function_gen') || hasPwm(circuit);
 }
 
 // ---------------------------------------------------------------------------------------
@@ -338,8 +368,10 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
   const c = compileCircuit(circuit);
   const warnings: string[] = [];
   const gens = c.srcs.filter((s) => s.gen);
-  const hasGen = gens.length > 0;
-  const f0 = hasGen ? gens[0].gen!.frequency : 1000;
+  const pwms = c.mcus.flatMap((m) => m.pins.filter((p) => p.eff === 'pwm'));
+  const hasGen = gens.length > 0 || pwms.length > 0;
+  const f0 = gens.length ? gens[0].gen!.frequency : pwms.length ? pwms[0].freq : 1000;
+  const baseName = gens.length ? gens[0].ref : pwms.length ? `${pwms[0].ref}.${pwms[0].pin}` : '';
   const T = 1 / f0;
   let N = opts.stepsPerPeriod ? Math.max(16, Math.ceil(opts.stepsPerPeriod)) : autoSteps(c, T);
   N += N % 2;
@@ -349,37 +381,54 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
   const minPeriods = opts.minPeriods ?? 3;
   const tol = opts.tol ?? 1e-4;
 
-  // per-generator phase: exact integer arithmetic when its frequency is a multiple of f0
-  const genMult = new Map<CSource, number | null>();
-  for (const g of gens) {
-    const r = g.gen!.frequency / f0;
+  // per-generator / per-PWM-pin phase: exact integer arithmetic when its frequency is a multiple of f0
+  const genMult = new Map<CSource | CGpio, number | null>();
+  const freqOf = (g: CSource | CGpio) => ('gen' in g && g.gen ? g.gen.frequency : (g as CGpio).freq);
+  const nameOf = (g: CSource | CGpio) => ('pin' in g ? `${g.ref}.${g.pin}` : g.ref);
+  for (const g of [...gens, ...pwms]) {
+    const r = freqOf(g) / f0;
     const m = Math.round(r);
     if (Math.abs(r - m) < 1e-9 && m >= 1) genMult.set(g, m);
     else {
       genMult.set(g, null);
       warnings.push(
         t_(
-          `${g.ref} 的频率不是 ${gens[0].ref} 的整数倍：示波器按 ${gens[0].ref} 的周期显示，波形可能不稳定。`,
-          `${g.ref}'s frequency is not a whole multiple of ${gens[0].ref}'s: the scope uses ${gens[0].ref}'s period, so the picture may not be stable.`,
+          `${nameOf(g)} 的频率不是 ${baseName} 的整数倍：示波器按 ${baseName} 的周期显示，波形可能不稳定。`,
+          `${nameOf(g)}'s frequency is not a whole multiple of ${baseName}'s: the scope uses ${baseName}'s period, so the picture may not be stable.`,
         ),
       );
     }
   }
-  const frac = (g: CSource, k: number) => {
+  const frac = (g: CSource | CGpio, k: number) => {
     const m = genMult.get(g);
     let f: number;
     if (m != null) f = ((((k * m) % N) + N) % N) / N;
     else {
-      const ph = g.gen!.frequency * k * h;
+      const ph = freqOf(g) * k * h;
       f = ph - Math.floor(ph);
     }
     return f === 0 ? 1 : f;
+  };
+  // PWM duty quantised to the time grid so both edges fall on grid points
+  const dutyQ = new Map<CGpio, number>();
+  for (const p of pwms) {
+    const m = genMult.get(p);
+    const per = m ? N / m : N;
+    dutyQ.set(p, Math.round(p.duty * per) / per);
+  }
+  const pwmHigh = (p: CGpio, k: number) => {
+    const d = dutyQ.get(p)!;
+    return d >= 1 || (d > 0 && frac(p, k) <= d + 1e-12);
+  };
+  const setPwm = (k: number) => {
+    for (const p of pwms) p.pwm = pwmHigh(p, k) ? 'high' : 'low';
   };
   const emfAt = (src: CSource, k: number) => (src.gen ? src.gen.offset + src.gen.amplitude * wave(src.gen.waveform, frac(src, k)) : src.v);
   let kNow = 0;
   const emf = (src: CSource) => emfAt(src, kNow);
   const squares = gens.filter((g) => g.gen!.waveform === 'square');
-  const edgeBefore = (k: number) => squares.some((g) => wave('square', frac(g, k)) !== wave('square', frac(g, k - 1)));
+  const edgeBefore = (k: number) =>
+    squares.some((g) => wave('square', frac(g, k)) !== wave('square', frac(g, k - 1))) || pwms.some((p) => pwmHigh(p, k) !== pwmHigh(p, k - 1));
 
   // ---- initial state: DC operating point with generators at their average (= offset)
   const dc = solveDcCompiled(c, (s) => (s.gen ? s.gen.offset : s.v));
@@ -422,6 +471,7 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
 
   /** advance from step kNow−1 to kNow (x1/x2/iL1/iL2 hold history) */
   const step = () => {
+    setPwm(kNow);
     const method: 'BE' | 'BDF2' = x2 === null || iL2 === null || edgeBefore(kNow) ? 'BE' : 'BDF2';
     const [a0, a1, a2] = coeff[method];
     for (let it = 0; it < 30; it++) {
@@ -456,6 +506,8 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
       const geq = 1 / (l.R + (l.L * a0) / h);
       iL[j] = geq * (V(x, l.a) - V(x, l.b)) + ih[j];
     });
+    // relay contacts follow the coil current (takes effect from the next step)
+    if (c.relays.length) updateRelays(c, (l) => iL[c.inductors.indexOf(l)]);
     steps++;
   };
   const shift = () => {
@@ -557,16 +609,32 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
   const diodeTr = new Float64Array(Math.max(dI, 1) * M);
   const indTr = new Float64Array(Math.max(nL, 1) * M);
   const clipping = new Set<string>();
+  const breakdowns = new Set<string>();
+  const coilPeak = new Map<string, number>();
+  const relayOn = new Map<string, number>();
+  const drivers = c.gpios.filter((p) => p.eff === 'out_high' || p.eff === 'out_low' || p.eff === 'pwm' || p.eff === 'input_pullup' || p.eff === 'input_pulldown');
+  const drvTr = new Float64Array(Math.max(drivers.length, 1) * M);
+  const mcuOf = new Map(c.mcus.flatMap((m) => m.pins.map((p) => [p, m] as const)));
   const record = (j: number) => {
     for (let i = 0; i < Nn; i++) nodeTr[i * M + j] = x[i];
     c.diodes.forEach((d, q) => {
       const vak = V(x, d.a) - V(x, d.k);
-      diodeTr[q * M + j] = d.on ? (vak - d.vf) / d.rs : vak * 1e-9;
+      const I = d.on ? (vak - d.vf) / d.rs : vak * 1e-9;
+      diodeTr[q * M + j] = I;
+      if (d.role === 'bv' && d.on && I > 1e-6) breakdowns.add(d.owner!);
     });
-    for (let q = 0; q < nL; q++) indTr[q * M + j] = iL[q];
+    for (let q = 0; q < nL; q++) {
+      indTr[q * M + j] = iL[q];
+      const l = c.inductors[q];
+      const v = Math.abs(V(x, l.a) - V(x, l.b));
+      if (v > (coilPeak.get(l.ref) ?? 0)) coilPeak.set(l.ref, v);
+    }
+    for (const r of c.relays) relayOn.set(r.ref, (relayOn.get(r.ref) ?? 0) + (r.energized ? 1 : 0));
+    drivers.forEach((p, q) => (drvTr[q * M + j] = gpioDriverCurrent(mcuOf.get(p)!, p, (i) => V(x, i))));
     for (const o of c.opamps) if (o.used && (o.mode === 'high' || o.mode === 'low')) clipping.add(`${o.ref}.${o.half}`);
   };
   kNow = kStart;
+  setPwm(kNow);
   record(0);
   for (let j = 1; j < M && !failed; j++) {
     kNow = kStart + j;
@@ -643,8 +711,14 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
     }
 
   const leds = new Map<string, AcLedState>();
+  const buzzers = new Map<string, BuzzerState>();
   c.diodes.forEach((d, q) => {
+    if (d.hidden) return;
     const i = diodeTr.subarray(q * M, (q + 1) * M);
+    if (d.buzzer) {
+      buzzers.set(d.ref, buzzerState(vavg(i), vavg(sub(trOf(d.a), trOf(d.k)))));
+      return;
+    }
     const avg = vavg(i);
     const peak = vmax(i);
     let onN = 0;
@@ -660,6 +734,21 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
       flicker: hasGen && f0 < 25 && onFraction > 0.05 && onFraction < 0.95,
     });
   });
+
+  const motors = new Map<string, MotorState>();
+  c.inductors.forEach((l, q) => {
+    if (l.kind !== 'motor') return;
+    motors.set(l.ref, motorState(vavg(indTr.subarray(q * M, (q + 1) * M)), vavg(sub(trOf(l.a), trOf(l.b)))));
+  });
+  const relays = new Map<string, { anyOn: boolean; allOn: boolean; onFraction: number }>();
+  for (const r of c.relays) {
+    const n = relayOn.get(r.ref) ?? 0;
+    relays.set(r.ref, { anyOn: n > 0, allOn: n === M, onFraction: n / M });
+  }
+  const pinCurrent = (pin: string) => {
+    const q = drivers.findIndex((p) => `${p.ref}.${p.pin}` === pin);
+    return q < 0 ? null : drvTr.subarray(q * M, (q + 1) * M);
+  };
 
   const measure = (kind: Measure, p: string, ref?: string, vs?: string, vsref?: string) => {
     const r = ref ? pinTr(ref) : zeros;
@@ -687,6 +776,12 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
     meters,
     leds,
     clipping,
+    breakdowns,
+    coilPeak,
+    relays,
+    motors,
+    buzzers,
+    pinCurrent,
     measure,
     stats: { steps, periodsSimulated, extrapolations, ms: now() - started },
     warnings,

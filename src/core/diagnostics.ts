@@ -3,11 +3,13 @@
 import { HOLE_MAP, stripLabel } from './breadboard';
 import { tr } from './i18n';
 import { isFloating, type BoardNetlist } from './netlist';
-import { OPAMP_HALVES, PARTS, describeComponent, groundSource, isPower, terminalLabel, terminalsOf } from './parts';
+import { OPAMP_HALVES, PARTS, describeComponent, groundSource, groundTerminal, isPower, isUsbPowered, terminalLabel, terminalsOf } from './parts';
+import { mcuDiagnostics, acMcuDiagnostics } from './mcuDiagnostics';
 import type { SimResult } from './solver';
 import type { TransientResult } from './transient';
 import { pinId } from './types';
 import { amps, volts } from './format';
+import { isMcu } from './mcu';
 
 export type Severity = 'error' | 'warning' | 'info';
 
@@ -28,7 +30,7 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
   const { circuit } = nl;
   const netSize = new Map(circuit.nets.map((n) => [n.name, n.pins.length]));
 
-  if (!circuit.components.some((c) => isPower(c.type) || c.type === 'function_gen'))
+  if (!circuit.components.some((c) => isPower(c.type) || c.type === 'function_gen' || isUsbPowered(c)))
     out.push({
       severity: 'info',
       title: tr('还没有电源', 'No power source yet'),
@@ -118,7 +120,7 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
   // component whose terminals all sit on one net (shorted out / bypassed)
   for (const c of circuit.components) {
     const terms = terminalsOf(c.type);
-    if (c.type === 'switch' || isPower(c.type) || c.type === 'opamp' || c.type === 'scope_probe') continue;
+    if (c.type === 'switch' || isPower(c.type) || c.type === 'opamp' || c.type === 'scope_probe' || isMcu(c.type) || c.type === 'relay') continue;
     const nets = terms.map((t) => nl.pinNet.get(pinId(c.ref, t)));
     if (nets.some(isFloating)) continue;
     if (new Set(nets).size === 1) {
@@ -145,7 +147,8 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
     if (nl.unplaced.includes(c.ref)) continue;
     for (const t of terminalsOf(c.type)) {
       if (c.type === 'switch' && t !== 'com') continue;
-      if (c.type === 'opamp') continue; // see the op-amp checks below
+      if (c.type === 'opamp' || isMcu(c.type)) continue; // see the op-amp / dev-board checks
+      if (c.type === 'relay' && t !== 'coil1' && t !== 'coil2') continue; // unused contacts are normal
       const net = nl.pinNet.get(pinId(c.ref, t));
       if (net && netSize.get(net) === 1)
         out.push({
@@ -162,10 +165,11 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
   }
 
   out.push(...instrumentDiagnostics(nl, sim));
+  out.push(...mcuDiagnostics(nl, sim));
 
   // multiple supplies without a common ground
-  const srcs = circuit.components.filter((c) => (isPower(c.type) || c.type === 'function_gen') && !nl.unplaced.includes(c.ref));
-  const grounds = new Set(srcs.map((s) => nl.pinNet.get(pinId(s.ref, '-'))));
+  const srcs = circuit.components.filter((c) => (isPower(c.type) || c.type === 'function_gen' || isUsbPowered(c)) && !nl.unplaced.includes(c.ref));
+  const grounds = new Set(srcs.map((s) => nl.pinNet.get(pinId(s.ref, groundTerminal(s)))));
   if (srcs.length > 1 && grounds.size > 1)
     out.push({
       severity: 'info',
@@ -288,7 +292,7 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
       });
 
   const gs = groundSource(circuit.components.filter((c) => !nl.unplaced.includes(c.ref)));
-  const gnd = gs ? netOf(gs.ref, '-') : undefined;
+  const gnd = gs ? netOf(gs.ref, groundTerminal(gs)) : undefined;
   for (const c of circuit.components) {
     if (c.type !== 'scope_probe' || nl.unplaced.includes(c.ref) || !gnd) continue;
     const g = netOf(c.ref, 'gnd');
@@ -312,7 +316,5 @@ export const PART_NAME = (t: keyof typeof PARTS) => PARTS[t].name;
 /** Phase 5 time-domain checks (inductive kicks under PWM, …). Call with the transient result
  *  when there is one; the issues are added to the DC ones. */
 export function acDiagnostics(nl: BoardNetlist, ac: TransientResult): Issue[] {
-  void nl;
-  void ac;
-  return [];
+  return acMcuDiagnostics(nl, ac);
 }
