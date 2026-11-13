@@ -95,7 +95,7 @@ describe('challenge "phase"', () => {
     for (const phase of [1, 2, 3, 4]) expect(parseChallenge({ ...base, phase }).challenge!.phase).toBe(phase);
   });
   it('rejects anything else', () => {
-    for (const phase of [0, 5, 1.5, '2', null]) expect(parseChallenge({ ...base, phase }).ok).toBe(false);
+    for (const phase of [0, 6, 1.5, '2', null]) expect(parseChallenge({ ...base, phase }).ok).toBe(false);
   });
   it('file numbers match the phase (2NN files carry one)', () => {
     for (const f of files) {

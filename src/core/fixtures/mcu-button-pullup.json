@@ -1,0 +1,56 @@
+{
+  "$schema": "../../../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "example-mcu-button-pullup",
+  "title": "示例 · Blue Pill 按键 + 内部上拉",
+  "kind": "challenge",
+  "level": 2,
+  "phase": 5,
+  "summary": "按键一端接 GPIO、一端接 GND，GPIO 设为“输入 + 内部上拉”：松开读 1，按下读 0。",
+  "concepts": ["digital input 数字输入", "pull-up resistor 上拉电阻", "floating input 浮空输入"],
+  "description": "STM32 Blue Pill 的任意一个 GPIO 接按键的一端，按键另一端接 GND。引脚设成 **输入 + 内部上拉**（约 40 kΩ 接到 3.3 V）：\n- 松开：上拉把引脚拉到 3.3 V，读到 **1**；\n- 按下：引脚直接接地，读到 **0**，上拉电阻里流过 3.3 V / 40 kΩ ≈ 82 µA。\n\n如果只设成“输入（浮空）”，松开时引脚什么都没接，读数是不确定的。",
+  "i18n": {
+    "en": {
+      "title": "Example · Blue Pill button + internal pull-up",
+      "summary": "A button from a GPIO to GND, with the GPIO set to input + pull-up: released reads 1, pressed reads 0.",
+      "concepts": ["digital input", "pull-up resistor", "floating input"],
+      "description": "Wire one side of a button to any STM32 Blue Pill GPIO and the other side to GND. Set the pin to **input + pull-up** (about 40 kΩ to 3.3 V):\n- released: the pull-up holds the pin at 3.3 V and it reads **1**;\n- pressed: the pin is tied to GND and reads **0**, with 3.3 V / 40 kΩ ≈ 82 µA through the pull-up.\n\nAs a plain (floating) input the pin is connected to nothing while the button is released, so the reading is undefined.",
+      "hints": ["Button between the GPIO and GND — no resistor needed.", "Set the pin to input + pull-up."],
+      "tests": ["Released: reads HIGH", "Pressed: reads LOW, ≈ 82 µA through the pull-up", "Plain input, released: floating"]
+    }
+  },
+  "components": [
+    { "ref": "U1", "type": "stm32_bluepill", "modes": { "GPIO_IN1": "input_pullup" } },
+    { "ref": "SW1", "type": "pushbutton" }
+  ],
+  "nets": [
+    { "name": "BTN", "pins": ["U1.GPIO_IN1", "SW1.1"] },
+    { "name": "GND", "pins": ["SW1.2", "U1.GND"] }
+  ],
+  "tests": [
+    { "name": "松开：读到高电平", "set": { "SW1": { "pressed": false } }, "gpio": [{ "pin": "U1.GPIO_IN1", "read": "high" }] },
+    {
+      "name": "按下：读到低电平，上拉电流约 82 µA",
+      "set": { "SW1": { "pressed": true } },
+      "gpio": [
+        { "pin": "U1.GPIO_IN1", "read": "low" },
+        { "pin": "U1.GPIO_IN1", "measure": "current", "min": 0.00007, "max": 0.00009 }
+      ]
+    },
+    {
+      "name": "只设成浮空输入、松开：读数不确定",
+      "set": { "SW1": { "pressed": false }, "U1": { "modes": { "GPIO_IN1": "input" } } },
+      "gpio": [{ "pin": "U1.GPIO_IN1", "read": "floating" }]
+    }
+  ],
+  "hints": ["按键接在 GPIO 和 GND 之间，不需要电阻。", "把引脚设成“输入 + 内部上拉”。"],
+  "solution": {
+    "parts": [
+      { "type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": { "usb": true, "modes": { "PB11": "input_pullup" } } },
+      { "type": "wire", "ref": "W1", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "wire", "ref": "W2", "color": "yellow", "pins": { "a": "a5", "b": "a24" } },
+      { "type": "pushbutton", "ref": "SW1", "at": "e24" },
+      { "type": "wire", "ref": "W3", "color": "black", "pins": { "a": "a26", "b": "tn26" } }
+    ]
+  }
+}

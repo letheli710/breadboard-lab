@@ -3,7 +3,7 @@ import { PHASES, type Challenge, type ChallengePhase } from '../core/challenge';
 import { tr } from '../core/i18n';
 import { useStore } from '../state/store';
 
-/** Challenge groups: the original intro set (no "phase") and the four course phases. */
+/** Challenge groups: the original intro set (no "phase") and the course phases. */
 type Group = 'intro' | ChallengePhase;
 const groupOf = (c: Challenge): Group => c.phase ?? 'intro';
 const groupLabel = (g: Group) => (g === 'intro' ? tr('入门', 'Intro') : tr(`第${g}期`, `Phase ${g}`));
@@ -15,6 +15,7 @@ const groupTip = (g: Group) =>
         tr('第 2 期：叠加、戴维宁、最大功率、运放', 'Phase 2: superposition, Thevenin, max power, op-amps'),
         tr('第 3 期：暂态（RC / RL / RLC）', 'Phase 3: transients (RC / RL / RLC)'),
         tr('第 4 期：正弦稳态与频率响应', 'Phase 4: AC steady state and frequency response'),
+        tr('第 5 期：单片机外围电路（GPIO、上拉、三极管/MOSFET、继电器、稳压、ADC、PWM）', 'Phase 5: MCU peripheral circuits (GPIO, pull-ups, transistors/MOSFETs, relays, regulators, ADC, PWM)'),
       ][g - 1];
 
 const GROUP_KEY = 'bb.challengeGroup';

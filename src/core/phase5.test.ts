@@ -371,7 +371,7 @@ describe('on the breadboard: footprint, nets, diagnostics', () => {
     expect(pins['3V3']).toBe('i1');
     expect(pins['5V']).toBe('i19');
     expect(pins.GND_3).toBe('i14');
-    const layout = {
+    const layout: import('./types').Layout = {
       version: 1 as const,
       parts: [
         { id: 'u', ref: 'U1', type: 'esp32_devkit' as const, props: { usb: true, pins: { GPIO2: { mode: 'out_high' as const }, GPIO4: { mode: 'input' as const } } }, pins },
@@ -393,5 +393,72 @@ describe('on the breadboard: footprint, nets, diagnostics', () => {
     expect(titles.some((t) => /No power source/.test(t))).toBe(false);
     expect(titles.some((t) => /floating$/.test(t) && t.includes('U1'))).toBe(false);
     setLang('zh');
+  });
+});
+
+describe('challenge format: dev boards with logical pins', () => {
+  const load = async (name: string) => {
+    const { readFileSync } = await import('node:fs');
+    const { fileURLToPath } = await import('node:url');
+    return JSON.parse(readFileSync(fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url)), 'utf8'));
+  };
+  const judge = async (json: Record<string, unknown>, mutate?: (parts: Record<string, unknown>[]) => void) => {
+    const { parseChallenge } = await import('./challenge');
+    const { checkCircuit } = await import('./check');
+    const { buildNetlist } = await import('./netlist');
+    const j = structuredClone(json) as { solution: { parts: Record<string, unknown>[] } };
+    mutate?.(j.solution.parts);
+    const res = parseChallenge(j);
+    expect(res.errors).toEqual([]);
+    const ch = res.challenge!;
+    const nl = buildNetlist(ch.solution!);
+    return { self: checkCircuit(ch, ch.target), user: checkCircuit(ch, nl.circuit, nl.pinHoles) };
+  };
+
+  it('GPIO → R → LED: the solution passes, and so does any other output-capable pin', async () => {
+    const json = await load('mcu-gpio-led.json');
+    const r = await judge(json);
+    expect(r.self.perfect).toBe(true);
+    expect(r.user.perfect).toBe(true);
+    expect(r.user.pinMap.get('U1.GPIO_OUT1')).toBe('U1.GPIO2');
+    // GPIO4 sits at b13: move the resistor there
+    const other = await judge(json, (parts) => {
+      (parts[0].props as { modes: Record<string, string> }).modes = { GPIO4: 'out_high' };
+      parts[2].pins = { '1': 'a13', '2': 'a22' };
+    });
+    expect(other.user.issues.map((i) => i.title)).toEqual([]);
+    expect(other.user.pinMap.get('U1.GPIO_OUT1')).toBe('U1.GPIO4');
+  });
+
+  it('an input-only pin or the wrong mode is rejected with a reason', async () => {
+    const { setLang } = await import('./i18n');
+    setLang('en');
+    const json = await load('mcu-gpio-led.json');
+    // GPIO34 is on the lower header at i5 (free hole j5)
+    const inOnly = await judge(json, (parts) => {
+      (parts[0].props as { modes: Record<string, string> }).modes = {};
+      parts[2].pins = { '1': 'j5', '2': 'a22' };
+    });
+    expect(inOnly.user.perfect).toBe(false);
+    expect(inOnly.user.issues.some((i) => /GPIO34 can't be used as GPIO_OUT1/.test(i.title))).toBe(true);
+    const wrongMode = await judge(json, (parts) => {
+      (parts[0].props as { modes: Record<string, string> }).modes = { GPIO2: 'input' };
+    });
+    expect(wrongMode.user.issues.some((i) => /GPIO2 has the wrong mode/.test(i.title))).toBe(true);
+    setLang('zh');
+  });
+
+  it('button + internal pull-up on the Blue Pill', async () => {
+    const r = await judge(await load('mcu-button-pullup.json'));
+    expect(r.self.perfect).toBe(true);
+    expect(r.user.perfect).toBe(true);
+    expect(r.user.testsPassed).toBe(3);
+  });
+
+  it('a generic "mcu" target matches either board', async () => {
+    const json = await load('mcu-button-pullup.json');
+    (json.components as { type: string }[])[0].type = 'mcu';
+    const r = await judge(json);
+    expect(r.user.perfect).toBe(true);
   });
 });

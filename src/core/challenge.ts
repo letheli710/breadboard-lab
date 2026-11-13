@@ -4,9 +4,12 @@
 import { HOLE_MAP } from './breadboard';
 import { getLang, isLang, LANGS, tr, type Lang } from './i18n';
 import { parseValue } from './format';
+import { MOSFETS } from './devices';
+import { isMcu, mcuPin, modesFor, normalizeMcuPin } from './mcu';
 import { BATTERIES, LED_COLORS, PARTS, terminalsOf } from './parts';
 import { MEASURES, type Measure } from './transient';
-import type { BatteryVariant, CComponent, CompType, Circuit, Layout, LedColor, PartProps, PartType, PlacedPart, Waveform } from './types';
+import { PIN_MODES } from './types';
+import type { BatteryVariant, CComponent, CompType, Circuit, Layout, LedColor, MosfetModel, PartProps, PartType, PinConfig, PinMode, PlacedPart, Waveform } from './types';
 
 export const FORMAT_ID = 'breadboard-challenge/1';
 
@@ -33,10 +36,28 @@ export interface CurrentTest {
   max?: number;
 }
 
+/** Dev-board pin check: the logic level a digital input reads, or a measured quantity
+ *  (voltage vs the board's GND, current out of the pin, ADC raw count / volts). */
+export interface GpioTest {
+  pin: string;
+  read?: 'high' | 'low' | 'floating';
+  measure?: 'voltage' | 'current' | 'adc' | 'adc_v';
+  min?: number;
+  max?: number;
+}
+
+export const GPIO_MEASURES = ['voltage', 'current', 'adc', 'adc_v'] as const;
+/** Operating regions a test may require: NPN cutoff/active/saturation, MOSFET off/ohmic/saturation. */
+export const BJT_REGIONS = ['cutoff', 'active', 'saturation'] as const;
+export const MOS_REGIONS = ['off', 'ohmic', 'saturation'] as const;
+
 export interface ChallengeTest {
   name: string;
   set: Record<string, PartProps>;
+  /** LEDs on/off; also relay (energised), motor (running), buzzer (sounding) */
   expect: Record<string, 'on' | 'off'>;
+  gpio: GpioTest[];
+  regions: Record<string, string>;
   voltages: { pin: string; ref?: string; min?: number; max?: number }[];
   scope: ScopeTest[];
   currents: CurrentTest[];
@@ -72,8 +93,9 @@ export interface Challenge {
   file?: string;
 }
 
-/** Course phases (docs/ROADMAP.md): 1 basic laws, 2 methods/theorems/op-amps, 3 transients, 4 AC. */
-export const PHASES = [1, 2, 3, 4] as const;
+/** Course phases (docs/ROADMAP.md): 1 basic laws, 2 methods/theorems/op-amps, 3 transients, 4 AC,
+ *  5 MCU peripheral circuits. */
+export const PHASES = [1, 2, 3, 4, 5] as const;
 export type ChallengePhase = (typeof PHASES)[number];
 
 export interface ValidationResult {
@@ -99,10 +121,27 @@ const COMP_TYPES: CompType[] = [
   'ammeter',
   'opamp',
   'function_gen',
+  'esp32_devkit',
+  'stm32_bluepill',
+  'mcu',
+  'npn',
+  'nmos',
+  'relay',
+  'motor',
+  'buzzer',
+  'ldo',
+  'ldr',
+  'ntc',
 ];
 
+/** Component types an `expect` "on" / "off" may refer to. */
+export const EXPECT_TYPES: CompType[] = ['led', 'relay', 'motor', 'buzzer'];
+
 /** Components whose current a test may check ("currents"). */
-export const CURRENT_TYPES: CompType[] = ['ammeter', 'resistor', 'led', 'diode', 'inductor', 'battery', 'bench_supply', 'power_module', 'dc_source', 'function_gen'];
+export const CURRENT_TYPES: CompType[] = [
+  'ammeter', 'resistor', 'led', 'diode', 'inductor', 'battery', 'bench_supply', 'power_module', 'dc_source', 'function_gen',
+  'npn', 'nmos', 'relay', 'motor', 'buzzer', 'ldo', 'ldr', 'ntc',
+];
 
 const WIRE_NAMES: Record<string, string> = {
   red: '#d62828',
@@ -132,6 +171,14 @@ const PIN_ALIASES: Record<string, Record<string, string>> = {
   inductor: { '1': '1', '2': '2' },
   ammeter: { '+': '+', red: '+', pos: '+', in: '+', a: '+', '-': '-', com: '-', black: '-', neg: '-', out: '-' },
   function_gen: { '+': '+', out: '+', sig: '+', signal: '+', pos: '+', red: '+', '-': '-', com: '-', gnd: '-', neg: '-', black: '-' },
+  npn: { e: 'e', emitter: 'e', b: 'b', base: 'b', c: 'c', collector: 'c' },
+  nmos: { g: 'g', gate: 'g', d: 'd', drain: 'd', s: 's', source: 's' },
+  relay: { coil1: 'coil1', 'coil+': 'coil1', a1: 'coil1', coil2: 'coil2', 'coil-': 'coil2', a2: 'coil2', com: 'com', common: 'com', c: 'com', no: 'no', nc: 'nc' },
+  motor: { '+': '+', pos: '+', red: '+', '1': '+', '-': '-', neg: '-', black: '-', '2': '-' },
+  buzzer: { '+': '+', pos: '+', positive: '+', long: '+', '-': '-', neg: '-', negative: '-', short: '-', gnd: '-' },
+  ldo: { gnd: 'gnd', '1': 'gnd', adj: 'gnd', out: 'out', vout: 'out', '2': 'out', in: 'in', vin: 'in', '3': 'in' },
+  ldr: { '1': '1', '2': '2' },
+  ntc: { '1': '1', '2': '2' },
   opamp: {
     // physical pin numbers
     '1': 'outA', '2': 'inA-', '3': 'inA+', '4': 'v-', '5': 'inB+', '6': 'inB-', '7': 'outB', '8': 'v+',
@@ -147,12 +194,13 @@ const PIN_ALIASES: Record<string, Record<string, string>> = {
 
 export function normalizePin(type: CompType, pin: string): string | null {
   const p = pin.trim();
+  if (isMcu(type)) return normalizeMcuPin(type, p);
   const alias = PIN_ALIASES[type]?.[p.toLowerCase()];
   if (alias) return alias;
   return terminalsOf(type).includes(p) ? p : null;
 }
 
-function parseProps(type: CompType, raw: Record<string, unknown>, where: string, errors: string[]): PartProps {
+function parseProps(type: CompType, raw: Record<string, unknown>, where: string, errors: string[], allowPinsKey = true): PartProps {
   const props: PartProps = {};
   const num = (key: string, out: keyof PartProps) => {
     if (raw[key] === undefined || raw[key] === 'any') return;
@@ -192,12 +240,60 @@ function parseProps(type: CompType, raw: Record<string, unknown>, where: string,
     if (typeof raw.variant === 'string' && raw.variant in BATTERIES) props.variant = raw.variant as BatteryVariant;
     else errors.push(tr(`${where}: 电池型号必须是 ${Object.keys(BATTERIES).join(' / ')}`, `${where}: battery variant must be ${Object.keys(BATTERIES).join(' / ')}`));
   }
+  num('lux', 'lux');
+  num('temperature', 'temperature');
+  num('beta', 'beta');
+  if (raw.model !== undefined && raw.model !== 'any') {
+    if (typeof raw.model === 'string' && raw.model in MOSFETS) props.model = raw.model as MosfetModel;
+    else errors.push(tr(`${where}: "model" 必须是 ${Object.keys(MOSFETS).join(' / ')}`, `${where}: "model" must be ${Object.keys(MOSFETS).join(' / ')}`));
+  }
+  if (raw.usb !== undefined) props.usb = !!raw.usb;
+  // dev-board pin modes: "modes" everywhere; "pins" too where it can't mean hole positions
+  const modes = raw.modes ?? (allowPinsKey ? raw.pins : undefined);
+  if (modes !== undefined && isMcu(type)) props.pins = parsePinConfigs(type, modes, where, errors);
   if (raw.pressed !== undefined) props.pressed = !!raw.pressed;
   if (raw.position !== undefined) {
     if (raw.position === 'a' || raw.position === 'b') props.position = raw.position;
     else errors.push(tr(`${where}: "position" 必须是 "a" 或 "b"`, `${where}: "position" must be "a" or "b"`));
   }
   return props;
+}
+
+/** `"pins": { "GPIO2": "out_high", "GPIO_OUT1": { "mode": "pwm", "duty": 25, "frequency": 1000 } }` */
+function parsePinConfigs(type: CompType, raw: unknown, where: string, errors: string[]): Record<string, PinConfig> {
+  const out: Record<string, PinConfig> = {};
+  if (!isObj(raw)) {
+    errors.push(tr(`${where}: "pins" 必须是对象，如 { "GPIO2": "out_high" }`, `${where}: "pins" must be an object, e.g. { "GPIO2": "out_high" }`));
+    return out;
+  }
+  for (const [k, v] of Object.entries(raw)) {
+    const pin = normalizeMcuPin(type, k);
+    const def = pin ? mcuPin(type, pin) : null;
+    if (!pin || !def || def.kind !== 'gpio') {
+      errors.push(tr(`${where}.pins: "${k}" 不是这块板子的 GPIO（也可以写逻辑引脚 GPIO_OUT1 / GPIO_IN1 / ADC1 / PWM1 / GPIO_FT1 / IO1）`, `${where}.pins: "${k}" is not a GPIO of this board (logical pins GPIO_OUT1 / GPIO_IN1 / ADC1 / PWM1 / GPIO_FT1 / IO1 are fine too)`));
+      continue;
+    }
+    const cfg: Partial<PinConfig> = typeof v === 'string' ? { mode: v as PinMode } : isObj(v) ? { mode: v.mode as PinMode } : {};
+    if (!cfg.mode || !PIN_MODES.includes(cfg.mode)) {
+      errors.push(tr(`${where}.pins.${k}: 模式必须是 ${PIN_MODES.join(' / ')}`, `${where}.pins.${k}: mode must be ${PIN_MODES.join(' / ')}`));
+      continue;
+    }
+    if (!modesFor(def.gpio).includes(cfg.mode)) {
+      errors.push(tr(`${where}.pins.${k}: 这个引脚不支持 "${cfg.mode}"（可用：${modesFor(def.gpio).join(', ')}）`, `${where}.pins.${k}: this pin can't do "${cfg.mode}" (available: ${modesFor(def.gpio).join(', ')})`));
+      continue;
+    }
+    if (isObj(v)) {
+      for (const key of ['duty', 'frequency'] as const) {
+        if (v[key] === undefined) continue;
+        const n = parseValue(v[key] as string | number);
+        if (n === null || (key === 'duty' && (n < 0 || n > 100)) || (key === 'frequency' && n <= 0))
+          errors.push(tr(`${where}.pins.${k}.${key}: ${key === 'duty' ? '占空比是 0–100（%）' : '频率必须 > 0（Hz）'}`, `${where}.pins.${k}.${key}: ${key === 'duty' ? 'duty is 0–100 (%)' : 'frequency must be > 0 (Hz)'}`));
+        else cfg[key] = n;
+      }
+    }
+    out[pin] = cfg as PinConfig;
+  }
+  return out;
 }
 
 function parseLayout(raw: unknown, refs: Set<string> | null, where: string, errors: string[]): Layout | undefined {
@@ -242,7 +338,7 @@ function parseLayout(raw: unknown, refs: Set<string> | null, where: string, erro
     const props =
       type === 'wire'
         ? { ...def.defaults, ...(typeof p.color === 'string' ? { wireColor: WIRE_NAMES[p.color] ?? p.color } : {}) }
-        : { ...def.defaults, ...parseProps(type, isObj(p.props) ? p.props : p, w, errors) };
+        : { ...def.defaults, ...parseProps(type, isObj(p.props) ? p.props : p, w, errors, isObj(p.props)) };
     if (type === 'scope_probe' && (isObj(p.props) ? p.props : p).channel === undefined) autoChannel.add(parts.length);
     parts.push({ id: `${ref}-${i}`, ref, type, props, pins });
   });
@@ -389,7 +485,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
       for (const [ref, v] of Object.entries(t.expect)) {
         const c = compOf.get(ref);
         if (!c) errors.push(tr(`${w}.expect: 找不到元件 "${ref}"`, `${w}.expect: no component "${ref}"`));
-        else if (c.type !== 'led') errors.push(tr(`${w}.expect.${ref}: 只有 LED 可以写 "on"/"off"`, `${w}.expect.${ref}: only LEDs can be "on"/"off"`));
+        else if (!EXPECT_TYPES.includes(c.type)) errors.push(tr(`${w}.expect.${ref}: 只有 LED、继电器、电机、蜂鸣器可以写 "on"/"off"`, `${w}.expect.${ref}: only LEDs, relays, motors and buzzers can be "on"/"off"`));
         else if (v !== 'on' && v !== 'off') errors.push(tr(`${w}.expect.${ref}: 必须是 "on" 或 "off"`, `${w}.expect.${ref}: must be "on" or "off"`));
         else expect[ref] = v;
       }
@@ -437,7 +533,44 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
         if (typeof v.min !== 'number' && typeof v.max !== 'number') warnings.push(tr(`${wj}: 没有 min / max，什么都不检查`, `${wj}: no min / max, so it checks nothing`));
         currents.push({ el: c.ref, mode, min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
       });
-    tests.push({ name: typeof t.name === 'string' ? t.name : tr(`测试 ${i + 1}`, `Test ${i + 1}`), set, expect, voltages, scope, currents });
+    const gpio: GpioTest[] = [];
+    if (t.gpio !== undefined && !Array.isArray(t.gpio)) errors.push(tr(`${w}.gpio: 必须是数组`, `${w}.gpio: must be an array`));
+    if (Array.isArray(t.gpio))
+      t.gpio.forEach((v: unknown, j: number) => {
+        const wj = `${w}.gpio[${j}]`;
+        if (!isObj(v)) return errors.push(tr(`${wj}: 必须是对象`, `${wj}: must be an object`));
+        const pin = resolvePin(v.pin, `${wj}.pin`);
+        if (!pin) return;
+        const ref = pin.slice(0, pin.lastIndexOf('.'));
+        const c = compOf.get(ref)!;
+        const def = mcuPin(c.type, pin.slice(ref.length + 1));
+        if (!isMcu(c.type) || !def || def.kind !== 'gpio') return errors.push(tr(`${wj}.pin: ${pin} 不是开发板的 GPIO`, `${wj}.pin: ${pin} is not a dev-board GPIO`));
+        const read = v.read;
+        const measure = v.measure;
+        if (read !== undefined && read !== 'high' && read !== 'low' && read !== 'floating') return errors.push(tr(`${wj}.read: 必须是 "high" / "low" / "floating"`, `${wj}.read: must be "high" / "low" / "floating"`));
+        if (measure !== undefined && !(GPIO_MEASURES as readonly unknown[]).includes(measure)) return errors.push(tr(`${wj}.measure: 必须是 ${GPIO_MEASURES.join(' / ')}`, `${wj}.measure: must be ${GPIO_MEASURES.join(' / ')}`));
+        if (read === undefined && measure === undefined) return errors.push(tr(`${wj}: 需要 "read" 或 "measure"`, `${wj}: needs "read" or "measure"`));
+        if (measure !== undefined && typeof v.min !== 'number' && typeof v.max !== 'number') warnings.push(tr(`${wj}: 没有 min / max，什么都不检查`, `${wj}: no min / max, so it checks nothing`));
+        gpio.push({ pin, read: read as GpioTest['read'], measure: measure as GpioTest['measure'], min: typeof v.min === 'number' ? v.min : undefined, max: typeof v.max === 'number' ? v.max : undefined });
+      });
+    const regions: Record<string, string> = {};
+    if (t.regions !== undefined && !isObj(t.regions)) errors.push(tr(`${w}.regions: 必须是对象，如 { "Q1": "saturation" }`, `${w}.regions: must be an object, e.g. { "Q1": "saturation" }`));
+    if (isObj(t.regions))
+      for (const [ref, v] of Object.entries(t.regions)) {
+        const c = compOf.get(ref);
+        const alias: Record<string, string> = { cutoff: 'off', triode: 'ohmic', linear: 'ohmic', sat: 'saturation' };
+        if (!c) errors.push(tr(`${w}.regions: 找不到元件 "${ref}"`, `${w}.regions: no component "${ref}"`));
+        else if (c.type === 'npn') {
+          const r = v === 'sat' ? 'saturation' : v;
+          if (!(BJT_REGIONS as readonly unknown[]).includes(r)) errors.push(tr(`${w}.regions.${ref}: 三极管必须是 ${BJT_REGIONS.join(' / ')}`, `${w}.regions.${ref}: a transistor region is ${BJT_REGIONS.join(' / ')}`));
+          else regions[ref] = r as string;
+        } else if (c.type === 'nmos') {
+          const r = typeof v === 'string' ? (alias[v] ?? v) : v;
+          if (!(MOS_REGIONS as readonly unknown[]).includes(r)) errors.push(tr(`${w}.regions.${ref}: MOSFET 必须是 ${MOS_REGIONS.join(' / ')}`, `${w}.regions.${ref}: a MOSFET region is ${MOS_REGIONS.join(' / ')}`));
+          else regions[ref] = r as string;
+        } else errors.push(tr(`${w}.regions.${ref}: 只有 npn / nmos 有工作区`, `${w}.regions.${ref}: only npn / nmos have regions`));
+      }
+    tests.push({ name: typeof t.name === 'string' ? t.name : tr(`测试 ${i + 1}`, `Test ${i + 1}`), set, expect, voltages, scope, currents, gpio, regions });
   });
 
   const steps: ChallengeStep[] = (Array.isArray(json.steps) ? json.steps : [])

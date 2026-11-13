@@ -99,7 +99,7 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
     const states = [{ name: tr('默认状态', 'default state'), set: {} }, ...ch.tests];
     const seen = new Set<string>();
     for (const t of states) {
-      const circ = applySet(nl.circuit, t.set, r.mapping);
+      const circ = applySet(nl.circuit, t.set, r.mapping, r.pinMap);
       const sim = simulate(circ);
       // with a function generator, LED current = steady-state average (what the checker uses)
       const ledStates = hasGenerator(circ) ? simulateTransient(circ).leds : sim.leds;
@@ -113,6 +113,18 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
       for (const [ref, m] of sim.meters)
         if (Math.abs(m.current) > 0.5) rep.errors.push(tr(`solution: 电流表 ${ref} 在「${t.name}」时把电路短路了`, `solution: ammeter ${ref} shorts the circuit in "${t.name}"`));
       for (const [ref, s] of sim.sources) if (s.shorted) rep.errors.push(tr(`solution: 电源 ${ref} 在「${t.name}」时短路/过载`, `solution: supply ${ref} is shorted / overloaded in "${t.name}"`));
+      // dev boards: a solution must never damage a pin; warn above the recommended pin current
+      for (const [ref, m] of sim.mcus)
+        for (const [pin, p] of m.pins) {
+          if (p.damaged) rep.errors.push(tr(`solution: ${ref} ${pin} 在「${t.name}」时损坏（${(p.current * 1000).toFixed(0)} mA）`, `solution: ${ref} ${pin} is damaged in "${t.name}" (${(p.current * 1000).toFixed(0)} mA)`));
+          else if (p.overcurrent && !seen.has(`${ref}.${pin}`)) {
+            seen.add(`${ref}.${pin}`);
+            rep.warnings.push(tr(`solution: ${ref} ${pin} 在「${t.name}」时电流 ${(p.current * 1000).toFixed(1)} mA，超过建议值`, `solution: ${ref} ${pin} carries ${(p.current * 1000).toFixed(1)} mA in "${t.name}", above the recommended limit`));
+          }
+          if (p.overvoltage) rep.errors.push(tr(`solution: ${ref} ${pin} 在「${t.name}」时电压过高（${p.vLocal.toFixed(2)} V）`, `solution: ${ref} ${pin} is over-voltage in "${t.name}" (${p.vLocal.toFixed(2)} V)`));
+        }
+      for (const [ref, q] of sim.bjts) if (q.breakdown) rep.errors.push(tr(`solution: ${ref} 在「${t.name}」时击穿`, `solution: ${ref} breaks down in "${t.name}"`));
+      if (hasGenerator(circ)) for (const ref of simulateTransient(circ).breakdowns) rep.errors.push(tr(`solution: ${ref} 在「${t.name}」时被线圈反电动势击穿（缺续流二极管）`, `solution: ${ref} breaks down from an inductive kick in "${t.name}" (missing flyback diode)`));
     }
   }
 

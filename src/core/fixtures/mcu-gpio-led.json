@@ -1,0 +1,56 @@
+{
+  "$schema": "../../../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "example-mcu-gpio-led",
+  "title": "示例 · ESP32 GPIO 点亮 LED",
+  "kind": "challenge",
+  "level": 2,
+  "phase": 5,
+  "summary": "ESP32 的任意一个输出 GPIO → 220 Ω → LED → GND，引脚设为“输出高电平”。",
+  "concepts": ["GPIO output 输出引脚", "current-limiting resistor 限流电阻", "pin current limit 引脚电流上限"],
+  "description": "把 ESP32 开发板插在面包板上（USB 供电）。选一个能输出的 GPIO（例如 GPIO2；GPIO34–39 只能输入），串一个 220 Ω 电阻和一个红色 LED 到 GND，在属性里把这个引脚设成 **输出高电平**。\n\n引脚电流 I = (3.3 − 1.8) / (220 + 25 + 12) ≈ **5.8 mA**，远低于 20 mA 的建议上限。",
+  "i18n": {
+    "en": {
+      "title": "Example · ESP32 GPIO lights an LED",
+      "summary": "Any output-capable ESP32 GPIO → 220 Ω → LED → GND, with the pin set to output HIGH.",
+      "concepts": ["GPIO output", "current-limiting resistor", "pin current limit"],
+      "description": "Plug the ESP32 board into the breadboard (powered from USB). Pick an output-capable GPIO (e.g. GPIO2; GPIO34–39 are input-only), wire a 220 Ω resistor and a red LED to GND, and set the pin to **output HIGH** under Properties.\n\nThe pin current is I = (3.3 − 1.8) / (220 + 25 + 12) ≈ **5.8 mA**, well below the 20 mA recommendation.",
+      "hints": ["GPIO → resistor → LED anode (long leg); LED cathode → GND.", "Select the board and set the pin's mode to output HIGH."],
+      "tests": ["Output HIGH: the LED is on and the pin gives 5–7 mA", "Output LOW: the LED is off"]
+    }
+  },
+  "components": [
+    { "ref": "U1", "type": "esp32_devkit", "modes": { "GPIO_OUT1": "out_high" } },
+    { "ref": "R1", "type": "resistor", "resistance": "220" },
+    { "ref": "LED1", "type": "led", "color": "red" }
+  ],
+  "nets": [
+    { "name": "IO", "pins": ["U1.GPIO_OUT1", "R1.1"] },
+    { "name": "A", "pins": ["R1.2", "LED1.anode"] },
+    { "name": "GND", "pins": ["LED1.cathode", "U1.GND"] }
+  ],
+  "tests": [
+    {
+      "name": "输出高电平：LED 亮，引脚电流 5–7 mA",
+      "expect": { "LED1": "on" },
+      "gpio": [
+        { "pin": "U1.GPIO_OUT1", "measure": "current", "min": 0.005, "max": 0.007 },
+        { "pin": "U1.GPIO_OUT1", "measure": "voltage", "min": 3.1, "max": 3.3 }
+      ]
+    },
+    {
+      "name": "输出低电平：LED 灭",
+      "set": { "U1": { "modes": { "GPIO_OUT1": "out_low" } } },
+      "expect": { "LED1": "off" }
+    }
+  ],
+  "hints": ["GPIO → 电阻 → LED 长脚（正极）；LED 短脚 → GND。", "选中开发板，把引脚模式设为“输出高电平”。"],
+  "solution": {
+    "parts": [
+      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": true, "modes": { "GPIO2": "out_high" } } },
+      { "type": "wire", "ref": "W1", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "resistor", "ref": "R1", "resistance": 220, "pins": { "1": "a15", "2": "a22" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c22", "cathode": "tn22" } }
+    ]
+  }
+}
