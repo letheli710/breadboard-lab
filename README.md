@@ -68,13 +68,13 @@ Ids are the files' `id` (URI-encoded); an unknown id shows a toast and opens the
 ```bash
 npm test             # 引擎单元测试（vitest）+ 所有内置题目的验证（npm run validate）
 npm run lint         # ESLint（typescript-eslint + react-hooks）
-npm run format:check # Prettier 格式检查（目前仅供参考，旧代码尚未统一格式化）
+npm run format:check # Prettier 格式检查（CI 必须通过；`npm run format` 自动修正。题目 / 要点 JSON、schema 和 Markdown 不参与，见 .prettierignore）
 npm run build        # 类型检查 + 生产构建（dist/）
-npm run size         # 构建后检查入口体积预算（入口 ≤ 200 kB，入口 + 预加载块 ≤ 360 kB）
-npm run check        # 以上全部：tsc -b、lint、test、vite build、size（和 CI 一致）
+npm run size         # 构建后检查入口体积预算（入口 ≤ 225 kB，入口 + 预加载块 ≤ 375 kB；入口里的题目索引每题约 265 B）
+npm run check        # 以上全部：tsc -b、lint、format:check、test、vite build、size（和 CI 一致）
 ```
 
-CI：`.github/workflows/ci.yml` 在每次 push / PR 时运行 `npm ci`、`tsc -b`、lint、`npm test`（含 validate）、`vite build` 和体积预算检查（`npm run size`）。工具链：Vite 8（Rolldown）、Vitest 5，需要 Node 20.19+ 或 22.12+。
+CI：`.github/workflows/ci.yml` 在每次 push / PR 时运行 `npm ci`、`tsc -b`、lint、`npm test`（含 validate）、`vite build`、体积预算检查（`npm run size`）和 Prettier 格式检查。工具链：Vite 8（Rolldown）、Vitest 5，需要 Node 20.19+ 或 22.12+。`npm audit` 剩 10 个 moderate，全部是 ESLint / typescript-eslint 依赖的 minimatch，上游尚无修复（只影响开发工具，不进入构建产物）。格式化提交记录在 `.git-blame-ignore-revs`（本地 `git config blame.ignoreRevsFile .git-blame-ignore-revs`）。
 
 性能：内置理论题在运行时**不再**用引擎重算答案（这一步由 `npm run validate` 和 `npm test` 保证，修改题目后务必运行）；侧栏用构建时生成的轻量索引（`virtual:problem-index`，见 `scripts/problem-index-plugin.ts`），完整题目按章节分块、打开时才加载。导入页导入的文件仍然完整校验。练习 / 导入 / 知识页面和 three.js 各自单独分块，练习、导入和知识页面不加载 three.js 和面包板侧栏；面包板题同样只在打开所在分组时加载。实测体积见 [`docs/ROADMAP.md`](docs/ROADMAP.md) 的“性能”一节。3D 工具栏的 **流畅** 按钮切换低画质（阴影 1024、像素比 ≤ 1.5），弱设备上会自动开启，选择记在浏览器里。
 
