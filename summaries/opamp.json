@@ -1,0 +1,422 @@
+{
+  "$schema": "../schema/summary.schema.json",
+  "format": "chapter-summary/1",
+  "chapter": "opamp",
+  "intro": "含理想运放的电路只多了两条规则：**虚短**和**虚断**。其余的仍然是 KCL、KVL 和欧姆定律。关键是**只在运放的输入端列方程**，运放的输出端电流是未知的，不能用来列 KCL。",
+  "i18n": {
+    "en": {
+      "intro": "Circuits with ideal op-amps add only two rules: **virtual short** and **virtual open**. Everything else is still KCL, KVL and Ohm's law. The key is to **write equations only at the op-amp input nodes**: the output current of an op-amp is unknown, so the output node gives no usable KCL equation."
+    }
+  },
+  "ideas": [
+    {
+      "id": "ideal",
+      "title": "理想运放：虚短与虚断",
+      "text": [
+        "理想运放的开环放大倍数 A → ∞、输入电阻 R_i → ∞、输出电阻 R_o = 0。接有**负反馈**（输出经电阻接回反相端）并工作在线性区时，得到两条规则：",
+        "- **虚短**：u_{+} = u_{−}（两个输入端电位相等，但并没有用导线连起来）；",
+        "- **虚断**：i_{+} = i_{−} = 0（两个输入端都不取电流）。",
+        "同相端接地时，反相端电位也为零，称为**虚地**——它的电位是零，但电流不能从这里流进“地”。"
+      ],
+      "problems": ["opamp-01-inverting-amp", "opamp-02-noninverting-amp", "opamp-03-voltage-follower"],
+      "i18n": {
+        "en": {
+          "title": "The ideal op-amp: virtual short and virtual open",
+          "text": [
+            "An ideal op-amp has open-loop gain A → ∞, input resistance R_i → ∞ and output resistance R_o = 0. With **negative feedback** (the output connected back to the inverting input through a resistor) and operating in its linear region, it obeys two rules:",
+            "- **virtual short**: u_{+} = u_{−} (the two inputs are at the same potential, although they are not wired together);",
+            "- **virtual open**: i_{+} = i_{−} = 0 (neither input draws current).",
+            "With the non-inverting input grounded, the inverting input is also at zero potential — a **virtual ground**: its potential is zero, but no current can flow into “ground” there."
+          ]
+        }
+      }
+    },
+    {
+      "id": "output",
+      "title": "运放的输出端：电流由 KCL 求",
+      "text": [
+        "虚断只约束**输入端**。输出端相当于一个受控电压源（输出电阻为零），它可以提供或吸收任意大小的电流，这个电流由运放的电源供给，事先未知。",
+        "所以：**不要对运放的输出结点列 KCL 来求电压**；要求流出运放输出端的电流 i_o 时，先求出各支路电流，再对输出结点列 KCL。",
+        "也因为输出电阻为零，u_o 不随负载变化：负载电阻改变，u_o 不变，只是 i_o 变了。"
+      ],
+      "problems": ["opamp-04-current-input-inverting", "opamp-03-voltage-follower", "opamp-09-vccs-floating-load"],
+      "i18n": {
+        "en": {
+          "title": "The output terminal: its current comes from KCL",
+          "text": [
+            "The virtual open constrains only the **inputs**. The output behaves like a controlled voltage source (zero output resistance): it can supply or sink any current, provided by the op-amp's power supply and unknown in advance.",
+            "So: **never write KCL at the op-amp output node to find a voltage**; to find the current i_o leaving the output terminal, first find the branch currents, then apply KCL at the output node.",
+            "Because the output resistance is zero, u_o does not depend on the load: changing the load resistor leaves u_o unchanged and only changes i_o."
+          ]
+        }
+      }
+    },
+    {
+      "id": "inverting",
+      "title": "反相比例放大器与反相加法器",
+      "text": [
+        "输入经 R_1 接反相端，R_f 从输出接回反相端，同相端接地。反相端是虚地，R_1 中电流 u_s/R_1 由虚断全部流过 R_f，于是 u_o = −(R_f/R_1)u_s：输出与输入反相。",
+        "从输入端看进去的输入电阻就是 R_1（反相端是虚地）。输入为电流源时，u_o = −R_fI_s（电流—电压转换）。",
+        "**反相加法器**：几路输入各经一个电阻接到虚地，各路电流互不影响，在反相端相加后全部流过 R_f：u_o = −R_f(u_1/R_1 + u_2/R_2 + …)。"
+      ],
+      "problems": ["opamp-01-inverting-amp", "opamp-04-current-input-inverting", "opamp-05-inverting-summer"],
+      "i18n": {
+        "en": {
+          "title": "Inverting amplifier and inverting summer",
+          "text": [
+            "The input goes through R_1 to the inverting input, R_f connects the output back to it, and the non-inverting input is grounded. The inverting input is a virtual ground; the current u_s/R_1 in R_1 all flows on through R_f (virtual open), so u_o = −(R_f/R_1)u_s: the output is inverted.",
+            "The input resistance seen from the input is R_1 (the inverting input is a virtual ground). With a current-source input, u_o = −R_fI_s (current-to-voltage conversion).",
+            "**Inverting summer**: several inputs, each through its own resistor, meet at the virtual ground; their currents do not affect each other, add up at the inverting input and all flow through R_f: u_o = −R_f(u_1/R_1 + u_2/R_2 + …)."
+          ]
+        }
+      }
+    },
+    {
+      "id": "noninverting",
+      "title": "同相比例放大器与电压跟随器",
+      "text": [
+        "输入接同相端，R_1 从反相端接地，R_f 从输出接回反相端。虚短 u_{−} = u_s，R_1、R_f 中是同一个电流（虚断），R_1、R_f 是对 u_o 的分压器：u_o = (1 + R_f/R_1)u_s，放大倍数 ≥ 1，同相。",
+        "输入端不取电流，所以输入电阻为无穷大，不会给前面的电路增加负载。",
+        "**电压跟随器**：输出直接接反相端（R_f = 0、R_1 = ∞），u_o = u_s。放大倍数为 1，作用是**隔离**：前级（例如分压器）的电压不再因为接了负载而下降。"
+      ],
+      "problems": ["opamp-02-noninverting-amp", "opamp-03-voltage-follower", "opamp-08-two-stage-cascade"],
+      "i18n": {
+        "en": {
+          "title": "Non-inverting amplifier and voltage follower",
+          "text": [
+            "The input goes to the non-inverting input, R_1 connects the inverting input to ground and R_f the output back to the inverting input. The virtual short gives u_{−} = u_s; R_1 and R_f carry the same current (virtual open) and form a voltage divider of u_o: u_o = (1 + R_f/R_1)u_s, a gain ≥ 1, not inverted.",
+            "The input draws no current, so the input resistance is infinite: the amplifier does not load the circuit in front of it.",
+            "**Voltage follower**: the output wired straight to the inverting input (R_f = 0, R_1 = ∞), u_o = u_s. The gain is 1; its job is **isolation** (buffering): the voltage of the preceding stage (e.g. a divider) no longer drops when a load is connected."
+          ]
+        }
+      }
+    },
+    {
+      "id": "difference",
+      "title": "减法器与同相加法器：先求同相端电位",
+      "text": [
+        "同相端前面有电阻网络时，先用**虚断**求同相端电位 u_p：同相端不取电流，它前面的电阻就是一个空载分压器，或者用弥尔曼定理（两结点的结点电压法）。再由虚短 u_n = u_p，对反相端列 KCL 求 u_o。",
+        "**减法器**（差分放大）：u_1 经 R_1 接反相端，u_2 经 R_2、R_3 分压接同相端。也可以用叠加定理：u_1 单独作用是反相放大，u_2 单独作用是“分压 + 同相放大”。当 R_3/R_2 = R_f/R_1 时 u_o = (R_f/R_1)(u_2 − u_1)，两个输入相等（共模）时输出为零。",
+        "**仪表放大器**由两个同相放大器加一个减法器组成：虚短把 u_1、u_2 直接“搬”到 R_g 两端，R_g 中的电流也流过与它串联的两个电阻。"
+      ],
+      "problems": ["opamp-06-difference-amp", "opamp-07-noninverting-summer", "opamp-14-instrumentation-amp"],
+      "i18n": {
+        "en": {
+          "title": "Difference amplifier and non-inverting summer: find the non-inverting input first",
+          "text": [
+            "When a resistor network feeds the non-inverting input, first find its potential u_p using the **virtual open**: that input draws no current, so the resistors in front of it are an unloaded divider, or use Millman's theorem (nodal analysis with two nodes). Then u_n = u_p (virtual short), and KCL at the inverting input gives u_o.",
+            "**Difference amplifier**: u_1 through R_1 to the inverting input, u_2 divided by R_2, R_3 to the non-inverting input. Superposition also works: u_1 alone gives an inverting amplifier, u_2 alone a divider followed by a non-inverting amplifier. When R_3/R_2 = R_f/R_1, u_o = (R_f/R_1)(u_2 − u_1), and equal inputs (common mode) give zero output.",
+            "An **instrumentation amplifier** is two non-inverting amplifiers followed by a difference amplifier: the virtual shorts copy u_1 and u_2 onto the two ends of R_g, and the current in R_g also flows through the two resistors in series with it."
+          ]
+        }
+      }
+    },
+    {
+      "id": "cascade",
+      "title": "多级运放电路",
+      "text": [
+        "理想运放输出电阻为零，后一级不会改变前一级的输出电压，所以**没有级间反馈时可以逐级计算**，总放大倍数等于各级放大倍数之积。",
+        "如果后级输出又经电阻接回前级的输入端（级间反馈），就不能逐级算了：每个运放写出它的虚短、虚断约束，再对各运放的**输入端**结点列方程联立求解。"
+      ],
+      "problems": ["opamp-08-two-stage-cascade", "opamp-13-two-opamp-loop", "opamp-14-instrumentation-amp"],
+      "i18n": {
+        "en": {
+          "title": "Multi-stage op-amp circuits",
+          "text": [
+            "An ideal op-amp has zero output resistance, so a following stage does not change the output voltage of the stage before it: **without feedback between stages, solve stage by stage**; the overall gain is the product of the stage gains.",
+            "If a later output is fed back to an earlier input (feedback between stages), you can no longer go stage by stage: write the virtual-short / virtual-open constraints of every op-amp and solve the equations at all the op-amp **input** nodes together."
+          ]
+        }
+      }
+    },
+    {
+      "id": "nodal",
+      "title": "用结点电压法分析运放电路",
+      "text": [
+        "一般方法：1. 以地为参考点；2. 对运放的**输入端**结点和其他普通结点列结点电压方程（输入端支路电流为零，虚断）；3. 每个运放补一个虚短方程 u_{+} = u_{−}；4. **不对运放输出结点列方程**（输出电流未知），u_o 作为未知量出现在别的方程里。",
+        "反馈支路是 T 形网络、负载接在别处时，都按这个步骤做，不必记各种电路的公式。"
+      ],
+      "problems": ["opamp-10-t-network-feedback", "opamp-12-howland-current-source", "opamp-13-two-opamp-loop", "opamp-07-noninverting-summer"],
+      "i18n": {
+        "en": {
+          "title": "Nodal analysis of op-amp circuits",
+          "text": [
+            "General method: 1. take ground as reference; 2. write nodal equations at the op-amp **input** nodes and the other ordinary nodes (no current into the inputs — virtual open); 3. add one virtual-short equation u_{+} = u_{−} per op-amp; 4. **write no equation at an op-amp output node** (its current is unknown); u_o appears as an unknown in the other equations.",
+            "A T-network in the feedback path or a load placed somewhere unusual is handled the same way — no need to memorise a formula for every circuit."
+          ]
+        }
+      }
+    },
+    {
+      "id": "resistance",
+      "title": "输入电阻、电流源与负电阻",
+      "text": [
+        "求运放电路的输入电阻用**外加电源法**：在端口加电压 u，求流入的电流 i，R_in = u/i。理想运放可以做出普通电阻做不到的端口特性。",
+        "- 负载接在反馈支路里（浮地负载）：负载电流 i_L = u_s/R_1 与 R_L 无关，相当于电压控制电流源；但要求 u_o 不超出运放输出范围。",
+        "- 豪兰德电流源：R_2/R_1 = R_4/R_3 时接地负载的电流 i_L = u_s/R_3，与负载无关。",
+        "- 负阻抗变换器（NIC）：输入电阻为负（−R_1R_3/R_2），这一端口实际向外**发出**功率，能量来自运放的电源。"
+      ],
+      "problems": ["opamp-04-current-input-inverting", "opamp-09-vccs-floating-load", "opamp-11-negative-resistance", "opamp-12-howland-current-source"],
+      "i18n": {
+        "en": {
+          "title": "Input resistance, current sources and negative resistance",
+          "text": [
+            "Find the input resistance of an op-amp circuit by **applying a source**: put a voltage u on the port, find the current i flowing in, R_in = u/i. Ideal op-amps make port behaviours that ordinary resistors cannot.",
+            "- Load in the feedback path (floating load): the load current i_L = u_s/R_1 does not depend on R_L — a voltage-controlled current source, as long as u_o stays within the op-amp's output range.",
+            "- Howland current source: with R_2/R_1 = R_4/R_3 the current of a grounded load is i_L = u_s/R_3, whatever the load.",
+            "- Negative impedance converter (NIC): the input resistance is negative (−R_1R_3/R_2); the port actually **delivers** power, taken from the op-amp's supply."
+          ]
+        }
+      }
+    }
+  ],
+  "formulas": [
+    {
+      "id": "rules",
+      "idea": "ideal",
+      "name": "虚短、虚断",
+      "expr": "u_{+} = u_{−}；i_{+} = i_{−} = 0",
+      "when": "理想运放，有负反馈并工作在线性区（输出未饱和）。虚断只针对两个输入端，输出端电流不为零。",
+      "i18n": { "en": { "name": "Virtual short, virtual open", "expr": "u_{+} = u_{−}; i_{+} = i_{−} = 0", "when": "Ideal op-amp with negative feedback, in its linear region (output not saturated). The virtual open applies to the two inputs only; the output current is not zero." } }
+    },
+    {
+      "id": "inv",
+      "idea": "inverting",
+      "name": "反相比例放大器",
+      "expr": "u_o = −\\frac{R_f}{R_1}u_s，R_in = R_1",
+      "when": "同相端接地（反相端虚地）；u_o、u_s 都以地为参考。",
+      "i18n": { "en": { "name": "Inverting amplifier", "expr": "u_o = −\\frac{R_f}{R_1}u_s, R_in = R_1", "when": "Non-inverting input grounded (virtual ground at the inverting input); u_o and u_s measured from ground." } }
+    },
+    {
+      "id": "sum",
+      "idea": "inverting",
+      "name": "反相加法器",
+      "expr": "u_o = −R_f(\\frac{u_1}{R_1} + \\frac{u_2}{R_2})",
+      "when": "各路输入各经一个电阻接到虚地的反相端；各路互不影响。",
+      "i18n": { "en": { "name": "Inverting summer", "expr": "u_o = −R_f(\\frac{u_1}{R_1} + \\frac{u_2}{R_2})", "when": "Each input through its own resistor to the virtual-ground inverting input; the inputs do not interact." } }
+    },
+    {
+      "id": "noninv",
+      "idea": "noninverting",
+      "name": "同相比例放大器 / 跟随器",
+      "expr": "u_o = (1 + \\frac{R_f}{R_1})u_s，R_in = ∞；跟随器 u_o = u_s",
+      "when": "u_s 直接接同相端，R_1 从反相端接地；跟随器是 R_f = 0。",
+      "i18n": { "en": { "name": "Non-inverting amplifier / follower", "expr": "u_o = (1 + \\frac{R_f}{R_1})u_s, R_in = ∞; follower u_o = u_s", "when": "u_s applied directly to the non-inverting input, R_1 from the inverting input to ground; the follower has R_f = 0." } }
+    },
+    {
+      "id": "diff",
+      "idea": "difference",
+      "name": "减法器",
+      "expr": "u_o = \\frac{R_f}{R_1}(u_2 − u_1)",
+      "when": "u_1 经 R_1 接反相端，u_2 经 R_2、R_3 分压接同相端，且 R_3/R_2 = R_f/R_1；不满足时用叠加或结点法。",
+      "i18n": { "en": { "name": "Difference amplifier", "expr": "u_o = \\frac{R_f}{R_1}(u_2 − u_1)", "when": "u_1 through R_1 to the inverting input, u_2 divided by R_2, R_3 to the non-inverting input, with R_3/R_2 = R_f/R_1; otherwise use superposition or nodal analysis." } }
+    },
+    {
+      "id": "millman",
+      "idea": "difference",
+      "name": "同相端电位（弥尔曼定理）",
+      "expr": "u_p = \\frac{u_1/R_1 + u_2/R_2}{1/R_1 + 1/R_2}",
+      "when": "两路输入各经电阻接到同相端，同相端不取电流（虚断）且没有其他支路。",
+      "i18n": { "en": { "name": "Non-inverting input potential (Millman)", "expr": "u_p = \\frac{u_1/R_1 + u_2/R_2}{1/R_1 + 1/R_2}", "when": "Two inputs, each through a resistor, to the non-inverting input; that input draws no current and has no other branch." } }
+    },
+    {
+      "id": "cascade",
+      "idea": "cascade",
+      "name": "级联的放大倍数",
+      "expr": "\\frac{u_o}{u_s} = A_1A_2…",
+      "when": "各级之间没有反馈（理想运放输出电阻为零，后级不影响前级）。",
+      "i18n": { "en": { "name": "Gain of a cascade", "expr": "\\frac{u_o}{u_s} = A_1A_2…", "when": "No feedback between stages (zero output resistance: a stage does not load the one before it)." } }
+    },
+    {
+      "id": "io",
+      "idea": "output",
+      "name": "运放输出电流",
+      "expr": "i_o = Σ（从输出结点流向各支路的电流）",
+      "when": "对输出结点列 KCL，i_o 为流出运放输出端的电流；只能在其他量求出之后用。",
+      "i18n": { "en": { "name": "Op-amp output current", "expr": "i_o = Σ (currents leaving the output node into the branches)", "when": "KCL at the output node, i_o leaving the op-amp output terminal; use it only after everything else is known." } }
+    },
+    {
+      "id": "rin",
+      "idea": "resistance",
+      "name": "输入电阻（外加电源法）",
+      "expr": "R_in = \\frac{u}{i}",
+      "when": "端口加电压 u、流入电流 i，取关联参考方向；结果可以为负（端口发出功率）。",
+      "i18n": { "en": { "name": "Input resistance (applied source)", "expr": "R_in = \\frac{u}{i}", "when": "Apply u at the port, i the current flowing in, passive sign convention; the result may be negative (the port delivers power)." } }
+    },
+    {
+      "id": "vccs",
+      "idea": "resistance",
+      "name": "浮地负载电流源",
+      "expr": "i_L = \\frac{u_s}{R_1}",
+      "when": "负载接在反相放大器的反馈支路中；与 R_L 无关，但需 |u_o| = R_Li_L 不超过输出范围。",
+      "i18n": { "en": { "name": "Floating-load current source", "expr": "i_L = \\frac{u_s}{R_1}", "when": "Load in the feedback path of an inverting amplifier; independent of R_L as long as |u_o| = R_Li_L stays within the output range." } }
+    }
+  ],
+  "examples": [
+    {
+      "id": "inv-load",
+      "ideas": ["inverting", "output", "ideal"],
+      "title": "带负载的反相放大器：输出电流从哪里来",
+      "statement": "图示反相放大器中 u_s = 2 V，R_1 = 5 kΩ，R_f = 20 kΩ，负载 R_L = 10 kΩ，运放为理想运放。求 i_1、u_o、负载电流 i_L 和流出运放输出端的电流 i_o。",
+      "schematic": {
+        "elements": [
+          { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": 2, "label": "u_s" },
+          { "ref": "R1", "type": "R", "from": [2, 3], "to": [6, 3], "value": "5k" },
+          { "ref": "Rf", "type": "R", "from": [8, 0], "to": [12, 0], "value": "20k" },
+          { "ref": "A", "type": "OPAMP", "at": [10, 4] },
+          { "ref": "RL", "type": "R", "from": [16, 4], "to": [16, 7], "value": "10k" }
+        ],
+        "wires": [
+          [[0, 3], [2, 3]],
+          [[6, 3], [8, 3]],
+          [[7, 3], [7, 0], [8, 0]],
+          [[12, 0], [14, 0], [14, 4]],
+          [[12, 4], [16, 4]],
+          [[8, 5], [7, 5], [7, 7]],
+          [[0, 7], [16, 7]]
+        ],
+        "labels": [{ "at": [7, 3], "name": "n" }, { "at": [15, 4], "name": "o" }],
+        "grounds": [[0, 7]],
+        "marks": [
+          { "kind": "i", "el": "R1", "name": "i1" },
+          { "kind": "i", "el": "Rf", "name": "i_f" },
+          { "kind": "i", "el": "RL", "name": "i_L" },
+          { "kind": "i", "el": "A", "name": "i_o" }
+        ]
+      },
+      "analysis": { "type": "dc" },
+      "results": [
+        { "id": "i1", "ask": "i_1", "find": { "kind": "i", "el": "R1" }, "answer": 0.0004, "unit": "mA" },
+        { "id": "if", "ask": "i_f", "find": { "kind": "i", "el": "Rf" }, "answer": 0.0004, "unit": "mA" },
+        { "id": "uo", "ask": "u_o", "find": { "kind": "v", "nodes": ["o"] }, "answer": -8, "unit": "V" },
+        { "id": "iL", "ask": "i_L", "find": { "kind": "i", "el": "RL" }, "answer": -0.0008, "unit": "mA" },
+        { "id": "io", "ask": "i_o", "find": { "kind": "i", "el": "A" }, "answer": -0.0012, "unit": "mA" }
+      ],
+      "steps": [
+        "1. **虚短：** 同相端接地，所以 u_n = 0（虚地）。",
+        "2. **R_1 的电流：** i_1 = (u_s − u_n)/R_1 = 2/5k = **0.4 mA**。",
+        "3. **虚断：** 反相端不取电流，结点 n 的 KCL 给出 i_f = i_1 = **0.4 mA**（从 n 流向 o）。",
+        "4. **输出电压：** u_o = u_n − R_f·i_f = 0 − 20k × 0.4 mA = **−8 V**，即 −(R_f/R_1)u_s。负载 R_L 不出现在这一步里：u_o 与负载无关。",
+        "5. **负载电流：** i_L = u_o/R_L = **−0.8 mA**（实际向上流）。",
+        "6. **输出电流（输出结点 o 的 KCL）：** 流出运放的 i_o 加上从 R_f 流来的 i_f 等于流进 R_L 的 i_L：i_o = i_L − i_f = −0.8 − 0.4 = **−1.2 mA**。负号表示运放的输出端实际在**吸收**电流——这个电流不受虚断约束，由运放的电源承担。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Inverting amplifier with a load: where the output current comes from",
+          "statement": "In the inverting amplifier u_s = 2 V, R_1 = 5 kΩ, R_f = 20 kΩ, load R_L = 10 kΩ, ideal op-amp. Find i_1, u_o, the load current i_L and the current i_o leaving the op-amp output terminal.",
+          "results": [{ "ask": "i_1" }, { "ask": "i_f" }, { "ask": "u_o" }, { "ask": "i_L" }, { "ask": "i_o" }],
+          "steps": [
+            "1. **Virtual short:** the non-inverting input is grounded, so u_n = 0 (virtual ground).",
+            "2. **Current in R_1:** i_1 = (u_s − u_n)/R_1 = 2/5k = **0.4 mA**.",
+            "3. **Virtual open:** the inverting input draws no current, so KCL at n gives i_f = i_1 = **0.4 mA** (from n to o).",
+            "4. **Output voltage:** u_o = u_n − R_f·i_f = 0 − 20k × 0.4 mA = **−8 V**, i.e. −(R_f/R_1)u_s. The load R_L does not enter this step: u_o does not depend on the load.",
+            "5. **Load current:** i_L = u_o/R_L = **−0.8 mA** (actually flowing upwards).",
+            "6. **Output current (KCL at output node o):** the i_o leaving the op-amp plus the i_f arriving through R_f equals the i_L going into R_L: i_o = i_L − i_f = −0.8 − 0.4 = **−1.2 mA**. The minus sign means the output actually **sinks** current — not limited by the virtual open, it is handled by the op-amp's supply."
+          ]
+        }
+      }
+    },
+    {
+      "id": "nodal-noninv",
+      "ideas": ["nodal", "difference", "noninverting"],
+      "title": "同相端有分压的同相放大器（结点电压法）",
+      "statement": "图示电路中 u_s = 3 V，R_1 = 10 kΩ，R_2 = 20 kΩ，R_g = 10 kΩ，R_f = 30 kΩ，运放为理想运放。用结点电压法求同相端电位 u_p、输出电压 u_o，以及 R_1、R_g、R_f 中的电流。",
+      "schematic": {
+        "elements": [
+          { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": 3, "label": "u_s" },
+          { "ref": "R1", "type": "R", "from": [1, 3], "to": [5, 3], "value": "10k" },
+          { "ref": "R2", "type": "R", "from": [6, 3], "to": [6, 10], "value": "20k" },
+          { "ref": "A", "type": "OPAMP", "at": [12, 4], "flip": true },
+          { "ref": "Rg", "type": "R", "from": [8, 5], "to": [8, 10], "value": "10k" },
+          { "ref": "Rf", "type": "R", "from": [10, 8], "to": [14, 8], "value": "30k" }
+        ],
+        "wires": [
+          [[0, 3], [1, 3]],
+          [[5, 3], [10, 3]],
+          [[10, 5], [8, 5]],
+          [[9, 5], [9, 8], [10, 8]],
+          [[14, 8], [16, 8], [16, 4]],
+          [[14, 4], [18, 4]],
+          [[0, 7], [0, 10], [18, 10]]
+        ],
+        "labels": [{ "at": [7, 3], "name": "p" }, { "at": [9, 6], "name": "n" }],
+        "terminals": [{ "at": [18, 4], "name": "o" }, { "at": [18, 10], "name": "o'" }],
+        "grounds": [[0, 10]],
+        "marks": [
+          { "kind": "i", "el": "R1", "name": "i1" },
+          { "kind": "i", "el": "Rg", "name": "i_g" },
+          { "kind": "i", "el": "Rf", "name": "i_f" }
+        ]
+      },
+      "analysis": { "type": "dc" },
+      "results": [
+        { "id": "up", "ask": "u_p", "find": { "kind": "v", "nodes": ["p"] }, "answer": 2, "unit": "V" },
+        { "id": "i1", "ask": "i_1", "find": { "kind": "i", "el": "R1" }, "answer": 0.0001, "unit": "mA" },
+        { "id": "ig", "ask": "i_g", "find": { "kind": "i", "el": "Rg" }, "answer": 0.0002, "unit": "mA" },
+        { "id": "if", "ask": "i_f", "find": { "kind": "i", "el": "Rf" }, "answer": -0.0002, "unit": "mA" },
+        { "id": "uo", "ask": "u_o", "find": { "kind": "v", "nodes": ["o"] }, "answer": 8, "unit": "V" }
+      ],
+      "steps": [
+        "以地为参考点，未知量 u_p、u_n、u_o。运放输出端电流未知，**只对 p、n 两个输入端结点列方程**。",
+        "1. **结点 p（虚断，同相端不取电流）：** (u_p − u_s)/R_1 + u_p/R_2 = 0 → (u_p − 3)/10 + u_p/20 = 0（单位 kΩ、mA）→ **u_p = 2 V**；R_1 中 i_1 = (3 − 2)/10k = **0.1 mA**。",
+        "2. **虚短：** u_n = u_p = 2 V，所以 i_g = u_n/R_g = **0.2 mA**。",
+        "3. **结点 n（虚断）：** u_n/R_g + (u_n − u_o)/R_f = 0 → 0.2 + (2 − u_o)/30 = 0 → **u_o = 8 V**。",
+        "4. R_f 中电流（参考方向从 n 到 o）：i_f = (2 − 8)/30k = **−0.2 mA**，与 i_g 大小相等——电流从输出端经 R_f、R_g 流到地。",
+        "**验算：** u_o = (1 + R_f/R_g)·u_p = 4 × 2 = 8 V ✓；u_o/u_s = 8/3 ≈ 2.67。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Non-inverting amplifier with a divider at its input (nodal analysis)",
+          "statement": "In the circuit u_s = 3 V, R_1 = 10 kΩ, R_2 = 20 kΩ, R_g = 10 kΩ, R_f = 30 kΩ, ideal op-amp. Use nodal analysis to find the non-inverting input potential u_p, the output voltage u_o and the currents in R_1, R_g and R_f.",
+          "results": [{ "ask": "u_p" }, { "ask": "i_1" }, { "ask": "i_g" }, { "ask": "i_f" }, { "ask": "u_o" }],
+          "steps": [
+            "Ground is the reference; the unknowns are u_p, u_n, u_o. The op-amp output current is unknown, so **write equations only at the input nodes p and n**.",
+            "1. **Node p (virtual open, no current into the input):** (u_p − u_s)/R_1 + u_p/R_2 = 0 → (u_p − 3)/10 + u_p/20 = 0 (kΩ, mA) → **u_p = 2 V**; the current in R_1 is i_1 = (3 − 2)/10k = **0.1 mA**.",
+            "2. **Virtual short:** u_n = u_p = 2 V, so i_g = u_n/R_g = **0.2 mA**.",
+            "3. **Node n (virtual open):** u_n/R_g + (u_n − u_o)/R_f = 0 → 0.2 + (2 − u_o)/30 = 0 → **u_o = 8 V**.",
+            "4. Current in R_f (reference from n to o): i_f = (2 − 8)/30k = **−0.2 mA**, the same size as i_g — the current flows from the output through R_f and R_g to ground.",
+            "**Check:** u_o = (1 + R_f/R_g)·u_p = 4 × 2 = 8 V ✓; u_o/u_s = 8/3 ≈ 2.67."
+          ]
+        }
+      }
+    }
+  ],
+  "mistakes": [
+    {
+      "id": "kcl-output",
+      "idea": "output",
+      "text": "对运放输出结点列 KCL 并把运放输出电流当成零。虚断只适用于两个输入端；输出端电流未知，要么不在那里列方程，要么最后用 KCL 求出它。",
+      "i18n": { "en": { "text": "Writing KCL at the op-amp output node with the op-amp output current taken as zero. The virtual open applies only to the inputs; the output current is unknown — either write no equation there, or find it last with KCL." } }
+    },
+    {
+      "id": "virtual-ground",
+      "idea": "ideal",
+      "text": "以为虚地真的接了地，让 R_1 的电流“流进地”。虚地只是电位为零；由虚断，流到反相端的电流必须全部流进反馈支路。",
+      "i18n": { "en": { "text": "Treating the virtual ground as a real ground, letting the current of R_1 “flow into ground”. Only its potential is zero; by the virtual open, all current reaching the inverting input must continue into the feedback branch." } }
+    },
+    {
+      "id": "noninv-gain",
+      "idea": "noninverting",
+      "text": "同相放大器写成 u_o = (R_f/R_1)u_s，漏掉了“1 +”。R_1、R_f 是对 u_o 的分压器：u_{−} = u_oR_1/(R_1 + R_f)。",
+      "i18n": { "en": { "text": "Writing u_o = (R_f/R_1)u_s for the non-inverting amplifier and dropping the “1 +”. R_1 and R_f divide u_o: u_{−} = u_oR_1/(R_1 + R_f)." } }
+    },
+    {
+      "id": "up-direct",
+      "idea": "difference",
+      "text": "减法器或同相加法器里把 u_2 直接当成同相端电位。同相端前面有电阻时，要先用分压或弥尔曼定理求 u_p。",
+      "i18n": { "en": { "text": "In a difference amplifier or non-inverting summer, taking u_2 itself as the non-inverting input potential. With resistors in front of that input, find u_p by voltage division or Millman's theorem first." } }
+    },
+    {
+      "id": "stage-loop",
+      "idea": "cascade",
+      "text": "有级间反馈（后级输出接回前级输入）时仍然逐级套公式。此时要把所有运放的约束和输入端结点方程联立求解。",
+      "i18n": { "en": { "text": "Applying the stage-by-stage formulas when a later output feeds back to an earlier input. Then all op-amp constraints and input-node equations must be solved together." } }
+    },
+    {
+      "id": "saturation",
+      "idea": "resistance",
+      "text": "忘了实际运放的输出电压有上限：算出的 u_o 超过电源电压时，运放已经饱和，虚短不再成立（例如浮地负载电流源的 R_L 不能任意大）。",
+      "i18n": { "en": { "text": "Forgetting that a real op-amp's output is limited: if the computed u_o exceeds the supply, the op-amp saturates and the virtual short no longer holds (e.g. R_L of a floating-load current source cannot be arbitrarily large)." } }
+    }
+  ]
+}
