@@ -1,0 +1,420 @@
+{
+  "$schema": "../schema/summary.schema.json",
+  "format": "chapter-summary/1",
+  "chapter": "theorems",
+  "intro": "电路定理都建立在**线性**之上：响应是激励的线性组合。叠加、齐性用来拆分激励；替代、戴维宁、诺顿用来把电路的一部分换成简单的等效；最大功率传输、互易、特勒根则是由此得到的结论。每个定理都有成立条件——用之前先检查。",
+  "i18n": {
+    "en": {
+      "intro": "The circuit theorems all rest on **linearity**: a response is a linear combination of the excitations. Superposition and homogeneity split up the excitations; substitution, Thévenin and Norton replace part of a circuit by a simple equivalent; maximum power transfer, reciprocity and Tellegen follow from them. Every theorem has conditions — check them before using it."
+    }
+  },
+  "ideas": [
+    {
+      "id": "superposition",
+      "title": "叠加定理",
+      "text": [
+        "**线性电路**中，任一支路的电压或电流等于各个**独立源**单独作用时在该支路产生的电压或电流的代数和。",
+        "一个独立源单独作用时，其余独立源**置零**：电压源短路，电流源开路。**受控源不能置零**，在每个分电路中都保留（它的控制量取该分电路中的值）。",
+        "各分量的参考方向与原电路一致时直接相加，相反时取负。**功率不能叠加**（功率是电流或电压的二次函数），要先叠加出总电流或总电压，再算功率。"
+      ],
+      "problems": ["theorems-01-superposition-basic", "theorems-03-superposition-power", "theorems-09-superposition-ccvs", "theorems-14-linear-blackbox", "theorems-16-combined-max-power"],
+      "i18n": {
+        "en": {
+          "title": "Superposition",
+          "text": [
+            "In a **linear circuit**, any branch voltage or current is the algebraic sum of the voltages or currents produced in that branch by each **independent source** acting alone.",
+            "With one independent source acting, **zero** the others: voltage sources become shorts, current sources opens. **Dependent sources are never zeroed**: they stay in every partial circuit (controlled by that circuit's own controlling quantity).",
+            "Add the components when their reference directions agree with the original, subtract when opposite. **Power does not superpose** (it is quadratic in current or voltage): superpose the total current or voltage first, then compute the power."
+          ]
+        }
+      }
+    },
+    {
+      "id": "homogeneity",
+      "title": "齐性定理与“倒推法”；线性响应的一般形式",
+      "text": [
+        "线性电路中，所有激励都乘以 K，所有响应也乘以 K。只有一个激励时，响应与激励成正比。",
+        "**倒推法**（梯形电路）：先假设最远端的电流为 1 A，用欧姆定律和 KCL、KVL 一路倒推出需要的电源电压，再按实际电源电压与它的比例放大所有量。",
+        "一般地，线性网络的任一响应可写成 y = k_1x_1 + k_2x_2 + … + y_0（x 为外加激励，y_0 为网络内部独立源单独作用的响应）。不知道网络内部参数时，用几组实验数据定出这些系数即可。"
+      ],
+      "problems": ["theorems-04-homogeneity-ladder", "theorems-14-linear-blackbox"],
+      "i18n": {
+        "en": {
+          "title": "Homogeneity, “working backwards”, and the general linear response",
+          "text": [
+            "In a linear circuit, multiplying all excitations by K multiplies all responses by K. With a single excitation, every response is proportional to it.",
+            "**Working backwards** (ladder circuits): assume 1 A in the farthest branch, work back with Ohm's law, KCL and KVL to the source voltage this requires, then scale every quantity by the ratio of the actual source voltage to that value.",
+            "In general any response of a linear network can be written y = k_1x_1 + k_2x_2 + … + y_0 (x the applied excitations, y_0 the response to the network's internal independent sources alone). Without knowing the network's internals, a few sets of measurements fix the coefficients."
+          ]
+        }
+      }
+    },
+    {
+      "id": "substitution",
+      "title": "替代定理",
+      "text": [
+        "已知某条支路的电压 u_k（或电流 i_k），可以用一个电压为 u_k 的电压源（或电流为 i_k 的电流源）替代这条支路，电路其余部分的电压、电流都不变——前提是替代前后电路都有唯一解。",
+        "替代定理对非线性电路也成立。它常用在“负载已经确定之后，再求电路其他部分的量”：把负载换成一个电源，电路往往更好算。"
+      ],
+      "problems": ["theorems-05-substitution", "theorems-16-combined-max-power"],
+      "i18n": {
+        "en": {
+          "title": "The substitution theorem",
+          "text": [
+            "If the voltage u_k (or current i_k) of a branch is known, the branch can be replaced by a voltage source u_k (or a current source i_k) and every other voltage and current stays the same — provided the circuit has a unique solution before and after.",
+            "Substitution holds for non-linear circuits too. A typical use: once the load is fixed, replace it by a source to compute the rest of the circuit more easily."
+          ]
+        }
+      }
+    },
+    {
+      "id": "thevenin",
+      "title": "戴维宁定理：u_oc 串 R_eq",
+      "text": [
+        "任一**线性含源单口网络**，对外可以等效为一个电压源 u_oc 串联电阻 R_eq：u_oc 是端口的**开路电压**，R_eq 是网络内全部独立源置零后从端口看进去的**等效电阻**。外电路可以是任意的（甚至非线性）。",
+        "步骤：① 断开负载（要求的那条支路），求开路电压 u_oc——可以用前面所有方法（分压、结点法、叠加……）；② 求 R_eq；③ 接回负载，i_L = u_oc/(R_eq + R_L)。",
+        "等效电压源的“+”端在开路电压的“+”端（u_oc = u_ab 时“+”接 a）。u_oc 为负说明实际极性相反。"
+      ],
+      "problems": ["theorems-02-thevenin-basic", "theorems-07-thevenin-bridge", "theorems-16-combined-max-power", "theorems-10-thevenin-ccvs-test-source", "theorems-11-thevenin-vccs-oc-sc", "theorems-12-max-power-vcvs", "theorems-13-negative-resistance"],
+      "i18n": {
+        "en": {
+          "title": "Thévenin's theorem: u_oc in series with R_eq",
+          "text": [
+            "Any **linear one-port containing sources** is equivalent, as seen from outside, to a voltage source u_oc in series with a resistance R_eq: u_oc is the **open-circuit voltage** of the port, R_eq the **equivalent resistance** seen from the port with every independent source inside zeroed. The external circuit may be anything (even non-linear).",
+            "Steps: ① remove the load (the branch you are asked about) and find the open-circuit voltage u_oc — any earlier method will do (dividers, nodal analysis, superposition…); ② find R_eq; ③ reconnect the load: i_L = u_oc/(R_eq + R_L).",
+            "The “+” of the equivalent source is at the “+” of the open-circuit voltage (for u_oc = u_ab, “+” at a). A negative u_oc means the actual polarity is reversed."
+          ]
+        }
+      }
+    },
+    {
+      "id": "req",
+      "title": "求等效电阻的三种方法",
+      "text": [
+        "① **串并联法**：网络内只有电阻和独立源时，独立源置零（电压源短路、电流源开路），直接串并联或 Y–Δ。",
+        "② **外加电源法**：独立源置零、**受控源保留**，在端口加电压 u 求电流 i（或加 i 求 u），R_eq = u/i。",
+        "③ **开路电压–短路电流法**：独立源保留，分别求 u_oc 和短路电流 i_sc，R_eq = u_oc/i_sc（i_sc 的方向从 a 经短路线流到 b，与 u_oc = u_ab 对应）。u_oc 与 i_sc 都为零时不能用。",
+        "含受控源时只能用 ② 或 ③，R_eq 可能为**负**，也可能为零（只有诺顿等效）或无穷大（只有戴维宁等效）。只含受控源、没有独立源的网络 u_oc = 0，等效为一个电阻。"
+      ],
+      "problems": ["theorems-10-thevenin-ccvs-test-source", "theorems-11-thevenin-vccs-oc-sc", "theorems-12-max-power-vcvs", "theorems-13-negative-resistance", "theorems-07-thevenin-bridge"],
+      "i18n": {
+        "en": {
+          "title": "Three ways to find the equivalent resistance",
+          "text": [
+            "① **Series–parallel**: with only resistors and independent sources inside, zero the independent sources (voltage sources shorted, current sources opened) and reduce by series/parallel or Y–Δ.",
+            "② **Test source**: zero the independent sources but **keep the dependent ones**, apply u at the port and find i (or apply i and find u); R_eq = u/i.",
+            "③ **Open-circuit voltage / short-circuit current**: keep the independent sources, find u_oc and the short-circuit current i_sc, R_eq = u_oc/i_sc (i_sc flows from a through the short to b, matching u_oc = u_ab). Not usable when both are zero.",
+            "With dependent sources only ② or ③ work; R_eq can be **negative**, zero (Norton form only) or infinite (Thévenin form only). A network with dependent sources but no independent source has u_oc = 0 and is equivalent to a single resistance."
+          ]
+        }
+      }
+    },
+    {
+      "id": "norton",
+      "title": "诺顿定理与戴维宁–诺顿互换",
+      "text": [
+        "线性含源单口网络也可以等效为一个电流源 i_sc 并联 R_eq：i_sc 是端口的**短路电流**。",
+        "两种等效电路就是上一章电源等效变换的两种模型：u_oc = R_eq·i_sc。诺顿电流源的箭头指向 a（短路电流从 a 经短路线流到 b）。",
+        "当有些量（例如短路电流）更好求时选诺顿形式；求出两个就可以得到第三个。"
+      ],
+      "problems": ["theorems-08-norton-interchange", "theorems-18-reciprocity-norton", "theorems-10-thevenin-ccvs-test-source"],
+      "i18n": {
+        "en": {
+          "title": "Norton's theorem and the Thévenin–Norton interchange",
+          "text": [
+            "A linear one-port with sources is also equivalent to a current source i_sc in parallel with R_eq, where i_sc is the **short-circuit current** of the port.",
+            "The two equivalents are the two source models of the previous chapter: u_oc = R_eq·i_sc. The Norton arrow points towards a (the short-circuit current flows from a through the short to b).",
+            "Choose the Norton form when its quantities (e.g. the short-circuit current) are easier to find; any two of u_oc, i_sc, R_eq give the third."
+          ]
+        }
+      }
+    },
+    {
+      "id": "max-power",
+      "title": "最大功率传输",
+      "text": [
+        "线性含源单口网络（R_eq > 0）向可调负载电阻 R_L 供电，当 **R_L = R_eq**（匹配）时负载获得最大功率 P_max = u_oc²/(4R_eq)。",
+        "做法：先求戴维宁等效，再套公式。图上画了负载时，求 u_oc、R_eq 要先把它拿掉。",
+        "匹配时戴维宁等效电路中的效率是 50%，但**原电路**中电源的效率不一定是 50%（往往低得多）——等效对内不成立。求原电路中电源、受控源的功率时，用替代定理把负载换成已知的电压源或电流源，回到原电路计算。"
+      ],
+      "problems": ["theorems-06-max-power-basic", "theorems-12-max-power-vcvs", "theorems-16-combined-max-power"],
+      "i18n": {
+        "en": {
+          "title": "Maximum power transfer",
+          "text": [
+            "A linear one-port with sources (R_eq > 0) feeding an adjustable load resistance R_L delivers the most power when **R_L = R_eq** (matched): P_max = u_oc²/(4R_eq).",
+            "Method: find the Thévenin equivalent, then apply the formula. If the load is drawn in, remove it before computing u_oc and R_eq.",
+            "When matched, the efficiency in the Thévenin equivalent is 50 %, but the source efficiency in the **original circuit** is not necessarily 50 % (often much lower) — the equivalence says nothing about the inside. For powers of sources and dependent sources in the original circuit, use substitution: replace the load by a known voltage or current source and compute in the original circuit."
+          ]
+        }
+      }
+    },
+    {
+      "id": "reciprocity",
+      "title": "互易定理",
+      "text": [
+        "只含线性电阻（**不含受控源、不含独立源**）的网络 N_R，把激励和响应的位置互换，激励与响应之比不变：",
+        "**形式一**：端口 1 加电压源 u_s，端口 2 的短路电流 i_2；换成端口 2 加 û_s，端口 1 的短路电流 î_{1}：\\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}}。**形式二**：端口 1 加电流源 i_s，端口 2 的开路电压 u_2；互换后：\\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}。（形式三：电流源激励、短路电流响应与电压源激励、开路电压响应互换时，比值相差一个负号。）",
+        "方向要“对应”：两次实验中电流都从标号端（1、2）流入网络、电压都以标号端为“+”。网络内部数值未知时，用一次实验求出转移电阻或转移电导，再用到另一次实验。"
+      ],
+      "problems": ["theorems-15-reciprocity", "theorems-18-reciprocity-norton"],
+      "i18n": {
+        "en": {
+          "title": "The reciprocity theorem",
+          "text": [
+            "For a network N_R of linear resistors only (**no dependent and no independent sources**), swapping the positions of excitation and response leaves their ratio unchanged:",
+            "**Form 1**: voltage source u_s at port 1, short-circuit current i_2 at port 2; swapped, û_s at port 2 and short-circuit current î_{1} at port 1: \\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}}. **Form 2**: current source i_s at port 1, open-circuit voltage u_2 at port 2; swapped: \\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}. (Form 3, swapping a current-source/short-circuit-current pair with a voltage-source/open-circuit-voltage pair, carries a minus sign.)",
+            "Directions must correspond: in both experiments currents enter the network at the numbered terminals (1, 2) and voltages are positive at them. With unknown internals, one experiment gives the transfer resistance or conductance, which is then used in the other."
+          ]
+        }
+      }
+    },
+    {
+      "id": "tellegen",
+      "title": "特勒根定理",
+      "text": [
+        "任何集总电路，只要各支路电压、电流取**关联参考方向**，就有 Σ u_k·i_k = 0（功率守恒的形式）。更进一步，两个**拓扑结构相同**的电路（元件可以完全不同），一个的支路电压与另一个的支路电流相乘也满足 Σ u_k·î_{k} = 0（“似功率守恒”）。",
+        "用于两次实验：同一个线性电阻网络 N_R 的两个端口，两次实验的端口量满足 u_1î_{1} + u_2î_{2} = û_{1}i_1 + û_{2}i_2（端口电流都以流入 N_R 为正）。把两次实验的已知量代进去，就能解出未知的端口量，不必知道网络内部。"
+      ],
+      "problems": ["theorems-17-tellegen"],
+      "i18n": {
+        "en": {
+          "title": "Tellegen's theorem",
+          "text": [
+            "In any lumped circuit, with every branch voltage and current **associated**, Σ u_k·i_k = 0 (a form of power conservation). Moreover, for two circuits with the **same topology** (elements may differ completely), the branch voltages of one times the branch currents of the other also give Σ u_k·î_{k} = 0 (“quasi-power” conservation).",
+            "For two experiments on the same linear resistive network N_R with two ports, the port quantities satisfy u_1î_{1} + u_2î_{2} = û_{1}i_1 + û_{2}i_2 (port currents positive into N_R). Substituting what is known from both experiments gives the unknown port quantity without knowing the inside."
+          ]
+        }
+      }
+    }
+  ],
+  "formulas": [
+    {
+      "id": "superposition",
+      "idea": "superposition",
+      "name": "叠加定理",
+      "expr": "y = y' + y'' + …",
+      "when": "线性电路；每个分电路只留一个独立源（其余：电压源短路、电流源开路），受控源保留；各分量与 y 同参考方向。只对电压、电流成立，功率不能叠加。",
+      "i18n": { "en": { "name": "Superposition", "expr": "y = y' + y'' + …", "when": "Linear circuit; each partial circuit keeps one independent source (others: voltage sources shorted, current sources opened), dependent sources kept; components with the same reference direction as y. Voltages and currents only — power does not superpose." } }
+    },
+    {
+      "id": "linear",
+      "idea": "homogeneity",
+      "name": "齐性与线性响应",
+      "expr": "y = k_1x_1 + k_2x_2 + … + y_0",
+      "when": "线性网络；x 为外加独立源，k 由网络决定，y_0 为内部独立源单独作用的响应（内部无源时为 0）。只有一个激励时 y ∝ x。",
+      "i18n": { "en": { "name": "Homogeneity and the linear response", "expr": "y = k_1x_1 + k_2x_2 + … + y_0", "when": "Linear network; x the applied independent sources, k fixed by the network, y_0 the response to the internal independent sources alone (0 if none). With one excitation y ∝ x." } }
+    },
+    {
+      "id": "substitution",
+      "idea": "substitution",
+      "name": "替代定理",
+      "expr": "支路 k ⇒ 电压源 u_k 或 电流源 i_k",
+      "when": "u_k、i_k 为该支路在原电路中的实际值（参考方向保持一致）；替代前后电路解唯一。线性、非线性电路都适用。",
+      "i18n": { "en": { "name": "Substitution", "expr": "branch k ⇒ voltage source u_k or current source i_k", "when": "u_k, i_k are the branch's actual values in the original circuit (same reference directions); the circuit must have a unique solution before and after. Linear or non-linear." } }
+    },
+    {
+      "id": "thevenin",
+      "idea": "thevenin",
+      "name": "戴维宁等效",
+      "expr": "u = u_oc − R_eq·i，　i_L = \\frac{u_oc}{R_eq + R_L}",
+      "when": "线性含源单口网络；u 为端口电压 u_ab，i 为从 a 端流出网络（流进外电路）的电流；u_oc = 开路时的 u_ab。",
+      "i18n": { "en": { "name": "Thévenin equivalent", "expr": "u = u_oc − R_eq·i,　i_L = \\frac{u_oc}{R_eq + R_L}", "when": "Linear one-port with sources; u is the port voltage u_ab, i the current leaving the network at a (into the external circuit); u_oc = u_ab with the port open." } }
+    },
+    {
+      "id": "norton",
+      "idea": "norton",
+      "name": "诺顿等效与互换",
+      "expr": "i = i_sc − \\frac{u}{R_eq}，　u_oc = R_eq·i_sc",
+      "when": "i_sc 为 a、b 短接时从 a 经短路线流到 b 的电流；u、i 的方向同戴维宁等效。R_eq = 0 时只有戴维宁形式，R_eq = ∞ 时只有诺顿形式。",
+      "i18n": { "en": { "name": "Norton equivalent and interchange", "expr": "i = i_sc − \\frac{u}{R_eq},　u_oc = R_eq·i_sc", "when": "i_sc = current from a through the short to b with a, b shorted; u, i as for Thévenin. R_eq = 0: Thévenin form only; R_eq = ∞: Norton form only." } }
+    },
+    {
+      "id": "req-test",
+      "idea": "req",
+      "name": "等效电阻",
+      "expr": "R_eq = \\frac{u}{i}（外加电源）= \\frac{u_oc}{i_sc}",
+      "when": "外加电源法：独立源置零、受控源保留，u、i 对网络为关联参考方向（i 从 a 流入网络）。开路–短路法：独立源保留，u_oc 与 i_sc 不能同时为零。",
+      "i18n": { "en": { "name": "Equivalent resistance", "expr": "R_eq = \\frac{u}{i} (test source) = \\frac{u_oc}{i_sc}", "when": "Test source: independent sources zeroed, dependent sources kept, u and i associated for the network (i into a). Open/short method: independent sources kept; u_oc and i_sc must not both be zero." } }
+    },
+    {
+      "id": "pmax",
+      "idea": "max-power",
+      "name": "最大功率传输",
+      "expr": "R_L = R_eq 时　P_max = \\frac{u_oc^{2}}{4R_eq}",
+      "when": "负载为可调电阻 R_L，网络线性且 R_eq > 0；R_eq 固定、R_L 可调（若 R_L 固定而 R_eq 可调，应使 R_eq 尽量小）。",
+      "i18n": { "en": { "name": "Maximum power transfer", "expr": "with R_L = R_eq:　P_max = \\frac{u_oc^{2}}{4R_eq}", "when": "Adjustable load resistance R_L, linear network with R_eq > 0; R_eq fixed, R_L varied (if R_L is fixed and R_eq adjustable, make R_eq as small as possible)." } }
+    },
+    {
+      "id": "reciprocity",
+      "idea": "reciprocity",
+      "name": "互易定理（形式一、二）",
+      "expr": "\\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}}，　\\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}",
+      "when": "只含线性电阻的网络（无受控源、无独立源）；激励电流从标号端流入网络，响应电压以标号端为“+”、短路电流从标号端流出网络经短路线。形式三（混合）比值差一个负号。",
+      "i18n": { "en": { "name": "Reciprocity (forms 1 and 2)", "expr": "\\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}},　\\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}", "when": "Network of linear resistors only (no dependent or independent sources); excitation currents enter at the numbered terminal, response voltages positive there, short-circuit currents leave the network there through the short. Form 3 (mixed) has a minus sign." } }
+    },
+    {
+      "id": "tellegen",
+      "idea": "tellegen",
+      "name": "特勒根定理",
+      "expr": "Σ u_k·i_k = 0，　Σ u_k·î_{k} = 0",
+      "when": "集总电路，所有支路 u、i 取关联参考方向；第二式要求两个电路拓扑相同。两端口形式：u_1î_{1} + u_2î_{2} = û_{1}i_1 + û_{2}i_2，N_R 为同一线性电阻网络，端口电流以流入 N_R 为正。",
+      "i18n": { "en": { "name": "Tellegen's theorem", "expr": "Σ u_k·i_k = 0,　Σ u_k·î_{k} = 0", "when": "Lumped circuits, every branch u, i associated; the second form needs two circuits with the same topology. Two-port form: u_1î_{1} + u_2î_{2} = û_{1}i_1 + û_{2}i_2 for the same linear resistive N_R, port currents positive into N_R." } }
+    }
+  ],
+  "examples": [
+    {
+      "id": "thevenin-maxpower",
+      "ideas": ["superposition", "thevenin", "max-power", "substitution"],
+      "title": "叠加求开路电压，再求最大功率",
+      "statement": "图示电路中 U_s = 24 V，I_s = 2 A（向上注入结点 a），R_1 = 6 Ω，R_2 = 3 Ω，R_3 = 2 Ω，负载 R_L 接在结点 c 与地之间。求从 R_L 两端看进去的戴维宁等效电路；R_L 为何值时获得最大功率，P_max = ?；图中 R_L 已调到该值，求此时 I_s 吸收的功率。",
+      "schematic": {
+        "elements": [
+          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 24 },
+          { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 6 },
+          { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 3 },
+          { "ref": "Is", "type": "I", "from": [11, 4], "to": [11, 0], "value": 2 },
+          { "ref": "R3", "type": "R", "from": [13, 0], "to": [17, 0], "value": 2 },
+          { "ref": "RL", "type": "R", "from": [19, 0], "to": [19, 4], "value": 4, "hideValue": true }
+        ],
+        "wires": [
+          [[0, 0], [2, 0]],
+          [[6, 0], [13, 0]],
+          [[17, 0], [19, 0]],
+          [[19, 4], [0, 4]]
+        ],
+        "labels": [
+          { "at": [8, 0], "name": "a" },
+          { "at": [19, 0], "name": "c" }
+        ],
+        "grounds": [[0, 4]]
+      },
+      "analysis": { "type": "dc" },
+      "results": [
+        { "id": "uoc", "ask": "u_oc", "find": { "kind": "vth", "port": ["c", "0"], "exclude": ["RL"] }, "answer": 12, "unit": "V" },
+        { "id": "req", "ask": "R_eq（= 使功率最大的 R_L）", "find": { "kind": "req", "port": ["c", "0"], "exclude": ["RL"] }, "answer": 4, "unit": "Ω" },
+        { "id": "pmax", "ask": "P_max", "find": { "kind": "pmax", "port": ["c", "0"], "exclude": ["RL"] }, "answer": 9, "unit": "W" },
+        { "id": "il", "ask": "匹配时 R_L 中的电流", "find": { "kind": "i", "el": "RL" }, "answer": 1.5, "unit": "A" },
+        { "id": "uc", "ask": "匹配时 u_c", "find": { "kind": "v", "nodes": ["c"] }, "answer": 6, "unit": "V" },
+        { "id": "ua", "ask": "匹配时 u_a", "find": { "kind": "v", "nodes": ["a"] }, "answer": 9, "unit": "V" },
+        { "id": "pis", "ask": "匹配时 P_Is（吸收）", "find": { "kind": "p", "el": "Is" }, "answer": -18, "unit": "W" }
+      ],
+      "steps": [
+        "1. **断开 R_L，用叠加求开路电压。** 开路时 R_3 中无电流，u_oc = u_a。U_s 单独作用（I_s 开路）：R_1、R_2 分压，u_oc' = 24 × 3/(6 + 3) = 8；I_s 单独作用（U_s 短路）：I_s 流过 R_1 ∥ R_2 = 2，u_oc'' = 2 × 2 = 4。叠加：**u_oc = 8 + 4 = 12 V**。",
+        "2. **等效电阻。** 两个独立源都置零（U_s 短路、I_s 开路），从 c 看进去：R_eq = R_3 + R_1 ∥ R_2 = 2 + 2 = **4 Ω**。",
+        "3. **最大功率。** R_L = R_eq = 4 Ω 时，P_max = 12²/(4 × 4) = **9 W**；此时 i_L = 12/(4 + 4) = **1.5 A**，u_c = **6 V**。",
+        "4. **回到原电路求 I_s 的功率（替代定理）。** 把 R_L 换成 1.5 A 的电流源，左边电路不变：u_a = u_c + R_3·i_L = 6 + 2 × 1.5 = **9 V**。I_s 的电流从“+”端（a）流出：P_Is = −9 × 2 = **−18 W**（发出 18 W）。",
+        "注意：匹配时戴维宁电路的效率是 50%，但原电路中两个电源共发出的功率远大于 2 × 9——功率不能用等效电路算内部。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Open-circuit voltage by superposition, then maximum power",
+          "statement": "In the circuit U_s = 24 V, I_s = 2 A (upwards, into node a), R_1 = 6 Ω, R_2 = 3 Ω, R_3 = 2 Ω, and the load R_L is between node c and ground. Find the Thévenin equivalent seen by R_L, the value of R_L for maximum power and P_max; with R_L set to that value (as drawn), find the power absorbed by I_s.",
+          "results": [{ "ask": "u_oc" }, { "ask": "R_eq (= R_L for maximum power)" }, { "ask": "P_max" }, { "ask": "current in R_L when matched" }, { "ask": "u_c when matched" }, { "ask": "u_a when matched" }, { "ask": "P_Is (absorbed) when matched" }],
+          "steps": [
+            "1. **Remove R_L; open-circuit voltage by superposition.** With the port open R_3 carries no current, so u_oc = u_a. U_s alone (I_s opened): R_1, R_2 divide, u_oc' = 24 × 3/(6 + 3) = 8; I_s alone (U_s shorted): I_s flows into R_1 ∥ R_2 = 2, u_oc'' = 2 × 2 = 4. Sum: **u_oc = 8 + 4 = 12 V**.",
+            "2. **Equivalent resistance.** Zero both independent sources (U_s shorted, I_s opened) and look in from c: R_eq = R_3 + R_1 ∥ R_2 = 2 + 2 = **4 Ω**.",
+            "3. **Maximum power.** With R_L = R_eq = 4 Ω, P_max = 12²/(4 × 4) = **9 W**; then i_L = 12/(4 + 4) = **1.5 A** and u_c = **6 V**.",
+            "4. **Back to the original circuit for I_s (substitution).** Replace R_L by a 1.5 A current source; the rest is unchanged: u_a = u_c + R_3·i_L = 6 + 2 × 1.5 = **9 V**. The current of I_s leaves at its “+” (a): P_Is = −9 × 2 = **−18 W** (delivers 18 W).",
+            "Note: the Thévenin equivalent is 50 % efficient when matched, but the two real sources deliver far more than 2 × 9 — internal powers cannot be taken from the equivalent."
+          ]
+        }
+      }
+    },
+    {
+      "id": "thevenin-dependent",
+      "ideas": ["req", "thevenin", "norton"],
+      "title": "含受控源的戴维宁等效：开路电压–短路电流法",
+      "statement": "图示电路中 U_s = 10 V，R_1 = 2 Ω，R_2 = 4 Ω；电流控制电流源 F 向上注入结点 a 的电流为 i_1（即 β = 1），i_1 为 R_1 中向右的电流；负载 R_L = 1.2 Ω。断开 R_L，求 a 端对地的开路电压 u_oc、短路电流 i_sc 和等效电阻 R_eq，再求负载电流 i_L。",
+      "schematic": {
+        "elements": [
+          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
+          { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+          { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 4 },
+          { "ref": "F", "type": "CCCS", "from": [11, 4], "to": [11, 0], "value": 1, "ctrl": { "i": "R1" }, "label": "i_1" },
+          { "ref": "RL", "type": "R", "from": [14, 0], "to": [14, 4], "value": 1.2 }
+        ],
+        "wires": [
+          [[0, 0], [2, 0]],
+          [[6, 0], [14, 0]],
+          [[14, 4], [0, 4]]
+        ],
+        "labels": [{ "at": [14, 0], "name": "a" }],
+        "grounds": [[0, 4]],
+        "marks": [{ "kind": "i", "el": "R1", "name": "i1" }]
+      },
+      "analysis": { "type": "dc" },
+      "results": [
+        { "id": "uoc", "ask": "u_oc", "find": { "kind": "vth", "port": ["a", "0"], "exclude": ["RL"] }, "answer": 8, "unit": "V" },
+        { "id": "isc", "ask": "i_sc", "find": { "kind": "isc", "port": ["a", "0"], "exclude": ["RL"] }, "answer": 10, "unit": "A" },
+        { "id": "req", "ask": "R_eq", "find": { "kind": "req", "port": ["a", "0"], "exclude": ["RL"] }, "answer": 0.8, "unit": "Ω" },
+        { "id": "il", "ask": "i_L", "find": { "kind": "i", "el": "RL" }, "answer": 4, "unit": "A" }
+      ],
+      "steps": [
+        "1. **开路电压。** 断开 R_L，设 u_a = u_oc，则 i_1 = (10 − u_oc)/2。结点 a 的 KCL：流入 i_1 + i_1 = 流出 u_oc/4 → (10 − u_oc) = u_oc/4 → **u_oc = 8 V**。",
+        "2. **短路电流。** 把 a 与地短接：u_a = 0，R_2 中无电流，i_1 = 10/2 = 5，受控源也注入 5，二者都流进短路线：**i_sc = 10 A**。",
+        "3. **等效电阻。** R_eq = u_oc/i_sc = 8/10 = **0.8 Ω**。用外加电源法验算：U_s 短路，在 a 加 u，i_1 = −u/2，端口流入电流 i = u/4 − 2i_1 = u/4 + u = 1.25u，R_eq = u/i = 0.8 ✓。",
+        "4. **负载电流。** i_L = u_oc/(R_eq + R_L) = 8/(0.8 + 1.2) = **4 A**。诺顿形式：10 A 并 0.8 Ω，同样得到 i_L。",
+        "若错误地把受控源置零再串并联，会得到 R_1 ∥ R_2 = 4/3，与正确结果不同。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Thévenin equivalent with a dependent source: open-circuit voltage / short-circuit current",
+          "statement": "In the circuit U_s = 10 V, R_1 = 2 Ω, R_2 = 4 Ω; the current-controlled current source F injects i_1 upwards into node a (β = 1), where i_1 is the rightward current in R_1; the load is R_L = 1.2 Ω. Remove R_L and find the open-circuit voltage u_oc of a to ground, the short-circuit current i_sc and R_eq, then the load current i_L.",
+          "results": [{ "ask": "u_oc" }, { "ask": "i_sc" }, { "ask": "R_eq" }, { "ask": "i_L" }],
+          "steps": [
+            "1. **Open-circuit voltage.** Remove R_L and let u_a = u_oc, so i_1 = (10 − u_oc)/2. KCL at a: in i_1 + i_1 = out u_oc/4 → (10 − u_oc) = u_oc/4 → **u_oc = 8 V**.",
+            "2. **Short-circuit current.** Short a to ground: u_a = 0, R_2 carries nothing, i_1 = 10/2 = 5, the dependent source injects another 5, and both flow into the short: **i_sc = 10 A**.",
+            "3. **Equivalent resistance.** R_eq = u_oc/i_sc = 8/10 = **0.8 Ω**. Test-source check: short U_s, apply u at a; i_1 = −u/2 and the current into the port is i = u/4 − 2i_1 = u/4 + u = 1.25u, so R_eq = u/i = 0.8 ✓.",
+            "4. **Load current.** i_L = u_oc/(R_eq + R_L) = 8/(0.8 + 1.2) = **4 A**. The Norton form, 10 A in parallel with 0.8 Ω, gives the same i_L.",
+            "Wrongly zeroing the dependent source and reducing in series/parallel would give R_1 ∥ R_2 = 4/3 — a different answer."
+          ]
+        }
+      }
+    }
+  ],
+  "mistakes": [
+    {
+      "id": "zero-dependent",
+      "idea": "superposition",
+      "text": "用叠加定理或求 R_eq 时把受控源也置零。受控源不是激励，在每个分电路、在外加电源法里都要保留。",
+      "i18n": { "en": { "text": "Zeroing dependent sources in superposition or when finding R_eq. A dependent source is not an excitation; keep it in every partial circuit and in the test-source method." } }
+    },
+    {
+      "id": "power-superpose",
+      "idea": "superposition",
+      "text": "把各电源单独作用时的功率相加。功率是二次量，要先叠加电流或电压，再算功率。",
+      "i18n": { "en": { "text": "Adding the powers from each source acting alone. Power is quadratic: superpose the current or voltage first, then compute the power." } }
+    },
+    {
+      "id": "zero-wrong",
+      "idea": "superposition",
+      "text": "置零时把电压源开路、电流源短路（弄反了）。电压源置零 = 电压为零 = 短路；电流源置零 = 电流为零 = 开路。",
+      "i18n": { "en": { "text": "Zeroing a voltage source as an open and a current source as a short (the wrong way round). A zero voltage source is a short; a zero current source is an open." } }
+    },
+    {
+      "id": "load-left-in",
+      "idea": "thevenin",
+      "text": "求 u_oc、R_eq 时忘了先断开负载（或要求的那条支路）；或者 u_oc 的极性与等效电压源的“+”端对不上。",
+      "i18n": { "en": { "text": "Leaving the load (or the branch asked about) connected while finding u_oc and R_eq, or mismatching the polarity of u_oc with the “+” of the equivalent source." } }
+    },
+    {
+      "id": "isc-direction",
+      "idea": "req",
+      "text": "用 R_eq = u_oc/i_sc 时 i_sc 方向取反，得到负的（或错误的）R_eq。u_oc = u_ab 对应的 i_sc 是从 a 经短路线流向 b 的电流。",
+      "i18n": { "en": { "text": "Taking i_sc the wrong way in R_eq = u_oc/i_sc, giving a negative (or wrong) R_eq. For u_oc = u_ab, i_sc is the current from a through the short to b." } }
+    },
+    {
+      "id": "efficiency",
+      "idea": "max-power",
+      "text": "以为获得最大功率时电源效率是 50%，或用戴维宁等效电路求原电路中电源、内部电阻的功率。等效对内不成立，要回到原电路（可用替代定理）。",
+      "i18n": { "en": { "text": "Believing the source efficiency is 50 % at maximum power, or computing powers of the original sources and internal resistors from the Thévenin equivalent. The equivalence does not hold inside; go back to the original circuit (substitution helps)." } }
+    },
+    {
+      "id": "reciprocity-dep",
+      "idea": "reciprocity",
+      "text": "对含受控源的网络使用互易定理，或两次实验的方向不对应。互易定理只适用于线性电阻网络，激励、响应的方向要按标号端一一对应。",
+      "i18n": { "en": { "text": "Applying reciprocity to a network with dependent sources, or with non-corresponding directions in the two experiments. It holds only for linear resistive networks, with excitation and response directions matched terminal by terminal." } }
+    }
+  ]
+}
