@@ -230,10 +230,10 @@ export function SummaryBody({ s, target, problems }: { s: ChapterSummary; target
                   <MathText text={f.expr} />
                 </div>
                 <div className="sum-f-when">
-                  <Sym text={f.when} />
+                  <PrMd text={f.when} />
                   {f.note && (
                     <div className="sum-f-note">
-                      <Sym text={f.note} />
+                      <PrMd text={f.note} />
                     </div>
                   )}
                 </div>

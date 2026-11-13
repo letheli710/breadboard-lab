@@ -70,3 +70,15 @@ describe('richRuns: subscripts on dotted phasor letters', () => {
     ]);
   });
 });
+
+describe('richRuns: juxtaposed products without braces', () => {
+  const flat = (s: string) => richRuns(s).map((r) => (r.sub ? `_{${r.t}}` : r.t)).join('');
+  it('gives the last letter of a run back to the next symbol', () => {
+    expect(flat('√3U_lI_l cos φ')).toBe('√3U_{l}I_{l} cos φ');
+    expect(flat('z_12z_21')).toBe('z_{12}z_{21}');
+    expect(flat('U̇_AY_A + R_ini_1 + Z_1U̇_2')).toBe('U̇_{A}Y_{A} + R_{in}i_{1} + Z_{1}U̇_{2}');
+  });
+  it('leaves ordinary runs alone', () => {
+    expect(flat('U_s1 = 10 V, u_oc, R_eq, R_{1}R_{4}')).toBe('U_{s1} = 10 V, u_{oc}, R_{eq}, R_{1}R_{4}');
+  });
+});

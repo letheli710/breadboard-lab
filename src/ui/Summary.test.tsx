@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterAll, describe, expect, it } from 'vitest';
 import { setLang } from '../core/i18n';
@@ -54,4 +54,17 @@ describe('summary page', () => {
       expect(text).not.toMatch(/\*\*|\\frac|\\sqrt|\^\{|[A-Za-z]_[A-Za-z0-9{]/);
       expect(html).toContain(lang === 'zh' ? '公式表' : 'Formula sheet');
     });
+});
+
+describe('every summary renders without raw markup', () => {
+  afterAll(() => setLang('zh'));
+  const dir = new URL('../../summaries/', import.meta.url);
+  for (const f of readdirSync(dir).filter((x) => x.endsWith('.json')))
+    for (const lang of ['zh', 'en'] as const)
+      it(`${f} (${lang})`, () => {
+        setLang(lang);
+        const s = parseSummary(JSON.parse(readFileSync(new URL(f, dir), 'utf8')), undefined, { verify: false }).summary!;
+        const text = renderToStaticMarkup(<SummaryBody s={s} target={{ chapter: s.chapter }} problems={[]} />).replace(/<[^>]+>/g, '');
+        expect(text.match(/\*\*|\\[a-z]+\{|\^\{|.{0,8}_.{0,8}/g) ?? []).toEqual([]);
+      });
 });

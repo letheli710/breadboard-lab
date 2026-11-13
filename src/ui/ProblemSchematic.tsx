@@ -40,8 +40,17 @@ export function richRuns(s: string): Run[] {
   let m: RegExpExecArray | null;
   while ((m = re.exec(s))) {
     if (m.index > last) out.push({ t: s.slice(last, m.index) });
-    out.push({ t: m[1], it: true }, { t: m[3] ?? m[4], sub: true });
-    last = m.index + m[0].length;
+    let sub = m[3] ?? m[4];
+    // juxtaposed products without braces ("U_lI_l", "z_12z_21", "U̇_AY_A"): a run that runs into the
+    // next symbol's "_" gives its last letter back as that symbol
+    let end = re.lastIndex;
+    if (m[4] && sub.length > 1 && /[A-Za-zα-ωΑ-Ω]$/.test(sub) && (s[end] === '_' || (s[end] === '\u0307' && s[end + 1] === '_'))) {
+      sub = sub.slice(0, -1);
+      end -= 1;
+      re.lastIndex = end;
+    }
+    out.push({ t: m[1], it: true }, { t: sub, sub: true });
+    last = end;
   }
   if (last < s.length) out.push({ t: s.slice(last) });
   if (out.length === 1 && /^(?:[A-Za-zα-ω]\u0307?|\u0130)$/.test(out[0].t)) out[0].it = true;
