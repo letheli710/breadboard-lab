@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setLang } from '../i18n';
 import { evalExpr } from './expr';
+import { unitOf } from './answer';
 import { answerTolerance, checkAnswer, formatAnswer, parseProblem, readAnswer } from './parse';
 import type { Question } from './types';
 
@@ -278,7 +279,7 @@ describe('built-in reference answers are accepted', () => {
         const shown = formatAnswer(qq);
         for (const input of [shown, shown.replace(/\s+\S+$/, ''), String(qq.answer)]) {
           // String(answer) is in SI base units: only valid without a prefixed box unit
-          if (input === String(qq.answer) && /^[pnuµμmkKMG]./.test(qq.unit ?? '')) continue;
+          if (input === String(qq.answer) && (unitOf(qq.unit ?? '')?.scale ?? 1) !== 1) continue;
           const c = checkAnswer(qq, input);
           if (!c.ok) bad.push(`${f.slice(DIR.length)} ${qq.id}: "${input}" → ${c.reason ?? 'wrong'}`);
         }
@@ -347,5 +348,36 @@ describe('readAnswer: temperature', () => {
   it('grades a kelvin answer to a °C question on the °C value', () => {
     expect(checkAnswer({ ...q(80, '°C') }, '353 K').ok).toBe(true);
     expect(checkAnswer({ ...q(80, '°C') }, '80 K').ok).toBe(false);
+  });
+});
+
+describe('readAnswer: lengths and line constants (transmission lines)', () => {
+  const val = (unit: string, input: string) => {
+    const r = readAnswer({ unit }, input);
+    return 'value' in r ? r.value : NaN;
+  };
+  it('a question in metres reads a trailing "m" as metres, not milli', () => {
+    expect(val('m', '200')).toBe(200);
+    expect(val('m', '200 m')).toBe(200);
+    expect(val('m', '200m')).toBe(200);
+    expect(val('m', '0.2 km')).toBeCloseTo(200);
+    expect(val('m', '500 mm')).toBeCloseTo(0.5);
+    expect(val('m', '(1/4)m')).toBeCloseTo(0.25);
+  });
+  it('km boxes, per-km constants and speeds', () => {
+    expect(val('km', '6000')).toBe(6e6);
+    expect(val('km', '6000 km')).toBe(6e6);
+    expect(val('Np/km', '0.1')).toBeCloseTo(1e-4);
+    expect(val('rad/km', '1.07')).toBeCloseTo(1.07e-3);
+    expect(val('m/s', '3e8')).toBe(3e8);
+    expect(val('km/s', '3e5')).toBeCloseTo(3e8);
+  });
+  it('elsewhere a bare m is still milli', () => {
+    expect(val('A', '3m')).toBeCloseTo(3e-3);
+    expect(val('V', '2 mV')).toBeCloseTo(2e-3);
+  });
+  it('shows the answer in the question unit', () => {
+    expect(formatAnswer({ answer: 6e6, unit: 'km' })).toBe('6000 km');
+    expect(formatAnswer({ answer: 0.25, unit: 'm' })).toBe('0.25 m');
   });
 });

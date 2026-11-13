@@ -8,6 +8,7 @@ import { Circuit, type CEl, isTwoTerminal } from './circuit';
 import { ONE, ZERO, cx, neg, scale, sub } from './complex';
 import { AnalysisError } from './errors';
 import { type ComplexLU, SingularMatrixError, luFactor } from './linalg';
+import { chain, lineAt } from './tline';
 
 export type ModeKind = 'dc' | 'ac' | 'res';
 
@@ -92,7 +93,7 @@ export class MnaSystem {
       } else if (el.type === 'OPAMP') this.varOf.set(el.ref, idx++);
     }
     for (const el of this.all)
-      if (el.type === 'XFMR') {
+      if (el.type === 'XFMR' || el.type === 'TL') {
         this.varOf.set(el.ref + '#1', idx++);
         this.varOf.set(el.ref + '#2', idx++);
       }
@@ -164,7 +165,7 @@ export class MnaSystem {
         put(c2, c2, ONE);
         unite(p1, n1);
         unite(p2, n2);
-      }
+      } else if (el.type === 'TL') this.stampLine(el, put, putV, kcl, unite);
     }
     // tie each isolated sub-circuit to ground at one node (carries no current by KCL)
     this.island = new Int32Array(N);
@@ -185,6 +186,44 @@ export class MnaSystem {
       if (!(e instanceof SingularMatrixError)) throw e;
       this.error = new AnalysisError(this.diagnose(e.column));
     }
+  }
+
+  /** Transmission line (two-port, chain parameters at this frequency; see tline.ts):
+   *  v1 − A·v2 + B·i2 = 0 and i1 − C·v2 + D·i2 = 0, where i1 flows into p1 and i2 into p2
+   *  (so the current leaving the end into the load is −i2). */
+  private stampLine(
+    el: CEl,
+    put: (r: number, c: number, v: Complex) => void,
+    putV: (r: number, p: number, q: number, c: Complex) => void,
+    kcl: (node: number, col: number, sign: number) => void,
+    unite: (a: number, b: number) => void,
+  ): void {
+    const m = this.mode;
+    const c1 = this.varOf.get(el.ref + '#1')!;
+    const c2 = this.varOf.get(el.ref + '#2')!;
+    if (m.removed?.has(el.ref)) {
+      put(c1, c1, ONE);
+      put(c2, c2, ONE);
+      return;
+    }
+    if (m.kind === 'res' || m.s)
+      throw new AnalysisError(`${el.ref}: a transmission line (TL) can only be used in sinusoidal steady-state (AC), DC and lossless-line transient analysis`);
+    const [p1, n1, p2, n2] = el.pins;
+    const [A, B, C, D] = chain(lineAt(el.line!, m.kind === 'dc' ? 0 : (m.omega ?? 0)), el.line!.length);
+    kcl(p1, c1, 1);
+    kcl(n1, c1, -1);
+    kcl(p2, c2, 1);
+    kcl(n2, c2, -1);
+    putV(c1, p1, n1, ONE);
+    putV(c1, p2, n2, neg(A));
+    put(c1, c2, B);
+    put(c2, c1, ONE);
+    putV(c2, p2, n2, neg(C));
+    put(c2, c2, D);
+    // like a transformer, the line relates the two port voltages only (a balanced two-conductor
+    // line has no defined common-mode voltage between its ends)
+    unite(p1, n1);
+    unite(p2, n2);
   }
 
   /** Replace redundant rows so that DC-floating capacitor islands carry zero net charge and
@@ -210,6 +249,9 @@ export class MnaSystem {
         join(el.pins[2], 0);
         join(el.pins[0], el.pins[1]);
       } else if (el.type === 'XFMR') {
+        join(el.pins[0], el.pins[1]);
+        join(el.pins[2], el.pins[3]);
+      } else if (el.type === 'TL') {
         join(el.pins[0], el.pins[1]);
         join(el.pins[2], el.pins[3]);
       }
@@ -379,7 +421,7 @@ export class MnaSystem {
     if (i < this.nv) return `the voltage of node "${this.ckt.nodeNames[i + 1]}"`;
     for (const [k, v] of this.varOf)
       if (v === i) {
-        if (k.includes('#')) return `the winding currents of ${k.split('#')[0]}`;
+        if (k.includes('#')) return `the ${this.byRef.get(k.split('#')[0])?.type === 'TL' ? 'port' : 'winding'} currents of ${k.split('#')[0]}`;
         const el = this.byRef.get(k);
         return el?.type === 'OPAMP' ? `the output current of ${k}` : `the current of ${k}`;
       }
@@ -508,6 +550,7 @@ export class Solution {
     const el = this.sys.byRef.get(ref);
     if (!el) throw new AnalysisError(`Unknown element "${ref}"`);
     if (el.type === 'XFMR') throw new AnalysisError(`${ref} is a transformer; ask for the current of an element in series with a winding`);
+    if (el.type === 'TL') throw new AnalysisError(`${ref} is a transmission line; ask {"kind": "tl", "el": "${ref}", "what": "i", "x": …} for its current`);
     return this.x[this.sys.varOf.get(ref)!];
   }
 }

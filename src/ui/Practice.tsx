@@ -3,6 +3,7 @@
 // schematic, questions with answer checking, progressive hints and the worked solution.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { formatSI } from '../core/format';
 import { tr } from '../core/i18n';
 import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
 import { answerTolerance, checkAnswer, formatAnswer, isPhaseQuestion, type AnswerCheck, type Problem } from '../core/problem/parse';
@@ -51,7 +52,7 @@ function analysisLabel(a: Analysis): string {
     return `${tr('非正弦周期稳态 · 逐次谐波叠加', 'Non-sinusoidal periodic · harmonics superposed')} · ${f1} · ${a.phasor === 'peak' ? tr('谐波相量取幅值', 'peak phasors') : tr('谐波相量取有效值', 'rms phasors')}`;
   }
   const f = a.freq ?? (a.omega ? a.omega / (2 * Math.PI) : 0);
-  const fx = a.omega && !a.freq ? `ω = ${a.omega} rad/s` : `f = ${parseFloat(f.toPrecision(6))} Hz`;
+  const fx = a.omega && !a.freq ? `ω = ${a.omega} rad/s` : `f = ${f >= 1e4 ? formatSI(f, 'Hz', 6) : `${parseFloat(f.toPrecision(6))} Hz`}`;
   return `${tr('正弦稳态 AC', 'AC steady state')} · ${fx} · ${a.phasor === 'peak' ? tr('相量取幅值', 'peak phasors') : tr('相量取有效值', 'rms phasors')}`;
 }
 

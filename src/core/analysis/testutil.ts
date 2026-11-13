@@ -9,7 +9,7 @@ export interface Spec {
   [k: string]: unknown;
 }
 
-const PINS: Record<string, string[]> = { OPAMP: ['minus', 'plus', 'out'], XFMR: ['p1', 'n1', 'p2', 'n2'], K: [] };
+const PINS: Record<string, string[]> = { OPAMP: ['minus', 'plus', 'out'], XFMR: ['p1', 'n1', 'p2', 'n2'], TL: ['p1', 'n1', 'p2', 'n2'], K: [] };
 
 export function net(specs: Spec[], aliases?: Record<string, string>): Netlist {
   const nodeOf = new Map<string, string>();

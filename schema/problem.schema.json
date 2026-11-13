@@ -11,7 +11,7 @@
     "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$", "description": "Unique id: letters, digits, - and _." },
     "lang": { "enum": ["zh", "en"], "default": "zh", "description": "Language of the top-level text. Default \"zh\"." },
     "chapter": {
-      "enum": ["basics", "equivalence", "methods", "theorems", "opamp", "storage", "first-order", "second-order", "phasors", "ac-analysis", "ac-power", "coupled", "frequency", "three-phase", "non-sinusoidal", "s-domain", "two-port", "nonlinear"],
+      "enum": ["basics", "equivalence", "methods", "theorems", "opamp", "storage", "first-order", "second-order", "phasors", "ac-analysis", "ac-power", "coupled", "frequency", "three-phase", "non-sinusoidal", "s-domain", "two-port", "nonlinear", "transmission-line"],
       "description": "Chapter id (src/core/problem/chapters.ts). Put the file in problems/<chapter>/."
     },
     "title": { "type": "string", "minLength": 1 },
@@ -221,6 +221,35 @@
       "properties": { "ref": { "type": "string" }, "type": { "const": "XFMR" }, "at": { "$ref": "#/definitions/pt" }, "n": { "type": "number" } },
       "additionalProperties": false
     },
+    "tline": {
+      "type": "object",
+      "required": ["ref", "type", "at", "line"],
+      "description": "Uniform transmission line (two-port). Terminals: p1 = at (start, x = 0), n1 = at + (0, 2), p2 = at + (w, 0) (end, x = l), n2 = at + (w, 2).",
+      "properties": {
+        "ref": { "type": "string" },
+        "type": { "const": "TL" },
+        "at": { "$ref": "#/definitions/pt" },
+        "w": { "type": "integer", "minimum": 4, "description": "drawn width in grid units (default 8)" },
+        "line": {
+          "type": "object",
+          "required": ["length"],
+          "description": "Primary parameters per metre {R0, L0, G0, C0, length} (Ω/m, H/m, S/m, F/m, m), or a lossless line {zc, vp, length} (Ω, m/s, m)",
+          "properties": {
+            "R0": { "$ref": "#/definitions/num" },
+            "L0": { "$ref": "#/definitions/num" },
+            "G0": { "$ref": "#/definitions/num" },
+            "C0": { "$ref": "#/definitions/num" },
+            "zc": { "$ref": "#/definitions/num" },
+            "vp": { "$ref": "#/definitions/num" },
+            "length": { "$ref": "#/definitions/num" }
+          },
+          "additionalProperties": false
+        },
+        "label": { "type": "string", "description": "text drawn under the line instead of the automatic one" },
+        "hideValue": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
     "coupling": {
       "type": "object",
       "required": ["ref", "type", "l1", "l2"],
@@ -249,7 +278,11 @@
               "else": {
                 "if": { "properties": { "type": { "const": "K" } } },
                 "then": { "$ref": "#/definitions/coupling" },
-                "else": { "$ref": "#/definitions/twoTerminal" }
+                "else": {
+                  "if": { "properties": { "type": { "const": "TL" } } },
+                  "then": { "$ref": "#/definitions/tline" },
+                  "else": { "$ref": "#/definitions/twoTerminal" }
+                }
               }
             }
           }
@@ -407,11 +440,15 @@
       "type": "object",
       "required": ["kind"],
       "properties": {
-        "kind": { "enum": ["v", "i", "p", "q", "s", "pf", "req", "vth", "isc", "pmax", "tau", "meter", "gain", "f0", "twoport", "w", "val", "wattmeter", "root", "alpha", "omega_d", "omega0", "fc", "bw", "Q", "rs", "rd", "nop", "H", "pole", "zero", "hcoef", "residue", "mat", "gcount", "state"], "description": "rs / rd: static / dynamic resistance of a nonlinear resistor at the operating point; nop: number of operating points; mat / gcount / state: matrix-form chapter (schematic.graph / schematic.state)" },
+        "kind": { "enum": ["v", "i", "p", "q", "s", "pf", "req", "vth", "isc", "pmax", "tau", "meter", "gain", "f0", "twoport", "w", "val", "wattmeter", "root", "alpha", "omega_d", "omega0", "fc", "bw", "Q", "rs", "rd", "nop", "H", "pole", "zero", "hcoef", "residue", "mat", "gcount", "state", "tl"], "description": "rs / rd: static / dynamic resistance of a nonlinear resistor at the operating point; nop: number of operating points; mat / gcount / state: matrix-form chapter (schematic.graph / schematic.state); tl: a transmission-line quantity (what, x, from)" },
         "mat": { "enum": ["A", "Bf", "Qf", "Yb", "Zb", "Us", "Is", "Yn", "Jn", "Zl", "El", "Yt", "Jt", "Un", "Il", "Ut", "Ub", "Ib"], "description": "mat: which matrix / vector of the graph; state: \"A\" or \"B\" of ẋ = Ax + Bu" },
         "row": { "type": "integer", "minimum": 1, "description": "mat / state: row (1-based)" },
         "col": { "type": "integer", "minimum": 1, "description": "mat / state: column (1-based); omit for vectors" },
         "count": { "enum": ["nodes", "branches", "tree", "links"], "description": "gcount: number of graph nodes / branches / tree branches / links" },
+
+        "what": { "enum": ["zc", "gamma", "alpha", "beta", "lambda", "vp", "length", "wavelengths", "delay", "u", "i", "uinc", "uref", "z", "refl", "reflSource", "vswr", "p", "eta", "umax", "umin", "imax", "imin", "xmax", "xmin"], "description": "tl: which line quantity (docs/PROBLEM_FORMAT.md §6.1.9)" },
+        "x": { "type": "number", "minimum": 0, "description": "tl: position in metres, measured from the start of the line (or from the end with \"from\": \"end\")" },
+        "from": { "enum": ["start", "end"], "description": "tl: x is measured from the start (default) or from the end of the line" },
         "el": { "type": "string" },
         "nodes": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 2 },
         "port": { "$ref": "#/definitions/nodePair" },

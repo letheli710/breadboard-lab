@@ -10,6 +10,7 @@ import { isSdomainKind, sdomainQuantity } from './sdomain';
 import { isMatrixKind, matrixQuantity } from './matrixform';
 import { Transient } from './transient';
 import { computePeriodic } from './periodic';
+import { type LineSpec, type TlFind, bounceAt, bounceOf, tOf, tlAc, tlTran } from './tline';
 
 export type Phase = 'before' | 'after';
 
@@ -628,6 +629,7 @@ export function computeComplex(netlist: Netlist, analysis: Analysis, find: Find)
   if (isSdomainKind(find.kind)) return sdomainQuantity(netlist, analysis.type, find as unknown as Record<string, unknown>);
   // matrix-form chapter (graph matrices, matrix equations, state equations)
   if (isMatrixKind(find.kind)) return matrixQuantity(netlist, analysis, find as unknown as Record<string, unknown>);
+  if (find.kind === 'tl' || (analysis.type === 'tran' && ckt.els.some((e) => e.type === 'TL'))) return lineQuantity(ckt, analysis, find);
   const nls = ckt.els.filter((e) => e.type === 'NR');
   if (nls.length) return nonlinearComplex(ckt, nls, analysis, find);
   if (find.kind === 'rs' || find.kind === 'rd' || find.kind === 'nop') throw new AnalysisError(`"${find.kind}" needs a nonlinear resistor (type NR) in the circuit`);
@@ -692,6 +694,67 @@ export function computeComplex(netlist: Netlist, analysis: Analysis, find: Find)
     throw new AnalysisError(`"${find.kind}" is not available in transient analysis`);
   }
   throw new AnalysisError(`Unknown analysis type ${JSON.stringify((analysis as { type?: unknown }).type)}`);
+}
+
+// ---------------- transmission lines (TL, see tline.ts) ----------------
+
+type LineEl = CEl & { line: LineSpec };
+
+function lineOf(ckt: Circuit, ref: unknown): LineEl {
+  const el = ckt.element(String(ref));
+  if (el.type !== 'TL' || !el.line) throw new AnalysisError(`tl: ${String(ref)} is not a transmission line (type TL)`);
+  return el as LineEl;
+}
+
+/** Thevenin data of the one-port at (a, b) in the DC circuit (Infinity: open, no path) */
+function dcPort(ckt: Circuit, a: number, b: number, phase: Phase, removed: Set<string>): { uoc: number; r: number } {
+  const an = new StaticAnalysis(ckt, 'dc', 0, phase);
+  let r: number;
+  try {
+    r = an.portZ(a, b, removed).re;
+  } catch (e) {
+    if (!(e instanceof AnalysisError)) throw e;
+    r = Infinity;
+  }
+  let uoc = 0;
+  try {
+    uoc = an.vth(a, b, removed).re;
+  } catch (e) {
+    if (!(e instanceof AnalysisError) || r !== Infinity) throw e;
+  }
+  return { uoc, r };
+}
+
+/** {kind: "tl"} questions (AC: from the solved circuit; tran: bounce diagram) and, in transient
+ *  problems with a line, the other elements' v / i / p (the line replaced by its port currents). */
+function lineQuantity(ckt: Circuit, analysis: Analysis, find: Find): Val {
+  const tls = ckt.els.filter((e) => e.type === 'TL') as LineEl[];
+  if (analysis.type === 'ac') {
+    const tl = lineOf(ckt, (find as { el?: unknown }).el);
+    const o = find.omega !== undefined || find.freq !== undefined ? omegaOf({ type: 'ac', freq: find.freq, omega: find.omega }) : omegaOf(analysis);
+    const sol = new StaticAnalysis(ckt, 'ac', o, 'after', analysis.phasor === 'peak').base();
+    const U2 = sol.vIdx(tl.pins[2], tl.pins[3]);
+    const I2 = neg(sol.x[sol.sys.varOf.get(tl.ref + '#2')!]);
+    return tlAc(find as unknown as TlFind, tl.line, o, U2, I2, analysis.phasor === 'peak');
+  }
+  if (analysis.type !== 'tran') throw new AnalysisError(`tl: transmission-line quantities need an AC (sinusoidal steady-state) or transient analysis`);
+  if (tls.length !== 1) throw new AnalysisError('A transient problem with transmission lines must contain exactly one TL');
+  const tl = tls[0];
+  const b = bounceOf(ckt, tl, (a, c, phase, removed) => dcPort(ckt, a, c, phase, removed));
+  if (find.kind === 'tl') {
+    if ((find as { el?: unknown }).el !== tl.ref) lineOf(ckt, (find as { el?: unknown }).el);
+    return tlTran(find as unknown as TlFind & { t?: unknown }, b, tl.line);
+  }
+  if (!['v', 'i', 'p', 'meter'].includes(find.kind))
+    throw new AnalysisError(`"${find.kind}" is not available in a transient problem with a transmission line (use v, i, p, meter or {kind: "tl"})`);
+  // substitution theorem: the line acts on each end network like a current source carrying its port current
+  const t = tOf(find.t);
+  const s = bounceAt(b, 0, t);
+  const e = bounceAt(b, tl.line.length, t);
+  const [p1, n1, p2, n2] = tl.pins;
+  const extra: CEl[] = [testSource('__tl1', 'I', p1, n1, s.i), b.r2 === Infinity ? testSource('__tl2', 'V', p2, n2, e.u) : testSource('__tl2', 'I', n2, p2, e.i)];
+  const sol = new StaticAnalysis(ckt, 'dc', 0, 'after').solve({ extra, removed: new Set([tl.ref]) });
+  return pointQuantity(find, sol, ckt, 'tran', false)!;
 }
 
 // ---------------- nonlinear resistors (NR): operating point and small-signal analysis ----------------

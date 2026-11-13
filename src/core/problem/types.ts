@@ -130,7 +130,24 @@ export interface CouplingElement {
   M?: number | string;
 }
 
-export type ProblemElement = TwoTerminalElement | OpAmpElement | TransformerElement | CouplingElement;
+/** Uniform transmission line (textbook ch. 18), a two-port drawn as two parallel conductors.
+ *  Terminals relative to `at` (= terminal 1, the START of the line, x = 0): p1 (0, 0), n1 (0, 2),
+ *  p2 (w, 0), n2 (w, 2) — port 2 is the END (x = l). w: drawn width in grid units (default 8, ≥ 4).
+ *  line: primary parameters per metre {R0, L0, G0, C0, length} or a lossless line {zc, vp, length}
+ *  (SI: Ω/m, H/m, S/m, F/m, m, Ω, m/s; strings with SI prefixes allowed). See analysis/tline.ts. */
+export interface LineElement {
+  ref: string;
+  type: 'TL';
+  at: Pt;
+  w?: number;
+  line: { R0?: number | string; L0?: number | string; G0?: number | string; C0?: number | string; zc?: number | string; vp?: number | string; length: number | string };
+  /** text drawn under the line instead of the automatic one (e.g. "Z_c = 50 Ω, l = λ/4") */
+  label?: string;
+  /** hide the line data in the drawing (when a question asks for it) */
+  hideValue?: boolean;
+}
+
+export type ProblemElement = TwoTerminalElement | OpAmpElement | TransformerElement | CouplingElement | LineElement;
 
 export interface Schematic {
   elements: ProblemElement[];
@@ -261,7 +278,13 @@ export type Quantity =
   /** number of graph nodes / branches / tree branches / links of schematic.graph */
   | { kind: 'gcount'; count: 'nodes' | 'branches' | 'tree' | 'links' }
   /** entry (row, col) of A or B in ẋ = A·x + B·u, with x and u ordered as in schematic.state */
-  | { kind: 'state'; mat: 'A' | 'B'; row: number; col: number };
+  | { kind: 'state'; mat: 'A' | 'B'; row: number; col: number }
+  // ---- transmission-line chapter; see analysis/tline.ts (TL_WHATS) ----
+  /** a quantity of transmission line `el`: line constants (zc, gamma, alpha, beta, lambda, vp, length,
+   *  wavelengths, delay) or values at a position x (metres from the start, or from the end with
+   *  from: "end"): u, i, uinc, uref, z, refl, vswr, p; whole-line: eta, umax, umin, imax, imin, xmax, xmin;
+   *  transient (bounce diagram): u, i, p at (x, t), refl (load), reflSource */
+  | { kind: 'tl'; el: string; what: string; x?: number; from?: 'start' | 'end' };
 
 /** matrices of the matrix-form chapter (see Quantity kind "mat") */
 export type MatrixName = 'A' | 'Bf' | 'Qf' | 'Yb' | 'Zb' | 'Us' | 'Is' | 'Yn' | 'Jn' | 'Zl' | 'El' | 'Yt' | 'Jt' | 'Un' | 'Il' | 'Ut' | 'Ub' | 'Ib';
@@ -396,12 +419,13 @@ export interface Netlist {
 
 /** Pin names used in Netlist.nodeOf ("REF.pin"):
  *  two-terminal elements: "p", "n"; OPAMP: "minus", "plus", "out" (output is referenced to
- *  ground); XFMR: "p1", "n1", "p2", "n2"; K has no pins. Ground node is "0". Named nodes keep
+ *  ground); XFMR, TL: "p1", "n1", "p2", "n2"; K has no pins. Ground node is "0". Named nodes keep
  *  their label / terminal name; other nodes are named "_1", "_2", … */
 export const PINS = {
   twoTerminal: ['p', 'n'],
   OPAMP: ['minus', 'plus', 'out'],
   XFMR: ['p1', 'n1', 'p2', 'n2'],
+  TL: ['p1', 'n1', 'p2', 'n2'],
 } as const;
 
 /** Find a question's quantity. Implemented in ../analysis (computeQuantity). */

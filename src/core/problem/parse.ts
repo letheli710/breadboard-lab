@@ -13,6 +13,7 @@ import { extractNetlist, isTwoTerminal } from './geometry';
 import { checkPlot } from './plot';
 import { SDOMAIN_KINDS, checkSdomainFind, isSdomainKind, sdomainMark } from './sdomainFind';
 import { MATRIX_KINDS, checkMatrixFind, checkMatrixSchematic, isMatrixKind } from './matrixFind';
+import { checkTlineFind } from './tlineFind';
 import { PROBLEM_FORMAT_ID, type Analysis, type Find, type Netlist, type Part, type ProblemElement, type ProblemFile, type Question, type Schematic } from './types';
 
 /** A problem ready for the UI: text already localised for the current language. */
@@ -83,9 +84,11 @@ const KINDS = [
   'nop',
   ...SDOMAIN_KINDS,
   ...MATRIX_KINDS,
+  // transmission lines (tlineFind.ts)
+  'tl',
 ] as const;
-/** kinds that describe the whole circuit (no time instant needed in transient problems) */
-const TIMELESS: readonly string[] = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw', ...SDOMAIN_KINDS, ...MATRIX_KINDS];
+/** kinds that describe the whole circuit (no time instant needed in transient problems); "tl" checks its own t */
+const TIMELESS: readonly string[] = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw', ...SDOMAIN_KINDS, ...MATRIX_KINDS, 'tl'];
 const PARTS: Part[] = ['re', 'im', 'mag', 'phase', 'db', 'rms', 'avg', 'absavg', 'peak'];
 const TIMES = ['0-', '0+', 'inf'];
 const isGroundName = (n: string) => /^(0|gnd)$/i.test(n);
@@ -252,6 +255,9 @@ function checkFind(
           } else p.forEach((n, j) => node(n, `ports[${i}][${j}]`));
         });
       break;
+    case 'tl':
+      ok = checkTlineFind(find, where, els, analysis?.type, errors) && ok;
+      break;
     default:
       // s-domain chapter: H, pole, zero, hcoef, residue
       if (isMatrixKind(kind)) ok = checkMatrixFind(find, where, schematic, errors) && ok;
@@ -315,6 +321,7 @@ function checkFind(
     analysis.type !== 'ac' &&
     analysis.type !== 'periodic' &&
     kind !== 'root' &&
+    kind !== 'tl' &&
     !isSdomainKind(kind) &&
     !isMatrixKind(kind) &&
     find.part !== undefined &&

@@ -40,12 +40,20 @@ export function terminalPoints(el: ProblemElement): Record<string, Pt> {
       const [x, y] = el.at;
       return { p1: [x - 2, y - 1], n1: [x - 2, y + 1], p2: [x + 2, y - 1], n2: [x + 2, y + 1] };
     }
+    case 'TL': {
+      const [x, y] = el.at;
+      const w = lineWidth(el);
+      return { p1: [x, y], n1: [x, y + 2], p2: [x + w, y], n2: [x + w, y + 2] };
+    }
     case 'K':
       return {};
     default:
       return { p: el.from, n: el.to };
   }
 }
+
+/** drawn width of a transmission line (grid units) */
+export const lineWidth = (el: { w?: number }): number => (typeof el.w === 'number' && Number.isInteger(el.w) && el.w >= 4 ? el.w : 8);
 
 /** Is p on the closed axis-aligned segment a–b? */
 export function onSegment(p: Pt, a: Pt, b: Pt): boolean {
@@ -167,6 +175,14 @@ export function extractNetlist(s: Schematic): ExtractResult {
       continue;
     }
     if (el.type === 'K') continue;
+    if (el.type === 'TL') {
+      if (!validPt(el.at) || !intPt(el.at)) errors.push(tr(`${ref} 的位置 at 必须是整数坐标`, `${ref}: "at" must be an integer grid point`));
+      else geomOk.add(el);
+      if (el.w !== undefined && !(typeof el.w === 'number' && Number.isInteger(el.w) && el.w >= 4))
+        errors.push(tr(`传输线 ${ref} 的宽度 w 必须是 ≥ 4 的整数`, `Transmission line ${ref}: width w must be an integer ≥ 4`));
+      if (typeof el.line !== 'object' || el.line === null) errors.push(tr(`传输线 ${ref} 缺少 "line"（线路参数）`, `Transmission line ${ref} has no "line" (line data)`));
+      continue;
+    }
     if (!isTwoTerminal(el)) {
       errors.push(tr(`${ref} 的类型 "${(el as { type: string }).type}" 不认识`, `${ref} has unknown type "${(el as { type: string }).type}"`));
       continue;
@@ -482,6 +498,8 @@ export function extractNetlist(s: Schematic): ExtractResult {
         if (onSegment(at, el.from, el.to)) hit = el.ref;
       } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
         if (Math.abs(at[0] - el.at[0]) <= 2 && Math.abs(at[1] - el.at[1]) <= 1) hit = el.ref;
+      } else if (el.type === 'TL') {
+        if (at[0] >= el.at[0] && at[0] <= el.at[0] + lineWidth(el) && at[1] >= el.at[1] && at[1] <= el.at[1] + 2) hit = el.ref;
       }
     }
     if (hit !== null)

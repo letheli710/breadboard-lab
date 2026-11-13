@@ -6,8 +6,9 @@ import { cx } from './complex';
 import { AnalysisError } from './errors';
 import { isPeriodicValue, parsePeriodic, type Term } from './fourier';
 import { type Lin, type NlLaw, parseLaw } from './nonlinear';
+import { type LineSpec, parseLine } from './tline';
 
-export type ElType = TwoTerminalType | 'OPAMP' | 'XFMR';
+export type ElType = TwoTerminalType | 'OPAMP' | 'XFMR' | 'TL';
 
 /** Independent source waveform, normalised. */
 export type SrcSpec =
@@ -22,7 +23,7 @@ export type SrcSpec =
 export interface CEl {
   ref: string;
   type: ElType;
-  /** node indices: two-terminal [p, n]; OPAMP [minus, plus, out]; XFMR [p1, n1, p2, n2] */
+  /** node indices: two-terminal [p, n]; OPAMP [minus, plus, out]; XFMR / TL [p1, n1, p2, n2] */
   pins: number[];
   /** R (Ω), C (F), L (H), controlled-source gain, XFMR turns ratio n; NaN otherwise */
   value: number;
@@ -39,6 +40,8 @@ export interface CEl {
   /** NR: the linear branch a·u + b·i = c it is replaced by in the current solve (set by the
    *  operating-point solver / small-signal linearisation; an NR without it cannot be stamped) */
   lin?: Lin;
+  /** TL: the line data (see tline.ts) */
+  line?: LineSpec;
   /** test sources added by the engine (never zeroed) */
   synthetic?: boolean;
 }
@@ -50,7 +53,7 @@ export interface Mutual {
   M: number;
 }
 
-export const isTwoTerminal = (el: CEl): boolean => el.type !== 'OPAMP' && el.type !== 'XFMR';
+export const isTwoTerminal = (el: CEl): boolean => el.type !== 'OPAMP' && el.type !== 'XFMR' && el.type !== 'TL';
 export const isIndependent = (el: CEl): boolean => el.type === 'V' || el.type === 'I';
 
 const GROUND = new Set(['0', 'gnd', 'GND', 'Gnd']);
@@ -164,6 +167,9 @@ export class Circuit {
         const n = parseNum(e.n, `${ref} (turns ratio n)`);
         if (!(n !== 0)) throw new AnalysisError(`${ref}: turns ratio n must be non-zero`);
         el = { ref, type, pins: [pin(ref, 'p1'), pin(ref, 'n1'), pin(ref, 'p2'), pin(ref, 'n2')], value: n };
+      } else if (type === 'TL') {
+        // uniform transmission line (two-port, see tline.ts)
+        el = { ref, type, pins: [pin(ref, 'p1'), pin(ref, 'n1'), pin(ref, 'p2'), pin(ref, 'n2')], value: NaN, line: parseLine(ref, e.line) };
       } else {
         const pins = [pin(ref, 'p'), pin(ref, 'n')];
         const v = e.value;
@@ -261,7 +267,8 @@ export class Circuit {
         if (typeof c.i !== 'string') throw new AnalysisError(`${el.ref}: a current-controlled source needs ctrl {"i": "<element>"}`);
         const ce = this.byRef.get(c.i);
         if (!ce) throw new AnalysisError(`${el.ref}.ctrl.i: unknown element "${c.i}"`);
-        if (ce.type === 'XFMR') throw new AnalysisError(`${el.ref}.ctrl.i: cannot be controlled by the current of transformer ${c.i}`);
+        if (ce.type === 'XFMR' || ce.type === 'TL')
+          throw new AnalysisError(`${el.ref}.ctrl.i: cannot be controlled by the current of ${ce.type === 'TL' ? 'transmission line' : 'transformer'} ${c.i}`);
       }
     }
   }

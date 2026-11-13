@@ -79,6 +79,22 @@ const UNIT_ALIASES: Record<string, string> = {
   'a/a': 'A/A',
   'v/s': 'V/s',
   'a/s': 'A/s',
+  // transmission lines: lengths, speeds, per-metre constants (a bare "m" stays the milli prefix,
+  // except in a question whose unit is "m", see unitOf)
+  m: 'm',
+  米: 'm',
+  'm/s': 'm/s',
+  'np/m': 'Np/m',
+  'rad/m': 'rad/m',
+};
+
+/** Whole unit strings that carry a scale of their own (per-km line constants, km/s). */
+const SCALED_UNITS: Record<string, [number, string]> = {
+  'np/km': [1e-3, 'Np/m'],
+  'rad/km': [1e-3, 'rad/m'],
+  'km/s': [1e3, 'm/s'],
+  千米: [1e3, 'm'],
+  公里: [1e3, 'm'],
 };
 
 /** Canonical unit for a unit string (no prefix), or null. Case matters only for S vs s. */
@@ -92,6 +108,8 @@ function canonUnit(u: string): string | null {
 export function splitUnit(raw: string): { scale: number; unit: string } | null {
   const s = raw.trim();
   if (!s) return { scale: 1, unit: '' };
+  const sc = SCALED_UNITS[s.toLowerCase()];
+  if (sc) return { scale: sc[0], unit: sc[1] };
   const whole = canonUnit(s);
   // a bare "m"/"M"/"k" … is a prefix, but "S", "s", "F", "H", "A", "V", "W" are units
   if (whole && !(s.length === 1 && s in SI_PREFIX)) return { scale: 1, unit: whole };
@@ -102,6 +120,12 @@ export function splitUnit(raw: string): { scale: number; unit: string } | null {
     if (rest) return { scale: SI_PREFIX[p], unit: rest };
   }
   return null;
+}
+
+/** The scale and unit of a question's own `unit`: like splitUnit, but a question asking in metres
+ *  ("m") means metres, not the milli prefix. */
+export function unitOf(raw: string): { scale: number; unit: string } | null {
+  return raw.trim() === 'm' ? { scale: 1, unit: 'm' } : splitUnit(raw);
 }
 
 /** Normalise full-width digits / signs / separators that Chinese IMEs produce. */
@@ -224,10 +248,12 @@ export function readAnswer(q: Pick<Question, 'unit'> & { find?: { part?: Part } 
     if (q.unit !== '1/s') return wrongUnit(q, perSecond[0].trim());
     raw = raw.slice(0, perSecond.index);
   }
-  const s = normalizeInput(raw);
+  let s = normalizeInput(raw);
   if (!s) return { reason: tr('请先输入一个数', 'Type a number first') };
   const phase = isPhaseQuestion(q);
-  const expected = splitUnit(q.unit ?? '');
+  const expected = unitOf(q.unit ?? '');
+  // "200 m" in a question asked in metres: the trailing "m" is the unit, not milli
+  if (expected?.unit === 'm' && /[\d.)\s]m$/.test(s)) s = s.slice(0, -1) + '米';
   // temperature: °C / ℃ always; a bare "C" or "K" only where a temperature is asked (elsewhere "K" is kilo)
   if (expected?.unit === '°C') {
     const t = /^(.*?)(°C|°c|℃|C|K)$/.exec(s);
@@ -364,7 +390,7 @@ export function checkAnswer(q: Question, input: string): AnswerCheck {
       tr('差了 2π 倍——角频率 ω（rad/s）和频率 f（Hz）弄混了？ω = 2πf。', 'Off by a factor of 2π — angular frequency ω (rad/s) and frequency f (Hz) mixed up? ω = 2πf.') + signToo,
     );
   // reciprocal, compared in the unit shown next to the box (0.5 typed for 2 kΩ in a kΩ box)
-  const shown = splitUnit(q.unit ?? '')?.scale ?? 1;
+  const shown = unitOf(q.unit ?? '')?.scale ?? 1;
   if (near(Math.abs((v / shown) * (ans / shown)), 1))
     return no(
       'recip',
@@ -379,7 +405,7 @@ export function checkAnswer(q: Question, input: string): AnswerCheck {
 /** The answer formatted for display in the question's unit (e.g. 0.0025 A with unit "mA" → "2.5 mA"). */
 export function formatAnswer(q: Pick<Question, 'answer' | 'unit'>): string {
   if (typeof q.answer !== 'number') return '';
-  const u = splitUnit(q.unit ?? '');
+  const u = unitOf(q.unit ?? '');
   const scale = u?.scale ?? 1;
   const v = q.answer / scale;
   return `${fmtNum(parseFloat(v.toPrecision(4)))}${q.unit ? ` ${q.unit}` : ''}`;

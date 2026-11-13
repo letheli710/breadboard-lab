@@ -6,8 +6,8 @@ import { useMemo, type ReactNode } from 'react';
 import { parseNum } from '../core/analysis/circuit';
 import { formatSI } from '../core/format';
 import { getLang, tr } from '../core/i18n';
-import { isTwoTerminal, junctionPoints, onSegment, terminalPoints, wireSegments } from '../core/problem/geometry';
-import type { CtrlRef, Pt, ProblemElement, Schematic, TwoTerminalElement } from '../core/problem/types';
+import { isTwoTerminal, junctionPoints, lineWidth, onSegment, terminalPoints, wireSegments } from '../core/problem/geometry';
+import type { CtrlRef, LineElement, Pt, ProblemElement, Schematic, TwoTerminalElement } from '../core/problem/types';
 import { subQ } from './subQ';
 
 const U = 40; // px per grid unit
@@ -296,6 +296,60 @@ function bodySize(el: TwoTerminalElement): { B: number; hw: number } {
 
 const isAC = (v: unknown) => !!v && typeof v === 'object' && ('ac' in (v as object) || 'sin' in (v as object));
 
+/** text under a transmission line: "Z_c = 50 Ω  l = 30 m" (lossless) or "l = 300 km" (RLGC) */
+export function lineValueText(el: LineElement): string | null {
+  if (el.label) return el.label;
+  if (el.hideValue || !el.line || typeof el.line !== 'object') return null;
+  const len = toNum(el.line.length);
+  const l = len === null ? String(el.line.length) : len >= 1000 ? `${num(len / 1000)} km` : `${num(len)} m`;
+  const z = el.line.zc !== undefined ? siOrRaw(el.line.zc, 'Ω') : null;
+  return [z && `Z_c = ${z}`, l && `l = ${l}`].filter(Boolean).join('　') || null;
+}
+
+/** Uniform transmission line: two parallel conductors from terminals 1–1′ (start, x = 0) to 2–2′
+ *  (end), faint shunt ticks for the distributed capacitance, the x axis (→) and x′ from the end (←). */
+function drawLine(
+  el: LineElement,
+  [x, y]: V2,
+  col: string,
+  common: Record<string, unknown>,
+  bodies: ReactNode[],
+  decor: ReactNode[],
+  addText: (runs: Run[], x: number, y: number, anchor: 'start' | 'middle' | 'end', cls: string, fill?: string, size?: number) => Box,
+  hl: boolean,
+): void {
+  const w = lineWidth(el) * U;
+  const y2 = y + 2 * U;
+  const lead = 0.35 * U;
+  const ticks: string[] = [];
+  for (let k = 1; k < lineWidth(el); k++) ticks.push(`M${x + k * U},${y + 5}V${y2 - 5}`);
+  bodies.push(
+    <g key={`tl${el.ref}`}>
+      <path d={`M${x},${y}H${x + w}M${x},${y2}H${x + w}`} {...common} />
+      <path d={`M${x + lead},${y}H${x + w - lead}M${x + lead},${y2}H${x + w - lead}`} {...common} strokeWidth={SW * 2.4} strokeLinecap="butt" />
+      <path d={ticks.join('')} stroke={col} strokeWidth={1} strokeDasharray="2 3" opacity={0.45} fill="none" />
+    </g>,
+  );
+  // x axis under the line: x from the start (→), x′ from the end (←)
+  const ya = y2 + 16;
+  const ax0 = x + 0.2 * U;
+  const ax1 = x + 1.5 * U;
+  const bx0 = x + w - 0.2 * U;
+  const bx1 = x + w - 1.5 * U;
+  decor.push(
+    <g key={`tlx${el.ref}`} stroke={col} strokeWidth={1.1} fill="none">
+      <path d={`M${ax0},${ya}H${ax1 - 6}M${ax0},${ya - 4}V${ya + 4}`} />
+      <path d={`M${bx0},${ya}H${bx1 + 6}M${bx0},${ya - 4}V${ya + 4}`} />
+      <polygon points={arrowHead([ax1, ya], [1, 0], 8, 3.5)} fill={col} stroke="none" />
+      <polygon points={arrowHead([bx1, ya], [-1, 0], 8, 3.5)} fill={col} stroke="none" />
+    </g>,
+  );
+  addText([{ t: 'x', it: true }], ax1 + 9, ya + 4, 'start', 'ps-val', hl ? col : undefined);
+  addText([{ t: 'x', it: true }, { t: '′' }], bx1 - 9, ya + 4, 'end', 'ps-val', hl ? col : undefined);
+  const v = lineValueText(el);
+  if (v) addText(richRuns(v), x + w / 2, y - 9, 'middle', 'ps-val', hl ? col : undefined);
+}
+
 function arrowHead(tip: V2, dir: V2, len = 9, half = 4): string {
   const [dx, dy] = dir;
   const bx = tip[0] - dx * len;
@@ -411,6 +465,9 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
     } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
       const [x, y] = px(el.at);
       obstacles.push({ x0: x - 2 * U, y0: y - 1.45 * U, x1: x + 2 * U, y1: y + 1.45 * U });
+    } else if (el.type === 'TL' && Array.isArray(el.at)) {
+      const [x, y] = px(el.at);
+      obstacles.push({ x0: x, y0: y - 4, x1: x + lineWidth(el) * U, y1: y + 2 * U + 30 });
     }
   }
   // keep element labels out of the gap between magnetically coupled inductors
@@ -448,6 +505,9 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         if (el.to[0] === p[0] && el.to[1] === p[1]) mark(el.from[0] - p[0], el.from[1] - p[1]);
       } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
         for (const q of Object.values(terminalPoints(el))) if (q[0] === p[0] && q[1] === p[1]) mark(el.at[0] - p[0], 0);
+      } else if (el.type === 'TL' && Array.isArray(el.at)) {
+        const mid = el.at[0] + lineWidth(el) / 2;
+        for (const q of Object.values(terminalPoints(el))) if (q[0] === p[0] && q[1] === p[1]) mark(mid - p[0], 0);
       }
     }
     return out;
@@ -808,6 +868,9 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
       );
       addText(richRuns(symbolText(el.ref)), x, y - U - 11, 'middle', 'ps-ref', hl.has(el.ref) ? col : undefined);
       addText([{ t: `${typeof el.n === 'number' ? num(el.n) : '?'}:1` }], x, y + U + 17, 'middle', 'ps-val', hl.has(el.ref) ? col : undefined);
+    } else if (el.type === 'TL') {
+      if (!Array.isArray(el.at)) continue;
+      drawLine(el, px(el.at), col, common, bodies, decor, addText, hl.has(el.ref));
     } else if (el.type === 'K') {
       const g1 = geos.find((q) => q.el.ref === el.l1);
       const g2 = geos.find((q) => q.el.ref === el.l2);
