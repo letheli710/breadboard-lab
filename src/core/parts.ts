@@ -166,7 +166,7 @@ export const PARTS: Record<PartType, PartDef> = {
     symmetric: [['1', '2']],
     defaults: { capacitance: 100e-9 },
     get blurb() {
-      return tr('瓷片电容（无极性）。本模拟器只算直流稳态：电容充满电后相当于断路，没有电流流过。', 'Ceramic capacitor (no polarity). This simulator only computes the DC steady state: a charged capacitor acts as an open circuit, so no current flows through it.');
+      return tr('瓷片电容（无极性）。只有直流电源时，电容充满电后相当于断路，没有电流流过；接上信号发生器或 PWM 引脚时，面包板按时域仿真，可以看到充放电和交流电流。模拟的是理想电容（没有漏电和 ESR）。', 'Ceramic capacitor (no polarity). With only DC sources, a charged capacitor acts as an open circuit, so no current flows through it; with a function generator or a PWM pin on the board, the simulation runs in the time domain and you can see it charge, discharge and pass AC. It is simulated as an ideal capacitor (no leakage, no ESR).');
     },
   },
   pushbutton: {
