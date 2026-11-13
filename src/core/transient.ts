@@ -502,10 +502,10 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
   // ---- initial state: DC operating point with generators at their average (= offset)
   const dc = solveDcCompiled(c, (s) => (s.gen ? s.gen.offset : s.v));
   const Nn = c.N;
-  let x = dc.x.slice();
+  const x = dc.x.slice();
   const V = (arr: Float64Array, i: number) => (i < 0 ? 0 : arr[i]);
   const nL = c.inductors.length;
-  let iL = new Float64Array(nL);
+  const iL = new Float64Array(nL);
   c.inductors.forEach((l, j) => (iL[j] = (V(x, l.a) - V(x, l.b)) / l.R));
   let x1 = x.slice(); // v at n−1
   let x2: Float64Array | null = null; // v at n−2 (null → next step is BE)
