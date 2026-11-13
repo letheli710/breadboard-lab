@@ -5,13 +5,13 @@
 // (probeBoard in check.ts). Nothing here is a stored number.
 //
 // Typed values go through the practice pages' answer reader (readAnswer / checkAnswer in
-// problem/parse.ts: prefixes, units, expressions, near-miss and mistake diagnoses).
+// problem/answer.ts: prefixes, units, expressions, near-miss and mistake diagnoses).
 
 import type { Challenge, MeasurementQuestion, MeasureQuantity } from './challenge';
 import { applySet, checkCircuit, checkerView, probeBoard } from './check';
 import { tr } from './i18n';
 import { evalExpr } from './problem/expr';
-import { checkAnswer, fmtNum, readAnswer, splitUnit, type AnswerCheck } from './problem/parse';
+import { checkAnswer, fmtNum, readAnswer, splitUnit, type AnswerCheck } from './problem/answer';
 import type { Circuit } from './types';
 
 /** The student's board as matched to the target: the checker's view of it plus the maps. */
@@ -351,4 +351,17 @@ export function revalidate(ch: Challenge, rd: ChallengeReadings, m: BoardMatch):
 /** Every required question answered against the current board. */
 export function allAnswered(ch: Challenge, rd: ChallengeReadings, m: BoardMatch | null): boolean {
   return ch.measurements.every((q) => !q.required || isAnswered(q, rd.answers[q.id], m, rd.answers));
+}
+
+/** Is the board (as matched) already in the state the question's reading is taken in? A
+ *  swept generator's frequency is not compared (the student is tuning it). */
+export function boardInState(q: MeasurementQuestion, m: BoardMatch): boolean {
+  let set = q.set;
+  if (q.what?.kind === 'scope' && q.what.solve) {
+    const { frequency: _f, ...rest } = set[q.what.solve.el] ?? {};
+    void _f;
+    set = { ...set, [q.what.solve.el]: rest };
+  }
+  const after = applySet(m.circuit, set, m.mapping, m.pinMap);
+  return m.circuit.components.every((c, i) => c === after.components[i] || JSON.stringify(sortKeys(c.props)) === JSON.stringify(sortKeys(after.components[i].props)));
 }
