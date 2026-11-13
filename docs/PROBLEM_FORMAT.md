@@ -75,6 +75,7 @@ npm run validate -- --lang en       # 英文报错信息
 | 4 | `coupled` | 互感、理想变压器 |
 | 4 | `frequency` | 网络函数、串并联谐振、滤波器 |
 | 4 | `three-phase` | 三相电路 |
+| 4 | `non-sinusoidal` | 非正弦周期电流电路：傅里叶级数与频谱、有效值、平均功率、谐波分析、谐波谐振与滤波、三相电路中的高次谐波（分析类型 `periodic`，§5.1） |
 | 4 | `two-port` | 二端口网络 |
 
 章节列表定义在 `src/core/problem/chapters.ts`。
@@ -193,6 +194,26 @@ npm run validate -- --lang en       # 英文报错信息
 | `{ "dc": 2, "ac": { "mag": 1 } }` | 直流 + 交流（正弦稳态分析只用 ac 部分，直流分析只用 dc 部分） |
 | `{ "step": { "before": 0, "after": 10 } }` | 阶跃：t < 0 为 0，t ≥ 0 为 10（暂态分析） |
 | `{ "sin": { "amp": 10, "freq": 50, "phase": 0, "offset": 0 } }` | 时域正弦 offset + amp·sin(2πft + phase°)（暂态分析） |
+| `{ "harmonics": { "dc": 10, "terms": [{ "k": 1, "amp": 141.42 }, { "k": 3, "amp": 42.43, "phase": -60 }] } }` | 非正弦周期源（只用于 `periodic` 分析，§5.1）：dc + Σ amp·cos(kω₁t + phase°)。**amp 是第 k 次谐波的幅值**（不是有效值），以 cos 为参考；k 为 1…199 的整数，每个 k 只写一次 |
+| `{ "wave": { "shape": "square", "amp": 10, "upTo": 99, "offset": 0 } }` | 标准波形的傅里叶级数，取到第 `upTo` 次谐波（只用于 `periodic`，见 §4.1） |
+
+### 4.1 标准波形 / Standard waveforms (`wave`)
+
+T = 1/f₁ 是波形的周期，`amp` = 峰值 A（> 0），`offset` 加在直流分量上。级数按 cos 参考写成 Σ A_km cos(kω₁t + φ_k)：
+
+| `shape` | 波形 | 傅里叶级数 | 有效值 / 平均值（无穷项） |
+|---|---|---|---|
+| `square` | ±A，0 < t < T/2 为 +A | (4A/kπ)·sin kω₁t，k 奇（φ_k = −90°） | A / 0 |
+| `triangle` | ±A，t = 0 时为 0 并上升，T/4 时为 +A | (8A/k²π²)·(−1)^((k−1)/2)·sin kω₁t，k 奇 | A/√3 / 0 |
+| `sawtooth` | 0 → A 线性上升（0 < t < T） | A/2 − (A/kπ)·sin kω₁t | A/√3 / A/2 |
+| `half-rect` | A·cos ω₁t 的半波整流 | A/π + (A/2)cos ω₁t + (2A/π)·(−1)^(k/2+1)/(k²−1)·cos kω₁t，k 偶 | A/2 / A/π |
+| `full-rect` | A·\|cos(ω₁t/2)\| | 2A/π + (4A/π)·(−1)^(k+1)/(4k²−1)·cos kω₁t | A/√2 / 2A/π |
+
+- 全波整流：`analysis` 的频率是**整流后**波形的基波频率（50 Hz 市电整流后写 `"freq": 100`）。
+- 级数被截断到 `upTo` 次，引擎算的是截断后的值（例如方波取到 99 次，有效值为 0.998A）。题干要写明“取到 N 次谐波”。学生用无穷级数的闭式结果（方波有效值 = A）回答时，误差要在 `tol` 之内——方波、锯齿波这类按 1/k 衰减的波形，`upTo` 取 49 以上。
+- 时间原点不同的波形（例如偶对称的方波）用 `harmonics` 自己写出各项。
+
+The `wave` shapes above are expanded up to harmonic `upTo` (state it in the problem). For a full-wave rectified sine, the analysis frequency is that of the rectified wave (100 Hz from 50 Hz mains). The engine uses the truncated series; with slowly decaying spectra (square, sawtooth) use `upTo` ≥ 49 so that closed-form answers fall inside the student tolerance. For other time origins write the terms with `harmonics`.
 
 ---
 
@@ -204,6 +225,7 @@ npm run validate -- --lang en       # 英文报错信息
 | `{ "type": "ac", "freq": 50 }` 或 `{ "type": "ac", "omega": 1000 }` | 正弦稳态，单一频率。只写 `freq`（Hz）或 `omega`（rad/s）中的一个 |
 | `{ "type": "ac", "omega": 1000, "phasor": "peak" }` | 相量取**幅值**（默认 `"rms"` 有效值，与大多数教材一致） |
 | `{ "type": "tran" }` | 暂态：开关、阶跃源在 **t = 0** 动作 |
+| `{ "type": "periodic", "omega": 314 }` 或 `"freq": 50` | 非正弦周期稳态：频率是**基波** ω₁ / f₁；逐次谐波求解后叠加（§5.1）。`"phasor"` 规定各次谐波相量结果的约定（默认 `"rms"`） |
 
 **相量约定（phasor）**：`"rms"`（默认）时 |U| 是有效值，P = Re(U·I*)；`"peak"` 时 |U| 是幅值，P = ½·Re(U·I*)。题干要写明“有效值”还是“幅值”。
 
@@ -219,6 +241,31 @@ npm run validate -- --lang en       # 英文报错信息
 - 电感、电容的初值在任何时刻都由电路算出；换路瞬间电容被并联到不同电压上（电荷重新分配）也能正确处理。
 
 **Semantics (English summary).** DC analysis uses each switch's `after` state and each step's `after` value (unless `t` is `"0-"` or negative). AC analysis uses `after` too. In AC a bare number source is a 0° phasor and `{ "dc": … }` alone contributes nothing; `step` / `sin` sources are rejected in AC (write `{ "ac": { "mag", "phase" } }`), and `ac` phasor sources are rejected in transient analysis (write `{ "sin": … }`). Nodes that reach the rest of the circuit only through capacitors are taken as **uncharged** (zero net charge) and loops of inductors as carrying zero flux, unless `ic` says otherwise. Transient values are exact (matrix exponential), not time-stepped.
+
+### 5.1 非正弦周期稳态 / Periodic steady state (`periodic`)
+
+线性电路在非正弦周期激励下的稳态响应 = 各分量单独作用的响应之和（叠加定理）。引擎对每个 k（k = 0 为直流）分别求解：
+
+- k = 0：直流分析（电感短路、电容开路），只用各源的 `dc`。
+- k ≥ 1：角频率 kω₁ 的正弦稳态，感抗 kω₁L、容抗 1/(kω₁C)。
+- 电源：`harmonics` / `wave`（§4）；裸数字和 `{ "dc": … }` 是直流源；`{ "dc", "ac" }` 的 `ac` 作为基波（`mag` 按 `phasor` 约定）。`step`、`sin` 源和 `Z` 元件（阻抗只在一个频率下有意义）会被拒绝。
+- 开关取 `after` 状态。
+
+**提问 / Questions**（§6.1 的 `harmonic` 修饰字段）：
+
+| 写法 | 结果 |
+|---|---|
+| `{"kind":"v","el":"R","harmonic":3}` | 第 3 次谐波的相量（默认取有效值，`part` 默认 `"mag"`；`"phase"` 为初相）。`v`、`i`、`meter`、`vth`、`isc` 同理；`"harmonic": 0` 是直流分量（实数） |
+| `{"kind":"p","el":"R","harmonic":3}` | 第 3 次谐波的平均功率 U₃I₃cos φ₃；`q`、`s`、`pf`、`wattmeter`、`pmax` 同理 |
+| `{"kind":"req","port":["a","b"],"harmonic":3}` | 3ω₁ 时的端口阻抗；`gain`、`twoport` 同理（这些量必须写 `harmonic`） |
+| `{"kind":"v","el":"R"}`（不写 `harmonic`） | 整个波形：`part` 默认 `"rms"` = √(U₀² + U₁² + …)；`"avg"` = 平均值（直流分量）；`"absavg"` = 绝对平均值 (1/T)∫\|u\|dt；`"peak"` = 一个周期内的最大 \|u(t)\|。`i`、`meter` 同理 |
+| `{"kind":"v","el":"R","t":0.0025}` | 瞬时值 u(t)（秒） |
+| `{"kind":"p","el":"R"}` | 平均功率 P = P₀ + Σ P_k；`q` = Σ Q_k；`s` = UI（有效值之积）；`pf` = \|P\|/S；`wattmeter` = 各次谐波读数之和 |
+| `f0`、`Q`、`fc`、`bw`、`val` | 与电源无关的量照常计算（`val` 不能用于电源） |
+
+整个波形没有单一相量，所以不写 `harmonic` 时 `part` 不能是 `mag` / `phase` / `re` / `im` / `db`。
+
+The circuit is solved harmonic by harmonic (k = 0: DC with L shorted and C open; k ≥ 1: phasors at kω₁) and the results are superposed. Ask one harmonic with `"harmonic": k` (phasors are rms by default), or the whole waveform without it: `rms` (default), `avg`, `absavg`, `peak`, an instant `t`, average power `p` = Σ P_k, `q` = Σ Q_k, `s` = UI, `pf` = P/S. `req` / `gain` / `twoport` need a harmonic. `step` / `sin` sources and `Z` elements are rejected.
 
 ---
 
@@ -292,7 +339,7 @@ npm run validate -- --lang en       # 英文报错信息
 | `bw` | `{"kind":"bw","out":["o"],"input":"Ui"}` | −3 dB 带宽 = 上截止频率 − 下截止频率 | Hz |
 | `Q` | `{"kind":"Q"}` / `{"kind":"Q","port":["a","b"]}` | 品质因数（§6.1.6） | — |
 
-**修饰字段 / Modifiers**：`"deriv": 1`（暂态题的 `v` / `i`：求 t 时刻的导数，§6.1.2）；`"freq"` / `"omega"`（交流题：这个小题在另一个频率下计算，§6.1.6）。
+**修饰字段 / Modifiers**：`"deriv": 1`（暂态题的 `v` / `i`：求 t 时刻的导数，§6.1.2）；`"freq"` / `"omega"`（交流题：这个小题在另一个频率下计算，§6.1.6）；`"harmonic": k`（非正弦周期题：只问第 k 次谐波，0 = 直流分量，§5.1）。
 
 #### 6.1.1 去掉负载：`exclude` / Removing the drawn load
 
@@ -369,7 +416,7 @@ Draw the current coil as an `ammeter` in series with the line (label `"W"`), and
 
 ### 6.2 复数结果取哪一部分 / `part`
 
-交流结果是复数，用 `find.part` 选择：`"mag"`（**交流默认**，模）、`"phase"`（相位，度）、`"re"`、`"im"`、`"db"`（20·lg|x|）、`"rms"`（换算成有效值——在 `phasor: "peak"` 时有用）。直流和暂态的结果是实数，默认 `"re"`。
+交流结果是复数，用 `find.part` 选择：`"mag"`（**交流默认**，模）、`"phase"`（相位，度）、`"re"`、`"im"`、`"db"`（20·lg|x|）、`"rms"`（换算成有效值——在 `phasor: "peak"` 时有用）。直流和暂态的结果是实数，默认 `"re"`。非正弦周期题（§5.1）不写 `harmonic` 时还有 `"avg"`、`"absavg"`、`"peak"`，默认 `"rms"`。
 
 ```json
 { "id": "ph", "ask": "电流 I 的相位", "find": { "kind": "i", "el": "R", "part": "phase" }, "answer": -53.1301, "unit": "°" }
@@ -381,7 +428,7 @@ Draw the current coil as an `ammeter` in series with the line (label `"W"`), and
 - 运放积分器（反馈只有电容）在 t < 0 没有确定的直流状态：给电容写 `ic`（通常 `0`）。 / An op-amp integrator needs `ic` on its capacitor.
 - `gain`、`f0`、`twoport` 不能用于暂态题；`q`、`s`、`pf` 只用于交流题；`w` 不能用于交流题；`deriv` 只用于暂态题；`part: "rms"` 不能用于暂态的瞬时值。 / `gain`/`f0`/`twoport` are not available in transient problems; `w` is DC / transient only; `deriv` is transient only.
 - 变压器两侧没有公共地时，跨两侧的电压没有定义，引擎报错（同一侧内的电压、元件电压没问题）。 / Voltages between galvanically isolated sides of a transformer are undefined and throw.
-- 交流分析只有一个频率。`f0` 在电路特征频率的 10⁻⁴～10⁴ 倍范围内搜索，有多个谐振点时给最低的。 / AC is single-frequency; `f0` returns the lowest resonance.
+- 交流分析只有一个频率（含多个频率的激励用 `periodic`，§5.1，所有频率必须是基波的整数倍）。`f0` 在电路特征频率的 10⁻⁴～10⁴ 倍范围内搜索，有多个谐振点时给最低的。 / AC is single-frequency; `f0` returns the lowest resonance.
 - 电路方程奇异（电压源回路、电流源割集、悬空结点、没有负反馈的运放、恰好在谐振频率上的无损 LC）时引擎给出说明并拒绝。
 
 ---

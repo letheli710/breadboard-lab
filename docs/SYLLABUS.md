@@ -133,6 +133,16 @@ Each chapter lists the knowledge points that must be covered — at least one pr
 4. 三相功率：P = √3 U_l I_l cos φ；二瓦计法
 5. 不对称三相电路：中线的作用，中性点位移（难度 4–5）
 
+### `non-sinusoidal` 非正弦周期电流电路（目标 15 题）
+引擎：`"analysis": {"type": "periodic", "omega": …}`，电源写成直流 + 各次谐波（`harmonics`）或标准波形的傅里叶级数（`wave`），逐次谐波求解后叠加（PROBLEM_FORMAT §4.1、§5.1）。
+1. 傅里叶级数与振幅频谱；标准波形（方波、三角波、锯齿波、整流波）的系数
+2. 波形对称性：奇函数、偶函数、半波对称与谐波成分
+3. 有效值、平均值、绝对平均值；不同类型仪表的读数
+4. 平均功率 = 各次谐波功率之和；视在功率与功率因数 λ = P/(UI)；不同频率电源的功率叠加
+5. 谐波分析法：RL、RC、RLC 电路的直流 + 各次谐波分别求解（每次谐波重算电抗）
+6. 谐波谐振与滤波：串联谐振放大某次谐波，并联 LC 陷波，滤波器设计（难度 3–4），整流滤波的纹波
+7. 三相电路中的高次谐波：零序 3 次谐波，中线电流 3I_3，无中线时的中性点电压，三角形绕组环流（难度 4–5）
+
 ### `two-port` 二端口网络（目标 12 题）
 1. Z 参数、Y 参数
 2. H 参数（混合参数）、T（ABCD）参数
@@ -143,14 +153,14 @@ Each chapter lists the knowledge points that must be covered — at least one pr
 
 ---
 
-合计目标约 226 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
+合计目标约 241 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
 
-About 226 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
+About 241 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
 
 ---
 
 ## 尚未纳入大纲 / Not in the syllabus yet
 
-以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：非正弦周期电流电路（第 13 章）、复频域分析 / 拉普拉斯变换（第 14 章）、冲激响应与卷积、电路方程的矩阵形式与状态方程（第 15 章）、非线性电路（第 17 章）、均匀传输线（第 18 章）。
+以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：复频域分析 / 拉普拉斯变换（第 14 章）、冲激响应与卷积、电路方程的矩阵形式与状态方程（第 15 章）、非线性电路（第 17 章）、均匀传输线（第 18 章）。
 
-Not covered yet (needs engine work first; see the ROADMAP backlog): non-sinusoidal periodic circuits (ch. 13), Laplace / s-domain analysis (ch. 14), impulse response and convolution, matrix formulation and state equations (ch. 15), nonlinear circuits (ch. 17), transmission lines (ch. 18).
+Not covered yet (needs engine work first; see the ROADMAP backlog): Laplace / s-domain analysis (ch. 14), impulse response and convolution, matrix formulation and state equations (ch. 15), nonlinear circuits (ch. 17), transmission lines (ch. 18).

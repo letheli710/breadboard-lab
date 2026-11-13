@@ -44,7 +44,7 @@ AI 返回后：
   "tags": ["知识点", ...],
   "statement": "题干：给出所有已知量（带单位），说明要求什么",
   "schematic": { "elements": [...], "wires": [...], "labels": [...], "grounds": [...], "terminals": [...], "marks": [...], "loops": [...] },
-  "analysis": {"type": "dc"} | {"type": "ac", "omega": 1000} | {"type": "ac", "freq": 50} | {"type": "tran"},
+  "analysis": {"type": "dc"} | {"type": "ac", "omega": 1000} | {"type": "ac", "freq": 50} | {"type": "tran"} | {"type": "periodic", "omega": 314},
   "questions": [ ... ],
   "hints": ["由浅入深的 2–3 条提示"],
   "solution": ["完整的分步解答", "..."],
@@ -80,11 +80,13 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
 
 === 独立源的值 ===
 直流：12。正弦稳态：{"ac": {"mag": 100, "phase": 30}}（mag 默认是有效值，phase 用度）。阶跃：{"step": {"before": 0, "after": 10}}。
+非正弦周期（只用于 "periodic"）：{"harmonics": {"dc": 10, "terms": [{"k": 1, "amp": 141.4214}, {"k": 3, "amp": 42.4264, "phase": -60}]}}——u = dc + Σ amp·cos(kωt + phase°)，**amp 是幅值**；或标准波形 {"wave": {"shape": "square" | "triangle" | "sawtooth" | "half-rect" | "full-rect", "amp": 峰值, "upTo": 最高谐波次数, "offset": 0}}（波形定义见 PROBLEM_FORMAT §4.1；题干写明取到几次谐波）。这类源一般加 "label": "u_s"。
 
 === analysis ===
 - {"type": "dc"}：直流。
 - {"type": "ac", "omega": 1000} 或 {"type": "ac", "freq": 50}（只写一个）：正弦稳态；相量默认取有效值（"phasor": "rms"），P = Re(U·I*)。若题目用幅值，写 "phasor": "peak"。
 - {"type": "tran"}：暂态。t < 0 电路处于直流稳态（开关取 before、阶跃源取 before），t = 0 换路。每个问题都要写时刻 "t"："0-"、"0+"、秒数（如 0.4）或 "inf"（tau 除外）。
+- {"type": "periodic", "omega": 314}：非正弦周期稳态，omega / freq 是**基波**；逐次谐波求解再叠加。问某一次谐波加 "harmonic": k（0 = 直流分量；v、i、meter 的结果默认是该次谐波的有效值，"part": "phase" 为初相；p 为该次谐波的功率；req、gain 必须写 harmonic）。不写 harmonic 问整个波形：v、i、meter 默认有效值 √(U_0² + U_1² + …)，"part": "avg" 平均值、"absavg" 绝对平均值、"peak" 最大值，"t": 秒数 为瞬时值；p 为平均功率 Σ P_k，s = UI，pf = P/S。不能用 Z 元件和 sin/step 源。
 
 === questions ===
 计算题：{"id": "a", "ask": "...", "find": {...}, "answer": 数值, "unit": "V", "explain": "一两句解释"}
@@ -132,7 +134,7 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
 - hints 数量和顺序必须与原文一致。英文自然、地道，数字、单位、符号和元件名不变，英文里不要夹中文。
 
 === 填写区 ===
-章节 chapter：___________（basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / two-port）
+章节 chapter：___________（basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / two-port）
 知识点：___________（例如：戴维宁等效电路、含受控源）
 难度（1–5）：___
 数量：___
@@ -199,7 +201,7 @@ Students look at a schematic, compute values and type answers. The app derives t
   "tags": ["topic", ...],
   "statement": "all given values with units, and what to find",
   "schematic": { "elements": [...], "wires": [...], "labels": [...], "grounds": [...], "terminals": [...], "marks": [...], "loops": [...] },
-  "analysis": {"type": "dc"} | {"type": "ac", "omega": 1000} | {"type": "ac", "freq": 50} | {"type": "tran"},
+  "analysis": {"type": "dc"} | {"type": "ac", "omega": 1000} | {"type": "ac", "freq": 50} | {"type": "tran"} | {"type": "periodic", "omega": 314},
   "questions": [ ... ],
   "hints": ["2–3 hints from gentle to specific"],
   "solution": ["complete step-by-step solution", "..."],
@@ -235,11 +237,13 @@ R (Ω), C (F), L (H), V independent voltage source, I independent current source
 
 === Source values ===
 DC: 12. Sinusoidal steady state: {"ac": {"mag": 100, "phase": 30}} (mag is rms by default, phase in degrees). Step: {"step": {"before": 0, "after": 10}}.
+Non-sinusoidal periodic (only with "periodic"): {"harmonics": {"dc": 10, "terms": [{"k": 1, "amp": 141.4214}, {"k": 3, "amp": 42.4264, "phase": -60}]}} — u = dc + Σ amp·cos(kωt + phase°), **amp is the amplitude**; or a standard waveform {"wave": {"shape": "square" | "triangle" | "sawtooth" | "half-rect" | "full-rect", "amp": peak, "upTo": highest harmonic, "offset": 0}} (definitions in PROBLEM_FORMAT §4.1; state the number of harmonics in the text). Give such sources a "label", e.g. "u_s".
 
 === analysis ===
 - {"type": "dc"}: DC.
 - {"type": "ac", "omega": 1000} or {"type": "ac", "freq": 50} (give only one): sinusoidal steady state; phasors are rms by default ("phasor": "rms"), P = Re(V·I*). If the problem uses amplitudes, set "phasor": "peak".
 - {"type": "tran"}: transient. For t < 0 the circuit is in DC steady state (switches in "before", step sources at "before"); switching happens at t = 0. Every question (except tau) needs a time "t": "0-", "0+", seconds (e.g. 0.4) or "inf".
+- {"type": "periodic", "omega": 314}: non-sinusoidal periodic steady state; omega / freq is the **fundamental**; solved harmonic by harmonic and superposed. Ask one harmonic with "harmonic": k (0 = DC component; v, i, meter give that harmonic's rms value, "part": "phase" its initial phase; p its power; req and gain need a harmonic). Without harmonic you get the whole waveform: v, i, meter default to the rms value √(U_0² + U_1² + …), "part": "avg" average, "absavg" absolute average, "peak" maximum, "t": seconds the instantaneous value; p is the average power Σ P_k, s = UI, pf = P/S. No Z elements and no sin/step sources.
 
 === questions ===
 Numeric: {"id": "a", "ask": "...", "find": {...}, "answer": number, "unit": "V", "explain": "one or two sentences"}
@@ -287,7 +291,7 @@ Multiple choice (concepts): {"id": "c", "ask": "...", "choices": ["...", "...", 
 - hints must have the same count and order as the originals. Write natural Simplified Chinese for students, with the English term after key concepts, e.g. "戴维宁等效（Thevenin equivalent）". Keep numbers, units, symbols and element names unchanged.
 
 === Fill in ===
-Chapter: ___________ (basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / two-port)
+Chapter: ___________ (basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / two-port)
 Topic: ___________ (e.g. Thevenin equivalent with a dependent source)
 Difficulty (1–5): ___
 How many: ___
