@@ -35,6 +35,23 @@ npm run dev
 单片机（第 5 期，只教电路、不跑程序）：ESP32-DevKitC 和 STM32 Blue Pill 开发板——每个 GPIO 在属性里设模式（输出高/低、输入、内部上拉/下拉、PWM、ADC、开漏），实时显示引脚电压、电流、读到的电平和 ADC 值；真实的输出电阻、引脚电流上限（超限“烧坏”）、3.3 V 不耐 5 V（STM32 的 FT 引脚除外）、板载稳压器和 USB 供电。器件：NPN 三极管、N-MOSFET（逻辑电平 / 标准电平）、5 V 继电器、直流电机、有源蜂鸣器、LDO 稳压器、光敏电阻、NTC 热敏电阻。PWM 按时域仿真（可接 RC 滤波、调速，看继电器/电机线圈断电时的感应电压尖峰）。详见 `docs/ROADMAP.md` 的 Phase 5 contract 和规范第 14 节。
 工具：万用表（点孔读电压）、结点着色、悬停孔位显示内部相通的孔。实时诊断：短路、LED 烧毁/接反、元件被同一列短路、引脚悬空、多电源未共地。
 
+## 链接与浏览器历史 Links
+
+每个页面和打开的题目都有自己的网址（hash 路由，任何静态主机都能用，无需服务器配置），可以收藏、分享，浏览器的后退/前进可用；不带路由打开时回到上次的位置（首次访问进入“课程”）。
+Every page and open item has its own URL (hash routes: work on any static host); Back / Forward work, and a visit without a route returns to the last location (Learn for first-time visitors).
+
+| 网址 URL | 页面 Page |
+|---|---|
+| `#/learn/<lessonId>` | 课程 Learn（省略 id：上次打开的或第一节未完成的课） |
+| `#/challenges/<id>` | 挑战 Challenges（id 属于未加载的组时会先加载该组） |
+| `#/practice/<problemId>` | 练习 Practice |
+| `#/sandbox` | 自由编辑 Sandbox |
+| `#/guide/<section>` | 知识 Guide，可直达某张卡片：`breadboard` `ground` `five-steps` `power` `series-parallel` `led` `mistakes` `basics`（点卡片右上角的编号即可复制链接） |
+| `#/import` | 导入 Import |
+
+id 就是题目文件的 `id`（URL 编码）。不存在的 id 会提示并打开该页默认内容。只有切换页面/题目才会产生历史记录，编辑面包板不会。代码：`src/state/router.ts`（解析/生成，纯函数）、`src/state/routeSync.ts`（与 store 同步）。
+Ids are the files' `id` (URI-encoded); an unknown id shows a toast and opens the page's default. Only page / item changes add history entries, board edits don't. Code: `src/state/router.ts`, `src/state/routeSync.ts`.
+
 ## 题库文件夹
 
 - `challenges/` —— 放入符合 `breadboard-challenge/1` 规范的 `.json` 即自动收录：构建时生成轻量索引（`virtual:challenge-index`），完整题目按组（课程、入门、第 1–5 期）分块，打开该组的题时才加载（开发模式热更新）。

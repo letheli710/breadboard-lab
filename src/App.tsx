@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef } from 'react';
 import { tr, type Lang } from './core/i18n';
 import { loadAll, useActiveChallenge } from './state/challenges';
 import { loadProblems } from './state/problems';
+import { startRouting } from './state/routeSync';
 import { useLang, useStore, type Mode } from './state/store';
 import { Icon } from './ui/Icons';
 import { Toast } from './ui/Toast';
@@ -205,11 +206,9 @@ export default function App() {
     setChallenges(r.challenges, r.invalid);
     const pr = loadProblems();
     setProblems(pr.problems, pr.invalid);
-    const st = useStore.getState();
-    if (st.mode === 'learn' && !st.activeId) {
-      const first = r.challenges.find((c) => c.kind === 'lesson' && !st.completed[c.id]) ?? r.challenges.find((c) => c.kind === 'lesson');
-      if (first) st.openChallenge(first.id);
-    }
+    // open the page / item the URL names (or the remembered one); after a language switch this
+    // only refreshes the tab title
+    startRouting();
   }, [setChallenges, setProblems, lang]);
 
   useEffect(() => {

@@ -7,6 +7,7 @@ import type { CheckResult } from '../core/check';
 import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS, nextScopeChannel } from '../core/parts';
 import type { Layout, PartProps, PartType, PlacedPart } from '../core/types';
+import { modeOf, startRoute } from './router';
 import { boolRecord, readStored, sanitizeLayout, sanitizeScope, writeStored, writeStoredLater } from './persist';
 
 export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import';
@@ -98,6 +99,9 @@ interface State {
   challenges: Challenge[];
   invalid: InvalidFile[];
   activeId: string | null;
+  /** built-in challenge asked for whose file is still loading (it opens when it arrives); the
+   *  URL already names it */
+  opening: string | null;
   step: number;
   hintsShown: number;
   check: CheckResult | null;
@@ -269,7 +273,9 @@ export const useStore = create<State>((set, get) => {
 
   return {
     lang: initialLang(),
-    mode: 'learn',
+    // the page from the URL (or the remembered one) from the start, so a Practice / Guide /
+    // Import link never mounts the 3D workbench
+    mode: modeOf(startRoute().route),
     panel: 'task',
     layout: emptyLayout(),
     past: [],
@@ -290,6 +296,7 @@ export const useStore = create<State>((set, get) => {
     challenges: [],
     invalid: [],
     activeId: null,
+    opening: null,
     step: 0,
     hintsShown: 0,
     check: null,
@@ -311,7 +318,11 @@ export const useStore = create<State>((set, get) => {
     },
     setMode(mode) {
       const s = get();
-      if (mode === s.mode) return;
+      // a challenge still loading is dropped when another page (or this page's nav) is picked
+      openRequest = null;
+      if (s.opening) set({ opening: null });
+      const needsItem = (mode === 'learn' || mode === 'challenge') && !s.activeId;
+      if (mode === s.mode && !needsItem) return;
       const base = { mode, tool: 'select' as Tool, firstHole: null, selectedId: null, highlight: null, check: null, ...fresh };
       if (mode === 'sandbox') {
         set({ ...base, panel: 'schematic', layout: savedLayout('bb.layout.sandbox') ?? emptyLayout() });
@@ -476,7 +487,9 @@ export const useStore = create<State>((set, get) => {
     setChallenges(challenges, invalid) {
       set({ challenges, invalid });
       const s = get();
-      if ((s.mode === 'learn' || s.mode === 'challenge') && !challenges.some((c) => c.id === s.activeId)) {
+      // the open challenge went away (an imported file was removed): open another. (Nothing is
+      // open yet at startup — then the route decides, see state/routeSync.ts.)
+      if ((s.mode === 'learn' || s.mode === 'challenge') && s.activeId && !challenges.some((c) => c.id === s.activeId)) {
         const kind = s.mode === 'learn' ? 'lesson' : 'challenge';
         const first = challenges.find((c) => c.kind === kind && !s.completed[c.id]) ?? challenges.find((c) => c.kind === kind);
         if (first) get().openChallenge(first.id);
@@ -488,10 +501,15 @@ export const useStore = create<State>((set, get) => {
       if (isPending(ch)) {
         // built-in file not loaded yet: load its group, then open (unless another was picked meanwhile)
         openRequest = id;
+        set({ opening: id });
         const asked = get().mode;
         void ensureChallenge(id).then((ok) => {
-          if (openRequest !== id || get().mode !== asked) return;
+          if (openRequest !== id || get().mode !== asked) {
+            if (get().opening === id) set({ opening: null });
+            return;
+          }
           openRequest = null;
+          set({ opening: null });
           const loaded = get().challenges.find((c) => c.id === id);
           if (ok && loaded && !isPending(loaded)) get().openChallenge(id);
           else get().notify(tr('题目文件加载失败，请检查网络后重试。', "Couldn't load the challenge file; check the connection and try again."));
@@ -503,6 +521,7 @@ export const useStore = create<State>((set, get) => {
       const start = saved ?? ch.start ?? emptyLayout();
       set({
         activeId: id,
+        opening: null,
         mode: ch.kind === 'lesson' ? 'learn' : 'challenge',
         step: 0,
         hintsShown: 0,
@@ -553,7 +572,8 @@ export const useStore = create<State>((set, get) => {
     },
     openProblem(problemId) {
       LS.set('bb.practice.current', problemId);
-      set({ problemId, mode: 'practice' });
+      openRequest = null;
+      set({ problemId, mode: 'practice', opening: null });
     },
     practiceEvent(pid, qid, ev) {
       const s = get();
