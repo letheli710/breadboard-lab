@@ -1,0 +1,449 @@
+{
+  "$schema": "../schema/summary.schema.json",
+  "format": "chapter-summary/1",
+  "chapter": "first-order",
+  "intro": "只含一个（或可以合并成一个）储能元件的电路是**一阶电路**，描述它的是一阶微分方程。在直流（或阶跃）激励下，任何一个电压、电流都可以用**三要素法**一步写出：f(t) = f(∞) + [f(0₊) − f(∞)]e^{−t/τ}。这一章的题目，几乎都是在求这三个要素。",
+  "i18n": {
+    "en": {
+      "intro": "A circuit with one storage element (or several that combine into one) is a **first-order circuit**, described by a first-order differential equation. Under DC (or step) excitation every voltage and current follows from the **three-element method** in one line: f(t) = f(∞) + [f(0+) − f(∞)]e^{−t/τ}. Almost every problem in this chapter is about finding those three elements."
+    }
+  },
+  "ideas": [
+    {
+      "id": "initial",
+      "title": "初始值 f(0₊)：换路定则 + 0₊ 等效电路",
+      "text": [
+        "1. 由换路**前**的电路（一般是直流稳态：电容开路、电感短路）求 u_C(0₋)、i_L(0₋)；",
+        "2. 换路定则：u_C(0₊) = u_C(0₋)，i_L(0₊) = i_L(0₋)；",
+        "3. 画换路**后**的 0₊ 等效电路：电容换成电压源 u_C(0₊)，电感换成电流源 i_L(0₊)，求所要的量。",
+        "电阻电流、结点电位、i_C、u_L 都可能在换路时跳变，它们的 f(0₊) **必须**从 0₊ 等效电路求，不能用 0₋ 的值。"
+      ],
+      "problems": ["first-order-05-initial-values", "first-order-rc-discharge", "first-order-04-rl-zero-input", "first-order-08-three-element-resistor-current", "first-order-11-step-nonzero-initial", "first-order-13-rl-ccvs-full-response", "first-order-15-two-sources-superposition"],
+      "i18n": {
+        "en": {
+          "title": "Initial value f(0+): switching laws + the 0+ equivalent circuit",
+          "text": [
+            "1. From the circuit **before** switching (usually DC steady state: capacitor open, inductor short) find u_C(0−), i_L(0−);",
+            "2. Switching laws: u_C(0+) = u_C(0−), i_L(0+) = i_L(0−);",
+            "3. Draw the 0+ equivalent circuit **after** switching: capacitor → voltage source u_C(0+), inductor → current source i_L(0+); solve it for the quantity you need.",
+            "Resistor currents, node potentials, i_C and u_L may all jump at switching: their f(0+) **must** come from the 0+ circuit, never from the 0− values."
+          ]
+        }
+      }
+    },
+    {
+      "id": "zero-input",
+      "title": "零输入响应：RC 放电、RL 磁场能量释放",
+      "text": [
+        "换路后电路中没有独立源，响应完全由初始储能引起，称为**零输入响应**：每一个电压、电流都按同一个指数规律衰减到零，f(t) = f(0₊)e^{−t/τ}（t > 0）。",
+        "RC 放电时 u_C 从 u_C(0₊) 衰减；RL 电路断开电源后 i_L 从 i_L(0₊) 衰减，电感电压可能远高于原来的电源电压。初始储能最终全部消耗在电阻上。",
+        "t = τ 时衰减到初值的 36.8%（充电时达到终值的 63.2%）；工程上认为 3τ～5τ 后过渡过程结束。"
+      ],
+      "problems": ["first-order-rc-discharge", "first-order-04-rl-zero-input", "first-order-07-rc-discharge-network"],
+      "i18n": {
+        "en": {
+          "title": "Zero-input response: RC discharge, RL energy release",
+          "text": [
+            "With no independent source after switching, the response is caused only by the initial stored energy — the **zero-input response**: every voltage and current decays to zero with the same exponential, f(t) = f(0+)e^{−t/τ} (t > 0).",
+            "In an RC discharge u_C decays from u_C(0+); when an RL circuit is cut off from its source i_L decays from i_L(0+), and the inductor voltage can be far higher than the old source voltage. All the initial energy ends up dissipated in the resistors.",
+            "At t = τ a decay is down to 36.8 % of its initial value (a charge has reached 63.2 % of its final value); in practice the transient is over after 3τ–5τ."
+          ]
+        }
+      }
+    },
+    {
+      "id": "zero-state",
+      "title": "零状态响应：RC 充电、RL 电流建立",
+      "text": [
+        "储能元件初始状态为零（u_C(0₋) = 0 或 i_L(0₋) = 0），响应完全由换路后的激励引起，称为**零状态响应**。直流激励下 u_C、i_L 从零按 1 − e^{−t/τ} 上升到稳态值：u_C(t) = u_C(∞)(1 − e^{−t/τ})，i_L(t) = i_L(∞)(1 − e^{−t/τ})。",
+        "储能元件以外的电路复杂时，先求从储能元件看进去的**戴维宁等效电路**（U_oc、R_eq），电路就化成一个电源、一个电阻、一个储能元件的简单回路。",
+        "含理想运放的一阶电路也一样：先用虚短、虚断看清储能元件所在的支路是被什么驱动的，再用三要素法。"
+      ],
+      "problems": ["first-order-02-rc-charging", "first-order-06-rl-zero-state-thevenin", "first-order-12-tau-cccs", "first-order-16-opamp-rc-step"],
+      "i18n": {
+        "en": {
+          "title": "Zero-state response: RC charging, RL current build-up",
+          "text": [
+            "With zero initial state (u_C(0−) = 0 or i_L(0−) = 0) the response is caused only by the excitation after switching — the **zero-state response**. Under DC excitation u_C and i_L rise from zero as 1 − e^{−t/τ} to their steady-state values: u_C(t) = u_C(∞)(1 − e^{−t/τ}), i_L(t) = i_L(∞)(1 − e^{−t/τ}).",
+            "If the rest of the circuit is complicated, first find its **Thévenin equivalent** seen from the storage element (U_oc, R_eq): the circuit becomes a single loop of one source, one resistor and the storage element.",
+            "First-order circuits with ideal op-amps work the same way: use virtual short and virtual open to see what drives the branch with the storage element, then apply the three-element method."
+          ]
+        }
+      }
+    },
+    {
+      "id": "tau",
+      "title": "时间常数 τ：从储能元件看进去的等效电阻",
+      "text": [
+        "τ = R_eqC（RC 电路）或 τ = L/R_eq（RL 电路），R_eq 是**换路后**的电路中，从储能元件两端看进去的戴维宁等效电阻：独立电压源短路、独立电流源开路。",
+        "同一个一阶电路中所有电压、电流的 τ 都相同。几个电容并联（或电感串联）可以合并成一个储能元件；两个电容经电阻串成回路时，对电阻而言它们是串联的，C = C_1C_2/(C_1 + C_2)。",
+        "τ 只取决于换路后的电路结构和参数，与激励、初始值无关。"
+      ],
+      "problems": ["first-order-06-rl-zero-state-thevenin", "first-order-07-rc-discharge-network", "first-order-08-three-element-resistor-current", "first-order-09-rl-current-source-switch", "first-order-14-charge-redistribution", "first-order-15-two-sources-superposition", "first-order-rc-discharge"],
+      "i18n": {
+        "en": {
+          "title": "Time constant τ: the equivalent resistance seen from the storage element",
+          "text": [
+            "τ = R_eqC (RC circuits) or τ = L/R_eq (RL circuits), where R_eq is the Thévenin resistance of the circuit **after** switching, seen from the terminals of the storage element, with independent voltage sources shorted and independent current sources opened.",
+            "Every voltage and current of one first-order circuit has the same τ. Capacitors in parallel (or inductors in series) merge into one storage element; two capacitors joined in a loop through a resistor are in series as seen by the resistor, C = C_1C_2/(C_1 + C_2).",
+            "τ depends only on the circuit after switching and its parameters, not on the excitation or the initial values."
+          ]
+        }
+      }
+    },
+    {
+      "id": "tau-dependent",
+      "title": "含受控源时求 R_eq：外加电源法",
+      "text": [
+        "受控源**不能置零**，也不能直接用串并联化简。方法：独立源置零，在储能元件的位置加电压 u（或电流 i），求流入的电流 i（或端电压 u），R_eq = u/i。也可以用 R_eq = U_oc/I_sc（开路电压 / 短路电流）。",
+        "受控源可能让 R_eq 变小、变大，甚至为负：R_eq < 0 时 τ < 0，响应按指数增长，电路不稳定，不存在稳态。"
+      ],
+      "problems": ["first-order-12-tau-cccs", "first-order-13-rl-ccvs-full-response", "first-order-18-vcvs-overcharge"],
+      "i18n": {
+        "en": {
+          "title": "R_eq with dependent sources: the applied-source method",
+          "text": [
+            "A dependent source **must not be zeroed** and cannot be simplified away by series/parallel rules. Method: zero the independent sources, apply a voltage u (or current i) where the storage element sits, find the current i flowing in (or the voltage u), R_eq = u/i. Alternatively R_eq = U_oc/I_sc (open-circuit voltage / short-circuit current).",
+            "A dependent source can make R_eq smaller, larger, or even negative: with R_eq < 0, τ < 0, the response grows exponentially, the circuit is unstable and has no steady state."
+          ]
+        }
+      }
+    },
+    {
+      "id": "three-element",
+      "title": "三要素法",
+      "text": [
+        "直流激励下一阶电路的任一响应（不只是 u_C、i_L，也包括电阻电流、结点电位）都是 f(t) = f(∞) + [f(0₊) − f(∞)]e^{−t/τ}，t > 0。三个要素：",
+        "- **f(0₊)**：0₊ 等效电路；",
+        "- **f(∞)**：换路后的直流稳态（电容开路、电感短路）；",
+        "- **τ**：从储能元件看进去的 R_eq。",
+        "开关可以是打开、闭合，也可以是换向开关；激励可以是电压源或电流源。先求 u_C 或 i_L 再用 KCL、KVL 推出其他量，也是常用的验算方法。"
+      ],
+      "problems": ["first-order-08-three-element-resistor-current", "first-order-09-rl-current-source-switch", "first-order-10-changeover-full-response", "first-order-11-step-nonzero-initial", "first-order-13-rl-ccvs-full-response", "first-order-15-two-sources-superposition", "first-order-18-vcvs-overcharge", "first-order-14-charge-redistribution"],
+      "i18n": {
+        "en": {
+          "title": "The three-element method",
+          "text": [
+            "Under DC excitation any response of a first-order circuit (not only u_C and i_L, but resistor currents and node potentials too) is f(t) = f(∞) + [f(0+) − f(∞)]e^{−t/τ}, t > 0. The three elements:",
+            "- **f(0+)**: from the 0+ equivalent circuit;",
+            "- **f(∞)**: from the DC steady state after switching (capacitor open, inductor short);",
+            "- **τ**: from R_eq seen by the storage element.",
+            "The switch may open, close or change over; the excitation may be voltage or current sources. Finding u_C or i_L first and deriving the rest with KCL and KVL is also a good check."
+          ]
+        }
+      }
+    },
+    {
+      "id": "decompose",
+      "title": "全响应的两种分解与线性",
+      "text": [
+        "**全响应 = 零输入响应 + 零状态响应**（按原因分：初始储能 / 外加激励）；**全响应 = 稳态分量 + 暂态分量**（按形式分：强制分量 f(∞) / 自由分量 [f(0₊) − f(∞)]e^{−t/τ}）。两种写法加起来相同。",
+        "零状态响应对**每个激励**是线性的（激励加倍、响应加倍；几个激励的响应可以叠加）；零输入响应与初始状态成正比。全响应对激励**不**成正比，除非把初始状态也看成一种激励。"
+      ],
+      "problems": ["first-order-10-changeover-full-response", "first-order-15-two-sources-superposition", "first-order-11-step-nonzero-initial"],
+      "i18n": {
+        "en": {
+          "title": "Two ways to split the complete response; linearity",
+          "text": [
+            "**Complete response = zero-input + zero-state** (split by cause: initial energy / applied excitation); **complete response = steady-state + transient** (split by form: forced part f(∞) / natural part [f(0+) − f(∞)]e^{−t/τ}). Both add up to the same thing.",
+            "The zero-state response is linear in **each excitation** (double the source, double the response; responses to several sources superpose); the zero-input response is proportional to the initial state. The complete response is **not** proportional to the excitation unless the initial state is also treated as an excitation."
+          ]
+        }
+      }
+    },
+    {
+      "id": "step",
+      "title": "阶跃响应",
+      "text": [
+        "单位阶跃函数 ε(t)：t < 0 为 0，t > 0 为 1。用它可以把“开关在 t = 0 接通”写成激励 u_s = U_sε(t)；延时接通写成 ε(t − t_0)。",
+        "**单位阶跃响应** s(t) 是激励为 ε(t) 时的零状态响应；激励为 Aε(t) 时零状态响应为 As(t)。写响应时乘上 ε(t) 表示它只在 t > 0 成立。",
+        "激励写成 u_s = U_1 + U_2ε(t) 时，t < 0 的稳态由 U_1 决定，初始状态**不为零**：响应 = U_1 产生的原稳态 + U_2ε(t) 产生的零状态响应（或直接用三要素法）。"
+      ],
+      "problems": ["first-order-03-rc-step-current", "first-order-11-step-nonzero-initial", "first-order-16-opamp-rc-step"],
+      "i18n": {
+        "en": {
+          "title": "Step response",
+          "text": [
+            "The unit step ε(t) is 0 for t < 0 and 1 for t > 0. It turns “switched on at t = 0” into an excitation u_s = U_sε(t); a delayed switch-on is ε(t − t_0).",
+            "The **unit step response** s(t) is the zero-state response to ε(t); for Aε(t) the zero-state response is As(t). Multiplying a response by ε(t) says it holds for t > 0 only.",
+            "For an excitation u_s = U_1 + U_2ε(t), the steady state for t < 0 is set by U_1, so the initial state is **not zero**: response = the old steady state due to U_1 + the zero-state response to U_2ε(t) (or just use the three-element method)."
+          ]
+        }
+      }
+    },
+    {
+      "id": "sinusoid",
+      "title": "正弦激励下的一阶电路",
+      "text": [
+        "正弦激励下电路没有 f(∞)，三要素法中的 f(∞) 换成**稳态解** f_p(t)（用相量法求出的正弦量）：f(t) = f_p(t) + [f(0₊) − f_p(0₊)]e^{−t/τ}。",
+        "自由分量的大小取决于合闸时刻（初相位）：若 f_p(0₊) = f(0₊)，合闸后立即进入稳态，没有过渡过程；相差最大时过渡过程最剧烈。",
+        "正弦量以 cos 为参考：题目给 sin 时先换成 cos(x − 90°)。"
+      ],
+      "problems": ["first-order-17-rl-sinusoidal-switch"],
+      "i18n": {
+        "en": {
+          "title": "First-order circuits with sinusoidal excitation",
+          "text": [
+            "With a sinusoidal source there is no f(∞); replace it by the **steady-state solution** f_p(t) (the sinusoid found by the phasor method): f(t) = f_p(t) + [f(0+) − f_p(0+)]e^{−t/τ}.",
+            "The size of the natural part depends on the switching instant (the initial phase): if f_p(0+) = f(0+) the circuit enters steady state at once, with no transient; the larger the mismatch, the larger the transient.",
+            "Sinusoids are referenced to cos: a sine is first rewritten as cos(x − 90°)."
+          ]
+        }
+      }
+    }
+  ],
+  "formulas": [
+    {
+      "id": "switch",
+      "idea": "initial",
+      "name": "换路定则",
+      "expr": "u_C(0₊) = u_C(0₋)，i_L(0₊) = i_L(0₋)",
+      "when": "换路瞬间 i_C、u_L 为有限值；只对这两个状态量成立，其他量的 0₊ 值由 0₊ 等效电路求。",
+      "i18n": { "en": { "name": "Switching laws", "expr": "u_C(0+) = u_C(0−), i_L(0+) = i_L(0−)", "when": "i_C and u_L finite at the switching instant; holds only for these two state variables — other 0+ values come from the 0+ circuit." } }
+    },
+    {
+      "id": "zi",
+      "idea": "zero-input",
+      "name": "零输入响应",
+      "expr": "f(t) = f(0₊)e^{−t/τ}，t > 0",
+      "when": "换路后没有独立源；f 为电路中任一电压或电流，f(0₊) 取 0₊ 时刻的值（不是 0₋）。",
+      "i18n": { "en": { "name": "Zero-input response", "expr": "f(t) = f(0+)e^{−t/τ}, t > 0", "when": "No independent source after switching; f is any voltage or current, f(0+) its value at 0+ (not 0−)." } }
+    },
+    {
+      "id": "zs",
+      "idea": "zero-state",
+      "name": "零状态响应（直流）",
+      "expr": "u_C(t) = u_C(∞)(1 − e^{−t/τ})，i_L(t) = i_L(∞)(1 − e^{−t/τ})",
+      "when": "u_C(0₋) = 0 或 i_L(0₋) = 0，换路后为直流激励；只对状态量 u_C、i_L 这样写，其他量用三要素法。",
+      "i18n": { "en": { "name": "Zero-state response (DC)", "expr": "u_C(t) = u_C(∞)(1 − e^{−t/τ}), i_L(t) = i_L(∞)(1 − e^{−t/τ})", "when": "u_C(0−) = 0 or i_L(0−) = 0, DC excitation after switching; this form is for the state variables u_C, i_L only — use the three-element method for the rest." } }
+    },
+    {
+      "id": "tau",
+      "idea": "tau",
+      "name": "时间常数",
+      "expr": "τ = R_eqC，τ = \\frac{L}{R_eq}",
+      "when": "R_eq：换路后从储能元件两端看进去的等效电阻，独立电压源短路、独立电流源开路，受控源保留。",
+      "i18n": { "en": { "name": "Time constant", "expr": "τ = R_eqC, τ = \\frac{L}{R_eq}", "when": "R_eq: the resistance seen from the storage element's terminals after switching, independent voltage sources shorted, current sources opened, dependent sources kept." } }
+    },
+    {
+      "id": "progress",
+      "idea": "zero-input",
+      "name": "过渡过程的进度",
+      "expr": "e^{−1} ≈ 0.368，1 − e^{−1} ≈ 0.632；3τ：95.0%，5τ：99.3%",
+      "when": "按指数规律变化的量在 t = τ、3τ、5τ 时完成的比例；工程上 3τ～5τ 视为结束。",
+      "i18n": { "en": { "name": "How far the transient has gone", "expr": "e^{−1} ≈ 0.368, 1 − e^{−1} ≈ 0.632; 3τ: 95.0 %, 5τ: 99.3 %", "when": "Fraction of an exponential change completed at t = τ, 3τ, 5τ; in practice the transient is over after 3τ–5τ." } }
+    },
+    {
+      "id": "req-dep",
+      "idea": "tau-dependent",
+      "name": "外加电源法求 R_eq",
+      "expr": "R_eq = \\frac{u}{i}　或　R_eq = \\frac{U_oc}{I_sc}",
+      "when": "独立源置零、受控源保留；u、i 对外加电源取非关联方向（i 从“+”端流入网络）。R_eq 可能为负（电路不稳定）。",
+      "i18n": { "en": { "name": "R_eq by an applied source", "expr": "R_eq = \\frac{u}{i}　or　R_eq = \\frac{U_oc}{I_sc}", "when": "Independent sources zeroed, dependent sources kept; i is the current the applied source drives into the network at its “+” terminal. R_eq may be negative (unstable circuit)." } }
+    },
+    {
+      "id": "three",
+      "idea": "three-element",
+      "name": "三要素公式",
+      "expr": "f(t) = f(∞) + [f(0₊) − f(∞)]e^{−t/τ}，t > 0",
+      "when": "一阶电路，换路后为直流（含阶跃）激励；f 可以是任一电压、电流。",
+      "i18n": { "en": { "name": "Three-element formula", "expr": "f(t) = f(∞) + [f(0+) − f(∞)]e^{−t/τ}, t > 0", "when": "First-order circuit with DC (or step) excitation after switching; f may be any voltage or current." } }
+    },
+    {
+      "id": "decomp",
+      "idea": "decompose",
+      "name": "全响应的分解",
+      "expr": "f = f_{零输入} + f_{零状态} = f_{稳态} + f_{暂态}",
+      "when": "线性电路。零状态响应对每个激励满足叠加和齐次性；全响应只在把初始状态也当作激励时才满足。",
+      "i18n": { "en": { "name": "Splitting the complete response", "expr": "f = f_{zero-input} + f_{zero-state} = f_{steady} + f_{transient}", "when": "Linear circuits. The zero-state response obeys superposition and homogeneity in each source; the complete response only if the initial state is counted as a source." } }
+    },
+    {
+      "id": "step",
+      "idea": "step",
+      "name": "阶跃响应",
+      "expr": "激励 Aε(t) → 零状态响应 As(t)；激励 Aε(t − t_0) → As(t − t_0)",
+      "when": "s(t) 为单位阶跃响应（零状态）；时不变线性电路。",
+      "i18n": { "en": { "name": "Step response", "expr": "excitation Aε(t) → zero-state response As(t); Aε(t − t_0) → As(t − t_0)", "when": "s(t) is the unit step response (zero state); linear time-invariant circuit." } }
+    },
+    {
+      "id": "sin",
+      "idea": "sinusoid",
+      "name": "正弦激励下的全响应",
+      "expr": "f(t) = f_p(t) + [f(0₊) − f_p(0₊)]e^{−t/τ}",
+      "when": "f_p(t) 是用相量法求得的正弦稳态解（cos 参考）；t > 0。",
+      "i18n": { "en": { "name": "Complete response with a sinusoidal source", "expr": "f(t) = f_p(t) + [f(0+) − f_p(0+)]e^{−t/τ}", "when": "f_p(t) is the sinusoidal steady-state solution from the phasor method (cosine reference); t > 0." } }
+    }
+  ],
+  "examples": [
+    {
+      "id": "three-element",
+      "ideas": ["three-element", "initial", "tau", "step"],
+      "title": "三要素法：电容电压和一条电阻支路的电流",
+      "statement": "图示电路中 u_s = 4 + 8ε(t) V（t < 0 时为 4 V，t > 0 时为 12 V），R_1 = R_2 = 4 kΩ，R_3 = 1 kΩ，C = 100 µF，t < 0 时电路已处于稳态。用三要素法求 u_C(t) 和 R_3 中的电流 i_3(t)，并求 t = 0.3 s 时的值。",
+      "schematic": {
+        "elements": [
+          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "step": { "before": 4, "after": 12 } }, "label": "u_s" },
+          { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": "4k" },
+          { "ref": "R2", "type": "R", "from": [7, 0], "to": [7, 6], "value": "4k" },
+          { "ref": "R3", "type": "R", "from": [9, 0], "to": [12, 0], "value": "1k" },
+          { "ref": "C", "type": "C", "from": [14, 0], "to": [14, 6], "value": "100u" }
+        ],
+        "wires": [
+          [[0, 0], [2, 0]],
+          [[5, 0], [9, 0]],
+          [[12, 0], [14, 0]],
+          [[14, 6], [0, 6]]
+        ],
+        "labels": [{ "at": [7, 0], "name": "a" }, { "at": [13, 0], "name": "b" }],
+        "grounds": [[0, 6]],
+        "marks": [
+          { "kind": "v", "el": "C", "name": "u_C" },
+          { "kind": "i", "el": "R3", "name": "i3" }
+        ]
+      },
+      "analysis": { "type": "tran" },
+      "results": [
+        { "id": "uc0", "ask": "u_C(0₋)", "find": { "kind": "v", "el": "C", "t": "0-" }, "answer": 2, "unit": "V" },
+        { "id": "ua0", "ask": "u_a(0₊)", "find": { "kind": "v", "nodes": ["a"], "t": "0+" }, "answer": 3.333333, "unit": "V" },
+        { "id": "i30", "ask": "i_3(0₊)", "find": { "kind": "i", "el": "R3", "t": "0+" }, "answer": 0.001333333, "unit": "mA" },
+        { "id": "ucinf", "ask": "u_C(∞)", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": 6, "unit": "V" },
+        { "id": "req", "ask": "R_eq", "find": { "kind": "req", "port": ["b", "0"], "t": "inf" }, "answer": 3000, "unit": "kΩ" },
+        { "id": "tau", "ask": "τ", "find": { "kind": "tau" }, "answer": 0.3, "unit": "s" },
+        { "id": "uct", "ask": "u_C(0.3 s)", "find": { "kind": "v", "el": "C", "t": 0.3 }, "answer": 4.528482, "unit": "V" },
+        { "id": "i3t", "ask": "i_3(0.3 s)", "find": { "kind": "i", "el": "R3", "t": 0.3 }, "answer": 0.000490506, "unit": "mA" }
+      ],
+      "steps": [
+        "1. **t < 0 的稳态（u_s = 4 V）。** 电容开路，R_3 中无电流，u_C(0₋) = u_a = 4 × R_2/(R_1 + R_2) = **2 V**。",
+        "2. **f(0₊)。** 换路定则 u_C(0₊) = 2 V。0₊ 等效电路：u_s = 12 V，电容换成 2 V 电压源。结点 a：(12 − u_a)/4 = u_a/4 + (u_a − 2)/1（单位 kΩ、mA）→ **u_a(0₊) = 3.333 V**，**i_3(0₊) = (3.333 − 2)/1k = 1.333 mA**（i_3 从 0 跳变）。",
+        "3. **f(∞)。** 电容开路：u_C(∞) = u_a(∞) = 12 × R_2/(R_1 + R_2) = **6 V**，i_3(∞) = 0。",
+        "4. **τ。** u_s 短路，从电容两端看进去：R_eq = R_3 + R_1 ∥ R_2 = **3 kΩ**，τ = R_eqC = **0.3 s**。",
+        "5. **代入三要素公式（t > 0）：** u_C(t) = 6 + (2 − 6)e^{−t/0.3} = 6 − 4e^{−t/0.3} V；i_3(t) = 0 + (1.333 − 0)e^{−t/0.3} mA。",
+        "6. **t = 0.3 s（= τ）：** u_C = 6 − 4e^{−1} ≈ **4.53 V**，i_3 ≈ **0.491 mA**。",
+        "**验算：** i_3 = i_C = C du_C/dt = 100×10⁻⁶ × (4/0.3)e^{−t/0.3}，t = 0₊ 时正好是 1.333 mA ✓。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Three-element method: a capacitor voltage and a resistor current",
+          "statement": "In the circuit u_s = 4 + 8ε(t) V (4 V for t < 0, 12 V for t > 0), R_1 = R_2 = 4 kΩ, R_3 = 1 kΩ, C = 100 µF; for t < 0 the circuit is in steady state. Use the three-element method to find u_C(t) and the current i_3(t) in R_3, and their values at t = 0.3 s.",
+          "results": [{ "ask": "u_C(0−)" }, { "ask": "u_a(0+)" }, { "ask": "i_3(0+)" }, { "ask": "u_C(∞)" }, { "ask": "R_eq" }, { "ask": "τ" }, { "ask": "u_C(0.3 s)" }, { "ask": "i_3(0.3 s)" }],
+          "steps": [
+            "1. **Steady state for t < 0 (u_s = 4 V).** Capacitor open, no current in R_3: u_C(0−) = u_a = 4 × R_2/(R_1 + R_2) = **2 V**.",
+            "2. **f(0+).** Switching law: u_C(0+) = 2 V. 0+ circuit: u_s = 12 V, capacitor replaced by a 2 V source. Node a: (12 − u_a)/4 = u_a/4 + (u_a − 2)/1 (kΩ, mA) → **u_a(0+) = 3.333 V**, **i_3(0+) = (3.333 − 2)/1k = 1.333 mA** (i_3 jumps from 0).",
+            "3. **f(∞).** Capacitor open: u_C(∞) = u_a(∞) = 12 × R_2/(R_1 + R_2) = **6 V**, i_3(∞) = 0.",
+            "4. **τ.** Short u_s and look in from the capacitor terminals: R_eq = R_3 + R_1 ∥ R_2 = **3 kΩ**, τ = R_eqC = **0.3 s**.",
+            "5. **Three-element formula (t > 0):** u_C(t) = 6 + (2 − 6)e^{−t/0.3} = 6 − 4e^{−t/0.3} V; i_3(t) = 0 + (1.333 − 0)e^{−t/0.3} mA.",
+            "6. **At t = 0.3 s (= τ):** u_C = 6 − 4e^{−1} ≈ **4.53 V**, i_3 ≈ **0.491 mA**.",
+            "**Check:** i_3 = i_C = C du_C/dt = 100×10⁻⁶ × (4/0.3)e^{−t/0.3}, which at t = 0+ is exactly 1.333 mA ✓."
+          ]
+        }
+      }
+    },
+    {
+      "id": "dependent-tau",
+      "ideas": ["tau-dependent", "zero-state", "initial"],
+      "title": "含 CCVS 的 RL 电路：受控源改变了 τ",
+      "statement": "图示电路中 u_s = 12ε(t) V，R_1 = R_2 = 4 Ω，L = 0.5 H，电感原来没有电流。电流控制电压源 H 的电压为 2i_2（“+”在左），i_2 为 R_2 中向下的电流。求 R_eq、τ、u_a(0₊)、i_2(0₊)、u_L(0₊)、i_L(∞)，以及 t = 0.5 s 时的 i_L。",
+      "schematic": {
+        "elements": [
+          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "step": { "before": 0, "after": 12 } }, "label": "12ε(t) V" },
+          { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 4 },
+          { "ref": "R2", "type": "R", "from": [7, 0], "to": [7, 6], "value": 4 },
+          { "ref": "H", "type": "CCVS", "from": [9, 0], "to": [12, 0], "value": 2, "ctrl": { "i": "R2" }, "label": "2i_2" },
+          { "ref": "L", "type": "L", "from": [14, 0], "to": [14, 6], "value": 0.5 }
+        ],
+        "wires": [
+          [[0, 0], [2, 0]],
+          [[5, 0], [9, 0]],
+          [[12, 0], [14, 0]],
+          [[14, 6], [0, 6]]
+        ],
+        "labels": [{ "at": [7, 0], "name": "a" }, { "at": [13, 0], "name": "b" }],
+        "grounds": [[0, 6]],
+        "marks": [
+          { "kind": "i", "el": "R2", "name": "i2" },
+          { "kind": "i", "el": "L", "name": "i_L" },
+          { "kind": "v", "el": "L", "name": "u_L" }
+        ]
+      },
+      "analysis": { "type": "tran" },
+      "results": [
+        { "id": "req", "ask": "R_eq", "find": { "kind": "req", "port": ["b", "0"], "t": "inf" }, "answer": 1, "unit": "Ω" },
+        { "id": "tau", "ask": "τ", "find": { "kind": "tau" }, "answer": 0.5, "unit": "s" },
+        { "id": "ua0", "ask": "u_a(0₊)", "find": { "kind": "v", "nodes": ["a"], "t": "0+" }, "answer": 6, "unit": "V" },
+        { "id": "i20", "ask": "i_2(0₊)", "find": { "kind": "i", "el": "R2", "t": "0+" }, "answer": 1.5, "unit": "A" },
+        { "id": "ul0", "ask": "u_L(0₊)", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": 3, "unit": "V" },
+        { "id": "ilinf", "ask": "i_L(∞)", "find": { "kind": "i", "el": "L", "t": "inf" }, "answer": 3, "unit": "A" },
+        { "id": "ilt", "ask": "i_L(0.5 s)", "find": { "kind": "i", "el": "L", "t": 0.5 }, "answer": 1.896362, "unit": "A" }
+      ],
+      "steps": [
+        "1. **R_eq（外加电源法）。** u_s 短路，在 b 与地之间加电压 u，设从 b 流入网络的电流为 i。KVL 经 H：u_b = u_a − 2i_2，而 i_2 = u_a/R_2 = u_a/4，所以 u = u_a/2，即 u_a = 2u。结点 a 的 KCL：i = u_a/R_1 + u_a/R_2 = 2u/4 + 2u/4 = u，**R_eq = 1 Ω**。",
+        "如果把受控源置零，会得到 R_1 ∥ R_2 = 2 Ω——错误，τ 会算成原来的一半。",
+        "2. **τ = L/R_eq = 0.5/1 = 0.5 s**。",
+        "3. **0₊ 等效电路。** i_L(0₊) = i_L(0₋) = 0，电感开路，R_1、R_2 串联：**u_a(0₊) = 6 V**，**i_2(0₊) = 1.5 A**，H 的电压 2i_2 = 3，**u_L(0₊) = u_b = 6 − 3 = 3 V**。",
+        "4. **i_L(∞)。** 电感短路，u_b = 0 = u_a − 2i_2 = u_a − u_a/2，所以 u_a = 0、i_2 = 0，全部电流流过 R_1：**i_L(∞) = 12/4 = 3 A**。",
+        "5. **零状态响应：** i_L(t) = 3(1 − e^{−2t}) A（t > 0）；t = 0.5 s：i_L = 3(1 − e^{−1}) ≈ **1.90 A**。",
+        "**验算：** u_L(0₊) = L·di_L/dt(0₊) = 0.5 × 3/0.5 = 3 V ✓。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "RL circuit with a CCVS: the dependent source changes τ",
+          "statement": "In the circuit u_s = 12ε(t) V, R_1 = R_2 = 4 Ω, L = 0.5 H, with no initial inductor current. The current-controlled voltage source H has voltage 2i_2 (“+” on the left), i_2 being the downward current in R_2. Find R_eq, τ, u_a(0+), i_2(0+), u_L(0+), i_L(∞) and i_L at t = 0.5 s.",
+          "results": [{ "ask": "R_eq" }, { "ask": "τ" }, { "ask": "u_a(0+)" }, { "ask": "i_2(0+)" }, { "ask": "u_L(0+)" }, { "ask": "i_L(∞)" }, { "ask": "i_L(0.5 s)" }],
+          "steps": [
+            "1. **R_eq (applied source).** Short u_s, apply a voltage u between b and ground and let i be the current it drives into b. KVL through H: u_b = u_a − 2i_2 with i_2 = u_a/R_2 = u_a/4, so u = u_a/2, i.e. u_a = 2u. KCL at a: i = u_a/R_1 + u_a/R_2 = 2u/4 + 2u/4 = u, so **R_eq = 1 Ω**.",
+            "Zeroing the dependent source would give R_1 ∥ R_2 = 2 Ω — wrong, and τ would come out half its true value.",
+            "2. **τ = L/R_eq = 0.5/1 = 0.5 s**.",
+            "3. **0+ equivalent circuit.** i_L(0+) = i_L(0−) = 0: the inductor is open, R_1 and R_2 in series: **u_a(0+) = 6 V**, **i_2(0+) = 1.5 A**, H's voltage 2i_2 = 3, so **u_L(0+) = u_b = 6 − 3 = 3 V**.",
+            "4. **i_L(∞).** Inductor short: u_b = 0 = u_a − 2i_2 = u_a − u_a/2, so u_a = 0, i_2 = 0 and all the current flows through R_1: **i_L(∞) = 12/4 = 3 A**.",
+            "5. **Zero-state response:** i_L(t) = 3(1 − e^{−2t}) A (t > 0); at t = 0.5 s: i_L = 3(1 − e^{−1}) ≈ **1.90 A**.",
+            "**Check:** u_L(0+) = L·di_L/dt(0+) = 0.5 × 3/0.5 = 3 V ✓."
+          ]
+        }
+      }
+    }
+  ],
+  "mistakes": [
+    {
+      "id": "f0minus",
+      "idea": "initial",
+      "text": "三要素法里把电阻电流、i_C、u_L 的 f(0₋) 当成 f(0₊)。只有 u_C、i_L 连续，其他量的初值必须从 0₊ 等效电路求。",
+      "i18n": { "en": { "text": "Using f(0−) for a resistor current, i_C or u_L in the three-element method. Only u_C and i_L are continuous; every other initial value must come from the 0+ circuit." } }
+    },
+    {
+      "id": "req-sources",
+      "idea": "tau",
+      "text": "求 R_eq 时没有把独立源置零（电压源短路、电流源开路），或者用换路**前**的电路求 τ。τ 由换路后的电路决定。",
+      "i18n": { "en": { "text": "Not zeroing the independent sources (voltage sources shorted, current sources opened) when finding R_eq, or finding τ from the circuit **before** switching. τ belongs to the circuit after switching." } }
+    },
+    {
+      "id": "zero-dependent",
+      "idea": "tau-dependent",
+      "text": "把受控源也“置零”后用串并联求 R_eq。受控源必须保留，用外加电源法或 U_oc/I_sc。",
+      "i18n": { "en": { "text": "“Zeroing” the dependent source too and then combining resistors. Keep dependent sources and use an applied source or U_oc/I_sc." } }
+    },
+    {
+      "id": "rl-tau",
+      "idea": "tau",
+      "text": "RL 电路写成 τ = RL 或 τ = R/L。正确的是 τ = L/R_eq（单位 H/Ω = s）；R 越大，RL 电路衰减越快，RC 电路却越慢。",
+      "i18n": { "en": { "text": "Writing τ = RL or τ = R/L for an RL circuit. It is τ = L/R_eq (H/Ω = s); a larger R makes an RL circuit faster but an RC circuit slower." } }
+    },
+    {
+      "id": "step-zero",
+      "idea": "step",
+      "text": "看到 ε(t) 就以为初始状态为零。激励是 U_1 + U_2ε(t) 时，t < 0 已经有 U_1 作用，初始值要按 U_1 的稳态算。",
+      "i18n": { "en": { "text": "Assuming zero initial state whenever ε(t) appears. With U_1 + U_2ε(t), U_1 already acts for t < 0, so the initial values come from its steady state." } }
+    },
+    {
+      "id": "sin-inf",
+      "idea": "sinusoid",
+      "text": "正弦激励下仍去求 f(∞)。正弦稳态没有终值，要用稳态解 f_p(t) 和它在 0₊ 的值 f_p(0₊)。",
+      "i18n": { "en": { "text": "Looking for f(∞) with a sinusoidal source. There is no final value; use the steady-state solution f_p(t) and its value f_p(0+)." } }
+    },
+    {
+      "id": "not-first-order",
+      "idea": "tau",
+      "text": "电路里有两个储能元件就不敢用三要素法。并联的电容（串联的电感）能合并成一个，经电阻串成回路的两个电容对电阻也是一个等效电容；只有不能合并时才是二阶电路。",
+      "i18n": { "en": { "text": "Avoiding the three-element method because there are two storage elements. Parallel capacitors (series inductors) merge into one, and two capacitors in a loop with a resistor form one equivalent capacitor for that resistor; only elements that cannot be merged make a second-order circuit." } }
+    }
+  ]
+}
