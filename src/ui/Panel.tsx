@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { Challenge } from '../core/challenge';
 import { checkCircuit } from '../core/check';
 import type { Issue } from '../core/diagnostics';
@@ -327,6 +327,68 @@ function NodeVolt({ d, net }: { d: Derived; net: string }) {
   );
 }
 
+/** "Export as challenge JSON": an inline form (id + title) instead of the browser's prompt(). */
+function ExportChallenge() {
+  const [open, setOpen] = useState(false);
+  const [id, setId] = useState('my-circuit');
+  const [title, setTitle] = useState('');
+  const layout = useStore((s) => s.layout);
+  const { nl } = useDerived();
+  const btn = useRef<HTMLButtonElement>(null);
+  const first = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (open) first.current?.select();
+  }, [open]);
+  const idOk = /^[A-Za-z0-9-]+$/.test(id);
+  const close = () => {
+    setOpen(false);
+    requestAnimationFrame(() => btn.current?.focus());
+  };
+  if (!open)
+    return (
+      <button ref={btn} onClick={() => setOpen(true)} aria-expanded={false}>
+        <Icon name="download" /> {tr('导出为题目 JSON', 'Export as challenge JSON')}
+      </button>
+    );
+  return (
+    <form
+      className="export-form"
+      aria-label={tr('导出为题目 JSON', 'Export as challenge JSON')}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          close();
+        }
+      }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!idOk) return;
+        const t = title.trim() || tr('我的电路', 'My circuit');
+        downloadJson(`${id}.json`, buildChallengeFromBoard(layout, nl.circuit, id, t));
+        close();
+      }}
+    >
+      <label>
+        <span>{tr('题目 id（字母 / 数字 / -）', 'Challenge id (letters / digits / -)')}</span>
+        <input ref={first} value={id} onChange={(e) => setId(e.target.value.trim())} aria-invalid={!idOk} spellCheck={false} />
+      </label>
+      {!idOk && <div className="form-err">{tr('id 只能包含字母、数字和 -', 'The id may contain only letters, digits and -')}</div>}
+      <label>
+        <span>{tr('题目标题', 'Challenge title')}</span>
+        <input value={title} placeholder={tr('我的电路', 'My circuit')} onChange={(e) => setTitle(e.target.value)} />
+      </label>
+      <div className="row">
+        <button type="button" onClick={close}>
+          {tr('取消', 'Cancel')}
+        </button>
+        <button type="submit" className="primary" disabled={!idOk}>
+          <Icon name="download" /> {tr('下载 JSON', 'Download JSON')}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function SchematicPanel() {
   const d = useDerived();
   const { nl, sim, ac } = d;
@@ -394,16 +456,7 @@ function SchematicPanel() {
       )}
       {mode === 'sandbox' && nl.circuit.components.length > 0 && (
         <div className="row">
-          <button
-            onClick={() => {
-              const id = prompt(tr('给这个题目起一个 id（字母/数字/-）', 'Give the challenge an id (letters / digits / -)'), 'my-circuit');
-              if (!id) return;
-              const title = prompt(tr('题目标题', 'Challenge title'), tr('我的电路', 'My circuit')) ?? id;
-              downloadJson(`${id}.json`, buildChallengeFromBoard(layout, nl.circuit, id, title));
-            }}
-          >
-            <Icon name="download" /> {tr('导出为题目 JSON', 'Export as challenge JSON')}
-          </button>
+          <ExportChallenge />
           <button onClick={() => downloadJson('breadboard-layout.json', layout)}>
             <Icon name="download" /> {tr('导出面包板布局', 'Export board layout')}
           </button>
