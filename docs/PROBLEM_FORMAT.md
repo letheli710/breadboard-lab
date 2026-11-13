@@ -424,9 +424,9 @@ Write symbols as described in [`NOTATION.md`](./NOTATION.md): subscript markup f
 
 ### 例 1：含受控源的直流电路（结点电压法）/ DC with a dependent source
 
-电流源 Is = 2 A 向结点 a 注入电流；R1 = 4 Ω 接在 a 与地之间；R2 = 2 Ω 连接 a、b；R3 = 4 Ω 接在 b 与地之间；VCCS 从 b 抽走 0.25·u1 的电流到地，u1 是 R1 上的电压。
+电流源 I_s = 2 A 向结点 a 注入电流；R_1 = 4 Ω 接在 a 与地之间；R_2 = 2 Ω 连接 a、b；R_3 = 4 Ω 接在 b 与地之间；VCCS 从 b 抽走 0.25·u_1 的电流到地，u_1 是 R_1 上的电压。
 
-结点方程：a：2 = Va/4 + (Va − Vb)/2；b：(Va − Vb)/2 = 0.25·Va + Vb/4 → Va = 3Vb → Vb = 8/7 V，Va = 24/7 ≈ 3.428571 V。R2 电流 (Va − Vb)/2 = 8/7 ≈ 1.142857 A。VCCS 吸收功率 Vb × 0.25·Va = 48/49 ≈ 0.979592 W。
+结点方程：a：2 = u_a/4 + (u_a − u_b)/2；b：(u_a − u_b)/2 = 0.25·u_a + u_b/4 → u_a = 3u_b → u_b = 8/7 V，u_a = 24/7 ≈ 3.428571 V。R_2 电流 (u_a − u_b)/2 = 8/7 ≈ 1.142857 A。VCCS 吸收功率 u_b × 0.25·u_a = 48/49 ≈ 0.979592 W。
 
 ```json
 {
@@ -436,7 +436,7 @@ Write symbols as described in [`NOTATION.md`](./NOTATION.md): subscript markup f
   "title": "含 VCCS 的结点电压法",
   "level": 3,
   "tags": ["结点电压法", "受控源 VCCS"],
-  "statement": "图中 Is = 2 A，R1 = 4 Ω，R2 = 2 Ω，R3 = 4 Ω。电压控制电流源 G 的电流为 0.25·u1（方向向下），u1 是 R1 两端电压（+ 在上）。求 u_a、R2 的电流 i2，以及 G 吸收的功率。",
+  "statement": "图中 I_s = 2 A，R_1 = 4 Ω，R_2 = 2 Ω，R_3 = 4 Ω。电压控制电流源 G 的电流为 0.25·u_1（方向向下），u_1 是 R_1 两端电压（+ 在上）。求 u_a、R_2 的电流 i_2，以及 G 吸收的功率。",
   "schematic": {
     "elements": [
       { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": 2 },
@@ -456,33 +456,33 @@ Write symbols as described in [`NOTATION.md`](./NOTATION.md): subscript markup f
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 3.428571, "unit": "V", "explain": "两个结点方程联立：Va = 3Vb，1.75Vb = 2 → Vb = 8/7 V，Va = 24/7 V。" },
-    { "id": "i2", "ask": "i2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": 1.142857, "unit": "A", "explain": "i2 = (Va − Vb)/R2 = (16/7)/2 = 8/7 A。" },
-    { "id": "pg", "ask": "G 吸收的功率 = ?", "find": { "kind": "p", "el": "G" }, "answer": 0.979592, "unit": "W", "explain": "G 两端电压 Vb，电流 0.25·Va 从上往下（关联方向），P = Vb × 0.25Va = 48/49 W。" }
+    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 3.428571, "unit": "V", "explain": "两个结点方程联立：u_a = 3u_b，1.75u_b = 2 → u_b = 8/7 V，u_a = 24/7 V。" },
+    { "id": "i2", "ask": "i_2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": 1.142857, "unit": "A", "explain": "i_2 = (u_a − u_b)/R_2 = (16/7)/2 = 8/7 A。" },
+    { "id": "pg", "ask": "G 吸收的功率 = ?", "find": { "kind": "p", "el": "G" }, "answer": 0.979592, "unit": "W", "explain": "G 两端电压 u_b，电流 0.25·u_a 从上往下（关联方向），P = u_b × 0.25u_a = 48/49 W。" }
   ],
-  "hints": ["对 a、b 两个结点列 KCL；控制量 u1 就是 Va。", "先用 b 的方程得到 Va 与 Vb 的关系。"],
+  "hints": ["对 a、b 两个结点列 KCL；控制量 u_1 就是 u_a。", "先用 b 的方程得到 u_a 与 u_b 的关系。"],
   "solution": [
-    "**结点 a：** Is = Va/R1 + (Va − Vb)/R2 → 2 = 0.75Va − 0.5Vb。",
-    "**结点 b：** (Va − Vb)/R2 = 0.25·u1 + Vb/R3，u1 = Va → 0.25Va = 0.75Vb，即 Va = 3Vb。",
-    "代入：2 = 2.25Vb − 0.5Vb = 1.75Vb → **Vb = 8/7 V，Va = 24/7 ≈ 3.429 V**。",
-    "i2 = (Va − Vb)/2 = **8/7 ≈ 1.143 A**；P_G = Vb × 0.25Va = **48/49 ≈ 0.980 W**（吸收）。"
+    "**结点 a：** I_s = u_a/R_1 + (u_a − u_b)/R_2 → 2 = 0.75u_a − 0.5u_b。",
+    "**结点 b：** (u_a − u_b)/R_2 = 0.25·u_1 + u_b/R_3，u_1 = u_a → 0.25u_a = 0.75u_b，即 u_a = 3u_b。",
+    "代入：2 = 2.25u_b − 0.5u_b = 1.75u_b → **u_b = 8/7 V，u_a = 24/7 ≈ 3.429 V**。",
+    "i_2 = (u_a − u_b)/2 = **8/7 ≈ 1.143 A**；P_G = u_b × 0.25u_a = **48/49 ≈ 0.980 W**（吸收）。"
   ],
   "i18n": {
     "en": {
       "tags": ["nodal analysis", "dependent source VCCS"],
       "title": "Nodal analysis with a VCCS",
-      "statement": "Is = 2 A, R1 = 4 Ω, R2 = 2 Ω, R3 = 4 Ω. The voltage-controlled current source G carries 0.25·u1 (downwards), where u1 is the voltage across R1 (+ at the top). Find u_a, the current i2 in R2 and the power absorbed by G.",
+      "statement": "I_s = 2 A, R_1 = 4 Ω, R_2 = 2 Ω, R_3 = 4 Ω. The voltage-controlled current source G carries 0.25·u_1 (downwards), where u_1 is the voltage across R_1 (+ at the top). Find u_a, the current i_2 in R_2 and the power absorbed by G.",
       "questions": [
-        { "ask": "u_a = ?", "explain": "Solve the two node equations: Va = 3Vb, 1.75Vb = 2 → Vb = 8/7 V, Va = 24/7 V." },
-        { "ask": "i2 = ?", "explain": "i2 = (Va − Vb)/R2 = (16/7)/2 = 8/7 A." },
-        { "ask": "Power absorbed by G = ?", "explain": "G has voltage Vb and current 0.25·Va flowing downwards (passive convention): P = Vb × 0.25Va = 48/49 W." }
+        { "ask": "u_a = ?", "explain": "Solve the two node equations: u_a = 3u_b, 1.75u_b = 2 → u_b = 8/7 V, u_a = 24/7 V." },
+        { "ask": "i_2 = ?", "explain": "i_2 = (u_a − u_b)/R_2 = (16/7)/2 = 8/7 A." },
+        { "ask": "Power absorbed by G = ?", "explain": "G has voltage u_b and current 0.25·u_a flowing downwards (passive convention): P = u_b × 0.25u_a = 48/49 W." }
       ],
-      "hints": ["Write KCL at nodes a and b; the controlling voltage u1 is just Va.", "The equation at b gives the relation between Va and Vb first."],
+      "hints": ["Write KCL at nodes a and b; the controlling voltage u_1 is just u_a.", "The equation at b gives the relation between u_a and u_b first."],
       "solution": [
-        "**Node a:** Is = Va/R1 + (Va − Vb)/R2 → 2 = 0.75Va − 0.5Vb.",
-        "**Node b:** (Va − Vb)/R2 = 0.25·u1 + Vb/R3 with u1 = Va → 0.25Va = 0.75Vb, i.e. Va = 3Vb.",
-        "Substitute: 2 = 2.25Vb − 0.5Vb = 1.75Vb → **Vb = 8/7 V, Va = 24/7 ≈ 3.429 V**.",
-        "i2 = (Va − Vb)/2 = **8/7 ≈ 1.143 A**; P_G = Vb × 0.25Va = **48/49 ≈ 0.980 W** (absorbed)."
+        "**Node a:** I_s = u_a/R_1 + (u_a − u_b)/R_2 → 2 = 0.75u_a − 0.5u_b.",
+        "**Node b:** (u_a − u_b)/R_2 = 0.25·u_1 + u_b/R_3 with u_1 = u_a → 0.25u_a = 0.75u_b, i.e. u_a = 3u_b.",
+        "Substitute: 2 = 2.25u_b − 0.5u_b = 1.75u_b → **u_b = 8/7 V, u_a = 24/7 ≈ 3.429 V**.",
+        "i_2 = (u_a − u_b)/2 = **8/7 ≈ 1.143 A**; P_G = u_b × 0.25u_a = **48/49 ≈ 0.980 W** (absorbed)."
       ]
     }
   }
@@ -503,7 +503,7 @@ Us = 220 V（有效值），ω = 100 rad/s，负载 R = 30 Ω 串 L = 0.4 H（X_
   "title": "并联电容提高功率因数",
   "level": 3,
   "tags": ["功率因数校正", "无功功率"],
-  "statement": "Us = 220∠0° V（有效值），ω = 100 rad/s。感性负载 R = 30 Ω、L = 0.4 H，并联电容 C = 160 µF。求负载电流的相位、电容的无功功率、电源电流和电源的功率因数。",
+  "statement": "U̇_s = 220∠0° V（有效值），ω = 100 rad/s。感性负载 R = 30 Ω、L = 0.4 H，并联电容 C = 160 µF。求负载电流的相位、电容的无功功率、电源电流和电源的功率因数。",
   "schematic": {
     "elements": [
       { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 220, "phase": 0 } } },
@@ -520,14 +520,14 @@ Us = 220 V（有效值），ω = 100 rad/s，负载 R = 30 Ω 串 L = 0.4 H（X_
   },
   "analysis": { "type": "ac", "omega": 100 },
   "questions": [
-    { "id": "ph", "ask": "负载电流 I_L 的相位 = ?", "find": { "kind": "i", "el": "R", "part": "phase" }, "answer": -53.1301, "unit": "°", "explain": "I_L = 220 / (30 + j40) = 4.4∠−53.13° A。" },
+    { "id": "ph", "ask": "负载电流 I_L 的相位 = ?", "find": { "kind": "i", "el": "R", "part": "phase" }, "answer": -53.1301, "unit": "°", "explain": "İ_L = 220 / (30 + j40) = 4.4∠−53.13° A。" },
     { "id": "qc", "ask": "电容吸收的无功功率 Q_C = ?", "find": { "kind": "q", "el": "C" }, "answer": -774.4, "unit": "var", "explain": "Q_C = −U²ωC = −220² × 100 × 160×10⁻⁶ = −774.4 var（电容发出无功）。" },
     { "id": "is", "ask": "电源电流有效值 I = ?", "find": { "kind": "i", "el": "Us" }, "answer": 2.64, "unit": "A", "explain": "无功完全补偿后只剩有功：I = P / U = 580.8 / 220 = 2.64 A（补偿前是 4.4 A）。" },
     { "id": "pf", "ask": "电源的功率因数 = ?", "find": { "kind": "pf", "el": "Us" }, "answer": 1, "unit": "", "explain": "Q_L + Q_C = 774.4 − 774.4 = 0，所以 cos φ = 1。" }
   ],
   "hints": ["先算负载电流和负载的 P、Q。", "电容的无功 Q_C = −U²ωC；总无功为零时功率因数为 1。"],
   "solution": [
-    "**负载：** Z = 30 + j40 = 50∠53.13° Ω，I_L = 220/Z = **4.4∠−53.13° A**；P = I_L²R = 580.8 W，Q_L = I_L²X_L = 774.4 var。",
+    "**负载：** Z = 30 + j40 = 50∠53.13° Ω，İ_L = 220/Z = **4.4∠−53.13° A**；P = I_L²R = 580.8 W，Q_L = I_L²X_L = 774.4 var。",
     "**电容：** Q_C = −U²ωC = **−774.4 var**。",
     "**电源：** Q = Q_L + Q_C = 0，S = P = 580.8 VA，I = S/U = **2.64 A**，cos φ = **1**。"
   ],
@@ -535,16 +535,16 @@ Us = 220 V（有效值），ω = 100 rad/s，负载 R = 30 Ω 串 L = 0.4 H（X_
     "en": {
       "tags": ["power-factor correction", "reactive power"],
       "title": "Power-factor correction with a parallel capacitor",
-      "statement": "Us = 220∠0° V (rms), ω = 100 rad/s. An inductive load R = 30 Ω, L = 0.4 H has a capacitor C = 160 µF in parallel. Find the phase of the load current, the reactive power of the capacitor, the source current and the source power factor.",
+      "statement": "U̇_s = 220∠0° V (rms), ω = 100 rad/s. An inductive load R = 30 Ω, L = 0.4 H has a capacitor C = 160 µF in parallel. Find the phase of the load current, the reactive power of the capacitor, the source current and the source power factor.",
       "questions": [
-        { "ask": "Phase of the load current I_L = ?", "explain": "I_L = 220 / (30 + j40) = 4.4∠−53.13° A." },
+        { "ask": "Phase of the load current I_L = ?", "explain": "İ_L = 220 / (30 + j40) = 4.4∠−53.13° A." },
         { "ask": "Reactive power absorbed by the capacitor, Q_C = ?", "explain": "Q_C = −U²ωC = −220² × 100 × 160×10⁻⁶ = −774.4 var (the capacitor supplies reactive power)." },
         { "ask": "rms source current I = ?", "explain": "With the reactive power fully compensated only real power is left: I = P / U = 580.8 / 220 = 2.64 A (it was 4.4 A without C)." },
         { "ask": "Power factor of the source = ?", "explain": "Q_L + Q_C = 774.4 − 774.4 = 0, so cos φ = 1." }
       ],
       "hints": ["Start with the load current and the load's P and Q.", "The capacitor's reactive power is Q_C = −U²ωC; when the total Q is zero the power factor is 1."],
       "solution": [
-        "**Load:** Z = 30 + j40 = 50∠53.13° Ω, I_L = 220/Z = **4.4∠−53.13° A**; P = I_L²R = 580.8 W, Q_L = I_L²X_L = 774.4 var.",
+        "**Load:** Z = 30 + j40 = 50∠53.13° Ω, İ_L = 220/Z = **4.4∠−53.13° A**; P = I_L²R = 580.8 W, Q_L = I_L²X_L = 774.4 var.",
         "**Capacitor:** Q_C = −U²ωC = **−774.4 var**.",
         "**Source:** Q = Q_L + Q_C = 0, S = P = 580.8 VA, I = S/U = **2.64 A**, cos φ = **1**."
       ]
@@ -672,13 +672,13 @@ Us 在 t = 0 从 0 跳到 10 V，R = 2 Ω，L = 1 H，C = 0.25 F，换路前电�
         { "ask": "ω_d = ?", "explain": "ω_d = √(ω₀² − α²) = √(4 − 1) = √3 rad/s." },
         { "ask": "ω₀ = ?", "explain": "ω₀ = 1/√(LC) = 1/√0.25 = 2 rad/s." },
         { "ask": "Imaginary part of the root s₁ = −α + jω_d = ?", "explain": "s₁,₂ = −1 ± j√3." },
-        { "ask": "di_L/dt(0+) = ?", "explain": "i_L(0+) = 0 and v_C(0+) = 0, so v_L(0+) = 10 V and di_L/dt = v_L/L = 10 A/s." }
+        { "ask": "di_L/dt(0+) = ?", "explain": "i_L(0+) = 0 and u_C(0+) = 0, so u_L(0+) = 10 V and di_L/dt = u_L/L = 10 A/s." }
       ],
-      "hints": ["Write the characteristic equation of the t > 0 circuit: LCs² + RCs + 1 = 0.", "The initial conditions come from v_C(0+) and i_L(0+)."],
+      "hints": ["Write the characteristic equation of the t > 0 circuit: LCs² + RCs + 1 = 0.", "The initial conditions come from u_C(0+) and i_L(0+)."],
       "solution": [
         "**Characteristic equation:** s² + (R/L)s + 1/(LC) = s² + 2s + 4 = 0, s₁,₂ = −1 ± j√3 (under-damped).",
         "**Parameters:** α = **1 1/s**, ω_d = **√3 ≈ 1.732 rad/s**, ω₀ = **2 rad/s**.",
-        "**Initial condition:** v_L(0+) = 10 − 2×0 − 0 = 10 V, di_L/dt(0+) = **10 A/s**."
+        "**Initial condition:** u_L(0+) = 10 − 2×0 − 0 = 10 V, di_L/dt(0+) = **10 A/s**."
       ]
     }
   }
