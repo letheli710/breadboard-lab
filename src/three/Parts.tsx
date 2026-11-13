@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { tr } from '../core/i18n';
 import { colX } from '../core/breadboard';
@@ -31,6 +31,12 @@ export interface PartViewProps {
   labelTone?: 'error' | 'normal';
   onClick?: (e: ThreeEvent<MouseEvent>) => void;
 }
+
+/** Props of the memoised PartView: a stable `onPick(part, e)` instead of a per-part closure, so
+ *  unrelated store changes (hovering a hole) do not re-render every part. */
+export type PartViewOuterProps = Omit<PartViewProps, 'onClick'> & {
+  onPick?: (part: PlacedPart, e: ThreeEvent<MouseEvent>) => void;
+};
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 
@@ -105,18 +111,26 @@ function AxialBody({ part, kind }: { part: PlacedPart; kind: 'resistor' | 'diode
 }
 
 function Led({ part, led }: PartViewProps) {
-  const pa = holeVec(part.pins.anode ?? '');
-  const pk = holeVec(part.pins.cathode ?? '');
-  const mid = pa.clone().add(pk).multiplyScalar(0.5);
   const col = LED_COLORS[part.props.color ?? 'red'];
   const b = led?.burnt ? 0 : (led?.brightness ?? 0);
   const top = 1.55;
-  const sep = pk.clone().sub(pa).setY(0).normalize().multiplyScalar(0.22);
-  const la = mid.clone().sub(sep).setY(top - 0.2);
-  const lk = mid.clone().add(sep).setY(top - 0.2);
+  const { mid, legA, legK } = useMemo(() => {
+    const pa = holeVec(part.pins.anode ?? '');
+    const pk = holeVec(part.pins.cathode ?? '');
+    const mid = pa.clone().add(pk).multiplyScalar(0.5);
+    const sep = pk.clone().sub(pa).setY(0).normalize().multiplyScalar(0.22);
+    const la = mid.clone().sub(sep).setY(top - 0.2);
+    const lk = mid.clone().add(sep).setY(top - 0.2);
+    return {
+      mid,
+      legA: [pa.clone().setY(-0.3), pa.clone().setY(0.6), pa.clone().lerp(la, 0.5).setY(0.85), la],
+      legK: [pk.clone().setY(-0.3), pk.clone().setY(0.9), lk],
+    };
+  }, [part.pins.anode, part.pins.cathode]);
   const smoke = useRef<THREE.Group>(null);
-  useFrame(({ clock }) => {
+  useFrame(({ clock, invalidate }) => {
     if (!smoke.current) return;
+    invalidate(); // demand frame loop: keep animating while the smoke is shown
     smoke.current.children.forEach((c, i) => {
       const t = (clock.elapsedTime * 0.6 + i / 3) % 1;
       c.position.y = top + 0.6 + t * 2.2;
@@ -127,8 +141,8 @@ function Led({ part, led }: PartViewProps) {
   return (
     <group>
       {/* anode leg is longer: give it a little kink */}
-      <Leg pts={[pa.clone().setY(-0.3), pa.clone().setY(0.6), pa.clone().lerp(la, 0.5).setY(0.85), la]} />
-      <Leg pts={[pk.clone().setY(-0.3), pk.clone().setY(0.9), lk]} />
+      <Leg pts={legA} />
+      <Leg pts={legK} />
       <group position={[mid.x, top, mid.z]}>
         <mesh position={[0, -0.12, 0]} castShadow>
           <cylinderGeometry args={[0.56, 0.56, 0.12, 24]} />
@@ -451,7 +465,13 @@ function PowerModule({ part, onClick }: PartViewProps) {
   );
 }
 
-export function PartView(props: PartViewProps) {
+export const PartView = memo(function PartView({ onPick, ...rest }: PartViewOuterProps) {
+  const { part } = rest;
+  const onClick = useCallback((e: ThreeEvent<MouseEvent>) => onPick?.(part, e), [onPick, part]);
+  return <PartBody {...rest} onClick={onPick ? onClick : undefined} />;
+});
+
+function PartBody(props: PartViewProps) {
   const { part, ctx, label, labelTone, led, source } = props;
   const anchor = useMemo(() => {
     const holes = Object.values(part.pins).map((h) => holeVec(h));

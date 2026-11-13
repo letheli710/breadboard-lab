@@ -1,6 +1,6 @@
 import { Html } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { BOARD, COLS, HOLES, HOLE_MAP, MAIN_ROWS, ROW_Z, colX, stripLabel } from '../core/breadboard';
@@ -111,6 +111,8 @@ export function Board() {
   const mode = useStore((s) => s.mode);
   const d = useDerived();
   const { nl, sim } = d;
+  // the canvas renders on demand: imperative instance updates must ask for a frame
+  const invalidate = useThree((s) => s.invalidate);
 
   const stepHoles = useMemo(() => {
     if (mode !== 'learn' && mode !== 'challenge') return [];
@@ -167,7 +169,8 @@ export function Board() {
     });
     m.instanceMatrix.needsUpdate = true;
     if (m.instanceColor) m.instanceColor.needsUpdate = true;
-  }, [hoverStrip, showNets, nl, netIndex, highlight, firstHole, layout, hoverNet]);
+    invalidate();
+  }, [hoverStrip, showNets, nl, netIndex, highlight, firstHole, layout, hoverNet, invalidate]);
 
   // pulsing rings for lesson steps
   useLayoutEffect(() => {
@@ -181,10 +184,14 @@ export function Board() {
       m.setMatrixAt(i, dummy.matrix);
     }
     m.instanceMatrix.needsUpdate = true;
-  }, [stepHoles]);
-  useFrame(({ clock }) => {
+    invalidate();
+  }, [stepHoles, invalidate]);
+  const pulsing = stepHoles.length > 0;
+  useFrame(({ clock, invalidate }) => {
+    if (!pulsing) return; // nothing to animate: let the demand frame loop idle
     const mat = pulse.current?.material as THREE.MeshBasicMaterial | undefined;
     if (mat) mat.opacity = 0.45 + 0.4 * Math.sin(clock.elapsedTime * 5);
+    invalidate();
   });
 
   const onMove = (e: ThreeEvent<PointerEvent>) => {

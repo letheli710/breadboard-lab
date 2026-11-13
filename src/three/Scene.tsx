@@ -8,6 +8,7 @@ import type { PlacedPart } from '../core/types';
 import { ammeterReading, ledOf, useDerived } from '../state/derived';
 import { scopeChannelFor, useStore } from '../state/store';
 import { Board } from './Board';
+import type { PartCtxValue } from './common';
 import { PartView } from './Parts';
 import { qualityParams, useLowQuality, useQuality } from './quality';
 import { assignSlots, nextSlot } from './slots';
@@ -27,6 +28,7 @@ const VIEW_ANGLES: Record<ViewName, { phi: number; theta: number }> = {
 
 function CameraRig() {
   const camera = useThree((s) => s.camera);
+  const invalidate = useThree((s) => s.invalidate);
   const controls = useThree((s) => s.controls) as unknown as OrbitControlsImpl | null;
   // goal of an in-progress transition; null while the user is in control
   const goal = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 } | null>(null);
@@ -41,10 +43,11 @@ function CameraRig() {
       const radius = Math.max(32, 21 / Math.tan(hfov / 2));
       const pos = new THREE.Vector3().setFromSpherical(new THREE.Spherical(radius, angles.phi, angles.theta)).add(TARGET);
       goal.current = { pos, target: TARGET.clone() };
+      invalidate();
     };
     window.addEventListener('bb-camera', on);
     return () => window.removeEventListener('bb-camera', on);
-  }, [camera]);
+  }, [camera, invalidate]);
 
   useEffect(() => {
     if (!controls) return;
@@ -58,18 +61,20 @@ function CameraRig() {
         controls.target.copy(goal.current.target);
         controls.update();
         goal.current = null;
+        invalidate();
       }
     }, 50);
     return () => {
       clearTimeout(t);
       controls.removeEventListener('start', stop);
     };
-  }, [controls, camera]);
+  }, [controls, camera, invalidate]);
 
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     const g = goal.current;
     if (!g || !controls) return;
-    const k = 1 - Math.exp(-dt * 7);
+    state.invalidate(); // demand frame loop: keep rendering until the transition ends
+    const k = 1 - Math.exp(-Math.min(dt, 0.1) * 7);
     camera.position.lerp(g.pos, k);
     controls.target.lerp(g.target, k);
     controls.update();
@@ -78,17 +83,30 @@ function CameraRig() {
   return null;
 }
 
+const CTX: Record<PartCtxValue['tint'], PartCtxValue> = {
+  none: { ghost: false, tint: 'none' },
+  select: { ghost: false, tint: 'select' },
+  error: { ghost: false, tint: 'error' },
+  hover: { ghost: false, tint: 'hover' },
+};
+const GHOST_CTX: PartCtxValue = { ghost: true, tint: 'none' };
+
+/** Click on a placed part in select mode (stable: reads the store at click time). */
+function pickPart(p: PlacedPart, e: ThreeEvent<MouseEvent>) {
+  const st = useStore.getState();
+  if (st.tool !== 'select' || e.delta > 5) return;
+  e.stopPropagation();
+  if (p.type === 'pushbutton' || p.type === 'switch') st.togglePart(p.id);
+  st.select(p.id);
+}
+
+/** Placed parts. Does not subscribe to the hovered hole (see PlacementGhost), and passes
+ *  stable props so a part re-renders only when its own data changes. */
 function Parts() {
   const layout = useStore((s) => s.layout);
-  const tool = useStore((s) => s.tool);
   const selectedId = useStore((s) => s.selectedId);
   const highlight = useStore((s) => s.highlight);
   const showLabels = useStore((s) => s.showLabels);
-  const firstHole = useStore((s) => s.firstHole);
-  const hoverHole = useStore((s) => s.hoverHole);
-  const placingProps = useStore((s) => s.placingProps);
-  const select = useStore((s) => s.select);
-  const togglePart = useStore((s) => s.togglePart);
   const derived = useDerived();
   const { sim, issues } = derived;
 
@@ -96,6 +114,36 @@ function Parts() {
   const hlRefs = useMemo(() => new Set(highlight?.refs ?? []), [highlight]);
 
   const slots = useMemo(() => assignSlots(layout.parts), [layout]);
+
+  return (
+    <group>
+      {layout.parts.map((p) => (
+        <PartView
+          key={p.id}
+          part={p}
+          slot={slots.get(p.id) ?? 0}
+          led={ledOf(derived, p.ref)}
+          source={sim.sources.get(p.ref)}
+          reading={p.type === 'ammeter' ? ammeterReading(derived, p.ref) : undefined}
+          sim={sim}
+          ctx={CTX[p.id === selectedId ? 'select' : hlRefs.has(p.ref) ? (highlight?.tone === 'error' ? 'error' : 'hover') : 'none']}
+          label={showLabels}
+          labelTone={errorRefs.has(p.ref) ? 'error' : 'normal'}
+          onPick={pickPart}
+        />
+      ))}
+      <PlacementGhost />
+    </group>
+  );
+}
+
+/** Translucent preview of the part being placed, following the hovered hole. */
+function PlacementGhost() {
+  const tool = useStore((s) => s.tool);
+  const firstHole = useStore((s) => s.firstHole);
+  const hoverHole = useStore((s) => (s.tool === 'select' || s.tool === 'probe' ? null : s.hoverHole));
+  const placingProps = useStore((s) => s.placingProps);
+  const layout = useStore((s) => s.layout);
 
   const ghost = useMemo((): PlacedPart | null => {
     if (tool === 'select' || tool === 'probe' || !hoverHole) return null;
@@ -110,41 +158,18 @@ function Parts() {
     return { id: 'ghost', ref: '', type: tool, props: { ...props, wireColor: props.wireColor ?? '#2a9d8f' }, pins: { [a]: firstHole, [b]: hoverHole } };
   }, [tool, hoverHole, firstHole, placingProps, layout]);
 
-  const handle = (p: PlacedPart) => (e: ThreeEvent<MouseEvent>) => {
-    if (tool !== 'select' || e.delta > 5) return;
-    e.stopPropagation();
-    if (p.type === 'pushbutton' || p.type === 'switch') togglePart(p.id);
-    select(p.id);
-  };
-
-  return (
-    <group>
-      {layout.parts.map((p) => (
-        <PartView
-          key={p.id}
-          part={p}
-          slot={slots.get(p.id) ?? 0}
-          led={ledOf(derived, p.ref)}
-          source={sim.sources.get(p.ref)}
-          reading={p.type === 'ammeter' ? ammeterReading(derived, p.ref) : undefined}
-          sim={sim}
-          ctx={{ ghost: false, tint: p.id === selectedId ? 'select' : hlRefs.has(p.ref) ? (highlight?.tone === 'error' ? 'error' : 'hover') : 'none' }}
-          label={showLabels}
-          labelTone={errorRefs.has(p.ref) ? 'error' : 'normal'}
-          onClick={handle(p)}
-        />
-      ))}
-      {ghost && <PartView part={ghost} slot={nextSlot(layout.parts, ghost.type)} ctx={{ ghost: true, tint: 'none' }} label={false} />}
-    </group>
-  );
+  const slot = useMemo(() => (ghost ? nextSlot(layout.parts, ghost.type) : 0), [ghost, layout]);
+  return ghost ? <PartView part={ghost} slot={slot} ctx={GHOST_CTX} label={false} /> : null;
 }
 
 /** Watches the first frames; if they are slow (< ~20 fps), "auto" quality drops to low. */
 function FrameProbe() {
   const samples = useRef<number[]>([]);
   const done = useRef(false);
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     if (done.current) return;
+    // the frame loop renders on demand: keep it running until enough frames are sampled
+    state.invalidate();
     samples.current.push(dt);
     // skip the first frames (shader compilation, texture uploads), then judge ~20 frames
     if (samples.current.length < 25) return;
@@ -158,13 +183,15 @@ function FrameProbe() {
 /** Key light; its shadow map follows the quality setting (re-allocated on change). */
 function KeyLight({ size }: { size: number }) {
   const ref = useRef<THREE.DirectionalLight>(null);
+  const invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
     const l = ref.current;
     if (!l) return;
     l.shadow.mapSize.set(size, size);
     l.shadow.map?.dispose();
     (l.shadow as { map: THREE.WebGLRenderTarget | null }).map = null;
-  }, [size]);
+    invalidate();
+  }, [size, invalidate]);
   return (
     <directionalLight
       ref={ref}
@@ -188,6 +215,7 @@ export function Scene() {
   return (
     <Canvas
       shadows
+      frameloop="demand"
       dpr={q.dpr}
       camera={{ position: HOME.toArray(), fov: 40, near: 0.5, far: 400 }}
       style={{ cursor: tool === 'select' ? 'default' : 'crosshair' }}

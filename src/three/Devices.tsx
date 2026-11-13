@@ -292,8 +292,10 @@ export function Motor({ part, sim }: PartViewProps) {
   const { can, cap } = useMotorShape();
   const prop = useRef<THREE.Group>(null);
   const speed = st?.running ? Math.min(1, Math.abs(st.speed)) * (st.direction ?? 1) : 0;
-  useFrame((_, dt) => {
-    if (prop.current) prop.current.rotation.z += speed * Math.min(dt, 0.05) * 28;
+  useFrame(({ invalidate }, dt) => {
+    if (!prop.current || speed === 0) return;
+    prop.current.rotation.z += speed * Math.min(dt, 0.05) * 28;
+    invalidate(); // demand frame loop: keep spinning while the motor runs
   });
   // local frame: shaft along +z, flats facing ±y; rotated so +z points up and +y away from the board
   const rot = new THREE.Euler(-Math.PI / 2, 0, 0);
@@ -379,8 +381,9 @@ export function Buzzer({ part, sim }: PartViewProps) {
   const y0 = 0.25;
   const rings = useRef<THREE.Group>(null);
   const loud = st?.on ? Math.max(0.25, st.loudness) : 0;
-  useFrame(({ clock }) => {
+  useFrame(({ clock, invalidate }) => {
     if (!rings.current) return;
+    invalidate(); // demand frame loop: keep the sound rings moving while the buzzer sounds
     rings.current.children.forEach((c, i) => {
       const t = (clock.elapsedTime * 1.6 + i / 3) % 1;
       c.scale.setScalar(1 + t * (1.2 + loud));

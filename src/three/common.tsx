@@ -43,18 +43,54 @@ export function Mat({
   const ctx = useContext(PartCtx);
   const tint = TINT[ctx.tint];
   const op = ctx.ghost ? Math.min(opacity, 0.45) : opacity;
+  const emi = tint ?? emissive ?? '#000000';
+  const ei = tint ? 0.45 : emissiveIntensity;
+  const transp = transparent || op < 1;
+  // Static looks (no live emissive glow) share one material per parameter set; a glowing LED
+  // body, whose intensity varies continuously, keeps its own.
+  const shared = ei === 0 || !!tint;
+  const key = `${color}|${roughness}|${metalness}|${emi}|${ei}|${op}|${transp}`;
+  const mat = useMemo(() => {
+    if (!shared) return null;
+    let m = MAT_CACHE.get(key);
+    if (!m) {
+      m = new THREE.MeshStandardMaterial({ color, roughness, metalness, emissive: emi, emissiveIntensity: ei, transparent: transp, opacity: op, depthWrite: op >= 1 });
+      MAT_CACHE.set(key, m);
+    }
+    return m;
+    // key covers every input
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shared, key]);
+  if (mat) return <primitive object={mat} attach="material" />;
   return (
     <meshStandardMaterial
       color={color}
       roughness={roughness}
       metalness={metalness}
-      emissive={tint ?? emissive ?? '#000000'}
-      emissiveIntensity={tint ? 0.45 : emissiveIntensity}
-      transparent={transparent || op < 1}
+      emissive={emi}
+      emissiveIntensity={ei}
+      transparent={transp}
       opacity={op}
       depthWrite={op >= 1}
     />
   );
+}
+
+/** Shared materials of Mat (bounded: part colours × tint/ghost states). Never disposed. */
+const MAT_CACHE = new Map<string, THREE.MeshStandardMaterial>();
+
+/** Shared unit geometries, keyed by radius: leg segments are a unit cylinder scaled to length. */
+const SEG_GEO = new Map<number, THREE.CylinderGeometry>();
+const JOINT_GEO = new Map<number, THREE.SphereGeometry>();
+function segGeo(r: number) {
+  let g = SEG_GEO.get(r);
+  if (!g) SEG_GEO.set(r, (g = new THREE.CylinderGeometry(r, r, 1, 8)));
+  return g;
+}
+function jointGeo(r: number) {
+  let g = JOINT_GEO.get(r);
+  if (!g) JOINT_GEO.set(r, (g = new THREE.SphereGeometry(r, 8, 6)));
+  return g;
 }
 
 const up = new THREE.Vector3(0, 1, 0);
@@ -70,8 +106,7 @@ export function Seg({ a, b, r = 0.06, color = '#b8bcc2', metal = true }: { a: TH
   }, [a, b]);
   if (len < 1e-4) return null;
   return (
-    <mesh position={pos} quaternion={quat} castShadow>
-      <cylinderGeometry args={[r, r, len, 8]} />
+    <mesh position={pos} quaternion={quat} scale={[1, len, 1]} geometry={segGeo(r)} castShadow>
       <Mat color={color} metalness={metal ? 0.7 : 0} roughness={metal ? 0.3 : 0.6} />
     </mesh>
   );
@@ -85,8 +120,7 @@ export function Leg({ pts, r = 0.06, color }: { pts: THREE.Vector3[]; r?: number
         <Seg key={i} a={pts[i]} b={p} r={r} color={color} />
       ))}
       {pts.slice(1, -1).map((p, i) => (
-        <mesh key={`j${i}`} position={p}>
-          <sphereGeometry args={[r, 8, 6]} />
+        <mesh key={`j${i}`} position={p} geometry={jointGeo(r)}>
           <Mat color={color ?? '#b8bcc2'} metalness={0.7} roughness={0.3} />
         </mesh>
       ))}
