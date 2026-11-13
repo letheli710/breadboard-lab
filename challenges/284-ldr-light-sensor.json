@@ -24,27 +24,7 @@
     "**先预测**：用光敏电阻模型 R_LDR = 15 kΩ × (lux/10)^−0.7 算出 1、10、100、1000 lux 时的电阻，再用分压公式算出 PA0 的电压和读数。光越强读数变大还是变小？",
     "",
     "**测量**：",
-    "- 每种光照下的 ADC 读数，看它们在整个范围里是不是都“分得开”。",
-    "",
-    "**对比**：读数随光照变化的方向和预期相反时，检查光敏电阻和 R1 的位置。计算过程：",
-    "",
-    "**光敏电阻模型**（GL5528 类）：R_LDR = 15 kΩ × (lux / 10)^−0.7。亮度每变 10 倍，电阻变 10^0.7 ≈ 5 倍：",
-    "- 1 lux（很暗）≈ 75 kΩ；10 lux ≈ 15 kΩ；100 lux（室内）≈ 3.0 kΩ；1000 lux（窗边 / 阴天户外）≈ 600 Ω。",
-    "",
-    "**分压结果**：V = 3.3 × R1 / (R1 + R_LDR)。光敏电阻在上，**越亮电压越高**：",
-    "- 1 lux：0.274 V → **340**",
-    "- 10 lux：1.029 V → **1277**",
-    "- 100 lux：2.291 V → **2843**",
-    "- 1000 lux：3.033 V → **3763**",
-    "每 10 倍亮度读数差约 940、1570、920 个计数——整个 3 个数量级都分得很清楚。",
-    "",
-    "**为什么选 6.8 kΩ**：分压器输出对 ln(R_LDR) 的灵敏度在 **R1 = R_LDR** 时最大（那一点 V = Vcc/2，曲线最陡）。要覆盖 1–1000 lux，就取两端阻值的**几何平均**：√(75 kΩ × 0.6 kΩ) ≈ 6.7 kΩ → 标准值 **6.8 kΩ**。如果只关心某一个亮度附近（比如“天黑开灯”的 10 lux），就选那个亮度下的 R_LDR（≈ 15 kΩ）。对比：",
-    "- R1 = **100 kΩ**：1.88 V / 2.87 V / 3.20 V / 3.28 V——亮处全挤在顶部，100 lux 和 1000 lux 只差 0.08 V。",
-    "- R1 = **1 kΩ**：0.04 V / 0.21 V / 0.83 V / 2.07 V——暗处全挤在 0 V 附近。",
-    "",
-    "**换个位置**：把光敏电阻放到下面（3V3 → R1 → VLIGHT → LDR → GND），就变成**越亮电压越低**；灵敏度规律一样，只是方向反过来。固件里怎么判断“亮 / 暗”要和接法对应。",
-    "",
-    "**电流**：最亮时 3.3 V / (6.8 k + 0.6 k) ≈ **0.45 mA**，最暗时约 40 µA。",
+    "- 每种光照下的 ADC 读数，看它们在整个范围里是不是都“分得开”。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**实际项目经验**：",
     "- 光敏电阻便宜但**慢**（变暗时要几十到几百毫秒）、个体差异大（±50 % 很常见）、随温度漂移，只适合“亮 / 暗”或粗略亮度；要精确测照度用 BH1750、VEML7700 这类数字传感器。",
@@ -75,8 +55,17 @@
         "**Predict first**: Use the LDR model R_LDR = 15 kΩ × (lux/10)^−0.7 to get its resistance at 1, 10, 100 and 1000 lux, then the divider formula for the voltage and reading at PA0. Does more light raise or lower the reading?",
         "",
         "**Measure**:",
-        "- the ADC reading at each light level — are they well separated across the whole range?",
+        "- the ADC reading at each light level — are they well separated across the whole range? Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
+        "**Rule of thumb for real projects**:",
+        "- LDRs are cheap but **slow** (tens to hundreds of ms when it gets dark), vary a lot between parts (±50 % is common) and drift with temperature — fine for bright/dark or rough brightness; for real lux use a digital sensor such as the BH1750 or VEML7700.",
+        "- For \"lights on at dusk\" add **hysteresis** (two thresholds), or the lamp flickers near the threshold.",
+        "- Cadmium (CdS) LDRs are restricted by RoHS; new designs often use a photodiode / phototransistor instead.",
+        "- STM32 analog pins (PA0–PA7, PB0, PB1) are **not 5 V tolerant**: feed the divider from 3V3, never 5V.",
+        "",
+        "**Model note**: the LDR follows the power-law model (clamped to 100 Ω–1 MΩ) with no response time or temperature drift; the ADC is an ideal 12-bit, 0–3.3 V linear converter."
+      ],
+      "compare": [
         "**Compare**: If the reading moves the wrong way with light, check which of the LDR and R1 is on top. The working:",
         "",
         "**LDR model** (GL5528-like): R_LDR = 15 kΩ × (lux / 10)^−0.7. Every 10× in light changes the resistance by 10^0.7 ≈ 5×:",
@@ -95,15 +84,14 @@
         "",
         "**Swap the positions**: put the LDR at the bottom (3V3 → R1 → VLIGHT → LDR → GND) and **brighter means lower voltage**; same sensitivity rule, opposite direction. Your firmware's bright/dark test must match the wiring.",
         "",
-        "**Current**: brightest 3.3 V / (6.8 k + 0.6 k) ≈ **0.45 mA**, darkest about 40 µA.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- LDRs are cheap but **slow** (tens to hundreds of ms when it gets dark), vary a lot between parts (±50 % is common) and drift with temperature — fine for bright/dark or rough brightness; for real lux use a digital sensor such as the BH1750 or VEML7700.",
-        "- For \"lights on at dusk\" add **hysteresis** (two thresholds), or the lamp flickers near the threshold.",
-        "- Cadmium (CdS) LDRs are restricted by RoHS; new designs often use a photodiode / phototransistor instead.",
-        "- STM32 analog pins (PA0–PA7, PB0, PB1) are **not 5 V tolerant**: feed the divider from 3V3, never 5V.",
-        "",
-        "**Model note**: the LDR follows the power-law model (clamped to 100 Ω–1 MΩ) with no response time or temperature drift; the ADC is an ideal 12-bit, 0–3.3 V linear converter."
+        "**Current**: brightest 3.3 V / (6.8 k + 0.6 k) ≈ **0.45 mA**, darkest about 40 µA."
+      ],
+      "measurements": [
+        {"ask": "1 lux (very dark): multimeter on the ADC pin (VLIGHT) to GND", "explain": "R_LDR ≈ 75 kΩ: 3.3 × 6.8 / (6.8 + 75) ≈ 0.27 V."},
+        {"ask": "100 lux (indoors): the ADC pin to GND", "explain": "R_LDR ≈ 3.0 kΩ: 3.3 × 6.8 / 9.8 ≈ 2.29 V. With the LDR on top, brighter means higher."},
+        {"ask": "From your 100 lux reading, work back to the LDR's resistance R_LDR = R1 × (3.3 − V) / V", "explain": "≈ 3.0 kΩ = 15 kΩ × 10^−0.7. Firmware does exactly this to get the resistance, then converts it to lux."},
+        {"ask": "1000 lux (by a window): the ADC pin to GND", "explain": "R_LDR ≈ 600 Ω: 3.3 × 6.8 / 7.4 ≈ 3.03 V. 1, 10, 100 and 1000 lux are hundreds to over a thousand counts apart: all three decades are resolved."},
+        {"ask": "What happens if R1 is changed to 100 kΩ? (Try swapping it on the board.)", "explain": "With 100 kΩ: 1.88 / 2.87 / 3.20 / 3.28 V. A divider is most sensitive at R1 = R_LDR; to cover 1–1000 lux take the geometric mean of the end values, √(75 k × 0.6 k) ≈ 6.7 kΩ → 6.8 kΩ. With 1 kΩ it is the other way: the dark end crowds near 0 V.", "choices": ["the bright readings all crowd near 3.3 V, and 100 lux and 1000 lux become almost indistinguishable", "the dark readings all crowd near 0 V", "all readings scale up and resolve just as well"]}
       ],
       "hints": [
         "Wire a board 3V3 pin to the top + rail and a GND pin to the − rail first.",
@@ -111,10 +99,10 @@
         "Set that pin to analog input (ADC) in the pin table."
       ],
       "tests": [
-        "1 lux: ADC ≈ 340 (0.27 V), ≈ 40 µA through the LDR",
-        "10 lux: ADC ≈ 1277 (1.03 V)",
-        "100 lux: ADC ≈ 2843 (2.29 V)",
-        "1000 lux: ADC ≈ 3763 (3.03 V), ≈ 0.45 mA through the LDR"
+        "1 lux: sensible ADC reading and LDR current",
+        "10 lux: sensible ADC reading",
+        "100 lux: sensible ADC reading",
+        "1000 lux: sensible ADC reading and LDR current"
       ]
     }
   },
@@ -130,27 +118,55 @@
   ],
   "tests": [
     {
-      "name": "1 lux：ADC ≈ 340（0.27 V），光敏电阻电流约 40 µA",
+      "name": "1 lux：ADC 读数和光敏电阻电流合理",
       "set": {"LDR1": {"lux": 1}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 280, "max": 400}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 0.224, "max": 0.324}],
       "currents": [{"el": "LDR1", "min": 3.82e-05, "max": 4.23e-05}]
     },
     {
-      "name": "10 lux：ADC ≈ 1277（1.03 V）",
+      "name": "10 lux：ADC 读数合理",
       "set": {"LDR1": {"lux": 10}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 1217, "max": 1337}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 0.979, "max": 1.079}]
     },
     {
-      "name": "100 lux：ADC ≈ 2843（2.29 V）",
+      "name": "100 lux：ADC 读数合理",
       "set": {"LDR1": {"lux": 100}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 2783, "max": 2903}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 2.241, "max": 2.341}]
     },
     {
-      "name": "1000 lux：ADC ≈ 3763（3.03 V），光敏电阻电流约 0.45 mA",
+      "name": "1000 lux：ADC 读数和光敏电阻电流合理",
       "set": {"LDR1": {"lux": 1000}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 3703, "max": 3823}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 2.983, "max": 3.083}],
       "currents": [{"el": "LDR1", "min": 0.0004237, "max": 0.0004683}]
     }
+  ],
+  "compare": [
+    "**对比**：读数随光照变化的方向和预期相反时，检查光敏电阻和 R1 的位置。计算过程：",
+    "",
+    "**光敏电阻模型**（GL5528 类）：R_LDR = 15 kΩ × (lux / 10)^−0.7。亮度每变 10 倍，电阻变 10^0.7 ≈ 5 倍：",
+    "- 1 lux（很暗）≈ 75 kΩ；10 lux ≈ 15 kΩ；100 lux（室内）≈ 3.0 kΩ；1000 lux（窗边 / 阴天户外）≈ 600 Ω。",
+    "",
+    "**分压结果**：V = 3.3 × R1 / (R1 + R_LDR)。光敏电阻在上，**越亮电压越高**：",
+    "- 1 lux：0.274 V → **340**",
+    "- 10 lux：1.029 V → **1277**",
+    "- 100 lux：2.291 V → **2843**",
+    "- 1000 lux：3.033 V → **3763**",
+    "每 10 倍亮度读数差约 940、1570、920 个计数——整个 3 个数量级都分得很清楚。",
+    "",
+    "**为什么选 6.8 kΩ**：分压器输出对 ln(R_LDR) 的灵敏度在 **R1 = R_LDR** 时最大（那一点 V = Vcc/2，曲线最陡）。要覆盖 1–1000 lux，就取两端阻值的**几何平均**：√(75 kΩ × 0.6 kΩ) ≈ 6.7 kΩ → 标准值 **6.8 kΩ**。如果只关心某一个亮度附近（比如“天黑开灯”的 10 lux），就选那个亮度下的 R_LDR（≈ 15 kΩ）。对比：",
+    "- R1 = **100 kΩ**：1.88 V / 2.87 V / 3.20 V / 3.28 V——亮处全挤在顶部，100 lux 和 1000 lux 只差 0.08 V。",
+    "- R1 = **1 kΩ**：0.04 V / 0.21 V / 0.83 V / 2.07 V——暗处全挤在 0 V 附近。",
+    "",
+    "**换个位置**：把光敏电阻放到下面（3V3 → R1 → VLIGHT → LDR → GND），就变成**越亮电压越低**；灵敏度规律一样，只是方向反过来。固件里怎么判断“亮 / 暗”要和接法对应。",
+    "",
+    "**电流**：最亮时 3.3 V / (6.8 k + 0.6 k) ≈ **0.45 mA**，最暗时约 40 µA。"
+  ],
+  "measurements": [
+    {"id": "v1", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"LDR1": {"lux": 1}}, "unit": "V", "predict": true, "range": [0.26, 0.287], "ask": "1 lux（很暗）：万用表测 ADC 引脚（VLIGHT）对 GND", "explain": "R_LDR ≈ 75 kΩ：3.3 × 6.8 / (6.8 + 75) ≈ 0.27 V。"},
+    {"id": "v100", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"LDR1": {"lux": 100}}, "unit": "V", "predict": true, "range": [2.18, 2.41], "ask": "100 lux（室内）：ADC 引脚对 GND", "explain": "R_LDR ≈ 3.0 kΩ：3.3 × 6.8 / 9.8 ≈ 2.29 V。光敏电阻在上，越亮电压越高。"},
+    {"id": "rldr", "formula": "6800 * (3.3 - v100) / v100", "unit": "kΩ", "predict": true, "range": [2850.0, 3150.0], "ask": "用你的 100 lux 读数反算光敏电阻的阻值 R_LDR = R1 × (3.3 − V) / V", "explain": "≈ 3.0 kΩ = 15 kΩ × 10^−0.7。固件就是这样从读数算出电阻、再换成照度的。"},
+    {"id": "v1000", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"LDR1": {"lux": 1000}}, "unit": "V", "predict": true, "range": [2.88, 3.18], "ask": "1000 lux（窗边）：ADC 引脚对 GND", "explain": "R_LDR ≈ 600 Ω：3.3 × 6.8 / 7.4 ≈ 3.03 V。1、10、100、1000 lux 之间读数都差几百上千个计数，3 个数量级都分得开。"},
+    {"id": "r100k", "choices": ["亮处的读数全挤在 3.3 V 附近，100 lux 和 1000 lux 几乎分不开", "暗处的读数全挤在 0 V 附近", "读数整体按比例变大，分辨能力一样"], "correct": 0, "ask": "如果把 R1 换成 100 kΩ，会怎样？（可以在面包板上换一下试试）", "explain": "100 kΩ 时 1.88 / 2.87 / 3.20 / 3.28 V。分压器在 R1 = R_LDR 时最灵敏；要覆盖 1–1000 lux 就取两端阻值的几何平均 √(75 k × 0.6 k) ≈ 6.7 kΩ → 6.8 kΩ。R1 = 1 kΩ 则反过来，暗处挤在 0 V 附近。"}
   ],
   "hints": [
     "先把开发板的 3V3 接到上方 + 轨、GND 接到 − 轨。",

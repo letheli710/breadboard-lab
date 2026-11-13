@@ -27,20 +27,7 @@
     "**测量**：",
     "- 输出高电平：LED 电流和引脚电流；",
     "- 输出高电平：引脚电压（有电流流出时它不再是 3.3 V）；",
-    "- 输出低电平：LED 和引脚电流。",
-    "",
-    "**对比**：预期读数：",
-    "- 输出高电平时 LED 电流和引脚电流（应在 8.5–11.5 mA，约 10 mA）；",
-    "- 引脚电压：有电流流出时，它不再是 3.3 V；",
-    "- 输出低电平时 LED 灭、引脚电流为 0。",
-    "读数不在 8.5–11.5 mA 里时，先核对电阻值，再看 LED 方向和电阻是不是正好替换了那根跳线。下面是完整的计算：",
-    "",
-    "**引脚不是理想电压源**：输出高电平的 GPIO 可以看成 3.3 V 串联一个约 **25 Ω** 的输出电阻 R_out（模型值；真实芯片里是 MOS 管的导通电阻）。LED 模型是 Vf = 1.8 V（红）再串约 12 Ω。整条回路：",
-    "  I = (3.3 − Vf) / (R + R_out + 12 Ω)  →  R = (3.3 − Vf)/I − R_out − 12 Ω",
-    "- 目标 10 mA：R = 1.5 V / 10 mA − 25 − 12 = 150 − 37 = **113 Ω** → 取标准值 **120 Ω**（100 Ω 也行）。",
-    "- 仿真结果（120 Ω）：I = 1.5 / 157 ≈ **9.5 mA**，引脚电压 3.3 − 25 Ω × 9.5 mA ≈ **3.06 V**（下降 0.24 V）。",
-    "- 没有电阻：I = 1.5 / 37 ≈ **40 mA**，引脚电压 ≈ 2.29 V——已经低于 ESP32 的 VIH（2.475 V），连“高电平”都算不上了，而且达到绝对最大值。",
-    "- 150 Ω 只有 8.0 mA，LED 也会亮，但不在这一题的范围里；1 kΩ 约 1.4 mA，指示灯这么亮通常已经够用了。",
+    "- 输出低电平：LED 和引脚电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**为什么建议 ≤ 20 mA、绝对最大 40 mA**：ESP32 每个引脚的默认驱动能力约 20 mA（可以把驱动强度调到最高约 40 mA）。电流越大，R_out 上的压降越大、芯片发热越多，长时间在极限值附近会缩短寿命或直接损坏输出管。**所有引脚加起来**还有一个总预算：电流都从芯片的 VDD 引脚和板载 AMS1117 走，板子本身约 50 mA，这一题 3V3 总负载约 61 mA。同时点 10 个 20 mA 的 LED 就是 200 mA——实际项目里别这样做，多个负载请用三极管或 MOSFET（后面的实验）。",
     "",
@@ -71,20 +58,7 @@
         "**Measure**:",
         "- output HIGH: the LED current and the pin current;",
         "- output HIGH: the pin voltage (with current flowing out it is no longer 3.3 V);",
-        "- output LOW: the LED and the pin current.",
-        "",
-        "**Compare**: expected readings:",
-        "- with output HIGH, the LED current and the pin current (8.5–11.5 mA, about 10 mA);",
-        "- the pin voltage: once current flows out, it is no longer 3.3 V;",
-        "- with output LOW, the LED is off and the pin current is 0.",
-        "If the reading is outside 8.5–11.5 mA, check the resistor value first, then the LED's direction and that the resistor really replaced the jumper. The full calculation:",
-        "",
-        "**A pin is not an ideal voltage source**: a GPIO driving HIGH behaves like 3.3 V in series with an output resistance R_out of about **25 Ω** (the model value; in silicon it is the on-resistance of a MOS transistor). The LED model is Vf = 1.8 V (red) plus about 12 Ω. Around the loop:",
-        "  I = (3.3 − Vf) / (R + R_out + 12 Ω)  →  R = (3.3 − Vf)/I − R_out − 12 Ω",
-        "- Target 10 mA: R = 1.5 V / 10 mA − 25 − 12 = 150 − 37 = **113 Ω** → standard value **120 Ω** (100 Ω works too).",
-        "- Simulated with 120 Ω: I = 1.5 / 157 ≈ **9.5 mA**, pin voltage 3.3 − 25 Ω × 9.5 mA ≈ **3.06 V** (a 0.24 V sag).",
-        "- Without a resistor: I = 1.5 / 37 ≈ **40 mA** and the pin sits at ≈ 2.29 V — below the ESP32's VIH (2.475 V), so it isn't even a valid HIGH any more, and the current is at the absolute maximum.",
-        "- 150 Ω gives only 8.0 mA: the LED still lights, but it is outside this task's window; 1 kΩ gives about 1.4 mA, which is usually plenty for an indicator.",
+        "- output LOW: the LED and the pin current. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Why ≤ 20 mA is recommended and 40 mA is the absolute max**: an ESP32 pin's default drive strength is about 20 mA (it can be raised to about 40 mA). More current means more drop across R_out and more heat in the chip; living near the limit shortens its life or kills the output transistor. There is also a budget for **all pins together**: the current comes through the chip's VDD pins and the onboard AMS1117, the board itself takes about 50 mA, and in this circuit the total 3V3 load is about 61 mA. Ten LEDs at 20 mA each is 200 mA — don't do that in a real project; drive bigger or multiple loads with a transistor or MOSFET (later experiments).",
         "",
@@ -96,13 +70,33 @@
         "",
         "**Model note**: the real output resistance changes with current and temperature, and the drive strength can be set in firmware; here it is fixed at 25 Ω. The LED is a \"Vf + 12 Ω\" piecewise model; a real LED's Vf rises slowly with current. A \"damaged\" pin is just a flag in the simulator — a real chip does not heal itself."
       ],
+      "compare": [
+        "**Compare**: expected readings:",
+        "- with output HIGH, the LED current and the pin current (8.5–11.5 mA, about 10 mA);",
+        "- the pin voltage: once current flows out, it is no longer 3.3 V;",
+        "- with output LOW, the LED is off and the pin current is 0.",
+        "If the reading is outside 8.5–11.5 mA, check the resistor value first, then the LED's direction and that the resistor really replaced the jumper. The full calculation:",
+        "",
+        "**A pin is not an ideal voltage source**: a GPIO driving HIGH behaves like 3.3 V in series with an output resistance R_out of about **25 Ω** (the model value; in silicon it is the on-resistance of a MOS transistor). The LED model is Vf = 1.8 V (red) plus about 12 Ω. Around the loop:",
+        "  I = (3.3 − Vf) / (R + R_out + 12 Ω)  →  R = (3.3 − Vf)/I − R_out − 12 Ω",
+        "- Target 10 mA: R = 1.5 V / 10 mA − 25 − 12 = 150 − 37 = **113 Ω** → standard value **120 Ω** (100 Ω works too).",
+        "- Simulated with 120 Ω: I = 1.5 / 157 ≈ **9.5 mA**, pin voltage 3.3 − 25 Ω × 9.5 mA ≈ **3.06 V** (a 0.24 V sag).",
+        "- Without a resistor: I = 1.5 / 37 ≈ **40 mA** and the pin sits at ≈ 2.29 V — below the ESP32's VIH (2.475 V), so it isn't even a valid HIGH any more, and the current is at the absolute maximum.",
+        "- 150 Ω gives only 8.0 mA: the LED still lights, but it is outside this task's window; 1 kΩ gives about 1.4 mA, which is usually plenty for an indicator."
+      ],
+      "measurements": [
+        {"ask": "Output HIGH: ammeter in series between the resistor and the LED, read the LED current", "explain": "I = (3.3 − 1.8) / (R + 25 Ω + 12 Ω); with 120 Ω, 1.5 / 157 ≈ 9.5 mA."},
+        {"ask": "Output HIGH: multimeter on the GPIO pin to GND", "explain": "3.3 − 25 Ω × 9.5 mA ≈ 3.06 V: with current flowing out the pin is no longer 3.3 V."},
+        {"ask": "From your two readings, the pin's output resistance R_out = (3.3 V − U_pin) / I", "explain": "≈ 25 Ω (the model value; in a real chip it is the output MOSFET's on-resistance). A pin is not an ideal voltage source: the more current, the bigger the drop."},
+        {"ask": "With your R_out, estimate: with no resistor, as on the starting board, the current would be", "explain": "I = 1.5 / (25 + 12) ≈ 40 mA and the pin sits at ≈ 2.29 V < 2.475 V (VIH). Only tiny internal resistances limit the current, so a series resistor is a must.", "choices": ["about 40 mA, the absolute maximum, and the pin falls below VIH, not even a valid HIGH", "about 10 mA, the LED limits itself", "about 1.5 A, the LED burns out at once"]}
+      ],
       "hints": [
         "Compute the resistor first: KVL around the loop gives 3.3 V = I·(R + 25 Ω + 12 Ω) + 1.8 V; put in the target I = 10 mA, solve for R and pick the nearest standard value.",
         "Pull out the yellow jumper and put the resistor between the same two columns (the GPIO column and the LED anode column); LED long leg (anode) toward the resistor, short leg to GND.",
         "The result is R = (3.3 − 1.8)/0.010 − 25 − 12 ≈ 113 Ω; 100 Ω or 120 Ω both land inside 8.5–11.5 mA."
       ],
       "tests": [
-        "Output HIGH: LED on, pin and LED current 8.5–11.5 mA (9.5 mA with 120 Ω), pin voltage ≥ 2.95 V",
+        "Output HIGH: LED on, current within 8.5–11.5 mA, the pin voltage is a valid HIGH",
         "Output LOW: LED off, no pin current"
       ]
     }
@@ -115,7 +109,7 @@
   ],
   "tests": [
     {
-      "name": "输出高电平：LED 亮，引脚电流和 LED 电流 8.5–11.5 mA（120 Ω 时 9.5 mA），引脚电压 ≥ 2.95 V",
+      "name": "输出高电平：LED 亮，电流在 8.5–11.5 mA 之间，引脚电压是有效的高电平",
       "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}},
       "expect": {"LED1": "on"},
       "gpio": [
@@ -130,6 +124,26 @@
       "expect": {"LED1": "off"},
       "gpio": [{"pin": "U1.GPIO_OUT1", "measure": "current", "min": -0.0001, "max": 0.0001}]
     }
+  ],
+  "compare": [
+    "**对比**：预期读数：",
+    "- 输出高电平时 LED 电流和引脚电流（应在 8.5–11.5 mA，约 10 mA）；",
+    "- 引脚电压：有电流流出时，它不再是 3.3 V；",
+    "- 输出低电平时 LED 灭、引脚电流为 0。",
+    "读数不在 8.5–11.5 mA 里时，先核对电阻值，再看 LED 方向和电阻是不是正好替换了那根跳线。下面是完整的计算：",
+    "",
+    "**引脚不是理想电压源**：输出高电平的 GPIO 可以看成 3.3 V 串联一个约 **25 Ω** 的输出电阻 R_out（模型值；真实芯片里是 MOS 管的导通电阻）。LED 模型是 Vf = 1.8 V（红）再串约 12 Ω。整条回路：",
+    "  I = (3.3 − Vf) / (R + R_out + 12 Ω)  →  R = (3.3 − Vf)/I − R_out − 12 Ω",
+    "- 目标 10 mA：R = 1.5 V / 10 mA − 25 − 12 = 150 − 37 = **113 Ω** → 取标准值 **120 Ω**（100 Ω 也行）。",
+    "- 仿真结果（120 Ω）：I = 1.5 / 157 ≈ **9.5 mA**，引脚电压 3.3 − 25 Ω × 9.5 mA ≈ **3.06 V**（下降 0.24 V）。",
+    "- 没有电阻：I = 1.5 / 37 ≈ **40 mA**，引脚电压 ≈ 2.29 V——已经低于 ESP32 的 VIH（2.475 V），连“高电平”都算不上了，而且达到绝对最大值。",
+    "- 150 Ω 只有 8.0 mA，LED 也会亮，但不在这一题的范围里；1 kΩ 约 1.4 mA，指示灯这么亮通常已经够用了。"
+  ],
+  "measurements": [
+    {"id": "iled", "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.00906, 0.01], "ask": "输出高电平：电流表串在电阻和 LED 之间，读 LED 电流", "explain": "I = (3.3 − 1.8) / (R + 25 Ω + 12 Ω)；120 Ω 时 1.5 / 157 ≈ 9.5 mA。"},
+    {"id": "vpin", "voltage": "U1.GPIO_OUT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [2.91, 3.21], "ask": "输出高电平：万用表测 GPIO 引脚对 GND 的电压", "explain": "3.3 − 25 Ω × 9.5 mA ≈ 3.06 V：有电流流出时引脚不再是 3.3 V。"},
+    {"id": "rout", "formula": "(3.3 - vpin) / iled", "unit": "Ω", "predict": true, "range": [24.1, 26.6], "ask": "用你的两个读数算引脚的输出电阻 R_out = (3.3 V − U_pin) / I", "explain": "≈ 25 Ω（模型值；真实芯片里是输出 MOS 管的导通电阻）。引脚不是理想电压源：电流越大，压降越大。"},
+    {"id": "nores", "choices": ["约 40 mA，到了绝对最大值，引脚电压低于 VIH，连“高电平”都算不上", "约 10 mA，LED 自己会限流", "约 1.5 A，LED 立刻烧断"], "correct": 0, "ask": "用你算出的 R_out 估计：如果像起始电路那样不接电阻，电流会是多少？", "explain": "I = 1.5 / (25 + 12) ≈ 40 mA，引脚电压 ≈ 2.29 V < 2.475 V（VIH）。LED 和引脚都只靠很小的内部电阻限流，必须串电阻。"}
   ],
   "hints": [
     "先算电阻：沿回路 KVL，3.3 V = I·(R + 25 Ω + 12 Ω) + 1.8 V，代入目标 I = 10 mA 解出 R，再取一个最接近的标准值。",

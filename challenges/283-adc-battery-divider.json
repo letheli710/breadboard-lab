@@ -28,20 +28,7 @@
     "",
     "**测量**：",
     "- 每个电池电压下的 ADC 原始读数和 ADC 电压；",
-    "- 分压器的电流。",
-    "",
-    "**对比**：每个电压下的 ADC 原始读数（0–4095）和 ADC 电压，以及分压器从电池吸走的电流。读数始终是 0 或乱跳时，先检查稳压电源的 − 有没有接开发板 GND、引脚是不是设成了模拟输入。计算过程：",
-    "",
-    "**分压比**：k = R2 / (R1 + R2) = 33 / 133 = **0.248**，V_ADC = k × V_BAT。12 位 ADC：raw = V_ADC / 3.3 V × 4095（本模拟器的满量程）。",
-    "- **8.4 V（充满）**：2.084 V → **2586**",
-    "- **7.4 V（标称）**：1.836 V → **2278**",
-    "- **6.0 V（放空）**：1.489 V → **1847**",
-    "- **12 V（接错充电器）**：2.977 V → **3695**，仍低于 3.3 V，引脚安全。分压器能承受的最高电压 ≈ 3.3 / 0.248 ≈ 13.3 V。",
-    "固件里反过来算：V_BAT = raw × (3.3 / 4095) / 0.248 ≈ raw × **3.25 mV**——每一个计数对应电池电压约 3.25 mV。",
-    "",
-    "**为什么不选 27k/10k、22k/10k 让满量程更接近 3.3 V**：ESP32 的 ADC（11 dB 衰减）在约 **0.15–2.45 V** 最线性，接近 3.1 V 以上明显弯曲、最后饱和。所以让满电时的电压落在约 2.1 V，留出余量给充电器过压和电阻误差，宁可少用一点分辨率（1847–2586，约 740 个计数覆盖 2.4 V 电池范围，足够显示电量）。",
-    "",
-    "**分压器本身也在耗电**：I = 8.4 V / 133 kΩ ≈ **63 µA**（仿真 63.2 µA）。一节 2000 mAh 的电池一年会被它耗掉 0.063 mA × 8760 h ≈ 550 mAh——深度睡眠的设备要用更大的电阻（如 1 MΩ + 330 kΩ）或者用 MOSFET 在测量时才接通分压器。",
+    "- 分压器的电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**源阻抗和 C1**：ADC 采样时内部的采样电容要在很短时间内充电。从 VSENSE 看进去的源阻抗是 R1 ∥ R2 = 100k ∥ 33k ≈ **24.8 kΩ**，太高会让读数偏低、抖动。C1（100 nF）在引脚上充当一个“小水库”，采样时从它取电荷；代价是 τ = 24.8 kΩ × 100 nF ≈ 2.5 ms，测电池这种慢变化完全没问题。",
     "",
@@ -79,20 +66,7 @@
         "",
         "**Measure**:",
         "- the raw ADC reading and ADC voltage at each battery voltage;",
-        "- the divider current.",
-        "",
-        "**Compare**: the raw ADC reading (0–4095) and ADC voltage at each battery voltage, and the current the divider steals from the battery. If the reading stays at 0 or jumps around, first check that the supply's − is tied to the board GND and that the pin is set to analog input. The working:",
-        "",
-        "**Divider ratio**: k = R2 / (R1 + R2) = 33 / 133 = **0.248**, V_ADC = k × V_BAT. 12-bit ADC: raw = V_ADC / 3.3 V × 4095 (this simulator's full scale).",
-        "- **8.4 V (full)**: 2.084 V → **2586**",
-        "- **7.4 V (nominal)**: 1.836 V → **2278**",
-        "- **6.0 V (empty)**: 1.489 V → **1847**",
-        "- **12 V (wrong charger)**: 2.977 V → **3695**, still below 3.3 V, so the pin is safe. The divider tolerates up to ≈ 3.3 / 0.248 ≈ 13.3 V.",
-        "Firmware goes the other way: V_BAT = raw × (3.3 / 4095) / 0.248 ≈ raw × **3.25 mV** — each count is about 3.25 mV of battery voltage.",
-        "",
-        "**Why not 27k/10k or 22k/10k to get closer to 3.3 V**: the ESP32 ADC (11 dB attenuation) is most linear from about **0.15 to 2.45 V**; above about 3.1 V it bends and then saturates. So the full battery lands at about 2.1 V, leaving headroom for an over-voltage charger and resistor tolerance. You give up a little resolution (1847–2586, about 740 counts over the 2.4 V battery range — plenty for a fuel gauge).",
-        "",
-        "**The divider drains the battery too**: I = 8.4 V / 133 kΩ ≈ **63 µA** (simulated 63.2 µA). Over a year that's 0.063 mA × 8760 h ≈ 550 mAh from a 2000 mAh pack — a deep-sleep device needs bigger resistors (e.g. 1 MΩ + 330 kΩ) or a MOSFET that connects the divider only while measuring.",
+        "- the divider current. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Source impedance and C1**: while sampling, the ADC must charge an internal sampling capacitor in a very short time. Looking back into VSENSE, the source impedance is R1 ∥ R2 = 100k ∥ 33k ≈ **24.8 kΩ**; too high, and readings come out low and noisy. C1 (100 nF) on the pin is a small reservoir the sampler draws from; the price is τ = 24.8 kΩ × 100 nF ≈ 2.5 ms, irrelevant for a slowly changing battery.",
         "",
@@ -105,16 +79,37 @@
         "",
         "**Model note**: the ADC here is an ideal linear 12-bit converter, 0–3.3 V → 0–4095; ESP32 non-linearity, offset and noise are not modelled, nor is the sampling capacitor (C1 is an open circuit in the DC solution). A real ESP32 at 11 dB tops out around 3.1 V."
       ],
+      "compare": [
+        "**Compare**: the raw ADC reading (0–4095) and ADC voltage at each battery voltage, and the current the divider steals from the battery. If the reading stays at 0 or jumps around, first check that the supply's − is tied to the board GND and that the pin is set to analog input. The working:",
+        "",
+        "**Divider ratio**: k = R2 / (R1 + R2) = 33 / 133 = **0.248**, V_ADC = k × V_BAT. 12-bit ADC: raw = V_ADC / 3.3 V × 4095 (this simulator's full scale).",
+        "- **8.4 V (full)**: 2.084 V → **2586**",
+        "- **7.4 V (nominal)**: 1.836 V → **2278**",
+        "- **6.0 V (empty)**: 1.489 V → **1847**",
+        "- **12 V (wrong charger)**: 2.977 V → **3695**, still below 3.3 V, so the pin is safe. The divider tolerates up to ≈ 3.3 / 0.248 ≈ 13.3 V.",
+        "Firmware goes the other way: V_BAT = raw × (3.3 / 4095) / 0.248 ≈ raw × **3.25 mV** — each count is about 3.25 mV of battery voltage.",
+        "",
+        "**Why not 27k/10k or 22k/10k to get closer to 3.3 V**: the ESP32 ADC (11 dB attenuation) is most linear from about **0.15 to 2.45 V**; above about 3.1 V it bends and then saturates. So the full battery lands at about 2.1 V, leaving headroom for an over-voltage charger and resistor tolerance. You give up a little resolution (1847–2586, about 740 counts over the 2.4 V battery range — plenty for a fuel gauge).",
+        "",
+        "**The divider drains the battery too**: I = 8.4 V / 133 kΩ ≈ **63 µA** (simulated 63.2 µA). Over a year that's 0.063 mA × 8760 h ≈ 550 mAh from a 2000 mAh pack — a deep-sleep device needs bigger resistors (e.g. 1 MΩ + 330 kΩ) or a MOSFET that connects the divider only while measuring."
+      ],
+      "measurements": [
+        {"ask": "Supply at 8.4 V (full): multimeter on the ADC pin (VSENSE) to GND", "explain": "k = 33 / 133 ≈ 0.248, V_ADC = 0.248 × 8.4 ≈ 2.08 V."},
+        {"ask": "From your reading, the divider ratio k = V_ADC / V_BAT", "explain": "k = R2 / (R1 + R2) = 0.248. Firmware goes the other way: V_BAT = V_ADC / k."},
+        {"ask": "The 12-bit ADC reading for that voltage, raw = V_ADC / 3.3 V × 4095", "explain": "≈ 2586. Each count is 3.3 / 4095 / 0.248 ≈ 3.25 mV of battery voltage. Full charge only reaches about 2.1 V because the ESP32 ADC is most linear from 0.15 to 2.45 V."},
+        {"ask": "Supply at 12 V (wrong charger): the ADC pin to GND", "explain": "0.248 × 12 ≈ 2.98 V, still below 3.3 V, so the pin is safe; the divider tolerates up to 3.3 / 0.248 ≈ 13.3 V."},
+        {"ask": "Supply at 8.4 V: the current the divider draws from the battery (ammeter in series with R1)", "explain": "8.4 V / 133 kΩ ≈ 63 µA, about 550 mAh a year. Deep-sleep devices use larger resistors or switch the divider in with a MOSFET only while measuring."}
+      ],
       "hints": [
         "Connect the bench supply's − to the board's GND first: without a common ground the ADC measures nothing useful.",
         "Divider: supply + → 100 kΩ → middle node → 33 kΩ → GND; the middle node goes to GPIO32–39, with 100 nF to GND.",
         "Set that pin to analog input (ADC) in the pin table."
       ],
       "tests": [
-        "8.4 V (full): ADC ≈ 2586 (2.08 V), divider drain ≈ 63 µA",
-        "7.4 V (nominal): ADC ≈ 2278 (1.84 V)",
-        "6.0 V (empty): ADC ≈ 1847 (1.49 V)",
-        "12 V (wrong charger): ADC ≈ 3695 (2.98 V) — still below 3.3 V"
+        "8.4 V (full): sensible ADC reading and divider current",
+        "7.4 V (nominal): sensible ADC reading",
+        "6.0 V (empty): sensible ADC reading",
+        "12 V (wrong charger): the ADC voltage stays below 3.3 V"
       ]
     }
   },
@@ -132,26 +127,47 @@
   ],
   "tests": [
     {
-      "name": "8.4 V（充满）：ADC ≈ 2586（2.08 V），分压电流约 63 µA",
+      "name": "8.4 V（充满）：ADC 读数和分压电流合理",
       "set": {"V1": {"voltage": 8.4}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 2546, "max": 2626}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 2.042, "max": 2.126}],
       "currents": [{"el": "R1", "min": 6e-05, "max": 6.6e-05}]
     },
     {
-      "name": "7.4 V（标称）：ADC ≈ 2278（1.84 V）",
+      "name": "7.4 V（标称）：ADC 读数合理",
       "set": {"V1": {"voltage": 7.4}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 2238, "max": 2318}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 1.799, "max": 1.873}]
     },
     {
-      "name": "6.0 V（放空）：ADC ≈ 1847（1.49 V）",
+      "name": "6.0 V（放空）：ADC 读数合理",
       "set": {"V1": {"voltage": 6.0}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 1807, "max": 1887}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 1.459, "max": 1.519}]
     },
     {
-      "name": "12 V（接错充电器）：ADC ≈ 3695（2.98 V），仍低于 3.3 V",
+      "name": "12 V（接错充电器）：ADC 电压仍低于 3.3 V",
       "set": {"V1": {"voltage": 12}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 3654, "max": 3734}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 2.917, "max": 3.037}]
     }
+  ],
+  "compare": [
+    "**对比**：每个电压下的 ADC 原始读数（0–4095）和 ADC 电压，以及分压器从电池吸走的电流。读数始终是 0 或乱跳时，先检查稳压电源的 − 有没有接开发板 GND、引脚是不是设成了模拟输入。计算过程：",
+    "",
+    "**分压比**：k = R2 / (R1 + R2) = 33 / 133 = **0.248**，V_ADC = k × V_BAT。12 位 ADC：raw = V_ADC / 3.3 V × 4095（本模拟器的满量程）。",
+    "- **8.4 V（充满）**：2.084 V → **2586**",
+    "- **7.4 V（标称）**：1.836 V → **2278**",
+    "- **6.0 V（放空）**：1.489 V → **1847**",
+    "- **12 V（接错充电器）**：2.977 V → **3695**，仍低于 3.3 V，引脚安全。分压器能承受的最高电压 ≈ 3.3 / 0.248 ≈ 13.3 V。",
+    "固件里反过来算：V_BAT = raw × (3.3 / 4095) / 0.248 ≈ raw × **3.25 mV**——每一个计数对应电池电压约 3.25 mV。",
+    "",
+    "**为什么不选 27k/10k、22k/10k 让满量程更接近 3.3 V**：ESP32 的 ADC（11 dB 衰减）在约 **0.15–2.45 V** 最线性，接近 3.1 V 以上明显弯曲、最后饱和。所以让满电时的电压落在约 2.1 V，留出余量给充电器过压和电阻误差，宁可少用一点分辨率（1847–2586，约 740 个计数覆盖 2.4 V 电池范围，足够显示电量）。",
+    "",
+    "**分压器本身也在耗电**：I = 8.4 V / 133 kΩ ≈ **63 µA**（仿真 63.2 µA）。一节 2000 mAh 的电池一年会被它耗掉 0.063 mA × 8760 h ≈ 550 mAh——深度睡眠的设备要用更大的电阻（如 1 MΩ + 330 kΩ）或者用 MOSFET 在测量时才接通分压器。"
+  ],
+  "measurements": [
+    {"id": "v84", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"V1": {"voltage": 8.4}}, "unit": "V", "predict": true, "range": [1.98, 2.19], "ask": "电源 8.4 V（充满）：万用表测 ADC 引脚（VSENSE）对 GND", "explain": "k = 33 / 133 ≈ 0.248，V_ADC = 0.248 × 8.4 ≈ 2.08 V。"},
+    {"id": "k", "formula": "v84 / 8.4", "predict": true, "range": [0.236, 0.261], "ask": "用你的读数算分压比 k = V_ADC / V_BAT", "explain": "k = R2 / (R1 + R2) = 0.248。固件里反过来算：V_BAT = V_ADC / k。"},
+    {"id": "raw", "formula": "v84 / 3.3 * 4095", "predict": true, "range": [2460.0, 2720.0], "ask": "这个电压对应的 12 位 ADC 读数 raw = V_ADC / 3.3 V × 4095", "explain": "≈ 2586。每一个计数对应电池电压 3.3 / 4095 / 0.248 ≈ 3.25 mV。满电只用到约 2.1 V，是因为 ESP32 的 ADC 在 0.15–2.45 V 最线性。"},
+    {"id": "v12", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"V1": {"voltage": 12}}, "unit": "V", "predict": true, "range": [2.83, 3.13], "ask": "电源调到 12 V（接错充电器）：ADC 引脚对 GND", "explain": "0.248 × 12 ≈ 2.98 V，仍低于 3.3 V，引脚安全；分压器最多能承受 3.3 / 0.248 ≈ 13.3 V。"},
+    {"id": "idiv", "current": "R1", "set": {"V1": {"voltage": 8.4}}, "unit": "µA", "predict": true, "range": [6e-05, 6.63e-05], "ask": "电源 8.4 V：分压器从电池吸走的电流（电流表串进 R1）", "explain": "8.4 V / 133 kΩ ≈ 63 µA，一年约 550 mAh。深度睡眠的设备要用更大的电阻，或用 MOSFET 在测量时才接通分压器。"}
   ],
   "hints": [
     "先把稳压电源的 − 端接到开发板 GND：没有共地，ADC 测不出有意义的电压。",

@@ -24,20 +24,7 @@
     "**先预测**：用 NTC 模型 R(T) = R25 × exp[B × (1/T − 1/298.15 K)] 算出 0、25、50、80 °C 时的电阻，再用分压公式算出 ADC 电压、读数和流过 NTC 的电流。相邻两档读数的变化一样大吗？",
     "",
     "**测量**：",
-    "- 每个温度下的 ADC 读数和流过 NTC 的电流。",
-    "",
-    "**对比**：重点看：**温度每次升高相同的度数，读数的变化却不一样**。越热读数反而越大时，检查 NTC 是不是接在了下面（中间结点 → NTC → GND）。计算过程：",
-    "",
-    "**NTC 模型**：R(T) = R25 × exp[B × (1/T − 1/298.15 K)]，T 用开尔文。NTC = 负温度系数：越热电阻越小。",
-    "- 0 °C ≈ 33.6 kΩ；25 °C = 10.0 kΩ；50 °C ≈ 3.59 kΩ；80 °C ≈ 1.27 kΩ。",
-    "",
-    "**分压结果**：V = 3.3 × R_NTC / (R1 + R_NTC)。NTC 在下，**越热电压越低**：",
-    "- 0 °C：2.541 V → **3154**",
-    "- 25 °C：1.649 V → **2046**（正好一半）",
-    "- 50 °C：0.871 V → **1081**",
-    "- 80 °C：0.372 V → **461**",
-    "",
-    "**非线性**：0→25 °C 读数降 1108（约 44 计数/°C），25→50 °C 降 965（约 39 计数/°C），50→80 °C 只降 620（约 21 计数/°C）。同一个“1 个计数”在 25 °C 附近约 0.025 °C，在 80 °C 附近约 0.05 °C。所以不能用一条直线把读数换成温度。",
+    "- 每个温度下的 ADC 读数和流过 NTC 的电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**为什么选 R1 = R25 = 10 kΩ**：和光敏电阻一样，分压器在 **R1 = R_NTC** 时对电阻的相对变化最灵敏（V = Vcc/2）。选 R1 = R25，就把最灵敏的一点放在室温 25 °C，0–50 °C 都很好用。如果要测 80–120 °C（例如 3D 打印机的热床 / 喷头），就选那个温度附近的 R_NTC（例如 100 °C 时约 0.7 kΩ，取 680 Ω–1 kΩ）。",
     "",
@@ -77,20 +64,7 @@
         "**Predict first**: Use the NTC model R(T) = R25 × exp[B × (1/T − 1/298.15 K)] to get its resistance at 0, 25, 50 and 80 °C, then the divider formula for the ADC voltage, reading and NTC current. Are the steps between readings equal?",
         "",
         "**Measure**:",
-        "- the ADC reading and the NTC current at each temperature.",
-        "",
-        "**Compare**: The point: **equal temperature steps do not give equal changes in the reading**. If the reading rises with temperature, check that the NTC is at the bottom (middle node → NTC → GND). The working:",
-        "",
-        "**NTC model**: R(T) = R25 × exp[B × (1/T − 1/298.15 K)], T in kelvin. NTC = negative temperature coefficient: hotter means lower resistance.",
-        "- 0 °C ≈ 33.6 kΩ; 25 °C = 10.0 kΩ; 50 °C ≈ 3.59 kΩ; 80 °C ≈ 1.27 kΩ.",
-        "",
-        "**Divider output**: V = 3.3 × R_NTC / (R1 + R_NTC). With the NTC at the bottom, **hotter means lower voltage**:",
-        "- 0 °C: 2.541 V → **3154**",
-        "- 25 °C: 1.649 V → **2046** (exactly half)",
-        "- 50 °C: 0.871 V → **1081**",
-        "- 80 °C: 0.372 V → **461**",
-        "",
-        "**Nonlinearity**: 0→25 °C drops 1108 counts (about 44 counts/°C), 25→50 °C drops 965 (about 39 counts/°C), 50→80 °C only 620 (about 21 counts/°C). One count is about 0.025 °C near 25 °C but about 0.05 °C near 80 °C. A straight line cannot turn readings into temperature.",
+        "- the ADC reading and the NTC current at each temperature. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Why R1 = R25 = 10 kΩ**: as with the LDR, the divider is most sensitive to relative changes of resistance when **R1 = R_NTC** (V = Vcc/2). Choosing R1 = R25 puts the sweet spot at room temperature, good for 0–50 °C. To measure 80–120 °C (a 3D printer's bed / hot end), pick the NTC's resistance near that temperature (about 0.7 kΩ at 100 °C → 680 Ω–1 kΩ).",
         "",
@@ -109,16 +83,37 @@
         "",
         "**Model note**: the NTC follows the exact B = 3950 exponential model with no self-heating, thermal time constant or tolerance; the ADC is an ideal 12-bit 0–3.3 V linear converter without the ESP32's non-linearity."
       ],
+      "compare": [
+        "**Compare**: The point: **equal temperature steps do not give equal changes in the reading**. If the reading rises with temperature, check that the NTC is at the bottom (middle node → NTC → GND). The working:",
+        "",
+        "**NTC model**: R(T) = R25 × exp[B × (1/T − 1/298.15 K)], T in kelvin. NTC = negative temperature coefficient: hotter means lower resistance.",
+        "- 0 °C ≈ 33.6 kΩ; 25 °C = 10.0 kΩ; 50 °C ≈ 3.59 kΩ; 80 °C ≈ 1.27 kΩ.",
+        "",
+        "**Divider output**: V = 3.3 × R_NTC / (R1 + R_NTC). With the NTC at the bottom, **hotter means lower voltage**:",
+        "- 0 °C: 2.541 V → **3154**",
+        "- 25 °C: 1.649 V → **2046** (exactly half)",
+        "- 50 °C: 0.871 V → **1081**",
+        "- 80 °C: 0.372 V → **461**",
+        "",
+        "**Nonlinearity**: 0→25 °C drops 1108 counts (about 44 counts/°C), 25→50 °C drops 965 (about 39 counts/°C), 50→80 °C only 620 (about 21 counts/°C). One count is about 0.025 °C near 25 °C but about 0.05 °C near 80 °C. A straight line cannot turn readings into temperature."
+      ],
+      "measurements": [
+        {"ask": "0 °C: multimeter on the ADC pin (VTEMP) to GND", "explain": "R_NTC ≈ 33.6 kΩ: 3.3 × 33.6 / 43.6 ≈ 2.54 V."},
+        {"ask": "25 °C: the ADC pin to GND", "explain": "R_NTC = R1 = 10 kΩ, exactly half: 1.65 V. This is the most sensitive point."},
+        {"ask": "80 °C: the ADC pin to GND", "explain": "R_NTC ≈ 1.27 kΩ: 3.3 × 1.27 / 11.27 ≈ 0.37 V."},
+        {"ask": "Compare the change per degree from your three readings: (U₀ − U₂₅)/25 and (U₂₅ − U₈₀)/55", "explain": "The NTC resistance changes exponentially and the divider is nonlinear too, so a straight line cannot turn readings into temperature. Near 80 °C one ADC count is about 0.05 °C; near 25 °C about 0.025 °C.", "choices": ["the hotter, the smaller the change per °C: about 36 mV/°C from 0 to 25 °C, only about 23 mV/°C from 25 to 80 °C", "the same per °C (linear)", "the hotter, the larger the change per °C"]},
+        {"ask": "As firmware does, convert your 80 °C reading back to a temperature (°C): R_NTC = R1 × V / (3.3 − V), 1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950 with T in K, then subtract 273.15", "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C. That is the B-parameter equation (a simplified Steinhart–Hart)."}
+      ],
       "hints": [
         "Wire the board's 3V3 to the bottom + rail and a GND pin to the bottom − rail.",
         "3V3 → 10 kΩ → middle node → NTC → GND; the middle node goes to GPIO32–39.",
         "Set that pin to analog input (ADC) in the pin table."
       ],
       "tests": [
-        "0 °C: ADC ≈ 3154 (2.54 V), ≈ 76 µA",
-        "25 °C: ADC ≈ 2046 (1.65 V, half of 3.3 V), ≈ 165 µA",
-        "50 °C: ADC ≈ 1081 (0.87 V), ≈ 243 µA",
-        "80 °C: ADC ≈ 461 (0.37 V), ≈ 293 µA — the steps shrink as it gets hotter"
+        "0 °C: sensible ADC reading and current",
+        "25 °C: sensible ADC reading and current",
+        "50 °C: sensible ADC reading and current",
+        "80 °C: sensible ADC reading and current"
       ]
     }
   },
@@ -134,29 +129,50 @@
   ],
   "tests": [
     {
-      "name": "0 °C：ADC ≈ 3154（2.54 V），电流约 76 µA",
+      "name": "0 °C：ADC 读数和电流合理",
       "set": {"TH1": {"temperature": 0}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 3114, "max": 3194}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 2.506, "max": 2.576}],
       "currents": [{"el": "TH1", "min": 7.26e-05, "max": 7.86e-05}]
     },
     {
-      "name": "25 °C：ADC ≈ 2046（1.65 V，正好一半），电流约 165 µA",
+      "name": "25 °C：ADC 读数和电流合理",
       "set": {"TH1": {"temperature": 25}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 2006, "max": 2086}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 1.614, "max": 1.684}],
       "currents": [{"el": "TH1", "min": 0.0001583, "max": 0.0001715}]
     },
     {
-      "name": "50 °C：ADC ≈ 1081（0.87 V），电流约 243 µA",
+      "name": "50 °C：ADC 读数和电流合理",
       "set": {"TH1": {"temperature": 50}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 1041, "max": 1121}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 0.836, "max": 0.906}],
       "currents": [{"el": "TH1", "min": 0.000233, "max": 0.0002524}]
     },
     {
-      "name": "80 °C：ADC ≈ 461（0.37 V），电流约 293 µA——越热步长越小",
+      "name": "80 °C：ADC 读数和电流合理",
       "set": {"TH1": {"temperature": 80}},
       "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 421, "max": 501}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 0.337, "max": 0.407}],
       "currents": [{"el": "TH1", "min": 0.0002809, "max": 0.0003043}]
     }
+  ],
+  "compare": [
+    "**对比**：重点看：**温度每次升高相同的度数，读数的变化却不一样**。越热读数反而越大时，检查 NTC 是不是接在了下面（中间结点 → NTC → GND）。计算过程：",
+    "",
+    "**NTC 模型**：R(T) = R25 × exp[B × (1/T − 1/298.15 K)]，T 用开尔文。NTC = 负温度系数：越热电阻越小。",
+    "- 0 °C ≈ 33.6 kΩ；25 °C = 10.0 kΩ；50 °C ≈ 3.59 kΩ；80 °C ≈ 1.27 kΩ。",
+    "",
+    "**分压结果**：V = 3.3 × R_NTC / (R1 + R_NTC)。NTC 在下，**越热电压越低**：",
+    "- 0 °C：2.541 V → **3154**",
+    "- 25 °C：1.649 V → **2046**（正好一半）",
+    "- 50 °C：0.871 V → **1081**",
+    "- 80 °C：0.372 V → **461**",
+    "",
+    "**非线性**：0→25 °C 读数降 1108（约 44 计数/°C），25→50 °C 降 965（约 39 计数/°C），50→80 °C 只降 620（约 21 计数/°C）。同一个“1 个计数”在 25 °C 附近约 0.025 °C，在 80 °C 附近约 0.05 °C。所以不能用一条直线把读数换成温度。"
+  ],
+  "measurements": [
+    {"id": "v0", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 0}}, "unit": "V", "predict": true, "range": [2.41, 2.67], "ask": "0 °C：万用表测 ADC 引脚（VTEMP）对 GND", "explain": "R_NTC ≈ 33.6 kΩ：3.3 × 33.6 / 43.6 ≈ 2.54 V。"},
+    {"id": "v25", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 25}}, "unit": "V", "predict": true, "range": [1.57, 1.73], "ask": "25 °C：ADC 引脚对 GND", "explain": "R_NTC = R1 = 10 kΩ，正好一半：1.65 V。这一点灵敏度最高。"},
+    {"id": "v80", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 80}}, "unit": "V", "predict": true, "range": [0.353, 0.39], "ask": "80 °C：ADC 引脚对 GND", "explain": "R_NTC ≈ 1.27 kΩ：3.3 × 1.27 / 11.27 ≈ 0.37 V。"},
+    {"id": "nonlin", "choices": ["越热，每升高 1 °C 电压变化越小：0→25 °C 约 36 mV/°C，25→80 °C 只有约 23 mV/°C", "每升高 1 °C 电压变化都一样（线性）", "越热，每升高 1 °C 电压变化越大"], "correct": 0, "ask": "用你的三个读数比较每度的电压变化：(U₀ − U₂₅)/25 和 (U₂₅ − U₈₀)/55", "explain": "NTC 的电阻按指数变化，分压又是非线性的，所以不能用一条直线把读数换成温度。80 °C 附近一个 ADC 计数约 0.05 °C，25 °C 附近约 0.025 °C。"},
+    {"id": "temp", "formula": "1 / (1/298.15 + ln(v80 / (3.3 - v80)) / 3950) - 273.15", "predict": true, "range": [76.0, 84.0], "ask": "像固件那样，用你的 80 °C 读数反算温度（°C）：R_NTC = R1 × V / (3.3 − V)，1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950，T 单位 K，再减 273.15", "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C。这就是 B 值公式（Steinhart–Hart 的简化版）。"}
   ],
   "hints": [
     "先把开发板的 3V3 接到下方 + 轨、GND 接到下方 − 轨。",
