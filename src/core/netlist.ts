@@ -129,7 +129,12 @@ export function buildNetlist(layout: Layout): BoardNetlist {
     mIdx++;
     for (const pin of ['3V3', '5V', 'GND']) {
       const r = termRoot.get(pinId(c.ref, pin));
-      if (r && !rootName.has(r) && !r.startsWith('u:')) rootName.set(r, mIdx === 1 ? pin : `${c.ref}.${pin}`);
+      if (!r || rootName.has(r) || r.startsWith('u:')) continue;
+      // never reuse a name another root already has (e.g. a separate battery's − is "GND"):
+      // equal names would merge two nets that are not connected
+      const used = new Set(rootName.values());
+      const name = mIdx === 1 && !used.has(pin) ? pin : `${c.ref}.${pin}`;
+      rootName.set(r, used.has(name) ? `${c.ref}.${pin}#${r}` : name);
     }
   }
   // function generators: the signal net is VIN (VIN2, ...); a black clip not on GND gets its own name

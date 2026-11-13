@@ -509,3 +509,29 @@ describe('plain diode ratings', () => {
     expect(d.overcurrent).toBe(false);
   });
 });
+
+describe('netlist naming with a dev board and a separate supply', () => {
+  it('a battery loop not wired to the board GND stays a separate net', async () => {
+    const { buildNetlist } = await import('./netlist');
+    const { parseChallenge } = await import('./challenge');
+    const ch = parseChallenge({
+      format: 'breadboard-challenge/1',
+      id: 'gnd-split',
+      title: 'gnd split',
+      components: [{ ref: 'U1', type: 'esp32_devkit' }, { ref: 'BAT1', type: 'battery' }, { ref: 'R1', type: 'resistor' }, { ref: 'LED1', type: 'led' }],
+      connections: [['BAT1.+', 'R1.1'], ['R1.2', 'LED1.anode'], ['LED1.cathode', 'BAT1.-']],
+      solution: {
+        parts: [
+          { type: 'esp32_devkit', ref: 'U1', at: 'b1', props: { usb: true } },
+          { type: 'wire', pins: { a: 'a1', b: 'tn1' } },
+          { type: 'battery', ref: 'BAT1', variant: '9V', pins: { '+': 'a25', '-': 'a28' } },
+          { type: 'resistor', ref: 'R1', resistance: 1000, pins: { '1': 'c25', '2': 'c27' } },
+          { type: 'led', ref: 'LED1', color: 'red', pins: { anode: 'd27', cathode: 'd28' } },
+        ],
+      },
+    }).challenge!;
+    const nl = buildNetlist(ch.solution!);
+    expect(nl.pinNet.get('LED1.cathode')).toBeTruthy();
+    expect(nl.pinNet.get('LED1.cathode')).not.toBe(nl.pinNet.get('U1.GND'));
+  });
+});
