@@ -31,10 +31,11 @@ interface Run {
   sub?: boolean;
 }
 
-/** "u_R1" → u + subscript R1, "U_{ab}" → U + subscript ab; single letters are italic. */
+/** "u_R1" → u + subscript R1, "U_{ab}" → U + subscript ab; single letters are italic. A phasor dot
+ *  (combining U+0307, e.g. "U̇_s", or precomposed "İ_1") stays on the base letter. */
 export function richRuns(s: string): Run[] {
   const out: Run[] = [];
-  const re = /([A-Za-zα-ωΑ-Ω])_(\{([^}]*)\}|([A-Za-z0-9]+))/g;
+  const re = /([A-Za-zα-ωΑ-Ω]\u0307?|\u0130)_(\{([^}]*)\}|([A-Za-z0-9]+))/g;
   let last = 0;
   let m: RegExpExecArray | null;
   while ((m = re.exec(s))) {
@@ -43,7 +44,7 @@ export function richRuns(s: string): Run[] {
     last = m.index + m[0].length;
   }
   if (last < s.length) out.push({ t: s.slice(last) });
-  if (out.length === 1 && /^[A-Za-zα-ω]$/.test(out[0].t)) out[0].it = true;
+  if (out.length === 1 && /^(?:[A-Za-zα-ω]\u0307?|\u0130)$/.test(out[0].t)) out[0].it = true;
   return out;
 }
 

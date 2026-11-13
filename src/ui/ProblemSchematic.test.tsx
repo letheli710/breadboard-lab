@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import type { Schematic } from '../core/problem/types';
-import { ProblemSchematic, elementValueText } from './ProblemSchematic';
+import { ProblemSchematic, elementValueText, richRuns } from './ProblemSchematic';
 
 const src = (value: unknown): Schematic =>
   ({
@@ -46,5 +46,27 @@ describe('ProblemSchematic renders SI-string values', () => {
       grounds: [[4, 4]],
     } as unknown as Schematic;
     expect(renderToStaticMarkup(<ProblemSchematic schematic={s} />)).toContain('<svg');
+  });
+});
+
+describe('richRuns: subscripts on dotted phasor letters', () => {
+  it('U̇_s (combining dot) → italic U̇ + subscript s', () => {
+    expect(richRuns('U̇_s = 10∠0° V')).toEqual([{ t: 'U̇', it: true }, { t: 's', sub: true }, { t: ' = 10∠0° V' }]);
+  });
+  it('İ_1 (precomposed) and U̇_{AB} take subscripts', () => {
+    expect(richRuns('İ_1')).toEqual([{ t: 'İ', it: true }, { t: '1', sub: true }]);
+    expect(richRuns('U̇_{AB}')).toEqual([{ t: 'U̇', it: true }, { t: 'AB', sub: true }]);
+  });
+  it('a lone dotted letter is italic', () => {
+    expect(richRuns('U̇')).toEqual([{ t: 'U̇', it: true }]);
+  });
+  it('plain U_s is unchanged', () => {
+    expect(richRuns('U_s')).toEqual([{ t: 'U', it: true }, { t: 's', sub: true }]);
+    expect(richRuns('R_{1}R_{4}')).toEqual([
+      { t: 'R', it: true },
+      { t: '1', sub: true },
+      { t: 'R', it: true },
+      { t: '4', sub: true },
+    ]);
   });
 });
