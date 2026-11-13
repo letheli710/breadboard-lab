@@ -21,18 +21,11 @@
     "- **初值 u(0+)**：电容电压不能突变，等于上一个半周期结束时的值。",
     "放电半周期也一样：方波为 0 V 时 u(∞) = 0，从电容看进去的电阻不变，τ 也不变。",
     "",
-    "**测量**：先用 100 Hz 看 VC 的最高值；再换 1 kHz，读出 VC 的最高值 VH 和最低值 VL。",
-    "",
-    "**对比**：",
-    "- u(∞) = 5 V × 10 k / (10.05 k + 10 k) ≈ 2.49 V——不是 5 V！R_eq = (10.05 k) ∥ (10 k) ≈ 5.01 kΩ，τ ≈ 5.01 kΩ × 100 nF ≈ 0.50 ms，只有 RC 串联时的一半。",
-    "- **100 Hz（半周期 5 ms ≈ 10τ）**：每次都走到终值，VC 在 0 和 ≈ 2.49 V 之间。",
-    "- **1 kHz（半周期 0.5 ms ≈ τ）**：VC 在 VL ≈ 0.67 V 和 VH ≈ 1.82 V 之间来回，中心是 u(∞)/2 ≈ 1.25 V。",
-    "",
-    "**用读数反算 τ**：放电半周期从 VH 指数衰减到 0 的过程中，经过 T/2 时恰好到 VL，所以 VL = VH·e^(−T/(2τ))，即 τ = (T/2) / ln(VH/VL) = 0.5 ms / ln(1.82/0.67) ≈ 0.50 ms。这个办法不需要知道终值，也不需要从 0 开始，任何频率都能用（2 kHz 时 VH ≈ 1.55 V、VL ≈ 0.94 V，算出来还是 ≈ 0.50 ms）。",
+    "**测量**：先用 100 Hz 看 VC 的最高值；再换 1 kHz，读出 VC 的最高值 VH 和最低值 VL。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**动手**：在板上测出 VH、VL，自己算一次 τ；然后把 R2 拔掉，猜一猜 VH、VL 会变成多少（提示：回到实验 3-1 的情况，τ 变成 ≈ 1 ms，终值 5 V）。",
     "",
-    "**真实电路里**：常见瓷片电容的容值误差是 ±10%～±20%，所以实际测出的 τ 和 0.50 ms 差一两成很正常；用读数反算 τ 正好可以把电容的实际值测出来。"
+    "**真实电路里**：常见瓷片电容的容值误差是 ±10%～±20%，所以实际测出的 τ 和用标称值算出的差一两成很正常；用读数反算 τ 正好可以把电容的实际值测出来。"
   ],
   "i18n": {
     "en": {
@@ -52,18 +45,26 @@
         "- **Initial value u(0+)**: the capacitor voltage cannot jump, so it is the value at the end of the previous half period.",
         "The discharging half period works the same way: with the square wave at 0 V, u(∞) = 0 and the capacitor sees the same resistance, so τ is unchanged.",
         "",
-        "**Measure**: at 100 Hz read the highest value of VC; then at 1 kHz read its highest value VH and lowest value VL.",
+        "**Measure**: at 100 Hz read the highest value of VC; then at 1 kHz read its highest value VH and lowest value VL. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
+        "**Try it**: read VH and VL on your board and compute τ yourself; then pull R2 out and predict the new VH and VL (hint: you're back to Experiment 3-1, τ ≈ 1 ms, final value 5 V).",
+        "",
+        "**In a real circuit**: common ceramic capacitors have a ±10% to ±20% tolerance, so a measured τ 10–20% away from the nominal value is normal; working τ out from the readings is exactly how you measure the capacitor's real value."
+      ],
+      "compare": [
         "**Compare**:",
         "- u(∞) = 5 V × 10 k / (10.05 k + 10 k) ≈ 2.49 V — not 5 V! R_eq = (10.05 k) ∥ (10 k) ≈ 5.01 kΩ, so τ ≈ 5.01 kΩ × 100 nF ≈ 0.50 ms — half of the plain series RC.",
         "- **100 Hz (half period 5 ms ≈ 10τ)**: the final value is reached every time; VC swings between 0 and ≈ 2.49 V.",
         "- **1 kHz (half period 0.5 ms ≈ τ)**: VC swings between VL ≈ 0.67 V and VH ≈ 1.82 V, centred on u(∞)/2 ≈ 1.25 V.",
         "",
-        "**Working τ out from the readings**: discharging from VH towards 0, the voltage reaches exactly VL after T/2, so VL = VH·e^(−T/(2τ)), i.e. τ = (T/2) / ln(VH/VL) = 0.5 ms / ln(1.82/0.67) ≈ 0.50 ms. You don't need the final value or a start from 0, and it works at any frequency (at 2 kHz, VH ≈ 1.55 V and VL ≈ 0.94 V still give ≈ 0.50 ms).",
-        "",
-        "**Try it**: read VH and VL on your board and compute τ yourself; then pull R2 out and predict the new VH and VL (hint: you're back to Experiment 3-1, τ ≈ 1 ms, final value 5 V).",
-        "",
-        "**In a real circuit**: common ceramic capacitors have a ±10% to ±20% tolerance, so a measured τ 10–20% away from 0.50 ms is normal; working τ out from the readings is exactly how you measure the capacitor's real value."
+        "**Working τ out from the readings**: discharging from VH towards 0, the voltage reaches exactly VL after T/2, so VL = VH·e^(−T/(2τ)), i.e. τ = (T/2) / ln(VH/VL) = 0.5 ms / ln(1.82/0.67) ≈ 0.50 ms. You don't need the final value or a start from 0, and it works at any frequency (at 2 kHz, VH ≈ 1.55 V and VL ≈ 0.94 V still give ≈ 0.50 ms)."
+      ],
+      "measurements": [
+        {"ask": "100 Hz: the highest value of CH2 (VC), i.e. the final value u(∞)", "explain": "Capacitor open, (R1 + 50 Ω) and R2 divide: 5 × 10 / 20.05 ≈ 2.49 V, not 5 V."},
+        {"ask": "1 kHz: the highest value of VC, VH"},
+        {"ask": "1 kHz: the lowest value of VC, VL", "explain": "A 0.5 ms half period ≈ τ, so VC swings between VL and VH, centred on u(∞)/2 ≈ 1.25 V."},
+        {"ask": "Discharging from VH, VC reaches VL exactly T/2 later: from your readings, τ = (T/2) / ln(VH/VL)", "explain": "R_eq = (10.05 k) ∥ (10 k) ≈ 5.01 kΩ, τ = R_eq·C ≈ 0.50 ms, half the plain series RC value. The method needs no final value and works at any frequency."},
+        {"ask": "With C = 100 nF, the resistance the capacitor sees, R_eq = τ / C", "explain": "≈ 5.0 kΩ = (R1 + 50 Ω) ∥ R2: with the source zeroed, R1 and R2 are in parallel as seen from the capacitor."}
       ],
       "hints": [
         "C1 and R2 both go from VC to GND, side by side.",
@@ -71,9 +72,9 @@
         "τ = (T/2) / ln(VH/VL)."
       ],
       "tests": [
-        "100 Hz: final value u(∞) ≈ 2.49 V (not 5 V), discharges to ≈ 0",
-        "1 kHz: VH ≈ 1.82 V, VL ≈ 0.67 V → τ = (T/2)/ln(VH/VL) ≈ 0.50 ms",
-        "2 kHz: VH ≈ 1.55 V, VL ≈ 0.94 V, average still ≈ 1.25 V"
+        "100 Hz: the final value is reached every half period; discharges to ≈ 0",
+        "1 kHz: sensible VH and VL (τ set by R1 ∥ R2)",
+        "2 kHz: a smaller swing, the same average"
       ]
     }
   },
@@ -90,7 +91,7 @@
   ],
   "tests": [
     {
-      "name": "100 Hz：终值 u(∞) ≈ 2.49 V（不是 5 V），放电到 ≈ 0",
+      "name": "100 Hz：每半周期都走到终值，放电到 ≈ 0",
       "set": { "FG1": { "waveform": "square", "frequency": 100, "amplitude": 2.5, "offset": 2.5 } },
       "scope": [
         { "pin": "C1.1", "measure": "vmax", "min": 2.44, "max": 2.54 },
@@ -98,7 +99,7 @@
       ]
     },
     {
-      "name": "1 kHz：VH ≈ 1.82 V、VL ≈ 0.67 V → τ = (T/2)/ln(VH/VL) ≈ 0.50 ms",
+      "name": "1 kHz：VH、VL 合理（τ 由 R1 ∥ R2 决定）",
       "set": { "FG1": { "waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5 } },
       "scope": [
         { "pin": "C1.1", "measure": "vmax", "min": 1.77, "max": 1.87 },
@@ -106,7 +107,7 @@
       ]
     },
     {
-      "name": "2 kHz：VH ≈ 1.55 V、VL ≈ 0.94 V，平均仍 ≈ 1.25 V",
+      "name": "2 kHz：摆幅变小，平均值不变",
       "set": { "FG1": { "waveform": "square", "frequency": 2000, "amplitude": 2.5, "offset": 2.5 } },
       "scope": [
         { "pin": "C1.1", "measure": "vmax", "min": 1.5, "max": 1.6 },
@@ -114,6 +115,21 @@
         { "pin": "C1.1", "measure": "vavg", "min": 1.2, "max": 1.3 }
       ]
     }
+  ],
+  "compare": [
+    "**对比**：",
+    "- u(∞) = 5 V × 10 k / (10.05 k + 10 k) ≈ 2.49 V——不是 5 V！R_eq = (10.05 k) ∥ (10 k) ≈ 5.01 kΩ，τ ≈ 5.01 kΩ × 100 nF ≈ 0.50 ms，只有 RC 串联时的一半。",
+    "- **100 Hz（半周期 5 ms ≈ 10τ）**：每次都走到终值，VC 在 0 和 ≈ 2.49 V 之间。",
+    "- **1 kHz（半周期 0.5 ms ≈ τ）**：VC 在 VL ≈ 0.67 V 和 VH ≈ 1.82 V 之间来回，中心是 u(∞)/2 ≈ 1.25 V。",
+    "",
+    "**用读数反算 τ**：放电半周期从 VH 指数衰减到 0 的过程中，经过 T/2 时恰好到 VL，所以 VL = VH·e^(−T/(2τ))，即 τ = (T/2) / ln(VH/VL) = 0.5 ms / ln(1.82/0.67) ≈ 0.50 ms。这个办法不需要知道终值，也不需要从 0 开始，任何频率都能用（2 kHz 时 VH ≈ 1.55 V、VL ≈ 0.94 V，算出来还是 ≈ 0.50 ms）。"
+  ],
+  "measurements": [
+    {"id": "uinf", "scope": "vmax", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 100, "amplitude": 2.5, "offset": 2.5}}, "unit": "V", "predict": true, "range": [2.37, 2.62], "ask": "100 Hz：CH2（VC）的最高值，也就是终值 u(∞)", "explain": "电容开路，(R1 + 50 Ω) 和 R2 分压：5 × 10 / 20.05 ≈ 2.49 V，不是 5 V。"},
+    {"id": "vh", "scope": "vmax", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5}}, "unit": "V", "predict": true, "range": [1.73, 1.91], "ask": "1 kHz：VC 的最高值 VH"},
+    {"id": "vl", "scope": "vmin", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5}}, "unit": "V", "predict": true, "range": [0.638, 0.705], "ask": "1 kHz：VC 的最低值 VL", "explain": "半周期 0.5 ms ≈ τ，VC 在 VL 和 VH 之间来回，中心是 u(∞)/2 ≈ 1.25 V。"},
+    {"id": "tau", "formula": "0.0005 / ln(vh / vl)", "unit": "ms", "predict": true, "range": [0.000476, 0.000526], "ask": "放电半周期从 VH 衰减，经过 T/2 正好到 VL：用你的读数算 τ = (T/2) / ln(VH/VL)", "explain": "R_eq = (10.05 k) ∥ (10 k) ≈ 5.01 kΩ，τ = R_eq·C ≈ 0.50 ms，只有 RC 串联时的一半。这个方法不需要知道终值，任何频率都能用。"},
+    {"id": "req", "formula": "tau / 100e-9", "unit": "kΩ", "range": [4760.0, 5260.0], "ask": "再用 C = 100 nF 算从电容看进去的等效电阻 R_eq = τ / C", "explain": "≈ 5.0 kΩ = (R1 + 50 Ω) ∥ R2：电压源置零后，R1 和 R2 从电容看过去是并联的。"}
   ],
   "hints": [
     "C1 和 R2 都从 VC 接到 GND，并排放。",

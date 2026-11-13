@@ -19,12 +19,7 @@
     "",
     "**先预测**：电感电流不能突变（i_L(0+) = i_L(0−)），u_L = L·di/dt。算出回路总电阻（要算上信号发生器 50 Ω 和电感线圈电阻 1 Ω）、τ = L/R总 和稳态电流；半周期是几个 τ？方波跳变的瞬间，2 V 的跳变落在谁身上？再想 10 kHz 时会怎样。",
     "",
-    "**测量**：1 kHz 下读电阻电压（CH1 − CH2）的范围和电感电压的尖峰；再把频率调到 10 kHz 看两者的变化。",
-    "",
-    "**对比**：R总 = 100 + 50 + 1 = 151 Ω，τ = 10 mH / 151 Ω ≈ 66 µs。",
-    "- 稳态电流 I = 1 V / 151 Ω ≈ 6.6 mA。半周期 0.5 ms ≈ 7.5τ，所以每半周期电流都能从 −6.6 mA 走到 +6.6 mA：电阻电压在 ±0.66 V 之间（Vpp ≈ 1.32 V），边沿处是指数形状的斜坡。",
-    "- 方波跳变的瞬间电流还来不及变，这 2 V 的跳变几乎全部落在电感上：u_L 跳到约 ±2 V（理想值 1 + 150/151 ≈ 1.99 V），随后以 τ 衰减到只剩线圈电阻上的 ±6.6 mV。仿真示波器每 3.9 µs 取一个点，读到的尖峰约 1.88 V。",
-    "- **10 kHz（半周期 50 µs < τ）**：电流来不及走完，只在中间来回爬，电阻电压变成近似三角波，Vpp ≈ 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V；而电感电压一直很大（大部分电压都落在电感上，因为电流一直在变）。",
+    "**测量**：1 kHz 下读电阻电压（CH1 − CH2）的范围和电感电压的尖峰；再把频率调到 10 kHz 看两者的变化。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**想一想（和 RC 对比）**：RC 中电容**电压**连续、电流可以跳；RL 中电感**电流**连续、电压可以跳。实际电路里突然切断电感电流（di/dt 极大）会产生很高的反向电压，这就是继电器线圈旁边要并一个续流二极管的原因。",
     "",
@@ -46,16 +41,24 @@
         "",
         "**Predict first**: inductor current cannot jump (i_L(0+) = i_L(0−)), and u_L = L·di/dt. Work out the loop resistance (including the generator's 50 Ω and the coil's 1 Ω winding), τ = L/R_total and the steady current; how many τ fit in half a period? At the instant of a jump, which element takes the 2 V step? Then think about 10 kHz.",
         "",
-        "**Measure**: at 1 kHz read the range of the resistor voltage (CH1 − CH2) and the inductor-voltage spikes; then turn the frequency up to 10 kHz and watch both change.",
-        "",
-        "**Compare**: R_total = 100 + 50 + 1 = 151 Ω, τ = 10 mH / 151 Ω ≈ 66 µs.",
-        "- Steady current I = 1 V / 151 Ω ≈ 6.6 mA. Half a period, 0.5 ms ≈ 7.5τ, is long enough for the current to travel all the way from −6.6 mA to +6.6 mA: the resistor voltage swings between ±0.66 V (Vpp ≈ 1.32 V), with an exponential ramp after each edge.",
-        "- At the instant of a jump the current hasn't changed yet, so practically the whole 2 V step lands on the inductor: u_L jumps to about ±2 V (ideally 1 + 150/151 ≈ 1.99 V), then decays with τ down to just the ±6.6 mV across the winding resistance. The simulated scope samples every 3.9 µs and reads a spike of about 1.88 V.",
-        "- **10 kHz (half period 50 µs < τ)**: the current has no time to finish, it just climbs back and forth in the middle; the resistor voltage becomes a near-triangle with Vpp ≈ 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V, while the inductor voltage stays large (most of the voltage sits on the inductor because the current keeps changing).",
+        "**Measure**: at 1 kHz read the range of the resistor voltage (CH1 − CH2) and the inductor-voltage spikes; then turn the frequency up to 10 kHz and watch both change. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Think about it (compare with RC)**: in RC the capacitor *voltage* is continuous and its current may jump; in RL the inductor *current* is continuous and its voltage may jump. Suddenly interrupting an inductor's current (huge di/dt) produces a large reverse voltage — that's why relay coils get a flyback diode across them.",
         "",
         "**In a real circuit**: the simulated coil has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω; it adds to R_total, so τ and the steady current get smaller and the inductor voltage settles at a higher level after the spike."
+      ],
+      "compare": [
+        "**Compare**: R_total = 100 + 50 + 1 = 151 Ω, τ = 10 mH / 151 Ω ≈ 66 µs.",
+        "- Steady current I = 1 V / 151 Ω ≈ 6.6 mA. Half a period, 0.5 ms ≈ 7.5τ, is long enough for the current to travel all the way from −6.6 mA to +6.6 mA: the resistor voltage swings between ±0.66 V (Vpp ≈ 1.32 V), with an exponential ramp after each edge.",
+        "- At the instant of a jump the current hasn't changed yet, so practically the whole 2 V step lands on the inductor: u_L jumps to about ±2 V (ideally 1 + 150/151 ≈ 1.99 V), then decays with τ down to just the ±6.6 mV across the winding resistance. The simulated scope samples every 3.9 µs and reads a spike of about 1.88 V.",
+        "- **10 kHz (half period 50 µs < τ)**: the current has no time to finish, it just climbs back and forth in the middle; the resistor voltage becomes a near-triangle with Vpp ≈ 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V, while the inductor voltage stays large (most of the voltage sits on the inductor because the current keeps changing)."
+      ],
+      "measurements": [
+        {"ask": "1 kHz: Vpp of the resistor voltage u_R (CH1 − CH2)", "explain": "Steady current I = 1 V / 151 Ω ≈ 6.6 mA, so u_R swings ±0.66 V, ≈ 1.32 Vpp."},
+        {"ask": "1 kHz: the maximum of the CH2 (inductor voltage u_L) spikes", "explain": "At a jump the current hasn't changed yet, so nearly the whole 2 V step lands on the inductor: ideally 1 + 150/151 ≈ 1.99 V; sampling every 3.9 µs the scope reads about 1.9 V."},
+        {"ask": "1 kHz: the 10%–90% rise time t_r of u_R (that is, of the current)"},
+        {"ask": "From your t_r, the time constant τ = t_r / ln 9", "explain": "τ = L / R_total = 10 mH / (100 + 50 + 1) Ω ≈ 66 µs."},
+        {"ask": "At 10 kHz: Vpp of u_R", "explain": "A 50 µs half period < τ, so the current only climbs back and forth in the middle: 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V."}
       ],
       "hints": [
         "The inductor goes from VL to GND, the resistor between the generator's red clip and VL.",
@@ -63,8 +66,8 @@
         "The current is the resistor voltage divided by 100 Ω: watch CH1 − CH2."
       ],
       "tests": [
-        "1 kHz: u_L spikes to ≈ ±1.9 V; u_R swings between ±0.66 V (≈ 1.32 Vpp)",
-        "10 kHz (T/2 < τ): the current can't finish its ramp — u_R shrinks to ≈ 0.48 Vpp"
+        "1 kHz: u_L spikes ± at every edge; u_R reaches its steady value every half period",
+        "10 kHz (T/2 < τ): the current can't finish its ramp, u_R shrinks"
       ]
     }
   },
@@ -80,7 +83,7 @@
   ],
   "tests": [
     {
-      "name": "1 kHz：u_L 尖峰 ≈ ±1.9 V；u_R 在 ±0.66 V 之间（≈ 1.32 Vpp）",
+      "name": "1 kHz：u_L 在跳变处有正负尖峰；u_R 每半周期都走到稳态",
       "set": { "FG1": { "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "L1.1", "measure": "vmax", "min": 1.75, "max": 2.0 },
@@ -90,10 +93,23 @@
       ]
     },
     {
-      "name": "10 kHz（T/2 < τ）：电流来不及走完，u_R 缩小到 ≈ 0.48 Vpp",
+      "name": "10 kHz（T/2 < τ）：电流来不及走完，u_R 变小",
       "set": { "FG1": { "waveform": "square", "frequency": 10000, "amplitude": 1, "offset": 0 } },
       "scope": [{ "pin": "R1.1", "ref": "R1.2", "measure": "vpp", "min": 0.44, "max": 0.52 }]
     }
+  ],
+  "compare": [
+    "**对比**：R总 = 100 + 50 + 1 = 151 Ω，τ = 10 mH / 151 Ω ≈ 66 µs。",
+    "- 稳态电流 I = 1 V / 151 Ω ≈ 6.6 mA。半周期 0.5 ms ≈ 7.5τ，所以每半周期电流都能从 −6.6 mA 走到 +6.6 mA：电阻电压在 ±0.66 V 之间（Vpp ≈ 1.32 V），边沿处是指数形状的斜坡。",
+    "- 方波跳变的瞬间电流还来不及变，这 2 V 的跳变几乎全部落在电感上：u_L 跳到约 ±2 V（理想值 1 + 150/151 ≈ 1.99 V），随后以 τ 衰减到只剩线圈电阻上的 ±6.6 mV。仿真示波器每 3.9 µs 取一个点，读到的尖峰约 1.88 V。",
+    "- **10 kHz（半周期 50 µs < τ）**：电流来不及走完，只在中间来回爬，电阻电压变成近似三角波，Vpp ≈ 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V；而电感电压一直很大（大部分电压都落在电感上，因为电流一直在变）。"
+  ],
+  "measurements": [
+    {"id": "urpp", "scope": "vpp", "pin": "R1.1", "ref": "R1.2", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.26, 1.39], "ask": "1 kHz：电阻电压 u_R（CH1 − CH2）的 Vpp", "explain": "稳态电流 I = 1 V / 151 Ω ≈ 6.6 mA，u_R 在 ±0.66 V 之间，≈ 1.32 Vpp。"},
+    {"id": "ulmax", "scope": "vmax", "pin": "L1.1", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.79, 1.98], "ask": "1 kHz：CH2（电感电压 u_L）尖峰的最大值", "explain": "跳变瞬间电流来不及变，2 V 的跳变几乎全落在电感上：理想 1 + 150/151 ≈ 1.99 V；示波器每 3.9 µs 取一点，读到约 1.9 V。"},
+    {"id": "tr", "scope": "rise", "pin": "R1.1", "ref": "R1.2", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "µs", "range": [0.000138, 0.000152], "ask": "1 kHz：u_R（也就是电流）上升沿从 10% 到 90% 的时间 t_r"},
+    {"id": "tau", "formula": "tr / ln(9)", "unit": "µs", "predict": true, "range": [6.27e-05, 6.93e-05], "ask": "由你的 t_r 算时间常数 τ = t_r / ln 9", "explain": "τ = L / R总 = 10 mH / (100 + 50 + 1) Ω ≈ 66 µs。"},
+    {"id": "urpp10", "scope": "vpp", "pin": "R1.1", "ref": "R1.2", "set": {"FG1": {"waveform": "square", "frequency": 10000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [0.454, 0.501], "ask": "调到 10 kHz：u_R 的 Vpp", "explain": "半周期 50 µs < τ，电流只在中间来回爬：1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V。"}
   ],
   "hints": [
     "电感从 VL 接到 GND，电阻接在信号发生器红夹子和 VL 之间。",

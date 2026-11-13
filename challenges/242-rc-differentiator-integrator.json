@@ -21,14 +21,9 @@
     "",
     "**先预测**：先算两条支路的 τd = R1·C1 和 τi = R2·C2，和半周期 1 ms 比一比。微分支路：电容电压不能突变，方波跳 5 V 的瞬间 VD 跳到多少？之后多快回到 0？积分支路：半个周期里电容只走了指数曲线的哪一段？VI 是什么形状、Vpp 大约多少？",
     "",
-    "**测量**：在 500 Hz 下读 VD 的尖峰和平均值、VI 的波形和 Vpp；再把频率调到 50 Hz 看 VI 怎么变。",
+    "**测量**：在 500 Hz 下读 VD 的尖峰和平均值、VI 的波形和 Vpp；再把频率调到 50 Hz 看 VI 怎么变。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
-    "**对比**：τd ≈ 0.1 ms，τi ≈ 10 ms。",
-    "- **微分电路（τd ≪ T/2）**：方波一跳 5 V，这 5 V 全部先落在电阻上，VD 跳到约 ±5 V，然后以 τd 指数衰减，不到半个周期就回到 0。VD 是一串正负尖脉冲，只在输入“变化”的时刻出现：u_R = RC·du_C/dt ≈ RC·du_in/dt（因为 u_C ≈ u_in）。仿真示波器每 7.8 µs 取一个点，而尖脉冲 0.1 ms 就衰减掉 63%，所以屏幕上读到的峰值比理想的 5 V 略低（约 4.6 V）——真实示波器采样不够快时也是这样。尖脉冲正负对称，平均值 ≈ 0（电容隔直）。",
-    "- **积分电路（τi ≫ T/2）**：半个周期只有 τi 的 1/10，电容只走了指数曲线开头近乎直线的一段，于是 VI 是三角波：u_C = (1/RC)∫u_R dt ≈ (1/RC)∫u_in dt。斜率 ≈ 2.5 V / 10 ms = 250 V/s，半个周期上升 ≈ 0.25 V，所以 Vpp ≈ 0.25 V（精确值 5 V × tanh(T/(4τi)) = 5 × tanh(0.05) ≈ 0.25 V）。",
-    "- **50 Hz（T/2 = 10 ms）**：积分支路的 τi 不再远大于 T/2，VI 变成普通的充放电曲线，Vpp 增大到 5 × tanh(0.5) ≈ 2.3 V——“积分”的条件不成立了。",
-    "",
-    "**想一想（用相位验证）**：把方波看成它的基波（500 Hz 正弦）。积分电路的电容电压落后输入 arctan(ωτi) ≈ arctan(31) ≈ 88°；微分电路的电阻电压超前输入 arctan(1/(ωτd)) ≈ arctan(3.2) ≈ 73°。记住：RC 电路叫不叫积分 / 微分电路，看的是 τ 和信号周期的比值。"
+    "**想一想（用相位验证）**：把方波看成它的基波（500 Hz 正弦）。积分电路的电容电压落后输入 arctan(ωτi)；微分电路的电阻电压超前输入 arctan(1/(ωτd))。记住：RC 电路叫不叫积分 / 微分电路，看的是 τ 和信号周期的比值。"
   ],
   "i18n": {
     "en": {
@@ -48,14 +43,22 @@
         "",
         "**Predict first**: work out τd = R1·C1 and τi = R2·C2 and compare them with the 1 ms half period. Differentiator: the capacitor voltage cannot jump, so where does VD go at the instant of a 5 V jump, and how fast does it return to 0? Integrator: which part of the exponential does the capacitor cover in half a period? What shape is VI and roughly what is its Vpp?",
         "",
-        "**Measure**: at 500 Hz read VD's spikes and average and VI's shape and Vpp; then turn the frequency down to 50 Hz and watch VI change.",
+        "**Measure**: at 500 Hz read VD's spikes and average and VI's shape and Vpp; then turn the frequency down to 50 Hz and watch VI change. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
+        "**Think about it (check with phase)**: think of the square wave as its fundamental (a 500 Hz sine). The integrator's capacitor voltage lags the input by arctan(ωτi); the differentiator's resistor voltage leads the input by arctan(1/(ωτd)). Remember: whether an RC circuit acts as an integrator or a differentiator depends on τ compared with the signal's period."
+      ],
+      "compare": [
         "**Compare**: τd ≈ 0.1 ms, τi ≈ 10 ms.",
         "- **Differentiator (τd ≪ T/2)**: when the square wave jumps by 5 V, all 5 V first appear across the resistor: VD jumps to about ±5 V, then decays with τd and is back at 0 well within half a period. VD is a train of positive and negative spikes that appear only when the input *changes*: u_R = RC·du_C/dt ≈ RC·du_in/dt (since u_C ≈ u_in). The simulated scope takes a sample every 7.8 µs while the spike loses 63% in 0.1 ms, so the peak it reads is a little below the ideal 5 V (about 4.6 V) — a real scope with too slow a sample rate does the same. The spikes are symmetric, so their average is ≈ 0 (the capacitor blocks DC).",
         "- **Integrator (τi ≫ T/2)**: half a period is only 1/10 of τi, so the capacitor only travels the first, nearly straight, piece of the exponential and VI is a triangle: u_C = (1/RC)∫u_R dt ≈ (1/RC)∫u_in dt. Slope ≈ 2.5 V / 10 ms = 250 V/s, so it rises ≈ 0.25 V per half period: Vpp ≈ 0.25 V (exactly 5 V × tanh(T/(4τi)) = 5 × tanh(0.05) ≈ 0.25 V).",
-        "- **50 Hz (T/2 = 10 ms)**: τi is no longer much bigger than T/2, VI becomes an ordinary charge/discharge curve and its Vpp grows to 5 × tanh(0.5) ≈ 2.3 V — the integrator condition no longer holds.",
-        "",
-        "**Think about it (check with phase)**: think of the square wave as its fundamental (a 500 Hz sine). The integrator's capacitor voltage lags the input by arctan(ωτi) ≈ arctan(31) ≈ 88°; the differentiator's resistor voltage leads the input by arctan(1/(ωτd)) ≈ arctan(3.2) ≈ 73°. Remember: whether an RC circuit acts as an integrator or a differentiator depends on τ compared with the signal's period."
+        "- **50 Hz (T/2 = 10 ms)**: τi is no longer much bigger than T/2, VI becomes an ordinary charge/discharge curve and its Vpp grows to 5 × tanh(0.5) ≈ 2.3 V — the integrator condition no longer holds."
+      ],
+      "measurements": [
+        {"ask": "500 Hz: the peak of the CH1 (VD, resistor voltage) spikes", "explain": "The capacitor voltage cannot jump, so the whole 5 V step lands on the resistor: ideally ≈ 5 V; the spike loses 63% in 0.1 ms and the scope samples miss the very top, so it reads about 4.6 V."},
+        {"ask": "500 Hz: the Vpp of the CH2 (VI, capacitor voltage) triangle", "explain": "Slope ≈ 2.5 V / 10 ms = 250 V/s, so 1 ms of half period covers ≈ 0.25 V. Exactly: 5 × tanh(T/(4τi)) ≈ 0.25 V."},
+        {"ask": "Treat the triangle as straight lines: slope = 2.5 V / τi, and one 1 ms half period covers Vpp. From your Vpp, τi = 2.5 V × 1 ms / Vpp", "explain": "τi = R2·C2 = 10 kΩ × 1 µF = 10 ms (10.05 ms with the generator's 50 Ω). The integrator's output is small precisely because τi ≫ T/2."},
+        {"ask": "500 Hz: the phase of VI relative to the generator output (positive = leading)", "explain": "For the fundamental: the capacitor voltage lags by arctan(ωτi) ≈ arctan(31) ≈ 88°, close to an ideal integrator's −90°."},
+        {"ask": "At 50 Hz: VI's Vpp", "explain": "A 10 ms half period ≈ τi, so τi ≫ T/2 no longer holds: 5 × tanh(0.5) ≈ 2.3 V, an ordinary charge/discharge curve."}
       ],
       "hints": [
         "Differentiator: capacitor first (in series), resistor to GND, output across the resistor.",
@@ -63,9 +66,9 @@
         "Both branches start at the generator's red clip; everything returns to the black clip (GND)."
       ],
       "tests": [
-        "500 Hz: VD spikes ≈ ±4.6 V with average ≈ 0, leading the input by ≈ 73°",
-        "500 Hz: VI is a ≈ 0.25 Vpp triangle lagging the input by ≈ 88°",
-        "50 Hz: the integrator condition fails — VI grows to ≈ 2.3 Vpp"
+        "500 Hz: VD is a train of ± spikes, average ≈ 0, leading the input",
+        "500 Hz: VI is a small triangle lagging the input by nearly 90°",
+        "50 Hz: the integrator condition fails and VI grows"
       ]
     }
   },
@@ -84,7 +87,7 @@
   ],
   "tests": [
     {
-      "name": "500 Hz：VD 是 ≈ ±4.6 V 的尖脉冲，平均 ≈ 0，超前输入 ≈ 73°",
+      "name": "500 Hz：VD 是正负尖脉冲，平均 ≈ 0，超前输入",
       "set": { "FG1": { "waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 0 } },
       "scope": [
         { "pin": "R1.1", "measure": "vmax", "min": 4.3, "max": 5.05 },
@@ -94,7 +97,7 @@
       ]
     },
     {
-      "name": "500 Hz：VI 是 ≈ 0.25 Vpp 的三角波，落后输入 ≈ 88°",
+      "name": "500 Hz：VI 是小三角波，落后输入接近 90°",
       "set": { "FG1": { "waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 0 } },
       "scope": [
         { "pin": "C2.1", "measure": "vpp", "min": 0.23, "max": 0.27 },
@@ -102,10 +105,23 @@
       ]
     },
     {
-      "name": "50 Hz：积分条件不成立，VI 增大到 ≈ 2.3 Vpp",
+      "name": "50 Hz：积分条件不成立，VI 变大",
       "set": { "FG1": { "waveform": "square", "frequency": 50, "amplitude": 2.5, "offset": 0 } },
       "scope": [{ "pin": "C2.1", "measure": "vpp", "min": 2.2, "max": 2.4 }]
     }
+  ],
+  "compare": [
+    "**对比**：τd ≈ 0.1 ms，τi ≈ 10 ms。",
+    "- **微分电路（τd ≪ T/2）**：方波一跳 5 V，这 5 V 全部先落在电阻上，VD 跳到约 ±5 V，然后以 τd 指数衰减，不到半个周期就回到 0。VD 是一串正负尖脉冲，只在输入“变化”的时刻出现：u_R = RC·du_C/dt ≈ RC·du_in/dt（因为 u_C ≈ u_in）。仿真示波器每 7.8 µs 取一个点，而尖脉冲 0.1 ms 就衰减掉 63%，所以屏幕上读到的峰值比理想的 5 V 略低（约 4.6 V）——真实示波器采样不够快时也是这样。尖脉冲正负对称，平均值 ≈ 0（电容隔直）。",
+    "- **积分电路（τi ≫ T/2）**：半个周期只有 τi 的 1/10，电容只走了指数曲线开头近乎直线的一段，于是 VI 是三角波：u_C = (1/RC)∫u_R dt ≈ (1/RC)∫u_in dt。斜率 ≈ 2.5 V / 10 ms = 250 V/s，半个周期上升 ≈ 0.25 V，所以 Vpp ≈ 0.25 V（精确值 5 V × tanh(T/(4τi)) = 5 × tanh(0.05) ≈ 0.25 V）。",
+    "- **50 Hz（T/2 = 10 ms）**：积分支路的 τi 不再远大于 T/2，VI 变成普通的充放电曲线，Vpp 增大到 5 × tanh(0.5) ≈ 2.3 V——“积分”的条件不成立了。"
+  ],
+  "measurements": [
+    {"id": "vd", "scope": "vmax", "pin": "R1.1", "set": {"FG1": {"waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 0}}, "unit": "V", "predict": true, "range": [4.36, 4.82], "ask": "500 Hz：CH1（VD，电阻电压）尖脉冲的峰值", "explain": "电容电压不能突变，方波一跳 5 V 全落在电阻上，理想峰值 ≈ 5 V；尖峰 0.1 ms 衰减 63%，示波器采样点落不到最顶上，读到约 4.6 V。"},
+    {"id": "vi", "scope": "vpp", "pin": "C2.1", "set": {"FG1": {"waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 0}}, "unit": "V", "predict": true, "range": [0.236, 0.261], "ask": "500 Hz：CH2（VI，电容电压）三角波的 Vpp", "explain": "斜率 ≈ 2.5 V / 10 ms = 250 V/s，半周期 1 ms 走 ≈ 0.25 V。精确值 5 × tanh(T/(4τi)) ≈ 0.25 V。"},
+    {"id": "taui", "formula": "2.5 * 0.001 / vi", "unit": "ms", "predict": true, "range": [0.00956, 0.0106], "ask": "把三角波当直线：斜率 = 2.5 V / τi，半周期 1 ms 走完 Vpp。用你的 Vpp 算 τi = 2.5 V × 1 ms / Vpp", "explain": "τi = R2·C2 = 10 kΩ × 1 µF = 10 ms（加上信号发生器的 50 Ω 是 10.05 ms）。积分电路的输出很小，正是因为 τi ≫ T/2。"},
+    {"id": "phi", "scope": "phase", "pin": "C2.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 0}}, "predict": true, "range": [-91.9, -83.1], "ask": "500 Hz：VI 相对信号发生器输出的相位（正 = 超前）", "explain": "按基波算：电容电压落后 arctan(ωτi) ≈ arctan(31) ≈ 88°，接近理想积分的 −90°。"},
+    {"id": "vi50", "scope": "vpp", "pin": "C2.1", "set": {"FG1": {"waveform": "square", "frequency": 50, "amplitude": 2.5, "offset": 0}}, "unit": "V", "predict": true, "range": [2.19, 2.42], "ask": "调到 50 Hz：VI 的 Vpp", "explain": "半周期 10 ms ≈ τi，不再满足 τi ≫ T/2：5 × tanh(0.5) ≈ 2.3 V，波形变成普通的充放电曲线。"}
   ],
   "hints": [
     "微分：电容在前（串联），电阻接地，输出取电阻电压。",
