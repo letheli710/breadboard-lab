@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { HOLE_MAP } from '../core/breadboard';
 import type { Challenge } from '../core/challenge';
-import type { Problem } from '../core/problem/parse';
+import type { ProblemEntry } from './problems';
 import type { CheckResult } from '../core/check';
 import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS, nextScopeChannel } from '../core/parts';
@@ -105,7 +105,7 @@ interface State {
   completed: Record<string, boolean>;
   toast: string | null;
   /** theory practice ("circuit-problem/1") */
-  problems: Problem[];
+  problems: ProblemEntry[];
   problemInvalid: InvalidFile[];
   problemId: string | null;
   /** problem id → true once every question was answered correctly */
@@ -143,7 +143,7 @@ interface State {
   toggle(k: 'showNets' | 'showLabels'): void;
   setScope(p: Partial<ScopeSettings>): void;
   notify(msg: string | null): void;
-  setProblems(list: Problem[], invalid: InvalidFile[]): void;
+  setProblems(list: ProblemEntry[], invalid: InvalidFile[]): void;
   openProblem(id: string): void;
   /** record a correct answer; marks the problem done when all its questions are correct */
   markQuestion(problemId: string, questionId: string): void;
@@ -211,7 +211,7 @@ export const useStore = create<State>((set, get) => {
       setCoreLang(lang);
       LS.set('bb.lang', lang);
       document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-      set({ lang, check: null });
+      set({ lang });
     },
     setMode(mode) {
       const s = get();
@@ -416,7 +416,7 @@ export const useStore = create<State>((set, get) => {
       LS.set('bb.practice.answers', practiceAnswers);
       const p = s.problems.find((x) => x.id === pid);
       let practiceDone = s.practiceDone;
-      if (p && p.questions.every((q) => rec[q.id]) && !practiceDone[pid]) {
+      if (p && p.qids.every((q) => rec[q]) && !practiceDone[pid]) {
         practiceDone = { ...practiceDone, [pid]: true };
         LS.set('bb.practice.done', practiceDone);
       }
@@ -460,3 +460,7 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   w.__bbTool = (t: Tool) => useStore.getState().setTool(t);
   w.__bbStore = useStore;
 }
+
+/** Current UI language. Components that render text subscribe with this so a language switch
+ *  re-renders them (tr() reads the module-level language in core/i18n). */
+export const useLang = () => useStore((s) => s.lang);

@@ -9,6 +9,7 @@ import { ammeterReading, ledOf, useDerived } from '../state/derived';
 import { scopeChannelFor, useStore } from '../state/store';
 import { Board } from './Board';
 import { PartView } from './Parts';
+import { qualityParams, useLowQuality, useQuality } from './quality';
 import { assignSlots, nextSlot } from './slots';
 
 const TARGET = new THREE.Vector3(0, 0, -3);
@@ -138,28 +139,62 @@ function Parts() {
   );
 }
 
+/** Watches the first frames; if they are slow (< ~20 fps), "auto" quality drops to low. */
+function FrameProbe() {
+  const samples = useRef<number[]>([]);
+  const done = useRef(false);
+  useFrame((_, dt) => {
+    if (done.current) return;
+    samples.current.push(dt);
+    // skip the first frames (shader compilation, texture uploads), then judge ~20 frames
+    if (samples.current.length < 25) return;
+    done.current = true;
+    const s = samples.current.slice(5).sort((a, b) => a - b);
+    if (s[Math.floor(s.length / 2)] > 0.05) useQuality.getState().reportSlowFrames();
+  });
+  return null;
+}
+
+/** Key light; its shadow map follows the quality setting (re-allocated on change). */
+function KeyLight({ size }: { size: number }) {
+  const ref = useRef<THREE.DirectionalLight>(null);
+  useEffect(() => {
+    const l = ref.current;
+    if (!l) return;
+    l.shadow.mapSize.set(size, size);
+    l.shadow.map?.dispose();
+    (l.shadow as { map: THREE.WebGLRenderTarget | null }).map = null;
+  }, [size]);
+  return (
+    <directionalLight
+      ref={ref}
+      position={[14, 30, 16]}
+      intensity={1.6}
+      castShadow
+      shadow-mapSize={[size, size]}
+      shadow-camera-left={-30}
+      shadow-camera-right={30}
+      shadow-camera-top={25}
+      shadow-camera-bottom={-25}
+      shadow-bias={-0.0004}
+    />
+  );
+}
+
 export function Scene() {
   const tool = useStore((s) => s.tool);
+  const low = useLowQuality();
+  const q = qualityParams(low);
   return (
     <Canvas
       shadows
-      dpr={[1, 2]}
+      dpr={q.dpr}
       camera={{ position: HOME.toArray(), fov: 40, near: 0.5, far: 400 }}
       style={{ cursor: tool === 'select' ? 'default' : 'crosshair' }}
       onPointerMissed={() => useStore.getState().tool === 'select' && useStore.getState().select(null)}
     >
       <hemisphereLight args={['#fffaf0', '#d8cbb3', 0.9]} />
-      <directionalLight
-        position={[14, 30, 16]}
-        intensity={1.6}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-30}
-        shadow-camera-right={30}
-        shadow-camera-top={25}
-        shadow-camera-bottom={-25}
-        shadow-bias={-0.0004}
-      />
+      <KeyLight size={q.shadowMapSize} />
       <directionalLight position={[-18, 14, -10]} intensity={0.35} />
       <Suspense fallback={null}>
         <Board />
@@ -171,6 +206,7 @@ export function Scene() {
       </mesh>
       <OrbitControls makeDefault target={TARGET.toArray()} enableDamping dampingFactor={0.12} maxPolarAngle={Math.PI / 2.15} minDistance={10} maxDistance={90} />
       <CameraRig />
+      <FrameProbe />
     </Canvas>
   );
 }

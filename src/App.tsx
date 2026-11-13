@@ -1,16 +1,27 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { tr, type Lang } from './core/i18n';
 import { loadAll } from './state/challenges';
 import { loadProblems } from './state/problems';
 import { useActiveChallenge } from './state/derived';
-import { useStore, type Mode } from './state/store';
+import { useLang, useStore, type Mode } from './state/store';
 import { Carousel } from './ui/Carousel';
-import { Guide } from './ui/Guide';
 import { Icon } from './ui/Icons';
-import { ImportPage } from './ui/ImportPage';
-import { Practice } from './ui/Practice';
 import { SidePanel } from './ui/Panel';
 import { Workbench } from './ui/Workbench';
+
+// pages off the 3D workbench are split into their own chunks
+const Practice = lazy(() => import('./ui/Practice').then((m) => ({ default: m.Practice })));
+const Guide = lazy(() => import('./ui/Guide').then((m) => ({ default: m.Guide })));
+const ImportPage = lazy(() => import('./ui/ImportPage').then((m) => ({ default: m.ImportPage })));
+
+function PageLoading() {
+  useLang();
+  return (
+    <div className="page-loading" role="status">
+      {tr('加载中…', 'Loading…')}
+    </div>
+  );
+}
 
 const NAV: { mode: Mode; zh: string; en: string; icon: string }[] = [
   { mode: 'learn', zh: '课程', en: 'Learn', icon: 'book' },
@@ -155,13 +166,17 @@ function LangSwitch() {
 }
 
 export default function App() {
-  const lang = useStore((s) => s.lang);
+  // App re-renders on a language switch, and with it every (non-memoised) component below,
+  // so all tr() text updates in place — the 3D scene is not remounted.
+  const lang = useLang();
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
   const setChallenges = useStore((s) => s.setChallenges);
   const setProblems = useStore((s) => s.setProblems);
 
-  // challenge text is localized while parsing, so (re)load whenever the language changes
+  // challenge text (and import diagnostics) are localized while parsing, so (re)load whenever
+  // the language changes. Both are cheap: built-in problems come from a prebuilt index and
+  // their full files are only parsed on demand (state/problems.ts).
   useEffect(() => {
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
     const r = loadAll();
@@ -196,8 +211,7 @@ export default function App() {
   const bench = mode === 'learn' || mode === 'challenge' || mode === 'sandbox';
 
   return (
-    // keyed by language: every component re-renders its text (and core-derived messages) from scratch
-    <div className="app" key={lang}>
+    <div className="app">
       <header className="top">
         <div className="brand">
           <Logo />
@@ -231,9 +245,13 @@ export default function App() {
           <SidePanel />
         </main>
       )}
-      {mode === 'practice' && <Practice />}
-      {mode === 'guide' && <Guide />}
-      {mode === 'import' && <ImportPage />}
+      {!bench && (
+        <Suspense fallback={<PageLoading />}>
+          {mode === 'practice' && <Practice />}
+          {mode === 'guide' && <Guide />}
+          {mode === 'import' && <ImportPage />}
+        </Suspense>
+      )}
       <CelebrateModal />
     </div>
   );

@@ -116,6 +116,13 @@ over-current, coil without flyback diode (DC) and inductive kick (time domain), 
 - new test checks: `gpio: [{ pin, read?: 'high'|'low'|'floating', measure?: 'voltage'|'current'|'adc'|'adc_v', min?, max? }]`,
   `regions: { Q1: 'saturation' }`, `expect` also for `relay` / `motor` / `buzzer` (`on`/`off`), `currents` for the new devices.
 
+## 性能 / Performance
+
+- 内置理论题运行时只解析、不重算（`parseProblem(..., { verify: false })`）；答案核对在 `npm run validate` / `npm test`。导入的文件完整核对。
+- 题目索引在构建时生成（`scripts/problem-index-plugin.ts`），完整题目按章节分块按需加载；Practice / Import / Guide 懒加载；three / r3f / drei 单独一个 chunk。
+- 切换语言不再重新挂载整个应用（3D 场景、相机保持不变）：语言是 store 里的响应式值（`useLang()`），诊断 / 检查结果 / 题目文本在新语言下重新生成。
+- 3D 低画质模式（`src/three/quality.ts`）：弱设备（≤ 4 核 / ≤ 4 GB）或前几帧太慢时自动启用，工具栏可手动切换。
+
 ## 待办 / Backlog (engine gaps reported by problem authors)
 
 - 单刀双掷开关（SPDT `SW` 三端）/ an SPDT switch element (currently two `SW` acting at t = 0)

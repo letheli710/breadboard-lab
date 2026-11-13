@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from 'react';
+import { Fragment, useEffect, useMemo, useRef } from 'react';
 import type { Challenge } from '../core/challenge';
 import { checkCircuit } from '../core/check';
 import type { Issue } from '../core/diagnostics';
@@ -136,7 +136,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   const { nl, issues } = useDerived();
   const targetSim = useMemo(() => simulate(ch.target), [ch]);
 
-  const runCheck = () => {
+  const evaluate = () => {
     const r = checkCircuit(ch, nl.circuit, nl.pinHoles);
     const boardErrors = issues.filter((i) => i.severity === 'error');
     if (r.perfect && boardErrors.length) {
@@ -147,6 +147,19 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       r.perfect = false;
       r.issues.unshift(...issues.filter((i) => i.code === 'unplaced'));
     }
+    return r;
+  };
+  // the check result is text in the current language: when the challenge is re-parsed (language
+  // switch) re-evaluate it in place, without celebrating again
+  const lastCh = useRef(ch);
+  useEffect(() => {
+    if (lastCh.current === ch) return;
+    const same = lastCh.current.id === ch.id;
+    lastCh.current = ch;
+    if (same && useStore.getState().check) setCheck(evaluate());
+  }, [ch]); // eslint-disable-line react-hooks/exhaustive-deps
+  const runCheck = () => {
+    const r = evaluate();
     setCheck(r);
     if (r.perfect) {
       markCompleted(ch.id);
