@@ -30,6 +30,7 @@ Goal: cover a full first/second-year circuit analysis course in four phases, plu
 - [x] **B. 理论题内容**：15 章共 216 题，全部由引擎核对答案 / 216 problems across 15 chapters, all engine-checked
 - [x] **C. 面包板引擎扩展**：电流表、运放 LM358、电感、信号发生器、示波器、面包板电路的暂态/交流仿真
 - [x] **D. 面包板题内容**：第 1–4 期共 31 个实验（201–208、221–228、241–247、261–268）
+- [x] **E. 第 5 期：单片机外围电路**：平台（ESP32 / Blue Pill、器件、诊断、§14 格式）+ 18 个实验（280–297）/ Phase 5 platform + 18 MCU-peripheral experiments
 
 ## 约定 / Conventions
 

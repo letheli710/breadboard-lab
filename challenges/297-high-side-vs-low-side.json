@@ -1,0 +1,493 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-high-side-vs-low-side",
+  "title": "实验 5-18 · 高边还是低边：3.3 V 引脚为什么推不动“上面”的 NPN",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 5,
+  "summary": "同一块 ESP32 上并排两个 5 V 继电器：一个用 NPN 放在负载上面（高边、射极跟随），一个放在负载下面（低边）。高边时发射极最多只有 3.3 − 0.65 − Ib·R ≈ 2.4 V，继电器吸不上、三极管停在放大区发热；低边时三极管饱和、继电器正常吸合。",
+  "concepts": [
+    "高边 / 低边开关 high-side / low-side switch",
+    "射极跟随器 emitter follower",
+    "放大区 vs 饱和区 active vs saturation",
+    "继电器吸合电流 relay pull-in current",
+    "续流二极管 flyback diode"
+  ],
+  "description": [
+    "**要搭的电路**：ESP32 插在 b1，USB 供电。上方 tp 轨接 **5V 引脚**（h19 → tp19），tn 轨接 GND（a1 → tn1）。两个继电器（SRD-05VDC，线圈 70 Ω，≥ 53 mA 吸合）、两个 NPN（2N2222，β = 150）、两个 1 kΩ 基极电阻、两个续流二极管：",
+    "- **高边（high-side）K1**：输出 GPIO（参考答案 GPIO18）→ RB1 1 kΩ → Q1 基极；Q1 **集电极接 5V**，**发射极接 K1 线圈 coil1**；K1 coil2 接 GND。D1 反并联在线圈上（色环接发射极一端）。参考答案：K1 在 e20、Q1 在 a20（E B C = 20、21、22 列）。",
+    "- **低边（low-side）K2**：另一个输出 GPIO（参考答案 GPIO19）→ RB2 1 kΩ → Q2 基极；**K2 coil1 接 5V**，coil2 接 Q2 **集电极**；Q2 **发射极接 GND**。D2 反并联在线圈上（色环接 5V）。参考答案：K2 在 e25、Q2 在 a26。",
+    "",
+    "**引脚设置**：两个引脚都设成输出；测试会分别打开高边和低边。参考答案默认是高边关、低边开。",
+    "",
+    "**要测什么、为什么**：",
+    "- 两种接法下**线圈电流**和继电器是否吸合；",
+    "- 三极管的**工作区**（regions）：开关必须在饱和区；",
+    "- 高边时**发射极电压**：负载上到底能拿到多少电压；",
+    "- 换一个 β = 1000 的管子，高边能不能好起来。",
+    "",
+    "**高边为什么不行**：负载接在发射极上，电路变成了**射极跟随器（共集电极）**：发射极电压 = 基极电压 − 0.65 V，而基极电压最高就是 GPIO 的 3.3 V（还要减去 Ib × RB）。",
+    "V_E = 3.29 V − 0.23 mA × 1 kΩ − 0.65 V ≈ **2.41 V**（仿真 2.41 V）。线圈只拿到 2.41 V / 70 Ω ≈ **34 mA**，低于 53 mA 的吸合电流——**K1 不吸合**。剩下的 5V − 2.41 V ≈ **2.26 V** 落在三极管 C–E 上，Q1 在**放大区**，白白耗散 77 mW。",
+    "- 把 5V 换成 12V 也没用：发射极仍然只有 2.4 V，只是三极管上的电压和发热更大。",
+    "- 换 β = 1000 的管子也没用：基极电流变小、RB 上的压降少了，V_E 只升到 **2.61 V**（37 mA），还是吸不上。限制它的不是放大倍数，而是“发射极永远比基极低 0.65 V”。",
+    "",
+    "**低边为什么行**：发射极接 GND，V_BE 永远是 0.65 V，基极电流 Ib = (3.23 − 0.70) V / 1 kΩ ≈ **2.5 mA**，β·Ib ≈ 380 mA ≫ 线圈需要的 63 mA，三极管**饱和**，Vce 只有 **0.21 V**；线圈上 4.44 V（5V 引脚 4.65 V − 0.21 V），**63 mA**，K2 吸合。引脚只出 2.5 mA，三极管只耗 15 mW。",
+    "",
+    "**开着高边时的实时诊断**：会看到警告“K1 线圈电流不够，吸合不了：34 mA”，以及提示“Q1 工作在放大区（没有完全导通）”——这正是这个电路的毛病。",
+    "",
+    "**那什么时候必须用高边？** 负载必须一端接地的时候：例如给一个传感器模块断电（它的 GND 还和别的信号连在一起）、汽车电路（车身就是地）、LED 共阴的数码管。正确做法：",
+    "- **P 沟道 MOSFET**（如 AO3401、IRF9540）放在上面，源极接 5V；栅极由一个**低边 NPN / N-MOS 电平转换**拉到 GND 导通、靠上拉电阻到 5V 关断（3.3 V 引脚直接驱动 P-MOS 的栅极关不断 5 V 的管子）；",
+    "- 或者现成的高边开关芯片（BTS / TPS 系列）、继电器模块。",
+    "本模拟器暂时没有 PNP 和 P-MOSFET，所以这里只演示 NPN 高边的局限；能用低边就用低边。",
+    "",
+    "**实际项目经验**：",
+    "- 单片机直接驱动的开关，默认都用 **低边 N 型**（NPN 或逻辑电平 N-MOS），发射极 / 源极接地。",
+    "- 基极电阻按“过驱动 2–10 倍”选：Ib ≥ (2–10) × Ic / β。这里 Ic = 63 mA，β = 150，Ib 至少 0.85 mA；1 kΩ 给 2.5 mA，足够饱和。",
+    "- 继电器线圈必须并续流二极管（1N4148 / 1N4007），否则关断时的反向高压会击穿三极管。",
+    "- 5 V 继电器从 ESP32 的 5V 引脚取电时注意 USB 预算：每个继电器约 63–72 mA。现成的“继电器模块”通常已经带了三极管、二极管和光耦。",
+    "- 用 GPIO18 / 19 这类普通引脚；ESP32 的 GPIO0 / 2 / 5 / 12 / 15 上电时会有短暂的电平或脉冲，继电器可能误动作。",
+    "",
+    "**模型说明**：NPN 是 0.65 V + 20 Ω 的 BE 结 + 恒定 β，饱和 Vce = 0.15 V + 1 Ω × Ic；继电器线圈 70 Ω + 150 mH，53 mA 吸合、7 mA 释放（直流测试里不考虑吸合后的保持电流比吸合电流小）；ESP32 输出级是 25 Ω。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 5-18 · High side or low side: why a 3.3 V pin can't drive an NPN \"above\" the load",
+      "summary": "Two 5 V relays side by side on one ESP32: one with its NPN above the load (high side, emitter follower), one below it (low side). On the high side the emitter only reaches 3.3 − 0.65 − Ib·R ≈ 2.4 V, the relay doesn't pull in and the transistor sits in the active region getting warm; on the low side the transistor saturates and the relay clicks in.",
+      "concepts": [
+        "high-side / low-side switch",
+        "emitter follower",
+        "active vs saturation",
+        "relay pull-in current",
+        "flyback diode"
+      ],
+      "description": [
+        "**What you build**: an ESP32 at b1 on USB. The top tp rail is the **5V pin** (h19 → tp19), tn is GND (a1 → tn1). Two relays (SRD-05VDC, 70 Ω coil, pull-in ≥ 53 mA), two NPNs (2N2222, β = 150), two 1 kΩ base resistors and two flyback diodes:",
+        "- **High side, K1**: an output GPIO (solution: GPIO18) → RB1 1 kΩ → base of Q1; Q1's **collector to 5V**, its **emitter to K1 coil1**; K1 coil2 to GND. D1 reversed across the coil (band at the emitter end). Solution: K1 at e20, Q1 at a20 (E B C = columns 20, 21, 22).",
+        "- **Low side, K2**: another output GPIO (solution: GPIO19) → RB2 1 kΩ → base of Q2; **K2 coil1 to 5V**, coil2 to Q2's **collector**; Q2's **emitter to GND**. D2 reversed across the coil (band to 5V). Solution: K2 at e25, Q2 at a26.",
+        "",
+        "**Pin table settings**: both pins are outputs; the tests turn on the high side and the low side in turn. The solution's default is high side off, low side on.",
+        "",
+        "**What you measure and why**:",
+        "- the **coil current** and whether each relay pulls in;",
+        "- the transistors' **region**: a switch must be saturated;",
+        "- the **emitter voltage** on the high side: how much voltage the load really gets;",
+        "- whether a β = 1000 transistor rescues the high side.",
+        "",
+        "**Why the high side fails**: with the load on the emitter the circuit is an **emitter follower (common collector)**: emitter voltage = base voltage − 0.65 V, and the base can be at most the GPIO's 3.3 V (minus Ib × RB).",
+        "V_E = 3.29 V − 0.23 mA × 1 kΩ − 0.65 V ≈ **2.41 V** (simulated 2.41 V). The coil only gets 2.41 V / 70 Ω ≈ **34 mA**, below the 53 mA pull-in current — **K1 does not pull in**. The remaining 5V − 2.41 V ≈ **2.26 V** sits across C–E: Q1 is in the **active region** and wastes 77 mW.",
+        "- A 12 V supply instead of 5V doesn't help: the emitter is still at 2.4 V, there is just more voltage (and heat) across the transistor.",
+        "- A β = 1000 transistor doesn't help either: less base current means less drop across RB, so V_E only rises to **2.61 V** (37 mA) — still no pull-in. The limit is not the gain but \"the emitter is always 0.65 V below the base\".",
+        "",
+        "**Why the low side works**: with the emitter at GND, V_BE is always 0.65 V and Ib = (3.23 − 0.70) V / 1 kΩ ≈ **2.5 mA**. β·Ib ≈ 380 mA ≫ the 63 mA the coil needs, so the transistor **saturates** with Vce only **0.21 V**; the coil gets 4.44 V (5V pin 4.65 V − 0.21 V), **63 mA**, and K2 pulls in. The pin only supplies 2.5 mA and the transistor dissipates 15 mW.",
+        "",
+        "**Live diagnostics with the high side on**: a warning \"K1 coil current too low to pull in: 34 mA\" and a note \"Q1 is in the active region (not fully on)\" — exactly what is wrong with this circuit.",
+        "",
+        "**So when do you need a high-side switch?** When the load must keep one end at ground: cutting power to a sensor module (its GND is shared with other signals), automotive circuits (the chassis is ground), common-cathode LED displays. The proper way:",
+        "- a **P-channel MOSFET** (AO3401, IRF9540) on top with its source at 5V; its gate is pulled to GND to turn on by a **low-side NPN / N-MOS level shifter** and pulled up to 5V to turn off (a 3.3 V pin driving the P-MOS gate directly can't turn off a 5 V switch);",
+        "- or a ready-made high-side switch IC (BTS / TPS families) or relay module.",
+        "The simulator has no PNP or P-MOSFET yet, so this experiment only shows the NPN high-side limitation; use the low side whenever you can.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- A switch driven straight from an MCU is by default a **low-side N-type** (NPN or logic-level N-MOS) with the emitter / source at ground.",
+        "- Size the base resistor for 2–10 × overdrive: Ib ≥ (2–10) × Ic / β. Here Ic = 63 mA and β = 150, so Ib ≥ 0.85 mA; 1 kΩ gives 2.5 mA — enough to saturate.",
+        "- A relay coil always needs a flyback diode (1N4148 / 1N4007), or the turn-off kick breaks down the transistor.",
+        "- Powering 5 V relays from the ESP32's 5V pin eats into the USB budget: about 63–72 mA per relay. Ready-made \"relay modules\" usually already contain the transistor, diode and an optocoupler.",
+        "- Use plain pins like GPIO18 / 19; the ESP32's GPIO0 / 2 / 5 / 12 / 15 have brief levels or pulses at boot that can click a relay.",
+        "",
+        "**Model note**: the NPN is a 0.65 V + 20 Ω B–E junction with constant β and saturation Vce = 0.15 V + 1 Ω × Ic; the relay coil is 70 Ω + 150 mH, pulling in at 53 mA and dropping out at 7 mA (the DC tests ignore that the hold current is lower than the pull-in current); the ESP32 output stage is 25 Ω."
+      ],
+      "hints": [
+        "High side: collector to 5V, emitter to the relay coil, the coil's other end to GND.",
+        "Low side: the coil from 5V to the collector, emitter to GND.",
+        "Each coil gets its own reversed diode: band toward the more positive end of the coil.",
+        "Each base gets its own 1 kΩ from a different output GPIO."
+      ],
+      "tests": [
+        "High side on: emitter only ≈ 2.41 V, coil ≈ 34 mA — K1 doesn't pull in, Q1 is in the active region with Vce ≈ 2.3 V",
+        "Low side on: Q2 saturated (Vce ≈ 0.21 V), coil ≈ 63 mA at 4.44 V — K2 pulls in; pin gives ≈ 2.5 mA",
+        "High side with β = 1000: emitter only ≈ 2.61 V, 37 mA — still no pull-in",
+        "Both on: only the low-side relay pulls in"
+      ]
+    }
+  },
+  "components": [
+    {
+      "ref": "U1",
+      "type": "esp32_devkit"
+    },
+    {
+      "ref": "RB1",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "Q1",
+      "type": "npn"
+    },
+    {
+      "ref": "K1",
+      "type": "relay"
+    },
+    {
+      "ref": "D1",
+      "type": "diode"
+    },
+    {
+      "ref": "RB2",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "Q2",
+      "type": "npn"
+    },
+    {
+      "ref": "K2",
+      "type": "relay"
+    },
+    {
+      "ref": "D2",
+      "type": "diode"
+    }
+  ],
+  "nets": [
+    {
+      "name": "HS_IO",
+      "pins": [
+        "U1.GPIO_OUT1",
+        "RB1.1"
+      ]
+    },
+    {
+      "name": "HS_B",
+      "pins": [
+        "RB1.2",
+        "Q1.b"
+      ]
+    },
+    {
+      "name": "HS_E",
+      "pins": [
+        "Q1.e",
+        "K1.coil1",
+        "D1.cathode"
+      ]
+    },
+    {
+      "name": "V5",
+      "pins": [
+        "U1.5V",
+        "Q1.c",
+        "K2.coil1",
+        "D2.cathode"
+      ]
+    },
+    {
+      "name": "LS_IO",
+      "pins": [
+        "U1.GPIO_OUT2",
+        "RB2.1"
+      ]
+    },
+    {
+      "name": "LS_B",
+      "pins": [
+        "RB2.2",
+        "Q2.b"
+      ]
+    },
+    {
+      "name": "LS_C",
+      "pins": [
+        "Q2.c",
+        "K2.coil2",
+        "D2.anode"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "K1.coil2",
+        "D1.anode",
+        "Q2.e",
+        "U1.GND"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "name": "打开高边：发射极只有 ≈ 2.41 V，线圈 ≈ 34 mA——K1 吸不上，Q1 在放大区，Vce ≈ 2.3 V",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high",
+            "GPIO_OUT2": "out_low"
+          }
+        }
+      },
+      "expect": {
+        "K1": "off",
+        "K2": "off"
+      },
+      "regions": {
+        "Q1": "active",
+        "Q2": "cutoff"
+      },
+      "currents": [
+        {
+          "el": "K1",
+          "min": 0.032,
+          "max": 0.037
+        }
+      ],
+      "voltages": [
+        {
+          "pin": "Q1.e",
+          "min": 2.3,
+          "max": 2.52
+        },
+        {
+          "pin": "Q1.c",
+          "ref": "Q1.e",
+          "min": 2.1,
+          "max": 2.4
+        }
+      ],
+      "gpio": [
+        {
+          "pin": "U1.GPIO_OUT1",
+          "measure": "current",
+          "min": 0.00021,
+          "max": 0.00025
+        }
+      ]
+    },
+    {
+      "name": "打开低边：Q2 饱和（Vce ≈ 0.21 V），线圈 4.44 V、≈ 63 mA——K2 吸合；引脚只出 ≈ 2.5 mA",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_low",
+            "GPIO_OUT2": "out_high"
+          }
+        }
+      },
+      "expect": {
+        "K1": "off",
+        "K2": "on"
+      },
+      "regions": {
+        "Q1": "cutoff",
+        "Q2": "saturation"
+      },
+      "currents": [
+        {
+          "el": "K2",
+          "min": 0.06,
+          "max": 0.067
+        }
+      ],
+      "voltages": [
+        {
+          "pin": "Q2.c",
+          "ref": "Q2.e",
+          "max": 0.3
+        },
+        {
+          "pin": "K2.coil1",
+          "ref": "K2.coil2",
+          "min": 4.25,
+          "max": 4.6
+        }
+      ],
+      "gpio": [
+        {
+          "pin": "U1.GPIO_OUT2",
+          "measure": "current",
+          "min": 0.0024,
+          "max": 0.0027
+        }
+      ]
+    },
+    {
+      "name": "高边换 β = 1000 的管子：发射极也只有 ≈ 2.61 V、37 mA——还是吸不上",
+      "set": {
+        "Q1": {
+          "beta": 1000
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high",
+            "GPIO_OUT2": "out_low"
+          }
+        }
+      },
+      "expect": {
+        "K1": "off"
+      },
+      "regions": {
+        "Q1": "active"
+      },
+      "currents": [
+        {
+          "el": "K1",
+          "min": 0.035,
+          "max": 0.04
+        }
+      ],
+      "voltages": [
+        {
+          "pin": "Q1.e",
+          "min": 2.5,
+          "max": 2.72
+        }
+      ]
+    },
+    {
+      "name": "两个都打开：只有低边的 K2 吸合",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high",
+            "GPIO_OUT2": "out_high"
+          }
+        }
+      },
+      "expect": {
+        "K1": "off",
+        "K2": "on"
+      }
+    }
+  ],
+  "hints": [
+    "高边：集电极接 5V，发射极接继电器线圈，线圈另一端接 GND。",
+    "低边：线圈从 5V 接到集电极，发射极接 GND。",
+    "每个线圈各并一个反向二极管：色环朝线圈电位更高的一端。",
+    "两个基极各串一个 1 kΩ，分别接两个不同的输出 GPIO。"
+  ],
+  "solution": {
+    "parts": [
+      {
+        "type": "esp32_devkit",
+        "ref": "U1",
+        "at": "b1",
+        "props": {
+          "usb": true,
+          "modes": {
+            "GPIO18": "out_low",
+            "GPIO19": "out_high"
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W1",
+        "color": "black",
+        "pins": {
+          "a": "a1",
+          "b": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W2",
+        "color": "red",
+        "pins": {
+          "a": "h19",
+          "b": "tp19"
+        }
+      },
+      {
+        "type": "relay",
+        "ref": "K1",
+        "at": "e20"
+      },
+      {
+        "type": "npn",
+        "ref": "Q1",
+        "at": "a20"
+      },
+      {
+        "type": "diode",
+        "ref": "D1",
+        "pins": {
+          "anode": "b23",
+          "cathode": "b20"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W3",
+        "color": "black",
+        "pins": {
+          "a": "a23",
+          "b": "tn23"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W4",
+        "color": "red",
+        "pins": {
+          "a": "b22",
+          "b": "tp22"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "RB1",
+        "resistance": "1k",
+        "pins": {
+          "1": "c9",
+          "2": "b21"
+        }
+      },
+      {
+        "type": "relay",
+        "ref": "K2",
+        "at": "e25"
+      },
+      {
+        "type": "npn",
+        "ref": "Q2",
+        "at": "a26"
+      },
+      {
+        "type": "wire",
+        "ref": "W5",
+        "color": "black",
+        "pins": {
+          "a": "b26",
+          "b": "tn26"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W6",
+        "color": "red",
+        "pins": {
+          "a": "a25",
+          "b": "tp25"
+        }
+      },
+      {
+        "type": "diode",
+        "ref": "D2",
+        "pins": {
+          "anode": "b28",
+          "cathode": "b25"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "RB2",
+        "resistance": "1k",
+        "pins": {
+          "1": "c8",
+          "2": "b27"
+        }
+      }
+    ]
+  }
+}
