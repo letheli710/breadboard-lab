@@ -4,6 +4,7 @@ import { parseValue } from '../format';
 import type { Complex, CtrlRef, Netlist, TwoTerminalType } from '../problem/types';
 import { cx } from './complex';
 import { AnalysisError } from './errors';
+import { isPeriodicValue, parsePeriodic, type Term } from './fourier';
 
 export type ElType = TwoTerminalType | 'OPAMP' | 'XFMR';
 
@@ -23,6 +24,9 @@ export interface CEl {
   value: number;
   z?: Complex;
   src?: SrcSpec;
+  /** periodic sources ({harmonics} / {wave}): the harmonics k ≥ 1 (peak, cos reference); the DC term
+   *  is src.dc. Only analysis "periodic" (./periodic.ts) uses them; DC / AC / transient reject them. */
+  harmonics?: Term[];
   ctrl?: CtrlRef;
   sw?: { before: 'open' | 'closed'; after: 'open' | 'closed' };
   ic?: number;
@@ -102,7 +106,7 @@ function parseSource(ref: string, v: unknown): SrcSpec {
     return { kind: 'dcac', dc, ac };
   }
   if ('re' in o || 'im' in o) throw new AnalysisError(`${ref}: a complex {re, im} value is only allowed for Z elements`);
-  throw new AnalysisError(`${ref}: unrecognised source value ${JSON.stringify(v)} (use a number, {dc, ac}, {step}, or {sin})`);
+  throw new AnalysisError(`${ref}: unrecognised source value ${JSON.stringify(v)} (use a number, {dc, ac}, {step}, {sin}, {harmonics} or {wave})`);
 }
 
 export class Circuit {
@@ -166,7 +170,11 @@ export class Circuit {
             break;
           case 'V':
           case 'I':
-            el.src = parseSource(ref, v);
+            if (isPeriodicValue(v)) {
+              const sp = parsePeriodic(ref, v as Record<string, unknown>);
+              el.src = { kind: 'dcac', dc: sp.dc };
+              el.harmonics = sp.terms;
+            } else el.src = parseSource(ref, v);
             break;
           case 'VCVS':
           case 'VCCS':

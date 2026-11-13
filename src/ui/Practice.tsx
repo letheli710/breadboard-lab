@@ -44,6 +44,10 @@ function schematicWidth(p: Problem): number {
 function analysisLabel(a: Analysis): string {
   if (a.type === 'dc') return tr('直流 DC', 'DC');
   if (a.type === 'tran') return tr('暂态 · 开关在 t = 0 动作', 'Transient · switching at t = 0');
+  if (a.type === 'periodic') {
+    const f1 = a.omega && !a.freq ? `ω₁ = ${a.omega} rad/s` : `f₁ = ${parseFloat((a.freq ?? 0).toPrecision(6))} Hz`;
+    return `${tr('非正弦周期稳态 · 逐次谐波叠加', 'Non-sinusoidal periodic · harmonics superposed')} · ${f1} · ${a.phasor === 'peak' ? tr('谐波相量取幅值', 'peak phasors') : tr('谐波相量取有效值', 'rms phasors')}`;
+  }
   const f = a.freq ?? (a.omega ? a.omega / (2 * Math.PI) : 0);
   const fx = a.omega && !a.freq ? `ω = ${a.omega} rad/s` : `f = ${parseFloat(f.toPrecision(6))} Hz`;
   return `${tr('正弦稳态 AC', 'AC steady state')} · ${fx} · ${a.phasor === 'peak' ? tr('相量取幅值', 'peak phasors') : tr('相量取有效值', 'rms phasors')}`;

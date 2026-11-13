@@ -29,7 +29,26 @@ export type SourceValue =
   | number
   | { dc?: number; ac?: { mag: number; phase?: number } } // AC phasor; phase in degrees; mag uses the problem's phasor convention (Analysis.phasor, default rms)
   | { step: { before: number; after: number } } // value changes at t = 0
-  | { sin: { amp: number; freq: number; phase?: number; offset?: number } }; // time domain: offset + amp·sin(2πft + phase°)
+  | { sin: { amp: number; freq: number; phase?: number; offset?: number } } // time domain: offset + amp·sin(2πft + phase°)
+  // ---- non-sinusoidal periodic sources (analysis "periodic", see ../analysis/periodic.ts) ----
+  /** dc + Σ amp_k·cos(kω₁t + phase_k°); amp is the AMPLITUDE (peak) of each harmonic */
+  | { harmonics: { dc?: number; terms: PeriodicTerm[] } }
+  /** a standard waveform given by its Fourier series up to harmonic `upTo` (see WaveShape), plus `offset` */
+  | { wave: { shape: WaveShape; amp: number; upTo: number; offset?: number } };
+
+/** one harmonic of a periodic source: amplitude (peak) and initial phase in degrees, cosine reference */
+export interface PeriodicTerm {
+  k: number;
+  amp: number;
+  phase?: number;
+}
+
+/** Standard waveforms (T = 1/f₁, ω₁ = 2π/T), all with peak value `amp`:
+ *  square: +amp on (0, T/2), −amp on (T/2, T);  triangle: 0 at t = 0 rising, +amp at T/4, −amp at 3T/4;
+ *  sawtooth: rises linearly from 0 at t = 0 to amp at t = T (average amp/2);
+ *  half-rect: half-wave rectified amp·cos ω₁t;  full-rect: amp·|cos(ω₁t/2)| — f₁ is the frequency of
+ *  the rectified wave, twice the frequency of the sine that was rectified. */
+export type WaveShape = 'square' | 'triangle' | 'sawtooth' | 'half-rect' | 'full-rect';
 
 export type CtrlRef =
   | { v: string } // voltage across element (its p minus n)
@@ -130,7 +149,11 @@ export type Analysis =
    *  phasor 'rms' (default, as in most textbooks): |V| is the rms value and P = Re(V·I*).
    *  phasor 'peak': |V| is the amplitude and P = ½·Re(V·I*). */
   | { type: 'ac'; freq?: number; omega?: number; phasor?: 'peak' | 'rms' }
-  | { type: 'tran'; tstop?: number }; // switches / step sources change at t = 0; t < 0 is DC steady state
+  | { type: 'tran'; tstop?: number } // switches / step sources change at t = 0; t < 0 is DC steady state
+  /** non-sinusoidal periodic steady state: fundamental freq (Hz) or omega (rad/s); every source is a
+   *  DC term plus harmonics, the circuit is solved harmonic by harmonic (superposition).
+   *  phasor: convention of per-harmonic phasor results (default 'rms'). See ../analysis/periodic.ts. */
+  | { type: 'periodic'; freq?: number; omega?: number; phasor?: 'peak' | 'rms' };
 
 /** What a question asks for. Everything here is computed by the engine and compared with `answer`. */
 export type Quantity =
@@ -178,7 +201,10 @@ export type Quantity =
   | { kind: 'Q'; port?: [string, string] };
 
 /** Which part of a (possibly complex) result is asked. Default: 're' for DC/tran (plain number), 'mag' for AC. */
-export type Part = 're' | 'im' | 'mag' | 'phase' | 'db' | 'rms';
+export type Part = 're' | 'im' | 'mag' | 'phase' | 'db' | 'rms'
+  // periodic analysis, whole waveform (no `harmonic`): average (DC component), rectified average
+  // (average of |x|), peak (max |x(t)|); the default there is 'rms' = √(X₀² + Σ X_k²)
+  | 'avg' | 'absavg' | 'peak';
 
 export interface Question {
   id: string;
@@ -189,6 +215,8 @@ export interface Question {
     t?: number | '0-' | '0+' | 'inf';
     /** tran, kinds 'v' / 'i': time derivative d/dt at t (V/s, A/s) */
     deriv?: 1;
+    /** periodic: ask about one harmonic only (0 = DC component, 1 = fundamental, …) */
+    harmonic?: number;
     /** AC: evaluate this question at another frequency (Hz or rad/s) than analysis.freq/omega */
     freq?: number;
     omega?: number;

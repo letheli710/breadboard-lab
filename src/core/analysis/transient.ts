@@ -125,6 +125,9 @@ export class Transient {
 
   constructor(readonly ckt: Circuit) {
     for (const el of ckt.els)
+      if (el.harmonics?.length)
+        throw new AnalysisError(`${el.ref}: a non-sinusoidal periodic source ({harmonics} / {wave}) needs analysis {type: "periodic"}; in transient analysis write each harmonic as its own {sin} source`);
+    for (const el of ckt.els)
       if (el.src?.kind === 'dcac' && el.src.ac && el.src.ac.mag !== 0)
         throw new AnalysisError(
           `${el.ref}: an AC phasor source ({ac: …}) cannot be used in transient analysis; describe it in the time domain with {sin: {amp, freq, phase}}`,

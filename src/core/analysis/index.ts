@@ -29,6 +29,8 @@ import { Transient } from './transient';
 export { AnalysisError } from './errors';
 export { computeQuantity, computeComplex, cutoffs, qualityFactor, reduce, resonance } from './engine';
 export { parseNum } from './circuit';
+export { computePeriodic, PeriodicCircuit } from './periodic';
+export { waveSpectrum, waveExact, WAVE_SHAPES } from './fourier';
 export { Circuit };
 
 export interface CircuitSolution {

@@ -11,7 +11,7 @@
     "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$", "description": "Unique id: letters, digits, - and _." },
     "lang": { "enum": ["zh", "en"], "default": "zh", "description": "Language of the top-level text. Default \"zh\"." },
     "chapter": {
-      "enum": ["basics", "equivalence", "methods", "theorems", "opamp", "storage", "first-order", "second-order", "phasors", "ac-analysis", "ac-power", "coupled", "frequency", "three-phase", "two-port"],
+      "enum": ["basics", "equivalence", "methods", "theorems", "opamp", "storage", "first-order", "second-order", "phasors", "ac-analysis", "ac-power", "coupled", "frequency", "three-phase", "non-sinusoidal", "two-port"],
       "description": "Chapter id (src/core/problem/chapters.ts). Put the file in problems/<chapter>/."
     },
     "title": { "type": "string", "minLength": 1 },
@@ -71,6 +71,50 @@
               "type": "object",
               "required": ["amp", "freq"],
               "properties": { "amp": { "type": "number" }, "freq": { "type": "number" }, "phase": { "type": "number" }, "offset": { "type": "number" } },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["harmonics"],
+          "description": "periodic analysis: dc + Σ amp·cos(kω₁t + phase°); amp is the amplitude (peak) of harmonic k",
+          "properties": {
+            "harmonics": {
+              "type": "object",
+              "required": ["terms"],
+              "properties": {
+                "dc": { "type": "number" },
+                "terms": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["k", "amp"],
+                    "properties": { "k": { "type": "integer", "minimum": 1, "maximum": 199 }, "amp": { "type": "number", "minimum": 0 }, "phase": { "type": "number" } },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["wave"],
+          "description": "periodic analysis: a standard waveform given by its Fourier series up to harmonic upTo (see docs/PROBLEM_FORMAT.md §4.1)",
+          "properties": {
+            "wave": {
+              "type": "object",
+              "required": ["shape", "amp", "upTo"],
+              "properties": {
+                "shape": { "enum": ["square", "triangle", "sawtooth", "half-rect", "full-rect"] },
+                "amp": { "type": "number", "exclusiveMinimum": 0 },
+                "upTo": { "type": "integer", "minimum": 1, "maximum": 199 },
+                "offset": { "type": "number" }
+              },
               "additionalProperties": false
             }
           },
@@ -243,6 +287,19 @@
           "required": ["type"],
           "properties": { "type": { "const": "tran" }, "tstop": { "type": "number", "exclusiveMinimum": 0 } },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type"],
+          "description": "non-sinusoidal periodic steady state; freq / omega is the fundamental",
+          "properties": {
+            "type": { "const": "periodic" },
+            "freq": { "type": "number", "exclusiveMinimum": 0 },
+            "omega": { "type": "number", "exclusiveMinimum": 0 },
+            "phasor": { "enum": ["rms", "peak"], "default": "rms" }
+          },
+          "anyOf": [{ "required": ["freq"] }, { "required": ["omega"] }],
+          "additionalProperties": false
         }
       ]
     },
@@ -266,7 +323,8 @@
         "input": { "type": "string" },
         "ports": { "type": "array", "items": { "$ref": "#/definitions/nodePair" }, "minItems": 2, "maxItems": 2 },
         "param": { "enum": ["z11", "z12", "z21", "z22", "y11", "y12", "y21", "y22", "h11", "h12", "h21", "h22", "a", "b", "c", "d"] },
-        "part": { "enum": ["re", "im", "mag", "phase", "db", "rms"] },
+        "harmonic": { "type": "integer", "minimum": 0, "description": "periodic: one harmonic only (0 = DC component, 1 = fundamental, …)" },
+        "part": { "enum": ["re", "im", "mag", "phase", "db", "rms", "avg", "absavg", "peak"] },
         "t": { "oneOf": [{ "type": "number", "minimum": 0 }, { "enum": ["0-", "0+", "inf"] }] }
       },
       "additionalProperties": false

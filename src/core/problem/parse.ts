@@ -62,7 +62,7 @@ const textOf = (v: unknown) => (typeof v === 'string' ? v : Array.isArray(v) ? s
 const KINDS = ['v', 'i', 'p', 'q', 's', 'pf', 'req', 'vth', 'isc', 'pmax', 'tau', 'meter', 'gain', 'f0', 'twoport', 'w', 'val', 'wattmeter', 'root', 'alpha', 'omega_d', 'omega0', 'fc', 'bw', 'Q'] as const;
 /** kinds that describe the whole circuit (no time instant needed in transient problems) */
 const TIMELESS = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw'];
-const PARTS: Part[] = ['re', 'im', 'mag', 'phase', 'db', 'rms'];
+const PARTS: Part[] = ['re', 'im', 'mag', 'phase', 'db', 'rms', 'avg', 'absavg', 'peak'];
 const TIMES = ['0-', '0+', 'inf'];
 const isGroundName = (n: string) => /^(0|gnd)$/i.test(n);
 
@@ -222,19 +222,32 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
       if (!(typeof find[k] === 'number' && (find[k] as number) > 0)) {
         errors.push(tr(`${where}.find.${k}: 必须是正数`, `${where}.find.${k}: must be a positive number`));
         ok = false;
-      } else if (analysis && analysis.type !== 'ac')
+      } else if (analysis?.type === 'periodic')
+        errors.push(tr(`${where}.find.${k}: 非正弦周期题用 "harmonic": k 指定第几次谐波，不要改频率`, `${where}.find.${k}: in a periodic problem ask for a harmonic with "harmonic": k instead of changing the frequency`));
+      else if (analysis && analysis.type !== 'ac')
         errors.push(tr(`${where}.find.${k}: 只有正弦稳态（ac）题才能改频率`, `${where}.find.${k}: only AC problems can override the frequency`));
     }
   if (find.part !== undefined && !PARTS.includes(find.part as Part)) {
     errors.push(tr(`${where}.find.part: 必须是 ${PARTS.join(' / ')}`, `${where}.find.part: must be ${PARTS.join(' / ')}`));
     ok = false;
   }
-  if (analysis && analysis.type !== 'ac' && kind !== 'root' && find.part !== undefined && find.part !== 're')
+  if (find.harmonic !== undefined) {
+    if (!(typeof find.harmonic === 'number' && Number.isInteger(find.harmonic) && find.harmonic >= 0)) {
+      errors.push(tr(`${where}.find.harmonic: 必须是 ≥ 0 的整数（0 = 直流分量，1 = 基波……）`, `${where}.find.harmonic: must be an integer ≥ 0 (0 = DC component, 1 = fundamental, …)`));
+      ok = false;
+    } else if (analysis && analysis.type !== 'periodic')
+      errors.push(tr(`${where}.find.harmonic: 只有非正弦周期分析（periodic）才能按谐波提问`, `${where}.find.harmonic: only periodic (non-sinusoidal) analysis has harmonics`));
+  }
+  if (analysis && analysis.type !== 'periodic' && (find.part === 'avg' || find.part === 'absavg' || find.part === 'peak'))
+    errors.push(tr(`${where}.find.part: "${find.part}" 只用于非正弦周期分析（periodic）`, `${where}.find.part: "${find.part}" is only for periodic (non-sinusoidal) analysis`));
+  if (analysis && analysis.type !== 'ac' && analysis.type !== 'periodic' && kind !== 'root' && find.part !== undefined && find.part !== 're')
     warnings.push(tr(`${where}.find.part: "${String(find.part)}" 只对正弦稳态（ac）有意义`, `${where}.find.part: "${String(find.part)}" only makes sense for sinusoidal steady state (ac)`));
   if (find.t !== undefined) {
     if (!(typeof find.t === 'number' && find.t >= 0) && !TIMES.includes(find.t as string)) {
       errors.push(tr(`${where}.find.t: 必须是 ≥ 0 的秒数，或 "0-" / "0+" / "inf"`, `${where}.find.t: must be a time ≥ 0 in seconds, or "0-" / "0+" / "inf"`));
       ok = false;
+    } else if (analysis?.type === 'periodic') {
+      if (typeof find.t !== 'number') errors.push(tr(`${where}.find.t: 非正弦周期题的 "t" 是秒数（求瞬时值）`, `${where}.find.t: in a periodic problem "t" is a time in seconds (instantaneous value)`));
     } else if (analysis && analysis.type !== 'tran')
       warnings.push(tr(`${where}.find.t: 只有暂态分析（tran）才用 "t"`, `${where}.find.t: "t" is only used by transient analysis (tran)`));
   } else if (analysis?.type === 'tran' && !TIMELESS.includes(kind))
@@ -261,7 +274,17 @@ function parseAnalysis(raw: unknown, errors: string[]): Analysis | null {
     if (raw.phasor !== undefined && raw.phasor !== 'rms' && raw.phasor !== 'peak') errors.push(tr('analysis.phasor: 必须是 "rms" 或 "peak"', 'analysis.phasor: must be "rms" or "peak"'));
     return { type: 'ac', ...(freq !== undefined ? { freq } : {}), ...(omega !== undefined ? { omega } : {}), ...(raw.phasor === 'peak' || raw.phasor === 'rms' ? { phasor: raw.phasor } : {}) };
   }
-  errors.push(tr(`analysis.type: 必须是 "dc" / "ac" / "tran"（现在是 ${JSON.stringify(raw.type)}）`, `analysis.type: must be "dc" / "ac" / "tran" (it is ${JSON.stringify(raw.type)})`));
+  if (raw.type === 'periodic') {
+    // non-sinusoidal periodic steady state: freq / omega is the FUNDAMENTAL (see analysis/periodic.ts)
+    const freq = typeof raw.freq === 'number' ? raw.freq : undefined;
+    const omega = typeof raw.omega === 'number' ? raw.omega : undefined;
+    if (!((freq ?? 0) > 0) && !((omega ?? 0) > 0)) errors.push(tr('analysis: 非正弦周期分析需要基波频率 "freq"（Hz）或 "omega"（rad/s），且大于 0', 'analysis: periodic analysis needs the fundamental "freq" (Hz) or "omega" (rad/s), greater than 0'));
+    if (freq !== undefined && omega !== undefined && Math.abs(2 * Math.PI * freq - omega) > 1e-6 * omega)
+      errors.push(tr('analysis: "freq" 和 "omega" 不一致（ω = 2πf），只写一个', 'analysis: "freq" and "omega" disagree (ω = 2πf); give only one'));
+    if (raw.phasor !== undefined && raw.phasor !== 'rms' && raw.phasor !== 'peak') errors.push(tr('analysis.phasor: 必须是 "rms" 或 "peak"', 'analysis.phasor: must be "rms" or "peak"'));
+    return { type: 'periodic', ...(freq !== undefined ? { freq } : {}), ...(omega !== undefined ? { omega } : {}), ...(raw.phasor === 'peak' || raw.phasor === 'rms' ? { phasor: raw.phasor } : {}) };
+  }
+  errors.push(tr(`analysis.type: 必须是 "dc" / "ac" / "tran" / "periodic"（现在是 ${JSON.stringify(raw.type)}）`, `analysis.type: must be "dc" / "ac" / "tran" / "periodic" (it is ${JSON.stringify(raw.type)})`));
   return null;
 }
 

@@ -6,6 +6,7 @@ import { ONE, ZERO, abs, conj, cx, div, mul, neg, polarDeg } from './complex';
 import { AnalysisError } from './errors';
 import { type Mode, MnaSystem, Solution } from './mna';
 import { Transient } from './transient';
+import { computePeriodic } from './periodic';
 
 export type Phase = 'before' | 'after';
 
@@ -37,6 +38,8 @@ export class StaticAnalysis {
   /** value of an independent source in this analysis */
   sourceValue(el: CEl): Complex {
     const s = el.src!;
+    if (el.harmonics?.length)
+      throw new AnalysisError(`${el.ref}: a non-sinusoidal periodic source ({harmonics} / {wave}) needs analysis {type: "periodic"}`);
     if (this.kind === 'dc') {
       switch (s.kind) {
         case 'num':
@@ -143,7 +146,7 @@ const phaseOfT = (t: T): Phase => (t === '0-' || (typeof t === 'number' && t < 0
 
 // ---------------- element quantities on a solution ----------------
 
-interface Val {
+export interface Val {
   value: Complex;
   /** phasor-like result (reduce with part, default 'mag' in AC) vs real-valued quantity */
   complex: boolean;
@@ -706,6 +709,7 @@ export function reduce(val: Val, part: Part | undefined, analysis: Analysis): nu
 }
 
 export function computeQuantity(netlist: Netlist, analysis: Analysis, find: Find): number {
+  if (analysis?.type === 'periodic') return computePeriodic(netlist, analysis, find);
   const v = reduce(computeComplex(netlist, analysis, find), find.part, analysis);
   if (!Number.isFinite(v)) throw new AnalysisError('The result is not a finite number');
   return v;

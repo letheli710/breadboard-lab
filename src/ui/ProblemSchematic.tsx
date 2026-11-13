@@ -121,6 +121,21 @@ function sourceText(v: TwoTerminalElement['value'], unit: string): string | null
   if (typeof v === 'number' || typeof v === 'string') return siOrRaw(v, unit);
   const o = v as Record<string, any>;
   if (o.step) return `${num(o.step.before)}→${num(o.step.after)} ${unit}`;
+  if (o.harmonics) {
+    // dc + Σ amp·cos(kωt + φ): short form "10 + 100cos ωt + 30cos(3ωt−30°) V" (authors usually give a label)
+    const h = o.harmonics as { dc?: unknown; terms?: { k?: unknown; amp?: unknown; phase?: unknown }[] };
+    const parts: string[] = [];
+    const dc = toNum(h.dc ?? 0) ?? 0;
+    if (dc) parts.push(num(dc));
+    for (const t of Array.isArray(h.terms) ? h.terms : []) {
+      const k = toNum(t.k ?? 1) ?? 1;
+      const ph = toNum(t.phase ?? 0) ?? 0;
+      const arg = `${k === 1 ? '' : num(k)}ωt`;
+      parts.push(`${num(t.amp)}cos${ph ? `(${arg}${ph > 0 ? '+' : '−'}${num(Math.abs(ph))}°)` : ` ${arg}`}`);
+    }
+    return parts.length ? `${parts.join(' + ')} ${unit}` : null;
+  }
+  if (o.wave) return `${num(o.wave.amp)} ${unit}`;
   if (o.sin) {
     const { amp, freq: f0, phase: p0, offset: o0 } = o.sin;
     const freq = toNum(f0) ?? NaN;
