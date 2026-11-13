@@ -410,17 +410,17 @@ function SchematicPanel() {
       </div>
       <p className="note">
         {tr(
-          '电路图按电压从高到低排列：最上面是电源 +，最下面是 GND（⏚）。鼠标移到一条线上，3D 面包板里属于这个“节点”的所有孔都会亮起来。',
+          '电路图按电压从高到低排列：最上面是电源 +，最下面是 GND（⏚）。鼠标移到一条线上，3D 面包板里属于这个“结点”的所有孔都会亮起来。',
           'The schematic is drawn from high to low voltage: supply + at the top, GND (⏚) at the bottom. Hover a line and every hole on that node lights up on the 3D breadboard.',
         )}
       </p>
       {nl.circuit.nets.length > 0 && (
         <>
-          <div className="eyebrow">{tr('节点表 NETLIST', 'NETLIST')}</div>
+          <div className="eyebrow">{tr('结点表 NETLIST', 'NETLIST')}</div>
           <table className="netlist">
             <thead>
               <tr>
-                <th>{tr('节点', 'Node')}</th>
+                <th>{tr('结点', 'Node')}</th>
                 <th>{tr('电压', 'Voltage')}</th>
                 <th>{tr('连接的引脚', 'Pins')}</th>
                 <th>{tr('面包板位置', 'Breadboard holes')}</th>

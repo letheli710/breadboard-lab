@@ -137,13 +137,13 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
       const sameStrip = strips.length === 1;
       out.push({
         severity: 'warning',
-        title: tr(`${c.ref} 被短路了（所有脚都在同一个节点上）`, `${c.ref} is shorted out (all its legs are on one node)`),
+        title: tr(`${c.ref} 被短路了（所有脚都在同一个结点上）`, `${c.ref} is shorted out (all its legs are on one node)`),
         detail: sameStrip
           ? tr(
               `${c.ref} 的脚都插在「${stripLabel(strips[0])}」——这 5 个孔在面包板内部是同一片金属，电流会直接从金属片走，完全绕过 ${c.ref}。把其中一只脚移到别的列。`,
               `All of ${c.ref}'s legs are in "${stripLabel(strips[0])}" — those 5 holes are one metal strip inside the board, so current takes the strip and bypasses ${c.ref} entirely. Move one leg to another column.`,
             )
-          : tr(`${c.ref} 两端被导线连到了同一个节点，电流会绕过它。`, `Wires connect both ends of ${c.ref} to the same node, so current bypasses it.`),
+          : tr(`${c.ref} 两端被导线连到了同一个结点，电流会绕过它。`, `Wires connect both ends of ${c.ref} to the same node, so current bypasses it.`),
         refs: [c.ref],
         holes,
       });
@@ -253,7 +253,7 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
             severity: 'warning',
             title: tr(`${c.ref} 的输出直接接在电源上`, `${c.ref}'s output is wired straight to a supply`),
             detail: tr(
-              `${terminalLabel(c, h.out)} 和电源的 + 或 − 在同一个节点上。运放输出是“电压源”，不能和另一个电压源硬连在一起——会有很大的电流，输出被短路。检查是不是插错了列。`,
+              `${terminalLabel(c, h.out)} 和电源的 + 或 − 在同一个结点上。运放输出是“电压源”，不能和另一个电压源硬连在一起——会有很大的电流，输出被短路。检查是不是插错了列。`,
               `${terminalLabel(c, h.out)} is on the same node as a supply terminal. An op-amp output is a voltage source and must not be tied straight to another voltage source — a large current flows and the output is shorted. Check for a leg in the wrong column.`,
             ),
             refs: [c.ref],
@@ -279,7 +279,7 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         severity: 'warning',
         title: tr('两个运放输出连在了一起', 'Two op-amp outputs are connected together'),
         detail: tr(
-          `${outs.join('、')} 在同一个节点（${net}）上。两个输出都想决定这个点的电压，会互相“打架”，大电流从一个流进另一个。每个输出只能驱动输入或负载。`,
+          `${outs.join('、')} 在同一个结点（${net}）上。两个输出都想决定这个点的电压，会互相“打架”，大电流从一个流进另一个。每个输出只能驱动输入或负载。`,
           `${outs.join(', ')} are on the same node (${net}). Both outputs try to set that voltage and fight each other, with a large current flowing between them. Each output should drive only inputs or loads.`,
         ),
         refs: [...new Set(outs.map((o) => o.split(' ')[0]))],

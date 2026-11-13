@@ -68,7 +68,7 @@ This file fixes the symbols and wording used in theory problems (`problems/`), b
 | 0₊、0₋ | 0+, 0− | 换路时刻；JSON 的 `t` 字段仍写 `"0+"` / `"0-"` |
 | 有效值 | rms value | |
 
-尚未统一的界面文字（不属于内容文件）：`src/ui/Workbench.tsx`（“节点着色”按钮）、`src/ui/Panel.tsx`（“节点表”）、`src/three/Board.tsx`、`src/core/check.ts`、`src/core/diagnostics.ts`、`src/core/mcuDiagnostics.ts` 仍写“节点”，以及 `docs/AI_PROMPT.md`、`docs/CHALLENGE_FORMAT.md` 的正文。Guide 里提到按钮名时暂时保留“节点着色”，按钮改名后一起改。
+界面文字（按钮“结点着色”、“结点表”、诊断信息）也统一用“结点”。
 
 ## 7. 提示（hints）/ Hints
 

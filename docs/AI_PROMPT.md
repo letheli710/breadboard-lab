@@ -80,8 +80,8 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 除非这一题就是讲某种电源，否则一律用 dc_source。整个电路只放一个直流电源（运放双电源除外：两个 dc_source 串联，中点接 GND）。
 
 === nets / connections ===
-引脚写成 "REF.pin"。每个节点（node）列出它包含的所有引脚。请把每个元件的每个引脚都放进某个节点（不要留空引脚）。
-给关键节点起名：电源正极节点叫 "VCC"，电源负极节点叫 "GND"，其他如 "VOUT"。
+引脚写成 "REF.pin"。每个结点（node）列出它包含的所有引脚。请把每个元件的每个引脚都放进某个结点（不要留空引脚）。
+给关键结点起名：电源正极结点叫 "VCC"，电源负极结点叫 "GND"，其他如 "VOUT"。
 
 === tests（必须有，用来检查电路行为）===
 {"name": "按下按键：LED 亮", "set": {"SW1": {"pressed": true}}, "expect": {"LED1": "on"},
@@ -121,7 +121,7 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
   · power_module "at": "tp1" → 插入 tp1、tn1、bp1、bn1，上下两组轨道都有电
   · opamp       "at": "e10" → 必须在 e 行，横跨凹槽：1 脚 OUT A=e10、2 IN−A=e11、3 IN+A=e12、4 V−=e13、8 V+=f10、7 OUT B=f11、6 IN−B=f12、5 IN+B=f13（每只脚独占一列，用同列的 a–d 或 g–j 孔接线）
 - 跳线 color 只能用 red / blue / green / yellow / white（红=+，蓝=GND）。
-- 每个孔只用一次！写完后逐个孔检查有没有重复，检查每个节点的所有引脚确实在同一条金属条（或用跳线连通），不同节点没有误连。
+- 每个孔只用一次！写完后逐个孔检查有没有重复，检查每个结点的所有引脚确实在同一条金属条（或用跳线连通），不同结点没有误连。
 - 惯例：电源接在第 1 列的轨道上（tp1/tn1），元件从左往右排，用主区 a–e（或 f–j），GND 用跳线接回 tn（或 bn）。
 
 === 文字与符号约定（详见 docs/NOTATION.md）===
@@ -176,7 +176,7 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 |---|---|
 | `"format" 必须是 "breadboard-challenge/1"` | 拼写错误或漏写 |
 | `孔 xx 已经被 xx 占用` | 同一个孔插了两只脚，换一个空孔 |
-| `solution 不正确 — 断开了 / 多连了` | 布局和 components 的连接对不上：让 AI 逐个节点检查金属条 |
+| `solution 不正确 — 断开了 / 多连了` | 布局和 components 的连接对不上：让 AI 逐个结点检查金属条 |
 | `target 自检失败 — 测试失败` | 测试期望值算错了，或题目本身不可能实现：让 AI 重新计算 |
 | `电流 xx mA，超过 25 mA` | 限流电阻太小，换大一点 |
 | `i18n.xx.steps: 应该是和 "steps" 一一对应的数组` | 翻译的 steps / hints / tests 数量和原文不一致：让 AI 逐条一一对应地翻译 |
@@ -303,7 +303,7 @@ Name the key nodes: the supply + node "VCC", the supply − node "GND", others e
 - Conventions: connect the source to the rails at column 1 (tp1/tn1), place parts left to right in the main area a–e (or f–j), and return to GND with a jumper to tn (or bn).
 
 === Wording and notation (full version: docs/NOTATION.md) ===
-- Voltage is U / u, current I / i; write part names exactly as on the breadboard, as plain text: R1, I1, AM2 (challenge text has no subscripts). In the Chinese text a circuit node is 结点 (not 节点).
+- Voltage is U / u, current I / i; write part names exactly as on the breadboard, as plain text: R1, I1, AM2 (challenge text has no subscripts). In the Chinese text a circuit node is 结点 (not 结点).
 - AC quantities use the cosine reference: u = √2·U·cos(ωt + ψ). When saying a reversed LED is harmless, add its reverse-voltage limit (typically about 5 V).
 - Lab descriptions (phases 2–4) use short paragraphs with bold labels: **Goal**, **Circuit**, **Predict first** (what to work out and how — no results), **Measure**, **Compare** (the expected readings go here), optionally **Think about it** and **In a real circuit** (meter burden resistance, inductor winding resistance, electrolytic polarity, op-amp common-mode range and slew rate, …).
 - Hints go from direction → method → near-answer. In fault-finding tasks don't name the faults one by one in the early hints.

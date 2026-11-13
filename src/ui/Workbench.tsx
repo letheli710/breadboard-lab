@@ -222,10 +222,10 @@ function Toolbar() {
       <button
         className={showNets ? 'on' : ''}
         onClick={() => toggle('showNets')}
-        title={tr('按节点着色：同一颜色 = 电气上连在一起', 'Colour by node: same colour = electrically connected')}
+        title={tr('按结点着色：同一颜色 = 电气上连在一起', 'Colour by node: same colour = electrically connected')}
       >
         <Icon name="nets" />
-        <span>{tr('节点着色', 'Node colours')}</span>
+        <span>{tr('结点着色', 'Node colours')}</span>
       </button>
       <button className={showLabels ? 'on' : ''} onClick={() => toggle('showLabels')} title={tr('显示元件标签', 'Show part labels')}>
         <Icon name="label" />

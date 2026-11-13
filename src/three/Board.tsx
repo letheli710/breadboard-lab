@@ -311,7 +311,7 @@ export function Board() {
             </span>
             {hoverNetName && !isFloating(hoverNetName) && (
               <span>
-                {tr('节点', 'Node')} {hoverNetName} ·{' '}
+                {tr('结点', 'Node')} {hoverNetName} ·{' '}
                 {(() => {
                   const a = nodeAc(d, hoverNetName);
                   return a ? acVolts(a.avg, a.pp, true) : volts(sim.nodeV.get(hoverNetName) ?? 0);

@@ -263,7 +263,7 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         'error',
         tr('两个输出引脚在“打架”', 'Two output pins are fighting'),
         tr(
-          `${outs.map((o) => `${o.ref} ${o.pin}`).join('、')} 在同一个节点（${net}）上，一个想输出高、一个想输出低，大电流从一个引脚直接流进另一个。一个节点上只能有一个输出。`,
+          `${outs.map((o) => `${o.ref} ${o.pin}`).join('、')} 在同一个结点（${net}）上，一个想输出高、一个想输出低，大电流从一个引脚直接流进另一个。一个结点上只能有一个输出。`,
           `${outs.map((o) => `${o.ref} ${o.pin}`).join(', ')} are on one node (${net}); one drives high, the other low, and a large current flows straight from one pin into the other. Only one output may drive a node.`,
         ),
         [...new Set(outs.map((o) => o.ref))],

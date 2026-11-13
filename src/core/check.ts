@@ -707,7 +707,7 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
                   )
               : isPower(u.type)
               ? tr(
-                  `${u.ref} 的 + 和 − 接反了：红线应接到原理图中电源 + 的那个节点。`,
+                  `${u.ref} 的 + 和 − 接反了：红线应接到原理图中电源 + 的那个结点。`,
                   `${u.ref}'s + and − are swapped: the red lead belongs on the node that the supply's + connects to in the schematic.`,
                 )
               : u.type === 'buzzer'
@@ -741,7 +741,7 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
       detail:
         parts.map((g, k) => tr(`第${k + 1}组：${g.join('、')}`, `Group ${k + 1}: ${g.join(', ')}`)).join('\n') +
         tr(
-          `\n→ 它们现在分属 ${groups.size} 个互不相通的节点。用跳线或把脚插进同一列把它们接通。`,
+          `\n→ 它们现在分属 ${groups.size} 个互不相通的结点。用跳线或把脚插进同一列把它们接通。`,
           `\n→ They are now on ${groups.size} separate nodes. Join them with a jumper wire, or put the legs in the same column.`,
         ),
       refs: [...new Set(userPins.map((p) => splitPin(p)[0]))],
@@ -758,7 +758,7 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
     issues.push({
       severity: 'error',
       title: isSourceShort
-        ? tr('短路：电源的 + 和 − 被连到了同一个节点', "Short circuit: the supply's + and − are on the same node")
+        ? tr('短路：电源的 + 和 − 被连到了同一个结点', "Short circuit: the supply's + and − are on the same node")
         : tr('多连了：这些引脚不应该连在一起', "Extra connection: these pins shouldn't be joined"),
       detail:
         [...m.entries()]
@@ -767,7 +767,7 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
             return tr(`第${k + 1}组${tNetLabel(ti)}：${pins.join('、')}`, `Group ${k + 1}${tNetLabel(ti)}: ${pins.join(', ')}`);
           })
           .join('\n') +
-        tr(`\n→ 它们现在都在同一个节点（${un}）上。检查是否插错了列，或多了一根跳线。`, `\n→ They are all on one node (${un}) now. Check for a leg in the wrong column or an extra jumper.`) +
+        tr(`\n→ 它们现在都在同一个结点（${un}）上。检查是否插错了列，或多了一根跳线。`, `\n→ They are all on one node (${un}) now. Check for a leg in the wrong column or an extra jumper.`) +
         (collapsed.has(un)
           ? tr(
               `\n→ 注意：电流表 ${collapsed.get(un)!.join('、')} 的内阻几乎为零，相当于一根导线。它把这些点连在了一起——电流表要串联在断开处，不能并联在元件两端。`,
