@@ -22,7 +22,7 @@ const PHASES: { n: 1 | 2 | 3 | 4; zh: string; en: string }[] = [
 ];
 
 /** Text with textbook symbols: "u_C(0+)" → u with subscript C (same rules as the drawing). */
-function Sym({ text }: { text: string }) {
+export function Sym({ text }: { text: string }) {
   return <>{richRuns(text).map((r, i) => (r.sub ? <sub key={i}>{r.t}</sub> : r.it ? <i key={i}>{r.t}</i> : <Fragment key={i}>{r.t}</Fragment>))}</>;
 }
 
@@ -389,7 +389,16 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
             </button>
           ) : (
             <span className="pr-revealed">
-              {tr('答案', 'Answer')}: <b>{q.choices ? `${String.fromCharCode(65 + (q.correct ?? 0))}. ${q.choices[q.correct ?? 0]}` : formatAnswer(q)}</b>
+              {tr('答案', 'Answer')}:{' '}
+              <b>
+                {q.choices ? (
+                  <>
+                    {String.fromCharCode(65 + (q.correct ?? 0))}. <Sym text={q.choices[q.correct ?? 0]} />
+                  </>
+                ) : (
+                  formatAnswer(q)
+                )}
+              </b>
             </span>
           )}
         </div>

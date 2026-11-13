@@ -6,6 +6,7 @@ import { entryTitle, loadProblems } from '../state/problems';
 import { useStore } from '../state/store';
 import { Icon } from './Icons';
 import { Md } from './Panel';
+import { Sym } from './Practice';
 
 const docs = import.meta.glob('../../docs/*.md', { eager: true, query: '?raw', import: 'default' }) as Record<string, string>;
 const aiPromptDoc = Object.entries(docs).find(([k]) => k.endsWith('AI_PROMPT.md'))?.[1] ?? '';
@@ -248,7 +249,9 @@ export function ImportPage() {
             {problems.map((p) => (
               <tr key={`p:${p.id}`}>
                 <td>
-                  <b>{entryTitle(p)}</b>
+                  <b>
+                    <Sym text={entryTitle(p)} />
+                  </b>
                   <div className="muted small">
                     {p.id} · {p.file}
                   </div>
