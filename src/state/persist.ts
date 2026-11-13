@@ -7,6 +7,7 @@ import { HOLE_MAP } from '../core/breadboard';
 import { MOSFETS } from '../core/devices';
 import { BATTERIES, LED_COLORS, PARTS } from '../core/parts';
 import { PIN_MODES, type Layout, type PartProps, type PartType, type PinConfig, type PlacedPart } from '../core/types';
+import type { ChallengeReadings, ReadingAnswer } from '../core/readings';
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
@@ -108,6 +109,32 @@ export function boolRecordMap(v: unknown): Record<string, Record<string, boolean
   for (const [k, x] of Object.entries(v)) {
     const r = boolRecord(x);
     if (r) out[k] = r;
+  }
+  return out;
+}
+
+/** Measurement-question answers per challenge (`{ [challengeId]: { passed?, answers } }`):
+ *  well-typed fields only, short strings, malformed entries dropped. */
+export function sanitizeReadings(v: unknown): Record<string, ChallengeReadings> | undefined {
+  if (!isObj(v)) return undefined;
+  const str = (x: unknown) => (typeof x === 'string' && x.length <= 200 ? x : undefined);
+  const out: Record<string, ChallengeReadings> = {};
+  for (const [id, r] of Object.entries(v)) {
+    if (!isObj(r) || !isObj(r.answers)) continue;
+    const answers: Record<string, ReadingAnswer> = {};
+    for (const [q, a] of Object.entries(r.answers)) {
+      if (!isObj(a)) continue;
+      const x: ReadingAnswer = {};
+      if (str(a.predict) !== undefined) x.predict = a.predict as string;
+      if (str(a.input) !== undefined) x.input = a.input as string;
+      if (str(a.key) !== undefined) x.key = a.key as string;
+      if (num(a.choice) && Number.isInteger(a.choice) && a.choice >= 0) x.choice = a.choice;
+      if (typeof a.ok === 'boolean') x.ok = a.ok;
+      if (a.stale === true) x.stale = true;
+      if (num(a.tries) && a.tries >= 0) x.tries = Math.floor(a.tries);
+      answers[q] = x;
+    }
+    out[id] = { answers, ...(str(r.passed) !== undefined ? { passed: r.passed as string } : {}) };
   }
   return out;
 }

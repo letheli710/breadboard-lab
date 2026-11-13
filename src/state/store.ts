@@ -8,7 +8,8 @@ import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS, nextScopeChannel } from '../core/parts';
 import type { Layout, PartProps, PartType, PlacedPart } from '../core/types';
 import { modeOf, startRoute } from './router';
-import { boolRecord, readStored, sanitizeLayout, sanitizeScope, writeStored, writeStoredLater } from './persist';
+import { boolRecord, readStored, sanitizeLayout, sanitizeReadings, sanitizeScope, writeStored, writeStoredLater } from './persist';
+import type { ChallengeReadings } from '../core/readings';
 
 export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import';
 
@@ -118,6 +119,8 @@ interface State {
   check: CheckResult | null;
   celebrate: boolean;
   completed: Record<string, boolean>;
+  /** measurement-question answers per challenge id (core/readings.ts), saved under bb.readings */
+  readings: Record<string, ChallengeReadings>;
   toast: string | null;
   /** the toast offers an "Undo" button (after a delete) */
   toastUndo: boolean;
@@ -170,6 +173,7 @@ interface State {
   setCheck(r: CheckResult | null): void;
   setCelebrate(v: boolean): void;
   markCompleted(id: string): void;
+  setReadings(id: string, r: ChallengeReadings): void;
   setHighlight(h: Highlight | null): void;
   toggle(k: 'showNets' | 'showLabels'): void;
   setScope(p: Partial<ScopeSettings>): void;
@@ -318,6 +322,7 @@ export const useStore = create<State>((set, get) => {
     check: null,
     celebrate: false,
     completed: LS.get('bb.completed', {} as Record<string, boolean>, boolRecord),
+    readings: LS.get('bb.readings', {} as Record<string, ChallengeReadings>, sanitizeReadings),
     toast: null,
     toastUndo: false,
     problems: [],
@@ -567,6 +572,11 @@ export const useStore = create<State>((set, get) => {
       const completed = { ...get().completed, [id]: true };
       LS.set('bb.completed', completed);
       set({ completed });
+    },
+    setReadings(id, r) {
+      const readings = { ...get().readings, [id]: r };
+      writeStoredLater('bb.readings', readings);
+      set({ readings });
     },
     setHighlight(highlight) {
       set({ highlight });

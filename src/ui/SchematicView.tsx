@@ -16,6 +16,9 @@ interface Props {
   /** transient result (generator on the board): node labels show average + AC swing */
   ac?: TransientResult | null;
   showValues?: boolean;
+  /** keep part values but leave out simulated currents and node voltages (a lab whose
+   *  measurement questions ask for exactly those readings) */
+  hideReadings?: boolean;
   hoverNet?: string | null;
   onHoverNet?: (n: string | null) => void;
   highlightRefs?: string[];
@@ -24,7 +27,7 @@ interface Props {
 
 const INK = 'var(--ink)';
 
-function valueText(el: SElement, sim?: SimResult | null): string[] {
+function valueText(el: SElement, sim?: SimResult | null, readings = true): string[] {
   const c = el.comp;
   const p = c.props;
   const out: string[] = [];
@@ -79,7 +82,7 @@ function valueText(el: SElement, sim?: SimResult | null): string[] {
   }
   // a dev board's own current readings are per pin (inspector); the relay contact has none
   if (el.box || el.sub === 'contact') return out;
-  if (sim) {
+  if (sim && readings) {
     const I = sim.current.get(c.ref);
     if (I !== undefined && Math.abs(I) > 2e-6 && c.type !== 'switch') out.push(`I=${amps(Math.abs(I))}`);
   }
@@ -400,7 +403,7 @@ function SwitchSymbol({ el, hl }: { el: SElement; hl: boolean }) {
   );
 }
 
-export function SchematicView({ circuit, sim, ac, showValues = true, hoverNet, onHoverNet, highlightRefs = [], emptyText }: Props) {
+export function SchematicView({ circuit, sim, ac, showValues = true, hideReadings = false, hoverNet, onHoverNet, highlightRefs = [], emptyText }: Props) {
   const lay = useMemo(() => layoutSchematic(circuit, sim), [circuit, sim]);
   const hl = new Set(highlightRefs);
   if (circuit.components.length === 0)
@@ -434,7 +437,7 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hoverNet, o
               <text x={x1 - (dangling ? 18 : 10)} y={b.y - 6} textAnchor="end" className={`net-label ${active ? 'on' : ''}`}>
                 {isFloating(b.net) ? tr('悬空', 'floating') : b.net}
               </text>
-              {showValues && b.voltage !== undefined && (
+              {showValues && !hideReadings && b.voltage !== undefined && (
                 <text x={x1 - (dangling ? 18 : 10)} y={b.y + 13} textAnchor="end" className="net-volt">
                   {(() => {
                     const a = nodeAc({ ac: ac ?? null }, b.net);
@@ -489,7 +492,7 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hoverNet, o
                 <text x={el.box.x + el.box.w / 2} y={el.box.y - 6} textAnchor="middle" className="ref-label">
                 {el.ref}
                 {showValues &&
-                  valueText(el, sim).map((t, i) => (
+                  valueText(el, sim, !hideReadings).map((t, i) => (
                     <tspan key={i} className="val-label" dx={6}>
                       {t}
                     </tspan>
@@ -503,7 +506,7 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hoverNet, o
                   {el.half ? el.half : ''}
                 </text>
                 {showValues &&
-                  valueText(el, sim).map((t, i) => (
+                  valueText(el, sim, !hideReadings).map((t, i) => (
                     <text key={i} x={el.x + labelDx(el)} y={el.y + 11 + i * 13 + (el.comp.type === 'opamp' ? 18 : 0)} className="val-label">
                       {t}
                     </text>

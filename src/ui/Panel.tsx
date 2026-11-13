@@ -17,6 +17,8 @@ import { Inspector } from './Inspector';
 import { SchematicView } from './SchematicView';
 import { celebrate } from './celebrate';
 import { buildChallengeFromBoard, downloadJson } from './exportChallenge';
+import { MeasurementSection, StageBar, useMeasureState } from './Measurements';
+import { allAnswered, emptyReadings, matchBoard, revalidate, structureKey } from '../core/readings';
 
 /** Tiny markdown subset: paragraphs, "- " lists, "## " headings, **bold**, `code`. */
 export function Md({ text }: { text: string }) {
@@ -162,14 +164,25 @@ function TaskPanel({ ch }: { ch: Challenge }) {
     lastCh.current = ch;
     if (same && useStore.getState().check) setCheck(evaluate());
   }, [ch]); // eslint-disable-line react-hooks/exhaustive-deps
+  // labs with measurement questions: the circuit check is stage 1, the readings stage 2
+  const hasM = ch.measurements.length > 0;
+  const ms = useMeasureState(ch);
+  const setReadings = useStore((s) => s.setReadings);
+  const complete = () => {
+    markCompleted(ch.id);
+    setCelebrate(true);
+    celebrate();
+  };
   const runCheck = () => {
     const r = evaluate();
     setCheck(r);
-    if (r.perfect) {
-      markCompleted(ch.id);
-      setCelebrate(true);
-      celebrate();
-    }
+    if (!r.perfect) return;
+    if (!hasM) return complete();
+    const cur = useStore.getState().readings[ch.id] ?? emptyReadings();
+    const m = matchBoard(ch, nl.circuit);
+    const next = m ? revalidate(ch, { ...cur, passed: structureKey(ch, nl.circuit) }, m) : cur;
+    setReadings(ch.id, next);
+    if (m && allAnswered(ch, next, m)) complete();
   };
 
   const nSteps = ch.steps.length;
@@ -185,6 +198,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       </div>
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
+      {hasM && <StageBar circuitOk={ms.passed} st={ms} />}
 
       {nSteps > 0 && (
         <section className="steps" aria-label={tr('步骤', 'Steps')}>
@@ -233,6 +247,14 @@ function TaskPanel({ ch }: { ch: Challenge }) {
           )}
           {check.undecided ? (
             <IssueList issues={check.issues} />
+          ) : check.perfect && hasM && !ms.complete ? (
+            <div className="ok-box big">
+              ✓{' '}
+              {tr(
+                `电路正确${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。第 1 步完成——现在用仪表读你的面包板，完成下面的 ${ms.required} 道测量题。`,
+                `The circuit is right${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}. Stage 1 done — now read your board's instruments and answer the ${ms.required} measurement questions below.`,
+              )}
+            </div>
           ) : check.perfect ? (
             <div className="ok-box big">
               🎉{' '}
@@ -262,6 +284,8 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         </ul>
       )}
 
+      {hasM && <MeasurementSection ch={ch} st={ms} onComplete={complete} />}
+
       <details className="fold" open>
         <summary>{ch.kind === 'lesson' ? tr('课程说明', 'About this lesson') : tr('题目说明', 'About this task')}</summary>
         <Md text={ch.description} />
@@ -270,7 +294,8 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       <details className="fold" open>
         <summary>{tr('目标电路图 TARGET SCHEMATIC', 'Target schematic')}</summary>
         <div className="schem-card">
-          <SchematicView circuit={ch.target} sim={targetSim} showValues />
+          {/* with measurement questions the target's simulated currents / voltages would give the readings away */}
+          <SchematicView circuit={ch.target} sim={targetSim} showValues hideReadings={hasM} />
         </div>
         <p className="note">
           {tr(

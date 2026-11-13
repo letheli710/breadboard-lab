@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { sanitizeLayout, sanitizeProps } from './persist';
+import { sanitizeLayout, sanitizeProps, sanitizeReadings } from './persist';
 
 let n = 0;
 const id = () => `t${n++}`;
@@ -103,5 +103,30 @@ describe('corrupted storage', () => {
     useStore.getState().setMode('challenge');
     useStore.getState().setMode('sandbox');
     expect(useStore.getState().layout.parts).toEqual([]);
+  });
+});
+
+describe('sanitizeReadings (measurement-question answers)', () => {
+  it('keeps well-typed answers and drops the rest', () => {
+    const r = sanitizeReadings({
+      'exp-kcl-ammeters': {
+        passed: 'abc',
+        answers: {
+          i1: { predict: '8.8', input: '8.84m', ok: true, key: 'k1', tries: 2, stale: false },
+          kcl: { choice: 0, ok: true },
+          bad: { input: 42, ok: 'yes', choice: -1, tries: -3 },
+        },
+      },
+      broken: { answers: 'nope' },
+      alsoBroken: 7,
+    });
+    expect(r).toEqual({
+      'exp-kcl-ammeters': {
+        passed: 'abc',
+        answers: { i1: { predict: '8.8', input: '8.84m', ok: true, key: 'k1', tries: 2 }, kcl: { choice: 0, ok: true }, bad: {} },
+      },
+    });
+    expect(sanitizeReadings([])).toBeUndefined();
+    expect(sanitizeReadings({ x: { answers: { q: { input: 'x'.repeat(500) } } } })).toEqual({ x: { answers: { q: {} } } });
   });
 });
