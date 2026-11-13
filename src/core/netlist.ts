@@ -1,7 +1,8 @@
 // Layout (parts in holes) -> Circuit (components + nets).
 
 import { HOLE_MAP, HOLES } from './breadboard';
-import { PARTS, groundSource, isPower } from './parts';
+import { isMcu } from './mcu';
+import { PARTS, groundSource, groundTerminal, isPower } from './parts';
 import type { CComponent, CNet, Circuit, Layout } from './types';
 import { pinId } from './types';
 
@@ -105,6 +106,12 @@ export function buildNetlist(layout: Layout): BoardNetlist {
   let vIdx = 1;
   for (const c of placed) {
     if (!isPower(c.type) && c !== primary) continue;
+    if (isMcu(c.type)) {
+      // a USB-powered dev board is the ground reference: its GND pin is GND
+      const rg = termRoot.get(pinId(c.ref, groundTerminal(c)))!;
+      if (!rootName.has(rg)) rootName.set(rg, 'GND');
+      continue;
+    }
     const rp = termRoot.get(pinId(c.ref, '+'))!;
     const rn = termRoot.get(pinId(c.ref, '-'))!;
     if (c === primary) {
@@ -113,6 +120,16 @@ export function buildNetlist(layout: Layout): BoardNetlist {
     } else {
       if (!rootName.has(rp)) rootName.set(rp, `V${++vIdx}+`);
       if (!rootName.has(rn)) rootName.set(rn, `V${vIdx}−`);
+    }
+  }
+  // dev boards: their 3V3 / 5V pins name the rails ("3V3", "5V"; a second board gets "U2.3V3")
+  let mIdx = 0;
+  for (const c of placed) {
+    if (!isMcu(c.type)) continue;
+    mIdx++;
+    for (const pin of ['3V3', '5V', 'GND']) {
+      const r = termRoot.get(pinId(c.ref, pin));
+      if (r && !rootName.has(r) && !r.startsWith('u:')) rootName.set(r, mIdx === 1 ? pin : `${c.ref}.${pin}`);
     }
   }
   // function generators: the signal net is VIN (VIN2, ...); a black clip not on GND gets its own name
