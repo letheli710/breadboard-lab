@@ -570,7 +570,7 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
           ) : (
             <g {...common}>
               <rect x={-h} y={-8} width={2 * h} height={16} fill="var(--paper)" />
-              <polyline points={`${-h - 6},${13 * ls} ${-h + 4},${13 * ls} ${h - 4},${-13 * ls}`} />
+              <polyline points={`${-h - 6},13 ${-h + 4},13 ${h - 4},-13`} />
             </g>
           );
         break;
