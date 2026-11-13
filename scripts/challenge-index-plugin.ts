@@ -1,5 +1,6 @@
-// Vite plugin: `virtual:challenge-index` — a small, eagerly loaded summary of every built-in
-// lesson / challenge (challenges/**/*.json). The carousel and the progress card only need ids,
+// Vite plugin: `virtual:challenge-index` — a summary of every built-in lesson / challenge
+// (challenges/**/*.json), emitted as a lazily loaded chunk of its own (`loadIndex()`, fetched
+// when a bench page or the progress card needs it). The carousel and the progress card only need ids,
 // kinds, phases, levels and titles; the full files (targets, solutions, steps, tests — several
 // hundred kB) are code-split into one chunk per group (lessons, intro challenges, phase 1…5,
 // see challengeGroupOf) and loaded when a challenge of that group is opened
@@ -72,5 +73,5 @@ export function buildChallengeIndex(root: string): { entries: ChallengeIndexEntr
 }
 
 export function challengeIndexPlugin(): Plugin {
-  return contentIndexPlugin({ name: 'challenge-index', dir: 'challenges', groupOf: (e) => e.group, build: buildChallengeIndex });
+  return contentIndexPlugin({ name: 'challenge-index', dir: 'challenges', groupOf: (e) => e.group, build: buildChallengeIndex, lazyIndex: true });
 }

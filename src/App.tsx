@@ -1,8 +1,8 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { tr, type Lang } from './core/i18n';
-import { loadAll, useActiveChallenge } from './state/challenges';
-import { loadProblems } from './state/problems';
-import { startRouting } from './state/routeSync';
+import { ensureChallengeIndex, refreshChallenges, useActiveChallenge } from './state/challenges';
+import { refreshProblems } from './state/problems';
+import { startIndexLoads, startRouting } from './state/routeSync';
 import { useLang, useStore, type Mode } from './state/store';
 import { Icon } from './ui/Icons';
 import { Toast } from './ui/Toast';
@@ -14,6 +14,10 @@ const Carousel = lazy(() => import('./ui/Carousel').then((m) => ({ default: m.Ca
 const Practice = lazy(() => import('./ui/Practice').then((m) => ({ default: m.Practice })));
 const Guide = lazy(() => import('./ui/Guide').then((m) => ({ default: m.Guide })));
 const ImportPage = lazy(() => import('./ui/ImportPage').then((m) => ({ default: m.ImportPage })));
+
+// the problem / challenge index the starting page needs is a chunk of its own: request it now,
+// in parallel with the page's chunk (see state/routeSync.ts)
+startIndexLoads();
 
 function PageLoading() {
   useLang();
@@ -49,47 +53,61 @@ function Logo() {
   );
 }
 
+/** Fetch an index once the page is idle (the Guide / Sandbox card; their page needs no index). */
+function useIdleLoad(status: string, load: () => void) {
+  useEffect(() => {
+    if (status !== 'idle') return;
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (h: number) => void };
+    if (w.requestIdleCallback) {
+      const h = w.requestIdleCallback(load, { timeout: 3000 });
+      return () => w.cancelIdleCallback?.(h);
+    }
+    const t = setTimeout(load, 1500);
+    return () => clearTimeout(t);
+  }, [status, load]);
+}
+
+/** Header progress: icon, label, bar, "done/total" — neutral ("–/–", no bar) until the counts are known. */
+function ProgressView({ icon, label, done, total }: { icon: string; label: string; done: number; total: number | null }) {
+  return (
+    <div className={`progress-card ${total === null ? 'pending' : ''}`} aria-busy={total === null}>
+      <Icon name={icon} size={22} />
+      <div>
+        <div className="pc-title">{label}</div>
+        <div className="pc-bar">
+          <div style={{ width: total ? `${(done / total) * 100}%` : 0 }} />
+        </div>
+      </div>
+      <b aria-label={total === null ? tr('加载中', 'Loading') : undefined}>{total === null ? '–/–' : `${done}/${total}`}</b>
+    </div>
+  );
+}
+
 function PracticeProgressCard() {
   const problems = useStore((s) => s.problems);
   const done = useStore((s) => s.practiceDone);
+  const ready = useStore((s) => s.problemIndex) === 'ready';
   const n = problems.filter((p) => done[p.id]).length;
-  return (
-    <div className="progress-card">
-      <Icon name="practice" size={22} />
-      <div>
-        <div className="pc-title">{tr('PRACTICE 理论练习', 'PRACTICE')}</div>
-        <div className="pc-bar">
-          <div style={{ width: problems.length ? `${(n / problems.length) * 100}%` : 0 }} />
-        </div>
-      </div>
-      <b>
-        {n}/{problems.length}
-      </b>
-    </div>
-  );
+  return <ProgressView icon="practice" label={tr('PRACTICE 理论练习', 'PRACTICE')} done={n} total={ready ? problems.length : null} />;
 }
 
 function ProgressCard() {
   const challenges = useStore((s) => s.challenges);
   const completed = useStore((s) => s.completed);
   const mode = useStore((s) => s.mode);
+  const status = useStore((s) => s.challengeIndex);
+  useIdleLoad(mode === 'practice' ? 'ready' : status, ensureChallengeIndex);
   if (mode === 'practice') return <PracticeProgressCard />;
   const kind = mode === 'challenge' ? 'challenge' : 'lesson';
   const list = challenges.filter((c) => c.kind === kind);
   const done = list.filter((c) => completed[c.id]).length;
   return (
-    <div className="progress-card">
-      <Icon name={kind === 'lesson' ? 'book' : 'target'} size={22} />
-      <div>
-        <div className="pc-title">{kind === 'lesson' ? tr('BASICS 基础课程', 'BASICS') : tr('CHALLENGES 挑战', 'CHALLENGES')}</div>
-        <div className="pc-bar">
-          <div style={{ width: list.length ? `${(done / list.length) * 100}%` : 0 }} />
-        </div>
-      </div>
-      <b>
-        {done}/{list.length}
-      </b>
-    </div>
+    <ProgressView
+      icon={kind === 'lesson' ? 'book' : 'target'}
+      label={kind === 'lesson' ? tr('BASICS 基础课程', 'BASICS') : tr('CHALLENGES 挑战', 'CHALLENGES')}
+      done={done}
+      total={status === 'ready' ? list.length : null}
+    />
   );
 }
 
@@ -194,22 +212,19 @@ export default function App() {
   const lang = useLang();
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
-  const setChallenges = useStore((s) => s.setChallenges);
-  const setProblems = useStore((s) => s.setProblems);
 
-  // challenge text (and import diagnostics) are localized while parsing, so (re)load whenever
-  // the language changes. Both are cheap: built-in problems come from a prebuilt index and
-  // their full files are only parsed on demand (state/problems.ts).
+  // challenge text (and import diagnostics) are localized while parsing, so rebuild the lists
+  // whenever the language changes (once their index is in; until then this does nothing, and
+  // the lists are built when it arrives). Both are cheap: built-in problems come from a prebuilt
+  // index and their full files are only parsed on demand (state/problems.ts).
   useEffect(() => {
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-    const r = loadAll();
-    setChallenges(r.challenges, r.invalid);
-    const pr = loadProblems();
-    setProblems(pr.problems, pr.invalid);
+    refreshChallenges();
+    refreshProblems();
     // open the page / item the URL names (or the remembered one); after a language switch this
     // only refreshes the tab title
     startRouting();
-  }, [setChallenges, setProblems, lang]);
+  }, [lang]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

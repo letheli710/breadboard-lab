@@ -1,6 +1,9 @@
+import { useLayoutEffect, useRef } from 'react';
 import { PHASES, type Challenge, type ChallengePhase } from '../core/challenge';
 import { tr } from '../core/i18n';
+import { ensureChallengeIndex } from '../state/challenges';
 import { useStore } from '../state/store';
+import { revealIn, useUserScroll } from './reveal';
 
 /** Challenge groups: the original intro set (no "phase") and the course phases. */
 type Group = 'intro' | ChallengePhase;
@@ -37,6 +40,26 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
   const group: Group | null = groups.length > 1 ? (active ? groupOf(active) : groups[0]) : null;
   const list = group === null ? all : all.filter((c) => groupOf(c) === group);
   const done = list.filter((c) => completed[c.id]).length;
+  const status = useStore((s) => s.challengeIndex);
+
+  // keep the active card (and its group tab, where the tabs scroll) in view: on a direct load,
+  // a tab pick, Back / Forward and "Next" — not while the user scrolls the row themselves
+  const { ref: rowRef, el: rowEl, busy } = useUserScroll<HTMLDivElement>();
+  const tabsRef = useRef<HTMLSpanElement>(null);
+  const revealed = useRef<string | null>(null);
+  const activeKey = active ? `${kind}:${active.id}` : '';
+  useLayoutEffect(() => {
+    if (!activeKey || revealed.current === activeKey) return;
+    const row = rowEl();
+    const card = row?.querySelector<HTMLElement>('.lesson-card.on');
+    if (!row || !card) return;
+    const first = revealed.current === null;
+    revealed.current = activeKey;
+    if (!busy()) revealIn(row, card, 'x', first);
+    const tab = tabsRef.current?.querySelector<HTMLElement>('button.on');
+    if (tab) revealIn(tabsRef.current!, tab, 'x', first);
+  });
+
   const pick = (g: Group) => {
     if (g === group) return;
     const inGroup = all.filter((c) => groupOf(c) === g);
@@ -49,7 +72,7 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
       <div className="section-title">
         {kind === 'lesson' ? tr('课程 LESSONS', 'LESSONS') : tr('挑战 CHALLENGES', 'CHALLENGES')}
         {group !== null && (
-          <span className="chips phase-tabs" role="tablist">
+          <span className="chips phase-tabs" role="tablist" ref={tabsRef}>
             {groups.map((g) => {
               const n = all.filter((c) => groupOf(c) === g);
               const allDone = n.every((c) => completed[c.id]);
@@ -66,7 +89,18 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
           {done}/{list.length} {tr('完成', 'done')}
         </span>
       </div>
-      {list.length === 0 ? (
+      {status === 'error' ? (
+        <div className="card empty-card" role="alert">
+          {kind === 'lesson' ? tr('课程列表加载失败。', "Couldn't load the lesson list.") : tr('挑战列表加载失败。', "Couldn't load the challenge list.")}{' '}
+          <button className="primary" onClick={() => void ensureChallengeIndex()}>
+            {tr('重试', 'Try again')}
+          </button>
+        </div>
+      ) : status !== 'ready' ? (
+        <div className="card empty-card muted" role="status">
+          {tr('加载中…', 'Loading…')}
+        </div>
+      ) : list.length === 0 ? (
         <div className="card empty-card">
           {kind === 'lesson' ? tr('没有找到课程文件。', 'No lesson files found.') : tr('还没有挑战题。', 'No challenges yet.')}{' '}
           {tr('把题目 JSON 放进项目的 ', "Put challenge JSON files in the project's ")}
@@ -74,7 +108,7 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
           {tr(' 文件夹，或在“导入”页面导入。', ' folder, or load them on the Import page.')}
         </div>
       ) : (
-        <div className="carousel">
+        <div className="carousel" ref={rowRef}>
           {list.map((c, i) => (
             <button key={c.id} className={`lesson-card ${c.id === active?.id ? 'on' : ''} ${completed[c.id] ? 'done' : ''}`} onClick={() => open(c.id)}>
               <div className="lc-num">{completed[c.id] ? '✓' : i + 1}</div>

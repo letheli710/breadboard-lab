@@ -3,18 +3,61 @@
 // (bb.imported); each file is routed by its "format".
 //
 // Startup cost: the sidebar and progress only need a summary of each problem, which comes from
-// a build-time index (virtual:problem-index, see scripts/problem-index-plugin.ts). The full
+// a build-time index (virtual:problem-index, see scripts/problem-index-plugin.ts). The index is
+// a lazily loaded chunk too (ensureProblemIndex: requested by the router for Practice / Import,
+// or at idle time by the progress card); until it is in, the store's problem list is empty and
+// `problemIndex` says why, and the route waits for it (state/routeSync.ts). The full
 // built-in files are code-split per chapter and loaded on demand (useProblem); the parser too. Built-in
 // problems are parsed *without* recomputing answers with the analysis engine — that check is
 // enforced by `npm run validate` and the test suite. Imported files are fully verified.
 
 import { useEffect, useState } from 'react';
-import { entries as builtinIndex, broken as builtinBroken, groups as chapterChunks } from 'virtual:problem-index';
+import { loadIndex, groups as chapterChunks } from 'virtual:problem-index';
 import { getLang, tr } from '../core/i18n';
 import type { Problem } from '../core/problem/parse';
 import { CHAPTERS } from '../core/problem/chapters';
 import { isProblemJson, readImported } from './challenges';
+import { indexLoader } from './indexLoader';
 import { useStore, type InvalidFile } from './store';
+
+// ---- the built-in index (its own chunk) ------------------------------------------------
+
+/** Imported problem files are parsed (and verified) when the list is built, so the parser comes
+ *  with the index when there are any — the list is complete the moment it is "ready". */
+const hasImportedProblems = () =>
+  readImported().some((f) => {
+    try {
+      return isProblemJson(JSON.parse(f.text));
+    } catch {
+      return false;
+    }
+  });
+
+const index = indexLoader(
+  () => Promise.all([loadIndex(), hasImportedProblems() ? loadParser() : null]).then(([m]) => m),
+  (status) => {
+    // the list first, then the status: whoever waits for "ready" (the router) finds the list in
+    if (status === 'ready') refreshProblems();
+    useStore.setState({ problemIndex: status });
+  },
+);
+
+/** Fetch the built-in problem index (once; a failed request is retried on the next call). */
+export function ensureProblemIndex(): Promise<void> {
+  return index.ensure().then(
+    () => undefined,
+    () => undefined, // the status says it failed; Practice offers a retry
+  );
+}
+
+/** Rebuild the store's problem list (built-in index + imported files): after the index
+ *  arrived, a language switch or an import. Nothing happens before the index is in, so the
+ *  saved current problem is never replaced because of a list that is still empty. */
+export function refreshProblems() {
+  if (!index.data) return;
+  const r = loadProblems();
+  useStore.getState().setProblems(r.problems, r.invalid);
+}
 
 /** What the sidebar / progress need about a problem; the full text is loaded with useProblem(). */
 export interface ProblemEntry {
@@ -66,6 +109,8 @@ const errText = (e: unknown) => tr(`解析时出错：${(e as Error).message}`, 
 
 /** Built-in index + imported problems (imported ones are parsed and verified with the engine). */
 export function loadProblems(): { problems: ProblemEntry[]; invalid: InvalidFile[] } {
+  const builtinIndex = index.data?.entries ?? [];
+  const builtinBroken = index.data?.broken ?? [];
   const byId = new Map<string, ProblemEntry>();
   const invalid: InvalidFile[] = [];
   for (const b of builtinBroken) invalid.push({ file: b.file, source: 'folder', errors: [errText(new Error(b.error))], warnings: [] });
@@ -83,13 +128,7 @@ export function loadProblems(): { problems: ProblemEntry[]; invalid: InvalidFile
     if (!isProblemJson(json)) continue;
     if (!parseMod) {
       // parser not loaded yet: load it and list the imported problems once it is
-      loadParser().then(
-        () => {
-          const r = loadProblems();
-          useStore.getState().setProblems(r.problems, r.invalid);
-        },
-        () => undefined,
-      );
+      loadParser().then(refreshProblems, () => undefined);
       break;
     }
     let r;

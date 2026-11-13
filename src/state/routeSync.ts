@@ -7,12 +7,18 @@
 // A challenge id may belong to a group whose chunk is not loaded yet: store.openChallenge
 // loads it and marks it `opening` meanwhile, and the route follows `opening`, so the URL
 // doesn't flip back to the previous challenge while the file loads.
+// The built-in problem and challenge indexes are lazy chunks too (state/indexLoader.ts). A route
+// whose item can only be resolved with an index that is not in yet is kept *pending*: its page is
+// shown (with a loading state), the URL, the remembered location (bb.route) and the saved current
+// problem are left alone, the tab title names only the page, and the route is applied once the
+// index arrives — so a deep link never flashes or saves the first problem / lesson instead.
 
 import { tr } from '../core/i18n';
 import { chapterById } from '../core/problem/chapters';
-import { entryTitle } from './problems';
+import { ensureChallengeIndex } from './challenges';
+import { ensureProblemIndex, entryTitle } from './problems';
 import { formatRoute, modeOf, pageOf, parseRoute, startRoute, writeLastRoute, type Route } from './router';
-import { useStore } from './store';
+import { useStore, type Mode } from './store';
 
 type S = ReturnType<typeof useStore.getState>;
 
@@ -21,6 +27,34 @@ let guideSection: string | undefined;
 let started = false;
 let scheduled = false;
 let replaceNext = false;
+/** a route waiting for its index (see the top of this file) */
+let pending: Route | null = null;
+
+type IndexName = 'problems' | 'challenges';
+const isReady = (s: S, k: IndexName) => (k === 'problems' ? s.problemIndex : s.challengeIndex) === 'ready';
+const ensureIndex = (k: IndexName) => void (k === 'problems' ? ensureProblemIndex() : ensureChallengeIndex());
+
+/** The indexes a page shows (its list, the progress card): fetched as soon as the page is
+ *  picked, in parallel with the page's own chunk. The Guide and the Sandbox need neither (the
+ *  progress card fetches the lesson index at idle time). */
+function indexesOf(mode: Mode): IndexName[] {
+  if (mode === 'practice') return ['problems'];
+  if (mode === 'learn' || mode === 'challenge') return ['challenges'];
+  if (mode === 'import') return ['challenges', 'problems'];
+  return [];
+}
+
+/** The index needed to resolve the item a route names (a chapter's key points need none). */
+function indexToResolve(r: Route): IndexName | null {
+  if (r.page === 'learn' || r.page === 'challenges') return 'challenges';
+  if (r.page === 'practice' && !('summary' in r)) return 'problems';
+  return null;
+}
+
+/** Start fetching what the starting route needs; call as early as possible (App module scope). */
+export function startIndexLoads(route: Route = startRoute().route) {
+  for (const k of indexesOf(modeOf(route))) ensureIndex(k);
+}
 
 /** The route that describes what the store shows. */
 export function routeOf(s: S): Route {
@@ -48,8 +82,7 @@ export function routeOf(s: S): Route {
 const APP = () => tr('面包板实验室', 'Breadboard Lab');
 
 /** Tab title for the page / item on screen, e.g. "LED 与电阻 · 课程 — 面包板实验室". */
-export function titleOf(s: S): string {
-  const r = routeOf(s);
+export function titleOf(s: S, r: Route = routeOf(s)): string {
   const page = {
     learn: tr('课程', 'Learn'),
     challenges: tr('挑战', 'Challenges'),
@@ -74,6 +107,12 @@ function sync() {
   scheduled = false;
   if (!started) return;
   const s = useStore.getState();
+  if (pending) {
+    // the URL keeps naming the item that is loading; the title names the page only
+    const title = titleOf(s, { page: pending.page } as Route);
+    if (document.title !== title) document.title = title;
+    return;
+  }
   const route = routeOf(s);
   const hash = formatRoute(route);
   const shown = parseRoute(location.hash);
@@ -121,6 +160,15 @@ export function applyRoute(r: Route) {
   replaceNext = true;
   const st = useStore.getState();
   guideSection = r.page === 'guide' ? r.section : undefined;
+  const need = indexToResolve(r);
+  if (need && !isReady(st, need)) {
+    pending = r;
+    ensureIndex(need);
+    if (st.mode !== modeOf(r)) st.setMode(modeOf(r));
+    schedule();
+    return;
+  }
+  pending = null;
   if (r.page === 'learn' || r.page === 'challenges') {
     const kind = r.page === 'learn' ? 'lesson' : 'challenge';
     const want = r.id ? st.challenges.find((c) => c.id === r.id) : undefined;
@@ -181,7 +229,19 @@ export function startRouting() {
   if (badUrl) notFound();
   applyRoute(route);
   useStore.subscribe((s, prev) => {
+    if (s.mode !== prev.mode) {
+      for (const k of indexesOf(s.mode)) if (!isReady(s, k)) ensureIndex(k);
+      // another page was picked while a route waited for its index: forget that route
+      if (pending && s.mode !== modeOf(pending)) pending = null;
+    }
+    const need = pending && indexToResolve(pending);
+    if (pending && need && isReady(s, need) && !isReady(prev, need)) {
+      applyRoute(pending); // the index arrived: open what the URL names
+      return;
+    }
     if (
+      s.problemIndex !== prev.problemIndex ||
+      s.challengeIndex !== prev.challengeIndex ||
       s.mode !== prev.mode ||
       s.activeId !== prev.activeId ||
       s.opening !== prev.opening ||

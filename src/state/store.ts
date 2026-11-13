@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { HOLES, HOLE_MAP } from '../core/breadboard';
 import type { Challenge } from '../core/challenge';
 import type { ProblemEntry } from './problems';
+import type { IndexStatus } from './indexLoader';
 import { ensureChallenge, isPending } from './challenges';
 import type { CheckResult } from '../core/check';
 import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
@@ -109,6 +110,8 @@ interface State {
   probe: { red: string | null; black: string | null };
   scope: ScopeSettings;
   challenges: Challenge[];
+  /** the built-in lesson / challenge index is a lazy chunk: `challenges` is empty until "ready" */
+  challengeIndex: IndexStatus;
   invalid: InvalidFile[];
   activeId: string | null;
   /** built-in challenge asked for whose file is still loading (it opens when it arrives); the
@@ -126,6 +129,8 @@ interface State {
   toastUndo: boolean;
   /** theory practice ("circuit-problem/1") */
   problems: ProblemEntry[];
+  /** the built-in problem index is a lazy chunk: `problems` is empty until "ready" */
+  problemIndex: IndexStatus;
   problemInvalid: InvalidFile[];
   problemId: string | null;
   /** the chapter key-points page shown instead of a problem (state/summaries.ts, ui/Summary.tsx) */
@@ -312,6 +317,7 @@ export const useStore = create<State>((set, get) => {
     probe: { red: null, black: null },
     scope: { ...defaultScope(), ...LS.get<Partial<ScopeSettings>>('bb.scope', {}, sanitizeScope) },
     challenges: [],
+    challengeIndex: 'idle',
     invalid: [],
     activeId: null,
     opening: null,
@@ -324,6 +330,7 @@ export const useStore = create<State>((set, get) => {
     toast: null,
     toastUndo: false,
     problems: [],
+    problemIndex: 'idle',
     problemInvalid: [],
     problemId: LS.get<string | null>('bb.practice.current', null, str),
     practiceSummary: null,

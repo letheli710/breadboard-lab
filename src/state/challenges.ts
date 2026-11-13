@@ -3,7 +3,10 @@
 //
 // Startup cost: the carousel and the progress card only need a summary of each built-in
 // lesson / challenge, which comes from a build-time index (virtual:challenge-index, see
-// scripts/challenge-index-plugin.ts). The full files are split into one chunk per group
+// scripts/challenge-index-plugin.ts), itself a lazily loaded chunk (ensureChallengeIndex:
+// requested by the router for Learn / Challenges / Import, or at idle time by the progress
+// card; until it is in, the store's list is empty and `challengeIndex` says why, and the route
+// waits for it, see state/routeSync.ts). The full files are split into one chunk per group
 // (lessons, intro challenges, phase 1…5) and loaded when a challenge of that group is opened.
 // Until then the store holds a *placeholder* Challenge for it (isPending() → true; title,
 // kind, level and phase are real, target / steps / tests are empty); store.openChallenge()
@@ -11,7 +14,9 @@
 
 import { getLang, tr } from '../core/i18n';
 import type { Challenge, ChallengePhase, ValidationResult } from '../core/challenge';
-import { entries as builtinIndex, broken as builtinBroken, groups as groupChunks } from 'virtual:challenge-index';
+import { loadIndex, groups as groupChunks } from 'virtual:challenge-index';
+import type { ChallengeIndexEntry } from '../../scripts/challenge-index-plugin';
+import { indexLoader } from './indexLoader';
 import { useStore, type InvalidFile } from './store';
 
 /** same test as core/problem/parse isProblemJson (not imported: that module is not small) */
@@ -48,6 +53,34 @@ const skip = (path: string) => {
   const name = path.split('/').pop() ?? '';
   return name.startsWith('_') || /(^|\.)schema\.json$/i.test(name);
 };
+
+// ---- the built-in index (its own chunk) ------------------------------------------------
+
+const index = indexLoader(
+  () => Promise.all([loadIndex(), readImported().length ? loadParser() : null]).then(([m]) => m),
+  (status) => {
+    // the list first, then the status: whoever waits for "ready" (the router) finds the list in
+    if (status === 'ready') {
+      refreshChallenges();
+      // dev: load every group in the background, so a broken file in challenges/ shows up on
+      // the Import page right away (in production `npm run validate` guards the built-in files)
+      if (import.meta.env.DEV && typeof window !== 'undefined')
+        setTimeout(() => {
+          for (const g of new Set(builtinIndex().map((e) => e.group))) loadGroup(g).catch(() => undefined);
+        }, 1500);
+    }
+    useStore.setState({ challengeIndex: status });
+  },
+);
+const builtinIndex = (): ChallengeIndexEntry[] => index.data?.entries ?? [];
+
+/** Fetch the built-in lesson / challenge index (once; a failed request is retried on the next call). */
+export function ensureChallengeIndex(): Promise<void> {
+  return index.ensure().then(
+    () => undefined,
+    () => undefined, // the status says it failed; the bench page offers a retry
+  );
+}
 
 // ---- built-in files, by group -------------------------------------------------------
 
@@ -86,12 +119,12 @@ export function loadGroup(group: string): Promise<void> {
     p = Promise.all([load ? load() : Promise.resolve({ default: {} }), loadParser()]).then(
       ([m]) => {
         for (const [file, json] of Object.entries(m.default)) jsonCache.set(file, json);
-        refreshStore();
+        refreshChallenges();
       },
       (err) => {
         groupLoads.delete(group); // allow a retry (next time a challenge of the group is opened)
         loadFailed.set(group, (err as Error)?.message ?? String(err));
-        refreshStore();
+        refreshChallenges();
         throw err;
       },
     );
@@ -102,7 +135,8 @@ export function loadGroup(group: string): Promise<void> {
 
 /** Make sure the full challenge `id` is loaded; resolves false if it could not be. */
 export async function ensureChallenge(id: string): Promise<boolean> {
-  const e = builtinIndex.find((x) => x.id === id);
+  await ensureChallengeIndex();
+  const e = builtinIndex().find((x) => x.id === id);
   if (!e) return false;
   try {
     await loadGroup(e.group);
@@ -112,12 +146,15 @@ export async function ensureChallenge(id: string): Promise<boolean> {
   }
 }
 
-function refreshStore() {
+/** Rebuild the store's list (built-in index + imported files): after the index or a group
+ *  arrived, a language switch or an import. Nothing happens before the index is in. */
+export function refreshChallenges() {
+  if (!index.data) return;
   const r = loadAll();
   useStore.getState().setChallenges(r.challenges, r.invalid);
 }
 
-function placeholder(e: (typeof builtinIndex)[number]): Challenge {
+function placeholder(e: ChallengeIndexEntry): Challenge {
   const l = getLang();
   const t = l !== e.lang ? e.titles[l] : undefined;
   const c: Challenge = {
@@ -167,9 +204,10 @@ export function loadAll(): { challenges: Challenge[]; invalid: InvalidFile[] } {
     if (r.warnings.length) invalid.push({ file, source, errors: [], warnings: r.warnings });
   };
 
-  for (const b of builtinBroken) invalid.push({ file: b.file, source: 'folder', errors: [tr(`JSON 无法读取：${b.error}`, `Couldn't read the JSON: ${b.error}`)], warnings: [] });
+  for (const b of index.data?.broken ?? [])
+    invalid.push({ file: b.file, source: 'folder', errors: [tr(`JSON 无法读取：${b.error}`, `Couldn't read the JSON: ${b.error}`)], warnings: [] });
   const failedShown = new Set<string>();
-  for (const e of builtinIndex) {
+  for (const e of builtinIndex()) {
     const json = jsonCache.get(e.file);
     if (json === undefined || !parseMod) {
       const f = loadFailed.get(e.group);
@@ -191,7 +229,7 @@ export function loadAll(): { challenges: Challenge[]; invalid: InvalidFile[] } {
   const imported = readImported();
   if (imported.length && !parseMod) {
     // parser not loaded yet: list the imported files once it is
-    loadParser().then(refreshStore, () => undefined);
+    loadParser().then(refreshChallenges, () => undefined);
     return { challenges, invalid };
   }
   for (const f of imported) {
@@ -207,13 +245,6 @@ export function loadAll(): { challenges: Challenge[]; invalid: InvalidFile[] } {
   }
   return { challenges, invalid };
 }
-
-// dev: load every group in the background, so a broken file in challenges/ shows up on the
-// Import page right away (in production `npm run validate` guards the built-in files)
-if (import.meta.env.DEV && typeof window !== 'undefined')
-  setTimeout(() => {
-    for (const g of new Set(builtinIndex.map((e) => e.group))) loadGroup(g).catch(() => undefined);
-  }, 1500);
 
 /** `saved: false` = the browser refused to store the files (nothing was imported). */
 export async function importFiles(files: File[]): Promise<{ added: number; skipped: number; saved: boolean }> {

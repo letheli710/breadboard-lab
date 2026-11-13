@@ -8,12 +8,12 @@
 import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-// The entry grows by design with the content: the build-time problem / challenge indexes
-// (virtual:problem-index, virtual:challenge-index) live in it at ≈ 265 B per problem and ≈ 275 B
-// per challenge (262 problems + 68 challenges ≈ 88 kB in Nov 2026). The budgets leave room for
-// roughly 90 more problems; a jump of tens of kB from one commit is the thing to investigate.
-const ENTRY_BUDGET = 225_000; // entry chunk (≈ 200 kB in Nov 2026, was 185 kB before three new chapters)
-const CRITICAL_BUDGET = 375_000; // entry + modulepreloaded chunks (≈ 348 kB in Nov 2026)
+// The problem / challenge indexes are lazy chunks of their own (virtual:problem-index /
+// virtual:challenge-index `loadIndex()`, ≈ 76 kB + 21 kB in Nov 2026), so the entry no longer grows
+// with the content. Budgets: the Nov 2026 build + ≈ 15 %; a jump from one commit means something
+// heavy slipped onto the critical path.
+const ENTRY_BUDGET = 128_000; // entry chunk (111.0 kB in Nov 2026; 199.6 kB while the indexes lived in it)
+const CRITICAL_BUDGET = 300_000; // entry + modulepreloaded chunks (259.4 kB in Nov 2026; was 348.0 kB)
 
 const dist = join(process.cwd(), 'dist');
 const html = readFileSync(join(dist, 'index.html'), 'utf8');

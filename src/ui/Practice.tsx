@@ -2,14 +2,14 @@
 // Left: chapters grouped by course phase with progress. Main: the problem card — statement,
 // schematic, questions with answer checking, progressive hints and the worked solution.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { formatSI } from '../core/format';
 import { tr } from '../core/i18n';
 import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
 import { answerTolerance, checkAnswer, formatAnswer, isPhaseQuestion, type AnswerCheck, type Problem } from '../core/problem/parse';
 import type { Analysis, Question } from '../core/problem/types';
 import { countsAsDone, exportPractice, parsePracticeExport, problemStatus, type QStatus } from '../state/practice';
-import { entryTitle, useProblem, type ProblemEntry } from '../state/problems';
+import { ensureProblemIndex, entryTitle, useProblem, type ProblemEntry } from '../state/problems';
 import { useLang, useStore } from '../state/store';
 import { hasSummary } from '../state/summaries';
 import { celebrate } from './celebrate';
@@ -17,6 +17,8 @@ import { Icon } from './Icons';
 import { ProblemSchematic } from './ProblemSchematic';
 import { UiPlot } from './UiPlot';
 import { GraphFigure } from './GraphFigure';
+import { neighbours, practiceShortcut } from './practiceKeys';
+import { prefersReducedMotion, revealIn, useUserScroll } from './reveal';
 import { PrMd, Sym } from './richText';
 import { SummaryPage } from './Summary';
 
@@ -140,17 +142,119 @@ function ProgressFile() {
   );
 }
 
-function ChapterList({ problems, current, summary }: { problems: ProblemEntry[]; current: ProblemEntry | null; summary: string | null }) {
+const SHORTCUTS: { keys: string[]; zh: string; en: string }[] = [
+  { keys: ['['], zh: '上一题', en: 'Previous problem' },
+  { keys: [']'], zh: '下一题（下一道未完成的）', en: 'Next problem (the next unfinished one)' },
+  { keys: ['?'], zh: '显示 / 隐藏这份说明', en: 'Show / hide this list' },
+  { keys: ['Esc'], zh: '关闭', en: 'Close' },
+];
+
+/** Keyboard button + popover listing the Practice keyboard shortcuts (? toggles it too). */
+function ShortcutHelp() {
+  useLang();
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && open) {
+        setOpen(false);
+        box.current?.querySelector('button')?.focus();
+      } else if (practiceShortcut(e) === 'help') {
+        e.preventDefault();
+        setOpen((o) => !o);
+      }
+    };
+    const onDown = (e: PointerEvent) => {
+      if (open && box.current && !box.current.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('pointerdown', onDown);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('pointerdown', onDown);
+    };
+  }, [open]);
+  return (
+    <div className="pr-keys" ref={box}>
+      <button
+        className="pr-keys-btn"
+        aria-expanded={open}
+        aria-controls="pr-keys-pop"
+        title={tr('键盘快捷键（?）', 'Keyboard shortcuts (?)')}
+        aria-label={tr('键盘快捷键', 'Keyboard shortcuts')}
+        onClick={() => setOpen(!open)}
+      >
+        <svg width="18" height="14" viewBox="0 0 18 14" aria-hidden>
+          <rect x="1" y="1.5" width="16" height="11" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+          <path d="M4 5h1M7 5h1M10 5h1M13 5h1M4 8h1M13 8h1M7 8h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      </button>
+      {open && (
+        <div className="pr-keys-pop card" id="pr-keys-pop" role="dialog" aria-label={tr('键盘快捷键', 'Keyboard shortcuts')}>
+          <div className="eyebrow">{tr('键盘快捷键', 'Keyboard shortcuts')}</div>
+          <dl>
+            {SHORTCUTS.map((k) => (
+              <div key={k.en}>
+                <dt>
+                  {k.keys.map((x) => (
+                    <kbd key={x}>{x}</kbd>
+                  ))}
+                </dt>
+                <dd>{tr(k.zh, k.en)}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="muted small">{tr('在答案输入框里打字时不起作用。', "They don't apply while you type in an answer field.")}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ChapterList({ problems, current, summary, ready }: { problems: ProblemEntry[]; current: ProblemEntry | null; summary: string | null; ready: boolean }) {
   useLang();
   const statusOf = useStatusOf();
   const done = (p: ProblemEntry) => countsAsDone(statusOf(p));
   const open = useStore((s) => s.openProblem);
   const openSummary = useStore((s) => s.openSummary);
   const curChapter = summary ?? current?.chapter;
+  const activeKey = summary ? `sum:${summary}` : current ? `p:${current.id}` : '';
+  // the open problem's chapter is expanded (also when it was collapsed by hand and the next
+  // problem opens); moving to another chapter collapses the rest, so the list stays short
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => (curChapter ? { [curChapter]: true } : {}));
-  useEffect(() => {
-    if (curChapter) setExpanded((e) => (e[curChapter] ? e : { ...e, [curChapter]: true }));
-  }, [curChapter, current]);
+  const [shownFor, setShownFor] = useState({ key: activeKey, chapter: curChapter });
+  if (activeKey !== shownFor.key) {
+    setShownFor({ key: activeKey, chapter: curChapter });
+    if (curChapter) setExpanded(curChapter !== shownFor.chapter ? { [curChapter]: true } : (e) => (e[curChapter] ? e : { ...e, [curChapter]: true }));
+  }
+
+  // keep the active item in view: centred in the sidebar (which scrolls on its own), on a direct
+  // load and on every move to another problem / key-points page, unless the user is scrolling
+  // the sidebar right now or the item is already fully visible
+  const { ref: sideRef, el: sideEl, busy } = useUserScroll<HTMLElement>();
+  const revealed = useRef<string | null>(null);
+  useLayoutEffect(() => {
+    const side = sideEl();
+    if (!side || !activeKey || !ready || revealed.current === activeKey) return;
+    const item = side.querySelector<HTMLElement>('.pr-pitem.on');
+    if (!item) return; // its chapter is expanding: runs again after that render
+    const first = revealed.current === null;
+    revealed.current = activeKey;
+    if (!busy()) revealIn(side, item, 'y', first);
+  });
+
+  /** "jump to chapter": expand it and scroll its heading to the top of the sidebar */
+  const jump = (id: string) => {
+    setExpanded((e) => ({ ...e, [id]: true }));
+    requestAnimationFrame(() => {
+      const side = sideEl();
+      const head = side?.querySelector<HTMLElement>(`[data-chapter="${CSS.escape(id)}"]`);
+      if (!side || !head) return;
+      const top = side.scrollTop + head.getBoundingClientRect().top - side.getBoundingClientRect().top - (side.querySelector<HTMLElement>('.pr-side-tools')?.offsetHeight ?? 0) - 4;
+      side.scrollTo({ top: Math.max(0, top), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+      head.querySelector<HTMLElement>('.pr-ch-head')?.focus({ preventScroll: true });
+    });
+  };
 
   const byChapter = useMemo(() => {
     const m = new Map<string, ProblemEntry[]>();
@@ -163,11 +267,12 @@ function ChapterList({ problems, current, summary }: { problems: ProblemEntry[];
     const n = list.filter(done).length;
     const isOpen = !!expanded[c.id] && list.length > 0;
     return (
-      <div key={c.id} className={`pr-chapter ${list.length ? '' : 'empty'} ${curChapter === c.id ? 'cur' : ''}`}>
+      <div key={c.id} data-chapter={c.id} className={`pr-chapter ${list.length || !ready ? '' : 'empty'} ${curChapter === c.id ? 'cur' : ''}`}>
         <button className="pr-ch-head" disabled={!list.length} onClick={() => setExpanded({ ...expanded, [c.id]: !isOpen })} aria-expanded={isOpen}>
           <span className="pr-ch-num">{num}</span>
           <span className="pr-ch-title">{c.title()}</span>
-          <span className={`pr-ch-count ${list.length && n === list.length ? 'all' : ''}`}>{list.length ? `${n}/${list.length}` : tr('待出题', 'soon')}</span>
+          {/* no counts until the index is in (not "soon" for every chapter) */}
+          {ready && <span className={`pr-ch-count ${list.length && n === list.length ? 'all' : ''}`}>{list.length ? `${n}/${list.length}` : tr('待出题', 'soon')}</span>}
         </button>
         {isOpen && (
           <ul className="pr-plist">
@@ -210,8 +315,35 @@ function ChapterList({ problems, current, summary }: { problems: ProblemEntry[];
   };
 
   let num = 0;
+  let optNum = 0;
   return (
-    <aside className="pr-side card">
+    <aside className="pr-side card" ref={sideRef} aria-busy={!ready}>
+      <div className="pr-side-tools">
+        <select
+          className="pr-jump"
+          value=""
+          aria-label={tr('跳到章节', 'Jump to chapter')}
+          onChange={(e) => {
+            if (e.target.value) jump(e.target.value);
+          }}
+        >
+          <option value="">{tr('跳到章节…', 'Jump to chapter…')}</option>
+          {PHASES.map((ph) => (
+            <optgroup key={ph.n} label={tr(`第 ${ph.n} 期 · ${ph.zh}`, `Phase ${ph.n} · ${ph.en}`)}>
+              {CHAPTERS.filter((c) => c.phase === ph.n).map((c) => {
+                const list = byChapter.get(c.id) ?? [];
+                return (
+                  <option key={c.id} value={c.id} disabled={ready && !list.length}>
+                    {++optNum}. {c.title()}
+                    {list.length ? ` (${list.filter(done).length}/${list.length})` : ''}
+                  </option>
+                );
+              })}
+            </optgroup>
+          ))}
+        </select>
+        <ShortcutHelp />
+      </div>
       {PHASES.map((ph) => {
         const chs = CHAPTERS.filter((c) => c.phase === ph.n);
         const all = chs.flatMap((c) => byChapter.get(c.id) ?? []);
@@ -448,9 +580,7 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
     if (isDone && !wasDone) celebrate();
   }, [isDone, wasDone]);
 
-  const i = list.findIndex((x) => x.id === p.id);
-  const prev = i > 0 ? list[i - 1] : null;
-  const next = list.slice(i + 1).find((x) => !done[x.id]) ?? list[i + 1] ?? null;
+  const { i, prev, next } = neighbours(list, p.id, (x) => !!done[x.id]);
   const chapter = chapterById(p.chapter);
   const highlight =
     hover?.find && 'el' in hover.find && typeof hover.find.el === 'string' ? [hover.find.el] : hover?.find && 'input' in hover.find ? [hover.find.input] : undefined;
@@ -464,13 +594,13 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
           </span>
           <div className="row">
             <KeyPointsLink p={p} />
-            <button disabled={!prev} onClick={() => prev && open(prev.id)} title={tr('上一题', 'Previous problem')}>
+            <button disabled={!prev} onClick={() => prev && open(prev.id)} title={tr('上一题（[）', 'Previous problem ([)')}>
               <Icon name="prev" size={16} />
             </button>
             <span className="muted small">
               {i + 1} / {list.length}
             </span>
-            <button disabled={!next} onClick={() => next && open(next.id)} title={tr('下一题', 'Next problem')}>
+            <button disabled={!next} onClick={() => next && open(next.id)} title={tr('下一题（]）', 'Next problem (])')}>
               <Icon name="next" size={16} />
             </button>
           </div>
@@ -622,13 +752,37 @@ export function Practice() {
   const full = useProblem(current);
   const bad = invalid.filter((f) => f.errors.length).length;
   const summary = useStore((s) => s.practiceSummary);
+  const indexStatus = useStore((s) => s.problemIndex);
+  const practiceDone = useStore((s) => s.practiceDone);
+  const openProblem = useStore((s) => s.openProblem);
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [current?.id, summary?.chapter]);
 
+  // [ / ] previous / next problem (on a key-points page: the chapter's first problem / the one before it)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const k = practiceShortcut(e);
+      if ((k !== 'prev' && k !== 'next') || !problems.length) return;
+      let to: ProblemEntry | null = null;
+      if (summary) {
+        const first = problems.findIndex((x) => x.chapter === summary.chapter);
+        to = first < 0 ? null : k === 'next' ? problems[first] : (problems[first - 1] ?? null);
+      } else if (current) {
+        const n = neighbours(problems, current.id, (x) => !!practiceDone[x.id]);
+        to = k === 'prev' ? n.prev : n.next;
+      }
+      if (!to) return;
+      e.preventDefault();
+      openProblem(to.id);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [problems, current, summary, practiceDone, openProblem]);
+
   return (
     <main className="pr-page">
-      <ChapterList problems={problems} current={current} summary={summary?.chapter ?? null} />
+      <ChapterList problems={problems} current={current} summary={summary?.chapter ?? null} ready={indexStatus === 'ready'} />
       {summary ? (
         <SummaryPage key={summary.chapter} target={summary} problems={problems} />
       ) : current && full?.problem ? (
@@ -647,6 +801,18 @@ export function Practice() {
           ) : (
             <p className="muted">{tr('正在加载题目…', 'Loading the problem…')}</p>
           )}
+        </div>
+      ) : indexStatus === 'error' ? (
+        <div className="pr-main card pr-empty" role="alert">
+          <h2 className="pr-title">{tr('题目列表加载失败', "Couldn't load the problem list")}</h2>
+          <p>{tr('请检查网络连接后重试。', 'Check the connection and try again.')}</p>
+          <button className="primary" onClick={() => void ensureProblemIndex()}>
+            <Icon name="reset" size={15} /> {tr('重试', 'Try again')}
+          </button>
+        </div>
+      ) : indexStatus !== 'ready' ? (
+        <div className="pr-main card pr-empty" role="status">
+          <p className="muted">{tr('正在加载题目…', 'Loading the problem…')}</p>
         </div>
       ) : (
         <div className="pr-main card pr-empty">

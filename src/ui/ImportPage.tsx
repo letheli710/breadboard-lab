@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 import { getLang, tr } from '../core/i18n';
 import { chapterById } from '../core/problem/chapters';
-import { importFiles, loadAll, readImported, writeImported } from '../state/challenges';
-import { entryTitle, loadProblems } from '../state/problems';
+import { importFiles, readImported, refreshChallenges, writeImported } from '../state/challenges';
+import { entryTitle, refreshProblems } from '../state/problems';
 import { useStore } from '../state/store';
 import { Icon } from './Icons';
 import { Md } from './Md';
@@ -57,8 +57,6 @@ export function ImportPage() {
   const challengeInvalid = useStore((s) => s.invalid);
   const problemInvalid = useStore((s) => s.problemInvalid);
   const invalid = [...challengeInvalid.map((f) => ({ ...f, fmt: 'breadboard-challenge/1' })), ...problemInvalid.map((f) => ({ ...f, fmt: 'circuit-problem/1' }))];
-  const setChallenges = useStore((s) => s.setChallenges);
-  const setProblems = useStore((s) => s.setProblems);
   const open = useStore((s) => s.openChallenge);
   const openProblem = useStore((s) => s.openProblem);
   const notify = useStore((s) => s.notify);
@@ -73,11 +71,10 @@ export function ImportPage() {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const refresh = () => {
-    const r = loadAll();
-    setChallenges(r.challenges, r.invalid);
-    const pr = loadProblems();
-    setProblems(pr.problems, pr.invalid);
-    return [...r.invalid, ...pr.invalid];
+    refreshChallenges();
+    refreshProblems();
+    const s = useStore.getState();
+    return [...s.invalid, ...s.problemInvalid];
   };
   const handle = async (files: File[]) => {
     const { added, skipped, saved } = await importFiles(files);

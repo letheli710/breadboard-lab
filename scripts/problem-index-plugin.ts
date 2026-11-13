@@ -1,7 +1,8 @@
-// Vite plugin: `virtual:problem-index` — a small, eagerly loaded summary of every built-in
-// theory problem (problems/<chapter>/*.json). The Practice sidebar and the progress card only
-// need ids, chapters, levels, titles and question ids; the full problem files (~1.8 MB) are
-// code-split per chapter and loaded on demand (see src/state/problems.ts).
+// Vite plugin: `virtual:problem-index` — a summary of every built-in theory problem
+// (problems/<chapter>/*.json). The Practice sidebar and the progress card only need ids,
+// chapters, levels, titles and question ids; that index is a lazily loaded chunk of its own
+// (≈ 265 B per problem, fetched when the Practice page needs it), and the full problem files
+// (~1.8 MB) are code-split per chapter and loaded on demand (see src/state/problems.ts).
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
@@ -74,9 +75,15 @@ export function buildProblemIndex(root: string): { entries: ProblemIndexEntry[];
   return { entries, broken };
 }
 
+/** Group name reserved for the index module of a lazy index (`virtual:<name>/@index`). */
+export const INDEX_GROUP = '@index';
+
 /**
- * Shared machinery of the content index plugins (problems/, challenges/):
- *  - `virtual:<name>` exports `entries`, `broken` and `groups`: { [group]: () => import(group module) }
+ * Shared machinery of the content index plugins (problems/, challenges/, summaries/):
+ *  - `virtual:<name>` exports `groups`: { [group]: () => import(group module) } and either
+ *    `entries` + `broken` (eager index) or, with `lazyIndex`, `loadIndex()`: a dynamic import
+ *    of `virtual:<name>/@index`, which exports `entries` + `broken` and is a chunk of its own,
+ *    so the index does not grow the entry chunk with the content
  *  - `virtual:<name>/<group>` default-exports { [file]: json } for every file of that group; each
  *    group becomes one lazily loaded chunk (one request, one loader instead of one per file)
  *  - dev: any add / change / delete of a JSON file under <root>/<dir>/ rebuilds the index and
@@ -88,6 +95,8 @@ export function contentIndexPlugin<E extends { file: string }>(opts: {
   /** chunk group of an entry */
   groupOf: (e: E) => string;
   build: (root: string) => { entries: E[]; broken: { file: string; error: string }[] };
+  /** emit the index as a separate lazily loaded chunk (`loadIndex()`) instead of inline */
+  lazyIndex?: boolean;
 }): Plugin {
   const ID = `virtual:${opts.name}`;
   const PREFIX = `${ID}/`;
@@ -103,12 +112,18 @@ export function contentIndexPlugin<E extends { file: string }>(opts: {
       return id === ID || id.startsWith(PREFIX) ? '\0' + id : null;
     },
     load(id) {
-      if (id === '\0' + ID) {
+      // JSON.parse of a string literal: faster to parse than the same object literal
+      const data = () => {
         const { entries, broken } = index();
-        const groups = [...new Set(entries.map(opts.groupOf))];
+        return `export const entries = JSON.parse(${JSON.stringify(JSON.stringify(entries))});\nexport const broken = ${JSON.stringify(broken)};\n`;
+      };
+      if (id === '\0' + ID) {
+        const groups = [...new Set(index().entries.map(opts.groupOf))];
         const loaders = groups.map((g) => `${JSON.stringify(g)}: () => import(${JSON.stringify(PREFIX + g)})`).join(',\n  ');
-        return `export const entries = ${JSON.stringify(entries)};\nexport const broken = ${JSON.stringify(broken)};\nexport const groups = {\n  ${loaders}\n};\n`;
+        const head = opts.lazyIndex ? `export const loadIndex = () => import(${JSON.stringify(PREFIX + INDEX_GROUP)});\n` : data();
+        return `${head}export const groups = {\n  ${loaders}\n};\n`;
       }
+      if (opts.lazyIndex && id === '\0' + PREFIX + INDEX_GROUP) return data();
       if (id.startsWith('\0' + PREFIX)) {
         const group = id.slice(1 + PREFIX.length);
         const files = index()
@@ -144,6 +159,7 @@ export function contentIndexPlugin<E extends { file: string }>(opts: {
 export function contentChunkName(id: string): string | null {
   const m = /^\0virtual:(problem-index|challenge-index|summary-index)\/(.+)$/.exec(id);
   if (!m) return null;
+  if (m[2] === INDEX_GROUP) return m[1];
   return m[1] === 'problem-index' ? `problems-${m[2]}` : m[1] === 'summary-index' ? `summary-${m[2]}` : m[2];
 }
 
@@ -153,6 +169,7 @@ export function problemIndexPlugin(): Plugin {
     dir: 'problems',
     groupOf: (e) => e.chapter,
     build: buildProblemIndex,
+    lazyIndex: true,
   });
 }
 
