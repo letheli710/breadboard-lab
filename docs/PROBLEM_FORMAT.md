@@ -76,6 +76,7 @@ npm run validate -- --lang en       # 英文报错信息
 | 4 | `frequency` | 网络函数、串并联谐振、滤波器 |
 | 4 | `three-phase` | 三相电路 |
 | 4 | `non-sinusoidal` | 非正弦周期电流电路：傅里叶级数与频谱、有效值、平均功率、谐波分析、谐波谐振与滤波、三相电路中的高次谐波（分析类型 `periodic`，§5.1） |
+| 4 | `s-domain` | 线性动态电路的复频域分析：拉普拉斯变换、运算电路与附加电源、部分分式、网络函数与零极点、冲激响应与卷积（§6.1.8） |
 | 4 | `two-port` | 二端口网络 |
 | 4 | `nonlinear` | 非线性电阻电路（教材第 17 章，只含电阻性电路）：压控/流控、静态与动态电阻、串并联、曲线相交法、分段线性化、理想二极管、多个工作点、小信号分析（元件 `NR`，§6.1.7） |
 
@@ -196,6 +197,8 @@ npm run validate -- --lang en       # 英文报错信息
 | `{ "dc": 2, "ac": { "mag": 1 } }` | 直流 + 交流（正弦稳态分析只用 ac 部分，直流分析只用 dc 部分） |
 | `{ "step": { "before": 0, "after": 10 } }` | 阶跃：t < 0 为 0，t ≥ 0 为 10（暂态分析） |
 | `{ "sin": { "amp": 10, "freq": 50, "phase": 0, "offset": 0 } }` | 时域正弦 offset + amp·sin(2πft + phase°)（暂态分析） |
+| `{ "exp": { "amp": 10, "alpha": 2 } }` | 指数 10e^{−2t}：t ≥ 0 有效，t < 0 为 0（只用于暂态分析，§6.1.8） |
+| `{ "impulse": { "area": 3 } }` | 冲激 3δ(t)，强度 3 V·s（或 A·s）（只用于暂态分析，§6.1.8） |
 | `{ "harmonics": { "dc": 10, "terms": [{ "k": 1, "amp": 141.42 }, { "k": 3, "amp": 42.43, "phase": -60 }] } }` | 非正弦周期源（只用于 `periodic` 分析，§5.1）：dc + Σ amp·cos(kω₁t + phase°)。**amp 是第 k 次谐波的幅值**（不是有效值），以 cos 为参考；k 为 1…199 的整数，每个 k 只写一次 |
 | `{ "wave": { "shape": "square", "amp": 10, "upTo": 99, "offset": 0 } }` | 标准波形的傅里叶级数，取到第 `upTo` 次谐波（只用于 `periodic`，见 §4.1） |
 
@@ -343,6 +346,10 @@ The circuit is solved harmonic by harmonic (k = 0: DC with L shorted and C open;
 | `rs` | `{"kind":"rs","el":"N"}` | 非线性电阻在工作点的静态电阻 U_Q/I_Q（§6.1.7） | Ω |
 | `rd` | `{"kind":"rd","el":"N"}` | 非线性电阻在工作点的动态电阻 du/di（折点处、水平段报错） | Ω |
 | `nop` | `{"kind":"nop"}` | 直流工作点的个数 | — |
+| `H` | `{"kind":"H","out":["o"],"input":"Us","s":{"re":0,"im":2}}` | 网络函数 H(s) = 输出/输入源在复频率 s 的值（零状态，t > 0 的电路；`out` 也可写 `{"v":"R1"}`、`{"i":"L"}`，§6.1.8） | — |
+| `pole` / `zero` | `{"kind":"pole","out":{"i":"L"},"input":"Us","n":1}` | H(s) 的第 n 个极点 / 有限零点（零极点相消后），排序同 `root` | 1/s |
+| `hcoef` | `{"kind":"hcoef","out":["o"],"input":"Us","of":"den","power":1}` | H(s)（分母首项系数为 1）分子 `num` / 分母 `den` 中 s^power 的系数 | — |
+| `residue` | `{"kind":"residue","out":{"v":"C"},"at":-2,"order":1}` | 暂态题：实际响应的象函数 Y(s) 中 1/(s − at)^order 项的系数（部分分式展开） | 输出的单位 |
 
 **修饰字段 / Modifiers**：`"deriv": 1`（暂态题的 `v` / `i`：求 t 时刻的导数，§6.1.2）；`"freq"` / `"omega"`（交流题：这个小题在另一个频率下计算，§6.1.6）；`"harmonic": k`（非正弦周期题：只问第 k 次谐波，0 = 直流分量，§5.1）；`"op": n`（含非线性电阻、有多个工作点时问第 n 个）、`"dc": true`（含非线性电阻的交流小信号题：问直流工作点，§6.1.7）。
 
@@ -481,6 +488,66 @@ Element `NR` with `law` = `{"i": [...]}` (voltage-controlled polynomial, optiona
 }
 ```
 
+#### 6.1.8 复频域 / s-domain: `H`, `pole`, `zero`, `hcoef`, `residue`; `impulse`, `exp` sources
+
+`s-domain` 章（教材第 14 章）用到的量。它们描述电路本身或整个响应，暂态题里**不写 `t`**；复数结果默认取实部（`part` 可取 `"re"`、`"im"`、`"mag"`、`"phase"`）。
+
+These quantities of the `s-domain` chapter describe the circuit or a whole response, so transient questions **omit `t`**; complex results default to the real part (`part`: re / im / mag / phase).
+
+- **输出 `out`**：`["a"]` / `["a", "b"]`（结点电压），`{"v": "R1"}`（元件电压，p − n），`{"i": "L"}`（元件电流，p → n，问到的元件会自动画参考方向标记）。 / `out` is a node voltage, `{"v": ref}` or `{"i": ref}`.
+- **网络函数** `H(s)` = 输出 / 输入源（`input` 是一个独立源，取值 1，其他独立源置零，**零初始状态**），用 **t > 0 的电路**（开关取 `after`）。`{"kind":"H", "out", "input", "s": 0}` 求 H 在某个复频率的值（`"s": {"re": 0, "im": 2}` 就是 H(j2)，与正弦稳态的网络函数一致）。电流源输入、取它两端电压就是驱动点阻抗 Z(s)。 / The network function uses the t > 0 circuit, the `input` source set to 1, the others zeroed, zero initial state.
+- **极点、零点** `{"kind":"pole","n":1}` / `{"kind":"zero","n":1}`：零极点相消之后的第 n 个，排序同 `root`（实部从大到小，再按虚部从大到小）。共轭复数对的 n = 1 是虚部为正的那个。电源被开关断开时 H ≡ 0，没有极点——问 t > 0 电路的固有频率请用 `root`。 / Poles and zeros after cancellation, sorted like `root`. If the source is switched off H ≡ 0: use `root` for natural frequencies.
+- **系数** `{"kind":"hcoef","of":"num"|"den","power":k}`：把 H(s) 写成**分母首项系数为 1**的形式后，分子 / 分母中 s^k 的系数（超过次数时为 0）。题干里要写明“分母首项系数为 1”。 / Coefficient of s^k with a monic denominator — say so in the statement.
+- **部分分式系数** `{"kind":"residue","out":…,"at":p,"order":k}`（只用于 `tran`）：**实际响应**（全部电源 + 0₋ 初值）在 t > 0 的象函数 Y(s) 展开式中 1/(s − p)^k 项的系数；`order` 默认 1（单极点的 K，重极点的 K_{12}），二重极点的 K_{11} 写 `"order": 2`。`at` 写极点的值（数或 `{"re", "im"}`，误差 0.1% 以内即可）；不是极点时报错并列出可能的极点（固有频率和电源的极点 0、−α、±jω）。共轭复极点处的系数 K 是复数：用两个小题分别问 `"part": "mag"` 和 `"part": "phase"`（单位 `°`），对应 2|K|e^{−αt}cos(ωt + ∠K)。 / Coefficient of 1/(s − p)^k in the transform of the actual t > 0 response (all sources and 0− initial values); ask a complex K as two questions, `mag` and `phase`.
+- **冲激源** `{"impulse": {"area": 3}}` = 3δ(t)（V·s 或 A·s），**指数源** `{"exp": {"amp": 10, "alpha": 2}}` = 10e^{−2t}（t ≥ 0；t < 0 为 0）：只用于暂态分析。冲激使电容电压、电感电流在 0₋→0₊ 跳变，`t: "0+"` 给的是冲激过后的值；冲激本身（例如 u_L 里的 δ(t)）不出现在任何时刻的数值里。 / Impulse and exponential sources, transient only; `"0+"` is the value right after the impulse.
+- **初值定理、终值定理**的结果就是 `t: "0+"`、`t: "inf"`；**阶跃响应、冲激响应**就是用 `step` / `impulse` 源的暂态题。 / Initial/final values are `t: "0+"` / `"inf"`; step and impulse responses are transient problems with `step` / `impulse` sources.
+
+RL 串联，u_s = 10ε(t) V，R = 2 Ω，L = 1 H，i(0₋) = 1 A：I(s) = \frac{10/s + 1}{s + 2} = \frac{5}{s} − \frac{4}{s + 2}，i = 5 − 4e^{−2t} A。
+
+```json
+{
+  "format": "circuit-problem/1",
+  "id": "example-sdomain-rl",
+  "chapter": "s-domain",
+  "title": "RL 电路的运算法",
+  "level": 2,
+  "statement": "u_s = 10ε(t) V，R = 2 Ω，L = 1 H，电感原有电流 i(0₋) = 1 A（方向如图）。求 H(s) = I(s)/U_s(s) 的极点、I(s) 在 s = −2 处的系数和 i(0.5 s)。",
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 10 } }, "label": "10ε(t) V" },
+      { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+      { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": 1, "ic": 1 }
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[8, 4], [0, 4]]],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "L", "name": "i" }]
+  },
+  "analysis": { "type": "tran" },
+  "questions": [
+    { "id": "p", "ask": "H(s) 的极点 = ?", "find": { "kind": "pole", "out": { "i": "L" }, "input": "Us", "n": 1 }, "answer": -2, "unit": "1/s", "explain": "H(s) = 1/(R + sL) = 1/(s + 2)。" },
+    { "id": "K", "ask": "I(s) 在 s = −2 处的系数 = ?", "find": { "kind": "residue", "out": { "i": "L" }, "at": -2 }, "answer": -4, "unit": "A", "explain": "I(s) = 5/s − 4/(s + 2)。" },
+    { "id": "i", "ask": "i(0.5 s) = ?", "find": { "kind": "i", "el": "L", "t": 0.5 }, "answer": 3.528482, "unit": "A", "explain": "i = 5 − 4e^{−1} ≈ 3.528 A。" }
+  ],
+  "hints": ["运算电路：电感 = sL 串电压源 L·i(0₋)，沿 i 的方向推动电流。"],
+  "solution": "(2 + s)I(s) = 10/s + 1 → I(s) = \\frac{s + 10}{s(s + 2)} = \\frac{5}{s} − \\frac{4}{s + 2}，**i = 5 − 4e^{−2t} A**。",
+  "i18n": {
+    "en": {
+      "title": "s-domain method for an RL circuit",
+      "statement": "u_s = 10ε(t) V, R = 2 Ω, L = 1 H, and the inductor carries i(0−) = 1 A (as drawn). Find the pole of H(s) = I(s)/U_s(s), the coefficient of I(s) at s = −2 and i(0.5 s).",
+      "questions": [
+        { "ask": "Pole of H(s) = ?", "explain": "H(s) = 1/(R + sL) = 1/(s + 2)." },
+        { "ask": "Coefficient of I(s) at s = −2 = ?", "explain": "I(s) = 5/s − 4/(s + 2)." },
+        { "ask": "i(0.5 s) = ?", "explain": "i = 5 − 4e^{−1} ≈ 3.528 A." }
+      ],
+      "hints": ["s-domain circuit: the inductor is sL in series with a voltage source L·i(0−) pushing current along i."],
+      "solution": "(2 + s)I(s) = 10/s + 1 → I(s) = \\frac{s + 10}{s(s + 2)} = \\frac{5}{s} − \\frac{4}{s + 2}, **i = 5 − 4e^{−2t} A**."
+    }
+  }
+}
+```
+
+注意：只给电容写 `ic` 时，t < 0 的直流状态是在电容电压固定为 `ic` 的条件下算的，电感电流可能因此不为零；题干说“电感原来没有电流”时也给电感写 `"ic": 0`。 / With `ic` on a capacitor only, the t < 0 DC state is computed with that capacitor held at `ic`, which may drive an inductor current; write `"ic": 0` on the inductor too when the statement says it starts at zero.
+
 ### 6.2 复数结果取哪一部分 / `part`
 
 交流结果是复数，用 `find.part` 选择：`"mag"`（**交流默认**，模）、`"phase"`（相位，度）、`"re"`、`"im"`、`"db"`（20·lg|x|）、`"rms"`（换算成有效值——在 `phasor: "peak"` 时有用）。直流和暂态的结果是实数，默认 `"re"`。非正弦周期题（§5.1）不写 `harmonic` 时还有 `"avg"`、`"absavg"`、`"peak"`，默认 `"rms"`。
@@ -497,6 +564,7 @@ Element `NR` with `law` = `{"i": [...]}` (voltage-controlled polynomial, optiona
 - 变压器两侧没有公共地时，跨两侧的电压没有定义，引擎报错（同一侧内的电压、元件电压没问题）。 / Voltages between galvanically isolated sides of a transformer are undefined and throw.
 - 交流分析只有一个频率（含多个频率的激励用 `periodic`，§5.1，所有频率必须是基波的整数倍）。`f0` 在电路特征频率的 10⁻⁴～10⁴ 倍范围内搜索，有多个谐振点时给最低的。 / AC is single-frequency; `f0` returns the lowest resonance.
 - 非线性电阻 `NR` 只能用于直流（工作点）和交流（小信号）题；两个以上元件同时处于弯曲段时工作点用牛顿法搜索，不保证找全（§6.1.7）。 / `NR` works in DC and small-signal AC only; with two or more elements on curved pieces at once the operating-point search is Newton-based and not guaranteed complete.
+- 冲激源不能与电容构成只含电压源/电容的回路，也不能与电感构成只含电流源/电感的割集（电容电压、电感电流本身会含冲激），引擎拒绝。`H`、`pole`、`zero`、`hcoef` 需要一个输入源，并且只对 t > 0 的电路；`residue` 只用于暂态题。 / Impulse sources in a capacitor loop or inductor cut-set are rejected; `H`/`pole`/`zero`/`hcoef` need an input source and describe the t > 0 circuit; `residue` is transient-only.
 - 电路方程奇异（电压源回路、电流源割集、悬空结点、没有负反馈的运放、恰好在谐振频率上的无损 LC）时引擎给出说明并拒绝。
 
 ---

@@ -82,6 +82,7 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
 === 独立源的值 ===
 直流：12。正弦稳态：{"ac": {"mag": 100, "phase": 30}}（mag 默认是有效值，phase 用度）。阶跃：{"step": {"before": 0, "after": 10}}。
 非正弦周期（只用于 "periodic"）：{"harmonics": {"dc": 10, "terms": [{"k": 1, "amp": 141.4214}, {"k": 3, "amp": 42.4264, "phase": -60}]}}——u = dc + Σ amp·cos(kωt + phase°)，**amp 是幅值**；或标准波形 {"wave": {"shape": "square" | "triangle" | "sawtooth" | "half-rect" | "full-rect", "amp": 峰值, "upTo": 最高谐波次数, "offset": 0}}（波形定义见 PROBLEM_FORMAT §4.1；题干写明取到几次谐波）。这类源一般加 "label": "u_s"。
+复频域章（只用于 "tran"）：指数 {"exp": {"amp": 10, "alpha": 2}} = 10e^{−2t}（t ≥ 0，t < 0 为 0），冲激 {"impulse": {"area": 3}} = 3δ(t)；一般加 "label"，如 "10ε(t) V"、"3δ(t) V"。
 
 === analysis ===
 - {"type": "dc"}：直流。
@@ -111,6 +112,7 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
   {"kind": "w", "el": "C"}：储能 ½Cu² / ½Li²（直流、暂态；耦合电感对写 K 的 ref 得总能量）
   {"kind": "v"/"i", ..., "deriv": 1}：暂态中 t 时刻的导数 du/dt、di/dt（如 du_C/dt(0+)）
   {"kind": "root", "n": 1}、{"kind": "alpha"}、{"kind": "omega_d"}、{"kind": "omega0"}：t>0 电路的固有频率（特征根，part 取 re/im/mag）、衰减系数 α、阻尼振荡角频率 ω_d、谐振角频率 ω0
+  复频域（s-domain 章，§6.1.8，暂态题里不写 t）：{"kind": "H", "out": ["o"], "input": "Us", "s": {"re": 0, "im": 2}} 网络函数 H(s)（零状态、t>0 的电路；out 也可写 {"v": "R1"} 或 {"i": "L"}）；{"kind": "pole" | "zero", "out", "input", "n": 1} 零极点相消后的第 n 个极点 / 零点（排序同 root）；{"kind": "hcoef", "out", "input", "of": "num" | "den", "power": k} 分母首项系数为 1 时 s^k 的系数（题干写明）；{"kind": "residue", "out": {"v": "C"}, "at": -2, "order": 1} 实际响应象函数中 1/(s − at)^order 的系数（二重极点 K_11 用 order 2）。复数（复极点、复极点处的系数）分两小题问：part "re"/"im" 或 "mag"/"phase"（单位 °）。电源被开关断开时 H ≡ 0，问固有频率用 root。只给电容写 ic 时也给电感写 "ic": 0（否则 t<0 的直流状态可能让电感有电流）。
   {"kind": "val", "el": "C"}：元件自身的值（“求 C 使……”，图上用 hideValue 隐藏；必须再用另一个引擎核对的小题验证条件，如 pf 或 f0）
   {"kind": "wattmeter", "current": "W1", "nodes": ["A", "B"]}：功率表读数（电流线圈 = 一个 label 为 "W" 的 ammeter，电压线圈接 A、B）
   {"kind": "fc", "out": ["o"], "input": "Ui", "which": "low"}、{"kind": "bw", ...}、{"kind": "Q"}：−3 dB 截止频率（Hz）、带宽（Hz）、品质因数
@@ -136,7 +138,7 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
 - hints 数量和顺序必须与原文一致。英文自然、地道，数字、单位、符号和元件名不变，英文里不要夹中文。
 
 === 填写区 ===
-章节 chapter：___________（basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / two-port / nonlinear）
+章节 chapter：___________（basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / s-domain / two-port / nonlinear）
 知识点：___________（例如：戴维宁等效电路、含受控源）
 难度（1–5）：___
 数量：___
@@ -241,6 +243,7 @@ R (Ω), C (F), L (H), V independent voltage source, I independent current source
 === Source values ===
 DC: 12. Sinusoidal steady state: {"ac": {"mag": 100, "phase": 30}} (mag is rms by default, phase in degrees). Step: {"step": {"before": 0, "after": 10}}.
 Non-sinusoidal periodic (only with "periodic"): {"harmonics": {"dc": 10, "terms": [{"k": 1, "amp": 141.4214}, {"k": 3, "amp": 42.4264, "phase": -60}]}} — u = dc + Σ amp·cos(kωt + phase°), **amp is the amplitude**; or a standard waveform {"wave": {"shape": "square" | "triangle" | "sawtooth" | "half-rect" | "full-rect", "amp": peak, "upTo": highest harmonic, "offset": 0}} (definitions in PROBLEM_FORMAT §4.1; state the number of harmonics in the text). Give such sources a "label", e.g. "u_s".
+s-domain chapter (only with "tran"): exponential {"exp": {"amp": 10, "alpha": 2}} = 10e^{−2t} (t ≥ 0, 0 for t < 0), impulse {"impulse": {"area": 3}} = 3δ(t); give them a "label", e.g. "10ε(t) V", "3δ(t) V".
 
 === analysis ===
 - {"type": "dc"}: DC.
@@ -270,6 +273,7 @@ Multiple choice (concepts): {"id": "c", "ask": "...", "choices": ["...", "...", 
   {"kind": "w", "el": "C"}: stored energy ½Cv² / ½Li² (DC, transient; a K ref gives the pair's total energy)
   {"kind": "v"/"i", ..., "deriv": 1}: time derivative du/dt, di/dt at t in transient problems (e.g. du_C/dt(0+))
   {"kind": "root", "n": 1}, {"kind": "alpha"}, {"kind": "omega_d"}, {"kind": "omega0"}: natural frequencies of the t>0 circuit (part re/im/mag), damping coefficient α, damped frequency ω_d, undamped ω0
+  s-domain chapter (§6.1.8, no t in transient problems): {"kind": "H", "out": ["o"], "input": "Us", "s": {"re": 0, "im": 2}} network function H(s) (zero state, the t>0 circuit; out may also be {"v": "R1"} or {"i": "L"}); {"kind": "pole" | "zero", "out", "input", "n": 1} n-th pole / zero after cancellation (ordered like root); {"kind": "hcoef", "out", "input", "of": "num" | "den", "power": k} coefficient of s^k with a monic denominator (say so in the text); {"kind": "residue", "out": {"v": "C"}, "at": -2, "order": 1} coefficient of 1/(s − at)^order in the transform of the actual response (order 2 for K_11 of a double pole). Ask complex values (complex poles, coefficients at complex poles) as two questions: part "re"/"im" or "mag"/"phase" (unit °). If a switch disconnects the source, H ≡ 0 — ask natural frequencies with root. With ic on a capacitor only, also write "ic": 0 on an inductor that starts at zero (otherwise the t<0 DC state may drive a current through it).
   {"kind": "val", "el": "C"}: the element's own value ("find C so that …", hidden with hideValue; ALSO verify the condition with another engine-checked question, e.g. pf or f0)
   {"kind": "wattmeter", "current": "W1", "nodes": ["A", "B"]}: wattmeter reading (current coil = an ammeter with label "W", voltage coil across A, B)
   {"kind": "fc", "out": ["o"], "input": "Vi", "which": "low"}, {"kind": "bw", ...}, {"kind": "Q"}: −3 dB cutoff (Hz), bandwidth (Hz), quality factor
@@ -295,7 +299,7 @@ Multiple choice (concepts): {"id": "c", "ask": "...", "choices": ["...", "...", 
 - hints must have the same count and order as the originals. Write natural Simplified Chinese for students, with the English term after key concepts, e.g. "戴维宁等效（Thevenin equivalent）". Keep numbers, units, symbols and element names unchanged.
 
 === Fill in ===
-Chapter: ___________ (basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / two-port / nonlinear)
+Chapter: ___________ (basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / s-domain / two-port / nonlinear)
 Topic: ___________ (e.g. Thevenin equivalent with a dependent source)
 Difficulty (1–5): ___
 How many: ___

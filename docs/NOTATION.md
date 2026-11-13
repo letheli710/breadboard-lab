@@ -58,6 +58,16 @@ This file fixes the symbols and wording used in theory problems (`problems/`), b
   If a source is given as a sine, hints and solutions convert it to cosine first (sin x = cos(x − 90°)), never the other way round.
 - 例外：题目本身明确要求按 sin 形式讨论（例如 `first-order/17` 的合闸相位选择题 `u_s = 20 sin(100t + ψ)`）时，保留题目原来的写法。
 
+### 5.1 复频域 / s-domain
+
+- 象函数用大写字母加 (s)：`U_C(s)`、`I_L(s)`、`U_s(s)`、`F(s)`；时域用小写 `u_C(t)`、`i_L(t)`。变换写 `ℒ[f(t)]`、`ℒ⁻¹[F(s)]`。
+  Transforms are capital letters with (s): `U_C(s)`, `I_L(s)`; time functions stay lower case. Write `ℒ[f(t)]`, `ℒ⁻¹[F(s)]`.
+- 单位阶跃 `ε(t)`、单位冲激 `δ(t)`（教材用法，不写 u(t)，以免与电压混淆）。初始值一律取 `0₋`：`u_C(0₋)`、`i_L(0₋)`。
+  Unit step `ε(t)` and unit impulse `δ(t)` (as in the textbook; never u(t), which would clash with voltage). Initial values are taken at 0−.
+- 用语：运算电路 / s-domain circuit，运算阻抗 / s-domain impedance，附加电源 / initial-condition source，网络函数 `H(s)` / network function，极点、零点 / poles, zeros，部分分式 / partial fractions，冲激响应 `h(t)` / impulse response，卷积 / convolution。
+- 题干里写清附加电源的方向（例如“电感 = sL 串电压源 L·i_L(0₋)，沿 i_L 方向推动电流”），并在图上画出 u_C、i_L 的参考方向（`marks`），必要时用 `notes` 标出 `u_C(0₋) = 2 V`。
+  State the direction of every initial-condition source in the text and draw the references of u_C, i_L with `marks` (and the initial value with a `notes` label when it is given).
+
 ## 6. 用语 / Wording
 
 | 中文 | English | 说明 |

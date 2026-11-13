@@ -143,6 +143,18 @@ Each chapter lists the knowledge points that must be covered — at least one pr
 6. 谐波谐振与滤波：串联谐振放大某次谐波，并联 LC 陷波，滤波器设计（难度 3–4），整流滤波的纹波
 7. 三相电路中的高次谐波：零序 3 次谐波，中线电流 3I_3，无中线时的中性点电压，三角形绕组环流（难度 4–5）
 
+### `s-domain` 线性动态电路的复频域分析（目标 17 题，教材第 14 章，含第 7 章的冲激响应与卷积）
+引擎：暂态题（`tran`）照常求时域值；网络函数 `H`、极点 `pole`、零点 `zero`、系数 `hcoef`（分母首项系数为 1）、响应象函数的部分分式系数 `residue`；电源可以是冲激 `{"impulse": {"area": …}}` 和指数 `{"exp": {"amp", "alpha"}}`（PROBLEM_FORMAT §4、§6.1.8）。复数结果（极点、复极点处的系数）分成实部/虚部或模/角度两个小题问。
+1. 拉普拉斯变换的定义（下限 0₋）与常用象函数：δ、ε、指数、t·e^{−at}、正弦、衰减正弦
+2. 性质：线性、微分 sF(s) − f(0₋)、积分、时移、复频移；初值定理与终值定理（及其适用条件）
+3. 部分分式展开：不同实数极点、重极点（K_11、K_12）、共轭复数极点（2|K|e^{−αt}cos(ωt + θ)）
+4. 元件的运算模型：R、L、C 的串联电压源形式与并联电流源形式（附加电源的大小和方向）；耦合电感的互感附加电源
+5. 运算法：一阶、二阶换路电路（零输入、零状态、全响应），用结点法/网孔法/叠加列运算方程
+6. 网络函数 H(s)：驱动点函数与转移函数，零点与极点；含运放、受控源的电路
+7. 冲激响应 h(t) = ℒ⁻¹[H(s)]，阶跃响应，h = ds/dt；冲激引起的 i_L、u_C 跳变
+8. 极点位置与时域响应（单调、衰减振荡、等幅、发散）、稳定性；H(jω) 与零极点（谐振峰、通带）
+9. 卷积积分与时域卷积定理（简单情形）
+
 ### `two-port` 二端口网络（目标 12 题）
 1. Z 参数、Y 参数
 2. H 参数（混合参数）、T（ABCD）参数
@@ -163,14 +175,14 @@ Each chapter lists the knowledge points that must be covered — at least one pr
 
 ---
 
-合计目标约 255 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
+合计目标约 272 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
 
-About 255 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
+About 272 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
 
 ---
 
 ## 尚未纳入大纲 / Not in the syllabus yet
 
-以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：复频域分析 / 拉普拉斯变换（第 14 章）、冲激响应与卷积、电路方程的矩阵形式与状态方程（第 15 章）、非线性动态电路（第 17 章后半：相平面、自激振荡）、均匀传输线（第 18 章）。
+以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：电路方程的矩阵形式与状态方程（第 15 章）、非线性动态电路（第 17 章后半：相平面、自激振荡）、均匀传输线（第 18 章）。
 
-Not covered yet (needs engine work first; see the ROADMAP backlog): Laplace / s-domain analysis (ch. 14), impulse response and convolution, matrix formulation and state equations (ch. 15), nonlinear dynamic circuits (second half of ch. 17: phase plane, self-oscillation), transmission lines (ch. 18).
+Not covered yet (needs engine work first; see the ROADMAP backlog): matrix formulation and state equations (ch. 15), nonlinear dynamic circuits (second half of ch. 17: phase plane, self-oscillation), transmission lines (ch. 18).
