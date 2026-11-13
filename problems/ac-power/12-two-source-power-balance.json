@@ -7,7 +7,7 @@
   "level": 4,
   "tags": ["复功率守恒", "结点电压法", "电源吸收功率"],
   "statement": [
-    "两个电压源 U_s1 = U_s2 = 100∠0° V（有效值），ω = 1000 rad/s。U_s1 经 L = 5 mH、U_s2 经 C = 100 µF 接到结点 a，a 与地之间接 R = 10 Ω。",
+    "两个电压源 U̇_s1 = U̇_s2 = 100∠0° V（有效值），ω = 1000 rad/s。U_s1 经 L = 5 mH、U_s2 经 C = 100 µF 接到结点 a，a 与地之间接 R = 10 Ω。",
     "用结点电压法求 U_a，再求两个电源各自吸收的有功、无功功率（关联参考方向），并验证复功率守恒。"
   ],
   "schematic": {
@@ -30,23 +30,23 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "Ua", "ask": "结点电压有效值 U_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 70.71068, "unit": "V", "explain": "jX_L = j5 Ω，−jX_C = −j10 Ω。结点方程 (1/j5 + 1/10 + 1/(−j10))U_a = 100/j5 + 100/(−j10) → (0.1 − j0.1)U_a = −j10 → U_a = 50 − j50 = 70.71∠−45° V。" },
-    { "id": "P1", "ask": "U_s1 吸收的有功功率 P_Us1 = ?", "find": { "kind": "p", "el": "Us1" }, "answer": -1000, "unit": "W", "explain": "I_1 = (100 − U_a)/j5 = (50 + j50)/j5 = 10 − j10 A，从 U_s1 的 + 极流出。U_s1 吸收的 S̄ = U·(−I_1)* = −100(10 + j10) = −1000 − j1000 VA，P_Us1 = −1000 W（发出 1000 W）。" },
-    { "id": "P2", "ask": "U_s2 吸收的有功功率 P_Us2 = ?", "find": { "kind": "p", "el": "Us2" }, "answer": 500, "unit": "W", "explain": "I_2 = (U_a − 100)/(−j10) = (−50 − j50)/(−j10) = 5 − j5 A，从 + 极流入 U_s2。S̄_Us2 = 100 × (5 + j5) = 500 + j500 VA，P_Us2 = +500 W：虽然两个电源电压完全相同，U_s2 却在吸收有功功率。" },
+    { "id": "Ua", "ask": "结点电压有效值 U_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 70.71068, "unit": "V", "explain": "jX_L = j5 Ω，−jX_C = −j10 Ω。结点方程 (1/j5 + 1/10 + 1/(−j10))U̇_a = 100/j5 + 100/(−j10) → (0.1 − j0.1)U̇_a = −j10 → U̇_a = 50 − j50 = 70.71∠−45° V。" },
+    { "id": "P1", "ask": "U_s1 吸收的有功功率 P_Us1 = ?", "find": { "kind": "p", "el": "Us1" }, "answer": -1000, "unit": "W", "explain": "İ_1 = (100 − U̇_a)/j5 = (50 + j50)/j5 = 10 − j10 A，从 U_s1 的 + 极流出。U̇_s1 吸收的 S̄ = U̇·(−İ_1)* = −100(10 + j10) = −1000 − j1000 VA，P_Us1 = −1000 W（发出 1000 W）。" },
+    { "id": "P2", "ask": "U_s2 吸收的有功功率 P_Us2 = ?", "find": { "kind": "p", "el": "Us2" }, "answer": 500, "unit": "W", "explain": "İ_2 = (U̇_a − 100)/(−j10) = (−50 − j50)/(−j10) = 5 − j5 A，从 + 极流入 U_s2。S̄_Us2 = 100 × (5 + j5) = 500 + j500 VA，P_Us2 = +500 W：虽然两个电源电压完全相同，U_s2 却在吸收有功功率。" },
     { "id": "Q2", "ask": "U_s2 吸收的无功功率 Q_Us2 = ?", "find": { "kind": "q", "el": "Us2" }, "answer": 500, "unit": "var", "explain": "Q_Us2 = Im(500 + j500) = 500 var。验算无功守恒：Q_Us1 + Q_Us2 + Q_L + Q_C = −1000 + 500 + 1000 − 500 = 0 ✓。" }
   ],
   "hints": [
     "只有一个独立结点 a，列一个结点方程即可。",
-    "求出两条支路电流后，电源吸收的复功率 S̄ = U·I*，其中 I 是从 + 极流入电源的电流。",
+    "求出两条支路电流后，电源吸收的复功率 S̄ = U̇·İ*，其中 I 是从 + 极流入电源的电流。",
     "检查：所有元件吸收的 P 之和为 0，Q 之和也为 0。"
   ],
   "solution": [
     "**1. 电抗。** X_L = ωL = 5 Ω，X_C = 1/(ωC) = 10 Ω。",
-    "**2. 结点方程。** (1/(j5) + 1/10 + 1/(−j10))U_a = 100/(j5) + 100/(−j10)，即 (0.1 − j0.1)U_a = −j20 + j10 = −j10，**U_a = 50 − j50 = 70.71∠−45° V**。",
-    "**3. 支路电流**（方向如图）：I_1 = (100 − U_a)/(j5) = 10 − j10 A；I_2 = (U_a − 100)/(−j10) = 5 − j5 A；I_R = U_a/10 = 5 − j5 A（KCL：I_1 = I_2 + I_R ✓）。",
+    "**2. 结点方程。** (1/(j5) + 1/10 + 1/(−j10))U̇_a = 100/(j5) + 100/(−j10)，即 (0.1 − j0.1)U̇_a = −j20 + j10 = −j10，**U̇_a = 50 − j50 = 70.71∠−45° V**。",
+    "**3. 支路电流**（方向如图）：İ_1 = (100 − U̇_a)/(j5) = 10 − j10 A；İ_2 = (U̇_a − 100)/(−j10) = 5 − j5 A；İ_R = U̇_a/10 = 5 − j5 A（KCL：I_1 = I_2 + I_R ✓）。",
     "**4. 各元件吸收的复功率：**",
-    "- U_s1（电流 −I_1 从 + 极流入）：100 × (−I_1)* = **−1000** − j1000 VA",
-    "- U_s2（电流 I_2 从 + 极流入）：100 × I_2* = **500 + j500** VA",
+    "- U_s1（电流 −I_1 从 + 极流入）：100 × (−İ_1)* = **−1000** − j1000 VA",
+    "- U_s2（电流 I_2 从 + 极流入）：100 × İ_2* = **500 + j500** VA",
     "- R：|U_a|²/R = 5000/10 = 500 W；L：I_1²X_L = 200 × 5 = 1000 var；C：−I_2²X_C = −50 × 10 = −500 var",
     "**5. 守恒。** ΣP = −1000 + 500 + 500 = 0 ✓；ΣQ = −1000 + 500 + 1000 − 500 = 0 ✓。",
     "U_s1 发出的 1000 W 一半给了 R，一半被 U_s2 吸收——正弦稳态下电压“相等”的两个电源之间仍会有功率流动，因为相位差是由 L、C 支路造成的。"
@@ -56,27 +56,27 @@
       "title": "Power balance in a two-source circuit",
       "tags": ["conservation of complex power", "nodal analysis", "power absorbed by a source"],
       "statement": [
-        "Two voltage sources U_s1 = U_s2 = 100∠0° V (rms), ω = 1000 rad/s. U_s1 connects to node a through L = 5 mH and U_s2 through C = 100 µF; R = 10 Ω is between a and ground.",
+        "Two voltage sources U̇_s1 = U̇_s2 = 100∠0° V (rms), ω = 1000 rad/s. U_s1 connects to node a through L = 5 mH and U_s2 through C = 100 µF; R = 10 Ω is between a and ground.",
         "Use nodal analysis to find U_a, then the real and reactive power absorbed by each source (passive sign convention), and verify conservation of complex power."
       ],
       "questions": [
-        { "ask": "rms node voltage U_a = ?", "explain": "jX_L = j5 Ω, −jX_C = −j10 Ω. Node equation (1/j5 + 1/10 + 1/(−j10))U_a = 100/j5 + 100/(−j10) → (0.1 − j0.1)U_a = −j10 → U_a = 50 − j50 = 70.71∠−45° V." },
-        { "ask": "Real power absorbed by U_s1, P_Us1 = ?", "explain": "I_1 = (100 − U_a)/j5 = (50 + j50)/j5 = 10 − j10 A, leaving U_s1's + terminal. U_s1 absorbs S̄ = U·(−I_1)* = −100(10 + j10) = −1000 − j1000 VA, so P_Us1 = −1000 W (it delivers 1000 W)." },
-        { "ask": "Real power absorbed by U_s2, P_Us2 = ?", "explain": "I_2 = (U_a − 100)/(−j10) = (−50 − j50)/(−j10) = 5 − j5 A, entering U_s2's + terminal. S̄_Us2 = 100 × (5 + j5) = 500 + j500 VA, P_Us2 = +500 W: although the two source voltages are identical, U_s2 absorbs real power." },
+        { "ask": "rms node voltage U_a = ?", "explain": "jX_L = j5 Ω, −jX_C = −j10 Ω. Node equation (1/j5 + 1/10 + 1/(−j10))U̇_a = 100/j5 + 100/(−j10) → (0.1 − j0.1)U̇_a = −j10 → U̇_a = 50 − j50 = 70.71∠−45° V." },
+        { "ask": "Real power absorbed by U_s1, P_Us1 = ?", "explain": "İ_1 = (100 − U̇_a)/j5 = (50 + j50)/j5 = 10 − j10 A, leaving U_s1's + terminal. U̇_s1 absorbs S̄ = U̇·(−İ_1)* = −100(10 + j10) = −1000 − j1000 VA, so P_Us1 = −1000 W (it delivers 1000 W)." },
+        { "ask": "Real power absorbed by U_s2, P_Us2 = ?", "explain": "İ_2 = (U̇_a − 100)/(−j10) = (−50 − j50)/(−j10) = 5 − j5 A, entering U_s2's + terminal. S̄_Us2 = 100 × (5 + j5) = 500 + j500 VA, P_Us2 = +500 W: although the two source voltages are identical, U_s2 absorbs real power." },
         { "ask": "Reactive power absorbed by U_s2, Q_Us2 = ?", "explain": "Q_Us2 = Im(500 + j500) = 500 var. Reactive-power check: Q_Us1 + Q_Us2 + Q_L + Q_C = −1000 + 500 + 1000 − 500 = 0 ✓." }
       ],
       "hints": [
         "There is only one independent node, a: one node equation is enough.",
-        "Once you have the two branch currents, the complex power absorbed by a source is S̄ = U·I*, where I is the current entering its + terminal.",
+        "Once you have the two branch currents, the complex power absorbed by a source is S̄ = U̇·İ*, where I is the current entering its + terminal.",
         "Check: the P's absorbed by all elements add to 0, and so do the Q's."
       ],
       "solution": [
         "**1. Reactances.** X_L = ωL = 5 Ω, X_C = 1/(ωC) = 10 Ω.",
-        "**2. Node equation.** (1/(j5) + 1/10 + 1/(−j10))U_a = 100/(j5) + 100/(−j10), i.e. (0.1 − j0.1)U_a = −j20 + j10 = −j10, **U_a = 50 − j50 = 70.71∠−45° V**.",
-        "**3. Branch currents** (directions as drawn): I_1 = (100 − U_a)/(j5) = 10 − j10 A; I_2 = (U_a − 100)/(−j10) = 5 − j5 A; I_R = U_a/10 = 5 − j5 A (KCL: I_1 = I_2 + I_R ✓).",
+        "**2. Node equation.** (1/(j5) + 1/10 + 1/(−j10))U̇_a = 100/(j5) + 100/(−j10), i.e. (0.1 − j0.1)U̇_a = −j20 + j10 = −j10, **U̇_a = 50 − j50 = 70.71∠−45° V**.",
+        "**3. Branch currents** (directions as drawn): İ_1 = (100 − U̇_a)/(j5) = 10 − j10 A; İ_2 = (U̇_a − 100)/(−j10) = 5 − j5 A; İ_R = U̇_a/10 = 5 − j5 A (KCL: I_1 = I_2 + I_R ✓).",
         "**4. Complex power absorbed by each element:**",
-        "- U_s1 (current −I_1 enters its + terminal): 100 × (−I_1)* = **−1000** − j1000 VA",
-        "- U_s2 (current I_2 enters its + terminal): 100 × I_2* = **500 + j500** VA",
+        "- U_s1 (current −I_1 enters its + terminal): 100 × (−İ_1)* = **−1000** − j1000 VA",
+        "- U_s2 (current I_2 enters its + terminal): 100 × İ_2* = **500 + j500** VA",
         "- R: |U_a|²/R = 5000/10 = 500 W; L: I_1²X_L = 200 × 5 = 1000 var; C: −I_2²X_C = −50 × 10 = −500 var",
         "**5. Conservation.** ΣP = −1000 + 500 + 500 = 0 ✓; ΣQ = −1000 + 500 + 1000 − 500 = 0 ✓.",
         "Half of the 1000 W delivered by U_s1 goes to R and half is absorbed by U_s2 — in sinusoidal steady state power flows even between two 'equal' sources, because the L and C branches create a phase difference."
