@@ -1,0 +1,163 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-button-pull-resistors",
+  "title": "实验 5-3 · 按键的上拉与下拉：别让输入悬空",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 5,
+  "summary": "按键 1 接 3V3、外接 10 kΩ 下拉（按下读 1，高电平有效）；按键 2 接 GND、用内部上拉（按下读 0，低电平有效）。起始电路少了下拉电阻，输入是浮空的。",
+  "concepts": [
+    "数字输入 digital input",
+    "下拉电阻 pull-down resistor",
+    "内部上拉 internal pull-up",
+    "高 / 低电平有效 active-high / active-low",
+    "浮空输入 floating input"
+  ],
+  "description": [
+    "**要搭的电路**（ESP32，USB 供电）：",
+    "- **按键 SW1（高电平有效）**：3V3 → SW1 → 节点 BTN1；BTN1 接 GPIO_IN1，同时经 **R1（10 kΩ）下拉到 GND**。",
+    "- **按键 SW2（低电平有效）**：GPIO_IN2 → SW2 → GND，不用外接电阻，靠**内部上拉**。",
+    "参考答案 SW1 用 **GPIO34**（只能输入、**没有内部上下拉**——正好需要外接电阻），SW2 用 GPIO33。",
+    "",
+    "**起始状态**：SW1 已经接在 3V3 和 GPIO34 之间，引脚是普通输入，但**没有下拉电阻**。看诊断：**“U1 GPIO34 是浮空输入”**。按键松开时这个引脚什么都没接，读数是随机的（手指靠近都可能翻转）。补上 R1，再接好 SW2。",
+    "",
+    "**引脚设置**：GPIO_IN1 = **输入（浮空）**——下拉由外部 R1 提供；GPIO_IN2 = **输入 + 内部上拉**（这个模式是答案的一部分，要在引脚表里设好）。",
+    "",
+    "**要测什么、为什么**：",
+    "- 都松开：IN1 读 **0**（R1 把它拉到 0 V），IN2 读 **1**（内部上拉到 3.3 V）。",
+    "- 都按下：IN1 读 **1**（3.3 V），R1 里流过 3.3 V / 10 kΩ ≈ **0.33 mA**；IN2 读 **0**，内部上拉电流 3.3 V / 45 kΩ ≈ **73 µA**（从引脚流出到按键）。",
+    "- 把 IN2 改成普通输入（忘了开上拉）：松开时 IN2 **浮空**——这就是起始电路的错误。",
+    "",
+    "**为什么需要上拉 / 下拉**：CMOS 输入几乎不取电流（输入阻抗 > 10 MΩ）。按键断开时，如果没有电阻把引脚“拴”在一个电平上，它的电压就由漏电、静电、旁边导线的耦合决定。上拉 / 下拉电阻的作用是：按键断开时给引脚一个确定电平；按键接通时，按键（≈ 0 Ω）轻松压过这个电阻。",
+    "- 电阻**太大**（如 1 MΩ）：抗干扰差、长导线上容易误触发；**太小**（如 220 Ω）：按下时白白耗电（3.3 V / 220 Ω = 15 mA）。按键常用 **4.7 kΩ – 10 kΩ**（外接），内部上拉约 30–80 kΩ（模型 45 kΩ），短导线够用，长导线或嘈杂环境最好外接。",
+    "- **高电平有效 vs 低电平有效**：接 3V3 + 下拉 → 按下 = 1；接 GND + 上拉 → 按下 = 0。后者更常见：只需要接 GND、可以用内部上拉、少一个零件，而且导线碰到 GND（机壳）时不会短路电源。",
+    "",
+    "**实际项目经验**：",
+    "- **ESP32 的 GPIO34–39 没有内部上下拉**，选“输入 + 上拉”等于浮空——必须外接电阻。它们适合接带有确定输出的信号或外接上拉的按键。",
+    "- **启动配置脚**（strapping pins）GPIO0、2、5、12、15 上电时被采样：例如 GPIO0 上电时为低会进入下载模式（板上 BOOT 键就是 GPIO0 接 GND），**GPIO12 上电时被拉高会把 Flash 电压设成 1.8 V，板子可能启动失败**。按键和上下拉电阻尽量别放在这些脚上。",
+    "- 机械按键有**抖动**（bounce）：按下的几毫秒内会通断好几次，要在程序里延时消抖，或加 RC（如 10 kΩ + 100 nF）硬件消抖。",
+    "- STM32 的内部上下拉约 40 kΩ，Blue Pill 每个 GPIO 都有，用法相同。",
+    "",
+    "**模型说明**：输入被视为无穷大阻抗，“浮空”判定为到任何东西的直流阻抗 > 50 MΩ（浮空时显示的电压只是一个占位值）。没有模拟抖动、漏电流和噪声。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 5-3 · Pull-ups and pull-downs for buttons: never leave an input floating",
+      "summary": "Button 1 to 3V3 with an external 10 kΩ pull-down (reads 1 when pressed, active-high); button 2 to GND with the internal pull-up (reads 0 when pressed, active-low). The starting circuit is missing the pull-down, so its input floats.",
+      "concepts": [
+        "digital input",
+        "pull-down resistor",
+        "internal pull-up",
+        "active-high / active-low",
+        "floating input"
+      ],
+      "description": [
+        "**What you build** (ESP32, USB powered):",
+        "- **Button SW1 (active-high)**: 3V3 → SW1 → node BTN1; BTN1 goes to GPIO_IN1 and through **R1 (10 kΩ) down to GND**.",
+        "- **Button SW2 (active-low)**: GPIO_IN2 → SW2 → GND, no external resistor — the **internal pull-up** does the job.",
+        "The reference answer uses **GPIO34** for SW1 (input-only, **no internal pulls** — exactly the case that needs an external resistor) and GPIO33 for SW2.",
+        "",
+        "**Starting board**: SW1 is already wired between 3V3 and GPIO34, the pin is a plain input, but **there is no pull-down**. The diagnostics say **\"U1 GPIO34 is a floating input\"**: with the button released the pin is connected to nothing and reads random values (even a finger nearby can flip it). Add R1, then wire SW2.",
+        "",
+        "**Pin table settings**: GPIO_IN1 = **input (floating)** — the pull-down comes from R1; GPIO_IN2 = **input + pull-up** (this mode is part of the answer: set it in the pin table).",
+        "",
+        "**What you measure and why**:",
+        "- Both released: IN1 reads **0** (R1 pulls it to 0 V), IN2 reads **1** (internal pull-up to 3.3 V).",
+        "- Both pressed: IN1 reads **1** (3.3 V) and R1 carries 3.3 V / 10 kΩ ≈ **0.33 mA**; IN2 reads **0** and the internal pull-up passes 3.3 V / 45 kΩ ≈ **73 µA** (out of the pin into the button).",
+        "- IN2 switched to a plain input (pull-up forgotten): released, IN2 **floats** — the same mistake as the starting circuit.",
+        "",
+        "**Why pull resistors**: a CMOS input draws almost no current (> 10 MΩ). With the button open and no resistor tying the pin to a level, its voltage is set by leakage, static and coupling from nearby wires. A pull-up / pull-down gives the pin a defined level while the button is open; when the button closes, its ≈ 0 Ω easily overrides the resistor.",
+        "- **Too large** (e.g. 1 MΩ): poor noise immunity, false triggers on long wires; **too small** (e.g. 220 Ω): wasted current while pressed (3.3 V / 220 Ω = 15 mA). Buttons usually get **4.7 kΩ – 10 kΩ** external; internal pull-ups are about 30–80 kΩ (45 kΩ in the model) — fine for short wires, add an external one for long wires or noisy places.",
+        "- **Active-high vs active-low**: to 3V3 + pull-down → pressed = 1; to GND + pull-up → pressed = 0. The second is more common: it only needs GND, can use the internal pull-up, saves a part, and a wire touching GND (the chassis) doesn't short the supply.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- **ESP32 GPIO34–39 have no internal pulls**: \"input + pull-up\" there is just a floating input — you must add a resistor. They suit signals that are actively driven, or buttons with an external pull.",
+        "- The **strapping pins** GPIO0, 2, 5, 12, 15 are sampled at power-up: GPIO0 low enters download mode (the board's BOOT key is GPIO0 to GND), and **GPIO12 pulled high at power-up sets the flash voltage to 1.8 V, so the board may fail to boot**. Keep buttons and pull resistors off these pins.",
+        "- Mechanical buttons **bounce**: they make and break several times within a few ms of a press — debounce in firmware with a delay, or with an RC (e.g. 10 kΩ + 100 nF).",
+        "- STM32 internal pulls are about 40 kΩ and every Blue Pill GPIO has them; same idea.",
+        "",
+        "**Model note**: inputs are treated as infinite impedance; \"floating\" means the DC impedance to everything exceeds 50 MΩ (the voltage shown for a floating pin is just a placeholder). Bounce, leakage and noise are not simulated."
+      ],
+      "hints": [
+        "SW1's other side already reaches GPIO34; add a 10 kΩ from that same column to GND.",
+        "SW2: one side to a second GPIO, the other side straight to GND — no resistor.",
+        "Select the board and set the second GPIO to \"input + pull-up\". GPIO34–39 can't do that, so use a pin like GPIO33, GPIO25 or GPIO26."
+      ],
+      "tests": [
+        "Both released: IN1 reads 0 (pull-down), IN2 reads 1 (pull-up)",
+        "Both pressed: IN1 reads 1, 0.33 mA in R1; IN2 reads 0, ≈ 73 µA through the internal pull-up",
+        "Pull-up forgotten (plain input): IN2 floats when released"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "U1", "type": "esp32_devkit", "modes": {"GPIO_IN2": "input_pullup"}},
+    {"ref": "SW1", "type": "pushbutton"},
+    {"ref": "R1", "type": "resistor", "resistance": "10k"},
+    {"ref": "SW2", "type": "pushbutton"}
+  ],
+  "nets": [
+    {"name": "3V3", "pins": ["U1.3V3", "SW1.1"]},
+    {"name": "BTN1", "pins": ["SW1.2", "R1.1", "U1.GPIO_IN1"]},
+    {"name": "GND", "pins": ["R1.2", "U1.GND", "SW2.2"]},
+    {"name": "BTN2", "pins": ["U1.GPIO_IN2", "SW2.1"]}
+  ],
+  "tests": [
+    {
+      "name": "都松开：IN1 读 0（下拉），IN2 读 1（上拉）",
+      "set": {"SW1": {"pressed": false}, "SW2": {"pressed": false}, "U1": {"modes": {"GPIO_IN1": "input"}}},
+      "gpio": [
+        {"pin": "U1.GPIO_IN1", "read": "low"},
+        {"pin": "U1.GPIO_IN2", "read": "high"},
+        {"pin": "U1.GPIO_IN1", "measure": "voltage", "max": 0.05},
+        {"pin": "U1.GPIO_IN2", "measure": "voltage", "min": 3.2, "max": 3.35}
+      ]
+    },
+    {
+      "name": "都按下：IN1 读 1，R1 电流 0.33 mA；IN2 读 0，内部上拉约 73 µA",
+      "set": {"SW1": {"pressed": true}, "SW2": {"pressed": true}, "U1": {"modes": {"GPIO_IN1": "input"}}},
+      "gpio": [
+        {"pin": "U1.GPIO_IN1", "read": "high"},
+        {"pin": "U1.GPIO_IN2", "read": "low"},
+        {"pin": "U1.GPIO_IN1", "measure": "voltage", "min": 3.2, "max": 3.35},
+        {"pin": "U1.GPIO_IN2", "measure": "current", "min": 7e-05, "max": 7.7e-05}
+      ],
+      "currents": [{"el": "R1", "min": 0.000315, "max": 0.000345}]
+    },
+    {
+      "name": "忘了开上拉（普通输入）：松开时 IN2 浮空",
+      "set": {"SW1": {"pressed": false}, "SW2": {"pressed": false}, "U1": {"modes": {"GPIO_IN1": "input", "GPIO_IN2": "input"}}},
+      "gpio": [{"pin": "U1.GPIO_IN1", "read": "low"}, {"pin": "U1.GPIO_IN2", "read": "floating"}]
+    }
+  ],
+  "hints": [
+    "SW1 的另一边已经接到 GPIO34；从同一列再接一个 10 kΩ 到 GND。",
+    "SW2：一边接第二个 GPIO，另一边直接接 GND，不用电阻。",
+    "选中开发板，把第二个 GPIO 设成“输入 + 内部上拉”。GPIO34–39 做不到，请用 GPIO33、GPIO25、GPIO26 这类引脚。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO34": "input", "GPIO33": "input_pullup"}}},
+      {"type": "wire", "ref": "W1", "color": "red", "pins": {"a": "j1", "b": "bp1"}},
+      {"type": "wire", "ref": "W2", "color": "black", "pins": {"a": "j14", "b": "bn14"}},
+      {"type": "pushbutton", "ref": "SW1", "at": "e22"},
+      {"type": "wire", "ref": "W3", "color": "red", "pins": {"a": "j22", "b": "bp22"}},
+      {"type": "wire", "ref": "W4", "color": "yellow", "pins": {"a": "j5", "b": "j24"}},
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "h24", "2": "bn24"}},
+      {"type": "pushbutton", "ref": "SW2", "at": "e27"},
+      {"type": "wire", "ref": "W5", "color": "green", "pins": {"a": "j8", "b": "j27"}},
+      {"type": "wire", "ref": "W6", "color": "black", "pins": {"a": "j29", "b": "bn29"}}
+    ]
+  },
+  "start": {
+    "parts": [
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO34": "input"}}},
+      {"type": "wire", "ref": "W1", "color": "red", "pins": {"a": "j1", "b": "bp1"}},
+      {"type": "wire", "ref": "W2", "color": "black", "pins": {"a": "j14", "b": "bn14"}},
+      {"type": "pushbutton", "ref": "SW1", "at": "e22"},
+      {"type": "wire", "ref": "W3", "color": "red", "pins": {"a": "j22", "b": "bp22"}},
+      {"type": "wire", "ref": "W4", "color": "yellow", "pins": {"a": "j5", "b": "j24"}}
+    ]
+  }
+}

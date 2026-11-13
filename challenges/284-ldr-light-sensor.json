@@ -1,0 +1,156 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-ldr-light-sensor",
+  "title": "实验 5-5 · 光敏电阻测光：固定电阻该选多大",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 5,
+  "summary": "光敏电阻 + 6.8 kΩ 分压接到 Blue Pill 的 PA0（ADC）。在 1 / 10 / 100 / 1000 lux 下读 ADC，体会“固定电阻 ≈ 光敏电阻在关心的亮度下的阻值”时灵敏度最高。",
+  "concepts": [
+    "光敏电阻 LDR / photoresistor",
+    "分压器 voltage divider",
+    "灵敏度与几何平均 sensitivity & geometric mean",
+    "对数响应 logarithmic response",
+    "ADC 模拟输入 analog input"
+  ],
+  "description": [
+    "**要搭的电路**（Blue Pill，USB 供电）：开发板 3V3 → **光敏电阻 LDR1** → 节点 VLIGHT → **R1（6.8 kΩ）** → GND；VLIGHT 接一个 **ADC 引脚**（PA0–PA7、PB0、PB1，参考答案用 PA0）。光敏电阻在上、固定电阻在下。",
+    "",
+    "**引脚设置**：把这个引脚设成 **模拟输入 ADC**（答案的一部分）。测试会把光照依次设成 1、10、100、1000 lux（右侧属性里也可以拖动光照）。",
+    "",
+    "**要测什么、为什么**：每种光照下的 ADC 读数，看它是不是在整个范围里都“分得开”。",
+    "",
+    "**光敏电阻模型**（GL5528 类）：R_LDR = 15 kΩ × (lux / 10)^−0.7。亮度每变 10 倍，电阻变 10^0.7 ≈ 5 倍：",
+    "- 1 lux（很暗）≈ 75 kΩ；10 lux ≈ 15 kΩ；100 lux（室内）≈ 3.0 kΩ；1000 lux（窗边 / 阴天户外）≈ 600 Ω。",
+    "",
+    "**分压结果**：V = 3.3 × R1 / (R1 + R_LDR)。光敏电阻在上，**越亮电压越高**：",
+    "- 1 lux：0.274 V → **340**",
+    "- 10 lux：1.029 V → **1277**",
+    "- 100 lux：2.291 V → **2843**",
+    "- 1000 lux：3.033 V → **3763**",
+    "每 10 倍亮度读数差约 940、1570、920 个计数——整个 3 个数量级都分得很清楚。",
+    "",
+    "**为什么选 6.8 kΩ**：分压器输出对 ln(R_LDR) 的灵敏度在 **R1 = R_LDR** 时最大（那一点 V = Vcc/2，曲线最陡）。要覆盖 1–1000 lux，就取两端阻值的**几何平均**：√(75 kΩ × 0.6 kΩ) ≈ 6.7 kΩ → 标准值 **6.8 kΩ**。如果只关心某一个亮度附近（比如“天黑开灯”的 10 lux），就选那个亮度下的 R_LDR（≈ 15 kΩ）。对比：",
+    "- R1 = **100 kΩ**：1.88 V / 2.87 V / 3.20 V / 3.28 V——亮处全挤在顶部，100 lux 和 1000 lux 只差 0.08 V。",
+    "- R1 = **1 kΩ**：0.04 V / 0.21 V / 0.83 V / 2.07 V——暗处全挤在 0 V 附近。",
+    "",
+    "**换个位置**：把光敏电阻放到下面（3V3 → R1 → VLIGHT → LDR → GND），就变成**越亮电压越低**；灵敏度规律一样，只是方向反过来。固件里怎么判断“亮 / 暗”要和接法对应。",
+    "",
+    "**电流**：最亮时 3.3 V / (6.8 k + 0.6 k) ≈ **0.45 mA**，最暗时约 40 µA。",
+    "",
+    "**实际项目经验**：",
+    "- 光敏电阻便宜但**慢**（变暗时要几十到几百毫秒）、个体差异大（±50 % 很常见）、随温度漂移，只适合“亮 / 暗”或粗略亮度；要精确测照度用 BH1750、VEML7700 这类数字传感器。",
+    "- 做“天黑开灯”时要加**迟滞**（两个阈值），否则在阈值附近灯会闪烁。",
+    "- 含镉（CdS）光敏电阻受 RoHS 限制，新产品常改用光电二极管 / 光电晶体管。",
+    "- STM32 的模拟引脚（PA0–PA7、PB0、PB1）**不耐 5 V**，分压器一定接 3V3，不要接 5V。",
+    "",
+    "**模型说明**：光敏电阻按幂律模型计算（限制在 100 Ω–1 MΩ），没有响应时间和温度漂移；ADC 是理想的 12 位 0–3.3 V 线性转换器。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 5-5 · LDR light sensor: how big should the fixed resistor be?",
+      "summary": "An LDR + 6.8 kΩ divider into the Blue Pill's PA0 (ADC). Read the ADC at 1 / 10 / 100 / 1000 lux and see why \"fixed R ≈ the LDR's resistance at the light level you care about\" gives the best sensitivity.",
+      "concepts": [
+        "LDR / photoresistor",
+        "voltage divider",
+        "sensitivity & geometric mean",
+        "logarithmic response",
+        "analog input (ADC)"
+      ],
+      "description": [
+        "**What you build** (Blue Pill, USB powered): board 3V3 → **LDR1** → node VLIGHT → **R1 (6.8 kΩ)** → GND; VLIGHT goes to an **ADC pin** (PA0–PA7, PB0, PB1; the reference answer uses PA0). LDR on top, fixed resistor at the bottom.",
+        "",
+        "**Pin table settings**: set that pin to **analog input (ADC)** (part of the answer). The tests set the light to 1, 10, 100 and 1000 lux in turn (you can drag the light level under Properties too).",
+        "",
+        "**What you measure and why**: the ADC reading at each light level — are they well separated across the whole range?",
+        "",
+        "**LDR model** (GL5528-like): R_LDR = 15 kΩ × (lux / 10)^−0.7. Every 10× in light changes the resistance by 10^0.7 ≈ 5×:",
+        "- 1 lux (very dark) ≈ 75 kΩ; 10 lux ≈ 15 kΩ; 100 lux (indoors) ≈ 3.0 kΩ; 1000 lux (by a window / overcast outdoors) ≈ 600 Ω.",
+        "",
+        "**Divider output**: V = 3.3 × R1 / (R1 + R_LDR). With the LDR on top, **brighter means higher voltage**:",
+        "- 1 lux: 0.274 V → **340**",
+        "- 10 lux: 1.029 V → **1277**",
+        "- 100 lux: 2.291 V → **2843**",
+        "- 1000 lux: 3.033 V → **3763**",
+        "Each 10× step in light moves the reading by about 940, 1570 and 920 counts — all three decades are clearly resolved.",
+        "",
+        "**Why 6.8 kΩ**: the divider's sensitivity to ln(R_LDR) is greatest when **R1 = R_LDR** (V = Vcc/2 there, the steepest part of the curve). To cover 1–1000 lux, take the **geometric mean** of the two end resistances: √(75 kΩ × 0.6 kΩ) ≈ 6.7 kΩ → standard **6.8 kΩ**. If you only care about one light level (say 10 lux for \"turn the lights on at dusk\"), use the LDR's resistance there (≈ 15 kΩ). Compare:",
+        "- R1 = **100 kΩ**: 1.88 V / 2.87 V / 3.20 V / 3.28 V — the bright end is crammed at the top; 100 lux and 1000 lux differ by only 0.08 V.",
+        "- R1 = **1 kΩ**: 0.04 V / 0.21 V / 0.83 V / 2.07 V — the dark end is crammed near 0 V.",
+        "",
+        "**Swap the positions**: put the LDR at the bottom (3V3 → R1 → VLIGHT → LDR → GND) and **brighter means lower voltage**; same sensitivity rule, opposite direction. Your firmware's bright/dark test must match the wiring.",
+        "",
+        "**Current**: brightest 3.3 V / (6.8 k + 0.6 k) ≈ **0.45 mA**, darkest about 40 µA.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- LDRs are cheap but **slow** (tens to hundreds of ms when it gets dark), vary a lot between parts (±50 % is common) and drift with temperature — fine for bright/dark or rough brightness; for real lux use a digital sensor such as the BH1750 or VEML7700.",
+        "- For \"lights on at dusk\" add **hysteresis** (two thresholds), or the lamp flickers near the threshold.",
+        "- Cadmium (CdS) LDRs are restricted by RoHS; new designs often use a photodiode / phototransistor instead.",
+        "- STM32 analog pins (PA0–PA7, PB0, PB1) are **not 5 V tolerant**: feed the divider from 3V3, never 5V.",
+        "",
+        "**Model note**: the LDR follows the power-law model (clamped to 100 Ω–1 MΩ) with no response time or temperature drift; the ADC is an ideal 12-bit, 0–3.3 V linear converter."
+      ],
+      "hints": [
+        "Wire a board 3V3 pin to the top + rail and a GND pin to the − rail first.",
+        "LDR from 3V3 to the middle node, 6.8 kΩ from the middle node to GND; the middle node goes to PA0 (or another ADC pin).",
+        "Set that pin to analog input (ADC) in the pin table."
+      ],
+      "tests": [
+        "1 lux: ADC ≈ 340 (0.27 V), ≈ 40 µA through the LDR",
+        "10 lux: ADC ≈ 1277 (1.03 V)",
+        "100 lux: ADC ≈ 2843 (2.29 V)",
+        "1000 lux: ADC ≈ 3763 (3.03 V), ≈ 0.45 mA through the LDR"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "U1", "type": "stm32_bluepill", "modes": {"ADC1": "adc"}},
+    {"ref": "LDR1", "type": "ldr"},
+    {"ref": "R1", "type": "resistor", "resistance": "6.8k"}
+  ],
+  "nets": [
+    {"name": "3V3", "pins": ["U1.3V3", "LDR1.1"]},
+    {"name": "VLIGHT", "pins": ["LDR1.2", "R1.1", "U1.ADC1"]},
+    {"name": "GND", "pins": ["R1.2", "U1.GND"]}
+  ],
+  "tests": [
+    {
+      "name": "1 lux：ADC ≈ 340（0.27 V），光敏电阻电流约 40 µA",
+      "set": {"LDR1": {"lux": 1}},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 280, "max": 400}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 0.224, "max": 0.324}],
+      "currents": [{"el": "LDR1", "min": 3.82e-05, "max": 4.23e-05}]
+    },
+    {
+      "name": "10 lux：ADC ≈ 1277（1.03 V）",
+      "set": {"LDR1": {"lux": 10}},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 1217, "max": 1337}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 0.979, "max": 1.079}]
+    },
+    {
+      "name": "100 lux：ADC ≈ 2843（2.29 V）",
+      "set": {"LDR1": {"lux": 100}},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 2783, "max": 2903}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 2.241, "max": 2.341}]
+    },
+    {
+      "name": "1000 lux：ADC ≈ 3763（3.03 V），光敏电阻电流约 0.45 mA",
+      "set": {"LDR1": {"lux": 1000}},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 3703, "max": 3823}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 2.983, "max": 3.083}],
+      "currents": [{"el": "LDR1", "min": 0.0004237, "max": 0.0004683}]
+    }
+  ],
+  "hints": [
+    "先把开发板的 3V3 接到上方 + 轨、GND 接到 − 轨。",
+    "光敏电阻从 3V3 接到中点，6.8 kΩ 从中点接到 GND；中点接 PA0（或别的 ADC 引脚）。",
+    "在引脚表里把这个引脚设成“模拟输入 ADC”。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PA0": "adc"}}},
+      {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "a1", "b": "tn1"}},
+      {"type": "wire", "ref": "W2", "color": "red", "pins": {"a": "a3", "b": "tp3"}},
+      {"type": "ldr", "ref": "LDR1", "lux": 100, "pins": {"1": "tp22", "2": "a22"}},
+      {"type": "resistor", "ref": "R1", "resistance": "6.8k", "pins": {"1": "b22", "2": "tn22"}},
+      {"type": "wire", "ref": "W3", "color": "yellow", "pins": {"a": "c22", "b": "a16"}}
+    ]
+  }
+}

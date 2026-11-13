@@ -100,7 +100,7 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
       out.push({
         severity: 'warning',
         title: tr(`${ref} 电流偏大：${amps(l.current)}`, `${ref} current is high: ${amps(l.current)}`),
-        detail: tr('超过 20 mA 的额定值，LED 寿命会缩短。换一个更大的电阻。', 'Above the 20 mA rating the LED will wear out sooner. Use a bigger resistor.'),
+        detail: tr('超过 30 mA，远高于 20 mA 的额定值，LED 寿命会缩短。换一个更大的电阻。', 'Above 30 mA — well over the 20 mA rating — the LED will wear out sooner. Use a bigger resistor.'),
         refs: [ref],
         holes: [],
       });

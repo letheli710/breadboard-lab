@@ -1,0 +1,160 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-ntc-thermometer",
+  "title": "实验 5-6 · NTC 热敏电阻温度计：非线性与 B 值公式",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 5,
+  "summary": "10 kΩ 固定电阻 + 10 kΩ NTC（B = 3950）分压接到 ESP32 的 ADC1。在 0 / 25 / 50 / 80 °C 下读 ADC：温度等步长，读数却不等步长；固件用 B 值公式换算回温度。",
+  "concepts": [
+    "NTC 热敏电阻 NTC thermistor",
+    "B 值方程 / Steinhart–Hart B-parameter equation",
+    "非线性 nonlinearity",
+    "分压器灵敏度 divider sensitivity",
+    "自热 self-heating"
+  ],
+  "description": [
+    "**要搭的电路**（ESP32，USB 供电）：开发板 3V3 → **R1（10 kΩ）** → 节点 VTEMP → **NTC 热敏电阻 TH1（10 kΩ @ 25 °C，B = 3950）** → GND；VTEMP 接一个 **ADC1 引脚**（GPIO32–39，参考答案用 GPIO32）。固定电阻在上、NTC 在下——很多现成的温度模块就是这样接的。",
+    "",
+    "**引脚设置**：把这个引脚设成 **模拟输入 ADC**（答案的一部分）。测试会把 NTC 的温度依次设成 0、25、50、80 °C（右侧属性里也可以改温度）。",
+    "",
+    "**要测什么、为什么**：每个温度下的 ADC 读数和流过 NTC 的电流。重点看：**温度每次升高相同的度数，读数的变化却不一样**。",
+    "",
+    "**NTC 模型**：R(T) = R25 × exp[B × (1/T − 1/298.15 K)]，T 用开尔文。NTC = 负温度系数：越热电阻越小。",
+    "- 0 °C ≈ 33.6 kΩ；25 °C = 10.0 kΩ；50 °C ≈ 3.59 kΩ；80 °C ≈ 1.27 kΩ。",
+    "",
+    "**分压结果**：V = 3.3 × R_NTC / (R1 + R_NTC)。NTC 在下，**越热电压越低**：",
+    "- 0 °C：2.541 V → **3154**",
+    "- 25 °C：1.649 V → **2046**（正好一半）",
+    "- 50 °C：0.871 V → **1081**",
+    "- 80 °C：0.372 V → **461**",
+    "**非线性**：0→25 °C 读数降 1108（约 44 计数/°C），25→50 °C 降 965（约 39 计数/°C），50→80 °C 只降 620（约 21 计数/°C）。同一个“1 个计数”在 25 °C 附近约 0.025 °C，在 80 °C 附近约 0.05 °C。所以不能用一条直线把读数换成温度。",
+    "",
+    "**为什么选 R1 = R25 = 10 kΩ**：和光敏电阻一样，分压器在 **R1 = R_NTC** 时对电阻的相对变化最灵敏（V = Vcc/2）。选 R1 = R25，就把最灵敏的一点放在室温 25 °C，0–50 °C 都很好用。如果要测 80–120 °C（例如 3D 打印机的热床 / 喷头），就选那个温度附近的 R_NTC（例如 100 °C 时约 0.7 kΩ，取 680 Ω–1 kΩ）。",
+    "",
+    "**固件里怎么换算**（B 值公式，Steinhart–Hart 方程的简化版）：",
+    "  1. R_NTC = R1 × raw / (4095 − raw)",
+    "  2. 1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950，T 单位 K，再减 273.15",
+    "例：raw = 1081 → R_NTC = 10 k × 1081 / 3014 ≈ 3.59 kΩ → ln(0.359) = −1.025 → 1/T = 0.003354 − 0.000260 = 0.003094 → T ≈ 323.2 K = **50.0 °C**。要更精确（±0.1 °C）就用完整的 Steinhart–Hart 三参数公式 1/T = A + B·lnR + C·(lnR)³，参数从 NTC 厂家的 R–T 表拟合。",
+    "",
+    "**自热**：电流 I = 3.3 / (R1 + R_NTC)，25 °C 时 **165 µA**，NTC 上的功率 1.649² / 10 kΩ ≈ 0.27 mW（R1 = R_NTC 时最大）。小珠状 NTC 的耗散常数约 1–2 mW/°C，所以自热约 0.1–0.3 °C。测更准时用更大的分压电阻（例如 100 kΩ NTC + 100 kΩ），或者只在测量时才给分压器通电。",
+    "",
+    "**实际项目经验**：",
+    "- 只用 **ADC1（GPIO32–39）**；ESP32 ADC 在 0.15 V 以下和 2.45 V 以上都不太线性，用 ESP-IDF 校准并多次取平均。80 °C 的 0.37 V 还在可用区间，再热就要换 R1。",
+    "- 分压器的上端接 **ADC 的参考电压**（这里是 3V3），这样 R_NTC 的公式里电源电压被约掉——3V3 漂一点也不影响结果（比例测量 ratiometric）。STM32 的 VDDA 就是 ADC 参考，效果更好。",
+    "- ADC 引脚上并一个 100 nF 电容到 GND，可以减小噪声（源阻抗 R1 ∥ R_NTC 约 5 kΩ）。",
+    "- 长导线引出的 NTC 容易拾取干扰；热敏电阻有 ±1 % ~ ±5 % 的阻值误差和 ±1 % 的 B 值误差，选型时一起考虑。",
+    "",
+    "**模型说明**：NTC 严格按 B = 3950 的指数模型计算，没有模拟自热、热时间常数和阻值误差；ADC 是理想的 12 位 0–3.3 V 线性转换器，没有 ESP32 的非线性。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 5-6 · NTC thermometer: nonlinearity and the B equation",
+      "summary": "A 10 kΩ fixed resistor + 10 kΩ NTC (B = 3950) divider into an ESP32 ADC1 pin. Read the ADC at 0 / 25 / 50 / 80 °C: equal temperature steps give unequal reading steps; firmware converts back with the B-parameter equation.",
+      "concepts": [
+        "NTC thermistor",
+        "B-parameter (simplified Steinhart–Hart) equation",
+        "nonlinearity",
+        "divider sensitivity",
+        "self-heating"
+      ],
+      "description": [
+        "**What you build** (ESP32, USB powered): board 3V3 → **R1 (10 kΩ)** → node VTEMP → **NTC thermistor TH1 (10 kΩ at 25 °C, B = 3950)** → GND; VTEMP goes to an **ADC1 pin** (GPIO32–39; the reference answer uses GPIO32). Fixed resistor on top, NTC at the bottom — the way many ready-made temperature modules are wired.",
+        "",
+        "**Pin table settings**: set that pin to **analog input (ADC)** (part of the answer). The tests set the NTC temperature to 0, 25, 50 and 80 °C in turn (you can change it under Properties too).",
+        "",
+        "**What you measure and why**: the ADC reading and the NTC current at each temperature. The point: **equal temperature steps do not give equal changes in the reading**.",
+        "",
+        "**NTC model**: R(T) = R25 × exp[B × (1/T − 1/298.15 K)], T in kelvin. NTC = negative temperature coefficient: hotter means lower resistance.",
+        "- 0 °C ≈ 33.6 kΩ; 25 °C = 10.0 kΩ; 50 °C ≈ 3.59 kΩ; 80 °C ≈ 1.27 kΩ.",
+        "",
+        "**Divider output**: V = 3.3 × R_NTC / (R1 + R_NTC). With the NTC at the bottom, **hotter means lower voltage**:",
+        "- 0 °C: 2.541 V → **3154**",
+        "- 25 °C: 1.649 V → **2046** (exactly half)",
+        "- 50 °C: 0.871 V → **1081**",
+        "- 80 °C: 0.372 V → **461**",
+        "**Nonlinearity**: 0→25 °C drops 1108 counts (about 44 counts/°C), 25→50 °C drops 965 (about 39 counts/°C), 50→80 °C only 620 (about 21 counts/°C). One count is about 0.025 °C near 25 °C but about 0.05 °C near 80 °C. A straight line cannot turn readings into temperature.",
+        "",
+        "**Why R1 = R25 = 10 kΩ**: as with the LDR, the divider is most sensitive to relative changes of resistance when **R1 = R_NTC** (V = Vcc/2). Choosing R1 = R25 puts the sweet spot at room temperature, good for 0–50 °C. To measure 80–120 °C (a 3D printer's bed / hot end), pick the NTC's resistance near that temperature (about 0.7 kΩ at 100 °C → 680 Ω–1 kΩ).",
+        "",
+        "**The firmware conversion** (B-parameter equation, a simplified Steinhart–Hart):",
+        "  1. R_NTC = R1 × raw / (4095 − raw)",
+        "  2. 1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950, T in K; subtract 273.15",
+        "Example: raw = 1081 → R_NTC = 10 k × 1081 / 3014 ≈ 3.59 kΩ → ln(0.359) = −1.025 → 1/T = 0.003354 − 0.000260 = 0.003094 → T ≈ 323.2 K = **50.0 °C**. For ±0.1 °C use the full three-term Steinhart–Hart equation 1/T = A + B·lnR + C·(lnR)³, fitted to the maker's R–T table.",
+        "",
+        "**Self-heating**: I = 3.3 / (R1 + R_NTC), **165 µA** at 25 °C; the NTC dissipates 1.649² / 10 kΩ ≈ 0.27 mW (the maximum, at R1 = R_NTC). A small bead NTC has a dissipation constant of about 1–2 mW/°C, so it warms itself by about 0.1–0.3 °C. For better accuracy use higher values (e.g. a 100 kΩ NTC + 100 kΩ) or power the divider only while measuring.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- Use **ADC1 (GPIO32–39)** only; the ESP32 ADC is non-linear below about 0.15 V and above about 2.45 V — calibrate with ESP-IDF and average. 0.37 V at 80 °C is still usable; hotter than that, change R1.",
+        "- Feed the top of the divider from the **ADC's reference** (3V3 here) so the supply cancels out of the R_NTC formula — a slightly drifting 3V3 doesn't matter (ratiometric measurement). On an STM32, VDDA is the ADC reference, which works even better.",
+        "- A 100 nF capacitor from the ADC pin to GND cuts noise (the source impedance R1 ∥ R_NTC is about 5 kΩ).",
+        "- An NTC on a long cable picks up noise; thermistors have ±1 % to ±5 % resistance tolerance and about ±1 % on B — budget for both.",
+        "",
+        "**Model note**: the NTC follows the exact B = 3950 exponential model with no self-heating, thermal time constant or tolerance; the ADC is an ideal 12-bit 0–3.3 V linear converter without the ESP32's non-linearity."
+      ],
+      "hints": [
+        "Wire the board's 3V3 to the bottom + rail and a GND pin to the bottom − rail.",
+        "3V3 → 10 kΩ → middle node → NTC → GND; the middle node goes to GPIO32–39.",
+        "Set that pin to analog input (ADC) in the pin table."
+      ],
+      "tests": [
+        "0 °C: ADC ≈ 3154 (2.54 V), ≈ 76 µA",
+        "25 °C: ADC ≈ 2046 (1.65 V, half of 3.3 V), ≈ 165 µA",
+        "50 °C: ADC ≈ 1081 (0.87 V), ≈ 243 µA",
+        "80 °C: ADC ≈ 461 (0.37 V), ≈ 293 µA — the steps shrink as it gets hotter"
+      ]
+    }
+  },
+  "components": [
+    {"ref": "U1", "type": "esp32_devkit", "modes": {"ADC1": "adc"}},
+    {"ref": "R1", "type": "resistor", "resistance": "10k"},
+    {"ref": "TH1", "type": "ntc"}
+  ],
+  "nets": [
+    {"name": "3V3", "pins": ["U1.3V3", "R1.1"]},
+    {"name": "VTEMP", "pins": ["R1.2", "TH1.1", "U1.ADC1"]},
+    {"name": "GND", "pins": ["TH1.2", "U1.GND"]}
+  ],
+  "tests": [
+    {
+      "name": "0 °C：ADC ≈ 3154（2.54 V），电流约 76 µA",
+      "set": {"TH1": {"temperature": 0}},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 3114, "max": 3194}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 2.506, "max": 2.576}],
+      "currents": [{"el": "TH1", "min": 7.26e-05, "max": 7.86e-05}]
+    },
+    {
+      "name": "25 °C：ADC ≈ 2046（1.65 V，正好一半），电流约 165 µA",
+      "set": {"TH1": {"temperature": 25}},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 2006, "max": 2086}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 1.614, "max": 1.684}],
+      "currents": [{"el": "TH1", "min": 0.0001583, "max": 0.0001715}]
+    },
+    {
+      "name": "50 °C：ADC ≈ 1081（0.87 V），电流约 243 µA",
+      "set": {"TH1": {"temperature": 50}},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 1041, "max": 1121}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 0.836, "max": 0.906}],
+      "currents": [{"el": "TH1", "min": 0.000233, "max": 0.0002524}]
+    },
+    {
+      "name": "80 °C：ADC ≈ 461（0.37 V），电流约 293 µA——越热步长越小",
+      "set": {"TH1": {"temperature": 80}},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 421, "max": 501}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 0.337, "max": 0.407}],
+      "currents": [{"el": "TH1", "min": 0.0002809, "max": 0.0003043}]
+    }
+  ],
+  "hints": [
+    "先把开发板的 3V3 接到下方 + 轨、GND 接到下方 − 轨。",
+    "3V3 → 10 kΩ → 中点 → NTC → GND；中点接 GPIO32–39 之一。",
+    "在引脚表里把这个引脚设成“模拟输入 ADC”。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO32": "adc"}}},
+      {"type": "wire", "ref": "W1", "color": "red", "pins": {"a": "j1", "b": "bp1"}},
+      {"type": "wire", "ref": "W2", "color": "black", "pins": {"a": "j14", "b": "bn14"}},
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "bp24", "2": "j24"}},
+      {"type": "ntc", "ref": "TH1", "temperature": 25, "pins": {"1": "i24", "2": "bn24"}},
+      {"type": "wire", "ref": "W3", "color": "yellow", "pins": {"a": "h24", "b": "j7"}}
+    ]
+  }
+}

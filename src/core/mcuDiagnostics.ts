@@ -205,10 +205,15 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
           issue(
             'warning',
             tr(`${name} 是浮空输入`, `${name} is a floating input`),
-            tr(
-              `没有任何东西确定这个输入的电压（按键松开时就是这样），读到的是随机的 0 / 1。用 “输入 + 内部上拉”，或外接 10 kΩ 上拉 / 下拉电阻。`,
-              `Nothing defines this input's voltage (e.g. a released button), so it reads random 0s and 1s. Use "input + pull-up", or add an external 10 kΩ pull-up / pull-down.`,
-            ),
+            caps && !caps.pull
+              ? tr(
+                  `没有任何东西确定这个输入的电压（按键松开时就是这样），读到的是随机的 0 / 1。这个引脚没有内部上拉 / 下拉，必须外接 10 kΩ 上拉或下拉电阻。`,
+                  `Nothing defines this input's voltage (e.g. a released button), so it reads random 0s and 1s. This pin has no internal pull-up / pull-down: add an external 10 kΩ pull-up or pull-down.`,
+                )
+              : tr(
+                  `没有任何东西确定这个输入的电压（按键松开时就是这样），读到的是随机的 0 / 1。用 “输入 + 内部上拉”，或外接 10 kΩ 上拉 / 下拉电阻。`,
+                  `Nothing defines this input's voltage (e.g. a released button), so it reads random 0s and 1s. Use "input + pull-up", or add an external 10 kΩ pull-up / pull-down.`,
+                ),
             [c.ref],
             h,
           );
