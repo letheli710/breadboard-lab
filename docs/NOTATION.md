@@ -47,8 +47,8 @@ This file fixes the symbols and wording used in theory problems (`problems/`), b
 - **只有相量加点**。下面这些不加点：有效值或模（`U_s = 100 V`、`I_1 = 0.25 A`、`|U̇_a| = 10 V`）、极坐标形式中 ∠ 前面的模（`U̇_2 = U_2∠0°`）、平方（`I²R`、`I_2²(6 + j2)`）、阻抗 Z、导纳 Y。
   Only phasors are dotted. Magnitudes and rms values (`U_s = 100 V`, `|U̇_a|`), the magnitude in front of ∠ (`U̇_2 = U_2∠0°`), squares (`I²R`) and impedances/admittances Z, Y are not.
 - 共轭写 `İ*`；复功率 `S̄ = U̇·İ*`。振幅相量写 `U̇_m`、`İ_m`。默认相量是**有效值相量**（`analysis.phasor` 默认 `"rms"`），题干里写“（有效值）/ (rms)”。
-- 已知问题：电路图和题目文字的渲染器（`richRuns`）目前还不能把“带点字母 + 下标”画成下标，`U̇_s` 会显示出下划线；修好之前仍按本约定书写。
-  Known issue: the renderer (`richRuns` in `src/ui/ProblemSchematic.tsx`) does not yet subscript a dotted letter, so `U̇_s` shows its underscore until that is fixed; keep writing this form.
+- 渲染：`richRuns`（`src/ui/ProblemSchematic.tsx`）把“带点字母 + `_` 下标”画成带点的斜体字母加下标（`U̇_s`、`İ_1`、`U̇_{AB}`）。挑战文字（`Md`）没有下标，写 `U̇L`、`İC` 这样的普通文字即可。
+  Rendering: `richRuns` subscripts a dotted letter (`U̇_s`, `İ_1`); challenge text (`Md`) has no subscripts, so write plain `U̇L`, `İC` there.
 
 ## 5. 正弦量的参考函数 / Sinusoid reference
 
