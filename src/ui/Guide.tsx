@@ -351,7 +351,7 @@ export function Guide() {
           <h3>{tr('新手最常犯的错误', 'Common beginner mistakes')}</h3>
           <ul>
             <li>{tr('元件两只脚插在同一列 → 被短路，完全不起作用。', 'Both legs of a component in the same column → it is shorted out and does nothing.')}</li>
-            <li>{tr('LED 插反 → 不亮（不会坏，但没有电流）。', "LED in backwards → it doesn't light (no damage, but no current flows).")}</li>
+            <li>{tr('LED 插反 → 不亮（没有电流）。常见 LED 的反向耐压只有约 5V：低压电路里插反一般不会坏，电源电压更高时就可能损坏。', "LED in backwards → it doesn't light (no current flows). A typical LED only tolerates about 5V in reverse: at low supply voltages a reversed LED is usually unharmed, at higher ones it can be damaged.")}</li>
             <li>{tr('忘了接 GND / 回路不闭合 → 没有电流。', 'Forgot to connect GND / loop not closed → no current.')}</li>
             <li>{tr('把 + 轨和 − 轨直接连起来 → 短路！电池发烫。', 'Connecting the + rail straight to the − rail → short circuit! The battery gets hot.')}</li>
             <li>
