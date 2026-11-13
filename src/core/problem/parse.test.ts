@@ -173,7 +173,7 @@ describe('parseProblem', () => {
       { id: 'io', ask: 'i_o', find: { kind: 'i', el: 'A' }, answer: -1, unit: 'A' },
       { id: 'vo', ask: 'u_o', find: { kind: 'v', nodes: ['o'] }, answer: -2, unit: 'V' },
     ];
-    b.i18n.en.questions = [{ ask: 'i_o' }, { ask: 'v_o' }];
+    b.i18n.en.questions = [{ ask: 'i_o' }, { ask: 'u_o' }];
     const r = parseProblem(b);
     expect(r.errors).toEqual([]);
     expect(r.problem!.schematic.marks).toEqual([{ kind: 'i', el: 'A', name: 'i_A' }]);
@@ -345,5 +345,21 @@ describe('documentation examples', () => {
       expect(r.errors).toEqual([]);
       expect(r.warnings).toEqual([]);
     });
+  });
+});
+
+describe('automatic marks', () => {
+  it('voltage marks are named u_… in both languages (diagrams draw u)', () => {
+    for (const lang of ['zh', 'en'] as const) {
+      setLang(lang);
+      const b = structuredClone(base) as any;
+      b.questions[1] = { id: 'vr2', ask: 'u_R2', find: { kind: 'v', el: 'R2' }, answer: 6, unit: 'V' };
+      const r = parseProblem(b);
+      expect(r.errors).toEqual([]);
+      expect(r.problem!.schematic.marks).toEqual([
+        { kind: 'i', el: 'R1', name: 'i_R1' },
+        { kind: 'v', el: 'R2', name: 'u_R2' },
+      ]);
+    }
   });
 });

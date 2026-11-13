@@ -154,7 +154,7 @@ npm run validate -- --lang en       # 英文报错信息
 - **电流源**：箭头从 p 指向 n，源内部从 p 推 `value` 安培到 n（电流从 n 端流出）。它的关联电流就是 +value。想让电流源向结点 a 注入电流，就让 `to`（n）接 a。
 - 想让学生用某个方向，就**画出来**：`marks` 里的 `{"kind": "i", "el": "R1", "name": "i1"}` 在 R1 上画一个从 p 指向 n 的电流箭头，标 `i1`；`{"kind": "v", "el": "C", "name": "u_C"}` 在 p 端标 “+”、n 端标 “−”。所以**元件的 from/to 方向就是参考方向**——先想好方向再画。
 - **运放的输出电流**：`{"kind": "i", "el": "A", "name": "i_o"}` 在运放的输出引线上画一个**背离运放**（指向输出结点）的箭头，和引擎的 `{"kind": "i", "el": "A"}`（从输出端流出的电流）同号。运放不能加 `"v"` 标记（它没有“元件电压”，用结点标签）；变压器 `XFMR`、耦合 `K` 不能加任何标记（给与绕组串联的元件加）。 / On an op-amp, `{"kind":"i","el":"A","name":"i_o"}` draws an arrow on the output lead pointing **away from the op-amp**, matching the engine's sign (current out of the output terminal). `"v"` marks on op-amps and any mark on `XFMR` / `K` are errors.
-- 题目问到某个元件的电流（`kind: "i"`）或电压（`kind: "v"` + `el`）而图里还没有对应的标记时，程序**自动加一个**，名字是 `i_R1`、`u_R1`（英文界面 `v_R1`）；问运放的输出电流时自动加 `i_A`。题干里如果用了自己的符号（如 i₁、i_o），请自己写 `marks` 并用同一个名字。 / Asked element currents/voltages (and op-amp output currents) get a mark automatically unless one is listed; write your own to use the symbol from the text.
+- 题目问到某个元件的电流（`kind: "i"`）或电压（`kind: "v"` + `el`）而图里还没有对应的标记时，程序**自动加一个**，名字是 `i_R1`、`u_R1`（中英文界面都用 u）；问运放的输出电流时自动加 `i_A`。题干里如果用了自己的符号（如 i₁、i_o），请自己写 `marks` 并用同一个名字。 / Asked element currents/voltages (and op-amp output currents) get a mark automatically unless one is listed; write your own to use the symbol from the text.
 
 ### 3.5 标签、端子、注释 / labels, terminals, notes
 

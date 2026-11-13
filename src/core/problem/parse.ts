@@ -283,7 +283,8 @@ function parseAnalysis(raw: unknown, errors: string[]): Analysis | null {
 }
 
 /** Default symbol of an auto-added reference mark: i_R1, u_R1 (zh) / v_R1 (en). */
-const markName = (kind: 'i' | 'v', el: string) => `${kind === 'i' ? 'i' : tr('u', 'v')}_${el}`;
+/** Auto mark names use u for voltage in both languages (textbook notation, see docs/NOTATION.md). */
+const markName = (kind: 'i' | 'v', el: string) => `${kind === 'i' ? 'i' : 'u'}_${el}`;
 
 export interface ParseProblemOptions {
   /**
