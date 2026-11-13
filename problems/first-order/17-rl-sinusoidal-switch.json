@@ -33,20 +33,20 @@
   "questions": [
     { "id": "ul0", "ask": "u_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": 20, "unit": "V", "explain": "i(0₊) = i(0₋) = 0，R 上没有压降：u_L(0₊) = u_s(0) = 20 cos 0 = 20 V。" },
     { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.01, "unit": "s", "explain": "τ = L/R = 0.1/10 = 0.01 s，与激励的形式无关。" },
-    { "id": "i1", "ask": "t = 0.01 s 时 i = ?", "find": { "kind": "i", "el": "R", "t": 0.01 }, "answer": 1.013894, "unit": "A", "explain": "i(t) = √2 sin(100t + 45°) − e^(−100t) A。t = 0.01 s：100t = 1 rad ≈ 57.30°，i = √2 sin(102.30°) − e⁻¹ ≈ 1.3818 − 0.3679 ≈ 1.014 A。" },
+    { "id": "i1", "ask": "t = 0.01 s 时 i = ?", "find": { "kind": "i", "el": "R", "t": 0.01 }, "answer": 1.013894, "unit": "A", "explain": "i(t) = √2 cos(100t − 45°) − e^(−100t) A。t = 0.01 s：100t = 1 rad ≈ 57.30°，i = √2 cos(12.30°) − e⁻¹ ≈ 1.3818 − 0.3679 ≈ 1.014 A。" },
     { "id": "phase", "ask": "若改为 u_s = 20 sin(100t + ψ) V，ψ 取何值时合闸后电流立即进入稳态（没有自由分量）？", "choices": ["ψ = 45°（或 225°）", "ψ = 0°", "ψ = 90°", "任何 ψ 都会有过渡过程"], "correct": 0, "explain": "强制分量 i_p = √2 sin(100t + ψ − 45°)，自由分量 A e^(−100t) 的系数 A = i(0₊) − i_p(0₊) = −√2 sin(ψ − 45°)。ψ − 45° = 0 或 180° 时 A = 0，合闸瞬间稳态电流恰好为零，不出现过渡过程。" }
   ],
   "hints": [
     "正弦激励的一阶电路：全响应 = 强制分量（正弦稳态解，用相量法求）+ 自由分量 A e^(−t/τ)。",
-    "相量法：Z = R + jωL = 10 + j10 = 10√2∠45° Ω。把 u_s 写成 20 sin(100t + 90°)。",
+    "相量法：Z = R + jωL = 10 + j10 = 10√2∠45° Ω。按余弦参考写振幅相量：u_s = 20 cos(100t) V → U̇_m = 20∠0° V。",
     "常数 A 由 i(0₊) = 0 确定：A = 0 − i_p(0)。正弦激励没有“终值”，不能直接套用 f(∞) 的三要素公式。"
   ],
   "solution": [
     "**1. 初值。** 电感原来没有电流：i(0₊) = 0，**u_L(0₊) = u_s(0) = 20 V**。",
     "**2. 时间常数。** **τ = L/R = 0.01 s**。",
-    "**3. 强制分量（相量法）。** u_s = 20 sin(100t + 90°)，Z = 10 + j10 = 10√2∠45° Ω，电流幅值 20/(10√2) = √2 A，滞后电压 45°：i_p(t) = √2 sin(100t + 45°) A。",
-    "**4. 全响应。** i(t) = i_p(t) + A e^(−100t)，由 i(0₊) = 0：A = −√2 sin 45° = −1。所以 i(t) = √2 sin(100t + 45°) − e^(−100t) A（t > 0）。",
-    "**5. t = 0.01 s。** 100t = 1 rad = 57.30°：i = √2 sin(102.30°) − e⁻¹ = 1.3818 − 0.3679 ≈ **1.014 A**。约 5τ = 0.05 s 后自由分量可忽略，电流成为纯正弦稳态。",
+    "**3. 强制分量（相量法）。** U̇_m = 20∠0° V，Z = 10 + j10 = 10√2∠45° Ω，İ_m = U̇_m/Z = √2∠−45° A：i_p(t) = √2 cos(100t − 45°) A。",
+    "**4. 全响应。** i(t) = i_p(t) + A e^(−100t)，由 i(0₊) = 0：A = −i_p(0₊) = −√2 cos(−45°) = −1。所以 i(t) = √2 cos(100t − 45°) − e^(−100t) A（t > 0）。",
+    "**5. t = 0.01 s。** 100t = 1 rad = 57.30°：i = √2 cos(12.30°) − e⁻¹ = 1.3818 − 0.3679 ≈ **1.014 A**。约 5τ = 0.05 s 后自由分量可忽略，电流成为纯正弦稳态。",
     "**6. 合闸相位。** 一般地 u_s = 20 sin(100t + ψ)：A = −√2 sin(ψ − 45°)。ψ = 45° 或 225° 时 A = 0，直接进入稳态；ψ = 135° 或 315° 时 |A| 最大（= √2 A），过渡过程最剧烈。",
     "注意：正弦激励下电流没有终值 i(∞)，三要素法中的 f(∞) 要换成稳态解在 0₊ 的值 i_p(0₊)：i(t) = i_p(t) + [i(0₊) − i_p(0₊)]e^(−t/τ)。"
   ],
@@ -61,20 +61,20 @@
       "questions": [
         { "ask": "u_L(0+) = ?", "explain": "i(0+) = i(0−) = 0, so there is no drop across R: u_L(0+) = u_s(0) = 20 cos 0 = 20 V." },
         { "ask": "τ = ?", "explain": "τ = L/R = 0.1/10 = 0.01 s, regardless of the type of source." },
-        { "ask": "i at t = 0.01 s = ?", "explain": "i(t) = √2 sin(100t + 45°) − e^(−100t) A. At t = 0.01 s: 100t = 1 rad ≈ 57.30°, i = √2 sin(102.30°) − e⁻¹ ≈ 1.3818 − 0.3679 ≈ 1.014 A." },
+        { "ask": "i at t = 0.01 s = ?", "explain": "i(t) = √2 cos(100t − 45°) − e^(−100t) A. At t = 0.01 s: 100t = 1 rad ≈ 57.30°, i = √2 cos(12.30°) − e⁻¹ ≈ 1.3818 − 0.3679 ≈ 1.014 A." },
         { "ask": "If instead u_s = 20 sin(100t + ψ) V, for which ψ does the current go straight into steady state when the switch closes (no natural component)?", "choices": ["ψ = 45° (or 225°)", "ψ = 0°", "ψ = 90°", "There is a transient for every ψ"], "explain": "The forced component is i_p = √2 sin(100t + ψ − 45°); the natural component A e^(−100t) has A = i(0+) − i_p(0+) = −√2 sin(ψ − 45°). For ψ − 45° = 0 or 180°, A = 0: the steady-state current happens to be zero at the switching instant, so there is no transient." }
       ],
       "hints": [
         "First-order circuit with a sinusoidal source: complete response = forced component (the sinusoidal steady-state solution, found with phasors) + natural component A e^(−t/τ).",
-        "Phasors: Z = R + jωL = 10 + j10 = 10√2∠45° Ω. Write u_s as 20 sin(100t + 90°).",
+        "Phasors: Z = R + jωL = 10 + j10 = 10√2∠45° Ω. With the cosine reference the amplitude phasor of u_s = 20 cos(100t) V is U̇_m = 20∠0° V.",
         "The constant A follows from i(0+) = 0: A = 0 − i_p(0). A sinusoidal source has no 'final value', so the f(∞) form of the three-element formula can't be used directly."
       ],
       "solution": [
         "**1. Initial values.** The inductor carries no current initially: i(0+) = 0, **u_L(0+) = u_s(0) = 20 V**.",
         "**2. Time constant.** **τ = L/R = 0.01 s**.",
-        "**3. Forced component (phasors).** u_s = 20 sin(100t + 90°), Z = 10 + j10 = 10√2∠45° Ω; the current amplitude is 20/(10√2) = √2 A, lagging the voltage by 45°: i_p(t) = √2 sin(100t + 45°) A.",
-        "**4. Complete response.** i(t) = i_p(t) + A e^(−100t); from i(0+) = 0: A = −√2 sin 45° = −1. So i(t) = √2 sin(100t + 45°) − e^(−100t) A (t > 0).",
-        "**5. At t = 0.01 s.** 100t = 1 rad = 57.30°: i = √2 sin(102.30°) − e⁻¹ = 1.3818 − 0.3679 ≈ **1.014 A**. After about 5τ = 0.05 s the natural component is negligible and the current is a pure sinusoid.",
+        "**3. Forced component (phasors).** U̇_m = 20∠0° V, Z = 10 + j10 = 10√2∠45° Ω, İ_m = U̇_m/Z = √2∠−45° A: i_p(t) = √2 cos(100t − 45°) A.",
+        "**4. Complete response.** i(t) = i_p(t) + A e^(−100t); from i(0+) = 0: A = −i_p(0+) = −√2 cos(−45°) = −1. So i(t) = √2 cos(100t − 45°) − e^(−100t) A (t > 0).",
+        "**5. At t = 0.01 s.** 100t = 1 rad = 57.30°: i = √2 cos(12.30°) − e⁻¹ = 1.3818 − 0.3679 ≈ **1.014 A**. After about 5τ = 0.05 s the natural component is negligible and the current is a pure sinusoid.",
         "**6. Switching phase.** In general, for u_s = 20 sin(100t + ψ): A = −√2 sin(ψ − 45°). For ψ = 45° or 225°, A = 0 and the circuit enters steady state immediately; for ψ = 135° or 315°, |A| is largest (√2 A) and the transient is strongest.",
         "Note: with a sinusoidal source the current has no final value i(∞); in the three-element formula f(∞) is replaced by the steady-state solution and its value at 0+: i(t) = i_p(t) + [i(0+) − i_p(0+)]e^(−t/τ)."
       ]
