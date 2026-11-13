@@ -8,7 +8,7 @@ import { tr } from './i18n';
 import { MCU_BOARDS, VPIN_MAX, VPIN_MAX_FT, boardOf, isMcu, isOutputMode, mcuPin } from './mcu';
 import { isFloating, type BoardNetlist } from './netlist';
 import { isPower } from './parts';
-import type { SimResult } from './solver';
+import { hasPwm, type SimResult } from './solver';
 import type { TransientResult } from './transient';
 import { pinId } from './types';
 
@@ -33,6 +33,7 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
     if (isPower(c.type)) for (const t of ['+', '-']) netOf(c.ref, t) && railNets.set(netOf(c.ref, t)!, `${c.ref} ${t}`);
     if (isMcu(c.type)) for (const t of ['3V3', '5V', 'GND']) netOf(c.ref, t) && isConn(c.ref, t) && railNets.set(netOf(c.ref, t)!, `${c.ref} ${t}`);
   }
+  const pwmBoard = hasPwm(circuit);
   const outputsOnNet = new Map<string, { ref: string; pin: string; level: string }[]>();
 
   for (const c of placed) {
@@ -307,7 +308,9 @@ export function mcuDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
           issue('warning', tr(`${c.ref} 的栅极浮空`, `${c.ref}'s gate is floating`), tr('MOSFET 的栅极几乎不取电流，悬空时会随便导通或关断。加一个 10 kΩ – 100 kΩ 下拉电阻（G 到 S）。', 'A MOSFET gate draws almost no current, so a floating gate turns on and off at random. Add a 10 kΩ – 100 kΩ pull-down (G to S).'), [c.ref], holes(c.ref, ['g']));
         if (m.breakdown)
           issue('error', tr(`${c.ref} 雪崩击穿：Vds = ${volts(m.vds)}`, `${c.ref} avalanche breakdown: Vds = ${volts(m.vds)}`), tr(`${spec.name[0]} 的 Vds 最高约 ${spec.bv} V。电感性负载要加续流二极管。`, `The ${spec.name[1]} takes about ${spec.bv} V on Vds at most. Inductive loads need a flyback diode.`), [c.ref]);
-        if (m.region === 'saturation' && Math.abs(m.id) > 0.01)
+        // with a PWM pin on the board the DC model averages the gate drive (duty × 3.3 V), which
+        // would flag a PWM-driven logic-level MOSFET as "not fully on": skip the check there
+        if (m.region === 'saturation' && Math.abs(m.id) > 0.01 && !pwmBoard)
           issue(
             'warning',
             tr(`${c.ref} 没有完全导通（Vgs = ${volts(m.vgs)}）`, `${c.ref} is not fully on (Vgs = ${volts(m.vgs)})`),

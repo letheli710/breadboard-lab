@@ -768,7 +768,7 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
     const vak = sub(trOf(d.a), trOf(d.k));
     const on = avg > 0.0005;
     leds.set(d.ref, {
-      ...ledState(on, avg, peak, !on && vavg(vak) < -0.5),
+      ...ledState(on, avg, peak, !on && vavg(vak) < -0.5, d.led),
       avgCurrent: avg,
       peakCurrent: peak,
       onFraction,

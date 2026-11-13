@@ -1166,7 +1166,7 @@ export function simulate(circuit: Circuit): SimResult {
     current.set(d.ref, I);
     vdrop.set(d.ref, vak);
     if (d.buzzer) buzzers.set(d.ref, buzzerState(I, vak));
-    else leds.set(d.ref, ledState(d.on && I > 0.0005, I, I, vak < -0.5));
+    else leds.set(d.ref, ledState(d.on && I > 0.0005, I, I, vak < -0.5, d.led));
   }
   const sources = new Map<string, SourceState>();
   for (const s of c.srcs) {
@@ -1363,13 +1363,15 @@ function mcuState(
   };
 }
 
-export function ledState(on: boolean, avg: number, peak: number, reverse: boolean): LedState {
+/** LED / diode state. LEDs: > 30 mA over-current, > 60 mA average or > 150 mA peak burns out.
+ *  Plain diodes (1N4007-class rectifier): rated 1 A average, burns above 2 A average / 30 A peak. */
+export function ledState(on: boolean, avg: number, peak: number, reverse: boolean, isLed = true): LedState {
   return {
     on,
     current: avg,
     brightness: on ? Math.min(1, Math.max(0, avg / 0.02)) : 0,
-    overcurrent: avg > 0.03,
-    burnt: avg > 0.06 || peak > 0.15,
+    overcurrent: isLed ? avg > 0.03 : avg > 1,
+    burnt: isLed ? avg > 0.06 || peak > 0.15 : avg > 2 || peak > 30,
     reverse,
   };
 }
