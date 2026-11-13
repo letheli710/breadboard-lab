@@ -151,16 +151,26 @@ Each chapter lists the knowledge points that must be covered — at least one pr
 5. 二端口的等效电路（T 形、Π 形）
 6. 二端口的级联（ABCD 相乘）与端接负载时的输入阻抗
 
+### `nonlinear` 非线性电阻电路（目标 14 题，教材第 17 章前半）
+引擎：元件 `NR`，特性 `law` 为多项式（压控 `i` / 流控 `u`）、分段线性 `pwl` 或理想二极管 `diode`；直流题求全部工作点，交流题是小信号分析（PROBLEM_FORMAT §6.1.7）；`schematic.plot` 画特性和负载线。
+1. 非线性电阻的分类：压控型、流控型、单调型、双向/单向；静态电阻与动态电阻（含负动态电阻）
+2. 非线性电阻的串联（电流相同、电压相加）与并联（电压相同、电流相加）：等效特性的图解与解析
+3. 曲线相交法：线性部分化为戴维宁/诺顿电路（含受控源），负载线与特性相交；替代定理回到原电路
+4. 解析法：平方律等特性得到的一元二次方程，按特性的适用范围舍去不合理的根
+5. 分段线性化法：每段 = 电压源 + 电阻，假设所在段再检验；理想二极管与“开启电压 + 导通电阻”模型的假设状态法
+6. 多个工作点：N 形（隧道二极管）、S 形特性；工作点个数随 U_s 变化；负阻区工作点的稳定性（难度 4）
+7. 小信号分析法：直流工作点 → 动态电阻 → 小信号等效电路 → 总响应；电压源/电流源激励，稳压管纹波，两个非线性元件（难度 3–5）
+
 ---
 
-合计目标约 241 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
+合计目标约 255 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
 
-About 241 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
+About 255 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
 
 ---
 
 ## 尚未纳入大纲 / Not in the syllabus yet
 
-以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：复频域分析 / 拉普拉斯变换（第 14 章）、冲激响应与卷积、电路方程的矩阵形式与状态方程（第 15 章）、非线性电路（第 17 章）、均匀传输线（第 18 章）。
+以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：复频域分析 / 拉普拉斯变换（第 14 章）、冲激响应与卷积、电路方程的矩阵形式与状态方程（第 15 章）、非线性动态电路（第 17 章后半：相平面、自激振荡）、均匀传输线（第 18 章）。
 
-Not covered yet (needs engine work first; see the ROADMAP backlog): Laplace / s-domain analysis (ch. 14), impulse response and convolution, matrix formulation and state equations (ch. 15), nonlinear circuits (ch. 17), transmission lines (ch. 18).
+Not covered yet (needs engine work first; see the ROADMAP backlog): Laplace / s-domain analysis (ch. 14), impulse response and convolution, matrix formulation and state equations (ch. 15), nonlinear dynamic circuits (second half of ch. 17: phase plane, self-oscillation), transmission lines (ch. 18).

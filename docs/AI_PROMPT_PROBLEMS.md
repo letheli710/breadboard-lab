@@ -69,6 +69,7 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
 - OPAMP：{"ref": "A1", "type": "OPAMP", "at": [x, y]}，反相输入 (−) 在 (x−2, y−1)，同相输入 (+) 在 (x−2, y+1)，输出在 (x+2, y)；"flip": true 交换两个输入；"orient": "left" 左右镜像。理想：V+ = V−，输入电流为零，输出对地。
 - XFMR：{"type": "XFMR", "at": [x, y], "n": 2}（n:1，u1 = n·u2），端子 p1 (x−2, y−1)、n1 (x−2, y+1)、p2 (x+2, y−1)、n2 (x+2, y+1)，同名端在 p1、p2。
 - K：{"ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "k": 0.5} 或 "M": "2m"；同名端在两个电感各自的 p 端（from）。
+- NR 非线性电阻（只用于 dc 工作点题和 ac 小信号题，PROBLEM_FORMAT §6.1.7）：{"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": {...}}，law 写 {"i": [c0, c1, c2]}（i = c0 + c1·u + c2·u²，可加 "umin": 0 表示 u < 0 时保持 u = 0 处的值）、{"u": [c0, c1, …]}（流控型，可加 "imin"）、{"pwl": [[u0, i0], [u1, i1], …]}（折线，首尾延长）或 {"diode": {"uon": 0.7, "ron": 10}}（理想二极管，阳极 = from）。可在 schematic 里加 "plot": {"el": "N", "u": [0, 6], "i": [0, 0.004], "iUnit": "mA", "loadLine": true} 画 u–i 特性和负载线（"points": true 会标出工作点，工作点是答案时不要加）。
 
 === 参考方向（决定答案的符号）===
 - 所有二端元件用关联参考方向：u = V(p) − V(n)，i 从 p 经元件流到 n，吸收功率 P = u·i（负值 = 发出）。
@@ -114,6 +115,7 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
   {"kind": "wattmeter", "current": "W1", "nodes": ["A", "B"]}：功率表读数（电流线圈 = 一个 label 为 "W" 的 ammeter，电压线圈接 A、B）
   {"kind": "fc", "out": ["o"], "input": "Ui", "which": "low"}、{"kind": "bw", ...}、{"kind": "Q"}：−3 dB 截止频率（Hz）、带宽（Hz）、品质因数
   交流题的小题可加 "freq" / "omega" 在另一个频率下计算（例如分别问 100 Hz 和 1 kHz 时的 |H|）
+  含非线性电阻 NR：{"kind": "rs", "el": "N"}、{"kind": "rd", "el": "N"}：工作点的静态电阻 U_Q/I_Q、动态电阻 du/di；{"kind": "nop"}：工作点个数；有多个工作点时每个 v/i/p/rd 都要加 "op": n（按第一个 NR 的电压从小到大）。小信号题用 {"type": "ac", "omega": 100, "phasor": "peak"}，直流源写 {"dc": 6}、小信号源写 {"ac": {"mag": 0.1}}：v、i 是小信号振幅，问工作点加 "dc": true。vth/isc/pmax 必须 "exclude" 所有 NR；req 是小信号电阻。
 - 交流结果是复数，用 "part" 选：mag（默认）、phase（度）、re、im、db、rms。
 
 === 教学要求 ===
@@ -134,7 +136,7 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
 - hints 数量和顺序必须与原文一致。英文自然、地道，数字、单位、符号和元件名不变，英文里不要夹中文。
 
 === 填写区 ===
-章节 chapter：___________（basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / two-port）
+章节 chapter：___________（basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / two-port / nonlinear）
 知识点：___________（例如：戴维宁等效电路、含受控源）
 难度（1–5）：___
 数量：___
@@ -225,6 +227,7 @@ R (Ω), C (F), L (H), V independent voltage source, I independent current source
 - Switch: {"type": "SW", "state": {"before": "closed", "after": "open"}}, acts at t = 0.
 - OPAMP: {"ref": "A1", "type": "OPAMP", "at": [x, y]}: inverting input (−) at (x−2, y−1), non-inverting (+) at (x−2, y+1), output at (x+2, y); "flip": true swaps the inputs; "orient": "left" mirrors it. Ideal: V+ = V−, no input current, output referenced to ground.
 - XFMR: {"type": "XFMR", "at": [x, y], "n": 2} (n:1, u1 = n·u2), terminals p1 (x−2, y−1), n1 (x−2, y+1), p2 (x+2, y−1), n2 (x+2, y+1); dots at p1 and p2.
+- NR nonlinear resistor (DC operating-point and AC small-signal problems only, PROBLEM_FORMAT §6.1.7): {"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": {...}} with law {"i": [c0, c1, c2]} (i = c0 + c1·u + c2·u²; "umin": 0 holds the value at u = 0 below it), {"u": [c0, c1, …]} (current-controlled, optional "imin"), {"pwl": [[u0, i0], [u1, i1], …]} (polyline, ends extended) or {"diode": {"uon": 0.7, "ron": 10}} (ideal diode, anode = from). Add "plot": {"el": "N", "u": [0, 6], "i": [0, 0.004], "iUnit": "mA", "loadLine": true} to the schematic to draw the u–i characteristic and load line ("points": true marks the operating points — leave it off when they are the answer).
 - K: {"ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "k": 0.5} or "M": "2m"; the dots are at each inductor's p terminal ("from").
 
 === Reference directions (they decide the sign of answers) ===
@@ -271,6 +274,7 @@ Multiple choice (concepts): {"id": "c", "ask": "...", "choices": ["...", "...", 
   {"kind": "wattmeter", "current": "W1", "nodes": ["A", "B"]}: wattmeter reading (current coil = an ammeter with label "W", voltage coil across A, B)
   {"kind": "fc", "out": ["o"], "input": "Vi", "which": "low"}, {"kind": "bw", ...}, {"kind": "Q"}: −3 dB cutoff (Hz), bandwidth (Hz), quality factor
   AC questions may add "freq" / "omega" to be evaluated at another frequency (e.g. |H| at 100 Hz and at 1 kHz)
+  With a nonlinear resistor NR: {"kind": "rs", "el": "N"}, {"kind": "rd", "el": "N"}: static resistance U_Q/I_Q and dynamic resistance du/di at the operating point; {"kind": "nop"}: number of operating points; with several, every v/i/p/rd question needs "op": n (ordered by the first NR's voltage). Small-signal problems use {"type": "ac", "omega": 100, "phasor": "peak"} with the DC source as {"dc": 6} and the small signal as {"ac": {"mag": 0.1}}: v, i are small-signal amplitudes; add "dc": true to ask for the operating point. vth/isc/pmax must "exclude" every NR; req is the small-signal resistance.
 - AC results are complex; pick with "part": mag (default), phase (degrees), re, im, db, rms.
 
 === Teaching quality ===
@@ -291,7 +295,7 @@ Multiple choice (concepts): {"id": "c", "ask": "...", "choices": ["...", "...", 
 - hints must have the same count and order as the originals. Write natural Simplified Chinese for students, with the English term after key concepts, e.g. "戴维宁等效（Thevenin equivalent）". Keep numbers, units, symbols and element names unchanged.
 
 === Fill in ===
-Chapter: ___________ (basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / two-port)
+Chapter: ___________ (basics / equivalence / methods / theorems / opamp / storage / first-order / second-order / phasors / ac-analysis / ac-power / coupled / frequency / three-phase / non-sinusoidal / two-port / nonlinear)
 Topic: ___________ (e.g. Thevenin equivalent with a dependent source)
 Difficulty (1–5): ___
 How many: ___

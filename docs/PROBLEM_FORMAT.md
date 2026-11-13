@@ -77,6 +77,7 @@ npm run validate -- --lang en       # 英文报错信息
 | 4 | `three-phase` | 三相电路 |
 | 4 | `non-sinusoidal` | 非正弦周期电流电路：傅里叶级数与频谱、有效值、平均功率、谐波分析、谐波谐振与滤波、三相电路中的高次谐波（分析类型 `periodic`，§5.1） |
 | 4 | `two-port` | 二端口网络 |
+| 4 | `nonlinear` | 非线性电阻电路（教材第 17 章，只含电阻性电路）：压控/流控、静态与动态电阻、串并联、曲线相交法、分段线性化、理想二极管、多个工作点、小信号分析（元件 `NR`，§6.1.7） |
 
 章节列表定义在 `src/core/problem/chapters.ts`。
 
@@ -137,6 +138,7 @@ npm run validate -- --lang en       # 英文报错信息
 | `OPAMP` | 理想运放 | — | `at`, `orient`, `flip`（见下） |
 | `XFMR` | 理想变压器 n:1 | — | `at`, `n` |
 | `K` | 耦合电感 | — | `l1`, `l2`, `k` 或 `M` |
+| `NR` | 非线性电阻 | — | `law`：u–i 特性（§6.1.7）。只用于直流（工作点）和交流（小信号）分析 |
 
 二端元件的可选字段：`label`（图上显示的文字，代替自动的 “R1 = 2 Ω”，例如 `"3i"`、`"jωL"`、`"R"`）、`hideValue: true`（题目要求解这个值时隐藏数值）。
 
@@ -338,8 +340,11 @@ The circuit is solved harmonic by harmonic (k = 0: DC with L shorted and C open;
 | `fc` | `{"kind":"fc","out":["o"],"input":"Ui","which":"low"}` | −3 dB 截止频率：\|H\| = max\|H\|/√2 处的频率（H = V(out)/输入源）。只有一个截止频率时可省略 `which`（§6.1.6） | Hz |
 | `bw` | `{"kind":"bw","out":["o"],"input":"Ui"}` | −3 dB 带宽 = 上截止频率 − 下截止频率 | Hz |
 | `Q` | `{"kind":"Q"}` / `{"kind":"Q","port":["a","b"]}` | 品质因数（§6.1.6） | — |
+| `rs` | `{"kind":"rs","el":"N"}` | 非线性电阻在工作点的静态电阻 U_Q/I_Q（§6.1.7） | Ω |
+| `rd` | `{"kind":"rd","el":"N"}` | 非线性电阻在工作点的动态电阻 du/di（折点处、水平段报错） | Ω |
+| `nop` | `{"kind":"nop"}` | 直流工作点的个数 | — |
 
-**修饰字段 / Modifiers**：`"deriv": 1`（暂态题的 `v` / `i`：求 t 时刻的导数，§6.1.2）；`"freq"` / `"omega"`（交流题：这个小题在另一个频率下计算，§6.1.6）；`"harmonic": k`（非正弦周期题：只问第 k 次谐波，0 = 直流分量，§5.1）。
+**修饰字段 / Modifiers**：`"deriv": 1`（暂态题的 `v` / `i`：求 t 时刻的导数，§6.1.2）；`"freq"` / `"omega"`（交流题：这个小题在另一个频率下计算，§6.1.6）；`"harmonic": k`（非正弦周期题：只问第 k 次谐波，0 = 直流分量，§5.1）；`"op": n`（含非线性电阻、有多个工作点时问第 n 个）、`"dc": true`（含非线性电阻的交流小信号题：问直流工作点，§6.1.7）。
 
 #### 6.1.1 去掉负载：`exclude` / Removing the drawn load
 
@@ -414,6 +419,68 @@ Draw the current coil as an `ammeter` in series with the line (label `"W"`), and
 - **`bw`**：上截止频率 − 下截止频率（Hz）。只有一个截止频率时报错。
 - **`Q`**：谐振频率 f₀ 处（与 `f0` 同样从 `port` 或唯一独立源看进去）的品质因数，定义为 **Q = ω₀ · W / P**，W 为平均储能（所有电感、电容和互感），P 为平均有功功率。它与教材公式一致：串联 RLC 的 Q = ω₀L/R = 1/(ω₀RC)，并联 GCL 的 Q = ω₀C/G = R/(ω₀L)，高 Q 时也等于 f₀/BW。无损电路（Q 无穷大）报错。/ Q = ω₀·(average stored energy)/(average power) at resonance — equals ω₀L/R for series RLC and ω₀C/G for parallel GCL.
 
+#### 6.1.7 非线性电阻 / Nonlinear resistors: `NR`, `rs`, `rd`, `nop`, `op`, `dc`
+
+元件 `{"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": {...}}`，u = V(p) − V(n)，i 从 p 流到 n（关联方向）。`law` 四选一：
+
+| `law` | 特性 |
+|---|---|
+| `{"i": [c0, c1, c2, …]}` | 压控型多项式 i = c0 + c1·u + c2·u² + …；可加 `"umin"` / `"umax"`：范围之外特性保持边界处的值不变（`{"i": [0, 0, 1], "umin": 0}` 就是 i = u²（u ≥ 0）、i = 0（u < 0）） |
+| `{"u": [c0, c1, …]}` | 流控型多项式 u = c0 + c1·i + …；可加 `"imin"` / `"imax"` |
+| `{"pwl": [[u0, i0], [u1, i1], …]}` | 分段线性：u–i 平面上依次连接各点的折线，**首尾两段向外无限延长**。可以不单调（N 形、S 形），竖直段（u 不变）也可以 |
+| `{"diode": {}}` / `{"diode": {"uon": 0.7, "ron": 10}}` | 理想二极管（阳极 = p，画成二极管符号）；可加开启电压 `uon`、导通电阻 `ron` |
+
+- **工作点**：引擎对每一种“每个元件处于哪一段”的组合精确求解（只有一个元件处于弯曲段时化为一元多项式方程，求出区间内**全部**实根），每个解都代回元件特性和电路方程检查，所以**所有**工作点都能找到；同时有两个以上元件处于弯曲（非直线）段时用多起点阻尼牛顿法，不保证找全。找不到工作点、或某段直线恰好落在负载线上（无穷多个工作点）时报错。
+- **直流题**（`"analysis": {"type": "dc"}`）：`v`、`i`、`p`、`meter` 等都是工作点处的值；`rs`、`rd` 是元件的静态/动态电阻；`nop` 是工作点个数。有多个工作点时必须写 `"op": n`（按第一个 `NR` 元件的电压从小到大编号）。`req` 是**小信号**等效电阻（非线性电阻换成动态电阻）；`vth`、`isc`、`pmax` 只对线性部分有定义，必须把所有 `NR` 列进 `exclude`。
+- **小信号题**（`"analysis": {"type": "ac", "omega": 100, "phasor": "peak"}`）：直流源写 `{"dc": 6}`（裸数字在交流分析里是相量！），小信号源写 `{"ac": {"mag": 0.1}}`。引擎先用各源的直流部分求工作点，再把每个 `NR` 换成它的动态电阻、用交流部分求解：`v`、`i` 就是小信号分量（`phasor: "peak"` 时是振幅）。问工作点用 `"dc": true`。
+- **特性图** `schematic.plot`：`{"el": "N", "u": [0, 6], "i": [0, 0.004], "iUnit": "mA", "loadLine": true, "points": false}` 在电路图下方画出 N 的 u–i 特性（`u`、`i` 是坐标范围，SI 单位）；`loadLine` 画出线性部分的负载线（只有一个 `NR` 时），`points` 标出工作点（工作点就是要问的答案时不要标）。
+- 不支持：暂态分析、`periodic` 分析、指数型（肖克利）二极管方程。
+
+Element `NR` with `law` = `{"i": [...]}` (voltage-controlled polynomial, optional `umin`/`umax` outside which the value is held constant), `{"u": [...]}` (current-controlled, `imin`/`imax`), `{"pwl": [[u, i], ...]}` (polyline, end segments extended) or `{"diode": {"uon"?, "ron"?}}`. All operating points are found (exactly when at most one element sits on a curved piece). DC problems: quantities at the operating point, `rs` / `rd` static and dynamic resistance, `nop` the count, `"op": n` picks one when there are several (ordered by the first NR's voltage); `req` is the small-signal resistance; `vth`/`isc`/`pmax` need every NR in `exclude`. AC problems are small-signal: DC parts of the sources set the operating point, each NR becomes its dynamic resistance, `v`/`i` are the small-signal parts; `"dc": true` asks for the operating point. `schematic.plot` draws the characteristic, the load line and (optionally) the operating points. Not supported: transient and periodic analysis, exponential diode laws.
+
+例：U_s = 5 V，R = 1 Ω，i = u²（u ≥ 0）：u² + u − 5 = 0，U_Q = (√21 − 1)/2 ≈ 1.791288 V，R_d = 1/(2U_Q) ≈ 0.279129 Ω。
+
+```json
+{
+  "format": "circuit-problem/1",
+  "id": "example-nonlinear-square-law",
+  "chapter": "nonlinear",
+  "title": "平方律电阻的工作点",
+  "level": 2,
+  "statement": "U_s = 5 V，R = 1 Ω，非线性电阻 N 的特性为 i = u²（u ≥ 0；u < 0 时 i = 0）。求 U_Q 和 Q 点的动态电阻 R_d。",
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 5 },
+      { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 1 },
+      { "ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": { "i": [0, 0, 1], "umin": 0 } }
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[8, 4], [0, 4]]],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "v", "el": "N", "name": "u" }],
+    "plot": { "el": "N", "u": [0, 5.5], "i": [0, 6], "loadLine": true }
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "uq", "ask": "U_Q = ?", "find": { "kind": "v", "el": "N" }, "answer": 1.791288, "unit": "V", "explain": "5 − u = u² → u = (√21 − 1)/2 ≈ 1.791 V（负根舍去）。" },
+    { "id": "rd", "ask": "R_d = ?", "find": { "kind": "rd", "el": "N" }, "answer": 0.279129, "unit": "Ω", "explain": "di/du = 2u ≈ 3.583 S，R_d ≈ 0.2791 Ω。" }
+  ],
+  "hints": ["负载线 u = 5 − i 与 i = u² 联立。"],
+  "solution": "u² + u − 5 = 0 → **U_Q ≈ 1.791 V**；R_d = 1/(2U_Q) ≈ **0.2791 Ω**。",
+  "i18n": {
+    "en": {
+      "title": "Operating point of a square-law resistor",
+      "statement": "U_s = 5 V, R = 1 Ω; the nonlinear resistor N has i = u² (u ≥ 0; i = 0 for u < 0). Find U_Q and the dynamic resistance R_d at Q.",
+      "questions": [
+        { "ask": "U_Q = ?", "explain": "5 − u = u² → u = (√21 − 1)/2 ≈ 1.791 V (the negative root is rejected)." },
+        { "ask": "R_d = ?", "explain": "di/du = 2u ≈ 3.583 S, R_d ≈ 0.2791 Ω." }
+      ],
+      "hints": ["Solve the load line u = 5 − i together with i = u²."],
+      "solution": "u² + u − 5 = 0 → **U_Q ≈ 1.791 V**; R_d = 1/(2U_Q) ≈ **0.2791 Ω**."
+    }
+  }
+}
+```
+
 ### 6.2 复数结果取哪一部分 / `part`
 
 交流结果是复数，用 `find.part` 选择：`"mag"`（**交流默认**，模）、`"phase"`（相位，度）、`"re"`、`"im"`、`"db"`（20·lg|x|）、`"rms"`（换算成有效值——在 `phasor: "peak"` 时有用）。直流和暂态的结果是实数，默认 `"re"`。非正弦周期题（§5.1）不写 `harmonic` 时还有 `"avg"`、`"absavg"`、`"peak"`，默认 `"rms"`。
@@ -429,6 +496,7 @@ Draw the current coil as an `ammeter` in series with the line (label `"W"`), and
 - `gain`、`f0`、`twoport` 不能用于暂态题；`q`、`s`、`pf` 只用于交流题；`w` 不能用于交流题；`deriv` 只用于暂态题；`part: "rms"` 不能用于暂态的瞬时值。 / `gain`/`f0`/`twoport` are not available in transient problems; `w` is DC / transient only; `deriv` is transient only.
 - 变压器两侧没有公共地时，跨两侧的电压没有定义，引擎报错（同一侧内的电压、元件电压没问题）。 / Voltages between galvanically isolated sides of a transformer are undefined and throw.
 - 交流分析只有一个频率（含多个频率的激励用 `periodic`，§5.1，所有频率必须是基波的整数倍）。`f0` 在电路特征频率的 10⁻⁴～10⁴ 倍范围内搜索，有多个谐振点时给最低的。 / AC is single-frequency; `f0` returns the lowest resonance.
+- 非线性电阻 `NR` 只能用于直流（工作点）和交流（小信号）题；两个以上元件同时处于弯曲段时工作点用牛顿法搜索，不保证找全（§6.1.7）。 / `NR` works in DC and small-signal AC only; with two or more elements on curved pieces at once the operating-point search is Newton-based and not guaranteed complete.
 - 电路方程奇异（电压源回路、电流源割集、悬空结点、没有负反馈的运放、恰好在谐振频率上的无损 LC）时引擎给出说明并拒绝。
 
 ---
