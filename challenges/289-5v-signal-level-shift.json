@@ -21,17 +21,7 @@
     "",
     "**先预测**：USB 经过板上的二极管后，5V 脚约 4.69 V。按下按键时 SIG3 是多少伏？它高于 STM32 的 VIH（2.15 V）吗？ADC（12 位、满量程 3.3 V）会读到多少？PB12 上是多少伏，有没有电流流进引脚？",
     "",
-    "**测量**：两路的读数（按下 1、松开 0）、两个引脚的电压、ADC 读数，以及上拉时“倒灌”的电流。",
-    "",
-    "**对比**（仿真）：",
-    "- 分压：V(SIG3) = 4.69 × 20k/(10k + 20k) = **3.13 V**，高于 VIH，读到 1；ADC 读数 **3879**（3.13 V）。",
-    "- FT 引脚：PB12 = **4.69 V**，读到 1，没有电流流进引脚。",
-    "- 松开：下拉把两路都拉到 0 V，读到 0。",
-    "- 起始电路：5 V 直接进 PA0，引脚内部到 3V3 的**保护二极管**导通。电源内阻很小，二极管电流 **52 mA**（STM32 允许的注入电流只有约 5 mA），而且这股电流把整个 3V3 电源轨“倒灌”抬高。",
-    "",
-    "**为什么 FT 引脚可以**：FT 引脚上面**没有**接到 VDD 的保护二极管（换成了别的保护结构），所以输入可以到 VDD + 4 V（数据手册写 5.5 V 以内）。但有两个例外：",
-    "- **模拟模式（ADC）下不耐 5 V**——FT 引脚当 ADC 用时，5 V 照样会损坏它。STM32F103 的 ADC 引脚本来就全是非 FT 的。",
-    "- **打开内部上拉时**：上拉电阻接在 3.3 V 上，5 V 会通过它往 3V3 倒灌。仿真：PB12 设成输入 + 上拉时，有 **35 µA** 从引脚流进去（(4.69 − 3.3)/40 kΩ）。数据手册也规定 FT 引脚在 5 V 时不要使能上拉 / 下拉。",
+    "**测量**：两路的读数（按下 1、松开 0）、两个引脚的电压、ADC 读数，以及上拉时“倒灌”的电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**实际项目经验**：",
     "- **ESP32 没有任何耐 5 V 的引脚**，所有 5 V 信号都要分压或用电平转换模块。",
@@ -60,17 +50,7 @@
         "",
         "**Predict first**: after the board's USB diode the 5V pin is about 4.69 V. With the button pressed, what is SIG3? Is it above the STM32's VIH (2.15 V)? What will the ADC (12 bit, 3.3 V full scale) read? What is the voltage on PB12, and does any current flow into the pin?",
         "",
-        "**Measure**: both readings (pressed 1, released 0), both pin voltages, the ADC reading, and the back-feed current with the pull-up on.",
-        "",
-        "**Compare** (simulated):",
-        "- Divider: V(SIG3) = 4.69 × 20k/(10k + 20k) = **3.13 V**, above VIH, so it reads 1; the ADC reads **3879** (3.13 V).",
-        "- FT pin: PB12 = **4.69 V**, reads 1, and no current flows into the pin.",
-        "- Released: the pull-down takes both paths to 0 V and they read 0.",
-        "- Starting board: 5 V straight into PA0 forward-biases the pin's internal **clamp diode** to 3V3. With almost no source resistance the diode carries **52 mA** (the STM32 allows only about 5 mA of injected current), and that current back-powers the whole 3V3 rail.",
-        "",
-        "**Why an FT pin copes**: an FT pin has **no** clamp diode to VDD (it uses a different protection structure), so its input may go to VDD + 4 V (5.5 V max in the datasheet). Two exceptions:",
-        "- **Not 5 V tolerant in analog (ADC) mode** — used as an ADC input, an FT pin is damaged by 5 V like any other. On the STM32F103 the ADC pins are all non-FT anyway.",
-        "- **With the internal pull-up enabled**: the pull-up goes to 3.3 V, so 5 V back-feeds 3V3 through it. Simulated: with PB12 as input + pull-up, **35 µA** flows into the pin ((4.69 − 3.3)/40 kΩ). The datasheet also says not to enable pulls on an FT pin that sees 5 V.",
+        "**Measure**: both readings (pressed 1, released 0), both pin voltages, the ADC reading, and the back-feed current with the pull-up on. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Rule of thumb for real projects**:",
         "- **The ESP32 has no 5 V-tolerant pins at all**: every 5 V signal needs a divider or a level-shifter module.",
@@ -81,6 +61,23 @@
         "",
         "**Model note**: the clamp is modelled as a diode to 3V3 (absent on FT pins); the 52 mA on the starting board is set by the 5V pin → diode → 3V3 loop; a real chip would latch up or overheat. The simulator does not distinguish an FT pin in analog mode."
       ],
+      "compare": [
+        "**Compare** (simulated):",
+        "- Divider: V(SIG3) = 4.69 × 20k/(10k + 20k) = **3.13 V**, above VIH, so it reads 1; the ADC reads **3879** (3.13 V).",
+        "- FT pin: PB12 = **4.69 V**, reads 1, and no current flows into the pin.",
+        "- Released: the pull-down takes both paths to 0 V and they read 0.",
+        "- Starting board: 5 V straight into PA0 forward-biases the pin's internal **clamp diode** to 3V3. With almost no source resistance the diode carries **52 mA** (the STM32 allows only about 5 mA of injected current), and that current back-powers the whole 3V3 rail.",
+        "",
+        "**Why an FT pin copes**: an FT pin has **no** clamp diode to VDD (it uses a different protection structure), so its input may go to VDD + 4 V (5.5 V max in the datasheet). Two exceptions:",
+        "- **Not 5 V tolerant in analog (ADC) mode** — used as an ADC input, an FT pin is damaged by 5 V like any other. On the STM32F103 the ADC pins are all non-FT anyway.",
+        "- **With the internal pull-up enabled**: the pull-up goes to 3.3 V, so 5 V back-feeds 3V3 through it. Simulated: with PB12 as input + pull-up, **35 µA** flows into the pin ((4.69 − 3.3)/40 kΩ). The datasheet also says not to enable pulls on an FT pin that sees 5 V."
+      ],
+      "measurements": [
+        {"ask": "Button pressed: multimeter on the divided SIG3 (PA0) to GND", "explain": "4.69 × 20k / 30k ≈ 3.13 V: above VIH (2.15 V), so it reads 1, and below 3.3 V."},
+        {"ask": "Same state: the FT pin (PB12) to GND", "explain": "The 5V pin is about 4.69 V after the USB diode and sits straight on the FT pin: with no clamp diode to 3V3, no current flows in."},
+        {"ask": "From your two readings, the divider ratio SIG3 / SIG5", "explain": "R2 / (R1 + R2) = 20 / 30 ≈ 0.667. Two thirds of a 5 V signal lands just inside 3.3 V."},
+        {"ask": "With a 5 V signal on an FT pin, may you also turn its internal pull-up on? (Try \"input + pull-up\" in the pin table.)", "explain": "(4.69 − 3.3) / 40 kΩ ≈ 35 µA flows into the pin. The other exception for FT pins is analog (ADC) mode: then they are not 5 V tolerant either.", "choices": ["no: the pull-up goes to 3.3 V, so 5 V feeds back through it into 3V3 (about 35 µA)", "yes: an FT pin tolerates 5 V in every mode", "yes: a pull-up makes the HIGH more reliable"]}
+      ],
       "hints": [
         "Start: remove the wire from SIG5 to PA0 — 5 V must never touch a non-FT pin directly.",
         "Divider: SIG5 → 10 kΩ → PA0 node → 20 kΩ → GND. 4.69 V × 2/3 ≈ 3.1 V.",
@@ -88,9 +85,9 @@
       ],
       "tests": [
         "Released: both pins read LOW (the pull-down works)",
-        "Pressed: both read HIGH; PA0 ≈ 3.13 V (divided), PB12 ≈ 4.69 V (FT), no current into PB12",
-        "Pressed, PA0 as ADC: ≈ 3879 (3.13 V), below full scale",
-        "Pressed, PB12 with internal pull-up: ≈ 35 µA flows back into the pin — don't enable pulls on a 5 V FT input"
+        "Pressed: both paths read HIGH, no current flows into the FT pin",
+        "Pressed, PA0 as ADC: below full scale",
+        "Pressed, internal pull-up on the FT pin: current flows back into the pin — no pull-ups on an FT pin with a 5 V input"
       ]
     }
   },
@@ -117,7 +114,7 @@
       ]
     },
     {
-      "name": "按下：两路都读到高；PA0 ≈ 3.13 V（分压后），PB12 ≈ 4.69 V（FT），没有电流流进 PB12",
+      "name": "按下：两路都读到高，没有电流流进 FT 引脚",
       "set": { "SW1": { "pressed": true }, "U1": { "modes": { "ADC1": "input", "GPIO_FT1": "input" } } },
       "gpio": [
         { "pin": "U1.ADC1", "read": "high" },
@@ -128,7 +125,7 @@
       ]
     },
     {
-      "name": "按下、PA0 设为 ADC：≈ 3879（3.13 V），没有满量程",
+      "name": "按下、PA0 设为 ADC：没有到满量程",
       "set": { "SW1": { "pressed": true }, "U1": { "modes": { "ADC1": "adc", "GPIO_FT1": "input" } } },
       "gpio": [
         { "pin": "U1.ADC1", "measure": "adc", "min": 3720, "max": 4000 },
@@ -136,10 +133,27 @@
       ]
     },
     {
-      "name": "按下、PB12 打开内部上拉：≈ 35 µA 倒灌进引脚——5 V 输入的 FT 脚不要开上拉",
+      "name": "按下、FT 引脚打开内部上拉：电流倒灌进引脚——5 V 输入的 FT 脚不要开上拉",
       "set": { "SW1": { "pressed": true }, "U1": { "modes": { "ADC1": "input", "GPIO_FT1": "input_pullup" } } },
       "gpio": [{ "pin": "U1.GPIO_FT1", "measure": "current", "min": -0.000038, "max": -0.000031 }]
     }
+  ],
+  "compare": [
+    "**对比**（仿真）：",
+    "- 分压：V(SIG3) = 4.69 × 20k/(10k + 20k) = **3.13 V**，高于 VIH，读到 1；ADC 读数 **3879**（3.13 V）。",
+    "- FT 引脚：PB12 = **4.69 V**，读到 1，没有电流流进引脚。",
+    "- 松开：下拉把两路都拉到 0 V，读到 0。",
+    "- 起始电路：5 V 直接进 PA0，引脚内部到 3V3 的**保护二极管**导通。电源内阻很小，二极管电流 **52 mA**（STM32 允许的注入电流只有约 5 mA），而且这股电流把整个 3V3 电源轨“倒灌”抬高。",
+    "",
+    "**为什么 FT 引脚可以**：FT 引脚上面**没有**接到 VDD 的保护二极管（换成了别的保护结构），所以输入可以到 VDD + 4 V（数据手册写 5.5 V 以内）。但有两个例外：",
+    "- **模拟模式（ADC）下不耐 5 V**——FT 引脚当 ADC 用时，5 V 照样会损坏它。STM32F103 的 ADC 引脚本来就全是非 FT 的。",
+    "- **打开内部上拉时**：上拉电阻接在 3.3 V 上，5 V 会通过它往 3V3 倒灌。仿真：PB12 设成输入 + 上拉时，有 **35 µA** 从引脚流进去（(4.69 − 3.3)/40 kΩ）。数据手册也规定 FT 引脚在 5 V 时不要使能上拉 / 下拉。"
+  ],
+  "measurements": [
+    {"id": "v3", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"SW1": {"pressed": true}, "U1": {"modes": {"ADC1": "input", "GPIO_FT1": "input"}}}, "unit": "V", "predict": true, "range": [2.97, 3.28], "ask": "按下按键：万用表测分压后的 SIG3（PA0）对 GND", "explain": "4.69 × 20k / 30k ≈ 3.13 V：高于 VIH（2.15 V），读到 1，又不超过 3.3 V。"},
+    {"id": "v5", "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"SW1": {"pressed": true}, "U1": {"modes": {"ADC1": "input", "GPIO_FT1": "input"}}}, "unit": "V", "predict": true, "range": [4.46, 4.92], "ask": "同一状态：FT 引脚（PB12）对 GND", "explain": "5V 脚经 USB 二极管约 4.69 V，直接加在 FT 引脚上：它没有接到 3V3 的保护二极管，所以没有电流流进去。"},
+    {"id": "k", "formula": "v3 / v5", "predict": true, "range": [0.633, 0.7], "ask": "用你的两个读数算分压比 SIG3 / SIG5", "explain": "R2 / (R1 + R2) = 20 / 30 ≈ 0.667。5 V 信号乘 2/3 正好落在 3.3 V 以内。"},
+    {"id": "pu", "choices": ["不行：上拉接在 3.3 V，5 V 会经它倒灌进 3V3（约 35 µA）", "可以：FT 引脚什么模式都耐 5 V", "可以：上拉让高电平更可靠"], "correct": 0, "ask": "5 V 信号接在 FT 引脚上时，能不能顺手打开它的内部上拉？（可以在引脚表里改成“输入 + 上拉”试试）", "explain": "(4.69 − 3.3) / 40 kΩ ≈ 35 µA 从引脚流进去。FT 引脚的另一个例外是模拟模式（ADC）：那时它也不耐 5 V。"}
   ],
   "hints": [
     "起始电路：先拆掉 SIG5 到 PA0 的那根线——5 V 绝不能直接碰不耐 5 V 的引脚。",
