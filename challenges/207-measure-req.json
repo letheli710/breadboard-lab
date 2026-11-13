@@ -8,21 +8,28 @@
   "phase": 1,
   "summary": "五个电阻的串并联网络：先算 Req，再用 Req = U / I 测出来，并逐条支路核对电流和电压。",
   "concepts": ["equivalent resistance 等效电阻", "series-parallel 串并联", "Ohm's law 欧姆定律", "measured vs calculated 测量与计算"],
-  "description": "**目标**：把一个串并联网络化简成一个等效电阻 Req，然后用电压表和电流表把它“测”出来。\n\n**电路**：+9V → 电流表 AM1（红表笔接 +9V）→ R1（1kΩ）→ 结点 A。\n- A → R2（2.2kΩ）→ GND；\n- A → R3（1kΩ）→ 结点 B；B → R4（3.3kΩ）→ GND，B → R5（4.7kΩ）→ GND。\n\n**先预测**：从离电源最远处往回化简：先 R4 ∥ R5，再串 R3，再与 R2 并联，最后串 R1，得到 Req；再由 9 V / Req 预测 AM1 的读数，以及 A、B 两点的电压。\n\n**测量**：读 AM1，用 Req = 9 V / I 算出等效电阻；再测 V(A)、V(B)。\n\n**对比**：\n1. R4 ∥ R5 = 3.3 × 4.7 / 8.0 ≈ 1.939kΩ；\n2. 再串 R3：1.939 + 1 = 2.939kΩ；\n3. 和 R2 并联：2.2 × 2.939 / 5.139 ≈ 1.258kΩ；\n4. 再串 R1：**Req ≈ 2.258kΩ**。\n\nAM1 ≈ **3.99 mA**，所以 Req = 9 V / 3.99 mA ≈ 2.26kΩ，和计算一致（电流表的 0.1Ω 只多出 0.004%）。再往里走：V(A) = 9 − 3.99 × 1 ≈ **5.01 V**，I2 = 5.01 / 2.2 ≈ 2.28 mA，I3 = 3.99 − 2.28 ≈ 1.71 mA，V(B) = 5.01 − 1.71 × 1 ≈ **3.31 V**，I4 ≈ 1.00 mA，I5 ≈ 0.70 mA。每一步都可以用 KCL（I1 = I2 + I3，I3 = I4 + I5）和 KVL 检查。\n\n**真实电路里**：真实的万用表也有“欧姆档”可以直接量电阻，但必须**断电**测；通电时用 U / I 来测，就是这里的方法。真实电流表的负担电阻有几欧到十几欧，会让 U / I 算出的结果偏大这么多。",
+  "description": "**目标**：把一个串并联网络化简成一个等效电阻 Req，然后用电压表和电流表把它“测”出来。\n\n**电路**：+9V → 电流表 AM1（红表笔接 +9V）→ R1（1kΩ）→ 结点 A。\n- A → R2（2.2kΩ）→ GND；\n- A → R3（1kΩ）→ 结点 B；B → R4（3.3kΩ）→ GND，B → R5（4.7kΩ）→ GND。\n\n**先预测**：从离电源最远处往回化简：先 R4 ∥ R5，再串 R3，再与 R2 并联，最后串 R1，得到 Req；再由 9 V / Req 预测 AM1 的读数，以及 A、B 两点的电压。\n\n**测量**：读 AM1，用 Req = 9 V / I 算出等效电阻；再测 V(A)、V(B)。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**真实电路里**：真实的万用表也有“欧姆档”可以直接量电阻，但必须**断电**测；通电时用 U / I 来测，就是这里的方法。真实电流表的负担电阻有几欧到十几欧，会让 U / I 算出的结果偏大这么多。",
   "i18n": {
     "en": {
       "title": "Experiment 1-7 · Measure the equivalent resistance of a series-parallel network",
       "summary": "A five-resistor series-parallel network: calculate Req, then measure it as Req = U / I and check every branch current and node voltage.",
       "concepts": ["equivalent resistance", "series-parallel", "Ohm's law", "measured vs calculated"],
-      "description": "**Goal**: reduce a series-parallel network to a single equivalent resistance Req, then \"measure\" it with a voltmeter and an ammeter.\n\n**Circuit**: +9V → ammeter AM1 (red lead at +9V) → R1 (1kΩ) → node A.\n- A → R2 (2.2kΩ) → GND;\n- A → R3 (1kΩ) → node B; B → R4 (3.3kΩ) → GND, B → R5 (4.7kΩ) → GND.\n\n**Predict first**: simplify from the far end back: R4 ∥ R5 first, then add R3 in series, put that in parallel with R2, and finally add R1 to get Req. Then predict AM1's reading from 9 V / Req, and the voltages at A and B.\n\n**Measure**: read AM1 and compute Req = 9 V / I; then measure V(A) and V(B).\n\n**Compare**:\n1. R4 ∥ R5 = 3.3 × 4.7 / 8.0 ≈ 1.939kΩ;\n2. add R3 in series: 1.939 + 1 = 2.939kΩ;\n3. in parallel with R2: 2.2 × 2.939 / 5.139 ≈ 1.258kΩ;\n4. add R1 in series: **Req ≈ 2.258kΩ**.\n\nAM1 ≈ **3.99 mA**, so Req = 9 V / 3.99 mA ≈ 2.26kΩ, matching the calculation (the ammeter's 0.1Ω adds only 0.004%). Going further in: V(A) = 9 − 3.99 × 1 ≈ **5.01 V**, I2 = 5.01 / 2.2 ≈ 2.28 mA, I3 = 3.99 − 2.28 ≈ 1.71 mA, V(B) = 5.01 − 1.71 × 1 ≈ **3.31 V**, I4 ≈ 1.00 mA, I5 ≈ 0.70 mA. Every step can be checked with KCL (I1 = I2 + I3, I3 = I4 + I5) and KVL.\n\n**In a real circuit**: a real multimeter also has an ohms range to measure resistance directly, but only with the power **off**; with the power on you measure U / I, as here. A real ammeter's burden resistance of a few ohms to ten-odd ohms makes the U / I result come out high by that much.",
+      "description": "**Goal**: reduce a series-parallel network to a single equivalent resistance Req, then \"measure\" it with a voltmeter and an ammeter.\n\n**Circuit**: +9V → ammeter AM1 (red lead at +9V) → R1 (1kΩ) → node A.\n- A → R2 (2.2kΩ) → GND;\n- A → R3 (1kΩ) → node B; B → R4 (3.3kΩ) → GND, B → R5 (4.7kΩ) → GND.\n\n**Predict first**: simplify from the far end back: R4 ∥ R5 first, then add R3 in series, put that in parallel with R2, and finally add R1 to get Req. Then predict AM1's reading from 9 V / Req, and the voltages at A and B.\n\n**Measure**: read AM1 and compute Req = 9 V / I; then measure V(A) and V(B). Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**In a real circuit**: a real multimeter also has an ohms range to measure resistance directly, but only with the power **off**; with the power on you measure U / I, as here. A real ammeter's burden resistance of a few ohms to ten-odd ohms makes the U / I result come out high by that much.",
+      "compare": "**Compare**:\n1. R4 ∥ R5 = 3.3 × 4.7 / 8.0 ≈ 1.939kΩ;\n2. add R3 in series: 1.939 + 1 = 2.939kΩ;\n3. in parallel with R2: 2.2 × 2.939 / 5.139 ≈ 1.258kΩ;\n4. add R1 in series: **Req ≈ 2.258kΩ**.\n\nAM1 ≈ **3.99 mA**, so Req = 9 V / 3.99 mA ≈ 2.26kΩ, matching the calculation (the ammeter's 0.1Ω adds only 0.004%). Going further in: V(A) = 9 − 3.99 × 1 ≈ **5.01 V**, I2 = 5.01 / 2.2 ≈ 2.28 mA, I3 = 3.99 − 2.28 ≈ 1.71 mA, V(B) = 5.01 − 1.71 × 1 ≈ **3.31 V**, I4 ≈ 1.00 mA, I5 ≈ 0.70 mA. Every step can be checked with KCL (I1 = I2 + I3, I3 = I4 + I5) and KVL.",
+      "measurements": [
+        {"ask": "Ammeter AM1 reading I (the total current)", "explain": "I = 9 V / Req ≈ 9 / 2.258 kΩ ≈ 3.99 mA."},
+        {"ask": "From your reading, the equivalent resistance Req = 9 V / I", "explain": "Step by step: R4 ∥ R5 ≈ 1.939 kΩ, plus R3 = 2.939 kΩ, in parallel with R2 = 1.258 kΩ, plus R1 ≈ 2.258 kΩ."},
+        {"ask": "Multimeter: node A to GND, V(A)", "explain": "V(A) = 9 − I × R1 ≈ 9 − 3.99 ≈ 5.01 V (also I × 1.258 kΩ)."},
+        {"ask": "Multimeter: node B to GND, V(B)", "explain": "V(B) = V(A) × 1.939 / 2.939 ≈ 3.31 V (R3 and R4 ∥ R5 divide V(A))."}
+      ],
       "hints": [
         "Give A and B one metal strip (column) each, then bridge the columns with resistors.",
         "The far ends of R2, R4 and R5 all go to GND (the blue rail).",
         "The ammeter goes in series between +9V and R1: red lead on the +9V side."
       ],
       "tests": [
-        "Total current ≈ 3.99 mA (Req = 9 V / 3.99 mA ≈ 2.26 kΩ), A ≈ 5.01 V, B ≈ 3.31 V",
-        "Branch currents: I2 ≈ 2.28 mA, I3 ≈ 1.71 mA, I4 ≈ 1.00 mA, I5 ≈ 0.70 mA"
+        "Total current and the voltages at A and B are sensible",
+        "Branch currents are sensible (KCL holds)"
       ]
     }
   },
@@ -44,7 +51,7 @@
   ],
   "tests": [
     {
-      "name": "总电流 ≈ 3.99 mA（Req = 9 V / 3.99 mA ≈ 2.26 kΩ），A ≈ 5.01 V，B ≈ 3.31 V",
+      "name": "总电流和 A、B 两点电压合理",
       "currents": [{"el": "AM1", "min": 0.0038, "max": 0.0042}],
       "voltages": [
         {"pin": "R1.2", "ref": "V1.-", "min": 4.85, "max": 5.15},
@@ -52,7 +59,7 @@
       ]
     },
     {
-      "name": "各支路电流：I2 ≈ 2.28 mA，I3 ≈ 1.71 mA，I4 ≈ 1.00 mA，I5 ≈ 0.70 mA",
+      "name": "各支路电流合理（KCL 成立）",
       "currents": [
         {"el": "R2", "min": 0.00218, "max": 0.0024},
         {"el": "R3", "min": 0.00163, "max": 0.0018},
@@ -60,6 +67,13 @@
         {"el": "R5", "min": 0.00067, "max": 0.00074}
       ]
     }
+  ],
+  "compare": "**对比**：\n1. R4 ∥ R5 = 3.3 × 4.7 / 8.0 ≈ 1.939kΩ；\n2. 再串 R3：1.939 + 1 = 2.939kΩ；\n3. 和 R2 并联：2.2 × 2.939 / 5.139 ≈ 1.258kΩ；\n4. 再串 R1：**Req ≈ 2.258kΩ**。\n\nAM1 ≈ **3.99 mA**，所以 Req = 9 V / 3.99 mA ≈ 2.26kΩ，和计算一致（电流表的 0.1Ω 只多出 0.004%）。再往里走：V(A) = 9 − 3.99 × 1 ≈ **5.01 V**，I2 = 5.01 / 2.2 ≈ 2.28 mA，I3 = 3.99 − 2.28 ≈ 1.71 mA，V(B) = 5.01 − 1.71 × 1 ≈ **3.31 V**，I4 ≈ 1.00 mA，I5 ≈ 0.70 mA。每一步都可以用 KCL（I1 = I2 + I3，I3 = I4 + I5）和 KVL 检查。",
+  "measurements": [
+    {"id": "i", "current": "AM1", "unit": "mA", "predict": true, "range": [0.00379, 0.00418], "ask": "电流表 AM1 的读数 I（总电流）", "explain": "I = 9 V / Req ≈ 9 / 2.258 kΩ ≈ 3.99 mA。"},
+    {"id": "req", "formula": "9 / i", "unit": "kΩ", "predict": true, "range": [2150.0, 2370.0], "ask": "用你的读数算等效电阻 Req = 9 V / I", "explain": "逐步化简：R4 ∥ R5 ≈ 1.939 kΩ，串 R3 得 2.939 kΩ，并 R2 得 1.258 kΩ，串 R1 得 ≈ 2.258 kΩ。"},
+    {"id": "va", "voltage": "R1.2", "ref": "V1.-", "unit": "V", "predict": true, "range": [4.76, 5.26], "ask": "万用表：结点 A 对 GND 的电压 V(A)", "explain": "V(A) = 9 − I × R1 ≈ 9 − 3.99 ≈ 5.01 V（也等于 I × 1.258 kΩ）。"},
+    {"id": "vb", "voltage": "R3.2", "ref": "V1.-", "unit": "V", "predict": true, "range": [3.14, 3.47], "ask": "万用表：结点 B 对 GND 的电压 V(B)", "explain": "V(B) = V(A) × 1.939 / 2.939 ≈ 3.31 V（R3 和 R4 ∥ R5 分压）。"}
   ],
   "hints": [
     "给 A、B 各分一条金属条（一列），再用电阻跨接各列。",

@@ -8,21 +8,29 @@
   "phase": 1,
   "summary": "用 CC 模式的电源灌进 10 mA，看它在 1kΩ、3.3kΩ（再加 2.2kΩ）之间怎么分。板上的电流表接错了，先修好它。",
   "concepts": ["current divider 分流", "conductance 电导", "parallel 并联", "ammeter in parallel 电流表并联（错误）"],
-  "description": "**目标**：并联支路分电流的规律——电阻越小（电导越大），分到的电流越多。\n\n**电源**：稳压电源 12 V、限流 0.01 A，让它工作在 CC 模式，当作 10 mA 的电流源（见实验 1-4）。\n\n**电路**：电源 + 接结点 N，N 和 GND 之间并联：R1（1kΩ）、R2（3.3kΩ），以及“按键 SW1 + R3（2.2kΩ）”这一条可以接通的支路。\n\n**先修一个错误**：板上那块电流表被**并联**在 N 和 GND 之间。电流表的内阻只有 0.1Ω，并联上去等于用一根导线把 N 短接到 GND：10 mA 全部从电流表走了，电阻上几乎没有电流。（幸好电源在 CC 模式，电流被限制在 10 mA；如果是电池，真实万用表的保险丝会烧掉。）把它拿掉，或者把它**串联**进某一条支路里——这道题判分时把串联的电流表当作导线，所以想看哪条支路的电流就串在哪里。\n\n**先预测**：分别算出按键松开（两条支路）和按下（三条支路）时每条支路的电流和 N 点电压。思路：两条支路用分流公式 I1 = I × R2 / (R1 + R2)；三条支路用电导更方便，Ik = I × Gk / ΣG。加一条支路后，总电流会变吗？\n\n**测量**：把电流表依次串进各条支路，读出支路电流；再测 N 点对 GND 的电压。先松开按键测一遍，再按住按键测一遍。\n\n**对比**：\n- 两条支路（按键松开）：I1 = 10 × 3.3 / 4.3 ≈ **7.67 mA**，I2 = 10 × 1 / 4.3 ≈ **2.33 mA**；N 点电压 = 10 mA × (1k ∥ 3.3k = 767Ω) ≈ 7.67 V。\n- 三条支路（按下按键）：G1 = 1 mS，G2 = 0.303 mS，G3 = 0.455 mS，ΣG = 1.758 mS；I1 ≈ **5.69 mA**，I2 ≈ **1.72 mA**，I3 ≈ **2.58 mA**，加起来还是 10 mA；N 点电压降到 10 / 1.758 ≈ 5.69 V。\n\n读数几乎为零或 N 点电压接近 0 时，检查是不是还有电流表并联在 N 和 GND 之间。\n\n**想一想**：因为电源是电流源，加一条支路后**总电流不变**，变的是电压和每条支路分到的份额。如果换成电压源，结果完全不同——总电流会变大。\n\n**真实电路里**：真实万用表 mA 档的内阻（负担电阻）有几欧到十几欧，比仿真里的 0.1Ω 大得多，但和这里的 kΩ 级电阻相比仍然很小，串进一条支路只会让该支路电流略微减小（约 1% 以内）。",
+  "description": "**目标**：并联支路分电流的规律——电阻越小（电导越大），分到的电流越多。\n\n**电源**：稳压电源 12 V、限流 0.01 A，让它工作在 CC 模式，当作 10 mA 的电流源（见实验 1-4）。\n\n**电路**：电源 + 接结点 N，N 和 GND 之间并联：R1（1kΩ）、R2（3.3kΩ），以及“按键 SW1 + R3（2.2kΩ）”这一条可以接通的支路。\n\n**先修一个错误**：板上那块电流表被**并联**在 N 和 GND 之间。电流表的内阻只有 0.1Ω，并联上去等于用一根导线把 N 短接到 GND：10 mA 全部从电流表走了，电阻上几乎没有电流。（幸好电源在 CC 模式，电流被限制在 10 mA；如果是电池，真实万用表的保险丝会烧掉。）把它拿掉，或者把它**串联**进某一条支路里——这道题判分时把串联的电流表当作导线，所以想看哪条支路的电流就串在哪里。\n\n**先预测**：分别算出按键松开（两条支路）和按下（三条支路）时每条支路的电流和 N 点电压。思路：两条支路用分流公式 I1 = I × R2 / (R1 + R2)；三条支路用电导更方便，Ik = I × Gk / ΣG。加一条支路后，总电流会变吗？\n\n**测量**：把电流表依次串进各条支路，读出支路电流；再测 N 点对 GND 的电压。先松开按键测一遍，再按住按键测一遍。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**真实电路里**：真实万用表 mA 档的内阻（负担电阻）有几欧到十几欧，比仿真里的 0.1Ω 大得多，但和这里的 kΩ 级电阻相比仍然很小，串进一条支路只会让该支路电流略微减小（约 1% 以内）。",
   "i18n": {
     "en": {
       "title": "Experiment 1-5 · Current divider: how 10 mA is shared between branches",
       "summary": "Push 10 mA from a supply in CC mode and see how it splits between 1kΩ, 3.3kΩ (and then 2.2kΩ). The ammeter on the board is connected wrongly; fix it first.",
       "concepts": ["current divider", "conductance", "parallel", "ammeter in parallel (mistake)"],
-      "description": "**Goal**: learn how parallel branches share a current: the smaller the resistance (the larger the conductance), the bigger its share.\n\n**Supply**: bench supply at 12 V with a 0.01 A current limit, so it runs in CC mode as a 10 mA current source (see Experiment 1-4).\n\n**Circuit**: supply + goes to node N; between N and GND, in parallel: R1 (1kΩ), R2 (3.3kΩ), and a branch \"push button SW1 + R3 (2.2kΩ)\" that you can switch in.\n\n**Fix a mistake first**: the ammeter on the board is connected **in parallel**, between N and GND. An ammeter is only 0.1Ω, so across the circuit it is a wire shorting N to GND: all 10 mA goes through the meter and almost none through the resistors. (Luckily the supply is in CC mode and holds the current at 10 mA; with a battery a real multimeter would blow its fuse.) Remove it, or put it **in series** with one branch. In this experiment the checker treats a series ammeter as a wire, so put one in whichever branch you want to watch.\n\n**Predict first**: work out each branch current and the voltage at N with the button released (two branches) and pressed (three branches). Method: for two branches use the current divider rule I1 = I × R2 / (R1 + R2); for three, conductances are easier, Ik = I × Gk / ΣG. Does adding a branch change the total current?\n\n**Measure**: put the ammeter in series with each branch in turn and read the branch currents; also measure N to GND. Do it once with the button released and once with it held down.\n\n**Compare**:\n- Two branches (button released): I1 = 10 × 3.3 / 4.3 ≈ **7.67 mA**, I2 = 10 × 1 / 4.3 ≈ **2.33 mA**; voltage at N = 10 mA × (1k ∥ 3.3k = 767Ω) ≈ 7.67 V.\n- Three branches (button pressed): G1 = 1 mS, G2 = 0.303 mS, G3 = 0.455 mS, ΣG = 1.758 mS; I1 ≈ **5.69 mA**, I2 ≈ **1.72 mA**, I3 ≈ **2.58 mA**, still 10 mA in total; the voltage at N drops to 10 / 1.758 ≈ 5.69 V.\n\nIf the readings are almost zero or N is near 0 V, check whether an ammeter is still across N and GND.\n\n**Think about it**: because the supply is a current source, adding a branch does **not** change the total current; the voltage and each branch's share change instead. With a voltage source it would be completely different: the total current would grow.\n\n**In a real circuit**: a real multimeter's mA range has a burden resistance of a few ohms up to ten-odd ohms, much more than the simulated 0.1Ω but still small next to these kΩ resistors: in series with one branch it lowers that branch's current only slightly (well under 1%).",
+      "description": "**Goal**: learn how parallel branches share a current: the smaller the resistance (the larger the conductance), the bigger its share.\n\n**Supply**: bench supply at 12 V with a 0.01 A current limit, so it runs in CC mode as a 10 mA current source (see Experiment 1-4).\n\n**Circuit**: supply + goes to node N; between N and GND, in parallel: R1 (1kΩ), R2 (3.3kΩ), and a branch \"push button SW1 + R3 (2.2kΩ)\" that you can switch in.\n\n**Fix a mistake first**: the ammeter on the board is connected **in parallel**, between N and GND. An ammeter is only 0.1Ω, so across the circuit it is a wire shorting N to GND: all 10 mA goes through the meter and almost none through the resistors. (Luckily the supply is in CC mode and holds the current at 10 mA; with a battery a real multimeter would blow its fuse.) Remove it, or put it **in series** with one branch. In this experiment the checker treats a series ammeter as a wire, so put one in whichever branch you want to watch.\n\n**Predict first**: work out each branch current and the voltage at N with the button released (two branches) and pressed (three branches). Method: for two branches use the current divider rule I1 = I × R2 / (R1 + R2); for three, conductances are easier, Ik = I × Gk / ΣG. Does adding a branch change the total current?\n\n**Measure**: put the ammeter in series with each branch in turn and read the branch currents; also measure N to GND. Do it once with the button released and once with it held down. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**In a real circuit**: a real multimeter's mA range has a burden resistance of a few ohms up to ten-odd ohms, much more than the simulated 0.1Ω but still small next to these kΩ resistors: in series with one branch it lowers that branch's current only slightly (well under 1%).",
+      "compare": "**Compare**:\n- Two branches (button released): I1 = 10 × 3.3 / 4.3 ≈ **7.67 mA**, I2 = 10 × 1 / 4.3 ≈ **2.33 mA**; voltage at N = 10 mA × (1k ∥ 3.3k = 767Ω) ≈ 7.67 V.\n- Three branches (button pressed): G1 = 1 mS, G2 = 0.303 mS, G3 = 0.455 mS, ΣG = 1.758 mS; I1 ≈ **5.69 mA**, I2 ≈ **1.72 mA**, I3 ≈ **2.58 mA**, still 10 mA in total; the voltage at N drops to 10 / 1.758 ≈ 5.69 V.\n\nIf the readings are almost zero or N is near 0 V, check whether an ammeter is still across N and GND.\n\n**Think about it**: because the supply is a current source, adding a branch does **not** change the total current; the voltage and each branch's share change instead. With a voltage source it would be completely different: the total current would grow.",
+      "measurements": [
+        {"ask": "Button released: ammeter in series with the R1 branch, read I1", "explain": "Current divider: I1 = 10 mA × R2 / (R1 + R2) = 10 × 3.3 / 4.3 ≈ 7.67 mA."},
+        {"ask": "Button released: move the ammeter to the R2 branch, read I2", "explain": "I2 = 10 × 1 / 4.3 ≈ 2.33 mA. The smaller R1 takes the bigger share."},
+        {"ask": "Button held (three branches): I1", "explain": "I1 = 10 mA × G1 / ΣG = 10 × 1 / 1.758 ≈ 5.69 mA."},
+        {"ask": "Button held: the R3 branch current I3", "explain": "I3 = 10 × 0.455 / 1.758 ≈ 2.58 mA."},
+        {"ask": "With the button held, also read I2 and add up the three branches. Compared with I1 + I2 with the button released, the total current is", "explain": "The current source fixes the total; an extra branch only changes the shares, and N drops from ≈ 7.67 V to ≈ 5.69 V. With a voltage source the total would grow.", "choices": ["the same 10 mA: a current source's current does not depend on the load", "larger: one more path, so more current", "smaller: the more branches in parallel, the less current"]}
+      ],
       "hints": [
         "An ammeter between N and GND shorts the circuit. Remove it first; to measure a branch, open that branch and put the ammeter in series.",
         "Supply: 12 V, current limit 0.01 A.",
         "The push button straddles the gap: one side to N, the other side to R3, and R3's other end back to GND."
       ],
       "tests": [
-        "Two branches: I1 ≈ 7.67 mA, I2 ≈ 2.33 mA (sum = 10 mA), N ≈ 7.67 V",
-        "Button pressed, third branch added: 5.69 + 1.72 + 2.58 ≈ 10 mA, N drops to ≈ 5.69 V"
+        "Two branches: 10 mA shared by conductance",
+        "Button pressed, third branch added: the three branches share 10 mA again, N drops"
       ]
     }
   },
@@ -40,7 +48,7 @@
   ],
   "tests": [
     {
-      "name": "两条支路：I1 ≈ 7.67 mA，I2 ≈ 2.33 mA（和 = 10 mA），N ≈ 7.67 V",
+      "name": "两条支路：按电导分 10 mA",
       "set": {"SW1": {"pressed": false}},
       "currents": [
         {"el": "R1", "min": 0.0074, "max": 0.0079},
@@ -49,7 +57,7 @@
       "voltages": [{"pin": "PSU1.+", "ref": "PSU1.-", "min": 7.4, "max": 7.9}]
     },
     {
-      "name": "按下按键，加上第三条支路：5.69 + 1.72 + 2.58 ≈ 10 mA，N 降到 ≈ 5.69 V",
+      "name": "按下按键，加上第三条支路：三条支路重新分 10 mA，N 点电压下降",
       "set": {"SW1": {"pressed": true}},
       "currents": [
         {"el": "R1", "min": 0.0055, "max": 0.0059},
@@ -58,6 +66,14 @@
       ],
       "voltages": [{"pin": "PSU1.+", "ref": "PSU1.-", "min": 5.5, "max": 5.85}]
     }
+  ],
+  "compare": "**对比**：\n- 两条支路（按键松开）：I1 = 10 × 3.3 / 4.3 ≈ **7.67 mA**，I2 = 10 × 1 / 4.3 ≈ **2.33 mA**；N 点电压 = 10 mA × (1k ∥ 3.3k = 767Ω) ≈ 7.67 V。\n- 三条支路（按下按键）：G1 = 1 mS，G2 = 0.303 mS，G3 = 0.455 mS，ΣG = 1.758 mS；I1 ≈ **5.69 mA**，I2 ≈ **1.72 mA**，I3 ≈ **2.58 mA**，加起来还是 10 mA；N 点电压降到 10 / 1.758 ≈ 5.69 V。\n\n读数几乎为零或 N 点电压接近 0 时，检查是不是还有电流表并联在 N 和 GND 之间。\n\n**想一想**：因为电源是电流源，加一条支路后**总电流不变**，变的是电压和每条支路分到的份额。如果换成电压源，结果完全不同——总电流会变大。",
+  "measurements": [
+    {"id": "a1", "current": "R1", "set": {"SW1": {"pressed": false}}, "unit": "mA", "predict": true, "range": [0.00729, 0.00805], "ask": "按键松开：电流表串在 R1 支路里，读 I1", "explain": "分流公式 I1 = 10 mA × R2 / (R1 + R2) = 10 × 3.3 / 4.3 ≈ 7.67 mA。"},
+    {"id": "a2", "current": "R2", "set": {"SW1": {"pressed": false}}, "unit": "mA", "predict": true, "range": [0.00221, 0.00244], "ask": "按键松开：把电流表换到 R2 支路，读 I2", "explain": "I2 = 10 × 1 / 4.3 ≈ 2.33 mA。电阻小的 R1 分得多。"},
+    {"id": "b1", "current": "R1", "set": {"SW1": {"pressed": true}}, "unit": "mA", "predict": true, "range": [0.0054, 0.00597], "ask": "按住按键（三条支路）：I1", "explain": "I1 = 10 mA × G1 / ΣG = 10 × 1 / 1.758 ≈ 5.69 mA。"},
+    {"id": "b3", "current": "R3", "set": {"SW1": {"pressed": true}}, "unit": "mA", "predict": true, "range": [0.00246, 0.00271], "ask": "按住按键：R3 支路的电流 I3", "explain": "I3 = 10 × 0.455 / 1.758 ≈ 2.58 mA。"},
+    {"id": "total", "choices": ["和松开时一样，还是 10 mA：电流源的电流不随负载变", "变大了：多了一条路，电流就多了", "变小了：并联的支路越多，电流越小"], "correct": 0, "ask": "按住按键时再测一下 I2，把三条支路加起来，和松开时的 I1 + I2 比较：总电流", "explain": "电流源的电流固定，加一条支路只是改变了“份额”，N 点电压从 ≈ 7.67 V 降到 ≈ 5.69 V。换成电压源，总电流就会变大。"}
   ],
   "hints": [
     "电流表接在 N 和 GND 之间就是把电路短路了。先拿掉它；想测某条支路时，把那条支路断开，再把电流表串进去。",
