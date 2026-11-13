@@ -201,6 +201,8 @@ export interface Question {
   tol?: number;
   choices?: string[];
   correct?: number;
+  /** multiple choice: why each option is right / wrong (same length as choices; "" for none), shown when it is picked */
+  choiceExplain?: string[];
   /** explanation shown after answering */
   explain?: string;
 }
@@ -211,7 +213,7 @@ export interface ProblemText {
   /** tags translated by position */
   tags?: string[];
   statement?: string;
-  questions?: { ask?: string; explain?: string; choices?: string[] }[];
+  questions?: { ask?: string; explain?: string; choices?: string[]; choiceExplain?: string[] }[];
   hints?: string[];
   solution?: string;
   notes?: string[];
