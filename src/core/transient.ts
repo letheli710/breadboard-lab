@@ -106,8 +106,8 @@ import {
 import type { Circuit } from './types';
 import { pinId } from './types';
 
-export type Measure = 'vpp' | 'vmax' | 'vmin' | 'vavg' | 'vrms' | 'freq' | 'phase' | 'gain';
-export const MEASURES: Measure[] = ['vpp', 'vmax', 'vmin', 'vavg', 'vrms', 'freq', 'phase', 'gain'];
+export type Measure = 'vpp' | 'vmax' | 'vmin' | 'vavg' | 'vrms' | 'freq' | 'phase' | 'gain' | 'rise' | 'fall';
+export const MEASURES: Measure[] = ['vpp', 'vmax', 'vmin', 'vavg', 'vrms', 'freq', 'phase', 'gain', 'rise', 'fall'];
 
 export interface TransientOptions {
   /** periods in the returned window (default 2) */
@@ -314,6 +314,43 @@ export function freq(x: ArrayLike<number>, dt: number, periodic = true): number 
   return (ups.length - 1) / ((ups[ups.length - 1] - ups[0]) * dt);
 }
 
+/** 10 %–90 % rise (or 90 %–10 % fall) time in seconds, averaged over the edges of a periodic
+ *  window (linear interpolation between samples); 0 for a flat trace. */
+export function edgeTime(x: ArrayLike<number>, dt: number, rising: boolean): number {
+  const n = x.length;
+  const hi = vmax(x);
+  const lo = vmin(x);
+  const pp = hi - lo;
+  if (n < 4 || !(pp > 1e-6 * Math.max(1, Math.abs(hi)))) return 0;
+  const a = rising ? lo + 0.1 * pp : hi - 0.1 * pp;
+  const b = rising ? lo + 0.9 * pp : hi - 0.9 * pp;
+  const past = (v: number, th: number) => (rising ? v >= th : v <= th);
+  const cross = (i: number, th: number) => {
+    const y0 = x[(i - 1 + n) % n];
+    const y1 = x[i % n];
+    return i - 1 + (y1 === y0 ? 1 : (th - y0) / (y1 - y0));
+  };
+  // start where the trace is before the first threshold: every edge is then seen whole once
+  let s0 = 0;
+  while (s0 < n && past(x[s0], a)) s0++;
+  if (s0 === n) return 0;
+  const times: number[] = [];
+  let start: number | null = null;
+  for (let k = 1; k <= n; k++) {
+    const i = s0 + k;
+    const y0 = x[(i - 1) % n];
+    const y1 = x[i % n];
+    if (start === null && !past(y0, a) && past(y1, a)) start = cross(i, a);
+    if (start !== null && !past(y0, b) && past(y1, b)) {
+      times.push(cross(i, b) - start);
+      start = null;
+    }
+    if (!past(y1, a)) start = null;
+  }
+  if (times.length === 0) return 0;
+  return (times.reduce((s, t) => s + t, 0) / times.length) * dt;
+}
+
 export function measureTrace(kind: Measure, x: ArrayLike<number>, o: { dt: number; cycles: number; vs?: ArrayLike<number> }): number {
   switch (kind) {
     case 'vpp':
@@ -332,6 +369,10 @@ export function measureTrace(kind: Measure, x: ArrayLike<number>, o: { dt: numbe
       return o.vs ? phaseDeg(x, o.vs, o.cycles) : 0;
     case 'gain':
       return o.vs ? gain(x, o.vs, o.cycles) : 0;
+    case 'rise':
+      return edgeTime(x, o.dt, true);
+    case 'fall':
+      return edgeTime(x, o.dt, false);
   }
 }
 

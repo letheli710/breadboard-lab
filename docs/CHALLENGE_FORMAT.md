@@ -589,7 +589,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 { "ref": "U1", "type": "esp32_devkit", "modes": { "GPIO_OUT1": "out_high", "PWM1": { "mode": "pwm", "duty": 25, "frequency": 1000 } } }
 ```
 
-模式：`out_high`（输出高）、`out_low`（输出低）、`input`（浮空输入）、`input_pullup`（输入 + 内部上拉）、`input_pulldown`（输入 + 内部下拉）、`pwm`（`duty` 0–100 %，默认 50；`frequency` Hz，默认 1000）、`adc`（模拟输入）。没写的引脚是 `input`。引脚不支持的模式会报错（例如 GPIO34 的 `out_high`）。
+模式：`out_high`（输出高）、`out_low`（输出低）、`input`（浮空输入）、`input_pullup`（输入 + 内部上拉）、`input_pulldown`（输入 + 内部下拉）、`pwm`（`duty` 0–100 %，默认 50；`frequency` Hz，默认 1000）、`adc`（模拟输入）。没写的引脚是 `input`。输出模式（`out_high` / `out_low` / `pwm`）可以加 `"openDrain": true`（开漏）：输出“高”时只是松开引脚，要靠上拉电阻拉高——I²C 总线就是这样，可以配合示波器的 `rise` 测上拉电阻 × 总线电容决定的上升时间（约 2.2·R·C），例如 `{ "mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true }`。引脚不支持的模式会报错（例如 GPIO34 的 `out_high`）。
 
 - 写在**目标电路**里的模式是答案的一部分：学生必须在属性里把对应的引脚设成同样的模式（PWM 的占空比相差 ≤ 1 %、频率在 `tolerance` 内）。如果模式不是考点，就不要写在目标里，而是在每个 test 的 `set` 里设置。
 - 目标里没写模式的逻辑引脚，自检时按默认模式仿真：`GPIO_OUT` → `out_low`，`PWM` → `pwm`，`ADC` → `adc`，其他 → `input`。
@@ -632,6 +632,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 
 - `expect` 现在也可以写继电器（`on` = 吸合）、电机（`on` = 转动）、蜂鸣器（`on` = 响）。
 - `gpio`：`read` 是数字输入读到的电平 `high` / `low` / `floating`；`measure` 是 `voltage`（相对开发板 GND，V）、`current`（从引脚的输出级 / 内部上下拉流出的电流，A，负数 = 灌入）、`adc`（12 位原始值 0–4095）、`adc_v`（ADC 电压）。
+- 示波器 `scope` 新增 `measure`: `rise`（10%→90% 上升时间，秒）、`fall`（90%→10% 下降时间）。
 - `regions`：`npn` 是 `cutoff` / `active` / `saturation`；`nmos` 是 `off`（也可写 `cutoff`）/ `ohmic` / `saturation`。注意 MOSFET 的 `saturation` 是“恒流区”（没有完全导通），当开关用时应该是 `ohmic`。
 - `currents` 新增：`npn`（集电极电流）、`nmos`（漏极电流）、`relay`（线圈电流）、`motor`、`buzzer`、`ldo`（输出电流）、`ldr`、`ntc`。
 - 有引脚在 `pwm` 模式时，电路按时域仿真（和信号发生器一样，示波器 `scope` 测量可用）：`voltages`、`currents`、`gpio` 的 `voltage` / `current` 取**平均值**；`read`、`adc`、`regions` 用直流模型（PWM 按平均值，即 duty × 3.3 V 接在 25 Ω 后面）。

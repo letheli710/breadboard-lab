@@ -71,7 +71,7 @@ Logical terminals = physical pin names (`GPIO23`, `PA0`, `3V3`, `5V`, `GND`, `EN
 Duplicate legs (`GND_2`, `3V3_2`, …) are joined on the PCB (`internal`).
 
 Props: `usb: boolean` (virtual USB cable, default **true**) and
-`pins: { [pin]: PinConfig }` with `PinConfig = { mode, duty?, frequency? }`, modes
+`pins: { [pin]: PinConfig }` with `PinConfig = { mode, duty?, frequency?, openDrain? }`, modes
 `out_high | out_low | input | input_pullup | input_pulldown | pwm | adc`; `duty` in % (0–100,
 default 50), `frequency` in Hz (default 1 kHz). Unlisted pins are `input`.
 

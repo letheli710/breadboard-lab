@@ -274,6 +274,10 @@ function parsePinConfigs(type: CompType, raw: unknown, where: string, errors: st
       continue;
     }
     const cfg: Partial<PinConfig> = typeof v === 'string' ? { mode: v as PinMode } : isObj(v) ? { mode: v.mode as PinMode } : {};
+    if (isObj(v) && v.openDrain !== undefined) {
+      if (cfg.mode !== 'out_high' && cfg.mode !== 'out_low' && cfg.mode !== 'pwm') errors.push(tr(`${where}.pins.${k}: "openDrain" 只用于输出模式（out_high / out_low / pwm）`, `${where}.pins.${k}: "openDrain" only applies to output modes (out_high / out_low / pwm)`));
+      else cfg.openDrain = !!v.openDrain;
+    }
     if (!cfg.mode || !PIN_MODES.includes(cfg.mode)) {
       errors.push(tr(`${where}.pins.${k}: 模式必须是 ${PIN_MODES.join(' / ')}`, `${where}.pins.${k}: mode must be ${PIN_MODES.join(' / ')}`));
       continue;

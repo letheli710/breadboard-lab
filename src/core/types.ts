@@ -48,6 +48,9 @@ export interface PinConfig {
   duty?: number;
   /** PWM frequency in Hz (default 1000) */
   frequency?: number;
+  /** open-drain output (out_high / pwm): "high" releases the pin instead of driving it
+   *  (I²C-style; needs a pull-up) */
+  openDrain?: boolean;
 }
 
 export type MosfetModel = 'IRLZ44N' | 'IRF540N';

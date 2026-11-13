@@ -366,6 +366,8 @@ export interface CGpio {
   freq: number;
   /** PWM switch state: DC solver uses the average; transient.ts toggles high/low */
   pwm: 'avg' | 'high' | 'low';
+  /** open drain: the high state releases the pin */
+  od: boolean;
   up?: CDiode;
   dn: CDiode;
   weak: boolean;
@@ -668,6 +670,7 @@ function compileMcu(
       duty: cfg.duty / 100,
       freq: cfg.frequency,
       pwm: 'avg',
+      od: cfg.openDrain,
       up,
       dn,
       weak: !!caps.weak,
@@ -858,16 +861,17 @@ export function stampPwlMatrix(c: Compiled, s: Stamper) {
     for (const p of mc.pins) {
       switch (p.eff) {
         case 'out_high':
-          s.g(p.node, mc.vdd, p.g);
+          if (!p.od) s.g(p.node, mc.vdd, p.g);
           break;
         case 'out_low':
           s.g(p.node, mc.gnd, p.g);
           break;
         case 'pwm':
           if (p.pwm === 'avg') {
-            s.g(p.node, mc.vdd, p.g * p.duty);
+            if (!p.od) s.g(p.node, mc.vdd, p.g * p.duty);
             s.g(p.node, mc.gnd, p.g * (1 - p.duty));
-          } else s.g(p.node, p.pwm === 'high' ? mc.vdd : mc.gnd, p.g);
+          } else if (p.pwm === 'low') s.g(p.node, mc.gnd, p.g);
+          else if (!p.od) s.g(p.node, mc.vdd, p.g);
           break;
         case 'input_pullup':
           s.g(p.node, mc.vdd, p.gpull);
@@ -1252,13 +1256,14 @@ export function gpioDriverCurrent(mc: CMcu, p: CGpio, V: (i: number) => number):
   const vp = V(p.node);
   const toVdd = (g: number) => g * (V(mc.vdd) - vp);
   const toGnd = (g: number) => g * (V(mc.gnd) - vp);
+  const hi = p.od ? 0 : p.g;
   switch (p.eff) {
     case 'out_high':
-      return toVdd(p.g);
+      return toVdd(hi);
     case 'out_low':
       return toGnd(p.g);
     case 'pwm':
-      return p.pwm === 'avg' ? toVdd(p.g * p.duty) + toGnd(p.g * (1 - p.duty)) : p.pwm === 'high' ? toVdd(p.g) : toGnd(p.g);
+      return p.pwm === 'avg' ? toVdd(hi * p.duty) + toGnd(p.g * (1 - p.duty)) : p.pwm === 'high' ? toVdd(hi) : toGnd(p.g);
     case 'input_pullup':
       return toVdd(p.gpull);
     case 'input_pulldown':
@@ -1299,14 +1304,14 @@ function mcuState(
     // the driver's high side takes its current from 3V3
     if (mc.running) {
       if (p.eff === 'out_high' || p.eff === 'input_pullup') intoVdd -= drv;
-      else if (p.eff === 'pwm') intoVdd -= p.pwm === 'avg' ? p.g * p.duty * (V(mc.vdd) - V(p.node)) : p.pwm === 'high' ? drv : 0;
+      else if (p.eff === 'pwm' && !p.od) intoVdd -= p.pwm === 'avg' ? p.g * p.duty * (V(mc.vdd) - V(p.node)) : p.pwm === 'high' ? drv : 0;
     }
     const up = p.up ? Math.max(0, diodeI(p.up)) : 0;
     const dn = Math.max(0, diodeI(p.dn));
     if (p.up && !p.caps.ft) intoVdd += up;
     const clamp = up + dn;
     const ft = p.caps.ft;
-    const floating = !isOutputMode(p.eff) && p.eff !== 'input_pullup' && p.eff !== 'input_pulldown' ? zAt(p.node) > FLOAT_Z : false;
+    const floating = (!isOutputMode(p.eff) && p.eff !== 'input_pullup' && p.eff !== 'input_pulldown') || (p.od && p.eff === 'out_high') ? zAt(p.node) > FLOAT_Z : false;
     let logic: LogicLevel;
     if (floating) logic = 'floating';
     else logic = vLocal >= b.vih ? 'high' : vLocal <= b.vil ? 'low' : 'undefined';

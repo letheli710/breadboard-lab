@@ -411,11 +411,14 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
       const have = pinConfig(u.props, uPin);
       const [wantZh, wantEn] = modeName(cfg.mode);
       const [haveZh, haveEn] = modeName(have.mode);
-      if (have.mode !== cfg.mode)
+      if (have.mode !== cfg.mode || (cfg.openDrain !== undefined && have.openDrain !== cfg.openDrain && cfg.mode !== 'input'))
         issues.push({
           severity: 'error',
           title: tr(`${u.ref} ${uPin} 的模式不对`, `${u.ref} ${uPin} has the wrong mode`),
-          detail: tr(`${uPin} 现在是「${haveZh}」，题目要求「${wantZh}」。选中开发板，在右侧属性的引脚表里修改。`, `${uPin} is set to "${haveEn}"; the task needs "${wantEn}". Select the board and change it in the pin table under Properties.`),
+          detail: tr(
+            `${uPin} 现在是「${haveZh}${have.openDrain ? '（开漏）' : ''}」，题目要求「${wantZh}${cfg.openDrain ? '（开漏）' : ''}」。选中开发板，在右侧属性的引脚表里修改。`,
+            `${uPin} is set to "${haveEn}${have.openDrain ? ' (open-drain)' : ''}"; the task needs "${wantEn}${cfg.openDrain ? ' (open-drain)' : ''}". Select the board and change it in the pin table under Properties.`,
+          ),
           refs: [u.ref],
           holes: holesOf([up]),
         });
@@ -648,12 +651,15 @@ const MEASURE_NAME: Record<Measure, [string, string]> = {
   freq: ['频率', 'frequency'],
   phase: ['相位差', 'phase difference'],
   gain: ['幅度比（增益）', 'amplitude ratio (gain)'],
+  rise: ['上升时间（10%→90%）', 'rise time (10%→90%)'],
+  fall: ['下降时间（90%→10%）', 'fall time (90%→10%)'],
 };
 
 function fmtMeasure(kind: Measure, v: number): string {
   if (kind === 'freq') return formatSI(v, 'Hz');
   if (kind === 'phase') return `${v.toFixed(1)}°`;
   if (kind === 'gain') return `${+v.toPrecision(3)}×`;
+  if (kind === 'rise' || kind === 'fall') return formatSI(v, 's');
   return volts(v);
 }
 

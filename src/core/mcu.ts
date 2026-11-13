@@ -383,6 +383,7 @@ export function pinConfig(props: PartProps, pin: string): Required<PinConfig> {
     mode: c?.mode ?? defaultMode(pin),
     duty: Math.min(100, Math.max(0, c?.duty ?? DEFAULT_PWM.duty)),
     frequency: Math.max(1e-3, c?.frequency ?? DEFAULT_PWM.frequency),
+    openDrain: !!c?.openDrain,
   };
 }
 

@@ -462,3 +462,27 @@ describe('challenge format: dev boards with logical pins', () => {
     expect(r.user.perfect).toBe(true);
   });
 });
+
+describe('open drain + rise time (I²C pull-ups)', () => {
+  it('an open-drain PWM pin with a 4.7 kΩ pull-up and 200 pF: rise ≈ 2.2·RC, fall fast', async () => {
+    const { simulateTransient } = await import('./transient');
+    const tr = simulateTransient(
+      circ(
+        [esp({ GPIO21: { mode: 'pwm', duty: 50, frequency: 100e3, openDrain: true } }), ['RP', 'resistor', { resistance: 4700 }], ['CB', 'capacitor', { capacitance: 200e-12 }]],
+        [['U1.3V3', 'RP.1'], ['RP.2', 'CB.1', 'U1.GPIO21'], ['CB.2', 'U1.GND']],
+      ),
+    );
+    const rise = tr.measure('rise', 'U1.GPIO21', 'U1.GND');
+    expect(rise).toBeGreaterThan(1.9e-6);
+    expect(rise).toBeLessThan(2.25e-6);
+    expect(tr.measure('fall', 'U1.GPIO21', 'U1.GND')).toBeLessThan(0.1e-6);
+    expect(tr.measure('vmax', 'U1.GPIO21', 'U1.GND')).toBeGreaterThan(3.1);
+  });
+
+  it('open-drain out_high just releases the pin (floats without a pull-up)', () => {
+    const s = simulate(circ([esp({ GPIO21: { mode: 'out_high', openDrain: true } }), ['R1', 'resistor', { resistance: 10e3 }]], [['U1.GPIO21', 'R1.1'], ['R1.2', 'U1.GND']]));
+    const p = s.mcus.get('U1')!.pins.get('GPIO21')!;
+    expect(Math.abs(p.voltage)).toBeLessThan(0.01);
+    expect(p.current).toBe(0);
+  });
+});
