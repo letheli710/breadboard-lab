@@ -98,8 +98,16 @@ function Prompt() {
   const cancelPlacement = useStore((s) => s.cancelPlacement);
   const layout = useStore((s) => s.layout);
   let text: string;
-  if (tool === 'select') text = tr('鼠标悬停在孔上，看看哪些孔在内部是连通的 · 点击元件选中，点击按键 / 开关切换状态', 'Hover a hole to see which holes are connected inside · click a part to select it, click a button / switch to flip it');
-  else if (tool === 'probe') text = tr('万用表：点击孔放红表笔；Shift + 点击放黑表笔（不放则默认接 GND）', 'Multimeter: click a hole for the red probe; Shift + click for the black probe (GND if not placed)');
+  if (tool === 'select')
+    text = tr(
+      '鼠标悬停在孔上，看看哪些孔在内部是连通的 · 点击元件选中，点击按键 / 开关切换状态',
+      'Hover a hole to see which holes are connected inside · click a part to select it, click a button / switch to flip it',
+    );
+  else if (tool === 'probe')
+    text = tr(
+      '万用表：点击孔放红表笔；Shift + 点击放黑表笔（不放则默认接 GND）',
+      'Multimeter: click a hole for the red probe; Shift + click for the black probe (GND if not placed)',
+    );
   else {
     const pl = PARTS[tool as PartType].placement;
     text = pl.kind === 'footprint' ? pl.prompt : pl.prompts[firstHole ? 1 : 0] + (firstHole ? tr(`（起点 ${firstHole}）`, ` (from ${firstHole})`) : '');
@@ -113,7 +121,11 @@ function Prompt() {
       {tool !== 'select' && <span className="prompt-tag">{toolName(tool)}</span>}
       {text}
       {firstHole ? (
-        <button className="prompt-cancel" onClick={cancelPlacement} title={tr('放弃这只还没放完的元件（Esc / 右键 / Ctrl+Z）', 'Drop this half-placed part (Esc / right-click / Ctrl+Z)')}>
+        <button
+          className="prompt-cancel"
+          onClick={cancelPlacement}
+          title={tr('放弃这只还没放完的元件（Esc / 右键 / Ctrl+Z）', 'Drop this half-placed part (Esc / right-click / Ctrl+Z)')}
+        >
           {tr('取消这一步', 'Cancel')} <kbd>Esc</kbd>
         </button>
       ) : (
@@ -186,7 +198,11 @@ function Multimeter() {
           '电压永远是“两点之间”的差。只放红表笔时，读数就是这一点相对 GND 的电压。',
           'Voltage is always a difference between two points. With only the red probe placed, the reading is that point relative to GND.',
         )}
-        {ac && tr(' 电路里有变化的信号（信号发生器或 PWM）：万用表（直流档）显示的是平均值，看波形请用示波器探头。', ' The circuit carries a changing signal (function generator or PWM): the multimeter (DC mode) shows the average — use a scope probe to see the waveform.')}
+        {ac &&
+          tr(
+            ' 电路里有变化的信号（信号发生器或 PWM）：万用表（直流档）显示的是平均值，看波形请用示波器探头。',
+            ' The circuit carries a changing signal (function generator or PWM): the multimeter (DC mode) shows the average — use a scope probe to see the waveform.',
+          )}
       </p>
     </div>
   );
@@ -203,7 +219,11 @@ function Toolbar() {
   const canRedo = useStore((s) => s.future.length > 0);
   return (
     <div className="toolbar" role="toolbar" aria-label={tr('视图与编辑', 'View and edit')}>
-      <button className={showNets ? 'on' : ''} onClick={() => toggle('showNets')} title={tr('按节点着色：同一颜色 = 电气上连在一起', 'Colour by node: same colour = electrically connected')}>
+      <button
+        className={showNets ? 'on' : ''}
+        onClick={() => toggle('showNets')}
+        title={tr('按节点着色：同一颜色 = 电气上连在一起', 'Colour by node: same colour = electrically connected')}
+      >
         <Icon name="nets" />
         <span>{tr('节点着色', 'Node colours')}</span>
       </button>
@@ -256,7 +276,11 @@ export function Workbench() {
           <Prompt />
           <ViewButton />
         </div>
-        <div className="stage-view" role="region" aria-label={tr('3D 面包板：拖动旋转、滚轮缩放、右键拖动平移', '3D breadboard: drag to rotate, scroll to zoom, right-drag to pan')}>
+        <div
+          className="stage-view"
+          role="region"
+          aria-label={tr('3D 面包板：拖动旋转、滚轮缩放、右键拖动平移', '3D breadboard: drag to rotate, scroll to zoom, right-drag to pan')}
+        >
           <ErrorBoundary scope="canvas">
             <Scene />
           </ErrorBoundary>
@@ -274,7 +298,9 @@ export function Workbench() {
           )}
         </div>
         <Toolbar />
-        <p className="small-screen-note">{tr('3D 工作台在更大的屏幕上更好用；练习和知识页在手机上可以完整使用。', 'The 3D bench works best on a larger screen; Practice and Guide work fully on a phone.')}</p>
+        <p className="small-screen-note">
+          {tr('3D 工作台在更大的屏幕上更好用；练习和知识页在手机上可以完整使用。', 'The 3D bench works best on a larger screen; Practice and Guide work fully on a phone.')}
+        </p>
       </div>
     </div>
   );

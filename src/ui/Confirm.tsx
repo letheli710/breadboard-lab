@@ -52,7 +52,7 @@ export function ConfirmButton({
       window.removeEventListener('keydown', onKey, true);
       window.removeEventListener('pointerdown', onDown, true);
     };
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <span className="confirm-wrap">

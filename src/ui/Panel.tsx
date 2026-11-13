@@ -23,9 +23,9 @@ export function Md({ text }: { text: string }) {
   const blocks: JSX.Element[] = [];
   let list: string[] = [];
   const inline = (s: string) =>
-    s.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((t, i) =>
-      t.startsWith('**') ? <b key={i}>{t.slice(2, -2)}</b> : t.startsWith('`') ? <code key={i}>{t.slice(1, -1)}</code> : <Fragment key={i}>{t}</Fragment>,
-    );
+    s
+      .split(/(\*\*[^*]+\*\*|`[^`]+`)/g)
+      .map((t, i) => (t.startsWith('**') ? <b key={i}>{t.slice(2, -2)}</b> : t.startsWith('`') ? <code key={i}>{t.slice(1, -1)}</code> : <Fragment key={i}>{t}</Fragment>));
   const flush = () => {
     if (list.length)
       blocks.push(
@@ -46,9 +46,7 @@ export function Md({ text }: { text: string }) {
       <table key={blocks.length} className="cmp">
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i}>
-              {r.map((c, j) => (i === 0 ? <th key={j}>{inline(c.trim())}</th> : <td key={j}>{inline(c.trim())}</td>))}
-            </tr>
+            <tr key={i}>{r.map((c, j) => (i === 0 ? <th key={j}>{inline(c.trim())}</th> : <td key={j}>{inline(c.trim())}</td>))}</tr>
           ))}
         </tbody>
       </table>,
@@ -74,7 +72,12 @@ export function Md({ text }: { text: string }) {
     }
     if (line.trimStart().startsWith('|')) {
       flush();
-      table.push(line.trim().replace(/^\||\|$/g, '').split('|'));
+      table.push(
+        line
+          .trim()
+          .replace(/^\||\|$/g, '')
+          .split('|'),
+      );
       continue;
     }
     flushTable();
@@ -240,7 +243,9 @@ function TaskPanel({ ch }: { ch: Challenge }) {
             </div>
           ) : (
             <>
-              <p className="note">{tr('把鼠标移到下面的条目上，3D 视图会高亮出相关的元件和孔位。', 'Hover an item below to highlight the parts and holes involved in the 3D view.')}</p>
+              <p className="note">
+                {tr('把鼠标移到下面的条目上，3D 视图会高亮出相关的元件和孔位。', 'Hover an item below to highlight the parts and holes involved in the 3D view.')}
+              </p>
               <IssueList issues={check.issues} />
             </>
           )}
@@ -270,7 +275,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         <p className="note">
           {tr(
             '原理图只说明“谁和谁连在一起”，不规定插在面包板哪个孔。只要连接关系一样就算对。',
-            "A schematic only says what connects to what — not which breadboard holes to use. Any layout with the same connections counts as correct.",
+            'A schematic only says what connects to what — not which breadboard holes to use. Any layout with the same connections counts as correct.',
           )}
         </p>
       </details>
@@ -360,27 +365,29 @@ function SchematicPanel() {
               </tr>
             </thead>
             <tbody>
-              {nl.circuit.nets.filter((n) => !(n.pins.length === 1 && boardRefs.has(n.pins[0].slice(0, n.pins[0].lastIndexOf('.'))))).map((n) => {
-                const strips = [...new Set((nl.netHoles.get(n.name) ?? []).map((h) => HOLE_MAP.get(h)!.strip))];
-                return (
-                  <tr key={n.name} className={activeNet === n.name ? 'on' : ''} onMouseEnter={() => setHoverNet(n.name)} onMouseLeave={() => setHoverNet(null)}>
-                    <td>
-                      <b>{isFloating(n.name) ? tr('悬空', 'floating') : n.name}</b>
-                    </td>
-                    <td className="volt">
-                      <NodeVolt d={d} net={n.name} />
-                    </td>
-                    <td>
-                      {n.pins.map((p) => {
-                        const [ref, pin] = [p.slice(0, p.lastIndexOf('.')), p.slice(p.lastIndexOf('.') + 1)];
-                        const c = compOf.get(ref);
-                        return <div key={p}>{c ? terminalLabel(c, pin) : p}</div>;
-                      })}
-                    </td>
-                    <td className="strips">{strips.map(stripLabel).join('、') || '—'}</td>
-                  </tr>
-                );
-              })}
+              {nl.circuit.nets
+                .filter((n) => !(n.pins.length === 1 && boardRefs.has(n.pins[0].slice(0, n.pins[0].lastIndexOf('.')))))
+                .map((n) => {
+                  const strips = [...new Set((nl.netHoles.get(n.name) ?? []).map((h) => HOLE_MAP.get(h)!.strip))];
+                  return (
+                    <tr key={n.name} className={activeNet === n.name ? 'on' : ''} onMouseEnter={() => setHoverNet(n.name)} onMouseLeave={() => setHoverNet(null)}>
+                      <td>
+                        <b>{isFloating(n.name) ? tr('悬空', 'floating') : n.name}</b>
+                      </td>
+                      <td className="volt">
+                        <NodeVolt d={d} net={n.name} />
+                      </td>
+                      <td>
+                        {n.pins.map((p) => {
+                          const [ref, pin] = [p.slice(0, p.lastIndexOf('.')), p.slice(p.lastIndexOf('.') + 1)];
+                          const c = compOf.get(ref);
+                          return <div key={p}>{c ? terminalLabel(c, pin) : p}</div>;
+                        })}
+                      </td>
+                      <td className="strips">{strips.map(stripLabel).join('、') || '—'}</td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </>
