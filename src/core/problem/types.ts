@@ -154,6 +154,10 @@ export interface Schematic {
   loops?: { at: Pt; name?: string; dir?: 'cw' | 'ccw' }[];
   /** optional u–i characteristic figure of a nonlinear resistor, drawn under the circuit */
   plot?: UiPlot;
+  /** matrix-form chapter: the circuit's directed graph (drawn under the circuit) */
+  graph?: CircuitGraph;
+  /** matrix-form chapter: order of the state and input vectors for "state" questions */
+  state?: StateVars;
   /** free text annotations */
   notes?: { at: Pt; text: string; i18n?: Partial<Record<Lang, string>> }[];
 }
@@ -248,7 +252,42 @@ export type Quantity =
   /** coefficient of s^power in the numerator / denominator of H(s), with the denominator made monic (leading coefficient 1) */
   | { kind: 'hcoef'; out: SOut; input: string; of: 'num' | 'den'; power: number }
   /** tran: partial-fraction coefficient of 1/(s − at)^order (order 1 = residue) in the transform Y(s) of the actual response for t > 0 */
-  | { kind: 'residue'; out: SOut; at: number | { re?: number; im?: number }; order?: number };
+  | { kind: 'residue'; out: SOut; at: number | { re?: number; im?: number }; order?: number }
+  // ---- matrix-form chapter (graph matrices, matrix equations, state equations); see analysis/matrixform.ts ----
+  /** entry (row, col) of a matrix of schematic.graph, 1-based; vectors take `row` only.
+   *  A, Bf, Qf (structure); Yb, Zb, Us, Is (branches); Yn, Jn (node eq.); Zl, El (loop eq.); Yt, Jt (cut-set eq.);
+   *  Un, Il, Ut, Ub, Ib (solutions of those equations). Complex entries: part re (default) / im / mag / phase */
+  | { kind: 'mat'; mat: MatrixName; row: number; col?: number }
+  /** number of graph nodes / branches / tree branches / links of schematic.graph */
+  | { kind: 'gcount'; count: 'nodes' | 'branches' | 'tree' | 'links' }
+  /** entry (row, col) of A or B in ẋ = A·x + B·u, with x and u ordered as in schematic.state */
+  | { kind: 'state'; mat: 'A' | 'B'; row: number; col: number };
+
+/** matrices of the matrix-form chapter (see Quantity kind "mat") */
+export type MatrixName = 'A' | 'Bf' | 'Qf' | 'Yb' | 'Zb' | 'Us' | 'Is' | 'Yn' | 'Jn' | 'Zl' | 'El' | 'Yt' | 'Jt' | 'Un' | 'Il' | 'Ut' | 'Ub' | 'Ib';
+
+/** Directed graph of the circuit (matrix-form chapter), drawn under the schematic. Graph node names are
+ *  circuit node names (labels; a label on the ground wire is an alias of "0"). See analysis/matrixform.ts. */
+export interface CircuitGraph {
+  /** graph nodes in row order of A, with their position in the graph figure (grid units, y down) */
+  nodes: { name: string; at: Pt }[];
+  /** reference node (row deleted from A) */
+  ref: string;
+  /** branches numbered 1..b, oriented from → to; els = the circuit elements of the branch */
+  branches: { n: number; from: string; to: string; els: string[]; bend?: number }[];
+  /** tree branch numbers (needed for Bf, Qf and the loop / cut-set equations) */
+  tree?: number[];
+  /** draw tree branches like links (when a question asks for a tree) */
+  hideTree?: boolean;
+  /** cut-sets drawn as closed dashed curves through `path` (each must be a real cut-set) */
+  cutsets?: { name?: string; branches: number[]; path: Pt[] }[];
+}
+
+/** state equations ẋ = A·x + B·u: x = capacitor voltages / inductor currents (refs, passive convention), u = source refs */
+export interface StateVars {
+  x: string[];
+  u: string[];
+}
 
 /** s-domain output: node voltage ["a"] / ["a", "b"], element voltage {v: ref}, element current {i: ref} */
 export type SOut = [string, string?] | { v: string } | { i: string };
@@ -350,6 +389,9 @@ export interface Netlist {
   /** extra names for nodes, name → node in `nodes` (e.g. a terminal "b" sitting on ground → "0").
    *  Anything that looks up a node by name must resolve it through here first. */
   aliases?: Map<string, string>;
+  /** matrix-form chapter: copied from the schematic by the parser */
+  graph?: CircuitGraph;
+  state?: StateVars;
 }
 
 /** Pin names used in Netlist.nodeOf ("REF.pin"):

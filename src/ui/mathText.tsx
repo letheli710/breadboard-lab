@@ -1,7 +1,8 @@
 // The small amount of formula layout the theory text needs on top of the symbol rules of
 // richRuns (X_sub, dotted phasors): fractions, square roots with a bar, superscripts and
-// subscripts on non-letters (∫_{0}^{t}). Markup (only these four, braces may nest):
-//   \frac{num}{den}   \sqrt{x}   x^{sup}   ∫_{0}^{t}
+// subscripts on non-letters (∫_{0}^{t}) and matrices. Markup (only these, braces may nest):
+//   \frac{num}{den}   \sqrt{x}   x^{sup}   ∫_{0}^{t}   \mat{a & b ; c & d}
+// In \mat{…} cells are separated by "&" and rows by ";" (at brace depth 0).
 // Everything else is plain text with the usual X_sub rules. In JSON the backslash is doubled:
 // "\\frac{U_s}{R_1 + R_2}".
 
@@ -10,7 +11,29 @@ import { richRuns } from './ProblemSchematic';
 import { subQ } from './subQ';
 
 export type MathNode =
-  { k: 'text'; t: string } | { k: 'frac'; num: MathNode[]; den: MathNode[] } | { k: 'sqrt'; x: MathNode[] } | { k: 'sup'; x: MathNode[] } | { k: 'sub'; x: MathNode[] };
+  | { k: 'text'; t: string }
+  | { k: 'frac'; num: MathNode[]; den: MathNode[] }
+  | { k: 'sqrt'; x: MathNode[] }
+  | { k: 'sup'; x: MathNode[] }
+  | { k: 'sub'; x: MathNode[] }
+  | { k: 'mat'; rows: MathNode[][][] };
+
+/** Split at `sep` characters that are not inside braces. */
+function splitTop(s: string, sep: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === '{') depth++;
+    else if (s[i] === '}') depth--;
+    else if (s[i] === sep && depth === 0) {
+      out.push(s.slice(start, i));
+      start = i + 1;
+    }
+  }
+  out.push(s.slice(start));
+  return out;
+}
 
 /** Index just past the "}" matching the "{" at `open`, or -1. */
 function closeBrace(s: string, open: number): number {
@@ -36,10 +59,17 @@ export function mathNodes(s: string): MathNode[] {
   let i = 0;
   while (i < s.length) {
     const rest = s.slice(i);
-    const cmd = /^\\(frac|sqrt)\{/.exec(rest);
+    const cmd = /^\\(frac|sqrt|mat)\{/.exec(rest);
     if (cmd) {
       const a0 = i + cmd[0].length - 1;
       const a1 = closeBrace(s, a0);
+      if (a1 > 0 && cmd[1] === 'mat') {
+        flush();
+        const rows = splitTop(s.slice(a0 + 1, a1 - 1), ';').map((r) => splitTop(r, '&').map((c) => mathNodes(c.trim())));
+        out.push({ k: 'mat', rows });
+        i = a1;
+        continue;
+      }
       if (a1 > 0 && cmd[1] === 'sqrt') {
         flush();
         out.push({ k: 'sqrt', x: mathNodes(s.slice(a0 + 1, a1 - 1)) });
@@ -104,11 +134,23 @@ function render(nodes: MathNode[], inSub = false): ReactNode {
         return <sup key={i}>{render(n.x)}</sup>;
       case 'sub':
         return <sub key={i}>{render(n.x, true)}</sub>;
+      case 'mat': {
+        const cols = Math.max(...n.rows.map((r) => r.length));
+        return (
+          <span key={i} className="mx-mat-wrap">
+            <span className="mx-mat" role="table">
+              <span className="mx-mat-grid" style={{ gridTemplateColumns: `repeat(${cols}, auto)` }}>
+                {n.rows.flatMap((r, ri) => Array.from({ length: cols }, (_, ci) => <span key={`${ri}-${ci}`}>{r[ci] ? render(r[ci], inSub) : null}</span>))}
+              </span>
+            </span>
+          </span>
+        );
+      }
     }
   });
 }
 
-/** Rich text: X_sub symbols plus \frac, \sqrt, ^{…}, _{…} (see mathNodes). */
+/** Rich text: X_sub symbols plus \frac, \sqrt, \mat, ^{…}, _{…} (see mathNodes). */
 export function MathText({ text }: { text: string }) {
   return <>{render(mathNodes(text))}</>;
 }

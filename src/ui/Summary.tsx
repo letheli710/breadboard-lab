@@ -14,6 +14,7 @@ import { useSummary, type SummaryTarget } from '../state/summaries';
 import { Icon } from './Icons';
 import { ProblemSchematic } from './ProblemSchematic';
 import { UiPlot } from './UiPlot';
+import { GraphFigure } from './GraphFigure';
 import { PrMd, Sym } from './richText';
 import { MathText } from './mathText';
 
@@ -104,6 +105,7 @@ function Example({ ex, n, ideaTitle, jump }: { ex: SummaryExample; n: number; id
             <ProblemSchematic schematic={p.schematic} />
           </div>
           {p.schematic.plot && <UiPlot schematic={p.schematic} />}
+          {p.schematic.graph && <GraphFigure graph={p.schematic.graph} />}
         </div>
         <div className="sum-ex-right">
           <div className="eyebrow">{tr('解题步骤', 'Step by step')}</div>

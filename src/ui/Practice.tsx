@@ -15,6 +15,7 @@ import { celebrate } from './celebrate';
 import { Icon } from './Icons';
 import { ProblemSchematic } from './ProblemSchematic';
 import { UiPlot } from './UiPlot';
+import { GraphFigure } from './GraphFigure';
 import { PrMd, Sym } from './richText';
 import { SummaryPage } from './Summary';
 
@@ -507,6 +508,7 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
             <ProblemSchematic schematic={p.schematic} highlight={highlight} />
           </div>
           {p.schematic.plot && <UiPlot schematic={p.schematic} />}
+          {p.schematic.graph && <GraphFigure graph={p.schematic.graph} />}
           <p className="note">
             {tr(
               '箭头是电流的参考方向，+/− 是电压的参考极性；算出来是负数，说明实际方向与参考方向相反。',

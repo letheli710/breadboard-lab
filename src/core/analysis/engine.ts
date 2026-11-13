@@ -7,6 +7,7 @@ import { AnalysisError } from './errors';
 import { type Mode, MnaSystem, Solution } from './mna';
 import { type Solver, dynamicR, operatingPoints, piecesAt, solveAt, tangent } from './nonlinear';
 import { isSdomainKind, sdomainQuantity } from './sdomain';
+import { isMatrixKind, matrixQuantity } from './matrixform';
 import { Transient } from './transient';
 import { computePeriodic } from './periodic';
 
@@ -625,6 +626,8 @@ export function computeComplex(netlist: Netlist, analysis: Analysis, find: Find)
     throw new AnalysisError('find.freq / find.omega override the frequency of an AC problem; this problem is not AC');
 
   if (isSdomainKind(find.kind)) return sdomainQuantity(netlist, analysis.type, find as unknown as Record<string, unknown>);
+  // matrix-form chapter (graph matrices, matrix equations, state equations)
+  if (isMatrixKind(find.kind)) return matrixQuantity(netlist, analysis, find as unknown as Record<string, unknown>);
   const nls = ckt.els.filter((e) => e.type === 'NR');
   if (nls.length) return nonlinearComplex(ckt, nls, analysis, find);
   if (find.kind === 'rs' || find.kind === 'rd' || find.kind === 'nop') throw new AnalysisError(`"${find.kind}" needs a nonlinear resistor (type NR) in the circuit`);

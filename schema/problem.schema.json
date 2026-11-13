@@ -256,6 +256,56 @@
         },
         "wires": { "type": "array", "items": { "type": "array", "minItems": 2, "items": { "$ref": "#/definitions/pt" } } },
         "plot": { "$ref": "#/definitions/uiPlot" },
+        "graph": {
+          "description": "Matrix-form chapter: the circuit's directed graph, drawn under the circuit. Node names are circuit node names (labels).",
+          "type": "object",
+          "required": ["nodes", "ref", "branches"],
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "items": { "type": "object", "required": ["name", "at"], "properties": { "name": { "type": "string" }, "at": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 } }, "additionalProperties": false }
+            },
+            "ref": { "type": "string", "description": "reference node (row deleted from A)" },
+            "branches": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["n", "from", "to", "els"],
+                "properties": {
+                  "n": { "type": "integer", "minimum": 1 },
+                  "from": { "type": "string" },
+                  "to": { "type": "string" },
+                  "els": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+                  "bend": { "type": "number", "description": "drawing: offset of a curved branch (grid units, + = left of from → to on screen)" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "tree": { "type": "array", "items": { "type": "integer", "minimum": 1 } },
+            "hideTree": { "type": "boolean" },
+            "cutsets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["branches", "path"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "branches": { "type": "array", "items": { "type": "integer", "minimum": 1 } },
+                  "path": { "type": "array", "minItems": 3, "items": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 } }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "state": {
+          "description": "Matrix-form chapter: state vector x (capacitor / inductor refs) and input vector u (source refs) for \"state\" questions",
+          "type": "object",
+          "required": ["x", "u"],
+          "properties": { "x": { "type": "array", "items": { "type": "string" } }, "u": { "type": "array", "items": { "type": "string" } } },
+          "additionalProperties": false
+        },
         "labels": {
           "type": "array",
           "items": {
@@ -357,7 +407,11 @@
       "type": "object",
       "required": ["kind"],
       "properties": {
-        "kind": { "enum": ["v", "i", "p", "q", "s", "pf", "req", "vth", "isc", "pmax", "tau", "meter", "gain", "f0", "twoport", "w", "val", "wattmeter", "root", "alpha", "omega_d", "omega0", "fc", "bw", "Q", "rs", "rd", "nop", "H", "pole", "zero", "hcoef", "residue"], "description": "rs / rd: static / dynamic resistance of a nonlinear resistor at the operating point; nop: number of operating points" },
+        "kind": { "enum": ["v", "i", "p", "q", "s", "pf", "req", "vth", "isc", "pmax", "tau", "meter", "gain", "f0", "twoport", "w", "val", "wattmeter", "root", "alpha", "omega_d", "omega0", "fc", "bw", "Q", "rs", "rd", "nop", "H", "pole", "zero", "hcoef", "residue", "mat", "gcount", "state"], "description": "rs / rd: static / dynamic resistance of a nonlinear resistor at the operating point; nop: number of operating points; mat / gcount / state: matrix-form chapter (schematic.graph / schematic.state)" },
+        "mat": { "enum": ["A", "Bf", "Qf", "Yb", "Zb", "Us", "Is", "Yn", "Jn", "Zl", "El", "Yt", "Jt", "Un", "Il", "Ut", "Ub", "Ib"], "description": "mat: which matrix / vector of the graph; state: \"A\" or \"B\" of ẋ = Ax + Bu" },
+        "row": { "type": "integer", "minimum": 1, "description": "mat / state: row (1-based)" },
+        "col": { "type": "integer", "minimum": 1, "description": "mat / state: column (1-based); omit for vectors" },
+        "count": { "enum": ["nodes", "branches", "tree", "links"], "description": "gcount: number of graph nodes / branches / tree branches / links" },
         "el": { "type": "string" },
         "nodes": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 2 },
         "port": { "$ref": "#/definitions/nodePair" },

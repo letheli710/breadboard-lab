@@ -44,6 +44,29 @@ describe('formula markup', () => {
   });
 });
 
+describe('matrix markup', () => {
+  it('parses \\mat{…} into rows and cells, with nested markup', () => {
+    expect(mathNodes('A = \\mat{1 & −1 ; 0 & \\frac{1}{2}}')).toEqual([
+      { k: 'text', t: 'A = ' },
+      {
+        k: 'mat',
+        rows: [
+          [[{ k: 'text', t: '1' }], [{ k: 'text', t: '−1' }]],
+          [[{ k: 'text', t: '0' }], [{ k: 'frac', num: [{ k: 'text', t: '1' }], den: [{ k: 'text', t: '2' }] }]],
+        ],
+      },
+    ]);
+  });
+  it('renders a grid with one cell per entry (short rows padded) and no raw markup', () => {
+    const html = renderToStaticMarkup(<MathText text="\mat{G_1 + G_2 & −G_2 ; −G_2}ᵀ" />);
+    expect(html).toContain('class="mx-mat"');
+    expect(html).toContain('repeat(2, auto)');
+    expect(html.match(/<span>/g)?.length).toBeGreaterThanOrEqual(4);
+    expect(html).toContain('<sub>1</sub>');
+    expect(html.replace(/<[^>]+>/g, '')).not.toMatch(/\\mat|&amp;|;/);
+  });
+});
+
 describe('summary page', () => {
   afterAll(() => setLang('zh'));
   for (const lang of ['zh', 'en'] as const)

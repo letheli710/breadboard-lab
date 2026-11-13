@@ -12,6 +12,7 @@ import { angleDiff, fmtNum, isPhaseQuestion } from './answer';
 import { extractNetlist, isTwoTerminal } from './geometry';
 import { checkPlot } from './plot';
 import { SDOMAIN_KINDS, checkSdomainFind, isSdomainKind, sdomainMark } from './sdomainFind';
+import { MATRIX_KINDS, checkMatrixFind, checkMatrixSchematic, isMatrixKind } from './matrixFind';
 import { PROBLEM_FORMAT_ID, type Analysis, type Find, type Netlist, type Part, type ProblemElement, type ProblemFile, type Question, type Schematic } from './types';
 
 /** A problem ready for the UI: text already localised for the current language. */
@@ -81,9 +82,10 @@ const KINDS = [
   'rd',
   'nop',
   ...SDOMAIN_KINDS,
+  ...MATRIX_KINDS,
 ] as const;
 /** kinds that describe the whole circuit (no time instant needed in transient problems) */
-const TIMELESS: readonly string[] = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw', ...SDOMAIN_KINDS];
+const TIMELESS: readonly string[] = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw', ...SDOMAIN_KINDS, ...MATRIX_KINDS];
 const PARTS: Part[] = ['re', 'im', 'mag', 'phase', 'db', 'rms', 'avg', 'absavg', 'peak'];
 const TIMES = ['0-', '0+', 'inf'];
 const isGroundName = (n: string) => /^(0|gnd)$/i.test(n);
@@ -110,6 +112,7 @@ function checkFind(
   analysis: Analysis | null,
   errors: string[],
   warnings: string[],
+  schematic: Schematic | null = null,
 ): find is Find {
   if (!isObj(find)) {
     errors.push(tr(`${where}.find: 必须是对象，如 {"kind": "i", "el": "R1"}`, `${where}.find: must be an object, e.g. {"kind": "i", "el": "R1"}`));
@@ -251,7 +254,8 @@ function checkFind(
       break;
     default:
       // s-domain chapter: H, pole, zero, hcoef, residue
-      if (isSdomainKind(kind)) ok = checkSdomainFind(find, where, el, (r) => typeof r === 'string' && (els.size === 0 || els.has(r)), node, analysis?.type, errors) && ok;
+      if (isMatrixKind(kind)) ok = checkMatrixFind(find, where, schematic, errors) && ok;
+      else if (isSdomainKind(kind)) ok = checkSdomainFind(find, where, el, (r) => typeof r === 'string' && (els.size === 0 || els.has(r)), node, analysis?.type, errors) && ok;
   }
   if (find.deriv !== undefined) {
     if (find.deriv !== 1 || (kind !== 'v' && kind !== 'i')) {
@@ -306,7 +310,16 @@ function checkFind(
   }
   if (analysis && analysis.type !== 'periodic' && (find.part === 'avg' || find.part === 'absavg' || find.part === 'peak'))
     errors.push(tr(`${where}.find.part: "${find.part}" 只用于非正弦周期分析（periodic）`, `${where}.find.part: "${find.part}" is only for periodic (non-sinusoidal) analysis`));
-  if (analysis && analysis.type !== 'ac' && analysis.type !== 'periodic' && kind !== 'root' && !isSdomainKind(kind) && find.part !== undefined && find.part !== 're')
+  if (
+    analysis &&
+    analysis.type !== 'ac' &&
+    analysis.type !== 'periodic' &&
+    kind !== 'root' &&
+    !isSdomainKind(kind) &&
+    !isMatrixKind(kind) &&
+    find.part !== undefined &&
+    find.part !== 're'
+  )
     warnings.push(
       tr(`${where}.find.part: "${String(find.part)}" 只对正弦稳态（ac）有意义`, `${where}.find.part: "${String(find.part)}" only makes sense for sinusoidal steady state (ac)`),
     );
@@ -464,6 +477,9 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
   const nodes = netlist ? new Set([...netlist.nodes, ...aliases]) : null;
 
   const analysis = parseAnalysis(json.analysis, errors);
+  // matrix-form chapter: the graph / state vectors travel with the netlist to the engine
+  if (schematic) checkMatrixSchematic(schematic, netlist, analysis, verify, errors);
+  if (netlist && schematic && (schematic.graph || schematic.state)) netlist = { ...netlist, graph: schematic.graph, state: schematic.state };
 
   // ---- questions ----
   const questions: Question[] = [];
@@ -504,7 +520,7 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
             `${w}: no "unit" — the student can't tell what unit to answer in (e.g. "V", "mA", "Ω", "°"; "" if dimensionless)`,
           ),
         );
-      if (checkFind(q.find, w, els, nodes, analysis, errors, warnings)) {
+      if (checkFind(q.find, w, els, nodes, analysis, errors, warnings, schematic)) {
         out.find = q.find as Find;
         if (typeof q.answer === 'number') out.answer = q.answer;
         if (verify && netlist && analysis && typeof q.answer === 'number' && qid) {
