@@ -6,7 +6,7 @@ import { tr } from '../core/i18n';
 import type { CircuitGraph, Pt } from '../core/problem/types';
 
 const S = 44; // px per grid unit
-const PAD = 26;
+const PAD = 34;
 const R = 11; // node radius
 
 type V = [number, number];
@@ -56,7 +56,7 @@ export function GraphFigure({ graph }: { graph: CircuitGraph }) {
     <figure className="cgraph">
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={tr('电路的有向图', 'directed graph of the circuit')}>
         <defs>
-          <marker id="cg-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+          <marker id="cg-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="12" markerHeight="12" orient="auto">
             <path d="M0,1 L10,5 L0,9 z" className="cgraph-head" />
           </marker>
         </defs>

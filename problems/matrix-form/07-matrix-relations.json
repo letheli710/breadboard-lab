@@ -1,0 +1,161 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "matrix-form-07-matrix-relations",
+  "chapter": "matrix-form",
+  "title": "换一棵树：B_f、Q_f 与 Q_l = −B_tᵀ",
+  "level": 3,
+  "tags": ["基本回路矩阵", "基本割集矩阵", "矩阵关系"],
+  "statement": [
+    "电路如图（U_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 U_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
+    "这次选树 T = {4, 5, 6}（图中粗线），连支为 1、2、3。基本回路矩阵 B_f：每条连支对应一行（按连支编号从小到大），基本回路的方向取该连支的方向；支路 k 在回路 j 中且方向与回路一致时 b_jk = +1，相反时 −1，不在回路中为 0。基本割集矩阵 Q_f：每条树支对应一行（按树支编号从小到大），基本割集的方向取该树支的方向；支路 k 在割集 j 中且方向与割集一致时 q_jk = +1，相反时 −1，否则为 0。 先写 B_f，再用 Q_l = −B_tᵀ 写 Q_f。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
+      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
+      {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
+      {"ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4},
+      {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 2},
+      {"ref": "R5", "type": "R", "from": [16, 0], "to": [16, 6], "value": 2},
+      {"ref": "Is5", "type": "I", "from": [19, 6], "to": [19, 0], "value": 1},
+      {"ref": "R6", "type": "R", "from": [6, -4], "to": [10, -4], "value": 8}
+    ],
+    "wires": [[[6, -4], [0, -4], [0, 0], [2, 0]], [[6, 0], [10, 0]], [[14, 0], [19, 0]], [[10, -4], [16, -4], [16, 0]], [[0, 6], [19, 6]]],
+    "labels": [{"at": [0, 0], "name": "1"}, {"at": [8, 0], "name": "2"}, {"at": [16, 0], "name": "3"}, {"at": [12, 6], "name": "4"}],
+    "grounds": [[0, 6]],
+    "graph": {
+      "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
+      "ref": "4",
+      "branches": [
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
+        {"n": 3, "from": "2", "to": "3", "els": ["R3"]},
+        {"n": 4, "from": "2", "to": "4", "els": ["R4"]},
+        {"n": 5, "from": "3", "to": "4", "els": ["R5", "Is5"]},
+        {"n": 6, "from": "1", "to": "3", "els": ["R6"], "bend": 2.5}
+      ],
+      "tree": [4, 5, 6]
+    }
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "b15",
+      "ask": "b_15 = ?（连支 1 的基本回路中的支路 5）",
+      "find": {"kind": "mat", "mat": "Bf", "row": 1, "col": 5},
+      "answer": 1,
+      "unit": "",
+      "explain": "连支 1：4→1，再由 1 沿树走回 4：1→3（支路 6，同向）→4（支路 5，3→4，同向）：b_15 = b_16 = +1。"
+    },
+    {
+      "id": "b25",
+      "ask": "b_25 = ?",
+      "find": {"kind": "mat", "mat": "Bf", "row": 2, "col": 5},
+      "answer": -1,
+      "unit": "",
+      "explain": "连支 2：1→2，由 2 回到 1：2→4（支路 4，同向）→3（支路 5 反向）→1（支路 6 反向）：b_25 = −1。"
+    },
+    {
+      "id": "q52",
+      "ask": "q_12 = ?（Q_f 第 1 行即树支 4 的割集，支路 2）",
+      "find": {"kind": "mat", "mat": "Qf", "row": 1, "col": 2},
+      "answer": -1,
+      "unit": "",
+      "explain": "Q_l = −B_tᵀ：q_12 = −b_24，B_f 第 2 行（连支 2）里支路 4 为 +1，所以 q_12 = −1。直接看：去掉树支 4，结点 2 单独一块，支路 2 进入结点 2，与割集方向（离开 2）相反。"
+    },
+    {
+      "id": "q21",
+      "ask": "q_21 = ?（树支 5 的割集，支路 1）",
+      "find": {"kind": "mat", "mat": "Qf", "row": 2, "col": 1},
+      "answer": -1,
+      "unit": "",
+      "explain": "q_21 = −b_15 = −1。"
+    },
+    {
+      "id": "q33",
+      "ask": "q_33 = ?（树支 6 的割集，支路 3）",
+      "find": {"kind": "mat", "mat": "Qf", "row": 3, "col": 3},
+      "answer": 0,
+      "unit": "",
+      "explain": "q_33 = −b_36 = 0：连支 3 的基本回路 2→3→4→2 不经过树支 6，所以连支 3 也不在树支 6 的割集里。"
+    },
+    {
+      "id": "abt",
+      "ask": "关于同一个图，下面哪个等式**不**成立？",
+      "choices": ["A·B_fᵀ = 0", "Q_f·B_fᵀ = 0", "B_f·Aᵀ = 0", "A·Q_fᵀ = 0"],
+      "correct": 3,
+      "choiceExplain": [
+        "成立：每个回路进出一个结点的次数相同（KCL 与 KVL 的正交性）。",
+        "成立：一个回路穿过一个割集的次数（按方向计）为零。",
+        "就是 A·B_fᵀ = 0 的转置，成立。",
+        "对：A 和 Q_f 都是“割集型”矩阵（A 的每一行就是包围一个结点的割集），它们的行空间相同，A·Q_fᵀ 一般不为零。"
+      ],
+      "explain": "回路与割集“正交”：A·B_fᵀ = 0、Q_f·B_fᵀ = 0。"
+    }
+  ],
+  "hints": ["树 {4, 5, 6} 是以结点 4、3 为中心的“星形 + 一条边”：先确认它连通所有结点。", "对每条连支沿树找回路。注意支路方向与回路走向是否一致。", "Q_f 的连支部分不必另外找割集：Q_l = −B_tᵀ（B_f 中树支 4、5、6 的三列取负再转置）。"],
+  "solution": [
+    "**B_f**（行：连支 1、2、3；列：支路 1～6）：",
+    "B_f = \\mat{1 & 0 & 0 & 0 & 1 & 1 ; 0 & 1 & 0 & 1 & −1 & −1 ; 0 & 0 & 1 & −1 & 1 & 0}",
+    "所以 b_15 = **1**，b_25 = **−1**。",
+    "**Q_f** 的树支部分为单位矩阵，连支部分 Q_l = −B_tᵀ：",
+    "Q_f = \\mat{0 & −1 & 1 & 1 & 0 & 0 ; −1 & 1 & −1 & 0 & 1 & 0 ; −1 & 1 & 0 & 0 & 0 & 1}",
+    "q_12 = **−1**，q_21 = **−1**，q_33 = **0**。",
+    "**检查：** Q_f 第 1 行（树支 4 的割集）就是结点 2 的全部支路 {2, 3, 4}，方向离开结点 2：与 A 的第 2 行 (0, −1, 1, 1, 0, 0) 完全一样 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Another tree: B_f, Q_f and Q_l = −B_tᵀ",
+      "tags": ["loop matrix", "cut-set matrix", "matrix relations"],
+      "statement": [
+        "The circuit is drawn below (U_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, U_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
+        "This time choose the tree T = {4, 5, 6} (thick lines); the links are 1, 2, 3. Fundamental loop matrix B_f: one row per link (in ascending link number); each fundamental loop takes the direction of its link; b_jk = +1 if branch k is in loop j with the same direction, −1 if opposite, 0 if not in the loop. Fundamental cut-set matrix Q_f: one row per tree branch (ascending number); each fundamental cut-set takes the direction of its tree branch; q_jk = +1 if branch k is in cut-set j in the same direction, −1 if opposite, 0 otherwise. Write B_f first, then Q_f from Q_l = −B_tᵀ."
+      ],
+      "questions": [
+        {
+          "ask": "b_15 = ? (branch 5 in the loop of link 1)",
+          "explain": "Link 1: 4→1, then from 1 back to 4 along the tree: 1→3 (branch 6, same way) → 4 (branch 5, 3→4, same way): b_15 = b_16 = +1."
+        },
+        {
+          "ask": "b_25 = ?",
+          "explain": "Link 2: 1→2, back from 2 to 1: 2→4 (branch 4, same way) → 3 (branch 5 reversed) → 1 (branch 6 reversed): b_25 = −1."
+        },
+        {
+          "ask": "q_12 = ? (row 1 of Q_f = cut-set of tree branch 4, branch 2)",
+          "explain": "Q_l = −B_tᵀ: q_12 = −b_24; branch 4 is +1 in row 2 of B_f (link 2), so q_12 = −1. Directly: removing tree branch 4 isolates node 2; branch 2 enters node 2, against the cut-set (out of 2)."
+        },
+        {"ask": "q_21 = ? (cut-set of tree branch 5, branch 1)", "explain": "q_21 = −b_15 = −1."},
+        {
+          "ask": "q_33 = ? (cut-set of tree branch 6, branch 3)",
+          "explain": "q_33 = −b_36 = 0: the loop of link 3 (2→3→4→2) does not use tree branch 6, so link 3 is not in its cut-set either."
+        },
+        {
+          "ask": "Which equation does **not** hold for this graph?",
+          "choices": ["A·B_fᵀ = 0", "Q_f·B_fᵀ = 0", "B_f·Aᵀ = 0", "A·Q_fᵀ = 0"],
+          "choiceExplain": [
+            "Holds: a loop leaves a node as often as it enters it (KCL/KVL orthogonality).",
+            "Holds: counted with direction, a loop crosses a cut-set zero times net.",
+            "This is the transpose of A·B_fᵀ = 0, so it holds.",
+            "Right: A and Q_f are both cut-set type matrices (each row of A is the cut-set around one node) with the same row space; A·Q_fᵀ is not zero in general."
+          ],
+          "explain": "Loops and cut-sets are orthogonal: A·B_fᵀ = 0, Q_f·B_fᵀ = 0."
+        }
+      ],
+      "hints": [
+        "First check that {4, 5, 6} connects every node.",
+        "Find each link's loop along the tree, watching whether each branch runs with or against the loop.",
+        "No need to search the cut-sets: Q_l = −B_tᵀ (columns 4, 5, 6 of B_f, negated and transposed)."
+      ],
+      "solution": [
+        "**B_f** (rows: links 1, 2, 3; columns: branches 1–6):",
+        "B_f = \\mat{1 & 0 & 0 & 0 & 1 & 1 ; 0 & 1 & 0 & 1 & −1 & −1 ; 0 & 0 & 1 & −1 & 1 & 0}",
+        "So b_15 = **1**, b_25 = **−1**.",
+        "**Q_f**: identity on the tree branches, Q_l = −B_tᵀ on the links:",
+        "Q_f = \\mat{0 & −1 & 1 & 1 & 0 & 0 ; −1 & 1 & −1 & 0 & 1 & 0 ; −1 & 1 & 0 & 0 & 0 & 1}",
+        "q_12 = **−1**, q_21 = **−1**, q_33 = **0**.",
+        "**Check:** row 1 of Q_f (cut-set of tree branch 4) is all branches at node 2, {2, 3, 4}, pointing out of node 2: identical to row 2 of A, (0, −1, 1, 1, 0, 0) ✓."
+      ]
+    }
+  }
+}

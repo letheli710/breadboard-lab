@@ -28,6 +28,8 @@ export const CHAPTERS: Chapter[] = [
   { id: 'non-sinusoidal', phase: 4, title: () => tr('非正弦周期电流电路', 'Non-sinusoidal periodic circuits') },
   // textbook ch. 14 (Laplace transform, network functions) plus impulse response and convolution
   { id: 's-domain', phase: 4, title: () => tr('线性动态电路的复频域分析', 'Laplace transform and s-domain analysis') },
+  // textbook ch. 15: network graphs (cut-sets, A / B_f / Q_f), equations in matrix form, state equations
+  { id: 'matrix-form', phase: 4, title: () => tr('电路方程的矩阵形式', 'Circuit equations in matrix form') },
   { id: 'two-port', phase: 4, title: () => tr('二端口网络', 'Two-port networks') },
   // textbook ch. 17, nonlinear resistive circuits only
   { id: 'nonlinear', phase: 4, title: () => tr('非线性电阻电路', 'Nonlinear resistive circuits') },

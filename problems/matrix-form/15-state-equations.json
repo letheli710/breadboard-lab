@@ -1,0 +1,175 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "matrix-form-15-state-equations",
+  "chapter": "matrix-form",
+  "title": "用常态树列状态方程 ẋ = Ax + Bu",
+  "level": 5,
+  "tags": ["状态方程", "常态树", "状态变量", "固有频率"],
+  "statement": [
+    "电路如图：u_s = 10ε(t) V，i_s = 1 A（向上流入结点 3），R_1 = 1 Ω，C = 0.5 F，L = 1 H，R_2 = 2 Ω。每个元件为一条支路，有向图如下（结点 4 接地）。",
+    "取状态变量 x = (u_C, i_L)ᵀ（u_C 上“+”下“−”，i_L 由结点 2 流向 3），输入 u = (u_s, i_s)ᵀ，写出 t > 0 的状态方程 dx/dt = A·x + B·u。",
+    "方法（教材）：选常态树，对每个电容树支列基本割集的 KCL（得 C·du_C/dt），对每个电感连支列基本回路的 KVL（得 L·di_L/dt），再消去电阻上的非状态变量。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": {"step": {"before": 0, "after": 10}}, "label": "10ε(t) V"},
+      {"ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 1},
+      {"ref": "C", "type": "C", "from": [8, 0], "to": [8, 6], "value": 0.5},
+      {"ref": "L", "type": "L", "from": [10, 0], "to": [14, 0], "value": 1},
+      {"ref": "R2", "type": "R", "from": [16, 0], "to": [16, 6], "value": 2},
+      {"ref": "Is", "type": "I", "from": [19, 6], "to": [19, 0], "value": 1}
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [10, 0]], [[14, 0], [19, 0]], [[0, 6], [19, 6]]],
+    "labels": [{"at": [1, 0], "name": "1"}, {"at": [8, 0], "name": "2"}, {"at": [16, 0], "name": "3"}, {"at": [12, 6], "name": "4"}],
+    "grounds": [[0, 6]],
+    "marks": [{"kind": "v", "el": "C", "name": "u_C"}, {"kind": "i", "el": "L", "name": "i_L"}],
+    "state": {"x": ["C", "L"], "u": ["Us", "Is"]},
+    "graph": {
+      "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [3.5, 0]}, {"name": "3", "at": [7, 0]}, {"name": "4", "at": [3.5, 3.5]}],
+      "ref": "4",
+      "tree": [1, 3, 5],
+      "branches": [
+        {"n": 1, "from": "4", "to": "1", "els": ["Us"]},
+        {"n": 2, "from": "1", "to": "2", "els": ["R1"]},
+        {"n": 3, "from": "2", "to": "4", "els": ["C"]},
+        {"n": 4, "from": "2", "to": "3", "els": ["L"]},
+        {"n": 5, "from": "3", "to": "4", "els": ["R2"], "bend": 0.7},
+        {"n": 6, "from": "4", "to": "3", "els": ["Is"], "bend": 0.7}
+      ]
+    }
+  },
+  "analysis": {"type": "tran"},
+  "questions": [
+    {
+      "id": "tree",
+      "ask": "列状态方程时选“常态树”。图中哪一组支路是常态树？",
+      "choices": ["{1, 3, 5}", "{1, 2, 4}", "{2, 3, 6}", "{1, 4, 5}"],
+      "correct": 0,
+      "choiceExplain": [
+        "对：常态树包含全部电压源（支路 1）和全部电容（支路 3），不含电感和电流源（支路 4、6 在连支中），再用电阻 R_2 把结点 3 连上。",
+        "电容 C（支路 3）不在树里、电感 L（支路 4）却在树里——正好与要求相反。",
+        "电流源（支路 6）应放在连支，电压源（支路 1）应在树里。",
+        "电感 L 在树中、电容在连支：不是常态树。"
+      ],
+      "explain": "常态树：电压源、电容进树，电感、电流源作连支；这样电容电压、电感电流就是一组独立的状态变量。"
+    },
+    {
+      "id": "a11",
+      "ask": "A_11 = ?",
+      "find": {"kind": "state", "mat": "A", "row": 1, "col": 1},
+      "answer": -2,
+      "unit": "1/s",
+      "explain": "电容所在树支的基本割集（结点 2）：C·du_C/dt = (u_s − u_C)/R_1 − i_L → du_C/dt = −2u_C − 2i_L + 2u_s。A_11 = −1/(R_1C) = −2。"
+    },
+    {
+      "id": "a12",
+      "ask": "A_12 = ?（单位 Ω/s）",
+      "find": {"kind": "state", "mat": "A", "row": 1, "col": 2},
+      "answer": -2,
+      "unit": "",
+      "explain": "A_12 = −1/C = −2。"
+    },
+    {
+      "id": "a21",
+      "ask": "A_21 = ?（单位 S/s）",
+      "find": {"kind": "state", "mat": "A", "row": 2, "col": 1},
+      "answer": 1,
+      "unit": "",
+      "explain": "电感（连支）的基本回路 2→3→4→2：L·di_L/dt = u_C − u_R2，u_R2 = R_2(i_L + i_s)：di_L/dt = u_C − 2i_L − 2i_s。A_21 = 1/L = 1。"
+    },
+    {
+      "id": "a22",
+      "ask": "A_22 = ?",
+      "find": {"kind": "state", "mat": "A", "row": 2, "col": 2},
+      "answer": -2,
+      "unit": "1/s",
+      "explain": "A_22 = −R_2/L = −2。"
+    },
+    {
+      "id": "b22",
+      "ask": "B_22 = ?（输入 u = (u_s, i_s)ᵀ）",
+      "find": {"kind": "state", "mat": "B", "row": 2, "col": 2},
+      "answer": -2,
+      "unit": "1/s",
+      "explain": "i_s 向上流入结点 3，和 i_L 一起流过 R_2：B_22 = −R_2/L = −2。"
+    },
+    {
+      "id": "im",
+      "ask": "状态矩阵 A 的特征值 s_1 的虚部 = ?（取正的那个）",
+      "find": {"kind": "root", "n": 1, "part": "im"},
+      "answer": 1.414214,
+      "unit": "rad/s",
+      "explain": "det(sI − A) = (s + 2)² + 2 = 0 → s = −2 ± j√2：A 的特征值就是电路的固有频率。"
+    }
+  ],
+  "hints": [
+    "常态树：电压源、电容进树，电感、电流源作连支，电阻补齐。",
+    "电容树支的割集 = 结点 2 的全部支路；电感连支的回路 = C、L、R_2 构成的回路。",
+    "回路中 R_2 的电压不是状态变量：用 KCL 写成 R_2(i_L + i_s)；割集中 R_1 的电流写成 (u_s − u_C)/R_1。"
+  ],
+  "solution": [
+    "**常态树** T = {1, 3, 5}：U_s、C、R_2；连支 2（R_1）、4（L）、6（I_s）。",
+    "**电容树支（支路 3）的基本割集：** 包含 3、2、4，即结点 2 的 KCL：C·du_C/dt = i_R1 − i_L = (u_s − u_C)/R_1 − i_L。",
+    "**电感连支（支路 4）的基本回路：** 4 → 5 → 3（2→3→4→2）：L·di_L/dt = u_C − R_2(i_L + i_s)。",
+    "**代入数值：**",
+    "\\mat{du_C/dt ; di_L/dt} = \\mat{−2 & −2 ; 1 & −2}\\mat{u_C ; i_L} + \\mat{2 & 0 ; 0 & −2}\\mat{u_s ; i_s}",
+    "所以 A_11 = **−2**，A_12 = **−2**，A_21 = **1**，A_22 = **−2**，B_22 = **−2**。",
+    "**特征值：** det(sI − A) = s² + 4s + 6 = 0 → s = −2 ± j√2，虚部 **√2 ≈ 1.414 rad/s**。",
+    "**检查：** 稳态（t → ∞）时导数为零：−2u_C − 2i_L + 20 = 0、u_C − 2i_L − 2 = 0 → i_L = 3 A，u_C = 8 V；直流电路中 u_C = 10 − 1 × i_L ✓、u_C = 2(3 + 1) = 8 V ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "State equations ẋ = Ax + Bu from a proper tree",
+      "tags": ["state equations", "proper tree", "state variables", "natural frequencies"],
+      "statement": [
+        "In the circuit u_s = 10ε(t) V, i_s = 1 A (upwards into node 3), R_1 = 1 Ω, C = 0.5 F, L = 1 H, R_2 = 2 Ω. Each element is one branch; the directed graph is drawn below (node 4 grounded).",
+        "Take the state x = (u_C, i_L)ᵀ (u_C with \"+\" at the top, i_L from node 2 to node 3) and the input u = (u_s, i_s)ᵀ, and write the state equations dx/dt = A·x + B·u for t > 0.",
+        "Method (textbook): choose a proper tree, write the KCL of the fundamental cut-set of each capacitor tree branch (giving C·du_C/dt) and the KVL of the fundamental loop of each inductor link (giving L·di_L/dt), then eliminate the non-state resistor variables."
+      ],
+      "questions": [
+        {
+          "ask": "For state equations we use a proper tree. Which set of branches is a proper tree?",
+          "choices": ["{1, 3, 5}", "{1, 2, 4}", "{2, 3, 6}", "{1, 4, 5}"],
+          "choiceExplain": [
+            "Right: a proper tree contains every voltage source (branch 1) and every capacitor (branch 3) and no inductor or current source (4 and 6 are links); R_2 connects node 3.",
+            "The capacitor (branch 3) is left out while the inductor (branch 4) is in — the opposite of what is required.",
+            "The current source (6) belongs to the links and the voltage source (1) to the tree.",
+            "The inductor is in the tree and the capacitor is a link: not a proper tree."
+          ],
+          "explain": "Proper tree: voltage sources and capacitors in the tree, inductors and current sources as links; then the capacitor voltages and inductor currents form an independent set of state variables."
+        },
+        {
+          "ask": "A_11 = ?",
+          "explain": "Fundamental cut-set of the capacitor tree branch (node 2): C·du_C/dt = (u_s − u_C)/R_1 − i_L → du_C/dt = −2u_C − 2i_L + 2u_s. A_11 = −1/(R_1C) = −2."
+        },
+        {"ask": "A_12 = ? (unit Ω/s)", "explain": "A_12 = −1/C = −2."},
+        {
+          "ask": "A_21 = ? (unit S/s)",
+          "explain": "Fundamental loop of the inductor link (2→3→4→2): L·di_L/dt = u_C − u_R2 with u_R2 = R_2(i_L + i_s): di_L/dt = u_C − 2i_L − 2i_s. A_21 = 1/L = 1."
+        },
+        {"ask": "A_22 = ?", "explain": "A_22 = −R_2/L = −2."},
+        {"ask": "B_22 = ? (input u = (u_s, i_s)ᵀ)", "explain": "i_s flows up into node 3 and, with i_L, through R_2: B_22 = −R_2/L = −2."},
+        {
+          "ask": "Imaginary part of the eigenvalue s_1 of A (the positive one) = ?",
+          "explain": "det(sI − A) = (s + 2)² + 2 = 0 → s = −2 ± j√2: the eigenvalues of A are the natural frequencies of the circuit."
+        }
+      ],
+      "hints": [
+        "Proper tree: voltage sources and capacitors in the tree, inductors and current sources as links, resistors to complete it.",
+        "The cut-set of the capacitor tree branch is all branches at node 2; the loop of the inductor link is C, L, R_2.",
+        "R_2's voltage is not a state variable: write it as R_2(i_L + i_s) by KCL; R_1's current in the cut-set is (u_s − u_C)/R_1."
+      ],
+      "solution": [
+        "**Proper tree** T = {1, 3, 5}: U_s, C, R_2; links 2 (R_1), 4 (L), 6 (I_s).",
+        "**Cut-set of the capacitor tree branch (3):** branches 3, 2, 4, i.e. KCL at node 2: C·du_C/dt = i_R1 − i_L = (u_s − u_C)/R_1 − i_L.",
+        "**Loop of the inductor link (4):** 4 → 5 → 3 (2→3→4→2): L·di_L/dt = u_C − R_2(i_L + i_s).",
+        "**With numbers:**",
+        "\\mat{du_C/dt ; di_L/dt} = \\mat{−2 & −2 ; 1 & −2}\\mat{u_C ; i_L} + \\mat{2 & 0 ; 0 & −2}\\mat{u_s ; i_s}",
+        "So A_11 = **−2**, A_12 = **−2**, A_21 = **1**, A_22 = **−2**, B_22 = **−2**.",
+        "**Eigenvalues:** det(sI − A) = s² + 4s + 6 = 0 → s = −2 ± j√2, imaginary part **√2 ≈ 1.414 rad/s**.",
+        "**Check:** in the steady state (t → ∞) the derivatives vanish: −2u_C − 2i_L + 20 = 0 and u_C − 2i_L − 2 = 0 → i_L = 3 A, u_C = 8 V; in the DC circuit u_C = 10 − 1 × i_L ✓ and u_C = 2(3 + 1) = 8 V ✓."
+      ]
+    }
+  }
+}

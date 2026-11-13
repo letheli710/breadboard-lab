@@ -1,0 +1,152 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "matrix-form-08-standard-branch",
+  "chapter": "matrix-form",
+  "title": "标准支路：U_s、I_s 与支路导纳矩阵",
+  "level": 3,
+  "tags": ["标准支路", "支路导纳矩阵", "电源向量"],
+  "statement": [
+    "电路如图（U_s1 = 10 V，U_s3 = 6 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。支路 1 = U_s1 串 R_1，支路 3 = R_3 串 U_s3，支路 5 = R_5 并 I_s5，其余每个电阻一条支路；结点 4 为参考结点，支路编号与方向见有向图。",
+    "标准支路（复合支路）约定：支路 k 的电压 U_k、电流 I_k 取支路方向（关联），I_k = Y_k(U_k + U_sk) − I_sk；U_sk 的“+”极在支路终点一侧（推动电流沿支路方向流动）时为正，I_sk 的方向与支路方向**相反**时为正。",
+    "求电源向量 U_s、I_s 的元素、支路导纳矩阵 Y 的元素，以及结点方程右端向量的一个元素（参考结点 4，A 的行为结点 1、2、3）。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
+      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
+      {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
+      {"ref": "R3", "type": "R", "from": [10, 0], "to": [13, 0], "value": 4},
+      {"ref": "Us3", "type": "V", "from": [14, 0], "to": [17, 0], "value": 6},
+      {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 2},
+      {"ref": "R5", "type": "R", "from": [19, 0], "to": [19, 6], "value": 2},
+      {"ref": "Is5", "type": "I", "from": [22, 6], "to": [22, 0], "value": 1},
+      {"ref": "R6", "type": "R", "from": [8, -4], "to": [12, -4], "value": 8}
+    ],
+    "wires": [[[8, -4], [0, -4], [0, 0], [2, 0]], [[6, 0], [10, 0]], [[13, 0], [14, 0]], [[17, 0], [22, 0]], [[12, -4], [19, -4], [19, 0]], [[0, 6], [22, 6]]],
+    "labels": [{"at": [0, 0], "name": "1"}, {"at": [8, 0], "name": "2"}, {"at": [19, 0], "name": "3"}, {"at": [14, 6], "name": "4"}],
+    "grounds": [[0, 6]],
+    "graph": {
+      "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
+      "ref": "4",
+      "branches": [
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
+        {"n": 3, "from": "2", "to": "3", "els": ["R3", "Us3"]},
+        {"n": 4, "from": "2", "to": "4", "els": ["R4"]},
+        {"n": 5, "from": "3", "to": "4", "els": ["R5", "Is5"]},
+        {"n": 6, "from": "1", "to": "3", "els": ["R6"], "bend": 2.5}
+      ]
+    }
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "us1",
+      "ask": "U_s1（支路电压源向量 U_s 的第 1 个元素）= ?",
+      "find": {"kind": "mat", "mat": "Us", "row": 1},
+      "answer": 10,
+      "unit": "V",
+      "explain": "支路 1 由 4 指向 1，U_s1 的“+”在上面（结点 1 一侧，支路终点）：它推动电流沿支路方向，取 +10 V。"
+    },
+    {
+      "id": "us3",
+      "ask": "U_s 的第 3 个元素 = ?",
+      "find": {"kind": "mat", "mat": "Us", "row": 3},
+      "answer": -6,
+      "unit": "V",
+      "explain": "支路 3 由 2 指向 3，而 U_s3 的“+”在左边（起点一侧）：它推动电流逆着支路方向，取 −6 V。"
+    },
+    {
+      "id": "is5",
+      "ask": "I_s 的第 5 个元素 = ?",
+      "find": {"kind": "mat", "mat": "Is", "row": 5},
+      "answer": 1,
+      "unit": "A",
+      "explain": "支路 5 由 3 指向 4，I_s5 的箭头向上（由 4 指向 3），与支路方向相反：取 +1 A。"
+    },
+    {
+      "id": "y33",
+      "ask": "支路导纳矩阵 Y 的元素 Y_33 = ?",
+      "find": {"kind": "mat", "mat": "Yb", "row": 3, "col": 3},
+      "answer": 0.25,
+      "unit": "S",
+      "explain": "Y 是对角阵（没有受控源、没有互感），Y_33 = 1/R_3 = 0.25 S——支路里串联的电压源不改变支路导纳。"
+    },
+    {
+      "id": "jn2",
+      "ask": "结点方程右端 A·I_s − A·Y·U_s 的第 2 个元素 = ?",
+      "find": {"kind": "mat", "mat": "Jn", "row": 2},
+      "answer": 1.5,
+      "unit": "A",
+      "explain": "只有支路 3 有源且接在结点 2：(Y·U_s)_3 = 0.25 × (−6) = −1.5 A，a_23 = +1，所以右端 = −(+1)(−1.5) = 1.5 A。物理意义：U_s3 串 R_3 等效为 1.5 A 的电流源，向结点 2 注入电流。"
+    },
+    {
+      "id": "sign",
+      "ask": "如果把 U_s3 的极性反过来（“+”在右边），U_s 的第 3 个元素和结点 2 的右端分别变成多少？",
+      "choices": ["0，0", "+6 V，−1.5 A", "−6 V，1.5 A", "+6 V，1.5 A"],
+      "correct": 1,
+      "choiceExplain": ["电压源还在，只是方向变了。", "对：“+”在终点一侧取正；等效电流源也跟着反向，从结点 2 抽出 1.5 A。", "这是原来的极性。", "电压源换向后它的等效电流源也换向，右端要变号。"],
+      "explain": "符号只看电源相对支路方向的朝向。"
+    }
+  ],
+  "hints": ["每个电源的符号只看它相对“支路方向”的朝向，不看它在图上是横放还是竖放。", "电压源：“+”在支路终点一侧取正；电流源：箭头逆着支路方向取正。", "右端向量 A·I_s − A·Y·U_s：先算每条支路的 Y_k·U_sk − I_sk，再按 A 的行汇总到结点（乘 −1）。"],
+  "solution": [
+    "**电源向量**（按支路 1～6）：U_s = (**10**, 0, **−6**, 0, 0, 0)ᵀ V，I_s = (0, 0, 0, 0, **1**, 0)ᵀ A。",
+    "**支路导纳矩阵** Y = diag(0.5, 0.25, **0.25**, 0.5, 0.5, 0.125) S。",
+    "**右端** A·I_s − A·Y·U_s：Y·U_s = (5, 0, −1.5, 0, 0, 0)ᵀ。结点 2 一行：a_23 = 1 → 0 − 1 × (−1.5) = **1.5 A**；结点 1：−(−1)(5) = 5 A；结点 3：a_35·I_s5 − a_33·(−1.5) = 1 − 1.5 = −0.5 A。",
+    "**检查：** U_s3 与 R_3 的串联等效为 6/4 = 1.5 A 的电流源，方向由“+”端流出——推向结点 2、从结点 3 抽出，与右端 (5, 1.5, −0.5) 中的 +1.5、−1.5（加上 I_s5 的 1 A）一致 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Standard branch: U_s, I_s and the branch admittance matrix",
+      "tags": ["standard branch", "branch admittance matrix", "source vectors"],
+      "statement": [
+        "The circuit is drawn below (U_s1 = 10 V, U_s3 = 6 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). Branch 1 = U_s1 in series with R_1, branch 3 = R_3 in series with U_s3, branch 5 = R_5 in parallel with I_s5, each other resistor one branch; node 4 is the reference, branch numbers and directions as in the graph.",
+        "Standard (composite) branch convention: U_k and I_k follow the branch direction (associated), I_k = Y_k(U_k + U_sk) − I_sk; U_sk is positive when its \"+\" is toward the end of the branch (it pushes current along the branch), and I_sk is positive when it points **against** the branch direction.",
+        "Find entries of the source vectors U_s and I_s, of the branch admittance matrix Y, and one entry of the node-equation right-hand side (reference node 4, rows of A = nodes 1, 2, 3)."
+      ],
+      "questions": [
+        {
+          "ask": "U_s1 (entry 1 of the branch voltage-source vector U_s) = ?",
+          "explain": "Branch 1 runs from 4 to 1 and the \"+\" of U_s1 is at the top (node 1, the end of the branch): it pushes current along the branch, +10 V."
+        },
+        {
+          "ask": "Entry 3 of U_s = ?",
+          "explain": "Branch 3 runs from 2 to 3 but the \"+\" of U_s3 is on the left (the start): it pushes current against the branch, so −6 V."
+        },
+        {"ask": "Entry 5 of I_s = ?", "explain": "Branch 5 runs from 3 to 4 and I_s5 points up (from 4 to 3), against the branch: +1 A."},
+        {
+          "ask": "Entry Y_33 of the branch admittance matrix Y = ?",
+          "explain": "Y is diagonal (no controlled sources or coupling), Y_33 = 1/R_3 = 0.25 S — a series voltage source does not change the branch admittance."
+        },
+        {
+          "ask": "Entry 2 of the node-equation right-hand side A·I_s − A·Y·U_s = ?",
+          "explain": "Only branch 3 carries a source and touches node 2: (Y·U_s)_3 = 0.25 × (−6) = −1.5 A, a_23 = +1, so the entry is −(+1)(−1.5) = 1.5 A. Physically U_s3 with R_3 is a 1.5 A Norton source pushing current into node 2."
+        },
+        {
+          "ask": "If U_s3 is reversed (\"+\" on the right), what do entry 3 of U_s and the right-hand side at node 2 become?",
+          "choices": ["0, 0", "+6 V, −1.5 A", "−6 V, 1.5 A", "+6 V, 1.5 A"],
+          "choiceExplain": [
+            "The source is still there, only reversed.",
+            "Right: \"+\" toward the end of the branch is positive; its Norton current reverses too and now draws 1.5 A out of node 2.",
+            "That is the original polarity.",
+            "Reversing the source reverses its Norton current, so the right-hand side changes sign."
+          ],
+          "explain": "The sign depends only on how the source is oriented relative to the branch."
+        }
+      ],
+      "hints": [
+        "A source's sign depends only on its orientation relative to the branch direction, not on how it is drawn.",
+        "Voltage source: positive with \"+\" toward the end of the branch; current source: positive when its arrow points against the branch.",
+        "Right-hand side A·I_s − A·Y·U_s: compute Y_k·U_sk − I_sk for each branch, then collect them at the nodes with the rows of A (times −1)."
+      ],
+      "solution": [
+        "**Source vectors** (branches 1–6): U_s = (**10**, 0, **−6**, 0, 0, 0)ᵀ V, I_s = (0, 0, 0, 0, **1**, 0)ᵀ A.",
+        "**Branch admittance matrix** Y = diag(0.5, 0.25, **0.25**, 0.5, 0.5, 0.125) S.",
+        "**Right-hand side** A·I_s − A·Y·U_s: Y·U_s = (5, 0, −1.5, 0, 0, 0)ᵀ. Row of node 2: a_23 = 1 → 0 − 1 × (−1.5) = **1.5 A**; node 1: −(−1)(5) = 5 A; node 3: a_35·I_s5 − a_33·(−1.5) = 1 − 1.5 = −0.5 A.",
+        "**Check:** U_s3 in series with R_3 is a 6/4 = 1.5 A Norton source leaving its \"+\" end — into node 2, out of node 3 — matching +1.5 and −1.5 (plus I_s5's 1 A) in the right-hand side (5, 1.5, −0.5) ✓."
+      ]
+    }
+  }
+}

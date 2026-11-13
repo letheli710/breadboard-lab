@@ -1,0 +1,146 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "matrix-form-14-node-equations-cccs-ac",
+  "chapter": "matrix-form",
+  "title": "含 CCCS 的正弦稳态电路：结点方程的矩阵形式",
+  "level": 5,
+  "tags": ["结点电压方程", "受控源 CCCS", "相量", "矩阵形式"],
+  "statement": [
+    "正弦稳态电路如图，ω = 1000 rad/s，U̇_s = 10∠0° V（有效值），R_1 = 5 Ω，C = 200 µF，L = 10 mH，R_4 = 10 Ω。电流控制电流源 F 的电流为 2i_C（向下），i_C 为电容电流（向下）。",
+    "支路：1 = U_s 串 R_1（由 3 指向 1），2 = C（1→3），3 = L（1→2），4 = R_4 并 F（2→3）；结点 3 为参考结点，A 的行为结点 1、2。标准支路（复合支路）约定：支路 k 的电压 U_k、电流 I_k 取支路方向（关联），İ_k = Y_k(U̇_k + U̇_sk) − İ_sk；U_sk 的“+”极在支路终点一侧（推动电流沿支路方向流动）时为正，I_sk 的方向与支路方向**相反**时为正。CCCS 按教材处理：支路 k 中的 β·İ_ej（İ_ej 为支路 j 中无源元件的电流 = Y_j·U̇_ej）使 Y_kj = ±β·Y_j。",
+    "写出 A、Y，求 Y_n = A·Y·Aᵀ 的元素，并解出结点电压。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 5},
+      {"ref": "Us", "type": "V", "from": [0, 3], "to": [0, 6], "value": {"ac": {"mag": 10, "phase": 0}}},
+      {"ref": "C", "type": "C", "from": [4, 0], "to": [4, 6], "value": "200u"},
+      {"ref": "L", "type": "L", "from": [6, 0], "to": [10, 0], "value": "10m"},
+      {"ref": "R4", "type": "R", "from": [12, 0], "to": [12, 6], "value": 10},
+      {"ref": "F", "type": "CCCS", "from": [16, 0], "to": [16, 6], "value": 2, "ctrl": {"i": "C"}, "label": "2iC"}
+    ],
+    "wires": [[[0, 0], [6, 0]], [[10, 0], [16, 0]], [[0, 6], [16, 6]]],
+    "labels": [{"at": [2, 0], "name": "1"}, {"at": [12, 0], "name": "2"}, {"at": [8, 6], "name": "3"}],
+    "grounds": [[0, 6]],
+    "marks": [{"kind": "i", "el": "C", "name": "iC"}],
+    "graph": {
+      "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [5, 0]}, {"name": "3", "at": [2.5, 3.5]}],
+      "ref": "3",
+      "branches": [
+        {"n": 1, "from": "3", "to": "1", "els": ["R1", "Us"], "bend": 0.9},
+        {"n": 2, "from": "1", "to": "3", "els": ["C"], "bend": 0.9},
+        {"n": 3, "from": "1", "to": "2", "els": ["L"]},
+        {"n": 4, "from": "2", "to": "3", "els": ["R4", "F"]}
+      ]
+    }
+  },
+  "analysis": {"type": "ac", "omega": 1000},
+  "questions": [
+    {
+      "id": "y42",
+      "ask": "支路导纳矩阵 Y 的元素 Y_42 的虚部 = ?",
+      "find": {"kind": "mat", "mat": "Yb", "row": 4, "col": 2, "part": "im"},
+      "answer": 0.4,
+      "unit": "S",
+      "explain": "F 的电流 β·İ_C = β·Y_2·U̇_2 = 2 × j0.2 × U̇_2：Y_42 = β·Y_2 = j0.4 S（F 向下与支路 4 同向，i_C 向下与支路 2 同向，取 +）。"
+    },
+    {
+      "id": "y11i",
+      "ask": "Y_n 的元素 Y_11 的虚部 = ?",
+      "find": {"kind": "mat", "mat": "Yn", "row": 1, "col": 1, "part": "im"},
+      "answer": 0.1,
+      "unit": "S",
+      "explain": "Y_11 = 1/R_1 + jωC + 1/(jωL) = 0.2 + j0.2 − j0.1 = 0.2 + j0.1 S。"
+    },
+    {
+      "id": "y21i",
+      "ask": "Y_21 的虚部 = ?",
+      "find": {"kind": "mat", "mat": "Yn", "row": 2, "col": 1, "part": "im"},
+      "answer": 0.5,
+      "unit": "S",
+      "explain": "无受控源时 Y_21 = −1/(jωL) = j0.1；受控项 a_24·Y_42·a_12 = (1)(j0.4)(1) = j0.4，合计 j0.5 S。Y_12 仍是 j0.1。"
+    },
+    {
+      "id": "u2m",
+      "ask": "U̇_n2 的有效值 = ?",
+      "find": {"kind": "mat", "mat": "Un", "row": 2, "part": "mag"},
+      "answer": 12.403473,
+      "unit": "V",
+      "explain": "Δ = (0.2 + j0.1)(0.1 − j0.1) − (j0.1)(j0.5) = 0.08 − j0.01；U̇_n2 = −j0.5 × 2 / Δ = −j1/(0.08 − j0.01) ≈ 1.538 − j12.31 V，|U̇_n2| ≈ 12.40 V。"
+    },
+    {
+      "id": "u2p",
+      "ask": "U̇_n2 的相位 = ?",
+      "find": {"kind": "v", "nodes": ["2"], "part": "phase"},
+      "answer": -82.874984,
+      "unit": "°",
+      "explain": "arctan(−12.31/1.538) ≈ −82.87°。"
+    },
+    {
+      "id": "ic",
+      "ask": "电容电流 i_C 的有效值 = ?",
+      "find": {"kind": "i", "el": "C", "part": "mag"},
+      "answer": 0.701646,
+      "unit": "A",
+      "explain": "U̇_n1 = 2(0.1 − j0.1)/Δ ≈ 2.769 − j2.154 V，İ_C = j0.2·U̇_n1 ≈ 0.431 + j0.554 A，|İ_C| ≈ 0.702 A。"
+    }
+  ],
+  "hints": [
+    "各支路导纳：1/R_1 = 0.2 S，jωC = j0.2 S，1/(jωL) = −j0.1 S，1/R_4 = 0.1 S。",
+    "CCCS 先换成“受电压控制”：İ_C = jωC·U̇_2，所以 Y_42 = β·jωC。",
+    "Y_n 是 2 × 2 复数矩阵，用克拉默法则：U̇_n2 = (Y_11·J_2 − Y_21·J_1)/Δ，J_n = (2, 0)ᵀ A。"
+  ],
+  "solution": [
+    "**A**（行：结点 1、2；列：支路 1～4）= \\mat{−1 & 1 & 1 & 0 ; 0 & 0 & −1 & 1}",
+    "**Y**（S）= \\mat{0.2 & 0 & 0 & 0 ; 0 & j0.2 & 0 & 0 ; 0 & 0 & −j0.1 & 0 ; 0 & j0.4 & 0 & 0.1}：Y_42 = 2 × j0.2 = **j0.4 S**。",
+    "**Y_n = A·Y·Aᵀ** = \\mat{0.2 + j0.1 & j0.1 ; j0.5 & 0.1 − j0.1} S（Im Y_11 = **0.1 S**，Im Y_21 = **0.5 S**），**J_n** = A·I_s − A·Y·U_s = (10/5, 0)ᵀ = (2, 0)ᵀ A。",
+    "**解：** Δ = 0.08 − j0.01；U̇_n1 = 2(0.1 − j0.1)/Δ ≈ 2.769 − j2.154 V；U̇_n2 = −2·j0.5/Δ ≈ 1.538 − j12.31 V = **12.40∠−82.87° V**。",
+    "**电容电流：** İ_C = j0.2·U̇_n1 ≈ 0.431 + j0.554 A，|İ_C| ≈ **0.702 A**。",
+    "**检查（结点 2 的 KCL）：** 从 L 流入 −j0.1(U̇_n1 − U̇_n2) ≈ 1.015 − j0.123 A；流出 R_4：0.1·U̇_n2 ≈ 0.154 − j1.231 A，F：2İ_C ≈ 0.862 + j1.108 A，和为 1.015 − j0.123 A ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "AC circuit with a CCCS: node equations in matrix form",
+      "tags": ["node equations", "dependent source CCCS", "phasors", "matrix form"],
+      "statement": [
+        "Sinusoidal steady state, ω = 1000 rad/s, U̇_s = 10∠0° V (rms), R_1 = 5 Ω, C = 200 µF, L = 10 mH, R_4 = 10 Ω. The current-controlled current source F carries 2i_C (downwards), i_C being the capacitor current (downwards).",
+        "Branches: 1 = U_s in series with R_1 (from 3 to 1), 2 = C (1→3), 3 = L (1→2), 4 = R_4 in parallel with F (2→3); node 3 is the reference, rows of A = nodes 1, 2. Standard (composite) branch convention: U_k and I_k follow the branch direction (associated), İ_k = Y_k(U̇_k + U̇_sk) − İ_sk; U_sk is positive when its \"+\" is toward the end of the branch (it pushes current along the branch), and I_sk is positive when it points **against** the branch direction. The CCCS as in the textbook: β·İ_ej in branch k (İ_ej = current of the passive element of branch j = Y_j·U̇_ej) gives Y_kj = ±β·Y_j.",
+        "Write A and Y, find entries of Y_n = A·Y·Aᵀ and solve for the node voltages."
+      ],
+      "questions": [
+        {
+          "ask": "Imaginary part of entry Y_42 of the branch admittance matrix = ?",
+          "explain": "F carries β·İ_C = β·Y_2·U̇_2 = 2 × j0.2 × U̇_2: Y_42 = β·Y_2 = j0.4 S (F points down along branch 4 and i_C down along branch 2, so +)."
+        },
+        {"ask": "Imaginary part of entry Y_11 of Y_n = ?", "explain": "Y_11 = 1/R_1 + jωC + 1/(jωL) = 0.2 + j0.2 − j0.1 = 0.2 + j0.1 S."},
+        {
+          "ask": "Imaginary part of Y_21 = ?",
+          "explain": "Without the CCCS Y_21 = −1/(jωL) = j0.1; the controlled term a_24·Y_42·a_12 = (1)(j0.4)(1) = j0.4 gives j0.5 S. Y_12 stays j0.1."
+        },
+        {
+          "ask": "rms value of U̇_n2 = ?",
+          "explain": "Δ = (0.2 + j0.1)(0.1 − j0.1) − (j0.1)(j0.5) = 0.08 − j0.01; U̇_n2 = −j0.5 × 2 / Δ = −j1/(0.08 − j0.01) ≈ 1.538 − j12.31 V, |U̇_n2| ≈ 12.40 V."
+        },
+        {"ask": "Phase of U̇_n2 = ?", "explain": "arctan(−12.31/1.538) ≈ −82.87°."},
+        {
+          "ask": "rms value of the capacitor current i_C = ?",
+          "explain": "U̇_n1 = 2(0.1 − j0.1)/Δ ≈ 2.769 − j2.154 V, İ_C = j0.2·U̇_n1 ≈ 0.431 + j0.554 A, |İ_C| ≈ 0.702 A."
+        }
+      ],
+      "hints": [
+        "Branch admittances: 1/R_1 = 0.2 S, jωC = j0.2 S, 1/(jωL) = −j0.1 S, 1/R_4 = 0.1 S.",
+        "Turn the CCCS into a voltage-controlled one first: İ_C = jωC·U̇_2, so Y_42 = β·jωC.",
+        "Y_n is a 2 × 2 complex matrix; with Cramer's rule U̇_n2 = (Y_11·J_2 − Y_21·J_1)/Δ, J_n = (2, 0)ᵀ A."
+      ],
+      "solution": [
+        "**A** (rows: nodes 1, 2; columns: branches 1–4) = \\mat{−1 & 1 & 1 & 0 ; 0 & 0 & −1 & 1}",
+        "**Y** (S) = \\mat{0.2 & 0 & 0 & 0 ; 0 & j0.2 & 0 & 0 ; 0 & 0 & −j0.1 & 0 ; 0 & j0.4 & 0 & 0.1}: Y_42 = 2 × j0.2 = **j0.4 S**.",
+        "**Y_n = A·Y·Aᵀ** = \\mat{0.2 + j0.1 & j0.1 ; j0.5 & 0.1 − j0.1} S (Im Y_11 = **0.1 S**, Im Y_21 = **0.5 S**), **J_n** = A·I_s − A·Y·U_s = (10/5, 0)ᵀ = (2, 0)ᵀ A.",
+        "**Solve:** Δ = 0.08 − j0.01; U̇_n1 = 2(0.1 − j0.1)/Δ ≈ 2.769 − j2.154 V; U̇_n2 = −2·j0.5/Δ ≈ 1.538 − j12.31 V = **12.40∠−82.87° V**.",
+        "**Capacitor current:** İ_C = j0.2·U̇_n1 ≈ 0.431 + j0.554 A, |İ_C| ≈ **0.702 A**.",
+        "**Check (KCL at node 2):** in through L: −j0.1(U̇_n1 − U̇_n2) ≈ 1.015 − j0.123 A; out through R_4: 0.1·U̇_n2 ≈ 0.154 − j1.231 A and F: 2İ_C ≈ 0.862 + j1.108 A, summing to 1.015 − j0.123 A ✓."
+      ]
+    }
+  }
+}

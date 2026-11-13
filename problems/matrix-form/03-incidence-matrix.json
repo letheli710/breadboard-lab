@@ -1,0 +1,145 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "matrix-form-03-incidence-matrix",
+  "chapter": "matrix-form",
+  "title": "关联矩阵 A",
+  "level": 2,
+  "tags": ["关联矩阵", "降阶关联矩阵", "支路方向"],
+  "statement": [
+    "电路如图（U_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 U_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
+    "以结点 4 为参考结点，结点 1、2、3 依次对应 A 的第 1～3 行，支路 1～6 对应第 1～6 列。约定：支路 k **离开**结点 j 时 a_jk = +1，**进入**结点 j 时 a_jk = −1，不相连时为 0。求 A 中的若干元素。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
+      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
+      {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
+      {"ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4},
+      {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 2},
+      {"ref": "R5", "type": "R", "from": [16, 0], "to": [16, 6], "value": 2},
+      {"ref": "Is5", "type": "I", "from": [19, 6], "to": [19, 0], "value": 1},
+      {"ref": "R6", "type": "R", "from": [6, -4], "to": [10, -4], "value": 8}
+    ],
+    "wires": [[[6, -4], [0, -4], [0, 0], [2, 0]], [[6, 0], [10, 0]], [[14, 0], [19, 0]], [[10, -4], [16, -4], [16, 0]], [[0, 6], [19, 6]]],
+    "labels": [{"at": [0, 0], "name": "1"}, {"at": [8, 0], "name": "2"}, {"at": [16, 0], "name": "3"}, {"at": [12, 6], "name": "4"}],
+    "grounds": [[0, 6]],
+    "graph": {
+      "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
+      "ref": "4",
+      "branches": [
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
+        {"n": 3, "from": "2", "to": "3", "els": ["R3"]},
+        {"n": 4, "from": "2", "to": "4", "els": ["R4"]},
+        {"n": 5, "from": "3", "to": "4", "els": ["R5", "Is5"]},
+        {"n": 6, "from": "1", "to": "3", "els": ["R6"], "bend": 2.5}
+      ]
+    }
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "a11",
+      "ask": "a_11 = ?（结点 1 与支路 1）",
+      "find": {"kind": "mat", "mat": "A", "row": 1, "col": 1},
+      "answer": -1,
+      "unit": "",
+      "explain": "支路 1 由 4 指向 1，**进入**结点 1：a_11 = −1。"
+    },
+    {
+      "id": "a16",
+      "ask": "a_16 = ?",
+      "find": {"kind": "mat", "mat": "A", "row": 1, "col": 6},
+      "answer": 1,
+      "unit": "",
+      "explain": "支路 6 由 1 指向 3，**离开**结点 1：a_16 = +1。"
+    },
+    {
+      "id": "a23",
+      "ask": "a_23 = ?",
+      "find": {"kind": "mat", "mat": "A", "row": 2, "col": 3},
+      "answer": 1,
+      "unit": "",
+      "explain": "支路 3 由 2 指向 3，离开结点 2：+1。"
+    },
+    {"id": "a36", "ask": "a_36 = ?", "find": {"kind": "mat", "mat": "A", "row": 3, "col": 6}, "answer": -1, "unit": "", "explain": "支路 6 进入结点 3：−1。"},
+    {
+      "id": "a24",
+      "ask": "a_24 = ?（支路 4 接在结点 2 与参考结点 4 之间）",
+      "find": {"kind": "mat", "mat": "A", "row": 2, "col": 4},
+      "answer": 1,
+      "unit": "",
+      "explain": "支路 4 离开结点 2：+1。它的另一端在参考结点上，参考结点那一行被删去，所以 A 的第 4 列只有一个非零元素。"
+    },
+    {
+      "id": "col",
+      "ask": "完整关联矩阵 A_a（4 行，包括参考结点那一行）的每一列有什么特点？",
+      "choices": ["至少有两个 +1", "与支路方向无关", "恰有一个 +1 和一个 −1，其余为 0", "各元素之和等于 1"],
+      "correct": 2,
+      "choiceExplain": [
+        "一条支路只有两个端点，只能离开一个结点。",
+        "支路方向一反，这一列的 +1、−1 就对调。",
+        "对：每条支路离开一个结点、进入另一个结点。所以删去参考结点一行后，A 的某列只剩一个非零元素就说明这条支路接在参考结点上，而且 A_a 的各行相加为零——只有 n − 1 行独立。",
+        "每列和为 0（+1 与 −1 抵消），不是 1。"
+      ],
+      "explain": "每条支路恰好连接两个结点。"
+    }
+  ],
+  "hints": ["A 的元素只由“支路连在哪两个结点、方向如何”决定，与元件参数无关。", "逐列写：先找支路 k 的起点和终点，起点那一行写 +1，终点那一行写 −1。", "终点或起点是参考结点 4 时，那一行不在 A 里。"],
+  "solution": [
+    "**逐列写出 A**（行：结点 1、2、3；列：支路 1～6）：",
+    "A = \\mat{−1 & 1 & 0 & 0 & 0 & 1 ; 0 & −1 & 1 & 1 & 0 & 0 ; 0 & 0 & −1 & 0 & 1 & −1}",
+    "例如第 1 列：支路 1 从 4（参考，删去）到 1 → 只有 a_11 = **−1**；第 6 列：从 1 到 3 → a_16 = **+1**，a_36 = **−1**；a_23 = **+1**、a_24 = **+1**。",
+    "**每列的特点。** 完整的 A_a 每列恰有一个 +1 和一个 −1；删去参考行后，接在参考结点上的支路（1、4、5）只剩一个非零元素。",
+    "**检查：** 把 A 的三行相加得 (−1, 0, 0, 1, 1, 0)，正是被删去的结点 4 那一行的相反数 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "The incidence matrix A",
+      "tags": ["incidence matrix", "reduced incidence matrix", "branch direction"],
+      "statement": [
+        "The circuit is drawn below (U_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, U_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
+        "Take node 4 as the reference; nodes 1, 2, 3 are rows 1–3 of A and branches 1–6 its columns. Convention: a_jk = +1 if branch k **leaves** node j, −1 if it **enters** node j, 0 if not connected. Find some entries of A."
+      ],
+      "questions": [
+        {"ask": "a_11 = ? (node 1, branch 1)", "explain": "Branch 1 runs from 4 to 1, so it **enters** node 1: a_11 = −1."},
+        {"ask": "a_16 = ?", "explain": "Branch 6 runs from 1 to 3, so it **leaves** node 1: a_16 = +1."},
+        {"ask": "a_23 = ?", "explain": "Branch 3 runs from 2 to 3 and leaves node 2: +1."},
+        {"ask": "a_36 = ?", "explain": "Branch 6 enters node 3: −1."},
+        {
+          "ask": "a_24 = ? (branch 4 joins node 2 and the reference node 4)",
+          "explain": "Branch 4 leaves node 2: +1. Its other end is the reference node, whose row is deleted, so column 4 of A has a single non-zero entry."
+        },
+        {
+          "ask": "What is special about each column of the full incidence matrix A_a (4 rows, including the reference node)?",
+          "choices": [
+            "it has at least two +1 entries",
+            "it does not depend on the branch direction",
+            "exactly one +1 and one −1, the rest 0",
+            "its entries add up to 1"
+          ],
+          "choiceExplain": [
+            "A branch has two ends; it leaves exactly one node.",
+            "Reversing a branch swaps the +1 and the −1 of its column.",
+            "Right: each branch leaves one node and enters another. So after deleting the reference row, a column of A with a single non-zero entry is a branch at the reference node — and the rows of A_a add up to zero, only n − 1 of them independent.",
+            "Each column adds up to 0 (+1 and −1 cancel), not 1."
+          ],
+          "explain": "Every branch joins exactly two nodes."
+        }
+      ],
+      "hints": [
+        "The entries of A depend only on which two nodes each branch joins and in which direction — not on element values.",
+        "Work column by column: find where branch k starts and ends; +1 in the start row, −1 in the end row.",
+        "If the start or end is the reference node 4, that row is not part of A."
+      ],
+      "solution": [
+        "**A column by column** (rows: nodes 1, 2, 3; columns: branches 1–6):",
+        "A = \\mat{−1 & 1 & 0 & 0 & 0 & 1 ; 0 & −1 & 1 & 1 & 0 & 0 ; 0 & 0 & −1 & 0 & 1 & −1}",
+        "Column 1: branch 1 runs from 4 (reference, deleted) to 1 → only a_11 = **−1**; column 6: from 1 to 3 → a_16 = **+1**, a_36 = **−1**; a_23 = **+1**, a_24 = **+1**.",
+        "**Columns.** Every column of the full A_a has exactly one +1 and one −1; after deleting the reference row, the branches at the reference node (1, 4, 5) keep a single non-zero entry.",
+        "**Check:** the three rows of A add up to (−1, 0, 0, 1, 1, 0), the negative of the deleted row of node 4 ✓."
+      ]
+    }
+  }
+}

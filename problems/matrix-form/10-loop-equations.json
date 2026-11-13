@@ -1,0 +1,135 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "matrix-form-10-loop-equations",
+  "chapter": "matrix-form",
+  "title": "回路电流方程的矩阵形式 B·Z·Bᵀ·I_l = B·U_s − B·Z·I_s",
+  "level": 3,
+  "tags": ["回路电流方程", "回路阻抗矩阵", "基本回路矩阵"],
+  "statement": [
+    "电路如图（U_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 U_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
+    "标准支路（复合支路）约定：支路 k 的电压 U_k、电流 I_k 取支路方向（关联），U_k = Z_k(I_k + I_sk) − U_sk；U_sk 的“+”极在支路终点一侧（推动电流沿支路方向流动）时为正，I_sk 的方向与支路方向**相反**时为正。",
+    "选树 T = {1, 2, 3}，以连支 4、5、6 的电流为回路电流 I_l（基本回路方向同连支方向），写出 Z_l·I_l = E_l，其中 Z_l = B_f·Z·B_fᵀ，E_l = B_f·U_s − B_f·Z·I_s，Z = diag(R_1, …, R_6)。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
+      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
+      {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
+      {"ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4},
+      {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 2},
+      {"ref": "R5", "type": "R", "from": [16, 0], "to": [16, 6], "value": 2},
+      {"ref": "Is5", "type": "I", "from": [19, 6], "to": [19, 0], "value": 1},
+      {"ref": "R6", "type": "R", "from": [6, -4], "to": [10, -4], "value": 8}
+    ],
+    "wires": [[[6, -4], [0, -4], [0, 0], [2, 0]], [[6, 0], [10, 0]], [[14, 0], [19, 0]], [[10, -4], [16, -4], [16, 0]], [[0, 6], [19, 6]]],
+    "labels": [{"at": [0, 0], "name": "1"}, {"at": [8, 0], "name": "2"}, {"at": [16, 0], "name": "3"}, {"at": [12, 6], "name": "4"}],
+    "grounds": [[0, 6]],
+    "graph": {
+      "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
+      "ref": "4",
+      "branches": [
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
+        {"n": 3, "from": "2", "to": "3", "els": ["R3"]},
+        {"n": 4, "from": "2", "to": "4", "els": ["R4"]},
+        {"n": 5, "from": "3", "to": "4", "els": ["R5", "Is5"]},
+        {"n": 6, "from": "1", "to": "3", "els": ["R6"], "bend": 2.5}
+      ],
+      "tree": [1, 2, 3]
+    }
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "z11",
+      "ask": "Z_l = B·Z·Bᵀ 的元素 Z_11 = ?",
+      "find": {"kind": "mat", "mat": "Zl", "row": 1, "col": 1},
+      "answer": 8,
+      "unit": "Ω",
+      "explain": "回路 1（连支 4）经过支路 1、2、4：2 + 4 + 2 = 8 Ω（自阻）。"
+    },
+    {
+      "id": "z12",
+      "ask": "Z_12 = ?",
+      "find": {"kind": "mat", "mat": "Zl", "row": 1, "col": 2},
+      "answer": 6,
+      "unit": "Ω",
+      "explain": "回路 1、2 共有支路 1、2，在两个回路中方向都相同：+(2 + 4) = 6 Ω。"
+    },
+    {
+      "id": "z23",
+      "ask": "Z_23 = ?",
+      "find": {"kind": "mat", "mat": "Zl", "row": 2, "col": 3},
+      "answer": -8,
+      "unit": "Ω",
+      "explain": "回路 2（连支 5）与回路 3（连支 6）共有支路 2、3，方向相反：−(4 + 4) = −8 Ω。"
+    },
+    {
+      "id": "e2",
+      "ask": "右端 E_l = B·U_s − B·Z·I_s 的第 2 个元素 = ?",
+      "find": {"kind": "mat", "mat": "El", "row": 2},
+      "answer": 8,
+      "unit": "V",
+      "explain": "B·U_s：回路 2 含支路 1，U_s1 = 10 V → 10；B·Z·I_s：回路 2 含支路 5，Z_5·I_s5 = 2 × 1 = 2 → 10 − 2 = 8 V（I_s5 并 R_5 等效为与 R_5 串联、方向逆着支路的 2 V 电压源）。"
+    },
+    {
+      "id": "il1",
+      "ask": "解出连支电流（回路电流）I_l1 = I_4 = ?",
+      "find": {"kind": "mat", "mat": "Il", "row": 1},
+      "answer": 1.2,
+      "unit": "A",
+      "explain": "解 Z_l·I_l = E_l 得 I_l = (1.2, 0.4, 0.5)ᵀ A。"
+    },
+    {
+      "id": "i2",
+      "ask": "树支 2 的电流 I_2 = ?",
+      "find": {"kind": "mat", "mat": "Ib", "row": 2},
+      "answer": 1.1,
+      "unit": "A",
+      "explain": "I = B_fᵀ·I_l，第 2 行：I_2 = I_l1 + I_l2 − I_l3 = 1.2 + 0.4 − 0.5 = 1.1 A。"
+    }
+  ],
+  "hints": ["先写 B_f：每条连支一行。", "Z_l 的对角元 = 回路自阻；非对角元 = 两回路共有支路的阻抗，两个回路在该支路上方向相同取正、相反取负。", "右端：回路中电压源的电压（推动回路方向为正）减去电流源在其并联阻抗上产生的电压 Z_k·I_sk。"],
+  "solution": [
+    "**B_f**（行：连支 4、5、6）= \\mat{1 & 1 & 0 & 1 & 0 & 0 ; 1 & 1 & 1 & 0 & 1 & 0 ; 0 & −1 & −1 & 0 & 0 & 1}",
+    "**Z_l = B_f·Z·B_fᵀ** = \\mat{8 & 6 & −4 ; 6 & 12 & −8 ; −4 & −8 & 16} Ω：Z_11 = **8 Ω**，Z_12 = **6 Ω**，Z_23 = **−8 Ω**。",
+    "**E_l** = B_f·U_s − B_f·Z·I_s = (10, 10 − 2, 0)ᵀ = (10, **8**, 0)ᵀ V。",
+    "**解：** I_l = (**1.2**, 0.4, 0.5)ᵀ A；树支电流 I = B_fᵀ·I_l：I_2 = 1.2 + 0.4 − 0.5 = **1.1 A**。",
+    "**检查：** 与结点法（上一题）一致：I_4 = U_n2/R_4 = 2.4/2 = 1.2 A ✓，I_2 = (6.8 − 2.4)/4 = 1.1 A ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Loop equations in matrix form B·Z·Bᵀ·I_l = B·U_s − B·Z·I_s",
+      "tags": ["loop equations", "loop impedance matrix", "fundamental loop matrix"],
+      "statement": [
+        "The circuit is drawn below (U_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, U_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
+        "Standard (composite) branch convention: U_k and I_k follow the branch direction (associated), U_k = Z_k(I_k + I_sk) − U_sk; U_sk is positive when its \"+\" is toward the end of the branch (it pushes current along the branch), and I_sk is positive when it points **against** the branch direction.",
+        "Choose the tree T = {1, 2, 3} and take the currents of links 4, 5, 6 as loop currents I_l (fundamental loops directed like their links). Write Z_l·I_l = E_l with Z_l = B_f·Z·B_fᵀ, E_l = B_f·U_s − B_f·Z·I_s, Z = diag(R_1, …, R_6)."
+      ],
+      "questions": [
+        {"ask": "Entry Z_11 of Z_l = B·Z·Bᵀ = ?", "explain": "Loop 1 (link 4) uses branches 1, 2, 4: 2 + 4 + 2 = 8 Ω (self-impedance)."},
+        {"ask": "Z_12 = ?", "explain": "Loops 1 and 2 share branches 1 and 2, both with the same direction in each: +(2 + 4) = 6 Ω."},
+        {"ask": "Z_23 = ?", "explain": "Loops 2 (link 5) and 3 (link 6) share branches 2 and 3 with opposite directions: −(4 + 4) = −8 Ω."},
+        {
+          "ask": "Entry 2 of the right-hand side E_l = B·U_s − B·Z·I_s = ?",
+          "explain": "B·U_s: loop 2 contains branch 1 with U_s1 = 10 V → 10; B·Z·I_s: loop 2 contains branch 5 with Z_5·I_s5 = 2 × 1 = 2 → 10 − 2 = 8 V (I_s5 with R_5 is a 2 V source in series with R_5, acting against the branch)."
+        },
+        {"ask": "Solve for the link (loop) current I_l1 = I_4 = ?", "explain": "Z_l·I_l = E_l gives I_l = (1.2, 0.4, 0.5)ᵀ A."},
+        {"ask": "Current of tree branch 2, I_2 = ?", "explain": "I = B_fᵀ·I_l, row 2: I_2 = I_l1 + I_l2 − I_l3 = 1.2 + 0.4 − 0.5 = 1.1 A."}
+      ],
+      "hints": [
+        "Write B_f first: one row per link.",
+        "Diagonal of Z_l = loop self-impedance; off-diagonal = impedance of the branches two loops share, + when both loops run the same way through it, − otherwise.",
+        "Right-hand side: voltage sources in the loop (+ when pushing along the loop) minus the voltage Z_k·I_sk a current source makes across its parallel impedance."
+      ],
+      "solution": [
+        "**B_f** (rows: links 4, 5, 6) = \\mat{1 & 1 & 0 & 1 & 0 & 0 ; 1 & 1 & 1 & 0 & 1 & 0 ; 0 & −1 & −1 & 0 & 0 & 1}",
+        "**Z_l = B_f·Z·B_fᵀ** = \\mat{8 & 6 & −4 ; 6 & 12 & −8 ; −4 & −8 & 16} Ω: Z_11 = **8 Ω**, Z_12 = **6 Ω**, Z_23 = **−8 Ω**.",
+        "**E_l** = B_f·U_s − B_f·Z·I_s = (10, 10 − 2, 0)ᵀ = (10, **8**, 0)ᵀ V.",
+        "**Solve:** I_l = (**1.2**, 0.4, 0.5)ᵀ A; tree-branch currents I = B_fᵀ·I_l: I_2 = 1.2 + 0.4 − 0.5 = **1.1 A**.",
+        "**Check:** same as the node method (previous problem): I_4 = U_n2/R_4 = 2.4/2 = 1.2 A ✓, I_2 = (6.8 − 2.4)/4 = 1.1 A ✓."
+      ]
+    }
+  }
+}

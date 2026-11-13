@@ -1,0 +1,151 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "matrix-form-13-node-equations-vccs",
+  "chapter": "matrix-form",
+  "title": "含 VCCS 的结点电压方程（矩阵形式）",
+  "level": 4,
+  "tags": ["结点电压方程", "受控源 VCCS", "支路导纳矩阵", "矩阵形式"],
+  "statement": [
+    "电路如图（U_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω），电压控制电流源 G 的电流为 0.5u_2（向下），u_2 是 R_2 的电压（“+”在左）。G 与 R_4 并联组成支路 4，其余支路与有向图同前（支路 1 = U_s1 串 R_1，支路 5 = R_5 并 I_s5），参考结点 4。",
+    "标准支路（复合支路）约定：支路 k 的电压 U_k、电流 I_k 取支路方向（关联），I_k = Y_k(U_k + U_sk) − I_sk；U_sk 的“+”极在支路终点一侧（推动电流沿支路方向流动）时为正，I_sk 的方向与支路方向**相反**时为正。受控源按教材的处理：支路 k 中的受控电流源 g·U_ej（U_ej 为支路 j 中电阻元件的电压）使 Y 出现非对角元素 Y_kj = ±g。",
+    "写出 Y、Y_n = A·Y·Aᵀ 和 J_n = A·I_s − A·Y·U_s，解出结点电压。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
+      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
+      {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
+      {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 2},
+      {"ref": "G", "type": "VCCS", "from": [11, 0], "to": [11, 6], "value": 0.5, "ctrl": {"v": "R2"}, "label": "0.5u2"},
+      {"ref": "R3", "type": "R", "from": [13, 0], "to": [17, 0], "value": 4},
+      {"ref": "R5", "type": "R", "from": [20, 0], "to": [20, 6], "value": 2},
+      {"ref": "Is5", "type": "I", "from": [23, 6], "to": [23, 0], "value": 1},
+      {"ref": "R6", "type": "R", "from": [8, -4], "to": [12, -4], "value": 8}
+    ],
+    "wires": [[[8, -4], [0, -4], [0, 0], [2, 0]], [[6, 0], [13, 0]], [[17, 0], [23, 0]], [[12, -4], [20, -4], [20, 0]], [[0, 6], [23, 6]]],
+    "labels": [{"at": [0, 0], "name": "1"}, {"at": [8, 0], "name": "2"}, {"at": [20, 0], "name": "3"}, {"at": [16, 6], "name": "4"}],
+    "grounds": [[0, 6]],
+    "marks": [{"kind": "v", "el": "R2", "name": "u2"}],
+    "graph": {
+      "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
+      "ref": "4",
+      "branches": [
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
+        {"n": 3, "from": "2", "to": "3", "els": ["R3"]},
+        {"n": 4, "from": "2", "to": "4", "els": ["R4", "G"]},
+        {"n": 5, "from": "3", "to": "4", "els": ["R5", "Is5"]},
+        {"n": 6, "from": "1", "to": "3", "els": ["R6"], "bend": 2.5}
+      ]
+    }
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "y42",
+      "ask": "支路导纳矩阵 Y 的元素 Y_42 = ?",
+      "find": {"kind": "mat", "mat": "Yb", "row": 4, "col": 2},
+      "answer": 0.5,
+      "unit": "S",
+      "explain": "支路 4 的电流 I_4 = Y_4·U_4 + g·u_2，而 u_2 正是支路 2 的元件电压（R_2 的“+”在结点 1 一侧，与支路 2 方向一致），G 的电流方向向下（与支路 4 同向）：Y_42 = +g = 0.5 S。"
+    },
+    {
+      "id": "y21",
+      "ask": "Y_n = A·Y·Aᵀ 的元素 Y_21 = ?",
+      "find": {"kind": "mat", "mat": "Yn", "row": 2, "col": 1},
+      "answer": 0.25,
+      "unit": "S",
+      "explain": "Y_21 = Σ a_2i·Y_ij·a_1j。无受控源时为 −1/R_2 = −0.25 S；受控项 a_24·Y_42·a_12 = (1)(0.5)(1) = 0.5，合计 0.25 S。"
+    },
+    {
+      "id": "y12",
+      "ask": "Y_12 = ?",
+      "find": {"kind": "mat", "mat": "Yn", "row": 1, "col": 2},
+      "answer": -0.25,
+      "unit": "S",
+      "explain": "受控源在结点 2 与参考结点之间，不影响结点 1 那一行：Y_12 = −0.25 S ≠ Y_21——含受控源时 Y_n 一般不对称。"
+    },
+    {
+      "id": "y22",
+      "ask": "Y_22 = ?",
+      "find": {"kind": "mat", "mat": "Yn", "row": 2, "col": 2},
+      "answer": 0.5,
+      "unit": "S",
+      "explain": "无受控源时 1 S；受控项 a_24·Y_42·a_22 = (1)(0.5)(−1) = −0.5，合计 0.5 S。"
+    },
+    {
+      "id": "un2",
+      "ask": "解出 U_n2 = ?",
+      "find": {"kind": "mat", "mat": "Un", "row": 2},
+      "answer": -2,
+      "unit": "V",
+      "explain": "U_n = (16/3, −2, 4/3)ᵀ V ≈ (5.333, −2, 1.333) V。"
+    },
+    {
+      "id": "pg",
+      "ask": "受控源 G 吸收的功率 = ?",
+      "find": {"kind": "p", "el": "G"},
+      "answer": -7.333333,
+      "unit": "W",
+      "explain": "u_2 = U_n1 − U_n2 = 22/3 V，G 的电流 0.5 × 22/3 = 11/3 A 由结点 2 流向地，电压 U_n2 = −2 V：P = (−2)(11/3) = −22/3 ≈ −7.33 W（发出功率）。"
+    }
+  ],
+  "hints": [
+    "先不管受控源写出对角的 Y，再在第 4 行第 2 列加上受控项。符号看两件事：G 的方向相对支路 4，u_2 的极性相对支路 2。",
+    "Y_n = A·Y·Aᵀ 只在受控项所在的位置附近改变：受控源接在结点 2，控制量是结点 1、2 之间的电压，所以只有第 2 行的第 1、2 列改变。",
+    "右端 J_n 不受受控源影响（同第 9 题）。"
+  ],
+  "solution": [
+    "**支路导纳矩阵：** Y = diag(0.5, 0.25, 0.25, 0.5, 0.5, 0.125) S，另加 Y_42 = **+0.5 S**（G 与支路 4 同向，u_2 与支路 2 同向）。",
+    "**Y_n = A·Y·Aᵀ**（A 同第 3 题）= \\mat{0.875 & −0.25 & −0.125 ; 0.25 & 0.5 & −0.25 ; −0.125 & −0.25 & 0.875} S：Y_21 = **0.25 S**，Y_12 = **−0.25 S**，Y_22 = **0.5 S**，不再对称。",
+    "**J_n** = (5, 0, 1)ᵀ A（与第 9 题相同）。",
+    "**解：** 第 1、3 式相减得 U_n1 − U_n3 = 4 V；代入第 2 式与第 1 式 → U_n = (16/3, **−2**, 4/3)ᵀ V。",
+    "**G 的功率：** u_2 = 16/3 + 2 = 22/3 V，i_G = 11/3 A，P_G = U_n2·i_G = **−22/3 ≈ −7.33 W**（发出）。",
+    "**检查（结点 2 的 KCL）：** 流入 (u_1 − u_2)/4 = 11/6 A；流出 R_4：−2/2 = −1 A，G：11/3 A，R_3：(−2 − 4/3)/4 = −5/6 A；−1 + 11/3 − 5/6 = 11/6 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Node equations with a VCCS (matrix form)",
+      "tags": ["node equations", "dependent source VCCS", "branch admittance matrix", "matrix form"],
+      "statement": [
+        "The circuit is drawn below (U_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω); the voltage-controlled current source G carries 0.5u_2 (downwards), where u_2 is the voltage of R_2 (\"+\" on the left). G in parallel with R_4 is branch 4; the other branches and the graph are as before (branch 1 = U_s1 in series with R_1, branch 5 = R_5 in parallel with I_s5), reference node 4.",
+        "Standard (composite) branch convention: U_k and I_k follow the branch direction (associated), I_k = Y_k(U_k + U_sk) − I_sk; U_sk is positive when its \"+\" is toward the end of the branch (it pushes current along the branch), and I_sk is positive when it points **against** the branch direction. Controlled sources as in the textbook: a controlled current source g·U_ej in branch k (U_ej = voltage of the resistive element of branch j) puts an off-diagonal entry Y_kj = ±g into Y.",
+        "Write Y, Y_n = A·Y·Aᵀ and J_n = A·I_s − A·Y·U_s, and solve for the node voltages."
+      ],
+      "questions": [
+        {
+          "ask": "Entry Y_42 of the branch admittance matrix Y = ?",
+          "explain": "Branch 4 carries I_4 = Y_4·U_4 + g·u_2, and u_2 is the element voltage of branch 2 (R_2 has its \"+\" on the node-1 side, along branch 2); G points down, along branch 4: Y_42 = +g = 0.5 S."
+        },
+        {
+          "ask": "Entry Y_21 of Y_n = A·Y·Aᵀ = ?",
+          "explain": "Y_21 = Σ a_2i·Y_ij·a_1j. Without the VCCS it would be −1/R_2 = −0.25 S; the controlled term a_24·Y_42·a_12 = (1)(0.5)(1) = 0.5 adds up to 0.25 S."
+        },
+        {
+          "ask": "Y_12 = ?",
+          "explain": "The VCCS sits between node 2 and the reference and does not touch row 1: Y_12 = −0.25 S ≠ Y_21 — with controlled sources Y_n is generally not symmetric."
+        },
+        {"ask": "Y_22 = ?", "explain": "Without the VCCS 1 S; the controlled term a_24·Y_42·a_22 = (1)(0.5)(−1) = −0.5 gives 0.5 S."},
+        {"ask": "Solve: U_n2 = ?", "explain": "U_n = (16/3, −2, 4/3)ᵀ V ≈ (5.333, −2, 1.333) V."},
+        {
+          "ask": "Power absorbed by G = ?",
+          "explain": "u_2 = U_n1 − U_n2 = 22/3 V, G carries 0.5 × 22/3 = 11/3 A from node 2 to ground across U_n2 = −2 V: P = (−2)(11/3) = −22/3 ≈ −7.33 W (it delivers power)."
+        }
+      ],
+      "hints": [
+        "Write the diagonal Y without the VCCS first, then add the controlled term in row 4, column 2. Its sign depends on G's direction relative to branch 4 and on u_2's polarity relative to branch 2.",
+        "Y_n = A·Y·Aᵀ changes only where the controlled term acts: G is at node 2 and its control voltage is between nodes 1 and 2, so only row 2, columns 1 and 2 change.",
+        "The right-hand side J_n is not affected by the VCCS (same as problem 9)."
+      ],
+      "solution": [
+        "**Branch admittance matrix:** Y = diag(0.5, 0.25, 0.25, 0.5, 0.5, 0.125) S plus Y_42 = **+0.5 S** (G along branch 4, u_2 along branch 2).",
+        "**Y_n = A·Y·Aᵀ** (A as in problem 3) = \\mat{0.875 & −0.25 & −0.125 ; 0.25 & 0.5 & −0.25 ; −0.125 & −0.25 & 0.875} S: Y_21 = **0.25 S**, Y_12 = **−0.25 S**, Y_22 = **0.5 S** — no longer symmetric.",
+        "**J_n** = (5, 0, 1)ᵀ A (as in problem 9).",
+        "**Solve:** subtracting equations 1 and 3 gives U_n1 − U_n3 = 4 V; with equations 2 and 1 → U_n = (16/3, **−2**, 4/3)ᵀ V.",
+        "**Power of G:** u_2 = 16/3 + 2 = 22/3 V, i_G = 11/3 A, P_G = U_n2·i_G = **−22/3 ≈ −7.33 W** (delivered).",
+        "**Check (KCL at node 2):** in (u_1 − u_2)/4 = 11/6 A; out through R_4: −2/2 = −1 A, G: 11/3 A, R_3: (−2 − 4/3)/4 = −5/6 A; −1 + 11/3 − 5/6 = 11/6 ✓."
+      ]
+    }
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "matrix-form-01-graph-tree-links",
+  "chapter": "matrix-form",
+  "title": "电路的图：结点、支路、树与连支",
+  "level": 1,
+  "tags": ["电路的图", "树", "连支", "独立方程数"],
+  "statement": [
+    "电路如图（U_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 U_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
+    "求图的结点数、支路数、树支数和连支数，判断哪一组支路是树，以及独立 KCL、KVL 方程的个数。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
+      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
+      {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
+      {"ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4},
+      {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 2},
+      {"ref": "R5", "type": "R", "from": [16, 0], "to": [16, 6], "value": 2},
+      {"ref": "Is5", "type": "I", "from": [19, 6], "to": [19, 0], "value": 1},
+      {"ref": "R6", "type": "R", "from": [6, -4], "to": [10, -4], "value": 8}
+    ],
+    "wires": [[[6, -4], [0, -4], [0, 0], [2, 0]], [[6, 0], [10, 0]], [[14, 0], [19, 0]], [[10, -4], [16, -4], [16, 0]], [[0, 6], [19, 6]]],
+    "labels": [{"at": [0, 0], "name": "1"}, {"at": [8, 0], "name": "2"}, {"at": [16, 0], "name": "3"}, {"at": [12, 6], "name": "4"}],
+    "grounds": [[0, 6]],
+    "graph": {
+      "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
+      "ref": "4",
+      "branches": [
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
+        {"n": 3, "from": "2", "to": "3", "els": ["R3"]},
+        {"n": 4, "from": "2", "to": "4", "els": ["R4"]},
+        {"n": 5, "from": "3", "to": "4", "els": ["R5", "Is5"]},
+        {"n": 6, "from": "1", "to": "3", "els": ["R6"], "bend": 2.5}
+      ]
+    }
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "n",
+      "ask": "结点数 n = ?",
+      "find": {"kind": "gcount", "count": "nodes"},
+      "answer": 4,
+      "unit": "",
+      "explain": "结点 1、2、3、4。R_1 与 U_s1 之间的连接点不算图的结点：两者合成一条支路后，这个点只是支路内部的点。"
+    },
+    {
+      "id": "b",
+      "ask": "支路数 b = ?",
+      "find": {"kind": "gcount", "count": "branches"},
+      "answer": 6,
+      "unit": "",
+      "explain": "8 个元件，但 U_s1–R_1 串联、R_5–I_s5 并联各合成一条支路，所以 b = 6。"
+    },
+    {
+      "id": "t",
+      "ask": "任意一棵树的树支数 = ?",
+      "find": {"kind": "gcount", "count": "tree"},
+      "answer": 3,
+      "unit": "",
+      "explain": "树连通全部 n 个结点且不含回路，所以树支数 = n − 1 = 3，与选哪棵树无关。"
+    },
+    {
+      "id": "l",
+      "ask": "连支数 l = ?",
+      "find": {"kind": "gcount", "count": "links"},
+      "answer": 3,
+      "unit": "",
+      "explain": "l = b − n + 1 = 6 − 4 + 1 = 3：独立回路数（基本回路数）就是连支数，也是独立 KVL 方程数。"
+    },
+    {
+      "id": "tree",
+      "ask": "下面哪一组支路构成一棵树？",
+      "choices": ["{1, 2, 3}", "{2, 3, 6}", "{1, 4, 5, 6}", "{4, 5}"],
+      "correct": 0,
+      "choiceExplain": [
+        "对。1（4–1）、2（1–2）、3（2–3）连起了 4 个结点，3 条支路，没有回路。",
+        "2、3、6 首尾相接构成回路 1→2→3→1，结点 4 也没被连上。",
+        "4 条支路比 n − 1 = 3 多，一定含回路（这里是 1、6、5 构成的回路 4→1→3→4）。",
+        "只有两条支路，结点 1 没有连上。"
+      ],
+      "explain": "树：连通、包含全部结点、不含回路——支路数一定是 n − 1。"
+    },
+    {
+      "id": "kvl",
+      "ask": "对这个电路，独立的 KCL 方程和独立的 KVL 方程各有几个？",
+      "choices": ["KCL 4 个，KVL 6 个", "KCL 3 个，KVL 3 个", "KCL 4 个，KVL 3 个", "KCL 3 个，KVL 7 个"],
+      "correct": 1,
+      "choiceExplain": [
+        "两处都多算了：KCL 少一个，KVL 只有连支数那么多。",
+        "对：n − 1 = 3 个 KCL（树支数），b − n + 1 = 3 个 KVL（连支数），合起来正好 b = 6 个，够解 6 个支路电流。",
+        "4 个结点的 KCL 方程相加恒为零，只有 3 个独立。",
+        "7 是图中所有回路的个数（三角形 4 个、四边形 3 个），并不独立。"
+      ],
+      "explain": "n − 1 个独立 KCL、b − n + 1 个独立 KVL，总数 b。"
+    }
+  ],
+  "hints": ["只看拓扑：数结点时注意“标准支路”内部的点不算结点。", "树：连通、无回路、包含全部结点；它的支路数与选哪棵树无关。", "用 b − n + 1 算连支数，并逐个检查选项里有没有闭合回路。"],
+  "solution": [
+    "**数结点与支路。** 把 U_s1–R_1 串联、R_5–I_s5 并联各看成一条支路：结点 1、2、3、4，**n = 4**；支路 1～6，**b = 6**。",
+    "**树。** 树连通全部结点且无回路，树支数 = n − 1 = **3**。{1, 2, 3} 是树（从 4 经 1 到 1，再到 2、3）；{2, 3, 6} 含回路、{1, 4, 5, 6} 多了一条、{4, 5} 不连通。",
+    "**连支。** l = b − n + 1 = **3**：每条连支加回树上都形成一个基本回路。",
+    "**独立方程。** KCL n − 1 = 3 个，KVL l = 3 个，共 6 = b 个——正好够求 6 个支路电流。",
+    "**检查：** 树支数 + 连支数 = 3 + 3 = 6 = b ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Graph of a circuit: nodes, branches, trees and links",
+      "tags": ["circuit graph", "tree", "links", "number of independent equations"],
+      "statement": [
+        "The circuit is drawn below (U_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, U_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
+        "Find the numbers of nodes, branches, tree branches and links, say which set of branches is a tree, and how many independent KCL and KVL equations there are."
+      ],
+      "questions": [
+        {
+          "ask": "Number of nodes n = ?",
+          "explain": "Nodes 1, 2, 3, 4. The point between R_1 and U_s1 is not a node of the graph: once they form one branch, it is inside the branch."
+        },
+        {"ask": "Number of branches b = ?", "explain": "8 elements, but U_s1–R_1 in series and R_5–I_s5 in parallel each form one branch, so b = 6."},
+        {
+          "ask": "Number of tree branches of any tree = ?",
+          "explain": "A tree connects all n nodes without a loop, so it has n − 1 = 3 branches whatever tree is chosen."
+        },
+        {
+          "ask": "Number of links l = ?",
+          "explain": "l = b − n + 1 = 6 − 4 + 1 = 3: the number of independent loops (fundamental loops) equals the number of links, and so does the number of independent KVL equations."
+        },
+        {
+          "ask": "Which set of branches is a tree?",
+          "choices": ["{1, 2, 3}", "{2, 3, 6}", "{1, 4, 5, 6}", "{4, 5}"],
+          "choiceExplain": [
+            "Right. 1 (4–1), 2 (1–2) and 3 (2–3) connect all 4 nodes with 3 branches and no loop.",
+            "2, 3 and 6 close the loop 1→2→3→1, and node 4 is left out.",
+            "Four branches are more than n − 1 = 3, so there must be a loop (here 1, 6, 5: 4→1→3→4).",
+            "Only two branches: node 1 is not connected."
+          ],
+          "explain": "A tree is connected, contains every node and has no loop — so it always has n − 1 branches."
+        },
+        {
+          "ask": "How many independent KCL and KVL equations does this circuit have?",
+          "choices": ["4 KCL, 6 KVL", "3 KCL, 3 KVL", "4 KCL, 3 KVL", "3 KCL, 7 KVL"],
+          "choiceExplain": [
+            "Both counts are too large: one KCL equation is dependent, and there are only as many KVL equations as links.",
+            "Right: n − 1 = 3 KCL equations (the tree branches) and b − n + 1 = 3 KVL equations (the links), b = 6 in total, enough for the 6 branch currents.",
+            "The 4 node equations add up to 0 = 0; only 3 are independent.",
+            "7 is the number of all loops of K4 (4 triangles and 3 quadrilaterals); they are not independent."
+          ],
+          "explain": "n − 1 independent KCL and b − n + 1 independent KVL equations, b in total."
+        }
+      ],
+      "hints": [
+        "Topology only: points inside a standard branch are not nodes.",
+        "A tree is connected, loop-free and contains every node; its size does not depend on which tree you pick.",
+        "Use b − n + 1 for the links, and check each option for a closed loop."
+      ],
+      "solution": [
+        "**Count.** Treat U_s1–R_1 in series and R_5–I_s5 in parallel as one branch each: nodes 1, 2, 3, 4, **n = 4**; branches 1–6, **b = 6**.",
+        "**Tree.** A tree connects every node without a loop, so it has n − 1 = **3** branches. {1, 2, 3} is a tree (4 to 1 via branch 1, then on to 2 and 3); {2, 3, 6} contains a loop, {1, 4, 5, 6} has one branch too many, {4, 5} is not connected.",
+        "**Links.** l = b − n + 1 = **3**: each link put back on the tree closes one fundamental loop.",
+        "**Independent equations.** n − 1 = 3 KCL and l = 3 KVL equations, 6 = b in total — exactly enough for the 6 branch currents.",
+        "**Check:** tree branches + links = 3 + 3 = 6 = b ✓."
+      ]
+    }
+  }
+}

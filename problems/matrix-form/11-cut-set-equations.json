@@ -1,0 +1,167 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "matrix-form-11-cut-set-equations",
+  "chapter": "matrix-form",
+  "title": "割集电压方程的矩阵形式 Q·Y·Qᵀ·U_t = Q·I_s − Q·Y·U_s",
+  "level": 4,
+  "tags": ["割集电压方程", "基本割集矩阵", "树支电压"],
+  "statement": [
+    "电路如图（U_s1 = 12 V，I_s6 = 2 A，R_1 = 2 Ω，R_2 = 6 Ω，R_3 = 3 Ω，R_4 = 4 Ω，R_5 = 2 Ω，R_7 = 4 Ω）。U_s1 与 R_1 串联为支路 1，I_s6 单独为支路 6，其余每个电阻一条支路；结点 1、2、3、4（4 接地为参考结点），支路编号与方向见有向图。",
+    "标准支路（复合支路）约定：支路 k 的电压 U_k、电流 I_k 取支路方向（关联），I_k = Y_k(U_k + U_sk) − I_sk；U_sk 的“+”极在支路终点一侧（推动电流沿支路方向流动）时为正，I_sk 的方向与支路方向**相反**时为正。",
+    "选树 T = {1, 2, 5}，以树支电压 U_t = (U_1, U_2, U_5)ᵀ 为未知量（基本割集方向同树支方向）。基本割集矩阵为",
+    "Q_f = \\mat{1 & 0 & 0 & −1 & 0 & −1 & −1 ; 0 & 1 & 1 & −1 & 0 & −1 & −1 ; 0 & 0 & 0 & 0 & 1 & −1 & −1}（列为支路 1～7），",
+    "写出 Y_t·U_t = J_t，其中 Y_t = Q_f·Y·Q_fᵀ，J_t = Q_f·I_s − Q_f·Y·U_s，求矩阵元素与树支电压。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
+      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 12},
+      {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 6},
+      {"ref": "R3", "type": "R", "from": [2, -3], "to": [6, -3], "value": 3},
+      {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 4},
+      {"ref": "R5", "type": "R", "from": [10, 0], "to": [14, 0], "value": 2},
+      {"ref": "Is6", "type": "I", "from": [16, 6], "to": [16, 0], "value": 2},
+      {"ref": "R7", "type": "R", "from": [19, 0], "to": [19, 6], "value": 4}
+    ],
+    "wires": [[[2, -3], [0, -3], [0, 0], [2, 0]], [[6, -3], [8, -3], [8, 0]], [[6, 0], [10, 0]], [[14, 0], [19, 0]], [[0, 6], [19, 6]]],
+    "labels": [{"at": [0, 0], "name": "1"}, {"at": [8, 0], "name": "2"}, {"at": [16, 0], "name": "3"}, {"at": [12, 6], "name": "4"}],
+    "grounds": [[0, 6]],
+    "graph": {
+      "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
+      "ref": "4",
+      "branches": [
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
+        {"n": 3, "from": "1", "to": "2", "els": ["R3"], "bend": 1.4},
+        {"n": 4, "from": "2", "to": "4", "els": ["R4"]},
+        {"n": 5, "from": "2", "to": "3", "els": ["R5"]},
+        {"n": 6, "from": "3", "to": "4", "els": ["Is6"], "bend": 0.8},
+        {"n": 7, "from": "3", "to": "4", "els": ["R7"], "bend": -0.8}
+      ],
+      "tree": [1, 2, 5]
+    }
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "y11",
+      "ask": "Y_t = Q_f·Y·Q_fᵀ 的元素 Y_t11 = ?",
+      "find": {"kind": "mat", "mat": "Yt", "row": 1, "col": 1},
+      "answer": 1,
+      "unit": "S",
+      "explain": "割集 1（树支 1）含支路 1、4、6、7：0.5 + 0.25 + 0 + 0.25 = 1 S（支路 6 是电流源，导纳为 0）。"
+    },
+    {
+      "id": "y12",
+      "ask": "Y_t12 = ?",
+      "find": {"kind": "mat", "mat": "Yt", "row": 1, "col": 2},
+      "answer": 0.5,
+      "unit": "S",
+      "explain": "割集 1、2 共有支路 4、6、7，在两个割集中的方向都相同（都是 −1）：+(0.25 + 0 + 0.25) = 0.5 S。注意割集法的“互导”可以是正的。"
+    },
+    {
+      "id": "y33",
+      "ask": "Y_t33 = ?",
+      "find": {"kind": "mat", "mat": "Yt", "row": 3, "col": 3},
+      "answer": 0.75,
+      "unit": "S",
+      "explain": "割集 3（树支 5）含 5、6、7：0.5 + 0 + 0.25 = 0.75 S。"
+    },
+    {
+      "id": "j1",
+      "ask": "右端 J_t = Q_f·I_s − Q_f·Y·U_s 的第 1 个元素 = ?",
+      "find": {"kind": "mat", "mat": "Jt", "row": 1},
+      "answer": -8,
+      "unit": "A",
+      "explain": "Q_f·I_s：q_16·I_s6 = (−1)(2) = −2；Q_f·Y·U_s：q_11·Y_1·U_s1 = 0.5 × 12 = 6 → −2 − 6 = −8 A。"
+    },
+    {
+      "id": "ut1",
+      "ask": "解 Y_t·U_t = J_t，树支电压 U_t1 = U_1 = ?",
+      "find": {"kind": "mat", "mat": "Ut", "row": 1},
+      "answer": -9.25,
+      "unit": "V",
+      "explain": "U_t = (−9.25, 2.75, −0.5)ᵀ V。U_1 由 4 量到 1，所以结点 1 的电压为 9.25 V。"
+    },
+    {
+      "id": "ut3",
+      "ask": "U_t3 = U_5 = ?",
+      "find": {"kind": "mat", "mat": "Ut", "row": 3},
+      "answer": -0.5,
+      "unit": "V",
+      "explain": "U_5 = u_2 − u_3 = 6.5 − 7 = −0.5 V。"
+    },
+    {
+      "id": "u3",
+      "ask": "结点 3 的电压 u_3 = ?（对结点 4）",
+      "find": {"kind": "v", "nodes": ["3"]},
+      "answer": 7,
+      "unit": "V",
+      "explain": "沿树从结点 3 走到结点 4：u_3 = U_5 + U_2 + U_1 的相反数？按定义 U_k = 起点电压 − 终点电压：u_4 − u_1 = U_1，u_1 − u_2 = U_2，u_2 − u_3 = U_5，相加得 u_4 − u_3 = U_1 + U_2 + U_5 = −7 V，所以 u_3 = 7 V。"
+    }
+  ],
+  "hints": [
+    "支路导纳：Y = diag(1/2, 1/6, 1/3, 1/4, 1/2, 0, 1/4) S（电流源支路导纳为 0）；电源：U_s1 = 12 V、I_s6 = 2 A 的符号按标准支路约定。",
+    "Y_t 的元素可以“观察”出来：对角元 = 割集中所有支路导纳之和；非对角元 = 两割集共有支路的导纳，方向一致取正、相反取负。",
+    "解出树支电压后，任一结点电压可以沿树从参考结点累加得到。"
+  ],
+  "solution": [
+    "**电源向量：** 支路 1 的“+”朝结点 1（终点）→ U_s1 = **+12 V**；I_s6 箭头向上（4→3），与支路 6（3→4）相反 → I_s6 = **+2 A**。",
+    "**Y_t = Q_f·Y·Q_fᵀ** = \\mat{1 & 0.5 & 0.25 ; 0.5 & 1 & 0.25 ; 0.25 & 0.25 & 0.75} S：Y_t11 = **1 S**，Y_t12 = **0.5 S**，Y_t33 = **0.75 S**。",
+    "**J_t = Q_f·I_s − Q_f·Y·U_s** = (−2 − 6, −2, −2)ᵀ = (**−8**, −2, −2)ᵀ A。",
+    "**解：** U_t = (**−9.25**, 2.75, **−0.5**)ᵀ V。",
+    "**结点电压：** u_1 = −U_1 = 9.25 V，u_2 = u_1 − U_2 = 6.5 V，u_3 = u_2 − U_5 = **7 V**。",
+    "**检查（结点 3 的 KCL）：** I_s6 注入 2 A；R_5 流入 (6.5 − 7)/2 = −0.25 A；R_7 流出 7/4 = 1.75 A：2 − 0.25 = 1.75 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Cut-set equations in matrix form Q·Y·Qᵀ·U_t = Q·I_s − Q·Y·U_s",
+      "tags": ["cut-set equations", "cut-set matrix", "tree-branch voltages"],
+      "statement": [
+        "The circuit is drawn below (U_s1 = 12 V, I_s6 = 2 A, R_1 = 2 Ω, R_2 = 6 Ω, R_3 = 3 Ω, R_4 = 4 Ω, R_5 = 2 Ω, R_7 = 4 Ω). U_s1 in series with R_1 is branch 1, I_s6 alone is branch 6, and each other resistor is one branch; nodes 1, 2, 3, 4 (4 grounded, the reference), branch numbers and directions as in the graph.",
+        "Standard (composite) branch convention: U_k and I_k follow the branch direction (associated), I_k = Y_k(U_k + U_sk) − I_sk; U_sk is positive when its \"+\" is toward the end of the branch (it pushes current along the branch), and I_sk is positive when it points **against** the branch direction.",
+        "Choose the tree T = {1, 2, 5} and take the tree-branch voltages U_t = (U_1, U_2, U_5)ᵀ as unknowns (fundamental cut-sets directed like their tree branches). The fundamental cut-set matrix is",
+        "Q_f = \\mat{1 & 0 & 0 & −1 & 0 & −1 & −1 ; 0 & 1 & 1 & −1 & 0 & −1 & −1 ; 0 & 0 & 0 & 0 & 1 & −1 & −1} (columns = branches 1–7).",
+        "Write Y_t·U_t = J_t with Y_t = Q_f·Y·Q_fᵀ and J_t = Q_f·I_s − Q_f·Y·U_s, and find matrix entries and the tree-branch voltages."
+      ],
+      "questions": [
+        {
+          "ask": "Entry Y_t11 of Y_t = Q_f·Y·Q_fᵀ = ?",
+          "explain": "Cut-set 1 (tree branch 1) contains branches 1, 4, 6, 7: 0.5 + 0.25 + 0 + 0.25 = 1 S (branch 6 is a current source, admittance 0)."
+        },
+        {
+          "ask": "Y_t12 = ?",
+          "explain": "Cut-sets 1 and 2 share branches 4, 6, 7, oriented the same way in both (−1 and −1): +(0.25 + 0 + 0.25) = 0.5 S. Mutual terms of the cut-set method can be positive."
+        },
+        {"ask": "Y_t33 = ?", "explain": "Cut-set 3 (tree branch 5) contains 5, 6, 7: 0.5 + 0 + 0.25 = 0.75 S."},
+        {
+          "ask": "Entry 1 of J_t = Q_f·I_s − Q_f·Y·U_s = ?",
+          "explain": "Q_f·I_s: q_16·I_s6 = (−1)(2) = −2; Q_f·Y·U_s: q_11·Y_1·U_s1 = 0.5 × 12 = 6 → −2 − 6 = −8 A."
+        },
+        {
+          "ask": "Solve Y_t·U_t = J_t: tree-branch voltage U_t1 = U_1 = ?",
+          "explain": "U_t = (−9.25, 2.75, −0.5)ᵀ V. U_1 is measured from 4 to 1, so node 1 is at 9.25 V."
+        },
+        {"ask": "U_t3 = U_5 = ?", "explain": "U_5 = u_2 − u_3 = 6.5 − 7 = −0.5 V."},
+        {
+          "ask": "Voltage of node 3, u_3 = ? (to node 4)",
+          "explain": "Walk the tree: by definition U_k = start voltage − end voltage, so u_4 − u_1 = U_1, u_1 − u_2 = U_2, u_2 − u_3 = U_5; adding, u_4 − u_3 = U_1 + U_2 + U_5 = −7 V, so u_3 = 7 V."
+        }
+      ],
+      "hints": [
+        "Branch admittances: Y = diag(1/2, 1/6, 1/3, 1/4, 1/2, 0, 1/4) S (a current-source branch has admittance 0); signs of U_s1 = 12 V and I_s6 = 2 A per the standard-branch convention.",
+        "Y_t can be read off: diagonal = sum of the admittances in the cut-set; off-diagonal = admittances shared by two cut-sets, + if oriented the same way in both, − otherwise.",
+        "Once the tree-branch voltages are known, any node voltage follows by adding them along the tree from the reference node."
+      ],
+      "solution": [
+        "**Source vectors:** the \"+\" of branch 1 faces node 1 (its end) → U_s1 = **+12 V**; I_s6 points up (4→3), against branch 6 (3→4) → I_s6 = **+2 A**.",
+        "**Y_t = Q_f·Y·Q_fᵀ** = \\mat{1 & 0.5 & 0.25 ; 0.5 & 1 & 0.25 ; 0.25 & 0.25 & 0.75} S: Y_t11 = **1 S**, Y_t12 = **0.5 S**, Y_t33 = **0.75 S**.",
+        "**J_t = Q_f·I_s − Q_f·Y·U_s** = (−2 − 6, −2, −2)ᵀ = (**−8**, −2, −2)ᵀ A.",
+        "**Solve:** U_t = (**−9.25**, 2.75, **−0.5**)ᵀ V.",
+        "**Node voltages:** u_1 = −U_1 = 9.25 V, u_2 = u_1 − U_2 = 6.5 V, u_3 = u_2 − U_5 = **7 V**.",
+        "**Check (KCL at node 3):** I_s6 brings in 2 A; R_5 brings (6.5 − 7)/2 = −0.25 A; R_7 takes 7/4 = 1.75 A out: 2 − 0.25 = 1.75 ✓."
+      ]
+    }
+  }
+}
