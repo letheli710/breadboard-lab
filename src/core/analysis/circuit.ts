@@ -5,6 +5,7 @@ import type { Complex, CtrlRef, Netlist, TwoTerminalType } from '../problem/type
 import { cx } from './complex';
 import { AnalysisError } from './errors';
 import { isPeriodicValue, parsePeriodic, type Term } from './fourier';
+import { type Lin, type NlLaw, parseLaw } from './nonlinear';
 
 export type ElType = TwoTerminalType | 'OPAMP' | 'XFMR';
 
@@ -30,6 +31,11 @@ export interface CEl {
   ctrl?: CtrlRef;
   sw?: { before: 'open' | 'closed'; after: 'open' | 'closed' };
   ic?: number;
+  /** NR: the parsed characteristic (see nonlinear.ts) */
+  nl?: NlLaw;
+  /** NR: the linear branch a·u + b·i = c it is replaced by in the current solve (set by the
+   *  operating-point solver / small-signal linearisation; an NR without it cannot be stamped) */
+  lin?: Lin;
   /** test sources added by the engine (never zeroed) */
   synthetic?: boolean;
 }
@@ -196,6 +202,9 @@ export class Circuit {
           }
           case 'ammeter':
           case 'voltmeter':
+            break;
+          case 'NR':
+            el.nl = parseLaw(ref, e.law);
             break;
           default:
             throw new AnalysisError(`${ref}: unknown element type "${type}"`);

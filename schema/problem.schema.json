@@ -11,7 +11,7 @@
     "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$", "description": "Unique id: letters, digits, - and _." },
     "lang": { "enum": ["zh", "en"], "default": "zh", "description": "Language of the top-level text. Default \"zh\"." },
     "chapter": {
-      "enum": ["basics", "equivalence", "methods", "theorems", "opamp", "storage", "first-order", "second-order", "phasors", "ac-analysis", "ac-power", "coupled", "frequency", "three-phase", "non-sinusoidal", "two-port"],
+      "enum": ["basics", "equivalence", "methods", "theorems", "opamp", "storage", "first-order", "second-order", "phasors", "ac-analysis", "ac-power", "coupled", "frequency", "three-phase", "non-sinusoidal", "two-port", "nonlinear"],
       "description": "Chapter id (src/core/problem/chapters.ts). Put the file in problems/<chapter>/."
     },
     "title": { "type": "string", "minLength": 1 },
@@ -139,7 +139,7 @@
       "required": ["ref", "type", "from", "to"],
       "properties": {
         "ref": { "type": "string", "minLength": 1 },
-        "type": { "enum": ["R", "C", "L", "V", "I", "VCVS", "VCCS", "CCVS", "CCCS", "SW", "Z", "ammeter", "voltmeter"] },
+        "type": { "enum": ["R", "C", "L", "V", "I", "VCVS", "VCCS", "CCVS", "CCCS", "SW", "Z", "ammeter", "voltmeter", "NR"], "description": "NR = nonlinear resistor (give \"law\")" },
         "from": { "$ref": "#/definitions/pt", "description": "terminal p (\"+\" of a voltage source; tail of a current source's arrow)" },
         "to": { "$ref": "#/definitions/pt", "description": "terminal n" },
         "value": {
@@ -157,7 +157,31 @@
         },
         "ic": { "type": "number" },
         "label": { "type": "string" },
-        "hideValue": { "type": "boolean" }
+        "hideValue": { "type": "boolean" },
+        "law": { "$ref": "#/definitions/nonlinearLaw" }
+      },
+      "additionalProperties": false
+    },
+    "nonlinearLaw": {
+      "description": "NR characteristic, passive convention. i: i = Σ c_k·u^k (umin/umax: constant outside); u: u = Σ c_k·i^k (imin/imax); pwl: polyline of [u, i] points, end segments extended; diode: ideal diode (anode = from), optional threshold uon and on-resistance ron.",
+      "oneOf": [
+        { "type": "object", "required": ["i"], "properties": { "i": { "type": "array", "items": { "type": "number" }, "minItems": 1, "maxItems": 8 }, "umin": { "type": "number" }, "umax": { "type": "number" } }, "additionalProperties": false },
+        { "type": "object", "required": ["u"], "properties": { "u": { "type": "array", "items": { "type": "number" }, "minItems": 1, "maxItems": 8 }, "imin": { "type": "number" }, "imax": { "type": "number" } }, "additionalProperties": false },
+        { "type": "object", "required": ["pwl"], "properties": { "pwl": { "type": "array", "minItems": 2, "items": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 } } }, "additionalProperties": false },
+        { "type": "object", "required": ["diode"], "properties": { "diode": { "type": "object", "properties": { "uon": { "type": "number" }, "ron": { "type": "number", "minimum": 0 } }, "additionalProperties": false } }, "additionalProperties": false }
+      ]
+    },
+    "uiPlot": {
+      "type": "object",
+      "required": ["el", "u", "i"],
+      "description": "u–i characteristic figure of a nonlinear resistor (drawn under the circuit).",
+      "properties": {
+        "el": { "type": "string", "description": "ref of an NR element" },
+        "u": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2, "description": "voltage axis [min, max] in V" },
+        "i": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2, "description": "current axis [min, max] in A" },
+        "loadLine": { "type": "boolean", "description": "draw the load line of the rest of the circuit (one NR only)" },
+        "points": { "type": "boolean", "description": "mark the operating points" },
+        "iUnit": { "enum": ["A", "mA", "µA"] }
       },
       "additionalProperties": false
     },
@@ -213,6 +237,7 @@
           }
         },
         "wires": { "type": "array", "items": { "type": "array", "minItems": 2, "items": { "$ref": "#/definitions/pt" } } },
+        "plot": { "$ref": "#/definitions/uiPlot" },
         "labels": {
           "type": "array",
           "items": {
@@ -308,7 +333,7 @@
       "type": "object",
       "required": ["kind"],
       "properties": {
-        "kind": { "enum": ["v", "i", "p", "q", "s", "pf", "req", "vth", "isc", "pmax", "tau", "meter", "gain", "f0", "twoport", "w", "val", "wattmeter", "root", "alpha", "omega_d", "omega0", "fc", "bw", "Q"] },
+        "kind": { "enum": ["v", "i", "p", "q", "s", "pf", "req", "vth", "isc", "pmax", "tau", "meter", "gain", "f0", "twoport", "w", "val", "wattmeter", "root", "alpha", "omega_d", "omega0", "fc", "bw", "Q", "rs", "rd", "nop"], "description": "rs / rd: static / dynamic resistance of a nonlinear resistor at the operating point; nop: number of operating points" },
         "el": { "type": "string" },
         "nodes": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 2 },
         "port": { "$ref": "#/definitions/nodePair" },
@@ -325,7 +350,9 @@
         "param": { "enum": ["z11", "z12", "z21", "z22", "y11", "y12", "y21", "y22", "h11", "h12", "h21", "h22", "a", "b", "c", "d"] },
         "harmonic": { "type": "integer", "minimum": 0, "description": "periodic: one harmonic only (0 = DC component, 1 = fundamental, …)" },
         "part": { "enum": ["re", "im", "mag", "phase", "db", "rms", "avg", "absavg", "peak"] },
-        "t": { "oneOf": [{ "type": "number", "minimum": 0 }, { "enum": ["0-", "0+", "inf"] }] }
+        "t": { "oneOf": [{ "type": "number", "minimum": 0 }, { "enum": ["0-", "0+", "inf"] }] },
+        "op": { "type": "integer", "minimum": 1, "description": "nonlinear circuits: which operating point (ordered by the voltage of the first NR element)" },
+        "dc": { "const": true, "description": "AC problems: evaluate with the DC parts of the sources (the operating point)" }
       },
       "additionalProperties": false
     },

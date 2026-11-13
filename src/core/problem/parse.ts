@@ -10,6 +10,7 @@ import { getLang, isLang, LANGS, tr, type Lang } from '../i18n';
 import { chapterById, CHAPTERS } from './chapters';
 import { angleDiff, fmtNum, isPhaseQuestion } from './answer';
 import { extractNetlist, isTwoTerminal } from './geometry';
+import { checkPlot } from './plot';
 import {
   PROBLEM_FORMAT_ID,
   type Analysis,
@@ -59,7 +60,7 @@ const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => ty
 /** a text field may be a string or an array of lines */
 const textOf = (v: unknown) => (typeof v === 'string' ? v : Array.isArray(v) ? strs(v).join('\n') : '');
 
-const KINDS = ['v', 'i', 'p', 'q', 's', 'pf', 'req', 'vth', 'isc', 'pmax', 'tau', 'meter', 'gain', 'f0', 'twoport', 'w', 'val', 'wattmeter', 'root', 'alpha', 'omega_d', 'omega0', 'fc', 'bw', 'Q'] as const;
+const KINDS = ['v', 'i', 'p', 'q', 's', 'pf', 'req', 'vth', 'isc', 'pmax', 'tau', 'meter', 'gain', 'f0', 'twoport', 'w', 'val', 'wattmeter', 'root', 'alpha', 'omega_d', 'omega0', 'fc', 'bw', 'Q', 'rs', 'rd', 'nop'] as const;
 /** kinds that describe the whole circuit (no time instant needed in transient problems) */
 const TIMELESS = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'val', 'f0', 'Q', 'fc', 'bw'];
 const PARTS: Part[] = ['re', 'im', 'mag', 'phase', 'db', 'rms', 'avg', 'absavg', 'peak'];
@@ -135,7 +136,11 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
     case 's':
     case 'pf':
     case 'meter':
+    case 'rs':
+    case 'rd':
       el('el');
+      break;
+    case 'nop':
       break;
     case 'req':
     case 'vth':
@@ -227,6 +232,17 @@ function checkFind(find: unknown, where: string, els: Map<string, ProblemElement
       else if (analysis && analysis.type !== 'ac')
         errors.push(tr(`${where}.find.${k}: 只有正弦稳态（ac）题才能改频率`, `${where}.find.${k}: only AC problems can override the frequency`));
     }
+  if (find.op !== undefined && !(typeof find.op === 'number' && Number.isInteger(find.op) && find.op >= 1)) {
+    errors.push(tr(`${where}.find.op: 必须是 1、2、…（第几个工作点，按第一个非线性电阻的电压从小到大）`, `${where}.find.op: must be 1, 2, … (which operating point, by the voltage of the first nonlinear resistor, ascending)`));
+    ok = false;
+  }
+  if (find.dc !== undefined) {
+    if (find.dc !== true) {
+      errors.push(tr(`${where}.find.dc: 只能是 true`, `${where}.find.dc: must be true`));
+      ok = false;
+    } else if (analysis && analysis.type !== 'ac')
+      warnings.push(tr(`${where}.find.dc: 只在正弦稳态（ac）题里有意义（求直流工作点）`, `${where}.find.dc: only meaningful in AC problems (it asks for the DC operating point)`));
+  }
   if (find.part !== undefined && !PARTS.includes(find.part as Part)) {
     errors.push(tr(`${where}.find.part: 必须是 ${PARTS.join(' / ')}`, `${where}.find.part: must be ${PARTS.join(' / ')}`));
     ok = false;
@@ -332,6 +348,7 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
     schematic = rawS as unknown as Schematic;
     try {
       const r = extractNetlist(schematic);
+      checkPlot(schematic, errors);
       errors.push(...r.errors);
       warnings.push(...r.warnings);
       if (r.errors.length === 0) netlist = r.netlist;

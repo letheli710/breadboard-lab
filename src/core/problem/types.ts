@@ -68,7 +68,19 @@ export type TwoTerminalType =
   | 'SW' // ideal switch, state: before/after t=0
   | 'Z' // generic impedance for AC problems: value {re, im} ohms at the analysis frequency
   | 'ammeter' // ideal ammeter (0 Ω), current reading p→n
-  | 'voltmeter'; // ideal voltmeter (open), reading V(p) − V(n)
+  | 'voltmeter' // ideal voltmeter (open), reading V(p) − V(n)
+  | 'NR'; // nonlinear resistor, law: see NonlinearLaw (DC operating point / small-signal AC only)
+
+/** Characteristic of a nonlinear resistor (type NR), passive convention (u = V(p) − V(n), i p → n):
+ *  {i: [c0, c1, …]} i = Σ c_k·u^k (voltage-controlled; optional umin/umax: constant outside);
+ *  {u: [c0, c1, …]} u = Σ c_k·i^k (current-controlled; optional imin/imax);
+ *  {pwl: [[u0, i0], …]} polyline in the u–i plane, end segments extended as rays;
+ *  {diode: {uon?, ron?}} ideal diode (anode = p), optional threshold voltage and on-resistance. */
+export type NonlinearLaw =
+  | { i: number[]; umin?: number; umax?: number }
+  | { u: number[]; imin?: number; imax?: number }
+  | { pwl: [number, number][] }
+  | { diode: { uon?: number; ron?: number } };
 
 export interface TwoTerminalElement {
   ref: string; // unique, e.g. "R1", "Us", "I2"; shown as label
@@ -84,6 +96,8 @@ export interface TwoTerminalElement {
   label?: string;
   /** hide the value in the drawing (when the question asks for it) */
   hideValue?: boolean;
+  /** NR only: the u–i characteristic */
+  law?: NonlinearLaw;
 }
 
 /** Ideal op-amp (nullor: V+ = V−, no input current). Terminal positions relative to `at`:
@@ -139,8 +153,23 @@ export interface Schematic {
    *  centred at `at` (usually the centre of a mesh; must not sit on a wire or element) with
    *  `name` (e.g. "i_m1") in the middle. dir: 'cw' (default) or 'ccw' as seen on screen. */
   loops?: { at: Pt; name?: string; dir?: 'cw' | 'ccw' }[];
+  /** optional u–i characteristic figure of a nonlinear resistor, drawn under the circuit */
+  plot?: UiPlot;
   /** free text annotations */
   notes?: { at: Pt; text: string; i18n?: Partial<Record<Lang, string>> }[];
+}
+
+/** u–i plot of a nonlinear resistor (see src/core/problem/plot.ts). Ranges in SI units (V, A). */
+export interface UiPlot {
+  el: string;
+  u: [number, number];
+  i: [number, number];
+  /** draw the load line of the rest of the circuit (one NR element only) */
+  loadLine?: boolean;
+  /** mark the operating points (leave off when they are what the question asks) */
+  points?: boolean;
+  /** current axis unit, default "A" */
+  iUnit?: 'A' | 'mA' | 'µA';
 }
 
 export type Analysis =
@@ -198,7 +227,14 @@ export type Quantity =
   | { kind: 'bw'; out: [string, string?]; input: string }
   /** quality factor at resonance: Q = ω0 · (average stored energy) / (average power), seen from
    *  `port` (or the single independent source). Series RLC: ω0L/R; parallel GCL: ω0C/G. */
-  | { kind: 'Q'; port?: [string, string] };
+  | { kind: 'Q'; port?: [string, string] }
+  // nonlinear resistors (type NR): the circuit's DC operating point(s)
+  /** static resistance U_Q / I_Q of an NR element at the operating point */
+  | { kind: 'rs'; el: string }
+  /** dynamic (incremental) resistance du/di of an NR element at the operating point */
+  | { kind: 'rd'; el: string }
+  /** number of DC operating points */
+  | { kind: 'nop' };
 
 /** Which part of a (possibly complex) result is asked. Default: 're' for DC/tran (plain number), 'mag' for AC. */
 export type Part = 're' | 'im' | 'mag' | 'phase' | 'db' | 'rms'
@@ -217,6 +253,12 @@ export interface Question {
     deriv?: 1;
     /** periodic: ask about one harmonic only (0 = DC component, 1 = fundamental, …) */
     harmonic?: number;
+    /** nonlinear circuits with several DC operating points: which one (1, 2, …, ordered by the
+     *  voltage of the first NR element, ascending) */
+    op?: number;
+    /** AC problems: evaluate with the DC parts of the sources instead (e.g. the operating point
+     *  U_Q of a small-signal problem) */
+    dc?: boolean;
     /** AC: evaluate this question at another frequency (Hz or rad/s) than analysis.freq/omega */
     freq?: number;
     omega?: number;

@@ -363,6 +363,12 @@ export class MnaSystem {
         return rel(ONE, ZERO, { vlike: true });
       case 'voltmeter':
         return OPEN;
+      case 'NR': {
+        // nonlinear resistor: stamped as the linear branch chosen by the operating-point solver
+        const l = el.lin;
+        if (!l) throw new AnalysisError(`${el.ref}: a nonlinear resistor has no linear model here (it can only be used in DC operating-point and small-signal AC analysis)`);
+        return rel(cx(l.a), cx(l.b), { rhs: l.c, vlike: l.b === 0 });
+      }
       default:
         throw new AnalysisError(`${el.ref}: element type ${el.type} is not supported here`);
     }

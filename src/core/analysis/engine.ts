@@ -5,6 +5,7 @@ import { Circuit, type CEl, isIndependent, isTwoTerminal } from './circuit';
 import { ONE, ZERO, abs, conj, cx, div, mul, neg, polarDeg } from './complex';
 import { AnalysisError } from './errors';
 import { type Mode, MnaSystem, Solution } from './mna';
+import { type Solver, dynamicR, operatingPoints, piecesAt, tangent } from './nonlinear';
 import { Transient } from './transient';
 import { computePeriodic } from './periodic';
 
@@ -614,6 +615,11 @@ export function computeComplex(netlist: Netlist, analysis: Analysis, find: Find)
   if ((find.freq !== undefined || find.omega !== undefined) && analysis.type !== 'ac')
     throw new AnalysisError('find.freq / find.omega override the frequency of an AC problem; this problem is not AC');
 
+  const nls = ckt.els.filter((e) => e.type === 'NR');
+  if (nls.length) return nonlinearComplex(ckt, nls, analysis, find);
+  if (find.kind === 'rs' || find.kind === 'rd' || find.kind === 'nop') throw new AnalysisError(`"${find.kind}" needs a nonlinear resistor (type NR) in the circuit`);
+  if (find.dc && analysis.type === 'ac') return computeComplex(netlist, { type: 'dc' }, { ...find, dc: undefined });
+
   if (find.kind === 'f0') return real(resonance(ckt, find.port));
   if (find.kind === 'Q') return real(qualityFactor(ckt, find.port));
   if (find.kind === 'fc' || find.kind === 'bw') {
@@ -673,6 +679,99 @@ export function computeComplex(netlist: Netlist, analysis: Analysis, find: Find)
     throw new AnalysisError(`"${find.kind}" is not available in transient analysis`);
   }
   throw new AnalysisError(`Unknown analysis type ${JSON.stringify((analysis as { type?: unknown }).type)}`);
+}
+
+// ---------------- nonlinear resistors (NR): operating point and small-signal analysis ----------------
+
+/** DC solve hook for the operating-point search (null when the linearised circuit is singular) */
+export function dcSolver(ckt: Circuit, phase: Phase = 'after'): Solver {
+  return {
+    solve: () => {
+      try {
+        const s = new StaticAnalysis(ckt, 'dc', 0, phase).solve();
+        return { u: (r) => s.vEl(r).re, i: (r) => s.i(r).re };
+      } catch (e) {
+        if (e instanceof AnalysisError) return null;
+        throw e;
+      }
+    },
+  };
+}
+
+const NOT_NONLINEAR = ['tau', 'root', 'alpha', 'omega_d', 'omega0', 'f0', 'Q', 'fc', 'bw'];
+
+/** DC: everything at the operating point Q (each NR replaced by its tangent line through Q, which
+ *  by the substitution theorem gives the same node voltages and currents). AC: small-signal
+ *  response — the NR replaced by its dynamic resistance at Q, sources contribute their ac parts.
+ *  find.dc in an AC problem evaluates at the operating point instead. */
+function nonlinearComplex(ckt: Circuit, nls: CEl[], analysis: Analysis, find: Find): Val {
+  if (analysis.type === 'tran') throw new AnalysisError('Nonlinear resistors (type NR) are supported in DC (operating point) and AC (small-signal) analysis, not in transient analysis');
+  if (NOT_NONLINEAR.includes(find.kind)) throw new AnalysisError(`"${find.kind}" is not defined for a circuit with nonlinear resistors`);
+  const phase = phaseOfT(find.t);
+  const ops = operatingPoints(nls, dcSolver(ckt, phase));
+  if (find.kind === 'nop') return real(ops.length);
+  const first = nls[0].ref;
+  const list = ops.map((o, k) => `${k + 1}: u = ${fmt(o.u[first])} V, i = ${fmt(o.i[first])} A`).join('; ');
+  if (!ops.length) throw new AnalysisError('The circuit has no DC operating point (the load line does not meet the characteristic)');
+  let Q = ops[0];
+  if (find.op !== undefined) {
+    if (!Number.isInteger(find.op) || find.op < 1 || find.op > ops.length)
+      throw new AnalysisError(`op must be 1…${ops.length} (operating points, by the voltage of ${first}: ${list})`);
+    Q = ops[find.op - 1];
+  } else if (ops.length > 1) throw new AnalysisError(`The circuit has ${ops.length} DC operating points (${list}); choose one with "op": 1…${ops.length}`);
+
+  if (find.kind === 'rs' || find.kind === 'rd') {
+    const el = ckt.element(find.el);
+    if (el.type !== 'NR') throw new AnalysisError(`${find.kind}: ${find.el} is not a nonlinear resistor (type NR)`);
+    const u = Q.u[el.ref];
+    const i = Q.i[el.ref];
+    if (find.kind === 'rs') {
+      if (i === 0) throw new AnalysisError(`rs: the current of ${el.ref} at the operating point is zero, so the static resistance U/I is undefined`);
+      return real(u / i);
+    }
+    const rds = piecesAt(el.nl!, u, i).map((k) => {
+      const p = el.nl!.pieces[k];
+      return dynamicR(p, p.x === 'u' ? u : i);
+    });
+    const r = rds[0];
+    const same = (x: number) => x === r || (Number.isFinite(x) && Number.isFinite(r) && Math.abs(x - r) <= 1e-9 * Math.max(1, Math.abs(r)));
+    if (!rds.every(same))
+      throw new AnalysisError(`rd: the operating point of ${el.ref} (u = ${fmt(u)} V, i = ${fmt(i)} A) is a corner of its characteristic, where the dynamic resistance is not defined`);
+    if (!Number.isFinite(r)) throw new AnalysisError(`rd: the characteristic of ${el.ref} is horizontal at the operating point (di/du = 0): the dynamic resistance is infinite`);
+    return real(r);
+  }
+
+  const smallSignal = analysis.type === 'ac' && !find.dc;
+  const portKinds = ['vth', 'isc', 'pmax'];
+  if (portKinds.includes(find.kind)) {
+    const ex = new Set(((find as { exclude?: string[] }).exclude ?? []).map(String));
+    if (!nls.every((e) => ex.has(e.ref)))
+      throw new AnalysisError(`${find.kind}: a Thevenin/Norton quantity is only defined for the linear part; list every nonlinear resistor in "exclude"`);
+  }
+  // req: the incremental (small-signal) resistance, so the tangent lines carry no constant term
+  const withConst = !smallSignal && find.kind !== 'req';
+  for (const e of nls) {
+    const p = e.nl!.pieces[Q.piece[e.ref]];
+    e.lin = tangent(p, p.x === 'u' ? Q.u[e.ref] : Q.i[e.ref], withConst);
+  }
+  let an: StaticAnalysis;
+  if (smallSignal) {
+    const a = analysis as Analysis & { type: 'ac' };
+    const o = find.omega !== undefined || find.freq !== undefined ? omegaOf({ type: 'ac', freq: find.freq, omega: find.omega }) : omegaOf(a);
+    an = new StaticAnalysis(ckt, 'ac', o, 'after', a.phasor === 'peak');
+  } else an = new StaticAnalysis(ckt, 'dc', 0, phase);
+  const kind = smallSignal ? 'ac' : 'dc';
+  if (find.kind === 'val') {
+    if (ckt.element(find.el).type === 'NR') throw new AnalysisError(`val: ${find.el} is a nonlinear resistor; it has no single value (ask rs or rd)`);
+    return elementValue(ckt, find, an);
+  }
+  if (find.kind === 'w') {
+    if (smallSignal) throw new AnalysisError('w (stored energy) is available in DC analysis');
+    return real(energy(ckt, an.base(), find.el));
+  }
+  if (find.kind === 'wattmeter') return real(wattmeter(ckt, an.base(), find, smallSignal, an.peak));
+  if (['v', 'i', 'p', 'q', 's', 'pf', 'meter'].includes(find.kind)) return pointQuantity(find, an.base(), ckt, kind, an.peak)!;
+  return networkQuantity(find, an);
 }
 
 /** Reduce a (possibly complex) result to the requested real number. */

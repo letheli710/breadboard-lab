@@ -13,7 +13,7 @@
 import { tr } from '../i18n';
 import type { Netlist, Pt, ProblemElement, Schematic, TwoTerminalElement } from './types';
 
-export const TWO_TERMINAL_TYPES = ['R', 'C', 'L', 'V', 'I', 'VCVS', 'VCCS', 'CCVS', 'CCCS', 'SW', 'Z', 'ammeter', 'voltmeter'] as const;
+export const TWO_TERMINAL_TYPES = ['R', 'C', 'L', 'V', 'I', 'VCVS', 'VCCS', 'CCVS', 'CCCS', 'SW', 'Z', 'ammeter', 'voltmeter', 'NR'] as const;
 
 export function isTwoTerminal(el: ProblemElement): el is TwoTerminalElement {
   return (TWO_TERMINAL_TYPES as readonly string[]).includes(el.type);
