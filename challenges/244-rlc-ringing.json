@@ -19,13 +19,7 @@
     "",
     "**先预测**：KVL 得 LC·u_C'' + RC·u_C' + u_C = u_s，特征根 s = −α ± √(α² − ω0²)，α = R/(2L)，ω0 = 1/√(LC)。算出振荡频率 f0、临界电阻 R = 2√(L/C) 和阻尼比 ζ = α/ω0 = (R/2)·√(C/L)。注意 R 是**回路总电阻**：电位器 + 信号发生器 50 Ω + 电感线圈 1 Ω。再预测电位器在 5%、30%、60%、100% 时属于哪种阻尼、超调大约多少（wiper = 电位器 1–2 之间的电阻占 1 kΩ 的比例）。",
     "",
-    "**测量**：依次把电位器转到 5%、30%、60%、100%，读 VC 的峰值、最低值，看有没有振荡、振荡频率是多少。",
-    "",
-    "**对比**：f0 = 1/(2π√(10 mH × 100 nF)) ≈ 5.03 kHz；临界电阻 2√(10 mH / 100 nF) ≈ 632 Ω。",
-    "- **5%（50 Ω，R总 ≈ 101 Ω，ζ ≈ 0.16，欠阻尼）**：u_C 冲过 2 V 后来回振荡，振荡频率 ≈ 5 kHz，包络按 e^(−αt) 衰减（1/α = 2L/R ≈ 0.2 ms）。第一个峰的超调量 = e^(−πζ/√(1−ζ²)) ≈ 60%，峰值 ≈ 2 + 2 × 0.6 ≈ 3.2 V——电容电压比电源电压还高！下降沿同样会冲到 0 V 以下，最低约 −1.2 V。",
-    "- **30%（300 Ω，R总 ≈ 351 Ω，ζ ≈ 0.56，欠阻尼）**：只剩一个小鼓包，超调 ≈ 12%，峰值 ≈ 2.25 V。",
-    "- **60%（600 Ω，R总 ≈ 651 Ω，ζ ≈ 1.03，约等于临界阻尼）**：不再超调，最快地平稳到达 2 V。",
-    "- **100%（1 kΩ，R总 ≈ 1051 Ω，ζ ≈ 1.66，过阻尼）**：也不超调，但上升明显变慢（像一个较慢的 RC 充电）。",
+    "**测量**：依次把电位器转到 5%、30%、60%、100%，读 VC 的峰值、最低值，看有没有振荡、振荡频率是多少。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**想一想**：为什么这里不能把信号发生器的 50 Ω 忽略？（提示：和临界电阻 632 Ω 比，50 Ω 并不算小；把电位器拧到 0，ζ 也只能降到约 0.08。）",
     "",
@@ -47,17 +41,23 @@
         "",
         "**Predict first**: KVL gives LC·u_C'' + RC·u_C' + u_C = u_s, with characteristic roots s = −α ± √(α² − ω0²), α = R/(2L), ω0 = 1/√(LC). Work out the ringing frequency f0, the critical resistance R = 2√(L/C) and the damping ratio ζ = α/ω0 = (R/2)·√(C/L). R is the **total loop resistance**: potentiometer + generator 50 Ω + inductor winding 1 Ω. Then predict the kind of damping and roughly the overshoot with the pot at 5%, 30%, 60% and 100% (wiper = the share of the 1 kΩ between pins 1 and 2).",
         "",
-        "**Measure**: set the pot to 5%, 30%, 60% and 100% in turn; read VC's peak and minimum and see whether it rings and at what frequency.",
-        "",
-        "**Compare**: f0 = 1/(2π√(10 mH × 100 nF)) ≈ 5.03 kHz; critical resistance 2√(10 mH / 100 nF) ≈ 632 Ω.",
-        "- **5% (50 Ω, R_total ≈ 101 Ω, ζ ≈ 0.16, underdamped)**: u_C shoots past 2 V and rings at ≈ 5 kHz inside an e^(−αt) envelope (1/α = 2L/R ≈ 0.2 ms). The first peak overshoots by e^(−πζ/√(1−ζ²)) ≈ 60%, reaching ≈ 2 + 2 × 0.6 ≈ 3.2 V — the capacitor voltage exceeds the source voltage! The falling edge likewise undershoots below 0 V, down to about −1.2 V.",
-        "- **30% (300 Ω, R_total ≈ 351 Ω, ζ ≈ 0.56, underdamped)**: just one small bump, ≈ 12% overshoot, peak ≈ 2.25 V.",
-        "- **60% (600 Ω, R_total ≈ 651 Ω, ζ ≈ 1.03, about critical)**: no overshoot; the fastest smooth arrival at 2 V.",
-        "- **100% (1 kΩ, R_total ≈ 1051 Ω, ζ ≈ 1.66, overdamped)**: no overshoot either, but a noticeably slower rise (like a slow RC charge).",
+        "**Measure**: set the pot to 5%, 30%, 60% and 100% in turn; read VC's peak and minimum and see whether it rings and at what frequency. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Think about it**: why can't the generator's 50 Ω be ignored here? (Hint: compared with the 632 Ω critical resistance, 50 Ω is not small; even with the pot at 0, ζ only drops to about 0.08.)",
         "",
         "**In a real circuit**: the simulated inductor has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω (see Experiment 4-5); it sits in the loop just like the pot and the generator's resistance, so R_total is larger and the ringing dies faster: the overshoot at 5% is clearly less than 60%, and even with the pot at 0 ζ cannot get down to 0.08."
+      ],
+      "compare": [
+        "**Compare**: f0 = 1/(2π√(10 mH × 100 nF)) ≈ 5.03 kHz; critical resistance 2√(10 mH / 100 nF) ≈ 632 Ω.",
+        "- **5% (50 Ω, R_total ≈ 101 Ω, ζ ≈ 0.16, underdamped)**: u_C shoots past 2 V and rings at ≈ 5 kHz inside an e^(−αt) envelope (1/α = 2L/R ≈ 0.2 ms). The first peak overshoots by e^(−πζ/√(1−ζ²)) ≈ 60%, reaching ≈ 2 + 2 × 0.6 ≈ 3.2 V — the capacitor voltage exceeds the source voltage! The falling edge likewise undershoots below 0 V, down to about −1.2 V.",
+        "- **30% (300 Ω, R_total ≈ 351 Ω, ζ ≈ 0.56, underdamped)**: just one small bump, ≈ 12% overshoot, peak ≈ 2.25 V.",
+        "- **60% (600 Ω, R_total ≈ 651 Ω, ζ ≈ 1.03, about critical)**: no overshoot; the fastest smooth arrival at 2 V.",
+        "- **100% (1 kΩ, R_total ≈ 1051 Ω, ζ ≈ 1.66, overdamped)**: no overshoot either, but a noticeably slower rise (like a slow RC charge)."
+      ],
+      "measurements": [
+        {"ask": "Pot at 5%: the frequency VC rings at (measure the time T_d between two neighbouring peaks, f = 1/T_d)", "explain": "Underdamped, it rings at f_d = f0·√(1 − ζ²): with ζ ≈ 0.16 only about 1% below f0 ≈ 5.03 kHz."},
+        {"ask": "Pot at 5%: VC's highest voltage (the first peak)", "explain": "The overshoot e^(−πζ/√(1−ζ²)) ≈ 60%, so the peak ≈ 2 + 2 × 0.6 ≈ 3.2 V — higher than the 2 V signal."},
+        {"ask": "Turn the pot slowly: at about which position does the overshoot just disappear (critical damping)?", "choices": ["About 60%: R_total ≈ 2√(L/C) ≈ 632 Ω", "About 30%", "Only at 100% is there no overshoot"], "explain": "At 30% there is still about 12% overshoot; it disappears once R_total = pot + 50 Ω + 1 Ω reaches 2√(L/C) ≈ 632 Ω (about 60%). More resistance is overdamped and only slower."}
       ],
       "hints": [
         "Use the pot as a variable resistor: pin 1 to the generator, pins 2 and 3 joined with a short wire.",
@@ -65,10 +65,10 @@
         "Critical damping: R_total = 2√(L/C) ≈ 632 Ω, and R_total includes the generator's 50 Ω."
       ],
       "tests": [
-        "Pot at 5% (ζ ≈ 0.16): strong ringing, peak ≈ 3.2 V, dip ≈ −1.2 V",
-        "Pot at 30% (ζ ≈ 0.56): small overshoot, peak ≈ 2.25 V",
-        "Pot at 60% (ζ ≈ 1, critical): no overshoot, settles at 2 V",
-        "Pot at 100% (ζ ≈ 1.66, overdamped): no overshoot"
+        "Pot at 5%: strong ringing",
+        "Pot at 30%: small overshoot",
+        "Pot at 60% (critical): no overshoot",
+        "Pot at 100% (overdamped): no overshoot"
       ]
     }
   },
@@ -86,7 +86,7 @@
   ],
   "tests": [
     {
-      "name": "电位器 5%（ζ ≈ 0.16）：强烈振铃，峰值 ≈ 3.2 V、谷值 ≈ −1.2 V",
+      "name": "电位器 5%：强烈振铃",
       "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 0.05 } },
       "scope": [
         { "pin": "C1.1", "measure": "vmax", "min": 3.05, "max": 3.35 },
@@ -94,12 +94,12 @@
       ]
     },
     {
-      "name": "电位器 30%（ζ ≈ 0.56）：小超调，峰值 ≈ 2.25 V",
+      "name": "电位器 30%：小超调",
       "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 0.3 } },
       "scope": [{ "pin": "C1.1", "measure": "vmax", "min": 2.15, "max": 2.35 }]
     },
     {
-      "name": "电位器 60%（ζ ≈ 1，临界阻尼）：不超调，稳定在 2 V",
+      "name": "电位器 60%（临界阻尼）：不超调",
       "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 0.6 } },
       "scope": [
         { "pin": "C1.1", "measure": "vmax", "min": 1.98, "max": 2.02 },
@@ -107,10 +107,22 @@
       ]
     },
     {
-      "name": "电位器 100%（ζ ≈ 1.66，过阻尼）：不超调",
+      "name": "电位器 100%（过阻尼）：不超调",
       "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 1 } },
       "scope": [{ "pin": "C1.1", "measure": "vmax", "min": 1.97, "max": 2.01 }]
     }
+  ],
+  "compare": [
+    "**对比**：f0 = 1/(2π√(10 mH × 100 nF)) ≈ 5.03 kHz；临界电阻 2√(10 mH / 100 nF) ≈ 632 Ω。",
+    "- **5%（50 Ω，R总 ≈ 101 Ω，ζ ≈ 0.16，欠阻尼）**：u_C 冲过 2 V 后来回振荡，振荡频率 ≈ 5 kHz，包络按 e^(−αt) 衰减（1/α = 2L/R ≈ 0.2 ms）。第一个峰的超调量 = e^(−πζ/√(1−ζ²)) ≈ 60%，峰值 ≈ 2 + 2 × 0.6 ≈ 3.2 V——电容电压比电源电压还高！下降沿同样会冲到 0 V 以下，最低约 −1.2 V。",
+    "- **30%（300 Ω，R总 ≈ 351 Ω，ζ ≈ 0.56，欠阻尼）**：只剩一个小鼓包，超调 ≈ 12%，峰值 ≈ 2.25 V。",
+    "- **60%（600 Ω，R总 ≈ 651 Ω，ζ ≈ 1.03，约等于临界阻尼）**：不再超调，最快地平稳到达 2 V。",
+    "- **100%（1 kΩ，R总 ≈ 1051 Ω，ζ ≈ 1.66，过阻尼）**：也不超调，但上升明显变慢（像一个较慢的 RC 充电）。"
+  ],
+  "measurements": [
+    {"id": "fring", "scope": "ring", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.05}}, "unit": "kHz", "predict": true, "range": [4500, 5300], "ask": "电位器 5%：VC 振荡的频率（量相邻两个波峰的时间间隔 T_d，f = 1/T_d）", "explain": "欠阻尼时的振荡频率 f_d = f0·√(1 − ζ²)，ζ ≈ 0.16 时只比 f0 ≈ 5.03 kHz 低约 1%。"},
+    {"id": "peak", "scope": "vmax", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.05}}, "unit": "V", "predict": true, "range": [3.05, 3.35], "ask": "电位器 5%：VC 的最高电压（第一个峰）", "explain": "超调量 e^(−πζ/√(1−ζ²)) ≈ 60%，峰值 ≈ 2 + 2 × 0.6 ≈ 3.2 V——比信号的 2 V 还高。"},
+    {"id": "crit", "choices": ["约 60%：R总 ≈ 2√(L/C) ≈ 632 Ω", "约 30%", "只有转到 100% 才不超调"], "correct": 0, "ask": "慢慢转电位器：超调刚好消失（临界阻尼）大约在哪个位置？", "explain": "30% 时还有约 12% 的超调；R总 = 电位器 + 50 Ω + 1 Ω 达到 2√(L/C) ≈ 632 Ω（约 60%）时超调消失，再大就是过阻尼，只会更慢。"}
   ],
   "hints": [
     "电位器当可变电阻用：1 脚接信号发生器，2 脚和 3 脚用一根短跳线连起来。",

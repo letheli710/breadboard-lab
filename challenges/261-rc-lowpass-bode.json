@@ -19,14 +19,7 @@
     "",
     "**先预测**：把电阻和电容看成阻抗 R 和 1/(jωC)，用分压公式写出网络函数 H(jω) = U̇out/U̇in，求出截止频率 fc = 1/(2πRC)，再算三个频率下的 |H|（也换算成 dB）和 ∠H，写下来。",
     "",
-    "**测量**：每个频率读 VOUT 与 VIN 的幅度比和过零点时间差 Δt，算出增益和相位。",
-    "",
-    "**对比**：",
-    "  H(jω) = (1/(jωC)) / (R + 1/(jωC)) = 1 / (1 + jωRC)",
-    "  |H| = 1/√(1 + (f/fc)²)，∠H = −arctan(f/fc)，fc = 1/(2π × 1.5 kΩ × 100 nF) ≈ 1061 Hz。",
-    "- **f = fc/10 = 106 Hz**：|H| = 1/√1.01 ≈ 0.995（−0.04 dB），相位 −5.7°。信号几乎原样通过。",
-    "- **f = fc = 1061 Hz**：|H| = 1/√2 ≈ 0.707（−3 dB），相位 −45°。这就是“截止频率”的定义。",
-    "- **f = 10fc = 10.6 kHz**：|H| ≈ 1/√101 ≈ 0.0995（−20 dB），相位 −84.3°。频率每升高 10 倍，幅度再降 10 倍（−20 dB/十倍频），相位趋近 −90°。",
+    "**测量**：每个频率读 VOUT 与 VIN 的幅度比和过零点时间差 Δt，算出增益和相位。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**为什么用 VIN（信号发生器端子）而不是信号发生器的设定值做分母**：信号发生器有 50 Ω 输出电阻，接上负载后端子上的电压会比设定的 1 V 略小，而且随频率变（低频时滤波器输入阻抗大，掉得少；高频时电容几乎短路，输入阻抗只剩 1.5 kΩ，掉得多一点：10.6 kHz 时 VIN 约 1.94 Vpp 而不是 2 Vpp）。拿两个通道相比，这个误差自动抵消。",
     "",
@@ -50,14 +43,7 @@
         "",
         "**Predict first**: treat the resistor and capacitor as impedances R and 1/(jωC), write the network function H(jω) = U_out/U_in with the divider rule, find the cutoff frequency fc = 1/(2πRC), and work out |H| (also in dB) and ∠H at the three frequencies. Write them down.",
         "",
-        "**Measure**: at each frequency read the amplitude ratio VOUT/VIN and the zero-crossing shift Δt, and turn them into gain and phase.",
-        "",
-        "**Compare**:",
-        "  H(jω) = (1/(jωC)) / (R + 1/(jωC)) = 1 / (1 + jωRC)",
-        "  |H| = 1/√(1 + (f/fc)²), ∠H = −arctan(f/fc), fc = 1/(2π × 1.5 kΩ × 100 nF) ≈ 1061 Hz.",
-        "- **f = fc/10 = 106 Hz**: |H| = 1/√1.01 ≈ 0.995 (−0.04 dB), phase −5.7°. The signal passes almost unchanged.",
-        "- **f = fc = 1061 Hz**: |H| = 1/√2 ≈ 0.707 (−3 dB), phase −45°. That is what \"cutoff frequency\" means.",
-        "- **f = 10fc = 10.6 kHz**: |H| ≈ 1/√101 ≈ 0.0995 (−20 dB), phase −84.3°. Every 10× in frequency divides the amplitude by another 10 (−20 dB/decade), and the phase approaches −90°.",
+        "**Measure**: at each frequency read the amplitude ratio VOUT/VIN and the zero-crossing shift Δt, and turn them into gain and phase. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Why divide by VIN (the generator's terminals) rather than the generator setting**: the generator has a 50 Ω output resistance, so with a load its terminal voltage is a little below the 1 V you set, and that drop changes with frequency (at low frequency the filter's input impedance is high and little is lost; at high frequency the capacitor is almost a short, the input impedance is just 1.5 kΩ, and a bit more is lost: at 10.6 kHz VIN is about 1.94 Vpp instead of 2 Vpp). Taking the ratio of the two channels cancels that error.",
         "",
@@ -65,15 +51,28 @@
         "",
         "**In a real circuit**: ceramic capacitors often have a ±10% to ±20% tolerance and fc shifts by the same fraction; on a real board, first look for the frequency where the ratio is 0.707 and the phase −45° — that is your circuit's actual fc."
       ],
+      "compare": [
+        "**Compare**:",
+        "  H(jω) = (1/(jωC)) / (R + 1/(jωC)) = 1 / (1 + jωRC)",
+        "  |H| = 1/√(1 + (f/fc)²), ∠H = −arctan(f/fc), fc = 1/(2π × 1.5 kΩ × 100 nF) ≈ 1061 Hz.",
+        "- **f = fc/10 = 106 Hz**: |H| = 1/√1.01 ≈ 0.995 (−0.04 dB), phase −5.7°. The signal passes almost unchanged.",
+        "- **f = fc = 1061 Hz**: |H| = 1/√2 ≈ 0.707 (−3 dB), phase −45°. That is what \"cutoff frequency\" means.",
+        "- **f = 10fc = 10.6 kHz**: |H| ≈ 1/√101 ≈ 0.0995 (−20 dB), phase −84.3°. Every 10× in frequency divides the amplitude by another 10 (−20 dB/decade), and the phase approaches −90°."
+      ],
+      "measurements": [
+        {"ask": "f = 1061 Hz (≈ fc): CH2's (VOUT's) Vpp"},
+        {"ask": "f = 1061 Hz: the phase of VOUT relative to VIN (negative when CH2 lags)", "explain": "At fc, ωRC = 1 and H = 1/(1 + j): |H| = 1/√2 ≈ 0.707, ∠H = −45°."},
+        {"ask": "f = 10.6 kHz (10 fc): the amplitude ratio VOUT/VIN", "explain": "|H| = 1/√(1 + 10²) ≈ 0.0995, i.e. −20 dB: ten times the frequency, about a tenth of the amplitude."}
+      ],
       "hints": [
         "Resistor in series, capacitor from VOUT to GND.",
-        "fc = 1/(2πRC) ≈ 1061 Hz; at fc expect 0.707 and −45°.",
+        "fc = 1/(2πRC). Work out |H| and ∠H at fc first, then compare with the scope.",
         "Compare VOUT with the generator's terminals (CH1), not with the number on the generator's display."
       ],
       "tests": [
-        "fc/10 = 106 Hz: gain ≈ 0.995, phase ≈ −5.7°",
-        "fc = 1061 Hz: gain ≈ 0.707 (−3 dB), phase ≈ −45°",
-        "10fc = 10.6 kHz: gain ≈ 0.0995 (−20 dB), phase ≈ −84°"
+        "fc/10 = 106 Hz: sensible gain and phase",
+        "fc = 1061 Hz: sensible gain and phase",
+        "10fc = 10.6 kHz: sensible gain and phase"
       ]
     }
   },
@@ -89,7 +88,7 @@
   ],
   "tests": [
     {
-      "name": "fc/10 = 106 Hz：增益 ≈ 0.995，相位 ≈ −5.7°",
+      "name": "fc/10 = 106 Hz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.98, "max": 1.0 },
@@ -97,7 +96,7 @@
       ]
     },
     {
-      "name": "fc = 1061 Hz：增益 ≈ 0.707（−3 dB），相位 ≈ −45°",
+      "name": "fc = 1061 Hz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
@@ -105,7 +104,7 @@
       ]
     },
     {
-      "name": "10fc = 10.6 kHz：增益 ≈ 0.0995（−20 dB），相位 ≈ −84°",
+      "name": "10fc = 10.6 kHz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.105 },
@@ -114,9 +113,22 @@
       ]
     }
   ],
+  "compare": [
+    "**对比**：",
+    "  H(jω) = (1/(jωC)) / (R + 1/(jωC)) = 1 / (1 + jωRC)",
+    "  |H| = 1/√(1 + (f/fc)²)，∠H = −arctan(f/fc)，fc = 1/(2π × 1.5 kΩ × 100 nF) ≈ 1061 Hz。",
+    "- **f = fc/10 = 106 Hz**：|H| = 1/√1.01 ≈ 0.995（−0.04 dB），相位 −5.7°。信号几乎原样通过。",
+    "- **f = fc = 1061 Hz**：|H| = 1/√2 ≈ 0.707（−3 dB），相位 −45°。这就是“截止频率”的定义。",
+    "- **f = 10fc = 10.6 kHz**：|H| ≈ 1/√101 ≈ 0.0995（−20 dB），相位 −84.3°。频率每升高 10 倍，幅度再降 10 倍（−20 dB/十倍频），相位趋近 −90°。"
+  ],
+  "measurements": [
+    {"id": "vpp", "scope": "vpp", "pin": "C1.1", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.3, 1.45], "ask": "f = 1061 Hz（≈ fc）：CH2（VOUT）的 Vpp"},
+    {"id": "ph", "scope": "phase", "pin": "C1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "unit": "°", "predict": true, "range": [-48, -42], "ask": "f = 1061 Hz：VOUT 相对 VIN 的相位差（CH2 滞后为负）", "explain": "在 fc 处 ωRC = 1，H = 1/(1 + j)：|H| = 1/√2 ≈ 0.707，∠H = −45°。"},
+    {"id": "g10", "scope": "gain", "pin": "C1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0}}, "unit": "", "predict": true, "range": [0.094, 0.105], "ask": "f = 10.6 kHz（10 fc）：幅度比 VOUT/VIN", "explain": "|H| = 1/√(1 + 10²) ≈ 0.0995，即 −20 dB：频率升高 10 倍，幅度降到约 1/10。"}
+  ],
   "hints": [
     "电阻串联在前，电容从 VOUT 接到 GND。",
-    "fc = 1/(2πRC) ≈ 1061 Hz；在 fc 处应看到 0.707 和 −45°。",
+    "fc = 1/(2πRC)。先算出 fc 处的 |H| 和 ∠H，再和示波器的读数对比。",
     "拿 VOUT 和信号发生器端子上的电压（CH1）比，而不是和信号发生器面板上的数字比。"
   ],
   "start": {

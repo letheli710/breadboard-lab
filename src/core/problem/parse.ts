@@ -626,8 +626,8 @@ const CLOSE_REL = 0.05;
 const CLOSE_DEG = 5;
 
 /** The tolerance a question's answer is judged with, for display: "±2%" or "±1°". */
-export function answerTolerance(q: Pick<Question, 'unit' | 'tol'> & { find?: { part?: Part } }): string {
-  if (isPhaseQuestion(q)) return `±${PHASE_TOL_DEG}°`;
+export function answerTolerance(q: Pick<Question, 'unit' | 'tol' | 'tolDeg'> & { find?: { part?: Part } }): string {
+  if (isPhaseQuestion(q)) return `±${q.tolDeg ?? PHASE_TOL_DEG}°`;
   return `±${fmtNum((q.tol ?? DEFAULT_TOL) * 100)}%`;
 }
 
@@ -743,9 +743,10 @@ export function checkAnswer(q: Question, input: string): AnswerCheck {
   const no = (diagnosis: AnswerCheck['diagnosis'], reason: string): AnswerCheck => ({ ok: false, value: v, reason, diagnosis, close: diagnosis === 'close' || undefined });
 
   if (isPhaseQuestion(q)) {
+    const tolDeg = q.tolDeg ?? PHASE_TOL_DEG;
     const d = angleDiff(v, ans);
-    if (d <= PHASE_TOL_DEG) return { ok: true, value: v };
-    if (r.unit !== 'rad' && Math.abs(v) <= 2 * Math.PI + 0.01 && angleDiff(v * RAD, ans) <= PHASE_TOL_DEG)
+    if (d <= tolDeg) return { ok: true, value: v };
+    if (r.unit !== 'rad' && Math.abs(v) <= 2 * Math.PI + 0.01 && angleDiff(v * RAD, ans) <= tolDeg)
       return no(
         'rad',
         tr(
@@ -754,10 +755,10 @@ export function checkAnswer(q: Question, input: string): AnswerCheck {
         ),
       );
     if (d <= CLOSE_DEG)
-      return no('close', tr(`非常接近了！差了 ${fmtNum(parseFloat(d.toPrecision(2)))}°，允许误差 ±${PHASE_TOL_DEG}°——检查四舍五入，中间结果多保留几位有效数字。`, `Very close! ${fmtNum(parseFloat(d.toPrecision(2)))}° off, the tolerance is ±${PHASE_TOL_DEG}° — check your rounding and keep more significant figures in between.`));
-    if (angleDiff(v, ans + 180) <= PHASE_TOL_DEG)
+      return no('close', tr(`非常接近了！差了 ${fmtNum(parseFloat(d.toPrecision(2)))}°，允许误差 ±${tolDeg}°——检查四舍五入，中间结果多保留几位有效数字。`, `Very close! ${fmtNum(parseFloat(d.toPrecision(2)))}° off, the tolerance is ±${tolDeg}° — check your rounding and keep more significant figures in between.`));
+    if (angleDiff(v, ans + 180) <= tolDeg)
       return no('phase180', tr('差了 180°——相量方向反了？检查图上的参考方向。', 'Off by 180° — the phasor points the other way? Check the reference direction in the drawing.'));
-    if (Math.abs(ans) > PHASE_TOL_DEG && angleDiff(-v, ans) <= PHASE_TOL_DEG)
+    if (Math.abs(ans) > tolDeg && angleDiff(-v, ans) <= tolDeg)
       return no('sign', tr('大小对了，但角度的符号反了——是超前还是滞后？', 'Right size, wrong sign of the angle — leading or lagging?'));
     return { ok: false, value: v };
   }

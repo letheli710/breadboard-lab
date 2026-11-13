@@ -199,6 +199,8 @@ export interface Question {
   unit?: string;
   /** relative tolerance accepted from the student (default 0.02) */
   tol?: number;
+  /** absolute tolerance for angle answers in degrees (default PHASE_TOL_DEG = 1°); lab readings use 2° */
+  tolDeg?: number;
   choices?: string[];
   correct?: number;
   /** multiple choice: why each option is right / wrong (same length as choices; "" for none), shown when it is picked */

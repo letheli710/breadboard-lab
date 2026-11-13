@@ -19,6 +19,9 @@
 //      error-level board diagnostic (the app refuses the answer otherwise)
 //      (+ warning if any LED draws more than 25 mA in any test)
 //   4. if `start` exists: it must build (warning if it already solves the challenge)
+//   5. measurement questions: each reading must be obtainable from the reference solution
+//      (finite), fall inside the author's "range", and be accepted when typed to 3 significant
+//      figures in the question's unit (`--readings` prints them)
 // Exit code 1 on any error.
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -26,9 +29,11 @@ import { basename, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseChallenge } from '../src/core/challenge';
 import { chapterById } from '../src/core/problem/chapters';
-import { isProblemJson, parseProblem } from '../src/core/problem/parse';
+import { isProblemJson, parseProblem, splitUnit } from '../src/core/problem/parse';
 import { isSummaryJson, parseSummary } from '../src/core/summary/parse';
 import { buildProblemIndex } from './problem-index-plugin';
+import { gradeReading, matchBoard, referenceValues } from '../src/core/readings';
+import { formatSI } from '../src/core/format';
 import { isLang, setLang, tr } from '../src/core/i18n';
 import { applySet, checkCircuit } from '../src/core/check';
 import { acDiagnostics, boardDiagnostics } from '../src/core/diagnostics';
@@ -38,6 +43,8 @@ import { hasGenerator, simulateTransient } from '../src/core/transient';
 import type { Layout } from '../src/core/types';
 
 const LED_MAX = 0.025;
+/** --readings: print every measurement question's reading on the reference solution */
+const READINGS = process.argv.includes('--readings');
 
 const issueText = (i: { title: string; detail?: string }, sep: string) => i.title + (i.detail ? sep + i.detail.replace(/\n/g, ' ') : '');
 
@@ -147,6 +154,40 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
     }
   }
 
+  // (d) measurement questions: read them on the reference solution
+  if (ch.measurements.length) {
+    if (!ch.solution) rep.errors.push(tr('有 measurements 就必须有 solution（读数要从参考答案上算出来核对）', 'measurements need a solution (the readings are checked on it)'));
+    for (const q of ch.measurements) {
+      if (q.unit && !splitUnit(q.unit)) rep.errors.push(tr(`measurements (${q.id}): 不认识单位 "${q.unit}"`, `measurements (${q.id}): unknown unit "${q.unit}"`));
+      if (q.what?.kind === 'scope' && q.what.measure !== 'phase' && q.what.measure !== 'gain' && !q.what.solve && !q.unit)
+        rep.warnings.push(tr(`measurements (${q.id}): 没有单位`, `measurements (${q.id}): no unit`));
+    }
+    if (ch.solution) {
+      const nl = buildNetlist(ch.solution);
+      const m = matchBoard(ch, nl.circuit);
+      if (!m) rep.errors.push(tr('measurements: solution 和目标电路对不上，读不出读数', "measurements: the solution doesn't match the target, so nothing can be read"));
+      else {
+        const vals = referenceValues(ch, m);
+        for (const q of ch.measurements) {
+          if (!q.what) continue;
+          const v = vals.get(q.id)!;
+          const shown = (x: number) => `${+(x / (splitUnit(q.unit)?.scale ?? 1)).toPrecision(4)}${q.unit ? ` ${q.unit}` : ''}`;
+          if (READINGS) console.log(dim(`    reading  ${q.id} = ${Number.isFinite(v) ? `${shown(v)}  (${formatSI(v, '')})` : 'NaN'}`));
+          if (!Number.isFinite(v)) {
+            rep.errors.push(tr(`measurements (${q.id}): 在参考答案上读不出这个量（NaN）`, `measurements (${q.id}): the reference solution gives no value (NaN)`));
+            continue;
+          }
+          if (q.range && (v < q.range[0] || v > q.range[1]))
+            rep.errors.push(tr(`measurements (${q.id}): 参考答案读数 ${shown(v)} 不在 range [${q.range[0]}, ${q.range[1]}] 内`, `measurements (${q.id}): the reference reading ${shown(v)} is outside range [${q.range[0]}, ${q.range[1]}]`));
+          // a student who reads the instrument to 3 significant figures must be accepted
+          const typed = `${+(v / (splitUnit(q.unit)?.scale ?? 1)).toPrecision(3)}`;
+          if (q.what.kind !== 'formula' && !gradeReading(q, v, typed).ok)
+            rep.errors.push(tr(`measurements (${q.id}): 容差太紧——按 3 位有效数字输入 ${typed} 被判错`, `measurements (${q.id}): tolerance too tight — typing ${typed} (3 significant figures) is marked wrong`));
+        }
+      }
+    }
+  }
+
   // (c) start layout must at least build
   if (ch.start) {
     const nl = checkLayout(ch.start, 'start', rep.errors);
@@ -228,6 +269,7 @@ function main() {
     setLang(l);
     args.splice(li, 2);
   }
+  if (args.includes('--readings')) args.splice(args.indexOf('--readings'), 1);
   const defaults = !args.length;
   const roots = (defaults ? ['challenges', 'problems', 'summaries'] : args).map((a) => resolve(a));
   const files: string[] = [];

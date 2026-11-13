@@ -131,6 +131,8 @@ function placeholder(e: (typeof builtinIndex)[number]): Challenge {
     concepts: [],
     target: { components: [], nets: [] },
     tests: [],
+    measurements: [],
+    compare: '',
     hints: [],
     steps: [],
     tolerance: 0.05,

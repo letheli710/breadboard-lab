@@ -26,15 +26,7 @@
     "",
     "**先预测**：负载约 56 mA（ESP32 芯片约 50 mA + LED 4 mA），稳压器的压差模型是“输出 = 输入 − 1.1 V − 0.2 Ω × I”，ESP32 的欠压阈值（仿真）是 2.5 V。电源为 5 V、4.0 V、3.7 V、3.4 V、9 V 时，OUT 各是多少？哪一档 ESP32 会复位、LED 会灭？5 V 和 9 V 时稳压器各发热多少瓦，效率各是多少？",
     "",
-    "**测量**：测试会把电源电压依次设成 5 V、4.0 V、3.7 V、3.4 V、9 V，看输出电压和 LED。",
-    "",
-    "**对比**（仿真）：",
-    "- **5 V**：稳压，OUT = **3.30 V**；负载电流 ≈ **56 mA**，电源给出 61 mA（多出的 5 mA 是稳压器自己的静态电流）。发热 P = (5.0 − 3.3) × 0.056 ≈ **0.12 W**，效率 66 %。",
-    "- **4.0 V**：进入**压差区**，OUT = 4.0 − 1.1 − 0.2 Ω × I ≈ **2.89 V**，ESP32 还在运行，LED 变暗。",
-    "- **3.7 V**（锂电池的标称电压）：OUT ≈ **2.59 V**，ESP32 刚刚高于欠压阈值。GPIO 的“高电平”也只有 2.6 V 左右。",
-    "- **3.4 V**（锂电池快没电）：OUT ≈ **2.29 V**，ESP32 **欠压复位**，所有引脚变高阻，LED 灭。",
-    "- **9 V**：照样 3.30 V，但稳压器要把 (9 − 3.3) × 0.056 ≈ **0.36 W** 变成热量，效率只有 37 %。",
-    "- ESP32 开 Wi-Fi 时峰值电流 300–500 mA：从 5 V 降压要发热 0.5–0.85 W，SOT-223 小封装已经很烫。",
+    "**测量**：测试会把电源电压依次设成 5 V、4.0 V、3.7 V、3.4 V、9 V，看输出电压和 LED。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**实际项目经验**：",
     "- **锂电池（3.0–4.2 V）+ AMS1117-3.3 是经典错误**：满电 4.2 V 时勉强够，电池电压一降到 4.0 V 以下，3.3 V 就开始往下掉，ESP32 一开 Wi-Fi 就复位。要选真正的低压差 LDO：**ME6211、HT7333、XC6220、RT9080**（压差 0.1–0.25 V），或者 Buck-Boost 开关电源。",
@@ -68,15 +60,7 @@
         "",
         "**Predict first**: the load is about 56 mA (about 50 mA for the ESP32 chip + 4 mA LED), the dropout model is \"out = in − 1.1 V − 0.2 Ω × I\", and the simulated ESP32 browns out at 2.5 V. What is OUT with the supply at 5 V, 4.0 V, 3.7 V, 3.4 V and 9 V? At which setting does the ESP32 reset and the LED go off? How many watts does the regulator dissipate at 5 V and at 9 V, and what is the efficiency?",
         "",
-        "**Measure**: the tests set the supply to 5 V, 4.0 V, 3.7 V, 3.4 V and 9 V in turn and check the output voltage and the LED.",
-        "",
-        "**Compare** (simulated):",
-        "- **5 V**: regulating, OUT = **3.30 V**; load ≈ **56 mA**, the supply gives 61 mA (the extra 5 mA is the regulator's own quiescent current). Dissipation P = (5.0 − 3.3) × 0.056 ≈ **0.12 W**, efficiency 66 %.",
-        "- **4.0 V**: in **dropout**, OUT = 4.0 − 1.1 − 0.2 Ω × I ≈ **2.89 V**; the ESP32 still runs and the LED dims.",
-        "- **3.7 V** (a Li-ion cell's nominal voltage): OUT ≈ **2.59 V**, just above the brown-out threshold. A GPIO \"HIGH\" is now only about 2.6 V.",
-        "- **3.4 V** (an almost empty Li-ion cell): OUT ≈ **2.29 V**, the ESP32 **browns out**, every pin goes high-impedance and the LED goes off.",
-        "- **9 V**: still 3.30 V, but the regulator turns (9 − 3.3) × 0.056 ≈ **0.36 W** into heat; efficiency only 37 %.",
-        "- With Wi-Fi on, an ESP32 peaks at 300–500 mA: from 5 V that is 0.5–0.85 W, already very hot for a small SOT-223.",
+        "**Measure**: the tests set the supply to 5 V, 4.0 V, 3.7 V, 3.4 V and 9 V in turn and check the output voltage and the LED. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Rule of thumb for real projects**:",
         "- **Li-ion (3.0–4.2 V) + AMS1117-3.3 is the classic mistake**: it scrapes by at a full 4.2 V, but below about 4.0 V the 3.3 V rail sags and the ESP32 resets as soon as Wi-Fi transmits. Use a real low-dropout part — **ME6211, HT7333, XC6220, RT9080** (0.1–0.25 V dropout) — or a buck-boost converter.",
@@ -87,17 +71,32 @@
         "",
         "**Model note**: the LDO model has regulate / dropout (out = in − 1.1 V − 0.2 Ω × I) / current limit 800 mA / off, with 5 mA quiescent current. The ESP32 load is about 50 mA without Wi-Fi bursts; brown-out is at 2.5 V (a real chip's brown-out detector sits around 2.4–2.8 V, and Espressif only guarantees operation at 3.0–3.6 V). Capacitors do nothing at DC; here they are only checked for being present."
       ],
+      "compare": [
+        "**Compare** (simulated):",
+        "- **5 V**: regulating, OUT = **3.30 V**; load ≈ **56 mA**, the supply gives 61 mA (the extra 5 mA is the regulator's own quiescent current). Dissipation P = (5.0 − 3.3) × 0.056 ≈ **0.12 W**, efficiency 66 %.",
+        "- **4.0 V**: in **dropout**, OUT = 4.0 − 1.1 − 0.2 Ω × I ≈ **2.89 V**; the ESP32 still runs and the LED dims.",
+        "- **3.7 V** (a Li-ion cell's nominal voltage): OUT ≈ **2.59 V**, just above the brown-out threshold. A GPIO \"HIGH\" is now only about 2.6 V.",
+        "- **3.4 V** (an almost empty Li-ion cell): OUT ≈ **2.29 V**, the ESP32 **browns out**, every pin goes high-impedance and the LED goes off.",
+        "- **9 V**: still 3.30 V, but the regulator turns (9 − 3.3) × 0.056 ≈ **0.36 W** into heat; efficiency only 37 %.",
+        "- With Wi-Fi on, an ESP32 peaks at 300–500 mA: from 5 V that is 0.5–0.85 W, already very hot for a small SOT-223."
+      ],
+      "measurements": [
+        {"ask": "Supply at 4.0 V: the regulator's OUT to GND", "explain": "Dropout: OUT ≈ 4.0 − 1.1 − 0.2 Ω × I ≈ 2.89 V, no longer 3.3 V."},
+        {"ask": "Supply at 9 V: the drop across the regulator U_IN − U_OUT (red lead on IN, black on OUT)"},
+        {"ask": "Supply at 9 V: the regulator's output current (put the ammeter in series in the OUT → ESP32 3V3 wire)"},
+        {"ask": "Heat in the regulator at 9 V, P = (U_IN − U_OUT) × I (from your readings)", "explain": "A linear regulator turns all the extra voltage into heat: (9 − 3.3) V × 56 mA ≈ 0.32 W, an efficiency of only 3.3/9 ≈ 37%."}
+      ],
       "hints": [
         "LM1117 legs with the printed face towards you: GND, OUT, IN. The supply goes to IN (right leg).",
         "10 µF from IN to GND and 10 µF from OUT to GND; OUT to the ESP32's 3V3 pin.",
         "Select the ESP32 and switch usb off — otherwise USB powers it and the experiment shows nothing."
       ],
       "tests": [
-        "5 V in: OUT = 3.30 V (regulating), load ≈ 56 mA, LED on",
-        "4.0 V in: dropout, OUT ≈ 2.89 V (Vin − 1.1 V), ESP32 still running",
-        "3.7 V in (Li-ion): OUT ≈ 2.59 V, a GPIO HIGH is only ≈ 2.6 V",
-        "3.4 V in: OUT ≈ 2.29 V, ESP32 browns out, LED off",
-        "9 V in: still 3.30 V, but ≈ 0.36 W of heat in the regulator"
+        "5 V in: regulating, LED on",
+        "4.0 V in: dropout, ESP32 still running",
+        "3.7 V in (Li-ion): a GPIO HIGH drops too",
+        "3.4 V in: ESP32 browns out, LED off",
+        "9 V in: still regulating, but the regulator heats up"
       ]
     }
   },
@@ -119,33 +118,33 @@
   ],
   "tests": [
     {
-      "name": "输入 5 V：OUT = 3.30 V（稳压），负载 ≈ 56 mA，LED 亮",
+      "name": "输入 5 V：稳压，LED 亮",
       "set": { "V1": { "voltage": 5 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
       "expect": { "LED1": "on" },
       "voltages": [{ "pin": "U2.out", "ref": "U2.gnd", "min": 3.25, "max": 3.35 }],
       "currents": [{ "el": "U2", "min": 0.053, "max": 0.059 }]
     },
     {
-      "name": "输入 4.0 V：压差区，OUT ≈ 2.89 V（Vin − 1.1 V），ESP32 还在运行",
+      "name": "输入 4.0 V：压差区，ESP32 还在运行",
       "set": { "V1": { "voltage": 4.0 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
       "expect": { "LED1": "on" },
       "voltages": [{ "pin": "U2.out", "ref": "U2.gnd", "min": 2.8, "max": 2.98 }]
     },
     {
-      "name": "输入 3.7 V（锂电池）：OUT ≈ 2.59 V，GPIO 的高电平只有 ≈ 2.6 V",
+      "name": "输入 3.7 V（锂电池）：GPIO 的高电平也跟着降低",
       "set": { "V1": { "voltage": 3.7 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
       "expect": { "LED1": "on" },
       "voltages": [{ "pin": "U2.out", "ref": "U2.gnd", "min": 2.5, "max": 2.68 }],
       "gpio": [{ "pin": "U1.GPIO_OUT1", "measure": "voltage", "min": 2.45, "max": 2.68 }]
     },
     {
-      "name": "输入 3.4 V：OUT ≈ 2.29 V，ESP32 欠压复位，LED 灭",
+      "name": "输入 3.4 V：ESP32 欠压复位，LED 灭",
       "set": { "V1": { "voltage": 3.4 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
       "expect": { "LED1": "off" },
       "voltages": [{ "pin": "U2.out", "ref": "U2.gnd", "min": 2.2, "max": 2.38 }]
     },
     {
-      "name": "输入 9 V：仍然 3.30 V，但稳压器要发热 ≈ 0.36 W",
+      "name": "输入 9 V：仍然稳压，但稳压器发热",
       "set": { "V1": { "voltage": 9 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
       "expect": { "LED1": "on" },
       "voltages": [
@@ -154,6 +153,21 @@
       ],
       "currents": [{ "el": "U2", "min": 0.053, "max": 0.059 }]
     }
+  ],
+  "compare": [
+    "**对比**（仿真）：",
+    "- **5 V**：稳压，OUT = **3.30 V**；负载电流 ≈ **56 mA**，电源给出 61 mA（多出的 5 mA 是稳压器自己的静态电流）。发热 P = (5.0 − 3.3) × 0.056 ≈ **0.12 W**，效率 66 %。",
+    "- **4.0 V**：进入**压差区**，OUT = 4.0 − 1.1 − 0.2 Ω × I ≈ **2.89 V**，ESP32 还在运行，LED 变暗。",
+    "- **3.7 V**（锂电池的标称电压）：OUT ≈ **2.59 V**，ESP32 刚刚高于欠压阈值。GPIO 的“高电平”也只有 2.6 V 左右。",
+    "- **3.4 V**（锂电池快没电）：OUT ≈ **2.29 V**，ESP32 **欠压复位**，所有引脚变高阻，LED 灭。",
+    "- **9 V**：照样 3.30 V，但稳压器要把 (9 − 3.3) × 0.056 ≈ **0.36 W** 变成热量，效率只有 37 %。",
+    "- ESP32 开 Wi-Fi 时峰值电流 300–500 mA：从 5 V 降压要发热 0.5–0.85 W，SOT-223 小封装已经很烫。"
+  ],
+  "measurements": [
+    {"id": "v4", "voltage": "U2.out", "ref": "U2.gnd", "set": {"V1": {"voltage": 4}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [2.8, 2.98], "ask": "电源调到 4.0 V：稳压器 OUT 对 GND 的电压", "explain": "进入压差区：OUT ≈ 4.0 − 1.1 − 0.2 Ω × I ≈ 2.89 V，已经不是 3.3 V。"},
+    {"id": "u9", "voltage": "U2.in", "ref": "U2.out", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "range": [5.5, 5.9], "ask": "电源调到 9 V：稳压器上的压降 U_IN − U_OUT（红表笔 IN，黑表笔 OUT）"},
+    {"id": "i9", "current": "U2", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "range": [0.053, 0.059], "ask": "电源调到 9 V：稳压器的输出电流（把电流表串进 OUT 到 ESP32 3V3 的连线里读）"},
+    {"id": "p9", "formula": "u9 * i9", "unit": "W", "predict": true, "range": [0.3, 0.36], "ask": "9 V 时稳压器的发热 P = (U_IN − U_OUT) × I（用你的读数算）", "explain": "线性稳压器把多余的电压全变成热：(9 − 3.3) V × 56 mA ≈ 0.32 W，效率只有 3.3/9 ≈ 37%。"}
   ],
   "hints": [
     "LM1117 正面朝你，三只脚是 GND、OUT、IN。电源接 IN（右脚）。",

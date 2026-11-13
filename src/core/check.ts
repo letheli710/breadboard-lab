@@ -9,7 +9,7 @@ import type { Challenge, ChallengeTest } from './challenge';
 import type { Issue } from './diagnostics';
 import { MCU_BOARDS, isMcu, isMcuBoard, modeName, parseRole, pinConfig, roleMatches } from './mcu';
 import { BATTERIES, describeComponent, genSettings, isPower, pinPermutations, sourceVoltage, terminalLabel, terminalName, terminalsOf } from './parts';
-import { simulate } from './solver';
+import { simulate, type SimResult } from './solver';
 import { hasGenerator, simulateTransient, vavg, vrms, type Measure, type TransientResult } from './transient';
 import type { CComponent, CNet, Circuit } from './types';
 import { pinId, splitPin } from './types';
@@ -856,22 +856,10 @@ function fmtMeasure(kind: Measure, v: number): string {
 const range = (min: number | undefined, max: number | undefined, f: (v: number) => string) =>
   tr(`${min !== undefined ? f(min) : '-∞'} ~ ${max !== undefined ? f(max) : '∞'}`, `${min !== undefined ? f(min) : '-∞'} and ${max !== undefined ? f(max) : '∞'}`);
 
-/**
- * Returns null on success or a human message describing the failure.
- * Without a function generator everything is a DC operating point. With a generator the
- * circuit is simulated in the time domain (transient.ts) and DMM-style checks read the
- * steady-state AVERAGE: `voltages` = average voltage, `currents` (mode "dc") = average current,
- * LED "on" = average current > 0.5 mA. `scope` tests always use the time-domain result.
- */
-export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<string, string>, pinMap?: Map<string, string>): string | null {
-  const c = applySet(circuit, test.set, mapping, pinMap);
-  const gen = hasGenerator(c);
-  const scope = test.scope ?? [];
-  const currents = test.currents ?? [];
-  const sim = simulate(c);
-  let trc: TransientResult | null = null;
-  const tran = () => (trc ??= simulateTransient(c));
-  const setDesc = Object.entries(test.set)
+/** A test's / measurement question's `set` in words ("SW1 is pressed and RV1 is turned to 22%"),
+ *  naming the student's parts (target refs mapped). Empty string for no settings. */
+export function describeSet(set: Record<string, Partial<CComponent['props']>>, mapping?: Map<string, string>, pinMap?: Map<string, string>): string {
+  return Object.entries(set)
     .map(([ref, p]) => {
       const u = mapping?.get(ref) ?? ref;
       if (p.pressed !== undefined) return p.pressed ? tr(`按下 ${u}`, `${u} is pressed`) : tr(`松开 ${u}`, `${u} is released`);
@@ -898,6 +886,87 @@ export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<str
       return u;
     })
     .join(tr('、', ' and '));
+}
+
+/** What the instruments read on a circuit (the student's board, or a target) with `set` applied.
+ *  Every reading takes TARGET refs / pins and maps them to the board through mapping / pinMap.
+ *  This is the one place readings are taken: behaviour tests (runTest) and measurement
+ *  questions (readings.ts) both use it. */
+export interface BoardProbe {
+  /** the circuit with `set` applied (user refs) */
+  circuit: Circuit;
+  /** time-domain simulation needed (function generator / PWM) */
+  gen: boolean;
+  sim: SimResult;
+  tran(): TransientResult;
+  /** voltage V(pin) − V(ref) (ref omitted = GND): DC operating point, or the steady-state average with a generator */
+  voltage(pin: string, ref?: string): number;
+  /** current through a part in the target's direction: average ("dc") or true RMS */
+  current(el: string, mode?: 'dc' | 'rms'): number;
+  /** oscilloscope measurement (see transient.ts Measure) */
+  scope(kind: Measure, pin: string, ref?: string, vs?: string, vsref?: string): number;
+  /** the user's ref / pin for a target ref / pin */
+  ref(tRef: string): string;
+  pin(tPin: string): string;
+}
+
+export function probeBoard(circuit: Circuit, set: Record<string, Partial<CComponent['props']>>, mapping?: Map<string, string>, pinMap?: Map<string, string>): BoardProbe {
+  const c = applySet(circuit, set, mapping, pinMap);
+  const gen = hasGenerator(c);
+  const sim = simulate(c);
+  let trc: TransientResult | null = null;
+  const tran = () => (trc ??= simulateTransient(c));
+  const mapPin = (p: string) => pinMap?.get(p) ?? p;
+  const mapRef = (r: string) => mapping?.get(r) ?? r;
+  const netOf = new Map<string, string>();
+  c.nets.forEach((n) => n.pins.forEach((p) => netOf.set(p, n.name)));
+  return {
+    circuit: c,
+    gen,
+    sim,
+    tran,
+    ref: mapRef,
+    pin: mapPin,
+    voltage(pin, ref) {
+      const p = mapPin(pin);
+      const r = ref ? mapPin(ref) : undefined;
+      if (gen) return tran().measure('vavg', p, r);
+      const vp = sim.nodeV.get(netOf.get(p) ?? '') ?? 0;
+      const vr = r ? (sim.nodeV.get(netOf.get(r) ?? '') ?? 0) : 0;
+      return vp - vr;
+    },
+    current(el, mode = 'dc') {
+      const u = mapRef(el);
+      const comp = c.components.find((x) => x.ref === u);
+      // the matcher may have mirrored a non-polarised part: keep the target's direction
+      const first = comp ? terminalsOf(comp.type)[0] : '';
+      const sign = pinMap && comp && pinMap.get(pinId(el, first)) !== undefined && pinMap.get(pinId(el, first)) !== pinId(u, first) ? -1 : 1;
+      const dcOnly = comp && (comp.type === 'npn' || comp.type === 'nmos' || comp.type === 'ldo');
+      if ((gen || mode === 'rms') && !dcOnly) {
+        const i = tran().current(u);
+        return i ? (mode === 'rms' ? vrms(i) : sign * vavg(i)) : 0;
+      }
+      return sign * (sim.current.get(u) ?? 0);
+    },
+    scope(kind, pin, ref, vs, vsref) {
+      return tran().measure(kind, mapPin(pin), ref ? mapPin(ref) : undefined, vs ? mapPin(vs) : undefined, vsref ? mapPin(vsref) : undefined);
+    },
+  };
+}
+
+/**
+ * Returns null on success or a human message describing the failure.
+ * Without a function generator everything is a DC operating point. With a generator the
+ * circuit is simulated in the time domain (transient.ts) and DMM-style checks read the
+ * steady-state AVERAGE: `voltages` = average voltage, `currents` (mode "dc") = average current,
+ * LED "on" = average current > 0.5 mA. `scope` tests always use the time-domain result.
+ */
+export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<string, string>, pinMap?: Map<string, string>): string | null {
+  const probe = probeBoard(circuit, test.set, mapping, pinMap);
+  const { circuit: c, gen, sim, tran } = probe;
+  const scope = test.scope ?? [];
+  const currents = test.currents ?? [];
+  const setDesc = describeSet(test.set, mapping, pinMap);
   const prefix = setDesc ? tr(`当${setDesc}时，`, `When ${setDesc}, `) : '';
   const mapPin = (p: string) => pinMap?.get(p) ?? p;
   for (const [tRef, want] of Object.entries(test.expect)) {
@@ -979,18 +1048,10 @@ export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<str
         );
     }
   }
-  const netOf = new Map<string, string>();
-  c.nets.forEach((n) => n.pins.forEach((p) => netOf.set(p, n.name)));
   for (const v of test.voltages) {
     const p = mapPin(v.pin);
     const r = v.ref ? mapPin(v.ref) : null;
-    let val: number;
-    if (gen) val = tran().measure('vavg', p, r ?? undefined);
-    else {
-      const vp = sim.nodeV.get(netOf.get(p) ?? '') ?? 0;
-      const vr = r ? (sim.nodeV.get(netOf.get(r) ?? '') ?? 0) : 0;
-      val = vp - vr;
-    }
+    const val = probe.voltage(v.pin, v.ref);
     if ((v.min !== undefined && val < v.min) || (v.max !== undefined && val > v.max))
       return tr(
         `${prefix}${p}${r ? ` 相对 ${r}` : ''} 的${gen ? '平均' : ''}电压是 ${volts(val)}，应在 ${v.min ?? '-∞'} ~ ${v.max ?? '∞'} V 之间。`,
@@ -1000,15 +1061,7 @@ export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<str
   for (const it of currents) {
     const u = mapping?.get(it.el) ?? it.el;
     const comp = c.components.find((x) => x.ref === u);
-    // the matcher may have mirrored a non-polarised part: keep the target's direction
-    const first = comp ? terminalsOf(comp.type)[0] : '';
-    const sign = pinMap && comp && pinMap.get(pinId(it.el, first)) !== undefined && pinMap.get(pinId(it.el, first)) !== pinId(u, first) ? -1 : 1;
-    let val: number;
-    const dcOnly = comp && (comp.type === 'npn' || comp.type === 'nmos' || comp.type === 'ldo');
-    if ((gen || it.mode === 'rms') && !dcOnly) {
-      const i = tran().current(u);
-      val = i ? (it.mode === 'rms' ? vrms(i) : sign * vavg(i)) : 0;
-    } else val = sign * (sim.current.get(u) ?? 0);
+    const val = probe.current(it.el, it.mode);
     if ((it.min !== undefined && val < it.min) || (it.max !== undefined && val > it.max)) {
       const what = comp?.type === 'ammeter' ? tr(`电流表 ${u} 的读数`, `ammeter ${u} reads`) : tr(`流过 ${u} 的电流`, `the current through ${u} is`);
       const mode = it.mode === 'rms' ? ' (RMS)' : gen ? tr('（平均）', ' (average)') : '';
@@ -1023,7 +1076,7 @@ export function runTest(test: ChallengeTest, circuit: Circuit, mapping?: Map<str
     const r = sc.ref ? mapPin(sc.ref) : undefined;
     const vs = sc.vs ? mapPin(sc.vs) : undefined;
     const vsr = sc.vsref ? mapPin(sc.vsref) : undefined;
-    const val = tran().measure(sc.measure, p, r, vs, vsr);
+    const val = probe.scope(sc.measure, sc.pin, sc.ref, sc.vs, sc.vsref);
     if ((sc.min !== undefined && val < sc.min) || (sc.max !== undefined && val > sc.max)) {
       const [zh, en] = MEASURE_NAME[sc.measure];
       const f = (x: number) => fmtMeasure(sc.measure, x);

@@ -19,14 +19,7 @@
     "",
     "**先预测**：用三要素法写出充电和放电半周期的 u_C(t)，算出 τ = RC（R 要算上信号发生器的 50 Ω 输出电阻）。再估计 50 Hz、500 Hz、5 kHz 三个频率下，半个周期是几个 τ，CH2 的最大值、最小值和形状各是什么样。经验规律：过了 1τ 走完 63%，3τ 走完 95%，5τ 走完 99.3%。",
     "",
-    "**测量**：依次把频率设成 50 Hz、500 Hz、5 kHz，读 CH2 的最大值、最小值和 Vpp，看波形形状。",
-    "",
-    "**对比**：充电时 u(∞) = 5 V，u_C(t) = 5 − [5 − u(0+)]·e^(−t/τ)；放电时 u(∞) = 0，u_C(t) = u(0+)·e^(−t/τ)。τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms。",
-    "- **50 Hz**：半个周期 10 ms ≈ 10τ。电容每次都几乎充满到 5 V、放空到 0 V，CH2 是标准的“指数上升 + 指数下降”，最大约 5.0 V、最小约 0.0 V。",
-    "- **500 Hz**：半个周期 1 ms ≈ τ。电容来不及充满就开始放电，稳定后在两个值之间来回：Vpp = 5 V × tanh(T/(4τ)) ≈ 5 × tanh(0.5) ≈ 2.3 V，大约 1.35 V ~ 3.65 V，中心 2.5 V。",
-    "- **5 kHz**：半个周期 0.1 ms = 0.1τ。每半周期只走了指数曲线最开头几乎是直线的一小段，CH2 变成一个约 0.25 Vpp 的**三角波**，骑在 2.5 V（方波的平均值）上。",
-    "",
-    "Vpp 公式的来历：稳态时电容在 VL 和 VH 之间来回，充电半周期 VH = 5 − (5 − VL)·e^(−T/2τ)，放电半周期 VL = VH·e^(−T/2τ)，两式联立就得到 VH − VL = 5·(1 − e^(−T/2τ))/(1 + e^(−T/2τ)) = 5·tanh(T/4τ)。",
+    "**测量**：依次把频率设成 50 Hz、500 Hz、5 kHz，读 CH2 的最大值、最小值和 Vpp，看波形形状。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**想一想**：如果只看 500 Hz 的 Vpp，你能反过来算出 τ 吗？"
   ],
@@ -46,16 +39,22 @@
         "",
         "**Predict first**: write u_C(t) for the charging and discharging half-periods with the three-element method and work out τ = RC (R must include the generator's 50 Ω output resistance). Then estimate, for 50 Hz, 500 Hz and 5 kHz, how many τ fit in half a period and what CH2's maximum, minimum and shape will be. Rules of thumb: after 1τ the voltage has covered 63% of the way, after 3τ 95%, after 5τ 99.3%.",
         "",
-        "**Measure**: set the frequency to 50 Hz, 500 Hz and 5 kHz in turn; read CH2's maximum, minimum and Vpp and look at the shape.",
+        "**Measure**: set the frequency to 50 Hz, 500 Hz and 5 kHz in turn; read CH2's maximum, minimum and Vpp and look at the shape. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
+        "**Think about it**: if you only knew the Vpp at 500 Hz, could you work back to τ?"
+      ],
+      "compare": [
         "**Compare**: charging, u(∞) = 5 V and u_C(t) = 5 − [5 − u(0+)]·e^(−t/τ); discharging, u(∞) = 0 and u_C(t) = u(0+)·e^(−t/τ). τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms.",
         "- **50 Hz**: half a period is 10 ms ≈ 10τ. The capacitor fills up to almost 5 V and empties to almost 0 V every time; CH2 shows the textbook \"exponential rise + exponential fall\", max ≈ 5.0 V, min ≈ 0.0 V.",
         "- **500 Hz**: half a period is 1 ms ≈ τ. The capacitor starts discharging before it is full and settles into a swing between two levels: Vpp = 5 V × tanh(T/(4τ)) ≈ 5 × tanh(0.5) ≈ 2.3 V, about 1.35 V to 3.65 V, centred on 2.5 V.",
         "- **5 kHz**: half a period is 0.1 ms = 0.1τ. Each half-period covers only the very first, almost straight, bit of the exponential, so CH2 becomes a **triangle wave** of about 0.25 Vpp sitting on 2.5 V (the square wave's average).",
         "",
-        "Where the Vpp formula comes from: in steady state the capacitor swings between VL and VH. Charging: VH = 5 − (5 − VL)·e^(−T/2τ); discharging: VL = VH·e^(−T/2τ). Solving both gives VH − VL = 5·(1 − e^(−T/2τ))/(1 + e^(−T/2τ)) = 5·tanh(T/4τ).",
-        "",
-        "**Think about it**: if you only knew the Vpp at 500 Hz, could you work back to τ?"
+        "Where the Vpp formula comes from: in steady state the capacitor swings between VL and VH. Charging: VH = 5 − (5 − VL)·e^(−T/2τ); discharging: VL = VH·e^(−T/2τ). Solving both gives VH − VL = 5·(1 − e^(−T/2τ))/(1 + e^(−T/2τ)) = 5·tanh(T/4τ)."
+      ],
+      "measurements": [
+        {"ask": "50 Hz: the time t_r CH2's rising edge takes from 10% to 90% (0.5 V → 4.5 V), read off the scope's time grid"},
+        {"ask": "From your t_r, the time constant τ = t_r / ln 9", "explain": "An exponential takes exactly τ·ln 9 ≈ 2.2τ from 10% to 90%. τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms."},
+        {"ask": "500 Hz: CH2's (the capacitor's) Vpp", "explain": "Half a period ≈ τ, so the capacitor never fills: Vpp = 5 V × tanh(T/(4τ)) ≈ 2.3 V."}
       ],
       "hints": [
         "The generator's black clip goes to GND; the capacitor goes from VC to GND.",
@@ -63,9 +62,9 @@
         "τ = (R + 50 Ω)·C. Compare half a period T/2 = 1/(2f) with τ to predict the shape."
       ],
       "tests": [
-        "50 Hz (T/2 ≈ 10τ): the capacitor charges fully to ≈ 5 V and discharges to ≈ 0 V",
-        "500 Hz (T/2 ≈ τ): Vpp ≈ 5·tanh(0.5) ≈ 2.3 V, centred on 2.5 V",
-        "5 kHz (T/2 ≈ 0.1τ): a small triangle ≈ 0.25 Vpp around 2.5 V"
+        "50 Hz (T/2 ≫ τ): the capacitor fills and empties every time",
+        "500 Hz (T/2 ≈ τ): it never fills, swinging about the centre",
+        "5 kHz (T/2 ≪ τ): only a small triangle is left"
       ]
     }
   },
@@ -81,7 +80,7 @@
   ],
   "tests": [
     {
-      "name": "50 Hz（T/2 ≈ 10τ）：电容充满到 ≈ 5 V、放空到 ≈ 0 V",
+      "name": "50 Hz（T/2 ≫ τ）：电容每次都充满、放空",
       "set": { "FG1": { "waveform": "square", "frequency": 50, "amplitude": 2.5, "offset": 2.5 } },
       "scope": [
         { "pin": "C1.1", "measure": "vmax", "min": 4.95, "max": 5.01 },
@@ -89,7 +88,7 @@
       ]
     },
     {
-      "name": "500 Hz（T/2 ≈ τ）：Vpp ≈ 5·tanh(0.5) ≈ 2.3 V，中心 2.5 V",
+      "name": "500 Hz（T/2 ≈ τ）：来不及充满，围绕中心来回",
       "set": { "FG1": { "waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 2.5 } },
       "scope": [
         { "pin": "C1.1", "measure": "vpp", "min": 2.2, "max": 2.4 },
@@ -98,13 +97,26 @@
       ]
     },
     {
-      "name": "5 kHz（T/2 ≈ 0.1τ）：只剩 ≈ 0.25 Vpp 的小三角波，围绕 2.5 V",
+      "name": "5 kHz（T/2 ≪ τ）：只剩一个小三角波",
       "set": { "FG1": { "waveform": "square", "frequency": 5000, "amplitude": 2.5, "offset": 2.5 } },
       "scope": [
         { "pin": "C1.1", "measure": "vpp", "min": 0.23, "max": 0.27 },
         { "pin": "C1.1", "measure": "vavg", "min": 2.45, "max": 2.55 }
       ]
     }
+  ],
+  "compare": [
+    "**对比**：充电时 u(∞) = 5 V，u_C(t) = 5 − [5 − u(0+)]·e^(−t/τ)；放电时 u(∞) = 0，u_C(t) = u(0+)·e^(−t/τ)。τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms。",
+    "- **50 Hz**：半个周期 10 ms ≈ 10τ。电容每次都几乎充满到 5 V、放空到 0 V，CH2 是标准的“指数上升 + 指数下降”，最大约 5.0 V、最小约 0.0 V。",
+    "- **500 Hz**：半个周期 1 ms ≈ τ。电容来不及充满就开始放电，稳定后在两个值之间来回：Vpp = 5 V × tanh(T/(4τ)) ≈ 5 × tanh(0.5) ≈ 2.3 V，大约 1.35 V ~ 3.65 V，中心 2.5 V。",
+    "- **5 kHz**：半个周期 0.1 ms = 0.1τ。每半周期只走了指数曲线最开头几乎是直线的一小段，CH2 变成一个约 0.25 Vpp 的**三角波**，骑在 2.5 V（方波的平均值）上。",
+    "",
+    "Vpp 公式的来历：稳态时电容在 VL 和 VH 之间来回，充电半周期 VH = 5 − (5 − VL)·e^(−T/2τ)，放电半周期 VL = VH·e^(−T/2τ)，两式联立就得到 VH − VL = 5·(1 − e^(−T/2τ))/(1 + e^(−T/2τ)) = 5·tanh(T/4τ)。"
+  ],
+  "measurements": [
+    {"id": "tr", "scope": "rise", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 50, "amplitude": 2.5, "offset": 2.5}}, "unit": "ms", "range": [0.0021, 0.0023], "ask": "50 Hz：CH2 的上升沿从 10% 升到 90%（0.5 V → 4.5 V）用的时间 t_r（从示波器的时间格读）"},
+    {"id": "tau", "formula": "tr / ln(9)", "unit": "ms", "predict": true, "range": [0.00095, 0.00106], "ask": "由你读的 t_r 算时间常数 τ = t_r / ln 9", "explain": "指数曲线从 10% 到 90% 正好要 τ·ln 9 ≈ 2.2τ。τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms。"},
+    {"id": "vpp500", "scope": "vpp", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 2.5}}, "unit": "V", "predict": true, "range": [2.2, 2.4], "ask": "500 Hz：CH2（电容电压）的 Vpp", "explain": "半个周期 ≈ τ，电容来不及充满：Vpp = 5 V × tanh(T/(4τ)) ≈ 2.3 V。"}
   ],
   "hints": [
     "信号发生器的黑夹子接 GND；电容从 VC 接到 GND。",

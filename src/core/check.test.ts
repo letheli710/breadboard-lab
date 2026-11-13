@@ -44,6 +44,8 @@ function challenge(specs: Spec[]): Challenge {
     concepts: [],
     target: circuit(specs),
     tests: [],
+    measurements: [],
+    compare: '',
     hints: [],
     steps: [],
     tolerance: 0.05,

@@ -68,6 +68,61 @@ export interface ChallengeStep {
   highlight: string[];
 }
 
+/** Scope measurements a measurement question may ask for: the test measures plus "ring", the
+ *  frequency of a damped oscillation after each edge (an RLC step response). */
+/** names a measurement question id can't take (they are functions / constants in a formula) */
+const RESERVED_IDS = new Set(['pi', 'e', 'sqrt', 'ln', 'log', 'exp']);
+
+export const QUESTION_MEASURES = [...MEASURES, 'ring'] as const;
+export type QuestionMeasure = Measure | 'ring';
+
+/** What a measurement question reads off the student's board (target refs / pins). */
+export type MeasureQuantity =
+  | { kind: 'current'; el: string; mode: 'dc' | 'rms' }
+  | { kind: 'voltage'; pin: string; ref?: string }
+  | {
+      kind: 'scope';
+      measure: QuestionMeasure;
+      pin: string;
+      ref?: string;
+      vs?: string;
+      vsref?: string;
+      /** sweep generator `el`'s frequency over [from, to] (log scale) for the frequency at which
+       *  the measure equals `value`; the answer is that frequency (Hz) */
+      solve?: { el: string; from: number; to: number; value: number };
+    }
+  /** arithmetic on the student's own accepted answers to earlier questions, e.g. "uoc / isc" */
+  | { kind: 'formula'; expr: string; uses: string[] };
+
+/** "Measurement question": after the circuit check passes the student types what THEIR board
+ *  reads. The expected value is computed from the student's board (readings.ts), never stored. */
+export interface MeasurementQuestion {
+  id: string;
+  ask: string;
+  /** shown once the question is answered correctly (the "compare" text) */
+  explain: string;
+  /** unit shown next to the box; a prefixed unit ("mA") means a bare number is read in it */
+  unit: string;
+  /** relative tolerance */
+  tol: number;
+  /** absolute tolerance (SI units) for readings near zero */
+  tolAbs: number;
+  /** degrees, for phase readings */
+  tolDeg: number;
+  /** ask for a prediction before the measurement box unlocks */
+  predict: boolean;
+  /** needed to complete the challenge (default true) */
+  required: boolean;
+  /** the state the reading is taken in (button pressed, knob position, generator settings) */
+  set: Record<string, PartProps>;
+  /** null for a multiple-choice question */
+  what: MeasureQuantity | null;
+  /** author's sanity range (SI units): the validator checks the reference solution reads inside it */
+  range?: [number, number];
+  choices?: string[];
+  correct?: number;
+}
+
 export interface Challenge {
   id: string;
   title: string;
@@ -80,6 +135,10 @@ export interface Challenge {
   concepts: string[];
   target: Circuit;
   tests: ChallengeTest[];
+  /** measurement questions (optional): the student reads their own instruments */
+  measurements: MeasurementQuestion[];
+  /** expected readings / discussion, shown once every required measurement question is answered */
+  compare: string;
   hints: string[];
   steps: ChallengeStep[];
   solution?: Layout;
@@ -577,6 +636,142 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     tests.push({ name: typeof t.name === 'string' ? t.name : tr(`测试 ${i + 1}`, `Test ${i + 1}`), set, expect, voltages, scope, currents, gpio, regions });
   });
 
+
+  const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
+  const textOf = (v: unknown) => (typeof v === 'string' ? v : Array.isArray(v) ? strs(v).join('\n') : '');
+
+  // measurement questions
+  const measurements: MeasurementQuestion[] = [];
+  if (json.measurements !== undefined && !Array.isArray(json.measurements)) errors.push(tr('"measurements" 必须是数组', '"measurements" must be an array'));
+  const qIds = new Set<string>();
+  (Array.isArray(json.measurements) ? json.measurements : []).forEach((m: unknown, i: number) => {
+    const w = `measurements[${i}]`;
+    if (!isObj(m)) return errors.push(tr(`${w}: 必须是对象`, `${w}: must be an object`));
+    const id = m.id;
+    if (typeof id !== 'string' || !/^[A-Za-z][A-Za-z0-9_]*$/.test(id) || RESERVED_IDS.has(id.toLowerCase()))
+      return errors.push(tr(`${w}: "id" 必须是字母开头的标识符（不能是 pi、e、sqrt、ln、log、exp），如 "i1"`, `${w}: "id" must be an identifier starting with a letter (not pi, e, sqrt, ln, log, exp), e.g. "i1"`));
+    if (qIds.has(id)) return errors.push(tr(`${w}: id "${id}" 重复`, `${w}: duplicate id "${id}"`));
+    const wi = `${w} (${id})`;
+    const ask = textOf(m.ask);
+    if (!ask) errors.push(tr(`${wi}: "ask" 不能为空（问学生读什么、在什么状态下读）`, `${wi}: "ask" must not be empty (what to read, in which state)`));
+    const set: Record<string, PartProps> = {};
+    if (m.set !== undefined && !isObj(m.set)) errors.push(tr(`${wi}.set: 必须是对象`, `${wi}.set: must be an object`));
+    if (isObj(m.set))
+      for (const [ref, v] of Object.entries(m.set)) {
+        const c = compOf.get(ref);
+        if (!c) errors.push(tr(`${wi}.set: 找不到元件 "${ref}"`, `${wi}.set: no component "${ref}"`));
+        else if (!isObj(v)) errors.push(tr(`${wi}.set.${ref}: 必须是对象`, `${wi}.set.${ref}: must be an object`));
+        else set[ref] = parseProps(c.type, v, `${wi}.set.${ref}`, errors);
+      }
+    const kinds = ['current', 'voltage', 'scope', 'formula', 'choices'].filter((k) => m[k] !== undefined);
+    if (kinds.length !== 1)
+      return errors.push(
+        tr(
+          `${wi}: 必须且只能有 "current"、"voltage"、"scope"、"formula"、"choices" 其中一个（现在有 ${kinds.length} 个）`,
+          `${wi}: needs exactly one of "current", "voltage", "scope", "formula", "choices" (found ${kinds.length})`,
+        ),
+      );
+    let what: MeasureQuantity | null = null;
+    let unit = '';
+    let tol = 0.03;
+    let tolAbs = 0;
+    let choices: string[] | undefined;
+    let correct: number | undefined;
+    const kind = kinds[0];
+    if (kind === 'current') {
+      const c = typeof m.current === 'string' ? compOf.get(m.current) : undefined;
+      if (!c) return errors.push(tr(`${wi}.current: 找不到元件 ${JSON.stringify(m.current)}`, `${wi}.current: no component ${JSON.stringify(m.current)}`));
+      if (!CURRENT_TYPES.includes(c.type)) return errors.push(tr(`${wi}.current: ${c.ref}（${c.type}）不能测电流`, `${wi}.current: can't measure the current of ${c.ref} (${c.type})`));
+      const mode = m.mode === undefined ? 'dc' : m.mode;
+      if (mode !== 'dc' && mode !== 'rms') return errors.push(tr(`${wi}.mode: 必须是 "dc" 或 "rms"`, `${wi}.mode: must be "dc" or "rms"`));
+      what = { kind: 'current', el: c.ref, mode };
+      unit = 'mA';
+      tolAbs = 1e-6;
+    } else if (kind === 'voltage') {
+      const pin = resolvePin(m.voltage, `${wi}.voltage`);
+      const ref = m.ref === undefined ? undefined : resolvePin(m.ref, `${wi}.ref`);
+      if (!pin || ref === null) return;
+      what = { kind: 'voltage', pin, ref };
+      unit = 'V';
+      tolAbs = 0.005;
+    } else if (kind === 'scope') {
+      const measure = m.scope as QuestionMeasure;
+      if (!(QUESTION_MEASURES as readonly string[]).includes(measure)) return errors.push(tr(`${wi}.scope: 必须是 ${QUESTION_MEASURES.join(' / ')}`, `${wi}.scope: must be ${QUESTION_MEASURES.join(' / ')}`));
+      const pin = resolvePin(m.pin, `${wi}.pin`);
+      const ref = m.ref === undefined ? undefined : resolvePin(m.ref, `${wi}.ref`);
+      const vs = m.vs === undefined ? undefined : resolvePin(m.vs, `${wi}.vs`);
+      const vsref = m.vsref === undefined ? undefined : resolvePin(m.vsref, `${wi}.vsref`);
+      if ((measure === 'phase' || measure === 'gain') && m.vs === undefined) errors.push(tr(`${wi}: "${measure}" 需要 "vs"`, `${wi}: "${measure}" needs "vs"`));
+      if (!pin || ref === null || vs === null || vsref === null) return;
+      let solve: { el: string; from: number; to: number; value: number } | undefined;
+      if (m.solve !== undefined) {
+        const sv = m.solve;
+        const g = isObj(sv) && typeof sv.el === 'string' ? compOf.get(sv.el) : undefined;
+        const from = isObj(sv) ? parseValue(sv.from as string | number) : null;
+        const to = isObj(sv) ? parseValue(sv.to as string | number) : null;
+        if (!isObj(sv) || !g || g.type !== 'function_gen' || from === null || to === null || !(from > 0) || !(to > from) || typeof sv.value !== 'number')
+          return errors.push(
+            tr(
+              `${wi}.solve: 应为 { "el": 信号发生器, "from": 频率, "to": 更高的频率, "value": 数 }`,
+              `${wi}.solve: must be { "el": a function generator, "from": frequency, "to": a higher frequency, "value": number }`,
+            ),
+          );
+        solve = { el: g.ref, from, to, value: sv.value };
+      }
+      what = { kind: 'scope', measure, pin, ref, vs, vsref, solve };
+      unit = solve || measure === 'freq' || measure === 'ring' ? 'Hz' : measure === 'phase' ? '°' : measure === 'gain' ? '' : measure === 'rise' || measure === 'fall' ? 'ms' : 'V';
+      tol = measure === 'rise' || measure === 'fall' || measure === 'ring' ? 0.08 : 0.03;
+      tolAbs = measure === 'gain' || measure === 'phase' || solve || measure === 'freq' || measure === 'ring' || measure === 'rise' || measure === 'fall' ? 0 : 0.005;
+    } else if (kind === 'formula') {
+      if (typeof m.formula !== 'string' || !m.formula.trim()) return errors.push(tr(`${wi}.formula: 必须是算式字符串，如 "uoc / isc"`, `${wi}.formula: must be an expression string, e.g. "uoc / isc"`));
+      const names = [...new Set(m.formula.match(/[A-Za-z_][A-Za-z0-9_]*/g) ?? [])].filter((n) => !RESERVED_IDS.has(n.toLowerCase()));
+      const unknown = names.filter((n) => !qIds.has(n));
+      if (unknown.length)
+        return errors.push(tr(`${wi}.formula: ${unknown.join(', ')} 不是前面某个测量题的 id`, `${wi}.formula: ${unknown.join(', ')} is not the id of an earlier measurement question`));
+      if (!names.length) return errors.push(tr(`${wi}.formula: 至少要用到一个前面测量题的 id`, `${wi}.formula: must use the id of at least one earlier question`));
+      const choiceQ = names.find((n) => measurements.find((q) => q.id === n)?.what === null);
+      if (choiceQ) return errors.push(tr(`${wi}.formula: ${choiceQ} 是选择题，不能参与计算`, `${wi}.formula: ${choiceQ} is a multiple-choice question and can't be used in a calculation`));
+      what = { kind: 'formula', expr: m.formula, uses: names };
+    } else {
+      choices = strs(m.choices);
+      if (choices.length < 2) return errors.push(tr(`${wi}.choices: 至少要有两个选项`, `${wi}.choices: needs at least two options`));
+      if (typeof m.correct !== 'number' || !Number.isInteger(m.correct) || m.correct < 0 || m.correct >= choices.length)
+        return errors.push(tr(`${wi}.correct: 必须是正确选项的序号（从 0 开始）`, `${wi}.correct: must be the index of the right option (from 0)`));
+      correct = m.correct;
+    }
+    if (m.unit !== undefined) {
+      if (typeof m.unit !== 'string') errors.push(tr(`${wi}.unit: 必须是字符串，如 "mA"`, `${wi}.unit: must be a string, e.g. "mA"`));
+      else unit = m.unit;
+    }
+    if (what === null && m.predict) errors.push(tr(`${wi}: 选择题不能 "predict"`, `${wi}: a multiple-choice question can't "predict"`));
+    for (const k of ['tol', 'tolAbs', 'tolDeg'] as const)
+      if (m[k] !== undefined && (typeof m[k] !== 'number' || !((m[k] as number) >= 0))) errors.push(tr(`${wi}.${k}: 必须是非负数`, `${wi}.${k}: must be a number ≥ 0`));
+    let range: [number, number] | undefined;
+    if (m.range !== undefined) {
+      const r = Array.isArray(m.range) ? m.range.map((x) => (typeof x === 'number' || typeof x === 'string' ? parseValue(x) : null)) : [];
+      if (r.length !== 2 || r[0] === null || r[1] === null || r[0] > r[1]) errors.push(tr(`${wi}.range: 必须是 [最小值, 最大值]（SI 单位）`, `${wi}.range: must be [min, max] (SI units)`));
+      else range = [r[0], r[1]];
+    }
+    if (what && range === undefined) warnings.push(tr(`${wi}: 没有 "range"——validator 无法核对参考答案的读数是否合理`, `${wi}: no "range" — the validator can't sanity-check the reference reading`));
+    qIds.add(id);
+    measurements.push({
+      id,
+      ask,
+      explain: textOf(m.explain),
+      unit,
+      tol: typeof m.tol === 'number' ? m.tol : kind === 'formula' ? 0.02 : tol,
+      tolAbs: typeof m.tolAbs === 'number' ? m.tolAbs : tolAbs,
+      tolDeg: typeof m.tolDeg === 'number' ? m.tolDeg : 2,
+      predict: m.predict === true,
+      required: m.optional !== true,
+      set,
+      what,
+      range,
+      choices,
+      correct,
+    });
+  });
+
   const steps: ChallengeStep[] = (Array.isArray(json.steps) ? json.steps : [])
     .map((s: unknown) =>
       typeof s === 'string'
@@ -609,12 +804,11 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
           count('steps', steps.length);
           count('hints', Array.isArray(json.hints) ? json.hints.length : 0);
           count('tests', tests.length);
+          count('measurements', measurements.length);
           if (l === getLang() && l !== baseLang) tx = v;
         }
       }
   }
-  const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
-  const textOf = (v: unknown) => (typeof v === 'string' ? v : Array.isArray(v) ? strs(v).join('\n') : '');
   const txList = (key: string) => (Array.isArray(tx[key]) ? (tx[key] as unknown[]) : []);
   txList('steps').forEach((t, i) => {
     const text = typeof t === 'string' ? t : isObj(t) && typeof t.text === 'string' ? t.text : '';
@@ -622,6 +816,14 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   });
   txList('tests').forEach((t, i) => {
     if (tests[i] && typeof t === 'string' && t) tests[i] = { ...tests[i], name: t };
+  });
+  txList('measurements').forEach((t, i) => {
+    const q = measurements[i];
+    if (!q || !isObj(t)) return;
+    const ask = textOf(t.ask);
+    const explain = textOf(t.explain);
+    const ch = strs(t.choices);
+    measurements[i] = { ...q, ask: ask || q.ask, explain: explain || q.explain, choices: q.choices && ch.length === q.choices.length ? ch : q.choices };
   });
   const baseHints = strs(json.hints);
   const txHints = strs(tx.hints);
@@ -648,6 +850,8 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     concepts: tx.concepts !== undefined ? strs(tx.concepts) : strs(json.concepts),
     target: { components, nets },
     tests,
+    measurements,
+    compare: textOf(tx.compare) || textOf(json.compare),
     hints: txHints.length === baseHints.length ? txHints : baseHints,
     steps,
     solution,

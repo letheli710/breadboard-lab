@@ -8,22 +8,29 @@
   "phase": 1,
   "summary": "两个分压器并排，中点之间接一块电流表；转动电位器让读数归零，就测出了电阻。",
   "concepts": ["Wheatstone bridge 惠斯通电桥", "balance 平衡", "null measurement 零点测量", "R1/R2 = R3/Rx"],
-  "description": "**目标**：惠斯通电桥（Wheatstone bridge）是精确测电阻的经典方法：调节一个已知电阻，直到电桥中间的电流为零。\n\n**电路**：+9V 和 GND 之间并排放两个分压器：\n- 左臂：R1（1kΩ，上）→ 中点 A → R2（2.2kΩ，下）→ GND；\n- 右臂：R3（1kΩ，上）→ 中点 B → RV1（下）→ GND。RV1 是 10kΩ 电位器当可变电阻用：1 脚接 B，滑动端和 3 脚连在一起接 GND，电阻 = 10kΩ × 旋钮位置。\n- 电流表 AM1 跨接在 A、B 之间：红表笔接 A，黑表笔接 B。\n\n**先预测**：当 A、B 两点电位相等时，电流表里没有电流。这要求两个分压比相同。由此算出平衡时 RV1 应是多少、旋钮在百分之几、A 点电压是多少；再想一想：RV1 比平衡值小或大时，AM1 的读数是正还是负？\n\n**测量**：转动 RV1，找到 AM1 读数为零的位置；再分别转到 10% 和 50%，记下 AM1 的读数。\n\n**对比**：平衡条件 R1 / R2 = R3 / RV1，所以 RV1 = R3 × R2 / R1 = **2.2kΩ**，也就是旋钮在 **22%**。此时 V(A) = V(B) = 9 × 2.2 / 3.2 ≈ **6.19 V**，AM1 ≈ 0。不平衡时（模拟器读数）：\n- 10%（RV1 = 1kΩ）：右臂分压比左臂低（不接电流表时 B = 4.50 V，A = 6.19 V），电流从 A 流向 B，AM1 ≈ **+1.42 mA**；\n- 50%（RV1 = 5kΩ）：右臂分压比左臂高（B = 7.50 V），电流反过来，AM1 ≈ **−0.86 mA**。\n\n小提示：电流表只有 0.1Ω，不平衡时它也会把 A、B 两点“拉”到几乎同一个电压，所以这时用万用表量 A、B 看不出差别——要看电流表的读数。\n\n**为什么准**：平衡点只取决于电阻的**比值**，和电源电压是多少、电流表准不准都无关——我们只需要判断“是不是零”。把 R2 换成一个未知电阻，调到平衡，就能算出它的值。\n\n**真实电路里**：测出的未知电阻只和已知电阻一样准：常见色环电阻有 ±1% 或 ±5% 的误差，精密电桥要用精密电阻作比较臂。",
+  "description": "**目标**：惠斯通电桥（Wheatstone bridge）是精确测电阻的经典方法：调节一个已知电阻，直到电桥中间的电流为零。\n\n**电路**：+9V 和 GND 之间并排放两个分压器：\n- 左臂：R1（1kΩ，上）→ 中点 A → R2（2.2kΩ，下）→ GND；\n- 右臂：R3（1kΩ，上）→ 中点 B → RV1（下）→ GND。RV1 是 10kΩ 电位器当可变电阻用：1 脚接 B，滑动端和 3 脚连在一起接 GND，电阻 = 10kΩ × 旋钮位置。\n- 电流表 AM1 跨接在 A、B 之间：红表笔接 A，黑表笔接 B。\n\n**先预测**：当 A、B 两点电位相等时，电流表里没有电流。这要求两个分压比相同。由此算出平衡时 RV1 应是多少、旋钮在百分之几、A 点电压是多少；再想一想：RV1 比平衡值小或大时，AM1 的读数是正还是负？\n\n**测量**：转动 RV1，找到 AM1 读数为零的位置；再分别转到 10% 和 50%，记下 AM1 的读数。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**为什么准**：平衡点只取决于电阻的**比值**，和电源电压是多少、电流表准不准都无关——我们只需要判断“是不是零”。把 R2 换成一个未知电阻，调到平衡，就能算出它的值。\n\n**真实电路里**：测出的未知电阻只和已知电阻一样准：常见色环电阻有 ±1% 或 ±5% 的误差，精密电桥要用精密电阻作比较臂。",
   "i18n": {
     "en": {
       "title": "Experiment 1-6 · Wheatstone bridge: null the ammeter",
       "summary": "Two dividers side by side with an ammeter between their midpoints; turn the pot until the reading is zero and you have measured a resistance.",
       "concepts": ["Wheatstone bridge", "balance", "null measurement", "R1/R2 = R3/Rx"],
-      "description": "**Goal**: the Wheatstone bridge is the classic way to measure a resistance precisely: adjust a known resistor until no current flows through the middle of the bridge.\n\n**Circuit**: two dividers side by side between +9V and GND:\n- left arm: R1 (1kΩ, top) → midpoint A → R2 (2.2kΩ, bottom) → GND;\n- right arm: R3 (1kΩ, top) → midpoint B → RV1 (bottom) → GND. RV1 is a 10kΩ pot used as a variable resistor: pin 1 to B, wiper and pin 3 joined to GND, resistance = 10kΩ × knob position.\n- ammeter AM1 bridges A and B: red lead at A, black lead at B.\n\n**Predict first**: when A and B are at the same potential, no current flows through the ammeter, which needs equal divider ratios. From that, work out the balancing RV1, the knob position in percent and the voltage at A; then ask: with RV1 below or above that value, is AM1's reading positive or negative?\n\n**Measure**: turn RV1 until AM1 reads zero; then set 10% and 50% and note AM1 each time.\n\n**Compare**: balance needs R1 / R2 = R3 / RV1, so RV1 = R3 × R2 / R1 = **2.2kΩ**, i.e. the knob at **22%**. Then V(A) = V(B) = 9 × 2.2 / 3.2 ≈ **6.19 V** and AM1 ≈ 0. Out of balance (simulator readings):\n- 10% (RV1 = 1kΩ): the right divider gives less than the left one (without the ammeter B = 4.50 V, A = 6.19 V), so current flows from A to B, AM1 ≈ **+1.42 mA**;\n- 50% (RV1 = 5kΩ): the right divider gives more (B = 7.50 V), the current reverses, AM1 ≈ **−0.86 mA**.\n\nTip: the ammeter is only 0.1Ω, so even out of balance it pulls A and B to almost the same voltage. A multimeter across A and B shows no difference then; watch the ammeter instead.\n\n**Why it is accurate**: the balance point depends only on resistance **ratios**, not on the supply voltage or on how accurate the ammeter is: we only need to see \"zero or not\". Replace R2 with an unknown resistor, balance the bridge, and you can calculate its value.\n\n**In a real circuit**: the unknown comes out only as accurate as the known resistors: ordinary colour-band resistors are ±1% or ±5%, so a precision bridge uses precision resistors in its ratio arms.",
+      "description": "**Goal**: the Wheatstone bridge is the classic way to measure a resistance precisely: adjust a known resistor until no current flows through the middle of the bridge.\n\n**Circuit**: two dividers side by side between +9V and GND:\n- left arm: R1 (1kΩ, top) → midpoint A → R2 (2.2kΩ, bottom) → GND;\n- right arm: R3 (1kΩ, top) → midpoint B → RV1 (bottom) → GND. RV1 is a 10kΩ pot used as a variable resistor: pin 1 to B, wiper and pin 3 joined to GND, resistance = 10kΩ × knob position.\n- ammeter AM1 bridges A and B: red lead at A, black lead at B.\n\n**Predict first**: when A and B are at the same potential, no current flows through the ammeter, which needs equal divider ratios. From that, work out the balancing RV1, the knob position in percent and the voltage at A; then ask: with RV1 below or above that value, is AM1's reading positive or negative?\n\n**Measure**: turn RV1 until AM1 reads zero; then set 10% and 50% and note AM1 each time. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Why it is accurate**: the balance point depends only on resistance **ratios**, not on the supply voltage or on how accurate the ammeter is: we only need to see \"zero or not\". Replace R2 with an unknown resistor, balance the bridge, and you can calculate its value.\n\n**In a real circuit**: the unknown comes out only as accurate as the known resistors: ordinary colour-band resistors are ±1% or ±5%, so a precision bridge uses precision resistors in its ratio arms.",
+      "compare": "**Compare**: balance needs R1 / R2 = R3 / RV1, so RV1 = R3 × R2 / R1 = **2.2kΩ**, i.e. the knob at **22%**. Then V(A) = V(B) = 9 × 2.2 / 3.2 ≈ **6.19 V** and AM1 ≈ 0. Out of balance (simulator readings):\n- 10% (RV1 = 1kΩ): the right divider gives less than the left one (without the ammeter B = 4.50 V, A = 6.19 V), so current flows from A to B, AM1 ≈ **+1.42 mA**;\n- 50% (RV1 = 5kΩ): the right divider gives more (B = 7.50 V), the current reverses, AM1 ≈ **−0.86 mA**.\n\nTip: the ammeter is only 0.1Ω, so even out of balance it pulls A and B to almost the same voltage. A multimeter across A and B shows no difference then; watch the ammeter instead.",
+      "measurements": [
+        {"ask": "Knob at 22% (RV1 = 2.2 kΩ): voltage U_A from A to GND"},
+        {"ask": "Knob at 10%: AM1's reading (with its sign)"},
+        {"ask": "Knob at 50%: AM1's reading (with its sign)"},
+        {"ask": "At 50% the reading is negative. That means:", "choices": ["Current flows from B to A: B is now at a higher potential than A", "The ammeter is broken; a negative reading means nothing", "Current still flows from A to B, just less than at 10%"], "explain": "The sign only gives the current's direction relative to the leads (in at red, out at black). Above the balance value RV1 makes the right arm's divider higher, so B sits above A."}
+      ],
       "hints": [
         "Build the two dividers first: R1 + R2 on the left, R3 + RV1 on the right, tops to +9V, bottoms to GND.",
         "RV1 as a variable resistor: pin 1 to B, wiper and pin 3 joined to GND. 22% is 2.2kΩ.",
         "Ammeter red lead at A (between R1 and R2), black lead at B (between R3 and RV1)."
       ],
       "tests": [
-        "RV1 at 22%: bridge balanced, AM1 ≈ 0, A and B both ≈ 6.19 V",
-        "RV1 at 10%: AM1 ≈ +1.42 mA (current flows from A to B)",
-        "RV1 at 50%: AM1 ≈ −0.86 mA (current reversed)"
+        "RV1 at 22%: bridge balanced, AM1 ≈ 0",
+        "RV1 at 10%: current flows from A to B",
+        "RV1 at 50%: current reversed"
       ]
     }
   },
@@ -43,7 +50,7 @@
   ],
   "tests": [
     {
-      "name": "RV1 在 22%：电桥平衡，AM1 ≈ 0，A、B 都 ≈ 6.19 V",
+      "name": "RV1 在 22%：电桥平衡，AM1 ≈ 0",
       "set": {"RV1": {"wiper": 0.22}},
       "currents": [{"el": "AM1", "min": -1e-05, "max": 1e-05}],
       "voltages": [
@@ -52,15 +59,22 @@
       ]
     },
     {
-      "name": "RV1 在 10%：AM1 ≈ +1.42 mA（电流从 A 流向 B）",
+      "name": "RV1 在 10%：电流从 A 流向 B",
       "set": {"RV1": {"wiper": 0.1}},
       "currents": [{"el": "AM1", "min": 0.0013, "max": 0.00155}]
     },
     {
-      "name": "RV1 在 50%：AM1 ≈ −0.86 mA（电流反向）",
+      "name": "RV1 在 50%：电流反向",
       "set": {"RV1": {"wiper": 0.5}},
       "currents": [{"el": "AM1", "min": -0.00095, "max": -0.00078}]
     }
+  ],
+  "compare": "**对比**：平衡条件 R1 / R2 = R3 / RV1，所以 RV1 = R3 × R2 / R1 = **2.2kΩ**，也就是旋钮在 **22%**。此时 V(A) = V(B) = 9 × 2.2 / 3.2 ≈ **6.19 V**，AM1 ≈ 0。不平衡时（模拟器读数）：\n- 10%（RV1 = 1kΩ）：右臂分压比左臂低（不接电流表时 B = 4.50 V，A = 6.19 V），电流从 A 流向 B，AM1 ≈ **+1.42 mA**；\n- 50%（RV1 = 5kΩ）：右臂分压比左臂高（B = 7.50 V），电流反过来，AM1 ≈ **−0.86 mA**。\n\n小提示：电流表只有 0.1Ω，不平衡时它也会把 A、B 两点“拉”到几乎同一个电压，所以这时用万用表量 A、B 看不出差别——要看电流表的读数。",
+  "measurements": [
+    {"id": "ua", "voltage": "R1.2", "ref": "V1.-", "set": {"RV1": {"wiper": 0.22}}, "unit": "V", "predict": true, "range": [6.0, 6.35], "ask": "旋钮在 22%（RV1 = 2.2 kΩ）：A 点对 GND 的电压 U_A"},
+    {"id": "i10", "current": "AM1", "set": {"RV1": {"wiper": 0.1}}, "unit": "mA", "predict": true, "range": [0.0013, 0.00155], "ask": "旋钮在 10%：AM1 的读数（带正负号）"},
+    {"id": "i50", "current": "AM1", "set": {"RV1": {"wiper": 0.5}}, "unit": "mA", "predict": true, "range": [-0.00095, -0.00078], "ask": "旋钮在 50%：AM1 的读数（带正负号）"},
+    {"id": "dir", "choices": ["电流从 B 流向 A：这时 B 点电位比 A 点高", "电流表坏了，负的读数没有意义", "电流仍从 A 流向 B，只是比 10% 时小"], "correct": 0, "ask": "50% 时读数是负的，说明：", "explain": "读数的正负只表示电流方向相对于表笔方向（红进黑出）。RV1 大于平衡值时右臂分压比左臂高，B 点电位高于 A 点。"}
   ],
   "hints": [
     "先搭两个分压器：左边 R1 + R2，右边 R3 + RV1，上端都接 +9V，下端都接 GND。",

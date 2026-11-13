@@ -19,15 +19,7 @@
     "",
     "**先预测**：Z = (R + r) + j(ωL − 1/(ωC))，r = 1 Ω 是线圈电阻。动手前先算：谐振频率 f0 是多少？谐振时 u_R/u_in 和相位是多少？谐振时 X_L = X_C 等于多少、电容电压是 VIN 的几倍（Q）？低于和高于 f0 时电流超前还是落后？",
     "",
-    "**测量**：扫频找 VR 最大的频率，读那里的 VR/VIN 和相位；把 CH1 挪到 L1、C1 之间的结点看电容电压；再在 2.5 kHz 和 10 kHz 各读一次幅度比和相位。",
-    "",
-    "**对比**：",
-    "- 当 ωL = 1/(ωC)，电抗互相抵消，|Z| 最小 = R + r，电流最大，并且电流和电压**同相**：f0 = 1/(2π√(LC)) = 1/(2π√(10 mH × 100 nF)) ≈ 5033 Hz。",
-    "- 在 f0：u_R/u_in = 100/101 ≈ 0.99，相位 ≈ 0°。电流有效值 = (1 V/√2)/(101 + 50) Ω ≈ 4.7 mA（这里要算上信号发生器的 50 Ω，因为谐振时电路的阻抗很小，50 Ω 分走了 1/3 的电压——所以 VIN 端子上只剩约 1.34 Vpp）。",
-    "- **电压放大**：谐振时 X_L = X_C = √(L/C) ≈ 316 Ω。U_C = U_L = I·316 Ω，相对端子电压 VIN 是 Q = 316/101 ≈ 3.1 倍：电容上约 4.2 Vpp，而 VIN 只有 1.34 Vpp！U̇L 和 U̇C 大小相等、方向相反，互相抵消，所以 KVL 仍然成立。（电容电压的最大值其实出现在略低于 f0 的地方，例如 4.5 kHz 时约 4.24 Vpp，但差别很小。）",
-    "- f < f0（例如 2.5 kHz）：1/(ωC) > ωL，电路呈**容性**，电流**超前**电压：u_R/u_in ≈ 0.20，相位 ≈ +78°。",
-    "- f > f0（例如 10 kHz）：ωL > 1/(ωC)，电路呈**感性**，电流**落后**电压：u_R/u_in ≈ 0.21，相位 ≈ −78°。",
-    "- 半功率点（u_R/u_in = 0.707×0.99）大约在 4.3 kHz 和 5.9 kHz，带宽 BW = (R + r)/(2πL) ≈ 1.6 kHz，f0/BW ≈ 3.1 = Q。",
+    "**测量**：扫频找 VR 最大的频率，读那里的 VR/VIN 和相位；把 CH1 挪到 L1、C1 之间的结点看电容电压；再在 2.5 kHz 和 10 kHz 各读一次幅度比和相位。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**真实电路里**：",
     "- 仿真里线圈电阻 r 只有 1 Ω。真实的 10 mH 小电感绕组电阻常在 10 ~ 30 Ω，它和 R1 串联在一起：例如 r ≈ 20 Ω 时，谐振时 u_R/u_in 只有 100/120 ≈ 0.83，电流峰值更低，Q ≈ 316/120 ≈ 2.6，峰也更宽。谐振频率 f0 基本不变。",
@@ -49,30 +41,36 @@
         "",
         "**Predict first**: Z = (R + r) + j(ωL − 1/(ωC)), with r = 1 Ω winding resistance. Before you start, work out: what is the resonant frequency f0? What are u_R/u_in and the phase at resonance? What is X_L = X_C at resonance, and how many times VIN is the capacitor voltage (Q)? Below and above f0, does the current lead or lag?",
         "",
-        "**Measure**: sweep to the frequency where VR peaks and read VR/VIN and the phase there; move CH1 to the node between L1 and C1 to see the capacitor voltage; then read the ratio and phase at 2.5 kHz and at 10 kHz.",
+        "**Measure**: sweep to the frequency where VR peaks and read VR/VIN and the phase there; move CH1 to the node between L1 and C1 to see the capacitor voltage; then read the ratio and phase at 2.5 kHz and at 10 kHz. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
+        "**In a real circuit**:",
+        "- The simulated coil has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω, and it adds to R1: with r ≈ 20 Ω, u_R/u_in at resonance is only 100/120 ≈ 0.83, the peak current is lower, Q ≈ 316/120 ≈ 2.6 and the peak is wider. f0 hardly moves.",
+        "- **Safety note**: in a high-Q series resonant circuit the component voltages can be dozens of times the source voltage — mind the capacitor's voltage rating in real life."
+      ],
+      "compare": [
         "**Compare**:",
         "- When ωL = 1/(ωC) the reactances cancel, |Z| is at its minimum R + r, the current is at its maximum, and current and voltage are **in phase**: f0 = 1/(2π√(LC)) = 1/(2π√(10 mH × 100 nF)) ≈ 5033 Hz.",
         "- At f0: u_R/u_in = 100/101 ≈ 0.99, phase ≈ 0°. RMS current = (1 V/√2)/(101 + 50) Ω ≈ 4.7 mA (the generator's 50 Ω counts here: at resonance the circuit's impedance is small and 50 Ω takes a third of the voltage — that's why only about 1.34 Vpp is left at the VIN terminals).",
         "- **Voltage magnification**: at resonance X_L = X_C = √(L/C) ≈ 316 Ω. U_C = U_L = I·316 Ω, which is Q = 316/101 ≈ 3.1 times the terminal voltage VIN: about 4.2 Vpp across the capacitor while VIN is only 1.34 Vpp! U_L and U_C are equal and opposite and cancel, so KVL still holds. (Strictly, the capacitor voltage peaks slightly below f0 — about 4.24 Vpp at 4.5 kHz — but the difference is small.)",
         "- f < f0 (e.g. 2.5 kHz): 1/(ωC) > ωL, the circuit is **capacitive** and the current **leads** the voltage: u_R/u_in ≈ 0.20, phase ≈ +78°.",
         "- f > f0 (e.g. 10 kHz): ωL > 1/(ωC), the circuit is **inductive** and the current **lags**: u_R/u_in ≈ 0.21, phase ≈ −78°.",
-        "- The half-power points (u_R/u_in = 0.707 × 0.99) are near 4.3 kHz and 5.9 kHz; bandwidth BW = (R + r)/(2πL) ≈ 1.6 kHz, and f0/BW ≈ 3.1 = Q.",
-        "",
-        "**In a real circuit**:",
-        "- The simulated coil has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω, and it adds to R1: with r ≈ 20 Ω, u_R/u_in at resonance is only 100/120 ≈ 0.83, the peak current is lower, Q ≈ 316/120 ≈ 2.6 and the peak is wider. f0 hardly moves.",
-        "- **Safety note**: in a high-Q series resonant circuit the component voltages can be dozens of times the source voltage — mind the capacitor's voltage rating in real life."
+        "- The half-power points (u_R/u_in = 0.707 × 0.99) are near 4.3 kHz and 5.9 kHz; bandwidth BW = (R + r)/(2πL) ≈ 1.6 kHz, and f0/BW ≈ 3.1 = Q."
+      ],
+      "measurements": [
+        {"ask": "Sweep: the frequency f0 where VR is in phase with VIN (0° phase difference) and largest", "explain": "The reactances cancel when ωL = 1/(ωC): f0 = 1/(2π√(LC)) ≈ 5.03 kHz."},
+        {"ask": "f = 2.5 kHz: the phase of VR (i.e. the current) relative to VIN", "explain": "Below f0, 1/(ωC) > ωL: the circuit is capacitive and the current leads, so the phase is positive."},
+        {"ask": "Set 10 kHz and look at the phase again: how does the circuit behave?", "choices": ["Inductive: the current lags the voltage (negative phase)", "Capacitive: the current leads the voltage (positive phase)", "Purely resistive: in phase"], "explain": "Above f0, ωL > 1/(ωC): the inductance wins and the current lags by about 78°."}
       ],
       "hints": [
         "Series order: generator → inductor → capacitor → resistor → GND.",
-        "f0 = 1/(2π√(LC)) ≈ 5.03 kHz. At f0, VR is in phase with VIN.",
+        "f0 = 1/(2π√(LC)). At f0, VR is in phase with VIN: sweep for the frequency where the phase difference crosses zero.",
         "Below f0 the circuit is capacitive (current leads); above f0 inductive (current lags)."
       ],
       "tests": [
-        "f0 = 5033 Hz: current in phase with voltage, u_R ≈ 0.99 VIN, RMS current ≈ 4.7 mA",
-        "f0: capacitor ≈ 4.2 Vpp while VIN is only ≈ 1.34 Vpp (Q ≈ 3.1)",
-        "2.5 kHz (capacitive): gain ≈ 0.20, current leads ≈ 78°",
-        "10 kHz (inductive): gain ≈ 0.21, current lags ≈ 78°"
+        "f0: current in phase with the voltage",
+        "f0: the capacitor voltage exceeds VIN (Q > 1)",
+        "2.5 kHz: capacitive",
+        "10 kHz: inductive"
       ]
     }
   },
@@ -90,7 +88,7 @@
   ],
   "tests": [
     {
-      "name": "f0 = 5033 Hz：电流与电压同相，u_R ≈ 0.99 VIN，电流有效值 ≈ 4.7 mA",
+      "name": "f0：电流与电压同相",
       "set": { "FG1": { "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.96, "max": 1.0 },
@@ -99,7 +97,7 @@
       "currents": [{ "el": "R1", "mode": "rms", "min": 0.0045, "max": 0.0049 }]
     },
     {
-      "name": "f0：电容上 ≈ 4.2 Vpp，而 VIN 只有 ≈ 1.34 Vpp（Q ≈ 3.1）",
+      "name": "f0：电容电压比 VIN 高（Q > 1）",
       "set": { "FG1": { "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "C1.1", "ref": "C1.2", "measure": "vpp", "min": 4.0, "max": 4.4 },
@@ -107,7 +105,7 @@
       ]
     },
     {
-      "name": "2.5 kHz（容性）：增益 ≈ 0.20，电流超前 ≈ 78°",
+      "name": "2.5 kHz：容性",
       "set": { "FG1": { "waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.18, "max": 0.22 },
@@ -115,7 +113,7 @@
       ]
     },
     {
-      "name": "10 kHz（感性）：增益 ≈ 0.21，电流落后 ≈ 78°",
+      "name": "10 kHz：感性",
       "set": { "FG1": { "waveform": "sine", "frequency": 10000, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.19, "max": 0.23 },
@@ -123,9 +121,23 @@
       ]
     }
   ],
+  "compare": [
+    "**对比**：",
+    "- 当 ωL = 1/(ωC)，电抗互相抵消，|Z| 最小 = R + r，电流最大，并且电流和电压**同相**：f0 = 1/(2π√(LC)) = 1/(2π√(10 mH × 100 nF)) ≈ 5033 Hz。",
+    "- 在 f0：u_R/u_in = 100/101 ≈ 0.99，相位 ≈ 0°。电流有效值 = (1 V/√2)/(101 + 50) Ω ≈ 4.7 mA（这里要算上信号发生器的 50 Ω，因为谐振时电路的阻抗很小，50 Ω 分走了 1/3 的电压——所以 VIN 端子上只剩约 1.34 Vpp）。",
+    "- **电压放大**：谐振时 X_L = X_C = √(L/C) ≈ 316 Ω。U_C = U_L = I·316 Ω，相对端子电压 VIN 是 Q = 316/101 ≈ 3.1 倍：电容上约 4.2 Vpp，而 VIN 只有 1.34 Vpp！U̇L 和 U̇C 大小相等、方向相反，互相抵消，所以 KVL 仍然成立。（电容电压的最大值其实出现在略低于 f0 的地方，例如 4.5 kHz 时约 4.24 Vpp，但差别很小。）",
+    "- f < f0（例如 2.5 kHz）：1/(ωC) > ωL，电路呈**容性**，电流**超前**电压：u_R/u_in ≈ 0.20，相位 ≈ +78°。",
+    "- f > f0（例如 10 kHz）：ωL > 1/(ωC)，电路呈**感性**，电流**落后**电压：u_R/u_in ≈ 0.21，相位 ≈ −78°。",
+    "- 半功率点（u_R/u_in = 0.707×0.99）大约在 4.3 kHz 和 5.9 kHz，带宽 BW = (R + r)/(2πL) ≈ 1.6 kHz，f0/BW ≈ 3.1 = Q。"
+  ],
+  "measurements": [
+    {"id": "f0", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "solve": {"el": "FG1", "from": 2500, "to": 10000, "value": 0}, "set": {"FG1": {"waveform": "sine", "amplitude": 1, "offset": 0}}, "unit": "kHz", "predict": true, "range": [4900, 5150], "ask": "扫频：VR 和 VIN 同相（相位差 0°）、VR 最大的频率 f0", "explain": "ωL = 1/(ωC) 时电抗抵消：f0 = 1/(2π√(LC)) ≈ 5.03 kHz。"},
+    {"id": "ph25", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0}}, "unit": "°", "predict": true, "range": [75, 81], "ask": "f = 2.5 kHz：VR（也就是电流）相对 VIN 的相位差", "explain": "低于 f0 时 1/(ωC) > ωL，电路呈容性，电流超前电压，相位为正。"},
+    {"id": "ind", "choices": ["感性：电流落后电压（相位差为负）", "容性：电流超前电压（相位差为正）", "纯电阻：同相"], "correct": 0, "ask": "把频率调到 10 kHz 再看相位：电路呈什么性质？", "explain": "高于 f0 时 ωL > 1/(ωC)，感抗占上风，电流落后电压约 78°。"}
+  ],
   "hints": [
     "串联顺序：信号发生器 → 电感 → 电容 → 电阻 → GND。",
-    "f0 = 1/(2π√(LC)) ≈ 5.03 kHz。在 f0 处 VR 和 VIN 同相。",
+    "f0 = 1/(2π√(LC))。在 f0 处 VR 和 VIN 同相：扫频时找相位差过零的地方。",
     "低于 f0 电路呈容性（电流超前），高于 f0 呈感性（电流落后）。"
   ],
   "solution": {

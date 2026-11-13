@@ -8,21 +8,27 @@
   "phase": 2,
   "summary": "不拆电路，量两次：松开按键测开路电压 Uoc，按下按键用电流表测短路电流 Isc，Req = Uoc / Isc。",
   "concepts": ["Thevenin equivalent 戴维宁等效", "open-circuit voltage 开路电压 Uoc", "short-circuit current 短路电流 Isc", "Req = Uoc / Isc"],
-  "description": "**目标**：任何线性有源二端网络，对外都等效于一个电压源 Uoc 串联一个电阻 Req。实验室里最直接的测法：测开路电压，再测短路电流。\n\n**电路**：\n- 被测网络：+9V → R1（1kΩ）→ A；A → R2（2.2kΩ）→ GND；A → R3（470Ω）→ 端口 T。端口是 T 和 GND。\n- 测量装置：T → 按键 SW1 → 电流表 AM1（红表笔接按键）→ GND。\n\n**先预测**：\n1. 开路电压 Uoc：端口什么都不接时 R3 中没有电流，T 点电压等于哪一点的电压？\n2. 等效电阻 Req：用“电源置零”法，9 V 电源换成短路，从 T 看进去的电阻是多少？\n3. 由这两个数预测短路电流 Isc = Uoc / Req。\n\n**测量**：\n1. 按键松开，用万用表测 T 对 GND 的电压，得到 Uoc；\n2. 按下按键（电流表只有 0.1Ω，几乎就是把 T 短接到 GND），读 AM1，得到 Isc；\n3. 算 Req = Uoc / Isc。\n\n**对比**：Uoc = 9 × 2.2 / 3.2 ≈ **6.19 V**；模拟器读数 Isc ≈ **5.34 mA**；Req = 6.19 / 5.345 mA ≈ **1158Ω**。置零法：R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5Ω ✔。所以这个网络对外等效于“6.19 V 串 1.16kΩ”。下一个实验（2-3）会用这个结果找最大功率。\n\n**真实电路里**：真实万用表 mA 档的负担电阻有几欧到十几欧，“短路”并不完全短：Isc 会小约 1%，Req 就算大约 1%。\n\n**安全提示**：短路电流法只适合 Isc 很小的网络（这里 5 mA）。千万不要直接短路电池或电源的输出端！",
+  "description": "**目标**：任何线性有源二端网络，对外都等效于一个电压源 Uoc 串联一个电阻 Req。实验室里最直接的测法：测开路电压，再测短路电流。\n\n**电路**：\n- 被测网络：+9V → R1（1kΩ）→ A；A → R2（2.2kΩ）→ GND；A → R3（470Ω）→ 端口 T。端口是 T 和 GND。\n- 测量装置：T → 按键 SW1 → 电流表 AM1（红表笔接按键）→ GND。\n\n**先预测**：\n1. 开路电压 Uoc：端口什么都不接时 R3 中没有电流，T 点电压等于哪一点的电压？\n2. 等效电阻 Req：用“电源置零”法，9 V 电源换成短路，从 T 看进去的电阻是多少？\n3. 由这两个数预测短路电流 Isc = Uoc / Req。\n\n**测量**：\n1. 按键松开，用万用表测 T 对 GND 的电压，得到 Uoc；\n2. 按下按键（电流表只有 0.1Ω，几乎就是把 T 短接到 GND），读 AM1，得到 Isc；\n3. 算 Req = Uoc / Isc。\n电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**真实电路里**：真实万用表 mA 档的负担电阻有几欧到十几欧，“短路”并不完全短：Isc 会小约 1%，Req 就算大约 1%。\n\n**安全提示**：短路电流法只适合 Isc 很小的网络（这里 5 mA）。千万不要直接短路电池或电源的输出端！",
   "i18n": {
     "en": {
       "title": "Experiment 2-2 · Measure a Thevenin equivalent: open-circuit voltage + short-circuit current",
       "summary": "Without taking the circuit apart, measure twice: button released for the open-circuit voltage Uoc, button pressed for the short-circuit current Isc on the ammeter; Req = Uoc / Isc.",
       "concepts": ["Thevenin equivalent", "open-circuit voltage Uoc", "short-circuit current Isc", "Req = Uoc / Isc"],
-      "description": "**Goal**: any linear two-terminal network with sources is equivalent, from outside, to a voltage source Uoc in series with a resistance Req. The most direct lab method: measure the open-circuit voltage, then the short-circuit current.\n\n**Circuit**:\n- Network under test: +9V → R1 (1kΩ) → A; A → R2 (2.2kΩ) → GND; A → R3 (470Ω) → port T. The port is T and GND.\n- Measuring setup: T → push button SW1 → ammeter AM1 (red lead at the button) → GND.\n\n**Predict first**:\n1. Open-circuit voltage Uoc: with nothing on the port no current flows in R3, so T is at the same voltage as which point?\n2. Equivalent resistance Req: zero the sources (replace the 9 V source by a short); what resistance do you see looking in from T?\n3. From these two numbers predict the short-circuit current Isc = Uoc / Req.\n\n**Measure**:\n1. Button released: measure T against GND with the multimeter to get Uoc;\n2. Press the button (the ammeter is only 0.1Ω, practically a short from T to GND) and read AM1 to get Isc;\n3. Compute Req = Uoc / Isc.\n\n**Compare**: Uoc = 9 × 2.2 / 3.2 ≈ **6.19 V**; the simulator reads Isc ≈ **5.34 mA**; Req = 6.19 / 5.345 mA ≈ **1158Ω**. Zeroing the source: R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5Ω ✔. So from outside, this network is \"6.19 V in series with 1.16kΩ\". The next experiment (2-3) uses this to find the maximum power.\n\n**In a real circuit**: a real multimeter's mA range has a burden resistance of a few ohms to ten-odd ohms, so the \"short\" is not quite a short: Isc comes out about 1% low and Req about 1% high.\n\n**Safety note**: the short-circuit method only suits networks with a small Isc (5 mA here). Never short the output of a battery or a power supply directly!",
+      "description": "**Goal**: any linear two-terminal network with sources is equivalent, from outside, to a voltage source Uoc in series with a resistance Req. The most direct lab method: measure the open-circuit voltage, then the short-circuit current.\n\n**Circuit**:\n- Network under test: +9V → R1 (1kΩ) → A; A → R2 (2.2kΩ) → GND; A → R3 (470Ω) → port T. The port is T and GND.\n- Measuring setup: T → push button SW1 → ammeter AM1 (red lead at the button) → GND.\n\n**Predict first**:\n1. Open-circuit voltage Uoc: with nothing on the port no current flows in R3, so T is at the same voltage as which point?\n2. Equivalent resistance Req: zero the sources (replace the 9 V source by a short); what resistance do you see looking in from T?\n3. From these two numbers predict the short-circuit current Isc = Uoc / Req.\n\n**Measure**:\n1. Button released: measure T against GND with the multimeter to get Uoc;\n2. Press the button (the ammeter is only 0.1Ω, practically a short from T to GND) and read AM1 to get Isc;\n3. Compute Req = Uoc / Isc.\nOnce the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**In a real circuit**: a real multimeter's mA range has a burden resistance of a few ohms to ten-odd ohms, so the \"short\" is not quite a short: Isc comes out about 1% low and Req about 1% high.\n\n**Safety note**: the short-circuit method only suits networks with a small Isc (5 mA here). Never short the output of a battery or a power supply directly!",
+      "compare": "**Compare**: Uoc = 9 × 2.2 / 3.2 ≈ **6.19 V**; the simulator reads Isc ≈ **5.34 mA**; Req = 6.19 / 5.345 mA ≈ **1158Ω**. Zeroing the source: R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5Ω ✔. So from outside, this network is \"6.19 V in series with 1.16kΩ\". The next experiment (2-3) uses this to find the maximum power.",
+      "measurements": [
+        {"ask": "Button released: open-circuit voltage Uoc (multimeter from T to GND)"},
+        {"ask": "Button pressed: short-circuit current Isc (AM1's reading)"},
+        {"ask": "From your own two readings, the equivalent resistance Req = Uoc / Isc", "explain": "Zeroing the source: R3 + R1 ∥ R2 = 470 + 687.5 = 1157.5 Ω. A measurement within 1% of it shows both methods give the same Req."}
+      ],
       "hints": [
         "The push button straddles the gap: one side to T (the far end of R3), the other side to the ammeter's red lead.",
         "The ammeter's black lead goes to GND.",
         "With the button released, measure T against GND with the multimeter: that is the open-circuit voltage."
       ],
       "tests": [
-        "Released: open-circuit voltage Uoc ≈ 6.19 V, ammeter reads 0",
-        "Pressed: short-circuit current Isc ≈ 5.34 mA (port voltage ≈ 0)"
+        "Released: port open, the ammeter reads 0",
+        "Pressed: port shorted, port voltage ≈ 0"
       ]
     }
   },
@@ -43,17 +49,23 @@
   ],
   "tests": [
     {
-      "name": "松开：开路电压 Uoc ≈ 6.19 V，电流表读 0",
+      "name": "松开：端口开路，电流表读 0",
       "set": {"SW1": {"pressed": false}},
       "voltages": [{"pin": "R3.2", "ref": "V1.-", "min": 6.0, "max": 6.35}],
       "currents": [{"el": "AM1", "min": -1e-06, "max": 1e-06}]
     },
     {
-      "name": "按下：短路电流 Isc ≈ 5.34 mA（端口电压 ≈ 0）",
+      "name": "按下：端口短路，端口电压 ≈ 0",
       "set": {"SW1": {"pressed": true}},
       "currents": [{"el": "AM1", "min": 0.0052, "max": 0.0055}],
       "voltages": [{"pin": "R3.2", "ref": "V1.-", "max": 0.01}]
     }
+  ],
+  "compare": "**对比**：Uoc = 9 × 2.2 / 3.2 ≈ **6.19 V**；模拟器读数 Isc ≈ **5.34 mA**；Req = 6.19 / 5.345 mA ≈ **1158Ω**。置零法：R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5Ω ✔。所以这个网络对外等效于“6.19 V 串 1.16kΩ”。下一个实验（2-3）会用这个结果找最大功率。",
+  "measurements": [
+    {"id": "uoc", "voltage": "R3.2", "ref": "V1.-", "set": {"SW1": {"pressed": false}}, "unit": "V", "predict": true, "range": [6.0, 6.35], "ask": "按键松开：开路电压 Uoc（万用表测 T 对 GND）"},
+    {"id": "isc", "current": "AM1", "set": {"SW1": {"pressed": true}}, "unit": "mA", "predict": true, "range": [0.0052, 0.0055], "ask": "按下按键：短路电流 Isc（AM1 的读数）"},
+    {"id": "req", "formula": "uoc / isc", "unit": "Ω", "predict": true, "range": [1100, 1220], "ask": "用你自己的两个读数算等效电阻 Req = Uoc / Isc", "explain": "置零法：R3 + R1 ∥ R2 = 470 + 687.5 = 1157.5 Ω。测量值和它差 1% 以内，说明两种方法得到的是同一个 Req。"}
   ],
   "hints": [
     "按键横跨凹槽：一边接 T（R3 的另一端），另一边接电流表的红表笔。",
