@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { contentChunkName, problemIndexPlugin, summaryIndexPlugin } from './scripts/problem-index-plugin';
-import { challengeIndexPlugin } from './scripts/challenge-index-plugin';
+import { contentChunkName, problemIndexPlugin, summaryIndexPlugin } from './scripts/problem-index-plugin.ts';
+import { challengeIndexPlugin } from './scripts/challenge-index-plugin.ts';
 
 // three.js and everything that only the 3D workbench uses (react-three-fiber pulls in
 // react-reconciler, which must NOT live with react / react-dom — that would drag the whole
@@ -15,20 +15,29 @@ export default defineConfig({
   server: { port: 5180 },
   build: {
     chunkSizeWarningLimit: 1200,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks(id) {
-          // built-in theory problems (one chunk per chapter) and lessons / challenges (lessons,
-          // intro, phase 1…5): the group modules of scripts/*-index-plugin.ts, loaded on demand
-          const g = contentChunkName(id);
-          if (g) return g;
-          const p = id.replace(/\\/g, '/');
-          // Vite's / Rollup's tiny runtime helpers go with the always-loaded vendor chunk, or
-          // Rollup may park them in `three` and every page would import (and preload) it
-          if (p.includes('vite/preload-helper') || p.includes('commonjsHelpers')) return 'react';
-          if (THREE_DEPS.test(p)) return 'three';
-          if (REACT_DEPS.test(p)) return 'react';
-          return undefined;
+        // Rolldown manual code splitting (Vite 8 replaced Rollup's `manualChunks` with this).
+        // One group whose name() picks the chunk; null leaves a module to automatic chunking.
+        codeSplitting: {
+          groups: [
+            {
+              name(id) {
+                // built-in theory problems (one chunk per chapter) and lessons / challenges
+                // (lessons, intro, phase 1…5): the group modules of scripts/*-index-plugin.ts,
+                // loaded on demand
+                const g = contentChunkName(id);
+                if (g) return g;
+                const p = id.replace(/\\/g, '/');
+                // the bundler's tiny runtime helpers go with the always-loaded vendor chunk, or
+                // they may be parked in `three` and every page would import (and preload) it
+                if (p.includes('vite/preload-helper') || p.includes('commonjsHelpers')) return 'react';
+                if (THREE_DEPS.test(p)) return 'three';
+                if (REACT_DEPS.test(p)) return 'react';
+                return null;
+              },
+            },
+          ],
         },
       },
     },

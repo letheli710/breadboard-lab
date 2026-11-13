@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import type { Plugin } from 'vite';
-import { collectJson, contentIndexPlugin } from './problem-index-plugin';
+import { collectJson, contentIndexPlugin } from './problem-index-plugin.ts';
 
 export interface ChallengeIndexEntry {
   id: string;
