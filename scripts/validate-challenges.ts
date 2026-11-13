@@ -9,7 +9,8 @@
 // Challenges — for every *.json (recursive; skips *.schema.json and files starting with "_"):
 //   1. parseChallenge → errors / warnings
 //   2. self-consistency: every test must pass on the target circuit itself
-//   3. if `solution` exists: it must build and be judged perfect by checkCircuit
+//   3. if `solution` exists: it must build, be judged perfect by checkCircuit and show no
+//      error-level board diagnostic (the app refuses the answer otherwise)
 //      (+ warning if any LED draws more than 25 mA in any test)
 //   4. if `start` exists: it must build (warning if it already solves the challenge)
 // Exit code 1 on any error.
@@ -22,6 +23,7 @@ import { chapterById } from '../src/core/problem/chapters';
 import { isProblemJson, parseProblem } from '../src/core/problem/parse';
 import { isLang, setLang, tr } from '../src/core/i18n';
 import { applySet, checkCircuit } from '../src/core/check';
+import { acDiagnostics, boardDiagnostics } from '../src/core/diagnostics';
 import { buildNetlist } from '../src/core/netlist';
 import { simulate } from '../src/core/solver';
 import { hasGenerator, simulateTransient } from '../src/core/transient';
@@ -95,6 +97,14 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
     if (nl.unplaced.length) rep.errors.push(tr(`solution: 这些元件有脚没插上：${nl.unplaced.join(', ')}`, `solution: these parts have legs not plugged in: ${nl.unplaced.join(', ')}`));
     const r = checkCircuit(ch, nl.circuit, nl.pinHoles);
     for (const i of r.issues) rep.errors.push(tr(`solution 不正确 — ${issueText(i, '：')}`, `solution is wrong — ${issueText(i, ': ')}`));
+    // the app refuses to celebrate while the live board diagnostics show an error: the
+    // reference answer (as laid out, default state) must not trigger one
+    {
+      const sim0 = simulate(nl.circuit);
+      const diag = [...boardDiagnostics(nl, sim0), ...(hasGenerator(nl.circuit) ? acDiagnostics(nl, simulateTransient(nl.circuit)) : [])];
+      for (const i of diag)
+        if (i.severity === 'error') rep.errors.push(tr(`solution: 面包板诊断报错「${issueText(i, '：')}」（界面会因此不判对）`, `solution: board diagnostic error "${issueText(i, ': ')}" (the app won't accept the answer)`));
+    }
     // LED current sanity (with every test's settings, plus the default state)
     const states = [{ name: tr('默认状态', 'default state'), set: {} }, ...ch.tests];
     const seen = new Set<string>();

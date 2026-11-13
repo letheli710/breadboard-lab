@@ -92,7 +92,7 @@ describe('challenge "phase"', () => {
     expect(r.challenge!.phase).toBeUndefined();
   });
   it('accepts 1–4', () => {
-    for (const phase of [1, 2, 3, 4]) expect(parseChallenge({ ...base, phase }).challenge!.phase).toBe(phase);
+    for (const phase of [1, 2, 3, 4, 5]) expect(parseChallenge({ ...base, phase }).challenge!.phase).toBe(phase);
   });
   it('rejects anything else', () => {
     for (const phase of [0, 6, 1.5, '2', null]) expect(parseChallenge({ ...base, phase }).ok).toBe(false);
