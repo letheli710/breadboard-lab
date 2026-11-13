@@ -299,7 +299,12 @@ describe('readAnswer: 1/s', () => {
 });
 
 describe('choiceExplain', () => {
-  const base = JSON.parse(readFileSync(listJson(DIR).find((f) => /"choices"/.test(readFileSync(f, 'utf8')))!, 'utf8'));
+  const base = JSON.parse(
+    readFileSync(
+      listJson(DIR).find((f) => /"choices"/.test(readFileSync(f, 'utf8')))!,
+      'utf8',
+    ),
+  );
   const qi = base.questions.findIndex((x: Question) => x.choices);
   it('is parsed and translated per option', () => {
     const j = JSON.parse(JSON.stringify(base));
