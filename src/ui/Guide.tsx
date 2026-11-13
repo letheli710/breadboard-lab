@@ -95,8 +95,10 @@ export function Guide() {
       </div>
 
       <div className="guide-grid">
-        <article className="card concept">
-          <div className="concept-num">01</div>
+        <article className="card concept" id="guide-breadboard">
+          <a className="concept-num" href="#/guide/breadboard" title={tr('这一节的链接', 'Link to this section')}>
+            01
+          </a>
           <h3>{tr('面包板内部结构 Breadboard internals', 'Breadboard internals')}</h3>
           <BoardDiagram />
           {en ? (
@@ -129,8 +131,10 @@ export function Guide() {
           )}
         </article>
 
-        <article className="card concept">
-          <div className="concept-num">02</div>
+        <article className="card concept" id="guide-ground">
+          <a className="concept-num" href="#/guide/ground" title={tr('这一节的链接', 'Link to this section')}>
+            02
+          </a>
           <h3>{tr('GND 到底是什么？What is ground?', 'What is ground (GND)?')}</h3>
           <GroundDiagram />
           {en ? (
@@ -172,8 +176,10 @@ export function Guide() {
           )}
         </article>
 
-        <article className="card concept">
-          <div className="concept-num">03</div>
+        <article className="card concept" id="guide-five-steps">
+          <a className="concept-num" href="#/guide/five-steps" title={tr('这一节的链接', 'Link to this section')}>
+            03
+          </a>
           <h3>{tr('从原理图到面包板：五步法', 'Schematic to breadboard in five steps')}</h3>
           {en ? (
             <ol>
@@ -224,8 +230,10 @@ export function Guide() {
           </p>
         </article>
 
-        <article className="card concept">
-          <div className="concept-num">04</div>
+        <article className="card concept" id="guide-power">
+          <a className="concept-num" href="#/guide/power" title={tr('这一节的链接', 'Link to this section')}>
+            04
+          </a>
           <h3>{tr('电源有哪几种？Power supplies', 'Types of power supply')}</h3>
           <table className="cmp">
             <thead>
@@ -284,8 +292,10 @@ export function Guide() {
           )}
         </article>
 
-        <article className="card concept">
-          <div className="concept-num">05</div>
+        <article className="card concept" id="guide-series-parallel">
+          <a className="concept-num" href="#/guide/series-parallel" title={tr('这一节的链接', 'Link to this section')}>
+            05
+          </a>
           <h3>{tr('串联与并联 Series vs parallel', 'Series vs parallel')}</h3>
           {en ? (
             <ul>
@@ -318,8 +328,10 @@ export function Guide() {
           )}
         </article>
 
-        <article className="card concept">
-          <div className="concept-num">06</div>
+        <article className="card concept" id="guide-led">
+          <a className="concept-num" href="#/guide/led" title={tr('这一节的链接', 'Link to this section')}>
+            06
+          </a>
           <h3>{tr('LED 与限流电阻', 'LEDs and current-limiting resistors')}</h3>
           {en ? (
             <ul>
@@ -346,8 +358,10 @@ export function Guide() {
           )}
         </article>
 
-        <article className="card concept">
-          <div className="concept-num">07</div>
+        <article className="card concept" id="guide-mistakes">
+          <a className="concept-num" href="#/guide/mistakes" title={tr('这一节的链接', 'Link to this section')}>
+            07
+          </a>
           <h3>{tr('新手最常犯的错误', 'Common beginner mistakes')}</h3>
           <ul>
             <li>{tr('元件两只脚插在同一列 → 被短路，完全不起作用。', 'Both legs of a component in the same column → it is shorted out and does nothing.')}</li>
@@ -376,8 +390,10 @@ export function Guide() {
           </p>
         </article>
 
-        <article className="card concept">
-          <div className="concept-num">08</div>
+        <article className="card concept" id="guide-basics">
+          <a className="concept-num" href="#/guide/basics" title={tr('这一节的链接', 'Link to this section')}>
+            08
+          </a>
           <h3>{tr('电压、电流、电阻', 'Voltage, current, resistance')}</h3>
           {en ? (
             <ul>
