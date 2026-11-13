@@ -17,18 +17,7 @@
     "",
     "**先预测**：先用“天真的算法”：两级的截止频率都是 fc = 1/(2πRC)，在 fc 处高通是 0.707∠+45°、低通是 0.707∠−45°，直接相乘得到多少？然后想一想：第二级（R2 + C2）并联在 R1 上，第一级还是原来的高通吗？用结点电压法（令 x = ωRC）对 A、B 两个结点列 KCL，求出 H(jω) = U̇B/U̇in，再算三个频率下的值。",
     "",
-    "**测量**：在三个频率下读 B 相对 VIN 的幅度比和相位；在 1061 Hz 再读 A 点。",
-    "",
-    "**对比**：",
-    "- **天真的算法**：fc = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz，串起来应该是 0.5∠0°。",
-    "- **实际**：在 1061 Hz 输出 B 只有 VIN 的 **1/3**（相位 0°）。原因是第二级成了第一级的**负载**：从 A 看进去，R1 ∥ (R2 + 1/(jωC2)) 比 R1 小，第一级的输出 A 被压低到 √2/3 ≈ 0.471∠+45°（不再是 0.707∠+45°）。",
-    "- 结点电压法的结果：H(jω) = U̇B/U̇in = jx / (1 − x² + 3jx)。",
-    "- x = 1（1061 Hz）：H = j/(3j) = 1/3，相位 0°。分母里的“3”就是负载效应：不考虑负载时这里是 2。",
-    "- x = 0.1（106 Hz）：|H| = 0.1/|0.99 + 0.3j| ≈ 0.097，相位 ≈ +73°。",
-    "- x = 10（10.6 kHz）：|H| = 10/|−99 + 30j| ≈ 0.097，相位 ≈ −73°。",
-    "对数坐标上，响应以 f0 为中心左右对称：两边都按 ±20 dB/十倍频下降。",
-    "",
-    "**负载效应的一般规律**：后一级的输入阻抗必须远大于前一级的输出阻抗，才能把两级的网络函数直接相乘。这里两者是同一个数量级（10 kΩ 对 10 kΩ），所以误差很大。解决办法：把第二级的阻抗放大 10 倍以上（例如 100 kΩ + 1.5 nF），或者在两级之间加一个电压跟随器——见下一个实验。",
+    "**测量**：在三个频率下读 B 相对 VIN 的幅度比和相位；在 1061 Hz 再读 A 点。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**真实电路里**：测量仪器本身也是负载。仿真里的示波器探头是理想的；真实示波器输入约 1 MΩ 并联十几 pF（×10 探头约 10 MΩ），接在这里 10 kΩ 级的结点上影响约 1% 或更小。但如果电路阻抗到了几百 kΩ，探头就会像这里的第二级一样明显改变读数。"
   ],
@@ -46,8 +35,11 @@
         "",
         "**Predict first**: start with the naive estimate: both stages have cutoff fc = 1/(2πRC); at fc the high-pass gives 0.707∠+45° and the low-pass 0.707∠−45° — what does multiplying them give? Then ask: the second stage (R2 + C2) sits in parallel with R1 — is the first stage still the same high-pass? With nodal analysis (let x = ωRC) write KCL at nodes A and B, find H(jω) = U_B/U_in, and evaluate it at the three frequencies.",
         "",
-        "**Measure**: at each frequency read the amplitude ratio and phase of B relative to VIN; at 1061 Hz also read node A.",
+        "**Measure**: at each frequency read the amplitude ratio and phase of B relative to VIN; at 1061 Hz also read node A. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
+        "**In a real circuit**: the measuring instrument is a load too. The simulated scope probes are ideal; a real scope input is about 1 MΩ in parallel with ten-odd pF (about 10 MΩ with a ×10 probe), which changes these 10 kΩ-level nodes by about 1% or less. With circuit impedances of several hundred kΩ, though, the probe would shift the readings just as the second stage does here."
+      ],
+      "compare": [
         "**Compare**:",
         "- **The naive estimate**: fc = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz, so in series they should give 0.5∠0°.",
         "- **What actually happens**: at 1061 Hz the output B is only **1/3** of VIN (phase 0°). The second stage **loads** the first: looking in from A, R1 ∥ (R2 + 1/(jωC2)) is smaller than R1, so the first stage's output A drops to √2/3 ≈ 0.471∠+45° (instead of 0.707∠+45°).",
@@ -57,9 +49,14 @@
         "- x = 10 (10.6 kHz): |H| = 10/|−99 + 30j| ≈ 0.097, phase ≈ −73°.",
         "On log axes the response is symmetric about f0, falling at ±20 dB/decade on each side.",
         "",
-        "**The general rule**: you may simply multiply the network functions of two stages only if the second stage's input impedance is much larger than the first stage's output impedance. Here they are the same size (10 kΩ vs 10 kΩ), so the error is large. Fixes: scale the second stage's impedance up 10× or more (e.g. 100 kΩ + 1.5 nF), or put a voltage follower between the stages — see the next experiment.",
-        "",
-        "**In a real circuit**: the measuring instrument is a load too. The simulated scope probes are ideal; a real scope input is about 1 MΩ in parallel with ten-odd pF (about 10 MΩ with a ×10 probe), which changes these 10 kΩ-level nodes by about 1% or less. With circuit impedances of several hundred kΩ, though, the probe would shift the readings just as the second stage does here."
+        "**The general rule**: you may simply multiply the network functions of two stages only if the second stage's input impedance is much larger than the first stage's output impedance. Here they are the same size (10 kΩ vs 10 kΩ), so the error is large. Fixes: scale the second stage's impedance up 10× or more (e.g. 100 kΩ + 1.5 nF), or put a voltage follower between the stages — see the next experiment."
+      ],
+      "measurements": [
+        {"ask": "1061 Hz: amplitude ratio B/VIN", "explain": "H = jx / (1 − x² + 3jx); at x = 1, H = 1/3, not \"0.707 × 0.707 = 0.5\"."},
+        {"ask": "1061 Hz: phase of B relative to VIN", "explain": "The high-pass's +45° and the low-pass's −45° cancel: 0°."},
+        {"ask": "1061 Hz: move CH2 to A, amplitude ratio A/VIN", "explain": "The second stage sits across R1, so looking in from A, R1 ∥ (R2 + 1/(jωC2)) is smaller than R1: A drops to √2/3 ≈ 0.471 (no longer 0.707)."},
+        {"ask": "106 Hz: amplitude ratio B/VIN", "explain": "x = 0.1: |H| = 0.1/|0.99 + 0.3j| ≈ 0.097, phase ≈ +73°; 10.6 kHz is symmetric: ≈ 0.097, ≈ −73°."},
+        {"ask": "Why is B not 0.5 × VIN at 1061 Hz?", "explain": "You may multiply the two network functions only when the next stage's input impedance is much larger than the previous stage's output impedance. The \"3\" in the denominator is the loading; without it, it would be 2. Fixes: scale the second stage's impedance up 10× or more, or add a voltage follower (next experiment).", "choices": ["the second stage loads the first: its input impedance (about 10 kΩ) is the same order as the first stage's output impedance", "the two stages have different cutoff frequencies", "the scope probes load the circuit"]}
       ],
       "hints": [
         "Stage 1 (high-pass): capacitor C1 in series, R1 from A to GND.",
@@ -67,10 +64,10 @@
         "Node A has three things on it: C1, R1 and R2."
       ],
       "tests": [
-        "f0 = 1061 Hz: output B = 1/3 of VIN (not 0.5), phase 0°",
-        "f0: the first stage's output A is pulled down to ≈ 0.471∠+45° (not 0.707)",
-        "106 Hz: ≈ 0.097, phase ≈ +73°",
-        "10.6 kHz: ≈ 0.097, phase ≈ −73°"
+        "f0 = 1061 Hz: sensible output B, in phase with VIN",
+        "f0: the first stage's output A is pulled down by the second stage",
+        "106 Hz: sensible gain and phase",
+        "10.6 kHz: sensible gain and phase"
       ]
     }
   },
@@ -89,7 +86,7 @@
   ],
   "tests": [
     {
-      "name": "f0 = 1061 Hz：输出 B = VIN 的 1/3（不是 0.5），相位 0°",
+      "name": "f0 = 1061 Hz：输出 B 合理，和 VIN 同相",
       "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "C2.1", "measure": "gain", "vs": "FG1.+", "min": 0.32, "max": 0.347 },
@@ -97,7 +94,7 @@
       ]
     },
     {
-      "name": "f0：第一级输出 A 被压低到 ≈ 0.471∠+45°（不是 0.707）",
+      "name": "f0：第一级输出 A 被第二级拉低",
       "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.45, "max": 0.49 },
@@ -105,7 +102,7 @@
       ]
     },
     {
-      "name": "106 Hz：≈ 0.097，相位 ≈ +73°",
+      "name": "106 Hz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "C2.1", "measure": "gain", "vs": "FG1.+", "min": 0.092, "max": 0.102 },
@@ -113,13 +110,32 @@
       ]
     },
     {
-      "name": "10.6 kHz：≈ 0.097，相位 ≈ −73°",
+      "name": "10.6 kHz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "C2.1", "measure": "gain", "vs": "FG1.+", "min": 0.092, "max": 0.102 },
         { "pin": "C2.1", "measure": "phase", "vs": "FG1.+", "min": -76, "max": -70 }
       ]
     }
+  ],
+  "compare": [
+    "**对比**：",
+    "- **天真的算法**：fc = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz，串起来应该是 0.5∠0°。",
+    "- **实际**：在 1061 Hz 输出 B 只有 VIN 的 **1/3**（相位 0°）。原因是第二级成了第一级的**负载**：从 A 看进去，R1 ∥ (R2 + 1/(jωC2)) 比 R1 小，第一级的输出 A 被压低到 √2/3 ≈ 0.471∠+45°（不再是 0.707∠+45°）。",
+    "- 结点电压法的结果：H(jω) = U̇B/U̇in = jx / (1 − x² + 3jx)。",
+    "- x = 1（1061 Hz）：H = j/(3j) = 1/3，相位 0°。分母里的“3”就是负载效应：不考虑负载时这里是 2。",
+    "- x = 0.1（106 Hz）：|H| = 0.1/|0.99 + 0.3j| ≈ 0.097，相位 ≈ +73°。",
+    "- x = 10（10.6 kHz）：|H| = 10/|−99 + 30j| ≈ 0.097，相位 ≈ −73°。",
+    "对数坐标上，响应以 f0 为中心左右对称：两边都按 ±20 dB/十倍频下降。",
+    "",
+    "**负载效应的一般规律**：后一级的输入阻抗必须远大于前一级的输出阻抗，才能把两级的网络函数直接相乘。这里两者是同一个数量级（10 kΩ 对 10 kΩ），所以误差很大。解决办法：把第二级的阻抗放大 10 倍以上（例如 100 kΩ + 1.5 nF），或者在两级之间加一个电压跟随器——见下一个实验。"
+  ],
+  "measurements": [
+    {"id": "gb", "scope": "gain", "pin": "C2.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "predict": true, "range": [0.317, 0.35], "ask": "1061 Hz：幅度比 B/VIN", "explain": "H = jx / (1 − x² + 3jx)，x = 1 时 H = 1/3——不是“0.707 × 0.707 = 0.5”。"},
+    {"id": "phb", "scope": "phase", "pin": "C2.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "unit": "°", "predict": true, "range": [-3, 3], "ask": "1061 Hz：B 相对 VIN 的相位差", "explain": "+45° 的高通和 −45° 的低通抵消，相位 0°。"},
+    {"id": "ga", "scope": "gain", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "predict": true, "range": [0.448, 0.495], "ask": "1061 Hz：把 CH2 挪到 A，幅度比 A/VIN", "explain": "第二级并在 R1 上，从 A 看进去 R1 ∥ (R2 + 1/(jωC2)) 比 R1 小：A 被压低到 √2/3 ≈ 0.471（不再是 0.707）。"},
+    {"id": "g106", "scope": "gain", "pin": "C2.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 0}}, "predict": true, "range": [0.0918, 0.101], "ask": "106 Hz：幅度比 B/VIN", "explain": "x = 0.1：|H| = 0.1/|0.99 + 0.3j| ≈ 0.097，相位 ≈ +73°；10.6 kHz 时对称：≈ 0.097，≈ −73°。"},
+    {"id": "why", "choices": ["第二级成了第一级的负载：它的输入阻抗（约 10 kΩ）和第一级的输出阻抗是同一个数量级", "两级的截止频率不一样", "示波器探头的负载效应"], "correct": 0, "ask": "为什么 1061 Hz 时 B 不是 0.5 × VIN？", "explain": "只有后一级的输入阻抗远大于前一级的输出阻抗时，才能把两级的网络函数直接相乘。分母里的“3”就是负载效应，不考虑负载时是 2。办法：第二级阻抗放大 10 倍以上，或者加一个电压跟随器（下一个实验）。"}
   ],
   "hints": [
     "第一级（高通）：电容 C1 串联，R1 从 A 接到 GND。",

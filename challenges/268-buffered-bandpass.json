@@ -23,14 +23,7 @@
     "",
     "**先预测**：跟随器的输入几乎不取电流、输出阻抗很低，两级可以分开算、直接相乘。写出 H = H_LP · H_HP（令 x = f/f0），算三个频率下的 |H| 和相位、1061 Hz 时 VOUT 的 Vpp，并和上一个实验的 1/3 比较。",
     "",
-    "**测量**：三个频率下读 VOUT 相对 VIN 的幅度比和相位；把 CH2 挪到跟随器输出看第一级。",
-    "",
-    "**对比**：",
-    "  H = H_LP · H_HP = [1/(1 + jx)] · [jx/(1 + jx)] = jx/(1 + jx)²，x = f/f0，f0 = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz",
-    "- **1061 Hz**：跟随器输出 0.707∠−45°，VOUT = 0.707 × 0.707 = **0.5**∠0°（上一个实验不加跟随器只有 1/3）。VOUT ≈ 1.0 Vpp。",
-    "- **106 Hz**：|H| = 0.1/1.01 ≈ 0.099，相位 ≈ +84.3° − 5.7° ≈ +78.6°。",
-    "- **10.6 kHz**：|H| ≈ 0.099，相位 ≈ −78.6°。",
-    "注意分母从“1 − x² + 3jx”变成了“(1 + jx)² = 1 − x² + 2jx”：少掉的那个 jx 就是负载效应。跟随器的输入阻抗极高，第一级的 A 点不受第二级影响；输出阻抗很低（约 10 Ω），第二级看到的是一个“理想电压源”。",
+    "**测量**：三个频率下读 VOUT 相对 VIN 的幅度比和相位；把 CH2 挪到跟随器输出看第一级。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**一般规律**：多级电路之间加缓冲器（跟随器），是工程上“让各级各算各的”的标准做法；代价是需要给运放供电，并处理好直流偏置。",
     "",
@@ -56,18 +49,26 @@
         "",
         "**Predict first**: the follower's input draws almost no current and its output impedance is tiny, so the stages can be computed separately and multiplied. Write H = H_LP · H_HP (let x = f/f0), work out |H| and the phase at the three frequencies and VOUT's Vpp at 1061 Hz, and compare with the 1/3 of the previous experiment.",
         "",
-        "**Measure**: at each frequency read the amplitude ratio and phase of VOUT relative to VIN; move CH2 to the follower's output to see stage 1.",
+        "**Measure**: at each frequency read the amplitude ratio and phase of VOUT relative to VIN; move CH2 to the follower's output to see stage 1. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
+        "**The general rule**: a buffer (follower) between stages is the standard engineering way to let each stage be designed on its own; the price is powering the op-amp and taking care of the DC bias.",
+        "",
+        "**In a real circuit**: the LM358's input common-mode range runs from 0 V (V−) up to about V+ − 1.5 V (7.5 V here), so the follower's 1–3 V input is fine; its output tops out at about 7.5 V (the simulator models this) and gets weak at driving a load near 0 V, so the 2 V bias keeping it away from 0 V is the right call. A real LM358's slew rate (about 0.3–0.5 V/µs) and gain-bandwidth product (about 1 MHz) are not simulated; with a few volts at up to 10.6 kHz the fastest change here is at most about 0.07 V/µs, within limits; but a 1 V-amplitude signal above roughly 50 kHz would be slew-limited and the follower could no longer keep up."
+      ],
+      "compare": [
         "**Compare**:",
         "  H = H_LP · H_HP = [1/(1 + jx)] · [jx/(1 + jx)] = jx/(1 + jx)², x = f/f0, f0 = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz",
         "- **1061 Hz**: the follower's output is 0.707∠−45°, VOUT = 0.707 × 0.707 = **0.5**∠0° (only 1/3 without the follower in the previous experiment). VOUT ≈ 1.0 Vpp.",
         "- **106 Hz**: |H| = 0.1/1.01 ≈ 0.099, phase ≈ +84.3° − 5.7° ≈ +78.6°.",
         "- **10.6 kHz**: |H| ≈ 0.099, phase ≈ −78.6°.",
-        "Notice the denominator changed from \"1 − x² + 3jx\" to \"(1 + jx)² = 1 − x² + 2jx\": the missing jx is the loading effect. The follower's very high input impedance means node A doesn't feel stage 2 at all; its tiny output impedance (about 10 Ω) means stage 2 sees an ideal voltage source.",
-        "",
-        "**The general rule**: a buffer (follower) between stages is the standard engineering way to let each stage be designed on its own; the price is powering the op-amp and taking care of the DC bias.",
-        "",
-        "**In a real circuit**: the LM358's input common-mode range runs from 0 V (V−) up to about V+ − 1.5 V (7.5 V here), so the follower's 1–3 V input is fine; its output tops out at about 7.5 V (the simulator models this) and gets weak at driving a load near 0 V, so the 2 V bias keeping it away from 0 V is the right call. A real LM358's slew rate (about 0.3–0.5 V/µs) and gain-bandwidth product (about 1 MHz) are not simulated; with a few volts at up to 10.6 kHz the fastest change here is at most about 0.07 V/µs, within limits; but a 1 V-amplitude signal above roughly 50 kHz would be slew-limited and the follower could no longer keep up."
+        "Notice the denominator changed from \"1 − x² + 3jx\" to \"(1 + jx)² = 1 − x² + 2jx\": the missing jx is the loading effect. The follower's very high input impedance means node A doesn't feel stage 2 at all; its tiny output impedance (about 10 Ω) means stage 2 sees an ideal voltage source."
+      ],
+      "measurements": [
+        {"ask": "1061 Hz: CH2 on the follower output, amplitude ratio OUT/VIN", "explain": "The follower draws almost no current, so stage 1 is an unloaded RC low-pass: 0.707∠−45° at f0."},
+        {"ask": "1061 Hz: CH2 back on VOUT, amplitude ratio VOUT/VIN", "explain": "0.707 × 0.707 = 0.5 (only 1/3 without the follower)."},
+        {"ask": "From your two readings, the gain of stage 2 (the high-pass) on its own = (VOUT/VIN) / (OUT/VIN)", "explain": "≈ 0.707, exactly an unloaded RC high-pass at f0: the follower's output impedance is tiny, so stage 2 sees an ideal voltage source and the stages simply multiply."},
+        {"ask": "Multimeter DC range: the follower OUT to GND, the average", "explain": "The low-pass passes the 2 V offset unchanged, so the follower swings between 1 and 3 V, averaging 2 V; C2 then blocks it and VOUT averages 0."},
+        {"ask": "106 Hz: amplitude ratio VOUT/VIN", "explain": "H = jx/(1 + jx)², x = 0.1: |H| = 0.1/1.01 ≈ 0.099, phase ≈ +78.6° (0.097 and +73° without the follower)."}
       ],
       "hints": [
         "Power first: pin 8 to +9 V, pin 4 to GND; the follower is just a wire from OUT to IN−.",
@@ -75,10 +76,10 @@
         "Keep the generator offset at 2 V so the follower never has to go below 0 V."
       ],
       "tests": [
-        "1061 Hz: VOUT = 0.5 × VIN (≈ 1.0 Vpp), phase 0°; the follower output is 0.707∠−45°",
-        "1061 Hz: the follower sits at 2 V average, VOUT at 0 V (C2 blocks the DC)",
-        "106 Hz: ≈ 0.099, ≈ +79°",
-        "10.6 kHz: ≈ 0.099, ≈ −79°"
+        "1061 Hz: VOUT is the product of the two network functions, phase 0°",
+        "1061 Hz: the follower output carries the DC offset, VOUT does not (C2 blocks it)",
+        "106 Hz: sensible gain and phase",
+        "10.6 kHz: sensible gain and phase"
       ]
     }
   },
@@ -101,7 +102,7 @@
   ],
   "tests": [
     {
-      "name": "1061 Hz：VOUT = 0.5 × VIN（≈ 1.0 Vpp），相位 0°；跟随器输出 0.707∠−45°",
+      "name": "1061 Hz：VOUT 等于两级网络函数的乘积，相位 0°",
       "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
       "scope": [
         { "pin": "R2.1", "measure": "gain", "vs": "FG1.+", "min": 0.48, "max": 0.52 },
@@ -112,7 +113,7 @@
       ]
     },
     {
-      "name": "1061 Hz：跟随器输出平均 2 V，VOUT 平均 0 V（C2 隔直）",
+      "name": "1061 Hz：跟随器输出带着直流偏置，VOUT 没有（C2 隔直）",
       "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
       "voltages": [
         { "pin": "U1.out", "min": 1.95, "max": 2.05 },
@@ -120,7 +121,7 @@
       ]
     },
     {
-      "name": "106 Hz：≈ 0.099，≈ +79°",
+      "name": "106 Hz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2 } },
       "scope": [
         { "pin": "R2.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.104 },
@@ -128,13 +129,28 @@
       ]
     },
     {
-      "name": "10.6 kHz：≈ 0.099，≈ −79°",
+      "name": "10.6 kHz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 2 } },
       "scope": [
         { "pin": "R2.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.104 },
         { "pin": "R2.1", "measure": "phase", "vs": "FG1.+", "min": -81.5, "max": -75.5 }
       ]
     }
+  ],
+  "compare": [
+    "**对比**：",
+    "  H = H_LP · H_HP = [1/(1 + jx)] · [jx/(1 + jx)] = jx/(1 + jx)²，x = f/f0，f0 = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz",
+    "- **1061 Hz**：跟随器输出 0.707∠−45°，VOUT = 0.707 × 0.707 = **0.5**∠0°（上一个实验不加跟随器只有 1/3）。VOUT ≈ 1.0 Vpp。",
+    "- **106 Hz**：|H| = 0.1/1.01 ≈ 0.099，相位 ≈ +84.3° − 5.7° ≈ +78.6°。",
+    "- **10.6 kHz**：|H| ≈ 0.099，相位 ≈ −78.6°。",
+    "注意分母从“1 − x² + 3jx”变成了“(1 + jx)² = 1 − x² + 2jx”：少掉的那个 jx 就是负载效应。跟随器的输入阻抗极高，第一级的 A 点不受第二级影响；输出阻抗很低（约 10 Ω），第二级看到的是一个“理想电压源”。"
+  ],
+  "measurements": [
+    {"id": "gf", "scope": "gain", "pin": "U1.out", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}}, "predict": true, "range": [0.672, 0.742], "ask": "1061 Hz：CH2 挪到跟随器输出，幅度比 OUT/VIN", "explain": "跟随器几乎不取电流，第一级是不带负载的 RC 低通：在 f0 处 0.707∠−45°。"},
+    {"id": "gv", "scope": "gain", "pin": "R2.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}}, "predict": true, "range": [0.475, 0.525], "ask": "1061 Hz：CH2 回到 VOUT，幅度比 VOUT/VIN", "explain": "0.707 × 0.707 = 0.5（不加跟随器时只有 1/3）。"},
+    {"id": "hp", "formula": "gv / gf", "predict": true, "range": [0.672, 0.743], "ask": "用你的两个读数算第二级（高通）单独的增益 = (VOUT/VIN) / (OUT/VIN)", "explain": "≈ 0.707，正是一个不带负载的 RC 高通在 f0 处的值：跟随器的输出阻抗很低，第二级看到的是理想电压源，两级各算各的、直接相乘。"},
+    {"id": "vf", "voltage": "U1.out", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}}, "unit": "V", "predict": true, "range": [1.9, 2.1], "ask": "万用表直流档：跟随器 OUT 对 GND 的平均电压", "explain": "低通把 2 V 偏置原样传过去，跟随器输出在 1 ~ 3 V 之间摆动，平均 2 V；C2 再把它挡掉，VOUT 的平均是 0。"},
+    {"id": "g106", "scope": "gain", "pin": "R2.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2}}, "predict": true, "range": [0.094, 0.104], "ask": "106 Hz：幅度比 VOUT/VIN", "explain": "H = jx/(1 + jx)²，x = 0.1：|H| = 0.1/1.01 ≈ 0.099，相位 ≈ +78.6°（不加跟随器时 0.097、+73°）。"}
   ],
   "hints": [
     "先供电：8 脚 +9 V，4 脚 GND；跟随器就是一根从 OUT 到 IN− 的线。",

@@ -19,14 +19,7 @@
     "",
     "**先预测**：用叠加定理把直流和交流分开看。直流部分：电容对直流开路，VOUT 的平均值是多少？交流部分：写出 H(jω) = R/(R + 1/(jωC))，求 fc，再算三个频率下的 |H| 和 ∠H。写下来再动手。",
     "",
-    "**测量**：读 CH1、CH2 的平均值；每个频率读 VOUT 与 VIN 的幅度比和相位差。",
-    "",
-    "**对比**：",
-    "- **直流部分（2 V）**：稳态下 R1 里没有电流，VOUT 的直流分量 = 0，电容两端稳稳地“存”着 2 V。CH1 的平均值 ≈ 2 V，CH2 的平均值 ≈ 0。这就是放大器之间常用的**隔直（耦合）电容**。",
-    "- **交流部分**：H(jω) = jωRC/(1 + jωRC)，|H| = (f/fc)/√(1 + (f/fc)²)，∠H = 90° − arctan(f/fc)，fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz。",
-    "- **106 Hz（fc/10）**：|H| ≈ 0.0995（−20 dB），相位 **+84.3°**——低频几乎被挡住，剩下的一点还超前将近 90°（电容支路里电流超前电压）。",
-    "- **1061 Hz（fc）**：|H| ≈ 0.707（−3 dB），相位 **+45°**。",
-    "- **10.6 kHz（10fc）**：|H| ≈ 0.995，相位 +5.7°——高频时电容几乎是导线。",
+    "**测量**：读 CH1、CH2 的平均值；每个频率读 VOUT 与 VIN 的幅度比和相位差。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**想一想**（和实验 4-1 对比）：两个电路的 fc 相同。低通的相位从 0 走到 −90°（输出落后），高通的相位从 +90° 走到 0（输出超前）；在 fc 处，低通和高通的输出幅度都是 0.707，而且两者之和（相量相加）正好等于输入——因为 u_R + u_C = u_in。",
     "",
@@ -48,18 +41,25 @@
         "",
         "**Predict first**: use superposition and look at DC and AC separately. DC: a capacitor is open at DC, so what is the average of VOUT? AC: write H(jω) = R/(R + 1/(jωC)), find fc, and work out |H| and ∠H at the three frequencies. Write them down before you start.",
         "",
-        "**Measure**: read the averages of CH1 and CH2; at each frequency read the amplitude ratio VOUT/VIN and the phase shift.",
+        "**Measure**: read the averages of CH1 and CH2; at each frequency read the amplitude ratio VOUT/VIN and the phase shift. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
+        "**Think about it** (compare with Experiment 4-1): both circuits have the same fc. The low-pass phase goes from 0 to −90° (output lags), the high-pass from +90° to 0 (output leads). At fc both outputs are 0.707 of the input, and their phasor sum is exactly the input — because u_R + u_C = u_in.",
+        "",
+        "**In a real circuit**: the 10 nF part here is a ceramic capacitor with no polarity. The µF-size coupling capacitors between amplifier stages are mostly aluminium electrolytics, which are polarised: the + lead must sit at the higher DC potential (in this circuit the VIN side at 2 V; the VOUT side is at 0 V). A reversed electrolytic leaks, lets some DC through to the next stage and can fail over time. The simulated capacitor has no polarity."
+      ],
+      "compare": [
         "**Compare**:",
         "- **The DC part (2 V)**: in steady state no current flows in R1 and the DC part of VOUT is 0; the capacitor quietly \"stores\" the 2 V. CH1 averages ≈ 2 V, CH2 averages ≈ 0. That's the **coupling (DC-blocking) capacitor** used between amplifier stages.",
         "- **The AC part**: H(jω) = jωRC/(1 + jωRC), |H| = (f/fc)/√(1 + (f/fc)²), ∠H = 90° − arctan(f/fc), fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz.",
         "- **106 Hz (fc/10)**: |H| ≈ 0.0995 (−20 dB), phase **+84.3°** — low frequencies are almost blocked, and what's left leads by nearly 90° (current in a capacitive branch leads the voltage).",
         "- **1061 Hz (fc)**: |H| ≈ 0.707 (−3 dB), phase **+45°**.",
-        "- **10.6 kHz (10fc)**: |H| ≈ 0.995, phase +5.7° — at high frequency the capacitor is almost a wire.",
-        "",
-        "**Think about it** (compare with Experiment 4-1): both circuits have the same fc. The low-pass phase goes from 0 to −90° (output lags), the high-pass from +90° to 0 (output leads). At fc both outputs are 0.707 of the input, and their phasor sum is exactly the input — because u_R + u_C = u_in.",
-        "",
-        "**In a real circuit**: the 10 nF part here is a ceramic capacitor with no polarity. The µF-size coupling capacitors between amplifier stages are mostly aluminium electrolytics, which are polarised: the + lead must sit at the higher DC potential (in this circuit the VIN side at 2 V; the VOUT side is at 0 V). A reversed electrolytic leaks, lets some DC through to the next stage and can fail over time. The simulated capacitor has no polarity."
+        "- **10.6 kHz (10fc)**: |H| ≈ 0.995, phase +5.7° — at high frequency the capacitor is almost a wire."
+      ],
+      "measurements": [
+        {"ask": "Multimeter DC range (or the scope's average): VOUT to GND, the average", "explain": "The capacitor is open at DC, so in steady state R1 carries no DC: VOUT has no DC part and the whole 2 V sits on the capacitor. That is a DC-blocking (coupling) capacitor."},
+        {"ask": "f = 106 Hz: amplitude ratio VOUT/VIN", "explain": "|H| = (f/fc)/√(1 + (f/fc)²) = 0.1/√1.01 ≈ 0.0995 (−20 dB)."},
+        {"ask": "f = 106 Hz: phase of VOUT relative to VIN (leading is positive)", "explain": "∠H = 90° − arctan(0.1) ≈ +84.3°: what little gets through at low frequency leads by nearly 90°."},
+        {"ask": "Sweep: the frequency fc where the amplitude ratio is 0.707", "explain": "fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz, the same as the low-pass; the phase there is +45°."}
       ],
       "hints": [
         "Capacitor in series first, resistor from VOUT to GND.",
@@ -67,10 +67,10 @@
         "fc = 1/(2πRC) ≈ 1061 Hz; at fc expect 0.707 and +45°."
       ],
       "tests": [
-        "DC blocked: VIN averages ≈ 2 V, VOUT ≈ 0 V",
-        "fc/10 = 106 Hz: gain ≈ 0.0995, phase ≈ +84°",
-        "fc = 1061 Hz: gain ≈ 0.707, phase ≈ +45°",
-        "10fc = 10.6 kHz: gain ≈ 0.995, phase ≈ +5.7°"
+        "DC blocked: VIN carries the offset, VOUT does not",
+        "fc/10 = 106 Hz: sensible gain and phase",
+        "fc = 1061 Hz: sensible gain and phase",
+        "10fc = 10.6 kHz: sensible gain and phase"
       ]
     }
   },
@@ -86,7 +86,7 @@
   ],
   "tests": [
     {
-      "name": "隔直：VIN 平均 ≈ 2 V，VOUT 平均 ≈ 0 V",
+      "name": "隔直：VIN 带直流偏置，VOUT 没有",
       "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
       "voltages": [
         { "pin": "FG1.+", "min": 1.95, "max": 2.05 },
@@ -94,7 +94,7 @@
       ]
     },
     {
-      "name": "fc/10 = 106 Hz：增益 ≈ 0.0995，相位 ≈ +84°",
+      "name": "fc/10 = 106 Hz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2 } },
       "scope": [
         { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.105 },
@@ -102,7 +102,7 @@
       ]
     },
     {
-      "name": "fc = 1061 Hz：增益 ≈ 0.707，相位 ≈ +45°",
+      "name": "fc = 1061 Hz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
       "scope": [
         { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
@@ -110,13 +110,27 @@
       ]
     },
     {
-      "name": "10fc = 10.6 kHz：增益 ≈ 0.995，相位 ≈ +5.7°",
+      "name": "10fc = 10.6 kHz：增益、相位合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 2 } },
       "scope": [
         { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.98, "max": 1.0 },
         { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 3.5, "max": 8 }
       ]
     }
+  ],
+  "compare": [
+    "**对比**：",
+    "- **直流部分（2 V）**：稳态下 R1 里没有电流，VOUT 的直流分量 = 0，电容两端稳稳地“存”着 2 V。CH1 的平均值 ≈ 2 V，CH2 的平均值 ≈ 0。这就是放大器之间常用的**隔直（耦合）电容**。",
+    "- **交流部分**：H(jω) = jωRC/(1 + jωRC)，|H| = (f/fc)/√(1 + (f/fc)²)，∠H = 90° − arctan(f/fc)，fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz。",
+    "- **106 Hz（fc/10）**：|H| ≈ 0.0995（−20 dB），相位 **+84.3°**——低频几乎被挡住，剩下的一点还超前将近 90°（电容支路里电流超前电压）。",
+    "- **1061 Hz（fc）**：|H| ≈ 0.707（−3 dB），相位 **+45°**。",
+    "- **10.6 kHz（10fc）**：|H| ≈ 0.995，相位 +5.7°——高频时电容几乎是导线。"
+  ],
+  "measurements": [
+    {"id": "vavg", "voltage": "R1.1", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}}, "unit": "V", "predict": true, "tolAbs": 0.01, "range": [-0.02, 0.02], "ask": "万用表直流档（或示波器的平均值）：VOUT 对 GND 的平均电压", "explain": "电容对直流开路，稳态下 R1 没有直流电流：VOUT 的直流分量是 0，2 V 全“存”在电容上。这就是隔直（耦合）电容。"},
+    {"id": "g106", "scope": "gain", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2}}, "predict": true, "range": [0.0945, 0.104], "ask": "f = 106 Hz：幅度比 VOUT/VIN", "explain": "|H| = (f/fc)/√(1 + (f/fc)²) = 0.1/√1.01 ≈ 0.0995（−20 dB）。"},
+    {"id": "ph106", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2}}, "unit": "°", "predict": true, "range": [80.1, 88.5], "ask": "f = 106 Hz：VOUT 相对 VIN 的相位差（超前为正）", "explain": "∠H = 90° − arctan(0.1) ≈ +84.3°：低频时剩下的一点输出超前将近 90°。"},
+    {"id": "fc", "scope": "gain", "pin": "R1.1", "vs": "FG1.+", "solve": {"el": "FG1", "from": 300, "to": 5000, "value": 0.707}, "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}}, "unit": "Hz", "predict": true, "range": [1010.0, 1110.0], "ask": "扫频：幅度比降到 0.707 的频率 fc", "explain": "fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz，和低通一样；在 fc 处相位是 +45°。"}
   ],
   "hints": [
     "电容串联在前，电阻从 VOUT 接到 GND。",
