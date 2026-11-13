@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { tr, type Lang } from './core/i18n';
 import { loadAll, useActiveChallenge } from './state/challenges';
 import { loadProblems } from './state/problems';
@@ -44,20 +44,6 @@ function Logo() {
         </g>
       ))}
     </svg>
-  );
-}
-
-function Clock() {
-  const [now, setNow] = useState(new Date());
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <div className="clock">
-      <div>{now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase()}</div>
-      <div>{now.toLocaleTimeString('en-GB')}</div>
-    </div>
   );
 }
 
@@ -107,19 +93,55 @@ function ProgressCard() {
 
 function CelebrateModal() {
   const show = useStore((s) => s.celebrate);
+  const ch = useActiveChallenge();
+  if (!show || !ch) return null;
+  return <CelebrateDialog />;
+}
+
+/** Modal dialog: Esc closes it, Tab stays inside, focus returns to where it was. */
+function CelebrateDialog() {
   const setCelebrate = useStore((s) => s.setCelebrate);
   const challenges = useStore((s) => s.challenges);
   const completed = useStore((s) => s.completed);
   const open = useStore((s) => s.openChallenge);
-  const ch = useActiveChallenge();
-  if (!show || !ch) return null;
+  const ch = useActiveChallenge()!;
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null;
+    (box.current?.querySelector<HTMLElement>('button.primary') ?? box.current?.querySelector<HTMLElement>('button'))?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        e.preventDefault();
+        setCelebrate(false);
+      } else if (e.key === 'Tab' && box.current) {
+        const f = [...box.current.querySelectorAll<HTMLElement>('button:not(:disabled)')];
+        if (!f.length) return;
+        const i = f.indexOf(document.activeElement as HTMLElement);
+        if (e.shiftKey && i <= 0) {
+          e.preventDefault();
+          f[f.length - 1].focus();
+        } else if (!e.shiftKey && (i === -1 || i === f.length - 1)) {
+          e.preventDefault();
+          f[0].focus();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      if (prev && document.contains(prev)) prev.focus();
+    };
+  }, [setCelebrate]);
   const same = challenges.filter((c) => c.kind === ch.kind);
   const next = same.slice(same.indexOf(ch) + 1).find((c) => !completed[c.id]) ?? same.find((c) => !completed[c.id]);
   return (
     <div className="modal-bg" onClick={() => setCelebrate(false)}>
-      <div className="modal card" onClick={(e) => e.stopPropagation()}>
-        <div className="big-emoji">🎉</div>
-        <h2>{tr('完全正确！', 'Perfect!')}</h2>
+      <div className="modal card" ref={box} role="dialog" aria-modal="true" aria-labelledby="celebrate-title" onClick={(e) => e.stopPropagation()}>
+        <div className="big-emoji" aria-hidden>
+          🎉
+        </div>
+        <h2 id="celebrate-title">{tr('完全正确！', 'Perfect!')}</h2>
         <p>
           {tr(
             `你在面包板上搭出的电路与「${ch.title}」的目标电路完全一致${ch.tests.length ? `，并通过了全部 ${ch.tests.length} 项功能测试` : ''}。`,
@@ -222,7 +244,7 @@ export default function App() {
   const bench = mode === 'learn' || mode === 'challenge' || mode === 'sandbox';
 
   return (
-    <div className="app">
+    <div className={`app ${bench ? 'is-bench' : ''}`}>
       <header className="top">
         <div className="brand">
           <Logo />
@@ -231,9 +253,9 @@ export default function App() {
             <div className="brand-sub">{tr('面包板实验室 · ', '')}EXPLORE · CONNECT · BUILD</div>
           </div>
         </div>
-        <nav className="nav">
+        <nav className="nav" aria-label={tr('主导航', 'Main')}>
           {NAV.map((n) => (
-            <button key={n.mode} className={mode === n.mode ? 'on' : ''} onClick={() => setMode(n.mode)}>
+            <button key={n.mode} className={mode === n.mode ? 'on' : ''} aria-current={mode === n.mode ? 'page' : undefined} onClick={() => setMode(n.mode)}>
               <Icon name={n.icon} />
               <span>{tr(n.zh, n.en)}</span>
               {lang === 'zh' && <small>{n.en}</small>}
@@ -243,7 +265,6 @@ export default function App() {
         <div className="top-right">
           <ProgressCard />
           <LangSwitch />
-          <Clock />
         </div>
       </header>
 
