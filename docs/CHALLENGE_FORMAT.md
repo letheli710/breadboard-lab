@@ -84,7 +84,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `title` | string | ✔ | 标题 |
 | `kind` | `"lesson"` \| `"challenge"` | | 默认 `"challenge"`。lesson = 带步骤引导的课；challenge = 自己解的题 |
 | `level` | number 1–5 | | 难度，默认 1（会四舍五入并限制在 1–5） |
-| `phase` | `1` \| `2` \| `3` \| `4` | | 属于课程第几期（见 [`ROADMAP.md`](./ROADMAP.md)）：1 基本定律与等效变换，2 分析方法 / 定理 / 运放，3 暂态，4 交流。省略 = 原来的入门题。挑战列表按期分组显示（“入门 / 第1期 / …”）。约定文件名：第 1 期 `201-…`–`219-…`，第 2 期 `221-…`–`239-…`，以此类推 |
+| `phase` | `1` \| `2` \| `3` \| `4` \| `5` | | 属于课程第几期（见 [`ROADMAP.md`](./ROADMAP.md)）：1 基本定律与等效变换，2 分析方法 / 定理 / 运放，3 暂态，4 交流，5 单片机外围电路（§14，文件名 `280-…`–`299-…`）。省略 = 原来的入门题。挑战列表按期分组显示（“入门 / 第1期 / …”）。约定文件名：第 1 期 `201-…`–`219-…`，第 2 期 `221-…`–`239-…`，以此类推 |
 | `summary` | string | | 一句话简介，显示在列表里 |
 | `description` | string 或 string[] | | 正文讲解。纯文本，用 `\n` 换行；如果是数组，会用换行拼接。支持少量格式：`**粗体**`、以 `- ` 或 `1. ` 开头的列表行 |
 | `concepts` | string[] | | 涉及的概念标签，例如 `["series 串联", "KVL"]` |
@@ -136,6 +136,15 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `ammeter` | 电流表（万用表 A 档） | `+`（红表笔，电流流入）, `-`（黑表笔 COM） | +: `red` `pos` `in`；−: `com` `black` `neg` `out` | — |
 | `opamp` | 运放 LM358（双运放 DIP-8） | `outA`, `inA-`, `inA+`, `v-`, `inB+`, `inB-`, `outB`, `v+` | 见 §13.2 | — |
 | `function_gen` | 信号发生器 | `+`（红，信号）, `-`（黑，COM） | +: `out` `sig` `red`；−: `com` `gnd` `black` | `waveform`: `sine` `square` `triangle`；`frequency`（Hz）；`amplitude`（峰值 V）；`offset`（V） |
+| `esp32_devkit` / `stm32_bluepill` / `mcu` | 单片机开发板（`mcu` = 两种都行） | 电源脚 `3V3` `5V` `GND` `EN`（Blue Pill 叫 `NRST`），GPIO 用**逻辑引脚** `GPIO_OUT1`、`GPIO_IN1`、`ADC1`、`PWM1`、`GPIO_FT1`、`IO1`（或物理引脚 `GPIO2`、`PA0`） | 见 §14.2 | `modes`（引脚模式）、`usb` |
+| `npn` | NPN 三极管 2N2222（TO-92） | `e`, `b`, `c` | `emitter` `base` `collector` | `beta`（默认 150） |
+| `nmos` | N-MOSFET（TO-220） | `g`, `d`, `s` | `gate` `drain` `source` | `model`: `IRLZ44N`（逻辑电平）\| `IRF540N` |
+| `relay` | 5 V 继电器 | `coil1`, `coil2`, `com`, `nc`, `no` | `coil+`/`a1`→coil1，`coil-`/`a2`→coil2，`common`→com | — |
+| `motor` | 直流电机 | `+`, `-` | `pos` `red` / `neg` `black` | — |
+| `buzzer` | 有源蜂鸣器 | `+`, `-` | `long` / `short` | — |
+| `ldo` | LDO 稳压器 LM1117 | `gnd`, `out`, `in` | `1`/`adj`→gnd，`2`/`vout`→out，`3`/`vin`→in | `voltage`（3.3 或 5） |
+| `ldr` | 光敏电阻 | `1`, `2` | — | `lux` |
+| `ntc` | NTC 热敏电阻 10k | `1`, `2` | — | `temperature`（°C） |
 
 说明：
 - **`dc_source`** 只能出现在 `components` 里，它可以匹配学生面包板上的**任何**电池 / 稳压电源 / 电源模块（如果写了 `voltage`，电压要一致）。除非这一课就是讲某种特定电源，否则**优先用 `dc_source`**。
@@ -530,3 +539,109 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 ### 13.5 完整例子
 
 见 `src/core/fixtures/rc-lowpass-scope.json`（RC 低通，测增益、相位、频率）和 `src/core/fixtures/opamp-noninverting.json`（LM358 同相放大，单电源 + 偏置，测 Vpp、相位、平均电压、电阻电流和削顶；参考答案用的是 B 半，还串了一个电流表——都能判对）。可以用 `npm run validate src/core/fixtures` 校验。
+
+---
+
+## 14. 单片机外围电路（phase 5）
+
+第 5 期教的是单片机项目的**电路部分**：引脚电流、3.3 V 和 5 V、上拉 / 下拉、三极管和 MOSFET 开关、续流二极管、稳压器、ADC 分压、PWM + RC 滤波。**这里没有程序**：开发板的每个 GPIO 有一个**模式**（mode），模式就是“程序”。模型细节见 [`ROADMAP.md`](./ROADMAP.md) 的 “Phase 5 contract”，代码在 `src/core/mcu.ts`、`src/core/devices.ts`。
+
+### 14.1 开发板
+
+| | `esp32_devkit`（ESP32-DevKitC，38 针） | `stm32_bluepill`（STM32F103C8T6，40 针） |
+|---|---|---|
+| 摆放（`at`） | 左上角 GND 脚所在的孔，必须在 **b 行**；占 19 列，上排针在 b 行、下排针在 i 行（a、j 行每个引脚留一个空孔） | 左上角 GND 脚，必须在 **c 行**；占 20 列，上排 c 行、下排 g 行 |
+| 上排（左→右） | GND, GPIO23, GPIO22, GPIO1(TX), GPIO3(RX), GPIO21, GND, GPIO19, GPIO18, GPIO5, GPIO17, GPIO16, GPIO4, GPIO0, GPIO2, GPIO15, GPIO8, GPIO7, GPIO6 | GND, GND, 3V3, NRST, PB11, PB10, PB1, PB0, PA7, PA6, PA5, PA4, PA3, PA2, PA1, PA0, PC15, PC14, PC13, VBAT |
+| 下排（左→右） | 3V3, EN, GPIO36(VP), GPIO39(VN), GPIO34, GPIO35, GPIO32, GPIO33, GPIO25, GPIO26, GPIO27, GPIO14, GPIO12, GND, GPIO13, GPIO9, GPIO10, GPIO11, 5V | PB12, PB13, PB14, PB15, PA8, PA9, PA10, PA11, PA12, PA15, PB3, PB4, PB5, PB6, PB7, PB8, PB9, 5V, GND, 3V3 |
+| 逻辑电平 | 3.3 V；VIL ≤ 0.825 V，VIH ≥ 2.475 V | 3.3 V；VIL ≤ 1.16 V，VIH ≥ 2.15 V |
+| 输出 | 25 Ω 接到 3V3 / GND；建议 ≤ 20 mA，> 40 mA 引脚损坏 | 40 Ω；建议 ≤ 20 mA（PC13–15 ≤ 3 mA），> 25 mA 损坏 |
+| 内部上下拉 | 45 kΩ；GPIO34–39 **没有** | 40 kΩ |
+| 只能输入 | GPIO34, 35, 36, 39 | — |
+| ADC（12 位，0–3.3 V） | ADC1：GPIO32–39（ADC2 引脚能用，但开 Wi-Fi 时不行，会给提示） | PA0–PA7, PB0, PB1 |
+| 耐 5 V | 没有 | FT 引脚：PA8–PA15、PB3、PB4、PB6–PB15 |
+| 不要用 | GPIO6–11（接板载 Flash） | — |
+| 供电 | `usb: true`（默认）= 插着 USB：5 V →肖特基二极管→ 5V 脚（约 4.7 V）→ AMS1117（压差 1.1 V，最多 1 A）→ 3V3；芯片本身约 50 mA | 同上，板载 LDO 压差 0.25 V、最多 300 mA；芯片约 20 mA；PC13 上有板载 LED（引脚输出低电平时亮） |
+
+`usb: false` 时板子要从面包板供电（5V 脚接 5 V，或 3V3 脚接 3.3 V）；3V3 和 5V 脚也可以给面包板供电。3V3 低于约 2.5 V（STM32 2.0 V）或 EN / NRST 被拉低时芯片不工作，所有引脚变成高阻。
+
+### 14.2 逻辑引脚与匹配规则（matching rule）
+
+目标电路里的开发板引脚可以写：
+- **电源脚**：`3V3`、`5V`、`GND`、`EN`（`NRST` 等价）——按名字对应学生板子上的同名脚（多个 GND 脚在板上是连通的）。
+- **逻辑引脚**（推荐）：`<角色><编号>`，学生用**任何一个**有这种能力的空闲 GPIO 都算对：
+
+| 逻辑引脚 | 能匹配的物理引脚 |
+|---|---|
+| `GPIO_OUT1`、`GPIO_OUT2`… | 能输出的 GPIO（ESP32 不含 34–39 和 6–11） |
+| `PWM1`… | 能输出 PWM 的 GPIO（ESP32 全部输出脚；STM32 PA0–3、PA6–11、PB0、PB1、PB6–9） |
+| `GPIO_IN1`… | 任何 GPIO（包括只能输入的脚） |
+| `ADC1`… | ADC 引脚（ESP32 只算 ADC1：GPIO32–39；STM32 PA0–7、PB0、PB1） |
+| `GPIO_FT1`… | 耐 5 V 的引脚（只有 STM32 的 FT 引脚） |
+| `IO1`… | 任何能输入也能输出的 GPIO |
+
+- **物理引脚**：`GPIO2`、`PA0` 等，只匹配那一个脚（别名：`D2`/`IO2`/`2` → `GPIO2`，`A0` → `PA0`，`VIN` → `5V`，`3.3V` → `3V3`，`G` → `GND`）。
+
+判分时，每个逻辑引脚对应到学生实际接线的那个物理引脚（它所在的节点上有目标电路里和它相连的其他引脚）。编号不同的逻辑引脚必须用不同的物理引脚。如果学生接的是一个没有这种能力的脚（例如用 GPIO34 当输出），会提示“GPIO34 不能当 GPIO_OUT1 用（只能输入）”。`type: "mcu"` 匹配任意一种开发板（只能用电源脚和逻辑引脚）。
+
+### 14.3 引脚模式 `modes`
+
+```json
+{ "ref": "U1", "type": "esp32_devkit", "modes": { "GPIO_OUT1": "out_high", "PWM1": { "mode": "pwm", "duty": 25, "frequency": 1000 } } }
+```
+
+模式：`out_high`（输出高）、`out_low`（输出低）、`input`（浮空输入）、`input_pullup`（输入 + 内部上拉）、`input_pulldown`（输入 + 内部下拉）、`pwm`（`duty` 0–100 %，默认 50；`frequency` Hz，默认 1000）、`adc`（模拟输入）。没写的引脚是 `input`。引脚不支持的模式会报错（例如 GPIO34 的 `out_high`）。
+
+- 写在**目标电路**里的模式是答案的一部分：学生必须在属性里把对应的引脚设成同样的模式（PWM 的占空比相差 ≤ 1 %、频率在 `tolerance` 内）。如果模式不是考点，就不要写在目标里，而是在每个 test 的 `set` 里设置。
+- 目标里没写模式的逻辑引脚，自检时按默认模式仿真：`GPIO_OUT` → `out_low`，`PWM` → `pwm`，`ADC` → `adc`，其他 → `input`。
+- `set` 里改模式：`"set": { "U1": { "modes": { "GPIO_OUT1": "out_low" } } }`（会翻译成学生实际用的物理引脚；只改列出的引脚）。也可以 `"usb": false` 拔掉 USB。
+- 参考答案 `solution` 里的开发板写 `"at"` 和 `"props": { "usb": true, "modes": { "GPIO2": "out_high" } }`——这里必须用物理引脚名，并且必须放在 `props` 里（布局元件顶层的 `pins` 是孔位）。
+- 在 `components` 和 `set` 里 `pins` 是 `modes` 的别名。
+
+### 14.4 新器件的模型（写数值时用）
+
+| 器件 | 模型 |
+|---|---|
+| `npn` | BE 结 0.65 V + 20 Ω；放大区 Ic = β·Ib（β 默认 150）；饱和 Vce = 0.15 V + 1 Ω × Ic；C–E 击穿 40 V；Ic 最大 600 mA，功耗 625 mW |
+| `nmos` | IRLZ44N：Vth 1.5 V，Rds(on) 22 mΩ @ 5 V（3.3 V 栅压时 ≈ 31 mΩ）；IRF540N：Vth 3 V，44 mΩ @ 10 V（3.3 V 栅压时几乎不导通）。Id = min(K·Vov·Vds, K·Vov²/2)；栅极不取电流；体二极管 S→D |
+| `relay` | 线圈 70 Ω + 150 mH；电流 ≥ 53 mA 吸合，< 7 mA 释放；触点 0.05 Ω |
+| `motor` | 8 Ω + 2 mH（不考虑反电动势）；电流 ≥ 0.1 A 算“转动” |
+| `buzzer` | 1.0 V + 140 Ω（5 V 时约 28 mA）；≥ 2.5 V 才响 |
+| `ldo` | 稳压 / 压差（1.1 V + 0.2 Ω）/ 限流 800 mA / 关断；静态电流 5 mA |
+| `ldr` | R = 15 kΩ × (lux / 10)^−0.7，限制在 100 Ω – 1 MΩ（0 lux = 1 MΩ） |
+| `ntc` | R = 10 kΩ × exp(3950 × (1/T − 1/298.15))，T = 温度 + 273.15 |
+| GPIO | 见 §14.1；输入的“浮空” = 直流下到任何东西的阻抗 > 50 MΩ |
+
+### 14.5 新的测试项
+
+```json
+{
+  "name": "按下：读到低电平",
+  "set": { "SW1": { "pressed": true }, "LDR1": { "lux": 1000 } },
+  "expect": { "LED1": "on", "K1": "on", "M1": "off", "BZ1": "on" },
+  "gpio": [
+    { "pin": "U1.GPIO_IN1", "read": "low" },
+    { "pin": "U1.ADC1", "measure": "adc", "min": 1900, "max": 2200 },
+    { "pin": "U1.ADC1", "measure": "adc_v", "min": 1.5, "max": 1.8 },
+    { "pin": "U1.GPIO_OUT1", "measure": "current", "min": 0.004, "max": 0.008 },
+    { "pin": "U1.GPIO_OUT1", "measure": "voltage", "min": 3.0, "max": 3.3 }
+  ],
+  "regions": { "Q1": "saturation", "Q2": "ohmic" },
+  "currents": [{ "el": "K1", "min": 0.06, "max": 0.075 }]
+}
+```
+
+- `expect` 现在也可以写继电器（`on` = 吸合）、电机（`on` = 转动）、蜂鸣器（`on` = 响）。
+- `gpio`：`read` 是数字输入读到的电平 `high` / `low` / `floating`；`measure` 是 `voltage`（相对开发板 GND，V）、`current`（从引脚的输出级 / 内部上下拉流出的电流，A，负数 = 灌入）、`adc`（12 位原始值 0–4095）、`adc_v`（ADC 电压）。
+- `regions`：`npn` 是 `cutoff` / `active` / `saturation`；`nmos` 是 `off`（也可写 `cutoff`）/ `ohmic` / `saturation`。注意 MOSFET 的 `saturation` 是“恒流区”（没有完全导通），当开关用时应该是 `ohmic`。
+- `currents` 新增：`npn`（集电极电流）、`nmos`（漏极电流）、`relay`（线圈电流）、`motor`、`buzzer`、`ldo`（输出电流）、`ldr`、`ntc`。
+- 有引脚在 `pwm` 模式时，电路按时域仿真（和信号发生器一样，示波器 `scope` 测量可用）：`voltages`、`currents`、`gpio` 的 `voltage` / `current` 取**平均值**；`read`、`adc`、`regions` 用直流模型（PWM 按平均值，即 duty × 3.3 V 接在 25 Ω 后面）。
+- 校验器额外检查：参考答案在任何测试状态下都不能烧坏引脚、不能过压、三极管不能击穿；超过建议电流会给警告。
+
+### 14.6 诊断（学生搭电路时实时提示）
+
+引脚过流（> 建议值警告，> 绝对最大值“引脚损坏”）、非 5 V 耐受引脚过压 / 负电压（保护二极管电流）、ADC 超过 3.3 V、浮空输入 / MOSFET 栅极浮空、输出接在电源上、两个输出打架、只能输入的脚当输出、GPIO6–11、ADC2、串口脚、稳压器过流 / 压差不够、USB 过载、欠压复位、线圈 / 电机没有续流二极管、时域仿真中的反电动势击穿、三极管没饱和、MOSFET 没完全导通、LDO 缺输出电容。
+
+### 14.7 完整例子
+
+见 `src/core/fixtures/mcu-gpio-led.json`（ESP32 任意输出 GPIO → 220 Ω → LED，测 LED、引脚电流和电压；把电阻移到 GPIO4 也判对，移到 GPIO34 会被拒绝）和 `src/core/fixtures/mcu-button-pullup.json`（Blue Pill 按键 + 内部上拉：松开读高、按下读低、浮空）。
+

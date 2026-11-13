@@ -59,9 +59,10 @@
         1,
         2,
         3,
-        4
+        4,
+        5
       ],
-      "description": "Course phase (docs/ROADMAP.md) this experiment belongs to: 1 basic laws & equivalence, 2 methods/theorems/op-amps, 3 transients, 4 AC. Omit for the original intro set. The challenge list groups challenges by phase."
+      "description": "Course phase (docs/ROADMAP.md) this experiment belongs to: 1 basic laws & equivalence, 2 methods/theorems/op-amps, 3 transients, 4 AC, 5 MCU peripheral circuits. Omit for the original intro set. The challenge list groups challenges by phase. File names: phase n uses 2NN with NN in (n−1)·20 … (n−1)·20+19 (phase 5: 280–299)."
     },
     "summary": {
       "type": "string",
@@ -374,6 +375,38 @@
             2
           ],
           "description": "scope_probe channel (layouts only)."
+        },
+        "modes": {
+          "$ref": "#/definitions/pinModes"
+        },
+        "usb": {
+          "type": "boolean",
+          "description": "Dev board: virtual USB cable plugged in (default true)."
+        },
+        "beta": {
+          "type": "number",
+          "description": "npn current gain β (default 150)."
+        },
+        "model": {
+          "enum": [
+            "IRLZ44N",
+            "IRF540N"
+          ],
+          "description": "nmos model: IRLZ44N logic level (Vth 1.5 V) or IRF540N standard (Vth 3 V)."
+        },
+        "lux": {
+          "type": "number",
+          "minimum": 0,
+          "description": "ldr light level (lux)."
+        },
+        "temperature": {
+          "type": "number",
+          "description": "ntc temperature (°C)."
+        },
+        "props": {
+          "type": "object",
+          "description": "Layout parts only: properties as an object (needed for dev boards, whose top-level \"pins\" are hole positions).",
+          "$ref": "#/definitions/props"
         }
       }
     },
@@ -410,9 +443,20 @@
                 "inductor",
                 "ammeter",
                 "opamp",
-                "function_gen"
+                "function_gen",
+                "esp32_devkit",
+                "stm32_bluepill",
+                "mcu",
+                "npn",
+                "nmos",
+                "relay",
+                "motor",
+                "buzzer",
+                "ldo",
+                "ldr",
+                "ntc"
               ],
-              "description": "dc_source matches any battery / bench_supply / power_module (with the same voltage if given). opamp = one LM358 (logical pins outA, inA-, inA+, v-, inB+, inB-, outB, v+; halves A/B are interchangeable when grading). scope_probe is NOT allowed here (use \"scope\" tests). An ammeter not listed in the target is treated as a wire on the student's board."
+              "description": "dc_source matches any battery / bench_supply / power_module (with the same voltage if given). opamp = one LM358 (logical pins outA, inA-, inA+, v-, inB+, inB-, outB, v+; halves A/B are interchangeable when grading). scope_probe is NOT allowed here (use \"scope\" tests). An ammeter not listed in the target is treated as a wire on the student's board. Phase 5: esp32_devkit / stm32_bluepill dev boards (or the generic mcu = either board); their pins are power pins 3V3, 5V, GND, EN (NRST) or logical roles GPIO_OUT<n>, GPIO_IN<n>, ADC<n>, PWM<n>, GPIO_FT<n>, IO<n> (each matches any free physical GPIO with that capability), or exact physical pins (GPIO2, PA0). npn pins e,b,c; nmos g,d,s; relay coil1,coil2,com,nc,no; motor +,-; buzzer +,-; ldo gnd,out,in; ldr / ntc 1,2."
             }
           }
         }
@@ -426,14 +470,14 @@
         },
         "set": {
           "type": "object",
-          "description": "Temporary property overrides per component ref, e.g. {\"SW1\": {\"pressed\": true}}, {\"S1\": {\"position\": \"b\"}}, {\"RV1\": {\"wiper\": 0.2}}. Generators: {\"FG1\": {\"waveform\": \"square\", \"frequency\": 100, \"amplitude\": 2.5, \"offset\": 2.5}}.",
+          "description": "Temporary property overrides per component ref, e.g. {\"SW1\": {\"pressed\": true}}, {\"S1\": {\"position\": \"b\"}}, {\"RV1\": {\"wiper\": 0.2}}. Generators: {\"FG1\": {\"waveform\": \"square\", \"frequency\": 100, \"amplitude\": 2.5, \"offset\": 2.5}}. Dev boards: {\"U1\": {\"modes\": {\"GPIO_OUT1\": \"out_low\"}, \"usb\": false}}; sensors: {\"LDR1\": {\"lux\": 1000}}, {\"RT1\": {\"temperature\": 50}}.",
           "additionalProperties": {
             "$ref": "#/definitions/props"
           }
         },
         "expect": {
           "type": "object",
-          "description": "LED ref -> \"on\" | \"off\" (on = more than 0.5 mA; average current when a generator is present).",
+          "description": "ref -> \"on\" | \"off\": LED lit (> 0.5 mA, average under AC), relay energised, motor running, buzzer sounding.",
           "additionalProperties": {
             "enum": [
               "on",
@@ -468,7 +512,7 @@
         },
         "currents": {
           "type": "array",
-          "description": "Current checks in amps. el = ammeter (its reading, in at +) or a resistor / inductor (pin 1 → 2), LED / diode (anode → cathode), source / generator (out of +).",
+          "description": "Current checks in amps. el = ammeter (its reading, in at +) or a resistor / inductor (pin 1 → 2), LED / diode (anode → cathode), source / generator (out of +). Also npn (collector current), nmos (drain current), relay (coil current), motor, buzzer, ldo (output current), ldr, ntc.",
           "items": {
             "type": "object",
             "required": [
@@ -560,6 +604,55 @@
               ]
             }
           }
+        },
+        "gpio": {
+          "type": "array",
+          "description": "Dev-board pin checks. read = the logic level a digital input reads (high / low / floating); measure = voltage (V vs the board's GND), current (A out of the pin's driver / pull, negative = sinking), adc (12-bit raw count), adc_v (V).",
+          "items": {
+            "type": "object",
+            "required": [
+              "pin"
+            ],
+            "properties": {
+              "pin": {
+                "$ref": "#/definitions/pinRef"
+              },
+              "read": {
+                "enum": [
+                  "high",
+                  "low",
+                  "floating"
+                ]
+              },
+              "measure": {
+                "enum": [
+                  "voltage",
+                  "current",
+                  "adc",
+                  "adc_v"
+                ]
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "regions": {
+          "type": "object",
+          "description": "Operating region per transistor ref: npn cutoff / active / saturation; nmos off / ohmic / saturation.",
+          "additionalProperties": {
+            "enum": [
+              "cutoff",
+              "active",
+              "saturation",
+              "off",
+              "ohmic"
+            ]
+          }
         }
       }
     },
@@ -591,7 +684,17 @@
                 "ammeter",
                 "opamp",
                 "function_gen",
-                "scope_probe"
+                "scope_probe",
+                "esp32_devkit",
+                "stm32_bluepill",
+                "npn",
+                "nmos",
+                "relay",
+                "motor",
+                "buzzer",
+                "ldo",
+                "ldr",
+                "ntc"
               ]
             },
             "ref": {
@@ -599,14 +702,14 @@
             },
             "pins": {
               "type": "object",
-              "description": "Physical pin -> hole. wire a/b; resistor 1/2; led & diode anode/cathode; capacitor 1/2; battery & bench_supply +/-; pushbutton 1a/2a/1b/2b; switch a/com/b; potentiometer 1/2/3; power_module +t/-t/+b/-b. inductor 1/2; ammeter & function_gen +/-; scope_probe tip/gnd; opamp 1..8.",
+              "description": "Physical pin -> hole. wire a/b; resistor 1/2; led & diode anode/cathode; capacitor 1/2; battery & bench_supply +/-; pushbutton 1a/2a/1b/2b; switch a/com/b; potentiometer 1/2/3; power_module +t/-t/+b/-b. inductor 1/2; ammeter & function_gen +/-; scope_probe tip/gnd; opamp 1..8. Phase 5: npn e/b/c, nmos g/d/s, ldo gnd/out/in (3 adjacent columns, use \"at\"); relay coil1/coil2/com/nc/no (use \"at\" in row e); motor & buzzer +/-; ldr & ntc 1/2; dev boards: use \"at\" (ESP32 row b, Blue Pill row c = the top-left GND pin) and put pin modes in \"props\": {\"modes\": {...}}.",
               "additionalProperties": {
                 "$ref": "#/definitions/hole"
               }
             },
             "at": {
               "$ref": "#/definitions/hole",
-              "description": "Footprint anchor for pushbutton / switch / potentiometer / power_module / opamp (opamp: pin 1, must be in row e) instead of pins."
+              "description": "Footprint anchor for pushbutton / switch / potentiometer / power_module / opamp (opamp: pin 1, must be in row e) instead of pins. Dev boards: esp32_devkit anchor in row b (19 columns, lower header in row i); stm32_bluepill anchor in row c (20 columns, lower header in row g). npn / nmos / ldo: the first leg (E / G / GND); relay: coil1 in row e."
             },
             "color": {
               "type": "string",
@@ -632,6 +735,49 @@
             "$ref": "#/definitions/layoutPart"
           }
         }
+      }
+    },
+    "pinMode": {
+      "enum": [
+        "out_high",
+        "out_low",
+        "input",
+        "input_pullup",
+        "input_pulldown",
+        "pwm",
+        "adc"
+      ]
+    },
+    "pinModes": {
+      "type": "object",
+      "description": "Dev-board pin modes by pin name (physical, e.g. GPIO2 / PA0, or logical, e.g. GPIO_OUT1): a mode string or { mode, duty (0–100 %), frequency (Hz) }. Unlisted pins are plain inputs.",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/pinMode"
+          },
+          {
+            "type": "object",
+            "required": [
+              "mode"
+            ],
+            "properties": {
+              "mode": {
+                "$ref": "#/definitions/pinMode"
+              },
+              "duty": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "frequency": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       }
     }
   }

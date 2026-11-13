@@ -42,7 +42,7 @@ AI 返回后：
   "title": "...",
   "kind": "lesson" 或 "challenge",               // lesson 要写 steps；challenge 要写 hints
   "level": 1-5,
-  "phase": 1-4,                                  // 可选：课程第几期（1 基本定律、2 分析方法/定理/运放、3 暂态、4 交流）；入门题不写
+  "phase": 1-5,                                  // 可选：课程第几期（1 基本定律、2 分析方法/定理/运放、3 暂态、4 交流、5 单片机外围电路）；入门题不写
   "summary": "一句话",
   "description": "讲解正文，教会概念",
   "concepts": ["英文术语 中文", ...],
@@ -139,10 +139,21 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 - challenge：description 写清楚要求（包括电源接哪个脚、哪个灯接开关哪一侧——开关 a/b、电位器 1/3 在判分时可互换，测试却依赖它们）；hints 2–3 条，由浅入深；必须有 solution。
 - 输出前自己验算：每个 LED 的电流、每个电压测试的期望值。
 
+=== 第 5 期：单片机外围电路（phase 5，只在写这一期时需要）===
+没有程序：开发板每个 GPIO 的“模式”就是程序。只教电路：引脚电流、3.3 V vs 5 V、上拉、三极管 / MOSFET、续流二极管、稳压、ADC 分压、PWM + RC。
+- 开发板：{"ref":"U1","type":"esp32_devkit"}（ESP32-DevKitC）或 "stm32_bluepill"（Blue Pill），"mcu" = 两种都行。默认 USB 供电（"usb": true）。
+- 目标电路里的开发板引脚：电源脚 3V3 / 5V / GND / EN；GPIO 一律用逻辑引脚：GPIO_OUT1（任一能输出的脚）、GPIO_IN1（任一脚当输入）、ADC1（ADC 引脚）、PWM1、GPIO_FT1（STM32 耐 5 V 的脚）、IO1。学生用哪个物理引脚都算对。不要在目标里写 GPIO2 这种物理名，除非题目就是要那个脚。
+- 引脚模式："modes": {"GPIO_OUT1": "out_high", "GPIO_IN1": "input_pullup", "ADC1": "adc", "PWM1": {"mode": "pwm", "duty": 25, "frequency": 1000}}。模式：out_high out_low input input_pullup input_pulldown pwm adc。写在目标里 = 学生必须设对；只在测试里切换的，写在 tests 的 "set": {"U1": {"modes": {...}}}。
+- 新器件：npn（2N2222，引脚 e b c，β 150）、nmos（g d s，"model": "IRLZ44N" 逻辑电平 / "IRF540N" 标准电平）、relay（coil1 coil2 com nc no，5 V 线圈 70 Ω ≥ 53 mA 吸合）、motor（+ −，8 Ω）、buzzer（+ −，有源 5 V，≈ 28 mA）、ldo（gnd out in，LM1117-3.3，压差 1.1 V，800 mA）、ldr（1 2，"lux"）、ntc（1 2，"temperature" °C）。
+- 模型：ESP32 输出 = 3.3 V 串 25 Ω（STM32 40 Ω）；建议 ≤ 20 mA，ESP32 > 40 mA / STM32 > 25 mA 引脚损坏；内部上下拉 ESP32 45 kΩ、STM32 40 kΩ；ESP32 GPIO34–39 只能输入且没有上下拉；ADC 0–3.3 V → 0–4095；5V 脚 ≈ 4.7 V（USB 经二极管）；NPN：Vbe 0.65 V + 20 Ω，饱和 Vce ≈ 0.15 V + 1 Ω×Ic；LDR R = 15k×(lux/10)^−0.7；NTC R = 10k×exp(3950×(1/T − 1/298.15))。
+- 新测试项："gpio": [{"pin": "U1.GPIO_IN1", "read": "high"|"low"|"floating"}, {"pin": "U1.ADC1", "measure": "adc"|"adc_v"|"voltage"|"current", "min": …, "max": …}]；"regions": {"Q1": "saturation"}（npn: cutoff/active/saturation；nmos: off/ohmic/saturation，当开关用时完全导通是 ohmic）；"expect" 也能写继电器 / 电机 / 蜂鸣器 "on"/"off"。
+- solution 里的开发板：{"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO2": "out_high"}}}——ESP32 锚点在 b 行（占 19 列，上排在 b 行、下排在 i 行，每个引脚只剩 a / j 行一个空孔，接线从那里引出）；Blue Pill 锚点在 c 行（占 20 列，上排 c 行、下排 g 行，空孔是 a、b 和 h、i、j 行）。solution 里必须用物理引脚名、模式写在 props 里。引脚排列见 docs/CHALLENGE_FORMAT.md §14.1。
+- 继电器、电机一定要并续流二极管（负极接 + 端），否则校验器会报“反电动势击穿”。参考答案不能烧坏引脚（引脚电流 ≤ 20 mA）。
+
 === 填写区 ===
 主题：___________（例如：分压器 / 按键 + LED / 认识 GND / 二极管 / 电位器）
 难度（1–5）：___
-课程期数 phase（1–4，可选；文件名编号：第 1 期 201 起，第 2 期 221 起）：___
+课程期数 phase（1–5，可选；文件名编号：第 1 期 201 起，第 2 期 221 起……第 5 期 281 起）：___
 类型：lesson / challenge / 都要
 数量：___
 文件名编号从：___ 开始（例如 20）
@@ -203,7 +214,7 @@ Output challenge files as JSON, following the format below exactly.
   "title": "...",
   "kind": "lesson" or "challenge",               // lesson needs steps; challenge needs hints
   "level": 1-5,
-  "phase": 1-4,                                  // optional: course phase (1 basic laws, 2 methods/theorems/op-amps, 3 transients, 4 AC); omit for intro challenges
+  "phase": 1-5,                                  // optional: course phase (1 basic laws, 2 methods/theorems/op-amps, 3 transients, 4 AC, 5 MCU peripheral circuits); omit for intro challenges
   "summary": "one sentence",
   "description": "explanation that teaches the concept",
   "concepts": ["English term", ...],
@@ -300,10 +311,21 @@ Name the key nodes: the supply + node "VCC", the supply − node "GND", others e
 - challenge: the description states the requirements clearly (including which pin the supply goes to and which LED goes on which side of a switch: switch a/b and potentiometer 1/3 are interchangeable when grading, but the tests depend on them); 2–3 hints, from gentle to specific; a solution is required.
 - Before answering, check your own numbers: every LED current and the expected value of every voltage test.
 
+=== Phase 5: MCU peripheral circuits (only needed for phase 5) ===
+There is no firmware: each dev-board GPIO's *mode* is the program. Teach only the circuit side: pin current, 3.3 V vs 5 V, pull-ups, transistors / MOSFETs, flyback diodes, regulators, ADC dividers, PWM + RC.
+- Boards: {"ref":"U1","type":"esp32_devkit"} (ESP32-DevKitC) or "stm32_bluepill" (Blue Pill); "mcu" = either board. USB-powered by default ("usb": true).
+- Board pins in the target: power pins 3V3 / 5V / GND / EN; for GPIOs always use logical pins: GPIO_OUT1 (any output-capable pin), GPIO_IN1 (any pin as an input), ADC1 (an ADC pin), PWM1, GPIO_FT1 (a 5 V-tolerant STM32 pin), IO1. Whatever physical pin the student uses is accepted. Don't write physical names like GPIO2 in the target unless the task is about that pin.
+- Pin modes: "modes": {"GPIO_OUT1": "out_high", "GPIO_IN1": "input_pullup", "ADC1": "adc", "PWM1": {"mode": "pwm", "duty": 25, "frequency": 1000}}. Modes: out_high out_low input input_pullup input_pulldown pwm adc. A mode in the target must be set by the student; modes that only change per test go in the test's "set": {"U1": {"modes": {...}}}.
+- New parts: npn (2N2222, pins e b c, β 150), nmos (g d s, "model": "IRLZ44N" logic level / "IRF540N" standard level), relay (coil1 coil2 com nc no; 5 V coil 70 Ω, pulls in ≥ 53 mA), motor (+ −, 8 Ω), buzzer (+ −, active 5 V, ≈ 28 mA), ldo (gnd out in, LM1117-3.3, 1.1 V dropout, 800 mA), ldr (1 2, "lux"), ntc (1 2, "temperature" °C).
+- Models: ESP32 output = 3.3 V behind 25 Ω (STM32 40 Ω); keep ≤ 20 mA; above 40 mA (ESP32) / 25 mA (STM32) the pin is damaged; internal pulls ESP32 45 kΩ, STM32 40 kΩ; ESP32 GPIO34–39 are input-only with no pulls; ADC 0–3.3 V → 0–4095; the 5V pin is ≈ 4.7 V (USB through a diode); NPN: Vbe 0.65 V + 20 Ω, saturated Vce ≈ 0.15 V + 1 Ω×Ic; LDR R = 15k×(lux/10)^−0.7; NTC R = 10k×exp(3950×(1/T − 1/298.15)).
+- New checks: "gpio": [{"pin": "U1.GPIO_IN1", "read": "high"|"low"|"floating"}, {"pin": "U1.ADC1", "measure": "adc"|"adc_v"|"voltage"|"current", "min": …, "max": …}]; "regions": {"Q1": "saturation"} (npn: cutoff/active/saturation; nmos: off/ohmic/saturation — a fully-on switch is ohmic); "expect" also takes relays / motors / buzzers "on"/"off".
+- A board in a solution: {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO2": "out_high"}}} — the ESP32 anchor is in row b (19 columns; upper header in row b, lower in row i; each pin keeps one free hole in row a / j to wire from); the Blue Pill anchor is in row c (20 columns; headers in rows c and g; free holes in rows a, b and h, i, j). Solutions use physical pin names, with modes inside "props". Pin order: docs/CHALLENGE_FORMAT.md §14.1.
+- Relays and motors always need a flyback diode (cathode to +), or the validator reports an inductive-kick breakdown. A solution must never damage a pin (≤ 20 mA per pin).
+
 === Fill in ===
 Topic: ___________ (e.g. voltage divider / push button + LED / what GND is / diodes / potentiometers)
 Difficulty (1–5): ___
-Course phase (1–4, optional; file numbers: phase 1 from 201, phase 2 from 221): ___
+Course phase (1–5, optional; file numbers: phase 1 from 201, phase 2 from 221, … phase 5 from 281): ___
 Type: lesson / challenge / both
 How many: ___
 Start file numbering at: ___ (e.g. 20)
