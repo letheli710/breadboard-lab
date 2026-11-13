@@ -25,16 +25,7 @@
     "",
     "**测量**：",
     "- 输出高 / 低：继电器、LED、Q1 的工作区和线圈电流；",
-    "- 10 Hz PWM：用示波器看集电极电压的最大值 Vmax。",
-    "",
-    "**对比**：继电器吸合 / 释放和 LED；Q1 饱和；线圈电流 ≈ 63 mA；PWM 时用示波器看集电极 Vmax ≈ 5.4 V，证明高压被钳住了。Vmax 远高于 5 V 时，二极管没装或装反了：色环（阴极）应接 5V 一端。",
-    "",
-    "**数值（仿真）**：",
-    "- 线圈 70 Ω：Ic = (4.65 − 0.21) / 70 ≈ **63 mA**（5V 脚经 USB 二极管约 4.65 V），大于 53 mA 的吸合电流，继电器吸合，COM–NO 接通。",
-    "- Ib = **2.53 mA**，强制 β = 63/2.53 ≈ 25，仍然远小于 150，Q1 饱和，Vce = **0.21 V**。（GPIO 直接驱动不了：3.3 V 只能给线圈 47 mA，还远超引脚 20 mA 的建议值。）",
-    "- 负载侧：(9 − 2.1) / 1 kΩ ≈ **6.8 mA**，绿色 LED 亮。",
-    "- 输出低：Q1 截止，线圈没电，继电器释放，LED 灭。",
-    "- PWM 10 Hz、**有 D1**：集电极最高只到 **5.37 V**（5V 脚电压 + 二极管压降）。没有 D1：断电瞬间线圈电流 63 mA 无处可去，v = L·di/dt 把集电极推到约 **29 V**。",
+    "- 10 Hz PWM：用示波器看集电极电压的最大值 Vmax。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**续流二极管怎么工作**：通电时 D1 反偏，不起作用。断电时线圈“想”维持原来的电流方向，于是它下端（集电极）电压升高；一旦比 +5 V 高 0.7 V，D1 导通，电流沿“线圈 → D1 → 线圈”的小回路慢慢衰减（时间常数 L/R = 150 mH / 70 Ω ≈ 2 ms），能量变成热量消耗在线圈电阻和二极管上。",
     "",
@@ -70,16 +61,7 @@
         "",
         "**Measure**:",
         "- output HIGH / LOW: the relay, the LED, Q1's region and the coil current;",
-        "- 10 Hz PWM: the collector's maximum voltage Vmax on the scope.",
-        "",
-        "**Compare**: relay on/off and the LED; Q1 saturated; coil current ≈ 63 mA; with PWM the scope's Vmax on the collector ≈ 5.4 V, proof that the spike is clamped. If Vmax is far above 5 V, the diode is missing or reversed: its band (cathode) goes to the 5V end.",
-        "",
-        "**Numbers (simulated)**:",
-        "- Coil 70 Ω: Ic = (4.65 − 0.21) / 70 ≈ **63 mA** (the 5V pin is about 4.65 V after the USB diode), above the 53 mA pull-in current: the relay pulls in and COM–NO closes.",
-        "- Ib = **2.53 mA**, forced β = 63/2.53 ≈ 25, still far below 150, so Q1 saturates with Vce = **0.21 V**. (A GPIO can't drive the coil directly: 3.3 V gives only 47 mA, and that is way above the pin's 20 mA recommendation anyway.)",
-        "- Load side: (9 − 2.1) / 1 kΩ ≈ **6.8 mA**, the green LED is on.",
-        "- Output LOW: Q1 is cut off, the coil is unpowered, the relay drops out and the LED goes off.",
-        "- PWM 10 Hz **with D1**: the collector peaks at only **5.37 V** (the 5V pin plus one diode drop). Without D1 the 63 mA coil current has nowhere to go at turn-off and v = L·di/dt drives the collector to about **29 V**.",
+        "- 10 Hz PWM: the collector's maximum voltage Vmax on the scope. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**How the flyback diode works**: while the coil is on, D1 is reverse-biased and does nothing. At turn-off the coil \"wants\" to keep its current flowing the same way, so its lower end (the collector) rises; as soon as it is 0.7 V above +5 V, D1 conducts and the current decays around the small loop coil → D1 → coil (time constant L/R = 150 mH / 70 Ω ≈ 2 ms), its energy turning into heat in the coil resistance and the diode.",
         "",
@@ -93,15 +75,32 @@
         "",
         "**Model note**: the coil is 70 Ω + 150 mH, pulling in at ≥ 53 mA and releasing below 7 mA, with no mechanical delay. Without the diode the simulated spike is about 29 V (limited by the time step and the transistor's turn-off); a real circuit can go higher, up to the transistor's C–E breakdown (about 40 V). In this task the target joins the battery − to GND only so the meter and scope share one reference point; in a real project the load side can be fully separate."
       ],
+      "compare": [
+        "**Compare**: relay on/off and the LED; Q1 saturated; coil current ≈ 63 mA; with PWM the scope's Vmax on the collector ≈ 5.4 V, proof that the spike is clamped. If Vmax is far above 5 V, the diode is missing or reversed: its band (cathode) goes to the 5V end.",
+        "",
+        "**Numbers (simulated)**:",
+        "- Coil 70 Ω: Ic = (4.65 − 0.21) / 70 ≈ **63 mA** (the 5V pin is about 4.65 V after the USB diode), above the 53 mA pull-in current: the relay pulls in and COM–NO closes.",
+        "- Ib = **2.53 mA**, forced β = 63/2.53 ≈ 25, still far below 150, so Q1 saturates with Vce = **0.21 V**. (A GPIO can't drive the coil directly: 3.3 V gives only 47 mA, and that is way above the pin's 20 mA recommendation anyway.)",
+        "- Load side: (9 − 2.1) / 1 kΩ ≈ **6.8 mA**, the green LED is on.",
+        "- Output LOW: Q1 is cut off, the coil is unpowered, the relay drops out and the LED goes off.",
+        "- PWM 10 Hz **with D1**: the collector peaks at only **5.37 V** (the 5V pin plus one diode drop). Without D1 the 63 mA coil current has nowhere to go at turn-off and v = L·di/dt drives the collector to about **29 V**."
+      ],
+      "measurements": [
+        {"ask": "Output HIGH: the coil current (ammeter between the 5V pin and the coil)", "explain": "(4.65 − 0.21) / 70 Ω ≈ 63 mA, above the 53 mA pull-in current."},
+        {"ask": "Output HIGH: Vce", "explain": "Ib ≈ 2.53 mA, forced β ≈ 25, still far below 150: Q1 saturates, Vce ≈ 0.21 V."},
+        {"ask": "Output HIGH: the LED current on the load side (9 V battery through the contact)", "explain": "(9 − 2.1) / 1 kΩ ≈ 6.8 mA. The contact is isolated from the coil: 5 V on the control side, any supply on the load side."},
+        {"ask": "PWM 10 Hz: the collector's maximum voltage Vmax on the scope", "explain": "As soon as D1 conducts it clamps the collector at the 5V pin voltage + one diode drop ≈ 5.4 V."},
+        {"ask": "Without D1 (as on the starting board), what happens the instant the transistor turns off?", "explain": "The coil's 63 mA has nowhere to go: the simulated collector hits about 29 V, a real one may go higher until C–E breaks down (about 40 V). With D1 the current decays around the coil → D1 loop with L/R ≈ 2 ms.", "choices": ["the collector shoots up to tens of volts (v = L·di/dt) and may break the transistor down", "the collector voltage is the same as with D1", "the collector goes negative"]}
+      ],
       "hints": [
         "The diode goes across the coil, band (cathode) on the 5V end, plain end (anode) on the collector.",
         "Coil between the 5V pin and C; E to GND; GPIO → 1 kΩ → B.",
         "Load: battery + → COM, NO → 1 kΩ → LED → battery −; join battery − to the board GND."
       ],
       "tests": [
-        "Output HIGH: relay pulls in, LED on, Q1 saturated, coil ≈ 63 mA",
+        "Output HIGH: relay pulls in, LED on, Q1 saturated",
         "Output LOW: relay released, LED off, Q1 cut off",
-        "PWM 10 Hz: with D1 the collector peaks at only ≈ 5.4 V (spike clamped)"
+        "PWM 10 Hz: with D1 the collector spike is clamped"
       ]
     }
   },
@@ -127,7 +126,7 @@
   ],
   "tests": [
     {
-      "name": "输出高：继电器吸合，LED 亮，Q1 饱和，线圈 ≈ 63 mA",
+      "name": "输出高：继电器吸合，LED 亮，Q1 饱和",
       "set": { "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
       "expect": { "K1": "on", "LED1": "on" },
       "regions": { "Q1": "saturation" },
@@ -145,13 +144,30 @@
       "regions": { "Q1": "cutoff" }
     },
     {
-      "name": "PWM 10 Hz：有 D1 时集电极最高只有 ≈ 5.4 V（尖峰被钳住）",
+      "name": "PWM 10 Hz：有 D1 时集电极的尖峰被钳住",
       "set": { "U1": { "modes": { "GPIO_OUT1": { "mode": "pwm", "duty": 50, "frequency": 10 } } } },
       "scope": [
         { "pin": "Q1.c", "ref": "Q1.e", "measure": "vmax", "min": 5.1, "max": 5.7 },
         { "pin": "Q1.c", "ref": "Q1.e", "measure": "freq", "min": 9.5, "max": 10.5 }
       ]
     }
+  ],
+  "compare": [
+    "**对比**：继电器吸合 / 释放和 LED；Q1 饱和；线圈电流 ≈ 63 mA；PWM 时用示波器看集电极 Vmax ≈ 5.4 V，证明高压被钳住了。Vmax 远高于 5 V 时，二极管没装或装反了：色环（阴极）应接 5V 一端。",
+    "",
+    "**数值（仿真）**：",
+    "- 线圈 70 Ω：Ic = (4.65 − 0.21) / 70 ≈ **63 mA**（5V 脚经 USB 二极管约 4.65 V），大于 53 mA 的吸合电流，继电器吸合，COM–NO 接通。",
+    "- Ib = **2.53 mA**，强制 β = 63/2.53 ≈ 25，仍然远小于 150，Q1 饱和，Vce = **0.21 V**。（GPIO 直接驱动不了：3.3 V 只能给线圈 47 mA，还远超引脚 20 mA 的建议值。）",
+    "- 负载侧：(9 − 2.1) / 1 kΩ ≈ **6.8 mA**，绿色 LED 亮。",
+    "- 输出低：Q1 截止，线圈没电，继电器释放，LED 灭。",
+    "- PWM 10 Hz、**有 D1**：集电极最高只到 **5.37 V**（5V 脚电压 + 二极管压降）。没有 D1：断电瞬间线圈电流 63 mA 无处可去，v = L·di/dt 把集电极推到约 **29 V**。"
+  ],
+  "measurements": [
+    {"id": "icoil", "current": "K1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.0602, 0.0666], "ask": "输出高：线圈电流（电流表串在 5V 脚和线圈之间）", "explain": "(4.65 − 0.21) / 70 Ω ≈ 63 mA，大于 53 mA 的吸合电流。"},
+    {"id": "vce", "voltage": "Q1.c", "ref": "Q1.e", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [0.203, 0.224], "ask": "输出高：Vce", "explain": "Ib ≈ 2.53 mA，强制 β ≈ 25，仍远小于 150：Q1 饱和，Vce ≈ 0.21 V。"},
+    {"id": "iled", "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.00647, 0.00715], "ask": "输出高：负载侧 LED 的电流（9 V 电池经触点供电）", "explain": "(9 − 2.1) / 1 kΩ ≈ 6.8 mA。触点和线圈电气上隔离：控制侧 5 V，负载侧可以是别的电源。"},
+    {"id": "vmax", "scope": "vmax", "pin": "Q1.c", "ref": "Q1.e", "set": {"U1": {"modes": {"GPIO_OUT1": {"mode": "pwm", "duty": 50, "frequency": 10}}}}, "unit": "V", "predict": true, "range": [5.1, 5.64], "ask": "PWM 10 Hz：示波器看集电极电压的最大值 Vmax", "explain": "D1 一导通就把集电极钳在 5V 脚电压 + 二极管压降 ≈ 5.4 V。"},
+    {"id": "nod1", "choices": ["集电极冲到几十伏（v = L·di/dt），可能击穿三极管", "集电极电压和有 D1 时一样", "集电极变成负电压"], "correct": 0, "ask": "如果拿掉 D1（像起始电路那样），三极管关断的瞬间会怎样？", "explain": "线圈的 63 mA 无处可去，仿真里集电极冲到约 29 V，真实电路可能更高，直到 C–E 击穿（约 40 V）。有 D1 时电流沿“线圈 → D1”的小回路以 L/R ≈ 2 ms 衰减。"}
   ],
   "hints": [
     "二极管并在线圈两端：有环的一端（负极）接 5V 那头，另一端（正极）接集电极。",

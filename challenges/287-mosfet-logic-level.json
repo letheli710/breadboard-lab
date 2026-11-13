@@ -32,23 +32,7 @@
     "**测量**：",
     "- 输出高：MOSFET 的工作区、Vds 和电机电流；",
     "- 输入模式（复位）：电机是否停；",
-    "- PWM：漏极电压的峰值。",
-    "",
-    "**对比**：预期读数：",
-    "- 区域：开关用的 MOSFET 应该在 **ohmic（可变电阻区）**，不是“饱和区”——MOSFET 的饱和区是恒流区，恰好和三极管的“饱和”相反。",
-    "- Vds 很小（< 50 mV）才说明完全导通；电机电流约 0.6 A。",
-    "- 输入模式（复位）下电机也必须停：这就是下拉电阻的作用。",
-    "- PWM 时漏极峰值被续流二极管钳住，不会冲到几十伏。",
-    "Vds 明显大于 50 mV 或电机电流远小于预期时，看看是不是用错了 MOSFET（IRF540N）或栅极没接好。",
-    "",
-    "**为什么要 MOSFET**：电机约 8 Ω，5 V 时要 **0.62 A**——GPIO 的 30 倍，2N2222 的基极也要 60 mA 才能饱和。MOSFET 的栅极是一个电容，**直流下不取电流**，只要栅压够高，D–S 就变成几十毫欧的电阻。",
-    "",
-    "**数值（仿真）**：",
-    "- 输出高：Vgs = **3.29 V**，Q1 在可变电阻区（完全导通），Id = **620 mA**，Vds = **27 mV**，相当于 Rds ≈ 43 mΩ，Q1 只发热 **17 mW**。",
-    "- 模型：Id = K·(Vgs − Vth)·Vds，IRLZ44N 的 Vth = 1.5 V、Rds(on) = 22 mΩ（在 Vgs = 5 V 时规定）→ 3.3 V 栅压时 Rds ≈ 1/(K·1.8 V) ≈ 43 mΩ。",
-    "- 输出低 / 引脚处于输入（复位时）：RPD 把栅极拉到 0 V，Q1 截止，电机停。",
-    "- PWM 50 %、1 kHz：电机平均电流 **0.26 A**，漏极平均 2.9 V。关断的那半个周期里，电机电感的电流从 D1 流回 +5 V（D1 平均 86 mA），漏极电压被钳在 **6.1 V**（5 V + 二极管压降）。",
-    "- **换成 IRF540N**（栅极 3.3 V 不变）：它的 Vth ≈ 3 V，只比 3.3 V 低一点。Q1 处于**恒流（饱和）区**：Id = K·Vov²/2 ≈ **0.14 A**，Vds = **3.9 V**，Q1 像一个电阻在发热（**0.54 W**），电机只拿到 23 % 的电流，勉强转动。",
+    "- PWM：漏极电压的峰值。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
     "**看数据手册的陷阱**：IRF540N 的 Vth 写着 2–4 V，看起来 3.3 V“够了”；但 **Vth 是 Id = 250 µA 时的栅压**，只是“开始导通”。Rds(on) = 44 mΩ 是在 **Vgs = 10 V** 时测的。3.3 V 单片机要找 Rds(on) 在 **Vgs = 2.5 V 或 4.5 V** 下有规定值的“逻辑电平”MOSFET：IRLZ44N、IRLB8721、AO3400（SOT-23）、Si2302。",
     "",
@@ -90,8 +74,20 @@
         "**Measure**:",
         "- output HIGH: the MOSFET's region, Vds and the motor current;",
         "- input mode (reset): whether the motor stays off;",
-        "- PWM: the peak drain voltage.",
+        "- PWM: the peak drain voltage. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
+        "**The datasheet trap**: the IRF540N's Vth is listed as 2–4 V, so 3.3 V looks \"enough\"; but **Vth is the gate voltage at Id = 250 µA** — just starting to conduct. Its Rds(on) = 44 mΩ is measured at **Vgs = 10 V**. With a 3.3 V MCU pick a \"logic-level\" MOSFET whose Rds(on) is specified at **Vgs = 2.5 V or 4.5 V**: IRLZ44N, IRLB8721, AO3400 (SOT-23), Si2302.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- Always fit a **gate pull-down** (10 kΩ–100 kΩ): during power-up, reset and firmware upload the GPIO is a high-impedance input, and a floating gate can start the motor on its own.",
+        "- A **gate resistor** (47–220 Ω) limits the inrush into the gate capacitance and damps ringing; at DC it drops nothing.",
+        "- **Flyback diode**: a 1N4007 is fine for slow switching; for PWM use a fast or Schottky diode (1N5819, SS34). Without it the drain flies up to the MOSFET's avalanche voltage at every turn-off.",
+        "- Take motor current from a separate supply (battery pack, adapter), not from USB or the board's 5V pin — 0.6 A is above a computer port's 500 mA, and start-up and stall currents are several times the running current. The supply and the board must share **GND**, or the gate voltage has no reference.",
+        "- ESP32 GPIO0/2/5/12/15 are strapping pins that may glitch at boot — don't drive a motor from them.",
+        "",
+        "**Model note**: the motor is 8 Ω + 2 mH with no back-EMF, so currents are higher than for a real spinning motor (whose current drops once it is up to speed). The MOSFET uses a piecewise-linear square-law model without gate capacitance or switching losses; a real PWM design also has to consider gate-drive strength."
+      ],
+      "compare": [
         "**Compare**: expected readings:",
         "- Region: a MOSFET used as a switch must be in the **ohmic region**, not \"saturation\" — a MOSFET's saturation region is its constant-current region, the opposite of a BJT's \"saturation\".",
         "- A tiny Vds (< 50 mV) proves it is fully on; the motor draws about 0.6 A.",
@@ -106,18 +102,14 @@
         "- Model: Id = K·(Vgs − Vth)·Vds; the IRLZ44N has Vth = 1.5 V and Rds(on) = 22 mΩ specified at Vgs = 5 V → at 3.3 V gate drive Rds ≈ 1/(K·1.8 V) ≈ 43 mΩ.",
         "- Output LOW / pin as input (reset): RPD holds the gate at 0 V, Q1 is off, the motor stops.",
         "- PWM 50 %, 1 kHz: average motor current **0.26 A**, average drain voltage 2.9 V. During the off half-cycles the motor inductance's current flows back through D1 to +5 V (86 mA average in D1) and the drain is clamped at **6.1 V** (5 V + one diode drop).",
-        "- **Swap in an IRF540N** (still 3.3 V on the gate): its Vth ≈ 3 V is only a little below 3.3 V. Q1 sits in its **constant-current (saturation) region**: Id = K·Vov²/2 ≈ **0.14 A**, Vds = **3.9 V**, Q1 heats up like a resistor (**0.54 W**) and the motor gets 23 % of its current and barely turns.",
-        "",
-        "**The datasheet trap**: the IRF540N's Vth is listed as 2–4 V, so 3.3 V looks \"enough\"; but **Vth is the gate voltage at Id = 250 µA** — just starting to conduct. Its Rds(on) = 44 mΩ is measured at **Vgs = 10 V**. With a 3.3 V MCU pick a \"logic-level\" MOSFET whose Rds(on) is specified at **Vgs = 2.5 V or 4.5 V**: IRLZ44N, IRLB8721, AO3400 (SOT-23), Si2302.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- Always fit a **gate pull-down** (10 kΩ–100 kΩ): during power-up, reset and firmware upload the GPIO is a high-impedance input, and a floating gate can start the motor on its own.",
-        "- A **gate resistor** (47–220 Ω) limits the inrush into the gate capacitance and damps ringing; at DC it drops nothing.",
-        "- **Flyback diode**: a 1N4007 is fine for slow switching; for PWM use a fast or Schottky diode (1N5819, SS34). Without it the drain flies up to the MOSFET's avalanche voltage at every turn-off.",
-        "- Take motor current from a separate supply (battery pack, adapter), not from USB or the board's 5V pin — 0.6 A is above a computer port's 500 mA, and start-up and stall currents are several times the running current. The supply and the board must share **GND**, or the gate voltage has no reference.",
-        "- ESP32 GPIO0/2/5/12/15 are strapping pins that may glitch at boot — don't drive a motor from them.",
-        "",
-        "**Model note**: the motor is 8 Ω + 2 mH with no back-EMF, so currents are higher than for a real spinning motor (whose current drops once it is up to speed). The MOSFET uses a piecewise-linear square-law model without gate capacitance or switching losses; a real PWM design also has to consider gate-drive strength."
+        "- **Swap in an IRF540N** (still 3.3 V on the gate): its Vth ≈ 3 V is only a little below 3.3 V. Q1 sits in its **constant-current (saturation) region**: Id = K·Vov²/2 ≈ **0.14 A**, Vds = **3.9 V**, Q1 heats up like a resistor (**0.54 W**) and the motor gets 23 % of its current and barely turns."
+      ],
+      "measurements": [
+        {"ask": "Output HIGH: the motor current (ammeter between +5 V and the motor)", "explain": "About 8 Ω on 5 V: ≈ 0.62 A, 30 times what a GPIO can give."},
+        {"ask": "Output HIGH: Vds (red lead on D, black on S)", "explain": "Fully on (ohmic region), Vds ≈ 27 mV."},
+        {"ask": "From your two readings, the on-resistance Rds = Vds / Id", "explain": "≈ 43 mΩ: the datasheet's 22 mΩ is at Vgs = 5 V; with 3.3 V on the gate it roughly doubles. Q1 dissipates only about 17 mW."},
+        {"ask": "PWM 50 %, 1 kHz: the maximum drain voltage on the scope", "explain": "In the off half-cycles the motor inductance's current flows back through D1 to +5 V, so the drain is clamped at 5 V + one diode drop ≈ 6.1 V instead of tens of volts."},
+        {"ask": "Swap Q1 for an IRF540N (still 3.3 V on the gate): Vds", "explain": "Vth ≈ 3 V is only a little below 3.3 V: it sits in the constant-current (saturation) region, Id ≈ 0.14 A, Vds ≈ 3.9 V, dissipating 0.54 W itself. Vth is only where conduction starts."}
       ],
       "hints": [
         "Gate chain: GPIO → 100 Ω → G, plus 100 kΩ from G to GND. S to GND.",
@@ -125,11 +117,11 @@
         "Set the bench supply to 5 V with a 1 A limit and wire its − to the board's GND."
       ],
       "tests": [
-        "Output HIGH: motor runs, Q1 ohmic (fully on), Vds < 50 mV, ≈ 0.62 A",
+        "Output HIGH: motor runs, Q1 ohmic (fully on)",
         "Output LOW: Q1 off, motor stopped",
         "Pin as input (reset): the pull-down keeps the gate at 0 V, motor stopped",
-        "PWM 50 % 1 kHz: average ≈ 0.26 A, drain peak clamped at ≈ 6.1 V by D1",
-        "IRF540N instead: stuck in saturation (constant current), only ≈ 0.14 A, Vds ≈ 3.9 V"
+        "PWM 50 % 1 kHz: about half the current on average, the drain peak clamped by D1",
+        "IRF540N instead: stuck in saturation (constant current), little current"
       ]
     }
   },
@@ -211,7 +203,7 @@
   ],
   "tests": [
     {
-      "name": "输出高：电机转，Q1 完全导通（ohmic），Vds < 50 mV，≈ 0.62 A",
+      "name": "输出高：电机转，Q1 完全导通（ohmic）",
       "set": {
         "U1": {
           "modes": {
@@ -287,7 +279,7 @@
       ]
     },
     {
-      "name": "PWM 50 % 1 kHz：平均 ≈ 0.26 A，漏极峰值被 D1 钳在 ≈ 6.1 V",
+      "name": "PWM 50 % 1 kHz：平均电流约一半，漏极峰值被 D1 钳住",
       "set": {
         "U1": {
           "modes": {
@@ -329,7 +321,7 @@
       ]
     },
     {
-      "name": "换成 IRF540N：卡在恒流（饱和）区，只有 ≈ 0.14 A，Vds ≈ 3.9 V",
+      "name": "换成 IRF540N：卡在恒流（饱和）区，电流很小",
       "set": {
         "U1": {
           "modes": {
@@ -359,6 +351,30 @@
         }
       ]
     }
+  ],
+  "compare": [
+    "**对比**：预期读数：",
+    "- 区域：开关用的 MOSFET 应该在 **ohmic（可变电阻区）**，不是“饱和区”——MOSFET 的饱和区是恒流区，恰好和三极管的“饱和”相反。",
+    "- Vds 很小（< 50 mV）才说明完全导通；电机电流约 0.6 A。",
+    "- 输入模式（复位）下电机也必须停：这就是下拉电阻的作用。",
+    "- PWM 时漏极峰值被续流二极管钳住，不会冲到几十伏。",
+    "Vds 明显大于 50 mV 或电机电流远小于预期时，看看是不是用错了 MOSFET（IRF540N）或栅极没接好。",
+    "",
+    "**为什么要 MOSFET**：电机约 8 Ω，5 V 时要 **0.62 A**——GPIO 的 30 倍，2N2222 的基极也要 60 mA 才能饱和。MOSFET 的栅极是一个电容，**直流下不取电流**，只要栅压够高，D–S 就变成几十毫欧的电阻。",
+    "",
+    "**数值（仿真）**：",
+    "- 输出高：Vgs = **3.29 V**，Q1 在可变电阻区（完全导通），Id = **620 mA**，Vds = **27 mV**，相当于 Rds ≈ 43 mΩ，Q1 只发热 **17 mW**。",
+    "- 模型：Id = K·(Vgs − Vth)·Vds，IRLZ44N 的 Vth = 1.5 V、Rds(on) = 22 mΩ（在 Vgs = 5 V 时规定）→ 3.3 V 栅压时 Rds ≈ 1/(K·1.8 V) ≈ 43 mΩ。",
+    "- 输出低 / 引脚处于输入（复位时）：RPD 把栅极拉到 0 V，Q1 截止，电机停。",
+    "- PWM 50 %、1 kHz：电机平均电流 **0.26 A**，漏极平均 2.9 V。关断的那半个周期里，电机电感的电流从 D1 流回 +5 V（D1 平均 86 mA），漏极电压被钳在 **6.1 V**（5 V + 二极管压降）。",
+    "- **换成 IRF540N**（栅极 3.3 V 不变）：它的 Vth ≈ 3 V，只比 3.3 V 低一点。Q1 处于**恒流（饱和）区**：Id = K·Vov²/2 ≈ **0.14 A**，Vds = **3.9 V**，Q1 像一个电阻在发热（**0.54 W**），电机只拿到 23 % 的电流，勉强转动。"
+  ],
+  "measurements": [
+    {"id": "im", "current": "M1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "A", "predict": true, "range": [0.589, 0.651], "ask": "输出高：电机电流（电流表串在 +5 V 和电机之间）", "explain": "电机约 8 Ω 接 5 V：≈ 0.62 A——GPIO 能给的 30 倍。"},
+    {"id": "vds", "voltage": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mV", "predict": true, "range": [0.0253, 0.0279], "ask": "输出高：Vds（红表笔 D，黑表笔 S）", "explain": "完全导通（可变电阻区），Vds ≈ 27 mV。"},
+    {"id": "rds", "formula": "vds / im", "unit": "mΩ", "predict": true, "range": [0.0408, 0.045], "ask": "用你的两个读数算导通电阻 Rds = Vds / Id", "explain": "≈ 43 mΩ：数据手册的 22 mΩ 是 Vgs = 5 V 时的值，3.3 V 栅压时大约翻倍。Q1 只发热约 17 mW。"},
+    {"id": "vpk", "scope": "vmax", "pin": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": {"mode": "pwm", "duty": 50, "frequency": 1000}}}}, "unit": "V", "predict": true, "range": [5.77, 6.38], "ask": "PWM 50 %、1 kHz：示波器看漏极电压的最大值", "explain": "关断的半个周期里电机电感的电流经 D1 流回 +5 V，漏极被钳在 5 V + 二极管压降 ≈ 6.1 V，不会冲到几十伏。"},
+    {"id": "vds540", "voltage": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}, "Q1": {"model": "IRF540N"}}, "unit": "V", "predict": true, "range": [3.68, 4.07], "ask": "把 Q1 换成 IRF540N（栅极仍是 3.3 V）：Vds", "explain": "Vth ≈ 3 V，只比 3.3 V 低一点：它卡在恒流（饱和）区，Id ≈ 0.14 A，Vds ≈ 3.9 V，自己发热 0.54 W。Vth 只是“开始导通”的栅压。"}
   ],
   "hints": [
     "栅极链：GPIO → 100 Ω → G，再加一个 100 kΩ 从 G 到 GND。S 接 GND。",
