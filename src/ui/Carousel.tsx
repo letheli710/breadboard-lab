@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { PHASES, type Challenge, type ChallengePhase } from '../core/challenge';
 import { tr } from '../core/i18n';
 import { useStore } from '../state/store';
@@ -18,25 +17,6 @@ const groupTip = (g: Group) =>
         tr('第 5 期：单片机外围电路（GPIO、上拉、三极管/MOSFET、继电器、稳压、ADC、PWM）', 'Phase 5: MCU peripheral circuits (GPIO, pull-ups, transistors/MOSFETs, relays, regulators, ADC, PWM)'),
       ][g - 1];
 
-const GROUP_KEY = 'bb.challengeGroup';
-const readGroup = (): Group | null => {
-  try {
-    const v = localStorage.getItem(GROUP_KEY);
-    if (v === 'intro') return 'intro';
-    const n = Number(v);
-    return PHASES.includes(n as ChallengePhase) ? (n as ChallengePhase) : null;
-  } catch {
-    return null;
-  }
-};
-const writeGroup = (g: Group) => {
-  try {
-    localStorage.setItem(GROUP_KEY, String(g));
-  } catch {
-    /* storage unavailable */
-  }
-};
-
 export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
   const challenges = useStore((s) => s.challenges);
   const activeId = useStore((s) => s.activeId);
@@ -46,18 +26,19 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
 
   // challenges are grouped by course phase (tabs); lessons stay one row
   const groups: Group[] = kind === 'challenge' ? (['intro', ...PHASES] as Group[]).filter((g) => all.some((c) => groupOf(c) === g)) : [];
-  const active = all.find((c) => c.id === activeId);
-  const [picked, setPicked] = useState<Group | null>(() => readGroup());
-  // follow the open challenge into its group (e.g. after "next challenge")
-  useEffect(() => {
-    if (active && kind === 'challenge') setPicked(groupOf(active));
-  }, [active?.id, kind]); // eslint-disable-line react-hooks/exhaustive-deps
-  const group: Group | null = groups.length > 1 ? (picked !== null && groups.includes(picked) ? picked : active ? groupOf(active) : groups[0]) : null;
+  // The tab shown is always the group of the challenge on the bench (or the one loading), and
+  // picking a tab opens that group's first unfinished challenge, so the carousel, the side
+  // panel and the URL never disagree.
+  const opening = useStore((s) => s.opening);
+  const active = all.find((c) => c.id === (opening ?? activeId));
+  const group: Group | null = groups.length > 1 ? (active ? groupOf(active) : groups[0]) : null;
   const list = group === null ? all : all.filter((c) => groupOf(c) === group);
   const done = list.filter((c) => completed[c.id]).length;
   const pick = (g: Group) => {
-    setPicked(g);
-    writeGroup(g);
+    if (g === group) return;
+    const inGroup = all.filter((c) => groupOf(c) === g);
+    const first = inGroup.find((c) => !completed[c.id]) ?? inGroup[0];
+    if (first) open(first.id);
   };
 
   return (
@@ -92,7 +73,7 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
       ) : (
         <div className="carousel">
           {list.map((c, i) => (
-            <button key={c.id} className={`lesson-card ${c.id === activeId ? 'on' : ''} ${completed[c.id] ? 'done' : ''}`} onClick={() => open(c.id)}>
+            <button key={c.id} className={`lesson-card ${c.id === active?.id ? 'on' : ''} ${completed[c.id] ? 'done' : ''}`} onClick={() => open(c.id)}>
               <div className="lc-num">{completed[c.id] ? '✓' : i + 1}</div>
               <div className="lc-body">
                 <div className="lc-title">{c.title}</div>
