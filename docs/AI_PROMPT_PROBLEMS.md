@@ -27,6 +27,13 @@ AI 返回后：
 - 文字（title、statement、questions 的 ask/explain/choices、hints、solution）用简体中文写在顶层，关键术语附英文，如“戴维宁等效（Thevenin equivalent）”。英文翻译放在 "i18n": {"en": {...}}。
 - 文字里可以用 **粗体**、以 "- " 开头的列表行；长文字可以写成字符串数组（每个元素一行）。不要用 LaTeX，用 Unicode：Ω µ ω φ τ ∠ ° ² ³ ⁻¹ ₁ ₂ √ π ≈ × · −。
 
+=== 符号约定（详见 docs/NOTATION.md）===
+- 正文里的变量名用下标标记，和图上一致：R_1、U_s、I_s、i_1、u_ab、u_oc、R_eq、z_11（不要写 R1、Us、i1）。两个带下标的量直接相乘要加花括号：R_{1}R_{4}，或写 R_1·R_4。中文或 +、− 下标也用花括号：u_{+}、R_{左}。schematic 里的 ref 和 marks 的 name 照常写 R1、i1。
+- 电压一律用 u / U（英文翻译里也是 u / U，不用 v / V），电流用 i / I。小写 = 瞬时值、一般变量；大写 = 直流量、有效值。
+- 相量加点：U̇（U + U+0307）、İ，带下标写 U̇_s、İ_1。只有相量加点：有效值、模、∠ 前面的模（U̇_2 = U_2∠0°）、I²R 里的 I、阻抗 Z、导纳 Y 都不加点。复功率 S̄ = U̇·İ*。
+- 正弦量以 cos 为参考：u = √2·U·cos(ωt + ψ) ↔ U̇ = U∠ψ；给出 sin 时先用 sin x = cos(x − 90°) 换成 cos。
+- 用“结点”，不用“节点”。换路时刻写 0₊、0₋（JSON 的 t 字段仍写 "0+"、"0-"）。
+
 === 文件结构 ===
 {
   "format": "circuit-problem/1",
@@ -174,6 +181,13 @@ Students look at a schematic, compute values and type answers. The app derives t
 - Write the text (title, statement, questions' ask/explain/choices, hints, solution) in clear English at the top level and set "lang": "en". Put a complete Simplified Chinese translation in "i18n": {"zh": {...}}.
 - Text may use **bold** and lines starting with "- " as lists; long text may be an array of strings (one line each). No LaTeX — use Unicode: Ω µ ω φ τ ∠ ° ² ³ ⁻¹ ₁ ₂ √ π ≈ × · −.
 
+=== Notation (full version: docs/NOTATION.md) ===
+- Write variable names in the text with the subscript markup so they match the drawing: R_1, U_s, I_s, i_1, u_ab, u_oc, R_eq, z_11 (not R1, Us, i1). A product of two subscripted symbols needs braces, R_{1}R_{4}, or a dot, R_1·R_4. Non-alphanumeric subscripts also use braces: u_{+}. Refs in the schematic and mark names stay R1, i1.
+- Voltage is always u / U (also in English — never v / V; diagrams draw u), current i / I. Lower case = instantaneous value or general variable; upper case = DC value or rms value.
+- Phasors carry a dot: U̇ (U + combining U+0307) and İ, with subscripts U̇_s, İ_1. Only phasors are dotted: rms values, magnitudes, the magnitude in front of ∠ (U̇_2 = U_2∠0°), the I in I²R, impedances Z and admittances Y are not. Complex power S̄ = U̇·İ*.
+- Sinusoids use the cosine reference: u = √2·U·cos(ωt + ψ) ↔ U̇ = U∠ψ; convert a given sine first with sin x = cos(x − 90°).
+- In the Chinese translation write 结点 (not 节点) for a node. Switching instants are 0₊ / 0₋ in text ("0+" / "0-" in the JSON t field).
+
 === File structure ===
 {
   "format": "circuit-problem/1",
@@ -208,14 +222,14 @@ R (Ω), C (F), L (H), V independent voltage source, I independent current source
 - Dependent source "ctrl": {"v": "R1"} (V(p) − V(n) of R1), {"i": "R1"} (current through R1, p→n), {"vnodes": ["a", "b"]}. VCVS/VCCS use v or vnodes; CCVS/CCCS use i. Add "label": "3i" to show it on the drawing.
 - Switch: {"type": "SW", "state": {"before": "closed", "after": "open"}}, acts at t = 0.
 - OPAMP: {"ref": "A1", "type": "OPAMP", "at": [x, y]}: inverting input (−) at (x−2, y−1), non-inverting (+) at (x−2, y+1), output at (x+2, y); "flip": true swaps the inputs; "orient": "left" mirrors it. Ideal: V+ = V−, no input current, output referenced to ground.
-- XFMR: {"type": "XFMR", "at": [x, y], "n": 2} (n:1, v1 = n·v2), terminals p1 (x−2, y−1), n1 (x−2, y+1), p2 (x+2, y−1), n2 (x+2, y+1); dots at p1 and p2.
+- XFMR: {"type": "XFMR", "at": [x, y], "n": 2} (n:1, u1 = n·u2), terminals p1 (x−2, y−1), n1 (x−2, y+1), p2 (x+2, y−1), n2 (x+2, y+1); dots at p1 and p2.
 - K: {"ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "k": 0.5} or "M": "2m"; the dots are at each inductor's p terminal ("from").
 
 === Reference directions (they decide the sign of answers) ===
-- Passive sign convention for every two-terminal element: v = V(p) − V(n), i flows from p through the element to n, absorbed power P = v·i (negative = delivered).
+- Passive sign convention for every two-terminal element: u = V(p) − V(n), i flows from p through the element to n, absorbed power P = u·i (negative = delivered).
 - Voltage source V: p ("from") is "+". A source that supplies power normally has a negative passive current and negative absorbed power.
 - Current source I: the arrow points from p to n; the current leaves at n ("to"). To inject current into node a, put "to" on a.
-- Draw the reference directions of asked currents/voltages with "marks" and use the same symbol in the text: {"kind": "i", "el": "R1", "name": "i1"} (arrow from p to n), {"kind": "v", "el": "C", "name": "v_C"} (+ at p, − at n). So an element's from/to direction IS the reference direction you want — decide it before drawing.
+- Draw the reference directions of asked currents/voltages with "marks" and use the same symbol in the text: {"kind": "i", "el": "R1", "name": "i1"} (arrow from p to n), {"kind": "v", "el": "C", "name": "u_C"} (+ at p, − at n). So an element's from/to direction IS the reference direction you want — decide it before drawing.
 - Op-amp output current: {"kind": "i", "el": "A1", "name": "i_o"} draws an arrow on the output lead pointing away from the op-amp; it equals find {"kind": "i", "el": "A1"} (current flowing out of the output terminal). No "v" marks on op-amps, no marks at all on transformers / coupled inductors.
 - Mesh-current / loop-current problems: draw every mesh (loop) current the text defines with "loops", same names and directions as the text: {"at": [4, 2], "name": "i_m1"} (clockwise by default; add "dir": "ccw" for counter-clockwise). Put "at" in the empty middle of the mesh (half units allowed, e.g. [3.5, 2]); never on a wire or element. Loops are annotation only — they don't affect the circuit and can't be asked with find; to ask for a mesh current, ask for a branch current equal to it.
 
@@ -247,7 +261,7 @@ Multiple choice (concepts): {"id": "c", "ask": "...", "choices": ["...", "...", 
   {"kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11"}: two-port parameters
   port quantities take "exclude": ["RL"] to remove the drawn load first ("find R_L for maximum power")
   {"kind": "w", "el": "C"}: stored energy ½Cv² / ½Li² (DC, transient; a K ref gives the pair's total energy)
-  {"kind": "v"/"i", ..., "deriv": 1}: time derivative dv/dt, di/dt at t in transient problems (e.g. dv_C/dt(0+))
+  {"kind": "v"/"i", ..., "deriv": 1}: time derivative du/dt, di/dt at t in transient problems (e.g. du_C/dt(0+))
   {"kind": "root", "n": 1}, {"kind": "alpha"}, {"kind": "omega_d"}, {"kind": "omega0"}: natural frequencies of the t>0 circuit (part re/im/mag), damping coefficient α, damped frequency ω_d, undamped ω0
   {"kind": "val", "el": "C"}: the element's own value ("find C so that …", hidden with hideValue; ALSO verify the condition with another engine-checked question, e.g. pf or f0)
   {"kind": "wattmeter", "current": "W1", "nodes": ["A", "B"]}: wattmeter reading (current coil = an ammeter with label "W", voltage coil across A, B)
