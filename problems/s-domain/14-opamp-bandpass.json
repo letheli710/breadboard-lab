@@ -1,0 +1,154 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "s-domain-14-opamp-bandpass",
+  "chapter": "s-domain",
+  "title": "含运放电路的网络函数与阶跃响应",
+  "level": 4,
+  "tags": ["运放", "网络函数", "零点极点", "阶跃响应", "带通"],
+  "statement": [
+    "图示理想运放电路中 R_1 = 10 kΩ，C_1 = 100 µF，R_2 = 20 kΩ，C_2 = 25 µF：输入支路为 R_1、C_1 串联，反馈支路为 R_2、C_2 并联。输入 u_s = ε(t) V，t < 0 时电容均不带电，输出 u_o 为 o 端对地电压。",
+    "用运算阻抗求 H(s) = U_o(s)/U_s(s)（分母首项系数为 1），求它的零点、极点、|H(j√2)|，以及阶跃响应 u_o(t) 的最小值（出现在 t = ln 2 s）。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": {"step": {"before": 0, "after": 1}}, "label": "ε(t) V"},
+      {"ref": "R1", "type": "R", "from": [2, 3], "to": [5, 3], "value": "10k"},
+      {"ref": "C1", "type": "C", "from": [5, 3], "to": [8, 3], "value": "100u"},
+      {"ref": "R2", "type": "R", "from": [10, 0], "to": [14, 0], "value": "20k"},
+      {"ref": "C2", "type": "C", "from": [10, -3], "to": [14, -3], "value": "25u"},
+      {"ref": "A", "type": "OPAMP", "at": [12, 4]}
+    ],
+    "wires": [[[0, 3], [2, 3]], [[8, 3], [10, 3]], [[10, 3], [10, -3]], [[14, -3], [14, 4]], [[14, 4], [17, 4]], [[10, 5], [10, 7]], [[0, 7], [17, 7]]],
+    "labels": [{"at": [10, 3], "name": "n"}],
+    "terminals": [{"at": [17, 4], "name": "o"}, {"at": [17, 7], "name": "o'"}],
+    "grounds": [[0, 7]]
+  },
+  "analysis": {"type": "tran"},
+  "questions": [
+    {
+      "id": "b1",
+      "ask": "分子 s 项的系数 = ?",
+      "find": {"kind": "hcoef", "out": ["o"], "input": "Us", "of": "num", "power": 1},
+      "answer": -4.0,
+      "unit": "1/s",
+      "explain": "虚短虚断：H(s) = −\\frac{Z_2}{Z_1}，Z_1 = R_1 + \\frac{1}{sC_1}，Z_2 = \\frac{R_2}{1 + sR_{2}C_{2}}。H(s) = −\\frac{sR_{2}C_{1}}{(1 + sR_{1}C_{1})(1 + sR_{2}C_{2})} = −\\frac{2s}{(1 + s)(1 + 0.5s)} = \\frac{−4s}{s² + 3s + 2}，系数 −4。"
+    },
+    {
+      "id": "a0",
+      "ask": "分母常数项 a_0 = ?",
+      "find": {"kind": "hcoef", "out": ["o"], "input": "Us", "of": "den", "power": 0},
+      "answer": 2.0,
+      "unit": "",
+      "explain": "(s + 1)(s + 2) = s² + 3s + 2，a_0 = 2 = \\frac{1}{R_{1}C_{1}R_{2}C_{2}}。"
+    },
+    {
+      "id": "p1",
+      "ask": "离虚轴较近的极点 = ?",
+      "find": {"kind": "pole", "out": ["o"], "input": "Us", "n": 1},
+      "answer": -1.0,
+      "unit": "1/s",
+      "explain": "极点 −1/(R_{1}C_{1}) = −1、−1/(R_{2}C_{2}) = −2 s⁻¹：各由一个 RC 决定，都是负实数。"
+    },
+    {
+      "id": "z",
+      "ask": "有限零点 = ?",
+      "find": {"kind": "zero", "out": ["o"], "input": "Us", "n": 1},
+      "answer": 0.0,
+      "unit": "1/s",
+      "explain": "分子 −4s：零点 s = 0。直流时 C_1 开路，输出为 0；s → ∞ 时 C_2 短路反馈，输出也为 0——带通。"
+    },
+    {
+      "id": "Hm",
+      "ask": "|H(j√2)| = ?",
+      "find": {"kind": "H", "out": ["o"], "input": "Us", "s": {"re": 0, "im": 1.4142136}, "part": "mag"},
+      "answer": 1.333333,
+      "unit": "",
+      "explain": "H(jω) = \\frac{−j4ω}{2 − ω² + j3ω}，ω = √2 时实部 2 − ω² = 0：|H| = 4√2/(3√2) = 4/3，这是通带中心（ω_0 = √(1 × 2) = √2 rad/s）处的最大增益。"
+    },
+    {
+      "id": "umin",
+      "ask": "t = ln 2 s（≈ 0.6931 s）时 u_o = ?",
+      "find": {"kind": "v", "nodes": ["o"], "t": 0.6931472},
+      "answer": -1.0,
+      "unit": "V",
+      "explain": "U_o(s) = \\frac{H(s)}{s} = \\frac{−4}{(s + 1)(s + 2)} = −\\frac{4}{s + 1} + \\frac{4}{s + 2}，u_o = −4(e^{−t} − e^{−2t}) V；du_o/dt = 0 时 e^{−t} = 1/2，u_o = −4(1/2 − 1/4) = −1 V。"
+    },
+    {
+      "id": "type",
+      "ask": "这个电路的频率特性是：",
+      "choices": ["带通：H(0) = 0，H(j∞) = 0，中间有最大值", "低通：H(0) = −2", "高通：H(j∞) = −4", "全通：|H(jω)| 为常数"],
+      "correct": 0,
+      "choiceExplain": ["", "C_1 串在输入支路里，直流被隔断，H(0) = 0。", "高频时 C_2 把反馈短路，H → 0。", "|H| 随 ω 变化，在 ω = √2 处最大。"],
+      "explain": "零点在原点，分母比分子高一阶：低频和高频都衰减，ω_0 = √2 rad/s 处最大，带通（反相）。"
+    }
+  ],
+  "hints": [
+    "理想运放：反相输入端虚地（u_n = 0），输入电流为零，H(s) = −Z_2(s)/Z_1(s)。",
+    "Z_1 = R_1 + 1/(sC_1)，Z_2 = R_2 ∥ 1/(sC_2)；各 RC 乘积：R_{1}C_{1} = 1 s，R_{2}C_{2} = 0.5 s，R_{2}C_{1} = 2 s。",
+    "阶跃响应的象函数是 H(s)/s，这里 s 正好和分子的 s 约掉。"
+  ],
+  "solution": [
+    "**1. 网络函数。** H(s) = −\\frac{R_2/(1 + sR_{2}C_{2})}{(1 + sR_{1}C_{1})/(sC_1)} = −\\frac{sR_{2}C_{1}}{(1 + sR_{1}C_{1})(1 + sR_{2}C_{2})} = \\frac{−4s}{s² + 3s + 2}。",
+    "**2. 零极点。** **零点 0，极点 −1、−2**；分子 s 项系数 **−4**，分母常数项 **2**。",
+    "**3. 频率响应。** 令 s = jω：H(jω) = \\frac{−j4ω}{2 − ω² + j3ω}，**|H(j√2)| = 4/3**（中心频率，相位 180°）。",
+    "**4. 阶跃响应。** U_o(s) = \\frac{−4}{(s + 1)(s + 2)}，u_o = −4(e^{−t} − e^{−2t}) V，最小值 **u_o(ln 2) = −1 V**。",
+    "**检验：** u_o(0₊) = 0：0₊ 时 C_1、C_2 电压为 0，C_2 把输出钳在 u_n = 0 ✓；u_o(∞) = H(0) × 1 = 0 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Network function and step response of an op-amp circuit",
+      "tags": ["op-amp", "network function", "poles and zeros", "step response", "band-pass"],
+      "statement": [
+        "In the ideal op-amp circuit R_1 = 10 kΩ, C_1 = 100 µF, R_2 = 20 kΩ, C_2 = 25 µF: the input branch is R_1 in series with C_1, the feedback branch R_2 in parallel with C_2. The input is u_s = ε(t) V, both capacitors are uncharged for t < 0, and u_o is the voltage of o to ground.",
+        "Use s-domain impedances to find H(s) = U_o(s)/U_s(s) (leading denominator coefficient 1), its zero and poles, |H(j√2)|, and the minimum of the step response u_o(t) (reached at t = ln 2 s)."
+      ],
+      "questions": [
+        {
+          "ask": "Coefficient of s in the numerator = ?",
+          "explain": "Virtual short and no input current: H(s) = −\\frac{Z_2}{Z_1}, Z_1 = R_1 + \\frac{1}{sC_1}, Z_2 = \\frac{R_2}{1 + sR_{2}C_{2}}. H(s) = −\\frac{sR_{2}C_{1}}{(1 + sR_{1}C_{1})(1 + sR_{2}C_{2})} = −\\frac{2s}{(1 + s)(1 + 0.5s)} = \\frac{−4s}{s² + 3s + 2}: coefficient −4."
+        },
+        {"ask": "Constant term of the denominator, a_0 = ?", "explain": "(s + 1)(s + 2) = s² + 3s + 2, a_0 = 2 = \\frac{1}{R_{1}C_{1}R_{2}C_{2}}."},
+        {
+          "ask": "The pole closer to the jω axis = ?",
+          "explain": "The poles are −1/(R_{1}C_{1}) = −1 and −1/(R_{2}C_{2}) = −2 1/s: each comes from one RC and both are negative real."
+        },
+        {
+          "ask": "Finite zero = ?",
+          "explain": "Numerator −4s: zero at s = 0. At DC C_1 blocks the input and the output is 0; as s → ∞ C_2 shorts the feedback and the output is 0 too — a band-pass."
+        },
+        {
+          "ask": "|H(j√2)| = ?",
+          "explain": "H(jω) = \\frac{−j4ω}{2 − ω² + j3ω}; at ω = √2 the real part 2 − ω² vanishes: |H| = 4√2/(3√2) = 4/3, the largest gain, at the centre of the pass band (ω_0 = √(1 × 2) = √2 rad/s)."
+        },
+        {
+          "ask": "u_o at t = ln 2 s (≈ 0.6931 s) = ?",
+          "explain": "U_o(s) = \\frac{H(s)}{s} = \\frac{−4}{(s + 1)(s + 2)} = −\\frac{4}{s + 1} + \\frac{4}{s + 2}, u_o = −4(e^{−t} − e^{−2t}) V; du_o/dt = 0 where e^{−t} = 1/2, so u_o = −4(1/2 − 1/4) = −1 V."
+        },
+        {
+          "ask": "The frequency response of this circuit is:",
+          "explain": "A zero at the origin and a denominator one degree higher than the numerator: low and high frequencies are both attenuated and the gain peaks at ω_0 = √2 rad/s — an (inverting) band-pass.",
+          "choices": ["band-pass: H(0) = 0, H(j∞) = 0, maximum in between", "low-pass: H(0) = −2", "high-pass: H(j∞) = −4", "all-pass: |H(jω)| is constant"],
+          "choiceExplain": [
+            "",
+            "C_1 in the input branch blocks DC, so H(0) = 0.",
+            "At high frequency C_2 shorts the feedback and H → 0.",
+            "|H| depends on ω and peaks at ω = √2."
+          ]
+        }
+      ],
+      "hints": [
+        "Ideal op-amp: the inverting input is a virtual ground (u_n = 0) and draws no current, so H(s) = −Z_2(s)/Z_1(s).",
+        "Z_1 = R_1 + 1/(sC_1), Z_2 = R_2 ∥ 1/(sC_2); the RC products are R_{1}C_{1} = 1 s, R_{2}C_{2} = 0.5 s, R_{2}C_{1} = 2 s.",
+        "The step response transform is H(s)/s; here that s cancels the s in the numerator."
+      ],
+      "solution": [
+        "**1. Network function.** H(s) = −\\frac{R_2/(1 + sR_{2}C_{2})}{(1 + sR_{1}C_{1})/(sC_1)} = −\\frac{sR_{2}C_{1}}{(1 + sR_{1}C_{1})(1 + sR_{2}C_{2})} = \\frac{−4s}{s² + 3s + 2}.",
+        "**2. Zeros and poles.** **Zero 0, poles −1 and −2**; numerator coefficient of s **−4**, denominator constant **2**.",
+        "**3. Frequency response.** With s = jω: H(jω) = \\frac{−j4ω}{2 − ω² + j3ω}, **|H(j√2)| = 4/3** (centre frequency, phase 180°).",
+        "**4. Step response.** U_o(s) = \\frac{−4}{(s + 1)(s + 2)}, u_o = −4(e^{−t} − e^{−2t}) V, minimum **u_o(ln 2) = −1 V**.",
+        "**Check:** u_o(0+) = 0: at 0+ both capacitor voltages are 0 and C_2 clamps the output to u_n = 0 ✓; u_o(∞) = H(0) × 1 = 0 ✓."
+      ]
+    }
+  }
+}

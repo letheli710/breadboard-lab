@@ -1,0 +1,143 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "s-domain-01-transforms",
+  "chapter": "s-domain",
+  "title": "常用信号的象函数与零状态 RC 电路",
+  "level": 1,
+  "tags": ["拉普拉斯变换", "象函数", "运算阻抗", "部分分式"],
+  "statement": [
+    "图示 RC 电路中 u_s(t) = 6e^{−3t}ε(t) V，R = 1 Ω，C = 0.5 F，电容原来不带电（u_C(0₋) = 0）。u_C、i 的参考方向如图。",
+    "用复频域（运算）法求 u_C(t)：先写出电源的象函数和电容的运算阻抗，再求 U_C(s) 并做部分分式展开。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"exp": {"amp": 6, "alpha": 3}}, "label": "u_s"},
+      {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 1},
+      {"ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": 0.5}
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[8, 4], [0, 4]]],
+    "grounds": [[0, 4]],
+    "marks": [{"kind": "i", "el": "R", "name": "i"}, {"kind": "v", "el": "C", "name": "u_C"}]
+  },
+  "analysis": {"type": "tran"},
+  "questions": [
+    {
+      "id": "Us",
+      "ask": "电源电压的象函数 U_s(s) = ?",
+      "choices": ["6/(s + 3)", "6/(s − 3)", "6/s", "6s/(s + 3)"],
+      "correct": 0,
+      "choiceExplain": ["", "指数衰减 e^{−3t} 对应极点 s = −3，不是 +3；1/(s − 3) 是增长的 e^{3t}。", "6/s 是常数 6ε(t) 的象函数，漏掉了指数因子。", "s/(s + a) 不是 e^{−at} 的象函数（它对应 δ(t) − ae^{−at}）。"],
+      "explain": "ℒ[e^{−at}ε(t)] = 1/(s + a)，线性性质再乘以 6：U_s(s) = 6/(s + 3)。"
+    },
+    {
+      "id": "Zc",
+      "ask": "零初始状态的电容在运算电路中用什么表示？",
+      "choices": ["运算阻抗 1/(sC) = 2/s Ω", "运算阻抗 sC = 0.5s Ω", "电阻 1/C = 2 Ω", "开路"],
+      "correct": 0,
+      "choiceExplain": ["", "sC 是电容的运算导纳，不是阻抗。", "这里漏掉了 s：电容的阻抗随 s 变化。", "只有直流稳态（s → 0）时电容才相当于开路。"],
+      "explain": "i_C = C du_C/dt → I_C(s) = sC·U_C(s) − C·u_C(0₋)，u_C(0₋) = 0 时 U_C(s) = I_C(s)/(sC)，运算阻抗 Z_C(s) = 1/(sC) = 2/s Ω。"
+    },
+    {
+      "id": "tshift",
+      "ask": "复频域平移性质：ℒ[t·e^{−3t}ε(t)] = ?",
+      "choices": ["1/(s + 3)²", "1/(s + 3)", "1/s² · e^{−3}", "s/(s + 3)²"],
+      "correct": 0,
+      "choiceExplain": ["", "1/(s + 3) 是 e^{−3t} 本身，少了因子 t。", "乘以 e^{−at} 是 s 平移，不是乘一个常数。", "s/(s + 3)² 对应 (1 − 3t)e^{−3t}。"],
+      "explain": "ℒ[tε(t)] = 1/s²，乘以 e^{−at} 相当于把 s 换成 s + a：1/(s + 3)²。这也是重极点 s = −3 对应的时间函数。"
+    },
+    {
+      "id": "K1",
+      "ask": "U_C(s) = K_1/(s + 2) + K_2/(s + 3) 中的 K_1 = ?",
+      "find": {"kind": "residue", "out": {"v": "C"}, "at": -2},
+      "answer": 12.0,
+      "unit": "V",
+      "explain": "U_C(s) = U_s(s)·\\frac{1/(sC)}{R + 1/(sC)} = \\frac{6}{s + 3}·\\frac{2}{s + 2} = \\frac{12}{(s + 2)(s + 3)}；K_1 = [(s + 2)U_C(s)]_{s = −2} = 12/(−2 + 3) = 12。"
+    },
+    {
+      "id": "uc",
+      "ask": "t = 0.5 s 时 u_C = ?",
+      "find": {"kind": "v", "el": "C", "t": 0.5},
+      "answer": 1.736991,
+      "unit": "V",
+      "explain": "K_2 = [(s + 3)U_C(s)]_{s = −3} = 12/(−1) = −12，u_C(t) = 12(e^{−2t} − e^{−3t}) V；t = 0.5 s：12(e^{−1} − e^{−1.5}) ≈ 1.737 V。"
+    }
+  ],
+  "hints": [
+    "查变换表：ℒ[e^{−at}ε(t)] = 1/(s + a)；零初始状态的电容在运算电路里就是阻抗 1/(sC)。",
+    "运算电路和电阻电路一样分压：U_C(s) = U_s(s)·Z_C/(R + Z_C)。",
+    "展开 U_C(s) = 12/((s + 2)(s + 3))：K_i = [(s − p_i)U_C(s)] 在 s = p_i 处的值。"
+  ],
+  "solution": [
+    "**1. 象函数。** U_s(s) = 6/(s + 3)；u_C(0₋) = 0，电容的运算阻抗 1/(sC) = 2/s Ω。",
+    "**2. 运算电路分压。** U_C(s) = \\frac{6}{s + 3}·\\frac{2/s}{1 + 2/s} = \\frac{6}{s + 3}·\\frac{2}{s + 2} = \\frac{12}{(s + 2)(s + 3)}。",
+    "**3. 部分分式。** K_1 = 12/(−2 + 3) = **12**，K_2 = 12/(−3 + 2) = −12，U_C(s) = \\frac{12}{s + 2} − \\frac{12}{s + 3}。",
+    "**4. 反变换。** u_C(t) = 12(e^{−2t} − e^{−3t})ε(t) V；**u_C(0.5) ≈ 1.737 V**。",
+    "**检验：** u_C(0₊) = 12 − 12 = 0 ✓（电容电压连续）；初值定理 lim_{s→∞} sU_C(s) = 0 ✓；t → ∞ 时电源衰减到 0，u_C → 0 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Transforms of common signals; a zero-state RC circuit",
+      "tags": ["Laplace transform", "transform pairs", "s-domain impedance", "partial fractions"],
+      "statement": [
+        "In the RC circuit u_s(t) = 6e^{−3t}ε(t) V, R = 1 Ω, C = 0.5 F, and the capacitor is initially uncharged (u_C(0−) = 0). The reference directions of u_C and i are as drawn.",
+        "Find u_C(t) with the s-domain (operational) method: write the transform of the source and the s-domain impedance of the capacitor, then find U_C(s) and expand it in partial fractions."
+      ],
+      "questions": [
+        {
+          "ask": "Transform of the source, U_s(s) = ?",
+          "explain": "ℒ[e^{−at}ε(t)] = 1/(s + a); by linearity multiply by 6: U_s(s) = 6/(s + 3).",
+          "choices": ["6/(s + 3)", "6/(s − 3)", "6/s", "6s/(s + 3)"],
+          "choiceExplain": [
+            "",
+            "A decaying e^{−3t} has its pole at s = −3, not +3; 1/(s − 3) is the growing e^{3t}.",
+            "6/s is the transform of the constant 6ε(t): the exponential factor is missing.",
+            "s/(s + a) is not the transform of e^{−at} (it belongs to δ(t) − ae^{−at})."
+          ]
+        },
+        {
+          "ask": "In the s-domain circuit an uncharged capacitor becomes …",
+          "explain": "i_C = C du_C/dt → I_C(s) = sC·U_C(s) − C·u_C(0−); with u_C(0−) = 0, U_C(s) = I_C(s)/(sC): the s-domain impedance is Z_C(s) = 1/(sC) = 2/s Ω.",
+          "choices": ["the impedance 1/(sC) = 2/s Ω", "the impedance sC = 0.5s Ω", "a resistor 1/C = 2 Ω", "an open circuit"],
+          "choiceExplain": [
+            "",
+            "sC is the capacitor's admittance, not its impedance.",
+            "The s is missing: the capacitor's impedance depends on s.",
+            "A capacitor is an open circuit only in the DC steady state (s → 0)."
+          ]
+        },
+        {
+          "ask": "Frequency-shift property: ℒ[t·e^{−3t}ε(t)] = ?",
+          "explain": "ℒ[tε(t)] = 1/s²; multiplying by e^{−at} replaces s by s + a: 1/(s + 3)². This is also the time function of a double pole at s = −3.",
+          "choices": ["1/(s + 3)²", "1/(s + 3)", "1/s² · e^{−3}", "s/(s + 3)²"],
+          "choiceExplain": [
+            "",
+            "1/(s + 3) is e^{−3t} itself; the factor t is missing.",
+            "Multiplying by e^{−at} shifts s; it does not multiply by a constant.",
+            "s/(s + 3)² belongs to (1 − 3t)e^{−3t}."
+          ]
+        },
+        {
+          "ask": "K_1 in U_C(s) = K_1/(s + 2) + K_2/(s + 3) = ?",
+          "explain": "U_C(s) = U_s(s)·\\frac{1/(sC)}{R + 1/(sC)} = \\frac{6}{s + 3}·\\frac{2}{s + 2} = \\frac{12}{(s + 2)(s + 3)}; K_1 = [(s + 2)U_C(s)]_{s = −2} = 12/(−2 + 3) = 12."
+        },
+        {
+          "ask": "u_C at t = 0.5 s = ?",
+          "explain": "K_2 = [(s + 3)U_C(s)]_{s = −3} = 12/(−1) = −12, u_C(t) = 12(e^{−2t} − e^{−3t}) V; at t = 0.5 s: 12(e^{−1} − e^{−1.5}) ≈ 1.737 V."
+        }
+      ],
+      "hints": [
+        "Use the table: ℒ[e^{−at}ε(t)] = 1/(s + a); an uncharged capacitor is simply the impedance 1/(sC) in the s-domain circuit.",
+        "The s-domain circuit divides voltage like a resistive one: U_C(s) = U_s(s)·Z_C/(R + Z_C).",
+        "Expand U_C(s) = 12/((s + 2)(s + 3)): K_i is the value of (s − p_i)U_C(s) at s = p_i."
+      ],
+      "solution": [
+        "**1. Transforms.** U_s(s) = 6/(s + 3); u_C(0−) = 0, so the capacitor is the impedance 1/(sC) = 2/s Ω.",
+        "**2. Voltage divider in the s-domain.** U_C(s) = \\frac{6}{s + 3}·\\frac{2/s}{1 + 2/s} = \\frac{6}{s + 3}·\\frac{2}{s + 2} = \\frac{12}{(s + 2)(s + 3)}.",
+        "**3. Partial fractions.** K_1 = 12/(−2 + 3) = **12**, K_2 = 12/(−3 + 2) = −12, U_C(s) = \\frac{12}{s + 2} − \\frac{12}{s + 3}.",
+        "**4. Inverse transform.** u_C(t) = 12(e^{−2t} − e^{−3t})ε(t) V; **u_C(0.5) ≈ 1.737 V**.",
+        "**Check:** u_C(0+) = 12 − 12 = 0 ✓ (continuous capacitor voltage); initial-value theorem lim_{s→∞} sU_C(s) = 0 ✓; the source decays to 0, so u_C → 0 as t → ∞ ✓."
+      ]
+    }
+  }
+}

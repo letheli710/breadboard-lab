@@ -26,6 +26,8 @@ export const CHAPTERS: Chapter[] = [
   { id: 'frequency', phase: 4, title: () => tr('频率响应与谐振', 'Frequency response and resonance') },
   { id: 'three-phase', phase: 4, title: () => tr('三相电路', 'Three-phase circuits') },
   { id: 'non-sinusoidal', phase: 4, title: () => tr('非正弦周期电流电路', 'Non-sinusoidal periodic circuits') },
+  // textbook ch. 14 (Laplace transform, network functions) plus impulse response and convolution
+  { id: 's-domain', phase: 4, title: () => tr('线性动态电路的复频域分析', 'Laplace transform and s-domain analysis') },
   { id: 'two-port', phase: 4, title: () => tr('二端口网络', 'Two-port networks') },
   // textbook ch. 17, nonlinear resistive circuits only
   { id: 'nonlinear', phase: 4, title: () => tr('非线性电阻电路', 'Nonlinear resistive circuits') },

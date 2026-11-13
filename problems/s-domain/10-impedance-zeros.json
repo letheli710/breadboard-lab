@@ -1,0 +1,117 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "s-domain-10-impedance-zeros",
+  "chapter": "s-domain",
+  "title": "运算阻抗的零点、极点与 Z(jω)",
+  "level": 3,
+  "tags": ["运算阻抗", "驱动点函数", "零点", "极点", "正弦稳态"],
+  "statement": [
+    "图示单口网络中 L = 1 H，R = 1 Ω，C = 0.5 F：L 与 R、C 的并联部分串联。电流源 i_s 向结点 a 注入电流，网络函数取驱动点阻抗 Z(s) = U_a(s)/I_s(s)（u_a 为 a 对地电压）。",
+    "求 Z(s)（分母写成首项系数为 1 的形式）的零点和极点；再令 i_s 为正弦电流，相量 İ_s = 1∠0° A（有效值），ω = 1 rad/s，求 |Z(j1)| 和 U̇_a 的相位。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": {"ac": {"mag": 1, "phase": 0}}, "label": "i_s"},
+      {"ref": "L", "type": "L", "from": [2, 0], "to": [6, 0], "value": 1},
+      {"ref": "R", "type": "R", "from": [8, 0], "to": [8, 4], "value": 1},
+      {"ref": "C", "type": "C", "from": [12, 0], "to": [12, 4], "value": 0.5}
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [12, 0]], [[12, 4], [0, 4]]],
+    "labels": [{"at": [1, 0], "name": "a"}],
+    "grounds": [[0, 4]]
+  },
+  "analysis": {"type": "ac", "omega": 1},
+  "questions": [
+    {
+      "id": "b0",
+      "ask": "Z(s) = \\frac{s² + b_1 s + b_0}{s + a_0} 中的 b_0 = ?",
+      "find": {"kind": "hcoef", "out": ["a"], "input": "Is", "of": "num", "power": 0},
+      "answer": 2.0,
+      "unit": "",
+      "explain": "Z(s) = sL + \\frac{R·(1/sC)}{R + 1/sC} = s + \\frac{1}{1 + 0.5s} = s + \\frac{2}{s + 2} = \\frac{s² + 2s + 2}{s + 2}，b_0 = 2。"
+    },
+    {
+      "id": "zre",
+      "ask": "零点 z_1 的实部 = ?",
+      "find": {"kind": "zero", "out": ["a"], "input": "Is", "n": 1},
+      "answer": -1.0,
+      "unit": "1/s",
+      "explain": "s² + 2s + 2 = 0 → z_{1,2} = −1 ± j1，实部 −1。"
+    },
+    {
+      "id": "zim",
+      "ask": "零点 z_1 = −1 + j1 的虚部 = ?",
+      "find": {"kind": "zero", "out": ["a"], "input": "Is", "n": 1, "part": "im"},
+      "answer": 1.0,
+      "unit": "1/s",
+      "explain": "虚部 1（另一个零点是共轭 −1 − j1）。"
+    },
+    {
+      "id": "p",
+      "ask": "极点 = ?",
+      "find": {"kind": "pole", "out": ["a"], "input": "Is", "n": 1},
+      "answer": -2.0,
+      "unit": "1/s",
+      "explain": "分母 s + 2 = 0 → p = −2 = −1/(RC)。"
+    },
+    {
+      "id": "Zm",
+      "ask": "|Z(j1)| = ?",
+      "find": {"kind": "H", "out": ["a"], "input": "Is", "s": {"re": 0, "im": 1}, "part": "mag"},
+      "answer": 1.0,
+      "unit": "Ω",
+      "explain": "Z(j1) = \\frac{(j1)² + j2 + 2}{j1 + 2} = \\frac{1 + j2}{2 + j1} = 0.8 + j0.6 Ω，|Z(j1)| = 1 Ω。"
+    },
+    {
+      "id": "ph",
+      "ask": "U̇_a 的相位 = ?",
+      "find": {"kind": "v", "nodes": ["a"], "part": "phase"},
+      "answer": 36.8699,
+      "unit": "°",
+      "explain": "U̇_a = Z(j1)·İ_s = (0.8 + j0.6) × 1∠0° = 1∠36.87° V。用相量法直接算：jωL + R∥(1/jωC) = j1 + 1∥(−j2) = j1 + 0.8 − j0.4 = 0.8 + j0.6 Ω，结果相同。"
+    }
+  ],
+  "hints": ["运算阻抗和复阻抗的算法一样：sL、R、1/(sC) 按串并联合并。", "先算 R 与 1/(sC) 的并联：\\frac{R}{1 + sRC}，再加 sL，通分。", "正弦稳态时把 s 换成 jω：Z(jω) = Z(s)|_{s = jω}。"],
+  "solution": [
+    "**1. Z(s)。** R∥\\frac{1}{sC} = \\frac{1}{1 + 0.5s} = \\frac{2}{s + 2}，Z(s) = s + \\frac{2}{s + 2} = \\frac{s² + 2s + 2}{s + 2}，**b_0 = 2**。",
+    "**2. 零点、极点。** **零点 −1 ± j1**，**极点 −2**。",
+    "**3. ω = 1 rad/s。** Z(j1) = \\frac{1 + j2}{2 + j1} = 0.8 + j0.6 Ω：**|Z(j1)| = 1 Ω**，U̇_a = Z·İ_s = 1∠**36.87°** V。",
+    "**检验：** s → ∞ 时 Z ≈ s（电感起主导，电容短路 R）；s = 0 时 Z = 1 Ω = R（电感短路、电容开路）✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Zeros, poles of an s-domain impedance, and Z(jω)",
+      "tags": ["s-domain impedance", "driving-point function", "zeros", "poles", "sinusoidal steady state"],
+      "statement": [
+        "In the one-port L = 1 H, R = 1 Ω, C = 0.5 F: L is in series with R ∥ C. The current source i_s injects current into node a, and the network function is the driving-point impedance Z(s) = U_a(s)/I_s(s) (u_a is the voltage of a to ground).",
+        "Find the zeros and the pole of Z(s) (denominator with leading coefficient 1). Then let i_s be sinusoidal with phasor İ_s = 1∠0° A (rms), ω = 1 rad/s: find |Z(j1)| and the phase of U̇_a."
+      ],
+      "questions": [
+        {
+          "ask": "b_0 in Z(s) = \\frac{s² + b_1 s + b_0}{s + a_0} = ?",
+          "explain": "Z(s) = sL + \\frac{R·(1/sC)}{R + 1/sC} = s + \\frac{1}{1 + 0.5s} = s + \\frac{2}{s + 2} = \\frac{s² + 2s + 2}{s + 2}, b_0 = 2."
+        },
+        {"ask": "Real part of the zero z_1 = ?", "explain": "s² + 2s + 2 = 0 → z_{1,2} = −1 ± j1, real part −1."},
+        {"ask": "Imaginary part of the zero z_1 = −1 + j1 = ?", "explain": "Imaginary part 1 (the other zero is the conjugate −1 − j1)."},
+        {"ask": "The pole = ?", "explain": "Denominator s + 2 = 0 → p = −2 = −1/(RC)."},
+        {"ask": "|Z(j1)| = ?", "explain": "Z(j1) = \\frac{(j1)² + j2 + 2}{j1 + 2} = \\frac{1 + j2}{2 + j1} = 0.8 + j0.6 Ω, |Z(j1)| = 1 Ω."},
+        {
+          "ask": "Phase of U̇_a = ?",
+          "explain": "U̇_a = Z(j1)·İ_s = (0.8 + j0.6) × 1∠0° = 1∠36.87° V. With phasors directly: jωL + R∥(1/jωC) = j1 + 1∥(−j2) = j1 + 0.8 − j0.4 = 0.8 + j0.6 Ω — the same."
+        }
+      ],
+      "hints": [
+        "Combine s-domain impedances exactly like complex impedances: sL, R and 1/(sC) in series and parallel.",
+        "First R in parallel with 1/(sC): \\frac{R}{1 + sRC}; then add sL and bring to a common denominator.",
+        "In the sinusoidal steady state replace s by jω: Z(jω) = Z(s)|_{s = jω}."
+      ],
+      "solution": [
+        "**1. Z(s).** R∥\\frac{1}{sC} = \\frac{1}{1 + 0.5s} = \\frac{2}{s + 2}, Z(s) = s + \\frac{2}{s + 2} = \\frac{s² + 2s + 2}{s + 2}, **b_0 = 2**.",
+        "**2. Zeros and pole.** **Zeros −1 ± j1**, **pole −2**.",
+        "**3. ω = 1 rad/s.** Z(j1) = \\frac{1 + j2}{2 + j1} = 0.8 + j0.6 Ω: **|Z(j1)| = 1 Ω**, U̇_a = Z·İ_s = 1∠**36.87°** V.",
+        "**Check:** for s → ∞, Z ≈ s (the inductor dominates and the capacitor shorts R); at s = 0, Z = 1 Ω = R (inductor shorted, capacitor open) ✓."
+      ]
+    }
+  }
+}

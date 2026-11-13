@@ -1,0 +1,120 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "s-domain-07-rc-exp-source",
+  "chapter": "s-domain",
+  "title": "指数激励 + 电容初始电压：全响应",
+  "level": 3,
+  "tags": ["全响应", "电容附加电源", "指数激励", "部分分式"],
+  "statement": [
+    "图示电路中 u_s(t) = 10e^{−t}ε(t) V，R = 1 Ω，C = 0.5 F。电容原已充电 u_C(0₋) = 2 V（上“+”下“−”，同图中 u_C 的参考方向）。",
+    "运算电路中电容 = 1/(sC) 与电压源 u_C(0₋)/s 串联（“+”在上）。求 U_C(s) 的展开系数、i(0₊)、t = 0.5 s 时的 u_C，以及 u_C 达到最大值的时刻 t_m = ln 1.8 s 时的 u_C。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"exp": {"amp": 10, "alpha": 1}}, "label": "u_s"},
+      {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 1},
+      {"ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": 0.5, "ic": 2}
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[8, 4], [0, 4]]],
+    "grounds": [[0, 4]],
+    "marks": [{"kind": "i", "el": "R", "name": "i"}, {"kind": "v", "el": "C", "name": "u_C"}],
+    "notes": [{"at": [10, 2], "text": "u_C(0₋) = 2 V", "i18n": {"en": "u_C(0−) = 2 V"}}]
+  },
+  "analysis": {"type": "tran"},
+  "questions": [
+    {
+      "id": "K1",
+      "ask": "U_C(s) 在极点 s = −1 处的系数 = ?",
+      "find": {"kind": "residue", "out": {"v": "C"}, "at": -1},
+      "answer": 20.0,
+      "unit": "V",
+      "explain": "KVL：(R + \\frac{1}{sC})I = \\frac{10}{s + 1} − \\frac{2}{s} → I(s) = \\frac{10s/(s + 1) − 2}{s + 2}。U_C(s) = \\frac{2}{s} + \\frac{2}{s}I(s) = \\frac{20}{(s + 1)(s + 2)} + \\frac{2}{s + 2}；s = −1 处：20/(−1 + 2) = 20。"
+    },
+    {
+      "id": "K2",
+      "ask": "U_C(s) 在极点 s = −2 处的系数 = ?",
+      "find": {"kind": "residue", "out": {"v": "C"}, "at": -2},
+      "answer": -18.0,
+      "unit": "V",
+      "explain": "20/(−2 + 1) + 2 = −20 + 2 = −18。注意 s = 0 不是 U_C(s) 的极点：附加电源 2/s 的极点被抵消了。"
+    },
+    {
+      "id": "i0",
+      "ask": "i(0₊) = ?",
+      "find": {"kind": "i", "el": "R", "t": "0+"},
+      "answer": 8.0,
+      "unit": "A",
+      "explain": "初值定理：sI(s) = \\frac{10s²/(s + 1) − 2s}{s + 2} → 10 − 2 = 8 A；直接看 0₊ 电路：i = (u_s(0) − u_C(0₊))/R = (10 − 2)/1 = 8 A。"
+    },
+    {
+      "id": "uc",
+      "ask": "t = 0.5 s 时 u_C = ?",
+      "find": {"kind": "v", "el": "C", "t": 0.5},
+      "answer": 5.508783,
+      "unit": "V",
+      "explain": "u_C(t) = 20e^{−t} − 18e^{−2t} V；t = 0.5 s：20 × 0.6065 − 18 × 0.3679 ≈ 5.509 V。"
+    },
+    {
+      "id": "um",
+      "ask": "t = ln 1.8 s（≈ 0.5878 s）时 u_C = ?",
+      "find": {"kind": "v", "el": "C", "t": 0.5877867},
+      "answer": 5.555556,
+      "unit": "V",
+      "explain": "du_C/dt = −20e^{−t} + 36e^{−2t} = 0 → e^{−t} = 5/9，t_m = ln 1.8 s；u_C = 20 × 5/9 − 18 × 25/81 = 50/9 ≈ 5.556 V（最大值）。"
+    }
+  ],
+  "hints": [
+    "运算电路：电源 10/(s + 1)，R，以及电容 2/s Ω 串联电压源 2/s（“+”在上）。",
+    "回路 KVL 求 I(s)，再 U_C(s) = u_C(0₋)/s + I(s)/(sC)；也可以用叠加：零状态部分 + 零输入部分。",
+    "零状态部分 \\frac{20}{(s + 1)(s + 2)}，零输入部分 \\frac{2}{s + 2}。"
+  ],
+  "solution": [
+    "**1. 运算电路。** U_s(s) = 10/(s + 1)；电容：2/s Ω 串电压源 2/s。",
+    "**2. 叠加。** 零状态：U_C′ = U_s·\\frac{2/s}{1 + 2/s} = \\frac{20}{(s + 1)(s + 2)}；零输入：U_C″ = \\frac{2}{s}·\\frac{R}{R + 2/s} = \\frac{2}{s + 2}。",
+    "**3. 展开。** U_C(s) = \\frac{20}{s + 1} − \\frac{20}{s + 2} + \\frac{2}{s + 2} = \\frac{20}{s + 1} − \\frac{18}{s + 2}：**系数 20 和 −18**。",
+    "**4. 时域。** u_C(t) = 20e^{−t} − 18e^{−2t} V，**u_C(0.5) ≈ 5.509 V**；i = C·du_C/dt = −10e^{−t} + 18e^{−2t} A，**i(0₊) = 8 A**；最大值在 t_m = ln 1.8 s，**u_C(t_m) = 50/9 ≈ 5.556 V**。",
+    "**检验：** u_C(0₊) = 20 − 18 = 2 V ✓；KVL：Ri + u_C = (−10e^{−t} + 18e^{−2t}) + (20e^{−t} − 18e^{−2t}) = 10e^{−t} = u_s ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Exponential input plus an initial capacitor voltage: complete response",
+      "tags": ["complete response", "capacitor initial-condition source", "exponential input", "partial fractions"],
+      "statement": [
+        "u_s(t) = 10e^{−t}ε(t) V, R = 1 Ω, C = 0.5 F. The capacitor is charged to u_C(0−) = 2 V (+ at the top, as the reference of u_C).",
+        "In the s-domain circuit the capacitor is 1/(sC) in series with a voltage source u_C(0−)/s (+ at the top). Find the expansion coefficients of U_C(s), i(0+), u_C at t = 0.5 s, and u_C at t_m = ln 1.8 s, where it is largest."
+      ],
+      "questions": [
+        {
+          "ask": "Coefficient of U_C(s) at the pole s = −1 = ?",
+          "explain": "KVL: (R + \\frac{1}{sC})I = \\frac{10}{s + 1} − \\frac{2}{s} → I(s) = \\frac{10s/(s + 1) − 2}{s + 2}. U_C(s) = \\frac{2}{s} + \\frac{2}{s}I(s) = \\frac{20}{(s + 1)(s + 2)} + \\frac{2}{s + 2}; at s = −1: 20/(−1 + 2) = 20."
+        },
+        {
+          "ask": "Coefficient of U_C(s) at the pole s = −2 = ?",
+          "explain": "20/(−2 + 1) + 2 = −20 + 2 = −18. Note that s = 0 is not a pole of U_C(s): the pole of the source 2/s cancels."
+        },
+        {
+          "ask": "i(0+) = ?",
+          "explain": "Initial-value theorem: sI(s) = \\frac{10s²/(s + 1) − 2s}{s + 2} → 10 − 2 = 8 A; directly from the 0+ circuit: i = (u_s(0) − u_C(0+))/R = (10 − 2)/1 = 8 A."
+        },
+        {"ask": "u_C at t = 0.5 s = ?", "explain": "u_C(t) = 20e^{−t} − 18e^{−2t} V; at t = 0.5 s: 20 × 0.6065 − 18 × 0.3679 ≈ 5.509 V."},
+        {
+          "ask": "u_C at t = ln 1.8 s (≈ 0.5878 s) = ?",
+          "explain": "du_C/dt = −20e^{−t} + 36e^{−2t} = 0 → e^{−t} = 5/9, t_m = ln 1.8 s; u_C = 20 × 5/9 − 18 × 25/81 = 50/9 ≈ 5.556 V (the maximum)."
+        }
+      ],
+      "hints": [
+        "s-domain circuit: source 10/(s + 1), R, and the capacitor 2/s Ω in series with a voltage source 2/s (+ at the top).",
+        "Get I(s) from loop KVL, then U_C(s) = u_C(0−)/s + I(s)/(sC); or use superposition: zero-state part + zero-input part.",
+        "Zero-state part \\frac{20}{(s + 1)(s + 2)}, zero-input part \\frac{2}{s + 2}."
+      ],
+      "solution": [
+        "**1. s-domain circuit.** U_s(s) = 10/(s + 1); the capacitor is 2/s Ω in series with a source 2/s.",
+        "**2. Superposition.** Zero-state: U_C′ = U_s·\\frac{2/s}{1 + 2/s} = \\frac{20}{(s + 1)(s + 2)}; zero-input: U_C″ = \\frac{2}{s}·\\frac{R}{R + 2/s} = \\frac{2}{s + 2}.",
+        "**3. Expansion.** U_C(s) = \\frac{20}{s + 1} − \\frac{20}{s + 2} + \\frac{2}{s + 2} = \\frac{20}{s + 1} − \\frac{18}{s + 2}: **coefficients 20 and −18**.",
+        "**4. Time domain.** u_C(t) = 20e^{−t} − 18e^{−2t} V, **u_C(0.5) ≈ 5.509 V**; i = C·du_C/dt = −10e^{−t} + 18e^{−2t} A, **i(0+) = 8 A**; the maximum is at t_m = ln 1.8 s, **u_C(t_m) = 50/9 ≈ 5.556 V**.",
+        "**Check:** u_C(0+) = 20 − 18 = 2 V ✓; KVL: Ri + u_C = (−10e^{−t} + 18e^{−2t}) + (20e^{−t} − 18e^{−2t}) = 10e^{−t} = u_s ✓."
+      ]
+    }
+  }
+}

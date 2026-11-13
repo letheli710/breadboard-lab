@@ -1,0 +1,156 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "s-domain-16-zero-input-two-ics",
+  "chapter": "s-domain",
+  "title": "两个储能元件都有初值的零输入响应",
+  "level": 4,
+  "tags": ["零输入响应", "运算电路", "附加电源", "共轭复数极点"],
+  "statement": [
+    "图示电路中 U_s = 10 V，R_1 = 4 Ω，C = 40 mF，L = 1 H，R_2 = 6 Ω。开关 S 闭合已久，t = 0 时断开。i_L（从上向下流过 L、R_2）与 u_C（上“+”下“−”）的参考方向如图。",
+    "t > 0 时 C 与 L、R_2 组成一个回路，两个元件都有初值。运算电路中：电感 = sL 串电压源 L·i_L(0₋)（沿 i_L 方向推动电流），电容 = 1/(sC) 串电压源 u_C(0₋)/s（“+”在上）。求 I_L(s) 的极点和在 p_1 = −α + jω_d 处的系数 K_1，以及 t = 0.2 s 时的 i_L 和 u_C。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 1], "to": [0, 5], "value": 10},
+      {"ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": {"before": "closed", "after": "open"}},
+      {"ref": "R1", "type": "R", "from": [5, 0], "to": [9, 0], "value": 4},
+      {"ref": "C", "type": "C", "from": [11, 1], "to": [11, 5], "value": "40m"},
+      {"ref": "L", "type": "L", "from": [15, 0], "to": [15, 3], "value": 1},
+      {"ref": "R2", "type": "R", "from": [15, 3], "to": [15, 6], "value": 6}
+    ],
+    "wires": [[[0, 1], [0, 0], [2, 0]], [[4, 0], [5, 0]], [[9, 0], [15, 0]], [[11, 0], [11, 1]], [[11, 5], [11, 6]], [[0, 5], [0, 6]], [[15, 6], [0, 6]]],
+    "labels": [{"at": [11, 0], "name": "a"}],
+    "grounds": [[0, 6]],
+    "marks": [{"kind": "i", "el": "L", "name": "i_L"}, {"kind": "v", "el": "C", "name": "u_C"}],
+    "notes": [{"at": [3, -1], "text": "t = 0", "i18n": {"en": "t = 0"}}]
+  },
+  "analysis": {"type": "tran"},
+  "questions": [
+    {
+      "id": "kvl",
+      "ask": "t > 0 回路（C → L → R_2 → C）的运算形式 KVL 是：",
+      "choices": [
+        "(sL + R_2 + \\frac{1}{sC})I_L(s) = L·i_L(0₋) + \\frac{u_C(0₋)}{s}",
+        "(sL + R_2 + \\frac{1}{sC})I_L(s) = L·i_L(0₋) − \\frac{u_C(0₋)}{s}",
+        "(sL + R_2 + \\frac{1}{sC})I_L(s) = −L·i_L(0₋) + \\frac{u_C(0₋)}{s}",
+        "(sL + R_2 + \\frac{1}{sC})I_L(s) = \\frac{i_L(0₋)}{s} + C·u_C(0₋)"
+      ],
+      "correct": 0,
+      "choiceExplain": ["", "电容电压源的符号错了：i_L 从电容上端（“+”）流出，电容正在放电，它的附加电源推动 i_L。", "电感附加电源的符号错了：它要维持原来的电流 i_L(0₋)，方向与 i_L 一致。", "这是并联形式里的电流源的值，不能直接写进串联回路的 KVL。"],
+      "explain": "沿 i_L 绕行：电感的附加电压源 L·i_L(0₋) 沿 i_L 方向推动电流（+），电容的附加电压源 u_C(0₋)/s 的“+”在上，i_L 从它的“+”端流出进入 L，也是推动电流（+）。i_L(0₋) = 1 A、u_C(0₋) = 6 V 时右边 = 1 + 6/s。"
+    },
+    {
+      "id": "pre",
+      "ask": "极点的实部 −α = ?",
+      "find": {"kind": "root", "n": 1},
+      "answer": -3.0,
+      "unit": "1/s",
+      "explain": "i_L(0₋) = 10/(4 + 6) = 1 A，u_C(0₋) = 6 × 1 = 6 V。I_L(s) = \\frac{1 + 6/s}{s + 6 + 25/s} = \\frac{s + 6}{s² + 6s + 25}，极点 −3 ± j4，也就是 t > 0 电路的固有频率（特征根）。"
+    },
+    {
+      "id": "pim",
+      "ask": "极点 p_1 的虚部 ω_d = ?",
+      "find": {"kind": "root", "n": 1, "part": "im"},
+      "answer": 4.0,
+      "unit": "rad/s",
+      "explain": "ω_d = √(1/(LC) − (R_2/2L)²) = √(25 − 9) = 4 rad/s。"
+    },
+    {
+      "id": "Km",
+      "ask": "|K_1| = ?",
+      "find": {"kind": "residue", "out": {"i": "L"}, "at": {"re": -3, "im": 4}, "part": "mag"},
+      "answer": 0.625,
+      "unit": "A",
+      "explain": "K_1 = \\frac{s + 6}{s + 3 + j4}|_{s = −3 + j4} = \\frac{3 + j4}{j8} = 0.5 − j0.375，|K_1| = 0.625 A。"
+    },
+    {
+      "id": "Kph",
+      "ask": "∠K_1 = ?",
+      "find": {"kind": "residue", "out": {"i": "L"}, "at": {"re": -3, "im": 4}, "part": "phase"},
+      "answer": -36.8699,
+      "unit": "°",
+      "explain": "∠K_1 = −arctan(0.375/0.5) = −36.87°：i_L(t) = 1.25e^{−3t}cos(4t − 36.87°) = e^{−3t}(cos 4t + 0.75 sin 4t) A。"
+    },
+    {
+      "id": "il",
+      "ask": "t = 0.2 s 时 i_L = ?",
+      "find": {"kind": "i", "el": "L", "t": 0.2},
+      "answer": 0.6776308,
+      "unit": "A",
+      "explain": "i_L(0.2) = e^{−0.6}(cos 0.8 + 0.75 sin 0.8) ≈ 0.5488 × 1.2353 ≈ 0.678 A。"
+    },
+    {
+      "id": "uc",
+      "ask": "t = 0.2 s 时 u_C = ?",
+      "find": {"kind": "v", "el": "C", "t": 0.2},
+      "answer": 1.605201,
+      "unit": "V",
+      "explain": "U_C(s) = \\frac{u_C(0₋)}{s} − \\frac{I_L(s)}{sC}（电容电流 = −i_L）= \\frac{6s + 11}{s² + 6s + 25}，u_C(t) = e^{−3t}(6cos 4t − 1.75 sin 4t) V；t = 0.2 s：≈ 0.5488 × (4.180 − 1.255) ≈ 1.605 V。"
+    }
+  ],
+  "hints": [
+    "t < 0：电感短路、电容开路，求 i_L(0₋)、u_C(0₋)。t > 0：电源支路断开，只剩 C、L、R_2 回路。",
+    "画运算电路时，两个附加电源都按“维持原状态”的方向放：电感的沿 i_L 推电流；电容在放电，它的“+”端正是 i_L 流出的一端。",
+    "I_L(s) = \\frac{L·i_L(0₋) + u_C(0₋)/s}{sL + R_2 + 1/(sC)} = \\frac{s + 6}{s² + 6s + 25}。"
+  ],
+  "solution": [
+    "**1. 初值。** i_L(0₋) = 10/(4 + 6) = 1 A，u_C(0₋) = R_2·i_L(0₋) = 6 V。",
+    "**2. 运算电路 KVL。** (s + 6 + \\frac{25}{s})I_L(s) = 1 + \\frac{6}{s} → I_L(s) = \\frac{s + 6}{s² + 6s + 25}，**极点 −3 ± j4**。",
+    "**3. 系数。** **K_1 = \\frac{3 + j4}{j8} = 0.5 − j0.375 = 0.625∠−36.87° A**，i_L = 1.25e^{−3t}cos(4t − 36.87°) A，**i_L(0.2) ≈ 0.678 A**。",
+    "**4. 电容电压。** 电容电流 = −i_L：U_C(s) = \\frac{6}{s} − \\frac{25}{s}I_L(s) = \\frac{6s + 11}{s² + 6s + 25}，u_C = e^{−3t}(6cos 4t − 1.75 sin 4t) V，**u_C(0.2) ≈ 1.605 V**。",
+    "**检验：** i_L(0₊) = 1 A ✓，u_C(0₊) = 6 V ✓；KVL：u_C = L·di_L/dt + R_2·i_L = e^{−3t}(−6.25 sin 4t) + 6e^{−3t}(cos 4t + 0.75 sin 4t) = e^{−3t}(6cos 4t − 1.75 sin 4t) ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Zero-input response with two initial conditions",
+      "tags": ["zero-input response", "s-domain circuit", "initial-condition sources", "complex-conjugate poles"],
+      "statement": [
+        "U_s = 10 V, R_1 = 4 Ω, C = 40 mF, L = 1 H, R_2 = 6 Ω. Switch S has been closed for a long time and opens at t = 0. The references of i_L (down through L and R_2) and u_C (+ at the top) are as drawn.",
+        "For t > 0, C forms one loop with L and R_2, and both elements start with stored energy. In the s-domain circuit the inductor is sL in series with a voltage source L·i_L(0−) (pushing current along i_L), the capacitor 1/(sC) in series with a voltage source u_C(0−)/s (+ at the top). Find the poles of I_L(s) (the natural frequencies of the circuit for t > 0), its coefficient K_1 at p_1 = −α + jω_d, and i_L and u_C at t = 0.2 s."
+      ],
+      "questions": [
+        {
+          "ask": "The s-domain KVL around the loop C → L → R_2 → C for t > 0 is:",
+          "explain": "Going along i_L: the inductor's source L·i_L(0−) pushes current along i_L (+); the capacitor's source u_C(0−)/s has its + at the top, where i_L leaves the capacitor to enter L, so it pushes too (+). With i_L(0−) = 1 A and u_C(0−) = 6 V the right-hand side is 1 + 6/s.",
+          "choices": [
+            "(sL + R_2 + \\frac{1}{sC})I_L(s) = L·i_L(0₋) + \\frac{u_C(0₋)}{s}",
+            "(sL + R_2 + \\frac{1}{sC})I_L(s) = L·i_L(0₋) − \\frac{u_C(0₋)}{s}",
+            "(sL + R_2 + \\frac{1}{sC})I_L(s) = −L·i_L(0₋) + \\frac{u_C(0₋)}{s}",
+            "(sL + R_2 + \\frac{1}{sC})I_L(s) = \\frac{i_L(0₋)}{s} + C·u_C(0₋)"
+          ],
+          "choiceExplain": [
+            "",
+            "Wrong sign for the capacitor: i_L leaves the capacitor at its top (+) end; the capacitor discharges and its source drives i_L.",
+            "Wrong sign for the inductor: its source keeps the original current i_L(0−) going, in the direction of i_L.",
+            "Those are the values of the parallel-form current sources; they cannot go into a series-loop KVL."
+          ]
+        },
+        {
+          "ask": "Real part of the poles, −α = ?",
+          "explain": "i_L(0−) = 10/(4 + 6) = 1 A, u_C(0−) = 6 × 1 = 6 V. I_L(s) = \\frac{1 + 6/s}{s + 6 + 25/s} = \\frac{s + 6}{s² + 6s + 25}, poles −3 ± j4 — the natural frequencies (characteristic roots) of the circuit for t > 0."
+        },
+        {"ask": "Imaginary part of p_1, ω_d = ?", "explain": "ω_d = √(1/(LC) − (R_2/2L)²) = √(25 − 9) = 4 rad/s."},
+        {"ask": "|K_1| = ?", "explain": "K_1 = \\frac{s + 6}{s + 3 + j4}|_{s = −3 + j4} = \\frac{3 + j4}{j8} = 0.5 − j0.375, |K_1| = 0.625 A."},
+        {"ask": "∠K_1 = ?", "explain": "∠K_1 = −arctan(0.375/0.5) = −36.87°: i_L(t) = 1.25e^{−3t}cos(4t − 36.87°) = e^{−3t}(cos 4t + 0.75 sin 4t) A."},
+        {"ask": "i_L at t = 0.2 s = ?", "explain": "i_L(0.2) = e^{−0.6}(cos 0.8 + 0.75 sin 0.8) ≈ 0.5488 × 1.2353 ≈ 0.678 A."},
+        {
+          "ask": "u_C at t = 0.2 s = ?",
+          "explain": "U_C(s) = \\frac{u_C(0−)}{s} − \\frac{I_L(s)}{sC} (the capacitor current is −i_L) = \\frac{6s + 11}{s² + 6s + 25}, u_C(t) = e^{−3t}(6cos 4t − 1.75 sin 4t) V; at t = 0.2 s: ≈ 0.5488 × (4.180 − 1.255) ≈ 1.605 V."
+        }
+      ],
+      "hints": [
+        "For t < 0: inductor shorted, capacitor open — find i_L(0−) and u_C(0−). For t > 0 the source branch is open and only the loop C, L, R_2 is left.",
+        "Place both initial-condition sources so that they \"keep the old state\": the inductor's pushes current along i_L; the capacitor is discharging and its + end is where i_L leaves it.",
+        "I_L(s) = \\frac{L·i_L(0−) + u_C(0−)/s}{sL + R_2 + 1/(sC)} = \\frac{s + 6}{s² + 6s + 25}."
+      ],
+      "solution": [
+        "**1. Initial values.** i_L(0−) = 10/(4 + 6) = 1 A, u_C(0−) = R_2·i_L(0−) = 6 V.",
+        "**2. s-domain KVL.** (s + 6 + \\frac{25}{s})I_L(s) = 1 + \\frac{6}{s} → I_L(s) = \\frac{s + 6}{s² + 6s + 25}, **poles −3 ± j4**.",
+        "**3. Coefficient.** **K_1 = \\frac{3 + j4}{j8} = 0.5 − j0.375 = 0.625∠−36.87° A**, i_L = 1.25e^{−3t}cos(4t − 36.87°) A, **i_L(0.2) ≈ 0.678 A**.",
+        "**4. Capacitor voltage.** The capacitor current is −i_L: U_C(s) = \\frac{6}{s} − \\frac{25}{s}I_L(s) = \\frac{6s + 11}{s² + 6s + 25}, u_C = e^{−3t}(6cos 4t − 1.75 sin 4t) V, **u_C(0.2) ≈ 1.605 V**.",
+        "**Check:** i_L(0+) = 1 A ✓, u_C(0+) = 6 V ✓; KVL: u_C = L·di_L/dt + R_2·i_L = e^{−3t}(−6.25 sin 4t) + 6e^{−3t}(cos 4t + 0.75 sin 4t) = e^{−3t}(6cos 4t − 1.75 sin 4t) ✓."
+      ]
+    }
+  }
+}

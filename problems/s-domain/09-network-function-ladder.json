@@ -1,0 +1,145 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "s-domain-09-network-function-ladder",
+  "chapter": "s-domain",
+  "title": "RC 梯形网络的网络函数",
+  "level": 3,
+  "tags": ["网络函数", "极点", "频率响应", "阶跃响应"],
+  "statement": [
+    "图示两节 RC 梯形网络中 R_1 = R_2 = 1 kΩ，C_1 = C_2 = 1 mF，输入 u_s = ε(t) V，输出为 o 端对地的电压 u_o，t < 0 时无储能。",
+    "求电压转移函数 H(s) = U_o(s)/U_s(s)，写成 \\frac{b_0}{s² + a_1 s + a_0}（分母首项系数为 1），求它的极点、H(0) 和 |H(j1)|，并判断阶跃响应的形状。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 1}}, "label": "ε(t) V"},
+      {"ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": "1k"},
+      {"ref": "C1", "type": "C", "from": [8, 0], "to": [8, 4], "value": "1m"},
+      {"ref": "R2", "type": "R", "from": [10, 0], "to": [14, 0], "value": "1k"},
+      {"ref": "C2", "type": "C", "from": [16, 0], "to": [16, 4], "value": "1m"}
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [10, 0]], [[14, 0], [18, 0]], [[18, 4], [0, 4]]],
+    "labels": [{"at": [8, 0], "name": "a"}],
+    "terminals": [{"at": [18, 0], "name": "o"}, {"at": [18, 4], "name": "o'"}],
+    "grounds": [[0, 4]]
+  },
+  "analysis": {"type": "tran"},
+  "questions": [
+    {
+      "id": "a1",
+      "ask": "分母系数 a_1 = ?",
+      "find": {"kind": "hcoef", "out": ["o"], "input": "Us", "of": "den", "power": 1},
+      "answer": 3.0,
+      "unit": "1/s",
+      "explain": "结点 a、o 列 KCL（运算形式）可得 H(s) = \\frac{1}{s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1}。各 RC = 1 s：H(s) = \\frac{1}{s² + 3s + 1}，a_1 = 3（注意交叉项 R_{1}C_{2}，两节不能简单相乘）。"
+    },
+    {
+      "id": "p1",
+      "ask": "离虚轴较近的极点 p_1 = ?",
+      "find": {"kind": "pole", "out": ["o"], "input": "Us", "n": 1},
+      "answer": -0.381966,
+      "unit": "1/s",
+      "explain": "s² + 3s + 1 = 0 → s = (−3 ± √5)/2：p_1 = −0.382 s⁻¹。"
+    },
+    {
+      "id": "p2",
+      "ask": "另一个极点 p_2 = ?",
+      "find": {"kind": "pole", "out": ["o"], "input": "Us", "n": 2},
+      "answer": -2.618034,
+      "unit": "1/s",
+      "explain": "p_2 = (−3 − √5)/2 ≈ −2.618 s⁻¹；p_1p_2 = 1 = a_0，p_1 + p_2 = −3 = −a_1。"
+    },
+    {
+      "id": "H0",
+      "ask": "H(0) = ?",
+      "find": {"kind": "H", "out": ["o"], "input": "Us", "s": 0},
+      "answer": 1.0,
+      "unit": "",
+      "explain": "H(0) = 1/1 = 1：直流时电容开路，电阻上没有电流，u_o = u_s。它也是阶跃响应的终值 u_o(∞)（终值定理：lim_{s→0} s·H(s)/s = H(0)）。"
+    },
+    {
+      "id": "Hj1",
+      "ask": "|H(j1)| = ?",
+      "find": {"kind": "H", "out": ["o"], "input": "Us", "s": {"re": 0, "im": 1}, "part": "mag"},
+      "answer": 0.3333333,
+      "unit": "",
+      "explain": "令 s = jω（ω = 1 rad/s）：H(j1) = \\frac{1}{−1 + j3 + 1} = \\frac{1}{j3}，|H(j1)| = 1/3。正弦稳态的网络函数就是 H(s) 在虚轴上的值。"
+    },
+    {
+      "id": "shape",
+      "ask": "阶跃响应 u_o(t) 的形状是：",
+      "choices": ["单调上升到 1 V，没有过冲（两个负实数极点）", "衰减振荡，最终趋于 1 V", "等幅振荡", "先上升后下降到 0"],
+      "correct": 0,
+      "choiceExplain": ["", "振荡需要共轭复数极点；只由 R、C 组成的电路没有复数极点。", "等幅振荡要求极点在虚轴上。", "H(0) = 1，终值是 1 V 而不是 0。"],
+      "explain": "极点 −0.382、−2.618 都在负实轴上，u_o = 1 + K_1e^{p_1t} + K_2e^{p_2t}，不振荡；RC 梯形网络的极点总是负实数。"
+    }
+  ],
+  "hints": [
+    "运算电路：电容 1/(sC)，零初始状态；对结点 a、o 列结点方程（或从输出端往回推）。",
+    "从输出端倒推：U_o 已知时，I_{R2} = sC_2U_o，U_a = (1 + sR_{2}C_{2})U_o，再求 U_s。",
+    "分母 s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1。"
+  ],
+  "solution": [
+    "**1. 倒推。** U_a = (1 + sR_{2}C_{2})U_o = (1 + s)U_o；R_1 中的电流 = sC_{1}U_a + sC_{2}U_o = [s(1 + s) + s]U_o；U_s = U_a + R_1·(…) = (s² + 3s + 1)U_o（数值按 R = 1 kΩ、C = 1 mF，RC = 1 s 代入）。",
+    "**2. 网络函数。** H(s) = \\frac{1}{s² + 3s + 1}：**b_0 = 1，a_1 = 3，a_0 = 1**。",
+    "**3. 极点。** **p_{1,2} = (−3 ± √5)/2 ≈ −0.382、−2.618 s⁻¹**。",
+    "**4. 特殊值。** **H(0) = 1**；**|H(j1)| = 1/|j3| = 1/3**。",
+    "**5. 阶跃响应。** U_o(s) = H(s)/s，u_o = 1 + K_1e^{−0.382t} + K_2e^{−2.618t}，单调上升到 1 V。",
+    "**检验：** 只有 R_{1}C_{1} 时 H = 1/(1 + s)；第二节的负载效应使 a_1 从 1 + 1 = 2 变成 3。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Network function of an RC ladder",
+      "tags": ["network function", "poles", "frequency response", "step response"],
+      "statement": [
+        "In the two-section RC ladder R_1 = R_2 = 1 kΩ, C_1 = C_2 = 1 mF, the input is u_s = ε(t) V and the output is the voltage u_o from o to ground; no energy is stored for t < 0.",
+        "Find the voltage transfer function H(s) = U_o(s)/U_s(s) in the form \\frac{b_0}{s² + a_1 s + a_0} (leading denominator coefficient 1), its poles, H(0) and |H(j1)|, and decide the shape of the step response."
+      ],
+      "questions": [
+        {
+          "ask": "Denominator coefficient a_1 = ?",
+          "explain": "KCL at nodes a and o in the s-domain gives H(s) = \\frac{1}{s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1}. Every RC = 1 s: H(s) = \\frac{1}{s² + 3s + 1}, a_1 = 3 (mind the cross term R_{1}C_{2}: the two sections do not simply multiply)."
+        },
+        {"ask": "The pole closer to the jω axis, p_1 = ?", "explain": "s² + 3s + 1 = 0 → s = (−3 ± √5)/2: p_1 = −0.382 1/s."},
+        {"ask": "The other pole p_2 = ?", "explain": "p_2 = (−3 − √5)/2 ≈ −2.618 1/s; p_1p_2 = 1 = a_0 and p_1 + p_2 = −3 = −a_1."},
+        {
+          "ask": "H(0) = ?",
+          "explain": "H(0) = 1/1 = 1: at DC the capacitors are open, no current flows in the resistors and u_o = u_s. It is also the final value of the step response (final-value theorem: lim_{s→0} s·H(s)/s = H(0))."
+        },
+        {
+          "ask": "|H(j1)| = ?",
+          "explain": "Put s = jω (ω = 1 rad/s): H(j1) = \\frac{1}{−1 + j3 + 1} = \\frac{1}{j3}, |H(j1)| = 1/3. The sinusoidal steady-state network function is H(s) on the imaginary axis."
+        },
+        {
+          "ask": "The step response u_o(t) is:",
+          "explain": "Both poles −0.382 and −2.618 are on the negative real axis: u_o = 1 + K_1e^{p_1t} + K_2e^{p_2t} does not oscillate; RC ladders always have negative real poles.",
+          "choices": [
+            "a monotonic rise to 1 V without overshoot (two negative real poles)",
+            "a decaying oscillation settling at 1 V",
+            "a sustained oscillation",
+            "a rise followed by a decay to 0"
+          ],
+          "choiceExplain": [
+            "",
+            "Oscillation needs complex-conjugate poles; circuits of only R and C have none.",
+            "A sustained oscillation needs poles on the jω axis.",
+            "H(0) = 1, so the final value is 1 V, not 0."
+          ]
+        }
+      ],
+      "hints": [
+        "s-domain circuit: capacitors 1/(sC), zero initial state; write node equations at a and o (or work back from the output).",
+        "Working back: with U_o known, I_{R2} = sC_2U_o, U_a = (1 + sR_{2}C_{2})U_o, then find U_s.",
+        "The denominator is s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1."
+      ],
+      "solution": [
+        "**1. Work back.** U_a = (1 + sR_{2}C_{2})U_o = (1 + s)U_o; the current in R_1 = sC_{1}U_a + sC_{2}U_o = [s(1 + s) + s]U_o; U_s = U_a + R_1·(…) = (s² + 3s + 1)U_o (with R = 1 kΩ, C = 1 mF, RC = 1 s).",
+        "**2. Network function.** H(s) = \\frac{1}{s² + 3s + 1}: **b_0 = 1, a_1 = 3, a_0 = 1**.",
+        "**3. Poles.** **p_{1,2} = (−3 ± √5)/2 ≈ −0.382, −2.618 1/s**.",
+        "**4. Special values.** **H(0) = 1**; **|H(j1)| = 1/|j3| = 1/3**.",
+        "**5. Step response.** U_o(s) = H(s)/s, u_o = 1 + K_1e^{−0.382t} + K_2e^{−2.618t}: a monotonic rise to 1 V.",
+        "**Check:** with R_{1}C_{1} alone H = 1/(1 + s); the loading by the second section turns a_1 = 1 + 1 = 2 into 3."
+      ]
+    }
+  }
+}
