@@ -76,6 +76,16 @@ describe('operating point: square law i = u² (u ≥ 0)', () => {
     expect(() => q(r, DC, { kind: 'rd', el: 'D' })).toThrow(/infinite/);
     expect(() => q(r, DC, { kind: 'rs', el: 'D' })).toThrow(/zero/);
   });
+  it('load line tangent to the curve (double root) is one operating point', () => {
+    // i = u² (no umin), Us = −0.25 V, R = 1 Ω: u² + u + 0.25 = (u + 0.5)² = 0 → u = −0.5 V, i = 0.25 A.
+    // The tangent at Q is parallel to the load line, so the linearised circuit is singular there.
+    const t = divider(-0.25, 1, { i: [0, 0, 1] });
+    expect(q(t, DC, { kind: 'nop' })).toBe(1);
+    close(q(t, DC, { kind: 'v', el: 'D' }), -0.5, 1e-6);
+    close(q(t, DC, { kind: 'i', el: 'D' }), 0.25, 1e-6);
+    close(q(t, DC, { kind: 'i', el: 'R' }), 0.25, 1e-6);
+    close(q(t, DC, { kind: 'rd', el: 'D' }), -1, 1e-6);
+  });
 });
 
 describe('current-controlled law u = i + i³', () => {

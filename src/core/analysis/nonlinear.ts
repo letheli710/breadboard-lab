@@ -298,10 +298,37 @@ const near = (a: number, b: number) => Math.abs(a - b) <= 1e-7 * Math.max(1, Mat
 /** set every element on its piece's linear relation (degree ≤ 1 pieces) */
 const linOf = (p: Piece): Lin => tangent(p, 0);
 
-/** Re-solve with all elements on tangents at their current control values and check the laws. */
+/** Branch relations that fix each curved element at the point (u, i) of its piece at xs[k] —
+ *  first its tangent line there, then (substitution theorem) a voltage source u or a current
+ *  source i. The tangent fails when it is parallel to the load line, i.e. when the load line
+ *  touches the curve (a double root): the linearised circuit is then singular although the point
+ *  is a perfectly good operating point. Linear pieces always stay on their own line. */
+function substitutions(pcs: Piece[], xs: number[]): Lin[][] {
+  const tangents = pcs.map((p, k) => tangent(p, xs[k]));
+  const curved = pcs.map((p) => trim(p.c).length > 2);
+  const bySource = (useU: boolean) =>
+    pcs.map((p, k) => {
+      if (!curved[k]) return tangents[k];
+      const pt = pointOn(p, xs[k]);
+      return useU ? { a: 1, b: 0, c: pt.u } : { a: 0, b: 1, c: pt.i };
+    });
+  return curved.some((c) => c) ? [tangents, bySource(true), bySource(false)] : [tangents];
+}
+
+/** Solve the DC circuit with each NR element fixed at its point (see substitutions); null if every
+ *  choice is singular. Leaves the successful relations in e.lin. */
+export function solveAt(nls: CEl[], pcs: Piece[], xs: number[], solver: Solver): ReturnType<Solver['solve']> {
+  for (const lins of substitutions(pcs, xs)) {
+    nls.forEach((e, k) => (e.lin = lins[k]));
+    const s = solver.solve();
+    if (s) return s;
+  }
+  return null;
+}
+
+/** Re-solve with all elements fixed at their current control values and check the laws. */
 function verify(nls: CEl[], pcs: Piece[], xs: number[], solver: Solver): OpPoint | null {
-  nls.forEach((e, k) => (e.lin = tangent(pcs[k], xs[k])));
-  const s = solver.solve();
+  const s = solveAt(nls, pcs, xs, solver);
   if (!s) return null;
   const pt: OpPoint = { u: {}, i: {}, piece: {} };
   for (let k = 0; k < nls.length; k++) {

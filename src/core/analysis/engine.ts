@@ -5,7 +5,7 @@ import { Circuit, type CEl, isIndependent, isTwoTerminal } from './circuit';
 import { ONE, ZERO, abs, conj, cx, div, mul, neg, polarDeg } from './complex';
 import { AnalysisError } from './errors';
 import { type Mode, MnaSystem, Solution } from './mna';
-import { type Solver, dynamicR, operatingPoints, piecesAt, tangent } from './nonlinear';
+import { type Solver, dynamicR, operatingPoints, piecesAt, solveAt, tangent } from './nonlinear';
 import { isSdomainKind, sdomainQuantity } from './sdomain';
 import { Transient } from './transient';
 import { computePeriodic } from './periodic';
@@ -765,10 +765,12 @@ function nonlinearComplex(ckt: Circuit, nls: CEl[], analysis: Analysis, find: Fi
   }
   // req: the incremental (small-signal) resistance, so the tangent lines carry no constant term
   const withConst = !smallSignal && find.kind !== 'req';
-  for (const e of nls) {
-    const p = e.nl!.pieces[Q.piece[e.ref]];
-    e.lin = tangent(p, p.x === 'u' ? Q.u[e.ref] : Q.i[e.ref], withConst);
-  }
+  const qPieces = nls.map((e) => e.nl!.pieces[Q.piece[e.ref]]);
+  const qXs = nls.map((e, k) => (qPieces[k].x === 'u' ? Q.u[e.ref] : Q.i[e.ref]));
+  // DC values at Q: tangents through Q, or sources of the Q values where a tangent is parallel to the
+  // load line (Q is a point of tangency); the small-signal circuit is singular there and stays so
+  if (withConst) solveAt(nls, qPieces, qXs, dcSolver(ckt, phase));
+  else nls.forEach((e, k) => (e.lin = tangent(qPieces[k], qXs[k], false)));
   let an: StaticAnalysis;
   if (smallSignal) {
     const a = analysis as Analysis & { type: 'ac' };
