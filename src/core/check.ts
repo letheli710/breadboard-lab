@@ -26,6 +26,8 @@ export interface CheckResult {
   progress: number;
   testsPassed: number;
   testsTotal: number;
+  /** the matcher ran out of its work budget: neither right nor wrong could be established */
+  undecided?: boolean;
 }
 
 type Perm = Record<string, string>;
@@ -297,7 +299,218 @@ function buildPinMap(assign: (null | { u: CComponent; perm: Perm })[], targets: 
   return pm;
 }
 
-export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<string, string[]>): CheckResult {
+type Assign = (null | { u: CComponent; perm: Perm })[];
+
+/** Work budget of the matcher (applied candidate placements). Generous: every built-in challenge
+ *  needs well under 1 % of it; only a pathological board can run out, and then the checker says
+ *  it could not decide instead of guessing. */
+export const SEARCH_BUDGET = 200_000;
+
+/**
+ * Find the target -> user component assignment (with pin orientation) that best explains the
+ * user's wiring. Exact branch-and-bound:
+ *  - the partial assignment is scored incrementally: a target net whose pins already land on two
+ *    different user nets has lost a connection for good, a user net holding pins of two target
+ *    nets is an extra connection for good, so `10·maxGood − 10·lost − 10·bad − penalties` is an
+ *    upper bound on every completion and branches that can't beat the best leaf are cut;
+ *  - targets are visited in connectivity order (each one shares nets with those before it) and
+ *    candidates best-first, so the first leaf is usually already the answer;
+ *  - interchangeable user parts (same type, same props, same nets on every terminal) and pin
+ *    orientations that land on the same nets are tried once.
+ * Returns `complete: false` when the budget ran out before the search could prove its answer.
+ */
+function matchComponents(ctx: Ctx, tol: number, budget: number) {
+  const { target, user, tNetOf, uNetOf } = ctx;
+  const maxGood = target.nets.reduce((s, n) => s + n.pins.length - 1, 0);
+  const candCount = (t: CComponent) => user.components.filter((u) => compatible(t, u)).length;
+  const pinsOfT = new Map<string, string[]>();
+  for (const p of tNetOf.keys()) {
+    const [ref] = splitPin(p);
+    if (!pinsOfT.has(ref)) pinsOfT.set(ref, []);
+    pinsOfT.get(ref)!.push(p);
+  }
+  // order targets: fewest candidates first, then always the one most connected to those already placed
+  const left = [...target.components];
+  const targets: CComponent[] = [];
+  const seenNets = new Set<number>();
+  while (left.length) {
+    let bi = 0;
+    let bk: number[] = [];
+    left.forEach((t, k) => {
+      const nets = new Set((pinsOfT.get(t.ref) ?? []).map((p) => tNetOf.get(p)!));
+      const shared = [...nets].filter((n) => seenNets.has(n)).length;
+      const key = [targets.length === 0 ? 0 : -shared, candCount(t), -nets.size];
+      const j = key.findIndex((v, q) => v !== bk[q]);
+      if (k === 0 || (j >= 0 && key[j] < bk[j])) {
+        bi = k;
+        bk = key;
+      }
+    });
+    const [t] = left.splice(bi, 1);
+    targets.push(t);
+    for (const p of pinsOfT.get(t.ref) ?? []) seenNets.add(tNetOf.get(p)!);
+  }
+
+  // incremental connectivity state
+  const cntTU = new Map<string, number>();
+  const groupsT = target.nets.map(() => 0);
+  const distinctU = new Map<string, number>();
+  let lost = 0;
+  let bad = 0;
+  let pen = 0;
+  const add = (ti: number, un: string) => {
+    const k = `${ti}\u0000${un}`;
+    const c = cntTU.get(k) ?? 0;
+    if (c === 0) {
+      if (groupsT[ti] > 0) lost++;
+      groupsT[ti]++;
+      const d = distinctU.get(un) ?? 0;
+      if (d > 0) bad++;
+      distinctU.set(un, d + 1);
+    }
+    cntTU.set(k, c + 1);
+  };
+  const remove = (ti: number, un: string) => {
+    const k = `${ti}\u0000${un}`;
+    const c = cntTU.get(k)!;
+    if (c > 1) {
+      cntTU.set(k, c - 1);
+      return;
+    }
+    cntTU.delete(k);
+    groupsT[ti]--;
+    if (groupsT[ti] > 0) lost--;
+    const d = distinctU.get(un)! - 1;
+    distinctU.set(un, d);
+    if (d > 0) bad--;
+  };
+  const uNet = (up: string) => uNetOf.get(up) ?? `?${up}`;
+  /** (target net, user net) pairs a placement fixes; dev-board role pins are resolved at the leaf */
+  const placed = (t: CComponent, u: CComponent, perm: Perm): [number, string][] => {
+    const out: [number, string][] = [];
+    if (isMcu(t.type)) {
+      for (const tp of pinsOfT.get(t.ref) ?? []) {
+        const f = fixedMcuPin(t.type, u, splitPin(tp)[1]);
+        if (f) out.push([tNetOf.get(tp)!, uNet(pinId(u.ref, f))]);
+      }
+    } else
+      for (const [tTerm, uTerm] of Object.entries(perm)) {
+        const ti = tNetOf.get(pinId(t.ref, tTerm));
+        if (ti !== undefined) out.push([ti, uNet(pinId(u.ref, uTerm))]);
+      }
+    return out;
+  };
+  const vpCache = new Map<string, boolean>();
+  const hasVP = (t: CComponent, u: CComponent) => {
+    const k = `${t.ref}\u0000${u.ref}`;
+    if (!vpCache.has(k)) vpCache.set(k, !!valueProblem(t, u, tol));
+    return vpCache.get(k)!;
+  };
+  const classKey = (u: CComponent) =>
+    isMcu(u.type) ? u.ref : `${u.type}|${JSON.stringify(u.props)}|${terminalsOf(u.type).map((x) => uNet(pinId(u.ref, x))).join('|')}`;
+  const permsOf = new Map(targets.map((t) => [t.ref, permutations(t.type)]));
+  // identical targets (same type, props and nets on every terminal) are interchangeable: they
+  // take their user parts in increasing board order
+  const tNetsKey = (t: CComponent) => terminalsOf(t.type).map((x) => tNetOf.get(pinId(t.ref, x)) ?? `?${x}`).join('|');
+  const twinOf: number[] = targets.map((t, i) => {
+    if (isMcu(t.type)) return -1;
+    const k = `${t.type}|${JSON.stringify(t.props)}|${tNetsKey(t)}`;
+    for (let j = i - 1; j >= 0; j--) if (!isMcu(targets[j].type) && `${targets[j].type}|${JSON.stringify(targets[j].props)}|${tNetsKey(targets[j])}` === k) return j;
+    return -1;
+  });
+  const uIndex = new Map(user.components.map((u, i) => [u.ref, i]));
+  const hasMcu = targets.some((t) => isMcu(t.type));
+
+  let best: { score: number; assign: Assign } | null = null;
+  const assign: Assign = [];
+  const used = new Set<string>();
+  let work = 0;
+  let aborted = false;
+  const optimum = 10 * maxGood;
+
+  const leaf = () => {
+    let score: number;
+    if (hasMcu) {
+      const pm = buildPinMap(assign, targets);
+      resolveMcuPins(ctx, pm, mcuPairs(assign, targets));
+      const ev = evaluate(ctx, pm);
+      score = ev.good * 10 - ev.bad * 10 - pen;
+    } else if (assign.some((a) => !a)) {
+      // pins of unplaced targets never connect: score from the real pin map
+      const ev = evaluate(ctx, buildPinMap(assign, targets));
+      score = ev.good * 10 - ev.bad * 10 - pen;
+    } else score = 10 * (maxGood - lost) - 10 * bad - pen;
+    if (!best || score > best.score) best = { score, assign: [...assign] };
+  };
+
+  const dfs = (i: number) => {
+    if (aborted) return;
+    if (best && (best.score >= optimum || 10 * (maxGood - lost) - 10 * bad - pen <= best.score)) return;
+    if (i === targets.length) {
+      leaf();
+      return;
+    }
+    const t = targets[i];
+    const free = user.components.filter((u) => !used.has(u.ref) && compatible(t, u));
+    const twin = twinOf[i] >= 0 ? assign[twinOf[i]] : null;
+    const floor = twin ? uIndex.get(twin.u.ref)! : -1;
+    const seen = new Set<string>();
+    const cands = free.filter((u) => {
+      if (uIndex.get(u.ref)! <= floor) return false;
+      const k = classKey(u);
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+    // only the symmetry rule excluded the free parts: an equivalent branch covers this one
+    if (cands.length === 0 && free.length > 0) return;
+    if (cands.length === 0) {
+      assign[i] = null;
+      pen += 1000;
+      dfs(i + 1);
+      pen -= 1000;
+      assign.length = i;
+      return;
+    }
+    // every distinct placement, scored, best first
+    const opts: { u: CComponent; perm: Perm; pairs: [number, string][]; vp: number; s: number }[] = [];
+    for (const u of cands) {
+      const vp = hasVP(t, u) ? 1 : 0;
+      const nets = new Set<string>();
+      for (const perm of permsOf.get(t.ref)!) {
+        const pairs = placed(t, u, perm);
+        const key = pairs.map((p) => p[1]).join('\u0000');
+        if (nets.has(key)) continue;
+        nets.add(key);
+        for (const [ti, un] of pairs) add(ti, un);
+        opts.push({ u, perm, pairs, vp, s: -10 * lost - 10 * bad - vp });
+        for (const [ti, un] of pairs) remove(ti, un);
+      }
+    }
+    opts.sort((a, b) => b.s - a.s);
+    for (const o of opts) {
+      if (++work > budget) {
+        aborted = true;
+        return;
+      }
+      used.add(o.u.ref);
+      for (const [ti, un] of o.pairs) add(ti, un);
+      pen += o.vp;
+      assign[i] = { u: o.u, perm: o.perm };
+      dfs(i + 1);
+      pen -= o.vp;
+      for (const [ti, un] of o.pairs) remove(ti, un);
+      used.delete(o.u.ref);
+      if (aborted || (best && best.score >= optimum)) break;
+    }
+    assign.length = i;
+  };
+  dfs(0);
+  const b = best as { score: number; assign: Assign } | null;
+  return { targets, assign: b?.assign ?? [], complete: !aborted || (b !== null && b.score >= optimum), work };
+}
+
+export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<string, string[]>, budget = SEARCH_BUDGET): CheckResult {
   const target = ch.target;
   const { circuit: user, collapsed } = checkerView(board, target.components.some((c) => c.type === 'ammeter'));
   const tNetOf = new Map<string, number>();
@@ -307,55 +520,32 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
   const ctx: Ctx = { target, user, tNetOf, uNetOf, tol: ch.tolerance };
   const maxGood = target.nets.reduce((s, n) => s + n.pins.length - 1, 0);
 
-  // order targets: fewest candidates first
-  const targets = [...target.components].sort(
-    (a, b) => user.components.filter((u) => compatible(a, u)).length - user.components.filter((u) => compatible(b, u)).length,
-  );
-  const permsOf = new Map(targets.map((t) => [t.ref, permutations(t.type)]));
+  const m = matchComponents(ctx, ch.tolerance, budget);
+  const targets = m.targets;
+  if (!m.complete)
+    return {
+      perfect: false,
+      undecided: true,
+      issues: [
+        {
+          severity: 'warning',
+          title: tr('无法判定：电路太复杂，检查器没能比对完', 'Could not decide: the circuit is too complex for the checker to compare'),
+          detail: tr(
+            '检查器在限定的计算量内没能确定你的电路和目标电路是否一致——这不代表你的电路是错的。删掉与题目无关的元件和导线后再检查一次。',
+            "Within its work limit the checker could not determine whether your circuit matches the target — this does not mean your circuit is wrong. Remove parts and wires that aren't part of the task and check again.",
+          ),
+          refs: [],
+          holes: [],
+        },
+      ],
+      mapping: new Map(),
+      pinMap: new Map(),
+      progress: 0,
+      testsPassed: 0,
+      testsTotal: ch.tests.length,
+    };
 
-  let best: { score: number; assign: (null | { u: CComponent; perm: Perm })[] } | null = null;
-  const assign: (null | { u: CComponent; perm: Perm })[] = [];
-  const used = new Set<string>();
-  let leaves = 0;
-  const LIMIT = 150000;
-
-  const dfs = (i: number) => {
-    if (leaves > LIMIT) return;
-    if (i === targets.length) {
-      leaves++;
-      const pm = buildPinMap(assign, targets);
-      resolveMcuPins(ctx, pm, mcuPairs(assign, targets));
-      const { good, bad } = evaluate(ctx, pm);
-      let score = good * 10 - bad * 10;
-      assign.forEach((a, k) => {
-        if (!a) score -= 1000;
-        else if (valueProblem(targets[k], a.u, ch.tolerance)) score -= 1;
-      });
-      if (!best || score > best.score) best = { score, assign: [...assign] };
-      return;
-    }
-    const t = targets[i];
-    const cands = user.components
-      .filter((u) => !used.has(u.ref) && compatible(t, u))
-      .sort((a, b) => Number(!!valueProblem(t, a, ch.tolerance)) - Number(!!valueProblem(t, b, ch.tolerance)));
-    if (cands.length === 0) {
-      assign[i] = null;
-      dfs(i + 1);
-      return;
-    }
-    for (const u of cands) {
-      used.add(u.ref);
-      for (const perm of permsOf.get(t.ref)!) {
-        assign[i] = { u, perm };
-        dfs(i + 1);
-      }
-      used.delete(u.ref);
-    }
-    assign.length = i;
-  };
-  dfs(0);
-
-  const finalAssign = (best as { assign: (null | { u: CComponent; perm: Perm })[] } | null)?.assign ?? [];
+  const finalAssign = m.assign;
   const issues: Issue[] = [];
   const mapping = new Map<string, string>();
   finalAssign.forEach((a, i) => a && mapping.set(targets[i].ref, a.u.ref));

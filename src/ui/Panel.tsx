@@ -255,14 +255,18 @@ function TaskPanel({ ch }: { ch: Challenge }) {
 
       {check && (
         <div className="check-result">
-          <div className="progress-row">
-            <span>{tr('连接正确度', 'Connections correct')}</span>
-            <div className="bar">
-              <div style={{ width: `${Math.round(check.progress * 100)}%` }} />
+          {!check.undecided && (
+            <div className="progress-row">
+              <span>{tr('连接正确度', 'Connections correct')}</span>
+              <div className="bar">
+                <div style={{ width: `${Math.round(check.progress * 100)}%` }} />
+              </div>
+              <b>{Math.round(check.progress * 100)}%</b>
             </div>
-            <b>{Math.round(check.progress * 100)}%</b>
-          </div>
-          {check.perfect ? (
+          )}
+          {check.undecided ? (
+            <IssueList issues={check.issues} />
+          ) : check.perfect ? (
             <div className="ok-box big">
               🎉{' '}
               {tr(
