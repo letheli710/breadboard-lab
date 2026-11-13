@@ -4,6 +4,7 @@ import { loadAll, useActiveChallenge } from './state/challenges';
 import { loadProblems } from './state/problems';
 import { useLang, useStore, type Mode } from './state/store';
 import { Icon } from './ui/Icons';
+import { Toast } from './ui/Toast';
 
 // every page is its own chunk; the 3D workbench (three.js) is only fetched for learn / challenge / sandbox
 const Workbench = lazy(() => import('./ui/Workbench').then((m) => ({ default: m.Workbench })));
@@ -286,6 +287,7 @@ export default function App() {
           {mode === 'import' && <ImportPage />}
         </Suspense>
       )}
+      <Toast />
       <CelebrateModal />
     </div>
   );

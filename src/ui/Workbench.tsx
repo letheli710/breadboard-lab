@@ -100,8 +100,8 @@ function Prompt() {
   let text: string;
   if (tool === 'select')
     text = tr(
-      '鼠标悬停在孔上，看看哪些孔在内部是连通的 · 点击元件选中，点击按键 / 开关切换状态',
-      'Hover a hole to see which holes are connected inside · click a part to select it, click a button / switch to flip it',
+      '拖动元件可移动它，在空白处拖动旋转视角 · 点击元件选中，点按键 / 开关切换 · 悬停在孔上看哪些孔连通',
+      'Drag a part to move it; drag empty space to rotate the view · click to select, click a button / switch to flip it · hover a hole to see what it connects to',
     );
   else if (tool === 'probe')
     text = tr(
@@ -154,8 +154,8 @@ function ViewButton() {
         emitCameraView(next);
       }}
       title={tr(
-        `切换视角（下一个：${VIEW_NAME[next]()}）· 也可以拖动旋转、滚轮缩放、右键拖动平移`,
-        `Switch view (next: ${VIEW_NAME[next]()}) · you can also drag to rotate, scroll to zoom, right-drag to pan`,
+        `切换视角（下一个：${VIEW_NAME[next]()}）· 也可以在空白处拖动旋转（按住元件拖动是移动元件）、滚轮缩放、右键拖动平移`,
+        `Switch view (next: ${VIEW_NAME[next]()}) · you can also drag on empty space to rotate (dragging a part moves it), scroll to zoom, right-drag to pan`,
       )}
     >
       <Icon name="eye" />
@@ -253,8 +253,6 @@ function Toolbar() {
 }
 
 export function Workbench() {
-  const toast = useStore((s) => s.toast);
-  const toastUndo = useStore((s) => s.toastUndo);
   // a right click that isn't a drag (right-drag pans the view) drops a half-placed part
   const rightDown = useRef<{ x: number; y: number } | null>(null);
   return (
@@ -279,23 +277,16 @@ export function Workbench() {
         <div
           className="stage-view"
           role="region"
-          aria-label={tr('3D 面包板：拖动旋转、滚轮缩放、右键拖动平移', '3D breadboard: drag to rotate, scroll to zoom, right-drag to pan')}
+          aria-label={tr(
+            '3D 面包板：拖动元件移动，在空白处拖动旋转，滚轮缩放，右键拖动平移',
+            '3D breadboard: drag a part to move it, drag empty space to rotate, scroll to zoom, right-drag to pan',
+          )}
         >
           <ErrorBoundary scope="canvas">
             <Scene />
           </ErrorBoundary>
           <Multimeter />
           <Scope />
-          {toast && (
-            <div className={`toast ${toastUndo ? 'has-action' : ''}`} role="status">
-              {toast}
-              {toastUndo && (
-                <button className="toast-action" onClick={() => useStore.getState().undo()}>
-                  {tr('撤销', 'Undo')}
-                </button>
-              )}
-            </div>
-          )}
         </div>
         <Toolbar />
         <p className="small-screen-note">
