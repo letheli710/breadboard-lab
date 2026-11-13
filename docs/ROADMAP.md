@@ -1,15 +1,34 @@
 # 课程扩展路线图 / Course roadmap
 
-目标：覆盖大一、大二《电路分析》的全部内容（参照邱关源《电路》的章节），分 4 期完成，外加一个**纯理论练习区**。所有新题都是中英双语，由 AI 出题，并由程序自动核对答案。
+目标：覆盖大一、大二《电路分析》的核心内容（参照邱关源、罗先觉《电路》第 5 版的章节），分 4 期完成，外加一个**纯理论练习区**。所有新题都是中英双语，由 AI 出题，并由程序自动核对答案。
 
-Goal: cover a full first/second-year circuit analysis course in four phases, plus a **theory practice area**. Every new item is bilingual (zh/en), written by AI, and machine-checked.
+Goal: cover the core of a first/second-year circuit analysis course in four phases, plus a **theory practice area**. Every new item is bilingual (zh/en), written by AI, and machine-checked.
+
+### 与教材的对照 / Coverage against the textbook (《电路》第 5 版)
+
+| 章 | 内容 | 状态 |
+|---|---|---|
+| 1–2 | 电路模型和电路定律；电阻电路的等效变换 | ✔ `basics`、`equivalence` |
+| 3 | 电阻电路的一般分析 | ✔ `methods`（支路/网孔/回路/结点法）；“电路的图”（树、独立回路数）只零星涉及 |
+| 4–5 | 电路定理；含有运算放大器的电阻电路 | ✔ `theorems`、`opamp` |
+| 6–7 | 储能元件；一阶和二阶电路的时域分析 | ✔ `storage`、`first-order`、`second-order`；**冲激响应、卷积积分未覆盖** |
+| 8–11 | 相量法；正弦稳态分析；耦合电感；频率响应 | ✔ `phasors`、`ac-analysis`、`ac-power`、`coupled`、`frequency` |
+| 12 | 三相电路 | ✔ `three-phase` |
+| 13 | 非正弦周期电流电路和信号的频谱 | ✘ 未覆盖 |
+| 14 | 线性动态电路的复频域分析（拉普拉斯变换） | ✘ 未覆盖 |
+| 15 | 电路方程的矩阵形式（关联矩阵、割集、状态方程） | ✘ 未覆盖 |
+| 16 | 二端口网络 | ✔ `two-port` |
+| 17 | 非线性电路 | ✘ 未覆盖（面包板侧的二极管/LED/三极管是分段线性模型，但没有理论题） |
+| 18 | 均匀传输线 | ✘ 未覆盖 |
+
+Not covered yet: ch. 13 (non-sinusoidal periodic / harmonics), 14 (Laplace / s-domain), 15 (matrix form, graphs, cut-sets, state equations), 17 (nonlinear circuits), 18 (transmission lines), plus impulse response and convolution from ch. 7. See the backlog below.
 
 ## 两种题目 / Two kinds of content
 
 | | 面包板题 Breadboard (`challenges/*.json`, `breadboard-challenge/1`) | 理论题 Theory (`problems/<chapter>/*.json`, `circuit-problem/1`) |
 |---|---|---|
 | 学生做什么 | 在 3D 面包板上搭电路 | 看电路图，算数，填答案 |
-| 引擎 | 面包板 DC 求解器（真实元件模型：电池内阻、LED Vf+12Ω） | 理想电路分析引擎 `src/core/analysis`（DC / 暂态 / 正弦稳态，受控源、理想运放、耦合电感、理想变压器） |
+| 引擎 | 面包板求解器：直流工作点 + 时域仿真（`src/core/solver.ts`、`src/core/transient.ts`；真实元件模型：电池内阻、LED Vf+12Ω、分段线性器件） | 理想电路分析引擎 `src/core/analysis`（DC / 暂态 / 正弦稳态，受控源、理想运放、耦合电感、理想变压器） |
 | 自动核对 | 拓扑比对 + tests + 参考答案自检 | 每个数值答案都由引擎重算，和作者答案不一致就拒绝 |
 
 ## 四期 / Phases
@@ -123,6 +142,7 @@ over-current, coil without flyback diode (DC) and inductive kick (time domain), 
 - 题目索引在构建时生成（`scripts/problem-index-plugin.ts`），完整题目按章节分块按需加载；Practice / Import / Guide 懒加载；three / r3f / drei 单独一个 chunk。
 - 切换语言不再重新挂载整个应用（3D 场景、相机保持不变）：语言是 store 里的响应式值（`useLang()`），诊断 / 检查结果 / 题目文本在新语言下重新生成。
 - 3D 低画质模式（`src/three/quality.ts`）：弱设备（≤ 4 核 / ≤ 4 GB）或前几帧太慢时自动启用，工具栏可手动切换。
+- 打包体积 / bundle size: **TODO（待打包结构调整完成后填入实测数字 / fill in measured numbers after the bundle restructuring lands）** — 主 chunk、three chunk、每章题目 chunk 的 raw / gzip 大小（`npx vite build` 输出）。
 
 ## 待办 / Backlog (engine gaps reported by problem authors)
 
@@ -132,5 +152,22 @@ over-current, coil without flyback diode (DC) and inductive kick (time domain), 
 - 暂态中的稳态振幅 / steady-state amplitude of a sinusoidal transient response as a checkable quantity
 - `twoport` 支持 `exclude`（图中画了负载时仍能求参数）/ `exclude` on `twoport` so parameters can be asked with a load drawn
 - 导纳量 `{ kind: 'yeq', port }` / an admittance quantity
-- 打包体积约 2.7 MB（题库全部内嵌）：可以按章节懒加载 / bundle is ~2.7 MB because every problem is bundled; lazy-load per chapter
+- [x] ~~打包体积约 2.7 MB（题库全部内嵌）：可以按章节懒加载~~ — 已完成：题目按章节分块，侧栏用构建时索引 / done: problems are chunked per chapter behind a build-time index (see Performance)
 - 图上参考标记名的翻译（中文 u、英文 v）/ translatable mark names (zh "u", en "v") — today English text reuses the drawn u/U
+
+### 未覆盖的教材内容 / Textbook topics not covered yet
+
+每一项都需要先扩展理论题引擎 `src/core/analysis`（或新的量 kind），再按 `docs/SYLLABUS.md` 的格式写大纲和题目。
+Each needs engine work in `src/core/analysis` (or new quantity kinds) before a syllabus chapter and problems.
+
+- 非正弦周期电流电路：傅里叶级数、谐波分析、有效值、平均功率（第 13 章）/ non-sinusoidal periodic circuits: Fourier series, per-harmonic analysis, RMS and average power
+- 复频域分析：拉普拉斯变换、运算电路、网络函数、极点零点（第 14 章）/ Laplace transform, s-domain circuits, network functions, poles and zeros
+- 冲激响应与卷积积分（第 7、14 章）/ impulse response and convolution
+- 电路方程的矩阵形式：图、树、割集、关联矩阵；状态方程（第 15 章，以及第 3 章“电路的图”）/ network graphs (trees, cut-sets, incidence matrices) and state equations
+- 非线性电路：非线性电阻、小信号分析、分段线性化（第 17 章）/ nonlinear circuits: nonlinear resistors, small-signal analysis, piecewise-linear methods
+- 均匀传输线：分布参数、行波、正弦稳态（第 18 章）/ uniform transmission lines (distributed parameters)
+
+### 面包板仿真待办 / Breadboard simulation backlog
+
+- 自适应步长（或在步长不足时自动提高每周期步数）以替代 4096 步上限 + 警告 / adaptive time step instead of the 4096-steps-per-period cap + warning
+- 运放压摆率 / 增益带宽积；电解电容极性；万用表 / 示波器输入阻抗；电机反电动势 / op-amp slew rate and GBW, electrolytic polarity, meter/scope input impedance, motor back-EMF

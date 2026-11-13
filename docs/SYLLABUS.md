@@ -146,3 +146,11 @@ Each chapter lists the knowledge points that must be covered — at least one pr
 合计目标约 226 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
 
 About 226 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
+
+---
+
+## 尚未纳入大纲 / Not in the syllabus yet
+
+以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：非正弦周期电流电路（第 13 章）、复频域分析 / 拉普拉斯变换（第 14 章）、冲激响应与卷积、电路方程的矩阵形式与状态方程（第 15 章）、非线性电路（第 17 章）、均匀传输线（第 18 章）。
+
+Not covered yet (needs engine work first; see the ROADMAP backlog): non-sinusoidal periodic circuits (ch. 13), Laplace / s-domain analysis (ch. 14), impulse response and convolution, matrix formulation and state equations (ch. 15), nonlinear circuits (ch. 17), transmission lines (ch. 18).

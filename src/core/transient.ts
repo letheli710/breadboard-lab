@@ -76,8 +76,11 @@
 //
 // Limitations: the first generator sets the time base (others should be integer multiples
 // of its frequency); op-amps have no slew-rate / gain-bandwidth limit and their output
-// current doesn't load the supply; probes are ideal (no earth-ground loop); L–C ringing much
-// faster than 1/40 of a step is not resolved (it is damped instead).
+// current doesn't load the supply; probes are ideal (no earth-ground loop). Steps per period
+// are capped at MAX_STEPS_PER_PERIOD (4096), so L–C ringing much faster than the generator
+// (fewer than MIN_STEPS_PER_RING steps per ring period) is damped / aliased: the result then
+// carries `underResolved` and a warning. A step whose PWL states don't settle within 30
+// iterations is counted in `stats.pwlUnsettled` (also a warning).
 
 import { tr as t_ } from './i18n';
 import {
