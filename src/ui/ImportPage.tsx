@@ -5,10 +5,16 @@ import { importFiles, loadAll, readImported, writeImported } from '../state/chal
 import { entryTitle, loadProblems } from '../state/problems';
 import { useStore } from '../state/store';
 import { Icon } from './Icons';
-import { Md } from './Panel';
-import { Sym } from './Practice';
+import { Md } from './Md';
+import { Sym } from './richText';
 
-const docs = import.meta.glob('../../docs/*.md', { eager: true, query: '?raw', import: 'default' }) as Record<string, string>;
+// only the four docs this page shows (a docs/*.md glob would also inline ROADMAP, SYLLABUS, …);
+// a glob rather than plain imports so a missing file yields the "missing" note, not a build error
+const docs = import.meta.glob(['../../docs/AI_PROMPT.md', '../../docs/AI_PROMPT_PROBLEMS.md', '../../docs/CHALLENGE_FORMAT.md', '../../docs/PROBLEM_FORMAT.md'], {
+  eager: true,
+  query: '?raw',
+  import: 'default',
+}) as Record<string, string>;
 const aiPromptDoc = Object.entries(docs).find(([k]) => k.endsWith('AI_PROMPT.md'))?.[1] ?? '';
 
 /** The copy-paste prompt for the current language: the first ```text block under its "## " section. */

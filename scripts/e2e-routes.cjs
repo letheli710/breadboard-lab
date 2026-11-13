@@ -3,7 +3,8 @@
 // Browser check of routing (not part of npm test: needs a running build).
 //   npx vite build && npx vite preview --port 4173 &   node scripts/e2e-routes.cjs [baseUrl]
 // Checks Back/Forward across learn → challenge → practice, group tabs, the remembered location,
-// unknown-id fallback, Guide anchors, and that Practice / Guide / Import links never load three.js.
+// unknown-id fallback, Guide anchors, and that Practice / Guide / Import links never load three.js
+// or the bench side panel.
 const { chromium } = require('playwright');
 const BASE = process.argv[2] || 'http://localhost:4173/';
 const assert = (c, m) => { if (!c) { console.log('FAIL', m); process.exitCode = 1; } else console.log('ok  ', m); };
@@ -109,7 +110,7 @@ const assert = (c, m) => { if (!c) { console.log('FAIL', m); process.exitCode = 
     p.on('request', (r) => r.url().endsWith('.js') && js.push(r.url().split('/').pop()));
     await p.goto(BASE + h);
     await p.waitForLoadState('networkidle');
-    assert(!js.some((f) => /^(three|Workbench)-/.test(f)), `${h}: no three / Workbench chunk (${js.length} JS files)`);
+    assert(!js.some((f) => /^(three|Workbench|Panel)-/.test(f)), `${h}: no three / Workbench / bench Panel chunk (${js.length} JS files)`);
     await c.close();
   }
   await browser.close();

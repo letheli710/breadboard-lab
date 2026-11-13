@@ -28,7 +28,7 @@ import { fmtNum, splitUnit } from '../core/problem/answer';
 import { useDerived } from '../state/derived';
 import { useStore } from '../state/store';
 import { Icon } from './Icons';
-import { Md } from './Panel';
+import { Md } from './Md';
 
 export interface MeasureState {
   /** the circuit check passed for the board as it is now (wiring + values) */
