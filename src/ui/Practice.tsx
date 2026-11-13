@@ -7,7 +7,8 @@ import { tr } from '../core/i18n';
 import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
 import { checkAnswer, formatAnswer, type AnswerCheck, type Problem } from '../core/problem/parse';
 import type { Analysis, Question } from '../core/problem/types';
-import { useStore } from '../state/store';
+import { entryTitle, useProblem, type ProblemEntry } from '../state/problems';
+import { useLang, useStore } from '../state/store';
 import { celebrate } from './celebrate';
 import { Icon } from './Icons';
 import { ProblemSchematic, richRuns } from './ProblemSchematic';
@@ -95,7 +96,8 @@ function analysisLabel(a: Analysis): string {
 
 // ---------------------------------------------------------------- sidebar
 
-function ChapterList({ problems, current }: { problems: Problem[]; current: Problem | null }) {
+function ChapterList({ problems, current }: { problems: ProblemEntry[]; current: ProblemEntry | null }) {
+  useLang();
   const done = useStore((s) => s.practiceDone);
   const open = useStore((s) => s.openProblem);
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => (current ? { [current.chapter]: true } : {}));
@@ -104,7 +106,7 @@ function ChapterList({ problems, current }: { problems: Problem[]; current: Prob
   }, [current]);
 
   const byChapter = useMemo(() => {
-    const m = new Map<string, Problem[]>();
+    const m = new Map<string, ProblemEntry[]>();
     for (const p of problems) m.set(p.chapter, [...(m.get(p.chapter) ?? []), p]);
     return m;
   }, [problems]);
@@ -127,7 +129,7 @@ function ChapterList({ problems, current }: { problems: Problem[]; current: Prob
                 <button className={`pr-pitem ${p.id === current?.id ? 'on' : ''} ${done[p.id] ? 'done' : ''}`} onClick={() => open(p.id)}>
                   <span className="pr-tick">{done[p.id] ? '✓' : ''}</span>
                   <span className="pr-ptitle">
-                    <Sym text={p.title} />
+                    <Sym text={entryTitle(p)} />
                   </span>
                   <span className="pr-plevel" title={tr(`难度 ${p.level}`, `Level ${p.level}`)}>
                     {'★'.repeat(p.level)}
@@ -180,7 +182,10 @@ interface QState {
 function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index: number; onHover: (q: Question | null) => void }) {
   const solvedBefore = useStore((s) => !!s.practiceAnswers[p.id]?.[q.id]);
   const markQuestion = useStore((s) => s.markQuestion);
-  const [st, setSt] = useState<QState>({ input: '', result: null, choice: null, revealed: false });
+  useLang();
+  const [st0, setSt] = useState<QState>({ input: '', result: null, choice: null, revealed: false });
+  // the feedback text is localised: re-check in the current language instead of keeping old text
+  const st = st0.result ? { ...st0, result: checkAnswer(q, st0.input) } : st0;
   const correctNow = st.result?.ok || (q.choices && st.choice === q.correct);
   const solved = solvedBefore || !!correctNow;
   const showExplain = (correctNow || st.revealed || solvedBefore) && !!q.explain;
@@ -296,7 +301,7 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
 
 // ---------------------------------------------------------------- problem card
 
-function ProblemView({ p, list }: { p: Problem; list: Problem[] }) {
+function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
   const open = useStore((s) => s.openProblem);
   const done = useStore((s) => s.practiceDone);
   const resetProblem = useStore((s) => s.resetProblem);
@@ -458,6 +463,7 @@ export function Practice() {
   const invalid = useStore((s) => s.problemInvalid);
   const setMode = useStore((s) => s.setMode);
   const current = problems.find((p) => p.id === problemId) ?? problems[0] ?? null;
+  const full = useProblem(current);
   const bad = invalid.filter((f) => f.errors.length).length;
 
   useEffect(() => {
@@ -467,8 +473,23 @@ export function Practice() {
   return (
     <main className="pr-page">
       <ChapterList problems={problems} current={current} />
-      {current ? (
-        <ProblemView key={current.id} p={current} list={problems} />
+      {current && full?.problem ? (
+        <ProblemView key={current.id} p={full.problem} list={problems} />
+      ) : current ? (
+        <div className="pr-main card pr-empty">
+          {full ? (
+            <>
+              <h2 className="pr-title">{tr('这道题无法加载', "This problem can't be loaded")}</h2>
+              <ul>
+                {full.errors.map((e, i) => (
+                  <li key={i}>{e}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="muted">{tr('正在加载题目…', 'Loading the problem…')}</p>
+          )}
+        </div>
       ) : (
         <div className="pr-main card pr-empty">
           <div className="eyebrow">{tr('练习 PRACTICE', 'PRACTICE')}</div>

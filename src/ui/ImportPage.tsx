@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { getLang, tr } from '../core/i18n';
 import { chapterById } from '../core/problem/chapters';
 import { importFiles, loadAll, readImported, writeImported } from '../state/challenges';
-import { loadProblems } from '../state/problems';
+import { entryTitle, loadProblems } from '../state/problems';
 import { useStore } from '../state/store';
 import { Icon } from './Icons';
 import { Md } from './Panel';
@@ -233,7 +233,7 @@ export function ImportPage() {
             {problems.map((p) => (
               <tr key={`p:${p.id}`}>
                 <td>
-                  <b>{p.title}</b>
+                  <b>{entryTitle(p)}</b>
                   <div className="muted small">
                     {p.id} · {p.file}
                   </div>
