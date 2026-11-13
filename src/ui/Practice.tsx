@@ -2,11 +2,12 @@
 // Left: chapters grouped by course phase with progress. Main: the problem card — statement,
 // schematic, questions with answer checking, progressive hints and the worked solution.
 
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { tr } from '../core/i18n';
 import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
-import { checkAnswer, formatAnswer, type AnswerCheck, type Problem } from '../core/problem/parse';
+import { answerTolerance, checkAnswer, formatAnswer, isPhaseQuestion, type AnswerCheck, type Problem } from '../core/problem/parse';
 import type { Analysis, Question } from '../core/problem/types';
+import { countsAsDone, exportPractice, parsePracticeExport, problemStatus, type QStatus } from '../state/practice';
 import { entryTitle, useProblem, type ProblemEntry } from '../state/problems';
 import { useLang, useStore } from '../state/store';
 import { celebrate } from './celebrate';
@@ -22,11 +23,7 @@ const PHASES: { n: 1 | 2 | 3 | 4; zh: string; en: string }[] = [
 
 /** Text with textbook symbols: "u_C(0+)" → u with subscript C (same rules as the drawing). */
 function Sym({ text }: { text: string }) {
-  return (
-    <>
-      {richRuns(text).map((r, i) => (r.sub ? <sub key={i}>{r.t}</sub> : r.it ? <i key={i}>{r.t}</i> : <Fragment key={i}>{r.t}</Fragment>))}
-    </>
-  );
+  return <>{richRuns(text).map((r, i) => (r.sub ? <sub key={i}>{r.t}</sub> : r.it ? <i key={i}>{r.t}</i> : <Fragment key={i}>{r.t}</Fragment>))}</>;
 }
 
 /** Markdown subset of the app's Md renderer (paragraphs, "- "/"1. " lists, "#" headings, **bold**,
@@ -96,9 +93,92 @@ function analysisLabel(a: Analysis): string {
 
 // ---------------------------------------------------------------- sidebar
 
-function ChapterList({ problems, current }: { problems: ProblemEntry[]; current: ProblemEntry | null }) {
+/** Sidebar mark of a problem: how it was solved (null = not finished). Old progress without
+ *  per-question records only has the done flag: it shows as solved unaided. */
+function useStatusOf() {
+  const done = useStore((s) => s.practiceDone);
+  const answers = useStore((s) => s.practiceAnswers);
+  return (p: ProblemEntry): QStatus | null => problemStatus(answers[p.id], p.qids) ?? (done[p.id] ? 'unaided' : null);
+}
+
+const STATUS_MARK: Record<QStatus, string> = { unaided: '✓', retried: '✓', revealed: '◐' };
+const statusLabel = (s: QStatus) =>
+  s === 'unaided'
+    ? tr('独立答对', 'Solved unaided')
+    : s === 'retried'
+      ? tr('改正后答对', 'Solved after a wrong try')
+      : tr('看过答案（复习，不计入完成数）', 'Answer seen (reviewed, not counted as done)');
+
+/** Export / import of practice progress as a JSON file (it otherwise lives only in this browser). */
+function ProgressFile() {
   useLang();
   const done = useStore((s) => s.practiceDone);
+  const answers = useStore((s) => s.practiceAnswers);
+  const importPractice = useStore((s) => s.importPractice);
+  const notify = useStore((s) => s.notify);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const doExport = () => {
+    const data = exportPractice(done, answers);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `breadboard-practice-${data.exported.slice(0, 10)}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  const doImport = async (f: File) => {
+    try {
+      const parsed = parsePracticeExport(JSON.parse(await f.text()));
+      if (!parsed) throw new Error('format');
+      importPractice(parsed);
+      notify(
+        tr(
+          `已导入 ${Object.keys(parsed.answers).length} 道题的进度（保留每题更好的结果）`,
+          `Imported progress of ${Object.keys(parsed.answers).length} problem(s) (keeping the better result per question)`,
+        ),
+      );
+    } catch {
+      notify(tr('这个文件不是练习进度文件', "That file isn't a practice-progress file"));
+    }
+  };
+
+  return (
+    <div className="pr-progress-file">
+      <div className="pr-legend">
+        {(['unaided', 'retried', 'revealed'] as const).map((k) => (
+          <span key={k} className={`pr-legend-item st-${k}`}>
+            <span className="pr-tick">{STATUS_MARK[k]}</span> {statusLabel(k)}
+          </span>
+        ))}
+      </div>
+      <div className="row">
+        <button className="pr-link" onClick={doExport} title={tr('把练习进度保存为 JSON 文件', 'Save your practice progress as a JSON file')}>
+          <Icon name="download" size={14} /> {tr('导出进度', 'Export progress')}
+        </button>
+        <button className="pr-link" onClick={() => fileRef.current?.click()} title={tr('从导出的 JSON 文件恢复进度', 'Restore progress from an exported JSON file')}>
+          <Icon name="upload" size={14} /> {tr('导入进度', 'Import progress')}
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/json,.json"
+          hidden
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            e.target.value = '';
+            if (f) void doImport(f);
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ChapterList({ problems, current }: { problems: ProblemEntry[]; current: ProblemEntry | null }) {
+  useLang();
+  const statusOf = useStatusOf();
+  const done = (p: ProblemEntry) => countsAsDone(statusOf(p));
   const open = useStore((s) => s.openProblem);
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => (current ? { [current.chapter]: true } : {}));
   useEffect(() => {
@@ -113,7 +193,7 @@ function ChapterList({ problems, current }: { problems: ProblemEntry[]; current:
 
   const chapterRow = (c: Chapter, num: number) => {
     const list = byChapter.get(c.id) ?? [];
-    const n = list.filter((p) => done[p.id]).length;
+    const n = list.filter(done).length;
     const isOpen = !!expanded[c.id] && list.length > 0;
     return (
       <div key={c.id} className={`pr-chapter ${list.length ? '' : 'empty'} ${current?.chapter === c.id ? 'cur' : ''}`}>
@@ -124,19 +204,24 @@ function ChapterList({ problems, current }: { problems: ProblemEntry[]; current:
         </button>
         {isOpen && (
           <ul className="pr-plist">
-            {list.map((p) => (
-              <li key={p.id}>
-                <button className={`pr-pitem ${p.id === current?.id ? 'on' : ''} ${done[p.id] ? 'done' : ''}`} onClick={() => open(p.id)}>
-                  <span className="pr-tick">{done[p.id] ? '✓' : ''}</span>
-                  <span className="pr-ptitle">
-                    <Sym text={entryTitle(p)} />
-                  </span>
-                  <span className="pr-plevel" title={tr(`难度 ${p.level}`, `Level ${p.level}`)}>
-                    {'★'.repeat(p.level)}
-                  </span>
-                </button>
-              </li>
-            ))}
+            {list.map((p) => {
+              const st = statusOf(p);
+              return (
+                <li key={p.id}>
+                  <button className={`pr-pitem ${p.id === current?.id ? 'on' : ''} ${st ? `done st-${st}` : ''}`} onClick={() => open(p.id)} title={st ? statusLabel(st) : undefined}>
+                    <span className="pr-tick" aria-label={st ? statusLabel(st) : undefined}>
+                      {st ? STATUS_MARK[st] : ''}
+                    </span>
+                    <span className="pr-ptitle">
+                      <Sym text={entryTitle(p)} />
+                    </span>
+                    <span className="pr-plevel" title={tr(`难度 ${p.level}`, `Level ${p.level}`)}>
+                      {'★'.repeat(p.level)}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
@@ -149,13 +234,11 @@ function ChapterList({ problems, current }: { problems: ProblemEntry[]; current:
       {PHASES.map((ph) => {
         const chs = CHAPTERS.filter((c) => c.phase === ph.n);
         const all = chs.flatMap((c) => byChapter.get(c.id) ?? []);
-        const d = all.filter((p) => done[p.id]).length;
+        const d = all.filter(done).length;
         return (
           <section key={ph.n} className="pr-phase">
             <div className="eyebrow pr-phase-head">
-              <span>
-                {tr(`第 ${ph.n} 期 · ${ph.zh}`, `Phase ${ph.n} · ${ph.en}`)}
-              </span>
+              <span>{tr(`第 ${ph.n} 期 · ${ph.zh}`, `Phase ${ph.n} · ${ph.en}`)}</span>
               {all.length > 0 && (
                 <span>
                   {d}/{all.length}
@@ -166,6 +249,7 @@ function ChapterList({ problems, current }: { problems: ProblemEntry[]; current:
           </section>
         );
       })}
+      <ProgressFile />
     </aside>
   );
 }
@@ -180,30 +264,43 @@ interface QState {
 }
 
 function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index: number; onHover: (q: Question | null) => void }) {
-  const solvedBefore = useStore((s) => !!s.practiceAnswers[p.id]?.[q.id]);
-  const markQuestion = useStore((s) => s.markQuestion);
+  const prog = useStore((s) => s.practiceAnswers[p.id]?.[q.id]);
+  const practiceEvent = useStore((s) => s.practiceEvent);
   useLang();
   const [st0, setSt] = useState<QState>({ input: '', result: null, choice: null, revealed: false });
   // the feedback text is localised: re-check in the current language instead of keeping old text
   const st = st0.result ? { ...st0, result: checkAnswer(q, st0.input) } : st0;
+  const statusBefore = prog?.status;
+  const solvedBefore = !!statusBefore;
   const correctNow = st.result?.ok || (q.choices && st.choice === q.correct);
   const solved = solvedBefore || !!correctNow;
+  const reviewed = statusBefore === 'revealed';
   const showExplain = (correctNow || st.revealed || solvedBefore) && !!q.explain;
 
   const submit = () => {
     const r = checkAnswer(q, st.input);
     setSt({ ...st, result: r });
-    if (r.ok) markQuestion(p.id, q.id);
+    if (r.ok) practiceEvent(p.id, q.id, { kind: 'right' });
+    // unreadable input isn't an attempt
+    else if (r.value !== undefined) practiceEvent(p.id, q.id, { kind: 'wrong' });
   };
   const choose = (i: number) => {
     setSt({ ...st, choice: i });
-    if (i === q.correct) markQuestion(p.id, q.id);
+    if (i === q.correct) practiceEvent(p.id, q.id, { kind: 'right', choices: q.choices?.length });
+    else practiceEvent(p.id, q.id, { kind: 'wrong', choice: i });
   };
+  const reveal = () => {
+    setSt({ ...st, revealed: true });
+    practiceEvent(p.id, q.id, { kind: 'reveal' });
+  };
+  const choiceWhy = st.choice !== null ? q.choiceExplain?.[st.choice] : undefined;
 
   return (
-    <div className={`pr-q ${solved ? 'solved' : ''}`} onMouseEnter={() => onHover(q)} onMouseLeave={() => onHover(null)} onFocus={() => onHover(q)}>
+    <div className={`pr-q ${solved ? 'solved' : ''} ${reviewed ? 'reviewed' : ''}`} onMouseEnter={() => onHover(q)} onMouseLeave={() => onHover(null)} onFocus={() => onHover(q)}>
       <div className="pr-q-head">
-        <span className="pr-q-num">{solved ? '✓' : `${String.fromCharCode(97 + index)}`}</span>
+        <span className="pr-q-num" title={statusBefore ? statusLabel(statusBefore) : undefined}>
+          {solved ? (reviewed ? STATUS_MARK.revealed : '✓') : `${String.fromCharCode(97 + index)}`}
+        </span>
         <div className="pr-q-ask">
           <PrMd text={q.ask} />
         </div>
@@ -233,13 +330,12 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
             submit();
           }}
         >
-          <div className={`pr-input ${st.result ? (st.result.ok ? 'ok' : 'bad') : ''}`}>
+          <div className={`pr-input ${st.result ? (st.result.ok ? 'ok' : st.result.close ? 'close' : 'bad') : ''}`}>
             <input
               value={st.input}
-              inputMode="decimal"
               spellCheck={false}
               autoComplete="off"
-              placeholder={tr('输入答案', 'Your answer')}
+              placeholder={tr('输入答案或算式', 'Answer or calculation')}
               aria-label={tr(`第 ${index + 1} 问的答案`, `Answer to question ${index + 1}`)}
               onChange={(e) => setSt({ ...st, input: e.target.value, result: null })}
             />
@@ -252,35 +348,43 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
       )}
 
       {st.result && !q.choices && (
-        <div className={`pr-feedback ${st.result.ok ? 'ok' : 'bad'}`}>
+        <div className={`pr-feedback ${st.result.ok ? 'ok' : st.result.close ? 'close' : 'bad'}`} role="status">
           {st.result.ok ? (
             <>
               <b>✓ {tr('正确！', 'Correct!')}</b> {tr('标准答案', 'Answer')}: {formatAnswer(q)}
             </>
           ) : (
             <>
-              <b>✗ {st.result.value === undefined ? tr('无法判断', "Can't check") : tr('不对', 'Not quite')}</b>
+              <b>{st.result.value === undefined ? `✗ ${tr('无法判断', "Can't check")}` : st.result.close ? `≈ ${tr('很接近', 'Close')}` : `✗ ${tr('不对', 'Not quite')}`}</b>
               {st.result.reason ? ` — ${st.result.reason}` : tr(' — 再算一次，或看看提示。', ' — try again, or take a hint.')}
             </>
           )}
         </div>
       )}
       {q.choices && st.choice !== null && (
-        <div className={`pr-feedback ${st.choice === q.correct ? 'ok' : 'bad'}`}>
-          <b>{st.choice === q.correct ? `✓ ${tr('正确！', 'Correct!')}` : `✗ ${tr('不对，再想想。', 'Not quite — think again.')}`}</b>
+        <div className={`pr-feedback ${st.choice === q.correct ? 'ok' : 'bad'}`} role="status">
+          <b>{st.choice === q.correct ? `✓ ${tr('正确！', 'Correct!')}` : `✗ ${tr('不对', 'Not quite')}`}</b>
+          {choiceWhy ? (
+            <>
+              {' — '}
+              <Sym text={choiceWhy} />
+            </>
+          ) : st.choice !== q.correct ? (
+            tr(' — 再想想。', ' — think again.')
+          ) : null}
         </div>
       )}
       {solvedBefore && !correctNow && !st.result && st.choice === null && (
         <div className="pr-feedback ok soft">
-          ✓ {tr('之前已答对', 'Answered correctly before')}
+          {statusBefore === 'revealed' ? STATUS_MARK.revealed : '✓'} {statusLabel(statusBefore!)}
           {!q.choices && ` · ${formatAnswer(q)}`}
         </div>
       )}
 
       {!solved && (
         <div className="pr-q-tools">
-          {!st.revealed ? (
-            <button className="pr-link" onClick={() => setSt({ ...st, revealed: true })}>
+          {!st.revealed && !prog?.revealed ? (
+            <button className="pr-link" onClick={reveal} title={tr('看过答案后再答对只算“复习”，不计入完成数', 'Answering after this counts as reviewed, not done')}>
               <Icon name="eye" size={15} /> {tr('看答案', 'Show answer')}
             </button>
           ) : (
@@ -299,6 +403,20 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
   );
 }
 
+/** "±2%, phase ±1°" — the tolerances a problem's numeric questions are judged with. */
+function toleranceNote(p: Problem): string {
+  const rel = new Set<string>();
+  let phase = false;
+  for (const q of p.questions) {
+    if (typeof q.answer !== 'number') continue;
+    if (isPhaseQuestion(q)) phase = true;
+    else rel.add(answerTolerance(q));
+  }
+  const parts = [...rel];
+  if (phase) parts.push(tr(`相位 ${answerTolerance({ unit: '°' })}`, `phase ${answerTolerance({ unit: '°' })}`));
+  return parts.join(tr('，', ', '));
+}
+
 // ---------------------------------------------------------------- problem card
 
 function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
@@ -311,6 +429,13 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
   const [round, setRound] = useState(0);
   const isDone = !!done[p.id];
   const [wasDone] = useState(isDone);
+  const status = useStore((s) =>
+    problemStatus(
+      s.practiceAnswers[p.id],
+      p.questions.map((q) => q.id),
+    ),
+  );
+  const reviewedAll = !isDone && status === 'revealed';
 
   useEffect(() => {
     if (isDone && !wasDone) celebrate();
@@ -345,6 +470,11 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
           <span className="badge practice">{tr('练习 PRACTICE', 'PRACTICE')}</span>
           <Stars n={p.level} />
           {isDone && <span className="badge done">✓ {tr('已完成', 'Done')}</span>}
+          {reviewedAll && (
+            <span className="badge reviewed">
+              {STATUS_MARK.revealed} {tr('已复习', 'Reviewed')}
+            </span>
+          )}
           {p.source !== 'folder' && <span className="badge src">{tr('导入', 'Imported')}</span>}
         </div>
         <h2 className="pr-title">
@@ -386,9 +516,15 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
               <QuestionCard key={q.id} p={p} q={q} index={k} onHover={setHover} />
             ))}
           </div>
-          <p className="note">
-            {tr('可以带单位前缀：2.5k、-3m、4.7µ、1.2e-3 都行。', 'Unit prefixes are fine: 2.5k, -3m, 4.7µ, 1.2e-3 all work.')}
-          </p>
+          {p.questions.some((q) => typeof q.answer === 'number') && (
+            <p className="note">
+              {tr(
+                '可以写算式和单位前缀：12/6、2√2、sqrt(3)/2、π/6 rad、2.5k、-3m、4.7µ、1.2e-3、60% 都行。',
+                'Calculations and unit prefixes are fine: 12/6, 2√2, sqrt(3)/2, π/6 rad, 2.5k, -3m, 4.7µ, 1.2e-3, 60% all work.',
+              )}{' '}
+              <b>{tr(`允许误差：${toleranceNote(p)}`, `Tolerance: ${toleranceNote(p)}`)}</b>
+            </p>
+          )}
 
           {isDone && (
             <div className="ok-box big pr-done">
@@ -397,6 +533,15 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
                 <button className="primary" onClick={() => open(next.id)}>
                   {tr('下一题', 'Next problem')} <Icon name="next" size={16} />
                 </button>
+              )}
+            </div>
+          )}
+
+          {reviewedAll && (
+            <div className="pr-reviewed-box">
+              {tr(
+                '都答完了，但有的题是看过答案后答对的：算作“复习”，不计入完成数。过几天点“重做这道题”，不看答案再做一遍吧。',
+                'All answered, but some only after seeing the answer: that counts as reviewed, not done. Come back later, press "Start this problem over" and solve it without the answer.',
               )}
             </div>
           )}
@@ -497,7 +642,7 @@ export function Practice() {
           <p>
             {tr('把 ', 'Put ')}
             <code>circuit-problem/1</code>
-            {tr(' 格式的题目放进项目的 ', ' problem files in the project\'s ')}
+            {tr(' 格式的题目放进项目的 ', " problem files in the project's ")}
             <code>problems/&lt;chapter&gt;/</code>
             {tr(' 文件夹，或在“导入”页面导入。', ' folder, or load them on the Import page.')}
           </p>

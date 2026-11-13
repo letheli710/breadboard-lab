@@ -93,7 +93,8 @@ describe('corrupted storage', () => {
     expect(s.scope.collapsed).toBe(true);
     expect(s.scope.tdiv).toBeNull();
     expect(s.scope.drag).toEqual({ x: 0, y: 0 });
-    expect(s.practiceAnswers).toEqual({ p1: { q1: true } });
+    // version-1 `true` migrates to the per-question record (state/practice.ts)
+    expect(s.practiceAnswers).toEqual({ p1: { q1: { status: 'unaided' } } });
     expect(s.problemId).toBeNull();
     s.setMode('sandbox');
     expect(useStore.getState().layout.parts.map((p) => p.ref)).toEqual(['R1']);

@@ -7,12 +7,12 @@ import type { CheckResult } from '../core/check';
 import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS, nextScopeChannel } from '../core/parts';
 import type { Layout, PartProps, PartType, PlacedPart } from '../core/types';
-import { boolRecord, boolRecordMap, readStored, sanitizeLayout, sanitizeScope, writeStored, writeStoredLater } from './persist';
+import { boolRecord, readStored, sanitizeLayout, sanitizeScope, writeStored, writeStoredLater } from './persist';
 
 export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import';
 
-/** Practice progress of one problem: question id → answered correctly. */
-export type PracticeRecord = Record<string, boolean>;
+import { applyEvent, countsAsDone, mergeAnswers, migrateAnswers, problemStatus, type PracticeEvent, type PracticeRecord } from './practice';
+export type { PracticeRecord } from './practice';
 export type Tool = PartType | 'select' | 'probe';
 export type PanelTab = 'task' | 'schematic' | 'issues' | 'inspect';
 
@@ -110,9 +110,9 @@ interface State {
   problems: ProblemEntry[];
   problemInvalid: InvalidFile[];
   problemId: string | null;
-  /** problem id → true once every question was answered correctly */
+  /** problem id → true once every question was answered correctly without revealing the answer */
   practiceDone: Record<string, boolean>;
-  /** problem id → which questions were answered correctly */
+  /** problem id → how each question was answered (see state/practice.ts) */
   practiceAnswers: Record<string, PracticeRecord>;
 
   setLang(l: Lang): void;
@@ -160,7 +160,10 @@ interface State {
   setProblems(list: ProblemEntry[], invalid: InvalidFile[]): void;
   openProblem(id: string): void;
   /** record a correct answer; marks the problem done when all its questions are correct */
-  markQuestion(problemId: string, questionId: string): void;
+  /** record an attempt (wrong / reveal / right) on a practice question */
+  practiceEvent(problemId: string, questionId: string, ev: PracticeEvent): void;
+  /** merge practice progress from an exported file */
+  importPractice(data: { done: Record<string, boolean>; answers: Record<string, PracticeRecord> }): void;
   resetProblem(problemId: string): void;
 }
 
@@ -298,7 +301,7 @@ export const useStore = create<State>((set, get) => {
     problemInvalid: [],
     problemId: LS.get<string | null>('bb.practice.current', null, str),
     practiceDone: LS.get('bb.practice.done', {} as Record<string, boolean>, boolRecord),
-    practiceAnswers: LS.get('bb.practice.answers', {} as Record<string, PracticeRecord>, boolRecordMap),
+    practiceAnswers: LS.get('bb.practice.answers', {} as Record<string, PracticeRecord>, migrateAnswers),
 
     setLang(lang) {
       setCoreLang(lang);
@@ -552,17 +555,26 @@ export const useStore = create<State>((set, get) => {
       LS.set('bb.practice.current', problemId);
       set({ problemId, mode: 'practice' });
     },
-    markQuestion(pid, qid) {
+    practiceEvent(pid, qid, ev) {
       const s = get();
-      const rec = { ...s.practiceAnswers[pid], [qid]: true };
+      const rec = { ...s.practiceAnswers[pid], [qid]: applyEvent(s.practiceAnswers[pid]?.[qid], ev) };
       const practiceAnswers = { ...s.practiceAnswers, [pid]: rec };
       LS.set('bb.practice.answers', practiceAnswers);
       const p = s.problems.find((x) => x.id === pid);
       let practiceDone = s.practiceDone;
-      if (p && p.qids.every((q) => rec[q]) && !practiceDone[pid]) {
+      if (p && !practiceDone[pid] && countsAsDone(problemStatus(rec, p.qids))) {
         practiceDone = { ...practiceDone, [pid]: true };
         LS.set('bb.practice.done', practiceDone);
       }
+      set({ practiceAnswers, practiceDone });
+    },
+    importPractice(data) {
+      const s = get();
+      const practiceAnswers = mergeAnswers(s.practiceAnswers, data.answers);
+      const practiceDone = { ...s.practiceDone, ...data.done };
+      for (const p of s.problems) if (countsAsDone(problemStatus(practiceAnswers[p.id], p.qids))) practiceDone[p.id] = true;
+      LS.set('bb.practice.answers', practiceAnswers);
+      LS.set('bb.practice.done', practiceDone);
       set({ practiceAnswers, practiceDone });
     },
     resetProblem(pid) {
