@@ -1,0 +1,94 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "non-sinusoidal-10-parallel-lc-trap",
+  "chapter": "non-sinusoidal",
+  "title": "并联 LC 陷波器：挡住 3 次谐波",
+  "level": 3,
+  "tags": ["谐波谐振", "并联谐振", "陷波器", "求元件参数"],
+  "statement": [
+    "u_s = 220√2 cos(314t) + 40√2 cos(942t) V，经 L_1 = 40 mH 与 C_1 的并联支路向 R = 20 Ω 的负载供电。",
+    "选择 C_1，使负载电压 u_R 中**不含 3 次谐波**。求 C_1、此时负载电压的有效值，以及 L_1 中 3 次谐波电流的有效值。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984 }, { "k": 3, "amp": 56.568542 } ] } }, "label": "u_s" },
+      { "ref": "L1", "type": "L", "from": [3, 0], "to": [7, 0], "value": "40m" },
+      { "ref": "C1", "type": "C", "from": [3, 2], "to": [7, 2], "value": 2.817333134993081e-05, "label": "C_1", "hideValue": true },
+      { "ref": "R", "type": "R", "from": [10, 0], "to": [10, 6], "value": 20 }
+    ],
+    "wires": [
+      [[0, 0], [3, 0], [3, 2]],
+      [[7, 2], [7, 0], [10, 0]],
+      [[10, 6], [0, 6]]
+    ],
+    "labels": [
+      {
+        "at": [10, 0],
+        "name": "a"
+      }
+    ],
+    "grounds": [[0, 6]],
+    "marks": [
+      { "kind": "v", "el": "R", "name": "u_R" },
+      { "kind": "i", "el": "L1", "name": "i_L" }
+    ]
+  },
+  "analysis": { "type": "periodic", "omega": 314 },
+  "questions": [
+    {
+      "id": "C1",
+      "ask": "C_1 = ?",
+      "find": { "kind": "val", "el": "C1" },
+      "answer": 2.817333e-05,
+      "unit": "µF",
+      "explain": "L_1C_1 对 3ω 并联谐振时阻抗为无穷大：3ω = 1/√(L_{1}C_1)，C_1 = 1/(9ω²L_1) = 1/(9 × 314² × 0.04) = 28.17 µF。"
+    },
+    { "id": "UR3", "ask": "验证：u_R 中 3 次谐波的有效值 U_R3 = ?", "find": { "kind": "v", "el": "R", "harmonic": 3 }, "answer": 0, "unit": "V", "explain": "并联谐振的 LC 对 3 次谐波开路，负载中没有 3 次谐波电流，U_R3 = 0。" },
+    {
+      "id": "UR",
+      "ask": "负载电压的有效值 U_R = ?",
+      "find": { "kind": "v", "el": "R" },
+      "answer": 179.6806,
+      "unit": "V",
+      "explain": "基波时 Z_LC = jωL_1/(1 − ω²L_{1}C_1) = j12.56/(8/9) = j14.13 Ω（感性），U_R = 220 × 20/|20 + j14.13| = 179.7 V。"
+    },
+    { "id": "IL3", "ask": "L_1 中 3 次谐波电流的有效值 I_L3 = ?", "find": { "kind": "i", "el": "L1", "harmonic": 3 }, "answer": 1.061571, "unit": "A", "explain": "负载中没有 3 次谐波电流，3 次谐波电压 40 V 全部加在 LC 两端：I_L3 = 40/(3ωL_1) = 40/37.68 = 1.062 A，它在 L_1、C_1 之间来回流动。" }
+  ],
+  "hints": ["“不含 3 次谐波”意味着 3 次谐波电流在负载支路里为零——串在线路中的 LC 支路对 3 次谐波的阻抗必须是多少？", "并联 LC 谐振时阻抗为无穷大：令谐振角频率等于 3ω。", "基波时这个 LC 并联支路不谐振，它的阻抗是 jωL_1/(1 − ω²L_{1}C_1)，再用分压求负载电压。"],
+  "solution": [
+    "**1. 选 C_1。** 要求 3 次谐波电流不进入负载，L_1C_1 必须对 3ω 并联谐振（阻抗 → ∞）：9ω²L_{1}C_1 = 1，C_1 = 1/(9 × 314² × 0.04) = **28.17 µF**。",
+    "**2. 3 次谐波。** LC 开路，I_R3 = 0，U_R3 = **0**；40 V 的 3 次谐波电压全部落在 LC 上，I_L3 = 40/(3 × 314 × 0.04) = **1.062 A**（C_1 中电流相同、方向相反）。",
+    "**3. 基波。** ω²L_{1}C_1 = 1/9，Z_LC = jωL_1/(1 − 1/9) = j12.56 × 9/8 = j14.13 Ω。U_R = 220 × 20/|20 + j14.13| = 220 × 20/24.49 = **179.7 V**。",
+    "**4. 负载电压**只剩基波：u_R = 179.7√2 cos(314t − 35.24°) V，有效值 **179.7 V**。",
+    "**检查：** 3ω 时 X_L = 3ωL_1 = 37.68 Ω，X_C = 1/(3ωC_1) = 37.68 Ω，相等，确实谐振。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "A parallel LC trap that blocks the 3rd harmonic",
+      "tags": ["harmonic resonance", "parallel resonance", "trap filter", "finding a component"],
+      "statement": [
+        "u_s = 220√2 cos(314t) + 40√2 cos(942t) V feeds a load R = 20 Ω through L_1 = 40 mH in parallel with C_1.",
+        "Choose C_1 so that the load voltage u_R contains **no 3rd harmonic**. Find C_1, the rms load voltage, and the rms 3rd-harmonic current in L_1."
+      ],
+      "hints": [
+        "“No 3rd harmonic” means no 3rd-harmonic current in the load branch — what must the impedance of the LC in the line be at the 3rd harmonic?",
+        "A parallel LC at resonance has infinite impedance: make its resonant angular frequency equal to 3ω.",
+        "At the fundamental the LC is not resonant; its impedance is jωL_1/(1 − ω²L_{1}C_1). Then use the voltage divider."
+      ],
+      "solution": [
+        "**1. Choose C_1.** To keep the 3rd-harmonic current out of the load, L_1C_1 must be in parallel resonance at 3ω (impedance → ∞): 9ω²L_{1}C_1 = 1, C_1 = 1/(9 × 314² × 0.04) = **28.17 µF**.",
+        "**2. 3rd harmonic.** The LC is open, I_R3 = 0, U_R3 = **0**; the whole 40 V 3rd-harmonic voltage is across the LC, I_L3 = 40/(3 × 314 × 0.04) = **1.062 A** (equal and opposite in C_1).",
+        "**3. Fundamental.** ω²L_{1}C_1 = 1/9, Z_LC = jωL_1/(1 − 1/9) = j12.56 × 9/8 = j14.13 Ω. U_R = 220 × 20/|20 + j14.13| = 220 × 20/24.49 = **179.7 V**.",
+        "**4. The load voltage** is the fundamental only: u_R = 179.7√2 cos(314t − 35.24°) V, rms **179.7 V**.",
+        "**Check:** at 3ω, X_L = 3ωL_1 = 37.68 Ω and X_C = 1/(3ωC_1) = 37.68 Ω — equal, so it is indeed resonant."
+      ],
+      "questions": [
+        { "ask": "C_1 = ?", "explain": "In parallel resonance the LC impedance is infinite: 3ω = 1/√(L_{1}C_1), C_1 = 1/(9ω²L_1) = 1/(9 × 314² × 0.04) = 28.17 µF." },
+        { "ask": "Check: rms value of the 3rd harmonic in u_R, U_R3 = ?", "explain": "At the 3rd harmonic the resonant LC is an open circuit: no 3rd-harmonic current reaches the load, U_R3 = 0." },
+        { "ask": "rms load voltage U_R = ?", "explain": "At the fundamental Z_LC = jωL_1/(1 − ω²L_{1}C_1) = j12.56/(8/9) = j14.13 Ω (inductive), U_R = 220 × 20/|20 + j14.13| = 179.7 V." },
+        { "ask": "rms value of the 3rd-harmonic current in L_1, I_L3 = ?", "explain": "No 3rd-harmonic current reaches the load, so the whole 40 V 3rd-harmonic voltage is across the LC: I_L3 = 40/(3ωL_1) = 40/37.68 = 1.062 A, circulating between L_1 and C_1." }
+      ]
+    }
+  }
+}

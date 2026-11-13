@@ -25,6 +25,7 @@ export const CHAPTERS: Chapter[] = [
   { id: 'coupled', phase: 4, title: () => tr('耦合电感与理想变压器', 'Coupled inductors and ideal transformers') },
   { id: 'frequency', phase: 4, title: () => tr('频率响应与谐振', 'Frequency response and resonance') },
   { id: 'three-phase', phase: 4, title: () => tr('三相电路', 'Three-phase circuits') },
+  { id: 'non-sinusoidal', phase: 4, title: () => tr('非正弦周期电流电路', 'Non-sinusoidal periodic circuits') },
   { id: 'two-port', phase: 4, title: () => tr('二端口网络', 'Two-port networks') },
 ];
 
