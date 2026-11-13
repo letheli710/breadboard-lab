@@ -10,6 +10,7 @@ import { useStore, type Tool } from '../state/store';
 import { Scene, VIEWS, type ViewName } from '../three/Scene';
 import { emitCameraView } from '../three/common';
 import { Icon, PartIcon } from './Icons';
+import { QualityToggle } from './QualityToggle';
 import { Scope } from './Scope';
 
 const groups = (): { title: string; items: Tool[] }[] => [
@@ -160,6 +161,7 @@ function Toolbar() {
       <button className={showLabels ? 'on' : ''} onClick={() => toggle('showLabels')} title={tr('显示元件标签', 'Show part labels')}>
         <Icon name="label" />
       </button>
+      <QualityToggle />
       <i />
       <button onClick={undo} disabled={!canUndo} title={tr('撤销 (Ctrl+Z)', 'Undo (Ctrl+Z)')}>
         <Icon name="undo" />
