@@ -3,8 +3,9 @@ import { boardDiagnostics, type Issue } from '../core/diagnostics';
 import { buildNetlist, isFloating, type BoardNetlist } from '../core/netlist';
 import { simulate, type LedState, type SimResult } from '../core/solver';
 import { hasGenerator, simulateTransient, vavg, vpp, type AcLedState, type MeterReading, type TransientResult } from '../core/transient';
+import { getLang, type Lang } from '../core/i18n';
 import type { Layout } from '../core/types';
-import { useStore } from './store';
+import { useLang, useStore } from './store';
 
 export interface Derived {
   nl: BoardNetlist;
@@ -23,16 +24,18 @@ export interface Derived {
 type Base = Omit<Derived, 'ac' | 'acError' | 'acStale'>;
 
 let cacheKey: Layout | null = null;
+let cacheLang: Lang | null = null;
 let cacheVal: Derived | null = null;
 
-/** Netlist + DC solve + diagnostics, memoised per layout object. Synchronous and cheap; it does
+/** Netlist + DC solve + diagnostics, memoised per layout object (and language: diagnostics are text). Synchronous and cheap; it does
  *  not include the transient (see useDerived). */
 export function derive(layout: Layout): Derived {
-  if (cacheKey === layout && cacheVal) return cacheVal;
+  if (cacheKey === layout && cacheLang === getLang() && cacheVal) return cacheVal;
   const nl = buildNetlist(layout);
   const sim = simulate(nl.circuit);
   const issues = boardDiagnostics(nl, sim);
   cacheKey = layout;
+  cacheLang = getLang();
   cacheVal = { nl, sim, issues, ac: null, acError: null, acStale: false };
   return cacheVal;
 }
@@ -103,8 +106,9 @@ const merged = new WeakMap<Base, Map<AcEntry, Derived>>();
 
 export function useDerived(): Derived {
   const layout = useStore((s) => s.layout);
+  const lang = useLang();
   useSyncExternalStore(subscribeAc, getAcVersion);
-  const base = useMemo(() => derive(layout), [layout]);
+  const base = useMemo(() => derive(layout), [layout, lang]); // eslint-disable-line react-hooks/exhaustive-deps
   const gen = hasGenerator(base.nl.circuit);
   const exact = gen ? acCache.get(layout) : undefined;
   useEffect(() => {
