@@ -9,6 +9,8 @@ describe('routes', () => {
     { page: 'challenges' },
     { page: 'practice', id: 'opamp-02-noninverting-amp' },
     { page: 'practice' },
+    { page: 'practice', summary: 'first-order' },
+    { page: 'practice', summary: 'basics', section: 'idea-kcl' },
     { page: 'sandbox' },
     { page: 'guide' },
     { page: 'guide', section: 'ground' },
@@ -26,6 +28,15 @@ describe('routes', () => {
     expect(formatRoute({ page: 'challenges' })).toBe('#/challenges');
     expect(formatRoute({ page: 'guide', section: 'led' })).toBe('#/guide/led');
     expect(formatRoute({ page: 'sandbox' })).toBe('#/sandbox');
+  });
+
+  it('formats and parses chapter key-points routes', () => {
+    expect(formatRoute({ page: 'practice', summary: 'three-phase' })).toBe('#/practice/summary/three-phase');
+    expect(formatRoute({ page: 'practice', summary: 'basics', section: 'formulas' })).toBe('#/practice/summary/basics/formulas');
+    expect(parseRoute('#/practice/summary/basics/idea-kcl/extra')).toEqual({ page: 'practice', summary: 'basics', section: 'idea-kcl' });
+    // no chapter: just the Practice page
+    expect(parseRoute('#/practice/summary')).toEqual({ page: 'practice' });
+    expect(parseRoute('#/practice/summary/')).toEqual({ page: 'practice' });
   });
 
   it('accepts loose forms', () => {

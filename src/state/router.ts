@@ -3,6 +3,8 @@
 //   #/learn[/<lessonId>]        a lesson (Learn page)
 //   #/challenges[/<id>]         a lab challenge
 //   #/practice[/<problemId>]    a theory problem
+//   #/practice/summary/<chapter>[/<section>]
+//                               a chapter's key points (section: "idea-<id>", "formulas", …)
 //   #/sandbox                   free editing
 //   #/guide[/<section>]         field guide, optionally scrolled to a section card
 //   #/import                    import page
@@ -18,6 +20,7 @@ export type Route =
   | { page: 'learn'; id?: string }
   | { page: 'challenges'; id?: string }
   | { page: 'practice'; id?: string }
+  | { page: 'practice'; summary: string; section?: string }
   | { page: 'sandbox' }
   | { page: 'guide'; section?: string }
   | { page: 'import' };
@@ -58,11 +61,17 @@ export function parseRoute(hash: string): Route | null {
   const raw = parts[1];
   const item = raw === undefined ? undefined : decode(raw);
   if (item === null || item === '') return { page } as Route;
+  if (page === 'practice' && item === 'summary') {
+    const chapter = parts[2] === undefined ? null : decode(parts[2]);
+    if (!chapter) return { page };
+    const section = parts[3] === undefined ? null : decode(parts[3]);
+    return section ? { page, summary: chapter, section } : { page, summary: chapter };
+  }
   switch (page) {
     case 'learn':
     case 'challenges':
     case 'practice':
-      return item === undefined ? { page } : { page, id: item };
+      return (item === undefined ? { page } : { page, id: item }) as Route;
     case 'guide':
       return item === undefined ? { page } : { page, section: item };
     default:
@@ -71,6 +80,7 @@ export function parseRoute(hash: string): Route | null {
 }
 
 export function formatRoute(r: Route): string {
+  if ('summary' in r) return `#/practice/summary/${encodeURIComponent(r.summary)}${r.section ? `/${encodeURIComponent(r.section)}` : ''}`;
   const item = 'id' in r ? r.id : 'section' in r ? r.section : undefined;
   return `#/${r.page}${item ? `/${encodeURIComponent(item)}` : ''}`;
 }

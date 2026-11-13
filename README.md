@@ -24,7 +24,7 @@ npm run dev
 |---|---|
 | 课程 Learn | 8 节分步课程：面包板结构、电源与 GND、LED、原理图→面包板方法、串并联、按键、电源对比。步骤会在 3D 面包板上高亮要插的孔。 |
 | 挑战 Challenges | 看原理图在面包板上搭电路，点“检查”：全对会庆祝 🎉；错了会指出缺少/多出的元件、参数不对、哪几只脚该连没连、哪些不该连却连了、哪个元件接反了，并在 3D 中高亮。按期分组：入门 11 题 + 第 1–5 期实验 49 个（KCL/KVL 实测、戴维宁、运放、RC/RL/RLC 暂态、滤波器、谐振……用电流表、信号发生器和示波器测量；第 5 期 18 个单片机外围电路实验：GPIO 限流、拉/灌电流、上下拉、ADC 分压、光敏/热敏电阻、三极管/MOSFET 开关、继电器续流、5 V 电平转换、开漏、LDO 压差、供电预算、PWM DAC/调速、I²C 上拉、综合项目）。 |
-| 练习 Practice | 纯理论练习区：15 章 216 题，覆盖电路模型与定律、等效变换、结点/网孔法、电路定理、运放、一阶/二阶电路、相量、正弦稳态、功率、耦合电感、频率响应、三相电路、二端口。看电路图填数值答案（支持 2.5k、-3mA 等写法），有提示和完整解答。所有答案都由理想电路分析引擎自动核对（`npm run validate`）。 |
+| 练习 Practice | 纯理论练习区：15 章 216 题，覆盖电路模型与定律、等效变换、结点/网孔法、电路定理、运放、一阶/二阶电路、相量、正弦稳态、功率、耦合电感、频率响应、三相电路、二端口。看电路图填数值答案（支持 2.5k、-3mA 等写法），有提示和完整解答。每章侧栏最上面有「要点」页：按顺序讲的要点（各自链接练习题）、可打印的公式表（含成立条件和参考方向约定）、例题（结果由引擎核对）和易错点；答错时可一键回到本章要点。所有答案都由理想电路分析引擎自动核对（`npm run validate`）。 |
 | 自由编辑 Sandbox | 随便搭。右侧实时生成**原理图**（按电压从高到低排，GND 在最底下）和结点表；可导出为题目 JSON。 |
 | 知识 Guide | 面包板内部结构、GND 是什么、五步法、电源种类、常见错误。 |
 | 导入 Import | 拖入题目文件夹 / JSON 文件；格式错误会逐条列出，可一键复制给 AI 修正。内含 AI 出题提示词。 |
@@ -45,6 +45,7 @@ Every page and open item has its own URL (hash routes: work on any static host);
 | `#/learn/<lessonId>` | 课程 Learn（省略 id：上次打开的或第一节未完成的课） |
 | `#/challenges/<id>` | 挑战 Challenges（id 属于未加载的组时会先加载该组） |
 | `#/practice/<problemId>` | 练习 Practice |
+| `#/practice/summary/<chapter>[/<section>]` | 练习：本章要点 Key points（section 如 `idea-kcl`、`formulas`） |
 | `#/sandbox` | 自由编辑 Sandbox |
 | `#/guide/<section>` | 知识 Guide，可直达某张卡片：`breadboard` `ground` `five-steps` `power` `series-parallel` `led` `mistakes` `basics`（点卡片右上角的编号即可复制链接） |
 | `#/import` | 导入 Import |
@@ -57,6 +58,7 @@ Ids are the files' `id` (URI-encoded); an unknown id shows a toast and opens the
 - `challenges/` —— 放入符合 `breadboard-challenge/1` 规范的 `.json` 即自动收录：构建时生成轻量索引（`virtual:challenge-index`），完整题目按组（课程、入门、第 1–5 期）分块，打开该组的题时才加载（开发模式热更新）。
 - 规范：[`docs/CHALLENGE_FORMAT.md`](docs/CHALLENGE_FORMAT.md)，JSON Schema：`schema/challenge.schema.json`
 - 让 AI 出题：[`docs/AI_PROMPT.md`](docs/AI_PROMPT.md)
+- `summaries/<章节>.json` —— 每章的要点页，规范 `chapter-summary/1`：[`docs/SUMMARY_FORMAT.md`](docs/SUMMARY_FORMAT.md)（例题数值由引擎核对，本章每道题都必须被某个要点链接）
 - `problems/<章节>/` —— 理论题，规范 `circuit-problem/1`：[`docs/PROBLEM_FORMAT.md`](docs/PROBLEM_FORMAT.md)，AI 出题提示词 [`docs/AI_PROMPT_PROBLEMS.md`](docs/AI_PROMPT_PROBLEMS.md)，大纲 [`docs/SYLLABUS.md`](docs/SYLLABUS.md)
 - 校验题目（含自洽性测试和参考答案验证）：`npm run validate` 或 `npm run validate -- 某个文件夹`；加 `-- --lang en` 输出英文信息
 - 界面语言：右上角 **中文 / EN** 切换（记在浏览器里）。题目文件可以带 `i18n` 翻译，见规范第 11 节。

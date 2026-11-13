@@ -80,7 +80,29 @@ const assert = (c, m) => { if (!c) { console.log('FAIL', m); process.exitCode = 
   // zh title
   await page.click('.lang-switch button:first-child'); await settle();
   assert((await page.title()).includes('面包板实验室'), 'zh title ' + await page.title());
-  for (const h of ['#/practice', '#/guide', '#/import']) {
+  // chapter key points: sidebar entry → own URL; a problem from it and Back; problem → key points → Back
+  await page.click('.lang-switch button:last-child'); await settle();
+  await page.goto(BASE + '#/practice/basics-03-power-sign'); await settle();
+  await page.locator('.pr-chapter.cur .pr-sumitem').click(); await settle();
+  assert(await hash() === '#/practice/summary/basics', 'key points entry → ' + (await hash()));
+  assert((await page.title()).startsWith('Key points · '), 'key points title ' + await page.title());
+  await page.locator('.sum-chip').first().click(); await settle();
+  const fromSum = await hash();
+  assert(fromSum.startsWith('#/practice/') && !fromSum.includes('summary') && (await page.locator('.sum-main').count()) === 0, 'practise chip → ' + fromSum);
+  await page.goBack(); await settle();
+  assert(await hash() === '#/practice/summary/basics' && (await page.locator('.sum-main').count()) === 1, 'Back → key points ' + (await hash()));
+  await page.goto(BASE + '#/practice/basics-13-kcl-chain'); await settle();
+  await page.locator('.pr-crumbs .pr-keypoints').click(); await settle();
+  assert(await hash() === '#/practice/summary/basics/idea-kcl', 'problem → key points at its idea ' + (await hash()));
+  const flashed = await page.locator('#sum-idea-kcl').getAttribute('class');
+  assert(/flash/.test(flashed || ''), 'idea highlighted: ' + flashed);
+  await page.goBack(); await settle();
+  assert(await hash() === '#/practice/basics-13-kcl-chain' && (await page.locator('.sum-main').count()) === 0, 'Back → problem ' + (await hash()));
+  await page.goForward(); await settle();
+  assert((await page.locator('.sum-main').count()) === 1, 'Forward → key points again');
+  await page.goto(BASE + '#/practice/summary/nope'); await settle();
+  assert(/doesn't exist/.test(await page.locator('.toast').textContent().catch(() => '')), 'unknown chapter → toast');
+  for (const h of ['#/practice', '#/practice/summary/first-order/formulas', '#/guide', '#/import']) {
     const c = await browser.newContext();
     const p = await c.newPage();
     const js = [];

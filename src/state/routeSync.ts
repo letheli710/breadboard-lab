@@ -9,6 +9,7 @@
 // doesn't flip back to the previous challenge while the file loads.
 
 import { tr } from '../core/i18n';
+import { chapterById } from '../core/problem/chapters';
 import { entryTitle } from './problems';
 import { formatRoute, modeOf, pageOf, parseRoute, startRoute, writeLastRoute, type Route } from './router';
 import { useStore } from './store';
@@ -32,6 +33,10 @@ export function routeOf(s: S): Route {
       return { page: pageOf(s.mode) as 'learn' | 'challenges' };
     }
     case 'practice':
+      if (s.practiceSummary) {
+        const { chapter, section } = s.practiceSummary;
+        return section ? { page: 'practice', summary: chapter, section } : { page: 'practice', summary: chapter };
+      }
       return s.problems.some((p) => p.id === s.problemId) ? { page: 'practice', id: s.problemId! } : { page: 'practice' };
     case 'guide':
       return guideSection ? { page: 'guide', section: guideSection } : { page: 'guide' };
@@ -55,7 +60,10 @@ export function titleOf(s: S): string {
   }[r.page];
   let item: string | undefined;
   if ((r.page === 'learn' || r.page === 'challenges') && r.id) item = s.challenges.find((c) => c.id === r.id)?.title;
-  else if (r.page === 'practice' && r.id) {
+  else if (r.page === 'practice' && 'summary' in r) {
+    const c = chapterById(r.summary);
+    item = c && `${tr('要点', 'Key points')} · ${c.title()}`;
+  } else if (r.page === 'practice' && 'id' in r && r.id) {
     const p = s.problems.find((x) => x.id === r.id);
     item = p && entryTitle(p);
   }
@@ -69,7 +77,9 @@ function sync() {
   const route = routeOf(s);
   const hash = formatRoute(route);
   const shown = parseRoute(location.hash);
-  const replace = replaceNext || !shown || (shown.page === route.page && !('id' in shown && shown.id) && !('section' in shown && shown.section));
+  const replace = replaceNext || !shown || (shown.page === route.page && !('id' in shown && shown.id) && !('section' in shown && shown.section) && !('summary' in shown)) ||
+    // a key-points page that resolved its section (opened from a problem) names it in place
+    ('summary' in shown && 'summary' in route && shown.summary === route.summary && !shown.section);
   replaceNext = false;
   if (!shown || formatRoute(shown) !== hash) {
     if (replace) history.replaceState(history.state, '', hash);
@@ -124,9 +134,18 @@ export function applyRoute(r: Route) {
         if (first) s2.openChallenge(first.id);
       }
     }
+  } else if (r.page === 'practice' && 'summary' in r) {
+    // a chapter's key points (Back from a problem returns here; a direct load opens only Practice)
+    if (chapterById(r.summary)) {
+      const cur = st.practiceSummary;
+      if (st.mode !== 'practice' || cur?.chapter !== r.summary || cur.section !== r.section) st.openSummary({ chapter: r.summary, section: r.section, from: cur?.chapter === r.summary ? cur.from : undefined });
+    } else {
+      notFound();
+      st.setMode('practice');
+    }
   } else if (r.page === 'practice') {
     if (r.id && st.problems.some((p) => p.id === r.id)) {
-      if (st.mode !== 'practice' || st.problemId !== r.id) st.openProblem(r.id);
+      if (st.mode !== 'practice' || st.problemId !== r.id || st.practiceSummary) st.openProblem(r.id);
     } else {
       if (r.id) notFound();
       st.setMode('practice');
@@ -158,7 +177,7 @@ export function startRouting() {
   if (badUrl) notFound();
   applyRoute(route);
   useStore.subscribe((s, prev) => {
-    if (s.mode !== prev.mode || s.activeId !== prev.activeId || s.opening !== prev.opening || s.problemId !== prev.problemId || s.challenges !== prev.challenges || s.problems !== prev.problems || s.lang !== prev.lang) {
+    if (s.mode !== prev.mode || s.activeId !== prev.activeId || s.opening !== prev.opening || s.problemId !== prev.problemId || s.practiceSummary !== prev.practiceSummary || s.challenges !== prev.challenges || s.problems !== prev.problems || s.lang !== prev.lang) {
       if (s.mode !== 'guide') guideSection = undefined;
       schedule();
     }

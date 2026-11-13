@@ -12,6 +12,17 @@ import { boolRecord, readStored, sanitizeLayout, sanitizeScope, writeStored, wri
 
 export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import';
 
+/** A chapter key-points page and where on it to go. */
+export interface SummaryTarget {
+  chapter: string;
+  /** "idea-<id>" (a key idea), "example-<id>", or a section: "ideas" | "formulas" | "examples" | "mistakes" */
+  section?: string;
+  /** resolve the section from this problem (the key idea that links it) once the page is loaded */
+  problem?: string;
+  /** problem the student came from ("back to the problem") */
+  from?: string;
+}
+
 import { applyEvent, countsAsDone, mergeAnswers, migrateAnswers, problemStatus, type PracticeEvent, type PracticeRecord } from './practice';
 export type { PracticeRecord } from './practice';
 export type Tool = PartType | 'select' | 'probe';
@@ -114,6 +125,8 @@ interface State {
   problems: ProblemEntry[];
   problemInvalid: InvalidFile[];
   problemId: string | null;
+  /** the chapter key-points page shown instead of a problem (state/summaries.ts, ui/Summary.tsx) */
+  practiceSummary: SummaryTarget | null;
   /** problem id → true once every question was answered correctly without revealing the answer */
   practiceDone: Record<string, boolean>;
   /** problem id → how each question was answered (see state/practice.ts) */
@@ -163,6 +176,9 @@ interface State {
   notify(msg: string | null, opts?: { undo?: boolean }): void;
   setProblems(list: ProblemEntry[], invalid: InvalidFile[]): void;
   openProblem(id: string): void;
+  /** open a chapter's key-points page (Practice); openProblem closes it */
+  openSummary(t: SummaryTarget): void;
+  closeSummary(): void;
   /** record a correct answer; marks the problem done when all its questions are correct */
   /** record an attempt (wrong / reveal / right) on a practice question */
   practiceEvent(problemId: string, questionId: string, ev: PracticeEvent): void;
@@ -307,6 +323,7 @@ export const useStore = create<State>((set, get) => {
     problems: [],
     problemInvalid: [],
     problemId: LS.get<string | null>('bb.practice.current', null, str),
+    practiceSummary: null,
     practiceDone: LS.get('bb.practice.done', {} as Record<string, boolean>, boolRecord),
     practiceAnswers: LS.get('bb.practice.answers', {} as Record<string, PracticeRecord>, migrateAnswers),
 
@@ -573,7 +590,14 @@ export const useStore = create<State>((set, get) => {
     openProblem(problemId) {
       LS.set('bb.practice.current', problemId);
       openRequest = null;
-      set({ problemId, mode: 'practice', opening: null });
+      set({ problemId, mode: 'practice', opening: null, practiceSummary: null });
+    },
+    openSummary(t) {
+      openRequest = null;
+      set({ practiceSummary: t, mode: 'practice', opening: null });
+    },
+    closeSummary() {
+      if (get().practiceSummary) set({ practiceSummary: null });
     },
     practiceEvent(pid, qid, ev) {
       const s = get();

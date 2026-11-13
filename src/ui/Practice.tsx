@@ -10,7 +10,7 @@ import type { Analysis, Question } from '../core/problem/types';
 import { countsAsDone, exportPractice, parsePracticeExport, problemStatus, type QStatus } from '../state/practice';
 import { entryTitle, useProblem, type ProblemEntry } from '../state/problems';
 import { useLang, useStore } from '../state/store';
-import { hasSummary, useSummaryView } from '../state/summaries';
+import { hasSummary } from '../state/summaries';
 import { celebrate } from './celebrate';
 import { Icon } from './Icons';
 import { ProblemSchematic } from './ProblemSchematic';
@@ -137,13 +137,8 @@ function ChapterList({ problems, current, summary }: { problems: ProblemEntry[];
   useLang();
   const statusOf = useStatusOf();
   const done = (p: ProblemEntry) => countsAsDone(statusOf(p));
-  const openProblem = useStore((s) => s.openProblem);
-  const openSummary = useSummaryView((s) => s.openSummary);
-  const closeSummary = useSummaryView((s) => s.closeSummary);
-  const open = (id: string) => {
-    closeSummary();
-    openProblem(id);
-  };
+  const open = useStore((s) => s.openProblem);
+  const openSummary = useStore((s) => s.openSummary);
   const curChapter = summary ?? current?.chapter;
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => (curChapter ? { [curChapter]: true } : {}));
   useEffect(() => {
@@ -233,10 +228,10 @@ function ChapterList({ problems, current, summary }: { problems: ProblemEntry[];
 
 /** "本章要点" link: opens the chapter's key-points page at the key idea that practises this problem. */
 function KeyPointsLink({ p, label }: { p: Problem; label?: string }) {
-  const openSummary = useSummaryView((s) => s.openSummary);
+  const openSummary = useStore((s) => s.openSummary);
   if (!hasSummary(p.chapter)) return null;
   return (
-    <button className="pr-link pr-keypoints" onClick={() => openSummary({ chapter: p.chapter, problem: p.id }, p.id)} title={tr('打开本章要点：方法、公式、例题', "Open the chapter's key points: methods, formulas, worked examples")}>
+    <button className="pr-link pr-keypoints" onClick={() => openSummary({ chapter: p.chapter, problem: p.id, from: p.id })} title={tr('打开本章要点：方法、公式、例题', "Open the chapter's key points: methods, formulas, worked examples")}>
       <Icon name="book" size={15} /> {label ?? tr('本章要点', 'Chapter key points')}
     </button>
   );
@@ -608,15 +603,7 @@ export function Practice() {
   const current = problems.find((p) => p.id === problemId) ?? problems[0] ?? null;
   const full = useProblem(current);
   const bad = invalid.filter((f) => f.errors.length).length;
-  const summary = useSummaryView((s) => s.open);
-  const closeSummary = useSummaryView((s) => s.closeSummary);
-
-  // opening a problem from anywhere (sidebar, next button, progress card) leaves the key points
-  const lastId = useRef(problemId);
-  useEffect(() => {
-    if (lastId.current !== problemId) closeSummary();
-    lastId.current = problemId;
-  }, [problemId, closeSummary]);
+  const summary = useStore((s) => s.practiceSummary);
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [current?.id, summary?.chapter]);

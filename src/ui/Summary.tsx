@@ -10,7 +10,7 @@ import { ideaOfProblem, type ChapterSummary, type SummaryExample } from '../core
 import { countsAsDone, problemStatus } from '../state/practice';
 import { entryTitle, type ProblemEntry } from '../state/problems';
 import { useStore } from '../state/store';
-import { useSummary, useSummaryView, type SummaryTarget } from '../state/summaries';
+import { useSummary, type SummaryTarget } from '../state/summaries';
 import { Icon } from './Icons';
 import { ProblemSchematic } from './ProblemSchematic';
 import { PrMd, Sym } from './richText';
@@ -45,7 +45,6 @@ function ProblemChips({ ids, problems }: { ids: string[]; problems: ProblemEntry
   const answers = useStore((s) => s.practiceAnswers);
   const done = useStore((s) => s.practiceDone);
   const openProblem = useStore((s) => s.openProblem);
-  const close = useSummaryView((s) => s.closeSummary);
   const list = ids.map((id) => problems.find((p) => p.id === id)).filter((p): p is ProblemEntry => !!p);
   if (!list.length) return null;
   return (
@@ -57,10 +56,7 @@ function ProblemChips({ ids, problems }: { ids: string[]; problems: ProblemEntry
           <button
             key={p.id}
             className={`sum-chip ${countsAsDone(st) ? 'done' : ''}`}
-            onClick={() => {
-              close();
-              openProblem(p.id);
-            }}
+            onClick={() => openProblem(p.id)}
           >
             {countsAsDone(st) ? '✓ ' : ''}
             <Sym text={entryTitle(p)} />
@@ -126,6 +122,11 @@ export function SummaryBody({ s, target, problems }: { s: ChapterSummary; target
   const ideaNum = (id: string) => s.ideas.findIndex((x) => x.id === id) + 1;
   const focus = target.section ?? (target.problem ? ideaOfProblem(s, target.problem) && `idea-${ideaOfProblem(s, target.problem)}` : undefined);
   const [flash, setFlash] = useState<string | undefined>(focus);
+  const openSummary = useStore((st) => st.openSummary);
+  // opened from a problem: put the key idea it resolved to into the URL (replaces the entry)
+  useEffect(() => {
+    if (focus && !target.section) openSummary({ ...target, section: focus });
+  }, [focus, target, openSummary]);
 
   // scroll to the requested key idea / section (opening its section first)
   useEffect(() => {
@@ -273,8 +274,7 @@ export function SummaryBody({ s, target, problems }: { s: ChapterSummary; target
 
 export function SummaryPage({ target, problems }: { target: SummaryTarget; problems: ProblemEntry[] }) {
   const r = useSummary(target.chapter);
-  const from = useSummaryView((s) => s.from);
-  const close = useSummaryView((s) => s.closeSummary);
+  const from = target.from;
   const openProblem = useStore((s) => s.openProblem);
   const chapter = chapterById(target.chapter);
   const back = from ? problems.find((p) => p.id === from) : undefined;
@@ -290,20 +290,14 @@ export function SummaryPage({ target, problems }: { target: SummaryTarget; probl
           {back ? (
             <button
               className="pr-link"
-              onClick={() => {
-                close();
-                openProblem(back.id);
-              }}
+              onClick={() => openProblem(back.id)}
             >
               <Icon name="prev" size={15} /> {tr('回到题目', 'Back to the problem')}
             </button>
           ) : first ? (
             <button
               className="pr-link"
-              onClick={() => {
-                close();
-                openProblem(first.id);
-              }}
+              onClick={() => openProblem(first.id)}
             >
               {tr('开始做题', 'Start the problems')} <Icon name="next" size={15} />
             </button>
