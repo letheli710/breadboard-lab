@@ -1,0 +1,121 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "nonlinear-11-dependent-source-load-line",
+  "chapter": "nonlinear",
+  "title": "线性部分含受控源：先求诺顿（戴维宁）等效",
+  "level": 4,
+  "tags": ["含受控源的线性部分", "诺顿等效", "平方律电阻"],
+  "statement": [
+    "U_s = 12 V，R_1 = R_2 = 4 Ω。电流控制电流源 CCCS 从结点 a 向地抽走 0.5i_1 的电流（i_1 是 R_1 的电流）。非线性电阻 N 的特性为 i = u²（u ≥ 0；u < 0 时 i = 0）。",
+    "求从 N 两端看进去的开路电压 U_oc 和等效电阻 R_0，再求工作点 U_Q、I_Q 和 i_1。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12},
+      {"ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
+      {"ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 4},
+      {"ref": "G", "type": "CCCS", "from": [12, 0], "to": [12, 4], "value": 0.5, "ctrl": {"i": "R1"}},
+      {"ref": "N", "type": "NR", "from": [16, 0], "to": [16, 4], "law": {"i": [0, 0, 1], "umin": 0}}
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [16, 0]], [[16, 4], [0, 4]]],
+    "labels": [{"at": [8, 0], "name": "a"}],
+    "grounds": [[0, 4]],
+    "marks": [{"kind": "i", "el": "R1", "name": "i1"}, {"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}]
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "uoc",
+      "ask": "U_oc = ?",
+      "find": {"kind": "vth", "port": ["a", "0"], "exclude": ["N"]},
+      "answer": 4,
+      "unit": "V",
+      "explain": "断开 N，a 的 KCL：i_1 = u/4 + 0.5i_1，i_1 = (12 − u)/4 → 0.5(12 − u)/4 = u/4 → u = 4 V。"
+    },
+    {
+      "id": "r0",
+      "ask": "R_0 = ?",
+      "find": {"kind": "req", "port": ["a", "0"], "exclude": ["N"]},
+      "answer": 2.666667,
+      "unit": "Ω",
+      "explain": "短路电流：a 接地时 i_1 = 3 A，R_2 无电流，CCCS 抽走 1.5 A，I_sc = 1.5 A，R_0 = U_oc/I_sc = 4/1.5 ≈ 2.667 Ω。不能把受控源置零后用串并联求 R_0。"
+    },
+    {
+      "id": "uq",
+      "ask": "U_Q = ?",
+      "find": {"kind": "v", "el": "N"},
+      "answer": 1.051514,
+      "unit": "V",
+      "explain": "诺顿形式：i = 1.5 − 0.375u（从 a 流入 N），与 i = u² 联立：u² + 0.375u − 1.5 = 0 → u ≈ 1.0515 V（负根舍去）。"
+    },
+    {
+      "id": "iq",
+      "ask": "I_Q = ?",
+      "find": {"kind": "i", "el": "N"},
+      "answer": 1.105682,
+      "unit": "A",
+      "explain": "I_Q = U_Q² ≈ 1.1057 A；负载线：1.5 − 0.375 × 1.0515 ≈ 1.1057 A ✓。"
+    },
+    {
+      "id": "i1",
+      "ask": "i_1 = ?",
+      "find": {"kind": "i", "el": "R1"},
+      "answer": 2.737121,
+      "unit": "A",
+      "explain": "i_1 = (12 − U_Q)/4 ≈ 2.737 A；KCL：0.5i_1 = 1.369，u/4 = 0.263，1.369 + 0.263 + 1.106 = 2.737 ✓。"
+    }
+  ],
+  "hints": ["除 N 以外都是线性的（受控源也是线性元件），可以求戴维宁/诺顿等效；控制量 i_1 要用 u_a 表示出来。", "含受控源时用“开路电压 ÷ 短路电流”求 R_0，受控源不能置零。", "负载线 i = I_sc − u/R_0 与 i = u² 联立，得到一元二次方程。"],
+  "solution": [
+    "**1. 开路电压。** 断开 N，a 的 KCL：i_1 = u/4 + 0.5i_1，i_1 = (12 − u)/4 → u = 0.5(12 − u) → **U_oc = 4 V**。",
+    "**2. 短路电流与 R_0。** a 短路：u = 0，i_1 = 3 A，R_2 无电流，I_sc = i_1 − 0.5i_1 = 1.5 A，**R_0 = 4/1.5 ≈ 2.667 Ω**。",
+    "**3. 工作点。** 负载线 i = 1.5 − 0.375u，与 i = u² 联立：u² + 0.375u − 1.5 = 0 → u = (−0.375 + √6.140625)/2 → **U_Q ≈ 1.0515 V，I_Q ≈ 1.1057 A**。",
+    "**4. 回到原电路。** **i_1 = (12 − 1.0515)/4 ≈ 2.737 A**。",
+    "**检查：** a 的 KCL：2.737 = 1.051/4 + 0.5 × 2.737 + 1.106 = 0.263 + 1.369 + 1.106 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "A linear part with a dependent source: find its Norton (Thevenin) equivalent first",
+      "tags": ["linear part with a dependent source", "Norton equivalent", "square-law resistor"],
+      "statement": [
+        "U_s = 12 V, R_1 = R_2 = 4 Ω. A current-controlled current source CCCS draws 0.5i_1 from node a to ground (i_1 is the current in R_1). The nonlinear resistor N has i = u² (u ≥ 0; i = 0 for u < 0).",
+        "Find the open-circuit voltage U_oc and the equivalent resistance R_0 seen from N's terminals, then the operating point U_Q, I_Q and the current i_1."
+      ],
+      "questions": [
+        {
+          "ask": "U_oc = ?",
+          "explain": "With N removed, KCL at a: i_1 = u/4 + 0.5i_1 with i_1 = (12 − u)/4 → 0.5(12 − u)/4 = u/4 → u = 4 V."
+        },
+        {
+          "ask": "R_0 = ?",
+          "explain": "Short-circuit current: with a grounded i_1 = 3 A, R_2 carries nothing and the CCCS takes 1.5 A, so I_sc = 1.5 A and R_0 = U_oc/I_sc = 4/1.5 ≈ 2.667 Ω. The dependent source must not be zeroed for R_0."
+        },
+        {
+          "ask": "U_Q = ?",
+          "explain": "Norton form: i = 1.5 − 0.375u (into N), with i = u²: u² + 0.375u − 1.5 = 0 → u ≈ 1.0515 V (the negative root is rejected)."
+        },
+        {
+          "ask": "I_Q = ?",
+          "explain": "I_Q = U_Q² ≈ 1.1057 A; load line: 1.5 − 0.375 × 1.0515 ≈ 1.1057 A ✓."
+        },
+        {
+          "ask": "i_1 = ?",
+          "explain": "i_1 = (12 − U_Q)/4 ≈ 2.737 A; KCL: 0.5i_1 = 1.369, u/4 = 0.263, 1.369 + 0.263 + 1.106 = 2.737 ✓."
+        }
+      ],
+      "hints": [
+        "Everything except N is linear (a dependent source is a linear element), so a Thevenin/Norton equivalent exists; express the controlling current i_1 through u_a.",
+        "With a dependent source find R_0 as open-circuit voltage ÷ short-circuit current; never zero the dependent source.",
+        "The load line i = I_sc − u/R_0 together with i = u² gives a quadratic."
+      ],
+      "solution": [
+        "**1. Open-circuit voltage.** Remove N; KCL at a: i_1 = u/4 + 0.5i_1 with i_1 = (12 − u)/4 → u = 0.5(12 − u) → **U_oc = 4 V**.",
+        "**2. Short-circuit current and R_0.** Short a: u = 0, i_1 = 3 A, R_2 carries nothing, I_sc = i_1 − 0.5i_1 = 1.5 A, **R_0 = 4/1.5 ≈ 2.667 Ω**.",
+        "**3. Operating point.** Load line i = 1.5 − 0.375u with i = u²: u² + 0.375u − 1.5 = 0 → u = (−0.375 + √6.140625)/2 → **U_Q ≈ 1.0515 V, I_Q ≈ 1.1057 A**.",
+        "**4. Back to the original circuit.** **i_1 = (12 − 1.0515)/4 ≈ 2.737 A**.",
+        "**Check:** KCL at a: 2.737 = 1.051/4 + 0.5 × 2.737 + 1.106 = 0.263 + 1.369 + 1.106 ✓."
+      ]
+    }
+  }
+}

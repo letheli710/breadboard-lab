@@ -1,0 +1,148 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "nonlinear-10-multiple-operating-points",
+  "chapter": "nonlinear",
+  "title": "多个工作点：隧道二极管型的 N 形特性",
+  "level": 4,
+  "tags": ["多个工作点", "负动态电阻", "隧道二极管", "曲线相交法"],
+  "statement": [
+    "U_s = 0.5 V，R = 100 Ω。非线性电阻 N 的特性是 N 形（类似隧道二极管），用三段直线表示（见特性图）：从原点到 (0.1 V，5 mA)，下降到 (0.3 V，1 mA)，之后斜率为 20 mA/V。",
+    "工作点按 U_Q 从小到大编号为 Q_1、Q_2、Q_3……。求工作点的个数、Q_1 的电压、Q_3 的电流和 Q_2 处的动态电阻，并讨论稳定性。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 0.5},
+      {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 100},
+      {"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": {"pwl": [[0, 0], [0.1, 0.005], [0.3, 0.001], [0.5, 0.005]]}}
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[8, 4], [0, 4]]],
+    "grounds": [[0, 4]],
+    "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}],
+    "plot": {"el": "N", "u": [0, 0.55], "i": [0, 0.0062], "loadLine": true, "iUnit": "mA"}
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {"id": "n", "ask": "工作点的个数 = ?", "find": {"kind": "nop"}, "answer": 3, "unit": "", "explain": "负载线 i = (0.5 − u)/100 与三段各交一次，三个交点都落在各自的范围内。"},
+    {
+      "id": "u1",
+      "ask": "Q_1 的电压 U_Q1 = ?",
+      "find": {"kind": "v", "el": "N", "op": 1},
+      "answer": 0.0833333,
+      "unit": "V",
+      "explain": "第一段 i = 50u（mA，u 单位 V）：50u = 5 − 10u → u = 1/12 ≈ 0.0833 V。"
+    },
+    {
+      "id": "i3",
+      "ask": "Q_3 的电流 I_Q3 = ?",
+      "find": {"kind": "i", "el": "N", "op": 3},
+      "answer": 0.001666667,
+      "unit": "mA",
+      "explain": "第三段 i = 1 + 20(u − 0.3) = 20u − 5（mA）：20u − 5 = 5 − 10u → u = 1/3 V，i = 5/3 ≈ 1.667 mA。"
+    },
+    {
+      "id": "rd2",
+      "ask": "Q_2 处的动态电阻 R_d2 = ?",
+      "find": {"kind": "rd", "el": "N", "op": 2},
+      "answer": -50,
+      "unit": "Ω",
+      "explain": "第二段斜率 di/du = (1 − 5) mA/0.2 V = −20 mA/V，R_d = −50 Ω（Q_2 在 u = 0.2 V）。"
+    },
+    {
+      "id": "stable",
+      "ask": "实际器件两端总有很小的寄生电容 C。哪些工作点是稳定的（受到扰动后能回到原处）？",
+      "choices": ["Q_1 和 Q_3", "只有 Q_2", "三个都稳定", "三个都不稳定"],
+      "correct": 0,
+      "choiceExplain": [
+        "对。从 C 看进去的小信号电导是 1/R + 1/R_d：Q_1、Q_3 处 R_d > 0，电导为正，扰动按指数衰减；Q_2 处 1/100 + 1/(−50) = −0.01 S < 0，扰动指数增长，电路会跳到 Q_1 或 Q_3。这就是双稳态电路（触发器、存储单元）的原理。",
+        "Q_2 在负阻区，且 |R_d| < R，从电容看进去的总电导为负，扰动会增长。",
+        "Q_2 不稳定，见上一个选项。",
+        "Q_1、Q_3 的 R_d 为正，小信号电路是普通的 RC 电路，扰动会衰减。"
+      ],
+      "explain": "判稳：把 N 换成 R_d，得到一阶 RC 电路，时间常数 τ = C/(1/R + 1/R_d)。τ > 0 稳定，τ < 0 不稳定。"
+    },
+    {
+      "id": "more",
+      "ask": "若 U_s 增大到 0.7 V（R 不变），工作点有几个？",
+      "choices": ["1 个（在第三段）", "仍是 3 个", "2 个", "没有工作点"],
+      "correct": 0,
+      "choiceExplain": [
+        "对。负载线右移：第一段交点 u = 0.7/6 ≈ 0.117 V > 0.1 V ✗；第二段 u = 0.7 − 0.7 = 0 ✗；第三段 u = (5 + 7)/30 = 0.4 V ✓。",
+        "负载线平移后与前两段的交点落到了段外。",
+        "不会恰好有两个（除非负载线经过折点）。",
+        "第三段向右无限延伸，负载线总能与它相交。"
+      ],
+      "explain": "工作点个数随 U_s（或 R）变化：只有负载线穿过负阻段并与两侧的上升段都相交时才有 3 个。"
+    }
+  ],
+  "hints": ["在特性图上画负载线 i = (U_s − u)/R，数一数它与曲线有几个交点。", "每一段写成直线方程（单位用 V 和 mA 比较方便），分别与负载线联立，检查交点是否在本段内。", "第二段的斜率是负的，所以它的动态电阻是负的；稳定性要看 1/R + 1/R_d 的符号。"],
+  "solution": [
+    "**1. 各段方程（i 单位 mA，u 单位 V）。** 第一段 i = 50u（0 ≤ u ≤ 0.1）；第二段 i = 7 − 20u（0.1 ≤ u ≤ 0.3）；第三段 i = 20u − 5（u ≥ 0.3）。负载线 i = 10(0.5 − u) = 5 − 10u。",
+    "**2. 交点。** 第一段：60u = 5 → **u = 1/12 ≈ 0.0833 V** ✓（i ≈ 4.167 mA）。第二段：7 − 20u = 5 − 10u → u = 0.2 V ✓（i = 3 mA）。第三段：30u = 10 → u = 1/3 V ✓，**i = 5/3 ≈ 1.667 mA**。共 **3 个**工作点。",
+    "**3. 动态电阻。** Q_2 在第二段：di/du = −20 mA/V，**R_d2 = −50 Ω**；Q_1、Q_3 处分别为 20 Ω、50 Ω。",
+    "**4. 稳定性。** 寄生电容看到的电导 1/R + 1/R_d：Q_1：0.01 + 0.05 > 0；Q_3：0.01 + 0.02 > 0；Q_2：0.01 − 0.02 < 0。**Q_1、Q_3 稳定，Q_2 不稳定**——电路是双稳态的。",
+    "**检查：** Q_2：KVL 0.5 − 100 × 3 mA = 0.2 V ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Several operating points: an N-shaped, tunnel-diode-like characteristic",
+      "tags": ["multiple operating points", "negative dynamic resistance", "tunnel diode", "load-line method"],
+      "statement": [
+        "U_s = 0.5 V, R = 100 Ω. The nonlinear resistor N has an N-shaped characteristic (like a tunnel diode) described by three straight segments (see the plot): from the origin to (0.1 V, 5 mA), down to (0.3 V, 1 mA), and a slope of 20 mA/V beyond.",
+        "Number the operating points Q_1, Q_2, Q_3, … in order of increasing U_Q. Find the number of operating points, the voltage at Q_1, the current at Q_3 and the dynamic resistance at Q_2, and discuss stability."
+      ],
+      "questions": [
+        {
+          "ask": "Number of operating points = ?",
+          "explain": "The load line i = (0.5 − u)/100 crosses each of the three segments once, each inside its range."
+        },
+        {
+          "ask": "Voltage at Q_1, U_Q1 = ?",
+          "explain": "Segment 1, i = 50u (mA with u in V): 50u = 5 − 10u → u = 1/12 ≈ 0.0833 V."
+        },
+        {
+          "ask": "Current at Q_3, I_Q3 = ?",
+          "explain": "Segment 3, i = 1 + 20(u − 0.3) = 20u − 5 (mA): 20u − 5 = 5 − 10u → u = 1/3 V, i = 5/3 ≈ 1.667 mA."
+        },
+        {
+          "ask": "Dynamic resistance at Q_2, R_d2 = ?",
+          "explain": "Segment 2 has di/du = (1 − 5) mA/0.2 V = −20 mA/V, so R_d = −50 Ω (Q_2 is at u = 0.2 V)."
+        },
+        {
+          "ask": "A real device always has a small parasitic capacitance C across it. Which operating points are stable (return after a small disturbance)?",
+          "choices": ["Q_1 and Q_3", "Q_2 only", "all three", "none"],
+          "choiceExplain": [
+            "Right. The small-signal conductance seen by C is 1/R + 1/R_d: at Q_1 and Q_3, R_d > 0, the conductance is positive and a disturbance decays exponentially; at Q_2, 1/100 + 1/(−50) = −0.01 S < 0, a disturbance grows and the circuit jumps to Q_1 or Q_3. This is how bistable circuits (flip-flops, memory cells) work.",
+            "Q_2 is in the negative-resistance region with |R_d| < R, so the total conductance seen by C is negative and disturbances grow.",
+            "Q_2 is unstable, see the first option.",
+            "At Q_1 and Q_3, R_d is positive and the small-signal circuit is an ordinary RC circuit; disturbances decay."
+          ],
+          "explain": "Stability: replace N by R_d to get a first-order RC circuit with τ = C/(1/R + 1/R_d); τ > 0 is stable, τ < 0 unstable."
+        },
+        {
+          "ask": "If U_s rises to 0.7 V (same R), how many operating points are there?",
+          "choices": ["one (on segment 3)", "still three", "two", "none"],
+          "choiceExplain": [
+            "Right. The load line moves right: segment 1 gives u = 0.7/6 ≈ 0.117 V > 0.1 V ✗; segment 2 gives u = 0.7 − 0.7 = 0 ✗; segment 3 gives u = (5 + 7)/30 = 0.4 V ✓.",
+            "After the shift the intersections with the first two segments fall outside them.",
+            "Exactly two only happens when the load line passes through a corner.",
+            "Segment 3 extends to the right forever, so the load line always meets it."
+          ],
+          "explain": "The number of operating points depends on U_s (and R): three only when the load line crosses the negative-resistance segment and both rising segments."
+        }
+      ],
+      "hints": [
+        "Draw the load line i = (U_s − u)/R on the plot and count the intersections.",
+        "Write each segment as a line (V and mA are convenient units), solve it with the load line, and check that the intersection lies inside the segment.",
+        "Segment 2 has a negative slope, hence a negative dynamic resistance; stability depends on the sign of 1/R + 1/R_d."
+      ],
+      "solution": [
+        "**1. Segments (i in mA, u in V).** Segment 1: i = 50u (0 ≤ u ≤ 0.1); segment 2: i = 7 − 20u (0.1 ≤ u ≤ 0.3); segment 3: i = 20u − 5 (u ≥ 0.3). Load line: i = 10(0.5 − u) = 5 − 10u.",
+        "**2. Intersections.** Segment 1: 60u = 5 → **u = 1/12 ≈ 0.0833 V** ✓ (i ≈ 4.167 mA). Segment 2: 7 − 20u = 5 − 10u → u = 0.2 V ✓ (i = 3 mA). Segment 3: 30u = 10 → u = 1/3 V ✓, **i = 5/3 ≈ 1.667 mA**. **Three** operating points.",
+        "**3. Dynamic resistance.** Q_2 is on segment 2: di/du = −20 mA/V, **R_d2 = −50 Ω**; at Q_1 and Q_3 it is 20 Ω and 50 Ω.",
+        "**4. Stability.** The conductance seen by the parasitic capacitance is 1/R + 1/R_d: Q_1: 0.01 + 0.05 > 0; Q_3: 0.01 + 0.02 > 0; Q_2: 0.01 − 0.02 < 0. **Q_1 and Q_3 are stable, Q_2 is unstable** — the circuit is bistable.",
+        "**Check:** Q_2: KVL 0.5 − 100 × 3 mA = 0.2 V ✓."
+      ]
+    }
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "nonlinear-09-small-signal-basic",
+  "chapter": "nonlinear",
+  "title": "小信号分析：直流工作点 + 动态电阻",
+  "level": 3,
+  "tags": ["小信号分析法", "动态电阻", "小信号等效电路"],
+  "statement": [
+    "直流电压源 U_s = 6 V 与小信号源 u_s(t) = 0.1cos(100t) V 串联，经 R = 1 Ω 给非线性电阻 N 供电，N 的特性为 i = u²（u ≥ 0；u < 0 时 i = 0）。",
+    "用小信号分析法求 N 的电压 u(t) = U_Q + u_1(t) 和电流 i(t) = I_Q + i_1(t)：先求直流工作点和动态电阻，再求小信号分量的振幅 U_1m、I_1m。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "us", "type": "V", "from": [0, 0], "to": [0, 3], "value": {"ac": {"mag": 0.1, "phase": 0}}, "label": "u_s(t)"},
+      {"ref": "Us", "type": "V", "from": [0, 3], "to": [0, 6], "value": {"dc": 6}},
+      {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 1},
+      {"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 6], "law": {"i": [0, 0, 1], "umin": 0}}
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[8, 6], [0, 6]]],
+    "grounds": [[0, 6]],
+    "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}]
+  },
+  "analysis": {"type": "ac", "omega": 100, "phasor": "peak"},
+  "questions": [
+    {
+      "id": "uq",
+      "ask": "直流工作点 U_Q = ?",
+      "find": {"kind": "v", "el": "N", "dc": true},
+      "answer": 2,
+      "unit": "V",
+      "explain": "令 u_s = 0：6 − u = u² → u² + u − 6 = 0 → U_Q = 2 V（−3 V 舍去）。"
+    },
+    {
+      "id": "iq",
+      "ask": "I_Q = ?",
+      "find": {"kind": "i", "el": "N", "dc": true},
+      "answer": 4,
+      "unit": "A",
+      "explain": "I_Q = U_Q² = 4 A；R 上压降 4 V，4 + 2 = 6 ✓。"
+    },
+    {
+      "id": "rd",
+      "ask": "Q 点的动态电阻 R_d = ?",
+      "find": {"kind": "rd", "el": "N"},
+      "answer": 0.25,
+      "unit": "Ω",
+      "explain": "di/du = 2u = 4 S（u = 2 V），R_d = 1/4 = 0.25 Ω。"
+    },
+    {
+      "id": "u1",
+      "ask": "小信号电压 u_1(t) 的振幅 U_1m = ?",
+      "find": {"kind": "v", "el": "N"},
+      "answer": 0.02,
+      "unit": "V",
+      "explain": "小信号等效电路：u_s 经 R 加在 R_d 上，U_1m = 0.1 × 0.25/(1 + 0.25) = 0.02 V。"
+    },
+    {
+      "id": "i1",
+      "ask": "小信号电流 i_1(t) 的振幅 I_1m = ?",
+      "find": {"kind": "i", "el": "N"},
+      "answer": 0.08,
+      "unit": "A",
+      "explain": "I_1m = 0.1/(1 + 0.25) = 0.08 A；检查：R_d·I_1m = 0.02 V ✓。"
+    },
+    {
+      "id": "total",
+      "ask": "N 两端的总电压是：",
+      "choices": ["u(t) = 2 + 0.02cos(100t) V", "u(t) = 0.02cos(100t) V", "u(t) = 2 + 0.1cos(100t) V", "u(t) = 2.02 V"],
+      "correct": 0,
+      "choiceExplain": ["对。总响应 = 直流工作点 + 小信号分量，小信号与 u_s 同相（电路是纯电阻性的）。", "漏掉了直流工作点 U_Q。", "小信号源的电压被 R 和 R_d 分压，到 N 上只剩 0.02 V。", "U_Q 加振幅只是 u(t) 的最大值。"],
+      "explain": "小信号分析的结果是 u(t) ≈ U_Q + u_1(t)，只在 |u_1| 远小于工作点附近曲线明显弯曲的范围时才准确。"
+    }
+  ],
+  "hints": ["分两步：只留直流源求工作点；再只留小信号源，把 N 换成它在 Q 点的动态电阻。", "工作点：6 − u = u²。动态电阻：R_d = 1/(di/du)。", "小信号等效电路是 u_s、R、R_d 串联的分压电路。"],
+  "solution": [
+    "**1. 直流工作点（u_s = 0）。** 6 − 1·i = u，i = u² → u² + u − 6 = 0 → **U_Q = 2 V，I_Q = 4 A**（u = −3 V 不满足 u ≥ 0，舍去）。",
+    "**2. 动态电阻。** di/du|_{Q} = 2U_Q = 4 S，**R_d = 0.25 Ω**。",
+    "**3. 小信号等效电路（U_s 置零，N → R_d）。** u_1 = u_s·R_d/(R + R_d) = 0.1cos(100t) × 0.2：**U_1m = 0.02 V**，**I_1m = 0.1/1.25 = 0.08 A**。",
+    "**4. 总响应。** u(t) ≈ 2 + 0.02cos(100t) V，i(t) ≈ 4 + 0.08cos(100t) A。",
+    "**检查（两次精确求解作差）：** U_s 分别取 6.1 V 和 5.9 V 时，u² + u = U_s 的正根约为 2.0199 V 和 1.9799 V，差的一半 ≈ 0.020 V，与 U_1m 一致 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Small-signal analysis: DC operating point plus dynamic resistance",
+      "tags": ["small-signal analysis", "dynamic resistance", "small-signal equivalent circuit"],
+      "statement": [
+        "A DC source U_s = 6 V in series with a small-signal source u_s(t) = 0.1cos(100t) V feeds the nonlinear resistor N through R = 1 Ω. N has i = u² (u ≥ 0; i = 0 for u < 0).",
+        "Use small-signal analysis to find N's voltage u(t) = U_Q + u_1(t) and current i(t) = I_Q + i_1(t): first the DC operating point and the dynamic resistance, then the amplitudes U_1m, I_1m of the small-signal parts."
+      ],
+      "questions": [
+        {
+          "ask": "DC operating point U_Q = ?",
+          "explain": "Set u_s = 0: 6 − u = u² → u² + u − 6 = 0 → U_Q = 2 V (−3 V rejected)."
+        },
+        {"ask": "I_Q = ?", "explain": "I_Q = U_Q² = 4 A; R drops 4 V, 4 + 2 = 6 ✓."},
+        {"ask": "Dynamic resistance at Q, R_d = ?", "explain": "di/du = 2u = 4 S at u = 2 V, so R_d = 1/4 = 0.25 Ω."},
+        {
+          "ask": "Amplitude of the small-signal voltage u_1(t), U_1m = ?",
+          "explain": "Small-signal circuit: u_s drives R in series with R_d, U_1m = 0.1 × 0.25/(1 + 0.25) = 0.02 V."
+        },
+        {"ask": "Amplitude of the small-signal current i_1(t), I_1m = ?", "explain": "I_1m = 0.1/(1 + 0.25) = 0.08 A; check: R_d·I_1m = 0.02 V ✓."},
+        {
+          "ask": "The total voltage across N is:",
+          "choices": ["u(t) = 2 + 0.02cos(100t) V", "u(t) = 0.02cos(100t) V", "u(t) = 2 + 0.1cos(100t) V", "u(t) = 2.02 V"],
+          "choiceExplain": [
+            "Right. Total response = DC operating point + small-signal part; the small signal is in phase with u_s (the circuit is purely resistive).",
+            "This drops the operating point U_Q.",
+            "The small-signal source is divided between R and R_d; only 0.02 V reaches N.",
+            "U_Q plus the amplitude is only the maximum of u(t)."
+          ],
+          "explain": "Small-signal analysis gives u(t) ≈ U_Q + u_1(t); it is accurate only while u_1 stays within a range where the curve is nearly straight."
+        }
+      ],
+      "hints": [
+        "Two steps: with only the DC source, find the operating point; with only the small-signal source, replace N by its dynamic resistance at Q.",
+        "Operating point: 6 − u = u². Dynamic resistance: R_d = 1/(di/du).",
+        "The small-signal circuit is the divider u_s, R, R_d in series."
+      ],
+      "solution": [
+        "**1. DC operating point (u_s = 0).** 6 − 1·i = u, i = u² → u² + u − 6 = 0 → **U_Q = 2 V, I_Q = 4 A** (u = −3 V violates u ≥ 0, rejected).",
+        "**2. Dynamic resistance.** di/du at Q = 2U_Q = 4 S, **R_d = 0.25 Ω**.",
+        "**3. Small-signal circuit (U_s zeroed, N → R_d).** u_1 = u_s·R_d/(R + R_d) = 0.1cos(100t) × 0.2: **U_1m = 0.02 V**, **I_1m = 0.1/1.25 = 0.08 A**.",
+        "**4. Total response.** u(t) ≈ 2 + 0.02cos(100t) V, i(t) ≈ 4 + 0.08cos(100t) A.",
+        "**Check (difference of two exact solutions):** with U_s = 6.1 V and 5.9 V the positive roots of u² + u = U_s are about 2.0199 V and 1.9799 V; half their difference ≈ 0.020 V, matching U_1m ✓."
+      ]
+    }
+  }
+}

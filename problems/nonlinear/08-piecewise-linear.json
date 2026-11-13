@@ -1,0 +1,134 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "nonlinear-08-piecewise-linear",
+  "chapter": "nonlinear",
+  "title": "分段线性化法：每一段都是“电压源 + 电阻”",
+  "level": 3,
+  "tags": ["分段线性化法", "分段等效电路", "负载线"],
+  "statement": [
+    "U_s = 9 V，R = 1.5 kΩ。非线性电阻 N 的特性用三段直线近似（见特性图）：OA 从原点到 A(2 V，2 mA)，AB 从 A 到 B(6 V，3 mA)，B 之后斜率为 2 mA/V。",
+    "判断工作点在哪一段，写出该段的等效电路，求 U_Q、I_Q 和该段的动态电阻。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 9},
+      {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": "1.5k"},
+      {"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": {"pwl": [[0, 0], [2, 0.002], [6, 0.003], [7, 0.005]]}}
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[8, 4], [0, 4]]],
+    "grounds": [[0, 4]],
+    "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}],
+    "plot": {"el": "N", "u": [0, 9.5], "i": [0, 0.0065], "loadLine": true, "iUnit": "mA"}
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "seg",
+      "ask": "工作点在哪一段？",
+      "choices": ["OA", "AB", "B 之后"],
+      "correct": 1,
+      "choiceExplain": [
+        "OA 段 i = u/1 kΩ 与负载线 i = (9 − u)/1.5 kΩ 交于 u = 3.6 V，超出 OA 的 0～2 V，不是真交点。",
+        "对。AB 段与负载线交于 u ≈ 4.91 V，在 2～6 V 之内。",
+        "B 之后 i = 3 mA + 2 mA/V × (u − 6) 与负载线交于 u = 5.625 V < 6 V，不在这一段上。"
+      ],
+      "explain": "逐段求交点，只有落在本段范围内的交点才是工作点。"
+    },
+    {
+      "id": "model",
+      "ask": "AB 段（2 V ≤ u ≤ 6 V）的等效电路是：",
+      "choices": ["u = −6 V + 4 kΩ·i：4 kΩ 电阻串联一个 −6 V 的电压源", "u = 4 kΩ·i：一个 4 kΩ 电阻", "u = 2 V + 1 kΩ·i"],
+      "correct": 0,
+      "choiceExplain": [
+        "对。AB 的斜率 Δu/Δi = 4 V/1 mA = 4 kΩ，延长线与 u 轴交于 u = 2 − 4 kΩ × 2 mA = −6 V，所以 u = −6 + 4000i。",
+        "AB 的延长线不过原点：在 A 点 4 kΩ × 2 mA = 8 V ≠ 2 V。",
+        "1 kΩ 是 OA 段的斜率。"
+      ],
+      "explain": "分段线性化：每一段 u = U_0k + R_k·i，R_k 是该段的斜率（动态电阻），U_0k 是延长线在 u 轴上的截距。"
+    },
+    {
+      "id": "uq",
+      "ask": "U_Q = ?",
+      "find": {"kind": "v", "el": "N"},
+      "answer": 4.909091,
+      "unit": "V",
+      "explain": "9 − 1500i = −6 + 4000i → i = 15/5500 A ≈ 2.727 mA，u = −6 + 4000i ≈ 4.909 V。"
+    },
+    {
+      "id": "iq",
+      "ask": "I_Q = ?",
+      "find": {"kind": "i", "el": "N"},
+      "answer": 0.002727273,
+      "unit": "mA",
+      "explain": "I_Q = 15/5.5 mA ≈ 2.727 mA，在 2～3 mA 之间 ✓。"
+    },
+    {
+      "id": "rd",
+      "ask": "工作点处的动态电阻 R_d = ?",
+      "find": {"kind": "rd", "el": "N"},
+      "answer": 4000,
+      "unit": "kΩ",
+      "explain": "分段线性特性在一段之内斜率不变：R_d = 4 kΩ。"
+    }
+  ],
+  "hints": ["每一段都是直线，可以写成 u = U_0k + R_k·i，即“电压源 + 电阻”。", "假设工作点在某一段，用该段的等效电路解线性电路，再检查结果是否在这一段的范围里。", "AB 段斜率 4 kΩ，延长线在 u 轴上的截距是 2 − 4 kΩ × 2 mA。"],
+  "solution": [
+    "**1. 各段的等效电路。** OA：u = 1 kΩ·i；AB：u = −6 V + 4 kΩ·i（2 ≤ u ≤ 6 V）；B 之后：u = 4.5 V + 0.5 kΩ·i（u ≥ 6 V）。",
+    "**2. 逐段求解（负载线 u = 9 − 1.5 kΩ·i）。** OA：9 = 2.5 kΩ·i → i = 3.6 mA，u = 3.6 V > 2 V ✗。AB：9 + 6 = 5.5 kΩ·i → i ≈ 2.727 mA，u ≈ 4.909 V ∈ [2，6] ✓。B 之后：9 − 4.5 = 2 kΩ·i → i = 2.25 mA，u = 5.625 V < 6 V ✗。",
+    "**3. 工作点。** **U_Q ≈ 4.909 V，I_Q ≈ 2.727 mA**，在 AB 段，**R_d = 4 kΩ**。",
+    "**检查：** KVL 9 − 1.5 × 2.727 = 4.909 V ✓；AB 线上 i = 2 + (4.909 − 2)/4 = 2.727 mA ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Piecewise-linear method: every segment is a source plus a resistor",
+      "tags": ["piecewise-linear method", "segment equivalent circuit", "load line"],
+      "statement": [
+        "U_s = 9 V, R = 1.5 kΩ. The characteristic of the nonlinear resistor N is approximated by three straight segments (see the plot): OA from the origin to A(2 V, 2 mA), AB from A to B(6 V, 3 mA), and a slope of 2 mA/V beyond B.",
+        "Decide on which segment the operating point lies, write that segment's equivalent circuit, and find U_Q, I_Q and the segment's dynamic resistance."
+      ],
+      "questions": [
+        {
+          "ask": "On which segment is the operating point?",
+          "choices": ["OA", "AB", "beyond B"],
+          "choiceExplain": [
+            "Segment OA, i = u/1 kΩ, meets the load line i = (9 − u)/1.5 kΩ at u = 3.6 V, outside OA's 0–2 V: not a real intersection.",
+            "Right. AB meets the load line at u ≈ 4.91 V, inside 2–6 V.",
+            "Beyond B, i = 3 mA + 2 mA/V × (u − 6) meets the load line at u = 5.625 V < 6 V, not on that segment."
+          ],
+          "explain": "Intersect segment by segment; only an intersection inside the segment's range is an operating point."
+        },
+        {
+          "ask": "The equivalent circuit of segment AB (2 V ≤ u ≤ 6 V) is:",
+          "choices": ["u = −6 V + 4 kΩ·i: a 4 kΩ resistor in series with a −6 V source", "u = 4 kΩ·i: a 4 kΩ resistor", "u = 2 V + 1 kΩ·i"],
+          "choiceExplain": [
+            "Right. AB has slope Δu/Δi = 4 V/1 mA = 4 kΩ, and its extension meets the u axis at u = 2 − 4 kΩ × 2 mA = −6 V, so u = −6 + 4000i.",
+            "AB's extension does not pass the origin: at A, 4 kΩ × 2 mA = 8 V ≠ 2 V.",
+            "1 kΩ is the slope of segment OA."
+          ],
+          "explain": "Piecewise-linear method: each segment is u = U_0k + R_k·i, with R_k its slope (dynamic resistance) and U_0k the intercept of its extension on the u axis."
+        },
+        {
+          "ask": "U_Q = ?",
+          "explain": "9 − 1500i = −6 + 4000i → i = 15/5500 A ≈ 2.727 mA, u = −6 + 4000i ≈ 4.909 V."
+        },
+        {"ask": "I_Q = ?", "explain": "I_Q = 15/5.5 mA ≈ 2.727 mA, between 2 and 3 mA ✓."},
+        {
+          "ask": "Dynamic resistance at the operating point, R_d = ?",
+          "explain": "Within one segment a piecewise-linear characteristic has a constant slope: R_d = 4 kΩ."
+        }
+      ],
+      "hints": [
+        "Each segment is a straight line u = U_0k + R_k·i, i.e. a voltage source plus a resistor.",
+        "Assume the operating point is on one segment, solve the linear circuit with that segment's model, then check that the result lies inside the segment.",
+        "AB has a slope of 4 kΩ; its extension meets the u axis at 2 − 4 kΩ × 2 mA."
+      ],
+      "solution": [
+        "**1. Segment models.** OA: u = 1 kΩ·i; AB: u = −6 V + 4 kΩ·i (2 ≤ u ≤ 6 V); beyond B: u = 4.5 V + 0.5 kΩ·i (u ≥ 6 V).",
+        "**2. Segment by segment (load line u = 9 − 1.5 kΩ·i).** OA: 9 = 2.5 kΩ·i → i = 3.6 mA, u = 3.6 V > 2 V ✗. AB: 9 + 6 = 5.5 kΩ·i → i ≈ 2.727 mA, u ≈ 4.909 V ∈ [2, 6] ✓. Beyond B: 9 − 4.5 = 2 kΩ·i → i = 2.25 mA, u = 5.625 V < 6 V ✗.",
+        "**3. Operating point.** **U_Q ≈ 4.909 V, I_Q ≈ 2.727 mA** on AB, **R_d = 4 kΩ**.",
+        "**Check:** KVL 9 − 1.5 × 2.727 = 4.909 V ✓; on AB, i = 2 + (4.909 − 2)/4 = 2.727 mA ✓."
+      ]
+    }
+  }
+}

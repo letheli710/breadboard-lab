@@ -27,6 +27,8 @@ export const CHAPTERS: Chapter[] = [
   { id: 'three-phase', phase: 4, title: () => tr('三相电路', 'Three-phase circuits') },
   { id: 'non-sinusoidal', phase: 4, title: () => tr('非正弦周期电流电路', 'Non-sinusoidal periodic circuits') },
   { id: 'two-port', phase: 4, title: () => tr('二端口网络', 'Two-port networks') },
+  // textbook ch. 17, nonlinear resistive circuits only
+  { id: 'nonlinear', phase: 4, title: () => tr('非线性电阻电路', 'Nonlinear resistive circuits') },
 ];
 
 export const chapterById = (id: string) => CHAPTERS.find((c) => c.id === id);

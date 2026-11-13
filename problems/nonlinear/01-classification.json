@@ -1,0 +1,149 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "nonlinear-01-classification",
+  "chapter": "nonlinear",
+  "title": "非线性电阻的分类：静态电阻与动态电阻",
+  "level": 1,
+  "tags": ["非线性电阻", "压控与流控", "静态电阻与动态电阻"],
+  "statement": [
+    "非线性电阻 N 的特性为 i = u + 0.5u³（u 单位 V，i 单位 A，关联参考方向），它直接接在 U_s = 2 V 的直流电压源上。",
+    "判断这个电阻属于哪一类，并求工作点电流 I_Q、工作点处的静态电阻 R = U_Q/I_Q、动态电阻 R_d = du/di 以及 N 吸收的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 2},
+      {"ref": "N", "type": "NR", "from": [5, 0], "to": [5, 4], "law": {"i": [0, 1, 0, 0.5]}}
+    ],
+    "wires": [[[0, 0], [5, 0]], [[5, 4], [0, 4]]],
+    "grounds": [[0, 4]],
+    "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}],
+    "plot": {"el": "N", "u": [-2.5, 2.5], "i": [-8, 8], "points": true}
+  },
+  "analysis": {"type": "dc"},
+  "questions": [
+    {
+      "id": "type",
+      "ask": "N 是哪一类非线性电阻？",
+      "choices": ["只是电压控制型", "只是电流控制型", "既是电压控制型又是电流控制型（单调型）", "既不是压控型也不是流控型"],
+      "correct": 2,
+      "choiceExplain": [
+        "i 确实是 u 的单值函数，但还不止于此：di/du = 1 + 1.5u² > 0，曲线单调。",
+        "u 也确实是 i 的单值函数，但它同样是压控型。",
+        "对。i 随 u 严格单调增加（di/du = 1 + 1.5u² > 0），所以给定 u 有唯一的 i，给定 i 也有唯一的 u：单调型电阻既是压控型又是流控型。",
+        "两种函数关系都存在。"
+      ],
+      "explain": "压控型：i 是 u 的单值函数 i = f(u)；流控型：u 是 i 的单值函数 u = h(i)。严格单调的特性两者都满足。"
+    },
+    {
+      "id": "bilat",
+      "ask": "N 是双向（对称）电阻吗？即把它的两个端子对调接入电路，电路的工作情况是否不变？",
+      "choices": ["是：f(−u) = −f(u)，特性曲线关于原点对称", "不是：只有线性电阻才是双向的"],
+      "correct": 0,
+      "choiceExplain": ["对。−u + 0.5(−u)³ = −(u + 0.5u³)，曲线关于原点对称，两个端子可以互换。二极管就不是双向的。", "非线性电阻也可以是双向的，判据是曲线是否关于原点对称。"],
+      "explain": "双向电阻：i = f(u) 满足 f(−u) = −f(u)。这里是奇函数，所以是双向的。"
+    },
+    {
+      "id": "iq",
+      "ask": "I_Q = ?",
+      "find": {"kind": "i", "el": "N"},
+      "answer": 6,
+      "unit": "A",
+      "explain": "电压源直接加在 N 上，U_Q = 2 V：I_Q = 2 + 0.5 × 2³ = 6 A。"
+    },
+    {
+      "id": "rs",
+      "ask": "静态电阻 R = U_Q/I_Q = ?",
+      "find": {"kind": "rs", "el": "N"},
+      "answer": 0.333333,
+      "unit": "Ω",
+      "explain": "R = 2/6 ≈ 0.3333 Ω：工作点与原点连线的斜率的倒数。"
+    },
+    {
+      "id": "rd",
+      "ask": "动态电阻 R_d = du/di（在 Q 点）= ?",
+      "find": {"kind": "rd", "el": "N"},
+      "answer": 0.142857,
+      "unit": "Ω",
+      "explain": "di/du = 1 + 1.5u² = 7 S（u = 2 V），R_d = 1/7 ≈ 0.1429 Ω：Q 点切线斜率的倒数，比静态电阻小。"
+    },
+    {
+      "id": "p",
+      "ask": "N 吸收的功率 P = ?",
+      "find": {"kind": "p", "el": "N"},
+      "answer": 12,
+      "unit": "W",
+      "explain": "P = U_Q·I_Q = 2 × 6 = 12 W。功率总是用工作点的 U_Q、I_Q 计算，不能用 R_d。"
+    }
+  ],
+  "hints": ["分类看函数关系：给定 u 是否只有一个 i？给定 i 是否只有一个 u？看一看 di/du 的符号。", "静态电阻是 Q 点与原点连线的“斜率”U/I，动态电阻是 Q 点切线的斜率 du/di。", "di/du = 1 + 1.5u²，在 u = 2 V 处求值。"],
+  "solution": [
+    "**分类。** di/du = 1 + 1.5u² > 0，特性严格单调：既是压控型（i = f(u)），又是流控型（u = h(i)）。f(−u) = −f(u)，曲线关于原点对称，是**双向**电阻。",
+    "**工作点。** U_Q = U_s = 2 V，I_Q = 2 + 0.5 × 8 = **6 A**。",
+    "**静态电阻。** R = U_Q/I_Q = 2/6 ≈ **0.3333 Ω**。",
+    "**动态电阻。** di/du|_{Q} = 1 + 1.5 × 4 = 7 S，R_d = **1/7 ≈ 0.1429 Ω**。两者都随工作点变化；线性电阻的 R = R_d 处处相同。",
+    "**功率。** P = U_Q·I_Q = **12 W**。",
+    "**检查：** 从图上看，Q 点（2 V，6 A）处切线比原点连线更陡，所以 R_d < R ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Classifying a nonlinear resistor: static and dynamic resistance",
+      "tags": ["nonlinear resistor", "voltage- and current-controlled", "static vs dynamic resistance"],
+      "statement": [
+        "The nonlinear resistor N has the characteristic i = u + 0.5u³ (u in V, i in A, passive convention) and is connected directly to a DC voltage source U_s = 2 V.",
+        "Classify the resistor and find the operating current I_Q, the static resistance R = U_Q/I_Q at the operating point, the dynamic resistance R_d = du/di and the power absorbed by N."
+      ],
+      "questions": [
+        {
+          "ask": "Which kind of nonlinear resistor is N?",
+          "choices": ["voltage-controlled only", "current-controlled only", "both voltage- and current-controlled (monotonic)", "neither"],
+          "choiceExplain": [
+            "i is indeed a single-valued function of u, but there is more: di/du = 1 + 1.5u² > 0, the curve is monotonic.",
+            "u is indeed a single-valued function of i, but N is voltage-controlled as well.",
+            "Right. i increases strictly with u (di/du = 1 + 1.5u² > 0), so each u gives one i and each i gives one u: a monotonic resistor is both voltage- and current-controlled.",
+            "Both functional relations exist."
+          ],
+          "explain": "Voltage-controlled: i is a single-valued function i = f(u); current-controlled: u is a single-valued function u = h(i). A strictly monotonic characteristic is both."
+        },
+        {
+          "ask": "Is N bilateral, i.e. does the circuit behave the same if its two terminals are swapped?",
+          "choices": ["yes: f(−u) = −f(u), the curve is symmetric about the origin", "no: only linear resistors are bilateral"],
+          "choiceExplain": [
+            "Right. −u + 0.5(−u)³ = −(u + 0.5u³): the curve is symmetric about the origin, so the terminals can be swapped. A diode is not bilateral.",
+            "A nonlinear resistor can be bilateral too; the test is symmetry of the curve about the origin."
+          ],
+          "explain": "Bilateral: i = f(u) with f(−u) = −f(u). Here f is odd, so N is bilateral."
+        },
+        {
+          "ask": "I_Q = ?",
+          "explain": "The source is directly across N, so U_Q = 2 V: I_Q = 2 + 0.5 × 2³ = 6 A."
+        },
+        {
+          "ask": "Static resistance R = U_Q/I_Q = ?",
+          "explain": "R = 2/6 ≈ 0.3333 Ω: the reciprocal slope of the line from the origin to Q."
+        },
+        {
+          "ask": "Dynamic resistance R_d = du/di (at Q) = ?",
+          "explain": "di/du = 1 + 1.5u² = 7 S at u = 2 V, so R_d = 1/7 ≈ 0.1429 Ω: the reciprocal slope of the tangent at Q, smaller than the static resistance."
+        },
+        {
+          "ask": "Power absorbed by N, P = ?",
+          "explain": "P = U_Q·I_Q = 2 × 6 = 12 W. Power always uses the operating values U_Q, I_Q, never R_d."
+        }
+      ],
+      "hints": [
+        "Classify by the functional relation: does a given u give one i only? Does a given i give one u only? Look at the sign of di/du.",
+        "The static resistance is the \"slope\" U/I of the line from the origin to Q; the dynamic resistance is the slope du/di of the tangent at Q.",
+        "di/du = 1 + 1.5u²; evaluate it at u = 2 V."
+      ],
+      "solution": [
+        "**Classification.** di/du = 1 + 1.5u² > 0, so the characteristic is strictly monotonic: N is voltage-controlled (i = f(u)) and current-controlled (u = h(i)). f(−u) = −f(u), the curve is symmetric about the origin: N is **bilateral**.",
+        "**Operating point.** U_Q = U_s = 2 V, I_Q = 2 + 0.5 × 8 = **6 A**.",
+        "**Static resistance.** R = U_Q/I_Q = 2/6 ≈ **0.3333 Ω**.",
+        "**Dynamic resistance.** di/du at Q = 1 + 1.5 × 4 = 7 S, R_d = **1/7 ≈ 0.1429 Ω**. Both depend on the operating point; for a linear resistor R = R_d everywhere.",
+        "**Power.** P = U_Q·I_Q = **12 W**.",
+        "**Check:** on the plot the tangent at Q (2 V, 6 A) is steeper than the line from the origin, so R_d < R ✓."
+      ]
+    }
+  }
+}

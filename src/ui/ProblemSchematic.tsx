@@ -180,6 +180,41 @@ function ctrlSymbol(c: CtrlRef | undefined): string {
   return /^(0|gnd)$/i.test(b) ? `${u}_{${a}}` : `${u}_{${a}${b}}`;
 }
 
+const NR_SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+/** Characteristic of a nonlinear resistor as a label: "i = 0.5u²", "u = i + i³", "U_on = 0.7 V";
+ *  null for a piecewise-linear table (draw it with schematic.plot). */
+export function lawText(law: unknown): string | null {
+  if (!law || typeof law !== 'object') return null;
+  const o = law as Record<string, unknown>;
+  const poly = (y: string, x: string, c: unknown, min: unknown, max: unknown): string | null => {
+    if (!Array.isArray(c)) return null;
+    const terms: string[] = [];
+    c.forEach((v, k) => {
+      const n = toNum(v);
+      if (!n) return;
+      const mag = Math.abs(n);
+      const coef = k > 0 && mag === 1 ? '' : num(mag);
+      const pw = k === 0 ? '' : k === 1 ? x : `${x}${String(k).split('').map((d) => NR_SUP[+d]).join('')}`;
+      terms.push(`${n < 0 ? (terms.length ? ' − ' : '−') : terms.length ? ' + ' : ''}${coef}${pw}`);
+    });
+    if (!terms.length) return null;
+    const lo = toNum(min);
+    const hi = toNum(max);
+    const cond = lo !== null && hi !== null ? ` (${num(lo)} ≤ ${x} ≤ ${num(hi)})` : lo !== null ? ` (${x} ≥ ${num(lo)})` : hi !== null ? ` (${x} ≤ ${num(hi)})` : '';
+    return `${y} = ${terms.join('')}${cond}`;
+  };
+  if ('i' in o) return poly('i', 'u', o.i, o.umin, o.umax);
+  if ('u' in o) return poly('u', 'i', o.u, o.imin, o.imax);
+  if ('diode' in o && o.diode && typeof o.diode === 'object') {
+    const d = o.diode as Record<string, unknown>;
+    const parts = [];
+    if (toNum(d.uon)) parts.push(`U_on = ${formatSI(toNum(d.uon)!, 'V')}`);
+    if (toNum(d.ron)) parts.push(`R_on = ${formatSI(toNum(d.ron)!, 'Ω')}`);
+    return parts.length ? parts.join(', ') : null;
+  }
+  return null;
+}
+
 /** The value part of an element's label ("2 kΩ", "10∠30° V", "2u_R1"), or null. */
 export function elementValueText(el: TwoTerminalElement): string | null {
   const v = el.value;
@@ -205,6 +240,8 @@ export function elementValueText(el: TwoTerminalElement): string | null {
       }
       return siOrRaw(v, 'Ω');
     }
+    case 'NR':
+      return lawText(el.law);
     case 'VCVS':
     case 'VCCS':
     case 'CCVS':
@@ -225,6 +262,8 @@ function bodySize(el: TwoTerminalElement): { B: number; hw: number } {
   switch (el.type) {
     case 'R':
       return { B: 48, hw: 9 };
+    case 'NR':
+      return el.law && 'diode' in el.law ? { B: 20, hw: 11 } : { B: 48, hw: 14 };
     case 'Z':
       return { B: 48, hw: 10 };
     case 'C':
@@ -518,6 +557,22 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
             {...common}
           />
         );
+        break;
+      case 'NR':
+        // nonlinear resistor: the resistor box crossed by an oblique stroke with a short foot
+        // (textbook symbol); the ideal-diode models use the diode symbol, anode at p
+        body =
+          el.law && 'diode' in el.law ? (
+            <g {...common}>
+              <polygon points={`${-h},-10 ${-h},10 ${h},0`} fill="var(--paper)" />
+              <line x1={h} y1={-10} x2={h} y2={10} />
+            </g>
+          ) : (
+            <g {...common}>
+              <rect x={-h} y={-8} width={2 * h} height={16} fill="var(--paper)" />
+              <polyline points={`${-h - 6},${13 * ls} ${-h + 4},${13 * ls} ${h - 4},${-13 * ls}`} />
+            </g>
+          );
         break;
       case 'Z':
         body = <rect x={-h} y={-9} width={2 * h} height={18} {...common} fill="var(--paper)" />;
