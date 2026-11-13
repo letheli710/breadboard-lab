@@ -17,17 +17,20 @@ export interface ImportedFile {
 
 export function readImported(): ImportedFile[] {
   try {
-    return JSON.parse(localStorage.getItem(IMPORT_KEY) ?? '[]') as ImportedFile[];
+    const v: unknown = JSON.parse(localStorage.getItem(IMPORT_KEY) ?? '[]');
+    return Array.isArray(v) ? v.filter((f): f is ImportedFile => typeof f?.file === 'string' && typeof f?.text === 'string') : [];
   } catch {
     return [];
   }
 }
 
-export function writeImported(files: ImportedFile[]) {
+/** Returns false when the browser refused to save (storage full or unavailable). */
+export function writeImported(files: ImportedFile[]): boolean {
   try {
     localStorage.setItem(IMPORT_KEY, JSON.stringify(files));
+    return true;
   } catch {
-    /* storage unavailable */
+    return false;
   }
 }
 
@@ -74,7 +77,8 @@ export function loadAll(): { challenges: Challenge[]; invalid: InvalidFile[] } {
   return { challenges, invalid };
 }
 
-export async function importFiles(files: File[]): Promise<{ added: number; skipped: number }> {
+/** `saved: false` = the browser refused to store the files (nothing was imported). */
+export async function importFiles(files: File[]): Promise<{ added: number; skipped: number; saved: boolean }> {
   const current = readImported();
   let added = 0;
   let skipped = 0;
@@ -90,6 +94,6 @@ export async function importFiles(files: File[]): Promise<{ added: number; skipp
     else current.push({ file, text });
     added++;
   }
-  writeImported(current);
-  return { added, skipped };
+  const saved = added === 0 || writeImported(current);
+  return { added: saved ? added : 0, skipped, saved };
 }

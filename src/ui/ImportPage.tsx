@@ -58,6 +58,8 @@ export function ImportPage() {
   const aiPrompt = aiPromptFor(aiPromptDoc);
   const problemPrompt = problemPromptDoc ? aiPromptFor(problemPromptDoc) : '';
   const [drag, setDrag] = useState(false);
+  /** the last import could not be saved (storage full / unavailable) */
+  const [saveFailed, setSaveFailed] = useState<number | null>(null);
   const [showDoc, setShowDoc] = useState(false);
   const [showProblemDoc, setShowProblemDoc] = useState(false);
   const dirInput = useRef<HTMLInputElement>(null);
@@ -71,7 +73,12 @@ export function ImportPage() {
     return [...r.invalid, ...pr.invalid];
   };
   const handle = async (files: File[]) => {
-    const { added, skipped } = await importFiles(files);
+    const { added, skipped, saved } = await importFiles(files);
+    if (!saved) {
+      setSaveFailed(files.length - skipped);
+      return;
+    }
+    setSaveFailed(null);
     const bad = refresh().filter((i) => i.errors.length).length;
     notify(
       tr(
@@ -127,6 +134,14 @@ export function ImportPage() {
         >
           <Icon name="folder" size={38} />
           <div>{tr('把题目文件夹或 .json 文件拖到这里', 'Drop a folder or .json files here')}</div>
+          {saveFailed !== null && (
+            <div className="import-error" role="alert">
+              {tr(
+                `导入失败：浏览器拒绝保存这 ${saveFailed} 个文件（存储空间已满或被禁用），所以一个也没有导入。可以先移除一些已导入的文件再试，或者把题目放进项目的 challenges/ / problems/ 文件夹。`,
+                `Import failed: the browser refused to save these ${saveFailed} file(s) (storage is full or disabled), so none were imported. Remove some imported files and try again, or put the files in the project's challenges/ / problems/ folders instead.`,
+              )}
+            </div>
+          )}
           <div className="row">
             <button className="primary" onClick={() => dirInput.current?.click()}>
               <Icon name="folder" /> {tr('选择文件夹', 'Choose folder')}

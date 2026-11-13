@@ -9,6 +9,7 @@ import { useDerived } from '../state/derived';
 import { useStore, type Tool } from '../state/store';
 import { Scene, VIEWS, type ViewName } from '../three/Scene';
 import { emitCameraView } from '../three/common';
+import { ErrorBoundary } from './ErrorBoundary';
 import { Icon, PartIcon } from './Icons';
 import { QualityToggle } from './QualityToggle';
 import { Scope } from './Scope';
@@ -155,6 +156,8 @@ function Toolbar() {
   const undo = useStore((s) => s.undo);
   const clear = useStore((s) => s.clear);
   const canUndo = useStore((s) => s.past.length > 0 || s.firstHole !== null);
+  const redo = useStore((s) => s.redo);
+  const canRedo = useStore((s) => s.future.length > 0);
   return (
     <div className="toolbar">
       <button className={showNets ? 'on' : ''} onClick={() => toggle('showNets')} title={tr('按节点着色：同一颜色 = 电气上连在一起', 'Colour by node: same colour = electrically connected')}>
@@ -168,6 +171,11 @@ function Toolbar() {
       <i />
       <button onClick={undo} disabled={!canUndo} title={tr('撤销 (Ctrl+Z)', 'Undo (Ctrl+Z)')}>
         <Icon name="undo" />
+      </button>
+      <button onClick={redo} disabled={!canRedo} title={tr('重做 (Ctrl+Shift+Z / Ctrl+Y)', 'Redo (Ctrl+Shift+Z / Ctrl+Y)')} aria-label={tr('重做', 'Redo')}>
+        <span className="flip-x">
+          <Icon name="undo" />
+        </span>
       </button>
       <button
         onClick={() => {
@@ -183,6 +191,7 @@ function Toolbar() {
 
 export function Workbench() {
   const toast = useStore((s) => s.toast);
+  const toastUndo = useStore((s) => s.toastUndo);
   // a right click that isn't a drag (right-drag pans the view) drops a half-placed part
   const rightDown = useRef<{ x: number; y: number } | null>(null);
   return (
@@ -200,13 +209,24 @@ export function Workbench() {
         }}
         onContextMenu={(e) => e.preventDefault()}
       >
-        <Scene />
+        <ErrorBoundary scope="canvas">
+          <Scene />
+        </ErrorBoundary>
         <ViewButton />
         <Prompt />
         <Multimeter />
         <Scope />
         <Toolbar />
-        {toast && <div className="toast">{toast}</div>}
+        {toast && (
+          <div className={`toast ${toastUndo ? 'has-action' : ''}`}>
+            {toast}
+            {toastUndo && (
+              <button className="toast-action" onClick={() => useStore.getState().undo()}>
+                {tr('撤销', 'Undo')}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

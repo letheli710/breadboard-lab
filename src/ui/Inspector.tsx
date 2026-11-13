@@ -470,10 +470,13 @@ export function Inspector() {
             <kbd>Esc</kbd> / {tr('右键', 'right-click')} {tr('取消放置', 'cancel placing')}
           </li>
           <li>
-            <kbd>Delete</kbd> {tr('删除选中的元件', 'delete the selected part')}
+            <kbd>Delete</kbd> {tr('删除选中的元件（可以撤销）', 'delete the selected part (can be undone)')}
           </li>
           <li>
             <kbd>Ctrl</kbd>+<kbd>Z</kbd> {tr('撤销（也会取消只放了一只脚的元件）', 'undo (also drops a half-placed part)')}
+          </li>
+          <li>
+            <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd> {tr('重做', 'redo')}
           </li>
           <li>{tr('拖动旋转视角，滚轮缩放，右键拖动平移；右上角“视角”按钮一键切换预设视角', 'Drag to rotate, scroll to zoom, right-drag to pan; the "View" button (top right) cycles preset views')}</li>
         </ul>

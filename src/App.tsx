@@ -192,14 +192,26 @@ export default function App() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      const el = e.target as HTMLElement | null;
+      const tag = el?.tagName;
+      // text fields keep their own keys; a slider still lets Ctrl+Z / Ctrl+Y through
+      const slider = el instanceof HTMLInputElement && el.type === 'range';
+      if ((tag === 'INPUT' && !slider) || tag === 'TEXTAREA') return;
+      if (slider && !(e.ctrlKey || e.metaKey)) return;
       const s = useStore.getState();
       if (e.key === 'Escape') {
         if (!s.cancelPlacement()) s.setTool('select');
       }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && s.selectedId) s.removePart(s.selectedId);
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      // removePart shows an "Undo" toast, so a stray Backspace is recoverable
+      if ((e.key === 'Delete' || e.key === 'Backspace') && s.selectedId) {
+        e.preventDefault();
+        s.removePart(s.selectedId);
+      }
+      const k = e.key.toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && ((k === 'z' && e.shiftKey) || (k === 'y' && !e.shiftKey))) {
+        e.preventDefault();
+        s.redo();
+      } else if ((e.ctrlKey || e.metaKey) && k === 'z') {
         e.preventDefault();
         s.undo();
       }
