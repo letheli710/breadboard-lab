@@ -14,14 +14,26 @@
     "引脚电流上限 pin current limit"
   ],
   "description": [
-    "**要搭的电路**：ESP32 开发板（USB 供电）上选一个能输出的 GPIO（推荐 GPIO4、GPIO16–19、GPIO21–23、GPIO25–27、GPIO32/33）→ 串联电阻 R1 → 红色 LED 长脚（正极）；LED 短脚 → GND。",
+    "**目标**：用串联电阻把 ESP32 GPIO 驱动 LED 的电流限制在约 10 mA，并看到引脚电压在有负载时下降。",
+    "",
+    "**电路**：ESP32 开发板（USB 供电）上选一个能输出的 GPIO（推荐 GPIO4、GPIO16–19、GPIO21–23、GPIO25–27、GPIO32/33）→ 串联电阻 R1 → 红色 LED 长脚（正极）；LED 短脚 → GND。",
+    "",
     "**起始状态**：面包板上已经有人用一根**跳线**把 GPIO4 直接接到 LED，没有电阻，引脚设成了输出高电平。看右边的诊断：**“GPIO4 烧坏了！电流 40 mA”**——引脚电压也被拖到只有 2.29 V。你的任务：算出电阻，用它替换那根跳线。",
+    "",
     "**引脚设置**：测试会自动把引脚切换成 **输出高电平** / **输出低电平**，你也可以在属性的引脚表里自己切换看看。",
     "",
-    "**要测什么、为什么**：",
+    "**先预测**：动手前先算出 R1：引脚输出高电平可看成 3.3 V 串约 25 Ω 的输出电阻，红色 LED 模型是 Vf = 1.8 V 再串约 12 Ω。沿回路写 KVL，解出 10 mA 时需要的 R，再取一个标准值；顺便算出这时的引脚电压，以及没有电阻时的电流。",
+    "",
+    "**测量**：",
+    "- 输出高电平：LED 电流和引脚电流；",
+    "- 输出高电平：引脚电压（有电流流出时它不再是 3.3 V）；",
+    "- 输出低电平：LED 和引脚电流。",
+    "",
+    "**对比**：预期读数：",
     "- 输出高电平时 LED 电流和引脚电流（应在 8.5–11.5 mA，约 10 mA）；",
     "- 引脚电压：有电流流出时，它不再是 3.3 V；",
     "- 输出低电平时 LED 灭、引脚电流为 0。",
+    "读数不在 8.5–11.5 mA 里时，先核对电阻值，再看 LED 方向和电阻是不是正好替换了那根跳线。下面是完整的计算：",
     "",
     "**引脚不是理想电压源**：输出高电平的 GPIO 可以看成 3.3 V 串联一个约 **25 Ω** 的输出电阻 R_out（模型值；真实芯片里是 MOS 管的导通电阻）。LED 模型是 Vf = 1.8 V（红）再串约 12 Ω。整条回路：",
     "  I = (3.3 − Vf) / (R + R_out + 12 Ω)  →  R = (3.3 − Vf)/I − R_out − 12 Ω",
@@ -46,14 +58,26 @@
       "summary": "Wiring an LED straight to an ESP32 GPIO burns the pin. Work out the series resistor for about 10 mA, then measure the pin current and how much the pin voltage sags.",
       "concepts": ["GPIO output", "current-limiting resistor", "pin output resistance", "pin current limit"],
       "description": [
-        "**What you build**: on the ESP32 board (USB powered), pick an output-capable GPIO (GPIO4, GPIO16–19, GPIO21–23, GPIO25–27, GPIO32/33 are good choices) → series resistor R1 → red LED long leg (anode); LED short leg → GND.",
+        "**Goal**: Limit the current from an ESP32 GPIO into an LED to about 10 mA with a series resistor, and see the pin voltage sag under load.",
+        "",
+        "**Circuit**: on the ESP32 board (USB powered), pick an output-capable GPIO (GPIO4, GPIO16–19, GPIO21–23, GPIO25–27, GPIO32/33 are good choices) → series resistor R1 → red LED long leg (anode); LED short leg → GND.",
+        "",
         "**Starting board**: someone has wired GPIO4 straight to the LED with a **jumper wire** — no resistor — and set the pin to output HIGH. Look at the diagnostics: **\"GPIO4 is damaged! current 40 mA\"**, and the pin voltage is dragged down to just 2.29 V. Your job: compute the resistor and put it in place of that jumper.",
+        "",
         "**Pin table settings**: the tests switch the pin to **output HIGH** / **output LOW** themselves; you can also toggle it in the pin table under Properties.",
         "",
-        "**What you measure and why**:",
+        "**Predict first**: Work out R1 before building: a GPIO driving HIGH is 3.3 V in series with about 25 Ω of output resistance, and the red LED model is Vf = 1.8 V plus about 12 Ω. Write KVL around the loop, solve for the R that gives 10 mA, and pick a standard value; also work out the pin voltage with it and the current with no resistor at all.",
+        "",
+        "**Measure**:",
+        "- output HIGH: the LED current and the pin current;",
+        "- output HIGH: the pin voltage (with current flowing out it is no longer 3.3 V);",
+        "- output LOW: the LED and the pin current.",
+        "",
+        "**Compare**: expected readings:",
         "- with output HIGH, the LED current and the pin current (8.5–11.5 mA, about 10 mA);",
         "- the pin voltage: once current flows out, it is no longer 3.3 V;",
         "- with output LOW, the LED is off and the pin current is 0.",
+        "If the reading is outside 8.5–11.5 mA, check the resistor value first, then the LED's direction and that the resistor really replaced the jumper. The full calculation:",
         "",
         "**A pin is not an ideal voltage source**: a GPIO driving HIGH behaves like 3.3 V in series with an output resistance R_out of about **25 Ω** (the model value; in silicon it is the on-resistance of a MOS transistor). The LED model is Vf = 1.8 V (red) plus about 12 Ω. Around the loop:",
         "  I = (3.3 − Vf) / (R + R_out + 12 Ω)  →  R = (3.3 − Vf)/I − R_out − 12 Ω",
@@ -73,9 +97,9 @@
         "**Model note**: the real output resistance changes with current and temperature, and the drive strength can be set in firmware; here it is fixed at 25 Ω. The LED is a \"Vf + 12 Ω\" piecewise model; a real LED's Vf rises slowly with current. A \"damaged\" pin is just a flag in the simulator — a real chip does not heal itself."
       ],
       "hints": [
-        "Compute first: R = (3.3 − 1.8)/0.010 − 25 − 12 ≈ 113 Ω; use 100 Ω or 120 Ω.",
-        "Pull out the yellow jumper and put the resistor between the same two columns (the GPIO column and the LED anode column).",
-        "LED long leg (anode) toward the resistor, short leg to GND."
+        "Compute the resistor first: KVL around the loop gives 3.3 V = I·(R + 25 Ω + 12 Ω) + 1.8 V; put in the target I = 10 mA, solve for R and pick the nearest standard value.",
+        "Pull out the yellow jumper and put the resistor between the same two columns (the GPIO column and the LED anode column); LED long leg (anode) toward the resistor, short leg to GND.",
+        "The result is R = (3.3 − 1.8)/0.010 − 25 − 12 ≈ 113 Ω; 100 Ω or 120 Ω both land inside 8.5–11.5 mA."
       ],
       "tests": [
         "Output HIGH: LED on, pin and LED current 8.5–11.5 mA (9.5 mA with 120 Ω), pin voltage ≥ 2.95 V",
@@ -108,9 +132,9 @@
     }
   ],
   "hints": [
-    "先算：R = (3.3 − 1.8)/0.010 − 25 − 12 ≈ 113 Ω，取 100 Ω 或 120 Ω。",
-    "把那根黄色跳线拔掉，在同样的两个孔（GPIO 那一列和 LED 正极那一列）之间插电阻。",
-    "LED 长脚（正极）朝电阻，短脚接 GND。"
+    "先算电阻：沿回路 KVL，3.3 V = I·(R + 25 Ω + 12 Ω) + 1.8 V，代入目标 I = 10 mA 解出 R，再取一个最接近的标准值。",
+    "把那根黄色跳线拔掉，在同样的两个孔（GPIO 那一列和 LED 正极那一列）之间插电阻；LED 长脚（正极）朝电阻，短脚接 GND。",
+    "算出来 R = (3.3 − 1.8)/0.010 − 25 − 12 ≈ 113 Ω，取 100 Ω 或 120 Ω 都在 8.5–11.5 mA 的范围里。"
   ],
   "solution": {
     "parts": [
