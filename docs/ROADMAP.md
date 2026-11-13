@@ -50,6 +50,8 @@ Not covered yet: ch. 13 (non-sinusoidal periodic / harmonics), 14 (Laplace / s-d
 - [x] **C. 面包板引擎扩展**：电流表、运放 LM358、电感、信号发生器、示波器、面包板电路的暂态/交流仿真
 - [x] **D. 面包板题内容**：第 1–4 期共 31 个实验（201–208、221–228、241–247、261–268）
 - [x] **E. 第 5 期：单片机外围电路**：平台（ESP32 / Blue Pill、器件、诊断、§14 格式）+ 18 个实验（280–297）/ Phase 5 platform + 18 MCU-peripheral experiments
+- [x] **F. 测量题 / measurement questions**：实验分两步——电路正确，再读自己面包板上的仪表（期望值按学生自己的电路仿真，CHALLENGE_FORMAT §15）。已加到 12 个实验：201、202、203、206、222、223、241、244、261、264、291、295 / labs are two-stage — circuit right, then readings from the student's own board (expected values simulated on their circuit); 12 labs so far
+  - 待办 / to do：其余实验（204、205、207、208、221、224–228、242、243、245–247、262、263、265–268、280–290、292–294、296、297）补测量题 / add questions to the remaining labs
 
 ## 约定 / Conventions
 

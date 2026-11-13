@@ -154,6 +154,27 @@
         "$ref": "#/definitions/test"
       }
     },
+    "measurements": {
+      "type": "array",
+      "description": "Optional measurement questions (lab stage 2): after the circuit check passes the student types what THEIR board reads. The expected value is simulated on the student's own board (their part values), never written in the file. See docs/CHALLENGE_FORMAT.md § Measurement questions.",
+      "items": {
+        "$ref": "#/definitions/measurement"
+      }
+    },
+    "compare": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ],
+      "description": "The expected readings / worked comparison, shown only after every required measurement question is answered (keep such numbers out of the description and hints). String or array of lines."
+    },
     "hints": {
       "type": "array",
       "items": {
@@ -264,6 +285,62 @@
             "type": "string"
           },
           "description": "Test names only, same order as the top-level tests."
+        },
+        "compare": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Translated compare text."
+        },
+        "measurements": {
+          "type": "array",
+          "description": "Same count and order as the top-level measurements: translated ask / explain / choices.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ask": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "explain": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false
@@ -785,6 +862,178 @@
           }
         ]
       }
+    },
+    "measurement": {
+      "type": "object",
+      "required": [
+        "id",
+        "ask"
+      ],
+      "description": "Exactly one of current / voltage / scope / formula / choices.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Identifier, unique in the file; formulas refer to it. Not pi, e, sqrt, ln, log, exp."
+        },
+        "ask": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "What to read and where (meter, leads, probe). The reading's state comes from set and is shown automatically."
+        },
+        "explain": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Shown after a correct answer."
+        },
+        "current": {
+          "type": "string",
+          "description": "Ref whose current is read (ammeter reading, or current from a part's first terminal to its second). Default unit mA."
+        },
+        "mode": {
+          "enum": [
+            "dc",
+            "rms"
+          ],
+          "description": "With current: average (default) or true RMS."
+        },
+        "voltage": {
+          "$ref": "#/definitions/pinRef",
+          "description": "Multimeter red lead; with ref the black lead (default GND). DC, or the average with a generator. Default unit V."
+        },
+        "scope": {
+          "enum": [
+            "vpp",
+            "vmax",
+            "vmin",
+            "vavg",
+            "vrms",
+            "freq",
+            "phase",
+            "gain",
+            "rise",
+            "fall",
+            "ring"
+          ],
+          "description": "Scope measurement of pin (vs ref). ring = frequency of a damped oscillation after each edge. Default units: V, Hz, °, ms (rise/fall), none (gain)."
+        },
+        "pin": {
+          "$ref": "#/definitions/pinRef"
+        },
+        "ref": {
+          "$ref": "#/definitions/pinRef"
+        },
+        "vs": {
+          "$ref": "#/definitions/pinRef"
+        },
+        "vsref": {
+          "$ref": "#/definitions/pinRef"
+        },
+        "solve": {
+          "type": "object",
+          "required": [
+            "el",
+            "from",
+            "to",
+            "value"
+          ],
+          "description": "Sweep generator el's frequency over [from, to] for the frequency where the scope measure equals value; the answer is that frequency (Hz). E.g. resonance: phase = 0.",
+          "properties": {
+            "el": {
+              "type": "string"
+            },
+            "from": {
+              "$ref": "#/definitions/value"
+            },
+            "to": {
+              "$ref": "#/definitions/value"
+            },
+            "value": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "formula": {
+          "type": "string",
+          "description": "Arithmetic on the student's own accepted answers to EARLIER questions, by id: \"uoc / isc\", \"tr / ln(9)\", \"u9 * i9\". Opens once those are answered."
+        },
+        "choices": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string"
+          },
+          "description": "Multiple choice (with correct)."
+        },
+        "correct": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "description": "Shown next to the box; a prefixed unit (\"mA\", \"kHz\", \"µs\") means a bare number is read in it."
+        },
+        "tol": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Relative tolerance. Defaults: 0.03 (meters, scope amplitudes, freq), 0.08 (rise / fall / ring read off the grid), 0.02 (formula: arithmetic on the student's own numbers)."
+        },
+        "tolAbs": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Absolute tolerance in SI units for readings near zero. Defaults: 5 mV (voltage, scope amplitudes), 1 µA (current)."
+        },
+        "tolDeg": {
+          "type": "number",
+          "minimum": 0,
+          "default": 2,
+          "description": "Phase tolerance in degrees."
+        },
+        "predict": {
+          "type": "boolean",
+          "description": "Ask for a prediction first; the reading box opens once one is written. Shows predicted vs measured with the percent difference."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Not needed to complete the challenge."
+        },
+        "set": {
+          "type": "object",
+          "description": "The state the reading is taken in, as in tests (button, switch, knob, generator, supply voltage, pin modes). The expected value is computed with it; the UI names it and warns when the board isn't in it.",
+          "additionalProperties": {
+            "$ref": "#/definitions/props"
+          }
+        },
+        "range": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/definitions/value"
+          },
+          "description": "Author's sanity range [min, max] in SI units: the validator checks the reference solution's reading falls inside."
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

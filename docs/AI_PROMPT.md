@@ -50,6 +50,8 @@ AI 返回后：
   "components": [ ... ],                          // 目标电路元件（不含跳线）
   "nets": [ {"name": "VCC", "pins": ["V1.+", "R1.1"]}, ... ],   // 或用 "connections": [["V1.+","R1.1"], ...]
   "tests": [ ... ],
+  "measurements": [ ... ],                       // 实验题（phase 1–5）：学生要亲手读的仪表读数，见下面
+  "compare": "**对比**：……",                      // 实验题：预期读数，答完测量题才显示
   "hints": ["...", ...],
   "steps": [ {"text": "...", "highlight": ["tp1","tn1"]}, ... ],
   "solution": { "parts": [ ... ] },
@@ -96,6 +98,20 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
   有信号发生器时 voltages 取平均值，LED 亮灭按平均电流判断。
 - 所有 ref 和引脚都用 components 里的名字。
 
+=== measurements：测量题（实验题必写，入门题不写）===
+测试只证明电路对了；测量题要求学生读自己面包板上的仪表并把读数填进来。期望值由程序在学生自己的电路上仿真得出——文件里不写答案，只写读什么。
+{"id": "isc", "current": "AM1", "set": {"SW1": {"pressed": true}}, "unit": "mA", "predict": true, "range": [0.0052, 0.0055], "ask": "按下按键：短路电流 Isc（AM1 的读数）"}
+{"id": "uoc", "voltage": "R3.2", "ref": "V1.-", "set": {"SW1": {"pressed": false}}, "unit": "V", "range": [6.0, 6.35], "ask": "按键松开：开路电压 Uoc（万用表测 T 对 GND）"}
+{"id": "req", "formula": "uoc / isc", "unit": "Ω", "predict": true, "range": [1100, 1220], "ask": "用你自己的读数算 Req = Uoc / Isc", "explain": "置零法：R3 + R1 ∥ R2 = 1157.5 Ω。"}
+{"id": "ph", "scope": "phase", "pin": "C1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "unit": "°", "range": [-48, -42], "ask": "f = 1061 Hz：VOUT 相对 VIN 的相位差"}
+{"id": "f0", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "solve": {"el": "FG1", "from": 2500, "to": 10000, "value": 0}, "set": {"FG1": {"waveform": "sine", "amplitude": 1, "offset": 0}}, "unit": "kHz", "range": [4900, 5150], "ask": "扫频：VR 与 VIN 同相的频率 f0"}
+{"id": "kcl", "choices": ["I2 + I3 = I1（在读数误差以内）", "I2 + I3 比 I1 小", "I2 + I3 比 I1 大"], "correct": 0, "ask": "用你的读数算 I2 + I3，和 I1 比较："}
+- 每题恰好一种：current（元件 ref，默认 mA）/ voltage + ref（万用表红、黑表笔，默认 V）/ scope + pin（measure 同测试，另有 "ring" = 阻尼振荡频率；加 "solve" = 扫信号发生器频率找测量值等于 value 的频率）/ formula（用前面题目的 id 计算，学生用自己答对的读数算）/ choices + correct（根据读数下结论）。
+- set：读数时的状态，写法同测试（按键、开关、电位器、信号发生器、电源电压、引脚模式）。predict: true = 先写预测。range = [min, max]（SI 单位，A、V、Hz、s），校验器检查参考答案的读数在里面。
+- 默认容差：电表 / 示波器幅度和频率 ±3%，rise / fall / ring ±8%，相位 ±2°，formula ±2%；接近 0 的读数加 "tolAbs"。
+- 问这个实验的重点量，3–5 题；预期读数只写进 "compare" 和各题的 "explain"：description 的 **测量** 段只写读什么、怎么读，**对比** 段整个放进 "compare"；hints 和测试名里也不要出现会泄露读数的数字。
+- 写完后运行 npm run validate -- --readings，把打印出的读数和你的 compare / range 对一遍。
+
 === 直流仿真模型（DC only，用来算数值）===
 - LED 正向压降 Vf：红 1.8V，黄 2.0V，绿 2.1V，蓝/白 3.0V；另有约 12Ω 内阻。二极管 Vf ≈ 0.65V。
 - 电源内阻：9V 电池 1.5Ω，AA 每节 0.15Ω，CR2032 15Ω，电源模块 0.1Ω，稳压电源 0.02Ω。
@@ -127,12 +143,13 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 === 文字与符号约定（详见 docs/NOTATION.md）===
 - 用“结点”，不用“节点”（指电路里的结点；面包板上的一条金属条就是一个结点）。电压用 U / u，电流用 I / i；元件名写成和面包板上一样的普通文字：R1、I1、AM2（挑战的文字不支持下标）。
 - 交流量以 cos 为参考：u = √2·U·cos(ωt + ψ)。LED 插反的说明要带上反向耐压（常见约 5V）。
-- 实验题（第 2–4 期）的 description 用短段落、粗体标签：**目标**、**电路**、**先预测**（只写要算什么、怎么算，不写结果）、**测量**、**对比**（预期读数放在这里）、可选的 **想一想**、**真实电路里**（仪表负担电阻、电感绕线电阻、电解电容极性、运放共模范围和压摆率等）。
+- 实验题（第 1–5 期）的 description 用短段落、粗体标签：**目标**、**电路**、**先预测**（只写要算什么、怎么算，不写结果）、**测量**、**对比**（预期读数放在这里；有 measurements 时整段放进顶层 "compare"，答完测量题才显示）、可选的 **想一想**、**真实电路里**（仪表负担电阻、电感绕线电阻、电解电容极性、运放共模范围和压摆率等）。
 - hints 由浅入深：方向 → 方法 → 接近答案。找错题不要在前面的提示里逐条点名错误。
 
 === 翻译（i18n）===
 - 顶层文字是中文（不用写 "lang"，默认就是 "zh"）。英文翻译放在 "i18n": {"en": {...}}，位置在 concepts 后面、components 前面。
-- 可写的键：title、summary、description、concepts、steps、hints、tests。不要放别的键。
+- 可写的键：title、summary、description、concepts、steps、hints、tests、measurements、compare。不要放别的键。
+- measurements：和顶层 measurements 按位置一一对应，只写文字 {"ask": "...", "explain": "...", "choices": [...]}（选项数量与原文相同）。
 - steps：只写每一步的英文文字（字符串数组），数量和顺序必须与顶层 steps 完全一致；highlight 不用重复写。
 - hints：数量和顺序与顶层 hints 完全一致。
 - tests：只写测试名（字符串数组），顺序与顶层 tests 一致。
@@ -181,6 +198,9 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 | `电流 xx mA，超过 25 mA` | 限流电阻太小，换大一点 |
 | `i18n.xx.steps: 应该是和 "steps" 一一对应的数组` | 翻译的 steps / hints / tests 数量和原文不一致：让 AI 逐条一一对应地翻译 |
 | `JSON 语法错误` | AI 加了注释、尾随逗号或省略号 |
+| `measurements (x): 参考答案读数 … 不在 range 内` | range 算错了，或测量题的 pin / ref / set 写错：用 `--readings` 看实际读数 |
+| `measurements (x): 容差太紧` | 读数接近 0 或单位不合适：加 "tolAbs"，或换带前缀的 unit |
+| `formula: … 不是前面某个测量题的 id` | formula 只能引用排在它前面的题目 |
 
 ---
 
@@ -228,6 +248,8 @@ Output challenge files as JSON, following the format below exactly.
   "components": [ ... ],                          // target circuit parts (no jumper wires)
   "nets": [ {"name": "VCC", "pins": ["V1.+", "R1.1"]}, ... ],   // or "connections": [["V1.+","R1.1"], ...]
   "tests": [ ... ],
+  "measurements": [ ... ],                       // labs (phases 1–5): readings the student must take, see below
+  "compare": "**Compare**: ...",                  // labs: the expected readings, shown after the measurements are answered
   "hints": ["...", ...],
   "steps": [ {"text": "...", "highlight": ["tp1","tn1"]}, ... ],
   "solution": { "parts": [ ... ] },
@@ -274,6 +296,20 @@ Name the key nodes: the supply + node "VCC", the supply − node "GND", others e
   With a generator present, voltages use the average and LED on/off uses the average current.
 - All refs and pins use the names from components.
 
+=== measurements: measurement questions (required for labs, not for intro challenges) ===
+Tests only prove the circuit is right; measurement questions make the student read the instruments on their own board and type the readings in. The expected value is simulated on the student's own circuit — the file never contains the answer, only what to read.
+{"id": "isc", "current": "AM1", "set": {"SW1": {"pressed": true}}, "unit": "mA", "predict": true, "range": [0.0052, 0.0055], "ask": "Button pressed: short-circuit current Isc (AM1's reading)"}
+{"id": "uoc", "voltage": "R3.2", "ref": "V1.-", "set": {"SW1": {"pressed": false}}, "unit": "V", "range": [6.0, 6.35], "ask": "Button released: open-circuit voltage Uoc (multimeter from T to GND)"}
+{"id": "req", "formula": "uoc / isc", "unit": "Ω", "predict": true, "range": [1100, 1220], "ask": "From your own readings, Req = Uoc / Isc", "explain": "Zeroing the source: R3 + R1 ∥ R2 = 1157.5 Ω."}
+{"id": "ph", "scope": "phase", "pin": "C1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "unit": "°", "range": [-48, -42], "ask": "f = 1061 Hz: the phase of VOUT relative to VIN"}
+{"id": "f0", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "solve": {"el": "FG1", "from": 2500, "to": 10000, "value": 0}, "set": {"FG1": {"waveform": "sine", "amplitude": 1, "offset": 0}}, "unit": "kHz", "range": [4900, 5150], "ask": "Sweep: the frequency f0 where VR is in phase with VIN"}
+{"id": "kcl", "choices": ["I2 + I3 = I1 (within the reading error)", "I2 + I3 is smaller than I1", "I2 + I3 is larger than I1"], "correct": 0, "ask": "Work out I2 + I3 from your readings and compare it with I1:"}
+- Exactly one per question: current (a part ref, default mA) / voltage + ref (the multimeter's red and black leads, default V) / scope + pin (measure as in tests, plus "ring" = the frequency of a damped oscillation; add "solve" to sweep the generator's frequency for the frequency where the measure equals value) / formula (uses earlier questions' ids; the student computes from their own accepted readings) / choices + correct (a conclusion drawn from the readings).
+- set: the state the reading is taken in, written as in tests (button, switch, pot, generator, supply voltage, pin modes). predict: true = a prediction first. range = [min, max] in SI units (A, V, Hz, s); the validator checks the reference solution reads inside it.
+- Default tolerances: meters and scope amplitudes / frequency ±3%, rise / fall / ring ±8%, phase ±2°, formula ±2%; add "tolAbs" for readings near zero.
+- Ask for the quantities that are the point of the lab, 3–5 questions. Expected readings go only into "compare" and each question's "explain": the description's **Measure** paragraph says what to read and how, the whole **Compare** paragraph moves into "compare"; no numbers that give a reading away in hints or test names either.
+- Afterwards run npm run validate -- --readings and check the printed readings against your compare text and ranges.
+
 === DC simulation model (use it to work out values) ===
 - LED forward voltage Vf: red 1.8V, yellow 2.0V, green 2.1V, blue/white 3.0V; plus about 12Ω internal resistance. Diode Vf ≈ 0.65V.
 - Source internal resistance: 9V battery 1.5Ω, AA 0.15Ω per cell, CR2032 15Ω, power module 0.1Ω, bench supply 0.02Ω.
@@ -303,14 +339,15 @@ Name the key nodes: the supply + node "VCC", the supply − node "GND", others e
 - Conventions: connect the source to the rails at column 1 (tp1/tn1), place parts left to right in the main area a–e (or f–j), and return to GND with a jumper to tn (or bn).
 
 === Wording and notation (full version: docs/NOTATION.md) ===
-- Voltage is U / u, current I / i; write part names exactly as on the breadboard, as plain text: R1, I1, AM2 (challenge text has no subscripts). In the Chinese text a circuit node is 结点 (not 结点).
+- Voltage is U / u, current I / i; write part names exactly as on the breadboard, as plain text: R1, I1, AM2 (challenge text has no subscripts). In the Chinese text a circuit node is 结点 (not 节点).
 - AC quantities use the cosine reference: u = √2·U·cos(ωt + ψ). When saying a reversed LED is harmless, add its reverse-voltage limit (typically about 5 V).
-- Lab descriptions (phases 2–4) use short paragraphs with bold labels: **Goal**, **Circuit**, **Predict first** (what to work out and how — no results), **Measure**, **Compare** (the expected readings go here), optionally **Think about it** and **In a real circuit** (meter burden resistance, inductor winding resistance, electrolytic polarity, op-amp common-mode range and slew rate, …).
+- Lab descriptions (phases 2–4) use short paragraphs with bold labels: **Goal**, **Circuit**, **Predict first** (what to work out and how — no results), **Measure**, **Compare** (the expected readings go here; with measurements the whole paragraph goes into the top-level "compare" and appears after the questions are answered), optionally **Think about it** and **In a real circuit** (meter burden resistance, inductor winding resistance, electrolytic polarity, op-amp common-mode range and slew rate, …).
 - Hints go from direction → method → near-answer. In fault-finding tasks don't name the faults one by one in the early hints.
 
 === Translation (i18n) ===
 - The top-level text is English ("lang": "en"). Put the Chinese translation in "i18n": {"zh": {...}}, after concepts and before components.
-- Allowed keys: title, summary, description, concepts, steps, hints, tests. No other keys.
+- Allowed keys: title, summary, description, concepts, steps, hints, tests, measurements, compare. No other keys.
+- measurements: matched to the top-level measurements by position, text only: {"ask": "...", "explain": "...", "choices": [...]} (same number of options as the original).
 - steps: only the text of each step (an array of strings), with exactly the same number and order as the top-level steps; do not repeat highlight.
 - hints: exactly the same number and order as the top-level hints.
 - tests: only the test names (an array of strings), in the same order as the top-level tests.
@@ -359,3 +396,6 @@ Run `npm run validate -- --lang en` to get the messages in English (the app's Im
 | `draws xx mA ..., above 25 mA` | The current-limiting resistor is too small: use a larger one |
 | `i18n.xx.steps: should be an array matching "steps" item by item` | The translated steps / hints / tests have a different count from the originals: translate them one to one |
 | `JSON syntax error` | The AI added comments, trailing commas or "..." |
+| `measurements (x): the reference reading … is outside range` | The range is wrong, or the question's pin / ref / set is: look at the real reading with `--readings` |
+| `measurements (x): tolerance too tight` | A reading near zero or an unhelpful unit: add "tolAbs", or use a prefixed unit |
+| `formula: … is not the id of an earlier measurement question` | A formula may only use questions listed before it |
