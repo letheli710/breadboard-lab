@@ -9,11 +9,19 @@
   "summary": "10 mH 电感串 100 Ω 电阻接正弦信号。在 X_L ≈ R 的频率下，电阻电压和电感电压的 Vpp 加起来比总电压大——因为它们相差 90°，要按相量相加。",
   "concepts": ["感抗 X_L = ωL", "阻抗 Z = R + jωL", "电流落后电压 current lags voltage", "相量图 / 电压三角形 phasor diagram", "用电阻电压看电流 sense resistor"],
   "description": [
-    "**要搭的电路**：信号发生器红夹子 → L1（10 mH）→ 结点 VR → R1（100 Ω）→ GND，黑夹子接 GND。",
+    "**目标**：用示波器同时看 RL 串联电路的电流和各部分电压，验证交流 KVL 是相量相加，并认识 RL 低通滤波器。",
+    "",
+    "**电路**：信号发生器红夹子 → L1（10 mH）→ 结点 VR → R1（100 Ω）→ GND，黑夹子接 GND。",
+    "",
     "**信号发生器**：正弦波，幅度 1 V、偏置 0，频率 1.6 kHz（再试 160 Hz 和 16 kHz）。",
+    "",
     "**示波器**：CH1 接 VIN（信号发生器端子），CH2 接 VR。电阻电压 u_R = R·i 和电流同相，所以 **CH2 就是电流的波形**。电感电压 u_L = CH1 − CH2（MATH 相减）。",
     "",
-    "**相量分析**：电感的阻抗 Z_L = r + jωL，r = 1 Ω 是线圈电阻。总阻抗（从 VIN 往右看）Z = (R + r) + jωL。",
+    "**先预测**：电感的阻抗 Z_L = r + jωL，r = 1 Ω 是线圈电阻；从 VIN 往右看的总阻抗 Z = (R + r) + jωL。先算 1.6 kHz 时的 X_L、电流落后电压的角度、U_R/U_in，再估计 u_R、u_L 的峰峰值：它们直接相加等于 VIN 吗？",
+    "",
+    "**测量**：读 CH1、CH2 和 MATH（CH1 − CH2）的峰峰值，以及 CH2 相对 CH1 的相位差；再换到 160 Hz 和 16 kHz 各读一次。",
+    "",
+    "**对比**：",
     "- 在 f = 1.6 kHz：X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r = 101 Ω。电流 İ = U̇in/Z 落后 U̇in 的角度 = arctan(X_L/(R + r)) ≈ 45°；U_R/U_in = R/|Z| ≈ 100/142.5 ≈ 0.70。",
     "- **电压三角形**：U̇in = U̇R + U̇L，而 U̇L 超前 U̇R 约 90°。示波器上 VIN ≈ 1.57 Vpp（50 Ω 输出电阻分掉了一部分，见下）、u_R ≈ 1.10 Vpp、u_L ≈ 1.11 Vpp：1.10 + 1.11 = 2.21 ≠ 1.57，但 √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57。**交流电路的 KVL 是相量相加，不是有效值 / 峰峰值直接相加**。",
     "- 电流有效值 I = 1 V/√2 / |151 + j100.5| Ω ≈ 3.9 mA（这里要把 50 Ω 算进去，因为 1 V 是信号发生器内部的电动势）。",
@@ -23,7 +31,10 @@
     "**换频率**：",
     "- 160 Hz：X_L ≈ 10 Ω ≪ R，几乎是纯电阻电路，电流几乎和电压同相（落后 ≈ 5.7°），u_R/u_in ≈ 0.985（= 100/101 × 0.995，线圈的 1 Ω 分走了 1%）。",
     "- 16 kHz：X_L ≈ 1005 Ω ≫ R，电流很小且落后 ≈ 84°，u_R/u_in ≈ 0.10，几乎全部电压都在电感上。",
-    "这个电路取 u_R 作输出，就是一个 **RL 低通滤波器**，截止频率 fc = (R + r)/(2πL) ≈ 1.6 kHz。"
+    "",
+    "**想一想**：这个电路取 u_R 作输出，就是一个 **RL 低通滤波器**，截止频率 fc = (R + r)/(2πL) ≈ 1.6 kHz。",
+    "",
+    "**真实电路里**：仿真里线圈电阻 r 只有 1 Ω；面包板上常见的 10 mH 小电感，绕组电阻往往有几欧到几十欧，铁氧体磁芯在高频还有损耗。r 越大，电流落后的角度越小、u_R 越小，fc 也往高处移；测 u_L 时会发现它和 u_R 的夹角小于 90°。"
   ],
   "i18n": {
     "en": {
@@ -31,11 +42,19 @@
       "summary": "A 10 mH inductor in series with 100 Ω on a sine wave. Where X_L ≈ R, the Vpp across the resistor plus the Vpp across the inductor is more than the total — they are 90° apart and add as phasors.",
       "concepts": ["inductive reactance X_L = ωL", "impedance Z = R + jωL", "current lags voltage", "phasor diagram / voltage triangle", "seeing current through a sense resistor"],
       "description": [
-        "**What you build**: generator red clip → L1 (10 mH) → node VR → R1 (100 Ω) → GND; black clip to GND.",
+        "**Goal**: watch the current and the part voltages of a series RL circuit on the scope, check that AC KVL adds phasors, and meet the RL low-pass filter.",
+        "",
+        "**Circuit**: generator red clip → L1 (10 mH) → node VR → R1 (100 Ω) → GND; black clip to GND.",
+        "",
         "**Generator**: sine, amplitude 1 V, offset 0, 1.6 kHz (then try 160 Hz and 16 kHz).",
+        "",
         "**Scope**: CH1 on VIN (the generator's terminals), CH2 on VR. The resistor voltage u_R = R·i is in phase with the current, so **CH2 is the current waveform**. The inductor voltage is u_L = CH1 − CH2 (MATH subtract).",
         "",
-        "**Phasor analysis**: the inductor's impedance is Z_L = r + jωL with r = 1 Ω winding resistance. The total impedance (looking right from VIN) is Z = (R + r) + jωL.",
+        "**Predict first**: the inductor's impedance is Z_L = r + jωL with r = 1 Ω winding resistance; the total impedance looking right from VIN is Z = (R + r) + jωL. Work out X_L at 1.6 kHz, how far the current lags the voltage and U_R/U_in, then estimate the peak-to-peak values of u_R and u_L: do they add up to VIN?",
+        "",
+        "**Measure**: read the peak-to-peak values of CH1, CH2 and MATH (CH1 − CH2) and the phase of CH2 relative to CH1; repeat at 160 Hz and 16 kHz.",
+        "",
+        "**Compare**:",
         "- At f = 1.6 kHz: X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r = 101 Ω. The current I = U_in/Z lags U_in by arctan(X_L/(R + r)) ≈ 45°; U_R/U_in = R/|Z| ≈ 100/142.5 ≈ 0.70.",
         "- **Voltage triangle**: U_in = U_R + U_L as phasors, with U_L about 90° ahead of U_R. On the scope VIN ≈ 1.57 Vpp (the 50 Ω output resistance takes a share, see below), u_R ≈ 1.10 Vpp, u_L ≈ 1.11 Vpp: 1.10 + 1.11 = 2.21 ≠ 1.57, but √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57. **KVL in AC circuits adds phasors, not RMS or peak-to-peak values.**",
         "- RMS current I = (1 V/√2) / |151 + j100.5| Ω ≈ 3.9 mA (count the 50 Ω here, because the 1 V is the generator's internal EMF).",
@@ -45,7 +64,10 @@
         "**Other frequencies**:",
         "- 160 Hz: X_L ≈ 10 Ω ≪ R, almost a purely resistive circuit; the current is nearly in phase with the voltage (≈ 5.7° behind), u_R/u_in ≈ 0.985 (= 100/101 × 0.995: the coil's 1 Ω takes 1%).",
         "- 16 kHz: X_L ≈ 1005 Ω ≫ R; the current is small and ≈ 84° behind, u_R/u_in ≈ 0.10, and almost all the voltage is across the inductor.",
-        "Taking u_R as the output, this circuit is an **RL low-pass filter** with cutoff fc = (R + r)/(2πL) ≈ 1.6 kHz."
+        "",
+        "**Think about it**: taking u_R as the output, this circuit is an **RL low-pass filter** with cutoff fc = (R + r)/(2πL) ≈ 1.6 kHz.",
+        "",
+        "**In a real circuit**: the simulated winding resistance r is only 1 Ω; the small 10 mH inductors common on breadboards often have a few ohms to tens of ohms, and a ferrite core adds losses at high frequency. A larger r means a smaller lag, a smaller u_R and a higher fc; when you measure u_L you will find it less than 90° ahead of u_R."
       ],
       "hints": [
         "Inductor first (from the red clip), then the resistor to GND.",
