@@ -1,0 +1,498 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-board-power-budget",
+  "title": "实验 5-13 · 开发板给面包板供电：3V3 / 5V 引脚的电流预算",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 5,
+  "summary": "一个 10 Ω 的大负载接在 Blue Pill 的 3V3 引脚上，把板载 300 mA 的 LDO 拖进限流，3V3 掉到 2.8 V。把它挪到 5V 引脚，让 3V3 只给芯片和小信号用，同时算清 USB 的 500 mA 预算。",
+  "concepts": [
+    "电源预算 power budget",
+    "LDO 限流 regulator current limit",
+    "5V 引脚 = USB 经肖特基二极管 5V pin = USB through a Schottky",
+    "USB 500 mA",
+    "欠压复位 brown-out"
+  ],
+  "description": [
+    "**要搭的电路**（起始电路里已经摆好，但有一处接错了）：Blue Pill 插在 c1，USB 供电。上方电源轨：tp = 3V3（a3 → tp3），tn = GND（a1 → tn1）；下方电源轨：bp = 5V 引脚（j18 → bp18），bn = GND（j19 → bn19）。",
+    "- 负载 RL = **10 Ω**（代表一个大约 0.3–0.45 A 的模块，比如一小段灯带、一个舵机或一块 4G 模块；真实电阻要用 ≥ 3 W 的功率电阻）；",
+    "- 状态灯：任意一个输出 GPIO（参考答案用 PB13）→ 330 Ω → 红色 LED1 → GND；",
+    "- 3V3 指示灯：3V3 → 1 kΩ → 绿色 LED2 → GND。",
+    "",
+    "**起始电路的问题**：RL 插在了 **3V3 轨**（tp25 – tn25）上。实时诊断会立刻报错：“U1 的板载稳压器过流——RT9193-3.3 最多只能输出约 300 mA，3V3 掉到了 2.79 V”。你的任务：把 RL 挪到 **5V 轨**（bp – bn），其他不动。",
+    "",
+    "**引脚设置**：不用自己设，测试会把 GPIO 设成“输出高电平 / 输出低电平”。参考答案默认 PB13 = 输出高电平。",
+    "",
+    "**要测什么、为什么**：",
+    "- **3V3 的电压**和绿灯 LED2 的电流——3V3 轨是不是还“健康”；",
+    "- **GPIO 输出高电平时的电压和电流**——芯片在正常工作、输出级拿到了完整的 3.3 V；",
+    "- **RL 的电流和 5V 引脚的电压**——大电流走的是哪条路、还剩多少 USB 预算。",
+    "",
+    "**板子上的电源路径**（Blue Pill 和 ESP32 开发板都一样）：",
+    "USB 5 V →（线缆 + 保险丝约 0.25 Ω）→ 肖特基二极管（≈ 0.3 V）→ **5V 引脚** → 板载 LDO → **3V3 引脚** → 芯片。",
+    "- 5V 引脚就是 USB 电源减掉一个二极管：空载约 4.7 V，带 0.45 A 时约 4.5 V。它能给多少电流只受 USB 口限制（电脑 USB 2.0 口按 **500 mA** 设计）。",
+    "- 3V3 引脚后面是一个小 LDO：Blue Pill 上是 RT9193 一类，**最多约 300 mA**（芯片自己要约 20 mA，板上电源灯约 1.5 mA）；ESP32 DevKitC 上是 AMS1117，标称 1 A，但芯片本身就要 50 mA 以上（开 Wi-Fi 发射时峰值 300–500 mA），而且整块板子仍然受 USB 500 mA 的限制。",
+    "",
+    "**仿真得到的数字**：",
+    "- 起始（RL 在 3V3）：负载想要 3.3 V / 10 Ω = 330 mA，加上芯片 20 mA 超过了 300 mA，LDO 进入**限流**，3V3 掉到 **2.79 V**；RL 实际只拿到 279 mA，PB13 输出高电平只有 2.69 V，LED1 电流从 3.9 mA 掉到 2.6 mA，绿灯也变暗（0.68 mA）。LDO 上耗散 (4.58 − 2.79) V × 0.3 A ≈ 0.54 W，小小的 SOT-23 稳压器会烫手。",
+    "- 答案（RL 在 5V）：3V3 稳在 **3.30 V**，LDO 只输出约 **27 mA**（芯片 20 + LED1 3.9 + LED2 1.2 + 电源灯）；RL 从 5V 引脚拿 **0.45 A**，5V 引脚被拉到 **4.51 V**；USB 总电流约 **0.48 A**——已经用掉了 96% 的 USB 预算。",
+    "- 3V3 低于 2.0 V（ESP32 为 2.5 V）时芯片进入欠压复位，所有引脚变成高阻；这里的 2.79 V 还没复位，但输出电平、ADC 参考和时钟都已经不可靠了，真实板子常常表现为“随机重启”。",
+    "",
+    "**电源预算表**（答案电路）：",
+    "- 3V3（LDO 300 mA）：芯片 20 mA + 电源灯 1.5 mA + LED1 3.9 mA + LED2 1.2 mA ≈ 27 mA → 余量很大；",
+    "- 5V（USB 500 mA）：LDO 输入 ≈ 31 mA + RL 451 mA ≈ 481 mA → 几乎用完。",
+    "",
+    "**实际项目经验**：",
+    "- 先列电源预算表：每一路负载的**最大**电流（舵机堵转、电机启动、Wi-Fi 发射、LED 全亮）分别记在 3V3 和 5V 下面，3V3 总和不超过板载 LDO 的 70%，5V 总和不超过 USB 的 80%。",
+    "- 3V3 引脚只给传感器、逻辑芯片、小 LED 这类几十 mA 的东西用；电机、舵机、灯带、继电器、GSM / 4G 模块用 5V 引脚，或者干脆用独立电源（**GND 一定要共地**）。",
+    "- 5V 引脚不是“5.0 V”：经过 USB 的肖特基二极管后只有 4.5–4.8 V，而且随负载变化。需要精确 5 V 的模块要单独供电。",
+    "- 电脑 USB 口超过 500 mA 时，主板的保护会断电或让 USB 设备掉线，表现为“一开电机板子就断开串口”。手机充电头通常能给 1–2 A，但开发板上的肖特基二极管和 PCB 走线也有上限（常见 1 A 左右）。",
+    "- ESP32 的 Wi-Fi 发射峰值电流很大：3V3 上要有 ≥ 100 µF 的电容缓冲，否则会触发 brown-out 复位（串口里能看到 “Brownout detector was triggered”）。",
+    "- 不要同时用 USB 和外部电源给 5V / 3V3 引脚供电，可能互相倒灌。",
+    "",
+    "**模型说明**：USB 被模拟成 5 V 串 0.25 Ω，超过 500 mA 只给诊断、不会真的断电；LDO 限流是理想的恒流；芯片功耗是一个固定电阻（Blue Pill 约 20 mA），不随时钟和外设变化；10 Ω 电阻的功率（约 2 W）不做检查，真实电路要用功率电阻。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 5-13 · Powering the breadboard from the board: the 3V3 / 5V current budget",
+      "summary": "A 10 Ω heavy load on the Blue Pill's 3V3 pin drags the onboard 300 mA LDO into current limit and 3V3 sags to 2.8 V. Move it to the 5V pin, keep 3V3 for the chip and small signals, and work out the 500 mA USB budget.",
+      "concepts": [
+        "power budget",
+        "regulator current limit",
+        "5V pin = USB through a Schottky",
+        "USB 500 mA",
+        "brown-out"
+      ],
+      "description": [
+        "**What you build** (the starting circuit is already placed, with one mistake): a Blue Pill at c1, powered from USB. Top rails: tp = 3V3 (a3 → tp3), tn = GND (a1 → tn1); bottom rails: bp = the 5V pin (j18 → bp18), bn = GND (j19 → bn19).",
+        "- load RL = **10 Ω** (standing in for a module drawing about 0.3–0.45 A: a short LED strip, a servo, a 4G modem; a real one needs a ≥ 3 W power resistor);",
+        "- status LED: any output GPIO (the solution uses PB13) → 330 Ω → red LED1 → GND;",
+        "- 3V3 indicator: 3V3 → 1 kΩ → green LED2 → GND.",
+        "",
+        "**What is wrong at the start**: RL sits on the **3V3 rail** (tp25 – tn25). The live diagnostics immediately show an error: \"U1's onboard regulator is overloaded — the RT9193-3.3 gives about 300 mA at most, 3V3 dropped to 2.79 V\". Your job: move RL to the **5V rail** (bp – bn) and leave everything else.",
+        "",
+        "**Pin table settings**: nothing to set yourself; the tests switch the GPIO between output HIGH and output LOW. The solution's default is PB13 = output HIGH.",
+        "",
+        "**What you measure and why**:",
+        "- the **3V3 voltage** and the green LED2 current: is the 3V3 rail still healthy?",
+        "- the **GPIO's voltage and current in output HIGH**: the chip is running and its output stage gets the full 3.3 V;",
+        "- **RL's current and the 5V pin voltage**: which path the big current takes and how much USB budget is left.",
+        "",
+        "**The power path on the board** (the same on a Blue Pill and an ESP32 DevKitC):",
+        "USB 5 V → (cable + polyfuse ≈ 0.25 Ω) → Schottky diode (≈ 0.3 V) → **5V pin** → onboard LDO → **3V3 pin** → chip.",
+        "- The 5V pin is just USB minus a diode: about 4.7 V unloaded, about 4.5 V at 0.45 A. Its current is limited only by the USB port (a PC USB 2.0 port is specified for **500 mA**).",
+        "- Behind the 3V3 pin is a small LDO: an RT9193-class part on the Blue Pill, **about 300 mA at most** (the chip itself takes about 20 mA, the power LED about 1.5 mA); on the ESP32 DevKitC an AMS1117 rated 1 A, but the chip alone needs 50 mA or more (300–500 mA peaks while Wi-Fi transmits), and the whole board is still behind the 500 mA USB limit.",
+        "",
+        "**Numbers from the simulator**:",
+        "- Start (RL on 3V3): the load wants 3.3 V / 10 Ω = 330 mA; with the chip's 20 mA that is over 300 mA, so the LDO goes into **current limit** and 3V3 sags to **2.79 V**. RL only gets 279 mA, PB13 output HIGH is only 2.69 V, LED1 drops from 3.9 mA to 2.6 mA and the green LED dims (0.68 mA). The LDO dissipates (4.58 − 2.79) V × 0.3 A ≈ 0.54 W — a tiny SOT-23 regulator gets too hot to touch.",
+        "- Solution (RL on 5V): 3V3 holds at **3.30 V**, the LDO supplies only about **27 mA** (chip 20 + LED1 3.9 + LED2 1.2 + power LED); RL takes **0.45 A** from the 5V pin, which drops to **4.51 V**; the total USB current is about **0.48 A** — 96 % of the USB budget is used.",
+        "- Below 2.0 V on 3V3 (2.5 V for an ESP32) the chip is held in brown-out reset and every pin goes high-Z. 2.79 V is not a reset yet, but output levels, the ADC reference and the clock are no longer trustworthy; on a real board this shows up as \"random reboots\".",
+        "",
+        "**Power budget table** (solution circuit):",
+        "- 3V3 (LDO 300 mA): chip 20 mA + power LED 1.5 mA + LED1 3.9 mA + LED2 1.2 mA ≈ 27 mA → plenty of margin;",
+        "- 5V (USB 500 mA): LDO input ≈ 31 mA + RL 451 mA ≈ 481 mA → almost all used up.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- Write the power budget first: the **worst-case** current of every load (servo stall, motor start, Wi-Fi transmit, LEDs fully on) under 3V3 and under 5V. Keep the 3V3 total below 70 % of the onboard LDO and the 5V total below 80 % of USB.",
+        "- The 3V3 pin is for sensors, logic chips and small LEDs (tens of mA). Motors, servos, LED strips, relays and GSM / 4G modules go on the 5V pin, or better on a separate supply (**always share GND**).",
+        "- The 5V pin is not \"5.0 V\": after the USB Schottky it is 4.5–4.8 V and it moves with the load. A module that needs an accurate 5 V needs its own supply.",
+        "- Above 500 mA a PC's USB port protection cuts power or drops the device — \"the serial port disconnects every time the motor starts\". Phone chargers give 1–2 A, but the board's Schottky diode and traces have their own limit (often about 1 A).",
+        "- ESP32 Wi-Fi transmit peaks are large: put ≥ 100 µF on 3V3 or it trips the brown-out detector (\"Brownout detector was triggered\" in the serial monitor).",
+        "- Never feed the 5V / 3V3 pins from an external supply while USB is also plugged in: the two can back-feed each other.",
+        "",
+        "**Model note**: USB is 5 V behind 0.25 Ω; above 500 mA you get a diagnostic but the power is not actually cut. The LDO current limit is an ideal constant current. The chip is a fixed resistor (about 20 mA on the Blue Pill) that ignores clock speed and peripherals. The 10 Ω resistor's power (about 2 W) is not checked — a real circuit needs a power resistor."
+      ],
+      "hints": [
+        "Look at the live diagnostics first: which regulator is overloaded, and what is on its output?",
+        "The 3V3 pin goes through the onboard 300 mA LDO; the 5V pin comes almost straight from USB.",
+        "Move RL from tp25 – tn25 to the bottom rails, e.g. bp25 – bn25 (bp is wired to the 5V pin)."
+      ],
+      "tests": [
+        "Load on 5V: 3V3 holds at ≈ 3.30 V and the green LED gets ≈ 1.2 mA",
+        "Chip running: GPIO output HIGH ≈ 3.14 V, ≈ 3.9 mA into LED1",
+        "The 10 Ω load takes ≈ 0.45 A from the 5V pin (≈ 4.5 V); USB ≈ 0.48 A in total",
+        "GPIO output LOW: LED1 off, 3V3 still ≈ 3.30 V"
+      ]
+    }
+  },
+  "components": [
+    {
+      "ref": "U1",
+      "type": "stm32_bluepill"
+    },
+    {
+      "ref": "RL",
+      "type": "resistor",
+      "resistance": "10"
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "330"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "LED2",
+      "type": "led",
+      "color": "green"
+    }
+  ],
+  "nets": [
+    {
+      "name": "V5",
+      "pins": [
+        "U1.5V",
+        "RL.1"
+      ]
+    },
+    {
+      "name": "V3V3",
+      "pins": [
+        "U1.3V3",
+        "R2.1"
+      ]
+    },
+    {
+      "name": "IO",
+      "pins": [
+        "U1.GPIO_OUT1",
+        "R1.1"
+      ]
+    },
+    {
+      "name": "A1",
+      "pins": [
+        "R1.2",
+        "LED1.anode"
+      ]
+    },
+    {
+      "name": "A2",
+      "pins": [
+        "R2.2",
+        "LED2.anode"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "RL.2",
+        "LED1.cathode",
+        "LED2.cathode",
+        "U1.GND"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "name": "负载在 5V：3V3 稳在 ≈ 3.30 V，绿灯电流 ≈ 1.2 mA",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "expect": {
+        "LED2": "on"
+      },
+      "voltages": [
+        {
+          "pin": "U1.3V3",
+          "min": 3.25,
+          "max": 3.35
+        }
+      ],
+      "currents": [
+        {
+          "el": "LED2",
+          "min": 0.00112,
+          "max": 0.00125
+        }
+      ]
+    },
+    {
+      "name": "芯片正常工作：GPIO 输出高电平 ≈ 3.14 V，给 LED1 ≈ 3.9 mA",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "expect": {
+        "LED1": "on"
+      },
+      "gpio": [
+        {
+          "pin": "U1.GPIO_OUT1",
+          "read": "high"
+        },
+        {
+          "pin": "U1.GPIO_OUT1",
+          "measure": "voltage",
+          "min": 3.05,
+          "max": 3.25
+        },
+        {
+          "pin": "U1.GPIO_OUT1",
+          "measure": "current",
+          "min": 0.0037,
+          "max": 0.0041
+        }
+      ]
+    },
+    {
+      "name": "10 Ω 负载从 5V 引脚取 ≈ 0.45 A（5V ≈ 4.5 V），USB 总共 ≈ 0.48 A",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "voltages": [
+        {
+          "pin": "U1.5V",
+          "min": 4.4,
+          "max": 4.62
+        }
+      ],
+      "currents": [
+        {
+          "el": "RL",
+          "min": 0.43,
+          "max": 0.47
+        }
+      ]
+    },
+    {
+      "name": "GPIO 输出低电平：LED1 灭，3V3 仍 ≈ 3.30 V",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_low"
+          }
+        }
+      },
+      "expect": {
+        "LED1": "off",
+        "LED2": "on"
+      },
+      "voltages": [
+        {
+          "pin": "U1.3V3",
+          "min": 3.25,
+          "max": 3.35
+        }
+      ]
+    }
+  ],
+  "hints": [
+    "先看实时诊断：哪个稳压器过流了？它的输出上接了什么？",
+    "3V3 引脚要经过板载 300 mA 的 LDO；5V 引脚几乎直接来自 USB。",
+    "把 RL 从 tp25 – tn25 挪到下方电源轨，例如 bp25 – bn25（bp 接的是 5V 引脚）。"
+  ],
+  "solution": {
+    "parts": [
+      {
+        "type": "stm32_bluepill",
+        "ref": "U1",
+        "at": "c1",
+        "props": {
+          "usb": true,
+          "modes": {
+            "PB13": "out_high"
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W1",
+        "color": "black",
+        "pins": {
+          "a": "a1",
+          "b": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W2",
+        "color": "orange",
+        "pins": {
+          "a": "a3",
+          "b": "tp3"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W3",
+        "color": "black",
+        "pins": {
+          "a": "j19",
+          "b": "bn19"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W4",
+        "color": "red",
+        "pins": {
+          "a": "j18",
+          "b": "bp18"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "RL",
+        "resistance": "10",
+        "pins": {
+          "1": "bp25",
+          "2": "bn25"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "330",
+        "pins": {
+          "1": "h2",
+          "2": "h22"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "i22",
+          "cathode": "bn22"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "1k",
+        "pins": {
+          "1": "tp27",
+          "2": "a27"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED2",
+        "color": "green",
+        "pins": {
+          "anode": "b27",
+          "cathode": "tn27"
+        }
+      }
+    ]
+  },
+  "start": {
+    "parts": [
+      {
+        "type": "stm32_bluepill",
+        "ref": "U1",
+        "at": "c1",
+        "props": {
+          "usb": true,
+          "modes": {
+            "PB13": "out_high"
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W1",
+        "color": "black",
+        "pins": {
+          "a": "a1",
+          "b": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W2",
+        "color": "orange",
+        "pins": {
+          "a": "a3",
+          "b": "tp3"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W3",
+        "color": "black",
+        "pins": {
+          "a": "j19",
+          "b": "bn19"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W4",
+        "color": "red",
+        "pins": {
+          "a": "j18",
+          "b": "bp18"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "RL",
+        "resistance": "10",
+        "pins": {
+          "1": "tp25",
+          "2": "tn25"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "330",
+        "pins": {
+          "1": "h2",
+          "2": "h22"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "i22",
+          "cathode": "bn22"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "1k",
+        "pins": {
+          "1": "tp27",
+          "2": "a27"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED2",
+        "color": "green",
+        "pins": {
+          "anode": "b27",
+          "cathode": "tn27"
+        }
+      }
+    ]
+  }
+}

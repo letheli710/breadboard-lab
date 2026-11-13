@@ -1,0 +1,69 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-capstone-ntc-fan",
+  "title": "draft",
+  "kind": "challenge",
+  "level": 5,
+  "phase": 5,
+  "components": [
+    { "ref": "U1", "type": "esp32_devkit" },
+    { "ref": "RT1", "type": "ntc" },
+    { "ref": "RF", "type": "resistor", "resistance": "10k" },
+    { "ref": "RG", "type": "resistor", "resistance": "100" },
+    { "ref": "RPD", "type": "resistor", "resistance": "10k" },
+    { "ref": "Q1", "type": "nmos", "model": "IRLZ44N" },
+    { "ref": "M1", "type": "motor" },
+    { "ref": "D1", "type": "diode" },
+    { "ref": "RS", "type": "resistor", "resistance": "4.7" },
+    { "ref": "RLED", "type": "resistor", "resistance": "330" },
+    { "ref": "LED1", "type": "led", "color": "green" }
+  ],
+  "nets": [
+    { "name": "V3V3", "pins": ["U1.3V3", "RT1.1"] },
+    { "name": "VTEMP", "pins": ["RT1.2", "RF.1", "U1.ADC1"] },
+    { "name": "FAN_IO", "pins": ["U1.GPIO_OUT1", "RG.1"] },
+    { "name": "GATE", "pins": ["RG.2", "Q1.g", "RPD.1"] },
+    { "name": "DRAIN", "pins": ["Q1.d", "M1.-", "D1.anode"] },
+    { "name": "VFAN", "pins": ["M1.+", "D1.cathode", "RS.2"] },
+    { "name": "V5", "pins": ["U1.5V", "RS.1"] },
+    { "name": "LED_IO", "pins": ["U1.GPIO_OUT2", "RLED.1"] },
+    { "name": "LED_A", "pins": ["RLED.2", "LED1.anode"] },
+    { "name": "GND", "pins": ["RF.2", "RPD.2", "Q1.s", "LED1.cathode", "U1.GND"] }
+  ],
+  "tests": [
+    { "name": "cold", "set": { "RT1": { "temperature": 25 }, "U1": { "modes": { "GPIO_OUT1": "out_low", "GPIO_OUT2": "out_low" } } },
+      "expect": { "M1": "off", "LED1": "off" }, "regions": { "Q1": "off" },
+      "gpio": [{ "pin": "U1.ADC1", "measure": "adc", "min": 0, "max": 4095 }, { "pin": "U1.ADC1", "measure": "adc_v", "min": 0, "max": 4 }],
+      "voltages": [{ "pin": "U1.3V3", "min": 0 }, { "pin": "U1.5V", "min": 0 }] },
+    { "name": "hot", "set": { "RT1": { "temperature": 60 }, "U1": { "modes": { "GPIO_OUT1": "out_high", "GPIO_OUT2": "out_high" } } },
+      "expect": { "M1": "on", "LED1": "on" }, "regions": { "Q1": "ohmic" },
+      "gpio": [{ "pin": "U1.ADC1", "measure": "adc", "min": 0, "max": 4095 }, { "pin": "U1.GPIO_OUT1", "measure": "current", "min": 0 }, { "pin": "U1.GPIO_OUT2", "measure": "current", "min": 0 }],
+      "currents": [{ "el": "M1", "min": 0 }, { "el": "LED1", "min": 0 }],
+      "voltages": [{ "pin": "U1.3V3", "min": 0 }, { "pin": "U1.5V", "min": 0 }, { "pin": "Q1.d", "min": 0 }] },
+    { "name": "40", "set": { "RT1": { "temperature": 40 } }, "gpio": [{ "pin": "U1.ADC1", "measure": "adc", "min": 0, "max": 4095 }] },
+    { "name": "0", "set": { "RT1": { "temperature": 0 } }, "gpio": [{ "pin": "U1.ADC1", "measure": "adc", "min": 0, "max": 4095 }] },
+    { "name": "90", "set": { "RT1": { "temperature": 90 } }, "gpio": [{ "pin": "U1.ADC1", "measure": "adc", "min": 0, "max": 4095 }] }
+  ],
+  "solution": {
+    "parts": [
+      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": true, "modes": { "GPIO34": "adc", "GPIO26": "out_low", "GPIO27": "out_low" } } },
+      { "type": "wire", "ref": "W1", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "wire", "ref": "W2", "color": "orange", "pins": { "a": "h1", "b": "tp1" } },
+      { "type": "wire", "ref": "W3", "color": "black", "pins": { "a": "j14", "b": "bn14" } },
+      { "type": "wire", "ref": "W4", "color": "red", "pins": { "a": "j19", "b": "bp19" } },
+      { "type": "ntc", "ref": "RT1", "pins": { "1": "tp21", "2": "a21" } },
+      { "type": "resistor", "ref": "RF", "resistance": "10k", "pins": { "1": "b21", "2": "tn21" } },
+      { "type": "wire", "ref": "W5", "color": "yellow", "pins": { "a": "c21", "b": "h5" } },
+      { "type": "resistor", "ref": "RG", "resistance": "100", "pins": { "1": "g10", "2": "j24" } },
+      { "type": "nmos", "ref": "Q1", "model": "IRLZ44N", "at": "f24" },
+      { "type": "resistor", "ref": "RPD", "resistance": "10k", "pins": { "1": "i24", "2": "bn24" } },
+      { "type": "wire", "ref": "W6", "color": "black", "pins": { "a": "j26", "b": "bn26" } },
+      { "type": "motor", "ref": "M1", "pins": { "+": "i28", "-": "i25" } },
+      { "type": "diode", "ref": "D1", "pins": { "anode": "h25", "cathode": "h28" } },
+      { "type": "resistor", "ref": "RS", "resistance": "4.7", "pins": { "1": "bp28", "2": "j28" } },
+      { "type": "resistor", "ref": "RLED", "resistance": "330", "pins": { "1": "j11", "2": "j21" } },
+      { "type": "led", "ref": "LED1", "color": "green", "pins": { "anode": "i21", "cathode": "bn21" } }
+    ]
+  }
+}

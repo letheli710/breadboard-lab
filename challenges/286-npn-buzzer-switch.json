@@ -1,0 +1,175 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-npn-buzzer-switch",
+  "title": "实验 5-7 · NPN 三极管开关：用 3.3 V 引脚开关 5 V 蜂鸣器",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 5,
+  "summary": "GPIO → 1 kΩ → 2N2222 基极，蜂鸣器接在 5V 和集电极之间。算出 Ib，让强制 β = Ic/Ib ≈ 10，三极管才真正饱和；起始电路的 100 kΩ 基极电阻只能让它停在放大区。",
+  "concepts": ["低边开关 low-side switch", "饱和区 saturation", "强制 β forced beta = Ic/Ib", "基极电阻 base resistor", "Vce(sat)"],
+  "description": [
+    "**要搭的电路**（ESP32 插在 USB 上）：",
+    "- 任意一个能输出的 GPIO（参考答案用 GPIO4）→ R1（1 kΩ）→ Q1（2N2222，平面朝你 E B C）的基极 B。",
+    "- Q1 的发射极 E 接 GND。",
+    "- 有源蜂鸣器 BZ1：长脚（+）接开发板的 **5V** 脚，短脚（−）接 Q1 的集电极 C。",
+    "这叫**低边开关**：三极管在负载和 GND 之间，像一个“接地的开关”。",
+    "",
+    "**起始电路**：面包板上已经搭好了，但基极电阻是 **100 kΩ**。把 GPIO 设为输出高电平，蜂鸣器不响，右侧诊断提示“Q1 工作在放大区（没有完全导通）”。按下面的计算把它换成 1 kΩ。",
+    "",
+    "**引脚设置**：不用在属性里设，测试会依次把这个 GPIO 设成输出高 / 输出低。",
+    "",
+    "**为什么不直接用 GPIO 驱动蜂鸣器**：蜂鸣器要 5 V、约 25–28 mA；GPIO 只有 3.3 V，建议 ≤ 20 mA。三极管让 3.3 V 的小电流去控制 5 V 的大电流。",
+    "",
+    "**怎么算基极电阻**（仿真数值）：",
+    "- 负载电流：5V 脚约 4.67 V（USB 经过板上的二极管），蜂鸣器占 4.49 V，剩下的在三极管上 → **Ic ≈ 24.9 mA**。",
+    "- 想让三极管**深度饱和**，经验规则：Ib ≥ Ic / 10，也就是“强制 β” = Ic/Ib ≈ 10，远小于三极管自己的 β（150）。β 随温度、批次变化很大（2N2222 数据手册从 35 到 300），按 10 设计才有余量。",
+    "- Ib ≥ 2.5 mA → R1 ≤ (3.3 − 0.7) / 2.5 mA ≈ 1.04 kΩ → 取 **1 kΩ**。",
+    "- 仿真：Ib = **2.53 mA**，Vbe ≈ 0.70 V，Ic = **24.9 mA**，强制 β ≈ 9.8，Vce(sat) = **0.17 V**，三极管只消耗约 6 mW；蜂鸣器两端 4.49 V，响。",
+    "- 换成 100 kΩ：Ib = (3.3 − 0.65)/100 kΩ ≈ **26.5 µA**，三极管在放大区，Ic = β·Ib ≈ 150 × 26.5 µA ≈ **4.0 mA**——它变成了一个“受控电流源”，而不是开关。Vce = **3.1 V**，蜂鸣器只剩 1.56 V，不响。",
+    "",
+    "**为什么一定要基极电阻**：BE 结就是一个二极管（约 0.65 V）。不串电阻，GPIO 的 3.3 V 直接加在二极管上，电流只受引脚内阻（ESP32 约 25 Ω）和 BE 结电阻限制：约 (3.3 − 0.65)/45 Ω ≈ 60 mA，超过 40 mA 的绝对最大值，引脚会烧坏。",
+    "",
+    "**要测什么、为什么**：",
+    "- 输出高：蜂鸣器响、Q1 在**饱和区**、Vce < 0.25 V、引脚电流约 2.5 mA（远低于 20 mA）。",
+    "- 输出低：Q1 **截止**，蜂鸣器不响。",
+    "- 把 R1 换成 100 kΩ：Q1 在**放大区**，Ic ≈ 4 mA，Vce ≈ 3.1 V——“三极管没饱和”的样子。",
+    "",
+    "**实际项目经验**：",
+    "- 2N2222 / S8050 适合 ≤ 几百 mA 的负载（蜂鸣器、继电器、小 LED 灯带）；更大的电流用 MOSFET（下一个实验）。",
+    "- 发射极一定接 GND（低边）。NPN 放在高边（负载在 E 和 GND 之间）时，E 最多只能到 Vb − 0.7 V ≈ 2.6 V，负载拿不到 5 V。",
+    "- 可以在基极和 GND 之间再加一个 10 kΩ–100 kΩ 下拉，单片机复位、引脚浮空时三极管保证关断。",
+    "- ESP32 不要用 GPIO0/2/5/12/15（启动配置脚）去开关会“响”或“动”的东西：上电那一瞬间它们会被拉高或拉低；GPIO6–11 接 Flash 不能用；GPIO34–39 只能输入。",
+    "- 无源蜂鸣器（没有内部振荡）要用 PWM（约 2–4 kHz）驱动；有源蜂鸣器给直流就响。",
+    "",
+    "**模型说明**：蜂鸣器模型是 1.0 V + 140 Ω（≥ 2.5 V 才算响），真实有源蜂鸣器电流是脉动的；三极管 β 固定为 150，饱和压降 = 0.15 V + 1 Ω × Ic。关断时集电极电压显示约 3.7 V，是蜂鸣器模型的 1.0 V“阈值”造成的，真实电路里接近 5 V。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 5-7 · NPN transistor switch: a 3.3 V pin switches a 5 V buzzer",
+      "summary": "GPIO → 1 kΩ → 2N2222 base, the buzzer between 5V and the collector. Work out Ib so the forced β = Ic/Ib ≈ 10 and the transistor truly saturates; the 100 kΩ base resistor on the starting board only gets it into the active region.",
+      "concepts": ["low-side switch", "saturation", "forced beta = Ic/Ib", "base resistor", "Vce(sat)"],
+      "description": [
+        "**What you build** (ESP32 on USB):",
+        "- Any output-capable GPIO (the reference uses GPIO4) → R1 (1 kΩ) → the base B of Q1 (2N2222, flat face towards you: E B C).",
+        "- Q1's emitter E to GND.",
+        "- Active buzzer BZ1: long leg (+) to the board's **5V** pin, short leg (−) to Q1's collector C.",
+        "This is a **low-side switch**: the transistor sits between the load and GND, like a switch to ground.",
+        "",
+        "**Starting board**: the circuit is already built, but the base resistor is **100 kΩ**. Set the GPIO to output HIGH: the buzzer stays silent and the diagnostics say \"Q1 is in the active region (not fully on)\". Use the calculation below and swap it for 1 kΩ.",
+        "",
+        "**Pin table settings**: nothing to set; the tests drive the GPIO HIGH and LOW in turn.",
+        "",
+        "**Why not drive the buzzer from the GPIO directly**: the buzzer wants 5 V and about 25–28 mA; a GPIO gives 3.3 V and should stay at ≤ 20 mA. The transistor lets a small 3.3 V current control a bigger 5 V current.",
+        "",
+        "**Sizing the base resistor** (simulated values):",
+        "- Load current: the 5V pin is about 4.67 V (USB through the board's diode), the buzzer takes 4.49 V and the transistor the rest → **Ic ≈ 24.9 mA**.",
+        "- To be sure the transistor is **hard saturated**, the rule of thumb is Ib ≥ Ic / 10, i.e. a \"forced β\" = Ic/Ib ≈ 10, far below the transistor's own β (150). β varies a lot with temperature and batch (the 2N2222 datasheet allows 35 to 300); designing for 10 leaves margin.",
+        "- Ib ≥ 2.5 mA → R1 ≤ (3.3 − 0.7) / 2.5 mA ≈ 1.04 kΩ → use **1 kΩ**.",
+        "- Simulation: Ib = **2.53 mA**, Vbe ≈ 0.70 V, Ic = **24.9 mA**, forced β ≈ 9.8, Vce(sat) = **0.17 V**, only about 6 mW in the transistor; 4.49 V across the buzzer, which sounds.",
+        "- With 100 kΩ: Ib = (3.3 − 0.65)/100 kΩ ≈ **26.5 µA**, the transistor is in the active region and Ic = β·Ib ≈ 150 × 26.5 µA ≈ **4.0 mA** — a controlled current source, not a switch. Vce = **3.1 V**, the buzzer gets only 1.56 V and is silent.",
+        "",
+        "**Why a base resistor at all**: the B–E junction is a diode (about 0.65 V). Without a resistor the GPIO's 3.3 V sits straight across that diode and the current is limited only by the pin's output resistance (about 25 Ω on the ESP32) and the junction: roughly (3.3 − 0.65)/45 Ω ≈ 60 mA, above the 40 mA absolute maximum — the pin burns.",
+        "",
+        "**What you measure and why**:",
+        "- Output HIGH: buzzer sounds, Q1 in **saturation**, Vce < 0.25 V, pin current about 2.5 mA (far below 20 mA).",
+        "- Output LOW: Q1 **cut off**, buzzer silent.",
+        "- R1 swapped for 100 kΩ: Q1 in the **active region**, Ic ≈ 4 mA, Vce ≈ 3.1 V — what \"not saturated\" looks like.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- A 2N2222 / S8050 suits loads up to a few hundred mA (buzzers, relays, short LED strips); for more current use a MOSFET (next experiment).",
+        "- The emitter goes to GND (low side). With an NPN on the high side (load between E and GND) the emitter can only reach Vb − 0.7 V ≈ 2.6 V and the load never sees 5 V.",
+        "- A 10 kΩ–100 kΩ pull-down from base to GND keeps the transistor off while the MCU is in reset and the pin floats.",
+        "- On the ESP32 avoid GPIO0/2/5/12/15 (strapping pins) for anything that beeps or moves: they are pulled high or low during boot; GPIO6–11 belong to the flash; GPIO34–39 are input-only.",
+        "- A passive buzzer (no internal oscillator) needs PWM at about 2–4 kHz; an active buzzer sounds on plain DC.",
+        "",
+        "**Model note**: the buzzer is modelled as 1.0 V + 140 Ω (sounds at ≥ 2.5 V); a real active buzzer draws a pulsing current. β is fixed at 150 and the saturation voltage is 0.15 V + 1 Ω × Ic. When off, the collector shows about 3.7 V because of the buzzer model's 1.0 V \"threshold\"; on a real board it is close to 5 V."
+      ],
+      "hints": [
+        "Start: the board is built but R1 is 100 kΩ. Select R1 and change it to 1 kΩ.",
+        "Rule of thumb: Ib ≥ Ic/10. Ic ≈ 25 mA → Ib ≈ 2.5 mA → R1 ≈ (3.3 − 0.7)/2.5 mA ≈ 1 kΩ.",
+        "E to GND, buzzer + to the 5V pin, buzzer − to C. The 2N2222 legs are E B C with the flat face towards you."
+      ],
+      "tests": [
+        "Output HIGH: buzzer sounds, Q1 saturated, Vce < 0.25 V, Ib ≈ 2.5 mA, Ic ≈ 25 mA",
+        "Output LOW: Q1 cut off, buzzer silent",
+        "R1 = 100 kΩ instead: Q1 only in the active region, Ic ≈ 4 mA, Vce ≈ 3.1 V, buzzer silent"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "U1", "type": "esp32_devkit" },
+    { "ref": "R1", "type": "resistor", "resistance": "1k" },
+    { "ref": "Q1", "type": "npn" },
+    { "ref": "BZ1", "type": "buzzer" }
+  ],
+  "nets": [
+    { "name": "IO", "pins": ["U1.GPIO_OUT1", "R1.1"] },
+    { "name": "BASE", "pins": ["R1.2", "Q1.b"] },
+    { "name": "COLL", "pins": ["Q1.c", "BZ1.-"] },
+    { "name": "5V", "pins": ["U1.5V", "BZ1.+"] },
+    { "name": "GND", "pins": ["Q1.e", "U1.GND"] }
+  ],
+  "tests": [
+    {
+      "name": "输出高：蜂鸣器响，Q1 饱和，Vce < 0.25 V，Ib ≈ 2.5 mA，Ic ≈ 25 mA",
+      "set": { "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
+      "expect": { "BZ1": "on" },
+      "regions": { "Q1": "saturation" },
+      "gpio": [{ "pin": "U1.GPIO_OUT1", "measure": "current", "min": 0.0024, "max": 0.0027 }],
+      "voltages": [
+        { "pin": "Q1.c", "ref": "Q1.e", "min": 0.1, "max": 0.25 },
+        { "pin": "Q1.b", "ref": "Q1.e", "min": 0.65, "max": 0.75 }
+      ],
+      "currents": [
+        { "el": "Q1", "min": 0.0237, "max": 0.0262 },
+        { "el": "R1", "min": 0.0024, "max": 0.0027 }
+      ]
+    },
+    {
+      "name": "输出低：Q1 截止，蜂鸣器不响",
+      "set": { "U1": { "modes": { "GPIO_OUT1": "out_low" } } },
+      "expect": { "BZ1": "off" },
+      "regions": { "Q1": "cutoff" },
+      "currents": [{ "el": "Q1", "max": 0.00001 }]
+    },
+    {
+      "name": "假如 R1 = 100 kΩ：Q1 只在放大区，Ic ≈ 4 mA，Vce ≈ 3.1 V，蜂鸣器不响",
+      "set": { "U1": { "modes": { "GPIO_OUT1": "out_high" } }, "R1": { "resistance": "100k" } },
+      "expect": { "BZ1": "off" },
+      "regions": { "Q1": "active" },
+      "voltages": [{ "pin": "Q1.c", "ref": "Q1.e", "min": 2.95, "max": 3.3 }],
+      "currents": [
+        { "el": "Q1", "min": 0.0038, "max": 0.0042 },
+        { "el": "R1", "min": 0.000025, "max": 0.000028 }
+      ]
+    }
+  ],
+  "hints": [
+    "起始电路已经搭好，但 R1 是 100 kΩ。选中 R1，在属性里改成 1 kΩ。",
+    "经验规则：Ib ≥ Ic/10。Ic ≈ 25 mA → Ib ≈ 2.5 mA → R1 ≈ (3.3 − 0.7)/2.5 mA ≈ 1 kΩ。",
+    "E 接 GND，蜂鸣器 + 接 5V 脚，蜂鸣器 − 接 C。2N2222 平面朝你时三只脚是 E B C。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": true, "modes": { "GPIO4": "out_high" } } },
+      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "wire", "color": "red", "pins": { "a": "j19", "b": "tp19" } },
+      { "type": "resistor", "ref": "R1", "resistance": "1k", "pins": { "1": "a13", "2": "a23" } },
+      { "type": "npn", "ref": "Q1", "at": "c22" },
+      { "type": "wire", "color": "black", "pins": { "a": "a22", "b": "tn22" } },
+      { "type": "buzzer", "ref": "BZ1", "pins": { "+": "tp26", "-": "a24" } }
+    ]
+  },
+  "start": {
+    "parts": [
+      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": true, "modes": { "GPIO4": "out_high" } } },
+      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "wire", "color": "red", "pins": { "a": "j19", "b": "tp19" } },
+      { "type": "resistor", "ref": "R1", "resistance": "100k", "pins": { "1": "a13", "2": "a23" } },
+      { "type": "npn", "ref": "Q1", "at": "c22" },
+      { "type": "wire", "color": "black", "pins": { "a": "a22", "b": "tn22" } },
+      { "type": "buzzer", "ref": "BZ1", "pins": { "+": "tp26", "-": "a24" } }
+    ]
+  }
+}

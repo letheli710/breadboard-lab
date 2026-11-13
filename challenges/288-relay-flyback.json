@@ -1,0 +1,182 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-relay-flyback",
+  "title": "实验 5-9 · 继电器 + 续流二极管：把线圈断电时的高压钳住",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 5,
+  "summary": "GPIO → 1 kΩ → NPN 驱动 5 V 继电器线圈，线圈两端反并一个二极管；继电器触点再去开关一个 9 V 电池供电的 LED。起始电路少了二极管：每次断电，集电极被线圈冲到约 29 V。",
+  "concepts": ["继电器 relay", "电感反电动势 inductive kick v = L·di/dt", "续流二极管 flyback diode", "NPN 驱动线圈 transistor coil driver", "触点 COM / NO / NC"],
+  "description": [
+    "**要搭的电路**（ESP32 插在 USB 上）：",
+    "- **控制侧**：任意输出 GPIO（参考答案 GPIO4）→ R1（1 kΩ）→ Q1（2N2222）基极；E 接 GND。",
+    "- 继电器 K1 的线圈：一端接开发板 **5V** 脚，另一端接 Q1 的集电极 C。",
+    "- 续流二极管 D1 并在线圈两端：**负极（有环）接 +5 V 那一端**，正极接集电极。",
+    "- **负载侧**：9 V 电池 + → 继电器 COM；NO（常开）→ R2（1 kΩ）→ LED1 → 电池 −。电池 − 和开发板 GND 连在一起。",
+    "",
+    "**起始电路**：除了 D1 都搭好了，引脚设成 10 Hz 的 PWM（继电器每秒开关 10 次，故意放大问题）。诊断会提示“K1 的线圈没有续流二极管”，时域仿真还会报告“K1 关断时产生了约 24 V 的反向电压”——集电极峰值约 **29 V**。把 D1 加上。",
+    "",
+    "**引脚设置**：不用设，测试依次用输出高、输出低、PWM 10 Hz。",
+    "",
+    "**数值（仿真）**：",
+    "- 线圈 70 Ω：Ic = (4.65 − 0.21) / 70 ≈ **63 mA**（5V 脚经 USB 二极管约 4.65 V），大于 53 mA 的吸合电流，继电器吸合，COM–NO 接通。",
+    "- Ib = **2.53 mA**，强制 β = 63/2.53 ≈ 25，仍然远小于 150，Q1 饱和，Vce = **0.21 V**。（GPIO 直接驱动不了：3.3 V 只能给线圈 47 mA，还远超引脚 20 mA 的建议值。）",
+    "- 负载侧：(9 − 2.1) / 1 kΩ ≈ **6.8 mA**，绿色 LED 亮。",
+    "- 输出低：Q1 截止，线圈没电，继电器释放，LED 灭。",
+    "- PWM 10 Hz、**有 D1**：集电极最高只到 **5.37 V**（5V 脚电压 + 二极管压降）。没有 D1：断电瞬间线圈电流 63 mA 无处可去，v = L·di/dt 把集电极推到约 **29 V**。",
+    "",
+    "**续流二极管怎么工作**：通电时 D1 反偏，不起作用。断电时线圈“想”维持原来的电流方向，于是它下端（集电极）电压升高；一旦比 +5 V 高 0.7 V，D1 导通，电流沿“线圈 → D1 → 线圈”的小回路慢慢衰减（时间常数 L/R = 150 mH / 70 Ω ≈ 2 ms），能量变成热量消耗在线圈电阻和二极管上。",
+    "",
+    "**要测什么、为什么**：继电器吸合 / 释放和 LED；Q1 饱和；线圈电流 ≈ 63 mA；PWM 时用示波器看集电极 Vmax ≈ 5.4 V，证明高压被钳住了。",
+    "",
+    "**实际项目经验**：",
+    "- 买到的“5 V 继电器模块”板上已经有三极管、续流二极管和指示灯（有的还有光耦）；裸继电器才要自己搭。很多模块是**低电平触发**（IN 接 GND 时吸合）。",
+    "- 5 V 继电器线圈从 5V / VIN 取电，不要从 3V3 取；3.3 V 的模块要买“3 V 线圈”的版本。",
+    "- 二极管用 1N4007 / 1N4148 就够了。它让继电器释放慢一点（几毫秒）；对释放速度有要求时，串一个齐纳二极管加快能量消耗。",
+    "- 触点能切交流 250 V / 10 A 也不代表面包板可以——接市电要用带外壳的模块、保持安全间距，初学者不要碰 220 V。",
+    "- 这里电池 − 和 GND 连在一起；继电器真正的优点是触点和线圈**电气隔离**，负载侧可以完全不共地。",
+    "- ESP32 别用 GPIO0/2/5/12/15 驱动继电器，开机时会“咔哒”一下。",
+    "",
+    "**模型说明**：线圈是 70 Ω + 150 mH，电流 ≥ 53 mA 吸合、< 7 mA 释放，没有机械动作时间。没有二极管时仿真的尖峰约 29 V（受仿真步长和三极管关断过程限制），真实电路里还可能更高，直到三极管 C–E 击穿（约 40 V）。仿真目前要求负载电池的 − 和开发板 GND 相连（两个独立的“地”会被合并，见报告）。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 5-9 · Relay + flyback diode: clamp the coil's turn-off spike",
+      "summary": "GPIO → 1 kΩ → NPN drives a 5 V relay coil with a diode reversed across it; the relay contact switches an LED powered by a 9 V battery. The starting board lacks the diode: every turn-off kicks the collector to about 29 V.",
+      "concepts": ["relay", "inductive kick v = L·di/dt", "flyback diode", "transistor coil driver", "contacts COM / NO / NC"],
+      "description": [
+        "**What you build** (ESP32 on USB):",
+        "- **Control side**: any output GPIO (the reference uses GPIO4) → R1 (1 kΩ) → base of Q1 (2N2222); E to GND.",
+        "- Relay K1's coil: one end to the board's **5V** pin, the other to Q1's collector C.",
+        "- Flyback diode D1 across the coil: **cathode (band) to the +5 V end**, anode to the collector.",
+        "- **Load side**: 9 V battery + → relay COM; NO (normally open) → R2 (1 kΩ) → LED1 → battery −. The battery − is joined to the board's GND.",
+        "",
+        "**Starting board**: everything except D1 is built, and the pin is set to 10 Hz PWM (the relay clicks 10 times a second, to exaggerate the problem). The diagnostics say \"K1's coil has no flyback diode\", and the time-domain simulation reports \"K1 kicks back about 24 V when it switches off\" — the collector peaks at about **29 V**. Add D1.",
+        "",
+        "**Pin table settings**: nothing to set; the tests use output HIGH, output LOW and 10 Hz PWM.",
+        "",
+        "**Numbers (simulated)**:",
+        "- Coil 70 Ω: Ic = (4.65 − 0.21) / 70 ≈ **63 mA** (the 5V pin is about 4.65 V after the USB diode), above the 53 mA pull-in current: the relay pulls in and COM–NO closes.",
+        "- Ib = **2.53 mA**, forced β = 63/2.53 ≈ 25, still far below 150, so Q1 saturates with Vce = **0.21 V**. (A GPIO can't drive the coil directly: 3.3 V gives only 47 mA, and that is way above the pin's 20 mA recommendation anyway.)",
+        "- Load side: (9 − 2.1) / 1 kΩ ≈ **6.8 mA**, the green LED is on.",
+        "- Output LOW: Q1 is cut off, the coil is unpowered, the relay drops out and the LED goes off.",
+        "- PWM 10 Hz **with D1**: the collector peaks at only **5.37 V** (the 5V pin plus one diode drop). Without D1 the 63 mA coil current has nowhere to go at turn-off and v = L·di/dt drives the collector to about **29 V**.",
+        "",
+        "**How the flyback diode works**: while the coil is on, D1 is reverse-biased and does nothing. At turn-off the coil \"wants\" to keep its current flowing the same way, so its lower end (the collector) rises; as soon as it is 0.7 V above +5 V, D1 conducts and the current decays around the small loop coil → D1 → coil (time constant L/R = 150 mH / 70 Ω ≈ 2 ms), its energy turning into heat in the coil resistance and the diode.",
+        "",
+        "**What you measure and why**: relay on/off and the LED; Q1 saturated; coil current ≈ 63 mA; with PWM the scope's Vmax on the collector ≈ 5.4 V, proof that the spike is clamped.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- A ready-made \"5 V relay module\" already carries the transistor, flyback diode and an indicator LED (some add an opto-coupler); only a bare relay needs you to build this. Many modules are **active-low** (they pull in when IN is tied to GND).",
+        "- Power a 5 V relay coil from 5V / VIN, never from 3V3; for a 3.3 V system buy the \"3 V coil\" version.",
+        "- A 1N4007 / 1N4148 is plenty. It makes the relay release a little slower (a few ms); where release speed matters, add a Zener in series to dump the energy faster.",
+        "- Contacts rated 250 V AC / 10 A do not make a breadboard mains-safe — mains needs an enclosed module and proper clearances; beginners shouldn't touch 230 V.",
+        "- Here the battery − shares GND; the real strength of a relay is that the contacts are **galvanically isolated** from the coil, so the load side needs no common ground at all.",
+        "- Don't drive a relay from ESP32 GPIO0/2/5/12/15 — it will click during boot.",
+        "",
+        "**Model note**: the coil is 70 Ω + 150 mH, pulling in at ≥ 53 mA and releasing below 7 mA, with no mechanical delay. Without the diode the simulated spike is about 29 V (limited by the time step and the transistor's turn-off); a real circuit can go higher, up to the transistor's C–E breakdown (about 40 V). The simulator currently needs the load battery's − joined to the board GND (two separate \"grounds\" get merged — see report)."
+      ],
+      "hints": [
+        "The diode goes across the coil, band (cathode) on the 5V end, plain end (anode) on the collector.",
+        "Coil between the 5V pin and C; E to GND; GPIO → 1 kΩ → B.",
+        "Load: battery + → COM, NO → 1 kΩ → LED → battery −; join battery − to the board GND."
+      ],
+      "tests": [
+        "Output HIGH: relay pulls in, LED on, Q1 saturated, coil ≈ 63 mA",
+        "Output LOW: relay released, LED off, Q1 cut off",
+        "PWM 10 Hz: with D1 the collector peaks at only ≈ 5.4 V (spike clamped)"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "U1", "type": "esp32_devkit" },
+    { "ref": "R1", "type": "resistor", "resistance": "1k" },
+    { "ref": "Q1", "type": "npn" },
+    { "ref": "K1", "type": "relay" },
+    { "ref": "D1", "type": "diode" },
+    { "ref": "V2", "type": "dc_source", "voltage": 9 },
+    { "ref": "R2", "type": "resistor", "resistance": "1k" },
+    { "ref": "LED1", "type": "led" }
+  ],
+  "nets": [
+    { "name": "IO", "pins": ["U1.GPIO_OUT1", "R1.1"] },
+    { "name": "BASE", "pins": ["R1.2", "Q1.b"] },
+    { "name": "COLL", "pins": ["Q1.c", "K1.coil2", "D1.anode"] },
+    { "name": "5V", "pins": ["U1.5V", "K1.coil1", "D1.cathode"] },
+    { "name": "GND", "pins": ["Q1.e", "U1.GND", "LED1.cathode", "V2.-"] },
+    { "name": "VLOAD", "pins": ["V2.+", "K1.com"] },
+    { "name": "NO", "pins": ["K1.no", "R2.1"] },
+    { "name": "LA", "pins": ["R2.2", "LED1.anode"] }
+  ],
+  "tests": [
+    {
+      "name": "输出高：继电器吸合，LED 亮，Q1 饱和，线圈 ≈ 63 mA",
+      "set": { "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
+      "expect": { "K1": "on", "LED1": "on" },
+      "regions": { "Q1": "saturation" },
+      "voltages": [{ "pin": "Q1.c", "ref": "Q1.e", "max": 0.3 }],
+      "currents": [
+        { "el": "K1", "min": 0.06, "max": 0.067 },
+        { "el": "R1", "min": 0.0024, "max": 0.0027 },
+        { "el": "LED1", "min": 0.0065, "max": 0.0073 }
+      ]
+    },
+    {
+      "name": "输出低：继电器释放，LED 灭，Q1 截止",
+      "set": { "U1": { "modes": { "GPIO_OUT1": "out_low" } } },
+      "expect": { "K1": "off", "LED1": "off" },
+      "regions": { "Q1": "cutoff" }
+    },
+    {
+      "name": "PWM 10 Hz：有 D1 时集电极最高只有 ≈ 5.4 V（尖峰被钳住）",
+      "set": { "U1": { "modes": { "GPIO_OUT1": { "mode": "pwm", "duty": 50, "frequency": 10 } } } },
+      "scope": [
+        { "pin": "Q1.c", "ref": "Q1.e", "measure": "vmax", "min": 5.1, "max": 5.7 },
+        { "pin": "Q1.c", "ref": "Q1.e", "measure": "freq", "min": 9.5, "max": 10.5 }
+      ]
+    }
+  ],
+  "hints": [
+    "二极管并在线圈两端：有环的一端（负极）接 5V 那头，另一端（正极）接集电极。",
+    "线圈接在 5V 脚和 C 之间；E 接 GND；GPIO → 1 kΩ → B。",
+    "负载侧：电池 + → COM，NO → 1 kΩ → LED → 电池 −；电池 − 接开发板 GND。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": true, "modes": { "GPIO4": "out_high" } } },
+      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "wire", "color": "red", "pins": { "a": "j19", "b": "tp19" } },
+      { "type": "resistor", "ref": "R1", "resistance": "1k", "pins": { "1": "a13", "2": "a22" } },
+      { "type": "npn", "ref": "Q1", "at": "c21" },
+      { "type": "wire", "color": "black", "pins": { "a": "a21", "b": "tn21" } },
+      { "type": "relay", "ref": "K1", "at": "e25" },
+      { "type": "wire", "color": "red", "pins": { "a": "a25", "b": "tp25" } },
+      { "type": "wire", "color": "yellow", "pins": { "a": "b23", "b": "b28" } },
+      { "type": "diode", "ref": "D1", "pins": { "anode": "d28", "cathode": "d25" } },
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "bp22", "-": "bn22" } },
+      { "type": "wire", "color": "black", "pins": { "a": "bn20", "b": "tn20" } },
+      { "type": "wire", "color": "red", "pins": { "a": "j25", "b": "bp25" } },
+      { "type": "resistor", "ref": "R2", "resistance": "1k", "pins": { "1": "h28", "2": "h30" } },
+      { "type": "led", "ref": "LED1", "color": "green", "pins": { "anode": "i30", "cathode": "bn30" } }
+    ]
+  },
+  "start": {
+    "parts": [
+      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": true, "modes": { "GPIO4": { "mode": "pwm", "duty": 50, "frequency": 10 } } } },
+      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "wire", "color": "red", "pins": { "a": "j19", "b": "tp19" } },
+      { "type": "resistor", "ref": "R1", "resistance": "1k", "pins": { "1": "a13", "2": "a22" } },
+      { "type": "npn", "ref": "Q1", "at": "c21" },
+      { "type": "wire", "color": "black", "pins": { "a": "a21", "b": "tn21" } },
+      { "type": "relay", "ref": "K1", "at": "e25" },
+      { "type": "wire", "color": "red", "pins": { "a": "a25", "b": "tp25" } },
+      { "type": "wire", "color": "yellow", "pins": { "a": "b23", "b": "b28" } },
+      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "bp22", "-": "bn22" } },
+      { "type": "wire", "color": "black", "pins": { "a": "bn20", "b": "tn20" } },
+      { "type": "wire", "color": "red", "pins": { "a": "j25", "b": "bp25" } },
+      { "type": "resistor", "ref": "R2", "resistance": "1k", "pins": { "1": "h28", "2": "h30" } },
+      { "type": "led", "ref": "LED1", "color": "green", "pins": { "anode": "i30", "cathode": "bn30" } }
+    ]
+  }
+}

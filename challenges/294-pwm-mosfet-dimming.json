@@ -1,0 +1,496 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-pwm-mosfet-motor",
+  "title": "实验 5-15 · PWM + MOSFET 调速：电机的平均电流跟着占空比走",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 5,
+  "summary": "ESP32 的 PWM 引脚经 100 Ω 驱动逻辑电平 MOSFET IRLZ44N 的栅极，低边开关一个由独立 5 V 电源供电的直流电机，电机两端反并联续流二极管。测 25 / 50 / 100 % 占空比下的平均电流、续流二极管里的电流，并比较 1 kHz 和 20 kHz。",
+  "concepts": [
+    "PWM 调速 PWM speed control",
+    "低边 MOSFET 开关 low-side MOSFET switch",
+    "续流二极管 flyback / freewheeling diode",
+    "栅极电阻与下拉 gate resistor & pull-down",
+    "PWM 频率选择 PWM frequency choice"
+  ],
+  "description": [
+    "**要搭的电路**：ESP32 插在 b1，USB 供电，GND（j14）接 bn。电机用一台**独立的 5 V 稳压电源**（+ → bp，− → bn，限流 1 A），和开发板**共地**。",
+    "- PWM 引脚（参考答案用 GPIO27，i11）→ RG **100 Ω** → MOSFET Q1 的栅极 G；G 到 GND 接 RPD **10 kΩ** 下拉；",
+    "- Q1（IRLZ44N，摆在 f24：G = 24 列、D = 25 列、S = 26 列）的 S 接 GND，D 接电机 M1 的 − 端；",
+    "- M1 的 + 端接 5 V；续流二极管 D1 反向并联在电机两端：**正极接 D（电机 −），负极（色环）接 5 V（电机 +）**。",
+    "",
+    "**引脚设置**：把 PWM 引脚设成“PWM 输出”，频率 **20 kHz**。测试会改占空比（25 / 50 / 100 %）和频率（1 kHz）。参考答案默认是 50 %。",
+    "",
+    "**要测什么、为什么**：",
+    "- 电机的**平均电流**（在时域里 `currents` 测的就是平均值，相当于万用表直流档）：它决定转速 / 转矩；",
+    "- 续流二极管 D1 的平均电流：MOSFET 关断时电机电流**去了哪里**；",
+    "- 电机电流的**有效值**（RMS）：决定线圈发热；1 kHz 和 20 kHz 平均值几乎一样，但 RMS 不一样；",
+    "- 引脚平均电压 = D × 3.3 V，MOSFET 漏极的最高电压（被二极管钳在 5 V + 0.7 V）。",
+    "",
+    "**原理**：MOSFET 导通时电机两端是 5 V，电流沿 5 V → 电机 → D → S → GND 上升；关断时电机线圈（8 Ω、2 mH，τ = L/R = 0.25 ms）要维持电流，电流改走 **电机 → D1 → 电机** 这个小环路（续流），电机两端变成 −0.7 V 左右。20 kHz 的周期 50 µs ≪ τ，电流几乎是一条直线，**平均电压 ≈ D × 5 V − (1 − D) × V_D1**，平均电流 = 平均电压 / 8 Ω。",
+    "",
+    "**仿真得到的数字**（20 kHz）：",
+    "- **25 %**：引脚平均 0.82 V；电机平均 0.71 V、**89 mA**，其中 66 mA（75 %）在续流二极管里；89 mA 低于模型的 0.1 A 起转电流——**电机转不起来**。真实电机也有“死区”：静摩擦要靠一定的电流才能克服，低占空比只会嗡嗡响。",
+    "- **50 %**：平均 2.06 V、**258 mA**，二极管里 129 mA（一半时间在续流）；RMS 也是 258 mA——电流几乎没有纹波。",
+    "- **100 %**：MOSFET 一直导通（Vgs = 3.26 V，在可变电阻区，Rds ≈ 44 mΩ），电机 **620 mA**，二极管不导通。",
+    "- 平均电流不是严格 ∝ 占空比：续流期间二极管的 0.7 V 也算在电机上，低占空比时这部分比例更大。",
+    "- 关断瞬间漏极只到 **5.7 V**（二极管把它钳在 5 V + 0.7 V）。把 D1 拿掉，漏极会冲到 IRLZ44N 的 55 V 雪崩电压。",
+    "",
+    "**PWM 频率怎么选**：",
+    "- **1 kHz、50 %**：周期 1 ms 是 τ 的 4 倍，关断期间电流衰减很多。平均电流 263 mA 和 20 kHz 差不多，但 **RMS 317 mA**——线圈发热 ∝ I_rms²，多了约 45 %；而且 1 kHz 正好在人耳最敏感的频段，电机会“吱吱”叫。",
+    "- 电机：**≥ 20 kHz**，在听觉范围以外，电流平稳。但频率越高，MOSFET 每秒开关次数越多，开关损耗越大；栅极电容（IRLZ44N 约 1.7 nF）靠 GPIO 的 20 mA 充放电，太高的频率会让开关边沿变慢、MOSFET 发热。20–25 kHz 是常见折中。",
+    "- LED 调光：**≥ 1 kHz** 人眼就看不出闪烁（手机摄像头还会拍出条纹，要更高）；LED 没有电感，频率高低不影响平均电流。",
+    "",
+    "**为什么要 RG 和 RPD**：RG（47–220 Ω）限制栅极电容充放电的峰值电流（保护 GPIO），并抑制走线电感引起的振铃；RPD（10–100 kΩ）在单片机复位、引脚还是高阻的那段时间把栅极拉低，否则电机会在上电时乱转。",
+    "",
+    "**实际项目经验**：",
+    "- 选**逻辑电平** MOSFET：数据手册里 Rds(on) 要在 Vgs = 2.5 V 或 4.5 V 时给出（IRLZ44N、AO3400、IRLML6344）。IRF540N 这类要 10 V 的管子用 3.3 V 驱动只会半导通、发烫。",
+    "- 电机、舵机用独立电源，GND 一定要接在一起，否则栅极电压没有参考。",
+    "- 续流二极管选快恢复或肖特基（1N5819、SS34），电流额定 ≥ 电机电流；1N4007 在 20 kHz 下太慢。",
+    "- 电机两端再并一个 100 nF 陶瓷电容吸收电刷火花；5 V 电源上加 ≥ 100 µF 电解电容。",
+    "- ESP32：避免用 GPIO0 / 2 / 5 / 12 / 15（上电时的启动配置引脚）驱动 MOSFET，它们上电时可能被拉高或输出脉冲，电机会抖一下。",
+    "",
+    "**模型说明**：电机是 8 Ω + 2 mH，没有反电动势（真实电机转起来后会产生和转速成正比的反电动势，电流会比这里小）；“转动”按平均电流 ≥ 0.1 A 判断；MOSFET 没有栅极电容，所以开关是瞬时的、没有开关损耗；`regions` 用直流模型（PWM 按平均值），只在 100 % / 输出低电平时有意义；二极管是 0.65 V + 0.8 Ω。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 5-15 · PWM + MOSFET speed control: the motor's average current follows the duty cycle",
+      "summary": "An ESP32 PWM pin drives the gate of an IRLZ44N logic-level MOSFET through 100 Ω; the MOSFET switches a DC motor on a separate 5 V supply on the low side, with a flyback diode across the motor. Measure the average current at 25 / 50 / 100 % duty, the current in the freewheeling diode, and compare 1 kHz with 20 kHz.",
+      "concepts": [
+        "PWM speed control",
+        "low-side MOSFET switch",
+        "flyback / freewheeling diode",
+        "gate resistor & pull-down",
+        "PWM frequency choice"
+      ],
+      "description": [
+        "**What you build**: an ESP32 at b1 on USB, GND (j14) to bn. The motor runs from a **separate 5 V bench supply** (+ → bp, − → bn, 1 A limit) that **shares GND** with the board.",
+        "- PWM pin (the solution uses GPIO27, i11) → RG **100 Ω** → gate G of MOSFET Q1; RPD **10 kΩ** pull-down from G to GND;",
+        "- Q1 (IRLZ44N at f24: G = column 24, D = 25, S = 26): S to GND, D to the motor's − lead;",
+        "- the motor's + lead to 5 V; the flyback diode D1 across the motor, reversed: **anode to D (motor −), cathode (band) to 5 V (motor +)**.",
+        "",
+        "**Pin table settings**: set the PWM pin to \"PWM output\" at **20 kHz**. The tests change the duty (25 / 50 / 100 %) and the frequency (1 kHz). The solution's default is 50 %.",
+        "",
+        "**What you measure and why**:",
+        "- the motor's **average current** (in the time domain `currents` gives the average, like a DMM on DC amps): it sets speed / torque;",
+        "- the average current in D1: **where the motor current goes** while the MOSFET is off;",
+        "- the motor's **RMS current**: it sets the winding's heating; 1 kHz and 20 kHz give almost the same average but not the same RMS;",
+        "- the pin's average voltage = D × 3.3 V, and the drain's peak voltage (clamped by the diode to 5 V + 0.7 V).",
+        "",
+        "**How it works**: with the MOSFET on, the motor sees 5 V and the current rises along 5 V → motor → D → S → GND. When it turns off, the winding (8 Ω, 2 mH, τ = L/R = 0.25 ms) keeps the current flowing, now around the small loop **motor → D1 → motor** (freewheeling), and the motor sees about −0.7 V. At 20 kHz the 50 µs period is ≪ τ, so the current is almost flat: **average voltage ≈ D × 5 V − (1 − D) × V_D1**, average current = average voltage / 8 Ω.",
+        "",
+        "**Numbers from the simulator** (20 kHz):",
+        "- **25 %**: pin average 0.82 V; motor average 0.71 V, **89 mA**, of which 66 mA (75 %) flows in the diode. 89 mA is below the model's 0.1 A start current — **the motor doesn't turn**. Real motors have this dead band too: static friction needs a minimum current, and a low duty just hums.",
+        "- **50 %**: average 2.06 V, **258 mA**, 129 mA in the diode (it freewheels half the time); the RMS is also 258 mA — almost no ripple.",
+        "- **100 %**: the MOSFET stays on (Vgs = 3.26 V, ohmic region, Rds ≈ 44 mΩ), the motor takes **620 mA** and the diode is idle.",
+        "- The average current is not exactly ∝ duty: during freewheeling the diode's 0.7 V also appears across the motor, and at low duty that part weighs more.",
+        "- At turn-off the drain only reaches **5.7 V** (the diode clamps it to 5 V + 0.7 V). Without D1 it would fly up to the IRLZ44N's 55 V avalanche voltage.",
+        "",
+        "**Choosing the PWM frequency**:",
+        "- **1 kHz, 50 %**: the 1 ms period is 4 τ, so the current decays a lot while off. The average (263 mA) is about the same as at 20 kHz, but the **RMS is 317 mA** — winding heat ∝ I_rms², about 45 % more — and 1 kHz is right where the ear is most sensitive: the motor whines.",
+        "- Motors: **≥ 20 kHz**, above hearing, smooth current. But higher frequency means more switching per second and more switching loss; the gate capacitance (≈ 1.7 nF for the IRLZ44N) is charged by a GPIO's ≈ 20 mA, so too high a frequency slows the edges and heats the MOSFET. 20–25 kHz is the usual compromise.",
+        "- LED dimming: **≥ 1 kHz** and the eye sees no flicker (phone cameras still show bands, so go higher); an LED has no inductance, so the frequency doesn't change its average current.",
+        "",
+        "**Why RG and RPD**: RG (47–220 Ω) limits the peak current that charges the gate capacitance (protecting the GPIO) and damps ringing from wiring inductance. RPD (10–100 kΩ) holds the gate low while the MCU is in reset and its pins are high-Z — otherwise the motor twitches at power-up.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- Use a **logic-level** MOSFET: the datasheet must give Rds(on) at Vgs = 2.5 V or 4.5 V (IRLZ44N, AO3400, IRLML6344). An IRF540N-type part that needs 10 V only half turns on at 3.3 V and overheats.",
+        "- Motors and servos get their own supply, and the grounds must be joined, or the gate voltage has no reference.",
+        "- Use a fast or Schottky flyback diode (1N5819, SS34) rated ≥ the motor current; a 1N4007 is too slow at 20 kHz.",
+        "- Add 100 nF ceramic across the motor for brush noise and ≥ 100 µF electrolytic on the 5 V supply.",
+        "- ESP32: don't drive the MOSFET from GPIO0 / 2 / 5 / 12 / 15 (boot strapping pins); they may be pulled high or pulse at power-up and the motor jerks.",
+        "",
+        "**Model note**: the motor is 8 Ω + 2 mH with no back-EMF (a real spinning motor generates a back-EMF ∝ speed, so its current is lower than here); \"running\" means an average current ≥ 0.1 A; the MOSFET has no gate capacitance, so switching is instantaneous with no switching loss; `regions` uses the DC model (PWM as its average), so it is only meaningful at 100 % or output LOW; the diode is 0.65 V + 0.8 Ω."
+      ],
+      "hints": [
+        "Gate path: PWM pin → 100 Ω → G, plus 10 kΩ from G to GND. Source to GND, drain to the motor's − lead.",
+        "The diode's band (cathode) goes to the 5 V end of the motor, its anode to the drain — it must be reverse-biased while the MOSFET is on.",
+        "The bench supply's − must be on the same GND as the ESP32.",
+        "Set the PWM pin to 20 kHz."
+      ],
+      "tests": [
+        "20 kHz, 25 %: average ≈ 89 mA (66 mA freewheeling in D1) — too little, the motor stalls",
+        "20 kHz, 50 %: average ≈ 258 mA, RMS ≈ average, 129 mA through D1",
+        "20 kHz, 100 %: MOSFET fully on (ohmic), ≈ 620 mA, no diode current",
+        "1 kHz, 50 %: same average but RMS ≈ 317 mA (more heating, audible whine)",
+        "Output LOW: MOSFET off, motor stopped"
+      ]
+    }
+  },
+  "components": [
+    {
+      "ref": "U1",
+      "type": "esp32_devkit"
+    },
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 5
+    },
+    {
+      "ref": "RG",
+      "type": "resistor",
+      "resistance": "100"
+    },
+    {
+      "ref": "RPD",
+      "type": "resistor",
+      "resistance": "10k"
+    },
+    {
+      "ref": "Q1",
+      "type": "nmos",
+      "model": "IRLZ44N"
+    },
+    {
+      "ref": "M1",
+      "type": "motor"
+    },
+    {
+      "ref": "D1",
+      "type": "diode"
+    }
+  ],
+  "nets": [
+    {
+      "name": "PWM",
+      "pins": [
+        "U1.PWM1",
+        "RG.1"
+      ]
+    },
+    {
+      "name": "GATE",
+      "pins": [
+        "RG.2",
+        "Q1.g",
+        "RPD.1"
+      ]
+    },
+    {
+      "name": "DRAIN",
+      "pins": [
+        "Q1.d",
+        "M1.-",
+        "D1.anode"
+      ]
+    },
+    {
+      "name": "VM",
+      "pins": [
+        "V1.+",
+        "M1.+",
+        "D1.cathode"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "Q1.s",
+        "RPD.2",
+        "V1.-",
+        "U1.GND"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "name": "20 kHz、25 %：平均 ≈ 89 mA（续流 66 mA）——电流太小，电机转不起来",
+      "set": {
+        "U1": {
+          "modes": {
+            "PWM1": {
+              "mode": "pwm",
+              "duty": 25,
+              "frequency": 20000
+            }
+          }
+        }
+      },
+      "expect": {
+        "M1": "off"
+      },
+      "currents": [
+        {
+          "el": "M1",
+          "min": 0.085,
+          "max": 0.093
+        },
+        {
+          "el": "D1",
+          "min": 0.063,
+          "max": 0.07
+        }
+      ],
+      "scope": [
+        {
+          "pin": "Q1.d",
+          "measure": "vmax",
+          "min": 5.55,
+          "max": 5.9
+        }
+      ],
+      "gpio": [
+        {
+          "pin": "U1.PWM1",
+          "measure": "voltage",
+          "min": 0.79,
+          "max": 0.86
+        }
+      ]
+    },
+    {
+      "name": "20 kHz、50 %：平均 ≈ 258 mA，RMS ≈ 平均，D1 里 129 mA",
+      "set": {
+        "U1": {
+          "modes": {
+            "PWM1": {
+              "mode": "pwm",
+              "duty": 50,
+              "frequency": 20000
+            }
+          }
+        }
+      },
+      "expect": {
+        "M1": "on"
+      },
+      "currents": [
+        {
+          "el": "M1",
+          "min": 0.248,
+          "max": 0.268
+        },
+        {
+          "el": "M1",
+          "mode": "rms",
+          "min": 0.248,
+          "max": 0.268
+        },
+        {
+          "el": "D1",
+          "min": 0.123,
+          "max": 0.134
+        }
+      ],
+      "scope": [
+        {
+          "pin": "M1.+",
+          "ref": "M1.-",
+          "measure": "vavg",
+          "min": 1.98,
+          "max": 2.15
+        }
+      ],
+      "gpio": [
+        {
+          "pin": "U1.PWM1",
+          "measure": "voltage",
+          "min": 1.6,
+          "max": 1.7
+        }
+      ]
+    },
+    {
+      "name": "20 kHz、100 %：MOSFET 完全导通（可变电阻区），≈ 620 mA，二极管不导通",
+      "set": {
+        "U1": {
+          "modes": {
+            "PWM1": {
+              "mode": "pwm",
+              "duty": 100,
+              "frequency": 20000
+            }
+          }
+        }
+      },
+      "expect": {
+        "M1": "on"
+      },
+      "regions": {
+        "Q1": "ohmic"
+      },
+      "currents": [
+        {
+          "el": "M1",
+          "min": 0.6,
+          "max": 0.64
+        },
+        {
+          "el": "D1",
+          "min": -0.001,
+          "max": 0.001
+        }
+      ],
+      "gpio": [
+        {
+          "pin": "U1.PWM1",
+          "measure": "voltage",
+          "min": 3.2,
+          "max": 3.3
+        }
+      ]
+    },
+    {
+      "name": "1 kHz、50 %：平均差不多，但 RMS ≈ 317 mA（更热、能听见啸叫）",
+      "set": {
+        "U1": {
+          "modes": {
+            "PWM1": {
+              "mode": "pwm",
+              "duty": 50,
+              "frequency": 1000
+            }
+          }
+        }
+      },
+      "expect": {
+        "M1": "on"
+      },
+      "currents": [
+        {
+          "el": "M1",
+          "min": 0.253,
+          "max": 0.273
+        },
+        {
+          "el": "M1",
+          "mode": "rms",
+          "min": 0.305,
+          "max": 0.33
+        },
+        {
+          "el": "D1",
+          "min": 0.081,
+          "max": 0.09
+        }
+      ]
+    },
+    {
+      "name": "输出低电平：MOSFET 截止，电机停",
+      "set": {
+        "U1": {
+          "modes": {
+            "PWM1": "out_low"
+          }
+        }
+      },
+      "expect": {
+        "M1": "off"
+      },
+      "regions": {
+        "Q1": "off"
+      },
+      "currents": [
+        {
+          "el": "M1",
+          "min": -0.001,
+          "max": 0.001
+        }
+      ]
+    }
+  ],
+  "hints": [
+    "栅极：PWM 引脚 → 100 Ω → G，再从 G 接 10 kΩ 到 GND。S 接 GND，D 接电机的 − 端。",
+    "二极管的色环（负极）朝电机的 5 V 端，正极接漏极——MOSFET 导通时它是反偏的。",
+    "稳压电源的 − 必须和 ESP32 的 GND 接在一起。",
+    "PWM 引脚设成 20 kHz。"
+  ],
+  "solution": {
+    "parts": [
+      {
+        "type": "esp32_devkit",
+        "ref": "U1",
+        "at": "b1",
+        "props": {
+          "usb": true,
+          "modes": {
+            "GPIO27": {
+              "mode": "pwm",
+              "duty": 50,
+              "frequency": 20000
+            }
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W1",
+        "color": "black",
+        "pins": {
+          "a": "j14",
+          "b": "bn14"
+        }
+      },
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 5,
+        "currentLimit": 1,
+        "pins": {
+          "+": "bp30",
+          "-": "bn30"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "RG",
+        "resistance": "100",
+        "pins": {
+          "1": "j11",
+          "2": "j24"
+        }
+      },
+      {
+        "type": "nmos",
+        "ref": "Q1",
+        "model": "IRLZ44N",
+        "at": "f24"
+      },
+      {
+        "type": "resistor",
+        "ref": "RPD",
+        "resistance": "10k",
+        "pins": {
+          "1": "i24",
+          "2": "bn24"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W2",
+        "color": "black",
+        "pins": {
+          "a": "j26",
+          "b": "bn26"
+        }
+      },
+      {
+        "type": "motor",
+        "ref": "M1",
+        "pins": {
+          "+": "i28",
+          "-": "i25"
+        }
+      },
+      {
+        "type": "diode",
+        "ref": "D1",
+        "pins": {
+          "anode": "h25",
+          "cathode": "h28"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W3",
+        "color": "red",
+        "pins": {
+          "a": "j28",
+          "b": "bp28"
+        }
+      }
+    ]
+  }
+}

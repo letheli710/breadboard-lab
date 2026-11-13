@@ -1,0 +1,167 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-5v-signal-level-shift",
+  "title": "实验 5-10 · 5 V 信号进 3.3 V 单片机：分压电阻 vs 耐 5 V 引脚",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 5,
+  "summary": "用按键模拟一个 5 V 传感器的数字输出。它经过 10 kΩ / 20 kΩ 分压接到不耐 5 V 的 PA0（3.13 V），同时直接接到耐 5 V 的 FT 引脚 PB12（4.69 V）。起始电路把 5 V 直接接到了 PA0，保护二极管流过 52 mA。",
+  "concepts": ["5 V 耐受 5 V-tolerant (FT) pin", "分压电平转换 divider level shifting", "保护二极管 / 钳位电流 clamp diode current", "VIH 输入高电平阈值", "下拉电阻 pull-down"],
+  "description": [
+    "**要搭的电路**（Blue Pill 插在 USB 上）：",
+    "- **“5 V 传感器”**：开发板 **5V** 脚 → 按键 SW1 → 节点 SIG5；R3（10 kΩ）从 SIG5 到 GND 做下拉。按下 = 传感器输出高（约 5 V），松开 = 输出低。",
+    "- **(a) 分压**：SIG5 → R1（10 kΩ）→ 节点 SIG3 → R2（20 kΩ）→ GND。SIG3 接一个 **ADC 引脚**（PA0–PA7、PB0、PB1，都**不耐 5 V**；参考答案 PA0）。",
+    "- **(b) 直接接**：SIG5 直接接一个 **FT（耐 5 V）引脚**（PA8–PA15、PB3、PB4、PB6–PB15；参考答案 PB12）。",
+    "",
+    "**起始电路**：按键已经按下，SIG5 直接接在 PA0 上。诊断报错“U1 PA0 烧坏了！保护二极管电流 52 mA”。拆掉这根线，加上 R1、R2。",
+    "",
+    "**引脚设置**：不用设，测试会把两个引脚设成普通输入（浮空），再把 PA0 设成 ADC、PB12 设成输入 + 上拉做比较。",
+    "",
+    "**数值（仿真）**：USB 经过板上的二极管后，5V 脚约 **4.69 V**。",
+    "- 分压：V(SIG3) = 4.69 × 20k/(10k + 20k) = **3.13 V**，高于 STM32 的 VIH（2.15 V），读到 1；ADC 读数 **3879**（3.13 V）。",
+    "- FT 引脚：PB12 = **4.69 V**，读到 1，没有电流流进引脚。",
+    "- 松开：下拉把两路都拉到 0 V，读到 0。",
+    "- 起始电路：5 V 直接进 PA0，引脚内部到 3V3 的**保护二极管**导通。电源内阻很小，二极管电流 **52 mA**（STM32 允许的注入电流只有约 5 mA），而且这股电流把整个 3V3 电源轨“倒灌”抬高。",
+    "",
+    "**为什么 FT 引脚可以**：FT 引脚上面**没有**接到 VDD 的保护二极管（换成了别的保护结构），所以输入可以到 VDD + 4 V（数据手册写 5.5 V 以内）。但有两个例外：",
+    "- **模拟模式（ADC）下不耐 5 V**——FT 引脚当 ADC 用时，5 V 照样会损坏它。STM32F103 的 ADC 引脚本来就全是非 FT 的。",
+    "- **打开内部上拉时**：上拉电阻接在 3.3 V 上，5 V 会通过它往 3V3 倒灌。仿真：PB12 设成输入 + 上拉时，有 **35 µA** 从引脚流进去（(4.69 − 3.3)/40 kΩ）。数据手册也规定 FT 引脚在 5 V 时不要使能上拉 / 下拉。",
+    "",
+    "**要测什么、为什么**：两路的读数（按下 1、松开 0）、两个引脚的电压、ADC 读数，以及上拉时“倒灌”的电流。",
+    "",
+    "**实际项目经验**：",
+    "- **ESP32 没有任何耐 5 V 的引脚**，所有 5 V 信号都要分压或用电平转换模块。",
+    "- 分压只适合**单向、慢速**信号（几十 kHz 以内）：10 kΩ 级的电阻和引脚电容组成 RC，边沿会变缓。高速信号（SPI、UART 高波特率）用 74LVC245 / TXB0108 一类的芯片；双向（I²C）用 BSS138 MOSFET 电平转换（下一个实验）。",
+    "- 10k / 20k 在输入正好 5.0 V 时会得到 3.33 V，略超 ADC 满量程（读数 4095）。拿来做 ADC 测量时选 10k / 15k（3.0 V）这样留余量。",
+    "- 很多“5 V”传感器（HC-SR04 的 ECHO、5 V 供电的 Arduino 模块）输出就是 5 V，接 STM32 优先选 FT 引脚，接 ESP32 一定要分压。",
+    "- 反过来，3.3 V 的输出去驱动 5 V 逻辑的输入，高电平只有 3.3 V：TTL 输入（VIH = 2 V）能认，5 V CMOS 输入（VIH ≈ 3.5 V）不一定。",
+    "",
+    "**模型说明**：保护二极管被建模为接到 3V3 的二极管（FT 引脚没有），起始电路里 52 mA 由 5V 脚 → 二极管 → 3V3 的回路决定；真实芯片会因闩锁（latch-up）或过热而损坏。仿真没有区分“模拟模式下的 FT 引脚”。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 5-10 · A 5 V signal into a 3.3 V MCU: divider vs 5 V-tolerant pin",
+      "summary": "A push button stands in for a 5 V sensor's digital output. It goes through a 10 kΩ / 20 kΩ divider to the non-5 V-tolerant PA0 (3.13 V) and straight to the 5 V-tolerant FT pin PB12 (4.69 V). The starting board wires 5 V straight to PA0, and its clamp diode carries 52 mA.",
+      "concepts": ["5 V-tolerant (FT) pin", "divider level shifting", "clamp diode current", "VIH input-high threshold", "pull-down"],
+      "description": [
+        "**What you build** (Blue Pill on USB):",
+        "- **The \"5 V sensor\"**: the board's **5V** pin → button SW1 → node SIG5; R3 (10 kΩ) from SIG5 to GND as a pull-down. Pressed = the sensor outputs high (about 5 V), released = low.",
+        "- **(a) Divider**: SIG5 → R1 (10 kΩ) → node SIG3 → R2 (20 kΩ) → GND. SIG3 goes to an **ADC pin** (PA0–PA7, PB0, PB1, all **not** 5 V tolerant; the reference uses PA0).",
+        "- **(b) Direct**: SIG5 straight to an **FT (5 V-tolerant) pin** (PA8–PA15, PB3, PB4, PB6–PB15; the reference uses PB12).",
+        "",
+        "**Starting board**: the button is already pressed and SIG5 is wired straight to PA0. The diagnostics say \"U1 PA0 is damaged! clamp-diode current 52 mA\". Remove that wire and add R1 and R2.",
+        "",
+        "**Pin table settings**: nothing to set; the tests set both pins to plain (floating) inputs, then PA0 to ADC and PB12 to input + pull-up for comparison.",
+        "",
+        "**Numbers (simulated)**: after the board's USB diode the 5V pin is about **4.69 V**.",
+        "- Divider: V(SIG3) = 4.69 × 20k/(10k + 20k) = **3.13 V**, above the STM32's VIH (2.15 V), so it reads 1; the ADC reads **3879** (3.13 V).",
+        "- FT pin: PB12 = **4.69 V**, reads 1, and no current flows into the pin.",
+        "- Released: the pull-down takes both paths to 0 V and they read 0.",
+        "- Starting board: 5 V straight into PA0 forward-biases the pin's internal **clamp diode** to 3V3. With almost no source resistance the diode carries **52 mA** (the STM32 allows only about 5 mA of injected current), and that current back-powers the whole 3V3 rail.",
+        "",
+        "**Why an FT pin copes**: an FT pin has **no** clamp diode to VDD (it uses a different protection structure), so its input may go to VDD + 4 V (5.5 V max in the datasheet). Two exceptions:",
+        "- **Not 5 V tolerant in analog (ADC) mode** — used as an ADC input, an FT pin is damaged by 5 V like any other. On the STM32F103 the ADC pins are all non-FT anyway.",
+        "- **With the internal pull-up enabled**: the pull-up goes to 3.3 V, so 5 V back-feeds 3V3 through it. Simulated: with PB12 as input + pull-up, **35 µA** flows into the pin ((4.69 − 3.3)/40 kΩ). The datasheet also says not to enable pulls on an FT pin that sees 5 V.",
+        "",
+        "**What you measure and why**: both readings (pressed 1, released 0), both pin voltages, the ADC reading, and the back-feed current with the pull-up on.",
+        "",
+        "**Rule of thumb for real projects**:",
+        "- **The ESP32 has no 5 V-tolerant pins at all**: every 5 V signal needs a divider or a level-shifter module.",
+        "- A divider suits **one-way, slow** signals (up to tens of kHz): 10 kΩ-class resistors and the pin capacitance form an RC that rounds the edges. For fast signals (SPI, fast UART) use a 74LVC245 / TXB0108-type chip; for bidirectional lines (I²C) a BSS138 MOSFET shifter (next experiment).",
+        "- 10k / 20k gives 3.33 V from exactly 5.0 V, slightly above ADC full scale (reads 4095). For ADC measurements choose something like 10k / 15k (3.0 V) to keep margin.",
+        "- Many \"5 V\" sensors (the HC-SR04's ECHO, 5 V Arduino modules) really output 5 V: on an STM32 prefer an FT pin, on an ESP32 always divide.",
+        "- The other way round, a 3.3 V output driving a 5 V logic input gives only 3.3 V as HIGH: a TTL input (VIH = 2 V) accepts it, a 5 V CMOS input (VIH ≈ 3.5 V) may not.",
+        "",
+        "**Model note**: the clamp is modelled as a diode to 3V3 (absent on FT pins); the 52 mA on the starting board is set by the 5V pin → diode → 3V3 loop; a real chip would latch up or overheat. The simulator does not distinguish an FT pin in analog mode."
+      ],
+      "hints": [
+        "Start: remove the wire from SIG5 to PA0 — 5 V must never touch a non-FT pin directly.",
+        "Divider: SIG5 → 10 kΩ → PA0 node → 20 kΩ → GND. 4.69 V × 2/3 ≈ 3.1 V.",
+        "The FT pins sit on the lower row (PB12–PB15, PA8–PA12, PA15, PB3, PB4, PB6–PB9): wire SIG5 straight to one."
+      ],
+      "tests": [
+        "Released: both pins read LOW (the pull-down works)",
+        "Pressed: both read HIGH; PA0 ≈ 3.13 V (divided), PB12 ≈ 4.69 V (FT), no current into PB12",
+        "Pressed, PA0 as ADC: ≈ 3879 (3.13 V), below full scale",
+        "Pressed, PB12 with internal pull-up: ≈ 35 µA flows back into the pin — don't enable pulls on a 5 V FT input"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "U1", "type": "stm32_bluepill" },
+    { "ref": "SW1", "type": "pushbutton" },
+    { "ref": "R3", "type": "resistor", "resistance": "10k" },
+    { "ref": "R1", "type": "resistor", "resistance": "10k" },
+    { "ref": "R2", "type": "resistor", "resistance": "20k" }
+  ],
+  "nets": [
+    { "name": "5V", "pins": ["U1.5V", "SW1.1"] },
+    { "name": "SIG5", "pins": ["SW1.2", "R3.1", "R1.1", "U1.GPIO_FT1"] },
+    { "name": "SIG3", "pins": ["R1.2", "R2.1", "U1.ADC1"] },
+    { "name": "GND", "pins": ["R3.2", "R2.2", "U1.GND"] }
+  ],
+  "tests": [
+    {
+      "name": "松开：两个引脚都读到低电平（下拉起作用）",
+      "set": { "SW1": { "pressed": false }, "U1": { "modes": { "ADC1": "input", "GPIO_FT1": "input" } } },
+      "gpio": [
+        { "pin": "U1.ADC1", "read": "low" },
+        { "pin": "U1.GPIO_FT1", "read": "low" }
+      ]
+    },
+    {
+      "name": "按下：两路都读到高；PA0 ≈ 3.13 V（分压后），PB12 ≈ 4.69 V（FT），没有电流流进 PB12",
+      "set": { "SW1": { "pressed": true }, "U1": { "modes": { "ADC1": "input", "GPIO_FT1": "input" } } },
+      "gpio": [
+        { "pin": "U1.ADC1", "read": "high" },
+        { "pin": "U1.GPIO_FT1", "read": "high" },
+        { "pin": "U1.ADC1", "measure": "voltage", "min": 3.0, "max": 3.25 },
+        { "pin": "U1.GPIO_FT1", "measure": "voltage", "min": 4.5, "max": 4.9 },
+        { "pin": "U1.GPIO_FT1", "measure": "current", "min": -0.000001, "max": 0.000001 }
+      ]
+    },
+    {
+      "name": "按下、PA0 设为 ADC：≈ 3879（3.13 V），没有满量程",
+      "set": { "SW1": { "pressed": true }, "U1": { "modes": { "ADC1": "adc", "GPIO_FT1": "input" } } },
+      "gpio": [
+        { "pin": "U1.ADC1", "measure": "adc", "min": 3720, "max": 4000 },
+        { "pin": "U1.ADC1", "measure": "adc_v", "min": 3.0, "max": 3.25 }
+      ]
+    },
+    {
+      "name": "按下、PB12 打开内部上拉：≈ 35 µA 倒灌进引脚——5 V 输入的 FT 脚不要开上拉",
+      "set": { "SW1": { "pressed": true }, "U1": { "modes": { "ADC1": "input", "GPIO_FT1": "input_pullup" } } },
+      "gpio": [{ "pin": "U1.GPIO_FT1", "measure": "current", "min": -0.000038, "max": -0.000031 }]
+    }
+  ],
+  "hints": [
+    "起始电路：先拆掉 SIG5 到 PA0 的那根线——5 V 绝不能直接碰不耐 5 V 的引脚。",
+    "分压：SIG5 → 10 kΩ → PA0 节点 → 20 kΩ → GND。4.69 V × 2/3 ≈ 3.1 V。",
+    "FT 引脚在下排（PB12–PB15、PA8–PA12、PA15、PB3、PB4、PB6–PB9），把 SIG5 直接接过去。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": { "usb": true, "modes": { "PA0": "input", "PB12": "input" } } },
+      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "wire", "color": "red", "pins": { "a": "h18", "b": "j22" } },
+      { "type": "pushbutton", "ref": "SW1", "at": "e22" },
+      { "type": "resistor", "ref": "R3", "resistance": "10k", "pins": { "1": "a24", "2": "tn24" } },
+      { "type": "resistor", "ref": "R1", "resistance": "10k", "pins": { "1": "b24", "2": "b27" } },
+      { "type": "resistor", "ref": "R2", "resistance": "20k", "pins": { "1": "c27", "2": "tn27" } },
+      { "type": "wire", "color": "yellow", "pins": { "a": "a16", "b": "a27" } },
+      { "type": "wire", "color": "green", "pins": { "a": "h1", "b": "j24" } }
+    ]
+  },
+  "start": {
+    "parts": [
+      { "type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": { "usb": true, "modes": { "PA0": "input", "PB12": "input" } } },
+      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "wire", "color": "red", "pins": { "a": "h18", "b": "j22" } },
+      { "type": "pushbutton", "ref": "SW1", "at": "e22", "pressed": true },
+      { "type": "resistor", "ref": "R3", "resistance": "10k", "pins": { "1": "a24", "2": "tn24" } },
+      { "type": "wire", "color": "yellow", "pins": { "a": "a16", "b": "c24" } },
+      { "type": "wire", "color": "green", "pins": { "a": "h1", "b": "j24" } }
+    ]
+  }
+}
