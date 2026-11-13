@@ -157,6 +157,7 @@ over-current, coil without flyback diode (DC) and inductive kick (time domain), 
 
 - 做法 / how：React / zustand 单独一个 `react` chunk；Workbench / SidePanel / Carousel 懒加载；面包板题用构建时索引 `virtual:challenge-index`（`scripts/challenge-index-plugin.ts`），完整题目按组（课程、入门、第 1–5 期）各一个 chunk、打开该组的题时才加载；题目解析器动态 import。/ React + zustand in their own chunk; Workbench, SidePanel and Carousel lazy; challenges behind a build-time index with one chunk per group (lessons, intro, phase 1–5) loaded on open; parsers dynamically imported.
 - 已知剩余 / known remainder：58 kB 的理论题索引仍在入口 chunk 里 / the 58 kB problem index is still in the entry chunk.
+- 第 3 轮 / round 3：Vite 8（Rolldown，`manualChunks` → `codeSplitting.groups`）、Vitest 5；导入页不再加载面包板侧栏（`Md` 移到 `src/ui/Md.tsx`），只内嵌它展示的四份文档。按页面实际下载的 JS（Playwright，`vite preview`）/ JS actually fetched per route: `#/import` 875,349 → 574,741 B；`#/practice/basics` 589,523 → 584,500 B；`#/guide` 356,022 → 355,653 B；`#/learn/…` 1,570,000 → 1,554,224 B。CI 检查入口体积预算（`npm run size`：入口 ≤ 200 kB，入口 + 预加载块 ≤ 360 kB）/ CI enforces an entry-size budget.
 
 ## 待办 / Backlog (engine gaps reported by problem authors)
 

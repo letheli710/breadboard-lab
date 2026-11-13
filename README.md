@@ -70,12 +70,13 @@ npm test             # 引擎单元测试（vitest）+ 所有内置题目的验�
 npm run lint         # ESLint（typescript-eslint + react-hooks）
 npm run format:check # Prettier 格式检查（目前仅供参考，旧代码尚未统一格式化）
 npm run build        # 类型检查 + 生产构建（dist/）
-npm run check        # 以上全部：tsc -b、lint、test、vite build（和 CI 一致）
+npm run size         # 构建后检查入口体积预算（入口 ≤ 200 kB，入口 + 预加载块 ≤ 360 kB）
+npm run check        # 以上全部：tsc -b、lint、test、vite build、size（和 CI 一致）
 ```
 
-CI：`.github/workflows/ci.yml` 在每次 push / PR 时运行 `npm ci`、`tsc -b`、lint、`npm test`（含 validate）和 `vite build`。
+CI：`.github/workflows/ci.yml` 在每次 push / PR 时运行 `npm ci`、`tsc -b`、lint、`npm test`（含 validate）、`vite build` 和体积预算检查（`npm run size`）。工具链：Vite 8（Rolldown）、Vitest 5，需要 Node 20.19+ 或 22.12+。
 
-性能：内置理论题在运行时**不再**用引擎重算答案（这一步由 `npm run validate` 和 `npm test` 保证，修改题目后务必运行）；侧栏用构建时生成的轻量索引（`virtual:problem-index`，见 `scripts/problem-index-plugin.ts`），完整题目按章节分块、打开时才加载。导入页导入的文件仍然完整校验。练习 / 导入 / 知识页面和 three.js 各自单独分块，练习、导入和知识页面不加载 three.js；面包板题同样只在打开所在分组时加载。实测体积见 [`docs/ROADMAP.md`](docs/ROADMAP.md) 的“性能”一节。3D 工具栏的 **流畅** 按钮切换低画质（阴影 1024、像素比 ≤ 1.5），弱设备上会自动开启，选择记在浏览器里。
+性能：内置理论题在运行时**不再**用引擎重算答案（这一步由 `npm run validate` 和 `npm test` 保证，修改题目后务必运行）；侧栏用构建时生成的轻量索引（`virtual:problem-index`，见 `scripts/problem-index-plugin.ts`），完整题目按章节分块、打开时才加载。导入页导入的文件仍然完整校验。练习 / 导入 / 知识页面和 three.js 各自单独分块，练习、导入和知识页面不加载 three.js 和面包板侧栏；面包板题同样只在打开所在分组时加载。实测体积见 [`docs/ROADMAP.md`](docs/ROADMAP.md) 的“性能”一节。3D 工具栏的 **流畅** 按钮切换低画质（阴影 1024、像素比 ≤ 1.5），弱设备上会自动开启，选择记在浏览器里。
 
 代码结构：`src/core`（面包板几何、元件库、网表、直流求解器、时域仿真、诊断、答案匹配、原理图布局、理论题分析引擎——纯 TS，无 UI 依赖）、`src/three`（3D 场景）、`src/ui`（界面）、`src/state`（状态）。
 
