@@ -331,7 +331,7 @@ function BoxSymbol({ el, hl }: { el: SElement; hl: boolean }) {
       <rect x={b.x} y={b.y} width={b.w} height={b.h} rx={4} fill="var(--paper)" stroke={stroke} strokeWidth={hl ? 2.6 : 2} />
       {el.comp.type !== 'ldo' && (
         <text x={b.x + b.w / 2} y={b.y + 15} textAnchor="middle" className="ref-label">
-          {b.title}
+          {el.ref} · {b.title}
         </text>
       )}
       {el.labels?.map((l, i) => (
@@ -484,7 +484,9 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hoverNet, o
               </g>
             )}
             {el.box ? (
-              <text x={el.box.x + (el.comp.type === 'ldo' ? el.box.w / 2 : 0)} y={el.box.y - 6} textAnchor={el.comp.type === 'ldo' ? 'middle' : 'start'} className="ref-label">
+              // the regulator's ref sits above its box; a dev board's is in its title row
+              el.comp.type === 'ldo' && (
+                <text x={el.box.x + el.box.w / 2} y={el.box.y - 6} textAnchor="middle" className="ref-label">
                 {el.ref}
                 {showValues &&
                   valueText(el, sim).map((t, i) => (
@@ -492,7 +494,8 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hoverNet, o
                       {t}
                     </tspan>
                   ))}
-              </text>
+                </text>
+              )
             ) : (
               <>
                 <text x={el.x + labelDx(el)} y={el.y - 4 + (el.comp.type === 'opamp' ? -16 : 0)} className="ref-label">

@@ -486,3 +486,16 @@ describe('open drain + rise time (I²C pull-ups)', () => {
     expect(p.current).toBe(0);
   });
 });
+
+describe('flyback diode is not "reversed"', () => {
+  it('no reverse warning for a diode across an energised relay coil', async () => {
+    const { buildNetlist } = await import('./netlist');
+    const { boardDiagnostics } = await import('./diagnostics');
+    const nl = { circuit: circ([['PSU1', 'bench_supply', { voltage: 5, currentLimit: 1 }], ['K1', 'relay'], ['D1', 'diode']], [['PSU1.+', 'K1.coil1', 'D1.cathode'], ['K1.coil2', 'D1.anode', 'PSU1.-']]) };
+    void buildNetlist;
+    const pinNet = new Map<string, string>();
+    nl.circuit.nets.forEach((n) => n.pins.forEach((p) => pinNet.set(p, n.name)));
+    const issues = boardDiagnostics({ ...nl, pinNet, pinHoles: new Map(), netHoles: new Map(), holeNet: new Map(), unplaced: [] }, simulate(nl.circuit));
+    expect(issues.some((i) => i.refs.includes('D1') && /反|revers/i.test(i.title))).toBe(false);
+  });
+});

@@ -104,7 +104,15 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         refs: [ref],
         holes: [],
       });
-    if (l.reverse)
+    // a flyback diode across a coil / motor is reverse-biased by design
+    const dn = [nl.pinNet.get(pinId(ref, 'anode')), nl.pinNet.get(pinId(ref, 'cathode'))].sort().join('|');
+    const flyback =
+      comp.type === 'diode' &&
+      circuit.components.some((x) => {
+        const ts = x.type === 'relay' ? ['coil1', 'coil2'] : x.type === 'motor' || x.type === 'inductor' ? (x.type === 'motor' ? ['+', '-'] : ['1', '2']) : null;
+        return !!ts && ts.map((t) => nl.pinNet.get(pinId(x.ref, t))).sort().join('|') === dn;
+      });
+    if (l.reverse && !flyback)
       out.push({
         severity: 'warning',
         title: tr(`${ref} 可能接反了`, `${ref} may be backwards`),

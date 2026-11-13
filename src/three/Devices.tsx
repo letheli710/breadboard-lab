@@ -265,7 +265,9 @@ export function motorFrame(part: PlacedPart) {
 }
 
 /** height of the motor's back end above the table (y of the table is −0.92) */
-const MOUNT_H = 0.9;
+const MOUNT_H = 0.6;
+/** the motor is drawn at 70 % so it doesn't tower over the board */
+const MOTOR_SCALE = 0.7;
 
 function useMotorShape() {
   return useMemo(() => {
@@ -295,7 +297,7 @@ export function Motor({ part, sim }: PartViewProps) {
   });
   // local frame: shaft along +z, flats facing ±y; rotated so +z points up and +y away from the board
   const rot = new THREE.Euler(-Math.PI / 2, 0, 0);
-  const toWorld = (x: number, y: number, z: number) => V(x, y, z).applyEuler(rot).add(pos);
+  const toWorld = (x: number, y: number, z: number) => V(x, y, z).applyEuler(rot).multiplyScalar(MOTOR_SCALE).add(pos);
   const lead = (lx: number, hole: string | undefined) => {
     if (!hole) return null;
     const to = holeVec(hole);
@@ -311,10 +313,10 @@ export function Motor({ part, sim }: PartViewProps) {
     <group>
       {/* mount block on the table */}
       <mesh position={[pos.x, (MOUNT_H - 0.92) / 2, pos.z]} castShadow>
-        <boxGeometry args={[2.0, MOUNT_H + 0.92, 2.0]} />
+        <boxGeometry args={[1.6, MOUNT_H + 0.92, 1.6]} />
         <Mat color="#6b4f3a" roughness={0.8} />
       </mesh>
-      <group position={pos} rotation={rot}>
+      <group position={pos} rotation={rot} scale={MOTOR_SCALE}>
         {/* plastic end cap, then the metal can (flats front and back) */}
         <mesh geometry={cap} position={[0, 0, 0]} castShadow>
           <Mat color="#f1efe8" roughness={0.6} />
@@ -540,7 +542,7 @@ export function deviceLabel(part: PlacedPart, sim?: SimResult): string {
 
 /** Label anchor for devices whose body is not over their legs (the motor sits off the board). */
 export function deviceAnchor(part: PlacedPart): THREE.Vector3 | null {
-  if (part.type === 'motor') return motorFrame(part).pos.clone().add(V(0, 11.5, 0));
+  if (part.type === 'motor') return motorFrame(part).pos.clone().add(V(0, 11.5 * MOTOR_SCALE, 0));
   if (part.type === 'relay') {
     const a = holeVec(part.pins.coil1 ?? '');
     const b = holeVec(part.pins.no ?? '');
