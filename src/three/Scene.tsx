@@ -9,6 +9,7 @@ import { ammeterReading, ledOf, useDerived } from '../state/derived';
 import { scopeChannelFor, useStore } from '../state/store';
 import { Board } from './Board';
 import type { PartCtxValue } from './common';
+import { DragLayer, grabPart } from './Drag';
 import { PartView } from './Parts';
 import { qualityParams, useLowQuality, useQuality } from './quality';
 import { assignSlots, nextSlot } from './slots';
@@ -130,9 +131,11 @@ function Parts() {
           label={showLabels}
           labelTone={errorRefs.has(p.ref) ? 'error' : 'normal'}
           onPick={pickPart}
+          onGrab={grabPart}
         />
       ))}
       <PlacementGhost />
+      <DragLayer />
     </group>
   );
 }

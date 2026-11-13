@@ -1,0 +1,209 @@
+// Drag-to-move in select mode: press on a placed part and drag it to other holes (a jumper wire
+// grabbed near one end moves only that end). A translucent preview follows the pointer, red when
+// the drop would be rejected; releasing calls the store's movePart (validated, one undo step).
+
+import type { ThreeEvent } from '@react-three/fiber';
+import { useThree } from '@react-three/fiber';
+import { useEffect } from 'react';
+import * as THREE from 'three';
+import { create } from 'zustand';
+import { HOLES, HOLE_MAP, MAIN_ROWS, holeId, type RowId } from '../core/breadboard';
+import { PARTS } from '../core/parts';
+import type { PlacedPart } from '../core/types';
+import { moveError, useStore } from '../state/store';
+import type { PartCtxValue } from './common';
+import { PartView } from './Parts';
+import { assignSlots } from './slots';
+
+/** Rows in board order (top to bottom), so a whole-part move can shift by whole rows. */
+const ROW_ORDER: RowId[] = ['tp', 'tn', ...MAIN_ROWS, 'bp', 'bn'];
+
+interface Drag {
+  part: PlacedPart;
+  /** hole nearest to where the part was grabbed */
+  grab: string;
+  /** a jumper-wire end being moved alone, or null to move the whole part */
+  end: string | null;
+  /** board-plane offset from the press point to the grabbed hole (keeps the part under the cursor) */
+  dx: number;
+  dz: number;
+  /** footprint parts: the anchor hole whose footprint the part occupies */
+  anchor: string | null;
+  /** client coordinates of the press (the drag starts after a few pixels) */
+  x0: number;
+  y0: number;
+  active: boolean;
+  /** pins at the current pointer position (null: nowhere valid to show) */
+  pins: Record<string, string> | null;
+}
+
+/** The OrbitControls of the scene (set by DragLayer), so grabPart can pause them. */
+const sceneControls: { current: { enabled: boolean } | null } = { current: null };
+
+const useDrag = create<{ drag: Drag | null }>(() => ({ drag: null }));
+const setDrag = (d: Drag | null) => useDrag.setState({ drag: d });
+
+const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const hitPoint = new THREE.Vector3();
+
+/** Nearest hole to a point on the board plane (within ~a pitch), or null. */
+function nearestHole(p: THREE.Vector3): string | null {
+  let best: string | null = null;
+  let bd = 0.8 * 0.8;
+  for (const h of HOLES) {
+    const d = (h.x - p.x) ** 2 + (h.z - p.z) ** 2;
+    if (d < bd) {
+      bd = d;
+      best = h.id;
+    }
+  }
+  return best;
+}
+
+function shiftHole(id: string, dc: number, dr: number): string | null {
+  const h = HOLE_MAP.get(id);
+  if (!h) return null;
+  const r = ROW_ORDER[ROW_ORDER.indexOf(h.row) + dr];
+  if (!r) return null;
+  const n = holeId(r, h.col + dc);
+  return HOLE_MAP.has(n) ? n : null;
+}
+
+/** Pins of the dragged part if the grabbed hole were dropped on `to`. */
+function targetPins(d: Drag, to: string): Record<string, string> | null {
+  const { part } = d;
+  if (d.end) {
+    const key = Object.keys(part.pins).find((k) => part.pins[k] === d.end);
+    return key ? { ...part.pins, [key]: to } : null;
+  }
+  const g = HOLE_MAP.get(d.grab)!;
+  const t = HOLE_MAP.get(to)!;
+  const dc = t.col - g.col;
+  const dr = ROW_ORDER.indexOf(t.row) - ROW_ORDER.indexOf(g.row);
+  const def = PARTS[part.type];
+  if (def.placement.kind === 'footprint') {
+    // footprints usually pin their anchor to one row (dev boards): fall back to a sideways move
+    const fp = def.placement.footprint;
+    for (const r of dr === 0 ? [0] : [dr, 0]) {
+      const a = d.anchor ? shiftHole(d.anchor, dc, r) : null;
+      const pins = a ? fp(a) : null;
+      if (pins) return pins;
+    }
+    return null;
+  }
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(part.pins)) {
+    const n = shiftHole(v, dc, dr);
+    if (!n) return null;
+    out[k] = n;
+  }
+  return out;
+}
+
+const samePins = (a: Record<string, string>, b: Record<string, string>) =>
+  Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => b[k] === v);
+
+/** Start a (potential) drag: pointer pressed on a placed part. Stable; passed to PartView. */
+export function grabPart(part: PlacedPart, e: ThreeEvent<PointerEvent>) {
+  if (useStore.getState().tool !== 'select' || e.button !== 0) return;
+  if (!e.ray.intersectPlane(plane, hitPoint)) return;
+  const pinHoles = Object.values(part.pins).filter((h) => HOLE_MAP.has(h));
+  if (pinHoles.length === 0) return;
+  // grabbed hole: nearest pin hole for the whole part (so the part moves in whole pitches)
+  let grab = pinHoles[0];
+  let gd = Infinity;
+  for (const id of pinHoles) {
+    const h = HOLE_MAP.get(id)!;
+    const d = Math.hypot(h.x - hitPoint.x, h.z - hitPoint.z);
+    if (d < gd) {
+      gd = d;
+      grab = id;
+    }
+  }
+  let end: string | null = null;
+  if (part.type === 'wire' && pinHoles.length === 2) {
+    const [a, b] = pinHoles.map((id) => HOLE_MAP.get(id)!);
+    const len = Math.hypot(a.x - b.x, a.z - b.z);
+    if (gd < Math.min(1.5, len * 0.35)) end = grab;
+  }
+  let anchor: string | null = null;
+  const def = PARTS[part.type];
+  if (!end && def.placement.kind === 'footprint') {
+    const fp = def.placement.footprint;
+    anchor = HOLES.find((h) => {
+      const f = fp(h.id);
+      return !!f && samePins(f, part.pins);
+    })?.id ?? null;
+    if (!anchor) return; // unknown shape: leave the part alone
+  }
+  e.stopPropagation();
+  // hold the camera still while the part is being dragged (OrbitControls reads this on its own pointerdown)
+  const controls = sceneControls.current;
+  if (controls) controls.enabled = false;
+  const gh = HOLE_MAP.get(grab)!;
+  setDrag({ part, grab, end, anchor, dx: gh.x - hitPoint.x, dz: gh.z - hitPoint.z, x0: e.nativeEvent.clientX, y0: e.nativeEvent.clientY, active: false, pins: null });
+}
+
+
+const PREVIEW_OK: PartCtxValue = { ghost: true, tint: 'none' };
+const PREVIEW_BAD: PartCtxValue = { ghost: true, tint: 'error' };
+
+/** Tracks the pointer during a drag, draws the preview, commits the move on release. */
+export function DragLayer() {
+  const drag = useDrag((s) => s.drag);
+  const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
+  const raycaster = useThree((s) => s.raycaster);
+  const controls = useThree((s) => s.controls) as unknown as { enabled: boolean } | null;
+  const invalidate = useThree((s) => s.invalidate);
+  const layout = useStore((s) => s.layout);
+  sceneControls.current = controls;
+
+  const dragging = !!drag;
+  useEffect(() => {
+    if (!dragging) return;
+    const ndc = new THREE.Vector2();
+    const move = (ev: PointerEvent) => {
+      const d = useDrag.getState().drag;
+      if (!d) return;
+      if (!d.active && Math.hypot(ev.clientX - d.x0, ev.clientY - d.y0) < 5) return;
+      const r = gl.domElement.getBoundingClientRect();
+      ndc.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+      raycaster.setFromCamera(ndc, camera);
+      const to = raycaster.ray.intersectPlane(plane, hitPoint) ? nearestHole(hitPoint.add(new THREE.Vector3(d.dx, 0, d.dz))) : null;
+      if (!to) {
+        // between holes (trench, off the board): keep the last target, just start the drag
+        if (!d.active) setDrag({ ...d, active: true });
+        return;
+      }
+      const pins = targetPins(d, to);
+      if (d.active && (pins === d.pins || (pins && d.pins && samePins(pins, d.pins)))) return;
+      setDrag({ ...d, active: true, pins });
+      invalidate();
+    };
+    const up = () => {
+      const d = useDrag.getState().drag;
+      setDrag(null);
+      if (controls) controls.enabled = true;
+      invalidate();
+      if (!d?.active) return; // a plain click: selection is handled by the part's onClick
+      const st = useStore.getState();
+      if (d.pins && !samePins(d.pins, d.part.pins)) st.movePart(d.part.id, d.pins);
+      st.select(d.part.id);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+    return () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+    };
+  }, [dragging, camera, gl, raycaster, controls, invalidate]);
+
+  const preview = drag?.active && drag.pins ? { ...drag.part, id: 'drag-preview', pins: drag.pins } : null;
+  if (!drag || !preview) return null;
+  const ok = moveError(layout, drag.part.id, preview.pins) === null;
+  const slot = assignSlots(layout.parts).get(drag.part.id) ?? 0;
+  return <PartView part={preview} slot={slot} ctx={ok ? PREVIEW_OK : PREVIEW_BAD} label={false} />;
+}

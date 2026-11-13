@@ -36,6 +36,8 @@ export interface PartViewProps {
  *  unrelated store changes (hovering a hole) do not re-render every part. */
 export type PartViewOuterProps = Omit<PartViewProps, 'onClick'> & {
   onPick?: (part: PlacedPart, e: ThreeEvent<MouseEvent>) => void;
+  /** pointer pressed on the part (select-mode drag to move) */
+  onGrab?: (part: PlacedPart, e: ThreeEvent<PointerEvent>) => void;
 };
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
@@ -465,10 +467,12 @@ function PowerModule({ part, onClick }: PartViewProps) {
   );
 }
 
-export const PartView = memo(function PartView({ onPick, ...rest }: PartViewOuterProps) {
+export const PartView = memo(function PartView({ onPick, onGrab, ...rest }: PartViewOuterProps) {
   const { part } = rest;
   const onClick = useCallback((e: ThreeEvent<MouseEvent>) => onPick?.(part, e), [onPick, part]);
-  return <PartBody {...rest} onClick={onPick ? onClick : undefined} />;
+  const onDown = useCallback((e: ThreeEvent<PointerEvent>) => onGrab?.(part, e), [onGrab, part]);
+  const body = <PartBody {...rest} onClick={onPick ? onClick : undefined} />;
+  return onGrab ? <group onPointerDown={onDown}>{body}</group> : body;
 });
 
 function PartBody(props: PartViewProps) {
