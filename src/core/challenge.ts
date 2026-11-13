@@ -113,6 +113,9 @@ export interface MeasurementQuestion {
   predict: boolean;
   /** needed to complete the challenge (default true) */
   required: boolean;
+  /** the lab text states a number equal to this reading on purpose (a model parameter or a spec limit the
+   *  reading verifies): the validator's answer-leak check skips this question */
+  stated?: boolean;
   /** the state the reading is taken in (button pressed, knob position, generator settings) */
   set: Record<string, PartProps>;
   /** null for a multiple-choice question */
@@ -743,6 +746,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
       if (typeof m.unit !== 'string') errors.push(tr(`${wi}.unit: 必须是字符串，如 "mA"`, `${wi}.unit: must be a string, e.g. "mA"`));
       else unit = m.unit;
     }
+    if (m.stated !== undefined && typeof m.stated !== 'boolean') errors.push(tr(`${wi}.stated: 必须是 true 或 false`, `${wi}.stated: must be true or false`));
     if (what === null && m.predict) errors.push(tr(`${wi}: 选择题不能 "predict"`, `${wi}: a multiple-choice question can't "predict"`));
     for (const k of ['tol', 'tolAbs', 'tolDeg'] as const)
       if (m[k] !== undefined && (typeof m[k] !== 'number' || !((m[k] as number) >= 0))) errors.push(tr(`${wi}.${k}: 必须是非负数`, `${wi}.${k}: must be a number ≥ 0`));
@@ -764,6 +768,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
       tolDeg: typeof m.tolDeg === 'number' ? m.tolDeg : 2,
       predict: m.predict === true,
       required: m.optional !== true,
+      ...(m.stated === true ? { stated: true } : {}),
       set,
       what,
       range,

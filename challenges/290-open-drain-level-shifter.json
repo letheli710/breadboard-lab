@@ -6,7 +6,7 @@
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "耐 5 V 的 FT 引脚设成开漏输出，外接 4.7 kΩ 上拉到 5V：输出低 ≈ 0.04 V、灌 1 mA；“输出高”时引脚松开，上拉把它拉到 4.69 V——推挽输出只能给 3.3 V。起始电路用的是不耐 5 V 的 PA0。",
+  "summary": "耐 5 V 的 FT 引脚设成开漏输出，外接 4.7 kΩ 上拉到 5V：测输出低、“输出高”（引脚松开）和推挽输出高三种情况。起始电路用的是不耐 5 V 的 PA0。",
   "concepts": ["开漏输出 open-drain output", "上拉电阻 pull-up resistor", "推挽输出 push-pull output", "5 V 耐受 FT pin", "电平转换 level shifting", "I²C 总线 I2C bus"],
   "description": [
     "**目标**：用 3.3 V 单片机的**开漏输出**加一个上拉电阻，给 5 V 逻辑芯片送出真正的 5 V 高电平，并看清楚为什么必须用耐 5 V 的引脚。",
@@ -42,7 +42,7 @@
   "i18n": {
     "en": {
       "title": "Experiment 5-11 · Open-drain + 5 V pull-up: a 3.3 V MCU outputs a 5 V logic level",
-      "summary": "A 5 V-tolerant FT pin as an open-drain output with an external 4.7 kΩ pull-up to 5V: LOW ≈ 0.04 V sinking 1 mA; at \"HIGH\" the pin lets go and the pull-up takes it to 4.69 V — push-pull only gives 3.3 V. The starting board uses PA0, which is not 5 V tolerant.",
+      "summary": "A 5 V-tolerant FT pin as an open-drain output with a 4.7 kΩ pull-up to 5V: measure output LOW, output \"HIGH\" (pin released) and push-pull HIGH. The starting board uses PA0, which is not 5 V tolerant.",
       "concepts": ["open-drain output", "pull-up resistor", "push-pull output", "5 V-tolerant FT pin", "level shifting", "I2C bus"],
       "description": [
         "**Goal**: use a 3.3 V microcontroller's **open-drain output** plus one pull-up resistor to give a 5 V logic chip a real 5 V HIGH, and see why the pin must be 5 V tolerant.",
@@ -148,7 +148,7 @@
   "measurements": [
     {"id": "vl", "tolAbs": 0.002, "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_low", "openDrain": true}}}}, "unit": "mV", "predict": true, "range": [0.0376, 0.0416], "ask": "开漏输出低：OUT5 对 GND 的电压", "explain": "N 管约 40 Ω：40 Ω × 0.99 mA ≈ 40 mV。"},
     {"id": "il", "current": "R1", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_low", "openDrain": true}}}}, "unit": "mA", "predict": true, "range": [0.00094, 0.00104], "ask": "开漏输出低：上拉 R1 的电流（也就是引脚灌进的电流）", "explain": "4.69 V / 4.7 kΩ ≈ 0.99 mA。上拉越小上升沿越快，但输出低时灌电流越大。"},
-    {"id": "vh", "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_high", "openDrain": true}}}}, "unit": "V", "predict": true, "range": [4.46, 4.92], "ask": "开漏输出高（引脚松开）：OUT5 对 GND", "explain": "引脚不再拉，R1 里没有电流，OUT5 等于 5V 脚的 4.69 V——FT 引脚没有接 3V3 的保护二极管，所以不会被钳住。"},
+    {"id": "vh", "stated": true, "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_high", "openDrain": true}}}}, "unit": "V", "predict": true, "range": [4.46, 4.92], "ask": "开漏输出高（引脚松开）：OUT5 对 GND", "explain": "引脚不再拉，R1 里没有电流，OUT5 等于 5V 脚的 4.69 V——FT 引脚没有接 3V3 的保护二极管，所以不会被钳住。"},
     {"id": "vpp", "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": "out_high"}}}, "unit": "V", "predict": true, "range": [3.15, 3.48], "ask": "改成推挽输出高：OUT5 对 GND", "explain": "上管把 OUT5 拉在约 3.3 V，低于 5 V CMOS 的 VIH ≈ 3.5 V：不一定能被认作高电平。"},
     {"id": "ipp", "current": "R1", "set": {"U1": {"modes": {"GPIO_FT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.000279, 0.000308], "ask": "同一状态：R1 的电流（从 5V 脚流向引脚）", "explain": "(4.69 − 3.31) / 4.7 kΩ ≈ 0.29 mA 从 5 V 倒流进引脚、再灌进 3V3：推挽和 5 V 上拉在打架。"}
   ],

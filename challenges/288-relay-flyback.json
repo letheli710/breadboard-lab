@@ -6,7 +6,7 @@
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "GPIO → 1 kΩ → NPN 驱动 5 V 继电器线圈，线圈两端反并一个二极管；继电器触点再去开关一个 9 V 电池供电的 LED。起始电路少了二极管：每次断电，集电极被线圈冲到约 29 V。",
+  "summary": "GPIO → 1 kΩ → NPN 驱动 5 V 继电器线圈，线圈两端反并一个二极管；继电器触点再去开关一个 9 V 电池供电的 LED。起始电路少了二极管，断电时线圈会产生反向高压。",
   "concepts": ["继电器 relay", "电感反电动势 inductive kick v = L·di/dt", "续流二极管 flyback diode", "NPN 驱动线圈 transistor coil driver", "触点 COM / NO / NC"],
   "description": [
     "**目标**：用 NPN 三极管驱动 5 V 继电器线圈，并用反并联的二极管吸收线圈断电时的高压尖峰；继电器触点切换一个由 9 V 电池供电的 LED。",
@@ -42,7 +42,7 @@
   "i18n": {
     "en": {
       "title": "Experiment 5-9 · Relay + flyback diode: clamp the coil's turn-off spike",
-      "summary": "GPIO → 1 kΩ → NPN drives a 5 V relay coil with a diode reversed across it; the relay contact switches an LED powered by a 9 V battery. The starting board lacks the diode: every turn-off kicks the collector to about 29 V.",
+      "summary": "GPIO → 1 kΩ → NPN drives a 5 V relay coil with a reverse diode across it; the relay contact switches an LED powered by a 9 V battery. The starting board lacks the diode, so the coil kicks back a high voltage at turn-off.",
       "concepts": ["relay", "inductive kick v = L·di/dt", "flyback diode", "transistor coil driver", "contacts COM / NO / NC"],
       "description": [
         "**Goal**: Drive a 5 V relay coil with an NPN transistor and absorb the coil's turn-off spike with a reverse diode across it; the relay contact switches an LED powered by a 9 V battery.",
@@ -165,7 +165,7 @@
   "measurements": [
     {"id": "icoil", "current": "K1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.0602, 0.0666], "ask": "输出高：线圈电流（电流表串在 5V 脚和线圈之间）", "explain": "(4.65 − 0.21) / 70 Ω ≈ 63 mA，大于 53 mA 的吸合电流。"},
     {"id": "vce", "voltage": "Q1.c", "ref": "Q1.e", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [0.203, 0.224], "ask": "输出高：Vce", "explain": "Ib ≈ 2.53 mA，强制 β ≈ 25，仍远小于 150：Q1 饱和，Vce ≈ 0.21 V。"},
-    {"id": "iled", "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.00647, 0.00715], "ask": "输出高：负载侧 LED 的电流（9 V 电池经触点供电）", "explain": "(9 − 2.1) / 1 kΩ ≈ 6.8 mA。触点和线圈电气上隔离：控制侧 5 V，负载侧可以是别的电源。"},
+    {"id": "iled", "stated": true, "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.00647, 0.00715], "ask": "输出高：负载侧 LED 的电流（9 V 电池经触点供电）", "explain": "(9 − 2.1) / 1 kΩ ≈ 6.8 mA。触点和线圈电气上隔离：控制侧 5 V，负载侧可以是别的电源。"},
     {"id": "vmax", "scope": "vmax", "pin": "Q1.c", "ref": "Q1.e", "set": {"U1": {"modes": {"GPIO_OUT1": {"mode": "pwm", "duty": 50, "frequency": 10}}}}, "unit": "V", "predict": true, "range": [5.1, 5.64], "ask": "PWM 10 Hz：示波器看集电极电压的最大值 Vmax", "explain": "D1 一导通就把集电极钳在 5V 脚电压 + 二极管压降 ≈ 5.4 V。"},
     {"id": "nod1", "choices": ["集电极冲到几十伏（v = L·di/dt），可能击穿三极管", "集电极电压和有 D1 时一样", "集电极变成负电压"], "correct": 0, "ask": "如果拿掉 D1（像起始电路那样），三极管关断的瞬间会怎样？", "explain": "线圈的 63 mA 无处可去，仿真里集电极冲到约 29 V，真实电路可能更高，直到 C–E 击穿（约 40 V）。有 D1 时电流沿“线圈 → D1”的小回路以 L/R ≈ 2 ms 衰减。"}
   ],

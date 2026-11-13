@@ -6,7 +6,7 @@
   "kind": "challenge",
   "level": 3,
   "phase": 5,
-  "summary": "稳压电源 → LM1117-3.3（输入、输出各 10 µF）→ ESP32 的 3V3 脚（拔掉 USB）。5 V 时稳稳 3.30 V；降到 4.0 V、3.7 V（锂电池）输出跟着掉到 2.89 V、2.59 V；3.4 V 时 ESP32 欠压复位。",
+  "summary": "稳压电源 → LM1117-3.3（输入、输出各 10 µF）→ ESP32 的 3V3 脚（拔掉 USB）。把输入从 5 V 往下调到锂电池的电压，看稳压区、压差区和欠压复位，再算稳压器的发热。",
   "concepts": ["线性稳压器 linear regulator / LDO", "压差 dropout voltage", "去耦电容 decoupling capacitors", "欠压复位 brown-out", "功耗 P = (Vin − Vout)·I"],
   "description": [
     "**目标**：用 LM1117-3.3 线性稳压器给 ESP32 供电，改变输入电压，看稳压区、压差（dropout）区和欠压复位，并算出稳压器的发热。",
@@ -40,7 +40,7 @@
   "i18n": {
     "en": {
       "title": "Experiment 5-12 · LM1117 regulator and dropout: why a Li-ion cell + AMS1117 fails",
-      "summary": "Bench supply → LM1117-3.3 (10 µF on input and output) → the ESP32's 3V3 pin (USB unplugged). At 5 V a solid 3.30 V; at 4.0 V and 3.7 V (Li-ion) the output sags to 2.89 V and 2.59 V; at 3.4 V the ESP32 browns out.",
+      "summary": "Bench supply → LM1117-3.3 (10 µF in and out) → the ESP32's 3V3 pin (USB unplugged). Turn the input down from 5 V to Li-ion voltages to see regulation, dropout and brown-out reset, and work out the regulator's heat.",
       "concepts": ["linear regulator / LDO", "dropout voltage", "decoupling capacitors", "brown-out", "power P = (Vin − Vout)·I"],
       "description": [
         "**Goal**: power an ESP32 from an LM1117-3.3 linear regulator, vary the input voltage, and see regulation, dropout and brown-out reset; work out the regulator's heat.",
@@ -166,7 +166,7 @@
   "measurements": [
     {"id": "v4", "voltage": "U2.out", "ref": "U2.gnd", "set": {"V1": {"voltage": 4}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [2.8, 2.98], "ask": "电源调到 4.0 V：稳压器 OUT 对 GND 的电压", "explain": "进入压差区：OUT ≈ 4.0 − 1.1 − 0.2 Ω × I ≈ 2.89 V，已经不是 3.3 V。"},
     {"id": "u9", "voltage": "U2.in", "ref": "U2.out", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "range": [5.5, 5.9], "ask": "电源调到 9 V：稳压器上的压降 U_IN − U_OUT（红表笔 IN，黑表笔 OUT）"},
-    {"id": "i9", "current": "U2", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "range": [0.053, 0.059], "ask": "电源调到 9 V：稳压器的输出电流（把电流表串进 OUT 到 ESP32 3V3 的连线里读）"},
+    {"id": "i9", "stated": true, "current": "U2", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "range": [0.053, 0.059], "ask": "电源调到 9 V：稳压器的输出电流（把电流表串进 OUT 到 ESP32 3V3 的连线里读）"},
     {"id": "p9", "formula": "u9 * i9", "unit": "W", "predict": true, "range": [0.3, 0.36], "ask": "9 V 时稳压器的发热 P = (U_IN − U_OUT) × I（用你的读数算）", "explain": "线性稳压器把多余的电压全变成热：(9 − 3.3) V × 56 mA ≈ 0.32 W，效率只有 3.3/9 ≈ 37%。"}
   ],
   "hints": [

@@ -38,7 +38,7 @@
     "- 低电平有效（active-low）在复位脚、片选（CS）、中断线、继电器模块里非常常见；看到信号名上有横线或 `n` / `_N` 前缀（如 NRST）就是低电平有效。",
     "- 灌电流接法的好处：LED 那一侧可以接到比 3.3 V 高的电源（例如 5 V），只要引脚是**开漏输出**且**耐 5 V（FT）**——Blue Pill 的 PA8–PA15、PB3、PB4、PB6–PB15。推挽输出时千万别这样做：输出高电平时 5 V 会经保护二极管灌进 3V3。",
     "- 所有引脚灌 + 拉的总电流也有上限：STM32F103 的 VDD 总电流 ≤ 150 mA，VSS 总电流 ≤ 150 mA。",
-    "- 引脚设成输入时 LED 不亮，但引脚电压停在约 1.5 V（介于 VIL 与 VIH 之间）。真实芯片的输入还有微安级漏电，LED 有时会微微发光。",
+    "- 引脚设成输入时 LED 不亮，但引脚电压停在 VIL 与 VIH 之间。真实芯片的输入还有微安级漏电，LED 有时会微微发光。",
     "",
     "**模型说明**：输出级的上下管都用固定 40 Ω 表示，真实的 P 管 / N 管强度不同，并随电源电压和温度变化。板载 LED 用 Vf = 1.8 V 的模型计算。"
   ],
@@ -71,7 +71,7 @@
         "- Active-low signals are everywhere: reset pins, chip selects (CS), interrupt lines, relay modules. A bar over the name or an `n` / `_N` prefix (as in NRST) means active-low.",
         "- A bonus of sinking: the LED side can go to a supply higher than 3.3 V (e.g. 5 V), as long as the pin is **open-drain** and **5 V tolerant (FT)** — on the Blue Pill PA8–PA15, PB3, PB4, PB6–PB15. Never do this with a push-pull output: when it drives HIGH, 5 V pushes current through the protection diode into 3V3.",
         "- The total of all pins is limited as well: an STM32F103 allows ≤ 150 mA total through VDD and ≤ 150 mA through VSS.",
-        "- With the pin as an input the LED stays dark, but the pin sits at about 1.5 V (between VIL and VIH). A real input also leaks microamps, so the LED may glow faintly.",
+        "- With the pin as an input the LED stays dark, but the pin sits between VIL and VIH. A real input also leaks microamps, so the LED may glow faintly.",
         "",
         "**Model note**: both output transistors are a fixed 40 Ω here; real P- and N-channel devices differ and vary with supply voltage and temperature. The onboard LED is computed with the Vf = 1.8 V red LED model."
       ],
@@ -174,7 +174,7 @@
     {"id": "i1", "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "mA", "predict": true, "range": [0.00523, 0.00578], "ask": "OUT1 高、OUT2 低：LED1（拉电流）的电流", "explain": "上管导通：(3.3 − 1.8) / (40 + 220 + 12) ≈ 5.5 mA，从引脚流出。"},
     {"id": "i2", "current": "LED2", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "mA", "predict": true, "range": [0.00523, 0.00578], "ask": "同一状态：LED2（灌电流）的电流", "explain": "下管导通：(3.3 − 1.8) / (220 + 12 + 40) ≈ 5.5 mA，流进引脚。"},
     {"id": "vol", "voltage": "U1.GPIO_OUT2", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "V", "predict": true, "range": [0.209, 0.231], "ask": "同一状态：万用表测 OUT2 引脚对 GND 的电压（输出低电平，但在灌电流）", "explain": "≈ 40 Ω × 5.5 mA ≈ 0.22 V：低电平也不是正好 0 V。"},
-    {"id": "rlow", "formula": "vol / i2", "unit": "Ω", "range": [38.0, 42.0], "ask": "用你的两个读数算下管（N 管）的导通电阻 = U_OL / I2", "explain": "≈ 40 Ω（模型里上下管一样）。真实芯片的 N 管一般更强，灌电流时压降更小；老的 TTL / 51 单片机只能灌、不能拉。"},
+    {"id": "rlow", "stated": true, "formula": "vol / i2", "unit": "Ω", "range": [38.0, 42.0], "ask": "用你的两个读数算下管（N 管）的导通电阻 = U_OL / I2", "explain": "≈ 40 Ω（模型里上下管一样）。真实芯片的 N 管一般更强，灌电流时压降更小；老的 TTL / 51 单片机只能灌、不能拉。"},
     {"id": "vin", "voltage": "U1.GPIO_OUT2", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_low", "GPIO_OUT2": "input"}}}, "unit": "V", "predict": true, "range": [1.42, 1.57], "ask": "把 OUT2 设成输入（高阻）：OUT2 引脚对 GND 的电压", "explain": "没有电流，LED2 灭；引脚被 3V3 经 R2 和 LED 拉到 3.3 − 1.8 ≈ 1.5 V，介于 VIL 和 VIH 之间。"}
   ],
   "hints": [

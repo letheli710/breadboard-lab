@@ -18,7 +18,7 @@
     "**目标**：认识开发板上的两条电源路径（5V 引脚和 3V3 引脚），列一张电源预算表，把一个大电流负载接到能供得起它的那一路上。",
     "",
     "**电路**（起始电路里已经摆好，但有一处接错了）：Blue Pill 插在 c1，USB 供电。上方电源轨：tp = 3V3（a3 → tp3），tn = GND（a1 → tn1）；下方电源轨：bp = 5V 引脚（j18 → bp18），bn = GND（j19 → bn19）。",
-    "- 负载 RL = **10 Ω**（代表一个大约 0.3–0.45 A 的模块，比如一小段灯带、一个舵机或一块 4G 模块；真实电阻要用 ≥ 3 W 的功率电阻）；",
+    "- 负载 RL = **10 Ω**（代表一个要零点几安的模块，比如一小段灯带、一个舵机或一块 4G 模块；真实电阻要用 ≥ 3 W 的功率电阻）；",
     "- 状态灯：任意一个输出 GPIO（参考答案用 PB13）→ 330 Ω → 红色 LED1 → GND；",
     "- 3V3 指示灯：3V3 → 1 kΩ → 绿色 LED2 → GND。",
     "",
@@ -46,7 +46,7 @@
     "- ESP32 的 Wi-Fi 发射峰值电流很大：3V3 上要有 ≥ 100 µF 的电容缓冲，否则会触发 brown-out 复位（串口里能看到 “Brownout detector was triggered”）。",
     "- 不要同时用 USB 和外部电源给 5V / 3V3 引脚供电，可能互相倒灌。",
     "",
-    "**模型说明**：USB 被模拟成 5 V 串 0.25 Ω，超过 500 mA 只给诊断、不会真的断电；LDO 限流是理想的恒流；芯片功耗是一个固定电阻（Blue Pill 约 20 mA），不随时钟和外设变化；10 Ω 电阻的功率（约 2 W）不做检查，真实电路要用功率电阻。"
+    "**模型说明**：USB 被模拟成 5 V 串 0.25 Ω，超过 500 mA 只给诊断、不会真的断电；LDO 限流是理想的恒流；芯片功耗是一个固定电阻（Blue Pill 约 20 mA），不随时钟和外设变化；10 Ω 电阻的功率不做检查，真实电路要用功率电阻。"
   ],
   "i18n": {
     "en": {
@@ -63,7 +63,7 @@
         "**Goal**: get to know the board's two supply paths (the 5V pin and the 3V3 pin), write a power budget, and put a high-current load on the path that can actually supply it.",
         "",
         "**Circuit** (the starting circuit is already placed, with one mistake): a Blue Pill at c1, powered from USB. Top rails: tp = 3V3 (a3 → tp3), tn = GND (a1 → tn1); bottom rails: bp = the 5V pin (j18 → bp18), bn = GND (j19 → bn19).",
-        "- load RL = **10 Ω** (standing in for a module drawing about 0.3–0.45 A: a short LED strip, a servo, a 4G modem; a real one needs a ≥ 3 W power resistor);",
+        "- load RL = **10 Ω** (standing in for a module drawing a few tenths of an amp: a short LED strip, a servo, a 4G modem; a real one needs a ≥ 3 W power resistor);",
         "- status LED: any output GPIO (the solution uses PB13) → 330 Ω → red LED1 → GND;",
         "- 3V3 indicator: 3V3 → 1 kΩ → green LED2 → GND.",
         "",
@@ -91,7 +91,7 @@
         "- ESP32 Wi-Fi transmit peaks are large: put ≥ 100 µF on 3V3 or it trips the brown-out detector (\"Brownout detector was triggered\" in the serial monitor).",
         "- Never feed the 5V / 3V3 pins from an external supply while USB is also plugged in: the two can back-feed each other.",
         "",
-        "**Model note**: USB is 5 V behind 0.25 Ω; above 500 mA you get a diagnostic but the power is not actually cut. The LDO current limit is an ideal constant current. The chip is a fixed resistor (about 20 mA on the Blue Pill) that ignores clock speed and peripherals. The 10 Ω resistor's power (about 2 W) is not checked — a real circuit needs a power resistor."
+        "**Model note**: USB is 5 V behind 0.25 Ω; above 500 mA you get a diagnostic but the power is not actually cut. The LDO current limit is an ideal constant current. The chip is a fixed resistor (about 20 mA on the Blue Pill) that ignores clock speed and peripherals. The 10 Ω resistor's power is not checked — a real circuit needs a power resistor."
       ],
       "compare": [
         "**Compare** (simulated):",

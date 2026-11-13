@@ -27,7 +27,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseChallenge } from '../src/core/challenge';
+import { parseChallenge, type MeasurementQuestion } from '../src/core/challenge';
 import { chapterById } from '../src/core/problem/chapters';
 import { isProblemJson, parseProblem, splitUnit } from '../src/core/problem/parse';
 import { isSummaryJson, parseSummary } from '../src/core/summary/parse';
@@ -85,6 +85,83 @@ function checkLayout(layout: Layout, label: string, errors: string[]) {
   for (const p of layout.parts) if (p.type !== 'wire') refs.set(p.ref, (refs.get(p.ref) ?? 0) + 1);
   for (const [ref, n] of refs) if (n > 1) errors.push(tr(`${label}: ref "${ref}" 用了 ${n} 次（每个元件的 ref 必须唯一）`, `${label}: ref "${ref}" is used ${n} times (every part needs a unique ref)`));
   return buildNetlist(layout);
+}
+
+/* ---- answer leaks: a lab's visible text must not state a reading its measurement questions ask for ---- */
+
+const LEAK_UNITS: Record<string, string> = { V: 'V', A: 'A', 'Ω': 'Ω', Hz: 'Hz', s: 's', W: 'W', '°C': '°C', '℃': '°C', K: 'K' };
+const LEAK_PREFIX: Record<string, number> = { p: 1e-12, n: 1e-9, u: 1e-6, µ: 1e-6, μ: 1e-6, m: 1e-3, k: 1e3, M: 1e6 };
+const NUM_UNIT = /(?<![\w.])([-−]?\d+(?:\.\d+)?)\s?([pnuµμmkM]?)(V|A|Ω|Hz|s|W|°C|℃|K)(?![A-Za-z0-9_/])/g;
+
+/** Numbers-with-unit in a piece of text, in SI units. */
+export function numbersWithUnit(text: string): { text: string; value: number; unit: string }[] {
+  const out: { text: string; value: number; unit: string }[] = [];
+  for (const m of text.matchAll(NUM_UNIT)) {
+    if (m[3] === 'K' && m[2]) continue; // "10 kK" is not a thing; "K" alone is kelvin
+    const value = parseFloat(m[1].replace('−', '-')) * (m[2] ? LEAK_PREFIX[m[2]] : 1);
+    out.push({ text: m[0], value, unit: LEAK_UNITS[m[3]] });
+  }
+  return out;
+}
+
+/** Quantities the lab hands the student (supply settings, part values, generator settings): stating them is not a leak. */
+function givenValues(json: Record<string, unknown>): number[] {
+  const out: number[] = [3.3, 5];
+  const walk = (o: unknown) => {
+    if (Array.isArray(o)) o.forEach(walk);
+    else if (o && typeof o === 'object') for (const v of Object.values(o)) walk(v);
+    else if (typeof o === 'number') out.push(Math.abs(o));
+    else if (typeof o === 'string') {
+      // part values written with a prefix: "2.2k", "10n", "1kHz", "4.7kΩ"
+      const m = /^([-−]?\d+(?:\.\d+)?)\s?([pnuµμmkM]?)[A-Za-zΩ]*$/.exec(o.trim());
+      if (m) out.push(Math.abs(parseFloat(m[1].replace('−', '-')) * (m[2] ? LEAK_PREFIX[m[2]] : 1)));
+    }
+  };
+  const j = json as { components?: unknown; tests?: { set?: unknown }[]; measurements?: { set?: unknown }[]; solution?: { parts?: { props?: unknown; voltage?: unknown; currentLimit?: unknown }[] } };
+  walk(j.components);
+  for (const t of j.tests ?? []) walk(t.set);
+  for (const q of j.measurements ?? []) walk(q.set);
+  for (const p of j.solution?.parts ?? []) walk([p.props, p.voltage, p.currentLimit]);
+  return out;
+}
+
+/** Visible text of a lab, per field, in every language. */
+function visibleTexts(json: Record<string, unknown>): { where: string; text: string }[] {
+  const out: { where: string; text: string }[] = [];
+  const add = (where: string, v: unknown) => {
+    if (typeof v === 'string') out.push({ where, text: v });
+    else if (Array.isArray(v)) v.forEach((x) => add(where, typeof x === 'object' && x ? (x as { name?: unknown }).name : x));
+  };
+  const scan = (o: Record<string, unknown> | undefined, lang: string) => {
+    if (!o) return;
+    for (const k of ['title', 'summary', 'description', 'hints']) add(`${lang}${k}`, o[k]);
+    add(`${lang}tests`, o.tests);
+  };
+  scan(json, '');
+  for (const [lang, t] of Object.entries((json.i18n as Record<string, Record<string, unknown>>) ?? {})) scan(t, `i18n.${lang}.`);
+  return out;
+}
+
+export function readingLeaks(json: unknown, qs: MeasurementQuestion[], vals: Map<string, number>): { id: string; where: string; text: string; expected: string }[] {
+  const j = json as Record<string, unknown>;
+  const given = givenValues(j);
+  const texts = visibleTexts(j);
+  const out: { id: string; where: string; text: string; expected: string }[] = [];
+  for (const q of qs) {
+    const v = vals.get(q.id);
+    const u = q.unit ? splitUnit(q.unit) : null;
+    if (q.stated || v === undefined || !Number.isFinite(v) || v === 0 || !u?.unit) continue;
+    const unit = u.unit;
+    const tol = Math.max(q.tol, 0.03);
+    for (const { where, text } of texts)
+      for (const n of numbersWithUnit(text)) {
+        if (n.unit !== unit) continue;
+        if (Math.abs(n.value - v) > tol * Math.abs(v)) continue;
+        if (given.some((g) => g !== 0 && Math.abs(Math.abs(n.value) - g) <= 0.005 * g)) continue;
+        out.push({ id: q.id, where, text: n.text, expected: `${+(v / u.scale).toPrecision(3)} ${q.unit}` });
+      }
+  }
+  return out;
 }
 
 export function validateChallengeJson(json: unknown, file: string): FileReport {
@@ -184,6 +261,13 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
           if (q.what.kind !== 'formula' && !gradeReading(q, v, typed).ok)
             rep.errors.push(tr(`measurements (${q.id}): 容差太紧——按 3 位有效数字输入 ${typed} 被判错`, `measurements (${q.id}): tolerance too tight — typing ${typed} (3 significant figures) is marked wrong`));
         }
+        for (const leak of readingLeaks(json, ch.measurements, vals))
+          rep.warnings.push(
+            tr(
+              `measurements (${leak.id}): ${leak.where} 里写了 “${leak.text}”，和这道题的参考读数（${leak.expected}）一样——把它移到 compare 或 explain`,
+              `measurements (${leak.id}): ${leak.where} says "${leak.text}", which is this question's reference reading (${leak.expected}) — move it to compare or explain`,
+            ),
+          );
       }
     }
   }

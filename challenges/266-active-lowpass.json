@@ -6,7 +6,7 @@
   "kind": "challenge",
   "level": 5,
   "phase": 4,
-  "summary": "反相放大器的反馈电阻上并一个电容：低频增益 −RF/RIN ≈ −2.13，截止频率 fc = 1/(2π·RF·CF) ≈ 1.06 kHz。单电源 9 V，偏置在 4.5 V。",
+  "summary": "反相放大器的反馈电阻上并一个电容，单电源 9 V、偏置在 4.5 V：测通带增益、扫频找截止频率，再故意加大输入看削顶。",
   "concepts": [
     "有源滤波器 active filter",
     "H(jω) = −(RF/RIN)/(1 + jωRF·CF)",
@@ -36,7 +36,7 @@
   "i18n": {
     "en": {
       "title": "Experiment 4-6 · Active low-pass filter: LM358 inverting amplifier + feedback capacitor",
-      "summary": "Put a capacitor across the feedback resistor of an inverting amplifier: low-frequency gain −RF/RIN ≈ −2.13, cutoff fc = 1/(2π·RF·CF) ≈ 1.06 kHz. Single 9 V supply, biased at 4.5 V.",
+      "summary": "An inverting amplifier with a capacitor across its feedback resistor, on a single 9 V supply biased at 4.5 V: measure the passband gain, sweep for the cutoff frequency, then overdrive it and watch it clip.",
       "concepts": [
         "active filter",
         "H(jω) = −(RF/RIN)/(1 + jωRF·CF)",
@@ -332,7 +332,7 @@
     {"id": "g", "scope": "gain", "pin": "U1.out", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 0}}, "predict": true, "range": [2.01, 2.22], "ask": "106 Hz：幅度比 OUT/VIN（通带增益）", "explain": "通带里 CF 相当于开路：|H| ≈ RF/RIN = 10/4.7 ≈ 2.13（106 Hz 时再乘 0.995 ≈ 2.12）。"},
     {"id": "fc", "scope": "phase", "pin": "U1.out", "vs": "FG1.+", "solve": {"el": "FG1", "from": 300, "to": 5000, "value": 135}, "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "unit": "Hz", "predict": true, "range": [1010.0, 1120.0], "ask": "扫频：OUT 相对 VIN 的相位降到 +135°（= 180° − 45°）的频率，也就是截止频率 fc", "explain": "H = −(RF/RIN)/(1 + jωRF·CF)，fc = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz，只由 RF·CF 决定，和信号源内阻无关。"},
     {"id": "g10k", "scope": "gain", "pin": "U1.out", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0}}, "predict": true, "range": [0.201, 0.222], "ask": "10.6 kHz：幅度比 OUT/VIN", "explain": "|H| ≈ 2.13 × 0.0995 ≈ 0.21，相位 ≈ 180° − 84° ≈ +96°。"},
-    {"id": "vmax", "scope": "vmax", "pin": "U1.out", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 2, "offset": 0}}, "unit": "V", "predict": true, "range": [7.12, 7.87], "ask": "106 Hz、幅度 2 V：OUT 的最大值", "explain": "理想峰值 4.5 + 2 × 2.12 ≈ 8.7 V，超过 V+ − 1.5 V = 7.5 V：顶部被削平在 ≈ 7.5 V。"},
+    {"id": "vmax", "stated": true, "scope": "vmax", "pin": "U1.out", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 2, "offset": 0}}, "unit": "V", "predict": true, "range": [7.12, 7.87], "ask": "106 Hz、幅度 2 V：OUT 的最大值", "explain": "理想峰值 4.5 + 2 × 2.12 ≈ 8.7 V，超过 V+ − 1.5 V = 7.5 V：顶部被削平在 ≈ 7.5 V。"},
     {"id": "vmin", "scope": "vmin", "pin": "U1.out", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 2, "offset": 0}}, "unit": "V", "predict": true, "range": [0.449, 0.496], "ask": "同一状态：OUT 的最小值", "explain": "底部 ≈ 4.5 − 4.2 ≈ 0.3 V，还在 0 V 以上，没有被削；被削的顶部让 CIN 的平均电流变化，中心略微移动。中心 4.5 V 时往上只有 3 V 的空间，所以通带里输入幅度最大约 3 / 2.13 ≈ 1.4 V。"}
   ],
   "hints": [

@@ -2,11 +2,11 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-mosfet-logic-level",
-  "title": "实验 5-8 · 逻辑电平 MOSFET：3.3 V 引脚开关 0.6 A 的电机",
+  "title": "实验 5-8 · 逻辑电平 MOSFET：3.3 V 引脚开关大电流电机",
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "GPIO → 100 Ω → IRLZ44N 栅极（100 kΩ 下拉），电机 + 续流二极管接在 5 V 电源和漏极之间。IRLZ44N 在 3.3 V 栅压下完全导通（Vds ≈ 27 mV）；换成 IRF540N 就卡在恒流区，电机只拿到 0.14 A。",
+  "summary": "GPIO → 100 Ω → IRLZ44N 栅极（100 kΩ 下拉），电机 + 续流二极管接在 5 V 电源和漏极之间。测逻辑电平 MOSFET 在 3.3 V 栅压下的导通情况，再换成普通的 IRF540N 比较。",
   "concepts": [
     "N-MOSFET 低边开关 low-side switch",
     "逻辑电平 logic-level gate",
@@ -47,8 +47,8 @@
   ],
   "i18n": {
     "en": {
-      "title": "Experiment 5-8 · Logic-level MOSFET: a 3.3 V pin switches a 0.6 A motor",
-      "summary": "GPIO → 100 Ω → IRLZ44N gate (100 kΩ pull-down), the motor and a flyback diode between the 5 V supply and the drain. The IRLZ44N turns fully on at 3.3 V (Vds ≈ 27 mV); swap in an IRF540N and it gets stuck in its constant-current region with only 0.14 A for the motor.",
+      "title": "Experiment 5-8 · Logic-level MOSFET: a 3.3 V pin switches a high-current motor",
+      "summary": "GPIO → 100 Ω → IRLZ44N gate (100 kΩ pull-down), motor + flyback diode between the 5 V supply and the drain. Measure how fully a logic-level MOSFET turns on at 3.3 V gate drive, then compare an ordinary IRF540N.",
       "concepts": [
         "N-MOSFET low-side switch",
         "logic-level gate",
@@ -372,7 +372,7 @@
   "measurements": [
     {"id": "im", "current": "M1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "A", "predict": true, "range": [0.589, 0.651], "ask": "输出高：电机电流（电流表串在 +5 V 和电机之间）", "explain": "电机约 8 Ω 接 5 V：≈ 0.62 A——GPIO 能给的 30 倍。"},
     {"id": "vds", "tolAbs": 0.001, "voltage": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mV", "predict": true, "range": [0.0253, 0.0279], "ask": "输出高：Vds（红表笔 D，黑表笔 S）", "explain": "完全导通（可变电阻区），Vds ≈ 27 mV。"},
-    {"id": "rds", "formula": "vds / im", "unit": "mΩ", "predict": true, "range": [0.0408, 0.045], "ask": "用你的两个读数算导通电阻 Rds = Vds / Id", "explain": "≈ 43 mΩ：数据手册的 22 mΩ 是 Vgs = 5 V 时的值，3.3 V 栅压时大约翻倍。Q1 只发热约 17 mW。"},
+    {"id": "rds", "stated": true, "formula": "vds / im", "unit": "mΩ", "predict": true, "range": [0.0408, 0.045], "ask": "用你的两个读数算导通电阻 Rds = Vds / Id", "explain": "≈ 43 mΩ：数据手册的 22 mΩ 是 Vgs = 5 V 时的值，3.3 V 栅压时大约翻倍。Q1 只发热约 17 mW。"},
     {"id": "vpk", "scope": "vmax", "pin": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": {"mode": "pwm", "duty": 50, "frequency": 1000}}}}, "unit": "V", "predict": true, "range": [5.77, 6.38], "ask": "PWM 50 %、1 kHz：示波器看漏极电压的最大值", "explain": "关断的半个周期里电机电感的电流经 D1 流回 +5 V，漏极被钳在 5 V + 二极管压降 ≈ 6.1 V，不会冲到几十伏。"},
     {"id": "vds540", "voltage": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}, "Q1": {"model": "IRF540N"}}, "unit": "V", "predict": true, "range": [3.68, 4.07], "ask": "把 Q1 换成 IRF540N（栅极仍是 3.3 V）：Vds", "explain": "Vth ≈ 3 V，只比 3.3 V 低一点：它卡在恒流（饱和）区，Id ≈ 0.14 A，Vds ≈ 3.9 V，自己发热 0.54 W。Vth 只是“开始导通”的栅压。"}
   ],

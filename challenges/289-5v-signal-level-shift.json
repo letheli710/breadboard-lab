@@ -6,7 +6,7 @@
   "kind": "challenge",
   "level": 3,
   "phase": 5,
-  "summary": "用按键模拟一个 5 V 传感器的数字输出。它经过 10 kΩ / 20 kΩ 分压接到不耐 5 V 的 PA0（3.13 V），同时直接接到耐 5 V 的 FT 引脚 PB12（4.69 V）。起始电路把 5 V 直接接到了 PA0，保护二极管流过 52 mA。",
+  "summary": "用按键模拟一个 5 V 传感器的数字输出：经过 10 kΩ / 20 kΩ 分压接到不耐 5 V 的 PA0，同时直接接到耐 5 V 的 FT 引脚 PB12。起始电路把 5 V 直接接到了 PA0。",
   "concepts": ["5 V 耐受 5 V-tolerant (FT) pin", "分压电平转换 divider level shifting", "保护二极管 / 钳位电流 clamp diode current", "VIH 输入高电平阈值", "下拉电阻 pull-down"],
   "description": [
     "**目标**：把一个 5 V 的数字信号安全地接到 3.3 V 的 STM32 上，比较两种办法：电阻分压接普通引脚，或直接接耐 5 V（FT）的引脚。",
@@ -35,7 +35,7 @@
   "i18n": {
     "en": {
       "title": "Experiment 5-10 · A 5 V signal into a 3.3 V MCU: divider vs 5 V-tolerant pin",
-      "summary": "A push button stands in for a 5 V sensor's digital output. It goes through a 10 kΩ / 20 kΩ divider to the non-5 V-tolerant PA0 (3.13 V) and straight to the 5 V-tolerant FT pin PB12 (4.69 V). The starting board wires 5 V straight to PA0, and its clamp diode carries 52 mA.",
+      "summary": "A push button plays a 5 V sensor's digital output: it goes through a 10 kΩ / 20 kΩ divider to PA0 (not 5 V tolerant) and straight to the 5 V-tolerant FT pin PB12. The starting board wires 5 V straight to PA0.",
       "concepts": ["5 V-tolerant (FT) pin", "divider level shifting", "clamp diode current", "VIH input-high threshold", "pull-down"],
       "description": [
         "**Goal**: connect a 5 V digital signal safely to a 3.3 V STM32 and compare two ways: a resistor divider into an ordinary pin, or a direct connection to a 5 V-tolerant (FT) pin.",
@@ -151,7 +151,7 @@
   ],
   "measurements": [
     {"id": "v3", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"SW1": {"pressed": true}, "U1": {"modes": {"ADC1": "input", "GPIO_FT1": "input"}}}, "unit": "V", "predict": true, "range": [2.97, 3.28], "ask": "按下按键：万用表测分压后的 SIG3（PA0）对 GND", "explain": "4.69 × 20k / 30k ≈ 3.13 V：高于 VIH（2.15 V），读到 1，又不超过 3.3 V。"},
-    {"id": "v5", "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"SW1": {"pressed": true}, "U1": {"modes": {"ADC1": "input", "GPIO_FT1": "input"}}}, "unit": "V", "predict": true, "range": [4.46, 4.92], "ask": "同一状态：FT 引脚（PB12）对 GND", "explain": "5V 脚经 USB 二极管约 4.69 V，直接加在 FT 引脚上：它没有接到 3V3 的保护二极管，所以没有电流流进去。"},
+    {"id": "v5", "stated": true, "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"SW1": {"pressed": true}, "U1": {"modes": {"ADC1": "input", "GPIO_FT1": "input"}}}, "unit": "V", "predict": true, "range": [4.46, 4.92], "ask": "同一状态：FT 引脚（PB12）对 GND", "explain": "5V 脚经 USB 二极管约 4.69 V，直接加在 FT 引脚上：它没有接到 3V3 的保护二极管，所以没有电流流进去。"},
     {"id": "k", "formula": "v3 / v5", "predict": true, "range": [0.633, 0.7], "ask": "用你的两个读数算分压比 SIG3 / SIG5", "explain": "R2 / (R1 + R2) = 20 / 30 ≈ 0.667。5 V 信号乘 2/3 正好落在 3.3 V 以内。"},
     {"id": "pu", "choices": ["不行：上拉接在 3.3 V，5 V 会经它倒灌进 3V3（约 35 µA）", "可以：FT 引脚什么模式都耐 5 V", "可以：上拉让高电平更可靠"], "correct": 0, "ask": "5 V 信号接在 FT 引脚上时，能不能顺手打开它的内部上拉？（可以在引脚表里改成“输入 + 上拉”试试）", "explain": "(4.69 − 3.3) / 40 kΩ ≈ 35 µA 从引脚流进去。FT 引脚的另一个例外是模拟模式（ADC）：那时它也不耐 5 V。"}
   ],

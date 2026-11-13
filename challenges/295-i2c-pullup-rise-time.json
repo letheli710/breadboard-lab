@@ -398,7 +398,7 @@
     "- **输出低电平**：2.2 kΩ 时灌电流 3.3 V / (2.2 kΩ + 40 Ω) ≈ **1.47 mA**，V_OL ≈ **59 mV**；10 kΩ 时只有 0.33 mA。"
   ],
   "measurements": [
-    {"id": "trb", "scope": "rise", "pin": "CB.1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}}}}, "unit": "µs", "predict": true, "range": [9.2e-07, 1.01e-06], "ask": "100 kHz：总线 B（2.2 kΩ）的上升时间 t_r（10% → 90%）", "explain": "t_r = RC·ln 9 ≈ 2.2 × 2.2 kΩ × 200 pF ≈ 0.97 µs。"},
+    {"id": "trb", "stated": true, "scope": "rise", "pin": "CB.1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}}}}, "unit": "µs", "predict": true, "range": [9.2e-07, 1.01e-06], "ask": "100 kHz：总线 B（2.2 kΩ）的上升时间 t_r（10% → 90%）", "explain": "t_r = RC·ln 9 ≈ 2.2 × 2.2 kΩ × 200 pF ≈ 0.97 µs。"},
     {"id": "vmaxa", "scope": "vmax", "pin": "CA.1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 400000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 400000, "openDrain": true}}}}, "unit": "V", "predict": true, "range": [1.45, 1.62], "ask": "400 kHz：总线 A（10 kΩ）能爬到的最高电压", "explain": "半个周期 1.25 µs 只有约 0.6τ，只能爬到约 1.5 V——低于 STM32 的 VIH（2.15 V），对方永远读到 0。"},
     {"id": "fast", "choices": ["两条都不满足", "只有 2.2 kΩ 的总线 B 满足", "两条都满足"], "correct": 0, "ask": "I²C 快速模式要求 t_r(30–70%) ≤ 300 ns（约等于 10–90% 时间 ≤ 0.78 µs）。按你测的读数：", "explain": "总线 B 的 0.97 µs 也超过了 0.78 µs；200 pF 时快速模式的上拉要 ≤ 1.77 kΩ（用 1.5 kΩ）。"}
   ],

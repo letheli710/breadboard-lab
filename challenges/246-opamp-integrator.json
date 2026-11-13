@@ -6,7 +6,7 @@
   "kind": "challenge",
   "level": 5,
   "phase": 3,
-  "summary": "用 LM358（单电源 9 V）搭一个反相积分器：1 kHz 方波输入，输出 0.5 Vpp 的三角波；正弦输入则输出余弦。",
+  "summary": "用 LM358（单电源 9 V）搭一个反相积分器：方波输入变成三角波输出，由三角波的斜率测出 RC；正弦输入则输出余弦。",
   "concepts": ["反相积分器 inverting integrator", "u_o = −(1/RC)∫u_i dt", "虚短 virtual short", "单电源偏置 single-supply bias", "直流反馈电阻 DC feedback resistor"],
   "description": [
     "**目标**：用 LM358 搭一个反相积分器，看方波积分成三角波，并和实验 3-2 的 RC 积分电路比较。",
@@ -35,7 +35,7 @@
   "i18n": {
     "en": {
       "title": "Experiment 3-6 · Op-amp integrator: square in, triangle out",
-      "summary": "Build an inverting integrator with an LM358 on a single 9 V supply: a 1 kHz square wave in, a 0.5 Vpp triangle out; a sine in gives a cosine out.",
+      "summary": "Build an inverting integrator from an LM358 (single 9 V supply): a square wave in gives a triangle out, whose slope measures RC; a sine in gives a cosine out.",
       "concepts": ["inverting integrator", "u_o = −(1/RC)∫u_i dt", "virtual short", "single-supply bias", "DC feedback resistor"],
       "description": [
         "**Goal**: build an inverting integrator with an LM358, watch a square wave integrate into a triangle, and compare it with the RC integrator of Experiment 3-2.",
@@ -156,7 +156,7 @@
   "measurements": [
     {"id": "vpp", "scope": "vpp", "pin": "U1.out", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [0.473, 0.522], "ask": "1 kHz 方波：CH2（OUT）三角波的 Vpp", "explain": "斜率 1 V / (RIN·CF) = 1000 V/s，半周期 0.5 ms 走 0.5 V。"},
     {"id": "rc", "formula": "1 * 0.0005 / vpp", "unit": "ms", "predict": true, "range": [0.000955, 0.00106], "ask": "斜率 = 1 V / (RIN·CF)，半周期 0.5 ms 走完 Vpp。用你的 Vpp 算 RIN·CF = 1 V × 0.5 ms / Vpp", "explain": "10 kΩ × 100 nF = 1 ms。和 RC 积分电路不同，运放让电阻电流不受输出影响，所以斜率始终是输入 / RC。"},
-    {"id": "vavg", "voltage": "U1.out", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [4.3, 4.75], "ask": "同一状态：万用表直流档测 OUT 对 GND（三角波的中心）", "explain": "虚短让 IN− 跟着 IN+ = 4.5 V；RP 给直流提供反馈，直流增益 −10 作用在 0 V 的平均输入上，所以中心就是 4.5 V。"},
+    {"id": "vavg", "stated": true, "voltage": "U1.out", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [4.3, 4.75], "ask": "同一状态：万用表直流档测 OUT 对 GND（三角波的中心）", "explain": "虚短让 IN− 跟着 IN+ = 4.5 V；RP 给直流提供反馈，直流增益 −10 作用在 0 V 的平均输入上，所以中心就是 4.5 V。"},
     {"id": "dir", "choices": ["下降（反相积分器）", "上升", "不变"], "correct": 0, "ask": "在示波器上看：输入为正的半周期里，输出往哪边走？", "explain": "电流 u_i / RIN 从输入流进 IN−，全部流进 CF，把 OUT 一侧往下拉：u_o − 4.5 V = −(1/RC)∫u_i dt。相对输入的相位是 +90°（反相 180° + 积分 −90°）。"},
     {"id": "vpp100", "scope": "vpp", "pin": "U1.out", "set": {"FG1": {"waveform": "square", "frequency": 100, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [4.62, 5.11], "ask": "100 Hz 方波：OUT 的 Vpp（和“理想积分”的 10 V 比）", "explain": "半周期 5 ms 已和 RP·CF = 10 ms 相当，RP 的影响出来了：2 × 10 × tanh(T/(4·RP·CF)) ≈ 4.9 V。"}
   ],

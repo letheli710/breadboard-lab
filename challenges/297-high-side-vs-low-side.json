@@ -6,7 +6,7 @@
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "同一块 ESP32 上并排两个 5 V 继电器：一个用 NPN 放在负载上面（高边、射极跟随），一个放在负载下面（低边）。高边时发射极最多只有 3.3 − 0.65 − Ib·R ≈ 2.4 V，继电器吸不上、三极管停在放大区发热；低边时三极管饱和、继电器正常吸合。",
+  "summary": "同一块 ESP32 上并排两个 5 V 继电器：一个用 NPN 放在负载上面（高边、射极跟随），一个放在负载下面（低边）。测两种接法下线圈拿到的电压和电流，看高边为什么吸不上。",
   "concepts": [
     "高边 / 低边开关 high-side / low-side switch",
     "射极跟随器 emitter follower",
@@ -41,7 +41,7 @@
     "",
     "**实际项目经验**：",
     "- 单片机直接驱动的开关，默认都用 **低边 N 型**（NPN 或逻辑电平 N-MOS），发射极 / 源极接地。",
-    "- 基极电阻按“过驱动 2–10 倍”选：Ib ≥ (2–10) × Ic / β。这里 Ic = 63 mA，β = 150，Ib 至少 0.85 mA；1 kΩ 给 2.5 mA，足够饱和。",
+    "- 基极电阻按“过驱动 2–10 倍”选：Ib ≥ (2–10) × Ic / β。这里 Ic 是线圈电流（约 4.4 V / 70 Ω），β = 150，Ib 至少零点几毫安；1 kΩ 给的远远够饱和。",
     "- 继电器线圈必须并续流二极管（1N4148 / 1N4007），否则关断时的反向高压会击穿三极管。",
     "- 5 V 继电器从 ESP32 的 5V 引脚取电时注意 USB 预算：每个继电器约 63–72 mA。现成的“继电器模块”通常已经带了三极管、二极管和光耦。",
     "- 用 GPIO18 / 19 这类普通引脚；ESP32 的 GPIO0 / 2 / 5 / 12 / 15 上电时会有短暂的电平或脉冲，继电器可能误动作。",
@@ -51,7 +51,7 @@
   "i18n": {
     "en": {
       "title": "Experiment 5-18 · High side or low side: why a 3.3 V pin can't drive an NPN \"above\" the load",
-      "summary": "Two 5 V relays side by side on one ESP32: one with its NPN above the load (high side, emitter follower), one below it (low side). On the high side the emitter only reaches 3.3 − 0.65 − Ib·R ≈ 2.4 V, the relay doesn't pull in and the transistor sits in the active region getting warm; on the low side the transistor saturates and the relay clicks in.",
+      "summary": "Two 5 V relays side by side on one ESP32: one NPN above its load (high side, an emitter follower), one below (low side). Measure the coil voltage and current in each and see why the high side cannot pull in.",
       "concepts": [
         "high-side / low-side switch",
         "emitter follower",
@@ -86,7 +86,7 @@
         "",
         "**Rule of thumb for real projects**:",
         "- A switch driven straight from an MCU is by default a **low-side N-type** (NPN or logic-level N-MOS) with the emitter / source at ground.",
-        "- Size the base resistor for 2–10 × overdrive: Ib ≥ (2–10) × Ic / β. Here Ic = 63 mA and β = 150, so Ib ≥ 0.85 mA; 1 kΩ gives 2.5 mA — enough to saturate.",
+        "- Size the base resistor for 2–10 × overdrive: Ib ≥ (2–10) × Ic / β. Here Ic is the coil current (about 4.4 V / 70 Ω) and β = 150, so Ib must be a fraction of a milliamp at least; 1 kΩ gives far more — enough to saturate.",
         "- A relay coil always needs a flyback diode (1N4148 / 1N4007), or the turn-off kick breaks down the transistor.",
         "- Powering 5 V relays from the ESP32's 5V pin eats into the USB budget: about 63–72 mA per relay. Ready-made \"relay modules\" usually already contain the transistor, diode and an optocoupler.",
         "- Use plain pins like GPIO18 / 19; the ESP32's GPIO0 / 2 / 5 / 12 / 15 have brief levels or pulses at boot that can click a relay.",

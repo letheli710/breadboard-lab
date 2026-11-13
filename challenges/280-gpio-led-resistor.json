@@ -34,7 +34,7 @@
     "**实际项目经验**：",
     "- 选引脚时避开 **GPIO0/2/5/12/15（启动配置脚 strapping pins）**：上电时它们的电平决定启动模式，外接 LED/电阻可能让板子进不了程序或无法下载；**GPIO6–11** 接板载 Flash，**GPIO34–39** 只能输入；GPIO1/3 是串口。",
     "- 很多 DevKit 的 GPIO2 上已经有一个板载 LED。",
-    "- 蓝 / 白 LED 的 Vf ≈ 3.0 V，3.3 V 引脚只剩 0.3 V 给电阻，亮度会很不稳定，可以用三极管从 5 V 驱动。",
+    "- 蓝 / 白 LED 的 Vf 约 2.9–3.2 V，3.3 V 引脚只剩 0.3 V 给电阻，亮度会很不稳定，可以用三极管从 5 V 驱动。",
     "- 现在的高亮 LED 1–2 mA 就很亮，指示灯常用 1 kΩ 左右，省电又不刺眼。",
     "",
     "**模型说明**：真实的输出电阻随电流和温度变化，驱动强度可以在程序里设置；这里固定为 25 Ω。LED 用“Vf + 12 Ω”的折线模型，真实 LED 的 Vf 会随电流缓慢上升。仿真里引脚“烧坏”只是一个标记，真实芯片损坏后不会自己恢复。"
@@ -65,7 +65,7 @@
         "**Rule of thumb for real projects**:",
         "- Avoid the **strapping pins GPIO0/2/5/12/15**: their level at power-up selects the boot mode, so an LED/resistor on them can stop the board booting or accepting uploads. **GPIO6–11** go to the onboard flash, **GPIO34–39** are input-only, GPIO1/3 are the serial port.",
         "- Many DevKits already have an onboard LED on GPIO2.",
-        "- Blue / white LEDs have Vf ≈ 3.0 V, leaving only 0.3 V for the resistor on a 3.3 V pin — the brightness becomes very sensitive; drive them from 5 V through a transistor instead.",
+        "- Blue / white LEDs have Vf of about 2.9–3.2 V, leaving only 0.3 V for the resistor on a 3.3 V pin — the brightness becomes very sensitive; drive them from 5 V through a transistor instead.",
         "- Modern high-brightness LEDs are bright at 1–2 mA; indicators often use about 1 kΩ — less power, less glare.",
         "",
         "**Model note**: the real output resistance changes with current and temperature, and the drive strength can be set in firmware; here it is fixed at 25 Ω. The LED is a \"Vf + 12 Ω\" piecewise model; a real LED's Vf rises slowly with current. A \"damaged\" pin is just a flag in the simulator — a real chip does not heal itself."
@@ -142,7 +142,7 @@
   "measurements": [
     {"id": "iled", "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.00906, 0.01], "ask": "输出高电平：电流表串在电阻和 LED 之间，读 LED 电流", "explain": "I = (3.3 − 1.8) / (R + 25 Ω + 12 Ω)；120 Ω 时 1.5 / 157 ≈ 9.5 mA。"},
     {"id": "vpin", "voltage": "U1.GPIO_OUT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [2.91, 3.21], "ask": "输出高电平：万用表测 GPIO 引脚对 GND 的电压", "explain": "3.3 − 25 Ω × 9.5 mA ≈ 3.06 V：有电流流出时引脚不再是 3.3 V。"},
-    {"id": "rout", "formula": "(3.3 - vpin) / iled", "unit": "Ω", "predict": true, "range": [24.1, 26.6], "ask": "用你的两个读数算引脚的输出电阻 R_out = (3.3 V − U_pin) / I", "explain": "≈ 25 Ω（模型值；真实芯片里是输出 MOS 管的导通电阻）。引脚不是理想电压源：电流越大，压降越大。"},
+    {"id": "rout", "stated": true, "formula": "(3.3 - vpin) / iled", "unit": "Ω", "predict": true, "range": [24.1, 26.6], "ask": "用你的两个读数算引脚的输出电阻 R_out = (3.3 V − U_pin) / I", "explain": "≈ 25 Ω（模型值；真实芯片里是输出 MOS 管的导通电阻）。引脚不是理想电压源：电流越大，压降越大。"},
     {"id": "nores", "choices": ["约 40 mA，到了绝对最大值，引脚电压低于 VIH，连“高电平”都算不上", "约 10 mA，LED 自己会限流", "约 1.5 A，LED 立刻烧断"], "correct": 0, "ask": "用你算出的 R_out 估计：如果像起始电路那样不接电阻，电流会是多少？", "explain": "I = 1.5 / (25 + 12) ≈ 40 mA，引脚电压 ≈ 2.29 V < 2.475 V（VIH）。LED 和引脚都只靠很小的内部电阻限流，必须串电阻。"}
   ],
   "hints": [
