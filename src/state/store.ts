@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { HOLES, HOLE_MAP } from '../core/breadboard';
 import type { Challenge } from '../core/challenge';
 import type { ProblemEntry } from './problems';
+import { ensureChallenge, isPending } from './challenges';
 import type { CheckResult } from '../core/check';
 import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS, nextScopeChannel } from '../core/parts';
@@ -222,6 +223,9 @@ export function moveError(layout: Layout, id: string, pins: Record<string, strin
   const clash = holes.find((h) => occ.has(h));
   return clash ? busy(clash, occ.get(clash)!) : null;
 }
+
+/** latest challenge asked for while its file was still loading (see openChallenge) */
+let openRequest: string | null = null;
 
 export const useStore = create<State>((set, get) => {
   const save = (layout: Layout) => {
@@ -478,6 +482,20 @@ export const useStore = create<State>((set, get) => {
     openChallenge(id) {
       const ch = get().challenges.find((c) => c.id === id);
       if (!ch) return;
+      if (isPending(ch)) {
+        // built-in file not loaded yet: load its group, then open (unless another was picked meanwhile)
+        openRequest = id;
+        const asked = get().mode;
+        void ensureChallenge(id).then((ok) => {
+          if (openRequest !== id || get().mode !== asked) return;
+          openRequest = null;
+          const loaded = get().challenges.find((c) => c.id === id);
+          if (ok && loaded && !isPending(loaded)) get().openChallenge(id);
+          else get().notify(tr('题目文件加载失败，请检查网络后重试。', "Couldn't load the challenge file; check the connection and try again."));
+        });
+        return;
+      }
+      openRequest = null;
       const saved = savedLayout(`bb.layout.ch.${id}`);
       const start = saved ?? ch.start ?? emptyLayout();
       set({

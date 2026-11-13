@@ -4,16 +4,16 @@
 //
 // Startup cost: the sidebar and progress only need a summary of each problem, which comes from
 // a build-time index (virtual:problem-index, see scripts/problem-index-plugin.ts). The full
-// built-in files are code-split per chapter and loaded on demand (useProblem). Built-in
+// built-in files are code-split per chapter and loaded on demand (useProblem); the parser too. Built-in
 // problems are parsed *without* recomputing answers with the analysis engine — that check is
 // enforced by `npm run validate` and the test suite. Imported files are fully verified.
 
 import { useEffect, useState } from 'react';
-import { entries as builtinIndex, broken as builtinBroken } from 'virtual:problem-index';
+import { entries as builtinIndex, broken as builtinBroken, groups as chapterChunks } from 'virtual:problem-index';
 import { getLang, tr } from '../core/i18n';
-import { isProblemJson, parseProblem, type Problem } from '../core/problem/parse';
+import type { Problem } from '../core/problem/parse';
 import { CHAPTERS } from '../core/problem/chapters';
-import { readImported } from './challenges';
+import { isProblemJson, readImported } from './challenges';
 import { useStore, type InvalidFile } from './store';
 
 /** What the sidebar / progress need about a problem; the full text is loaded with useProblem(). */
@@ -39,8 +39,18 @@ export function entryTitle(e: Pick<ProblemEntry, 'lang' | 'title' | 'titles'>): 
   return l === e.lang ? e.title : e.titles[l] || e.title;
 }
 
-// non-eager: one chunk per chapter (vite.config.ts → manualChunks)
-const folder = import.meta.glob('../../problems/**/*.json', { import: 'default' }) as Record<string, () => Promise<unknown>>;
+// The parser (and with it the analysis engine that verifies imported files) is not needed until
+// a problem is opened or a problem file was imported, so it is loaded on demand too.
+type ParseModule = typeof import('../core/problem/parse');
+let parseMod: ParseModule | null = null;
+let parseLoad: Promise<ParseModule> | null = null;
+function loadParser(): Promise<ParseModule> {
+  if (!parseLoad) {
+    parseLoad = import('../core/problem/parse').then((m) => (parseMod = m));
+    parseLoad.catch(() => (parseLoad = null)); // retry on the next request
+  }
+  return parseLoad;
+}
 
 const chapterIndex = (id: string) => {
   const i = CHAPTERS.findIndex((c) => c.id === id);
@@ -71,9 +81,20 @@ export function loadProblems(): { problems: ProblemEntry[]; invalid: InvalidFile
       continue; // JSON syntax errors are reported once, by the challenge loader
     }
     if (!isProblemJson(json)) continue;
+    if (!parseMod) {
+      // parser not loaded yet: load it and list the imported problems once it is
+      loadParser().then(
+        () => {
+          const r = loadProblems();
+          useStore.getState().setProblems(r.problems, r.invalid);
+        },
+        () => undefined,
+      );
+      break;
+    }
     let r;
     try {
-      r = parseProblem(json, 'imported', f.file);
+      r = parseMod.parseProblem(json, 'imported', f.file);
     } catch (e) {
       // never let one broken file take the whole practice area down
       invalid.push({ file: f.file, source: 'imported', errors: [errText(e)], warnings: [] });
@@ -120,13 +141,11 @@ const keyOf = (e: ProblemEntry) => `${e.source}:${e.file ?? e.id}`;
 export function loadChapter(chapter: string): Promise<void> {
   let p = jsonLoads.get(chapter);
   if (!p) {
-    const list = builtinIndex.filter((e) => e.chapter === chapter);
-    p = Promise.all(
-      list.map(async (e) => {
-        const load = folder[`../../${e.file}`];
-        if (load) jsonCache.set(`folder:${e.file}`, await load());
-      }),
-    ).then(() => undefined);
+    // one chunk per chapter (virtual:problem-index/<chapter>): { [file]: json }
+    const load = chapterChunks[chapter];
+    p = Promise.all([loadParser(), load ? load() : Promise.resolve({ default: {} })]).then(([, m]) => {
+      for (const [file, json] of Object.entries(m.default)) jsonCache.set(`folder:${file}`, json);
+    });
     loadFailed.delete(chapter);
     p.catch((err) => {
       jsonLoads.delete(chapter); // allow a retry (next time the problem is opened)
@@ -140,7 +159,7 @@ export function loadChapter(chapter: string): Promise<void> {
 /** The full problem in the current language, if its file is loaded (synchronous, cached). */
 export function getProblem(e: ProblemEntry): { problem?: Problem; errors: string[] } | null {
   const json = e.source === 'folder' ? jsonCache.get(keyOf(e)) : e.json;
-  if (json === undefined) {
+  if (json === undefined || !parseMod) {
     const f = e.source === 'folder' ? loadFailed.get(e.chapter) : undefined;
     return f ? { errors: [tr(`题目文件加载失败：${f}`, `Couldn't load the problem file: ${f}`)] } : null;
   }
@@ -149,7 +168,7 @@ export function getProblem(e: ProblemEntry): { problem?: Problem; errors: string
   if (!r) {
     try {
       // imported files were verified by loadProblems(); this pass only localises
-      const v = parseProblem(json, e.source, e.file, { verify: false });
+      const v = parseMod.parseProblem(json, e.source, e.file, { verify: false });
       r = { problem: v.problem, errors: v.errors };
     } catch (err) {
       r = { errors: [errText(err)] };
@@ -165,9 +184,9 @@ export function useProblem(e: ProblemEntry | null): { problem?: Problem; errors:
   const [, bump] = useState(0);
   const r = e ? getProblem(e) : null;
   useEffect(() => {
-    if (!e || r || e.source !== 'folder') return;
+    if (!e || r) return;
     let live = true;
-    loadChapter(e.chapter).then(
+    (e.source === 'folder' ? loadChapter(e.chapter) : loadParser()).then(
       () => live && bump((n) => n + 1),
       () => live && bump((n) => n + 1),
     );

@@ -7,7 +7,7 @@ import { BATTERIES, LED_COLORS, PARTS, nextScopeChannel, terminalName } from '..
 import type { BatteryVariant, LedColor, PartProps, PartType, PlacedPart, Waveform } from '../core/types';
 import { vavg, vmax, vmin, vrms } from '../core/transient';
 import { ammeterAc, ammeterReading, ledOf, useDerived } from '../state/derived';
-import { CH_COLORS } from '../three/common';
+import { CH_COLORS } from './scopeColors';
 import { WIRE_COLORS, useStore } from '../state/store';
 import { PartIcon } from './Icons';
 import { DeviceEditor, DeviceReadout, McuInspector, OWN_READOUT } from './McuInspector';

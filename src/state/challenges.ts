@@ -1,12 +1,22 @@
-// Loading challenges: built-in folder (bundled by Vite, hot-reloaded in dev) + files the
-// user imports at runtime (kept in localStorage so they survive a reload).
+// Loading challenges: built-in folder (code-split, hot-reloaded in dev) + files the user
+// imports at runtime (kept in localStorage so they survive a reload).
+//
+// Startup cost: the carousel and the progress card only need a summary of each built-in
+// lesson / challenge, which comes from a build-time index (virtual:challenge-index, see
+// scripts/challenge-index-plugin.ts). The full files are split into one chunk per group
+// (lessons, intro challenges, phase 1…5) and loaded when a challenge of that group is opened.
+// Until then the store holds a *placeholder* Challenge for it (isPending() → true; title,
+// kind, level and phase are real, target / steps / tests are empty); store.openChallenge()
+// loads the group first (ensureChallenge) and opens the challenge once the real one is in.
 
-import { parseChallenge, type Challenge } from '../core/challenge';
-import { tr } from '../core/i18n';
-import { isProblemJson } from '../core/problem/parse';
-import type { InvalidFile } from './store';
+import { getLang, tr } from '../core/i18n';
+import type { Challenge, ChallengePhase, ValidationResult } from '../core/challenge';
+import { entries as builtinIndex, broken as builtinBroken, groups as groupChunks } from 'virtual:challenge-index';
+import { useStore, type InvalidFile } from './store';
 
-const folder = import.meta.glob('../../challenges/**/*.json', { eager: true, import: 'default' }) as Record<string, unknown>;
+/** same test as core/problem/parse isProblemJson (not imported: that module is not small) */
+export const isProblemJson = (json: unknown): boolean =>
+  typeof json === 'object' && json !== null && typeof (json as { format?: unknown }).format === 'string' && (json as { format: string }).format.startsWith('circuit-problem');
 
 const IMPORT_KEY = 'bb.imported';
 
@@ -39,31 +49,150 @@ const skip = (path: string) => {
   return name.startsWith('_') || /(^|\.)schema\.json$/i.test(name);
 };
 
+// ---- built-in files, by group -------------------------------------------------------
+
+// The challenge parser (with the simulator's measurement definitions it validates against) is
+// only needed once challenge files are loaded, so it is a chunk of its own as well.
+type ParseModule = typeof import('../core/challenge');
+let parseMod: ParseModule | null = null;
+let parseLoad: Promise<ParseModule> | null = null;
+function loadParser(): Promise<ParseModule> {
+  if (!parseLoad) {
+    parseLoad = import('../core/challenge').then((m) => (parseMod = m));
+    parseLoad.catch(() => (parseLoad = null)); // retry on the next request
+  }
+  return parseLoad;
+}
+
+/** raw JSON of loaded built-in files, by file ("challenges/…json") */
+const jsonCache = new Map<string, unknown>();
+const groupLoads = new Map<string, Promise<void>>();
+/** groups whose chunk failed to load (cleared on retry) */
+const loadFailed = new Map<string, string>();
+/** parse results of built-in files, by language + file */
+const parsedCache = new Map<string, ValidationResult>();
+const placeholders = new WeakSet<Challenge>();
+
+/** True for a built-in challenge whose file is not loaded yet (only its index entry is known). */
+export const isPending = (c: Challenge) => placeholders.has(c);
+
+/** Load every file of a group (they share a chunk, so one request), then refresh the store. */
+export function loadGroup(group: string): Promise<void> {
+  let p = groupLoads.get(group);
+  if (!p) {
+    loadFailed.delete(group);
+    // one chunk per group (virtual:challenge-index/<group>): { [file]: json }
+    const load = groupChunks[group];
+    p = Promise.all([load ? load() : Promise.resolve({ default: {} }), loadParser()]).then(
+      ([m]) => {
+        for (const [file, json] of Object.entries(m.default)) jsonCache.set(file, json);
+        refreshStore();
+      },
+      (err) => {
+        groupLoads.delete(group); // allow a retry (next time a challenge of the group is opened)
+        loadFailed.set(group, (err as Error)?.message ?? String(err));
+        refreshStore();
+        throw err;
+      },
+    );
+    groupLoads.set(group, p);
+  }
+  return p;
+}
+
+/** Make sure the full challenge `id` is loaded; resolves false if it could not be. */
+export async function ensureChallenge(id: string): Promise<boolean> {
+  const e = builtinIndex.find((x) => x.id === id);
+  if (!e) return false;
+  try {
+    await loadGroup(e.group);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function refreshStore() {
+  const r = loadAll();
+  useStore.getState().setChallenges(r.challenges, r.invalid);
+}
+
+function placeholder(e: (typeof builtinIndex)[number]): Challenge {
+  const l = getLang();
+  const t = l !== e.lang ? e.titles[l] : undefined;
+  const c: Challenge = {
+    id: e.id,
+    title: t || e.title,
+    level: e.level,
+    kind: e.kind,
+    phase: e.phase as ChallengePhase | undefined,
+    summary: '',
+    description: '',
+    concepts: [],
+    target: { components: [], nets: [] },
+    tests: [],
+    hints: [],
+    steps: [],
+    tolerance: 0.05,
+    allowExtraComponents: false,
+    textLang: t ? l : (e.lang as Challenge['textLang']),
+    source: 'folder',
+    file: e.file,
+  };
+  placeholders.add(c);
+  return c;
+}
+
 export function loadAll(): { challenges: Challenge[]; invalid: InvalidFile[] } {
   const challenges: Challenge[] = [];
   const invalid: InvalidFile[] = [];
   const seen = new Set<string>();
-  const add = (json: unknown, source: string, file: string) => {
-    const r = parseChallenge(json, source, file);
+  const put = (c: Challenge) => {
+    if (seen.has(c.id)) {
+      // a later import with the same id replaces the earlier one
+      const i = challenges.findIndex((x) => x.id === c.id);
+      challenges.splice(i, 1);
+    }
+    seen.add(c.id);
+    challenges.push(c);
+  };
+  const addResult = (r: ValidationResult, source: string, file: string) => {
     if (!r.ok || !r.challenge) {
       invalid.push({ file, source, errors: r.errors, warnings: r.warnings });
       return;
     }
-    if (seen.has(r.challenge.id)) {
-      // a later import with the same id replaces the earlier one
-      const i = challenges.findIndex((c) => c.id === r.challenge!.id);
-      challenges.splice(i, 1);
-    }
-    seen.add(r.challenge.id);
-    challenges.push(r.challenge);
+    put(r.challenge);
     if (r.warnings.length) invalid.push({ file, source, errors: [], warnings: r.warnings });
   };
 
-  for (const path of Object.keys(folder).sort()) {
-    if (skip(path)) continue;
-    add(folder[path], 'folder', path.replace('../../', ''));
+  for (const b of builtinBroken) invalid.push({ file: b.file, source: 'folder', errors: [tr(`JSON 无法读取：${b.error}`, `Couldn't read the JSON: ${b.error}`)], warnings: [] });
+  const failedShown = new Set<string>();
+  for (const e of builtinIndex) {
+    const json = jsonCache.get(e.file);
+    if (json === undefined || !parseMod) {
+      const f = loadFailed.get(e.group);
+      if (f && !failedShown.has(e.group)) {
+        failedShown.add(e.group);
+        invalid.push({ file: e.file, source: 'folder', errors: [tr(`题目文件加载失败：${f}`, `Couldn't load the challenge file: ${f}`)], warnings: [] });
+      }
+      put(placeholder(e));
+      continue;
+    }
+    const k = `${getLang()}|${e.file}`;
+    let r = parsedCache.get(k);
+    if (!r) {
+      r = parseMod.parseChallenge(json, 'folder', e.file);
+      parsedCache.set(k, r);
+    }
+    addResult(r, 'folder', e.file);
   }
-  for (const f of readImported()) {
+  const imported = readImported();
+  if (imported.length && !parseMod) {
+    // parser not loaded yet: list the imported files once it is
+    loadParser().then(refreshStore, () => undefined);
+    return { challenges, invalid };
+  }
+  for (const f of imported) {
     let json: unknown;
     try {
       json = JSON.parse(f.text);
@@ -72,10 +201,17 @@ export function loadAll(): { challenges: Challenge[]; invalid: InvalidFile[] } {
       continue;
     }
     if (isProblemJson(json)) continue; // theory problems are loaded by state/problems.ts
-    add(json, 'imported', f.file);
+    addResult(parseMod!.parseChallenge(json, 'imported', f.file), 'imported', f.file);
   }
   return { challenges, invalid };
 }
+
+// dev: load every group in the background, so a broken file in challenges/ shows up on the
+// Import page right away (in production `npm run validate` guards the built-in files)
+if (import.meta.env.DEV && typeof window !== 'undefined')
+  setTimeout(() => {
+    for (const g of new Set(builtinIndex.map((e) => e.group))) loadGroup(g).catch(() => undefined);
+  }, 1500);
 
 /** `saved: false` = the browser refused to store the files (nothing was imported). */
 export async function importFiles(files: File[]): Promise<{ added: number; skipped: number; saved: boolean }> {
@@ -96,4 +232,13 @@ export async function importFiles(files: File[]): Promise<{ added: number; skipp
   }
   const saved = added === 0 || writeImported(current);
   return { added: saved ? added : 0, skipped, saved };
+}
+
+/** The open lesson / challenge (null off the learn / challenge pages). */
+export function useActiveChallenge(): Challenge | null {
+  const id = useStore((s) => s.activeId);
+  const list = useStore((s) => s.challenges);
+  const mode = useStore((s) => s.mode);
+  if (mode !== 'learn' && mode !== 'challenge') return null;
+  return list.find((c) => c.id === id) ?? null;
 }

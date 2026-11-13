@@ -1,15 +1,14 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { tr, type Lang } from './core/i18n';
-import { loadAll } from './state/challenges';
+import { loadAll, useActiveChallenge } from './state/challenges';
 import { loadProblems } from './state/problems';
-import { useActiveChallenge } from './state/derived';
 import { useLang, useStore, type Mode } from './state/store';
-import { Carousel } from './ui/Carousel';
 import { Icon } from './ui/Icons';
-import { SidePanel } from './ui/Panel';
-import { Workbench } from './ui/Workbench';
 
-// pages off the 3D workbench are split into their own chunks
+// every page is its own chunk; the 3D workbench (three.js) is only fetched for learn / challenge / sandbox
+const Workbench = lazy(() => import('./ui/Workbench').then((m) => ({ default: m.Workbench })));
+const SidePanel = lazy(() => import('./ui/Panel').then((m) => ({ default: m.SidePanel })));
+const Carousel = lazy(() => import('./ui/Carousel').then((m) => ({ default: m.Carousel })));
 const Practice = lazy(() => import('./ui/Practice').then((m) => ({ default: m.Practice })));
 const Guide = lazy(() => import('./ui/Guide').then((m) => ({ default: m.Guide })));
 const ImportPage = lazy(() => import('./ui/ImportPage').then((m) => ({ default: m.ImportPage })));
@@ -249,13 +248,15 @@ export default function App() {
       </header>
 
       {bench && (
-        <main className="main">
-          <div className="left">
-            <Workbench />
-            {mode !== 'sandbox' && <Carousel kind={mode === 'learn' ? 'lesson' : 'challenge'} />}
-          </div>
-          <SidePanel />
-        </main>
+        <Suspense fallback={<PageLoading />}>
+          <main className="main">
+            <div className="left">
+              <Workbench />
+              {mode !== 'sandbox' && <Carousel kind={mode === 'learn' ? 'lesson' : 'challenge'} />}
+            </div>
+            <SidePanel />
+          </main>
+        </Suspense>
       )}
       {!bench && (
         <Suspense fallback={<PageLoading />}>

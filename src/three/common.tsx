@@ -227,7 +227,7 @@ export function CanvasPlane({
 }
 
 /** Oscilloscope channel colours: shared by the 3D probes and the scope screen traces. */
-export const CH_COLORS: Record<1 | 2, string> = { 1: '#f5d90a', 2: '#22d3ee' };
+export { CH_COLORS } from '../ui/scopeColors';
 
 /** Ask the 3D scene to move the camera to a preset view (see VIEWS in Scene.tsx). */
 export function emitCameraView(view: string) {

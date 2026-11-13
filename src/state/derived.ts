@@ -255,13 +255,8 @@ export function useScopeData(): ScopeData {
   return useMemo(() => deriveScope(d, layout), [d, layout]);
 }
 
-export function useActiveChallenge() {
-  const id = useStore((s) => s.activeId);
-  const list = useStore((s) => s.challenges);
-  const mode = useStore((s) => s.mode);
-  if (mode !== 'learn' && mode !== 'challenge') return null;
-  return list.find((c) => c.id === id) ?? null;
-}
+// lives with the challenge loader so that App (on every page) does not pull in the simulator
+export { useActiveChallenge } from './challenges';
 
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   (window as unknown as Record<string, unknown>).__bbTiming = () => {
