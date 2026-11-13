@@ -307,6 +307,7 @@ export function Scope() {
             </div>
             {data.error && <div className="sc-error">{tr('仿真失败：', 'Simulation failed: ')}{data.error}</div>}
             {!data.error && data.ac && !data.converged && <div className="sc-error warn">{tr('还没完全进入稳态，波形仅供参考', 'Not fully settled yet — the waveform is approximate')}</div>}
+            {!data.error && data.ac && data.underResolved && <div className="sc-error warn" style={data.converged ? undefined : { bottom: 48 }}>{tr('步长太粗，看不到 LC 振铃（见诊断）', 'Time step too coarse for the LC ringing (see diagnostics)')}</div>}
           </div>
           <div className="sc-controls">
             <div className="sc-knob">

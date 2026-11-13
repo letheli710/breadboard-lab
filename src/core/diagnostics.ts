@@ -6,9 +6,9 @@ import { isFloating, type BoardNetlist } from './netlist';
 import { OPAMP_HALVES, PARTS, describeComponent, groundSource, groundTerminal, isPower, isUsbPowered, terminalLabel, terminalsOf } from './parts';
 import { mcuDiagnostics, acMcuDiagnostics } from './mcuDiagnostics';
 import type { SimResult } from './solver';
-import type { TransientResult } from './transient';
+import { MAX_STEPS_PER_PERIOD, MIN_STEPS_PER_RING, type TransientResult } from './transient';
 import { pinId } from './types';
-import { amps, volts } from './format';
+import { amps, formatSI, volts } from './format';
 import { isMcu } from './mcu';
 
 export type Severity = 'error' | 'warning' | 'info';
@@ -316,6 +316,18 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         holes: nl.pinHoles.get(pinId(c.ref, 'gnd')) ?? [],
       });
   }
+
+  if (!sim.converged)
+    out.push({
+      severity: 'warning',
+      title: tr('直流求解没有收敛，读数可能不准', "The DC solution didn't converge; readings may be wrong"),
+      detail: tr(
+        '二极管、LED、三极管、继电器等元件的导通/断开状态在迭代上限内没有稳定下来（或电路矩阵奇异），电压、电流和诊断结果仅供参考。常见原因：元件在临界点上来回切换，或电路里有互相矛盾的理想连接。',
+        'The on/off states of diodes, LEDs, transistors, relays etc. did not settle within the iteration limit (or the circuit matrix is singular), so voltages, currents and diagnostics are approximate. Usual causes: a part sitting right at its switching threshold, or contradictory ideal connections.',
+      ),
+      refs: [],
+      holes: [],
+    });
   return out;
 }
 
@@ -324,5 +336,29 @@ export const PART_NAME = (t: keyof typeof PARTS) => PARTS[t].name;
 /** Phase 5 time-domain checks (inductive kicks under PWM, …). Call with the transient result
  *  when there is one; the issues are added to the DC ones. */
 export function acDiagnostics(nl: BoardNetlist, ac: TransientResult): Issue[] {
-  return acMcuDiagnostics(nl, ac);
+  const out = acMcuDiagnostics(nl, ac);
+  const u = ac.underResolved;
+  if (u)
+    out.push({
+      severity: 'warning',
+      title: tr('时域仿真步长太粗：看不到 LC 振铃', 'Time step too coarse to show the LC ringing'),
+      detail: tr(
+        `每个周期最多算 ${MAX_STEPS_PER_PERIOD} 步，步长 ${formatSI(ac.dt, 's')}；而电路可能以约 ${formatSI(u.ringHz, 'Hz')}（周期 ${formatSI(1 / u.ringHz, 's')}）振荡，每个振荡周期只有 ${u.stepsPerRing.toFixed(2)} 步（至少需要 ${MIN_STEPS_PER_RING} 步）。示波器上的振铃会被抹平或失真。把信号发生器频率调高到约 ${formatSI(u.ringHz / 100, 'Hz')} 以上再观察。`,
+        `At most ${MAX_STEPS_PER_PERIOD} steps per period are computed, so the step is ${formatSI(ac.dt, 's')}; the circuit may ring at about ${formatSI(u.ringHz, 'Hz')} (period ${formatSI(1 / u.ringHz, 's')}), which leaves only ${u.stepsPerRing.toFixed(2)} steps per ring period (at least ${MIN_STEPS_PER_RING} are needed). Ringing on the scope is smeared out or distorted. Raise the generator frequency above about ${formatSI(u.ringHz / 100, 'Hz')} to see it.`,
+      ),
+      refs: [],
+      holes: [],
+    });
+  if (ac.stats.pwlUnsettled > 0)
+    out.push({
+      severity: 'warning',
+      title: tr('时域仿真中有元件状态没有收敛', 'Some part states did not settle in the time-domain simulation'),
+      detail: tr(
+        `在 ${ac.stats.pwlUnsettled} / ${ac.stats.steps} 个时间步里，二极管、LED、三极管、MOSFET 等元件的导通状态在 30 次迭代内没有稳定下来，波形和读数可能不准。`,
+        `In ${ac.stats.pwlUnsettled} of ${ac.stats.steps} time steps the on/off state of diodes, LEDs, transistors, MOSFETs etc. did not settle within 30 iterations, so waveforms and readings may be inaccurate.`,
+      ),
+      refs: [],
+      holes: [],
+    });
+  return out;
 }

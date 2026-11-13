@@ -105,6 +105,7 @@ import {
 } from './solver';
 import type { Circuit } from './types';
 import { pinId } from './types';
+import { formatSI } from './format';
 
 export type Measure = 'vpp' | 'vmax' | 'vmin' | 'vavg' | 'vrms' | 'freq' | 'phase' | 'gain' | 'rise' | 'fall';
 export const MEASURES: Measure[] = ['vpp', 'vmax', 'vmin', 'vavg', 'vrms', 'freq', 'phase', 'gain', 'rise', 'fall'];
@@ -186,7 +187,11 @@ export interface TransientResult {
   /** measurement of V(pin) − V(ref) (ref omitted = GND); phase / gain compare with
    *  V(vs) − V(vsref) (vsref omitted = the same ref as pin) */
   measure(kind: Measure, pin: string, ref?: string, vs?: string, vsref?: string): number;
-  stats: { steps: number; periodsSimulated: number; extrapolations: number; ms: number };
+  /** pwlUnsettled = time steps whose piecewise-linear device states hit the iteration cap */
+  stats: { steps: number; periodsSimulated: number; extrapolations: number; pwlUnsettled: number; ms: number };
+  /** the step is too coarse for an LC ringing mode (fewer than MIN_STEPS_PER_RING steps per
+   *  ring period, e.g. a 1 Hz square wave on a 159 kHz tank); null when resolved */
+  underResolved: { ringHz: number; stepsPerRing: number } | null;
   warnings: string[];
 }
 
@@ -392,11 +397,24 @@ function wave(w: 'sine' | 'square' | 'triangle', f: number): number {
   }
 }
 
-function autoSteps(c: Compiled, T: number): number {
+/** Highest LC ringing frequency the board could have (Hz; 0 without an L–C pair). A crude
+ *  upper bound: every inductor paired with every capacitor. */
+function ringFrequency(c: Compiled): number {
   let fRing = 0;
   for (const l of c.inductors) for (const cap of c.caps) fRing = Math.max(fRing, 1 / (2 * Math.PI * Math.sqrt(l.L * cap.C)));
+  return fRing;
+}
+
+/** Steps per period actually used is capped here; below MIN_STEPS_PER_RING a ringing mode is
+ *  under-resolved (BDF2 damps / aliases it) and the result gets `underResolved`. */
+export const MAX_STEPS_PER_PERIOD = 4096;
+export const MIN_STEPS_PER_RING = 10;
+/** PWL (diode / LED / transistor / clamp) state iterations inside one time step */
+const PWL_ITERS = 30;
+
+function autoSteps(fRing: number, T: number): number {
   let N = Math.max(256, Math.ceil(T * fRing * 40));
-  N = Math.min(N, 4096);
+  N = Math.min(N, MAX_STEPS_PER_PERIOD);
   return N + (N % 2);
 }
 
@@ -414,9 +432,19 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
   const f0 = gens.length ? gens[0].gen!.frequency : pwms.length ? pwms[0].freq : 1000;
   const baseName = gens.length ? gens[0].ref : pwms.length ? `${pwms[0].ref}.${pwms[0].pin}` : '';
   const T = 1 / f0;
-  let N = opts.stepsPerPeriod ? Math.max(16, Math.ceil(opts.stepsPerPeriod)) : autoSteps(c, T);
+  const fRing = ringFrequency(c);
+  let N = opts.stepsPerPeriod ? Math.max(16, Math.ceil(opts.stepsPerPeriod)) : autoSteps(fRing, T);
   N += N % 2;
   const h = T / N;
+  const stepsPerRing = fRing > 0 ? 1 / (fRing * h) : Infinity;
+  const underResolved = hasGen && stepsPerRing < MIN_STEPS_PER_RING ? { ringHz: fRing, stepsPerRing } : null;
+  if (underResolved)
+    warnings.push(
+      t_(
+        `时间步长（${formatSI(h, 's')}）比电路的 LC 振荡周期（约 ${formatSI(1 / fRing, 's')}）粗太多：振铃会被抹掉或失真。请调高信号发生器频率再看振铃。`,
+        `The time step (${formatSI(h, 's')}) is far too coarse for the circuit's LC ringing period (about ${formatSI(1 / fRing, 's')}): ringing is smeared out or distorted. Raise the generator frequency to see it.`,
+      ),
+    );
   const keep = Math.max(1, Math.round(opts.periods ?? 2));
   const maxSteps = opts.maxSteps ?? 150_000;
   const minPeriods = opts.minPeriods ?? 3;
@@ -508,6 +536,7 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
   const b = new Float64Array(Nn);
   const ih = new Float64Array(nL);
   let steps = 0;
+  let pwlUnsettled = 0;
   let failed = false;
 
   /** advance from step kNow−1 to kNow (x1/x2/iL1/iL2 hold history) */
@@ -515,7 +544,8 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
     setPwm(kNow);
     const method: 'BE' | 'BDF2' = x2 === null || iL2 === null || edgeBefore(kNow) ? 'BE' : 'BDF2';
     const [a0, a1, a2] = coeff[method];
-    for (let it = 0; it < 30; it++) {
+    let settled = false;
+    for (let it = 0; it < PWL_ITERS; it++) {
       const lu = getLU(method);
       b.fill(0);
       for (const cap of c.caps) {
@@ -541,8 +571,12 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
         return;
       }
       x.set(b);
-      if (!updatePwl(c, x, emf, it > 24)) break;
+      if (!updatePwl(c, x, emf, it > PWL_ITERS - 6)) {
+        settled = true;
+        break;
+      }
     }
+    if (!settled) pwlUnsettled++;
     c.inductors.forEach((l, j) => {
       const geq = 1 / (l.R + (l.L * a0) / h);
       iL[j] = geq * (V(x, l.a) - V(x, l.b)) + ih[j];
@@ -641,6 +675,13 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
       ),
     );
   if (failed) warnings.push(t_('瞬态仿真失败（矩阵奇异）。', 'Transient simulation failed (singular matrix).'));
+  if (pwlUnsettled > 0)
+    warnings.push(
+      t_(
+        `有 ${pwlUnsettled} 个时间步里二极管/三极管等元件的导通状态没有收敛，结果可能不准。`,
+        `In ${pwlUnsettled} time step(s) the on/off state of diodes, transistors etc. did not settle; the result may be inaccurate.`,
+      ),
+    );
 
   // ---- record the window
   const M = keep * N;
@@ -824,7 +865,8 @@ export function simulateTransient(circuit: Circuit, opts: TransientOptions = {})
     buzzers,
     pinCurrent,
     measure,
-    stats: { steps, periodsSimulated, extrapolations, ms: now() - started },
+    stats: { steps, periodsSimulated, extrapolations, pwlUnsettled, ms: now() - started },
+    underResolved,
     warnings,
   };
 }

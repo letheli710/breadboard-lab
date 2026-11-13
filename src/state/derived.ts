@@ -202,6 +202,8 @@ export interface ScopeData {
   channels: ScopeChannelData[];
   error: string | null;
   converged: boolean;
+  /** time step too coarse for an LC ringing mode (see TransientResult.underResolved) */
+  underResolved: boolean;
   /** traces are from before the latest change (recomputing) */
   stale: boolean;
   /** transient compute time (ms) */
@@ -240,6 +242,7 @@ export function deriveScope(d: Derived, layout: Layout): ScopeData {
     channels,
     error: d.acError,
     converged: ac ? ac.converged : true,
+    underResolved: !!ac?.underResolved,
     stale: d.acStale,
     ms: ac ? ac.stats.ms : 0,
   };
