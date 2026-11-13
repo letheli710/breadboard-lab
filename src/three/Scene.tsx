@@ -126,6 +126,7 @@ function Parts() {
           led={ledOf(derived, p.ref)}
           source={sim.sources.get(p.ref)}
           reading={p.type === 'ammeter' ? ammeterReading(derived, p.ref) : undefined}
+          sim={sim}
           ctx={{ ghost: false, tint: p.id === selectedId ? 'select' : hlRefs.has(p.ref) ? (highlight?.tone === 'error' ? 'error' : 'hover') : 'none' }}
           label={showLabels}
           labelTone={errorRefs.has(p.ref) ? 'error' : 'normal'}

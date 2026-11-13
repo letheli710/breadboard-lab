@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
 import { acVolts, amps, ohms, volts } from '../core/format';
+import { ldrResistance, ntcResistance } from '../core/devices';
 import { BATTERIES, LED_COLORS, isPower, sourceVoltage } from '../core/parts';
 import { layoutSchematic, type SElement } from '../core/schematic';
 import type { SimResult } from '../core/solver';
@@ -47,7 +48,37 @@ function valueText(el: SElement, sim?: SimResult | null): string[] {
       if (c.type === 'dc_source' && p.voltage === undefined) break;
       out.push(`${sourceVoltage(c)}V`);
       break;
+    case 'npn':
+      out.push(`β=${p.beta ?? 150}`);
+      if (sim?.bjts.get(c.ref)) out.push({ cutoff: tr('截止', 'cutoff'), active: tr('放大', 'active'), saturation: tr('饱和', 'saturated') }[sim.bjts.get(c.ref)!.region]);
+      break;
+    case 'nmos':
+      out.push(p.model ?? 'IRLZ44N');
+      if (sim?.mosfets.get(c.ref)) out.push({ off: tr('截止', 'off'), ohmic: tr('导通', 'on'), saturation: tr('半导通', 'partly on') }[sim.mosfets.get(c.ref)!.region]);
+      break;
+    case 'ldo':
+      out.push(`${(p.voltage ?? 3.3).toFixed(1)}V`);
+      break;
+    case 'ldr':
+      if (p.lux !== undefined) out.push(`${p.lux} lx`, ohms(ldrResistance(p.lux)));
+      break;
+    case 'ntc':
+      if (p.temperature !== undefined) out.push(`${p.temperature}°C`, ohms(ntcResistance(p.temperature)));
+      else out.push('10k');
+      break;
+    case 'relay':
+      if (el.sub === 'coil') out.push('5V');
+      if (el.sub === 'contact' && sim?.relays.get(c.ref)) out.push(sim.relays.get(c.ref)!.energized ? tr('吸合', 'ON') : tr('释放', 'off'));
+      break;
+    case 'motor':
+      if (sim?.motors.get(c.ref)?.running) out.push(tr('转动', 'running'));
+      break;
+    case 'buzzer':
+      if (sim?.buzzers.get(c.ref)?.on) out.push(tr('响', 'beeping'));
+      break;
   }
+  // a dev board's own current readings are per pin (inspector); the relay contact has none
+  if (el.box || el.sub === 'contact') return out;
   if (sim) {
     const I = sim.current.get(c.ref);
     if (I !== undefined && Math.abs(I) > 2e-6 && c.type !== 'switch') out.push(`I=${amps(Math.abs(I))}`);
@@ -63,13 +94,149 @@ function Symbol({ el, sim, hl }: { el: SElement; sim?: SimResult | null; hl: boo
   let body: JSX.Element;
   switch (c.type) {
     case 'resistor':
-    case 'potentiometer': {
+    case 'potentiometer':
+    case 'ldr':
+    case 'ntc': {
       const pts = ['0,-22', '0,-15'];
       for (let i = 0; i < 6; i++) pts.push(`${i % 2 ? -7 : 7},${-15 + 2.5 + i * 5}`);
       pts.push('0,15', '0,22');
-      body = <polyline points={pts.join(' ')} {...common} />;
+      body = (
+        <g>
+          <polyline points={pts.join(' ')} {...common} />
+          {c.type === 'ldr' && (
+            <g {...common} strokeWidth={1.5}>
+              {/* light falling on it: two arrows pointing in */}
+              <path d="M-22,-16 L-11,-7 M-14.5,-7.4 L-11,-7 L-11.6,-10.5" />
+              <path d="M-22,-5 L-11,4 M-14.5,3.6 L-11,4 L-11.6,0.5" />
+            </g>
+          )}
+          {c.type === 'ntc' && (
+            <g {...common} strokeWidth={1.5}>
+              {/* thermistor: a diagonal line with a flat foot, marked −t° */}
+              <path d="M-13,14 L13,-14 L19,-14" />
+              <text x={-24} y={-10} fontSize={10} fill={stroke} stroke="none">
+                −t°
+              </text>
+            </g>
+          )}
+        </g>
+      );
       break;
     }
+    case 'inductor':
+      body = (
+        <g {...common}>
+          <line x1={0} y1={-22} x2={0} y2={-16} />
+          <path d="M0,-16 a6,4 0 0 1 0,8 a6,4 0 0 1 0,8 a6,4 0 0 1 0,8 a6,4 0 0 1 0,8" />
+          <line x1={0} y1={16} x2={0} y2={22} />
+        </g>
+      );
+      break;
+    case 'relay':
+      // the coil (the contacts are drawn by ContactSymbol)
+      body = (
+        <g {...common}>
+          <line x1={0} y1={-22} x2={0} y2={-12} />
+          <line x1={0} y1={12} x2={0} y2={22} />
+          <rect x={-8} y={-12} width={16} height={24} fill="var(--paper)" />
+          <line x1={-8} y1={12} x2={8} y2={-12} strokeWidth={1.4} />
+        </g>
+      );
+      break;
+    case 'motor':
+      body = (
+        <g {...common}>
+          <line x1={0} y1={-22} x2={0} y2={-13} />
+          <line x1={0} y1={13} x2={0} y2={22} />
+          <circle cx={0} cy={0} r={13} fill="var(--paper)" />
+          <text x={0} y={5} fontSize={14} fontWeight={700} textAnchor="middle" fill={stroke} stroke="none" transform={el.rot === 180 ? 'rotate(180)' : undefined}>
+            M
+          </text>
+          <text x={-9} y={-15} fontSize={10} fill={stroke} stroke="none" transform={el.rot === 180 ? 'rotate(180 -9 -18)' : undefined}>
+            +
+          </text>
+        </g>
+      );
+      break;
+    case 'buzzer':
+      body = (
+        <g {...common}>
+          <line x1={0} y1={-22} x2={0} y2={-8} />
+          <line x1={0} y1={8} x2={0} y2={22} />
+          {/* a bell-shaped sounder, with + at the top terminal */}
+          <path d="M-4,-12 L4,-12 L4,12 L-4,12 Z" fill="var(--paper)" />
+          <path d="M4,-12 L13,-19 L13,19 L4,12" fill="var(--paper)" />
+          <text x={-12} y={-12} fontSize={10} fill={stroke} stroke="none" transform={el.rot === 180 ? 'rotate(180 -10 -15)' : undefined}>
+            +
+          </text>
+        </g>
+      );
+      break;
+    case 'npn':
+      body = (
+        <g {...common}>
+          <circle cx={-4} cy={0} r={15} fill="var(--paper)" />
+          <line x1={-22} y1={0} x2={-9} y2={0} />
+          <line x1={-9} y1={-9} x2={-9} y2={9} strokeWidth={sw + 0.8} />
+          <path d="M-9,-4 L0,-12 L0,-22" />
+          <path d="M-9,4 L0,12 L0,22" />
+          {/* emitter arrow pointing out */}
+          <polygon points="0,12 -5.5,11 -2.6,6.6" fill={stroke} />
+        </g>
+      );
+      break;
+    case 'nmos':
+      body = (
+        <g {...common}>
+          <circle cx={-4} cy={0} r={15} fill="var(--paper)" />
+          <line x1={-22} y1={0} x2={-13} y2={0} />
+          <line x1={-13} y1={-9} x2={-13} y2={9} />
+          <line x1={-8} y1={-11} x2={-8} y2={-5} strokeWidth={sw + 0.6} />
+          <line x1={-8} y1={-3} x2={-8} y2={3} strokeWidth={sw + 0.6} />
+          <line x1={-8} y1={5} x2={-8} y2={11} strokeWidth={sw + 0.6} />
+          <path d="M-8,-8 L0,-8 L0,-22" />
+          <path d="M-8,8 L0,8 L0,22" />
+          <path d="M-8,0 L0,0 L0,8" />
+          {/* N channel: arrow points into the channel */}
+          <polygon points="-8,0 -3,-3 -3,3" fill={stroke} />
+        </g>
+      );
+      break;
+    case 'opamp':
+      body = (
+        <g {...common}>
+          <polygon points="-26,-22 -26,22 30,0" fill="var(--paper)" />
+          <text x={-22} y={-6} fontSize={12} fill={stroke} stroke="none">
+            −
+          </text>
+          <text x={-22} y={14} fontSize={12} fill={stroke} stroke="none">
+            +
+          </text>
+        </g>
+      );
+      break;
+    case 'ammeter':
+      body = (
+        <g {...common}>
+          <line x1={0} y1={-22} x2={0} y2={-13} />
+          <line x1={0} y1={13} x2={0} y2={22} />
+          <circle cx={0} cy={0} r={13} fill="var(--paper)" />
+          <text x={0} y={5} fontSize={14} fontWeight={700} textAnchor="middle" fill={stroke} stroke="none" transform={el.rot === 180 ? 'rotate(180)' : undefined}>
+            A
+          </text>
+        </g>
+      );
+      break;
+    case 'function_gen':
+      body = (
+        <g {...common}>
+          <line x1={0} y1={-22} x2={0} y2={-14} />
+          <line x1={0} y1={14} x2={0} y2={22} />
+          <circle cx={0} cy={0} r={14} fill="var(--paper)" />
+          <path d="M-8,0 Q-4,-9 0,0 T8,0" />
+        </g>
+      );
+      break;
     case 'led':
     case 'diode': {
       const st = sim?.leds.get(c.ref);
@@ -150,8 +317,63 @@ function Symbol({ el, sim, hl }: { el: SElement; sim?: SimResult | null; hl: boo
         </g>
       );
   }
-  return <g transform={`translate(${el.x},${el.y}) rotate(${el.rot})`}>{body}</g>;
+  // three-terminal transistors flip vertically (base / gate stays on the left)
+  const flipOnly = c.type === 'npn' || c.type === 'nmos';
+  return <g transform={`translate(${el.x},${el.y}) ${flipOnly ? (el.rot === 180 ? 'scale(1,-1)' : '') : `rotate(${el.rot})`}`}>{body}</g>;
 }
+
+/** Dev board / regulator: a labelled box with its pin names. */
+function BoxSymbol({ el, hl }: { el: SElement; hl: boolean }) {
+  const b = el.box!;
+  const stroke = hl ? 'var(--bad)' : INK;
+  return (
+    <g>
+      <rect x={b.x} y={b.y} width={b.w} height={b.h} rx={4} fill="var(--paper)" stroke={stroke} strokeWidth={hl ? 2.6 : 2} />
+      {el.comp.type !== 'ldo' && (
+        <text x={b.x + b.w / 2} y={b.y + 15} textAnchor="middle" className="ref-label">
+          {b.title}
+        </text>
+      )}
+      {el.labels?.map((l, i) => (
+        <text key={i} x={l.x} y={l.y} textAnchor={l.anchor} className={l.kind === 'pin' ? 'pin-label' : 'mode-label'}>
+          {l.text}
+        </text>
+      ))}
+    </g>
+  );
+}
+
+/** Relay contacts: COM switches between NC and NO; dashed line = mechanical link to the coil. */
+function ContactSymbol({ el, hl }: { el: SElement; hl: boolean }) {
+  const stroke = hl ? 'var(--bad)' : INK;
+  const up = el.rot === 0;
+  const s = up ? 1 : -1;
+  const ax = el.extra!.ax;
+  const bx = el.extra!.bx;
+  const pos = el.extra!.on ? bx : ax;
+  const yCom = el.y + s * 14;
+  const yC = el.y - s * 14;
+  const mx = (el.x + pos) / 2;
+  const my = (yCom + yC + s * 3) / 2;
+  return (
+    <g stroke={stroke} strokeWidth={2} fill="none" strokeLinecap="round">
+      <line x1={el.extra!.coilX + 9} y1={el.extra!.coilY} x2={mx} y2={my} strokeDasharray="3 3" strokeWidth={1.2} />
+      <circle cx={el.x} cy={yCom} r={2.4} fill="var(--paper)" />
+      <circle cx={ax} cy={yC} r={2.4} fill="var(--paper)" />
+      <circle cx={bx} cy={yC} r={2.4} fill="var(--paper)" />
+      <line x1={el.x} y1={yCom} x2={pos} y2={yC + s * 3} />
+      <text x={ax - 5} y={yC - s * 6 + (up ? 0 : 8)} fontSize={10} fill={stroke} stroke="none" textAnchor="end">
+        NC
+      </text>
+      <text x={bx + 5} y={yC - s * 6 + (up ? 0 : 8)} fontSize={10} fill={stroke} stroke="none">
+        NO
+      </text>
+    </g>
+  );
+}
+
+const labelDx = (el: SElement) =>
+  el.comp.type === 'potentiometer' ? 40 : el.comp.type === 'switch' || el.sub === 'contact' ? 26 : el.comp.type === 'npn' || el.comp.type === 'nmos' ? 16 : el.comp.type === 'opamp' ? 8 : 18;
 
 function SwitchSymbol({ el, hl }: { el: SElement; hl: boolean }) {
   const stroke = hl ? 'var(--bad)' : INK;
@@ -231,8 +453,8 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hoverNet, o
             </g>
           );
         })}
-        {lay.elements.map((el) => (
-          <g key={el.ref}>
+        {lay.elements.map((el, k) => (
+          <g key={`${el.ref}.${el.half ?? el.sub ?? ''}.${k}`}>
             {el.leads.map((l, i) => (
               <line
                 key={i}
@@ -246,22 +468,45 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hoverNet, o
                 onMouseEnter={() => onHoverNet?.(l.net)}
               />
             ))}
-            {el.comp.type === 'switch' ? <SwitchSymbol el={el} hl={hl.has(el.ref)} /> : <Symbol el={el} sim={sim} hl={hl.has(el.ref)} />}
+            {el.box ? (
+              <BoxSymbol el={el} hl={hl.has(el.ref)} />
+            ) : el.sub === 'contact' ? (
+              <ContactSymbol el={el} hl={hl.has(el.ref)} />
+            ) : el.comp.type === 'switch' ? (
+              <SwitchSymbol el={el} hl={hl.has(el.ref)} />
+            ) : (
+              <Symbol el={el} sim={sim} hl={hl.has(el.ref)} />
+            )}
             {el.comp.type === 'potentiometer' && (
               <g stroke={INK} strokeWidth={2} fill={INK}>
                 <line x1={el.extra!.wx} y1={el.y} x2={el.x + 10} y2={el.y} />
                 <polygon points={`${el.x + 9},${el.y} ${el.x + 16},${el.y - 4} ${el.x + 16},${el.y + 4}`} />
               </g>
             )}
-            <text x={el.x + (el.comp.type === 'potentiometer' ? 40 : el.comp.type === 'switch' ? 26 : 18)} y={el.y - 4} className="ref-label">
-              {el.ref}
-            </text>
-            {showValues &&
-              valueText(el, sim).map((t, i) => (
-                <text key={i} x={el.x + (el.comp.type === 'potentiometer' ? 40 : el.comp.type === 'switch' ? 26 : 18)} y={el.y + 11 + i * 13} className="val-label">
-                  {t}
+            {el.box ? (
+              <text x={el.box.x + (el.comp.type === 'ldo' ? el.box.w / 2 : 0)} y={el.box.y - 6} textAnchor={el.comp.type === 'ldo' ? 'middle' : 'start'} className="ref-label">
+                {el.ref}
+                {showValues &&
+                  valueText(el, sim).map((t, i) => (
+                    <tspan key={i} className="val-label" dx={6}>
+                      {t}
+                    </tspan>
+                  ))}
+              </text>
+            ) : (
+              <>
+                <text x={el.x + labelDx(el)} y={el.y - 4 + (el.comp.type === 'opamp' ? -16 : 0)} className="ref-label">
+                  {el.ref}
+                  {el.half ? el.half : ''}
                 </text>
-              ))}
+                {showValues &&
+                  valueText(el, sim).map((t, i) => (
+                    <text key={i} x={el.x + labelDx(el)} y={el.y + 11 + i * 13 + (el.comp.type === 'opamp' ? 18 : 0)} className="val-label">
+                      {t}
+                    </text>
+                  ))}
+              </>
+            )}
             {isPower(el.comp.type) && sim?.sources.get(el.ref)?.shorted && (
               <text x={el.x - 20} y={el.y - 26} className="val-label bad">
                 {tr('短路!', 'SHORT!')}

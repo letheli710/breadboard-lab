@@ -192,6 +192,136 @@ export function PartIcon({ type, size = 34 }: { type: PartType | 'select' | 'pro
         </g>
       );
       break;
+    case 'esp32_devkit':
+      g = (
+        <g>
+          <rect x="3" y="9" width="34" height="22" rx="1.5" fill="#17181c" />
+          {[6, 10, 14, 18, 22, 26, 30, 34].map((x) => (
+            <g key={x}>
+              <rect x={x - 0.9} y="10" width="1.8" height="1.8" fill="#d9c27c" />
+              <rect x={x - 0.9} y="28.2" width="1.8" height="1.8" fill="#d9c27c" />
+            </g>
+          ))}
+          <rect x="1" y="13.5" width="18" height="13" rx="0.8" fill="#101113" />
+          <rect x="6" y="14.5" width="12" height="11" rx="0.6" fill="#c3c7cd" />
+          <path d="M2.2 15 H4.6 V17 H2.2 V19 H4.6 V21 H2.2 V23 H4.6" fill="none" stroke="#d6b15a" strokeWidth={0.9} />
+          <rect x="33" y="17" width="5" height="6" rx="0.6" fill="#c3c7cd" />
+          <circle cx="27" cy="16" r="1.2" fill="#ff3b30" />
+        </g>
+      );
+      break;
+    case 'stm32_bluepill':
+      g = (
+        <g>
+          <rect x="3" y="10" width="34" height="20" rx="1.5" fill="#1c55b8" />
+          {[6, 10, 14, 18, 22, 26, 30, 34].map((x) => (
+            <g key={x}>
+              <rect x={x - 0.9} y="11" width="1.8" height="1.8" fill="#d9c27c" />
+              <rect x={x - 0.9} y="27.2" width="1.8" height="1.8" fill="#d9c27c" />
+            </g>
+          ))}
+          <rect x="15" y="14" width="10" height="10" fill="#1c1d21" transform="rotate(45 20 19.5)" />
+          <rect x="1" y="17" width="5" height="6" rx="0.6" fill="#c3c7cd" />
+          <rect x="29" y="16" width="5" height="3" fill="#f2c418" />
+          <rect x="29" y="20.5" width="5" height="3" fill="#f2c418" />
+          <circle cx="35.5" cy="22" r="1" fill="#4ade80" />
+        </g>
+      );
+      break;
+    case 'npn':
+      g = (
+        <g>
+          {[14, 20, 26].map((x) => (
+            <line key={x} x1={x} y1="24" x2={x} y2="37" {...S} stroke="#9aa0a6" />
+          ))}
+          <path d="M11 25 V12 A9 9 0 0 1 29 12 V25 Z" fill="#1a1b1f" />
+          <text x="20" y="21" textAnchor="middle" fontSize="6.5" fill="#c9ccd1" fontWeight="700">
+            NPN
+          </text>
+        </g>
+      );
+      break;
+    case 'nmos':
+    case 'ldo':
+      g = (
+        <g>
+          {[14, 20, 26].map((x) => (
+            <line key={x} x1={x} y1="28" x2={x} y2="38" {...S} stroke="#9aa0a6" />
+          ))}
+          <rect x="9" y="2" width="22" height="12" rx="1" fill="#c9ccd1" />
+          <circle cx="20" cy="8" r="3" fill="var(--paper, #fbf7ef)" />
+          <rect x="9" y="12" width="22" height="17" rx="1" fill="#1a1b1f" />
+          <text x="20" y="23.5" textAnchor="middle" fontSize="6.5" fill="#d9dce2" fontWeight="700">
+            {type === 'ldo' ? '3V3' : 'FET'}
+          </text>
+        </g>
+      );
+      break;
+    case 'relay':
+      g = (
+        <g>
+          <rect x="5" y="8" width="30" height="24" rx="2" fill="#2457c5" />
+          <rect x="10" y="14" width="7" height="12" fill="none" stroke="#eaf2ff" strokeWidth={1.3} />
+          <path d="M10 26 L17 14" stroke="#eaf2ff" strokeWidth={1.1} />
+          <circle cx="27" cy="27" r="1.4" fill="none" stroke="#eaf2ff" strokeWidth={1.1} />
+          <circle cx="23" cy="13" r="1.4" fill="none" stroke="#eaf2ff" strokeWidth={1.1} />
+          <circle cx="31" cy="13" r="1.4" fill="none" stroke="#eaf2ff" strokeWidth={1.1} />
+          <line x1="27" y1="26" x2="23.5" y2="14.5" stroke="#ffd37d" strokeWidth={1.6} strokeLinecap="round" />
+        </g>
+      );
+      break;
+    case 'motor':
+      g = (
+        <g>
+          <rect x="4" y="11" width="24" height="18" rx="7" fill="#c8ccd2" stroke="#1f2a44" strokeWidth={1.3} />
+          <rect x="4" y="11" width="6" height="18" rx="3" fill="#f1efe8" stroke="#1f2a44" strokeWidth={1.1} />
+          <line x1="28" y1="20" x2="33" y2="20" stroke="#5a5f66" strokeWidth={1.6} />
+          <ellipse cx="34" cy="20" rx="2" ry="9" fill="#e63946" />
+          <text x="18" y="23.5" textAnchor="middle" fontSize="9" fill="#1f2a44" fontWeight="800">
+            M
+          </text>
+        </g>
+      );
+      break;
+    case 'buzzer':
+      g = (
+        <g>
+          <line x1="15" y1="30" x2="15" y2="38" {...S} stroke="#9aa0a6" />
+          <line x1="25" y1="30" x2="25" y2="36" {...S} stroke="#9aa0a6" />
+          <ellipse cx="20" cy="30" rx="12" ry="4" fill="#111" />
+          <rect x="8" y="14" width="24" height="16" fill="#18191c" />
+          <ellipse cx="20" cy="14" rx="12" ry="4" fill="#2a2b30" />
+          <circle cx="20" cy="14" r="1.4" fill="#000" />
+          <text x="12" y="25" fontSize="8" fill="#e9ecef" fontWeight="800">
+            +
+          </text>
+          <path d="M33 6 q3 4 0 8 M36 4 q4 6 0 12" fill="none" stroke="#f4b400" strokeWidth={1.4} strokeLinecap="round" />
+        </g>
+      );
+      break;
+    case 'ldr':
+      g = (
+        <g>
+          <line x1="16" y1="26" x2="15" y2="38" {...S} stroke="#9aa0a6" />
+          <line x1="24" y1="26" x2="25" y2="38" {...S} stroke="#9aa0a6" />
+          <circle cx="20" cy="17" r="10" fill="#e38b2c" stroke="#1f2a44" strokeWidth={1.3} />
+          <path d="M13 12 H27 V14.5 H13 V17 H27 V19.5 H13 V22 H27" fill="none" stroke="#8a2b10" strokeWidth={1.3} />
+          <path d="M3 3 L9 8 M6.5 8.2 L9 8 L8.6 5.6" fill="none" stroke="#f4b400" strokeWidth={1.4} strokeLinecap="round" />
+        </g>
+      );
+      break;
+    case 'ntc':
+      g = (
+        <g>
+          <line x1="18" y1="22" x2="14" y2="38" {...S} stroke="#c9a46b" />
+          <line x1="22" y1="22" x2="26" y2="38" {...S} stroke="#c9a46b" />
+          <ellipse cx="20" cy="16" rx="6" ry="7.5" fill="#1e3a2a" stroke="#1f2a44" strokeWidth={1.2} />
+          <text x="30" y="12" fontSize="8" fill="#d64545" fontWeight="800">
+            °C
+          </text>
+        </g>
+      );
+      break;
     default:
       g = <g />;
   }

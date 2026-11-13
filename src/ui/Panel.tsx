@@ -5,6 +5,7 @@ import type { Issue } from '../core/diagnostics';
 import { stripLabel, HOLE_MAP } from '../core/breadboard';
 import { formatSI, volts } from '../core/format';
 import { tr } from '../core/i18n';
+import { isMcu } from '../core/mcu';
 import { isFloating } from '../core/netlist';
 import { describeComponent, PARTS, terminalLabel } from '../core/parts';
 import { simulate } from '../core/solver';
@@ -292,6 +293,8 @@ function SchematicPanel() {
   const layout = useStore((s) => s.layout);
   const activeNet = hoverNet ?? (hoverHole ? (nl.holeNet.get(hoverHole) ?? null) : null);
   const compOf = new Map(nl.circuit.components.map((c) => [c.ref, c]));
+  // a dev board's unwired pins each sit on a one-pin net: keep them out of the netlist table
+  const boardRefs = new Set(nl.circuit.components.filter((c) => isMcu(c.type)).map((c) => c.ref));
 
   return (
     <div className="schem-panel">
@@ -318,7 +321,7 @@ function SchematicPanel() {
               </tr>
             </thead>
             <tbody>
-              {nl.circuit.nets.map((n) => {
+              {nl.circuit.nets.filter((n) => !(n.pins.length === 1 && boardRefs.has(n.pins[0].slice(0, n.pins[0].lastIndexOf('.'))))).map((n) => {
                 const strips = [...new Set((nl.netHoles.get(n.name) ?? []).map((h) => HOLE_MAP.get(h)!.strip))];
                 return (
                   <tr key={n.name} className={activeNet === n.name ? 'on' : ''} onMouseEnter={() => setHoverNet(n.name)} onMouseLeave={() => setHoverNet(null)}>

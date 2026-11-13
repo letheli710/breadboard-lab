@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
-import { boardDiagnostics, type Issue } from '../core/diagnostics';
+import { acDiagnostics, boardDiagnostics, type Issue } from '../core/diagnostics';
 import { buildNetlist, isFloating, type BoardNetlist } from '../core/netlist';
 import { simulate, type LedState, type SimResult } from '../core/solver';
 import { hasGenerator, simulateTransient, vavg, vpp, type AcLedState, type MeterReading, type TransientResult } from '../core/transient';
@@ -11,7 +11,7 @@ export interface Derived {
   /** DC operating point (with every generator at its offset) */
   sim: SimResult;
   issues: Issue[];
-  /** time-domain result when a function generator is on the board (periodic steady state).
+  /** time-domain result when a function generator (or a PWM pin) drives the board (periodic steady state).
    *  Only filled by useDerived(); may briefly belong to the previous layout while recomputing. */
   ac: TransientResult | null;
   /** transient failure message, if any */
@@ -116,10 +116,21 @@ export function useDerived(): Derived {
   if (!m) merged.set(base, (m = new Map()));
   let d = m.get(entry);
   if (!d) {
-    d = { ...base, ac: entry.ac, acError: entry.error, acStale: !exact };
+    // time-domain issues (inductive kicks under PWM, …) only for a result of this very layout
+    const issues = exact?.ac ? [...base.issues, ...safeAcDiagnostics(base.nl, exact.ac)] : base.issues;
+    d = { ...base, issues, ac: entry.ac, acError: entry.error, acStale: !exact };
     m.set(entry, d);
   }
   return d;
+}
+
+function safeAcDiagnostics(nl: BoardNetlist, ac: TransientResult): Issue[] {
+  try {
+    return acDiagnostics(nl, ac);
+  } catch (err) {
+    console.error('acDiagnostics failed', err);
+    return [];
+  }
 }
 
 /** LED state to show: the time-averaged one under AC, else the DC one. */

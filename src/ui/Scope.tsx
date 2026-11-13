@@ -1,6 +1,6 @@
 // Oscilloscope panel: shown in the stage while at least one scope probe is on the board.
 // Traces come from the transient simulation (periodic steady state, see core/transient.ts);
-// without a function generator each channel is a flat DC line.
+// without a function generator (or a PWM pin on a dev board) each channel is a flat DC line.
 
 import { useEffect, useMemo, useRef } from 'react';
 import { formatSI, volts } from '../core/format';
@@ -232,6 +232,8 @@ export function Scope() {
   const scope = useStore((s) => s.scope);
   const setScope = useStore((s) => s.setScope);
   const data = useScopeData();
+  // time-domain simulation is driven by a function generator or by a PWM pin on a dev board
+  const hasGen = useStore((s) => s.layout.parts.some((p) => p.type === 'function_gen'));
   const cv = useRef<HTMLCanvasElement>(null);
   const hasProbe = layout.parts.some((p) => p.type === 'scope_probe');
 
@@ -276,7 +278,7 @@ export function Scope() {
       <div className="sc-head" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} title={tr('拖动标题栏移动示波器窗口', 'Drag the title bar to move the scope')}>
         <span className="sc-title">{tr('示波器', 'Oscilloscope')}</span>
         <span className={`sc-mode ${data.ac ? 'ac' : ''}`}>
-          {data.ac && data.period ? `AC · ${fmtFreq(1 / data.period)}` : tr('DC · 没有信号发生器', 'DC · no generator')}
+          {data.ac && data.period ? `${hasGen ? 'AC' : 'PWM'} · ${fmtFreq(1 / data.period)}` : tr('DC · 没有信号发生器或 PWM', 'DC · no generator or PWM')}
         </span>
         {data.stale && <span className="sc-busy">{tr('计算中…', 'updating…')}</span>}
         {scope.collapsed &&

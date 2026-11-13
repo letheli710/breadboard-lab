@@ -7,10 +7,13 @@ import { tr } from '../core/i18n';
 import { colX } from '../core/breadboard';
 import { amps, resistorBands, volts } from '../core/format';
 import { BATTERIES, LED_COLORS } from '../core/parts';
-import type { LedState, SourceState } from '../core/solver';
+import { isMcuBoard } from '../core/mcu';
+import type { LedState, SimResult, SourceState } from '../core/solver';
 import type { PlacedPart } from '../core/types';
 import { Leg, Mat, PartCtx, type PartCtxValue, Seg, TextPlane, Tube, holeVec } from './common';
+import { Buzzer, Ldo, Ldr, Motor, Nmos, Npn, Ntc, Relay, deviceAnchor, deviceLabel } from './Devices';
 import { Ammeter, FunctionGen, Inductor, OpAmp, ScopeProbe, instrumentAnchor, instrumentLabel } from './Instruments';
+import { McuBoard, mcuAnchor, mcuLabel } from './Mcu';
 import { slotPosition } from './slots';
 
 export interface PartViewProps {
@@ -21,6 +24,8 @@ export interface PartViewProps {
   slot: number;
   /** ammeter: live reading in amps (current flowing in at the red lead) */
   reading?: number;
+  /** DC operating point (phase-5 parts read their state from it; absent for the ghost) */
+  sim?: SimResult;
   ctx: PartCtxValue;
   label: boolean;
   labelTone?: 'error' | 'normal';
@@ -453,6 +458,9 @@ export function PartView(props: PartViewProps) {
     if (part.type === 'battery' || part.type === 'bench_supply') return slotPosition(props.slot).add(V(0, part.type === 'bench_supply' ? 4.4 : 2.6, 0));
     const inst = instrumentAnchor(part, props.slot);
     if (inst) return inst;
+    if (isMcuBoard(part.type)) return mcuAnchor(part);
+    const dev = deviceAnchor(part);
+    if (dev) return dev;
     if (holes.length === 0) return V(0, 0, 0);
     const c = holes.reduce((s, p) => s.add(p), V(0, 0, 0)).multiplyScalar(1 / holes.length);
     c.y = part.type === 'wire' ? 1.4 : 2.4;
@@ -510,6 +518,34 @@ export function PartView(props: PartViewProps) {
     case 'scope_probe':
       body = <ScopeProbe {...props} />;
       break;
+    case 'esp32_devkit':
+    case 'stm32_bluepill':
+      body = <McuBoard {...props} />;
+      break;
+    case 'npn':
+      body = <Npn {...props} />;
+      break;
+    case 'nmos':
+      body = <Nmos {...props} />;
+      break;
+    case 'ldo':
+      body = <Ldo {...props} />;
+      break;
+    case 'relay':
+      body = <Relay {...props} />;
+      break;
+    case 'motor':
+      body = <Motor {...props} />;
+      break;
+    case 'buzzer':
+      body = <Buzzer {...props} />;
+      break;
+    case 'ldr':
+      body = <Ldr {...props} />;
+      break;
+    case 'ntc':
+      body = <Ntc {...props} />;
+      break;
   }
   const extra =
     part.type === 'led' && led
@@ -520,7 +556,9 @@ export function PartView(props: PartViewProps) {
           : ''
       : (part.type === 'battery' || part.type === 'power_module') && source
         ? ` ${volts(source.terminalVoltage)}`
-        : instrumentLabel(part, props.reading);
+        : isMcuBoard(part.type)
+          ? mcuLabel(props.sim?.mcus.get(part.ref))
+          : instrumentLabel(part, props.reading) || deviceLabel(part, props.sim);
   return (
     <PartCtx.Provider value={ctx}>
       <group onClick={part.type === 'pushbutton' || part.type === 'switch' || part.type === 'potentiometer' || part.type === 'battery' || part.type === 'bench_supply' || part.type === 'power_module' || part.type === 'ammeter' || part.type === 'function_gen' ? undefined : props.onClick}>

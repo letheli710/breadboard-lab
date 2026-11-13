@@ -86,6 +86,8 @@ interface State {
   firstHole: string | null;
   placingProps: Partial<Record<PartType, PartProps>>;
   selectedId: string | null;
+  /** dev board: the pin picked in the 3D view / pin table (physical pin name), shown in the inspector */
+  selectedPin: string | null;
   hoverHole: string | null;
   hoverNet: string | null;
   highlight: Highlight | null;
@@ -120,6 +122,8 @@ interface State {
   setHoverHole(h: string | null): void;
   setHoverNet(n: string | null): void;
   select(id: string | null): void;
+  /** select a dev board pin (also selects its board) */
+  selectPin(partId: string, pin: string | null): void;
   updateProps(id: string, p: PartProps): void;
   togglePart(id: string): void;
   removePart(id: string): void;
@@ -180,6 +184,7 @@ export const useStore = create<State>((set, get) => {
     firstHole: null,
     placingProps: {},
     selectedId: null,
+    selectedPin: null,
     hoverHole: null,
     hoverNet: null,
     highlight: null,
@@ -295,7 +300,10 @@ export const useStore = create<State>((set, get) => {
       if (get().hoverNet !== hoverNet) set({ hoverNet });
     },
     select(selectedId) {
-      set({ selectedId, panel: selectedId ? 'inspect' : get().panel });
+      set({ selectedId, selectedPin: selectedId === get().selectedId ? get().selectedPin : null, panel: selectedId ? 'inspect' : get().panel });
+    },
+    selectPin(partId, pin) {
+      set({ selectedId: partId, selectedPin: pin, panel: 'inspect' });
     },
     updateProps(id, p) {
       const s = get();

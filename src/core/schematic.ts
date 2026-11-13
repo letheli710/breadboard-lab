@@ -165,7 +165,8 @@ export function layoutSchematic(circuit: Circuit, sim?: SimResult | null): Schem
         if (def?.kind === 'gpio') {
           const cfg = pinConfig(c.props, p.t);
           const m: Record<string, string> = { out_high: 'OUT=1', out_low: 'OUT=0', input: 'IN', input_pullup: 'IN↑', input_pulldown: 'IN↓', pwm: `PWM ${cfg.duty}%`, adc: 'ADC' };
-          labels.push({ text: m[cfg.mode], x: bx + 6, y: p.y + 4, anchor: 'start', kind: 'mode' });
+          const od = cfg.openDrain && (cfg.mode === 'out_high' || cfg.mode === 'out_low' || cfg.mode === 'pwm') ? ' OD' : '';
+          labels.push({ text: m[cfg.mode] + od, x: bx + 6, y: p.y + 4, anchor: 'start', kind: 'mode' });
         }
       }
       const title = c.type === 'esp32_devkit' ? 'ESP32' : c.type === 'stm32_bluepill' ? 'STM32' : 'MCU';

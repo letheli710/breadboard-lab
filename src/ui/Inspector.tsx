@@ -10,6 +10,8 @@ import { ammeterAc, ammeterReading, ledOf, useDerived } from '../state/derived';
 import { CH_COLORS } from '../three/common';
 import { WIRE_COLORS, useStore } from '../state/store';
 import { PartIcon } from './Icons';
+import { DeviceEditor, DeviceReadout, McuInspector, OWN_READOUT } from './McuInspector';
+import { isMcuBoard } from '../core/mcu';
 
 const R_VALUES = [10, 47, 100, 150, 220, 330, 470, 680, 1000, 2200, 4700, 10000, 22000, 47000, 100000, 1000000];
 
@@ -282,7 +284,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
         </div>
       );
     default:
-      return null;
+      return <DeviceEditor type={type} props={props} onChange={onChange} />;
   }
 }
 
@@ -504,7 +506,9 @@ export function Inspector() {
 
       {part.type === 'opamp' && <OpAmpInfo part={part} />}
       {part.type === 'ammeter' && <AmmeterReadout refName={part.ref} />}
-      {part.type !== 'wire' && part.type !== 'opamp' && part.type !== 'ammeter' && part.type !== 'scope_probe' && (
+      {isMcuBoard(part.type) && <McuInspector part={part} />}
+      <DeviceReadout part={part} />
+      {part.type !== 'wire' && part.type !== 'opamp' && part.type !== 'ammeter' && part.type !== 'scope_probe' && !OWN_READOUT.has(part.type) && (
         <div className="readout">
           <div className="eyebrow">{tr('实时测量', 'Live readings')}</div>
           {src ? (
@@ -520,7 +524,9 @@ export function Inspector() {
             </>
           ) : acI ? (
             <>
-              <div className="ac-tag">{tr('交流（信号发生器驱动）', 'AC (driven by the generator)')}</div>
+              <div className="ac-tag">
+                {layout.parts.some((p) => p.type === 'function_gen') ? tr('交流（信号发生器驱动）', 'AC (driven by the generator)') : tr('时域仿真（PWM 驱动）', 'time-domain (driven by PWM)')}
+              </div>
               <div>
                 {tr('电流 平均值', 'Current, average')} <b>{amps(vavg(acI))}</b>
               </div>
@@ -555,6 +561,14 @@ export function Inspector() {
         </div>
       )}
 
+      {isMcuBoard(part.type) ? (
+        <p className="note">
+          {tr(
+            `排针插在 ${Object.values(part.pins)[0] ?? '?'} 到 ${Object.values(part.pins).slice(-1)[0] ?? '?'}；每只引脚所在的那一列都和它连通。`,
+            `Headers sit in ${Object.values(part.pins)[0] ?? '?'} … ${Object.values(part.pins).slice(-1)[0] ?? '?'}; each pin's column strip is connected to it.`,
+          )}
+        </p>
+      ) : (
       <div className="readout">
         <div className="eyebrow">{tr('引脚位置', 'Pin positions')}</div>
         {Object.entries(part.pins).map(([pin, hole]) => {
@@ -570,6 +584,7 @@ export function Inspector() {
           );
         })}
       </div>
+      )}
     </div>
   );
 }

@@ -20,6 +20,9 @@ const groups = (): { title: string; items: Tool[] }[] => [
   { title: tr('芯片 ICs', 'ICs'), items: ['opamp'] },
   { title: tr('输入', 'Inputs'), items: PART_ORDER.filter((t) => PARTS[t].category === 'input') },
   { title: tr('仪器', 'Instruments'), items: (['ammeter', 'function_gen', 'scope_probe'] as PartType[]).filter((t) => PARTS[t].category === 'instrument') },
+  { title: tr('单片机 MCU', 'MCU boards'), items: PART_ORDER.filter((t) => PARTS[t].category === 'mcu') },
+  { title: tr('器件 Devices', 'Devices'), items: PART_ORDER.filter((t) => PARTS[t].category === 'device') },
+  { title: tr('传感器 Sensors', 'Sensors'), items: PART_ORDER.filter((t) => PARTS[t].category === 'sensor') },
 ];
 
 const toolName = (t: Tool) => (t === 'select' ? tr('选择 / 操作', 'Select / use') : t === 'probe' ? tr('万用表', 'Multimeter') : PARTS[t].name);
@@ -138,7 +141,7 @@ function Multimeter() {
           '电压永远是“两点之间”的差。只放红表笔时，读数就是这一点相对 GND 的电压。',
           'Voltage is always a difference between two points. With only the red probe placed, the reading is that point relative to GND.',
         )}
-        {ac && tr(' 电路里有交流信号：万用表（直流档）显示的是平均值，看波形请用示波器探头。', ' The circuit carries an AC signal: the multimeter (DC mode) shows the average — use a scope probe to see the waveform.')}
+        {ac && tr(' 电路里有变化的信号（信号发生器或 PWM）：万用表（直流档）显示的是平均值，看波形请用示波器探头。', ' The circuit carries a changing signal (function generator or PWM): the multimeter (DC mode) shows the average — use a scope probe to see the waveform.')}
       </p>
     </div>
   );
