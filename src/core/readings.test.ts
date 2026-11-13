@@ -207,3 +207,15 @@ describe('derived and scope questions', () => {
     expect(percentDiff(0, 1)).toBe('');
   });
 });
+
+describe('phase readings', () => {
+  it('±2° tolerance, and a flipped sign asks "leading or lagging?"', () => {
+    setLang('en');
+    const ch = load('261-rc-lowpass-bode.json');
+    const ph = q(ch, 'ph');
+    expect(ph.tolDeg).toBe(2);
+    expect(gradeReading(ph, -45, '-43.5').ok).toBe(true);
+    expect(gradeReading(ph, -45, '-42').ok).toBe(false);
+    expect(gradeReading(ph, -45, '45').reason).toMatch(/leading or lagging/);
+  });
+});

@@ -264,7 +264,8 @@ export function gradeReading(q: MeasurementQuestion, expected: number, input: st
   if ('reason' in r) return { ok: false, reason: r.reason, unreadable: true };
   if (q.tolAbs > 0 && Math.abs(r.value - expected) <= q.tolAbs) return { ok: true, value: r.value };
   const res: Grade = checkAnswer({ id: q.id, ask: q.ask, answer: expected, unit: q.unit, tol: q.tol, tolDeg: q.tolDeg }, input);
-  if (res.diagnosis === 'sign') {
+  // phase: the reader's own "leading or lagging?" fits; amplitudes and currents get the instrument wording
+  if (res.diagnosis === 'sign' && !(q.what?.kind === 'scope' && q.what.measure === 'phase')) {
     const w = q.what;
     res.reason =
       w?.kind === 'current'
