@@ -26,7 +26,8 @@ describe('built-in chapter summaries', () => {
     expect(idx.broken).toEqual([]);
     expect(idx.entries.map((e) => e.file).sort()).toEqual(files.map((f) => `summaries/${f}`));
     expect(files.length).toBeGreaterThan(0);
-    for (const f of files) expect(CHAPTERS.map((c) => c.id)).toContain(f.replace(/\.json$/, ''));
+    // every Practice chapter has its key-points page
+    expect(files.map((f) => f.replace(/\.json$/, ''))).toEqual(CHAPTERS.map((c) => c.id).sort());
   });
   for (const f of files)
     for (const lang of ['zh', 'en'] as Lang[])
