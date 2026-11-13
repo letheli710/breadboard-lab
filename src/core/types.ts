@@ -21,11 +21,36 @@ export type PartType =
   | 'ammeter'
   | 'opamp'
   | 'function_gen'
-  | 'scope_probe';
+  | 'scope_probe'
+  // phase 5: MCU dev boards and peripheral devices (docs/ROADMAP.md "Phase 5 contract")
+  | 'esp32_devkit'
+  | 'stm32_bluepill'
+  | 'npn'
+  | 'nmos'
+  | 'relay'
+  | 'motor'
+  | 'buzzer'
+  | 'ldo'
+  | 'ldr'
+  | 'ntc';
 
 /** Component types allowed in a Circuit. `dc_source` only appears in challenge targets
  *  and matches any power part (battery / bench_supply / power_module) of that voltage. */
-export type CompType = Exclude<PartType, 'wire'> | 'dc_source';
+export type CompType = Exclude<PartType, 'wire'> | 'dc_source' | 'mcu';
+
+/** GPIO modes of a dev-board pin (there is no firmware: the mode *is* the program). */
+export type PinMode = 'out_high' | 'out_low' | 'input' | 'input_pullup' | 'input_pulldown' | 'pwm' | 'adc';
+export const PIN_MODES: PinMode[] = ['out_high', 'out_low', 'input', 'input_pullup', 'input_pulldown', 'pwm', 'adc'];
+
+export interface PinConfig {
+  mode: PinMode;
+  /** PWM duty cycle in % (0–100, default 50) */
+  duty?: number;
+  /** PWM frequency in Hz (default 1000) */
+  frequency?: number;
+}
+
+export type MosfetModel = 'IRLZ44N' | 'IRF540N';
 
 export type Waveform = 'sine' | 'square' | 'triangle';
 
@@ -49,6 +74,13 @@ export interface PartProps {
   amplitude?: number; // V peak (function_gen)
   offset?: number; // V DC offset (function_gen)
   channel?: 1 | 2; // scope_probe
+  // phase 5
+  usb?: boolean; // dev board: virtual USB cable plugged in (default true)
+  pins?: Record<string, PinConfig>; // dev board: GPIO modes by pin name (unlisted = input)
+  beta?: number; // npn current gain
+  model?: MosfetModel; // nmos
+  lux?: number; // ldr light level
+  temperature?: number; // ntc, °C
 }
 
 export interface PlacedPart {

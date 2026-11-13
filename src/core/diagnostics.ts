@@ -5,6 +5,7 @@ import { tr } from './i18n';
 import { isFloating, type BoardNetlist } from './netlist';
 import { OPAMP_HALVES, PARTS, describeComponent, groundSource, isPower, terminalLabel, terminalsOf } from './parts';
 import type { SimResult } from './solver';
+import type { TransientResult } from './transient';
 import { pinId } from './types';
 import { amps, volts } from './format';
 
@@ -307,3 +308,11 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
 }
 
 export const PART_NAME = (t: keyof typeof PARTS) => PARTS[t].name;
+
+/** Phase 5 time-domain checks (inductive kicks under PWM, …). Call with the transient result
+ *  when there is one; the issues are added to the DC ones. */
+export function acDiagnostics(nl: BoardNetlist, ac: TransientResult): Issue[] {
+  void nl;
+  void ac;
+  return [];
+}

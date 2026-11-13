@@ -1,13 +1,15 @@
 // Part catalogue: how each part is placed on the board and how its physical legs map
 // to the logical terminals used in a Circuit.
 
-import { HOLE_MAP, holeId, isRail, offsetHole } from './breadboard';
+import { HOLE_MAP, MAIN_ROWS, holeId, isRail, offsetHole } from './breadboard';
+import { MOSFETS } from './devices';
 import { getLang, tr } from './i18n';
+import { MCU_BOARDS, isMcu, isMcuBoard, mcuPin, mcuTerminals, modeName, parseRole, type McuType } from './mcu';
 import type { BatteryVariant, CComponent, Circuit, CompType, Layout, LedColor, PartProps, PartType } from './types';
 import { pinId } from './types';
 
 /** 'instrument' = measuring / signal tools (ammeter, function generator, scope probe). */
-export type Category = 'power' | 'basic' | 'input' | 'wire' | 'instrument';
+export type Category = 'power' | 'basic' | 'input' | 'wire' | 'instrument' | 'mcu' | 'device' | 'sensor';
 
 export interface TwoPointPlacement {
   kind: 'two-point';
@@ -459,6 +461,212 @@ export const PARTS: Record<PartType, PartDef> = {
       );
     },
   },
+  esp32_devkit: mcuPartDef('esp32_devkit'),
+  stm32_bluepill: mcuPartDef('stm32_bluepill'),
+  npn: {
+    type: 'npn',
+    get name() {
+      return tr('NPN 三极管 2N2222', 'NPN transistor 2N2222');
+    },
+    nameEn: 'NPN transistor 2N2222',
+    category: 'device',
+    refPrefix: 'Q',
+    placement: {
+      kind: 'footprint',
+      get prompt() {
+        return tr('点击 E（发射极）脚的位置——平面朝向你时三只脚从左到右是 E、B、C，占 3 列', 'Click where the E (emitter) leg goes — with the flat face towards you the legs are E, B, C from left to right, in 3 columns');
+      },
+      footprint: rowFootprint({ e: [0, 0], b: [0, 1], c: [0, 2] }),
+    },
+    terminals: ['e', 'b', 'c'],
+    terminalOf: identity('e', 'b', 'c'),
+    internal: [],
+    symmetric: [],
+    defaults: { beta: 150 },
+    get blurb() {
+      return tr(
+        'NPN 三极管（2N2222A / S8050，TO-92 封装，平面朝向你：E B C）。基极 B 流进一个小电流 Ib，集电极 C 就能流过 β 倍（约 150 倍）的电流 Ic。当开关用：GPIO → 1 kΩ 基极电阻 → B，E 接 GND，负载接在 +5 V 和 C 之间。Ib 足够大时三极管“饱和”，C–E 之间只剩约 0.2 V。BE 结约 0.65 V，基极一定要串电阻。',
+        'NPN transistor (2N2222A / S8050, TO-92, flat face towards you: E B C). A small current Ib into the base B lets β times as much (about 150×) flow into the collector C. As a switch: GPIO → 1 kΩ base resistor → B, E to GND, the load between +5 V and C. With enough Ib the transistor saturates and only about 0.2 V is left across C–E. The B–E junction drops about 0.65 V, so the base always needs a series resistor.',
+      );
+    },
+  },
+  nmos: {
+    type: 'nmos',
+    get name() {
+      return tr('N 沟道 MOSFET', 'N-channel MOSFET');
+    },
+    nameEn: 'N-channel MOSFET',
+    category: 'device',
+    refPrefix: 'Q',
+    placement: {
+      kind: 'footprint',
+      get prompt() {
+        return tr('点击 G（栅极）脚的位置——正面（有字的一面）朝向你时三只脚从左到右是 G、D、S，占 3 列', 'Click where the G (gate) leg goes — with the printed face towards you the legs are G, D, S from left to right, in 3 columns');
+      },
+      footprint: rowFootprint({ g: [0, 0], d: [0, 1], s: [0, 2] }),
+    },
+    terminals: ['g', 'd', 's'],
+    terminalOf: identity('g', 'd', 's'),
+    internal: [],
+    symmetric: [],
+    defaults: { model: 'IRLZ44N' },
+    get blurb() {
+      return tr(
+        'N 沟道 MOSFET（TO-220：G D S）。栅极 G 是电压控制的，几乎不取电流：Vgs 超过阈值电压 Vth，D–S 之间就导通（Rds(on) 只有几十 mΩ），适合开关电机、灯带等大电流负载。IRLZ44N 是“逻辑电平”管，3.3 V 的 GPIO 就能把它完全打开；IRF540N 要 10 V 才完全导通，用 3.3 V 驱动会发烫。栅极不能悬空：加一个 10–100 kΩ 下拉电阻到 GND。',
+        'N-channel MOSFET (TO-220: G D S). The gate G is voltage-controlled and draws almost no current: once Vgs exceeds the threshold Vth, D–S conducts (Rds(on) is only tens of mΩ) — ideal for switching motors, LED strips and other heavy loads. The IRLZ44N is a "logic-level" part that a 3.3 V GPIO turns fully on; the IRF540N needs 10 V and gets hot when driven from 3.3 V. Never leave the gate floating: add a 10–100 kΩ pull-down to GND.',
+      );
+    },
+  },
+  relay: {
+    type: 'relay',
+    get name() {
+      return tr('继电器 5V', 'Relay 5 V');
+    },
+    nameEn: 'Relay 5 V',
+    category: 'device',
+    refPrefix: 'K',
+    placement: {
+      kind: 'footprint',
+      get prompt() {
+        return tr('点击线圈 1 脚的位置（必须在 e 行，继电器横跨凹槽：e 行是线圈两脚，f 行是 COM、NC、NO 触点）', 'Click where coil pin 1 goes (row e: the relay straddles the gap — row e holds the two coil pins, row f the COM, NC and NO contacts)');
+      },
+      footprint: (anchor) => {
+        const h = HOLE_MAP.get(anchor);
+        if (!h || h.row !== 'e') return null;
+        return rowFootprint({ coil1: [0, 0], coil2: [0, 3], com: [1, 0], nc: [1, 2], no: [1, 3] })(anchor);
+      },
+    },
+    terminals: ['coil1', 'coil2', 'com', 'nc', 'no'],
+    terminalOf: identity('coil1', 'coil2', 'com', 'nc', 'no'),
+    internal: [],
+    symmetric: [['coil1', 'coil2']],
+    defaults: {},
+    get blurb() {
+      return tr(
+        '5 V 电磁继电器（SRD-05VDC）：线圈约 70 Ω，5 V 时吸合电流约 71 mA——GPIO 带不动，要用三极管或 MOSFET 驱动。线圈通电时 COM 和 NO（常开）接通，断电时 COM 和 NC（常闭）接通。线圈是电感：断电瞬间会产生很高的反向电压（反电动势），必须在线圈两端反向并联一个续流二极管（负极接 + 端）。',
+        '5 V electromagnetic relay (SRD-05VDC): the coil is about 70 Ω and pulls about 71 mA at 5 V — far too much for a GPIO, so drive it with a transistor or MOSFET. With the coil energised COM connects to NO (normally open); without power COM connects to NC (normally closed). The coil is an inductor: switching it off produces a large reverse voltage spike (inductive kick), so a flyback diode must sit across the coil, cathode to the + end.',
+      );
+    },
+  },
+  motor: {
+    type: 'motor',
+    get name() {
+      return tr('直流电机', 'DC motor');
+    },
+    nameEn: 'DC motor',
+    category: 'device',
+    refPrefix: 'M',
+    placement: { kind: 'two-point', pins: ['+', '-'], get prompts(): [string, string] {
+        return [tr('点击电机红线（+）要插的孔', "Click the hole for the motor's red lead (+)"), tr('点击电机黑线（−）要插的孔', "Click the hole for the motor's black lead (−)")];
+      } },
+    terminals: ['+', '-'],
+    terminalOf: identity('+', '-'),
+    internal: [],
+    symmetric: [['+', '-']],
+    defaults: {},
+    get blurb() {
+      return tr(
+        '小型直流电机（130 型，3–6 V）：线圈电阻约 8 Ω，5 V 时电流约 0.6 A——远超 GPIO 能给的 20 mA，必须用 MOSFET 或三极管驱动，并且电机两端要并一个续流二极管。电流方向决定转向，用 PWM 改变占空比就能调速。',
+        'Small DC motor (type 130, 3–6 V): its winding is about 8 Ω, so it draws about 0.6 A at 5 V — far beyond the 20 mA a GPIO can give. Drive it with a MOSFET or transistor and put a flyback diode across it. The current direction sets the direction of rotation; PWM duty cycle sets the speed.',
+      );
+    },
+  },
+  buzzer: {
+    type: 'buzzer',
+    get name() {
+      return tr('有源蜂鸣器', 'Active buzzer');
+    },
+    nameEn: 'Active buzzer',
+    category: 'device',
+    refPrefix: 'BZ',
+    placement: { kind: 'two-point', pins: ['+', '-'], get prompts(): [string, string] {
+        return [tr('点击蜂鸣器长脚（+）的位置', "Click where the buzzer's long leg (+) goes"), tr('点击蜂鸣器短脚（−）的位置', "Click where the buzzer's short leg (−) goes")];
+      } },
+    terminals: ['+', '-'],
+    terminalOf: identity('+', '-'),
+    internal: [],
+    symmetric: [],
+    defaults: {},
+    get blurb() {
+      return tr(
+        '有源蜂鸣器（5 V）：里面自带振荡电路，加上直流电压就响。有正负极（长脚 +）。5 V 时约 28 mA，3.3 V 也能响但声音小；电流超过 GPIO 推荐值，最好用三极管驱动。',
+        'Active buzzer (5 V): it has its own oscillator inside, so a DC voltage makes it sound. It is polarised (long leg = +). It draws about 28 mA at 5 V and still sounds (quieter) at 3.3 V; that is more than a GPIO should give, so drive it with a transistor.',
+      );
+    },
+  },
+  ldo: {
+    type: 'ldo',
+    get name() {
+      return tr('LDO 稳压器 LM1117-3.3', 'LDO regulator LM1117-3.3');
+    },
+    nameEn: 'LDO regulator LM1117-3.3',
+    category: 'power',
+    refPrefix: 'U',
+    placement: {
+      kind: 'footprint',
+      get prompt() {
+        return tr('点击 1 脚 GND 的位置——正面朝向你时三只脚从左到右是 GND、OUT、IN，占 3 列', 'Click where pin 1 (GND) goes — with the printed face towards you the legs are GND, OUT, IN from left to right, in 3 columns');
+      },
+      footprint: rowFootprint({ gnd: [0, 0], out: [0, 1], in: [0, 2] }),
+    },
+    terminals: ['gnd', 'out', 'in'],
+    terminalOf: identity('gnd', 'out', 'in'),
+    internal: [],
+    symmetric: [],
+    defaults: { voltage: 3.3 },
+    get blurb() {
+      return tr(
+        '低压差线性稳压器 LM1117（TO-220：GND OUT IN）：把 IN 的较高电压（如 5 V）降成稳定的 3.3 V。输入至少要比输出高约 1.1 V（压差 dropout），否则输出跟着输入往下掉；最大输出电流约 800 mA，多出来的电压全部变成热量 P = (Vin − Vout) × I。输出端要接一个 10 µF 电容到 GND 才能稳定。',
+        'Low-dropout linear regulator LM1117 (TO-220: GND OUT IN): it turns a higher voltage at IN (e.g. 5 V) into a steady 3.3 V. The input must be about 1.1 V above the output (the dropout), otherwise the output sags with the input; it delivers up to about 800 mA, and the extra voltage all becomes heat, P = (Vin − Vout) × I. It needs a 10 µF capacitor from OUT to GND to be stable.',
+      );
+    },
+  },
+  ldr: {
+    type: 'ldr',
+    get name() {
+      return tr('光敏电阻', 'Photoresistor (LDR)');
+    },
+    nameEn: 'Photoresistor (LDR)',
+    category: 'sensor',
+    refPrefix: 'LDR',
+    placement: { kind: 'two-point', pins: ['1', '2'], get prompts(): [string, string] {
+        return [tr('点击光敏电阻第一只脚', "Click where the LDR's first leg goes"), tr('点击光敏电阻第二只脚', "Click where the LDR's second leg goes")];
+      } },
+    terminals: ['1', '2'],
+    terminalOf: identity('1', '2'),
+    internal: [],
+    symmetric: [['1', '2']],
+    defaults: { lux: 100 },
+    get blurb() {
+      return tr(
+        '光敏电阻 GL5528：越亮电阻越小（10 lux 约 15 kΩ，1000 lux 约 600 Ω，全黑约 1 MΩ）。和一个固定电阻串联成分压器，中点接 ADC 引脚，就能用单片机测光照。在右侧属性里拖动“光照”滑块。',
+        'GL5528 photoresistor: the brighter the light, the lower its resistance (about 15 kΩ at 10 lux, 600 Ω at 1000 lux, about 1 MΩ in the dark). In series with a fixed resistor it forms a divider; feed the midpoint to an ADC pin to measure light. Drag the "light" slider under Properties.',
+      );
+    },
+  },
+  ntc: {
+    type: 'ntc',
+    get name() {
+      return tr('NTC 热敏电阻 10k', 'NTC thermistor 10k');
+    },
+    nameEn: 'NTC thermistor 10k',
+    category: 'sensor',
+    refPrefix: 'RT',
+    placement: { kind: 'two-point', pins: ['1', '2'], get prompts(): [string, string] {
+        return [tr('点击热敏电阻第一只脚', "Click where the thermistor's first leg goes"), tr('点击热敏电阻第二只脚', "Click where the thermistor's second leg goes")];
+      } },
+    terminals: ['1', '2'],
+    terminalOf: identity('1', '2'),
+    internal: [],
+    symmetric: [['1', '2']],
+    defaults: { temperature: 25 },
+    get blurb() {
+      return tr(
+        'NTC 热敏电阻（10 kΩ @ 25 °C，B = 3950）：温度越高电阻越小（0 °C 约 33 kΩ，50 °C 约 3.6 kΩ）。和一个 10 kΩ 电阻组成分压器接 ADC，就能测温度。在右侧属性里拖动“温度”滑块。',
+        'NTC thermistor (10 kΩ at 25 °C, B = 3950): the hotter it gets, the lower its resistance (about 33 kΩ at 0 °C, 3.6 kΩ at 50 °C). With a 10 kΩ resistor as a divider into an ADC pin it measures temperature. Drag the "temperature" slider under Properties.',
+      );
+    },
+  },
 };
 
 export const PART_ORDER: PartType[] = [
@@ -478,7 +686,76 @@ export const PART_ORDER: PartType[] = [
   'function_gen',
   'scope_probe',
   'ammeter',
+  'esp32_devkit',
+  'stm32_bluepill',
+  'npn',
+  'nmos',
+  'relay',
+  'motor',
+  'buzzer',
+  'ldo',
+  'ldr',
+  'ntc',
 ];
+
+/** Part definition of a dev board: a two-row header footprint (docs/ROADMAP.md, Phase 5). */
+function mcuPartDef(type: McuType): PartDef {
+  const b = MCU_BOARDS[type];
+  const dRow = MAIN_ROWS.indexOf(b.rows[1] as (typeof MAIN_ROWS)[number]) - MAIN_ROWS.indexOf(b.rows[0] as (typeof MAIN_ROWS)[number]);
+  const first = new Map<string, string>();
+  const internal: [string, string][] = [];
+  for (const l of b.legs) {
+    const f = first.get(l.pin);
+    if (f) internal.push([f, l.leg]);
+    else first.set(l.pin, l.leg);
+  }
+  const esp = type === 'esp32_devkit';
+  return {
+    type,
+    get name() {
+      return tr(b.name[0], b.name[1]);
+    },
+    nameEn: b.name[1],
+    category: 'mcu',
+    refPrefix: 'U',
+    placement: {
+      kind: 'footprint',
+      get prompt() {
+        return tr(
+          `点击${esp ? '左上角 GND' : '左上角 GND'}脚的位置——必须在 ${b.rows[0]} 行；开发板占 ${b.upper.length} 列，两排排针分别插在 ${b.rows[0]} 行和 ${b.rows[1]} 行`,
+          `Click where the top-left GND pin goes — it must be in row ${b.rows[0]}; the board takes ${b.upper.length} columns with its two pin headers in rows ${b.rows[0]} and ${b.rows[1]}`,
+        );
+      },
+      footprint: (anchor) => {
+        const h = HOLE_MAP.get(anchor);
+        if (!h || h.row !== b.rows[0]) return null;
+        const out: Record<string, string> = {};
+        for (const l of b.legs) {
+          const id = offsetHole(anchor, l.row * dRow, l.col);
+          if (!id) return null;
+          out[l.leg] = id;
+        }
+        return out;
+      },
+    },
+    terminals: mcuTerminals(type),
+    terminalOf: Object.fromEntries(b.legs.map((l) => [l.leg, l.pin])),
+    internal,
+    symmetric: [],
+    defaults: { usb: true, pins: {} },
+    get blurb() {
+      return esp
+        ? tr(
+            'ESP32-DevKitC 开发板（38 针）。这里没有程序：每个 GPIO 的“模式”就是程序——在右侧属性里把引脚设成输出高/低、输入（可加内部上拉/下拉）、PWM 或 ADC。逻辑电平 3.3 V，不耐 5 V；每个引脚建议 ≤ 20 mA，绝对最大 40 mA。GPIO34–39 只能输入、没有内部上下拉；ADC 用 ADC1（GPIO32–39）。GPIO6–11 接着板上的 Flash，不要用。板子用 USB 供电（属性里可以拔掉），板载 AMS1117 把 5 V 降到 3.3 V；3V3 和 5V 引脚可以给面包板供电。',
+            'ESP32-DevKitC board (38 pins). There is no program here: each GPIO\'s *mode* is the program — under Properties set a pin to output HIGH/LOW, input (optionally with the internal pull-up/down), PWM or ADC. Logic is 3.3 V and not 5 V tolerant; keep each pin ≤ 20 mA (40 mA absolute max). GPIO34–39 are input-only with no internal pulls; use ADC1 (GPIO32–39) for analog. GPIO6–11 are wired to the onboard flash: don\'t use them. The board runs from USB (you can unplug it under Properties); its AMS1117 regulator makes 3.3 V from 5 V, and the 3V3 and 5V pins can power the breadboard.',
+          )
+        : tr(
+            'STM32F103C8T6 “Blue Pill” 最小系统板（40 针）。每个 GPIO 的“模式”在右侧属性里设置。逻辑电平 3.3 V；标 FT 的引脚（PA8–PA15、PB3、PB4、PB6–PB15）耐 5 V，PA0–PA7、PB0、PB1、PB5、PC13–15 不耐 5 V。每个引脚建议 ≤ 20 mA，绝对最大 25 mA；PC13–15 只能给 3 mA。ADC 在 PA0–PA7、PB0、PB1。板载 LED 接在 PC13（输出低电平时亮）。板载稳压器只有约 300 mA。',
+            'STM32F103C8T6 "Blue Pill" board (40 pins). Set each GPIO\'s mode under Properties. Logic is 3.3 V; pins marked FT (PA8–PA15, PB3, PB4, PB6–PB15) tolerate 5 V, while PA0–PA7, PB0, PB1, PB5 and PC13–15 do not. Keep each pin ≤ 20 mA (25 mA absolute max); PC13–15 can only give 3 mA. ADC inputs are PA0–PA7, PB0, PB1. The onboard LED is on PC13 (lit when the pin outputs LOW). The onboard regulator gives only about 300 mA.',
+          );
+    },
+  };
+}
 
 export const LED_COLORS: Record<LedColor, { hex: string; vf: number; name: string }> = {
   red: { hex: '#ff3b30', vf: 1.8, get name() {
@@ -526,9 +803,20 @@ export const isInstrument = (t: CompType) => t === 'scope_probe' || t === 'ammet
 
 /** The component whose − terminal is the circuit's GND (0 V reference): the first DC power
  *  source, or — on a board powered only by a function generator — the first generator. */
-export function groundSource<C extends { type: CompType }>(components: C[]): C | undefined {
-  return components.find((c) => isPower(c.type)) ?? components.find((c) => c.type === 'function_gen');
+export function groundSource<C extends { type: CompType; props?: PartProps }>(components: C[]): C | undefined {
+  return (
+    components.find((c) => isPower(c.type)) ??
+    components.find((c) => isMcu(c.type) && c.props?.usb !== false) ??
+    components.find((c) => c.type === 'function_gen')
+  );
 }
+
+/** Terminal of a ground source that is GND ('-', or 'GND' on a dev board). */
+export const groundTerminal = (c: { type: CompType }) => (isMcu(c.type) ? 'GND' : '-');
+/** Terminal of a ground source that is its supply ('+', or '5V' on a dev board). */
+export const supplyTerminal = (c: { type: CompType }) => (isMcu(c.type) ? '5V' : '+');
+/** A dev board with its USB cable plugged in powers the circuit by itself. */
+export const isUsbPowered = (c: { type: CompType; props: PartProps }) => isMcu(c.type) && c.props.usb !== false;
 
 // ---- electrical models of the stage-C parts (shared by the DC solver and transient.ts) ----
 /** Inductor winding resistance (Ω). */
@@ -572,6 +860,7 @@ export function nextScopeChannel(layout: Layout): 1 | 2 | null {
  * Each map is target terminal -> user terminal.
  */
 export function pinPermutations(type: CompType): Record<string, string>[] {
+  if (isMcu(type)) return [{}]; // dev boards are matched pin-by-pin in check.ts (logical roles)
   const terms = terminalsOf(type);
   let perms: Record<string, string>[] = [Object.fromEntries(terms.map((t) => [t, t]))];
   for (const group of symmetricOf(type)) {
@@ -611,11 +900,24 @@ export function sourceRint(c: { type: CompType; props: PartProps }): number {
 /** Terminal definitions for circuit-level component types (includes dc_source). */
 export function terminalsOf(t: CompType): string[] {
   if (t === 'dc_source') return ['+', '-'];
+  if (t === 'mcu') return mcuTerminals('mcu');
   return PARTS[t].terminals;
 }
 
+/** Terminals of one component instance: for a dev board also every logical role pin
+ *  (e.g. "GPIO_OUT1") its nets use. */
+export function terminalsOfComp(c: { ref: string; type: CompType }, circuit?: Circuit): string[] {
+  const base = terminalsOf(c.type);
+  if (!isMcu(c.type) || !circuit) return base;
+  const extra = new Set<string>();
+  const pre = `${c.ref}.`;
+  for (const n of circuit.nets) for (const p of n.pins) if (p.startsWith(pre) && !p.slice(pre.length).includes('.')) extra.add(p.slice(pre.length));
+  for (const b of base) extra.delete(b);
+  return [...base, ...extra];
+}
+
 export function symmetricOf(t: CompType): string[][] {
-  if (t === 'dc_source') return [];
+  if (t === 'dc_source' || t === 'mcu') return [];
   return PARTS[t].symmetric;
 }
 
@@ -633,6 +935,14 @@ const TERMINAL_LABEL_ZH: Record<string, Record<string, string>> = {
   ammeter: { '+': '红表笔（+）', '-': '黑表笔（COM）' },
   function_gen: { '+': '红色输出夹（+）', '-': '黑夹子（COM）' },
   scope_probe: { tip: '探头针尖', gnd: '探头接地夹' },
+  npn: { e: 'E 发射极', b: 'B 基极', c: 'C 集电极' },
+  nmos: { g: 'G 栅极', d: 'D 漏极', s: 'S 源极' },
+  relay: { coil1: '线圈 1', coil2: '线圈 2', com: 'COM 公共端', nc: 'NC 常闭', no: 'NO 常开' },
+  motor: { '+': '+（红线）', '-': '−（黑线）' },
+  buzzer: { '+': '+ 极（长脚）', '-': '− 极（短脚）' },
+  ldo: { gnd: '1 脚 GND', out: '2 脚 OUT（输出）', in: '3 脚 IN（输入）' },
+  ldr: { '1': '1 脚', '2': '2 脚' },
+  ntc: { '1': '1 脚', '2': '2 脚' },
   opamp: {
     outA: '1 脚 OUT A（输出 A）',
     'inA-': '2 脚 IN− A（反相输入 A）',
@@ -659,6 +969,14 @@ const TERMINAL_LABEL_EN: Record<string, Record<string, string>> = {
   ammeter: { '+': 'red lead (+)', '-': 'black lead (COM)' },
   function_gen: { '+': 'red output clip (+)', '-': 'black clip (COM)' },
   scope_probe: { tip: 'probe tip', gnd: 'probe ground clip' },
+  npn: { e: 'E (emitter)', b: 'B (base)', c: 'C (collector)' },
+  nmos: { g: 'G (gate)', d: 'D (drain)', s: 'S (source)' },
+  relay: { coil1: 'coil pin 1', coil2: 'coil pin 2', com: 'COM (common)', nc: 'NC (normally closed)', no: 'NO (normally open)' },
+  motor: { '+': '+ (red lead)', '-': '− (black lead)' },
+  buzzer: { '+': '+ (long leg)', '-': '− (short leg)' },
+  ldo: { gnd: 'pin 1 GND', out: 'pin 2 OUT', in: 'pin 3 IN' },
+  ldr: { '1': 'pin 1', '2': 'pin 2' },
+  ntc: { '1': 'pin 1', '2': 'pin 2' },
   opamp: {
     outA: 'pin 1 OUT A (output A)',
     'inA-': 'pin 2 IN− A (inverting input A)',
@@ -673,8 +991,29 @@ const TERMINAL_LABEL_EN: Record<string, Record<string, string>> = {
 
 /** Friendly name of a terminal, e.g. "anode (long leg)". */
 export function terminalName(type: CompType | PartType, pin: string): string {
+  if (isMcu(type)) return mcuTerminalName(type, pin);
   if (getLang() === 'en') return TERMINAL_LABEL_EN[type]?.[pin] ?? `pin ${pin}`;
   return TERMINAL_LABEL_ZH[type]?.[pin] ?? `${pin} 脚`;
+}
+
+const ROLE_DESC: Record<string, [string, string]> = {
+  GPIO_OUT: ['任一可输出的 GPIO', 'any output-capable GPIO'],
+  GPIO_IN: ['任一 GPIO（输入）', 'any GPIO (input)'],
+  ADC: ['任一 ADC 引脚', 'any ADC pin'],
+  PWM: ['任一可 PWM 的 GPIO', 'any PWM-capable GPIO'],
+  GPIO_FT: ['任一耐 5 V 的 GPIO', 'any 5 V-tolerant GPIO'],
+  IO: ['任一双向 GPIO', 'any bidirectional GPIO'],
+};
+
+function mcuTerminalName(type: CompType | PartType, pin: string): string {
+  const r = parseRole(pin);
+  if (r) {
+    const [zh, en] = ROLE_DESC[r.role];
+    return tr(`${pin} 脚（${zh}）`, `pin ${pin} (${en})`);
+  }
+  const d = mcuPin(type, pin);
+  if (d && isMcuBoard(type) && d.kind === 'gpio' && d.label !== pin.replace(/^GPIO|^P/, '')) return tr(`${pin}（${d.label}）脚`, `pin ${pin} (${d.label})`);
+  return tr(`${pin} 脚`, `pin ${pin}`);
 }
 
 export function terminalLabel(c: Pick<CComponent, 'ref' | 'type'>, pin: string): string {
@@ -711,9 +1050,29 @@ export function describeComponent(c: Pick<CComponent, 'type' | 'props'>): string
     }
     case 'scope_probe':
       return tr(`示波器探头 CH${p.channel ?? 1}`, `Scope probe CH${p.channel ?? 1}`);
+    case 'mcu':
+      return tr('单片机开发板（ESP32 或 STM32）', 'MCU dev board (ESP32 or STM32)');
+    case 'nmos': {
+      const m = MOSFETS[p.model ?? 'IRLZ44N'] ?? MOSFETS.IRLZ44N;
+      return tr(`N-MOSFET ${m.name[0]}`, `N-MOSFET ${m.name[1]}`);
+    }
+    case 'npn':
+      return p.beta !== undefined ? tr(`NPN 三极管（β = ${p.beta}）`, `NPN transistor (β = ${p.beta})`) : PARTS.npn.name;
+    case 'ldo':
+      return tr(`LDO 稳压器 ${p.voltage ?? 3.3} V`, `LDO regulator ${p.voltage ?? 3.3} V`);
+    case 'ldr':
+      return p.lux !== undefined ? tr(`光敏电阻（${p.lux} lux）`, `Photoresistor (${p.lux} lux)`) : PARTS.ldr.name;
+    case 'ntc':
+      return p.temperature !== undefined ? tr(`NTC 热敏电阻（${p.temperature} °C）`, `NTC thermistor (${p.temperature} °C)`) : PARTS.ntc.name;
     default:
       return PARTS[c.type].name;
   }
+}
+
+/** "GPIO2: output HIGH" style description of a pin mode. */
+export function describePinMode(pin: string, mode: Parameters<typeof modeName>[0]): string {
+  const [zh, en] = modeName(mode);
+  return tr(`${pin}：${zh}`, `${pin}: ${en}`);
 }
 
 function fmtSI(v: number, unit: string) {

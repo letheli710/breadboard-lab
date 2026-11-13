@@ -18,7 +18,7 @@
 //   scope_probe        not simulated (ideal, infinite input resistance)
 
 import { AMMETER_R, BATTERIES, GEN_R, INDUCTOR_R, LED_COLORS, OPAMP, OPAMP_HALVES, genSettings, groundSource, sourceRint, sourceVoltage, terminalsOf } from './parts';
-import type { Circuit } from './types';
+import type { Circuit, PinMode } from './types';
 import { pinId } from './types';
 
 export const GMIN = 1e-9;
@@ -67,6 +67,125 @@ export interface OpAmpState {
   B: OpAmpHalfState;
 }
 
+// ---- phase 5 states ------------------------------------------------------------------
+
+/** Logic level a digital input reads. `undefined` = between VIL and VIH; `floating` = nothing
+ *  defines the voltage (DC impedance > FLOAT_Z). */
+export type LogicLevel = 'high' | 'low' | 'undefined' | 'floating';
+
+export interface PinState {
+  mode: PinMode;
+  /** pin voltage vs the circuit's GND */
+  voltage: number;
+  /** pin voltage vs the board's own GND pin */
+  vLocal: number;
+  /** current flowing OUT of the pin into the external circuit (A); negative = sinking */
+  current: number;
+  /** what a digital read returns (inputs; for outputs: the level on the pin) */
+  logic: LogicLevel;
+  /** ADC reading (adc mode only): volts (clamped 0–3.3) and raw 12-bit count */
+  adc?: { volts: number; raw: number };
+  /** PWM duty (%) / frequency (Hz) for pwm mode */
+  duty?: number;
+  frequency?: number;
+  /** current through the ESD clamp diodes (A, > 0 when the pin is driven beyond the rails) */
+  clamp: number;
+  /** > recommended current (warning) */
+  overcurrent: boolean;
+  /** > absolute maximum current or clamp injection: the pin is damaged */
+  damaged: boolean;
+  /** above the pin's absolute-maximum voltage (3.6 V, or 5.5 V on FT pins) */
+  overvoltage: boolean;
+  /** below −0.3 V */
+  undervoltage: boolean;
+  /** pin has anything connected (its net has another terminal) */
+  connected: boolean;
+}
+
+export interface McuState {
+  type: 'esp32_devkit' | 'stm32_bluepill' | 'mcu';
+  /** chip running (3V3 above brown-out and EN/NRST high) */
+  running: boolean;
+  usb: boolean;
+  /** board rail voltages vs the board's GND pin */
+  v5: number;
+  v3: number;
+  /** current drawn from the USB cable (A) */
+  usbCurrent: number;
+  usbOverload: boolean;
+  /** onboard regulator */
+  reg: { mode: RegMode; iout: number; limit: number; power: number };
+  /** current the board's 3V3 pin delivers to the breadboard (A, negative = fed from outside) */
+  i3v3Out: number;
+  /** current the board's 5V pin delivers to the breadboard (A) */
+  i5vOut: number;
+  powerLed: boolean;
+  /** onboard user LED (Blue Pill PC13) */
+  userLed?: boolean;
+  /** every GPIO with a state (physical or logical pin names) */
+  pins: Map<string, PinState>;
+}
+
+export type BjtRegion = 'cutoff' | 'active' | 'saturation';
+export interface BjtState {
+  region: BjtRegion;
+  ib: number;
+  ic: number;
+  vbe: number;
+  vce: number;
+  power: number;
+  /** collector–emitter breakdown conducting (inductive kick with no flyback diode) */
+  breakdown: boolean;
+  baseFloating: boolean;
+}
+
+export type MosRegion = 'off' | 'ohmic' | 'saturation';
+export interface MosState {
+  region: MosRegion;
+  vgs: number;
+  vds: number;
+  /** drain → source current (A) */
+  id: number;
+  power: number;
+  /** on-resistance at the present gate voltage (Ω, Infinity when off) */
+  rds: number;
+  breakdown: boolean;
+  gateFloating: boolean;
+}
+
+export type RegMode = 'reg' | 'dropout' | 'limit' | 'off';
+export interface RegState {
+  mode: RegMode;
+  vin: number;
+  vout: number;
+  iout: number;
+  power: number;
+}
+
+export interface RelayState {
+  energized: boolean;
+  coilCurrent: number;
+  coilVoltage: number;
+}
+
+export interface MotorState {
+  current: number;
+  voltage: number;
+  running: boolean;
+  /** 0..1 relative speed (∝ current, 1 at 5 V) and direction (+1 / −1) */
+  speed: number;
+  direction: 1 | -1;
+}
+
+export interface BuzzerState {
+  on: boolean;
+  current: number;
+  voltage: number;
+  /** 0..1 */
+  loudness: number;
+  reverse: boolean;
+}
+
 export interface SimResult {
   ground: string | null;
   nodeV: Map<string, number>;
@@ -80,6 +199,15 @@ export interface SimResult {
   meters: Map<string, MeterState>;
   /** op-amp states by ref */
   opamps: Map<string, OpAmpState>;
+  // phase 5
+  mcus: Map<string, McuState>;
+  bjts: Map<string, BjtState>;
+  mosfets: Map<string, MosState>;
+  /** standalone LDO regulators */
+  regs: Map<string, RegState>;
+  relays: Map<string, RelayState>;
+  motors: Map<string, MotorState>;
+  buzzers: Map<string, BuzzerState>;
   converged: boolean;
 }
 
@@ -562,7 +690,7 @@ export function simulate(circuit: Circuit): SimResult {
     });
   }
   const opamps = opampStates(c, V);
-  return { ground: c.ground, nodeV, current, vdrop, leds, sources, meters, opamps, converged };
+  return { ground: c.ground, nodeV, current, vdrop, leds, sources, meters, opamps, mcus: new Map(), bjts: new Map(), mosfets: new Map(), regs: new Map(), relays: new Map(), motors: new Map(), buzzers: new Map(), converged };
 }
 
 export function ledState(on: boolean, avg: number, peak: number, reverse: boolean): LedState {
