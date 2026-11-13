@@ -499,3 +499,13 @@ describe('flyback diode is not "reversed"', () => {
     expect(issues.some((i) => i.refs.includes('D1') && /反|revers/i.test(i.title))).toBe(false);
   });
 });
+
+describe('plain diode ratings', () => {
+  it('a rectifier diode carrying 200 mA is fine (LED thresholds do not apply)', () => {
+    const s = simulate(circ([['V1', 'bench_supply', { voltage: 5, currentLimit: 1 }], ['R1', 'resistor', { resistance: 22 }], ['D1', 'diode', {}]], [['V1.+', 'R1.1'], ['R1.2', 'D1.anode'], ['D1.cathode', 'V1.-']]));
+    const d = s.leds.get('D1')!;
+    expect(d.current).toBeGreaterThan(0.15);
+    expect(d.burnt).toBe(false);
+    expect(d.overcurrent).toBe(false);
+  });
+});
