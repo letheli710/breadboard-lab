@@ -327,3 +327,25 @@ describe('choiceExplain', () => {
     expect(parseProblem(j, 'folder', 'x', { verify: false }).errors.join()).toMatch(/choiceExplain/);
   });
 });
+
+describe('readAnswer: temperature', () => {
+  it('reads °C, ℃ and (for a °C question) bare C; converts K with the 273.15 offset', () => {
+    expect(value(q(0, '°C'), '80')).toBe(80);
+    expect(value(q(0, '°C'), '80 °C')).toBe(80);
+    expect(value(q(0, '°C'), '80℃')).toBe(80);
+    expect(value(q(0, '°C'), '80C')).toBe(80);
+    expect(value(q(0, '°C'), '-5.5 °C')).toBe(-5.5);
+    expect(value(q(0, '°C'), '353.15 K')).toBeCloseTo(80, 9);
+    expect(value(q(0, '°C'), '273.15K')).toBeCloseTo(0, 9);
+  });
+  it('rejects other units, and "C" / "K" keep their usual meaning elsewhere', () => {
+    expect(readAnswer(q(0, '°C'), '80 V')).toHaveProperty('reason');
+    expect(readAnswer(q(0, '°C'), '80°')).toHaveProperty('reason');
+    expect(value(q(0, 'Ω'), '4.7K')).toBe(4700);
+    expect(readAnswer(q(0, 'V'), '80 °C')).toHaveProperty('reason');
+  });
+  it('grades a kelvin answer to a °C question on the °C value', () => {
+    expect(checkAnswer({ ...q(80, '°C') }, '353 K').ok).toBe(true);
+    expect(checkAnswer({ ...q(80, '°C') }, '80 K').ok).toBe(false);
+  });
+});

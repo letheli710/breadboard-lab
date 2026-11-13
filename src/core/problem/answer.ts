@@ -64,6 +64,9 @@ const UNIT_ALIASES: Record<string, string> = {
   亨: 'H',
   '°': '°',
   deg: '°',
+  '°c': '°C',
+  '℃': '°C',
+  摄氏度: '°C',
   度: '°',
   db: 'dB',
   'rad/s': 'rad/s',
@@ -179,7 +182,7 @@ function exprMessage(e: ExprError, input: string): string {
   }
 }
 
-const unitChar = (c: string | undefined) => !!c && c !== 'π' && (/\p{L}/u.test(c) || c === '°' || c === 'Ω');
+const unitChar = (c: string | undefined) => !!c && c !== 'π' && (/\p{L}/u.test(c) || c === '°' || c === 'Ω' || c === '℃');
 
 /** Split a trailing unit ("2.5kΩ" → "2.5" + "kΩ", "π/6rad" → "π/6" + "rad"); "2pi" keeps its "pi". */
 function splitSuffix(s: string): { body: string; suffix: string } {
@@ -225,6 +228,18 @@ export function readAnswer(q: Pick<Question, 'unit'> & { find?: { part?: Part } 
   if (!s) return { reason: tr('请先输入一个数', 'Type a number first') };
   const phase = isPhaseQuestion(q);
   const expected = splitUnit(q.unit ?? '');
+  // temperature: °C / ℃ always; a bare "C" or "K" only where a temperature is asked (elsewhere "K" is kilo)
+  if (expected?.unit === '°C') {
+    const t = /^(.*?)(°C|°c|℃|C|K)$/.exec(s);
+    if (t && t[1] && !unitChar(t[1][t[1].length - 1])) {
+      const r = readQuantity(t[1], input);
+      if ('reason' in r) return r;
+      if (r.unit) return wrongUnit(q, r.suffix + t[2]);
+      const v = t[2] === 'K' ? r.value - 273.15 : r.value;
+      if (!Number.isFinite(v)) return { reason: tr('这个数太大了', 'That number is too large') };
+      return { value: v, unit: t[2] === 'K' ? 'K' : '°C' };
+    }
+  }
   const sides = s.split('∠');
   if (sides.length > 2) return { reason: exprMessage({ code: 'syntax' }, input) };
 

@@ -172,7 +172,7 @@
     {"id": "v25", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 25}}, "unit": "V", "predict": true, "range": [1.57, 1.73], "ask": "25 °C：ADC 引脚对 GND", "explain": "R_NTC = R1 = 10 kΩ，正好一半：1.65 V。这一点灵敏度最高。"},
     {"id": "v80", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 80}}, "unit": "V", "predict": true, "range": [0.353, 0.39], "ask": "80 °C：ADC 引脚对 GND", "explain": "R_NTC ≈ 1.27 kΩ：3.3 × 1.27 / 11.27 ≈ 0.37 V。"},
     {"id": "nonlin", "choices": ["越热，每升高 1 °C 电压变化越小：0→25 °C 约 36 mV/°C，25→80 °C 只有约 23 mV/°C", "每升高 1 °C 电压变化都一样（线性）", "越热，每升高 1 °C 电压变化越大"], "correct": 0, "ask": "用你的三个读数比较每度的电压变化：(U₀ − U₂₅)/25 和 (U₂₅ − U₈₀)/55", "explain": "NTC 的电阻按指数变化，分压又是非线性的，所以不能用一条直线把读数换成温度。80 °C 附近一个 ADC 计数约 0.05 °C，25 °C 附近约 0.025 °C。"},
-    {"id": "temp", "formula": "1 / (1/298.15 + ln(v80 / (3.3 - v80)) / 3950) - 273.15", "predict": true, "range": [76.0, 84.0], "ask": "像固件那样，用你的 80 °C 读数反算温度（°C）：R_NTC = R1 × V / (3.3 − V)，1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950，T 单位 K，再减 273.15", "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C。这就是 B 值公式（Steinhart–Hart 的简化版）。"}
+    {"id": "temp", "formula": "1 / (1/298.15 + ln(v80 / (3.3 - v80)) / 3950) - 273.15", "unit": "°C", "predict": true, "range": [76.0, 84.0], "ask": "像固件那样，用你的 80 °C 读数反算温度（°C）：R_NTC = R1 × V / (3.3 − V)，1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950，T 单位 K，再减 273.15", "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C。这就是 B 值公式（Steinhart–Hart 的简化版）。"}
   ],
   "hints": [
     "先把开发板的 3V3 接到下方 + 轨、GND 接到下方 − 轨。",
