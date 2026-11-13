@@ -367,6 +367,26 @@
         "any"
       ]
     },
+    "wireColor": {
+      "description": "Jumper wire colour: a name the parser knows (src/core/challenge.ts WIRE_NAMES) or a hex colour.",
+      "oneOf": [
+        {
+          "enum": [
+            "red",
+            "black",
+            "blue",
+            "green",
+            "yellow",
+            "white",
+            "orange"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{3,8}$"
+        }
+      ]
+    },
     "batteryVariant": {
       "enum": [
         "9V",
@@ -738,7 +758,34 @@
     "layoutPart": {
       "allOf": [
         {
-          "$ref": "#/definitions/props"
+          "if": {
+            "properties": {
+              "type": {
+                "const": "wire"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "color": {
+                "$ref": "#/definitions/wireColor"
+              },
+              "props": {
+                "type": "object",
+                "properties": {
+                  "color": {
+                    "$ref": "#/definitions/wireColor"
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "$ref": "#/definitions/props"
+          }
         },
         {
           "type": "object",
@@ -792,7 +839,7 @@
             },
             "color": {
               "type": "string",
-              "description": "LED colour, or the wire colour for type \"wire\" (use red/blue/green/yellow/white)."
+              "description": "LED colour (red / yellow / green / blue / white), or for type \"wire\" the jumper colour (red / black / blue / green / yellow / white / orange, or \"#rrggbb\")."
             },
             "props": {
               "$ref": "#/definitions/props",
