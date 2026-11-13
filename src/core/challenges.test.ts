@@ -58,7 +58,8 @@ describe('built-in challenges', () => {
         expect(r.perfect).toBe(true);
         for (const t of [{ set: {} }, ...ch.tests]) {
           const sim = simulate(applySet(nl.circuit, t.set, r.mapping));
-          for (const led of sim.leds.values()) expect(led.current).toBeLessThanOrEqual(0.025);
+          const leds = [...sim.leds].filter(([ref]) => nl.circuit.components.find((x) => x.ref === ref)?.type === 'led');
+          for (const [, led] of leds) expect(led.current).toBeLessThanOrEqual(0.025);
         }
       });
 

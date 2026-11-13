@@ -113,9 +113,10 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
       const sim = simulate(circ);
       // with a function generator, LED current = steady-state average (what the checker uses)
       const ledStates = hasGenerator(circ) ? simulateTransient(circ).leds : sim.leds;
+      const isLed = (ref: string) => circ.components.find((x) => x.ref === ref)?.type === 'led';
       for (const [ref, led] of ledStates) {
         if (led.burnt) rep.errors.push(tr(`solution: ${ref} 在「${t.name}」时电流 ${(led.current * 1000).toFixed(0)} mA，会烧坏`, `solution: ${ref} draws ${(led.current * 1000).toFixed(0)} mA in "${t.name}" and burns out`));
-        else if (led.current > LED_MAX && !seen.has(ref)) {
+        else if (isLed(ref) && led.current > LED_MAX && !seen.has(ref)) {
           seen.add(ref);
           rep.warnings.push(tr(`solution: ${ref} 在「${t.name}」时电流 ${(led.current * 1000).toFixed(1)} mA，超过 25 mA`, `solution: ${ref} draws ${(led.current * 1000).toFixed(1)} mA in "${t.name}", above 25 mA`));
         }
