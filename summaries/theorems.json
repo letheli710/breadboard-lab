@@ -94,7 +94,7 @@
         "① **串并联法**：网络内只有电阻和独立源时，独立源置零（电压源短路、电流源开路），直接串并联或 Y–Δ。",
         "② **外加电源法**：独立源置零、**受控源保留**，在端口加电压 u 求电流 i（或加 i 求 u），R_eq = u/i。",
         "③ **开路电压–短路电流法**：独立源保留，分别求 u_oc 和短路电流 i_sc，R_eq = u_oc/i_sc（i_sc 的方向从 a 经短路线流到 b，与 u_oc = u_ab 对应）。u_oc 与 i_sc 都为零时不能用。",
-        "含受控源时只能用 ② 或 ③，R_eq 可能为**负**，也可能为零（只有诺顿等效）或无穷大（只有戴维宁等效）。只含受控源、没有独立源的网络 u_oc = 0，等效为一个电阻。"
+        "含受控源时只能用 ② 或 ③，R_eq 可能为**负**，也可能为零（只有戴维宁等效，诺顿形式不存在）或无穷大（只有诺顿等效，戴维宁形式不存在）。只含受控源、没有独立源的网络 u_oc = 0，等效为一个电阻。"
       ],
       "problems": ["theorems-10-thevenin-ccvs-test-source", "theorems-11-thevenin-vccs-oc-sc", "theorems-12-max-power-vcvs", "theorems-13-negative-resistance", "theorems-07-thevenin-bridge"],
       "i18n": {
@@ -104,7 +104,7 @@
             "① **Series–parallel**: with only resistors and independent sources inside, zero the independent sources (voltage sources shorted, current sources opened) and reduce by series/parallel or Y–Δ.",
             "② **Test source**: zero the independent sources but **keep the dependent ones**, apply u at the port and find i (or apply i and find u); R_eq = u/i.",
             "③ **Open-circuit voltage / short-circuit current**: keep the independent sources, find u_oc and the short-circuit current i_sc, R_eq = u_oc/i_sc (i_sc flows from a through the short to b, matching u_oc = u_ab). Not usable when both are zero.",
-            "With dependent sources only ② or ③ work; R_eq can be **negative**, zero (Norton form only) or infinite (Thévenin form only). A network with dependent sources but no independent source has u_oc = 0 and is equivalent to a single resistance."
+            "With dependent sources only ② or ③ work; R_eq can be **negative**, zero (Thévenin form only; no Norton form exists) or infinite (Norton form only; no Thévenin form exists). A network with dependent sources but no independent source has u_oc = 0 and is equivalent to a single resistance."
           ]
         }
       }
@@ -154,8 +154,8 @@
       "title": "互易定理",
       "text": [
         "只含线性电阻（**不含受控源、不含独立源**）的网络 N_R，把激励和响应的位置互换，激励与响应之比不变：",
-        "**形式一**：端口 1 加电压源 u_s，端口 2 的短路电流 i_2；换成端口 2 加 û_{s}，端口 1 的短路电流 î_{1}：\\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}}。**形式二**：端口 1 加电流源 i_s，端口 2 的开路电压 u_2；互换后：\\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}。（形式三：电流源激励、短路电流响应与电压源激励、开路电压响应互换时，比值相差一个负号。）",
-        "方向要“对应”：两次实验中电流都从标号端（1、2）流入网络、电压都以标号端为“+”。网络内部数值未知时，用一次实验求出转移电阻或转移电导，再用到另一次实验。"
+        "**形式一**：端口 1 加电压源 u_s，端口 2 的短路电流 i_2；换成端口 2 加 û_{s}，端口 1 的短路电流 î_{1}：\\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}}。**形式二**：端口 1 加电流源 i_s，端口 2 的开路电压 u_2；互换后：\\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}。**形式三**：端口 1 加电流源 i_s，端口 2 的短路电流 i_2；换成端口 2 加电压源 û_{s}，端口 1 的开路电压 û_{1}：\\frac{i_2}{i_s} = \\frac{û_{1}}{û_{s}}。",
+        "方向要“对应”：激励电流从标号端（1、2）流入网络，电压（激励电压与开路电压）都以标号端为“+”，短路电流取从标号端经短路线流出（如 2 → 2'）。按这个约定三种形式的比值都相等；若把短路电流改取为流入网络，形式三要差一个负号。网络内部数值未知时，用一次实验求出转移电阻或转移电导，再用到另一次实验。"
       ],
       "problems": ["theorems-15-reciprocity", "theorems-18-reciprocity-norton"],
       "i18n": {
@@ -163,8 +163,8 @@
           "title": "The reciprocity theorem",
           "text": [
             "For a network N_R of linear resistors only (**no dependent and no independent sources**), swapping the positions of excitation and response leaves their ratio unchanged:",
-            "**Form 1**: voltage source u_s at port 1, short-circuit current i_2 at port 2; swapped, û_{s} at port 2 and short-circuit current î_{1} at port 1: \\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}}. **Form 2**: current source i_s at port 1, open-circuit voltage u_2 at port 2; swapped: \\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}. (Form 3, swapping a current-source/short-circuit-current pair with a voltage-source/open-circuit-voltage pair, carries a minus sign.)",
-            "Directions must correspond: in both experiments currents enter the network at the numbered terminals (1, 2) and voltages are positive at them. With unknown internals, one experiment gives the transfer resistance or conductance, which is then used in the other."
+            "**Form 1**: voltage source u_s at port 1, short-circuit current i_2 at port 2; swapped, û_{s} at port 2 and short-circuit current î_{1} at port 1: \\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}}. **Form 2**: current source i_s at port 1, open-circuit voltage u_2 at port 2; swapped: \\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}. **Form 3**: current source i_s at port 1, short-circuit current i_2 at port 2; swapped, voltage source û_{s} at port 2 and open-circuit voltage û_{1} at port 1: \\frac{i_2}{i_s} = \\frac{û_{1}}{û_{s}}.",
+            "Directions must correspond: excitation currents enter the network at the numbered terminals (1, 2), voltages (excitation and open-circuit) are positive there, and short-circuit currents are taken leaving the numbered terminal through the short (e.g. 2 → 2'). With this convention all three ratios are equal; if a short-circuit current is taken as entering the network instead, form 3 picks up a minus sign. With unknown internals, one experiment gives the transfer resistance or conductance, which is then used in the other."
           ]
         }
       }
@@ -250,8 +250,8 @@
       "idea": "reciprocity",
       "name": "互易定理（形式一、二）",
       "expr": "\\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}}，　\\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}",
-      "when": "只含线性电阻的网络（无受控源、无独立源）；激励电流从标号端流入网络，响应电压以标号端为“+”、短路电流从标号端流出网络经短路线。形式三（混合）比值差一个负号。",
-      "i18n": { "en": { "name": "Reciprocity (forms 1 and 2)", "expr": "\\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}},　\\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}", "when": "Network of linear resistors only (no dependent or independent sources); excitation currents enter at the numbered terminal, response voltages positive there, short-circuit currents leave the network there through the short. Form 3 (mixed) has a minus sign." } }
+      "when": "只含线性电阻的网络（无受控源、无独立源）；激励电流从标号端流入网络，响应电压以标号端为“+”、短路电流从标号端流出网络经短路线。按此约定形式三（i_2/i_s = û_{1}/û_{s}）也没有负号；若短路电流取流入网络，形式三差一个负号。",
+      "i18n": { "en": { "name": "Reciprocity (forms 1 and 2)", "expr": "\\frac{i_2}{u_s} = \\frac{î_{1}}{û_{s}},　\\frac{u_2}{i_s} = \\frac{û_{1}}{î_{s}}", "when": "Network of linear resistors only (no dependent or independent sources); excitation currents enter at the numbered terminal, response voltages positive there, short-circuit currents leave the network there through the short. With this convention form 3 (i_2/i_s = û_{1}/û_{s}) has no minus sign either; with short-circuit currents taken as entering the network, form 3 has one." } }
     },
     {
       "id": "tellegen",
