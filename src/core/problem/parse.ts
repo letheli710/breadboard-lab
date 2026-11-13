@@ -37,7 +37,7 @@ export interface Problem {
   hints: string[];
   solution: string;
   netlist: Netlist;
-  /** engine value of every `find` question, by question id */
+  /** engine value of every `find` question, by question id (empty when parsed with verify: false) */
   computed: Record<string, number>;
   /** language the text ended up in */
   textLang: Lang;
@@ -284,7 +284,17 @@ function parseAnalysis(raw: unknown, errors: string[]): Analysis | null {
 /** Default symbol of an auto-added reference mark: i_R1, u_R1 (zh) / v_R1 (en). */
 const markName = (kind: 'i' | 'v', el: string) => `${kind === 'i' ? 'i' : tr('u', 'v')}_${el}`;
 
-export function parseProblem(json: unknown, source = 'folder', file?: string): ProblemValidation {
+export interface ParseProblemOptions {
+  /**
+   * Recompute every numeric answer with the analysis engine (default true). Built-in problems
+   * skip this at runtime: they are already verified by `npm run validate` and the test suite,
+   * and recomputing ~200 problems would block the page for most of a second.
+   */
+  verify?: boolean;
+}
+
+export function parseProblem(json: unknown, source = 'folder', file?: string, opts: ParseProblemOptions = {}): ProblemValidation {
+  const verify = opts.verify ?? true;
   const errors: string[] = [];
   const warnings: string[] = [];
   if (!isObj(json)) return { ok: false, errors: [tr('文件内容必须是一个 JSON 对象 { ... }', 'The file must contain one JSON object { ... }')], warnings };
@@ -322,7 +332,7 @@ export function parseProblem(json: unknown, source = 'folder', file?: string): P
       errors.push(tr(`schematic: 无法解析电路图：${(e as Error).message}`, `schematic: can't read the drawing: ${(e as Error).message}`));
     }
   }
-  if (netlist) {
+  if (netlist && verify) {
     // element values (numbers / SI strings, sources, controls, couplings) must be readable by the engine and the renderer
     try {
       new Circuit(netlist);
@@ -366,7 +376,7 @@ export function parseProblem(json: unknown, source = 'folder', file?: string): P
       if (checkFind(q.find, w, els, nodes, analysis, errors, warnings)) {
         out.find = q.find as Find;
         if (typeof q.answer === 'number') out.answer = q.answer;
-        if (netlist && analysis && typeof q.answer === 'number' && qid) {
+        if (verify && netlist && analysis && typeof q.answer === 'number' && qid) {
           try {
             const v = computeQuantity(netlist, analysis, out.find);
             computed[qid] = v;
