@@ -142,7 +142,19 @@ over-current, coil without flyback diode (DC) and inductive kick (time domain), 
 - 题目索引在构建时生成（`scripts/problem-index-plugin.ts`），完整题目按章节分块按需加载；Practice / Import / Guide 懒加载；three / r3f / drei 单独一个 chunk。
 - 切换语言不再重新挂载整个应用（3D 场景、相机保持不变）：语言是 store 里的响应式值（`useLang()`），诊断 / 检查结果 / 题目文本在新语言下重新生成。
 - 3D 低画质模式（`src/three/quality.ts`）：弱设备（≤ 4 核 / ≤ 4 GB）或前几帧太慢时自动启用，工具栏可手动切换。
-- 打包体积 / bundle size: **TODO（待打包结构调整完成后填入实测数字 / fill in measured numbers after the bundle restructuring lands）** — 主 chunk、three chunk、每章题目 chunk 的 raw / gzip 大小（`npx vite build` 输出）。
+- 首次加载体积 / first-load size（某页面静态 import 闭包内 dist 文件的实际字节数；前 = 4bde60b，后 = 44d93c8 / real bytes of the static-import closure of dist files, before → after）：
+
+  | 页面 page | 前 before | 后 after | 备注 notes |
+  |---|---|---|---|
+  | 入口 entry (`index.html`) | 2,068,199 B | 325,031 B | |
+  | 课程 Learn | 2,068,199 B（gzip ≈ 636 kB） | 1,514,007 B（gzip ≈ 460 kB） | 仍需要 three.js / three.js still needed |
+  | 练习 Practice（页面 + 解析器 + `basics` 一章） | 2,182,672 B | 537,354 B | 不加载 three.js / no three.js |
+  | 知识 Guide | 2,088,452 B | 345,284 B | |
+  | 导入 Import | 2,264,361 B | 736,258 B | 不加载 three.js / no three.js |
+  | 字体文件 font files | 30 个 | 10 个 | 只引入 latin 子集 / latin subsets only |
+
+- 做法 / how：React / zustand 单独一个 `react` chunk；Workbench / SidePanel / Carousel 懒加载；面包板题用构建时索引 `virtual:challenge-index`（`scripts/challenge-index-plugin.ts`），完整题目按组（课程、入门、第 1–5 期）各一个 chunk、打开该组的题时才加载；题目解析器动态 import。/ React + zustand in their own chunk; Workbench, SidePanel and Carousel lazy; challenges behind a build-time index with one chunk per group (lessons, intro, phase 1–5) loaded on open; parsers dynamically imported.
+- 已知剩余 / known remainder：58 kB 的理论题索引仍在入口 chunk 里 / the 58 kB problem index is still in the entry chunk.
 
 ## 待办 / Backlog (engine gaps reported by problem authors)
 

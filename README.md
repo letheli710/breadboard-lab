@@ -37,7 +37,7 @@ npm run dev
 
 ## 题库文件夹
 
-- `challenges/` —— 放入符合 `breadboard-challenge/1` 规范的 `.json` 即自动加载（开发模式热更新）。
+- `challenges/` —— 放入符合 `breadboard-challenge/1` 规范的 `.json` 即自动收录：构建时生成轻量索引（`virtual:challenge-index`），完整题目按组（课程、入门、第 1–5 期）分块，打开该组的题时才加载（开发模式热更新）。
 - 规范：[`docs/CHALLENGE_FORMAT.md`](docs/CHALLENGE_FORMAT.md)，JSON Schema：`schema/challenge.schema.json`
 - 让 AI 出题：[`docs/AI_PROMPT.md`](docs/AI_PROMPT.md)
 - `problems/<章节>/` —— 理论题，规范 `circuit-problem/1`：[`docs/PROBLEM_FORMAT.md`](docs/PROBLEM_FORMAT.md)，AI 出题提示词 [`docs/AI_PROMPT_PROBLEMS.md`](docs/AI_PROMPT_PROBLEMS.md)，大纲 [`docs/SYLLABUS.md`](docs/SYLLABUS.md)
@@ -56,7 +56,7 @@ npm run check        # 以上全部：tsc -b、lint、test、vite build（和 CI
 
 CI：`.github/workflows/ci.yml` 在每次 push / PR 时运行 `npm ci`、`tsc -b`、lint、`npm test`（含 validate）和 `vite build`。
 
-性能：内置理论题在运行时**不再**用引擎重算答案（这一步由 `npm run validate` 和 `npm test` 保证，修改题目后务必运行）；侧栏用构建时生成的轻量索引（`virtual:problem-index`，见 `scripts/problem-index-plugin.ts`），完整题目按章节分块、打开时才加载。导入页导入的文件仍然完整校验。练习 / 导入 / 知识页面和 three.js 各自单独分块。3D 工具栏的 **流畅** 按钮切换低画质（阴影 1024、像素比 ≤ 1.5），弱设备上会自动开启，选择记在浏览器里。
+性能：内置理论题在运行时**不再**用引擎重算答案（这一步由 `npm run validate` 和 `npm test` 保证，修改题目后务必运行）；侧栏用构建时生成的轻量索引（`virtual:problem-index`，见 `scripts/problem-index-plugin.ts`），完整题目按章节分块、打开时才加载。导入页导入的文件仍然完整校验。练习 / 导入 / 知识页面和 three.js 各自单独分块，练习、导入和知识页面不加载 three.js；面包板题同样只在打开所在分组时加载。实测体积见 [`docs/ROADMAP.md`](docs/ROADMAP.md) 的“性能”一节。3D 工具栏的 **流畅** 按钮切换低画质（阴影 1024、像素比 ≤ 1.5），弱设备上会自动开启，选择记在浏览器里。
 
 代码结构：`src/core`（面包板几何、元件库、网表、直流求解器、时域仿真、诊断、答案匹配、原理图布局、理论题分析引擎——纯 TS，无 UI 依赖）、`src/three`（3D 场景）、`src/ui`（界面）、`src/state`（状态）。
 
