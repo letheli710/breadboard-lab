@@ -8,6 +8,7 @@ import { formatSI } from '../core/format';
 import { getLang, tr } from '../core/i18n';
 import { isTwoTerminal, junctionPoints, onSegment, terminalPoints, wireSegments } from '../core/problem/geometry';
 import type { CtrlRef, Pt, ProblemElement, Schematic, TwoTerminalElement } from '../core/problem/types';
+import { subQ } from './subQ';
 
 const U = 40; // px per grid unit
 const SW = 1.7; // stroke width
@@ -81,7 +82,7 @@ function Rich({ runs, ...p }: { runs: Run[]; x: number; y: number; anchor?: 'sta
         dy = want;
         return (
           <tspan key={i} dy={d || undefined} fontStyle={r.it ? 'italic' : undefined} fontSize={r.sub ? '0.75em' : undefined}>
-            {r.t}
+            {r.sub ? subQ(r.t, true) : r.t}
           </tspan>
         );
       })}

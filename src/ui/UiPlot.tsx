@@ -6,6 +6,7 @@ import { tr } from '../core/i18n';
 import { plotData } from '../core/problem/plot';
 import type { Schematic } from '../core/problem/types';
 import { richRuns } from './ProblemSchematic';
+import { subQ } from './subQ';
 
 const W = 300;
 const H = 220;
@@ -82,7 +83,7 @@ export function UiPlot({ schematic }: { schematic: Schematic }) {
         ))}
       </svg>
       <figcaption>
-        {name.map((r, n) => (r.sub ? <sub key={n}>{r.t}</sub> : <i key={n}>{r.t}</i>))}
+        {name.map((r, n) => (r.sub ? <sub key={n}>{subQ(r.t)}</sub> : <i key={n}>{r.t}</i>))}
         {tr(' 的 u–i 特性', ' u–i characteristic')}
         {load ? tr('；虚线：线性部分的负载线', '; dashed: load line of the linear part') : ''}
       </figcaption>

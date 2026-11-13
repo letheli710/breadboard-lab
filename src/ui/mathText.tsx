@@ -7,6 +7,7 @@
 
 import { Fragment, type ReactNode } from 'react';
 import { richRuns } from './ProblemSchematic';
+import { subQ } from './subQ';
 
 export type MathNode =
   | { k: 'text'; t: string }
@@ -75,32 +76,38 @@ export function mathNodes(s: string): MathNode[] {
   return out;
 }
 
-function Runs({ t }: { t: string }) {
-  return <>{richRuns(t).map((r, i) => (r.sub ? <sub key={i}>{r.t}</sub> : r.it ? <i key={i}>{r.t}</i> : <Fragment key={i}>{r.t}</Fragment>))}</>;
+function Runs({ t, inSub }: { t: string; inSub: boolean }) {
+  return (
+    <>
+      {richRuns(t).map((r, i) =>
+        r.sub ? <sub key={i}>{subQ(r.t)}</sub> : r.it ? <i key={i}>{inSub ? subQ(r.t) : r.t}</i> : <Fragment key={i}>{inSub ? subQ(r.t) : r.t}</Fragment>,
+      )}
+    </>
+  );
 }
 
-function render(nodes: MathNode[]): ReactNode {
+function render(nodes: MathNode[], inSub = false): ReactNode {
   return nodes.map((n, i) => {
     switch (n.k) {
       case 'text':
-        return <Runs key={i} t={n.t} />;
+        return <Runs key={i} t={n.t} inSub={inSub} />;
       case 'frac':
         return (
           <span key={i} className="mx-frac">
-            <span className="mx-num">{render(n.num)}</span>
-            <span className="mx-den">{render(n.den)}</span>
+            <span className="mx-num">{render(n.num, inSub)}</span>
+            <span className="mx-den">{render(n.den, inSub)}</span>
           </span>
         );
       case 'sqrt':
         return (
           <span key={i} className="mx-sqrt">
-            √<span className="mx-rad">{render(n.x)}</span>
+            √<span className="mx-rad">{render(n.x, inSub)}</span>
           </span>
         );
       case 'sup':
         return <sup key={i}>{render(n.x)}</sup>;
       case 'sub':
-        return <sub key={i}>{render(n.x)}</sub>;
+        return <sub key={i}>{render(n.x, true)}</sub>;
     }
   });
 }
