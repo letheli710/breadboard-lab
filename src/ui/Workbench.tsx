@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { tr } from '../core/i18n';
 import { PARTS, PART_ORDER, nextScopeChannel } from '../core/parts';
 import { volts } from '../core/format';
@@ -9,6 +9,7 @@ import { useDerived } from '../state/derived';
 import { useStore, type Tool } from '../state/store';
 import { Scene, VIEWS, type ViewName } from '../three/Scene';
 import { emitCameraView } from '../three/common';
+import { ConfirmButton } from './Confirm';
 import { ErrorBoundary } from './ErrorBoundary';
 import { Icon, PartIcon } from './Icons';
 import { QualityToggle } from './QualityToggle';
@@ -32,20 +33,62 @@ const toolName = (t: Tool) => (t === 'select' ? tr('选择 / 操作', 'Select / 
 function Toolbox() {
   const tool = useStore((s) => s.tool);
   const setTool = useStore((s) => s.setTool);
+  const box = useRef<HTMLDivElement>(null);
+  // the full parts list is taller than most screens: say so, and let one click scroll on
+  const [more, setMore] = useState({ up: false, down: false });
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const update = () => {
+      const horiz = el.scrollWidth > el.clientWidth + 2 && el.scrollHeight <= el.clientHeight + 2;
+      const pos = horiz ? el.scrollLeft : el.scrollTop;
+      const max = horiz ? el.scrollWidth - el.clientWidth : el.scrollHeight - el.clientHeight;
+      setMore((m) => (m.up === pos > 4 && m.down === pos < max - 4 ? m : { up: pos > 4, down: pos < max - 4 }));
+    };
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener('scroll', update);
+      ro.disconnect();
+    };
+  }, []);
+  const page = (dir: 1 | -1) => {
+    const el = box.current;
+    if (!el) return;
+    const horiz = el.scrollWidth > el.clientWidth + 2 && el.scrollHeight <= el.clientHeight + 2;
+    if (horiz) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
+    else el.scrollBy({ top: dir * el.clientHeight * 0.8, behavior: 'smooth' });
+  };
   return (
-    <div className="toolbox">
-      {groups().map((g) => (
-        <div key={g.title} className="tool-group">
-          <div className="tool-group-title">{g.title}</div>
-          {g.items.map((t) => (
-            <button key={t} className={`tool ${tool === t ? 'on' : ''}`} onClick={() => setTool(tool === t ? 'select' : t)} title={toolName(t)}>
-              <PartIcon type={t} size={30} />
-              <span>{toolName(t)}</span>
-            </button>
-          ))}
-        </div>
-      ))}
-    </div>
+    <nav className={`toolbox-wrap ${more.up ? 'more-up' : ''} ${more.down ? 'more-down' : ''}`} aria-label={tr('元件箱', 'Parts toolbox')}>
+      <div className="toolbox" ref={box}>
+        {groups().map((g) => (
+          <div key={g.title} className="tool-group" role="group" aria-label={g.title}>
+            <div className="tool-group-title">{g.title}</div>
+            <div className="tool-grid">
+              {g.items.map((t) => (
+                <button key={t} className={`tool ${tool === t ? 'on' : ''}`} aria-pressed={tool === t} onClick={() => setTool(tool === t ? 'select' : t)} title={toolName(t)}>
+                  <PartIcon type={t} size={28} />
+                  <span>{toolName(t)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      {more.up && (
+        <button className="toolbox-more up" onClick={() => page(-1)} tabIndex={-1} aria-hidden title={tr('向上滚动', 'Scroll back')}>
+          ▲
+        </button>
+      )}
+      {more.down && (
+        <button className="toolbox-more down" onClick={() => page(1)} tabIndex={-1} aria-hidden title={tr('还有更多元件，点击或滚动查看', 'More parts below — click or scroll')}>
+          {tr('更多', 'More')} ▼
+        </button>
+      )}
+    </nav>
   );
 }
 
@@ -66,7 +109,7 @@ function Prompt() {
     }
   }
   return (
-    <div className="prompt">
+    <div className="prompt" aria-live="polite">
       {tool !== 'select' && <span className="prompt-tag">{toolName(tool)}</span>}
       {text}
       {firstHole ? (
@@ -159,7 +202,7 @@ function Toolbar() {
   const redo = useStore((s) => s.redo);
   const canRedo = useStore((s) => s.future.length > 0);
   return (
-    <div className="toolbar">
+    <div className="toolbar" role="toolbar" aria-label={tr('视图与编辑', 'View and edit')}>
       <button className={showNets ? 'on' : ''} onClick={() => toggle('showNets')} title={tr('按节点着色：同一颜色 = 电气上连在一起', 'Colour by node: same colour = electrically connected')}>
         <Icon name="nets" />
         <span>{tr('节点着色', 'Node colours')}</span>
@@ -177,14 +220,14 @@ function Toolbar() {
           <Icon name="undo" />
         </span>
       </button>
-      <button
-        onClick={() => {
-          if (confirm(tr('清空面包板上的所有元件？', 'Remove every part from the breadboard?'))) clear();
-        }}
+      <ConfirmButton
+        message={tr('清空面包板上的所有元件？（可以撤销）', 'Remove every part from the breadboard? (You can undo.)')}
+        confirmLabel={tr('清空', 'Clear')}
+        onConfirm={clear}
         title={tr('清空', 'Clear board')}
       >
         <Icon name="trash" />
-      </button>
+      </ConfirmButton>
     </div>
   );
 }
@@ -209,24 +252,29 @@ export function Workbench() {
         }}
         onContextMenu={(e) => e.preventDefault()}
       >
-        <ErrorBoundary scope="canvas">
-          <Scene />
-        </ErrorBoundary>
-        <ViewButton />
-        <Prompt />
-        <Multimeter />
-        <Scope />
+        <div className="stage-top">
+          <Prompt />
+          <ViewButton />
+        </div>
+        <div className="stage-view" role="region" aria-label={tr('3D 面包板：拖动旋转、滚轮缩放、右键拖动平移', '3D breadboard: drag to rotate, scroll to zoom, right-drag to pan')}>
+          <ErrorBoundary scope="canvas">
+            <Scene />
+          </ErrorBoundary>
+          <Multimeter />
+          <Scope />
+          {toast && (
+            <div className={`toast ${toastUndo ? 'has-action' : ''}`} role="status">
+              {toast}
+              {toastUndo && (
+                <button className="toast-action" onClick={() => useStore.getState().undo()}>
+                  {tr('撤销', 'Undo')}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
         <Toolbar />
-        {toast && (
-          <div className={`toast ${toastUndo ? 'has-action' : ''}`}>
-            {toast}
-            {toastUndo && (
-              <button className="toast-action" onClick={() => useStore.getState().undo()}>
-                {tr('撤销', 'Undo')}
-              </button>
-            )}
-          </div>
-        )}
+        <p className="small-screen-note">{tr('3D 工作台在更大的屏幕上更好用；练习和知识页在手机上可以完整使用。', 'The 3D bench works best on a larger screen; Practice and Guide work fully on a phone.')}</p>
       </div>
     </div>
   );
