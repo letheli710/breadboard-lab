@@ -50,7 +50,7 @@
     },
     {
       "id": "pmax",
-      "ask": "(2) Z_L = Z_eq* = 3 − j6 Ω 时负载获得最大功率，P_max = ?",
+      "ask": "(2) Z_L 取共轭匹配值 Z_eq* 时负载获得最大功率，P_max = ?",
       "find": { "kind": "pmax", "port": ["c", "d"], "exclude": ["ZL"] },
       "answer": 75,
       "unit": "W",
@@ -58,7 +58,7 @@
     },
     {
       "id": "i1",
-      "ask": "(3) Z_L = 3 − j6 Ω 时原边电流 I_1 = ?",
+      "ask": "(3) Z_L = Z_eq* 时原边电流 I_1 = ?",
       "find": { "kind": "i", "el": "R1" },
       "answer": 5,
       "unit": "A",
@@ -83,23 +83,23 @@
       "title": "Air-core transformer: secondary Thevenin equivalent and maximum power",
       "tags": ["air-core (linear) transformer", "secondary equivalent circuit", "Thevenin equivalent", "conjugate matching", "maximum power transfer"],
       "statement": [
-        "U_s = 30∠0° V (rms), ω = 1000 rad/s, R_1 = 3 Ω, L_1 = 4 mH, L_2 = 10 mH, M = 5 mH. The load impedance Z_L can be adjusted freely.",
+        "U̇_s = 30∠0° V (rms), ω = 1000 rad/s, R_1 = 3 Ω, L_1 = 4 mH, L_2 = 10 mH, M = 5 mH. The load impedance Z_L can be adjusted freely.",
         "(1) With Z_L removed, find the Thevenin impedance Z_eq = R_eq + jX_eq seen at c–d. (2) What Z_L receives maximum power, and what is that power? (3) With Z_L at that optimum, what is the primary current I_1?"
       ],
       "questions": [
         { "ask": "(1) R_eq = Re Z_eq = ?", "explain": "Secondary equivalent: Z_eq = jωL_2 + (ωM)²/Z_11 with Z_11 = R_1 + jωL_1 = 3 + j4 Ω. 25/(3 + j4) = 3 − j4 Ω, Z_eq = j10 + 3 − j4 = 3 + j6 Ω, so R_eq = 3 Ω." },
         { "ask": "(1) X_eq = Im Z_eq = ?", "explain": "X_eq = ωL_2 + Im[(ωM)²/Z_11] = 10 − 4 = 6 Ω." },
-        { "ask": "(2) The load receives maximum power for Z_L = Z_eq* = 3 − j6 Ω. P_max = ?", "explain": "With the secondary open, I_1 = 30/(3 + j4) = 6∠−53.13° A and U_oc = jωM·I_1 = 30∠36.87° V. P_max = U_oc²/(4R_eq) = 900/12 = 75 W." },
-        { "ask": "(3) Primary current I_1 with Z_L = 3 − j6 Ω = ?", "explain": "Secondary loop Z_22 = j10 + 3 − j6 = 3 + j4 Ω, reflected impedance 25/(3 + j4) = 3 − j4 Ω, Z_in = 3 + j4 + 3 − j4 = 6 Ω, I_1 = 30/6 = 5 A." }
+        { "ask": "(2) The load receives maximum power for the conjugate match Z_L = Z_eq*. P_max = ?", "explain": "With the secondary open, İ_1 = 30/(3 + j4) = 6∠−53.13° A and U̇_oc = jωM·İ_1 = 30∠36.87° V. P_max = U_oc²/(4R_eq) = 900/12 = 75 W." },
+        { "ask": "(3) Primary current I_1 with Z_L = Z_eq* = ?", "explain": "Secondary loop Z_22 = j10 + 3 − j6 = 3 + j4 Ω, reflected impedance 25/(3 + j4) = 3 − j4 Ω, Z_in = 3 + j4 + 3 − j4 = 6 Ω, I_1 = 30/6 = 5 A." }
       ],
       "hints": [
-        "Thevenin equivalent at the secondary of an air-core transformer: U_oc = jωM·U_s/Z_11 (the mutual voltage with the secondary open), Z_eq = Z_22' + (ωM)²/Z_11, where Z_22' = jωL_2 is the secondary coil's own impedance.",
+        "Thevenin equivalent at the secondary of an air-core transformer: U̇_oc = jωM·U̇_s/Z_11 (the mutual voltage with the secondary open), Z_eq = Z_22' + (ωM)²/Z_11, where Z_22' = jωL_2 is the secondary coil's own impedance.",
         "Conjugate matching: Z_L = Z_eq*, P_max = U_oc²/(4R_eq).",
         "For part (3) use the primary equivalent circuit: Z_in = Z_11 + (ωM)²/Z_22 with Z_22 = jωL_2 + Z_L."
       ],
       "solution": [
         "**1. Parameters.** ωL_1 = 4 Ω, ωL_2 = 10 Ω, ωM = 5 Ω (k = 5/√40 ≈ 0.79); Z_11 = 3 + j4 = 5∠53.13° Ω.",
-        "**2. Open-circuit voltage.** With Z_L removed, I_2 = 0, I_1 = 30/Z_11 = 6∠−53.13° A, U_oc = U_cd = jωM·I_1 = 30∠36.87° V (c is the dotted end, +).",
+        "**2. Open-circuit voltage.** With Z_L removed, İ_2 = 0, İ_1 = 30/Z_11 = 6∠−53.13° A, U̇_oc = U̇_cd = jωM·İ_1 = 30∠36.87° V (c is the dotted end, +).",
         "**3. Equivalent impedance.** With the source zeroed, the primary loop is reflected into the secondary: Z_eq = jωL_2 + (ωM)²/Z_11 = j10 + 25/(3 + j4) = j10 + 3 − j4 = **3 + j6 Ω**.",
         "**4. Maximum power.** Z_L = Z_eq* = **3 − j6 Ω**, P_max = U_oc²/(4R_eq) = 30²/12 = **75 W**.",
         "**5. Primary current.** Z_22 = jωL_2 + Z_L = 3 + j4 Ω, Z_in = Z_11 + (ωM)²/Z_22 = 3 + j4 + 3 − j4 = 6 Ω, I_1 = 30/6 = **5 A**.",
