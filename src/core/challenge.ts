@@ -5,6 +5,7 @@ import { HOLE_MAP } from './breadboard';
 import { getLang, isLang, LANGS, tr, type Lang } from './i18n';
 import { parseValue } from './format';
 import { MOSFETS } from './devices';
+import { chapterById } from './problem/chapters';
 import { isMcu, mcuPin, modesFor, normalizeMcuPin } from './mcu';
 import { BATTERIES, LED_COLORS, PARTS, terminalsOf } from './parts';
 import { MEASURES, type Measure } from './transient';
@@ -69,6 +70,22 @@ export interface ChallengeStep {
   highlight: string[];
   /** what must be on the board for this step to count as done (§7.1); empty = no check */
   check?: StepCheck[];
+}
+
+/** The four kinds of lesson card (§16): try it first, understand it, build and measure it, take it with you. */
+export const CARD_KINDS = ['try', 'explain', 'build', 'wrap'] as const;
+export type CardKind = (typeof CARD_KINDS)[number];
+
+/** One card of a card-style unit (§16): the panel shows one card at a time. */
+export interface ChallengeCard {
+  kind: CardKind;
+  title: string;
+  text: string;
+  /** the steps this card owns: steps[first … first + count − 1] (cards take the steps in order) */
+  first: number;
+  count: number;
+  /** theory chapters (problem chapter ids) to practise next — links on the card */
+  practice: string[];
 }
 
 /** Scope measurements a measurement question may ask for: the test measures plus "ring", the
@@ -147,6 +164,8 @@ export interface Challenge {
   compare: string;
   hints: string[];
   steps: ChallengeStep[];
+  /** card-style unit (§16): one card at a time, each owning a run of the steps; [] = classic layout */
+  cards: ChallengeCard[];
   /** ids of the lessons to do first (shown as links in the task panel) */
   prereq?: string[];
   solution?: Layout;
@@ -981,6 +1000,39 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     )
     .filter((s): s is ChallengeStep => !!s && !!s.text);
 
+  // cards (§16): each takes the next `steps` steps; together they must own every step
+  const cards: ChallengeCard[] = [];
+  if (json.cards !== undefined) {
+    if (!Array.isArray(json.cards) || !json.cards.length)
+      errors.push(tr('"cards" 必须是非空数组：[{ "kind": "try", "title": "...", "text": "...", "steps": 2 }, …]', '"cards" must be a non-empty array: [{ "kind": "try", "title": "...", "text": "...", "steps": 2 }, …]'));
+    else {
+      let next = 0;
+      json.cards.forEach((c: unknown, i: number) => {
+        const w = `cards[${i}]`;
+        if (!isObj(c)) return errors.push(tr(`${w}: 必须是对象`, `${w}: must be an object`));
+        const kind = c.kind as CardKind;
+        if (!CARD_KINDS.includes(kind)) errors.push(tr(`${w}.kind: 必须是 ${CARD_KINDS.join(' / ')}`, `${w}.kind: must be ${CARD_KINDS.join(' / ')}`));
+        const ctitle = typeof c.title === 'string' ? c.title.trim() : '';
+        if (!ctitle) errors.push(tr(`${w}.title: 不能为空`, `${w}.title: must not be empty`));
+        const count = c.steps === undefined ? 0 : c.steps;
+        if (typeof count !== 'number' || !Number.isInteger(count) || count < 0)
+          return errors.push(tr(`${w}.steps: 必须是这张卡片拥有的步骤数（≥ 0 的整数）`, `${w}.steps: must be the number of steps this card owns (an integer ≥ 0)`));
+        const practice = strs(c.practice);
+        for (const ch of practice)
+          if (!chapterById(ch)) errors.push(tr(`${w}.practice: 没有 "${ch}" 这一章（理论题的章节 id，见 src/core/problem/chapters.ts）`, `${w}.practice: there is no chapter "${ch}" (a theory chapter id, see src/core/problem/chapters.ts)`));
+        cards.push({ kind, title: ctitle, text: textOf(c.text), first: next, count, practice });
+        next += count;
+      });
+      if (next !== steps.length)
+        errors.push(
+          tr(
+            `cards: 各卡片的 "steps" 加起来是 ${next}，但 "steps" 有 ${steps.length} 步——每一步都要属于一张卡片`,
+            `cards: the cards' "steps" add up to ${next}, but there are ${steps.length} steps — every step must belong to one card`,
+          ),
+        );
+    }
+  }
+
   // translations: "lang" names the language of the top-level text, "i18n" holds the others
   const baseLang: Lang = json.lang === undefined ? 'zh' : isLang(json.lang) ? json.lang : 'zh';
   const langList = LANGS.map((l) => `"${l}"`).join(' / ');
@@ -1000,6 +1052,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
               );
           };
           count('steps', steps.length);
+          count('cards', cards.length);
           count('hints', Array.isArray(json.hints) ? json.hints.length : 0);
           count('tests', tests.length);
           count('measurements', measurements.length);
@@ -1014,6 +1067,11 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   });
   txList('tests').forEach((t, i) => {
     if (tests[i] && typeof t === 'string' && t) tests[i] = { ...tests[i], name: t };
+  });
+  txList('cards').forEach((t, i) => {
+    if (!cards[i] || !isObj(t)) return;
+    const ctitle = typeof t.title === 'string' && t.title.trim() ? t.title.trim() : cards[i].title;
+    cards[i] = { ...cards[i], title: ctitle, text: textOf(t.text) || cards[i].text };
   });
   txList('measurements').forEach((t, i) => {
     const q = measurements[i];
@@ -1052,6 +1110,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     compare: textOf(tx.compare) || textOf(json.compare),
     hints: txHints.length === baseHints.length ? txHints : baseHints,
     steps,
+    cards,
     prereq: strs(json.prereq),
     solution,
     start,

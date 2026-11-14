@@ -172,6 +172,7 @@ function placeholder(e: ChallengeIndexEntry): Challenge {
     compare: '',
     hints: [],
     steps: [],
+    cards: [],
     tolerance: 0.05,
     allowExtraComponents: false,
     textLang: t ? l : (e.lang as Challenge['textLang']),

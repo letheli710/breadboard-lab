@@ -7,7 +7,7 @@
 // "\\frac{U_s}{R_1 + R_2}".
 
 import { Fragment, type ReactNode } from 'react';
-import { richRuns } from './ProblemSchematic';
+import { richRuns } from './richRuns';
 import { subQ } from './subQ';
 
 export type MathNode =

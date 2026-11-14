@@ -6,7 +6,7 @@
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "Blue Pill 的两个开漏引脚以 100 kHz 模拟两条 I²C 线，各挂 200 pF 总线电容，一条用 10 kΩ 上拉、一条用 2.2 kΩ。用示波器的 rise / fall 对照 I²C 规范，再算出上拉电阻的下限（灌电流 3 mA）。",
+  "summary": "Blue Pill 的两个开漏引脚以 100 kHz 模拟两条 I²C 线，各挂 200 pF 总线电容，一条用 10 kΩ 上拉、一条用 2.2 kΩ。用示波器的上升 / 下降时间读数对照 I²C 规范，再算出上拉电阻的下限（灌电流 3 mA）。",
   "concepts": [
     "开漏输出 open-drain output",
     "I²C 上拉电阻 I²C pull-up",
@@ -27,14 +27,14 @@
     "**引脚设置**：两个引脚都设成 **PWM 输出 + 开漏**（`{ \"mode\": \"pwm\", \"duty\": 50, \"frequency\": 100000, \"openDrain\": true }`），用 100 kHz 方波代替 I²C 的 SCL 时钟。测试也会改成 400 kHz，或者静态的“开漏输出低 / 松开”。",
     "",
     "**公式**：充电曲线 V(t) = 3.3 V × (1 − e^(−t/RC))。",
-    "- 10 % → 90 %：t = RC × ln 9 ≈ **2.197·RC**（示波器 `rise` 测的是这个）；",
+    "- 10 % → 90 %：t = RC × ln 9 ≈ **2.197·RC**（示波器的“上升时间”读数测的就是这个）；",
     "- I²C 规范的 t_r 是 **30 % → 70 %**：t = RC × ln(7/3) ≈ **0.8473·RC**，约为 10–90 % 时间的 0.386 倍；",
     "- 规范上限：标准模式（100 kHz）t_r ≤ **1000 ns**，快速模式（400 kHz）t_r ≤ **300 ns**。换算成 10–90 %：约 2.59 µs 和 0.78 µs。",
     "",
     "**先预测**：两条总线的 τ 各是多少？10–90 % 上升时间和规范的 t_r（30–70 %）各是多少，分别满不满足标准模式和快速模式？100 kHz 的半个周期（5 µs）和 400 kHz 的半个周期（1.25 µs）里，10 kΩ 的总线能爬到多高，够不够 STM32 的 VIH（2.15 V）？输出低电平时两条总线各灌多少电流（引脚 N 管约 40 Ω）？",
     "",
     "**测量**：",
-    "- **上升时间 rise**（10 % → 90 %）：开漏引脚“松开”后，只能靠上拉电阻给总线电容充电，τ = R·C；",
+    "- **上升时间**（rise time，10 % → 90 %）：开漏引脚“松开”后，只能靠上拉电阻给总线电容充电，τ = R·C；",
     "- **下降时间 fall**：引脚导通时由 N 管（约 40 Ω）直接放电，非常快；",
     "- 高电平最高到多少（vmax）：上升太慢时，电平在下一个下降沿之前**根本爬不到** VIH；",
     "- 输出低电平时的**灌电流**和 V_OL：上拉电阻太小，引脚拉不低。",
@@ -59,7 +59,7 @@
   "i18n": {
     "en": {
       "title": "Experiment 5-16 · Choosing I²C pull-ups: rise time = R × bus capacitance",
-      "summary": "Two open-drain Blue Pill pins toggle at 100 kHz as two I²C lines, each with 200 pF of bus capacitance — one pulled up with 10 kΩ, one with 2.2 kΩ. Compare the scope's rise / fall with the I²C spec and work out the lower limit of the pull-up (3 mA sink current).",
+      "summary": "Two open-drain Blue Pill pins toggle at 100 kHz as two I²C lines, each with 200 pF of bus capacitance — one pulled up with 10 kΩ, one with 2.2 kΩ. Compare the scope's rise and fall times with the I²C spec and work out the lower limit of the pull-up (3 mA sink current).",
       "concepts": [
         "open-drain output",
         "I²C pull-up",
@@ -79,7 +79,7 @@
         "**Pin table settings**: set both pins to **PWM output + open drain** (`{ \"mode\": \"pwm\", \"duty\": 50, \"frequency\": 100000, \"openDrain\": true }`): a 100 kHz square wave in place of the I²C SCL clock. The tests also use 400 kHz, and static \"open-drain LOW / released\".",
         "",
         "**Formulas**: the charging curve is V(t) = 3.3 V × (1 − e^(−t/RC)).",
-        "- 10 % → 90 %: t = RC × ln 9 ≈ **2.197·RC** (what the scope's `rise` measures);",
+        "- 10 % → 90 %: t = RC × ln 9 ≈ **2.197·RC** (what the scope's rise-time reading measures);",
         "- the I²C spec's t_r is **30 % → 70 %**: t = RC × ln(7/3) ≈ **0.8473·RC**, about 0.386 × the 10–90 % time;",
         "- spec limits: Standard mode (100 kHz) t_r ≤ **1000 ns**, Fast mode (400 kHz) t_r ≤ **300 ns**. In 10–90 % terms that is about 2.59 µs and 0.78 µs.",
         "",

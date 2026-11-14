@@ -3,7 +3,8 @@ import { tr, type Lang } from './core/i18n';
 import { ensureChallengeIndex, refreshChallenges, useActiveChallenge } from './state/challenges';
 import { refreshProblems } from './state/problems';
 import { startIndexLoads, startRouting } from './state/routeSync';
-import { useLang, useStore, type Mode } from './state/store';
+import { onPage, useLang, useStore, type Mode } from './state/store';
+import { inCourseOrder } from './core/course';
 import { Icon } from './ui/Icons';
 import { Toast } from './ui/Toast';
 import { Mixed } from './ui/Mixed';
@@ -174,7 +175,9 @@ function CelebrateDialog() {
       if (prev && document.contains(prev)) prev.focus();
     };
   }, [setCelebrate]);
-  const same = challenges.filter((c) => c.kind === ch.kind);
+  // next in course order on this page (Learn: the whole course map; Challenges: labs only)
+  const page = useStore.getState().mode === 'learn' ? 'learn' : 'challenge';
+  const same = inCourseOrder(challenges.filter((c) => onPage(c, page)));
   const next = same.slice(same.indexOf(ch) + 1).find((c) => !completed[c.id]) ?? same.find((c) => !completed[c.id]);
   return (
     <div className="modal-bg" onClick={() => setCelebrate(false)}>
@@ -196,7 +199,7 @@ function CelebrateDialog() {
               className="primary"
               onClick={() => {
                 setCelebrate(false);
-                open(next.id);
+                open(next.id, page);
               }}
             >
               {tr('下一个：', 'Next: ')}

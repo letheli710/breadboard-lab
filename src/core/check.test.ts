@@ -48,6 +48,7 @@ function challenge(specs: Spec[]): Challenge {
     compare: '',
     hints: [],
     steps: [],
+    cards: [],
     tolerance: 0.05,
     allowExtraComponents: false,
     textLang: 'en',

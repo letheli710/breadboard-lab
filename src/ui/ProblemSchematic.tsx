@@ -26,41 +26,10 @@ interface Box {
 
 // ---------------------------------------------------------------- rich text
 
-/** A run of text: `it` = italic quantity letter, `sub` = subscript. */
-interface Run {
-  t: string;
-  it?: boolean;
-  sub?: boolean;
-}
+import { richRuns, type Run } from './richRuns';
+export { richRuns };
 
-/** "u_R1" → u + subscript R1, "U_{ab}" → U + subscript ab; single letters are italic. A phasor dot
- *  (combining U+0307, e.g. "U̇_s", or precomposed "İ_1"), a hat (combining U+0302, or precomposed
- *  "û_1", "î_k", "Û", "Î") or a bar (combining U+0304, complex power "S̄_Us") stays on the base letter. */
-export function richRuns(s: string): Run[] {
-  const out: Run[] = [];
-  const re = /([A-Za-zα-ωΑ-Ω][\u0307\u0302\u0304]?|[\u0130ûîÛÎ])_(\{([^}]*)\}|([A-Za-z0-9]+))/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(s))) {
-    if (m.index > last) out.push({ t: s.slice(last, m.index) });
-    let sub = m[3] ?? m[4];
-    // juxtaposed products without braces ("U_lI_l", "z_12z_21", "U̇_AY_A"): a run that runs into the
-    // next symbol's "_" gives its last letter back as that symbol
-    let end = re.lastIndex;
-    if (m[4] && sub.length > 1 && /[A-Za-zα-ωΑ-Ω]$/.test(sub) && (s[end] === '_' || (/[\u0307\u0302\u0304]/.test(s[end]) && s[end + 1] === '_'))) {
-      sub = sub.slice(0, -1);
-      end -= 1;
-      re.lastIndex = end;
-    }
-    out.push({ t: m[1], it: true }, { t: sub, sub: true });
-    last = end;
-  }
-  if (last < s.length) out.push({ t: s.slice(last) });
-  if (out.length === 1 && /^(?:[A-Za-zα-ω][\u0307\u0302\u0304]?|[\u0130ûîÛÎ])$/.test(out[0].t)) out[0].it = true;
-  return out;
-}
-
-/** Element refs / mark names: "R1" → R₁, "Us" → U_s, "RL" → R_L (unless they already use "_"). */
+/** Element refs / mark names: "R1" → R₁, "Vs" → V_s, "RL" → R_L (unless they already use "_"). */
 export function symbolText(ref: string): string {
   if (ref.includes('_')) return ref;
   const m = ref.match(/^([A-Za-z])([A-Za-z]{0,3}\d*|\d+)$/);

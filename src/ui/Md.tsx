@@ -1,13 +1,42 @@
-import { Fragment } from 'react';
+import { Fragment, type ReactNode } from 'react';
+import { MathText } from './mathText';
 
-/** Tiny markdown subset: paragraphs, "- " lists, "## " headings, **bold**, `code`. */
-export function Md({ text }: { text: string }) {
+// inline formula "$…$" (no space right after the opening "$") or a "$$…$$" formula on its own line
+const MATH_INLINE = /(\$[^$\s][^$]*?\$)/g;
+const MATH_LINE = /^\$\$(.+)\$\$$/;
+
+/** Tiny markdown subset: paragraphs, "- " lists, "## " headings, **bold**, `code`, tables, ``` blocks.
+ *  With `math`, "$…$" is a formula (MathText: X_sub, \frac{}{}, \sqrt{}, ^{}) and a line that is
+ *  "$$…$$" is a centred formula; lesson text opts in, the docs shown on the Import page do not
+ *  (they mention `$schema`). */
+export function Md({ text, math = false }: { text: string; math?: boolean }) {
   const blocks: JSX.Element[] = [];
   let list: string[] = [];
-  const inline = (s: string) =>
+  const formulas = (s: string): ReactNode =>
+    math && s.includes('$')
+      ? s.split(MATH_INLINE).map((t, i) =>
+          i % 2 === 1 ? (
+            <span key={i} className="mx">
+              <MathText text={t.slice(1, -1)} />
+            </span>
+          ) : (
+            <Fragment key={i}>{t}</Fragment>
+          ),
+        )
+      : s;
+  // **bold** may hold `code` and formulas ("**`tp1`**"); code spans are literal
+  const inline = (s: string, inBold = false): ReactNode[] =>
     s
-      .split(/(\*\*[^*]+\*\*|`[^`]+`)/g)
-      .map((t, i) => (t.startsWith('**') ? <b key={i}>{t.slice(2, -2)}</b> : t.startsWith('`') ? <code key={i}>{t.slice(1, -1)}</code> : <Fragment key={i}>{t}</Fragment>));
+      .split(inBold ? /(`[^`]+`)/g : /(\*\*(?:[^*]|\*(?!\*))+?\*\*|`[^`]+`)/g)
+      .map((t, i) =>
+        !inBold && t.startsWith('**') && t.endsWith('**') && t.length > 4 ? (
+          <b key={i}>{inline(t.slice(2, -2), true)}</b>
+        ) : t.startsWith('`') && t.endsWith('`') && t.length > 1 ? (
+          <code key={i}>{t.slice(1, -1)}</code>
+        ) : (
+          <Fragment key={i}>{formulas(t)}</Fragment>
+        ),
+      );
   const flush = () => {
     if (list.length)
       blocks.push(
@@ -63,7 +92,15 @@ export function Md({ text }: { text: string }) {
       continue;
     }
     flushTable();
-    if (/^\s*[-*] /.test(line)) list.push(line.replace(/^\s*[-*] /, ''));
+    const display = math ? MATH_LINE.exec(line.trim()) : null;
+    if (display) {
+      flush();
+      blocks.push(
+        <p key={blocks.length} className="mx-block">
+          <MathText text={display[1].trim()} />
+        </p>,
+      );
+    } else if (/^\s*[-*] /.test(line)) list.push(line.replace(/^\s*[-*] /, ''));
     else if (/^\s*\d+\. /.test(line)) list.push(line.replace(/^\s*/, ''));
     else {
       flush();

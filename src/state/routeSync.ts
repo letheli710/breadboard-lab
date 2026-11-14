@@ -18,7 +18,7 @@ import { chapterById } from '../core/problem/chapters';
 import { ensureChallengeIndex } from './challenges';
 import { ensureProblemIndex, entryTitle } from './problems';
 import { formatRoute, modeOf, pageOf, parseRoute, startRoute, writeLastRoute, type Route } from './router';
-import { useStore, type Mode } from './store';
+import { firstUnfinished, pageFor, useStore, type Mode } from './store';
 
 type S = ReturnType<typeof useStore.getState>;
 
@@ -63,7 +63,8 @@ export function routeOf(s: S): Route {
     case 'challenge': {
       const id = s.opening ?? s.activeId;
       const ch = id ? s.challenges.find((c) => c.id === id) : undefined;
-      if (ch) return { page: ch.kind === 'lesson' ? 'learn' : 'challenges', id: ch.id };
+      // the page follows the mode: a lab opened from the course map stays on Learn
+      if (ch) return { page: s.mode === 'learn' || ch.kind === 'lesson' ? 'learn' : 'challenges', id: ch.id };
       return { page: pageOf(s.mode) as 'learn' | 'challenges' };
     }
     case 'practice':
@@ -142,7 +143,7 @@ function schedule() {
   queueMicrotask(sync);
 }
 
-const firstOf = (s: S, kind: 'lesson' | 'challenge') => s.challenges.find((c) => c.kind === kind && !s.completed[c.id]) ?? s.challenges.find((c) => c.kind === kind);
+const firstOf = (s: S, mode: 'learn' | 'challenge') => firstUnfinished(s.challenges, s.completed, mode);
 
 function scrollToSection(section: string) {
   // the Guide is a lazy chunk: wait (briefly) for the card to exist
@@ -173,19 +174,19 @@ export function applyRoute(r: Route) {
   }
   pending = null;
   if (r.page === 'learn' || r.page === 'challenges') {
-    const kind = r.page === 'learn' ? 'lesson' : 'challenge';
+    const page = r.page === 'learn' ? 'learn' : 'challenge';
     const want = r.id ? st.challenges.find((c) => c.id === r.id) : undefined;
     if (r.id && !want) notFound();
     if (want) {
-      if (st.activeId !== want.id && st.opening !== want.id) st.openChallenge(want.id);
-      else if (st.mode !== modeOf(r) && st.opening !== want.id) st.setMode(want.kind === 'lesson' ? 'learn' : 'challenge');
+      if (st.activeId !== want.id && st.opening !== want.id) st.openChallenge(want.id, page);
+      else if (st.mode !== pageFor(want, page) && st.opening !== want.id) st.setMode(pageFor(want, page));
     } else if (st.mode !== modeOf(r) || !st.activeId) {
       // no item named: the page, with the challenge that was open on it or the first unfinished one
       st.setMode(modeOf(r));
       const s2 = useStore.getState();
       if (!s2.activeId && !s2.opening) {
-        const first = firstOf(s2, kind);
-        if (first) s2.openChallenge(first.id);
+        const first = firstOf(s2, page);
+        if (first) s2.openChallenge(first.id, page);
       }
     }
   } else if (r.page === 'practice' && 'view' in r) {

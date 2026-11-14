@@ -2,52 +2,267 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-voltage-divider",
-  "title": "挑战 2 · 分压器：从 9V 得到 3V",
+  "title": "分压器：从 9 V 得到 3 V",
   "kind": "challenge",
   "level": 2,
-  "summary": "用两个电阻把 9V 分成 3V，并用电压测试验证。",
-  "concepts": ["voltage divider 分压器", "Vout = Vin × R2 / (R1 + R2)"],
-  "description": "分压器（voltage divider）是两个串联电阻，从中间点取出一个较低的电压：\n  Vout = Vin × R2 / (R1 + R2)\n\n要求：用 9V 电源、R1 = 2kΩ（接 +9V 一侧）、R2 = 1kΩ（接 GND 一侧），使中间结点 VOUT 相对 GND 约为 3V。\n\n验证：9 × 1k / (2k + 1k) = 3V。tests 会测量 VOUT 的电压（2.85–3.15V）。\n\n注意：分压器的输出接上负载以后电压会变（负载和 R2 并联），所以它适合给“几乎不取电流”的东西提供参考电压。",
+  "summary": "手上只有 9 V 电池，电路却要 3 V。两个电阻就能做到——自己搭，自己量。",
+  "concepts": [
+    "voltage divider 分压器",
+    "series 串联",
+    "multimeter 万用表"
+  ],
+  "description": "分压器是两个串联电阻，从中间点取出一个较低的电压：Vout = Vin × R2 / (R1 + R2)。用 9 V 电池、R1 = 2 kΩ（接 +9 V 一侧）、R2 = 1 kΩ（接 GND 一侧），让中间结点 VOUT 对 GND 约为 3 V，再用万用表验证。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "9 V 变 3 V",
+      "text": [
+        "这一题没有步骤，**看右下角的目标电路图自己搭**。",
+        "上一课你已经搭过一个两电阻电路，它的中间点电压介于 0 和 9 V 之间。这次要把中间点**设计**成 3 V。"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "分压公式",
+      "text": [
+        "两个电阻串联，电流相同，所以**电压按电阻的比例分**：大电阻分得多，小电阻分得少。",
+        "$$V_{out} = V_{in} \\times \\frac{R_2}{R_1 + R_2}$$",
+        "想要 9 V 的三分之一，就让下面的 R2 占总电阻的三分之一：R1 = 2 kΩ，R2 = 1 kΩ。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "搭好，再用万用表量",
+      "text": [
+        "- **R1（2 kΩ）** 一端接 +9 V，另一端是结点 **VOUT**；**R2（1 kΩ）** 从 VOUT 接到 GND。",
+        "- 搭完点「检查我的电路」，再用万用表回答下面的题。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 分压器的输出**一接负载就会变**：负载和 R2 并联，下半截的电阻变小，VOUT 就掉下去了（第 2 世界会专门做这个实验）。",
+        "- 所以分压器适合给**几乎不取电流**的东西提供电压：比如单片机的 ADC 输入、运放的输入、一个参考电压。",
+        "- 只看比例的话，20 kΩ 和 10 kΩ 也能分出 3 V，而且更省电；代价是更“软”，更怕负载。"
+      ],
+      "practice": [
+        "equivalence"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Challenge 2 · Voltage divider: 3V from 9V",
-      "summary": "Use two resistors to divide 9V down to 3V, and verify it with a voltage test.",
-      "concepts": ["voltage divider", "Vout = Vin × R2 / (R1 + R2)"],
-      "description": "A voltage divider is two resistors in series, with a lower voltage taken from the point between them:\n  Vout = Vin × R2 / (R1 + R2)\n\nTask: with a 9V supply, R1 = 2kΩ (on the +9V side) and R2 = 1kΩ (on the GND side), make the middle node VOUT about 3V relative to GND.\n\nCheck: 9 × 1k / (2k + 1k) = 3V. The tests measure the voltage at VOUT (2.85–3.15V).\n\nNote: once you connect a load to a divider's output, the voltage changes (the load is in parallel with R2). So a divider is best for providing a reference voltage to things that draw almost no current.",
-      "hints": [
-        "R1 and R2 are in series; the point where they meet is VOUT.",
-        "The larger resistor gets the larger share of the voltage: R1 is twice R2, so R1 gets 6V and R2 gets 3V."
+      "title": "Voltage divider: 3 V from 9 V",
+      "summary": "You only have a 9 V battery but the circuit wants 3 V. Two resistors do it — build it and measure it yourself.",
+      "concepts": [
+        "voltage divider",
+        "series",
+        "multimeter"
       ],
-      "tests": ["VOUT ≈ 3V"]
+      "description": "A voltage divider is two resistors in series with a lower voltage taken from the middle: Vout = Vin × R2 / (R1 + R2). With a 9 V battery, R1 = 2 kΩ (on the +9 V side) and R2 = 1 kΩ (on the GND side), the middle node VOUT sits at about 3 V relative to GND; check it with the multimeter.",
+      "hints": [
+        "Vout = Vin × R2 / (R1 + R2): for 1/3 of Vin, R2 must be 1/3 of the total resistance.",
+        "Node VOUT is the column where R1 and R2 meet; the other end of R2 goes to GND."
+      ],
+      "tests": [
+        "VOUT within the target range"
+      ],
+      "cards": [
+        {
+          "title": "9 V into 3 V",
+          "text": [
+            "This one has no steps — **build it from the target schematic** at the bottom right.",
+            "In the last lesson you built a two-resistor circuit whose middle point sat somewhere between 0 and 9 V. This time you **design** the middle point to be 3 V."
+          ]
+        },
+        {
+          "title": "The divider formula",
+          "text": [
+            "Two resistors in series carry the same current, so **the voltage is shared in proportion to the resistances**: the bigger resistor gets more, the smaller one less.",
+            "$$V_{out} = V_{in} \\times \\frac{R_2}{R_1 + R_2}$$",
+            "For a third of 9 V, make the lower resistor R2 a third of the total: R1 = 2 kΩ, R2 = 1 kΩ."
+          ]
+        },
+        {
+          "title": "Build it, then measure it",
+          "text": [
+            "- **R1 (2 kΩ)** from +9 V to the node **VOUT**; **R2 (1 kΩ)** from VOUT to GND.",
+            "- Press Check my circuit, then answer the questions below with the multimeter."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- A divider's output **changes as soon as you load it**: the load sits in parallel with R2, the lower half gets smaller and VOUT drops (World 2 has a whole lab on this).",
+            "- So a divider is for things that draw **almost no current**: a microcontroller's ADC input, an op-amp input, a reference voltage.",
+            "- Only the ratio matters for the voltage: 20 kΩ and 10 kΩ also give 3 V and waste less current — at the price of being \"softer\", easier to pull down with a load."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "Red probe on the node VOUT, black probe on GND: the voltage at VOUT",
+          "explain": "9 V × 1 kΩ / (2 kΩ + 1 kΩ) = 3 V. The battery's 1.5 Ω internal resistance takes off only a few millivolts."
+        },
+        {
+          "ask": "Red probe on the +9 V end of R1, black probe (Shift + click) on VOUT: the voltage across R1",
+          "explain": "R1 is twice R2, so it gets twice the voltage: 9 V × 2/3 = 6 V. The two together add up to the battery voltage."
+        },
+        {
+          "ask": "Connect another 1 kΩ \"load\" between VOUT and GND. VOUT will:",
+          "choices": [
+            "Stay the same",
+            "Drop: the load is in parallel with R2, so the lower half gets smaller",
+            "Rise"
+          ],
+          "explain": "1 kΩ ∥ 1 kΩ = 500 Ω, so VOUT becomes 9 × 0.5 / 2.5 = 1.8 V. A divider gives the formula value only with no load."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 9 },
-    { "ref": "R1", "type": "resistor", "resistance": "2k" },
-    { "ref": "R2", "type": "resistor", "resistance": "1k" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "2k"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "1k"
+    }
   ],
   "nets": [
-    { "name": "VCC", "pins": ["V1.+", "R1.1"] },
-    { "name": "VOUT", "pins": ["R1.2", "R2.1"] },
-    { "name": "GND", "pins": ["R2.2", "V1.-"] }
+    {
+      "name": "VCC",
+      "pins": [
+        "V1.+",
+        "R1.1"
+      ]
+    },
+    {
+      "name": "VOUT",
+      "pins": [
+        "R1.2",
+        "R2.1"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "R2.2",
+        "V1.-"
+      ]
+    }
   ],
   "tests": [
     {
-      "name": "VOUT ≈ 3V",
-      "voltages": [{ "pin": "R2.1", "ref": "V1.-", "min": 2.85, "max": 3.15 }]
+      "name": "VOUT 在目标范围内",
+      "voltages": [
+        {
+          "pin": "R2.1",
+          "ref": "V1.-",
+          "min": 2.85,
+          "max": 3.15
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "vout",
+      "voltage": "R2.1",
+      "ref": "V1.-",
+      "unit": "V",
+      "predict": true,
+      "stated": true,
+      "range": [
+        2.9,
+        3.1
+      ],
+      "ask": "红表笔点结点 VOUT，黑表笔在 GND：VOUT 的电压",
+      "explain": "9 V × 1 kΩ / (2 kΩ + 1 kΩ) = 3 V。电池的 1.5 Ω 内阻只让它低几毫伏。"
+    },
+    {
+      "id": "vr1",
+      "voltage": "R1.1",
+      "ref": "R1.2",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        5.8,
+        6.1
+      ],
+      "ask": "红表笔点 R1 接 +9 V 的那一端，黑表笔（Shift + 单击）点 VOUT：R1 两端的电压",
+      "explain": "R1 是 R2 的两倍，分到的电压也是两倍：9 V × 2/3 = 6 V。两段加起来正好是电池电压。"
+    },
+    {
+      "id": "load",
+      "ask": "在 VOUT 和 GND 之间再接一个 1 kΩ 的“负载”，VOUT 会？",
+      "choices": [
+        "不变",
+        "变低：负载和 R2 并联，下半截电阻变小",
+        "变高"
+      ],
+      "correct": 1,
+      "explain": "1 kΩ ∥ 1 kΩ = 500 Ω，VOUT 变成 9 × 0.5 / 2.5 = 1.8 V。分压器只在空载时才是公式算的那个值。"
     }
   ],
   "hints": [
-    "R1 和 R2 串联，中间的连接点就是 VOUT。",
-    "大电阻分到的电压多：R1 是 R2 的两倍，所以 R1 上 6V、R2 上 3V。"
+    "Vout = Vin × R2 / (R1 + R2)：要得到 Vin 的 1/3，R2 应该占总电阻的 1/3。",
+    "结点 VOUT 就是 R1 和 R2 相连的那一列；R2 的另一端要接到 GND。"
   ],
   "solution": {
     "parts": [
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "2k", "pins": { "1": "b3", "2": "b8" } },
-      { "type": "resistor", "ref": "R2", "resistance": "1k", "pins": { "1": "c8", "2": "c12" } },
-      { "type": "wire", "pins": { "a": "a12", "b": "tn12" }, "color": "blue" }
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "2k",
+        "pins": {
+          "1": "b3",
+          "2": "b8"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "1k",
+        "pins": {
+          "1": "c8",
+          "2": "c12"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a12",
+          "b": "tn12"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

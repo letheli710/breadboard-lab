@@ -2,61 +2,376 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-breadboard-basics",
-  "title": "第 1 课 · 认识面包板",
+  "title": "面包板：孔底下的金属条",
   "kind": "lesson",
   "level": 1,
-  "summary": "面包板里面藏着金属条：哪些孔是连在一起的？",
-  "concepts": ["breadboard", "terminal strip 金属条", "power rail 电源轨", "trench 中间凹槽"],
-  "description": "面包板（breadboard）看起来是一排排独立的小孔，其实孔下面藏着金属夹片（metal strip），把一些孔【电气上连在一起】。插在同一条金属条上的两只脚，就等于用导线连起来了。\n\n【1. 主区（terminal strips）】：每一【列】（column，编号 1–30）被中间的凹槽（trench）分成上下两段：a–e 是一条，f–j 是另一条。所以 a5、b5、c5、d5、e5 五个孔是相通的；但 a5 和 a6 【不】相通（不同列），e5 和 f5 也【不】相通（隔着凹槽）。\n\n【2. 电源轨（power rails）】：板子上下边缘各有两条长横排。红线那条标 +（tp / bp），蓝线那条标 −（tn / bn）。每条轨道【整行】都是通的：tp1 到 tp30 全部连在一起。注意：上方的轨道和下方的轨道【彼此不相通】，红轨和蓝轨也不相通。\n\n【3. 一个孔只能插一只脚】。想把两个东西连起来，就把它们插进同一条金属条的不同孔里，或者用跳线（jumper wire）把两条金属条接起来。\n\n本课电路：9V 电池 → 电源轨 → 跳线 → 电阻 → LED → 跳线 → 回到 − 轨。跟着步骤做，注意观察每一步“为什么是这个孔”。",
+  "summary": "先故意插错一次，看看面包板里到底哪些孔是连着的。",
+  "concepts": [
+    "breadboard 面包板",
+    "terminal strip 金属条",
+    "power rail 电源轨",
+    "trench 中间凹槽"
+  ],
+  "description": "面包板的孔下面藏着金属条：同一列 a–e 相通、f–j 相通，上下边缘的电源轨整排相通。本课先把电阻插错，看它被金属条短路，再搭一个能点亮 LED 的完整回路。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "先插错一次",
+      "text": [
+        "今天的规矩：**先动手，再讲道理。**",
+        "面包板上的孔看起来一模一样，但它们下面并不是各自独立的。下面三步搭一个“错”的电路，然后看看右边的**诊断**说了什么。"
+      ],
+      "steps": 3
+    },
+    {
+      "kind": "explain",
+      "title": "孔底下藏着金属条",
+      "text": [
+        "- **一列五个孔 = 一条金属条。** a5、b5、c5、d5、e5 下面是同一片金属。插在这五个孔里的脚，就像焊在了一起。",
+        "- **中间的凹槽把每一列切成两段。** a–e 是一条，f–j 是另一条，所以 e5 和 f5 **不通**。",
+        "- **边上的长排是电源轨。** 红线那排（tp、bp）当 +，蓝线那排（tn、bn）当 −，一整排都是通的。上面的轨和下面的轨互相不通。",
+        "",
+        "刚才电阻的两只脚都在第 5 列，它们是**同一个点**。两端没有电压差，就没有电流流过——电阻被金属条**短路**了，等于没装。",
+        "",
+        "**规则：一个元件的两只脚，必须插在两条不同的金属条上。**"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "挪好电阻，接成一个圈",
+      "text": [
+        "电流要走一个**完整的圈**：从电池 + 出发，穿过电阻和 LED，再回到电池 −。少一段，就一点电流都没有。"
+      ],
+      "steps": 4
+    },
+    {
+      "kind": "wrap",
+      "title": "带走这三句话",
+      "text": [
+        "- **同列 a–e 相通，f–j 相通，中间的凹槽把它们隔开。**",
+        "- **一个孔只插一只脚。** 想把两样东西连起来，就插进同一条金属条的不同孔，或者用跳线接两条金属条。",
+        "- **真实面包板的坑：** 有些长面包板的电源轨在中间是**断开的**（红线中间有一个小缺口），左右两半要用跳线接起来。第一次用一块新板子，先拿万用表量一下。",
+        "",
+        "下一个：电源和 GND——电流从哪里来，又回到哪里去。"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Lesson 1 · Meet the breadboard",
-      "summary": "Hidden metal strips inside the breadboard: which holes are connected to each other?",
-      "concepts": ["breadboard", "terminal strip", "power rail", "trench"],
-      "description": "A breadboard looks like rows of separate little holes, but underneath them are metal clips (metal strips) that **electrically connect** certain holes. Two leads plugged into the same metal strip are connected, just as if you had joined them with a wire.\n\n**1. Main area (terminal strips)**: each **column** (numbered 1–30) is split in two by the trench in the middle: a–e is one strip and f–j is another. So the five holes a5, b5, c5, d5 and e5 are all connected; but a5 and a6 are **not** connected (different columns), and e5 and f5 are **not** connected either (the trench is between them).\n\n**2. Power rails**: along the top and bottom edges of the board there are two long rows each. The one with the red line is marked + (tp / bp) and the one with the blue line is marked − (tn / bn). Each rail is connected along its **whole length**: tp1 through tp30 are all joined together. Note: the top rails and the bottom rails are **not connected to each other**, and the red rail is not connected to the blue rail.\n\n**3. One hole holds only one lead.** To connect two things, plug them into different holes of the same metal strip, or join two strips with a jumper wire.\n\nCircuit in this lesson: 9V battery → power rail → jumper → resistor → LED → jumper → back to the − rail. Follow the steps and, at each one, ask yourself \"why this hole?\"",
-      "steps": [
-        "Plug the 9V battery's red lead (+) into the top red + rail at tp1 and the black lead (−) into the blue − rail at tn1. Now the whole tp rail is +9V and the whole tn rail is 0V.",
-        "Run a red jumper from tp5 to a5. Now all five holes a–e of column 5 are at +9V.",
-        "Place a 470Ω resistor: one lead in c5 (connected to +9V) and the other in c9. The resistor spans column 5 and column 9. Its two leads must be in different columns, otherwise the metal strip would short the resistor out.",
-        "Place the red LED: the long lead (anode, positive) goes in d9, in the same column as the resistor's second lead (so they are connected); the short lead (cathode, negative) goes in d12.",
-        "Finally, run a blue jumper from a12 to tn12 to connect the LED's cathode back to the − rail, giving the current a way back. The LED should light up!"
+      "title": "The breadboard: strips under the holes",
+      "summary": "Plug a part in the wrong way once and find out which holes are joined inside.",
+      "concepts": [
+        "breadboard",
+        "terminal strip",
+        "power rail",
+        "trench"
       ],
+      "description": "Under the holes of a breadboard are metal strips: a–e of a column are joined, f–j are joined, and each power rail is joined along its length. In this lesson you first plug a resistor in wrong and watch the strip short it out, then build a complete loop that lights an LED.",
       "hints": [
         "Holes a–e in the same column are connected, so c9 and d9 are electrically the same point.",
-        "Current needs a complete loop: it leaves +, passes through the parts and returns to −."
+        "Current needs a complete loop: out of +, through the parts, back to −. If the LED stays dark, follow that loop and find where it's broken."
       ],
-      "tests": ["LED is on"]
+      "tests": [
+        "LED is on"
+      ],
+      "cards": [
+        {
+          "title": "Get it wrong on purpose",
+          "text": [
+            "Today's rule: **do it first, explain it after.**",
+            "Every hole on a breadboard looks the same, but they are not separate underneath. In the next three steps you build a \"wrong\" circuit — then see what the **diagnostics** on the right say."
+          ]
+        },
+        {
+          "title": "Metal strips under the holes",
+          "text": [
+            "- **Five holes in a column = one metal strip.** Under a5, b5, c5, d5 and e5 is one piece of metal. Leads plugged into those five holes are as good as soldered together.",
+            "- **The trench cuts every column in two.** a–e is one strip and f–j is another, so e5 and f5 are **not** connected.",
+            "- **The long rows along the edges are power rails.** The red-line row (tp, bp) is used as +, the blue-line row (tn, bn) as −, and each whole row is connected. The top rails and the bottom rails are not connected to each other.",
+            "",
+            "Both legs of your resistor were in column 5, so they were **the same point**. No voltage across it means no current through it — the strip **shorted it out**; it might as well not be there.",
+            "",
+            "**Rule: a part's two legs must go into two different metal strips.**"
+          ]
+        },
+        {
+          "title": "Move the resistor and close the loop",
+          "text": [
+            "Current needs a **complete loop**: out of the battery +, through the resistor and the LED, back into the battery −. Leave out one piece and no current flows at all."
+          ]
+        },
+        {
+          "title": "Three things to take with you",
+          "text": [
+            "- **a–e of a column are joined, f–j are joined, and the trench keeps them apart.**",
+            "- **One lead per hole.** To connect two things, plug them into different holes of the same strip, or join two strips with a jumper.",
+            "- **A real-board trap:** on some long breadboards the power rails are **split in the middle** (a gap in the red line); join the two halves with a jumper. On a new board, check with a multimeter first.",
+            "",
+            "Next: power and GND — where the current comes from and where it goes back to."
+          ]
+        }
+      ],
+      "steps": [
+        "In the toolbar on the left pick **Battery** (9V by default). Click **`tp1`** for the red lead (+), then **`tn1`** for the black lead (−).",
+        "Pick **Jumper** and click **`tp5`**, then **`a5`**: this brings +9V from the rail to column 5.",
+        "Pick **Resistor** and put both legs in column 5: **`c5`** and **`e5`**. Now look at the **diagnostics** on the right: what do they say about this resistor?",
+        "Click the resistor and press **Delete**. Place it again with the Resistor tool at **`c5`** and **`c9`**, and in **Properties** on the right set it to **`470 Ω`**. It now spans columns 5 and 9.",
+        "Pick **LED** (red): the **long lead** (anode, +) goes in **`d9`**, in the same column as the resistor's second leg; the **short lead** (cathode, −) goes in **`d12`**.",
+        "Pick **Jumper** and click **`a12`** and **`tn12`**: the LED's cathode goes back to the − rail. The loop is closed — the LED should light up!",
+        "Hover over a hole without clicking: every hole connected to it lights up. Try **`c9`**, **`f9`** and **`tp20`**. Then press **Check my circuit** below and answer two quick questions."
+      ],
+      "measurements": [
+        {
+          "ask": "The resistor's second leg is in c9 and the LED's long lead is in d9. Do they need a jumper between them?",
+          "choices": [
+            "No: c9 and d9 are on the same metal strip, so they are already one point",
+            "Yes: two holes always need a jumper between them"
+          ],
+          "explain": "The five holes a–e of a column share one metal strip; plugging in is enough."
+        },
+        {
+          "ask": "If the LED's long lead went into f9 (across the trench), would the LED still light?",
+          "choices": [
+            "Yes: it is still column 9",
+            "No: the trench splits column 9 into a–e and f–j, so f9 is not connected to c9"
+          ],
+          "explain": "The two sides of the trench are two different strips. To cross it, use a jumper (or, like a chip, put one row of pins on each side)."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "BAT1", "type": "battery", "variant": "9V" },
-    { "ref": "R1", "type": "resistor", "resistance": "470" },
-    { "ref": "LED1", "type": "led", "color": "red" }
+    {
+      "ref": "BAT1",
+      "type": "battery",
+      "variant": "9V"
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "470"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    }
   ],
   "nets": [
-    { "name": "VCC", "pins": ["BAT1.+", "R1.1"] },
-    { "name": "N1", "pins": ["R1.2", "LED1.anode"] },
-    { "name": "GND", "pins": ["LED1.cathode", "BAT1.-"] }
+    {
+      "name": "VCC",
+      "pins": [
+        "BAT1.+",
+        "R1.1"
+      ]
+    },
+    {
+      "name": "N1",
+      "pins": [
+        "R1.2",
+        "LED1.anode"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "LED1.cathode",
+        "BAT1.-"
+      ]
+    }
   ],
-  "tests": [{ "name": "LED 亮", "expect": { "LED1": "on" } }],
+  "tests": [
+    {
+      "name": "LED 亮",
+      "expect": {
+        "LED1": "on"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "id": "samecol",
+      "ask": "电阻的第二只脚在 c9，LED 的长脚在 d9。它们之间要不要再接一根跳线？",
+      "choices": [
+        "不用：c9 和 d9 在同一条金属条上，本来就是同一个点",
+        "要：两个孔之间必须用跳线连起来"
+      ],
+      "correct": 0,
+      "explain": "同一列的 a–e 五个孔下面是同一条金属条，插进去就已经连上了。"
+    },
+    {
+      "id": "trench",
+      "ask": "如果把 LED 的长脚插在 f9（凹槽的另一边），LED 还会亮吗？",
+      "choices": [
+        "会：都是第 9 列",
+        "不会：凹槽把第 9 列切成了 a–e 和 f–j 两段，f9 和 c9 不通"
+      ],
+      "correct": 1,
+      "explain": "凹槽两边是两条不同的金属条。想跨过凹槽，要用跳线（或者像芯片那样，两排脚各插一边）。"
+    }
+  ],
   "steps": [
-    { "text": "把 9V 电池的红线（+）插到上方红色 + 轨 tp1，黑线（−）插到蓝色 − 轨 tn1。现在整条 tp 轨都是 +9V，整条 tn 轨都是 0V。", "highlight": ["tp1", "tn1"] },
-    { "text": "用一根红色跳线从 tp5 连到 a5。这样第 5 列的 a–e 五个孔都变成了 +9V。", "highlight": ["tp5", "a5", "b5", "c5", "d5", "e5"] },
-    { "text": "放一个 470Ω 电阻：一只脚插 c5（和 +9V 相通），另一只脚插 c9。电阻跨在第 5 列和第 9 列之间——两只脚必须在不同的列，否则电阻会被金属条短路。", "highlight": ["c5", "c9"] },
-    { "text": "放红色 LED：长脚（正极 anode）插 d9，和电阻的第二只脚在同一列（相通）；短脚（负极 cathode）插 d12。", "highlight": ["d9", "d12"] },
-    { "text": "最后用蓝色跳线从 a12 连到 tn12，把 LED 的负极接回 − 轨，电流就有了回去的路。LED 应该亮了！", "highlight": ["a12", "tn12"] }
+    {
+      "text": "左边工具栏选**「电池」**（默认 9V）。先单击 **`tp1`** 放红线（+），再单击 **`tn1`** 放黑线（−）。",
+      "highlight": [
+        "tp1",
+        "tn1"
+      ],
+      "check": [
+        {
+          "type": "battery",
+          "pins": {
+            "+": "tp1",
+            "-": "tn1"
+          }
+        }
+      ]
+    },
+    {
+      "text": "选**「跳线」**，单击 **`tp5`** 再单击 **`a5`**：把 +9V 从电源轨引到第 5 列。",
+      "highlight": [
+        "tp5",
+        "a5"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "tp5",
+            "b": "a5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "选**「电阻」**，两只脚都插在第 5 列：**`c5`** 和 **`e5`**。然后看右边的**诊断**：它说这个电阻怎么了？",
+      "highlight": [
+        "c5",
+        "e5"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "c5",
+            "2": "e5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "单击选中电阻，按 **Delete** 删掉。再用「电阻」工具重新插：**`c5`** 和 **`c9`**，在右边**「属性」**里把阻值改成 **`470 Ω`**。现在它跨在第 5 列和第 9 列之间。",
+      "highlight": [
+        "c5",
+        "c9"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "c5",
+            "2": "c9"
+          },
+          "resistance": "470"
+        },
+        {
+          "empty": [
+            "e5"
+          ]
+        }
+      ]
+    },
+    {
+      "text": "选**「LED」**（红色）：**长脚**（正极）插 **`d9`**，和电阻的第二只脚在同一列；**短脚**（负极）插 **`d12`**。",
+      "highlight": [
+        "d9",
+        "d12"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "d9",
+            "cathode": "d12"
+          },
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "text": "选**「跳线」**，单击 **`a12`** 和 **`tn12`**：LED 的负极回到 − 轨。圈接上了，LED 应该亮了！",
+      "highlight": [
+        "a12",
+        "tn12"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a12",
+            "b": "tn12"
+          }
+        }
+      ]
+    },
+    {
+      "text": "鼠标停在一个孔上（不要点）：和它相通的孔会一起亮起来。试试 **`c9`**、**`f9`**、**`tp20`**。然后点下面的**「检查我的电路」**，回答两道小题。",
+      "highlight": [
+        "c9",
+        "f9",
+        "tp20"
+      ]
+    }
   ],
   "hints": [
     "同一列的 a–e 是相通的，所以 c9 和 d9 在电气上是同一个点。",
-    "电流必须走一个完整的回路：从 + 出发，经过元件，回到 −。"
+    "电流必须走一个完整的圈：从 + 出发，经过元件，回到 −。LED 不亮时，顺着这个圈找断开的地方。"
   ],
   "solution": {
     "parts": [
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "470", "pins": { "1": "c5", "2": "c9" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "d9", "cathode": "d12" } },
-      { "type": "wire", "pins": { "a": "a12", "b": "tn12" }, "color": "blue" }
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp5",
+          "b": "a5"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "470",
+        "pins": {
+          "1": "c5",
+          "2": "c9"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "d9",
+          "cathode": "d12"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a12",
+          "b": "tn12"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

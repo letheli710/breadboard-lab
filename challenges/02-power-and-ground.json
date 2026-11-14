@@ -2,80 +2,461 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-power-and-ground",
-  "title": "第 2 课 · 电源与 GND（地）",
+  "title": "电源与 GND：电流回家的路",
   "kind": "lesson",
   "level": 1,
-  "summary": "GND 到底是什么？为什么每个元件最后都要接到蓝色轨？",
-  "concepts": ["GND / ground 地", "0 V reference 参考点", "VCC", "return path 回路", "power rail 电源轨"],
-  "description": "【电压是两点之间的差】\n电压（voltage）永远是“A 点相对 B 点”高多少伏。说“这个点是 5V”时，省略了“相对谁”——那个默认的参考点就叫 GND（ground，地），规定它是 0 V。\n\n【GND 就是电源的 − 极】\n在电池或电源电路里，我们通常把电源的 − 端定义为 GND。所以：电源 + 端 = VCC（比如 +9V），电源 − 端 = GND（0V）。GND 不是“大地”，也不是“电流消失的地方”，它只是电路里大家约定的 0V 参考点。\n\n【电流需要回家的路（return path）】\n电流从电源 + 出发，流过元件，最后必须回到电源 −。原理图里画的那个“地”符号（⏚），意思就是“这根线接到电源 − 端”。原理图上可能画了 5 个地符号，它们在实物上全部是同一个结点——在面包板上就是蓝色 − 轨。\n\n【为什么要有电源轨】\n几乎每个元件都需要接 VCC 或 GND。把电源接到长长的红 / 蓝轨上，任何一列都能就近取电、就近接地，不用把所有线都拉回电池。\n\n本课：两个 LED 支路共用同一个 VCC（红轨）和同一个 GND（蓝轨）。tests 里还会测量电压：VCC 相对 GND 约 9V；LED 负极就在 GND 上，所以是 0V。",
-  "i18n": {
-    "en": {
-      "title": "Lesson 2 · Power and GND (ground)",
-      "summary": "What exactly is GND? Why does every part end up connected to the blue rail?",
-      "concepts": ["GND / ground", "0 V reference", "VCC", "return path", "power rail"],
-      "description": "**Voltage is a difference between two points**\nA voltage is always \"how many volts point A is above point B\". When we say \"this point is at 5V\" we leave out \"relative to what\". That default reference point is called GND (ground), and by definition it is 0 V.\n\n**GND is the − terminal of the supply**\nIn battery- or supply-powered circuits we normally define the supply's − terminal as GND. So: supply + = VCC (for example +9V), supply − = GND (0V). GND is not \"the earth\" and it is not \"where the current disappears\"; it is simply the 0V reference point everyone in the circuit agrees on.\n\n**Current needs a way home (return path)**\nCurrent leaves the supply's + terminal, flows through the parts, and must finally get back to the supply's − terminal. The ground symbol (⏚) drawn on a schematic means \"this wire goes to the supply's − terminal\". A schematic may show five ground symbols, but in the real circuit they are all one and the same node; on the breadboard that is the blue − rail.\n\n**Why power rails?**\nAlmost every part needs a connection to VCC or GND. By connecting the supply to the long red / blue rails, any column can grab power and ground right next to it, instead of running every wire back to the battery.\n\nIn this lesson: two LED branches share the same VCC (red rail) and the same GND (blue rail). The tests also measure voltages: VCC is about 9V relative to GND; the LED cathodes sit on GND, so they are at 0V.",
-      "steps": [
-        "Battery + to the red rail at tp1, − to the blue rail at tn1. From now on: the whole red rail = VCC (+9V), the whole blue rail = GND (0V).",
-        "First branch: red jumper tp5 → a5, bringing VCC to column 5.",
-        "R1 (470Ω) goes between c5 and c8; the red LED1's long lead goes in d8 and its short lead in d10.",
-        "Blue jumper a10 → tn10: LED1's cathode goes back to GND. This is its return path.",
-        "The second branch is exactly the same, just further right: tp15 → a15, R2 in c15–c18, yellow LED2 long lead d18, short lead d20.",
-        "Blue jumper a20 → tn20. Both branches' \"grounds\" go to the same blue rail: two ground symbols on the schematic are one single GND node in the real circuit."
-      ],
-      "hints": [
-        "You don't need to run each branch back to the battery on the red rail: the whole rail is already connected.",
-        "If an LED doesn't light, first check that its cathode has a path to the blue rail."
-      ],
-      "tests": ["Both LEDs on, VCC ≈ 9V, GND = 0V"]
-    }
-  },
-  "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 9 },
-    { "ref": "R1", "type": "resistor", "resistance": "470" },
-    { "ref": "LED1", "type": "led", "color": "red" },
-    { "ref": "R2", "type": "resistor", "resistance": "470" },
-    { "ref": "LED2", "type": "led", "color": "yellow" }
+  "summary": "一个 LED 明明接上了电却不亮——因为电流找不到回家的路。",
+  "concepts": [
+    "GND / ground 地",
+    "0 V reference 参考点",
+    "VCC",
+    "return path 回路",
+    "power rail 电源轨"
   ],
-  "nets": [
-    { "name": "VCC", "pins": ["V1.+", "R1.1", "R2.1"] },
-    { "name": "A", "pins": ["R1.2", "LED1.anode"] },
-    { "name": "B", "pins": ["R2.2", "LED2.anode"] },
-    { "name": "GND", "pins": ["LED1.cathode", "LED2.cathode", "V1.-"] }
-  ],
-  "tests": [
+  "description": "电流从电源 + 出发，必须回到电源 −。电源 − 那一端通常定为 GND（0 V 参考点）。本课先搭一条没有回路的支路，再给它接上回家的路，最后让两条支路共用同一个 GND。",
+  "cards": [
     {
-      "name": "两个 LED 都亮，VCC≈9V，GND=0V",
-      "expect": { "LED1": "on", "LED2": "on" },
-      "voltages": [
-        { "pin": "V1.+", "ref": "V1.-", "min": 8.7, "max": 9.1 },
-        { "pin": "LED1.cathode", "min": -0.05, "max": 0.05 },
-        { "pin": "LED2.cathode", "min": -0.05, "max": 0.05 }
+      "kind": "try",
+      "title": "LED 接上了，为什么不亮？",
+      "text": [
+        "先搭半条支路：电池、跳线、电阻、LED 都插好了，**唯独少一根线**。",
+        "搭完看 LED：它亮不亮？再看右边**诊断**怎么说。"
+      ],
+      "steps": 3
+    },
+    {
+      "kind": "explain",
+      "title": "电流要回家",
+      "text": [
+        "- 电流从电池 **+** 出发，穿过元件，**必须回到电池 −**。只出不回，就一点电流都没有——LED 的短脚悬在空中，圈没有闭合。",
+        "- **电压是两点之间的差。** 说“这里是 9 V”，其实省略了“相对谁”。这个默认的参考点叫 **GND**（地），规定它是 **0 V**。",
+        "- 我们把电池的 **− 端定为 GND**：红轨 = VCC（+9 V），蓝轨 = GND（0 V）。",
+        "- GND 不是大地，也不是“电流消失的地方”。电流到了 GND 还要继续流，回到电池里。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "给它一条回家的路",
+      "text": [
+        "补上回路，再照样搭第二条支路。两条支路的“家”是**同一条蓝轨**。"
+      ],
+      "steps": 3
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 原理图上的接地符号 ⏚ 意思是“接到电源 −”。图上画了五个 ⏚，实物里它们全是**同一个结点**。",
+        "- **LED 不亮，先找回路**：从它的短脚出发，看能不能一路走回电池 −。",
+        "- 习惯：**红线接 +，黑线或蓝线接 −**。真实电路里这能救命——接反电源是烧板子最常见的原因。",
+        "",
+        "下一个：LED 为什么一定要串电阻。"
       ]
     }
   ],
+  "i18n": {
+    "en": {
+      "title": "Power and GND: the way home",
+      "summary": "An LED is connected to power and still stays dark — because the current can't find its way home.",
+      "concepts": [
+        "GND / ground",
+        "0 V reference",
+        "VCC",
+        "return path",
+        "power rail"
+      ],
+      "description": "Current leaves the supply at + and has to get back to −. The supply's − terminal is usually called GND, the 0 V reference. In this lesson you first build a branch with no way back, then give it one, and finally let two branches share the same GND.",
+      "hints": [
+        "You don't need to run each branch back to the battery on the red rail: the whole rail is already connected.",
+        "An LED stays dark? First check that its short lead has a path to the blue rail."
+      ],
+      "tests": [
+        "Both LEDs on, VCC and GND at the right voltages"
+      ],
+      "cards": [
+        {
+          "title": "It's connected — so why is it dark?",
+          "text": [
+            "First build half a branch: battery, jumper, resistor and LED are all in place, **except for one wire**.",
+            "Then look at the LED: is it lit? And what do the **diagnostics** on the right say?"
+          ]
+        },
+        {
+          "title": "Current has to get home",
+          "text": [
+            "- Current leaves the battery at **+**, goes through the parts and **must get back to the battery −**. Out without a way back means no current at all — the LED's short lead is hanging in the air, so the loop is open.",
+            "- **A voltage is a difference between two points.** \"This point is at 9 V\" leaves out \"relative to what\". That default reference point is called **GND** (ground) and it is **0 V** by definition.",
+            "- We make the battery's **− terminal GND**: red rail = VCC (+9 V), blue rail = GND (0 V).",
+            "- GND is not the earth, and it is not \"where current disappears\". At GND the current keeps flowing, back into the battery."
+          ]
+        },
+        {
+          "title": "Give it a way home",
+          "text": [
+            "Close the loop, then build a second branch the same way. Both branches go home to **the same blue rail**."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- The ground symbol ⏚ on a schematic means \"connected to the supply −\". Five ⏚ symbols on a drawing are **one single node** in the real circuit.",
+            "- **LED dark? Look for the loop first**: start at its short lead and check that you can walk all the way back to the battery −.",
+            "- Habit: **red wires for +, black or blue for −**. In real circuits this saves boards — a reversed supply is the most common way to fry one.",
+            "",
+            "Next: why an LED always needs a resistor."
+          ]
+        }
+      ],
+      "steps": [
+        "Pick **Battery**: red lead (+) in **`tp1`**, black lead (−) in **`tn1`**. From now on the whole red rail is +9 V and the whole blue rail is GND.",
+        "Red **jumper**: **`tp5`** → **`a5`**, bringing +9 V to column 5.",
+        "**Resistor R1** (set **`470 Ω`** in Properties) in **`c5`**–**`c8`**; **red LED1** long lead in **`d8`**, short lead in **`d10`**. Is LED1 lit?",
+        "Blue **jumper**: **`a10`** → **`tn10`**. LED1's short lead now has a way back to GND — is it lit now?",
+        "A second branch, further right: red jumper **`tp15`** → **`a15`**; **R2** (**`470 Ω`**) in **`c15`**–**`c18`**; **yellow LED2** long lead **`d18`**, short lead **`d20`**.",
+        "Blue **jumper** **`a20`** → **`tn20`**. Both LEDs are lit, and both go home to **the same blue rail**. Press **Check my circuit**."
+      ],
+      "measurements": [
+        {
+          "ask": "The schematic draws a ground symbol ⏚ under LED1 and another under LED2. On the breadboard they are:",
+          "choices": [
+            "One node: both short leads go through jumpers to the same blue rail",
+            "Two different nodes that just look the same on paper"
+          ],
+          "explain": "Every ground symbol means \"connected to the supply −\". They are one point in the real circuit, which is why it is called one GND node."
+        },
+        {
+          "ask": "What happens if you pull out the blue jumper a10 → tn10?",
+          "choices": [
+            "Both LEDs go out",
+            "Only LED1 goes out; LED2 stays lit",
+            "Only LED2 goes out"
+          ],
+          "explain": "LED2 has its own way home (a20 → tn20). Every branch needs its own path to GND."
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "470"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "470"
+    },
+    {
+      "ref": "LED2",
+      "type": "led",
+      "color": "yellow"
+    }
+  ],
+  "nets": [
+    {
+      "name": "VCC",
+      "pins": [
+        "V1.+",
+        "R1.1",
+        "R2.1"
+      ]
+    },
+    {
+      "name": "A",
+      "pins": [
+        "R1.2",
+        "LED1.anode"
+      ]
+    },
+    {
+      "name": "B",
+      "pins": [
+        "R2.2",
+        "LED2.anode"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "LED1.cathode",
+        "LED2.cathode",
+        "V1.-"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "name": "两个 LED 都亮，VCC 和 GND 的电压正确",
+      "expect": {
+        "LED1": "on",
+        "LED2": "on"
+      },
+      "voltages": [
+        {
+          "pin": "V1.+",
+          "ref": "V1.-",
+          "min": 8.7,
+          "max": 9.1
+        },
+        {
+          "pin": "LED1.cathode",
+          "min": -0.05,
+          "max": 0.05
+        },
+        {
+          "pin": "LED2.cathode",
+          "min": -0.05,
+          "max": 0.05
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "onenode",
+      "ask": "原理图上 LED1 和 LED2 下面各画了一个接地符号 ⏚。在面包板上，它们是：",
+      "choices": [
+        "同一个结点：两个短脚都通过跳线接到同一条蓝轨",
+        "两个不同的结点，只是画法一样"
+      ],
+      "correct": 0,
+      "explain": "所有接地符号都表示“接到电源 −”。它们在实物里是同一个点，所以叫同一个 GND 结点。"
+    },
+    {
+      "id": "pullout",
+      "ask": "如果拔掉 a10 → tn10 那根蓝跳线，会怎样？",
+      "choices": [
+        "两个 LED 都灭",
+        "只有 LED1 灭，LED2 照样亮",
+        "只有 LED2 灭"
+      ],
+      "correct": 1,
+      "explain": "LED2 有自己的回路（a20 → tn20），不受影响。每条支路都要有自己通往 GND 的路。"
+    }
+  ],
   "steps": [
-    { "text": "电池 + 接红轨 tp1，− 接蓝轨 tn1。从现在起：整条红轨 = VCC（+9V），整条蓝轨 = GND（0V）。", "highlight": ["tp1", "tn1"] },
-    { "text": "第一条支路：红色跳线 tp5 → a5，把 VCC 引到第 5 列。", "highlight": ["tp5", "a5"] },
-    { "text": "R1（470Ω）插在 c5 和 c8 之间；红色 LED1 的长脚插 d8、短脚插 d10。", "highlight": ["c5", "c8", "d8", "d10"] },
-    { "text": "蓝色跳线 a10 → tn10：LED1 的负极回到 GND。这就是它的 return path。", "highlight": ["a10", "tn10"] },
-    { "text": "第二条支路完全一样，只是换到右边：tp15 → a15，R2 插 c15–c18，黄色 LED2 长脚 d18、短脚 d20。", "highlight": ["tp15", "a15", "c15", "c18", "d18", "d20"] },
-    { "text": "蓝色跳线 a20 → tn20。两条支路的“地”都接到同一条蓝轨——原理图里两个地符号，实物上就是同一个 GND 结点。", "highlight": ["a20", "tn20"] }
+    {
+      "text": "选**「电池」**：**`tp1`** 放红线（+），**`tn1`** 放黑线（−）。从现在起，整条红轨是 +9 V，整条蓝轨是 GND。",
+      "highlight": [
+        "tp1",
+        "tn1"
+      ],
+      "check": [
+        {
+          "type": "battery",
+          "pins": {
+            "+": "tp1",
+            "-": "tn1"
+          }
+        }
+      ]
+    },
+    {
+      "text": "红色**跳线**：**`tp5`** → **`a5`**，把 +9 V 引到第 5 列。",
+      "highlight": [
+        "tp5",
+        "a5"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "tp5",
+            "b": "a5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**电阻 R1**（属性里设 **`470 Ω`**）插 **`c5`**–**`c8`**；**红色 LED1** 长脚插 **`d8`**，短脚插 **`d10`**。看看 LED1 亮了没有？",
+      "highlight": [
+        "c5",
+        "c8",
+        "d8",
+        "d10"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "c5",
+            "2": "c8"
+          },
+          "resistance": "470"
+        },
+        {
+          "type": "led",
+          "pins": {
+            "anode": "d8",
+            "cathode": "d10"
+          },
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "text": "蓝色**跳线**：**`a10`** → **`tn10`**。LED1 的短脚有路回到 GND 了——它亮了吗？",
+      "highlight": [
+        "a10",
+        "tn10"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a10",
+            "b": "tn10"
+          }
+        }
+      ]
+    },
+    {
+      "text": "第二条支路，换到右边：红跳线 **`tp15`** → **`a15`**；**R2**（**`470 Ω`**）插 **`c15`**–**`c18`**；**黄色 LED2** 长脚 **`d18`**、短脚 **`d20`**。",
+      "highlight": [
+        "tp15",
+        "a15",
+        "c15",
+        "c18",
+        "d18",
+        "d20"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "tp15",
+            "b": "a15"
+          }
+        },
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "c15",
+            "2": "c18"
+          },
+          "resistance": "470"
+        },
+        {
+          "type": "led",
+          "pins": {
+            "anode": "d18",
+            "cathode": "d20"
+          },
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "text": "蓝色**跳线** **`a20`** → **`tn20`**。两个 LED 都亮了，而且它们回到的是**同一条蓝轨**。点**「检查我的电路」**。",
+      "highlight": [
+        "a20",
+        "tn20"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a20",
+            "b": "tn20"
+          }
+        }
+      ]
+    }
   ],
   "hints": [
     "红轨不需要每条支路都连回电池：整条轨道本来就是通的。",
-    "如果某个 LED 不亮，先检查它的负极有没有一条路通到蓝轨。"
+    "某个 LED 不亮？先检查它的短脚有没有一条路通到蓝轨。"
   ],
   "solution": {
     "parts": [
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "470", "pins": { "1": "c5", "2": "c8" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "d8", "cathode": "d10" } },
-      { "type": "wire", "pins": { "a": "a10", "b": "tn10" }, "color": "blue" },
-      { "type": "wire", "pins": { "a": "tp15", "b": "a15" }, "color": "red" },
-      { "type": "resistor", "ref": "R2", "resistance": "470", "pins": { "1": "c15", "2": "c18" } },
-      { "type": "led", "ref": "LED2", "color": "yellow", "pins": { "anode": "d18", "cathode": "d20" } },
-      { "type": "wire", "pins": { "a": "a20", "b": "tn20" }, "color": "blue" }
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp5",
+          "b": "a5"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "470",
+        "pins": {
+          "1": "c5",
+          "2": "c8"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "d8",
+          "cathode": "d10"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a10",
+          "b": "tn10"
+        },
+        "color": "blue"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp15",
+          "b": "a15"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "470",
+        "pins": {
+          "1": "c15",
+          "2": "c18"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED2",
+        "color": "yellow",
+        "pins": {
+          "anode": "d18",
+          "cathode": "d20"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a20",
+          "b": "tn20"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

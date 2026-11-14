@@ -23,7 +23,9 @@ import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { allAnswered, emptyReadings, matchBoard, revalidate, structureKey } from '../core/readings';
 
 import { Md } from './Md';
-import { PlacedChip, Prereqs, StepStatus, useStepChecks } from './StepCheck';
+import { Prereqs, useStepChecks } from './StepCheck';
+import { CardDeck, measureCardOf, StepNav } from './Cards';
+import { placeOf } from '../core/course';
 import { tabListKeys } from './a11y';
 import { Mixed } from './Mixed';
 
@@ -66,8 +68,6 @@ function Stars({ n }: { n: number }) {
 }
 
 function TaskPanel({ ch }: { ch: Challenge }) {
-  const step = useStore((s) => s.step);
-  const setStep = useStore((s) => s.setStep);
   const hintsShown = useStore((s) => s.hintsShown);
   const showHint = useStore((s) => s.showHint);
   const check = useStore((s) => s.check);
@@ -132,10 +132,12 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   }, []);
 
   const nSteps = ch.steps.length;
-  const cur = Math.min(step, Math.max(0, nSteps - 1));
   const sc = useStepChecks(ch);
-  // a step counts as done when its check passed (steps without a check: once passed)
-  const stepDone = (i: number) => (sc.unmet[i] ? sc.done.has(i) : i < cur);
+  // card-style unit (§16): one card at a time; the measurement questions sit on the build card
+  const usesCards = ch.cards.length > 0;
+  const card = useStore((s) => s.card);
+  const onMeasureCard = !usesCards || Math.min(card, ch.cards.length - 1) === measureCardOf(ch.cards);
+  const place = placeOf(ch.id);
 
   return (
     <div className="task">
@@ -147,49 +149,18 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         {completed[ch.id] && <span className="badge done">✓ {tr('已完成', 'Done')}</span>}
         {ch.source !== 'folder' && <span className="badge src">{tr('导入', 'Imported')}</span>}
       </div>
+      {place && (
+        <p className="course-crumb">
+          World {place.world.id} · {place.unit.num} {place.unit.title()}
+          {place.unit.items.length > 1 && <span className="muted"> · {tr(`第 ${place.pos + 1} / ${place.unit.items.length} 项`, `item ${place.pos + 1} of ${place.unit.items.length}`)}</span>}
+        </p>
+      )}
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
       <Prereqs ch={ch} />
       {hasM && <StageBar circuitOk={ms.passed} st={ms} />}
 
-      {nSteps > 0 && (
-        <section className="steps" aria-label={tr('步骤', 'Steps')}>
-          <div className="steps-head">
-            <span className="eyebrow">
-              {tr('步骤', 'Step')} {cur + 1} / {nSteps}
-            </span>
-            <span className="step-dots">
-              {ch.steps.map((_, i) => (
-                <button
-                  key={i}
-                  className={i === cur ? 'cur' : stepDone(i) ? 'done' : ''}
-                  aria-current={i === cur ? 'step' : undefined}
-                  aria-label={tr(`第 ${i + 1} 步`, `Step ${i + 1}`)}
-                  onClick={() => setStep(i)}
-                >
-                  {i !== cur && stepDone(i) ? '✓' : i + 1}
-                </button>
-              ))}
-            </span>
-          </div>
-          <div className="step-cur">
-            {/* only the step text is live (announced on Back / Next); the check list is a status of its own */}
-            <div aria-live="polite">
-              <Md text={ch.steps[cur].text} />
-            </div>
-            <StepStatus unmet={sc.unmet[cur]} />
-            <PlacedChip />
-          </div>
-          <div className="row">
-            <button disabled={cur === 0} onClick={() => setStep(cur - 1)}>
-              <Icon name="prev" /> {tr('上一步', 'Back')}
-            </button>
-            <button className="primary" disabled={cur >= nSteps - 1} onClick={() => setStep(cur + 1)}>
-              {tr('下一步', 'Next')} <Icon name="next" />
-            </button>
-          </div>
-        </section>
-      )}
+      {usesCards ? <CardDeck ch={ch} sc={sc} /> : nSteps > 0 && <StepNav ch={ch} from={0} to={nSteps} sc={sc} />}
 
       {/* a live region that is always there, so the result of every check is announced once */}
       <div className="check-live" aria-live="polite" aria-atomic="false">
@@ -244,14 +215,16 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         </ul>
       )}
 
-      {hasM && <MeasurementSection ch={ch} st={ms} onComplete={complete} />}
+      {hasM && onMeasureCard && <MeasurementSection ch={ch} st={ms} onComplete={complete} />}
 
-      <details className="fold" open>
-        <summary>{ch.kind === 'lesson' ? tr('课程说明', 'About this lesson') : tr('题目说明', 'About this task')}</summary>
-        <Md text={ch.description} />
-      </details>
+      {!usesCards && (
+        <details className="fold" open>
+          <summary>{ch.kind === 'lesson' ? tr('课程说明', 'About this lesson') : tr('题目说明', 'About this task')}</summary>
+          <Md text={ch.description} math />
+        </details>
+      )}
 
-      <details className="fold" open>
+      <details className="fold" open={!usesCards}>
         <summary>
           <Mixed text={tr('目标电路图 TARGET SCHEMATIC', 'Target schematic')} />
         </summary>

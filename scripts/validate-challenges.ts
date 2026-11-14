@@ -146,6 +146,14 @@ function visibleTexts(json: Record<string, unknown>): { where: string; text: str
     if (!o) return;
     for (const k of ['title', 'summary', 'description', 'hints']) add(`${lang}${k}`, o[k]);
     add(`${lang}tests`, o.tests);
+    // card-style units (§16): the cards are what the student reads instead of the description
+    if (Array.isArray(o.cards))
+      o.cards.forEach((c: unknown, i: number) => {
+        if (!c || typeof c !== 'object') return;
+        const card = c as { title?: unknown; text?: unknown };
+        add(`${lang}cards[${i}].title`, card.title);
+        add(`${lang}cards[${i}].text`, Array.isArray(card.text) ? card.text.join('\n') : card.text);
+      });
   };
   scan(json, '');
   for (const [lang, t] of Object.entries((json.i18n as Record<string, Record<string, unknown>>) ?? {})) scan(t, `i18n.${lang}.`);

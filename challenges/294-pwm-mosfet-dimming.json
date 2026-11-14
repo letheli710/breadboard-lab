@@ -30,7 +30,7 @@
     "**先预测**：20 kHz 时 25 %、50 %、100 % 三档电机的平均电流各是多少？续流二极管里分到多少？模型里电机要平均电流 ≥ 0.1 A 才转，哪一档转不起来？关断瞬间漏极最高到多少伏？换成 1 kHz，平均电流和有效值会怎样变？",
     "",
     "**测量**：",
-    "- 电机的**平均电流**（在时域里 `currents` 测的就是平均值，相当于万用表直流档）：它决定转速 / 转矩；",
+    "- 电机的**平均电流**（电流表直流档读到的就是平均值）：它决定转速 / 转矩；",
     "- 续流二极管 D1 的平均电流：MOSFET 关断时电机电流**去了哪里**；",
     "- 电机电流的**有效值**（RMS）：决定线圈发热；1 kHz 和 20 kHz 平均值几乎一样，但 RMS 不一样；",
     "- 引脚平均电压 = D × 3.3 V，MOSFET 漏极的最高电压（被二极管钳在 5 V + 0.7 V）。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
@@ -48,7 +48,7 @@
     "- 电机两端再并一个 100 nF 陶瓷电容吸收电刷火花；5 V 电源上加 ≥ 100 µF 电解电容。",
     "- ESP32：避免用 GPIO0 / 2 / 5 / 12 / 15（上电时的启动配置引脚）驱动 MOSFET，它们上电时可能被拉高或输出脉冲，电机会抖一下。",
     "",
-    "**模型说明**：电机是 8 Ω + 2 mH，没有反电动势（真实电机转起来后会产生和转速成正比的反电动势，电流会比这里小）；“转动”按平均电流 ≥ 0.1 A 判断；MOSFET 没有栅极电容，所以开关是瞬时的、没有开关损耗；`regions` 用直流模型（PWM 按平均值），只在 100 % / 输出低电平时有意义；二极管是 0.65 V + 0.8 Ω。"
+    "**模型说明**：电机是 8 Ω + 2 mH，没有反电动势（真实电机转起来后会产生和转速成正比的反电动势，电流会比这里小）；“转动”按平均电流 ≥ 0.1 A 判断；MOSFET 没有栅极电容，所以开关是瞬时的、没有开关损耗；右侧属性面板显示的工作区用直流模型（PWM 按平均值），只在 100 % / 输出低电平时有意义；二极管是 0.65 V + 0.8 Ω。"
   ],
   "i18n": {
     "en": {
@@ -76,7 +76,7 @@
         "**Predict first**: at 20 kHz, what is the motor's average current at 25 %, 50 % and 100 %? How much of it goes through the flyback diode? The model motor needs an average of at least 0.1 A to turn: which setting doesn't start? How high does the drain go at turn-off? At 1 kHz, how do the average and the RMS current change?",
         "",
         "**Measure**:",
-        "- the motor's **average current** (in the time domain `currents` gives the average, like a DMM on DC amps): it sets speed / torque;",
+        "- the motor's **average current** (what an ammeter on DC reads: the average): it sets speed / torque;",
         "- the average current in D1: **where the motor current goes** while the MOSFET is off;",
         "- the motor's **RMS current**: it sets the winding's heating; 1 kHz and 20 kHz give almost the same average but not the same RMS;",
         "- the pin's average voltage = D × 3.3 V, and the drain's peak voltage (clamped by the diode to 5 V + 0.7 V). Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
