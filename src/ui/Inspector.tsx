@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react';
+import { useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { holeLabel } from '../core/breadboard';
 import { amps, formatSI, ohms, parseValue, resistorBands, volts } from '../core/format';
 import { getLang, tr } from '../core/i18n';
@@ -446,21 +446,6 @@ function useEditorLabels(root: RefObject<HTMLDivElement | null>) {
   });
 }
 
-/** A slider drag (pointer down … up) is one undo step, however many values it passes through. */
-function sliderDrag(e: ReactPointerEvent) {
-  const t = e.target as HTMLElement;
-  if (!(t instanceof HTMLInputElement) || t.type !== 'range') return;
-  const st = useStore.getState();
-  st.beginEdit();
-  const end = () => {
-    window.removeEventListener('pointerup', end);
-    window.removeEventListener('pointercancel', end);
-    useStore.getState().endEdit();
-  };
-  window.addEventListener('pointerup', end);
-  window.addEventListener('pointercancel', end);
-}
-
 export function Inspector() {
   const root = useRef<HTMLDivElement>(null);
   useEditorLabels(root);
@@ -541,7 +526,7 @@ export function Inspector() {
   const src = part.type === 'function_gen' ? undefined : sim.sources.get(part.ref);
   const acI = ac && part.type !== 'scope_probe' && part.type !== 'opamp' ? ac.current(part.ref) : null;
   return (
-    <div className="inspector" ref={root} onPointerDownCapture={sliderDrag}>
+    <div className="inspector" ref={root}>
       <div className="insp-head">
         <PartIcon type={part.type} size={44} />
         <div>

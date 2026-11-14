@@ -319,6 +319,33 @@ const TESTS = {
       await p.waitForTimeout(1000);
       const f1 = await frames(p);
       assert(f1 - f0 >= 5, `mcu: motor spinning, frames advance (${f1 - f0} in 1 s)`);
+      // the MCU inspector's PWM duty slider: one drag = one undo step (window listeners in state/store.ts)
+      const pin = await p.evaluate(() => {
+        const s = window.__bb.store.getState();
+        const b = s.layout.parts.find((x) => /esp32|stm32/.test(x.type));
+        const name = Object.entries(b.props.pins ?? {}).find(([, c]) => c && c.mode === 'pwm')?.[0];
+        s.selectPin(b.id, name);
+        s.setPanel('inspect');
+        return { id: b.id, name };
+      });
+      await p.waitForTimeout(300);
+      const duty = p.locator('.inspector input[type="range"][max="100"]').first();
+      await duty.scrollIntoViewIfNeeded();
+      const dutyOf = () => p.evaluate((q) => window.__bb.store.getState().layout.parts.find((x) => x.id === q.id).props.pins[q.name].duty, pin);
+      const d0 = await dutyOf();
+      const pastD = await p.evaluate(() => window.__bb.store.getState().past.length);
+      const db = await duty.boundingBox();
+      await p.mouse.move(db.x + db.width * 0.5, db.y + db.height / 2);
+      await p.mouse.down();
+      for (let i = 1; i <= 8; i++) await p.mouse.move(db.x + db.width * (0.5 + i * 0.05), db.y + db.height / 2);
+      await p.mouse.up();
+      await p.waitForTimeout(200);
+      const d1 = await dutyOf();
+      const pastD1 = await p.evaluate(() => window.__bb.store.getState().past.length);
+      assert(d1 > d0 + 10 && pastD1 === pastD + 1, `mcu: PWM duty slider ${d0} → ${d1} % in one undo step (${pastD} → ${pastD1})`);
+      await p.keyboard.press('Control+z');
+      await p.waitForTimeout(200);
+      assert((await dutyOf()) === d0, 'mcu: one undo restores the duty ' + d0 + ' %');
       // take the motor off the board: nothing animates, so the frame loop must go idle
       await p.evaluate(() => {
         const s = window.__bb.store.getState();
