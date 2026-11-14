@@ -5,8 +5,10 @@
 // matrix-exponential transient): voltages, currents, impedances, reflection coefficients, powers and
 // extrema at the line ends and section nodes, and the other elements' quantities, must agree.
 // Line constants (Z_c, γ, λ, v …) are not circuit quantities; they are recomputed in tline.test.ts.
-// The transient problems (LC ladder, matrix exponential, several seconds) run only with TLINE_HEAVY=1:
-//   TLINE_HEAVY=1 npx vitest run src/core/analysis/tlineChapter.test.ts
+// Default suite: a fast representative subset (lossy power line, input impedance, open line,
+// hyperbolic solution) on coarse 40-section ladders — βl ≤ 1 rad there, so the π-ladder error
+// (≈ (βl/N)²/12 < 1e-4) is far inside the 0.3 % tolerance. The full run (all 14 problems, 100
+// sections, the transient problems on LC ladders) is `npm run test:slow` (TLINE_HEAVY=1; own CI job).
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +24,9 @@ import { lineAt, parseLine } from './tline';
 
 const DIR = fileURLToPath(new URL('../../../problems/transmission-line/', import.meta.url));
 const HEAVY = process.env.TLINE_HEAVY === '1';
-const files = readdirSync(DIR).filter((f) => f.endsWith('.json') && !f.startsWith('_'));
+const all = readdirSync(DIR).filter((f) => f.endsWith('.json') && !f.startsWith('_'));
+const FAST = ['03-', '05-', '07-', '10-'];
+const files = HEAVY ? all : all.filter((f) => FAST.some((p) => f.startsWith(p)));
 
 /** Replace every TL by n π-sections; ammeters A_<ref>_in / A_<ref>_out carry the end currents (in +x),
  *  nodes <ref>~k (k = 0..n) are the line's top conductor at x = k·l/n, bottom = the start's n1 node. */
@@ -70,8 +74,8 @@ const near = (a: number, b: number, rel: number, absTol: number) => Math.abs(a -
 
 describe('transmission-line chapter: every circuit answer again with lumped π-section ladders', () => {
   it('has 12–15 problems', () => {
-    expect(files.length).toBeGreaterThanOrEqual(12);
-    expect(files.length).toBeLessThanOrEqual(15);
+    expect(all.length).toBeGreaterThanOrEqual(12);
+    expect(all.length).toBeLessThanOrEqual(15);
   });
 
   let checkedAc = 0;
@@ -83,8 +87,7 @@ describe('transmission-line chapter: every circuit answer again with lumped π-s
         const p = JSON.parse(readFileSync(join(DIR, file), 'utf8')) as ProblemFile;
         const { netlist } = extractNetlist(p.schematic);
         const tran = p.analysis.type === 'tran';
-        if (tran && !HEAVY) return;
-        const N = tran ? 60 : 100;
+        const N = tran ? 60 : HEAVY ? 100 : 40;
         const lad = ladderize(netlist, N);
         const trn = tran ? new Transient(new Circuit(lad.net)) : null;
         const sols = new Map<number, CircuitSolution>();
@@ -191,7 +194,7 @@ describe('transmission-line chapter: every circuit answer again with lumped π-s
     );
 
   it('checked enough answers this way', () => {
-    expect(checkedAc).toBeGreaterThanOrEqual(30);
+    expect(checkedAc).toBeGreaterThanOrEqual(HEAVY ? 30 : 12);
     if (HEAVY) expect(checkedTran).toBeGreaterThanOrEqual(8);
   });
 });

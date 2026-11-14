@@ -4,7 +4,9 @@ import { describe, expect, it } from 'vitest';
 import type { Analysis, Complex, Find } from '../problem/types';
 import { abs, cx, div, mul } from './complex';
 import { computeComplex, computeQuantity } from './engine';
+import { Circuit } from './circuit';
 import { cosh, lineAt, parseLine, sinh } from './tline';
+import { Transient } from './transient';
 import { net, type Spec } from './testutil';
 
 const close = (a: number, b: number, rel = 1e-9, absTol = 1e-9) => expect(Math.abs(a - b), `${a} vs ${b}`).toBeLessThanOrEqual(Math.max(rel * Math.abs(b), absTol));
@@ -263,8 +265,10 @@ describe('transmission line: transient by the bounce diagram', () => {
     close(computeQuantity(n, tr, { kind: 'v', nodes: ['b'], t: 1.2 * T } as Find), 10);
   });
 
-  it('agrees with a fine lumped LC ladder (exact matrix-exponential transient) on the plateaus', () => {
-    const N = 60;
+  it('agrees with a lumped LC ladder (exact matrix-exponential transient) on the plateaus', () => {
+    // 24 sections: the ladder's cut-off ω = 2N/T puts its Gibbs ringing at ≈ T/7.6, so a plateau
+    // average over ±0.3T (13 samples) leaves < 2 % of the step; one Transient object serves every instant
+    const N = 24;
     const L0 = 50 / 2e8;
     const C0 = 1 / (50 * 2e8);
     const d = 200 / N;
@@ -275,14 +279,13 @@ describe('transmission line: transient by the bounce diagram', () => {
     ];
     for (let k = 0; k < N; k++) specs.push({ ref: `L${k}`, type: 'L', nodes: [`m${k}`, `m${k + 1}`], value: L0 * d });
     for (let k = 0; k <= N; k++) specs.push({ ref: `C${k}`, type: 'C', nodes: [`m${k}`, '0'], value: C0 * d * (k === 0 || k === N ? 0.5 : 1) });
-    const lad = net(specs);
+    const lad = new Transient(new Circuit(net(specs)));
     const exact = mk(25, { ref: 'RL', type: 'R', nodes: ['b', '0'], value: 150 });
-    // the ladder rings (Gibbs) after every front: compare plateau averages over (t − 0.3T, t + 0.3T)
     for (const t of [1.5 * T, 3.5 * T, 5.5 * T]) {
       let ul = 0;
-      for (let k = -6; k <= 6; k++) ul += computeQuantity(lad, tr, { kind: 'v', nodes: [`m${N}`], t: t + (k / 20) * T } as Find) / 13;
+      for (let k = -6; k <= 6; k++) ul += lad.at(t + (k / 20) * T).v(`m${N}`).re / 13;
       const ue = q(exact, 'u', 200, t);
       expect(Math.abs(ul - ue) / ue, `t = ${t}: ladder ${ul} vs bounce ${ue}`).toBeLessThan(0.02);
     }
-  }, 30_000); // ~4 s alone, over 5 s when the whole suite runs in parallel
+  });
 });

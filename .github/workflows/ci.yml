@@ -30,3 +30,17 @@ jobs:
         run: npm run size
       - name: Formatting (Prettier; run `npm run format` to fix)
         run: npm run format:check
+
+  slow-crosschecks:
+    # heavy second-route checks kept out of the default suite (non-blocking for the check job)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Transmission-line chapter on fine RLGC / LC ladders (npm run test:slow)
+        run: npm run test:slow

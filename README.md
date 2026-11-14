@@ -67,6 +67,7 @@ Ids are the files' `id` (URI-encoded); an unknown id shows a toast and opens the
 
 ```bash
 npm test             # 引擎单元测试（vitest）+ 所有内置题目的验证（npm run validate）
+npm run test:slow    # 慢的第二路线核对（均匀传输线各题换成细分的集总 RLGC/LC 链路；CI 里单独一个 job）
 npm run lint         # ESLint（typescript-eslint + react-hooks）
 npm run format:check # Prettier 格式检查（CI 必须通过；`npm run format` 自动修正。题目 / 要点 JSON、schema 和 Markdown 不参与，见 .prettierignore）
 npm run build        # 类型检查 + 生产构建（dist/）
