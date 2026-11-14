@@ -36,18 +36,18 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "Uo", "ask": "|U_o| = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 1, "unit": "V", "explain": "解出 U̇_o = −j1 V，|U_o| = 1 V（只有输入的一半）。" },
-    { "id": "Uoph", "ask": "U_o 的相位 = ?", "find": { "kind": "v", "nodes": ["o"], "part": "phase" }, "answer": -90, "unit": "°", "explain": "U̇_o/U̇_s = 1/(1 − ω²R_{1}R_{2}C_{1}C_{2} + jωC_2(R_1 + R_2)) = 1/(1 − 1 + j2) = −j0.5，所以 U̇_o = 1∠−90° V。" },
-    { "id": "Um", "ask": "|U_m| = ?", "find": { "kind": "v", "nodes": ["m"] }, "answer": 1.414214, "unit": "V", "explain": "结点 p：(U̇_m − U̇_o)/R_2 = jωC_2·U̇_o → U̇_m = (1 + jωR_{2}C_{2})U̇_o = (1 + j)(−j) = 1 − j V，|U_m| = 1.414 V。" },
-    { "id": "IC1", "ask": "C_1 中电流的有效值 I_C1 = ?", "find": { "kind": "i", "el": "C1" }, "answer": 0.001, "unit": "mA", "explain": "İ_C1 = jωC_1(U̇_m − U̇_o) = j1 mS × (1 − j + j) V = j1 mA，有效值 1 mA，超前 U_s 90°。" }
+    { "id": "Uo", "ask": "|U̇_o| = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 1, "unit": "V", "explain": "解出 U̇_o = −j1 V，|U̇_o| = 1 V（只有输入的一半）。" },
+    { "id": "Uoph", "ask": "U̇_o 的相位 = ?", "find": { "kind": "v", "nodes": ["o"], "part": "phase" }, "answer": -90, "unit": "°", "explain": "U̇_o/U̇_s = 1/(1 − ω²R_{1}R_{2}C_{1}C_{2} + jωC_2(R_1 + R_2)) = 1/(1 − 1 + j2) = −j0.5，所以 U̇_o = 1∠−90° V。" },
+    { "id": "Um", "ask": "|U̇_m| = ?", "find": { "kind": "v", "nodes": ["m"] }, "answer": 1.414214, "unit": "V", "explain": "结点 p：(U̇_m − U̇_o)/R_2 = jωC_2·U̇_o → U̇_m = (1 + jωR_{2}C_{2})U̇_o = (1 + j)(−j) = 1 − j V，|U̇_m| = 1.414 V。" },
+    { "id": "IC1", "ask": "C_1 中电流的有效值 I_C1 = ?", "find": { "kind": "i", "el": "C1" }, "answer": 0.001, "unit": "mA", "explain": "İ_C1 = jωC_1(U̇_m − U̇_o) = j1 mS × (1 − j + j) V = j1 mA，有效值 1 mA，超前 U̇_s 90°。" }
   ],
   "hints": [
     "跟随器：U_{−} = U_o，虚短 U_p = U_{+} = U_{−}，所以 U_p = U_o；虚断：结点 p 不向运放输入端流出电流。",
-    "结点 p 只有 R_2 和 C_2：(U̇_m − U̇_o)/R_2 = jωC_2·U̇_o，先用 U_o 表示 U_m。",
+    "结点 p 只有 R_2 和 C_2：(U̇_m − U̇_o)/R_2 = jωC_2·U̇_o，先用 U̇_o 表示 U̇_m。",
     "结点 m：(U̇_s − U̇_m)/R_1 = (U̇_m − U̇_o)/R_2 + jωC_1(U̇_m − U̇_o)。注意 C_1 的另一端接的是输出 o，不是地。"
   ],
   "solution": [
-    "**1. 已知量。** 1/R = 1 mS，jωC = j1 mS（ωRC = 1）。跟随器 + 虚短：U_p = U_o。",
+    "**1. 已知量。** 1/R = 1 mS，jωC = j1 mS（ωRC = 1）。跟随器 + 虚短：U̇_p = U̇_o。",
     "**2. 结点 p（虚断）。** (U̇_m − U̇_o)/R_2 = jωC_2·U̇_o → U̇_m = (1 + jωR_{2}C_{2})U̇_o = **(1 + j)U̇_o**。",
     "**3. 结点 m。** (U̇_s − U̇_m)·1 mS = (U̇_m − U̇_o)·1 mS + (U̇_m − U̇_o)·j1 mS，即 U̇_s − U̇_m = (1 + j)(U̇_m − U̇_o)。",
     "代入 U̇_m − U̇_o = jU̇_o：U̇_s − (1 + j)U̇_o = (1 + j)·jU̇_o = (−1 + j)U̇_o → U̇_s = j2U̇_o → **U̇_o = U̇_s/(j2) = −j1 V = 1∠−90° V**。",
@@ -64,18 +64,18 @@
         "Use nodal analysis to find the rms value and phase of the output voltage U_o, the voltage U_m of node m, and the current I_C1 in C_1 (reference direction as drawn)."
       ],
       "questions": [
-        { "ask": "|U_o| = ?", "explain": "The solution is U̇_o = −j1 V, |U_o| = 1 V (half the input)." },
-        { "ask": "Phase of U_o = ?", "explain": "U̇_o/U̇_s = 1/(1 − ω²R_{1}R_{2}C_{1}C_{2} + jωC_2(R_1 + R_2)) = 1/(1 − 1 + j2) = −j0.5, so U̇_o = 1∠−90° V." },
-        { "ask": "|U_m| = ?", "explain": "Node p: (U̇_m − U̇_o)/R_2 = jωC_2·U̇_o → U̇_m = (1 + jωR_{2}C_{2})U̇_o = (1 + j)(−j) = 1 − j V, |U_m| = 1.414 V." },
-        { "ask": "rms current in C_1, I_C1 = ?", "explain": "İ_C1 = jωC_1(U̇_m − U̇_o) = j1 mS × (1 − j + j) V = j1 mA: 1 mA rms, leading U_s by 90°." }
+        { "ask": "|U̇_o| = ?", "explain": "The solution is U̇_o = −j1 V, |U̇_o| = 1 V (half the input)." },
+        { "ask": "Phase of U̇_o = ?", "explain": "U̇_o/U̇_s = 1/(1 − ω²R_{1}R_{2}C_{1}C_{2} + jωC_2(R_1 + R_2)) = 1/(1 − 1 + j2) = −j0.5, so U̇_o = 1∠−90° V." },
+        { "ask": "|U̇_m| = ?", "explain": "Node p: (U̇_m − U̇_o)/R_2 = jωC_2·U̇_o → U̇_m = (1 + jωR_{2}C_{2})U̇_o = (1 + j)(−j) = 1 − j V, |U̇_m| = 1.414 V." },
+        { "ask": "rms current in C_1, I_C1 = ?", "explain": "İ_C1 = jωC_1(U̇_m − U̇_o) = j1 mS × (1 − j + j) V = j1 mA: 1 mA rms, leading U̇_s by 90°." }
       ],
       "hints": [
         "Follower: U_{−} = U_o, and the virtual short gives U_p = U_{+} = U_{−}, so U_p = U_o; the virtual open means no current leaves node p into the op-amp input.",
-        "Node p has only R_2 and C_2: (U̇_m − U̇_o)/R_2 = jωC_2·U̇_o; express U_m in terms of U_o first.",
+        "Node p has only R_2 and C_2: (U̇_m − U̇_o)/R_2 = jωC_2·U̇_o; express U̇_m in terms of U̇_o first.",
         "Node m: (U̇_s − U̇_m)/R_1 = (U̇_m − U̇_o)/R_2 + jωC_1(U̇_m − U̇_o). Note that the other end of C_1 is the output o, not ground."
       ],
       "solution": [
-        "**1. Data.** 1/R = 1 mS, jωC = j1 mS (ωRC = 1). Follower + virtual short: U_p = U_o.",
+        "**1. Data.** 1/R = 1 mS, jωC = j1 mS (ωRC = 1). Follower + virtual short: U̇_p = U̇_o.",
         "**2. Node p (virtual open).** (U̇_m − U̇_o)/R_2 = jωC_2·U̇_o → U̇_m = (1 + jωR_{2}C_{2})U̇_o = **(1 + j)U̇_o**.",
         "**3. Node m.** (U̇_s − U̇_m)·1 mS = (U̇_m − U̇_o)·1 mS + (U̇_m − U̇_o)·j1 mS, i.e. U̇_s − U̇_m = (1 + j)(U̇_m − U̇_o).",
         "With U̇_m − U̇_o = jU̇_o: U̇_s − (1 + j)U̇_o = (1 + j)·jU̇_o = (−1 + j)U̇_o → U̇_s = j2U̇_o → **U̇_o = U̇_s/(j2) = −j1 V = 1∠−90° V**.",
