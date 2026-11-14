@@ -9,7 +9,7 @@ import { isFloating } from '../core/netlist';
 import { MCU_BOARDS, adcRaw, isOutputMode, modeName, modesFor, pinConfig, type McuPinDef, type McuType } from '../core/mcu';
 import type { LogicLevel, McuState, PinState, RegMode } from '../core/solver';
 import type { MosfetModel, PartProps, PartType, PinConfig, PinMode, PlacedPart } from '../core/types';
-import { useDerived } from '../state/derived';
+import { pinReadout, useDerived } from '../state/derived';
 import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { HiddenReadingsNote } from './HiddenReadings';
 import { useStore } from '../state/store';
@@ -183,6 +183,7 @@ function PinRow({
   part,
   def,
   ps,
+  rd,
   wired,
   net,
   selected,
@@ -193,6 +194,8 @@ function PinRow({
   part: PlacedPart;
   def: McuPinDef;
   ps?: PinState;
+  /** voltage / current to show: time averages under PWM or a generator (pinReadout) */
+  rd?: { voltage: number; current: number; averaged: boolean };
   wired: boolean;
   net?: string;
   selected: boolean;
@@ -244,8 +247,13 @@ function PinRow({
           {ps ? (
             <>
               {isOut && cfg.openDrain && <span className="pbadge b-note">OD</span>}
-              <span>{volts(ps.voltage)}</span>
-              <span title={tr('流出引脚为正，流入（灌电流）为负', 'positive = out of the pin, negative = into it (sinking)')}>{mA(ps.current)}</span>
+              {rd?.averaged && (
+                <span className="pbadge b-note" title={tr('时域仿真的平均值（万用表直流档读到的值）', 'time-domain average (what a multimeter on DC shows)')}>
+                  {tr('平均', 'avg')}
+                </span>
+              )}
+              <span>{volts(rd?.voltage ?? ps.voltage)}</span>
+              <span title={tr('流出引脚为正，流入（灌电流）为负', 'positive = out of the pin, negative = into it (sinking)')}>{mA(rd?.current ?? ps.current)}</span>
               {cfg.mode === 'pwm' ? null : cfg.mode === 'adc' && ps.adc ? (
                 <span className="pin-adc">{adc(ps.adc)}</span>
               ) : (
@@ -253,7 +261,7 @@ function PinRow({
               )}
               {cfg.mode === 'pwm' && (
                 <span className="pin-adc">
-                  PWM {cfg.duty.toFixed(0)}% · {formatSI(cfg.frequency, 'Hz')} · {tr('平均', 'avg')}
+                  PWM {cfg.duty.toFixed(0)}% · {formatSI(cfg.frequency, 'Hz')}
                 </span>
               )}
             </>
@@ -478,6 +486,7 @@ export function McuInspector({ part }: { part: PlacedPart }) {
             part={part}
             def={b.pins[pin]}
             ps={st?.pins.get(pin)}
+            rd={st?.pins.get(pin) ? pinReadout(d, part.ref, pin, st.pins.get(pin)!) : undefined}
             wired={wiredNet(pin)}
             net={netOf(pin)}
             selected={selectedPin === pin}

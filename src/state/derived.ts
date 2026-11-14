@@ -153,6 +153,23 @@ export function ammeterAc(d: Pick<Derived, 'ac'>, ref: string): MeterReading | n
   return d.ac?.meters.get(ref) ?? null;
 }
 
+/** A dev-board pin's voltage (to the board's GND) and current out of the pin, as a multimeter
+ *  shows them: time averages when the board runs in the time domain (PWM, a generator), else the
+ *  DC values. Under PWM the DC model's numbers (duty × 3.3 V behind the output resistance) are
+ *  not what the circuit does — an LED that conducts during each high would show 0 mA. */
+export function pinReadout(d: Pick<Derived, 'ac'>, ref: string, pin: string, dc: { voltage: number; current: number }): { voltage: number; current: number; averaged: boolean } {
+  const ac = d.ac;
+  if (!ac) return { voltage: dc.voltage, current: dc.current, averaged: false };
+  try {
+    const voltage = ac.measure('vavg', `${ref}.${pin}`, `${ref}.GND`);
+    const tr = ac.pinCurrent(`${ref}.${pin}`);
+    if (!Number.isFinite(voltage)) return { voltage: dc.voltage, current: dc.current, averaged: false };
+    return { voltage, current: tr ? vavg(tr) : dc.current, averaged: true };
+  } catch {
+    return { voltage: dc.voltage, current: dc.current, averaged: false };
+  }
+}
+
 /** Average (DC) value and peak-to-peak swing of a node under AC. */
 export interface NodeAc {
   avg: number;
