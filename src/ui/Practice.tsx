@@ -2,7 +2,7 @@
 // Left: chapters grouped by course phase with progress. Main: the problem card — statement,
 // schematic, questions with answer checking, progressive hints and the worked solution.
 
-import { lazy, Suspense, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import { lazy, Suspense, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { radioFocusKeys } from './a11y';
 import { formatSI } from '../core/format';
 import { tr } from '../core/i18n';
@@ -10,6 +10,7 @@ import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
 import { answerTolerance, checkAnswer, formatAnswer, isPhaseQuestion, type AnswerCheck, type Problem } from '../core/problem/parse';
 import type { Analysis, Question } from '../core/problem/types';
 import { useMastery } from '../state/masteryStore';
+import { dueNotes } from '../state/mastery';
 import { countsAsDone, problemStatus, type QStatus } from '../state/practice';
 import { exportProgress, parseProgress } from '../state/progressFile';
 import { ensureProblemIndex, entryTitle, useProblem, type ProblemEntry } from '../state/problems';
@@ -25,6 +26,7 @@ import { prefersReducedMotion, revealIn, useUserScroll } from './reveal';
 import { PrMd, Sym } from './richText';
 import { SummaryPage } from './Summary';
 import { MasteryNav } from './mastery/MasteryNav';
+import { SymbolKeys } from './SymbolKeys';
 
 // the notebook / review / quiz pages are a chunk of their own
 const MasteryPage = lazy(() => import('./mastery/MasteryPage'));
@@ -407,6 +409,13 @@ function PhoneNav({
 }) {
   const open = useStore((s) => s.openProblem);
   const practiceDone = useStore((s) => s.practiceDone);
+  const view = useStore((s) => s.practiceView);
+  const notes = useMastery((s) => s.data.notes);
+  const day = useMastery((s) => s.day);
+  const due = dueNotes({ v: 1, notes, quizzes: [] }, day).length;
+  // notebook / review / quiz: a menu above the bar (the sidebar links live in the drawer)
+  const [menu, setMenu] = useState(false);
+  useEffect(() => setMenu(false), [view, current?.id, summary]);
   let prev: ProblemEntry | null = null;
   let next: ProblemEntry | null = null;
   let pos = '';
@@ -424,8 +433,17 @@ function PhoneNav({
   return (
     <nav className="pr-phone-nav" aria-label={tr('题目导航', 'Problem navigation')}>
       <button className={drawer ? 'on' : ''} aria-expanded={drawer} onClick={() => setDrawer(!drawer)}>
-        <Icon name="book" size={18} /> {tr('题目列表', 'Problems')}
+        <Icon name="book" size={18} /> {tr('题目', 'Problems')}
       </button>
+      <button className={`pr-phone-review ${menu || view ? 'on' : ''}`} aria-expanded={menu} onClick={() => setMenu(!menu)}>
+        <Icon name="target" size={18} /> {tr('复习', 'Review')}
+        {due > 0 && <b aria-label={tr(`${due} 道今日到期`, `${due} due today`)}>{due}</b>}
+      </button>
+      {menu && (
+        <div className="pr-phone-menu">
+          <MasteryNav />
+        </div>
+      )}
       <span className="pr-phone-pos">{pos}</span>
       <button disabled={!prev} onClick={() => prev && open(prev.id)} aria-label={tr('上一题', 'Previous problem')}>
         <Icon name="prev" size={18} />
@@ -451,51 +469,6 @@ function KeyPointsLink({ p, label }: { p: Problem; label?: string }) {
     >
       <Icon name="book" size={15} /> {label ?? tr('本章要点', 'Chapter key points')}
     </button>
-  );
-}
-
-/** Symbols that are hard to type on a phone keyboard (the answer reader accepts all of them). */
-const SYMBOL_KEYS: { text: string; label?: string }[] = [
-  { text: '√' },
-  { text: 'π' },
-  { text: '∠' },
-  { text: '°' },
-  { text: 'µ' },
-  { text: 'Ω' },
-  { text: '×10^', label: '×10ⁿ' },
-  { text: '(' },
-  { text: ')' },
-];
-
-/** A row of insert buttons under an answer field (touch screens only, while the field has focus).
- *  The buttons don't take focus, so the on-screen keyboard stays up. */
-function SymbolKeys({ input, onChange }: { input: RefObject<HTMLInputElement | null>; onChange: (v: string) => void }) {
-  const insert = (t: string) => {
-    const el = input.current;
-    if (!el) return;
-    const a = el.selectionStart ?? el.value.length;
-    const b = el.selectionEnd ?? a;
-    onChange(el.value.slice(0, a) + t + el.value.slice(b));
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(a + t.length, a + t.length);
-    });
-  };
-  return (
-    <div className="pr-symkeys" role="group" aria-label={tr('插入符号', 'Insert a symbol')}>
-      {SYMBOL_KEYS.map((k) => (
-        <button
-          key={k.text}
-          type="button"
-          tabIndex={-1}
-          onPointerDown={(e) => e.preventDefault()}
-          onClick={() => insert(k.text)}
-          aria-label={tr(`插入 ${k.text}`, `Insert ${k.text}`)}
-        >
-          {k.label ?? k.text}
-        </button>
-      ))}
-    </div>
   );
 }
 

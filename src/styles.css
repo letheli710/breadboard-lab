@@ -4079,7 +4079,7 @@ button.primary:focus-visible,
   border: none;
   background: none;
   padding: 0;
-  color: var(--accent);
+  color: var(--accent-ink);
   text-decoration: underline;
   cursor: pointer;
   font: inherit;
@@ -4370,6 +4370,10 @@ button.primary:focus-visible,
 /* ---------- accessibility helpers ---------- */
 .sr-only {
   position: absolute !important;
+  /* pinned to its containing block's corner: left at its static place, a span inside a scrolling
+     table or strip would sit past the strip's edge and widen the page on a phone */
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
   padding: 0;
@@ -4464,4 +4468,34 @@ h1[tabindex='-1']:focus:not(:focus-visible) {
 .table-scroll {
   max-width: 100%;
   overflow-x: auto;
+}
+
+/* phone bar: notebook / review / quiz menu */
+@media (max-width: 900px) {
+  .pr-phone-review b {
+    background: var(--warn, #c98a1a);
+    color: #fff;
+    border-radius: 99px;
+    padding: 0 6px;
+    font-size: 12px;
+    margin-left: 2px;
+  }
+  .pr-phone-menu {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: calc(100% + 6px);
+    padding: 8px;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 -6px 18px rgba(31, 42, 68, 0.14);
+  }
+  .pr-phone-menu .ms-nav {
+    margin: 0;
+    flex-wrap: wrap;
+  }
+  .pr-phone-menu .ms-navitem {
+    min-height: 44px;
+  }
 }

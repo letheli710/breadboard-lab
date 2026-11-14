@@ -2,7 +2,7 @@
 // statement and drawing (no hints, no solution), a question part answered "blind" with the normal
 // feedback afterwards, and the feedback / solution view used after a quiz.
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { tr } from '../../core/i18n';
 import { formatAnswer, type AnswerCheck } from '../../core/problem/answer';
 import type { Problem } from '../../core/problem/parse';
@@ -16,6 +16,7 @@ import { GraphFigure } from '../GraphFigure';
 import { Icon } from '../Icons';
 import { ProblemSchematic } from '../ProblemSchematic';
 import { PrMd, Sym } from '../richText';
+import { SymbolKeys } from '../SymbolKeys';
 import { UiPlot } from '../UiPlot';
 
 /** The full problem of an index entry (null while loading; an error text when it can't load). */
@@ -135,6 +136,7 @@ export function AnswerInput({
   label: string;
   disabled?: boolean;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
   if (q.choices)
     return (
       <div className="pr-choices" role="radiogroup" aria-label={label}>
@@ -158,6 +160,7 @@ export function AnswerInput({
     >
       <div className="pr-input">
         <input
+          ref={inputRef}
           value={input}
           spellCheck={false}
           autoComplete="off"
@@ -173,6 +176,7 @@ export function AnswerInput({
           <Icon name="check" size={16} /> {tr('检查', 'Check')}
         </button>
       )}
+      <SymbolKeys input={inputRef} onChange={onInput} />
     </form>
   );
 }
