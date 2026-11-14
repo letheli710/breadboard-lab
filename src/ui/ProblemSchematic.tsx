@@ -2,6 +2,7 @@
 // The picture uses the same geometry rules as extractNetlist (junction dots come from
 // junctionPoints), so what the student sees is exactly the circuit the engine solves.
 
+import { FigureFrame } from './FigureFrame';
 import { useMemo, type ReactNode } from 'react';
 import { parseNum } from '../core/analysis/circuit';
 import { formatSI } from '../core/format';
@@ -423,7 +424,7 @@ export function ProblemSchematic({ schematic, highlight, className }: Props) {
   const hlKey = (highlight ?? []).join('|');
   const out = useMemo(() => drawSchematic(schematic, new Set(highlight ?? [])), [schematic, hlKey, lang]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <div className={`ps-wrap ${className ?? ''}`}>
+    <FigureFrame label={tr('电路图', 'Circuit diagram')} className={`ps-wrap ${className ?? ''}`}>
       <svg
         className="ps-svg"
         viewBox={`${out.box.x0} ${out.box.y0} ${out.box.x1 - out.box.x0} ${out.box.y1 - out.box.y0}`}
@@ -433,7 +434,7 @@ export function ProblemSchematic({ schematic, highlight, className }: Props) {
       >
         {out.body}
       </svg>
-    </div>
+    </FigureFrame>
   );
 }
 

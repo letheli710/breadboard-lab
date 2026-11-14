@@ -2,7 +2,7 @@
 // Left: chapters grouped by course phase with progress. Main: the problem card — statement,
 // schematic, questions with answer checking, progressive hints and the worked solution.
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { formatSI } from '../core/format';
 import { tr } from '../core/i18n';
 import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
@@ -367,6 +367,53 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
   );
 }
 
+/** Phones / narrow tablets: a bar at the bottom, in thumb reach — the problem list (a drawer) and
+ *  previous / next problem. Hidden on wide screens, where the sidebar and header buttons do this. */
+function PhoneNav({
+  problems,
+  current,
+  summary,
+  drawer,
+  setDrawer,
+}: {
+  problems: ProblemEntry[];
+  current: ProblemEntry | null;
+  summary: string | null;
+  drawer: boolean;
+  setDrawer: (v: boolean) => void;
+}) {
+  const open = useStore((s) => s.openProblem);
+  const practiceDone = useStore((s) => s.practiceDone);
+  let prev: ProblemEntry | null = null;
+  let next: ProblemEntry | null = null;
+  let pos = '';
+  if (summary) {
+    const first = problems.findIndex((x) => x.chapter === summary);
+    next = first < 0 ? null : problems[first];
+    prev = first < 1 ? null : problems[first - 1];
+    pos = tr('要点', 'Key points');
+  } else if (current) {
+    const n = neighbours(problems, current.id, (x) => !!practiceDone[x.id]);
+    prev = n.prev;
+    next = n.next;
+    pos = `${n.i + 1} / ${problems.length}`;
+  }
+  return (
+    <nav className="pr-phone-nav" aria-label={tr('题目导航', 'Problem navigation')}>
+      <button className={drawer ? 'on' : ''} aria-expanded={drawer} onClick={() => setDrawer(!drawer)}>
+        <Icon name="book" size={18} /> {tr('题目列表', 'Problems')}
+      </button>
+      <span className="pr-phone-pos">{pos}</span>
+      <button disabled={!prev} onClick={() => prev && open(prev.id)} aria-label={tr('上一题', 'Previous problem')}>
+        <Icon name="prev" size={18} />
+      </button>
+      <button className="primary" disabled={!next} onClick={() => next && open(next.id)} aria-label={tr('下一题', 'Next problem')}>
+        <Icon name="next" size={18} />
+      </button>
+    </nav>
+  );
+}
+
 // ---------------------------------------------------------------- questions
 
 /** "本章要点" link: opens the chapter's key-points page at the key idea that practises this problem. */
@@ -384,6 +431,51 @@ function KeyPointsLink({ p, label }: { p: Problem; label?: string }) {
   );
 }
 
+/** Symbols that are hard to type on a phone keyboard (the answer reader accepts all of them). */
+const SYMBOL_KEYS: { text: string; label?: string }[] = [
+  { text: '√' },
+  { text: 'π' },
+  { text: '∠' },
+  { text: '°' },
+  { text: 'µ' },
+  { text: 'Ω' },
+  { text: '×10^', label: '×10ⁿ' },
+  { text: '(' },
+  { text: ')' },
+];
+
+/** A row of insert buttons under an answer field (touch screens only, while the field has focus).
+ *  The buttons don't take focus, so the on-screen keyboard stays up. */
+function SymbolKeys({ input, onChange }: { input: RefObject<HTMLInputElement | null>; onChange: (v: string) => void }) {
+  const insert = (t: string) => {
+    const el = input.current;
+    if (!el) return;
+    const a = el.selectionStart ?? el.value.length;
+    const b = el.selectionEnd ?? a;
+    onChange(el.value.slice(0, a) + t + el.value.slice(b));
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(a + t.length, a + t.length);
+    });
+  };
+  return (
+    <div className="pr-symkeys" role="group" aria-label={tr('插入符号', 'Insert a symbol')}>
+      {SYMBOL_KEYS.map((k) => (
+        <button
+          key={k.text}
+          type="button"
+          tabIndex={-1}
+          onPointerDown={(e) => e.preventDefault()}
+          onClick={() => insert(k.text)}
+          aria-label={tr(`插入 ${k.text}`, `Insert ${k.text}`)}
+        >
+          {k.label ?? k.text}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 interface QState {
   input: string;
   result: AnswerCheck | null;
@@ -396,6 +488,7 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
   const practiceEvent = useStore((s) => s.practiceEvent);
   useLang();
   const [st0, setSt] = useState<QState>({ input: '', result: null, choice: null, revealed: false });
+  const inputRef = useRef<HTMLInputElement>(null);
   // the feedback text is localised: re-check in the current language instead of keeping old text
   const st = st0.result ? { ...st0, result: checkAnswer(q, st0.input) } : st0;
   const statusBefore = prog?.status;
@@ -460,6 +553,7 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
         >
           <div className={`pr-input ${st.result ? (st.result.ok ? 'ok' : st.result.close ? 'close' : 'bad') : ''}`}>
             <input
+              ref={inputRef}
               value={st.input}
               spellCheck={false}
               autoComplete="off"
@@ -472,6 +566,7 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
           <button type="submit" className="primary" disabled={!st.input.trim()}>
             <Icon name="check" size={16} /> {tr('检查', 'Check')}
           </button>
+          <SymbolKeys input={inputRef} onChange={(v) => setSt({ ...st, input: v, result: null })} />
         </form>
       )}
 
@@ -755,9 +850,18 @@ export function Practice() {
   const indexStatus = useStore((s) => s.problemIndex);
   const practiceDone = useStore((s) => s.practiceDone);
   const openProblem = useStore((s) => s.openProblem);
+  // phones: the chapter list is a drawer, closed again by any move to another page
+  const [drawer, setDrawer] = useState(false);
   useEffect(() => {
     window.scrollTo({ top: 0 });
+    setDrawer(false);
   }, [current?.id, summary?.chapter]);
+  useEffect(() => {
+    if (!drawer) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setDrawer(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [drawer]);
 
   // [ / ] previous / next problem (on a key-points page: the chapter's first problem / the one before it)
   useEffect(() => {
@@ -781,8 +885,10 @@ export function Practice() {
   }, [problems, current, summary, practiceDone, openProblem]);
 
   return (
-    <main className="pr-page">
+    <main className={`pr-page ${drawer ? 'drawer-open' : ''}`}>
       <ChapterList problems={problems} current={current} summary={summary?.chapter ?? null} ready={indexStatus === 'ready'} />
+      <button className="pr-drawer-bg" tabIndex={-1} aria-hidden onClick={() => setDrawer(false)} />
+      <PhoneNav problems={problems} current={current} summary={summary?.chapter ?? null} drawer={drawer} setDrawer={setDrawer} />
       {summary ? (
         <SummaryPage key={summary.chapter} target={summary} problems={problems} />
       ) : current && full?.problem ? (

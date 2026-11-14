@@ -1,6 +1,7 @@
 // u–i characteristic of a nonlinear resistor (schematic.plot): the curve, the load line of the
 // linear part (dashed) and the operating points — computed by the engine (src/core/problem/plot.ts).
 
+import { FigureFrame } from './FigureFrame';
 import { useMemo } from 'react';
 import { tr } from '../core/i18n';
 import { plotData } from '../core/problem/plot';
@@ -37,56 +38,58 @@ export function UiPlot({ schematic }: { schematic: Schematic }) {
   const name = richRuns(plot.el.replace(/^([A-Za-z])(\w+)$/, '$1_$2'));
   return (
     <figure className="uiplot">
-      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={tr(`${plot.el} 的 u–i 特性`, `u–i characteristic of ${plot.el}`)}>
-        <defs>
-          <clipPath id={`uiclip-${plot.el}`}>
-            <rect x={M.l} y={M.t} width={W - M.l - M.r} height={H - M.t - M.b} />
-          </clipPath>
-        </defs>
-        {ticks(u0, u1).map((u) => (
-          <g key={`u${u}`}>
-            <line x1={X(u)} x2={X(u)} y1={M.t} y2={H - M.b} className="uiplot-grid" />
-            <text x={X(u)} y={H - M.b + 14} textAnchor="middle" className="uiplot-tick">
-              {fmt(u)}
-            </text>
-          </g>
-        ))}
-        {ticks(i0 * k, i1 * k).map((i) => (
-          <g key={`i${i}`}>
-            <line x1={M.l} x2={W - M.r} y1={Y(i / k)} y2={Y(i / k)} className="uiplot-grid" />
-            <text x={M.l - 5} y={Y(i / k) + 4} textAnchor="end" className="uiplot-tick">
-              {fmt(i)}
-            </text>
-          </g>
-        ))}
-        <line x1={M.l} x2={W - M.r} y1={ax.y} y2={ax.y} className="uiplot-axis" />
-        <line x1={ax.x} x2={ax.x} y1={M.t} y2={H - M.b} className="uiplot-axis" />
-        <text x={W - M.r} y={H - 4} textAnchor="end" className="uiplot-label">
-          <tspan fontStyle="italic">u</tspan> / V
-        </text>
-        <text x={6} y={M.t + 2} className="uiplot-label" transform={`rotate(-90 6 ${M.t + 2})`} textAnchor="end">
-          <tspan fontStyle="italic">i</tspan> / {plot.iUnit ?? 'A'}
-        </text>
-        <g clipPath={`url(#uiclip-${plot.el})`}>
-          {curve.map((line, n) => (
-            <polyline key={n} points={line.map(([u, i]) => clip(u, i).join(',')).join(' ')} className="uiplot-curve" />
+      <FigureFrame label={tr(`${plot.el} 的 u–i 特性`, `u–i characteristic of ${plot.el}`)}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={tr(`${plot.el} 的 u–i 特性`, `u–i characteristic of ${plot.el}`)}>
+          <defs>
+            <clipPath id={`uiclip-${plot.el}`}>
+              <rect x={M.l} y={M.t} width={W - M.l - M.r} height={H - M.t - M.b} />
+            </clipPath>
+          </defs>
+          {ticks(u0, u1).map((u) => (
+            <g key={`u${u}`}>
+              <line x1={X(u)} x2={X(u)} y1={M.t} y2={H - M.b} className="uiplot-grid" />
+              <text x={X(u)} y={H - M.b + 14} textAnchor="middle" className="uiplot-tick">
+                {fmt(u)}
+              </text>
+            </g>
           ))}
-          {load && <line x1={X(load[0][0])} y1={Y(load[0][1])} x2={X(load[1][0])} y2={Y(load[1][1])} className="uiplot-load" />}
-        </g>
-        {points.map(([u, i], n) => (
-          <g key={n}>
-            <circle cx={X(u)} cy={Y(i)} r={3.6} className="uiplot-q" />
-            <text x={X(u) + 6} y={Y(i) - 6} className="uiplot-qlabel">
-              Q
-              {points.length > 1 ? (
-                <tspan fontSize="0.75em" dy={3}>
-                  {n + 1}
-                </tspan>
-              ) : null}
-            </text>
+          {ticks(i0 * k, i1 * k).map((i) => (
+            <g key={`i${i}`}>
+              <line x1={M.l} x2={W - M.r} y1={Y(i / k)} y2={Y(i / k)} className="uiplot-grid" />
+              <text x={M.l - 5} y={Y(i / k) + 4} textAnchor="end" className="uiplot-tick">
+                {fmt(i)}
+              </text>
+            </g>
+          ))}
+          <line x1={M.l} x2={W - M.r} y1={ax.y} y2={ax.y} className="uiplot-axis" />
+          <line x1={ax.x} x2={ax.x} y1={M.t} y2={H - M.b} className="uiplot-axis" />
+          <text x={W - M.r} y={H - 4} textAnchor="end" className="uiplot-label">
+            <tspan fontStyle="italic">u</tspan> / V
+          </text>
+          <text x={6} y={M.t + 2} className="uiplot-label" transform={`rotate(-90 6 ${M.t + 2})`} textAnchor="end">
+            <tspan fontStyle="italic">i</tspan> / {plot.iUnit ?? 'A'}
+          </text>
+          <g clipPath={`url(#uiclip-${plot.el})`}>
+            {curve.map((line, n) => (
+              <polyline key={n} points={line.map(([u, i]) => clip(u, i).join(',')).join(' ')} className="uiplot-curve" />
+            ))}
+            {load && <line x1={X(load[0][0])} y1={Y(load[0][1])} x2={X(load[1][0])} y2={Y(load[1][1])} className="uiplot-load" />}
           </g>
-        ))}
-      </svg>
+          {points.map(([u, i], n) => (
+            <g key={n}>
+              <circle cx={X(u)} cy={Y(i)} r={3.6} className="uiplot-q" />
+              <text x={X(u) + 6} y={Y(i) - 6} className="uiplot-qlabel">
+                Q
+                {points.length > 1 ? (
+                  <tspan fontSize="0.75em" dy={3}>
+                    {n + 1}
+                  </tspan>
+                ) : null}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </FigureFrame>
       <figcaption>
         {name.map((r, n) => (r.sub ? <sub key={n}>{subQ(r.t)}</sub> : <i key={n}>{r.t}</i>))}
         {tr(' 的 u–i 特性', ' u–i characteristic')}

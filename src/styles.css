@@ -2050,9 +2050,6 @@ button,
 /* ---------- theory-problem schematic (ProblemSchematic.tsx) ---------- */
 .ps-wrap {
   width: 100%;
-  display: flex;
-  justify-content: center;
-  overflow-x: auto;
 }
 .ps-svg {
   display: block;
@@ -3800,4 +3797,228 @@ button.primary:focus-visible,
   font-size: 13px;
   font-style: italic;
   fill: var(--accent);
+}
+
+/* figure frame (FigureFrame.tsx): a figure keeps readable labels and scrolls inside its own box */
+.fig-frame {
+  position: relative;
+  max-width: 100%;
+  min-width: 0;
+}
+.cgraph .fig-frame,
+.uiplot .fig-frame {
+  width: 100%;
+}
+.fig-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+.fig-scroll > svg {
+  display: block;
+  margin: 0 auto;
+}
+.fig-frame.can-scroll .fig-scroll > svg {
+  margin: 0;
+}
+.fig-frame::before,
+.fig-frame::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 34px;
+  width: 16px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+.fig-frame::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(31, 42, 68, 0.18), transparent);
+}
+.fig-frame::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(31, 42, 68, 0.18), transparent);
+}
+.fig-frame.more-left::before,
+.fig-frame.more-right::after {
+  opacity: 1;
+}
+.fig-tools {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.fig-swipe {
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: auto;
+}
+.fig-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  padding: 4px 10px;
+  min-height: 32px;
+  border-radius: 999px;
+  color: var(--ink-2);
+}
+@media (pointer: coarse) {
+  .fig-zoom {
+    min-height: 44px;
+    padding: 6px 14px;
+  }
+}
+.fig-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--paper, #fbf8f1);
+  display: flex;
+  flex-direction: column;
+}
+.fig-viewer-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  padding-top: max(8px, env(safe-area-inset-top));
+  border-bottom: 1.5px solid var(--line);
+}
+.fig-viewer-hint {
+  flex: 1;
+  font-size: 13px;
+  color: var(--muted);
+  min-width: 0;
+}
+.fig-viewer-btn {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 20px;
+  font-weight: 700;
+  justify-content: center;
+}
+.fig-viewer-stage {
+  flex: 1;
+  overflow: hidden;
+  touch-action: none;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+}
+.fig-viewer-content {
+  width: min(100vw - 24px, 1100px);
+  transform-origin: center;
+}
+.fig-viewer-content > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none !important;
+  max-height: calc(100dvh - 90px);
+}
+
+/* answer field: insert buttons for symbols that are hard to type on a phone (touch screens, field focused) */
+.pr-symkeys {
+  display: none;
+  flex: 1 0 100%;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.pr-symkeys button {
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  font-size: 17px;
+  padding: 0 8px;
+}
+@media (pointer: coarse) {
+  .pr-answer {
+    flex-wrap: wrap;
+  }
+  .pr-answer:focus-within .pr-symkeys {
+    display: flex;
+  }
+  .pr-input input {
+    font-size: 16px; /* 16 px or more: iOS Safari doesn't zoom the page on focus */
+  }
+}
+
+/* practice on a phone: the chapter list is a drawer; a bottom bar holds list / previous / next */
+.pr-phone-nav,
+.pr-drawer-bg {
+  display: none;
+}
+@media (max-width: 900px) {
+  .pr-page {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+  .pr-page > .pr-side {
+    position: fixed;
+    z-index: 60;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(86vw, 360px);
+    max-height: none;
+    border-radius: 0 14px 14px 0;
+    transform: translateX(-102%);
+    visibility: hidden;
+    transition:
+      transform 0.22s ease,
+      visibility 0s 0.22s;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+  .pr-page.drawer-open > .pr-side {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.22s ease;
+  }
+  .pr-page.drawer-open > .pr-drawer-bg {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 59;
+    background: rgba(20, 26, 40, 0.35);
+    border: none;
+    border-radius: 0;
+    padding: 0;
+  }
+  .pr-phone-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    z-index: 61;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+    background: var(--paper);
+    border-top: 1.5px solid var(--line);
+    box-shadow: 0 -4px 14px rgba(31, 42, 68, 0.08);
+  }
+  .pr-phone-nav button {
+    min-height: 44px;
+    min-width: 52px;
+    justify-content: center;
+  }
+  .pr-phone-pos {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  .pr-page > .pr-side {
+    transition: none;
+  }
 }

@@ -2,6 +2,7 @@
 // oriented branches (arrow in the middle), tree branches thick and solid, links thin and dashed,
 // the reference node marked, and cut-sets as closed dashed curves. Positions come from the file.
 
+import { FigureFrame } from './FigureFrame';
 import { tr } from '../core/i18n';
 import type { CircuitGraph, Pt } from '../core/problem/types';
 
@@ -64,68 +65,70 @@ export function GraphFigure({ graph }: { graph: CircuitGraph }) {
   const showTree = !graph.hideTree && !!graph.tree?.length;
   return (
     <figure className="cgraph">
-      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={tr('电路的有向图', 'directed graph of the circuit')}>
-        <defs>
-          <marker id="cg-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="12" markerHeight="12" orient="auto">
-            <path d="M0,1 L10,5 L0,9 z" className="cgraph-head" />
-          </marker>
-        </defs>
-        {(graph.cutsets ?? []).map((c, i) => {
-          const pts = c.path.map((p) => P(p as V));
-          return (
-            <g key={`c${i}`}>
-              <path d={closedCurve(pts)} className="cgraph-cut" />
-              {c.name ? (
-                <text x={pts[0][0] + 4} y={pts[0][1] - 4} className="cgraph-cutname">
-                  {c.name.replace(/^([A-Za-z])(\d+)$/, '$1')}
-                  {/^[A-Za-z]\d+$/.test(c.name) ? (
-                    <tspan fontSize="0.75em" dy={3}>
-                      {c.name.slice(1)}
-                    </tspan>
-                  ) : null}
+      <FigureFrame label={tr('电路的有向图', 'directed graph of the circuit')}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={tr('电路的有向图', 'directed graph of the circuit')}>
+          <defs>
+            <marker id="cg-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="12" markerHeight="12" orient="auto">
+              <path d="M0,1 L10,5 L0,9 z" className="cgraph-head" />
+            </marker>
+          </defs>
+          {(graph.cutsets ?? []).map((c, i) => {
+            const pts = c.path.map((p) => P(p as V));
+            return (
+              <g key={`c${i}`}>
+                <path d={closedCurve(pts)} className="cgraph-cut" />
+                {c.name ? (
+                  <text x={pts[0][0] + 4} y={pts[0][1] - 4} className="cgraph-cutname">
+                    {c.name.replace(/^([A-Za-z])(\d+)$/, '$1')}
+                    {/^[A-Za-z]\d+$/.test(c.name) ? (
+                      <tspan fontSize="0.75em" dy={3}>
+                        {c.name.slice(1)}
+                      </tspan>
+                    ) : null}
+                  </text>
+                ) : null}
+              </g>
+            );
+          })}
+          {graph.branches.map((b) => {
+            const p0 = pos.get(b.from);
+            const q0 = pos.get(b.to);
+            if (!p0 || !q0) return null;
+            const p = P(p0);
+            const q = P(q0);
+            const nrm = unit(left(sub(q, p)));
+            const bend = (b.bend ?? 0) * S;
+            const ctrl = add(mul(add(p, q), 0.5), mul(nrm, 2 * bend));
+            const a = add(p, mul(unit(sub(ctrl, p)), R + 1));
+            const z = add(q, mul(unit(sub(ctrl, q)), R + 1));
+            const mid = add(mul(add(p, q), 0.5), mul(nrm, bend));
+            const dir = unit(sub(q, p));
+            const cls = showTree ? (tree.has(b.n) ? 'cgraph-tree' : 'cgraph-link') : 'cgraph-br';
+            const lab = add(mid, mul(nrm, bend >= 0 ? 13 : -13));
+            return (
+              <g key={b.n}>
+                <path d={`M${a[0]},${a[1]} Q${ctrl[0]},${ctrl[1]} ${z[0]},${z[1]}`} className={cls} />
+                <line x1={mid[0] - dir[0] * 6} y1={mid[1] - dir[1] * 6} x2={mid[0] + dir[0] * 2} y2={mid[1] + dir[1] * 2} className="cgraph-arrow" markerEnd="url(#cg-arrow)" />
+                <text x={lab[0]} y={lab[1] + 4} textAnchor="middle" className="cgraph-num">
+                  {b.n}
                 </text>
-              ) : null}
-            </g>
-          );
-        })}
-        {graph.branches.map((b) => {
-          const p0 = pos.get(b.from);
-          const q0 = pos.get(b.to);
-          if (!p0 || !q0) return null;
-          const p = P(p0);
-          const q = P(q0);
-          const nrm = unit(left(sub(q, p)));
-          const bend = (b.bend ?? 0) * S;
-          const ctrl = add(mul(add(p, q), 0.5), mul(nrm, 2 * bend));
-          const a = add(p, mul(unit(sub(ctrl, p)), R + 1));
-          const z = add(q, mul(unit(sub(ctrl, q)), R + 1));
-          const mid = add(mul(add(p, q), 0.5), mul(nrm, bend));
-          const dir = unit(sub(q, p));
-          const cls = showTree ? (tree.has(b.n) ? 'cgraph-tree' : 'cgraph-link') : 'cgraph-br';
-          const lab = add(mid, mul(nrm, bend >= 0 ? 13 : -13));
-          return (
-            <g key={b.n}>
-              <path d={`M${a[0]},${a[1]} Q${ctrl[0]},${ctrl[1]} ${z[0]},${z[1]}`} className={cls} />
-              <line x1={mid[0] - dir[0] * 6} y1={mid[1] - dir[1] * 6} x2={mid[0] + dir[0] * 2} y2={mid[1] + dir[1] * 2} className="cgraph-arrow" markerEnd="url(#cg-arrow)" />
-              <text x={lab[0]} y={lab[1] + 4} textAnchor="middle" className="cgraph-num">
-                {b.n}
-              </text>
-            </g>
-          );
-        })}
-        {graph.nodes.map((n) => {
-          const [x, y] = P(n.at as V);
-          const ref = n.name === graph.ref;
-          return (
-            <g key={n.name}>
-              <circle cx={x} cy={y} r={R} className={ref ? 'cgraph-node cgraph-ref' : 'cgraph-node'} />
-              <text x={x} y={y + 4} textAnchor="middle" className={ref ? 'cgraph-nodename cgraph-refname' : 'cgraph-nodename'}>
-                {n.name}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+              </g>
+            );
+          })}
+          {graph.nodes.map((n) => {
+            const [x, y] = P(n.at as V);
+            const ref = n.name === graph.ref;
+            return (
+              <g key={n.name}>
+                <circle cx={x} cy={y} r={R} className={ref ? 'cgraph-node cgraph-ref' : 'cgraph-node'} />
+                <text x={x} y={y + 4} textAnchor="middle" className={ref ? 'cgraph-nodename cgraph-refname' : 'cgraph-nodename'}>
+                  {n.name}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </FigureFrame>
       <figcaption>
         {tr('有向图：', 'Directed graph: ')}
         {tr(`结点 ${graph.ref} 为参考结点（实心）`, `node ${graph.ref} is the reference node (filled)`)}
