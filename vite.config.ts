@@ -12,6 +12,8 @@ const REACT_DEPS = /\/node_modules\/(react|react-dom|scheduler|zustand|use-sync-
 
 export default defineConfig({
   plugins: [react(), problemIndexPlugin(), challengeIndexPlugin(), summaryIndexPlugin()],
+  // browser-test hooks (src/e2e/): compiled in only for `VITE_E2E=1` builds (npm run e2e)
+  define: { __E2E__: JSON.stringify(process.env.VITE_E2E === '1') },
   server: { port: 5180 },
   build: {
     chunkSizeWarningLimit: 1200,

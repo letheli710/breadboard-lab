@@ -7,6 +7,8 @@ import { PARTS } from '../core/parts';
 import type { PlacedPart } from '../core/types';
 import { ammeterReading, ledOf, useDerived } from '../state/derived';
 import { scopeChannelFor, useStore } from '../state/store';
+import { E2E } from '../e2e/flag';
+import { E2EProbe } from '../e2e/Probe';
 import { Board } from './Board';
 import type { PartCtxValue } from './common';
 import { DragLayer, grabPart } from './Drag';
@@ -240,6 +242,7 @@ export function Scene() {
       <OrbitControls makeDefault target={TARGET.toArray()} enableDamping dampingFactor={0.12} maxPolarAngle={Math.PI / 2.15} minDistance={10} maxDistance={90} />
       <CameraRig />
       <FrameProbe />
+      {E2E && <E2EProbe />}
     </Canvas>
   );
 }

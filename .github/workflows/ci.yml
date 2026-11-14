@@ -44,3 +44,26 @@ jobs:
       - run: npm ci
       - name: Transmission-line chapter on fine RLGC / LC ladders (npm run test:slow)
         run: npm run test:slow
+
+  e2e:
+    # browser tests of a production build (with the test hooks compiled in: VITE_E2E=1 → dist-e2e/)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Build, preview, routes + bench suites (npm run e2e)
+        run: npm run e2e
+      - name: Screenshots of failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: e2e-artifacts/
+          if-no-files-found: ignore

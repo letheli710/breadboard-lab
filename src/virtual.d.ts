@@ -21,3 +21,6 @@ declare module 'virtual:summary-index' {
   /** loader of each chapter's summary file (one chunk per chapter): { [file]: json } */
   export const groups: Record<string, () => Promise<{ default: Record<string, unknown> }>>;
 }
+
+/** true only in `VITE_E2E=1` builds (vite.config.ts define; see src/e2e/flag.ts) */
+declare const __E2E__: boolean;

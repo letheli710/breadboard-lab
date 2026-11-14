@@ -10,6 +10,8 @@ import { useStore, type Tool } from '../state/store';
 import { Scene, VIEWS, type ViewName } from '../three/Scene';
 import { emitCameraView } from '../three/common';
 import { ConfirmButton } from './Confirm';
+import { E2E } from '../e2e/flag';
+import { E2ECrash } from '../e2e/Probe';
 import { ErrorBoundary } from './ErrorBoundary';
 import { Icon, PartIcon } from './Icons';
 import { QualityToggle } from './QualityToggle';
@@ -283,6 +285,7 @@ export function Workbench() {
           )}
         >
           <ErrorBoundary scope="canvas">
+            {E2E && <E2ECrash />}
             <Scene />
           </ErrorBoundary>
           <Multimeter />
