@@ -4433,9 +4433,12 @@ button.primary:focus-visible,
 .skip-link:focus {
   top: 8px;
 }
-/* page headings focused after a route change: no ring for a programmatic focus */
-h1[tabindex='-1']:focus:not(:focus-visible) {
+/* page headings focused by script after a route change (so screen readers announce the new page):
+   not a control, so no ring — the next Tab lands on the first control, which has one */
+h1[tabindex='-1']:focus,
+h1[tabindex='-1']:focus-visible {
   outline: none;
+  box-shadow: none;
 }
 .sum-sec-h {
   margin: 0;

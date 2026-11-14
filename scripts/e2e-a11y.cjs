@@ -49,6 +49,41 @@ const PAGES = [
   { name: 'phone-touch-chip', hash: '#/sandbox', ready: '.stage-view canvas', phone: true, setup: 'touchchip' },
 ];
 
+/** The quiz page is a lazy chunk and the problem index arrives on its own: start a quiz only once
+ *  the chapter list is ready (the index resets the picks when it lands), the first chapter is
+ *  really ticked and Start is enabled; then wait for the first question to render — generously, CI
+ *  runners and loaded machines are slow. `keyboard`: tick / start with Space / Enter. */
+async function startQuiz(p, keyboard = false) {
+  await p.waitForFunction(
+    () => /^\d+\/\d+$/.test(document.querySelector('.progress-card b')?.textContent.trim() ?? '') && document.querySelector('.ms-chpick input[type="checkbox"]'),
+    null,
+    { timeout: 45000 },
+  );
+  const box = p.locator('.ms-chpick input[type="checkbox"]').first();
+  if (!(await box.isChecked())) {
+    if (keyboard) {
+      await box.focus();
+      await p.keyboard.press('Space');
+    } else await box.check();
+  }
+  await p.waitForFunction(() => document.querySelector('.ms-chpick input[type="checkbox"]')?.checked, null, { timeout: 10000 });
+  const start = p.locator('.ms-setup button.primary:not(:disabled)').first();
+  await start.waitFor({ timeout: 30000 });
+  if (keyboard) {
+    await start.focus();
+    await p.keyboard.press('Enter');
+  } else await start.click();
+  try {
+    await p.waitForSelector('.ms-quiz .ms-qnav button', { timeout: 45000 });
+  } catch (e) {
+    const toast = await p
+      .locator('.toast')
+      .textContent()
+      .catch(() => '');
+    throw new Error(`quiz did not start within 45 s${toast ? ` (toast: ${toast})` : ''}: ${e.message.split('\n')[0]}`, { cause: e });
+  }
+}
+
 async function setupPage(p, pg) {
   if (pg.setup === 'parts' || pg.setup === 'placed') await p.waitForFunction(() => window.__bb, null, { timeout: 30000 });
   await setup(p, pg.setup);
@@ -89,14 +124,12 @@ async function setup(p, kind) {
     await p.locator('.pr-q-tools .pr-link').first().click();
   }
   if (kind.startsWith('quiz')) {
-    await p.locator('.ms-chpick input[type="checkbox"]').first().check();
-    await p.locator('.ms-setup button.primary:not(:disabled)').first().click();
-    await p.waitForSelector('.ms-quiz', { timeout: 15000 });
+    await startQuiz(p);
     if (kind === 'quiz-paused') await p.locator('.ms-timer button[aria-pressed]').click();
     if (kind === 'quiz-results') {
       await p.locator('.ms-quiz .confirm-wrap button.primary').click();
       await p.locator('.confirm-pop button.danger-solid').click();
-      await p.waitForSelector('.ms-quiz', { state: 'detached', timeout: 10000 });
+      await p.waitForSelector('.ms-quiz', { state: 'detached', timeout: 30000 });
     }
   }
   if (kind === 'drawer') await p.locator('.pr-phone-nav button[aria-controls="pr-side"]').click();

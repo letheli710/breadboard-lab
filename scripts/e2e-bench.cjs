@@ -43,6 +43,11 @@ async function open(browser, hash, { storage = {}, q = '', viewport = { width: 1
     { 'bb.lang': 'en', ...storage },
   );
   const p = await ctx.newPage();
+  // E2E_CPU_THROTTLE=4 (…6): slow the page's CPU like a loaded CI runner (CDP throttling)
+  if (process.env.E2E_CPU_THROTTLE) {
+    const cdp = await ctx.newCDPSession(p);
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: Number(process.env.E2E_CPU_THROTTLE) });
+  }
   const errors = [];
   p.on('pageerror', (e) => errors.push(String(e)));
   await p.goto(url(hash, q));
@@ -123,6 +128,41 @@ function referenceReadings(file) {
   const r = {};
   for (const m of out.matchAll(/reading\s+(\S+)\s+=\s+(-?[\d.e+-]+)/g)) r[m[1]] = Number(m[2]);
   return r;
+}
+
+/** The quiz page is a lazy chunk and the problem index arrives on its own: start a quiz only once
+ *  the chapter list is ready (the index resets the picks when it lands), the first chapter is
+ *  really ticked and Start is enabled; then wait for the first question to render — generously, CI
+ *  runners and loaded machines are slow. `keyboard`: tick / start with Space / Enter. */
+async function startQuiz(p, keyboard = false) {
+  await p.waitForFunction(
+    () => /^\d+\/\d+$/.test(document.querySelector('.progress-card b')?.textContent.trim() ?? '') && document.querySelector('.ms-chpick input[type="checkbox"]'),
+    null,
+    { timeout: 45000 },
+  );
+  const box = p.locator('.ms-chpick input[type="checkbox"]').first();
+  if (!(await box.isChecked())) {
+    if (keyboard) {
+      await box.focus();
+      await p.keyboard.press('Space');
+    } else await box.check();
+  }
+  await p.waitForFunction(() => document.querySelector('.ms-chpick input[type="checkbox"]')?.checked, null, { timeout: 10000 });
+  const start = p.locator('.ms-setup button.primary:not(:disabled)').first();
+  await start.waitFor({ timeout: 30000 });
+  if (keyboard) {
+    await start.focus();
+    await p.keyboard.press('Enter');
+  } else await start.click();
+  try {
+    await p.waitForSelector('.ms-quiz .ms-qnav button', { timeout: 45000 });
+  } catch (e) {
+    const toast = await p
+      .locator('.toast')
+      .textContent()
+      .catch(() => '');
+    throw new Error(`quiz did not start within 45 s${toast ? ` (toast: ${toast})` : ''}: ${e.message.split('\n')[0]}`, { cause: e });
+  }
 }
 
 const TESTS = {
@@ -685,6 +725,23 @@ const TESTS = {
       await p.waitForSelector('#main h1.pr-title', { timeout: 15000 });
       await p.waitForTimeout(300);
       assert(await p.evaluate(() => document.activeElement.matches('#main h1')), 'keyboard: after a page change focus is on the page heading');
+      const ring = (sel) =>
+        p.evaluate((q) => {
+          const e = q ? document.activeElement.closest(q) : document.activeElement;
+          const st = getComputedStyle(e);
+          return { outline: st.outlineStyle !== 'none' && parseFloat(st.outlineWidth) > 0, shadow: st.boxShadow !== 'none' };
+        }, sel);
+      const h = await ring(null);
+      assert(!h.outline && !h.shadow, 'keyboard: the focused page heading draws no focus ring');
+      await p.keyboard.press('Tab');
+      const next = await p.evaluate(() => ({
+        inMain: !!document.activeElement.closest('#main'),
+        name: (document.activeElement.textContent || document.activeElement.getAttribute('aria-label') || '').trim().slice(0, 30),
+      }));
+      const r = await ring(null);
+      const rw = await p.evaluate(() => !!document.activeElement.closest('.pr-input'));
+      const rr = rw ? await ring('.pr-input') : r;
+      assert(next.inMain && (r.outline || r.shadow || rr.outline || rr.shadow), `keyboard: the next Tab lands on a control in the page ("${next.name}"), which shows its ring`);
       assert(errors.length === 0, 'keyboard: no page errors ' + errors.join(' | '));
     } finally {
       await shot(p, 'keyboard');
@@ -785,15 +842,7 @@ const TESTS = {
     {
       const { p, ctx, errors } = await open(browser, '#/practice/quiz', { waitHook: false });
       try {
-        // the problem index must be in first (it resets the chapter picks when it arrives)
-        await p.waitForFunction(() => /^\d+\/\d+$/.test(document.querySelector('.progress-card b')?.textContent.trim() ?? ''), null, { timeout: 20000 });
-        const box = p.locator('.ms-chpick input[type="checkbox"]').first();
-        await box.focus();
-        await p.keyboard.press('Space');
-        const start = p.locator('.ms-setup button.primary:not(:disabled)').first();
-        await start.focus();
-        await p.keyboard.press('Enter');
-        await p.waitForSelector('.ms-quiz', { timeout: 15000 });
+        await startQuiz(p, true);
         await p.waitForTimeout(300);
         const live = p.locator('.ms-quiz > .sr-only[aria-live]');
         assert(
@@ -816,7 +865,7 @@ const TESTS = {
         await p.keyboard.press('Shift+Tab');
         await p.locator('.confirm-pop button.danger-solid').focus();
         await p.keyboard.press('Enter');
-        await p.waitForSelector('.ms-quiz', { state: 'detached', timeout: 10000 });
+        await p.waitForSelector('.ms-quiz', { state: 'detached', timeout: 30000 });
         assert(/results/i.test(await p.locator('#main h1').textContent()), 'quiz: submitted by keyboard, results shown: ' + (await p.locator('#main h1').textContent()));
         assert(errors.length === 0, 'quiz: no page errors ' + errors.join(' | '));
       } finally {
@@ -875,10 +924,7 @@ const TESTS = {
         await p.waitForSelector('#main h1', { timeout: 20000 });
         await p.waitForTimeout(500);
         if (setup === 'quiz') {
-          await p.waitForFunction(() => /^\d+\/\d+$/.test(document.querySelector('.progress-card b')?.textContent.trim() ?? ''), null, { timeout: 20000 });
-          await p.locator('.ms-chpick input[type="checkbox"]').first().check();
-          await p.locator('.ms-setup button.primary:not(:disabled)').first().click();
-          await p.waitForSelector('.ms-quiz', { timeout: 15000 });
+          await startQuiz(p);
           // a question with a typed answer (the drawn set may start with a multiple-choice one)
           for (let k = 0; k < 20 && !(await p.locator('.ms-quiz .pr-input input').count()); k++) {
             const nav = p.locator('.ms-qnav button');
