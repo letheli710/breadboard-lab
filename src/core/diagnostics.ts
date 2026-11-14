@@ -59,8 +59,8 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         title: tr(`短路！${ref} 的正负极被直接连通了`, `Short circuit! ${ref}'s + and − are connected directly`),
         detail: s.ccMode
           ? tr(
-              `稳压电源进入了限流（CC）模式，输出电压被拉低到 ${volts(s.terminalVoltage)}。检查有没有一根导线（或被短路的元件）直接把 + 和 − 连在一起。`,
-              `The bench supply went into current-limit (CC) mode and its output dropped to ${volts(s.terminalVoltage)}. Look for a wire (or a shorted part) joining + straight to −.`,
+              `稳压电源在限流（CC）模式下输出 ${amps(s.current)}，两端却只有 ${volts(s.terminalVoltage)}——负载几乎等于一根导线。检查有没有一根导线（或被短路的元件）直接把 + 和 − 连在一起。`,
+              `The bench supply is current-limiting at ${amps(s.current)} with only ${volts(s.terminalVoltage)} across it — the load is practically a wire. Look for a wire (or a shorted part) joining + straight to −.`,
             )
           : tr(
               `电流高达 ${amps(s.current)}。真实电路里电池会迅速发热、导线可能烫手。检查有没有导线把 + 轨和 − 轨直接连起来。`,
@@ -74,8 +74,8 @@ export function boardDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         severity: 'warning',
         title: tr(`${ref} 正在限流（CC 模式）`, `${ref} is current-limiting (CC mode)`),
         detail: tr(
-          `负载要的电流超过了限流设定，电源把电压降到了 ${volts(s.terminalVoltage)}。可以调高限流值，或者检查电路电阻是否太小。`,
-          `The load wants more current than the limit, so the supply lowered its voltage to ${volts(s.terminalVoltage)}. Raise the current limit, or check whether the circuit's resistance is too low.`,
+          `负载要的电流超过了限流设定，电源把电流卡在 ${amps(s.current)}、电压降到了 ${volts(s.terminalVoltage)}。如果你是把它当电流源用，这就是正常工作；否则调高限流值，或者检查电路电阻是否太小。`,
+          `The load wants more current than the limit, so the supply holds the current at ${amps(s.current)} and lowers its voltage to ${volts(s.terminalVoltage)}. If you are using it as a current source this is normal operation; otherwise raise the current limit or check whether the circuit's resistance is too low.`,
         ),
         refs: [ref],
         holes: [],

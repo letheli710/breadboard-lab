@@ -78,6 +78,9 @@ export interface LedState {
   reverse: boolean;
 }
 
+/** A supply in CC mode counts as shorted when its load is below this resistance. */
+export const CC_SHORT_OHMS = 1;
+
 export interface SourceState {
   current: number; // amps out of the + terminal
   terminalVoltage: number;
@@ -1240,7 +1243,9 @@ export function simulate(circuit: Circuit): SimResult {
       current: I,
       terminalVoltage: vt,
       ccMode: s.cc,
-      shorted: s.gen ? false : s.cc ? vt < s.v * 0.2 : I > limit,
+      // in CC a supply regulating into a real load is normal operation (a current source); it is a
+      // short only when what it drives is practically a wire: under 1 Ω at the limit current
+      shorted: s.gen ? false : s.cc ? vt < s.ilim * CC_SHORT_OHMS : I > limit,
     });
   }
   const opamps = opampStates(c, V);

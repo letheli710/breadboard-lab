@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseChallenge } from './challenge';
-import { checkCircuit } from './check';
+import { applySet, checkCircuit } from './check';
 import { boardDiagnostics } from './diagnostics';
 import { buildNetlist } from './netlist';
 import { simulate } from './solver';
@@ -102,6 +103,36 @@ describe('netlist + solver', () => {
     expect(s.ccMode).toBe(true);
     expect(s.current).toBeCloseTo(0.1, 3);
     expect(s.terminalVoltage).toBeCloseTo(1, 1);
+  });
+
+  it('a supply regulating current into a real load is not a short; one into a wire is', () => {
+    const board = (load: PlacedPart) => ({ version: 1 as const, parts: [part('bench_supply', { '+': 'tp1', '-': 'tn1' }, { voltage: 12, currentLimit: 0.01 }, 'P'), load] });
+    const diag = (lay: Layout) => {
+      const nl = buildNetlist(lay);
+      const sim = simulate(nl.circuit);
+      return { s: sim.sources.get('P')!, issues: boardDiagnostics(nl, sim) };
+    };
+    // lesson 11: 10 mA into 220 Ω = 2.2 V, below 20 % of the 12 V setting — a current source, not a short
+    const cc = diag(board(part('resistor', { '1': 'tp4', '2': 'tn4' }, { resistance: 220 }, 'R')));
+    expect(cc.s.ccMode).toBe(true);
+    expect(cc.s.shorted).toBe(false);
+    expect(cc.issues.some((i) => i.severity === 'error')).toBe(false);
+    const wire = diag(board(part('wire', { a: 'tp4', b: 'tn4' })));
+    expect(wire.s.shorted).toBe(true);
+    expect(wire.issues.some((i) => i.severity === 'error')).toBe(true);
+  });
+
+  it('lab 204 and lesson 11: the bench supply in CC is never reported shorted in any state', () => {
+    for (const file of ['204-cc-current-source.json', '103-lesson-bench-supply.json']) {
+      const ch = parseChallenge(JSON.parse(readFileSync(new URL(`../../challenges/${file}`, import.meta.url), 'utf8'))).challenge!;
+      const nl = buildNetlist(ch.solution!);
+      const r = checkCircuit(ch, nl.circuit, nl.pinHoles);
+      const sets = [...ch.tests.map((t) => t.set), ...ch.measurements.map((q) => q.set), { R1: { resistance: 220 }, P1: { voltage: 12, currentLimit: 0.01 } }];
+      for (const set of sets) {
+        const sim = simulate(applySet(nl.circuit, set, r.mapping, r.pinMap));
+        for (const [ref, s] of sim.sources) expect(s.shorted, `${file} ${ref} ${JSON.stringify(set)}`).toBe(false);
+      }
+    }
   });
 
   it('pushbutton across trench', () => {
