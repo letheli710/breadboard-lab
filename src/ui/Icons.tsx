@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import type { PartType } from '../core/types';
 
 const S = { stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };

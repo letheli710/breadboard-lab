@@ -1,6 +1,6 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
-import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { PARTS } from '../core/parts';
@@ -183,23 +183,6 @@ function FrameProbe() {
   return null;
 }
 
-/** Mounts its children one task after the canvas, once its events are connected. drei's <Html>
- *  picks its DOM target from `events.connected || gl.domElement.parentNode` and unmounts its own
- *  React root in a layout-effect cleanup. r3f 9 renders the scene's first commit from inside the
- *  Canvas' layout effect (react-dom is still committing) and connects the events after it, so an
- *  <Html> mounted then would at once move to the new target, or (dev) be re-run by StrictMode:
- *  either way its root is unmounted while react-dom is rendering — React 19 warns, and the
- *  deferred unmount throws "removeChild … not a child of this node". */
-function WhenEventsConnected({ children }: { children: ReactNode }) {
-  const connected = useThree((s) => !!s.events.connected);
-  const [settled, setSettled] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setSettled(true));
-    return () => clearTimeout(t);
-  }, []);
-  return connected && settled ? children : null;
-}
-
 /** Key light; its shadow map follows the quality setting (re-allocated on change). */
 function KeyLight({ size }: { size: number }) {
   const ref = useRef<THREE.DirectionalLight>(null);
@@ -245,10 +228,8 @@ export function Scene() {
       <KeyLight size={q.shadowMapSize} />
       <directionalLight position={[-18, 14, -10]} intensity={0.35} />
       <Suspense fallback={null}>
-        <WhenEventsConnected>
-          <Board />
-          <Parts />
-        </WhenEventsConnected>
+        <Board />
+        <Parts />
       </Suspense>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.92, 0]} receiveShadow>
         <planeGeometry args={[400, 400]} />

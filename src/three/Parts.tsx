@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
 import { useFrame } from '@react-three/fiber';
-import { memo, useCallback, useMemo, useRef, type JSX } from 'react';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { tr } from '../core/i18n';
 import { colX } from '../core/breadboard';

@@ -1,4 +1,4 @@
-import { Fragment, type JSX } from 'react';
+import { Fragment } from 'react';
 
 /** Tiny markdown subset: paragraphs, "- " lists, "## " headings, **bold**, `code`. */
 export function Md({ text }: { text: string }) {

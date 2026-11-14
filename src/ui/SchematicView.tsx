@@ -1,4 +1,4 @@
-import { useMemo, type JSX } from 'react';
+import { useMemo } from 'react';
 import { tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
 import { acVolts, amps, ohms, volts } from '../core/format';

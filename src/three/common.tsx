@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useMemo } from 'react';
-import type { ThreeElements } from '@react-three/fiber';
 import * as THREE from 'three';
 import { HOLE_MAP } from '../core/breadboard';
 
@@ -150,7 +149,7 @@ export function TextPlane({
   color?: string;
   bg?: string;
   font?: string;
-} & ThreeElements['mesh']) {
+} & JSX.IntrinsicElements['mesh']) {
   const tex = useMemo(() => {
     const lines = Array.isArray(text) ? text : [text];
     const c = document.createElement('canvas');
@@ -197,7 +196,7 @@ export function CanvasPlane({
   draw: (g: CanvasRenderingContext2D, w: number, h: number) => void;
   deps: unknown[];
   ppu?: number;
-} & ThreeElements['mesh']) {
+} & JSX.IntrinsicElements['mesh']) {
   const tex = useMemo(() => {
     const c = document.createElement('canvas');
     c.width = Math.round(ppu * width);
