@@ -1,4 +1,4 @@
-/* global require, process, console, window, document, localStorage, sessionStorage, Image, __dirname */
+/* global require, process, console, window, document, localStorage, sessionStorage, Image, __dirname, location */
 /* eslint-disable @typescript-eslint/no-require-imports */
 // Browser smoke tests of the 3D bench (not part of npm test: needs a running e2e build).
 //   npm run e2e                       (builds dist-e2e/, starts a preview, runs this and e2e-routes)
@@ -384,6 +384,41 @@ const TESTS = {
       assert(errors.length === 0, 'view/lang: no page errors ' + errors.join(' | '));
     } finally {
       await shot(p, 'view-lang');
+      await ctx.close();
+    }
+  },
+
+  // the camera stays where the user put it: placing parts, switching panel tabs, the circuit check
+  // and leaving the bench for the Guide and coming back never reset it to the default view
+  async cameraKept(browser) {
+    const { p, ctx, errors } = await open(browser, '#/learn/lesson-ammeter', { viewport: { width: 1366, height: 768 } });
+    try {
+      await p.locator('.view-btn').click();
+      await settleFrames(p);
+      const cam = () => p.evaluate(() => window.__bb.camera());
+      const fmt = (v) => v.map((x) => x.toFixed(1)).join(',');
+      const before = await cam();
+      const kept = async (what) => {
+        await settleFrames(p);
+        const now = await cam();
+        assert(Math.hypot(...now.map((x, i) => x - before[i])) < 0.05, `camera kept after ${what} (${fmt(before)} → ${fmt(now)})`);
+      };
+      await tool(p, 'Battery');
+      await clickHole(p, 'tp1');
+      await clickHole(p, 'tn1');
+      await kept('placing a part');
+      await p.locator('aside.side [role=tab]', { hasText: /^Lesson/ }).click();
+      await p.locator('.actions button.primary.big').click();
+      await kept('a tab switch and the circuit check');
+      await p.evaluate(() => (location.hash = '#/guide'));
+      await p.waitForTimeout(800);
+      await p.evaluate(() => (location.hash = '#/learn/lesson-ammeter'));
+      await p.waitForFunction(() => window.__bb && document.querySelector('.stage-view canvas') === window.__bb.canvas, null, { timeout: 20000 });
+      await kept('leaving the bench and coming back');
+      assert((await p.locator('.view-btn b').textContent()).trim() === 'Top', 'view button still says Top');
+      assert(errors.length === 0, 'camera: no page errors ' + errors.join(' | '));
+    } finally {
+      await shot(p, 'camera-kept');
       await ctx.close();
     }
   },

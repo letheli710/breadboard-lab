@@ -226,8 +226,11 @@ const VIEW_NAME: Record<ViewName, () => string> = {
 };
 
 /** One button, top-right of the stage: each press moves to the next preset view. */
+/** the preset last picked (module-level: the camera keeps its pose across a remounted bench, so the label must too) */
+let lastView: ViewName = 'angle';
+
 function ViewButton() {
-  const [view, setView] = useState<ViewName>('angle');
+  const [view, setView] = useState<ViewName>(() => lastView);
   const next = VIEWS[(VIEWS.indexOf(view) + 1) % VIEWS.length];
   return (
     <button
@@ -235,6 +238,7 @@ function ViewButton() {
       aria-label={tr(`视角：${VIEW_NAME[view]()}（按下切换到${VIEW_NAME[next]()}）`, `View: ${VIEW_NAME[view]()} (press for ${VIEW_NAME[next]()})`)}
       onClick={() => {
         setView(next);
+        lastView = next;
         emitCameraView(next);
       }}
       title={tr(

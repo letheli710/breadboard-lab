@@ -15,6 +15,8 @@ interface BBTest {
   /** number of visible lesson-step pulse rings */
   pulses(): number;
   canvas: HTMLCanvasElement;
+  /** camera position (world units): the view the user has, independent of the canvas size */
+  camera(): [number, number, number];
 }
 
 declare global {
@@ -38,6 +40,7 @@ export function E2EProbe() {
       frames: prev?.frames ?? 0,
       store: useStore,
       canvas: gl.domElement,
+      camera: () => camera.position.toArray() as [number, number, number],
       world,
       hole(id) {
         const h = HOLE_MAP.get(id);

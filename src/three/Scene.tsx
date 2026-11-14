@@ -18,6 +18,7 @@ import { assignSlots, nextSlot } from './slots';
 import { prefersReducedMotion } from '../ui/reveal';
 
 const TARGET = new THREE.Vector3(0, 0, -3);
+const TARGET_ARR = TARGET.toArray();
 const HOME = new THREE.Vector3(0, 30, 25);
 
 /** Camera presets the view button cycles through: polar angle from straight down, azimuth. */
@@ -29,6 +30,9 @@ const VIEW_ANGLES: Record<ViewName, { phi: number; theta: number }> = {
   front: { phi: 1.3, theta: 0 },
   side: { phi: 0.95, theta: -0.75 },
 };
+
+/** The camera pose the user last had (module-level: survives a remounted canvas / new controls). */
+let savedPose: { pos: THREE.Vector3; target: THREE.Vector3 } | null = null;
 
 function CameraRig() {
   const camera = useThree((s) => s.camera);
@@ -63,20 +67,28 @@ function CameraRig() {
     if (!controls) return;
     // the user grabbing the view cancels any transition
     const stop = () => (goal.current = null);
+    // remember the view (the user's orbit / zoom / pan, or a preset) so a new controls object or a
+    // remounted canvas puts the camera back where it was instead of resetting it
+    const keep = () => (savedPose = { pos: camera.position.clone(), target: controls.target.clone() });
     controls.addEventListener('start', stop);
+    controls.addEventListener('change', keep);
     const t = setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('bb-camera', { detail: 'angle' }));
+      // the default view only the very first time; afterwards the remembered one
+      if (savedPose) goal.current = { pos: savedPose.pos.clone(), target: savedPose.target.clone() };
+      else window.dispatchEvent(new CustomEvent('bb-camera', { detail: 'angle' }));
       if (goal.current) {
         camera.position.copy(goal.current.pos);
         controls.target.copy(goal.current.target);
         controls.update();
         goal.current = null;
+        keep();
         invalidate();
       }
     }, 50);
     return () => {
       clearTimeout(t);
       controls.removeEventListener('start', stop);
+      controls.removeEventListener('change', keep);
     };
   }, [controls, camera, invalidate]);
 
@@ -247,7 +259,7 @@ export function Scene() {
         <planeGeometry args={[400, 400]} />
         <shadowMaterial opacity={0.12} />
       </mesh>
-      <OrbitControls makeDefault target={TARGET.toArray()} enableDamping dampingFactor={0.12} maxPolarAngle={Math.PI / 2.15} minDistance={10} maxDistance={90} />
+      <OrbitControls makeDefault target={TARGET_ARR} enableDamping dampingFactor={0.12} maxPolarAngle={Math.PI / 2.15} minDistance={10} maxDistance={90} />
       <CameraRig />
       <FrameProbe />
       {E2E && <E2EProbe />}
