@@ -93,6 +93,8 @@ const SCALED_UNITS: Record<string, [number, string]> = {
   'np/km': [1e-3, 'Np/m'],
   'rad/km': [1e-3, 'rad/m'],
   'km/s': [1e3, 'm/s'],
+  cm: [1e-2, 'm'],
+  厘米: [1e-2, 'm'],
   千米: [1e3, 'm'],
   公里: [1e3, 'm'],
 };

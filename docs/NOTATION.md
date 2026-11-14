@@ -82,6 +82,14 @@ This file fixes the symbols and wording used in theory problems (`problems/`), b
 - 用语：图 / graph，有向图 / directed graph，树、树支、连支 / tree, tree branch, link，割集、基本割集 / cut-set, fundamental cut-set，基本回路 / fundamental loop，标准支路（复合支路）/ standard (composite) branch，常态树 / proper tree，状态变量、状态方程 / state variables, state equations。
 - 题干必须写明：支路编号与方向（有向图）、参考结点、所选的树、A 的行序（结点顺序），以及标准支路中电源的符号约定。
 
+### 5.3 均匀传输线 / Transmission lines（`transmission-line` 章）
+
+- 坐标：x 从始端量起，x′ = l − x 从终端量起，题干必须写明；u 是两导线间的电压，i 沿 +x 方向（终端电流 İ_2 流进负载）。始端量带下标 1（U̇_1、İ_1），终端量带下标 2（U̇_2、İ_2、Z_2）。
+  x is measured from the start and x′ = l − x from the end (say which in the text); u is the voltage between the conductors and i flows in +x (İ_2 flows into the load). Start quantities carry the subscript 1, end quantities 2.
+- 原参数 R_0、L_0、G_0、C_0；Z_0 = R_0 + jωL_0、Y_0 = G_0 + jωC_0；副参数 Z_c（特性阻抗）、γ = α + jβ（传播常数）。入射波、反射波写 U̇⁺、U̇⁻（上标 ⁺ ⁻ 用 Unicode 字符），反射系数 Γ（终端 Γ_2，始端 Γ_1），驻波比写 VSWR。双曲函数写 ch、sh、th（教材用法），波长 λ，相速 v。
+  Primary parameters R_0, L_0, G_0, C_0; secondary Z_c and γ = α + jβ. Incident and reflected waves U̇⁺, U̇⁻ (Unicode superscripts), reflection coefficient Γ (Γ_2 at the end, Γ_1 at the start), VSWR. Hyperbolic functions ch, sh, th as in the textbook.
+- 用语：均匀传输线 / uniform transmission line，分布参数电路 / distributed-parameter circuit，无损耗线 / lossless line，无畸变线 / distortionless line，行波 / travelling wave，驻波 / standing wave，波腹、波节 / voltage maximum, minimum，匹配 / matched，短截线 / stub，反射网格图 / bounce (lattice) diagram。
+
 ## 6. 用语 / Wording
 
 | 中文 | English | 说明 |

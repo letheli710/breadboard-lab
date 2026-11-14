@@ -188,14 +188,26 @@ Each chapter lists the knowledge points that must be covered — at least one pr
 
 ---
 
-合计目标约 287 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
+### `transmission-line` 均匀传输线（目标 14 题，教材第 18 章）
+引擎：二端口元件 `TL`（原参数 `R0`/`L0`/`G0`/`C0` + `length`，或无损耗线 `zc` + `vp` + `length`）；正弦稳态用精确的链参数模型，可与任何元件共存；暂态用无损耗线的波过程；量 `{"kind": "tl", "what": …}`（PROBLEM_FORMAT §6.1.10）。章节内容按教材核对：分布参数电路，均匀传输线及其方程，正弦稳态解，原参数与副参数，行波与反射（无限长线/匹配），无损耗线（含开路、短路、驻波），无损耗线的波过程。
+1. 分布参数电路：l/λ 判据，波长、传播时间（50 Hz 长线、电缆、印制板走线）
+2. 原参数 R_0、L_0、G_0、C_0 → 副参数 Z_c、γ = α + jβ，波长与相速（输电线的复数计算；无损耗电缆）
+3. 正弦稳态解：从终端写起的双曲函数形式，已知终端电压电流求始端，功率与效率；传输线作为互易二端口（A = D = ch γl）
+4. 行波：入射波与反射波，反射系数 Γ_2 与 Γ(x′) = Γ_2e^{−2γx′}，匹配（Z_2 = Z_c）
+5. 无损耗线：输入阻抗公式，开路线与短路线（Z_oc、Z_sc，由测量求 Z_c），λ/4 与 λ/2 线，空载长线末端电压升高
+6. 驻波：U_max、U_min、驻波比，波腹与波节的位置，电流驻波，负载功率
+7. 无畸变线：R_0/L_0 = G_0/C_0，α、v 与频率无关（加感电话线）
+8. 匹配：λ/4 阻抗变换器（及其频带）、单支节短路线匹配（难度 4）
+9. 无损耗线的波过程：第一个波 U_sZ_c/(R_s + Z_c)，两端的反射系数，反射网格图，终值（难度 3–4）
 
-About 287 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
+合计目标约 301 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
+
+About 301 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
 
 ---
 
 ## 尚未纳入大纲 / Not in the syllabus yet
 
-以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：非线性动态电路（第 17 章后半：相平面、自激振荡）、均匀传输线（第 18 章）。
+以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：非线性动态电路（第 17 章后半：相平面、自激振荡）；均匀传输线一章不含有损耗线的暂态和含电感/电容端接的波过程。
 
-Not covered yet (needs engine work first; see the ROADMAP backlog): nonlinear dynamic circuits (second half of ch. 17: phase plane, self-oscillation), transmission lines (ch. 18).
+Not covered yet (needs engine work first; see the ROADMAP backlog): nonlinear dynamic circuits (second half of ch. 17: phase plane, self-oscillation); the transmission-line chapter leaves out transients on lossy lines and wave processes with inductive / capacitive terminations.

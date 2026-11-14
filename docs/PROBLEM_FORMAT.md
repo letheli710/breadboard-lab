@@ -80,6 +80,7 @@ npm run validate -- --lang en       # 英文报错信息
 | 4 | `matrix-form` | 电路方程的矩阵形式（教材第 15 章）：电路的图、树、割集，关联矩阵 A、基本回路矩阵 B_f、基本割集矩阵 Q_f，结点/回路/割集方程的矩阵形式，状态方程（`schematic.graph`、`schematic.state`，§6.1.9） |
 | 4 | `two-port` | 二端口网络 |
 | 4 | `nonlinear` | 非线性电阻电路（教材第 17 章，只含电阻性电路）：压控/流控、静态与动态电阻、串并联、曲线相交法、分段线性化、理想二极管、多个工作点、小信号分析（元件 `NR`，§6.1.7） |
+| 4 | `transmission-line` | 均匀传输线（教材第 18 章）：分布参数电路、原参数与副参数（Z_c、γ = α + jβ）、正弦稳态解（双曲函数形式）、行波、反射系数与匹配、无损耗线（输入阻抗、开路线与短路线、λ/4 线、驻波）、无畸变线、匹配方法、无损耗线的波过程（元件 `TL`，§6.1.10） |
 
 章节列表定义在 `src/core/problem/chapters.ts`。
 
@@ -141,6 +142,7 @@ npm run validate -- --lang en       # 英文报错信息
 | `XFMR` | 理想变压器 n:1 | — | `at`, `n` |
 | `K` | 耦合电感 | — | `l1`, `l2`, `k` 或 `M` |
 | `NR` | 非线性电阻 | — | `law`：u–i 特性（§6.1.7）。只用于直流（工作点）和交流（小信号）分析 |
+| `TL` | 均匀传输线（二端口） | — | `at`, `w`, `line`（§6.1.10）。用于正弦稳态（ac）、直流、非正弦周期分析和无损耗线的暂态（波过程） |
 
 二端元件的可选字段：`label`（图上显示的文字，代替自动的 “R1 = 2 Ω”，例如 `"3i"`、`"jωL"`、`"R"`）、`hideValue: true`（题目要求解这个值时隐藏数值）。
 
@@ -149,6 +151,8 @@ npm run validate -- --lang en       # 英文报错信息
 **理想运放 `OPAMP`**（V+ = V−，输入电流为零）：端子相对 `at`：反相输入 (−) 在 (−2, −1)，同相输入 (+) 在 (−2, +1)，输出在 (+2, 0)（`orient: "right"`，默认）。`flip: true` 上下交换两个输入；`orient: "left"` 左右镜像。输出对地。网表引脚名：`minus`、`plus`、`out`。`{"kind": "i", "el": "A"}` 是**从运放输出端流出**（流进输出结点）的电流；负值表示电流流入输出端（运放在“吸收”电流）。 / `{"kind":"i","el":<op-amp>}` is the current flowing **out of the output terminal** into the output node.
 
 **理想变压器 `XFMR`**（n:1，u1 = n·u2，i1 = −i2/n，电流以流入同名端为正）：端子相对 `at`：p1 (−2, −1)、n1 (−2, +1)、p2 (+2, −1)、n2 (+2, +1)；同名端（黑点）在 p1 和 p2。
+
+**均匀传输线 `TL`**（§6.1.10）：画成两根平行导线，端子相对 `at`：始端 p1 (0, 0)、n1 (0, 2)，终端 p2 (w, 0)、n2 (w, 2)（`w` 默认 8，至少 4）。始端（x = 0）在左边，终端（x = l）在右边。网表引脚名 `p1`、`n1`、`p2`、`n2`。不能加 `marks`（问它的电压、电流用 `{"kind": "tl", …}`）。 / A two-port drawn as two parallel conductors: start terminals p1 = at, n1 = at + (0, 2); end terminals p2 = at + (w, 0), n2 = at + (w, 2). The start (x = 0) is on the left. No marks; ask its voltages and currents with `kind: "tl"`.
 
 **耦合电感 `K`**：`{"ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "k": 0.5}` 或 `"M": "2m"`。同名端在两个电感各自的 **p 端**——所以要靠 `from`/`to` 的方向来摆同名端。
 
@@ -354,6 +358,7 @@ The circuit is solved harmonic by harmonic (k = 0: DC with L shorted and C open;
 | `gcount` | `{"kind":"gcount","count":"links"}` | 图的结点数 `nodes` / 支路数 `branches` / 树支数 `tree` / 连支数 `links` | — |
 | `state` | `{"kind":"state","mat":"A","row":1,"col":2}` | 状态方程 ẋ = A·x + B·u 中 A 或 B 的元素，x、u 的顺序见 `schematic.state`（§6.1.9） | 视元素而定 |
 | `residue` | `{"kind":"residue","out":{"v":"C"},"at":-2,"order":1}` | 暂态题：实际响应的象函数 Y(s) 中 1/(s − at)^order 项的系数（部分分式展开） | 输出的单位 |
+| `tl` | `{"kind":"tl","el":"TL","what":"u","x":100}` | 均匀传输线章：传输线 `el` 的量——副参数、某点 x 的电压/电流/阻抗/反射系数/功率、驻波量；暂态题是波过程中 (x, t) 的值（§6.1.10） | 视 `what` 而定 |
 
 **修饰字段 / Modifiers**：`"deriv": 1`（暂态题的 `v` / `i`：求 t 时刻的导数，§6.1.2）；`"freq"` / `"omega"`（交流题：这个小题在另一个频率下计算，§6.1.6）；`"harmonic": k`（非正弦周期题：只问第 k 次谐波，0 = 直流分量，§5.1）；`"op": n`（含非线性电阻、有多个工作点时问第 n 个）、`"dc": true`（含非线性电阻的交流小信号题：问直流工作点，§6.1.7）。
 
@@ -657,6 +662,104 @@ Each entry is its own question (or a multiple-choice among candidate matrices / 
       ],
       "hints": ["Write A, Y, U_s and I_s first, then multiply."],
       "solution": "Y_n = \\mat{1 & −0.5 & 0 ; −0.5 & 1 & −0.25 ; 0 & −0.25 & 0.5} S, J_n = (3, 0, 1.5)ᵀ A → **U_n2 = 3.6 V**."
+    }
+  }
+}
+```
+
+#### 6.1.10 均匀传输线 / Transmission lines: `TL`, `tl`
+
+`transmission-line` 章（教材第 18 章）。传输线是一个**二端口元件** `TL`：
+
+```
+{"ref": "TL", "type": "TL", "at": [6, 0], "w": 8, "line": {"R0": "0.08m", "L0": "1.33u", "G0": 0, "C0": "8.6p", "length": "300k"}}
+{"ref": "TL", "type": "TL", "at": [6, 0], "w": 8, "line": {"zc": 50, "vp": "200M", "length": 0.25}}
+```
+
+- `line` 用**单位长度**的原参数 `R0`（Ω/m）、`L0`（H/m）、`G0`（S/m）、`C0`（F/m）和长度 `length`（m），或者无损耗线的 `zc`（Ω，实数）、`vp`（相速，m/s）和 `length`。都用 SI 单位，可写前缀（`"0.08m"` = 0.08 mΩ/m = 0.08 Ω/km，`"300k"` = 300 km）。
+- 图上自动标 `Z_c = 50 Ω　l = 0.25 m`（RLGC 形式只标长度，原参数写在题干里）；`label` 换成自己的文字，`hideValue: true` 隐藏（求 Z_c 或长度的题）。图下画 x（从始端，→）和 x′（从终端，←）两个坐标箭头。
+- **约定**：x 从始端（p1–n1）量起，x′ = l − x 从终端量起；u(x) 是上导线对下导线的电压，i(x) 是上导线中沿 **+x** 方向的电流，所以终端电流 İ_2 是流出端口 2、流进负载的电流。题干里要写清楚。
+- 计算：正弦稳态（和直流、非正弦周期分析的每次谐波）用精确的二端口模型（A = D = ch γl，B = Z_c sh γl，C = sh γl/Z_c），可以和任何其他元件一起出现，`v`、`i`、`p`、`req`、`twoport`… 照常可用。暂态（`tran`）只支持**一条无损耗线**、两端是电阻性网络（电阻、阶跃/直流源、开关、受控源）、电源只在始端一侧、t < 0 线路不带电：用波过程（反射网格图）精确计算，各时刻取波前刚过之后的值（t₊）；这时其他元件的 `v`、`i`、`p` 也可以问（线路用端口电流代替）。
+
+`{"kind": "tl", "el": "TL", "what": …, "x": …, "from": "start" | "end"}`，`x` 以米为单位，默认从始端量起，`"from": "end"` 表示 x′（从终端量起）：
+
+| `what` | 含义 | 单位 / 结果 |
+|---|---|---|
+| `zc` | 特性阻抗 Z_c = √(Z_0/Y_0)（复数，`part` 默认 `mag`） | Ω |
+| `gamma` / `alpha` / `beta` | 传播常数 γ = α + jβ（复数）/ 衰减常数 α / 相位常数 β | 1/m、Np/m、rad/m |
+| `lambda` / `vp` | 波长 2π/β / 相速 ω/β | m、m/s |
+| `length` / `wavelengths` / `delay` | 线长 l / 电长度 l/λ / 单程时间 l/v（无损耗线） | m、—、s |
+| `u` / `i` | 位置 x 处的电压相量 U̇(x) / 电流相量 İ(x)（沿 +x）。**必须写 `x`**。暂态题：u(x, t)、i(x, t)，必须写 `t` | V、A |
+| `uinc` / `uref` | x 处的入射波 U̇⁺ = (U̇ + Z_cİ)/2 / 反射波 U̇⁻ = (U̇ − Z_cİ)/2。必须写 `x` | V |
+| `z` | x 处向终端看进去的阻抗 U̇/İ；不写 `x` 时是始端的**输入阻抗** | Ω |
+| `refl` | 反射系数 Γ = U̇⁻/U̇⁺；不写 `x` 时是**终端**的 Γ_2。暂态题：终端网络的 Γ_2 = (R − Z_c)/(R + Z_c) | — |
+| `reflSource` | 暂态题：始端网络的 Γ_1 = (R_s − Z_c)/(R_s + Z_c) | — |
+| `vswr` | 驻波比 (1 + \|Γ\|)/(1 − \|Γ\|)，默认在终端 | — |
+| `p` | x 处沿 +x 传输的平均功率 Re(U̇İ*)（`peak` 相量为 ½Re）；暂态题 u·i | W |
+| `eta` | 传输效率 P(l)/P(0) | — |
+| `umax` / `umin` / `imax` / `imin` | 整条线（0 ≤ x ≤ l）上电压 / 电流有效值的最大、最小值 | V、A |
+| `xmax` / `xmin` | 无损耗线：从**终端**到离它最近的电压波腹 / 波节的距离（≥ 0） | m |
+
+复数量（`zc`、`gamma`、`u`、`i`、`uinc`、`uref`、`z`、`refl`）分小题问模和辐角，或实部和虚部（`part`）。`"freq"` 修饰字段照常可用（例如“频率变为 450 MHz 时的驻波比”）。答案的单位可以写 `"km"`、`"m"`、`"m/s"`、`"km/s"`、`"Np/km"`、`"rad/km"`（单位是 `"m"` 的题里，学生写的 `200 m` 读作 200 米，不是毫）。
+
+A `TL` element is a two-port: `line` gives the primary parameters per metre (`R0`, `L0`, `G0`, `C0`, `length`) or a lossless line (`zc`, `vp`, `length`), SI units. x is measured from the start (p1–n1, left) unless `"from": "end"` (x′ from the end); u is the voltage between the conductors and i the current in **+x**. In AC (and DC / periodic) the exact chain model is used, so a line works with any other element. Transient analysis supports one lossless line between resistive networks with the sources on the start side (bounce diagram, values just after each wavefront); other elements' v / i / p are then available too. `what` values are listed above; `u`, `i`, `uinc`, `uref`, `p` need `x`, and in transient problems `u`, `i`, `p` need `t`.
+
+完整示例 / Complete example:
+
+```json
+{
+  "format": "circuit-problem/1",
+  "id": "example-tline-lambda8",
+  "chapter": "transmission-line",
+  "title": "λ/8 线的输入阻抗",
+  "level": 2,
+  "statement": "50 Ω 无损耗线长 0.25 m（v = 2×10⁸ m/s，f = 100 MHz，λ/8），终端接 R_L = 100 Ω，始端 U̇_s = 2∠0° V（有效值）、R_s = 50 Ω。x 从始端量起。",
+  "schematic": {
+    "elements": [
+      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"ac": {"mag": 2, "phase": 0}}},
+      {"ref": "Rs", "type": "R", "from": [1, 0], "to": [4, 0], "value": 50},
+      {"ref": "TL", "type": "TL", "at": [6, 0], "w": 8, "line": {"zc": 50, "vp": "200M", "length": 0.25}},
+      {"ref": "RL", "type": "R", "value": 100, "from": [16, 0], "to": [16, 4]}
+    ],
+    "wires": [[[0, 0], [1, 0]], [[4, 0], [6, 0]], [[6, 2], [6, 4]], [[14, 0], [16, 0]], [[0, 4], [16, 4]], [[14, 2], [14, 4]]],
+    "grounds": [[0, 4]]
+  },
+  "analysis": {"type": "ac", "freq": 100000000.0},
+  "questions": [
+    {"id": "g", "ask": "Γ_2 = ?", "find": {"kind": "tl", "el": "TL", "what": "refl", "part": "re"}, "answer": 0.333333, "unit": "", "explain": "(100 − 50)/(100 + 50) = 1/3。"},
+    {"id": "zr", "ask": "Re Z_in = ?", "find": {"kind": "tl", "el": "TL", "what": "z", "part": "re"}, "answer": 40, "unit": "Ω", "explain": "tan βl = 1：Z_in = 50 × (100 + j50)/(50 + j100) = (40 − j30) Ω。"},
+    {"id": "zi", "ask": "Im Z_in = ?", "find": {"kind": "tl", "el": "TL", "what": "z", "part": "im"}, "answer": -30, "unit": "Ω", "explain": "见上。"},
+    {"id": "u2", "ask": "U_2 = ?", "find": {"kind": "tl", "el": "TL", "what": "u", "x": 0, "from": "end"}, "answer": 1.333333, "unit": "V", "explain": "U⁺ = 1 V，U_2 = U⁺(1 + Γ_2) = 4/3 V。"}
+  ],
+  "hints": ["先算 βl。", "用无损耗线的输入阻抗公式。"],
+  "solution": "βl = 45°，Z_in = (40 − j30) Ω，Γ_2 = 1/3，U_2 = 1.333 V。",
+  "i18n": {
+    "en": {
+      "title": "Input impedance of a λ/8 line",
+      "statement": "A 50 Ω lossless line 0.25 m long (v = 2×10⁸ m/s, f = 100 MHz, λ/8) ends in R_L = 100 Ω; the start has U̇_s = 2∠0° V (rms), R_s = 50 Ω. x is measured from the start.",
+      "questions": [
+        {
+          "ask": "Γ_2 = ?",
+          "explain": "(100 − 50)/(100 + 50) = 1/3."
+        },
+        {
+          "ask": "Re Z_in = ?",
+          "explain": "tan βl = 1: Z_in = 50 × (100 + j50)/(50 + j100) = (40 − j30) Ω."
+        },
+        {
+          "ask": "Im Z_in = ?",
+          "explain": "See above."
+        },
+        {
+          "ask": "U_2 = ?",
+          "explain": "U⁺ = 1 V, U_2 = U⁺(1 + Γ_2) = 4/3 V."
+        }
+      ],
+      "hints": [
+        "First βl.",
+        "Use the lossless input-impedance formula."
+      ],
+      "solution": "βl = 45°, Z_in = (40 − j30) Ω, Γ_2 = 1/3, U_2 = 1.333 V."
     }
   }
 }

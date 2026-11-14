@@ -362,6 +362,7 @@ describe('readAnswer: lengths and line constants (transmission lines)', () => {
     expect(val('m', '200m')).toBe(200);
     expect(val('m', '0.2 km')).toBeCloseTo(200);
     expect(val('m', '500 mm')).toBeCloseTo(0.5);
+    expect(val('m', '17.6 cm')).toBeCloseTo(0.176);
     expect(val('m', '(1/4)m')).toBeCloseTo(0.25);
   });
   it('km boxes, per-km constants and speeds', () => {

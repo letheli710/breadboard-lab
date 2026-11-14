@@ -19,9 +19,9 @@ Goal: cover the core of a first/second-year circuit analysis course in four phas
 | 15 | 电路方程的矩阵形式（关联矩阵、割集、状态方程） | ✔ `matrix-form`（电路的图、树与连支、割集；关联矩阵 A、基本回路矩阵 B_f、基本割集矩阵 Q_f 及其关系；标准支路与支路矩阵（含受控源、互感）；结点、回路、割集方程的矩阵形式；常态树与状态方程；引擎 `src/core/analysis/matrixform.ts`，有向图 `GraphFigure`，矩阵排版 `\mat{…}`）；列表法不单独出题 |
 | 16 | 二端口网络 | ✔ `two-port` |
 | 17 | 非线性电路 | ✔ `nonlinear`（非线性电阻电路：压控/流控、静态与动态电阻、串并联、曲线相交法、解析法、分段线性化与理想二极管、多个工作点与稳定性、小信号分析；引擎元件 `NR`）；**非线性动态电路（状态方程、相平面、自激振荡）未覆盖** |
-| 18 | 均匀传输线 | ✘ 未覆盖 |
+| 18 | 均匀传输线 | ✔ `transmission-line`（分布参数电路、原参数与副参数、双曲函数形式的正弦稳态解、行波与反射系数、匹配、无损耗线的输入阻抗与开路/短路线、λ/4 与 λ/2 线、驻波、无畸变线、λ/4 变换器与单支节匹配、无损耗线的波过程（反射网格图）；引擎 `src/core/analysis/tline.ts`：二端口元件 `TL`（精确链参数模型，可与任何元件共存），量 `tl`）；有损耗线的暂态、电感/电容端接的波过程未覆盖 |
 
-Not covered yet: ch. 17 beyond resistive circuits (nonlinear dynamic circuits), 18 (transmission lines). See the backlog below.
+Not covered yet: ch. 17 beyond resistive circuits (nonlinear dynamic circuits); in ch. 18 transients on lossy lines and wave processes with L/C terminations. See the backlog below.
 
 ## 两种题目 / Two kinds of content
 
@@ -38,15 +38,15 @@ Not covered yet: ch. 17 beyond resistive circuits (nonlinear dynamic circuits), 
 | 1 | `basics` 电路模型与基本定律（参考方向、功率、独立源、受控源、KCL/KVL）<br>`equivalence` 等效变换（串并联、Y–Δ、电源等效变换、输入电阻） | ✔ | KCL/KVL 实测（电流表）、分压分流、惠斯通电桥、稳压电源 CC 模式当电流源 |
 | 2 | `methods` 支路电流法、网孔/回路电流法、结点电压法<br>`theorems` 叠加、替代、戴维宁/诺顿、最大功率传输、互易<br>`opamp` 含理想运放的电阻电路 | ✔ | 双电源叠加、测戴维宁等效（开路电压+短路电流）、电位器找最大功率、LM358 同相/反相放大 |
 | 3 | `storage` 电容与电感<br>`first-order` 一阶电路（零输入/零状态/全响应、三要素法、阶跃响应）<br>`second-order` RLC 二阶电路（过阻尼/临界/欠阻尼） | ✔ | 信号发生器方波 + 示波器：RC 充放电、RL、RLC 振铃 |
-| 4 | `phasors` 相量法<br>`ac-analysis` 阻抗导纳、正弦稳态分析<br>`ac-power` 有功/无功/视在/复功率、功率因数校正<br>`coupled` 互感、理想变压器<br>`frequency` 网络函数、串并联谐振、滤波器<br>`three-phase` 三相电路<br>`non-sinusoidal` 非正弦周期电路：谐波分析、有效值、平均功率<br>`s-domain` 复频域分析：拉普拉斯变换、运算电路、网络函数与零极点、冲激响应、卷积<br>`two-port` 二端口网络<br>`nonlinear` 非线性电阻电路：工作点、分段线性化、小信号分析 | ✔ | 信号发生器正弦 + 示波器：RC 低通/高通、相移、谐振 |
+| 4 | `phasors` 相量法<br>`ac-analysis` 阻抗导纳、正弦稳态分析<br>`ac-power` 有功/无功/视在/复功率、功率因数校正<br>`coupled` 互感、理想变压器<br>`frequency` 网络函数、串并联谐振、滤波器<br>`three-phase` 三相电路<br>`non-sinusoidal` 非正弦周期电路：谐波分析、有效值、平均功率<br>`s-domain` 复频域分析：拉普拉斯变换、运算电路、网络函数与零极点、冲激响应、卷积<br>`two-port` 二端口网络<br>`nonlinear` 非线性电阻电路：工作点、分段线性化、小信号分析<br>`transmission-line` 均匀传输线：副参数、反射与驻波、匹配、波过程 | ✔ | 信号发生器正弦 + 示波器：RC 低通/高通、相移、谐振 |
 
 ## 阶段 / Stages
 
 - [x] **A. 基础设施**
-  - [x] A1 理想电路分析引擎 `src/core/analysis`（MNA：R、C、L、V、I、四种受控源、理想运放、理想开关、耦合电感、理想变压器；直流、暂态、正弦稳态、非正弦周期稳态（逐次谐波叠加，`src/core/analysis/periodic.ts`）；非线性电阻 `NR`（多项式/分段线性/理想二极管特性，求出全部直流工作点与小信号响应，`src/core/analysis/nonlinear.ts`）；复频域分析（网络函数 H(s)、零极点、响应象函数的部分分式系数，冲激/指数电源，`src/core/analysis/sdomain.ts`）；戴维宁、等效电阻、二端口参数等派生量）
+  - [x] A1 理想电路分析引擎 `src/core/analysis`（MNA：R、C、L、V、I、四种受控源、理想运放、理想开关、耦合电感、理想变压器；直流、暂态、正弦稳态、非正弦周期稳态（逐次谐波叠加，`src/core/analysis/periodic.ts`）；非线性电阻 `NR`（多项式/分段线性/理想二极管特性，求出全部直流工作点与小信号响应，`src/core/analysis/nonlinear.ts`）；复频域分析（网络函数 H(s)、零极点、响应象函数的部分分式系数，冲激/指数电源，`src/core/analysis/sdomain.ts`）；均匀传输线 `TL`（二端口，正弦稳态精确链参数模型，无损耗线的波过程，`src/core/analysis/tline.ts`）；戴维宁、等效电阻、二端口参数等派生量）
   - [x] A2 电路图格式 + 渲染 `src/core/problem/geometry.ts`、`src/ui/ProblemSchematic.tsx`（从画图几何推出网表）
   - [x] A3 理论题格式解析与校验 `src/core/problem/parse.ts`，`npm run validate` 同时校验 `problems/`，「练习」模式界面，`docs/PROBLEM_FORMAT.md` 和出题提示词
-- [x] **B. 理论题内容**：19 章共 277 题，全部由引擎核对答案 / 277 problems across 19 chapters, all engine-checked
+- [x] **B. 理论题内容**：20 章共 291 题，全部由引擎核对答案 / 291 problems across 20 chapters, all engine-checked
 - [x] **C. 面包板引擎扩展**：电流表、运放 LM358、电感、信号发生器、示波器、面包板电路的暂态/交流仿真
 - [x] **D. 面包板题内容**：第 1–4 期共 31 个实验（201–208、221–228、241–247、261–268）
 - [x] **E. 第 5 期：单片机外围电路**：平台（ESP32 / Blue Pill、器件、诊断、§14 格式）+ 18 个实验（280–297）/ Phase 5 platform + 18 MCU-peripheral experiments
@@ -179,7 +179,7 @@ Each needs engine work in `src/core/analysis` (or new quantity kinds) before a s
 
 - [x] ~~电路方程的矩阵形式：图、树、割集、关联矩阵；状态方程（第 15 章，以及第 3 章“电路的图”）~~ — 已完成：`matrix-form` 章 / done: the `matrix-form` chapter
 - 非线性动态电路：含非线性电感/电容的状态方程、相平面、自激振荡（第 17 章后半；非线性电阻电路已有 `nonlinear` 章）/ nonlinear dynamic circuits: state equations with nonlinear L/C, phase plane, self-oscillation (nonlinear resistive circuits are covered by `nonlinear`)
-- 均匀传输线：分布参数、行波、正弦稳态（第 18 章）/ uniform transmission lines (distributed parameters)
+- [x] ~~均匀传输线：分布参数、行波、正弦稳态（第 18 章）~~ — 已完成：`transmission-line` 章 / done: the `transmission-line` chapter。剩余 / remaining：有损耗线的暂态（需要拉普拉斯反变换或数值方法）、电感/电容端接的波过程 / transients on lossy lines, wave processes with L/C terminations
 
 ### 面包板仿真待办 / Breadboard simulation backlog
 
