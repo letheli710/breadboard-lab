@@ -510,6 +510,20 @@ const TESTS = {
           (await tog.getAttribute('aria-expanded')) === 'false' && (await p.evaluate(() => document.activeElement.matches('.pr-phone-nav button[aria-controls="pr-side"]'))),
           'drawer: Esc closes it, focus back on the toggle',
         );
+        const rev = p.locator('.pr-phone-review');
+        await rev.focus();
+        await p.keyboard.press('Enter');
+        await p.waitForTimeout(250);
+        assert(
+          (await rev.getAttribute('aria-expanded')) === 'true' && (await p.evaluate(() => !!document.activeElement.closest('#pr-phone-menu'))),
+          'review menu: opens, focus on its first link',
+        );
+        await p.keyboard.press('Escape');
+        await p.waitForTimeout(150);
+        assert(
+          (await p.locator('#pr-phone-menu').count()) === 0 && (await p.evaluate(() => document.activeElement.classList.contains('pr-phone-review'))),
+          'review menu: Esc closes it, focus back on its button',
+        );
         assert(errors.length === 0, 'viewer / drawer: no page errors ' + errors.join(' | '));
       } finally {
         await shot(p, 'kb-phone');

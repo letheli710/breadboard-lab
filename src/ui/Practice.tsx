@@ -417,6 +417,27 @@ function PhoneNav({
   // notebook / review / quiz: a menu above the bar (the sidebar links live in the drawer)
   const [menu, setMenu] = useState(false);
   useEffect(() => setMenu(false), [view, current?.id, summary]);
+  // open: focus its first link; Esc (or a tap outside) closes it, Esc returns focus to the button
+  useEffect(() => {
+    if (!menu) return;
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('#pr-phone-menu button, #pr-phone-menu a')?.focus());
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.stopPropagation();
+      setMenu(false);
+      document.querySelector<HTMLElement>('.pr-phone-review')?.focus();
+    };
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Element;
+      if (!t.closest('#pr-phone-menu, .pr-phone-review')) setMenu(false);
+    };
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('pointerdown', onDown, true);
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('pointerdown', onDown, true);
+    };
+  }, [menu]);
   let prev: ProblemEntry | null = null;
   let next: ProblemEntry | null = null;
   let pos = '';
@@ -436,12 +457,12 @@ function PhoneNav({
       <button className={drawer ? 'on' : ''} aria-expanded={drawer} aria-controls="pr-side" onClick={() => setDrawer(!drawer)}>
         <Icon name="book" size={18} /> <span className="pr-phone-label">{tr('题目', 'Problems')}</span>
       </button>
-      <button className={`pr-phone-review ${menu || view ? 'on' : ''}`} aria-expanded={menu} onClick={() => setMenu(!menu)}>
+      <button className={`pr-phone-review ${menu || view ? 'on' : ''}`} aria-expanded={menu} aria-controls="pr-phone-menu" onClick={() => setMenu(!menu)}>
         <Icon name="target" size={18} /> <span className="pr-phone-label">{tr('复习', 'Review')}</span>
         {due > 0 && <b aria-label={tr(`${due} 道今日到期`, `${due} due today`)}>{due}</b>}
       </button>
       {menu && (
-        <div className="pr-phone-menu">
+        <div className="pr-phone-menu" id="pr-phone-menu">
           <MasteryNav />
         </div>
       )}
