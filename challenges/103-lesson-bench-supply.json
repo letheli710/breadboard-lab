@@ -1,0 +1,136 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-bench-supply",
+  "title": "第 11 课 · 稳压电源：CV、CC 和限流",
+  "kind": "lesson",
+  "level": 2,
+  "summary": "稳压电源有两个旋钮：电压和限流。负载要的电流没到限流值时它恒压（CV），到了就恒流（CC）——可以当电流源用。",
+  "concepts": ["bench supply 稳压电源", "CV 恒压", "CC 恒流", "current limit 限流", "current source 电流源"],
+  "description": "**这一课学什么**：直流稳压电源（bench power supply）的两种工作方式，以及怎样把它当成一个电流源。第 1 期的“稳压电源 CC 模式当电流源”实验直接用到。\n\n**两个设定值**：\n- **电压设定（CV）**：输出电压的上限；\n- **限流设定（CC）**：输出电流的上限。\n负载 R 想要的电流 U/R 小于限流值时，电源输出设定的电压，显示 **CV**；一旦想要的电流超过限流值，电源把电流卡在限流值，电压自己往下降到 I × R，显示 **CC**（红色）。\n\n**看显示屏**：大字是**实际输出**的电压和电流，下面一行小字“设定 …V / …A”是旋钮的位置。设定值不等于实际值——这是新手最常看错的地方。\n\n**当电流源用**：把限流调到想要的电流，电压设定调得比需要的高（给它“余量”）。只要负载电阻不太大，不管负载怎么变，电流都不变，变的是电压。\n\n**电路**：稳压电源 → R1 → GND，就这一个负载。\n\n**先预测**：限流 10 mA 时，R1 两端（也就是电源显示）的电压是多少？R1 换个阻值呢？\n\n**仿真和真实电源**：这里的电源是理想的：CV 时内阻 0.02 Ω，CC 时电流正好等于设定值，切换没有过冲。真实电源的显示一般只有 3 位，限流旋钮也不太准；常用的设定方法是**把输出端短路，看着电流表调限流旋钮**，再拆掉短路线接负载。真实电源输出端有电容，接上负载的一瞬间可能冲出一个大电流。",
+  "compare": "**对比**：\n- 5 V、限流 100 mA、R1 = 220 Ω：想要 5 / 220 ≈ 22.7 mA < 100 mA → CV，显示 5.00 V、0.023 A；\n- 限流 10 mA、R1 = 220 Ω：想要 22.7 mA > 10 mA → CC，电压 = 10 mA × 220 Ω = **2.20 V**；\n- 设定 12 V、限流 10 mA、R1 = 470 Ω：想要 25.5 mA > 10 mA → 还是 CC，电压 = 10 mA × 470 Ω = **4.70 V**，电流仍是 **10 mA**；\n- 限流 20 mA：想要 25.5 mA > 20 mA → 还是 CC，电压 = 20 mA × 470 Ω = **9.4 V**；\n- 限流调回 100 mA：想要 25.5 mA < 100 mA → CV，电压 12 V，电流 ≈ **25.5 mA**。\n电流源能维持 10 mA 的最大负载是 12 V / 10 mA = 1.2 kΩ；负载再大，电压到顶，电源回到 CV。",
+  "i18n": {
+            "en": {
+                    "title": "Lesson 11 · Bench supply: CV, CC and the current limit",
+                    "summary": "A bench supply has two knobs: voltage and current limit. Below the limit it holds the voltage (CV); at the limit it holds the current (CC) — and becomes a current source.",
+                    "concepts": ["bench supply", "CV (constant voltage)", "CC (constant current)", "current limit", "current source"],
+                    "description": "**What you learn**: the two ways a DC bench power supply works, and how to use it as a current source. The phase 1 lab \"bench supply in CC mode as a current source\" builds on this.\n\n**Two settings**:\n- **voltage setting (CV)**: the most voltage it will give;\n- **current limit (CC)**: the most current it will give.\nWhile the current the load R wants, U/R, is below the limit, the supply gives the set voltage and shows **CV**; once the load wants more than the limit, it holds the current at the limit and lets the voltage fall to I × R, showing **CC** (red).\n\n**Read the display**: the big digits are the **actual** output voltage and current; the small line \"SET …V / …A\" shows the knobs. The settings are not the actual values — the most common beginner misreading.\n\n**As a current source**: set the limit to the current you want and the voltage higher than needed (headroom). As long as the load isn't too large, the current stays the same whatever the load; the voltage is what changes.\n\n**Circuit**: bench supply → R1 → GND, a single load.\n\n**Predict first**: with a 10 mA limit, what voltage is across R1 (which is what the supply shows)? And with another R1?\n\n**Simulated vs real supply**: this supply is ideal: 0.02 Ω inside in CV, exactly the set current in CC, no overshoot when it switches. A real supply usually shows 3 digits and its current knob is approximate; a common way to set it is to **short the output and turn the current knob while watching the ammeter**, then remove the short and connect the load. A real supply has a capacitor across its output, which can dump a current spike the moment a load is connected.",
+                    "compare": "**Compare**:\n- 5 V, 100 mA limit, R1 = 220 Ω: wants 5 / 220 ≈ 22.7 mA < 100 mA → CV, shows 5.00 V, 0.023 A;\n- 10 mA limit, R1 = 220 Ω: wants 22.7 mA > 10 mA → CC, voltage = 10 mA × 220 Ω = **2.20 V**;\n- 12 V set, 10 mA limit, R1 = 470 Ω: wants 25.5 mA > 10 mA → still CC, voltage = 10 mA × 470 Ω = **4.70 V**, current still **10 mA**;\n- 20 mA limit: wants 25.5 mA > 20 mA → still CC, voltage = 20 mA × 470 Ω = **9.4 V**;\n- limit back to 100 mA: wants 25.5 mA < 100 mA → CV, 12 V, current ≈ **25.5 mA**.\nThe largest load this 10 mA source can drive is 12 V / 10 mA = 1.2 kΩ; above that the voltage hits the ceiling and the supply goes back to CV.",
+                    "steps": [
+                              "Pick \"Bench power supply\", click tp1 (red clip, +) then tn1 (black clip, −).",
+                              "Look at the supply's screen: the big digits are the actual output (no load yet: 5.00 V, 0.000 A), green CV means constant voltage; the line \"SET 5V / 0.1A\" shows the two knobs. You can turn both in Properties — keep 5 V and 100 mA for now.",
+                              "R1: click tp5 and a5, set 220Ω.",
+                              "Jumper c5 → tn5 so R1 goes to GND. Screen: 5.00 V, about 0.023 A, still CV — the load wants only 23 mA, below the 100 mA limit.",
+                              "Click the supply and turn the **current limit** down to 10 mA in Properties. The light turns red, CC: the current is held at 10 mA and the voltage drops to 10 mA × 220 Ω.",
+                              "**Current source**: click R1 and change it to 470Ω. Still CC: the current is still 10 mA; the voltage followed the load.",
+                              "Click the supply and turn the **voltage setting** up to 12 V. The actual voltage on the screen doesn't move — still CC; the set voltage is only a ceiling. With this headroom the source can hold 10 mA into a larger load too.",
+                              "Press \"Check my circuit\" and answer the questions from the supply's screen (some ask you to turn the current limit first; the required state is shown under the question)."
+                            ],
+                    "hints": [
+                              "Decide the mode first: compare the current the load wants, U(set) / R, with the limit. Which is smaller?",
+                              "In CC the current is the limit and the voltage is I × R; in CV the voltage is the setting and the current is U / R.",
+                              "With a 10 mA limit, the voltage on 220 Ω and on 470 Ω is 10 mA times each."
+                            ],
+                    "tests": ["Current-limit mode: the current equals the limit setting"],
+                    "measurements": [
+                                      {"ask": "The current on the supply's display (CC mode, R1 = 470 Ω)", "explain": "In CC mode the current is the limit setting."},
+                                      {
+                                        "ask": "The voltage on the supply's display (same state). It is set to 12 V — what is it actually?",
+                                        "explain": "U = I × R = 10 mA × 470 Ω = 4.70 V: the load decides the voltage; 12 V is only the ceiling."
+                                      },
+                                      {
+                                        "ask": "Turn the limit up to 20 mA (voltage still set to 12 V): the voltage on the supply's display",
+                                        "explain": "12 V / 470 Ω ≈ 25.5 mA is still above 20 mA, so still CC: U = 20 mA × 470 Ω = 9.4 V. The current knob sets the source's current."
+                                      },
+                                      {
+                                        "ask": "With R1 = 470 Ω, turn the limit back up to 100 mA: the current on the supply's display (see it switch back to CV)",
+                                        "explain": "12 V / 470 Ω ≈ 25.5 mA, below 100 mA, so CV: the voltage is the setting and the load decides the current."
+                                      }
+                                    ]
+                  }
+          },
+  "components": [{"ref": "P1", "type": "bench_supply"}, {"ref": "R1", "type": "resistor", "resistance": "470"}],
+  "connections": [["P1.+", "R1.1"], ["R1.2", "P1.-"]],
+  "tests": [{"name": "限流模式：电流等于限流设定", "set": {"P1": {"voltage": 12, "currentLimit": 0.01}}, "currents": [{"el": "R1", "min": 0.0099, "max": 0.0101}]}],
+  "measurements": [
+                    {
+                      "id": "icc",
+                      "current": "R1",
+                      "unit": "mA",
+                      "set": {"P1": {"voltage": 12, "currentLimit": 0.01}},
+                      "range": [0.0099, 0.0101],
+                      "ask": "电源显示的电流（CC 模式，R1 = 470 Ω）",
+                      "explain": "CC 模式下电流就是限流设定值。"
+                    },
+                    {
+                      "id": "ucc",
+                      "voltage": "P1.+",
+                      "ref": "P1.-",
+                      "unit": "V",
+                      "predict": true,
+                      "set": {"P1": {"voltage": 12, "currentLimit": 0.01}},
+                      "range": [4.6, 4.8],
+                      "ask": "电源显示的电压（同一状态）。设定是 12 V，实际是多少？",
+                      "explain": "U = I × R = 10 mA × 470 Ω = 4.70 V：电压由负载决定，12 V 只是上限。"
+                    },
+                    {
+                      "id": "u20",
+                      "voltage": "P1.+",
+                      "ref": "P1.-",
+                      "unit": "V",
+                      "predict": true,
+                      "set": {"P1": {"voltage": 12, "currentLimit": 0.02}},
+                      "range": [9.2, 9.6],
+                      "ask": "把限流调到 20 mA（电压设定还是 12 V）：电源显示的电压",
+                      "explain": "12 V / 470 Ω ≈ 25.5 mA 还是大于 20 mA，所以仍是 CC：U = 20 mA × 470 Ω = 9.4 V。电流源的电流由限流旋钮决定。"
+                    },
+                    {
+                      "id": "icv",
+                      "current": "R1",
+                      "unit": "mA",
+                      "predict": true,
+                      "set": {"P1": {"voltage": 12, "currentLimit": 0.1}},
+                      "range": [0.0245, 0.0265],
+                      "ask": "R1 = 470 Ω，把限流调回 100 mA：电源显示的电流（看看它变回了 CV）",
+                      "explain": "12 V / 470 Ω ≈ 25.5 mA，小于 100 mA，所以是 CV：电压等于设定值，电流由负载决定。"
+                    }
+                  ],
+  "steps": [
+            {"text": "选“直流稳压电源”，单击 tp1（红夹子 +），再单击 tn1（黑夹子 −）。", "highlight": ["tp1", "tn1"], "check": [{"type": "bench_supply", "pins": {"+": "tp1", "-": "tn1"}}]},
+            {
+              "text": "看电源的屏幕：大字是实际输出（现在没接负载：5.00 V、0.000 A），绿色 CV 表示恒压；下面一行“设定 5V / 0.1A”是两个旋钮的位置。“属性”里可以调这两个旋钮——先保持 5 V、100 mA。",
+              "highlight": ["tp1", "tn1"],
+              "check": [{"type": "bench_supply", "pins": {"+": "tp1", "-": "tn1"}, "voltage": 5, "currentLimit": 0.1}]
+            },
+            {"text": "R1：单击 tp5 和 a5，阻值 220Ω。", "highlight": ["tp5", "a5"], "check": [{"type": "resistor", "pins": {"1": "tp5", "2": "a5"}, "resistance": "220"}]},
+            {
+              "text": "跳线 c5 → tn5，R1 接到 GND。屏幕：5.00 V、约 0.023 A，还是 CV——负载只要 23 mA，没到 100 mA 的限流。",
+              "highlight": ["c5", "tn5"],
+              "check": [{"type": "wire", "pins": {"a": "c5", "b": "tn5"}}]
+            },
+            {
+              "text": "单击电源，在“属性”里把**限流**调到 10 mA。指示灯变成红色 CC：电流被卡在 10 mA，电压掉到 10 mA × 220 Ω。",
+              "highlight": ["tp1", "tn1"],
+              "check": [{"type": "bench_supply", "pins": {"+": "tp1", "-": "tn1"}, "currentLimit": 0.01}]
+            },
+            {
+              "text": "**电流源**：单击 R1，把阻值改成 470Ω。还是 CC：电流还是 10 mA，电压跟着负载变了。",
+              "highlight": ["tp5", "a5"],
+              "check": [{"type": "resistor", "pins": {"1": "tp5", "2": "a5"}, "resistance": "470"}]
+            },
+            {
+              "text": "单击电源，把**电压设定**调到 12 V。屏幕上的实际电压一点没变——还在 CC，设定电压只是“上限”。给电流源留出这样的余量，负载再大一些它也能维持 10 mA。",
+              "highlight": ["tp1", "tn1"],
+              "check": [{"type": "bench_supply", "pins": {"+": "tp1", "-": "tn1"}, "voltage": 12, "currentLimit": 0.01}]
+            },
+            {"text": "点“检查我的电路”，读电源屏幕完成测量题（有的题要你先调限流，题目下面会写要的“状态”）。", "highlight": []}
+          ],
+  "hints": ["先判断模式：负载想要的电流 U设定 / R 和限流值比，哪个小？", "CC 模式下，电流 = 限流设定，电压由 I × R 决定；CV 模式下，电压 = 设定值，电流由 U / R 决定。", "10 mA 限流时，220 Ω 和 470 Ω 上的电压分别是 10 mA 乘以它们。"],
+  "solution": {
+                "parts": [
+                          {"type": "bench_supply", "ref": "P1", "voltage": 12, "currentLimit": 0.01, "pins": {"+": "tp1", "-": "tn1"}},
+                          {"type": "resistor", "ref": "R1", "resistance": "470", "pins": {"1": "tp5", "2": "a5"}},
+                          {"type": "wire", "pins": {"a": "c5", "b": "tn5"}, "color": "blue"}
+                        ]
+              }
+}

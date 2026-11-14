@@ -154,6 +154,11 @@ describe('measurement questions', () => {
     const thev = load('222-thevenin-measure.json');
     const b = structureKey(thev, board(thev));
     expect(structureKey(thev, board(thev, { SW1: { pressed: true } }))).toBe(b);
+    // lesson 11 (bench supply): its open knobs are operating controls, part values are not
+    const psu = load('103-lesson-bench-supply.json');
+    const p = structureKey(psu, board(psu));
+    expect(structureKey(psu, board(psu, { P1: { currentLimit: 0.02, voltage: 9 } }))).toBe(p);
+    expect(structureKey(psu, board(psu, { R1: { resistance: 220 } }))).not.toBe(p);
   });
 });
 

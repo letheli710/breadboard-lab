@@ -82,16 +82,30 @@ function serialize(c: Circuit, omit?: (type: string, key: string) => boolean): s
  *  turning a knob, retuning the generator. Changing them keeps the circuit check valid. */
 const CONTROL_KEYS = new Set(['pressed', 'position', 'wiper']);
 const GEN_KEYS = new Set(['waveform', 'frequency', 'amplitude', 'offset']);
+/** a bench supply's two knobs: operating controls when the target names a bench_supply and
+ *  leaves them open (lesson 11 reads the display at several settings) */
+const SUPPLY_KEYS = new Set(['voltage', 'currentLimit']);
 
 /** Fingerprint of what the circuit check judged: wiring and part values, without scope probes
- *  and the operating controls (unless the target pins a generator setting down). */
+ *  and the operating controls (unless the target pins a generator or supply setting down). */
 export function structureKey(ch: Challenge, board: Circuit): string {
   const view = checkerView(
     board,
     ch.target.components.some((c) => c.type === 'ammeter'),
   ).circuit;
-  const pinnedGen = new Set(ch.target.components.filter((c) => c.type === 'function_gen').flatMap((c) => Object.keys(c.props)));
-  return hash(serialize(view, (type, k) => CONTROL_KEYS.has(k) || (type === 'function_gen' && GEN_KEYS.has(k) && !pinnedGen.has(k))));
+  const pinned = (types: string[]) => new Set(ch.target.components.filter((c) => types.includes(c.type)).flatMap((c) => Object.keys(c.props)));
+  const pinnedGen = pinned(['function_gen']);
+  const supplies = ch.target.components.filter((c) => c.type === 'bench_supply');
+  const pinnedSupply = pinned(['bench_supply']);
+  return hash(
+    serialize(
+      view,
+      (type, k) =>
+        CONTROL_KEYS.has(k) ||
+        (type === 'function_gen' && GEN_KEYS.has(k) && !pinnedGen.has(k)) ||
+        (type === 'bench_supply' && supplies.length > 0 && SUPPLY_KEYS.has(k) && !pinnedSupply.has(k)),
+    ),
+  );
 }
 
 /** Match the board to the target (wiring + values only, no behaviour tests): null unless it matches. */
