@@ -284,5 +284,5 @@ describe('transmission line: transient by the bounce diagram', () => {
       const ue = q(exact, 'u', 200, t);
       expect(Math.abs(ul - ue) / ue, `t = ${t}: ladder ${ul} vs bounce ${ue}`).toBeLessThan(0.02);
     }
-  });
+  }, 30_000); // ~4 s alone, over 5 s when the whole suite runs in parallel
 });
