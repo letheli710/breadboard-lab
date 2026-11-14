@@ -52,6 +52,7 @@ Not covered yet: ch. 17 beyond resistive circuits (nonlinear dynamic circuits); 
 - [x] **E. 第 5 期：单片机外围电路**：平台（ESP32 / Blue Pill、器件、诊断、§14 格式）+ 18 个实验（280–297）/ Phase 5 platform + 18 MCU-peripheral experiments
 - [x] **F. 测量题 / measurement questions**：实验分两步——电路正确，再读自己面包板上的仪表（期望值按学生自己的电路仿真，CHALLENGE_FORMAT §15）。已加到 12 个实验：201、202、203、206、222、223、241、244、261、264、291、295 / labs are two-stage — circuit right, then readings from the student's own board (expected values simulated on their circuit); 12 labs so far
   - 待办 / to do：其余实验（204、205、207、208、221、224–228、242、243、245–247、262、263、265–268、280–290、292–294、296、297）补测量题 / add questions to the remaining labs
+- [x] **G. 仪器课 / instrument lessons**：课程 9–16（`challenges/101-…108-…`）：万用表、电流表、稳压电源 CV/CC、信号发生器 + 示波器、双通道相位差、LM358 跟随器、开发板 GPIO、PWM 与 ADC。每一步带自动检查（`check`，CHALLENGE_FORMAT §7.1），最后有测量题；第 1–5 期实验用 `prereq` 链接到先修课 / lessons 9–16 teach every instrument before the labs; each step is checked, each lesson ends with readings; labs link to their prerequisite lessons (`prereq`)
 
 ## 约定 / Conventions
 

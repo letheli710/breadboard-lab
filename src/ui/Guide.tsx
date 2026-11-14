@@ -112,6 +112,46 @@ function GroundDiagram() {
   );
 }
 
+/** the instrument lessons (challenges/101-…108-…): id, title, what it teaches */
+const INSTRUMENT_LESSONS: [string, [string, string], [string, string]][] = [
+  [
+    'lesson-multimeter',
+    ['万用表：测电压', 'Multimeter: voltage'],
+    ['红黑表笔、结点电压和元件两端电压、表笔对调变号、悬空', 'red and black probes, node voltage vs voltage across a part, swapped probes, floating points'],
+  ],
+  [
+    'lesson-ammeter',
+    ['电流表', 'Ammeter'],
+    ['必须串联（断开再接入）、并联会短路、方向、0.1 Ω 内阻', 'in series only (open the path, insert it), parallel shorts the part, direction, 0.1 Ω burden'],
+  ],
+  [
+    'lesson-bench-supply',
+    ['稳压电源：CV / CC', 'Bench supply: CV / CC'],
+    ['电压和限流两个旋钮、看懂显示屏、当电流源用', 'the voltage and current-limit knobs, reading the display, using it as a current source'],
+  ],
+  [
+    'lesson-generator-scope',
+    ['信号发生器和示波器', 'Function generator and scope'],
+    ['幅度 / 峰峰值 / 有效值、偏置、周期、时间/格和伏/格、50 Ω 输出电阻', 'amplitude / Vpp / RMS, offset, period, time/div and V/div, 50 Ω output resistance'],
+  ],
+  ['lesson-scope-two-channels', ['示波器双通道', 'Two scope channels'], ['CH1 / CH2、相位差、接地夹只能夹 GND', 'CH1 / CH2, phase difference, ground clips on GND only']],
+  [
+    'lesson-lm358',
+    ['LM358 运放', 'LM358 op-amp'],
+    ['DIP-8 横跨凹槽、引脚、电源脚、跟随器、单电源输出上限', 'DIP-8 across the trench, pinout, supply pins, follower, single-supply output limit'],
+  ],
+  [
+    'lesson-mcu-gpio',
+    ['开发板：供电和 GPIO', 'Dev board: power and GPIO'],
+    ['3V3 / 5V / GND、输出点灯、上拉输入读按键、引脚电流上限', '3V3 / 5V / GND, an output driving an LED, a pulled-up input reading a button, pin current limits'],
+  ],
+  [
+    'lesson-mcu-pwm-adc',
+    ['开发板：PWM 和 ADC', 'Dev board: PWM and ADC'],
+    ['占空比、万用表读平均值、示波器看方波、ADC 读数', 'duty cycle, the multimeter reads the average, the scope shows the square wave, ADC readings'],
+  ],
+];
+
 export function Guide() {
   const en = getLang() === 'en';
   return (
@@ -445,6 +485,34 @@ export function Guide() {
               </li>
             </ul>
           )}
+        </article>
+
+        <article className="card concept" id="guide-instruments">
+          <a className="concept-num" href="#/guide/instruments" title={tr('这一节的链接', 'Link to this section')}>
+            09
+          </a>
+          <h3>{tr('仪器怎么用', 'Using the instruments')}</h3>
+          <p>
+            {tr(
+              '第 1–5 期的实验都要你自己读仪表、填读数。每种仪器都有一节分步课程，做实验之前先做一遍：',
+              'Every lab in phases 1–5 asks you to read the instruments yourself and type the readings. Each instrument has a step-by-step lesson; do it before the labs:',
+            )}
+          </p>
+          <ul>
+            {INSTRUMENT_LESSONS.map(([id, zh, en]) => (
+              <li key={id}>
+                <a href={`#/learn/${id}`}>{tr(...zh)}</a>
+                {tr('：', ': ')}
+                {tr(...en)}
+              </li>
+            ))}
+          </ul>
+          <p className="note">
+            {tr(
+              '每节课最后会说明仿真仪器和真实仪器的区别（输入电阻、负担电阻、50 Ω 输出、探头……）。',
+              'Each lesson ends by saying how the simulated instrument differs from a real one (input resistance, burden resistance, 50 Ω output, probes…).',
+            )}
+          </p>
         </article>
       </div>
     </main>

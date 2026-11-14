@@ -1,0 +1,173 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-mcu-gpio",
+  "title": "第 15 课 · 开发板：供电和 GPIO 输入输出",
+  "kind": "lesson",
+  "level": 3,
+  "summary": "ESP32 开发板怎么上面包板、3V3 / 5V / GND 怎么用、把引脚设成输出点灯、设成上拉输入读按键，以及每个引脚能给多少电流。",
+  "concepts": ["dev board 开发板", "GPIO", "3V3 / 5V / GND", "output 输出", "pull-up 上拉", "pin current limit 引脚电流"],
+  "description": "**这一课学什么**：第 5 期全部是单片机外围电路。这一课先学开发板本身：怎么供电、电源脚怎么用、GPIO 设成输出和输入是什么样子。\n\n**没有程序**：这里的开发板不跑代码，每个 GPIO 在“属性”里选一个**模式**——模式就是程序：输出高、输出低、输入、输入 + 内部上拉 / 下拉、PWM、ADC。\n\n**供电**：插着 USB 时（默认），USB 的 5 V 经过一只肖特基二极管（压降约 0.3 V）到 **5V 脚**，再经板载稳压器变成 **3.3 V**（3V3 脚）。芯片和 GPIO 都是 3.3 V 的。3V3、5V、GND 脚都可以给面包板供电；板上几个 GND 脚在板子内部是连通的。\n\n**在面包板上**：ESP32-DevKitC 的两排针插在 b 行和 i 行，中间的孔被板子盖住了——每个引脚只剩 a 行（上排）或 j 行（下排）一个空孔，导线和元件就从这里接出去。\n\n**输出**：引脚“输出高”时相当于一个 3.3 V 电源串联约 25 Ω 的输出电阻，电流越大引脚电压越低。建议每个引脚 ≤ 20 mA，超过 40 mA 会损坏——LED 一定要串电阻。\n\n**输入和上拉**：输入几乎不取电流。什么都不接的输入是**浮空**的，读到的电平不确定。按键一端接 GND、另一端接引脚，再打开**内部上拉**（约 45 kΩ 接到 3.3 V）：松开时读高，按下时读低。\n\n**仿真和真实开发板**：这里的输出电阻、上拉电阻和电流上限是固定值；真实 ESP32 的驱动能力可以在程序里设，上拉电阻在 30–80 kΩ 之间，整颗芯片所有引脚加起来还有总电流上限。真实板子上很多引脚有特殊用途（启动配置、串口、Flash），用之前查一下开发板的引脚图。",
+  "compare": "**对比**：\n- 3V3 脚 ≈ 3.3 V；5V 脚 ≈ 5 V − 0.3 V ≈ **4.7 V**；\n- LED 电流 = (3.3 − 1.8) V / (330 + 25 + 12) Ω ≈ **4.1 mA**（25 Ω 是引脚输出电阻，12 Ω 是 LED 内阻）；\n- 引脚电压 = 3.3 V − 25 Ω × 4.1 mA ≈ **3.20 V**；由此算出输出电阻 ≈ **25 Ω**；\n- 上拉输入：松开读高，按下读低（按下时引脚被按键接到 GND，上拉电阻里流过 3.3 V / 45 kΩ ≈ 73 µA）。",
+  "i18n": {
+            "en": {
+                    "title": "Lesson 15 · Dev board: power and GPIO in / out",
+                    "summary": "Seating an ESP32 dev board, using its 3V3 / 5V / GND, setting a pin as an output to light an LED and as a pulled-up input to read a button, and how much current a pin can give.",
+                    "concepts": ["dev board", "GPIO", "3V3 / 5V / GND", "output", "pull-up", "pin current limit"],
+                    "description": "**What you learn**: phase 5 is all about circuits around a microcontroller. This lesson covers the dev board itself: powering it, its power pins, and what a GPIO looks like as an output and as an input.\n\n**No firmware**: the dev board runs no code; each GPIO gets a **mode** in Properties — the mode is the program: output high, output low, input, input with internal pull-up / pull-down, PWM, ADC.\n\n**Power**: with USB plugged in (the default), USB 5 V goes through a Schottky diode (about 0.3 V drop) to the **5V pin**, and the onboard regulator makes **3.3 V** from it (the 3V3 pin). The chip and its GPIOs run at 3.3 V. The 3V3, 5V and GND pins can all power the breadboard; the board's GND pins are joined on the PCB.\n\n**On the breadboard**: the ESP32-DevKitC's two pin rows go into rows b and i, and the holes in between are under the board — each pin keeps just one free hole, in row a (upper row) or row j (lower row), where wires and parts connect.\n\n**Output**: an \"output high\" pin acts like a 3.3 V source behind about 25 Ω; the more current, the lower the pin voltage. Keep each pin at 20 mA or less; above 40 mA it is damaged — always put a resistor in series with an LED.\n\n**Input and pull-up**: an input draws almost no current. An input with nothing on it is **floating** and reads an undefined level. Wire a button from the pin to GND and turn on the **internal pull-up** (about 45 kΩ to 3.3 V): released reads high, pressed reads low.\n\n**Simulated vs real board**: the output resistance, pull-up and current limits here are fixed; on a real ESP32 the drive strength is set in firmware, the pull-ups are 30–80 kΩ, and the chip also has a limit on the total current of all pins. Many pins on a real board have special jobs (boot straps, serial, flash) — check the board's pinout before using one.",
+                    "compare": "**Compare**:\n- 3V3 pin ≈ 3.3 V; 5V pin ≈ 5 V − 0.3 V ≈ **4.7 V**;\n- LED current = (3.3 − 1.8) V / (330 + 25 + 12) Ω ≈ **4.1 mA** (25 Ω is the pin's output resistance, 12 Ω the LED's);\n- pin voltage = 3.3 V − 25 Ω × 4.1 mA ≈ **3.20 V**; from this the output resistance ≈ **25 Ω**;\n- pulled-up input: released reads high, pressed reads low (pressed, the button ties the pin to GND and 3.3 V / 45 kΩ ≈ 73 µA flows in the pull-up).",
+                    "steps": [
+                              "Pick \"ESP32 DevKitC\" and click b1 (the GND pin at the top left). The pin rows go into b1–b19 and i1–i19; USB is plugged in by default, so the board is powered. Hover a pin to see its name.",
+                              "Power the bottom rails from the board: red jumper j1 → bp1 (the 3V3 pin), blue jumper j14 → bn14 (a GND pin). The bottom red rail is now 3.3 V.",
+                              "The top GND rail too: blue jumper a7 → tn7 (column 7 of the upper row is another GND pin).",
+                              "Multimeter: red probe on bp5 (the 3V3 rail), then on j19 (the 5V pin). The 5V pin is a little under 5 V — there is a diode between it and USB.",
+                              "LED circuit: a 330Ω resistor from a15 (GPIO2) to a22.",
+                              "Red LED, long lead c22, short lead c25; blue jumper a25 → tn25 (GND). The LED is still off: GPIO2 is an input by default.",
+                              "Click the board and, in the pin list in Properties, set **GPIO2** to \"OUT HIGH\". The LED lights; the row shows the pin voltage and the current flowing out.",
+                              "Button: pick \"Push button\" and click e27 (it straddles the trench: one side on column 27, the other on column 29).",
+                              "Jumper a13 → a27 (GPIO4 to one side of the button), blue jumper j29 → bn29 (the other side to GND).",
+                              "GPIO4 is a plain input now: with the button released nothing drives it, and it reads \"floating\" (see Diagnostics). Set **GPIO4** to \"IN pull-up\": it reads \"high\". Click the button with \"Select / use\" to press it: \"low\".",
+                              "Press \"Check my circuit\" and answer with the multimeter and the pin list."
+                            ],
+                    "hints": [
+                              "Each pin has one free hole, in row a (upper row) or row j (lower row); hover a pin to see its name.",
+                              "Output high = 3.3 V behind 25 Ω: LED current = (3.3 − LED drop) / (R + 25 Ω + the LED's resistance).",
+                              "Pulled-up input: pulled to 3.3 V when released, tied to GND by the button when pressed."
+                            ],
+                    "tests": ["Output high: LED on; button released reads high", "Button pressed reads low"],
+                    "measurements": [
+                                      {"ask": "Multimeter: the 5V pin (j19) to GND", "explain": "The USB 5 V passes a Schottky diode first and loses about 0.3 V."},
+                                      {
+                                        "ask": "The LED current (click the GPIO2 row to see the pin current, or put an ammeter in series)",
+                                        "explain": "(3.3 − 1.8) V / (330 + 25 + 12) Ω ≈ 4.1 mA, well under the recommended 20 mA."
+                                      },
+                                      {"ask": "Multimeter: GPIO2 (a15) to GND", "explain": "The output resistance drops 25 Ω × 4.1 mA ≈ 0.1 V."},
+                                      {
+                                        "ask": "From your readings, the pin's output resistance: (3.3 V − pin voltage) / current",
+                                        "explain": "About 25 Ω. At 20 mA the pin would be down to about 2.8 V — heavy loads need a transistor or MOSFET driver (phase 5 labs)."
+                                      },
+                                      {
+                                        "ask": "GPIO4 set to input with pull-up: what does it read with the button pressed?",
+                                        "choices": [
+                                                    "high: the button connects 3.3 V",
+                                                    "low: the button ties the pin to GND; the pull-up can only supply a tiny current",
+                                                    "floating"
+                                                  ],
+                                        "explain": "Released, the pull-up holds the pin at 3.3 V (high); pressed, the pin is tied to GND (low). This is called active-low."
+                                      }
+                                    ]
+                  }
+          },
+  "components": [
+                  {"ref": "U1", "type": "esp32_devkit", "modes": {"GPIO_OUT1": "out_high", "GPIO_IN1": "input_pullup"}},
+                  {"ref": "R1", "type": "resistor", "resistance": "330"},
+                  {"ref": "LED1", "type": "led", "color": "red"},
+                  {"ref": "SW1", "type": "pushbutton"}
+                ],
+  "connections": [["U1.GPIO_OUT1", "R1.1"], ["R1.2", "LED1.anode"], ["LED1.cathode", "U1.GND", "SW1.2"], ["U1.GPIO_IN1", "SW1.1"]],
+  "tests": [
+            {"name": "输出高：LED 亮；松开按键读高", "set": {"SW1": {"pressed": false}}, "expect": {"LED1": "on"}, "gpio": [{"pin": "U1.GPIO_IN1", "read": "high"}]},
+            {"name": "按下按键读低", "set": {"SW1": {"pressed": true}}, "gpio": [{"pin": "U1.GPIO_IN1", "read": "low"}]}
+          ],
+  "measurements": [
+                    {
+                      "id": "u5v",
+                      "voltage": "U1.5V",
+                      "unit": "V",
+                      "predict": true,
+                      "range": [4.5, 4.85],
+                      "ask": "万用表：5V 脚（j19）对 GND 的电压",
+                      "explain": "USB 的 5 V 先经过肖特基二极管，掉了约 0.3 V。"
+                    },
+                    {
+                      "id": "iled",
+                      "current": "R1",
+                      "unit": "mA",
+                      "predict": true,
+                      "range": [0.0038, 0.0044],
+                      "ask": "LED 的电流（单击 GPIO2 那一行看引脚电流，或者串一个电流表）",
+                      "explain": "(3.3 − 1.8) V / (330 + 25 + 12) Ω ≈ 4.1 mA，远低于 20 mA 的建议上限。"
+                    },
+                    {
+                      "id": "upin",
+                      "voltage": "U1.GPIO_OUT1",
+                      "unit": "V",
+                      "predict": true,
+                      "range": [3.15, 3.25],
+                      "ask": "万用表：GPIO2（a15）对 GND 的电压",
+                      "explain": "输出电阻上掉了 25 Ω × 4.1 mA ≈ 0.1 V。"
+                    },
+                    {
+                      "id": "rout",
+                      "formula": "(3.3 - upin) / iled",
+                      "unit": "Ω",
+                      "stated": true,
+                      "range": [22, 28],
+                      "ask": "用你的读数算引脚的输出电阻：(3.3 V − 引脚电压) / 电流",
+                      "explain": "约 25 Ω。电流 20 mA 时引脚只剩约 2.8 V——大电流负载要用三极管或 MOSFET 驱动（第 5 期实验）。"
+                    },
+                    {
+                      "id": "press",
+                      "correct": 1,
+                      "ask": "GPIO4 设成“输入 上拉”，按下按键时读到什么？",
+                      "choices": ["高：按键接通了 3.3 V", "低：按键把引脚接到 GND，上拉电阻只能提供很小的电流", "浮空"],
+                      "explain": "松开时上拉把引脚拉到 3.3 V（高）；按下时引脚直接接 GND（低）。这叫“低电平有效”。"
+                    }
+                  ],
+  "steps": [
+            {
+              "text": "选“ESP32 开发板 DevKitC”，单击 b1（左上角的 GND 脚）。两排针插在 b1–b19 和 i1–i19；USB 默认插着，板子已经通电。把鼠标停在针脚上可以看名字。",
+              "highlight": ["b1", "b19", "i1", "i19"],
+              "check": [{"type": "esp32_devkit", "at": "b1"}]
+            },
+            {
+              "text": "把下方电源轨接上板子的电源：红色跳线 j1 → bp1（3V3 脚），蓝色跳线 j14 → bn14（GND 脚）。下方红轨现在是 3.3 V。",
+              "highlight": ["j1", "bp1", "j14", "bn14"],
+              "check": [{"type": "wire", "pins": {"a": "j1", "b": "bp1"}}, {"type": "wire", "pins": {"a": "j14", "b": "bn14"}}]
+            },
+            {"text": "上方 GND 轨也接上：蓝色跳线 a7 → tn7（上排第 7 列也是 GND 脚）。", "highlight": ["a7", "tn7"], "check": [{"type": "wire", "pins": {"a": "a7", "b": "tn7"}}]},
+            {"text": "万用表：红表笔点 bp5（3V3 轨），再点 j19（5V 脚）。5V 脚比 5 V 低一点——USB 和它之间有一只二极管。", "highlight": ["bp5", "j19"], "check": [{"probe": {"red": "j19"}}]},
+            {
+              "text": "LED 电路：电阻 330Ω 从 a15（GPIO2）到 a22。",
+              "highlight": ["a15", "a22"],
+              "check": [{"type": "resistor", "pins": {"1": "a15", "2": "a22"}, "resistance": "330"}]
+            },
+            {
+              "text": "红色 LED 长脚 c22、短脚 c25；蓝色跳线 a25 → tn25（GND）。LED 还不亮：GPIO2 默认是输入。",
+              "highlight": ["c22", "c25", "a25", "tn25"],
+              "check": [{"type": "led", "pins": {"anode": "c22", "cathode": "c25"}}, {"type": "wire", "pins": {"a": "a25", "b": "tn25"}}]
+            },
+            {
+              "text": "单击开发板，在“属性”的引脚列表里把 **GPIO2** 设成“输出 高”。LED 亮了；这一行显示引脚电压和流出的电流。",
+              "highlight": ["a15"],
+              "check": [{"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "out_high"}}}}]
+            },
+            {"text": "按键：选“按键开关”，单击 e27（横跨凹槽：一边在第 27 列，另一边在第 29 列）。", "highlight": ["e27", "e29", "f27", "f29"], "check": [{"type": "pushbutton", "at": "e27"}]},
+            {
+              "text": "跳线 a13 → a27（GPIO4 接按键一边），蓝色跳线 j29 → bn29（按键另一边接 GND）。",
+              "highlight": ["a13", "a27", "j29", "bn29"],
+              "check": [{"type": "wire", "pins": {"a": "a13", "b": "a27"}}, {"type": "wire", "pins": {"a": "j29", "b": "bn29"}}]
+            },
+            {
+              "text": "GPIO4 现在是普通输入：松开按键时它什么都没接，读“浮空”（“诊断”里有提示）。把 **GPIO4** 设成“输入 上拉”：读“高”。用“选择 / 操作”单击按键按下它：读“低”。",
+              "highlight": ["a13", "e27"],
+              "check": [{"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "out_high"}, "GPIO4": {"mode": "input_pullup"}}}}]
+            },
+            {"text": "点“检查我的电路”，用万用表和引脚列表完成测量题。", "highlight": []}
+          ],
+  "hints": ["每个引脚只有 a 行（上排）或 j 行（下排）一个空孔能接线；鼠标停在针脚上看名字。", "输出高 = 3.3 V 串 25 Ω：LED 电流 = (3.3 − LED 压降) / (R + 25 Ω + LED 内阻)。", "上拉输入：没按时被拉到 3.3 V，按下时被按键接到 GND。"],
+  "solution": {
+                "parts": [
+                          {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO2": "out_high", "GPIO4": "input_pullup"}}},
+                          {"type": "wire", "pins": {"a": "j1", "b": "bp1"}, "color": "red"},
+                          {"type": "wire", "pins": {"a": "j14", "b": "bn14"}, "color": "blue"},
+                          {"type": "wire", "pins": {"a": "a7", "b": "tn7"}, "color": "blue"},
+                          {"type": "resistor", "ref": "R1", "resistance": "330", "pins": {"1": "a15", "2": "a22"}},
+                          {"type": "led", "ref": "LED1", "color": "red", "pins": {"anode": "c22", "cathode": "c25"}},
+                          {"type": "wire", "pins": {"a": "a25", "b": "tn25"}, "color": "blue"},
+                          {"type": "pushbutton", "ref": "SW1", "at": "e27"},
+                          {"type": "wire", "pins": {"a": "a13", "b": "a27"}, "color": "yellow"},
+                          {"type": "wire", "pins": {"a": "j29", "b": "bn29"}, "color": "blue"}
+                        ]
+              }
+}
