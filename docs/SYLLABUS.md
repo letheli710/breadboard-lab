@@ -155,6 +155,19 @@ Each chapter lists the knowledge points that must be covered — at least one pr
 8. 极点位置与时域响应（单调、衰减振荡、等幅、发散）、稳定性；H(jω) 与零极点（谐振峰、通带）
 9. 卷积积分与时域卷积定理（简单情形）
 
+### `matrix-form` 电路方程的矩阵形式（目标 15 题，教材第 15 章，含第 3 章“电路的图”）
+引擎：`schematic.graph` 给出有向图（结点、带编号和方向的标准支路、参考结点、树、可画的割集），`schematic.state` 给出状态向量与输入向量；求关联矩阵 A、基本回路矩阵 B_f、基本割集矩阵 Q_f、支路矩阵 Y/Z、电源向量 U_s/I_s、结点/回路/割集方程的系数矩阵和右端、它们的解，以及状态方程 ẋ = Ax + Bu 的元素（PROBLEM_FORMAT §6.1.9）。矩阵用 `\mat{…}` 排版，学生逐个元素作答（每个元素一个小题），或在候选矩阵/支路集合中选择。
+（章节顺序按网上可查到的第 5 版目录核对：15-1 割集；15-2 关联矩阵、回路矩阵、割集矩阵；15-3 矩阵 A、B_f、Q_f 之间的关系；回路电流方程、结点电压方程、割集电压方程的矩阵形式；列表法；状态方程。列表法不单独出题。）
+1. 电路的图：标准支路（复合支路）、有向图、树与连支、独立 KCL/KVL 方程数
+2. 割集：定义（恰好分成两部分且最少）、闭合面画法、割集 KCL、基本割集
+3. 关联矩阵 A 的写法；KCL A·I = 0、KVL U = Aᵀ·U_n
+4. 基本回路矩阵 B_f（方向同连支）、基本割集矩阵 Q_f（方向同树支）；B_f·U = 0、Q_f·I = 0
+5. A、B_f、Q_f 的关系：A·B_fᵀ = 0、Q_f·B_fᵀ = 0、Q_l = −B_tᵀ（换一棵树再写一次）
+6. 标准支路方程与支路导纳/阻抗矩阵、电源向量的符号约定
+7. 结点电压方程 A·Y·Aᵀ·U_n = A·I_s − A·Y·U_s；回路电流方程 B·Z·Bᵀ·I_l = B·U_s − B·Z·I_s；割集电压方程 Q·Y·Qᵀ·U_t = Q·I_s − Q·Y·U_s
+8. 含互感（Z 中的 ±jωM）、含受控源（Y 中的非对角元，VCCS、CCCS；相量形式）的结点方程（难度 4–5）
+9. 状态方程：状态变量、常态树、用基本割集/基本回路列方程，A 的特征值 = 固有频率（难度 4–5）
+
 ### `two-port` 二端口网络（目标 12 题）
 1. Z 参数、Y 参数
 2. H 参数（混合参数）、T（ABCD）参数
@@ -175,14 +188,14 @@ Each chapter lists the knowledge points that must be covered — at least one pr
 
 ---
 
-合计目标约 272 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
+合计目标约 287 题。题目风格：每题 1–4 小问，先易后难；每题都要有提示（hints）和完整解题步骤（solution）。
 
-About 272 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
+About 287 problems in total. Each problem has 1–4 questions, easy to hard, with hints and a full worked solution.
 
 ---
 
 ## 尚未纳入大纲 / Not in the syllabus yet
 
-以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：电路方程的矩阵形式与状态方程（第 15 章）、非线性动态电路（第 17 章后半：相平面、自激振荡）、均匀传输线（第 18 章）。
+以下《电路》第 5 版的内容还没有章节和题目（需要先扩展引擎），见 [`ROADMAP.md`](ROADMAP.md) 的待办：非线性动态电路（第 17 章后半：相平面、自激振荡）、均匀传输线（第 18 章）。
 
-Not covered yet (needs engine work first; see the ROADMAP backlog): matrix formulation and state equations (ch. 15), nonlinear dynamic circuits (second half of ch. 17: phase plane, self-oscillation), transmission lines (ch. 18).
+Not covered yet (needs engine work first; see the ROADMAP backlog): nonlinear dynamic circuits (second half of ch. 17: phase plane, self-oscillation), transmission lines (ch. 18).

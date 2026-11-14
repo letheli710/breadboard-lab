@@ -74,6 +74,14 @@ This file fixes the symbols and wording used in theory problems (`problems/`), b
 - 题干里写清附加电源的方向（例如“电感 = sL 串电压源 L·i_L(0₋)，沿 i_L 方向推动电流”），并在图上画出 u_C、i_L 的参考方向（`marks`），必要时用 `notes` 标出 `u_C(0₋) = 2 V`。
   State the direction of every initial-condition source in the text and draw the references of u_C, i_L with `marks` (and the initial value with a `notes` label when it is given).
 
+### 5.2 矩阵形式 / Matrix form（`matrix-form` 章）
+
+- 矩阵、向量用大写正体字母加下标：关联矩阵 `A`，基本回路矩阵 `B_f`，基本割集矩阵 `Q_f`，支路导纳/阻抗矩阵 `Y`、`Z`，结点导纳矩阵 `Y_n`，结点电压向量 `U_n`，回路电流 `I_l`，树支电压 `U_t`，电源向量 `U_s`、`I_s`；元素用小写 `a_jk`、`b_jk`、`q_jk`，或 `Y_11`、`Z_l13`。转置写 `ᵀ`（U+1D40）：`Aᵀ`、`B_fᵀ`。乘号用 `·`：`A·Y·Aᵀ·U_n`。
+  Matrices and vectors are capital letters with subscripts (A, B_f, Q_f, Y, Z, Y_n, U_n, I_l, U_t, U_s, I_s); entries a_jk, b_jk, q_jk or Y_11; transpose ᵀ (U+1D40); products with ·.
+- 矩阵用 `\\mat{1 & 0 ; 0 & 1}` 排版（SUMMARY_FORMAT §6），列向量写 `(3, 0, 1.5)ᵀ`。
+- 用语：图 / graph，有向图 / directed graph，树、树支、连支 / tree, tree branch, link，割集、基本割集 / cut-set, fundamental cut-set，基本回路 / fundamental loop，标准支路（复合支路）/ standard (composite) branch，常态树 / proper tree，状态变量、状态方程 / state variables, state equations。
+- 题干必须写明：支路编号与方向（有向图）、参考结点、所选的树、A 的行序（结点顺序），以及标准支路中电源的符号约定。
+
 ## 6. 用语 / Wording
 
 | 中文 | English | 说明 |

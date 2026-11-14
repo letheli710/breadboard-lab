@@ -77,6 +77,7 @@ npm run validate -- --lang en       # 英文报错信息
 | 4 | `three-phase` | 三相电路 |
 | 4 | `non-sinusoidal` | 非正弦周期电流电路：傅里叶级数与频谱、有效值、平均功率、谐波分析、谐波谐振与滤波、三相电路中的高次谐波（分析类型 `periodic`，§5.1） |
 | 4 | `s-domain` | 线性动态电路的复频域分析：拉普拉斯变换、运算电路与附加电源、部分分式、网络函数与零极点、冲激响应与卷积（§6.1.8） |
+| 4 | `matrix-form` | 电路方程的矩阵形式（教材第 15 章）：电路的图、树、割集，关联矩阵 A、基本回路矩阵 B_f、基本割集矩阵 Q_f，结点/回路/割集方程的矩阵形式，状态方程（`schematic.graph`、`schematic.state`，§6.1.9） |
 | 4 | `two-port` | 二端口网络 |
 | 4 | `nonlinear` | 非线性电阻电路（教材第 17 章，只含电阻性电路）：压控/流控、静态与动态电阻、串并联、曲线相交法、分段线性化、理想二极管、多个工作点、小信号分析（元件 `NR`，§6.1.7） |
 
@@ -349,6 +350,9 @@ The circuit is solved harmonic by harmonic (k = 0: DC with L shorted and C open;
 | `H` | `{"kind":"H","out":["o"],"input":"Us","s":{"re":0,"im":2}}` | 网络函数 H(s) = 输出/输入源在复频率 s 的值（零状态，t > 0 的电路；`out` 也可写 `{"v":"R1"}`、`{"i":"L"}`，§6.1.8） | — |
 | `pole` / `zero` | `{"kind":"pole","out":{"i":"L"},"input":"Us","n":1}` | H(s) 的第 n 个极点 / 有限零点（零极点相消后），排序同 `root` | 1/s |
 | `hcoef` | `{"kind":"hcoef","out":["o"],"input":"Us","of":"den","power":1}` | H(s)（分母首项系数为 1）分子 `num` / 分母 `den` 中 s^power 的系数 | — |
+| `mat` | `{"kind":"mat","mat":"Yn","row":1,"col":2}` | 矩阵形式章：`schematic.graph` 的矩阵第 row 行第 col 列的元素（向量只写 `row`），见 §6.1.9 | 视矩阵而定 |
+| `gcount` | `{"kind":"gcount","count":"links"}` | 图的结点数 `nodes` / 支路数 `branches` / 树支数 `tree` / 连支数 `links` | — |
+| `state` | `{"kind":"state","mat":"A","row":1,"col":2}` | 状态方程 ẋ = A·x + B·u 中 A 或 B 的元素，x、u 的顺序见 `schematic.state`（§6.1.9） | 视元素而定 |
 | `residue` | `{"kind":"residue","out":{"v":"C"},"at":-2,"order":1}` | 暂态题：实际响应的象函数 Y(s) 中 1/(s − at)^order 项的系数（部分分式展开） | 输出的单位 |
 
 **修饰字段 / Modifiers**：`"deriv": 1`（暂态题的 `v` / `i`：求 t 时刻的导数，§6.1.2）；`"freq"` / `"omega"`（交流题：这个小题在另一个频率下计算，§6.1.6）；`"harmonic": k`（非正弦周期题：只问第 k 次谐波，0 = 直流分量，§5.1）；`"op": n`（含非线性电阻、有多个工作点时问第 n 个）、`"dc": true`（含非线性电阻的交流小信号题：问直流工作点，§6.1.7）。
@@ -548,6 +552,116 @@ RL 串联，u_s = 10ε(t) V，R = 2 Ω，L = 1 H，i(0₋) = 1 A：I(s) = \frac{
 
 注意：只给电容写 `ic` 时，t < 0 的直流状态是在电容电压固定为 `ic` 的条件下算的，电感电流可能因此不为零；题干说“电感原来没有电流”时也给电感写 `"ic": 0`。 / With `ic` on a capacitor only, the t < 0 DC state is computed with that capacitor held at `ic`, which may drive an inductor current; write `"ic": 0` on the inductor too when the statement says it starts at zero.
 
+#### 6.1.9 矩阵形式 / Matrix form: `schematic.graph`, `schematic.state`, `mat`, `gcount`, `state`
+
+`matrix-form` 章（教材第 15 章）。电路照常画；另外在 `schematic` 里写出它的**有向图**，题目页在电路图下面画出这张图（编号的结点、带编号和箭头的支路、树支粗实线/连支细虚线、参考结点实心、割集画成闭合虚线）：
+
+The `matrix-form` chapter (textbook ch. 15). Draw the circuit as usual and add its **directed graph** to `schematic`; the page draws it under the circuit (numbered nodes, numbered and oriented branches, tree branches thick / links dashed, the reference node filled, cut-sets as closed dashed curves).
+
+```json
+"graph": {
+  "nodes": [{ "name": "1", "at": [0, 0] }, { "name": "2", "at": [4, 0] }, { "name": "3", "at": [8, 0] }, { "name": "4", "at": [4, 4] }],
+  "ref": "4",
+  "branches": [
+    { "n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"] },
+    { "n": 2, "from": "1", "to": "2", "els": ["R2"] },
+    { "n": 6, "from": "1", "to": "3", "els": ["R6"], "bend": 2.5 }
+  ],
+  "tree": [1, 2, 3],
+  "cutsets": [{ "name": "Q1", "branches": [1, 2, 6], "path": [[-0.8, -0.8], [0.8, -0.8], [0.8, 0.8], [-0.8, 0.8]] }]
+}
+```
+
+- `nodes`：图的结点，名字就是电路的结点名（`labels` 给出；放在地线上的标签是 `"0"` 的别名）。顺序 = A 的行序（参考结点除外）。`at` 是图中的位置（网格单位，y 向下），与电路图的坐标无关。
+- `branches`：支路编号必须是 1…b，方向 `from` → `to` 就是支路电压、电流的关联参考方向。`els` 是这条**标准支路**的元件：一个 R / L / C / Z（可以没有），串联的电压源，并联的电流源、VCCS、CCCS。串联元件必须从 `from` 连成一条链到 `to`；支路内部的点不能是图的结点，也不能与别的支路相连；每个元件恰好属于一条支路。`bend`：画成弧线（向 from→to 方向的左侧鼓出，网格单位），用于两结点间的多条支路。
+- `tree`：树支编号（B_f、Q_f 和回路/割集方程需要）。`hideTree: true`：问“哪组支路是树”时不在图上区分树支。`cutsets`：画出的割集（`path` 至少 3 个点，画成平滑闭合曲线）；校验器检查每个都是真正的割集。
+- 校验：图与电路不一致（元件不在所说的结点之间、漏了元件、树含回路……）都是错误；能列结点方程时，校验器用矩阵方程解出结点电压并与电路引擎比较。
+
+**符号约定（教材）/ Conventions.** a_jk = +1（支路 k 离开结点 j）/ −1（进入）/ 0；B_f 每条连支一行（按编号），回路方向同连支；Q_f 每条树支一行，割集方向同树支。标准支路 İ_k = Y_k(U̇_k + U̇_sk) − İ_sk：电压源“+”朝支路终点时 U̇_sk 为正，电流源逆着支路方向时 İ_sk 为正。VCCS g·U̇_ej（支路 j 无源元件的电压）给 Y_kj = ±g；CCCS β·İ_ej 给 Y 的第 k 行加 ±β 乘第 j 行；耦合电感 Z_jk = ±jωM（两支路方向都指向或都背离同名端时取 +）。
+
+**`mat` 可以问的矩阵 / Matrices for `mat`**（`row`、`col` 从 1 开始；向量只写 `row`）：
+
+| `mat` | 含义 | 单位 |
+|---|---|---|
+| `A`、`Bf`、`Qf` | 降阶关联矩阵、基本回路矩阵、基本割集矩阵 | — |
+| `Yb`、`Zb` | 支路导纳矩阵、支路阻抗矩阵（含受控源 / 互感） | S、Ω |
+| `Us`、`Is` | 支路电压源、电流源向量（标准支路的符号） | V、A |
+| `Yn`、`Jn` | 结点方程 A·Y·Aᵀ·U_n = A·I_s − A·Y·U_s 的系数矩阵、右端 | S、A |
+| `Zl`、`El` | 回路方程 B·Z·Bᵀ·I_l = B·U_s − B·Z·I_s 的系数矩阵、右端 | Ω、V |
+| `Yt`、`Jt` | 割集方程 Q·Y·Qᵀ·U_t = Q·I_s − Q·Y·U_s 的系数矩阵、右端 | S、A |
+| `Un`、`Il`、`Ut` | 上面三组方程的解：结点电压、连支电流、树支电压 | V、A、V |
+| `Ub`、`Ib` | 支路电压 Aᵀ·U_n、支路电流 Y(U + U_s) − I_s | V、A |
+
+交流题的元素是复数，默认取**实部**（`part`: `re` / `im` / `mag` / `phase`）。直流题里电感是短路（导纳无穷大）、电容开路（阻抗无穷大），无伴电压源没有导纳、单独的电流源没有阻抗——这时相应的方程列不出来，引擎报错。
+
+**状态方程 / State equations.** `"state": {"x": ["C", "L"], "u": ["Us", "Is"]}`：x 依次为电容电压、电感电流（各元件的关联参考方向，画出 `marks`），u 为独立源；必须列出全部电容、电感和电源。`{"kind":"state","mat":"A"|"B","row","col"}` 是 dx/dt = A·x + B·u（t > 0 的电路，开关取 `after`）的元素。没有纯电容回路、纯电感割集。A 的特征值就是 `root`。
+
+**学生怎样作答 / How students answer.** 一个元素一个小题（`a_11 = ?`），或者用选择题在候选矩阵/支路集合中选；矩阵在文字里用 `\\mat{1 & 0 & −1 ; 0 & 1 & 1}` 排版（`&` 分列，`;` 分行，见 SUMMARY_FORMAT §6）。
+
+Each entry is its own question (or a multiple-choice among candidate matrices / branch sets); typeset matrices in text with `\\mat{…}` (`&` between cells, `;` between rows). AC entries are complex and default to the real part. The validator checks the graph against the circuit and, where the node equations exist, compares their solution with the MNA engine.
+
+例：U_s1 = 6 V 串 R_1 = 2 Ω（支路 1，4→1），R_2 = 2 Ω（1→2），R_3 = 4 Ω（2→4），R_4 = 4 Ω（2→3），R_5 = 4 Ω 并 I_s5 = 1.5 A（3→4）。Y_n = [[1, −0.5, 0], [−0.5, 1, −0.25], [0, −0.25, 0.5]] S，J_n = (3, 0, 1.5) A，U_n = (4.8, 3.6, 4.8) V。
+
+```json
+{
+  "format": "circuit-problem/1",
+  "id": "example-matrix-node",
+  "chapter": "matrix-form",
+  "title": "结点方程的矩阵形式",
+  "level": 3,
+  "statement": "U_s1 = 6 V，I_s5 = 1.5 A，R_1 = R_2 = 2 Ω，R_3 = R_4 = R_5 = 4 Ω；支路与方向见有向图，结点 4 为参考结点，树 T = {1, 3, 4}。求连支数、b_23、Y_n 的元素 Y_23 和 U_n2。",
+  "schematic": {
+    "elements": [
+      { "ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2 },
+      { "ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 6 },
+      { "ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+      { "ref": "R3", "type": "R", "from": [8, 0], "to": [8, 6], "value": 4 },
+      { "ref": "R4", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4 },
+      { "ref": "R5", "type": "R", "from": [16, 0], "to": [16, 6], "value": 4 },
+      { "ref": "Is5", "type": "I", "from": [19, 6], "to": [19, 0], "value": 1.5 }
+    ],
+    "wires": [[[0, 0], [2, 0]], [[6, 0], [10, 0]], [[14, 0], [19, 0]], [[0, 6], [19, 6]]],
+    "labels": [{ "at": [0, 0], "name": "1" }, { "at": [8, 0], "name": "2" }, { "at": [16, 0], "name": "3" }, { "at": [12, 6], "name": "4" }],
+    "grounds": [[0, 6]],
+    "graph": {
+      "nodes": [{ "name": "1", "at": [0, 0] }, { "name": "2", "at": [4, 0] }, { "name": "3", "at": [8, 0] }, { "name": "4", "at": [4, 4] }],
+      "ref": "4",
+      "branches": [
+        { "n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"] },
+        { "n": 2, "from": "1", "to": "2", "els": ["R2"] },
+        { "n": 3, "from": "2", "to": "4", "els": ["R3"] },
+        { "n": 4, "from": "2", "to": "3", "els": ["R4"] },
+        { "n": 5, "from": "3", "to": "4", "els": ["R5", "Is5"] }
+      ],
+      "tree": [1, 3, 4]
+    }
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "l", "ask": "连支数 = ?", "find": { "kind": "gcount", "count": "links" }, "answer": 2, "unit": "", "explain": "b − n + 1 = 5 − 4 + 1 = 2。" },
+    { "id": "b23", "ask": "b_23 = ?", "find": { "kind": "mat", "mat": "Bf", "row": 2, "col": 3 }, "answer": -1, "unit": "", "explain": "连支 5（3→4）经树支 3 反向、树支 4 回到 3。" },
+    { "id": "y23", "ask": "Y_23 = ?", "find": { "kind": "mat", "mat": "Yn", "row": 2, "col": 3 }, "answer": -0.25, "unit": "S", "explain": "−1/R_4。" },
+    { "id": "u2", "ask": "U_n2 = ?", "find": { "kind": "mat", "mat": "Un", "row": 2 }, "answer": 3.6, "unit": "V", "explain": "解 Y_n·U_n = J_n。" }
+  ],
+  "hints": ["先写 A、Y、U_s、I_s，再相乘。"],
+  "solution": "Y_n = \\mat{1 & −0.5 & 0 ; −0.5 & 1 & −0.25 ; 0 & −0.25 & 0.5} S，J_n = (3, 0, 1.5)ᵀ A → **U_n2 = 3.6 V**。",
+  "i18n": {
+    "en": {
+      "title": "Node equations in matrix form",
+      "statement": "U_s1 = 6 V, I_s5 = 1.5 A, R_1 = R_2 = 2 Ω, R_3 = R_4 = R_5 = 4 Ω; branches and directions as in the graph, node 4 is the reference, tree T = {1, 3, 4}. Find the number of links, b_23, the entry Y_23 of Y_n and U_n2.",
+      "questions": [
+        { "ask": "Number of links = ?", "explain": "b − n + 1 = 5 − 4 + 1 = 2." },
+        { "ask": "b_23 = ?", "explain": "Link 5 (3→4) returns to 3 through tree branch 3 reversed and tree branch 4." },
+        { "ask": "Y_23 = ?", "explain": "−1/R_4." },
+        { "ask": "U_n2 = ?", "explain": "Solve Y_n·U_n = J_n." }
+      ],
+      "hints": ["Write A, Y, U_s and I_s first, then multiply."],
+      "solution": "Y_n = \\mat{1 & −0.5 & 0 ; −0.5 & 1 & −0.25 ; 0 & −0.25 & 0.5} S, J_n = (3, 0, 1.5)ᵀ A → **U_n2 = 3.6 V**."
+    }
+  }
+}
+```
+
 ### 6.2 复数结果取哪一部分 / `part`
 
 交流结果是复数，用 `find.part` 选择：`"mag"`（**交流默认**，模）、`"phase"`（相位，度）、`"re"`、`"im"`、`"db"`（20·lg|x|）、`"rms"`（换算成有效值——在 `phasor: "peak"` 时有用）。直流和暂态的结果是实数，默认 `"re"`。非正弦周期题（§5.1）不写 `harmonic` 时还有 `"avg"`、`"absavg"`、`"peak"`，默认 `"rms"`。
@@ -565,6 +679,7 @@ RL 串联，u_s = 10ε(t) V，R = 2 Ω，L = 1 H，i(0₋) = 1 A：I(s) = \frac{
 - 交流分析只有一个频率（含多个频率的激励用 `periodic`，§5.1，所有频率必须是基波的整数倍）。`f0` 在电路特征频率的 10⁻⁴～10⁴ 倍范围内搜索，有多个谐振点时给最低的。 / AC is single-frequency; `f0` returns the lowest resonance.
 - 非线性电阻 `NR` 只能用于直流（工作点）和交流（小信号）题；两个以上元件同时处于弯曲段时工作点用牛顿法搜索，不保证找全（§6.1.7）。 / `NR` works in DC and small-signal AC only; with two or more elements on curved pieces at once the operating-point search is Newton-based and not guaranteed complete.
 - 冲激源不能与电容构成只含电压源/电容的回路，也不能与电感构成只含电流源/电感的割集（电容电压、电感电流本身会含冲激），引擎拒绝。`H`、`pole`、`zero`、`hcoef` 需要一个输入源，并且只对 t > 0 的电路；`residue` 只用于暂态题。 / Impulse sources in a capacitor loop or inductor cut-set are rejected; `H`/`pole`/`zero`/`hcoef` need an input source and describe the t > 0 circuit; `residue` is transient-only.
+- 矩阵形式章：结点/割集方程要求每条支路导纳有限（无伴电压源不行），回路方程要求每条支路阻抗有限（单独的电流源不行）；受控源只支持 VCCS、CCCS（结点/割集法）；状态方程要求没有纯电容回路、纯电感割集。 / Matrix form: node and cut-set equations need finite branch admittances, loop equations finite branch impedances; only VCCS / CCCS controlled sources (node / cut-set methods); state equations need no capacitor-only loops or inductor-only cut-sets.
 - 电路方程奇异（电压源回路、电流源割集、悬空结点、没有负反馈的运放、恰好在谐振频率上的无损 LC）时引擎给出说明并拒绝。
 
 ---
