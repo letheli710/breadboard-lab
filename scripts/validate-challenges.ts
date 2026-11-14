@@ -19,7 +19,9 @@
 //      error-level board diagnostic (the app refuses the answer otherwise)
 //      (+ warning if any LED draws more than 25 mA in any test)
 //   4. if `start` exists: it must build (warning if it already solves the challenge)
-//   5. measurement questions: each reading must be obtainable from the reference solution
+//   5. lesson steps with a "check": the last such step's parts / empty holes must hold on the
+//      solution; "prereq" ids must be built-in lessons
+//   6. measurement questions: each reading must be obtainable from the reference solution
 //      (finite), fall inside the author's "range", and be accepted when typed to 3 significant
 //      figures in the question's unit (`--readings` prints them)
 // Exit code 1 on any error.
@@ -32,6 +34,8 @@ import { chapterById } from '../src/core/problem/chapters';
 import { isProblemJson, parseProblem, splitUnit } from '../src/core/problem/parse';
 import { isSummaryJson, parseSummary } from '../src/core/summary/parse';
 import { buildProblemIndex } from './problem-index-plugin';
+import { buildChallengeIndex } from './challenge-index-plugin';
+import { unmetStepChecks } from '../src/core/stepCheck';
 import { gradeReading, matchBoard, referenceValues } from '../src/core/readings';
 import { formatSI } from '../src/core/format';
 import { isLang, setLang, tr } from '../src/core/i18n';
@@ -331,6 +335,22 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
     }
   }
 
+  // lesson step checks: the last checked step describes the finished circuit
+  const lastChecked = [...ch.steps].reverse().find((s) => s.check?.some((c) => c.kind === 'part' || c.kind === 'empty'));
+  if (lastChecked && ch.solution) {
+    const checks = (lastChecked.check ?? []).filter((c) => c.kind === 'part' || c.kind === 'empty');
+    for (const u of unmetStepChecks(checks, { layout: ch.solution, probe: { red: null, black: null }, scope: { tdiv: null, vdiv: { 1: null, 2: null } } }))
+      rep.errors.push(tr(`steps：最后一个带 check 的步骤在参考答案上不成立：${u}`, `steps: the last step with a check fails on the solution: ${u}`));
+  }
+  if (ch.prereq?.length) {
+    const lessons = new Set(
+      builtinChallenges()
+        .filter((e) => e.kind === 'lesson')
+        .map((e) => e.id),
+    );
+    for (const id of ch.prereq) if (!lessons.has(id)) rep.errors.push(tr(`prereq: 没有 id 为 "${id}" 的内置课程`, `prereq: no built-in lesson with id "${id}"`));
+  }
+
   // (c) start layout must at least build
   if (ch.start) {
     const nl = checkLayout(ch.start, 'start', rep.errors);
@@ -369,6 +389,13 @@ export function validateProblemJson(json: unknown, file: string): FileReport {
       );
   }
   return rep;
+}
+
+let challengeList: { id: string; kind: string }[] | null = null;
+/** The built-in lessons / challenges (for the "prereq" check). */
+function builtinChallenges(): { id: string; kind: string }[] {
+  const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
+  return (challengeList ??= buildChallengeIndex(root).entries.map((e) => ({ id: e.id, kind: e.kind })));
 }
 
 let problemList: { id: string; chapter: string }[] | null = null;

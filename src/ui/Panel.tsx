@@ -23,6 +23,7 @@ import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { allAnswered, emptyReadings, matchBoard, revalidate, structureKey } from '../core/readings';
 
 import { Md } from './Md';
+import { Prereqs, StepStatus, useStepChecks } from './StepCheck';
 
 export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: string }) {
   const setHighlight = useStore((s) => s.setHighlight);
@@ -114,6 +115,9 @@ function TaskPanel({ ch }: { ch: Challenge }) {
 
   const nSteps = ch.steps.length;
   const cur = Math.min(step, Math.max(0, nSteps - 1));
+  const sc = useStepChecks(ch);
+  // a step counts as done when its check passed (steps without a check: once passed)
+  const stepDone = (i: number) => (sc.unmet[i] ? sc.done.has(i) : i < cur);
 
   return (
     <div className="task">
@@ -125,6 +129,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       </div>
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
+      <Prereqs ch={ch} />
       {hasM && <StageBar circuitOk={ms.passed} st={ms} />}
 
       {nSteps > 0 && (
@@ -137,18 +142,19 @@ function TaskPanel({ ch }: { ch: Challenge }) {
               {ch.steps.map((_, i) => (
                 <button
                   key={i}
-                  className={i === cur ? 'cur' : i < cur ? 'done' : ''}
+                  className={i === cur ? 'cur' : stepDone(i) ? 'done' : ''}
                   aria-current={i === cur ? 'step' : undefined}
                   aria-label={tr(`第 ${i + 1} 步`, `Step ${i + 1}`)}
                   onClick={() => setStep(i)}
                 >
-                  {i < cur ? '✓' : i + 1}
+                  {i !== cur && stepDone(i) ? '✓' : i + 1}
                 </button>
               ))}
             </span>
           </div>
           <div className="step-cur" aria-live="polite">
             <Md text={ch.steps[cur].text} />
+            <StepStatus unmet={sc.unmet[cur]} />
           </div>
           <div className="row">
             <button disabled={cur === 0} onClick={() => setStep(cur - 1)}>

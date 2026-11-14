@@ -204,11 +204,33 @@
                 "items": {
                   "$ref": "#/definitions/hole"
                 }
+              },
+              "check": {
+                "description": "Lesson step check (§7.1): what must be on the board for this step to count as done. One entry or an array: a layout part (type + pins/at + settings to match; any hole on the same strip counts), { probe: { red, black } } multimeter probes, { empty: [holes] }, or { scope: { tdiv, vdiv1, vdiv2 } }.",
+                "oneOf": [
+                  {
+                    "$ref": "#/definitions/stepCheck"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/stepCheck"
+                    }
+                  }
+                ]
               }
             }
           }
         ]
       }
+    },
+    "prereq": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+      },
+      "description": "Ids of built-in lessons to do first; shown as links at the top of the task panel."
     },
     "solution": {
       "$ref": "#/definitions/layout"
@@ -1085,6 +1107,77 @@
         }
       },
       "additionalProperties": false
+    },
+    "stepCheck": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/layoutPart"
+        },
+        {
+          "type": "object",
+          "required": [
+            "probe"
+          ],
+          "properties": {
+            "probe": {
+              "type": "object",
+              "properties": {
+                "red": {
+                  "$ref": "#/definitions/hole"
+                },
+                "black": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/definitions/hole"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "empty"
+          ],
+          "properties": {
+            "empty": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/hole"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "scope"
+          ],
+          "properties": {
+            "scope": {
+              "type": "object",
+              "properties": {
+                "tdiv": {
+                  "$ref": "#/definitions/value"
+                },
+                "vdiv1": {
+                  "$ref": "#/definitions/value"
+                },
+                "vdiv2": {
+                  "$ref": "#/definitions/value"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
     }
   }
 }

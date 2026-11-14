@@ -9,6 +9,7 @@ import { isMcu, mcuPin, modesFor, normalizeMcuPin } from './mcu';
 import { BATTERIES, LED_COLORS, PARTS, terminalsOf } from './parts';
 import { MEASURES, type Measure } from './transient';
 import { PIN_MODES } from './types';
+import type { StepCheck } from './stepCheck';
 import type { BatteryVariant, CComponent, CompType, Circuit, Layout, LedColor, MosfetModel, PartProps, PartType, PinConfig, PinMode, PlacedPart, Waveform } from './types';
 
 export const FORMAT_ID = 'breadboard-challenge/1';
@@ -66,6 +67,8 @@ export interface ChallengeTest {
 export interface ChallengeStep {
   text: string;
   highlight: string[];
+  /** what must be on the board for this step to count as done (§7.1); empty = no check */
+  check?: StepCheck[];
 }
 
 /** Scope measurements a measurement question may ask for: the test measures plus "ring", the
@@ -144,6 +147,8 @@ export interface Challenge {
   compare: string;
   hints: string[];
   steps: ChallengeStep[];
+  /** ids of the lessons to do first (shown as links in the task panel) */
+  prereq?: string[];
   solution?: Layout;
   start?: Layout;
   tolerance: number;
@@ -505,6 +510,59 @@ function parseLayout(raw: unknown, refs: Set<string> | null, where: string, erro
     }
   }
   return { version: 1, parts };
+}
+
+/** A lesson step's "check" (§7.1): layout-style parts (holes + the settings to match), the
+ *  multimeter probes, holes that must be empty, the scope's time/div and V/div. */
+function parseStepChecks(raw: unknown, where: string, errors: string[]): StepCheck[] {
+  if (raw === undefined) return [];
+  const list = Array.isArray(raw) ? raw : [raw];
+  const out: StepCheck[] = [];
+  const holeOk = (h: unknown, w: string) => {
+    if (typeof h === 'string' && HOLE_MAP.has(h)) return true;
+    errors.push(tr(`${w}: 孔位 ${JSON.stringify(h)} 不存在`, `${w}: hole ${JSON.stringify(h)} doesn't exist`));
+    return false;
+  };
+  list.forEach((c: unknown, i: number) => {
+    const w = `${where}[${i}]`;
+    if (!isObj(c)) return errors.push(tr(`${w}: 必须是对象`, `${w}: must be an object`));
+    if (typeof c.type === 'string') {
+      const lay = parseLayout({ parts: [c] }, null, w, errors);
+      const p = lay?.parts[0];
+      if (!p) return;
+      const props = p.type === 'wire' ? {} : parseProps(p.type, isObj(c.props) ? c.props : c, w, [], isObj(c.props));
+      if (!Object.keys(p.pins).length) return errors.push(tr(`${w}: 要写 "pins" 或 "at"`, `${w}: needs "pins" or "at"`));
+      return out.push({ kind: 'part', type: p.type, pins: p.pins, props });
+    }
+    if (isObj(c.probe)) {
+      const { red, black } = c.probe;
+      if (red !== undefined && !holeOk(red, `${w}.probe.red`)) return;
+      if (black !== undefined && black !== null && !holeOk(black, `${w}.probe.black`)) return;
+      return out.push({ kind: 'probe', ...(red !== undefined ? { red: red as string } : {}), ...(black !== undefined ? { black: black as string | null } : {}) });
+    }
+    if (Array.isArray(c.empty)) {
+      if (!c.empty.every((h, k) => holeOk(h, `${w}.empty[${k}]`))) return;
+      return out.push({ kind: 'empty', holes: c.empty as string[] });
+    }
+    if (isObj(c.scope)) {
+      const v = (k: string) => (c.scope as Record<string, unknown>)[k];
+      const num = (k: string) => {
+        const x = v(k);
+        if (x === undefined) return undefined;
+        const n = parseValue(x as string | number);
+        if (n === null || n <= 0) errors.push(tr(`${w}.scope.${k}: 无法解析 ${JSON.stringify(x)}`, `${w}.scope.${k}: can't parse ${JSON.stringify(x)}`));
+        return n ?? undefined;
+      };
+      return out.push({ kind: 'scope', tdiv: num('tdiv'), vdiv1: num('vdiv1'), vdiv2: num('vdiv2') });
+    }
+    errors.push(
+      tr(
+        `${w}: 要么是元件（带 "type"），要么是 { "probe": … }、{ "empty": [...] } 或 { "scope": … }`,
+        `${w}: must be a part (with "type"), or { "probe": … }, { "empty": [...] } or { "scope": … }`,
+      ),
+    );
+  });
+  return out;
 }
 
 export function parseChallenge(json: unknown, source = 'builtin', file?: string): ValidationResult {
@@ -910,13 +968,14 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   });
 
   const steps: ChallengeStep[] = (Array.isArray(json.steps) ? json.steps : [])
-    .map((s: unknown) =>
+    .map((s: unknown, i: number) =>
       typeof s === 'string'
         ? { text: s, highlight: [] }
         : isObj(s)
           ? {
               text: String(s.text ?? ''),
               highlight: Array.isArray(s.highlight) ? s.highlight.filter((h): h is string => typeof h === 'string') : [],
+              ...(s.check !== undefined ? { check: parseStepChecks(s.check, `steps[${i}].check`, errors) } : {}),
             }
           : null,
     )
@@ -993,6 +1052,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     compare: textOf(tx.compare) || textOf(json.compare),
     hints: txHints.length === baseHints.length ? txHints : baseHints,
     steps,
+    prereq: strs(json.prereq),
     solution,
     start,
     tolerance: typeof opts.tolerance === 'number' ? opts.tolerance : 0.05,
