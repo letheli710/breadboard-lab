@@ -5,6 +5,8 @@
 // matrix-exponential transient): voltages, currents, impedances, reflection coefficients, powers and
 // extrema at the line ends and section nodes, and the other elements' quantities, must agree.
 // Line constants (Z_c, γ, λ, v …) are not circuit quantities; they are recomputed in tline.test.ts.
+// The transient problems (LC ladder, matrix exponential, several seconds) run only with TLINE_HEAVY=1:
+//   TLINE_HEAVY=1 npx vitest run src/core/analysis/tlineChapter.test.ts
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +21,7 @@ import { Transient } from './transient';
 import { lineAt, parseLine } from './tline';
 
 const DIR = fileURLToPath(new URL('../../../problems/transmission-line/', import.meta.url));
+const HEAVY = process.env.TLINE_HEAVY === '1';
 const files = readdirSync(DIR).filter((f) => f.endsWith('.json') && !f.startsWith('_'));
 
 /** Replace every TL by n π-sections; ammeters A_<ref>_in / A_<ref>_out carry the end currents (in +x),
@@ -80,6 +83,7 @@ describe('transmission-line chapter: every circuit answer again with lumped π-s
         const p = JSON.parse(readFileSync(join(DIR, file), 'utf8')) as ProblemFile;
         const { netlist } = extractNetlist(p.schematic);
         const tran = p.analysis.type === 'tran';
+        if (tran && !HEAVY) return;
         const N = tran ? 60 : 100;
         const lad = ladderize(netlist, N);
         const trn = tran ? new Transient(new Circuit(lad.net)) : null;
@@ -183,11 +187,11 @@ describe('transmission-line chapter: every circuit answer again with lumped π-s
           checkedAc++;
         }
       },
-      120000,
+      20000,
     );
 
   it('checked enough answers this way', () => {
     expect(checkedAc).toBeGreaterThanOrEqual(30);
-    expect(checkedTran).toBeGreaterThanOrEqual(8);
+    if (HEAVY) expect(checkedTran).toBeGreaterThanOrEqual(8);
   });
 });
