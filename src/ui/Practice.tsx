@@ -887,7 +887,7 @@ export function Practice() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
       setDrawer(false);
-      document.querySelector<HTMLElement>('.pr-phone-nav button[aria-expanded]')?.focus();
+      document.querySelector<HTMLElement>('.pr-phone-nav button[aria-controls="pr-side"]')?.focus();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

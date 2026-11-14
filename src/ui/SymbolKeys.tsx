@@ -34,13 +34,7 @@ export function SymbolKeys({ input, onChange }: { input: RefObject<HTMLInputElem
   return (
     <div className="pr-symkeys" role="group" aria-label={tr('插入符号', 'Insert a symbol')}>
       {SYMBOL_KEYS.map((k) => (
-        <button
-          key={k.text}
-          type="button"
-          onPointerDown={(e) => e.preventDefault()}
-          onClick={() => insert(k.text)}
-          aria-label={tr(`插入 ${k.text}`, `Insert ${k.text}`)}
-        >
+        <button key={k.text} type="button" onPointerDown={(e) => e.preventDefault()} onClick={() => insert(k.text)} aria-label={tr(`插入 ${k.text}`, `Insert ${k.text}`)}>
           {k.label ?? k.text}
         </button>
       ))}

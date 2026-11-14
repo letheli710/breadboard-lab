@@ -43,9 +43,15 @@ const PAGES = [
   // phone UI (390 × 844, touch)
   { name: 'phone-drawer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'drawer' },
   { name: 'phone-figure-viewer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'viewer' },
+  { name: 'phone-review-menu', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'reviewmenu' },
   { name: 'phone-symbol-keys', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'symkeys' },
   { name: 'phone-touch-chip', hash: '#/sandbox', ready: '.stage-view canvas', phone: true, setup: 'touchchip' },
 ];
+
+async function setupPage(p, pg) {
+  if (pg.setup === 'parts') await p.waitForFunction(() => window.__bb, null, { timeout: 30000 });
+  await setup(p, pg.setup);
+}
 
 async function setup(p, kind) {
   if (kind === 'parts') {
@@ -92,7 +98,8 @@ async function setup(p, kind) {
       await p.waitForSelector('.ms-quiz', { state: 'detached', timeout: 10000 });
     }
   }
-  if (kind === 'drawer') await p.locator('.pr-phone-nav button[aria-expanded]').click();
+  if (kind === 'drawer') await p.locator('.pr-phone-nav button[aria-controls="pr-side"]').click();
+  if (kind === 'reviewmenu') await p.locator('.pr-phone-review').click();
   if (kind === 'viewer') {
     await p.locator('.fig-zoom').first().click();
     await p.waitForSelector('.fig-viewer[role="dialog"]', { timeout: 5000 });
@@ -126,10 +133,15 @@ async function setup(p, kind) {
       const p = await ctx.newPage();
       await p.goto(`${BASE}?e2e${pg.hash}`);
       await p.waitForSelector(pg.ready, { timeout: 30000 }).catch(() => null);
-      if (pg.setup) {
-        if (pg.setup === 'parts') await p.waitForFunction(() => window.__bb, null, { timeout: 30000 });
-        await setup(p, pg.setup);
-      }
+      if (pg.setup)
+        try {
+          await setupPage(p, pg);
+        } catch (e) {
+          failures++;
+          console.log(`FAIL ${pg.name}/${lang}: setup failed: ${e.message.split('\n')[0]}`);
+          await ctx.close();
+          continue;
+        }
       await p.waitForTimeout(700);
       await p.evaluate(AXE);
       const r = await p.evaluate(async () => {

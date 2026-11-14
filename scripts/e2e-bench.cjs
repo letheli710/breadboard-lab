@@ -496,7 +496,7 @@ const TESTS = {
           (await p.locator('.fig-viewer').count()) === 0 && (await p.evaluate(() => document.activeElement.classList.contains('fig-zoom'))),
           'viewer: Esc closes it, focus back on its button',
         );
-        const tog = p.locator('.pr-phone-nav button[aria-expanded]');
+        const tog = p.locator('.pr-phone-nav button[aria-controls="pr-side"]');
         await tog.focus();
         await p.keyboard.press('Enter');
         await p.waitForTimeout(250);
@@ -507,7 +507,7 @@ const TESTS = {
         await p.keyboard.press('Escape');
         await p.waitForTimeout(150);
         assert(
-          (await tog.getAttribute('aria-expanded')) === 'false' && (await p.evaluate(() => document.activeElement.matches('.pr-phone-nav button[aria-expanded]'))),
+          (await tog.getAttribute('aria-expanded')) === 'false' && (await p.evaluate(() => document.activeElement.matches('.pr-phone-nav button[aria-controls="pr-side"]'))),
           'drawer: Esc closes it, focus back on the toggle',
         );
         assert(errors.length === 0, 'viewer / drawer: no page errors ' + errors.join(' | '));
