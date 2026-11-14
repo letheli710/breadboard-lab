@@ -1,0 +1,339 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "transmission-line-09-standing-wave-pattern",
+  "chapter": "transmission-line",
+  "title": "行驻波：电压波腹、波节在哪里",
+  "level": 3,
+  "tags": [
+    "驻波",
+    "驻波比",
+    "电压波腹与波节"
+  ],
+  "statement": [
+    "50 Ω 无损耗线长 2.4 m，v = 2×10⁸ m/s，f = 100 MHz；信号源 U̇_s = 20∠0° V（有效值），内阻 R_s = 50 Ω；终端负载 Z_L = (50 + j50) Ω。",
+    "x′ 从终端量起，指向始端。U_max、U_min 指整条线上电压有效值的最大、最小值。"
+  ],
+  "schematic": {
+    "elements": [
+      {
+        "ref": "Us",
+        "type": "V",
+        "from": [
+          0,
+          0
+        ],
+        "to": [
+          0,
+          4
+        ],
+        "value": {
+          "ac": {
+            "mag": 20,
+            "phase": 0
+          }
+        }
+      },
+      {
+        "ref": "Rs",
+        "type": "R",
+        "from": [
+          1,
+          0
+        ],
+        "to": [
+          4,
+          0
+        ],
+        "value": 50
+      },
+      {
+        "ref": "TL",
+        "type": "TL",
+        "at": [
+          6,
+          0
+        ],
+        "w": 8,
+        "line": {
+          "zc": 50,
+          "vp": "200M",
+          "length": 2.4
+        }
+      },
+      {
+        "ref": "ZL",
+        "type": "Z",
+        "value": {
+          "re": 50,
+          "im": 50
+        },
+        "from": [
+          16,
+          0
+        ],
+        "to": [
+          16,
+          4
+        ]
+      }
+    ],
+    "wires": [
+      [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      [
+        [
+          4,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          0
+        ],
+        [
+          16,
+          0
+        ]
+      ],
+      [
+        [
+          0,
+          4
+        ],
+        [
+          16,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          2
+        ],
+        [
+          14,
+          4
+        ]
+      ]
+    ],
+    "terminals": [
+      {
+        "at": [
+          6,
+          0
+        ],
+        "name": "1"
+      },
+      {
+        "at": [
+          6,
+          2
+        ],
+        "name": "1'"
+      },
+      {
+        "at": [
+          14,
+          0
+        ],
+        "name": "2"
+      },
+      {
+        "at": [
+          14,
+          2
+        ],
+        "name": "2'"
+      }
+    ],
+    "grounds": [
+      [
+        0,
+        4
+      ]
+    ]
+  },
+  "analysis": {
+    "type": "ac",
+    "freq": 100000000.0
+  },
+  "questions": [
+    {
+      "id": "umax",
+      "ask": "线上电压有效值的最大值 U_max = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "umax"
+      },
+      "answer": 14.4721,
+      "unit": "V",
+      "explain": "R_s = Z_c，U⁺ = U_s/2 = 10 V；|Γ_2| = |j50/(100 + j50)| = 0.447，U_max = U⁺(1 + |Γ|) = 14.47 V。"
+    },
+    {
+      "id": "umin",
+      "ask": "电压最小值 U_min = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "umin"
+      },
+      "answer": 5.52786,
+      "unit": "V",
+      "explain": "U_min = U⁺(1 − |Γ|) = 10 × 0.553 = 5.53 V。"
+    },
+    {
+      "id": "vswr",
+      "ask": "驻波比 VSWR = U_max/U_min = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "vswr"
+      },
+      "answer": 2.61803,
+      "unit": "",
+      "explain": "(1 + 0.447)/(1 − 0.447) = 2.618 = 14.47/5.53。"
+    },
+    {
+      "id": "xmax",
+      "ask": "离负载最近的电压波腹到终端的距离 x′_max = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "xmax"
+      },
+      "answer": 0.176208,
+      "unit": "m",
+      "explain": "Γ_2 = 0.447∠63.43°。|U̇(x′)| 在 Γ(x′) = Γ_2·e^{−j2βx′} 的辐角为 0 时最大：2βx′ = 63.43°，β = π rad/m，x′ = 1.107/(2π) = 0.176 m。"
+    },
+    {
+      "id": "xmin",
+      "ask": "离负载最近的电压波节到终端的距离 x′_min = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "xmin"
+      },
+      "answer": 0.676208,
+      "unit": "m",
+      "explain": "波节在 Γ(x′) 辐角为 180° 处，比波腹远 λ/4 = 0.5 m：x′_min = 0.676 m。"
+    },
+    {
+      "id": "imax",
+      "ask": "电流有效值的最大值 I_max = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "imax"
+      },
+      "answer": 0.289443,
+      "unit": "A",
+      "explain": "电流波腹在电压波节处：I_max = U⁺(1 + |Γ|)/Z_c = 14.47/50 = 0.289 A。"
+    },
+    {
+      "id": "pl",
+      "ask": "负载吸收的功率 P_L = ?",
+      "find": {
+        "kind": "p",
+        "el": "ZL"
+      },
+      "answer": 1.6,
+      "unit": "W",
+      "explain": "P_L = U⁺²(1 − |Γ|²)/Z_c = 100 × 0.8/50 = 1.6 W；也等于 U_max·U_min/Z_c = 14.47 × 5.53/50 = 1.6 W。"
+    }
+  ],
+  "hints": [
+    "把线上电压写成入射波与反射波之和：U̇(x′) = U̇⁺_2·e^{jβx′}·[1 + Γ_2·e^{−j2βx′}]。",
+    "方括号的模在 Γ_2·e^{−j2βx′} 为正实数时最大（1 + |Γ|），为负实数时最小（1 − |Γ|）；相邻波腹与波节相距 λ/4。",
+    "源内阻等于 Z_c，所以始端不再反射，U⁺ = U_s/2；λ = 2 m，β = π rad/m。"
+  ],
+  "solution": [
+    "**1. 反射系数。** Γ_2 = (Z_L − Z_c)/(Z_L + Z_c) = j50/(100 + j50) = 0.447∠63.43°，VSWR = **2.618**。",
+    "**2. 入射波。** R_s = Z_c：U⁺ = 20/2 = 10 V（沿线大小不变）。",
+    "**3. 极值。** U_max = 10 × 1.447 = **14.47 V**，U_min = 10 × 0.553 = **5.53 V**，I_max = U_max/Z_c = **0.289 A**（在电压波节处）。",
+    "**4. 位置。** 2βx′_max = 63.43° → x′_max = **0.176 m**；x′_min = 0.176 + λ/4 = **0.676 m**。之后每隔 λ/2 = 1 m 重复。",
+    "**5. 功率。** P_L = U⁺²(1 − |Γ|²)/Z_c = **1.6 W**。",
+    "**检查：** 在 x′_max 处 Z = Z_c·VSWR = 130.9 Ω（纯电阻），P = 14.47²/130.9 = 1.6 W ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Standing waves: where are the voltage maxima and minima?",
+      "tags": [
+        "standing waves",
+        "standing-wave ratio",
+        "voltage maxima and minima"
+      ],
+      "statement": [
+        "A 50 Ω lossless line is 2.4 m long, v = 2×10⁸ m/s, f = 100 MHz; the source is U̇_s = 20∠0° V (rms) with internal resistance R_s = 50 Ω; the load is Z_L = (50 + j50) Ω.",
+        "x′ is measured from the end towards the start. U_max and U_min are the largest and smallest rms voltages anywhere on the line."
+      ],
+      "questions": [
+        {
+          "ask": "Largest rms voltage on the line U_max = ?",
+          "explain": "R_s = Z_c, so U⁺ = U_s/2 = 10 V; |Γ_2| = |j50/(100 + j50)| = 0.447, U_max = U⁺(1 + |Γ|) = 14.47 V."
+        },
+        {
+          "ask": "Smallest rms voltage U_min = ?",
+          "explain": "U_min = U⁺(1 − |Γ|) = 10 × 0.553 = 5.53 V."
+        },
+        {
+          "ask": "Standing-wave ratio VSWR = U_max/U_min = ?",
+          "explain": "(1 + 0.447)/(1 − 0.447) = 2.618 = 14.47/5.53."
+        },
+        {
+          "ask": "Distance from the end to the nearest voltage maximum x′_max = ?",
+          "explain": "Γ_2 = 0.447∠63.43°. |U̇(x′)| is largest where the angle of Γ(x′) = Γ_2·e^{−j2βx′} is 0: 2βx′ = 63.43°, β = π rad/m, x′ = 1.107/(2π) = 0.176 m."
+        },
+        {
+          "ask": "Distance from the end to the nearest voltage minimum x′_min = ?",
+          "explain": "A minimum is where the angle of Γ(x′) is 180°, λ/4 = 0.5 m beyond the maximum: x′_min = 0.676 m."
+        },
+        {
+          "ask": "Largest rms current I_max = ?",
+          "explain": "The current maximum sits at the voltage minimum: I_max = U⁺(1 + |Γ|)/Z_c = 14.47/50 = 0.289 A."
+        },
+        {
+          "ask": "Power absorbed by the load P_L = ?",
+          "explain": "P_L = U⁺²(1 − |Γ|²)/Z_c = 100 × 0.8/50 = 1.6 W; it also equals U_max·U_min/Z_c = 14.47 × 5.53/50 = 1.6 W."
+        }
+      ],
+      "hints": [
+        "Write the line voltage as incident plus reflected wave: U̇(x′) = U̇⁺_2·e^{jβx′}·[1 + Γ_2·e^{−j2βx′}].",
+        "The bracket is largest (1 + |Γ|) where Γ_2·e^{−j2βx′} is a positive real number and smallest (1 − |Γ|) where it is negative; a maximum and the next minimum are λ/4 apart.",
+        "The source resistance equals Z_c, so nothing is re-reflected at the start and U⁺ = U_s/2; λ = 2 m, β = π rad/m."
+      ],
+      "solution": [
+        "**1. Reflection coefficient.** Γ_2 = (Z_L − Z_c)/(Z_L + Z_c) = j50/(100 + j50) = 0.447∠63.43°, VSWR = **2.618**.",
+        "**2. Incident wave.** R_s = Z_c: U⁺ = 20/2 = 10 V (the same everywhere).",
+        "**3. Extremes.** U_max = 10 × 1.447 = **14.47 V**, U_min = 10 × 0.553 = **5.53 V**, I_max = U_max/Z_c = **0.289 A** (at the voltage minimum).",
+        "**4. Positions.** 2βx′_max = 63.43° → x′_max = **0.176 m**; x′_min = 0.176 + λ/4 = **0.676 m**. The pattern repeats every λ/2 = 1 m.",
+        "**5. Power.** P_L = U⁺²(1 − |Γ|²)/Z_c = **1.6 W**.",
+        "**Check:** at x′_max the impedance is Z_c·VSWR = 130.9 Ω (resistive), P = 14.47²/130.9 = 1.6 W ✓."
+      ]
+    }
+  }
+}

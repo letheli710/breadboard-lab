@@ -1,0 +1,303 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "transmission-line-08-distortionless-line",
+  "chapter": "transmission-line",
+  "title": "无畸变线：所有频率走得一样快、衰减一样多",
+  "level": 3,
+  "tags": [
+    "无畸变线",
+    "副参数",
+    "相速",
+    "衰减"
+  ],
+  "statement": [
+    "一条加感电话线长 100 km，原参数：R_0 = 6 Ω/km，L_0 = 60 mH/km，G_0 = 0.5 µS/km，C_0 = 5 nF/km。始端电压 U̇_1 = 10∠0° V（有效值，f = 1 kHz），终端接 R_L = 3464.1 Ω。",
+    "x 从始端量起。（图上只标了线长，原参数见题干。）"
+  ],
+  "schematic": {
+    "elements": [
+      {
+        "ref": "Us",
+        "type": "V",
+        "from": [
+          0,
+          0
+        ],
+        "to": [
+          0,
+          4
+        ],
+        "value": {
+          "ac": {
+            "mag": 10,
+            "phase": 0
+          }
+        }
+      },
+      {
+        "ref": "TL",
+        "type": "TL",
+        "at": [
+          6,
+          0
+        ],
+        "w": 8,
+        "line": {
+          "R0": "6m",
+          "L0": "60u",
+          "G0": "0.5n",
+          "C0": "5p",
+          "length": "100k"
+        }
+      },
+      {
+        "ref": "RL",
+        "type": "R",
+        "value": 3464.1,
+        "from": [
+          16,
+          0
+        ],
+        "to": [
+          16,
+          4
+        ]
+      }
+    ],
+    "wires": [
+      [
+        [
+          0,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          0
+        ],
+        [
+          16,
+          0
+        ]
+      ],
+      [
+        [
+          0,
+          4
+        ],
+        [
+          16,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          2
+        ],
+        [
+          14,
+          4
+        ]
+      ]
+    ],
+    "terminals": [
+      {
+        "at": [
+          6,
+          0
+        ],
+        "name": "1"
+      },
+      {
+        "at": [
+          6,
+          2
+        ],
+        "name": "1'"
+      },
+      {
+        "at": [
+          14,
+          0
+        ],
+        "name": "2"
+      },
+      {
+        "at": [
+          14,
+          2
+        ],
+        "name": "2'"
+      }
+    ],
+    "grounds": [
+      [
+        0,
+        4
+      ]
+    ]
+  },
+  "analysis": {
+    "type": "ac",
+    "freq": 1000
+  },
+  "questions": [
+    {
+      "id": "zc",
+      "ask": "特性阻抗 Z_c 的模 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "zc"
+      },
+      "answer": 3464.1,
+      "unit": "Ω",
+      "explain": "R_0/L_0 = 6/0.06 = 100 s⁻¹，G_0/C_0 = 0.5×10⁻⁶/5×10⁻⁹ = 100 s⁻¹：满足无畸变条件，Z_c = √(L_0/C_0) = √(0.06/5×10⁻⁹) = 3464 Ω。"
+    },
+    {
+      "id": "zcang",
+      "ask": "Z_c 的辐角 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "zc",
+        "part": "phase"
+      },
+      "answer": 0,
+      "unit": "°",
+      "explain": "Z_0/Y_0 = L_0(R_0/L_0 + jω)/[C_0(G_0/C_0 + jω)] = L_0/C_0，是正实数，所以 Z_c 是纯电阻，辐角 0°。"
+    },
+    {
+      "id": "alpha",
+      "ask": "衰减常数 α = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "alpha"
+      },
+      "answer": 1.73205e-06,
+      "unit": "Np/km",
+      "explain": "无畸变线 γ = √(R_0G_0) + jω√(L_0C_0)：α = √(6 × 0.5×10⁻⁶) = 1.732×10⁻³ Np/km，与频率无关。"
+    },
+    {
+      "id": "v1",
+      "ask": "f = 1 kHz 时的相速 v = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "vp"
+      },
+      "answer": 57735000.0,
+      "unit": "m/s",
+      "explain": "v = ω/β = 1/√(L_0C_0) = 1/√(0.06 × 5×10⁻⁹) = 57735 km/s。"
+    },
+    {
+      "id": "v3",
+      "ask": "f = 3 kHz 时的相速 v = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "vp",
+        "freq": 3000
+      },
+      "answer": 57735000.0,
+      "unit": "m/s",
+      "explain": "β = ω√(L_0C_0) 与 ω 成正比，所以 v = ω/β 不随频率变化——各频率分量同时到达，波形不畸变。"
+    },
+    {
+      "id": "u2",
+      "ask": "终端接匹配负载 R_L = Z_c，始端 U_1 = 10 V，终端电压 U_2 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "u",
+        "x": 100000
+      },
+      "answer": 8.4097,
+      "unit": "V",
+      "explain": "匹配时 U_2 = U_1·e^{−αl} = 10 × e^{−0.1732} = 8.41 V；各频率衰减相同，所以只缩小、不变形。"
+    }
+  ],
+  "hints": [
+    "先检查 R_0/L_0 和 G_0/C_0：两者相等就是无畸变线。",
+    "满足条件时 Z_0 = L_0(R_0/L_0 + jω)、Y_0 = C_0(G_0/C_0 + jω) 只差一个常数倍，Z_c 和 γ 都可以直接开方。",
+    "γ = √(R_0G_0) + jω√(L_0C_0)：α 与频率无关，β 与频率成正比。"
+  ],
+  "solution": [
+    "**1. 条件。** R_0/L_0 = 100 s⁻¹ = G_0/C_0 ✓：无畸变线。",
+    "**2. 特性阻抗。** Z_c = √(L_0/C_0) = **3464 Ω**，纯电阻（辐角 **0°**），与频率无关。",
+    "**3. 传播常数。** α = √(R_0G_0) = **1.732×10⁻³ Np/km**；β = ω√(L_0C_0)，v = 1/√(L_0C_0) = **57735 km/s**，1 kHz 和 3 kHz 时都一样。",
+    "**4. 匹配负载。** R_L = Z_c，线上只有入射波：U_2 = 10 × e^{−0.1732} = **8.41 V**。",
+    "**检查：** αl = 1.732×10⁻³ × 100 = 0.1732 Np；β(1 kHz) = 2π × 1000/57735 = 0.1088 rad/km，λ = 2π/β = 57.7 km = v/f ✓。普通电话线 L_0 太小（R_0/L_0 ≫ G_0/C_0），所以要在线上串加感线圈（加感），使它接近无畸变条件。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Distortionless line: every frequency travels equally fast and is attenuated equally",
+      "tags": [
+        "distortionless line",
+        "secondary parameters",
+        "phase velocity",
+        "attenuation"
+      ],
+      "statement": [
+        "A loaded telephone line is 100 km long with the primary parameters R_0 = 6 Ω/km, L_0 = 60 mH/km, G_0 = 0.5 µS/km, C_0 = 5 nF/km. The start voltage is U̇_1 = 10∠0° V (rms, f = 1 kHz) and the end is loaded with R_L = 3464.1 Ω.",
+        "x is measured from the start. (The drawing shows only the length; the primary parameters are given here.)"
+      ],
+      "questions": [
+        {
+          "ask": "Magnitude of the characteristic impedance Z_c = ?",
+          "explain": "R_0/L_0 = 6/0.06 = 100 s⁻¹ and G_0/C_0 = 0.5×10⁻⁶/5×10⁻⁹ = 100 s⁻¹: the distortionless condition holds, Z_c = √(L_0/C_0) = √(0.06/5×10⁻⁹) = 3464 Ω."
+        },
+        {
+          "ask": "Angle of Z_c = ?",
+          "explain": "Z_0/Y_0 = L_0(R_0/L_0 + jω)/[C_0(G_0/C_0 + jω)] = L_0/C_0, a positive real number, so Z_c is purely resistive: angle 0°."
+        },
+        {
+          "ask": "Attenuation constant α = ?",
+          "explain": "Distortionless line: γ = √(R_0G_0) + jω√(L_0C_0), so α = √(6 × 0.5×10⁻⁶) = 1.732×10⁻³ Np/km, independent of frequency."
+        },
+        {
+          "ask": "Phase velocity at f = 1 kHz, v = ?",
+          "explain": "v = ω/β = 1/√(L_0C_0) = 1/√(0.06 × 5×10⁻⁹) = 57735 km/s."
+        },
+        {
+          "ask": "Phase velocity at f = 3 kHz, v = ?",
+          "explain": "β = ω√(L_0C_0) is proportional to ω, so v = ω/β does not change with frequency — all frequency components arrive together and the waveform is not distorted."
+        },
+        {
+          "ask": "With the matched load R_L = Z_c and U_1 = 10 V, the end voltage U_2 = ?",
+          "explain": "Matched: U_2 = U_1·e^{−αl} = 10 × e^{−0.1732} = 8.41 V; every frequency is attenuated alike, so the signal shrinks without changing shape."
+        }
+      ],
+      "hints": [
+        "Compare R_0/L_0 with G_0/C_0 first: if they are equal the line is distortionless.",
+        "Then Z_0 = L_0(R_0/L_0 + jω) and Y_0 = C_0(G_0/C_0 + jω) differ only by a constant factor, so Z_c and γ can be square-rooted directly.",
+        "γ = √(R_0G_0) + jω√(L_0C_0): α does not depend on frequency, β is proportional to it."
+      ],
+      "solution": [
+        "**1. Condition.** R_0/L_0 = 100 s⁻¹ = G_0/C_0 ✓: distortionless.",
+        "**2. Characteristic impedance.** Z_c = √(L_0/C_0) = **3464 Ω**, purely resistive (angle **0°**) and independent of frequency.",
+        "**3. Propagation constant.** α = √(R_0G_0) = **1.732×10⁻³ Np/km**; β = ω√(L_0C_0), v = 1/√(L_0C_0) = **57735 km/s**, the same at 1 kHz and 3 kHz.",
+        "**4. Matched load.** R_L = Z_c, only the incident wave: U_2 = 10 × e^{−0.1732} = **8.41 V**.",
+        "**Check:** αl = 1.732×10⁻³ × 100 = 0.1732 Np; β(1 kHz) = 2π × 1000/57735 = 0.1088 rad/km, λ = 2π/β = 57.7 km = v/f ✓. An ordinary telephone pair has far too little L_0 (R_0/L_0 ≫ G_0/C_0), which is why loading coils were inserted in series to approach the distortionless condition."
+      ]
+    }
+  }
+}

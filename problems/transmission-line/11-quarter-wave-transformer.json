@@ -1,0 +1,325 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "transmission-line-11-quarter-wave-transformer",
+  "chapter": "transmission-line",
+  "title": "λ/4 阻抗变换器：让 50 Ω 线带 200 Ω 负载",
+  "level": 4,
+  "tags": [
+    "λ/4 阻抗变换器",
+    "匹配",
+    "驻波比"
+  ],
+  "statement": [
+    "信号源 U̇_s = 10∠0° V（有效值），R_s = 50 Ω，f = 300 MHz，经 1 m 长的 50 Ω 无损耗主线向 R_L = 200 Ω 供电。为了消除主线上的反射，在 a 点与负载之间串入一段特性阻抗为 Z_c1、长 l_1 的无损耗线（两段线的相速都是 2×10⁸ m/s）。",
+    "设计 Z_c1 和最短的 l_1，使主线匹配。x 从各段的始端量起。"
+  ],
+  "schematic": {
+    "elements": [
+      {
+        "ref": "Us",
+        "type": "V",
+        "from": [
+          0,
+          0
+        ],
+        "to": [
+          0,
+          4
+        ],
+        "value": {
+          "ac": {
+            "mag": 10,
+            "phase": 0
+          }
+        }
+      },
+      {
+        "ref": "Rs",
+        "type": "R",
+        "from": [
+          1,
+          0
+        ],
+        "to": [
+          4,
+          0
+        ],
+        "value": 50
+      },
+      {
+        "ref": "TL1",
+        "type": "TL",
+        "at": [
+          6,
+          0
+        ],
+        "w": 8,
+        "line": {
+          "zc": 50,
+          "vp": "200M",
+          "length": 1
+        }
+      },
+      {
+        "ref": "TL2",
+        "type": "TL",
+        "at": [
+          14,
+          0
+        ],
+        "w": 6,
+        "line": {
+          "zc": 100,
+          "vp": "200M",
+          "length": 0.16666667
+        },
+        "hideValue": true,
+        "label": "Z_c1 = ?　l_1 = ?"
+      },
+      {
+        "ref": "RL",
+        "type": "R",
+        "from": [
+          22,
+          0
+        ],
+        "to": [
+          22,
+          4
+        ],
+        "value": 200
+      }
+    ],
+    "wires": [
+      [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      [
+        [
+          4,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          2
+        ],
+        [
+          14,
+          4
+        ]
+      ],
+      [
+        [
+          20,
+          2
+        ],
+        [
+          20,
+          4
+        ]
+      ],
+      [
+        [
+          20,
+          0
+        ],
+        [
+          22,
+          0
+        ]
+      ],
+      [
+        [
+          0,
+          4
+        ],
+        [
+          22,
+          4
+        ]
+      ]
+    ],
+    "terminals": [
+      {
+        "at": [
+          14,
+          0
+        ],
+        "name": "a"
+      }
+    ],
+    "grounds": [
+      [
+        0,
+        4
+      ]
+    ]
+  },
+  "analysis": {
+    "type": "ac",
+    "freq": 300000000.0
+  },
+  "questions": [
+    {
+      "id": "zc1",
+      "ask": "λ/4 匹配段的特性阻抗 Z_c1 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL2",
+        "what": "zc"
+      },
+      "answer": 100,
+      "unit": "Ω",
+      "explain": "λ/4 线的输入阻抗 Z_in = Z_c1²/R_L。要 Z_in = 50 Ω：Z_c1 = √(50 × 200) = 100 Ω。"
+    },
+    {
+      "id": "l1",
+      "ask": "匹配段的最短长度 l_1 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL2",
+        "what": "length"
+      },
+      "answer": 0.1666667,
+      "unit": "m",
+      "explain": "λ = v/f = 2×10⁸/3×10⁸ = 0.667 m，l_1 = λ/4 = 0.167 m。"
+    },
+    {
+      "id": "za",
+      "ask": "从 a 点向负载看进去的阻抗（实部）= ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL2",
+        "what": "z",
+        "part": "re"
+      },
+      "answer": 50,
+      "unit": "Ω",
+      "explain": "100²/200 = 50 Ω，纯电阻，等于主线的 Z_c。"
+    },
+    {
+      "id": "vswr",
+      "ask": "主线（50 Ω 线）上的驻波比 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL1",
+        "what": "vswr"
+      },
+      "answer": 1,
+      "unit": "",
+      "explain": "主线终端接的是 50 Ω（匹配），Γ = 0，VSWR = 1：主线上只有行波。"
+    },
+    {
+      "id": "pl",
+      "ask": "R_L 得到的功率 P_L = ?",
+      "find": {
+        "kind": "p",
+        "el": "RL"
+      },
+      "answer": 0.5,
+      "unit": "W",
+      "explain": "全部匹配，电源输出最大功率 U_s²/(4R_s) = 100/200 = 0.5 W，无损耗线把它全部送到 R_L。"
+    },
+    {
+      "id": "vswr450",
+      "ask": "频率变为 450 MHz（各段线长不变）时，主线上的驻波比 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL1",
+        "what": "vswr",
+        "freq": 450000000.0
+      },
+      "answer": 2.76309,
+      "unit": "",
+      "explain": "此时匹配段长 3λ/8，tan βl_1 = −1：Z_in = 100 × (200 − j100)/(100 − j200) = (80 + j60) Ω，|Γ| = |(30 + j60)/(130 + j60)| = 0.4685，VSWR = 2.76——λ/4 变换器只在设计频率附近匹配。"
+    }
+  ],
+  "hints": [
+    "λ/4 线有什么特点？把 βl = π/2 代入输入阻抗公式。",
+    "Z_in = Z_c1²/Z_L 是纯电阻的条件是 Z_L 为纯电阻；让它等于主线的 Z_c。",
+    "频率改变时 βl_1 不再是 90°，用一般的输入阻抗公式重新算 a 点的阻抗和主线的 Γ。"
+  ],
+  "solution": [
+    "**1. 匹配条件。** βl_1 = π/2 时 tan βl_1 → ∞，Z_in = Z_c1²/R_L；令其等于 50 Ω：**Z_c1 = √(50 × 200) = 100 Ω**。",
+    "**2. 长度。** λ = 0.667 m，**l_1 = λ/4 = 0.167 m**。",
+    "**3. 结果。** a 点阻抗 **50 Ω**，主线 Γ = 0，**VSWR = 1**；电源送出 **0.5 W**（最大功率），全部到达 R_L。匹配段上仍有驻波（VSWR = 2），但很短。",
+    "**4. 频带。** 450 MHz 时 βl_1 = 135°：Z_in = (80 + j60) Ω，主线 VSWR = **2.76**。",
+    "**检查：** Z_c1 是 Z_c 与 R_L 的几何平均：50 < 100 < 200 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Quarter-wave transformer: a 50 Ω line feeding a 200 Ω load",
+      "tags": [
+        "quarter-wave transformer",
+        "matching",
+        "standing-wave ratio"
+      ],
+      "statement": [
+        "A source U̇_s = 10∠0° V (rms), R_s = 50 Ω, f = 300 MHz feeds R_L = 200 Ω through a 1 m long 50 Ω lossless main line. To remove the reflection on the main line, a lossless section with characteristic impedance Z_c1 and length l_1 is inserted between point a and the load (both lines have phase velocity 2×10⁸ m/s).",
+        "Design Z_c1 and the shortest l_1 so that the main line is matched. x is measured from the start of each line."
+      ],
+      "questions": [
+        {
+          "ask": "Characteristic impedance of the λ/4 matching section Z_c1 = ?",
+          "explain": "The input impedance of a λ/4 line is Z_in = Z_c1²/R_L. For Z_in = 50 Ω: Z_c1 = √(50 × 200) = 100 Ω."
+        },
+        {
+          "ask": "Shortest length of the matching section l_1 = ?",
+          "explain": "λ = v/f = 2×10⁸/3×10⁸ = 0.667 m, l_1 = λ/4 = 0.167 m."
+        },
+        {
+          "ask": "Impedance seen at a looking towards the load (real part) = ?",
+          "explain": "100²/200 = 50 Ω, purely resistive and equal to the main line's Z_c."
+        },
+        {
+          "ask": "Standing-wave ratio on the main (50 Ω) line = ?",
+          "explain": "The main line now ends in 50 Ω (matched): Γ = 0, VSWR = 1 — only a travelling wave on the main line."
+        },
+        {
+          "ask": "Power delivered to R_L, P_L = ?",
+          "explain": "Everything is matched: the source delivers its maximum U_s²/(4R_s) = 100/200 = 0.5 W and the lossless lines pass all of it to R_L."
+        },
+        {
+          "ask": "At 450 MHz (same lengths), the standing-wave ratio on the main line = ?",
+          "explain": "Now the section is 3λ/8 long, tan βl_1 = −1: Z_in = 100 × (200 − j100)/(100 − j200) = (80 + j60) Ω, |Γ| = |(30 + j60)/(130 + j60)| = 0.4685, VSWR = 2.76 — a quarter-wave transformer matches only near its design frequency."
+        }
+      ],
+      "hints": [
+        "What is special about a λ/4 line? Put βl = π/2 into the input-impedance formula.",
+        "Z_in = Z_c1²/Z_L is resistive when Z_L is; make it equal to the main line's Z_c.",
+        "At another frequency βl_1 is no longer 90°: use the general input-impedance formula again for the impedance at a and Γ on the main line."
+      ],
+      "solution": [
+        "**1. Matching condition.** For βl_1 = π/2, tan βl_1 → ∞ and Z_in = Z_c1²/R_L; set it to 50 Ω: **Z_c1 = √(50 × 200) = 100 Ω**.",
+        "**2. Length.** λ = 0.667 m, **l_1 = λ/4 = 0.167 m**.",
+        "**3. Result.** The impedance at a is **50 Ω**, Γ = 0 on the main line, **VSWR = 1**; the source delivers **0.5 W** (its maximum), all of it reaching R_L. The section itself still carries a standing wave (VSWR = 2), but it is short.",
+        "**4. Bandwidth.** At 450 MHz βl_1 = 135°: Z_in = (80 + j60) Ω and the main-line VSWR is **2.76**.",
+        "**Check:** Z_c1 is the geometric mean of Z_c and R_L: 50 < 100 < 200 ✓."
+      ]
+    }
+  }
+}

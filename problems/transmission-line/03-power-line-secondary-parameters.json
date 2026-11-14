@@ -1,0 +1,302 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "transmission-line-03-power-line-secondary-parameters",
+  "chapter": "transmission-line",
+  "title": "高压输电线：由原参数求副参数",
+  "level": 2,
+  "tags": [
+    "原参数",
+    "副参数",
+    "特性阻抗",
+    "传播常数"
+  ],
+  "statement": [
+    "一条 50 Hz、长 300 km 的输电线（按单相等效），原参数：R_0 = 0.08 Ω/km，L_0 = 1.33 mH/km，C_0 = 8.6 nF/km，G_0 ≈ 0。始端电压 U̇_s = 127∠0° kV（有效值），终端接 R_L = 400 Ω。",
+    "求线路的副参数：特性阻抗 Z_c 和传播常数 γ = α + jβ，以及波长和相速。x 从始端量起。"
+  ],
+  "schematic": {
+    "elements": [
+      {
+        "ref": "Us",
+        "type": "V",
+        "from": [
+          0,
+          0
+        ],
+        "to": [
+          0,
+          4
+        ],
+        "value": {
+          "ac": {
+            "mag": 127000,
+            "phase": 0
+          }
+        },
+        "label": "U̇_s = 127∠0° kV"
+      },
+      {
+        "ref": "TL",
+        "type": "TL",
+        "at": [
+          6,
+          0
+        ],
+        "w": 8,
+        "line": {
+          "R0": "0.08m",
+          "L0": "1.33u",
+          "G0": 0,
+          "C0": "8.6p",
+          "length": "300k"
+        }
+      },
+      {
+        "ref": "RL",
+        "type": "R",
+        "value": 400,
+        "from": [
+          16,
+          0
+        ],
+        "to": [
+          16,
+          4
+        ]
+      }
+    ],
+    "wires": [
+      [
+        [
+          0,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          0
+        ],
+        [
+          16,
+          0
+        ]
+      ],
+      [
+        [
+          0,
+          4
+        ],
+        [
+          16,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          2
+        ],
+        [
+          14,
+          4
+        ]
+      ]
+    ],
+    "terminals": [
+      {
+        "at": [
+          6,
+          0
+        ],
+        "name": "1"
+      },
+      {
+        "at": [
+          6,
+          2
+        ],
+        "name": "1'"
+      },
+      {
+        "at": [
+          14,
+          0
+        ],
+        "name": "2"
+      },
+      {
+        "at": [
+          14,
+          2
+        ],
+        "name": "2'"
+      }
+    ],
+    "grounds": [
+      [
+        0,
+        4
+      ]
+    ]
+  },
+  "analysis": {
+    "type": "ac",
+    "freq": 50
+  },
+  "questions": [
+    {
+      "id": "zc",
+      "ask": "特性阻抗的模 |Z_c| = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "zc"
+      },
+      "answer": 396.81,
+      "unit": "Ω",
+      "explain": "Z_0 = R_0 + jωL_0 = (0.08 + j0.4178) Ω/km，Y_0 = jωC_0 = j2.702×10⁻⁶ S/km，Z_c = √(Z_0/Y_0) = 396.8∠−5.42° Ω。"
+    },
+    {
+      "id": "zcang",
+      "ask": "Z_c 的辐角 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "zc",
+        "part": "phase"
+      },
+      "answer": -5.42,
+      "unit": "°",
+      "explain": "arg Z_c = ½(arg Z_0 − arg Y_0) = ½(79.16° − 90°) = −5.42°：G_0 = 0 而 R_0 ≠ 0，所以 Z_c 略呈容性。"
+    },
+    {
+      "id": "alpha",
+      "ask": "衰减常数 α = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "alpha"
+      },
+      "answer": 1.01256e-07,
+      "unit": "Np/km",
+      "explain": "γ = √(Z_0Y_0) = √(0.4254∠79.16° × 2.702×10⁻⁶∠90°) = 1.072×10⁻³∠84.58° /km，α = Re γ = 1.013×10⁻⁴ Np/km。"
+    },
+    {
+      "id": "beta",
+      "ask": "相位常数 β = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "beta"
+      },
+      "answer": 1.0673e-06,
+      "unit": "rad/km",
+      "explain": "β = Im γ = 1.067×10⁻³ rad/km。"
+    },
+    {
+      "id": "lam",
+      "ask": "波长 λ = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "lambda"
+      },
+      "answer": 5886970.0,
+      "unit": "km",
+      "explain": "λ = 2π/β = 5887 km，略小于无损耗时的 6000 km 左右。"
+    },
+    {
+      "id": "v",
+      "ask": "相速 v = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "vp"
+      },
+      "answer": 294348000.0,
+      "unit": "m/s",
+      "explain": "v = ω/β = 314.16/1.067×10⁻⁶ = 2.94×10⁸ m/s。"
+    }
+  ],
+  "hints": [
+    "副参数只由原参数和频率决定，与负载无关：Z_c = √(Z_0/Y_0)，γ = √(Z_0Y_0)。",
+    "先写出 Z_0 = R_0 + jωL_0、Y_0 = G_0 + jωC_0（每 km），化成极坐标再开方——开方时模开方、辐角减半。",
+    "γ 取实部为正的那个根；α 的单位是 Np/km，β 是 rad/km，λ = 2π/β，v = ω/β。"
+  ],
+  "solution": [
+    "**1. 单位长度阻抗和导纳。** ω = 314.16 rad/s：Z_0 = 0.08 + j0.4178 = 0.4254∠79.16° Ω/km，Y_0 = j2.702×10⁻⁶ S/km。",
+    "**2. 特性阻抗。** Z_c = √(Z_0/Y_0) = √(1.574×10⁵∠−10.84°) = **396.8∠−5.42° Ω**。",
+    "**3. 传播常数。** γ = √(Z_0Y_0) = √(1.149×10⁻⁶∠169.16°) = 1.072×10⁻³∠84.58° /km：**α = 1.013×10⁻⁴ Np/km**，**β = 1.067×10⁻³ rad/km**。",
+    "**4. 波长与相速。** λ = 2π/β = **5887 km**，v = ω/β = **2.94×10⁸ m/s**。",
+    "**检查：** Z_c·γ = 396.8 × 1.072×10⁻³∠(−5.42° + 84.58°) = 0.4254∠79.16° = Z_0 ✓。整条线 αl = 0.0304 Np，匹配时终端电压只比始端小 3%。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "High-voltage line: secondary parameters from the primary ones",
+      "tags": [
+        "primary parameters",
+        "secondary parameters",
+        "characteristic impedance",
+        "propagation constant"
+      ],
+      "statement": [
+        "A 50 Hz transmission line 300 km long (single-phase equivalent) has the primary parameters R_0 = 0.08 Ω/km, L_0 = 1.33 mH/km, C_0 = 8.6 nF/km, G_0 ≈ 0. The start voltage is U̇_s = 127∠0° kV (rms) and the end is loaded with R_L = 400 Ω.",
+        "Find the secondary parameters — the characteristic impedance Z_c and the propagation constant γ = α + jβ — and the wavelength and phase velocity. x is measured from the start."
+      ],
+      "questions": [
+        {
+          "ask": "Magnitude of the characteristic impedance |Z_c| = ?",
+          "explain": "Z_0 = R_0 + jωL_0 = (0.08 + j0.4178) Ω/km, Y_0 = jωC_0 = j2.702×10⁻⁶ S/km, Z_c = √(Z_0/Y_0) = 396.8∠−5.42° Ω."
+        },
+        {
+          "ask": "Angle of Z_c = ?",
+          "explain": "arg Z_c = ½(arg Z_0 − arg Y_0) = ½(79.16° − 90°) = −5.42°: with G_0 = 0 but R_0 ≠ 0, Z_c is slightly capacitive."
+        },
+        {
+          "ask": "Attenuation constant α = ?",
+          "explain": "γ = √(Z_0Y_0) = √(0.4254∠79.16° × 2.702×10⁻⁶∠90°) = 1.072×10⁻³∠84.58° /km, α = Re γ = 1.013×10⁻⁴ Np/km."
+        },
+        {
+          "ask": "Phase constant β = ?",
+          "explain": "β = Im γ = 1.067×10⁻³ rad/km."
+        },
+        {
+          "ask": "Wavelength λ = ?",
+          "explain": "λ = 2π/β = 5887 km, a little less than the ≈ 6000 km of a lossless line."
+        },
+        {
+          "ask": "Phase velocity v = ?",
+          "explain": "v = ω/β = 314.16/1.067×10⁻⁶ = 2.94×10⁸ m/s."
+        }
+      ],
+      "hints": [
+        "The secondary parameters depend only on the primary parameters and the frequency, not on the load: Z_c = √(Z_0/Y_0), γ = √(Z_0Y_0).",
+        "Write Z_0 = R_0 + jωL_0 and Y_0 = G_0 + jωC_0 (per km) in polar form and take the square root — square-root the magnitude, halve the angle.",
+        "Take the root of γ with a positive real part; α is in Np/km, β in rad/km, λ = 2π/β, v = ω/β."
+      ],
+      "solution": [
+        "**1. Impedance and admittance per km.** ω = 314.16 rad/s: Z_0 = 0.08 + j0.4178 = 0.4254∠79.16° Ω/km, Y_0 = j2.702×10⁻⁶ S/km.",
+        "**2. Characteristic impedance.** Z_c = √(Z_0/Y_0) = √(1.574×10⁵∠−10.84°) = **396.8∠−5.42° Ω**.",
+        "**3. Propagation constant.** γ = √(Z_0Y_0) = √(1.149×10⁻⁶∠169.16°) = 1.072×10⁻³∠84.58° /km: **α = 1.013×10⁻⁴ Np/km**, **β = 1.067×10⁻³ rad/km**.",
+        "**4. Wavelength and phase velocity.** λ = 2π/β = **5887 km**, v = ω/β = **2.94×10⁸ m/s**.",
+        "**Check:** Z_c·γ = 396.8 × 1.072×10⁻³∠(−5.42° + 84.58°) = 0.4254∠79.16° = Z_0 ✓. Over the whole line αl = 0.0304 Np: with a matched load the end voltage is only 3% below the start voltage."
+      ]
+    }
+  }
+}

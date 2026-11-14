@@ -33,6 +33,8 @@ export const CHAPTERS: Chapter[] = [
   { id: 'two-port', phase: 4, title: () => tr('二端口网络', 'Two-port networks') },
   // textbook ch. 17, nonlinear resistive circuits only
   { id: 'nonlinear', phase: 4, title: () => tr('非线性电阻电路', 'Nonlinear resistive circuits') },
+  // textbook ch. 18, distributed-parameter circuits (element TL, analysis/tline.ts)
+  { id: 'transmission-line', phase: 4, title: () => tr('均匀传输线', 'Uniform transmission lines') },
 ];
 
 export const chapterById = (id: string) => CHAPTERS.find((c) => c.id === id);

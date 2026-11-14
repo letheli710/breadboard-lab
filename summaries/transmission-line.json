@@ -1,0 +1,1223 @@
+{
+  "$schema": "../schema/summary.schema.json",
+  "format": "chapter-summary/1",
+  "chapter": "transmission-line",
+  "intro": "本章把电路从“一点”扩展到“一条线”：线路尺寸可与波长相比时，电压、电流是位置 x 和时间 t 的函数。核心工具是传输线方程的解——入射波加反射波，由副参数 Z_c 和 γ 描述；负载决定反射系数，反射决定驻波和输入阻抗。始终先标清 x 从哪一端量起、电流沿哪个方向为正，并分清哪些公式只对无损耗线成立。",
+  "ideas": [
+    {
+      "id": "distributed",
+      "title": "分布参数电路：什么时候不能把导线当成“一点”",
+      "text": [
+        "集总参数电路假设电磁波“瞬间”传遍整个电路：同一根导线上各处的电流相同，两点之间的电压与路径无关。电路尺寸 l 和工作波长 λ = v/f 可比时，这个假设不再成立——沿线各处电压、电流的相位（甚至大小）都不同，必须把线路看成**分布参数电路**：每一小段 dx 都有串联的 R_0dx、L_0dx 和并联的 G_0dx、C_0dx。",
+        "判断依据是 **l/λ**，不是 l 本身：300 km 的 50 Hz 输电线只有 0.05λ，却已有 18° 的相位差；0.3 m 的电路板走线在 1 GHz 下有 1.5λ。工程上 l/λ 超过约 1/100～1/20 就要考虑分布参数。"
+      ],
+      "problems": [
+        "transmission-line-01-distributed-or-lumped"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Distributed-parameter circuits: when a wire is no longer a 'point'",
+          "text": [
+            "Lumped circuits assume that electromagnetic waves cross the whole circuit instantly: the current is the same everywhere along a wire and the voltage between two points does not depend on the path. When the size l is comparable with the wavelength λ = v/f this fails — voltage and current have different phases (even magnitudes) at different points, and the line must be treated as a **distributed-parameter circuit**: every piece dx has series R_0dx, L_0dx and shunt G_0dx, C_0dx.",
+            "The test is **l/λ**, not l: a 300 km line at 50 Hz is only 0.05λ yet already shows an 18° phase shift; a 0.3 m PCB trace at 1 GHz is 1.5λ. In practice distributed effects matter once l/λ exceeds about 1/100–1/20."
+          ]
+        }
+      }
+    },
+    {
+      "id": "equations",
+      "title": "均匀传输线方程与原参数",
+      "text": [
+        "**原参数** R_0、L_0、G_0、C_0 是单位长度的电阻、电感、电导、电容（Ω/m、H/m、S/m、F/m），沿线处处相同的线叫**均匀传输线**。取 x 从始端量起，u(x, t) 是两线之间的电压，i(x, t) 是沿 +x 方向的电流，对 dx 段列 KVL、KCL 就得到传输线方程（电报方程）。",
+        "正弦稳态下用相量：dU̇/dx = −Z_0İ，dİ/dx = −Y_0U̇，Z_0 = R_0 + jωL_0，Y_0 = G_0 + jωC_0。消去一个变量得到 d²U̇/dx² = γ²U̇，γ² = Z_0Y_0。"
+      ],
+      "problems": [
+        "transmission-line-02-coax-lossless-parameters",
+        "transmission-line-03-power-line-secondary-parameters"
+      ],
+      "i18n": {
+        "en": {
+          "title": "The uniform-line equations and the primary parameters",
+          "text": [
+            "The **primary parameters** R_0, L_0, G_0, C_0 are the resistance, inductance, conductance and capacitance per unit length (Ω/m, H/m, S/m, F/m); a line with the same values everywhere is a **uniform line**. With x measured from the start, u(x, t) the voltage between the conductors and i(x, t) the current in the +x direction, KVL and KCL for a piece dx give the line (telegrapher's) equations.",
+            "In sinusoidal steady state with phasors: dU̇/dx = −Z_0İ, dİ/dx = −Y_0U̇ with Z_0 = R_0 + jωL_0, Y_0 = G_0 + jωC_0. Eliminating one variable gives d²U̇/dx² = γ²U̇ with γ² = Z_0Y_0."
+          ]
+        }
+      }
+    },
+    {
+      "id": "secondary",
+      "title": "副参数：特性阻抗 Z_c 和传播常数 γ",
+      "text": [
+        "**特性阻抗** Z_c = √(Z_0/Y_0)，**传播常数** γ = √(Z_0Y_0) = α + jβ（取实部为正的根）。α 是**衰减常数**（Np/m），β 是**相位常数**（rad/m）。它们只由原参数和频率决定，与负载、电源都无关。",
+        "由 β 得到**波长** λ = 2π/β 和**相速** v = ω/β。架空线 v 接近光速；电缆里 v 约为光速的 2/3。检查：Z_c·γ = Z_0，γ/Z_c = Y_0。"
+      ],
+      "problems": [
+        "transmission-line-02-coax-lossless-parameters",
+        "transmission-line-03-power-line-secondary-parameters",
+        "transmission-line-08-distortionless-line"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Secondary parameters: characteristic impedance Z_c and propagation constant γ",
+          "text": [
+            "The **characteristic impedance** Z_c = √(Z_0/Y_0) and the **propagation constant** γ = √(Z_0Y_0) = α + jβ (the root with positive real part). α is the **attenuation constant** (Np/m), β the **phase constant** (rad/m). They depend only on the primary parameters and the frequency, not on the load or the source.",
+            "From β follow the **wavelength** λ = 2π/β and the **phase velocity** v = ω/β. On overhead lines v is close to the speed of light; in cables about 2/3 of it. Check: Z_c·γ = Z_0, γ/Z_c = Y_0."
+          ]
+        }
+      }
+    },
+    {
+      "id": "solution",
+      "title": "正弦稳态解：从终端写起的双曲函数形式",
+      "text": [
+        "已知终端（x′ = 0）的 U̇_2 和 İ_2（流进负载）时，用从终端量起的 x′ 写解最方便：U̇(x′) = U̇_2 ch γx′ + Z_cİ_2 sh γx′，İ(x′) = (U̇_2/Z_c) sh γx′ + İ_2 ch γx′。令 x′ = l 就得到始端值。",
+        "这正是一个互易二端口的 A 参数：A = D = ch γl，B = Z_c sh γl，C = sh γl/Z_c，AD − BC = 1。所以传输线可以和其他元件一起放在普通的正弦稳态电路里计算。终端开路（İ_2 = 0）时始端电压比终端低：无损耗线 U_1 = U_2 cos βl——空载长线的末端电压升高。"
+      ],
+      "problems": [
+        "transmission-line-07-open-line-voltage-rise",
+        "transmission-line-10-end-conditions-hyperbolic"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Sinusoidal steady-state solution: the hyperbolic form written from the end",
+          "text": [
+            "When the end values U̇_2 and İ_2 (into the load) are known, write the solution with x′ measured from the end: U̇(x′) = U̇_2 ch γx′ + Z_cİ_2 sh γx′, İ(x′) = (U̇_2/Z_c) sh γx′ + İ_2 ch γx′. Put x′ = l for the start values.",
+            "These are exactly the chain (A) parameters of a reciprocal two-port: A = D = ch γl, B = Z_c sh γl, C = sh γl/Z_c, AD − BC = 1 — so a line can be analysed inside an ordinary sinusoidal steady-state circuit. With the end open (İ_2 = 0) the start voltage is lower than the end voltage: on a lossless line U_1 = U_2 cos βl — the voltage rise at the end of an unloaded long line."
+          ]
+        }
+      }
+    },
+    {
+      "id": "waves",
+      "title": "行波：入射波与反射波",
+      "text": [
+        "通解 U̇(x) = U̇⁺e^{−γx} + U̇⁻e^{γx}：第一项沿 +x 传播、越走越小、相位越来越滞后，是**入射波**（正向行波）；第二项沿 −x 传播，是**反射波**。电流 İ = (U̇⁺e^{−γx} − U̇⁻e^{γx})/Z_c：对每一个行波，电压/电流 = ±Z_c——反射波的电流带负号。",
+        "在时域，入射波是 √2U⁺e^{−αx}cos(ωt − βx + ψ)：等相位点以 v = ω/β 前进，相距 λ 的两点相位相同。"
+      ],
+      "problems": [
+        "transmission-line-01-distributed-or-lumped",
+        "transmission-line-02-coax-lossless-parameters",
+        "transmission-line-04-reflection-coefficient"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Travelling waves: incident and reflected",
+          "text": [
+            "The general solution U̇(x) = U̇⁺e^{−γx} + U̇⁻e^{γx}: the first term travels in +x, shrinking and lagging more and more — the **incident** (forward) wave; the second travels in −x — the **reflected** wave. The current is İ = (U̇⁺e^{−γx} − U̇⁻e^{γx})/Z_c: for each wave voltage/current = ±Z_c — the reflected wave's current carries a minus sign.",
+            "In the time domain the incident wave is √2U⁺e^{−αx}cos(ωt − βx + ψ): points of equal phase move at v = ω/β, and points λ apart are in phase."
+          ]
+        }
+      }
+    },
+    {
+      "id": "reflection",
+      "title": "反射系数与匹配",
+      "text": [
+        "**反射系数** Γ = U̇⁻/U̇⁺（同一点的反射波与入射波电压之比）。终端 Γ_2 = (Z_2 − Z_c)/(Z_2 + Z_c)；向始端移动 x′，Γ(x′) = Γ_2e^{−2γx′}——无损耗线上只转相位，模不变。开路 Γ_2 = 1，短路 Γ_2 = −1，纯电抗负载 |Γ_2| = 1（全反射）。",
+        "Z_2 = Z_c 时 Γ_2 = 0，线上只有入射波，叫**匹配**（终端接特性阻抗）。这时任一点的输入阻抗都等于 Z_c，负载吸收入射波带来的全部功率，P_2 = P_1e^{−2αl}。不匹配时负载功率 ∝ (1 − |Γ_2|²)。"
+      ],
+      "problems": [
+        "transmission-line-04-reflection-coefficient",
+        "transmission-line-05-input-impedance",
+        "transmission-line-09-standing-wave-pattern"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Reflection coefficient and matching",
+          "text": [
+            "The **reflection coefficient** Γ = U̇⁻/U̇⁺ (reflected over incident voltage at the same point). At the end Γ_2 = (Z_2 − Z_c)/(Z_2 + Z_c); moving x′ towards the start, Γ(x′) = Γ_2e^{−2γx′} — on a lossless line only its angle turns. Open end Γ_2 = 1, short Γ_2 = −1, a purely reactive load |Γ_2| = 1 (total reflection).",
+            "For Z_2 = Z_c, Γ_2 = 0 and only the incident wave exists: the line is **matched** (terminated in its characteristic impedance). Then the input impedance is Z_c at every point and the load absorbs all the incident power, P_2 = P_1e^{−2αl}. With a mismatch the load power is ∝ (1 − |Γ_2|²)."
+          ]
+        }
+      }
+    },
+    {
+      "id": "lossless",
+      "title": "无损耗线：输入阻抗、开路线与短路线",
+      "text": [
+        "R_0 = G_0 = 0 时 Z_c = √(L_0/C_0) 是纯电阻，γ = jβ，β = ω√(L_0C_0)，v = 1/√(L_0C_0)，双曲函数变成三角函数：ch jβx = cos βx，sh jβx = j sin βx。输入阻抗 Z_in = Z_c(Z_2 + jZ_c tan βl)/(Z_c + jZ_2 tan βl)。",
+        "**终端开路**：Z_oc = −jZ_c cot βl；**终端短路**：Z_sc = jZ_c tan βl——都是纯电抗，随长度在容性、感性之间交替，每 λ/4 换一次，所以短截线可以代替电感或电容。由两次测量可得 Z_c = √(Z_ocZ_sc)。",
+        "**λ/2 线**：Z_in = Z_2（阻抗每 λ/2 重复）；**λ/4 线**：Z_in = Z_c²/Z_2（阻抗倒置），短路的 λ/4 线相当于开路。"
+      ],
+      "problems": [
+        "transmission-line-05-input-impedance",
+        "transmission-line-06-open-short-measurement",
+        "transmission-line-07-open-line-voltage-rise"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Lossless lines: input impedance, open and shorted lines",
+          "text": [
+            "With R_0 = G_0 = 0, Z_c = √(L_0/C_0) is a pure resistance, γ = jβ with β = ω√(L_0C_0), v = 1/√(L_0C_0), and the hyperbolic functions become trigonometric: ch jβx = cos βx, sh jβx = j sin βx. Input impedance: Z_in = Z_c(Z_2 + jZ_c tan βl)/(Z_c + jZ_2 tan βl).",
+            "**Open end**: Z_oc = −jZ_c cot βl; **shorted end**: Z_sc = jZ_c tan βl — both pure reactances that alternate between capacitive and inductive every λ/4, which is why stubs can replace inductors and capacitors. Two measurements give Z_c = √(Z_ocZ_sc).",
+            "**λ/2 line**: Z_in = Z_2 (the impedance repeats every λ/2); **λ/4 line**: Z_in = Z_c²/Z_2 (impedance inversion) — a shorted λ/4 line looks like an open circuit."
+          ]
+        }
+      }
+    },
+    {
+      "id": "standing",
+      "title": "驻波与驻波比",
+      "text": [
+        "无损耗线上入射波和反射波叠加：|U̇(x′)| = U⁺|1 + Γ_2e^{−j2βx′}|，在 U⁺(1 + |Γ|) 和 U⁺(1 − |Γ|) 之间变化。电压最大处（波腹）Γ(x′) 为正实数，最小处（波节）为负实数，相邻波腹与波节相距 λ/4；电流的波腹在电压的波节处。",
+        "**驻波比** VSWR = U_max/U_min = (1 + |Γ|)/(1 − |Γ|)，从 1（行波）到 ∞（纯驻波：开路、短路、纯电抗负载）。纯驻波中波节处电压恒为零，能量只在电场和磁场之间来回交换，不向负载传送。Z_2 为电阻时：R_2 > Z_c 终端是电压波腹，R_2 < Z_c 终端是波节。"
+      ],
+      "problems": [
+        "transmission-line-07-open-line-voltage-rise",
+        "transmission-line-09-standing-wave-pattern"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Standing waves and the standing-wave ratio",
+          "text": [
+            "On a lossless line the incident and reflected waves add: |U̇(x′)| = U⁺|1 + Γ_2e^{−j2βx′}|, varying between U⁺(1 + |Γ|) and U⁺(1 − |Γ|). At a voltage maximum Γ(x′) is a positive real number, at a minimum a negative one; a maximum and the next minimum are λ/4 apart, and the current maxima sit at the voltage minima.",
+            "The **standing-wave ratio** VSWR = U_max/U_min = (1 + |Γ|)/(1 − |Γ|) runs from 1 (a pure travelling wave) to ∞ (a pure standing wave: open, short or reactive load). In a pure standing wave the voltage minima are permanently zero and energy only swings between electric and magnetic fields, none reaching the load. For a resistive load: R_2 > Z_c puts a voltage maximum at the end, R_2 < Z_c a minimum."
+          ]
+        }
+      }
+    },
+    {
+      "id": "matching",
+      "title": "匹配的方法：λ/4 变换器与短截线",
+      "text": [
+        "**λ/4 阻抗变换器**：在 Z_c 的主线和电阻负载 R_L 之间串一段 λ/4 线，特性阻抗 Z_c1 = √(Z_cR_L)，输入阻抗就变成 Z_c。它只在设计频率附近有效（频率变化时 βl 不再是 90°）。",
+        "**单支节（短截线）匹配**：在离负载 d 处并联一段终端短路线。先选 d 使 Y_d = 1/Z_d 的实部等于 1/Z_c，再选短截线长度使它的输入导纳 −j cot(βl_s)/Z_c 抵消 Y_d 的虚部。并联用导纳相加。"
+      ],
+      "problems": [
+        "transmission-line-11-quarter-wave-transformer",
+        "transmission-line-12-single-stub-matching"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Matching: the quarter-wave transformer and the stub",
+          "text": [
+            "**Quarter-wave transformer**: between a main line Z_c and a resistive load R_L insert a λ/4 section with Z_c1 = √(Z_cR_L); the input impedance becomes Z_c. It works only near the design frequency (elsewhere βl is no longer 90°).",
+            "**Single-stub matching**: connect a shorted line in parallel at distance d from the load. Choose d so that Y_d = 1/Z_d has real part 1/Z_c, then the stub length so that its input admittance −j cot(βl_s)/Z_c cancels the imaginary part of Y_d. Parallel elements: add admittances."
+          ]
+        }
+      }
+    },
+    {
+      "id": "distortionless",
+      "title": "无畸变线",
+      "text": [
+        "信号含有许多频率。一般的线上 α 和 v 都随频率变化，各频率分量衰减不同、到达时间不同，波形就畸变了。当 **R_0/L_0 = G_0/C_0** 时：Z_c = √(L_0/C_0) 为纯电阻，α = √(R_0G_0) 与频率无关，β = ω√(L_0C_0) 与 ω 成正比，v = 1/√(L_0C_0) 也与频率无关——这就是**无畸变线**。",
+        "实际电缆一般 R_0/L_0 ≫ G_0/C_0，所以早期电话线要串入加感线圈增大 L_0，使它接近无畸变条件。"
+      ],
+      "problems": [
+        "transmission-line-08-distortionless-line"
+      ],
+      "i18n": {
+        "en": {
+          "title": "The distortionless line",
+          "text": [
+            "A signal contains many frequencies. On a general line α and v both depend on frequency, so the components are attenuated differently and arrive at different times: the waveform is distorted. When **R_0/L_0 = G_0/C_0**: Z_c = √(L_0/C_0) is a pure resistance, α = √(R_0G_0) is independent of frequency, β = ω√(L_0C_0) is proportional to ω and v = 1/√(L_0C_0) is constant — the **distortionless line**.",
+            "Real cables usually have R_0/L_0 ≫ G_0/C_0, which is why telephone lines once had loading coils inserted to raise L_0 towards the distortionless condition."
+          ]
+        }
+      }
+    },
+    {
+      "id": "transient",
+      "title": "无损耗线的波过程（暂态）",
+      "text": [
+        "电源接通后，电压、电流以有限速度 v 沿线推进。波还没到达终端时，电源“看到”的只是一个电阻 Z_c：第一个波 u⁺ = U_s·Z_c/(R_s + Z_c)，i⁺ = u⁺/Z_c。",
+        "波到达一端时按该端的 Γ = (R − Z_c)/(R + Z_c) 反射（电阻端接），反射波往回走，到另一端再反射……某点某时刻的电压 = 已经到达该点的所有波之和；电流 = Σ(正向波 − 反向波)/Z_c。用时间–距离的**反射网格图**（单程 T = l/v）记账最清楚。",
+        "每走一个来回幅度乘 Γ_1Γ_2，|Γ_1Γ_2| < 1 时趋于直流稳态（无损耗线在直流下就是两根导线）；有一端匹配时，波到达那一端就不再反射。"
+      ],
+      "problems": [
+        "transmission-line-13-shorted-line-transient",
+        "transmission-line-14-bounce-diagram"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Waves on a lossless line (transients)",
+          "text": [
+            "After switching on, voltage and current advance along the line at the finite speed v. Until the wave reaches the end the source sees just a resistor Z_c: the first wave is u⁺ = U_s·Z_c/(R_s + Z_c), i⁺ = u⁺/Z_c.",
+            "At each end a wave is reflected with that end's Γ = (R − Z_c)/(R + Z_c) (resistive terminations), travels back, is reflected again… The voltage at a point and time is the sum of all waves that have arrived there; the current is Σ(forward − backward)/Z_c. A time–distance **lattice (bounce) diagram** (one-way time T = l/v) keeps the books.",
+            "Each round trip multiplies the amplitude by Γ_1Γ_2; for |Γ_1Γ_2| < 1 the line settles to the DC steady state (at DC a lossless line is two wires). If one end is matched, a wave reaching it is not reflected any more."
+          ]
+        }
+      }
+    }
+  ],
+  "formulas": [
+    {
+      "id": "tel",
+      "idea": "equations",
+      "name": "均匀传输线方程",
+      "expr": "−∂u/∂x = R_0i + L_0∂i/∂t，　−∂i/∂x = G_0u + C_0∂u/∂t",
+      "when": "x 从始端量起指向终端；u 为两导线间的电压，i 为沿 +x 方向的电流；R_0、L_0、G_0、C_0 为单位长度参数。",
+      "i18n": {
+        "en": {
+          "name": "Uniform-line (telegrapher's) equations",
+          "expr": "−∂u/∂x = R_0i + L_0∂i/∂t，　−∂i/∂x = G_0u + C_0∂u/∂t",
+          "when": "x from the start towards the end; u is the voltage between the conductors, i the current in +x; R_0, L_0, G_0, C_0 per unit length."
+        }
+      }
+    },
+    {
+      "id": "phasor",
+      "idea": "equations",
+      "name": "相量形式",
+      "expr": "dU̇/dx = −Z_0İ，　dİ/dx = −Y_0U̇，　Z_0 = R_0 + jωL_0，Y_0 = G_0 + jωC_0",
+      "when": "正弦稳态；方向约定同上。",
+      "i18n": {
+        "en": {
+          "name": "Phasor form",
+          "expr": "dU̇/dx = −Z_0İ，　dİ/dx = −Y_0U̇，　Z_0 = R_0 + jωL_0，Y_0 = G_0 + jωC_0",
+          "when": "Sinusoidal steady state; same directions as above."
+        }
+      }
+    },
+    {
+      "id": "zc",
+      "idea": "secondary",
+      "name": "特性阻抗、传播常数",
+      "expr": "Z_c = \\sqrt{Z_0/Y_0}，　γ = \\sqrt{Z_0Y_0} = α + jβ",
+      "when": "任意均匀线；γ 取实部 ≥ 0 的根。α：Np/m，β：rad/m。Z_c·γ = Z_0。",
+      "i18n": {
+        "en": {
+          "name": "Characteristic impedance, propagation constant",
+          "expr": "Z_c = \\sqrt{Z_0/Y_0}，　γ = \\sqrt{Z_0Y_0} = α + jβ",
+          "when": "Any uniform line; take the root of γ with real part ≥ 0. α in Np/m, β in rad/m. Z_c·γ = Z_0."
+        }
+      }
+    },
+    {
+      "id": "lam",
+      "idea": "secondary",
+      "name": "波长、相速",
+      "expr": "λ = 2π/β，　v = ω/β = λf",
+      "when": "β 为相位常数；有损耗线的 v 一般随频率变化。",
+      "i18n": {
+        "en": {
+          "name": "Wavelength, phase velocity",
+          "expr": "λ = 2π/β，　v = ω/β = λf",
+          "when": "β is the phase constant; on a lossy line v generally depends on frequency."
+        }
+      }
+    },
+    {
+      "id": "gen",
+      "idea": "waves",
+      "name": "通解（行波形式）",
+      "expr": "U̇(x) = U̇⁺e^{−γx} + U̇⁻e^{γx}，　İ(x) = (U̇⁺e^{−γx} − U̇⁻e^{γx})/Z_c",
+      "when": "x 从始端量起；第一项为入射波（沿 +x），第二项为反射波（沿 −x），反射波电流带负号。",
+      "i18n": {
+        "en": {
+          "name": "General solution (travelling waves)",
+          "expr": "U̇(x) = U̇⁺e^{−γx} + U̇⁻e^{γx}，　İ(x) = (U̇⁺e^{−γx} − U̇⁻e^{γx})/Z_c",
+          "when": "x from the start; the first term is the incident wave (+x), the second the reflected wave (−x), whose current carries a minus sign."
+        }
+      }
+    },
+    {
+      "id": "hyp",
+      "idea": "solution",
+      "name": "已知终端值的解（双曲函数形式）",
+      "expr": "U̇(x′) = U̇_2 ch γx′ + Z_cİ_2 sh γx′，　İ(x′) = (U̇_2/Z_c) sh γx′ + İ_2 ch γx′",
+      "when": "x′ = l − x 从终端量起；U̇_2、İ_2 为终端电压和流进负载的电流。令 x′ = l 得始端值。",
+      "i18n": {
+        "en": {
+          "name": "Solution from the end values (hyperbolic form)",
+          "expr": "U̇(x′) = U̇_2 ch γx′ + Z_cİ_2 sh γx′，　İ(x′) = (U̇_2/Z_c) sh γx′ + İ_2 ch γx′",
+          "when": "x′ = l − x from the end; U̇_2, İ_2 are the end voltage and the current into the load. x′ = l gives the start values."
+        }
+      }
+    },
+    {
+      "id": "abcd",
+      "idea": "solution",
+      "name": "二端口（A 参数）",
+      "expr": "A = D = ch γl，　B = Z_c sh γl，　C = sh γl/Z_c，　AD − BC = 1",
+      "when": "U̇_1 = AU̇_2 + Bİ_2，İ_1 = CU̇_2 + Dİ_2；İ_2 流出端口 2（流进负载）。",
+      "i18n": {
+        "en": {
+          "name": "Two-port (chain) parameters",
+          "expr": "A = D = ch γl，　B = Z_c sh γl，　C = sh γl/Z_c，　AD − BC = 1",
+          "when": "U̇_1 = AU̇_2 + Bİ_2, İ_1 = CU̇_2 + Dİ_2 with İ_2 leaving port 2 (into the load)."
+        }
+      }
+    },
+    {
+      "id": "gamma",
+      "idea": "reflection",
+      "name": "反射系数",
+      "expr": "Γ_2 = \\frac{Z_2 − Z_c}{Z_2 + Z_c}，　Γ(x′) = Γ_2e^{−2γx′}",
+      "when": "Γ = U̇⁻/U̇⁺（电压反射系数）；x′ 从终端量起。开路 +1，短路 −1，匹配 0。",
+      "i18n": {
+        "en": {
+          "name": "Reflection coefficient",
+          "expr": "Γ_2 = \\frac{Z_2 − Z_c}{Z_2 + Z_c}，　Γ(x′) = Γ_2e^{−2γx′}",
+          "when": "Γ = U̇⁻/U̇⁺ (voltage reflection coefficient); x′ from the end. Open +1, short −1, matched 0."
+        }
+      }
+    },
+    {
+      "id": "zin",
+      "idea": "reflection",
+      "name": "输入阻抗（一般线）",
+      "expr": "Z_in = Z_c\\frac{Z_2 + Z_c th γl}{Z_c + Z_2 th γl}",
+      "when": "从始端向终端（连同负载 Z_2）看进去；任意均匀线。匹配（Z_2 = Z_c）时 Z_in = Z_c。",
+      "i18n": {
+        "en": {
+          "name": "Input impedance (general line)",
+          "expr": "Z_in = Z_c\\frac{Z_2 + Z_c th γl}{Z_c + Z_2 th γl}",
+          "when": "Seen at the start looking towards the end (load Z_2 included); any uniform line. Matched (Z_2 = Z_c): Z_in = Z_c."
+        }
+      }
+    },
+    {
+      "id": "ll",
+      "idea": "lossless",
+      "name": "无损耗线的副参数",
+      "expr": "Z_c = \\sqrt{L_0/C_0}，　β = ω\\sqrt{L_0C_0}，　v = 1/\\sqrt{L_0C_0}",
+      "when": "只适用于 R_0 = G_0 = 0（低损耗时近似）；α = 0，Z_c 为纯电阻。",
+      "i18n": {
+        "en": {
+          "name": "Secondary parameters of a lossless line",
+          "expr": "Z_c = \\sqrt{L_0/C_0}，　β = ω\\sqrt{L_0C_0}，　v = 1/\\sqrt{L_0C_0}",
+          "when": "Only for R_0 = G_0 = 0 (approximately for low loss); α = 0 and Z_c is purely resistive."
+        }
+      }
+    },
+    {
+      "id": "llzin",
+      "idea": "lossless",
+      "name": "无损耗线的输入阻抗",
+      "expr": "Z_in = Z_c\\frac{Z_2 + jZ_c tan βl}{Z_c + jZ_2 tan βl}",
+      "when": "只适用于无损耗线；有损耗线用 th γl 的形式。",
+      "i18n": {
+        "en": {
+          "name": "Input impedance of a lossless line",
+          "expr": "Z_in = Z_c\\frac{Z_2 + jZ_c tan βl}{Z_c + jZ_2 tan βl}",
+          "when": "Lossless lines only; for a lossy line use the th γl form."
+        }
+      }
+    },
+    {
+      "id": "ocsc",
+      "idea": "lossless",
+      "name": "开路线、短路线",
+      "expr": "Z_oc = −jZ_c cot βl，　Z_sc = jZ_c tan βl，　Z_c = \\sqrt{Z_ocZ_sc}",
+      "when": "无损耗线；l < λ/4 时开路线呈容性、短路线呈感性，每增加 λ/4 互换。Z_c = √(Z_ocZ_sc) 对有损耗线也成立。",
+      "i18n": {
+        "en": {
+          "name": "Open and shorted lines",
+          "expr": "Z_oc = −jZ_c cot βl，　Z_sc = jZ_c tan βl，　Z_c = \\sqrt{Z_ocZ_sc}",
+          "when": "Lossless line; for l < λ/4 the open line is capacitive and the shorted one inductive, swapping every λ/4. Z_c = √(Z_ocZ_sc) also holds for lossy lines."
+        }
+      }
+    },
+    {
+      "id": "quarter",
+      "idea": "lossless",
+      "name": "λ/4 线与 λ/2 线",
+      "expr": "l = λ/4：Z_in = Z_c²/Z_2；　l = λ/2：Z_in = Z_2",
+      "when": "无损耗线，只在使 βl = 90° 或 180° 的频率上成立。",
+      "i18n": {
+        "en": {
+          "name": "Quarter- and half-wave lines",
+          "expr": "l = λ/4: Z_in = Z_c²/Z_2;　l = λ/2: Z_in = Z_2",
+          "when": "Lossless line, only at the frequency where βl = 90° or 180°."
+        }
+      }
+    },
+    {
+      "id": "vswr",
+      "idea": "standing",
+      "name": "驻波比、电压极值",
+      "expr": "VSWR = \\frac{U_{max}}{U_{min}} = \\frac{1 + |Γ|}{1 − |Γ|}，　U_{max} = U⁺(1 + |Γ|)，U_{min} = U⁺(1 − |Γ|)",
+      "when": "无损耗线（|Γ| 沿线不变）；U⁺ 为入射波有效值。相邻波腹与波节相距 λ/4，波腹处 Γ(x′) 为正实数。",
+      "i18n": {
+        "en": {
+          "name": "VSWR and voltage extremes",
+          "expr": "VSWR = \\frac{U_{max}}{U_{min}} = \\frac{1 + |Γ|}{1 − |Γ|}，　U_{max} = U⁺(1 + |Γ|)，U_{min} = U⁺(1 − |Γ|)",
+          "when": "Lossless line (|Γ| constant along it); U⁺ is the rms incident wave. A maximum and the next minimum are λ/4 apart; at a maximum Γ(x′) is real and positive."
+        }
+      }
+    },
+    {
+      "id": "qw",
+      "idea": "matching",
+      "name": "λ/4 阻抗变换器",
+      "expr": "Z_c1 = \\sqrt{Z_cR_L}",
+      "when": "负载 R_L 为纯电阻；匹配段长 λ/4（设计频率）。",
+      "i18n": {
+        "en": {
+          "name": "Quarter-wave transformer",
+          "expr": "Z_c1 = \\sqrt{Z_cR_L}",
+          "when": "Resistive load R_L; section length λ/4 at the design frequency."
+        }
+      }
+    },
+    {
+      "id": "stub",
+      "idea": "matching",
+      "name": "短路短截线的输入导纳",
+      "expr": "Y_s = −j\\frac{cot βl_s}{Z_c}",
+      "when": "无损耗、终端短路；与主线在同一点并联，导纳相加。",
+      "i18n": {
+        "en": {
+          "name": "Input admittance of a shorted stub",
+          "expr": "Y_s = −j\\frac{cot βl_s}{Z_c}",
+          "when": "Lossless, shorted end; it is connected in parallel with the main line, so admittances add."
+        }
+      }
+    },
+    {
+      "id": "dl",
+      "idea": "distortionless",
+      "name": "无畸变条件",
+      "expr": "\\frac{R_0}{L_0} = \\frac{G_0}{C_0}　⇒　Z_c = \\sqrt{L_0/C_0}，α = \\sqrt{R_0G_0}，v = 1/\\sqrt{L_0C_0}",
+      "when": "所有频率的 α、v 相同，Z_c 为纯电阻。",
+      "i18n": {
+        "en": {
+          "name": "Distortionless condition",
+          "expr": "\\frac{R_0}{L_0} = \\frac{G_0}{C_0}　⇒　Z_c = \\sqrt{L_0/C_0}，α = \\sqrt{R_0G_0}，v = 1/\\sqrt{L_0C_0}",
+          "when": "α and v are the same at every frequency and Z_c is purely resistive."
+        }
+      }
+    },
+    {
+      "id": "power",
+      "idea": "reflection",
+      "name": "沿线功率、效率",
+      "expr": "P(x) = Re[U̇(x)İ*(x)]，　匹配时 P_2 = P_1e^{−2αl}",
+      "when": "有效值相量；İ 沿 +x 方向。匹配公式只在 Z_2 = Z_c 时成立。",
+      "i18n": {
+        "en": {
+          "name": "Power along the line, efficiency",
+          "expr": "P(x) = Re[U̇(x)İ*(x)],　matched: P_2 = P_1e^{−2αl}",
+          "when": "rms phasors; İ in the +x direction. The matched formula needs Z_2 = Z_c."
+        }
+      }
+    },
+    {
+      "id": "bounce",
+      "idea": "transient",
+      "name": "波过程（电阻端接的无损耗线）",
+      "expr": "u⁺ = \\frac{U_sZ_c}{R_s + Z_c}，　Γ = \\frac{R − Z_c}{R + Z_c}，　T = l/v",
+      "when": "无损耗线，原来不带电，阶跃电源只在始端；正向波电流 = u/Z_c，反向波电流 = −u/Z_c。",
+      "i18n": {
+        "en": {
+          "name": "Waves on a resistively terminated lossless line",
+          "expr": "u⁺ = \\frac{U_sZ_c}{R_s + Z_c}，　Γ = \\frac{R − Z_c}{R + Z_c}，　T = l/v",
+          "when": "Lossless, initially uncharged line, step source at the start only; a forward wave carries current u/Z_c, a backward wave −u/Z_c."
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "id": "mismatch",
+      "ideas": [
+        "lossless",
+        "reflection",
+        "standing"
+      ],
+      "title": "不匹配的无损耗线：输入阻抗、反射和驻波",
+      "statement": "75 Ω 无损耗线长 0.75 m，v = 3×10⁸ m/s，f = 150 MHz；信号源 U̇_s = 10∠0° V（有效值），R_s = 75 Ω；负载 R_L = 150 Ω。求输入阻抗、Γ_2、驻波比、电压的最大最小值和负载功率。x′ 从终端量起。",
+      "schematic": {
+        "elements": [
+          {
+            "ref": "Us",
+            "type": "V",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              0,
+              4
+            ],
+            "value": {
+              "ac": {
+                "mag": 10,
+                "phase": 0
+              }
+            }
+          },
+          {
+            "ref": "Rs",
+            "type": "R",
+            "from": [
+              1,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "value": 75
+          },
+          {
+            "ref": "TL",
+            "type": "TL",
+            "at": [
+              6,
+              0
+            ],
+            "w": 8,
+            "line": {
+              "zc": 75,
+              "vp": "300M",
+              "length": 0.75
+            }
+          },
+          {
+            "ref": "RL",
+            "type": "R",
+            "value": 150,
+            "from": [
+              16,
+              0
+            ],
+            "to": [
+              16,
+              4
+            ]
+          }
+        ],
+        "wires": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              4,
+              0
+            ],
+            [
+              6,
+              0
+            ]
+          ],
+          [
+            [
+              6,
+              2
+            ],
+            [
+              6,
+              4
+            ]
+          ],
+          [
+            [
+              14,
+              0
+            ],
+            [
+              16,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              4
+            ],
+            [
+              16,
+              4
+            ]
+          ],
+          [
+            [
+              14,
+              2
+            ],
+            [
+              14,
+              4
+            ]
+          ]
+        ],
+        "terminals": [
+          {
+            "at": [
+              6,
+              0
+            ],
+            "name": "1"
+          },
+          {
+            "at": [
+              6,
+              2
+            ],
+            "name": "1'"
+          },
+          {
+            "at": [
+              14,
+              0
+            ],
+            "name": "2"
+          },
+          {
+            "at": [
+              14,
+              2
+            ],
+            "name": "2'"
+          }
+        ],
+        "grounds": [
+          [
+            0,
+            4
+          ]
+        ]
+      },
+      "analysis": {
+        "type": "ac",
+        "freq": 150000000.0
+      },
+      "results": [
+        {
+          "id": "lam",
+          "ask": "λ",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "lambda"
+          },
+          "answer": 2,
+          "unit": "m"
+        },
+        {
+          "id": "zr",
+          "ask": "Re Z_in",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "z",
+            "part": "re"
+          },
+          "answer": 60,
+          "unit": "Ω"
+        },
+        {
+          "id": "zi",
+          "ask": "Im Z_in",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "z",
+            "part": "im"
+          },
+          "answer": 45,
+          "unit": "Ω"
+        },
+        {
+          "id": "g",
+          "ask": "Γ_2",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "refl",
+            "part": "re"
+          },
+          "answer": 0.333333,
+          "unit": ""
+        },
+        {
+          "id": "vswr",
+          "ask": "VSWR",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "vswr"
+          },
+          "answer": 2,
+          "unit": ""
+        },
+        {
+          "id": "up",
+          "ask": "U⁺",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "uinc",
+            "x": 0
+          },
+          "answer": 5,
+          "unit": "V"
+        },
+        {
+          "id": "umax",
+          "ask": "U_max",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "umax"
+          },
+          "answer": 6.666667,
+          "unit": "V"
+        },
+        {
+          "id": "umin",
+          "ask": "U_min",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "umin"
+          },
+          "answer": 3.333333,
+          "unit": "V"
+        },
+        {
+          "id": "xmin",
+          "ask": "x′_min",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "xmin"
+          },
+          "answer": 0.5,
+          "unit": "m"
+        },
+        {
+          "id": "pl",
+          "ask": "P_L",
+          "find": {
+            "kind": "p",
+            "el": "RL"
+          },
+          "answer": 0.296296,
+          "unit": "W"
+        }
+      ],
+      "steps": [
+        "1. **电长度。** λ = v/f = **2 m**，l = 0.75 m = 3λ/8，βl = 135°，tan βl = −1。",
+        "2. **输入阻抗。** Z_in = 75 × (150 − j75)/(75 − j150) = **(60 + j45) Ω**：线把纯电阻负载“转”成了感性阻抗。",
+        "3. **反射。** Γ_2 = (150 − 75)/(150 + 75) = **1/3**，VSWR = (1 + 1/3)/(1 − 1/3) = **2**。",
+        "4. **入射波。** R_s = Z_c，始端不再反射：U⁺ = U_s/2 = **5 V**。",
+        "5. **驻波。** R_L > Z_c，终端是电压波腹：U_max = 5 × 4/3 = **6.67 V**；离终端 λ/4 = **0.5 m** 处是波节，U_min = 5 × 2/3 = **3.33 V**。",
+        "6. **功率。** P_L = U_max²/R_L = 6.67²/150 = **0.296 W** = (U⁺²/Z_c)(1 − |Γ|²) ✓。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "A mismatched lossless line: input impedance, reflection and standing waves",
+          "statement": "A 75 Ω lossless line 0.75 m long, v = 3×10⁸ m/s, f = 150 MHz; source U̇_s = 10∠0° V (rms), R_s = 75 Ω; load R_L = 150 Ω. Find the input impedance, Γ_2, the VSWR, the largest and smallest voltage and the load power. x′ is measured from the end.",
+          "results": [
+            {
+              "ask": "λ"
+            },
+            {
+              "ask": "Re Z_in"
+            },
+            {
+              "ask": "Im Z_in"
+            },
+            {
+              "ask": "Γ_2"
+            },
+            {
+              "ask": "VSWR"
+            },
+            {
+              "ask": "U⁺"
+            },
+            {
+              "ask": "U_max"
+            },
+            {
+              "ask": "U_min"
+            },
+            {
+              "ask": "x′_min"
+            },
+            {
+              "ask": "P_L"
+            }
+          ],
+          "steps": [
+            "1. **Electrical length.** λ = v/f = **2 m**, l = 0.75 m = 3λ/8, βl = 135°, tan βl = −1.",
+            "2. **Input impedance.** Z_in = 75 × (150 − j75)/(75 − j150) = **(60 + j45) Ω**: the line turns a resistive load into an inductive impedance.",
+            "3. **Reflection.** Γ_2 = (150 − 75)/(150 + 75) = **1/3**, VSWR = (1 + 1/3)/(1 − 1/3) = **2**.",
+            "4. **Incident wave.** R_s = Z_c, nothing is re-reflected at the start: U⁺ = U_s/2 = **5 V**.",
+            "5. **Standing wave.** R_L > Z_c puts a voltage maximum at the end: U_max = 5 × 4/3 = **6.67 V**; λ/4 = **0.5 m** from the end is a minimum, U_min = 5 × 2/3 = **3.33 V**.",
+            "6. **Power.** P_L = U_max²/R_L = 6.67²/150 = **0.296 W** = (U⁺²/Z_c)(1 − |Γ|²) ✓."
+          ]
+        }
+      }
+    },
+    {
+      "id": "open-bounce",
+      "ideas": [
+        "transient"
+      ],
+      "title": "开路线的波过程：电压一步步爬到 10 V",
+      "statement": "无损耗线 Z_c = 50 Ω，长 600 m，v = 3×10⁸ m/s，终端开路，原来不带电。t = 0 时接通 U_s = 10 V（阶跃），R_s = 150 Ω。用反射网格图求始端和终端电压随时间的变化。",
+      "schematic": {
+        "elements": [
+          {
+            "ref": "Us",
+            "type": "V",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              0,
+              4
+            ],
+            "value": {
+              "step": {
+                "before": 0,
+                "after": 10
+              }
+            }
+          },
+          {
+            "ref": "Rs",
+            "type": "R",
+            "from": [
+              1,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "value": 150
+          },
+          {
+            "ref": "TL",
+            "type": "TL",
+            "at": [
+              6,
+              0
+            ],
+            "w": 8,
+            "line": {
+              "zc": 50,
+              "vp": "300M",
+              "length": 600
+            }
+          }
+        ],
+        "wires": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ],
+          [
+            [
+              4,
+              0
+            ],
+            [
+              6,
+              0
+            ]
+          ],
+          [
+            [
+              6,
+              2
+            ],
+            [
+              6,
+              4
+            ]
+          ],
+          [
+            [
+              0,
+              4
+            ],
+            [
+              14,
+              4
+            ],
+            [
+              14,
+              2
+            ]
+          ]
+        ],
+        "terminals": [
+          {
+            "at": [
+              6,
+              0
+            ],
+            "name": "1"
+          },
+          {
+            "at": [
+              6,
+              2
+            ],
+            "name": "1'"
+          },
+          {
+            "at": [
+              14,
+              0
+            ],
+            "name": "2"
+          },
+          {
+            "at": [
+              14,
+              2
+            ],
+            "name": "2'"
+          }
+        ],
+        "grounds": [
+          [
+            0,
+            4
+          ]
+        ]
+      },
+      "analysis": {
+        "type": "tran"
+      },
+      "results": [
+        {
+          "id": "T",
+          "ask": "T = l/v",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "delay"
+          },
+          "answer": 2e-06,
+          "unit": "µs"
+        },
+        {
+          "id": "u0",
+          "ask": "u⁺ = u_1(0₊)",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "u",
+            "x": 0,
+            "t": "0+"
+          },
+          "answer": 2.5,
+          "unit": "V"
+        },
+        {
+          "id": "g1",
+          "ask": "Γ_1",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "reflSource"
+          },
+          "answer": 0.5,
+          "unit": ""
+        },
+        {
+          "id": "g2",
+          "ask": "Γ_2",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "refl"
+          },
+          "answer": 1,
+          "unit": ""
+        },
+        {
+          "id": "u2a",
+          "ask": "u_2（T < t < 3T）",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "u",
+            "x": 600,
+            "t": 3e-06
+          },
+          "answer": 5,
+          "unit": "V"
+        },
+        {
+          "id": "u1b",
+          "ask": "u_1（2T < t < 4T）",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "u",
+            "x": 0,
+            "t": 5e-06
+          },
+          "answer": 6.25,
+          "unit": "V"
+        },
+        {
+          "id": "u2b",
+          "ask": "u_2（3T < t < 5T）",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "u",
+            "x": 600,
+            "t": 7e-06
+          },
+          "answer": 7.5,
+          "unit": "V"
+        },
+        {
+          "id": "uinf",
+          "ask": "u(∞)",
+          "find": {
+            "kind": "tl",
+            "el": "TL",
+            "what": "u",
+            "x": 300,
+            "t": "inf"
+          },
+          "answer": 10,
+          "unit": "V"
+        }
+      ],
+      "steps": [
+        "1. **单程时间。** T = 600/3×10⁸ = **2 µs**。",
+        "2. **第一个波。** 线路对电源相当于 Z_c：u⁺ = 10 × 50/(150 + 50) = **2.5 V**。",
+        "3. **反射系数。** 终端开路 **Γ_2 = 1**；始端 **Γ_1** = (150 − 50)/(150 + 50) = **0.5**。",
+        "4. **网格图。** T：2.5 V 到终端并全反射，u_2 = **5 V**；2T：反射波回到始端，再反射 0.5 × 2.5 = 1.25，u_1 = 2.5 + 2.5 + 1.25 = **6.25 V**；3T：这个波到终端再全反射，u_2 = 5 + 2.5 = **7.5 V**……",
+        "5. **终值。** 每个来回乘 Γ_1Γ_2 = 0.5：u_2(∞) = 2 × 2.5/(1 − 0.5) = **10 V** = U_s（开路时 R_s 中没有电流）✓。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Waves on an open line: the voltage climbs to 10 V step by step",
+          "statement": "A lossless line, Z_c = 50 Ω, 600 m long, v = 3×10⁸ m/s, open at the end, initially uncharged. At t = 0 a step U_s = 10 V with R_s = 150 Ω is connected. Use a bounce diagram to follow the start and end voltages in time.",
+          "results": [
+            {
+              "ask": "T = l/v"
+            },
+            {
+              "ask": "u⁺ = u_1(0₊)"
+            },
+            {
+              "ask": "Γ_1"
+            },
+            {
+              "ask": "Γ_2"
+            },
+            {
+              "ask": "u_2 (T < t < 3T)"
+            },
+            {
+              "ask": "u_1 (2T < t < 4T)"
+            },
+            {
+              "ask": "u_2 (3T < t < 5T)"
+            },
+            {
+              "ask": "u(∞)"
+            }
+          ],
+          "steps": [
+            "1. **One-way time.** T = 600/3×10⁸ = **2 µs**.",
+            "2. **First wave.** The line looks like Z_c to the source: u⁺ = 10 × 50/(150 + 50) = **2.5 V**.",
+            "3. **Reflection coefficients.** Open end **Γ_2 = 1**; start **Γ_1** = (150 − 50)/(150 + 50) = **0.5**.",
+            "4. **Lattice.** T: the 2.5 V wave reaches the end and is totally reflected, u_2 = **5 V**; 2T: it returns to the start and 0.5 × 2.5 = 1.25 is reflected, u_1 = 2.5 + 2.5 + 1.25 = **6.25 V**; 3T: that wave doubles at the end, u_2 = 5 + 2.5 = **7.5 V**; and so on.",
+            "5. **Final value.** Each round trip multiplies by Γ_1Γ_2 = 0.5: u_2(∞) = 2 × 2.5/(1 − 0.5) = **10 V** = U_s (no current in R_s with the end open) ✓."
+          ]
+        }
+      }
+    }
+  ],
+  "mistakes": [
+    {
+      "id": "x-dir",
+      "idea": "solution",
+      "text": "把 x 和 x′ 混用：从始端量起的解里是 e^{−γx}（入射波），从终端量起的解里 U̇_2 ch γx′ + Z_cİ_2 sh γx′ 全是正号。先在图上标出 x 的起点和 İ 的参考方向（沿 +x），再选公式。",
+      "i18n": {
+        "en": {
+          "text": "Mixing up x and x′: measured from the start the incident wave is e^{−γx}; measured from the end the solution U̇_2 ch γx′ + Z_cİ_2 sh γx′ has only plus signs. Mark where x starts and the reference direction of İ (+x) before choosing a formula."
+        }
+      }
+    },
+    {
+      "id": "lossless-only",
+      "idea": "lossless",
+      "text": "把无损耗线的公式（Z_c = √(L_0/C_0)、tan βl、λ/4 线 Z_in = Z_c²/Z_2）用在有损耗线上。有损耗时 Z_c 是复数，要用 th γl；输电线这类低损耗线用无损耗公式只是近似。",
+      "i18n": {
+        "en": {
+          "text": "Using lossless formulas (Z_c = √(L_0/C_0), tan βl, the λ/4 rule Z_in = Z_c²/Z_2) on a lossy line. With losses Z_c is complex and th γl is needed; for low-loss power lines the lossless formulas are only an approximation."
+        }
+      }
+    },
+    {
+      "id": "gamma-current",
+      "idea": "waves",
+      "text": "认为反射波电流 = U̇⁻/Z_c。反射波沿 −x 传播，按 +x 的参考方向它的电流是 −U̇⁻/Z_c：开路端电压加倍、电流为零；短路端电压为零、电流加倍。",
+      "i18n": {
+        "en": {
+          "text": "Taking the reflected current as U̇⁻/Z_c. The reflected wave travels in −x, so with the +x reference its current is −U̇⁻/Z_c: at an open end the voltage doubles and the current vanishes; at a short the voltage vanishes and the current doubles."
+        }
+      }
+    },
+    {
+      "id": "gamma-sign",
+      "idea": "reflection",
+      "text": "把开路和短路的反射系数记反：Γ_2 = (Z_2 − Z_c)/(Z_2 + Z_c)，开路 Z_2 → ∞ 得 +1，短路 Z_2 = 0 得 −1。",
+      "i18n": {
+        "en": {
+          "text": "Swapping the reflection coefficients of open and short: Γ_2 = (Z_2 − Z_c)/(Z_2 + Z_c) gives +1 for Z_2 → ∞ (open) and −1 for Z_2 = 0 (short)."
+        }
+      }
+    },
+    {
+      "id": "first-wave",
+      "idea": "transient",
+      "text": "波过程中一接通就用负载电阻算电流。波到达终端之前（以及反射波回来之前），电源只“看到” Z_c：第一个波 u⁺ = U_sZ_c/(R_s + Z_c)，与 R_L 无关。",
+      "i18n": {
+        "en": {
+          "text": "In a transient, using the load resistance right after switching on. Before the wave reaches the end (and before the reflection returns) the source sees only Z_c: the first wave u⁺ = U_sZ_c/(R_s + Z_c) does not depend on R_L."
+        }
+      }
+    },
+    {
+      "id": "quarter-band",
+      "idea": "matching",
+      "text": "认为 λ/4 变换器对任何频率、任何负载都匹配。它要求负载是纯电阻，并且只在 βl = 90° 的设计频率附近有效。",
+      "i18n": {
+        "en": {
+          "text": "Expecting a quarter-wave transformer to match at every frequency and for every load. It needs a resistive load and works only near the design frequency where βl = 90°."
+        }
+      }
+    },
+    {
+      "id": "vswr-pos",
+      "idea": "standing",
+      "text": "以为终端总是电压波腹（或波节）。只有电阻负载才在终端出现极值：R_2 > Z_c 是波腹，R_2 < Z_c 是波节；一般负载要由 Γ_2 的辐角算位置。",
+      "i18n": {
+        "en": {
+          "text": "Assuming the end is always a voltage maximum (or minimum). Only a resistive load puts an extreme at the end — a maximum for R_2 > Z_c, a minimum for R_2 < Z_c; for a general load the angle of Γ_2 sets the positions."
+        }
+      }
+    }
+  ],
+  "i18n": {
+    "en": {
+      "intro": "This chapter stretches a circuit from a 'point' to a 'line': when the line is comparable with the wavelength, voltage and current are functions of position x and time t. The key tool is the solution of the line equations — an incident plus a reflected wave described by the secondary parameters Z_c and γ; the load sets the reflection coefficient, and reflection sets the standing waves and the input impedance. Always mark where x is measured from and which way the current is positive, and keep track of which formulas hold only for lossless lines."
+    }
+  }
+}

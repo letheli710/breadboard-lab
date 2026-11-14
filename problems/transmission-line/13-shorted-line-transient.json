@@ -1,0 +1,321 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "transmission-line-13-shorted-line-transient",
+  "chapter": "transmission-line",
+  "title": "终端短路的无损耗线：短路的消息要走一个来回",
+  "level": 3,
+  "tags": [
+    "波过程",
+    "短路线",
+    "源端匹配",
+    "暂态"
+  ],
+  "statement": [
+    "无损耗空气线 Z_c = 50 Ω，长 l = 300 m，v = 3×10⁸ m/s，终端短路，原来不带电。t = 0 时接通 U_s = 10 V（阶跃），内阻 R_s = 50 Ω。",
+    "x 从始端量起；电流 i 沿 +x 方向为正；各时刻取波前刚过之后的值。"
+  ],
+  "schematic": {
+    "elements": [
+      {
+        "ref": "Us",
+        "type": "V",
+        "from": [
+          0,
+          0
+        ],
+        "to": [
+          0,
+          4
+        ],
+        "value": {
+          "step": {
+            "before": 0,
+            "after": 10
+          }
+        }
+      },
+      {
+        "ref": "Rs",
+        "type": "R",
+        "from": [
+          1,
+          0
+        ],
+        "to": [
+          4,
+          0
+        ],
+        "value": 50
+      },
+      {
+        "ref": "TL",
+        "type": "TL",
+        "at": [
+          6,
+          0
+        ],
+        "w": 8,
+        "line": {
+          "zc": 50,
+          "vp": "300M",
+          "length": 300
+        }
+      }
+    ],
+    "wires": [
+      [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      [
+        [
+          4,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      [
+        [
+          0,
+          4
+        ],
+        [
+          14,
+          4
+        ],
+        [
+          14,
+          2
+        ]
+      ],
+      [
+        [
+          14,
+          0
+        ],
+        [
+          14,
+          2
+        ]
+      ]
+    ],
+    "terminals": [
+      {
+        "at": [
+          6,
+          0
+        ],
+        "name": "1"
+      },
+      {
+        "at": [
+          6,
+          2
+        ],
+        "name": "1'"
+      },
+      {
+        "at": [
+          14,
+          0
+        ],
+        "name": "2"
+      },
+      {
+        "at": [
+          14,
+          2
+        ],
+        "name": "2'"
+      }
+    ],
+    "grounds": [
+      [
+        0,
+        4
+      ]
+    ]
+  },
+  "analysis": {
+    "type": "tran"
+  },
+  "questions": [
+    {
+      "id": "i0",
+      "ask": "0 < t < 2 µs 时始端电流 i(0, t) = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "i",
+        "x": 0,
+        "t": 1e-06
+      },
+      "answer": 0.1,
+      "unit": "A",
+      "explain": "R_s = Z_c：u⁺ = 10 × 50/100 = 5 V，i⁺ = 5/50 = 0.1 A。终端短路的消息要等反射波回到始端（t = 2T = 2 µs）才能“传回来”，在此之前电源看到的只是 Z_c。"
+    },
+    {
+      "id": "um1",
+      "ask": "t = 1.2 µs 时线路中点的电压 u(150 m) = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "u",
+        "x": 150,
+        "t": 1.2e-06
+      },
+      "answer": 5,
+      "unit": "V",
+      "explain": "T = l/v = 1 µs。入射波 0.5 µs 到达中点；终端反射波（Γ_2 = −1，−5 V）1.5 µs 才到中点：1.2 µs 时 u = 5 V。"
+    },
+    {
+      "id": "um2",
+      "ask": "t = 1.8 µs 时中点电压 u(150 m) = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "u",
+        "x": 150,
+        "t": 1.8e-06
+      },
+      "answer": 0,
+      "unit": "V",
+      "explain": "5 + (−5) = 0 V：反射波“擦掉”了电压。"
+    },
+    {
+      "id": "im2",
+      "ask": "t = 1.8 µs 时中点电流 i(150 m) = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "i",
+        "x": 150,
+        "t": 1.8e-06
+      },
+      "answer": 0.2,
+      "unit": "A",
+      "explain": "反射波电流 = −u⁻/Z_c = +0.1 A，与入射波电流同向相加：0.1 + 0.1 = 0.2 A。"
+    },
+    {
+      "id": "is",
+      "ask": "t = 2.5 µs 时电源内阻 R_s 中的电流 = ?",
+      "find": {
+        "kind": "i",
+        "el": "Rs",
+        "t": 2.5e-06
+      },
+      "answer": 0.2,
+      "unit": "A",
+      "explain": "2T 时反射波到达始端，被 R_s = Z_c 全部吸收（Γ_1 = 0），之后线上不再变化：i = U_s/R_s = 0.2 A，与终端短路的直流解相同。"
+    },
+    {
+      "id": "matched",
+      "ask": "为什么这个电路在 t = 2T 之后就直接到达稳态，没有来回振荡？",
+      "choices": [
+        "因为终端短路，Γ_2 = 0",
+        "因为 R_s = Z_c，Γ_1 = 0：回到始端的波被完全吸收",
+        "因为线路无损耗"
+      ],
+      "correct": 1,
+      "choiceExplain": [
+        "短路端的反射系数是 −1，不是 0。",
+        "对：源端匹配，反射波到此为止。",
+        "无损耗线上的波不会衰减；如果两端都不匹配，波会一直来回反射。"
+      ],
+      "explain": "稳态需要波不再反射。终端 Γ_2 = −1（全反射），但始端 Γ_1 = 0，所以每个波最多只反射一次。"
+    }
+  ],
+  "hints": [
+    "先求第一个波：线路对电源相当于电阻 Z_c。",
+    "终端短路 Γ_2 = −1：反射波电压与入射波相反，反射波电流（−u⁻/Z_c）与入射波电流同号。",
+    "单程时间 T = l/v；某点在 x/v 时入射波到达，在 (2l − x)/v 时反射波到达。"
+  ],
+  "solution": [
+    "**1. 入射波。** u⁺ = 10 × 50/(50 + 50) = 5 V，i⁺ = **0.1 A**；T = 1 µs。",
+    "**2. 中点。** 0.5 µs 入射波到达：u = **5 V**；1.5 µs 反射波（−5 V，+0.1 A）到达：u = **0 V**，i = **0.2 A**。",
+    "**3. 始端。** 2T = 2 µs 反射波到达，被 R_s = Z_c 吸收：之后 u_1 = 0，i = **0.2 A** = U_s/R_s，达到稳态。",
+    "**检查：** 直流下无损耗线就是两根导线，终端短路时电源电流 = U_s/R_s = 0.2 A ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Lossless line with a shorted end: news of the short takes a round trip",
+      "tags": [
+        "travelling waves",
+        "short-circuited line",
+        "matched source",
+        "transient"
+      ],
+      "statement": [
+        "A lossless air line, Z_c = 50 Ω, length l = 300 m, v = 3×10⁸ m/s, has its end shorted and is initially uncharged. At t = 0 a step U_s = 10 V with internal resistance R_s = 50 Ω is connected.",
+        "x is measured from the start; the current i is positive in +x; values are taken just after a wavefront has passed."
+      ],
+      "questions": [
+        {
+          "ask": "Current at the start for 0 < t < 2 µs, i(0, t) = ?",
+          "explain": "R_s = Z_c: u⁺ = 10 × 50/100 = 5 V, i⁺ = 5/50 = 0.1 A. The news of the short only comes back with the reflected wave at t = 2T = 2 µs; until then the source sees just Z_c."
+        },
+        {
+          "ask": "Voltage at the midpoint at t = 1.2 µs, u(150 m) = ?",
+          "explain": "T = l/v = 1 µs. The incident wave reaches the midpoint at 0.5 µs; the wave reflected at the short (Γ_2 = −1, −5 V) only arrives at 1.5 µs: at 1.2 µs u = 5 V."
+        },
+        {
+          "ask": "Midpoint voltage at t = 1.8 µs, u(150 m) = ?",
+          "explain": "5 + (−5) = 0 V: the reflected wave wipes the voltage out."
+        },
+        {
+          "ask": "Midpoint current at t = 1.8 µs, i(150 m) = ?",
+          "explain": "The reflected wave carries −u⁻/Z_c = +0.1 A, adding to the incident current: 0.1 + 0.1 = 0.2 A."
+        },
+        {
+          "ask": "Current in the source resistance R_s at t = 2.5 µs = ?",
+          "explain": "At 2T the reflected wave reaches the start and is absorbed completely by R_s = Z_c (Γ_1 = 0); nothing changes afterwards: i = U_s/R_s = 0.2 A, the DC answer for a shorted end."
+        },
+        {
+          "ask": "Why does this circuit reach steady state right after t = 2T, without bouncing back and forth?",
+          "choices": [
+            "Because the shorted end has Γ_2 = 0",
+            "Because R_s = Z_c gives Γ_1 = 0: the returning wave is absorbed completely",
+            "Because the line is lossless"
+          ],
+          "explain": "Steady state needs the waves to stop reflecting. The end has Γ_2 = −1 (total reflection), but the start has Γ_1 = 0, so every wave is reflected at most once.",
+          "choiceExplain": [
+            "A short has Γ = −1, not 0.",
+            "Right: the source end is matched and the reflected wave ends there.",
+            "On a lossless line waves never decay; with both ends mismatched they would bounce forever."
+          ]
+        }
+      ],
+      "hints": [
+        "First the launched wave: the line looks like a resistor Z_c to the source.",
+        "A short gives Γ_2 = −1: the reflected voltage is the negative of the incident one, while the reflected current (−u⁻/Z_c) has the same sign as the incident current.",
+        "One-way time T = l/v; at position x the incident wave arrives at x/v and the reflected one at (2l − x)/v."
+      ],
+      "solution": [
+        "**1. Incident wave.** u⁺ = 10 × 50/(50 + 50) = 5 V, i⁺ = **0.1 A**; T = 1 µs.",
+        "**2. Midpoint.** The incident wave arrives at 0.5 µs: u = **5 V**; the reflected wave (−5 V, +0.1 A) arrives at 1.5 µs: u = **0 V**, i = **0.2 A**.",
+        "**3. Start.** At 2T = 2 µs the reflected wave arrives and is absorbed by R_s = Z_c: from then on u_1 = 0 and i = **0.2 A** = U_s/R_s — steady state.",
+        "**Check:** at DC a lossless line is just two wires; with the end shorted the source current is U_s/R_s = 0.2 A ✓."
+      ]
+    }
+  }
+}

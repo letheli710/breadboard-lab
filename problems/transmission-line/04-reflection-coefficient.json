@@ -1,0 +1,341 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "transmission-line-04-reflection-coefficient",
+  "chapter": "transmission-line",
+  "title": "反射系数与驻波比：负载不匹配会怎样",
+  "level": 2,
+  "tags": [
+    "反射系数",
+    "驻波比",
+    "入射波与反射波"
+  ],
+  "statement": [
+    "75 Ω 无损耗同轴电缆长 l = 3.25 m，相速 v = 2×10⁸ m/s，工作频率 100 MHz。信号源 U̇_s = 10∠0° V（有效值），内阻 R_s = 75 Ω；终端负载 Z_L = (25 − j50) Ω。",
+    "反射系数定义为同一点反射波电压与入射波电压之比 Γ = U̇⁻/U̇⁺；x′ 从终端量起，指向始端。"
+  ],
+  "schematic": {
+    "elements": [
+      {
+        "ref": "Us",
+        "type": "V",
+        "from": [
+          0,
+          0
+        ],
+        "to": [
+          0,
+          4
+        ],
+        "value": {
+          "ac": {
+            "mag": 10,
+            "phase": 0
+          }
+        }
+      },
+      {
+        "ref": "Rs",
+        "type": "R",
+        "from": [
+          1,
+          0
+        ],
+        "to": [
+          4,
+          0
+        ],
+        "value": 75
+      },
+      {
+        "ref": "TL",
+        "type": "TL",
+        "at": [
+          6,
+          0
+        ],
+        "w": 8,
+        "line": {
+          "zc": 75,
+          "vp": "200M",
+          "length": 3.25
+        }
+      },
+      {
+        "ref": "ZL",
+        "type": "Z",
+        "value": {
+          "re": 25,
+          "im": -50
+        },
+        "from": [
+          16,
+          0
+        ],
+        "to": [
+          16,
+          4
+        ]
+      }
+    ],
+    "wires": [
+      [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      [
+        [
+          4,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          0
+        ],
+        [
+          16,
+          0
+        ]
+      ],
+      [
+        [
+          0,
+          4
+        ],
+        [
+          16,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          2
+        ],
+        [
+          14,
+          4
+        ]
+      ]
+    ],
+    "terminals": [
+      {
+        "at": [
+          6,
+          0
+        ],
+        "name": "1"
+      },
+      {
+        "at": [
+          6,
+          2
+        ],
+        "name": "1'"
+      },
+      {
+        "at": [
+          14,
+          0
+        ],
+        "name": "2"
+      },
+      {
+        "at": [
+          14,
+          2
+        ],
+        "name": "2'"
+      }
+    ],
+    "grounds": [
+      [
+        0,
+        4
+      ]
+    ]
+  },
+  "analysis": {
+    "type": "ac",
+    "freq": 100000000.0
+  },
+  "questions": [
+    {
+      "id": "g",
+      "ask": "终端反射系数的模 |Γ_2| = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "refl"
+      },
+      "answer": 0.63246,
+      "unit": "",
+      "explain": "Γ_2 = (Z_L − Z_c)/(Z_L + Z_c) = (−50 − j50)/(100 − j50) = 70.71∠−135°/111.8∠−26.57° = 0.632∠−108.4°。"
+    },
+    {
+      "id": "gang",
+      "ask": "Γ_2 的辐角 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "refl",
+        "part": "phase"
+      },
+      "answer": -108.435,
+      "unit": "°",
+      "explain": "−135° − (−26.57°) = −108.43°。"
+    },
+    {
+      "id": "vswr",
+      "ask": "驻波比 VSWR = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "vswr"
+      },
+      "answer": 4.4415,
+      "unit": "",
+      "explain": "VSWR = (1 + |Γ|)/(1 − |Γ|) = 1.632/0.368 = 4.44。"
+    },
+    {
+      "id": "gx",
+      "ask": "距终端 x′ = 0.25 m 处反射系数 Γ(x′) 的辐角 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "refl",
+        "x": 0.25,
+        "from": "end",
+        "part": "phase"
+      },
+      "answer": 161.565,
+      "unit": "°",
+      "explain": "Γ(x′) = Γ_2·e^{−j2βx′}，β = 2π/λ = π rad/m（λ = 2 m），2βx′ = 0.5π = 90°：辐角 −108.43° − 90° = −198.43°，即 161.57°。"
+    },
+    {
+      "id": "up",
+      "ask": "始端入射波电压的有效值 |U̇⁺_1| = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL",
+        "what": "uinc",
+        "x": 0
+      },
+      "answer": 5,
+      "unit": "V",
+      "explain": "源内阻等于 Z_c，向线上发出的入射波与负载无关：U̇⁺_1 = U̇_s·Z_c/(R_s + Z_c) = 5 V。"
+    },
+    {
+      "id": "mag",
+      "ask": "|Γ(x′)| 沿这条无损耗线怎样变化？",
+      "choices": [
+        "处处等于 |Γ_2|",
+        "离负载越远越小",
+        "在电压波节处为零"
+      ],
+      "correct": 0,
+      "choiceExplain": [
+        "对：e^{−j2βx′} 的模是 1。",
+        "那是有损耗线（e^{−2αx′}）。这里 α = 0。",
+        "波节处 Γ 的辐角为 180°，模仍是 |Γ_2|。"
+      ],
+      "explain": "无损耗线上 Γ(x′) = Γ_2·e^{−j2βx′}，只转相位、模不变；有损耗时才有 e^{−2αx′} 的衰减。"
+    }
+  ],
+  "hints": [
+    "先算终端：Γ_2 只由 Z_L 和 Z_c 决定，与电源、线长无关。",
+    "沿线向电源方向移动 x′，入射波相位超前 βx′、反射波滞后 βx′，所以 Γ(x′) = Γ_2·e^{−j2βx′}。",
+    "入射波由电源和输入端决定：R_s = Z_c 时始端没有二次反射，U̇⁺_1 = U̇_s·Z_c/(R_s + Z_c)。"
+  ],
+  "solution": [
+    "**1. 终端反射系数。** Γ_2 = (Z_L − Z_c)/(Z_L + Z_c) = (−50 − j50)/(100 − j50) = **0.632∠−108.4°**。",
+    "**2. 驻波比。** VSWR = (1 + 0.632)/(1 − 0.632) = **4.44**。",
+    "**3. 沿线的反射系数。** λ = v/f = 2 m，β = π rad/m。x′ = 0.25 m（λ/8）处 2βx′ = 90°：Γ = 0.632∠−198.4° = **0.632∠161.6°**。",
+    "**4. 入射波。** R_s = Z_c：U̇⁺_1 = 10 × 75/150 = **5 V**。反射波到达始端被内阻全部吸收（Γ_1 = 0），所以不会再反射回来。",
+    "**检查：** Z_L = Z_c·(1 + Γ_2)/(1 − Γ_2)，Γ_2 = −0.2 − j0.6：(0.8 − j0.6)/(1.2 + j0.6) = 0.333 − j0.667，× 75 = 25 − j50 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Reflection coefficient and VSWR: what a mismatched load does",
+      "tags": [
+        "reflection coefficient",
+        "standing-wave ratio",
+        "incident and reflected waves"
+      ],
+      "statement": [
+        "A 75 Ω lossless coaxial cable is l = 3.25 m long, with phase velocity v = 2×10⁸ m/s, at 100 MHz. The source is U̇_s = 10∠0° V (rms) with internal resistance R_s = 75 Ω; the load is Z_L = (25 − j50) Ω.",
+        "The reflection coefficient is the ratio of the reflected to the incident voltage wave at the same point, Γ = U̇⁻/U̇⁺; x′ is measured from the end towards the start."
+      ],
+      "questions": [
+        {
+          "ask": "Magnitude of the reflection coefficient at the end |Γ_2| = ?",
+          "explain": "Γ_2 = (Z_L − Z_c)/(Z_L + Z_c) = (−50 − j50)/(100 − j50) = 70.71∠−135°/111.8∠−26.57° = 0.632∠−108.4°."
+        },
+        {
+          "ask": "Angle of Γ_2 = ?",
+          "explain": "−135° − (−26.57°) = −108.43°."
+        },
+        {
+          "ask": "Standing-wave ratio VSWR = ?",
+          "explain": "VSWR = (1 + |Γ|)/(1 − |Γ|) = 1.632/0.368 = 4.44."
+        },
+        {
+          "ask": "Angle of the reflection coefficient Γ(x′) at x′ = 0.25 m from the end = ?",
+          "explain": "Γ(x′) = Γ_2·e^{−j2βx′}; β = 2π/λ = π rad/m (λ = 2 m), 2βx′ = 0.5π = 90°: angle −108.43° − 90° = −198.43°, i.e. 161.57°."
+        },
+        {
+          "ask": "rms value of the incident voltage wave at the start |U̇⁺_1| = ?",
+          "explain": "With the source resistance equal to Z_c the incident wave it launches does not depend on the load: U̇⁺_1 = U̇_s·Z_c/(R_s + Z_c) = 5 V."
+        },
+        {
+          "ask": "How does |Γ(x′)| change along this lossless line?",
+          "choices": [
+            "It equals |Γ_2| everywhere",
+            "It gets smaller away from the load",
+            "It is zero at the voltage minima"
+          ],
+          "explain": "On a lossless line Γ(x′) = Γ_2·e^{−j2βx′}: only the angle turns, the magnitude stays; the factor e^{−2αx′} appears only with losses.",
+          "choiceExplain": [
+            "Right: |e^{−j2βx′}| = 1.",
+            "That happens on a lossy line (e^{−2αx′}); here α = 0.",
+            "At a voltage minimum the angle of Γ is 180°, its magnitude is still |Γ_2|."
+          ]
+        }
+      ],
+      "hints": [
+        "Start at the end: Γ_2 depends only on Z_L and Z_c, not on the source or the length.",
+        "Moving x′ towards the source the incident wave leads by βx′ and the reflected wave lags by βx′, so Γ(x′) = Γ_2·e^{−j2βx′}.",
+        "The incident wave is set by the source and the input: with R_s = Z_c nothing is re-reflected at the start, U̇⁺_1 = U̇_s·Z_c/(R_s + Z_c)."
+      ],
+      "solution": [
+        "**1. Reflection coefficient at the end.** Γ_2 = (Z_L − Z_c)/(Z_L + Z_c) = (−50 − j50)/(100 − j50) = **0.632∠−108.4°**.",
+        "**2. VSWR.** (1 + 0.632)/(1 − 0.632) = **4.44**.",
+        "**3. Along the line.** λ = v/f = 2 m, β = π rad/m. At x′ = 0.25 m (λ/8), 2βx′ = 90°: Γ = 0.632∠−198.4° = **0.632∠161.6°**.",
+        "**4. Incident wave.** R_s = Z_c: U̇⁺_1 = 10 × 75/150 = **5 V**. The reflected wave is absorbed by the source resistance when it reaches the start (Γ_1 = 0), so nothing comes back.",
+        "**Check:** Z_L = Z_c·(1 + Γ_2)/(1 − Γ_2) with Γ_2 = −0.2 − j0.6: (0.8 − j0.6)/(1.2 + j0.6) = 0.333 − j0.667, × 75 = 25 − j50 ✓."
+      ]
+    }
+  }
+}

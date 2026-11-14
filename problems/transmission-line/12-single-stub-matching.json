@@ -1,0 +1,428 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "transmission-line-12-single-stub-matching",
+  "chapter": "transmission-line",
+  "title": "单支节匹配：在离负载 d 处并联一段短路线",
+  "level": 4,
+  "tags": [
+    "短截线匹配",
+    "短路线",
+    "导纳",
+    "匹配"
+  ],
+  "statement": [
+    "50 Ω 无损耗线（v = 3×10⁸ m/s，f = 300 MHz）带负载 Z_L = (30 + j40) Ω。在离负载 d = 0.2917 m 的 J 点并联一段同样的 50 Ω 终端短路线（短截线），长度 l_s 待定。电源 U̇_s = 10∠0° V（有效值），R_s = 50 Ω，经 1.5 m 主线接到 J 点。",
+    "并联元件用导纳相加最方便：Y = 1/Z。x 从各段线的始端量起。"
+  ],
+  "schematic": {
+    "elements": [
+      {
+        "ref": "Us",
+        "type": "V",
+        "from": [
+          0,
+          0
+        ],
+        "to": [
+          0,
+          4
+        ],
+        "value": {
+          "ac": {
+            "mag": 10,
+            "phase": 0
+          }
+        }
+      },
+      {
+        "ref": "Rs",
+        "type": "R",
+        "from": [
+          1,
+          0
+        ],
+        "to": [
+          4,
+          0
+        ],
+        "value": 50
+      },
+      {
+        "ref": "TL1",
+        "type": "TL",
+        "at": [
+          6,
+          0
+        ],
+        "w": 8,
+        "line": {
+          "zc": 50,
+          "vp": "300M",
+          "length": 1.5
+        }
+      },
+      {
+        "ref": "TLd",
+        "type": "TL",
+        "at": [
+          14,
+          0
+        ],
+        "w": 6,
+        "line": {
+          "zc": 50,
+          "vp": "300M",
+          "length": 0.29166667
+        },
+        "label": "Z_c = 50 Ω　d = 0.2917 m"
+      },
+      {
+        "ref": "TLs",
+        "type": "TL",
+        "at": [
+          16,
+          -6
+        ],
+        "w": 6,
+        "line": {
+          "zc": 50,
+          "vp": "300M",
+          "length": 0.11359276
+        },
+        "hideValue": true,
+        "label": "Z_c = 50 Ω　l_s = ?"
+      },
+      {
+        "ref": "ZL",
+        "type": "Z",
+        "from": [
+          22,
+          0
+        ],
+        "to": [
+          22,
+          4
+        ],
+        "value": {
+          "re": 30,
+          "im": 40
+        }
+      }
+    ],
+    "wires": [
+      [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      [
+        [
+          4,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          2
+        ],
+        [
+          14,
+          4
+        ]
+      ],
+      [
+        [
+          20,
+          2
+        ],
+        [
+          20,
+          4
+        ]
+      ],
+      [
+        [
+          20,
+          0
+        ],
+        [
+          22,
+          0
+        ]
+      ],
+      [
+        [
+          0,
+          4
+        ],
+        [
+          22,
+          4
+        ]
+      ],
+      [
+        [
+          14,
+          0
+        ],
+        [
+          14,
+          -6
+        ],
+        [
+          16,
+          -6
+        ]
+      ],
+      [
+        [
+          22,
+          -6
+        ],
+        [
+          22,
+          -4
+        ]
+      ],
+      [
+        [
+          16,
+          -4
+        ],
+        [
+          15,
+          -4
+        ]
+      ]
+    ],
+    "terminals": [
+      {
+        "at": [
+          14,
+          0
+        ],
+        "name": "J"
+      }
+    ],
+    "grounds": [
+      [
+        0,
+        4
+      ],
+      [
+        15,
+        -4
+      ]
+    ],
+    "notes": [
+      {
+        "at": [
+          23,
+          -5
+        ],
+        "text": "短路",
+        "i18n": {
+          "en": "short"
+        }
+      }
+    ]
+  },
+  "analysis": {
+    "type": "ac",
+    "freq": 300000000.0
+  },
+  "questions": [
+    {
+      "id": "g",
+      "ask": "负载反射系数的模 |Γ_L| = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TLd",
+        "what": "refl"
+      },
+      "answer": 0.5,
+      "unit": "",
+      "explain": "Γ_L = (30 + j40 − 50)/(30 + j40 + 50) = (−20 + j40)/(80 + j40) = 0.5∠90°。"
+    },
+    {
+      "id": "zr",
+      "ask": "在 J 点向负载看进去（不含短截线）的阻抗 Z_d 的实部 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TLd",
+        "what": "z",
+        "part": "re"
+      },
+      "answer": 21.4286,
+      "unit": "Ω",
+      "explain": "d = 0.2917 m = 7λ/24，βd = 105°，tan βd = −3.732：Z_d = 50 × (30 + j40 − j186.6)/(50 + j(30 + j40)(−3.732)) = (21.43 − j24.74) Ω。"
+    },
+    {
+      "id": "zi",
+      "ask": "Z_d 的虚部 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TLd",
+        "what": "z",
+        "part": "im"
+      },
+      "answer": -24.7436,
+      "unit": "Ω",
+      "explain": "化成导纳：Y_d = 1/Z_d = (0.02 + j0.0231) S——实部正好是 1/Z_c，这就是选 d 的依据；只剩电纳 +j0.0231 S 要抵消。"
+    },
+    {
+      "id": "ls",
+      "ask": "短路短截线的最短长度 l_s = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TLs",
+        "what": "length"
+      },
+      "answer": 0.1135928,
+      "unit": "m",
+      "explain": "短路线输入导纳 Y_s = −j cot(βl_s)/Z_c，令它等于 −j0.0231 S：cot βl_s = 1.155，βl_s = 40.89°，l_s = 40.89/360 × 1 m = 0.1136 m。"
+    },
+    {
+      "id": "vswr",
+      "ask": "接上短截线后，主线上的驻波比 = ?",
+      "find": {
+        "kind": "tl",
+        "el": "TL1",
+        "what": "vswr"
+      },
+      "answer": 1,
+      "unit": "",
+      "explain": "Y_J = Y_d + Y_s = 0.02 S = 1/Z_c，主线匹配，VSWR = 1。"
+    },
+    {
+      "id": "pl",
+      "ask": "负载吸收的功率 P_L = ?",
+      "find": {
+        "kind": "p",
+        "el": "ZL"
+      },
+      "answer": 0.5,
+      "unit": "W",
+      "explain": "电源输出 U_s²/(4R_s) = 0.5 W；短截线是纯电抗，不吸收功率，全部送到 Z_L。"
+    },
+    {
+      "id": "why",
+      "ask": "为什么短截线通常做成终端短路，而不是开路？",
+      "choices": [
+        "短路端不辐射、长度好调（可以滑动短路块），开路端会有边缘电容和辐射",
+        "短路线不能产生容性电纳",
+        "开路线的输入阻抗与长度无关"
+      ],
+      "correct": 0,
+      "choiceExplain": [
+        "对。",
+        "短路线在 λ/4 < l_s < λ/2 时就是容性的。",
+        "开路线 Z_oc = −jZ_c cot βl，同样随长度变化。"
+      ],
+      "explain": "短路和开路短截线都能产生任意电纳，只是长度差 λ/4；工程上短路端更“理想”，也便于调节。"
+    }
+  ],
+  "hints": [
+    "先求 J 点向负载看进去的阻抗 Z_d（输入阻抗公式，λ = 1 m），再化成导纳 Y_d = G + jB。",
+    "d 选得使 G = 1/Z_c = 0.02 S；短截线只要提供 −jB，就能把总导纳变成 1/Z_c。",
+    "终端短路线的输入导纳 Y_s = −j cot(βl_s)/Z_c，解 cot βl_s = B·Z_c，取最短的正解。"
+  ],
+  "solution": [
+    "**1. 负载反射。** Γ_L = (Z_L − 50)/(Z_L + 50) = 0.5∠90°，VSWR = 3。",
+    "**2. J 点阻抗。** βd = 360° × 0.2917 = 105°：Z_d = **(21.43 − j24.74) Ω**，Y_d = 0.02 + j0.0231 S。",
+    "**3. 短截线。** 需要 Y_s = −j0.0231 S：cot βl_s = 0.0231 × 50 = 1.155，βl_s = 40.89°，**l_s = 0.1136 m**。",
+    "**4. 结果。** Y_J = 0.02 S，主线 **VSWR = 1**；负载得到 **0.5 W**。d 和短截线之间那一小段仍有驻波。",
+    "**检查：** 另一组解 d = 0.4583 m（βd = 165°），那里 Y_d = 0.02 − j0.0231 S，短截线 l_s = 0.3864 m；两组都满足 Y_J = 1/Z_c。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Single-stub matching: a shorted stub in parallel at distance d from the load",
+      "tags": [
+        "stub matching",
+        "short-circuited line",
+        "admittance",
+        "matching"
+      ],
+      "statement": [
+        "A 50 Ω lossless line (v = 3×10⁸ m/s, f = 300 MHz) feeds a load Z_L = (30 + j40) Ω. At point J, d = 0.2917 m from the load, an identical 50 Ω line with its end shorted (a stub) of length l_s is connected in parallel. The source U̇_s = 10∠0° V (rms), R_s = 50 Ω reaches J through a 1.5 m main line.",
+        "Parallel elements are easiest with admittances: Y = 1/Z. x is measured from the start of each line."
+      ],
+      "questions": [
+        {
+          "ask": "Magnitude of the load reflection coefficient |Γ_L| = ?",
+          "explain": "Γ_L = (30 + j40 − 50)/(30 + j40 + 50) = (−20 + j40)/(80 + j40) = 0.5∠90°."
+        },
+        {
+          "ask": "Real part of the impedance Z_d seen at J towards the load (without the stub) = ?",
+          "explain": "d = 0.2917 m = 7λ/24, βd = 105°, tan βd = −3.732: Z_d = 50 × (30 + j40 − j186.6)/(50 + j(30 + j40)(−3.732)) = (21.43 − j24.74) Ω."
+        },
+        {
+          "ask": "Imaginary part of Z_d = ?",
+          "explain": "As an admittance: Y_d = 1/Z_d = (0.02 + j0.0231) S — the real part is exactly 1/Z_c, which is how d was chosen; only the susceptance +j0.0231 S is left to cancel."
+        },
+        {
+          "ask": "Shortest length of the short-circuited stub l_s = ?",
+          "explain": "The stub's input admittance is Y_s = −j cot(βl_s)/Z_c; set it to −j0.0231 S: cot βl_s = 1.155, βl_s = 40.89°, l_s = 40.89/360 × 1 m = 0.1136 m."
+        },
+        {
+          "ask": "With the stub connected, the standing-wave ratio on the main line = ?",
+          "explain": "Y_J = Y_d + Y_s = 0.02 S = 1/Z_c: the main line is matched, VSWR = 1."
+        },
+        {
+          "ask": "Power absorbed by the load P_L = ?",
+          "explain": "The source delivers U_s²/(4R_s) = 0.5 W; the stub is a pure reactance and absorbs nothing, so all of it reaches Z_L."
+        },
+        {
+          "ask": "Why are stubs usually short-circuited rather than open-circuited?",
+          "choices": [
+            "A short does not radiate and the length is easy to adjust (a sliding short), while an open end has fringing capacitance and radiates",
+            "A shorted stub cannot produce a capacitive susceptance",
+            "The input impedance of an open stub does not depend on its length"
+          ],
+          "explain": "Shorted and open stubs can both give any susceptance — their lengths differ by λ/4; a short is simply closer to ideal in practice and easy to adjust.",
+          "choiceExplain": [
+            "Right.",
+            "A shorted stub is capacitive for λ/4 < l_s < λ/2.",
+            "An open stub has Z_oc = −jZ_c cot βl, which also depends on the length."
+          ]
+        }
+      ],
+      "hints": [
+        "First find the impedance Z_d seen at J towards the load (input-impedance formula, λ = 1 m) and convert it to an admittance Y_d = G + jB.",
+        "d was chosen so that G = 1/Z_c = 0.02 S; the stub only has to supply −jB to make the total admittance 1/Z_c.",
+        "A shorted stub has input admittance Y_s = −j cot(βl_s)/Z_c: solve cot βl_s = B·Z_c and take the shortest positive length."
+      ],
+      "solution": [
+        "**1. Load reflection.** Γ_L = (Z_L − 50)/(Z_L + 50) = 0.5∠90°, VSWR = 3.",
+        "**2. Impedance at J.** βd = 360° × 0.2917 = 105°: Z_d = **(21.43 − j24.74) Ω**, Y_d = 0.02 + j0.0231 S.",
+        "**3. Stub.** Y_s = −j0.0231 S is needed: cot βl_s = 0.0231 × 50 = 1.155, βl_s = 40.89°, **l_s = 0.1136 m**.",
+        "**4. Result.** Y_J = 0.02 S, main-line **VSWR = 1**; the load receives **0.5 W**. The short piece between J and the load still carries a standing wave.",
+        "**Check:** the other solution is d = 0.4583 m (βd = 165°), where Y_d = 0.02 − j0.0231 S and the stub is l_s = 0.3864 m; both make Y_J = 1/Z_c."
+      ],
+      "notes": [
+        "short"
+      ]
+    }
+  }
+}
