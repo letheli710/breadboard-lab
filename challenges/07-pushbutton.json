@@ -2,69 +2,383 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-pushbutton",
-  "title": "第 7 课 · 按键开关（push button）",
+  "title": "按键：一个能合上的缺口",
   "kind": "lesson",
   "level": 2,
-  "summary": "四只脚的按键为什么要横跨中间的凹槽？",
-  "concepts": ["push button 轻触按键", "normally open 常开", "trench 凹槽", "bottom rails 下方电源轨"],
-  "description": "【四脚按键的内部】\n常见的 6×6mm 轻触按键有 4 只脚，但电气上只有 2 个端子：\n• 1a 和 1b 内部永远相通（同一侧），2a 和 2b 也永远相通；\n• 按下时，1 侧和 2 侧接通；松开时断开（常开，normally open）。\n\n【为什么要横跨凹槽】\n把按键放在 e/f 两行、跨过中间凹槽：左边两只脚（e5、f5）在第 5 列，右边两只脚（e7、f7）在第 7 列。第 5 列是开关的一端、第 7 列是另一端，按下才接通。\n如果按键不跨凹槽、四只脚都插在 a–e 区，那么同一列上下两只脚本来就被金属条连着——要么开关永远是通的，要么完全没用。\n\n【本课电路】\n+5V → 按键 → 220Ω → LED → GND。按键放在凹槽上，所以电阻和 LED 接在下半区（f–j），GND 用下方蓝轨 bn。电源模块会同时给上下两组轨道供电，所以下方轨道也有电。\n\ntests 会分别检查：松开时 LED 灭，按下时 LED 亮。",
+  "summary": "开关就是电路里的一个缺口：松开时断开，按下时接通。先用万用表看它，再让它控制 LED。",
+  "concepts": [
+    "push button 按键",
+    "switch 开关",
+    "open / closed 断开 / 接通",
+    "floating 悬空"
+  ],
+  "description": "四脚按键横跨凹槽：同一侧的两只脚一直相通，按下时左右两侧才接通。电路：+5 V → 按键 → 220 Ω → 红色 LED → GND。松开时 LED 灭，按下时亮。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "按下去，看表",
+      "text": [
+        "先放一个按键，在它输出那一侧放上万用表的红表笔。**单击按键**按下、再单击松开，盯着读数。",
+        "松开和按下时，读数各是什么？"
+      ],
+      "steps": 4
+    },
+    {
+      "kind": "explain",
+      "title": "开关 = 能合上的缺口",
+      "text": [
+        "- 开关就是电路里一个**可以合上的缺口**。松开：缺口张开，没有电流（**断开**）；按下：缺口合上，像一根导线（**接通**）。",
+        "- 松开时，第 7 列什么都没连上，万用表显示**悬空**：它不是 0 V，只是没有确定的电压。",
+        "- 四脚按键横跨凹槽放：**同一列的上下两只脚本来就通**（第 5 列一对、第 7 列一对），按下时第 5 列和第 7 列才接通。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "让按键控制 LED",
+      "text": [
+        "在按键的输出（第 7 列下半段）后面接电阻和 LED，回到下方的 − 轨。"
+      ],
+      "steps": 3
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 开关**串**在要控制的那条路上：它断开，整条路就断了。",
+        "- 悬空的点不是 0 V。以后接单片机时，没接东西的输入脚会“乱读”，要用上拉、下拉电阻给它一个确定的电压（第 5 世界）。",
+        "- 真实按键按下的瞬间会**抖动**几毫秒（接通、断开好几次）。点灯看不出来，但单片机能数出好几次按下——这个以后再解决。"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Lesson 7 · Push buttons",
-      "summary": "Why does a four-leg push button have to straddle the trench in the middle?",
-      "concepts": ["push button", "normally open", "trench", "bottom rails"],
-      "description": "**Inside a four-leg push button**\nThe common 6×6mm tactile push button has 4 legs, but electrically only 2 terminals:\n• 1a and 1b are always connected inside (same side), and so are 2a and 2b;\n• when pressed, side 1 and side 2 are connected; when released they are disconnected (normally open).\n\n**Why it straddles the trench**\nPut the button on rows e/f, across the trench in the middle: the two left legs (e5, f5) are in column 5 and the two right legs (e7, f7) are in column 7. Column 5 is one end of the switch and column 7 is the other end; they only connect when the button is pressed.\nIf the button does not straddle the trench and all four legs are in the a–e area, the top and bottom legs in each column are already joined by the metal strip, so the switch is either always on or completely useless.\n\n**Circuit in this lesson**\n+5V → push button → 220Ω → LED → GND. The button sits across the trench, so the resistor and LED go in the bottom half (f–j), and GND uses the bottom blue rail bn. The power module powers both the top and bottom pairs of rails, so the bottom rails are live too.\n\nThe tests check both cases: button released → LED off, button pressed → LED on.",
+      "title": "Push buttons: a gap you can close",
+      "summary": "A switch is a gap in the circuit: open when released, closed when pressed. Watch it with the multimeter first, then let it control an LED.",
+      "concepts": [
+        "push button",
+        "switch",
+        "open / closed",
+        "floating"
+      ],
+      "description": "A four-pin push button straddles the trench: the two pins on the same side are always connected, and pressing joins the two sides. Circuit: +5 V → button → 220 Ω → red LED → GND. Released, the LED is off; pressed, it is on.",
       "steps": [
-        "Power module in column 1 (5V): all four rails, top and bottom, are powered.",
-        "Red jumper tp5 → a5: the top half of column 5 = +5V.",
-        "Place the push button at e5, straddling the trench: its four legs are in e5, e7, f5 and f7. Column 5 is the switch input and column 7 is the output.",
-        "The 220Ω resistor starts from the bottom half of column 7: h7 – h11.",
-        "LED long lead i11, short lead i14; blue jumper j14 → bn14 (bottom − rail).",
-        "Done! Click the button to try it: pressed → column 5 and column 7 connect → the LED lights."
+        "**Breadboard power module** in **`tp1`**, keep **5 V**: all four rails are powered.",
+        "Red **jumper** **`tp5`** → **`a5`**: the top half of column 5 = +5 V.",
+        "**Push button** at **`e5`**, across the trench: its four pins are in e5, e7, f5 and f7. Column 5 is the input, column 7 the output.",
+        "Pick **Multimeter** and put the red probe on **`h7`** (the lower half of the output column). Then **click the button** to press it, click again to release, and watch the reading.",
+        "**R1** (**`220 Ω`**) from the lower half of column 7: **`h7`** – **`h11`**.",
+        "**Red LED**: long lead **`i11`**, short lead **`i14`**; blue **jumper** **`j14`** → **`bn14`** (the lower − rail).",
+        "Click the button: pressed → LED on, released → off. Then press **Check my circuit**."
       ],
       "hints": [
-        "The button must straddle the trench in the middle (placed on row e); then the left and right columns are the two ends of the switch.",
-        "Inside the button, the top and bottom legs on the same side are always connected."
+        "The button straddles the trench in the middle, with its pins on both sides.",
+        "The output is column 7: the resistor starts from column 7, not column 5."
       ],
-      "tests": ["Button released: LED off", "Button pressed: LED on"]
+      "tests": [
+        "Button released: LED off",
+        "Button pressed: LED on"
+      ],
+      "cards": [
+        {
+          "title": "Press it and watch the meter",
+          "text": [
+            "Place a button and put the multimeter's red probe on its output side. **Click the button** to press it, click again to release, and watch the reading.",
+            "What does it read released, and what pressed?"
+          ]
+        },
+        {
+          "title": "A switch = a gap you can close",
+          "text": [
+            "- A switch is **a gap in the circuit that you can close**. Released, the gap is open and no current flows (**open**); pressed, it closes and acts like a wire (**closed**).",
+            "- Released, column 7 is connected to nothing, so the multimeter shows **floating**: not 0 V, just no defined voltage at all.",
+            "- A four-pin button straddles the trench: **the two pins in the same column are always connected** (a pair in column 5, a pair in column 7); pressing joins column 5 to column 7."
+          ]
+        },
+        {
+          "title": "Let the button control an LED",
+          "text": [
+            "After the button's output (the lower half of column 7) add the resistor and the LED, back to the lower − rail."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- A switch goes **in series** with what it controls: open the switch and the whole path is open.",
+            "- A floating point is not 0 V. Later, a microcontroller input left unconnected reads garbage; pull-up and pull-down resistors give it a defined voltage (World 5).",
+            "- A real button **bounces** for a few milliseconds when pressed (closing and opening several times). You cannot see it on an LED, but a microcontroller can count several presses — a problem for later."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "In step 4 (before the resistor), with the button released, what does the multimeter show on column 7?",
+          "choices": [
+            "Floating: nothing is connected to column 7, so it has no defined voltage",
+            "0 V",
+            "5 V"
+          ],
+          "explain": "With the button open, column 7 is cut off from the supply, and nothing else connects it to GND — so it floats."
+        },
+        {
+          "ask": "Press the button and click the LED: the current in Properties",
+          "explain": "(5 − 1.8) / (220 + 12) ≈ 13.8 mA. A closed button has almost no resistance."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 5 },
-    { "ref": "SW1", "type": "pushbutton" },
-    { "ref": "R1", "type": "resistor", "resistance": "220" },
-    { "ref": "LED1", "type": "led", "color": "red" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 5
+    },
+    {
+      "ref": "SW1",
+      "type": "pushbutton"
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    }
   ],
   "connections": [
-    ["V1.+", "SW1.1"],
-    ["SW1.2", "R1.1"],
-    ["R1.2", "LED1.anode"],
-    ["LED1.cathode", "V1.-"]
+    [
+      "V1.+",
+      "SW1.1"
+    ],
+    [
+      "SW1.2",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "LED1.cathode",
+      "V1.-"
+    ]
   ],
   "tests": [
-    { "name": "松开按键：LED 灭", "set": { "SW1": { "pressed": false } }, "expect": { "LED1": "off" } },
-    { "name": "按下按键：LED 亮", "set": { "SW1": { "pressed": true } }, "expect": { "LED1": "on" } }
+    {
+      "name": "松开按键：LED 灭",
+      "set": {
+        "SW1": {
+          "pressed": false
+        }
+      },
+      "expect": {
+        "LED1": "off"
+      }
+    },
+    {
+      "name": "按下按键：LED 亮",
+      "set": {
+        "SW1": {
+          "pressed": true
+        }
+      },
+      "expect": {
+        "LED1": "on"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "id": "open",
+      "ask": "在第 4 步（还没接电阻时），松开按键，万用表在第 7 列上显示什么？",
+      "choices": [
+        "悬空：第 7 列什么都没连，没有确定的电压",
+        "0 V",
+        "5 V"
+      ],
+      "correct": 0,
+      "explain": "按键断开时第 7 列和电源断开，又没有别的元件把它接到 GND，所以它是悬空的。"
+    },
+    {
+      "id": "iled",
+      "current": "LED1",
+      "unit": "mA",
+      "predict": true,
+      "set": {
+        "SW1": {
+          "pressed": true
+        }
+      },
+      "range": [
+        0.0125,
+        0.015
+      ],
+      "ask": "按下按键，单击 LED：「属性」里的电流",
+      "explain": "(5 − 1.8) / (220 + 12) ≈ 13.8 mA。按键接通时几乎没有电阻。"
+    }
   ],
   "steps": [
-    { "text": "电源模块插在第 1 列（5V），上下四条轨道都通电。", "highlight": ["tp1", "tn1", "bp1", "bn1"] },
-    { "text": "红色跳线 tp5 → a5：第 5 列上半段 = +5V。", "highlight": ["tp5", "a5"] },
-    { "text": "按键放在 e5，横跨凹槽：四只脚在 e5、e7、f5、f7。第 5 列是开关输入端，第 7 列是输出端。", "highlight": ["e5", "e7", "f5", "f7"] },
-    { "text": "220Ω 电阻从第 7 列下半段出发：h7 – h11。", "highlight": ["h7", "h11"] },
-    { "text": "LED 长脚 i11、短脚 i14；蓝色跳线 j14 → bn14（下方 − 轨）。", "highlight": ["i11", "i14", "j14", "bn14"] },
-    { "text": "完成！点击按键试试：按下 → 第 5 列和第 7 列接通 → LED 亮。", "highlight": ["e5", "e7"] }
+    {
+      "text": "**面包板电源模块**插 **`tp1`**，保持 **5 V**：上下四条轨都有电了。",
+      "highlight": [
+        "tp1",
+        "tn1",
+        "bp1",
+        "bn1"
+      ],
+      "check": [
+        {
+          "type": "power_module",
+          "at": "tp1",
+          "voltage": 5
+        }
+      ]
+    },
+    {
+      "text": "红色**跳线** **`tp5`** → **`a5`**：第 5 列上半段 = +5 V。",
+      "highlight": [
+        "tp5",
+        "a5"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "tp5",
+            "b": "a5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**按键**放在 **`e5`**，横跨凹槽：四只脚在 e5、e7、f5、f7。第 5 列是输入端，第 7 列是输出端。",
+      "highlight": [
+        "e5",
+        "e7",
+        "f5",
+        "f7"
+      ],
+      "check": [
+        {
+          "type": "pushbutton",
+          "at": "e5"
+        }
+      ]
+    },
+    {
+      "text": "选**「万用表」**，红表笔点 **`h7`**（输出端的下半段）。然后**单击按键**按下、再单击松开，看读数怎么变。",
+      "highlight": [
+        "h7"
+      ],
+      "check": [
+        {
+          "probe": {
+            "red": "h7"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**R1**（**`220 Ω`**）从第 7 列下半段出发：**`h7`** – **`h11`**。",
+      "highlight": [
+        "h7",
+        "h11"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "h7",
+            "2": "h11"
+          },
+          "resistance": "220"
+        }
+      ]
+    },
+    {
+      "text": "**红色 LED**：长脚 **`i11`**、短脚 **`i14`**；蓝色**跳线** **`j14`** → **`bn14`**（下方 − 轨）。",
+      "highlight": [
+        "i11",
+        "i14",
+        "j14",
+        "bn14"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "i11",
+            "cathode": "i14"
+          },
+          "color": "red"
+        },
+        {
+          "type": "wire",
+          "pins": {
+            "a": "j14",
+            "b": "bn14"
+          }
+        }
+      ]
+    },
+    {
+      "text": "单击按键试试：按下 → LED 亮，松开 → 灭。然后点**「检查我的电路」**。",
+      "highlight": []
+    }
   ],
   "hints": [
-    "按键要横跨中间凹槽（放在 e 行），左右两列才是开关的两端。",
-    "按键内部同一侧的上下两只脚永远相通。"
+    "按键要横跨中间的凹槽，四只脚分别在凹槽两边。",
+    "输出端是第 7 列：电阻要从第 7 列出发，而不是第 5 列。"
   ],
   "solution": {
     "parts": [
-      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
-      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
-      { "type": "pushbutton", "ref": "SW1", "at": "e5" },
-      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "h7", "2": "h11" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "i11", "cathode": "i14" } },
-      { "type": "wire", "pins": { "a": "j14", "b": "bn14" }, "color": "blue" }
+      {
+        "type": "power_module",
+        "ref": "PM1",
+        "voltage": 5,
+        "at": "tp1"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp5",
+          "b": "a5"
+        },
+        "color": "red"
+      },
+      {
+        "type": "pushbutton",
+        "ref": "SW1",
+        "at": "e5"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "220",
+        "pins": {
+          "1": "h7",
+          "2": "h11"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "i11",
+          "cathode": "i14"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "j14",
+          "b": "bn14"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

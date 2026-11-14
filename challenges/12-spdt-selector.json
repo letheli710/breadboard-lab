@@ -2,62 +2,306 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-spdt-selector",
-  "title": "挑战 4 · 拨动开关选红灯 / 绿灯",
+  "title": "拨动开关：红灯还是绿灯",
   "kind": "challenge",
   "level": 3,
-  "summary": "SPDT 开关拨到一边亮红灯，拨到另一边亮绿灯。",
-  "concepts": ["SPDT switch 单刀双掷开关", "com 公共端"],
-  "description": "单刀双掷（SPDT）拨动开关有 3 只脚：中间的 com 是公共端，拨杆在 a 侧时 com 接 a，在 b 侧时 com 接 b。\n\n要求：+5V 接开关的 com；a 脚 → 220Ω → 红色 LED → GND；b 脚 → 220Ω → 绿色 LED → GND。\n• 拨到 a：红灯亮、绿灯灭；\n• 拨到 b：绿灯亮、红灯灭。\n\n请把红灯接在 a 侧（开关最左边那只脚），绿灯接在 b 侧（最右边那只脚）。",
+  "summary": "单刀双掷开关拨到一边亮红灯，拨到另一边亮绿灯。",
+  "concepts": [
+    "SPDT 单刀双掷",
+    "common 公共端",
+    "switch 开关"
+  ],
+  "description": "单刀双掷（SPDT）拨动开关有 3 只脚：中间的 com 是公共端，拨杆在 a 侧时 com 接 a，在 b 侧时 com 接 b。+5 V 接 com；a → 220 Ω → 红色 LED → GND；b → 220 Ω → 绿色 LED → GND。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "二选一",
+      "text": [
+        "这一题没有步骤，**照目标电路图自己搭**。搭好后单击开关拨来拨去，看两颗灯。"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "一个刀，两个位置",
+      "text": [
+        "- SPDT = **单刀双掷**：一个“刀”（com），可以合到两个位置之一（a 或 b）。",
+        "- 拨到 a：com–a 接通，红灯那条路通；b 那条路断开。拨到 b 正好相反。",
+        "- 所以两条支路**永远只有一条通**，不会两颗同时亮。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "搭好再拨",
+      "text": [
+        "- 开关三只脚占三个相邻的列：**左 a、中 com、右 b**。+5 V 要接到**中间**那列。",
+        "- 红灯接 a 侧，绿灯接 b 侧，两颗 LED 的短脚都回到蓝轨。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 单刀单掷（SPST）只能通 / 断；单刀双掷（SPDT）是**二选一**。家里楼梯上下两个开关控制同一盏灯，用的就是两个 SPDT。",
+        "- 没被选中的那一边是**悬空**的。接单片机输入时要小心，后面会讲。"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Challenge 4 · Slide switch picks red / green",
-      "summary": "Flip the SPDT switch one way for the red LED and the other way for the green LED.",
-      "concepts": ["SPDT switch", "com (common terminal)"],
-      "description": "A single-pole double-throw (SPDT) slide switch has 3 pins: the middle one, com, is the common terminal. With the lever on the a side, com connects to a; on the b side, com connects to b.\n\nTask: +5V to the switch's com; pin a → 220Ω → red LED → GND; pin b → 220Ω → green LED → GND.\n• Flipped to a: red on, green off;\n• Flipped to b: green on, red off.\n\nConnect the red LED on the a side (the switch's leftmost pin) and the green LED on the b side (the rightmost pin).",
-      "hints": [
-        "The switch's three pins take up three neighbouring columns: a on the left, com in the middle, b on the right.",
-        "+5V must go to the middle column (com).",
-        "Both LED cathodes go back to the blue GND rail."
+      "title": "Toggle switch: red or green",
+      "summary": "Flip an SPDT switch one way for the red LED, the other way for the green one.",
+      "concepts": [
+        "SPDT",
+        "common",
+        "switch"
       ],
-      "tests": ["Flipped to a: red on, green off", "Flipped to b: green on, red off"]
+      "description": "A single-pole double-throw (SPDT) toggle switch has 3 pins: the middle one, com, is common; with the lever towards a, com connects to a, towards b, to b. +5 V to com; a → 220 Ω → red LED → GND; b → 220 Ω → green LED → GND.",
+      "hints": [
+        "The switch's three pins take three neighbouring columns: a left, com middle, b right.",
+        "+5 V goes to the middle column (com).",
+        "Both LEDs' cathodes go back to the GND blue rail."
+      ],
+      "tests": [
+        "Towards a: red on, green off",
+        "Towards b: green on, red off"
+      ],
+      "cards": [
+        {
+          "title": "Pick one of two",
+          "text": [
+            "No steps here — **build it from the target schematic**. Then click the switch back and forth and watch both LEDs."
+          ]
+        },
+        {
+          "title": "One pole, two throws",
+          "text": [
+            "- SPDT = **single pole, double throw**: one \"pole\" (com) that can connect to one of two positions (a or b).",
+            "- Towards a: com–a closes and the red LED's path conducts; the b path is open. Towards b, the other way round.",
+            "- So **only one branch conducts at a time** — both LEDs are never lit together."
+          ]
+        },
+        {
+          "title": "Build it, then flip it",
+          "text": [
+            "- The switch takes three neighbouring columns: **a on the left, com in the middle, b on the right**. +5 V goes to the **middle** column.",
+            "- Red LED on the a side, green on the b side; both short leads back to the blue rail."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- SPST only opens and closes; SPDT **chooses one of two**. Two SPDT switches let you control a stairway light from upstairs and downstairs.",
+            "- The side not selected is left **floating**. Mind that when it drives a microcontroller input — more on that later."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "Is there any position where both LEDs light at once?",
+          "choices": [
+            "No: com connects to only one of a and b at a time",
+            "Yes: in the middle position both sides connect"
+          ],
+          "explain": "An SPDT's pole has only two positions. A real switch even breaks one side before making the other while you flip it, so they never connect together."
+        },
+        {
+          "ask": "Switch towards a: measure the b pin's column relative to GND with the multimeter",
+          "explain": "The b pin is cut off from the supply but still connected to GND through R2 and the green LED; with no current through them it sits at 0 V (it is not floating)."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 5 },
-    { "ref": "S1", "type": "switch" },
-    { "ref": "R1", "type": "resistor", "resistance": "220" },
-    { "ref": "LED1", "type": "led", "color": "red" },
-    { "ref": "R2", "type": "resistor", "resistance": "220" },
-    { "ref": "LED2", "type": "led", "color": "green" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 5
+    },
+    {
+      "ref": "S1",
+      "type": "switch"
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED2",
+      "type": "led",
+      "color": "green"
+    }
   ],
   "connections": [
-    ["V1.+", "S1.com"],
-    ["S1.a", "R1.1"],
-    ["R1.2", "LED1.anode"],
-    ["S1.b", "R2.1"],
-    ["R2.2", "LED2.anode"],
-    ["LED1.cathode", "LED2.cathode", "V1.-"]
+    [
+      "V1.+",
+      "S1.com"
+    ],
+    [
+      "S1.a",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "S1.b",
+      "R2.1"
+    ],
+    [
+      "R2.2",
+      "LED2.anode"
+    ],
+    [
+      "LED1.cathode",
+      "LED2.cathode",
+      "V1.-"
+    ]
   ],
   "tests": [
-    { "name": "拨到 a：红亮绿灭", "set": { "S1": { "position": "a" } }, "expect": { "LED1": "on", "LED2": "off" } },
-    { "name": "拨到 b：绿亮红灭", "set": { "S1": { "position": "b" } }, "expect": { "LED1": "off", "LED2": "on" } }
+    {
+      "name": "拨到 a：红亮绿灭",
+      "set": {
+        "S1": {
+          "position": "a"
+        }
+      },
+      "expect": {
+        "LED1": "on",
+        "LED2": "off"
+      }
+    },
+    {
+      "name": "拨到 b：绿亮红灭",
+      "set": {
+        "S1": {
+          "position": "b"
+        }
+      },
+      "expect": {
+        "LED1": "off",
+        "LED2": "on"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "id": "which",
+      "ask": "有没有哪个位置能让两颗灯同时亮？",
+      "choices": [
+        "没有：com 同一时刻只接 a 或 b 中的一个",
+        "有：拨到中间时两边都接通"
+      ],
+      "correct": 0,
+      "explain": "SPDT 的刀只有两个位置。真实的开关在拨动的一瞬间两边都断开（“先断后合”），也不会同时接通。"
+    },
+    {
+      "id": "vb",
+      "voltage": "S1.b",
+      "unit": "V",
+      "set": {
+        "S1": {
+          "position": "a"
+        }
+      },
+      "range": [
+        -0.01,
+        0.01
+      ],
+      "ask": "拨到 a，用万用表量 b 脚那一列对 GND 的电压",
+      "tolAbs": 0.02,
+      "explain": "b 脚和电源断开了，但它还通过 R2 和绿色 LED 接着 GND，没有电流流过，所以是 0 V（不是悬空）。"
+    }
   ],
   "hints": [
     "开关三只脚占三个相邻的列：左 a、中 com、右 b。",
-    "+5V 要接到中间那一列（com）。",
+    "+5 V 要接到中间那一列（com）。",
     "两个 LED 的负极都回到 GND 蓝轨。"
   ],
   "solution": {
     "parts": [
-      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
-      { "type": "switch", "ref": "S1", "at": "c10" },
-      { "type": "wire", "pins": { "a": "tp11", "b": "a11" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "b10", "2": "b6" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c6", "cathode": "c3" } },
-      { "type": "wire", "pins": { "a": "a3", "b": "tn3" }, "color": "blue" },
-      { "type": "resistor", "ref": "R2", "resistance": "220", "pins": { "1": "b12", "2": "b16" } },
-      { "type": "led", "ref": "LED2", "color": "green", "pins": { "anode": "c16", "cathode": "c19" } },
-      { "type": "wire", "pins": { "a": "a19", "b": "tn19" }, "color": "blue" }
+      {
+        "type": "power_module",
+        "ref": "PM1",
+        "voltage": 5,
+        "at": "tp1"
+      },
+      {
+        "type": "switch",
+        "ref": "S1",
+        "at": "c10"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp11",
+          "b": "a11"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "220",
+        "pins": {
+          "1": "b10",
+          "2": "b6"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "c6",
+          "cathode": "c3"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a3",
+          "b": "tn3"
+        },
+        "color": "blue"
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "220",
+        "pins": {
+          "1": "b12",
+          "2": "b16"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED2",
+        "color": "green",
+        "pins": {
+          "anode": "c16",
+          "cathode": "c19"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a19",
+          "b": "tn19"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

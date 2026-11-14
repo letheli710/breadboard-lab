@@ -2,27 +2,91 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-kvl-loops",
-  "title": "实验 1-2 · 用万用表沿回路验证 KVL",
+  "title": "KVL：绕一圈，电压加起来是 0",
   "kind": "challenge",
   "level": 2,
   "phase": 1,
-  "summary": "一个电源、三个电阻和一颗 LED 组成三个回路：沿任意回路走一圈，电压加起来都等于 0。",
-  "concepts": ["KVL 基尔霍夫电压定律", "loop 回路", "multimeter 万用表", "voltage drop 电压降"],
-  "prereq": ["lesson-multimeter"],
-  "description": "**目标**：用万用表测量每个元件两端的电压，验证基尔霍夫电压定律（KVL）：沿任意闭合回路（loop）绕一圈，各段电压的代数和为 0。\n\n**电路**：+9V → R1（470Ω）→ 结点 M。从 M 到 GND 有两条路：\n- 红色 LED（长脚 anode 接 M，短脚接 GND）；\n- R2（1kΩ）→ 结点 X → R3（2.2kΩ）→ GND。\n\n**怎么测电压**：选“万用表”工具，点一个孔放红表笔，Shift + 点击另一个孔放黑表笔，读数 = V(红) − V(黑)。测元件电压时，红表笔放在它的一端，黑表笔放在另一端。\n\n**先预测**：电路里有三个闭合回路：① 电源 → R1 → LED；② LED 与 R2、R3 组成的回路（里面没有电源）；③ 电源 → R1 → R2 → R3。测量之前，先写出这三个回路的 KVL 方程，并想一想：LED 两端的电压会正好是 1.8 V 吗？\n\n**测量**：依次测电源、R1、LED、R2、R3 两端的电压，代入你写的三个方程检查。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**想一想**：KVL 对 LED 这种非线性元件同样成立：它只关心电压，不关心元件的伏安特性。第 ② 个回路说明：并联的两条支路两端电压一定相等。",
+  "summary": "一个电源、三个电阻和一颗 LED 组成三个回路：沿任意回路走一圈，电压的代数和都是 0。",
+  "concepts": [
+    "KVL 基尔霍夫电压定律",
+    "loop 回路",
+    "multimeter 万用表",
+    "voltage drop 电压降"
+  ],
+  "prereq": [
+    "lesson-multimeter"
+  ],
+  "description": "用万用表测量每个元件两端的电压，验证基尔霍夫电压定律（KVL）：沿任意闭合回路绕一圈，各段电压的代数和为 0。电路：+9 V → R1（470 Ω）→ 结点 M；M 到 GND 有两条路：红色 LED，以及 R2（1 kΩ）→ 结点 X → R3（2.2 kΩ）。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "找出三个圈",
+      "text": [
+        "先照目标电路图搭好：+9 V → **R1** → 结点 **M**；从 M 到 GND 有两条路——一颗 **LED**，以及 **R2 → X → R3**。",
+        "不急着量。用手指在图上找：从一个点出发、沿导线和元件走一圈回到原点，这样的**圈**有几个？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "KVL：上山的高度 = 下山的高度",
+      "text": [
+        "- 把电压想成**高度**。沿着一个圈走，经过电源是“上山”，经过电阻、LED 是“下山”。回到原点时，高度一定和出发时一样。",
+        "- 所以：**沿任何闭合回路，电压的代数和为 0**。这就是基尔霍夫电压定律（KVL）。",
+        "- 这里有三个圈：① 电源 → R1 → LED；② LED 和 R2、R3 组成的圈（里面**没有电源**）；③ 电源 → R1 → R2 → R3。",
+        "- 动手之前，先把三个圈的 KVL 方程写下来。想一想：LED 两端会正好是 1.8 V 吗？"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "量五段电压",
+      "text": [
+        "- 万用表红表笔点一个元件的一端，**Shift + 单击**把黑表笔放在另一端，读数 = V(红) − V(黑)。",
+        "- 依次量电源、R1、LED、R2、R3。电路检查通过后，把读数填进测量题，再代入你的三个方程。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- KVL 对 LED 这种**非线性**元件同样成立：它只管电压，不管元件的伏安特性。",
+        "- 回路 ② 说明：**并联的两条支路，两端电压一定相等**——这一点马上在并联里用到。",
+        "- 方程对不上时，先查两件事：表笔方向（读数的正负）、是不是量到了同一个元件的两端。"
+      ],
+      "practice": [
+        "basics"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Experiment 1-2 · Verify KVL around loops with a multimeter",
-      "summary": "One supply, three resistors and an LED form three loops: go around any loop and the voltages add up to 0.",
-      "concepts": ["KVL (Kirchhoff's voltage law)", "loop", "multimeter", "voltage drop"],
-      "description": "**Goal**: measure the voltage across every part with the multimeter and check Kirchhoff's voltage law (KVL): going once around any closed loop, the voltages add up (with signs) to 0.\n\n**Circuit**: +9V → R1 (470Ω) → node M. From M there are two paths to GND:\n- a red LED (long lead, anode, at M; short lead at GND);\n- R2 (1kΩ) → node X → R3 (2.2kΩ) → GND.\n\n**How to measure a voltage**: pick the \"Multimeter\" tool, click a hole for the red probe and Shift + click another hole for the black probe; the reading is V(red) − V(black). To measure a part, put the red probe on one of its ends and the black probe on the other.\n\n**Predict first**: the circuit has three closed loops: ① supply → R1 → LED; ② the loop made of the LED, R2 and R3 (it has no source); ③ supply → R1 → R2 → R3. Before measuring, write the KVL equation of each loop, and ask yourself: will the LED's voltage be exactly 1.8 V?\n\n**Measure**: measure the supply, R1, the LED, R2 and R3 in turn and put the readings into your three equations. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Think about it**: KVL holds for a non-linear part like the LED too: it only talks about voltages, not about how a part behaves. Loop ② shows that two branches in parallel always have the same voltage across them.",
+      "title": "KVL: around a loop, the voltages add up to 0",
+      "summary": "One source, three resistors and an LED make three loops: around any loop the voltages add up to zero.",
+      "concepts": [
+        "KVL (Kirchhoff's voltage law)",
+        "loop",
+        "multimeter",
+        "voltage drop"
+      ],
+      "description": "Measure the voltage across every part with the multimeter and verify Kirchhoff's voltage law (KVL): around any closed loop the voltages add up to zero. Circuit: +9 V → R1 (470 Ω) → node M; from M to GND there are two paths: a red LED, and R2 (1 kΩ) → node X → R3 (2.2 kΩ).",
       "compare": "**Compare** (simulator readings):\n- supply: 9.00 V\n- R1: ≈ 7.03 V (current ≈ 14.95 mA)\n- LED: ≈ 1.97 V (not 1.8 V: the LED model is 1.8 V plus 12Ω, and 14.3 mA × 12Ω ≈ 0.17 V)\n- R2: ≈ 0.62 V, R3: ≈ 1.36 V (only 0.62 mA flows in this branch)\n\nThe three loops: ① 9.00 = 7.03 + 1.97; ② 1.97 = 0.62 + 1.36, i.e. once around, 1.97 − 0.62 − 1.36 = 0; ③ 9.00 = 7.03 + 0.62 + 1.36. If an equation does not balance, check the probe direction (the sign of the reading) and that you measured across the two ends of the same part.",
       "measurements": [
-        {"ask": "Voltage across R1, V_R1 (red lead on R1's supply end, black lead on M)"},
-        {"ask": "Voltage across the LED, V_LED (red lead on the long leg)", "explain": "Not 1.8 V: the LED model is 1.8 V plus 12 Ω, and about 14.3 mA × 12 Ω ≈ 0.17 V."},
-        {"ask": "Voltage across R2, V_R2 (red lead on the M side)"},
-        {"ask": "Voltage across R3, V_R3 (red lead on the X side)"},
-        {"ask": "Loop ② (no source): with your own three readings, V_LED − V_R2 − V_R3 =", "explain": "Round a loop the voltages add up to 0 — KVL holds for a non-linear part like the LED too. The few millivolts left over come from the digits of the readings."}
+        {
+          "ask": "Voltage across R1, V_R1 (red lead on R1's supply end, black lead on M)"
+        },
+        {
+          "ask": "Voltage across the LED, V_LED (red lead on the long leg)",
+          "explain": "Not 1.8 V: the LED model is 1.8 V plus 12 Ω, and about 14.3 mA × 12 Ω ≈ 0.17 V."
+        },
+        {
+          "ask": "Voltage across R2, V_R2 (red lead on the M side)"
+        },
+        {
+          "ask": "Voltage across R3, V_R3 (red lead on the X side)"
+        },
+        {
+          "ask": "Loop ② (no source): with your own three readings, V_LED − V_R2 − V_R3 =",
+          "explain": "Round a loop the voltages add up to 0 — KVL holds for a non-linear part like the LED too. The few millivolts left over come from the digits of the readings."
+        }
       ],
       "hints": [
         "M is a node: one end of R1, the LED's long lead and one end of R2 must share a column (one metal strip).",
@@ -32,47 +96,207 @@
       "tests": [
         "LED on; loop 1: supply voltage = voltage across R1 + voltage across the LED",
         "Loop 2 (no source): the LED's voltage = R2's voltage + R3's voltage"
+      ],
+      "cards": [
+        {
+          "title": "Find the three loops",
+          "text": [
+            "Build it from the target schematic: +9 V → **R1** → node **M**; from M to GND there are two paths — an **LED**, and **R2 → X → R3**.",
+            "No measuring yet. With your finger on the drawing: starting at a point and following wires and parts back to the same point, how many such **loops** are there?"
+          ]
+        },
+        {
+          "title": "KVL: up the hill = down the hill",
+          "text": [
+            "- Think of voltage as **height**. Walking around a loop, a source takes you \"uphill\" and resistors and LEDs take you \"downhill\". Back at the start, you are at the same height you left.",
+            "- So: **around any closed loop the voltages add up to zero**. That is Kirchhoff's voltage law (KVL).",
+            "- There are three loops here: ① source → R1 → LED; ② the LED with R2 and R3 (**no source** in it); ③ source → R1 → R2 → R3.",
+            "- Before you measure, write the KVL equation of each loop. And think: will the LED show exactly 1.8 V?"
+          ]
+        },
+        {
+          "title": "Measure five voltages",
+          "text": [
+            "- Red probe on one end of a part, **Shift + click** to put the black probe on the other end; reading = V(red) − V(black).",
+            "- Measure the source, R1, the LED, R2 and R3. Once the circuit check passes, fill in the questions and plug the readings into your three equations."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- KVL holds for a **nonlinear** part like an LED too: it is only about voltages, not about the part's voltage–current curve.",
+            "- Loop ② says **two branches in parallel always have the same voltage across them** — you will use that right away in parallel circuits.",
+            "- If an equation doesn't add up, check two things first: the probe direction (the sign of the reading) and that you measured across the same part."
+          ]
+        }
       ]
     }
   },
   "components": [
-    {"ref": "V1", "type": "dc_source", "voltage": 9},
-    {"ref": "R1", "type": "resistor", "resistance": "470"},
-    {"ref": "LED1", "type": "led", "color": "red"},
-    {"ref": "R2", "type": "resistor", "resistance": "1k"},
-    {"ref": "R3", "type": "resistor", "resistance": "2.2k"}
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "470"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "R3",
+      "type": "resistor",
+      "resistance": "2.2k"
+    }
   ],
   "nets": [
-    {"name": "VCC", "pins": ["V1.+", "R1.1"]},
-    {"name": "M", "pins": ["R1.2", "LED1.anode", "R2.1"]},
-    {"name": "X", "pins": ["R2.2", "R3.1"]},
-    {"name": "GND", "pins": ["LED1.cathode", "R3.2", "V1.-"]}
+    {
+      "name": "VCC",
+      "pins": [
+        "V1.+",
+        "R1.1"
+      ]
+    },
+    {
+      "name": "M",
+      "pins": [
+        "R1.2",
+        "LED1.anode",
+        "R2.1"
+      ]
+    },
+    {
+      "name": "X",
+      "pins": [
+        "R2.2",
+        "R3.1"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "LED1.cathode",
+        "R3.2",
+        "V1.-"
+      ]
+    }
   ],
   "tests": [
     {
       "name": "LED 亮；回路 1：电源电压 = R1 上的电压 + LED 上的电压",
-      "expect": {"LED1": "on"},
+      "expect": {
+        "LED1": "on"
+      },
       "voltages": [
-        {"pin": "V1.+", "ref": "V1.-", "min": 8.85, "max": 9.05},
-        {"pin": "R1.1", "ref": "R1.2", "min": 6.9, "max": 7.3},
-        {"pin": "LED1.anode", "ref": "LED1.cathode", "min": 1.9, "max": 2.05}
+        {
+          "pin": "V1.+",
+          "ref": "V1.-",
+          "min": 8.85,
+          "max": 9.05
+        },
+        {
+          "pin": "R1.1",
+          "ref": "R1.2",
+          "min": 6.9,
+          "max": 7.3
+        },
+        {
+          "pin": "LED1.anode",
+          "ref": "LED1.cathode",
+          "min": 1.9,
+          "max": 2.05
+        }
       ]
     },
     {
       "name": "回路 2（无电源）：LED 上的电压 = R2 上的电压 + R3 上的电压",
       "voltages": [
-        {"pin": "R2.1", "ref": "R2.2", "min": 0.58, "max": 0.65},
-        {"pin": "R3.1", "ref": "R3.2", "min": 1.3, "max": 1.4}
+        {
+          "pin": "R2.1",
+          "ref": "R2.2",
+          "min": 0.58,
+          "max": 0.65
+        },
+        {
+          "pin": "R3.1",
+          "ref": "R3.2",
+          "min": 1.3,
+          "max": 1.4
+        }
       ]
     }
   ],
   "compare": "**对比**（模拟器读数）：\n- 电源：9.00 V\n- R1：≈ 7.03 V（电流 ≈ 14.95 mA）\n- LED：≈ 1.97 V（不是 1.8 V：LED 模型 = 1.8 V + 12Ω 内阻，14.3 mA × 12Ω ≈ 0.17 V）\n- R2：≈ 0.62 V，R3：≈ 1.36 V（这条支路电流只有 0.62 mA）\n\n三个回路：① 9.00 = 7.03 + 1.97；② 1.97 = 0.62 + 1.36，绕一圈 1.97 − 0.62 − 1.36 = 0；③ 9.00 = 7.03 + 0.62 + 1.36。方程对不上时，先检查表笔方向（读数的正负）和是不是量到了同一个元件的两端。",
   "measurements": [
-    {"id": "ur1", "voltage": "R1.1", "ref": "R1.2", "unit": "V", "predict": true, "range": [6.9, 7.3], "ask": "R1 两端的电压 V_R1（红表笔接 R1 靠电源的一端，黑表笔接 M）"},
-    {"id": "uled", "voltage": "LED1.anode", "ref": "LED1.cathode", "unit": "V", "predict": true, "range": [1.9, 2.05], "ask": "LED 两端的电压 V_LED（红表笔接长脚）", "explain": "不是 1.8 V：LED 模型是 1.8 V 加 12 Ω 内阻，约 14.3 mA × 12 Ω ≈ 0.17 V。"},
-    {"id": "ur2", "voltage": "R2.1", "ref": "R2.2", "unit": "V", "range": [0.58, 0.65], "ask": "R2 两端的电压 V_R2（红表笔在 M 一侧）"},
-    {"id": "ur3", "voltage": "R3.1", "ref": "R3.2", "unit": "V", "range": [1.3, 1.4], "ask": "R3 两端的电压 V_R3（红表笔在 X 一侧）"},
-    {"id": "loop2", "formula": "uled - ur2 - ur3", "unit": "V", "tolAbs": 0.005, "range": [-0.02, 0.02], "ask": "回路 ②（没有电源）：用你自己的三个读数算 V_LED − V_R2 − V_R3 =", "explain": "绕回路一圈，电压的代数和为 0——KVL 对 LED 这种非线性元件同样成立。剩下的几毫伏来自读数的位数。"}
+    {
+      "id": "ur1",
+      "voltage": "R1.1",
+      "ref": "R1.2",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        6.9,
+        7.3
+      ],
+      "ask": "R1 两端的电压 V_R1（红表笔接 R1 靠电源的一端，黑表笔接 M）"
+    },
+    {
+      "id": "uled",
+      "voltage": "LED1.anode",
+      "ref": "LED1.cathode",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        1.9,
+        2.05
+      ],
+      "ask": "LED 两端的电压 V_LED（红表笔接长脚）",
+      "explain": "不是 1.8 V：LED 模型是 1.8 V 加 12 Ω 内阻，约 14.3 mA × 12 Ω ≈ 0.17 V。"
+    },
+    {
+      "id": "ur2",
+      "voltage": "R2.1",
+      "ref": "R2.2",
+      "unit": "V",
+      "range": [
+        0.58,
+        0.65
+      ],
+      "ask": "R2 两端的电压 V_R2（红表笔在 M 一侧）"
+    },
+    {
+      "id": "ur3",
+      "voltage": "R3.1",
+      "ref": "R3.2",
+      "unit": "V",
+      "range": [
+        1.3,
+        1.4
+      ],
+      "ask": "R3 两端的电压 V_R3（红表笔在 X 一侧）"
+    },
+    {
+      "id": "loop2",
+      "formula": "uled - ur2 - ur3",
+      "unit": "V",
+      "tolAbs": 0.005,
+      "range": [
+        -0.02,
+        0.02
+      ],
+      "ask": "回路 ②（没有电源）：用你自己的三个读数算 V_LED − V_R2 − V_R3 =",
+      "explain": "绕回路一圈，电压的代数和为 0——KVL 对 LED 这种非线性元件同样成立。剩下的几毫伏来自读数的位数。"
+    }
   ],
   "hints": [
     "M 是一个结点：R1 的一端、LED 的长脚和 R2 的一端要在同一列（同一条金属条）。",
@@ -81,14 +305,76 @@
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
-      {"type": "resistor", "ref": "R1", "resistance": "470", "pins": {"1": "b3", "2": "b7"}},
-      {"type": "led", "ref": "LED1", "color": "red", "pins": {"anode": "c7", "cathode": "c10"}},
-      {"type": "wire", "pins": {"a": "a10", "b": "tn10"}, "color": "blue"},
-      {"type": "resistor", "ref": "R2", "resistance": "1k", "pins": {"1": "d7", "2": "d13"}},
-      {"type": "resistor", "ref": "R3", "resistance": "2.2k", "pins": {"1": "c13", "2": "c18"}},
-      {"type": "wire", "pins": {"a": "a18", "b": "tn18"}, "color": "blue"}
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "470",
+        "pins": {
+          "1": "b3",
+          "2": "b7"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "c7",
+          "cathode": "c10"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a10",
+          "b": "tn10"
+        },
+        "color": "blue"
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "1k",
+        "pins": {
+          "1": "d7",
+          "2": "d13"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R3",
+        "resistance": "2.2k",
+        "pins": {
+          "1": "c13",
+          "2": "c18"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a18",
+          "b": "tn18"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

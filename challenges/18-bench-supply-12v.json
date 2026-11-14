@@ -2,59 +2,260 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-bench-supply",
-  "title": "挑战 10 · 稳压电源 12V 点亮两颗白光 LED",
+  "title": "稳压电源 12 V 点亮两颗白光 LED",
   "kind": "challenge",
   "level": 3,
-  "summary": "把实验室电源调到 12V、限流 50mA，串联点亮两颗白光 LED。",
-  "concepts": ["bench supply 稳压电源", "CV / CC mode", "current limit 限流", "white LED Vf ≈ 3.0V"],
-  "prereq": ["lesson-bench-supply"],
-  "description": "实验室直流稳压电源（bench supply）可以设定电压和限流（current limit）。电路正常时它工作在 CV（恒压）模式；如果接错导致电流超过限流值，它会进入 CC（恒流）模式，电压自动下降来保护电路。\n\n要求：稳压电源 12V（限流设 50mA 作为保护），+12V → 330Ω → 白光 LED1 → 白光 LED2 → GND。\n计算：两颗白光 LED 共 6.0V，电阻上 6V，粗算 I ≈ 6 / 330 ≈ 18mA；再算上两颗 LED 各约 12Ω 的内阻（第 3 课讲过），实际约 6 / (330 + 24) ≈ 17mA。远低于 50mA 限流，所以电源保持 CV 模式，输出稳稳的 12V。\n\n想一想：如果不小心把电阻短路了（比如它两只脚插在同一列），电路里只剩两颗 LED 和它们的内阻（12 + 12 = 24Ω）：\n- 没有限流时，电流会冲到 (12 − 6) / 24 ≈ 250mA，两颗 LED 都会烧坏。\n- 限流设为 50mA 时，电源进入 CC 模式，把电流卡在 50mA，输出电压从 12V 降到约 7.2V。50mA 对 LED 来说仍然偏大，但不会烧掉——这就是限流保护，也是为什么做实验时限流要设小一点。",
+  "summary": "把稳压电源调到 12 V、限流 50 mA，串联点亮两颗白光 LED；再想想电阻短路时限流怎么救场。",
+  "concepts": [
+    "bench supply 稳压电源",
+    "current limit 限流",
+    "series LEDs 串联 LED"
+  ],
+  "prereq": [
+    "lesson-bench-supply"
+  ],
+  "description": "稳压电源 12 V（限流 50 mA 作保护）：+12 V → 330 Ω → 白光 LED1 → 白光 LED2 → GND。两颗白光 LED 共约 6 V，电阻上约 6 V，电流远低于限流值，所以电源保持 CV。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "12 V 和两颗白灯",
+      "text": [
+        "这一题没有步骤，**照目标电路图自己搭**。先选「直流稳压电源」，在「属性」里设 **12 V**、限流 **0.05 A**。"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "为什么限流设 50 mA",
+      "text": [
+        "- 两颗白光 LED 各约 3 V，共 6 V；电阻上 $12 - 6 = 6$ V，$I \\approx \\frac{6}{330} \\approx 18$ mA（算上两颗 LED 的小电阻，再稍小一点）。远低于 50 mA，电源一直是 **CV**。",
+        "- 万一电阻被短路（比如两只脚插进了同一列）：只剩两颗 LED，电流会冲到几百毫安，两颗都烧。",
+        "- 有了 50 mA 限流：电源进入 **CC**，把电流卡在 50 mA，电压自己降下来。50 mA 对 LED 仍然偏大，但不会立刻烧掉——这就是限流保护。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "搭好，看电源屏幕",
+      "text": [
+        "- 红色鳄鱼夹（+）接红轨，黑色（COM）接蓝轨。",
+        "- 两颗 LED 串联：LED1 的短脚和 LED2 的长脚在同一列。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 稳压电源 + 合理的限流 = 调试时的安全网。",
+        "- 12 V 串两颗白光 LED 留了 6 V 给电阻：余量足，电流稳。想串三颗，余量就只剩约 3 V 了。"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Challenge 10 · 12V bench supply lights two white LEDs",
-      "summary": "Set the lab supply to 12V with a 50mA current limit and light two white LEDs in series.",
-      "concepts": ["bench supply", "CV / CC mode", "current limit", "white LED Vf ≈ 3.0V"],
-      "description": "A lab DC bench power supply lets you set both a voltage and a current limit. When the circuit is working normally it runs in CV (constant voltage) mode; if a wiring mistake makes the current exceed the limit, it enters CC (constant current) mode and automatically lowers the voltage to protect the circuit.\n\nTask: bench supply at 12V (current limit 50mA as protection), +12V → 330Ω → white LED1 → white LED2 → GND.\nCalculation: the two white LEDs take 6.0V together, leaving 6V across the resistor, so the quick estimate is I ≈ 6 / 330 ≈ 18mA. Adding the two LEDs' internal resistance of about 12Ω each (see Lesson 3), the actual current is about 6 / (330 + 24) ≈ 17mA. That is well below the 50mA limit, so the supply stays in CV mode with a steady 12V output.\n\nThink about it: if the resistor gets shorted out by accident (for example, both its leads in the same column), only the two LEDs and their internal resistance (12 + 12 = 24Ω) are left:\n- With no current limit, the current would rush up to (12 − 6) / 24 ≈ 250mA and both LEDs would burn out.\n- With the limit at 50mA, the supply switches to CC mode, holds the current at 50mA and its output drops from 12V to about 7.2V. 50mA is still too much for an LED, but it won't burn out. That is current-limit protection, and why you should set a low limit when experimenting.",
-      "hints": [
-        "Select the bench supply, set its voltage to 12V and its current limit to 0.05A.",
-        "Red alligator clip (+) to the red rail, black (COM) to the blue rail.",
-        "The two LEDs are in series: LED1's short lead and LED2's long lead go in the same column."
+      "title": "Bench supply at 12 V, two white LEDs",
+      "summary": "Set the bench supply to 12 V with a 50 mA limit and light two white LEDs in series; then think about how the limit saves you if the resistor gets shorted.",
+      "concepts": [
+        "bench supply",
+        "current limit",
+        "LEDs in series"
       ],
-      "tests": ["Both white LEDs on, supply holds 12V (CV mode)"]
+      "description": "Bench supply at 12 V (50 mA limit as protection): +12 V → 330 Ω → white LED1 → white LED2 → GND. The two white LEDs drop about 6 V together and the resistor about 6 V; the current stays far below the limit, so the supply stays in CV.",
+      "hints": [
+        "Click the bench supply and set 12 V and a 0.05 A limit.",
+        "Red alligator clip (+) to the red rail, black (COM) to the blue rail.",
+        "Two LEDs in series: LED1's short lead and LED2's long lead in the same column."
+      ],
+      "tests": [
+        "Two white LEDs on, supply holds 12 V (CV mode)"
+      ],
+      "cards": [
+        {
+          "title": "12 V and two white LEDs",
+          "text": [
+            "No steps here — **build it from the target schematic**. Pick Bench power supply and set **12 V** and a **0.05 A** limit in Properties."
+          ]
+        },
+        {
+          "title": "Why a 50 mA limit",
+          "text": [
+            "- Two white LEDs at about 3 V each make 6 V; the resistor gets $12 - 6 = 6$ V, $I \\approx \\frac{6}{330} \\approx 18$ mA (a bit less with the LEDs' small resistances). Far below 50 mA, so the supply stays in **CV**.",
+            "- If the resistor were shorted (say both legs in the same column), only the two LEDs would be left and the current would jump to hundreds of milliamps — both LEDs gone.",
+            "- With a 50 mA limit the supply goes into **CC**, holds the current at 50 mA and lets its voltage drop. 50 mA is still a lot for an LED, but not instant death — that is current-limit protection."
+          ]
+        },
+        {
+          "title": "Build it, watch the display",
+          "text": [
+            "- Red alligator clip (+) to the red rail, black (COM) to the blue rail.",
+            "- The two LEDs in series: LED1's short lead and LED2's long lead share a column."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- A bench supply with a sensible current limit is a safety net while debugging.",
+            "- Two white LEDs on 12 V leave 6 V for the resistor: plenty of headroom, a steady current. Three in series would leave only about 3 V."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "The current on the supply's display",
+          "explain": "(12 − 6) / (330 + 12 + 12) ≈ 17 mA."
+        },
+        {
+          "ask": "If R1 were shorted, what would the supply with a 50 mA limit do?",
+          "choices": [
+            "Go into CC, hold the current at 50 mA and let its voltage drop",
+            "Stay at 12 V while the current jumps to hundreds of mA",
+            "Switch itself off"
+          ],
+          "explain": "The load wants more than the limit, so the supply holds the current: 50 mA, with the voltage down to what two LEDs drop at 50 mA — a little over 7 V."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "PSU1", "type": "bench_supply", "voltage": 12 },
-    { "ref": "R1", "type": "resistor", "resistance": "330" },
-    { "ref": "LED1", "type": "led", "color": "white" },
-    { "ref": "LED2", "type": "led", "color": "white" }
+    {
+      "ref": "PSU1",
+      "type": "bench_supply",
+      "voltage": 12
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "330"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "white"
+    },
+    {
+      "ref": "LED2",
+      "type": "led",
+      "color": "white"
+    }
   ],
   "connections": [
-    ["PSU1.+", "R1.1"],
-    ["R1.2", "LED1.anode"],
-    ["LED1.cathode", "LED2.anode"],
-    ["LED2.cathode", "PSU1.-"]
+    [
+      "PSU1.+",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "LED1.cathode",
+      "LED2.anode"
+    ],
+    [
+      "LED2.cathode",
+      "PSU1.-"
+    ]
   ],
   "tests": [
     {
-      "name": "两颗白光 LED 亮，电源保持 12V（CV 模式）",
-      "expect": { "LED1": "on", "LED2": "on" },
-      "voltages": [{ "pin": "PSU1.+", "ref": "PSU1.-", "min": 11.9, "max": 12.05 }]
+      "name": "两颗白光 LED 亮，电源保持 12 V（CV 模式）",
+      "expect": {
+        "LED1": "on",
+        "LED2": "on"
+      },
+      "voltages": [
+        {
+          "pin": "PSU1.+",
+          "ref": "PSU1.-",
+          "min": 11.9,
+          "max": 12.05
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "i",
+      "current": "R1",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0155,
+        0.0185
+      ],
+      "ask": "电源屏幕上显示的电流",
+      "explain": "(12 − 6) / (330 + 12 + 12) ≈ 17 mA。"
+    },
+    {
+      "id": "short",
+      "ask": "如果 R1 被短路，限流 50 mA 的电源会怎样？",
+      "choices": [
+        "进入 CC，把电流卡在 50 mA，输出电压降下来",
+        "保持 12 V，电流冲到几百毫安",
+        "自动关机"
+      ],
+      "correct": 0,
+      "explain": "负载想要的电流超过限流值，电源就进入恒流：电流 = 50 mA，电压降到两颗 LED 在 50 mA 时的压降，大约 7 V 多。"
     }
   ],
   "hints": [
-    "选中稳压电源，把电压设为 12V，限流设为 0.05A。",
+    "选中稳压电源，把电压设为 12 V，限流设为 0.05 A。",
     "红色鳄鱼夹（+）接红轨，黑色（COM）接蓝轨。",
     "两颗 LED 串联：LED1 的短脚和 LED2 的长脚在同一列。"
   ],
   "solution": {
     "parts": [
-      { "type": "bench_supply", "ref": "PSU1", "voltage": 12, "currentLimit": 0.05, "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "330", "pins": { "1": "b3", "2": "b7" } },
-      { "type": "led", "ref": "LED1", "color": "white", "pins": { "anode": "c7", "cathode": "c10" } },
-      { "type": "led", "ref": "LED2", "color": "white", "pins": { "anode": "d10", "cathode": "d13" } },
-      { "type": "wire", "pins": { "a": "a13", "b": "tn13" }, "color": "blue" }
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 12,
+        "currentLimit": 0.05,
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "330",
+        "pins": {
+          "1": "b3",
+          "2": "b7"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "white",
+        "pins": {
+          "anode": "c7",
+          "cathode": "c10"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED2",
+        "color": "white",
+        "pins": {
+          "anode": "d10",
+          "cathode": "d13"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a13",
+          "b": "tn13"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

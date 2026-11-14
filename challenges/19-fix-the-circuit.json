@@ -2,57 +2,264 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-fix-the-circuit",
-  "title": "挑战 11 · 找错：这个 LED 为什么不亮？",
+  "title": "排错：这颗 LED 为什么不亮？",
   "kind": "challenge",
   "level": 2,
-  "summary": "面包板上已经有一个搭错的电路，找出所有问题并修好它。",
-  "concepts": ["debugging 排错", "polarity 极性", "return path 回路", "shorted resistor 电阻被短路"],
-  "description": "同学搭了一个最简单的 LED 电路（+9V → 470Ω → 红色 LED → GND），但 LED 不亮。面包板上的电路已经摆好了，里面有 3 处错误。\n\n排错（debugging）的好习惯：\n1. 先找电源：+ 和 − 是不是接到了正确的轨道？\n2. 沿着电流的路径走一遍：从 + 出发，每经过一个元件，确认它的两只脚在两条不同的金属条上；\n3. 检查有极性的元件（LED、二极管、电源）方向对不对；\n4. 最后确认电流能回到 −（GND）。\n\n修好后 LED 应该亮。",
+  "summary": "面包板上已经有一个搭错的电路，里面藏着 3 处错误。按顺序查，把它修好。",
+  "concepts": [
+    "debugging 排错",
+    "node 结点",
+    "polarity 极性",
+    "return path 回路"
+  ],
+  "description": "一个最简单的 LED 电路（+9 V → 470 Ω → 红色 LED → GND），但 LED 不亮，面包板上的电路里有 3 处错误。按“电源 → 沿电流路径走一遍 → 极性 → 回路”的顺序查找并修好。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "它不亮",
+      "text": [
+        "面包板上已经摆好了一个电路，**LED 不亮**。先别急着拔元件，看一看、摸一摸（把鼠标停在孔上，看哪些孔相通）。",
+        "你能找到几处不对？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "排错四步",
+      "text": [
+        "1. **先看电源**：+ 和 − 是不是接到了正确的轨道？",
+        "2. **沿着电流的路走一遍**：从 + 出发，每经过一个元件，确认它的两只脚在**两条不同的金属条**上。",
+        "3. **查有极性的元件**：LED、二极管、电源的方向对不对？",
+        "4. **确认能回家**：电流最后能不能回到 −（GND）？",
+        "",
+        "小技巧：打开工具栏的**结点着色**——同一颜色就是同一个结点。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "一处一处修",
+      "text": [
+        "- 每修好一处，看看诊断有没有变化。",
+        "- 三处都修好，LED 就会亮。然后点「检查我的电路」。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 排错要**有顺序**：电源 → 路径 → 极性 → 回路。乱拔乱插只会制造新问题。",
+        "- 有了万用表，还可以一列一列量结点电压：电压在哪里“断崖式”变化，问题就在哪里。",
+        "- 这三种错误（脚插在同一列、LED 插反、没接回 GND）是新手最常见的三种，以后自己搭电路时先查它们。"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Challenge 11 · Find the faults: why won't this LED light?",
-      "summary": "A miswired circuit is already on the breadboard. Find every problem and fix it.",
-      "concepts": ["debugging", "polarity", "return path", "shorted resistor"],
-      "description": "A classmate built the simplest possible LED circuit (+9V → 470Ω → red LED → GND), but the LED doesn't light. The circuit is already on the breadboard, and it contains 3 mistakes.\n\nGood debugging habits:\n1. Start with the power: are + and − connected to the right rails?\n2. Follow the path of the current: starting from +, check at every part that its two leads are on two different metal strips;\n3. Check that polarized parts (LEDs, diodes, power sources) face the right way;\n4. Finally, make sure the current can get back to − (GND).\n\nOnce it is fixed, the LED should light.",
-      "hints": [
-        "Don't pull parts out yet. Turn on node colouring (same colour = same node) and walk the current path from +9V: does every part have its two leads on two different colours?",
-        "Next check the polarised part: the LED's long lead (anode) should face the side the current comes from. Finally make sure the current can get from after the LED all the way back to the blue − rail.",
-        "Still missing one? The three faults are in: where the resistor's two leads sit, which way round the LED is, and the link from the LED's cathode column to GND."
+      "title": "Fault-finding: why won't this LED light?",
+      "summary": "A broken circuit is already on the board with 3 faults hidden in it. Check in order and fix it.",
+      "concepts": [
+        "debugging",
+        "node",
+        "polarity",
+        "return path"
       ],
-      "tests": ["LED on"]
+      "description": "The simplest LED circuit (+9 V → 470 Ω → red LED → GND), but the LED stays dark: the circuit on the board has 3 faults. Find and fix them in the order supply → walk the current path → polarity → way home.",
+      "hints": [
+        "Don't pull anything yet. Turn on node colours (one colour = one node) and walk the current path from +9 V: does every part have its two legs on two different colours?",
+        "Then the polarised part: the LED's long lead (anode) should face where the current comes from. Finally check that the current can get from the LED all the way back to the blue − rail.",
+        "Still missing some? The three faults are: where the resistor's legs are, which way the LED points, and the connection from the LED's cathode column to GND."
+      ],
+      "tests": [
+        "LED on"
+      ],
+      "cards": [
+        {
+          "title": "It won't light",
+          "text": [
+            "A circuit is already on the board and **the LED is dark**. Don't start pulling parts yet — look first (hover over holes to see which ones are connected).",
+            "How many problems can you spot?"
+          ]
+        },
+        {
+          "title": "Four steps of fault-finding",
+          "text": [
+            "1. **Supply first**: are + and − on the right rails?",
+            "2. **Walk the current path**: start at + and, at every part, check that its two legs sit on **two different metal strips**.",
+            "3. **Check polarised parts**: are the LEDs, diodes and supplies the right way round?",
+            "4. **Make sure it gets home**: can the current get back to − (GND)?",
+            "",
+            "Tip: turn on **Node colours** in the toolbar — one colour is one node."
+          ]
+        },
+        {
+          "title": "Fix them one at a time",
+          "text": [
+            "- After each fix, see whether the diagnostics change.",
+            "- With all three fixed the LED lights. Then press Check my circuit."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- Fault-finding needs **an order**: supply → path → polarity → way home. Random plugging and unplugging only makes new problems.",
+            "- With the multimeter you can also measure node voltages column by column: where the voltage falls off a cliff is where the problem is.",
+            "- These three faults (both legs in one column, an LED backwards, no way back to GND) are the three most common beginner mistakes — check for them first in your own circuits."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "The three faults you fixed were:",
+          "choices": [
+            "The resistor's legs in one column (shorted), the LED backwards, the LED's cathode not connected back to GND",
+            "The battery backwards, the wrong resistor value, the wrong LED colour",
+            "A jumper too long, the LED too dim, a flat battery"
+          ],
+          "explain": "The resistor sat in b5 and d5 (one column, shorted by the strip); the LED's long lead faced the GND side; the LED's cathode column had no jumper back to the − rail."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 9 },
-    { "ref": "R1", "type": "resistor", "resistance": "470" },
-    { "ref": "LED1", "type": "led", "color": "red" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "470"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    }
   ],
   "connections": [
-    ["V1.+", "R1.1"],
-    ["R1.2", "LED1.anode"],
-    ["LED1.cathode", "V1.-"]
+    [
+      "V1.+",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "LED1.cathode",
+      "V1.-"
+    ]
   ],
-  "tests": [{ "name": "LED 亮", "expect": { "LED1": "on" } }],
+  "tests": [
+    {
+      "name": "LED 亮",
+      "expect": {
+        "LED1": "on"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "id": "faults",
+      "ask": "你修好的三处错误是：",
+      "choices": [
+        "电阻两只脚在同一列（被短路）、LED 插反了、LED 负极没有接回 GND",
+        "电池接反了、电阻阻值错了、LED 颜色错了",
+        "跳线太长、LED 太暗、电池没电"
+      ],
+      "correct": 0,
+      "explain": "电阻插在 b5、d5（同一列，被金属条短路）；LED 长脚朝向了 GND 那边；LED 负极那一列没有跳线回到 − 轨。"
+    }
+  ],
   "hints": [
-    "先不要急着拔元件。打开结点着色（同一颜色 = 同一结点），从 +9V 出发沿电流的路径走一遍：每个元件的两只脚是不是落在两种不同的颜色上？",
+    "先不要急着拔元件。打开结点着色（同一颜色 = 同一结点），从 +9 V 出发沿电流的路径走一遍：每个元件的两只脚是不是落在两种不同的颜色上？",
     "再看有极性的元件：LED 的长脚（阳极）应该朝向电流流来的一侧。最后确认电流能从 LED 之后一路回到蓝色 − 轨。",
     "还没找全？三处错误分别在：电阻两只脚的位置、LED 的方向、LED 负极那一列到 GND 的连接。"
   ],
   "start": {
     "parts": [
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "470", "pins": { "1": "b5", "2": "d5" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c12", "cathode": "c9" } }
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp5",
+          "b": "a5"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "470",
+        "pins": {
+          "1": "b5",
+          "2": "d5"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "c12",
+          "cathode": "c9"
+        }
+      }
     ]
   },
   "solution": {
     "parts": [
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "470", "pins": { "1": "b5", "2": "b9" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c9", "cathode": "c12" } },
-      { "type": "wire", "pins": { "a": "a12", "b": "tn12" }, "color": "blue" }
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp5",
+          "b": "a5"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "470",
+        "pins": {
+          "1": "b5",
+          "2": "b9"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "c9",
+          "cathode": "c12"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a12",
+          "b": "tn12"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

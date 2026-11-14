@@ -2,69 +2,416 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-series",
-  "title": "第 5 课 · 串联（series）",
+  "title": "串联：只有一条路",
   "kind": "lesson",
   "level": 2,
-  "summary": "首尾相接：电流相同，电压相加，电阻相加。",
-  "concepts": ["series 串联", "R_total = R1 + R2", "voltage drop 压降", "KVL 基尔霍夫电压定律"],
-  "description": "【什么是串联】\n元件首尾相接、中间没有分岔，电流只有一条路可走，这就叫串联（series）。在面包板上：R1 的第二只脚和 R2 的第一只脚在同一条金属条上，而且这条金属条上没有接别的东西。\n\n【串联的三条规律】\n1. 电流处处相同：流过 R1、R2、LED 的电流是同一个 I。\n2. 电阻相加：R_total = R1 + R2 = 220 + 220 = 440Ω。\n3. 电压相加（KVL）：V电源 = V_R1 + V_R2 + V_LED。每个元件“分走”一部分电压。\n\n【算一算】\nI ≈ (9 − 1.8) / 440 ≈ 16mA；每个 220Ω 电阻上的压降 V = I × R ≈ 3.5V。tests 会用电压表检查这两个值。\n\n用两个电阻串联，可以凑出手头没有的阻值（比如两个 220Ω 当 440Ω 用）。",
-  "i18n": {
-    "en": {
-      "title": "Lesson 5 · Series circuits",
-      "summary": "End to end: same current, voltages add up, resistances add up.",
-      "concepts": ["series", "R_total = R1 + R2", "voltage drop", "KVL (Kirchhoff's voltage law)"],
-      "description": "**What \"series\" means**\nWhen parts are connected end to end with no branches in between, the current has only one path to take. That is a series connection. On the breadboard: R1's second lead and R2's first lead are on the same metal strip, and nothing else is plugged into that strip.\n\n**Three rules of series circuits**\n1. The current is the same everywhere: the same current I flows through R1, R2 and the LED.\n2. Resistances add up: R_total = R1 + R2 = 220 + 220 = 440Ω.\n3. Voltages add up (KVL): V_supply = V_R1 + V_R2 + V_LED. Each part \"takes\" a share of the voltage.\n\n**Do the math**\nI ≈ (9 − 1.8) / 440 ≈ 16mA; the voltage drop across each 220Ω resistor is V = I × R ≈ 3.5V. The tests use a voltmeter to check both values.\n\nPutting two resistors in series lets you make a value you don't have on hand (for example two 220Ω resistors used as 440Ω).",
-      "steps": [
-        "Battery + to tp1, − to tn1; red jumper tp3 → a3.",
-        "R1 goes in b3 – b7.",
-        "R2 goes in c7 – c11: its first lead and R1's second lead are both in column 7, connected end to end.",
-        "Red LED: long lead in d11, short lead in d14.",
-        "Blue jumper a14 → tn14 back to GND. There is only one path: + → R1 → R2 → LED → GND."
-      ],
-      "hints": [
-        "The series connection point (column 7) may only hold the two leads of R1 and R2; nothing else can connect there."
-      ],
-      "tests": ["LED on; R1 and R2 each get about 3.5V"]
-    }
-  },
-  "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 9 },
-    { "ref": "R1", "type": "resistor", "resistance": "220" },
-    { "ref": "R2", "type": "resistor", "resistance": "220" },
-    { "ref": "LED1", "type": "led", "color": "red" }
+  "summary": "两个电阻首尾相接：电流只有一条路可走，电压被它们分掉。",
+  "concepts": [
+    "series 串联",
+    "equivalent resistance 等效电阻",
+    "voltage division 分压",
+    "KVL"
   ],
-  "connections": [
-    ["V1.+", "R1.1"],
-    ["R1.2", "R2.1"],
-    ["R2.2", "LED1.anode"],
-    ["LED1.cathode", "V1.-"]
-  ],
-  "tests": [
+  "description": "串联就是元件首尾相接、只有一条电流路径：每个元件的电流相同，总电阻是各电阻之和，电源电压按电阻的比例分到各个元件上。电路：9 V → R1（220 Ω）→ R2（220 Ω）→ 红色 LED → GND。",
+  "cards": [
     {
-      "name": "LED 亮；R1、R2 各分到约 3.5V",
-      "expect": { "LED1": "on" },
-      "voltages": [
-        { "pin": "R1.1", "ref": "R1.2", "min": 3.2, "max": 3.8 },
-        { "pin": "R2.1", "ref": "R2.2", "min": 3.2, "max": 3.8 }
+      "kind": "try",
+      "title": "先猜：电流会变大还是变小？",
+      "text": [
+        "先只放电源和两个电阻，**首尾相接**。",
+        "猜一下：和只用一个 220 Ω 相比，两个串起来以后，LED 的电流会变大、变小，还是不变？把你的猜测记在心里。"
+      ],
+      "steps": 4
+    },
+    {
+      "kind": "explain",
+      "title": "一条路，同一个电流",
+      "text": [
+        "- **串联 = 只有一条路。** 电流从 + 出发，必须依次穿过 R1、R2、LED，没有岔路，所以**流过每个元件的电流都一样**。",
+        "- 电阻串联，总电阻**相加**：$R_{eq} = R_1 + R_2$。路越长越难走，电流变小。",
+        "- 电压按电阻的比例**分**掉：两个一样的电阻，各分到一样多。所有元件的电压加起来正好等于电源电压——这就是 **KVL**（基尔霍夫电压定律）。",
+        "$$I = \\frac{V_s - V_f}{R_1 + R_2}$$"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "接上 LED，量一量",
+      "text": [
+        "把 LED 和回到 GND 的跳线接上，然后用万用表分别量 R1、R2、LED 两端的电压。"
+      ],
+      "steps": 3
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 串联：**电流处处相同**，**电阻相加**，**电压按比例分**。",
+        "- 用两个电阻串联，可以凑出手边没有的阻值：220 Ω + 220 Ω = 440 Ω。",
+        "- 串联电路的缺点：一个元件断了，整条路都断——老式圣诞灯串一颗坏了全串都灭，就是这个原因。"
+      ],
+      "practice": [
+        "basics",
+        "equivalence"
       ]
     }
   ],
-  "steps": [
-    { "text": "电池 + 接 tp1，− 接 tn1；红色跳线 tp3 → a3。", "highlight": ["tp1", "tn1", "tp3", "a3"] },
-    { "text": "R1 插 b3 – b7。", "highlight": ["b3", "b7"] },
-    { "text": "R2 插 c7 – c11：它的第一只脚和 R1 的第二只脚都在第 7 列，首尾相接。", "highlight": ["c7", "c11"] },
-    { "text": "红色 LED 长脚插 d11，短脚插 d14。", "highlight": ["d11", "d14"] },
-    { "text": "蓝色跳线 a14 → tn14 回到 GND。整条路只有一条：+ → R1 → R2 → LED → GND。", "highlight": ["a14", "tn14"] }
+  "i18n": {
+    "en": {
+      "title": "Series: one path only",
+      "summary": "Two resistors end to end: the current has only one way to go, and the voltage is shared between them.",
+      "concepts": [
+        "series",
+        "equivalent resistance",
+        "voltage division",
+        "KVL"
+      ],
+      "description": "Series means parts joined end to end with a single current path: every part carries the same current, the total resistance is the sum, and the supply voltage is shared in proportion to the resistances. Circuit: 9 V → R1 (220 Ω) → R2 (220 Ω) → red LED → GND.",
+      "steps": [
+        "**Battery** + in **`tp1`**, − in **`tn1`**; red **jumper** **`tp3`** → **`a3`**.",
+        "**R1** (**`220 Ω`**) in **`b3`** – **`b7`**.",
+        "**R2** (**`220 Ω`**) in **`c7`** – **`c11`**: its first leg and R1's second leg are both in column 7, end to end.",
+        "Take a look: from + to column 11 there is one path with no junction anywhere. That is series. Press Next.",
+        "**Red LED**: long lead **`d11`**, short lead **`d14`**.",
+        "Blue **jumper** **`a14`** → **`tn14`** back to GND. The whole path: + → R1 → R2 → LED → GND.",
+        "Press **Check my circuit**, then measure the three voltages with the multimeter (red probe on one end, Shift + click for the black probe on the other) and fill in the questions."
+      ],
+      "hints": [
+        "R1's second leg and R2's first leg must share a column, or they are not connected.",
+        "Do not connect the middle of a series circuit to a rail: the whole circuit is one single path."
+      ],
+      "tests": [
+        "LED on, sensible voltages across both resistors"
+      ],
+      "cards": [
+        {
+          "title": "Guess first: more current or less?",
+          "text": [
+            "Place just the supply and two resistors, **end to end**.",
+            "Guess: compared with a single 220 Ω, will the LED current with two in a row be bigger, smaller or the same? Keep your guess in mind."
+          ]
+        },
+        {
+          "title": "One path, one current",
+          "text": [
+            "- **Series = one path.** The current leaves + and has to pass R1, R2 and the LED in turn; there is no side road, so **every part carries the same current**.",
+            "- In series the resistances **add**: $R_{eq} = R_1 + R_2$. A longer road is harder to travel, so the current drops.",
+            "- The voltage is **shared** in proportion to the resistances: two equal resistors get equal shares. All the parts' voltages add up to exactly the supply voltage — that is **KVL** (Kirchhoff's voltage law).",
+            "$$I = \\frac{V_s - V_f}{R_1 + R_2}$$"
+          ]
+        },
+        {
+          "title": "Add the LED and measure",
+          "text": [
+            "Connect the LED and the jumper back to GND, then measure the voltages across R1, R2 and the LED with the multimeter."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- Series: **same current everywhere**, **resistances add**, **voltage shared in proportion**.",
+            "- Two resistors in series give you values you don't have in the drawer: 220 Ω + 220 Ω = 440 Ω.",
+            "- The catch: one broken part breaks the whole path — why one dead bulb used to darken a whole string of old-style fairy lights."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "Voltage across R1 (red probe on the end nearer the supply)",
+          "explain": "Current ≈ (9 − 1.8) / (220 + 220 + 12) ≈ 15.9 mA; 220 Ω × 15.9 mA ≈ 3.5 V."
+        },
+        {
+          "ask": "Voltage across R2 (red probe on the end next to R1)",
+          "explain": "Same current, same resistance, same voltage."
+        },
+        {
+          "ask": "Voltage across the LED (red probe on the long lead)",
+          "explain": "1.8 V plus 12 Ω × 15.9 mA ≈ 0.19 V."
+        },
+        {
+          "ask": "From your three readings: V_R1 + V_R2 + V_LED =",
+          "explain": "The three add up to the battery voltage: around this loop, whatever the source raises the parts drop again (KVL)."
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    }
   ],
-  "hints": ["串联的连接点（第 7 列）上只能有 R1 和 R2 两只脚，不能再接别的东西。"],
+  "connections": [
+    [
+      "V1.+",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "R2.1"
+    ],
+    [
+      "R2.2",
+      "LED1.anode"
+    ],
+    [
+      "LED1.cathode",
+      "V1.-"
+    ]
+  ],
+  "tests": [
+    {
+      "name": "LED 亮，两个电阻上的电压合理",
+      "expect": {
+        "LED1": "on"
+      },
+      "voltages": [
+        {
+          "pin": "R1.1",
+          "ref": "R1.2",
+          "min": 3.2,
+          "max": 3.8
+        },
+        {
+          "pin": "R2.1",
+          "ref": "R2.2",
+          "min": 3.2,
+          "max": 3.8
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "ur1",
+      "voltage": "R1.1",
+      "ref": "R1.2",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        3.3,
+        3.75
+      ],
+      "ask": "R1 两端的电压（红表笔在靠电源的一端）",
+      "explain": "电流 ≈ (9 − 1.8) / (220 + 220 + 12) ≈ 15.9 mA，220 Ω × 15.9 mA ≈ 3.5 V。"
+    },
+    {
+      "id": "ur2",
+      "voltage": "R2.1",
+      "ref": "R2.2",
+      "unit": "V",
+      "range": [
+        3.3,
+        3.75
+      ],
+      "ask": "R2 两端的电压（红表笔在靠 R1 的一端）",
+      "explain": "同一个电流、同样的电阻，电压也一样。"
+    },
+    {
+      "id": "uled",
+      "voltage": "LED1.anode",
+      "ref": "LED1.cathode",
+      "unit": "V",
+      "range": [
+        1.85,
+        2.1
+      ],
+      "ask": "LED 两端的电压（红表笔在长脚）",
+      "explain": "1.8 V 再加上 12 Ω × 15.9 mA ≈ 0.19 V。"
+    },
+    {
+      "id": "kvl",
+      "formula": "ur1 + ur2 + uled",
+      "unit": "V",
+      "range": [
+        8.85,
+        9.05
+      ],
+      "ask": "用你的三个读数算：V_R1 + V_R2 + V_LED =",
+      "explain": "三段加起来就是电池电压：沿着这一圈，电源抬高多少，元件就降下多少（KVL）。"
+    }
+  ],
+  "steps": [
+    {
+      "text": "**电池** + 接 **`tp1`**，− 接 **`tn1`**；红色**跳线** **`tp3`** → **`a3`**。",
+      "highlight": [
+        "tp1",
+        "tn1",
+        "tp3",
+        "a3"
+      ],
+      "check": [
+        {
+          "type": "battery",
+          "pins": {
+            "+": "tp1",
+            "-": "tn1"
+          }
+        },
+        {
+          "type": "wire",
+          "pins": {
+            "a": "tp3",
+            "b": "a3"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**R1**（**`220 Ω`**）插 **`b3`** – **`b7`**。",
+      "highlight": [
+        "b3",
+        "b7"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "b3",
+            "2": "b7"
+          },
+          "resistance": "220"
+        }
+      ]
+    },
+    {
+      "text": "**R2**（**`220 Ω`**）插 **`c7`** – **`c11`**：它的第一只脚和 R1 的第二只脚都在第 7 列，首尾相接。",
+      "highlight": [
+        "c7",
+        "c11"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "c7",
+            "2": "c11"
+          },
+          "resistance": "220"
+        }
+      ]
+    },
+    {
+      "text": "看一眼：从 + 到第 11 列只有一条路，中间没有任何岔口。这就是串联。点「下一步」。",
+      "highlight": [
+        "a3",
+        "b3",
+        "b7",
+        "c7",
+        "c11"
+      ]
+    },
+    {
+      "text": "**红色 LED**：长脚 **`d11`**，短脚 **`d14`**。",
+      "highlight": [
+        "d11",
+        "d14"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "d11",
+            "cathode": "d14"
+          },
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "text": "蓝色**跳线** **`a14`** → **`tn14`** 回到 GND。整条路：+ → R1 → R2 → LED → GND。",
+      "highlight": [
+        "a14",
+        "tn14"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a14",
+            "b": "tn14"
+          }
+        }
+      ]
+    },
+    {
+      "text": "点**「检查我的电路」**，然后用万用表（红表笔一端，Shift + 单击放黑表笔另一端）量三段电压，填进测量题。",
+      "highlight": []
+    }
+  ],
+  "hints": [
+    "R1 的第二只脚和 R2 的第一只脚必须在同一列，否则它们没有连上。",
+    "串联电路中间不要接到电源轨上：整个电路只有一条路径。"
+  ],
   "solution": {
     "parts": [
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "b3", "2": "b7" } },
-      { "type": "resistor", "ref": "R2", "resistance": "220", "pins": { "1": "c7", "2": "c11" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "d11", "cathode": "d14" } },
-      { "type": "wire", "pins": { "a": "a14", "b": "tn14" }, "color": "blue" }
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "220",
+        "pins": {
+          "1": "b3",
+          "2": "b7"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "220",
+        "pins": {
+          "1": "c7",
+          "2": "c11"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "d11",
+          "cathode": "d14"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a14",
+          "b": "tn14"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

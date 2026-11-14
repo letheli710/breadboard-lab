@@ -2,77 +2,441 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-power-supplies",
-  "title": "第 8 课 · 电源大比较：电池 / 电源模块 / 稳压电源",
+  "title": "电源大比较：电池、电源模块、稳压电源",
   "kind": "lesson",
   "level": 2,
-  "summary": "三种常见电源各有什么特点？本课用面包板电源模块同时点亮上下两半。",
-  "concepts": ["battery 电池", "internal resistance 内阻", "breadboard power module 电源模块", "bench supply 稳压电源", "CV / CC mode", "current limit 限流"],
-  "description": "【1. 电池（battery）】\n• 电压由化学决定：9V 方块电池、2/3/4 节 AA（3V / 4.5V / 6V）、CR2032 纽扣电池（3V）。\n• 有内阻（internal resistance）：电流越大，端电压越低。9V 电池约 1.5Ω，AA 每节约 0.15Ω，CR2032 约 15Ω——纽扣电池只能带很小的负载。\n• 没有任何保护：短路时会发热、迅速耗尽。\n• 电池只有两根线，通常 + 接红轨、− 接蓝轨，只给一组轨道供电。\n\n【2. 面包板电源模块（breadboard power module，如 MB102）】\n• 插在面包板一端，跳线帽选择 5V 或 3.3V，用 USB 或 DC 插头取电。\n• 它的针脚同时插进上、下两组电源轨：上下两组 + 轨都是 VCC，上下两组 − 轨都是 GND。所以本课上半区和下半区的 LED 都能直接从附近的轨道取电。\n• 输出电流有限（约几百 mA），内阻很小，电压很稳。\n• 插的时候注意方向：模块的 + 要对准红线轨道。\n\n【3. 实验室直流稳压电源（bench power supply）】\n• 电压可以连续调节（例如 0–30V）。\n• 可以设定限流值（current limit）。正常时工作在 CV 恒压模式；一旦负载想要的电流超过限流值，自动切换到 CC 恒流模式，电压往下降，把电流卡在限流值——接错线、短路时它能保护电路。新手调试时建议把限流设小一点（如 50–100mA）。\n• 用两根鳄鱼夹线接到面包板：红（+）接红轨，黑（COM / −）接蓝轨。和电池一样只接了一组轨道——如果下半区也要用电，需要自己用跳线把上下两组轨道连起来。\n\n【无论哪种电源】\n电源的 − 端就是电路的 GND（0V）。换电源不改变电路的结构，只改变电压和“能给多少电流”。",
+  "summary": "电池只给一组电源轨供电，下半区的 LED 就不亮。换成电源模块，上下两组轨道同时有电。",
+  "concepts": [
+    "battery 电池",
+    "internal resistance 内阻",
+    "power module 电源模块",
+    "bench supply 稳压电源",
+    "power rail 电源轨"
+  ],
+  "description": "三种常见电源：电池（电压由化学决定、有内阻、没有保护、只接一组轨道）、面包板电源模块（5 V / 3.3 V，同时给上下两组轨道供电）、实验室稳压电源（电压可调、能限流）。本课先用电池点下半区的 LED，发现它不亮，再换成电源模块点亮上下两半。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "下半区的灯为什么不亮？",
+      "text": [
+        "先用**电池**供电，电池接在**上方**的电源轨。然后在面包板的**下半区**搭一条 LED 支路，接在**下方**的电源轨上。",
+        "LED 亮了吗？"
+      ],
+      "steps": 4
+    },
+    {
+      "kind": "explain",
+      "title": "三种电源，各有脾气",
+      "text": [
+        "- **电池**：电压由化学决定（9 V 方块、AA 每节 1.5 V、CR2032 纽扣 3 V）。有**内阻**：电流越大，端电压越低。只有两根线，**只给一组轨道供电**——上下两组电源轨之间并不相通。",
+        "- **面包板电源模块**（如 MB102）：用 USB 取电，跳线帽选 5 V 或 3.3 V。它的针脚**同时插进上下两组电源轨**，所以哪一半都能就近取电。",
+        "- **实验室稳压电源**：电压连续可调，还能设定**限流**，接错线时能保护电路（第 1.10d 课专门讲）。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "换成电源模块",
+      "text": [
+        "拿掉电池，插上电源模块，再在上半区也搭一条支路。"
+      ],
+      "steps": 3
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 用电池或稳压电源时，**下半区要用电，就用跳线把 tp↔bp、tn↔bn 连起来**。",
+        "- 电源模块的 + 要对准**红线**那条轨道，插反了等于把电源接反。",
+        "- 调试新电路时，能用稳压电源就用稳压电源，并把限流设小一点（如 50–100 mA）：接错了它会先“认输”，元件就安全。"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Lesson 8 · Power sources compared: battery / power module / bench supply",
-      "summary": "What is each of the three common power sources like? This lesson uses a breadboard power module to light both the top and bottom halves.",
+      "title": "Supplies compared: battery, power module, bench supply",
+      "summary": "A battery powers only one pair of rails, so an LED on the lower half stays dark. A power module powers both pairs at once.",
       "concepts": [
         "battery",
         "internal resistance",
-        "breadboard power module",
+        "power module",
         "bench supply",
-        "CV / CC mode",
-        "current limit"
+        "power rail"
       ],
-      "description": "**1. Battery**\n• The voltage is set by its chemistry: 9V block battery, 2/3/4 AA cells (3V / 4.5V / 6V), CR2032 coin cell (3V).\n• It has internal resistance: the more current you draw, the lower the terminal voltage. A 9V battery has about 1.5Ω, each AA cell about 0.15Ω, a CR2032 about 15Ω, so a coin cell can only drive very small loads.\n• No protection at all: on a short circuit it heats up and drains quickly.\n• A battery has only two wires; usually + goes to the red rail and − to the blue rail, powering only one pair of rails.\n\n**2. Breadboard power module (e.g. MB102)**\n• Plugs into one end of the breadboard; a jumper cap selects 5V or 3.3V; powered from USB or a DC barrel jack.\n• Its pins go into both the top and bottom pairs of rails at once: both + rails are VCC and both − rails are GND. That is why, in this lesson, LEDs in both the top and bottom halves can take power straight from the nearest rail.\n• Limited output current (a few hundred mA), very low internal resistance, very stable voltage.\n• Mind the orientation when plugging it in: the module's + must line up with the red-line rail.\n\n**3. Lab DC bench power supply**\n• The voltage is continuously adjustable (for example 0–30V).\n• You can set a current limit. Normally it runs in CV (constant voltage) mode; as soon as the load tries to draw more than the current limit, it automatically switches to CC (constant current) mode and lowers the voltage to hold the current at the limit. This protects the circuit if you wire something wrong or short it. When debugging as a beginner, set the limit low (e.g. 50–100mA).\n• It connects to the breadboard with two alligator-clip leads: red (+) to the red rail, black (COM / −) to the blue rail. Like a battery, it powers only one pair of rails; if the bottom half needs power too, you must join the top and bottom rails yourself with jumpers.\n\n**Whatever the source**\nThe supply's − terminal is the circuit's GND (0V). Changing the power source does not change the structure of the circuit, only the voltage and \"how much current it can deliver\".",
+      "description": "Three common supplies: a battery (voltage set by chemistry, internal resistance, no protection, one pair of rails), a breadboard power module (5 V / 3.3 V, powering the top and bottom rails at once) and a lab bench supply (adjustable voltage, current limit). This lesson first tries to light an LED on the lower half from a battery and finds it dark, then switches to the power module to light both halves.",
       "steps": [
-        "Plug the 5V power module into column 1. Look: its four pins go into tp1, tn1, bp1 and bn1, so the top and bottom rails are powered at the same time.",
-        "Top half: R1 goes from the top red rail at tp6 to b6.",
-        "Yellow LED1 long lead c6, short lead c9; blue jumper a9 → tn9.",
-        "Bottom half: R2 goes from the bottom red rail at bp6 to j6. The bottom rails are powered by the same power module.",
-        "Green LED2 long lead i6, short lead i9; blue jumper j9 → bn9 (bottom − rail).",
-        "Both LEDs are on. Think about it: if you used a battery connected only to the top rails, would LED2 in the bottom half still light? (No: you would need jumpers to connect tp↔bp and tn↔bn.)"
+        "**Battery** (9 V): + in **`tp1`**, − in **`tn1`** — only the **top** pair of rails.",
+        "Lower half: **R2** (**`220 Ω`**) from the lower red rail **`bp6`** to **`j6`**.",
+        "**Green LED2**: long lead **`i6`**, short lead **`i9`**; blue **jumper** **`j9`** → **`bn9`** (the lower − rail). Is LED2 lit?",
+        "Pick Multimeter and put the red probe on **`bp10`** (the lower red rail). What does it read?",
+        "Click the battery and press **Delete**.",
+        "**Breadboard power module** in **`tp1`**, keep **5 V**: its four pins go into tp1, tn1, bp1 and bn1. LED2 lights up!",
+        "Top half: **R1** (**`220 Ω`**) **`tp6`** – **`b6`**; **yellow LED1** long lead **`c6`**, short lead **`c9`**; blue **jumper** **`a9`** → **`tn9`**. Press **Check my circuit**."
       ],
       "hints": [
-        "The power module powers both the top and bottom rails; a battery or bench supply connects to only one pair, and you have to jumper the other pair yourself."
+        "The top and bottom rails are not connected: with the battery on the top rails only, the bottom rails have no power.",
+        "The power module goes in column 1, with its + lined up with the red-line rail."
       ],
-      "tests": ["Top and bottom LEDs both on, module output about 5V"]
+      "tests": [
+        "Both LEDs on, module output normal"
+      ],
+      "cards": [
+        {
+          "title": "Why is the lower LED dark?",
+          "text": [
+            "Power the board from a **battery** connected to the **top** rails. Then build an LED branch on the **lower half** of the board, on the **lower** rails.",
+            "Is the LED lit?"
+          ]
+        },
+        {
+          "title": "Three supplies, three tempers",
+          "text": [
+            "- **Battery**: chemistry sets the voltage (9 V block, 1.5 V per AA, 3 V CR2032 coin cell). It has **internal resistance**: the more current, the lower its terminal voltage. Two wires only, so it **powers one pair of rails** — the top and bottom rails are not connected to each other.",
+            "- **Breadboard power module** (such as an MB102): powered from USB, a jumper selects 5 V or 3.3 V. Its pins go **into the top and bottom rails at once**, so both halves can draw power nearby.",
+            "- **Lab bench supply**: continuously adjustable voltage plus a **current limit** that protects the circuit when something is wired wrong (lesson 1.10d is all about it)."
+          ]
+        },
+        {
+          "title": "Switch to the power module",
+          "text": [
+            "Remove the battery, plug in the power module, and add a branch on the top half too."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- With a battery or a bench supply, **power the lower half with jumpers tp↔bp and tn↔bn**.",
+            "- The power module's + must line up with the rail with the **red line**; reversed, it reverses your supply.",
+            "- Debugging a new circuit? Use a bench supply if you have one, with a low current limit (say 50–100 mA): if something is wrong it gives up first and your parts survive."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "With the battery, why did LED2 on the lower half stay dark?",
+          "choices": [
+            "The battery's voltage was too low",
+            "The top and bottom rails are not connected; the battery fed only the top ones, so the lower rails floated",
+            "LED2 was backwards"
+          ],
+          "explain": "The top and bottom rail pairs are separate strips. A battery has two wires and can feed only one pair; join the pairs with jumpers, or use a power module that plugs into both."
+        },
+        {
+          "ask": "Click the yellow LED1: the current in Properties",
+          "explain": "(5 − 2.0) / (220 + 12) ≈ 12.9 mA."
+        },
+        {
+          "ask": "Click the green LED2: the current in Properties",
+          "explain": "(5 − 2.1) / (220 + 12) ≈ 12.5 mA: the lower half is powered by the same module."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "PM1", "type": "power_module", "voltage": 5 },
-    { "ref": "R1", "type": "resistor", "resistance": "220" },
-    { "ref": "LED1", "type": "led", "color": "yellow" },
-    { "ref": "R2", "type": "resistor", "resistance": "220" },
-    { "ref": "LED2", "type": "led", "color": "green" }
+    {
+      "ref": "PM1",
+      "type": "power_module",
+      "voltage": 5
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "yellow"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED2",
+      "type": "led",
+      "color": "green"
+    }
   ],
   "connections": [
-    ["PM1.+", "R1.1", "R2.1"],
-    ["R1.2", "LED1.anode"],
-    ["R2.2", "LED2.anode"],
-    ["LED1.cathode", "LED2.cathode", "PM1.-"]
+    [
+      "PM1.+",
+      "R1.1",
+      "R2.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "R2.2",
+      "LED2.anode"
+    ],
+    [
+      "LED1.cathode",
+      "LED2.cathode",
+      "PM1.-"
+    ]
   ],
   "tests": [
     {
-      "name": "上下两个 LED 都亮，模块输出约 5V",
-      "expect": { "LED1": "on", "LED2": "on" },
-      "voltages": [{ "pin": "PM1.+", "ref": "PM1.-", "min": 4.9, "max": 5.05 }]
+      "name": "上下两个 LED 都亮，模块输出正常",
+      "expect": {
+        "LED1": "on",
+        "LED2": "on"
+      },
+      "voltages": [
+        {
+          "pin": "PM1.+",
+          "ref": "PM1.-",
+          "min": 4.9,
+          "max": 5.05
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "why",
+      "ask": "用电池供电时，下半区的 LED2 为什么不亮？",
+      "choices": [
+        "电池电压不够",
+        "上下两组电源轨不相通，电池只接了上方的轨道，下方轨道悬空",
+        "LED2 插反了"
+      ],
+      "correct": 1,
+      "explain": "面包板上下两组电源轨是分开的金属条。电池只有两根线，只能给一组轨道供电；要么用跳线把两组接起来，要么用同时插两组的电源模块。"
+    },
+    {
+      "id": "iyel",
+      "current": "LED1",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0117,
+        0.014
+      ],
+      "ask": "单击黄色 LED1：「属性」里的电流",
+      "explain": "(5 − 2.0) / (220 + 12) ≈ 12.9 mA。"
+    },
+    {
+      "id": "igrn",
+      "current": "LED2",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0113,
+        0.0137
+      ],
+      "ask": "单击绿色 LED2：「属性」里的电流",
+      "explain": "(5 − 2.1) / (220 + 12) ≈ 12.5 mA：下半区的电来自同一个模块。"
     }
   ],
   "steps": [
-    { "text": "把 5V 电源模块插在第 1 列。看：它的四根针分别进入 tp1、tn1、bp1、bn1——上下两组轨道同时有电。", "highlight": ["tp1", "tn1", "bp1", "bn1"] },
-    { "text": "上半区：R1 从上方红轨 tp6 接到 b6。", "highlight": ["tp6", "b6"] },
-    { "text": "黄色 LED1 长脚 c6、短脚 c9；蓝色跳线 a9 → tn9。", "highlight": ["c6", "c9", "a9", "tn9"] },
-    { "text": "下半区：R2 从下方红轨 bp6 接到 j6。下方轨道的电也来自同一个电源模块。", "highlight": ["bp6", "j6"] },
-    { "text": "绿色 LED2 长脚 i6、短脚 i9；蓝色跳线 j9 → bn9（下方 − 轨）。", "highlight": ["i6", "i9", "j9", "bn9"] },
-    { "text": "两个 LED 都亮了。想一想：如果换成电池只接在上方轨道，下半区的 LED2 还会亮吗？（不会——需要用跳线把 tp↔bp、tn↔bn 连起来。）", "highlight": ["bp6", "bn9"] }
+    {
+      "text": "**电池**（9 V）：+ 接 **`tp1`**，− 接 **`tn1`**——只接了**上方**那组轨道。",
+      "highlight": [
+        "tp1",
+        "tn1"
+      ],
+      "check": [
+        {
+          "type": "battery",
+          "pins": {
+            "+": "tp1",
+            "-": "tn1"
+          }
+        }
+      ]
+    },
+    {
+      "text": "下半区：**R2**（**`220 Ω`**）从下方红轨 **`bp6`** 接到 **`j6`**。",
+      "highlight": [
+        "bp6",
+        "j6"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "bp6",
+            "2": "j6"
+          },
+          "resistance": "220"
+        }
+      ]
+    },
+    {
+      "text": "**绿色 LED2**：长脚 **`i6`**、短脚 **`i9`**；蓝色**跳线** **`j9`** → **`bn9`**（下方 − 轨）。LED2 亮了吗？",
+      "highlight": [
+        "i6",
+        "i9",
+        "j9",
+        "bn9"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "i6",
+            "cathode": "i9"
+          },
+          "color": "green"
+        },
+        {
+          "type": "wire",
+          "pins": {
+            "a": "j9",
+            "b": "bn9"
+          }
+        }
+      ]
+    },
+    {
+      "text": "选「万用表」，红表笔点 **`bp10`**（下方红轨）。读数是什么？",
+      "highlight": [
+        "bp10"
+      ],
+      "check": [
+        {
+          "probe": {
+            "red": "bp10"
+          }
+        }
+      ]
+    },
+    {
+      "text": "选中电池，按 **Delete** 删掉。",
+      "highlight": [
+        "tp1",
+        "tn1"
+      ],
+      "check": [
+        {
+          "empty": [
+            "tp1",
+            "tn1"
+          ]
+        }
+      ]
+    },
+    {
+      "text": "**面包板电源模块**插 **`tp1`**，保持 **5 V**：四根针进入 tp1、tn1、bp1、bn1。LED2 亮了！",
+      "highlight": [
+        "tp1",
+        "tn1",
+        "bp1",
+        "bn1"
+      ],
+      "check": [
+        {
+          "type": "power_module",
+          "at": "tp1",
+          "voltage": 5
+        }
+      ]
+    },
+    {
+      "text": "上半区：**R1**（**`220 Ω`**）**`tp6`** – **`b6`**；**黄色 LED1** 长脚 **`c6`**、短脚 **`c9`**；蓝色**跳线** **`a9`** → **`tn9`**。点**「检查我的电路」**。",
+      "highlight": [
+        "tp6",
+        "b6",
+        "c6",
+        "c9",
+        "a9",
+        "tn9"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "tp6",
+            "2": "b6"
+          },
+          "resistance": "220"
+        },
+        {
+          "type": "led",
+          "pins": {
+            "anode": "c6",
+            "cathode": "c9"
+          },
+          "color": "yellow"
+        },
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a9",
+            "b": "tn9"
+          }
+        }
+      ]
+    }
   ],
-  "hints": ["电源模块同时给上下两组轨道供电；电池和稳压电源只接一组，另一组要自己用跳线连。"],
+  "hints": [
+    "上下两组电源轨互相不通：电池只接上方时，下方轨道没有电。",
+    "电源模块要插在第 1 列，它的 + 对准红线轨道。"
+  ],
   "solution": {
     "parts": [
-      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
-      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "tp6", "2": "b6" } },
-      { "type": "led", "ref": "LED1", "color": "yellow", "pins": { "anode": "c6", "cathode": "c9" } },
-      { "type": "wire", "pins": { "a": "a9", "b": "tn9" }, "color": "blue" },
-      { "type": "resistor", "ref": "R2", "resistance": "220", "pins": { "1": "bp6", "2": "j6" } },
-      { "type": "led", "ref": "LED2", "color": "green", "pins": { "anode": "i6", "cathode": "i9" } },
-      { "type": "wire", "pins": { "a": "j9", "b": "bn9" }, "color": "blue" }
+      {
+        "type": "power_module",
+        "ref": "PM1",
+        "voltage": 5,
+        "at": "tp1"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "220",
+        "pins": {
+          "1": "tp6",
+          "2": "b6"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "yellow",
+        "pins": {
+          "anode": "c6",
+          "cathode": "c9"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a9",
+          "b": "tn9"
+        },
+        "color": "blue"
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "220",
+        "pins": {
+          "1": "bp6",
+          "2": "j6"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED2",
+        "color": "green",
+        "pins": {
+          "anode": "i6",
+          "cathode": "i9"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "j9",
+          "b": "bn9"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

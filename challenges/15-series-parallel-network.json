@@ -2,45 +2,218 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-series-parallel",
-  "title": "挑战 7 · 串并联电阻网络",
+  "title": "串并联混合网络",
   "kind": "challenge",
   "level": 4,
-  "summary": "搭一个串并联混合网络，并用两个电压测试检查你的计算。",
-  "concepts": ["series-parallel 串并联", "equivalent resistance 等效电阻", "voltage divider 分压"],
-  "description": "电路：R1（1kΩ）从 +9V 接到结点 M；从 M 到 GND 有两条并联支路：\n• 支路甲：R2（2kΩ）；\n• 支路乙：R3（1kΩ）和 R4（1kΩ）串联，中间结点叫 X。\n\n计算：\n1. 支路乙 = 1k + 1k = 2kΩ；\n2. 两条支路并联 = 2k ∥ 2k = 1kΩ；\n3. M 点电压 = 9 × 1k / (1k + 1k) = 4.5V；\n4. X 点在 R3、R4 中间，电压 = 4.5 / 2 = 2.25V。\n\ntests 会测量 M 和 X 相对 GND 的电压。",
+  "summary": "先把网络一步步化简，算出两个结点的电压，再搭出来用万用表核对。",
+  "concepts": [
+    "series-parallel 串并联",
+    "equivalent resistance 等效电阻",
+    "voltage divider 分压"
+  ],
+  "description": "电路：R1（1 kΩ）从 +9 V 接到结点 M；从 M 到 GND 有两条并联支路：支路甲是 R2（2 kΩ）；支路乙是 R3（1 kΩ）和 R4（1 kΩ）串联，中间的结点叫 X。先化简算出 M、X 的电压，再搭出来测量。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "先算，再搭",
+      "text": [
+        "这一题没有步骤。动手之前，先在纸上把网络**从最远处往回化简**，预测 M 和 X 的电压。"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "一层一层化简",
+      "text": [
+        "1. 支路乙是串联：$R_3 + R_4 = 2$ kΩ。",
+        "2. 支路甲和支路乙并联：$2\\ \\text{k} \\parallel 2\\ \\text{k} = 1$ kΩ（两个一样的电阻并联，等于一半）。",
+        "3. 这 1 kΩ 再和 R1 串联，就是一个分压器：M 点 = 9 V × 1 / (1 + 1)。",
+        "4. X 在 R3、R4 中间，又是一个分压器：X = M × 1 / (1 + 1)。",
+        "",
+        "并联公式：$R_a \\parallel R_b = \\frac{R_a R_b}{R_a + R_b}$。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "搭好，量两个结点",
+      "text": [
+        "- 先给每个结点分一条金属条：M、X 各一列，再加一列接 GND。",
+        "- R2 和（R3 + R4）的两端分别都在 M 和 GND 上。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 化简口诀：**从离电源最远的地方开始，串联就加，并联就“积除以和”**，一层一层往回收。",
+        "- 化简只是为了算总电流或某个结点电压；算完要**回到原电路**去求支路里的电流和电压。"
+      ],
+      "practice": [
+        "equivalence"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Challenge 7 · Series-parallel resistor network",
-      "summary": "Build a mixed series-parallel network and check your calculations with two voltage tests.",
-      "concepts": ["series-parallel", "equivalent resistance", "voltage divider"],
-      "description": "Circuit: R1 (1kΩ) goes from +9V to node M; from M to GND there are two parallel branches:\n• Branch A: R2 (2kΩ);\n• Branch B: R3 (1kΩ) and R4 (1kΩ) in series, with the node between them called X.\n\nCalculation:\n1. Branch B = 1k + 1k = 2kΩ;\n2. The two branches in parallel = 2k ∥ 2k = 1kΩ;\n3. Voltage at M = 9 × 1k / (1k + 1k) = 4.5V;\n4. X is between R3 and R4, so its voltage = 4.5 / 2 = 2.25V.\n\nThe tests measure the voltages at M and X relative to GND.",
-      "hints": [
-        "First give each node its own metal strip: one column each for M and X, plus one more column connected to GND.",
-        "R2 and (R3 + R4) both have one end on M and the other end on GND."
+      "title": "A series-parallel network",
+      "summary": "Simplify the network step by step, work out two node voltages, then build it and check with the multimeter.",
+      "concepts": [
+        "series-parallel",
+        "equivalent resistance",
+        "voltage divider"
       ],
-      "tests": ["M ≈ 4.5V, X ≈ 2.25V"]
+      "description": "Circuit: R1 (1 kΩ) from +9 V to node M; from M to GND two parallel branches: branch A is R2 (2 kΩ); branch B is R3 (1 kΩ) in series with R4 (1 kΩ), the node between them called X. Simplify to predict the voltages at M and X, then build and measure.",
+      "hints": [
+        "Give each node a strip: one column each for M and X, plus one going to GND.",
+        "R2 and (R3 + R4) both have their ends on M and GND."
+      ],
+      "tests": [
+        "Sensible voltages at nodes M and X"
+      ],
+      "cards": [
+        {
+          "title": "Work it out, then build it",
+          "text": [
+            "No steps here. Before you build, simplify the network on paper **from the far end back towards the source** and predict the voltages at M and X."
+          ]
+        },
+        {
+          "title": "Simplify layer by layer",
+          "text": [
+            "1. Branch B is in series: $R_3 + R_4 = 2$ kΩ.",
+            "2. Branches A and B in parallel: $2\\ \\text{k} \\parallel 2\\ \\text{k} = 1$ kΩ (two equal resistors in parallel give half).",
+            "3. That 1 kΩ in series with R1 is a divider: M = 9 V × 1 / (1 + 1).",
+            "4. X sits between R3 and R4 — another divider: X = M × 1 / (1 + 1).",
+            "",
+            "Parallel formula: $R_a \\parallel R_b = \\frac{R_a R_b}{R_a + R_b}$."
+          ]
+        },
+        {
+          "title": "Build it, measure two nodes",
+          "text": [
+            "- Give each node a strip first: one column each for M and X, plus one to GND.",
+            "- R2 and (R3 + R4) both connect between M and GND."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- The recipe: **start furthest from the source; in series add, in parallel \"product over sum\"**, and fold it back layer by layer.",
+            "- Simplifying only gives you the total current or a node voltage; to find a branch current or voltage, **go back to the original circuit**."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "Multimeter: node M relative to GND",
+          "explain": "R2 ∥ (R3 + R4) = 1 kΩ, a divider with R1: 9 × 1 / 2 = 4.5 V."
+        },
+        {
+          "ask": "Multimeter: node X relative to GND",
+          "explain": "R3 and R4 are equal, so X sits at half of M: 4.5 / 2 = 2.25 V."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 9 },
-    { "ref": "R1", "type": "resistor", "resistance": "1k" },
-    { "ref": "R2", "type": "resistor", "resistance": "2k" },
-    { "ref": "R3", "type": "resistor", "resistance": "1k" },
-    { "ref": "R4", "type": "resistor", "resistance": "1k" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "2k"
+    },
+    {
+      "ref": "R3",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "R4",
+      "type": "resistor",
+      "resistance": "1k"
+    }
   ],
   "nets": [
-    { "name": "VCC", "pins": ["V1.+", "R1.1"] },
-    { "name": "M", "pins": ["R1.2", "R2.1", "R3.1"] },
-    { "name": "X", "pins": ["R3.2", "R4.1"] },
-    { "name": "GND", "pins": ["R2.2", "R4.2", "V1.-"] }
+    {
+      "name": "VCC",
+      "pins": [
+        "V1.+",
+        "R1.1"
+      ]
+    },
+    {
+      "name": "M",
+      "pins": [
+        "R1.2",
+        "R2.1",
+        "R3.1"
+      ]
+    },
+    {
+      "name": "X",
+      "pins": [
+        "R3.2",
+        "R4.1"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "R2.2",
+        "R4.2",
+        "V1.-"
+      ]
+    }
   ],
   "tests": [
     {
-      "name": "M ≈ 4.5V，X ≈ 2.25V",
+      "name": "M、X 两个结点的电压合理",
       "voltages": [
-        { "pin": "R1.2", "min": 4.3, "max": 4.7 },
-        { "pin": "R3.2", "min": 2.1, "max": 2.4 }
+        {
+          "pin": "R1.2",
+          "min": 4.3,
+          "max": 4.7
+        },
+        {
+          "pin": "R3.2",
+          "min": 2.1,
+          "max": 2.4
+        }
       ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "vm",
+      "voltage": "R1.2",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        4.35,
+        4.6
+      ],
+      "ask": "万用表：结点 M 对 GND 的电压",
+      "explain": "R2 ∥ (R3 + R4) = 1 kΩ，和 R1 分压：9 × 1 / 2 = 4.5 V。"
+    },
+    {
+      "id": "vx",
+      "voltage": "R3.2",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        2.15,
+        2.32
+      ],
+      "ask": "万用表：结点 X 对 GND 的电压",
+      "explain": "R3、R4 一样大，X 正好在 M 的一半：4.5 / 2 = 2.25 V。"
     }
   ],
   "hints": [
@@ -49,13 +222,67 @@
   ],
   "solution": {
     "parts": [
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "1k", "pins": { "1": "b3", "2": "b8" } },
-      { "type": "resistor", "ref": "R2", "resistance": "2k", "pins": { "1": "c8", "2": "c15" } },
-      { "type": "resistor", "ref": "R3", "resistance": "1k", "pins": { "1": "d8", "2": "d11" } },
-      { "type": "resistor", "ref": "R4", "resistance": "1k", "pins": { "1": "c11", "2": "d15" } },
-      { "type": "wire", "pins": { "a": "a15", "b": "tn15" }, "color": "blue" }
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "1k",
+        "pins": {
+          "1": "b3",
+          "2": "b8"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "2k",
+        "pins": {
+          "1": "c8",
+          "2": "c15"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R3",
+        "resistance": "1k",
+        "pins": {
+          "1": "d8",
+          "2": "d11"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R4",
+        "resistance": "1k",
+        "pins": {
+          "1": "c11",
+          "2": "d15"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a15",
+          "b": "tn15"
+        },
+        "color": "blue"
+      }
     ]
   }
 }
