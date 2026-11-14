@@ -39,11 +39,7 @@
     { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 10, "unit": "V", "explain": "u_a = U_s − R_1·i_m1 = 16 − 3 × 2 = 10 V（也等于 R_2·i_m2 + R_3(i_m2 − i_m3) = 4 + 6 = 10 V）。" },
     { "id": "p", "ask": "受控源 F 吸收的功率 P = ?", "find": { "kind": "p", "el": "F" }, "answer": -20, "unit": "W", "explain": "F 的电流 2i_x = 2 A 从下往上，从高电位端 a（10 V）流出：P = −10 × 2 = −20 W（发出 20 W）。" }
   ],
-  "hints": [
-    "F 位于网孔 1、2 的公共支路，不能直接对这两个网孔分别列 KVL：用超网孔（沿网孔 1、2 的外围），并补充约束 i_m2 − i_m1 = 2i_x。",
-    "再补充控制量方程 i_x = i_m3；网孔 3 正常列 KVL：−R_3·i_m2 + (R_3 + R_4 + R_5)·i_m3 = 0。",
-    "超网孔：R_1·i_m1 + R_2·i_m2 + R_3(i_m2 − i_m3) = U_s。"
-  ],
+  "hints": ["用网孔电流法，未知量是 i_m1、i_m2、i_m3；受控源的控制量 i_x 也要用网孔电流表示。", "F 位于网孔 1、2 的公共支路上，不能分别对这两个网孔列 KVL：改用绕过 F 的超网孔，并用 F 的电流写一个网孔电流约束（看清 F 的箭头与两个顺时针网孔电流在这条支路上的方向）。", "代表方程（网孔 3）：−R_3·i_m2 + (R_3 + R_4 + R_5)·i_m3 = 0；超网孔沿网孔 1、2 的外围把各电阻的电压降相加，等于 U_s。"],
   "solution": [
     "**1. 超网孔（网孔 1 + 2，绕过 F）：** R_1·i_m1 + R_2·i_m2 + R_3(i_m2 − i_m3) = U_s → 3i_m1 + 3i_m2 − 2i_m3 = 16。",
     "**2. 受控源约束：** F 支路向上的电流 = i_m2 − i_m1 = 2i_x。",
@@ -68,11 +64,7 @@
         { "ask": "u_a = ?", "explain": "u_a = U_s − R_1·i_m1 = 16 − 3 × 2 = 10 V (also R_2·i_m2 + R_3(i_m2 − i_m3) = 4 + 6 = 10 V)." },
         { "ask": "Power absorbed by the dependent source F, P = ?", "explain": "F carries 2i_x = 2 A upwards and it leaves at the higher-potential end a (10 V): P = −10 × 2 = −20 W (it delivers 20 W)." }
       ],
-      "hints": [
-        "F sits in the branch shared by meshes 1 and 2, so you can't write separate KVL equations for those meshes: use a supermesh (around the outside of meshes 1 and 2) plus the constraint i_m2 − i_m1 = 2i_x.",
-        "Add the controlling-variable equation i_x = i_m3; mesh 3 gets an ordinary KVL equation: −R_3·i_m2 + (R_3 + R_4 + R_5)·i_m3 = 0.",
-        "Supermesh: R_1·i_m1 + R_2·i_m2 + R_3(i_m2 − i_m3) = U_s."
-      ],
+      "hints": ["Use mesh analysis; the unknowns are i_m1, i_m2, i_m3, and the controlling current i_x must also be written in mesh currents.", "F sits in the branch shared by meshes 1 and 2, so you can't write separate KVL equations for those meshes: use a supermesh that goes around F, plus one constraint on the mesh currents from F's current (check the direction of F's arrow and of the two clockwise mesh currents in that branch).", "A representative equation (mesh 3): −R_3·i_m2 + (R_3 + R_4 + R_5)·i_m3 = 0; for the supermesh, add the drops across the resistors around the outside of meshes 1 and 2 and set the sum equal to U_s."],
       "solution": [
         "**1. Supermesh (meshes 1 + 2, skipping F):** R_1·i_m1 + R_2·i_m2 + R_3(i_m2 − i_m3) = U_s → 3i_m1 + 3i_m2 − 2i_m3 = 16.",
         "**2. Dependent-source constraint:** the upward current in the F branch = i_m2 − i_m1 = 2i_x.",
