@@ -79,11 +79,12 @@ npm run check        # 以上全部：tsc -b、lint、format:check、test、vite
 浏览器测试 Browser tests（Playwright + Chromium；CI 里单独的 `e2e` job，失败时上传截图）：
 
 ```bash
-npm run e2e              # VITE_E2E=1 构建到 dist-e2e/，启动 vite preview，依次运行 scripts/e2e-routes.cjs（路由 / 历史）和 scripts/e2e-bench.cjs（3D 工作台冒烟测试）
-npm run e2e -- --no-build bench   # 复用 dist-e2e/，只跑某个套件（routes、bench）
+npm run e2e              # VITE_E2E=1 构建到 dist-e2e/，启动 vite preview，依次运行 scripts/e2e-routes.cjs（路由 / 历史）、scripts/e2e-bench.cjs（3D 工作台冒烟测试）和 scripts/e2e-a11y.cjs（axe 无障碍检查）
+npm run e2e -- --no-build bench   # 复用 dist-e2e/，只跑某个套件（routes、bench、a11y）
 ```
 
 工作台测试覆盖：第 1 课的孔位标签和步骤高亮、点孔放元件（核对保存的布局）、悬停提示、拖动移动和被拒绝的放置、撤销 / 重做、属性滑块一次拖动 = 一步撤销、删除 + 撤销提示、示波器实验（参考答案、检查、波形、测量题对错——正确读数取自校验器 `--readings`）、第 5 期 PWM 实验的按需渲染（空闲 3 秒 0 帧）、视角按钮、切换语言不重建画布、损坏的 `bb.layout.*`、ErrorBoundary。测试钩子（`window.__bb`：孔位 → 屏幕坐标、帧计数；`?e2e&crash=canvas` 注入渲染错误）只在 `VITE_E2E=1` 的构建里、且网址带 `?e2e` 时存在，正式构建里整段代码被去掉（`src/e2e/flag.ts`）。
+Accessibility (WCAG 2.1 AA, axe results, keyboard building on the bench, known limits): [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md); the a11y suite fails on any new serious / critical axe violation. 无障碍说明见该文件。
 The bench suite drives the real production build through test hooks that exist only in `VITE_E2E=1` builds and only with `?e2e` in the URL (`src/e2e/flag.ts`); a normal build contains none of it. Chromium needs WebGL (SwiftShader flags are passed). Locally Playwright's preinstalled Chromium is used; in CI the workflow installs it (`npx playwright install --with-deps chromium`).
 
 CI：`.github/workflows/ci.yml` 在每次 push / PR 时运行 `npm ci`、`tsc -b`、lint、`npm test`（含 validate）、`vite build`、体积预算检查（`npm run size`）和 Prettier 格式检查。工具链：Vite 8（Rolldown）、Vitest 5，需要 Node 20.19+ 或 22.12+。运行时：React 18.3、zustand 5、three.js r182、@react-three/fiber 8、@react-three/drei 9（three 停在 r182：r183 起 `THREE.Clock` 弃用，而 r3f 8 / 9 都还在用它，每次加载都会打印警告；React 19 + fiber 9 + drei 10 已经验证可用，但 react-dom 19 让每个页面的首屏 JS 多约 77 kB，超出体积预算，暂未采用，见 ROADMAP）。`npm audit` 剩 10 个 moderate，全部是 ESLint / typescript-eslint 依赖的 minimatch，上游尚无修复（只影响开发工具，不进入构建产物）。格式化提交记录在 `.git-blame-ignore-revs`（本地 `git config blame.ignoreRevsFile .git-blame-ignore-revs`）。
