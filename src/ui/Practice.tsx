@@ -728,13 +728,13 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
           </span>
           <div className="row">
             <KeyPointsLink p={p} />
-            <button disabled={!prev} onClick={() => prev && open(prev.id)} title={tr('上一题（[）', 'Previous problem ([)')}>
+            <button className="pr-head-nav" disabled={!prev} onClick={() => prev && open(prev.id)} title={tr('上一题（[）', 'Previous problem ([)')}>
               <Icon name="prev" size={16} />
             </button>
-            <span className="muted small">
+            <span className="muted small pr-head-nav">
               {i + 1} / {list.length}
             </span>
-            <button disabled={!next} onClick={() => next && open(next.id)} title={tr('下一题（]）', 'Next problem (])')}>
+            <button className="pr-head-nav" disabled={!next} onClick={() => next && open(next.id)} title={tr('下一题（]）', 'Next problem (])')}>
               <Icon name="next" size={16} />
             </button>
           </div>
