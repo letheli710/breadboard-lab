@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react';
 import type { Challenge } from '../core/challenge';
 import { inCourseOrder, itemLabel, placeOf, WORLDS, worldChapters, type World } from '../core/course';
 import { chapterById } from '../core/problem/chapters';
+import { unitTitle, worldBlurb, worldTitle } from '../core/courseText';
 import { tabListKeys } from './a11y';
 import { tr } from '../core/i18n';
 import { ensureChallengeIndex } from '../state/challenges';
@@ -16,7 +17,7 @@ const worldOf = (g: Group) => WORLDS.find((w) => w.id === g);
 const groupLabel = (g: Group) => (g === 'other' ? tr('其他', 'Other') : `World ${g}`);
 const groupTip = (g: Group) => {
   const w = worldOf(g);
-  return w ? `${w.title()} — ${w.blurb()} (${w.books})` : tr('不在课程地图里的文件（例如导入的题目）', 'Files outside the course map (for example imported ones)');
+  return w ? `${worldTitle(w.id)} — ${worldBlurb(w.id)} (${w.books})` : tr('不在课程地图里的文件（例如导入的题目）', 'Files outside the course map (for example imported ones)');
 };
 
 export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
@@ -94,7 +95,7 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
             })}
           </span>
         )}
-        {world && <span className="world-name">{world.title()}</span>}
+        {world && <span className="world-name">{worldTitle(world.id)}</span>}
         <span className="muted">
           {done}/{list.length} {tr('完成', 'done')}
         </span>
@@ -128,7 +129,7 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
                 key={c.id}
                 className={`lesson-card ${c.id === active?.id ? 'on' : ''} ${completed[c.id] ? 'done' : ''} ${unitStart ? 'unit-start' : ''}`}
                 aria-current={c.id === active?.id ? 'true' : undefined}
-                title={place ? `${place.unit.num} ${place.unit.title()}` : undefined}
+                title={place ? `${place.unit.num} ${unitTitle(place.unit.num)}` : undefined}
                 onClick={() => open(c.id, mode)}
               >
                 <div className="lc-num" aria-hidden={completed[c.id] ? true : undefined}>

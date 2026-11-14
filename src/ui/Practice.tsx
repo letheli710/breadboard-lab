@@ -8,6 +8,7 @@ import { formatSI } from '../core/format';
 import { tr } from '../core/i18n';
 import { CHAPTERS, chapterById, type Chapter, type ChapterWorld } from '../core/problem/chapters';
 import { WORLDS } from '../core/course';
+import { worldTitle } from '../core/courseText';
 import { answerTolerance, checkAnswer, formatAnswer, isPhaseQuestion, type AnswerCheck, type Problem } from '../core/problem/parse';
 import type { Analysis, Question } from '../core/problem/types';
 import { useMastery } from '../state/masteryStore';
@@ -37,7 +38,7 @@ export { Sym };
 
 /** Sidebar groups: the Worlds of the course map (core/course.ts), then the electives. */
 const GROUPS: { n: ChapterWorld; label: () => string }[] = [
-  ...WORLDS.map((w) => ({ n: w.id, label: () => tr(`World ${w.id} · ${w.title()}`, `World ${w.id} · ${w.title()}`) })),
+  ...WORLDS.map((w) => ({ n: w.id, label: () => `World ${w.id} · ${worldTitle(w.id)}` })),
   { n: 6, label: () => tr('选学（主线之外）', 'Electives (off the main path)') },
 ];
 const groupName = (n: ChapterWorld | undefined) => (n === 6 ? tr('选学', 'Elective') : n ? `World ${n}` : '?');

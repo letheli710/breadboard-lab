@@ -1,5 +1,8 @@
 # 课程扩展路线图 / Course roadmap
 
+> **2026-11 起，课程结构和后续工作以 [`REBUILD_PLAN.md`](REBUILD_PLAN.md) 为准**（5 个 World、卡片式单元、美国教材符号）。下面是重构之前的路线图和技术契约，作为历史记录和引擎说明保留；其中的“期”和章节对照是旧结构。
+> **Since 2026-11 the course structure and the work ahead follow [`REBUILD_PLAN.md`](REBUILD_PLAN.md)** (five Worlds, card-style units, US notation). What follows is the earlier roadmap and the engine contracts, kept for reference; its "phases" and chapter mapping describe the old structure.
+
 目标：覆盖大一、大二《电路分析》的核心内容（参照邱关源、罗先觉《电路》第 5 版的章节），分 4 期完成，外加一个**纯理论练习区**。所有新题都是中英双语，由 AI 出题，并由程序自动核对答案。
 
 Goal: cover the core of a first/second-year circuit analysis course in four phases, plus a **theory practice area**. Every new item is bilingual (zh/en), written by AI, and machine-checked.

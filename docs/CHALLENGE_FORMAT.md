@@ -98,6 +98,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `compare` | string 或 string[] | | “对比”段：预期读数和计算过程。学生答完全部必答测量题后才显示（§15）。有测量题时，预期读数只放这里和各题的 `explain`，不要放进 description / hints / 测试名 |
 | `hints` | string[] | | 提示，学生卡住时逐条显示 |
 | `steps` | array | | 步骤引导，lesson 必备（见 §7）；每一步可以带 `check`（§7.1） |
+| `cards` | array | | 卡片式单元（§16）：试一试 / 想明白 / 动手做 / 带走，一次只显示一张，每张卡片拥有一段 steps |
 | `prereq` | string[] | | 先修课程的 id（必须是内置 lesson），任务面板顶部显示成链接，例如实验 1-1 写 `["lesson-ammeter"]` |
 | `solution` | layout | | 参考答案在面包板上的摆法（见 §5）。强烈建议写，校验器会用它证明题目可解 |
 | `start` | layout | | 题目开始时面包板上已经摆好的东西（例如“找错题”） |
@@ -383,6 +384,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `concepts` | string[] | 概念标签（可以和顶层数量不同） |
 | `steps` | string[] | **只写文字**，和顶层 `steps` **按位置一一对应、数量相同**。高亮孔位（`highlight`）沿用顶层 steps，不用重复写 |
 | `hints` | string[] | 和顶层 `hints` 按位置一一对应、数量相同 |
+| `cards` | object[] | 每张卡片的 `title`、`text`，和顶层 `cards` 按位置一一对应、数量相同（`kind`、`steps`、`practice` 不用重复写） |
 | `tests` | string[] | **只写测试名**，和顶层 `tests` 按位置一一对应（`set` / `expect` / `voltages` 不用重复写） |
 | `measurements` | object[] | 和顶层 `measurements` 按位置一一对应：`{ "ask", "explain"?, "choices"? }`（选项数量要和原文相同） |
 | `compare` | string 或 string[] | “对比”段的翻译 |
@@ -739,4 +741,35 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 - 有 `measurements` 就必须有 `solution`。
 
 **校验器**（`npm run validate`）对每道测量题：在 `solution` 上读出这个量（读不出 = 错误）、检查它在 `range` 里、检查按 3 位有效数字输入时会被判对（容差太紧会报错）。另外检查**答案泄露**：标题、summary、description、hints、测试名（各语言）里带单位的数（如 `4.5V`、`2.53 mA`、`1.2kΩ`）如果和某道有单位的测量题的参考读数相差在 3%（或这题的容差）以内，就给警告——把它移到 `compare` / `explain`。题目给定的量（元件值、电源和信号发生器的设置、3.3 V、5 V）不算泄露；有意写出的模型参数用 `"stated": true` 标出。`npm run validate -- --readings` 会把每道题在参考答案上的读数打印出来，写 `range` 和 `compare` 时用。
+
+## 16. 卡片式单元 `cards`（2026-11 起的写法）
+
+课程改成“一次只看一张卡片”（`docs/REBUILD_PLAN.md`）：每个单元分成四张短卡片，任务面板一次只显示一张，卡片标签可以来回切。写了 `cards` 的文件不再显示 `description`（它只作为概要留在文件里，导入页和索引还会用到）；目标原理图默认折起来，免得提前剧透“试一试”。
+
+Card-style units: the task panel shows one short card at a time. A file with `cards` no longer shows its `description` (keep it as a short overview); the target schematic starts folded so it does not give the "try it" card away.
+
+| `kind` | 卡片 | 写什么 |
+|---|---|---|
+| `try` | 🔥 试一试 Try it | 先动手、先看现象（可以故意做错：LED 不串电阻、电流表并联、两颗灯共用电阻）。不讲公式，只提一个问题 |
+| `explain` | 💡 想明白 Why | 用一个比喻或一句话讲清刚才的现象，再给**一个**核心公式（`$…$`），代入数字 |
+| `build` | 🛠️ 动手做 Build | 搭正确的电路、用仪表测量。测量题（§15）显示在这张卡片上 |
+| `wrap` | 🚀 带走 Take away | 两三条要点、真实电路里的坑、下一步；`practice` 链接到对应的理论章节 |
+
+```json
+"cards": [
+  { "kind": "try", "title": "不加电阻，直接接", "text": ["…", "…"], "steps": 3 },
+  { "kind": "explain", "title": "LED 是一道矮水坝", "text": ["…", "$$R = \\frac{V_s - V_f}{I}$$"] },
+  { "kind": "build", "title": "加上电阻，重新搭", "text": "…", "steps": 4 },
+  { "kind": "wrap", "title": "带走", "text": ["- …", "- …"], "practice": ["basics"] }
+]
+```
+
+- `steps`：这张卡片拥有的步骤数。卡片按顺序依次领取顶层 `steps`，**全部卡片的 `steps` 加起来必须等于步骤总数**（校验器检查）。没有步骤的卡片（想明白、带走，以及挑战题的全部卡片）不写或写 0。
+- `text`：字符串或字符串数组（数组按行拼接）。支持 §7 的 Markdown 子集，另外支持公式：行内 `$…$`，单独一行的 `$$…$$` 居中显示。公式里有下标（`V_s`、`R_{eq}`）和 `\\frac{}{}`、`\\sqrt{}`、`^{}`（同理论题的 `mathText`）；JSON 里反斜杠要写两次。
+- `practice`：理论题的章节 id（`src/core/problem/chapters.ts`），在卡片上显示成“趁热练理论题”的链接；校验器检查章节存在。
+- 卡片切换时，步骤跳到这张卡片的第一步。每张卡片最后一步的“下一步”按钮变成“下一张：…”。
+- **文字规矩**（`docs/REBUILD_PLAN.md` §4）：每张卡片 2–5 个短段落或要点，一句话一件事；动作写成**粗体**，孔位、阻值写成 `` `代码` ``（``**`tp1`**``）；不出现程序里的字段名（tests、currents、usb: false……），用界面上的叫法；一个括号里不要再套解释。
+- **答案泄露**检查（§15）也扫描卡片的标题和文字：测量题的预期读数只写在 `explain` / `compare` 里。
+
+The cards take the top-level steps in order (their `steps` must add up to the step count); `text` takes the §7 Markdown plus `$…$` / `$$…$$` formulas (subscripts, `\\frac`, `\\sqrt`, `^{}`); `practice` links theory chapters; the answer-leak check covers card text too.
 

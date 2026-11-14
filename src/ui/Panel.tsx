@@ -26,6 +26,7 @@ import { Md } from './Md';
 import { Prereqs, useStepChecks } from './StepCheck';
 import { CardDeck, measureCardOf, StepNav } from './Cards';
 import { placeOf } from '../core/course';
+import { unitTitle } from '../core/courseText';
 import { tabListKeys } from './a11y';
 import { Mixed } from './Mixed';
 
@@ -151,7 +152,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       </div>
       {place && (
         <p className="course-crumb">
-          World {place.world.id} · {place.unit.num} {place.unit.title()}
+          World {place.world.id} · {place.unit.num} {unitTitle(place.unit.num)}
           {place.unit.items.length > 1 && (
             <span className="muted"> · {tr(`第 ${place.pos + 1} / ${place.unit.items.length} 项`, `item ${place.pos + 1} of ${place.unit.items.length}`)}</span>
           )}

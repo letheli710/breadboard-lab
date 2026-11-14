@@ -1,0 +1,147 @@
+# 课程重构计划 / Course rebuild plan
+
+> 这份文件取代 Gemini 对话里的《Breadboard Lab 2.0 执行手册》，是重构的唯一依据。它保留了那份手册里对的部分，改正了和代码不符的地方，并记录已经完成了什么、还剩什么。
+> This file replaces the "Breadboard Lab 2.0 execution manual" from the Gemini conversation as the single source of truth for the rebuild: what was decided, what in that manual was checked and corrected, what is done and what is left.
+
+**一句话**：这是给你自己用的学习程序。主干按 Alexander & Sadiku《Fundamentals of Electric Circuits》的章节走，用 Boylestad《Introductory Circuit Analysis》的小步子和有效值相量，用 Platt《Make: Electronics》的“先动手、再讲道理”，第 5 世界用 Scherz & Monk《Practical Electronics for Inventors》和 ESP32 教程。每个单元是几张短卡片，一次只看一张。
+
+**In one line**: a study app for one learner. The backbone follows Sadiku's chapters; Boylestad sets the pace and the rms phasors; Make: Electronics sets the "do it first, explain it after" order; World 5 draws on Practical Electronics for Inventors and ESP32 tutorials. Every unit is a few short cards, shown one at a time.
+
+教材只用来对照章节结构和符号约定；课程里的文字、例子和题目都是自己写的，不抄书。
+The textbooks are used for chapter structure and conventions only; all lesson text, examples and problems are written for this project, not copied.
+
+---
+
+## 1. 已经定下的决定 / Decisions
+
+| 事项 | 决定 | 理由 |
+|---|---|---|
+| 主干教材 | Sadiku（章节顺序、理论题对照） | 讲法清楚、自学友好；理论题章节按它排（`src/core/problem/chapters.ts`） |
+| 节奏 | Boylestad 的小步子：串联、并联、混联各成一课 | 直流部分一次只加一个新概念 |
+| 开局方式 | Make: Electronics：先动手、先看现象（可以故意做错），再讲原因 | 先有“咦？”再有公式，更容易保持专注 |
+| 电压符号 | **v / V**（不再用 u / U），电流 i / I | 两本美国教材都这样写 |
+| 阶跃函数 | **u(t)**（不再用 ε(t)） | Sadiku 的写法；电压改用 v 后不再冲突 |
+| 相量大小 | **有效值**（rms），题干写明“（有效值）” | 和你上课用的 Boylestad、和万用表读数一致；Sadiku 用振幅相量，差 √2 |
+| 正弦参考 | cos（Sadiku）；给 sin 时先换成 cos | Boylestad 用 sin，换算一步就够 |
+| 双曲函数 | cosh / sinh / tanh | 美国教材写法 |
+| 状态方程 | ẋ = A·x + B·z（z 是输入向量） | Sadiku 的写法 |
+| 节奏安排 | 先做 World 1 的样板，你试用之后再做 World 2–5 | 避免同一种写法上的问题重复 76 次 |
+
+符号细节见 [`NOTATION.md`](NOTATION.md)。旧题目已经全部迁移；题目 id、问题 id 和 JSON 数据键没有改，所以错题本和进度不受影响。
+
+## 2. 对 Gemini 手册的核对 / What the Gemini manual got right and wrong
+
+| Gemini 说的 | 核对结果 | 怎么处理 |
+|---|---|---|
+| 入门课 2/4/5/7 里“电池”和 `V1` 理想源混用，内阻不一致 | **不对**。`dc_source` 是有意的通配类型，能匹配任何电源；参考答案本来就用 9 V 电池（含 1.5 Ω 内阻） | 不改 |
+| 入门课 1–8 没有步骤检查 | 对 | World 1 的课程每个搭建步骤都加了 `check` |
+| 题面里出现 `tests`、`currents`、`regions`、`usb: false`、`rise` | 对（16 处） | 全部改成界面上的叫法 |
+| 挑战 6 的二极管写“约 0.7 V”，和模型 0.65 V + 0.8 Ω 不一致 | 对 | 改成模型参数和约 0.66 V |
+| 5-8 和 5-15 电路几乎一样 | 对 | 待办（World 5） |
+| 符号全部改成 Sadiku（包括**振幅相量**） | **不妥**：你上课用的 Boylestad 是有效值相量；只把 ε(t) 改成 u(t) 而电压还叫 u，会和电压冲突 | 改成 v/V + u(t) + **有效值相量**（见 §1） |
+| 开放式设计题“只要放宽 target 就行” | **不对**：判分先比对电路连接（拓扑），没有“只看行为”的模式 | 需要先给引擎加“行为判分”模式（待办，§6） |
+| 公式用 `$…$` LaTeX | 当时课程文字**没有**公式渲染 | 已加：课程文字支持 `$…$` / `$$…$$`（复用练习区的公式排版，没有引入新库） |
+| Make: Electronics 第 3 版 | 你给的是第 2 版 | 实验编号按第 2 版对照 |
+| 4-7 + 4-8、1-3 + 2-5 等“合并” | 方向对，但合并成一个巨大的文件不利于专注 | 改成**放进同一个单元**，按顺序做，每一项仍然短 |
+| 挑战 2（分压器）删掉、并进万用表课 | 部分采纳 | 保留成万用表课后面的自己动手练习（1.4b），加了测量题 |
+| 2-7、2-8 留在第 2 世界 | **不对**：它们要用信号发生器和示波器，那是第 3 世界才教 | 移到 3.2 |
+| 第 5 世界先做三极管、再讲开发板 GPIO | **不对**：三极管实验要用 GPIO，先修课是开发板课 | 5.2 先讲开发板和 GPIO，再做三极管 |
+| 示波器双通道课放在第 4 世界 | **不对**：第 3 世界的微分 / 积分实验就要用双通道 | 移到 3.1 |
+
+## 3. 交互结构 / How a unit works
+
+- **Learn 页面 = 整个课程地图**（`src/core/course.ts`）：World 1–5 标签，单元编号 1.1、1.4a、1.4b……；课程、挑战、实验按顺序混排。挑战页只列挑战和实验，同样按 World 分组。
+- **卡片**（`docs/CHALLENGE_FORMAT.md` §16）：🔥 试一试 → 💡 想明白 → 🛠️ 动手做 → 🚀 带走，一次只显示一张。每张卡片拥有一段步骤，步骤带自动检查；测量题在“动手做”卡片上；“带走”卡片链接到理论章节和下一个单元。
+- **理论练习**按 Sadiku 的章节顺序，按 World 分组；`matrix-form`、`transmission-line` 放到“选学”。受控源单独成一章（`dependent-sources`），放在运放之后。
+- 测量题的期望值永远按你自己的面包板仿真；卡片文字里不写测量题的答案（校验器会检查）。
+
+## 4. 写作规范 / Writing rules for cards
+
+1. **先现象，后公式。** “试一试”卡片只给动作和一个问题；公式留给“想明白”。
+2. **一张卡片 2–5 个短段落或要点**，一句话一件事。长解释拆成两句，不要塞进括号。
+3. **动作加粗，孔位和数值用代码样式**：**`b4`**、**`150 Ω`**。三秒内能找到“拿什么、插哪里、调什么”。
+4. **一个核心公式**，用 `$…$` / `$$…$$` 写，然后代入数字。
+5. **不出现程序里的字段名**：写“点「检查我的电路」”“在右侧「属性」里取消勾选「USB 供电」”。
+6. **不超前用术语**：后面才讲的概念，用一句大白话代替。
+7. **模型参数说一致**：LED = Vf + 12 Ω；硅二极管 = 0.65 V + 0.8 Ω；电池内阻 9 V 1.5 Ω、AA 0.15 Ω、CR2032 15 Ω。
+8. 双语：中文在顶层，英文在 `i18n.en`，按位置一一对应。
+
+## 5. 课程地图与进度 / Course map and status
+
+✅ = 已改成卡片式　⬜ = 还是旧写法（能用，但还没重写）
+
+### World 1 · 看见看不见的电（S 1–2 · B 1–7 · M 1–6）✅ 全部完成
+
+| 单元 | 内容 | 文件 |
+|---|---|---|
+| 1.1 | 面包板：孔底下的金属条 | 01 |
+| 1.2 | 电源与 GND：电流回家的路 | 02 |
+| 1.3 | LED：为什么一定要限流电阻（先烧一颗） | 03 |
+| 1.4 | 万用表：看见电压；分压器 | 101、10 |
+| 1.5 | 电流表：串联才能测电流（先接错一次） | 102 |
+| 1.6 | 从原理图到面包板 | 04 |
+| 1.7 | 串联与 KVL | 05、09、202 |
+| 1.8 | 并联与 KCL（两颗灯共用一个电阻） | 06、201 |
+| 1.9 | 开关、按键与电位器 | 07、11、12、13 |
+| 1.10 | 真实的电源：内阻、模块、稳压电源 | 08、17、16、103、18 |
+| 1.11 | 混联、电桥与排错 | 19、15、207、206 |
+| 理论 | 基本概念与基本定律、串并联与等效变换 | `basics`、`equivalence`（受控源题已移走） |
+
+### World 2 · 驯服电路网络与运放（S 3–5 · B 8–9）⬜
+
+2.1 电流源与分流（204、205）· 2.2 结点电压法（224）· 2.3 电源变换与叠加（208、221）· 2.4 戴维宁与最大功率（222、223）· 2.5 LM358：拯救被负载压垮的分压器（106、203、225）· 2.6 同相放大器（226）· 理论：`methods`、`theorems`、`opamp`、`dependent-sources`
+
+### World 3 · 掌控时间（S 6–8 · B 10–11, 25 · M 9）⬜
+
+3.1 信号发生器、示波器、双通道（104、105）· 3.2 运放遇上交流信号（227、228）· 3.3 呼吸灯（245）· 3.4 RC 时间常数（241、247）· 3.5 微分、积分与运放积分器（242、246）· 3.6 电感（243）· 3.7 RLC 振铃（244）· 理论：`storage`、`first-order`、`second-order`
+
+### World 4 · 掌控频率（S 9–17, 19 · B 13–24, 26）⬜
+
+4.1 RL 相量（263）· 4.2 滤波器与谐振（261、262、264、265）· 4.3 有源滤波与级间缓冲（266、267、268）· 4.4 交流功率、三相、变压器（理论）· 4.5 选学：拉普拉斯、傅里叶、二端口（理论）· 理论：`phasors`、`ac-analysis`、`ac-power`、`three-phase`、`coupled`、`frequency`、`s-domain`、`non-sinusoidal`、`two-port`
+
+### World 5 · 从元件到 ESP32 项目（P 3–6, 12 · M 7, 10–11）⬜
+
+5.1 二极管（14）· 5.2 开发板与 GPIO（107、280、281、282）· 5.3 NPN 开关（286、297）· 5.4 MOSFET 与继电器（287、288）· 5.5 供电（291、292）· 5.6 3.3 V 和 5 V（289、290）· 5.7 ADC 与传感器（108、283、284、285）· 5.8 PWM（293、294、295）· 5.9 综合项目（296）· 理论：`nonlinear`
+
+### 选学 / Electives
+
+`matrix-form`（电路方程的矩阵形式）、`transmission-line`（均匀传输线）：不在主线里，练习页最下面。
+
+## 6. 待办 / Backlog（World 2–5）
+
+每个世界的做法和 World 1 一样：每个文件改成四张卡片，课程的每个搭建步骤加检查，挑战题加测量题，用 `npm run validate -- <文件> --readings` 核对读数。
+
+**World 2**
+- 2.1–2.6 全部改成卡片式。2.5 的“试一试”：分压器接上 1 kΩ 负载，看 VOUT 塌下去；“动手做”：拨到跟随器，电压回来。
+- 新实验 **施密特触发器**（LM358 正反馈 + 信号发生器三角波输入，示波器看两个门限）。可行性：时域仿真会保留状态，能表现回差；直流扫电位器做不出回差。要确认 `src/core/check.ts` 的“IN+ / IN− 接反”提示在目标电路本来就是正反馈时不会误报。
+- `dependent-sources` 章的要点开头已经写了“受控源就是放大器”；题目文字按新规范润色。
+
+**World 3**
+- 第 12 课（104）拆成两节：先看波形和格子，再讲 50 Ω 内阻和探头接地。
+- 3.1–3.7 改成卡片式；呼吸灯（245）是很好的“试一试”开局。
+
+**World 4**
+- 新实验 **功率因数校正**：信号发生器 → 感性负载（R + L），按键并联一个电容。读数用测量题的 `"mode": "rms"`（电流表真有效值，已支持）；要确认 3D 电流表在时域里显示的是平均值还是有效值，界面上要说清楚。
+- 新实验 **半波整流 + RC 滤波**：信号发生器 + 二极管 + 100 µF + 1 kΩ，示波器看纹波。
+- 267、268 做成同一单元的前后两项（已在 4.3）。
+- 理论题：相量章已是有效值；`s-domain` 体量大（17 题），按“运算电路与部分分式”“网络函数与零极点”分成两组要点。
+
+**World 5**
+- 新课 **Blue Pill 引脚**：FT 耐 5 V 引脚、PC13 只能 3 mA、ADC 引脚。
+- 287（逻辑电平 MOSFET）只留直流开关和 IRF540N 对比，加 BJT / MOSFET 工作区对照表；PWM 部分留给 294。
+- 综合项目 296 的“自动联动”（ADC 超过阈值 → GPIO 置高）：需要给单片机模型加一条规则并在直流求解里迭代，是引擎功能，单独做。
+- **开放式设计题**（只考行为、不规定元件值）：先给引擎加“行为判分”模式（不做拓扑比对，只跑 tests），再出第一题“天黑自动亮灯”。
+
+**全局**
+- 课程卡片的语言风格统一后，再按同一规范润色理论题的题干和解答（先 World 1 的 `basics`、`equivalence`）。
+- `docs/course-report.html` 是旧结构的快照，重构完成后用 `scripts/course-report.py` 重新生成。
+
+## 7. 检查流程 / How every change is checked
+
+```bash
+npm run validate                                     # 全部题目：电路、测试、参考答案、测量题读数、答案泄露
+npx tsx scripts/validate-challenges.ts <file> --readings   # 看某个文件每道测量题在参考答案上的读数
+npm test                                             # 单元测试 + validate；课程地图测试保证每个文件只出现一次、先修课在前
+npm run e2e                                          # 浏览器：路由、3D 工作台、无障碍、仪器课逐步走一遍
+npm run check                                        # 和 CI 一样：tsc、lint、格式、测试、构建、体积
+```
