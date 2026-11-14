@@ -18,6 +18,7 @@ import { PrMd, Sym } from '../richText';
 import { chapterName, useChapterOf } from './Notebook';
 import { AnswerInput, Feedback, ProblemContext, SolutionBlock, useEntryProblem } from './QuestionParts';
 import { mistakeLabel, qLetter } from './text';
+import { Mixed } from '../Mixed';
 
 const COUNTS = [5, 10, 15, 20];
 const LIMITS = [0, 5, 10, 20, 30, 45, 60];
@@ -438,7 +439,9 @@ export function QuizPage() {
   const result = useMastery((s) => s.data.quizzes.find((x) => x.id === resultId));
   return (
     <div className="ms-page">
-      <div className="eyebrow">{tr('测验 QUIZ', 'QUIZ')}</div>
+      <div className="eyebrow">
+        <Mixed text={tr('测验 QUIZ', 'QUIZ')} />
+      </div>
       <h2 className="pr-title">{quiz ? tr('测验进行中', 'Quiz in progress') : result ? tr('测验结果', 'Quiz results') : tr('章节测验', 'Chapter quiz')}</h2>
       {quiz ? (
         <QuizRunner q={quiz} />

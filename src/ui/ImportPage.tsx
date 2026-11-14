@@ -7,6 +7,7 @@ import { useStore } from '../state/store';
 import { Icon } from './Icons';
 import { Md } from './Md';
 import { Sym } from './richText';
+import { Mixed } from './Mixed';
 
 // only the four docs this page shows (a docs/*.md glob would also inline ROADMAP, SYLLABUS, …);
 // a glob rather than plain imports so a missing file yields the "missing" note, not a build error
@@ -112,7 +113,9 @@ export function ImportPage() {
   return (
     <main id="main" className="import-page">
       <div className="card import-hero">
-        <div className="eyebrow">{tr('题库导入 IMPORT', 'IMPORT')}</div>
+        <div className="eyebrow">
+          <Mixed text={tr('题库导入 IMPORT', 'IMPORT')} />
+        </div>
         <h1>{tr('导入题目文件夹', 'Import a challenge or problem folder')}</h1>
         <p>
           {tr('题目都是 JSON 文件，有两种格式：面包板题', 'All content is JSON, in two formats: breadboard challenges')} <code>breadboard-challenge/1</code>

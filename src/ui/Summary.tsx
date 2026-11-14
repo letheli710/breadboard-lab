@@ -18,6 +18,7 @@ import { GraphFigure } from './GraphFigure';
 import { PrMd, Sym } from './richText';
 import { MathText } from './mathText';
 import { prefersReducedMotion } from './reveal';
+import { Mixed } from './Mixed';
 
 type SectionKey = 'ideas' | 'formulas' | 'examples' | 'mistakes';
 
@@ -317,7 +318,9 @@ export function SummaryPage({ target, problems }: { target: SummaryTarget; probl
           ) : null}
         </div>
         <div className="task-head">
-          <span className="badge sum-badge">{tr('要点 KEY POINTS', 'KEY POINTS')}</span>
+          <span className="badge sum-badge">
+            <Mixed text={tr('要点 KEY POINTS', 'KEY POINTS')} />
+          </span>
         </div>
         <h1 className="pr-title">{chapter?.title() ?? target.chapter}</h1>
       </header>

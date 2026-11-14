@@ -19,6 +19,7 @@ import { Icon, PartIcon } from './Icons';
 import { QualityToggle } from './QualityToggle';
 import { Scope } from './Scope';
 import { prefersReducedMotion } from './reveal';
+import { Mixed } from './Mixed';
 
 const smooth = (): ScrollBehavior => (prefersReducedMotion() ? 'auto' : 'smooth');
 
@@ -73,12 +74,16 @@ function Toolbox() {
       <div className="toolbox" ref={box}>
         {groups().map((g) => (
           <div key={g.title} className="tool-group" role="group" aria-label={g.title}>
-            <div className="tool-group-title">{g.title}</div>
+            <div className="tool-group-title">
+              <Mixed text={g.title} />
+            </div>
             <div className="tool-grid">
               {g.items.map((t) => (
                 <button key={t} className={`tool ${tool === t ? 'on' : ''}`} aria-pressed={tool === t} onClick={() => setTool(tool === t ? 'select' : t)} title={toolName(t)}>
                   <PartIcon type={t} size={28} />
-                  <span>{toolName(t)}</span>
+                  <span>
+                    <Mixed text={toolName(t)} />
+                  </span>
                 </button>
               ))}
             </div>

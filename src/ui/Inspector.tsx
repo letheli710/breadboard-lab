@@ -14,6 +14,7 @@ import { DeviceEditor, DeviceReadout, McuInspector, OWN_READOUT } from './McuIns
 import { HiddenReadingsNote } from './HiddenReadings';
 import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { isMcuBoard } from '../core/mcu';
+import { Mixed } from './Mixed';
 
 const R_VALUES = [10, 47, 100, 150, 220, 330, 470, 680, 1000, 2200, 4700, 10000, 22000, 47000, 100000, 1000000];
 
@@ -24,7 +25,9 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
       const bands = resistorBands(props.resistance ?? 330);
       return (
         <div className="editor">
-          <label>{tr('阻值 Resistance', 'Resistance')}</label>
+          <label>
+            <Mixed text={tr('阻值 Resistance', 'Resistance')} />
+          </label>
           <div className="chips">
             {R_VALUES.map((v) => (
               <button key={v} className={props.resistance === v ? 'on' : ''} onClick={() => onChange({ resistance: v })}>
@@ -44,7 +47,9 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
               }}
             />
           </div>
-          <label>{tr('色环 Color code', 'Colour code')}</label>
+          <label>
+            <Mixed text={tr('色环 Color code', 'Colour code')} />
+          </label>
           <div className="bands">
             {bands.map((b, i) => (
               <div key={i} className="band">
@@ -314,7 +319,7 @@ function AmmeterReadout({ refName }: { refName: string }) {
         <>
           <div className="ac-tag">{tr('交流电路：电流表（DC 档）显示平均值', 'AC circuit: the meter (DC mode) shows the average')}</div>
           <div>
-            {tr('有效值 RMS', 'RMS')} <b>{amps(acm.rms)}</b>
+            <Mixed text={tr('有效值 RMS', 'RMS')} /> <b>{amps(acm.rms)}</b>
           </div>
           <div>
             {tr('最小 / 最大', 'Min / max')} <b>{`${amps(acm.min)} / ${amps(acm.max)}`}</b>
@@ -471,7 +476,7 @@ export function Inspector() {
             <div>
               <div className="eyebrow">{tr('即将放置', 'Placing next')}</div>
               <h3>
-                {def.name} {getLang() === 'zh' && <small>{def.nameEn}</small>}
+                {def.name} {getLang() === 'zh' && <small lang="en">{def.nameEn}</small>}
               </h3>
             </div>
           </div>
@@ -532,7 +537,7 @@ export function Inspector() {
         <div>
           <div className="eyebrow">{part.ref}</div>
           <h3>
-            {def.name} {getLang() === 'zh' && <small>{def.nameEn}</small>}
+            {def.name} {getLang() === 'zh' && <small lang="en">{def.nameEn}</small>}
           </h3>
         </div>
         <button className="danger" onClick={() => removePart(part.id)}>

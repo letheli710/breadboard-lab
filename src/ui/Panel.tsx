@@ -25,6 +25,7 @@ import { allAnswered, emptyReadings, matchBoard, revalidate, structureKey } from
 import { Md } from './Md';
 import { Prereqs, StepStatus, useStepChecks } from './StepCheck';
 import { tabListKeys } from './a11y';
+import { Mixed } from './Mixed';
 
 export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: string }) {
   const setHighlight = useStore((s) => s.setHighlight);
@@ -139,7 +140,9 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   return (
     <div className="task">
       <div className="task-head">
-        <span className={`badge ${ch.kind}`}>{ch.kind === 'lesson' ? tr('课程 LESSON', 'LESSON') : tr('挑战 CHALLENGE', 'CHALLENGE')}</span>
+        <span className={`badge ${ch.kind}`}>
+          <Mixed text={ch.kind === 'lesson' ? tr('课程 LESSON', 'LESSON') : tr('挑战 CHALLENGE', 'CHALLENGE')} />
+        </span>
         <Stars n={ch.level} />
         {completed[ch.id] && <span className="badge done">✓ {tr('已完成', 'Done')}</span>}
         {ch.source !== 'folder' && <span className="badge src">{tr('导入', 'Imported')}</span>}
@@ -245,7 +248,9 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       </details>
 
       <details className="fold" open>
-        <summary>{tr('目标电路图 TARGET SCHEMATIC', 'Target schematic')}</summary>
+        <summary>
+          <Mixed text={tr('目标电路图 TARGET SCHEMATIC', 'Target schematic')} />
+        </summary>
         <div className="schem-card">
           {/* with measurement questions the target's simulated currents / voltages would give the readings away */}
           <SchematicView circuit={ch.target} sim={targetSim} showValues hideReadings={hasM} />
@@ -397,7 +402,9 @@ function SchematicPanel() {
       </p>
       {nl.circuit.nets.length > 0 && (
         <>
-          <div className="eyebrow">{tr('结点表 NETLIST', 'NETLIST')}</div>
+          <div className="eyebrow">
+            <Mixed text={tr('结点表 NETLIST', 'NETLIST')} />
+          </div>
           <table className="netlist">
             <caption className="sr-only">{tr('结点表：每个结点的电压、连接的引脚和面包板位置', 'Netlist: voltage, connected pins and breadboard holes of every node')}</caption>
             <thead>
@@ -464,7 +471,7 @@ function IssuesPanel() {
       {Object.keys(counts).length > 0 && (
         <>
           <div className="eyebrow" style={{ marginTop: 16 }}>
-            {tr('元件清单 BOM', 'Parts list (BOM)')}
+            <Mixed text={tr('元件清单 BOM', 'Parts list (BOM)')} />
           </div>
           <ul className="bom">
             {Object.entries(counts).map(([k, v]) => (

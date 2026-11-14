@@ -10,6 +10,7 @@ import { Icon } from '../Icons';
 import { Sym } from '../richText';
 import { BlindQuestion } from './QuestionParts';
 import { dayLabel } from './text';
+import { Mixed } from '../Mixed';
 
 export function ReviewSession() {
   const data = useMastery((s) => s.data);
@@ -36,7 +37,9 @@ export function ReviewSession() {
 
   const head = (
     <>
-      <div className="eyebrow">{tr('间隔复习 REVIEW', 'SPACED REVIEW')}</div>
+      <div className="eyebrow">
+        <Mixed text={tr('间隔复习 REVIEW', 'SPACED REVIEW')} />
+      </div>
       <h2 className="pr-title">{tr('今日复习', "Today's review")}</h2>
     </>
   );
@@ -118,7 +121,9 @@ export function HowItWorks() {
   const openView = useStore((s) => s.openPracticeView);
   return (
     <div className="ms-page ms-how">
-      <div className="eyebrow">{tr('说明 HOW IT WORKS', 'HOW IT WORKS')}</div>
+      <div className="eyebrow">
+        <Mixed text={tr('说明 HOW IT WORKS', 'HOW IT WORKS')} />
+      </div>
       <h2 className="pr-title">{tr('错题本、复习和测验是怎么运作的', 'How the notebook, review and quizzes work')}</h2>
       <div className="ms-how-grid">
         <section>

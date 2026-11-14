@@ -6,6 +6,7 @@ import { startIndexLoads, startRouting } from './state/routeSync';
 import { useLang, useStore, type Mode } from './state/store';
 import { Icon } from './ui/Icons';
 import { Toast } from './ui/Toast';
+import { Mixed } from './ui/Mixed';
 
 // every page is its own chunk; the 3D workbench (three.js) is only fetched for learn / challenge / sandbox
 const Workbench = lazy(() => import('./ui/Workbench').then((m) => ({ default: m.Workbench })));
@@ -76,7 +77,9 @@ function ProgressView({ icon, label, done, total }: { icon: string; label: strin
     <div className={`progress-card ${total === null ? 'pending' : ''}`} aria-busy={total === null}>
       <Icon name={icon} size={22} />
       <div>
-        <div className="pc-title">{label}</div>
+        <div className="pc-title">
+          <Mixed text={label} />
+        </div>
         <div
           className="pc-bar"
           role="progressbar"

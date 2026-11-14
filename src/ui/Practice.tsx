@@ -27,6 +27,7 @@ import { PrMd, Sym } from './richText';
 import { SummaryPage } from './Summary';
 import { MasteryNav } from './mastery/MasteryNav';
 import { SymbolKeys } from './SymbolKeys';
+import { Mixed } from './Mixed';
 
 // the notebook / review / quiz pages are a chunk of their own
 const MasteryPage = lazy(() => import('./mastery/MasteryPage'));
@@ -718,7 +719,9 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
           </div>
         </div>
         <div className="task-head">
-          <span className="badge practice">{tr('练习 PRACTICE', 'PRACTICE')}</span>
+          <span className="badge practice">
+            <Mixed text={tr('练习 PRACTICE', 'PRACTICE')} />
+          </span>
           <Stars n={p.level} />
           {isDone && <span className="badge done">✓ {tr('已完成', 'Done')}</span>}
           {reviewedAll && (
@@ -746,7 +749,9 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
           <div className="pr-statement">
             <PrMd text={p.statement} />
           </div>
-          <div className="eyebrow">{tr('电路图 CIRCUIT', 'CIRCUIT')}</div>
+          <div className="eyebrow">
+            <Mixed text={tr('电路图 CIRCUIT', 'CIRCUIT')} />
+          </div>
           <div className="schem-card pr-schem">
             <ProblemSchematic schematic={p.schematic} highlight={highlight} />
           </div>
@@ -950,7 +955,9 @@ export function Practice() {
         </div>
       ) : (
         <div className="pr-main card pr-empty">
-          <div className="eyebrow">{tr('练习 PRACTICE', 'PRACTICE')}</div>
+          <div className="eyebrow">
+            <Mixed text={tr('练习 PRACTICE', 'PRACTICE')} />
+          </div>
           <h1 className="pr-title">{tr('还没有理论题', 'No theory problems yet')}</h1>
           <p>
             {tr('把 ', 'Put ')}

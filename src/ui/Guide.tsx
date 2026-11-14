@@ -1,6 +1,7 @@
 import { BATTERIES } from '../core/parts';
 import { getLang, tr } from '../core/i18n';
 import { FigureFrame } from './FigureFrame';
+import { Mixed } from './Mixed';
 
 function BoardDiagram() {
   const cols = 12;
@@ -158,7 +159,9 @@ export function Guide() {
     <main id="main" className="guide">
       <div className="guide-hero card">
         <div>
-          <div className="eyebrow">{tr('知识手册 FIELD GUIDE', 'FIELD GUIDE')}</div>
+          <div className="eyebrow">
+            <Mixed text={tr('知识手册 FIELD GUIDE', 'FIELD GUIDE')} />
+          </div>
           <h1>{tr('把原理图搬上面包板', 'From schematic to breadboard')}</h1>
           <p>
             {tr(
@@ -174,7 +177,9 @@ export function Guide() {
           <a className="concept-num" href="#/guide/breadboard" title={tr('这一节的链接', 'Link to this section')}>
             01
           </a>
-          <h2>{tr('面包板内部结构 Breadboard internals', 'Breadboard internals')}</h2>
+          <h2>
+            <Mixed text={tr('面包板内部结构 Breadboard internals', 'Breadboard internals')} />
+          </h2>
           <BoardDiagram />
           {en ? (
             <ul>
@@ -210,7 +215,9 @@ export function Guide() {
           <a className="concept-num" href="#/guide/ground" title={tr('这一节的链接', 'Link to this section')}>
             02
           </a>
-          <h2>{tr('GND 到底是什么？What is ground?', 'What is ground (GND)?')}</h2>
+          <h2>
+            <Mixed text={tr('GND 到底是什么？What is ground?', 'What is ground (GND)?')} />
+          </h2>
           <GroundDiagram />
           {en ? (
             <ul>
@@ -303,7 +310,9 @@ export function Guide() {
           <a className="concept-num" href="#/guide/power" title={tr('这一节的链接', 'Link to this section')}>
             04
           </a>
-          <h2>{tr('电源有哪几种？Power supplies', 'Types of power supply')}</h2>
+          <h2>
+            <Mixed text={tr('电源有哪几种？Power supplies', 'Types of power supply')} />
+          </h2>
           <table className="cmp">
             <thead>
               <tr>
@@ -334,7 +343,9 @@ export function Guide() {
                 </td>
               </tr>
               <tr>
-                <td>{tr('实验室稳压电源 Bench supply', 'Bench power supply')}</td>
+                <td>
+                  <Mixed text={tr('实验室稳压电源 Bench supply', 'Bench power supply')} />
+                </td>
                 <td>{tr('0–30 V 可调', '0–30 V adjustable')}</td>
                 <td>
                   {tr(
@@ -361,7 +372,9 @@ export function Guide() {
           <a className="concept-num" href="#/guide/series-parallel" title={tr('这一节的链接', 'Link to this section')}>
             05
           </a>
-          <h2>{tr('串联与并联 Series vs parallel', 'Series vs parallel')}</h2>
+          <h2>
+            <Mixed text={tr('串联与并联 Series vs parallel', 'Series vs parallel')} />
+          </h2>
           {en ? (
             <ul>
               <li>

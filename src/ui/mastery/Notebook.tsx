@@ -12,6 +12,7 @@ import { Icon } from '../Icons';
 import { Sym } from '../richText';
 import { BlindQuestion } from './QuestionParts';
 import { dayLabel, mistakeLabel, qLetter, viaLabel } from './text';
+import { Mixed } from '../Mixed';
 
 type Status = 'active' | 'resolved' | 'all';
 type Group = 'chapter' | 'type';
@@ -162,7 +163,9 @@ export function Notebook() {
 
   return (
     <div className="ms-page">
-      <div className="eyebrow">{tr('错题本 MISTAKES', 'MISTAKE NOTEBOOK')}</div>
+      <div className="eyebrow">
+        <Mixed text={tr('错题本 MISTAKES', 'MISTAKE NOTEBOOK')} />
+      </div>
       <h2 className="pr-title">{tr('错题本', 'Mistake notebook')}</h2>
       <div className="ms-summary">
         <div className="ms-stat">

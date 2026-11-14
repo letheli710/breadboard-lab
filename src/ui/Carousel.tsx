@@ -5,6 +5,7 @@ import { tr } from '../core/i18n';
 import { ensureChallengeIndex } from '../state/challenges';
 import { useStore } from '../state/store';
 import { revealIn, useUserScroll } from './reveal';
+import { Mixed } from './Mixed';
 
 /** Challenge groups: the original intro set (no "phase") and the course phases. */
 type Group = 'intro' | ChallengePhase;
@@ -71,7 +72,7 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
   return (
     <section className="carousel-wrap" aria-label={kind === 'lesson' ? tr('课程列表', 'Lessons') : tr('挑战列表', 'Challenges')}>
       <div className="section-title">
-        {kind === 'lesson' ? tr('课程 LESSONS', 'LESSONS') : tr('挑战 CHALLENGES', 'CHALLENGES')}
+        <Mixed text={kind === 'lesson' ? tr('课程 LESSONS', 'LESSONS') : tr('挑战 CHALLENGES', 'CHALLENGES')} />
         {group !== null && (
           <span className="chips phase-tabs" role="tablist" aria-label={tr('分组', 'Groups')} ref={tabsRef} onKeyDown={tabListKeys}>
             {groups.map((g) => {
