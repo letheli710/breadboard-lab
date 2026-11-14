@@ -2672,11 +2672,15 @@ a:focus-visible {
   outline-offset: 2px;
   box-shadow: 0 0 0 5px rgba(43, 165, 155, 0.18);
 }
+/* fields get the same ring as buttons; a composite field (an input inside a bordered wrapper with
+   its unit, e.g. practice answers) draws it on the wrapper, which is what looks like the field */
 input:focus-visible,
 select:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+.pr-input:has(input:focus-visible, textarea:focus-visible) {
   outline: 2.5px solid var(--accent-ink);
-  outline-offset: 1px;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(23, 117, 108, 0.2);
 }
 /* dark buttons: a light ring between the button and the outline */
 button.primary:focus-visible,
@@ -2684,9 +2688,11 @@ button.primary:focus-visible,
 .lang-switch button.on:focus-visible {
   box-shadow: 0 0 0 2px #fff;
 }
-/* inputs whose wrapper draws the focus ring (practice answers) keep that look */
-.pr-input input:focus-visible {
+/* inputs whose wrapper draws the focus ring (practice / review / quiz answers, readings) */
+.pr-input input:focus-visible,
+.pr-input textarea:focus-visible {
   outline: none;
+  box-shadow: none;
 }
 /* the 3D canvas: a quiet inset ring instead of an outline around the whole stage */
 .stage-view canvas:focus-visible {

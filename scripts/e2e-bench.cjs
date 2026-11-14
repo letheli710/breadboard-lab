@@ -1,4 +1,4 @@
-/* global require, process, console, window, document, localStorage, sessionStorage, Image, __dirname, location, PointerEvent, MouseEvent, setTimeout */
+/* global require, process, console, window, document, localStorage, sessionStorage, Image, __dirname, location, PointerEvent, MouseEvent, setTimeout, getComputedStyle */
 /* eslint-disable @typescript-eslint/no-require-imports */
 // Browser smoke tests of the 3D bench (not part of npm test: needs a running e2e build).
 //   npm run e2e                       (builds dist-e2e/, starts a preview, runs this and e2e-routes)
@@ -821,6 +821,84 @@ const TESTS = {
         assert(errors.length === 0, 'quiz: no page errors ' + errors.join(' | '));
       } finally {
         await shot(p, 'kb-quiz');
+        await ctx.close();
+      }
+    }
+  },
+
+  // every control reached with Tab shows a focus indicator (outline or ring) on itself or on the
+  // wrapper that draws it (.pr-input answer fields, the 3D stage) — axe does not check this
+  async focusVisible(browser) {
+    const STOPS = 120;
+    const missing = async (p, label, expectField) => {
+      const bad = [];
+      let n = 0;
+      let fields = 0;
+      await p.locator('body').focus();
+      for (let i = 0; i < STOPS; i++) {
+        await p.keyboard.press('Tab');
+        const r = await p.evaluate(() => {
+          const el = document.activeElement;
+          if (!el || el === document.body) return null;
+          const shows = (e) => {
+            if (!e) return false;
+            const s = getComputedStyle(e);
+            return (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) >= 2) || (s.boxShadow && s.boxShadow !== 'none');
+          };
+          const ok = shows(el) || shows(el.closest('.pr-input')) || (el.tagName === 'CANVAS' && shows(el.closest('.stage-view')));
+          const name =
+            el.tagName.toLowerCase() +
+            (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : '') +
+            ' "' +
+            (el.getAttribute('aria-label') || el.textContent || el.getAttribute('placeholder') || '').trim().slice(0, 30) +
+            '"';
+          return { ok, name, field: el.matches('input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea') };
+        });
+        if (!r) continue;
+        n++;
+        if (!r.ok && !bad.includes(r.name)) bad.push(r.name);
+        if (r.field) fields++;
+      }
+      if (expectField) assert(fields > 0, `focus visible: ${label} — Tab reached ${fields} text field(s) / select(s)`);
+      assert(bad.length === 0, `focus visible: ${label} — ${n} Tab stops, without an indicator: ${bad.join(', ') || 'none'}`);
+    };
+    const pages = [
+      ['#/practice/basics-ccvs-loop', 'Practice problem', null],
+      ['#/practice/quiz', 'quiz question', 'quiz'],
+      ['#/sandbox', 'bench + keyboard-build form + inspector', 'bench'],
+      ['#/guide', 'Guide', null],
+      ['#/import', 'Import', null],
+    ];
+    for (const [hash, label, setup] of pages) {
+      const { p, ctx } = await open(browser, hash, { waitHook: false });
+      try {
+        await p.waitForSelector('#main h1', { timeout: 20000 });
+        await p.waitForTimeout(500);
+        if (setup === 'quiz') {
+          await p.waitForFunction(() => /^\d+\/\d+$/.test(document.querySelector('.progress-card b')?.textContent.trim() ?? ''), null, { timeout: 20000 });
+          await p.locator('.ms-chpick input[type="checkbox"]').first().check();
+          await p.locator('.ms-setup button.primary:not(:disabled)').first().click();
+          await p.waitForSelector('.ms-quiz', { timeout: 15000 });
+          // a question with a typed answer (the drawn set may start with a multiple-choice one)
+          for (let k = 0; k < 20 && !(await p.locator('.ms-quiz .pr-input input').count()); k++) {
+            const nav = p.locator('.ms-qnav button');
+            if (k + 1 >= (await nav.count())) break;
+            await nav.nth(k + 1).click();
+            await p.waitForTimeout(100);
+          }
+        }
+        if (setup === 'bench') {
+          await p.waitForFunction(() => window.__bb && window.__bb.frames > 2, null, { timeout: 30000 });
+          await p.locator('.kb-bench > summary').click();
+          await p.locator('.kb-place select').selectOption('resistor');
+          await p.locator('.kb-place input').fill('c10 c14');
+          await p.locator('.kb-place button[type="submit"]').click();
+          await p.evaluate(() => window.__bb.store.getState().setPanel('inspect'));
+          await p.waitForTimeout(300);
+        }
+        await missing(p, label, setup !== null || label === 'Practice problem');
+      } finally {
+        await shot(p, 'focus-' + label.split(' ')[0]);
         await ctx.close();
       }
     }
