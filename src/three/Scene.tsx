@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { HOLE_MAP } from '../core/breadboard';
+import { BOARD, HOLE_MAP } from '../core/breadboard';
 import { PARTS } from '../core/parts';
 import type { PlacedPart } from '../core/types';
 import { ammeterReading, ledOf, useDerived } from '../state/derived';
@@ -57,7 +57,26 @@ function CameraRig() {
       const short = h > 0 && h < 420;
       if (short) radius = Math.max(radius, 15 / Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)));
       const target = short ? new THREE.Vector3(0, 0, 0.5) : TARGET.clone();
-      const pos = new THREE.Vector3().setFromSpherical(new THREE.Spherical(radius, angles.phi, angles.theta)).add(target);
+      const at = (r: number) => new THREE.Vector3().setFromSpherical(new THREE.Spherical(r, angles.phi, angles.theta)).add(target);
+      // then back off until the whole board — all four power rails — is on the canvas and clear of
+      // the floating toolbar where it overlaps the canvas's bottom edge
+      const probe = cam.clone();
+      const cr = gl.domElement.getBoundingClientRect();
+      const bar = gl.domElement.closest('.stage')?.querySelector('.toolbar')?.getBoundingClientRect();
+      const overlap = bar && bar.left < cr.right && bar.right > cr.left ? Math.max(0, cr.bottom - bar.top) : 0;
+      const bottom = h > 0 ? -1 + (2 * (overlap + 10)) / h : -0.9;
+      const corners = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => new THREE.Vector3((sx * BOARD.width) / 2, 0, (sz * BOARD.depth) / 2)));
+      const fits = (r: number) => {
+        probe.position.copy(at(r));
+        probe.lookAt(target);
+        probe.updateMatrixWorld();
+        return corners.every((c) => {
+          const v = c.clone().project(probe);
+          return Math.abs(v.x) <= 0.97 && v.y <= 0.97 && v.y >= bottom;
+        });
+      };
+      for (let i = 0; i < 40 && !fits(radius); i++) radius *= 1.04;
+      const pos = at(radius);
       goal.current = { pos, target };
       invalidate();
     };

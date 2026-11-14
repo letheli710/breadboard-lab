@@ -462,6 +462,31 @@ const TESTS = {
     }
   },
 
+  // the default view shows the whole board — all four rails — with nothing over its holes
+  // (Chinese text at 1366×768 used to leave the bottom rail under the toolbar / off the canvas)
+  async boardInView(browser) {
+    for (const [lang, width, height] of [
+      ['zh', 1366, 768],
+      ['en', 1366, 768],
+      ['zh', 1440, 900],
+    ]) {
+      const { p, ctx, errors } = await open(browser, '#/learn/lesson-mcu-pwm-adc', { viewport: { width, height }, storage: { 'bb.lang': lang } });
+      try {
+        await settleFrames(p);
+        const blocked = await p.evaluate(() =>
+          ['tp1', 'tp30', 'tn1', 'tn30', 'bp1', 'bp30', 'bn1', 'bn15', 'bn30'].filter((h) => {
+            const q = window.__bb.hole(h);
+            return document.elementFromPoint(q.x, q.y) !== window.__bb.canvas;
+          }),
+        );
+        assert(blocked.length === 0, `${lang} ${width}×${height}: every rail corner is on the canvas, uncovered${blocked.length ? ' (not: ' + blocked.join(' ') + ')' : ''}`);
+        assert(errors.length === 0, `${lang} ${width}: no page errors ` + errors.join(' | '));
+      } finally {
+        await ctx.close();
+      }
+    }
+  },
+
   // the camera stays where the user put it: placing parts, switching panel tabs, the circuit check
   // and leaving the bench for the Guide and coming back never reset it to the default view
   async cameraKept(browser) {
