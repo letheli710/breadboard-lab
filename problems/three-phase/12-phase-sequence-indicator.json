@@ -8,7 +8,7 @@
   "tags": ["相序指示器", "中性点位移", "不对称三相电路"],
   "statement": [
     "相序指示器由一个电容和两只相同的白炽灯接成星形（无中线）构成。把它接到相电压 220 V、50 Hz 的对称三相电源上，电容接 A 相，两灯分别接 B、C 相；灯的电阻 R = 100 Ω，电容 C = 1/(100π × 100) F ≈ 31.83 µF，使 1/(ωC) = R = 100 Ω。电源正序，U̇_A = 220∠0° V。",
-    "求中性点位移电压 U_N'N 以及两灯的电压 U_BN'、U_CN'（均为有效值），并说明如何用它判断相序。"
+    "求中性点位移电压 U_{N'N} 以及两灯的电压 U_{BN'}、U_{CN'}（均为有效值），并说明如何用它判断相序。"
   ],
   "schematic": {
     "elements": [
@@ -43,27 +43,27 @@
   "questions": [
     {
       "id": "UNN",
-      "ask": "中性点位移电压 U_N'N = ?",
+      "ask": "中性点位移电压 U_{N'N} = ?",
       "find": { "kind": "v", "nodes": ["N'"], "part": "mag" },
       "answer": 139.1402,
       "unit": "V",
-      "explain": "设 G = 1/R，则 jωC = jG。弥尔曼定理：U̇_N'N = (jG·U̇_A + G·U̇_B + G·U̇_C)/(jG + 2G) = U_p(j − 1)/(2 + j) = U_p(−0.2 + j0.6) = 0.632U_p∠108.4° ≈ 139.1∠108.4° V。"
+      "explain": "设 G = 1/R，则 jωC = jG。弥尔曼定理：U̇_{N'N} = (jG·U̇_A + G·U̇_B + G·U̇_C)/(jG + 2G) = U_p(j − 1)/(2 + j) = U_p(−0.2 + j0.6) = 0.632U_p∠108.4° ≈ 139.1∠108.4° V。"
     },
     {
       "id": "UB",
-      "ask": "B 相灯的电压 U_BN' = ?",
+      "ask": "B 相灯的电压 U_{BN'} = ?",
       "find": { "kind": "v", "el": "RB", "part": "mag" },
       "answer": 329.2093,
       "unit": "V",
-      "explain": "U̇_BN' = U̇_B − U̇_N'N = U_p[(−0.5 − j0.866) − (−0.2 + j0.6)] = U_p(−0.3 − j1.466)，模 1.496U_p ≈ 329.2 V。"
+      "explain": "U̇_{BN'} = U̇_B − U̇_{N'N} = U_p[(−0.5 − j0.866) − (−0.2 + j0.6)] = U_p(−0.3 − j1.466)，模 1.496U_p ≈ 329.2 V。"
     },
     {
       "id": "UC",
-      "ask": "C 相灯的电压 U_CN' = ?",
+      "ask": "C 相灯的电压 U_{CN'} = ?",
       "find": { "kind": "v", "el": "RC", "part": "mag" },
       "answer": 88.21136,
       "unit": "V",
-      "explain": "U̇_CN' = U̇_C − U̇_N'N = U_p[(−0.5 + j0.866) − (−0.2 + j0.6)] = U_p(−0.3 + j0.266)，模 0.401U_p ≈ 88.2 V。"
+      "explain": "U̇_{CN'} = U̇_C − U̇_{N'N} = U_p[(−0.5 + j0.866) − (−0.2 + j0.6)] = U_p(−0.3 + j0.266)，模 0.401U_p ≈ 88.2 V。"
     },
     {
       "id": "seq",
@@ -73,7 +73,7 @@
         "灯较暗的一相是 B 相，灯较亮的一相是 C 相",
         "两灯一样亮，无法判断相序",
         "两灯都不亮，电容把电路短路了"
-      ], "choiceExplain": ["", "亮暗弄反了：对照前面算出的 U_BN' 与 U_CN'，电压高的那一相灯更亮。", "电容使三相负载不对称，中性点位移，两灯电压分别约为 1.5U_p 和 0.4U_p，亮度明显不同。", "电容的容抗 1/(ωC) = 100 Ω，不是短路；它只是让中性点偏移，两灯中都有电流。"],
+      ], "choiceExplain": ["", "亮暗弄反了：对照前面算出的 U_{BN'} 与 U_{CN'}，电压高的那一相灯更亮。", "电容使三相负载不对称，中性点位移，两灯电压分别约为 1.5U_p 和 0.4U_p，亮度明显不同。", "电容的容抗 1/(ωC) = 100 Ω，不是短路；它只是让中性点偏移，两灯中都有电流。"],
       "correct": 0,
       "explain": "由上面的计算，正序时紧跟在电容相后面的那一相（B 相）的灯电压约 1.5U_p，灯很亮；另一相只有约 0.4U_p，灯很暗。所以“电容为 A，亮灯为 B，暗灯为 C”。"
     }
@@ -81,14 +81,14 @@
   "hints": [
     "没有中线，负载又不对称：以 N 为参考点，对 N' 用弥尔曼定理。",
     "利用 1/(ωC) = R，把各支路导纳都写成 G 的倍数：Y_A = jG，Y_B = Y_C = G，并用 U̇_B + U̇_C = −U̇_A 化简。",
-    "求出 U̇_N'N 后，两灯电压分别为 U̇_B − U̇_N'N 和 U̇_C − U̇_N'N。"
+    "求出 U̇_{N'N} 后，两灯电压分别为 U̇_B − U̇_{N'N} 和 U̇_C − U̇_{N'N}。"
   ],
   "solution": [
-    "**1. 弥尔曼定理。** Y_A = jωC = jG，Y_B = Y_C = G。U̇_N'N = (jG·U̇_A + G(U̇_B + U̇_C))/(jG + 2G)，而 U̇_B + U̇_C = −U̇_A，所以 U̇_N'N = U̇_A(j − 1)/(2 + j) = U̇_A(−1 + j3)/5 = 220 × (−0.2 + j0.6) = **139.1∠108.4° V**。",
-    "**2. B 相灯。** U̇_BN' = U̇_B − U̇_N'N = 220 × (−0.3 − j1.466) = **329.2∠−101.6° V**（1.496U_p）。",
-    "**3. C 相灯。** U̇_CN' = U̇_C − U̇_N'N = 220 × (−0.3 + j0.266) = **88.2∠138.4° V**（0.401U_p）。",
+    "**1. 弥尔曼定理。** Y_A = jωC = jG，Y_B = Y_C = G。U̇_{N'N} = (jG·U̇_A + G(U̇_B + U̇_C))/(jG + 2G)，而 U̇_B + U̇_C = −U̇_A，所以 U̇_{N'N} = U̇_A(j − 1)/(2 + j) = U̇_A(−1 + j3)/5 = 220 × (−0.2 + j0.6) = **139.1∠108.4° V**。",
+    "**2. B 相灯。** U̇_{BN'} = U̇_B − U̇_{N'N} = 220 × (−0.3 − j1.466) = **329.2∠−101.6° V**（1.496U_p）。",
+    "**3. C 相灯。** U̇_{CN'} = U̇_C − U̇_{N'N} = 220 × (−0.3 + j0.266) = **88.2∠138.4° V**（0.401U_p）。",
     "**4. 功率对比。** P_B = 329.2²/100 ≈ 1084 W，P_C = 88.2²/100 ≈ 78 W，B 灯远比 C 灯亮。",
-    "**5. 判断相序。** 电容接的相记为 A，较亮的灯所在相为 B，较暗的为 C。验算：İ_A = jG(U̇_A − U̇_N'N) = 2.95∠63.4° A，İ_B + İ_C = (U̇_BN' + U̇_CN')/R = 220 × (−0.6 − j1.2)/100 = 2.95∠−116.6° A，两者之和为零 ✓。"
+    "**5. 判断相序。** 电容接的相记为 A，较亮的灯所在相为 B，较暗的为 C。验算：İ_A = jG(U̇_A − U̇_{N'N}) = 2.95∠63.4° A，İ_B + İ_C = (U̇_{BN'} + U̇_{CN'})/R = 220 × (−0.6 − j1.2)/100 = 2.95∠−116.6° A，两者之和为零 ✓。"
   ],
   "i18n": {
     "en": {
@@ -96,12 +96,12 @@
       "tags": ["phase-sequence indicator", "neutral-point displacement", "unbalanced three-phase circuit"],
       "statement": [
         "A phase-sequence indicator is a capacitor and two identical incandescent lamps connected in wye (no neutral). It is connected to a balanced three-phase source of 220 V phase voltage at 50 Hz: the capacitor to phase A, the lamps to phases B and C. Each lamp has R = 100 Ω and the capacitor is C = 1/(100π × 100) F ≈ 31.83 µF, so that 1/(ωC) = R = 100 Ω. The source is positive sequence with U̇_A = 220∠0° V.",
-        "Find the neutral-displacement voltage U_N'N and the lamp voltages U_BN' and U_CN' (all rms), and explain how this identifies the phase sequence."
+        "Find the neutral-displacement voltage U_{N'N} and the lamp voltages U_{BN'} and U_{CN'} (all rms), and explain how this identifies the phase sequence."
       ],
       "questions": [
-        { "ask": "Neutral-displacement voltage U_N'N = ?", "explain": "Let G = 1/R, so jωC = jG. Millman's theorem: U̇_N'N = (jG·U̇_A + G·U̇_B + G·U̇_C)/(jG + 2G) = U_p(j − 1)/(2 + j) = U_p(−0.2 + j0.6) = 0.632U_p∠108.4° ≈ 139.1∠108.4° V." },
-        { "ask": "Voltage across the phase-B lamp, U_BN' = ?", "explain": "U̇_BN' = U̇_B − U̇_N'N = U_p[(−0.5 − j0.866) − (−0.2 + j0.6)] = U_p(−0.3 − j1.466), magnitude 1.496U_p ≈ 329.2 V." },
-        { "ask": "Voltage across the phase-C lamp, U_CN' = ?", "explain": "U̇_CN' = U̇_C − U̇_N'N = U_p[(−0.5 + j0.866) − (−0.2 + j0.6)] = U_p(−0.3 + j0.266), magnitude 0.401U_p ≈ 88.2 V." },
+        { "ask": "Neutral-displacement voltage U_{N'N} = ?", "explain": "Let G = 1/R, so jωC = jG. Millman's theorem: U̇_{N'N} = (jG·U̇_A + G·U̇_B + G·U̇_C)/(jG + 2G) = U_p(j − 1)/(2 + j) = U_p(−0.2 + j0.6) = 0.632U_p∠108.4° ≈ 139.1∠108.4° V." },
+        { "ask": "Voltage across the phase-B lamp, U_{BN'} = ?", "explain": "U̇_{BN'} = U̇_B − U̇_{N'N} = U_p[(−0.5 − j0.866) − (−0.2 + j0.6)] = U_p(−0.3 − j1.466), magnitude 1.496U_p ≈ 329.2 V." },
+        { "ask": "Voltage across the phase-C lamp, U_{CN'} = ?", "explain": "U̇_{CN'} = U̇_C − U̇_{N'N} = U_p[(−0.5 + j0.866) − (−0.2 + j0.6)] = U_p(−0.3 + j0.266), magnitude 0.401U_p ≈ 88.2 V." },
         {
           "ask": "If the sequence is unknown and the phase with the capacitor is called A, then:",
           "choices": [
@@ -109,21 +109,21 @@
             "The dimmer lamp is on phase B and the brighter one on phase C",
             "Both lamps are equally bright, so the sequence cannot be determined",
             "Neither lamp lights, because the capacitor shorts the circuit"
-          ], "choiceExplain": ["", "Bright and dim are swapped: compare U_BN' and U_CN' found above — the lamp with the higher voltage is the brighter one.", "The capacitor makes the load unbalanced and shifts the neutral, so the two lamps get about 1.5U_p and 0.4U_p — clearly different brightness.", "The capacitor's reactance 1/(ωC) = 100 Ω is not a short; it only shifts the neutral point, and both lamps carry current."],
+          ], "choiceExplain": ["", "Bright and dim are swapped: compare U_{BN'} and U_{CN'} found above — the lamp with the higher voltage is the brighter one.", "The capacitor makes the load unbalanced and shifts the neutral, so the two lamps get about 1.5U_p and 0.4U_p — clearly different brightness.", "The capacitor's reactance 1/(ωC) = 100 Ω is not a short; it only shifts the neutral point, and both lamps carry current."],
           "explain": "From the calculation, in positive sequence the phase right after the capacitor phase (B) gets about 1.5U_p and its lamp is bright, while the other gets only about 0.4U_p and is dim. Hence “capacitor = A, bright lamp = B, dim lamp = C”."
         }
       ],
       "hints": [
         "There is no neutral and the load is unbalanced: take N as reference and use Millman's theorem at N'.",
         "Use 1/(ωC) = R to write every admittance as a multiple of G: Y_A = jG, Y_B = Y_C = G, and simplify with U̇_B + U̇_C = −U̇_A.",
-        "With U̇_N'N known, the lamp voltages are U̇_B − U̇_N'N and U̇_C − U̇_N'N."
+        "With U̇_{N'N} known, the lamp voltages are U̇_B − U̇_{N'N} and U̇_C − U̇_{N'N}."
       ],
       "solution": [
-        "**1. Millman's theorem.** Y_A = jωC = jG, Y_B = Y_C = G. U̇_N'N = (jG·U̇_A + G(U̇_B + U̇_C))/(jG + 2G), and since U̇_B + U̇_C = −U̇_A, U̇_N'N = U̇_A(j − 1)/(2 + j) = U̇_A(−1 + j3)/5 = 220 × (−0.2 + j0.6) = **139.1∠108.4° V**.",
-        "**2. Phase-B lamp.** U̇_BN' = U̇_B − U̇_N'N = 220 × (−0.3 − j1.466) = **329.2∠−101.6° V** (1.496U_p).",
-        "**3. Phase-C lamp.** U̇_CN' = U̇_C − U̇_N'N = 220 × (−0.3 + j0.266) = **88.2∠138.4° V** (0.401U_p).",
+        "**1. Millman's theorem.** Y_A = jωC = jG, Y_B = Y_C = G. U̇_{N'N} = (jG·U̇_A + G(U̇_B + U̇_C))/(jG + 2G), and since U̇_B + U̇_C = −U̇_A, U̇_{N'N} = U̇_A(j − 1)/(2 + j) = U̇_A(−1 + j3)/5 = 220 × (−0.2 + j0.6) = **139.1∠108.4° V**.",
+        "**2. Phase-B lamp.** U̇_{BN'} = U̇_B − U̇_{N'N} = 220 × (−0.3 − j1.466) = **329.2∠−101.6° V** (1.496U_p).",
+        "**3. Phase-C lamp.** U̇_{CN'} = U̇_C − U̇_{N'N} = 220 × (−0.3 + j0.266) = **88.2∠138.4° V** (0.401U_p).",
         "**4. Compare powers.** P_B = 329.2²/100 ≈ 1084 W, P_C = 88.2²/100 ≈ 78 W: lamp B is far brighter than lamp C.",
-        "**5. Reading the sequence.** Call the capacitor's phase A; the brighter lamp is on B and the dimmer on C. Check: İ_A = jG(U̇_A − U̇_N'N) = 2.95∠63.4° A and İ_B + İ_C = (U̇_BN' + U̇_CN')/R = 220 × (−0.6 − j1.2)/100 = 2.95∠−116.6° A; they sum to zero ✓."
+        "**5. Reading the sequence.** Call the capacitor's phase A; the brighter lamp is on B and the dimmer on C. Check: İ_A = jG(U̇_A − U̇_{N'N}) = 2.95∠63.4° A and İ_B + İ_C = (U̇_{BN'} + U̇_{CN'})/R = 220 × (−0.6 − j1.2)/100 = 2.95∠−116.6° A; they sum to zero ✓."
       ]
     }
   }
