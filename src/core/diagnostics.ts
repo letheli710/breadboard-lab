@@ -1,5 +1,6 @@
 // Live "common beginner mistake" detection on the user's breadboard.
 
+import { ammeterBypassIssues } from './ammeterBypass';
 import { HOLE_MAP, stripLabel } from './breadboard';
 import { tr } from './i18n';
 import { isFloating, type BoardNetlist } from './netlist';
@@ -298,8 +299,12 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         holes: [],
       });
 
+  // an ammeter across a part / the supply, from the wiring (at any current)
+  const bypass = ammeterBypassIssues(circuit, nl.pinHoles);
+  out.push(...bypass);
+  const reported = new Set(bypass.map((i) => i.refs[0]));
   for (const [ref, m] of sim.meters)
-    if (Math.abs(m.current) > 0.5)
+    if (Math.abs(m.current) > 0.5 && !reported.has(ref))
       out.push({
         severity: 'error',
         title: tr(`${ref} 把电路短路了！电流 ${amps(m.current)}`, `${ref} is shorting the circuit! Current ${amps(m.current)}`),

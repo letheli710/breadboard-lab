@@ -187,7 +187,8 @@ describe('checker: ammeter and scope probe', () => {
     const lay2 = base();
     lay2.parts.push(part('ammeter', { '+': 'tp20', '-': 'tn20' }, {}, 'AM2'));
     const nl2 = buildNetlist(lay2);
-    expect(boardDiagnostics(nl2, simulate(nl2.circuit)).some((i) => i.title.startsWith('AM2 is shorting'))).toBe(true);
+    // (named from the wiring, at any current: core/ammeterBypass.ts)
+    expect(boardDiagnostics(nl2, simulate(nl2.circuit)).some((i) => i.title.startsWith('AM2 is straight across the supply') && i.severity === 'error')).toBe(true);
   });
 
   it('target with an ammeter: reading tested; reversed leads reported', () => {

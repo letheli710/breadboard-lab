@@ -4,6 +4,7 @@
 // (target ref -> user ref, plus pin orientation for non-polarised parts) that best
 // explains the user's wiring, then describe what differs.
 
+import { ammeterBypassIssues } from './ammeterBypass';
 import { tr } from './i18n';
 import type { Challenge, ChallengeTest } from './challenge';
 import type { Issue } from './diagnostics';
@@ -817,6 +818,9 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
       if (fail) issues.push({ severity: 'error', title: tr(`测试失败：${test.name}`, `Test failed: ${test.name}`), detail: fail, refs: [], holes: [] });
       else testsPassed++;
     }
+
+  // an ammeter in parallel with a part (or across the supply): say so first, by name
+  if (issues.length) issues.unshift(...ammeterBypassIssues(board, userPinHoles, 'error'));
 
   const progress = maxGood === 0 ? 1 : Math.max(0, (ev.good - ev.bad) / maxGood);
   return {
