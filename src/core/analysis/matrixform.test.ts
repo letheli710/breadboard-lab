@@ -56,6 +56,7 @@ function k4(over: Partial<Record<string, unknown>> = {}, graph: Partial<CircuitG
     ],
     grounds: [[0, 6]],
   };
+  if (over.wires) s.wires.push(...(over.wires as Schematic['wires']));
   if (over.extra) s.elements.push(...(over.extra as Schematic['elements']));
   const r = extractNetlist(s);
   expect(r.errors).toEqual([]);
@@ -203,6 +204,27 @@ describe('matrix equations agree with the MNA engine', () => {
     expect(checkGraphAgainstCircuit(netlist, { ...graph, cutsets: [{ branches: [1, 2], path: [] }] }, dc, true)[0]).toMatch(/cut-set/);
     expect(checkGraphAgainstCircuit(netlist, graph, dc, true)).toEqual([]);
   });
+  it('rejects a current source across the voltage source only (R_1 would not carry I_1 + I_s1)', () => {
+    const across = (from: number, to: number) => {
+      const { netlist, graph } = k4({
+        wires: [
+          [
+            [-3, from],
+            [0, from],
+          ],
+          [
+            [-3, to],
+            [0, to],
+          ],
+        ],
+        extra: [{ ref: 'Is1', type: 'I', from: [-3, 6], to: [-3, from === 6 ? to : from], value: 2 }],
+      });
+      const g2 = { ...graph, branches: graph.branches.map((b) => (b.n === 1 ? { ...b, els: ['R1', 'Us1', 'Is1'] } : b)) };
+      return checkGraphAgainstCircuit({ ...netlist, graph: g2 }, g2, dc, true);
+    };
+    expect(across(3, 6)[0]).toMatch(/Is1 must be in parallel with R1/); // across Us1 alone
+    expect(across(0, 6)).toEqual([]); // across R1 + Us1: a standard branch
+  });
 });
 
 describe('state equations', () => {
@@ -237,7 +259,7 @@ describe('state equations', () => {
     grounds: [[0, 6]],
   };
   const netlist = extractNetlist(s).netlist;
-  it('ẋ = Ax + Bu by hand: A = [[−2, −2], [1, −2]], B = [[2, 0], [0, 2]]', () => {
+  it('ẋ = Ax + Bu by hand: A = [[−2, −2], [1, −2]], B = [[2, 0], [0, −2]]', () => {
     const m = stateMatrices(netlist, { x: ['C', 'L'], u: ['Us', 'Is'] });
     expect(m.A.flat().map((x) => +x.toFixed(12))).toEqual([-2, -2, 1, -2]);
     // Is points up into b: u_b = R2(i_L + Is) → L di/dt = u_C − 2i_L − 2Is

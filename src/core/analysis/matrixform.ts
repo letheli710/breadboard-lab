@@ -342,6 +342,17 @@ export function branchModels(netlist: Netlist, g: DiGraph): BranchModel[] {
     }
     const passive = els.filter((e) => PASSIVE.has(e.type));
     if (passive.length > 1) throw new AnalysisError(`${where}: a standard branch has at most one R / L / C / Z (found ${passive.map((e) => e.ref).join(', ')})`);
+    // a parallel source must bridge the R / L / C / Z (or the whole branch when there is none):
+    // only then does the passive element carry I_k + I_sk, as the standard-branch equation assumes
+    const span = (e: { ref: string }) => [pos(nodeOf(e.ref, 'p')), pos(nodeOf(e.ref, 'n'))].sort((a, c) => a - c);
+    const [lo, hi] = passive.length ? span(passive[0]) : [0, chain.length - 1];
+    for (const e of els.filter((x) => PARALLEL_OK.has(x.type))) {
+      const [a, c] = span(e);
+      if (a > lo || c < hi)
+        throw new AnalysisError(
+          `${where}: ${e.ref} must be in parallel with ${passive.length ? passive[0].ref : 'the whole branch'} (a current source across a voltage source alone is not a standard branch)`,
+        );
+    }
     models.push({ n: sb.n, sigma, vsrc: [], isrc: [], ctl: [] });
   }
   // internal nodes must not be touched by other branches; every element must belong to a branch
