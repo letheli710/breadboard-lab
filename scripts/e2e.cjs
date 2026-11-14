@@ -7,13 +7,16 @@
 //   npm run e2e -- --no-build   reuse dist-e2e/
 //   npm run e2e -- bench        only these suites (routes, bench, a11y, lessons)
 //   npm run e2e -- --all-lessons  the lessons suite does all eight instrument lessons (default: three)
+//   npm run e2e -- lessons --lang zh  the lessons suite in Chinese (default: English)
 const { spawn, spawnSync } = require('node:child_process');
 const { join } = require('node:path');
 const root = join(__dirname, '..');
 const args = process.argv.slice(2);
 const PORT = 4174;
 const BASE = `http://localhost:${PORT}/`;
-const suites = args.filter((a) => !a.startsWith('--'));
+// `--lang zh` (the lessons suite's language) takes a value: keep it out of the suite names
+const lang = args.includes('--lang') ? args[args.indexOf('--lang') + 1] : null;
+const suites = args.filter((a, i) => !a.startsWith('--') && args[i - 1] !== '--lang');
 const run = (cmd, a, env = {}) => spawnSync(cmd, a, { cwd: root, stdio: 'inherit', env: { ...process.env, ...env } }).status;
 
 if (!args.includes('--no-build')) {
@@ -52,7 +55,8 @@ process.on('exit', stop);
     if (suites.length && !suites.includes(name)) continue;
     console.log(`\n=== e2e: ${name} ===`);
     const t = Date.now();
-    const st = run('node', [file, BASE, ...(name === 'lessons' && args.includes('--all-lessons') ? ['--all'] : [])]);
+    const lessonArgs = name === 'lessons' ? [...(args.includes('--all-lessons') ? ['--all'] : []), ...(lang ? ['--lang', lang] : [])] : [];
+    const st = run('node', [file, BASE, ...lessonArgs]);
     console.log(`=== ${name}: ${st === 0 ? 'passed' : 'FAILED'} (${((Date.now() - t) / 1000).toFixed(1)} s) ===`);
     if (st !== 0) failed = true;
   }

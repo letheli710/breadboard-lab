@@ -76,7 +76,7 @@ npm run size         # 构建后检查入口体积预算（入口 ≤ 225 kB，�
 npm run check        # 以上全部：tsc -b、lint、format:check、test、vite build、size（和 CI 一致）
 ```
 
-浏览器测试 Browser tests（Playwright + Chromium；CI 里单独的 `e2e` job，失败时上传截图）：
+浏览器测试 Browser tests（Playwright + Chromium；CI 里每个套件一个并行的 `e2e (suite)` job，失败时上传各自的截图；另有不阻塞合并的 `e2e all lessons (en / zh)`：全部八节仪器课、中英文各一遍）：
 
 ```bash
 npm run e2e              # VITE_E2E=1 构建到 dist-e2e/，启动 vite preview，依次运行 scripts/e2e-routes.cjs（路由 / 历史）、scripts/e2e-bench.cjs（3D 工作台冒烟测试）和 scripts/e2e-a11y.cjs（axe 无障碍检查）

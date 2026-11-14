@@ -40,6 +40,7 @@ const PAGES = [
   { name: 'quiz-results', hash: '#/practice/quiz', ready: '.ms-main', setup: 'quiz-results' },
   // an instrument lesson with per-step checks
   { name: 'lesson-steps', hash: '#/learn/lesson-ammeter', ready: '.lesson-card.on' },
+  { name: 'lesson-placed', hash: '#/learn/lesson-ammeter', ready: '.lesson-card.on', setup: 'placed' },
   // phone UI (390 × 844, touch)
   { name: 'phone-drawer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'drawer' },
   { name: 'phone-figure-viewer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'viewer' },
@@ -49,7 +50,7 @@ const PAGES = [
 ];
 
 async function setupPage(p, pg) {
-  if (pg.setup === 'parts') await p.waitForFunction(() => window.__bb, null, { timeout: 30000 });
+  if (pg.setup === 'parts' || pg.setup === 'placed') await p.waitForFunction(() => window.__bb, null, { timeout: 30000 });
   await setup(p, pg.setup);
 }
 
@@ -99,6 +100,16 @@ async function setup(p, kind) {
     }
   }
   if (kind === 'drawer') await p.locator('.pr-phone-nav button[aria-controls="pr-side"]').click();
+  if (kind === 'placed') {
+    await p.evaluate(() => {
+      const s = window.__bb.store.getState();
+      s.setTool('resistor');
+      s.clickHole('c20');
+      s.clickHole('c24');
+      s.setTool('select');
+    });
+    await p.waitForSelector('.placed-chip', { timeout: 5000 });
+  }
   if (kind === 'reviewmenu') await p.locator('.pr-phone-review').click();
   if (kind === 'viewer') {
     await p.locator('.fig-zoom').first().click();

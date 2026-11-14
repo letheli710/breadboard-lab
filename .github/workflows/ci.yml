@@ -46,9 +46,15 @@ jobs:
         run: npm run test:slow
 
   e2e:
-    # browser tests of a production build (with the test hooks compiled in: VITE_E2E=1 → dist-e2e/)
+    # browser tests of a production build (test hooks compiled in: VITE_E2E=1 → dist-e2e/), one job
+    # per suite so they run in parallel; locally `npm run e2e` runs them all with one build
+    name: e2e (${{ matrix.suite }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [routes, bench, a11y, lessons]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -58,12 +64,41 @@ jobs:
       - run: npm ci
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
-      - name: Build, preview, routes + bench suites (npm run e2e)
-        run: npm run e2e
+      - name: Build, preview, run the ${{ matrix.suite }} suite
+        run: npm run e2e -- ${{ matrix.suite }}
       - name: Screenshots of failures
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-screenshots
+          name: e2e-screenshots-${{ matrix.suite }}
+          path: e2e-artifacts/
+          if-no-files-found: ignore
+
+  e2e-all-lessons:
+    # all eight instrument lessons in both languages (~3.5 min each); non-blocking
+    name: e2e all lessons (${{ matrix.lang }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [en, zh]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: All lessons (npm run e2e -- lessons --all-lessons --lang ${{ matrix.lang }})
+        run: npm run e2e -- lessons --all-lessons --lang ${{ matrix.lang }}
+      - name: Screenshots of failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-all-lessons-${{ matrix.lang }}
           path: e2e-artifacts/
           if-no-files-found: ignore

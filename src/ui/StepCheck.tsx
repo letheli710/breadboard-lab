@@ -61,12 +61,20 @@ export function PlacedChip() {
   const select = useStore((s) => s.select);
   if (!selectedId || !part || part.type === 'wire') return null;
   return (
-    <div className="placed-chip" role="status">
+    // not a live region: a keyboard placement is announced by the keyboard form already (once)
+    <div className="placed-chip" role="group" aria-label={tr('刚放好的元件', 'Part just placed')}>
       <span>
         {tr('刚放好：', 'Just placed: ')}
         <b>{part.ref}</b> · {describeComponent({ type: part.type as CompType, props: part.props })}
       </span>
-      <button className="link" onClick={() => setPanel('inspect')}>
+      <button
+        className="link"
+        onClick={() => {
+          setPanel('inspect');
+          // this chip leaves with the task tab: keep keyboard focus on the panel that opened
+          requestAnimationFrame(() => document.getElementById('side-panel')?.focus());
+        }}
+      >
         {tr('在“属性”里修改', 'Edit in Properties')}
       </button>
       <button className="chip-x" aria-label={tr('关闭', 'Dismiss')} onClick={() => select(null)}>

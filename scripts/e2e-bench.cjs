@@ -170,8 +170,9 @@ const TESTS = {
       assert(bat && bat.pins['+'] === 'tp3' && bat.pins['-'] === 'tn3', 'place: battery saved at tp3 / tn3 ' + JSON.stringify(bat?.pins));
       assert(res && res.pins['1'] === 'c10' && res.pins['2'] === 'c14', 'place: resistor saved at c10 → c14 ' + JSON.stringify(res?.pins));
 
-      // hover tip
+      // hover tip (after the camera has finished any move a placement started)
       await tool(p, 'Select / use');
+      await settleFrames(p);
       const e20 = await hole(p, 'e20');
       await p.mouse.move(e20.x, e20.y);
       await p.waitForTimeout(250);
@@ -179,7 +180,17 @@ const TESTS = {
         .locator('.hole-tip')
         .textContent({ timeout: 2000 })
         .catch(() => '');
-      assert(/^e20/.test(tip) && /connected inside/.test(tip), 'hover: tip names the hole and its strip: ' + tip);
+      const why = tip
+        ? ''
+        : JSON.stringify(
+            await p.evaluate(() => ({
+              hover: window.__bb.store.getState().hoverHole,
+              tool: window.__bb.store.getState().tool,
+              at: window.__bb.hole('e20'),
+              el: document.elementFromPoint(window.__bb.hole('e20').x, window.__bb.hole('e20').y)?.className,
+            })),
+          );
+      assert(/^e20/.test(tip) && /connected inside/.test(tip), 'hover: tip names the hole and its strip: ' + tip + why + JSON.stringify(e20));
 
       // drag the resistor two rows down (c → e)
       const past0 = await p.evaluate(() => window.__bb.store.getState().past.length);
@@ -602,6 +613,38 @@ const TESTS = {
       assert(errors.length === 0, 'keyboard: no page errors ' + errors.join(' | '));
     } finally {
       await shot(p, 'keyboard');
+      await ctx.close();
+    }
+  },
+
+  // keyboard building inside a lesson: one announcement, the placed-part chip keeps focus sensible
+  async keyboardLesson(browser) {
+    const { p, ctx, errors } = await open(browser, '#/learn/lesson-ammeter');
+    try {
+      await p.locator('.kb-bench > summary').focus();
+      await p.keyboard.press('Enter');
+      await p.locator('.kb-place select').selectOption('resistor');
+      await p.locator('.kb-place input').focus();
+      await p.keyboard.type('c20 c24');
+      await p.keyboard.press('Enter');
+      await p.waitForTimeout(300);
+      const placed = (await layout(p)).parts.find((x) => x.type === 'resistor' && x.pins['1'] === 'c20');
+      assert(!!placed, 'lesson: resistor placed by hole id');
+      const live = await p.evaluate(
+        () => [...document.querySelectorAll('[aria-live], [role="status"]')].filter((e) => /R\d/.test(e.textContent) && /c20|placed|放置|放好/i.test(e.textContent)).length,
+      );
+      assert(live === 1, `lesson: the placement is announced by one live region (${live})`);
+      assert((await p.locator('.side [role="tab"][aria-selected="true"]').textContent()) !== 'Properties', 'lesson: placing keeps the task tab (no jump to Properties)');
+      const chip = p.locator('.placed-chip button.link');
+      if (await chip.count()) {
+        await chip.focus();
+        await p.keyboard.press('Enter');
+        await p.waitForTimeout(200);
+        assert(await p.evaluate(() => document.activeElement.id === 'side-panel'), 'lesson: "Edit in Properties" moves focus to the properties panel');
+      }
+      assert(errors.length === 0, 'keyboard lesson: no page errors ' + errors.join(' | '));
+    } finally {
+      await shot(p, 'kb-lesson');
       await ctx.close();
     }
   },

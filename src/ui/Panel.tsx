@@ -172,8 +172,11 @@ function TaskPanel({ ch }: { ch: Challenge }) {
               ))}
             </span>
           </div>
-          <div className="step-cur" aria-live="polite">
-            <Md text={ch.steps[cur].text} />
+          <div className="step-cur">
+            {/* only the step text is live (announced on Back / Next); the check list is a status of its own */}
+            <div aria-live="polite">
+              <Md text={ch.steps[cur].text} />
+            </div>
             <StepStatus unmet={sc.unmet[cur]} />
             <PlacedChip />
           </div>
