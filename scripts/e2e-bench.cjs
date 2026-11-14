@@ -1,4 +1,4 @@
-/* global require, process, console, window, document, localStorage, sessionStorage, Image, __dirname, location */
+/* global require, process, console, window, document, localStorage, sessionStorage, Image, __dirname, location, PointerEvent, MouseEvent */
 /* eslint-disable @typescript-eslint/no-require-imports */
 // Browser smoke tests of the 3D bench (not part of npm test: needs a running e2e build).
 //   npm run e2e                       (builds dist-e2e/, starts a preview, runs this and e2e-routes)
@@ -469,6 +469,69 @@ const TESTS = {
       assert(errors.length === 0, 'lesson placement: no page errors ' + errors.join(' | '));
     } finally {
       await shot(p, 'lesson-placement');
+      await ctx.close();
+    }
+  },
+
+  // placement clicks: picking a tool never moves the canvas (the prompt above it floats), a bare
+  // click — no pointer move first, as a tap or a scripted click — places footprint and two-point
+  // parts, and in the angled view a part standing in front never takes a placement click
+  async placementClicks(browser) {
+    const { p, ctx, errors } = await open(browser, '#/sandbox', { viewport: { width: 1366, height: 768 } });
+    try {
+      await settleFrames(p);
+      const rects = new Set();
+      for (const t of ['select', 'probe', 'wire', 'resistor', 'esp32_devkit', 'opamp', 'pushbutton', 'scope_probe', 'select']) {
+        await p.evaluate((x) => window.__bb.store.getState().setTool(x), t);
+        await p.waitForTimeout(100);
+        rects.add(await p.evaluate(() => JSON.stringify(window.__bb.canvas.getBoundingClientRect())));
+      }
+      assert(rects.size === 1, `picking tools never moves or resizes the canvas (${rects.size} different rects)`);
+      // bare clicks: pointerdown / up / click at the hole with no pointermove before
+      const bare = (h) =>
+        p.evaluate((id) => {
+          const q = window.__bb.hole(id);
+          const o = { clientX: q.x, clientY: q.y, bubbles: true, pointerId: 1, pointerType: 'mouse', button: 0, isPrimary: true };
+          const c = window.__bb.canvas;
+          c.dispatchEvent(new PointerEvent('pointerdown', o));
+          c.dispatchEvent(new PointerEvent('pointerup', o));
+          c.dispatchEvent(new MouseEvent('click', o));
+        }, h);
+      const placed = (type) =>
+        p.evaluate(
+          (t) =>
+            window.__bb.store
+              .getState()
+              .layout.parts.filter((x) => x.type === t)
+              .map((x) => Object.values(x.pins).join(' ')),
+          type,
+        );
+      for (const [type, holes, want] of [
+        ['opamp', ['e10'], 'e10'],
+        ['pushbutton', ['e20'], 'e20'],
+        ['resistor', ['c3', 'c7'], 'c3 c7'],
+      ]) {
+        await p.evaluate((x) => window.__bb.store.getState().setTool(x), type);
+        for (const h of holes) {
+          await bare(h);
+          await p.waitForTimeout(100);
+        }
+        const got = await placed(type);
+        assert(
+          got.some((x) => x.startsWith(want)),
+          `bare click${holes.length > 1 ? 's' : ''} place a ${type} at ${holes.join(', ')} (${got.join(' | ') || 'nothing'})`,
+        );
+      }
+      // angled view: a jumper in row d right in front of the resistor standing in row c
+      assert((await p.locator('.view-btn b').textContent()).trim() === 'Angled', 'default view is Angled');
+      await tool(p, 'Jumper wire');
+      await clickHole(p, 'd3');
+      await clickHole(p, 'd7');
+      const wires = await placed('wire');
+      assert(wires.includes('d3 d7'), `angled view: a wire at d3–d7 in front of the resistor at c3–c7 (${wires.join(' | ') || 'nothing'})`);
+      assert(errors.length === 0, 'placement clicks: no page errors ' + errors.join(' | '));
+    } finally {
+      await shot(p, 'placement-clicks');
       await ctx.close();
     }
   },

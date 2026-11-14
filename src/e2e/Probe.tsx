@@ -15,6 +15,8 @@ interface BBTest {
   /** number of visible lesson-step pulse rings */
   pulses(): number;
   canvas: HTMLCanvasElement;
+  /** what R3F's own raycaster sees at client (x, y): its stored canvas size and the hits */
+  pick(x: number, y: number): { size: [number, number, number, number]; hits: string[] };
   /** camera position (world units): the view the user has, independent of the canvas size */
   camera(): [number, number, number];
 }
@@ -29,6 +31,7 @@ export function E2EProbe() {
   const camera = useThree((s) => s.camera);
   const gl = useThree((s) => s.gl);
   const scene = useThree((s) => s.scene);
+  const get = useThree((s) => s.get);
   useEffect(() => {
     const world = (x: number, y: number, z: number) => {
       const v = new THREE.Vector3(x, y, z).project(camera);
@@ -41,6 +44,17 @@ export function E2EProbe() {
       store: useStore,
       canvas: gl.domElement,
       camera: () => camera.position.toArray() as [number, number, number],
+      pick(x, y) {
+        const st = get();
+        const ndc = new THREE.Vector2(((x - st.size.left) / st.size.width) * 2 - 1, -((y - st.size.top) / st.size.height) * 2 + 1);
+        const rc = new THREE.Raycaster();
+        rc.setFromCamera(ndc, st.camera);
+        const hits = rc.intersectObjects(scene.children, true).slice(0, 4);
+        return {
+          size: [st.size.left, st.size.top, st.size.width, st.size.height],
+          hits: hits.map((h) => `${h.object.type}${h.instanceId !== undefined ? '#' + h.instanceId : ''}@${h.distance.toFixed(2)}`),
+        };
+      },
       world,
       hole(id) {
         const h = HOLE_MAP.get(id);
@@ -62,7 +76,7 @@ export function E2EProbe() {
         return n;
       },
     };
-  }, [camera, gl, scene]);
+  }, [camera, gl, scene, get]);
   // counts rendered frames without asking for any (the canvas renders on demand)
   useFrame(() => {
     if (window.__bb) window.__bb.frames++;

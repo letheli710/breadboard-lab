@@ -9,6 +9,8 @@
 // updateProps, the same call the Properties editors make (their UI has its own tests in e2e-bench).
 //   node scripts/e2e-lessons.cjs [baseUrl] [--all] [--only 101,105] [--lang zh]
 // Default: three representative lessons (multimeter, ammeter, two-channel scope); --all: all eight.
+// TRACE=1: print every hole click the app did not receive as aimed, with what R3F's raycaster saw.
+// No retries: a click that does not land fails the step.
 const { chromium } = require('playwright');
 const { execFileSync } = require('node:child_process');
 const { mkdirSync, readFileSync, readdirSync } = require('node:fs');
@@ -52,35 +54,40 @@ function parsedSteps(file) {
   return JSON.parse(execFileSync('npx', ['tsx', '-e', code], { cwd: ROOT, encoding: 'utf8' }));
 }
 
-async function clickHole(p, id, shift = false, retry = true) {
+async function clickHole(p, id, shift = false) {
   const h = await p.evaluate((i) => window.__bb.hole(i), id);
   // the hole must be visible, not under an overlay (the scope window, a toolbar): a student could
-  // not click it either. Overlays may still be moving into place, so give them a moment.
-  let cover = null;
-  for (let i = 0; i < 8; i++) {
-    cover = await p.evaluate(({ x, y }) => {
-      const e = document.elementFromPoint(x, y);
-      return e === window.__bb.canvas ? null : `${e?.tagName}.${e?.className}`;
-    }, h);
-    if (!cover) break;
-    await p.waitForTimeout(250);
-  }
+  // not click it either
+  const cover = await p.evaluate(({ x, y }) => {
+    const e = document.elementFromPoint(x, y);
+    return e === window.__bb.canvas ? null : `${e?.tagName}.${e?.className}`;
+  }, h);
   if (cover) throw new Error(`hole ${id} is covered by ${cover}`);
-  // hover first, as a mouse does (a footprint part takes its anchor from the hovered hole)
-  await p.mouse.move(h.x, h.y);
-  await p.waitForTimeout(60);
-  // in the angled view a raised part (a resistor's leg) can sit in front of the hole: the hover
-  // names its hole instead. Do what a student does — switch to the top view — and aim again.
-  const hovered = await p.evaluate(() => window.__bb.store.getState().hoverHole);
-  if (hovered !== id && retry) {
-    for (let i = 0; i < 4 && !/^Top|^俯视/.test((await p.locator('.view-btn b').textContent()).trim()); i++) await p.locator('.view-btn').click();
-    await p.waitForTimeout(1200);
-    return clickHole(p, id, shift, false);
-  }
+  const n0 = await p.evaluate(() => (window.__clicks ??= []).length);
   if (shift) await p.keyboard.down('Shift');
   await p.mouse.click(h.x, h.y);
   if (shift) await p.keyboard.up('Shift');
   await p.waitForTimeout(80);
+  if (process.env.TRACE) {
+    const got = await p.evaluate((n) => window.__clicks.slice(n), n0);
+    if (got.join() !== id)
+      console.log(
+        `      CLICK ${id} → app got [${got.join()}]`,
+        JSON.stringify(
+          await p.evaluate(
+            (hh) => ({
+              rect: (({ left, top, width, height }) => [left, top, width, height])(window.__bb.canvas.getBoundingClientRect()),
+              pick: window.__bb.pick(hh.x, hh.y),
+
+              frames: window.__bb.frames,
+              tool: window.__bb.store.getState().tool,
+              hover: window.__bb.store.getState().hoverHole,
+            }),
+            h,
+          ),
+        ),
+      );
+  }
 }
 const setTool = (p, t) => p.evaluate((x) => window.__bb.store.getState().setTool(x), t);
 
@@ -104,19 +111,19 @@ async function perform(p, c, raw) {
         const old = await partAt(h);
         if (old) await remove(old.id);
       }
-      await p.waitForTimeout(200); // let the scene settle after a deletion
       const seq = raw.at ? [raw.at] : Object.keys(raw.pins).map((k) => raw.pins[k]);
-      // a click landing mid-render can be dropped by the scene (a person would simply click
-      // again): if the part did not appear, pick the tool afresh and place it once more
-      for (let attempt = 0; attempt < 2 && !(await find()); attempt++) {
-        await setTool(p, 'select');
-        await setTool(p, c.type);
-        for (const h of seq) await clickHole(p, h);
-        await p.waitForTimeout(150);
-      }
+      await setTool(p, c.type);
+      for (const h of seq) await clickHole(p, h);
       const after = await p.evaluate(() => {
         const st = window.__bb.store.getState();
-        return { firstHole: st.firstHole, tool: st.tool, hover: st.hoverHole, toast: JSON.stringify(st.toast ?? st.message ?? null) };
+        return {
+          firstHole: st.firstHole,
+          tool: st.tool,
+          hover: st.hoverHole,
+          toast: JSON.stringify(st.toast ?? st.message ?? null),
+          cam: window.__bb.camera().map((x) => +x.toFixed(2)),
+          frames: window.__bb.frames,
+        };
       });
       await setTool(p, 'select');
       part = await find();
@@ -166,6 +173,13 @@ async function lesson(browser, file) {
     await p.goto(`${BASE}?e2e#/learn/${json.id}`);
     await p.waitForFunction(() => window.__bb && window.__bb.frames > 2 && document.querySelector('section.steps'), null, { timeout: 30000 });
     await p.waitForTimeout(300);
+    // record every hole click the app receives (TRACE=1 prints a click that did not arrive as aimed)
+    await p.evaluate(() => {
+      const st = window.__bb.store;
+      const orig = st.getState().clickHole;
+      window.__clicks = [];
+      st.setState({ clickHole: (h, sh) => (window.__clicks.push(h), orig(h, sh)) });
+    });
     const steps = json.steps;
     let stepsOk = 0;
     for (let i = 0; i < steps.length; i++) {

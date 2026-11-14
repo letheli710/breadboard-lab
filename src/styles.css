@@ -4606,3 +4606,26 @@ h1[tabindex='-1']:focus:not(:focus-visible) {
   font-size: 16px;
   line-height: 1;
 }
+/* desktop: the tool prompt above the 3D view wraps to one to four lines depending on the tool;
+   it floats over the stage instead of pushing the canvas down, so picking a tool never moves or
+   resizes the board (a click aimed at a hole while the board jumped by a line landed on the
+   neighbouring row). Clicks go through the prompt's text to the board; its buttons still work.
+   The camera presets keep the board below this row (three/Scene.tsx). */
+@media (min-width: 761px) and (pointer: fine) and (min-height: 501px) {
+  .stage-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    pointer-events: none;
+  }
+  .stage-top .prompt {
+    pointer-events: none;
+  }
+  .stage-top button,
+  .stage-top a,
+  .stage-top .touch-chip {
+    pointer-events: auto;
+  }
+}

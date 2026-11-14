@@ -65,6 +65,11 @@ function CameraRig() {
       const bar = gl.domElement.closest('.stage')?.querySelector('.toolbar')?.getBoundingClientRect();
       const overlap = bar && bar.left < cr.right && bar.right > cr.left ? Math.max(0, cr.bottom - bar.top) : 0;
       const bottom = h > 0 ? -1 + (2 * (overlap + 10)) / h : -0.9;
+      // and below the prompt row floating over the top of the stage (at least two lines of it)
+      const topRow = gl.domElement.closest('.stage')?.querySelector('.stage-top');
+      const below = topRow && getComputedStyle(topRow).position === 'absolute' ? [...topRow.children].reduce((m, c) => Math.max(m, c.getBoundingClientRect().bottom), 0) : 0;
+      const topCover = below ? Math.max(below - cr.top, 58) : 0;
+      const top = h > 0 ? 1 - (2 * (topCover + 6)) / h : 0.97;
       const corners = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => new THREE.Vector3((sx * BOARD.width) / 2, 0, (sz * BOARD.depth) / 2)));
       const fits = (r: number) => {
         probe.position.copy(at(r));
@@ -72,7 +77,7 @@ function CameraRig() {
         probe.updateMatrixWorld();
         return corners.every((c) => {
           const v = c.clone().project(probe);
-          return Math.abs(v.x) <= 0.97 && v.y <= 0.97 && v.y >= bottom;
+          return Math.abs(v.x) <= 0.97 && v.y <= Math.min(0.97, top) && v.y >= bottom;
         });
       };
       for (let i = 0; i < 40 && !fits(radius); i++) radius *= 1.04;
