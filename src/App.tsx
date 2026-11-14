@@ -10,6 +10,7 @@ import { Toast } from './ui/Toast';
 // every page is its own chunk; the 3D workbench (three.js) is only fetched for learn / challenge / sandbox
 const Workbench = lazy(() => import('./ui/Workbench').then((m) => ({ default: m.Workbench })));
 const SidePanel = lazy(() => import('./ui/Panel').then((m) => ({ default: m.SidePanel })));
+const BenchBar = lazy(() => import('./ui/BenchBar').then((m) => ({ default: m.BenchBar })));
 const Carousel = lazy(() => import('./ui/Carousel').then((m) => ({ default: m.Carousel })));
 const Practice = lazy(() => import('./ui/Practice').then((m) => ({ default: m.Practice })));
 const Guide = lazy(() => import('./ui/Guide').then((m) => ({ default: m.Guide })));
@@ -300,6 +301,7 @@ export default function App() {
               {mode !== 'sandbox' && <Carousel kind={mode === 'learn' ? 'lesson' : 'challenge'} />}
             </div>
             <SidePanel />
+            {mode !== 'sandbox' && <BenchBar />}
           </main>
         </Suspense>
       )}

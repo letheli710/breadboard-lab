@@ -7,16 +7,14 @@ import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
 import * as THREE from 'three';
 import { create } from 'zustand';
-import { HOLES, HOLE_MAP, MAIN_ROWS, holeId, type RowId } from '../core/breadboard';
+import { HOLES, HOLE_MAP } from '../core/breadboard';
 import { PARTS } from '../core/parts';
 import type { PlacedPart } from '../core/types';
 import { moveError, useStore } from '../state/store';
 import type { PartCtxValue } from './common';
 import { PartView } from './Parts';
 import { assignSlots } from './slots';
-
-/** Rows in board order (top to bottom), so a whole-part move can shift by whole rows. */
-const ROW_ORDER: RowId[] = ['tp', 'tn', ...MAIN_ROWS, 'bp', 'bn'];
+import { rowIndex, shiftHole } from './touchPick';
 
 interface Drag {
   part: PlacedPart;
@@ -46,10 +44,10 @@ const setDrag = (d: Drag | null) => useDrag.setState({ drag: d });
 const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 const hitPoint = new THREE.Vector3();
 
-/** Nearest hole to a point on the board plane (within ~a pitch), or null. */
-function nearestHole(p: THREE.Vector3): string | null {
+/** Nearest hole to a point on the board plane (within `reach`, ~a pitch), or null. */
+export function nearestHole(p: { x: number; z: number }, reach = 0.8): string | null {
   let best: string | null = null;
-  let bd = 0.8 * 0.8;
+  let bd = reach * reach;
   for (const h of HOLES) {
     const d = (h.x - p.x) ** 2 + (h.z - p.z) ** 2;
     if (d < bd) {
@@ -58,15 +56,6 @@ function nearestHole(p: THREE.Vector3): string | null {
     }
   }
   return best;
-}
-
-function shiftHole(id: string, dc: number, dr: number): string | null {
-  const h = HOLE_MAP.get(id);
-  if (!h) return null;
-  const r = ROW_ORDER[ROW_ORDER.indexOf(h.row) + dr];
-  if (!r) return null;
-  const n = holeId(r, h.col + dc);
-  return HOLE_MAP.has(n) ? n : null;
 }
 
 /** Pins of the dragged part if the grabbed hole were dropped on `to`. */
@@ -79,7 +68,7 @@ function targetPins(d: Drag, to: string): Record<string, string> | null {
   const g = HOLE_MAP.get(d.grab)!;
   const t = HOLE_MAP.get(to)!;
   const dc = t.col - g.col;
-  const dr = ROW_ORDER.indexOf(t.row) - ROW_ORDER.indexOf(g.row);
+  const dr = rowIndex(t.row) - rowIndex(g.row);
   const def = PARTS[part.type];
   if (def.placement.kind === 'footprint') {
     // footprints usually pin their anchor to one row (dev boards): fall back to a sideways move

@@ -3,10 +3,11 @@ import { tr } from '../core/i18n';
 import { PARTS, PART_ORDER, nextScopeChannel } from '../core/parts';
 import { volts } from '../core/format';
 import { vavg } from '../core/transient';
-import { holeLabel } from '../core/breadboard';
+import { HOLE_MAP, holeLabel, stripLabel } from '../core/breadboard';
 import type { PartType } from '../core/types';
 import { useDerived } from '../state/derived';
-import { useStore, type Tool } from '../state/store';
+import { occupied, useStore, type Tool } from '../state/store';
+import { confirmPending, setPending, shiftHole, useTouchPick } from '../three/touchPick';
 import { Scene, VIEWS, type ViewName } from '../three/Scene';
 import { emitCameraView } from '../three/common';
 import { ConfirmButton } from './Confirm';
@@ -94,13 +95,83 @@ function Toolbox() {
   );
 }
 
+/** Is the primary pointer a finger (phone / tablet)? Follows the media query live. */
+export function useCoarsePointer(): boolean {
+  const query = () => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(pointer: coarse)') : null);
+  const [coarse, setCoarse] = useState(() => !!query()?.matches);
+  useEffect(() => {
+    const q = query();
+    if (!q) return;
+    const on = () => setCoarse(q.matches);
+    q.addEventListener('change', on);
+    return () => q.removeEventListener('change', on);
+  }, []);
+  return coarse;
+}
+
+/** Touch: the candidate hole picked by a tap — its name, arrows to nudge it, and Place / Cancel. */
+function TouchChip() {
+  const pending = useTouchPick((s) => s.pending);
+  const tool = useStore((s) => s.tool);
+  const firstHole = useStore((s) => s.firstHole);
+  const layout = useStore((s) => s.layout);
+  if (!pending || tool === 'select') return null;
+  const h = HOLE_MAP.get(pending);
+  const busy = occupied(layout).get(pending);
+  const nudge = (dc: number, dr: number) => {
+    const n = shiftHole(pending, dc, dr);
+    if (n) setPending(n);
+  };
+  const footprint = tool !== 'probe' && PARTS[tool].placement.kind === 'footprint';
+  const place = tool === 'probe' ? tr('红表笔', 'Red probe') : footprint ? tr('放在这里', 'Place here') : firstHole ? tr('终点放这里', 'End here') : tr('起点放这里', 'Start here');
+  return (
+    <div className="touch-chip" role="group" aria-label={tr('选中的孔', 'Chosen hole')} data-hole={pending}>
+      <div className="touch-chip-hole">
+        <b>{holeLabel(pending)}</b>
+        {h && <span>{stripLabel(h.strip)}</span>}
+        {busy && <span className="warn">{tr(`已插 ${busy}`, `holds ${busy}`)}</span>}
+      </div>
+      <div className="touch-chip-nudge">
+        <button onClick={() => nudge(-1, 0)} aria-label={tr('左移一孔', 'One hole left')}>
+          ◀
+        </button>
+        <button onClick={() => nudge(0, -1)} aria-label={tr('上移一孔', 'One hole up')}>
+          ▲
+        </button>
+        <button onClick={() => nudge(0, 1)} aria-label={tr('下移一孔', 'One hole down')}>
+          ▼
+        </button>
+        <button onClick={() => nudge(1, 0)} aria-label={tr('右移一孔', 'One hole right')}>
+          ▶
+        </button>
+      </div>
+      <div className="touch-chip-act">
+        <button className="primary" onClick={() => confirmPending()} aria-label={place}>
+          <Icon name="check" size={16} /> <span>{place}</span>
+        </button>
+        {tool === 'probe' && <button onClick={() => confirmPending(true)}>{tr('黑表笔', 'Black probe')}</button>}
+        <button onClick={() => setPending(null)} aria-label={tr('取消', 'Cancel')}>
+          ✕
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Prompt() {
+  const coarse = useCoarsePointer();
   const tool = useStore((s) => s.tool);
   const firstHole = useStore((s) => s.firstHole);
   const cancelPlacement = useStore((s) => s.cancelPlacement);
   const layout = useStore((s) => s.layout);
   let text: string;
-  if (tool === 'select')
+  if (coarse && tool === 'select')
+    text = tr(
+      '单指拖元件移动它，拖空白处旋转 · 双指捏合缩放、双指拖动平移 · 点元件选中，点孔（或长按）看它和哪些孔相连',
+      'Drag a part to move it, drag empty space to rotate · pinch to zoom, two-finger drag to pan · tap a part to select it, tap (or long-press) a hole to see what it connects to',
+    );
+  else if (coarse && tool === 'probe') text = tr('万用表：点一个孔，再在下方选红表笔或黑表笔', 'Multimeter: tap a hole, then choose red or black probe below');
+  else if (tool === 'select')
     text = tr(
       '拖动元件可移动它，在空白处拖动旋转视角 · 点击元件选中，点按键 / 开关切换 · 悬停在孔上看哪些孔连通',
       'Drag a part to move it; drag empty space to rotate the view · click to select, click a button / switch to flip it · hover a hole to see what it connects to',
@@ -113,6 +184,7 @@ function Prompt() {
   else {
     const pl = PARTS[tool as PartType].placement;
     text = pl.kind === 'footprint' ? pl.prompt : pl.prompts[firstHole ? 1 : 0] + (firstHole ? tr(`（起点 ${firstHole}）`, ` (from ${firstHole})`) : '');
+    if (coarse) text += tr(' · 点一下选孔，再点一次（或点“放这里”）确认', ' · tap to pick a hole, tap it again (or press Place) to confirm');
     if (tool === 'scope_probe') {
       const ch = nextScopeChannel(layout);
       text += ch ? tr(` · 这个探头接 CH${ch}`, ` · this probe goes to CH${ch}`) : tr(' · 两个通道都已占用', ' · both channels are in use');
@@ -275,6 +347,8 @@ export function Workbench() {
         <div className="stage-top">
           <Prompt />
           <ViewButton />
+          {/* touch: the candidate hole's chip lies over the prompt (the board neither moves nor gets covered) */}
+          <TouchChip />
         </div>
         <div
           className="stage-view"
@@ -293,7 +367,10 @@ export function Workbench() {
         </div>
         <Toolbar />
         <p className="small-screen-note">
-          {tr('3D 工作台在更大的屏幕上更好用；练习和知识页在手机上可以完整使用。', 'The 3D bench works best on a larger screen; Practice and Guide work fully on a phone.')}
+          {tr(
+            '手机上也能搭电路：点孔选位置（箭头微调），再点一次放下；单指拖元件、双指缩放。元件很多的实验在平板或电脑上更舒服。',
+            'You can build on a phone: tap a hole to pick it (arrows fine-tune), tap again to place; drag parts with one finger, pinch to zoom. Labs with many parts are more comfortable on a tablet or computer.',
+          )}
         </p>
       </div>
     </div>

@@ -11,6 +11,8 @@ import { nodeAc, useDerived } from '../state/derived';
 import { occupied, useStore } from '../state/store';
 import { useReadingsHidden } from '../state/readingsHidden';
 import { hiddenReadingsText } from '../ui/HiddenReadings';
+import { nearestHole } from './Drag';
+import { isTouchInput, touchLongPressHole, touchTapHole, useTouchPick } from './touchPick';
 
 const NET_PALETTE = ['#f4a261', '#2a9d8f', '#9b5de5', '#00bbf9', '#f15bb5', '#90be6d', '#fee440', '#e76f51', '#4cc9f0', '#b5838d'];
 
@@ -226,16 +228,59 @@ export function Board() {
   });
 
   const onMove = (e: ThreeEvent<PointerEvent>) => {
-    if (e.instanceId === undefined) return;
+    // a finger sliding over the board orbits the view: no hover tracking (see touchPick.ts)
+    if (e.instanceId === undefined || e.pointerType === 'touch') return;
     setHoverHole(HOLES[e.instanceId].id);
+  };
+  const onOut = (e: ThreeEvent<PointerEvent>) => {
+    if (e.pointerType !== 'touch') setHoverHole(null);
+  };
+  // touch: long press = the hole tooltip (and the tap that ends it does nothing else)
+  const press = useRef<{ timer: number; x: number; y: number; fired: boolean } | null>(null);
+  const onDown = (e: ThreeEvent<PointerEvent>) => {
+    if (e.pointerType !== 'touch' || e.instanceId === undefined) return;
+    const h = HOLES[e.instanceId].id;
+    const p = { timer: 0, x: e.nativeEvent.clientX, y: e.nativeEvent.clientY, fired: false };
+    const cancel = (ev: PointerEvent) => {
+      if (ev.type === 'pointermove' && Math.hypot(ev.clientX - p.x, ev.clientY - p.y) < 8) return;
+      clearTimeout(p.timer);
+      window.removeEventListener('pointermove', cancel);
+      window.removeEventListener('pointercancel', cancel);
+      if (ev.type !== 'pointerup') press.current = null;
+    };
+    p.timer = window.setTimeout(() => {
+      p.fired = true;
+      touchLongPressHole(h);
+    }, 500);
+    press.current = p;
+    window.addEventListener('pointermove', cancel);
+    window.addEventListener('pointercancel', cancel);
+    window.addEventListener('pointerup', cancel, { once: true });
   };
   const onClick = (e: ThreeEvent<MouseEvent>) => {
     if (e.delta > 5 || e.instanceId === undefined) return;
     e.stopPropagation();
-    clickHole(HOLES[e.instanceId].id, e.nativeEvent.shiftKey);
+    const h = HOLES[e.instanceId].id;
+    if (isTouchInput()) {
+      const long = press.current?.fired;
+      press.current = null;
+      if (!long) touchTapHole(h);
+      return;
+    }
+    clickHole(h, e.nativeEvent.shiftKey);
+  };
+  // touch: a tap between holes (trench, label margins) snaps to the nearest hole within 1.6 pitches
+  const onBoardClick = (e: ThreeEvent<MouseEvent>) => {
+    if (e.delta > 5 || !isTouchInput()) return;
+    const h = nearestHole(e.point, 1.6);
+    if (!h) return;
+    e.stopPropagation();
+    touchTapHole(h);
   };
 
-  const hh = hoverHole ? HOLE_MAP.get(hoverHole) : null;
+  // touch: while a candidate hole waits for confirmation its chip says the same as the tooltip
+  const pendingHole = useTouchPick((st) => st.pending);
+  const hh = hoverHole && !pendingHole ? HOLE_MAP.get(hoverHole) : null;
   const hoverNetName = hoverHole ? nl.holeNet.get(hoverHole) : undefined;
   const occ = occupied(layout);
 
@@ -245,6 +290,11 @@ export function Board() {
       <mesh position={[0, -BOARD.height / 2, 0]} receiveShadow castShadow>
         <boxGeometry args={[BOARD.width, BOARD.height, BOARD.depth]} />
         <meshStandardMaterial color="#efe8da" roughness={0.8} />
+      </mesh>
+      {/* touch: catches taps between holes and just off the board's edge (snapped to the nearest hole) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]} onClick={onBoardClick}>
+        <planeGeometry args={[BOARD.width + 3, BOARD.depth + 3]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]} receiveShadow>
         <planeGeometry args={[BOARD.width, BOARD.depth]} />
@@ -272,7 +322,15 @@ export function Board() {
         <meshBasicMaterial color="#2ba59b" transparent opacity={0.8} toneMapped={false} side={THREE.DoubleSide} />
       </instancedMesh>
 
-      <instancedMesh ref={hit} args={[undefined, undefined, HOLES.length]} onPointerMove={onMove} onPointerOut={() => setHoverHole(null)} onClick={onClick} frustumCulled={false}>
+      <instancedMesh
+        ref={hit}
+        args={[undefined, undefined, HOLES.length]}
+        onPointerMove={onMove}
+        onPointerOut={onOut}
+        onPointerDown={onDown}
+        onClick={onClick}
+        frustumCulled={false}
+      >
         <boxGeometry args={[0.95, 0.06, 0.95]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </instancedMesh>

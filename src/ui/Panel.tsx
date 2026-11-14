@@ -113,6 +113,15 @@ function TaskPanel({ ch }: { ch: Challenge }) {
     if (m && allAnswered(ch, next, m)) complete();
   };
 
+  // the phone task bar (BenchBar) has its own Check button
+  const runCheckRef = useRef(runCheck);
+  runCheckRef.current = runCheck;
+  useEffect(() => {
+    const on = () => runCheckRef.current();
+    window.addEventListener('bb-run-check', on);
+    return () => window.removeEventListener('bb-run-check', on);
+  }, []);
+
   const nSteps = ch.steps.length;
   const cur = Math.min(step, Math.max(0, nSteps - 1));
   const sc = useStepChecks(ch);
