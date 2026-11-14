@@ -377,6 +377,39 @@ describe('readAnswer: lengths and line constants (transmission lines)', () => {
     expect(val('A', '3m')).toBeCloseTo(3e-3);
     expect(val('V', '2 mV')).toBeCloseTo(2e-3);
   });
+  // the metre unit must not change how prefixes read anywhere else
+  const TABLE: [string, string, number][] = [
+    ...['V', 'A', 'Ω', 's', 'H', 'F', 'W', 'S', ''].flatMap((u): [string, string, number][] => [
+      [u, '200m', 0.2],
+      [u, '200 m', 0.2],
+      [u, '0.5m', 5e-4],
+    ]),
+    ['V', '200 mV', 0.2],
+    ['s', '20 ms', 0.02],
+    ['H', '10 mH', 0.01],
+    ['Ω', '3.3k', 3300],
+    ['Ω', '4.7K', 4700],
+    ['Ω', '2 MΩ', 2e6],
+    ['°C', '80 °C', 80],
+    ['°C', '353.15 K', 80],
+    ['m', '200', 200],
+    ['m', '200m', 200],
+    ['m', '200 m', 200],
+    ['m', '0.2km', 200],
+    ['m', '0.2 km', 200],
+    ['m', '20000cm', 200],
+    ['m', '200000 mm', 200],
+    ['m', '2e2m', 200],
+    ['km', '0.2', 200],
+    ['km', '200 m', 200],
+    ['km', '200m', 200],
+    ['km', '0.2km', 200],
+    ['m/s', '2e8', 2e8],
+    ['m/s', '2e5 km/s', 2e8],
+  ];
+  it.each(TABLE)('unit %s, input %s → %d (SI)', (unit, input, want) => {
+    expect(val(unit, input)).toBeCloseTo(want, 9);
+  });
   it('shows the answer in the question unit', () => {
     expect(formatAnswer({ answer: 6e6, unit: 'km' })).toBe('6000 km');
     expect(formatAnswer({ answer: 0.25, unit: 'm' })).toBe('0.25 m');
