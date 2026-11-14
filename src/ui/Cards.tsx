@@ -34,21 +34,7 @@ export interface StepChecks {
 }
 
 /** Step navigator over steps[from … to − 1]; at the last step `onEnd` (if given) becomes the Next action. */
-export function StepNav({
-  ch,
-  from,
-  to,
-  sc,
-  endLabel,
-  onEnd,
-}: {
-  ch: Challenge;
-  from: number;
-  to: number;
-  sc: StepChecks;
-  endLabel?: string;
-  onEnd?: () => void;
-}) {
+export function StepNav({ ch, from, to, sc, endLabel, onEnd }: { ch: Challenge; from: number; to: number; sc: StepChecks; endLabel?: string; onEnd?: () => void }) {
   const step = useStore((s) => s.step);
   const setStep = useStore((s) => s.setStep);
   const n = to - from;
@@ -151,9 +137,7 @@ export function CardDeck({ ch, sc }: { ch: Challenge; sc: StepChecks }) {
       </nav>
       <div className="card-body">
         <h3 ref={head} tabIndex={-1} className="card-title">
-          <span className="sr-only">
-            {tr(`卡片 ${card + 1} / ${cards.length}，${cardKindLabel(c.kind)}：`, `Card ${card + 1} of ${cards.length}, ${cardKindLabel(c.kind)}: `)}
-          </span>
+          <span className="sr-only">{tr(`卡片 ${card + 1} / ${cards.length}，${cardKindLabel(c.kind)}：`, `Card ${card + 1} of ${cards.length}, ${cardKindLabel(c.kind)}: `)}</span>
           {c.title}
         </h3>
         {c.text && <Md text={c.text} math />}

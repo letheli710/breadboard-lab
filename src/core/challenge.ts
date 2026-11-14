@@ -1004,7 +1004,12 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   const cards: ChallengeCard[] = [];
   if (json.cards !== undefined) {
     if (!Array.isArray(json.cards) || !json.cards.length)
-      errors.push(tr('"cards" 必须是非空数组：[{ "kind": "try", "title": "...", "text": "...", "steps": 2 }, …]', '"cards" must be a non-empty array: [{ "kind": "try", "title": "...", "text": "...", "steps": 2 }, …]'));
+      errors.push(
+        tr(
+          '"cards" 必须是非空数组：[{ "kind": "try", "title": "...", "text": "...", "steps": 2 }, …]',
+          '"cards" must be a non-empty array: [{ "kind": "try", "title": "...", "text": "...", "steps": 2 }, …]',
+        ),
+      );
     else {
       let next = 0;
       json.cards.forEach((c: unknown, i: number) => {
@@ -1019,7 +1024,13 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
           return errors.push(tr(`${w}.steps: 必须是这张卡片拥有的步骤数（≥ 0 的整数）`, `${w}.steps: must be the number of steps this card owns (an integer ≥ 0)`));
         const practice = strs(c.practice);
         for (const ch of practice)
-          if (!chapterById(ch)) errors.push(tr(`${w}.practice: 没有 "${ch}" 这一章（理论题的章节 id，见 src/core/problem/chapters.ts）`, `${w}.practice: there is no chapter "${ch}" (a theory chapter id, see src/core/problem/chapters.ts)`));
+          if (!chapterById(ch))
+            errors.push(
+              tr(
+                `${w}.practice: 没有 "${ch}" 这一章（理论题的章节 id，见 src/core/problem/chapters.ts）`,
+                `${w}.practice: there is no chapter "${ch}" (a theory chapter id, see src/core/problem/chapters.ts)`,
+              ),
+            );
         cards.push({ kind, title: ctitle, text: textOf(c.text), first: next, count, practice });
         next += count;
       });

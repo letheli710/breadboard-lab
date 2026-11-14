@@ -62,8 +62,7 @@ export const layoutKey = (mode: Mode, chId: string | null) => (mode === 'sandbox
 export const onPage = (c: Challenge, mode: Mode): boolean => (mode === 'learn' ? c.kind === 'lesson' || !!placeOf(c.id) : mode === 'challenge' && c.kind === 'challenge');
 
 /** The page an item opens on: lessons always on Learn; a course item stays on Learn when Learn asked. */
-export const pageFor = (c: Challenge, page?: 'learn' | 'challenge'): 'learn' | 'challenge' =>
-  c.kind === 'lesson' || (page === 'learn' && placeOf(c.id)) ? 'learn' : 'challenge';
+export const pageFor = (c: Challenge, page?: 'learn' | 'challenge'): 'learn' | 'challenge' => (c.kind === 'lesson' || (page === 'learn' && placeOf(c.id)) ? 'learn' : 'challenge');
 
 /** First unfinished item of a page, in course order (else the first one). */
 export function firstUnfinished(list: Challenge[], completed: Record<string, boolean>, mode: Mode): Challenge | undefined {

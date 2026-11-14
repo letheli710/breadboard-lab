@@ -152,7 +152,9 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       {place && (
         <p className="course-crumb">
           World {place.world.id} · {place.unit.num} {place.unit.title()}
-          {place.unit.items.length > 1 && <span className="muted"> · {tr(`第 ${place.pos + 1} / ${place.unit.items.length} 项`, `item ${place.pos + 1} of ${place.unit.items.length}`)}</span>}
+          {place.unit.items.length > 1 && (
+            <span className="muted"> · {tr(`第 ${place.pos + 1} / ${place.unit.items.length} 项`, `item ${place.pos + 1} of ${place.unit.items.length}`)}</span>
+          )}
         </p>
       )}
       <h2>{ch.title}</h2>
