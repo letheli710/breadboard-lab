@@ -68,18 +68,18 @@
         {
           "ask": "Without R_4, the input resistance of the NIC seen at a, u_a/i_1 = ?",
           "choices": ["2 kΩ", "−2 kΩ", "−10 kΩ", "Infinite"], "choiceExplain": ["2 kΩ drops the minus sign: u_o = 2u_a is above u_a, so the current in R_1 flows from o to a, opposite to what the applied voltage would drive — u_a/i_1 is negative.", "", "−10 kΩ uses R_2 or R_3; those only set the ratio u_o/u_a. The current entering a flows only through R_1, so the input resistance follows from i_1 = (u_a − u_o)/R_1.", "The virtual open only means the non-inverting input draws no current; node a is also connected to R_1, which carries current, so the input resistance is not infinite."],
-          "explain": "Apply a voltage u_a. Virtual short: v− = u_a, and R_2, R_3 make a non-inverting amplifier: u_o = (1 + R_2/R_3)·u_a = 2v_a. By the virtual open all the current into a flows through R_1: i_1 = (u_a − u_o)/R_1 = −u_a/R_1, so R_in = −R_1·R_3/R_2 = −2 kΩ."
+          "explain": "Apply a voltage u_a. Virtual short: u_{−} = u_a, and R_2, R_3 make a non-inverting amplifier: u_o = (1 + R_2/R_3)·u_a = 2u_a. By the virtual open all the current into a flows through R_1: i_1 = (u_a − u_o)/R_1 = −u_a/R_1, so R_in = −R_1·R_3/R_2 = −2 kΩ."
         },
         { "ask": "Equivalent resistance from a to ground, R_ab = ? (I_s set to zero)", "explain": "R_4 in parallel with −2 kΩ: R_ab = 3 × (−2)/(3 + (−2)) = −6 kΩ. A negative resistance in parallel with a positive one can give a larger negative resistance." },
         { "ask": "u_a = ?", "explain": "u_a = I_s·R_ab = 0.5 mA × (−6 kΩ) = −3 V: the current source pushes current into a, yet a sits at a negative potential." },
-        { "ask": "i_1 = ?", "explain": "u_o = 2v_a = −6 V, i_1 = (u_a − u_o)/R_1 = (−3 + 6)/2k = 1.5 mA. KCL check: R_4 carries −3/3k = −1 mA, and −1 + 1.5 = 0.5 mA = I_s." }
+        { "ask": "i_1 = ?", "explain": "u_o = 2u_a = −6 V, i_1 = (u_a − u_o)/R_1 = (−3 + 6)/2k = 1.5 mA. KCL check: R_4 carries −3/3k = −1 mA, and −1 + 1.5 = 0.5 mA = I_s." }
       ],
       "hints": ["Find the NIC's input resistance with a test source: assume a voltage u_a at a and find the current i_1 flowing in.", "The virtual short puts the inverting input at u_a too, so R_2, R_3 and the op-amp form a non-inverting amplifier: express u_o in terms of u_a, then get i_1 from the voltage across R_1."],
       "solution": [
-        "**1. NIC input resistance (test source):** let the voltage at a be u_a. Virtual short: v− = v+ = u_a; virtual open: R_2 and R_3 divide u_o, u_a = u_o·R_3/(R_2 + R_3) → u_o = 2v_a.",
+        "**1. NIC input resistance (test source):** let the voltage at a be u_a. Virtual short: u_{−} = u_{+} = u_a; virtual open: R_2 and R_3 divide u_o, u_a = u_o·R_3/(R_2 + R_3) → u_o = 2u_a.",
         "The current into a can only go through R_1 (the + input draws none): i_1 = (u_a − u_o)/R_1 = −u_a/2k, so R_in = u_a/i_1 = **−2 kΩ** (= −R_1·R_3/R_2).",
         "**2. Equivalent resistance:** R_ab = R_4 ∥ R_in = 3 × (−2)/(3 − 2) = **−6 kΩ**.",
-        "**3. Voltage:** u_a = I_s·R_ab = **−3 V**, u_o = 2v_a = −6 V.",
+        "**3. Voltage:** u_a = I_s·R_ab = **−3 V**, u_o = 2u_a = −6 V.",
         "**4. Current:** i_1 = (−3 − (−6))/2k = **1.5 mA**; R_4 carries u_a/R_4 = −1 mA. KCL: I_s = −1 + 1.5 = 0.5 mA ✓.",
         "A negative resistance means the port actually **delivers** power to the outside: P = u_a·i_1 = −3 × 1.5 = −4.5 mW, supplied by the op-amp's power supply."
       ]
