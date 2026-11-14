@@ -75,7 +75,7 @@ npm run size         # 构建后检查入口体积预算（入口 ≤ 225 kB，�
 npm run check        # 以上全部：tsc -b、lint、format:check、test、vite build、size（和 CI 一致）
 ```
 
-CI：`.github/workflows/ci.yml` 在每次 push / PR 时运行 `npm ci`、`tsc -b`、lint、`npm test`（含 validate）、`vite build`、体积预算检查（`npm run size`）和 Prettier 格式检查。工具链：Vite 8（Rolldown）、Vitest 5，需要 Node 20.19+ 或 22.12+。`npm audit` 剩 10 个 moderate，全部是 ESLint / typescript-eslint 依赖的 minimatch，上游尚无修复（只影响开发工具，不进入构建产物）。格式化提交记录在 `.git-blame-ignore-revs`（本地 `git config blame.ignoreRevsFile .git-blame-ignore-revs`）。
+CI：`.github/workflows/ci.yml` 在每次 push / PR 时运行 `npm ci`、`tsc -b`、lint、`npm test`（含 validate）、`vite build`、体积预算检查（`npm run size`）和 Prettier 格式检查。工具链：Vite 8（Rolldown）、Vitest 5，需要 Node 20.19+ 或 22.12+。运行时：React 18.3、zustand 5、three.js r182、@react-three/fiber 8、@react-three/drei 9（three 停在 r182：r183 起 `THREE.Clock` 弃用，而 r3f 8 / 9 都还在用它，每次加载都会打印警告；React 19 + fiber 9 + drei 10 已经验证可用，但 react-dom 19 让每个页面的首屏 JS 多约 77 kB，超出体积预算，暂未采用，见 ROADMAP）。`npm audit` 剩 10 个 moderate，全部是 ESLint / typescript-eslint 依赖的 minimatch，上游尚无修复（只影响开发工具，不进入构建产物）。格式化提交记录在 `.git-blame-ignore-revs`（本地 `git config blame.ignoreRevsFile .git-blame-ignore-revs`）。
 
 性能：内置理论题在运行时**不再**用引擎重算答案（这一步由 `npm run validate` 和 `npm test` 保证，修改题目后务必运行）；侧栏用构建时生成的轻量索引（`virtual:problem-index`，见 `scripts/problem-index-plugin.ts`），完整题目按章节分块、打开时才加载。导入页导入的文件仍然完整校验。练习 / 导入 / 知识页面和 three.js 各自单独分块，练习、导入和知识页面不加载 three.js 和面包板侧栏；面包板题同样只在打开所在分组时加载。实测体积见 [`docs/ROADMAP.md`](docs/ROADMAP.md) 的“性能”一节。3D 工具栏的 **流畅** 按钮切换低画质（阴影 1024、像素比 ≤ 1.5），弱设备上会自动开启，选择记在浏览器里。
 

@@ -216,8 +216,10 @@ export function Scene() {
   const low = useLowQuality();
   const q = qualityParams(low);
   return (
+    // PCF shadows: three r182+ no longer has PCFSoftShadowMap (r3f's `shadows` default) and warns
+    // on every render before falling back to PCF
     <Canvas
-      shadows
+      shadows="percentage"
       frameloop="demand"
       dpr={q.dpr}
       camera={{ position: HOME.toArray(), fov: 40, near: 0.5, far: 400 }}

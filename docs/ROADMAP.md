@@ -161,6 +161,8 @@ over-current, coil without flyback diode (DC) and inductive kick (time domain), 
   - 入口 / entry 199.6 → 111.0 kB；入口 + 预加载 / entry + preloads 348.0 → 259.4 kB；预算 / budgets（`npm run size`）≤ 128 kB / ≤ 300 kB（约 15 % 余量，入口不再随题目数增长 / ≈ 15 % headroom; the entry no longer grows with the content）。
   - 按页面实际下载的 JS（Playwright，`vite preview`）/ JS fetched per route：`#/learn/<id>` 1,569,255 → 1,504,203 B；`#/practice/<id>` 644,262 → 638,716 B；`#/guide` 370,118 → 302,397 B（其中 20.8 kB 的课程索引在空闲时才取 / incl. the 20.8 kB lesson index fetched at idle）；`#/import` 632,340 → 640,748 B（两个索引都要，索引以 `JSON.parse('…')` 字符串输出，解析更快，原始字节多约 9 kB、gzip 后几乎不变 / both indexes; emitted as `JSON.parse` strings for faster parsing, ≈ 9 kB more raw, ≈ same gzipped）。
 
+- 第 4 轮依赖升级 / round 4 dependency upgrades: zustand 4 → 5（无需改代码：所有 selector 都返回原始值或稳定引用 / no code change, every selector returns a primitive or a stable reference）；three r169 → r182（`<Canvas shadows="percentage">`：r182 起 PCFSoftShadowMap 被替换为 PCF 并每帧警告；r183+ 弃用 `THREE.Clock`，r3f 8 和 9.8 都还在 new 它，所以停在 r182 / r183+ deprecates `THREE.Clock`, which r3f 8 and 9.8 still construct）。React 19 + fiber 9 + drei 10 做完并验证（commit 7a10883：类型改 `React.JSX` / `ThreeElements`，Board / Parts 在 canvas 事件连上后的下一个任务里才挂载，否则 drei `<Html>` 在 react-dom 提交中途卸载自己的 root，报 "removeChild … not a child"），但 react chunk 145.8 → 222.8 kB（gzip 47.0 → 68.8 kB），首屏 335 kB > 300 kB 预算，已回退；决定放宽预算后 `git revert` 回退提交即可 / done and verified but reverted for the entry budget; re-apply by reverting the revert.
+
 ## 待办 / Backlog (engine gaps reported by problem authors)
 
 - 单刀双掷开关（SPDT `SW` 三端）/ an SPDT switch element (currently two `SW` acting at t = 0)
