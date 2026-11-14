@@ -40,7 +40,7 @@ export function ReviewSession() {
       <div className="eyebrow">
         <Mixed text={tr('间隔复习 REVIEW', 'SPACED REVIEW')} />
       </div>
-      <h2 className="pr-title">{tr('今日复习', "Today's review")}</h2>
+      <h1 className="pr-title">{tr('今日复习', "Today's review")}</h1>
     </>
   );
 
@@ -124,12 +124,12 @@ export function HowItWorks() {
       <div className="eyebrow">
         <Mixed text={tr('说明 HOW IT WORKS', 'HOW IT WORKS')} />
       </div>
-      <h2 className="pr-title">{tr('错题本、复习和测验是怎么运作的', 'How the notebook, review and quizzes work')}</h2>
+      <h1 className="pr-title">{tr('错题本、复习和测验是怎么运作的', 'How the notebook, review and quizzes work')}</h1>
       <div className="ms-how-grid">
         <section>
-          <h3>
+          <h2>
             <Icon name="book" size={16} /> {tr('1 · 错题本', '1 · Mistake notebook')}
-          </h3>
+          </h2>
           <p>
             {tr(
               '任何一问只要答错过一次，或者点了“看答案”，就自动记进错题本：你填了什么、系统识别出的错误类型（符号、×10³ 前缀、√2 峰值/有效值……）、哪天、后来怎么解决的。',
@@ -144,9 +144,9 @@ export function HowItWorks() {
           </p>
         </section>
         <section>
-          <h3>
+          <h2>
             <Icon name="target" size={16} /> {tr('2 · 间隔复习（莱特纳盒子）', '2 · Spaced review (Leitner boxes)')}
-          </h3>
+          </h2>
           <ol className="ms-boxes" aria-label={tr('复习间隔', 'Review intervals')}>
             {INTERVALS.map((d, k) => (
               <li key={k}>
@@ -167,9 +167,9 @@ export function HowItWorks() {
           </p>
         </section>
         <section>
-          <h3>
+          <h2>
             <Icon name="practice" size={16} /> {tr('3 · 测验', '3 · Quiz')}
-          </h3>
+          </h2>
           <p>
             {tr(
               '选章节（或“到期 + 薄弱章节”）、题数和时间，系统按难度分层抽题。测验中没有对错反馈、提示、解答和要点链接，交卷前可以随时改答案；计时器可以暂停。交卷后看分数、每题的正常反馈和解答，答错的自动记进错题本。判分和练习完全一样（同样的误差范围）。',

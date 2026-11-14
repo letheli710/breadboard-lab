@@ -1,7 +1,7 @@
 // Insert buttons for symbols that are hard to type on a phone keyboard (√ π ∠ ° µ Ω ×10^ and
 // parentheses — the answer reader accepts all of them). Shown on touch screens while the answer
-// field has focus, as an overlay below it (styles.css). The buttons don't take focus, so the
-// on-screen keyboard stays up.
+// field (or one of the buttons) has focus, as an overlay below it (styles.css). A tap doesn't move
+// focus off the field, so the on-screen keyboard stays up; Tab reaches the buttons.
 
 import type { RefObject } from 'react';
 import { tr } from '../core/i18n';
@@ -37,7 +37,6 @@ export function SymbolKeys({ input, onChange }: { input: RefObject<HTMLInputElem
         <button
           key={k.text}
           type="button"
-          tabIndex={-1}
           onPointerDown={(e) => e.preventDefault()}
           onClick={() => insert(k.text)}
           aria-label={tr(`插入 ${k.text}`, `Insert ${k.text}`)}

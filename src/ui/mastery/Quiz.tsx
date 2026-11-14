@@ -92,7 +92,7 @@ function QuizSetup() {
 
   return (
     <section className="ms-setup">
-      <h3>{tr('出一套测验', 'Set up a quiz')}</h3>
+      <h2>{tr('出一套测验', 'Set up a quiz')}</h2>
       <div className="ms-modes" role="radiogroup" aria-label={tr('出题范围', 'Questions from')}>
         <label>
           <input type="radio" name="qmode" checked={mode === 'chapters'} onChange={() => setMode('chapters')} /> {tr('选章节', 'Chapters I pick')}
@@ -240,10 +240,24 @@ function QuizRunner({ q }: { q: ActiveQuiz }) {
   });
 
   const low = left !== null && left <= 60;
+  // screen readers hear the time only at a few milestones (and on pause / resume), not every tick
+  const milestone =
+    left === null
+      ? ''
+      : left <= 10
+        ? tr('还剩 10 秒', '10 seconds left')
+        : left <= 60
+          ? tr('还剩 1 分钟', '1 minute left')
+          : left <= 300 && q.limit > 300
+            ? tr('还剩 5 分钟', '5 minutes left')
+            : '';
   return (
     <div className="ms-quiz">
+      <div className="sr-only" aria-live="polite">
+        {paused ? tr('测验已暂停', 'Quiz paused') : milestone}
+      </div>
       <div className={`ms-timer ${low ? 'low' : ''}`} role="timer" aria-live="off">
-        <span className="ms-time" aria-label={tr('剩余时间', 'Time left')}>
+        <span className="ms-time">
           {left !== null ? clock(left) : clock(elapsed)}
           <small>{left !== null ? tr(' 剩余', ' left') : tr(' 已用', ' used')}</small>
         </span>
@@ -398,7 +412,7 @@ function QuizHistory() {
   if (!quizzes.length) return null;
   return (
     <section className="ms-history">
-      <h3>{tr('测验记录', 'Quiz history')}</h3>
+      <h2>{tr('测验记录', 'Quiz history')}</h2>
       <table>
         <thead>
           <tr>
@@ -442,7 +456,7 @@ export function QuizPage() {
       <div className="eyebrow">
         <Mixed text={tr('测验 QUIZ', 'QUIZ')} />
       </div>
-      <h2 className="pr-title">{quiz ? tr('测验进行中', 'Quiz in progress') : result ? tr('测验结果', 'Quiz results') : tr('章节测验', 'Chapter quiz')}</h2>
+      <h1 className="pr-title">{quiz ? tr('测验进行中', 'Quiz in progress') : result ? tr('测验结果', 'Quiz results') : tr('章节测验', 'Chapter quiz')}</h1>
       {quiz ? (
         <QuizRunner q={quiz} />
       ) : result ? (

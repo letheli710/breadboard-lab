@@ -475,9 +475,9 @@ export function Inspector() {
             <PartIcon type={tool} size={44} />
             <div>
               <div className="eyebrow">{tr('即将放置', 'Placing next')}</div>
-              <h3>
+              <h2>
                 {def.name} {getLang() === 'zh' && <small lang="en">{def.nameEn}</small>}
-              </h3>
+              </h2>
             </div>
           </div>
           <p className="blurb">{def.blurb}</p>
@@ -536,9 +536,9 @@ export function Inspector() {
         <PartIcon type={part.type} size={44} />
         <div>
           <div className="eyebrow">{part.ref}</div>
-          <h3>
+          <h2>
             {def.name} {getLang() === 'zh' && <small lang="en">{def.nameEn}</small>}
-          </h3>
+          </h2>
         </div>
         <button className="danger" onClick={() => removePart(part.id)}>
           {tr('删除', 'Delete')}

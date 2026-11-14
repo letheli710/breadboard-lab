@@ -30,9 +30,9 @@ export function useEntryProblem(pid: string): { entry: ProblemEntry | null; prob
 export function ProblemContext({ p, highlight }: { p: Problem; highlight?: string[] }) {
   return (
     <div className="ms-context">
-      <h3 className="ms-ptitle">
+      <h2 className="ms-ptitle">
         <Sym text={p.title} />
-      </h3>
+      </h2>
       <div className="pr-statement">
         <PrMd text={p.statement} />
       </div>

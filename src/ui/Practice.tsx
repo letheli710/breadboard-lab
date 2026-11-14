@@ -342,7 +342,7 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
   let num = 0;
   let optNum = 0;
   return (
-    <aside className="pr-side card" ref={sideRef} aria-busy={!ready} aria-label={tr('章节与题目', 'Chapters and problems')}>
+    <aside id="pr-side" className="pr-side card" ref={sideRef} aria-busy={!ready} aria-label={tr('章节与题目', 'Chapters and problems')}>
       <div className="pr-side-tools">
         <select
           className="pr-jump"
@@ -433,7 +433,7 @@ function PhoneNav({
   }
   return (
     <nav className="pr-phone-nav" aria-label={tr('题目导航', 'Problem navigation')}>
-      <button className={drawer ? 'on' : ''} aria-expanded={drawer} onClick={() => setDrawer(!drawer)}>
+      <button className={drawer ? 'on' : ''} aria-expanded={drawer} aria-controls="pr-side" onClick={() => setDrawer(!drawer)}>
         <Icon name="book" size={18} /> {tr('题目', 'Problems')}
       </button>
       <button className={`pr-phone-review ${menu || view ? 'on' : ''}`} aria-expanded={menu} onClick={() => setMenu(!menu)}>
@@ -881,7 +881,14 @@ export function Practice() {
   }, [current?.id, summary?.chapter, view]);
   useEffect(() => {
     if (!drawer) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setDrawer(false);
+    // focus into the drawer (its open item); Esc closes it and returns focus to the toggle
+    const side = document.querySelector<HTMLElement>('.pr-page > .pr-side');
+    requestAnimationFrame(() => (side?.querySelector<HTMLElement>('.pr-pitem.on, .pr-ch-head, select') ?? side)?.focus({ preventScroll: true }));
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setDrawer(false);
+      document.querySelector<HTMLElement>('.pr-phone-nav button[aria-expanded]')?.focus();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [drawer]);

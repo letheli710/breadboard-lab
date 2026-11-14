@@ -224,7 +224,9 @@ function focusPageHeading(tries = 40) {
  *  to the new page's heading, so a screen reader announces where the user now is — except when
  *  the change came from the lesson carousel or its group tabs, where focus stays on the card. */
 function RouteFocus() {
-  const key = useStore((s) => `${s.mode}|${s.mode === 'practice' ? (s.practiceSummary ? 'sum:' + s.practiceSummary.chapter : s.problemId) : s.activeId}`);
+  const key = useStore(
+    (s) => `${s.mode}|${s.mode === 'practice' ? (s.practiceView ? 'view:' + s.practiceView : s.practiceSummary ? 'sum:' + s.practiceSummary.chapter : s.problemId) : s.activeId}`,
+  );
   const first = useRef(true);
   useEffect(() => {
     if (first.current) {

@@ -30,6 +30,21 @@ const PAGES = [
   { name: 'lab-checked', hash: '#/challenges/exp-inverting-amp', ready: '.lesson-card.on', setup: 'checked' },
   { name: 'lesson-done', hash: '#/learn/lesson-breadboard-basics', ready: '.lesson-card.on', setup: 'celebrate' },
   { name: 'practice-answered', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', setup: 'answered' },
+  // Practice mastery pages
+  { name: 'review', hash: '#/practice/review', ready: '.ms-main' },
+  { name: 'review-due', hash: '#/practice/review/due', ready: '.ms-main' },
+  { name: 'review-how', hash: '#/practice/review/how', ready: '.ms-main' },
+  { name: 'quiz-setup', hash: '#/practice/quiz', ready: '.ms-main' },
+  { name: 'quiz-running', hash: '#/practice/quiz', ready: '.ms-main', setup: 'quiz' },
+  { name: 'quiz-paused', hash: '#/practice/quiz', ready: '.ms-main', setup: 'quiz-paused' },
+  { name: 'quiz-results', hash: '#/practice/quiz', ready: '.ms-main', setup: 'quiz-results' },
+  // an instrument lesson with per-step checks
+  { name: 'lesson-steps', hash: '#/learn/lesson-ammeter', ready: '.lesson-card.on' },
+  // phone UI (390 × 844, touch)
+  { name: 'phone-drawer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'drawer' },
+  { name: 'phone-figure-viewer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'viewer' },
+  { name: 'phone-symbol-keys', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'symkeys' },
+  { name: 'phone-touch-chip', hash: '#/sandbox', ready: '.stage-view canvas', phone: true, setup: 'touchchip' },
 ];
 
 async function setup(p, kind) {
@@ -66,6 +81,30 @@ async function setup(p, kind) {
     await f.press('Enter');
     await p.locator('.pr-q-tools .pr-link').first().click();
   }
+  if (kind.startsWith('quiz')) {
+    await p.locator('.ms-chpick input[type="checkbox"]').first().check();
+    await p.locator('.ms-setup button.primary:not(:disabled)').first().click();
+    await p.waitForSelector('.ms-quiz', { timeout: 15000 });
+    if (kind === 'quiz-paused') await p.locator('.ms-timer button[aria-pressed]').click();
+    if (kind === 'quiz-results') {
+      await p.locator('.ms-quiz .confirm-wrap button.primary').click();
+      await p.locator('.confirm-pop button.danger-solid').click();
+      await p.waitForSelector('.ms-quiz', { state: 'detached', timeout: 10000 });
+    }
+  }
+  if (kind === 'drawer') await p.locator('.pr-phone-nav button[aria-expanded]').click();
+  if (kind === 'viewer') {
+    await p.locator('.fig-zoom').first().click();
+    await p.waitForSelector('.fig-viewer[role="dialog"]', { timeout: 5000 });
+  }
+  if (kind === 'symkeys') await p.locator('.pr-q input').first().tap();
+  if (kind === 'touchchip') {
+    await p.locator('button.tool').nth(4).tap();
+    await p.waitForFunction(() => window.__bb, null, { timeout: 30000 });
+    const h = await p.evaluate(() => window.__bb.hole('c10'));
+    await p.touchscreen.tap(h.x, h.y);
+    await p.waitForSelector('.touch-chip', { timeout: 5000 });
+  }
   if (kind === 'checked') {
     await p.locator('.actions button.primary.big').click();
   }
@@ -78,7 +117,11 @@ async function setup(p, kind) {
   let failures = 0;
   for (const lang of ['zh', 'en']) {
     for (const pg of PAGES) {
-      const ctx = await browser.newContext({ locale: lang === 'zh' ? 'zh-CN' : 'en-US', colorScheme: 'light', viewport: { width: 1440, height: 900 } });
+      const ctx = await browser.newContext({
+        locale: lang === 'zh' ? 'zh-CN' : 'en-US',
+        colorScheme: 'light',
+        ...(pg.phone ? { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 } : { viewport: { width: 1440, height: 900 } }),
+      });
       await ctx.addInitScript((l) => localStorage.setItem('bb.lang', JSON.stringify(l)), lang);
       const p = await ctx.newPage();
       await p.goto(`${BASE}?e2e${pg.hash}`);

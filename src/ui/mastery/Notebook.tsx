@@ -166,7 +166,7 @@ export function Notebook() {
       <div className="eyebrow">
         <Mixed text={tr('错题本 MISTAKES', 'MISTAKE NOTEBOOK')} />
       </div>
-      <h2 className="pr-title">{tr('错题本', 'Mistake notebook')}</h2>
+      <h1 className="pr-title">{tr('错题本', 'Mistake notebook')}</h1>
       <div className="ms-summary">
         <div className="ms-stat">
           <b>{active}</b>
@@ -204,7 +204,7 @@ export function Notebook() {
         <>
           <div className="ms-stats">
             <section>
-              <h3>{tr('按错误类型', 'By mistake type')}</h3>
+              <h2>{tr('按错误类型', 'By mistake type')}</h2>
               <ul className="ms-types">
                 {typeRows.map(([t, c]) => (
                   <li key={t}>
@@ -218,7 +218,7 @@ export function Notebook() {
               </ul>
             </section>
             <section>
-              <h3>{tr('按章节', 'By chapter')}</h3>
+              <h2>{tr('按章节', 'By chapter')}</h2>
               <ul className="ms-chapters">
                 {chapterRows.map(([ch, c]) => (
                   <li key={ch}>
@@ -281,9 +281,9 @@ export function Notebook() {
           {list.length === 0 && <p className="ms-empty">{tr('没有符合筛选条件的错题。', 'No entries match these filters.')}</p>}
           {keys.map((k) => (
             <section key={k} className="ms-group">
-              <h3>
+              <h2>
                 {group === 'chapter' ? chapterName(k) : mistakeLabel(k as MistakeType)} <span className="muted">({groups.get(k)!.length})</span>
-              </h3>
+              </h2>
               <ul className="ms-notes">
                 {groups
                   .get(k)!

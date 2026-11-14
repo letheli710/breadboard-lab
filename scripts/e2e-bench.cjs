@@ -8,7 +8,7 @@
 // hard-coded pixels. On a failure a screenshot goes to e2e-artifacts/.
 const { chromium } = require('playwright');
 const { execFileSync } = require('node:child_process');
-const { mkdirSync } = require('node:fs');
+const { mkdirSync, rmSync } = require('node:fs');
 const { join } = require('node:path');
 
 const args = process.argv.slice(2);
@@ -472,6 +472,94 @@ const TESTS = {
     }
   },
 
+  // keyboard on the newer pages: figure viewer dialog, phone drawer, quiz timer / pause / submit
+  async keyboardPages(browser) {
+    {
+      const { p, ctx, errors } = await open(browser, '#/practice/basics-01-ohm', { viewport: { width: 390, height: 844 }, waitHook: false });
+      try {
+        await p.waitForSelector('.pr-main .pr-title', { timeout: 20000 });
+        const zoom = p.locator('.fig-zoom').first();
+        await zoom.focus();
+        await p.keyboard.press('Enter');
+        await p.waitForSelector('.fig-viewer[role="dialog"][aria-modal="true"]');
+        const inDlg = () => p.evaluate(() => !!document.activeElement.closest('.fig-viewer'));
+        let trapped = await inDlg();
+        for (let i = 0; i < 5; i++) {
+          await p.keyboard.press('Tab');
+          trapped = trapped && (await inDlg());
+        }
+        assert(trapped, 'viewer: focus starts in the dialog and Tab stays inside it');
+        assert(await p.evaluate(() => document.getElementById('root').inert), 'viewer: the page behind is inert');
+        await p.keyboard.press('Escape');
+        await p.waitForTimeout(150);
+        assert(
+          (await p.locator('.fig-viewer').count()) === 0 && (await p.evaluate(() => document.activeElement.classList.contains('fig-zoom'))),
+          'viewer: Esc closes it, focus back on its button',
+        );
+        const tog = p.locator('.pr-phone-nav button[aria-expanded]');
+        await tog.focus();
+        await p.keyboard.press('Enter');
+        await p.waitForTimeout(250);
+        assert(
+          (await tog.getAttribute('aria-expanded')) === 'true' && (await p.evaluate(() => !!document.activeElement.closest('.pr-side'))),
+          'drawer: opens expanded, focus moves into it',
+        );
+        await p.keyboard.press('Escape');
+        await p.waitForTimeout(150);
+        assert(
+          (await tog.getAttribute('aria-expanded')) === 'false' && (await p.evaluate(() => document.activeElement.matches('.pr-phone-nav button[aria-expanded]'))),
+          'drawer: Esc closes it, focus back on the toggle',
+        );
+        assert(errors.length === 0, 'viewer / drawer: no page errors ' + errors.join(' | '));
+      } finally {
+        await shot(p, 'kb-phone');
+        await ctx.close();
+      }
+    }
+    {
+      const { p, ctx, errors } = await open(browser, '#/practice/quiz', { waitHook: false });
+      try {
+        // the problem index must be in first (it resets the chapter picks when it arrives)
+        await p.waitForFunction(() => /^\d+\/\d+$/.test(document.querySelector('.progress-card b')?.textContent.trim() ?? ''), null, { timeout: 20000 });
+        const box = p.locator('.ms-chpick input[type="checkbox"]').first();
+        await box.focus();
+        await p.keyboard.press('Space');
+        const start = p.locator('.ms-setup button.primary:not(:disabled)').first();
+        await start.focus();
+        await p.keyboard.press('Enter');
+        await p.waitForSelector('.ms-quiz', { timeout: 15000 });
+        await p.waitForTimeout(300);
+        const live = p.locator('.ms-quiz > .sr-only[aria-live]');
+        assert(
+          (await p.locator('.ms-timer[role="timer"][aria-live="off"]').count()) === 1 && (await live.textContent()) === '',
+          'quiz: the ticking timer is not live; nothing announced at the start',
+        );
+        const pause = p.locator('.ms-timer button[aria-pressed]');
+        await pause.focus();
+        await p.keyboard.press('Enter');
+        await p.waitForTimeout(150);
+        assert((await pause.getAttribute('aria-pressed')) === 'true' && (await live.textContent()) === 'Quiz paused', 'quiz: pause by keyboard, announced once');
+        await pause.focus();
+        await p.keyboard.press('Enter');
+        await p.waitForTimeout(150);
+        const submit = p.locator('.ms-quiz .confirm-wrap button.primary');
+        await submit.focus();
+        await p.keyboard.press('Enter');
+        await p.waitForTimeout(150);
+        await p.keyboard.press('Shift+Tab');
+        await p.keyboard.press('Shift+Tab');
+        await p.locator('.confirm-pop button.danger-solid').focus();
+        await p.keyboard.press('Enter');
+        await p.waitForSelector('.ms-quiz', { state: 'detached', timeout: 10000 });
+        assert(/results/i.test(await p.locator('#main h1').textContent()), 'quiz: submitted by keyboard, results shown: ' + (await p.locator('#main h1').textContent()));
+        assert(errors.length === 0, 'quiz: no page errors ' + errors.join(' | '));
+      } finally {
+        await shot(p, 'kb-quiz');
+        await ctx.close();
+      }
+    }
+  },
+
   // damaged saved data and an injected render error
   async robustness(browser) {
     {
@@ -518,6 +606,7 @@ async function shot(p, name) {
 
 (async () => {
   const t0 = Date.now();
+  rmSync(ART, { recursive: true, force: true }); // screenshots of this run's failures only
   const browser = await chromium.launch(LAUNCH);
   for (const [name, fn] of Object.entries(TESTS)) {
     if (ONLY && !ONLY.includes(name)) continue;

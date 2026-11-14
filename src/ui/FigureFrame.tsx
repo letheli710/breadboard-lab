@@ -116,16 +116,22 @@ function FigureViewer({ children, label, onClose }: { children: ReactNode; label
         e.stopPropagation();
         onClose();
       } else if (e.key === 'Tab') {
-        // the close button is the only focusable control: keep focus in the dialog
+        // keep focus inside the dialog: cycle through its buttons
         e.preventDefault();
-        closeBtn.current?.focus();
+        const bs = [...(closeBtn.current?.closest('.fig-viewer')?.querySelectorAll<HTMLElement>('button') ?? [])];
+        const i = bs.indexOf(document.activeElement as HTMLElement);
+        bs[(i + (e.shiftKey ? -1 : 1) + bs.length) % bs.length]?.focus();
       } else if (e.key === '+' || e.key === '=') setT((v) => ({ ...v, s: Math.min(8, v.s * 1.25) }));
       else if (e.key === '-') setT((v) => ({ ...v, s: Math.max(0.5, v.s / 1.25) }));
     };
     window.addEventListener('keydown', onKey, true);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // a modal dialog: the page behind it is inert (no focus, hidden from assistive technology)
+    const root = document.getElementById('root');
+    root?.setAttribute('inert', '');
     return () => {
+      root?.removeAttribute('inert');
       window.removeEventListener('keydown', onKey, true);
       document.body.style.overflow = overflow;
       if (prev && document.contains(prev)) prev.focus();

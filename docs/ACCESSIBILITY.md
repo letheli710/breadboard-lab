@@ -17,6 +17,10 @@ Target: WCAG 2.1 AA. Checked by `scripts/e2e-a11y.cjs` (axe-core, rules `wcag2a 
 | Guide | color-contrast 14/14, heading-order, landmark-one-main, region 13/13 | none |
 | Import | color-contrast 656/656, region 1449/1449, landmark-one-main, empty-table-header, scrollable-region-focusable 2/2 | none |
 | Lesson completed (dialog + confetti) | — (new state) | none |
+| Mistake notebook, today's review, how it works (`#/practice/review[/due\|/how]`) | (added later) | none |
+| Quiz: setup, running (timer), paused, results (`#/practice/quiz`) | (added later) | none |
+| Instrument lesson with per-step checks (`lesson-ammeter`) | (added later) | 2 contrast (prerequisite links) → none |
+| Phone (390 px, touch): problem drawer, full-screen figure viewer, symbol keys, bench touch chip | (added later) | 3 label-title-only (viewer), 1 scrollable-region-focusable (symbol keys), heading-order → none |
 
 Total: 4704 violating nodes → 0.
 
@@ -24,6 +28,8 @@ Total: 4704 violating nodes → 0.
 
 - **Structure**: one `<main id="main">` and one `h1` per page (the bench pages have a visually hidden one naming the lesson); Guide cards and key-point sections are `h2`; a "Skip to content" link; after a change of page / item focus moves to the new page's `h1` (not when it came from the lesson carousel or its group tabs).
 - **Controls**: toolbar toggles report `aria-pressed`, icon-only buttons are named; side panel tabs and the carousel group tabs follow the ARIA tabs pattern (←/→/Home/End); lesson cards say done / level as text; inspector labels are tied to their slider / field / chip group, chips report `aria-pressed`; practice answer fields are labelled by their question and described by their unit; choice questions are radio groups (arrows move, Space / Enter answers — moving never submits); the practice sidebar is a list of disclosure buttons (`aria-expanded`, `aria-current` on the open item, status and level as text); the header progress bars are `progressbar`s.
+- **Newer pages**: the quiz timer is not a live region; screen readers hear only the 5 min / 1 min / 10 s marks and pause / resume. Pause, the question list and Submit are buttons in the tab order. The full-screen figure viewer is a modal dialog: the page behind it is `inert`, Tab cycles through its buttons, Esc closes it and focus returns to its button. The phone problem drawer reports `aria-expanded`; opening it moves focus into it, and Esc closes it and returns focus to the toggle. The symbol keys can be reached with Tab.
+- **Mixed languages**: `<Mixed>` (src/ui/Mixed.tsx) gives the English gloss of a Chinese label ("目标电路图 TARGET SCHEMATIC") and Chinese inside English text their own `lang`, so screen readers switch voice.
 - **Announcements**: practice verdicts, check results, measurement feedback, the multimeter reading, step text and toasts are in polite live regions that are always in the page, so each change is announced once.
 - **Keyboard building on the bench** ("Build with the keyboard" under the 3D view): choose a part, type its holes (`a12 a16`, or the first pin for a footprint part), Place; a table of the placed parts with Select (opens Properties), Move (type new holes) and Delete (with the Undo toast). Same store actions as the 3D view, so validation, messages and undo are identical. The 3D region is described by a text version of the board (every part, value and hole), and the netlist table (My schematic tab) lists every node with its pins and holes.
 - **Figures**: circuit diagrams (Practice, key points), the bench schematics and directed graphs get a text alternative generated from the circuit data: each element with its value and the nodes it connects (bench: each node with its pins and voltage).
@@ -35,5 +41,5 @@ Total: 4704 violating nodes → 0.
 
 - Free 3D manipulation (orbiting, dragging parts) has no non-visual equivalent; everything it builds can be built with the keyboard form instead. Push buttons and switches are operated from their Properties panel (select them in the parts table).
 - The bench page itself (3D view + toolbox) needs horizontal space; below ~640 px it is the phone layout (see the phone work), not a 320 px reflow.
-- Mixed-language labels such as "目标电路图 TARGET SCHEMATIC" are not yet marked up with `lang` on the English part (the header / nav / brand are).
+- `lang` is marked on labels and headings; English acronyms inside Chinese sentences (GND, PWM, JSON) are left to the Chinese voice.
 - Wire colours are the student's choice (white / yellow wires are low-contrast on the board); the hover tip and the parts table name every wire's holes.
