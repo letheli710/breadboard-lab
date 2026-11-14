@@ -25,7 +25,7 @@ describe('simulated readings are hidden while a lab has unanswered measurement q
   });
 
   it('labs without questions, lessons and no challenge (sandbox) are unaffected', () => {
-    expect(readingsHidden(load('19-fix-the-circuit.json'), undefined)).toBe(false);
+    expect(readingsHidden(load('14-reverse-protection.json'), undefined)).toBe(false);
     expect(readingsHidden({ ...kcl, kind: 'lesson' }, undefined)).toBe(false);
     expect(readingsHidden(null, undefined)).toBe(false);
   });
