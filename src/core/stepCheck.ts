@@ -146,7 +146,11 @@ export function unmetStepChecks(checks: StepCheck[], st: StepState): string[] {
         [tr('CH2 伏/格', 'CH2 V/div'), 'V', c.vdiv2, st.scope.vdiv[2]],
       ];
       for (const [label, unit, w, h] of want)
-        if (w !== undefined && (h === null || !near(w, h))) out.push(tr(`示波器${label}调到 ${formatSI(w, unit)}`, `Set the scope's ${label} to ${formatSI(w, unit)}`));
+        if (w !== undefined && (h === null || !near(w, h)))
+          out.push(
+            tr(`示波器${label}调到 ${formatSI(w, unit)}`, `Set the scope's ${label} to ${formatSI(w, unit)}`) +
+              (h === null ? tr('（现在是 AUTO，用 − / + 调）', ' (it is on AUTO now; use − / +)') : ''),
+          );
     }
   }
   return out;

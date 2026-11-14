@@ -2,11 +2,14 @@
 // step text, and which steps have been done (for the step dots). Plus the "do this lesson
 // first" links of a lab ("prereq").
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { Challenge } from '../core/challenge';
 import { tr } from '../core/i18n';
 import { unmetStepChecks } from '../core/stepCheck';
 import { useStore } from '../state/store';
+
+const doneSteps = new Map<string, Set<number>>();
+const EMPTY = new Set<number>();
 
 /** Unmet items per step (null = the step has no check), live against the board. */
 export function useStepChecks(ch: Challenge): { unmet: (string[] | null)[]; done: Set<number> } {
@@ -14,18 +17,16 @@ export function useStepChecks(ch: Challenge): { unmet: (string[] | null)[]; done
   const probe = useStore((s) => s.probe);
   const scope = useStore((s) => s.scope);
   const unmet = useMemo(() => ch.steps.map((s) => (s.check?.length ? unmetStepChecks(s.check, { layout, probe, scope }) : null)), [ch, layout, probe, scope]);
-  // a step stays done once its check passed (a later step may undo it on purpose, e.g. move the ammeter)
-  const [done, setDone] = useState<Set<number>>(() => new Set());
-  const id = useRef(ch.id);
-  useEffect(() => {
-    const fresh = id.current !== ch.id;
-    id.current = ch.id;
-    setDone((d) => {
-      const next = new Set(fresh ? [] : d);
-      unmet.forEach((u, i) => u && !u.length && next.add(i));
-      return next.size === d.size && [...next].every((i) => d.has(i)) ? d : next;
-    });
+  // a step stays done once its check passed (a later step may undo it on purpose, e.g. move the
+  // ammeter); remembered per lesson for the session, since the panel unmounts on a tab switch
+  const done = useMemo(() => {
+    const prev = doneSteps.get(ch.id);
+    const fresh = unmet.flatMap((u, i) => (u && !u.length && !prev?.has(i) ? [i] : []));
+    return fresh.length ? new Set([...(prev ?? []), ...fresh]) : (prev ?? EMPTY);
   }, [ch.id, unmet]);
+  useEffect(() => {
+    if (done !== EMPTY && done !== doneSteps.get(ch.id)) doneSteps.set(ch.id, done);
+  }, [ch.id, done]);
   return { unmet, done };
 }
 
