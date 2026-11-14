@@ -36,7 +36,17 @@ function closedCurve(pts: V[]): string {
 
 export function GraphFigure({ graph }: { graph: CircuitGraph }) {
   const pos = new Map(graph.nodes.map((n) => [n.name, n.at as V]));
-  const all: Pt[] = [...graph.nodes.map((n) => n.at), ...(graph.cutsets ?? []).flatMap((c) => c.path)];
+  const all: Pt[] = graph.nodes.map((n) => n.at);
+  // a closed curve can bulge past its points: bound it by its Bézier control points too
+  for (const c of graph.cutsets ?? []) {
+    const q = c.path as V[];
+    q.forEach((p1, i) => {
+      const p0 = q[(i - 1 + q.length) % q.length];
+      const p2 = q[(i + 1) % q.length];
+      const p3 = q[(i + 2) % q.length];
+      all.push(p1, add(p1, mul(sub(p2, p0), 1 / 6)), sub(p2, mul(sub(p3, p1), 1 / 6)));
+    });
+  }
   // curved branches reach out by |bend|
   for (const b of graph.branches) {
     const p = pos.get(b.from);
