@@ -15,6 +15,7 @@ import { DragLayer, grabPart } from './Drag';
 import { PartView } from './Parts';
 import { qualityParams, useLowQuality, useQuality } from './quality';
 import { assignSlots, nextSlot } from './slots';
+import { prefersReducedMotion } from '../ui/reveal';
 
 const TARGET = new THREE.Vector3(0, 0, -3);
 const HOME = new THREE.Vector3(0, 30, 25);
@@ -77,7 +78,8 @@ function CameraRig() {
     const g = goal.current;
     if (!g || !controls) return;
     state.invalidate(); // demand frame loop: keep rendering until the transition ends
-    const k = 1 - Math.exp(-Math.min(dt, 0.1) * 7);
+    // reduced motion: jump to the new view instead of flying there
+    const k = prefersReducedMotion() ? 1 : 1 - Math.exp(-Math.min(dt, 0.1) * 7);
     camera.position.lerp(g.pos, k);
     controls.target.lerp(g.target, k);
     controls.update();

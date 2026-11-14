@@ -1,4 +1,4 @@
-import { useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react';
 import { holeLabel } from '../core/breadboard';
 import { amps, formatSI, ohms, parseValue, resistorBands, volts } from '../core/format';
 import { getLang, tr } from '../core/i18n';
@@ -34,6 +34,7 @@ function PropEditor({ type, props, onChange }: { type: PartType; props: PartProp
           </div>
           <div className="row">
             <input
+              aria-label={tr('自定义阻值（按 Enter 确定）', 'Custom resistance (press Enter)')}
               placeholder={tr('自定义，如 560 或 3.3k', 'Custom, e.g. 560 or 3.3k')}
               value={custom}
               onChange={(e) => setCustom(e.target.value)}
@@ -420,6 +421,31 @@ function OpAmpInfo({ part }: { part: PlacedPart }) {
   );
 }
 
+let autoId = 0;
+/** The editors write "<label>text</label>" followed by the control it names (a slider, field, select or
+ *  a row of chips): connect them for assistive technology (aria-labelledby; a chip row becomes a
+ *  labelled group whose chips report their pressed state). Runs after every render of the inspector. */
+function useEditorLabels(root: RefObject<HTMLDivElement | null>) {
+  useLayoutEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    for (const label of el.querySelectorAll<HTMLLabelElement>('.editor > label, .mcu-pin-cfg > label, .editor label:not(:has(input, select, textarea))')) {
+      if (label.htmlFor || label.querySelector('input, select, textarea')) continue;
+      const next = label.nextElementSibling as HTMLElement | null;
+      if (!next) continue;
+      if (!label.id) label.id = `insp-l${++autoId}`;
+      if (next.matches('input, select, textarea')) next.setAttribute('aria-labelledby', label.id);
+      else if (next.matches('.chips, .row, .bands')) {
+        if (next.matches('.chips')) next.setAttribute('role', 'group');
+        next.setAttribute('aria-labelledby', label.id);
+        const field = next.querySelector('input, select');
+        if (field && !field.hasAttribute('aria-label')) field.setAttribute('aria-labelledby', label.id);
+      }
+    }
+    for (const b of el.querySelectorAll<HTMLButtonElement>('.chips > button')) b.setAttribute('aria-pressed', String(b.classList.contains('on')));
+  });
+}
+
 /** A slider drag (pointer down … up) is one undo step, however many values it passes through. */
 function sliderDrag(e: ReactPointerEvent) {
   const t = e.target as HTMLElement;
@@ -436,6 +462,8 @@ function sliderDrag(e: ReactPointerEvent) {
 }
 
 export function Inspector() {
+  const root = useRef<HTMLDivElement>(null);
+  useEditorLabels(root);
   const hideReadings = useReadingsHidden();
   const selectedId = useStore((s) => s.selectedId);
   const layout = useStore((s) => s.layout);
@@ -452,7 +480,7 @@ export function Inspector() {
     if (tool !== 'select' && tool !== 'probe') {
       const def = PARTS[tool];
       return (
-        <div className="inspector">
+        <div className="inspector" ref={root}>
           <div className="insp-head">
             <PartIcon type={tool} size={44} />
             <div>
@@ -513,7 +541,7 @@ export function Inspector() {
   const src = part.type === 'function_gen' ? undefined : sim.sources.get(part.ref);
   const acI = ac && part.type !== 'scope_probe' && part.type !== 'opamp' ? ac.current(part.ref) : null;
   return (
-    <div className="inspector" onPointerDownCapture={sliderDrag}>
+    <div className="inspector" ref={root} onPointerDownCapture={sliderDrag}>
       <div className="insp-head">
         <PartIcon type={part.type} size={44} />
         <div>

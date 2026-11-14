@@ -13,10 +13,14 @@ import { emitCameraView } from '../three/common';
 import { ConfirmButton } from './Confirm';
 import { E2E } from '../e2e/flag';
 import { E2ECrash } from '../e2e/Probe';
+import { BenchKeyboard, boardDescription } from './BenchKeyboard';
 import { ErrorBoundary } from './ErrorBoundary';
 import { Icon, PartIcon } from './Icons';
 import { QualityToggle } from './QualityToggle';
 import { Scope } from './Scope';
+import { prefersReducedMotion } from './reveal';
+
+const smooth = (): ScrollBehavior => (prefersReducedMotion() ? 'auto' : 'smooth');
 
 const groups = (): { title: string; items: Tool[] }[] => [
   { title: tr('工具', 'Tools'), items: ['select', 'probe'] },
@@ -61,8 +65,8 @@ function Toolbox() {
     const el = box.current;
     if (!el) return;
     const horiz = el.scrollWidth > el.clientWidth + 2 && el.scrollHeight <= el.clientHeight + 2;
-    if (horiz) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
-    else el.scrollBy({ top: dir * el.clientHeight * 0.8, behavior: 'smooth' });
+    if (horiz) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: smooth() });
+    else el.scrollBy({ top: dir * el.clientHeight * 0.8, behavior: smooth() });
   };
   return (
     <nav className={`toolbox-wrap ${more.up ? 'more-up' : ''} ${more.down ? 'more-down' : ''}`} aria-label={tr('元件箱', 'Parts toolbox')}>
@@ -223,6 +227,7 @@ function ViewButton() {
   return (
     <button
       className="view-btn"
+      aria-label={tr(`视角：${VIEW_NAME[view]()}（按下切换到${VIEW_NAME[next]()}）`, `View: ${VIEW_NAME[view]()} (press for ${VIEW_NAME[next]()})`)}
       onClick={() => {
         setView(next);
         emitCameraView(next);
@@ -256,7 +261,9 @@ function Multimeter() {
   const reading = probe.red ? r.v - b.v : NaN;
   return (
     <div className="meter">
-      <div className="meter-screen">{Number.isFinite(reading) ? volts(reading) : probe.red ? tr('—— 悬空', '—— floating') : '-- V'}</div>
+      <div className="meter-screen" role="status" aria-live="polite" aria-atomic="true">
+        {Number.isFinite(reading) ? volts(reading) : probe.red ? tr('—— 悬空', '—— floating') : '-- V'}
+      </div>
       <div className="meter-row">
         <span className="dot red" />
         {tr('红：', 'Red: ')}
@@ -295,21 +302,34 @@ function Toolbar() {
     <div className="toolbar" role="toolbar" aria-label={tr('视图与编辑', 'View and edit')}>
       <button
         className={showNets ? 'on' : ''}
+        aria-pressed={showNets}
         onClick={() => toggle('showNets')}
         title={tr('按结点着色：同一颜色 = 电气上连在一起', 'Colour by node: same colour = electrically connected')}
       >
         <Icon name="nets" />
         <span>{tr('结点着色', 'Node colours')}</span>
       </button>
-      <button className={showLabels ? 'on' : ''} onClick={() => toggle('showLabels')} title={tr('显示元件标签', 'Show part labels')}>
+      <button
+        className={showLabels ? 'on' : ''}
+        aria-pressed={showLabels}
+        onClick={() => toggle('showLabels')}
+        title={tr('显示元件标签', 'Show part labels')}
+        aria-label={tr('元件标签', 'Part labels')}
+      >
         <Icon name="label" />
       </button>
       <QualityToggle />
       <i />
-      <button onClick={undo} disabled={!canUndo} title={tr('撤销 (Ctrl+Z)', 'Undo (Ctrl+Z)')}>
+      <button onClick={undo} disabled={!canUndo} title={tr('撤销 (Ctrl+Z)', 'Undo (Ctrl+Z)')} aria-label={tr('撤销', 'Undo')} aria-keyshortcuts="Control+Z">
         <Icon name="undo" />
       </button>
-      <button onClick={redo} disabled={!canRedo} title={tr('重做 (Ctrl+Shift+Z / Ctrl+Y)', 'Redo (Ctrl+Shift+Z / Ctrl+Y)')} aria-label={tr('重做', 'Redo')}>
+      <button
+        onClick={redo}
+        disabled={!canRedo}
+        title={tr('重做 (Ctrl+Shift+Z / Ctrl+Y)', 'Redo (Ctrl+Shift+Z / Ctrl+Y)')}
+        aria-label={tr('重做', 'Redo')}
+        aria-keyshortcuts="Control+Shift+Z Control+Y"
+      >
         <span className="flip-x">
           <Icon name="undo" />
         </span>
@@ -323,6 +343,17 @@ function Toolbar() {
         <Icon name="trash" />
       </ConfirmButton>
     </div>
+  );
+}
+
+/** Screen-reader text of the 3D view (its region's description). */
+function BoardSummary() {
+  const parts = useStore((s) => s.layout.parts);
+  return (
+    <p id="board-desc" className="sr-only">
+      {boardDescription(parts)}{' '}
+      {tr('键盘：用 3D 视图下方的“用键盘搭电路”放置、移动、删除元件。', 'Keyboard: use “Build with the keyboard” below the 3D view to place, move and delete parts.')}
+    </p>
   );
 }
 
@@ -353,6 +384,7 @@ export function Workbench() {
         <div
           className="stage-view"
           role="region"
+          aria-describedby="board-desc"
           aria-label={tr(
             '3D 面包板：拖动元件移动，在空白处拖动旋转，滚轮缩放，右键拖动平移',
             '3D breadboard: drag a part to move it, drag empty space to rotate, scroll to zoom, right-drag to pan',
@@ -366,6 +398,8 @@ export function Workbench() {
           <Scope />
         </div>
         <Toolbar />
+        <BoardSummary />
+        <BenchKeyboard />
         <p className="small-screen-note">
           {tr(
             '手机上也能搭电路：点孔选位置（箭头微调），再点一次放下；单指拖元件、双指缩放。元件很多的实验在平板或电脑上更舒服。',

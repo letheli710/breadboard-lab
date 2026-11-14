@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import { PHASES, type Challenge, type ChallengePhase } from '../core/challenge';
+import { tabListKeys } from './a11y';
 import { tr } from '../core/i18n';
 import { ensureChallengeIndex } from '../state/challenges';
 import { useStore } from '../state/store';
@@ -68,18 +69,27 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
   };
 
   return (
-    <section className="carousel-wrap">
+    <section className="carousel-wrap" aria-label={kind === 'lesson' ? tr('课程列表', 'Lessons') : tr('挑战列表', 'Challenges')}>
       <div className="section-title">
         {kind === 'lesson' ? tr('课程 LESSONS', 'LESSONS') : tr('挑战 CHALLENGES', 'CHALLENGES')}
         {group !== null && (
-          <span className="chips phase-tabs" role="tablist" ref={tabsRef}>
+          <span className="chips phase-tabs" role="tablist" aria-label={tr('分组', 'Groups')} ref={tabsRef} onKeyDown={tabListKeys}>
             {groups.map((g) => {
               const n = all.filter((c) => groupOf(c) === g);
               const allDone = n.every((c) => completed[c.id]);
               return (
-                <button key={g} role="tab" aria-selected={g === group} className={g === group ? 'on' : ''} title={groupTip(g)} onClick={() => pick(g)}>
+                <button
+                  key={g}
+                  role="tab"
+                  aria-selected={g === group}
+                  aria-controls={`carousel-${kind}`}
+                  tabIndex={g === group ? 0 : -1}
+                  className={g === group ? 'on' : ''}
+                  title={groupTip(g)}
+                  onClick={() => pick(g)}
+                >
                   {groupLabel(g)}
-                  <span className="phase-count">{allDone ? ' ✓' : ` ${n.length}`}</span>
+                  <span className="phase-count">{allDone ? <span aria-label={tr('全部完成', 'all done')}> ✓</span> : ` ${n.length}`}</span>
                 </button>
               );
             })}
@@ -108,14 +118,25 @@ export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
           {tr(' 文件夹，或在“导入”页面导入。', ' folder, or load them on the Import page.')}
         </div>
       ) : (
-        <div className="carousel" ref={rowRef}>
+        <div className="carousel" ref={rowRef} id={`carousel-${kind}`} role={group !== null ? 'tabpanel' : undefined} aria-label={group !== null ? groupLabel(group) : undefined}>
           {list.map((c, i) => (
-            <button key={c.id} className={`lesson-card ${c.id === active?.id ? 'on' : ''} ${completed[c.id] ? 'done' : ''}`} onClick={() => open(c.id)}>
-              <div className="lc-num">{completed[c.id] ? '✓' : i + 1}</div>
+            <button
+              key={c.id}
+              className={`lesson-card ${c.id === active?.id ? 'on' : ''} ${completed[c.id] ? 'done' : ''}`}
+              aria-current={c.id === active?.id ? 'true' : undefined}
+              onClick={() => open(c.id)}
+            >
+              <div className="lc-num" aria-hidden={completed[c.id] ? true : undefined}>
+                {completed[c.id] ? '✓' : i + 1}
+              </div>
               <div className="lc-body">
                 <div className="lc-title">{c.title}</div>
                 <div className="lc-meta">
-                  {'★'.repeat(c.level)}
+                  <span className="sr-only">
+                    {completed[c.id] ? tr('已完成，', 'done, ') : ''}
+                    {tr(`难度 ${c.level} / 5`, `level ${c.level} of 5`)}
+                  </span>
+                  <span aria-hidden>{'★'.repeat(c.level)}</span>
                   {c.source === 'imported' && <span className="badge src">{tr('导入', 'Imported')}</span>}
                 </div>
               </div>

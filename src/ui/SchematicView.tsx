@@ -3,7 +3,7 @@ import { tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
 import { acVolts, amps, ohms, volts } from '../core/format';
 import { ldrResistance, ntcResistance } from '../core/devices';
-import { BATTERIES, LED_COLORS, isPower, sourceVoltage } from '../core/parts';
+import { BATTERIES, LED_COLORS, describeComponent, isPower, sourceVoltage, terminalLabel } from '../core/parts';
 import { layoutSchematic, type SElement } from '../core/schematic';
 import type { SimResult } from '../core/solver';
 import type { TransientResult } from '../core/transient';
@@ -415,6 +415,25 @@ function SwitchSymbol({ el, hl }: { el: SElement; hl: boolean }) {
   );
 }
 
+/** Text alternative of a breadboard schematic: the parts, then every node with what it connects. */
+export function describeCircuit(c: Circuit, sim?: SimResult | null): string {
+  const comps = new Map(c.components.map((x) => [x.ref, x]));
+  const parts = c.components.map((x) => `${x.ref} ${describeComponent(x)}`);
+  const nets = c.nets
+    .filter((n) => n.pins.length > 1)
+    .map((n) => {
+      const pins = n.pins.map((p) => {
+        const i = p.lastIndexOf('.');
+        const comp = comps.get(p.slice(0, i));
+        return comp ? terminalLabel(comp, p.slice(i + 1)) : p;
+      });
+      const v = sim?.nodeV.get(n.name);
+      const name = isFloating(n.name) ? tr('悬空结点', 'floating node') : tr(`结点 ${n.name}`, `node ${n.name}`);
+      return `${name}${v !== undefined ? ` (${volts(v)})` : ''}: ${pins.join(tr('、', ', '))}`;
+    });
+  return tr(`电路图，元件：${parts.join('、')}。连接：`, `Schematic. Parts: ${parts.join(', ')}. Connections: `) + nets.join(tr('；', '; ')) + tr('。', '.');
+}
+
 export function SchematicView({ circuit, sim, ac, showValues = true, hideReadings = false, hoverNet, onHoverNet, highlightRefs = [], emptyText }: Props) {
   const lay = useMemo(() => layoutSchematic(circuit, sim), [circuit, sim]);
   const hl = new Set(highlightRefs);
@@ -427,12 +446,14 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hideReading
     );
 
   return (
-    <div className="schem-wrap">
+    <div className="schem-wrap" tabIndex={0} role="region" aria-label={tr('电路图（可滚动）', 'Schematic (scrollable)')}>
       <svg
         viewBox={`0 0 ${lay.width} ${lay.height}`}
         width="100%"
         style={{ maxWidth: lay.width, minWidth: Math.min(lay.width, 380) }}
         className="schem"
+        role="img"
+        aria-label={describeCircuit(circuit, showValues && !hideReadings ? sim : null)}
         onMouseLeave={() => onHoverNet?.(null)}
       >
         {lay.buses.map((b) => {

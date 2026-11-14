@@ -4,17 +4,24 @@
   --card: #fdfaf4;
   --ink: #1f2a44;
   --ink-2: #3a4560;
-  --muted: #7a7d86;
+  /* text colours meet WCAG AA (≥ 4.5:1) on --bg, --card, --paper and the *-soft tints */
+  --muted: #5f626b;
   --line: #e3d8c2;
   --line-2: #d6c9ae;
+  /* text field borders: ≥ 3:1 against the page (WCAG 1.4.11) */
+  --field-line: #8c7a55;
   --accent: #2ba59b;
   --accent-soft: #d8efe9;
+  /* --accent / --warn / --plus are for fills and borders (≥ 3:1); their -ink variants are for text */
+  --accent-ink: #17756c;
   --plus: #e63946;
   --minus: #2b59c3;
-  --bad: #d64545;
+  --bad: #b83a3a;
   --bad-soft: #fbe3e1;
   --warn: #c98a1a;
   --warn-soft: #fbf0d9;
+  --warn-ink: #8a5f0e;
+  --plus-ink: #b52f2f;
   --info-soft: #e6eef8;
   --radius: 14px;
   --cond: 'Barlow Condensed', 'Microsoft YaHei', 'PingFang SC', sans-serif;
@@ -88,7 +95,7 @@ button.big {
 input[type='text'],
 input:not([type]) {
   font: inherit;
-  border: 1.5px solid var(--line-2);
+  border: 1.5px solid var(--field-line);
   background: #fff;
   border-radius: 9px;
   padding: 6px 10px;
@@ -472,7 +479,7 @@ kbd {
 .view-btn b {
   font-family: var(--cond);
   letter-spacing: 0.04em;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .toolbar {
   align-self: center;
@@ -610,7 +617,7 @@ kbd {
 }
 .part-label small {
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .part-label.err {
   border-color: var(--bad);
@@ -645,7 +652,7 @@ kbd {
   font-size: 13px;
 }
 .phase-count {
-  opacity: 0.6;
+  opacity: 0.85;
   font-weight: 500;
 }
 .carousel {
@@ -774,7 +781,7 @@ kbd {
 }
 .badge.done {
   background: var(--accent-soft);
-  color: #1d7d74;
+  color: var(--accent-ink);
 }
 .badge.src {
   background: #efe6d3;
@@ -1080,12 +1087,19 @@ kbd {
   border-bottom: 1.5px solid var(--line);
   padding: 4px;
 }
-.netlist td {
+.netlist td,
+.netlist tbody th {
   border-bottom: 1px solid var(--line);
   padding: 5px 4px;
   vertical-align: top;
 }
-.netlist tr.on td {
+.netlist tbody th {
+  font-family: inherit;
+  letter-spacing: normal;
+  color: inherit;
+}
+.netlist tr.on td,
+.netlist tr.on th {
   background: var(--accent-soft);
 }
 .netlist .strips {
@@ -1226,7 +1240,7 @@ kbd {
   float: right;
 }
 .readout .warn {
-  color: var(--warn);
+  color: var(--warn-ink);
 }
 .readout .bad {
   color: var(--bad);
@@ -1287,7 +1301,7 @@ a.concept-num {
 a.concept-num:hover {
   text-decoration: underline;
 }
-.concept h3 {
+.concept h2 {
   font-family: var(--cond);
   font-size: 21px;
   letter-spacing: 0.03em;
@@ -1301,7 +1315,7 @@ a.concept-num:hover {
   font-family: var(--cond);
   font-weight: 700;
   font-size: 30px;
-  color: var(--line-2);
+  color: #8c7a55;
 }
 .concept li {
   margin-bottom: 6px;
@@ -1363,7 +1377,7 @@ a.concept-num:hover {
   font-size: 12.5px;
 }
 .invalid li.w {
-  color: var(--warn);
+  color: var(--warn-ink);
 }
 .ch-table {
   width: 100%;
@@ -1595,7 +1609,7 @@ button,
   white-space: nowrap;
 }
 .pr-ch-count.all {
-  color: #1d7d74;
+  color: var(--accent-ink);
 }
 .pr-plist {
   list-style: none;
@@ -1783,7 +1797,7 @@ button,
   flex: 1;
   display: flex;
   align-items: stretch;
-  border: 1.5px solid var(--line-2);
+  border: 1.5px solid var(--field-line);
   border-radius: 9px;
   background: #fff;
   overflow: hidden;
@@ -2360,7 +2374,7 @@ button,
 }
 .ac-tag {
   font-size: 11.5px;
-  color: var(--accent);
+  color: var(--accent-ink);
   font-weight: 600;
 }
 .pinout {
@@ -2383,7 +2397,7 @@ button,
 
 /* ---------- phase 5: dev-board pin table ---------- */
 .readout .ok {
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .readout .muted,
 .pin-row .muted {
@@ -2470,7 +2484,7 @@ button,
 }
 .pbadge.b-warn {
   background: var(--warn-soft);
-  color: var(--warn);
+  color: var(--warn-ink);
 }
 .pbadge.b-bad {
   background: var(--bad-soft);
@@ -2504,14 +2518,14 @@ button,
   font-weight: 700;
 }
 .pin-logic.high {
-  color: var(--plus);
+  color: var(--plus-ink);
 }
 .pin-logic.low {
   color: var(--minus);
 }
 .pin-logic.warn,
 .pin-alert.warn {
-  color: var(--warn);
+  color: var(--warn-ink);
   font-weight: 700;
 }
 .pin-alert.bad {
@@ -2645,20 +2659,20 @@ button,
 
 /* ---------- keyboard focus ---------- */
 :focus-visible {
-  outline: 2.5px solid var(--accent);
+  outline: 2.5px solid var(--accent-ink);
   outline-offset: 2px;
 }
 button:focus-visible,
 summary:focus-visible,
 a:focus-visible {
-  outline: 2.5px solid var(--accent);
+  outline: 2.5px solid var(--accent-ink);
   outline-offset: 2px;
   box-shadow: 0 0 0 5px rgba(43, 165, 155, 0.18);
 }
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2.5px solid var(--accent);
+  outline: 2.5px solid var(--accent-ink);
   outline-offset: 1px;
 }
 /* dark buttons: a light ring between the button and the outline */
@@ -2676,7 +2690,7 @@ button.primary:focus-visible,
   outline: none;
 }
 .stage-view:focus-within:has(canvas:focus-visible) {
-  box-shadow: inset 0 0 0 2.5px var(--accent);
+  box-shadow: inset 0 0 0 3px var(--accent-ink);
 }
 
 /* ---------- in-app confirmation (Confirm.tsx) ---------- */
@@ -3035,7 +3049,7 @@ button.primary:focus-visible,
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--accent);
+  color: var(--accent-ink);
   font-weight: 600;
 }
 .pr-feedback .pr-keypoints {
@@ -3044,7 +3058,7 @@ button.primary:focus-visible,
 }
 .badge.sum-badge {
   background: var(--accent-soft);
-  color: #1d7d74;
+  color: var(--accent-ink);
 }
 .sum-intro {
   font-size: 15px;
@@ -3193,7 +3207,7 @@ button.primary:focus-visible,
   white-space: normal;
 }
 .sum-linkish:hover {
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 /* formula sheet: name | formula | conditions; stacks on narrow screens */
@@ -4307,4 +4321,103 @@ button.primary:focus-visible,
   .small-screen-note {
     display: none;
   }
+}
+
+/* ---------- accessibility helpers ---------- */
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 1000;
+  background: var(--ink);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 8px;
+}
+/* page headings focused after a route change: no ring for a programmatic focus */
+h1[tabindex='-1']:focus:not(:focus-visible) {
+  outline: none;
+}
+.sum-sec-h {
+  margin: 0;
+  font: inherit;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* keyboard building (BenchKeyboard.tsx) */
+.kb-bench {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.kb-bench > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 4px 0;
+}
+.kb-place,
+.kb-move {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+  margin: 8px 0;
+}
+.kb-place label {
+  display: grid;
+  gap: 2px;
+}
+.kb-place input,
+.kb-move input {
+  width: 12em;
+}
+.kb-place .note,
+.kb-place .form-err {
+  flex-basis: 100%;
+  margin: 0;
+}
+.kb-parts caption {
+  text-align: left;
+  font-weight: 600;
+  padding: 4px 0;
+}
+.kb-actions {
+  white-space: nowrap;
+}
+.kb-actions button {
+  padding: 2px 8px;
+  margin-right: 4px;
+}
+.kb-actions button.danger {
+  margin-left: 0;
+}
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
 }

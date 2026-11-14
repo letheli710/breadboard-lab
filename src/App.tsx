@@ -77,11 +77,19 @@ function ProgressView({ icon, label, done, total }: { icon: string; label: strin
       <Icon name={icon} size={22} />
       <div>
         <div className="pc-title">{label}</div>
-        <div className="pc-bar">
+        <div
+          className="pc-bar"
+          role="progressbar"
+          aria-label={label}
+          aria-valuemin={0}
+          aria-valuemax={total ?? undefined}
+          aria-valuenow={total === null ? undefined : done}
+          aria-valuetext={total === null ? tr('加载中', 'Loading') : tr(`已完成 ${done} / ${total}`, `${done} of ${total} done`)}
+        >
           <div style={{ width: total ? `${(done / total) * 100}%` : 0 }} />
         </div>
       </div>
-      <b aria-label={total === null ? tr('加载中', 'Loading') : undefined}>{total === null ? '–/–' : `${done}/${total}`}</b>
+      <b aria-hidden>{total === null ? '–/–' : `${done}/${total}`}</b>
     </div>
   );
 }
@@ -198,6 +206,45 @@ function CelebrateDialog() {
   );
 }
 
+/** Move keyboard focus to the page's h1 (in #main); waits for a lazily loaded page to render it. */
+function focusPageHeading(tries = 40) {
+  const h = document.querySelector<HTMLElement>('#main h1');
+  if (!h) {
+    if (tries > 0) setTimeout(() => focusPageHeading(tries - 1), 50);
+    return;
+  }
+  if (!h.hasAttribute('tabindex')) h.tabIndex = -1;
+  h.focus({ preventScroll: true });
+}
+
+/** On every change of page / item (not on the first load, not on a language switch) focus goes
+ *  to the new page's heading, so a screen reader announces where the user now is — except when
+ *  the change came from the lesson carousel or its group tabs, where focus stays on the card. */
+function RouteFocus() {
+  const key = useStore((s) => `${s.mode}|${s.mode === 'practice' ? (s.practiceSummary ? 'sum:' + s.practiceSummary.chapter : s.problemId) : s.activeId}`);
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    const a = document.activeElement;
+    if (a && a.closest('.carousel-wrap')) return;
+    // the item may still be loading: focus once its heading is there
+    requestAnimationFrame(() => focusPageHeading());
+  }, [key]);
+  return null;
+}
+
+/** Bench pages: the page's h1 (visually hidden — the task panel shows the title). */
+function BenchHeading() {
+  const mode = useStore((s) => s.mode);
+  const ch = useActiveChallenge();
+  useLang();
+  const page = mode === 'learn' ? tr('课程', 'Learn') : mode === 'challenge' ? tr('挑战', 'Challenges') : tr('自由编辑', 'Sandbox');
+  return <h1 className="sr-only">{mode !== 'sandbox' && ch ? tr(`${page}：${ch.title}`, `${page}: ${ch.title}`) : page}</h1>;
+}
+
 function LangSwitch() {
   const lang = useStore((s) => s.lang);
   const setLang = useStore((s) => s.setLang);
@@ -208,7 +255,7 @@ function LangSwitch() {
   return (
     <div className="lang-switch" role="group" aria-label="Language / 语言">
       {opts.map((o) => (
-        <button key={o.l} className={lang === o.l ? 'on' : ''} onClick={() => setLang(o.l)}>
+        <button key={o.l} className={lang === o.l ? 'on' : ''} aria-pressed={lang === o.l} lang={o.l === 'zh' ? 'zh-CN' : 'en'} onClick={() => setLang(o.l)}>
           {o.label}
         </button>
       ))}
@@ -270,12 +317,27 @@ export default function App() {
 
   return (
     <div className={`app ${bench ? 'is-bench' : ''}`}>
+      <a
+        className="skip-link"
+        href="#main"
+        onClick={(e) => {
+          e.preventDefault();
+          focusPageHeading();
+        }}
+      >
+        {tr('跳到正文', 'Skip to content')}
+      </a>
       <header className="top">
         <div className="brand">
           <Logo />
           <div>
-            <div className="brand-title">BREADBOARD LAB</div>
-            <div className="brand-sub">{tr('面包板实验室 · ', '')}EXPLORE · CONNECT · BUILD</div>
+            <div className="brand-title" lang="en">
+              BREADBOARD LAB
+            </div>
+            <div className="brand-sub">
+              {tr('面包板实验室 · ', '')}
+              <span lang="en">EXPLORE · CONNECT · BUILD</span>
+            </div>
           </div>
         </div>
         <nav className="nav" aria-label={tr('主导航', 'Main')}>
@@ -283,7 +345,11 @@ export default function App() {
             <button key={n.mode} className={mode === n.mode ? 'on' : ''} aria-current={mode === n.mode ? 'page' : undefined} onClick={() => setMode(n.mode)}>
               <Icon name={n.icon} />
               <span>{tr(n.zh, n.en)}</span>
-              {lang === 'zh' && <small>{n.en}</small>}
+              {lang === 'zh' && (
+                <small lang="en" aria-hidden>
+                  {n.en}
+                </small>
+              )}
             </button>
           ))}
         </nav>
@@ -295,7 +361,8 @@ export default function App() {
 
       {bench && (
         <Suspense fallback={<PageLoading />}>
-          <main className="main">
+          <main className="main" id="main">
+            <BenchHeading />
             <div className="left">
               <Workbench />
               {mode !== 'sandbox' && <Carousel kind={mode === 'learn' ? 'lesson' : 'challenge'} />}
@@ -314,6 +381,7 @@ export default function App() {
       )}
       <Toast />
       <CelebrateModal />
+      <RouteFocus />
     </div>
   );
 }

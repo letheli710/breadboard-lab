@@ -7,7 +7,7 @@ import { useMemo, type ReactNode } from 'react';
 import { parseNum } from '../core/analysis/circuit';
 import { formatSI } from '../core/format';
 import { getLang, tr } from '../core/i18n';
-import { isTwoTerminal, junctionPoints, lineWidth, onSegment, terminalPoints, wireSegments } from '../core/problem/geometry';
+import { extractNetlist, isTwoTerminal, junctionPoints, lineWidth, onSegment, terminalPoints, wireSegments } from '../core/problem/geometry';
 import type { CtrlRef, LineElement, Pt, ProblemElement, Schematic, TwoTerminalElement } from '../core/problem/types';
 import { subQ } from './subQ';
 
@@ -419,18 +419,92 @@ interface Props {
   className?: string;
 }
 
+const KIND: Record<string, [string, string]> = {
+  R: ['电阻', 'resistor'],
+  C: ['电容', 'capacitor'],
+  L: ['电感', 'inductor'],
+  V: ['电压源', 'voltage source'],
+  I: ['电流源', 'current source'],
+  VCVS: ['电压控制电压源', 'voltage-controlled voltage source'],
+  VCCS: ['电压控制电流源', 'voltage-controlled current source'],
+  CCVS: ['电流控制电压源', 'current-controlled voltage source'],
+  CCCS: ['电流控制电流源', 'current-controlled current source'],
+  SW: ['开关', 'switch'],
+  Z: ['阻抗', 'impedance'],
+  ammeter: ['电流表', 'ammeter'],
+  voltmeter: ['电压表', 'voltmeter'],
+  NR: ['非线性电阻', 'nonlinear resistor'],
+  OPAMP: ['理想运放', 'ideal op-amp'],
+  XFMR: ['变压器', 'transformer'],
+  K: ['耦合', 'coupling'],
+  TL: ['传输线', 'transmission line'],
+};
+
+/** Text alternative of a circuit diagram, from its data: every element with its value and the
+ *  nodes its terminals connect to ("R1, resistor 2 kΩ, between node a and ground"). */
+export function describeSchematic(s: Schematic): string {
+  let nodeOf: Map<string, string>;
+  try {
+    nodeOf = extractNetlist(s).netlist.nodeOf;
+  } catch {
+    nodeOf = new Map();
+  }
+  const node = (n: string | undefined) =>
+    n === undefined ? '?' : n === '0' ? tr('地', 'ground') : /^_\d+$/.test(n) ? tr(`结点 ${n.slice(1)}`, `node ${n.slice(1)}`) : tr(`结点 ${n}`, `node ${n}`);
+  const at = (ref: string, pin: string) => node(nodeOf.get(`${ref}.${pin}`));
+  const els: ProblemElement[] = Array.isArray(s.elements) ? s.elements : [];
+  const parts = els.map((el) => {
+    const k = KIND[el.type] ?? [el.type, el.type];
+    const name = `${el.ref}, ${tr(k[0], k[1])}`;
+    if (isTwoTerminal(el)) {
+      const v = el.hideValue
+        ? tr('（值未给出）', ' (value not given)')
+        : (() => {
+            const t = elementValueText(el);
+            return t ? ` ${t}` : '';
+          })();
+      const pol = el.type === 'V' || el.type === 'I' || el.type.endsWith('VS') || el.type.endsWith('CS') ? tr('（+ 端 / 箭头起点在前）', ' (+ / arrow tail first)') : '';
+      return tr(`${name}${v}，接在${at(el.ref, 'p')}与${at(el.ref, 'n')}之间${pol}`, `${name}${v}, between ${at(el.ref, 'p')} and ${at(el.ref, 'n')}${pol}`);
+    }
+    if (el.type === 'OPAMP')
+      return tr(
+        `${name}：− 输入接${at(el.ref, 'minus')}，+ 输入接${at(el.ref, 'plus')}，输出接${at(el.ref, 'out')}`,
+        `${name}: − input at ${at(el.ref, 'minus')}, + input at ${at(el.ref, 'plus')}, output at ${at(el.ref, 'out')}`,
+      );
+    if (el.type === 'K') return name;
+    return tr(
+      `${name}：端口 1 在${at(el.ref, 'p1')}与${at(el.ref, 'n1')}之间，端口 2 在${at(el.ref, 'p2')}与${at(el.ref, 'n2')}之间`,
+      `${name}: port 1 between ${at(el.ref, 'p1')} and ${at(el.ref, 'n1')}, port 2 between ${at(el.ref, 'p2')} and ${at(el.ref, 'n2')}`,
+    );
+  });
+  const terms = (s.terminals ?? []).map((t) => t.name);
+  return (
+    tr(`电路图，${els.length} 个元件：`, `Circuit diagram, ${els.length} elements: `) +
+    parts.join(tr('；', '; ')) +
+    (terms.length ? tr(`。端口：${terms.join('、')}`, `. Open terminals: ${terms.join(', ')}`) : '') +
+    tr('。', '.')
+  );
+}
+
+/** A short name for the figure's scroll region, distinct between figures on one page. */
+const figureLabel = (s: Schematic) => {
+  const refs = (Array.isArray(s.elements) ? s.elements : []).map((e) => e.ref);
+  return `${tr('电路图', 'Circuit diagram')} (${refs.slice(0, 4).join(', ')}${refs.length > 4 ? ' …' : ''})`;
+};
+
 export function ProblemSchematic({ schematic, highlight, className }: Props) {
   const lang = getLang();
   const hlKey = (highlight ?? []).join('|');
   const out = useMemo(() => drawSchematic(schematic, new Set(highlight ?? [])), [schematic, hlKey, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  const desc = useMemo(() => describeSchematic(schematic), [schematic, lang]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <FigureFrame label={tr('电路图', 'Circuit diagram')} className={`ps-wrap ${className ?? ''}`}>
+    <FigureFrame label={figureLabel(schematic)} className={`ps-wrap ${className ?? ''}`}>
       <svg
         className="ps-svg"
         viewBox={`${out.box.x0} ${out.box.y0} ${out.box.x1 - out.box.x0} ${out.box.y1 - out.box.y0}`}
         style={{ maxWidth: Math.round((out.box.x1 - out.box.x0) * 1.1) }}
         role="img"
-        aria-label={tr('电路图', 'Circuit diagram')}
+        aria-label={desc}
       >
         {out.body}
       </svg>

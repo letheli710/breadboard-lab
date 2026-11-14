@@ -13,8 +13,11 @@ import { useReadingsHidden } from '../state/readingsHidden';
 import { hiddenReadingsText } from '../ui/HiddenReadings';
 import { nearestHole } from './Drag';
 import { isTouchInput, touchLongPressHole, touchTapHole, useTouchPick } from './touchPick';
+import { prefersReducedMotion } from '../ui/reveal';
 
-const NET_PALETTE = ['#f4a261', '#2a9d8f', '#9b5de5', '#00bbf9', '#f15bb5', '#90be6d', '#fee440', '#e76f51', '#4cc9f0', '#b5838d'];
+// node colours: each ≥ 3:1 against the cream board (WCAG 1.4.11); the node is also named in the
+// hover tip and the netlist table, so colour is never the only way to tell nodes apart
+const NET_PALETTE = ['#db690f', '#29998b', '#9b5de5', '#0095c6', '#ef44aa', '#679643', '#9f8901', '#d1495b', '#5468c4', '#a86b77'];
 
 export function netColor(name: string, index: number): string {
   if (name === 'VCC' || name.endsWith('+')) return '#e63946';
@@ -186,10 +189,10 @@ export function Board() {
         const n = nl.holeNet.get(h.id);
         if (n) color = netColor(n, netIndex.get(n) ?? 0);
       }
-      if (netHover?.has(h.id)) color = '#2ba59b';
-      if (hoverSet.has(h.id)) color = '#2ba59b';
-      if (hl.has(h.id)) color = highlight!.tone === 'error' ? '#e5383b' : '#2ba59b';
-      if (h.id === firstHole) color = '#f4a261';
+      if (netHover?.has(h.id)) color = '#289990';
+      if (hoverSet.has(h.id)) color = '#289990';
+      if (hl.has(h.id)) color = highlight!.tone === 'error' ? '#e5383b' : '#289990';
+      if (h.id === firstHole) color = '#db690f';
       if (occ.has(h.id) && !color) {
         color = null;
       }
@@ -219,7 +222,8 @@ export function Board() {
     m.instanceMatrix.needsUpdate = true;
     invalidate();
   }, [stepHoles, invalidate]);
-  const pulsing = stepHoles.length > 0;
+  // reduced motion: the rings stay lit instead of pulsing
+  const pulsing = stepHoles.length > 0 && !prefersReducedMotion();
   useFrame(({ clock, invalidate }) => {
     if (!pulsing) return; // nothing to animate: let the demand frame loop idle
     const mat = pulse.current?.material as THREE.MeshBasicMaterial | undefined;

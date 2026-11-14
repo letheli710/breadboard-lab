@@ -2,7 +2,8 @@
 // Left: chapters grouped by course phase with progress. Main: the problem card — statement,
 // schematic, questions with answer checking, progressive hints and the worked solution.
 
-import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import { lazy, Suspense, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import { radioFocusKeys } from './a11y';
 import { formatSI } from '../core/format';
 import { tr } from '../core/i18n';
 import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
@@ -276,17 +277,27 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
     const isOpen = !!expanded[c.id] && list.length > 0;
     return (
       <div key={c.id} data-chapter={c.id} className={`pr-chapter ${list.length || !ready ? '' : 'empty'} ${curChapter === c.id ? 'cur' : ''}`}>
-        <button className="pr-ch-head" disabled={!list.length} onClick={() => setExpanded({ ...expanded, [c.id]: !isOpen })} aria-expanded={isOpen}>
+        <button
+          className="pr-ch-head"
+          disabled={!list.length}
+          onClick={() => setExpanded({ ...expanded, [c.id]: !isOpen })}
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? `pr-list-${c.id}` : undefined}
+        >
           <span className="pr-ch-num">{num}</span>
           <span className="pr-ch-title">{c.title()}</span>
           {/* no counts until the index is in (not "soon" for every chapter) */}
           {ready && <span className={`pr-ch-count ${list.length && n === list.length ? 'all' : ''}`}>{list.length ? `${n}/${list.length}` : tr('待出题', 'soon')}</span>}
         </button>
         {isOpen && (
-          <ul className="pr-plist">
+          <ul className="pr-plist" id={`pr-list-${c.id}`} aria-label={c.title()}>
             {hasSummary(c.id) && (
               <li>
-                <button className={`pr-pitem pr-sumitem ${summary === c.id ? 'on' : ''}`} onClick={() => openSummary({ chapter: c.id })}>
+                <button
+                  className={`pr-pitem pr-sumitem ${summary === c.id ? 'on' : ''}`}
+                  aria-current={summary === c.id ? 'page' : undefined}
+                  onClick={() => openSummary({ chapter: c.id })}
+                >
                   <span className="pr-tick pr-sumicon" aria-hidden>
                     <Icon name="book" size={11} />
                   </span>
@@ -300,18 +311,21 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
                 <li key={p.id}>
                   <button
                     className={`pr-pitem ${p.id === current?.id && !summary ? 'on' : ''} ${st ? `done st-${st}` : ''}`}
+                    aria-current={p.id === current?.id && !summary ? 'page' : undefined}
                     onClick={() => open(p.id)}
                     title={st ? statusLabel(st) : undefined}
                   >
-                    <span className="pr-tick" aria-label={st ? statusLabel(st) : undefined}>
+                    <span className="pr-tick" aria-hidden>
                       {st ? STATUS_MARK[st] : ''}
                     </span>
+                    {st && <span className="sr-only">{statusLabel(st) + tr('：', ': ')}</span>}
                     <span className="pr-ptitle">
                       <Sym text={entryTitle(p)} />
                     </span>
-                    <span className="pr-plevel" title={tr(`难度 ${p.level}`, `Level ${p.level}`)}>
+                    <span className="pr-plevel" title={tr(`难度 ${p.level}`, `Level ${p.level}`)} aria-hidden>
                       {'★'.repeat(p.level)}
                     </span>
+                    <span className="sr-only">{tr(`，难度 ${p.level}`, `, level ${p.level}`)}</span>
                   </button>
                 </li>
               );
@@ -325,7 +339,7 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
   let num = 0;
   let optNum = 0;
   return (
-    <aside className="pr-side card" ref={sideRef} aria-busy={!ready}>
+    <aside className="pr-side card" ref={sideRef} aria-busy={!ready} aria-label={tr('章节与题目', 'Chapters and problems')}>
       <div className="pr-side-tools">
         <select
           className="pr-jump"
@@ -524,30 +538,42 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
     practiceEvent(p.id, q.id, { kind: 'reveal' });
   };
   const choiceWhy = st.choice !== null ? q.choiceExplain?.[st.choice] : undefined;
+  const qid = useId();
+  const qLetter = String.fromCharCode(97 + index);
 
   return (
     <div className={`pr-q ${solved ? 'solved' : ''} ${reviewed ? 'reviewed' : ''}`} onMouseEnter={() => onHover(q)} onMouseLeave={() => onHover(null)} onFocus={() => onHover(q)}>
       <div className="pr-q-head">
-        <span className="pr-q-num" title={statusBefore ? statusLabel(statusBefore) : undefined}>
-          {solved ? (reviewed ? STATUS_MARK.revealed : '✓') : `${String.fromCharCode(97 + index)}`}
+        <span className="pr-q-num" title={statusBefore ? statusLabel(statusBefore) : undefined} aria-hidden>
+          {solved ? (reviewed ? STATUS_MARK.revealed : '✓') : qLetter}
         </span>
-        <div className="pr-q-ask">
+        <div className="pr-q-ask" id={`${qid}-ask`}>
+          <span className="sr-only">
+            {tr(`第 ${qLetter} 问`, `Question ${qLetter}`)}
+            {solved ? tr(`（${reviewed ? statusLabel('revealed') : '已答对'}）`, ` (${reviewed ? statusLabel('revealed') : 'answered'})`) : ''}:{' '}
+          </span>
           <PrMd text={q.ask} />
         </div>
       </div>
 
       {q.choices ? (
-        <div className="pr-choices">
+        <div className="pr-choices" role="radiogroup" aria-labelledby={`${qid}-ask`} onKeyDown={radioFocusKeys}>
           {q.choices.map((c, i) => {
             const picked = st.choice === i;
             const cls = (picked || st.revealed || solvedBefore) && i === q.correct ? 'right' : picked ? 'wrong' : '';
             return (
-              <button key={i} className={`pr-choice ${cls}`} onClick={() => choose(i)}>
+              <button key={i} role="radio" aria-checked={picked} tabIndex={(st.choice ?? 0) === i ? 0 : -1} className={`pr-choice ${cls}`} onClick={() => choose(i)}>
                 <span className="pr-choice-key">{String.fromCharCode(65 + i)}</span>
+                {cls && <span className="sr-only">{cls === 'right' ? tr('（正确答案）', ' (correct answer)') : tr('（不对）', ' (wrong)')}</span>}
                 <span>
                   <Sym text={c} />
                 </span>
                 {cls === 'right' && <Icon name="check" size={16} />}
+                {cls === 'wrong' && (
+                  <span className="pr-choice-x" aria-hidden>
+                    ✗
+                  </span>
+                )}
               </button>
             );
           })}
@@ -567,10 +593,16 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
               spellCheck={false}
               autoComplete="off"
               placeholder={tr('输入答案或算式', 'Answer or calculation')}
-              aria-label={tr(`第 ${index + 1} 问的答案`, `Answer to question ${index + 1}`)}
+              aria-labelledby={`${qid}-ask`}
+              aria-describedby={q.unit ? `${qid}-unit` : undefined}
               onChange={(e) => setSt({ ...st, input: e.target.value, result: null })}
             />
-            {q.unit ? <span className="pr-unit">{q.unit}</span> : null}
+            {q.unit ? (
+              <span className="pr-unit" id={`${qid}-unit`}>
+                <span className="sr-only">{tr('单位：', 'unit: ')}</span>
+                {q.unit}
+              </span>
+            ) : null}
           </div>
           <button type="submit" className="primary" disabled={!st.input.trim()}>
             <Icon name="check" size={16} /> {tr('检查', 'Check')}
@@ -579,35 +611,38 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
         </form>
       )}
 
-      {st.result && !q.choices && (
-        <div className={`pr-feedback ${st.result.ok ? 'ok' : st.result.close ? 'close' : 'bad'}`} role="status">
-          {st.result.ok ? (
-            <>
-              <b>✓ {tr('正确！', 'Correct!')}</b> {tr('标准答案', 'Answer')}: {formatAnswer(q)}
-            </>
-          ) : (
-            <>
-              <b>{st.result.value === undefined ? `✗ ${tr('无法判断', "Can't check")}` : st.result.close ? `≈ ${tr('很接近', 'Close')}` : `✗ ${tr('不对', 'Not quite')}`}</b>
-              {st.result.reason ? ` — ${st.result.reason}` : tr(' — 再算一次，或看看提示。', ' — try again, or take a hint.')}
-              {st.result.value !== undefined && <KeyPointsLink p={p} label={tr('复习本章要点', 'Review the key points')} />}
-            </>
-          )}
-        </div>
-      )}
-      {q.choices && st.choice !== null && (
-        <div className={`pr-feedback ${st.choice === q.correct ? 'ok' : 'bad'}`} role="status">
-          <b>{st.choice === q.correct ? `✓ ${tr('正确！', 'Correct!')}` : `✗ ${tr('不对', 'Not quite')}`}</b>
-          {choiceWhy ? (
-            <>
-              {' — '}
-              <Sym text={choiceWhy} />
-            </>
-          ) : st.choice !== q.correct ? (
-            tr(' — 再想想。', ' — think again.')
-          ) : null}
-          {st.choice !== q.correct && <KeyPointsLink p={p} label={tr('复习本章要点', 'Review the key points')} />}
-        </div>
-      )}
+      {/* always present, so each new verdict is announced once (the verdicts themselves are not live) */}
+      <div className="pr-live" aria-live="polite">
+        {st.result && !q.choices && (
+          <div className={`pr-feedback ${st.result.ok ? 'ok' : st.result.close ? 'close' : 'bad'}`}>
+            {st.result.ok ? (
+              <>
+                <b>✓ {tr('正确！', 'Correct!')}</b> {tr('标准答案', 'Answer')}: {formatAnswer(q)}
+              </>
+            ) : (
+              <>
+                <b>{st.result.value === undefined ? `✗ ${tr('无法判断', "Can't check")}` : st.result.close ? `≈ ${tr('很接近', 'Close')}` : `✗ ${tr('不对', 'Not quite')}`}</b>
+                {st.result.reason ? ` — ${st.result.reason}` : tr(' — 再算一次，或看看提示。', ' — try again, or take a hint.')}
+                {st.result.value !== undefined && <KeyPointsLink p={p} label={tr('复习本章要点', 'Review the key points')} />}
+              </>
+            )}
+          </div>
+        )}
+        {q.choices && st.choice !== null && (
+          <div className={`pr-feedback ${st.choice === q.correct ? 'ok' : 'bad'}`}>
+            <b>{st.choice === q.correct ? `✓ ${tr('正确！', 'Correct!')}` : `✗ ${tr('不对', 'Not quite')}`}</b>
+            {choiceWhy ? (
+              <>
+                {' — '}
+                <Sym text={choiceWhy} />
+              </>
+            ) : st.choice !== q.correct ? (
+              tr(' — 再想想。', ' — think again.')
+            ) : null}
+            {st.choice !== q.correct && <KeyPointsLink p={p} label={tr('复习本章要点', 'Review the key points')} />}
+          </div>
+        )}
+      </div>
       {solvedBefore && !correctNow && !st.result && st.choice === null && (
         <div className="pr-feedback ok soft">
           {statusBefore === 'revealed' ? STATUS_MARK.revealed : '✓'} {statusLabel(statusBefore!)}
@@ -720,9 +755,9 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
           )}
           {p.source !== 'folder' && <span className="badge src">{tr('导入', 'Imported')}</span>}
         </div>
-        <h2 className="pr-title">
+        <h1 className="pr-title">
           <Sym text={p.title} />
-        </h2>
+        </h1>
         <div className="pr-meta">
           <span className="pr-analysis">{analysisLabel(p.analysis)}</span>
           {p.tags.map((t) => (
@@ -895,7 +930,7 @@ export function Practice() {
   }, [problems, current, summary, practiceDone, openProblem]);
 
   return (
-    <main className={`pr-page ${drawer ? 'drawer-open' : ''}`}>
+    <main id="main" className={`pr-page ${drawer ? 'drawer-open' : ''}`}>
       <ChapterList problems={problems} current={view ? null : current} summary={summary?.chapter ?? null} ready={indexStatus === 'ready'} />
       <button className="pr-drawer-bg" tabIndex={-1} aria-hidden onClick={() => setDrawer(false)} />
       <PhoneNav problems={problems} current={view ? null : current} summary={summary?.chapter ?? null} drawer={drawer} setDrawer={setDrawer} />
@@ -917,7 +952,7 @@ export function Practice() {
         <div className="pr-main card pr-empty">
           {full ? (
             <>
-              <h2 className="pr-title">{tr('这道题无法加载', "This problem can't be loaded")}</h2>
+              <h1 className="pr-title">{tr('这道题无法加载', "This problem can't be loaded")}</h1>
               <ul>
                 {full.errors.map((e, i) => (
                   <li key={i}>{e}</li>
@@ -930,7 +965,7 @@ export function Practice() {
         </div>
       ) : indexStatus === 'error' ? (
         <div className="pr-main card pr-empty" role="alert">
-          <h2 className="pr-title">{tr('题目列表加载失败', "Couldn't load the problem list")}</h2>
+          <h1 className="pr-title">{tr('题目列表加载失败', "Couldn't load the problem list")}</h1>
           <p>{tr('请检查网络连接后重试。', 'Check the connection and try again.')}</p>
           <button className="primary" onClick={() => void ensureProblemIndex()}>
             <Icon name="reset" size={15} /> {tr('重试', 'Try again')}
@@ -943,7 +978,7 @@ export function Practice() {
       ) : (
         <div className="pr-main card pr-empty">
           <div className="eyebrow">{tr('练习 PRACTICE', 'PRACTICE')}</div>
-          <h2 className="pr-title">{tr('还没有理论题', 'No theory problems yet')}</h2>
+          <h1 className="pr-title">{tr('还没有理论题', 'No theory problems yet')}</h1>
           <p>
             {tr('把 ', 'Put ')}
             <code>circuit-problem/1</code>

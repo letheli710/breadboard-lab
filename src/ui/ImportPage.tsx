@@ -110,7 +110,7 @@ export function ImportPage() {
   };
 
   return (
-    <div className="import-page">
+    <main id="main" className="import-page">
       <div className="card import-hero">
         <div className="eyebrow">{tr('题库导入 IMPORT', 'IMPORT')}</div>
         <h1>{tr('导入题目文件夹', 'Import a challenge or problem folder')}</h1>
@@ -232,61 +232,66 @@ export function ImportPage() {
             </button>
           )}
         </div>
-        <table className="ch-table">
-          <thead>
-            <tr>
-              <th>{tr('标题', 'Title')}</th>
-              <th>{tr('类型', 'Type')}</th>
-              <th>{tr('难度', 'Level')}</th>
-              <th>{tr('来源', 'Source')}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {challenges.map((c) => (
-              <tr key={c.id}>
-                <td>
-                  <b>{c.title}</b>
-                  <div className="muted small">
-                    {c.id} · {c.file}
-                  </div>
-                </td>
-                <td>{c.kind === 'lesson' ? tr('课程', 'Lesson') : tr('挑战', 'Challenge')}</td>
-                <td>{'★'.repeat(c.level)}</td>
-                <td>{c.source === 'folder' ? tr('challenges/ 文件夹', 'challenges/ folder') : tr('导入', 'Imported')}</td>
-                <td className="row">
-                  <button className="primary" onClick={() => open(c.id)}>
-                    {tr('打开', 'Open')}
-                  </button>
-                  {c.source === 'imported' && c.file && <button onClick={() => remove(c.file!)}>{tr('移除', 'Remove')}</button>}
-                </td>
+        {/* a data table keeps its columns: on a narrow screen it scrolls inside this box, not the page */}
+        <div className="table-scroll" tabIndex={0} role="region" aria-label={tr('已收录的题目', 'Loaded challenges')}>
+          <table className="ch-table">
+            <thead>
+              <tr>
+                <th scope="col">{tr('标题', 'Title')}</th>
+                <th scope="col">{tr('类型', 'Type')}</th>
+                <th scope="col">{tr('难度', 'Level')}</th>
+                <th scope="col">{tr('来源', 'Source')}</th>
+                <th>
+                  <span className="sr-only">{tr('操作', 'Actions')}</span>
+                </th>
               </tr>
-            ))}
-            {problems.map((p) => (
-              <tr key={`p:${p.id}`}>
-                <td>
-                  <b>
-                    <Sym text={entryTitle(p)} />
-                  </b>
-                  <div className="muted small">
-                    {p.id} · {p.file}
-                  </div>
-                </td>
-                <td>
-                  {tr('理论题', 'Problem')} <span className="muted small">· {chapterById(p.chapter)?.title()}</span>
-                </td>
-                <td>{'★'.repeat(p.level)}</td>
-                <td>{p.source === 'folder' ? tr('problems/ 文件夹', 'problems/ folder') : tr('导入', 'Imported')}</td>
-                <td className="row">
-                  <button className="primary" onClick={() => openProblem(p.id)}>
-                    {tr('打开', 'Open')}
-                  </button>
-                  {p.source === 'imported' && p.file && <button onClick={() => remove(p.file!)}>{tr('移除', 'Remove')}</button>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {challenges.map((c) => (
+                <tr key={c.id}>
+                  <td>
+                    <b>{c.title}</b>
+                    <div className="muted small">
+                      {c.id} · {c.file}
+                    </div>
+                  </td>
+                  <td>{c.kind === 'lesson' ? tr('课程', 'Lesson') : tr('挑战', 'Challenge')}</td>
+                  <td>{'★'.repeat(c.level)}</td>
+                  <td>{c.source === 'folder' ? tr('challenges/ 文件夹', 'challenges/ folder') : tr('导入', 'Imported')}</td>
+                  <td className="row">
+                    <button className="primary" onClick={() => open(c.id)}>
+                      {tr('打开', 'Open')}
+                    </button>
+                    {c.source === 'imported' && c.file && <button onClick={() => remove(c.file!)}>{tr('移除', 'Remove')}</button>}
+                  </td>
+                </tr>
+              ))}
+              {problems.map((p) => (
+                <tr key={`p:${p.id}`}>
+                  <td>
+                    <b>
+                      <Sym text={entryTitle(p)} />
+                    </b>
+                    <div className="muted small">
+                      {p.id} · {p.file}
+                    </div>
+                  </td>
+                  <td>
+                    {tr('理论题', 'Problem')} <span className="muted small">· {chapterById(p.chapter)?.title()}</span>
+                  </td>
+                  <td>{'★'.repeat(p.level)}</td>
+                  <td>{p.source === 'folder' ? tr('problems/ 文件夹', 'problems/ folder') : tr('导入', 'Imported')}</td>
+                  <td className="row">
+                    <button className="primary" onClick={() => openProblem(p.id)}>
+                      {tr('打开', 'Open')}
+                    </button>
+                    {p.source === 'imported' && p.file && <button onClick={() => remove(p.file!)}>{tr('移除', 'Remove')}</button>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="card">
@@ -314,7 +319,13 @@ export function ImportPage() {
           <code>docs/CHALLENGE_FORMAT.md</code>
           {tr('。', '.')}
         </p>
-        {aiPrompt ? <pre className="prompt-box">{aiPrompt}</pre> : <p className="muted">{tr('（docs/AI_PROMPT.md 尚未生成）', '(docs/AI_PROMPT.md is missing)')}</p>}
+        {aiPrompt ? (
+          <pre className="prompt-box" tabIndex={0} aria-label={tr('出题提示词（可滚动）', 'Challenge prompt (scrollable)')}>
+            {aiPrompt}
+          </pre>
+        ) : (
+          <p className="muted">{tr('（docs/AI_PROMPT.md 尚未生成）', '(docs/AI_PROMPT.md is missing)')}</p>
+        )}
         {formatDoc && (
           <>
             <button onClick={() => setShowDoc(!showDoc)}>
@@ -357,7 +368,9 @@ export function ImportPage() {
           {tr('。', '.')}
         </p>
         {problemPrompt ? (
-          <pre className="prompt-box">{problemPrompt}</pre>
+          <pre className="prompt-box" tabIndex={0} aria-label={tr('理论题提示词（可滚动）', 'Problem prompt (scrollable)')}>
+            {problemPrompt}
+          </pre>
         ) : (
           <p className="muted">{tr('（docs/AI_PROMPT_PROBLEMS.md 尚未生成）', '(docs/AI_PROMPT_PROBLEMS.md is missing)')}</p>
         )}
@@ -374,6 +387,6 @@ export function ImportPage() {
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }

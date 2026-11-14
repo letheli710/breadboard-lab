@@ -1,10 +1,11 @@
 /* global require, process, console, fetch, setTimeout, __dirname */
 /* eslint-disable @typescript-eslint/no-require-imports */
 // `npm run e2e`: production build with the test hooks (VITE_E2E=1 → dist-e2e/), `vite preview` of
-// it, then the browser suites against it: scripts/e2e-routes.cjs and scripts/e2e-bench.cjs. Exit code 1 if any fails; screenshots of failures in e2e-artifacts/.
+// it, then the browser suites against it: scripts/e2e-routes.cjs , scripts/e2e-bench.cjs and scripts/e2e-a11y.cjs
+// (axe-core, fails on serious / critical violations not in scripts/a11y-baseline.json). Exit code 1 if any fails; screenshots of failures in e2e-artifacts/.
 //   npm run e2e                 build + all suites
 //   npm run e2e -- --no-build   reuse dist-e2e/
-//   npm run e2e -- bench        only these suites (routes, bench)
+//   npm run e2e -- bench        only these suites (routes, bench, a11y)
 const { spawn, spawnSync } = require('node:child_process');
 const { join } = require('node:path');
 const root = join(__dirname, '..');
@@ -17,7 +18,9 @@ const run = (cmd, a, env = {}) => spawnSync(cmd, a, { cwd: root, stdio: 'inherit
 if (!args.includes('--no-build')) {
   if (run('npx', ['vite', 'build', '--outDir', 'dist-e2e', '--emptyOutDir'], { VITE_E2E: '1' }) !== 0) process.exit(1);
 }
-const preview = spawn('npx', ['vite', 'preview', '--outDir', 'dist-e2e', '--port', String(PORT), '--strictPort'], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'] });
+// the vite CLI itself (not through npx, whose child would outlive a kill and keep the pipes open)
+const VITE = join(root, 'node_modules', 'vite', 'bin', 'vite.js');
+const preview = spawn(process.execPath, [VITE, 'preview', '--outDir', 'dist-e2e', '--port', String(PORT), '--strictPort'], { cwd: root, stdio: ['ignore', 'ignore', 'inherit'] });
 let failed = false;
 const stop = () => {
   try {
@@ -41,6 +44,7 @@ process.on('exit', stop);
   const all = [
     ['routes', 'scripts/e2e-routes.cjs'],
     ['bench', 'scripts/e2e-bench.cjs'],
+    ['a11y', 'scripts/e2e-a11y.cjs'],
   ];
   for (const [name, file] of all) {
     if (suites.length && !suites.includes(name)) continue;

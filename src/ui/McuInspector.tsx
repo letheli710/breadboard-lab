@@ -13,6 +13,7 @@ import { useDerived } from '../state/derived';
 import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { HiddenReadingsNote } from './HiddenReadings';
 import { useStore } from '../state/store';
+import { prefersReducedMotion } from './reveal';
 
 const T = (p: [string, string]) => tr(p[0], p[1]);
 
@@ -356,7 +357,7 @@ export function McuInspector({ part }: { part: PlacedPart }) {
     if (!selectedPin) return;
     if (filter === 'used') setFilter('all');
     const el = rows.current.get(selectedPin);
-    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    el?.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPin]);
 

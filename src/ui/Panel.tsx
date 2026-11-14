@@ -24,6 +24,7 @@ import { allAnswered, emptyReadings, matchBoard, revalidate, structureKey } from
 
 import { Md } from './Md';
 import { Prereqs, StepStatus, useStepChecks } from './StepCheck';
+import { tabListKeys } from './a11y';
 
 export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: string }) {
   const setHighlight = useStore((s) => s.setHighlight);
@@ -41,7 +42,10 @@ export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: 
             onMouseLeave={() => setHighlight(null)}
           >
             <div className="issue-title">
-              <span className="sev">{i.severity === 'error' ? '✕' : i.severity === 'warning' ? '!' : 'i'}</span>
+              <span className="sev" aria-hidden>
+                {i.severity === 'error' ? '✕' : i.severity === 'warning' ? '!' : 'i'}
+              </span>
+              <span className="sr-only">{i.severity === 'error' ? tr('错误：', 'Error: ') : i.severity === 'warning' ? tr('警告：', 'Warning: ') : tr('提示：', 'Note: ')}</span>
               {i.title}
             </div>
             {i.detail && <div className="issue-detail">{i.detail}</div>}
@@ -53,7 +57,11 @@ export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: 
 }
 
 function Stars({ n }: { n: number }) {
-  return <span className="stars">{'★'.repeat(n) + '☆'.repeat(5 - n)}</span>;
+  return (
+    <span className="stars" role="img" aria-label={tr(`难度 ${n} / 5`, `Level ${n} of 5`)}>
+      {'★'.repeat(n) + '☆'.repeat(5 - n)}
+    </span>
+  );
 }
 
 function TaskPanel({ ch }: { ch: Challenge }) {
@@ -176,45 +184,48 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         </section>
       )}
 
-      {check && (
-        <div className="check-result">
-          {!check.undecided && (
-            <div className="progress-row">
-              <span>{tr('连接正确度', 'Connections correct')}</span>
-              <div className="bar">
-                <div style={{ width: `${Math.round(check.progress * 100)}%` }} />
+      {/* a live region that is always there, so the result of every check is announced once */}
+      <div className="check-live" aria-live="polite" aria-atomic="false">
+        {check && (
+          <div className="check-result">
+            {!check.undecided && (
+              <div className="progress-row">
+                <span>{tr('连接正确度', 'Connections correct')}</span>
+                <div className="bar">
+                  <div style={{ width: `${Math.round(check.progress * 100)}%` }} />
+                </div>
+                <b>{Math.round(check.progress * 100)}%</b>
               </div>
-              <b>{Math.round(check.progress * 100)}%</b>
-            </div>
-          )}
-          {check.undecided ? (
-            <IssueList issues={check.issues} />
-          ) : check.perfect && hasM && !ms.complete ? (
-            <div className="ok-box big">
-              ✓{' '}
-              {tr(
-                `电路正确${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。第 1 步完成——现在用仪表读你的面包板，完成下面的 ${ms.required} 道测量题。`,
-                `The circuit is right${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}. Stage 1 done — now read your board's instruments and answer the ${ms.required} measurement questions below.`,
-              )}
-            </div>
-          ) : check.perfect ? (
-            <div className="ok-box big">
-              🎉{' '}
-              {tr(
-                `完全正确！连接关系与目标电路一致${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。`,
-                `Perfect! The connections match the target circuit${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}.`,
-              )}
-            </div>
-          ) : (
-            <>
-              <p className="note">
-                {tr('把鼠标移到下面的条目上，3D 视图会高亮出相关的元件和孔位。', 'Hover an item below to highlight the parts and holes involved in the 3D view.')}
-              </p>
+            )}
+            {check.undecided ? (
               <IssueList issues={check.issues} />
-            </>
-          )}
-        </div>
-      )}
+            ) : check.perfect && hasM && !ms.complete ? (
+              <div className="ok-box big">
+                ✓{' '}
+                {tr(
+                  `电路正确${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。第 1 步完成——现在用仪表读你的面包板，完成下面的 ${ms.required} 道测量题。`,
+                  `The circuit is right${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}. Stage 1 done — now read your board's instruments and answer the ${ms.required} measurement questions below.`,
+                )}
+              </div>
+            ) : check.perfect ? (
+              <div className="ok-box big">
+                🎉{' '}
+                {tr(
+                  `完全正确！连接关系与目标电路一致${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。`,
+                  `Perfect! The connections match the target circuit${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}.`,
+                )}
+              </div>
+            ) : (
+              <>
+                <p className="note">
+                  {tr('把鼠标移到下面的条目上，3D 视图会高亮出相关的元件和孔位。', 'Hover an item below to highlight the parts and holes involved in the 3D view.')}
+                </p>
+                <IssueList issues={check.issues} />
+              </>
+            )}
+          </div>
+        )}
+      </div>
 
       {hintsShown > 0 && (
         <ul className="hints">
@@ -388,12 +399,13 @@ function SchematicPanel() {
         <>
           <div className="eyebrow">{tr('结点表 NETLIST', 'NETLIST')}</div>
           <table className="netlist">
+            <caption className="sr-only">{tr('结点表：每个结点的电压、连接的引脚和面包板位置', 'Netlist: voltage, connected pins and breadboard holes of every node')}</caption>
             <thead>
               <tr>
-                <th>{tr('结点', 'Node')}</th>
-                <th>{tr('电压', 'Voltage')}</th>
-                <th>{tr('连接的引脚', 'Pins')}</th>
-                <th>{tr('面包板位置', 'Breadboard holes')}</th>
+                <th scope="col">{tr('结点', 'Node')}</th>
+                <th scope="col">{tr('电压', 'Voltage')}</th>
+                <th scope="col">{tr('连接的引脚', 'Pins')}</th>
+                <th scope="col">{tr('面包板位置', 'Breadboard holes')}</th>
               </tr>
             </thead>
             <tbody>
@@ -403,9 +415,9 @@ function SchematicPanel() {
                   const strips = [...new Set((nl.netHoles.get(n.name) ?? []).map((h) => HOLE_MAP.get(h)!.strip))];
                   return (
                     <tr key={n.name} className={activeNet === n.name ? 'on' : ''} onMouseEnter={() => setHoverNet(n.name)} onMouseLeave={() => setHoverNet(null)}>
-                      <td>
+                      <th scope="row">
                         <b>{isFloating(n.name) ? tr('悬空', 'floating') : n.name}</b>
-                      </td>
+                      </th>
                       <td className="volt">
                         <NodeVolt d={d} net={n.name} hide={hide} />
                       </td>
@@ -482,15 +494,24 @@ export function SidePanel() {
   ];
   const cur = panel === 'task' && !ch ? 'schematic' : panel;
   return (
-    <aside className="side card">
-      <div className="tabs" role="tablist">
+    <aside className="side card" aria-label={tr('任务与电路', 'Task and circuit')}>
+      <div className="tabs" role="tablist" aria-label={tr('面板', 'Panel')} onKeyDown={tabListKeys}>
         {tabs.map(([k, label]) => (
-          <button key={k} role="tab" aria-selected={cur === k} className={cur === k ? 'on' : ''} onClick={() => setPanel(k)}>
+          <button
+            key={k}
+            id={`side-tab-${k}`}
+            role="tab"
+            aria-selected={cur === k}
+            aria-controls="side-panel"
+            tabIndex={cur === k ? 0 : -1}
+            className={cur === k ? 'on' : ''}
+            onClick={() => setPanel(k)}
+          >
             {label}
           </button>
         ))}
       </div>
-      <div className="side-body" role="tabpanel">
+      <div className="side-body" role="tabpanel" id="side-panel" tabIndex={-1} aria-labelledby={`side-tab-${cur}`}>
         {cur === 'task' && ch && <TaskPanel ch={ch} />}
         {cur === 'schematic' && <SchematicPanel />}
         {cur === 'issues' && <IssuesPanel />}

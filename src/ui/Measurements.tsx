@@ -197,6 +197,8 @@ function Question({
                 <span className="pr-choice-key">{String.fromCharCode(65 + i)}</span>
                 <span>{c}</span>
                 {cls === 'right' && <Icon name="check" size={16} />}
+                {cls === 'wrong' && <span aria-hidden>✗</span>}
+                {cls && <span className="sr-only">{cls === 'right' ? tr('（正确）', ' (right)') : tr('（不对）', ' (wrong)')}</span>}
               </button>
             );
           })}

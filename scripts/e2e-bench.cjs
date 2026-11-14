@@ -361,6 +361,90 @@ const TESTS = {
     }
   },
 
+  // keyboard only: skip link, build / move / delete by hole id, tabs by arrow keys, focus on route change
+  async keyboard(browser) {
+    const { p, ctx, errors } = await open(browser, '#/sandbox');
+    try {
+      await p.keyboard.press('Tab');
+      const skip = await p.evaluate(() => document.activeElement.textContent);
+      assert(skip === 'Skip to content', 'keyboard: first Tab reaches the skip link: ' + skip);
+      await p.keyboard.press('Enter');
+      await p.waitForTimeout(100);
+      assert(await p.evaluate(() => document.activeElement.matches('#main h1')), 'keyboard: skip link moves focus to the page heading');
+      const sum = p.locator('.kb-bench > summary');
+      await sum.focus();
+      await p.keyboard.press('Enter');
+      const sel = p.locator('.kb-place select');
+      await sel.focus();
+      await sel.selectOption('battery');
+      const field = p.locator('.kb-place input');
+      await field.focus();
+      await p.keyboard.type('tp3 tn3');
+      await p.keyboard.press('Enter');
+      await p.waitForTimeout(150);
+      await sel.selectOption('resistor');
+      await field.focus();
+      await p.keyboard.type('C10, c14');
+      await p.keyboard.press('Enter');
+      await p.waitForTimeout(150);
+      const lay = await layout(p);
+      const bat = lay.parts.find((x) => x.type === 'battery');
+      const r1 = lay.parts.find((x) => x.type === 'resistor');
+      assert(bat?.pins['+'] === 'tp3' && bat?.pins['-'] === 'tn3' && r1?.pins['1'] === 'c10' && r1?.pins['2'] === 'c14', 'keyboard: battery and resistor placed by hole id');
+      assert(/Placed R1/.test(await p.locator('.kb-place [aria-live]').textContent()), 'keyboard: placement announced');
+      assert((await p.evaluate(() => window.__bb.store.getState().tool)) === 'select', 'keyboard: tool back to select');
+      await field.focus();
+      await p.keyboard.type('c14 c18');
+      await p.keyboard.press('Enter');
+      await p.waitForTimeout(150);
+      assert((await layout(p)).parts.length === 2 && (await p.locator('.kb-place .form-err').count()) === 1, 'keyboard: a placement on a used hole is refused with a message');
+      await field.fill('zz9');
+      await p.keyboard.press('Enter');
+      assert(/no hole zz9/.test(await p.locator('.kb-place .form-err').textContent()), 'keyboard: unknown hole id explained');
+      await p.locator('.kb-actions button', { hasText: 'Move' }).nth(1).focus();
+      await p.keyboard.press('Enter');
+      await p.waitForTimeout(100);
+      await p.keyboard.press('Control+a');
+      await p.keyboard.type('e10 e14');
+      await p.keyboard.press('Enter');
+      await p.waitForTimeout(150);
+      const moved = await pinsOf(p, 'R1');
+      assert(moved['1'] === 'e10' && moved['2'] === 'e14', 'keyboard: Move R1 to e10 e14 ' + JSON.stringify(moved));
+      assert(
+        /R1 \(.*\): .*e10/.test(await p.locator('#board-desc').textContent()),
+        'keyboard: board description lists R1 at e10: ' + (await p.locator('#board-desc').textContent()).slice(0, 120),
+      );
+      await p.locator('.kb-actions button', { hasText: 'Select' }).nth(1).focus();
+      await p.keyboard.press('Enter');
+      await p.waitForTimeout(150);
+      assert(
+        (await p.evaluate(() => window.__bb.store.getState().selectedId)) === (await layout(p)).parts[1].id && (await p.evaluate(() => document.activeElement.id)) === 'side-panel',
+        'keyboard: Select picks R1 and focuses the properties panel',
+      );
+      await p.locator('.kb-actions button', { hasText: 'Delete' }).nth(1).focus();
+      await p.keyboard.press('Enter');
+      await p.waitForTimeout(150);
+      assert((await layout(p)).parts.length === 1, 'keyboard: Delete removes R1');
+      // side panel tabs: arrow keys move between tabs
+      await p.locator('.side [role="tab"][aria-selected="true"]').focus();
+      const t0 = await p.evaluate(() => document.activeElement.textContent);
+      await p.keyboard.press('ArrowRight');
+      await p.waitForTimeout(100);
+      const t1 = await p.evaluate(() => [document.activeElement.textContent, document.activeElement.getAttribute('aria-selected')]);
+      assert(t1[0] !== t0 && t1[1] === 'true', `keyboard: → moves from tab "${t0}" to "${t1[0]}" and selects it`);
+      // route change: focus goes to the new page's heading
+      await p.locator('nav.nav button', { hasText: 'Practice' }).focus();
+      await p.keyboard.press('Enter');
+      await p.waitForSelector('#main h1.pr-title', { timeout: 15000 });
+      await p.waitForTimeout(300);
+      assert(await p.evaluate(() => document.activeElement.matches('#main h1')), 'keyboard: after a page change focus is on the page heading');
+      assert(errors.length === 0, 'keyboard: no page errors ' + errors.join(' | '));
+    } finally {
+      await shot(p, 'keyboard');
+      await ctx.close();
+    }
+  },
+
   // damaged saved data and an injected render error
   async robustness(browser) {
     {

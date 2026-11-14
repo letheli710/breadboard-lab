@@ -17,6 +17,7 @@ import { UiPlot } from './UiPlot';
 import { GraphFigure } from './GraphFigure';
 import { PrMd, Sym } from './richText';
 import { MathText } from './mathText';
+import { prefersReducedMotion } from './reveal';
 
 type SectionKey = 'ideas' | 'formulas' | 'examples' | 'mistakes';
 
@@ -43,13 +44,15 @@ function Section({
   return (
     <section className={`sum-sec sum-${k}`} id={domId(k)}>
       <div className="sum-sec-head">
-        <button className="sum-sec-toggle" onClick={onToggle} aria-expanded={open}>
-          <span className={`sum-caret ${open ? 'open' : ''}`} aria-hidden>
-            ▸
-          </span>
-          <span className="sum-sec-title">{title}</span>
-          <span className="sum-sec-count">{count}</span>
-        </button>
+        <h2 className="sum-sec-h">
+          <button className="sum-sec-toggle" onClick={onToggle} aria-expanded={open}>
+            <span className={`sum-caret ${open ? 'open' : ''}`} aria-hidden>
+              ▸
+            </span>
+            <span className="sum-sec-title">{title}</span>
+            <span className="sum-sec-count">{count}</span>
+          </button>
+        </h2>
         {tools}
       </div>
       <div className="sum-sec-body" hidden={!open}>
@@ -150,7 +153,7 @@ export function SummaryBody({ s, target, problems }: { s: ChapterSummary; target
     const sec: SectionKey = focus.startsWith('idea-') ? 'ideas' : focus.startsWith('example-') ? 'examples' : (focus as SectionKey);
     if (sec in open) setOpen((o) => (o[sec] ? o : { ...o, [sec]: true }));
     setFlash(focus);
-    const t = setTimeout(() => document.getElementById(domId(focus))?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 30);
+    const t = setTimeout(() => document.getElementById(domId(focus))?.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' }), 30);
     const t2 = setTimeout(() => setFlash(undefined), 2200);
     return () => {
       clearTimeout(t);
@@ -176,7 +179,7 @@ export function SummaryBody({ s, target, problems }: { s: ChapterSummary; target
     const sec = section.startsWith('idea-') ? 'ideas' : (section as SectionKey);
     setOpen((o) => ({ ...o, [sec]: true }));
     setFlash(section);
-    setTimeout(() => document.getElementById(domId(section))?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 30);
+    setTimeout(() => document.getElementById(domId(section))?.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' }), 30);
   };
 
   return (
@@ -316,7 +319,7 @@ export function SummaryPage({ target, problems }: { target: SummaryTarget; probl
         <div className="task-head">
           <span className="badge sum-badge">{tr('要点 KEY POINTS', 'KEY POINTS')}</span>
         </div>
-        <h2 className="pr-title">{chapter?.title() ?? target.chapter}</h2>
+        <h1 className="pr-title">{chapter?.title() ?? target.chapter}</h1>
       </header>
       {r?.summary ? (
         <SummaryBody s={r.summary} target={target} problems={problems} />

@@ -35,6 +35,25 @@ function closedCurve(pts: V[]): string {
   return d + 'Z';
 }
 
+/** Text alternative of the directed graph: nodes, every branch with its direction and elements, the tree. */
+export function describeGraph(g: CircuitGraph): string {
+  const br = g.branches.map((b) =>
+    tr(`支路 ${b.n}：${b.from} → ${b.to}${b.els.length ? `（${b.els.join('、')}）` : ''}`, `branch ${b.n}: ${b.from} → ${b.to}${b.els.length ? ` (${b.els.join(', ')})` : ''}`),
+  );
+  const tree = !g.hideTree && g.tree?.length ? tr(`。树支：${g.tree.join('、')}`, `. Tree branches: ${g.tree.join(', ')}`) : '';
+  const cuts = (g.cutsets ?? []).map((c, i) => tr(`割集 ${c.name ?? i + 1}：支路 ${c.branches.join('、')}`, `cut-set ${c.name ?? i + 1}: branches ${c.branches.join(', ')}`));
+  return (
+    tr(
+      `电路的有向图，结点 ${g.nodes.map((n) => n.name).join('、')}（参考结点 ${g.ref}）；`,
+      `Directed graph of the circuit, nodes ${g.nodes.map((n) => n.name).join(', ')} (reference node ${g.ref}); `,
+    ) +
+    br.join(tr('；', '; ')) +
+    tree +
+    (cuts.length ? tr('。', '. ') + cuts.join(tr('；', '; ')) : '') +
+    tr('。', '.')
+  );
+}
+
 export function GraphFigure({ graph }: { graph: CircuitGraph }) {
   const pos = new Map(graph.nodes.map((n) => [n.name, n.at as V]));
   const all: Pt[] = graph.nodes.map((n) => n.at);
@@ -66,7 +85,7 @@ export function GraphFigure({ graph }: { graph: CircuitGraph }) {
   return (
     <figure className="cgraph">
       <FigureFrame label={tr('电路的有向图', 'directed graph of the circuit')}>
-        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={tr('电路的有向图', 'directed graph of the circuit')}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={describeGraph(graph)}>
           <defs>
             <marker id="cg-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="12" markerHeight="12" orient="auto">
               <path d="M0,1 L10,5 L0,9 z" className="cgraph-head" />
