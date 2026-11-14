@@ -1,7 +1,7 @@
 // Inspector panels for the phase-5 parts: dev boards (USB power, per-pin modes and live pin
 // readings) and devices (transistors, relay, motor, buzzer, LDO, LDR, NTC).
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type JSX } from 'react';
 import { BUZZER, LDO, MOSFETS, MOTOR, NPN, RELAY, ldrResistance, ntcResistance } from '../core/devices';
 import { amps, formatSI, ohms, parseValue, volts } from '../core/format';
 import { tr } from '../core/i18n';
