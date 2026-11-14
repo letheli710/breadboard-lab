@@ -32,6 +32,7 @@ const VIEW_ANGLES: Record<ViewName, { phi: number; theta: number }> = {
 
 function CameraRig() {
   const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
   const invalidate = useThree((s) => s.invalidate);
   const controls = useThree((s) => s.controls) as unknown as OrbitControlsImpl | null;
   // goal of an in-progress transition; null while the user is in control
@@ -44,14 +45,19 @@ function CameraRig() {
       // fit ~38 units of width (board + margin) into the current viewport
       const cam = camera as THREE.PerspectiveCamera;
       const hfov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)) * cam.aspect);
-      const radius = Math.max(32, 21 / Math.tan(hfov / 2));
-      const pos = new THREE.Vector3().setFromSpherical(new THREE.Spherical(radius, angles.phi, angles.theta)).add(TARGET);
-      goal.current = { pos, target: TARGET.clone() };
+      let radius = Math.max(32, 21 / Math.tan(hfov / 2));
+      // short, wide canvases (a phone held sideways): also fit the board's depth, aimed at its centre
+      const h = gl.domElement.clientHeight;
+      const short = h > 0 && h < 420;
+      if (short) radius = Math.max(radius, 15 / Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)));
+      const target = short ? new THREE.Vector3(0, 0, 0.5) : TARGET.clone();
+      const pos = new THREE.Vector3().setFromSpherical(new THREE.Spherical(radius, angles.phi, angles.theta)).add(target);
+      goal.current = { pos, target };
       invalidate();
     };
     window.addEventListener('bb-camera', on);
     return () => window.removeEventListener('bb-camera', on);
-  }, [camera, invalidate]);
+  }, [camera, gl, invalidate]);
 
   useEffect(() => {
     if (!controls) return;

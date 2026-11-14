@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { FigureFrame } from './FigureFrame';
 import { tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
 import { acVolts, amps, ohms, volts } from '../core/format';
@@ -446,7 +447,7 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hideReading
     );
 
   return (
-    <div className="schem-wrap" tabIndex={0} role="region" aria-label={tr('电路图（可滚动）', 'Schematic (scrollable)')}>
+    <FigureFrame label={tr('电路图（可滚动）', 'Schematic (scrollable)')} className="schem-wrap">
       <svg
         viewBox={`0 0 ${lay.width} ${lay.height}`}
         width="100%"
@@ -565,6 +566,6 @@ export function SchematicView({ circuit, sim, ac, showValues = true, hideReading
           </g>
         ))}
       </svg>
-    </div>
+    </FigureFrame>
   );
 }

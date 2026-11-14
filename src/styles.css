@@ -3937,28 +3937,38 @@ button.primary:focus-visible,
   max-height: calc(100dvh - 90px);
 }
 
-/* answer field: insert buttons for symbols that are hard to type on a phone (touch screens, field focused) */
+/* answer field: insert buttons for symbols that are hard to type on a phone (touch screens, while
+   the field has focus). An overlay below the field: showing / hiding it never moves the page, so a
+   tap that blurs the field still lands where it was aimed. */
 .pr-symkeys {
   display: none;
-  flex: 1 0 100%;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-.pr-symkeys button {
-  flex: none;
-  min-width: 44px;
-  min-height: 44px;
-  justify-content: center;
-  font-size: 17px;
-  padding: 0 8px;
 }
 @media (pointer: coarse) {
   .pr-answer {
-    flex-wrap: wrap;
+    position: relative;
   }
-  .pr-answer:focus-within .pr-symkeys {
+  .pr-answer:has(input:focus) .pr-symkeys {
     display: flex;
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 6px;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(31, 42, 68, 0.14);
+  }
+  .pr-symkeys button {
+    flex: none;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    font-size: 17px;
+    padding: 0 8px;
   }
   .pr-input input {
     font-size: 16px; /* 16 px or more: iOS Safari doesn't zoom the page on focus */
@@ -4175,6 +4185,10 @@ button.primary:focus-visible,
   .app.is-bench {
     padding-bottom: calc(150px + env(safe-area-inset-bottom));
   }
+  /* the task bar has the Check button: the panel's own action row scrolls with the panel */
+  .app.is-bench .side .actions {
+    position: static;
+  }
   .bench-bar {
     display: flex;
     flex-direction: column;
@@ -4276,13 +4290,15 @@ button.primary:focus-visible,
 /* phones held sideways: the bench fills the screen height, toolbox on the left */
 @media (orientation: landscape) and (max-height: 500px) {
   .bench {
-    height: calc(100vh - 12px);
-    height: calc(100dvh - 12px);
+    height: calc(100vh - 80px);
+    height: calc(100dvh - 80px);
     min-height: 0;
     flex-direction: row;
   }
   .stage {
     height: auto;
+    min-height: 0;
+    max-height: none;
     flex: 1;
   }
   .toolbox-wrap {
@@ -4314,6 +4330,27 @@ button.primary:focus-visible,
   .bench-bar-md {
     -webkit-line-clamp: 1;
     line-clamp: 1;
+  }
+  .stage-top {
+    padding-top: 4px;
+  }
+  .prompt {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: hidden;
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  /* the toolbar floats over the bottom of the canvas instead of taking a row of height */
+  .toolbar {
+    position: absolute;
+    z-index: 4;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
   }
   .app.is-bench {
     padding-bottom: calc(64px + env(safe-area-inset-bottom));

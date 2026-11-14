@@ -32,17 +32,21 @@ export function FigureFrame({ children, label, className }: { children: ReactNod
   const [scroll, setScroll] = useState({ can: false, left: false, right: false });
   const [open, setOpen] = useState(false);
 
-  // keep labels readable: widen the svg (a min-width) when fitting would shrink them too far
+  // keep labels readable: widen the svg (a min-width) when fitting would shrink them too far.
+  // Measured once and on resize only: re-measuring on every render (a hover highlight re-renders
+  // the figure) would briefly reset the width, and the page could jump between a tap's down and up.
   useIsoLayoutEffect(() => {
     const el = box.current;
     const svg = el?.querySelector('svg');
     if (!el || !svg) return;
     let lastW = -1;
+    // a figure's own inline min-width (SchematicView sets one) is the floor
+    const baseMin = svg.style.minWidth;
     const fit = () => {
       const w = el.clientWidth;
       if (w === lastW) return;
       lastW = w;
-      svg.style.minWidth = '';
+      svg.style.minWidth = baseMin;
       svg.style.maxHeight = '';
       const px = minLabelPx(svg);
       if (Number.isFinite(px) && px < MIN_LABEL_PX) {
@@ -67,7 +71,7 @@ export function FigureFrame({ children, label, className }: { children: ReactNod
       ro.disconnect();
       el.removeEventListener('scroll', update);
     };
-  });
+  }, []);
 
   return (
     <div className={`fig-frame ${scroll.can ? 'can-scroll' : ''} ${scroll.left ? 'more-left' : ''} ${scroll.right ? 'more-right' : ''} ${className ?? ''}`}>

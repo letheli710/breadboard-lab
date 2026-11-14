@@ -1,5 +1,6 @@
 import { BATTERIES } from '../core/parts';
 import { getLang, tr } from '../core/i18n';
+import { FigureFrame } from './FigureFrame';
 
 function BoardDiagram() {
   const cols = 12;
@@ -7,103 +8,107 @@ function BoardDiagram() {
   const rowsTop = [0, 1, 2, 3, 4].map((r) => 70 + r * 18);
   const rowsBot = [0, 1, 2, 3, 4].map((r) => 180 + r * 18);
   return (
-    <svg viewBox="0 0 340 300" className="diagram">
-      <rect x="10" y="6" width="320" height="288" rx="10" fill="#f7f2e7" stroke="#1f2a44" strokeWidth="1.5" />
-      {/* rails */}
-      <rect x={X(0) - 8} y={18} width={X(cols - 1) - X(0) + 16} height={14} rx="7" fill="#e63946" opacity="0.18" />
-      <rect x={X(0) - 8} y={36} width={X(cols - 1) - X(0) + 16} height={14} rx="7" fill="#2b59c3" opacity="0.18" />
-      <rect x={X(0) - 8} y={258} width={X(cols - 1) - X(0) + 16} height={14} rx="7" fill="#e63946" opacity="0.18" />
-      <rect x={X(0) - 8} y={276} width={X(cols - 1) - X(0) + 16} height={14} rx="7" fill="#2b59c3" opacity="0.18" />
-      {/* highlighted strips */}
-      <rect x={X(3) - 8} y={rowsTop[0] - 8} width={16} height={88} rx="8" fill="#2ba59b" opacity="0.3" />
-      <rect x={X(3) - 8} y={rowsBot[0] - 8} width={16} height={88} rx="8" fill="#f4a261" opacity="0.35" />
-      <rect x={X(8) - 8} y={rowsTop[0] - 8} width={16} height={88} rx="8" fill="#9b5de5" opacity="0.25" />
-      <rect x={20} y={160} width={300} height={10} fill="#e2dacb" />
-      {Array.from({ length: cols }, (_, c) => (
-        <g key={c}>
-          {[25, 43, 265, 283].map((y) => (
-            <rect key={y} x={X(c) - 3.5} y={y - 3.5} width={7} height={7} fill="#2f3138" />
-          ))}
-          {[...rowsTop, ...rowsBot].map((y) => (
-            <rect key={y} x={X(c) - 3.5} y={y - 3.5} width={7} height={7} fill="#2f3138" />
-          ))}
-        </g>
-      ))}
-      <text x="22" y="29" fontSize="12" fill="#e63946" fontWeight="700">
-        +
-      </text>
-      <text x="22" y="47" fontSize="12" fill="#2b59c3" fontWeight="700">
-        −
-      </text>
-      {['a', 'b', 'c', 'd', 'e'].map((r, i) => (
-        <text key={r} x="22" y={rowsTop[i] + 4} fontSize="10" fill="#6b6f7a">
-          {r}
+    <FigureFrame label={tr('示意图', 'Diagram')}>
+      <svg viewBox="0 0 340 300" className="diagram">
+        <rect x="10" y="6" width="320" height="288" rx="10" fill="#f7f2e7" stroke="#1f2a44" strokeWidth="1.5" />
+        {/* rails */}
+        <rect x={X(0) - 8} y={18} width={X(cols - 1) - X(0) + 16} height={14} rx="7" fill="#e63946" opacity="0.18" />
+        <rect x={X(0) - 8} y={36} width={X(cols - 1) - X(0) + 16} height={14} rx="7" fill="#2b59c3" opacity="0.18" />
+        <rect x={X(0) - 8} y={258} width={X(cols - 1) - X(0) + 16} height={14} rx="7" fill="#e63946" opacity="0.18" />
+        <rect x={X(0) - 8} y={276} width={X(cols - 1) - X(0) + 16} height={14} rx="7" fill="#2b59c3" opacity="0.18" />
+        {/* highlighted strips */}
+        <rect x={X(3) - 8} y={rowsTop[0] - 8} width={16} height={88} rx="8" fill="#2ba59b" opacity="0.3" />
+        <rect x={X(3) - 8} y={rowsBot[0] - 8} width={16} height={88} rx="8" fill="#f4a261" opacity="0.35" />
+        <rect x={X(8) - 8} y={rowsTop[0] - 8} width={16} height={88} rx="8" fill="#9b5de5" opacity="0.25" />
+        <rect x={20} y={160} width={300} height={10} fill="#e2dacb" />
+        {Array.from({ length: cols }, (_, c) => (
+          <g key={c}>
+            {[25, 43, 265, 283].map((y) => (
+              <rect key={y} x={X(c) - 3.5} y={y - 3.5} width={7} height={7} fill="#2f3138" />
+            ))}
+            {[...rowsTop, ...rowsBot].map((y) => (
+              <rect key={y} x={X(c) - 3.5} y={y - 3.5} width={7} height={7} fill="#2f3138" />
+            ))}
+          </g>
+        ))}
+        <text x="22" y="29" fontSize="12" fill="#e63946" fontWeight="700">
+          +
         </text>
-      ))}
-      {['f', 'g', 'h', 'i', 'j'].map((r, i) => (
-        <text key={r} x="22" y={rowsBot[i] + 4} fontSize="10" fill="#6b6f7a">
-          {r}
+        <text x="22" y="47" fontSize="12" fill="#2b59c3" fontWeight="700">
+          −
         </text>
-      ))}
-      <text x={X(3)} y={60} fontSize="10" textAnchor="middle" fill="#1f7f77">
-        {tr('相通', 'connected')}
-      </text>
-      <text x={X(3)} y={258 - 8} fontSize="10" textAnchor="middle" fill="#c26a2b">
-        {tr('相通', 'connected')}
-      </text>
-      <text x={X(8)} y={60} fontSize="10" textAnchor="middle" fill="#7a3fc0">
-        {tr('另一组', 'another group')}
-      </text>
-      <text x="170" y="168" fontSize="9" textAnchor="middle" fill="#6b6f7a">
-        {tr('中间凹槽：上下两半不相通', 'centre gap: the two halves are NOT connected')}
-      </text>
-    </svg>
+        {['a', 'b', 'c', 'd', 'e'].map((r, i) => (
+          <text key={r} x="22" y={rowsTop[i] + 4} fontSize="10" fill="#6b6f7a">
+            {r}
+          </text>
+        ))}
+        {['f', 'g', 'h', 'i', 'j'].map((r, i) => (
+          <text key={r} x="22" y={rowsBot[i] + 4} fontSize="10" fill="#6b6f7a">
+            {r}
+          </text>
+        ))}
+        <text x={X(3)} y={60} fontSize="10" textAnchor="middle" fill="#1f7f77">
+          {tr('相通', 'connected')}
+        </text>
+        <text x={X(3)} y={258 - 8} fontSize="10" textAnchor="middle" fill="#c26a2b">
+          {tr('相通', 'connected')}
+        </text>
+        <text x={X(8)} y={60} fontSize="10" textAnchor="middle" fill="#7a3fc0">
+          {tr('另一组', 'another group')}
+        </text>
+        <text x="170" y="168" fontSize="9" textAnchor="middle" fill="#6b6f7a">
+          {tr('中间凹槽：上下两半不相通', 'centre gap: the two halves are NOT connected')}
+        </text>
+      </svg>
+    </FigureFrame>
   );
 }
 
 function GroundDiagram() {
   return (
-    <svg viewBox="0 0 340 170" className="diagram">
-      <g stroke="#1f2a44" strokeWidth="2" fill="none" strokeLinecap="round">
-        {/* schematic without battery */}
-        <text x="20" y="22" fontSize="12" fill="#1f2a44" stroke="none">
-          {tr('原理图常这样画：', 'Schematics often look like this:')}
-        </text>
-        <line x1="60" y1="40" x2="80" y2="40" />
-        <line x1="70" y1="40" x2="70" y2="55" />
-        <text x="60" y="35" fontSize="11" fill="#e63946" stroke="none">
-          +5V
-        </text>
-        <polyline points="70,55 70,60 76,63 64,69 76,75 64,81 70,84 70,90" />
-        <polygon points="62,95 78,95 70,108" fill="#ff5a4f" />
-        <line x1="62" y1="108" x2="78" y2="108" />
-        <line x1="70" y1="108" x2="70" y2="122" />
-        <line x1="58" y1="122" x2="82" y2="122" />
-        <line x1="63" y1="127" x2="77" y2="127" />
-        <line x1="67" y1="132" x2="73" y2="132" />
-        <text x="90" y="128" fontSize="11" fill="#1d3557" stroke="none">
-          GND ⏚
-        </text>
-        <text x="150" y="70" fontSize="22" fill="#1f2a44" stroke="none">
-          ⇒
-        </text>
-        {/* rails */}
-        <rect x="190" y="30" width="135" height="16" rx="8" fill="#e63946" opacity="0.2" stroke="none" />
-        <text x="198" y="42" fontSize="11" fill="#e63946" stroke="none">
-          {tr('+5V 就是红色 + 轨', '+5V = the red + rail')}
-        </text>
-        <rect x="190" y="112" width="135" height="16" rx="8" fill="#2b59c3" opacity="0.2" stroke="none" />
-        <text x="198" y="124" fontSize="11" fill="#2b59c3" stroke="none">
-          {tr('⏚ 就是蓝色 − 轨', '⏚ = the blue − rail')}
-        </text>
-        <text x="198" y="80" fontSize="10" fill="#555" stroke="none">
-          {tr('电源本身接在两条轨之间', 'The supply goes between')}
-        </text>
-        <text x="198" y="95" fontSize="10" fill="#555" stroke="none">
-          {tr('（电池/模块/稳压电源）', 'the rails (battery/PSU)')}
-        </text>
-      </g>
-    </svg>
+    <FigureFrame label={tr('示意图', 'Diagram')}>
+      <svg viewBox="0 0 340 170" className="diagram">
+        <g stroke="#1f2a44" strokeWidth="2" fill="none" strokeLinecap="round">
+          {/* schematic without battery */}
+          <text x="20" y="22" fontSize="12" fill="#1f2a44" stroke="none">
+            {tr('原理图常这样画：', 'Schematics often look like this:')}
+          </text>
+          <line x1="60" y1="40" x2="80" y2="40" />
+          <line x1="70" y1="40" x2="70" y2="55" />
+          <text x="60" y="35" fontSize="11" fill="#e63946" stroke="none">
+            +5V
+          </text>
+          <polyline points="70,55 70,60 76,63 64,69 76,75 64,81 70,84 70,90" />
+          <polygon points="62,95 78,95 70,108" fill="#ff5a4f" />
+          <line x1="62" y1="108" x2="78" y2="108" />
+          <line x1="70" y1="108" x2="70" y2="122" />
+          <line x1="58" y1="122" x2="82" y2="122" />
+          <line x1="63" y1="127" x2="77" y2="127" />
+          <line x1="67" y1="132" x2="73" y2="132" />
+          <text x="90" y="128" fontSize="11" fill="#1d3557" stroke="none">
+            GND ⏚
+          </text>
+          <text x="150" y="70" fontSize="22" fill="#1f2a44" stroke="none">
+            ⇒
+          </text>
+          {/* rails */}
+          <rect x="190" y="30" width="135" height="16" rx="8" fill="#e63946" opacity="0.2" stroke="none" />
+          <text x="198" y="42" fontSize="11" fill="#e63946" stroke="none">
+            {tr('+5V 就是红色 + 轨', '+5V = the red + rail')}
+          </text>
+          <rect x="190" y="112" width="135" height="16" rx="8" fill="#2b59c3" opacity="0.2" stroke="none" />
+          <text x="198" y="124" fontSize="11" fill="#2b59c3" stroke="none">
+            {tr('⏚ 就是蓝色 − 轨', '⏚ = the blue − rail')}
+          </text>
+          <text x="198" y="80" fontSize="10" fill="#555" stroke="none">
+            {tr('电源本身接在两条轨之间', 'The supply goes between')}
+          </text>
+          <text x="198" y="95" fontSize="10" fill="#555" stroke="none">
+            {tr('（电池/模块/稳压电源）', 'the rails (battery/PSU)')}
+          </text>
+        </g>
+      </svg>
+    </FigureFrame>
   );
 }
 
