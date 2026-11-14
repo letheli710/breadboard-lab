@@ -106,11 +106,9 @@ export function CardDeck({ ch, sc }: { ch: Challenge; sc: StepChecks }) {
     if (i < 0 || i >= cards.length) return;
     moved.current = true;
     setCard(i);
-    if (cards[i].count > 0) {
-      // open the card at its first step that is not done yet
-      const k = Array.from({ length: cards[i].count }, (_, j) => cards[i].first + j).find((s) => !(sc.unmet[s] ? sc.done.has(s) : false));
-      setStep(k ?? cards[i].first);
-    }
+    // a card opens at its first step: the steps are a sequence, and a check such as "these holes are
+    // empty" can count as done long before the step that asks for it
+    if (cards[i].count > 0) setStep(cards[i].first);
   };
   // after a card change by the user, move focus to the card heading (read once, not a live region)
   useEffect(() => {

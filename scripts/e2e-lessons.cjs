@@ -193,7 +193,11 @@ async function lesson(browser, file) {
           console.log('     ', await p.evaluate(() => document.querySelector('.step-check')?.innerText));
         else stepsOk++;
       }
-      if (i < steps.length - 1) await p.locator('section.steps .row button.primary').click();
+      // Next: the step's own button, which at the end of a card opens the next card; a card without
+      // steps (CHALLENGE_FORMAT §16) has its own "next card" button. Click until step i + 1 shows.
+      if (i < steps.length - 1)
+        for (let g = 0; g < 4 && (await p.evaluate(() => window.__bb.store.getState().step)) !== i + 1; g++)
+          await p.locator('section.steps .row button.primary, .card-nav button.primary').first().click();
     }
     // stage 1: the circuit check
     await p.locator('.actions button.primary.big').click();

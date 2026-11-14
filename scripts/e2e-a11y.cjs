@@ -28,7 +28,8 @@ const PAGES = [
   // states: the sandbox with parts, the inspector and an open confirm popover; a checked lab
   { name: 'sandbox-parts', hash: '#/sandbox', ready: '.stage-view canvas', setup: 'parts' },
   { name: 'lab-checked', hash: '#/challenges/exp-inverting-amp', ready: '.lesson-card.on', setup: 'checked' },
-  { name: 'lesson-done', hash: '#/learn/lesson-breadboard-basics', ready: '.lesson-card.on', setup: 'celebrate' },
+  // the completion dialog: a challenge without measurement questions completes on "Check my circuit"
+  { name: 'challenge-done', hash: '#/challenges/challenge-reverse-protection', ready: '.lesson-card.on', setup: 'celebrate' },
   { name: 'practice-answered', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', setup: 'answered' },
   // Practice mastery pages
   { name: 'review', hash: '#/practice/review', ready: '.ms-main' },
