@@ -19,10 +19,11 @@ export interface QProgress {
 export type PracticeRecord = Record<string, QProgress>;
 
 export type PracticeEvent =
-  | { kind: 'wrong'; choice?: number }
+  /** `input` / `diag`: what was typed and the mistake the checker recognised (for the notebook, state/mastery.ts) */
+  | { kind: 'wrong'; choice?: number; input?: string; diag?: string }
   | { kind: 'reveal' }
   /** `choices`: number of options of a multiple-choice question (to detect solving by elimination) */
-  | { kind: 'right'; choices?: number };
+  | { kind: 'right'; choices?: number; input?: string };
 
 const RANK: Record<QStatus, number> = { unaided: 0, retried: 1, revealed: 2 };
 const better = (a: QStatus | undefined, b: QStatus | undefined): QStatus | undefined => (!a ? b : !b ? a : RANK[a] <= RANK[b] ? a : b);

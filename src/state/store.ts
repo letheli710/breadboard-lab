@@ -13,6 +13,8 @@ import { boolRecord, readStored, sanitizeLayout, sanitizeReadings, sanitizeScope
 import type { ChallengeReadings } from '../core/readings';
 
 export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import';
+/** Practice pages beside the problems: mistake notebook, review session, "how this works", quiz */
+export type PracticeView = 'notebook' | 'due' | 'how' | 'quiz';
 
 /** A chapter key-points page and where on it to go. */
 export interface SummaryTarget {
@@ -135,6 +137,8 @@ interface State {
   problemId: string | null;
   /** the chapter key-points page shown instead of a problem (state/summaries.ts, ui/Summary.tsx) */
   practiceSummary: SummaryTarget | null;
+  /** the mistake notebook / review / quiz page shown instead of a problem (ui/mastery/) */
+  practiceView: PracticeView | null;
   /** problem id → true once every question was answered correctly without revealing the answer */
   practiceDone: Record<string, boolean>;
   /** problem id → how each question was answered (see state/practice.ts) */
@@ -188,6 +192,8 @@ interface State {
   /** open a chapter's key-points page (Practice); openProblem closes it */
   openSummary(t: SummaryTarget): void;
   closeSummary(): void;
+  /** open the notebook / review session / explainer / quiz page (Practice); openProblem closes it */
+  openPracticeView(v: PracticeView | null): void;
   /** record a correct answer; marks the problem done when all its questions are correct */
   /** record an attempt (wrong / reveal / right) on a practice question */
   practiceEvent(problemId: string, questionId: string, ev: PracticeEvent): void;
@@ -334,6 +340,7 @@ export const useStore = create<State>((set, get) => {
     problemInvalid: [],
     problemId: LS.get<string | null>('bb.practice.current', null, str),
     practiceSummary: null,
+    practiceView: null,
     practiceDone: LS.get('bb.practice.done', {} as Record<string, boolean>, boolRecord),
     practiceAnswers: LS.get('bb.practice.answers', {} as Record<string, PracticeRecord>, migrateAnswers),
 
@@ -605,18 +612,26 @@ export const useStore = create<State>((set, get) => {
     openProblem(problemId) {
       LS.set('bb.practice.current', problemId);
       openRequest = null;
-      set({ problemId, mode: 'practice', opening: null, practiceSummary: null });
+      set({ problemId, mode: 'practice', opening: null, practiceSummary: null, practiceView: null });
     },
     openSummary(t) {
       openRequest = null;
-      set({ practiceSummary: t, mode: 'practice', opening: null });
+      set({ practiceSummary: t, mode: 'practice', opening: null, practiceView: null });
+    },
+    openPracticeView(practiceView) {
+      openRequest = null;
+      set({ practiceView, mode: 'practice', opening: null, practiceSummary: practiceView ? null : get().practiceSummary });
     },
     closeSummary() {
       if (get().practiceSummary) set({ practiceSummary: null });
     },
     practiceEvent(pid, qid, ev) {
       const s = get();
-      const rec = { ...s.practiceAnswers[pid], [qid]: applyEvent(s.practiceAnswers[pid]?.[qid], ev) };
+      const before = s.practiceAnswers[pid]?.[qid];
+      const after = applyEvent(before, ev);
+      // the mistake notebook / review schedule (a lazy chunk)
+      void import('./masteryStore').then((m) => m.fromPractice(pid, qid, ev, before, after));
+      const rec = { ...s.practiceAnswers[pid], [qid]: after };
       const practiceAnswers = { ...s.practiceAnswers, [pid]: rec };
       LS.set('bb.practice.answers', practiceAnswers);
       const p = s.problems.find((x) => x.id === pid);

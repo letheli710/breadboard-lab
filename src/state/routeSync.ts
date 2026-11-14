@@ -47,7 +47,7 @@ function indexesOf(mode: Mode): IndexName[] {
 /** The index needed to resolve the item a route names (a chapter's key points need none). */
 function indexToResolve(r: Route): IndexName | null {
   if (r.page === 'learn' || r.page === 'challenges') return 'challenges';
-  if (r.page === 'practice' && !('summary' in r)) return 'problems';
+  if (r.page === 'practice' && !('summary' in r) && !('view' in r)) return 'problems';
   return null;
 }
 
@@ -67,6 +67,7 @@ export function routeOf(s: S): Route {
       return { page: pageOf(s.mode) as 'learn' | 'challenges' };
     }
     case 'practice':
+      if (s.practiceView) return { page: 'practice', view: s.practiceView };
       if (s.practiceSummary) {
         const { chapter, section } = s.practiceSummary;
         return section ? { page: 'practice', summary: chapter, section } : { page: 'practice', summary: chapter };
@@ -93,6 +94,8 @@ export function titleOf(s: S, r: Route = routeOf(s)): string {
   }[r.page];
   let item: string | undefined;
   if ((r.page === 'learn' || r.page === 'challenges') && r.id) item = s.challenges.find((c) => c.id === r.id)?.title;
+  else if (r.page === 'practice' && 'view' in r)
+    item = { notebook: tr('错题本', 'Mistake notebook'), due: tr('今日复习', 'Review'), how: tr('学习方法说明', 'How it works'), quiz: tr('测验', 'Quiz') }[r.view];
   else if (r.page === 'practice' && 'summary' in r) {
     const c = chapterById(r.summary);
     item = c && `${tr('要点', 'Key points')} · ${c.title()}`;
@@ -119,7 +122,7 @@ function sync() {
   const replace =
     replaceNext ||
     !shown ||
-    (shown.page === route.page && !('id' in shown && shown.id) && !('section' in shown && shown.section) && !('summary' in shown)) ||
+    (shown.page === route.page && !('id' in shown && shown.id) && !('section' in shown && shown.section) && !('summary' in shown) && !('view' in shown)) ||
     // a key-points page that resolved its section (opened from a problem) names it in place
     ('summary' in shown && 'summary' in route && shown.summary === route.summary && !shown.section);
   replaceNext = false;
@@ -185,6 +188,9 @@ export function applyRoute(r: Route) {
         if (first) s2.openChallenge(first.id);
       }
     }
+  } else if (r.page === 'practice' && 'view' in r) {
+    // the notebook / review / quiz pages need no index to open (they show a loading state)
+    if (st.mode !== 'practice' || st.practiceView !== r.view) st.openPracticeView(r.view);
   } else if (r.page === 'practice' && 'summary' in r) {
     // a chapter's key points (Back from a problem returns here; a direct load opens only Practice)
     if (chapterById(r.summary)) {
@@ -197,10 +203,11 @@ export function applyRoute(r: Route) {
     }
   } else if (r.page === 'practice') {
     if (r.id && st.problems.some((p) => p.id === r.id)) {
-      if (st.mode !== 'practice' || st.problemId !== r.id || st.practiceSummary) st.openProblem(r.id);
+      if (st.mode !== 'practice' || st.problemId !== r.id || st.practiceSummary || st.practiceView) st.openProblem(r.id);
     } else {
       if (r.id) notFound();
       st.setMode('practice');
+      if (useStore.getState().practiceView) useStore.getState().openPracticeView(null);
     }
   } else {
     st.setMode(modeOf(r));
@@ -247,6 +254,7 @@ export function startRouting() {
       s.opening !== prev.opening ||
       s.problemId !== prev.problemId ||
       s.practiceSummary !== prev.practiceSummary ||
+      s.practiceView !== prev.practiceView ||
       s.challenges !== prev.challenges ||
       s.problems !== prev.problems ||
       s.lang !== prev.lang

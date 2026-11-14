@@ -5,6 +5,10 @@
 //   #/practice[/<problemId>]    a theory problem
 //   #/practice/summary/<chapter>[/<section>]
 //                               a chapter's key points (section: "idea-<id>", "formulas", …)
+//   #/practice/review           the mistake notebook (错题本)
+//   #/practice/review/due       today's spaced-review session
+//   #/practice/review/how       how the notebook, review and quizzes work
+//   #/practice/quiz             chapter quiz (setup, running quiz, results)
 //   #/sandbox                   free editing
 //   #/guide[/<section>]         field guide, optionally scrolled to a section card
 //   #/import                    import page
@@ -13,7 +17,7 @@
 // starting page from it and the tests can run it without a DOM; the wiring between the URL and
 // the store is in state/routeSync.ts.
 
-import type { Mode } from './store';
+import type { Mode, PracticeView } from './store';
 import { readStored, writeStored } from './persist';
 
 export type Route =
@@ -21,6 +25,7 @@ export type Route =
   | { page: 'challenges'; id?: string }
   | { page: 'practice'; id?: string }
   | { page: 'practice'; summary: string; section?: string }
+  | { page: 'practice'; view: PracticeView }
   | { page: 'sandbox' }
   | { page: 'guide'; section?: string }
   | { page: 'import' };
@@ -61,6 +66,11 @@ export function parseRoute(hash: string): Route | null {
   const raw = parts[1];
   const item = raw === undefined ? undefined : decode(raw);
   if (item === null || item === '') return { page } as Route;
+  if (page === 'practice' && item === 'quiz') return { page, view: 'quiz' };
+  if (page === 'practice' && item === 'review') {
+    const sub = parts[2];
+    return { page, view: sub === 'due' ? 'due' : sub === 'how' ? 'how' : 'notebook' };
+  }
   if (page === 'practice' && item === 'summary') {
     const chapter = parts[2] === undefined ? null : decode(parts[2]);
     if (!chapter) return { page };
@@ -80,6 +90,7 @@ export function parseRoute(hash: string): Route | null {
 }
 
 export function formatRoute(r: Route): string {
+  if ('view' in r) return r.view === 'quiz' ? '#/practice/quiz' : `#/practice/review${r.view === 'notebook' ? '' : `/${r.view}`}`;
   if ('summary' in r) return `#/practice/summary/${encodeURIComponent(r.summary)}${r.section ? `/${encodeURIComponent(r.section)}` : ''}`;
   const item = 'id' in r ? r.id : 'section' in r ? r.section : undefined;
   return `#/${r.page}${item ? `/${encodeURIComponent(item)}` : ''}`;

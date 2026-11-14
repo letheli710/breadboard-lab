@@ -2,13 +2,15 @@
 // Left: chapters grouped by course phase with progress. Main: the problem card — statement,
 // schematic, questions with answer checking, progressive hints and the worked solution.
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { formatSI } from '../core/format';
 import { tr } from '../core/i18n';
 import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
 import { answerTolerance, checkAnswer, formatAnswer, isPhaseQuestion, type AnswerCheck, type Problem } from '../core/problem/parse';
 import type { Analysis, Question } from '../core/problem/types';
-import { countsAsDone, exportPractice, parsePracticeExport, problemStatus, type QStatus } from '../state/practice';
+import { useMastery } from '../state/masteryStore';
+import { countsAsDone, problemStatus, type QStatus } from '../state/practice';
+import { exportProgress, parseProgress } from '../state/progressFile';
 import { ensureProblemIndex, entryTitle, useProblem, type ProblemEntry } from '../state/problems';
 import { useLang, useStore } from '../state/store';
 import { hasSummary } from '../state/summaries';
@@ -21,6 +23,10 @@ import { neighbours, practiceShortcut } from './practiceKeys';
 import { prefersReducedMotion, revealIn, useUserScroll } from './reveal';
 import { PrMd, Sym } from './richText';
 import { SummaryPage } from './Summary';
+import { MasteryNav } from './mastery/MasteryNav';
+
+// the notebook / review / quiz pages are a chunk of their own
+const MasteryPage = lazy(() => import('./mastery/MasteryPage'));
 
 export { Sym };
 
@@ -86,7 +92,7 @@ function ProgressFile() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const doExport = () => {
-    const data = exportPractice(done, answers);
+    const data = exportProgress(done, answers, useMastery.getState().data);
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -96,9 +102,11 @@ function ProgressFile() {
   };
   const doImport = async (f: File) => {
     try {
-      const parsed = parsePracticeExport(JSON.parse(await f.text()));
+      const parsed = parseProgress(JSON.parse(await f.text()));
       if (!parsed) throw new Error('format');
       importPractice(parsed);
+      // version-2 files also carry the notebook, review schedule and quiz history
+      if (parsed.mastery) useMastery.getState().importMastery(parsed.mastery);
       notify(
         tr(
           `已导入 ${Object.keys(parsed.answers).length} 道题的进度（保留每题更好的结果）`,
@@ -344,6 +352,7 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
         </select>
         <ShortcutHelp />
       </div>
+      <MasteryNav />
       {PHASES.map((ph) => {
         const chs = CHAPTERS.filter((c) => c.phase === ph.n);
         const all = chs.flatMap((c) => byChapter.get(c.id) ?? []);
@@ -501,9 +510,9 @@ function QuestionCard({ p, q, index, onHover }: { p: Problem; q: Question; index
   const submit = () => {
     const r = checkAnswer(q, st.input);
     setSt({ ...st, result: r });
-    if (r.ok) practiceEvent(p.id, q.id, { kind: 'right' });
+    if (r.ok) practiceEvent(p.id, q.id, { kind: 'right', input: st.input });
     // unreadable input isn't an attempt
-    else if (r.value !== undefined) practiceEvent(p.id, q.id, { kind: 'wrong' });
+    else if (r.value !== undefined) practiceEvent(p.id, q.id, { kind: 'wrong', input: st.input, diag: r.diagnosis });
   };
   const choose = (i: number) => {
     setSt({ ...st, choice: i });
@@ -847,6 +856,7 @@ export function Practice() {
   const full = useProblem(current);
   const bad = invalid.filter((f) => f.errors.length).length;
   const summary = useStore((s) => s.practiceSummary);
+  const view = useStore((s) => s.practiceView);
   const indexStatus = useStore((s) => s.problemIndex);
   const practiceDone = useStore((s) => s.practiceDone);
   const openProblem = useStore((s) => s.openProblem);
@@ -855,7 +865,7 @@ export function Practice() {
   useEffect(() => {
     window.scrollTo({ top: 0 });
     setDrawer(false);
-  }, [current?.id, summary?.chapter]);
+  }, [current?.id, summary?.chapter, view]);
   useEffect(() => {
     if (!drawer) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setDrawer(false);
@@ -886,10 +896,20 @@ export function Practice() {
 
   return (
     <main className={`pr-page ${drawer ? 'drawer-open' : ''}`}>
-      <ChapterList problems={problems} current={current} summary={summary?.chapter ?? null} ready={indexStatus === 'ready'} />
+      <ChapterList problems={problems} current={view ? null : current} summary={summary?.chapter ?? null} ready={indexStatus === 'ready'} />
       <button className="pr-drawer-bg" tabIndex={-1} aria-hidden onClick={() => setDrawer(false)} />
-      <PhoneNav problems={problems} current={current} summary={summary?.chapter ?? null} drawer={drawer} setDrawer={setDrawer} />
-      {summary ? (
+      <PhoneNav problems={problems} current={view ? null : current} summary={summary?.chapter ?? null} drawer={drawer} setDrawer={setDrawer} />
+      {view ? (
+        <Suspense
+          fallback={
+            <div className="pr-main card pr-empty" role="status">
+              <p className="muted">{tr('加载中…', 'Loading…')}</p>
+            </div>
+          }
+        >
+          <MasteryPage view={view} />
+        </Suspense>
+      ) : summary ? (
         <SummaryPage key={summary.chapter} target={summary} problems={problems} />
       ) : current && full?.problem ? (
         <ProblemView key={current.id} p={full.problem} list={problems} />

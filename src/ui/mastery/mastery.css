@@ -1,0 +1,591 @@
+/* Mistake notebook, review, quiz (ui/mastery/). Loaded with those chunks only. */
+
+.ms-nav {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+.ms-navitem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 4px;
+  font-size: 13px;
+  min-width: 0;
+}
+@media (min-width: 761px) {
+  /* the 280 px sidebar: labels before icons */
+  .ms-navitem svg {
+    display: none;
+  }
+}
+.ms-navitem svg {
+  flex-shrink: 0;
+}
+.ms-navitem span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ms-navitem.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.ms-navitem b {
+  background: var(--ink-2);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 17px;
+}
+.ms-navitem b.due {
+  background: var(--warn);
+}
+
+.pc-due {
+  align-self: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--warn-soft);
+  border: 1px solid var(--warn);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.ms-main {
+  min-width: 0;
+}
+.ms-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.ms-page > .pr-link:first-child {
+  align-self: flex-start;
+}
+.ms-page h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.ms-empty {
+  padding: 18px;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--radius);
+  color: var(--ink-2);
+}
+
+/* summary + stats */
+.ms-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+}
+.ms-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.ms-stat b {
+  font-family: var(--cond);
+  font-size: 30px;
+  line-height: 1;
+}
+.ms-stat span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.ms-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+.ms-stats {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.ms-stats section {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  background: var(--paper);
+  min-width: 0;
+}
+.ms-types,
+.ms-chapters,
+.ms-notes,
+.ms-ritems {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ms-types li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.ms-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 12px;
+  border: 1px solid var(--line-2);
+  background: var(--card);
+  color: var(--ink);
+}
+button.ms-chip {
+  cursor: pointer;
+}
+.ms-chip b {
+  font-size: 12px;
+}
+.ms-chip.on {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+.ms-chip.t-sqrt2,
+.ms-chip.t-sqrt3,
+.ms-chip.t-2pi,
+.ms-chip.t-rad,
+.ms-chip.t-recip {
+  border-color: var(--minus);
+}
+.ms-chip.t-e3,
+.ms-chip.t-e6,
+.ms-chip.t-e9 {
+  border-color: var(--warn);
+}
+.ms-chip.t-sign,
+.ms-chip.t-phase180 {
+  border-color: var(--plus);
+}
+.ms-chip.t-revealed,
+.ms-chip.t-blank {
+  border-style: dashed;
+}
+.ms-chbar {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(40px, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+}
+.ms-chbar.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.ms-chname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ms-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--line);
+  overflow: hidden;
+}
+.ms-bar .fixed {
+  background: var(--accent);
+}
+.ms-bar .open {
+  background: var(--bad);
+}
+.ms-chnum {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.ms-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+.ms-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.ms-filters select {
+  min-width: 120px;
+  max-width: 100%;
+}
+
+/* entries */
+.ms-group h3 {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 4px;
+}
+.ms-note {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--bad);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: var(--card);
+}
+.ms-note.resolved {
+  border-left-color: var(--accent);
+}
+.ms-note-head {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.ms-note-title {
+  font-weight: 600;
+  min-width: 0;
+}
+.ms-part {
+  color: var(--muted);
+  font-weight: 400;
+}
+.ms-retry {
+  flex-shrink: 0;
+  font-size: 13px;
+  padding: 5px 10px;
+}
+.ms-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 6px 0;
+}
+.ms-note-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  color: var(--ink-2);
+  align-items: center;
+}
+.ms-note-meta code,
+.ms-log code {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 4px;
+  word-break: break-all;
+}
+.ms-log {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.ms-log li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.ms-log li.ok span:nth-child(3) {
+  color: var(--accent);
+}
+.ms-log li.bad span:nth-child(3) {
+  color: var(--bad);
+}
+
+/* blind question / quiz item */
+.ms-context .ms-ptitle {
+  margin: 0 0 6px;
+}
+.ms-schem {
+  max-width: 560px;
+}
+.ms-schem svg {
+  max-width: 100%;
+  height: auto;
+}
+.ms-blind,
+.ms-qitem {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pr-choice.picked {
+  border-color: var(--ink);
+  background: var(--info-soft);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.ms-next {
+  justify-content: flex-end;
+  gap: 10px;
+  align-items: center;
+}
+.ms-unreadable {
+  color: var(--warn);
+  margin: 6px 0 0;
+}
+
+.ms-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ms-pbar {
+  flex: 1;
+  min-width: 80px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+}
+.ms-pbar > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+/* quiz */
+.ms-setup {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+.ms-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+.ms-chpick {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 4px 14px;
+  width: 100%;
+}
+.ms-chpick label {
+  font-size: 13px;
+}
+.ms-timer {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.ms-time {
+  font-family: var(--cond);
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ms-time small {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.ms-timer.low .ms-time {
+  color: var(--bad);
+  animation: ms-pulse 1s ease-in-out infinite alternate;
+}
+.ms-timer.low .ms-pbar > span {
+  background: var(--bad);
+}
+@keyframes ms-pulse {
+  to {
+    opacity: 0.55;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ms-timer.low .ms-time {
+    animation: none;
+  }
+}
+.ms-qnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.ms-qnav button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+.ms-qnav button.done {
+  background: var(--info-soft);
+}
+.ms-qnav button.on {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+  font-weight: 700;
+}
+.ms-paused {
+  padding: 30px;
+  text-align: center;
+}
+.ms-quiz {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ms-quiz-foot {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ms-score {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+}
+.ms-score.low {
+  background: var(--bad-soft);
+}
+.ms-score.ok {
+  background: var(--warn-soft);
+}
+.ms-score b {
+  font-family: var(--cond);
+  font-size: 46px;
+  line-height: 1;
+}
+.ms-ritem {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ms-ritem.bad {
+  border-left-color: var(--bad);
+}
+.ms-rhead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ms-ritem .pr-link {
+  align-self: flex-start;
+}
+.ms-history table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.ms-history th,
+.ms-history td {
+  text-align: left;
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* explainer */
+.ms-how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.ms-how-grid section {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  background: var(--paper);
+}
+.ms-how-grid p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ms-boxes {
+  list-style: none;
+  display: flex;
+  gap: 4px;
+  padding: 0;
+  margin: 0 0 10px;
+}
+.ms-boxes li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  padding: 4px 2px;
+  font-size: 11px;
+  background: var(--card);
+  text-align: center;
+}
+.ms-boxes li.done {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+@media (max-width: 1100px) {
+  .ms-how-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .ms-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ms-actions {
+    margin-left: 0;
+  }
+  .ms-note-head {
+    flex-direction: column;
+  }
+  .ms-filters label {
+    flex: 1 1 140px;
+  }
+  .ms-filters select {
+    width: 100%;
+    min-width: 0;
+  }
+  .ms-chpick {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ms-history th:nth-child(2),
+  .ms-history td:nth-child(2) {
+    display: none;
+  }
+  .pc-due {
+    padding: 3px 8px;
+  }
+}

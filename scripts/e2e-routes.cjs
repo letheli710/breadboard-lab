@@ -3,7 +3,7 @@
 // Browser check of routing (not part of npm test: needs a running build).
 //   npx vite build && npx vite preview --port 4173 &   node scripts/e2e-routes.cjs [baseUrl]
 // Checks Back/Forward across learn → challenge → practice, group tabs, the remembered location,
-// unknown-id fallback, Guide anchors, and that Practice / Guide / Import links never load three.js
+// unknown-id fallback, Guide anchors, the notebook / review / quiz pages, and that Practice / Guide / Import links never load three.js
 // or the bench side panel. The problem / challenge indexes are lazy chunks: deep links, the saved
 // current problem and unknown ids are also checked with the index held back until after the first
 // paint (a throttled network), recording every URL, tab title and problem title on the way, so a
@@ -151,8 +151,34 @@ const assert = (c, m) => {
     ),
     'unknown chapter → toast',
   );
+  // mistake notebook / review / quiz pages: own URLs, Back / Forward, a problem from there
+  await page.goto(BASE + '#/practice/review');
+  await settle();
+  assert((await page.locator('.ms-main').count()) === 1 && (await page.title()).startsWith('Mistake notebook'), 'notebook direct load, title ' + (await page.title()));
+  await page.locator('.ms-navitem').nth(2).click();
+  await settle();
+  assert((await hash()) === '#/practice/quiz' && (await page.locator('.ms-setup').count()) === 1, 'sidebar Quiz → ' + (await hash()));
+  await page.locator('.ms-navitem').nth(1).click();
+  await settle();
+  assert((await hash()) === '#/practice/review/due', 'sidebar Review → ' + (await hash()));
+  await page.locator('.pr-pitem').first().click();
+  await settle();
+  const fromReview = await hash();
+  assert(!/review|quiz/.test(fromReview) && (await page.locator('.ms-main').count()) === 0, 'problem from the sidebar → ' + fromReview);
+  await page.goBack();
+  await settle();
+  assert((await hash()) === '#/practice/review/due' && (await page.locator('.ms-main').count()) === 1, 'Back → review ' + (await hash()));
+  await page.goBack();
+  await settle();
+  assert((await hash()) === '#/practice/quiz', 'Back → quiz ' + (await hash()));
+  await page.goForward();
+  await settle();
+  assert((await hash()) === '#/practice/review/due', 'Forward → review ' + (await hash()));
+  await page.goto(BASE + '#/practice/review/how');
+  await settle();
+  assert((await page.locator('.ms-how').count()) === 1, 'explainer direct load');
   await lazyIndexChecks(browser);
-  for (const h of ['#/practice', '#/practice/summary/first-order/formulas', '#/guide', '#/import']) {
+  for (const h of ['#/practice', '#/practice/summary/first-order/formulas', '#/practice/review', '#/practice/quiz', '#/guide', '#/import']) {
     const c = await browser.newContext();
     const p = await c.newPage();
     const js = [];

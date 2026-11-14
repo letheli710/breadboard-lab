@@ -163,6 +163,10 @@ over-current, coil without flyback diode (DC) and inductive kick (time domain), 
 
 - 第 4 轮依赖升级 / round 4 dependency upgrades: zustand 4 → 5（无需改代码：所有 selector 都返回原始值或稳定引用 / no code change, every selector returns a primitive or a stable reference）；three r169 → r182（`<Canvas shadows="percentage">`：r182 起 PCFSoftShadowMap 被替换为 PCF 并每帧警告；r183+ 弃用 `THREE.Clock`，r3f 8 和 9.8 都还在 new 它，所以停在 r182 / r183+ deprecates `THREE.Clock`, which r3f 8 and 9.8 still construct）。React 19 + fiber 9 + drei 10 做完并验证（commit 7a10883：类型改 `React.JSX` / `ThreeElements`，Board / Parts 在 canvas 事件连上后的下一个任务里才挂载，否则 drei `<Html>` 在 react-dom 提交中途卸载自己的 root，报 "removeChild … not a child"），但 react chunk 145.8 → 222.8 kB（gzip 47.0 → 68.8 kB），首屏 335 kB > 300 kB 预算，已回退；决定放宽预算后 `git revert` 回退提交即可 / done and verified but reverted for the entry budget; re-apply by reverting the revert.
 
+## 掌握度 / Mastery (notebook, spaced review, quizzes)
+
+Built on the per-question records (`state/practice.ts`). Pure, unit-tested modules with an injectable clock: `state/mastery.ts` (notebook transitions, Leitner boxes 1/3/7/21 days, migration from saved progress, validation, merge, pruning), `state/quiz.ts` (seeded stratified drawing, grading with `answer.ts`), `state/clock.ts` (local calendar days; browser tests shift it with `window.__bbClock.advance(days)`). Store: `state/masteryStore.ts` (lazy chunk; key `bb.practice.mastery`, running quiz `bb.practice.quiz`). Pages: `ui/mastery/` (lazy). Progress file format `breadboard-lab-practice/2` adds `mastery`; version-1 files still import. Size: a heavy user (200 entries, 50 quizzes) stores ≈ 171 kB; at most 400 entries (mastered / resolved pruned first), 50 quizzes, per-question details on the latest 10.
+
 ## 待办 / Backlog (engine gaps reported by problem authors)
 
 - 单刀双掷开关（SPDT `SW` 三端）/ an SPDT switch element (currently two `SW` acting at t = 0)

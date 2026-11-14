@@ -121,3 +121,16 @@ describe('remembered location', () => {
     expect(r.startRoute('').route).toEqual({ page: 'learn' });
   });
 });
+
+describe('mastery routes', () => {
+  it('format → parse round-trips the notebook, review, explainer and quiz pages', () => {
+    const views = ['notebook', 'due', 'how', 'quiz'] as const;
+    const urls = ['#/practice/review', '#/practice/review/due', '#/practice/review/how', '#/practice/quiz'];
+    views.forEach((view, i) => {
+      expect(formatRoute({ page: 'practice', view })).toBe(urls[i]);
+      expect(parseRoute(urls[i])).toEqual({ page: 'practice', view });
+      expect(modeOf({ page: 'practice', view })).toBe('practice');
+    });
+    expect(parseRoute('#/practice/review/nonsense')).toEqual({ page: 'practice', view: 'notebook' });
+  });
+});

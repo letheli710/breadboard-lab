@@ -13,6 +13,8 @@ const SidePanel = lazy(() => import('./ui/Panel').then((m) => ({ default: m.Side
 const Carousel = lazy(() => import('./ui/Carousel').then((m) => ({ default: m.Carousel })));
 const Practice = lazy(() => import('./ui/Practice').then((m) => ({ default: m.Practice })));
 const Guide = lazy(() => import('./ui/Guide').then((m) => ({ default: m.Guide })));
+// "N due today" on the Practice card (the review schedule is a lazy chunk too)
+const DueChip = lazy(() => import('./ui/mastery/DueChip'));
 const ImportPage = lazy(() => import('./ui/ImportPage').then((m) => ({ default: m.ImportPage })));
 
 // the problem / challenge index the starting page needs is a chunk of its own: request it now,
@@ -88,7 +90,14 @@ function PracticeProgressCard() {
   const done = useStore((s) => s.practiceDone);
   const ready = useStore((s) => s.problemIndex) === 'ready';
   const n = problems.filter((p) => done[p.id]).length;
-  return <ProgressView icon="practice" label={tr('PRACTICE 理论练习', 'PRACTICE')} done={n} total={ready ? problems.length : null} />;
+  return (
+    <>
+      <ProgressView icon="practice" label={tr('PRACTICE 理论练习', 'PRACTICE')} done={n} total={ready ? problems.length : null} />
+      <Suspense fallback={null}>
+        <DueChip />
+      </Suspense>
+    </>
+  );
 }
 
 function ProgressCard() {
