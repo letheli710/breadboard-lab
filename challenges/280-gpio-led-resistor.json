@@ -88,7 +88,7 @@
       "measurements": [
         {"ask": "Output HIGH: ammeter in series between the resistor and the LED, read the LED current", "explain": "I = (3.3 − 1.8) / (R + 25 Ω + 12 Ω); with 120 Ω, 1.5 / 157 ≈ 9.5 mA."},
         {"ask": "Output HIGH: multimeter on the GPIO pin to GND", "explain": "3.3 − 25 Ω × 9.5 mA ≈ 3.06 V: with current flowing out the pin is no longer 3.3 V."},
-        {"ask": "From your two readings, the pin's output resistance R_out = (3.3 V − U_pin) / I", "explain": "≈ 25 Ω (the model value; in a real chip it is the output MOSFET's on-resistance). A pin is not an ideal voltage source: the more current, the bigger the drop."},
+        {"ask": "From your two readings, the pin's output resistance R_out = (3.3 V − V_pin) / I", "explain": "≈ 25 Ω (the model value; in a real chip it is the output MOSFET's on-resistance). A pin is not an ideal voltage source: the more current, the bigger the drop."},
         {"ask": "With your R_out, estimate: with no resistor, as on the starting board, the current would be", "explain": "I = 1.5 / (25 + 12) ≈ 40 mA and the pin sits at ≈ 2.29 V < 2.475 V (VIH). Only tiny internal resistances limit the current, so a series resistor is a must.", "choices": ["about 40 mA, the absolute maximum, and the pin falls below VIH, not even a valid HIGH", "about 10 mA, the LED limits itself", "about 1.5 A, the LED burns out at once"]}
       ],
       "hints": [
@@ -143,7 +143,7 @@
   "measurements": [
     {"id": "iled", "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.00906, 0.01], "ask": "输出高电平：电流表串在电阻和 LED 之间，读 LED 电流", "explain": "I = (3.3 − 1.8) / (R + 25 Ω + 12 Ω)；120 Ω 时 1.5 / 157 ≈ 9.5 mA。"},
     {"id": "vpin", "voltage": "U1.GPIO_OUT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [2.91, 3.21], "ask": "输出高电平：万用表测 GPIO 引脚对 GND 的电压", "explain": "3.3 − 25 Ω × 9.5 mA ≈ 3.06 V：有电流流出时引脚不再是 3.3 V。"},
-    {"id": "rout", "stated": true, "formula": "(3.3 - vpin) / iled", "unit": "Ω", "predict": true, "range": [24.1, 26.6], "ask": "用你的两个读数算引脚的输出电阻 R_out = (3.3 V − U_pin) / I", "explain": "≈ 25 Ω（模型值；真实芯片里是输出 MOS 管的导通电阻）。引脚不是理想电压源：电流越大，压降越大。"},
+    {"id": "rout", "stated": true, "formula": "(3.3 - vpin) / iled", "unit": "Ω", "predict": true, "range": [24.1, 26.6], "ask": "用你的两个读数算引脚的输出电阻 R_out = (3.3 V − V_pin) / I", "explain": "≈ 25 Ω（模型值；真实芯片里是输出 MOS 管的导通电阻）。引脚不是理想电压源：电流越大，压降越大。"},
     {"id": "nores", "choices": ["约 40 mA，到了绝对最大值，引脚电压低于 VIH，连“高电平”都算不上", "约 10 mA，LED 自己会限流", "约 1.5 A，LED 立刻烧断"], "correct": 0, "ask": "用你算出的 R_out 估计：如果像起始电路那样不接电阻，电流会是多少？", "explain": "I = 1.5 / (25 + 12) ≈ 40 mA，引脚电压 ≈ 2.29 V < 2.475 V（VIH）。LED 和引脚都只靠很小的内部电阻限流，必须串电阻。"}
   ],
   "hints": [

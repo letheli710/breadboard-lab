@@ -7,13 +7,13 @@
   "level": 1,
   "tags": ["电路的图", "树", "连支", "独立方程数"],
   "statement": [
-    "电路如图（U_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 U_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
+    "电路如图（V_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 V_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
     "求图的结点数、支路数、树支数和连支数，判断哪一组支路是树，以及独立 KCL、KVL 方程的个数。"
   ],
   "schematic": {
     "elements": [
       {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
-      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
+      {"ref": "Vs1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
       {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
       {"ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4},
       {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 2},
@@ -28,7 +28,7 @@
       "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
       "ref": "4",
       "branches": [
-        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Vs1"]},
         {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
         {"n": 3, "from": "2", "to": "3", "els": ["R3"]},
         {"n": 4, "from": "2", "to": "4", "els": ["R4"]},
@@ -45,7 +45,7 @@
       "find": {"kind": "gcount", "count": "nodes"},
       "answer": 4,
       "unit": "",
-      "explain": "结点 1、2、3、4。R_1 与 U_s1 之间的连接点不算图的结点：两者合成一条支路后，这个点只是支路内部的点。"
+      "explain": "结点 1、2、3、4。R_1 与 V_s1 之间的连接点不算图的结点：两者合成一条支路后，这个点只是支路内部的点。"
     },
     {
       "id": "b",
@@ -53,7 +53,7 @@
       "find": {"kind": "gcount", "count": "branches"},
       "answer": 6,
       "unit": "",
-      "explain": "8 个元件，但 U_s1–R_1 串联、R_5–I_s5 并联各合成一条支路，所以 b = 6。"
+      "explain": "8 个元件，但 V_s1–R_1 串联、R_5–I_s5 并联各合成一条支路，所以 b = 6。"
     },
     {
       "id": "t",
@@ -100,7 +100,7 @@
   ],
   "hints": ["只看拓扑：数结点时注意“标准支路”内部的点不算结点。", "树：连通、无回路、包含全部结点；它的支路数与选哪棵树无关。", "用 b − n + 1 算连支数，并逐个检查选项里有没有闭合回路。"],
   "solution": [
-    "**数结点与支路。** 把 U_s1–R_1 串联、R_5–I_s5 并联各看成一条支路：结点 1、2、3、4，**n = 4**；支路 1～6，**b = 6**。",
+    "**数结点与支路。** 把 V_s1–R_1 串联、R_5–I_s5 并联各看成一条支路：结点 1、2、3、4，**n = 4**；支路 1～6，**b = 6**。",
     "**树。** 树连通全部结点且无回路，树支数 = n − 1 = **3**。{1, 2, 3} 是树（从 4 经 1 到 1，再到 2、3）；{2, 3, 6} 含回路、{1, 4, 5, 6} 多了一条、{4, 5} 不连通。",
     "**连支。** l = b − n + 1 = **3**：每条连支加回树上都形成一个基本回路。",
     "**独立方程。** KCL n − 1 = 3 个，KVL l = 3 个，共 6 = b 个——正好够求 6 个支路电流。",
@@ -111,15 +111,15 @@
       "title": "Graph of a circuit: nodes, branches, trees and links",
       "tags": ["circuit graph", "tree", "links", "number of independent equations"],
       "statement": [
-        "The circuit is drawn below (U_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, U_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
+        "The circuit is drawn below (V_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, V_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
         "Find the numbers of nodes, branches, tree branches and links, say which set of branches is a tree, and how many independent KCL and KVL equations there are."
       ],
       "questions": [
         {
           "ask": "Number of nodes n = ?",
-          "explain": "Nodes 1, 2, 3, 4. The point between R_1 and U_s1 is not a node of the graph: once they form one branch, it is inside the branch."
+          "explain": "Nodes 1, 2, 3, 4. The point between R_1 and V_s1 is not a node of the graph: once they form one branch, it is inside the branch."
         },
-        {"ask": "Number of branches b = ?", "explain": "8 elements, but U_s1–R_1 in series and R_5–I_s5 in parallel each form one branch, so b = 6."},
+        {"ask": "Number of branches b = ?", "explain": "8 elements, but V_s1–R_1 in series and R_5–I_s5 in parallel each form one branch, so b = 6."},
         {
           "ask": "Number of tree branches of any tree = ?",
           "explain": "A tree connects all n nodes without a loop, so it has n − 1 = 3 branches whatever tree is chosen."
@@ -157,7 +157,7 @@
         "Use b − n + 1 for the links, and check each option for a closed loop."
       ],
       "solution": [
-        "**Count.** Treat U_s1–R_1 in series and R_5–I_s5 in parallel as one branch each: nodes 1, 2, 3, 4, **n = 4**; branches 1–6, **b = 6**.",
+        "**Count.** Treat V_s1–R_1 in series and R_5–I_s5 in parallel as one branch each: nodes 1, 2, 3, 4, **n = 4**; branches 1–6, **b = 6**.",
         "**Tree.** A tree connects every node without a loop, so it has n − 1 = **3** branches. {1, 2, 3} is a tree (4 to 1 via branch 1, then on to 2 and 3); {2, 3, 6} contains a loop, {1, 4, 5, 6} has one branch too many, {4, 5} is not connected.",
         "**Links.** l = b − n + 1 = **3**: each link put back on the tree closes one fundamental loop.",
         "**Independent equations.** n − 1 = 3 KCL and l = 3 KVL equations, 6 = b in total — exactly enough for the 6 branch currents.",

@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["空心变压器", "反映阻抗", "原边等效电路", "有功功率"],
   "statement": [
-    "空心变压器：U̇_s = 150∠0° V（有效值），ω = 100 rad/s，原边电阻 R_1 = 3 Ω，L_1 = 0.2 H，L_2 = 0.08 H，M = 0.1 H，副边接负载 R_L = 6 Ω。",
-    "用原边等效电路（反映阻抗）求从 a 端看进去的输入阻抗 Z_in = R_in + jX_in（不含 U_s），以及负载功率 P_L。"
+    "空心变压器：V̇_s = 150∠0° V（有效值），ω = 100 rad/s，原边电阻 R_1 = 3 Ω，L_1 = 0.2 H，L_2 = 0.08 H，M = 0.1 H，副边接负载 R_L = 6 Ω。",
+    "用原边等效电路（反映阻抗）求从 a 端看进去的输入阻抗 Z_in = R_in + jX_in（不含 V_s），以及负载功率 P_L。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 150, "phase": 0 } }, "label": "150∠0° V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 150, "phase": 0 } }, "label": "150∠0° V" },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 3 },
       { "ref": "L1", "type": "L", "from": [8, 0], "to": [8, 4], "value": 0.2 },
       { "ref": "L2", "type": "L", "from": [12, 0], "to": [12, 4], "value": 0.08 },
@@ -35,7 +35,7 @@
     {
       "id": "rin",
       "ask": "输入电阻 R_in = Re Z_in = ?",
-      "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us"], "part": "re" },
+      "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Vs"], "part": "re" },
       "answer": 9,
       "unit": "Ω",
       "explain": "Z_22 = R_L + jωL_2 = 6 + j8 Ω，反映阻抗 Z_ref = (ωM)²/Z_22 = 100/(6 + j8) = 6 − j8 Ω。Z_in = R_1 + jωL_1 + Z_ref = 3 + j20 + 6 − j8 = 9 + j12 Ω，R_in = 9 Ω。"
@@ -43,7 +43,7 @@
     {
       "id": "xin",
       "ask": "输入电抗 X_in = Im Z_in = ?",
-      "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us"], "part": "im" },
+      "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Vs"], "part": "im" },
       "answer": 12,
       "unit": "Ω",
       "explain": "X_in = ωL_1 + Im Z_ref = 20 − 8 = 12 Ω：副边的感性阻抗反映到原边变成了容性（−j8），使原边的电抗减小。"
@@ -80,8 +80,8 @@
       "title": "Reflected impedance of an air-core transformer",
       "tags": ["air-core (linear) transformer", "reflected impedance", "primary equivalent circuit", "real power"],
       "statement": [
-        "Air-core transformer: U̇_s = 150∠0° V (rms), ω = 100 rad/s, primary resistance R_1 = 3 Ω, L_1 = 0.2 H, L_2 = 0.08 H, M = 0.1 H, and a load R_L = 6 Ω on the secondary.",
-        "Using the primary equivalent circuit (reflected impedance), find the input impedance Z_in = R_in + jX_in seen at terminal a (without U_s), and the load power P_L."
+        "Air-core transformer: V̇_s = 150∠0° V (rms), ω = 100 rad/s, primary resistance R_1 = 3 Ω, L_1 = 0.2 H, L_2 = 0.08 H, M = 0.1 H, and a load R_L = 6 Ω on the secondary.",
+        "Using the primary equivalent circuit (reflected impedance), find the input impedance Z_in = R_in + jX_in seen at terminal a (without V_s), and the load power P_L."
       ],
       "questions": [
         { "ask": "Input resistance R_in = Re Z_in = ?", "explain": "Z_22 = R_L + jωL_2 = 6 + j8 Ω, reflected impedance Z_ref = (ωM)²/Z_22 = 100/(6 + j8) = 6 − j8 Ω. Z_in = R_1 + jωL_1 + Z_ref = 3 + j20 + 6 − j8 = 9 + j12 Ω, so R_in = 9 Ω." },

@@ -50,8 +50,8 @@
       ],
       "compare": [
         "**Compare**: τd ≈ 0.1 ms, τi ≈ 10 ms.",
-        "- **Differentiator (τd ≪ T/2)**: when the square wave jumps by 5 V, all 5 V first appear across the resistor: VD jumps to about ±5 V, then decays with τd and is back at 0 well within half a period. VD is a train of positive and negative spikes that appear only when the input *changes*: u_R = RC·du_C/dt ≈ RC·du_in/dt (since u_C ≈ u_in). The simulated scope takes a sample every 7.8 µs while the spike loses 63% in 0.1 ms, so the peak it reads is a little below the ideal 5 V (about 4.6 V) — a real scope with too slow a sample rate does the same. The spikes are symmetric, so their average is ≈ 0 (the capacitor blocks DC).",
-        "- **Integrator (τi ≫ T/2)**: half a period is only 1/10 of τi, so the capacitor only travels the first, nearly straight, piece of the exponential and VI is a triangle: u_C = (1/RC)∫u_R dt ≈ (1/RC)∫u_in dt. Slope ≈ 2.5 V / 10 ms = 250 V/s, so it rises ≈ 0.25 V per half period: Vpp ≈ 0.25 V (exactly 5 V × tanh(T/(4τi)) = 5 × tanh(0.05) ≈ 0.25 V).",
+        "- **Differentiator (τd ≪ T/2)**: when the square wave jumps by 5 V, all 5 V first appear across the resistor: VD jumps to about ±5 V, then decays with τd and is back at 0 well within half a period. VD is a train of positive and negative spikes that appear only when the input *changes*: v_R = RC·dv_C/dt ≈ RC·dv_in/dt (since v_C ≈ v_in). The simulated scope takes a sample every 7.8 µs while the spike loses 63% in 0.1 ms, so the peak it reads is a little below the ideal 5 V (about 4.6 V) — a real scope with too slow a sample rate does the same. The spikes are symmetric, so their average is ≈ 0 (the capacitor blocks DC).",
+        "- **Integrator (τi ≫ T/2)**: half a period is only 1/10 of τi, so the capacitor only travels the first, nearly straight, piece of the exponential and VI is a triangle: v_C = (1/RC)∫v_R dt ≈ (1/RC)∫v_in dt. Slope ≈ 2.5 V / 10 ms = 250 V/s, so it rises ≈ 0.25 V per half period: Vpp ≈ 0.25 V (exactly 5 V × tanh(T/(4τi)) = 5 × tanh(0.05) ≈ 0.25 V).",
         "- **50 Hz (T/2 = 10 ms)**: τi is no longer much bigger than T/2, VI becomes an ordinary charge/discharge curve and its Vpp grows to 5 × tanh(0.5) ≈ 2.3 V — the integrator condition no longer holds."
       ],
       "measurements": [
@@ -113,8 +113,8 @@
   ],
   "compare": [
     "**对比**：τd ≈ 0.1 ms，τi ≈ 10 ms。",
-    "- **微分电路（τd ≪ T/2）**：方波一跳 5 V，这 5 V 全部先落在电阻上，VD 跳到约 ±5 V，然后以 τd 指数衰减，不到半个周期就回到 0。VD 是一串正负尖脉冲，只在输入“变化”的时刻出现：u_R = RC·du_C/dt ≈ RC·du_in/dt（因为 u_C ≈ u_in）。仿真示波器每 7.8 µs 取一个点，而尖脉冲 0.1 ms 就衰减掉 63%，所以屏幕上读到的峰值比理想的 5 V 略低（约 4.6 V）——真实示波器采样不够快时也是这样。尖脉冲正负对称，平均值 ≈ 0（电容隔直）。",
-    "- **积分电路（τi ≫ T/2）**：半个周期只有 τi 的 1/10，电容只走了指数曲线开头近乎直线的一段，于是 VI 是三角波：u_C = (1/RC)∫u_R dt ≈ (1/RC)∫u_in dt。斜率 ≈ 2.5 V / 10 ms = 250 V/s，半个周期上升 ≈ 0.25 V，所以 Vpp ≈ 0.25 V（精确值 5 V × tanh(T/(4τi)) = 5 × tanh(0.05) ≈ 0.25 V）。",
+    "- **微分电路（τd ≪ T/2）**：方波一跳 5 V，这 5 V 全部先落在电阻上，VD 跳到约 ±5 V，然后以 τd 指数衰减，不到半个周期就回到 0。VD 是一串正负尖脉冲，只在输入“变化”的时刻出现：v_R = RC·dv_C/dt ≈ RC·dv_in/dt（因为 v_C ≈ v_in）。仿真示波器每 7.8 µs 取一个点，而尖脉冲 0.1 ms 就衰减掉 63%，所以屏幕上读到的峰值比理想的 5 V 略低（约 4.6 V）——真实示波器采样不够快时也是这样。尖脉冲正负对称，平均值 ≈ 0（电容隔直）。",
+    "- **积分电路（τi ≫ T/2）**：半个周期只有 τi 的 1/10，电容只走了指数曲线开头近乎直线的一段，于是 VI 是三角波：v_C = (1/RC)∫v_R dt ≈ (1/RC)∫v_in dt。斜率 ≈ 2.5 V / 10 ms = 250 V/s，半个周期上升 ≈ 0.25 V，所以 Vpp ≈ 0.25 V（精确值 5 V × tanh(T/(4τi)) = 5 × tanh(0.05) ≈ 0.25 V）。",
     "- **50 Hz（T/2 = 10 ms）**：积分支路的 τi 不再远大于 T/2，VI 变成普通的充放电曲线，Vpp 增大到 5 × tanh(0.5) ≈ 2.3 V——“积分”的条件不成立了。"
   ],
   "measurements": [

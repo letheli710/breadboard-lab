@@ -102,7 +102,7 @@
         {"ask": "0 °C: multimeter on the ADC pin (VTEMP) to GND", "explain": "R_NTC ≈ 33.6 kΩ: 3.3 × 33.6 / 43.6 ≈ 2.54 V."},
         {"ask": "25 °C: the ADC pin to GND", "explain": "R_NTC = R1 = 10 kΩ, exactly half: 1.65 V. This is the most sensitive point."},
         {"ask": "80 °C: the ADC pin to GND", "explain": "R_NTC ≈ 1.27 kΩ: 3.3 × 1.27 / 11.27 ≈ 0.37 V."},
-        {"ask": "Compare the change per degree from your three readings: (U₀ − U₂₅)/25 and (U₂₅ − U₈₀)/55", "explain": "The NTC resistance changes exponentially and the divider is nonlinear too, so a straight line cannot turn readings into temperature. Near 80 °C one ADC count is about 0.05 °C; near 25 °C about 0.025 °C.", "choices": ["the hotter, the smaller the change per °C: about 36 mV/°C from 0 to 25 °C, only about 23 mV/°C from 25 to 80 °C", "the same per °C (linear)", "the hotter, the larger the change per °C"]},
+        {"ask": "Compare the change per degree from your three readings: (V₀ − V₂₅)/25 and (V₂₅ − V₈₀)/55", "explain": "The NTC resistance changes exponentially and the divider is nonlinear too, so a straight line cannot turn readings into temperature. Near 80 °C one ADC count is about 0.05 °C; near 25 °C about 0.025 °C.", "choices": ["the hotter, the smaller the change per °C: about 36 mV/°C from 0 to 25 °C, only about 23 mV/°C from 25 to 80 °C", "the same per °C (linear)", "the hotter, the larger the change per °C"]},
         {"ask": "As firmware does, convert your 80 °C reading back to a temperature (°C): R_NTC = R1 × V / (3.3 − V), 1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950 with T in K, then subtract 273.15", "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C. That is the B-parameter equation (a simplified Steinhart–Hart)."}
       ],
       "hints": [
@@ -172,7 +172,7 @@
     {"id": "v0", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 0}}, "unit": "V", "predict": true, "range": [2.41, 2.67], "ask": "0 °C：万用表测 ADC 引脚（VTEMP）对 GND", "explain": "R_NTC ≈ 33.6 kΩ：3.3 × 33.6 / 43.6 ≈ 2.54 V。"},
     {"id": "v25", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 25}}, "unit": "V", "predict": true, "range": [1.57, 1.73], "ask": "25 °C：ADC 引脚对 GND", "explain": "R_NTC = R1 = 10 kΩ，正好一半：1.65 V。这一点灵敏度最高。"},
     {"id": "v80", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 80}}, "unit": "V", "predict": true, "range": [0.353, 0.39], "ask": "80 °C：ADC 引脚对 GND", "explain": "R_NTC ≈ 1.27 kΩ：3.3 × 1.27 / 11.27 ≈ 0.37 V。"},
-    {"id": "nonlin", "choices": ["越热，每升高 1 °C 电压变化越小：0→25 °C 约 36 mV/°C，25→80 °C 只有约 23 mV/°C", "每升高 1 °C 电压变化都一样（线性）", "越热，每升高 1 °C 电压变化越大"], "correct": 0, "ask": "用你的三个读数比较每度的电压变化：(U₀ − U₂₅)/25 和 (U₂₅ − U₈₀)/55", "explain": "NTC 的电阻按指数变化，分压又是非线性的，所以不能用一条直线把读数换成温度。80 °C 附近一个 ADC 计数约 0.05 °C，25 °C 附近约 0.025 °C。"},
+    {"id": "nonlin", "choices": ["越热，每升高 1 °C 电压变化越小：0→25 °C 约 36 mV/°C，25→80 °C 只有约 23 mV/°C", "每升高 1 °C 电压变化都一样（线性）", "越热，每升高 1 °C 电压变化越大"], "correct": 0, "ask": "用你的三个读数比较每度的电压变化：(V₀ − V₂₅)/25 和 (V₂₅ − V₈₀)/55", "explain": "NTC 的电阻按指数变化，分压又是非线性的，所以不能用一条直线把读数换成温度。80 °C 附近一个 ADC 计数约 0.05 °C，25 °C 附近约 0.025 °C。"},
     {"id": "temp", "formula": "1 / (1/298.15 + ln(v80 / (3.3 - v80)) / 3950) - 273.15", "unit": "°C", "predict": true, "range": [76.0, 84.0], "ask": "像固件那样，用你的 80 °C 读数反算温度（°C）：R_NTC = R1 × V / (3.3 − V)，1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950，T 单位 K，再减 273.15", "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C。这就是 B 值公式（Steinhart–Hart 的简化版）。"}
   ],
   "hints": [

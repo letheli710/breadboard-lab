@@ -7,12 +7,12 @@
   "level": 2,
   "tags": ["平衡电桥", "等效电阻", "混联"],
   "statement": [
-    "图示电桥电路中，U_s = 18 V，R_0 = 2 Ω，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 4 Ω，R_4 = 8 Ω，桥支路电阻 R_5 = 5 Ω。",
+    "图示电桥电路中，V_s = 18 V，R_0 = 2 Ω，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 4 Ω，R_4 = 8 Ω，桥支路电阻 R_5 = 5 Ω。",
     "判断电桥是否平衡，求桥支路电流 i_5、电源支路电流 i，以及 R_1 中的电流 i_1（参考方向见图）。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 2], "to": [0, 6], "value": 18 },
+      { "ref": "Vs", "type": "V", "from": [0, 2], "to": [0, 6], "value": 18 },
       { "ref": "R0", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
       { "ref": "R1", "type": "R", "from": [7, 0], "to": [7, 4], "value": 2 },
       { "ref": "R3", "type": "R", "from": [7, 4], "to": [7, 8], "value": 4 },
@@ -40,7 +40,7 @@
   "questions": [
     { "id": "i5", "ask": "桥支路电流 i_5 = ?", "find": { "kind": "i", "el": "R5" }, "answer": 0, "unit": "A", "explain": "R_1·R_4 = 2 × 8 = 16 = R_2·R_3 = 4 × 4，电桥平衡，c、d 等电位，i_5 = 0。" },
     { "id": "i", "ask": "电源支路电流 i = ?", "find": { "kind": "i", "el": "R0" }, "answer": 3, "unit": "A", "explain": "去掉 R_5：R_ab = (2 + 4) ∥ (4 + 8) = 6 ∥ 12 = 4 Ω，i = 18 / (2 + 4) = 3 A。" },
-    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "u_ab = 3 × 4 = 12 V，左臂电流 i_1 = 12 / (2 + 4) = 2 A（右臂 1 A）。" },
+    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "v_ab = 3 × 4 = 12 V，左臂电流 i_1 = 12 / (2 + 4) = 2 A（右臂 1 A）。" },
     {
       "id": "c",
       "ask": "如果把 R_5 换成一根导线（短路），电源支路电流 i 会怎样？",
@@ -54,24 +54,24 @@
     "平衡时桥支路既可以看成开路，也可以看成短路——选一种让串并联最好算的。"
   ],
   "solution": [
-    "**1. 平衡条件。** R_1·R_4 = 2 × 8 = 16，R_2·R_3 = 4 × 4 = 16，相等，电桥平衡：u_c = u_d，**i_5 = 0**。",
+    "**1. 平衡条件。** R_1·R_4 = 2 × 8 = 16，R_2·R_3 = 4 × 4 = 16，相等，电桥平衡：v_c = v_d，**i_5 = 0**。",
     "**2. 去掉 R_5（开路）。** 左臂 R_1 + R_3 = 6 Ω，右臂 R_2 + R_4 = 12 Ω，R_ab = 6 ∥ 12 = 4 Ω。",
-    "**3. 电源电流。** i = U_s / (R_0 + R_ab) = 18 / 6 = **3 A**，u_ab = 3 × 4 = 12 V。",
+    "**3. 电源电流。** i = V_s / (R_0 + R_ab) = 18 / 6 = **3 A**，v_ab = 3 × 4 = 12 V。",
     "**4. 左臂电流。** i_1 = 12 / 6 = **2 A**，右臂 12 / 12 = 1 A，2 + 1 = 3 A ✓。",
-    "**验证等电位：** u_cb = 2 × 4 = 8 V，u_db = 1 × 8 = 8 V，确实相等。若把 R_5 短路：R_ab = 2 ∥ 4 + 4 ∥ 8 = 4/3 + 8/3 = 4 Ω，结果一样。"
+    "**验证等电位：** v_cb = 2 × 4 = 8 V，v_db = 1 × 8 = 8 V，确实相等。若把 R_5 短路：R_ab = 2 ∥ 4 + 4 ∥ 8 = 4/3 + 8/3 = 4 Ω，结果一样。"
   ],
   "i18n": {
     "en": {
       "title": "Balanced bridge",
       "tags": ["balanced bridge", "equivalent resistance", "series–parallel"],
       "statement": [
-        "In the bridge circuit, U_s = 18 V, R_0 = 2 Ω, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 4 Ω, R_4 = 8 Ω and the bridge resistor is R_5 = 5 Ω.",
+        "In the bridge circuit, V_s = 18 V, R_0 = 2 Ω, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 4 Ω, R_4 = 8 Ω and the bridge resistor is R_5 = 5 Ω.",
         "Decide whether the bridge is balanced, and find the bridge current i_5, the source current i and the current i_1 in R_1 (reference directions as drawn)."
       ],
       "questions": [
         { "ask": "Bridge current i_5 = ?", "explain": "R_1·R_4 = 2 × 8 = 16 = R_2·R_3 = 4 × 4, so the bridge is balanced: c and d are at the same potential and i_5 = 0." },
         { "ask": "Source current i = ?", "explain": "Remove R_5: R_ab = (2 + 4) ∥ (4 + 8) = 6 ∥ 12 = 4 Ω, so i = 18 / (2 + 4) = 3 A." },
-        { "ask": "i_1 = ?", "explain": "u_ab = 3 × 4 = 12 V; the left arm carries i_1 = 12 / (2 + 4) = 2 A (the right arm 1 A)." },
+        { "ask": "i_1 = ?", "explain": "v_ab = 3 × 4 = 12 V; the left arm carries i_1 = 12 / (2 + 4) = 2 A (the right arm 1 A)." },
         {
           "ask": "If R_5 is replaced by a plain wire (a short), what happens to the source current i?",
           "choices": ["It increases", "It decreases", "It stays the same", "It becomes zero"], "choiceExplain": ["A wire has zero resistance, but c and d are already at the same potential — first ask whether any current would flow in it, then decide whether the total resistance changes.", "Replacing a resistor by a wire can never increase the total resistance, so the current cannot drop for that reason; and since c and d are equipotential, ask whether the wire carries any current at all.", "", "The wire joins c and d, not the source terminals, so the source is not shorted."],
@@ -83,11 +83,11 @@
         "In balance the bridge branch may be treated as an open or as a short — choose whichever makes the series–parallel reduction easier."
       ],
       "solution": [
-        "**1. Balance condition.** R_1·R_4 = 2 × 8 = 16 and R_2·R_3 = 4 × 4 = 16 are equal, so the bridge is balanced: u_c = u_d and **i_5 = 0**.",
+        "**1. Balance condition.** R_1·R_4 = 2 × 8 = 16 and R_2·R_3 = 4 × 4 = 16 are equal, so the bridge is balanced: v_c = v_d and **i_5 = 0**.",
         "**2. Remove R_5 (open).** Left arm R_1 + R_3 = 6 Ω, right arm R_2 + R_4 = 12 Ω, R_ab = 6 ∥ 12 = 4 Ω.",
-        "**3. Source current.** i = U_s / (R_0 + R_ab) = 18 / 6 = **3 A**, u_ab = 3 × 4 = 12 V.",
+        "**3. Source current.** i = V_s / (R_0 + R_ab) = 18 / 6 = **3 A**, v_ab = 3 × 4 = 12 V.",
         "**4. Left arm.** i_1 = 12 / 6 = **2 A**, right arm 12 / 12 = 1 A, and 2 + 1 = 3 A ✓.",
-        "**Check the equal potentials:** u_cb = 2 × 4 = 8 V and u_db = 1 × 8 = 8 V. Shorting R_5 instead: R_ab = 2 ∥ 4 + 4 ∥ 8 = 4/3 + 8/3 = 4 Ω — the same."
+        "**Check the equal potentials:** v_cb = 2 × 4 = 8 V and v_db = 1 × 8 = 8 V. Shorting R_5 instead: R_ab = 2 ∥ 4 + 4 ∥ 8 = 4/3 + 8/3 = 4 Ω — the same."
       ]
     }
   }

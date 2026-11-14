@@ -7,14 +7,14 @@
   "level": 4,
   "tags": ["不对称三相电路", "断相故障", "中线的作用"],
   "statement": [
-    "对称三相电源（正序，U̇_A = 220∠0° V）以三相三线制（无中线）向三组相同的白炽灯供电，每组灯的电阻 R = 484 Ω（即额定 220 V、100 W）。现 A 相在 A 与 A' 之间断线。",
-    "求 B 相灯的电压 U_{BN'}、断口两端的电压 U_{AA'}（均为有效值）以及 B 相灯实际消耗的功率。"
+    "对称三相电源（正序，V̇_A = 220∠0° V）以三相三线制（无中线）向三组相同的白炽灯供电，每组灯的电阻 R = 484 Ω（即额定 220 V、100 W）。现 A 相在 A 与 A' 之间断线。",
+    "求 B 相灯的电压 V_{BN'}、断口两端的电压 V_{AA'}（均为有效值）以及 B 相灯实际消耗的功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "UA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 220, "phase": 0 } } },
-      { "ref": "UB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 220, "phase": -120 } } },
-      { "ref": "UC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 220, "phase": 120 } } },
+      { "ref": "VA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 220, "phase": 0 } } },
+      { "ref": "VB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 220, "phase": -120 } } },
+      { "ref": "VC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 220, "phase": 120 } } },
       { "ref": "RA", "type": "R", "from": [11, 0], "to": [15, 0], "value": 484 },
       { "ref": "RB", "type": "R", "from": [11, 3], "to": [15, 3], "value": 484 },
       { "ref": "RC", "type": "R", "from": [11, 6], "to": [15, 6], "value": 484 }
@@ -37,26 +37,26 @@
       { "at": [15, 6], "name": "N'" }
     ],
     "grounds": [[1, 6]],
-    "marks": [{ "kind": "v", "el": "RB", "name": "U_{BN'}" }],
+    "marks": [{ "kind": "v", "el": "RB", "name": "V_{BN'}" }],
     "notes": [{ "at": [9, -1], "text": "断线", "i18n": { "en": "open" } }]
   },
   "analysis": { "type": "ac", "freq": 50 },
   "questions": [
     {
-      "id": "UB",
-      "ask": "B 相灯的电压 U_{BN'} = ?",
+      "id": "VB",
+      "ask": "B 相灯的电压 V_{BN'} = ?",
       "find": { "kind": "v", "el": "RB", "part": "mag" },
       "answer": 190.5256,
       "unit": "V",
-      "explain": "A 相断开后，B、C 两组灯串联接在线电压 U_BC = 381.05 V 上，各分一半：U_{BN'} = 381.05/2 ≈ 190.5 V。"
+      "explain": "A 相断开后，B、C 两组灯串联接在线电压 V_BC = 381.05 V 上，各分一半：V_{BN'} = 381.05/2 ≈ 190.5 V。"
     },
     {
       "id": "Ubreak",
-      "ask": "断口两端的电压 U_{AA'} = ?",
+      "ask": "断口两端的电压 V_{AA'} = ?",
       "find": { "kind": "v", "nodes": ["A", "A'"], "part": "mag" },
       "answer": 330,
       "unit": "V",
-      "explain": "A 相灯中无电流，A' 与 N' 等电位。N' 是 B、C 的中点：U̇_{N'N} = (U̇_B + U̇_C)/2 = −110 V，所以 U̇_{AA'} = U̇_A − U̇_{N'N} = 220 + 110 = 330 V（= 1.5 U_p）。"
+      "explain": "A 相灯中无电流，A' 与 N' 等电位。N' 是 B、C 的中点：V̇_{N'N} = (V̇_B + V̇_C)/2 = −110 V，所以 V̇_{AA'} = V̇_A − V̇_{N'N} = 220 + 110 = 330 V（= 1.5 V_p）。"
     },
     {
       "id": "PB",
@@ -64,7 +64,7 @@
       "find": { "kind": "p", "el": "RB" },
       "answer": 75,
       "unit": "W",
-      "explain": "P_B = U_{BN'}²/R = 190.53²/484 = 75 W，只有额定功率的 3/4，灯明显变暗。"
+      "explain": "P_B = V_{BN'}²/R = 190.53²/484 = 75 W，只有额定功率的 3/4，灯明显变暗。"
     },
     {
       "id": "neutral",
@@ -80,15 +80,15 @@
     }
   ],
   "hints": [
-    "A 相断开后 A 相灯中没有电流，B、C 两相的灯首尾串联，接在线电压 U̇_BC 上。",
+    "A 相断开后 A 相灯中没有电流，B、C 两相的灯首尾串联，接在线电压 V̇_BC 上。",
     "两灯电阻相等，各分得一半线电压；N' 正好是 B、C 之间的中点。",
-    "断口电压 U̇_{AA'} = U̇_A − U̇_{N'N}，其中 A' 与 N' 等电位。"
+    "断口电压 V̇_{AA'} = V̇_A − V̇_{N'N}，其中 A' 与 N' 等电位。"
   ],
   "solution": [
-    "**1. 电路结构。** A 相断线，R_A 中电流为零，A' 与 N' 等电位。R_B、R_C 串联接在 U̇_BC = 381.05∠−90° V 上，电流 I = 381.05/968 = 0.394 A。",
-    "**2. B 相灯电压。** U_{BN'} = U_BC/2 = **190.5 V**（额定 220 V 的 0.866 倍）。",
-    "**3. 中性点电位。** U̇_{N'N} = (U̇_B + U̇_C)/2 = (−110 − j190.53 − 110 + j190.53)/2 = −110 V。",
-    "**4. 断口电压。** U̇_{AA'} = U̇_A − U̇_{N'N} = 220 − (−110) = **330 V**。",
+    "**1. 电路结构。** A 相断线，R_A 中电流为零，A' 与 N' 等电位。R_B、R_C 串联接在 V̇_BC = 381.05∠−90° V 上，电流 I = 381.05/968 = 0.394 A。",
+    "**2. B 相灯电压。** V_{BN'} = V_BC/2 = **190.5 V**（额定 220 V 的 0.866 倍）。",
+    "**3. 中性点电位。** V̇_{N'N} = (V̇_B + V̇_C)/2 = (−110 − j190.53 − 110 + j190.53)/2 = −110 V。",
+    "**4. 断口电压。** V̇_{AA'} = V̇_A − V̇_{N'N} = 220 − (−110) = **330 V**。",
     "**5. 功率。** P_B = 190.53²/484 = **75 W**（额定 100 W）。B、C 两组灯同样变暗；若两组灯数不同（电阻不等），则串联分压不均，一组过压一组欠压，更加危险。"
   ],
   "i18n": {
@@ -96,13 +96,13 @@
       "title": "One line open in a three-wire system",
       "tags": ["unbalanced three-phase circuit", "open-phase fault", "role of the neutral"],
       "statement": [
-        "A balanced three-phase source (positive sequence, U̇_A = 220∠0° V) feeds three identical banks of incandescent lamps over a three-wire system (no neutral); each bank has resistance R = 484 Ω (rated 220 V, 100 W). Line A is now broken between A and A'.",
-        "Find the voltage U_{BN'} across the phase-B lamps, the voltage U_{AA'} across the break (both rms) and the power actually consumed by the phase-B lamps."
+        "A balanced three-phase source (positive sequence, V̇_A = 220∠0° V) feeds three identical banks of incandescent lamps over a three-wire system (no neutral); each bank has resistance R = 484 Ω (rated 220 V, 100 W). Line A is now broken between A and A'.",
+        "Find the voltage V_{BN'} across the phase-B lamps, the voltage V_{AA'} across the break (both rms) and the power actually consumed by the phase-B lamps."
       ],
       "questions": [
-        { "ask": "Voltage across the phase-B lamps, U_{BN'} = ?", "explain": "With phase A open, the B and C lamps are in series across the line voltage U_BC = 381.05 V and share it equally: U_{BN'} = 381.05/2 ≈ 190.5 V." },
-        { "ask": "Voltage across the break, U_{AA'} = ?", "explain": "No current flows in the phase-A lamps, so A' is at the potential of N'. N' is the midpoint of B and C: U̇_{N'N} = (U̇_B + U̇_C)/2 = −110 V, so U̇_{AA'} = U̇_A − U̇_{N'N} = 220 + 110 = 330 V (= 1.5 U_p)." },
-        { "ask": "Power actually consumed by the phase-B lamps, P_B = ?", "explain": "P_B = U_{BN'}²/R = 190.53²/484 = 75 W, only 3/4 of the rating, so the lamps are noticeably dimmer." },
+        { "ask": "Voltage across the phase-B lamps, V_{BN'} = ?", "explain": "With phase A open, the B and C lamps are in series across the line voltage V_BC = 381.05 V and share it equally: V_{BN'} = 381.05/2 ≈ 190.5 V." },
+        { "ask": "Voltage across the break, V_{AA'} = ?", "explain": "No current flows in the phase-A lamps, so A' is at the potential of N'. N' is the midpoint of B and C: V̇_{N'N} = (V̇_B + V̇_C)/2 = −110 V, so V̇_{AA'} = V̇_A − V̇_{N'N} = 220 + 110 = 330 V (= 1.5 V_p)." },
+        { "ask": "Power actually consumed by the phase-B lamps, P_B = ?", "explain": "P_B = V_{BN'}²/R = 190.53²/484 = 75 W, only 3/4 of the rating, so the lamps are noticeably dimmer." },
         {
           "ask": "If the system had an intact neutral (four-wire), what would happen to the B and C lamps after line A breaks?",
           "choices": [
@@ -115,15 +115,15 @@
         }
       ],
       "hints": [
-        "With phase A open there is no current in the phase-A lamps; the B and C lamps are in series across the line voltage U̇_BC.",
+        "With phase A open there is no current in the phase-A lamps; the B and C lamps are in series across the line voltage V̇_BC.",
         "The two banks have equal resistance and share the line voltage equally; N' is exactly the midpoint between B and C.",
-        "The voltage across the break is U̇_{AA'} = U̇_A − U̇_{N'N}, since A' is at the potential of N'."
+        "The voltage across the break is V̇_{AA'} = V̇_A − V̇_{N'N}, since A' is at the potential of N'."
       ],
       "solution": [
-        "**1. Structure.** Line A is open, so R_A carries no current and A' is at the potential of N'. R_B and R_C are in series across U̇_BC = 381.05∠−90° V, carrying I = 381.05/968 = 0.394 A.",
-        "**2. Phase-B lamp voltage.** U_{BN'} = U_BC/2 = **190.5 V** (0.866 of the rated 220 V).",
-        "**3. Neutral-point potential.** U̇_{N'N} = (U̇_B + U̇_C)/2 = (−110 − j190.53 − 110 + j190.53)/2 = −110 V.",
-        "**4. Voltage across the break.** U̇_{AA'} = U̇_A − U̇_{N'N} = 220 − (−110) = **330 V**.",
+        "**1. Structure.** Line A is open, so R_A carries no current and A' is at the potential of N'. R_B and R_C are in series across V̇_BC = 381.05∠−90° V, carrying I = 381.05/968 = 0.394 A.",
+        "**2. Phase-B lamp voltage.** V_{BN'} = V_BC/2 = **190.5 V** (0.866 of the rated 220 V).",
+        "**3. Neutral-point potential.** V̇_{N'N} = (V̇_B + V̇_C)/2 = (−110 − j190.53 − 110 + j190.53)/2 = −110 V.",
+        "**4. Voltage across the break.** V̇_{AA'} = V̇_A − V̇_{N'N} = 220 − (−110) = **330 V**.",
         "**5. Power.** P_B = 190.53²/484 = **75 W** (rated 100 W). The B and C lamps are both dimmer; if the two banks had different numbers of lamps (unequal resistances) the series division would be uneven — one bank over-voltage, the other under-voltage — which is even more dangerous."
       ]
     }

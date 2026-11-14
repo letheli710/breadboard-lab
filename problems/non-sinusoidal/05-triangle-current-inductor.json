@@ -9,7 +9,7 @@
   "statement": [
     "电流源 i_s 是峰值 I_m = 0.5 A、f = 1 kHz 的对称三角波：t = 0 时为零并上升，t = T/4 时达到 +0.5 A，3T/4 时为 −0.5 A。它的傅里叶级数为",
     "i_s = \\frac{8I_m}{π²}(sin ωt − \\frac{1}{9}sin 3ωt + \\frac{1}{25}sin 5ωt − …)，ω = 2π × 1000 rad/s（计算取到 99 次谐波）。",
-    "i_s 全部流过电感 L = 10 mH。求 i_L 的有效值和基波振幅、u_L 的 3 次谐波振幅和基波初相，并判断 u_L 的波形。"
+    "i_s 全部流过电感 L = 10 mH。求 i_L 的有效值和基波振幅、v_L 的 3 次谐波振幅和基波初相，并判断 v_L 的波形。"
   ],
   "schematic": {
     "elements": [
@@ -23,37 +23,37 @@
     "grounds": [[0, 4]],
     "marks": [
       { "kind": "i", "el": "L", "name": "i_L" },
-      { "kind": "v", "el": "L", "name": "u_L" }
+      { "kind": "v", "el": "L", "name": "v_L" }
     ]
   },
   "analysis": { "type": "periodic", "freq": 1000, "phasor": "peak" },
   "questions": [
     { "id": "I", "ask": "i_L 的有效值 I = ?", "find": { "kind": "i", "el": "L" }, "answer": 0.2886751, "unit": "A", "explain": "三角波的有效值 I = I_m/√3 = 0.5/√3 ≈ 0.2887 A（与幅值相同的锯齿波一样，都是“线性变化”的波形）。" },
     { "id": "I1", "ask": "i_L 的基波振幅 I_1m = ?", "find": { "kind": "i", "el": "L", "harmonic": 1 }, "answer": 0.4052847, "unit": "A", "explain": "I_1m = 8I_m/π² = 4/π² ≈ 0.4053 A。" },
-    { "id": "U3", "ask": "u_L 的 3 次谐波振幅 U_L3m = ?", "find": { "kind": "v", "el": "L", "harmonic": 3 }, "answer": 8.488264, "unit": "V", "explain": "I_3m = 8I_m/(9π²) = 0.04503 A，3ωL = 188.5 Ω，U_L3m = 3ωL·I_3m = 8.488 V。" },
-    { "id": "ph1", "ask": "u_L 基波的初相 = ?（cos 参考）", "find": { "kind": "v", "el": "L", "harmonic": 1, "part": "phase" }, "answer": 0, "unit": "°", "explain": "i_L 的基波 I_1m sin ωt = I_1m cos(ωt − 90°)，电感电压超前电流 90°，所以 u_L 基波初相为 0°。" },
+    { "id": "U3", "ask": "v_L 的 3 次谐波振幅 V_L3m = ?", "find": { "kind": "v", "el": "L", "harmonic": 3 }, "answer": 8.488264, "unit": "V", "explain": "I_3m = 8I_m/(9π²) = 0.04503 A，3ωL = 188.5 Ω，V_L3m = 3ωL·I_3m = 8.488 V。" },
+    { "id": "ph1", "ask": "v_L 基波的初相 = ?（cos 参考）", "find": { "kind": "v", "el": "L", "harmonic": 1, "part": "phase" }, "answer": 0, "unit": "°", "explain": "i_L 的基波 I_1m sin ωt = I_1m cos(ωt − 90°)，电感电压超前电流 90°，所以 v_L 基波初相为 0°。" },
     {
       "id": "shape",
-      "ask": "u_L 是什么波形？",
+      "ask": "v_L 是什么波形？",
       "choices": ["幅值 20 V 的方波", "幅值 25.5 V 的正弦波", "三角波", "锯齿波"],
       "correct": 0,
-      "choiceExplain": ["", "25.5 V 只是基波的振幅；u_L 还含有各奇次谐波。", "电感电压是电流的导数，三角波的导数不是三角波。", "锯齿波含偶次谐波，而 i_L 半波对称、只有奇次谐波，导数也一样。"],
-      "explain": "u_L = L di/dt：三角波每段的斜率是 ±4I_m/T，所以 u_L 在 ±L·4I_m f = ±10m × 4 × 0.5 × 1000 = ±20 V 之间跳变，是方波。从谐波看：U_Lkm = kωL·I_km ∝ k·(1/k²) = 1/k，正是方波的频谱。"
+      "choiceExplain": ["", "25.5 V 只是基波的振幅；v_L 还含有各奇次谐波。", "电感电压是电流的导数，三角波的导数不是三角波。", "锯齿波含偶次谐波，而 i_L 半波对称、只有奇次谐波，导数也一样。"],
+      "explain": "v_L = L di/dt：三角波每段的斜率是 ±4I_m/T，所以 v_L 在 ±L·4I_m f = ±10m × 4 × 0.5 × 1000 = ±20 V 之间跳变，是方波。从谐波看：V_Lkm = kωL·I_km ∝ k·(1/k²) = 1/k，正是方波的频谱。"
     },
-    { "id": "U", "ask": "u_L 的有效值 U_L = ?", "find": { "kind": "v", "el": "L" }, "answer": 19.95943, "unit": "V", "explain": "方波的有效值等于幅值 20 V（取到 99 次谐波的级数给出 19.96 V）。" }
+    { "id": "U", "ask": "v_L 的有效值 V_L = ?", "find": { "kind": "v", "el": "L" }, "answer": 19.95943, "unit": "V", "explain": "方波的有效值等于幅值 20 V（取到 99 次谐波的级数给出 19.96 V）。" }
   ],
   "hints": [
-    "电流的各次谐波振幅直接从级数读出；有效值可以用三角波的定义求（u、i 线性变化的波形，有效值是峰值的 1/√3）。",
-    "电感对 k 次谐波的感抗是 kωL，电压超前电流 90°；所以 u_L 的 k 次谐波振幅是 kωL·I_km。",
-    "u_L = L di/dt：看三角波每一段的斜率，就能直接画出 u_L 的波形。"
+    "电流的各次谐波振幅直接从级数读出；有效值可以用三角波的定义求（v、i 线性变化的波形，有效值是峰值的 1/√3）。",
+    "电感对 k 次谐波的感抗是 kωL，电压超前电流 90°；所以 v_L 的 k 次谐波振幅是 kωL·I_km。",
+    "v_L = L di/dt：看三角波每一段的斜率，就能直接画出 v_L 的波形。"
   ],
   "solution": [
     "**1. 电流。** 有效值 I = I_m/√3 = **0.2887 A**；基波振幅 I_1m = 8I_m/π² = **0.4053 A**，3 次谐波振幅 I_3m = I_1m/9 = 0.04503 A。",
-    "**2. 电压的谐波**（U̇_Lkm = jkωL·İ_km）：ωL = 2π × 1000 × 0.01 = 62.83 Ω。",
-    "- 基波：U_L1m = 62.83 × 0.4053 = 25.46 V；i 的基波初相为 −90°（sin），超前 90° 后 u_L 基波初相为 **0°**；",
-    "- 3 次谐波：U_L3m = 3 × 62.83 × 0.04503 = **8.488 V**。",
-    "**3. 波形。** U_Lkm ∝ k/k² = 1/k，与方波的频谱相同。直接用 u_L = L di/dt：上升段斜率 4I_m/T = 2000 A/s，u_L = 0.01 × 2000 = 20 V；下降段为 −20 V。u_L 是幅值 **20 V 的方波**，有效值 **20 V**。",
-    "**检查：** 方波基波振幅应为 4 × 20/π = 25.46 V，与第 2 步算出的 U_L1m 一致。"
+    "**2. 电压的谐波**（V̇_Lkm = jkωL·İ_km）：ωL = 2π × 1000 × 0.01 = 62.83 Ω。",
+    "- 基波：V_L1m = 62.83 × 0.4053 = 25.46 V；i 的基波初相为 −90°（sin），超前 90° 后 v_L 基波初相为 **0°**；",
+    "- 3 次谐波：V_L3m = 3 × 62.83 × 0.04503 = **8.488 V**。",
+    "**3. 波形。** V_Lkm ∝ k/k² = 1/k，与方波的频谱相同。直接用 v_L = L di/dt：上升段斜率 4I_m/T = 2000 A/s，v_L = 0.01 × 2000 = 20 V；下降段为 −20 V。v_L 是幅值 **20 V 的方波**，有效值 **20 V**。",
+    "**检查：** 方波基波振幅应为 4 × 20/π = 25.46 V，与第 2 步算出的 V_L1m 一致。"
   ],
   "i18n": {
     "en": {
@@ -62,38 +62,38 @@
       "statement": [
         "The current source i_s is a symmetric triangle wave of peak I_m = 0.5 A and f = 1 kHz: zero and rising at t = 0, +0.5 A at t = T/4, −0.5 A at 3T/4. Its Fourier series is",
         "i_s = \\frac{8I_m}{π²}(sin ωt − \\frac{1}{9}sin 3ωt + \\frac{1}{25}sin 5ωt − …), ω = 2π × 1000 rad/s (harmonics up to the 99th are kept).",
-        "All of i_s flows through the inductor L = 10 mH. Find the rms value and the fundamental amplitude of i_L, the 3rd-harmonic amplitude and the fundamental's initial phase of u_L, and identify the waveform of u_L."
+        "All of i_s flows through the inductor L = 10 mH. Find the rms value and the fundamental amplitude of i_L, the 3rd-harmonic amplitude and the fundamental's initial phase of v_L, and identify the waveform of v_L."
       ],
       "hints": [
         "Read the current's harmonic amplitudes from the series; the rms value follows from the definition of a triangle wave (a linearly changing wave has rms = peak/√3).",
-        "At harmonic k the inductor's reactance is kωL and its voltage leads the current by 90°, so the k-th harmonic of u_L has amplitude kωL·I_km.",
-        "u_L = L di/dt: the slope of each segment of the triangle gives the waveform of u_L directly."
+        "At harmonic k the inductor's reactance is kωL and its voltage leads the current by 90°, so the k-th harmonic of v_L has amplitude kωL·I_km.",
+        "v_L = L di/dt: the slope of each segment of the triangle gives the waveform of v_L directly."
       ],
       "solution": [
         "**1. Current.** rms value I = I_m/√3 = **0.2887 A**; fundamental amplitude I_1m = 8I_m/π² = **0.4053 A**, 3rd-harmonic amplitude I_3m = I_1m/9 = 0.04503 A.",
-        "**2. Voltage harmonics** (U̇_Lkm = jkωL·İ_km): ωL = 2π × 1000 × 0.01 = 62.83 Ω.",
-        "- fundamental: U_L1m = 62.83 × 0.4053 = 25.46 V; the current's fundamental has initial phase −90° (a sine), so leading by 90° the voltage's fundamental has initial phase **0°**;",
-        "- 3rd harmonic: U_L3m = 3 × 62.83 × 0.04503 = **8.488 V**.",
-        "**3. Waveform.** U_Lkm ∝ k/k² = 1/k, the spectrum of a square wave. Directly from u_L = L di/dt: the rising segment has slope 4I_m/T = 2000 A/s, u_L = 0.01 × 2000 = 20 V; the falling segment gives −20 V. u_L is a **20 V square wave** with rms value **20 V**.",
-        "**Check:** a square wave's fundamental has amplitude 4 × 20/π = 25.46 V, the same U_L1m as in step 2."
+        "**2. Voltage harmonics** (V̇_Lkm = jkωL·İ_km): ωL = 2π × 1000 × 0.01 = 62.83 Ω.",
+        "- fundamental: V_L1m = 62.83 × 0.4053 = 25.46 V; the current's fundamental has initial phase −90° (a sine), so leading by 90° the voltage's fundamental has initial phase **0°**;",
+        "- 3rd harmonic: V_L3m = 3 × 62.83 × 0.04503 = **8.488 V**.",
+        "**3. Waveform.** V_Lkm ∝ k/k² = 1/k, the spectrum of a square wave. Directly from v_L = L di/dt: the rising segment has slope 4I_m/T = 2000 A/s, v_L = 0.01 × 2000 = 20 V; the falling segment gives −20 V. v_L is a **20 V square wave** with rms value **20 V**.",
+        "**Check:** a square wave's fundamental has amplitude 4 × 20/π = 25.46 V, the same V_L1m as in step 2."
       ],
       "questions": [
         { "ask": "rms value of i_L, I = ?", "explain": "The rms value of a triangle wave is I = I_m/√3 = 0.5/√3 ≈ 0.2887 A (the same as a sawtooth with the same peak: both change linearly)." },
         { "ask": "Amplitude of the fundamental of i_L, I_1m = ?", "explain": "I_1m = 8I_m/π² = 4/π² ≈ 0.4053 A." },
-        { "ask": "Amplitude of the 3rd harmonic of u_L, U_L3m = ?", "explain": "I_3m = 8I_m/(9π²) = 0.04503 A, 3ωL = 188.5 Ω, U_L3m = 3ωL·I_3m = 8.488 V." },
-        { "ask": "Initial phase of the fundamental of u_L = ? (cosine reference)", "explain": "The fundamental of i_L is I_1m sin ωt = I_1m cos(ωt − 90°); the inductor voltage leads by 90°, so the fundamental of u_L has initial phase 0°." },
+        { "ask": "Amplitude of the 3rd harmonic of v_L, V_L3m = ?", "explain": "I_3m = 8I_m/(9π²) = 0.04503 A, 3ωL = 188.5 Ω, V_L3m = 3ωL·I_3m = 8.488 V." },
+        { "ask": "Initial phase of the fundamental of v_L = ? (cosine reference)", "explain": "The fundamental of i_L is I_1m sin ωt = I_1m cos(ωt − 90°); the inductor voltage leads by 90°, so the fundamental of v_L has initial phase 0°." },
         {
-          "ask": "What is the waveform of u_L?",
+          "ask": "What is the waveform of v_L?",
           "choices": ["A square wave of amplitude 20 V", "A sine wave of amplitude 25.5 V", "A triangle wave", "A sawtooth wave"],
           "choiceExplain": [
             "",
-            "25.5 V is only the amplitude of the fundamental; u_L contains all the odd harmonics too.",
+            "25.5 V is only the amplitude of the fundamental; v_L contains all the odd harmonics too.",
             "The inductor voltage is the derivative of the current, and the derivative of a triangle is not a triangle.",
             "A sawtooth contains even harmonics, while i_L has half-wave symmetry and only odd harmonics — and so does its derivative."
           ],
-          "explain": "u_L = L di/dt: each segment of the triangle has slope ±4I_m/T, so u_L jumps between ±L·4I_m f = ±10m × 4 × 0.5 × 1000 = ±20 V — a square wave. In harmonic terms U_Lkm = kωL·I_km ∝ k·(1/k²) = 1/k, exactly the spectrum of a square wave."
+          "explain": "v_L = L di/dt: each segment of the triangle has slope ±4I_m/T, so v_L jumps between ±L·4I_m f = ±10m × 4 × 0.5 × 1000 = ±20 V — a square wave. In harmonic terms V_Lkm = kωL·I_km ∝ k·(1/k²) = 1/k, exactly the spectrum of a square wave."
         },
-        { "ask": "rms value of u_L, U_L = ?", "explain": "A square wave's rms value equals its amplitude, 20 V (the series up to the 99th harmonic gives 19.96 V)." }
+        { "ask": "rms value of v_L, V_L = ?", "explain": "A square wave's rms value equals its amplitude, 20 V (the series up to the 99th harmonic gives 19.96 V)." }
       ]
     }
   }

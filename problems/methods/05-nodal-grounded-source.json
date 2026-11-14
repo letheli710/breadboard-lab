@@ -7,12 +7,12 @@
   "level": 2,
   "tags": ["结点电压法", "电压源支路", "参考结点的选取"],
   "statement": [
-    "图示电路中 U_s = 20 V，I_s = 2 A（向上注入结点 c），R_1 = 2 Ω，R_2 = 6 Ω，R_3 = 2 Ω，R_4 = 2 Ω。以底部为参考结点。",
-    "用**结点电压法**求 u_b、u_c，以及电压源 U_s 吸收的功率。"
+    "图示电路中 V_s = 20 V，I_s = 2 A（向上注入结点 c），R_1 = 2 Ω，R_2 = 6 Ω，R_3 = 2 Ω，R_4 = 2 Ω。以底部为参考结点。",
+    "用**结点电压法**求 v_b、v_c，以及电压源 V_s 吸收的功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 20 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 20 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
       { "ref": "R2", "type": "R", "from": [7, 0], "to": [7, 4], "value": 6 },
       { "ref": "R3", "type": "R", "from": [9, 0], "to": [12, 0], "value": 2 },
@@ -34,66 +34,66 @@
       "id": "why",
       "ask": "本电路有 3 个独立结点 a、b、c，为什么只需要列 2 个结点方程？",
       "choices": [
-        "结点 a 的电压已知 u_a = U_s，不必对 a 列方程",
+        "结点 a 的电压已知 v_a = V_s，不必对 a 列方程",
         "电压源支路的电导为零，可以去掉",
         "结点 a 与 c 的方程总是相同的",
         "电压源可以等效为开路"
-      ], "choiceExplain": ["", "理想电压源的电流由外电路决定，不能写成“电导 × 电压”，它的电导不是零；去掉它电路就变了（u_a 不再是 20 V）。", "a、c 两结点连接的元件不同，KCL 方程一般不同，并不是因为方程相同才少列一个。", "电压源只有在置零（叠加定理中）时才变成短路，从来不是开路；在这里它把 u_a 定为 20 V。"],
+      ], "choiceExplain": ["", "理想电压源的电流由外电路决定，不能写成“电导 × 电压”，它的电导不是零；去掉它电路就变了（v_a 不再是 20 V）。", "a、c 两结点连接的元件不同，KCL 方程一般不同，并不是因为方程相同才少列一个。", "电压源只有在置零（叠加定理中）时才变成短路，从来不是开路；在这里它把 v_a 定为 20 V。"],
       "correct": 0,
-      "explain": "电压源一端接参考结点，另一端结点的电压直接等于 U_s = 20 V，这个结点不再是未知量；而且电压源电流无法用结点电压表示，本来也不能对 a 用电导形式列 KCL。"
+      "explain": "电压源一端接参考结点，另一端结点的电压直接等于 V_s = 20 V，这个结点不再是未知量；而且电压源电流无法用结点电压表示，本来也不能对 a 用电导形式列 KCL。"
     },
-    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 12, "unit": "V", "explain": "代入 u_a = 20 V 后两个方程为 (1/2 + 1/6 + 1/2)u_b − 0.5u_c = 10，−0.5u_b + u_c = 2，解得 u_b = 12 V。" },
-    { "id": "uc", "ask": "u_c = ?", "find": { "kind": "v", "nodes": ["c"] }, "answer": 8, "unit": "V", "explain": "u_c = 2 + 0.5u_b = 8 V。" },
-    { "id": "p", "ask": "U_s 吸收的功率 P = ?", "find": { "kind": "p", "el": "Us" }, "answer": -80, "unit": "W", "explain": "U_s 输出的电流就是 R_1 的电流 (20 − 12)/2 = 4 A，从“+”端流出：P = −20 × 4 = −80 W（发出 80 W）。" }
+    { "id": "ub", "ask": "v_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 12, "unit": "V", "explain": "代入 v_a = 20 V 后两个方程为 (1/2 + 1/6 + 1/2)v_b − 0.5v_c = 10，−0.5v_b + v_c = 2，解得 v_b = 12 V。" },
+    { "id": "uc", "ask": "v_c = ?", "find": { "kind": "v", "nodes": ["c"] }, "answer": 8, "unit": "V", "explain": "v_c = 2 + 0.5v_b = 8 V。" },
+    { "id": "p", "ask": "V_s 吸收的功率 P = ?", "find": { "kind": "p", "el": "Vs" }, "answer": -80, "unit": "W", "explain": "V_s 输出的电流就是 R_1 的电流 (20 − 12)/2 = 4 A，从“+”端流出：P = −20 × 4 = −80 W（发出 80 W）。" }
   ],
   "hints": [
     "用结点电压法。先看哪个结点电压已经由电压源直接确定——它不是未知量，剩下的结点电压才需要列方程。",
     "电流源 I_s 注入结点 c：它的电流直接写在结点 c 方程的右边，不需要知道它两端的电压。",
-    "代表方程（结点 b）：(1/R_1 + 1/R_2 + 1/R_3)u_b − (1/R_1)u_a − (1/R_3)u_c = 0，已知的 u_a 项移到右边；结点 c 照此写出，两式联立。"
+    "代表方程（结点 b）：(1/R_1 + 1/R_2 + 1/R_3)v_b − (1/R_1)v_a − (1/R_3)v_c = 0，已知的 v_a 项移到右边；结点 c 照此写出，两式联立。"
   ],
   "solution": [
-    "**1. 已知结点：** U_s 接在 a 与参考结点之间，u_a = **20 V**。",
-    "**2. 结点 b：** (1/2 + 1/6 + 1/2)·u_b − (1/2)·u_c = (1/2)·20 → (7/6)u_b − 0.5u_c = 10。",
-    "**3. 结点 c：** −(1/2)·u_b + (1/2 + 1/2)·u_c = I_s → −0.5u_b + u_c = 2。",
-    "**4. 求解：** u_c = 2 + 0.5u_b，代入：(7/6)u_b − 1 − 0.25u_b = 10 → (11/12)u_b = 11 → **u_b = 12 V**，**u_c = 8 V**。",
-    "**5. 电源功率：** i_R1 = (20 − 12)/2 = 4 A 从 U_s 的“+”端流出，P_Us = −20 × 4 = **−80 W**（发出 80 W）。",
-    "**验算：** 电阻吸收 2×4² + 12²/6 + 2×2² + 8²/2 = 32 + 24 + 8 + 32 = 96 W；U_s 发出 80 W，I_s 发出 8 × 2 = 16 W，共 96 W。"
+    "**1. 已知结点：** V_s 接在 a 与参考结点之间，v_a = **20 V**。",
+    "**2. 结点 b：** (1/2 + 1/6 + 1/2)·v_b − (1/2)·v_c = (1/2)·20 → (7/6)v_b − 0.5v_c = 10。",
+    "**3. 结点 c：** −(1/2)·v_b + (1/2 + 1/2)·v_c = I_s → −0.5v_b + v_c = 2。",
+    "**4. 求解：** v_c = 2 + 0.5v_b，代入：(7/6)v_b − 1 − 0.25v_b = 10 → (11/12)v_b = 11 → **v_b = 12 V**，**v_c = 8 V**。",
+    "**5. 电源功率：** i_R1 = (20 − 12)/2 = 4 A 从 V_s 的“+”端流出，P_Us = −20 × 4 = **−80 W**（发出 80 W）。",
+    "**验算：** 电阻吸收 2×4² + 12²/6 + 2×2² + 8²/2 = 32 + 24 + 8 + 32 = 96 W；V_s 发出 80 W，I_s 发出 8 × 2 = 16 W，共 96 W。"
   ],
   "i18n": {
     "en": {
       "title": "Nodal analysis: a voltage source tied to the reference node",
       "tags": ["nodal analysis", "voltage-source branch", "choice of reference node"],
       "statement": [
-        "In the circuit, U_s = 20 V, I_s = 2 A (upwards, into node c), R_1 = 2 Ω, R_2 = 6 Ω, R_3 = 2 Ω, R_4 = 2 Ω. The bottom node is the reference.",
-        "Use **nodal analysis** to find u_b, u_c and the power absorbed by the voltage source U_s."
+        "In the circuit, V_s = 20 V, I_s = 2 A (upwards, into node c), R_1 = 2 Ω, R_2 = 6 Ω, R_3 = 2 Ω, R_4 = 2 Ω. The bottom node is the reference.",
+        "Use **nodal analysis** to find v_b, v_c and the power absorbed by the voltage source V_s."
       ],
       "questions": [
         {
           "ask": "The circuit has 3 independent nodes a, b and c. Why are only 2 node equations needed?",
           "choices": [
-            "The voltage of node a is known, u_a = U_s, so no equation is written for a",
+            "The voltage of node a is known, v_a = V_s, so no equation is written for a",
             "The voltage-source branch has zero conductance and can be removed",
             "The equations of nodes a and c are always identical",
             "A voltage source can be replaced by an open circuit"
-          ], "choiceExplain": ["", "The current of an ideal voltage source is set by the rest of the circuit and can't be written as conductance × voltage — its conductance is not zero; removing it changes the circuit (u_a would no longer be 20 V).", "Nodes a and c connect to different elements, so their KCL equations are generally different; the saved equation is not due to their being identical.", "A voltage source becomes a short only when it is zeroed (in superposition), never an open; here it fixes u_a at 20 V."],
-          "explain": "One end of the voltage source is the reference node, so the other node's voltage is simply U_s = 20 V and is no longer an unknown. Besides, the source current can't be expressed through node voltages, so a conductance-form KCL at a isn't possible anyway."
+          ], "choiceExplain": ["", "The current of an ideal voltage source is set by the rest of the circuit and can't be written as conductance × voltage — its conductance is not zero; removing it changes the circuit (v_a would no longer be 20 V).", "Nodes a and c connect to different elements, so their KCL equations are generally different; the saved equation is not due to their being identical.", "A voltage source becomes a short only when it is zeroed (in superposition), never an open; here it fixes v_a at 20 V."],
+          "explain": "One end of the voltage source is the reference node, so the other node's voltage is simply V_s = 20 V and is no longer an unknown. Besides, the source current can't be expressed through node voltages, so a conductance-form KCL at a isn't possible anyway."
         },
-        { "ask": "u_b = ?", "explain": "With u_a = 20 V the two equations are (1/2 + 1/6 + 1/2)u_b − 0.5u_c = 10 and −0.5u_b + u_c = 2, giving u_b = 12 V." },
-        { "ask": "u_c = ?", "explain": "u_c = 2 + 0.5u_b = 8 V." },
-        { "ask": "Power absorbed by U_s, P = ?", "explain": "The source current equals the current in R_1, (20 − 12)/2 = 4 A, leaving the \"+\" terminal: P = −20 × 4 = −80 W (it delivers 80 W)." }
+        { "ask": "v_b = ?", "explain": "With v_a = 20 V the two equations are (1/2 + 1/6 + 1/2)v_b − 0.5v_c = 10 and −0.5v_b + v_c = 2, giving v_b = 12 V." },
+        { "ask": "v_c = ?", "explain": "v_c = 2 + 0.5v_b = 8 V." },
+        { "ask": "Power absorbed by V_s, P = ?", "explain": "The source current equals the current in R_1, (20 − 12)/2 = 4 A, leaving the \"+\" terminal: P = −20 × 4 = −80 W (it delivers 80 W)." }
       ],
       "hints": [
         "Use nodal analysis. First see which node voltage is fixed directly by the voltage source — it is not an unknown; only the remaining node voltages need equations.",
         "The current source I_s injects into node c: its current goes straight onto the right-hand side of node c's equation; you don't need the voltage across it.",
-        "A representative equation (node b): (1/R_1 + 1/R_2 + 1/R_3)u_b − (1/R_1)u_a − (1/R_3)u_c = 0, with the known u_a term moved to the right; write node c the same way and solve the pair."
+        "A representative equation (node b): (1/R_1 + 1/R_2 + 1/R_3)v_b − (1/R_1)v_a − (1/R_3)v_c = 0, with the known v_a term moved to the right; write node c the same way and solve the pair."
       ],
       "solution": [
-        "**1. Known node:** U_s sits between a and the reference, so u_a = **20 V**.",
-        "**2. Node b:** (1/2 + 1/6 + 1/2)·u_b − (1/2)·u_c = (1/2)·20 → (7/6)u_b − 0.5u_c = 10.",
-        "**3. Node c:** −(1/2)·u_b + (1/2 + 1/2)·u_c = I_s → −0.5u_b + u_c = 2.",
-        "**4. Solve:** u_c = 2 + 0.5u_b; substituting, (7/6)u_b − 1 − 0.25u_b = 10 → (11/12)u_b = 11 → **u_b = 12 V**, **u_c = 8 V**.",
-        "**5. Source power:** i_R1 = (20 − 12)/2 = 4 A leaves the \"+\" terminal of U_s, so P_Us = −20 × 4 = **−80 W** (delivers 80 W).",
-        "**Check:** the resistors absorb 2×4² + 12²/6 + 2×2² + 8²/2 = 32 + 24 + 8 + 32 = 96 W; U_s delivers 80 W and I_s delivers 8 × 2 = 16 W, 96 W in total."
+        "**1. Known node:** V_s sits between a and the reference, so v_a = **20 V**.",
+        "**2. Node b:** (1/2 + 1/6 + 1/2)·v_b − (1/2)·v_c = (1/2)·20 → (7/6)v_b − 0.5v_c = 10.",
+        "**3. Node c:** −(1/2)·v_b + (1/2 + 1/2)·v_c = I_s → −0.5v_b + v_c = 2.",
+        "**4. Solve:** v_c = 2 + 0.5v_b; substituting, (7/6)v_b − 1 − 0.25v_b = 10 → (11/12)v_b = 11 → **v_b = 12 V**, **v_c = 8 V**.",
+        "**5. Source power:** i_R1 = (20 − 12)/2 = 4 A leaves the \"+\" terminal of V_s, so P_Us = −20 × 4 = **−80 W** (delivers 80 W).",
+        "**Check:** the resistors absorb 2×4² + 12²/6 + 2×2² + 8²/2 = 32 + 24 + 8 + 32 = 96 W; V_s delivers 80 W and I_s delivers 8 × 2 = 16 W, 96 W in total."
       ]
     }
   }

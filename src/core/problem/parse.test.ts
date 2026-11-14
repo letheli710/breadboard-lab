@@ -373,7 +373,7 @@ describe('documentation examples', () => {
 });
 
 describe('automatic marks', () => {
-  it('voltage marks are named u_… in both languages (diagrams draw u)', () => {
+  it('voltage marks are named v_… in both languages (diagrams draw v)', () => {
     for (const lang of ['zh', 'en'] as const) {
       setLang(lang);
       const b = structuredClone(base) as any;
@@ -382,7 +382,7 @@ describe('automatic marks', () => {
       expect(r.errors).toEqual([]);
       expect(r.problem!.schematic.marks).toEqual([
         { kind: 'i', el: 'R1', name: 'i_R1' },
-        { kind: 'v', el: 'R2', name: 'u_R2' },
+        { kind: 'v', el: 'R2', name: 'v_R2' },
       ]);
     }
   });

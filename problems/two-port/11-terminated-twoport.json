@@ -8,11 +8,11 @@
   "tags": ["Z 参数", "输入电阻", "戴维宁等效", "端接二端口", "受控源 CCVS"],
   "statement": [
     "二端口 N 由 R_1 = R_2 = 2 Ω、R_3 = 4 Ω 和电流控制电压源 2i_1（“+”在上，i_1 为流入 1 端的电流）组成，可以求得它的 Z 参数为 z_11 = 8 Ω，z_12 = 4 Ω，z_21 = 6 Ω，z_22 = 6 Ω。",
-    "端口 1 接 U_s = 24 V、内阻 R_s = 4 Ω 的电源，端口 2 接负载 R_L = 4 Ω。利用 Z 参数方程求：从端口 1 看进去的输入电阻 R_in（含 R_L）、从端口 2 看进去的戴维宁等效电路（不含 R_L），以及负载电压 u_2。"
+    "端口 1 接 V_s = 24 V、内阻 R_s = 4 Ω 的电源，端口 2 接负载 R_L = 4 Ω。利用 Z 参数方程求：从端口 1 看进去的输入电阻 R_in（含 R_L）、从端口 2 看进去的戴维宁等效电路（不含 R_L），以及负载电压 v_2。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": 24 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": 24 },
       { "ref": "Rs", "type": "R", "from": [1, 0], "to": [4, 0], "value": 4 },
       { "ref": "R1", "type": "R", "from": [6, 0], "to": [9, 0], "value": 2 },
       { "ref": "R3", "type": "R", "from": [11, 0], "to": [11, 3], "value": 4 },
@@ -34,25 +34,25 @@
       { "at": [17, 6], "name": "2'" }
     ],
     "grounds": [[0, 6]],
-    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }, { "kind": "v", "el": "RL", "name": "u2" }]
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }, { "kind": "v", "el": "RL", "name": "v2" }]
   },
   "analysis": { "type": "dc" },
   "questions": [
     {
       "id": "rin",
       "ask": "从 1–1' 向右看进去的输入电阻 R_in = ?",
-      "find": { "kind": "req", "port": ["1", "1'"], "exclude": ["Us", "Rs"] },
+      "find": { "kind": "req", "port": ["1", "1'"], "exclude": ["Vs", "Rs"] },
       "answer": 5.6,
       "unit": "Ω",
       "explain": "R_in = z_11 − z_12·z_21/(z_22 + R_L) = 8 − 4 × 6/(6 + 4) = 8 − 2.4 = 5.6 Ω。"
     },
     {
       "id": "uoc",
-      "ask": "断开 R_L，2–2' 的开路电压 u_oc = ?",
+      "ask": "断开 R_L，2–2' 的开路电压 v_oc = ?",
       "find": { "kind": "vth", "port": ["2", "2'"], "exclude": ["RL"] },
       "answer": 12,
       "unit": "V",
-      "explain": "i_2 = 0：i_1 = U_s/(R_s + z_11) = 24/12 = 2 A，u_oc = z_21·i_1 = 6 × 2 = 12 V。"
+      "explain": "i_2 = 0：i_1 = V_s/(R_s + z_11) = 24/12 = 2 A，v_oc = z_21·i_1 = 6 × 2 = 12 V。"
     },
     {
       "id": "req",
@@ -60,28 +60,28 @@
       "find": { "kind": "req", "port": ["2", "2'"], "exclude": ["RL"] },
       "answer": 4,
       "unit": "Ω",
-      "explain": "U_s 置零，端口 1 只接 R_s：R_eq = z_22 − z_12·z_21/(z_11 + R_s) = 6 − 24/12 = 4 Ω。"
+      "explain": "V_s 置零，端口 1 只接 R_s：R_eq = z_22 − z_12·z_21/(z_11 + R_s) = 6 − 24/12 = 4 Ω。"
     },
     {
       "id": "u2",
-      "ask": "负载电压 u_2 = ?",
+      "ask": "负载电压 v_2 = ?",
       "find": { "kind": "v", "el": "RL" },
       "answer": 6,
       "unit": "V",
-      "explain": "由戴维宁等效：u_2 = 12 × 4/(4 + 4) = 6 V。此时 R_L = R_eq，负载获得最大功率 12²/(4 × 4) = 9 W。"
+      "explain": "由戴维宁等效：v_2 = 12 × 4/(4 + 4) = 6 V。此时 R_L = R_eq，负载获得最大功率 12²/(4 × 4) = 9 W。"
     }
   ],
   "hints": [
-    "把两个 Z 参数方程和两个端接条件 u_1 = U_s − R_s·i_1、u_2 = −R_L·i_2 联立（i_2 从 2 端流入，所以负载电流是 −i_2）。",
-    "输入电阻：用 u_2 = −R_L·i_2 消去 i_2，得 R_in = z_11 − z_12·z_21/(z_22 + R_L)。输出端的戴维宁电阻同理：R_eq = z_22 − z_12·z_21/(z_11 + R_s)；开路电压令 i_2 = 0。"
+    "把两个 Z 参数方程和两个端接条件 v_1 = V_s − R_s·i_1、v_2 = −R_L·i_2 联立（i_2 从 2 端流入，所以负载电流是 −i_2）。",
+    "输入电阻：用 v_2 = −R_L·i_2 消去 i_2，得 R_in = z_11 − z_12·z_21/(z_22 + R_L)。输出端的戴维宁电阻同理：R_eq = z_22 − z_12·z_21/(z_11 + R_s)；开路电压令 i_2 = 0。"
   ],
   "solution": [
-    "**方程：** u_1 = 8i_1 + 4i_2，u_2 = 6i_1 + 6i_2；端接条件 u_1 = 24 − 4i_1，u_2 = −4i_2。",
-    "**1. 输入电阻。** 由 u_2 = −4i_2 得 6i_1 + 6i_2 = −4i_2，i_2 = −0.6i_1；u_1 = 8i_1 + 4(−0.6i_1) = 5.6i_1 → **R_in = 5.6 Ω**。",
-    "**2. 开路电压。** i_2 = 0：u_1 = 8i_1 = 24 − 4i_1 → i_1 = 2 A，**u_oc** = 6 × 2 = **12 V**。",
-    "**3. 戴维宁电阻。** U_s = 0，u_1 = −4i_1：−4i_1 = 8i_1 + 4i_2 → i_1 = −i_2/3；u_2 = 6(−i_2/3) + 6i_2 = 4i_2 → **R_eq = 4 Ω**。",
-    "**4. 负载电压。** u_2 = u_oc·R_L/(R_eq + R_L) = 12 × 4/8 = **6 V**。",
-    "**验算：** i_1 = U_s/(R_s + R_in) = 24/9.6 = 2.5 A，i_2 = −0.6 × 2.5 = −1.5 A，u_2 = −4 × (−1.5) = 6 V ✓。"
+    "**方程：** v_1 = 8i_1 + 4i_2，v_2 = 6i_1 + 6i_2；端接条件 v_1 = 24 − 4i_1，v_2 = −4i_2。",
+    "**1. 输入电阻。** 由 v_2 = −4i_2 得 6i_1 + 6i_2 = −4i_2，i_2 = −0.6i_1；v_1 = 8i_1 + 4(−0.6i_1) = 5.6i_1 → **R_in = 5.6 Ω**。",
+    "**2. 开路电压。** i_2 = 0：v_1 = 8i_1 = 24 − 4i_1 → i_1 = 2 A，**v_oc** = 6 × 2 = **12 V**。",
+    "**3. 戴维宁电阻。** V_s = 0，v_1 = −4i_1：−4i_1 = 8i_1 + 4i_2 → i_1 = −i_2/3；v_2 = 6(−i_2/3) + 6i_2 = 4i_2 → **R_eq = 4 Ω**。",
+    "**4. 负载电压。** v_2 = v_oc·R_L/(R_eq + R_L) = 12 × 4/8 = **6 V**。",
+    "**验算：** i_1 = V_s/(R_s + R_in) = 24/9.6 = 2.5 A，i_2 = −0.6 × 2.5 = −1.5 A，v_2 = −4 × (−1.5) = 6 V ✓。"
   ],
   "i18n": {
     "en": {
@@ -89,25 +89,25 @@
       "tags": ["Z parameters", "input resistance", "Thevenin equivalent", "terminated two-port", "dependent source CCVS"],
       "statement": [
         "Two-port N consists of R_1 = R_2 = 2 Ω, R_3 = 4 Ω and a current-controlled voltage source 2i_1 (+ at the top, i_1 being the current into terminal 1); its Z parameters work out as z_11 = 8 Ω, z_12 = 4 Ω, z_21 = 6 Ω, z_22 = 6 Ω.",
-        "Port 1 is driven by U_s = 24 V with internal resistance R_s = 4 Ω and port 2 is loaded by R_L = 4 Ω. Using the Z-parameter equations, find the input resistance R_in seen at port 1 (with R_L connected), the Thevenin equivalent seen at port 2 (without R_L), and the load voltage u_2."
+        "Port 1 is driven by V_s = 24 V with internal resistance R_s = 4 Ω and port 2 is loaded by R_L = 4 Ω. Using the Z-parameter equations, find the input resistance R_in seen at port 1 (with R_L connected), the Thevenin equivalent seen at port 2 (without R_L), and the load voltage v_2."
       ],
       "questions": [
         { "ask": "Input resistance seen looking right into 1–1', R_in = ?", "explain": "R_in = z_11 − z_12·z_21/(z_22 + R_L) = 8 − 4 × 6/(6 + 4) = 8 − 2.4 = 5.6 Ω." },
-        { "ask": "With R_L removed, open-circuit voltage at 2–2', u_oc = ?", "explain": "i_2 = 0: i_1 = U_s/(R_s + z_11) = 24/12 = 2 A, u_oc = z_21·i_1 = 6 × 2 = 12 V." },
-        { "ask": "With R_L removed, Thevenin resistance seen at 2–2', R_eq = ?", "explain": "With U_s set to zero, port 1 sees only R_s: R_eq = z_22 − z_12·z_21/(z_11 + R_s) = 6 − 24/12 = 4 Ω." },
-        { "ask": "Load voltage u_2 = ?", "explain": "From the Thevenin equivalent: u_2 = 12 × 4/(4 + 4) = 6 V. Here R_L = R_eq, so the load receives the maximum power 12²/(4 × 4) = 9 W." }
+        { "ask": "With R_L removed, open-circuit voltage at 2–2', v_oc = ?", "explain": "i_2 = 0: i_1 = V_s/(R_s + z_11) = 24/12 = 2 A, v_oc = z_21·i_1 = 6 × 2 = 12 V." },
+        { "ask": "With R_L removed, Thevenin resistance seen at 2–2', R_eq = ?", "explain": "With V_s set to zero, port 1 sees only R_s: R_eq = z_22 − z_12·z_21/(z_11 + R_s) = 6 − 24/12 = 4 Ω." },
+        { "ask": "Load voltage v_2 = ?", "explain": "From the Thevenin equivalent: v_2 = 12 × 4/(4 + 4) = 6 V. Here R_L = R_eq, so the load receives the maximum power 12²/(4 × 4) = 9 W." }
       ],
       "hints": [
-        "Combine the two Z-parameter equations with the two terminations u_1 = U_s − R_s·i_1 and u_2 = −R_L·i_2 (i_2 flows into terminal 2, so the load current is −i_2).",
-        "Input resistance: eliminate i_2 with u_2 = −R_L·i_2 to get R_in = z_11 − z_12·z_21/(z_22 + R_L). Likewise at the output: R_eq = z_22 − z_12·z_21/(z_11 + R_s); for the open-circuit voltage set i_2 = 0."
+        "Combine the two Z-parameter equations with the two terminations v_1 = V_s − R_s·i_1 and v_2 = −R_L·i_2 (i_2 flows into terminal 2, so the load current is −i_2).",
+        "Input resistance: eliminate i_2 with v_2 = −R_L·i_2 to get R_in = z_11 − z_12·z_21/(z_22 + R_L). Likewise at the output: R_eq = z_22 − z_12·z_21/(z_11 + R_s); for the open-circuit voltage set i_2 = 0."
       ],
       "solution": [
-        "**Equations:** u_1 = 8i_1 + 4i_2, u_2 = 6i_1 + 6i_2; terminations u_1 = 24 − 4i_1, u_2 = −4i_2.",
-        "**1. Input resistance.** From u_2 = −4i_2: 6i_1 + 6i_2 = −4i_2, i_2 = −0.6i_1; u_1 = 8i_1 + 4(−0.6i_1) = 5.6i_1 → **R_in = 5.6 Ω**.",
-        "**2. Open-circuit voltage.** i_2 = 0: u_1 = 8i_1 = 24 − 4i_1 → i_1 = 2 A, **u_oc** = 6 × 2 = **12 V**.",
-        "**3. Thevenin resistance.** U_s = 0, u_1 = −4i_1: −4i_1 = 8i_1 + 4i_2 → i_1 = −i_2/3; u_2 = 6(−i_2/3) + 6i_2 = 4i_2 → **R_eq = 4 Ω**.",
-        "**4. Load voltage.** u_2 = u_oc·R_L/(R_eq + R_L) = 12 × 4/8 = **6 V**.",
-        "**Check:** i_1 = U_s/(R_s + R_in) = 24/9.6 = 2.5 A, i_2 = −0.6 × 2.5 = −1.5 A, u_2 = −4 × (−1.5) = 6 V ✓."
+        "**Equations:** v_1 = 8i_1 + 4i_2, v_2 = 6i_1 + 6i_2; terminations v_1 = 24 − 4i_1, v_2 = −4i_2.",
+        "**1. Input resistance.** From v_2 = −4i_2: 6i_1 + 6i_2 = −4i_2, i_2 = −0.6i_1; v_1 = 8i_1 + 4(−0.6i_1) = 5.6i_1 → **R_in = 5.6 Ω**.",
+        "**2. Open-circuit voltage.** i_2 = 0: v_1 = 8i_1 = 24 − 4i_1 → i_1 = 2 A, **v_oc** = 6 × 2 = **12 V**.",
+        "**3. Thevenin resistance.** V_s = 0, v_1 = −4i_1: −4i_1 = 8i_1 + 4i_2 → i_1 = −i_2/3; v_2 = 6(−i_2/3) + 6i_2 = 4i_2 → **R_eq = 4 Ω**.",
+        "**4. Load voltage.** v_2 = v_oc·R_L/(R_eq + R_L) = 12 × 4/8 = **6 V**.",
+        "**Check:** i_1 = V_s/(R_s + R_in) = 24/9.6 = 2.5 A, i_2 = −0.6 × 2.5 = −1.5 A, v_2 = −4 × (−1.5) = 6 V ✓."
       ]
     }
   }

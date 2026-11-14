@@ -3,16 +3,16 @@
   "format": "circuit-problem/1",
   "id": "storage-03-capacitor-sine-voltage",
   "chapter": "storage",
-  "title": "正弦电压加在电容上：i = C du/dt",
+  "title": "正弦电压加在电容上：i = C dv/dt",
   "level": 2,
   "tags": ["电容 VCR", "微分形式", "瞬时功率"],
   "statement": [
-    "电容 C = 100 µF 直接接在电压源上，u_s = 10 sin(100πt) V（已经持续很久）。电容电压、电流取关联参考方向（见图）。",
+    "电容 C = 100 µF 直接接在电压源上，v_s = 10 sin(100πt) V（已经持续很久）。电容电压、电流取关联参考方向（见图）。",
     "求 t = 0 和 t = 1/150 s 时的电容电流 i_C，以及 t = 1/150 s 时电容吸收的瞬时功率 p_C。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "sin": { "amp": 10, "freq": 50, "phase": 0 } }, "label": "10 sin(100πt) V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "sin": { "amp": 10, "freq": 50, "phase": 0 } }, "label": "10 sin(100πt) V" },
       { "ref": "C", "type": "C", "from": [6, 0], "to": [6, 4], "value": "100u" }
     ],
     "wires": [
@@ -21,54 +21,54 @@
     ],
     "grounds": [[0, 4]],
     "marks": [
-      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "v", "el": "C", "name": "v_C" },
       { "kind": "i", "el": "C", "name": "i_C" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "i0", "ask": "t = 0 时 i_C = ?", "find": { "kind": "i", "el": "C", "t": 0 }, "answer": 0.3141593, "unit": "A", "explain": "i_C = C·du_C/dt = 100×10⁻⁶ × 10 × 100π·cos(100πt) = 0.1π·cos(100πt) A。t = 0 时 cos 0 = 1，i_C = 0.1π ≈ 0.3142 A——此刻电压为零，但变化最快，电流最大。" },
+    { "id": "i0", "ask": "t = 0 时 i_C = ?", "find": { "kind": "i", "el": "C", "t": 0 }, "answer": 0.3141593, "unit": "A", "explain": "i_C = C·dv_C/dt = 100×10⁻⁶ × 10 × 100π·cos(100πt) = 0.1π·cos(100πt) A。t = 0 时 cos 0 = 1，i_C = 0.1π ≈ 0.3142 A——此刻电压为零，但变化最快，电流最大。" },
     { "id": "i1", "ask": "t = 1/150 s 时 i_C = ?", "find": { "kind": "i", "el": "C", "t": 0.006666667 }, "answer": -0.1570796, "unit": "A", "explain": "100πt = 2π/3，cos(2π/3) = −0.5，i_C = 0.1π × (−0.5) ≈ −0.1571 A。电压正在下降，电流为负。" },
-    { "id": "p1", "ask": "t = 1/150 s 时电容吸收的瞬时功率 p_C = ?", "find": { "kind": "p", "el": "C", "t": 0.006666667 }, "answer": -1.360350, "unit": "W", "explain": "u_C = 10 sin(2π/3) = 8.660 V，p_C = u_C·i_C = 8.660 × (−0.1571) ≈ −1.360 W。p_C < 0：电容正在把储存的电场能量送回电源。" },
-    { "id": "ph", "ask": "电容电流 i_C 与电压 u_C 的相位关系是：", "choices": ["i_C 超前 u_C 90°", "i_C 滞后 u_C 90°", "同相", "反相"], "choiceExplain": ["", "这是电感的相位关系（u_L = L di/dt，电流滞后电压 90°）；电容 i_C = C du_C/dt，电流超前。", "同相是电阻的特征；电容电流正比于电压的变化率，u_C 过零时变化最快、i_C 最大，两者错开 90°。", "反相相当于 i_C = −C du_C/dt，符号取错了；u、i 取关联参考方向时 i_C = +C du_C/dt。"], "correct": 0, "explain": "以 cos 为参考：u_C = 10 sin(100πt) = 10 cos(100πt − 90°)，i_C = 0.1π cos(100πt)，i_C 的初相比 u_C 大 90°，电流超前电压 90°。" }
+    { "id": "p1", "ask": "t = 1/150 s 时电容吸收的瞬时功率 p_C = ?", "find": { "kind": "p", "el": "C", "t": 0.006666667 }, "answer": -1.360350, "unit": "W", "explain": "v_C = 10 sin(2π/3) = 8.660 V，p_C = v_C·i_C = 8.660 × (−0.1571) ≈ −1.360 W。p_C < 0：电容正在把储存的电场能量送回电源。" },
+    { "id": "ph", "ask": "电容电流 i_C 与电压 v_C 的相位关系是：", "choices": ["i_C 超前 v_C 90°", "i_C 滞后 v_C 90°", "同相", "反相"], "choiceExplain": ["", "这是电感的相位关系（v_L = L di/dt，电流滞后电压 90°）；电容 i_C = C dv_C/dt，电流超前。", "同相是电阻的特征；电容电流正比于电压的变化率，v_C 过零时变化最快、i_C 最大，两者错开 90°。", "反相相当于 i_C = −C dv_C/dt，符号取错了；v、i 取关联参考方向时 i_C = +C dv_C/dt。"], "correct": 0, "explain": "以 cos 为参考：v_C = 10 sin(100πt) = 10 cos(100πt − 90°)，i_C = 0.1π cos(100πt)，i_C 的初相比 v_C 大 90°，电流超前电压 90°。" }
   ],
   "hints": [
-    "电容电压就是电源电压 u_s，用 i_C = C·du_C/dt 求导。",
+    "电容电压就是电源电压 v_s，用 i_C = C·dv_C/dt 求导。",
     "d/dt [sin(ωt)] = ω·cos(ωt)，这里 ω = 100π rad/s。",
-    "瞬时功率 p = u·i（关联参考方向），可以为负。"
+    "瞬时功率 p = v·i（关联参考方向），可以为负。"
   ],
   "solution": [
-    "**1. 电流表达式。** 电容与电源并联，u_C = u_s = 10 sin(100πt) V。由 i_C = C du_C/dt：i_C = 10⁻⁴ × 10 × 100π cos(100πt) = **0.1π cos(100πt) A**（幅值 ≈ 0.3142 A）。",
+    "**1. 电流表达式。** 电容与电源并联，v_C = v_s = 10 sin(100πt) V。由 i_C = C dv_C/dt：i_C = 10⁻⁴ × 10 × 100π cos(100πt) = **0.1π cos(100πt) A**（幅值 ≈ 0.3142 A）。",
     "**2. t = 0。** i_C(0) = 0.1π ≈ **0.3142 A**。",
-    "**3. t = 1/150 s。** 100πt = 2π/3：u_C = 10 × (√3/2) ≈ 8.660 V，i_C = 0.1π × (−1/2) ≈ **−0.1571 A**。",
-    "**4. 瞬时功率。** p_C = u_C·i_C = 8.660 × (−0.1571) ≈ **−1.360 W**。一般地 p_C = 0.5π·sin(200πt) W，在一个周期内正负各半：电容交替地吸收和释放能量，平均功率为零。",
-    "**5. 相位。** 以 cos 为参考：u_C = 10 cos(100πt − 90°)，i_C = 0.1π cos(100πt)，电流超前电压 90°——这是正弦稳态中电容的基本特征。"
+    "**3. t = 1/150 s。** 100πt = 2π/3：v_C = 10 × (√3/2) ≈ 8.660 V，i_C = 0.1π × (−1/2) ≈ **−0.1571 A**。",
+    "**4. 瞬时功率。** p_C = v_C·i_C = 8.660 × (−0.1571) ≈ **−1.360 W**。一般地 p_C = 0.5π·sin(200πt) W，在一个周期内正负各半：电容交替地吸收和释放能量，平均功率为零。",
+    "**5. 相位。** 以 cos 为参考：v_C = 10 cos(100πt − 90°)，i_C = 0.1π cos(100πt)，电流超前电压 90°——这是正弦稳态中电容的基本特征。"
   ],
   "i18n": {
     "en": {
-      "title": "Sinusoidal voltage across a capacitor: i = C du/dt",
+      "title": "Sinusoidal voltage across a capacitor: i = C dv/dt",
       "tags": ["capacitor VCR", "differential form", "instantaneous power"],
       "statement": [
-        "A capacitor C = 100 µF is connected directly to a voltage source u_s = 10 sin(100πt) V (which has been running for a long time). The capacitor voltage and current follow the passive sign convention (see the drawing).",
+        "A capacitor C = 100 µF is connected directly to a voltage source v_s = 10 sin(100πt) V (which has been running for a long time). The capacitor voltage and current follow the passive sign convention (see the drawing).",
         "Find the capacitor current i_C at t = 0 and at t = 1/150 s, and the instantaneous power p_C absorbed by the capacitor at t = 1/150 s."
       ],
       "questions": [
-        { "ask": "i_C at t = 0 = ?", "explain": "i_C = C·du_C/dt = 100×10⁻⁶ × 10 × 100π·cos(100πt) = 0.1π·cos(100πt) A. At t = 0, cos 0 = 1 and i_C = 0.1π ≈ 0.3142 A — the voltage is zero at this instant but changing fastest, so the current is at its maximum." },
+        { "ask": "i_C at t = 0 = ?", "explain": "i_C = C·dv_C/dt = 100×10⁻⁶ × 10 × 100π·cos(100πt) = 0.1π·cos(100πt) A. At t = 0, cos 0 = 1 and i_C = 0.1π ≈ 0.3142 A — the voltage is zero at this instant but changing fastest, so the current is at its maximum." },
         { "ask": "i_C at t = 1/150 s = ?", "explain": "100πt = 2π/3 and cos(2π/3) = −0.5, so i_C = 0.1π × (−0.5) ≈ −0.1571 A. The voltage is falling, so the current is negative." },
-        { "ask": "Instantaneous power absorbed by the capacitor at t = 1/150 s, p_C = ?", "explain": "u_C = 10 sin(2π/3) = 8.660 V, p_C = u_C·i_C = 8.660 × (−0.1571) ≈ −1.360 W. p_C < 0: the capacitor is returning stored electric-field energy to the source." },
-        { "ask": "The phase relation between i_C and u_C is:", "choices": ["i_C leads u_C by 90°", "i_C lags u_C by 90°", "In phase", "Opposite in phase"], "choiceExplain": ["", "That is the inductor's relation (u_L = L di/dt, current lags voltage by 90°); for a capacitor i_C = C du_C/dt, so the current leads.", "In phase is how a resistor behaves; a capacitor's current is proportional to the rate of change of voltage — largest when u_C crosses zero — so the two are 90° apart.", "Opposite phase would mean i_C = −C du_C/dt, a sign error; with associated reference directions i_C = +C du_C/dt."], "explain": "With cosine as the reference: u_C = 10 sin(100πt) = 10 cos(100πt − 90°) and i_C = 0.1π cos(100πt), so the phase of i_C exceeds that of u_C by 90°: the current leads the voltage by 90°." }
+        { "ask": "Instantaneous power absorbed by the capacitor at t = 1/150 s, p_C = ?", "explain": "v_C = 10 sin(2π/3) = 8.660 V, p_C = v_C·i_C = 8.660 × (−0.1571) ≈ −1.360 W. p_C < 0: the capacitor is returning stored electric-field energy to the source." },
+        { "ask": "The phase relation between i_C and v_C is:", "choices": ["i_C leads v_C by 90°", "i_C lags v_C by 90°", "In phase", "Opposite in phase"], "choiceExplain": ["", "That is the inductor's relation (v_L = L di/dt, current lags voltage by 90°); for a capacitor i_C = C dv_C/dt, so the current leads.", "In phase is how a resistor behaves; a capacitor's current is proportional to the rate of change of voltage — largest when v_C crosses zero — so the two are 90° apart.", "Opposite phase would mean i_C = −C dv_C/dt, a sign error; with associated reference directions i_C = +C dv_C/dt."], "explain": "With cosine as the reference: v_C = 10 sin(100πt) = 10 cos(100πt − 90°) and i_C = 0.1π cos(100πt), so the phase of i_C exceeds that of v_C by 90°: the current leads the voltage by 90°." }
       ],
       "hints": [
-        "The capacitor voltage is the source voltage u_s; differentiate it using i_C = C·du_C/dt.",
+        "The capacitor voltage is the source voltage v_s; differentiate it using i_C = C·dv_C/dt.",
         "d/dt [sin(ωt)] = ω·cos(ωt), with ω = 100π rad/s here.",
-        "Instantaneous power is p = u·i (passive sign convention) and can be negative."
+        "Instantaneous power is p = v·i (passive sign convention) and can be negative."
       ],
       "solution": [
-        "**1. Current.** The capacitor is in parallel with the source, so u_C = u_s = 10 sin(100πt) V. From i_C = C du_C/dt: i_C = 10⁻⁴ × 10 × 100π cos(100πt) = **0.1π cos(100πt) A** (amplitude ≈ 0.3142 A).",
+        "**1. Current.** The capacitor is in parallel with the source, so v_C = v_s = 10 sin(100πt) V. From i_C = C dv_C/dt: i_C = 10⁻⁴ × 10 × 100π cos(100πt) = **0.1π cos(100πt) A** (amplitude ≈ 0.3142 A).",
         "**2. t = 0.** i_C(0) = 0.1π ≈ **0.3142 A**.",
-        "**3. t = 1/150 s.** 100πt = 2π/3: u_C = 10 × (√3/2) ≈ 8.660 V, i_C = 0.1π × (−1/2) ≈ **−0.1571 A**.",
-        "**4. Instantaneous power.** p_C = u_C·i_C = 8.660 × (−0.1571) ≈ **−1.360 W**. In general p_C = 0.5π·sin(200πt) W, positive for half the time and negative for the other half: the capacitor alternately stores and returns energy, and its average power is zero.",
-        "**5. Phase.** With cosine as the reference, u_C = 10 cos(100πt − 90°) and i_C = 0.1π cos(100πt), so the current leads the voltage by 90° — the defining feature of a capacitor in sinusoidal steady state."
+        "**3. t = 1/150 s.** 100πt = 2π/3: v_C = 10 × (√3/2) ≈ 8.660 V, i_C = 0.1π × (−1/2) ≈ **−0.1571 A**.",
+        "**4. Instantaneous power.** p_C = v_C·i_C = 8.660 × (−0.1571) ≈ **−1.360 W**. In general p_C = 0.5π·sin(200πt) W, positive for half the time and negative for the other half: the capacitor alternately stores and returns energy, and its average power is zero.",
+        "**5. Phase.** With cosine as the reference, v_C = 10 cos(100πt − 90°) and i_C = 0.1π cos(100πt), so the current leads the voltage by 90° — the defining feature of a capacitor in sinusoidal steady state."
       ]
     }
   }

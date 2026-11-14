@@ -7,12 +7,12 @@
   "level": 1,
   "tags": ["串联", "分压公式", "电位"],
   "statement": [
-    "图示电路中，U_s = 24 V，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 6 Ω，三个电阻串联。以电源负极（接地点）为参考点。",
-    "求回路电流 i、R_2 两端电压 u_2（参考方向见图），以及结点 a 的电位 u_a。"
+    "图示电路中，V_s = 24 V，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 6 Ω，三个电阻串联。以电源负极（接地点）为参考点。",
+    "求回路电流 i、R_2 两端电压 v_2（参考方向见图），以及结点 a 的电位 v_a。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 24 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 24 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
       { "ref": "R2", "type": "R", "from": [9, 0], "to": [9, 4], "value": 4 },
       { "ref": "R3", "type": "R", "from": [6, 4], "to": [2, 4], "value": 6 }
@@ -25,46 +25,46 @@
     ],
     "labels": [{ "at": [9, 0], "name": "a" }, { "at": [9, 4], "name": "b" }],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "i", "el": "R1", "name": "i" }, { "kind": "v", "el": "R2", "name": "u2" }]
+    "marks": [{ "kind": "i", "el": "R1", "name": "i" }, { "kind": "v", "el": "R2", "name": "v2" }]
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "i", "ask": "回路电流 i = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "串联等效电阻 R = 2 + 4 + 6 = 12 Ω，i = U_s / R = 24 / 12 = 2 A。" },
-    { "id": "u2", "ask": "R_2 两端电压 u_2 = ?", "find": { "kind": "v", "el": "R2" }, "answer": 8, "unit": "V", "explain": "分压公式：u_2 = R_2 / (R_1 + R_2 + R_3) × U_s = 4/12 × 24 = 8 V。" },
-    { "id": "ua", "ask": "结点 a 的电位 u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 20, "unit": "V", "explain": "从参考点出发经 U_s、R_1 到 a：u_a = 24 − 2 × 2 = 20 V（也可以 u_a = u_2 + u_3 = 8 + 12 = 20 V）。" }
+    { "id": "i", "ask": "回路电流 i = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "串联等效电阻 R = 2 + 4 + 6 = 12 Ω，i = V_s / R = 24 / 12 = 2 A。" },
+    { "id": "u2", "ask": "R_2 两端电压 v_2 = ?", "find": { "kind": "v", "el": "R2" }, "answer": 8, "unit": "V", "explain": "分压公式：v_2 = R_2 / (R_1 + R_2 + R_3) × V_s = 4/12 × 24 = 8 V。" },
+    { "id": "ua", "ask": "结点 a 的电位 v_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 20, "unit": "V", "explain": "从参考点出发经 V_s、R_1 到 a：v_a = 24 − 2 × 2 = 20 V（也可以 v_a = v_2 + v_3 = 8 + 12 = 20 V）。" }
   ],
   "hints": [
     "串联电阻的等效电阻等于各电阻之和，所有元件流过同一个电流。",
-    "分压公式 u_k = R_k / ΣR × U_s；求电位时从参考点出发沿任一路径累加电压。"
+    "分压公式 v_k = R_k / ΣR × V_s；求电位时从参考点出发沿任一路径累加电压。"
   ],
   "solution": [
     "**1. 等效电阻。** 三个电阻串联：R = R_1 + R_2 + R_3 = 2 + 4 + 6 = 12 Ω。",
-    "**2. 电流。** i = U_s / R = 24 / 12 = **2 A**（顺时针，与 R_1 上箭头一致）。",
-    "**3. 分压。** u_2 = R_2 / R × U_s = 4/12 × 24 = **8 V**；同理 u_1 = 4 V，u_3 = 12 V，u_1 + u_2 + u_3 = 24 V = U_s（满足 KVL）。",
-    "**4. 电位。** 地 → U_s 升高 24 V → R_1 降低 4 V，得 u_a = **20 V**。另一条路径：u_a = u_2 + u_3 = 8 + 12 = 20 V，结果相同。"
+    "**2. 电流。** i = V_s / R = 24 / 12 = **2 A**（顺时针，与 R_1 上箭头一致）。",
+    "**3. 分压。** v_2 = R_2 / R × V_s = 4/12 × 24 = **8 V**；同理 v_1 = 4 V，v_3 = 12 V，v_1 + v_2 + v_3 = 24 V = V_s（满足 KVL）。",
+    "**4. 电位。** 地 → V_s 升高 24 V → R_1 降低 4 V，得 v_a = **20 V**。另一条路径：v_a = v_2 + v_3 = 8 + 12 = 20 V，结果相同。"
   ],
   "i18n": {
     "en": {
       "title": "Series resistors and the voltage divider",
       "tags": ["series", "voltage divider", "potential"],
       "statement": [
-        "In the circuit, U_s = 24 V, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 6 Ω; the three resistors are in series. The negative terminal of the source (the ground) is the reference node.",
-        "Find the loop current i, the voltage u_2 across R_2 (reference polarity as drawn) and the potential u_a of node a."
+        "In the circuit, V_s = 24 V, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 6 Ω; the three resistors are in series. The negative terminal of the source (the ground) is the reference node.",
+        "Find the loop current i, the voltage v_2 across R_2 (reference polarity as drawn) and the potential v_a of node a."
       ],
       "questions": [
-        { "ask": "Loop current i = ?", "explain": "The series equivalent is R = 2 + 4 + 6 = 12 Ω, so i = U_s / R = 24 / 12 = 2 A." },
-        { "ask": "Voltage across R_2, u_2 = ?", "explain": "Voltage-divider rule: u_2 = R_2 / (R_1 + R_2 + R_3) × U_s = 4/12 × 24 = 8 V." },
-        { "ask": "Potential of node a, u_a = ?", "explain": "Go from the reference through U_s and R_1 to a: u_a = 24 − 2 × 2 = 20 V (or u_a = u_2 + u_3 = 8 + 12 = 20 V)." }
+        { "ask": "Loop current i = ?", "explain": "The series equivalent is R = 2 + 4 + 6 = 12 Ω, so i = V_s / R = 24 / 12 = 2 A." },
+        { "ask": "Voltage across R_2, v_2 = ?", "explain": "Voltage-divider rule: v_2 = R_2 / (R_1 + R_2 + R_3) × V_s = 4/12 × 24 = 8 V." },
+        { "ask": "Potential of node a, v_a = ?", "explain": "Go from the reference through V_s and R_1 to a: v_a = 24 − 2 × 2 = 20 V (or v_a = v_2 + v_3 = 8 + 12 = 20 V)." }
       ],
       "hints": [
         "Series resistances add, and every element carries the same current.",
-        "Divider rule u_k = R_k / ΣR × U_s; for a potential, start at the reference node and add up voltages along any path."
+        "Divider rule v_k = R_k / ΣR × V_s; for a potential, start at the reference node and add up voltages along any path."
       ],
       "solution": [
         "**1. Equivalent resistance.** The three resistors are in series: R = R_1 + R_2 + R_3 = 2 + 4 + 6 = 12 Ω.",
-        "**2. Current.** i = U_s / R = 24 / 12 = **2 A** (clockwise, the same as the arrow on R_1).",
-        "**3. Divider.** u_2 = R_2 / R × U_s = 4/12 × 24 = **8 V**; likewise u_1 = 4 V, u_3 = 12 V, and u_1 + u_2 + u_3 = 24 V = U_s (KVL holds).",
-        "**4. Potential.** Ground → up 24 V through U_s → down 4 V across R_1 gives u_a = **20 V**. Along the other path u_a = u_2 + u_3 = 8 + 12 = 20 V, the same result."
+        "**2. Current.** i = V_s / R = 24 / 12 = **2 A** (clockwise, the same as the arrow on R_1).",
+        "**3. Divider.** v_2 = R_2 / R × V_s = 4/12 × 24 = **8 V**; likewise v_1 = 4 V, v_3 = 12 V, and v_1 + v_2 + v_3 = 24 V = V_s (KVL holds).",
+        "**4. Potential.** Ground → up 24 V through V_s → down 4 V across R_1 gives v_a = **20 V**. Along the other path v_a = v_2 + v_3 = 8 + 12 = 20 V, the same result."
       ]
     }
   }

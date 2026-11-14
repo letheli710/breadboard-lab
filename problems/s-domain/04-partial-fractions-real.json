@@ -7,19 +7,19 @@
   "level": 2,
   "tags": ["部分分式", "单实数极点", "RLC 串联", "过阻尼"],
   "statement": [
-    "图示 RLC 串联电路中 u_s = 4ε(t) V，R = 5 Ω，L = 1 H，C = 0.25 F，t < 0 时无储能。u_C 的参考方向如图。",
-    "求 U_C(s)，把它展开成 \\frac{K_0}{s} + \\frac{K_1}{s + 1} + \\frac{K_2}{s + 4}，并求 t = 0.5 s 时的 u_C。"
+    "图示 RLC 串联电路中 v_s = 4u(t) V，R = 5 Ω，L = 1 H，C = 0.25 F，t < 0 时无储能。v_C 的参考方向如图。",
+    "求 V_C(s)，把它展开成 \\frac{K_0}{s} + \\frac{K_1}{s + 1} + \\frac{K_2}{s + 4}，并求 t = 0.5 s 时的 v_C。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 4}}, "label": "4ε(t) V"},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 4}}, "label": "4u(t) V"},
       {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 5},
       {"ref": "L", "type": "L", "from": [8, 0], "to": [12, 0], "value": 1},
       {"ref": "C", "type": "C", "from": [14, 0], "to": [14, 4], "value": 0.25}
     ],
     "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[12, 0], [14, 0]], [[14, 4], [0, 4]]],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "i", "el": "L", "name": "i"}, {"kind": "v", "el": "C", "name": "u_C"}]
+    "marks": [{"kind": "i", "el": "L", "name": "i"}, {"kind": "v", "el": "C", "name": "v_C"}]
   },
   "analysis": {"type": "tran"},
   "questions": [
@@ -29,7 +29,7 @@
       "find": {"kind": "residue", "out": {"v": "C"}, "at": 0},
       "answer": 4.0,
       "unit": "V",
-      "explain": "U_C(s) = \\frac{4}{s}·\\frac{1/(sC)}{R + sL + 1/(sC)} = \\frac{16}{s(s² + 5s + 4)} = \\frac{16}{s(s + 1)(s + 4)}；K_0 = [sU_C(s)]_{s=0} = 16/4 = 4（就是终值 u_C(∞)）。"
+      "explain": "V_C(s) = \\frac{4}{s}·\\frac{1/(sC)}{R + sL + 1/(sC)} = \\frac{16}{s(s² + 5s + 4)} = \\frac{16}{s(s + 1)(s + 4)}；K_0 = [sV_C(s)]_{s=0} = 16/4 = 4（就是终值 v_C(∞)）。"
     },
     {
       "id": "K1",
@@ -37,7 +37,7 @@
       "find": {"kind": "residue", "out": {"v": "C"}, "at": -1},
       "answer": -5.333333,
       "unit": "V",
-      "explain": "K_1 = [(s + 1)U_C(s)]_{s=−1} = \\frac{16}{(−1)(−1 + 4)} = −16/3 ≈ −5.333。"
+      "explain": "K_1 = [(s + 1)V_C(s)]_{s=−1} = \\frac{16}{(−1)(−1 + 4)} = −16/3 ≈ −5.333。"
     },
     {
       "id": "K2",
@@ -45,19 +45,19 @@
       "find": {"kind": "residue", "out": {"v": "C"}, "at": -4},
       "answer": 1.333333,
       "unit": "V",
-      "explain": "K_2 = [(s + 4)U_C(s)]_{s=−4} = \\frac{16}{(−4)(−4 + 1)} = 16/12 = 4/3 ≈ 1.333。"
+      "explain": "K_2 = [(s + 4)V_C(s)]_{s=−4} = \\frac{16}{(−4)(−4 + 1)} = 16/12 = 4/3 ≈ 1.333。"
     },
     {
       "id": "uc",
-      "ask": "t = 0.5 s 时 u_C = ?",
+      "ask": "t = 0.5 s 时 v_C = ?",
       "find": {"kind": "v", "el": "C", "t": 0.5},
       "answer": 0.9456169,
       "unit": "V",
-      "explain": "u_C(t) = 4 − \\frac{16}{3}e^{−t} + \\frac{4}{3}e^{−4t} V；t = 0.5 s：4 − 5.333 × 0.6065 + 1.333 × 0.1353 ≈ 0.946 V。"
+      "explain": "v_C(t) = 4 − \\frac{16}{3}e^{−t} + \\frac{4}{3}e^{−4t} V；t = 0.5 s：4 − 5.333 × 0.6065 + 1.333 × 0.1353 ≈ 0.946 V。"
     },
     {
       "id": "kind",
-      "ask": "由 U_C(s) 的极点可以判断 u_C 的暂态过程是：",
+      "ask": "由 V_C(s) 的极点可以判断 v_C 的暂态过程是：",
       "choices": ["非振荡的（过阻尼）：两个负实数极点给出两个衰减指数", "衰减振荡（欠阻尼）", "等幅振荡", "发散的"],
       "correct": 0,
       "choiceExplain": ["", "欠阻尼需要共轭复数极点；这里的极点都在负实轴上。", "等幅振荡对应虚轴上的极点（R = 0）。", "极点都在左半平面，响应收敛。"],
@@ -65,37 +65,37 @@
     }
   ],
   "hints": [
-    "运算电路：电源 4/s，R、sL、1/(sC) 串联，U_C 用分压求。",
+    "运算电路：电源 4/s，R、sL、1/(sC) 串联，V_C 用分压求。",
     "分母因式分解：s² + 5s + 4 = (s + 1)(s + 4)；单极点的系数 K_i = [(s − p_i)F(s)]_{s = p_i}。",
-    "U_C(s) = \\frac{16}{s(s + 1)(s + 4)}，逐个代入 s = 0、−1、−4。"
+    "V_C(s) = \\frac{16}{s(s + 1)(s + 4)}，逐个代入 s = 0、−1、−4。"
   ],
   "solution": [
-    "**1. 运算电路。** 零初始状态，U_C(s) = \\frac{4}{s}·\\frac{4/s}{5 + s + 4/s} = \\frac{16}{s(s² + 5s + 4)} = \\frac{16}{s(s + 1)(s + 4)}。",
+    "**1. 运算电路。** 零初始状态，V_C(s) = \\frac{4}{s}·\\frac{4/s}{5 + s + 4/s} = \\frac{16}{s(s² + 5s + 4)} = \\frac{16}{s(s + 1)(s + 4)}。",
     "**2. 系数。** **K_0 = 16/(1 × 4) = 4**，**K_1 = 16/((−1)(3)) = −16/3**，**K_2 = 16/((−4)(−3)) = 4/3**。",
-    "**3. 反变换。** u_C(t) = 4 − \\frac{16}{3}e^{−t} + \\frac{4}{3}e^{−4t} V，**u_C(0.5) ≈ 0.946 V**。",
-    "**检验：** u_C(0₊) = 4 − 16/3 + 4/3 = 0 ✓；du_C/dt(0₊) = 16/3 − 16/3 = 0 = i(0₊)/C ✓（电感电流连续为 0）；K_0 + K_1 + K_2 = 0 正是 U_C(s) 分母比分子高三阶的结果。"
+    "**3. 反变换。** v_C(t) = 4 − \\frac{16}{3}e^{−t} + \\frac{4}{3}e^{−4t} V，**v_C(0.5) ≈ 0.946 V**。",
+    "**检验：** v_C(0₊) = 4 − 16/3 + 4/3 = 0 ✓；dv_C/dt(0₊) = 16/3 − 16/3 = 0 = i(0₊)/C ✓（电感电流连续为 0）；K_0 + K_1 + K_2 = 0 正是 V_C(s) 分母比分子高三阶的结果。"
   ],
   "i18n": {
     "en": {
       "title": "Partial fractions: distinct real poles",
       "tags": ["partial fractions", "simple real poles", "series RLC", "overdamped"],
       "statement": [
-        "In the series RLC circuit u_s = 4ε(t) V, R = 5 Ω, L = 1 H, C = 0.25 F, with no stored energy for t < 0. The reference direction of u_C is as drawn.",
-        "Find U_C(s), expand it as \\frac{K_0}{s} + \\frac{K_1}{s + 1} + \\frac{K_2}{s + 4}, and find u_C at t = 0.5 s."
+        "In the series RLC circuit v_s = 4u(t) V, R = 5 Ω, L = 1 H, C = 0.25 F, with no stored energy for t < 0. The reference direction of v_C is as drawn.",
+        "Find V_C(s), expand it as \\frac{K_0}{s} + \\frac{K_1}{s + 1} + \\frac{K_2}{s + 4}, and find v_C at t = 0.5 s."
       ],
       "questions": [
         {
           "ask": "K_0 = ?",
-          "explain": "U_C(s) = \\frac{4}{s}·\\frac{1/(sC)}{R + sL + 1/(sC)} = \\frac{16}{s(s² + 5s + 4)} = \\frac{16}{s(s + 1)(s + 4)}; K_0 = [sU_C(s)]_{s=0} = 16/4 = 4 (the final value u_C(∞))."
+          "explain": "V_C(s) = \\frac{4}{s}·\\frac{1/(sC)}{R + sL + 1/(sC)} = \\frac{16}{s(s² + 5s + 4)} = \\frac{16}{s(s + 1)(s + 4)}; K_0 = [sV_C(s)]_{s=0} = 16/4 = 4 (the final value v_C(∞))."
         },
-        {"ask": "K_1 = ?", "explain": "K_1 = [(s + 1)U_C(s)]_{s=−1} = \\frac{16}{(−1)(−1 + 4)} = −16/3 ≈ −5.333."},
-        {"ask": "K_2 = ?", "explain": "K_2 = [(s + 4)U_C(s)]_{s=−4} = \\frac{16}{(−4)(−4 + 1)} = 16/12 = 4/3 ≈ 1.333."},
+        {"ask": "K_1 = ?", "explain": "K_1 = [(s + 1)V_C(s)]_{s=−1} = \\frac{16}{(−1)(−1 + 4)} = −16/3 ≈ −5.333."},
+        {"ask": "K_2 = ?", "explain": "K_2 = [(s + 4)V_C(s)]_{s=−4} = \\frac{16}{(−4)(−4 + 1)} = 16/12 = 4/3 ≈ 1.333."},
         {
-          "ask": "u_C at t = 0.5 s = ?",
-          "explain": "u_C(t) = 4 − \\frac{16}{3}e^{−t} + \\frac{4}{3}e^{−4t} V; at t = 0.5 s: 4 − 5.333 × 0.6065 + 1.333 × 0.1353 ≈ 0.946 V."
+          "ask": "v_C at t = 0.5 s = ?",
+          "explain": "v_C(t) = 4 − \\frac{16}{3}e^{−t} + \\frac{4}{3}e^{−4t} V; at t = 0.5 s: 4 − 5.333 × 0.6065 + 1.333 × 0.1353 ≈ 0.946 V."
         },
         {
-          "ask": "From the poles of U_C(s), the transient of u_C is:",
+          "ask": "From the poles of V_C(s), the transient of v_C is:",
           "explain": "The natural frequencies s = −1, −4 are negative real, so the transient is a sum of e^{−t} and e^{−4t} and does not oscillate; R = 5 Ω > 2√(L/C) = 4 Ω, overdamped.",
           "choices": [
             "non-oscillatory (overdamped): two negative real poles give two decaying exponentials",
@@ -112,15 +112,15 @@
         }
       ],
       "hints": [
-        "s-domain circuit: source 4/s, R, sL and 1/(sC) in series; get U_C by voltage division.",
+        "s-domain circuit: source 4/s, R, sL and 1/(sC) in series; get V_C by voltage division.",
         "Factor the denominator: s² + 5s + 4 = (s + 1)(s + 4); for a simple pole K_i = [(s − p_i)F(s)]_{s = p_i}.",
-        "U_C(s) = \\frac{16}{s(s + 1)(s + 4)}: substitute s = 0, −1, −4 one at a time."
+        "V_C(s) = \\frac{16}{s(s + 1)(s + 4)}: substitute s = 0, −1, −4 one at a time."
       ],
       "solution": [
-        "**1. s-domain circuit.** Zero initial state: U_C(s) = \\frac{4}{s}·\\frac{4/s}{5 + s + 4/s} = \\frac{16}{s(s² + 5s + 4)} = \\frac{16}{s(s + 1)(s + 4)}.",
+        "**1. s-domain circuit.** Zero initial state: V_C(s) = \\frac{4}{s}·\\frac{4/s}{5 + s + 4/s} = \\frac{16}{s(s² + 5s + 4)} = \\frac{16}{s(s + 1)(s + 4)}.",
         "**2. Coefficients.** **K_0 = 16/(1 × 4) = 4**, **K_1 = 16/((−1)(3)) = −16/3**, **K_2 = 16/((−4)(−3)) = 4/3**.",
-        "**3. Inverse transform.** u_C(t) = 4 − \\frac{16}{3}e^{−t} + \\frac{4}{3}e^{−4t} V, **u_C(0.5) ≈ 0.946 V**.",
-        "**Check:** u_C(0+) = 4 − 16/3 + 4/3 = 0 ✓; du_C/dt(0+) = 16/3 − 16/3 = 0 = i(0+)/C ✓ (the inductor current starts at 0); K_0 + K_1 + K_2 = 0 because the denominator of U_C(s) is three degrees higher than the numerator."
+        "**3. Inverse transform.** v_C(t) = 4 − \\frac{16}{3}e^{−t} + \\frac{4}{3}e^{−4t} V, **v_C(0.5) ≈ 0.946 V**.",
+        "**Check:** v_C(0+) = 4 − 16/3 + 4/3 = 0 ✓; dv_C/dt(0+) = 16/3 − 16/3 = 0 = i(0+)/C ✓ (the inductor current starts at 0); K_0 + K_1 + K_2 = 0 because the denominator of V_C(s) is three degrees higher than the numerator."
       ]
     }
   }

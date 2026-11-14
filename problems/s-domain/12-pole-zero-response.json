@@ -7,26 +7,26 @@
   "level": 4,
   "tags": ["网络函数", "极点零点", "冲激响应", "频率响应", "谐振"],
   "statement": [
-    "图示 RLC 串联电路中 L = 0.5 H，C = 0.5 F，R = 1 Ω，输出取电阻电压 u_R。激励为单位冲激 u_s = δ(t) V，t < 0 时无储能，所以 u_R 就是冲激响应 h(t)。",
-    "求 H(s) = U_R(s)/U_s(s) 的零点和极点，由极点位置判断 h(t) 的形式，并把 H(s) 与频率响应 H(jω) 联系起来。"
+    "图示 RLC 串联电路中 L = 0.5 H，C = 0.5 F，R = 1 Ω，输出取电阻电压 v_R。激励为单位冲激 v_s = δ(t) V，t < 0 时无储能，所以 v_R 就是冲激响应 h(t)。",
+    "求 H(s) = V_R(s)/V_s(s) 的零点和极点，由极点位置判断 h(t) 的形式，并把 H(s) 与频率响应 H(jω) 联系起来。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"impulse": {"area": 1}}, "label": "δ(t) V"},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"impulse": {"area": 1}}, "label": "δ(t) V"},
       {"ref": "L", "type": "L", "from": [2, 0], "to": [6, 0], "value": 0.5},
       {"ref": "C", "type": "C", "from": [8, 0], "to": [12, 0], "value": 0.5},
       {"ref": "R", "type": "R", "from": [14, 0], "to": [14, 4], "value": 1}
     ],
     "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[12, 0], [14, 0]], [[14, 4], [0, 4]]],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "v", "el": "R", "name": "u_R"}]
+    "marks": [{"kind": "v", "el": "R", "name": "v_R"}]
   },
   "analysis": {"type": "tran"},
   "questions": [
     {
       "id": "z",
       "ask": "H(s) 的有限零点 = ?",
-      "find": {"kind": "zero", "out": {"v": "R"}, "input": "Us", "n": 1},
+      "find": {"kind": "zero", "out": {"v": "R"}, "input": "Vs", "n": 1},
       "answer": 0.0,
       "unit": "1/s",
       "explain": "H(s) = \\frac{R}{R + sL + 1/(sC)} = \\frac{sRC}{s²LC + sRC + 1} = \\frac{2s}{s² + 2s + 4}：零点 s = 0（直流时电容开路，输出为 0）。"
@@ -34,7 +34,7 @@
     {
       "id": "pre",
       "ask": "极点的实部 −α = ?",
-      "find": {"kind": "pole", "out": {"v": "R"}, "input": "Us", "n": 1},
+      "find": {"kind": "pole", "out": {"v": "R"}, "input": "Vs", "n": 1},
       "answer": -1.0,
       "unit": "1/s",
       "explain": "s² + 2s + 4 = 0 → s = −1 ± j√3：α = R/(2L) = 1 s⁻¹。"
@@ -42,18 +42,18 @@
     {
       "id": "pim",
       "ask": "极点 p_1 的虚部 ω_d = ?",
-      "find": {"kind": "pole", "out": {"v": "R"}, "input": "Us", "n": 1, "part": "im"},
+      "find": {"kind": "pole", "out": {"v": "R"}, "input": "Vs", "n": 1, "part": "im"},
       "answer": 1.732051,
       "unit": "rad/s",
       "explain": "ω_d = √(ω_0² − α²) = √(4 − 1) = √3 ≈ 1.732 rad/s，ω_0 = 1/√(LC) = 2 rad/s 是极点到原点的距离。"
     },
     {
       "id": "h0",
-      "ask": "h(0₊) = u_R(0₊) = ?",
+      "ask": "h(0₊) = v_R(0₊) = ?",
       "find": {"kind": "v", "el": "R", "t": "0+"},
       "answer": 2.0,
       "unit": "V",
-      "explain": "初值定理：sH(s) = \\frac{2s²}{s² + 2s + 4} → 2。冲激电压全部加在电感上，i(0₊) = 1/L = 2 A，u_R(0₊) = R·i(0₊) = 2 V。"
+      "explain": "初值定理：sH(s) = \\frac{2s²}{s² + 2s + 4} → 2。冲激电压全部加在电感上，i(0₊) = 1/L = 2 A，v_R(0₊) = R·i(0₊) = 2 V。"
     },
     {
       "id": "h",
@@ -66,7 +66,7 @@
     {
       "id": "Hj2",
       "ask": "|H(j2)| = ?",
-      "find": {"kind": "H", "out": {"v": "R"}, "input": "Us", "s": {"re": 0, "im": 2}, "part": "mag"},
+      "find": {"kind": "H", "out": {"v": "R"}, "input": "Vs", "s": {"re": 0, "im": 2}, "part": "mag"},
       "answer": 1.0,
       "unit": "",
       "explain": "H(j2) = \\frac{j4}{−4 + j4 + 4} = 1：ω = ω_0 = 2 rad/s 时 L、C 串联谐振，电源电压全部加在 R 上，这是带通特性的峰值。"
@@ -96,8 +96,8 @@
       "title": "Poles and zeros vs the impulse and frequency responses",
       "tags": ["network function", "poles and zeros", "impulse response", "frequency response", "resonance"],
       "statement": [
-        "In the series RLC circuit L = 0.5 H, C = 0.5 F, R = 1 Ω, and the output is the resistor voltage u_R. The input is a unit impulse u_s = δ(t) V and nothing is stored for t < 0, so u_R is the impulse response h(t).",
-        "Find the zero and poles of H(s) = U_R(s)/U_s(s), decide the form of h(t) from the pole positions, and connect H(s) with the frequency response H(jω)."
+        "In the series RLC circuit L = 0.5 H, C = 0.5 F, R = 1 Ω, and the output is the resistor voltage v_R. The input is a unit impulse v_s = δ(t) V and nothing is stored for t < 0, so v_R is the impulse response h(t).",
+        "Find the zero and poles of H(s) = V_R(s)/V_s(s), decide the form of h(t) from the pole positions, and connect H(s) with the frequency response H(jω)."
       ],
       "questions": [
         {
@@ -110,8 +110,8 @@
           "explain": "ω_d = √(ω_0² − α²) = √(4 − 1) = √3 ≈ 1.732 rad/s; ω_0 = 1/√(LC) = 2 rad/s is the distance of the poles from the origin."
         },
         {
-          "ask": "h(0+) = u_R(0+) = ?",
-          "explain": "Initial-value theorem: sH(s) = \\frac{2s²}{s² + 2s + 4} → 2. The impulse falls entirely on the inductor: i(0+) = 1/L = 2 A, u_R(0+) = R·i(0+) = 2 V."
+          "ask": "h(0+) = v_R(0+) = ?",
+          "explain": "Initial-value theorem: sH(s) = \\frac{2s²}{s² + 2s + 4} → 2. The impulse falls entirely on the inductor: i(0+) = 1/L = 2 A, v_R(0+) = R·i(0+) = 2 V."
         },
         {
           "ask": "h(t) at t = 0.5 s = ?",

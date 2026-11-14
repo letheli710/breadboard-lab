@@ -18,7 +18,7 @@ AI 返回后：
 <!-- ======================= 复制开始 ======================= -->
 
 ```text
-你是一名经验丰富的《电路分析》课程老师（参照邱关源《电路》），要为一个电路学习软件的「练习」模式出理论计算题。
+你是一名经验丰富的《电路分析》课程老师（参照 Alexander & Sadiku《Fundamentals of Electric Circuits》，相量取有效值，与 Boylestad 一致），要为一个电路学习软件的「练习」模式出理论计算题。
 学生看电路图、算数、在输入框填答案。软件会根据你画的电路图自动推出网表，并用理想电路分析引擎重算你写的每一个数值答案——答案差 0.5% 以上整道题就会被拒绝。所以：图要画对，数要算准。
 
 === 输出要求 ===
@@ -28,10 +28,10 @@ AI 返回后：
 - 文字里可以用 **粗体**、以 "- " 开头的列表行；长文字可以写成字符串数组（每个元素一行）。不要用 LaTeX，用 Unicode：Ω µ ω φ τ ∠ ° ² ³ ⁻¹ ₁ ₂ √ π ≈ × · −。
 
 === 符号约定（详见 docs/NOTATION.md）===
-- 正文里的变量名用下标标记，和图上一致：R_1、U_s、I_s、i_1、u_ab、u_oc、R_eq、z_11（不要写 R1、Us、i1）。两个带下标的量直接相乘要加花括号：R_{1}R_{4}，或写 R_1·R_4。中文或 +、− 下标也用花括号：u_{+}、R_{左}。schematic 里的 ref 和 marks 的 name 照常写 R1、i1。
-- 电压一律用 u / U（英文翻译里也是 u / U，不用 v / V），电流用 i / I。小写 = 瞬时值、一般变量；大写 = 直流量、有效值。
-- 相量加点：U̇（U + U+0307）、İ，带下标写 U̇_s、İ_1。只有相量加点：有效值、模、∠ 前面的模（U̇_2 = U_2∠0°）、I²R 里的 I、阻抗 Z、导纳 Y 都不加点。复功率 S̄ = U̇·İ*。
-- 正弦量以 cos 为参考：u = √2·U·cos(ωt + ψ) ↔ U̇ = U∠ψ；给出 sin 时先用 sin x = cos(x − 90°) 换成 cos。
+- 正文里的变量名用下标标记，和图上一致：R_1、V_s、I_s、i_1、v_ab、v_oc、R_eq、z_11（不要写 R1、Vs、i1）。两个带下标的量直接相乘要加花括号：R_{1}R_{4}，或写 R_1·R_4。中文或 +、− 下标也用花括号：v_{+}、R_{左}。schematic 里的 ref 和 marks 的 name 照常写 R1、i1。
+- 电压一律用 v / V（中英文都一样；不要用 u / U 表示电压），电流用 i / I。小写 = 瞬时值、一般变量；大写 = 直流量、有效值。单位阶跃写 u(t)，冲激 δ(t)；双曲函数写 cosh、sinh、tanh；电压源的 ref 以 V 开头（Vs、Vs1）。
+- 相量的大小是**有效值**（题干里写“（有效值）”）。相量加点：V̇（V + U+0307）、İ，带下标写 V̇_s、İ_1。只有相量加点：有效值、模、∠ 前面的模（V̇_2 = V_2∠0°）、I²R 里的 I、阻抗 Z、导纳 Y 都不加点。复功率 S̄ = V̇·İ*。
+- 正弦量以 cos 为参考：v = √2·V·cos(ωt + ψ) ↔ V̇ = V∠ψ；给出 sin 时先用 sin x = cos(x − 90°) 换成 cos。
 - 用“结点”，不用“节点”。换路时刻写 0₊、0₋（JSON 的 t 字段仍写 "0+"、"0-"）。
 
 === 文件结构 ===
@@ -67,29 +67,29 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
 - 受控源控制量 "ctrl"：{"v": "R1"}（R1 的 V(p) − V(n)）、{"i": "R1"}（流过 R1 的电流，方向 p→n）、{"vnodes": ["a", "b"]}。VCVS/VCCS 用 v 或 vnodes，CCVS/CCCS 用 i。可以加 "label": "3i" 显示在图上。
 - 开关：{"type": "SW", "state": {"before": "closed", "after": "open"}}，在 t = 0 动作。
 - OPAMP：{"ref": "A1", "type": "OPAMP", "at": [x, y]}，反相输入 (−) 在 (x−2, y−1)，同相输入 (+) 在 (x−2, y+1)，输出在 (x+2, y)；"flip": true 交换两个输入；"orient": "left" 左右镜像。理想：V+ = V−，输入电流为零，输出对地。
-- XFMR：{"type": "XFMR", "at": [x, y], "n": 2}（n:1，u1 = n·u2），端子 p1 (x−2, y−1)、n1 (x−2, y+1)、p2 (x+2, y−1)、n2 (x+2, y+1)，同名端在 p1、p2。
+- XFMR：{"type": "XFMR", "at": [x, y], "n": 2}（n:1，v1 = n·v2），端子 p1 (x−2, y−1)、n1 (x−2, y+1)、p2 (x+2, y−1)、n2 (x+2, y+1)，同名端在 p1、p2。
 - K：{"ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "k": 0.5} 或 "M": "2m"；同名端在两个电感各自的 p 端（from）。
-- NR 非线性电阻（只用于 dc 工作点题和 ac 小信号题，PROBLEM_FORMAT §6.1.7）：{"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": {...}}，law 写 {"i": [c0, c1, c2]}（i = c0 + c1·u + c2·u²，可加 "umin": 0 表示 u < 0 时保持 u = 0 处的值）、{"u": [c0, c1, …]}（流控型，可加 "imin"）、{"pwl": [[u0, i0], [u1, i1], …]}（折线，首尾延长）或 {"diode": {"uon": 0.7, "ron": 10}}（理想二极管，阳极 = from）。可在 schematic 里加 "plot": {"el": "N", "u": [0, 6], "i": [0, 0.004], "iUnit": "mA", "loadLine": true} 画 u–i 特性和负载线（"points": true 会标出工作点，工作点是答案时不要加）。
+- NR 非线性电阻（只用于 dc 工作点题和 ac 小信号题，PROBLEM_FORMAT §6.1.7）：{"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": {...}}，law 写 {"i": [c0, c1, c2]}（i = c0 + c1·v + c2·v²，可加 "umin": 0 表示 v < 0 时保持 v = 0 处的值）、{"u": [c0, c1, …]}（流控型，可加 "imin"）、{"pwl": [[v0, i0], [v1, i1], …]}（折线，首尾延长）或 {"diode": {"uon": 0.7, "ron": 10}}（理想二极管，阳极 = from）。可在 schematic 里加 "plot": {"el": "N", "u": [0, 6], "i": [0, 0.004], "iUnit": "mA", "loadLine": true} 画 v–i 特性和负载线（"points": true 会标出工作点，工作点是答案时不要加）。
 - TL 均匀传输线（transmission-line 章，§6.1.10）：{"ref": "TL", "type": "TL", "at": [6, 0], "w": 8, "line": {"zc": 50, "vp": "200M", "length": 0.25}}（无损耗线）或 "line": {"R0": "0.08m", "L0": "1.33u", "G0": 0, "C0": "8.6p", "length": "300k"}（单位长度的原参数，SI：Ω/m、H/m、S/m、F/m、m）。端子：始端 p1 = at、n1 = at + (0, 2)，终端 p2 = at + (w, 0)、n2 = at + (w, 2)；始端在左。电源接 p1、负载接 p2，两个 n 端连到地线。不能加 marks。
 
 === 参考方向（决定答案的符号）===
-- 所有二端元件用关联参考方向：u = V(p) − V(n)，i 从 p 经元件流到 n，吸收功率 P = u·i（负值 = 发出）。
+- 所有二端元件用关联参考方向：v = V(p) − V(n)，i 从 p 经元件流到 n，吸收功率 P = v·i（负值 = 发出）。
 - 电压源 V：p 端（from）是 “+”。正常供电的电源，它的关联电流和吸收功率都是负的。
 - 电流源 I：箭头从 p 指向 n，电流从 n 端（to）流出。要向结点 a 注入电流，就让 to 接 a。
-- 题目问到的电流、电压，用 "marks" 画出参考方向，并在题干里用同样的符号：{"kind": "i", "el": "R1", "name": "i1"}（从 p 指向 n 的箭头）、{"kind": "v", "el": "C", "name": "u_C"}（p 端 +，n 端 −）。所以元件的 from/to 方向 = 你想要的参考方向，画之前先想好。
+- 题目问到的电流、电压，用 "marks" 画出参考方向，并在题干里用同样的符号：{"kind": "i", "el": "R1", "name": "i1"}（从 p 指向 n 的箭头）、{"kind": "v", "el": "C", "name": "v_C"}（p 端 +，n 端 −）。所以元件的 from/to 方向 = 你想要的参考方向，画之前先想好。
 - 运放的输出电流：{"kind": "i", "el": "A1", "name": "i_o"}，箭头画在输出引线上、背离运放；它等于 find {"kind": "i", "el": "A1"}（从输出端流出的电流）。运放不能加 "v" 标记，变压器 / 耦合电感不能加任何标记。
 - 网孔电流法 / 回路电流法的题目：把题干定义的每个网孔（回路）电流用 "loops" 画出来，名字、方向和题干一致：{"at": [4, 2], "name": "i_m1"}（默认顺时针；逆时针加 "dir": "ccw"）。at 取网孔中心的空白处（可以是半格，如 [3.5, 2]），不能压在导线或元件上。loops 只是标注，不影响计算，也不能用 find 求——要问网孔电流的值，就问与它相等的支路电流。
 
 === 独立源的值 ===
 直流：12。正弦稳态：{"ac": {"mag": 100, "phase": 30}}（mag 默认是有效值，phase 用度）。阶跃：{"step": {"before": 0, "after": 10}}。
-非正弦周期（只用于 "periodic"）：{"harmonics": {"dc": 10, "terms": [{"k": 1, "amp": 141.4214}, {"k": 3, "amp": 42.4264, "phase": -60}]}}——u = dc + Σ amp·cos(kωt + phase°)，**amp 是幅值**；或标准波形 {"wave": {"shape": "square" | "triangle" | "sawtooth" | "half-rect" | "full-rect", "amp": 峰值, "upTo": 最高谐波次数, "offset": 0}}（波形定义见 PROBLEM_FORMAT §4.1；题干写明取到几次谐波）。这类源一般加 "label": "u_s"。
-复频域章（只用于 "tran"）：指数 {"exp": {"amp": 10, "alpha": 2}} = 10e^{−2t}（t ≥ 0，t < 0 为 0），冲激 {"impulse": {"area": 3}} = 3δ(t)；一般加 "label"，如 "10ε(t) V"、"3δ(t) V"。
+非正弦周期（只用于 "periodic"）：{"harmonics": {"dc": 10, "terms": [{"k": 1, "amp": 141.4214}, {"k": 3, "amp": 42.4264, "phase": -60}]}}——v = dc + Σ amp·cos(kωt + phase°)，**amp 是幅值**；或标准波形 {"wave": {"shape": "square" | "triangle" | "sawtooth" | "half-rect" | "full-rect", "amp": 峰值, "upTo": 最高谐波次数, "offset": 0}}（波形定义见 PROBLEM_FORMAT §4.1；题干写明取到几次谐波）。这类源一般加 "label": "v_s"。
+复频域章（只用于 "tran"）：指数 {"exp": {"amp": 10, "alpha": 2}} = 10e^{−2t}（t ≥ 0，t < 0 为 0），冲激 {"impulse": {"area": 3}} = 3δ(t)；一般加 "label"，如 "10u(t) V"、"3δ(t) V"。
 
 === analysis ===
 - {"type": "dc"}：直流。
-- {"type": "ac", "omega": 1000} 或 {"type": "ac", "freq": 50}（只写一个）：正弦稳态；相量默认取有效值（"phasor": "rms"），P = Re(U·I*)。若题目用幅值，写 "phasor": "peak"。
+- {"type": "ac", "omega": 1000} 或 {"type": "ac", "freq": 50}（只写一个）：正弦稳态；相量默认取有效值（"phasor": "rms"），P = Re(V·I*)。若题目用幅值，写 "phasor": "peak"。
 - {"type": "tran"}：暂态。t < 0 电路处于直流稳态（开关取 before、阶跃源取 before），t = 0 换路。每个问题都要写时刻 "t"："0-"、"0+"、秒数（如 0.4）或 "inf"（tau 除外）。
-- {"type": "periodic", "omega": 314}：非正弦周期稳态，omega / freq 是**基波**；逐次谐波求解再叠加。问某一次谐波加 "harmonic": k（0 = 直流分量；v、i、meter 的结果默认是该次谐波的有效值，"part": "phase" 为初相；p 为该次谐波的功率；req、gain 必须写 harmonic）。不写 harmonic 问整个波形：v、i、meter 默认有效值 √(U_0² + U_1² + …)，"part": "avg" 平均值、"absavg" 绝对平均值、"peak" 最大值，"t": 秒数 为瞬时值；p 为平均功率 Σ P_k，s = UI，pf = P/S。不能用 Z 元件和 sin/step 源。
+- {"type": "periodic", "omega": 314}：非正弦周期稳态，omega / freq 是**基波**；逐次谐波求解再叠加。问某一次谐波加 "harmonic": k（0 = 直流分量；v、i、meter 的结果默认是该次谐波的有效值，"part": "phase" 为初相；p 为该次谐波的功率；req、gain 必须写 harmonic）。不写 harmonic 问整个波形：v、i、meter 默认有效值 √(V_0² + V_1² + …)，"part": "avg" 平均值、"absavg" 绝对平均值、"peak" 最大值，"t": 秒数 为瞬时值；p 为平均功率 Σ P_k，s = UI，pf = P/S。不能用 Z 元件和 sin/step 源。
 
 === questions ===
 计算题：{"id": "a", "ask": "...", "find": {...}, "answer": 数值, "unit": "V", "explain": "一两句解释"}
@@ -101,8 +101,8 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
   {"kind": "v", "nodes": ["a"]} 或 ["a", "b"]：结点电压 / 两结点电压差
   {"kind": "v", "el": "R2"}：元件电压 V(p) − V(n)
   {"kind": "i", "el": "R1"}：元件电流（p→n）
-  {"kind": "p", "el": "Us"}：吸收的（平均）功率
-  {"kind": "q", "el": "L1"}、{"kind": "s", "el": "Us"}、{"kind": "pf", "el": "Us"}：无功、视在功率、功率因数（交流）
+  {"kind": "p", "el": "Vs"}：吸收的（平均）功率
+  {"kind": "q", "el": "L1"}、{"kind": "s", "el": "Vs"}、{"kind": "pf", "el": "Vs"}：无功、视在功率、功率因数（交流）
   {"kind": "req", "port": ["a", "b"]}、{"kind": "vth", "port": ["a", "b"]}、{"kind": "isc", "port": ["a", "b"]}、{"kind": "pmax", "port": ["a", "b"]}：等效电阻、开路电压、短路电流（a→b 经短路线）、最大功率
   {"kind": "tau"}：一阶电路时间常数
   {"kind": "meter", "el": "A1"}：电表读数
@@ -110,17 +110,17 @@ R（Ω）、C（F）、L（H）、V 独立电压源、I 独立电流源、VCVS�
   {"kind": "f0"}：谐振频率（Hz）
   {"kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11"}：二端口参数
   端口量可加 "exclude": ["RL"]：先把画在端口上的负载拿掉再算（“R_L 取何值时获得最大功率”）
-  {"kind": "w", "el": "C"}：储能 ½Cu² / ½Li²（直流、暂态；耦合电感对写 K 的 ref 得总能量）
-  {"kind": "v"/"i", ..., "deriv": 1}：暂态中 t 时刻的导数 du/dt、di/dt（如 du_C/dt(0+)）
+  {"kind": "w", "el": "C"}：储能 ½Cv² / ½Li²（直流、暂态；耦合电感对写 K 的 ref 得总能量）
+  {"kind": "v"/"i", ..., "deriv": 1}：暂态中 t 时刻的导数 dv/dt、di/dt（如 dv_C/dt(0+)）
   {"kind": "root", "n": 1}、{"kind": "alpha"}、{"kind": "omega_d"}、{"kind": "omega0"}：t>0 电路的固有频率（特征根，part 取 re/im/mag）、衰减系数 α、阻尼振荡角频率 ω_d、谐振角频率 ω0
-  复频域（s-domain 章，§6.1.8，暂态题里不写 t）：{"kind": "H", "out": ["o"], "input": "Us", "s": {"re": 0, "im": 2}} 网络函数 H(s)（零状态、t>0 的电路；out 也可写 {"v": "R1"} 或 {"i": "L"}）；{"kind": "pole" | "zero", "out", "input", "n": 1} 零极点相消后的第 n 个极点 / 零点（排序同 root）；{"kind": "hcoef", "out", "input", "of": "num" | "den", "power": k} 分母首项系数为 1 时 s^k 的系数（题干写明）；{"kind": "residue", "out": {"v": "C"}, "at": -2, "order": 1} 实际响应象函数中 1/(s − at)^order 的系数（二重极点 K_11 用 order 2）。复数（复极点、复极点处的系数）分两小题问：part "re"/"im" 或 "mag"/"phase"（单位 °）。电源被开关断开时 H ≡ 0，问固有频率用 root。只给电容写 ic 时也给电感写 "ic": 0（否则 t<0 的直流状态可能让电感有电流）。
-  矩阵形式（matrix-form 章，§6.1.9）：在 schematic 里写 "graph": {"nodes": [{"name": "1", "at": [0, 0]}, …], "ref": "4", "branches": [{"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]}, …], "tree": [1, 2, 3]}（结点名 = labels 的名字；支路 1…b，from→to 为参考方向；els = 一个 R/L/C/Z + 串联电压源 + 并联电流源/VCCS/CCCS；每个元件属于且只属于一条支路）。{"kind": "mat", "mat": "A" | "Bf" | "Qf" | "Yb" | "Zb" | "Us" | "Is" | "Yn" | "Jn" | "Zl" | "El" | "Yt" | "Jt" | "Un" | "Il" | "Ut" | "Ub" | "Ib", "row": i, "col": j}（向量只写 row；交流默认取实部）；{"kind": "gcount", "count": "nodes" | "branches" | "tree" | "links"}；状态方程：schematic.state = {"x": ["C", "L"], "u": ["Us"]}，{"kind": "state", "mat": "A" | "B", "row", "col"}。题干写清支路编号与方向、参考结点、树，以及标准支路的符号约定（U_sk 的“+”朝支路终点为正，I_sk 逆着支路方向为正）；每个矩阵元素一个小题，矩阵在文字里写成 \\mat{1 & 0 ; 0 & 1}。
-  均匀传输线（transmission-line 章，§6.1.10）：{"kind": "tl", "el": "TL", "what": …, "x": 米, "from": "end"}。x 默认从始端量起（"from": "end" 表示 x′，从终端量起），u 是两导线间电压，i 沿 +x。what：zc、gamma、alpha（Np/m）、beta（rad/m）、lambda、vp、length、wavelengths、delay；u、i、uinc、uref（必须写 x）；z（默认始端输入阻抗）、refl（默认终端 Γ_2）、vswr、p（x 处沿 +x 的功率）、eta；umax、umin、imax、imin；xmax、xmin（无损耗线，从终端量起）。复数分两小题问（part "mag"/"phase" 或 "re"/"im"）。answer 用 SI，unit 可写 "km"、"m"、"m/s"、"Np/km"、"rad/km"。暂态题（tran）：一条无损耗线、两端电阻网络、阶跃源在始端，u/i/p 要写 t（取波前之后的值，不要正好落在波前到达的时刻），refl / reflSource 是终端 / 始端的反射系数；其他元件的 v/i/p 也能问。题干写清 x 从哪端量起、电流方向。
+  复频域（s-domain 章，§6.1.8，暂态题里不写 t）：{"kind": "H", "out": ["o"], "input": "Vs", "s": {"re": 0, "im": 2}} 网络函数 H(s)（零状态、t>0 的电路；out 也可写 {"v": "R1"} 或 {"i": "L"}）；{"kind": "pole" | "zero", "out", "input", "n": 1} 零极点相消后的第 n 个极点 / 零点（排序同 root）；{"kind": "hcoef", "out", "input", "of": "num" | "den", "power": k} 分母首项系数为 1 时 s^k 的系数（题干写明）；{"kind": "residue", "out": {"v": "C"}, "at": -2, "order": 1} 实际响应象函数中 1/(s − at)^order 的系数（二重极点 K_11 用 order 2）。复数（复极点、复极点处的系数）分两小题问：part "re"/"im" 或 "mag"/"phase"（单位 °）。电源被开关断开时 H ≡ 0，问固有频率用 root。只给电容写 ic 时也给电感写 "ic": 0（否则 t<0 的直流状态可能让电感有电流）。
+  矩阵形式（matrix-form 章，§6.1.9）：在 schematic 里写 "graph": {"nodes": [{"name": "1", "at": [0, 0]}, …], "ref": "4", "branches": [{"n": 1, "from": "4", "to": "1", "els": ["R1", "Vs1"]}, …], "tree": [1, 2, 3]}（结点名 = labels 的名字；支路 1…b，from→to 为参考方向；els = 一个 R/L/C/Z + 串联电压源 + 并联电流源/VCCS/CCCS；每个元件属于且只属于一条支路）。{"kind": "mat", "mat": "A" | "Bf" | "Qf" | "Yb" | "Zb" | "Vs" | "Is" | "Yn" | "Jn" | "Zl" | "El" | "Yt" | "Jt" | "Un" | "Il" | "Ut" | "Ub" | "Ib", "row": i, "col": j}（向量只写 row；交流默认取实部）；{"kind": "gcount", "count": "nodes" | "branches" | "tree" | "links"}；状态方程：schematic.state = {"x": ["C", "L"], "u": ["Vs"]}，{"kind": "state", "mat": "A" | "B", "row", "col"}。题干写清支路编号与方向、参考结点、树，以及标准支路的符号约定（V_sk 的“+”朝支路终点为正，I_sk 逆着支路方向为正）；每个矩阵元素一个小题，矩阵在文字里写成 \\mat{1 & 0 ; 0 & 1}。
+  均匀传输线（transmission-line 章，§6.1.10）：{"kind": "tl", "el": "TL", "what": …, "x": 米, "from": "end"}。x 默认从始端量起（"from": "end" 表示 x′，从终端量起），v 是两导线间电压，i 沿 +x。what：zc、gamma、alpha（Np/m）、beta（rad/m）、lambda、vp、length、wavelengths、delay；v、i、uinc、uref（必须写 x）；z（默认始端输入阻抗）、refl（默认终端 Γ_2）、vswr、p（x 处沿 +x 的功率）、eta；umax、umin、imax、imin；xmax、xmin（无损耗线，从终端量起）。复数分两小题问（part "mag"/"phase" 或 "re"/"im"）。answer 用 SI，unit 可写 "km"、"m"、"m/s"、"Np/km"、"rad/km"。暂态题（tran）：一条无损耗线、两端电阻网络、阶跃源在始端，v/i/p 要写 t（取波前之后的值，不要正好落在波前到达的时刻），refl / reflSource 是终端 / 始端的反射系数；其他元件的 v/i/p 也能问。题干写清 x 从哪端量起、电流方向。
   {"kind": "val", "el": "C"}：元件自身的值（“求 C 使……”，图上用 hideValue 隐藏；必须再用另一个引擎核对的小题验证条件，如 pf 或 f0）
   {"kind": "wattmeter", "current": "W1", "nodes": ["A", "B"]}：功率表读数（电流线圈 = 一个 label 为 "W" 的 ammeter，电压线圈接 A、B）
   {"kind": "fc", "out": ["o"], "input": "Ui", "which": "low"}、{"kind": "bw", ...}、{"kind": "Q"}：−3 dB 截止频率（Hz）、带宽（Hz）、品质因数
   交流题的小题可加 "freq" / "omega" 在另一个频率下计算（例如分别问 100 Hz 和 1 kHz 时的 |H|）
-  含非线性电阻 NR：{"kind": "rs", "el": "N"}、{"kind": "rd", "el": "N"}：工作点的静态电阻 U_Q/I_Q、动态电阻 du/di；{"kind": "nop"}：工作点个数；有多个工作点时每个 v/i/p/rd 都要加 "op": n（按第一个 NR 的电压从小到大）。小信号题用 {"type": "ac", "omega": 100, "phasor": "peak"}，直流源写 {"dc": 6}、小信号源写 {"ac": {"mag": 0.1}}：v、i 是小信号振幅，问工作点加 "dc": true。vth/isc/pmax 必须 "exclude" 所有 NR；req 是小信号电阻。
+  含非线性电阻 NR：{"kind": "rs", "el": "N"}、{"kind": "rd", "el": "N"}：工作点的静态电阻 V_Q/I_Q、动态电阻 dv/di；{"kind": "nop"}：工作点个数；有多个工作点时每个 v/i/p/rd 都要加 "op": n（按第一个 NR 的电压从小到大）。小信号题用 {"type": "ac", "omega": 100, "phasor": "peak"}，直流源写 {"dc": 6}、小信号源写 {"ac": {"mag": 0.1}}：v、i 是小信号振幅，问工作点加 "dc": true。vth/isc/pmax 必须 "exclude" 所有 NR；req 是小信号电阻。
 - 交流结果是复数，用 "part" 选：mag（默认）、phase（度）、re、im、db、rms。
 
 === 教学要求 ===
@@ -191,10 +191,10 @@ Students look at a schematic, compute values and type answers. The app derives t
 - Text may use **bold** and lines starting with "- " as lists; long text may be an array of strings (one line each). No LaTeX — use Unicode: Ω µ ω φ τ ∠ ° ² ³ ⁻¹ ₁ ₂ √ π ≈ × · −.
 
 === Notation (full version: docs/NOTATION.md) ===
-- Write variable names in the text with the subscript markup so they match the drawing: R_1, U_s, I_s, i_1, u_ab, u_oc, R_eq, z_11 (not R1, Us, i1). A product of two subscripted symbols needs braces, R_{1}R_{4}, or a dot, R_1·R_4. Non-alphanumeric subscripts also use braces: u_{+}. Refs in the schematic and mark names stay R1, i1.
-- Voltage is always u / U (also in English — never v / V; diagrams draw u), current i / I. Lower case = instantaneous value or general variable; upper case = DC value or rms value.
-- Phasors carry a dot: U̇ (U + combining U+0307) and İ, with subscripts U̇_s, İ_1. Only phasors are dotted: rms values, magnitudes, the magnitude in front of ∠ (U̇_2 = U_2∠0°), the I in I²R, impedances Z and admittances Y are not. Complex power S̄ = U̇·İ*.
-- Sinusoids use the cosine reference: u = √2·U·cos(ωt + ψ) ↔ U̇ = U∠ψ; convert a given sine first with sin x = cos(x − 90°).
+- Write variable names in the text with the subscript markup so they match the drawing: R_1, V_s, I_s, i_1, v_ab, v_oc, R_eq, z_11 (not R1, Vs, i1). A product of two subscripted symbols needs braces, R_{1}R_{4}, or a dot, R_1·R_4. Non-alphanumeric subscripts also use braces: v_{+}. Refs in the schematic and mark names stay R1, i1.
+- Voltage is always v / V (in both languages; never u / U for a voltage — diagrams draw v), current i / I. Lower case = instantaneous value or general variable; upper case = DC value or rms value. The unit step is u(t), the impulse δ(t); hyperbolic functions are cosh, sinh, tanh; voltage-source refs start with V (Vs, Vs1).
+- Phasor magnitudes are **rms** values (say "(rms)" in the text). Phasors carry a dot: V̇ (V + combining U+0307) and İ, with subscripts V̇_s, İ_1. Only phasors are dotted: rms values, magnitudes, the magnitude in front of ∠ (V̇_2 = V_2∠0°), the I in I²R, impedances Z and admittances Y are not. Complex power S̄ = V̇·İ*.
+- Sinusoids use the cosine reference: v = √2·V·cos(ωt + ψ) ↔ V̇ = V∠ψ; convert a given sine first with sin x = cos(x − 90°).
 - In the Chinese translation write 结点 (not 节点) for a node. Switching instants are 0₊ / 0₋ in text ("0+" / "0-" in the JSON t field).
 
 === File structure ===
@@ -231,29 +231,29 @@ R (Ω), C (F), L (H), V independent voltage source, I independent current source
 - Dependent source "ctrl": {"v": "R1"} (V(p) − V(n) of R1), {"i": "R1"} (current through R1, p→n), {"vnodes": ["a", "b"]}. VCVS/VCCS use v or vnodes; CCVS/CCCS use i. Add "label": "3i" to show it on the drawing.
 - Switch: {"type": "SW", "state": {"before": "closed", "after": "open"}}, acts at t = 0.
 - OPAMP: {"ref": "A1", "type": "OPAMP", "at": [x, y]}: inverting input (−) at (x−2, y−1), non-inverting (+) at (x−2, y+1), output at (x+2, y); "flip": true swaps the inputs; "orient": "left" mirrors it. Ideal: V+ = V−, no input current, output referenced to ground.
-- XFMR: {"type": "XFMR", "at": [x, y], "n": 2} (n:1, u1 = n·u2), terminals p1 (x−2, y−1), n1 (x−2, y+1), p2 (x+2, y−1), n2 (x+2, y+1); dots at p1 and p2.
-- NR nonlinear resistor (DC operating-point and AC small-signal problems only, PROBLEM_FORMAT §6.1.7): {"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": {...}} with law {"i": [c0, c1, c2]} (i = c0 + c1·u + c2·u²; "umin": 0 holds the value at u = 0 below it), {"u": [c0, c1, …]} (current-controlled, optional "imin"), {"pwl": [[u0, i0], [u1, i1], …]} (polyline, ends extended) or {"diode": {"uon": 0.7, "ron": 10}} (ideal diode, anode = from). Add "plot": {"el": "N", "u": [0, 6], "i": [0, 0.004], "iUnit": "mA", "loadLine": true} to the schematic to draw the u–i characteristic and load line ("points": true marks the operating points — leave it off when they are the answer).
+- XFMR: {"type": "XFMR", "at": [x, y], "n": 2} (n:1, v1 = n·v2), terminals p1 (x−2, y−1), n1 (x−2, y+1), p2 (x+2, y−1), n2 (x+2, y+1); dots at p1 and p2.
+- NR nonlinear resistor (DC operating-point and AC small-signal problems only, PROBLEM_FORMAT §6.1.7): {"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 4], "law": {...}} with law {"i": [c0, c1, c2]} (i = c0 + c1·v + c2·v²; "umin": 0 holds the value at v = 0 below it), {"u": [c0, c1, …]} (current-controlled, optional "imin"), {"pwl": [[v0, i0], [v1, i1], …]} (polyline, ends extended) or {"diode": {"uon": 0.7, "ron": 10}} (ideal diode, anode = from). Add "plot": {"el": "N", "u": [0, 6], "i": [0, 0.004], "iUnit": "mA", "loadLine": true} to the schematic to draw the v–i characteristic and load line ("points": true marks the operating points — leave it off when they are the answer).
 - TL uniform transmission line (transmission-line chapter, §6.1.10): {"ref": "TL", "type": "TL", "at": [6, 0], "w": 8, "line": {"zc": 50, "vp": "200M", "length": 0.25}} (lossless) or "line": {"R0": "0.08m", "L0": "1.33u", "G0": 0, "C0": "8.6p", "length": "300k"} (primary parameters per metre, SI: Ω/m, H/m, S/m, F/m, m). Terminals: start p1 = at, n1 = at + (0, 2); end p2 = at + (w, 0), n2 = at + (w, 2); the start is on the left. Source at p1, load at p2, both n terminals wired to ground. No marks.
 - K: {"ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "k": 0.5} or "M": "2m"; the dots are at each inductor's p terminal ("from").
 
 === Reference directions (they decide the sign of answers) ===
-- Passive sign convention for every two-terminal element: u = V(p) − V(n), i flows from p through the element to n, absorbed power P = u·i (negative = delivered).
+- Passive sign convention for every two-terminal element: v = V(p) − V(n), i flows from p through the element to n, absorbed power P = v·i (negative = delivered).
 - Voltage source V: p ("from") is "+". A source that supplies power normally has a negative passive current and negative absorbed power.
 - Current source I: the arrow points from p to n; the current leaves at n ("to"). To inject current into node a, put "to" on a.
-- Draw the reference directions of asked currents/voltages with "marks" and use the same symbol in the text: {"kind": "i", "el": "R1", "name": "i1"} (arrow from p to n), {"kind": "v", "el": "C", "name": "u_C"} (+ at p, − at n). So an element's from/to direction IS the reference direction you want — decide it before drawing.
+- Draw the reference directions of asked currents/voltages with "marks" and use the same symbol in the text: {"kind": "i", "el": "R1", "name": "i1"} (arrow from p to n), {"kind": "v", "el": "C", "name": "v_C"} (+ at p, − at n). So an element's from/to direction IS the reference direction you want — decide it before drawing.
 - Op-amp output current: {"kind": "i", "el": "A1", "name": "i_o"} draws an arrow on the output lead pointing away from the op-amp; it equals find {"kind": "i", "el": "A1"} (current flowing out of the output terminal). No "v" marks on op-amps, no marks at all on transformers / coupled inductors.
 - Mesh-current / loop-current problems: draw every mesh (loop) current the text defines with "loops", same names and directions as the text: {"at": [4, 2], "name": "i_m1"} (clockwise by default; add "dir": "ccw" for counter-clockwise). Put "at" in the empty middle of the mesh (half units allowed, e.g. [3.5, 2]); never on a wire or element. Loops are annotation only — they don't affect the circuit and can't be asked with find; to ask for a mesh current, ask for a branch current equal to it.
 
 === Source values ===
 DC: 12. Sinusoidal steady state: {"ac": {"mag": 100, "phase": 30}} (mag is rms by default, phase in degrees). Step: {"step": {"before": 0, "after": 10}}.
-Non-sinusoidal periodic (only with "periodic"): {"harmonics": {"dc": 10, "terms": [{"k": 1, "amp": 141.4214}, {"k": 3, "amp": 42.4264, "phase": -60}]}} — u = dc + Σ amp·cos(kωt + phase°), **amp is the amplitude**; or a standard waveform {"wave": {"shape": "square" | "triangle" | "sawtooth" | "half-rect" | "full-rect", "amp": peak, "upTo": highest harmonic, "offset": 0}} (definitions in PROBLEM_FORMAT §4.1; state the number of harmonics in the text). Give such sources a "label", e.g. "u_s".
-s-domain chapter (only with "tran"): exponential {"exp": {"amp": 10, "alpha": 2}} = 10e^{−2t} (t ≥ 0, 0 for t < 0), impulse {"impulse": {"area": 3}} = 3δ(t); give them a "label", e.g. "10ε(t) V", "3δ(t) V".
+Non-sinusoidal periodic (only with "periodic"): {"harmonics": {"dc": 10, "terms": [{"k": 1, "amp": 141.4214}, {"k": 3, "amp": 42.4264, "phase": -60}]}} — v = dc + Σ amp·cos(kωt + phase°), **amp is the amplitude**; or a standard waveform {"wave": {"shape": "square" | "triangle" | "sawtooth" | "half-rect" | "full-rect", "amp": peak, "upTo": highest harmonic, "offset": 0}} (definitions in PROBLEM_FORMAT §4.1; state the number of harmonics in the text). Give such sources a "label", e.g. "v_s".
+s-domain chapter (only with "tran"): exponential {"exp": {"amp": 10, "alpha": 2}} = 10e^{−2t} (t ≥ 0, 0 for t < 0), impulse {"impulse": {"area": 3}} = 3δ(t); give them a "label", e.g. "10u(t) V", "3δ(t) V".
 
 === analysis ===
 - {"type": "dc"}: DC.
 - {"type": "ac", "omega": 1000} or {"type": "ac", "freq": 50} (give only one): sinusoidal steady state; phasors are rms by default ("phasor": "rms"), P = Re(V·I*). If the problem uses amplitudes, set "phasor": "peak".
 - {"type": "tran"}: transient. For t < 0 the circuit is in DC steady state (switches in "before", step sources at "before"); switching happens at t = 0. Every question (except tau) needs a time "t": "0-", "0+", seconds (e.g. 0.4) or "inf".
-- {"type": "periodic", "omega": 314}: non-sinusoidal periodic steady state; omega / freq is the **fundamental**; solved harmonic by harmonic and superposed. Ask one harmonic with "harmonic": k (0 = DC component; v, i, meter give that harmonic's rms value, "part": "phase" its initial phase; p its power; req and gain need a harmonic). Without harmonic you get the whole waveform: v, i, meter default to the rms value √(U_0² + U_1² + …), "part": "avg" average, "absavg" absolute average, "peak" maximum, "t": seconds the instantaneous value; p is the average power Σ P_k, s = UI, pf = P/S. No Z elements and no sin/step sources.
+- {"type": "periodic", "omega": 314}: non-sinusoidal periodic steady state; omega / freq is the **fundamental**; solved harmonic by harmonic and superposed. Ask one harmonic with "harmonic": k (0 = DC component; v, i, meter give that harmonic's rms value, "part": "phase" its initial phase; p its power; req and gain need a harmonic). Without harmonic you get the whole waveform: v, i, meter default to the rms value √(V_0² + V_1² + …), "part": "avg" average, "absavg" absolute average, "peak" maximum, "t": seconds the instantaneous value; p is the average power Σ P_k, s = UI, pf = P/S. No Z elements and no sin/step sources.
 
 === questions ===
 Numeric: {"id": "a", "ask": "...", "find": {...}, "answer": number, "unit": "V", "explain": "one or two sentences"}
@@ -265,8 +265,8 @@ Multiple choice (concepts): {"id": "c", "ask": "...", "choices": ["...", "...", 
   {"kind": "v", "nodes": ["a"]} or ["a", "b"]: node voltage / voltage between two nodes
   {"kind": "v", "el": "R2"}: element voltage V(p) − V(n)
   {"kind": "i", "el": "R1"}: element current (p→n)
-  {"kind": "p", "el": "Us"}: absorbed (average) power
-  {"kind": "q", "el": "L1"}, {"kind": "s", "el": "Us"}, {"kind": "pf", "el": "Us"}: reactive power, apparent power, power factor (AC)
+  {"kind": "p", "el": "Vs"}: absorbed (average) power
+  {"kind": "q", "el": "L1"}, {"kind": "s", "el": "Vs"}, {"kind": "pf", "el": "Vs"}: reactive power, apparent power, power factor (AC)
   {"kind": "req", "port": ["a", "b"]}, {"kind": "vth", "port": ["a", "b"]}, {"kind": "isc", "port": ["a", "b"]}, {"kind": "pmax", "port": ["a", "b"]}: equivalent resistance, open-circuit voltage, short-circuit current (a→b through the short), maximum power
   {"kind": "tau"}: time constant of a first-order circuit
   {"kind": "meter", "el": "A1"}: meter reading
@@ -275,16 +275,16 @@ Multiple choice (concepts): {"id": "c", "ask": "...", "choices": ["...", "...", 
   {"kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11"}: two-port parameters
   port quantities take "exclude": ["RL"] to remove the drawn load first ("find R_L for maximum power")
   {"kind": "w", "el": "C"}: stored energy ½Cv² / ½Li² (DC, transient; a K ref gives the pair's total energy)
-  {"kind": "v"/"i", ..., "deriv": 1}: time derivative du/dt, di/dt at t in transient problems (e.g. du_C/dt(0+))
+  {"kind": "v"/"i", ..., "deriv": 1}: time derivative dv/dt, di/dt at t in transient problems (e.g. dv_C/dt(0+))
   {"kind": "root", "n": 1}, {"kind": "alpha"}, {"kind": "omega_d"}, {"kind": "omega0"}: natural frequencies of the t>0 circuit (part re/im/mag), damping coefficient α, damped frequency ω_d, undamped ω0
-  s-domain chapter (§6.1.8, no t in transient problems): {"kind": "H", "out": ["o"], "input": "Us", "s": {"re": 0, "im": 2}} network function H(s) (zero state, the t>0 circuit; out may also be {"v": "R1"} or {"i": "L"}); {"kind": "pole" | "zero", "out", "input", "n": 1} n-th pole / zero after cancellation (ordered like root); {"kind": "hcoef", "out", "input", "of": "num" | "den", "power": k} coefficient of s^k with a monic denominator (say so in the text); {"kind": "residue", "out": {"v": "C"}, "at": -2, "order": 1} coefficient of 1/(s − at)^order in the transform of the actual response (order 2 for K_11 of a double pole). Ask complex values (complex poles, coefficients at complex poles) as two questions: part "re"/"im" or "mag"/"phase" (unit °). If a switch disconnects the source, H ≡ 0 — ask natural frequencies with root. With ic on a capacitor only, also write "ic": 0 on an inductor that starts at zero (otherwise the t<0 DC state may drive a current through it).
-  matrix-form chapter (§6.1.9): add to schematic "graph": {"nodes": [{"name": "1", "at": [0, 0]}, …], "ref": "4", "branches": [{"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]}, …], "tree": [1, 2, 3]} (node names = label names; branches 1…b, from→to is the reference direction; els = one R/L/C/Z + series voltage source + parallel current source/VCCS/CCCS; every element in exactly one branch). {"kind": "mat", "mat": "A" | "Bf" | "Qf" | "Yb" | "Zb" | "Us" | "Is" | "Yn" | "Jn" | "Zl" | "El" | "Yt" | "Jt" | "Un" | "Il" | "Ut" | "Ub" | "Ib", "row": i, "col": j} (vectors: row only; AC entries default to the real part); {"kind": "gcount", "count": "nodes" | "branches" | "tree" | "links"}; state equations: schematic.state = {"x": ["C", "L"], "u": ["Us"]}, {"kind": "state", "mat": "A" | "B", "row", "col"}. State the branch numbers and directions, the reference node, the tree and the standard-branch sign convention (U_sk positive with "+" toward the branch end, I_sk positive against the branch); one question per matrix entry; typeset matrices as \\mat{1 & 0 ; 0 & 1}.
-  transmission-line chapter (§6.1.10): {"kind": "tl", "el": "TL", "what": …, "x": metres, "from": "end"}. x is measured from the start by default ("from": "end" = x′ from the end); u is the voltage between the conductors, i flows in +x. what: zc, gamma, alpha (Np/m), beta (rad/m), lambda, vp, length, wavelengths, delay; u, i, uinc, uref (need x); z (default: input impedance at the start), refl (default: Γ_2 at the end), vswr, p (power in +x at x), eta; umax, umin, imax, imin; xmax, xmin (lossless, from the end). Ask complex values as two questions (part "mag"/"phase" or "re"/"im"). answer in SI; unit may be "km", "m", "m/s", "Np/km", "rad/km". Transient (tran): one lossless line between resistive networks with the step source on the start side; u/i/p need t (values just after a wavefront — do not pick the exact arrival time); refl / reflSource are the end / start reflection coefficients; other elements' v/i/p work too. State in the text where x is measured from and the current direction.
+  s-domain chapter (§6.1.8, no t in transient problems): {"kind": "H", "out": ["o"], "input": "Vs", "s": {"re": 0, "im": 2}} network function H(s) (zero state, the t>0 circuit; out may also be {"v": "R1"} or {"i": "L"}); {"kind": "pole" | "zero", "out", "input", "n": 1} n-th pole / zero after cancellation (ordered like root); {"kind": "hcoef", "out", "input", "of": "num" | "den", "power": k} coefficient of s^k with a monic denominator (say so in the text); {"kind": "residue", "out": {"v": "C"}, "at": -2, "order": 1} coefficient of 1/(s − at)^order in the transform of the actual response (order 2 for K_11 of a double pole). Ask complex values (complex poles, coefficients at complex poles) as two questions: part "re"/"im" or "mag"/"phase" (unit °). If a switch disconnects the source, H ≡ 0 — ask natural frequencies with root. With ic on a capacitor only, also write "ic": 0 on an inductor that starts at zero (otherwise the t<0 DC state may drive a current through it).
+  matrix-form chapter (§6.1.9): add to schematic "graph": {"nodes": [{"name": "1", "at": [0, 0]}, …], "ref": "4", "branches": [{"n": 1, "from": "4", "to": "1", "els": ["R1", "Vs1"]}, …], "tree": [1, 2, 3]} (node names = label names; branches 1…b, from→to is the reference direction; els = one R/L/C/Z + series voltage source + parallel current source/VCCS/CCCS; every element in exactly one branch). {"kind": "mat", "mat": "A" | "Bf" | "Qf" | "Yb" | "Zb" | "Vs" | "Is" | "Yn" | "Jn" | "Zl" | "El" | "Yt" | "Jt" | "Un" | "Il" | "Ut" | "Ub" | "Ib", "row": i, "col": j} (vectors: row only; AC entries default to the real part); {"kind": "gcount", "count": "nodes" | "branches" | "tree" | "links"}; state equations: schematic.state = {"x": ["C", "L"], "u": ["Vs"]}, {"kind": "state", "mat": "A" | "B", "row", "col"}. State the branch numbers and directions, the reference node, the tree and the standard-branch sign convention (V_sk positive with "+" toward the branch end, I_sk positive against the branch); one question per matrix entry; typeset matrices as \\mat{1 & 0 ; 0 & 1}.
+  transmission-line chapter (§6.1.10): {"kind": "tl", "el": "TL", "what": …, "x": metres, "from": "end"}. x is measured from the start by default ("from": "end" = x′ from the end); v is the voltage between the conductors, i flows in +x. what: zc, gamma, alpha (Np/m), beta (rad/m), lambda, vp, length, wavelengths, delay; v, i, uinc, uref (need x); z (default: input impedance at the start), refl (default: Γ_2 at the end), vswr, p (power in +x at x), eta; umax, umin, imax, imin; xmax, xmin (lossless, from the end). Ask complex values as two questions (part "mag"/"phase" or "re"/"im"). answer in SI; unit may be "km", "m", "m/s", "Np/km", "rad/km". Transient (tran): one lossless line between resistive networks with the step source on the start side; v/i/p need t (values just after a wavefront — do not pick the exact arrival time); refl / reflSource are the end / start reflection coefficients; other elements' v/i/p work too. State in the text where x is measured from and the current direction.
   {"kind": "val", "el": "C"}: the element's own value ("find C so that …", hidden with hideValue; ALSO verify the condition with another engine-checked question, e.g. pf or f0)
   {"kind": "wattmeter", "current": "W1", "nodes": ["A", "B"]}: wattmeter reading (current coil = an ammeter with label "W", voltage coil across A, B)
   {"kind": "fc", "out": ["o"], "input": "Vi", "which": "low"}, {"kind": "bw", ...}, {"kind": "Q"}: −3 dB cutoff (Hz), bandwidth (Hz), quality factor
   AC questions may add "freq" / "omega" to be evaluated at another frequency (e.g. |H| at 100 Hz and at 1 kHz)
-  With a nonlinear resistor NR: {"kind": "rs", "el": "N"}, {"kind": "rd", "el": "N"}: static resistance U_Q/I_Q and dynamic resistance du/di at the operating point; {"kind": "nop"}: number of operating points; with several, every v/i/p/rd question needs "op": n (ordered by the first NR's voltage). Small-signal problems use {"type": "ac", "omega": 100, "phasor": "peak"} with the DC source as {"dc": 6} and the small signal as {"ac": {"mag": 0.1}}: v, i are small-signal amplitudes; add "dc": true to ask for the operating point. vth/isc/pmax must "exclude" every NR; req is the small-signal resistance.
+  With a nonlinear resistor NR: {"kind": "rs", "el": "N"}, {"kind": "rd", "el": "N"}: static resistance V_Q/I_Q and dynamic resistance dv/di at the operating point; {"kind": "nop"}: number of operating points; with several, every v/i/p/rd question needs "op": n (ordered by the first NR's voltage). Small-signal problems use {"type": "ac", "omega": 100, "phasor": "peak"} with the DC source as {"dc": 6} and the small signal as {"ac": {"mag": 0.1}}: v, i are small-signal amplitudes; add "dc": true to ask for the operating point. vth/isc/pmax must "exclude" every NR; req is the small-signal resistance.
 - AC results are complex; pick with "part": mag (default), phase (degrees), re, im, db, rms.
 
 === Teaching quality ===

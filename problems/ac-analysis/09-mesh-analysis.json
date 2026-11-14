@@ -7,17 +7,17 @@
   "level": 3,
   "tags": ["网孔电流法", "自阻抗与互阻抗", "正弦稳态分析"],
   "statement": [
-    "ω = 1000 rad/s，U̇_s1 = U̇_s2 = 20∠0° V（有效值），R_1 = R_2 = 4 Ω，L = 4 mH，C = 250 µF。",
+    "ω = 1000 rad/s，V̇_s1 = V̇_s2 = 20∠0° V（有效值），R_1 = R_2 = 4 Ω，L = 4 mH，C = 250 µF。",
     "取网孔电流 I_1、I_2 均为顺时针（分别等于 R_1、R_2 中的电流，方向见图），用网孔电流法求 I_1，以及电感中的电流 I_3。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } } },
+      { "ref": "Vs1", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } } },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 4 },
       { "ref": "L", "type": "L", "from": [7, 0], "to": [7, 4], "value": "4m" },
       { "ref": "R2", "type": "R", "from": [9, 0], "to": [12, 0], "value": 4 },
       { "ref": "C", "type": "C", "from": [14, 0], "to": [17, 0], "value": "250u" },
-      { "ref": "Us2", "type": "V", "from": [19, 0], "to": [19, 4], "value": { "ac": { "mag": 20, "phase": 0 } } }
+      { "ref": "Vs2", "type": "V", "from": [19, 0], "to": [19, 4], "value": { "ac": { "mag": 20, "phase": 0 } } }
     ],
     "wires": [
       [[0, 0], [2, 0]],
@@ -43,24 +43,24 @@
   "hints": [
     "复阻抗：Z_L = jωL = j4 Ω，Z_C = −j/(ωC) = −j4 Ω。",
     "网孔 1 自阻抗 R_1 + jX_L，网孔 2 自阻抗 R_2 + jX_L − jX_C，互阻抗 j4 Ω（两个网孔电流在 L 中方向相反，取负号）。",
-    "U_s2 的“+”在上，网孔 2 顺时针时从“+”到“−”穿过它，方程右边是 −U̇_s2。"
+    "V_s2 的“+”在上，网孔 2 顺时针时从“+”到“−”穿过它，方程右边是 −V̇_s2。"
   ],
   "solution": [
     "**1. 复阻抗。** Z_L = jωL = j4 Ω，Z_C = −j/(ωC) = −j/(1000 × 250×10⁻⁶) = −j4 Ω。",
     "**2. 网孔方程。**",
-    "- 网孔 1：(R_1 + j4)İ_1 − j4·İ_2 = U̇_s1 → (4 + j4)İ_1 − j4İ_2 = 20",
-    "- 网孔 2：−j4·İ_1 + (R_2 + j4 − j4)İ_2 = −U̇_s2 → −j4İ_1 + 4İ_2 = −20",
+    "- 网孔 1：(R_1 + j4)İ_1 − j4·İ_2 = V̇_s1 → (4 + j4)İ_1 − j4İ_2 = 20",
+    "- 网孔 2：−j4·İ_1 + (R_2 + j4 − j4)İ_2 = −V̇_s2 → −j4İ_1 + 4İ_2 = −20",
     "**3. 求解。** 由网孔 2：İ_2 = −5 + jİ_1。代入网孔 1：(4 + j4)İ_1 − j4(−5 + jİ_1) = 20 → (8 + j4)İ_1 = 20 − j20 → İ_1 = (20 − j20)(8 − j4)/80 = **1 − j3 A**。",
     "İ_2 = −5 + j(1 − j3) = **−2 + j A**。",
     "**4. 电感电流。** İ_3 = İ_1 − İ_2 = 3 − j4 A = **5∠−53.13° A**。",
-    "**5. 验算。** L 两端电压 j4 × (3 − j4) = 16 + j12 V；左边支路：U̇_s1 − R_1·İ_1 = 20 − 4 + j12 = 16 + j12 V ✓。"
+    "**5. 验算。** L 两端电压 j4 × (3 − j4) = 16 + j12 V；左边支路：V̇_s1 − R_1·İ_1 = 20 − 4 + j12 = 16 + j12 V ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Mesh analysis in sinusoidal steady state",
       "tags": ["mesh analysis", "self- and mutual impedance", "sinusoidal steady state"],
       "statement": [
-        "ω = 1000 rad/s, U̇_s1 = U̇_s2 = 20∠0° V (rms), R_1 = R_2 = 4 Ω, L = 4 mH, C = 250 µF.",
+        "ω = 1000 rad/s, V̇_s1 = V̇_s2 = 20∠0° V (rms), R_1 = R_2 = 4 Ω, L = 4 mH, C = 250 µF.",
         "Take both mesh currents I_1, I_2 clockwise (they are the currents in R_1 and R_2, directions as drawn). Use mesh analysis to find I_1 and the inductor current I_3."
       ],
       "questions": [
@@ -72,17 +72,17 @@
       "hints": [
         "Impedances: Z_L = jωL = j4 Ω, Z_C = −j/(ωC) = −j4 Ω.",
         "Mesh 1 self-impedance R_1 + jX_L, mesh 2 self-impedance R_2 + jX_L − jX_C, mutual impedance j4 Ω (the two mesh currents flow in opposite directions through L, so it enters with a minus sign).",
-        "U_s2 has \"+\" at the top; clockwise mesh 2 passes through it from \"+\" to \"−\", so the right-hand side is −U̇_s2."
+        "V_s2 has \"+\" at the top; clockwise mesh 2 passes through it from \"+\" to \"−\", so the right-hand side is −V̇_s2."
       ],
       "solution": [
         "**1. Impedances.** Z_L = jωL = j4 Ω, Z_C = −j/(ωC) = −j/(1000 × 250×10⁻⁶) = −j4 Ω.",
         "**2. Mesh equations.**",
-        "- Mesh 1: (R_1 + j4)İ_1 − j4·İ_2 = U̇_s1 → (4 + j4)İ_1 − j4İ_2 = 20",
-        "- Mesh 2: −j4·İ_1 + (R_2 + j4 − j4)İ_2 = −U̇_s2 → −j4İ_1 + 4İ_2 = −20",
+        "- Mesh 1: (R_1 + j4)İ_1 − j4·İ_2 = V̇_s1 → (4 + j4)İ_1 − j4İ_2 = 20",
+        "- Mesh 2: −j4·İ_1 + (R_2 + j4 − j4)İ_2 = −V̇_s2 → −j4İ_1 + 4İ_2 = −20",
         "**3. Solve.** From mesh 2: İ_2 = −5 + jİ_1. Into mesh 1: (4 + j4)İ_1 − j4(−5 + jİ_1) = 20 → (8 + j4)İ_1 = 20 − j20 → İ_1 = (20 − j20)(8 − j4)/80 = **1 − j3 A**.",
         "İ_2 = −5 + j(1 − j3) = **−2 + j A**.",
         "**4. Inductor current.** İ_3 = İ_1 − İ_2 = 3 − j4 A = **5∠−53.13° A**.",
-        "**5. Check.** Voltage across L: j4 × (3 − j4) = 16 + j12 V; left branch: U̇_s1 − R_1·İ_1 = 20 − 4 + j12 = 16 + j12 V ✓."
+        "**5. Check.** Voltage across L: j4 × (3 − j4) = 16 + j12 V; left branch: V̇_s1 − R_1·İ_1 = 20 − 4 + j12 = 16 + j12 V ✓."
       ]
     }
   }

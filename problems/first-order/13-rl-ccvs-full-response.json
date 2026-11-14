@@ -8,7 +8,7 @@
   "tags": ["全响应", "三要素法", "受控源 CCVS", "时间常数 τ"],
   "statement": [
     "图示电路中 I_s = 6 A，R_1 = 4 Ω，R_2 = 2 Ω，L = 0.8 H。电流控制电压源的电压为 2i_1（“+” 在上），i_1 是 R_1 中向下的电流。开关 S 与 R_2 并联，S 闭合已久，t = 0 时断开。",
-    "求时间常数 τ、i_L(∞)、u_L(0₊)，以及 t = 0.2 s 时的 i_L。"
+    "求时间常数 τ、i_L(∞)、v_L(0₊)，以及 t = 0.2 s 时的 i_L。"
   ],
   "schematic": {
     "elements": [
@@ -32,28 +32,28 @@
     "marks": [
       { "kind": "i", "el": "R1", "name": "i_1" },
       { "kind": "i", "el": "L", "name": "i_L" },
-      { "kind": "v", "el": "L", "name": "u_L" }
+      { "kind": "v", "el": "L", "name": "v_L" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "I_s 开路，在电感两端外加电流 i_x（由 b 经 R_2、受控源、R_1 回到 a）：i_1 = −i_x，u_b − u_a = 2i_x + 2i_1 − 4i_1 = 4i_x，R_eq = 4 Ω，τ = 0.8/4 = 0.2 s。" },
-    { "id": "iinf", "ask": "i_L(∞) = ?", "find": { "kind": "i", "el": "L", "t": "inf" }, "answer": 3, "unit": "A", "explain": "稳态电感短路，u_a = u_b：4i_1 = 2i_L + 2i_1，又 i_1 + i_L = 6 → 4i_1 = 12，i_1 = 3 A，i_L(∞) = 3 A。" },
-    { "id": "ul0", "ask": "u_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": -12, "unit": "V", "explain": "t < 0：R_2 被短接、电感短路，4i_1 = 2i_1 → i_1 = 0，i_L(0₋) = 6 A。0₊：i_L = 6 A，i_1 = 0，u_a = 0，u_b = R_2·i_L + 2i_1 = 12 V，u_L(0₊) = u_a − u_b = −12 V。" },
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "I_s 开路，在电感两端外加电流 i_x（由 b 经 R_2、受控源、R_1 回到 a）：i_1 = −i_x，v_b − v_a = 2i_x + 2i_1 − 4i_1 = 4i_x，R_eq = 4 Ω，τ = 0.8/4 = 0.2 s。" },
+    { "id": "iinf", "ask": "i_L(∞) = ?", "find": { "kind": "i", "el": "L", "t": "inf" }, "answer": 3, "unit": "A", "explain": "稳态电感短路，v_a = v_b：4i_1 = 2i_L + 2i_1，又 i_1 + i_L = 6 → 4i_1 = 12，i_1 = 3 A，i_L(∞) = 3 A。" },
+    { "id": "ul0", "ask": "v_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": -12, "unit": "V", "explain": "t < 0：R_2 被短接、电感短路，4i_1 = 2i_1 → i_1 = 0，i_L(0₋) = 6 A。0₊：i_L = 6 A，i_1 = 0，v_a = 0，v_b = R_2·i_L + 2i_1 = 12 V，v_L(0₊) = v_a − v_b = −12 V。" },
     { "id": "i02", "ask": "t = 0.2 s 时 i_L = ?", "find": { "kind": "i", "el": "L", "t": 0.2 }, "answer": 4.103638, "unit": "A", "explain": "i_L(t) = 3 + (6 − 3)e^(−5t) A，t = 0.2 s 时 i_L = 3 + 3e⁻¹ ≈ 4.104 A。" }
   ],
   "hints": [
     "t < 0：电感短路且 R_2 被 S 短接，a、b 和受控源上端电位相同。由此求 i_1 和 i_L(0₋)。",
-    "求 R_eq 要保留受控源：I_s 开路，从电感两端外加电源，用 i_x 表示 u_b − u_a。",
-    "u_L 是非状态量，用 0₊ 等效电路求：电感换成 6 A 电流源。"
+    "求 R_eq 要保留受控源：I_s 开路，从电感两端外加电源，用 i_x 表示 v_b − v_a。",
+    "v_L 是非状态量，用 0₊ 等效电路求：电感换成 6 A 电流源。"
   ],
   "solution": [
     "**1. t = 0₋。** S 闭合（R_2 被短接），电感短路，所以 R_1 上端与受控源上端等电位：4i_1 = 2i_1 → i_1 = 0，I_s 全部流过电感：i_L(0₋) = 6 A。",
-    "**2. 0₊ 等效电路。** i_L(0₊) = 6 A，KCL：i_1 = 6 − 6 = 0，u_a = 0；受控源电压 2i_1 = 0，u_b = R_2·i_L + 0 = 12 V。**u_L(0₊) = u_a − u_b = −12 V**。",
-    "**3. 终值。** 电感短路：u_a = u_b → 4i_1 = 2i_L + 2i_1，i_1 + i_L = 6 → i_1 = 3 A，**i_L(∞) = 3 A**。",
-    "**4. 等效电阻（外加电源法）。** I_s 开路，电流 i_x 由 b 流入，经 R_2、受控源、地、R_1 回到 a：i_1 = −i_x，u_b = 2i_x + 2i_1 = 0，u_a = 4i_1 = −4i_x，u_b − u_a = 4i_x → **R_eq = 4 Ω**（不考虑受控源会误得 6 Ω）。**τ = L/R_eq = 0.2 s**。",
+    "**2. 0₊ 等效电路。** i_L(0₊) = 6 A，KCL：i_1 = 6 − 6 = 0，v_a = 0；受控源电压 2i_1 = 0，v_b = R_2·i_L + 0 = 12 V。**v_L(0₊) = v_a − v_b = −12 V**。",
+    "**3. 终值。** 电感短路：v_a = v_b → 4i_1 = 2i_L + 2i_1，i_1 + i_L = 6 → i_1 = 3 A，**i_L(∞) = 3 A**。",
+    "**4. 等效电阻（外加电源法）。** I_s 开路，电流 i_x 由 b 流入，经 R_2、受控源、地、R_1 回到 a：i_1 = −i_x，v_b = 2i_x + 2i_1 = 0，v_a = 4i_1 = −4i_x，v_b − v_a = 4i_x → **R_eq = 4 Ω**（不考虑受控源会误得 6 Ω）。**τ = L/R_eq = 0.2 s**。",
     "**5. 全响应。** i_L(t) = 3 + 3e^(−5t) A（t > 0），t = 0.2 s：i_L = 3 + 3e⁻¹ ≈ **4.104 A**。",
-    "**验算：** u_L = L di_L/dt = 0.8 × (−15)e^(−5t) = −12e^(−5t) V，t = 0₊ 时为 −12 V ✓。"
+    "**验算：** v_L = L di_L/dt = 0.8 × (−15)e^(−5t) = −12e^(−5t) V，t = 0₊ 时为 −12 V ✓。"
   ],
   "i18n": {
     "en": {
@@ -61,26 +61,26 @@
       "tags": ["complete response", "three-element method", "dependent source CCVS", "time constant τ"],
       "statement": [
         "In the circuit, I_s = 6 A, R_1 = 4 Ω, R_2 = 2 Ω, L = 0.8 H. The current-controlled voltage source has voltage 2i_1 (\"+\" at the top), where i_1 is the downward current in R_1. Switch S is in parallel with R_2; it has been closed for a long time and opens at t = 0.",
-        "Find the time constant τ, i_L(∞), u_L(0+), and i_L at t = 0.2 s."
+        "Find the time constant τ, i_L(∞), v_L(0+), and i_L at t = 0.2 s."
       ],
       "questions": [
-        { "ask": "τ = ?", "explain": "Open I_s and drive a test current i_x through the inductor terminals (in at b, through R_2, the dependent source and R_1, back to a): i_1 = −i_x, u_b − u_a = 2i_x + 2i_1 − 4i_1 = 4i_x, R_eq = 4 Ω, τ = 0.8/4 = 0.2 s." },
-        { "ask": "i_L(∞) = ?", "explain": "In steady state the inductor is a short, u_a = u_b: 4i_1 = 2i_L + 2i_1 with i_1 + i_L = 6 → 4i_1 = 12, i_1 = 3 A, i_L(∞) = 3 A." },
-        { "ask": "u_L(0+) = ?", "explain": "t < 0: R_2 is shorted and the inductor is a short, so 4i_1 = 2i_1 → i_1 = 0, i_L(0−) = 6 A. At 0+: i_L = 6 A, i_1 = 0, u_a = 0, u_b = R_2·i_L + 2i_1 = 12 V, u_L(0+) = u_a − u_b = −12 V." },
+        { "ask": "τ = ?", "explain": "Open I_s and drive a test current i_x through the inductor terminals (in at b, through R_2, the dependent source and R_1, back to a): i_1 = −i_x, v_b − v_a = 2i_x + 2i_1 − 4i_1 = 4i_x, R_eq = 4 Ω, τ = 0.8/4 = 0.2 s." },
+        { "ask": "i_L(∞) = ?", "explain": "In steady state the inductor is a short, v_a = v_b: 4i_1 = 2i_L + 2i_1 with i_1 + i_L = 6 → 4i_1 = 12, i_1 = 3 A, i_L(∞) = 3 A." },
+        { "ask": "v_L(0+) = ?", "explain": "t < 0: R_2 is shorted and the inductor is a short, so 4i_1 = 2i_1 → i_1 = 0, i_L(0−) = 6 A. At 0+: i_L = 6 A, i_1 = 0, v_a = 0, v_b = R_2·i_L + 2i_1 = 12 V, v_L(0+) = v_a − v_b = −12 V." },
         { "ask": "i_L at t = 0.2 s = ?", "explain": "i_L(t) = 3 + (6 − 3)e^(−5t) A; at t = 0.2 s, i_L = 3 + 3e⁻¹ ≈ 4.104 A." }
       ],
       "hints": [
         "t < 0: the inductor is a short and R_2 is shorted by S, so a, b and the top of the dependent source are at the same potential. Use this to find i_1 and i_L(0−).",
-        "Keep the dependent source when finding R_eq: open I_s, apply a test source at the inductor terminals and express u_b − u_a in terms of i_x.",
-        "u_L is not a state variable; find it from the 0+ equivalent circuit with the inductor replaced by a 6 A current source."
+        "Keep the dependent source when finding R_eq: open I_s, apply a test source at the inductor terminals and express v_b − v_a in terms of i_x.",
+        "v_L is not a state variable; find it from the 0+ equivalent circuit with the inductor replaced by a 6 A current source."
       ],
       "solution": [
         "**1. t = 0−.** S closed (R_2 shorted), inductor shorted, so the top of R_1 and the top of the dependent source are at the same potential: 4i_1 = 2i_1 → i_1 = 0, and all of I_s flows through the inductor: i_L(0−) = 6 A.",
-        "**2. 0+ equivalent circuit.** i_L(0+) = 6 A; KCL: i_1 = 6 − 6 = 0, u_a = 0; the dependent source voltage 2i_1 = 0, u_b = R_2·i_L + 0 = 12 V. **u_L(0+) = u_a − u_b = −12 V**.",
-        "**3. Final value.** Inductor shorted: u_a = u_b → 4i_1 = 2i_L + 2i_1 with i_1 + i_L = 6 → i_1 = 3 A, **i_L(∞) = 3 A**.",
-        "**4. Equivalent resistance (test source).** Open I_s; a current i_x enters at b and returns to a through R_2, the dependent source, ground and R_1: i_1 = −i_x, u_b = 2i_x + 2i_1 = 0, u_a = 4i_1 = −4i_x, u_b − u_a = 4i_x → **R_eq = 4 Ω** (ignoring the dependent source would wrongly give 6 Ω). **τ = L/R_eq = 0.2 s**.",
+        "**2. 0+ equivalent circuit.** i_L(0+) = 6 A; KCL: i_1 = 6 − 6 = 0, v_a = 0; the dependent source voltage 2i_1 = 0, v_b = R_2·i_L + 0 = 12 V. **v_L(0+) = v_a − v_b = −12 V**.",
+        "**3. Final value.** Inductor shorted: v_a = v_b → 4i_1 = 2i_L + 2i_1 with i_1 + i_L = 6 → i_1 = 3 A, **i_L(∞) = 3 A**.",
+        "**4. Equivalent resistance (test source).** Open I_s; a current i_x enters at b and returns to a through R_2, the dependent source, ground and R_1: i_1 = −i_x, v_b = 2i_x + 2i_1 = 0, v_a = 4i_1 = −4i_x, v_b − v_a = 4i_x → **R_eq = 4 Ω** (ignoring the dependent source would wrongly give 6 Ω). **τ = L/R_eq = 0.2 s**.",
         "**5. Complete response.** i_L(t) = 3 + 3e^(−5t) A (t > 0); at t = 0.2 s: i_L = 3 + 3e⁻¹ ≈ **4.104 A**.",
-        "**Check:** u_L = L di_L/dt = 0.8 × (−15)e^(−5t) = −12e^(−5t) V, which is −12 V at t = 0+ ✓."
+        "**Check:** v_L = L di_L/dt = 0.8 × (−15)e^(−5t) = −12e^(−5t) V, which is −12 V at t = 0+ ✓."
       ]
     }
   }

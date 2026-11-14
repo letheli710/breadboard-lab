@@ -7,12 +7,12 @@
   "level": 1,
   "tags": ["叠加定理", "电源置零"],
   "statement": [
-    "图示电路中 U_s = 12 V，I_s = 1.5 A，R_1 = 4 Ω，R_2 = 2 Ω。",
-    "用**叠加定理**求 R_2 中的电流 i_2（参考方向见图）和结点 a 的电压 u_a。"
+    "图示电路中 V_s = 12 V，I_s = 1.5 A，R_1 = 4 Ω，R_2 = 2 Ω。",
+    "用**叠加定理**求 R_2 中的电流 i_2（参考方向见图）和结点 a 的电压 v_a。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4 },
       { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 2 },
       { "ref": "Is", "type": "I", "from": [12, 4], "to": [12, 0], "value": 1.5 }
@@ -30,8 +30,8 @@
   "questions": [
     {
       "id": "zero",
-      "ask": "求 I_s 单独作用的分量 i_2'' 时，电压源 U_s 应该怎样处理？",
-      "choices": ["用短路线代替（U_s 置零）", "用开路代替", "保持 12 V 不变"], "choiceExplain": ["", "开路是电流源置零的做法；电压源置零是让它两端电压为 0，即短路。", "保留 12 V 就不是 I_s 单独作用了，求出的是两个源共同作用的总响应。"],
+      "ask": "求 I_s 单独作用的分量 i_2'' 时，电压源 V_s 应该怎样处理？",
+      "choices": ["用短路线代替（V_s 置零）", "用开路代替", "保持 12 V 不变"], "choiceExplain": ["", "开路是电流源置零的做法；电压源置零是让它两端电压为 0，即短路。", "保留 12 V 就不是 I_s 单独作用了，求出的是两个源共同作用的总响应。"],
       "correct": 0,
       "explain": "某个独立源单独作用时，其余独立**电压源置零 = 短路**，独立**电流源置零 = 开路**。"
     },
@@ -41,59 +41,59 @@
       "find": { "kind": "i", "el": "R2" },
       "answer": 3,
       "unit": "A",
-      "explain": "U_s 单独作用（I_s 开路）：i_2' = 12/(4 + 2) = 2 A；I_s 单独作用（U_s 短路）：分流 i_2'' = 1.5 × 4/(4 + 2) = 1 A；i_2 = 2 + 1 = 3 A。"
+      "explain": "V_s 单独作用（I_s 开路）：i_2' = 12/(4 + 2) = 2 A；I_s 单独作用（V_s 短路）：分流 i_2'' = 1.5 × 4/(4 + 2) = 1 A；i_2 = 2 + 1 = 3 A。"
     },
     {
       "id": "ua",
-      "ask": "u_a = ?",
+      "ask": "v_a = ?",
       "find": { "kind": "v", "nodes": ["a"] },
       "answer": 6,
       "unit": "V",
-      "explain": "u_a = R_2·i_2 = 2 × 3 = 6 V（也可以叠加：u_a' = 4 V，u_a'' = 2 V）。"
+      "explain": "v_a = R_2·i_2 = 2 × 3 = 6 V（也可以叠加：v_a' = 4 V，v_a'' = 2 V）。"
     }
   ],
   "hints": [
-    "分别画出 U_s 单独作用和 I_s 单独作用的两个分电路。",
-    "U_s 单独作用时 I_s 开路，R_1、R_2 串联；I_s 单独作用时 U_s 短路，R_1、R_2 并联分流。"
+    "分别画出 V_s 单独作用和 I_s 单独作用的两个分电路。",
+    "V_s 单独作用时 I_s 开路，R_1、R_2 串联；I_s 单独作用时 V_s 短路，R_1、R_2 并联分流。"
   ],
   "solution": [
-    "**1. U_s 单独作用**（I_s 置零 → 开路）：R_1、R_2 串联，i_2' = U_s/(R_1 + R_2) = 12/6 = 2 A，u_a' = 2 × 2 = 4 V。",
-    "**2. I_s 单独作用**（U_s 置零 → 短路）：R_1 与 R_2 并联，I_s 从下向上注入结点 a，按分流公式 i_2'' = I_s·R_1/(R_1 + R_2) = 1.5 × 4/6 = 1 A（向下，与参考方向一致），u_a'' = 2 × 1 = 2 V。",
-    "**3. 叠加：** i_2 = i_2' + i_2'' = **3 A**，u_a = 4 + 2 = **6 V**。",
-    "**验算（结点法）：** (12 − u_a)/4 + 1.5 = u_a/2 → 4.5 = 0.75u_a → u_a = 6 V ✓。"
+    "**1. V_s 单独作用**（I_s 置零 → 开路）：R_1、R_2 串联，i_2' = V_s/(R_1 + R_2) = 12/6 = 2 A，v_a' = 2 × 2 = 4 V。",
+    "**2. I_s 单独作用**（V_s 置零 → 短路）：R_1 与 R_2 并联，I_s 从下向上注入结点 a，按分流公式 i_2'' = I_s·R_1/(R_1 + R_2) = 1.5 × 4/6 = 1 A（向下，与参考方向一致），v_a'' = 2 × 1 = 2 V。",
+    "**3. 叠加：** i_2 = i_2' + i_2'' = **3 A**，v_a = 4 + 2 = **6 V**。",
+    "**验算（结点法）：** (12 − v_a)/4 + 1.5 = v_a/2 → 4.5 = 0.75v_a → v_a = 6 V ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Superposition basics: one voltage source and one current source",
       "tags": ["superposition", "zeroing a source"],
       "statement": [
-        "In the circuit, U_s = 12 V, I_s = 1.5 A, R_1 = 4 Ω, R_2 = 2 Ω.",
-        "Use **superposition** to find the current i_2 in R_2 (reference direction as drawn) and the voltage u_a of node a."
+        "In the circuit, V_s = 12 V, I_s = 1.5 A, R_1 = 4 Ω, R_2 = 2 Ω.",
+        "Use **superposition** to find the current i_2 in R_2 (reference direction as drawn) and the voltage v_a of node a."
       ],
       "questions": [
         {
-          "ask": "When finding the contribution i_2'' of I_s acting alone, what do you do with the voltage source U_s?",
-          "choices": ["Replace it by a short circuit (U_s set to zero)", "Replace it by an open circuit", "Keep it at 12 V"], "choiceExplain": ["", "An open is how a current source is zeroed; zeroing a voltage source makes its voltage 0, i.e. a short.", "Keeping 12 V means I_s is no longer acting alone; you would get the total response of both sources."],
+          "ask": "When finding the contribution i_2'' of I_s acting alone, what do you do with the voltage source V_s?",
+          "choices": ["Replace it by a short circuit (V_s set to zero)", "Replace it by an open circuit", "Keep it at 12 V"], "choiceExplain": ["", "An open is how a current source is zeroed; zeroing a voltage source makes its voltage 0, i.e. a short.", "Keeping 12 V means I_s is no longer acting alone; you would get the total response of both sources."],
           "explain": "When one independent source acts alone, every other independent **voltage source is zeroed = shorted**, and every other independent **current source is zeroed = opened**."
         },
         {
           "ask": "i_2 = ?",
-          "explain": "U_s alone (I_s open): i_2' = 12/(4 + 2) = 2 A; I_s alone (U_s shorted): current divider i_2'' = 1.5 × 4/(4 + 2) = 1 A; i_2 = 2 + 1 = 3 A."
+          "explain": "V_s alone (I_s open): i_2' = 12/(4 + 2) = 2 A; I_s alone (V_s shorted): current divider i_2'' = 1.5 × 4/(4 + 2) = 1 A; i_2 = 2 + 1 = 3 A."
         },
         {
-          "ask": "u_a = ?",
-          "explain": "u_a = R_2·i_2 = 2 × 3 = 6 V (or by superposition: u_a' = 4 V, u_a'' = 2 V)."
+          "ask": "v_a = ?",
+          "explain": "v_a = R_2·i_2 = 2 × 3 = 6 V (or by superposition: v_a' = 4 V, v_a'' = 2 V)."
         }
       ],
       "hints": [
-        "Draw two sub-circuits: U_s acting alone and I_s acting alone.",
-        "With U_s alone, I_s is open and R_1, R_2 are in series; with I_s alone, U_s is a short and R_1, R_2 share the current in parallel."
+        "Draw two sub-circuits: V_s acting alone and I_s acting alone.",
+        "With V_s alone, I_s is open and R_1, R_2 are in series; with I_s alone, V_s is a short and R_1, R_2 share the current in parallel."
       ],
       "solution": [
-        "**1. U_s alone** (I_s zeroed → open): R_1 and R_2 in series, i_2' = U_s/(R_1 + R_2) = 12/6 = 2 A, u_a' = 2 × 2 = 4 V.",
-        "**2. I_s alone** (U_s zeroed → short): R_1 and R_2 in parallel; I_s is injected upward into node a, so by the current divider i_2'' = I_s·R_1/(R_1 + R_2) = 1.5 × 4/6 = 1 A (downward, same as the reference), u_a'' = 2 × 1 = 2 V.",
-        "**3. Add:** i_2 = i_2' + i_2'' = **3 A**, u_a = 4 + 2 = **6 V**.",
-        "**Check (nodal):** (12 − u_a)/4 + 1.5 = u_a/2 → 4.5 = 0.75u_a → u_a = 6 V ✓."
+        "**1. V_s alone** (I_s zeroed → open): R_1 and R_2 in series, i_2' = V_s/(R_1 + R_2) = 12/6 = 2 A, v_a' = 2 × 2 = 4 V.",
+        "**2. I_s alone** (V_s zeroed → short): R_1 and R_2 in parallel; I_s is injected upward into node a, so by the current divider i_2'' = I_s·R_1/(R_1 + R_2) = 1.5 × 4/6 = 1 A (downward, same as the reference), v_a'' = 2 × 1 = 2 V.",
+        "**3. Add:** i_2 = i_2' + i_2'' = **3 A**, v_a = 4 + 2 = **6 V**.",
+        "**Check (nodal):** (12 − v_a)/4 + 1.5 = v_a/2 → 4.5 = 0.75v_a → v_a = 6 V ✓."
       ]
     }
   }

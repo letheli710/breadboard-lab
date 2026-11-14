@@ -7,14 +7,14 @@
   "level": 2,
   "tags": ["电位", "参考点", "KVL"],
   "statement": [
-    "图示电路中 U_s1 = 20 V，U_s2 = 5 V，R_1 = 3 Ω，R_2 = 2 Ω，以 d 点（接地）为参考点。",
-    "求 b、c 两点的电位 φ_b、φ_c 和电压 u_ac；再讨论改选 b 为参考点后各点电位如何变化。"
+    "图示电路中 V_s1 = 20 V，V_s2 = 5 V，R_1 = 3 Ω，R_2 = 2 Ω，以 d 点（接地）为参考点。",
+    "求 b、c 两点的电位 φ_b、φ_c 和电压 v_ac；再讨论改选 b 为参考点后各点电位如何变化。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 20 },
+      { "ref": "Vs1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 20 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 3 },
-      { "ref": "Us2", "type": "V", "from": [8, 0], "to": [8, 4], "value": 5 },
+      { "ref": "Vs2", "type": "V", "from": [8, 0], "to": [8, 4], "value": 5 },
       { "ref": "R2", "type": "R", "from": [6, 4], "to": [2, 4], "value": 2 }
     ],
     "wires": [
@@ -30,14 +30,14 @@
   "analysis": { "type": "dc" },
   "questions": [
     { "id": "pb", "ask": "φ_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 11, "unit": "V", "explain": "回路电流 i = (20 − 5)/(3 + 2) = 3 A（顺时针）。φ_b = φ_a − R_1·i = 20 − 9 = 11 V。" },
-    { "id": "pc", "ask": "φ_c = ?", "find": { "kind": "v", "nodes": ["c"] }, "answer": 6, "unit": "V", "explain": "从 b 到 c 经过 U_s2 是从“+”到“−”，电位降 5 V：φ_c = 11 − 5 = 6 V。验算：φ_c − φ_d = R_2·i = 6 V。" },
-    { "id": "uac", "ask": "u_ac = ?", "find": { "kind": "v", "nodes": ["a", "c"] }, "answer": 14, "unit": "V", "explain": "u_ac = φ_a − φ_c = 20 − 6 = 14 V。" },
+    { "id": "pc", "ask": "φ_c = ?", "find": { "kind": "v", "nodes": ["c"] }, "answer": 6, "unit": "V", "explain": "从 b 到 c 经过 V_s2 是从“+”到“−”，电位降 5 V：φ_c = 11 − 5 = 6 V。验算：φ_c − φ_d = R_2·i = 6 V。" },
+    { "id": "uac", "ask": "v_ac = ?", "find": { "kind": "v", "nodes": ["a", "c"] }, "answer": 14, "unit": "V", "explain": "v_ac = φ_a − φ_c = 20 − 6 = 14 V。" },
     {
       "id": "ref",
       "ask": "若改选 b 点为参考点，则 φ_a、φ_c 分别为：",
-      "choices": ["20 V，6 V", "9 V，−5 V", "−9 V，5 V", "11 V，−5 V"], "choiceExplain": ["这是以 d 为参考点时的电位。换参考点后各点电位都要减去 b 原来的电位 11 V。", "", "符号反了：φ_a = u_ab（a 相对 b），不是 u_ba。", "11 V 是 b 原来的电位，不是 a 的新电位；a 的新电位要用 a 原来的电位减去 11 V。"],
+      "choices": ["20 V，6 V", "9 V，−5 V", "−9 V，5 V", "11 V，−5 V"], "choiceExplain": ["这是以 d 为参考点时的电位。换参考点后各点电位都要减去 b 原来的电位 11 V。", "", "符号反了：φ_a = v_ab（a 相对 b），不是 v_ba。", "11 V 是 b 原来的电位，不是 a 的新电位；a 的新电位要用 a 原来的电位减去 11 V。"],
       "correct": 1,
-      "explain": "电位就是该点到参考点的电压：φ_a = u_ab = 20 − 11 = 9 V，φ_c = u_cb = 6 − 11 = −5 V。各点电位都减少了 11 V，但 u_ac = 9 − (−5) = 14 V 不变。"
+      "explain": "电位就是该点到参考点的电压：φ_a = v_ab = 20 − 11 = 9 V，φ_c = v_cb = 6 − 11 = −5 V。各点电位都减少了 11 V，但 v_ac = 9 − (−5) = 14 V 不变。"
     }
   ],
   "hints": [
@@ -45,28 +45,28 @@
     "某点电位 = 从该点沿任一路径走到参考点的电压降之和；换参考点时电位都变，两点间电压不变。"
   ],
   "solution": [
-    "**1. 回路电流。** 顺时针 KVL：U_s1 = R_1·i + U_s2 + R_2·i → 20 = 5i + 5 → **i = 3 A**。",
-    "**2. 以 d 为参考点。** φ_a = U_s1 = 20 V；φ_b = φ_a − R_1·i = 20 − 9 = **11 V**；φ_c = φ_b − U_s2 = **6 V**（也等于 R_2·i）。",
-    "**3. u_ac。** u_ac = φ_a − φ_c = **14 V**。",
+    "**1. 回路电流。** 顺时针 KVL：V_s1 = R_1·i + V_s2 + R_2·i → 20 = 5i + 5 → **i = 3 A**。",
+    "**2. 以 d 为参考点。** φ_a = V_s1 = 20 V；φ_b = φ_a − R_1·i = 20 − 9 = **11 V**；φ_c = φ_b − V_s2 = **6 V**（也等于 R_2·i）。",
+    "**3. v_ac。** v_ac = φ_a − φ_c = **14 V**。",
     "**4. 改选 b 为参考点。** 每点的电位都减去原来的 φ_b = 11 V：φ_a = 9 V，φ_b = 0，φ_c = −5 V，φ_d = −11 V。",
-    "**结论：** 电位与参考点的选取有关，两点间的电压与参考点无关（u_ac 仍为 14 V）。"
+    "**结论：** 电位与参考点的选取有关，两点间的电压与参考点无关（v_ac 仍为 14 V）。"
   ],
   "i18n": {
     "en": {
       "title": "Potentials and the reference node",
       "tags": ["node potential", "reference node", "KVL"],
       "statement": [
-        "In the circuit, U_s1 = 20 V, U_s2 = 5 V, R_1 = 3 Ω, R_2 = 2 Ω. Point d (grounded) is the reference.",
-        "Find the potentials φ_b, φ_c of points b and c and the voltage u_ac; then discuss how the potentials change if b is chosen as the reference instead."
+        "In the circuit, V_s1 = 20 V, V_s2 = 5 V, R_1 = 3 Ω, R_2 = 2 Ω. Point d (grounded) is the reference.",
+        "Find the potentials φ_b, φ_c of points b and c and the voltage v_ac; then discuss how the potentials change if b is chosen as the reference instead."
       ],
       "questions": [
         { "ask": "φ_b = ?", "explain": "Loop current i = (20 − 5)/(3 + 2) = 3 A (clockwise). φ_b = φ_a − R_1·i = 20 − 9 = 11 V." },
-        { "ask": "φ_c = ?", "explain": "Going from b to c through U_s2 is from \"+\" to \"−\", a drop of 5 V: φ_c = 11 − 5 = 6 V. Check: φ_c − φ_d = R_2·i = 6 V." },
-        { "ask": "u_ac = ?", "explain": "u_ac = φ_a − φ_c = 20 − 6 = 14 V." },
+        { "ask": "φ_c = ?", "explain": "Going from b to c through V_s2 is from \"+\" to \"−\", a drop of 5 V: φ_c = 11 − 5 = 6 V. Check: φ_c − φ_d = R_2·i = 6 V." },
+        { "ask": "v_ac = ?", "explain": "v_ac = φ_a − φ_c = 20 − 6 = 14 V." },
         {
           "ask": "If b is chosen as the reference node, φ_a and φ_c become:",
-          "choices": ["20 V, 6 V", "9 V, −5 V", "−9 V, 5 V", "11 V, −5 V"], "choiceExplain": ["These are the potentials with d as reference. With a new reference every potential drops by b's old potential, 11 V.", "", "The signs are reversed: φ_a = u_ab (a relative to b), not u_ba.", "11 V is b's old potential, not a's new one; a's new potential is its old potential minus 11 V."],
-          "explain": "A potential is the voltage from that point to the reference: φ_a = u_ab = 20 − 11 = 9 V, φ_c = u_cb = 6 − 11 = −5 V. Every potential drops by 11 V, but u_ac = 9 − (−5) = 14 V is unchanged."
+          "choices": ["20 V, 6 V", "9 V, −5 V", "−9 V, 5 V", "11 V, −5 V"], "choiceExplain": ["These are the potentials with d as reference. With a new reference every potential drops by b's old potential, 11 V.", "", "The signs are reversed: φ_a = v_ab (a relative to b), not v_ba.", "11 V is b's old potential, not a's new one; a's new potential is its old potential minus 11 V."],
+          "explain": "A potential is the voltage from that point to the reference: φ_a = v_ab = 20 − 11 = 9 V, φ_c = v_cb = 6 − 11 = −5 V. Every potential drops by 11 V, but v_ac = 9 − (−5) = 14 V is unchanged."
         }
       ],
       "hints": [
@@ -74,11 +74,11 @@
         "The potential of a point = the sum of the voltage drops along any path from it to the reference. Changing the reference changes every potential, but not the voltage between two points."
       ],
       "solution": [
-        "**1. Loop current.** Clockwise KVL: U_s1 = R_1·i + U_s2 + R_2·i → 20 = 5i + 5 → **i = 3 A**.",
-        "**2. Reference at d.** φ_a = U_s1 = 20 V; φ_b = φ_a − R_1·i = 20 − 9 = **11 V**; φ_c = φ_b − U_s2 = **6 V** (also equal to R_2·i).",
-        "**3. u_ac.** u_ac = φ_a − φ_c = **14 V**.",
+        "**1. Loop current.** Clockwise KVL: V_s1 = R_1·i + V_s2 + R_2·i → 20 = 5i + 5 → **i = 3 A**.",
+        "**2. Reference at d.** φ_a = V_s1 = 20 V; φ_b = φ_a − R_1·i = 20 − 9 = **11 V**; φ_c = φ_b − V_s2 = **6 V** (also equal to R_2·i).",
+        "**3. v_ac.** v_ac = φ_a − φ_c = **14 V**.",
         "**4. Reference at b.** Subtract the old φ_b = 11 V from every potential: φ_a = 9 V, φ_b = 0, φ_c = −5 V, φ_d = −11 V.",
-        "**Conclusion:** potentials depend on the choice of reference; the voltage between two points does not (u_ac is still 14 V)."
+        "**Conclusion:** potentials depend on the choice of reference; the voltage between two points does not (v_ac is still 14 V)."
       ]
     }
   }

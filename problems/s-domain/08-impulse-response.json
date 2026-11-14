@@ -7,25 +7,25 @@
   "level": 3,
   "tags": ["冲激响应", "阶跃响应", "网络函数", "电感电流跳变"],
   "statement": [
-    "图示 RL 串联电路中 u_s(t) = 3δ(t) V（强度 3 V·s 的冲激），R = 2 Ω，L = 0.5 H，t < 0 时无储能。i、u_L 的参考方向如图。",
-    "求网络函数 H(s) = I(s)/U_s(s) 的极点、冲激过后的 i(0₊) 和 u_L(0₊)，以及 t = 0.25 s 时的 i。"
+    "图示 RL 串联电路中 v_s(t) = 3δ(t) V（强度 3 V·s 的冲激），R = 2 Ω，L = 0.5 H，t < 0 时无储能。i、v_L 的参考方向如图。",
+    "求网络函数 H(s) = I(s)/V_s(s) 的极点、冲激过后的 i(0₊) 和 v_L(0₊)，以及 t = 0.25 s 时的 i。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"impulse": {"area": 3}}, "label": "3δ(t) V"},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"impulse": {"area": 3}}, "label": "3δ(t) V"},
       {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2},
       {"ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": 0.5}
     ],
     "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[8, 4], [0, 4]]],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "i", "el": "L", "name": "i"}, {"kind": "v", "el": "L", "name": "u_L"}]
+    "marks": [{"kind": "i", "el": "L", "name": "i"}, {"kind": "v", "el": "L", "name": "v_L"}]
   },
   "analysis": {"type": "tran"},
   "questions": [
     {
       "id": "p",
-      "ask": "H(s) = I(s)/U_s(s) 的极点 = ?",
-      "find": {"kind": "pole", "out": {"i": "L"}, "input": "Us", "n": 1},
+      "ask": "H(s) = I(s)/V_s(s) 的极点 = ?",
+      "find": {"kind": "pole", "out": {"i": "L"}, "input": "Vs", "n": 1},
       "answer": -4.0,
       "unit": "1/s",
       "explain": "H(s) = \\frac{1}{R + sL} = \\frac{2}{s + 4}，极点 −R/L = −4 s⁻¹；冲激响应 h(t) = ℒ⁻¹[H(s)] = 2e^{−4t} A（每 1 V·s）。"
@@ -36,15 +36,15 @@
       "find": {"kind": "i", "el": "L", "t": "0+"},
       "answer": 6.0,
       "unit": "A",
-      "explain": "I(s) = 3H(s) = \\frac{6}{s + 4}，初值定理 i(0₊) = 6 A。冲激电压在 0₋→0₊ 间全部加在电感上：i(0₊) = \\frac{1}{L}∫_{0₋}^{0₊}u_L dt = 3/0.5 = 6 A。"
+      "explain": "I(s) = 3H(s) = \\frac{6}{s + 4}，初值定理 i(0₊) = 6 A。冲激电压在 0₋→0₊ 间全部加在电感上：i(0₊) = \\frac{1}{L}∫_{0₋}^{0₊}v_L dt = 3/0.5 = 6 A。"
     },
     {
       "id": "ul0",
-      "ask": "u_L(0₊) = ?",
+      "ask": "v_L(0₊) = ?",
       "find": {"kind": "v", "el": "L", "t": "0+"},
       "answer": -12.0,
       "unit": "V",
-      "explain": "t > 0 时 u_s = 0：u_L = −Ri = −12 V。（U_L(s) = sL·I(s) = 3 − \\frac{12}{s + 4}：常数 3 就是 u_L 里的冲激 3δ(t)。）"
+      "explain": "t > 0 时 v_s = 0：v_L = −Ri = −12 V。（V_L(s) = sL·I(s) = 3 − \\frac{12}{s + 4}：常数 3 就是 v_L 里的冲激 3δ(t)。）"
     },
     {
       "id": "i",
@@ -57,72 +57,72 @@
     {
       "id": "jump",
       "ask": "电感电流从 0 跳变到 6 A，这与换路定则矛盾吗？",
-      "choices": ["不矛盾：换路定则的前提是电感电压为有限值；冲激电压使 u_L 含 3δ(t)，i_L 可以跳变", "矛盾：电感电流在任何情况下都不能跳变，所以 i(0₊) = 0", "不矛盾：因为电阻在 t = 0 时短路了", "矛盾：应当 i(0₊) = 3/R = 1.5 A"],
+      "choices": ["不矛盾：换路定则的前提是电感电压为有限值；冲激电压使 v_L 含 3δ(t)，i_L 可以跳变", "矛盾：电感电流在任何情况下都不能跳变，所以 i(0₊) = 0", "不矛盾：因为电阻在 t = 0 时短路了", "矛盾：应当 i(0₊) = 3/R = 1.5 A"],
       "correct": 0,
-      "choiceExplain": ["", "换路定则不是无条件的：它来自 u_L 有界。", "电阻没有短路；在 0₋→0₊ 的瞬间 Ri 有限，对积分没有贡献，冲激全部落在电感上。", "那是把电感当成短路、把冲激当成 3 V 直流来算，量纲都不对。"],
-      "explain": "i_L(0₊) − i_L(0₋) = \\frac{1}{L}∫_{0₋}^{0₊}u_L dt。u_L 有限时积分为 0（换路定则）；u_L 含冲激时积分等于冲激强度，电流跳变 3/L = 6 A。"
+      "choiceExplain": ["", "换路定则不是无条件的：它来自 v_L 有界。", "电阻没有短路；在 0₋→0₊ 的瞬间 Ri 有限，对积分没有贡献，冲激全部落在电感上。", "那是把电感当成短路、把冲激当成 3 V 直流来算，量纲都不对。"],
+      "explain": "i_L(0₊) − i_L(0₋) = \\frac{1}{L}∫_{0₋}^{0₊}v_L dt。v_L 有限时积分为 0（换路定则）；v_L 含冲激时积分等于冲激强度，电流跳变 3/L = 6 A。"
     },
     {
       "id": "step",
-      "ask": "同一电路的单位阶跃响应 s(t)（u_s = ε(t) V 时的 i）与冲激响应 h(t) 的关系是：",
+      "ask": "同一电路的单位阶跃响应 s(t)（v_s = u(t) V 时的 i）与冲激响应 h(t) 的关系是：",
       "choices": ["h(t) = ds(t)/dt，s(t) = 0.5(1 − e^{−4t}) A", "s(t) = dh(t)/dt", "h(t) = s(t)/t", "h(t) = s(t)，两者相同"],
       "correct": 0,
       "choiceExplain": ["", "方向反了：阶跃响应是冲激响应的积分。", "h(t) = s(t)/t 没有依据：两者的象函数只相差一个因子 1/s，对应时域的积分或微分，而不是除以 t。", "它们的象函数相差因子 1/s。"],
-      "explain": "ℒ[ε(t)] = 1/s，S(s) = H(s)/s，所以 h(t) = ds/dt（s(0₋) = 0）。S(s) = \\frac{2}{s(s + 4)} → s(t) = 0.5(1 − e^{−4t}) A，导数 2e^{−4t} 正是 h(t)。"
+      "explain": "ℒ[u(t)] = 1/s，S(s) = H(s)/s，所以 h(t) = ds/dt（s(0₋) = 0）。S(s) = \\frac{2}{s(s + 4)} → s(t) = 0.5(1 − e^{−4t}) A，导数 2e^{−4t} 正是 h(t)。"
     }
   ],
   "hints": [
     "ℒ[δ(t)] = 1，所以 I(s) = 3·H(s)：冲激响应就是网络函数的反变换。",
-    "初值可以用初值定理，也可以从 i_L(0₊) − i_L(0₋) = \\frac{1}{L}∫_{0₋}^{0₊}u_L dt 理解。",
-    "H(s) = 1/(R + sL)；t > 0 时电源为零，u_L = −Ri。"
+    "初值可以用初值定理，也可以从 i_L(0₊) − i_L(0₋) = \\frac{1}{L}∫_{0₋}^{0₊}v_L dt 理解。",
+    "H(s) = 1/(R + sL)；t > 0 时电源为零，v_L = −Ri。"
   ],
   "solution": [
     "**1. 网络函数。** H(s) = \\frac{1}{R + sL} = \\frac{2}{s + 4}，**极点 −4 s⁻¹**，h(t) = 2e^{−4t} A。",
     "**2. 响应。** I(s) = 3H(s) = \\frac{6}{s + 4}，i(t) = 6e^{−4t} A：**i(0₊) = 6 A**，**i(0.25) = 6e^{−1} ≈ 2.207 A**。",
-    "**3. 电感电压。** U_L(s) = sL·I(s) = \\frac{3s}{s + 4} = 3 − \\frac{12}{s + 4}：u_L = 3δ(t) − 12e^{−4t} V，**u_L(0₊) = −12 V**。",
-    "**检验：** KVL（t > 0）：Ri + u_L = 12e^{−4t} − 12e^{−4t} = 0 ✓；∫_{0₋}^{∞}u_L dt = 3 − 12/4 = 0 = L[i(∞) − i(0₋)] ✓。"
+    "**3. 电感电压。** V_L(s) = sL·I(s) = \\frac{3s}{s + 4} = 3 − \\frac{12}{s + 4}：v_L = 3δ(t) − 12e^{−4t} V，**v_L(0₊) = −12 V**。",
+    "**检验：** KVL（t > 0）：Ri + v_L = 12e^{−4t} − 12e^{−4t} = 0 ✓；∫_{0₋}^{∞}v_L dt = 3 − 12/4 = 0 = L[i(∞) − i(0₋)] ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Impulse response of an RL circuit",
       "tags": ["impulse response", "step response", "network function", "inductor current jump"],
       "statement": [
-        "In the series RL circuit u_s(t) = 3δ(t) V (an impulse of strength 3 V·s), R = 2 Ω, L = 0.5 H, with no stored energy for t < 0. The references of i and u_L are as drawn.",
-        "Find the pole of the network function H(s) = I(s)/U_s(s), i(0+) and u_L(0+) right after the impulse, and i at t = 0.25 s."
+        "In the series RL circuit v_s(t) = 3δ(t) V (an impulse of strength 3 V·s), R = 2 Ω, L = 0.5 H, with no stored energy for t < 0. The references of i and v_L are as drawn.",
+        "Find the pole of the network function H(s) = I(s)/V_s(s), i(0+) and v_L(0+) right after the impulse, and i at t = 0.25 s."
       ],
       "questions": [
         {
-          "ask": "Pole of H(s) = I(s)/U_s(s) = ?",
+          "ask": "Pole of H(s) = I(s)/V_s(s) = ?",
           "explain": "H(s) = \\frac{1}{R + sL} = \\frac{2}{s + 4}: the pole is −R/L = −4 1/s; the impulse response is h(t) = ℒ⁻¹[H(s)] = 2e^{−4t} A (per 1 V·s)."
         },
         {
           "ask": "i(0+) = ?",
-          "explain": "I(s) = 3H(s) = \\frac{6}{s + 4}; initial-value theorem: i(0+) = 6 A. Between 0− and 0+ the whole impulse is across the inductor: i(0+) = \\frac{1}{L}∫_{0−}^{0+}u_L dt = 3/0.5 = 6 A."
+          "explain": "I(s) = 3H(s) = \\frac{6}{s + 4}; initial-value theorem: i(0+) = 6 A. Between 0− and 0+ the whole impulse is across the inductor: i(0+) = \\frac{1}{L}∫_{0−}^{0+}v_L dt = 3/0.5 = 6 A."
         },
         {
-          "ask": "u_L(0+) = ?",
-          "explain": "For t > 0 u_s = 0, so u_L = −Ri = −12 V. (U_L(s) = sL·I(s) = 3 − \\frac{12}{s + 4}: the constant 3 is the impulse 3δ(t) contained in u_L.)"
+          "ask": "v_L(0+) = ?",
+          "explain": "For t > 0 v_s = 0, so v_L = −Ri = −12 V. (V_L(s) = sL·I(s) = 3 − \\frac{12}{s + 4}: the constant 3 is the impulse 3δ(t) contained in v_L.)"
         },
         {"ask": "i at t = 0.25 s = ?", "explain": "i(t) = 6e^{−4t} A; at t = 0.25 s: 6e^{−1} ≈ 2.207 A."},
         {
           "ask": "The inductor current jumps from 0 to 6 A. Does this contradict the switching rule?",
-          "explain": "i_L(0+) − i_L(0−) = \\frac{1}{L}∫_{0−}^{0+}u_L dt. For a finite u_L the integral is 0 (the switching rule); when u_L contains an impulse the integral equals its strength and the current jumps by 3/L = 6 A.",
+          "explain": "i_L(0+) − i_L(0−) = \\frac{1}{L}∫_{0−}^{0+}v_L dt. For a finite v_L the integral is 0 (the switching rule); when v_L contains an impulse the integral equals its strength and the current jumps by 3/L = 6 A.",
           "choices": [
-            "No: the rule assumes a finite inductor voltage; here u_L contains 3δ(t), so i_L may jump",
+            "No: the rule assumes a finite inductor voltage; here v_L contains 3δ(t), so i_L may jump",
             "Yes: an inductor current can never jump, so i(0+) = 0",
             "No, because the resistor is shorted at t = 0",
             "Yes: it should be i(0+) = 3/R = 1.5 A"
           ],
           "choiceExplain": [
             "",
-            "The switching rule is not unconditional: it follows from a bounded u_L.",
+            "The switching rule is not unconditional: it follows from a bounded v_L.",
             "The resistor is not shorted; across 0− → 0+ the finite Ri adds nothing to the integral, so the whole impulse falls on the inductor.",
             "That treats the inductor as a short and the impulse as 3 V DC — even the units are wrong."
           ]
         },
         {
-          "ask": "For the same circuit, the unit step response s(t) (i for u_s = ε(t) V) and the impulse response h(t) are related by:",
-          "explain": "ℒ[ε(t)] = 1/s, so S(s) = H(s)/s and h(t) = ds/dt (with s(0−) = 0). S(s) = \\frac{2}{s(s + 4)} → s(t) = 0.5(1 − e^{−4t}) A, whose derivative 2e^{−4t} is h(t).",
+          "ask": "For the same circuit, the unit step response s(t) (i for v_s = u(t) V) and the impulse response h(t) are related by:",
+          "explain": "ℒ[u(t)] = 1/s, so S(s) = H(s)/s and h(t) = ds/dt (with s(0−) = 0). S(s) = \\frac{2}{s(s + 4)} → s(t) = 0.5(1 − e^{−4t}) A, whose derivative 2e^{−4t} is h(t).",
           "choices": ["h(t) = ds(t)/dt, with s(t) = 0.5(1 − e^{−4t}) A", "s(t) = dh(t)/dt", "h(t) = s(t)/t", "h(t) = s(t): they are the same"],
           "choiceExplain": [
             "",
@@ -134,14 +134,14 @@
       ],
       "hints": [
         "ℒ[δ(t)] = 1, so I(s) = 3·H(s): the impulse response is the inverse transform of the network function.",
-        "Use the initial-value theorem, or understand it from i_L(0+) − i_L(0−) = \\frac{1}{L}∫_{0−}^{0+}u_L dt.",
-        "H(s) = 1/(R + sL); for t > 0 the source is zero and u_L = −Ri."
+        "Use the initial-value theorem, or understand it from i_L(0+) − i_L(0−) = \\frac{1}{L}∫_{0−}^{0+}v_L dt.",
+        "H(s) = 1/(R + sL); for t > 0 the source is zero and v_L = −Ri."
       ],
       "solution": [
         "**1. Network function.** H(s) = \\frac{1}{R + sL} = \\frac{2}{s + 4}, **pole −4 1/s**, h(t) = 2e^{−4t} A.",
         "**2. Response.** I(s) = 3H(s) = \\frac{6}{s + 4}, i(t) = 6e^{−4t} A: **i(0+) = 6 A**, **i(0.25) = 6e^{−1} ≈ 2.207 A**.",
-        "**3. Inductor voltage.** U_L(s) = sL·I(s) = \\frac{3s}{s + 4} = 3 − \\frac{12}{s + 4}: u_L = 3δ(t) − 12e^{−4t} V, **u_L(0+) = −12 V**.",
-        "**Check:** KVL for t > 0: Ri + u_L = 12e^{−4t} − 12e^{−4t} = 0 ✓; ∫_{0−}^{∞}u_L dt = 3 − 12/4 = 0 = L[i(∞) − i(0−)] ✓."
+        "**3. Inductor voltage.** V_L(s) = sL·I(s) = \\frac{3s}{s + 4} = 3 − \\frac{12}{s + 4}: v_L = 3δ(t) − 12e^{−4t} V, **v_L(0+) = −12 V**.",
+        "**Check:** KVL for t > 0: Ri + v_L = 12e^{−4t} − 12e^{−4t} = 0 ✓; ∫_{0−}^{∞}v_L dt = 3 − 12/4 = 0 = L[i(∞) − i(0−)] ✓."
       ]
     }
   }

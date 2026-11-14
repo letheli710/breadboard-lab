@@ -7,12 +7,12 @@
   "level": 4,
   "tags": ["阶跃响应", "理想运放", "时间常数 τ", "虚短虚断"],
   "statement": [
-    "图示电路中 u_s = ε(t) V（t = 0 时由 0 跳变为 1 V），R_1 = 10 kΩ，R_2 = 20 kΩ，C = 10 µF，运放为理想运放。t < 0 时电容不带电。",
-    "求电容电流的初值 i_C(0₊)、输出电压终值 u_o(∞)、时间常数 τ，以及 t = 0.2 s 时的 u_o。"
+    "图示电路中 v_s = u(t) V（t = 0 时由 0 跳变为 1 V），R_1 = 10 kΩ，R_2 = 20 kΩ，C = 10 µF，运放为理想运放。t < 0 时电容不带电。",
+    "求电容电流的初值 i_C(0₊)、输出电压终值 v_o(∞)、时间常数 τ，以及 t = 0.2 s 时的 v_o。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 6], "to": [0, 10], "value": { "step": { "before": 0, "after": 1 } }, "label": "ε(t) V" },
+      { "ref": "Vs", "type": "V", "from": [0, 6], "to": [0, 10], "value": { "step": { "before": 0, "after": 1 } }, "label": "u(t) V" },
       { "ref": "R1", "type": "R", "from": [2, 6], "to": [6, 6], "value": "10k" },
       { "ref": "C", "type": "C", "from": [8, 0], "to": [12, 0], "value": "10u" },
       { "ref": "R2", "type": "R", "from": [8, 3], "to": [12, 3], "value": "20k" },
@@ -34,28 +34,28 @@
     "grounds": [[0, 10]],
     "marks": [
       { "kind": "i", "el": "C", "name": "i_C" },
-      { "kind": "v", "el": "C", "name": "u_C" }
+      { "kind": "v", "el": "C", "name": "v_C" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "ic0", "ask": "i_C(0₊) = ?", "find": { "kind": "i", "el": "C", "t": "0+" }, "answer": 0.0001, "unit": "mA", "explain": "虚短：u_n = 0，i_1 = 1 V/10 kΩ = 0.1 mA。0₊ 时 u_C = 0，R_2 中无电流；虚断，i_1 全部流进电容：i_C(0₊) = 0.1 mA（此时 u_o(0₊) = u_n − u_C = 0）。" },
-    { "id": "uoinf", "ask": "u_o(∞) = ?", "find": { "kind": "v", "nodes": ["o"], "t": "inf" }, "answer": -2, "unit": "V", "explain": "稳态时电容开路，电路是反相比例放大器：u_o = −(R_2/R_1)·u_s = −2 V。" },
-    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "u_s 置零后 n 点是虚地、输出端由运放强制，从电容两端看进去只有 R_2：τ = R_2·C = 20×10³ × 10×10⁻⁶ = 0.2 s。" },
-    { "id": "uo1", "ask": "t = 0.2 s 时 u_o = ?", "find": { "kind": "v", "nodes": ["o"], "t": 0.2 }, "answer": -1.264241, "unit": "V", "explain": "u_o(t) = −2(1 − e^(−5t)) V，t = τ 时 u_o = −2(1 − e⁻¹) ≈ −1.264 V。" }
+    { "id": "ic0", "ask": "i_C(0₊) = ?", "find": { "kind": "i", "el": "C", "t": "0+" }, "answer": 0.0001, "unit": "mA", "explain": "虚短：v_n = 0，i_1 = 1 V/10 kΩ = 0.1 mA。0₊ 时 v_C = 0，R_2 中无电流；虚断，i_1 全部流进电容：i_C(0₊) = 0.1 mA（此时 v_o(0₊) = v_n − v_C = 0）。" },
+    { "id": "uoinf", "ask": "v_o(∞) = ?", "find": { "kind": "v", "nodes": ["o"], "t": "inf" }, "answer": -2, "unit": "V", "explain": "稳态时电容开路，电路是反相比例放大器：v_o = −(R_2/R_1)·v_s = −2 V。" },
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "v_s 置零后 n 点是虚地、输出端由运放强制，从电容两端看进去只有 R_2：τ = R_2·C = 20×10³ × 10×10⁻⁶ = 0.2 s。" },
+    { "id": "uo1", "ask": "t = 0.2 s 时 v_o = ?", "find": { "kind": "v", "nodes": ["o"], "t": 0.2 }, "answer": -1.264241, "unit": "V", "explain": "v_o(t) = −2(1 − e^(−5t)) V，t = τ 时 v_o = −2(1 − e⁻¹) ≈ −1.264 V。" }
   ],
   "hints": [
-    "虚短：反相输入端 n 是虚地，u_n = 0；虚断：流入运放输入端的电流为零。",
-    "u_o = u_n − u_C = −u_C，所以只要求出 u_C(t)。电容和 R_2 并联在 n 与 o 之间。",
+    "虚短：反相输入端 n 是虚地，v_n = 0；虚断：流入运放输入端的电流为零。",
+    "v_o = v_n − v_C = −v_C，所以只要求出 v_C(t)。电容和 R_2 并联在 n 与 o 之间。",
     "求 τ：电容两端（n、o）看进去，n 被虚地钉住，o 由运放输出决定，等效电阻就是 R_2。"
   ],
   "solution": [
-    "**1. 分析思路。** 虚短 u_n = 0，所以 i_1 = u_s/R_1 = 0.1 mA（t > 0 时恒定）。虚断：i_1 全部流入反馈支路，分到 C 和 R_2：i_1 = i_C + u_C/R_2。",
+    "**1. 分析思路。** 虚短 v_n = 0，所以 i_1 = v_s/R_1 = 0.1 mA（t > 0 时恒定）。虚断：i_1 全部流入反馈支路，分到 C 和 R_2：i_1 = i_C + v_C/R_2。",
     "这是一个电流源 i_1 = 0.1 mA 对 R_2 ∥ C 充电的电路，就像 R_2、C 并联接在恒流源上。",
-    "**2. 初值。** u_C(0₊) = 0 → R_2 中无电流，**i_C(0₊) = 0.1 mA**，u_o(0₊) = 0（输出不会立即跳变）。",
-    "**3. 终值。** 电容开路：u_C(∞) = i_1·R_2 = 2 V，**u_o(∞) = −2 V**（反相比例 −R_2/R_1 = −2）。",
+    "**2. 初值。** v_C(0₊) = 0 → R_2 中无电流，**i_C(0₊) = 0.1 mA**，v_o(0₊) = 0（输出不会立即跳变）。",
+    "**3. 终值。** 电容开路：v_C(∞) = i_1·R_2 = 2 V，**v_o(∞) = −2 V**（反相比例 −R_2/R_1 = −2）。",
     "**4. 时间常数。** **τ = R_2·C = 0.2 s**。",
-    "**5. 响应。** u_C(t) = 2(1 − e^(−5t)) V，u_o(t) = −u_C = −2(1 − e^(−5t)) V。t = 0.2 s：u_o = −2(1 − e⁻¹) ≈ **−1.264 V**。",
+    "**5. 响应。** v_C(t) = 2(1 − e^(−5t)) V，v_o(t) = −v_C = −2(1 − e^(−5t)) V。t = 0.2 s：v_o = −2(1 − e⁻¹) ≈ **−1.264 V**。",
     "这正是一个一阶有源低通滤波器的阶跃响应：直流增益 −2，时间常数 R_{2}C。"
   ],
   "i18n": {
@@ -63,27 +63,27 @@
       "title": "First-order circuit with an ideal op-amp: RC in the feedback path",
       "tags": ["step response", "ideal op-amp", "time constant τ", "virtual short and open"],
       "statement": [
-        "In the circuit, u_s = ε(t) V (jumping from 0 to 1 V at t = 0), R_1 = 10 kΩ, R_2 = 20 kΩ, C = 10 µF, and the op-amp is ideal. The capacitor is uncharged for t < 0.",
-        "Find the initial capacitor current i_C(0+), the final output voltage u_o(∞), the time constant τ, and u_o at t = 0.2 s."
+        "In the circuit, v_s = u(t) V (jumping from 0 to 1 V at t = 0), R_1 = 10 kΩ, R_2 = 20 kΩ, C = 10 µF, and the op-amp is ideal. The capacitor is uncharged for t < 0.",
+        "Find the initial capacitor current i_C(0+), the final output voltage v_o(∞), the time constant τ, and v_o at t = 0.2 s."
       ],
       "questions": [
-        { "ask": "i_C(0+) = ?", "explain": "Virtual short: u_n = 0, i_1 = 1 V/10 kΩ = 0.1 mA. At 0+, u_C = 0 so R_2 carries no current; virtual open: all of i_1 flows into the capacitor, i_C(0+) = 0.1 mA (and u_o(0+) = u_n − u_C = 0)." },
-        { "ask": "u_o(∞) = ?", "explain": "In steady state the capacitor is open and the circuit is an inverting amplifier: u_o = −(R_2/R_1)·u_s = −2 V." },
-        { "ask": "τ = ?", "explain": "With u_s zeroed, n is a virtual ground and the output is forced by the op-amp; seen from the capacitor terminals only R_2 remains: τ = R_2·C = 20×10³ × 10×10⁻⁶ = 0.2 s." },
-        { "ask": "u_o at t = 0.2 s = ?", "explain": "u_o(t) = −2(1 − e^(−5t)) V; at t = τ, u_o = −2(1 − e⁻¹) ≈ −1.264 V." }
+        { "ask": "i_C(0+) = ?", "explain": "Virtual short: v_n = 0, i_1 = 1 V/10 kΩ = 0.1 mA. At 0+, v_C = 0 so R_2 carries no current; virtual open: all of i_1 flows into the capacitor, i_C(0+) = 0.1 mA (and v_o(0+) = v_n − v_C = 0)." },
+        { "ask": "v_o(∞) = ?", "explain": "In steady state the capacitor is open and the circuit is an inverting amplifier: v_o = −(R_2/R_1)·v_s = −2 V." },
+        { "ask": "τ = ?", "explain": "With v_s zeroed, n is a virtual ground and the output is forced by the op-amp; seen from the capacitor terminals only R_2 remains: τ = R_2·C = 20×10³ × 10×10⁻⁶ = 0.2 s." },
+        { "ask": "v_o at t = 0.2 s = ?", "explain": "v_o(t) = −2(1 − e^(−5t)) V; at t = τ, v_o = −2(1 − e⁻¹) ≈ −1.264 V." }
       ],
       "hints": [
-        "Virtual short: the inverting input n is a virtual ground, u_n = 0; virtual open: no current flows into the op-amp inputs.",
-        "u_o = u_n − u_C = −u_C, so you only need u_C(t). The capacitor and R_2 are in parallel between n and o.",
+        "Virtual short: the inverting input n is a virtual ground, v_n = 0; virtual open: no current flows into the op-amp inputs.",
+        "v_o = v_n − v_C = −v_C, so you only need v_C(t). The capacitor and R_2 are in parallel between n and o.",
         "For τ, look in from the capacitor terminals (n, o): n is pinned at virtual ground and o is set by the op-amp output, so the equivalent resistance is just R_2."
       ],
       "solution": [
-        "**1. Approach.** Virtual short u_n = 0, so i_1 = u_s/R_1 = 0.1 mA (constant for t > 0). Virtual open: all of i_1 enters the feedback path and divides between C and R_2: i_1 = i_C + u_C/R_2.",
+        "**1. Approach.** Virtual short v_n = 0, so i_1 = v_s/R_1 = 0.1 mA (constant for t > 0). Virtual open: all of i_1 enters the feedback path and divides between C and R_2: i_1 = i_C + v_C/R_2.",
         "So this is a current source i_1 = 0.1 mA charging R_2 ∥ C, just like R_2 and C in parallel across a constant current source.",
-        "**2. Initial values.** u_C(0+) = 0 → no current in R_2, **i_C(0+) = 0.1 mA**, u_o(0+) = 0 (the output doesn't jump).",
-        "**3. Final values.** Capacitor open: u_C(∞) = i_1·R_2 = 2 V, **u_o(∞) = −2 V** (inverting gain −R_2/R_1 = −2).",
+        "**2. Initial values.** v_C(0+) = 0 → no current in R_2, **i_C(0+) = 0.1 mA**, v_o(0+) = 0 (the output doesn't jump).",
+        "**3. Final values.** Capacitor open: v_C(∞) = i_1·R_2 = 2 V, **v_o(∞) = −2 V** (inverting gain −R_2/R_1 = −2).",
         "**4. Time constant.** **τ = R_2·C = 0.2 s**.",
-        "**5. Response.** u_C(t) = 2(1 − e^(−5t)) V, u_o(t) = −u_C = −2(1 − e^(−5t)) V. At t = 0.2 s: u_o = −2(1 − e⁻¹) ≈ **−1.264 V**.",
+        "**5. Response.** v_C(t) = 2(1 − e^(−5t)) V, v_o(t) = −v_C = −2(1 − e^(−5t)) V. At t = 0.2 s: v_o = −2(1 − e⁻¹) ≈ **−1.264 V**.",
         "This is the step response of a first-order active low-pass filter: DC gain −2, time constant R_{2}C."
       ]
     }

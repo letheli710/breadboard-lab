@@ -7,15 +7,15 @@
   "level": 1,
   "tags": ["网孔电流法", "自电阻", "互电阻"],
   "statement": [
-    "图示电路中 U_s1 = 18 V，U_s2 = 4 V，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 4 Ω，R_4 = 8 Ω。设左、右两个网孔电流 i_m1、i_m2 均为**顺时针**方向。",
-    "用**网孔电流法**求 i_m1、i_m2、中间支路电流 i_3（向下），以及 U_s2 吸收的功率。"
+    "图示电路中 V_s1 = 18 V，V_s2 = 4 V，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 4 Ω，R_4 = 8 Ω。设左、右两个网孔电流 i_m1、i_m2 均为**顺时针**方向。",
+    "用**网孔电流法**求 i_m1、i_m2、中间支路电流 i_3（向下），以及 V_s2 吸收的功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 6], "value": 18 },
+      { "ref": "Vs1", "type": "V", "from": [0, 0], "to": [0, 6], "value": 18 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
       { "ref": "R3", "type": "R", "from": [8, 0], "to": [8, 3], "value": 4 },
-      { "ref": "Us2", "type": "V", "from": [8, 3], "to": [8, 6], "value": 4 },
+      { "ref": "Vs2", "type": "V", "from": [8, 3], "to": [8, 6], "value": 4 },
       { "ref": "R2", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4 },
       { "ref": "R4", "type": "R", "from": [16, 0], "to": [16, 6], "value": 8 }
     ],
@@ -34,47 +34,47 @@
     { "id": "im1", "ask": "网孔电流 i_m1 = ?（等于图中 R_1 的电流 i_1）", "find": { "kind": "i", "el": "R1" }, "answer": 3, "unit": "A", "explain": "网孔方程 6i_m1 − 4i_m2 = 14，−4i_m1 + 16i_m2 = 4，解得 i_m1 = 3 A。" },
     { "id": "im2", "ask": "网孔电流 i_m2 = ?（等于图中 R_4 的电流 i_4）", "find": { "kind": "i", "el": "R4" }, "answer": 1, "unit": "A", "explain": "同一组方程解得 i_m2 = 1 A。" },
     { "id": "i3", "ask": "i_3 = ?", "find": { "kind": "i", "el": "R3" }, "answer": 2, "unit": "A", "explain": "中间支路属于两个网孔，两个网孔电流在这里方向相反：i_3 = i_m1 − i_m2 = 2 A。" },
-    { "id": "p", "ask": "U_s2 吸收的功率 P = ?", "find": { "kind": "p", "el": "Us2" }, "answer": 8, "unit": "W", "explain": "流过 U_s2 的电流就是 i_3 = 2 A，从“+”端流入，P = 4 × 2 = 8 W（吸收）。" }
+    { "id": "p", "ask": "V_s2 吸收的功率 P = ?", "find": { "kind": "p", "el": "Vs2" }, "answer": 8, "unit": "W", "explain": "流过 V_s2 的电流就是 i_3 = 2 A，从“+”端流入，P = 4 × 2 = 8 W（吸收）。" }
   ],
   "hints": [
     "每个网孔列一个 KVL：自电阻 × 本网孔电流 − 互电阻 × 相邻网孔电流 = 本网孔中电压源电压升之和。",
     "自电阻 R_11 = R_1 + R_3 = 6 Ω，R_22 = R_3 + R_2 + R_4 = 16 Ω，互电阻是公共支路的 R_3（顺时针时取负号）。",
-    "顺时针绕行网孔 1 时，经过 U_s2 是从“+”到“−”，是电压降；绕行网孔 2 时经过 U_s2 是电压升。"
+    "顺时针绕行网孔 1 时，经过 V_s2 是从“+”到“−”，是电压降；绕行网孔 2 时经过 V_s2 是电压升。"
   ],
   "solution": [
-    "**1. 网孔 1：** (R_1 + R_3)·i_m1 − R_3·i_m2 = U_s1 − U_s2 → 6i_m1 − 4i_m2 = 14。",
-    "**2. 网孔 2：** −R_3·i_m1 + (R_3 + R_2 + R_4)·i_m2 = U_s2 → −4i_m1 + 16i_m2 = 4。",
+    "**1. 网孔 1：** (R_1 + R_3)·i_m1 − R_3·i_m2 = V_s1 − V_s2 → 6i_m1 − 4i_m2 = 14。",
+    "**2. 网孔 2：** −R_3·i_m1 + (R_3 + R_2 + R_4)·i_m2 = V_s2 → −4i_m1 + 16i_m2 = 4。",
     "**3. 求解：** 由第二式 i_m1 = 4i_m2 − 1，代入第一式：24i_m2 − 6 − 4i_m2 = 14 → **i_m2 = 1 A**，**i_m1 = 3 A**。",
     "**4. 支路电流：** i_3 = i_m1 − i_m2 = **2 A**（向下）。",
-    "**5. U_s2 的功率：** 电流 2 A 从 U_s2 的“+”端流入，P = 4 × 2 = **8 W**（吸收）。",
-    "**验算：** U_s1 发出 18 × 3 = 54 W；电阻吸收 2×9 + 4×4 + 4×1 + 8×1 = 46 W；U_s2 吸收 8 W。46 + 8 = 54 W。"
+    "**5. V_s2 的功率：** 电流 2 A 从 V_s2 的“+”端流入，P = 4 × 2 = **8 W**（吸收）。",
+    "**验算：** V_s1 发出 18 × 3 = 54 W；电阻吸收 2×9 + 4×4 + 4×1 + 8×1 = 46 W；V_s2 吸收 8 W。46 + 8 = 54 W。"
   ],
   "i18n": {
     "en": {
       "title": "Mesh-current method: two meshes",
       "tags": ["mesh-current method", "self-resistance", "mutual resistance"],
       "statement": [
-        "In the circuit, U_s1 = 18 V, U_s2 = 4 V, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 4 Ω, R_4 = 8 Ω. Let the mesh currents i_m1 (left) and i_m2 (right) both be **clockwise**.",
-        "Use the **mesh-current method** to find i_m1, i_m2, the current i_3 in the middle branch (downwards), and the power absorbed by U_s2."
+        "In the circuit, V_s1 = 18 V, V_s2 = 4 V, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 4 Ω, R_4 = 8 Ω. Let the mesh currents i_m1 (left) and i_m2 (right) both be **clockwise**.",
+        "Use the **mesh-current method** to find i_m1, i_m2, the current i_3 in the middle branch (downwards), and the power absorbed by V_s2."
       ],
       "questions": [
         { "ask": "Mesh current i_m1 = ? (equal to the current i_1 in R_1 shown in the figure)", "explain": "Mesh equations 6i_m1 − 4i_m2 = 14 and −4i_m1 + 16i_m2 = 4 give i_m1 = 3 A." },
         { "ask": "Mesh current i_m2 = ? (equal to the current i_4 in R_4 shown in the figure)", "explain": "The same pair of equations gives i_m2 = 1 A." },
         { "ask": "i_3 = ?", "explain": "The middle branch belongs to both meshes and the two mesh currents run through it in opposite directions: i_3 = i_m1 − i_m2 = 2 A." },
-        { "ask": "Power absorbed by U_s2, P = ?", "explain": "The current through U_s2 is i_3 = 2 A, entering its \"+\" terminal: P = 4 × 2 = 8 W (absorbed)." }
+        { "ask": "Power absorbed by V_s2, P = ?", "explain": "The current through V_s2 is i_3 = 2 A, entering its \"+\" terminal: P = 4 × 2 = 8 W (absorbed)." }
       ],
       "hints": [
         "Write one KVL equation per mesh: self-resistance × own mesh current − mutual resistance × neighbouring mesh current = sum of source voltage rises in the mesh.",
         "Self-resistances R_11 = R_1 + R_3 = 6 Ω, R_22 = R_3 + R_2 + R_4 = 16 Ω; the mutual resistance is R_3 in the shared branch (negative sign with both currents clockwise).",
-        "Going clockwise around mesh 1 you cross U_s2 from \"+\" to \"−\" (a drop); going around mesh 2 you cross it as a rise."
+        "Going clockwise around mesh 1 you cross V_s2 from \"+\" to \"−\" (a drop); going around mesh 2 you cross it as a rise."
       ],
       "solution": [
-        "**1. Mesh 1:** (R_1 + R_3)·i_m1 − R_3·i_m2 = U_s1 − U_s2 → 6i_m1 − 4i_m2 = 14.",
-        "**2. Mesh 2:** −R_3·i_m1 + (R_3 + R_2 + R_4)·i_m2 = U_s2 → −4i_m1 + 16i_m2 = 4.",
+        "**1. Mesh 1:** (R_1 + R_3)·i_m1 − R_3·i_m2 = V_s1 − V_s2 → 6i_m1 − 4i_m2 = 14.",
+        "**2. Mesh 2:** −R_3·i_m1 + (R_3 + R_2 + R_4)·i_m2 = V_s2 → −4i_m1 + 16i_m2 = 4.",
         "**3. Solve:** from the second equation i_m1 = 4i_m2 − 1; substituting, 24i_m2 − 6 − 4i_m2 = 14 → **i_m2 = 1 A**, **i_m1 = 3 A**.",
         "**4. Branch current:** i_3 = i_m1 − i_m2 = **2 A** (downwards).",
-        "**5. Power of U_s2:** 2 A enters its \"+\" terminal, so P = 4 × 2 = **8 W** (absorbed).",
-        "**Check:** U_s1 delivers 18 × 3 = 54 W; the resistors absorb 2×9 + 4×4 + 4×1 + 8×1 = 46 W; U_s2 absorbs 8 W. 46 + 8 = 54 W."
+        "**5. Power of V_s2:** 2 A enters its \"+\" terminal, so P = 4 × 2 = **8 W** (absorbed).",
+        "**Check:** V_s1 delivers 18 × 3 = 54 W; the resistors absorb 2×9 + 4×4 + 4×1 + 8×1 = 46 W; V_s2 absorbs 8 W. 46 + 8 = 54 W."
       ]
     }
   }

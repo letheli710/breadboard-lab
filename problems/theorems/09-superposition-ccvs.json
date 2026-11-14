@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["叠加定理", "受控源 CCVS"],
   "statement": [
-    "图示电路中 U_s = 10 V，I_s = 4 A，R_1 = 6 Ω，R_2 = 4 Ω。电流控制电压源的电压为 10i_1（“+” 在上），i_1 是 R_1 中的电流（参考方向见图）。",
-    "用叠加定理求结点 a 的电压 u_a 和电流 i_1。"
+    "图示电路中 V_s = 10 V，I_s = 4 A，R_1 = 6 Ω，R_2 = 4 Ω。电流控制电压源的电压为 10i_1（“+” 在上），i_1 是 R_1 中的电流（参考方向见图）。",
+    "用叠加定理求结点 a 的电压 v_a 和电流 i_1。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 1], "to": [0, 5], "value": 10 },
+      { "ref": "Vs", "type": "V", "from": [0, 1], "to": [0, 5], "value": 10 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 6 },
       { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 3], "value": 4 },
       { "ref": "H", "type": "CCVS", "from": [8, 3], "to": [8, 6], "value": 10, "ctrl": { "i": "R1" }, "label": "10i_1" },
@@ -42,11 +42,11 @@
     },
     {
       "id": "ua",
-      "ask": "u_a = ?",
+      "ask": "v_a = ?",
       "find": { "kind": "v", "nodes": ["a"] },
       "answer": 11.8,
       "unit": "V",
-      "explain": "U_s 单独作用：u_a' = 7 V；I_s 单独作用：u_a'' = 4.8 V；u_a = 11.8 V。"
+      "explain": "V_s 单独作用：v_a' = 7 V；I_s 单独作用：v_a'' = 4.8 V；v_a = 11.8 V。"
     },
     {
       "id": "i1",
@@ -58,15 +58,15 @@
     }
   ],
   "hints": [
-    "画两个分电路：U_s 单独作用（I_s 开路）和 I_s 单独作用（U_s 短路）。想一想受控源在分电路中应当怎样处理，它的控制量 i_1 在每个分电路中又取哪个值。",
-    "U_s 单独作用时只有一个回路：10 = 6i_1' + 4i_1' + 10i_1'。",
-    "I_s 单独作用时，以 u_a'' 为未知量：i_1'' = −u_a''/6，R_2 支路电流 = (u_a'' − 10i_1'')/4，再列 a 的 KCL。"
+    "画两个分电路：V_s 单独作用（I_s 开路）和 I_s 单独作用（V_s 短路）。想一想受控源在分电路中应当怎样处理，它的控制量 i_1 在每个分电路中又取哪个值。",
+    "V_s 单独作用时只有一个回路：10 = 6i_1' + 4i_1' + 10i_1'。",
+    "I_s 单独作用时，以 v_a'' 为未知量：i_1'' = −v_a''/6，R_2 支路电流 = (v_a'' − 10i_1'')/4，再列 a 的 KCL。"
   ],
   "solution": [
-    "**1. U_s 单独作用**（I_s 开路）：单回路，R_1、R_2、受控源流过同一电流 i_1'。KVL：10 = 6i_1' + 4i_1' + 10i_1' → **i_1' = 0.5 A**，u_a' = 10 − 6 × 0.5 = **7 V**。",
-    "**2. I_s 单独作用**（U_s 短路）：R_1 左端接地，i_1'' = −u_a''/6。R_2 支路向下的电流 = (u_a'' − 10i_1'')/4 = (u_a'' + 10u_a''/6)/4 = 2u_a''/3。",
-    "a 的 KCL：I_s + i_1'' = 2u_a''/3 → 4 − u_a''/6 = 2u_a''/3 → **u_a'' = 4.8 V**，i_1'' = **−0.8 A**。",
-    "**3. 叠加：** u_a = 7 + 4.8 = **11.8 V**，i_1 = 0.5 − 0.8 = **−0.3 A**。",
+    "**1. V_s 单独作用**（I_s 开路）：单回路，R_1、R_2、受控源流过同一电流 i_1'。KVL：10 = 6i_1' + 4i_1' + 10i_1' → **i_1' = 0.5 A**，v_a' = 10 − 6 × 0.5 = **7 V**。",
+    "**2. I_s 单独作用**（V_s 短路）：R_1 左端接地，i_1'' = −v_a''/6。R_2 支路向下的电流 = (v_a'' − 10i_1'')/4 = (v_a'' + 10v_a''/6)/4 = 2v_a''/3。",
+    "a 的 KCL：I_s + i_1'' = 2v_a''/3 → 4 − v_a''/6 = 2v_a''/3 → **v_a'' = 4.8 V**，i_1'' = **−0.8 A**。",
+    "**3. 叠加：** v_a = 7 + 4.8 = **11.8 V**，i_1 = 0.5 − 0.8 = **−0.3 A**。",
     "**验算：** i_1 = (10 − 11.8)/6 = −0.3 A；R_2 支路电流 (11.8 − 10 × (−0.3))/4 = 3.7 A；KCL：−0.3 + 4 = 3.7 ✓。"
   ],
   "i18n": {
@@ -74,8 +74,8 @@
       "title": "Superposition with a dependent source",
       "tags": ["superposition", "dependent source CCVS"],
       "statement": [
-        "In the circuit, U_s = 10 V, I_s = 4 A, R_1 = 6 Ω, R_2 = 4 Ω. The current-controlled voltage source has voltage 10i_1 (\"+\" at the top), where i_1 is the current in R_1 (reference direction as drawn).",
-        "Use superposition to find the voltage u_a of node a and the current i_1."
+        "In the circuit, V_s = 10 V, I_s = 4 A, R_1 = 6 Ω, R_2 = 4 Ω. The current-controlled voltage source has voltage 10i_1 (\"+\" at the top), where i_1 is the current in R_1 (reference direction as drawn).",
+        "Use superposition to find the voltage v_a of node a and the current i_1."
       ],
       "questions": [
         {
@@ -88,8 +88,8 @@
           "explain": "A dependent source is not an excitation: its voltage is set by the controlling quantity in the circuit, so it can neither act alone nor be zeroed; it stays in every sub-circuit."
         },
         {
-          "ask": "u_a = ?",
-          "explain": "U_s alone: u_a' = 7 V; I_s alone: u_a'' = 4.8 V; u_a = 11.8 V."
+          "ask": "v_a = ?",
+          "explain": "V_s alone: v_a' = 7 V; I_s alone: v_a'' = 4.8 V; v_a = 11.8 V."
         },
         {
           "ask": "i_1 = ?",
@@ -97,15 +97,15 @@
         }
       ],
       "hints": [
-        "Draw two sub-circuits: U_s alone (I_s open) and I_s alone (U_s shorted). Think about how the dependent source must be treated in each sub-circuit, and which value its controlling current i_1 takes there.",
-        "With U_s alone there is a single loop: 10 = 6i_1' + 4i_1' + 10i_1'.",
-        "With I_s alone, take u_a'' as the unknown: i_1'' = −u_a''/6, the current down the R_2 branch is (u_a'' − 10i_1'')/4; then write KCL at a."
+        "Draw two sub-circuits: V_s alone (I_s open) and I_s alone (V_s shorted). Think about how the dependent source must be treated in each sub-circuit, and which value its controlling current i_1 takes there.",
+        "With V_s alone there is a single loop: 10 = 6i_1' + 4i_1' + 10i_1'.",
+        "With I_s alone, take v_a'' as the unknown: i_1'' = −v_a''/6, the current down the R_2 branch is (v_a'' − 10i_1'')/4; then write KCL at a."
       ],
       "solution": [
-        "**1. U_s alone** (I_s open): a single loop; R_1, R_2 and the dependent source carry the same current i_1'. KVL: 10 = 6i_1' + 4i_1' + 10i_1' → **i_1' = 0.5 A**, u_a' = 10 − 6 × 0.5 = **7 V**.",
-        "**2. I_s alone** (U_s shorted): the left end of R_1 is grounded, so i_1'' = −u_a''/6. The downward current in the R_2 branch = (u_a'' − 10i_1'')/4 = (u_a'' + 10u_a''/6)/4 = 2u_a''/3.",
-        "KCL at a: I_s + i_1'' = 2u_a''/3 → 4 − u_a''/6 = 2u_a''/3 → **u_a'' = 4.8 V**, i_1'' = **−0.8 A**.",
-        "**3. Add:** u_a = 7 + 4.8 = **11.8 V**, i_1 = 0.5 − 0.8 = **−0.3 A**.",
+        "**1. V_s alone** (I_s open): a single loop; R_1, R_2 and the dependent source carry the same current i_1'. KVL: 10 = 6i_1' + 4i_1' + 10i_1' → **i_1' = 0.5 A**, v_a' = 10 − 6 × 0.5 = **7 V**.",
+        "**2. I_s alone** (V_s shorted): the left end of R_1 is grounded, so i_1'' = −v_a''/6. The downward current in the R_2 branch = (v_a'' − 10i_1'')/4 = (v_a'' + 10v_a''/6)/4 = 2v_a''/3.",
+        "KCL at a: I_s + i_1'' = 2v_a''/3 → 4 − v_a''/6 = 2v_a''/3 → **v_a'' = 4.8 V**, i_1'' = **−0.8 A**.",
+        "**3. Add:** v_a = 7 + 4.8 = **11.8 V**, i_1 = 0.5 − 0.8 = **−0.3 A**.",
         "**Check:** i_1 = (10 − 11.8)/6 = −0.3 A; R_2-branch current (11.8 − 10 × (−0.3))/4 = 3.7 A; KCL: −0.3 + 4 = 3.7 ✓."
       ]
     }

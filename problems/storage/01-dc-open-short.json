@@ -7,12 +7,12 @@
   "level": 1,
   "tags": ["直流稳态", "电容开路", "电感短路"],
   "statement": [
-    "图示电路已处于直流稳态。U_s = 12 V，R_1 = 2 Ω，R_2 = 4 Ω，C = 10 µF，L = 0.5 H。",
-    "求电感电流 i_L、电容电压 u_C 和电容电流 i_C。"
+    "图示电路已处于直流稳态。V_s = 12 V，R_1 = 2 Ω，R_2 = 4 Ω，C = 10 µF，L = 0.5 H。",
+    "求电感电流 i_L、电容电压 v_C 和电容电流 i_C。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 2 },
       { "ref": "C", "type": "C", "from": [7, 0], "to": [7, 4], "value": "10u" },
       { "ref": "L", "type": "L", "from": [9, 0], "to": [12, 0], "value": 0.5 },
@@ -27,24 +27,24 @@
     "grounds": [[0, 4]],
     "marks": [
       { "kind": "i", "el": "L", "name": "i_L" },
-      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "v", "el": "C", "name": "v_C" },
       { "kind": "i", "el": "C", "name": "i_C" }
     ]
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "iL", "ask": "i_L = ?", "find": { "kind": "i", "el": "L" }, "answer": 2, "unit": "A", "explain": "直流稳态下电感相当于短路、电容相当于开路，电路只剩 U_s、R_1、R_2 串联：i_L = 12 / (2 + 4) = 2 A。" },
-    { "id": "uC", "ask": "u_C = ?", "find": { "kind": "v", "el": "C" }, "answer": 8, "unit": "V", "explain": "电感短路，电容两端电压就是 R_2 两端电压：u_C = 2 × 4 = 8 V（也可以用分压：12 × 4/6 = 8 V）。" },
-    { "id": "iC", "ask": "电容电流 i_C 为多少？", "choices": ["0", "2 A", "6 A", "无法确定"], "choiceExplain": ["", "2 A 是电感电流 i_L，不是电容支路的电流；i_C 要由电容自身的 VCR i_C = C du_C/dt 判断。", "6 A = 12/2 是把电容、电感的直流模型弄反了（电容短路、电感开路）；直流稳态下应是电容开路、电感短路。", "不需要知道 C 的数值或 u_C 的变化过程：直流稳态下 u_C 是常数，代入 i_C = C du_C/dt 就能确定 i_C。"], "correct": 0, "explain": "i_C = C·du_C/dt，直流稳态下 u_C 不随时间变化，du_C/dt = 0，所以 i_C = 0——这正是“电容开路”的含义。" }
+    { "id": "iL", "ask": "i_L = ?", "find": { "kind": "i", "el": "L" }, "answer": 2, "unit": "A", "explain": "直流稳态下电感相当于短路、电容相当于开路，电路只剩 V_s、R_1、R_2 串联：i_L = 12 / (2 + 4) = 2 A。" },
+    { "id": "uC", "ask": "v_C = ?", "find": { "kind": "v", "el": "C" }, "answer": 8, "unit": "V", "explain": "电感短路，电容两端电压就是 R_2 两端电压：v_C = 2 × 4 = 8 V（也可以用分压：12 × 4/6 = 8 V）。" },
+    { "id": "iC", "ask": "电容电流 i_C 为多少？", "choices": ["0", "2 A", "6 A", "无法确定"], "choiceExplain": ["", "2 A 是电感电流 i_L，不是电容支路的电流；i_C 要由电容自身的 VCR i_C = C dv_C/dt 判断。", "6 A = 12/2 是把电容、电感的直流模型弄反了（电容短路、电感开路）；直流稳态下应是电容开路、电感短路。", "不需要知道 C 的数值或 v_C 的变化过程：直流稳态下 v_C 是常数，代入 i_C = C dv_C/dt 就能确定 i_C。"], "correct": 0, "explain": "i_C = C·dv_C/dt，直流稳态下 v_C 不随时间变化，dv_C/dt = 0，所以 i_C = 0——这正是“电容开路”的含义。" }
   ],
   "hints": [
-    "直流稳态下一切电压、电流都是常数：du/dt = 0、di/dt = 0。",
-    "由 i = C du/dt 和 u = L di/dt 可知：电容相当于开路，电感相当于短路。把它们替换掉后再算电阻电路。"
+    "直流稳态下一切电压、电流都是常数：dv/dt = 0、di/dt = 0。",
+    "由 i = C dv/dt 和 v = L di/dt 可知：电容相当于开路，电感相当于短路。把它们替换掉后再算电阻电路。"
   ],
   "solution": [
-    "**1. 等效电路。** 直流稳态时 du_C/dt = 0 → i_C = C du_C/dt = 0，电容开路；di_L/dt = 0 → u_L = L di_L/dt = 0，电感短路。",
-    "**2. 求 i_L。** 剩下 U_s、R_1、R_2 的单回路：i_L = U_s/(R_1 + R_2) = 12/6 = **2 A**。",
-    "**3. 求 u_C。** 电容并在 R_1 右端与地之间，电感短路后这一点的电位等于 R_2 上端的电位：u_C = R_2·i_L = **8 V**。",
+    "**1. 等效电路。** 直流稳态时 dv_C/dt = 0 → i_C = C dv_C/dt = 0，电容开路；di_L/dt = 0 → v_L = L di_L/dt = 0，电感短路。",
+    "**2. 求 i_L。** 剩下 V_s、R_1、R_2 的单回路：i_L = V_s/(R_1 + R_2) = 12/6 = **2 A**。",
+    "**3. 求 v_C。** 电容并在 R_1 右端与地之间，电感短路后这一点的电位等于 R_2 上端的电位：v_C = R_2·i_L = **8 V**。",
     "**4. i_C = 0。** 验算 KVL：R_1 上压降 4 V，4 + 8 = 12 V ✓。注意电容、电感的数值 C、L 对直流稳态的结果没有影响（只影响储能和过渡过程的快慢）。"
   ],
   "i18n": {
@@ -52,22 +52,22 @@
       "title": "DC steady state: capacitor open, inductor short",
       "tags": ["DC steady state", "capacitor as open circuit", "inductor as short circuit"],
       "statement": [
-        "The circuit is in DC steady state. U_s = 12 V, R_1 = 2 Ω, R_2 = 4 Ω, C = 10 µF, L = 0.5 H.",
-        "Find the inductor current i_L, the capacitor voltage u_C and the capacitor current i_C."
+        "The circuit is in DC steady state. V_s = 12 V, R_1 = 2 Ω, R_2 = 4 Ω, C = 10 µF, L = 0.5 H.",
+        "Find the inductor current i_L, the capacitor voltage v_C and the capacitor current i_C."
       ],
       "questions": [
-        { "ask": "i_L = ?", "explain": "In DC steady state the inductor acts as a short and the capacitor as an open circuit, leaving U_s, R_1 and R_2 in series: i_L = 12 / (2 + 4) = 2 A." },
-        { "ask": "u_C = ?", "explain": "With the inductor shorted, the capacitor voltage equals the voltage across R_2: u_C = 2 × 4 = 8 V (or by the divider rule: 12 × 4/6 = 8 V)." },
-        { "ask": "What is the capacitor current i_C?", "choices": ["0", "2 A", "6 A", "Cannot be determined"], "choiceExplain": ["", "2 A is the inductor current i_L, not the current in the capacitor branch; i_C must be judged from the capacitor's own VCR, i_C = C du_C/dt.", "6 A = 12/2 swaps the DC models of the two elements (capacitor shorted, inductor open); in DC steady state the capacitor is an open and the inductor a short.", "Neither the value of C nor the history of u_C is needed: in DC steady state u_C is constant, and i_C = C du_C/dt then fixes i_C."], "explain": "i_C = C·du_C/dt. In DC steady state u_C does not change, du_C/dt = 0, so i_C = 0 — that is exactly what \"the capacitor is an open circuit\" means." }
+        { "ask": "i_L = ?", "explain": "In DC steady state the inductor acts as a short and the capacitor as an open circuit, leaving V_s, R_1 and R_2 in series: i_L = 12 / (2 + 4) = 2 A." },
+        { "ask": "v_C = ?", "explain": "With the inductor shorted, the capacitor voltage equals the voltage across R_2: v_C = 2 × 4 = 8 V (or by the divider rule: 12 × 4/6 = 8 V)." },
+        { "ask": "What is the capacitor current i_C?", "choices": ["0", "2 A", "6 A", "Cannot be determined"], "choiceExplain": ["", "2 A is the inductor current i_L, not the current in the capacitor branch; i_C must be judged from the capacitor's own VCR, i_C = C dv_C/dt.", "6 A = 12/2 swaps the DC models of the two elements (capacitor shorted, inductor open); in DC steady state the capacitor is an open and the inductor a short.", "Neither the value of C nor the history of v_C is needed: in DC steady state v_C is constant, and i_C = C dv_C/dt then fixes i_C."], "explain": "i_C = C·dv_C/dt. In DC steady state v_C does not change, dv_C/dt = 0, so i_C = 0 — that is exactly what \"the capacitor is an open circuit\" means." }
       ],
       "hints": [
-        "In DC steady state every voltage and current is constant: du/dt = 0 and di/dt = 0.",
-        "From i = C du/dt and u = L di/dt: the capacitor acts as an open circuit and the inductor as a short. Replace them, then solve the resistive circuit."
+        "In DC steady state every voltage and current is constant: dv/dt = 0 and di/dt = 0.",
+        "From i = C dv/dt and v = L di/dt: the capacitor acts as an open circuit and the inductor as a short. Replace them, then solve the resistive circuit."
       ],
       "solution": [
-        "**1. Equivalent circuit.** In DC steady state du_C/dt = 0 → i_C = C du_C/dt = 0, so C is an open circuit; di_L/dt = 0 → u_L = L di_L/dt = 0, so L is a short circuit.",
-        "**2. Find i_L.** A single loop of U_s, R_1 and R_2 remains: i_L = U_s/(R_1 + R_2) = 12/6 = **2 A**.",
-        "**3. Find u_C.** The capacitor sits between the right end of R_1 and ground; with L shorted that point is at the same potential as the top of R_2: u_C = R_2·i_L = **8 V**.",
+        "**1. Equivalent circuit.** In DC steady state dv_C/dt = 0 → i_C = C dv_C/dt = 0, so C is an open circuit; di_L/dt = 0 → v_L = L di_L/dt = 0, so L is a short circuit.",
+        "**2. Find i_L.** A single loop of V_s, R_1 and R_2 remains: i_L = V_s/(R_1 + R_2) = 12/6 = **2 A**.",
+        "**3. Find v_C.** The capacitor sits between the right end of R_1 and ground; with L shorted that point is at the same potential as the top of R_2: v_C = R_2·i_L = **8 V**.",
         "**4. i_C = 0.** KVL check: R_1 drops 4 V, 4 + 8 = 12 V ✓. Note that the values of C and L do not affect the DC steady state at all (they only set the stored energy and how fast transients are)."
       ]
     }

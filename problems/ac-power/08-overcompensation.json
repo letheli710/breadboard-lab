@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["功率因数", "过补偿", "超前与滞后"],
   "statement": [
-    "U̇ = 200∠0° V（有效值），ω = 1000 rad/s。电源同时给两个负载供电：电热器 R_1 = 25 Ω；电动机，模型为 R_2 = 16 Ω 与 L_2 = 12 mH 串联。为提高功率因数并联了电容 C = 90 µF。",
+    "V̇ = 200∠0° V（有效值），ω = 1000 rad/s。电源同时给两个负载供电：电热器 R_1 = 25 Ω；电动机，模型为 R_2 = 16 Ω 与 L_2 = 12 mH 串联。为提高功率因数并联了电容 C = 90 µF。",
     "求电容的无功功率、电源的视在功率和功率因数，并判断功率因数是超前还是滞后。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 200, "phase": 0 } }, "label": "200∠0° V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 200, "phase": 0 } }, "label": "200∠0° V" },
       { "ref": "R1", "type": "R", "from": [4, 0], "to": [4, 6], "value": 25 },
       { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 3], "value": 16 },
       { "ref": "L2", "type": "L", "from": [8, 3], "to": [8, 6], "value": "12m" },
@@ -26,58 +26,58 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "QC", "ask": "电容吸收的无功功率 Q_C = ?", "find": { "kind": "q", "el": "C" }, "answer": -3600, "unit": "var", "explain": "Q_C = −ωCU² = −1000 × 90×10⁻⁶ × 200² = −3600 var。" },
-    { "id": "S", "ask": "电源的视在功率 S = ?", "find": { "kind": "s", "el": "Us" }, "answer": 4000, "unit": "VA", "explain": "P = 1600 + 1600 = 3200 W；Q = 1200 − 3600 = −2400 var；S = √(3200² + 2400²) = 4000 VA。" },
-    { "id": "pf", "ask": "电源的功率因数 cos φ = ?", "find": { "kind": "pf", "el": "Us" }, "answer": 0.8, "unit": "", "explain": "cos φ = P/S = 3200/4000 = 0.8。不加电容时 S = √(3200² + 1200²) ≈ 3418 VA，cos φ ≈ 0.936——电容加多了，功率因数反而下降。" },
+    { "id": "QC", "ask": "电容吸收的无功功率 Q_C = ?", "find": { "kind": "q", "el": "C" }, "answer": -3600, "unit": "var", "explain": "Q_C = −ωCV² = −1000 × 90×10⁻⁶ × 200² = −3600 var。" },
+    { "id": "S", "ask": "电源的视在功率 S = ?", "find": { "kind": "s", "el": "Vs" }, "answer": 4000, "unit": "VA", "explain": "P = 1600 + 1600 = 3200 W；Q = 1200 − 3600 = −2400 var；S = √(3200² + 2400²) = 4000 VA。" },
+    { "id": "pf", "ask": "电源的功率因数 cos φ = ?", "find": { "kind": "pf", "el": "Vs" }, "answer": 0.8, "unit": "", "explain": "cos φ = P/S = 3200/4000 = 0.8。不加电容时 S = √(3200² + 1200²) ≈ 3418 VA，cos φ ≈ 0.936——电容加多了，功率因数反而下降。" },
     {
       "id": "lead",
       "ask": "此时电源的功率因数是",
       "choices": ["超前（总负载呈容性）", "滞后（总负载呈感性）", "等于 1"], "choiceExplain": ["", "不接电容时确实是滞后（电动机呈感性），但还要比较电容提供的 3600 var 与电动机需要的 1200 var。", "cos φ = 1 需要 Q_C 恰好等于 −1200 var（C = 30 µF）；电容越大并不越好。"],
       "correct": 0,
-      "explain": "电容提供的 3600 var 大于电动机需要的 1200 var，总无功 Q = −2400 var < 0，电流超前电压，这就是过补偿。要使 cos φ = 1 只需 Q_C = −1200 var，即 C = 1200/(ωU²) = 30 µF。"
+      "explain": "电容提供的 3600 var 大于电动机需要的 1200 var，总无功 Q = −2400 var < 0，电流超前电压，这就是过补偿。要使 cos φ = 1 只需 Q_C = −1200 var，即 C = 1200/(ωV²) = 30 µF。"
     }
   ],
   "hints": [
-    "并联元件的电压都是 200 V。先分别算电热器、电动机的 P、Q（电动机电流 I = U/|16 + j12|）。",
-    "电容的无功 Q_C = −ωCU²；总 P、总 Q 分别相加，S = √(P² + Q²)。",
+    "并联元件的电压都是 200 V。先分别算电热器、电动机的 P、Q（电动机电流 I = V/|16 + j12|）。",
+    "电容的无功 Q_C = −ωCV²；总 P、总 Q 分别相加，S = √(P² + Q²)。",
     "总 Q 的正负决定功率因数是滞后还是超前。"
   ],
   "solution": [
-    "**1. 电热器。** P_1 = U²/R_1 = 40000/25 = 1600 W，Q_1 = 0。",
+    "**1. 电热器。** P_1 = V²/R_1 = 40000/25 = 1600 W，Q_1 = 0。",
     "**2. 电动机。** Z_2 = 16 + j12 = 20∠36.87° Ω，I_2 = 200/20 = 10 A，P_2 = I_2²R_2 = 1600 W，Q_2 = I_2²X_L2 = 1200 var。",
-    "**3. 电容。** Q_C = −ωCU² = **−3600 var**。",
+    "**3. 电容。** Q_C = −ωCV² = **−3600 var**。",
     "**4. 电源。** P = 3200 W，Q = 0 + 1200 − 3600 = −2400 var，S = √(3200² + 2400²) = **4000 VA**，cos φ = **0.8**，Q < 0 → **超前**（过补偿）。",
-    "**对比：** 不接电容时 cos φ = 3200/√(3200² + 1200²) ≈ 0.936（滞后）；恰好补偿到 1 需 C = Q_2/(ωU²) = 1200/(1000 × 40000) = 30 µF。电容取 90 µF 太大，电源电流从 17.1 A 反而增加到 20 A。"
+    "**对比：** 不接电容时 cos φ = 3200/√(3200² + 1200²) ≈ 0.936（滞后）；恰好补偿到 1 需 C = Q_2/(ωV²) = 1200/(1000 × 40000) = 30 µF。电容取 90 µF 太大，电源电流从 17.1 A 反而增加到 20 A。"
   ],
   "i18n": {
     "en": {
       "title": "Parallel loads and overcompensation",
       "tags": ["power factor", "overcompensation", "leading and lagging"],
       "statement": [
-        "U̇ = 200∠0° V (rms), ω = 1000 rad/s. The source feeds two loads: a heater R_1 = 25 Ω, and a motor modelled as R_2 = 16 Ω in series with L_2 = 12 mH. A capacitor C = 90 µF has been connected in parallel to improve the power factor.",
+        "V̇ = 200∠0° V (rms), ω = 1000 rad/s. The source feeds two loads: a heater R_1 = 25 Ω, and a motor modelled as R_2 = 16 Ω in series with L_2 = 12 mH. A capacitor C = 90 µF has been connected in parallel to improve the power factor.",
         "Find the reactive power of the capacitor, the apparent power and power factor of the source, and decide whether the power factor is leading or lagging."
       ],
       "questions": [
-        { "ask": "Reactive power absorbed by the capacitor, Q_C = ?", "explain": "Q_C = −ωCU² = −1000 × 90×10⁻⁶ × 200² = −3600 var." },
+        { "ask": "Reactive power absorbed by the capacitor, Q_C = ?", "explain": "Q_C = −ωCV² = −1000 × 90×10⁻⁶ × 200² = −3600 var." },
         { "ask": "Apparent power of the source, S = ?", "explain": "P = 1600 + 1600 = 3200 W; Q = 1200 − 3600 = −2400 var; S = √(3200² + 2400²) = 4000 VA." },
         { "ask": "Power factor of the source, cos φ = ?", "explain": "cos φ = P/S = 3200/4000 = 0.8. Without the capacitor S = √(3200² + 1200²) ≈ 3418 VA and cos φ ≈ 0.936 — too much capacitance has actually lowered the power factor." },
         {
           "ask": "The source power factor is now",
           "choices": ["leading (the total load is capacitive)", "lagging (the total load is inductive)", "equal to 1"], "choiceExplain": ["", "Without the capacitor it is indeed lagging (the motor is inductive), but the capacitor's 3600 var has to be compared with the motor's 1200 var.", "cos φ = 1 needs Q_C to be exactly −1200 var (C = 30 µF); more capacitance is not better."],
-          "explain": "The capacitor supplies 3600 var, more than the motor's 1200 var, so the total Q = −2400 var < 0 and the current leads the voltage: overcompensation. For cos φ = 1 only Q_C = −1200 var is needed, i.e. C = 1200/(ωU²) = 30 µF."
+          "explain": "The capacitor supplies 3600 var, more than the motor's 1200 var, so the total Q = −2400 var < 0 and the current leads the voltage: overcompensation. For cos φ = 1 only Q_C = −1200 var is needed, i.e. C = 1200/(ωV²) = 30 µF."
         }
       ],
       "hints": [
-        "All parallel elements see 200 V. Work out P and Q of the heater and of the motor separately (motor current I = U/|16 + j12|).",
-        "Capacitor reactive power Q_C = −ωCU²; add up the total P and total Q, then S = √(P² + Q²).",
+        "All parallel elements see 200 V. Work out P and Q of the heater and of the motor separately (motor current I = V/|16 + j12|).",
+        "Capacitor reactive power Q_C = −ωCV²; add up the total P and total Q, then S = √(P² + Q²).",
         "The sign of the total Q tells you whether the power factor is lagging or leading."
       ],
       "solution": [
-        "**1. Heater.** P_1 = U²/R_1 = 40000/25 = 1600 W, Q_1 = 0.",
+        "**1. Heater.** P_1 = V²/R_1 = 40000/25 = 1600 W, Q_1 = 0.",
         "**2. Motor.** Z_2 = 16 + j12 = 20∠36.87° Ω, I_2 = 200/20 = 10 A, P_2 = I_2²R_2 = 1600 W, Q_2 = I_2²X_L2 = 1200 var.",
-        "**3. Capacitor.** Q_C = −ωCU² = **−3600 var**.",
+        "**3. Capacitor.** Q_C = −ωCV² = **−3600 var**.",
         "**4. Source.** P = 3200 W, Q = 0 + 1200 − 3600 = −2400 var, S = √(3200² + 2400²) = **4000 VA**, cos φ = **0.8**, and Q < 0 → **leading** (overcompensated).",
-        "**Comparison:** without the capacitor cos φ = 3200/√(3200² + 1200²) ≈ 0.936 (lagging); exact correction to 1 needs C = Q_2/(ωU²) = 1200/(1000 × 40000) = 30 µF. With 90 µF the capacitor is far too large and the source current actually rises from 17.1 A to 20 A."
+        "**Comparison:** without the capacitor cos φ = 3200/√(3200² + 1200²) ≈ 0.936 (lagging); exact correction to 1 needs C = Q_2/(ωV²) = 1200/(1000 × 40000) = 30 µF. With 90 µF the capacitor is far too large and the source current actually rises from 17.1 A to 20 A."
       ]
     }
   }

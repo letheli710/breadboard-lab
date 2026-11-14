@@ -7,8 +7,8 @@
   "level": 1,
   "tags": ["Z 参数", "开路阻抗参数", "互易二端口"],
   "statement": [
-    "图示 T 形电阻二端口中，R_1 = 2 Ω，R_2 = 3 Ω，R_3 = 4 Ω。端口电压 u_1、u_2 的“+”分别在 1、2 端，端口电流 i_1、i_2 分别从 1、2 端流入（关联参考方向）。",
-    "Z 参数方程：u_1 = z_11·i_1 + z_12·i_2，u_2 = z_21·i_1 + z_22·i_2。按定义（令另一端口开路）求 Z 参数。"
+    "图示 T 形电阻二端口中，R_1 = 2 Ω，R_2 = 3 Ω，R_3 = 4 Ω。端口电压 v_1、v_2 的“+”分别在 1、2 端，端口电流 i_1、i_2 分别从 1、2 端流入（关联参考方向）。",
+    "Z 参数方程：v_1 = z_11·i_1 + z_12·i_2，v_2 = z_21·i_1 + z_22·i_2。按定义（令另一端口开路）求 Z 参数。"
   ],
   "schematic": {
     "elements": [
@@ -39,7 +39,7 @@
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11" },
       "answer": 6,
       "unit": "Ω",
-      "explain": "2–2' 开路（i_2 = 0）时 R_2 中无电流，从 1–1' 看进去是 R_1 与 R_3 串联：z_11 = u_1/i_1 = 2 + 4 = 6 Ω。"
+      "explain": "2–2' 开路（i_2 = 0）时 R_2 中无电流，从 1–1' 看进去是 R_1 与 R_3 串联：z_11 = v_1/i_1 = 2 + 4 = 6 Ω。"
     },
     {
       "id": "z21",
@@ -47,7 +47,7 @@
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z21" },
       "answer": 4,
       "unit": "Ω",
-      "explain": "i_2 = 0 时 R_2 上无压降，u_2 等于 R_3 上的电压 4·i_1，所以 z_21 = u_2/i_1 = 4 Ω。"
+      "explain": "i_2 = 0 时 R_2 上无压降，v_2 等于 R_3 上的电压 4·i_1，所以 z_21 = v_2/i_1 = 4 Ω。"
     },
     {
       "id": "z22",
@@ -60,9 +60,9 @@
     {
       "id": "z12",
       "ask": "不用再算，z_12 等于多少？",
-      "choices": ["4 Ω，与 z_21 相等", "0（1–1' 开路时 u_1 = 0）", "6 Ω，与 z_11 相等", "7 Ω，与 z_22 相等"], "choiceExplain": ["", "1–1' 开路是 i_1 = 0，不是 u_1 = 0：R_1 中没有电流，但 u_1 仍等于公共支路 R_3 上的电压，并不为零。", "6 Ω 是 z_11（从端口 1 看进去的开路电阻）；z_12 是转移阻抗，只有公共支路 R_3 上的电压能传到另一个端口。", "7 Ω 是 z_22（从端口 2 看进去的开路电阻）；z_12 = u_1/i_2 是转移阻抗，不是端口 2 的输入阻抗。"],
+      "choices": ["4 Ω，与 z_21 相等", "0（1–1' 开路时 v_1 = 0）", "6 Ω，与 z_11 相等", "7 Ω，与 z_22 相等"], "choiceExplain": ["", "1–1' 开路是 i_1 = 0，不是 v_1 = 0：R_1 中没有电流，但 v_1 仍等于公共支路 R_3 上的电压，并不为零。", "6 Ω 是 z_11（从端口 1 看进去的开路电阻）；z_12 是转移阻抗，只有公共支路 R_3 上的电压能传到另一个端口。", "7 Ω 是 z_22（从端口 2 看进去的开路电阻）；z_12 = v_1/i_2 是转移阻抗，不是端口 2 的输入阻抗。"],
       "correct": 0,
-      "explain": "i_1 = 0 时 R_1 无电流，u_1 = R_3·i_2，z_12 = 4 Ω = z_21。只由线性电阻（无受控源）构成的二端口是互易的，总有 z_12 = z_21。"
+      "explain": "i_1 = 0 时 R_1 无电流，v_1 = R_3·i_2，z_12 = 4 Ω = z_21。只由线性电阻（无受控源）构成的二端口是互易的，总有 z_12 = z_21。"
     }
   ],
   "hints": [
@@ -71,9 +71,9 @@
   ],
   "solution": [
     "**1. 令 i_2 = 0（2–2' 开路），在 1–1' 加电流 i_1。** R_2 中无电流，i_1 全部流过 R_1、R_3：",
-    "u_1 = (R_1 + R_3)·i_1 = 6i_1 → **z_11 = 6 Ω**；u_2 = R_3·i_1 = 4i_1 → **z_21 = 4 Ω**。",
+    "v_1 = (R_1 + R_3)·i_1 = 6i_1 → **z_11 = 6 Ω**；v_2 = R_3·i_1 = 4i_1 → **z_21 = 4 Ω**。",
     "**2. 令 i_1 = 0（1–1' 开路），在 2–2' 加电流 i_2。** R_1 中无电流：",
-    "u_2 = (R_2 + R_3)·i_2 = 7i_2 → **z_22 = 7 Ω**；u_1 = R_3·i_2 = 4i_2 → **z_12 = 4 Ω**。",
+    "v_2 = (R_2 + R_3)·i_2 = 7i_2 → **z_22 = 7 Ω**；v_1 = R_3·i_2 = 4i_2 → **z_12 = 4 Ω**。",
     "**3. 结论：** Z = [6 4; 4 7] Ω。z_12 = z_21 = R_3（公共支路电阻），网络互易；z_11 ≠ z_22，网络不对称。"
   ],
   "i18n": {
@@ -81,17 +81,17 @@
       "title": "Z parameters of a resistive T network",
       "tags": ["Z parameters", "open-circuit impedance parameters", "reciprocal two-port"],
       "statement": [
-        "In the resistive T two-port, R_1 = 2 Ω, R_2 = 3 Ω, R_3 = 4 Ω. The port voltages u_1, u_2 are + at terminals 1 and 2, and the port currents i_1, i_2 flow into terminals 1 and 2 (passive convention).",
-        "Z-parameter equations: u_1 = z_11·i_1 + z_12·i_2, u_2 = z_21·i_1 + z_22·i_2. Find the Z parameters from their definitions (with the other port open)."
+        "In the resistive T two-port, R_1 = 2 Ω, R_2 = 3 Ω, R_3 = 4 Ω. The port voltages v_1, v_2 are + at terminals 1 and 2, and the port currents i_1, i_2 flow into terminals 1 and 2 (passive convention).",
+        "Z-parameter equations: v_1 = z_11·i_1 + z_12·i_2, v_2 = z_21·i_1 + z_22·i_2. Find the Z parameters from their definitions (with the other port open)."
       ],
       "questions": [
-        { "ask": "z_11 = ?", "explain": "With 2–2' open (i_2 = 0) there is no current in R_2, so port 1 sees R_1 in series with R_3: z_11 = u_1/i_1 = 2 + 4 = 6 Ω." },
-        { "ask": "z_21 = ?", "explain": "With i_2 = 0 there is no drop across R_2, so u_2 equals the voltage across R_3, 4·i_1: z_21 = u_2/i_1 = 4 Ω." },
+        { "ask": "z_11 = ?", "explain": "With 2–2' open (i_2 = 0) there is no current in R_2, so port 1 sees R_1 in series with R_3: z_11 = v_1/i_1 = 2 + 4 = 6 Ω." },
+        { "ask": "z_21 = ?", "explain": "With i_2 = 0 there is no drop across R_2, so v_2 equals the voltage across R_3, 4·i_1: z_21 = v_2/i_1 = 4 Ω." },
         { "ask": "z_22 = ?", "explain": "With 1–1' open (i_1 = 0), port 2 sees R_2 in series with R_3: z_22 = 3 + 4 = 7 Ω." },
         {
           "ask": "Without further calculation, what is z_12?",
-          "choices": ["4 Ω, equal to z_21", "0 (u_1 = 0 when 1–1' is open)", "6 Ω, equal to z_11", "7 Ω, equal to z_22"], "choiceExplain": ["", "An open 1–1' means i_1 = 0, not u_1 = 0: R_1 carries no current, but u_1 still equals the voltage across the shared branch R_3, which is not zero.", "6 Ω is z_11, the open-circuit resistance seen at port 1; z_12 is a transfer impedance, and only the voltage across the shared branch R_3 reaches the other port.", "7 Ω is z_22, the open-circuit resistance seen at port 2; z_12 = u_1/i_2 is a transfer impedance, not port 2's input impedance."],
-          "explain": "With i_1 = 0 there is no current in R_1, so u_1 = R_3·i_2 and z_12 = 4 Ω = z_21. A two-port made only of linear resistors (no dependent sources) is reciprocal, so z_12 = z_21 always."
+          "choices": ["4 Ω, equal to z_21", "0 (v_1 = 0 when 1–1' is open)", "6 Ω, equal to z_11", "7 Ω, equal to z_22"], "choiceExplain": ["", "An open 1–1' means i_1 = 0, not v_1 = 0: R_1 carries no current, but v_1 still equals the voltage across the shared branch R_3, which is not zero.", "6 Ω is z_11, the open-circuit resistance seen at port 1; z_12 is a transfer impedance, and only the voltage across the shared branch R_3 reaches the other port.", "7 Ω is z_22, the open-circuit resistance seen at port 2; z_12 = v_1/i_2 is a transfer impedance, not port 2's input impedance."],
+          "explain": "With i_1 = 0 there is no current in R_1, so v_1 = R_3·i_2 and z_12 = 4 Ω = z_21. A two-port made only of linear resistors (no dependent sources) is reciprocal, so z_12 = z_21 always."
         }
       ],
       "hints": [
@@ -100,9 +100,9 @@
       ],
       "solution": [
         "**1. Set i_2 = 0 (2–2' open) and drive port 1 with i_1.** R_2 carries no current, so i_1 flows through R_1 and R_3:",
-        "u_1 = (R_1 + R_3)·i_1 = 6i_1 → **z_11 = 6 Ω**; u_2 = R_3·i_1 = 4i_1 → **z_21 = 4 Ω**.",
+        "v_1 = (R_1 + R_3)·i_1 = 6i_1 → **z_11 = 6 Ω**; v_2 = R_3·i_1 = 4i_1 → **z_21 = 4 Ω**.",
         "**2. Set i_1 = 0 (1–1' open) and drive port 2 with i_2.** R_1 carries no current:",
-        "u_2 = (R_2 + R_3)·i_2 = 7i_2 → **z_22 = 7 Ω**; u_1 = R_3·i_2 = 4i_2 → **z_12 = 4 Ω**.",
+        "v_2 = (R_2 + R_3)·i_2 = 7i_2 → **z_22 = 7 Ω**; v_1 = R_3·i_2 = 4i_2 → **z_12 = 4 Ω**.",
         "**3. Result:** Z = [6 4; 4 7] Ω. z_12 = z_21 = R_3 (the shared branch), so the network is reciprocal; z_11 ≠ z_22, so it is not symmetric."
       ]
     }

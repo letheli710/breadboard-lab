@@ -7,13 +7,13 @@
   "level": 5,
   "tags": ["谐波分析", "串联谐振", "仪表读数", "功率平衡"],
   "statement": [
-    "u_s = 30 + 120√2 cos(1000t) + 60√2 cos(3000t) V，R_1 = 10 Ω，R_2 = 20 Ω，L_1 = 10 mH，C_1 = 11.11 µF（ωL_1 = 10 Ω，1/(ωC_1) = 90 Ω）。电流表 A_1、A_2 和电压表 V 都读有效值。",
+    "v_s = 30 + 120√2 cos(1000t) + 60√2 cos(3000t) V，R_1 = 10 Ω，R_2 = 20 Ω，L_1 = 10 mH，C_1 = 11.11 µF（ωL_1 = 10 Ω，1/(ωC_1) = 90 Ω）。电流表 A_1、A_2 和电压表 V 都读有效值。",
     "电路见图：R_1 串在电源与结点 a 之间；A_1 与 L_1、C_1 串联成一条支路，A_2 与 R_2 串联成另一条支路，两条支路都接在结点 a 与地之间；V 测 R_2 两端的电压。",
     "求三只表的读数和电源发出的平均功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 8], "value": { "harmonics": { "dc": 30, "terms": [ { "k": 1, "amp": 169.705627 }, { "k": 3, "amp": 84.852814 } ] } }, "label": "u_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 8], "value": { "harmonics": { "dc": 30, "terms": [ { "k": 1, "amp": 169.705627 }, { "k": 3, "amp": 84.852814 } ] } }, "label": "v_s" },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 10 },
       { "ref": "A1", "type": "ammeter", "from": [8, 0], "to": [8, 2], "label": "A_1" },
       { "ref": "L1", "type": "L", "from": [8, 2], "to": [8, 5], "value": "10m" },
@@ -47,8 +47,8 @@
       "explain": "直流：C_1 开路，0；基波：0.9965 A；3 次谐波：L_{1}C_1 串联谐振短路，I = 60/10 = 6 A。读数 √(0.9965² + 6²) = 6.082 A。"
     },
     { "id": "A2", "ask": "电流表 A_2 的读数 = ?", "find": { "kind": "meter", "el": "A2" }, "answer": 4.109703, "unit": "A", "explain": "直流 30/(10 + 20) = 1 A；基波 3.986 A；3 次谐波时 a 点被短路到地，0。读数 √(1² + 3.986²) = 4.110 A。" },
-    { "id": "V", "ask": "电压表的读数 = ?", "find": { "kind": "meter", "el": "V" }, "answer": 82.19405, "unit": "V", "explain": "U_0 = 20 V，U_1 = 79.72 V，U_3 = 0：√(20² + 79.72²) = 82.19 V。" },
-    { "id": "Ps", "ask": "电源吸收的平均功率 P_us = ?（负值表示发出）", "find": { "kind": "p", "el": "Us" }, "answer": -876.6207, "unit": "W", "explain": "电源发出 876.6 W，全部消耗在 R_1（538.8 W）和 R_2（337.8 W）上。" }
+    { "id": "V", "ask": "电压表的读数 = ?", "find": { "kind": "meter", "el": "V" }, "answer": 82.19405, "unit": "V", "explain": "V_0 = 20 V，V_1 = 79.72 V，V_3 = 0：√(20² + 79.72²) = 82.19 V。" },
+    { "id": "Ps", "ask": "电源吸收的平均功率 P_us = ?（负值表示发出）", "find": { "kind": "p", "el": "Vs" }, "answer": -876.6207, "unit": "W", "explain": "电源发出 876.6 W，全部消耗在 R_1（538.8 W）和 R_2（337.8 W）上。" }
   ],
   "hints": [
     "三个分量分别作用。直流时 C_1 开路；先算出 3ωL_1 与 1/(3ωC_1)，看看 L_{1}C_1 支路对 3 次谐波是什么状态。",
@@ -56,10 +56,10 @@
     "3 次谐波时 L_{1}C_1 支路相当于短路：A_2、V 中都没有 3 次谐波，全部 3 次谐波电流走 A_1。最后各表按平方和开方合成。"
   ],
   "solution": [
-    "**1. 直流**（C_1 开路，A_1 中无电流）：I_0 = 30/(10 + 20) = 1 A，A_2 中 1 A，U_a0 = 20 V。",
+    "**1. 直流**（C_1 开路，A_1 中无电流）：I_0 = 30/(10 + 20) = 1 A，A_2 中 1 A，V_a0 = 20 V。",
     "**2. 基波**（ωL_1 = 10 Ω，1/(ωC_1) = 90 Ω）：Z_b = −j80 Ω，Z_p = 20 ∥ (−j80) = 18.82 − j4.706 Ω，Z = 10 + Z_p = 28.82 − j4.706 = 29.21∠−9.27° Ω。",
-    "I_s1 = 120/29.21 = 4.109 A，U_a1 = I_s1|Z_p| = 4.109 × 19.40 = 79.72 V；A_1 中 79.72/80 = 0.9965 A，A_2 中 79.72/20 = 3.986 A。",
-    "**3. 3 次谐波**（3ωL_1 = 30 Ω，1/(3ωC_1) = 30 Ω）：L_{1}C_1 串联谐振，相当于短路，U_a3 = 0；A_1 中 60/10 = 6 A，A_2、V 中没有 3 次谐波。",
+    "I_s1 = 120/29.21 = 4.109 A，V_a1 = I_s1|Z_p| = 4.109 × 19.40 = 79.72 V；A_1 中 79.72/80 = 0.9965 A，A_2 中 79.72/20 = 3.986 A。",
+    "**3. 3 次谐波**（3ωL_1 = 30 Ω，1/(3ωC_1) = 30 Ω）：L_{1}C_1 串联谐振，相当于短路，V_a3 = 0；A_1 中 60/10 = 6 A，A_2、V 中没有 3 次谐波。",
     "**4. 读数：** A_1 = √(0.9965² + 6²) = **6.082 A**；A_2 = √(1² + 3.986²) = **4.110 A**；V = √(20² + 79.72²) = **82.19 V**。",
     "**5. 功率：** P_R1 = 10 × (1² + 4.109² + 6²) = 538.8 W，P_R2 = 20 × (1² + 3.986²) = 337.8 W，电源发出 876.6 W，即 P_us = **−876.6 W**。",
     "**检查（电源端逐次谐波）：** P = 30 × 1 + 120 × 4.109 × cos 9.27° + 60 × 6 = 30 + 486.6 + 360 = 876.6 W，一致。"
@@ -69,7 +69,7 @@
       "title": "Comprehensive: a series-resonant branch and the meter readings",
       "tags": ["harmonic analysis", "series resonance", "meter readings", "power balance"],
       "statement": [
-        "u_s = 30 + 120√2 cos(1000t) + 60√2 cos(3000t) V, R_1 = 10 Ω, R_2 = 20 Ω, L_1 = 10 mH, C_1 = 11.11 µF (ωL_1 = 10 Ω, 1/(ωC_1) = 90 Ω). The ammeters A_1, A_2 and the voltmeter V read rms values.",
+        "v_s = 30 + 120√2 cos(1000t) + 60√2 cos(3000t) V, R_1 = 10 Ω, R_2 = 20 Ω, L_1 = 10 mH, C_1 = 11.11 µF (ωL_1 = 10 Ω, 1/(ωC_1) = 90 Ω). The ammeters A_1, A_2 and the voltmeter V read rms values.",
         "Circuit (see figure): R_1 is in series between the source and node a; A_1 in series with L_1 and C_1 forms one branch, A_2 in series with R_2 another, both between node a and ground; V measures the voltage across R_2.",
         "Find the three readings and the average power delivered by the source."
       ],
@@ -79,10 +79,10 @@
         "At the 3rd harmonic the L_{1}C_1 branch is a short: A_2 and V see no 3rd harmonic and the whole 3rd-harmonic current goes through A_1. Finally combine each reading as a root of a sum of squares."
       ],
       "solution": [
-        "**1. DC** (C_1 open, no current in A_1): I_0 = 30/(10 + 20) = 1 A, 1 A in A_2, U_a0 = 20 V.",
+        "**1. DC** (C_1 open, no current in A_1): I_0 = 30/(10 + 20) = 1 A, 1 A in A_2, V_a0 = 20 V.",
         "**2. Fundamental** (ωL_1 = 10 Ω, 1/(ωC_1) = 90 Ω): Z_b = −j80 Ω, Z_p = 20 ∥ (−j80) = 18.82 − j4.706 Ω, Z = 10 + Z_p = 28.82 − j4.706 = 29.21∠−9.27° Ω.",
-        "I_s1 = 120/29.21 = 4.109 A, U_a1 = I_s1|Z_p| = 4.109 × 19.40 = 79.72 V; A_1 carries 79.72/80 = 0.9965 A, A_2 carries 79.72/20 = 3.986 A.",
-        "**3. 3rd harmonic** (3ωL_1 = 30 Ω, 1/(3ωC_1) = 30 Ω): L_{1}C_1 is in series resonance — a short, U_a3 = 0; A_1 carries 60/10 = 6 A, A_2 and V see no 3rd harmonic.",
+        "I_s1 = 120/29.21 = 4.109 A, V_a1 = I_s1|Z_p| = 4.109 × 19.40 = 79.72 V; A_1 carries 79.72/80 = 0.9965 A, A_2 carries 79.72/20 = 3.986 A.",
+        "**3. 3rd harmonic** (3ωL_1 = 30 Ω, 1/(3ωC_1) = 30 Ω): L_{1}C_1 is in series resonance — a short, V_a3 = 0; A_1 carries 60/10 = 6 A, A_2 and V see no 3rd harmonic.",
         "**4. Readings:** A_1 = √(0.9965² + 6²) = **6.082 A**; A_2 = √(1² + 3.986²) = **4.110 A**; V = √(20² + 79.72²) = **82.19 V**.",
         "**5. Power:** P_R1 = 10 × (1² + 4.109² + 6²) = 538.8 W, P_R2 = 20 × (1² + 3.986²) = 337.8 W; the source delivers 876.6 W, i.e. P_us = **−876.6 W**.",
         "**Check (harmonic by harmonic at the source):** P = 30 × 1 + 120 × 4.109 × cos 9.27° + 60 × 6 = 30 + 486.6 + 360 = 876.6 W — the same."
@@ -90,7 +90,7 @@
       "questions": [
         { "ask": "Reading of ammeter A_1 = ?", "explain": "DC: C_1 open, 0; fundamental: 0.9965 A; 3rd harmonic: L_{1}C_1 is in series resonance (a short), I = 60/10 = 6 A. Reading √(0.9965² + 6²) = 6.082 A." },
         { "ask": "Reading of ammeter A_2 = ?", "explain": "DC 30/(10 + 20) = 1 A; fundamental 3.986 A; at the 3rd harmonic node a is shorted to ground, 0. Reading √(1² + 3.986²) = 4.110 A." },
-        { "ask": "Voltmeter reading = ?", "explain": "U_0 = 20 V, U_1 = 79.72 V, U_3 = 0: √(20² + 79.72²) = 82.19 V." },
+        { "ask": "Voltmeter reading = ?", "explain": "V_0 = 20 V, V_1 = 79.72 V, V_3 = 0: √(20² + 79.72²) = 82.19 V." },
         { "ask": "Average power absorbed by the source, P_us = ? (negative = delivered)", "explain": "The source delivers 876.6 W, all dissipated in R_1 (538.8 W) and R_2 (337.8 W)." }
       ]
     }

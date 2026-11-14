@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["GCL 并联", "零状态响应", "阶跃响应", "欠阻尼"],
   "statement": [
-    "图示 GCL 并联电路原来不带电，电流源为 2ε(t) A；R = 1 Ω（G = 1 S），L = 0.4 H，C = 0.5 F。",
-    "判断阻尼状态，求 i_C(0₊)，以及 t = π/4 s 时的电感电流 i_L 和电压 u。"
+    "图示 GCL 并联电路原来不带电，电流源为 2u(t) A；R = 1 Ω（G = 1 S），L = 0.4 H，C = 0.5 F。",
+    "判断阻尼状态，求 i_C(0₊)，以及 t = π/4 s 时的电感电流 i_L 和电压 v。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": { "step": { "before": 0, "after": 2 } }, "label": "2ε(t) A" },
+      { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": { "step": { "before": 0, "after": 2 } }, "label": "2u(t) A" },
       { "ref": "R", "type": "R", "from": [3, 0], "to": [3, 4], "value": 1 },
       { "ref": "L", "type": "L", "from": [6, 0], "to": [6, 4], "value": 0.4 },
       { "ref": "C", "type": "C", "from": [9, 0], "to": [9, 4], "value": 0.5 }
@@ -25,7 +25,7 @@
     "marks": [
       { "kind": "i", "el": "L", "name": "i_L" },
       { "kind": "i", "el": "C", "name": "i_C" },
-      { "kind": "v", "el": "C", "name": "u" }
+      { "kind": "v", "el": "C", "name": "v" }
     ]
   },
   "analysis": { "type": "tran" },
@@ -43,7 +43,7 @@
       "find": { "kind": "i", "el": "C", "t": "0+" },
       "answer": 2,
       "unit": "A",
-      "explain": "u(0₊) = u_C(0₋) = 0，所以 i_R(0₊) = 0；i_L(0₊) = 0。电流源的 2 A 全部流入电容：i_C(0₊) = 2 A。"
+      "explain": "v(0₊) = v_C(0₋) = 0，所以 i_R(0₊) = 0；i_L(0₊) = 0。电流源的 2 A 全部流入电容：i_C(0₊) = 2 A。"
     },
     {
       "id": "il",
@@ -55,32 +55,32 @@
     },
     {
       "id": "u",
-      "ask": "t = π/4 s 时 u = ?",
+      "ask": "t = π/4 s 时 v = ?",
       "find": { "kind": "v", "el": "C", "t": 0.7853982 },
       "answer": 0.9118763,
       "unit": "V",
-      "explain": "u = L·di_L/dt = 0.4 × 5e^(−t) sin 2t = 2e^(−t) sin 2t V。t = π/4：u = 2e^(−π/4) ≈ 0.912 V。"
+      "explain": "v = L·di_L/dt = 0.4 × 5e^(−t) sin 2t = 2e^(−t) sin 2t V。t = π/4：v = 2e^(−π/4) ≈ 0.912 V。"
     }
   ],
   "hints": [
     "GCL 并联电路是 RLC 串联电路的对偶：以 i_L 为变量，KCL 给出 LC·d²i_L/dt² + (L/R)·di_L/dt + i_L = i_s。",
     "特征方程 s² + s/(RC) + 1/(LC) = 0；终值 i_L(∞) = 2 A（电感短路，电流源的电流全部流过电感）。",
-    "定常数用 i_L(0₊) = 0 和 di_L/dt(0₊) = u(0₊)/L = 0。"
+    "定常数用 i_L(0₊) = 0 和 di_L/dt(0₊) = v(0₊)/L = 0。"
   ],
   "solution": [
-    "**1. 方程。** 以 u 为并联电压：C·du/dt + u/R + i_L = 2，u = L·di_L/dt → LC·i_L″ + (L/R)·i_L′ + i_L = 2，即 0.2i_L″ + 0.4i_L′ + i_L = 2。",
+    "**1. 方程。** 以 v 为并联电压：C·dv/dt + v/R + i_L = 2，v = L·di_L/dt → LC·i_L″ + (L/R)·i_L′ + i_L = 2，即 0.2i_L″ + 0.4i_L′ + i_L = 2。",
     "**2. 特征根。** s² + 2s + 5 = 0 → s = −1 ± j2，α = 1/(2RC) = 1 s⁻¹，ω_d = 2 rad/s → **欠阻尼**。",
-    "**3. 初值。** i_L(0₊) = 0，u(0₊) = 0 → i_R(0₊) = 0，**i_C(0₊) = 2 A**；di_L/dt(0₊) = u(0₊)/L = 0。",
+    "**3. 初值。** i_L(0₊) = 0，v(0₊) = 0 → i_R(0₊) = 0，**i_C(0₊) = 2 A**；di_L/dt(0₊) = v(0₊)/L = 0。",
     "**4. 全解。** i_L = 2 + e^(−t)(A₁cos 2t + A₂sin 2t)。i_L(0₊) = 0 → A₁ = −2；i_L′(0₊) = 0 → −A₁ + 2A₂ = 0 → A₂ = −1。i_L = 2 − e^(−t)(2cos 2t + sin 2t) A。",
-    "**5. 数值。** t = π/4：**i_L = 2 − e^(−π/4) ≈ 1.544 A**；u = L·di_L/dt = 2e^(−t) sin 2t，**u = 2e^(−π/4) ≈ 0.912 V**。"
+    "**5. 数值。** t = π/4：**i_L = 2 − e^(−π/4) ≈ 1.544 A**；v = L·di_L/dt = 2e^(−t) sin 2t，**v = 2e^(−π/4) ≈ 0.912 V**。"
   ],
   "i18n": {
     "en": {
       "title": "Step response of a parallel GCL circuit",
       "tags": ["parallel GCL", "zero-state response", "step response", "underdamped"],
       "statement": [
-        "The parallel GCL circuit is initially uncharged and driven by the current source 2ε(t) A; R = 1 Ω (G = 1 S), L = 0.4 H, C = 0.5 F.",
-        "Classify the damping, find i_C(0+), and the inductor current i_L and the voltage u at t = π/4 s."
+        "The parallel GCL circuit is initially uncharged and driven by the current source 2u(t) A; R = 1 Ω (G = 1 S), L = 0.4 H, C = 0.5 F.",
+        "Classify the damping, find i_C(0+), and the inductor current i_L and the voltage v at t = π/4 s."
       ],
       "questions": [
         {
@@ -90,28 +90,28 @@
         },
         {
           "ask": "i_C(0+) = ?",
-          "explain": "u(0+) = u_C(0−) = 0, so i_R(0+) = 0; i_L(0+) = 0. The whole 2 A of the source flows into the capacitor: i_C(0+) = 2 A."
+          "explain": "v(0+) = v_C(0−) = 0, so i_R(0+) = 0; i_L(0+) = 0. The whole 2 A of the source flows into the capacitor: i_C(0+) = 2 A."
         },
         {
           "ask": "i_L at t = π/4 s (≈ 0.7854 s) = ?",
           "explain": "i_L = 2 − e^(−t)(2cos 2t + sin 2t) A. At t = π/4, cos(π/2) = 0 and sin(π/2) = 1: i_L = 2 − e^(−π/4) ≈ 1.544 A."
         },
         {
-          "ask": "u at t = π/4 s = ?",
-          "explain": "u = L·di_L/dt = 0.4 × 5e^(−t) sin 2t = 2e^(−t) sin 2t V. At t = π/4: u = 2e^(−π/4) ≈ 0.912 V."
+          "ask": "v at t = π/4 s = ?",
+          "explain": "v = L·di_L/dt = 0.4 × 5e^(−t) sin 2t = 2e^(−t) sin 2t V. At t = π/4: v = 2e^(−π/4) ≈ 0.912 V."
         }
       ],
       "hints": [
         "The parallel GCL circuit is the dual of the series RLC circuit: with i_L as the unknown, KCL gives LC·d²i_L/dt² + (L/R)·di_L/dt + i_L = i_s.",
         "Characteristic equation s² + s/(RC) + 1/(LC) = 0; final value i_L(∞) = 2 A (the inductor is a short and takes all of the source current).",
-        "Fix the constants with i_L(0+) = 0 and di_L/dt(0+) = u(0+)/L = 0."
+        "Fix the constants with i_L(0+) = 0 and di_L/dt(0+) = v(0+)/L = 0."
       ],
       "solution": [
-        "**1. Equation.** With u the common voltage: C·du/dt + u/R + i_L = 2 and u = L·di_L/dt → LC·i_L″ + (L/R)·i_L′ + i_L = 2, i.e. 0.2i_L″ + 0.4i_L′ + i_L = 2.",
+        "**1. Equation.** With v the common voltage: C·dv/dt + v/R + i_L = 2 and v = L·di_L/dt → LC·i_L″ + (L/R)·i_L′ + i_L = 2, i.e. 0.2i_L″ + 0.4i_L′ + i_L = 2.",
         "**2. Roots.** s² + 2s + 5 = 0 → s = −1 ± j2, α = 1/(2RC) = 1 s⁻¹, ω_d = 2 rad/s → **underdamped**.",
-        "**3. Initial values.** i_L(0+) = 0, u(0+) = 0 → i_R(0+) = 0, **i_C(0+) = 2 A**; di_L/dt(0+) = u(0+)/L = 0.",
+        "**3. Initial values.** i_L(0+) = 0, v(0+) = 0 → i_R(0+) = 0, **i_C(0+) = 2 A**; di_L/dt(0+) = v(0+)/L = 0.",
         "**4. Complete solution.** i_L = 2 + e^(−t)(A₁cos 2t + A₂sin 2t). i_L(0+) = 0 → A₁ = −2; i_L′(0+) = 0 → −A₁ + 2A₂ = 0 → A₂ = −1. i_L = 2 − e^(−t)(2cos 2t + sin 2t) A.",
-        "**5. Values.** At t = π/4: **i_L = 2 − e^(−π/4) ≈ 1.544 A**; u = L·di_L/dt = 2e^(−t) sin 2t, so **u = 2e^(−π/4) ≈ 0.912 V**."
+        "**5. Values.** At t = π/4: **i_L = 2 − e^(−π/4) ≈ 1.544 A**; v = L·di_L/dt = 2e^(−t) sin 2t, so **v = 2e^(−π/4) ≈ 0.912 V**."
       ]
     }
   }

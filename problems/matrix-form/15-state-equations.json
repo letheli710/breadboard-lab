@@ -3,17 +3,17 @@
   "format": "circuit-problem/1",
   "id": "matrix-form-15-state-equations",
   "chapter": "matrix-form",
-  "title": "用常态树列状态方程 ẋ = Ax + Bu",
+  "title": "用常态树列状态方程 ẋ = Ax + Bz",
   "level": 5,
   "tags": ["状态方程", "常态树", "状态变量", "固有频率"],
   "statement": [
-    "电路如图：u_s = 10ε(t) V，i_s = 1 A（向上流入结点 3），R_1 = 1 Ω，C = 0.5 F，L = 1 H，R_2 = 2 Ω。每个元件为一条支路，有向图如下（结点 4 接地）。",
-    "取状态变量 x = (u_C, i_L)ᵀ（u_C 上“+”下“−”，i_L 由结点 2 流向 3），输入 u = (u_s, i_s)ᵀ，写出 t > 0 的状态方程 dx/dt = A·x + B·u。",
-    "方法（教材）：选常态树，对每个电容树支列基本割集的 KCL（得 C·du_C/dt），对每个电感连支列基本回路的 KVL（得 L·di_L/dt），再消去电阻上的非状态变量。"
+    "电路如图：v_s = 10u(t) V，i_s = 1 A（向上流入结点 3），R_1 = 1 Ω，C = 0.5 F，L = 1 H，R_2 = 2 Ω。每个元件为一条支路，有向图如下（结点 4 接地）。",
+    "取状态变量 x = (v_C, i_L)ᵀ（v_C 上“+”下“−”，i_L 由结点 2 流向 3），输入 z = (v_s, i_s)ᵀ，写出 t > 0 的状态方程 dx/dt = A·x + B·z。",
+    "方法（教材）：选常态树，对每个电容树支列基本割集的 KCL（得 C·dv_C/dt），对每个电感连支列基本回路的 KVL（得 L·di_L/dt），再消去电阻上的非状态变量。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": {"step": {"before": 0, "after": 10}}, "label": "10ε(t) V"},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": {"step": {"before": 0, "after": 10}}, "label": "10u(t) V"},
       {"ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 1},
       {"ref": "C", "type": "C", "from": [8, 0], "to": [8, 6], "value": 0.5},
       {"ref": "L", "type": "L", "from": [10, 0], "to": [14, 0], "value": 1},
@@ -23,15 +23,15 @@
     "wires": [[[0, 0], [2, 0]], [[6, 0], [10, 0]], [[14, 0], [19, 0]], [[0, 6], [19, 6]]],
     "labels": [{"at": [1, 0], "name": "1"}, {"at": [8, 0], "name": "2"}, {"at": [16, 0], "name": "3"}, {"at": [12, 6], "name": "4"}],
     "grounds": [[0, 6]],
-    "marks": [{"kind": "v", "el": "C", "name": "u_C"}, {"kind": "i", "el": "L", "name": "i_L"}],
-    "state": {"x": ["C", "L"], "u": ["Us", "Is"]},
+    "marks": [{"kind": "v", "el": "C", "name": "v_C"}, {"kind": "i", "el": "L", "name": "i_L"}],
+    "state": {"x": ["C", "L"], "u": ["Vs", "Is"]},
     "graph": {
       "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [3.5, 0]}, {"name": "3", "at": [7, 0]}, {"name": "4", "at": [3.5, 3.5]}],
       "ref": "4",
       "tree": [1, 3, 5],
       "hideTree": true,
       "branches": [
-        {"n": 1, "from": "4", "to": "1", "els": ["Us"]},
+        {"n": 1, "from": "4", "to": "1", "els": ["Vs"]},
         {"n": 2, "from": "1", "to": "2", "els": ["R1"]},
         {"n": 3, "from": "2", "to": "4", "els": ["C"]},
         {"n": 4, "from": "2", "to": "3", "els": ["L"]},
@@ -61,7 +61,7 @@
       "find": {"kind": "state", "mat": "A", "row": 1, "col": 1},
       "answer": -2,
       "unit": "1/s",
-      "explain": "电容所在树支的基本割集（结点 2）：C·du_C/dt = (u_s − u_C)/R_1 − i_L → du_C/dt = −2u_C − 2i_L + 2u_s。A_11 = −1/(R_1C) = −2。"
+      "explain": "电容所在树支的基本割集（结点 2）：C·dv_C/dt = (v_s − v_C)/R_1 − i_L → dv_C/dt = −2v_C − 2i_L + 2v_s。A_11 = −1/(R_1C) = −2。"
     },
     {
       "id": "a12",
@@ -77,7 +77,7 @@
       "find": {"kind": "state", "mat": "A", "row": 2, "col": 1},
       "answer": 1,
       "unit": "",
-      "explain": "电感（连支）的基本回路 2→3→4→2：L·di_L/dt = u_C − u_R2，u_R2 = R_2(i_L + i_s)：di_L/dt = u_C − 2i_L − 2i_s。A_21 = 1/L = 1。"
+      "explain": "电感（连支）的基本回路 2→3→4→2：L·di_L/dt = v_C − v_R2，v_R2 = R_2(i_L + i_s)：di_L/dt = v_C − 2i_L − 2i_s。A_21 = 1/L = 1。"
     },
     {
       "id": "a22",
@@ -89,7 +89,7 @@
     },
     {
       "id": "b22",
-      "ask": "B_22 = ?（输入 u = (u_s, i_s)ᵀ）",
+      "ask": "B_22 = ?（输入 z = (v_s, i_s)ᵀ）",
       "find": {"kind": "state", "mat": "B", "row": 2, "col": 2},
       "answer": -2,
       "unit": "1/s",
@@ -107,26 +107,26 @@
   "hints": [
     "常态树：电压源、电容进树，电感、电流源作连支，电阻补齐。",
     "电容树支的割集 = 结点 2 的全部支路；电感连支的回路 = C、L、R_2 构成的回路。",
-    "回路中 R_2 的电压不是状态变量：用 KCL 写成 R_2(i_L + i_s)；割集中 R_1 的电流写成 (u_s − u_C)/R_1。"
+    "回路中 R_2 的电压不是状态变量：用 KCL 写成 R_2(i_L + i_s)；割集中 R_1 的电流写成 (v_s − v_C)/R_1。"
   ],
   "solution": [
-    "**常态树** T = {1, 3, 5}：U_s、C、R_2；连支 2（R_1）、4（L）、6（I_s）。",
-    "**电容树支（支路 3）的基本割集：** 包含 3、2、4，即结点 2 的 KCL：C·du_C/dt = i_R1 − i_L = (u_s − u_C)/R_1 − i_L。",
-    "**电感连支（支路 4）的基本回路：** 4 → 5 → 3（2→3→4→2）：L·di_L/dt = u_C − R_2(i_L + i_s)。",
+    "**常态树** T = {1, 3, 5}：V_s、C、R_2；连支 2（R_1）、4（L）、6（I_s）。",
+    "**电容树支（支路 3）的基本割集：** 包含 3、2、4，即结点 2 的 KCL：C·dv_C/dt = i_R1 − i_L = (v_s − v_C)/R_1 − i_L。",
+    "**电感连支（支路 4）的基本回路：** 4 → 5 → 3（2→3→4→2）：L·di_L/dt = v_C − R_2(i_L + i_s)。",
     "**代入数值：**",
-    "\\mat{du_C/dt ; di_L/dt} = \\mat{−2 & −2 ; 1 & −2}\\mat{u_C ; i_L} + \\mat{2 & 0 ; 0 & −2}\\mat{u_s ; i_s}",
+    "\\mat{dv_C/dt ; di_L/dt} = \\mat{−2 & −2 ; 1 & −2}\\mat{v_C ; i_L} + \\mat{2 & 0 ; 0 & −2}\\mat{v_s ; i_s}",
     "所以 A_11 = **−2**，A_12 = **−2**，A_21 = **1**，A_22 = **−2**，B_22 = **−2**。",
     "**特征值：** det(sI − A) = s² + 4s + 6 = 0 → s = −2 ± j√2，虚部 **√2 ≈ 1.414 rad/s**。",
-    "**检查：** 稳态（t → ∞）时导数为零：−2u_C − 2i_L + 20 = 0、u_C − 2i_L − 2 = 0 → i_L = 8/3 ≈ 2.667 A，u_C = 22/3 ≈ 7.333 V；直流电路中 u_C = 10 − 1 × 8/3 = 22/3 ✓、u_C = 2(8/3 + 1) = 22/3 ✓。"
+    "**检查：** 稳态（t → ∞）时导数为零：−2v_C − 2i_L + 20 = 0、v_C − 2i_L − 2 = 0 → i_L = 8/3 ≈ 2.667 A，v_C = 22/3 ≈ 7.333 V；直流电路中 v_C = 10 − 1 × 8/3 = 22/3 ✓、v_C = 2(8/3 + 1) = 22/3 ✓。"
   ],
   "i18n": {
     "en": {
-      "title": "State equations ẋ = Ax + Bu from a proper tree",
+      "title": "State equations ẋ = Ax + Bz from a proper tree",
       "tags": ["state equations", "proper tree", "state variables", "natural frequencies"],
       "statement": [
-        "In the circuit u_s = 10ε(t) V, i_s = 1 A (upwards into node 3), R_1 = 1 Ω, C = 0.5 F, L = 1 H, R_2 = 2 Ω. Each element is one branch; the directed graph is drawn below (node 4 grounded).",
-        "Take the state x = (u_C, i_L)ᵀ (u_C with \"+\" at the top, i_L from node 2 to node 3) and the input u = (u_s, i_s)ᵀ, and write the state equations dx/dt = A·x + B·u for t > 0.",
-        "Method (textbook): choose a proper tree, write the KCL of the fundamental cut-set of each capacitor tree branch (giving C·du_C/dt) and the KVL of the fundamental loop of each inductor link (giving L·di_L/dt), then eliminate the non-state resistor variables."
+        "In the circuit v_s = 10u(t) V, i_s = 1 A (upwards into node 3), R_1 = 1 Ω, C = 0.5 F, L = 1 H, R_2 = 2 Ω. Each element is one branch; the directed graph is drawn below (node 4 grounded).",
+        "Take the state x = (v_C, i_L)ᵀ (v_C with \"+\" at the top, i_L from node 2 to node 3) and the input z = (v_s, i_s)ᵀ, and write the state equations dx/dt = A·x + B·z for t > 0.",
+        "Method (textbook): choose a proper tree, write the KCL of the fundamental cut-set of each capacitor tree branch (giving C·dv_C/dt) and the KVL of the fundamental loop of each inductor link (giving L·di_L/dt), then eliminate the non-state resistor variables."
       ],
       "questions": [
         {
@@ -142,15 +142,15 @@
         },
         {
           "ask": "A_11 = ?",
-          "explain": "Fundamental cut-set of the capacitor tree branch (node 2): C·du_C/dt = (u_s − u_C)/R_1 − i_L → du_C/dt = −2u_C − 2i_L + 2u_s. A_11 = −1/(R_1C) = −2."
+          "explain": "Fundamental cut-set of the capacitor tree branch (node 2): C·dv_C/dt = (v_s − v_C)/R_1 − i_L → dv_C/dt = −2v_C − 2i_L + 2v_s. A_11 = −1/(R_1C) = −2."
         },
         {"ask": "A_12 = ? (unit Ω/s)", "explain": "A_12 = −1/C = −2."},
         {
           "ask": "A_21 = ? (unit S/s)",
-          "explain": "Fundamental loop of the inductor link (2→3→4→2): L·di_L/dt = u_C − u_R2 with u_R2 = R_2(i_L + i_s): di_L/dt = u_C − 2i_L − 2i_s. A_21 = 1/L = 1."
+          "explain": "Fundamental loop of the inductor link (2→3→4→2): L·di_L/dt = v_C − v_R2 with v_R2 = R_2(i_L + i_s): di_L/dt = v_C − 2i_L − 2i_s. A_21 = 1/L = 1."
         },
         {"ask": "A_22 = ?", "explain": "A_22 = −R_2/L = −2."},
-        {"ask": "B_22 = ? (input u = (u_s, i_s)ᵀ)", "explain": "i_s flows up into node 3 and, with i_L, through R_2: B_22 = −R_2/L = −2."},
+        {"ask": "B_22 = ? (input z = (v_s, i_s)ᵀ)", "explain": "i_s flows up into node 3 and, with i_L, through R_2: B_22 = −R_2/L = −2."},
         {
           "ask": "Imaginary part of the eigenvalue s_1 of A (the positive one) = ?",
           "explain": "det(sI − A) = (s + 2)² + 2 = 0 → s = −2 ± j√2: the eigenvalues of A are the natural frequencies of the circuit."
@@ -159,17 +159,17 @@
       "hints": [
         "Proper tree: voltage sources and capacitors in the tree, inductors and current sources as links, resistors to complete it.",
         "The cut-set of the capacitor tree branch is all branches at node 2; the loop of the inductor link is C, L, R_2.",
-        "R_2's voltage is not a state variable: write it as R_2(i_L + i_s) by KCL; R_1's current in the cut-set is (u_s − u_C)/R_1."
+        "R_2's voltage is not a state variable: write it as R_2(i_L + i_s) by KCL; R_1's current in the cut-set is (v_s − v_C)/R_1."
       ],
       "solution": [
-        "**Proper tree** T = {1, 3, 5}: U_s, C, R_2; links 2 (R_1), 4 (L), 6 (I_s).",
-        "**Cut-set of the capacitor tree branch (3):** branches 3, 2, 4, i.e. KCL at node 2: C·du_C/dt = i_R1 − i_L = (u_s − u_C)/R_1 − i_L.",
-        "**Loop of the inductor link (4):** 4 → 5 → 3 (2→3→4→2): L·di_L/dt = u_C − R_2(i_L + i_s).",
+        "**Proper tree** T = {1, 3, 5}: V_s, C, R_2; links 2 (R_1), 4 (L), 6 (I_s).",
+        "**Cut-set of the capacitor tree branch (3):** branches 3, 2, 4, i.e. KCL at node 2: C·dv_C/dt = i_R1 − i_L = (v_s − v_C)/R_1 − i_L.",
+        "**Loop of the inductor link (4):** 4 → 5 → 3 (2→3→4→2): L·di_L/dt = v_C − R_2(i_L + i_s).",
         "**With numbers:**",
-        "\\mat{du_C/dt ; di_L/dt} = \\mat{−2 & −2 ; 1 & −2}\\mat{u_C ; i_L} + \\mat{2 & 0 ; 0 & −2}\\mat{u_s ; i_s}",
+        "\\mat{dv_C/dt ; di_L/dt} = \\mat{−2 & −2 ; 1 & −2}\\mat{v_C ; i_L} + \\mat{2 & 0 ; 0 & −2}\\mat{v_s ; i_s}",
         "So A_11 = **−2**, A_12 = **−2**, A_21 = **1**, A_22 = **−2**, B_22 = **−2**.",
         "**Eigenvalues:** det(sI − A) = s² + 4s + 6 = 0 → s = −2 ± j√2, imaginary part **√2 ≈ 1.414 rad/s**.",
-        "**Check:** in the steady state (t → ∞) the derivatives vanish: −2u_C − 2i_L + 20 = 0 and u_C − 2i_L − 2 = 0 → i_L = 8/3 ≈ 2.667 A, u_C = 22/3 ≈ 7.333 V; in the DC circuit u_C = 10 − 1 × 8/3 = 22/3 ✓ and u_C = 2(8/3 + 1) = 22/3 ✓."
+        "**Check:** in the steady state (t → ∞) the derivatives vanish: −2v_C − 2i_L + 20 = 0 and v_C − 2i_L − 2 = 0 → i_L = 8/3 ≈ 2.667 A, v_C = 22/3 ≈ 7.333 V; in the DC circuit v_C = 10 − 1 × 8/3 = 22/3 ✓ and v_C = 2(8/3 + 1) = 22/3 ✓."
       ]
     }
   }

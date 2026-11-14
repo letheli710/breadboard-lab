@@ -7,14 +7,14 @@
   "level": 3,
   "tags": ["结点电压法", "超结点", "无伴电压源"],
   "statement": [
-    "图示电路中 I_s = 7 A（向上注入结点 a），U_s = 4 V（“+”接 a、“−”接 b），R_1 = 4 Ω，R_2 = 4 Ω，R_3 = 2 Ω，R_4 = 2 Ω。电压源两端都不是参考结点。",
-    "用**结点电压法**求 u_a、u_b，以及流过电压源的电流 i（从 a 流向 b 为正）。"
+    "图示电路中 I_s = 7 A（向上注入结点 a），V_s = 4 V（“+”接 a、“−”接 b），R_1 = 4 Ω，R_2 = 4 Ω，R_3 = 2 Ω，R_4 = 2 Ω。电压源两端都不是参考结点。",
+    "用**结点电压法**求 v_a、v_b，以及流过电压源的电流 i（从 a 流向 b 为正）。"
   ],
   "schematic": {
     "elements": [
       { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": 7 },
       { "ref": "R1", "type": "R", "from": [3, 0], "to": [3, 4], "value": 4 },
-      { "ref": "Us", "type": "V", "from": [5, 0], "to": [8, 0], "value": 4 },
+      { "ref": "Vs", "type": "V", "from": [5, 0], "to": [8, 0], "value": 4 },
       { "ref": "R2", "type": "R", "from": [10, 0], "to": [10, 4], "value": 4 },
       { "ref": "R3", "type": "R", "from": [12, 0], "to": [15, 0], "value": 2 },
       { "ref": "R4", "type": "R", "from": [17, 0], "to": [17, 4], "value": 2 }
@@ -27,7 +27,7 @@
     ],
     "labels": [{ "at": [3, 0], "name": "a" }, { "at": [10, 0], "name": "b" }, { "at": [17, 0], "name": "c" }],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "i", "el": "Us", "name": "i" }]
+    "marks": [{ "kind": "i", "el": "Vs", "name": "i" }]
   },
   "analysis": { "type": "dc" },
   "questions": [
@@ -41,32 +41,32 @@
         "因为 R_1 和电流源并联"
       ], "choiceExplain": ["", "电流源在结点法中没有问题：它的电流已知，直接写在方程右边。", "参考结点是底部结点，不是 a；a、b 的电压都是未知量。", "R_1 与电流源并联不影响列方程，R_1 照常贡献 1/R_1 的自电导。"],
       "correct": 0,
-      "explain": "无伴电压源的电流由外电路决定，不能写成 (u_a − u_b)·G。处理方法：把 a、b 合成一个超结点列 KCL，再补充 u_a − u_b = U_s；或者设电压源电流 i 为未知量。"
+      "explain": "无伴电压源的电流由外电路决定，不能写成 (v_a − v_b)·G。处理方法：把 a、b 合成一个超结点列 KCL，再补充 v_a − v_b = V_s；或者设电压源电流 i 为未知量。"
     },
-    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 12, "unit": "V", "explain": "超结点 KCL 化简为 3u_b + 4 = 28，u_b = 8 V，u_a = u_b + 4 = 12 V。" },
-    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 8, "unit": "V", "explain": "由结点 c 得 u_c = u_b/2，代入超结点方程 7 = u_a/4 + u_b/4 + (u_b − u_c)/2，解得 u_b = 8 V。" },
-    { "id": "i", "ask": "流过电压源的电流 i = ?", "find": { "kind": "i", "el": "Us" }, "answer": 4, "unit": "A", "explain": "回到结点 a 单独列 KCL：I_s = u_a/R_1 + i → i = 7 − 12/4 = 4 A。" }
+    { "id": "ua", "ask": "v_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 12, "unit": "V", "explain": "超结点 KCL 化简为 3v_b + 4 = 28，v_b = 8 V，v_a = v_b + 4 = 12 V。" },
+    { "id": "ub", "ask": "v_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 8, "unit": "V", "explain": "由结点 c 得 v_c = v_b/2，代入超结点方程 7 = v_a/4 + v_b/4 + (v_b − v_c)/2，解得 v_b = 8 V。" },
+    { "id": "i", "ask": "流过电压源的电流 i = ?", "find": { "kind": "i", "el": "Vs" }, "answer": 4, "unit": "A", "explain": "回到结点 a 单独列 KCL：I_s = v_a/R_1 + i → i = 7 − 12/4 = 4 A。" }
   ],
   "hints": [
     "把结点 a、b 连同电压源看成一个超结点：流出超结点的电阻电流之和 = 注入的电流源电流。",
-    "超结点只给出一个 KCL 方程，却有 u_a、u_b 两个未知量：再补一个电压源的约束方程（u_a 与 u_b 差多少？）。结点 c 照常列方程，三式联立。",
+    "超结点只给出一个 KCL 方程，却有 v_a、v_b 两个未知量：再补一个电压源的约束方程（v_a 与 v_b 差多少？）。结点 c 照常列方程，三式联立。",
     "求出结点电压后，对结点 a 单独用 KCL 求电压源电流。"
   ],
   "solution": [
-    "**1. 结点 c：** (1/R_3 + 1/R_4)·u_c − (1/R_3)·u_b = 0 → u_c = u_b/2。",
-    "**2. 超结点 {a, b}：** u_a/4 + u_b/4 + (u_b − u_c)/2 = 7。",
-    "**3. 约束：** u_a = u_b + 4。",
-    "**4. 求解：** (u_b + 4)/4 + u_b/4 + u_b/4 = 7 → 3u_b + 4 = 28 → **u_b = 8 V**，**u_a = 12 V**，u_c = 4 V。",
-    "**5. 电压源电流：** 结点 a：I_s = u_a/R_1 + i → i = 7 − 3 = **4 A**（a → b）。电流从“+”端流入，U_s 吸收 4 × 4 = 16 W。",
-    "**验算：** I_s 发出 12 × 7 = 84 W；R_1～R_4 吸收 36 + 16 + 8 + 8 = 68 W，U_s 吸收 16 W，68 + 16 = 84 W。"
+    "**1. 结点 c：** (1/R_3 + 1/R_4)·v_c − (1/R_3)·v_b = 0 → v_c = v_b/2。",
+    "**2. 超结点 {a, b}：** v_a/4 + v_b/4 + (v_b − v_c)/2 = 7。",
+    "**3. 约束：** v_a = v_b + 4。",
+    "**4. 求解：** (v_b + 4)/4 + v_b/4 + v_b/4 = 7 → 3v_b + 4 = 28 → **v_b = 8 V**，**v_a = 12 V**，v_c = 4 V。",
+    "**5. 电压源电流：** 结点 a：I_s = v_a/R_1 + i → i = 7 − 3 = **4 A**（a → b）。电流从“+”端流入，V_s 吸收 4 × 4 = 16 W。",
+    "**验算：** I_s 发出 12 × 7 = 84 W；R_1～R_4 吸收 36 + 16 + 8 + 8 = 68 W，V_s 吸收 16 W，68 + 16 = 84 W。"
   ],
   "i18n": {
     "en": {
       "title": "Nodal analysis: a voltage source between two nodes (supernode)",
       "tags": ["nodal analysis", "supernode", "floating voltage source"],
       "statement": [
-        "In the circuit, I_s = 7 A (upwards, into node a), U_s = 4 V (\"+\" at a, \"−\" at b), R_1 = 4 Ω, R_2 = 4 Ω, R_3 = 2 Ω, R_4 = 2 Ω. Neither end of the voltage source is the reference node.",
-        "Use **nodal analysis** to find u_a, u_b and the current i through the voltage source (positive from a to b)."
+        "In the circuit, I_s = 7 A (upwards, into node a), V_s = 4 V (\"+\" at a, \"−\" at b), R_1 = 4 Ω, R_2 = 4 Ω, R_3 = 2 Ω, R_4 = 2 Ω. Neither end of the voltage source is the reference node.",
+        "Use **nodal analysis** to find v_a, v_b and the current i through the voltage source (positive from a to b)."
       ],
       "questions": [
         {
@@ -76,25 +76,25 @@
             "Because there is a current source at node a",
             "Because a is the reference node",
             "Because R_1 is in parallel with the current source"
-          ], "choiceExplain": ["", "A current source is no problem in nodal analysis: its current is known and goes straight onto the right-hand side.", "The reference node is the bottom node, not a; u_a and u_b are both unknowns.", "R_1 being in parallel with the current source changes nothing: R_1 simply contributes 1/R_1 to the self-conductance."],
-          "explain": "The current of a floating voltage source is set by the rest of the circuit; it can't be written as (u_a − u_b)·G. Either combine a and b into a supernode and add u_a − u_b = U_s, or keep the source current i as an extra unknown."
+          ], "choiceExplain": ["", "A current source is no problem in nodal analysis: its current is known and goes straight onto the right-hand side.", "The reference node is the bottom node, not a; v_a and v_b are both unknowns.", "R_1 being in parallel with the current source changes nothing: R_1 simply contributes 1/R_1 to the self-conductance."],
+          "explain": "The current of a floating voltage source is set by the rest of the circuit; it can't be written as (v_a − v_b)·G. Either combine a and b into a supernode and add v_a − v_b = V_s, or keep the source current i as an extra unknown."
         },
-        { "ask": "u_a = ?", "explain": "The supernode KCL reduces to 3u_b + 4 = 28, so u_b = 8 V and u_a = u_b + 4 = 12 V." },
-        { "ask": "u_b = ?", "explain": "Node c gives u_c = u_b/2; substituting into the supernode equation 7 = u_a/4 + u_b/4 + (u_b − u_c)/2 gives u_b = 8 V." },
-        { "ask": "Current through the voltage source, i = ?", "explain": "KCL at node a alone: I_s = u_a/R_1 + i → i = 7 − 12/4 = 4 A." }
+        { "ask": "v_a = ?", "explain": "The supernode KCL reduces to 3v_b + 4 = 28, so v_b = 8 V and v_a = v_b + 4 = 12 V." },
+        { "ask": "v_b = ?", "explain": "Node c gives v_c = v_b/2; substituting into the supernode equation 7 = v_a/4 + v_b/4 + (v_b − v_c)/2 gives v_b = 8 V." },
+        { "ask": "Current through the voltage source, i = ?", "explain": "KCL at node a alone: I_s = v_a/R_1 + i → i = 7 − 12/4 = 4 A." }
       ],
       "hints": [
         "Treat nodes a and b together with the voltage source as one supernode: the resistor currents leaving it = the source current injected into it.",
-        "The supernode gives only one KCL equation for two unknowns u_a and u_b: add the voltage source's constraint (how far apart are u_a and u_b?). Write node c as usual and solve the three equations together.",
+        "The supernode gives only one KCL equation for two unknowns v_a and v_b: add the voltage source's constraint (how far apart are v_a and v_b?). Write node c as usual and solve the three equations together.",
         "Once the node voltages are known, use KCL at node a alone to find the source current."
       ],
       "solution": [
-        "**1. Node c:** (1/R_3 + 1/R_4)·u_c − (1/R_3)·u_b = 0 → u_c = u_b/2.",
-        "**2. Supernode {a, b}:** u_a/4 + u_b/4 + (u_b − u_c)/2 = 7.",
-        "**3. Constraint:** u_a = u_b + 4.",
-        "**4. Solve:** (u_b + 4)/4 + u_b/4 + u_b/4 = 7 → 3u_b + 4 = 28 → **u_b = 8 V**, **u_a = 12 V**, u_c = 4 V.",
-        "**5. Source current:** node a: I_s = u_a/R_1 + i → i = 7 − 3 = **4 A** (a → b). It enters the \"+\" terminal, so U_s absorbs 4 × 4 = 16 W.",
-        "**Check:** I_s delivers 12 × 7 = 84 W; R_1…R_4 absorb 36 + 16 + 8 + 8 = 68 W and U_s absorbs 16 W: 68 + 16 = 84 W."
+        "**1. Node c:** (1/R_3 + 1/R_4)·v_c − (1/R_3)·v_b = 0 → v_c = v_b/2.",
+        "**2. Supernode {a, b}:** v_a/4 + v_b/4 + (v_b − v_c)/2 = 7.",
+        "**3. Constraint:** v_a = v_b + 4.",
+        "**4. Solve:** (v_b + 4)/4 + v_b/4 + v_b/4 = 7 → 3v_b + 4 = 28 → **v_b = 8 V**, **v_a = 12 V**, v_c = 4 V.",
+        "**5. Source current:** node a: I_s = v_a/R_1 + i → i = 7 − 3 = **4 A** (a → b). It enters the \"+\" terminal, so V_s absorbs 4 × 4 = 16 W.",
+        "**Check:** I_s delivers 12 × 7 = 84 W; R_1…R_4 absorb 36 + 16 + 8 + 8 = 68 W and V_s absorbs 16 W: 68 + 16 = 84 W."
       ]
     }
   }

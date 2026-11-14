@@ -7,16 +7,16 @@
   "level": 4,
   "tags": ["受控源 CCCS", "功率守恒", "KCL", "KVL"],
   "statement": [
-    "图示电路中 U_s1 = 15 V，U_s2 = 3 V，R_1 = 3 Ω，R_3 = 1 Ω。电流控制电流源 F 的电流为 2i_1（方向向上，注入结点 a），i_1 为流过 R_1 的电流（向右）。",
-    "求 i_1、F 和 U_s2 吸收的功率，并说明哪些元件实际发出功率、验证功率平衡。"
+    "图示电路中 V_s1 = 15 V，V_s2 = 3 V，R_1 = 3 Ω，R_3 = 1 Ω。电流控制电流源 F 的电流为 2i_1（方向向上，注入结点 a），i_1 为流过 R_1 的电流（向右）。",
+    "求 i_1、F 和 V_s2 吸收的功率，并说明哪些元件实际发出功率、验证功率平衡。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 15 },
+      { "ref": "Vs1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 15 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 3 },
       { "ref": "F", "type": "CCCS", "from": [8, 4], "to": [8, 0], "value": 2, "ctrl": { "i": "R1" }, "label": "2i_1" },
       { "ref": "R3", "type": "R", "from": [10, 0], "to": [13, 0], "value": 1 },
-      { "ref": "Us2", "type": "V", "from": [15, 0], "to": [15, 4], "value": 3 }
+      { "ref": "Vs2", "type": "V", "from": [15, 0], "to": [15, 4], "value": 3 }
     ],
     "wires": [
       [[0, 0], [2, 0]],
@@ -30,62 +30,62 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "KVL：u_a = 15 − 3i_1；KCL（结点 a）：i_3 = i_1 + 2i_1 = 3i_1；KVL：u_a = R_3·i_3 + 3 = 3i_1 + 3。联立 15 − 3i_1 = 3i_1 + 3 → i_1 = 2 A。" },
-    { "id": "pf", "ask": "F 吸收的功率 = ?", "find": { "kind": "p", "el": "F" }, "answer": -36, "unit": "W", "explain": "u_a = 15 − 6 = 9 V，F 的电流 2i_1 = 4 A 从“+”端（a，上端）流出，非关联：P吸 = −9 × 4 = −36 W。" },
-    { "id": "p2", "ask": "U_s2 吸收的功率 = ?", "find": { "kind": "p", "el": "Us2" }, "answer": 18, "unit": "W", "explain": "i_3 = 3i_1 = 6 A 从 U_s2 的“+”端流入，关联：P = 3 × 6 = 18 W，U_s2 在吸收功率（被充电）。" },
+    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "KVL：v_a = 15 − 3i_1；KCL（结点 a）：i_3 = i_1 + 2i_1 = 3i_1；KVL：v_a = R_3·i_3 + 3 = 3i_1 + 3。联立 15 − 3i_1 = 3i_1 + 3 → i_1 = 2 A。" },
+    { "id": "pf", "ask": "F 吸收的功率 = ?", "find": { "kind": "p", "el": "F" }, "answer": -36, "unit": "W", "explain": "v_a = 15 − 6 = 9 V，F 的电流 2i_1 = 4 A 从“+”端（a，上端）流出，非关联：P吸 = −9 × 4 = −36 W。" },
+    { "id": "p2", "ask": "V_s2 吸收的功率 = ?", "find": { "kind": "p", "el": "Vs2" }, "answer": 18, "unit": "W", "explain": "i_3 = 3i_1 = 6 A 从 V_s2 的“+”端流入，关联：P = 3 × 6 = 18 W，V_s2 在吸收功率（被充电）。" },
     {
       "id": "who",
       "ask": "本电路中实际发出功率的元件是：",
-      "choices": ["只有 U_s1", "U_s1 和 F", "U_s1、U_s2 和 F", "只有 F"], "choiceExplain": ["别漏了受控源 F：按关联参考方向算出它的吸收功率，看看符号。", "", "U_s2 的吸收功率是 +18 W：电流从它的“+”端流入，它在吸收功率。", "再看独立源 U_s1：它的电流从哪一端流出？算一下 P_Us1 的符号。"],
+      "choices": ["只有 V_s1", "V_s1 和 F", "V_s1、V_s2 和 F", "只有 F"], "choiceExplain": ["别漏了受控源 F：按关联参考方向算出它的吸收功率，看看符号。", "", "V_s2 的吸收功率是 +18 W：电流从它的“+”端流入，它在吸收功率。", "再看独立源 V_s1：它的电流从哪一端流出？算一下 P_Us1 的符号。"],
       "correct": 1,
-      "explain": "P_Us1 = −15 × 2 = −30 W，P_F = −36 W，二者发出共 66 W；R_1 吸收 12 W，R_3 吸收 36 W，U_s2 吸收 18 W，合计 66 W，功率平衡。"
+      "explain": "P_Us1 = −15 × 2 = −30 W，P_F = −36 W，二者发出共 66 W；R_1 吸收 12 W，R_3 吸收 36 W，V_s2 吸收 18 W，合计 66 W，功率平衡。"
     }
   ],
   "hints": [
     "以控制量 i_1 为未知数：用 KCL 把 R_3 的电流写成 i_1 的倍数。",
-    "u_a 可以从左边（经 U_s1、R_1）求，也可以从右边（经 R_3、U_s2）求，两者相等就是 KVL 方程。"
+    "v_a 可以从左边（经 V_s1、R_1）求，也可以从右边（经 R_3、V_s2）求，两者相等就是 KVL 方程。"
   ],
   "solution": [
     "**1. KCL（结点 a）。** 流入 i_1 + 2i_1，流出 i_3：**i_3 = 3i_1**。",
-    "**2. KVL。** 左边：u_a = U_s1 − R_1·i_1 = 15 − 3i_1；右边：u_a = R_3·i_3 + U_s2 = 3i_1 + 3。",
-    "15 − 3i_1 = 3i_1 + 3 → **i_1 = 2 A**，i_3 = 6 A，u_a = 9 V。",
+    "**2. KVL。** 左边：v_a = V_s1 − R_1·i_1 = 15 − 3i_1；右边：v_a = R_3·i_3 + V_s2 = 3i_1 + 3。",
+    "15 − 3i_1 = 3i_1 + 3 → **i_1 = 2 A**，i_3 = 6 A，v_a = 9 V。",
     "**3. 各元件吸收的功率。**",
-    "- U_s1：电流从“+”端流出，P = −15 × 2 = −30 W；R_1：2² × 3 = 12 W。",
+    "- V_s1：电流从“+”端流出，P = −15 × 2 = −30 W；R_1：2² × 3 = 12 W。",
     "- F：端电压 9 V（上“+”），4 A 从“+”端流出，**P_F = −36 W**。",
-    "- R_3：6² × 1 = 36 W；U_s2：6 A 从“+”端流入，**P_Us2 = 18 W**。",
-    "**4. 功率平衡。** −30 + 12 − 36 + 36 + 18 = 0。发出功率的是 U_s1 和受控源 F；受控源发出的功率比独立源 U_s1 还多。"
+    "- R_3：6² × 1 = 36 W；V_s2：6 A 从“+”端流入，**P_Us2 = 18 W**。",
+    "**4. 功率平衡。** −30 + 12 − 36 + 36 + 18 = 0。发出功率的是 V_s1 和受控源 F；受控源发出的功率比独立源 V_s1 还多。"
   ],
   "i18n": {
     "en": {
       "title": "Power balance in a circuit with a CCCS",
       "tags": ["dependent source CCCS", "power balance", "KCL", "KVL"],
       "statement": [
-        "In the circuit, U_s1 = 15 V, U_s2 = 3 V, R_1 = 3 Ω, R_3 = 1 Ω. The current-controlled current source F carries 2i_1 (upwards, into node a), where i_1 is the current through R_1 (to the right).",
-        "Find i_1 and the power absorbed by F and by U_s2; state which elements actually deliver power and check the power balance."
+        "In the circuit, V_s1 = 15 V, V_s2 = 3 V, R_1 = 3 Ω, R_3 = 1 Ω. The current-controlled current source F carries 2i_1 (upwards, into node a), where i_1 is the current through R_1 (to the right).",
+        "Find i_1 and the power absorbed by F and by V_s2; state which elements actually deliver power and check the power balance."
       ],
       "questions": [
-        { "ask": "i_1 = ?", "explain": "KVL: u_a = 15 − 3i_1; KCL at node a: i_3 = i_1 + 2i_1 = 3i_1; KVL: u_a = R_3·i_3 + 3 = 3i_1 + 3. So 15 − 3i_1 = 3i_1 + 3 → i_1 = 2 A." },
-        { "ask": "Power absorbed by F = ?", "explain": "u_a = 15 − 6 = 9 V; F's current 2i_1 = 4 A leaves its \"+\" end (a, the top) — active convention: P_abs = −9 × 4 = −36 W." },
-        { "ask": "Power absorbed by U_s2 = ?", "explain": "i_3 = 3i_1 = 6 A enters the \"+\" terminal of U_s2 (passive convention): P = 3 × 6 = 18 W, so U_s2 absorbs power (it is being charged)." },
+        { "ask": "i_1 = ?", "explain": "KVL: v_a = 15 − 3i_1; KCL at node a: i_3 = i_1 + 2i_1 = 3i_1; KVL: v_a = R_3·i_3 + 3 = 3i_1 + 3. So 15 − 3i_1 = 3i_1 + 3 → i_1 = 2 A." },
+        { "ask": "Power absorbed by F = ?", "explain": "v_a = 15 − 6 = 9 V; F's current 2i_1 = 4 A leaves its \"+\" end (a, the top) — active convention: P_abs = −9 × 4 = −36 W." },
+        { "ask": "Power absorbed by V_s2 = ?", "explain": "i_3 = 3i_1 = 6 A enters the \"+\" terminal of V_s2 (passive convention): P = 3 × 6 = 18 W, so V_s2 absorbs power (it is being charged)." },
         {
           "ask": "Which elements actually deliver power in this circuit?",
-          "choices": ["only U_s1", "U_s1 and F", "U_s1, U_s2 and F", "only F"], "choiceExplain": ["Don't forget the dependent source F: compute its absorbed power with the passive sign convention and look at the sign.", "", "U_s2 absorbs +18 W: current enters its + terminal, so it is absorbing power.", "Look at the independent source U_s1 too: which terminal does its current leave? Work out the sign of P_Us1."],
-          "explain": "P_Us1 = −15 × 2 = −30 W and P_F = −36 W: together they deliver 66 W; R_1 absorbs 12 W, R_3 36 W and U_s2 18 W, 66 W in total — the power balances."
+          "choices": ["only V_s1", "V_s1 and F", "V_s1, V_s2 and F", "only F"], "choiceExplain": ["Don't forget the dependent source F: compute its absorbed power with the passive sign convention and look at the sign.", "", "V_s2 absorbs +18 W: current enters its + terminal, so it is absorbing power.", "Look at the independent source V_s1 too: which terminal does its current leave? Work out the sign of P_Us1."],
+          "explain": "P_Us1 = −15 × 2 = −30 W and P_F = −36 W: together they deliver 66 W; R_1 absorbs 12 W, R_3 36 W and V_s2 18 W, 66 W in total — the power balances."
         }
       ],
       "hints": [
         "Take the controlling current i_1 as the unknown: KCL gives the current in R_3 as a multiple of i_1.",
-        "u_a can be written from the left (through U_s1, R_1) or from the right (through R_3, U_s2); setting the two equal is the KVL equation."
+        "v_a can be written from the left (through V_s1, R_1) or from the right (through R_3, V_s2); setting the two equal is the KVL equation."
       ],
       "solution": [
         "**1. KCL at node a.** i_1 + 2i_1 enter, i_3 leaves: **i_3 = 3i_1**.",
-        "**2. KVL.** Left side: u_a = U_s1 − R_1·i_1 = 15 − 3i_1; right side: u_a = R_3·i_3 + U_s2 = 3i_1 + 3.",
-        "15 − 3i_1 = 3i_1 + 3 → **i_1 = 2 A**, i_3 = 6 A, u_a = 9 V.",
+        "**2. KVL.** Left side: v_a = V_s1 − R_1·i_1 = 15 − 3i_1; right side: v_a = R_3·i_3 + V_s2 = 3i_1 + 3.",
+        "15 − 3i_1 = 3i_1 + 3 → **i_1 = 2 A**, i_3 = 6 A, v_a = 9 V.",
         "**3. Power absorbed by each element.**",
-        "- U_s1: its current leaves \"+\", P = −15 × 2 = −30 W; R_1: 2² × 3 = 12 W.",
+        "- V_s1: its current leaves \"+\", P = −15 × 2 = −30 W; R_1: 2² × 3 = 12 W.",
         "- F: 9 V across it (+ at the top), 4 A leaving \"+\": **P_F = −36 W**.",
-        "- R_3: 6² × 1 = 36 W; U_s2: 6 A entering \"+\": **P_Us2 = 18 W**.",
-        "**4. Power balance.** −30 + 12 − 36 + 36 + 18 = 0. The elements delivering power are U_s1 and the dependent source F — and F delivers even more than the independent source U_s1."
+        "- R_3: 6² × 1 = 36 W; V_s2: 6 A entering \"+\": **P_Us2 = 18 W**.",
+        "**4. Power balance.** −30 + 12 − 36 + 36 + 18 = 0. The elements delivering power are V_s1 and the dependent source F — and F delivers even more than the independent source V_s1."
       ]
     }
   }

@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["戴维宁定理", "电桥", "开路电压"],
   "statement": [
-    "图示电桥电路中 U_s = 12 V，R_1 = 6 Ω，R_2 = 3 Ω，R_3 = 3 Ω，R_4 = 6 Ω，检流计内阻 R_g = 4 Ω 接在结点 a、b 之间。",
-    "断开 R_g，求 a、b 两点的开路电压 u_oc = u_ab 和等效电阻 R_eq，再求检流计电流 i_g（参考方向从 a 到 b）。"
+    "图示电桥电路中 V_s = 12 V，R_1 = 6 Ω，R_2 = 3 Ω，R_3 = 3 Ω，R_4 = 6 Ω，检流计内阻 R_g = 4 Ω 接在结点 a、b 之间。",
+    "断开 R_g，求 a、b 两点的开路电压 v_oc = v_ab 和等效电阻 R_eq，再求检流计电流 i_g（参考方向从 a 到 b）。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 2], "to": [0, 6], "value": 12 },
+      { "ref": "Vs", "type": "V", "from": [0, 2], "to": [0, 6], "value": 12 },
       { "ref": "R1", "type": "R", "from": [4, 0], "to": [4, 4], "value": 6 },
       { "ref": "R2", "type": "R", "from": [4, 4], "to": [4, 8], "value": 3 },
       { "ref": "R3", "type": "R", "from": [12, 0], "to": [12, 4], "value": 3 },
@@ -33,11 +33,11 @@
   "questions": [
     {
       "id": "uoc",
-      "ask": "断开 R_g 后 u_oc = u_ab = ?",
+      "ask": "断开 R_g 后 v_oc = v_ab = ?",
       "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["Rg"] },
       "answer": -4,
       "unit": "V",
-      "explain": "以底边为参考：u_a = 12 × 3/9 = 4 V，u_b = 12 × 6/9 = 8 V，u_ab = 4 − 8 = −4 V。"
+      "explain": "以底边为参考：v_a = 12 × 3/9 = 4 V，v_b = 12 × 6/9 = 8 V，v_ab = 4 − 8 = −4 V。"
     },
     {
       "id": "req",
@@ -45,7 +45,7 @@
       "find": { "kind": "req", "port": ["a", "b"], "exclude": ["Rg"] },
       "answer": 4,
       "unit": "Ω",
-      "explain": "U_s 短路后上下两条边成为同一点：R_eq = R_1 ∥ R_2 + R_3 ∥ R_4 = 2 + 2 = 4 Ω。"
+      "explain": "V_s 短路后上下两条边成为同一点：R_eq = R_1 ∥ R_2 + R_3 ∥ R_4 = 2 + 2 = 4 Ω。"
     },
     {
       "id": "ig",
@@ -53,64 +53,64 @@
       "find": { "kind": "i", "el": "Rg" },
       "answer": -0.5,
       "unit": "A",
-      "explain": "i_g = u_oc/(R_eq + R_g) = −4/8 = −0.5 A：实际 0.5 A 从 b 流向 a。"
+      "explain": "i_g = v_oc/(R_eq + R_g) = −4/8 = −0.5 A：实际 0.5 A 从 b 流向 a。"
     },
     {
       "id": "bal",
       "ask": "其他电阻不变，R_4 调到多少时电桥平衡（i_g = 0）？",
-      "choices": ["1.5 Ω", "3 Ω", "6 Ω", "0 Ω"], "choiceExplain": ["", "平衡要求对臂乘积相等（比例相同），不是 R_4 = R_2 两个电阻相等：R_4 = 3 Ω 时 u_b = 6 V，仍不等于 u_a = 4 V。", "6 Ω 是现在的值，此时 u_oc = −4 V、i_g = −0.5 A，电桥并不平衡。", "0 Ω 来自把平衡条件写成对臂电阻之和相等（R_1 + R_4 = R_2 + R_3）；平衡要求对臂电阻的乘积相等。R_4 短路时 u_b = 0，离平衡更远。"],
+      "choices": ["1.5 Ω", "3 Ω", "6 Ω", "0 Ω"], "choiceExplain": ["", "平衡要求对臂乘积相等（比例相同），不是 R_4 = R_2 两个电阻相等：R_4 = 3 Ω 时 v_b = 6 V，仍不等于 v_a = 4 V。", "6 Ω 是现在的值，此时 v_oc = −4 V、i_g = −0.5 A，电桥并不平衡。", "0 Ω 来自把平衡条件写成对臂电阻之和相等（R_1 + R_4 = R_2 + R_3）；平衡要求对臂电阻的乘积相等。R_4 短路时 v_b = 0，离平衡更远。"],
       "correct": 0,
-      "explain": "平衡条件 R_1·R_4 = R_2·R_3，即 6·R_4 = 3 × 3 → R_4 = 1.5 Ω，此时 u_a = u_b，u_oc = 0。"
+      "explain": "平衡条件 R_1·R_4 = R_2·R_3，即 6·R_4 = 3 × 3 → R_4 = 1.5 Ω，此时 v_a = v_b，v_oc = 0。"
     }
   ],
   "hints": [
     "断开 R_g 后，左右两条支路各是一个分压器。",
-    "求 R_eq 时 U_s 短路：顶边和底边接在一起，变成 (R_1 ∥ R_2) 与 (R_3 ∥ R_4) 串联。",
-    "注意 u_oc 的符号决定 i_g 的方向。"
+    "求 R_eq 时 V_s 短路：顶边和底边接在一起，变成 (R_1 ∥ R_2) 与 (R_3 ∥ R_4) 串联。",
+    "注意 v_oc 的符号决定 i_g 的方向。"
   ],
   "solution": [
-    "**1. 开路电压。** 断开 R_g，以底边为参考：u_a = U_s·R_2/(R_1 + R_2) = 12 × 3/9 = 4 V，u_b = U_s·R_4/(R_3 + R_4) = 12 × 6/9 = 8 V，u_oc = u_a − u_b = **−4 V**。",
-    "**2. 等效电阻。** U_s 置零（短路）后，顶边与底边是同一结点，从 a、b 看进去：R_eq = R_1 ∥ R_2 + R_3 ∥ R_4 = 2 + 2 = **4 Ω**。",
-    "**3. 检流计电流。** i_g = u_oc/(R_eq + R_g) = −4/(4 + 4) = **−0.5 A**，实际方向从 b 到 a。",
-    "**4. 平衡条件。** u_oc = 0 ⇔ R_2/(R_1 + R_2) = R_4/(R_3 + R_4) ⇔ R_{1}R_{4} = R_{2}R_{3}，所以 R_4 = 1.5 Ω 时平衡。"
+    "**1. 开路电压。** 断开 R_g，以底边为参考：v_a = V_s·R_2/(R_1 + R_2) = 12 × 3/9 = 4 V，v_b = V_s·R_4/(R_3 + R_4) = 12 × 6/9 = 8 V，v_oc = v_a − v_b = **−4 V**。",
+    "**2. 等效电阻。** V_s 置零（短路）后，顶边与底边是同一结点，从 a、b 看进去：R_eq = R_1 ∥ R_2 + R_3 ∥ R_4 = 2 + 2 = **4 Ω**。",
+    "**3. 检流计电流。** i_g = v_oc/(R_eq + R_g) = −4/(4 + 4) = **−0.5 A**，实际方向从 b 到 a。",
+    "**4. 平衡条件。** v_oc = 0 ⇔ R_2/(R_1 + R_2) = R_4/(R_3 + R_4) ⇔ R_{1}R_{4} = R_{2}R_{3}，所以 R_4 = 1.5 Ω 时平衡。"
   ],
   "i18n": {
     "en": {
       "title": "Unbalanced bridge: galvanometer current by Thevenin",
       "tags": ["Thevenin's theorem", "bridge", "open-circuit voltage"],
       "statement": [
-        "In the bridge circuit, U_s = 12 V, R_1 = 6 Ω, R_2 = 3 Ω, R_3 = 3 Ω, R_4 = 6 Ω, and a galvanometer with internal resistance R_g = 4 Ω is connected between nodes a and b.",
-        "Remove R_g and find the open-circuit voltage u_oc = u_ab and the equivalent resistance R_eq between a and b; then find the galvanometer current i_g (reference direction from a to b)."
+        "In the bridge circuit, V_s = 12 V, R_1 = 6 Ω, R_2 = 3 Ω, R_3 = 3 Ω, R_4 = 6 Ω, and a galvanometer with internal resistance R_g = 4 Ω is connected between nodes a and b.",
+        "Remove R_g and find the open-circuit voltage v_oc = v_ab and the equivalent resistance R_eq between a and b; then find the galvanometer current i_g (reference direction from a to b)."
       ],
       "questions": [
         {
-          "ask": "With R_g removed, u_oc = u_ab = ?",
-          "explain": "Taking the bottom wire as reference: u_a = 12 × 3/9 = 4 V, u_b = 12 × 6/9 = 8 V, u_ab = 4 − 8 = −4 V."
+          "ask": "With R_g removed, v_oc = v_ab = ?",
+          "explain": "Taking the bottom wire as reference: v_a = 12 × 3/9 = 4 V, v_b = 12 × 6/9 = 8 V, v_ab = 4 − 8 = −4 V."
         },
         {
           "ask": "R_eq = ?",
-          "explain": "With U_s shorted, the top and bottom wires become one node: R_eq = R_1 ∥ R_2 + R_3 ∥ R_4 = 2 + 2 = 4 Ω."
+          "explain": "With V_s shorted, the top and bottom wires become one node: R_eq = R_1 ∥ R_2 + R_3 ∥ R_4 = 2 + 2 = 4 Ω."
         },
         {
           "ask": "i_g = ?",
-          "explain": "i_g = u_oc/(R_eq + R_g) = −4/8 = −0.5 A: the actual 0.5 A flows from b to a."
+          "explain": "i_g = v_oc/(R_eq + R_g) = −4/8 = −0.5 A: the actual 0.5 A flows from b to a."
         },
         {
           "ask": "With the other resistors unchanged, what value of R_4 balances the bridge (i_g = 0)?",
-          "choices": ["1.5 Ω", "3 Ω", "6 Ω", "0 Ω"], "choiceExplain": ["", "Balance needs equal products of opposite arms (equal ratios), not R_4 equal to R_2: with R_4 = 3 Ω, u_b = 6 V, still not u_a = 4 V.", "6 Ω is the present value, where u_oc = −4 V and i_g = −0.5 A: the bridge is not balanced.", "0 Ω comes from writing the balance condition as equal sums of opposite arms (R_1 + R_4 = R_2 + R_3); balance needs equal products. With R_4 shorted u_b = 0, further from balance than before."],
-          "explain": "Balance condition R_1·R_4 = R_2·R_3, i.e. 6·R_4 = 3 × 3 → R_4 = 1.5 Ω; then u_a = u_b and u_oc = 0."
+          "choices": ["1.5 Ω", "3 Ω", "6 Ω", "0 Ω"], "choiceExplain": ["", "Balance needs equal products of opposite arms (equal ratios), not R_4 equal to R_2: with R_4 = 3 Ω, v_b = 6 V, still not v_a = 4 V.", "6 Ω is the present value, where v_oc = −4 V and i_g = −0.5 A: the bridge is not balanced.", "0 Ω comes from writing the balance condition as equal sums of opposite arms (R_1 + R_4 = R_2 + R_3); balance needs equal products. With R_4 shorted v_b = 0, further from balance than before."],
+          "explain": "Balance condition R_1·R_4 = R_2·R_3, i.e. 6·R_4 = 3 × 3 → R_4 = 1.5 Ω; then v_a = v_b and v_oc = 0."
         }
       ],
       "hints": [
         "With R_g removed, the left and right branches are each a voltage divider.",
-        "For R_eq short U_s: the top and bottom wires are joined, giving (R_1 ∥ R_2) in series with (R_3 ∥ R_4).",
-        "Watch the sign of u_oc: it decides the direction of i_g."
+        "For R_eq short V_s: the top and bottom wires are joined, giving (R_1 ∥ R_2) in series with (R_3 ∥ R_4).",
+        "Watch the sign of v_oc: it decides the direction of i_g."
       ],
       "solution": [
-        "**1. Open-circuit voltage.** Remove R_g, bottom wire as reference: u_a = U_s·R_2/(R_1 + R_2) = 12 × 3/9 = 4 V, u_b = U_s·R_4/(R_3 + R_4) = 12 × 6/9 = 8 V, u_oc = u_a − u_b = **−4 V**.",
-        "**2. Equivalent resistance.** With U_s zeroed (shorted) the top and bottom wires are the same node; seen from a, b: R_eq = R_1 ∥ R_2 + R_3 ∥ R_4 = 2 + 2 = **4 Ω**.",
-        "**3. Galvanometer current.** i_g = u_oc/(R_eq + R_g) = −4/(4 + 4) = **−0.5 A**, actually flowing from b to a.",
-        "**4. Balance condition.** u_oc = 0 ⇔ R_2/(R_1 + R_2) = R_4/(R_3 + R_4) ⇔ R_{1}R_{4} = R_{2}R_{3}, so the bridge balances for R_4 = 1.5 Ω."
+        "**1. Open-circuit voltage.** Remove R_g, bottom wire as reference: v_a = V_s·R_2/(R_1 + R_2) = 12 × 3/9 = 4 V, v_b = V_s·R_4/(R_3 + R_4) = 12 × 6/9 = 8 V, v_oc = v_a − v_b = **−4 V**.",
+        "**2. Equivalent resistance.** With V_s zeroed (shorted) the top and bottom wires are the same node; seen from a, b: R_eq = R_1 ∥ R_2 + R_3 ∥ R_4 = 2 + 2 = **4 Ω**.",
+        "**3. Galvanometer current.** i_g = v_oc/(R_eq + R_g) = −4/(4 + 4) = **−0.5 A**, actually flowing from b to a.",
+        "**4. Balance condition.** v_oc = 0 ⇔ R_2/(R_1 + R_2) = R_4/(R_3 + R_4) ⇔ R_{1}R_{4} = R_{2}R_{3}, so the bridge balances for R_4 = 1.5 Ω."
       ]
     }
   }

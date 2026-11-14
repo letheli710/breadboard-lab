@@ -95,7 +95,7 @@
         {"ask": "OUT1 HIGH, OUT2 LOW: the current in LED1 (sourcing)", "explain": "High side on: (3.3 − 1.8) / (40 + 220 + 12) ≈ 5.5 mA, flowing out of the pin."},
         {"ask": "Same state: the current in LED2 (sinking)", "explain": "Low side on: (3.3 − 1.8) / (220 + 12 + 40) ≈ 5.5 mA, flowing into the pin."},
         {"ask": "Same state: multimeter on the OUT2 pin to GND (output LOW, but sinking current)", "explain": "≈ 40 Ω × 5.5 mA ≈ 0.22 V: a LOW is not exactly 0 V either."},
-        {"ask": "From your two readings, the low-side (N-channel) on-resistance = U_OL / I2", "explain": "≈ 40 Ω (the model uses the same for both sides). In a real chip the N-channel side is usually stronger, so sinking drops less; old TTL / 8051 parts could only sink."},
+        {"ask": "From your two readings, the low-side (N-channel) on-resistance = V_OL / I2", "explain": "≈ 40 Ω (the model uses the same for both sides). In a real chip the N-channel side is usually stronger, so sinking drops less; old TTL / 8051 parts could only sink."},
         {"ask": "OUT2 set as an input (high-Z): the OUT2 pin to GND", "explain": "No current, LED2 is off; 3V3 pulls the pin through R2 and the LED to 3.3 − 1.8 ≈ 1.5 V, between VIL and VIH."}
       ],
       "hints": [
@@ -175,7 +175,7 @@
     {"id": "i1", "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "mA", "predict": true, "range": [0.00523, 0.00578], "ask": "OUT1 高、OUT2 低：LED1（拉电流）的电流", "explain": "上管导通：(3.3 − 1.8) / (40 + 220 + 12) ≈ 5.5 mA，从引脚流出。"},
     {"id": "i2", "current": "LED2", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "mA", "predict": true, "range": [0.00523, 0.00578], "ask": "同一状态：LED2（灌电流）的电流", "explain": "下管导通：(3.3 − 1.8) / (220 + 12 + 40) ≈ 5.5 mA，流进引脚。"},
     {"id": "vol", "voltage": "U1.GPIO_OUT2", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "V", "predict": true, "range": [0.209, 0.231], "ask": "同一状态：万用表测 OUT2 引脚对 GND 的电压（输出低电平，但在灌电流）", "explain": "≈ 40 Ω × 5.5 mA ≈ 0.22 V：低电平也不是正好 0 V。"},
-    {"id": "rlow", "stated": true, "formula": "vol / i2", "unit": "Ω", "range": [38.0, 42.0], "ask": "用你的两个读数算下管（N 管）的导通电阻 = U_OL / I2", "explain": "≈ 40 Ω（模型里上下管一样）。真实芯片的 N 管一般更强，灌电流时压降更小；老的 TTL / 51 单片机只能灌、不能拉。"},
+    {"id": "rlow", "stated": true, "formula": "vol / i2", "unit": "Ω", "range": [38.0, 42.0], "ask": "用你的两个读数算下管（N 管）的导通电阻 = V_OL / I2", "explain": "≈ 40 Ω（模型里上下管一样）。真实芯片的 N 管一般更强，灌电流时压降更小；老的 TTL / 51 单片机只能灌、不能拉。"},
     {"id": "vin", "voltage": "U1.GPIO_OUT2", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_low", "GPIO_OUT2": "input"}}}, "unit": "V", "predict": true, "range": [1.42, 1.57], "ask": "把 OUT2 设成输入（高阻）：OUT2 引脚对 GND 的电压", "explain": "没有电流，LED2 灭；引脚被 3V3 经 R2 和 LED 拉到 3.3 − 1.8 ≈ 1.5 V，介于 VIL 和 VIH 之间。"}
   ],
   "hints": [

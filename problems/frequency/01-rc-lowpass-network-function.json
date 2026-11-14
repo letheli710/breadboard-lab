@@ -7,12 +7,12 @@
   "level": 1,
   "tags": ["网络函数 H(jω)", "幅频特性", "相频特性", "RC 低通"],
   "statement": [
-    "正弦电压源 U̇_s = 10∠0° V（有效值），角频率 ω = 2000 rad/s，R = 1 kΩ，C = 1 µF，输出取电容电压 U_C。",
-    "以 U_s 为激励、U_C 为响应，网络函数（network function）H(jω) = U̇_C / U̇_s。求 ω = 2000 rad/s 时 |H(jω)|、H(jω) 的相位，以及 U_C 的有效值。"
+    "正弦电压源 V̇_s = 10∠0° V（有效值），角频率 ω = 2000 rad/s，R = 1 kΩ，C = 1 µF，输出取电容电压 V_C。",
+    "以 V_s 为激励、V_C 为响应，网络函数（network function）H(jω) = V̇_C / V̇_s。求 ω = 2000 rad/s 时 |H(jω)|、H(jω) 的相位，以及 V_C 的有效值。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } }, "label": "10∠0° V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } }, "label": "10∠0° V" },
       { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": "1k" },
       { "ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": "1u" }
     ],
@@ -23,23 +23,23 @@
     ],
     "terminals": [{ "at": [11, 0], "name": "o" }, { "at": [11, 4], "name": "o'" }],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "v", "el": "C", "name": "U_C" }]
+    "marks": [{ "kind": "v", "el": "C", "name": "V_C" }]
   },
   "analysis": { "type": "ac", "omega": 2000 },
   "questions": [
-    { "id": "mag", "ask": "|H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "mag" }, "answer": 0.4472136, "unit": "", "explain": "H(jω) = (1/jωC)/(R + 1/jωC) = 1/(1 + jωRC)。ωRC = 2000 × 1000 × 10⁻⁶ = 2，|H| = 1/√(1 + 2²) = 1/√5 ≈ 0.4472。" },
-    { "id": "ph", "ask": "H(jω) 的相位 φ(ω) = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": -63.43495, "unit": "°", "explain": "φ = −arctan(ωRC) = −arctan 2 ≈ −63.43°：输出电压滞后于输入电压。" },
-    { "id": "uc", "ask": "U_C 的有效值 = ?", "find": { "kind": "v", "el": "C", "part": "mag" }, "answer": 4.472136, "unit": "V", "explain": "U_C = |H|·U_s = 0.4472 × 10 ≈ 4.472 V。" }
+    { "id": "mag", "ask": "|H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Vs", "part": "mag" }, "answer": 0.4472136, "unit": "", "explain": "H(jω) = (1/jωC)/(R + 1/jωC) = 1/(1 + jωRC)。ωRC = 2000 × 1000 × 10⁻⁶ = 2，|H| = 1/√(1 + 2²) = 1/√5 ≈ 0.4472。" },
+    { "id": "ph", "ask": "H(jω) 的相位 φ(ω) = ?", "find": { "kind": "gain", "out": ["o"], "input": "Vs", "part": "phase" }, "answer": -63.43495, "unit": "°", "explain": "φ = −arctan(ωRC) = −arctan 2 ≈ −63.43°：输出电压滞后于输入电压。" },
+    { "id": "uc", "ask": "V_C 的有效值 = ?", "find": { "kind": "v", "el": "C", "part": "mag" }, "answer": 4.472136, "unit": "V", "explain": "V_C = |H|·V_s = 0.4472 × 10 ≈ 4.472 V。" }
   ],
   "hints": [
-    "网络函数 = 响应相量 / 激励相量。用分压公式把 U_C 写成 U_s 的倍数。",
+    "网络函数 = 响应相量 / 激励相量。用分压公式把 V_C 写成 V_s 的倍数。",
     "H(jω) = 1/(1 + jωRC)，先算出 ωRC 的值，再求模和辐角。"
   ],
   "solution": [
-    "**1. 写网络函数。** 电容阻抗 Z_C = 1/(jωC)，由分压公式：H(jω) = U̇_C/U̇_s = Z_C/(R + Z_C) = 1/(1 + jωRC)。",
+    "**1. 写网络函数。** 电容阻抗 Z_C = 1/(jωC)，由分压公式：H(jω) = V̇_C/V̇_s = Z_C/(R + Z_C) = 1/(1 + jωRC)。",
     "**2. 幅频特性。** |H(jω)| = 1/√(1 + (ωRC)²)；ω = 2000 rad/s 时 ωRC = 2000 × 10³ × 10⁻⁶ = 2，|H| = 1/√5 ≈ **0.4472**。",
     "**3. 相频特性。** φ(ω) = −arctan(ωRC) = −arctan 2 ≈ **−63.43°**。",
-    "**4. 输出电压。** U̇_C = H·U̇_s = 4.472∠−63.43° V，有效值 **4.472 V**。",
+    "**4. 输出电压。** V̇_C = H·V̇_s = 4.472∠−63.43° V，有效值 **4.472 V**。",
     "ω 越高 |H| 越小，ω → 0 时 |H| → 1：这是一个低通（low-pass）电路。"
   ],
   "i18n": {
@@ -47,23 +47,23 @@
       "title": "Network function of an RC circuit",
       "tags": ["network function H(jω)", "magnitude response", "phase response", "RC low-pass"],
       "statement": [
-        "A sinusoidal source U̇_s = 10∠0° V (rms) at ω = 2000 rad/s drives R = 1 kΩ in series with C = 1 µF; the output is the capacitor voltage U_C.",
-        "With U_s as the input and U_C as the response, the network function is H(jω) = U̇_C / U̇_s. At ω = 2000 rad/s find |H(jω)|, the phase of H(jω) and the rms value of U_C."
+        "A sinusoidal source V̇_s = 10∠0° V (rms) at ω = 2000 rad/s drives R = 1 kΩ in series with C = 1 µF; the output is the capacitor voltage V_C.",
+        "With V_s as the input and V_C as the response, the network function is H(jω) = V̇_C / V̇_s. At ω = 2000 rad/s find |H(jω)|, the phase of H(jω) and the rms value of V_C."
       ],
       "questions": [
         { "ask": "|H(jω)| = ?", "explain": "H(jω) = (1/jωC)/(R + 1/jωC) = 1/(1 + jωRC). ωRC = 2000 × 1000 × 10⁻⁶ = 2, so |H| = 1/√(1 + 2²) = 1/√5 ≈ 0.4472." },
         { "ask": "Phase of H(jω), φ(ω) = ?", "explain": "φ = −arctan(ωRC) = −arctan 2 ≈ −63.43°: the output lags the input." },
-        { "ask": "rms value of U_C = ?", "explain": "U_C = |H|·U_s = 0.4472 × 10 ≈ 4.472 V." }
+        { "ask": "rms value of V_C = ?", "explain": "V_C = |H|·V_s = 0.4472 × 10 ≈ 4.472 V." }
       ],
       "hints": [
-        "A network function is the response phasor divided by the input phasor. Use the voltage-divider rule to write U_C as a multiple of U_s.",
+        "A network function is the response phasor divided by the input phasor. Use the voltage-divider rule to write V_C as a multiple of V_s.",
         "H(jω) = 1/(1 + jωRC). Work out ωRC first, then take the magnitude and the angle."
       ],
       "solution": [
-        "**1. Network function.** The capacitor impedance is Z_C = 1/(jωC); by the voltage divider H(jω) = U̇_C/U̇_s = Z_C/(R + Z_C) = 1/(1 + jωRC).",
+        "**1. Network function.** The capacitor impedance is Z_C = 1/(jωC); by the voltage divider H(jω) = V̇_C/V̇_s = Z_C/(R + Z_C) = 1/(1 + jωRC).",
         "**2. Magnitude response.** |H(jω)| = 1/√(1 + (ωRC)²); at ω = 2000 rad/s, ωRC = 2000 × 10³ × 10⁻⁶ = 2, so |H| = 1/√5 ≈ **0.4472**.",
         "**3. Phase response.** φ(ω) = −arctan(ωRC) = −arctan 2 ≈ **−63.43°**.",
-        "**4. Output voltage.** U̇_C = H·U̇_s = 4.472∠−63.43° V, rms value **4.472 V**.",
+        "**4. Output voltage.** V̇_C = H·V̇_s = 4.472∠−63.43° V, rms value **4.472 V**.",
         "|H| falls as ω rises and tends to 1 as ω → 0: this is a low-pass circuit."
       ]
     }

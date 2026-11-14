@@ -7,12 +7,12 @@
   "level": 5,
   "tags": ["正弦激励", "全响应", "强制分量", "自由分量", "接通相位"],
   "statement": [
-    "图示电路中 u_s = 20 cos(100t) V，R = 10 Ω，L = 0.1 H，电感原来没有电流。开关 S 在 t = 0 时闭合（此时 u_s 正好处于正的最大值）。",
-    "求 u_L(0₊)、时间常数 τ、t = 0.01 s 时的电流 i，并讨论什么时刻合闸可以不出现过渡过程。"
+    "图示电路中 v_s = 20 cos(100t) V，R = 10 Ω，L = 0.1 H，电感原来没有电流。开关 S 在 t = 0 时闭合（此时 v_s 正好处于正的最大值）。",
+    "求 v_L(0₊)、时间常数 τ、t = 0.01 s 时的电流 i，并讨论什么时刻合闸可以不出现过渡过程。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "sin": { "amp": 20, "freq": 15.915494309189533, "phase": 90 } }, "label": "20cos(100t) V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "sin": { "amp": 20, "freq": 15.915494309189533, "phase": 90 } }, "label": "20cos(100t) V" },
       { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "open", "after": "closed" } },
       { "ref": "R", "type": "R", "from": [5, 0], "to": [9, 0], "value": 10 },
       { "ref": "L", "type": "L", "from": [11, 0], "to": [11, 4], "value": 0.1 }
@@ -26,28 +26,28 @@
     "grounds": [[0, 4]],
     "marks": [
       { "kind": "i", "el": "R", "name": "i" },
-      { "kind": "v", "el": "L", "name": "u_L" }
+      { "kind": "v", "el": "L", "name": "v_L" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "ul0", "ask": "u_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": 20, "unit": "V", "explain": "i(0₊) = i(0₋) = 0，R 上没有压降：u_L(0₊) = u_s(0) = 20 cos 0 = 20 V。" },
+    { "id": "ul0", "ask": "v_L(0₊) = ?", "find": { "kind": "v", "el": "L", "t": "0+" }, "answer": 20, "unit": "V", "explain": "i(0₊) = i(0₋) = 0，R 上没有压降：v_L(0₊) = v_s(0) = 20 cos 0 = 20 V。" },
     { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.01, "unit": "s", "explain": "τ = L/R = 0.1/10 = 0.01 s，与激励的形式无关。" },
     { "id": "i1", "ask": "t = 0.01 s 时 i = ?", "find": { "kind": "i", "el": "R", "t": 0.01 }, "answer": 1.013894, "unit": "A", "explain": "i(t) = √2 cos(100t − 45°) − e^(−100t) A。t = 0.01 s：100t = 1 rad ≈ 57.30°，i = √2 cos(12.30°) − e⁻¹ ≈ 1.3818 − 0.3679 ≈ 1.014 A。" },
-    { "id": "phase", "ask": "若改为 u_s = 20 sin(100t + ψ) V，ψ 取何值时合闸后电流立即进入稳态（没有自由分量）？", "choices": ["ψ = 45°（或 225°）", "ψ = 0°", "ψ = 90°", "任何 ψ 都会有过渡过程"], "choiceExplain": ["", "ψ = 0° 是电压过零时合闸，这对纯电阻电路才不产生过渡过程；RL 电路稳态电流滞后电压 φ = arctan(ωL/R)，ψ = 0° 时 i_p(0₊) ≠ 0。", "ψ = 90° 对应稳态电流滞后 90° 的纯电感电路；这里有 R = 10 Ω，电流滞后不到 90°，ψ = 90° 时 A = −1，仍有过渡过程（就是本题原来的情形）。", "只要合闸瞬间稳态电流 i_p(0₊) 恰好等于 i(0₊) = 0，自由分量的系数就是 0，所以存在不出现过渡过程的 ψ。"], "correct": 0, "explain": "强制分量 i_p = √2 sin(100t + ψ − 45°)，自由分量 A e^(−100t) 的系数 A = i(0₊) − i_p(0₊) = −√2 sin(ψ − 45°)。ψ − 45° = 0 或 180° 时 A = 0，合闸瞬间稳态电流恰好为零，不出现过渡过程。" }
+    { "id": "phase", "ask": "若改为 v_s = 20 sin(100t + ψ) V，ψ 取何值时合闸后电流立即进入稳态（没有自由分量）？", "choices": ["ψ = 45°（或 225°）", "ψ = 0°", "ψ = 90°", "任何 ψ 都会有过渡过程"], "choiceExplain": ["", "ψ = 0° 是电压过零时合闸，这对纯电阻电路才不产生过渡过程；RL 电路稳态电流滞后电压 φ = arctan(ωL/R)，ψ = 0° 时 i_p(0₊) ≠ 0。", "ψ = 90° 对应稳态电流滞后 90° 的纯电感电路；这里有 R = 10 Ω，电流滞后不到 90°，ψ = 90° 时 A = −1，仍有过渡过程（就是本题原来的情形）。", "只要合闸瞬间稳态电流 i_p(0₊) 恰好等于 i(0₊) = 0，自由分量的系数就是 0，所以存在不出现过渡过程的 ψ。"], "correct": 0, "explain": "强制分量 i_p = √2 sin(100t + ψ − 45°)，自由分量 A e^(−100t) 的系数 A = i(0₊) − i_p(0₊) = −√2 sin(ψ − 45°)。ψ − 45° = 0 或 180° 时 A = 0，合闸瞬间稳态电流恰好为零，不出现过渡过程。" }
   ],
   "hints": [
     "正弦激励的一阶电路：全响应 = 强制分量（正弦稳态解，用相量法求）+ 自由分量 A e^(−t/τ)。",
-    "相量法：Z = R + jωL = 10 + j10 = 10√2∠45° Ω。按余弦参考写振幅相量：u_s = 20 cos(100t) V → U̇_m = 20∠0° V。",
+    "相量法：Z = R + jωL = 10 + j10 = 10√2∠45° Ω。按余弦参考写振幅相量：v_s = 20 cos(100t) V → V̇_m = 20∠0° V。",
     "常数 A 由 i(0₊) = 0 确定：A = 0 − i_p(0)。正弦激励没有“终值”，不能直接套用 f(∞) 的三要素公式。"
   ],
   "solution": [
-    "**1. 初值。** 电感原来没有电流：i(0₊) = 0，**u_L(0₊) = u_s(0) = 20 V**。",
+    "**1. 初值。** 电感原来没有电流：i(0₊) = 0，**v_L(0₊) = v_s(0) = 20 V**。",
     "**2. 时间常数。** **τ = L/R = 0.01 s**。",
-    "**3. 强制分量（相量法）。** U̇_m = 20∠0° V，Z = 10 + j10 = 10√2∠45° Ω，İ_m = U̇_m/Z = √2∠−45° A：i_p(t) = √2 cos(100t − 45°) A。",
+    "**3. 强制分量（相量法）。** V̇_m = 20∠0° V，Z = 10 + j10 = 10√2∠45° Ω，İ_m = V̇_m/Z = √2∠−45° A：i_p(t) = √2 cos(100t − 45°) A。",
     "**4. 全响应。** i(t) = i_p(t) + A e^(−100t)，由 i(0₊) = 0：A = −i_p(0₊) = −√2 cos(−45°) = −1。所以 i(t) = √2 cos(100t − 45°) − e^(−100t) A（t > 0）。",
     "**5. t = 0.01 s。** 100t = 1 rad = 57.30°：i = √2 cos(12.30°) − e⁻¹ = 1.3818 − 0.3679 ≈ **1.014 A**。约 5τ = 0.05 s 后自由分量可忽略，电流成为纯正弦稳态。",
-    "**6. 合闸相位。** 一般地 u_s = 20 sin(100t + ψ)：A = −√2 sin(ψ − 45°)。ψ = 45° 或 225° 时 A = 0，直接进入稳态；ψ = 135° 或 315° 时 |A| 最大（= √2 A），过渡过程最剧烈。",
+    "**6. 合闸相位。** 一般地 v_s = 20 sin(100t + ψ)：A = −√2 sin(ψ − 45°)。ψ = 45° 或 225° 时 A = 0，直接进入稳态；ψ = 135° 或 315° 时 |A| 最大（= √2 A），过渡过程最剧烈。",
     "注意：正弦激励下电流没有终值 i(∞)，三要素法中的 f(∞) 要换成稳态解在 0₊ 的值 i_p(0₊)：i(t) = i_p(t) + [i(0₊) − i_p(0₊)]e^(−t/τ)。"
   ],
   "i18n": {
@@ -55,27 +55,27 @@
       "title": "Switching an RL circuit onto a sinusoidal source",
       "tags": ["sinusoidal excitation", "complete response", "forced component", "natural component", "switching phase"],
       "statement": [
-        "In the circuit, u_s = 20 cos(100t) V, R = 10 Ω, L = 0.1 H, and the inductor initially carries no current. Switch S closes at t = 0 (just when u_s is at its positive peak).",
-        "Find u_L(0+), the time constant τ, the current i at t = 0.01 s, and discuss when the switch should close so that there is no transient."
+        "In the circuit, v_s = 20 cos(100t) V, R = 10 Ω, L = 0.1 H, and the inductor initially carries no current. Switch S closes at t = 0 (just when v_s is at its positive peak).",
+        "Find v_L(0+), the time constant τ, the current i at t = 0.01 s, and discuss when the switch should close so that there is no transient."
       ],
       "questions": [
-        { "ask": "u_L(0+) = ?", "explain": "i(0+) = i(0−) = 0, so there is no drop across R: u_L(0+) = u_s(0) = 20 cos 0 = 20 V." },
+        { "ask": "v_L(0+) = ?", "explain": "i(0+) = i(0−) = 0, so there is no drop across R: v_L(0+) = v_s(0) = 20 cos 0 = 20 V." },
         { "ask": "τ = ?", "explain": "τ = L/R = 0.1/10 = 0.01 s, regardless of the type of source." },
         { "ask": "i at t = 0.01 s = ?", "explain": "i(t) = √2 cos(100t − 45°) − e^(−100t) A. At t = 0.01 s: 100t = 1 rad ≈ 57.30°, i = √2 cos(12.30°) − e⁻¹ ≈ 1.3818 − 0.3679 ≈ 1.014 A." },
-        { "ask": "If instead u_s = 20 sin(100t + ψ) V, for which ψ does the current go straight into steady state when the switch closes (no natural component)?", "choices": ["ψ = 45° (or 225°)", "ψ = 0°", "ψ = 90°", "There is a transient for every ψ"], "choiceExplain": ["", "ψ = 0° closes the switch at a voltage zero, which avoids a transient only in a purely resistive circuit; in an RL circuit the steady current lags the voltage by φ = arctan(ωL/R), so at ψ = 0° i_p(0+) ≠ 0.", "ψ = 90° fits a purely inductive circuit, where the current lags by 90°; here R = 10 Ω makes the lag less than 90°, and ψ = 90° gives A = −1 — a transient (exactly the original case).", "Whenever the steady-state current at the switching instant, i_p(0+), equals i(0+) = 0, the natural component's coefficient is zero, so such a ψ does exist."], "explain": "The forced component is i_p = √2 sin(100t + ψ − 45°); the natural component A e^(−100t) has A = i(0+) − i_p(0+) = −√2 sin(ψ − 45°). For ψ − 45° = 0 or 180°, A = 0: the steady-state current happens to be zero at the switching instant, so there is no transient." }
+        { "ask": "If instead v_s = 20 sin(100t + ψ) V, for which ψ does the current go straight into steady state when the switch closes (no natural component)?", "choices": ["ψ = 45° (or 225°)", "ψ = 0°", "ψ = 90°", "There is a transient for every ψ"], "choiceExplain": ["", "ψ = 0° closes the switch at a voltage zero, which avoids a transient only in a purely resistive circuit; in an RL circuit the steady current lags the voltage by φ = arctan(ωL/R), so at ψ = 0° i_p(0+) ≠ 0.", "ψ = 90° fits a purely inductive circuit, where the current lags by 90°; here R = 10 Ω makes the lag less than 90°, and ψ = 90° gives A = −1 — a transient (exactly the original case).", "Whenever the steady-state current at the switching instant, i_p(0+), equals i(0+) = 0, the natural component's coefficient is zero, so such a ψ does exist."], "explain": "The forced component is i_p = √2 sin(100t + ψ − 45°); the natural component A e^(−100t) has A = i(0+) − i_p(0+) = −√2 sin(ψ − 45°). For ψ − 45° = 0 or 180°, A = 0: the steady-state current happens to be zero at the switching instant, so there is no transient." }
       ],
       "hints": [
         "First-order circuit with a sinusoidal source: complete response = forced component (the sinusoidal steady-state solution, found with phasors) + natural component A e^(−t/τ).",
-        "Phasors: Z = R + jωL = 10 + j10 = 10√2∠45° Ω. With the cosine reference the amplitude phasor of u_s = 20 cos(100t) V is U̇_m = 20∠0° V.",
+        "Phasors: Z = R + jωL = 10 + j10 = 10√2∠45° Ω. With the cosine reference the amplitude phasor of v_s = 20 cos(100t) V is V̇_m = 20∠0° V.",
         "The constant A follows from i(0+) = 0: A = 0 − i_p(0). A sinusoidal source has no 'final value', so the f(∞) form of the three-element formula can't be used directly."
       ],
       "solution": [
-        "**1. Initial values.** The inductor carries no current initially: i(0+) = 0, **u_L(0+) = u_s(0) = 20 V**.",
+        "**1. Initial values.** The inductor carries no current initially: i(0+) = 0, **v_L(0+) = v_s(0) = 20 V**.",
         "**2. Time constant.** **τ = L/R = 0.01 s**.",
-        "**3. Forced component (phasors).** U̇_m = 20∠0° V, Z = 10 + j10 = 10√2∠45° Ω, İ_m = U̇_m/Z = √2∠−45° A: i_p(t) = √2 cos(100t − 45°) A.",
+        "**3. Forced component (phasors).** V̇_m = 20∠0° V, Z = 10 + j10 = 10√2∠45° Ω, İ_m = V̇_m/Z = √2∠−45° A: i_p(t) = √2 cos(100t − 45°) A.",
         "**4. Complete response.** i(t) = i_p(t) + A e^(−100t); from i(0+) = 0: A = −i_p(0+) = −√2 cos(−45°) = −1. So i(t) = √2 cos(100t − 45°) − e^(−100t) A (t > 0).",
         "**5. At t = 0.01 s.** 100t = 1 rad = 57.30°: i = √2 cos(12.30°) − e⁻¹ = 1.3818 − 0.3679 ≈ **1.014 A**. After about 5τ = 0.05 s the natural component is negligible and the current is a pure sinusoid.",
-        "**6. Switching phase.** In general, for u_s = 20 sin(100t + ψ): A = −√2 sin(ψ − 45°). For ψ = 45° or 225°, A = 0 and the circuit enters steady state immediately; for ψ = 135° or 315°, |A| is largest (√2 A) and the transient is strongest.",
+        "**6. Switching phase.** In general, for v_s = 20 sin(100t + ψ): A = −√2 sin(ψ − 45°). For ψ = 45° or 225°, A = 0 and the circuit enters steady state immediately; for ψ = 135° or 315°, |A| is largest (√2 A) and the transient is strongest.",
         "Note: with a sinusoidal source the current has no final value i(∞); in the three-element formula f(∞) is replaced by the steady-state solution and its value at 0+: i(t) = i_p(t) + [i(0+) − i_p(0+)]e^(−t/τ)."
       ]
     }

@@ -7,8 +7,8 @@
   "level": 4,
   "tags": ["小信号分析法", "流控型电阻", "电流源激励"],
   "statement": [
-    "直流电流源 I_s = 10 A 与小信号电流源 i_s(t) = 0.1cos(100t) A 并联，再与 R = 1 Ω 和非线性电阻 N 并联。N 是流控型的：u = i³（i 单位 A，u 单位 V）。",
-    "求 N 的直流工作点、静态电阻和动态电阻，以及 N 两端小信号电压 u_1(t) 的振幅 U_1m 和 N 中小信号电流 i_1(t) 的振幅 I_1m。"
+    "直流电流源 I_s = 10 A 与小信号电流源 i_s(t) = 0.1cos(100t) A 并联，再与 R = 1 Ω 和非线性电阻 N 并联。N 是流控型的：v = i³（i 单位 A，v 单位 V）。",
+    "求 N 的直流工作点、静态电阻和动态电阻，以及 N 两端小信号电压 v_1(t) 的振幅 V_1m 和 N 中小信号电流 i_1(t) 的振幅 I_1m。"
   ],
   "schematic": {
     "elements": [
@@ -20,7 +20,7 @@
     "wires": [[[0, 0], [12, 0]], [[12, 4], [0, 4]]],
     "labels": [{"at": [8, 0], "name": "a"}],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}]
+    "marks": [{"kind": "v", "el": "N", "name": "v"}, {"kind": "i", "el": "N", "name": "i"}]
   },
   "analysis": {"type": "ac", "omega": 100, "phasor": "peak"},
   "questions": [
@@ -30,32 +30,32 @@
       "find": {"kind": "i", "el": "N", "dc": true},
       "answer": 2,
       "unit": "A",
-      "explain": "只留直流源：KCL 10 = u/1 + i，u = i³ → i³ + i − 10 = 0 → I_Q = 2 A（唯一实根）。"
+      "explain": "只留直流源：KCL 10 = v/1 + i，v = i³ → i³ + i − 10 = 0 → I_Q = 2 A（唯一实根）。"
     },
     {
       "id": "uq",
-      "ask": "U_Q = ?",
+      "ask": "V_Q = ?",
       "find": {"kind": "v", "el": "N", "dc": true},
       "answer": 8,
       "unit": "V",
-      "explain": "U_Q = 2³ = 8 V；R 中 8 A，8 + 2 = 10 A ✓。"
+      "explain": "V_Q = 2³ = 8 V；R 中 8 A，8 + 2 = 10 A ✓。"
     },
-    {"id": "rs", "ask": "静态电阻 R = U_Q/I_Q = ?", "find": {"kind": "rs", "el": "N"}, "answer": 4, "unit": "Ω", "explain": "8/2 = 4 Ω。"},
+    {"id": "rs", "ask": "静态电阻 R = V_Q/I_Q = ?", "find": {"kind": "rs", "el": "N"}, "answer": 4, "unit": "Ω", "explain": "8/2 = 4 Ω。"},
     {
       "id": "rd",
       "ask": "动态电阻 R_d = ?",
       "find": {"kind": "rd", "el": "N"},
       "answer": 12,
       "unit": "Ω",
-      "explain": "R_d = du/di = 3i² = 12 Ω，是静态电阻的 3 倍。"
+      "explain": "R_d = dv/di = 3i² = 12 Ω，是静态电阻的 3 倍。"
     },
     {
       "id": "u1",
-      "ask": "U_1m = ?",
+      "ask": "V_1m = ?",
       "find": {"kind": "v", "el": "N"},
       "answer": 0.0923077,
       "unit": "V",
-      "explain": "小信号电路：i_s 流入 R ∥ R_d = 12/13 Ω，U_1m = 0.1 × 12/13 ≈ 0.0923 V。"
+      "explain": "小信号电路：i_s 流入 R ∥ R_d = 12/13 Ω，V_1m = 0.1 × 12/13 ≈ 0.0923 V。"
     },
     {
       "id": "i1",
@@ -71,20 +71,20 @@
       "choices": ["R_d = 12 Ω（动态电阻）", "R = 4 Ω（静态电阻）", "短路", "开路"],
       "correct": 0,
       "choiceExplain": [
-        "对。小信号分量满足 Δu ≈ (du/di)|_{Q}·Δi，比例系数是 Q 点切线的斜率。",
-        "静态电阻描述的是 U_Q 与 I_Q 的比值，不是增量之间的关系；用它会把 U_1m 算成 0.1 × 4/5 = 0.08 V。",
+        "对。小信号分量满足 Δv ≈ (dv/di)|_{Q}·Δi，比例系数是 Q 点切线的斜率。",
+        "静态电阻描述的是 V_Q 与 I_Q 的比值，不是增量之间的关系；用它会把 V_1m 算成 0.1 × 4/5 = 0.08 V。",
         "只有在 R_d = 0 的段上（如导通的理想二极管）才是短路。",
-        "只有在特性水平（di/du = 0）的地方才是开路。"
+        "只有在特性水平（di/dv = 0）的地方才是开路。"
       ],
       "explain": "小信号等效电路 = 原电路的直流源置零 + 非线性电阻换成 Q 点的动态电阻。"
     }
   ],
-  "hints": ["先只留直流电流源求工作点：KCL 加上 u = i³。", "流控型电阻的动态电阻直接是导数 du/di。", "小信号电路是 i_s 给 R 和 R_d 两个并联电阻供电。"],
+  "hints": ["先只留直流电流源求工作点：KCL 加上 v = i³。", "流控型电阻的动态电阻直接是导数 dv/di。", "小信号电路是 i_s 给 R 和 R_d 两个并联电阻供电。"],
   "solution": [
-    "**1. 工作点（i_s = 0）。** KCL：10 = u + i，u = i³ → i³ + i − 10 = 0，i = 2 是根（8 + 2 = 10），且 i³ + i 单调，所以是唯一的：**I_Q = 2 A，U_Q = 8 V**。",
+    "**1. 工作点（i_s = 0）。** KCL：10 = v + i，v = i³ → i³ + i − 10 = 0，i = 2 是根（8 + 2 = 10），且 i³ + i 单调，所以是唯一的：**I_Q = 2 A，V_Q = 8 V**。",
     "**2. 电阻。** 静态 R = 8/2 = **4 Ω**；动态 R_d = 3I_Q² = **12 Ω**。",
-    "**3. 小信号电路（I_s 开路，N → R_d）。** U_1m = 0.1 × (1 ∥ 12) = 0.1 × 12/13 ≈ **0.0923 V**，I_1m = 0.1 × 1/13 ≈ **7.69 mA**。",
-    "**4. 总响应。** u(t) ≈ 8 + 0.0923cos(100t) V，i(t) ≈ 2 + 0.00769cos(100t) A。",
+    "**3. 小信号电路（I_s 开路，N → R_d）。** V_1m = 0.1 × (1 ∥ 12) = 0.1 × 12/13 ≈ **0.0923 V**，I_1m = 0.1 × 1/13 ≈ **7.69 mA**。",
+    "**4. 总响应。** v(t) ≈ 8 + 0.0923cos(100t) V，i(t) ≈ 2 + 0.00769cos(100t) A。",
     "**检查：** R_d·I_1m = 12 × 7.69 mA ≈ 0.0923 V ✓；R 中的小信号电流 0.0923 A，与 I_1m 相加 = 0.1 A ✓。"
   ],
   "i18n": {
@@ -92,20 +92,20 @@
       "title": "Small-signal analysis: a current-controlled resistor driven by current sources",
       "tags": ["small-signal analysis", "current-controlled resistor", "current-source drive"],
       "statement": [
-        "A DC current source I_s = 10 A and a small-signal current source i_s(t) = 0.1cos(100t) A in parallel feed R = 1 Ω and the nonlinear resistor N in parallel. N is current-controlled: u = i³ (i in A, u in V).",
-        "Find N's DC operating point, its static and dynamic resistances, the amplitude U_1m of the small-signal voltage u_1(t) across N and the amplitude I_1m of the small-signal current i_1(t) in N."
+        "A DC current source I_s = 10 A and a small-signal current source i_s(t) = 0.1cos(100t) A in parallel feed R = 1 Ω and the nonlinear resistor N in parallel. N is current-controlled: v = i³ (i in A, v in V).",
+        "Find N's DC operating point, its static and dynamic resistances, the amplitude V_1m of the small-signal voltage v_1(t) across N and the amplitude I_1m of the small-signal current i_1(t) in N."
       ],
       "questions": [
         {
           "ask": "I_Q = ?",
-          "explain": "DC source only: KCL 10 = u/1 + i with u = i³ → i³ + i − 10 = 0 → I_Q = 2 A (the only real root)."
+          "explain": "DC source only: KCL 10 = v/1 + i with v = i³ → i³ + i − 10 = 0 → I_Q = 2 A (the only real root)."
         },
-        {"ask": "U_Q = ?", "explain": "U_Q = 2³ = 8 V; R carries 8 A, 8 + 2 = 10 A ✓."},
-        {"ask": "Static resistance R = U_Q/I_Q = ?", "explain": "8/2 = 4 Ω."},
-        {"ask": "Dynamic resistance R_d = ?", "explain": "R_d = du/di = 3i² = 12 Ω, three times the static resistance."},
+        {"ask": "V_Q = ?", "explain": "V_Q = 2³ = 8 V; R carries 8 A, 8 + 2 = 10 A ✓."},
+        {"ask": "Static resistance R = V_Q/I_Q = ?", "explain": "8/2 = 4 Ω."},
+        {"ask": "Dynamic resistance R_d = ?", "explain": "R_d = dv/di = 3i² = 12 Ω, three times the static resistance."},
         {
-          "ask": "U_1m = ?",
-          "explain": "Small-signal circuit: i_s flows into R ∥ R_d = 12/13 Ω, U_1m = 0.1 × 12/13 ≈ 0.0923 V."
+          "ask": "V_1m = ?",
+          "explain": "Small-signal circuit: i_s flows into R ∥ R_d = 12/13 Ω, V_1m = 0.1 × 12/13 ≈ 0.0923 V."
         },
         {
           "ask": "I_1m = ?",
@@ -115,24 +115,24 @@
           "ask": "In the small-signal equivalent circuit N is replaced by:",
           "choices": ["R_d = 12 Ω (dynamic resistance)", "R = 4 Ω (static resistance)", "a short", "an open"],
           "choiceExplain": [
-            "Right. The small-signal parts obey Δu ≈ (du/di) at Q · Δi: the factor is the slope of the tangent at Q.",
-            "The static resistance relates U_Q to I_Q, not the increments; using it gives U_1m = 0.1 × 4/5 = 0.08 V.",
+            "Right. The small-signal parts obey Δv ≈ (dv/di) at Q · Δi: the factor is the slope of the tangent at Q.",
+            "The static resistance relates V_Q to I_Q, not the increments; using it gives V_1m = 0.1 × 4/5 = 0.08 V.",
             "Only on a segment with R_d = 0 (a conducting ideal diode) is it a short.",
-            "Only where the characteristic is horizontal (di/du = 0) is it an open."
+            "Only where the characteristic is horizontal (di/dv = 0) is it an open."
           ],
           "explain": "Small-signal circuit = the original circuit with DC sources zeroed and each nonlinear resistor replaced by its dynamic resistance at Q."
         }
       ],
       "hints": [
-        "With only the DC current source, find the operating point: KCL plus u = i³.",
-        "For a current-controlled resistor the dynamic resistance is simply du/di.",
+        "With only the DC current source, find the operating point: KCL plus v = i³.",
+        "For a current-controlled resistor the dynamic resistance is simply dv/di.",
         "The small-signal circuit is i_s feeding R and R_d in parallel."
       ],
       "solution": [
-        "**1. Operating point (i_s = 0).** KCL: 10 = u + i, u = i³ → i³ + i − 10 = 0; i = 2 is a root (8 + 2 = 10) and i³ + i is monotonic, so it is the only one: **I_Q = 2 A, U_Q = 8 V**.",
+        "**1. Operating point (i_s = 0).** KCL: 10 = v + i, v = i³ → i³ + i − 10 = 0; i = 2 is a root (8 + 2 = 10) and i³ + i is monotonic, so it is the only one: **I_Q = 2 A, V_Q = 8 V**.",
         "**2. Resistances.** Static R = 8/2 = **4 Ω**; dynamic R_d = 3I_Q² = **12 Ω**.",
-        "**3. Small-signal circuit (I_s open, N → R_d).** U_1m = 0.1 × (1 ∥ 12) = 0.1 × 12/13 ≈ **0.0923 V**, I_1m = 0.1 × 1/13 ≈ **7.69 mA**.",
-        "**4. Total response.** u(t) ≈ 8 + 0.0923cos(100t) V, i(t) ≈ 2 + 0.00769cos(100t) A.",
+        "**3. Small-signal circuit (I_s open, N → R_d).** V_1m = 0.1 × (1 ∥ 12) = 0.1 × 12/13 ≈ **0.0923 V**, I_1m = 0.1 × 1/13 ≈ **7.69 mA**.",
+        "**4. Total response.** v(t) ≈ 8 + 0.0923cos(100t) V, i(t) ≈ 2 + 0.00769cos(100t) A.",
         "**Check:** R_d·I_1m = 12 × 7.69 mA ≈ 0.0923 V ✓; the small-signal current in R is 0.0923 A, and with I_1m it adds to 0.1 A ✓."
       ]
     }

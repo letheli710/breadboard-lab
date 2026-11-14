@@ -7,12 +7,12 @@
   "level": 4,
   "tags": ["受控源 CCVS", "负电阻", "极点", "稳定性"],
   "statement": [
-    "图示串联电路中 u_s = ε(t) V，R = 3 Ω，L = 1 H，C = 0.5 F，t < 0 时无储能。电流控制电压源 H 的电压 u_H = 2i（i 为 R 中电流，方向如图；u_H 的“+”在右端，如图中标记）。",
-    "求网络函数 H(s) = I(s)/U_s(s) 的极点，判断电路的稳定性，求 t = 2 s 时的 i，并讨论受控源系数变化时的稳定性。"
+    "图示串联电路中 v_s = u(t) V，R = 3 Ω，L = 1 H，C = 0.5 F，t < 0 时无储能。电流控制电压源 H 的电压 v_H = 2i（i 为 R 中电流，方向如图；v_H 的“+”在右端，如图中标记）。",
+    "求网络函数 H(s) = I(s)/V_s(s) 的极点，判断电路的稳定性，求 t = 2 s 时的 i，并讨论受控源系数变化时的稳定性。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 1}}, "label": "ε(t) V"},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 1}}, "label": "u(t) V"},
       {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 3},
       {"ref": "H", "type": "CCVS", "from": [11, 0], "to": [8, 0], "value": 2, "ctrl": {"i": "R"}, "label": "2i"},
       {"ref": "L", "type": "L", "from": [13, 0], "to": [17, 0], "value": 1},
@@ -20,22 +20,22 @@
     ],
     "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[11, 0], [13, 0]], [[17, 0], [19, 0]], [[19, 4], [0, 4]]],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "i", "el": "R", "name": "i"}, {"kind": "v", "el": "H", "name": "u_H"}]
+    "marks": [{"kind": "i", "el": "R", "name": "i"}, {"kind": "v", "el": "H", "name": "v_H"}]
   },
   "analysis": {"type": "tran"},
   "questions": [
     {
       "id": "a1",
       "ask": "H(s) 分母（首项系数为 1）中 s 项的系数 = ?",
-      "find": {"kind": "hcoef", "out": {"i": "R"}, "input": "Us", "of": "den", "power": 1},
+      "find": {"kind": "hcoef", "out": {"i": "R"}, "input": "Vs", "of": "den", "power": 1},
       "answer": 1.0,
       "unit": "1/s",
-      "explain": "沿 i 的方向，u_H 是电压升（“+”在 i 流出的一端），相当于 −2 Ω 的电阻。KVL：U_s = (R − 2 + sL + \\frac{1}{sC})I → H(s) = \\frac{s}{s² + s + 2}，s 项系数 (R − 2)/L = 1。"
+      "explain": "沿 i 的方向，v_H 是电压升（“+”在 i 流出的一端），相当于 −2 Ω 的电阻。KVL：V_s = (R − 2 + sL + \\frac{1}{sC})I → H(s) = \\frac{s}{s² + s + 2}，s 项系数 (R − 2)/L = 1。"
     },
     {
       "id": "pre",
       "ask": "极点的实部 = ?",
-      "find": {"kind": "pole", "out": {"i": "R"}, "input": "Us", "n": 1},
+      "find": {"kind": "pole", "out": {"i": "R"}, "input": "Vs", "n": 1},
       "answer": -0.5,
       "unit": "1/s",
       "explain": "s² + s + 2 = 0 → s = −0.5 ± j√7/2，实部 −0.5 < 0：稳定（衰减振荡）。"
@@ -43,7 +43,7 @@
     {
       "id": "pim",
       "ask": "极点 p_1 的虚部 = ?",
-      "find": {"kind": "pole", "out": {"i": "R"}, "input": "Us", "n": 1, "part": "im"},
+      "find": {"kind": "pole", "out": {"i": "R"}, "input": "Vs", "n": 1, "part": "im"},
       "answer": 1.322876,
       "unit": "rad/s",
       "explain": "ω_d = √(2 − 0.25) = √7/2 ≈ 1.323 rad/s。"
@@ -58,7 +58,7 @@
     },
     {
       "id": "crit",
-      "ask": "若把受控源系数 2 换成 r（u_H = ri，方向不变），r 为多少时电路处于临界（等幅振荡）？",
+      "ask": "若把受控源系数 2 换成 r（v_H = ri，方向不变），r 为多少时电路处于临界（等幅振荡）？",
       "choices": ["r = 3 Ω", "r = 2 Ω", "r = 2√2 Ω", "r = 0"],
       "correct": 0,
       "choiceExplain": ["", "r = 2 就是本题：等效电阻 1 Ω，稳定。", "2√(L/C) = 2√2 Ω 是等效电阻 R − r 区分过阻尼/欠阻尼的值（r = 3 − 2√2 ≈ 0.17 Ω 时临界阻尼）——与“等幅振荡”不是一回事；r = 2√2 Ω 时等效电阻约 0.17 Ω > 0，仍然稳定。", "r = 0 时等效电阻 3 Ω，稳定。"],
@@ -74,29 +74,29 @@
     }
   ],
   "hints": [
-    "先看清受控源的方向：沿 i 的方向，u_H 是电压降还是电压升？它相当于多大的电阻？",
-    "KVL：(R − 2 + sL + 1/(sC))·I(s) = U_s(s)；H(s) 的分母乘 s/L 化成首项系数为 1。",
+    "先看清受控源的方向：沿 i 的方向，v_H 是电压降还是电压升？它相当于多大的电阻？",
+    "KVL：(R − 2 + sL + 1/(sC))·I(s) = V_s(s)；H(s) 的分母乘 s/L 化成首项系数为 1。",
     "极点的实部 = −(R − r)/(2L)：等效电阻为负时极点进入右半平面。"
   ],
   "solution": [
-    "**1. 受控源等效。** i 从 u_H 的“−”端流进、“+”端流出，u_H = 2i 是电压升：等效 −2 Ω。",
+    "**1. 受控源等效。** i 从 v_H 的“−”端流进、“+”端流出，v_H = 2i 是电压升：等效 −2 Ω。",
     "**2. 网络函数。** H(s) = \\frac{1}{1 + s + 2/s} = \\frac{s}{s² + s + 2}：s 项系数 **1**，**极点 −0.5 ± j1.323**——实部为负，**稳定**。",
     "**3. 阶跃响应。** I(s) = \\frac{1}{(s + 0.5)² + 7/4}，i(t) = \\frac{2}{√7}e^{−0.5t}sin(\\frac{√7}{2}t) A，**i(2) ≈ 0.132 A**。",
     "**4. 稳定性随 r 变化。** 分母 s² + (3 − r)s + 2：r < 3 稳定，**r = 3 等幅振荡**，r > 3（如 **r = 4**）**不稳定**。",
-    "**检验：** i(0₊) = 0（电感电流连续）✓，L·di/dt(0₊) = 1 V = u_s ✓（0₊ 时只有电感上有电压）；i(∞) = 0（电容隔直）✓。"
+    "**检验：** i(0₊) = 0（电感电流连续）✓，L·di/dt(0₊) = 1 V = v_s ✓（0₊ 时只有电感上有电压）；i(∞) = 0（电容隔直）✓。"
   ],
   "i18n": {
     "en": {
       "title": "Poles and stability of a circuit with a dependent source",
       "tags": ["dependent source CCVS", "negative resistance", "poles", "stability"],
       "statement": [
-        "In the series circuit u_s = ε(t) V, R = 3 Ω, L = 1 H, C = 0.5 F, with no stored energy for t < 0. The current-controlled voltage source H has u_H = 2i (i is the current in R, as drawn; u_H is + at the right end, as marked).",
-        "Find the poles of the network function H(s) = I(s)/U_s(s), decide whether the circuit is stable, find i at t = 2 s, and discuss stability as the gain of the dependent source changes."
+        "In the series circuit v_s = u(t) V, R = 3 Ω, L = 1 H, C = 0.5 F, with no stored energy for t < 0. The current-controlled voltage source H has v_H = 2i (i is the current in R, as drawn; v_H is + at the right end, as marked).",
+        "Find the poles of the network function H(s) = I(s)/V_s(s), decide whether the circuit is stable, find i at t = 2 s, and discuss stability as the gain of the dependent source changes."
       ],
       "questions": [
         {
           "ask": "Coefficient of s in the denominator of H(s) (leading coefficient 1) = ?",
-          "explain": "Along i, u_H is a voltage rise (+ at the end where i leaves): it acts as a −2 Ω resistor. KVL: U_s = (R − 2 + sL + \\frac{1}{sC})I → H(s) = \\frac{s}{s² + s + 2}, coefficient (R − 2)/L = 1."
+          "explain": "Along i, v_H is a voltage rise (+ at the end where i leaves): it acts as a −2 Ω resistor. KVL: V_s = (R − 2 + sL + \\frac{1}{sC})I → H(s) = \\frac{s}{s² + s + 2}, coefficient (R − 2)/L = 1."
         },
         {
           "ask": "Real part of the poles = ?",
@@ -108,7 +108,7 @@
           "explain": "I(s) = \\frac{1}{s}H(s) = \\frac{1}{(s + 0.5)² + 7/4}, i(t) = \\frac{1}{ω_d}e^{−0.5t}sin ω_d t = \\frac{2}{√7}e^{−0.5t}sin(\\frac{√7}{2}t) A; at t = 2 s: ≈ 0.132 A."
         },
         {
-          "ask": "If the gain 2 is replaced by r (u_H = ri, same direction), for which r is the circuit critical (sustained oscillation)?",
+          "ask": "If the gain 2 is replaced by r (v_H = ri, same direction), for which r is the circuit critical (sustained oscillation)?",
           "explain": "The denominator is s² + (R − r)s/L + 1/(LC) = s² + (3 − r)s + 2. At r = 3 the poles ±j√2 lie on the jω axis: a sustained oscillation; for r > 3 they enter the right half-plane: unstable.",
           "choices": ["r = 3 Ω", "r = 2 Ω", "r = 2√2 Ω", "r = 0"],
           "choiceExplain": [
@@ -136,16 +136,16 @@
         }
       ],
       "hints": [
-        "First get the direction of the dependent source right: along i, is u_H a drop or a rise? What resistance does it act like?",
-        "KVL: (R − 2 + sL + 1/(sC))·I(s) = U_s(s); multiply the denominator of H(s) by s/L to make its leading coefficient 1.",
+        "First get the direction of the dependent source right: along i, is v_H a drop or a rise? What resistance does it act like?",
+        "KVL: (R − 2 + sL + 1/(sC))·I(s) = V_s(s); multiply the denominator of H(s) by s/L to make its leading coefficient 1.",
         "The real part of the poles is −(R − r)/(2L): a negative net resistance moves the poles into the right half-plane."
       ],
       "solution": [
-        "**1. Dependent source.** i enters u_H at \"−\" and leaves at \"+\", so u_H = 2i is a rise: it acts as −2 Ω.",
+        "**1. Dependent source.** i enters v_H at \"−\" and leaves at \"+\", so v_H = 2i is a rise: it acts as −2 Ω.",
         "**2. Network function.** H(s) = \\frac{1}{1 + s + 2/s} = \\frac{s}{s² + s + 2}: coefficient of s **1**, **poles −0.5 ± j1.323** — negative real part, **stable**.",
         "**3. Step response.** I(s) = \\frac{1}{(s + 0.5)² + 7/4}, i(t) = \\frac{2}{√7}e^{−0.5t}sin(\\frac{√7}{2}t) A, **i(2) ≈ 0.132 A**.",
         "**4. Stability vs r.** Denominator s² + (3 − r)s + 2: stable for r < 3, **sustained oscillation at r = 3**, **unstable** for r > 3 (e.g. **r = 4**).",
-        "**Check:** i(0+) = 0 (continuous inductor current) ✓, L·di/dt(0+) = 1 V = u_s ✓ (at 0+ only the inductor has a voltage); i(∞) = 0 (the capacitor blocks DC) ✓."
+        "**Check:** i(0+) = 0 (continuous inductor current) ✓, L·di/dt(0+) = 1 V = v_s ✓ (at 0+ only the inductor has a voltage); i(∞) = 0 (the capacitor blocks DC) ✓."
       ]
     }
   }

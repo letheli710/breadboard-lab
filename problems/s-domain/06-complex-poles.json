@@ -7,26 +7,26 @@
   "level": 3,
   "tags": ["部分分式", "共轭复数极点", "欠阻尼", "RLC 串联"],
   "statement": [
-    "图示 RLC 串联电路中 u_s = 5ε(t) V，R = 2 Ω，L = 1 H，C = 0.2 F，t < 0 时无储能。回路电流 i 的参考方向如图。",
+    "图示 RLC 串联电路中 v_s = 5u(t) V，R = 2 Ω，L = 1 H，C = 0.2 F，t < 0 时无储能。回路电流 i 的参考方向如图。",
     "求 I(s) 和它的极点 p_{1,2} = −α ± jω_d，求 p_1 = −α + jω_d 处的展开系数 K_1 = |K_1|∠θ（共轭极点处的系数是 K_1*），由 i(t) = 2|K_1|e^{−αt}cos(ω_d t + θ) 写出 i(t)，并求 t = π/4 s 时的 i。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 5}}, "label": "5ε(t) V"},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 5}}, "label": "5u(t) V"},
       {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2},
       {"ref": "L", "type": "L", "from": [8, 0], "to": [12, 0], "value": 1},
       {"ref": "C", "type": "C", "from": [14, 0], "to": [14, 4], "value": 0.2}
     ],
     "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[12, 0], [14, 0]], [[14, 4], [0, 4]]],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "i", "el": "L", "name": "i"}, {"kind": "v", "el": "C", "name": "u_C"}]
+    "marks": [{"kind": "i", "el": "L", "name": "i"}, {"kind": "v", "el": "C", "name": "v_C"}]
   },
   "analysis": {"type": "tran"},
   "questions": [
     {
       "id": "re",
       "ask": "极点的实部 −α = ?",
-      "find": {"kind": "pole", "out": {"i": "L"}, "input": "Us", "n": 1},
+      "find": {"kind": "pole", "out": {"i": "L"}, "input": "Vs", "n": 1},
       "answer": -1.0,
       "unit": "1/s",
       "explain": "I(s) = \\frac{5/s}{R + sL + 1/(sC)} = \\frac{5}{s² + 2s + 5}，s² + 2s + 5 = 0 → s = −1 ± j2，实部 −1。"
@@ -34,7 +34,7 @@
     {
       "id": "im",
       "ask": "极点 p_1 的虚部 ω_d = ?",
-      "find": {"kind": "pole", "out": {"i": "L"}, "input": "Us", "n": 1, "part": "im"},
+      "find": {"kind": "pole", "out": {"i": "L"}, "input": "Vs", "n": 1, "part": "im"},
       "answer": 2.0,
       "unit": "rad/s",
       "explain": "ω_d = √(1/(LC) − (R/2L)²) = √(5 − 1) = 2 rad/s。"
@@ -65,7 +65,7 @@
     }
   ],
   "hints": [
-    "运算电路里 R、sL、1/(sC) 串联，I(s) = U_s(s)/Z(s)。",
+    "运算电路里 R、sL、1/(sC) 串联，I(s) = V_s(s)/Z(s)。",
     "共轭复数极点只算一个系数：K_1 = [(s − p_1)F(s)]_{s = p_1}，另一个是它的共轭；两项合起来是 2|K_1|e^{−αt}cos(ω_d t + θ)。",
     "p_1 − p_2 = j2ω_d = j4。"
   ],
@@ -73,14 +73,14 @@
     "**1. I(s)。** I(s) = \\frac{5/s}{2 + s + 5/s} = \\frac{5}{s² + 2s + 5}，**极点 −1 ± j2**（R = 2 Ω < 2√(L/C) ≈ 4.47 Ω，欠阻尼）。",
     "**2. 系数。** K_1 = \\frac{5}{(s − p_2)}|_{s = p_1} = \\frac{5}{j4} = −j1.25 = **1.25∠−90° A**。",
     "**3. 反变换。** i(t) = 2 × 1.25e^{−t}cos(2t − 90°) = 2.5e^{−t} sin 2t A，**i(π/4) = 2.5e^{−π/4} ≈ 1.140 A**。",
-    "**检验：** i(0₊) = 0 ✓（电感电流连续）；L·di/dt(0₊) = 1 × 2.5 × 2 = 5 V = u_s（0₊ 时电容电压为 0，电源电压全加在电感上）✓。"
+    "**检验：** i(0₊) = 0 ✓（电感电流连续）；L·di/dt(0₊) = 1 × 2.5 × 2 = 5 V = v_s（0₊ 时电容电压为 0，电源电压全加在电感上）✓。"
   ],
   "i18n": {
     "en": {
       "title": "Partial fractions: complex-conjugate poles",
       "tags": ["partial fractions", "complex-conjugate poles", "underdamped", "series RLC"],
       "statement": [
-        "In the series RLC circuit u_s = 5ε(t) V, R = 2 Ω, L = 1 H, C = 0.2 F, with no stored energy for t < 0. The loop current i is as drawn.",
+        "In the series RLC circuit v_s = 5u(t) V, R = 2 Ω, L = 1 H, C = 0.2 F, with no stored energy for t < 0. The loop current i is as drawn.",
         "Find I(s) and its poles p_{1,2} = −α ± jω_d, the coefficient K_1 = |K_1|∠θ at p_1 = −α + jω_d (the coefficient at the conjugate pole is K_1*), write i(t) = 2|K_1|e^{−αt}cos(ω_d t + θ), and find i at t = π/4 s."
       ],
       "questions": [
@@ -94,7 +94,7 @@
         {"ask": "i at t = π/4 s (≈ 0.7854 s) = ?", "explain": "sin(π/2) = 1, i = 2.5e^{−π/4} ≈ 1.140 A."}
       ],
       "hints": [
-        "In the s-domain circuit R, sL and 1/(sC) are in series: I(s) = U_s(s)/Z(s).",
+        "In the s-domain circuit R, sL and 1/(sC) are in series: I(s) = V_s(s)/Z(s).",
         "For a complex pair compute one coefficient only: K_1 = [(s − p_1)F(s)]_{s = p_1}; the other is its conjugate, and together they give 2|K_1|e^{−αt}cos(ω_d t + θ).",
         "p_1 − p_2 = j2ω_d = j4."
       ],
@@ -102,7 +102,7 @@
         "**1. I(s).** I(s) = \\frac{5/s}{2 + s + 5/s} = \\frac{5}{s² + 2s + 5}, **poles −1 ± j2** (R = 2 Ω < 2√(L/C) ≈ 4.47 Ω, underdamped).",
         "**2. Coefficient.** K_1 = \\frac{5}{(s − p_2)}|_{s = p_1} = \\frac{5}{j4} = −j1.25 = **1.25∠−90° A**.",
         "**3. Inverse transform.** i(t) = 2 × 1.25e^{−t}cos(2t − 90°) = 2.5e^{−t} sin 2t A, **i(π/4) = 2.5e^{−π/4} ≈ 1.140 A**.",
-        "**Check:** i(0+) = 0 ✓ (continuous inductor current); L·di/dt(0+) = 1 × 2.5 × 2 = 5 V = u_s (at 0+ the capacitor voltage is 0, so the whole source voltage is across L) ✓."
+        "**Check:** i(0+) = 0 ✓ (continuous inductor current); L·di/dt(0+) = 1 × 2.5 × 2 = 5 V = v_s (at 0+ the capacitor voltage is 0, so the whole source voltage is across L) ✓."
       ]
     }
   }

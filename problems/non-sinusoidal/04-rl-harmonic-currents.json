@@ -6,10 +6,10 @@
   "title": "RL 串联电路的谐波分析",
   "level": 2,
   "tags": ["谐波分析", "叠加定理", "有效值", "平均功率"],
-  "statement": ["R = 4 Ω 与 L = 1 mH 串联，接在 u_s = 20 + 100√2 cos(1000t) + 50√2 cos(3000t + 30°) V 上。", "求电流 i 的各次谐波分量（有效值）、i 的有效值 I、电路吸收的平均功率 P 和电源端的功率因数 λ = P/(UI)。"],
+  "statement": ["R = 4 Ω 与 L = 1 mH 串联，接在 v_s = 20 + 100√2 cos(1000t) + 50√2 cos(3000t + 30°) V 上。", "求电流 i 的各次谐波分量（有效值）、i 的有效值 I、电路吸收的平均功率 P 和电源端的功率因数 λ = P/(UI)。"],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "harmonics": { "dc": 20, "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 70.710678, "phase": 30 } ] } }, "label": "u_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "harmonics": { "dc": 20, "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 70.710678, "phase": 30 } ] } }, "label": "v_s" },
       { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4 },
       { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": "1m" }
     ],
@@ -25,13 +25,13 @@
   },
   "analysis": { "type": "periodic", "omega": 1000 },
   "questions": [
-    { "id": "I0", "ask": "直流分量 I_0 = ?", "find": { "kind": "i", "el": "R", "harmonic": 0 }, "answer": 5, "unit": "A", "explain": "直流时电感相当于短路：I_0 = U_0/R = 20/4 = 5 A。" },
+    { "id": "I0", "ask": "直流分量 I_0 = ?", "find": { "kind": "i", "el": "R", "harmonic": 0 }, "answer": 5, "unit": "A", "explain": "直流时电感相当于短路：I_0 = V_0/R = 20/4 = 5 A。" },
     { "id": "I1", "ask": "基波电流有效值 I_1 = ?", "find": { "kind": "i", "el": "R", "harmonic": 1 }, "answer": 24.25356, "unit": "A", "explain": "Z_1 = 4 + j1 Ω，|Z_1| = 4.123 Ω，I_1 = 100/4.123 = 24.25 A。" },
     { "id": "I3", "ask": "3 次谐波电流有效值 I_3 = ?", "find": { "kind": "i", "el": "R", "harmonic": 3 }, "answer": 10, "unit": "A", "explain": "3 次谐波的感抗是基波的 3 倍：Z_3 = 4 + j3 Ω = 5∠36.87° Ω，I_3 = 50/5 = 10 A。" },
     { "id": "ph3", "ask": "3 次谐波电流 İ_3 的初相 = ?", "find": { "kind": "i", "el": "R", "harmonic": 3, "part": "phase" }, "answer": -6.869898, "unit": "°", "explain": "İ_3 = 50∠30°/5∠36.87° = 10∠−6.87° A。" },
     { "id": "I", "ask": "电流有效值 I = ?", "find": { "kind": "i", "el": "R" }, "answer": 26.70647, "unit": "A", "explain": "I = √(5² + 24.25² + 10²) = 26.71 A。" },
     { "id": "P", "ask": "电路吸收的平均功率 P = ?", "find": { "kind": "p", "el": "R" }, "answer": 2852.941, "unit": "W", "explain": "只有 R 消耗功率：P = I²R = 26.71² × 4 = 2853 W。" },
-    { "id": "pf", "ask": "电源端的功率因数 λ = P/(UI) = ?", "find": { "kind": "pf", "el": "Us" }, "answer": 0.9405493, "unit": "", "explain": "U = √(20² + 100² + 50²) = 113.6 V，λ = 2853/(113.6 × 26.71) = 0.941。非正弦电路的功率因数没有“阻抗角”可言，只能用 P/(UI) 定义。" }
+    { "id": "pf", "ask": "电源端的功率因数 λ = P/(UI) = ?", "find": { "kind": "pf", "el": "Vs" }, "answer": 0.9405493, "unit": "", "explain": "V = √(20² + 100² + 50²) = 113.6 V，λ = 2853/(113.6 × 26.71) = 0.941。非正弦电路的功率因数没有“阻抗角”可言，只能用 P/(UI) 定义。" }
   ],
   "hints": ["按叠加定理，直流、基波、3 次谐波三个分量分别单独作用，各算一次。", "直流时电感短路；k 次谐波的感抗是 kωL，所以基波 ωL = 1 Ω，3 次谐波 3ωL = 3 Ω。", "最后不能把相量相加：有效值 I = √(I_0² + I_1² + I_3²)，平均功率等于各次谐波功率之和（或 I²R）。"],
   "solution": [
@@ -40,15 +40,15 @@
     "**3. 3 次谐波**（3ωL = 3 Ω）：Z_3 = 4 + j3 = 5∠36.87° Ω，İ_3 = 50∠30°/Z_3 = **10∠−6.87° A**。",
     "**4. 时域叠加：** i = 5 + 24.25√2 cos(1000t − 14.04°) + 10√2 cos(3000t − 6.87°) A。",
     "**5. 有效值与功率：** I = √(5² + 24.25² + 10²) = **26.71 A**，P = I²R = **2853 W**。",
-    "**检查：** 用电源端各次谐波的功率相加：P = U_{0}I_0 + U_{1}I_1 cos φ_1 + U_{3}I_3 cos φ_3 = 20 × 5 + 100 × 24.25 × cos 14.04° + 50 × 10 × cos 36.87° = 100 + 2353 + 400 = 2853 W，一致。",
-    "**6. 功率因数：** U = √(20² + 100² + 50²) = 113.6 V，λ = P/(UI) = 2853/(113.6 × 26.71) = **0.941**。"
+    "**检查：** 用电源端各次谐波的功率相加：P = V_{0}I_0 + V_{1}I_1 cos φ_1 + V_{3}I_3 cos φ_3 = 20 × 5 + 100 × 24.25 × cos 14.04° + 50 × 10 × cos 36.87° = 100 + 2353 + 400 = 2853 W，一致。",
+    "**6. 功率因数：** V = √(20² + 100² + 50²) = 113.6 V，λ = P/(UI) = 2853/(113.6 × 26.71) = **0.941**。"
   ],
   "i18n": {
     "en": {
       "title": "Harmonic analysis of a series RL circuit",
       "tags": ["harmonic analysis", "superposition", "rms value", "average power"],
       "statement": [
-        "R = 4 Ω in series with L = 1 mH is connected to u_s = 20 + 100√2 cos(1000t) + 50√2 cos(3000t + 30°) V.",
+        "R = 4 Ω in series with L = 1 mH is connected to v_s = 20 + 100√2 cos(1000t) + 50√2 cos(3000t + 30°) V.",
         "Find each harmonic component of the current i (rms), the rms current I, the average power P absorbed and the power factor λ = P/(UI) at the source."
       ],
       "hints": [
@@ -62,17 +62,17 @@
         "**3. 3rd harmonic** (3ωL = 3 Ω): Z_3 = 4 + j3 = 5∠36.87° Ω, İ_3 = 50∠30°/Z_3 = **10∠−6.87° A**.",
         "**4. Add in the time domain:** i = 5 + 24.25√2 cos(1000t − 14.04°) + 10√2 cos(3000t − 6.87°) A.",
         "**5. rms value and power:** I = √(5² + 24.25² + 10²) = **26.71 A**, P = I²R = **2853 W**.",
-        "**Check:** add the source's harmonic powers: P = U_{0}I_0 + U_{1}I_1 cos φ_1 + U_{3}I_3 cos φ_3 = 20 × 5 + 100 × 24.25 × cos 14.04° + 50 × 10 × cos 36.87° = 100 + 2353 + 400 = 2853 W — the same.",
-        "**6. Power factor:** U = √(20² + 100² + 50²) = 113.6 V, λ = P/(UI) = 2853/(113.6 × 26.71) = **0.941**."
+        "**Check:** add the source's harmonic powers: P = V_{0}I_0 + V_{1}I_1 cos φ_1 + V_{3}I_3 cos φ_3 = 20 × 5 + 100 × 24.25 × cos 14.04° + 50 × 10 × cos 36.87° = 100 + 2353 + 400 = 2853 W — the same.",
+        "**6. Power factor:** V = √(20² + 100² + 50²) = 113.6 V, λ = P/(UI) = 2853/(113.6 × 26.71) = **0.941**."
       ],
       "questions": [
-        { "ask": "DC component I_0 = ?", "explain": "At DC the inductor is a short circuit: I_0 = U_0/R = 20/4 = 5 A." },
+        { "ask": "DC component I_0 = ?", "explain": "At DC the inductor is a short circuit: I_0 = V_0/R = 20/4 = 5 A." },
         { "ask": "rms value of the fundamental current, I_1 = ?", "explain": "Z_1 = 4 + j1 Ω, |Z_1| = 4.123 Ω, I_1 = 100/4.123 = 24.25 A." },
         { "ask": "rms value of the 3rd-harmonic current, I_3 = ?", "explain": "The reactance at the 3rd harmonic is three times larger: Z_3 = 4 + j3 Ω = 5∠36.87° Ω, I_3 = 50/5 = 10 A." },
         { "ask": "Initial phase of the 3rd-harmonic current İ_3 = ?", "explain": "İ_3 = 50∠30°/5∠36.87° = 10∠−6.87° A." },
         { "ask": "rms current I = ?", "explain": "I = √(5² + 24.25² + 10²) = 26.71 A." },
         { "ask": "Average power absorbed by the circuit, P = ?", "explain": "Only R dissipates power: P = I²R = 26.71² × 4 = 2853 W." },
-        { "ask": "Power factor at the source, λ = P/(UI) = ?", "explain": "U = √(20² + 100² + 50²) = 113.6 V, λ = 2853/(113.6 × 26.71) = 0.941. A non-sinusoidal circuit has no single impedance angle; the power factor can only be defined as P/(UI)." }
+        { "ask": "Power factor at the source, λ = P/(UI) = ?", "explain": "V = √(20² + 100² + 50²) = 113.6 V, λ = 2853/(113.6 × 26.71) = 0.941. A non-sinusoidal circuit has no single impedance angle; the power factor can only be defined as P/(UI)." }
       ]
     }
   }

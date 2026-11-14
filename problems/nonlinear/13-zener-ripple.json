@@ -7,14 +7,14 @@
   "level": 4,
   "tags": ["稳压管", "分段线性化法", "小信号分析法", "纹波"],
   "statement": [
-    "未稳压的电源电压是直流 U_s = 12 V 加上振幅 1 V 的纹波 u_s(t) = cos(100t) V，经限流电阻 R = 200 Ω 接到稳压管 Z 和负载 R_L = 1 kΩ 上。",
-    "稳压管工作在反向击穿区，图中用非线性电阻符号表示，u 是阴极对阳极的电压：u < 6 V 时 i = 0；u ≥ 6 V 时 i = (u − 6)/5 Ω（击穿电压 6 V，动态电阻 5 Ω）。",
-    "求输出电压的直流分量 U_o、稳压管的直流电流 I_Z、它的动态电阻，以及输出纹波的振幅 U_om。"
+    "未稳压的电源电压是直流 V_s = 12 V 加上振幅 1 V 的纹波 v_s(t) = cos(100t) V，经限流电阻 R = 200 Ω 接到稳压管 Z 和负载 R_L = 1 kΩ 上。",
+    "稳压管工作在反向击穿区，图中用非线性电阻符号表示，v 是阴极对阳极的电压：v < 6 V 时 i = 0；v ≥ 6 V 时 i = (v − 6)/5 Ω（击穿电压 6 V，动态电阻 5 Ω）。",
+    "求输出电压的直流分量 V_o、稳压管的直流电流 I_Z、它的动态电阻，以及输出纹波的振幅 V_om。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "us", "type": "V", "from": [0, 0], "to": [0, 3], "value": {"ac": {"mag": 1, "phase": 0}}, "label": "u_s(t)"},
-      {"ref": "Us", "type": "V", "from": [0, 3], "to": [0, 6], "value": {"dc": 12}},
+      {"ref": "vs", "type": "V", "from": [0, 0], "to": [0, 3], "value": {"ac": {"mag": 1, "phase": 0}}, "label": "v_s(t)"},
+      {"ref": "Vs", "type": "V", "from": [0, 3], "to": [0, 6], "value": {"dc": 12}},
       {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 200},
       {"ref": "Z", "type": "NR", "from": [8, 0], "to": [8, 6], "law": {"pwl": [[0, 0], [6, 0], [7, 0.2]]}},
       {"ref": "RL", "type": "R", "from": [12, 0], "to": [12, 6], "value": "1k"}
@@ -22,17 +22,17 @@
     "wires": [[[0, 0], [2, 0]], [[6, 0], [12, 0]], [[12, 6], [0, 6]]],
     "labels": [{"at": [8, 0], "name": "o"}],
     "grounds": [[0, 6]],
-    "marks": [{"kind": "v", "el": "Z", "name": "u"}, {"kind": "i", "el": "Z", "name": "i_Z"}]
+    "marks": [{"kind": "v", "el": "Z", "name": "v"}, {"kind": "i", "el": "Z", "name": "i_Z"}]
   },
   "analysis": {"type": "ac", "omega": 100, "phasor": "peak"},
   "questions": [
     {
       "id": "uo",
-      "ask": "输出电压的直流分量 U_o = ?",
+      "ask": "输出电压的直流分量 V_o = ?",
       "find": {"kind": "v", "nodes": ["o"], "dc": true},
       "answer": 6.116505,
       "unit": "V",
-      "explain": "设击穿：(12 − u)/200 = u/1000 + (u − 6)/5 → 206u = 1260 → u ≈ 6.117 V ≥ 6 V，假设成立。"
+      "explain": "设击穿：(12 − v)/200 = v/1000 + (v − 6)/5 → 206v = 1260 → v ≈ 6.117 V ≥ 6 V，假设成立。"
     },
     {
       "id": "iz",
@@ -42,48 +42,48 @@
       "unit": "mA",
       "explain": "I_Z = (6.117 − 6)/5 ≈ 23.3 mA；R 中 (12 − 6.117)/200 ≈ 29.4 mA = 23.3 + 6.1（负载）✓。"
     },
-    {"id": "rz", "ask": "稳压管在工作点的动态电阻 = ?", "find": {"kind": "rd", "el": "Z"}, "answer": 5, "unit": "Ω", "explain": "工作点在击穿段上，斜率 du/di = 5 Ω。"},
+    {"id": "rz", "ask": "稳压管在工作点的动态电阻 = ?", "find": {"kind": "rd", "el": "Z"}, "answer": 5, "unit": "Ω", "explain": "工作点在击穿段上，斜率 dv/di = 5 Ω。"},
     {
       "id": "uom",
-      "ask": "输出纹波的振幅 U_om = ?",
+      "ask": "输出纹波的振幅 V_om = ?",
       "find": {"kind": "v", "nodes": ["o"]},
       "answer": 0.02427184,
       "unit": "mV",
-      "explain": "小信号电路：R = 200 Ω 与 5 Ω ∥ 1 kΩ ≈ 4.975 Ω 分压：U_om = 1 × 4.975/204.975 ≈ 24.3 mV。"
+      "explain": "小信号电路：R = 200 Ω 与 5 Ω ∥ 1 kΩ ≈ 4.975 Ω 分压：V_om = 1 × 4.975/204.975 ≈ 24.3 mV。"
     },
     {
       "id": "rl",
       "ask": "若负载改为 R_L = 100 Ω（其余不变），稳压管还能稳压吗？",
-      "choices": ["不能：Z 的端电压只有 4 V，没有击穿，i_Z = 0", "能：U_o 仍约为 6.1 V", "能，而且纹波更小"],
+      "choices": ["不能：Z 的端电压只有 4 V，没有击穿，i_Z = 0", "能：V_o 仍约为 6.1 V", "能，而且纹波更小"],
       "correct": 0,
       "choiceExplain": [
-        "对。先假设 Z 截止：U_o = 12 × 100/(200 + 100) = 4 V < 6 V，假设成立，Z 中没有电流，输出跟着输入变化，失去稳压作用。",
-        "只有 Z 击穿时 U_o 才被“钳”在 6 V 附近；这里开路电压只有 4 V。",
+        "对。先假设 Z 截止：V_o = 12 × 100/(200 + 100) = 4 V < 6 V，假设成立，Z 中没有电流，输出跟着输入变化，失去稳压作用。",
+        "只有 Z 击穿时 V_o 才被“钳”在 6 V 附近；这里开路电压只有 4 V。",
         "Z 截止时它的动态电阻是无穷大，纹波按 R_L/(R + R_L) = 1/3 分压，反而大得多。"
       ],
-      "explain": "稳压的前提是去掉稳压管后的开路电压高于击穿电压：U_s·R_L/(R + R_L) > 6 V。"
+      "explain": "稳压的前提是去掉稳压管后的开路电压高于击穿电压：V_s·R_L/(R + R_L) > 6 V。"
     }
   ],
-  "hints": ["先只看直流：假设稳压管击穿，用击穿段的等效电路（6 V 电压源串 5 Ω）列 KCL，再检查 u ≥ 6 V。", "小信号电路：直流源置零，稳压管换成它在工作点的动态电阻。", "纹波按 R 与 (5 Ω ∥ R_L) 分压。"],
+  "hints": ["先只看直流：假设稳压管击穿，用击穿段的等效电路（6 V 电压源串 5 Ω）列 KCL，再检查 v ≥ 6 V。", "小信号电路：直流源置零，稳压管换成它在工作点的动态电阻。", "纹波按 R 与 (5 Ω ∥ R_L) 分压。"],
   "solution": [
-    "**1. 直流工作点。** 假设击穿，Z = 6 V 串 5 Ω。结点 o：(12 − u)/200 = u/1000 + (u − 6)/5 → 5(12 − u) = u + 200(u − 6) → 206u = 1260 → **U_o ≈ 6.117 V** ≥ 6 V ✓，**I_Z = (6.117 − 6)/5 ≈ 23.3 mA**。",
+    "**1. 直流工作点。** 假设击穿，Z = 6 V 串 5 Ω。结点 o：(12 − v)/200 = v/1000 + (v − 6)/5 → 5(12 − v) = v + 200(v − 6) → 206v = 1260 → **V_o ≈ 6.117 V** ≥ 6 V ✓，**I_Z = (6.117 − 6)/5 ≈ 23.3 mA**。",
     "**2. 动态电阻。** 击穿段斜率 **r_Z = 5 Ω**。",
-    "**3. 纹波（小信号电路）。** 5 ∥ 1000 ≈ 4.975 Ω，U_om = 1 × 4.975/(200 + 4.975) ≈ **24.3 mV**，纹波被衰减到约 1/41。",
-    "**4. 检查：** 戴维宁：U_oc = 12 × 1000/1200 = 10 V，R_0 = 200 ∥ 1000 ≈ 166.7 Ω；负载线与击穿段：(10 − u)/166.7 = (u − 6)/5 → u ≈ 6.117 V ✓。"
+    "**3. 纹波（小信号电路）。** 5 ∥ 1000 ≈ 4.975 Ω，V_om = 1 × 4.975/(200 + 4.975) ≈ **24.3 mV**，纹波被衰减到约 1/41。",
+    "**4. 检查：** 戴维宁：V_oc = 12 × 1000/1200 = 10 V，R_0 = 200 ∥ 1000 ≈ 166.7 Ω；负载线与击穿段：(10 − v)/166.7 = (v − 6)/5 → v ≈ 6.117 V ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Zener regulator: piecewise-linear model and ripple",
       "tags": ["Zener diode", "piecewise-linear method", "small-signal analysis", "ripple"],
       "statement": [
-        "An unregulated supply gives a DC voltage U_s = 12 V plus a 1 V-amplitude ripple u_s(t) = cos(100t) V. Through the limiting resistor R = 200 Ω it feeds a Zener diode Z and a load R_L = 1 kΩ.",
-        "The Zener works in reverse breakdown and is drawn with the nonlinear-resistor symbol; u is the cathode-to-anode voltage: i = 0 for u < 6 V and i = (u − 6)/5 Ω for u ≥ 6 V (breakdown voltage 6 V, dynamic resistance 5 Ω).",
-        "Find the DC output voltage U_o, the Zener's DC current I_Z, its dynamic resistance, and the amplitude U_om of the output ripple."
+        "An unregulated supply gives a DC voltage V_s = 12 V plus a 1 V-amplitude ripple v_s(t) = cos(100t) V. Through the limiting resistor R = 200 Ω it feeds a Zener diode Z and a load R_L = 1 kΩ.",
+        "The Zener works in reverse breakdown and is drawn with the nonlinear-resistor symbol; v is the cathode-to-anode voltage: i = 0 for v < 6 V and i = (v − 6)/5 Ω for v ≥ 6 V (breakdown voltage 6 V, dynamic resistance 5 Ω).",
+        "Find the DC output voltage V_o, the Zener's DC current I_Z, its dynamic resistance, and the amplitude V_om of the output ripple."
       ],
       "questions": [
         {
-          "ask": "DC part of the output voltage, U_o = ?",
-          "explain": "Assume breakdown: (12 − u)/200 = u/1000 + (u − 6)/5 → 206u = 1260 → u ≈ 6.117 V ≥ 6 V, consistent."
+          "ask": "DC part of the output voltage, V_o = ?",
+          "explain": "Assume breakdown: (12 − v)/200 = v/1000 + (v − 6)/5 → 206v = 1260 → v ≈ 6.117 V ≥ 6 V, consistent."
         },
         {
           "ask": "I_Z = ?",
@@ -91,33 +91,33 @@
         },
         {
           "ask": "Dynamic resistance of the Zener at the operating point = ?",
-          "explain": "The operating point is on the breakdown segment, slope du/di = 5 Ω."
+          "explain": "The operating point is on the breakdown segment, slope dv/di = 5 Ω."
         },
         {
-          "ask": "Amplitude of the output ripple, U_om = ?",
-          "explain": "Small-signal circuit: R = 200 Ω against 5 Ω ∥ 1 kΩ ≈ 4.975 Ω: U_om = 1 × 4.975/204.975 ≈ 24.3 mV."
+          "ask": "Amplitude of the output ripple, V_om = ?",
+          "explain": "Small-signal circuit: R = 200 Ω against 5 Ω ∥ 1 kΩ ≈ 4.975 Ω: V_om = 1 × 4.975/204.975 ≈ 24.3 mV."
         },
         {
           "ask": "If the load becomes R_L = 100 Ω (all else unchanged), does the Zener still regulate?",
-          "choices": ["no: Z only sees 4 V, it does not break down and i_Z = 0", "yes: U_o is still about 6.1 V", "yes, with even less ripple"],
+          "choices": ["no: Z only sees 4 V, it does not break down and i_Z = 0", "yes: V_o is still about 6.1 V", "yes, with even less ripple"],
           "choiceExplain": [
-            "Right. Assume Z off: U_o = 12 × 100/(200 + 100) = 4 V < 6 V, consistent; Z carries no current and the output follows the input — no regulation.",
-            "U_o is clamped near 6 V only while Z is in breakdown; here the open-circuit voltage is only 4 V.",
+            "Right. Assume Z off: V_o = 12 × 100/(200 + 100) = 4 V < 6 V, consistent; Z carries no current and the output follows the input — no regulation.",
+            "V_o is clamped near 6 V only while Z is in breakdown; here the open-circuit voltage is only 4 V.",
             "With Z off its dynamic resistance is infinite and the ripple is divided by R_L/(R + R_L) = 1/3 — much larger."
           ],
-          "explain": "Regulation requires the open-circuit voltage without the Zener to exceed the breakdown voltage: U_s·R_L/(R + R_L) > 6 V."
+          "explain": "Regulation requires the open-circuit voltage without the Zener to exceed the breakdown voltage: V_s·R_L/(R + R_L) > 6 V."
         }
       ],
       "hints": [
-        "DC first: assume the Zener is in breakdown, use the breakdown-segment model (6 V source in series with 5 Ω) in KCL, then check u ≥ 6 V.",
+        "DC first: assume the Zener is in breakdown, use the breakdown-segment model (6 V source in series with 5 Ω) in KCL, then check v ≥ 6 V.",
         "Small-signal circuit: zero the DC source and replace the Zener by its dynamic resistance at the operating point.",
         "The ripple is divided between R and 5 Ω ∥ R_L."
       ],
       "solution": [
-        "**1. DC operating point.** Assume breakdown: Z = 6 V in series with 5 Ω. Node o: (12 − u)/200 = u/1000 + (u − 6)/5 → 5(12 − u) = u + 200(u − 6) → 206u = 1260 → **U_o ≈ 6.117 V** ≥ 6 V ✓, **I_Z = (6.117 − 6)/5 ≈ 23.3 mA**.",
+        "**1. DC operating point.** Assume breakdown: Z = 6 V in series with 5 Ω. Node o: (12 − v)/200 = v/1000 + (v − 6)/5 → 5(12 − v) = v + 200(v − 6) → 206v = 1260 → **V_o ≈ 6.117 V** ≥ 6 V ✓, **I_Z = (6.117 − 6)/5 ≈ 23.3 mA**.",
         "**2. Dynamic resistance.** Slope of the breakdown segment: **r_Z = 5 Ω**.",
-        "**3. Ripple (small-signal circuit).** 5 ∥ 1000 ≈ 4.975 Ω, U_om = 1 × 4.975/(200 + 4.975) ≈ **24.3 mV**: the ripple is attenuated about 41 times.",
-        "**4. Check:** Thevenin: U_oc = 12 × 1000/1200 = 10 V, R_0 = 200 ∥ 1000 ≈ 166.7 Ω; load line with the breakdown segment: (10 − u)/166.7 = (u − 6)/5 → u ≈ 6.117 V ✓."
+        "**3. Ripple (small-signal circuit).** 5 ∥ 1000 ≈ 4.975 Ω, V_om = 1 × 4.975/(200 + 4.975) ≈ **24.3 mV**: the ripple is attenuated about 41 times.",
+        "**4. Check:** Thevenin: V_oc = 12 × 1000/1200 = 10 V, R_0 = 200 ∥ 1000 ≈ 166.7 Ω; load line with the breakdown segment: (10 − v)/166.7 = (v − 6)/5 → v ≈ 6.117 V ✓."
       ]
     }
   }

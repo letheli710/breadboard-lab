@@ -7,7 +7,7 @@
   "level": 5,
   "phase": 3,
   "summary": "用 LM358（单电源 9 V）搭一个反相积分器：方波输入变成三角波输出，由三角波的斜率测出 RC；正弦输入则输出余弦。",
-  "concepts": ["反相积分器 inverting integrator", "u_o = −(1/RC)∫u_i dt", "虚短 virtual short", "单电源偏置 single-supply bias", "直流反馈电阻 DC feedback resistor"],
+  "concepts": ["反相积分器 inverting integrator", "v_o = −(1/RC)∫v_i dt", "虚短 virtual short", "单电源偏置 single-supply bias", "直流反馈电阻 DC feedback resistor"],
   "prereq": ["lesson-lm358", "lesson-generator-scope"],
   "description": [
     "**目标**：用 LM358 搭一个反相积分器，看方波积分成三角波，并和实验 3-2 的 RC 积分电路比较。",
@@ -25,7 +25,7 @@
     "- **CIN**：信号发生器的输出以 GND 为中心，而 IN− 在 4.5 V；CIN 隔开这 4.5 V 的直流差（CIN·RIN = 0.1 s，对 1 kHz 来说就是一根导线）。",
     "- **RP**：电容对直流开路，没有 RP 时运放在直流下是开环的，任何一点点直流误差都会被一直积分下去，输出很快撞到电源轨不动了（在仿真里会卡在 7.5 V）。RP 给直流一条反馈路径（直流增益 −RP/RIN = −10），代价是低频时不再是理想积分。",
     "",
-    "**先预测**：通电之前先自己算：输出三角波的斜率、Vpp 和中心电压各是多少？输入为正时输出往哪边走？思路：虚短让 IN− 跟着 IN+ 保持在 4.5 V，虚断让流过 RIN 的电流 i = u_i/RIN 全部流进 CF，所以 u_o − 4.5 V = −(1/(RIN·CF))∫u_i dt；斜率 = 输入电压/(RIN·CF)，再乘以半周期。",
+    "**先预测**：通电之前先自己算：输出三角波的斜率、Vpp 和中心电压各是多少？输入为正时输出往哪边走？思路：虚短让 IN− 跟着 IN+ 保持在 4.5 V，虚断让流过 RIN 的电流 i = v_i/RIN 全部流进 CF，所以 v_o − 4.5 V = −(1/(RIN·CF))∫v_i dt；斜率 = 输入电压/(RIN·CF)，再乘以半周期。",
     "",
     "**测量**：在示波器上读 OUT 的 Vpp、中心电压，以及输入为正的半周期里输出的变化方向；再试试 2 kHz 方波、1 kHz 正弦和 100 Hz 方波。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
@@ -37,7 +37,7 @@
     "en": {
       "title": "Experiment 3-6 · Op-amp integrator: square in, triangle out",
       "summary": "Build an inverting integrator from an LM358 (single 9 V supply): a square wave in gives a triangle out, whose slope measures RC; a sine in gives a cosine out.",
-      "concepts": ["inverting integrator", "u_o = −(1/RC)∫u_i dt", "virtual short", "single-supply bias", "DC feedback resistor"],
+      "concepts": ["inverting integrator", "v_o = −(1/RC)∫v_i dt", "virtual short", "single-supply bias", "DC feedback resistor"],
       "description": [
         "**Goal**: build an inverting integrator with an LM358, watch a square wave integrate into a triangle, and compare it with the RC integrator of Experiment 3-2.",
         "",
@@ -54,7 +54,7 @@
         "- **CIN**: the generator output is centred on GND, but IN− sits at 4.5 V; CIN blocks that 4.5 V DC difference (CIN·RIN = 0.1 s, so at 1 kHz it is just a wire).",
         "- **RP**: a capacitor is open at DC, so without RP the op-amp runs open-loop at DC and integrates any tiny DC error forever — the output soon hits a rail and stays there (in the simulator it sticks at 7.5 V). RP gives DC a feedback path (DC gain −RP/RIN = −10); the price is a less-than-ideal integrator at low frequencies.",
         "",
-        "**Predict first**: before powering up, work out the slope, Vpp and centre voltage of the output triangle, and which way the output moves while the input is positive. Method: the virtual short holds IN− at the same 4.5 V as IN+ and the inputs draw no current, so the current through RIN, i = u_i/RIN, all flows into CF and u_o − 4.5 V = −(1/(RIN·CF))∫u_i dt; slope = input voltage/(RIN·CF), then multiply by half a period.",
+        "**Predict first**: before powering up, work out the slope, Vpp and centre voltage of the output triangle, and which way the output moves while the input is positive. Method: the virtual short holds IN− at the same 4.5 V as IN+ and the inputs draw no current, so the current through RIN, i = v_i/RIN, all flows into CF and v_o − 4.5 V = −(1/(RIN·CF))∫v_i dt; slope = input voltage/(RIN·CF), then multiply by half a period.",
         "",
         "**Measure**: read the Vpp and centre of OUT on the scope, and which way the output moves during the positive half of the input; then try a 2 kHz square, a 1 kHz sine and a 100 Hz square. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
@@ -76,7 +76,7 @@
         {"ask": "1 kHz square: the Vpp of the CH2 (OUT) triangle", "explain": "Slope 1 V / (RIN·CF) = 1000 V/s; a 0.5 ms half period covers 0.5 V."},
         {"ask": "Slope = 1 V / (RIN·CF), and one 0.5 ms half period covers Vpp. From your Vpp, RIN·CF = 1 V × 0.5 ms / Vpp", "explain": "10 kΩ × 100 nF = 1 ms. Unlike the RC integrator, the op-amp keeps the resistor current independent of the output, so the slope is always input / RC."},
         {"ask": "Same state: multimeter DC range, OUT to GND (the centre of the triangle)", "explain": "The virtual short keeps IN− at IN+ = 4.5 V; RP gives DC feedback, and its gain of −10 acts on a 0 V average input, so the centre is 4.5 V."},
-        {"ask": "On the scope: while the input is positive, which way does the output move?", "explain": "The current u_i / RIN flows into IN− and on into CF, pulling the OUT side down: u_o − 4.5 V = −(1/RC)∫u_i dt. The phase relative to the input is +90° (inversion 180° + integration −90°).", "choices": ["down (an inverting integrator)", "up", "it stays put"]},
+        {"ask": "On the scope: while the input is positive, which way does the output move?", "explain": "The current v_i / RIN flows into IN− and on into CF, pulling the OUT side down: v_o − 4.5 V = −(1/RC)∫v_i dt. The phase relative to the input is +90° (inversion 180° + integration −90°).", "choices": ["down (an inverting integrator)", "up", "it stays put"]},
         {"ask": "100 Hz square: OUT Vpp (compare with the ideal integrator's 10 V)", "explain": "A 5 ms half period is comparable with RP·CF = 10 ms, so RP shows: 2 × 10 × tanh(T/(4·RP·CF)) ≈ 4.9 V."}
       ],
       "hints": [
@@ -158,7 +158,7 @@
     {"id": "vpp", "scope": "vpp", "pin": "U1.out", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [0.473, 0.522], "ask": "1 kHz 方波：CH2（OUT）三角波的 Vpp", "explain": "斜率 1 V / (RIN·CF) = 1000 V/s，半周期 0.5 ms 走 0.5 V。"},
     {"id": "rc", "formula": "1 * 0.0005 / vpp", "unit": "ms", "predict": true, "range": [0.000955, 0.00106], "ask": "斜率 = 1 V / (RIN·CF)，半周期 0.5 ms 走完 Vpp。用你的 Vpp 算 RIN·CF = 1 V × 0.5 ms / Vpp", "explain": "10 kΩ × 100 nF = 1 ms。和 RC 积分电路不同，运放让电阻电流不受输出影响，所以斜率始终是输入 / RC。"},
     {"id": "vavg", "stated": true, "voltage": "U1.out", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [4.3, 4.75], "ask": "同一状态：万用表直流档测 OUT 对 GND（三角波的中心）", "explain": "虚短让 IN− 跟着 IN+ = 4.5 V；RP 给直流提供反馈，直流增益 −10 作用在 0 V 的平均输入上，所以中心就是 4.5 V。"},
-    {"id": "dir", "choices": ["下降（反相积分器）", "上升", "不变"], "correct": 0, "ask": "在示波器上看：输入为正的半周期里，输出往哪边走？", "explain": "电流 u_i / RIN 从输入流进 IN−，全部流进 CF，把 OUT 一侧往下拉：u_o − 4.5 V = −(1/RC)∫u_i dt。相对输入的相位是 +90°（反相 180° + 积分 −90°）。"},
+    {"id": "dir", "choices": ["下降（反相积分器）", "上升", "不变"], "correct": 0, "ask": "在示波器上看：输入为正的半周期里，输出往哪边走？", "explain": "电流 v_i / RIN 从输入流进 IN−，全部流进 CF，把 OUT 一侧往下拉：v_o − 4.5 V = −(1/RC)∫v_i dt。相对输入的相位是 +90°（反相 180° + 积分 −90°）。"},
     {"id": "vpp100", "scope": "vpp", "pin": "U1.out", "set": {"FG1": {"waveform": "square", "frequency": 100, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [4.62, 5.11], "ask": "100 Hz 方波：OUT 的 Vpp（和“理想积分”的 10 V 比）", "explain": "半周期 5 ms 已和 RP·CF = 10 ms 相当，RP 的影响出来了：2 × 10 × tanh(T/(4·RP·CF)) ≈ 4.9 V。"}
   ],
   "hints": [

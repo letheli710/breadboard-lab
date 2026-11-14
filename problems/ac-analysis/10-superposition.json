@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["叠加定理", "相量相加", "与电流源串联的元件"],
   "statement": [
-    "ω = 1000 rad/s，U̇_s = 10∠0° V，İ_s = 2.5∠90° A（同频率，有效值相量），R = 4 Ω，C = 250 µF，L = 5 mH（与电流源串联）。",
-    "用叠加定理求结点电压相量 U̇_a，再求电流源上端结点 c 的电压相量 U̇_c。"
+    "ω = 1000 rad/s，V̇_s = 10∠0° V，İ_s = 2.5∠90° A（同频率，有效值相量），R = 4 Ω，C = 250 µF，L = 5 mH（与电流源串联）。",
+    "用叠加定理求结点电压相量 V̇_a，再求电流源上端结点 c 的电压相量 V̇_c。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } } },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } } },
       { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4 },
       { "ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": "250u" },
       { "ref": "L", "type": "L", "from": [14, 0], "to": [10, 0], "value": "5m" },
@@ -29,60 +29,60 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "Ua", "ask": "|U̇_a| = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 10, "unit": "V", "explain": "U_s 单独作用：U̇_a′ = 5 − j5 V；I_s 单独作用：U̇_a″ = 5 + j5 V。U̇_a = U̇_a′ + U̇_a″ = 10∠0° V，|U̇_a| = 10 V。" },
-    { "id": "Uaph", "ask": "U̇_a 的相位 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "phase" }, "answer": 0, "unit": "°", "explain": "两个分量 7.07∠−45° 与 7.07∠45° 的虚部抵消，U̇_a = 10∠0° V。" },
-    { "id": "Uc", "ask": "U̇_c（实数）= ?", "find": { "kind": "v", "nodes": ["c"], "part": "re" }, "answer": -2.5, "unit": "V", "explain": "电流 I_s 从 c 经 L 流向 a：U̇_c = U̇_a + jX_L·İ_s = 10 + j5 × j2.5 = 10 − 12.5 = −2.5 V。L 不影响 U_a，但影响电流源两端的电压。" },
+    { "id": "Ua", "ask": "|V̇_a| = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 10, "unit": "V", "explain": "V_s 单独作用：V̇_a′ = 5 − j5 V；I_s 单独作用：V̇_a″ = 5 + j5 V。V̇_a = V̇_a′ + V̇_a″ = 10∠0° V，|V̇_a| = 10 V。" },
+    { "id": "Uaph", "ask": "V̇_a 的相位 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "phase" }, "answer": 0, "unit": "°", "explain": "两个分量 7.07∠−45° 与 7.07∠45° 的虚部抵消，V̇_a = 10∠0° V。" },
+    { "id": "Uc", "ask": "V̇_c（实数）= ?", "find": { "kind": "v", "nodes": ["c"], "part": "re" }, "answer": -2.5, "unit": "V", "explain": "电流 I_s 从 c 经 L 流向 a：V̇_c = V̇_a + jX_L·İ_s = 10 + j5 × j2.5 = 10 − 12.5 = −2.5 V。L 不影响 V_a，但影响电流源两端的电压。" },
     {
       "id": "add",
-      "ask": "两个分量的模都是 7.07 V，为什么 |U̇_a| 不是 14.14 V？",
-      "choices": ["叠加的是相量：两个分量相位差 90°，要按复数相加", "叠加定理在正弦稳态电路中不成立", "因为电感 L 消耗了一部分电压"], "choiceExplain": ["", "叠加定理适用于任何线性电路，包括正弦稳态（用相量）；问题出在把两个分量的模直接相加。", "L 与电流源串联，不影响电流源送出的电流，对 U_a 没有作用；L 只影响结点 c 的电压 U_c。"],
+      "ask": "两个分量的模都是 7.07 V，为什么 |V̇_a| 不是 14.14 V？",
+      "choices": ["叠加的是相量：两个分量相位差 90°，要按复数相加", "叠加定理在正弦稳态电路中不成立", "因为电感 L 消耗了一部分电压"], "choiceExplain": ["", "叠加定理适用于任何线性电路，包括正弦稳态（用相量）；问题出在把两个分量的模直接相加。", "L 与电流源串联，不影响电流源送出的电流，对 V_a 没有作用；L 只影响结点 c 的电压 V_c。"],
       "correct": 0,
-      "explain": "同频率的正弦量可以用相量叠加：U̇_a = 7.07∠−45° + 7.07∠45° = 10∠0° V。有效值（模）一般不能直接相加；频率不同的分量则只能在时域相加。"
+      "explain": "同频率的正弦量可以用相量叠加：V̇_a = 7.07∠−45° + 7.07∠45° = 10∠0° V。有效值（模）一般不能直接相加；频率不同的分量则只能在时域相加。"
     }
   ],
   "hints": [
-    "U_s 单独作用时 I_s 开路：R 与 C 分压。I_s 单独作用时 U_s 短路：I_s 流入 R ∥ C。",
+    "V_s 单独作用时 I_s 开路：R 与 C 分压。I_s 单独作用时 V_s 短路：I_s 流入 R ∥ C。",
     "与电流源串联的 L 对结点 a 以左的电路没有影响（电流源支路的电流总是 I_s）。",
     "R ∥ Z_C = 4(−j4)/(4 − j4) = 2 − j2 Ω。"
   ],
   "solution": [
     "**1. 复阻抗。** Z_C = −j/(ωC) = −j4 Ω，Z_L = jωL = j5 Ω。",
-    "**2. U_s 单独作用（I_s 开路）。** U̇_a′ = U̇_s·Z_C/(R + Z_C) = 10 × (−j4)/(4 − j4) = 10 × (1 − j)/2 = **5 − j5 V**（7.07∠−45° V）。",
-    "**3. I_s 单独作用（U_s 短路）。** R ∥ Z_C = (−j16)/(4 − j4) = 2 − j2 Ω，U̇_a″ = İ_s·(2 − j2) = j2.5(2 − j2) = **5 + j5 V**（7.07∠45° V）。",
-    "**4. 叠加。** U̇_a = U̇_a′ + U̇_a″ = **10∠0° V**。",
-    "**5. 结点 c。** L 中的电流就是 I_s（从 c 流向 a），U̇_c = U̇_a + Z_L·İ_s = 10 + j5 × j2.5 = **−2.5 V**。",
-    "注意：L 串联在电流源支路里，对 U_a 没有任何影响，但电流源两端电压 U_c 与 L 有关。"
+    "**2. V_s 单独作用（I_s 开路）。** V̇_a′ = V̇_s·Z_C/(R + Z_C) = 10 × (−j4)/(4 − j4) = 10 × (1 − j)/2 = **5 − j5 V**（7.07∠−45° V）。",
+    "**3. I_s 单独作用（V_s 短路）。** R ∥ Z_C = (−j16)/(4 − j4) = 2 − j2 Ω，V̇_a″ = İ_s·(2 − j2) = j2.5(2 − j2) = **5 + j5 V**（7.07∠45° V）。",
+    "**4. 叠加。** V̇_a = V̇_a′ + V̇_a″ = **10∠0° V**。",
+    "**5. 结点 c。** L 中的电流就是 I_s（从 c 流向 a），V̇_c = V̇_a + Z_L·İ_s = 10 + j5 × j2.5 = **−2.5 V**。",
+    "注意：L 串联在电流源支路里，对 V_a 没有任何影响，但电流源两端电压 V_c 与 L 有关。"
   ],
   "i18n": {
     "en": {
       "title": "Superposition in sinusoidal steady state: phasors add",
       "tags": ["superposition", "adding phasors", "element in series with a current source"],
       "statement": [
-        "ω = 1000 rad/s, U̇_s = 10∠0° V, İ_s = 2.5∠90° A (same frequency, rms phasors), R = 4 Ω, C = 250 µF, L = 5 mH (in series with the current source).",
-        "Use superposition to find the node-voltage phasor U̇_a, then find the voltage phasor U̇_c of node c at the top of the current source."
+        "ω = 1000 rad/s, V̇_s = 10∠0° V, İ_s = 2.5∠90° A (same frequency, rms phasors), R = 4 Ω, C = 250 µF, L = 5 mH (in series with the current source).",
+        "Use superposition to find the node-voltage phasor V̇_a, then find the voltage phasor V̇_c of node c at the top of the current source."
       ],
       "questions": [
-        { "ask": "|U̇_a| = ?", "explain": "U_s alone: U̇_a′ = 5 − j5 V; I_s alone: U̇_a″ = 5 + j5 V. U̇_a = U̇_a′ + U̇_a″ = 10∠0° V, |U̇_a| = 10 V." },
-        { "ask": "Phase of U̇_a = ?", "explain": "The imaginary parts of 7.07∠−45° and 7.07∠45° cancel: U̇_a = 10∠0° V." },
-        { "ask": "U̇_c (a real number) = ?", "explain": "I_s flows from c through L to a: U̇_c = U̇_a + jX_L·İ_s = 10 + j5 × j2.5 = 10 − 12.5 = −2.5 V. L does not affect U_a, but it does affect the voltage across the current source." },
+        { "ask": "|V̇_a| = ?", "explain": "V_s alone: V̇_a′ = 5 − j5 V; I_s alone: V̇_a″ = 5 + j5 V. V̇_a = V̇_a′ + V̇_a″ = 10∠0° V, |V̇_a| = 10 V." },
+        { "ask": "Phase of V̇_a = ?", "explain": "The imaginary parts of 7.07∠−45° and 7.07∠45° cancel: V̇_a = 10∠0° V." },
+        { "ask": "V̇_c (a real number) = ?", "explain": "I_s flows from c through L to a: V̇_c = V̇_a + jX_L·İ_s = 10 + j5 × j2.5 = 10 − 12.5 = −2.5 V. L does not affect V_a, but it does affect the voltage across the current source." },
         {
-          "ask": "Both components have magnitude 7.07 V. Why is |U̇_a| not 14.14 V?",
-          "choices": ["Superposition adds phasors: the two components are 90° apart and must be added as complex numbers", "Superposition does not hold in sinusoidal steady state", "Because the inductor L uses up part of the voltage"], "choiceExplain": ["", "Superposition holds in any linear circuit, including sinusoidal steady state (with phasors); the mistake is adding the two magnitudes directly.", "L is in series with the current source and does not change the current it delivers, so it has no effect on U_a; L only affects the voltage U_c of node c."],
-          "explain": "Sinusoids of the same frequency superpose as phasors: U̇_a = 7.07∠−45° + 7.07∠45° = 10∠0° V. Magnitudes (rms values) generally do not add; components of different frequencies can only be added in the time domain."
+          "ask": "Both components have magnitude 7.07 V. Why is |V̇_a| not 14.14 V?",
+          "choices": ["Superposition adds phasors: the two components are 90° apart and must be added as complex numbers", "Superposition does not hold in sinusoidal steady state", "Because the inductor L uses up part of the voltage"], "choiceExplain": ["", "Superposition holds in any linear circuit, including sinusoidal steady state (with phasors); the mistake is adding the two magnitudes directly.", "L is in series with the current source and does not change the current it delivers, so it has no effect on V_a; L only affects the voltage V_c of node c."],
+          "explain": "Sinusoids of the same frequency superpose as phasors: V̇_a = 7.07∠−45° + 7.07∠45° = 10∠0° V. Magnitudes (rms values) generally do not add; components of different frequencies can only be added in the time domain."
         }
       ],
       "hints": [
-        "U_s alone: I_s open, R and C form a divider. I_s alone: U_s shorted, I_s flows into R ∥ C.",
+        "V_s alone: I_s open, R and C form a divider. I_s alone: V_s shorted, I_s flows into R ∥ C.",
         "The L in series with the current source has no effect on the circuit left of node a (the branch current is always I_s).",
         "R ∥ Z_C = 4(−j4)/(4 − j4) = 2 − j2 Ω."
       ],
       "solution": [
         "**1. Impedances.** Z_C = −j/(ωC) = −j4 Ω, Z_L = jωL = j5 Ω.",
-        "**2. U̇_s alone (İ_s open).** U̇_a′ = U̇_s·Z_C/(R + Z_C) = 10 × (−j4)/(4 − j4) = 10 × (1 − j)/2 = **5 − j5 V** (7.07∠−45° V).",
-        "**3. İ_s alone (U̇_s shorted).** R ∥ Z_C = (−j16)/(4 − j4) = 2 − j2 Ω, U̇_a″ = İ_s·(2 − j2) = j2.5(2 − j2) = **5 + j5 V** (7.07∠45° V).",
-        "**4. Superpose.** U̇_a = U̇_a′ + U̇_a″ = **10∠0° V**.",
-        "**5. Node c.** The current in L is I_s (from c to a), U̇_c = U̇_a + Z_L·İ_s = 10 + j5 × j2.5 = **−2.5 V**.",
-        "Note: L in series with the current source has no effect on U_a, but the voltage U_c across the current source does depend on L."
+        "**2. V̇_s alone (İ_s open).** V̇_a′ = V̇_s·Z_C/(R + Z_C) = 10 × (−j4)/(4 − j4) = 10 × (1 − j)/2 = **5 − j5 V** (7.07∠−45° V).",
+        "**3. İ_s alone (V̇_s shorted).** R ∥ Z_C = (−j16)/(4 − j4) = 2 − j2 Ω, V̇_a″ = İ_s·(2 − j2) = j2.5(2 − j2) = **5 + j5 V** (7.07∠45° V).",
+        "**4. Superpose.** V̇_a = V̇_a′ + V̇_a″ = **10∠0° V**.",
+        "**5. Node c.** The current in L is I_s (from c to a), V̇_c = V̇_a + Z_L·İ_s = 10 + j5 × j2.5 = **−2.5 V**.",
+        "Note: L in series with the current source has no effect on V_a, but the voltage V_c across the current source does depend on L."
       ]
     }
   }

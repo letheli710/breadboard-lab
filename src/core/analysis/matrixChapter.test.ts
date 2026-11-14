@@ -170,7 +170,7 @@ function mcCheck(file: string, q: Question, p: ProblemFile, net: Netlist): numbe
     case '08/sign': {
       const flipped = {
         ...net,
-        elements: net.elements.map((e) => (e.ref === 'Us3' ? { ...e, value: -6 } : e)),
+        elements: net.elements.map((e) => (e.ref === 'Vs3' ? { ...e, value: -6 } : e)),
       } as Netlist;
       const us = computeQuantity(flipped, p.analysis, { kind: 'mat', mat: 'Us', row: 3 });
       const jn = computeQuantity(flipped, p.analysis, { kind: 'mat', mat: 'Jn', row: 2 });

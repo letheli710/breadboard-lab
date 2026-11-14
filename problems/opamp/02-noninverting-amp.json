@@ -7,12 +7,12 @@
   "level": 1,
   "tags": ["理想运放", "同相比例放大器", "电压放大倍数"],
   "statement": [
-    "图示为理想运放构成的同相比例放大器，u_s = 2 V，R_1 = 10 kΩ，R_f = 20 kΩ。",
-    "求电压放大倍数 u_o/u_s、输出电压 u_o 和 R_1 中的电流 i_1。"
+    "图示为理想运放构成的同相比例放大器，v_s = 2 V，R_1 = 10 kΩ，R_f = 20 kΩ。",
+    "求电压放大倍数 v_o/v_s、输出电压 v_o 和 R_1 中的电流 i_1。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": 2, "label": "u_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 3], "to": [0, 7], "value": 2, "label": "v_s" },
       { "ref": "A", "type": "OPAMP", "at": [10, 4], "flip": true },
       { "ref": "R1", "type": "R", "from": [6, 5], "to": [6, 10], "value": "10k" },
       { "ref": "Rf", "type": "R", "from": [8, 8], "to": [12, 8], "value": "20k" }
@@ -32,48 +32,48 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "gain", "ask": "电压放大倍数 u_o/u_s = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us" }, "answer": 3, "unit": "", "explain": "同相比例放大器：u_o/u_s = 1 + R_f/R_1 = 1 + 20/10 = 3。" },
-    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 6, "unit": "V", "explain": "u_o = 3 × 2 V = 6 V，与 u_s 同相（同号）。" },
-    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 0.0002, "unit": "mA", "explain": "虚短：u_n = u_{+} = u_s = 2 V，i_1 = u_n/R_1 = 2/10k = 0.2 mA；虚断使这一电流全部来自 R_f。" },
+    { "id": "gain", "ask": "电压放大倍数 v_o/v_s = ?", "find": { "kind": "gain", "out": ["o"], "input": "Vs" }, "answer": 3, "unit": "", "explain": "同相比例放大器：v_o/v_s = 1 + R_f/R_1 = 1 + 20/10 = 3。" },
+    { "id": "uo", "ask": "v_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 6, "unit": "V", "explain": "v_o = 3 × 2 V = 6 V，与 v_s 同相（同号）。" },
+    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 0.0002, "unit": "mA", "explain": "虚短：v_n = v_{+} = v_s = 2 V，i_1 = v_n/R_1 = 2/10k = 0.2 mA；虚断使这一电流全部来自 R_f。" },
     {
       "id": "rin",
-      "ask": "从电压源 u_s 看进去，放大器的输入电阻是多少？",
-      "choices": ["R_1 = 10 kΩ", "R_1 + R_f = 30 kΩ", "无穷大（u_s 不提供电流）"], "choiceExplain": ["R_1 是反相放大器的输入电阻。同相放大器中 u_s 接在同相端，不经过 R_1，R_1 中的电流来自运放输出端。", "R_1、R_f 中的电流由运放输出端经 R_f、R_1 流到地，并不来自 u_s；由“虚断”，同相端不取电流。", ""],
+      "ask": "从电压源 v_s 看进去，放大器的输入电阻是多少？",
+      "choices": ["R_1 = 10 kΩ", "R_1 + R_f = 30 kΩ", "无穷大（v_s 不提供电流）"], "choiceExplain": ["R_1 是反相放大器的输入电阻。同相放大器中 v_s 接在同相端，不经过 R_1，R_1 中的电流来自运放输出端。", "R_1、R_f 中的电流由运放输出端经 R_f、R_1 流到地，并不来自 v_s；由“虚断”，同相端不取电流。", ""],
       "correct": 2,
-      "explain": "u_s 直接接在同相输入端，由“虚断”i_{+} = 0，电源不输出电流，所以输入电阻为无穷大——这是同相放大器相对反相放大器的主要优点。"
+      "explain": "v_s 直接接在同相输入端，由“虚断”i_{+} = 0，电源不输出电流，所以输入电阻为无穷大——这是同相放大器相对反相放大器的主要优点。"
     }
   ],
-  "hints": ["先用“虚短”求反相端 n 的电位。", "R_1 与 R_f 串联构成对 u_o 的分压器：u_n = u_o·R_1/(R_1 + R_f)。"],
+  "hints": ["先用“虚短”求反相端 n 的电位。", "R_1 与 R_f 串联构成对 v_o 的分压器：v_n = v_o·R_1/(R_1 + R_f)。"],
   "solution": [
-    "**1. 虚短：** u_n = u_{−} = u_{+} = u_s = 2 V。",
-    "**2. 虚断：** 反相端不取电流，R_1 与 R_f 中是同一个电流 i_1 = u_n/R_1 = 2/10 kΩ = **0.2 mA**。",
-    "**3. 输出：** u_o = u_n + R_f·i_1 = 2 + 20 kΩ × 0.2 mA = **6 V**。",
-    "**4. 放大倍数：** u_o/u_s = 1 + R_f/R_1 = **3**（总是 ≥ 1，输出与输入同相）。"
+    "**1. 虚短：** v_n = v_{−} = v_{+} = v_s = 2 V。",
+    "**2. 虚断：** 反相端不取电流，R_1 与 R_f 中是同一个电流 i_1 = v_n/R_1 = 2/10 kΩ = **0.2 mA**。",
+    "**3. 输出：** v_o = v_n + R_f·i_1 = 2 + 20 kΩ × 0.2 mA = **6 V**。",
+    "**4. 放大倍数：** v_o/v_s = 1 + R_f/R_1 = **3**（总是 ≥ 1，输出与输入同相）。"
   ],
   "i18n": {
     "en": {
       "title": "Non-inverting amplifier",
       "tags": ["ideal op-amp", "non-inverting amplifier", "voltage gain"],
       "statement": [
-        "The ideal op-amp forms a non-inverting amplifier with u_s = 2 V, R_1 = 10 kΩ, R_f = 20 kΩ.",
-        "Find the voltage gain u_o/u_s, the output voltage u_o and the current i_1 in R_1."
+        "The ideal op-amp forms a non-inverting amplifier with v_s = 2 V, R_1 = 10 kΩ, R_f = 20 kΩ.",
+        "Find the voltage gain v_o/v_s, the output voltage v_o and the current i_1 in R_1."
       ],
       "questions": [
-        { "ask": "Voltage gain u_o/u_s = ?", "explain": "Non-inverting amplifier: u_o/u_s = 1 + R_f/R_1 = 1 + 20/10 = 3." },
-        { "ask": "u_o = ?", "explain": "u_o = 3 × 2 V = 6 V, in phase (same sign) with u_s." },
-        { "ask": "i_1 = ?", "explain": "Virtual short: u_n = u_{+} = u_s = 2 V, so i_1 = u_n/R_1 = 2/10k = 0.2 mA; by the virtual open this whole current comes through R_f." },
+        { "ask": "Voltage gain v_o/v_s = ?", "explain": "Non-inverting amplifier: v_o/v_s = 1 + R_f/R_1 = 1 + 20/10 = 3." },
+        { "ask": "v_o = ?", "explain": "v_o = 3 × 2 V = 6 V, in phase (same sign) with v_s." },
+        { "ask": "i_1 = ?", "explain": "Virtual short: v_n = v_{+} = v_s = 2 V, so i_1 = v_n/R_1 = 2/10k = 0.2 mA; by the virtual open this whole current comes through R_f." },
         {
-          "ask": "What is the input resistance of the amplifier seen by the source u_s?",
-          "choices": ["R_1 = 10 kΩ", "R_1 + R_f = 30 kΩ", "Infinite (u_s supplies no current)"], "choiceExplain": ["R_1 is the input resistance of the inverting amplifier. Here u_s drives the non-inverting input and does not feed R_1; the current in R_1 comes from the op-amp output.", "The current in R_f and R_1 flows from the op-amp output through R_f and R_1 to ground; it does not come from u_s, because the non-inverting input draws no current (virtual open).", ""],
-          "explain": "u_s is connected straight to the non-inverting input, which draws no current (virtual open). The source delivers no current, so the input resistance is infinite — the main advantage over the inverting amplifier."
+          "ask": "What is the input resistance of the amplifier seen by the source v_s?",
+          "choices": ["R_1 = 10 kΩ", "R_1 + R_f = 30 kΩ", "Infinite (v_s supplies no current)"], "choiceExplain": ["R_1 is the input resistance of the inverting amplifier. Here v_s drives the non-inverting input and does not feed R_1; the current in R_1 comes from the op-amp output.", "The current in R_f and R_1 flows from the op-amp output through R_f and R_1 to ground; it does not come from v_s, because the non-inverting input draws no current (virtual open).", ""],
+          "explain": "v_s is connected straight to the non-inverting input, which draws no current (virtual open). The source delivers no current, so the input resistance is infinite — the main advantage over the inverting amplifier."
         }
       ],
-      "hints": ["Use the virtual short to get the potential of the inverting node n.", "R_1 and R_f in series form a voltage divider across u_o: u_n = u_o·R_1/(R_1 + R_f)."],
+      "hints": ["Use the virtual short to get the potential of the inverting node n.", "R_1 and R_f in series form a voltage divider across v_o: v_n = v_o·R_1/(R_1 + R_f)."],
       "solution": [
-        "**1. Virtual short:** u_n = u_{−} = u_{+} = u_s = 2 V.",
-        "**2. Virtual open:** no current enters the inverting input, so R_1 and R_f carry the same current i_1 = u_n/R_1 = 2/10 kΩ = **0.2 mA**.",
-        "**3. Output:** u_o = u_n + R_f·i_1 = 2 + 20 kΩ × 0.2 mA = **6 V**.",
-        "**4. Gain:** u_o/u_s = 1 + R_f/R_1 = **3** (always ≥ 1, output in phase with the input)."
+        "**1. Virtual short:** v_n = v_{−} = v_{+} = v_s = 2 V.",
+        "**2. Virtual open:** no current enters the inverting input, so R_1 and R_f carry the same current i_1 = v_n/R_1 = 2/10 kΩ = **0.2 mA**.",
+        "**3. Output:** v_o = v_n + R_f·i_1 = 2 + 20 kΩ × 0.2 mA = **6 V**.",
+        "**4. Gain:** v_o/v_s = 1 + R_f/R_1 = **3** (always ≥ 1, output in phase with the input)."
       ]
     }
   }

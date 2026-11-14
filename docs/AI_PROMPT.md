@@ -141,7 +141,7 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 - 惯例：电源接在第 1 列的轨道上（tp1/tn1），元件从左往右排，用主区 a–e（或 f–j），GND 用跳线接回 tn（或 bn）。
 
 === 文字与符号约定（详见 docs/NOTATION.md）===
-- 用“结点”，不用“节点”（指电路里的结点；面包板上的一条金属条就是一个结点）。电压用 U / u，电流用 I / i；元件名写成和面包板上一样的普通文字：R1、I1、AM2（挑战的文字不支持下标）。
+- 用“结点”，不用“节点”（指电路里的结点；面包板上的一条金属条就是一个结点）。电压用 V / v，电流用 I / i（结点电压写 V(A) 或网络名 VOUT；芯片编号 U1 不是电压）；元件名写成和面包板上一样的普通文字：R1、I1、AM2（挑战的文字不支持下标）。
 - 交流量以 cos 为参考：u = √2·U·cos(ωt + ψ)。LED 插反的说明要带上反向耐压（常见约 5V）。
 - 实验题（第 1–5 期）的 description 用短段落、粗体标签：**目标**、**电路**、**先预测**（只写要算什么、怎么算，不写结果）、**测量**、**对比**（预期读数放在这里；有 measurements 时整段放进顶层 "compare"，答完测量题才显示）、可选的 **想一想**、**真实电路里**（仪表负担电阻、电感绕线电阻、电解电容极性、运放共模范围和压摆率等）。
 - hints 由浅入深：方向 → 方法 → 接近答案。找错题不要在前面的提示里逐条点名错误。
@@ -339,7 +339,7 @@ Tests only prove the circuit is right; measurement questions make the student re
 - Conventions: connect the source to the rails at column 1 (tp1/tn1), place parts left to right in the main area a–e (or f–j), and return to GND with a jumper to tn (or bn).
 
 === Wording and notation (full version: docs/NOTATION.md) ===
-- Voltage is U / u, current I / i; write part names exactly as on the breadboard, as plain text: R1, I1, AM2 (challenge text has no subscripts). In the Chinese text a circuit node is 结点 (not 节点).
+- Voltage is V / v, current I / i (node voltages as V(A) or a net name such as VOUT; the IC designator U1 is not a voltage); write part names exactly as on the breadboard, as plain text: R1, I1, AM2 (challenge text has no subscripts). In the Chinese text a circuit node is 结点 (not 节点).
 - AC quantities use the cosine reference: u = √2·U·cos(ωt + ψ). When saying a reversed LED is harmless, add its reverse-voltage limit (typically about 5 V).
 - Lab descriptions (phases 2–4) use short paragraphs with bold labels: **Goal**, **Circuit**, **Predict first** (what to work out and how — no results), **Measure**, **Compare** (the expected readings go here; with measurements the whole paragraph goes into the top-level "compare" and appears after the questions are answered), optionally **Think about it** and **In a real circuit** (meter burden resistance, inductor winding resistance, electrolytic polarity, op-amp common-mode range and slew rate, …).
 - Hints go from direction → method → near-answer. In fault-finding tasks don't name the faults one by one in the early hints.

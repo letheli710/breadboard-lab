@@ -7,7 +7,7 @@
   "level": 2,
   "phase": 3,
   "summary": "信号发生器输出 0–5 V 方波，经 10 kΩ 给 100 nF 电容充放电；改变频率，看电容电压在半个周期里能走多远。",
-  "concepts": ["RC 电路 RC circuit", "时间常数 τ = RC", "零状态响应 / 零输入响应", "三要素法 u(t) = u(∞) + [u(0+) − u(∞)]e^(−t/τ)"],
+  "concepts": ["RC 电路 RC circuit", "时间常数 τ = RC", "零状态响应 / 零输入响应", "三要素法 v(t) = v(∞) + [v(0+) − v(∞)]e^(−t/τ)"],
   "prereq": ["lesson-generator-scope"],
   "description": [
     "**目标**：用方波反复给 RC 电路充放电，在示波器上看一阶电路的指数曲线，并看清时间常数 τ 和信号周期的比值怎样决定波形。",
@@ -18,7 +18,7 @@
     "",
     "**示波器**：CH1 接信号发生器输出（R1 左端），CH2 接 VC（电容上端），两个探头的地夹都接 GND。",
     "",
-    "**先预测**：用三要素法写出充电和放电半周期的 u_C(t)，算出 τ = RC（R 要算上信号发生器的 50 Ω 输出电阻）。再估计 50 Hz、500 Hz、5 kHz 三个频率下，半个周期是几个 τ，CH2 的最大值、最小值和形状各是什么样。经验规律：过了 1τ 走完 63%，3τ 走完 95%，5τ 走完 99.3%。",
+    "**先预测**：用三要素法写出充电和放电半周期的 v_C(t)，算出 τ = RC（R 要算上信号发生器的 50 Ω 输出电阻）。再估计 50 Hz、500 Hz、5 kHz 三个频率下，半个周期是几个 τ，CH2 的最大值、最小值和形状各是什么样。经验规律：过了 1τ 走完 63%，3τ 走完 95%，5τ 走完 99.3%。",
     "",
     "**测量**：依次把频率设成 50 Hz、500 Hz、5 kHz，读 CH2 的最大值、最小值和 Vpp，看波形形状。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
@@ -28,7 +28,7 @@
     "en": {
       "title": "Experiment 3-1 · RC charging: see the time constant with a square wave",
       "summary": "A 0–5 V square wave charges and discharges a 100 nF capacitor through 10 kΩ; change the frequency and see how far the capacitor voltage gets in half a period.",
-      "concepts": ["RC circuit", "time constant τ = RC", "zero-state / zero-input response", "three-element method u(t) = u(∞) + [u(0+) − u(∞)]e^(−t/τ)"],
+      "concepts": ["RC circuit", "time constant τ = RC", "zero-state / zero-input response", "three-element method v(t) = v(∞) + [v(0+) − v(∞)]e^(−t/τ)"],
       "description": [
         "**Goal**: charge and discharge an RC circuit over and over with a square wave, watch the first-order exponentials on the scope, and see how the ratio of the time constant τ to the signal period shapes the waveform.",
         "",
@@ -38,14 +38,14 @@
         "",
         "**Scope**: CH1 on the generator output (left end of R1), CH2 on VC (top of the capacitor), both ground clips on GND.",
         "",
-        "**Predict first**: write u_C(t) for the charging and discharging half-periods with the three-element method and work out τ = RC (R must include the generator's 50 Ω output resistance). Then estimate, for 50 Hz, 500 Hz and 5 kHz, how many τ fit in half a period and what CH2's maximum, minimum and shape will be. Rules of thumb: after 1τ the voltage has covered 63% of the way, after 3τ 95%, after 5τ 99.3%.",
+        "**Predict first**: write v_C(t) for the charging and discharging half-periods with the three-element method and work out τ = RC (R must include the generator's 50 Ω output resistance). Then estimate, for 50 Hz, 500 Hz and 5 kHz, how many τ fit in half a period and what CH2's maximum, minimum and shape will be. Rules of thumb: after 1τ the voltage has covered 63% of the way, after 3τ 95%, after 5τ 99.3%.",
         "",
         "**Measure**: set the frequency to 50 Hz, 500 Hz and 5 kHz in turn; read CH2's maximum, minimum and Vpp and look at the shape. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
         "**Think about it**: if you only knew the Vpp at 500 Hz, could you work back to τ?"
       ],
       "compare": [
-        "**Compare**: charging, u(∞) = 5 V and u_C(t) = 5 − [5 − u(0+)]·e^(−t/τ); discharging, u(∞) = 0 and u_C(t) = u(0+)·e^(−t/τ). τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms.",
+        "**Compare**: charging, v(∞) = 5 V and v_C(t) = 5 − [5 − v(0+)]·e^(−t/τ); discharging, v(∞) = 0 and v_C(t) = v(0+)·e^(−t/τ). τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms.",
         "- **50 Hz**: half a period is 10 ms ≈ 10τ. The capacitor fills up to almost 5 V and empties to almost 0 V every time; CH2 shows the textbook \"exponential rise + exponential fall\", max ≈ 5.0 V, min ≈ 0.0 V.",
         "- **500 Hz**: half a period is 1 ms ≈ τ. The capacitor starts discharging before it is full and settles into a swing between two levels: Vpp = 5 V × tanh(T/(4τ)) ≈ 5 × tanh(0.5) ≈ 2.3 V, about 1.35 V to 3.65 V, centred on 2.5 V.",
         "- **5 kHz**: half a period is 0.1 ms = 0.1τ. Each half-period covers only the very first, almost straight, bit of the exponential, so CH2 becomes a **triangle wave** of about 0.25 Vpp sitting on 2.5 V (the square wave's average).",
@@ -107,7 +107,7 @@
     }
   ],
   "compare": [
-    "**对比**：充电时 u(∞) = 5 V，u_C(t) = 5 − [5 − u(0+)]·e^(−t/τ)；放电时 u(∞) = 0，u_C(t) = u(0+)·e^(−t/τ)。τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms。",
+    "**对比**：充电时 v(∞) = 5 V，v_C(t) = 5 − [5 − v(0+)]·e^(−t/τ)；放电时 v(∞) = 0，v_C(t) = v(0+)·e^(−t/τ)。τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms。",
     "- **50 Hz**：半个周期 10 ms ≈ 10τ。电容每次都几乎充满到 5 V、放空到 0 V，CH2 是标准的“指数上升 + 指数下降”，最大约 5.0 V、最小约 0.0 V。",
     "- **500 Hz**：半个周期 1 ms ≈ τ。电容来不及充满就开始放电，稳定后在两个值之间来回：Vpp = 5 V × tanh(T/(4τ)) ≈ 5 × tanh(0.5) ≈ 2.3 V，大约 1.35 V ~ 3.65 V，中心 2.5 V。",
     "- **5 kHz**：半个周期 0.1 ms = 0.1τ。每半周期只走了指数曲线最开头几乎是直线的一小段，CH2 变成一个约 0.25 Vpp 的**三角波**，骑在 2.5 V（方波的平均值）上。",

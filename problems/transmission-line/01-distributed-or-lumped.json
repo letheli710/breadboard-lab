@@ -11,13 +11,13 @@
     "相速"
   ],
   "statement": [
-    "一条 300 km 长的 50 Hz 架空输电线可以看成无损耗线：特性阻抗 Z_c = 400 Ω，电磁波沿线的传播速度 v = 3×10⁸ m/s。始端接电源 U̇_s = 100∠0° kV（有效值），终端接 R_L = 400 Ω。",
+    "一条 300 km 长的 50 Hz 架空输电线可以看成无损耗线：特性阻抗 Z_c = 400 Ω，电磁波沿线的传播速度 v_p = 3×10⁸ m/s。始端接电源 V̇_s = 100∠0° kV（有效值），终端接 R_L = 400 Ω。",
     "坐标 x 从始端（1–1′）量起，指向终端（2–2′）；x′ = l − x 从终端量起。"
   ],
   "schematic": {
     "elements": [
       {
-        "ref": "Us",
+        "ref": "Vs",
         "type": "V",
         "from": [
           0,
@@ -166,7 +166,7 @@
       },
       "answer": 6000000.0,
       "unit": "km",
-      "explain": "λ = v/f = 3×10⁸/50 = 6×10⁶ m = 6000 km。"
+      "explain": "λ = v_p/f = 3×10⁸/50 = 6×10⁶ m = 6000 km。"
     },
     {
       "id": "ratio",
@@ -190,11 +190,11 @@
       },
       "answer": 0.001,
       "unit": "ms",
-      "explain": "t = l/v = 3×10⁵/(3×10⁸) = 1 ms，相当于 50 Hz 周期（20 ms）的 1/20。"
+      "explain": "t = l/v_p = 3×10⁵/(3×10⁸) = 1 ms，相当于 50 Hz 周期（20 ms）的 1/20。"
     },
     {
       "id": "lag",
-      "ask": "终端电压 U̇_2 的初相 = ?（U̇_s 的初相为 0°）",
+      "ask": "终端电压 V̇_2 的初相 = ?（V̇_s 的初相为 0°）",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -204,11 +204,11 @@
       },
       "answer": -18,
       "unit": "°",
-      "explain": "负载等于特性阻抗时线上只有入射波：U̇(x) = U̇_1·e^{−jβx}。βl = 2π·l/λ = 2π × 0.05 rad = 18°，所以 U̇_2 滞后 U̇_1 18°，初相 −18°。"
+      "explain": "负载等于特性阻抗时线上只有入射波：V̇(x) = V̇_1·e^{−jβx}。βl = 2π·l/λ = 2π × 0.05 rad = 18°，所以 V̇_2 滞后 V̇_1 18°，初相 −18°。"
     },
     {
       "id": "which",
-      "ask": "取 v = 2×10⁸ m/s（电缆、印制板走线中常见），下面哪一种必须按分布参数电路（传输线）分析？",
+      "ask": "取 v_p = 2×10⁸ m/s（电缆、印制板走线中常见），下面哪一种必须按分布参数电路（传输线）分析？",
       "choices": [
         "2 m 长的音频线，信号 20 kHz",
         "0.3 m 长的印制板走线，信号 1 GHz",
@@ -225,14 +225,14 @@
   ],
   "hints": [
     "判断一个电路能不能当集总参数电路处理，要看它的尺寸和工作波长 λ 的比值。",
-    "λ = v/f；波从一端传到另一端用的时间是 l/v。",
+    "λ = v_p/f；波从一端传到另一端用的时间是 l/v_p。",
     "R_L = Z_c 时线上只有入射波，沿线电压大小不变，相位按 βx 滞后，β = 2π/λ。"
   ],
   "solution": [
-    "**1. 波长。** λ = v/f = 3×10⁸/50 = **6000 km**。",
+    "**1. 波长。** λ = v_p/f = 3×10⁸/50 = **6000 km**。",
     "**2. 电长度。** l/λ = 300/6000 = **0.05**，也就是 βl = 2π × 0.05 rad = 18°。",
-    "**3. 传播时间。** l/v = **1 ms**。",
-    "**4. 终端电压的相位。** R_L = Z_c（匹配），线上只有入射波 U̇(x) = U̇_1·e^{−jβx}，U̇_2 = 100∠**−18°** kV：大小不变，相位滞后 βl。",
+    "**3. 传播时间。** l/v_p = **1 ms**。",
+    "**4. 终端电压的相位。** R_L = Z_c（匹配），线上只有入射波 V̇(x) = V̇_1·e^{−jβx}，V̇_2 = 100∠**−18°** kV：大小不变，相位滞后 βl。",
     "**5. 结论。** 300 km 的 50 Hz 线路只有 0.05λ，已经能看出明显的相位差（18°），所以超高压长线要按分布参数处理；而几米长的低频线路 l/λ 极小，集总参数模型足够。判断时总是看 l/λ。",
     "**检查：** 18° 对应的时间 = 18/360 × 20 ms = 1 ms，与传播时间一致 ✓。"
   ],
@@ -245,13 +245,13 @@
         "phase velocity"
       ],
       "statement": [
-        "A 300 km, 50 Hz overhead transmission line may be treated as lossless: characteristic impedance Z_c = 400 Ω, propagation speed v = 3×10⁸ m/s. The start is fed by U̇_s = 100∠0° kV (rms) and the end is loaded with R_L = 400 Ω.",
+        "A 300 km, 50 Hz overhead transmission line may be treated as lossless: characteristic impedance Z_c = 400 Ω, propagation speed v_p = 3×10⁸ m/s. The start is fed by V̇_s = 100∠0° kV (rms) and the end is loaded with R_L = 400 Ω.",
         "x is measured from the start (1–1′) towards the end (2–2′); x′ = l − x is measured from the end."
       ],
       "questions": [
         {
           "ask": "Wavelength on the overhead line, λ = ?",
-          "explain": "λ = v/f = 3×10⁸/50 = 6×10⁶ m = 6000 km."
+          "explain": "λ = v_p/f = 3×10⁸/50 = 6×10⁶ m = 6000 km."
         },
         {
           "ask": "Length in wavelengths, l/λ = ?",
@@ -259,14 +259,14 @@
         },
         {
           "ask": "Time for a wave to travel from the start to the end = ?",
-          "explain": "t = l/v = 3×10⁵/(3×10⁸) = 1 ms, i.e. 1/20 of the 50 Hz period (20 ms)."
+          "explain": "t = l/v_p = 3×10⁵/(3×10⁸) = 1 ms, i.e. 1/20 of the 50 Hz period (20 ms)."
         },
         {
-          "ask": "Initial phase of the end voltage U̇_2 = ? (U̇_s has phase 0°)",
-          "explain": "With the load equal to the characteristic impedance only the incident wave exists: U̇(x) = U̇_1·e^{−jβx}. βl = 2π·l/λ = 2π × 0.05 rad = 18°, so U̇_2 lags U̇_1 by 18°: phase −18°."
+          "ask": "Initial phase of the end voltage V̇_2 = ? (V̇_s has phase 0°)",
+          "explain": "With the load equal to the characteristic impedance only the incident wave exists: V̇(x) = V̇_1·e^{−jβx}. βl = 2π·l/λ = 2π × 0.05 rad = 18°, so V̇_2 lags V̇_1 by 18°: phase −18°."
         },
         {
-          "ask": "With v = 2×10⁸ m/s (typical of cables and PCB traces), which one must be analysed as a distributed-parameter circuit (a transmission line)?",
+          "ask": "With v_p = 2×10⁸ m/s (typical of cables and PCB traces), which one must be analysed as a distributed-parameter circuit (a transmission line)?",
           "choices": [
             "A 2 m audio cable carrying 20 kHz",
             "A 0.3 m PCB trace carrying 1 GHz",
@@ -282,14 +282,14 @@
       ],
       "hints": [
         "Whether a circuit may be treated as lumped depends on its size compared with the operating wavelength λ.",
-        "λ = v/f; a wave needs l/v to travel from one end to the other.",
+        "λ = v_p/f; a wave needs l/v_p to travel from one end to the other.",
         "With R_L = Z_c only the incident wave exists: its amplitude is constant along the line and its phase lags by βx, β = 2π/λ."
       ],
       "solution": [
-        "**1. Wavelength.** λ = v/f = 3×10⁸/50 = **6000 km**.",
+        "**1. Wavelength.** λ = v_p/f = 3×10⁸/50 = **6000 km**.",
         "**2. Electrical length.** l/λ = 300/6000 = **0.05**, i.e. βl = 2π × 0.05 rad = 18°.",
-        "**3. Travel time.** l/v = **1 ms**.",
-        "**4. Phase of the end voltage.** R_L = Z_c (matched): only the incident wave U̇(x) = U̇_1·e^{−jβx}, so U̇_2 = 100∠**−18°** kV — same magnitude, phase lagging by βl.",
+        "**3. Travel time.** l/v_p = **1 ms**.",
+        "**4. Phase of the end voltage.** R_L = Z_c (matched): only the incident wave V̇(x) = V̇_1·e^{−jβx}, so V̇_2 = 100∠**−18°** kV — same magnitude, phase lagging by βl.",
         "**5. Conclusion.** A 300 km line at 50 Hz is only 0.05λ long yet already shows an 18° phase shift, so long EHV lines are distributed circuits; a few metres of low-frequency wiring have a tiny l/λ and the lumped model is enough. Always judge by l/λ.",
         "**Check:** 18° corresponds to 18/360 × 20 ms = 1 ms, the travel time ✓."
       ]

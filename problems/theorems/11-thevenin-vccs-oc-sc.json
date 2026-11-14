@@ -7,15 +7,15 @@
   "level": 3,
   "tags": ["戴维宁定理", "受控源 VCCS", "开路电压/短路电流法"],
   "statement": [
-    "图示电路中 U_s = 12 V，R_1 = 2 Ω，R_2 = 4 Ω。电压控制电流源 G 向上输出电流 0.25u_1，u_1 是 R_1 两端电压（极性见图），负载 R_L = 2 Ω。",
-    "断开 R_L，求 a、b 端的开路电压 u_oc 和短路电流 i_sc（从 a 经短路线流到 b），由 R_eq = u_oc/i_sc 求等效电阻，再求负载电流 i_L。"
+    "图示电路中 V_s = 12 V，R_1 = 2 Ω，R_2 = 4 Ω。电压控制电流源 G 向上输出电流 0.25v_1，v_1 是 R_1 两端电压（极性见图），负载 R_L = 2 Ω。",
+    "断开 R_L，求 a、b 端的开路电压 v_oc 和短路电流 i_sc（从 a 经短路线流到 b），由 R_eq = v_oc/i_sc 求等效电阻，再求负载电流 i_L。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
       { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 4 },
-      { "ref": "G", "type": "VCCS", "from": [12, 4], "to": [12, 0], "value": 0.25, "ctrl": { "v": "R1" }, "label": "0.25u_1" },
+      { "ref": "G", "type": "VCCS", "from": [12, 4], "to": [12, 0], "value": 0.25, "ctrl": { "v": "R1" }, "label": "0.25v_1" },
       { "ref": "RL", "type": "R", "from": [19, 0], "to": [19, 4], "value": 2 }
     ],
     "wires": [
@@ -25,17 +25,17 @@
     ],
     "terminals": [{ "at": [16, 0], "name": "a" }, { "at": [16, 4], "name": "b" }],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "v", "el": "R1", "name": "u1" }, { "kind": "i", "el": "RL", "name": "i_L" }]
+    "marks": [{ "kind": "v", "el": "R1", "name": "v1" }, { "kind": "i", "el": "RL", "name": "i_L" }]
   },
   "analysis": { "type": "dc" },
   "questions": [
     {
       "id": "uoc",
-      "ask": "u_oc = ?",
+      "ask": "v_oc = ?",
       "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 9,
       "unit": "V",
-      "explain": "a 点 KCL：u_1/2 + 0.25u_1 = u_oc/4，且 u_1 = 12 − u_oc → u_oc = 3u_1 → u_1 = 3 V，u_oc = 9 V。"
+      "explain": "a 点 KCL：v_1/2 + 0.25v_1 = v_oc/4，且 v_1 = 12 − v_oc → v_oc = 3v_1 → v_1 = 3 V，v_oc = 9 V。"
     },
     {
       "id": "isc",
@@ -43,7 +43,7 @@
       "find": { "kind": "isc", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 9,
       "unit": "A",
-      "explain": "短路时 u_a = 0，u_1 = 12 V：R_1 送来 6 A，G 送来 0.25 × 12 = 3 A，R_2 无电流，i_sc = 9 A。"
+      "explain": "短路时 v_a = 0，v_1 = 12 V：R_1 送来 6 A，G 送来 0.25 × 12 = 3 A，R_2 无电流，i_sc = 9 A。"
     },
     {
       "id": "req",
@@ -51,7 +51,7 @@
       "find": { "kind": "req", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 1,
       "unit": "Ω",
-      "explain": "R_eq = u_oc/i_sc = 9/9 = 1 Ω。"
+      "explain": "R_eq = v_oc/i_sc = 9/9 = 1 Ω。"
     },
     {
       "id": "il",
@@ -59,57 +59,57 @@
       "find": { "kind": "i", "el": "RL" },
       "answer": 3,
       "unit": "A",
-      "explain": "i_L = u_oc/(R_eq + R_L) = 9/(1 + 2) = 3 A。"
+      "explain": "i_L = v_oc/(R_eq + R_L) = 9/(1 + 2) = 3 A。"
     }
   ],
   "hints": [
-    "开路时只有一个独立结点 a，控制量 u_1 = U_s − u_a。",
-    "短路时 u_a = 0，R_2 被短路，控制量 u_1 直接等于 U_s。",
-    "注意：u_oc 和 i_sc 都是在保留独立源的情况下求的；R_eq = u_oc/i_sc 要求 u_oc、i_sc 方向对应（i_sc 从 a 经短路线流到 b）。"
+    "开路时只有一个独立结点 a，控制量 v_1 = V_s − v_a。",
+    "短路时 v_a = 0，R_2 被短路，控制量 v_1 直接等于 V_s。",
+    "注意：v_oc 和 i_sc 都是在保留独立源的情况下求的；R_eq = v_oc/i_sc 要求 v_oc、i_sc 方向对应（i_sc 从 a 经短路线流到 b）。"
   ],
   "solution": [
-    "**1. 开路电压。** 断开 R_L，设 u_a = u_oc，则 u_1 = 12 − u_oc。a 点 KCL（流入 = 流出）：u_1/R_1 + 0.25u_1 = u_oc/R_2 → 0.75u_1 = u_oc/4 → u_oc = 3u_1。",
-    "联立：u_oc = 3(12 − u_oc) → **u_oc = 9 V**（u_1 = 3 V）。",
-    "**2. 短路电流。** a、b 短接：u_1 = 12 V，R_1 电流 6 A，G 电流 3 A，R_2 两端电压为零：**i_sc = 9 A**。",
-    "**3. 等效电阻。** R_eq = u_oc/i_sc = **1 Ω**（可用外加电源法验证：u_1 = −u，i_x = u/4 + u/2 + 0.25u = u → R_eq = 1 Ω ✓）。",
+    "**1. 开路电压。** 断开 R_L，设 v_a = v_oc，则 v_1 = 12 − v_oc。a 点 KCL（流入 = 流出）：v_1/R_1 + 0.25v_1 = v_oc/R_2 → 0.75v_1 = v_oc/4 → v_oc = 3v_1。",
+    "联立：v_oc = 3(12 − v_oc) → **v_oc = 9 V**（v_1 = 3 V）。",
+    "**2. 短路电流。** a、b 短接：v_1 = 12 V，R_1 电流 6 A，G 电流 3 A，R_2 两端电压为零：**i_sc = 9 A**。",
+    "**3. 等效电阻。** R_eq = v_oc/i_sc = **1 Ω**（可用外加电源法验证：v_1 = −v，i_x = v/4 + v/2 + 0.25v = v → R_eq = 1 Ω ✓）。",
     "**4. 负载电流。** i_L = 9/(1 + 2) = **3 A**。"
   ],
   "i18n": {
     "en": {
       "title": "Thevenin equivalent with a VCCS: open-circuit/short-circuit method",
-      "tags": ["Thevenin's theorem", "dependent source VCCS", "u_oc/i_sc method"],
+      "tags": ["Thevenin's theorem", "dependent source VCCS", "v_oc/i_sc method"],
       "statement": [
-        "In the circuit, U_s = 12 V, R_1 = 2 Ω, R_2 = 4 Ω. The voltage-controlled current source G drives a current 0.25u_1 upward, where u_1 is the voltage across R_1 (polarity as drawn); the load is R_L = 2 Ω.",
-        "Remove R_L, find the open-circuit voltage u_oc and the short-circuit current i_sc at a, b (flowing from a through the short to b), get R_eq = u_oc/i_sc, and then find the load current i_L."
+        "In the circuit, V_s = 12 V, R_1 = 2 Ω, R_2 = 4 Ω. The voltage-controlled current source G drives a current 0.25v_1 upward, where v_1 is the voltage across R_1 (polarity as drawn); the load is R_L = 2 Ω.",
+        "Remove R_L, find the open-circuit voltage v_oc and the short-circuit current i_sc at a, b (flowing from a through the short to b), get R_eq = v_oc/i_sc, and then find the load current i_L."
       ],
       "questions": [
         {
-          "ask": "u_oc = ?",
-          "explain": "KCL at a: u_1/2 + 0.25u_1 = u_oc/4 with u_1 = 12 − u_oc → u_oc = 3u_1 → u_1 = 3 V, u_oc = 9 V."
+          "ask": "v_oc = ?",
+          "explain": "KCL at a: v_1/2 + 0.25v_1 = v_oc/4 with v_1 = 12 − v_oc → v_oc = 3v_1 → v_1 = 3 V, v_oc = 9 V."
         },
         {
           "ask": "i_sc = ?",
-          "explain": "With a shorted, u_a = 0 and u_1 = 12 V: R_1 brings 6 A, G brings 0.25 × 12 = 3 A, R_2 carries nothing, i_sc = 9 A."
+          "explain": "With a shorted, v_a = 0 and v_1 = 12 V: R_1 brings 6 A, G brings 0.25 × 12 = 3 A, R_2 carries nothing, i_sc = 9 A."
         },
         {
           "ask": "R_eq = ?",
-          "explain": "R_eq = u_oc/i_sc = 9/9 = 1 Ω."
+          "explain": "R_eq = v_oc/i_sc = 9/9 = 1 Ω."
         },
         {
           "ask": "With R_L connected, i_L = ?",
-          "explain": "i_L = u_oc/(R_eq + R_L) = 9/(1 + 2) = 3 A."
+          "explain": "i_L = v_oc/(R_eq + R_L) = 9/(1 + 2) = 3 A."
         }
       ],
       "hints": [
-        "With the port open there is a single independent node a, and the controlling voltage is u_1 = U_s − u_a.",
-        "With the port shorted u_a = 0, R_2 is shorted out and u_1 equals U_s.",
-        "Note: u_oc and i_sc are both found with the independent source kept; R_eq = u_oc/i_sc needs matching directions (i_sc flows from a through the short to b)."
+        "With the port open there is a single independent node a, and the controlling voltage is v_1 = V_s − v_a.",
+        "With the port shorted v_a = 0, R_2 is shorted out and v_1 equals V_s.",
+        "Note: v_oc and i_sc are both found with the independent source kept; R_eq = v_oc/i_sc needs matching directions (i_sc flows from a through the short to b)."
       ],
       "solution": [
-        "**1. Open-circuit voltage.** Remove R_L and let u_a = u_oc, so u_1 = 12 − u_oc. KCL at a (in = out): u_1/R_1 + 0.25u_1 = u_oc/R_2 → 0.75u_1 = u_oc/4 → u_oc = 3u_1.",
-        "Combine: u_oc = 3(12 − u_oc) → **u_oc = 9 V** (u_1 = 3 V).",
-        "**2. Short-circuit current.** Short a, b: u_1 = 12 V, R_1 carries 6 A, G 3 A, and R_2 has zero voltage: **i_sc = 9 A**.",
-        "**3. Equivalent resistance.** R_eq = u_oc/i_sc = **1 Ω** (check with a test source: u_1 = −u, i_x = u/4 + u/2 + 0.25u = u → R_eq = 1 Ω ✓).",
+        "**1. Open-circuit voltage.** Remove R_L and let v_a = v_oc, so v_1 = 12 − v_oc. KCL at a (in = out): v_1/R_1 + 0.25v_1 = v_oc/R_2 → 0.75v_1 = v_oc/4 → v_oc = 3v_1.",
+        "Combine: v_oc = 3(12 − v_oc) → **v_oc = 9 V** (v_1 = 3 V).",
+        "**2. Short-circuit current.** Short a, b: v_1 = 12 V, R_1 carries 6 A, G 3 A, and R_2 has zero voltage: **i_sc = 9 A**.",
+        "**3. Equivalent resistance.** R_eq = v_oc/i_sc = **1 Ω** (check with a test source: v_1 = −v, i_x = v/4 + v/2 + 0.25v = v → R_eq = 1 Ω ✓).",
         "**4. Load current.** i_L = 9/(1 + 2) = **3 A**."
       ]
     }

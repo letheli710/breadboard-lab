@@ -175,7 +175,7 @@ function sourceText(v: TwoTerminalElement['value'], unit: string): string | null
 }
 
 function ctrlSymbol(c: CtrlRef | undefined): string {
-  const u = getLang() === 'zh' ? 'u' : 'v';
+  const u = 'v';
   if (!c) return '?';
   if ('i' in c) return `i_{${c.i}}`;
   if ('v' in c) return `${u}_{${c.v}}`;
@@ -214,12 +214,13 @@ export function lawText(law: unknown): string | null {
     const cond = lo !== null && hi !== null ? ` (${num(lo)} ≤ ${x} ≤ ${num(hi)})` : lo !== null ? ` (${x} ≥ ${num(lo)})` : hi !== null ? ` (${x} ≤ ${num(hi)})` : '';
     return `${y} = ${terms.join('')}${cond}`;
   };
-  if ('i' in o) return poly('i', 'u', o.i, o.umin, o.umax);
-  if ('u' in o) return poly('u', 'i', o.u, o.imin, o.imax);
+  // the law's data keys stay "u" / "i"; the drawing writes the voltage as v
+  if ('i' in o) return poly('i', 'v', o.i, o.umin, o.umax);
+  if ('u' in o) return poly('v', 'i', o.u, o.imin, o.imax);
   if ('diode' in o && o.diode && typeof o.diode === 'object') {
     const d = o.diode as Record<string, unknown>;
     const parts = [];
-    if (toNum(d.uon)) parts.push(`U_on = ${formatSI(toNum(d.uon)!, 'V')}`);
+    if (toNum(d.uon)) parts.push(`V_on = ${formatSI(toNum(d.uon)!, 'V')}`);
     if (toNum(d.ron)) parts.push(`R_on = ${formatSI(toNum(d.ron)!, 'Ω')}`);
     return parts.length ? parts.join(', ') : null;
   }
@@ -835,7 +836,7 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
     const col = hl.has(g.el.ref) ? 'var(--accent)' : 'var(--ink)';
     const ms = markSideOf.get(g.el.ref)!;
     const msl = Math.sign(ms[0] * g.nrm[0] + ms[1] * g.nrm[1]) || 1;
-    const name = m.name ?? (m.kind === 'i' ? `i_{${g.el.ref}}` : `${zh ? 'u' : 'v'}_{${g.el.ref}}`);
+    const name = m.name ?? (m.kind === 'i' ? `i_{${g.el.ref}}` : `v_{${g.el.ref}}`);
     const runs = richRuns(symbolText(name));
     if (m.kind === 'i') {
       const leadLen = g.len / 2 - g.B / 2;

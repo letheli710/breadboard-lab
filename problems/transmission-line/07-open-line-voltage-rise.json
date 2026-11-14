@@ -12,13 +12,13 @@
     "充电电流"
   ],
   "statement": [
-    "一条 600 km、50 Hz 的超高压输电线按无损耗线计算：Z_c = 380 Ω，v = 3×10⁸ m/s。始端相电压保持 U̇_1 = 127∠0° kV（有效值），终端空载（开路）。",
+    "一条 600 km、50 Hz 的超高压输电线按无损耗线计算：Z_c = 380 Ω，v_p = 3×10⁸ m/s。始端相电压保持 V̇_1 = 127∠0° kV（有效值），终端空载（开路）。",
     "x 从始端量起，x′ 从终端量起；İ 的参考方向沿 +x（从始端流向终端）。"
   ],
   "schematic": {
     "elements": [
       {
-        "ref": "Us",
+        "ref": "Vs",
         "type": "V",
         "from": [
           0,
@@ -34,7 +34,7 @@
             "phase": 0
           }
         },
-        "label": "U̇_1 = 127∠0° kV"
+        "label": "V̇_1 = 127∠0° kV"
       },
       {
         "ref": "TL",
@@ -131,7 +131,7 @@
   "questions": [
     {
       "id": "u2",
-      "ask": "空载时终端电压 U_2 = ?",
+      "ask": "空载时终端电压 V_2 = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -141,11 +141,11 @@
       },
       "answer": 156981,
       "unit": "kV",
-      "explain": "İ_2 = 0：U̇_1 = U̇_2 cos βl，βl = 2π × 600/6000 = 36°，U_2 = 127/cos 36° = 127/0.809 = 157.0 kV——比始端高 24%。"
+      "explain": "İ_2 = 0：V̇_1 = V̇_2 cos βl，βl = 2π × 600/6000 = 36°，V_2 = 127/cos 36° = 127/0.809 = 157.0 kV——比始端高 24%。"
     },
     {
       "id": "umid",
-      "ask": "线路中点（x = 300 km）电压 U = ?",
+      "ask": "线路中点（x = 300 km）电压 V = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -154,7 +154,7 @@
       },
       "answer": 149297,
       "unit": "kV",
-      "explain": "U̇(x′) = U̇_2 cos βx′（x′ 从终端量起），中点 x′ = 300 km，βx′ = 18°：U = 157.0 × cos 18° = 149.3 kV。"
+      "explain": "V̇(x′) = V̇_2 cos βx′（x′ 从终端量起），中点 x′ = 300 km，βx′ = 18°：V = 157.0 × cos 18° = 149.3 kV。"
     },
     {
       "id": "i1",
@@ -167,7 +167,7 @@
       },
       "answer": 242.818,
       "unit": "A",
-      "explain": "İ_1 = jU̇_2 sin βl/Z_c = j157.0 × 0.5878/380 = j242.8 A；或者 Z_in = −jZ_c cot βl = −j523.0 Ω，I_1 = 127 kV/523.0 Ω = 242.8 A。"
+      "explain": "İ_1 = jV̇_2 sin βl/Z_c = j157.0 × 0.5878/380 = j242.8 A；或者 Z_in = −jZ_c cot βl = −j523.0 Ω，I_1 = 127 kV/523.0 Ω = 242.8 A。"
     },
     {
       "id": "i1ph",
@@ -181,7 +181,7 @@
       },
       "answer": 90,
       "unit": "°",
-      "explain": "Z_in 是纯容性（l < λ/4 的开路线），所以 İ_1 超前 U̇_1 90°：初相 90°。"
+      "explain": "Z_in 是纯容性（l < λ/4 的开路线），所以 İ_1 超前 V̇_1 90°：初相 90°。"
     },
     {
       "id": "why",
@@ -194,22 +194,22 @@
       "correct": 1,
       "choiceExplain": [
         "开路时 Γ_2 = 1，反射波和入射波一样大；无损耗线上入射波的大小处处相同，不会“越走越大”。",
-        "对：|U̇(x′)| = 2U⁺|cos βx′|，终端最大。",
+        "对：|V̇(x′)| = 2V⁺|cos βx′|，终端最大。",
         "电阻只会产生压降；而且这里线路无损耗。"
       ],
-      "explain": "Γ_2 = 1，反射波电压与入射波电压在终端同相相加，U̇_2 = 2U̇_2⁺；在始端两者相差 2βl = 72°，合成的模只有 2U⁺cos 36°，所以 U_1 = U_2 cos βl < U_2。从集总的角度看，这是分布电容的充电电流流过分布电感造成的电压升。"
+      "explain": "Γ_2 = 1，反射波电压与入射波电压在终端同相相加，V̇_2 = 2V̇_2⁺；在始端两者相差 2βl = 72°，合成的模只有 2V⁺cos 36°，所以 V_1 = V_2 cos βl < V_2。从集总的角度看，这是分布电容的充电电流流过分布电感造成的电压升。"
     }
   ],
   "hints": [
-    "从终端写方程最方便：开路时 İ_2 = 0，无损耗线方程只剩 U̇(x′) = U̇_2 cos βx′、İ(x′) = jU̇_2 sin βx′/Z_c。",
-    "βl = 2πl/λ，λ = v/f = 6000 km。始端条件 U̇_1 = U̇_2 cos βl 定出 U̇_2。",
+    "从终端写方程最方便：开路时 İ_2 = 0，无损耗线方程只剩 V̇(x′) = V̇_2 cos βx′、İ(x′) = jV̇_2 sin βx′/Z_c。",
+    "βl = 2πl/λ，λ = v_p/f = 6000 km。始端条件 V̇_1 = V̇_2 cos βl 定出 V̇_2。",
     "始端电流也可以用输入阻抗 Z_in = −jZ_c cot βl 求；它是纯电抗，所以电流与电压相差 90°。"
   ],
   "solution": [
     "**1. 电长度。** λ = 6000 km，βl = 360° × 600/6000 = 36°。",
-    "**2. 终端电压。** U̇_2 = U̇_1/cos βl = 127/0.809 = **157.0 kV**（升高 24%）。",
-    "**3. 沿线分布。** U(x′) = U_2 cos βx′：中点 βx′ = 18°，U = **149.3 kV**；电压从始端到终端单调升高。",
-    "**4. 充电电流。** İ_1 = jU̇_2 sin βl/Z_c = j157.0 × 0.5878/380 = **j242.8 A**（超前 U̇_1 **90°**），整条线只吸收无功功率。",
+    "**2. 终端电压。** V̇_2 = V̇_1/cos βl = 127/0.809 = **157.0 kV**（升高 24%）。",
+    "**3. 沿线分布。** V(x′) = V_2 cos βx′：中点 βx′ = 18°，V = **149.3 kV**；电压从始端到终端单调升高。",
+    "**4. 充电电流。** İ_1 = jV̇_2 sin βl/Z_c = j157.0 × 0.5878/380 = **j242.8 A**（超前 V̇_1 **90°**），整条线只吸收无功功率。",
     "**检查：** Z_in = −j380 × cot 36° = −j523.0 Ω，127000/523.0 = 242.8 A ✓。实际电网在空载长线末端装并联电抗器来抑制这种电压升高。"
   ],
   "i18n": {
@@ -222,25 +222,25 @@
         "charging current"
       ],
       "statement": [
-        "A 600 km, 50 Hz EHV line is computed as lossless: Z_c = 380 Ω, v = 3×10⁸ m/s. The phase voltage at the start is held at U̇_1 = 127∠0° kV (rms) and the end is unloaded (open).",
+        "A 600 km, 50 Hz EHV line is computed as lossless: Z_c = 380 Ω, v_p = 3×10⁸ m/s. The phase voltage at the start is held at V̇_1 = 127∠0° kV (rms) and the end is unloaded (open).",
         "x is measured from the start and x′ from the end; the reference direction of İ is +x (from the start towards the end)."
       ],
       "questions": [
         {
-          "ask": "No-load voltage at the end U_2 = ?",
-          "explain": "İ_2 = 0: U̇_1 = U̇_2 cos βl with βl = 2π × 600/6000 = 36°, so U_2 = 127/cos 36° = 127/0.809 = 157.0 kV — 24% above the start."
+          "ask": "No-load voltage at the end V_2 = ?",
+          "explain": "İ_2 = 0: V̇_1 = V̇_2 cos βl with βl = 2π × 600/6000 = 36°, so V_2 = 127/cos 36° = 127/0.809 = 157.0 kV — 24% above the start."
         },
         {
-          "ask": "Voltage at the midpoint (x = 300 km) U = ?",
-          "explain": "U̇(x′) = U̇_2 cos βx′ (x′ from the end); at the midpoint x′ = 300 km, βx′ = 18°: U = 157.0 × cos 18° = 149.3 kV."
+          "ask": "Voltage at the midpoint (x = 300 km) V = ?",
+          "explain": "V̇(x′) = V̇_2 cos βx′ (x′ from the end); at the midpoint x′ = 300 km, βx′ = 18°: V = 157.0 × cos 18° = 149.3 kV."
         },
         {
           "ask": "Current at the start (no-load charging current) I_1 = ?",
-          "explain": "İ_1 = jU̇_2 sin βl/Z_c = j157.0 × 0.5878/380 = j242.8 A; or Z_in = −jZ_c cot βl = −j523.0 Ω, I_1 = 127 kV/523.0 Ω = 242.8 A."
+          "explain": "İ_1 = jV̇_2 sin βl/Z_c = j157.0 × 0.5878/380 = j242.8 A; or Z_in = −jZ_c cot βl = −j523.0 Ω, I_1 = 127 kV/523.0 Ω = 242.8 A."
         },
         {
           "ask": "Initial phase of İ_1 = ?",
-          "explain": "Z_in is purely capacitive (an open line shorter than λ/4), so İ_1 leads U̇_1 by 90°: phase 90°."
+          "explain": "Z_in is purely capacitive (an open line shorter than λ/4), so İ_1 leads V̇_1 by 90°: phase 90°."
         },
         {
           "ask": "In travelling-wave terms, why does the voltage rise at the open end of a long line?",
@@ -249,24 +249,24 @@
             "The open end gives Γ_2 = 1: incident and reflected waves add in phase at the end; towards the start their phase difference 2βx′ grows and their sum shrinks as cos βx′",
             "The line resistance produces a negative voltage drop"
           ],
-          "explain": "With Γ_2 = 1 the reflected voltage wave adds in phase to the incident one at the end, U̇_2 = 2U̇_2⁺; at the start they are 2βl = 72° apart and their sum is only 2U⁺cos 36°, so U_1 = U_2 cos βl < U_2. In lumped terms: the charging current of the distributed capacitance flowing through the distributed inductance raises the voltage.",
+          "explain": "With Γ_2 = 1 the reflected voltage wave adds in phase to the incident one at the end, V̇_2 = 2V̇_2⁺; at the start they are 2βl = 72° apart and their sum is only 2V⁺cos 36°, so V_1 = V_2 cos βl < V_2. In lumped terms: the charging current of the distributed capacitance flowing through the distributed inductance raises the voltage.",
           "choiceExplain": [
             "With the end open Γ_2 = 1, so the reflected wave is as large as the incident one; and on a lossless line the incident wave has the same amplitude everywhere — it does not grow.",
-            "Right: |U̇(x′)| = 2U⁺|cos βx′|, largest at the end.",
+            "Right: |V̇(x′)| = 2V⁺|cos βx′|, largest at the end.",
             "Resistance can only cause a voltage drop; and this line is lossless."
           ]
         }
       ],
       "hints": [
-        "Writing the equations from the end is easiest: with the end open İ_2 = 0, so the lossless line equations reduce to U̇(x′) = U̇_2 cos βx′, İ(x′) = jU̇_2 sin βx′/Z_c.",
-        "βl = 2πl/λ with λ = v/f = 6000 km. The start condition U̇_1 = U̇_2 cos βl gives U̇_2.",
+        "Writing the equations from the end is easiest: with the end open İ_2 = 0, so the lossless line equations reduce to V̇(x′) = V̇_2 cos βx′, İ(x′) = jV̇_2 sin βx′/Z_c.",
+        "βl = 2πl/λ with λ = v_p/f = 6000 km. The start condition V̇_1 = V̇_2 cos βl gives V̇_2.",
         "The start current also follows from the input impedance Z_in = −jZ_c cot βl; it is a pure reactance, so current and voltage are 90° apart."
       ],
       "solution": [
         "**1. Electrical length.** λ = 6000 km, βl = 360° × 600/6000 = 36°.",
-        "**2. End voltage.** U̇_2 = U̇_1/cos βl = 127/0.809 = **157.0 kV** (24% higher).",
-        "**3. Along the line.** U(x′) = U_2 cos βx′: at the midpoint βx′ = 18°, U = **149.3 kV**; the voltage rises steadily from the start to the end.",
-        "**4. Charging current.** İ_1 = jU̇_2 sin βl/Z_c = j157.0 × 0.5878/380 = **j242.8 A** (leading U̇_1 by **90°**); the line only absorbs reactive power.",
+        "**2. End voltage.** V̇_2 = V̇_1/cos βl = 127/0.809 = **157.0 kV** (24% higher).",
+        "**3. Along the line.** V(x′) = V_2 cos βx′: at the midpoint βx′ = 18°, V = **149.3 kV**; the voltage rises steadily from the start to the end.",
+        "**4. Charging current.** İ_1 = jV̇_2 sin βl/Z_c = j157.0 × 0.5878/380 = **j242.8 A** (leading V̇_1 by **90°**); the line only absorbs reactive power.",
         "**Check:** Z_in = −j380 × cot 36° = −j523.0 Ω, 127000/523.0 = 242.8 A ✓. Real grids connect shunt reactors at the end of long unloaded lines to limit this rise."
       ]
     }

@@ -7,8 +7,8 @@
   "level": 3,
   "tags": ["非线性电阻并联", "二极管模型", "等效特性"],
   "statement": [
-    "电流源 I_s = 8 A 给两个并联的非线性电阻供电：N_1 的特性为 i_1 = u²（u ≥ 0；u < 0 时 i_1 = 0），D 是开启电压 U_on = 1 V、导通电阻 R_on = 0.5 Ω 的二极管模型（u > 1 V 时 i_2 = (u − 1)/0.5，否则 i_2 = 0）。",
-    "求公共电压 u 以及两个元件的电流 i_1、i_2。"
+    "电流源 I_s = 8 A 给两个并联的非线性电阻供电：N_1 的特性为 i_1 = v²（v ≥ 0；v < 0 时 i_1 = 0），D 是开启电压 V_on = 1 V、导通电阻 R_on = 0.5 Ω 的二极管模型（v > 1 V 时 i_2 = (v − 1)/0.5，否则 i_2 = 0）。",
+    "求公共电压 v 以及两个元件的电流 i_1、i_2。"
   ],
   "schematic": {
     "elements": [
@@ -19,25 +19,25 @@
     "wires": [[[0, 0], [8, 0]], [[8, 4], [0, 4]]],
     "labels": [{"at": [4, 0], "name": "a"}],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "v", "el": "N1", "name": "u"}, {"kind": "i", "el": "N1", "name": "i1"}, {"kind": "i", "el": "D", "name": "i2"}]
+    "marks": [{"kind": "v", "el": "N1", "name": "v"}, {"kind": "i", "el": "N1", "name": "i1"}, {"kind": "i", "el": "D", "name": "i2"}]
   },
   "analysis": {"type": "dc"},
   "questions": [
     {
       "id": "rule",
       "ask": "图解求并联组合的等效特性时，应当：",
-      "choices": ["在同一个电压 u 下把两条曲线的电流相加", "在同一个电流 i 下把两条曲线的电压相加", "把两个静态电阻按并联公式合成"],
+      "choices": ["在同一个电压 v 下把两条曲线的电流相加", "在同一个电流 i 下把两条曲线的电压相加", "把两个静态电阻按并联公式合成"],
       "correct": 0,
-      "choiceExplain": ["对。并联元件电压相同，KCL 给出 i = i_1 + i_2：沿竖直方向（同一 u）叠加两条曲线。", "这是串联的规则。", "静态电阻随工作点变化，而工作点正是要求的量，不能先合成。"],
-      "explain": "并联：u 相同，i = i_1 + i_2。等效特性 i = u² + 2(u − 1)（u > 1 V），i = u²（0 ≤ u ≤ 1 V）。"
+      "choiceExplain": ["对。并联元件电压相同，KCL 给出 i = i_1 + i_2：沿竖直方向（同一 v）叠加两条曲线。", "这是串联的规则。", "静态电阻随工作点变化，而工作点正是要求的量，不能先合成。"],
+      "explain": "并联：v 相同，i = i_1 + i_2。等效特性 i = v² + 2(v − 1)（v > 1 V），i = v²（0 ≤ v ≤ 1 V）。"
     },
     {
       "id": "u",
-      "ask": "u = ?",
+      "ask": "v = ?",
       "find": {"kind": "v", "nodes": ["a"]},
       "answer": 2.316625,
       "unit": "V",
-      "explain": "先设 D 导通（u > 1 V）：u² + 2(u − 1) = 8 → u² + 2u − 10 = 0 → u = −1 + √11 ≈ 2.317 V > 1 V，假设成立。"
+      "explain": "先设 D 导通（v > 1 V）：v² + 2(v − 1) = 8 → v² + 2v − 10 = 0 → v = −1 + √11 ≈ 2.317 V > 1 V，假设成立。"
     },
     {
       "id": "i1",
@@ -45,7 +45,7 @@
       "find": {"kind": "i", "el": "N1"},
       "answer": 5.36675,
       "unit": "A",
-      "explain": "i_1 = u² = (√11 − 1)² = 12 − 2√11 ≈ 5.367 A。"
+      "explain": "i_1 = v² = (√11 − 1)² = 12 − 2√11 ≈ 5.367 A。"
     },
     {
       "id": "i2",
@@ -53,59 +53,59 @@
       "find": {"kind": "i", "el": "D"},
       "answer": 2.63325,
       "unit": "A",
-      "explain": "i_2 = (u − 1)/0.5 ≈ 2.633 A；检查 KCL：5.367 + 2.633 = 8 A ✓。"
+      "explain": "i_2 = (v − 1)/0.5 ≈ 2.633 A；检查 KCL：5.367 + 2.633 = 8 A ✓。"
     }
   ],
-  "hints": ["并联：电压相同，KCL 把电流相加。", "D 有两种状态。先假设它导通，写出 i_1 + i_2 = 8 的方程，解完再检查 u > 1 V。", "导通时方程化为 u² + 2u − 10 = 0，取正根。"],
+  "hints": ["并联：电压相同，KCL 把电流相加。", "D 有两种状态。先假设它导通，写出 i_1 + i_2 = 8 的方程，解完再检查 v > 1 V。", "导通时方程化为 v² + 2v − 10 = 0，取正根。"],
   "solution": [
-    "**等效特性。** 并联时 u 相同，i = i_1 + i_2：0 ≤ u ≤ 1 V 时 i = u²；u > 1 V 时 i = u² + 2(u − 1)。",
-    "**假设 D 导通。** u² + 2u − 2 = 8 → u² + 2u − 10 = 0 → u = −1 ± √11，取正根 **u ≈ 2.317 V**（负根不满足 u ≥ 0）。",
-    "**检查假设。** u > 1 V，D 确实导通 ✓。（若假设 D 截止：u² = 8，u = 2.83 V > 1 V，与截止矛盾。）",
-    "**电流。** i_1 = u² ≈ **5.367 A**，i_2 = 2(u − 1) ≈ **2.633 A**，和为 8 A ✓。"
+    "**等效特性。** 并联时 v 相同，i = i_1 + i_2：0 ≤ v ≤ 1 V 时 i = v²；v > 1 V 时 i = v² + 2(v − 1)。",
+    "**假设 D 导通。** v² + 2v − 2 = 8 → v² + 2v − 10 = 0 → v = −1 ± √11，取正根 **v ≈ 2.317 V**（负根不满足 v ≥ 0）。",
+    "**检查假设。** v > 1 V，D 确实导通 ✓。（若假设 D 截止：v² = 8，v = 2.83 V > 1 V，与截止矛盾。）",
+    "**电流。** i_1 = v² ≈ **5.367 A**，i_2 = 2(v − 1) ≈ **2.633 A**，和为 8 A ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Nonlinear resistors in parallel: same voltage, currents add",
       "tags": ["nonlinear resistors in parallel", "diode model", "equivalent characteristic"],
       "statement": [
-        "A current source I_s = 8 A feeds two nonlinear resistors in parallel: N_1 has i_1 = u² (u ≥ 0; i_1 = 0 for u < 0), and D is a diode model with turn-on voltage U_on = 1 V and on-resistance R_on = 0.5 Ω (i_2 = (u − 1)/0.5 for u > 1 V, otherwise i_2 = 0).",
-        "Find the common voltage u and the currents i_1, i_2."
+        "A current source I_s = 8 A feeds two nonlinear resistors in parallel: N_1 has i_1 = v² (v ≥ 0; i_1 = 0 for v < 0), and D is a diode model with turn-on voltage V_on = 1 V and on-resistance R_on = 0.5 Ω (i_2 = (v − 1)/0.5 for v > 1 V, otherwise i_2 = 0).",
+        "Find the common voltage v and the currents i_1, i_2."
       ],
       "questions": [
         {
           "ask": "To combine the two parallel characteristics graphically you:",
           "choices": [
-            "add the currents of the two curves at the same voltage u",
+            "add the currents of the two curves at the same voltage v",
             "add the voltages of the two curves at the same current i",
             "combine the two static resistances with the parallel formula"
           ],
           "choiceExplain": [
-            "Right. Parallel elements share u and KCL gives i = i_1 + i_2: add the curves vertically (at the same u).",
+            "Right. Parallel elements share v and KCL gives i = i_1 + i_2: add the curves vertically (at the same v).",
             "That is the rule for series elements.",
             "Static resistances depend on the operating point, which is what we are looking for; they cannot be combined first."
           ],
-          "explain": "Parallel: same u, i = i_1 + i_2. Equivalent characteristic i = u² + 2(u − 1) for u > 1 V, i = u² for 0 ≤ u ≤ 1 V."
+          "explain": "Parallel: same v, i = i_1 + i_2. Equivalent characteristic i = v² + 2(v − 1) for v > 1 V, i = v² for 0 ≤ v ≤ 1 V."
         },
         {
-          "ask": "u = ?",
-          "explain": "Assume D conducts (u > 1 V): u² + 2(u − 1) = 8 → u² + 2u − 10 = 0 → u = −1 + √11 ≈ 2.317 V > 1 V, consistent."
+          "ask": "v = ?",
+          "explain": "Assume D conducts (v > 1 V): v² + 2(v − 1) = 8 → v² + 2v − 10 = 0 → v = −1 + √11 ≈ 2.317 V > 1 V, consistent."
         },
-        {"ask": "i_1 = ?", "explain": "i_1 = u² = (√11 − 1)² = 12 − 2√11 ≈ 5.367 A."},
+        {"ask": "i_1 = ?", "explain": "i_1 = v² = (√11 − 1)² = 12 − 2√11 ≈ 5.367 A."},
         {
           "ask": "i_2 = ?",
-          "explain": "i_2 = (u − 1)/0.5 ≈ 2.633 A; KCL check: 5.367 + 2.633 = 8 A ✓."
+          "explain": "i_2 = (v − 1)/0.5 ≈ 2.633 A; KCL check: 5.367 + 2.633 = 8 A ✓."
         }
       ],
       "hints": [
         "Parallel: the same voltage; KCL adds the currents.",
-        "D has two states. Assume it conducts, write i_1 + i_2 = 8, solve, then check u > 1 V.",
-        "With D on the equation becomes u² + 2u − 10 = 0; take the positive root."
+        "D has two states. Assume it conducts, write i_1 + i_2 = 8, solve, then check v > 1 V.",
+        "With D on the equation becomes v² + 2v − 10 = 0; take the positive root."
       ],
       "solution": [
-        "**Equivalent characteristic.** In parallel u is common and i = i_1 + i_2: i = u² for 0 ≤ u ≤ 1 V; i = u² + 2(u − 1) for u > 1 V.",
-        "**Assume D on.** u² + 2u − 2 = 8 → u² + 2u − 10 = 0 → u = −1 ± √11; the positive root gives **u ≈ 2.317 V** (the negative one violates u ≥ 0).",
-        "**Check the assumption.** u > 1 V, so D does conduct ✓. (Assuming D off instead: u² = 8, u = 2.83 V > 1 V, a contradiction.)",
-        "**Currents.** i_1 = u² ≈ **5.367 A**, i_2 = 2(u − 1) ≈ **2.633 A**, summing to 8 A ✓."
+        "**Equivalent characteristic.** In parallel v is common and i = i_1 + i_2: i = v² for 0 ≤ v ≤ 1 V; i = v² + 2(v − 1) for v > 1 V.",
+        "**Assume D on.** v² + 2v − 2 = 8 → v² + 2v − 10 = 0 → v = −1 ± √11; the positive root gives **v ≈ 2.317 V** (the negative one violates v ≥ 0).",
+        "**Check the assumption.** v > 1 V, so D does conduct ✓. (Assuming D off instead: v² = 8, v = 2.83 V > 1 V, a contradiction.)",
+        "**Currents.** i_1 = v² ≈ **5.367 A**, i_2 = 2(v − 1) ≈ **2.633 A**, summing to 8 A ✓."
       ]
     }
   }

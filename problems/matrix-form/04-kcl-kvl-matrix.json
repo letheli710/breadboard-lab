@@ -7,13 +7,13 @@
   "level": 2,
   "tags": ["关联矩阵", "KCL 矩阵形式", "KVL 矩阵形式"],
   "statement": [
-    "电路如图（U_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 U_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
-    "参考结点为 4，A 的行、列顺序与上一题相同。已知结点电压 U_n1 = 6.8 V、U_n2 = 2.4 V、U_n3 = 2.8 V（对结点 4）。支路电压 U_k、电流 I_k 都按有向图的支路方向（U_k 从支路起点量到终点，与 I_k 关联）。用 U = Aᵀ·U_n 求支路电压，用 A·I = 0 求一个支路电流。"
+    "电路如图（V_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 V_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
+    "参考结点为 4，A 的行、列顺序与上一题相同。已知结点电压 V_n1 = 6.8 V、V_n2 = 2.4 V、V_n3 = 2.8 V（对结点 4）。支路电压 V_k、电流 I_k 都按有向图的支路方向（V_k 从支路起点量到终点，与 I_k 关联）。用 V = Aᵀ·V_n 求支路电压，用 A·I = 0 求一个支路电流。"
   ],
   "schematic": {
     "elements": [
       {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
-      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
+      {"ref": "Vs1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
       {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
       {"ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4},
       {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 2},
@@ -28,7 +28,7 @@
       "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
       "ref": "4",
       "branches": [
-        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Vs1"]},
         {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
         {"n": 3, "from": "2", "to": "3", "els": ["R3"]},
         {"n": 4, "from": "2", "to": "4", "els": ["R4"]},
@@ -41,27 +41,27 @@
   "questions": [
     {
       "id": "u1",
-      "ask": "支路电压 U_1 = ?（按支路 1 的方向，由 4 指向 1）",
+      "ask": "支路电压 V_1 = ?（按支路 1 的方向，由 4 指向 1）",
       "find": {"kind": "mat", "mat": "Ub", "row": 1},
       "answer": -6.8,
       "unit": "V",
-      "explain": "U = Aᵀ·U_n 的第 1 行：A 的第 1 列只有 a_11 = −1，所以 U_1 = −U_n1 = −6.8 V（支路电压从起点量到终点：U_1 = u_4 − u_1）。"
+      "explain": "V = Aᵀ·V_n 的第 1 行：A 的第 1 列只有 a_11 = −1，所以 V_1 = −V_n1 = −6.8 V（支路电压从起点量到终点：V_1 = v_4 − v_1）。"
     },
     {
       "id": "u3",
-      "ask": "U_3 = ?",
+      "ask": "V_3 = ?",
       "find": {"kind": "mat", "mat": "Ub", "row": 3},
       "answer": -0.4,
       "unit": "V",
-      "explain": "A 的第 3 列：a_23 = +1，a_33 = −1 → U_3 = U_n2 − U_n3 = 2.4 − 2.8 = −0.4 V。"
+      "explain": "A 的第 3 列：a_23 = +1，a_33 = −1 → V_3 = V_n2 − V_n3 = 2.4 − 2.8 = −0.4 V。"
     },
     {
       "id": "u6",
-      "ask": "U_6 = ?",
+      "ask": "V_6 = ?",
       "find": {"kind": "mat", "mat": "Ub", "row": 6},
       "answer": 4,
       "unit": "V",
-      "explain": "U_6 = U_n1 − U_n3 = 6.8 − 2.8 = 4 V。"
+      "explain": "V_6 = V_n1 − V_n3 = 6.8 − 2.8 = 4 V。"
     },
     {
       "id": "i6",
@@ -73,46 +73,46 @@
     },
     {
       "id": "meaning",
-      "ask": "A·I = 0 和 U = Aᵀ·U_n 分别是什么？",
+      "ask": "A·I = 0 和 V = Aᵀ·V_n 分别是什么？",
       "choices": ["两者都是 KCL", "前者是 KVL，后者是欧姆定律", "两者都只对电阻电路成立", "前者是 n − 1 个独立结点的 KCL，后者是 KVL（支路电压用结点电压表示）"],
       "correct": 3,
       "choiceExplain": [
-        "U = Aᵀ·U_n 讲的是电压。",
-        "A·I = 0 是电流的约束（KCL），U = Aᵀ·U_n 与元件无关，不是欧姆定律。",
+        "V = Aᵀ·V_n 讲的是电压。",
+        "A·I = 0 是电流的约束（KCL），V = Aᵀ·V_n 与元件无关，不是欧姆定律。",
         "两式只由拓扑决定，与元件性质无关，对任何集中参数电路都成立。",
-        "对：A 的第 j 行乘 I 就是结点 j 流出电流之和；U = Aᵀ·U_n 说每条支路电压等于起点与终点结点电压之差——这自动满足 KVL。"
+        "对：A 的第 j 行乘 I 就是结点 j 流出电流之和；V = Aᵀ·V_n 说每条支路电压等于起点与终点结点电压之差——这自动满足 KVL。"
       ],
-      "explain": "拓扑约束只用 A：KCL A·I = 0，KVL U = Aᵀ·U_n。"
+      "explain": "拓扑约束只用 A：KCL A·I = 0，KVL V = Aᵀ·V_n。"
     }
   ],
-  "hints": ["先写出 A（参考结点 4）。", "U = Aᵀ·U_n：第 k 个支路电压 = A 的第 k 列与 U_n 的点积。", "A·I = 0 的第 1 行就是结点 1 的 KCL（流出为正）。"],
+  "hints": ["先写出 A（参考结点 4）。", "V = Aᵀ·V_n：第 k 个支路电压 = A 的第 k 列与 V_n 的点积。", "A·I = 0 的第 1 行就是结点 1 的 KCL（流出为正）。"],
   "solution": [
     "**A** = \\mat{−1 & 1 & 0 & 0 & 0 & 1 ; 0 & −1 & 1 & 1 & 0 & 0 ; 0 & 0 & −1 & 0 & 1 & −1}（行：结点 1、2、3）。",
-    "**KVL：U = Aᵀ·U_n。** U_1 = −U_n1 = **−6.8 V**；U_3 = U_n2 − U_n3 = **−0.4 V**；U_6 = U_n1 − U_n3 = **4 V**。",
+    "**KVL：V = Aᵀ·V_n。** V_1 = −V_n1 = **−6.8 V**；V_3 = V_n2 − V_n3 = **−0.4 V**；V_6 = V_n1 − V_n3 = **4 V**。",
     "**KCL：A·I = 0 的第 1 行。** −I_1 + I_2 + I_6 = 0 → I_6 = 1.6 − 1.1 = **0.5 A**。",
-    "**检查：** 支路 6 只有 R_6 = 8 Ω，I_6 = U_6/R_6 = 4/8 = 0.5 A ✓（两条路一致）。"
+    "**检查：** 支路 6 只有 R_6 = 8 Ω，I_6 = V_6/R_6 = 4/8 = 0.5 A ✓（两条路一致）。"
   ],
   "i18n": {
     "en": {
       "title": "KCL and KVL with A",
       "tags": ["incidence matrix", "KCL in matrix form", "KVL in matrix form"],
       "statement": [
-        "The circuit is drawn below (U_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, U_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
-        "The reference is node 4, rows and columns of A as in the previous problem. The node voltages are U_n1 = 6.8 V, U_n2 = 2.4 V, U_n3 = 2.8 V (to node 4). Branch voltages U_k and currents I_k follow the branch directions of the graph (U_k measured from the start to the end of branch k, associated with I_k). Use U = Aᵀ·U_n for branch voltages and A·I = 0 for a branch current."
+        "The circuit is drawn below (V_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, V_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
+        "The reference is node 4, rows and columns of A as in the previous problem. The node voltages are V_n1 = 6.8 V, V_n2 = 2.4 V, V_n3 = 2.8 V (to node 4). Branch voltages V_k and currents I_k follow the branch directions of the graph (V_k measured from the start to the end of branch k, associated with I_k). Use V = Aᵀ·V_n for branch voltages and A·I = 0 for a branch current."
       ],
       "questions": [
         {
-          "ask": "Branch voltage U_1 = ? (along branch 1, from 4 to 1)",
-          "explain": "Row 1 of U = Aᵀ·U_n: column 1 of A has only a_11 = −1, so U_1 = −U_n1 = −6.8 V (a branch voltage is measured from its start to its end: U_1 = u_4 − u_1)."
+          "ask": "Branch voltage V_1 = ? (along branch 1, from 4 to 1)",
+          "explain": "Row 1 of V = Aᵀ·V_n: column 1 of A has only a_11 = −1, so V_1 = −V_n1 = −6.8 V (a branch voltage is measured from its start to its end: V_1 = v_4 − v_1)."
         },
-        {"ask": "U_3 = ?", "explain": "Column 3 of A: a_23 = +1, a_33 = −1 → U_3 = U_n2 − U_n3 = 2.4 − 2.8 = −0.4 V."},
-        {"ask": "U_6 = ?", "explain": "U_6 = U_n1 − U_n3 = 6.8 − 2.8 = 4 V."},
+        {"ask": "V_3 = ?", "explain": "Column 3 of A: a_23 = +1, a_33 = −1 → V_3 = V_n2 − V_n3 = 2.4 − 2.8 = −0.4 V."},
+        {"ask": "V_6 = ?", "explain": "V_6 = V_n1 − V_n3 = 6.8 − 2.8 = 4 V."},
         {
           "ask": "Given I_1 = 1.6 A and I_2 = 1.1 A, use row 1 of A·I = 0 to find I_6.",
           "explain": "Row 1: −I_1 + I_2 + I_6 = 0 → I_6 = I_1 − I_2 = 0.5 A."
         },
         {
-          "ask": "What are A·I = 0 and U = Aᵀ·U_n?",
+          "ask": "What are A·I = 0 and V = Aᵀ·V_n?",
           "choices": [
             "both are KCL",
             "the first is KVL, the second is Ohm's law",
@@ -120,24 +120,24 @@
             "the first is KCL at the n − 1 independent nodes, the second is KVL (branch voltages in terms of node voltages)"
           ],
           "choiceExplain": [
-            "U = Aᵀ·U_n is about voltages.",
-            "A·I = 0 constrains currents (KCL); U = Aᵀ·U_n involves no element law.",
+            "V = Aᵀ·V_n is about voltages.",
+            "A·I = 0 constrains currents (KCL); V = Aᵀ·V_n involves no element law.",
             "Both come from topology alone and hold for any lumped circuit.",
-            "Right: row j of A times I is the sum of currents leaving node j; U = Aᵀ·U_n says each branch voltage is the difference of its end node voltages — which satisfies KVL automatically."
+            "Right: row j of A times I is the sum of currents leaving node j; V = Aᵀ·V_n says each branch voltage is the difference of its end node voltages — which satisfies KVL automatically."
           ],
-          "explain": "The topological laws need only A: KCL A·I = 0, KVL U = Aᵀ·U_n."
+          "explain": "The topological laws need only A: KCL A·I = 0, KVL V = Aᵀ·V_n."
         }
       ],
       "hints": [
         "Write A first (reference node 4).",
-        "U = Aᵀ·U_n: branch voltage k is column k of A dotted with U_n.",
+        "V = Aᵀ·V_n: branch voltage k is column k of A dotted with V_n.",
         "Row 1 of A·I = 0 is KCL at node 1 (leaving = positive)."
       ],
       "solution": [
         "**A** = \\mat{−1 & 1 & 0 & 0 & 0 & 1 ; 0 & −1 & 1 & 1 & 0 & 0 ; 0 & 0 & −1 & 0 & 1 & −1} (rows: nodes 1, 2, 3).",
-        "**KVL: U = Aᵀ·U_n.** U_1 = −U_n1 = **−6.8 V**; U_3 = U_n2 − U_n3 = **−0.4 V**; U_6 = U_n1 − U_n3 = **4 V**.",
+        "**KVL: V = Aᵀ·V_n.** V_1 = −V_n1 = **−6.8 V**; V_3 = V_n2 − V_n3 = **−0.4 V**; V_6 = V_n1 − V_n3 = **4 V**.",
         "**KCL: row 1 of A·I = 0.** −I_1 + I_2 + I_6 = 0 → I_6 = 1.6 − 1.1 = **0.5 A**.",
-        "**Check:** branch 6 is R_6 = 8 Ω alone, I_6 = U_6/R_6 = 4/8 = 0.5 A ✓ (both routes agree)."
+        "**Check:** branch 6 is R_6 = 8 Ω alone, I_6 = V_6/R_6 = 4/8 = 0.5 A ✓ (both routes agree)."
       ]
     }
   }

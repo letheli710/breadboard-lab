@@ -6,14 +6,14 @@
   "title": "直流源和交流源共同作用：功率能不能叠加？",
   "level": 3,
   "tags": ["叠加定理", "平均功率", "不同频率", "直流 + 交流"],
-  "statement": ["直流电压源 U_s1 = 12 V 和正弦电压源 u_s2 = 10√2 cos(1000t) V 通过 R_1 = R_2 = 4 Ω 共同向 R_3 = 2 Ω 供电（见图）。", "求 u_a 的直流分量和交流分量（有效值）、R_3 吸收的平均功率，以及直流电压源发出的功率。"],
+  "statement": ["直流电压源 V_s1 = 12 V 和正弦电压源 v_s2 = 10√2 cos(1000t) V 通过 R_1 = R_2 = 4 Ω 共同向 R_3 = 2 Ω 供电（见图）。", "求 v_a 的直流分量和交流分量（有效值）、R_3 吸收的平均功率，以及直流电压源发出的功率。"],
   "schematic": {
     "elements": [
-      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "Vs1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4 },
       { "ref": "R3", "type": "R", "from": [8, 0], "to": [8, 4], "value": 2 },
       { "ref": "R2", "type": "R", "from": [14, 0], "to": [10, 0], "value": 4 },
-      { "ref": "Us2", "type": "V", "from": [16, 0], "to": [16, 4], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 14.142136 } ] } }, "label": "u_s2" }
+      { "ref": "Vs2", "type": "V", "from": [16, 0], "to": [16, 4], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 14.142136 } ] } }, "label": "v_s2" }
     ],
     "wires": [
       [[0, 0], [2, 0]],
@@ -29,14 +29,14 @@
     ],
     "grounds": [[0, 4]],
     "marks": [
-      { "kind": "v", "el": "R3", "name": "u_a" }
+      { "kind": "v", "el": "R3", "name": "v_a" }
     ]
   },
   "analysis": { "type": "periodic", "omega": 1000 },
   "questions": [
     {
       "id": "U0",
-      "ask": "u_a 的直流分量 U_a0 = ?",
+      "ask": "v_a 的直流分量 V_a0 = ?",
       "find": {
         "kind": "v",
         "nodes": ["a"],
@@ -44,11 +44,11 @@
       },
       "answer": 3,
       "unit": "V",
-      "explain": "只有 U_s1 作用（u_s2 短路）：U_a0 = (12/4)/(1/4 + 1/4 + 1/2) = 3 V。"
+      "explain": "只有 V_s1 作用（v_s2 短路）：V_a0 = (12/4)/(1/4 + 1/4 + 1/2) = 3 V。"
     },
     {
       "id": "U1",
-      "ask": "u_a 的交流分量有效值 U_a1 = ?",
+      "ask": "v_a 的交流分量有效值 V_a1 = ?",
       "find": {
         "kind": "v",
         "nodes": ["a"],
@@ -56,35 +56,35 @@
       },
       "answer": 2.5,
       "unit": "V",
-      "explain": "只有 u_s2 作用（U_s1 短路）：U_a1 = (10/4)/1 = 2.5 V，与 u_s2 同相。"
+      "explain": "只有 v_s2 作用（V_s1 短路）：V_a1 = (10/4)/1 = 2.5 V，与 v_s2 同相。"
     },
-    { "id": "P3", "ask": "R_3 吸收的平均功率 P_3 = ?", "find": { "kind": "p", "el": "R3" }, "answer": 7.625, "unit": "W", "explain": "P_3 = U_a0²/R_3 + U_a1²/R_3 = 9/2 + 6.25/2 = 4.5 + 3.125 = 7.625 W。两个电源频率不同（0 和 ω），它们产生的功率可以相加。" },
+    { "id": "P3", "ask": "R_3 吸收的平均功率 P_3 = ?", "find": { "kind": "p", "el": "R3" }, "answer": 7.625, "unit": "W", "explain": "P_3 = V_a0²/R_3 + V_a1²/R_3 = 9/2 + 6.25/2 = 4.5 + 3.125 = 7.625 W。两个电源频率不同（0 和 ω），它们产生的功率可以相加。" },
     {
       "id": "wrong",
-      "ask": "有同学这样算：u_a 的“峰值”是 3 + 2.5√2 = 6.54 V，所以 P_3 = 6.54²/(2 × 2) = 10.7 W。错在哪里？",
+      "ask": "有同学这样算：v_a 的“峰值”是 3 + 2.5√2 = 6.54 V，所以 P_3 = 6.54²/(2 × 2) = 10.7 W。错在哪里？",
       "choices": ["非正弦电压不能用“峰值²/2R”求功率；应分别求直流和交流的功率再相加", "应该用 3 + 2.5 = 5.5 V 作为有效值", "应该用 (3 + 2.5)²/2 作为功率", "这样算是对的"],
       "correct": 0,
-      "choiceExplain": ["", "有效值不能直接相加：U = √(3² + 2.5²) = 3.905 V，不是 5.5 V。", "这还是把两个分量当成同一频率的量相加，交叉项被错误地算了进去。", "峰值²/2R 只对单一正弦量成立。"],
-      "explain": "U_m²/(2R) 只适用于正弦量。u_a 的有效值是 √(3² + 2.5²) = 3.905 V，P_3 = 3.905²/2 = 7.625 W。"
+      "choiceExplain": ["", "有效值不能直接相加：V = √(3² + 2.5²) = 3.905 V，不是 5.5 V。", "这还是把两个分量当成同一频率的量相加，交叉项被错误地算了进去。", "峰值²/2R 只对单一正弦量成立。"],
+      "explain": "V_m²/(2R) 只适用于正弦量。v_a 的有效值是 √(3² + 2.5²) = 3.905 V，P_3 = 3.905²/2 = 7.625 W。"
     },
-    { "id": "P1", "ask": "直流电压源 U_s1 吸收的功率 P_Us1 = ?（负值表示发出）", "find": { "kind": "p", "el": "Us1" }, "answer": -27, "unit": "W", "explain": "U_s1 的电压恒为 12 V，流过它的交流电流平均为零，只有直流电流 I_0 = (12 − 3)/4 = 2.25 A 有贡献：P = −12 × 2.25 = −27 W（发出 27 W）。" }
+    { "id": "P1", "ask": "直流电压源 V_s1 吸收的功率 P_Us1 = ?（负值表示发出）", "find": { "kind": "p", "el": "Vs1" }, "answer": -27, "unit": "W", "explain": "V_s1 的电压恒为 12 V，流过它的交流电流平均为零，只有直流电流 I_0 = (12 − 3)/4 = 2.25 A 有贡献：P = −12 × 2.25 = −27 W（发出 27 W）。" }
   ],
   "hints": ["用叠加定理：直流源单独作用时交流源短路，交流源单独作用时直流源短路。两次都是纯电阻电路。", "不同频率（这里是 0 和 ω）的电压、电流相乘，一个周期内的平均值为零，所以平均功率可以按频率分别算再相加。", "直流源的电压是常数，它发出的平均功率只和流过它的电流的直流分量有关。"],
   "solution": [
-    "**1. U_s1 单独作用**（u_s2 短路）：结点电压法 U_a0(1/4 + 1/4 + 1/2) = 12/4，U_a0 = **3 V**。R_1 中直流电流 I_0 = (12 − 3)/4 = 2.25 A。",
-    "**2. u_s2 单独作用**（U_s1 短路）：U̇_a1·1 = 10∠0°/4，U_a1 = **2.5 V**（有效值）。",
-    "**3. R_3 的功率：** u_a = 3 + 2.5√2 cos(1000t) V，有效值 U_a = √(3² + 2.5²) = 3.905 V，P_3 = U_a²/R_3 = **7.625 W** = 4.5 W（直流）+ 3.125 W（交流）。",
-    "**4. 为什么能叠加功率：** p = (U_0 + u_1)²/R = U_0²/R + 2U_0u_1/R + u_1²/R，中间的交叉项是正弦量，一个周期的平均为零。若两个源频率相同，交叉项的平均一般不为零，功率就**不能**叠加。",
-    "**5. 直流源的功率：** P_Us1 = −U_s1·I_0 = −12 × 2.25 = **−27 W**（发出 27 W）。",
-    "**检查（功率平衡）：** u_s2 中的电流 (10 − 2.5)/4 = 1.875 A，发出 10 × 1.875 = 18.75 W；三个电阻共吸收 R_1：2.25² × 4 + 0.625² × 4 = 21.81 W，R_2：0.75² × 4 + 1.875² × 4 = 16.31 W，R_3：7.625 W，合计 45.75 W = 27 + 18.75 W。"
+    "**1. V_s1 单独作用**（v_s2 短路）：结点电压法 V_a0(1/4 + 1/4 + 1/2) = 12/4，V_a0 = **3 V**。R_1 中直流电流 I_0 = (12 − 3)/4 = 2.25 A。",
+    "**2. v_s2 单独作用**（V_s1 短路）：V̇_a1·1 = 10∠0°/4，V_a1 = **2.5 V**（有效值）。",
+    "**3. R_3 的功率：** v_a = 3 + 2.5√2 cos(1000t) V，有效值 V_a = √(3² + 2.5²) = 3.905 V，P_3 = V_a²/R_3 = **7.625 W** = 4.5 W（直流）+ 3.125 W（交流）。",
+    "**4. 为什么能叠加功率：** p = (V_0 + v_1)²/R = V_0²/R + 2V_0v_1/R + v_1²/R，中间的交叉项是正弦量，一个周期的平均为零。若两个源频率相同，交叉项的平均一般不为零，功率就**不能**叠加。",
+    "**5. 直流源的功率：** P_Us1 = −V_s1·I_0 = −12 × 2.25 = **−27 W**（发出 27 W）。",
+    "**检查（功率平衡）：** v_s2 中的电流 (10 − 2.5)/4 = 1.875 A，发出 10 × 1.875 = 18.75 W；三个电阻共吸收 R_1：2.25² × 4 + 0.625² × 4 = 21.81 W，R_2：0.75² × 4 + 1.875² × 4 = 16.31 W，R_3：7.625 W，合计 45.75 W = 27 + 18.75 W。"
   ],
   "i18n": {
     "en": {
       "title": "A DC and an AC source together: do powers superpose?",
       "tags": ["superposition", "average power", "different frequencies", "DC + AC"],
       "statement": [
-        "A DC voltage source U_s1 = 12 V and a sinusoidal source u_s2 = 10√2 cos(1000t) V feed R_3 = 2 Ω through R_1 = R_2 = 4 Ω (see figure).",
-        "Find the DC component and the AC component (rms) of u_a, the average power absorbed by R_3, and the power delivered by the DC source."
+        "A DC voltage source V_s1 = 12 V and a sinusoidal source v_s2 = 10√2 cos(1000t) V feed R_3 = 2 Ω through R_1 = R_2 = 4 Ω (see figure).",
+        "Find the DC component and the AC component (rms) of v_a, the average power absorbed by R_3, and the power delivered by the DC source."
       ],
       "hints": [
         "Use superposition: with the DC source alone the AC source is shorted, and vice versa. Both are purely resistive circuits.",
@@ -92,19 +92,19 @@
         "The DC source's voltage is constant, so its average power depends only on the DC component of its current."
       ],
       "solution": [
-        "**1. U_s1 alone** (u_s2 shorted): nodal analysis U_a0(1/4 + 1/4 + 1/2) = 12/4, U_a0 = **3 V**. The DC current in R_1 is I_0 = (12 − 3)/4 = 2.25 A.",
-        "**2. u_s2 alone** (U_s1 shorted): U̇_a1·1 = 10∠0°/4, U_a1 = **2.5 V** (rms).",
-        "**3. Power of R_3:** u_a = 3 + 2.5√2 cos(1000t) V, rms U_a = √(3² + 2.5²) = 3.905 V, P_3 = U_a²/R_3 = **7.625 W** = 4.5 W (DC) + 3.125 W (AC).",
-        "**4. Why powers add here:** p = (U_0 + u_1)²/R = U_0²/R + 2U_0u_1/R + u_1²/R; the cross term is a sinusoid and averages to zero over a period. If the two sources had the same frequency the cross term would in general not average to zero, and powers would **not** superpose.",
-        "**5. Power of the DC source:** P_Us1 = −U_s1·I_0 = −12 × 2.25 = **−27 W** (27 W delivered).",
-        "**Check (power balance):** the current in u_s2 is (10 − 2.5)/4 = 1.875 A, delivering 10 × 1.875 = 18.75 W; the resistors absorb R_1: 2.25² × 4 + 0.625² × 4 = 21.81 W, R_2: 0.75² × 4 + 1.875² × 4 = 16.31 W, R_3: 7.625 W, in total 45.75 W = 27 + 18.75 W."
+        "**1. V_s1 alone** (v_s2 shorted): nodal analysis V_a0(1/4 + 1/4 + 1/2) = 12/4, V_a0 = **3 V**. The DC current in R_1 is I_0 = (12 − 3)/4 = 2.25 A.",
+        "**2. v_s2 alone** (V_s1 shorted): V̇_a1·1 = 10∠0°/4, V_a1 = **2.5 V** (rms).",
+        "**3. Power of R_3:** v_a = 3 + 2.5√2 cos(1000t) V, rms V_a = √(3² + 2.5²) = 3.905 V, P_3 = V_a²/R_3 = **7.625 W** = 4.5 W (DC) + 3.125 W (AC).",
+        "**4. Why powers add here:** p = (V_0 + v_1)²/R = V_0²/R + 2V_0v_1/R + v_1²/R; the cross term is a sinusoid and averages to zero over a period. If the two sources had the same frequency the cross term would in general not average to zero, and powers would **not** superpose.",
+        "**5. Power of the DC source:** P_Us1 = −V_s1·I_0 = −12 × 2.25 = **−27 W** (27 W delivered).",
+        "**Check (power balance):** the current in v_s2 is (10 − 2.5)/4 = 1.875 A, delivering 10 × 1.875 = 18.75 W; the resistors absorb R_1: 2.25² × 4 + 0.625² × 4 = 21.81 W, R_2: 0.75² × 4 + 1.875² × 4 = 16.31 W, R_3: 7.625 W, in total 45.75 W = 27 + 18.75 W."
       ],
       "questions": [
-        { "ask": "DC component of u_a, U_a0 = ?", "explain": "U_s1 alone (u_s2 shorted): U_a0 = (12/4)/(1/4 + 1/4 + 1/2) = 3 V." },
-        { "ask": "rms value of the AC component of u_a, U_a1 = ?", "explain": "u_s2 alone (U_s1 shorted): U_a1 = (10/4)/1 = 2.5 V, in phase with u_s2." },
-        { "ask": "Average power absorbed by R_3, P_3 = ?", "explain": "P_3 = U_a0²/R_3 + U_a1²/R_3 = 9/2 + 6.25/2 = 4.5 + 3.125 = 7.625 W. The two sources have different frequencies (0 and ω), so their powers add." },
+        { "ask": "DC component of v_a, V_a0 = ?", "explain": "V_s1 alone (v_s2 shorted): V_a0 = (12/4)/(1/4 + 1/4 + 1/2) = 3 V." },
+        { "ask": "rms value of the AC component of v_a, V_a1 = ?", "explain": "v_s2 alone (V_s1 shorted): V_a1 = (10/4)/1 = 2.5 V, in phase with v_s2." },
+        { "ask": "Average power absorbed by R_3, P_3 = ?", "explain": "P_3 = V_a0²/R_3 + V_a1²/R_3 = 9/2 + 6.25/2 = 4.5 + 3.125 = 7.625 W. The two sources have different frequencies (0 and ω), so their powers add." },
         {
-          "ask": "A student argues: the “peak” of u_a is 3 + 2.5√2 = 6.54 V, so P_3 = 6.54²/(2 × 2) = 10.7 W. What is wrong?",
+          "ask": "A student argues: the “peak” of v_a is 3 + 2.5√2 = 6.54 V, so P_3 = 6.54²/(2 × 2) = 10.7 W. What is wrong?",
           "choices": [
             "“Peak²/2R” does not apply to a non-sinusoidal voltage; compute the DC and AC powers separately and add them",
             "3 + 2.5 = 5.5 V should be used as the rms value",
@@ -113,13 +113,13 @@
           ],
           "choiceExplain": [
             "",
-            "rms values do not add: U = √(3² + 2.5²) = 3.905 V, not 5.5 V.",
+            "rms values do not add: V = √(3² + 2.5²) = 3.905 V, not 5.5 V.",
             "That still adds the two components as if they had the same frequency, wrongly including the cross term.",
             "Peak²/2R holds for a single sinusoid only."
           ],
-          "explain": "U_m²/(2R) is for sinusoids only. The rms value of u_a is √(3² + 2.5²) = 3.905 V, P_3 = 3.905²/2 = 7.625 W."
+          "explain": "V_m²/(2R) is for sinusoids only. The rms value of v_a is √(3² + 2.5²) = 3.905 V, P_3 = 3.905²/2 = 7.625 W."
         },
-        { "ask": "Power absorbed by the DC source U_s1, P_Us1 = ? (negative = delivered)", "explain": "U_s1 is a constant 12 V; the AC current through it averages to zero, so only the DC current I_0 = (12 − 3)/4 = 2.25 A counts: P = −12 × 2.25 = −27 W (27 W delivered)." }
+        { "ask": "Power absorbed by the DC source V_s1, P_Us1 = ? (negative = delivered)", "explain": "V_s1 is a constant 12 V; the AC current through it averages to zero, so only the DC current I_0 = (12 − 3)/4 = 2.25 A counts: P = −12 × 2.25 = −27 W (27 W delivered)." }
       ]
     }
   }

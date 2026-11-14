@@ -12,13 +12,13 @@
     "传输效率"
   ],
   "statement": [
-    "第 3 题的 300 km 输电线（R_0 = 0.08 Ω/km，L_0 = 1.33 mH/km，C_0 = 8.6 nF/km，G_0 = 0，50 Hz；Z_c = 396.8∠−5.42° Ω，γ = 1.072×10⁻³∠84.58° /km）。终端相电压 U̇_2 = 127∠0° kV，负载电流 I_2 = 300 A，功率因数 0.9（滞后），即 İ_2 = 300∠−25.84° A（负载 Z_2 = U̇_2/İ_2，始端电源 U̇_1 未知，图中都只标符号）。",
+    "第 3 题的 300 km 输电线（R_0 = 0.08 Ω/km，L_0 = 1.33 mH/km，C_0 = 8.6 nF/km，G_0 = 0，50 Hz；Z_c = 396.8∠−5.42° Ω，γ = 1.072×10⁻³∠84.58° /km）。终端相电压 V̇_2 = 127∠0° kV，负载电流 I_2 = 300 A，功率因数 0.9（滞后），即 İ_2 = 300∠−25.84° A（负载 Z_2 = V̇_2/İ_2，始端电源 V̇_1 未知，图中都只标符号）。",
     "x 从始端量起；İ 沿 +x 方向，所以 İ_2 是从终端流进负载的电流。"
   ],
   "schematic": {
     "elements": [
       {
-        "ref": "Us",
+        "ref": "Vs",
         "type": "V",
         "from": [
           0,
@@ -34,7 +34,7 @@
             "phase": 12.414651
           }
         },
-        "label": "U̇_1",
+        "label": "V̇_1",
         "hideValue": true
       },
       {
@@ -168,7 +168,7 @@
   "questions": [
     {
       "id": "u1",
-      "ask": "始端电压有效值 U_1 = ?",
+      "ask": "始端电压有效值 V_1 = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -177,11 +177,11 @@
       },
       "answer": 146412,
       "unit": "kV",
-      "explain": "U̇_1 = U̇_2 ch γl + Z_cİ_2 sh γl，其中 ch γl = 0.9497∠0.577°，Z_c sh γl = 125.5∠79.35° Ω，U̇_1 = 120.6∠0.58° + 37.65∠53.5° = 146.4∠12.41° kV。"
+      "explain": "V̇_1 = V̇_2 cosh γl + Z_cİ_2 sinh γl，其中 cosh γl = 0.9497∠0.577°，Z_c sinh γl = 125.5∠79.35° Ω，V̇_1 = 120.6∠0.58° + 37.65∠53.5° = 146.4∠12.41° kV。"
     },
     {
       "id": "u1ph",
-      "ask": "U̇_1 的初相 = ?",
+      "ask": "V̇_1 的初相 = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -204,7 +204,7 @@
       },
       "answer": 258.123,
       "unit": "A",
-      "explain": "İ_1 = U̇_2 sh γl/Z_c + İ_2 ch γl = 101.2∠90.19° + 284.9∠−25.27° = 258.1∠−4.53° A。"
+      "explain": "İ_1 = V̇_2 sinh γl/Z_c + İ_2 cosh γl = 101.2∠90.19° + 284.9∠−25.27° = 258.1∠−4.53° A。"
     },
     {
       "id": "i1ph",
@@ -231,7 +231,7 @@
       },
       "answer": 36151300.0,
       "unit": "MW",
-      "explain": "P_1 = U_1I_1 cos(12.41° + 4.53°) = 146.4 × 258.1 × 0.9566 = 36.15 MW。"
+      "explain": "P_1 = V_1I_1 cos(12.41° + 4.53°) = 146.4 × 258.1 × 0.9566 = 36.15 MW。"
     },
     {
       "id": "eta",
@@ -243,21 +243,21 @@
       },
       "answer": 0.948514,
       "unit": "",
-      "explain": "P_2 = U_2I_2 × 0.9 = 127 × 300 × 0.9 = 34.29 MW，η = 34.29/36.15 = 94.9%。"
+      "explain": "P_2 = V_2I_2 × 0.9 = 127 × 300 × 0.9 = 34.29 MW，η = 34.29/36.15 = 94.9%。"
     }
   ],
   "hints": [
-    "已知终端值时，用从终端写起的解：U̇(x′) = U̇_2 ch γx′ + Z_cİ_2 sh γx′，İ(x′) = (U̇_2/Z_c) sh γx′ + İ_2 ch γx′。",
-    "先算 γl = 0.0304 + j0.3202，再用 ch(a + jb) = ch a cos b + j sh a sin b、sh(a + jb) = sh a cos b + j ch a sin b。",
+    "已知终端值时，用从终端写起的解：V̇(x′) = V̇_2 cosh γx′ + Z_cİ_2 sinh γx′，İ(x′) = (V̇_2/Z_c) sinh γx′ + İ_2 cosh γx′。",
+    "先算 γl = 0.0304 + j0.3202，再用 cosh(a + jb) = cosh a cos b + j sinh a sin b、sinh(a + jb) = sinh a cos b + j cosh a sin b。",
     "P = UI cos φ，φ 是电压与电流的相位差；η = P_2/P_1。"
   ],
   "solution": [
     "**1. γl。** γl = 1.072×10⁻³∠84.58° × 300 = 0.03038 + j0.3202。",
-    "**2. 双曲函数。** ch γl = cosh 0.0304 · cos 0.3202 + j sinh 0.0304 · sin 0.3202 = 0.9497∠0.577°；Z_c sh γl = 125.5∠79.35° Ω；sh γl/Z_c = 7.969×10⁻⁴∠90.19° S。",
-    "**3. 始端电压。** U̇_1 = 127000 × 0.9497∠0.577° + 300∠−25.84° × 125.5∠79.35° = **146.4∠12.41° kV**。",
+    "**2. 双曲函数。** cosh γl = cosh 0.0304 · cos 0.3202 + j sinh 0.0304 · sin 0.3202 = 0.9497∠0.577°；Z_c sinh γl = 125.5∠79.35° Ω；sinh γl/Z_c = 7.969×10⁻⁴∠90.19° S。",
+    "**3. 始端电压。** V̇_1 = 127000 × 0.9497∠0.577° + 300∠−25.84° × 125.5∠79.35° = **146.4∠12.41° kV**。",
     "**4. 始端电流。** İ_1 = 127000 × 7.969×10⁻⁴∠90.19° + 300∠−25.84° × 0.9497∠0.577° = **258.1∠−4.53° A**。",
     "**5. 功率与效率。** P_1 = 146.4 × 258.1 × cos 16.95° = **36.15 MW**，P_2 = 34.29 MW，**η = 94.9%**。",
-    "**检查：** ch²γl − sh²γl = 1，也就是 AD − BC = 1：传输线是互易二端口 ✓。"
+    "**检查：** cosh²γl − sinh²γl = 1，也就是 AD − BC = 1：传输线是互易二端口 ✓。"
   ],
   "i18n": {
     "en": {
@@ -269,21 +269,21 @@
         "transmission efficiency"
       ],
       "statement": [
-        "The 300 km line of problem 3 (R_0 = 0.08 Ω/km, L_0 = 1.33 mH/km, C_0 = 8.6 nF/km, G_0 = 0, 50 Hz; Z_c = 396.8∠−5.42° Ω, γ = 1.072×10⁻³∠84.58° /km). The phase voltage at the end is U̇_2 = 127∠0° kV and the load current is I_2 = 300 A at power factor 0.9 lagging, i.e. İ_2 = 300∠−25.84° A (load Z_2 = U̇_2/İ_2; the source U̇_1 at the start is unknown; the drawing shows only their symbols).",
+        "The 300 km line of problem 3 (R_0 = 0.08 Ω/km, L_0 = 1.33 mH/km, C_0 = 8.6 nF/km, G_0 = 0, 50 Hz; Z_c = 396.8∠−5.42° Ω, γ = 1.072×10⁻³∠84.58° /km). The phase voltage at the end is V̇_2 = 127∠0° kV and the load current is I_2 = 300 A at power factor 0.9 lagging, i.e. İ_2 = 300∠−25.84° A (load Z_2 = V̇_2/İ_2; the source V̇_1 at the start is unknown; the drawing shows only their symbols).",
         "x is measured from the start; İ points in +x, so İ_2 is the current flowing from the end into the load."
       ],
       "questions": [
         {
-          "ask": "rms voltage at the start U_1 = ?",
-          "explain": "U̇_1 = U̇_2 ch γl + Z_cİ_2 sh γl with ch γl = 0.9497∠0.577° and Z_c sh γl = 125.5∠79.35° Ω: U̇_1 = 120.6∠0.58° + 37.65∠53.5° = 146.4∠12.41° kV."
+          "ask": "rms voltage at the start V_1 = ?",
+          "explain": "V̇_1 = V̇_2 cosh γl + Z_cİ_2 sinh γl with cosh γl = 0.9497∠0.577° and Z_c sinh γl = 125.5∠79.35° Ω: V̇_1 = 120.6∠0.58° + 37.65∠53.5° = 146.4∠12.41° kV."
         },
         {
-          "ask": "Initial phase of U̇_1 = ?",
+          "ask": "Initial phase of V̇_1 = ?",
           "explain": "See above: 12.41° — the start voltage leads the end voltage by about 12°."
         },
         {
           "ask": "rms current at the start I_1 = ?",
-          "explain": "İ_1 = U̇_2 sh γl/Z_c + İ_2 ch γl = 101.2∠90.19° + 284.9∠−25.27° = 258.1∠−4.53° A."
+          "explain": "İ_1 = V̇_2 sinh γl/Z_c + İ_2 cosh γl = 101.2∠90.19° + 284.9∠−25.27° = 258.1∠−4.53° A."
         },
         {
           "ask": "Initial phase of İ_1 = ?",
@@ -291,25 +291,25 @@
         },
         {
           "ask": "Active power entering at the start P_1 = ?",
-          "explain": "P_1 = U_1I_1 cos(12.41° + 4.53°) = 146.4 × 258.1 × 0.9566 = 36.15 MW."
+          "explain": "P_1 = V_1I_1 cos(12.41° + 4.53°) = 146.4 × 258.1 × 0.9566 = 36.15 MW."
         },
         {
           "ask": "Transmission efficiency η = P_2/P_1 = ?",
-          "explain": "P_2 = U_2I_2 × 0.9 = 127 × 300 × 0.9 = 34.29 MW, η = 34.29/36.15 = 94.9%."
+          "explain": "P_2 = V_2I_2 × 0.9 = 127 × 300 × 0.9 = 34.29 MW, η = 34.29/36.15 = 94.9%."
         }
       ],
       "hints": [
-        "With the end values known, use the solution written from the end: U̇(x′) = U̇_2 ch γx′ + Z_cİ_2 sh γx′, İ(x′) = (U̇_2/Z_c) sh γx′ + İ_2 ch γx′.",
-        "First γl = 0.0304 + j0.3202, then ch(a + jb) = ch a cos b + j sh a sin b and sh(a + jb) = sh a cos b + j ch a sin b.",
+        "With the end values known, use the solution written from the end: V̇(x′) = V̇_2 cosh γx′ + Z_cİ_2 sinh γx′, İ(x′) = (V̇_2/Z_c) sinh γx′ + İ_2 cosh γx′.",
+        "First γl = 0.0304 + j0.3202, then cosh(a + jb) = cosh a cos b + j sinh a sin b and sinh(a + jb) = sinh a cos b + j cosh a sin b.",
         "P = UI cos φ with φ the angle between voltage and current; η = P_2/P_1."
       ],
       "solution": [
         "**1. γl.** γl = 1.072×10⁻³∠84.58° × 300 = 0.03038 + j0.3202.",
-        "**2. Hyperbolic functions.** ch γl = cosh 0.0304 · cos 0.3202 + j sinh 0.0304 · sin 0.3202 = 0.9497∠0.577°; Z_c sh γl = 125.5∠79.35° Ω; sh γl/Z_c = 7.969×10⁻⁴∠90.19° S.",
-        "**3. Start voltage.** U̇_1 = 127000 × 0.9497∠0.577° + 300∠−25.84° × 125.5∠79.35° = **146.4∠12.41° kV**.",
+        "**2. Hyperbolic functions.** cosh γl = cosh 0.0304 · cos 0.3202 + j sinh 0.0304 · sin 0.3202 = 0.9497∠0.577°; Z_c sinh γl = 125.5∠79.35° Ω; sinh γl/Z_c = 7.969×10⁻⁴∠90.19° S.",
+        "**3. Start voltage.** V̇_1 = 127000 × 0.9497∠0.577° + 300∠−25.84° × 125.5∠79.35° = **146.4∠12.41° kV**.",
         "**4. Start current.** İ_1 = 127000 × 7.969×10⁻⁴∠90.19° + 300∠−25.84° × 0.9497∠0.577° = **258.1∠−4.53° A**.",
         "**5. Power and efficiency.** P_1 = 146.4 × 258.1 × cos 16.95° = **36.15 MW**, P_2 = 34.29 MW, **η = 94.9%**.",
-        "**Check:** ch²γl − sh²γl = 1, i.e. AD − BC = 1: the line is a reciprocal two-port ✓."
+        "**Check:** cosh²γl − sinh²γl = 1, i.e. AD − BC = 1: the line is a reciprocal two-port ✓."
       ]
     }
   }

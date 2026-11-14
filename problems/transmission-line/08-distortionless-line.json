@@ -12,13 +12,13 @@
     "衰减"
   ],
   "statement": [
-    "一条加感电话线长 100 km，原参数：R_0 = 6 Ω/km，L_0 = 60 mH/km，G_0 = 0.5 µS/km，C_0 = 5 nF/km。始端电压 U̇_1 = 10∠0° V（有效值，f = 1 kHz），终端接 R_L = 3464.1 Ω。",
+    "一条加感电话线长 100 km，原参数：R_0 = 6 Ω/km，L_0 = 60 mH/km，G_0 = 0.5 µS/km，C_0 = 5 nF/km。始端电压 V̇_1 = 10∠0° V（有效值，f = 1 kHz），终端接 R_L = 3464.1 Ω。",
     "x 从始端量起。（图上只标了线长，原参数见题干。）"
   ],
   "schematic": {
     "elements": [
       {
-        "ref": "Us",
+        "ref": "Vs",
         "type": "V",
         "from": [
           0,
@@ -198,7 +198,7 @@
     },
     {
       "id": "v1",
-      "ask": "f = 1 kHz 时的相速 v = ?",
+      "ask": "f = 1 kHz 时的相速 v_p = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -206,11 +206,11 @@
       },
       "answer": 57735000.0,
       "unit": "m/s",
-      "explain": "v = ω/β = 1/√(L_0C_0) = 1/√(0.06 × 5×10⁻⁹) = 57735 km/s。"
+      "explain": "v_p = ω/β = 1/√(L_0C_0) = 1/√(0.06 × 5×10⁻⁹) = 57735 km/s。"
     },
     {
       "id": "v3",
-      "ask": "f = 3 kHz 时的相速 v = ?",
+      "ask": "f = 3 kHz 时的相速 v_p = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -219,11 +219,11 @@
       },
       "answer": 57735000.0,
       "unit": "m/s",
-      "explain": "β = ω√(L_0C_0) 与 ω 成正比，所以 v = ω/β 不随频率变化——各频率分量同时到达，波形不畸变。"
+      "explain": "β = ω√(L_0C_0) 与 ω 成正比，所以 v_p = ω/β 不随频率变化——各频率分量同时到达，波形不畸变。"
     },
     {
       "id": "u2",
-      "ask": "终端接匹配负载 R_L = Z_c，始端 U_1 = 10 V，终端电压 U_2 = ?",
+      "ask": "终端接匹配负载 R_L = Z_c，始端 V_1 = 10 V，终端电压 V_2 = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -232,7 +232,7 @@
       },
       "answer": 8.4097,
       "unit": "V",
-      "explain": "匹配时 U_2 = U_1·e^{−αl} = 10 × e^{−0.1732} = 8.41 V；各频率衰减相同，所以只缩小、不变形。"
+      "explain": "匹配时 V_2 = V_1·e^{−αl} = 10 × e^{−0.1732} = 8.41 V；各频率衰减相同，所以只缩小、不变形。"
     }
   ],
   "hints": [
@@ -243,9 +243,9 @@
   "solution": [
     "**1. 条件。** R_0/L_0 = 100 s⁻¹ = G_0/C_0 ✓：无畸变线。",
     "**2. 特性阻抗。** Z_c = √(L_0/C_0) = **3464 Ω**，纯电阻（辐角 **0°**），与频率无关。",
-    "**3. 传播常数。** α = √(R_0G_0) = **1.732×10⁻³ Np/km**；β = ω√(L_0C_0)，v = 1/√(L_0C_0) = **57735 km/s**，1 kHz 和 3 kHz 时都一样。",
-    "**4. 匹配负载。** R_L = Z_c，线上只有入射波：U_2 = 10 × e^{−0.1732} = **8.41 V**。",
-    "**检查：** αl = 1.732×10⁻³ × 100 = 0.1732 Np；β(1 kHz) = 2π × 1000/57735 = 0.1088 rad/km，λ = 2π/β = 57.7 km = v/f ✓。普通电话线 L_0 太小（R_0/L_0 ≫ G_0/C_0），所以要在线上串加感线圈（加感），使它接近无畸变条件。"
+    "**3. 传播常数。** α = √(R_0G_0) = **1.732×10⁻³ Np/km**；β = ω√(L_0C_0)，v_p = 1/√(L_0C_0) = **57735 km/s**，1 kHz 和 3 kHz 时都一样。",
+    "**4. 匹配负载。** R_L = Z_c，线上只有入射波：V_2 = 10 × e^{−0.1732} = **8.41 V**。",
+    "**检查：** αl = 1.732×10⁻³ × 100 = 0.1732 Np；β(1 kHz) = 2π × 1000/57735 = 0.1088 rad/km，λ = 2π/β = 57.7 km = v_p/f ✓。普通电话线 L_0 太小（R_0/L_0 ≫ G_0/C_0），所以要在线上串加感线圈（加感），使它接近无畸变条件。"
   ],
   "i18n": {
     "en": {
@@ -257,7 +257,7 @@
         "attenuation"
       ],
       "statement": [
-        "A loaded telephone line is 100 km long with the primary parameters R_0 = 6 Ω/km, L_0 = 60 mH/km, G_0 = 0.5 µS/km, C_0 = 5 nF/km. The start voltage is U̇_1 = 10∠0° V (rms, f = 1 kHz) and the end is loaded with R_L = 3464.1 Ω.",
+        "A loaded telephone line is 100 km long with the primary parameters R_0 = 6 Ω/km, L_0 = 60 mH/km, G_0 = 0.5 µS/km, C_0 = 5 nF/km. The start voltage is V̇_1 = 10∠0° V (rms, f = 1 kHz) and the end is loaded with R_L = 3464.1 Ω.",
         "x is measured from the start. (The drawing shows only the length; the primary parameters are given here.)"
       ],
       "questions": [
@@ -274,16 +274,16 @@
           "explain": "Distortionless line: γ = √(R_0G_0) + jω√(L_0C_0), so α = √(6 × 0.5×10⁻⁶) = 1.732×10⁻³ Np/km, independent of frequency."
         },
         {
-          "ask": "Phase velocity at f = 1 kHz, v = ?",
-          "explain": "v = ω/β = 1/√(L_0C_0) = 1/√(0.06 × 5×10⁻⁹) = 57735 km/s."
+          "ask": "Phase velocity at f = 1 kHz, v_p = ?",
+          "explain": "v_p = ω/β = 1/√(L_0C_0) = 1/√(0.06 × 5×10⁻⁹) = 57735 km/s."
         },
         {
-          "ask": "Phase velocity at f = 3 kHz, v = ?",
-          "explain": "β = ω√(L_0C_0) is proportional to ω, so v = ω/β does not change with frequency — all frequency components arrive together and the waveform is not distorted."
+          "ask": "Phase velocity at f = 3 kHz, v_p = ?",
+          "explain": "β = ω√(L_0C_0) is proportional to ω, so v_p = ω/β does not change with frequency — all frequency components arrive together and the waveform is not distorted."
         },
         {
-          "ask": "With the matched load R_L = Z_c and U_1 = 10 V, the end voltage U_2 = ?",
-          "explain": "Matched: U_2 = U_1·e^{−αl} = 10 × e^{−0.1732} = 8.41 V; every frequency is attenuated alike, so the signal shrinks without changing shape."
+          "ask": "With the matched load R_L = Z_c and V_1 = 10 V, the end voltage V_2 = ?",
+          "explain": "Matched: V_2 = V_1·e^{−αl} = 10 × e^{−0.1732} = 8.41 V; every frequency is attenuated alike, so the signal shrinks without changing shape."
         }
       ],
       "hints": [
@@ -294,9 +294,9 @@
       "solution": [
         "**1. Condition.** R_0/L_0 = 100 s⁻¹ = G_0/C_0 ✓: distortionless.",
         "**2. Characteristic impedance.** Z_c = √(L_0/C_0) = **3464 Ω**, purely resistive (angle **0°**) and independent of frequency.",
-        "**3. Propagation constant.** α = √(R_0G_0) = **1.732×10⁻³ Np/km**; β = ω√(L_0C_0), v = 1/√(L_0C_0) = **57735 km/s**, the same at 1 kHz and 3 kHz.",
-        "**4. Matched load.** R_L = Z_c, only the incident wave: U_2 = 10 × e^{−0.1732} = **8.41 V**.",
-        "**Check:** αl = 1.732×10⁻³ × 100 = 0.1732 Np; β(1 kHz) = 2π × 1000/57735 = 0.1088 rad/km, λ = 2π/β = 57.7 km = v/f ✓. An ordinary telephone pair has far too little L_0 (R_0/L_0 ≫ G_0/C_0), which is why loading coils were inserted in series to approach the distortionless condition."
+        "**3. Propagation constant.** α = √(R_0G_0) = **1.732×10⁻³ Np/km**; β = ω√(L_0C_0), v_p = 1/√(L_0C_0) = **57735 km/s**, the same at 1 kHz and 3 kHz.",
+        "**4. Matched load.** R_L = Z_c, only the incident wave: V_2 = 10 × e^{−0.1732} = **8.41 V**.",
+        "**Check:** αl = 1.732×10⁻³ × 100 = 0.1732 Np; β(1 kHz) = 2π × 1000/57735 = 0.1088 rad/km, λ = 2π/β = 57.7 km = v_p/f ✓. An ordinary telephone pair has far too little L_0 (R_0/L_0 ≫ G_0/C_0), which is why loading coils were inserted in series to approach the distortionless condition."
       ]
     }
   }

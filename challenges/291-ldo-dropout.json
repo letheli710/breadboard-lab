@@ -83,9 +83,9 @@
       ],
       "measurements": [
         {"ask": "Supply at 4.0 V: the regulator's OUT to GND", "explain": "Dropout: OUT ≈ 4.0 − 1.1 − 0.2 Ω × I ≈ 2.89 V, no longer 3.3 V."},
-        {"ask": "Supply at 9 V: the drop across the regulator U_IN − U_OUT (red lead on IN, black on OUT)"},
+        {"ask": "Supply at 9 V: the drop across the regulator V_IN − V_OUT (red lead on IN, black on OUT)"},
         {"ask": "Supply at 9 V: the regulator's output current (put the ammeter in series in the OUT → ESP32 3V3 wire)"},
-        {"ask": "Heat in the regulator at 9 V, P = (U_IN − U_OUT) × I (from your readings)", "explain": "A linear regulator turns all the extra voltage into heat: (9 − 3.3) V × 56 mA ≈ 0.32 W, an efficiency of only 3.3/9 ≈ 37%."}
+        {"ask": "Heat in the regulator at 9 V, P = (V_IN − V_OUT) × I (from your readings)", "explain": "A linear regulator turns all the extra voltage into heat: (9 − 3.3) V × 56 mA ≈ 0.32 W, an efficiency of only 3.3/9 ≈ 37%."}
       ],
       "hints": [
         "LM1117 legs with the printed face towards you: GND, OUT, IN. The supply goes to IN (right leg).",
@@ -166,9 +166,9 @@
   ],
   "measurements": [
     {"id": "v4", "voltage": "U2.out", "ref": "U2.gnd", "set": {"V1": {"voltage": 4}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [2.8, 2.98], "ask": "电源调到 4.0 V：稳压器 OUT 对 GND 的电压", "explain": "进入压差区：OUT ≈ 4.0 − 1.1 − 0.2 Ω × I ≈ 2.89 V，已经不是 3.3 V。"},
-    {"id": "u9", "voltage": "U2.in", "ref": "U2.out", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "range": [5.5, 5.9], "ask": "电源调到 9 V：稳压器上的压降 U_IN − U_OUT（红表笔 IN，黑表笔 OUT）"},
+    {"id": "u9", "voltage": "U2.in", "ref": "U2.out", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "range": [5.5, 5.9], "ask": "电源调到 9 V：稳压器上的压降 V_IN − V_OUT（红表笔 IN，黑表笔 OUT）"},
     {"id": "i9", "stated": true, "current": "U2", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "range": [0.053, 0.059], "ask": "电源调到 9 V：稳压器的输出电流（把电流表串进 OUT 到 ESP32 3V3 的连线里读）"},
-    {"id": "p9", "formula": "u9 * i9", "unit": "W", "predict": true, "range": [0.3, 0.36], "ask": "9 V 时稳压器的发热 P = (U_IN − U_OUT) × I（用你的读数算）", "explain": "线性稳压器把多余的电压全变成热：(9 − 3.3) V × 56 mA ≈ 0.32 W，效率只有 3.3/9 ≈ 37%。"}
+    {"id": "p9", "formula": "u9 * i9", "unit": "W", "predict": true, "range": [0.3, 0.36], "ask": "9 V 时稳压器的发热 P = (V_IN − V_OUT) × I（用你的读数算）", "explain": "线性稳压器把多余的电压全变成热：(9 − 3.3) V × 56 mA ≈ 0.32 W，效率只有 3.3/9 ≈ 37%。"}
   ],
   "hints": [
     "LM1117 正面朝你，三只脚是 GND、OUT、IN。电源接 IN（右脚）。",

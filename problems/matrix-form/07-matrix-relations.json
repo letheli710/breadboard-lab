@@ -7,13 +7,13 @@
   "level": 3,
   "tags": ["基本回路矩阵", "基本割集矩阵", "矩阵关系"],
   "statement": [
-    "电路如图（U_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 U_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
+    "电路如图（V_s1 = 10 V，I_s5 = 1 A，R_1 = 2 Ω，R_2 = R_3 = 4 Ω，R_4 = R_5 = 2 Ω，R_6 = 8 Ω）。画有向图时把 V_s1 与 R_1 的串联看成一条支路（支路 1），把 R_5 与 I_s5 的并联看成一条支路（支路 5），其余每个电阻一条支路；结点编号 1、2、3、4（4 接地），支路编号与方向见下方的有向图。",
     "这次选树 T = {4, 5, 6}（图中粗线），连支为 1、2、3。基本回路矩阵 B_f：每条连支对应一行（按连支编号从小到大），基本回路的方向取该连支的方向；支路 k 在回路 j 中且方向与回路一致时 b_jk = +1，相反时 −1，不在回路中为 0。基本割集矩阵 Q_f：每条树支对应一行（按树支编号从小到大），基本割集的方向取该树支的方向；支路 k 在割集 j 中且方向与割集一致时 q_jk = +1，相反时 −1，否则为 0。 先写 B_f，再用 Q_l = −B_tᵀ 写 Q_f。"
   ],
   "schematic": {
     "elements": [
       {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
-      {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
+      {"ref": "Vs1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 10},
       {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
       {"ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4},
       {"ref": "R4", "type": "R", "from": [8, 0], "to": [8, 6], "value": 2},
@@ -28,7 +28,7 @@
       "nodes": [{"name": "1", "at": [0, 0]}, {"name": "2", "at": [4, 0]}, {"name": "3", "at": [8, 0]}, {"name": "4", "at": [4, 4]}],
       "ref": "4",
       "branches": [
-        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+        {"n": 1, "from": "4", "to": "1", "els": ["R1", "Vs1"]},
         {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
         {"n": 3, "from": "2", "to": "3", "els": ["R3"]},
         {"n": 4, "from": "2", "to": "4", "els": ["R4"]},
@@ -109,7 +109,7 @@
       "title": "Another tree: B_f, Q_f and Q_l = −B_tᵀ",
       "tags": ["loop matrix", "cut-set matrix", "matrix relations"],
       "statement": [
-        "The circuit is drawn below (U_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, U_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
+        "The circuit is drawn below (V_s1 = 10 V, I_s5 = 1 A, R_1 = 2 Ω, R_2 = R_3 = 4 Ω, R_4 = R_5 = 2 Ω, R_6 = 8 Ω). In the graph, V_s1 in series with R_1 counts as one branch (branch 1), R_5 in parallel with I_s5 as one branch (branch 5), and each other resistor as one branch; the nodes are numbered 1, 2, 3, 4 (4 is grounded) and the branch numbers and directions are those of the directed graph under the circuit.",
         "This time choose the tree T = {4, 5, 6} (thick lines); the links are 1, 2, 3. Fundamental loop matrix B_f: one row per link (in ascending link number); each fundamental loop takes the direction of its link; b_jk = +1 if branch k is in loop j with the same direction, −1 if opposite, 0 if not in the loop. Fundamental cut-set matrix Q_f: one row per tree branch (ascending number); each fundamental cut-set takes the direction of its tree branch; q_jk = +1 if branch k is in cut-set j in the same direction, −1 if opposite, 0 otherwise. Write B_f first, then Q_f from Q_l = −B_tᵀ."
       ],
       "questions": [

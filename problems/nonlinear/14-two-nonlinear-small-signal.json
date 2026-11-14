@@ -7,13 +7,13 @@
   "level": 5,
   "tags": ["小信号分析法", "非线性电阻并联", "二极管模型", "综合"],
   "statement": [
-    "直流 U_s = 10 V 与小信号源 u_s(t) = 0.1cos(100t) V 串联，经 R_1 = 1 Ω 接到结点 a。a 与地之间并联两个非线性元件：N_1 的特性为 i_1 = u²（u ≥ 0；u < 0 时 i_1 = 0），D 是开启电压 1 V、导通电阻 1 Ω 的二极管模型。",
-    "求直流工作点（U_Q、I_1、I_2），从 a 看进去（去掉 R_1、U_s 置零）的小信号等效电阻，以及 a 点小信号电压的振幅 U_am 和 N_1 中小信号电流的振幅。"
+    "直流 V_s = 10 V 与小信号源 v_s(t) = 0.1cos(100t) V 串联，经 R_1 = 1 Ω 接到结点 a。a 与地之间并联两个非线性元件：N_1 的特性为 i_1 = v²（v ≥ 0；v < 0 时 i_1 = 0），D 是开启电压 1 V、导通电阻 1 Ω 的二极管模型。",
+    "求直流工作点（V_Q、I_1、I_2），从 a 看进去（去掉 R_1、V_s 置零）的小信号等效电阻，以及 a 点小信号电压的振幅 V_am 和 N_1 中小信号电流的振幅。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "us", "type": "V", "from": [0, 0], "to": [0, 3], "value": {"ac": {"mag": 0.1, "phase": 0}}, "label": "u_s(t)"},
-      {"ref": "Us", "type": "V", "from": [0, 3], "to": [0, 6], "value": {"dc": 10}},
+      {"ref": "vs", "type": "V", "from": [0, 0], "to": [0, 3], "value": {"ac": {"mag": 0.1, "phase": 0}}, "label": "v_s(t)"},
+      {"ref": "Vs", "type": "V", "from": [0, 3], "to": [0, 6], "value": {"dc": 10}},
       {"ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 1},
       {"ref": "N1", "type": "NR", "from": [8, 0], "to": [8, 6], "law": {"i": [0, 0, 1], "umin": 0}},
       {"ref": "D", "type": "NR", "from": [12, 0], "to": [12, 6], "law": {"diode": {"uon": 1, "ron": 1}}}
@@ -21,17 +21,17 @@
     "wires": [[[0, 0], [2, 0]], [[6, 0], [12, 0]], [[12, 6], [0, 6]]],
     "labels": [{"at": [8, 0], "name": "a"}],
     "grounds": [[0, 6]],
-    "marks": [{"kind": "v", "el": "N1", "name": "u"}, {"kind": "i", "el": "N1", "name": "i1"}, {"kind": "i", "el": "D", "name": "i2"}]
+    "marks": [{"kind": "v", "el": "N1", "name": "v"}, {"kind": "i", "el": "N1", "name": "i1"}, {"kind": "i", "el": "D", "name": "i2"}]
   },
   "analysis": {"type": "ac", "omega": 100, "phasor": "peak"},
   "questions": [
     {
       "id": "uq",
-      "ask": "U_Q = ?",
+      "ask": "V_Q = ?",
       "find": {"kind": "v", "nodes": ["a"], "dc": true},
       "answer": 2.464102,
       "unit": "V",
-      "explain": "设 D 导通：10 − u = u² + (u − 1) → u² + 2u − 11 = 0 → u = −1 + 2√3 ≈ 2.464 V > 1 V ✓。"
+      "explain": "设 D 导通：10 − v = v² + (v − 1) → v² + 2v − 11 = 0 → v = −1 + 2√3 ≈ 2.464 V > 1 V ✓。"
     },
     {
       "id": "i1",
@@ -39,7 +39,7 @@
       "find": {"kind": "i", "el": "N1", "dc": true},
       "answer": 6.071797,
       "unit": "A",
-      "explain": "I_1 = U_Q² = 13 − 4√3 ≈ 6.072 A。"
+      "explain": "I_1 = V_Q² = 13 − 4√3 ≈ 6.072 A。"
     },
     {
       "id": "i2",
@@ -47,7 +47,7 @@
       "find": {"kind": "i", "el": "D", "dc": true},
       "answer": 1.464102,
       "unit": "A",
-      "explain": "I_2 = (U_Q − 1)/1 ≈ 1.464 A；KCL：6.072 + 1.464 = 7.536 = 10 − 2.464 ✓。"
+      "explain": "I_2 = (V_Q − 1)/1 ≈ 1.464 A；KCL：6.072 + 1.464 = 7.536 = 10 − 2.464 ✓。"
     },
     {
       "id": "ra",
@@ -55,15 +55,15 @@
       "find": {"kind": "req", "port": ["a", "0"], "exclude": ["R1"]},
       "answer": 0.1686852,
       "unit": "Ω",
-      "explain": "R_d1 = 1/(2U_Q) ≈ 0.2029 Ω，R_d2 = 1 Ω，并联 ≈ 0.1687 Ω。"
+      "explain": "R_d1 = 1/(2V_Q) ≈ 0.2029 Ω，R_d2 = 1 Ω，并联 ≈ 0.1687 Ω。"
     },
     {
       "id": "uam",
-      "ask": "a 点小信号电压的振幅 U_am = ?",
+      "ask": "a 点小信号电压的振幅 V_am = ?",
       "find": {"kind": "v", "nodes": ["a"]},
       "answer": 0.01443376,
       "unit": "mV",
-      "explain": "U_am = 0.1 × 0.1687/(1 + 0.1687) ≈ 14.43 mV。"
+      "explain": "V_am = 0.1 × 0.1687/(1 + 0.1687) ≈ 14.43 mV。"
     },
     {
       "id": "i1m",
@@ -71,15 +71,15 @@
       "find": {"kind": "i", "el": "N1"},
       "answer": 0.07113249,
       "unit": "mA",
-      "explain": "I_1m = U_am/R_d1 ≈ 14.43 mV/0.2029 Ω ≈ 71.1 mA；D 中 14.4 mA，合计 85.6 mA = 0.1/1.1687 ✓。"
+      "explain": "I_1m = V_am/R_d1 ≈ 14.43 mV/0.2029 Ω ≈ 71.1 mA；D 中 14.4 mA，合计 85.6 mA = 0.1/1.1687 ✓。"
     }
   ],
-  "hints": ["直流：两个元件并联在 a 与地之间，先假设 D 导通，列 a 的 KCL。", "小信号：直流源置零，N_1、D 分别换成各自在 Q 点的动态电阻，二者并联。", "N_1 的动态电阻 1/(2U_Q)；D 导通段的动态电阻就是导通电阻。"],
+  "hints": ["直流：两个元件并联在 a 与地之间，先假设 D 导通，列 a 的 KCL。", "小信号：直流源置零，N_1、D 分别换成各自在 Q 点的动态电阻，二者并联。", "N_1 的动态电阻 1/(2V_Q)；D 导通段的动态电阻就是导通电阻。"],
   "solution": [
-    "**1. 直流工作点。** 设 D 导通：(10 − u)/1 = u² + (u − 1)/1 → u² + 2u − 11 = 0 → **U_Q = −1 + 2√3 ≈ 2.464 V** > 1 V ✓（负根不满足 u ≥ 0）。**I_1 = U_Q² ≈ 6.072 A，I_2 = U_Q − 1 ≈ 1.464 A**。",
-    "**2. 动态电阻。** R_d1 = 1/(2U_Q) ≈ 0.2029 Ω，R_d2 = 1 Ω；从 a 看进去 **R_d1 ∥ R_d2 ≈ 0.1687 Ω**。",
-    "**3. 小信号电路。** u_s → R_1 → 0.1687 Ω：**U_am ≈ 0.1 × 0.1687/1.1687 ≈ 14.43 mV**；**I_1m = U_am/R_d1 ≈ 71.1 mA**，D 中 14.4 mA。",
-    "**4. 总响应。** u_a(t) ≈ 2.464 + 0.01443cos(100t) V，i_1(t) ≈ 6.072 + 0.0711cos(100t) A。",
+    "**1. 直流工作点。** 设 D 导通：(10 − v)/1 = v² + (v − 1)/1 → v² + 2v − 11 = 0 → **V_Q = −1 + 2√3 ≈ 2.464 V** > 1 V ✓（负根不满足 v ≥ 0）。**I_1 = V_Q² ≈ 6.072 A，I_2 = V_Q − 1 ≈ 1.464 A**。",
+    "**2. 动态电阻。** R_d1 = 1/(2V_Q) ≈ 0.2029 Ω，R_d2 = 1 Ω；从 a 看进去 **R_d1 ∥ R_d2 ≈ 0.1687 Ω**。",
+    "**3. 小信号电路。** v_s → R_1 → 0.1687 Ω：**V_am ≈ 0.1 × 0.1687/1.1687 ≈ 14.43 mV**；**I_1m = V_am/R_d1 ≈ 71.1 mA**，D 中 14.4 mA。",
+    "**4. 总响应。** v_a(t) ≈ 2.464 + 0.01443cos(100t) V，i_1(t) ≈ 6.072 + 0.0711cos(100t) A。",
     "**检查：** 小信号 KCL：0.1/(1 + 0.1687) ≈ 85.6 mA = 71.1 + 14.4 mA ✓；D 的瞬时电压始终 > 1 V，导通状态在整个周期内不变，线性化有效 ✓。"
   ],
   "i18n": {
@@ -87,39 +87,39 @@
       "title": "Two nonlinear resistors in parallel: operating point and small-signal response",
       "tags": ["small-signal analysis", "nonlinear resistors in parallel", "diode model", "comprehensive"],
       "statement": [
-        "A DC source U_s = 10 V in series with a small-signal source u_s(t) = 0.1cos(100t) V feeds node a through R_1 = 1 Ω. Between a and ground there are two nonlinear elements in parallel: N_1 with i_1 = u² (u ≥ 0; i_1 = 0 for u < 0), and D, a diode model with a 1 V turn-on voltage and 1 Ω on-resistance.",
-        "Find the DC operating point (U_Q, I_1, I_2), the small-signal resistance seen from a (R_1 removed, U_s zeroed), the amplitude U_am of the small-signal voltage at a and the amplitude of the small-signal current in N_1."
+        "A DC source V_s = 10 V in series with a small-signal source v_s(t) = 0.1cos(100t) V feeds node a through R_1 = 1 Ω. Between a and ground there are two nonlinear elements in parallel: N_1 with i_1 = v² (v ≥ 0; i_1 = 0 for v < 0), and D, a diode model with a 1 V turn-on voltage and 1 Ω on-resistance.",
+        "Find the DC operating point (V_Q, I_1, I_2), the small-signal resistance seen from a (R_1 removed, V_s zeroed), the amplitude V_am of the small-signal voltage at a and the amplitude of the small-signal current in N_1."
       ],
       "questions": [
         {
-          "ask": "U_Q = ?",
-          "explain": "Assume D on: 10 − u = u² + (u − 1) → u² + 2u − 11 = 0 → u = −1 + 2√3 ≈ 2.464 V > 1 V ✓."
+          "ask": "V_Q = ?",
+          "explain": "Assume D on: 10 − v = v² + (v − 1) → v² + 2v − 11 = 0 → v = −1 + 2√3 ≈ 2.464 V > 1 V ✓."
         },
-        {"ask": "I_1 = ?", "explain": "I_1 = U_Q² = 13 − 4√3 ≈ 6.072 A."},
+        {"ask": "I_1 = ?", "explain": "I_1 = V_Q² = 13 − 4√3 ≈ 6.072 A."},
         {
           "ask": "I_2 = ?",
-          "explain": "I_2 = (U_Q − 1)/1 ≈ 1.464 A; KCL: 6.072 + 1.464 = 7.536 = 10 − 2.464 ✓."
+          "explain": "I_2 = (V_Q − 1)/1 ≈ 1.464 A; KCL: 6.072 + 1.464 = 7.536 = 10 − 2.464 ✓."
         },
         {
           "ask": "Small-signal resistance seen from a (with R_1 removed) = ?",
-          "explain": "R_d1 = 1/(2U_Q) ≈ 0.2029 Ω, R_d2 = 1 Ω, in parallel ≈ 0.1687 Ω."
+          "explain": "R_d1 = 1/(2V_Q) ≈ 0.2029 Ω, R_d2 = 1 Ω, in parallel ≈ 0.1687 Ω."
         },
-        {"ask": "Amplitude of the small-signal voltage at a, U_am = ?", "explain": "U_am = 0.1 × 0.1687/(1 + 0.1687) ≈ 14.43 mV."},
+        {"ask": "Amplitude of the small-signal voltage at a, V_am = ?", "explain": "V_am = 0.1 × 0.1687/(1 + 0.1687) ≈ 14.43 mV."},
         {
           "ask": "Amplitude of the small-signal current in N_1, I_1m = ?",
-          "explain": "I_1m = U_am/R_d1 ≈ 14.43 mV/0.2029 Ω ≈ 71.1 mA; D carries 14.4 mA, together 85.6 mA = 0.1/1.1687 ✓."
+          "explain": "I_1m = V_am/R_d1 ≈ 14.43 mV/0.2029 Ω ≈ 71.1 mA; D carries 14.4 mA, together 85.6 mA = 0.1/1.1687 ✓."
         }
       ],
       "hints": [
         "DC: both elements are in parallel between a and ground; assume D conducts and write KCL at a.",
         "Small signal: zero the DC source, replace N_1 and D by their dynamic resistances at Q — they are in parallel.",
-        "N_1's dynamic resistance is 1/(2U_Q); on its conducting segment D's dynamic resistance is the on-resistance."
+        "N_1's dynamic resistance is 1/(2V_Q); on its conducting segment D's dynamic resistance is the on-resistance."
       ],
       "solution": [
-        "**1. DC operating point.** Assume D on: (10 − u)/1 = u² + (u − 1)/1 → u² + 2u − 11 = 0 → **U_Q = −1 + 2√3 ≈ 2.464 V** > 1 V ✓ (the negative root violates u ≥ 0). **I_1 = U_Q² ≈ 6.072 A, I_2 = U_Q − 1 ≈ 1.464 A**.",
-        "**2. Dynamic resistances.** R_d1 = 1/(2U_Q) ≈ 0.2029 Ω, R_d2 = 1 Ω; seen from a, **R_d1 ∥ R_d2 ≈ 0.1687 Ω**.",
-        "**3. Small-signal circuit.** u_s → R_1 → 0.1687 Ω: **U_am ≈ 0.1 × 0.1687/1.1687 ≈ 14.43 mV**; **I_1m = U_am/R_d1 ≈ 71.1 mA**, and D carries 14.4 mA.",
-        "**4. Total response.** u_a(t) ≈ 2.464 + 0.01443cos(100t) V, i_1(t) ≈ 6.072 + 0.0711cos(100t) A.",
+        "**1. DC operating point.** Assume D on: (10 − v)/1 = v² + (v − 1)/1 → v² + 2v − 11 = 0 → **V_Q = −1 + 2√3 ≈ 2.464 V** > 1 V ✓ (the negative root violates v ≥ 0). **I_1 = V_Q² ≈ 6.072 A, I_2 = V_Q − 1 ≈ 1.464 A**.",
+        "**2. Dynamic resistances.** R_d1 = 1/(2V_Q) ≈ 0.2029 Ω, R_d2 = 1 Ω; seen from a, **R_d1 ∥ R_d2 ≈ 0.1687 Ω**.",
+        "**3. Small-signal circuit.** v_s → R_1 → 0.1687 Ω: **V_am ≈ 0.1 × 0.1687/1.1687 ≈ 14.43 mV**; **I_1m = V_am/R_d1 ≈ 71.1 mA**, and D carries 14.4 mA.",
+        "**4. Total response.** v_a(t) ≈ 2.464 + 0.01443cos(100t) V, i_1(t) ≈ 6.072 + 0.0711cos(100t) A.",
         "**Check:** small-signal KCL: 0.1/(1 + 0.1687) ≈ 85.6 mA = 71.1 + 14.4 mA ✓; D's instantaneous voltage stays above 1 V, so it conducts all the time and the linearisation is valid ✓."
       ]
     }

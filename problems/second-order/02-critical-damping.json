@@ -7,12 +7,12 @@
   "level": 2,
   "tags": ["RLC 串联", "零输入响应", "临界阻尼"],
   "statement": [
-    "图示电路中 U_s = 10 V，R = 10 Ω，L = 0.5 H，C = 20 mF。t < 0 时 S_1 闭合、S_2 断开，电路已达稳态；t = 0 时 S_1 断开、S_2 同时闭合，电容经 R、L 放电。",
-    "判断阻尼状态，求 t = 0.1 s 时的 u_C 和电流 i，并说明 i 何时达到最大。"
+    "图示电路中 V_s = 10 V，R = 10 Ω，L = 0.5 H，C = 20 mF。t < 0 时 S_1 闭合、S_2 断开，电路已达稳态；t = 0 时 S_1 断开、S_2 同时闭合，电容经 R、L 放电。",
+    "判断阻尼状态，求 t = 0.1 s 时的 v_C 和电流 i，并说明 i 何时达到最大。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
       { "ref": "S1", "type": "SW", "from": [1, 0], "to": [3, 0], "state": { "before": "closed", "after": "open" } },
       { "ref": "C", "type": "C", "from": [6, 0], "to": [6, 4], "value": "20m" },
       { "ref": "S2", "type": "SW", "from": [8, 0], "to": [10, 0], "state": { "before": "open", "after": "closed" } },
@@ -28,7 +28,7 @@
     ],
     "grounds": [[0, 4]],
     "marks": [
-      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "v", "el": "C", "name": "v_C" },
       { "kind": "i", "el": "L", "name": "i" }
     ]
   },
@@ -43,11 +43,11 @@
     },
     {
       "id": "uc",
-      "ask": "t = 0.1 s 时 u_C = ?",
+      "ask": "t = 0.1 s 时 v_C = ?",
       "find": { "kind": "v", "el": "C", "t": 0.1 },
       "answer": 7.357589,
       "unit": "V",
-      "explain": "临界阻尼：u_C(t) = U₀(1 + αt)e^(−αt) = 10(1 + 10t)e^(−10t) V。t = 0.1 s：u_C = 10 × 2 × e⁻¹ ≈ 7.358 V。"
+      "explain": "临界阻尼：v_C(t) = V₀(1 + αt)e^(−αt) = 10(1 + 10t)e^(−10t) V。t = 0.1 s：v_C = 10 × 2 × e⁻¹ ≈ 7.358 V。"
     },
     {
       "id": "i",
@@ -55,35 +55,35 @@
       "find": { "kind": "i", "el": "L", "t": 0.1 },
       "answer": 0.7357589,
       "unit": "A",
-      "explain": "i 从电容正极板流出，i = −C·du_C/dt = U₀·α²·C·t·e^(−αt) = (U₀/L)·t·e^(−αt) = 20t·e^(−10t) A。t = 0.1 s：i = 2e⁻¹ ≈ 0.7358 A。"
+      "explain": "i 从电容正极板流出，i = −C·dv_C/dt = V₀·α²·C·t·e^(−αt) = (V₀/L)·t·e^(−αt) = 20t·e^(−10t) A。t = 0.1 s：i = 2e⁻¹ ≈ 0.7358 A。"
     },
     {
       "id": "tmax",
       "ask": "放电电流 i 在什么时刻达到最大值？",
-      "choices": ["t = 1/α = 0.1 s", "t = 0₊", "t = 1/(2α) = 0.05 s", "i 单调减小，没有极大值"], "choiceExplain": ["", "i(0₊) = i(0₋) = 0：电感电流不能跃变，放电电流从零开始增大，t = 0₊ 是最小值而不是最大值。", "0.05 s = L/R = 1/(2α)，是把衰减系数算成了 α = R/L；串联 RLC 的 α = R/(2L)。", "i 从 i(0₊) = 0 开始、最后又衰减到 0，中间必然有极大值；单调变化的是 u_C。"],
+      "choices": ["t = 1/α = 0.1 s", "t = 0₊", "t = 1/(2α) = 0.05 s", "i 单调减小，没有极大值"], "choiceExplain": ["", "i(0₊) = i(0₋) = 0：电感电流不能跃变，放电电流从零开始增大，t = 0₊ 是最小值而不是最大值。", "0.05 s = L/R = 1/(2α)，是把衰减系数算成了 α = R/L；串联 RLC 的 α = R/(2L)。", "i 从 i(0₊) = 0 开始、最后又衰减到 0，中间必然有极大值；单调变化的是 v_C。"],
       "correct": 0,
       "explain": "di/dt = 20(1 − 10t)e^(−10t) = 0 → t = 0.1 s = 1/α。所以第 3 问求的 i(0.1 s) 正好是电流的最大值 i_max = 2e⁻¹ ≈ 0.736 A。"
     }
   ],
   "hints": [
-    "先求 u_C(0₊) 和 i(0₊)：t < 0 时电容接在 U_s 上，电感支路没有电流。",
+    "先求 v_C(0₊) 和 i(0₊)：t < 0 时电容接在 V_s 上，电感支路没有电流。",
     "比较 R 和 2√(L/C)；相等时特征根是重根 s = −α。",
-    "临界阻尼的通解 u_C = (A₁ + A₂t)e^(−αt)，用 u_C(0₊) 和 du_C/dt(0₊) = −i(0₊)/C 定常数。"
+    "临界阻尼的通解 v_C = (A₁ + A₂t)e^(−αt)，用 v_C(0₊) 和 dv_C/dt(0₊) = −i(0₊)/C 定常数。"
   ],
   "solution": [
-    "**1. 初始值。** t < 0：S_1 闭合，电容直接接在 U_s 上，u_C(0₋) = 10 V；S_2 断开，电感中无电流。换路定则：u_C(0₊) = 10 V，i(0₊) = 0。",
+    "**1. 初始值。** t < 0：S_1 闭合，电容直接接在 V_s 上，v_C(0₋) = 10 V；S_2 断开，电感中无电流。换路定则：v_C(0₊) = 10 V，i(0₊) = 0。",
     "**2. 阻尼判别。** 2√(L/C) = 2√(0.5/0.02) = 10 Ω = R → **临界阻尼**。α = R/(2L) = 10 s⁻¹，特征根 s₁ = s₂ = −10 s⁻¹。",
-    "**3. 求 u_C(t)。** 通解 u_C = (A₁ + A₂t)e^(−10t)。u_C(0₊) = 10 → A₁ = 10；du_C/dt(0₊) = −i(0₊)/C = 0 → A₂ − 10A₁ = 0 → A₂ = 100。所以 u_C(t) = 10(1 + 10t)e^(−10t) V，u_C(0.1) = 20e⁻¹ = **7.358 V**。",
-    "**4. 求 i(t)。** i = −C·du_C/dt = −0.02 × (−1000t·e^(−10t)) = 20t·e^(−10t) A，i(0.1) = 2e⁻¹ = **0.7358 A**。",
-    "**5. 电流极大值。** di/dt = 20(1 − 10t)e^(−10t) = 0 → t_m = 1/α = **0.1 s**，i_max ≈ 0.736 A。验算：u_L(0₊) = u_C(0₊) = 10 V，di/dt(0₊) = u_L/L = 20 A/s，与 i(t) 在 t = 0 处的斜率一致。"
+    "**3. 求 v_C(t)。** 通解 v_C = (A₁ + A₂t)e^(−10t)。v_C(0₊) = 10 → A₁ = 10；dv_C/dt(0₊) = −i(0₊)/C = 0 → A₂ − 10A₁ = 0 → A₂ = 100。所以 v_C(t) = 10(1 + 10t)e^(−10t) V，v_C(0.1) = 20e⁻¹ = **7.358 V**。",
+    "**4. 求 i(t)。** i = −C·dv_C/dt = −0.02 × (−1000t·e^(−10t)) = 20t·e^(−10t) A，i(0.1) = 2e⁻¹ = **0.7358 A**。",
+    "**5. 电流极大值。** di/dt = 20(1 − 10t)e^(−10t) = 0 → t_m = 1/α = **0.1 s**，i_max ≈ 0.736 A。验算：v_L(0₊) = v_C(0₊) = 10 V，di/dt(0₊) = v_L/L = 20 A/s，与 i(t) 在 t = 0 处的斜率一致。"
   ],
   "i18n": {
     "en": {
       "title": "Critically damped discharge",
       "tags": ["series RLC", "zero-input response", "critical damping"],
       "statement": [
-        "In the circuit U_s = 10 V, R = 10 Ω, L = 0.5 H, C = 20 mF. For t < 0, S_1 is closed and S_2 open, and the circuit is in steady state; at t = 0, S_1 opens and S_2 closes at the same time, and the capacitor discharges through R and L.",
-        "Classify the damping, find u_C and the current i at t = 0.1 s, and say when i reaches its maximum."
+        "In the circuit V_s = 10 V, R = 10 Ω, L = 0.5 H, C = 20 mF. For t < 0, S_1 is closed and S_2 open, and the circuit is in steady state; at t = 0, S_1 opens and S_2 closes at the same time, and the capacitor discharges through R and L.",
+        "Classify the damping, find v_C and the current i at t = 0.1 s, and say when i reaches its maximum."
       ],
       "questions": [
         {
@@ -92,30 +92,30 @@
           "explain": "2√(L/C) = 2√(0.5/0.02) = 2 × 5 = 10 Ω = R, exactly critical damping: the characteristic root is a double root s = −α = −R/(2L) = −10 s⁻¹."
         },
         {
-          "ask": "u_C at t = 0.1 s = ?",
-          "explain": "Critical damping: u_C(t) = U₀(1 + αt)e^(−αt) = 10(1 + 10t)e^(−10t) V. At t = 0.1 s: u_C = 10 × 2 × e⁻¹ ≈ 7.358 V."
+          "ask": "v_C at t = 0.1 s = ?",
+          "explain": "Critical damping: v_C(t) = V₀(1 + αt)e^(−αt) = 10(1 + 10t)e^(−10t) V. At t = 0.1 s: v_C = 10 × 2 × e⁻¹ ≈ 7.358 V."
         },
         {
           "ask": "Current i at t = 0.1 s = ? (reference direction as drawn)",
-          "explain": "i leaves the capacitor's + plate, so i = −C·du_C/dt = U₀·α²·C·t·e^(−αt) = (U₀/L)·t·e^(−αt) = 20t·e^(−10t) A. At t = 0.1 s: i = 2e⁻¹ ≈ 0.7358 A."
+          "explain": "i leaves the capacitor's + plate, so i = −C·dv_C/dt = V₀·α²·C·t·e^(−αt) = (V₀/L)·t·e^(−αt) = 20t·e^(−10t) A. At t = 0.1 s: i = 2e⁻¹ ≈ 0.7358 A."
         },
         {
           "ask": "When does the discharge current i reach its maximum?",
-          "choices": ["t = 1/α = 0.1 s", "t = 0+", "t = 1/(2α) = 0.05 s", "i decreases monotonically and has no maximum"], "choiceExplain": ["", "i(0+) = i(0−) = 0: the inductor current cannot jump, so the discharge current starts from zero — t = 0+ is its minimum, not its maximum.", "0.05 s = L/R = 1/(2α) comes from taking α = R/L; for a series RLC α = R/(2L).", "i starts at i(0+) = 0 and decays back to 0, so it must have a maximum in between; it is u_C that changes monotonically."],
+          "choices": ["t = 1/α = 0.1 s", "t = 0+", "t = 1/(2α) = 0.05 s", "i decreases monotonically and has no maximum"], "choiceExplain": ["", "i(0+) = i(0−) = 0: the inductor current cannot jump, so the discharge current starts from zero — t = 0+ is its minimum, not its maximum.", "0.05 s = L/R = 1/(2α) comes from taking α = R/L; for a series RLC α = R/(2L).", "i starts at i(0+) = 0 and decays back to 0, so it must have a maximum in between; it is v_C that changes monotonically."],
           "explain": "di/dt = 20(1 − 10t)e^(−10t) = 0 → t = 0.1 s = 1/α. So question 3, i(0.1 s), is exactly the peak current i_max = 2e⁻¹ ≈ 0.736 A."
         }
       ],
       "hints": [
-        "Find u_C(0+) and i(0+) first: for t < 0 the capacitor sits across U_s and the inductor branch carries no current.",
+        "Find v_C(0+) and i(0+) first: for t < 0 the capacitor sits across V_s and the inductor branch carries no current.",
         "Compare R with 2√(L/C); when they are equal the characteristic root is a double root s = −α.",
-        "The critically damped solution is u_C = (A₁ + A₂t)e^(−αt); fix the constants with u_C(0+) and du_C/dt(0+) = −i(0+)/C."
+        "The critically damped solution is v_C = (A₁ + A₂t)e^(−αt); fix the constants with v_C(0+) and dv_C/dt(0+) = −i(0+)/C."
       ],
       "solution": [
-        "**1. Initial values.** For t < 0 S_1 is closed and C sits directly across U_s, so u_C(0−) = 10 V; S_2 is open, so the inductor carries no current. Switching rules: u_C(0+) = 10 V, i(0+) = 0.",
+        "**1. Initial values.** For t < 0 S_1 is closed and C sits directly across V_s, so v_C(0−) = 10 V; S_2 is open, so the inductor carries no current. Switching rules: v_C(0+) = 10 V, i(0+) = 0.",
         "**2. Damping.** 2√(L/C) = 2√(0.5/0.02) = 10 Ω = R → **critically damped**. α = R/(2L) = 10 s⁻¹, double root s₁ = s₂ = −10 s⁻¹.",
-        "**3. u_C(t).** General solution u_C = (A₁ + A₂t)e^(−10t). u_C(0+) = 10 → A₁ = 10; du_C/dt(0+) = −i(0+)/C = 0 → A₂ − 10A₁ = 0 → A₂ = 100. So u_C(t) = 10(1 + 10t)e^(−10t) V and u_C(0.1) = 20e⁻¹ = **7.358 V**.",
-        "**4. i(t).** i = −C·du_C/dt = −0.02 × (−1000t·e^(−10t)) = 20t·e^(−10t) A, i(0.1) = 2e⁻¹ = **0.7358 A**.",
-        "**5. Peak current.** di/dt = 20(1 − 10t)e^(−10t) = 0 → t_m = 1/α = **0.1 s**, i_max ≈ 0.736 A. Check: u_L(0+) = u_C(0+) = 10 V, so di/dt(0+) = u_L/L = 20 A/s, matching the slope of i(t) at t = 0."
+        "**3. v_C(t).** General solution v_C = (A₁ + A₂t)e^(−10t). v_C(0+) = 10 → A₁ = 10; dv_C/dt(0+) = −i(0+)/C = 0 → A₂ − 10A₁ = 0 → A₂ = 100. So v_C(t) = 10(1 + 10t)e^(−10t) V and v_C(0.1) = 20e⁻¹ = **7.358 V**.",
+        "**4. i(t).** i = −C·dv_C/dt = −0.02 × (−1000t·e^(−10t)) = 20t·e^(−10t) A, i(0.1) = 2e⁻¹ = **0.7358 A**.",
+        "**5. Peak current.** di/dt = 20(1 − 10t)e^(−10t) = 0 → t_m = 1/α = **0.1 s**, i_max ≈ 0.736 A. Check: v_L(0+) = v_C(0+) = 10 V, so di/dt(0+) = v_L/L = 20 A/s, matching the slope of i(t) at t = 0."
       ]
     }
   }

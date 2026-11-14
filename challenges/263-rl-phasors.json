@@ -16,13 +16,13 @@
     "",
     "**信号发生器**：正弦波，幅度 1 V、偏置 0，频率 1.6 kHz（再试 160 Hz 和 16 kHz）。",
     "",
-    "**示波器**：CH1 接 VIN（信号发生器端子），CH2 接 VR。电阻电压 u_R = R·i 和电流同相，所以 **CH2 就是电流的波形**。电感电压 u_L = CH1 − CH2（MATH 相减）。",
+    "**示波器**：CH1 接 VIN（信号发生器端子），CH2 接 VR。电阻电压 v_R = R·i 和电流同相，所以 **CH2 就是电流的波形**。电感电压 v_L = CH1 − CH2（MATH 相减）。",
     "",
-    "**先预测**：电感的阻抗 Z_L = r + jωL，r = 1 Ω 是线圈电阻；从 VIN 往右看的总阻抗 Z = (R + r) + jωL。先算 1.6 kHz 时的 X_L、电流落后电压的角度、U_R/U_in，再估计 u_R、u_L 的峰峰值：它们直接相加等于 VIN 吗？",
+    "**先预测**：电感的阻抗 Z_L = r + jωL，r = 1 Ω 是线圈电阻；从 VIN 往右看的总阻抗 Z = (R + r) + jωL。先算 1.6 kHz 时的 X_L、电流落后电压的角度、V_R/V_in，再估计 v_R、v_L 的峰峰值：它们直接相加等于 VIN 吗？",
     "",
     "**测量**：读 CH1、CH2 和 MATH（CH1 − CH2）的峰峰值，以及 CH2 相对 CH1 的相位差；再换到 160 Hz 和 16 kHz 各读一次。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
     "",
-    "**真实电路里**：仿真里线圈电阻 r 只有 1 Ω；面包板上常见的 10 mH 小电感，绕组电阻往往有几欧到几十欧，铁氧体磁芯在高频还有损耗。r 越大，电流落后的角度越小、u_R 越小，fc 也往高处移；测 u_L 时会发现它和 u_R 的夹角小于 90°。"
+    "**真实电路里**：仿真里线圈电阻 r 只有 1 Ω；面包板上常见的 10 mH 小电感，绕组电阻往往有几欧到几十欧，铁氧体磁芯在高频还有损耗。r 越大，电流落后的角度越小、v_R 越小，fc 也往高处移；测 v_L 时会发现它和 v_R 的夹角小于 90°。"
   ],
   "i18n": {
     "en": {
@@ -36,33 +36,33 @@
         "",
         "**Generator**: sine, amplitude 1 V, offset 0, 1.6 kHz (then try 160 Hz and 16 kHz).",
         "",
-        "**Scope**: CH1 on VIN (the generator's terminals), CH2 on VR. The resistor voltage u_R = R·i is in phase with the current, so **CH2 is the current waveform**. The inductor voltage is u_L = CH1 − CH2 (MATH subtract).",
+        "**Scope**: CH1 on VIN (the generator's terminals), CH2 on VR. The resistor voltage v_R = R·i is in phase with the current, so **CH2 is the current waveform**. The inductor voltage is v_L = CH1 − CH2 (MATH subtract).",
         "",
-        "**Predict first**: the inductor's impedance is Z_L = r + jωL with r = 1 Ω winding resistance; the total impedance looking right from VIN is Z = (R + r) + jωL. Work out X_L at 1.6 kHz, how far the current lags the voltage and U_R/U_in, then estimate the peak-to-peak values of u_R and u_L: do they add up to VIN?",
+        "**Predict first**: the inductor's impedance is Z_L = r + jωL with r = 1 Ω winding resistance; the total impedance looking right from VIN is Z = (R + r) + jωL. Work out X_L at 1.6 kHz, how far the current lags the voltage and V_R/V_in, then estimate the peak-to-peak values of v_R and v_L: do they add up to VIN?",
         "",
         "**Measure**: read the peak-to-peak values of CH1, CH2 and MATH (CH1 − CH2) and the phase of CH2 relative to CH1; repeat at 160 Hz and 16 kHz. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
         "",
-        "**In a real circuit**: the simulated winding resistance r is only 1 Ω; the small 10 mH inductors common on breadboards often have a few ohms to tens of ohms, and a ferrite core adds losses at high frequency. A larger r means a smaller lag, a smaller u_R and a higher fc; when you measure u_L you will find it less than 90° ahead of u_R."
+        "**In a real circuit**: the simulated winding resistance r is only 1 Ω; the small 10 mH inductors common on breadboards often have a few ohms to tens of ohms, and a ferrite core adds losses at high frequency. A larger r means a smaller lag, a smaller v_R and a higher fc; when you measure v_L you will find it less than 90° ahead of v_R."
       ],
       "compare": [
         "**Compare**:",
-        "- At f = 1.6 kHz: X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r = 101 Ω. The current I = U_in/Z lags U_in by arctan(X_L/(R + r)) ≈ 45°; U_R/U_in = R/|Z| ≈ 100/142.5 ≈ 0.70.",
-        "- **Voltage triangle**: U_in = U_R + U_L as phasors, with U_L about 90° ahead of U_R. On the scope VIN ≈ 1.57 Vpp (the 50 Ω output resistance takes a share, see below), u_R ≈ 1.10 Vpp, u_L ≈ 1.11 Vpp: 1.10 + 1.11 = 2.21 ≠ 1.57, but √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57. **KVL in AC circuits adds phasors, not RMS or peak-to-peak values.**",
+        "- At f = 1.6 kHz: X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r = 101 Ω. The current I = V_in/Z lags V_in by arctan(X_L/(R + r)) ≈ 45°; V_R/V_in = R/|Z| ≈ 100/142.5 ≈ 0.70.",
+        "- **Voltage triangle**: V_in = V_R + V_L as phasors, with V_L about 90° ahead of V_R. On the scope VIN ≈ 1.57 Vpp (the 50 Ω output resistance takes a share, see below), v_R ≈ 1.10 Vpp, v_L ≈ 1.11 Vpp: 1.10 + 1.11 = 2.21 ≠ 1.57, but √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57. **KVL in AC circuits adds phasors, not RMS or peak-to-peak values.**",
         "- RMS current I = (1 V/√2) / |151 + j100.5| Ω ≈ 3.9 mA (count the 50 Ω here, because the 1 V is the generator's internal EMF).",
         "",
         "**Why VIN is only 1.57 Vpp**: the generator's 1 V is the amplitude of its internal ideal source, which reaches the terminals through 50 Ω. Terminal voltage = 1 V × |Z| / |Z + 50 Ω| = 142.5 / |151 + j100.5| ≈ 0.786 V peak. Using the terminal voltage (CH1) as the reference for gain and phase removes this effect.",
         "",
         "**Other frequencies**:",
-        "- 160 Hz: X_L ≈ 10 Ω ≪ R, almost a purely resistive circuit; the current is nearly in phase with the voltage (≈ 5.7° behind), u_R/u_in ≈ 0.985 (= 100/101 × 0.995: the coil's 1 Ω takes 1%).",
-        "- 16 kHz: X_L ≈ 1005 Ω ≫ R; the current is small and ≈ 84° behind, u_R/u_in ≈ 0.10, and almost all the voltage is across the inductor.",
+        "- 160 Hz: X_L ≈ 10 Ω ≪ R, almost a purely resistive circuit; the current is nearly in phase with the voltage (≈ 5.7° behind), v_R/v_in ≈ 0.985 (= 100/101 × 0.995: the coil's 1 Ω takes 1%).",
+        "- 16 kHz: X_L ≈ 1005 Ω ≫ R; the current is small and ≈ 84° behind, v_R/v_in ≈ 0.10, and almost all the voltage is across the inductor.",
         "",
-        "**Think about it**: taking u_R as the output, this circuit is an **RL low-pass filter** with cutoff fc = (R + r)/(2πL) ≈ 1.6 kHz."
+        "**Think about it**: taking v_R as the output, this circuit is an **RL low-pass filter** with cutoff fc = (R + r)/(2πL) ≈ 1.6 kHz."
       ],
       "measurements": [
         {"ask": "1.6 kHz: CH1 (VIN, the generator terminals) Vpp", "explain": "The 1 V is the generator's internal EMF, which reaches the terminals through 50 Ω: 2 × 1 V × 142.5 / |151 + j100.5| ≈ 1.57 Vpp."},
-        {"ask": "1.6 kHz: CH2 (u_R, the current's waveform) Vpp", "explain": "U_R / U_in = R / |Z| ≈ 100 / 142.5 ≈ 0.70, ≈ 1.10 Vpp."},
-        {"ask": "1.6 kHz: MATH (CH1 − CH2, the inductor voltage u_L) Vpp", "explain": "X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r, so u_L is about as big as u_R, ≈ 1.11 Vpp."},
-        {"ask": "Check KVL with your three readings:", "explain": "1.10 + 1.11 = 2.21 ≠ 1.57, but √(1.10² + 1.11²) ≈ 1.56. AC KVL adds phasors: U_L leads U_R by about 90°.", "choices": ["VIN ≈ √(U_R² + U_L²): phasors add, about 90° apart", "VIN ≈ U_R + U_L: they simply add", "VIN ≈ U_L − U_R"]},
+        {"ask": "1.6 kHz: CH2 (v_R, the current's waveform) Vpp", "explain": "V_R / V_in = R / |Z| ≈ 100 / 142.5 ≈ 0.70, ≈ 1.10 Vpp."},
+        {"ask": "1.6 kHz: MATH (CH1 − CH2, the inductor voltage v_L) Vpp", "explain": "X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r, so v_L is about as big as v_R, ≈ 1.11 Vpp."},
+        {"ask": "Check KVL with your three readings:", "explain": "1.10 + 1.11 = 2.21 ≠ 1.57, but √(1.10² + 1.11²) ≈ 1.56. AC KVL adds phasors: V_L leads V_R by about 90°.", "choices": ["VIN ≈ √(V_R² + V_L²): phasors add, about 90° apart", "VIN ≈ V_R + V_L: they simply add", "VIN ≈ V_L − V_R"]},
         {"ask": "1.6 kHz: phase of CH2 (the current) relative to CH1 (lagging is negative)", "explain": "The current lags by arctan(X_L/(R + r)) ≈ arctan(100.5/101) ≈ 45°. This frequency is the RL low-pass cutoff fc = (R + r)/(2πL)."}
       ],
       "hints": [
@@ -71,8 +71,8 @@
         "X_L = 2πfL; at 1.6 kHz that is about 100 Ω."
       ],
       "tests": [
-        "1.6 kHz: the current (u_R) lags VIN; sensible RMS current",
-        "1.6 kHz: the peak-to-peak u_R, u_L and VIN add as phasors",
+        "1.6 kHz: the current (v_R) lags VIN; sensible RMS current",
+        "1.6 kHz: the peak-to-peak v_R, v_L and VIN add as phasors",
         "160 Hz: almost purely resistive",
         "16 kHz: mostly inductive"
       ]
@@ -90,7 +90,7 @@
   ],
   "tests": [
     {
-      "name": "1.6 kHz：电流（u_R）落后 VIN；电流有效值合理",
+      "name": "1.6 kHz：电流（v_R）落后 VIN；电流有效值合理",
       "set": { "FG1": { "waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
@@ -99,7 +99,7 @@
       "currents": [{ "el": "L1", "mode": "rms", "min": 0.0037, "max": 0.0041 }]
     },
     {
-      "name": "1.6 kHz：u_R、u_L、VIN 的峰峰值按相量相加",
+      "name": "1.6 kHz：v_R、v_L、VIN 的峰峰值按相量相加",
       "set": { "FG1": { "waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0 } },
       "scope": [
         { "pin": "R1.1", "measure": "vpp", "min": 1.05, "max": 1.15 },
@@ -126,23 +126,23 @@
   ],
   "compare": [
     "**对比**：",
-    "- 在 f = 1.6 kHz：X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r = 101 Ω。电流 İ = U̇in/Z 落后 U̇in 的角度 = arctan(X_L/(R + r)) ≈ 45°；U_R/U_in = R/|Z| ≈ 100/142.5 ≈ 0.70。",
-    "- **电压三角形**：U̇in = U̇R + U̇L，而 U̇L 超前 U̇R 约 90°。示波器上 VIN ≈ 1.57 Vpp（50 Ω 输出电阻分掉了一部分，见下）、u_R ≈ 1.10 Vpp、u_L ≈ 1.11 Vpp：1.10 + 1.11 = 2.21 ≠ 1.57，但 √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57。**交流电路的 KVL 是相量相加，不是有效值 / 峰峰值直接相加**。",
+    "- 在 f = 1.6 kHz：X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r = 101 Ω。电流 İ = V̇in/Z 落后 V̇in 的角度 = arctan(X_L/(R + r)) ≈ 45°；V_R/V_in = R/|Z| ≈ 100/142.5 ≈ 0.70。",
+    "- **电压三角形**：V̇in = V̇R + V̇L，而 V̇L 超前 V̇R 约 90°。示波器上 VIN ≈ 1.57 Vpp（50 Ω 输出电阻分掉了一部分，见下）、v_R ≈ 1.10 Vpp、v_L ≈ 1.11 Vpp：1.10 + 1.11 = 2.21 ≠ 1.57，但 √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57。**交流电路的 KVL 是相量相加，不是有效值 / 峰峰值直接相加**。",
     "- 电流有效值 I = 1 V/√2 / |151 + j100.5| Ω ≈ 3.9 mA（这里要把 50 Ω 算进去，因为 1 V 是信号发生器内部的电动势）。",
     "",
     "**为什么 VIN 只有 1.57 Vpp**：信号发生器的 1 V 是它内部理想源的幅度，经过 50 Ω 才到端子。端子电压 = 1 V × |Z| / |Z + 50 Ω| = 142.5 / |151 + j100.5| ≈ 0.786 V 峰值。测滤波器、相位时都拿端子电压（CH1）作参考，这个影响就消掉了。",
     "",
     "**换频率**：",
-    "- 160 Hz：X_L ≈ 10 Ω ≪ R，几乎是纯电阻电路，电流几乎和电压同相（落后 ≈ 5.7°），u_R/u_in ≈ 0.985（= 100/101 × 0.995，线圈的 1 Ω 分走了 1%）。",
-    "- 16 kHz：X_L ≈ 1005 Ω ≫ R，电流很小且落后 ≈ 84°，u_R/u_in ≈ 0.10，几乎全部电压都在电感上。",
+    "- 160 Hz：X_L ≈ 10 Ω ≪ R，几乎是纯电阻电路，电流几乎和电压同相（落后 ≈ 5.7°），v_R/v_in ≈ 0.985（= 100/101 × 0.995，线圈的 1 Ω 分走了 1%）。",
+    "- 16 kHz：X_L ≈ 1005 Ω ≫ R，电流很小且落后 ≈ 84°，v_R/v_in ≈ 0.10，几乎全部电压都在电感上。",
     "",
-    "**想一想**：这个电路取 u_R 作输出，就是一个 **RL 低通滤波器**，截止频率 fc = (R + r)/(2πL) ≈ 1.6 kHz。"
+    "**想一想**：这个电路取 v_R 作输出，就是一个 **RL 低通滤波器**，截止频率 fc = (R + r)/(2πL) ≈ 1.6 kHz。"
   ],
   "measurements": [
     {"id": "uin", "scope": "vpp", "pin": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.49, 1.65], "ask": "1.6 kHz：CH1（VIN，信号发生器端子）的 Vpp", "explain": "1 V 是信号发生器内部的电动势，经过 50 Ω 才到端子：2 × 1 V × 142.5 / |151 + j100.5| ≈ 1.57 Vpp。"},
-    {"id": "ur", "scope": "vpp", "pin": "R1.1", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.05, 1.16], "ask": "1.6 kHz：CH2（u_R，也就是电流的波形）的 Vpp", "explain": "U_R / U_in = R / |Z| ≈ 100 / 142.5 ≈ 0.70，≈ 1.10 Vpp。"},
-    {"id": "ul", "scope": "vpp", "pin": "L1.1", "ref": "L1.2", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.05, 1.16], "ask": "1.6 kHz：MATH（CH1 − CH2，电感电压 u_L）的 Vpp", "explain": "X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r，所以 u_L 和 u_R 差不多大，≈ 1.11 Vpp。"},
-    {"id": "kvl", "choices": ["VIN ≈ √(U_R² + U_L²)：相量相加，两者相差约 90°", "VIN ≈ U_R + U_L：直接相加", "VIN ≈ U_L − U_R"], "correct": 0, "ask": "用你的三个读数检查 KVL：", "explain": "1.10 + 1.11 = 2.21 ≠ 1.57，但 √(1.10² + 1.11²) ≈ 1.56。交流 KVL 是相量相加：U̇L 超前 U̇R 约 90°。"},
+    {"id": "ur", "scope": "vpp", "pin": "R1.1", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.05, 1.16], "ask": "1.6 kHz：CH2（v_R，也就是电流的波形）的 Vpp", "explain": "V_R / V_in = R / |Z| ≈ 100 / 142.5 ≈ 0.70，≈ 1.10 Vpp。"},
+    {"id": "ul", "scope": "vpp", "pin": "L1.1", "ref": "L1.2", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.05, 1.16], "ask": "1.6 kHz：MATH（CH1 − CH2，电感电压 v_L）的 Vpp", "explain": "X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r，所以 v_L 和 v_R 差不多大，≈ 1.11 Vpp。"},
+    {"id": "kvl", "choices": ["VIN ≈ √(V_R² + V_L²)：相量相加，两者相差约 90°", "VIN ≈ V_R + V_L：直接相加", "VIN ≈ V_L − V_R"], "correct": 0, "ask": "用你的三个读数检查 KVL：", "explain": "1.10 + 1.11 = 2.21 ≠ 1.57，但 √(1.10² + 1.11²) ≈ 1.56。交流 KVL 是相量相加：V̇L 超前 V̇R 约 90°。"},
     {"id": "ph", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "°", "predict": true, "range": [-47.1, -42.6], "ask": "1.6 kHz：CH2（电流）相对 CH1 的相位差（落后为负）", "explain": "电流落后 arctan(X_L/(R + r)) ≈ arctan(100.5/101) ≈ 45°。这个频率就是 RL 低通的截止频率 fc = (R + r)/(2πL)。"}
   ],
   "hints": [

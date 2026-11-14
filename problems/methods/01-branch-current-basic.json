@@ -7,16 +7,16 @@
   "level": 1,
   "tags": ["支路电流法", "KCL", "KVL"],
   "statement": [
-    "图示电路中 U_s1 = 14 V，U_s2 = 4 V，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 4 Ω。三条支路电流 i_1、i_2、i_3 的参考方向如图（i_1、i_2 流向结点 a，i_3 向下）。",
-    "用**支路电流法**求 i_1、i_2，以及 U_s2 **吸收**的功率。"
+    "图示电路中 V_s1 = 14 V，V_s2 = 4 V，R_1 = 2 Ω，R_2 = 4 Ω，R_3 = 4 Ω。三条支路电流 i_1、i_2、i_3 的参考方向如图（i_1、i_2 流向结点 a，i_3 向下）。",
+    "用**支路电流法**求 i_1、i_2，以及 V_s2 **吸收**的功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 14 },
+      { "ref": "Vs1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 14 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
       { "ref": "R3", "type": "R", "from": [8, 0], "to": [8, 4], "value": 4 },
       { "ref": "R2", "type": "R", "from": [14, 0], "to": [10, 0], "value": 4 },
-      { "ref": "Us2", "type": "V", "from": [16, 0], "to": [16, 4], "value": 4 }
+      { "ref": "Vs2", "type": "V", "from": [16, 0], "to": [16, 4], "value": 4 }
     ],
     "wires": [
       [[0, 0], [2, 0]],
@@ -43,28 +43,28 @@
     },
     { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 3, "unit": "A", "explain": "联立 i_1 + i_2 = i_3、2i_1 + 4i_3 = 14、4i_2 + 4i_3 = 4，解得 i_1 = 3 A。" },
     { "id": "i2", "ask": "i_2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": -1, "unit": "A", "explain": "i_2 = −1 A：负号说明实际电流从 a 流向右边，与参考方向相反。" },
-    { "id": "p", "ask": "U_s2 吸收的功率 P = ?", "find": { "kind": "p", "el": "Us2" }, "answer": 4, "unit": "W", "explain": "实际有 1 A 从 U_s2 的“+”端流入，与 U_s2 的电压为关联方向：P = 4 × 1 = 4 W，U_s2 在吸收功率（相当于被充电）。" }
+    { "id": "p", "ask": "V_s2 吸收的功率 P = ?", "find": { "kind": "p", "el": "Vs2" }, "answer": 4, "unit": "W", "explain": "实际有 1 A 从 V_s2 的“+”端流入，与 V_s2 的电压为关联方向：P = 4 × 1 = 4 W，V_s2 在吸收功率（相当于被充电）。" }
   ],
   "hints": [
     "未知量是三个支路电流：对结点 a 列 1 个 KCL，再对左、右两个网孔各列 1 个 KVL。",
-    "KVL 沿网孔走一圈：电源的电压升 = 各电阻上的压降之和。左网孔经过 U_s1、R_1、R_3，右网孔经过 U_s2、R_2、R_3（R_3 是两个网孔共用的支路）。",
+    "KVL 沿网孔走一圈：电源的电压升 = 各电阻上的压降之和。左网孔经过 V_s1、R_1、R_3，右网孔经过 V_s2、R_2、R_3（R_3 是两个网孔共用的支路）。",
     "用 i_3 = i_1 + i_2 消去 i_3：左网孔方程化为 6i_1 + 4i_2 = 14，右网孔同理，解这两个方程。"
   ],
   "solution": [
     "**1. KCL（结点 a）：** i_1 + i_2 = i_3。",
-    "**2. KVL（左网孔，顺时针）：** R_1·i_1 + R_3·i_3 = U_s1 → 2i_1 + 4i_3 = 14。",
-    "**3. KVL（右网孔，沿 U_s2 → R_2 → R_3 方向）：** R_2·i_2 + R_3·i_3 = U_s2 → 4i_2 + 4i_3 = 4。",
+    "**2. KVL（左网孔，顺时针）：** R_1·i_1 + R_3·i_3 = V_s1 → 2i_1 + 4i_3 = 14。",
+    "**3. KVL（右网孔，沿 V_s2 → R_2 → R_3 方向）：** R_2·i_2 + R_3·i_3 = V_s2 → 4i_2 + 4i_3 = 4。",
     "**4. 求解：** 代入 i_3 = i_1 + i_2：6i_1 + 4i_2 = 14，4i_1 + 8i_2 = 4。由第二式 i_1 = 1 − 2i_2，代入第一式 6 − 12i_2 + 4i_2 = 14 → **i_2 = −1 A**，**i_1 = 3 A**，i_3 = 2 A。",
-    "**5. U_s2 的功率：** 流入 U_s2 “+”端的电流为 −i_2 = 1 A，P = U_s2 × 1 = **4 W（吸收）**。",
-    "**验算：** U_s1 发出 14 × 3 = 42 W；电阻吸收 2×3² + 4×1² + 4×2² = 18 + 4 + 16 = 38 W；U_s2 吸收 4 W。38 + 4 = 42 W，功率平衡。"
+    "**5. V_s2 的功率：** 流入 V_s2 “+”端的电流为 −i_2 = 1 A，P = V_s2 × 1 = **4 W（吸收）**。",
+    "**验算：** V_s1 发出 14 × 3 = 42 W；电阻吸收 2×3² + 4×1² + 4×2² = 18 + 4 + 16 = 38 W；V_s2 吸收 4 W。38 + 4 = 42 W，功率平衡。"
   ],
   "i18n": {
     "en": {
       "title": "Branch-current method: three branches, two voltage sources",
       "tags": ["branch-current method", "KCL", "KVL"],
       "statement": [
-        "In the circuit, U_s1 = 14 V, U_s2 = 4 V, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 4 Ω. The reference directions of the branch currents i_1, i_2, i_3 are shown (i_1 and i_2 flow towards node a, i_3 flows down).",
-        "Use the **branch-current method** to find i_1, i_2 and the power **absorbed** by U_s2."
+        "In the circuit, V_s1 = 14 V, V_s2 = 4 V, R_1 = 2 Ω, R_2 = 4 Ω, R_3 = 4 Ω. The reference directions of the branch currents i_1, i_2, i_3 are shown (i_1 and i_2 flow towards node a, i_3 flows down).",
+        "Use the **branch-current method** to find i_1, i_2 and the power **absorbed** by V_s2."
       ],
       "questions": [
         {
@@ -74,20 +74,20 @@
         },
         { "ask": "i_1 = ?", "explain": "Solving i_1 + i_2 = i_3, 2i_1 + 4i_3 = 14 and 4i_2 + 4i_3 = 4 gives i_1 = 3 A." },
         { "ask": "i_2 = ?", "explain": "i_2 = −1 A: the minus sign means the actual current flows from a to the right, opposite to the reference arrow." },
-        { "ask": "Power absorbed by U_s2, P = ?", "explain": "An actual current of 1 A enters the \"+\" terminal of U_s2 (passive convention): P = 4 × 1 = 4 W, so U_s2 absorbs power (it is being charged)." }
+        { "ask": "Power absorbed by V_s2, P = ?", "explain": "An actual current of 1 A enters the \"+\" terminal of V_s2 (passive convention): P = 4 × 1 = 4 W, so V_s2 absorbs power (it is being charged)." }
       ],
       "hints": [
         "The unknowns are the three branch currents: write 1 KCL equation at node a and 1 KVL equation for each of the two meshes.",
-        "For KVL walk once around each mesh: the source's voltage rise = the sum of the resistor drops. The left mesh passes U_s1, R_1, R_3; the right mesh passes U_s2, R_2, R_3 (R_3 is the branch they share).",
+        "For KVL walk once around each mesh: the source's voltage rise = the sum of the resistor drops. The left mesh passes V_s1, R_1, R_3; the right mesh passes V_s2, R_2, R_3 (R_3 is the branch they share).",
         "Eliminate i_3 with i_3 = i_1 + i_2: the left-mesh equation becomes 6i_1 + 4i_2 = 14; do the same for the right mesh and solve the pair."
       ],
       "solution": [
         "**1. KCL (node a):** i_1 + i_2 = i_3.",
-        "**2. KVL (left mesh, clockwise):** R_1·i_1 + R_3·i_3 = U_s1 → 2i_1 + 4i_3 = 14.",
-        "**3. KVL (right mesh, going U_s2 → R_2 → R_3):** R_2·i_2 + R_3·i_3 = U_s2 → 4i_2 + 4i_3 = 4.",
+        "**2. KVL (left mesh, clockwise):** R_1·i_1 + R_3·i_3 = V_s1 → 2i_1 + 4i_3 = 14.",
+        "**3. KVL (right mesh, going V_s2 → R_2 → R_3):** R_2·i_2 + R_3·i_3 = V_s2 → 4i_2 + 4i_3 = 4.",
         "**4. Solve:** with i_3 = i_1 + i_2: 6i_1 + 4i_2 = 14 and 4i_1 + 8i_2 = 4. From the second, i_1 = 1 − 2i_2; substituting, 6 − 12i_2 + 4i_2 = 14 → **i_2 = −1 A**, **i_1 = 3 A**, i_3 = 2 A.",
-        "**5. Power of U_s2:** the current entering its \"+\" terminal is −i_2 = 1 A, so P = U_s2 × 1 = **4 W (absorbed)**.",
-        "**Check:** U_s1 delivers 14 × 3 = 42 W; the resistors absorb 2×3² + 4×1² + 4×2² = 18 + 4 + 16 = 38 W; U_s2 absorbs 4 W. 38 + 4 = 42 W, so power balances."
+        "**5. Power of V_s2:** the current entering its \"+\" terminal is −i_2 = 1 A, so P = V_s2 × 1 = **4 W (absorbed)**.",
+        "**Check:** V_s1 delivers 14 × 3 = 42 W; the resistors absorb 2×3² + 4×1² + 4×2² = 18 + 4 + 16 = 38 W; V_s2 absorbs 4 W. 38 + 4 = 42 W, so power balances."
       ]
     }
   }

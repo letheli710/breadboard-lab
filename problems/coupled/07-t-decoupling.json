@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["去耦等效", "T 形等效电路", "输入阻抗", "含耦合电感的正弦稳态"],
   "statement": [
-    "U̇_s = 20∠0° V（有效值），ω = 1000 rad/s。耦合电感 L_1 = L_2 = 5 mH，M = 1 mH，两线圈的非同名端都接在结点 o 上；o 与地之间接电容 C = 200 µF，负载 R_L = 4 Ω。",
-    "用 T 形去耦等效求从 a 端看进去的输入阻抗 Z_in（不含 U_s），以及负载电流 İ_2、电容电流 İ_C。"
+    "V̇_s = 20∠0° V（有效值），ω = 1000 rad/s。耦合电感 L_1 = L_2 = 5 mH，M = 1 mH，两线圈的非同名端都接在结点 o 上；o 与地之间接电容 C = 200 µF，负载 R_L = 4 Ω。",
+    "用 T 形去耦等效求从 a 端看进去的输入阻抗 Z_in（不含 V_s），以及负载电流 İ_2、电容电流 İ_C。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 2], "to": [0, 6], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "20∠0° V" },
+      { "ref": "Vs", "type": "V", "from": [0, 2], "to": [0, 6], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "20∠0° V" },
       { "ref": "L1", "type": "L", "from": [5, 0], "to": [5, 4], "value": "5m" },
       { "ref": "L2", "type": "L", "from": [11, 0], "to": [11, 4], "value": "5m" },
       { "ref": "K1", "type": "K", "l1": "L1", "l2": "L2", "M": "1m" },
@@ -38,7 +38,7 @@
     {
       "id": "zin",
       "ask": "输入阻抗的模 |Z_in| = ?",
-      "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us"] },
+      "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Vs"] },
       "answer": 4,
       "unit": "Ω",
       "explain": "去耦后：a–中心 j4 Ω，中心–o–地 j1 − j5 = −j4 Ω，中心–R_L j4 Ω。Z_in = j4 + (−j4)∥(4 + j4) = j4 + (4 − j4) = 4 Ω（纯电阻）。"
@@ -49,7 +49,7 @@
       "find": { "kind": "i", "el": "RL" },
       "answer": 5,
       "unit": "A",
-      "explain": "İ_1 = 20/4 = 5∠0° A，中心点电压 U̇ = 20 − j4 × 5 = 20 − j20 V，İ_2 = U̇/(4 + j4) = −j5 A，I_2 = 5 A。"
+      "explain": "İ_1 = 20/4 = 5∠0° A，中心点电压 V̇ = 20 − j4 × 5 = 20 − j20 V，İ_2 = V̇/(4 + j4) = −j5 A，I_2 = 5 A。"
     },
     {
       "id": "ph2",
@@ -85,12 +85,12 @@
       "title": "T-equivalent (decoupled) circuit",
       "tags": ["decoupling", "T equivalent", "input impedance", "AC analysis with coupled inductors"],
       "statement": [
-        "U̇_s = 20∠0° V (rms), ω = 1000 rad/s. The coupled inductors L_1 = L_2 = 5 mH, M = 1 mH both have their undotted terminals on node o; a capacitor C = 200 µF connects o to ground, and the load is R_L = 4 Ω.",
-        "Using the T (decoupled) equivalent, find the input impedance Z_in seen at a (without U_s), the load current İ_2 and the capacitor current İ_C."
+        "V̇_s = 20∠0° V (rms), ω = 1000 rad/s. The coupled inductors L_1 = L_2 = 5 mH, M = 1 mH both have their undotted terminals on node o; a capacitor C = 200 µF connects o to ground, and the load is R_L = 4 Ω.",
+        "Using the T (decoupled) equivalent, find the input impedance Z_in seen at a (without V_s), the load current İ_2 and the capacitor current İ_C."
       ],
       "questions": [
         { "ask": "Magnitude of the input impedance |Z_in| = ?", "explain": "Decoupled: a–centre j4 Ω, centre–o–ground j1 − j5 = −j4 Ω, centre–R_L j4 Ω. Z_in = j4 + (−j4)∥(4 + j4) = j4 + (4 − j4) = 4 Ω (purely resistive)." },
-        { "ask": "rms load current I_2 = ?", "explain": "İ_1 = 20/4 = 5∠0° A, the centre-node voltage is U̇ = 20 − j4 × 5 = 20 − j20 V, İ_2 = U̇/(4 + j4) = −j5 A, so I_2 = 5 A." },
+        { "ask": "rms load current I_2 = ?", "explain": "İ_1 = 20/4 = 5∠0° A, the centre-node voltage is V̇ = 20 − j4 × 5 = 20 − j20 V, İ_2 = V̇/(4 + j4) = −j5 A, so I_2 = 5 A." },
         { "ask": "Phase of İ_2 = ?", "explain": "İ_2 = (20 − j20)/(4 + j4) = 5(1 − j)/(1 + j) = −j5 = 5∠−90° A." },
         { "ask": "rms capacitor current I_C = ?", "explain": "KCL: İ_C = İ_1 − İ_2 = 5 − (−j5) = 5 + j5 A, I_C = 5√2 ≈ 7.071 A." }
       ],
