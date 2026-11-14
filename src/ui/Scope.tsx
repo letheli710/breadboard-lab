@@ -2,13 +2,14 @@
 // Traces come from the transient simulation (periodic steady state, see core/transient.ts);
 // without a function generator (or a PWM pin on a dev board) each channel is a flat DC line.
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { formatSI, volts } from '../core/format';
 import { tr } from '../core/i18n';
 import { freq, phaseDeg, vavg, vmax, vmin, vpp, vrms } from '../core/transient';
-import { useScopeData, type ScopeChannelData, type ScopeData } from '../state/derived';
+import { useActiveChallenge, useScopeData, type ScopeChannelData, type ScopeData } from '../state/derived';
 import { useStore } from '../state/store';
 import { CH_COLORS } from '../three/common';
+import { getViewVersion, pickCorner, projectHole, subscribeView } from '../three/view';
 
 const DIV_X = 10;
 const DIV_Y = 8;
@@ -247,12 +248,13 @@ export function Scope() {
   const phase = data.ac && ch1 && ch2 && vpp(ch1.v) > 1e-4 && vpp(ch2.v) > 1e-4 ? phaseDeg(ch2.v, ch1.v, data.cycles) : null;
 
   useEffect(() => {
-    if (!cv.current || scope.collapsed) return;
+    if (!cv.current || scope.collapsed || !cv.current.isConnected) return;
     draw(cv.current, data, tdiv, vdiv, tTrig);
   });
 
   // dragging by the title bar
   const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  const place = useAutoPlace(!!hasProbe, scope.collapsed, scope.drag);
   if (!hasProbe) return null;
 
   const onDown = (e: React.PointerEvent) => {
@@ -268,10 +270,15 @@ export function Scope() {
   const onUp = () => (drag.current = null);
   const isAuto = scope.tdiv === null && scope.vdiv[1] === null && scope.vdiv[2] === null;
 
+  const collapsed = scope.collapsed || place.autoCollapsed;
+  const userMoved = scope.drag.x !== 0 || scope.drag.y !== 0;
+  const at = userMoved ? scope.drag : { x: place.dx, y: place.dy };
+
   return (
     <div
-      className={`sc ${scope.collapsed ? 'collapsed' : ''}`}
-      style={{ transform: `translate(${scope.drag.x}px, ${scope.drag.y}px)` }}
+      ref={place.ref}
+      className={`sc ${collapsed ? 'collapsed' : ''}`}
+      style={{ transform: `translate(${at.x}px, ${at.y}px)`, width: collapsed ? undefined : place.width }}
       onPointerDown={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
     >
@@ -281,17 +288,21 @@ export function Scope() {
           {data.ac && data.period ? `${hasGen ? 'AC' : 'PWM'} · ${fmtFreq(1 / data.period)}` : tr('DC · 没有信号发生器或 PWM', 'DC · no generator or PWM')}
         </span>
         {data.stale && <span className="sc-busy">{tr('计算中…', 'updating…')}</span>}
-        {scope.collapsed &&
+        {collapsed &&
           data.channels.map((c) => (
             <span key={c.ref} className="sc-mini" style={{ color: CH_COLORS[c.channel] }}>
               CH{c.channel} {c.connected ? (data.ac ? `${volts(st.get(c.channel)!.vpp)}pp` : volts(st.get(c.channel)!.vavg)) : '—'}
             </span>
           ))}
-        <button className="sc-collapse" onClick={() => setScope({ collapsed: !scope.collapsed })} title={scope.collapsed ? tr('展开', 'Expand') : tr('收起', 'Collapse')}>
-          {scope.collapsed ? '▴' : '▾'}
+        <button
+          className="sc-collapse"
+          onClick={() => (place.autoCollapsed ? place.open() : setScope({ collapsed: !scope.collapsed }))}
+          title={collapsed ? tr('展开', 'Expand') : tr('收起', 'Collapse')}
+        >
+          {collapsed ? '▴' : '▾'}
         </button>
       </div>
-      {!scope.collapsed && (
+      {!collapsed && (
         <>
           <div className="sc-screen-wrap">
             <canvas ref={cv} className="sc-screen" />
@@ -403,4 +414,52 @@ export function Scope() {
       )}
     </div>
   );
+}
+
+/**
+ * Where the scope window sits when the user hasn't dragged it: a width that fits the stage, and
+ * the corner of the stage that covers none of the current step's highlighted holes (then as few
+ * of the holes in use as possible). If every corner would hide a highlighted hole, it starts
+ * collapsed (the title bar still shows the readings); expanding it is the user's call.
+ */
+function useAutoPlace(active: boolean, collapsed: boolean, drag: { x: number; y: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const view = useSyncExternalStore(subscribeView, getViewVersion);
+  const layout = useStore((s) => s.layout);
+  const step = useStore((s) => s.step);
+  const ch = useActiveChallenge();
+  const stepHoles = ch?.steps[Math.min(step, Math.max(0, ch.steps.length - 1))]?.highlight ?? [];
+  const stepKey = `${ch?.id}:${step}`;
+  const [st, setSt] = useState({ dx: 0, dy: 0, width: 350, auto: false });
+  const [opened, setOpened] = useState<string | null>(null);
+  const [resized, setResized] = useState(0);
+  useEffect(() => {
+    const on = () => setResized((n) => n + 1);
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    const stage = el?.offsetParent as HTMLElement | null;
+    if (!active || !el || !stage) return;
+    const r = stage.getBoundingClientRect();
+    const width = Math.round(Math.max(250, Math.min(350, r.width * 0.36)));
+    // the expanded window's size at that width (measured while expanded, else estimated)
+    const size = { w: width, h: collapsed || st.auto ? width * 0.7 + 175 : el.offsetHeight };
+    const used = layout.parts.flatMap((p) => Object.values(p.pins));
+    const pts = (hs: string[]) => hs.map(projectHole).filter((x): x is { x: number; y: number } => !!x);
+    const must = pts(stepHoles);
+    // weight: a step hole counts as much as all the others together
+    const pick = pickCorner({ x: r.left, y: r.top, w: r.width, h: r.height }, size, [...must.flatMap((p) => Array(1000).fill(p)), ...pts(used)]);
+    const auto = pick.covered >= 1000;
+    if (pick.dx !== st.dx || pick.dy !== st.dy || width !== st.width || auto !== st.auto) setSt({ dx: pick.dx, dy: pick.dy, width, auto });
+  }, [active, view, layout, stepKey, collapsed, resized, drag.x, drag.y]); // eslint-disable-line react-hooks/exhaustive-deps
+  return {
+    ref,
+    dx: st.dx,
+    dy: st.dy,
+    width: st.width,
+    autoCollapsed: st.auto && !collapsed && opened !== stepKey && drag.x === 0 && drag.y === 0,
+    open: () => setOpened(stepKey),
+  };
 }

@@ -388,6 +388,53 @@ const TESTS = {
     }
   },
 
+  // the scope window never covers the current step's highlighted holes (1366×768, lessons 13 and
+  // 16 with their reference circuits): it picks a clear corner, narrows, or starts collapsed; a
+  // position the user drags it to wins
+  async scopeClear(browser) {
+    const { p, ctx, errors } = await open(browser, '#/learn/lesson-mcu-pwm-adc', { viewport: { width: 1366, height: 768 } });
+    try {
+      for (const [file, id] of [
+        ['108-lesson-mcu-pwm-adc.json', 'lesson-mcu-pwm-adc'],
+        ['105-lesson-scope-two-channels.json', 'lesson-scope-two-channels'],
+      ]) {
+        await p.evaluate((h) => (location.hash = h), `#/learn/${id}`);
+        await p.waitForFunction((i) => document.querySelector('.task h2') && location.hash.endsWith(i), id, { timeout: 20000 });
+        const code = `import { readFileSync } from 'node:fs'; import { parseChallenge } from './src/core/challenge';
+          const c = parseChallenge(JSON.parse(readFileSync('challenges/${file}', 'utf8'))).challenge;
+          console.log(JSON.stringify({ solution: c.solution, steps: c.steps.map((s) => s.highlight) }));`;
+        const { solution, steps } = JSON.parse(execFileSync('npx', ['tsx', '-e', code], { cwd: join(__dirname, '..'), encoding: 'utf8' }));
+        await p.evaluate((sol) => window.__bb.store.getState().loadLayout(sol), solution);
+        for (let i = 0; i < steps.length; i++) {
+          if (!steps[i].length) continue;
+          await p.evaluate((n) => window.__bb.store.getState().setStep(n), i);
+          await p.waitForTimeout(250);
+          const hidden = await p.evaluate((hl) => {
+            const r = document.querySelector('.sc').getBoundingClientRect();
+            return hl.filter((h) => {
+              const q = window.__bb.hole(h);
+              return q.x >= r.left && q.x <= r.right && q.y >= r.top && q.y <= r.bottom;
+            });
+          }, steps[i]);
+          assert(hidden.length === 0, `${id} step ${i + 1}: the scope window covers none of ${steps[i].join(' ')}${hidden.length ? ' (covers ' + hidden.join(' ') + ')' : ''}`);
+        }
+      }
+      // a dragged window stays where the user put it
+      const head = await p.locator('.sc-head').boundingBox();
+      await drag(p, head.x + 60, head.y + 10, head.x - 200, head.y + 10);
+      const d = await p.evaluate(() => window.__bb.store.getState().scope.drag);
+      await p.evaluate(() => window.__bb.store.getState().setStep(4));
+      await p.waitForTimeout(250);
+      const after = await p.locator('.sc-head').boundingBox();
+      assert(d.x < -100 && Math.abs(after.x - (head.x - 260)) < 30, `dragged scope stays put (drag ${Math.round(d.x)}, x ${Math.round(head.x)} → ${Math.round(after.x)})`);
+      await p.evaluate(() => window.__bb.store.getState().setScope({ drag: { x: 0, y: 0 } }));
+      assert(errors.length === 0, 'scope placement: no page errors ' + errors.join(' | '));
+    } finally {
+      await shot(p, 'scope-clear');
+      await ctx.close();
+    }
+  },
+
   // placing a part in a lesson keeps the step in view (a chip names the part and leads to
   // Properties); in the sandbox a part tool still opens its settings
   async lessonPlacement(browser) {

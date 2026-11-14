@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { HOLE_MAP } from '../core/breadboard';
 import { PARTS } from '../core/parts';
 import type { PlacedPart } from '../core/types';
 import { ammeterReading, ledOf, useDerived } from '../state/derived';
@@ -14,6 +15,7 @@ import type { PartCtxValue } from './common';
 import { DragLayer, grabPart } from './Drag';
 import { PartView } from './Parts';
 import { qualityParams, useLowQuality, useQuality } from './quality';
+import { bumpView, setHoleProjector } from './view';
 import { assignSlots, nextSlot } from './slots';
 import { prefersReducedMotion } from '../ui/reveal';
 
@@ -103,6 +105,32 @@ function CameraRig() {
     controls.update();
     if (camera.position.distanceTo(g.pos) < 0.05) goal.current = null;
   });
+  return null;
+}
+
+/** Publishes where holes are on screen (three/view.ts) so 2D overlays can keep clear of them. */
+function HoleView() {
+  const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
+  const size = useThree((s) => s.size);
+  const controls = useThree((s) => s.controls) as unknown as OrbitControlsImpl | null;
+  useEffect(() => {
+    const v = new THREE.Vector3();
+    setHoleProjector((id) => {
+      const h = HOLE_MAP.get(id);
+      if (!h) return null;
+      v.set(h.x, 0.02, h.z).project(camera);
+      const r = gl.domElement.getBoundingClientRect();
+      return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
+    });
+    return () => setHoleProjector(null);
+  }, [camera, gl]);
+  useEffect(() => bumpView(), [size]);
+  useEffect(() => {
+    if (!controls) return;
+    controls.addEventListener('change', bumpView);
+    return () => controls.removeEventListener('change', bumpView);
+  }, [controls]);
   return null;
 }
 
@@ -261,6 +289,7 @@ export function Scene() {
       </mesh>
       <OrbitControls makeDefault target={TARGET_ARR} enableDamping dampingFactor={0.12} maxPolarAngle={Math.PI / 2.15} minDistance={10} maxDistance={90} />
       <CameraRig />
+      <HoleView />
       <FrameProbe />
       {E2E && <E2EProbe />}
     </Canvas>
