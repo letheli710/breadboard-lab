@@ -388,6 +388,33 @@ const TESTS = {
     }
   },
 
+  // placing a part in a lesson keeps the step in view (a chip names the part and leads to
+  // Properties); in the sandbox a part tool still opens its settings
+  async lessonPlacement(browser) {
+    const { p, ctx, errors } = await open(browser, '#/learn/lesson-multimeter');
+    try {
+      const tab = () => p.locator('aside.side [role=tab][aria-selected=true]').textContent();
+      await tool(p, 'Battery');
+      assert(/^Lesson/.test(await tab()), 'lesson: picking a part tool keeps the Lesson tab (' + (await tab()) + ')');
+      await clickHole(p, 'tp1');
+      await clickHole(p, 'tn1');
+      assert(/^Lesson/.test(await tab()), 'lesson: after placing, the Lesson tab is still shown');
+      assert(await p.locator('section.steps .step-check.ok').isVisible(), 'lesson: the step shows its check as done');
+      const chip = p.locator('.placed-chip');
+      assert(/BAT1/.test((await chip.textContent()) || ''), 'lesson: a chip names the part just placed');
+      await chip.locator('button.link').click();
+      assert(/^Properties/.test(await tab()), 'lesson: the chip opens Properties on request');
+      await p.evaluate(() => (location.hash = '#/sandbox'));
+      await p.waitForTimeout(800);
+      await tool(p, 'Resistor');
+      assert(/^Properties/.test(await tab()), 'sandbox: a part tool still opens Properties');
+      assert(errors.length === 0, 'lesson placement: no page errors ' + errors.join(' | '));
+    } finally {
+      await shot(p, 'lesson-placement');
+      await ctx.close();
+    }
+  },
+
   // the camera stays where the user put it: placing parts, switching panel tabs, the circuit check
   // and leaving the bench for the Guide and coming back never reset it to the default view
   async cameraKept(browser) {

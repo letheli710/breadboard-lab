@@ -379,7 +379,11 @@ export const useStore = create<State>((set, get) => {
       set({ panel });
     },
     setTool(tool) {
-      set({ tool, firstHole: null, selectedId: tool === 'select' ? get().selectedId : null, panel: tool !== 'select' && tool !== 'probe' ? 'inspect' : get().panel });
+      const s = get();
+      // a lesson (or a challenge with steps) keeps its step in view while parts are placed: only a
+      // deliberate pick of a part opens Properties there; elsewhere a part tool shows its settings
+      const guided = s.panel === 'task' && (s.mode === 'learn' || !!s.challenges.find((c) => c.id === s.activeId)?.steps.length);
+      set({ tool, firstHole: null, selectedId: tool === 'select' ? s.selectedId : null, panel: tool !== 'select' && tool !== 'probe' && !guided ? 'inspect' : s.panel });
     },
     setPlacingProps(t, p) {
       set({ placingProps: { ...get().placingProps, [t]: { ...get().placingProps[t], ...p } } });

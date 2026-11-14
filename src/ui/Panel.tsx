@@ -23,7 +23,7 @@ import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { allAnswered, emptyReadings, matchBoard, revalidate, structureKey } from '../core/readings';
 
 import { Md } from './Md';
-import { Prereqs, StepStatus, useStepChecks } from './StepCheck';
+import { PlacedChip, Prereqs, StepStatus, useStepChecks } from './StepCheck';
 import { tabListKeys } from './a11y';
 import { Mixed } from './Mixed';
 
@@ -175,6 +175,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
           <div className="step-cur" aria-live="polite">
             <Md text={ch.steps[cur].text} />
             <StepStatus unmet={sc.unmet[cur]} />
+            <PlacedChip />
           </div>
           <div className="row">
             <button disabled={cur === 0} onClick={() => setStep(cur - 1)}>
