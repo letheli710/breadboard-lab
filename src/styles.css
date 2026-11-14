@@ -4039,9 +4039,38 @@ button.primary:focus-visible,
   }
   .pr-phone-pos {
     margin-left: auto;
+    min-width: 0;
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 13px;
     color: var(--muted);
     white-space: nowrap;
+  }
+  .pr-phone-nav button {
+    flex: none;
+  }
+  .pr-phone-nav svg {
+    flex-shrink: 0;
+  }
+}
+/* very narrow phones: the bar's buttons show their icons only (the names stay for screen readers) */
+@media (max-width: 370px) {
+  .pr-phone-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .pr-phone-nav {
+    gap: 6px;
+  }
+  .pr-phone-nav button {
+    min-width: 44px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }
 @media (max-width: 900px) and (prefers-reduced-motion: reduce) {
@@ -4497,5 +4526,53 @@ h1[tabindex='-1']:focus:not(:focus-visible) {
   }
   .pr-phone-menu .ms-navitem {
     min-height: 44px;
+  }
+}
+
+/* ---------- touch screens: every control is at least a 44 × 44 px target ---------- */
+/* (WCAG 2.5.5 / platform guidelines.) Mouse layouts keep their compact sizes. Checkboxes and radios
+   keep their drawn size: their <label> is the target. Links inside running text are exempt. */
+@media (pointer: coarse) {
+  button,
+  select,
+  summary,
+  [role='button'],
+  [role='tab'],
+  input:not([type='checkbox'], [type='radio'], [type='range'], [type='hidden']) {
+    min-height: 44px;
+  }
+  button,
+  [role='tab'] {
+    min-width: 44px;
+  }
+  summary {
+    display: flex;
+    align-items: center;
+  }
+  label:has(> input[type='checkbox']),
+  label:has(> input[type='radio']) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* text links that act as buttons (not inside running text) */
+  .pr-link,
+  .sum-linkish,
+  .sum-toc-item,
+  .ms-chip,
+  .ms-chbar {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  /* section anchor numbers in the Guide: a 44 px box around the number */
+  a.concept-num {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }

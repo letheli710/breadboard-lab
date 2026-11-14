@@ -434,10 +434,10 @@ function PhoneNav({
   return (
     <nav className="pr-phone-nav" aria-label={tr('题目导航', 'Problem navigation')}>
       <button className={drawer ? 'on' : ''} aria-expanded={drawer} aria-controls="pr-side" onClick={() => setDrawer(!drawer)}>
-        <Icon name="book" size={18} /> {tr('题目', 'Problems')}
+        <Icon name="book" size={18} /> <span className="pr-phone-label">{tr('题目', 'Problems')}</span>
       </button>
       <button className={`pr-phone-review ${menu || view ? 'on' : ''}`} aria-expanded={menu} onClick={() => setMenu(!menu)}>
-        <Icon name="target" size={18} /> {tr('复习', 'Review')}
+        <Icon name="target" size={18} /> <span className="pr-phone-label">{tr('复习', 'Review')}</span>
         {due > 0 && <b aria-label={tr(`${due} 道今日到期`, `${due} due today`)}>{due}</b>}
       </button>
       {menu && (
