@@ -2,84 +2,97 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-adc-battery-divider",
-  "title": "实验 5-4 · 电池电压监测：分压电阻把 8.4 V 缩到 ADC 能测的范围",
+  "title": "电池电压监测：用分压器把 8.4 V 缩小",
   "kind": "challenge",
   "level": 3,
   "phase": 5,
-  "summary": "用稳压电源模拟 2 节串联锂电池（6.0–8.4 V），100 kΩ + 33 kΩ 分压后接到 ESP32 的 ADC1 引脚，算出每个电压的 ADC 读数、分压电流和固件里的换算系数。",
-  "concepts": [
-    "分压器 voltage divider",
-    "ADC 模数转换 analog-to-digital conversion",
-    "满量程与分辨率 full scale & resolution",
-    "源阻抗 source impedance",
-    "静态电流 quiescent drain"
-  ],
+  "summary": "ADC 只能测 0–3.3 V，两节锂电池却有 8.4 V。先故意直接接一次，再用 100 kΩ + 33 kΩ 分压器把电压按比例缩小。",
+  "concepts": ["分压器 voltage divider", "ADC 模数转换 analog-to-digital conversion", "满量程与分辨率 full scale & resolution", "源阻抗 source impedance", "静态电流 quiescent drain"],
   "prereq": ["lesson-mcu-pwm-adc"],
-  "description": [
-    "**目标**：用 100 kΩ + 33 kΩ 分压器让 ESP32 的 ADC 测 2S 锂电池（6.0–8.4 V，用稳压电源模拟）的电压。",
-    "",
-    "**电路**：",
-    "- **稳压电源 V1** 代表电池（2S 锂电池：充满 8.4 V，标称 7.4 V，放空约 6.0 V）。V1 的 − 端要和开发板 GND 接在一起（共地）。",
-    "- V1+ → **R1（100 kΩ）** → 结点 VSENSE → **R2（33 kΩ）** → GND。",
-    "- VSENSE 接 ESP32 的一个 **ADC1 引脚**（GPIO32–39，参考答案用 GPIO34），再并一个 **C1（100 nF）** 到 GND。",
-    "",
-    "**引脚设置**：把这个引脚设成 **模拟输入 ADC**。测试会把电源依次调到 8.4 V、7.4 V、6.0 V 和 12 V。",
-    "",
-    "**先预测**：先算分压比 k = R2/(R1 + R2)，再算每个电池电压下的 ADC 电压和 12 位读数（0–3.3 V 对应 0–4095），以及分压器从电池吸走的电流和固件里的换算系数。",
-    "",
-    "**测量**：",
-    "- 每个电池电压下的 ADC 原始读数和 ADC 电压；",
-    "- 分压器的电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**源阻抗和 C1**：ADC 采样时内部的采样电容要在很短时间内充电。从 VSENSE 看进去的源阻抗是 R1 ∥ R2 = 100k ∥ 33k ≈ **24.8 kΩ**，太高会让读数偏低、抖动。C1（100 nF）在引脚上充当一个“小水库”，采样时从它取电荷；代价是 τ = 24.8 kΩ × 100 nF ≈ 2.5 ms，测电池这种慢变化完全没问题。",
-    "",
-    "**实际项目经验**：",
-    "- 只用 **ADC1（GPIO32–39）**：ADC2 在 Wi-Fi 开启时不能用。",
-    "- 选 11 dB 衰减并用 ESP-IDF 的校准（`esp_adc_cal` / `adc_cali`，利用出厂 eFuse 里的 Vref）；不校准时芯片之间误差可达 ±6 %。读数取多次平均。",
-    "- STM32 的 ADC 线性得多，满量程就是 VDDA（3.3 V），但**模拟模式下的引脚不耐 5 V**——即使是 FT 引脚。",
-    "- 分压电阻用 1 % 精度的；高阻值分压对湿度、漏电和手指触摸都敏感。",
-    "- 测量地必须和电池负极相连，否则 ADC 看到的是“浮空”的电压。",
-    "",
-    "**模型说明**：这里的 ADC 是理想的线性 12 位转换器，0–3.3 V 对应 0–4095；没有模拟 ESP32 的非线性、偏移和噪声，也没有模拟采样电容（C1 在直流仿真里是断路）。真实 ESP32 在 11 dB 衰减下的满量程大约是 3.1 V 左右。"
+  "description": "稳压电源模拟两节串联的锂电池（6.0–8.4 V）。100 kΩ + 33 kΩ 分压后接到 ESP32 的 ADC1 引脚（GPIO32–39），中点并 100 nF 到 GND。电源 − 和开发板 GND 接在一起。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "把 8.4 V 直接接上去",
+      "text": [
+        "**稳压电源**设成 **`8.4 V`**，代表一块充满的两节锂电池。它的 **−** 接开发板的 **GND**。",
+        "**故意接错一次**：电源 **+** 直接连到 ESP32 的 **GPIO34**，把这个引脚设成 **ADC**。看**诊断**说了什么。",
+        "ADC 只能测 0–3.3 V。怎样才能让它“看见”一块 8.4 V 的电池？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "分压器：按比例缩小",
+      "text": [
+        "- 两个电阻串联，中点只拿到总电压的**一部分**。这个比例只由两个电阻决定：",
+        "$$V_{ADC} = V_{BAT} × \\frac{R_2}{R_1 + R_2}$$",
+        "![](fig:div)",
+        "- 代入数字：$R_1$ = 100 kΩ，$R_2$ = 33 kΩ。电池放空到 6.0 V 时，$V_{ADC} = 6.0 × \\frac{33}{133} ≈ 1.49$ V。",
+        "- 比例是固定的，所以 ADC 电压跟电池电压成正比：一条直线，一直到 3.3 V 的上限。",
+        "![](fig:line)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "换成分压器",
+      "text": [
+        "- **拆掉**那根直连的线。**`100 kΩ`** 从电源 + 到中点，**`33 kΩ`** 从中点到 GND，中点接 ADC 引脚（GPIO32–39 都行）。",
+        "- 中点再并一个 **`100 nF`** 到 GND。ADC 采样的一瞬间从这个小“水库”取电荷，读数更稳。",
+        "- 点**「检查我的电路」**。通过后，按题目把电源调到不同电压，用万用表测中点。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **分压器把高电压缩进 ADC 的量程**，比例 R2 / (R1 + R2) 只看电阻。",
+        "- 比例要留余量：满电时只用 ADC 量程的大约 2/3。ESP32 的 ADC 在中间段最准；充电器接错时，引脚也还安全。",
+        "- 坑：分压器一直在耗电。深度睡眠的设备要用更大的电阻（例如 1 MΩ + 330 kΩ），或者只在测量时才接通它。",
+        "- 只用 ADC1（GPIO32–39）；电源的 − 必须和开发板 GND 接在一起，否则读数没有意义。"
+      ],
+      "practice": ["equivalence"]
+    }
   ],
+  "figures": {
+    "div": {
+      "kind": "schematic",
+      "caption": {
+        "text": "同一个电流 I 穿过 R1 和 R2。中点 VSENSE 接 ADC 引脚，它只看 R2 上的电压 V_ADC 这一份。",
+        "i18n": {"en": "One current I flows through R1 and R2. The middle node VSENSE goes to the ADC pin, which sees only the share across R2, V_ADC."}
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_BAT", "type": "BAT", "from": [0, 0], "to": [0, 6]},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [3, 3], "value": "100k"},
+          {"ref": "R2", "type": "R", "from": [3, 3], "to": [3, 6], "value": "33k"}
+        ],
+        "wires": [[[0, 0], [3, 0]], [[3, 6], [0, 6]], [[3, 3], [5, 3]]],
+        "marks": [{"kind": "i", "el": "R1", "name": "I"}, {"kind": "v", "el": "R2", "name": "V_ADC"}],
+        "terminals": [{"at": [5, 3], "name": "VSENSE"}]
+      },
+      "highlight": ["R2"]
+    },
+    "line": {
+      "kind": "plot",
+      "caption": {
+        "text": "ADC 电压和电池电压成正比。直线碰到 3.3 V 之前，引脚都安全。",
+        "i18n": {"en": "The ADC voltage is proportional to the battery voltage. Until the line reaches 3.3 V, the pin is safe."}
+      },
+      "x": {"label": {"text": "电池电压 V_BAT (V)", "i18n": {"en": "battery voltage V_BAT (V)"}}, "min": 0, "max": 16, "ticks": [0, 5, 10, 15]},
+      "y": {"label": {"text": "ADC 电压 (V)", "i18n": {"en": "ADC voltage (V)"}}, "min": 0, "max": 4, "ticks": [0, 3.3]},
+      "curves": [
+        {"points": [[0, 0], [13.3, 3.3]], "tone": 1},
+        {"points": [[13.3, 3.3], [16, 3.97]], "tone": 2, "dashed": true, "label": {"text": "引脚危险", "i18n": {"en": "pin at risk"}}, "labelAt": [12.2, 3.75]}
+      ],
+      "hlines": [{"y": 3.3, "dashed": true, "label": {"text": "ADC 上限", "i18n": {"en": "ADC limit"}}}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-4 · Battery monitor: a divider scales 8.4 V into the ADC's range",
-      "summary": "A bench supply plays a 2S Li-ion pack (6.0–8.4 V); a 100 kΩ + 33 kΩ divider feeds an ESP32 ADC1 pin. Work out the ADC counts at each voltage, the divider's drain and the firmware scale factor.",
-      "concepts": [
-        "voltage divider",
-        "analog-to-digital conversion",
-        "full scale & resolution",
-        "source impedance",
-        "quiescent drain"
-      ],
-      "description": [
-        "**Goal**: Measure a 2S Li-ion pack (6.0–8.4 V, played by a bench supply) with an ESP32 ADC through a 100 kΩ + 33 kΩ divider.",
-        "",
-        "**Circuit**:",
-        "- **Bench supply V1** stands for the battery (2S Li-ion: 8.4 V full, 7.4 V nominal, about 6.0 V empty). V1's − must be tied to the board's GND (common ground).",
-        "- V1+ → **R1 (100 kΩ)** → node VSENSE → **R2 (33 kΩ)** → GND.",
-        "- VSENSE goes to an ESP32 **ADC1 pin** (GPIO32–39; the reference answer uses GPIO34), with **C1 (100 nF)** from it to GND.",
-        "",
-        "**Pin table settings**: set that pin to **analog input (ADC)**. The tests set the supply to 8.4 V, 7.4 V, 6.0 V and 12 V in turn.",
-        "",
-        "**Predict first**: Work out the divider ratio k = R2/(R1 + R2) first, then the ADC voltage and 12-bit reading (0–3.3 V → 0–4095) at each battery voltage, the current the divider draws from the battery, and the firmware scale factor.",
-        "",
-        "**Measure**:",
-        "- the raw ADC reading and ADC voltage at each battery voltage;",
-        "- the divider current. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Source impedance and C1**: while sampling, the ADC must charge an internal sampling capacitor in a very short time. Looking back into VSENSE, the source impedance is R1 ∥ R2 = 100k ∥ 33k ≈ **24.8 kΩ**; too high, and readings come out low and noisy. C1 (100 nF) on the pin is a small reservoir the sampler draws from; the price is τ = 24.8 kΩ × 100 nF ≈ 2.5 ms, irrelevant for a slowly changing battery.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- Use **ADC1 only (GPIO32–39)**: ADC2 is unavailable while Wi-Fi is on.",
-        "- Use 11 dB attenuation with ESP-IDF calibration (`esp_adc_cal` / `adc_cali`, using the factory Vref in eFuse); uncalibrated chips differ by up to ±6 %. Average several readings.",
-        "- The STM32 ADC is far more linear, full scale = VDDA (3.3 V), but **a pin in analog mode is not 5 V tolerant** — not even an FT pin.",
-        "- Use 1 % resistors; a high-value divider is sensitive to humidity, leakage and fingers.",
-        "- The measurement ground must be the battery's negative, or the ADC sees a floating voltage.",
-        "",
-        "**Model note**: the ADC here is an ideal linear 12-bit converter, 0–3.3 V → 0–4095; ESP32 non-linearity, offset and noise are not modelled, nor is the sampling capacitor (C1 is an open circuit in the DC solution). A real ESP32 at 11 dB tops out around 3.1 V."
-      ],
+      "title": "Battery monitor: a divider shrinks 8.4 V for the ADC",
+      "summary": "An ADC measures 0–3.3 V at most, but two lithium cells give 8.4 V. Connect it straight once on purpose, then shrink the voltage in proportion with a 100 kΩ + 33 kΩ divider.",
+      "concepts": ["voltage divider", "analog-to-digital conversion", "full scale & resolution", "source impedance", "quiescent drain"],
+      "description": "A bench supply stands in for two lithium cells in series (6.0–8.4 V). A 100 kΩ + 33 kΩ divider feeds an ESP32 ADC1 pin (GPIO32–39), with 100 nF from the middle node to GND. The supply's − and the board's GND are tied together.",
       "compare": [
         "**Compare**: the raw ADC reading (0–4095) and ADC voltage at each battery voltage, and the current the divider steals from the battery. If the reading stays at 0 or jumps around, first check that the supply's − is tied to the board GND and that the pin is set to analog input. The working:",
         "",
@@ -97,9 +110,18 @@
       "measurements": [
         {"ask": "Supply at 8.4 V (full): multimeter on the ADC pin (VSENSE) to GND", "explain": "k = 33 / 133 ≈ 0.248, V_ADC = 0.248 × 8.4 ≈ 2.08 V."},
         {"ask": "From your reading, the divider ratio k = V_ADC / V_BAT", "explain": "k = R2 / (R1 + R2) = 0.248. Firmware goes the other way: V_BAT = V_ADC / k."},
-        {"ask": "The 12-bit ADC reading for that voltage, raw = V_ADC / 3.3 V × 4095", "explain": "≈ 2586. Each count is 3.3 / 4095 / 0.248 ≈ 3.25 mV of battery voltage. Full charge only reaches about 2.1 V because the ESP32 ADC is most linear from 0.15 to 2.45 V."},
-        {"ask": "Supply at 12 V (wrong charger): the ADC pin to GND", "explain": "0.248 × 12 ≈ 2.98 V, still below 3.3 V, so the pin is safe; the divider tolerates up to 3.3 / 0.248 ≈ 13.3 V."},
-        {"ask": "Supply at 8.4 V: the current the divider draws from the battery (ammeter in series with R1)", "explain": "8.4 V / 133 kΩ ≈ 63 µA, about 550 mAh a year. Deep-sleep devices use larger resistors or switch the divider in with a MOSFET only while measuring."}
+        {
+          "ask": "The 12-bit ADC reading for that voltage, raw = V_ADC / 3.3 V × 4095",
+          "explain": "≈ 2586. Each count is 3.3 / 4095 / 0.248 ≈ 3.25 mV of battery voltage. Full charge only reaches about 2.1 V because the ESP32 ADC is most linear from 0.15 to 2.45 V."
+        },
+        {
+          "ask": "Supply at 12 V (wrong charger): the ADC pin to GND",
+          "explain": "0.248 × 12 ≈ 2.98 V, still below 3.3 V, so the pin is safe; the divider tolerates up to 3.3 / 0.248 ≈ 13.3 V."
+        },
+        {
+          "ask": "Supply at 8.4 V: the current the divider draws from the battery (ammeter in series with R1)",
+          "explain": "8.4 V / 133 kΩ ≈ 63 µA, about 550 mAh a year. Deep-sleep devices use larger resistors or switch the divider in with a MOSFET only while measuring."
+        }
       ],
       "hints": [
         "Connect the bench supply's − to the board's GND first: without a common ground the ADC measures nothing useful.",
@@ -111,6 +133,44 @@
         "7.4 V (nominal): sensible ADC reading",
         "6.0 V (empty): sensible ADC reading",
         "12 V (wrong charger): the ADC voltage stays below 3.3 V"
+      ],
+      "cards": [
+        {
+          "title": "Connect 8.4 V straight in",
+          "text": [
+            "Set the **bench supply** to **`8.4 V`**: a fully charged pack of two lithium cells. Connect its **−** to the board's **GND**.",
+            "**Get it wrong once on purpose**: wire the supply's **+** straight to the ESP32's **GPIO34** and set that pin to **ADC**. What do the **diagnostics** say?",
+            "An ADC measures 0–3.3 V only. How can it \"see\" an 8.4 V battery?"
+          ]
+        },
+        {
+          "title": "A divider scales the voltage down",
+          "text": [
+            "- Two resistors in series: the middle node gets only a **fraction** of the total voltage. The fraction depends on the two resistors alone:",
+            "$$V_{ADC} = V_{BAT} × \\frac{R_2}{R_1 + R_2}$$",
+            "![](fig:div)",
+            "- With numbers: $R_1$ = 100 kΩ, $R_2$ = 33 kΩ. With the battery run down to 6.0 V, $V_{ADC} = 6.0 × \\frac{33}{133} ≈ 1.49$ V.",
+            "- The fraction is fixed, so the ADC voltage is proportional to the battery voltage: a straight line, all the way up to the 3.3 V limit.",
+            "![](fig:line)"
+          ]
+        },
+        {
+          "title": "Switch to the divider",
+          "text": [
+            "- **Remove** the direct wire. **`100 kΩ`** from the supply's + to a middle node, **`33 kΩ`** from the middle node to GND, the middle node to an ADC pin (any of GPIO32–39).",
+            "- Add **`100 nF`** from the middle node to GND. At the instant the ADC samples, it draws charge from this small \"reservoir\", so readings are steadier.",
+            "- Press **Check my circuit**. Once it passes, set the supply to the voltages the questions ask for and measure the middle node."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A divider brings a high voltage into the ADC's range**; the ratio R2 / (R1 + R2) depends only on the resistors.",
+            "- Leave headroom: a full battery uses only about 2/3 of the ADC's range. The ESP32's ADC is most accurate in the middle, and the pin is still safe if the wrong charger is plugged in.",
+            "- The catch: a divider draws current all the time. Deep-sleep devices use larger resistors (say 1 MΩ + 330 kΩ) or connect the divider only while measuring.",
+            "- Use ADC1 only (GPIO32–39); the supply's − must be tied to the board's GND, or the reading means nothing."
+          ]
+        }
       ]
     }
   },
@@ -164,17 +224,56 @@
     "**分压器本身也在耗电**：I = 8.4 V / 133 kΩ ≈ **63 µA**（仿真 63.2 µA）。一节 2000 mAh 的电池一年会被它耗掉 0.063 mA × 8760 h ≈ 550 mAh——深度睡眠的设备要用更大的电阻（如 1 MΩ + 330 kΩ）或者用 MOSFET 在测量时才接通分压器。"
   ],
   "measurements": [
-    {"id": "v84", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"V1": {"voltage": 8.4}}, "unit": "V", "predict": true, "range": [1.98, 2.19], "ask": "电源 8.4 V（充满）：万用表测 ADC 引脚（VSENSE）对 GND", "explain": "k = 33 / 133 ≈ 0.248，V_ADC = 0.248 × 8.4 ≈ 2.08 V。"},
-    {"id": "k", "formula": "v84 / 8.4", "predict": true, "range": [0.236, 0.261], "ask": "用你的读数算分压比 k = V_ADC / V_BAT", "explain": "k = R2 / (R1 + R2) = 0.248。固件里反过来算：V_BAT = V_ADC / k。"},
-    {"id": "raw", "formula": "v84 / 3.3 * 4095", "predict": true, "range": [2460.0, 2720.0], "ask": "这个电压对应的 12 位 ADC 读数 raw = V_ADC / 3.3 V × 4095", "explain": "≈ 2586。每一个计数对应电池电压 3.3 / 4095 / 0.248 ≈ 3.25 mV。满电只用到约 2.1 V，是因为 ESP32 的 ADC 在 0.15–2.45 V 最线性。"},
-    {"id": "v12", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"V1": {"voltage": 12}}, "unit": "V", "predict": true, "range": [2.83, 3.13], "ask": "电源调到 12 V（接错充电器）：ADC 引脚对 GND", "explain": "0.248 × 12 ≈ 2.98 V，仍低于 3.3 V，引脚安全；分压器最多能承受 3.3 / 0.248 ≈ 13.3 V。"},
-    {"id": "idiv", "current": "R1", "set": {"V1": {"voltage": 8.4}}, "unit": "µA", "predict": true, "range": [6e-05, 6.63e-05], "ask": "电源 8.4 V：分压器从电池吸走的电流（电流表串进 R1）", "explain": "8.4 V / 133 kΩ ≈ 63 µA，一年约 550 mAh。深度睡眠的设备要用更大的电阻，或用 MOSFET 在测量时才接通分压器。"}
+    {
+      "id": "v84",
+      "voltage": "U1.ADC1",
+      "ref": "U1.GND",
+      "set": {"V1": {"voltage": 8.4}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.98, 2.19],
+      "ask": "电源 8.4 V（充满）：万用表测 ADC 引脚（VSENSE）对 GND",
+      "explain": "k = 33 / 133 ≈ 0.248，V_ADC = 0.248 × 8.4 ≈ 2.08 V。"
+    },
+    {
+      "id": "k",
+      "formula": "v84 / 8.4",
+      "predict": true,
+      "range": [0.236, 0.261],
+      "ask": "用你的读数算分压比 k = V_ADC / V_BAT",
+      "explain": "k = R2 / (R1 + R2) = 0.248。固件里反过来算：V_BAT = V_ADC / k。"
+    },
+    {
+      "id": "raw",
+      "formula": "v84 / 3.3 * 4095",
+      "predict": true,
+      "range": [2460.0, 2720.0],
+      "ask": "这个电压对应的 12 位 ADC 读数 raw = V_ADC / 3.3 V × 4095",
+      "explain": "≈ 2586。每一个计数对应电池电压 3.3 / 4095 / 0.248 ≈ 3.25 mV。满电只用到约 2.1 V，是因为 ESP32 的 ADC 在 0.15–2.45 V 最线性。"
+    },
+    {
+      "id": "v12",
+      "voltage": "U1.ADC1",
+      "ref": "U1.GND",
+      "set": {"V1": {"voltage": 12}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.83, 3.13],
+      "ask": "电源调到 12 V（接错充电器）：ADC 引脚对 GND",
+      "explain": "0.248 × 12 ≈ 2.98 V，仍低于 3.3 V，引脚安全；分压器最多能承受 3.3 / 0.248 ≈ 13.3 V。"
+    },
+    {
+      "id": "idiv",
+      "current": "R1",
+      "set": {"V1": {"voltage": 8.4}},
+      "unit": "µA",
+      "predict": true,
+      "range": [6e-05, 6.63e-05],
+      "ask": "电源 8.4 V：分压器从电池吸走的电流（电流表串进 R1）",
+      "explain": "8.4 V / 133 kΩ ≈ 63 µA，一年约 550 mAh。深度睡眠的设备要用更大的电阻，或用 MOSFET 在测量时才接通分压器。"
+    }
   ],
-  "hints": [
-    "先把稳压电源的 − 端接到开发板 GND：没有共地，ADC 测不出有意义的电压。",
-    "分压器：电源 + → 100 kΩ → 中点 → 33 kΩ → GND；中点接 GPIO32–39 之一，再并 100 nF 到 GND。",
-    "在引脚表里把这个引脚设成“模拟输入 ADC”。"
-  ],
+  "hints": ["先把稳压电源的 − 端接到开发板 GND：没有共地，ADC 测不出有意义的电压。", "分压器：电源 + → 100 kΩ → 中点 → 33 kΩ → GND；中点接 GPIO32–39 之一，再并 100 nF 到 GND。", "在引脚表里把这个引脚设成“模拟输入 ADC”。"],
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO34": "adc"}}},

@@ -2,207 +2,293 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-mcu-pwm-adc",
-  "title": "第 16 课 · 开发板：PWM 和 ADC",
+  "title": "开发板：PWM 预习和 ADC",
   "kind": "lesson",
   "level": 3,
-  "summary": "PWM 引脚在 0 和 3.3 V 之间快速切换：万用表读到平均值，示波器看到方波。ADC 引脚把 0–3.3 V 变成 0–4095 的数。",
+  "summary": "PWM 引脚在 0 和 3.3 V 之间快速切换：万用表读到平均值，示波器看到方波。ADC 引脚把 0–3.3 V 量成 0–4095 的数。",
   "concepts": ["PWM", "duty cycle 占空比", "average 平均值", "ADC 模数转换", "potentiometer 电位器"],
-  "description": "**这一课学什么**：第 5 期的调光、调速、PWM DAC 和传感器实验都要用 PWM 和 ADC。这一课用一只 LED 和一个电位器把两者都看一遍。\n\n**PWM**（脉宽调制）：引脚以固定频率在“高”（3.3 V）和“低”（0 V）之间切换。一个周期里高电平占的比例叫**占空比**（duty cycle）。\n- 万用表（直流档）反应慢，读到的是**平均值** ≈ 占空比 × 高电平；\n- 示波器看到的是真实的方波：高电平还是约 3.3 V，只是只亮了一部分时间；\n- LED 的亮度跟着平均电流变，但每次“高”的时候电流和常亮时一样大——PWM 不能用来绕过引脚的电流上限。\n\n**ADC**（模数转换）：引脚设成 ADC 时，芯片把 0–3.3 V 的电压换成 12 位的数 0–4095：读数 ≈ 电压 / 3.3 V × 4095。超过 3.3 V 的电压会损坏引脚——传感器电压高的话要先分压。ESP32 只有 GPIO32–39（ADC1）能和 Wi-Fi 一起用。\n\n**电路**：ESP32 的 GPIO2（PWM）→ 330Ω → LED → GND；电位器两端接 3V3 和 GND，滑动端接 GPIO34（ADC）。\n\n**仿真和真实开发板**：这里的 ADC 是理想、线性的。真实 ESP32 的 ADC 在接近 0 V 和 3.3 V 的两头不线性，还有噪声和衰减设置，要校准才准；真实万用表在 1 kHz PWM 上读到的值和表的类型有关（真有效值表的交流档读的是另一回事）。",
-  "compare": "**对比**（占空比 25 %）：\n- 高电平 ≈ 3.3 V − 25 Ω × 4.1 mA ≈ 3.2 V，示波器 Vpp ≈ **3.2 V**；\n- 万用表平均值 ≈ 0.25 × 3.2 V ≈ **0.80 V**；\n- LED 平均电流 ≈ 0.25 × 4.1 mA ≈ **1.0 mA**（每次“高”时还是 4.1 mA）；\n- 滑动端在中间：ADC 电压 = 3.3 V / 2 ≈ **1.65 V**，读数 ≈ 1.65 / 3.3 × 4095 ≈ **2048**。",
+  "description": "这一课先预习 PWM（5.8 细讲）：同一个引脚，万用表读到平均值，示波器看到方波。然后学本单元的主角 ADC：引脚把 0–3.3 V 的电压量成 0–4095 的数。电路：GPIO2（PWM）→ 330 Ω → 红色 LED → GND；10 kΩ 电位器接在 3V3 和 GND 之间，滑动端接 GPIO34（ADC）。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "两块表，两个答案",
+      "text": ["这一课先**预习 PWM**（5.8 会细讲），再学本单元的主角 **ADC**。", "先让一个引脚用 PWM 点亮 LED，然后**用两种仪表看同一个引脚**：万用表和示波器。", "两个读数对不上。到底谁说的是真话？"],
+      "steps": 7
+    },
+    {
+      "kind": "explain",
+      "title": "PWM 是快速开关，ADC 是一把尺子",
+      "text": [
+        "- **PWM**：引脚每秒开、关 1000 次。开的时候是满电压，关的时候是 0。“开”占一个周期的比例叫**占空比** D。",
+        "![](fig:pwm)",
+        "- 万用表反应慢，只读到**平均值**；示波器看到真实的方波。两个都对：",
+        "$$V_{avg} = D × V_{high}$$",
+        "- 代入数字：D = 75 %，高电平约 3.3 V，$V_{avg} = 0.75 × 3.3 ≈ 2.5$ V。LED 的亮度也跟着平均值走。",
+        "- **ADC** 反过来：它把引脚上 0–3.3 V 的电压**量成一个数**，从 0 到 4095，像一把有 4096 个刻度的尺子。",
+        "![](fig:adc)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "换占空比，再接一个旋钮",
+      "text": ["- 换几个占空比，看三样东西怎么变：LED 的亮度、万用表的读数、方波的宽度。", "- 然后接一个**电位器**当可调的分压器：滑动端的电压送进 ADC 引脚。", "- ADC 引脚最多只能接 3.3 V。比它高的电压要先分压——下一个实验就做这件事。"],
+      "steps": 5
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **PWM 不改变高电平，只改变“高”的时间比例。** 万用表读平均值，示波器看真实波形。",
+        "- PWM 每次“高”时，电流和常亮时一样大：它不能绕过引脚的电流上限。",
+        "- **ADC 把 0–3.3 V 量成 0–4095。** 超过 3.3 V 会损坏引脚。ESP32 只有 GPIO32–39（ADC1）能和 Wi-Fi 同时用。",
+        "- 真实的坑：ESP32 的 ADC 在接近 0 V 和 3.3 V 的两头不线性，还有噪声。项目里要校准，多读几次取平均。"
+      ],
+      "practice": ["equivalence"]
+    }
+  ],
+  "figures": {
+    "pwm": {
+      "kind": "plot",
+      "caption": {
+        "text": "占空比 75 %：每个周期里 3/4 的时间是高电平。万用表读到的是虚线那个平均值。",
+        "i18n": {"en": "Duty cycle 75 %: three quarters of every period is high. The multimeter reads the dashed average."}
+      },
+      "x": {"label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}}, "min": 0, "max": 3, "ticks": [0, 1, 2, 3]},
+      "y": {"label": {"text": "引脚电压 (V)", "i18n": {"en": "pin voltage (V)"}}, "min": 0, "max": 4, "ticks": [0, 3.3]},
+      "curves": [{"points": [[0, 0], [0, 3.3], [0.75, 3.3], [0.75, 0], [1, 0], [1, 3.3], [1.75, 3.3], [1.75, 0], [2, 0], [2, 3.3], [2.75, 3.3], [2.75, 0], [3, 0]], "tone": 1}],
+      "hlines": [{"y": 2.475, "dashed": true, "label": {"text": "平均值", "i18n": {"en": "average"}}}]
+    },
+    "adc": {
+      "kind": "plot",
+      "caption": {
+        "text": "0 V 读 0，3.3 V 读 4095，中间按比例。超过 3.3 V，引脚就有危险。",
+        "i18n": {"en": "0 V reads 0, 3.3 V reads 4095, and everything in between in proportion. Above 3.3 V the pin is in danger."}
+      },
+      "x": {"label": {"text": "引脚电压 (V)", "i18n": {"en": "pin voltage (V)"}}, "min": 0, "max": 4, "ticks": [0, 1, 2, 3.3]},
+      "y": {"label": {"text": "ADC 读数", "i18n": {"en": "ADC reading"}}, "min": 0, "max": 4500, "ticks": [0, 4095]},
+      "curves": [{"points": [[0, 0], [3.3, 4095]], "tone": 1}],
+      "vlines": [{"x": 3.3, "dashed": true, "label": {"text": "上限", "i18n": {"en": "limit"}}}]
+    }
+  },
   "i18n": {
-            "en": {
-                    "title": "Lesson 16 · Dev board: PWM and ADC",
-                    "summary": "A PWM pin flips between 0 and 3.3 V: the multimeter reads the average, the scope shows the square wave. An ADC pin turns 0–3.3 V into a number 0–4095.",
-                    "concepts": ["PWM", "duty cycle", "average value", "ADC", "potentiometer"],
-                    "description": "**What you learn**: the dimming, motor-speed, PWM-DAC and sensor labs of phase 5 all use PWM and the ADC. This lesson shows both with one LED and one potentiometer.\n\n**PWM** (pulse-width modulation): the pin switches at a fixed frequency between high (3.3 V) and low (0 V). The fraction of each period spent high is the **duty cycle**.\n- A multimeter (DC range) is slow and reads the **average** ≈ duty × high level;\n- the scope shows the real square wave: the high level is still about 3.3 V, just for part of the time;\n- the LED's brightness follows the average current, but every \"high\" carries the same current as when it is fully on — PWM is no way around a pin's current limit.\n\n**ADC** (analogue-to-digital converter): with a pin in ADC mode the chip turns 0–3.3 V into a 12-bit number 0–4095: reading ≈ voltage / 3.3 V × 4095. Above 3.3 V the pin is damaged — divide a higher sensor voltage down first. On an ESP32 only GPIO32–39 (ADC1) work together with Wi-Fi.\n\n**Circuit**: ESP32 GPIO2 (PWM) → 330Ω → LED → GND; a potentiometer across 3V3 and GND with its wiper on GPIO34 (ADC).\n\n**Simulated vs real board**: this ADC is ideal and linear. A real ESP32 ADC is non-linear near 0 V and 3.3 V, noisy, and has attenuation settings — it needs calibrating; what a real multimeter shows on a 1 kHz PWM depends on the meter (a true-RMS meter's AC range measures something else).",
-                    "compare": "**Compare** (25 % duty):\n- high level ≈ 3.3 V − 25 Ω × 4.1 mA ≈ 3.2 V, scope Vpp ≈ **3.2 V**;\n- multimeter average ≈ 0.25 × 3.2 V ≈ **0.80 V**;\n- LED average current ≈ 0.25 × 4.1 mA ≈ **1.0 mA** (still 4.1 mA during each high);\n- wiper in the middle: ADC voltage = 3.3 V / 2 ≈ **1.65 V**, reading ≈ 1.65 / 3.3 × 4095 ≈ **2048**.",
-                    "steps": [
-                              "ESP32 dev board at b1 (as in the previous lesson).",
-                              "Rails: red jumper j1 → bp1 (3V3), blue jumper j14 → bn14 (GND), blue jumper a7 → tn7 (GND).",
-                              "GPIO2 has only one free hole, a15, so first take it out to column 20 with a jumper a15 → a20; then the resistor, the multimeter and the scope probe all have room.",
-                              "Resistor 330Ω c20 → c23; red LED long lead d23, short lead d26; blue jumper a26 → tn26.",
-                              "Click the board and set **GPIO2** to PWM; click the row to expand it and set the duty cycle to 25 %, frequency 1 kHz. The LED lights, dimmer than fully on.",
-                              "Multimeter red probe on b20: you read the average voltage, far below 3.3 V.",
-                              "Scope probe: tip e20, ground clip tn18. A square wave: the high level is still about 3.2 V, for a quarter of each period. When the scope window covers the right half of the board, collapse it with ▾ at its top right, or drag its title bar out of the way.",
-                              "Change the duty cycle to 75 %: the LED gets brighter and the multimeter reading triples; on the scope the high level is the same, just wider.",
-                              "Set the duty cycle back to 25 %.",
-                              "ADC: potentiometer (10kΩ) at h22 (legs at h22, h23, h24); blue jumper j22 → bn22 (GND), red jumper j24 → bp24 (3V3).",
-                              "Wiper to GPIO34: jumper g23 → j5 (GPIO34 is column 5 of the lower row). Set **GPIO34** to ADC: its row shows the ADC voltage and the 0–4095 reading. Drag the pot and watch it change.",
-                              "Press \"Check my circuit\" and answer from the scope, the multimeter and the pin list."
-                            ],
-                    "hints": [
-                              "A multimeter's DC range reads the average: average = duty × high level.",
-                              "On the scope the high level equals the pin voltage when fully on; PWM only changes the fraction of time spent high.",
-                              "ADC reading = voltage / 3.3 V × 4095; with the wiper in the middle the voltage is half of 3.3 V."
-                            ],
-                    "tests": ["PWM lights the LED; the ADC reads the wiper voltage"],
-                    "measurements": [
-                                      {
-                                        "ask": "Scope CH1 (GPIO2) peak-to-peak",
-                                        "explain": "The square wave jumps between 0 V and the high level: 3.3 V minus the drop across the output resistance."
-                                      },
-                                      {"ask": "Multimeter: GPIO2 (column 20) to GND", "explain": "The DC range reads the average: 0.25 × 3.2 V ≈ 0.80 V."},
-                                      {
-                                        "ask": "The LED's average current (click the LED and read its current in Properties, or put an ammeter between R1 and the LED)",
-                                        "explain": "0.25 × 4.1 mA ≈ 1.0 mA; during the 25 % of the time it is high, it is still 4.1 mA."
-                                      },
-                                      {
-                                        "ask": "Wiper at 50 %: the voltage on GPIO34 (the ADC reading in the pin list, or the multimeter)",
-                                        "explain": "Half of 3.3 V: 1.65 V."
-                                      },
-                                      {
-                                        "ask": "In the same state, about what is GPIO34's 12-bit raw ADC reading?",
-                                        "choices": ["about 1024", "about 2048", "about 4095", "about 1650"],
-                                        "explain": "1.65 / 3.3 × 4095 ≈ 2048: 12 bits = 4096 levels, with 3.3 V at full scale."
-                                      }
-                                    ]
-                  }
-          },
+    "en": {
+      "title": "Dev board: a first look at PWM, then the ADC",
+      "summary": "A PWM pin switches quickly between 0 and 3.3 V: the multimeter reads the average, the scope shows the square wave. An ADC pin measures 0–3.3 V as a number from 0 to 4095.",
+      "concepts": ["PWM", "duty cycle", "average", "ADC (analog-to-digital converter)", "potentiometer"],
+      "description": "This lesson previews PWM (unit 5.8 covers it properly): on the same pin the multimeter reads an average and the scope shows a square wave. Then comes the unit's main topic, the ADC: a pin that measures 0–3.3 V as a number from 0 to 4095. Circuit: GPIO2 (PWM) → 330 Ω → red LED → GND; a 10 kΩ potentiometer between 3V3 and GND, its wiper to GPIO34 (ADC).",
+      "compare": "**Compare** (25 % duty):\n- high level ≈ 3.3 V − 25 Ω × 4.1 mA ≈ 3.2 V, scope Vpp ≈ **3.2 V**;\n- multimeter average ≈ 0.25 × 3.2 V ≈ **0.80 V**;\n- LED average current ≈ 0.25 × 4.1 mA ≈ **1.0 mA** (still 4.1 mA during each high);\n- wiper in the middle: ADC voltage = 3.3 V / 2 ≈ **1.65 V**, reading ≈ 1.65 / 3.3 × 4095 ≈ **2048**.",
+      "steps": [
+        "Pick **ESP32 dev board DevKitC** and click **`b1`**: the two rows of pins go into b1–b19 and i1–i19. USB is plugged in by default, so the board is powered.",
+        "Three **jumpers**: red **`j1`** → **`bp1`** (3V3), blue **`j14`** → **`bn14`** (GND), blue **`a7`** → **`tn7`** (GND).",
+        "GPIO2 has only one free hole, **`a15`**. A **jumper** **`a15`** → **`a20`** brings it out to column 20, so the resistor, the probes and the scope all have room.",
+        "**Resistor** **`330 Ω`** in **`c20`**–**`c23`**; **red LED** long lead **`d23`**, short lead **`d26`**; blue **jumper** **`a26`** → **`tn26`**.",
+        "**Click the board** and, in the pin list under Properties, set **GPIO2** to **PWM**. Click the row to open it: duty cycle **`25 %`**, frequency **`1 kHz`**. The LED lights, but dimly.",
+        "**Multimeter**: red probe on **`b20`**. It reads much less than the pin's 3.3 V.",
+        "**Scope** probe: tip on **`e20`**, ground clip on **`tn18`**. Look at the trace: the voltage only jumps between two values. If the scope window covers the board, press **▾** at its top right to fold it, or drag its title bar away.",
+        "Set the duty cycle to **`75 %`**. The LED gets brighter and the multimeter reads three times as much; on the scope the square wave is just as tall, only wider.",
+        "Set the duty cycle back to **`25 %`**.",
+        "**Potentiometer** (**`10 kΩ`**): click **`h22`**; its three legs sit in h22, h23, h24. Blue **jumper** **`j22`** → **`bn22`** (GND), red **jumper** **`j24`** → **`bp24`** (3V3).",
+        "Wiper to GPIO34: **jumper** **`g23`** → **`j5`** (GPIO34 is column 5 of the bottom row). Set **GPIO34** to **ADC**: the row shows the ADC voltage and a reading from 0 to 4095. **Drag the potentiometer** and watch the number follow.",
+        "Press **Check my circuit**, then answer the measurement questions with the scope, the multimeter and the pin list."
+      ],
+      "hints": [
+        "A multimeter's DC range reads the average: average = duty × high level.",
+        "On the scope the high level equals the pin voltage when fully on; PWM only changes the fraction of time spent high.",
+        "ADC reading = voltage / 3.3 V × 4095; with the wiper in the middle the voltage is half of 3.3 V."
+      ],
+      "tests": ["PWM lights the LED; the ADC reads the wiper voltage"],
+      "measurements": [
+        {"ask": "Scope CH1 (GPIO2) peak-to-peak", "explain": "The square wave jumps between 0 V and the high level: 3.3 V minus the drop across the output resistance."},
+        {"ask": "Multimeter: GPIO2 (column 20) to GND", "explain": "The DC range reads the average: 0.25 × 3.2 V ≈ 0.80 V."},
+        {
+          "ask": "The LED's average current (click the LED and read the current under Properties)",
+          "explain": "0.25 × 4.1 mA ≈ 1.0 mA; during the 25 % of the time it is high, it is still 4.1 mA."
+        },
+        {"ask": "Wiper at 50 %: the voltage on GPIO34 (the ADC voltage in the pin list, or the multimeter)", "explain": "Half of 3.3 V: 1.65 V."},
+        {
+          "ask": "In the same state, about what is GPIO34's 12-bit raw ADC reading?",
+          "choices": ["about 1024", "about 2048", "about 4095", "about 1650"],
+          "explain": "1.65 / 3.3 × 4095 ≈ 2048: 12 bits = 4096 levels, with 3.3 V at full scale."
+        }
+      ],
+      "cards": [
+        {
+          "title": "Two meters, two answers",
+          "text": [
+            "This lesson first **previews PWM** (unit 5.8 covers it properly), then turns to this unit's main topic, the **ADC**.",
+            "First let a pin light an LED with PWM, then **look at that one pin with two instruments**: the multimeter and the scope.",
+            "The two readings disagree. Which one is telling the truth?"
+          ]
+        },
+        {
+          "title": "PWM is a fast switch, an ADC is a ruler",
+          "text": [
+            "- **PWM**: the pin switches on and off 1000 times a second. On, it is at full voltage; off, at 0. The fraction of each period that is \"on\" is the **duty cycle** D.",
+            "![](fig:pwm)",
+            "- A multimeter is slow and only reads the **average**; the scope shows the real square wave. Both are right:",
+            "$$V_{avg} = D × V_{high}$$",
+            "- With numbers: D = 75 %, a high level of about 3.3 V, $V_{avg} = 0.75 × 3.3 ≈ 2.5$ V. The LED's brightness follows the average too.",
+            "- An **ADC** works the other way round: it **measures** the pin's 0–3.3 V **as a number** from 0 to 4095, like a ruler with 4096 marks.",
+            "![](fig:adc)"
+          ]
+        },
+        {
+          "title": "Change the duty cycle, then add a knob",
+          "text": [
+            "- Try a few duty cycles and watch three things change: the LED's brightness, the multimeter reading, the width of the square wave.",
+            "- Then add a **potentiometer** as an adjustable divider: its wiper voltage goes into the ADC pin.",
+            "- An ADC pin takes 3.3 V at most. A higher voltage has to be divided down first — the next lab does exactly that."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **PWM leaves the high level alone and changes only how long it is high.** The multimeter reads the average, the scope shows the real waveform.",
+            "- Every \"high\" of a PWM pin carries the same current as a steady high: PWM is no way round the pin's current limit.",
+            "- **An ADC measures 0–3.3 V as 0–4095.** More than 3.3 V damages the pin. On the ESP32 only GPIO32–39 (ADC1) work while Wi-Fi is on.",
+            "- A real-world catch: the ESP32's ADC is not linear near 0 V and near 3.3 V, and it is noisy. Real projects calibrate it and average several readings."
+          ]
+        }
+      ]
+    }
+  },
+  "compare": "**对比**（占空比 25 %）：\n- 高电平 ≈ 3.3 V − 25 Ω × 4.1 mA ≈ 3.2 V，示波器 Vpp ≈ **3.2 V**；\n- 万用表平均值 ≈ 0.25 × 3.2 V ≈ **0.80 V**；\n- LED 平均电流 ≈ 0.25 × 4.1 mA ≈ **1.0 mA**（每次“高”时还是 4.1 mA）；\n- 滑动端在中间：ADC 电压 = 3.3 V / 2 ≈ **1.65 V**，读数 ≈ 1.65 / 3.3 × 4095 ≈ **2048**。",
   "components": [
-                  {"ref": "U1", "type": "esp32_devkit", "modes": {"PWM1": {"mode": "pwm", "duty": 25, "frequency": 1000}, "ADC1": "adc"}},
-                  {"ref": "R1", "type": "resistor", "resistance": "330"},
-                  {"ref": "LED1", "type": "led", "color": "red"},
-                  {"ref": "POT1", "type": "potentiometer", "resistance": "10k"}
-                ],
+    {"ref": "U1", "type": "esp32_devkit", "modes": {"PWM1": {"mode": "pwm", "duty": 25, "frequency": 1000}, "ADC1": "adc"}},
+    {"ref": "R1", "type": "resistor", "resistance": "330"},
+    {"ref": "LED1", "type": "led", "color": "red"},
+    {"ref": "POT1", "type": "potentiometer", "resistance": "10k"}
+  ],
   "connections": [["U1.PWM1", "R1.1"], ["R1.2", "LED1.anode"], ["LED1.cathode", "U1.GND", "POT1.1"], ["POT1.3", "U1.3V3"], ["POT1.2", "U1.ADC1"]],
   "tests": [
-            {
-              "name": "PWM 点亮 LED；ADC 读到滑动端的电压",
-              "set": {"POT1": {"wiper": 0.5}},
-              "expect": {"LED1": "on"},
-              "gpio": [{"pin": "U1.ADC1", "measure": "adc_v", "min": 1.55, "max": 1.75}],
-              "voltages": [{"pin": "U1.PWM1", "min": 0.6, "max": 1.0}]
-            }
-          ],
+    {
+      "name": "PWM 点亮 LED；ADC 读到滑动端的电压",
+      "set": {"POT1": {"wiper": 0.5}},
+      "expect": {"LED1": "on"},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc_v", "min": 1.55, "max": 1.75}],
+      "voltages": [{"pin": "U1.PWM1", "min": 0.6, "max": 1.0}]
+    }
+  ],
   "measurements": [
-                    {
-                      "id": "vpp",
-                      "scope": "vpp",
-                      "pin": "U1.PWM1",
-                      "unit": "V",
-                      "predict": true,
-                      "range": [3.1, 3.3],
-                      "ask": "示波器 CH1（GPIO2）的峰峰值",
-                      "explain": "方波在 0 V 和高电平之间跳：高电平是 3.3 V 减去输出电阻上的压降。"
-                    },
-                    {
-                      "id": "avg",
-                      "voltage": "U1.PWM1",
-                      "unit": "V",
-                      "predict": true,
-                      "range": [0.74, 0.86],
-                      "ask": "万用表：GPIO2（第 20 列）对 GND 的电压",
-                      "explain": "直流档读平均值：0.25 × 3.2 V ≈ 0.80 V。"
-                    },
-                    {
-                      "id": "iavg",
-                      "current": "R1",
-                      "unit": "mA",
-                      "predict": true,
-                      "range": [0.0009, 0.0011],
-                      "ask": "LED 的平均电流（单击 LED 看“属性”里的电流，或者在 R1 和 LED 之间串一个电流表）",
-                      "explain": "0.25 × 4.1 mA ≈ 1.0 mA；“高”的那 25 % 时间里还是 4.1 mA。"
-                    },
-                    {
-                      "id": "vadc",
-                      "voltage": "U1.ADC1",
-                      "set": {"POT1": {"wiper": 0.5}},
-                      "unit": "V",
-                      "predict": true,
-                      "range": [1.6, 1.7],
-                      "ask": "电位器滑动端在 50 %：GPIO34 的电压（引脚列表的 ADC 读数或万用表）",
-                      "explain": "3.3 V 的一半：1.65 V。"
-                    },
-                    {
-                      "id": "raw",
-                      "correct": 1,
-                      "ask": "同一状态下，GPIO34 的 12 位 ADC 原始读数大约是多少？",
-                      "choices": ["约 1024", "约 2048", "约 4095", "约 1650"],
-                      "explain": "1.65 / 3.3 × 4095 ≈ 2048：12 位 = 4096 级，3.3 V 对应满量程。"
-                    }
-                  ],
+    {
+      "id": "vpp",
+      "scope": "vpp",
+      "pin": "U1.PWM1",
+      "unit": "V",
+      "predict": true,
+      "range": [3.1, 3.3],
+      "ask": "示波器 CH1（GPIO2）的峰峰值",
+      "explain": "方波在 0 V 和高电平之间跳：高电平是 3.3 V 减去输出电阻上的压降。"
+    },
+    {
+      "id": "avg",
+      "voltage": "U1.PWM1",
+      "unit": "V",
+      "predict": true,
+      "range": [0.74, 0.86],
+      "ask": "万用表：GPIO2（第 20 列）对 GND 的电压",
+      "explain": "直流档读平均值：0.25 × 3.2 V ≈ 0.80 V。"
+    },
+    {
+      "id": "iavg",
+      "current": "R1",
+      "unit": "mA",
+      "predict": true,
+      "range": [0.0009, 0.0011],
+      "ask": "LED 的平均电流（单击 LED 看「属性」里的电流）",
+      "explain": "0.25 × 4.1 mA ≈ 1.0 mA；“高”的那 25 % 时间里还是 4.1 mA。"
+    },
+    {
+      "id": "vadc",
+      "voltage": "U1.ADC1",
+      "set": {"POT1": {"wiper": 0.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.6, 1.7],
+      "ask": "电位器滑动端在 50 %：GPIO34 的电压（看引脚列表的 ADC 电压，或用万用表）",
+      "explain": "3.3 V 的一半：1.65 V。"
+    },
+    {
+      "id": "raw",
+      "correct": 1,
+      "ask": "同一状态下，GPIO34 的 12 位 ADC 原始读数大约是多少？",
+      "choices": ["约 1024", "约 2048", "约 4095", "约 1650"],
+      "explain": "1.65 / 3.3 × 4095 ≈ 2048：12 位 = 4096 级，3.3 V 对应满量程。"
+    }
+  ],
   "steps": [
-            {"text": "ESP32 开发板放在 b1（和上一课一样）。", "highlight": ["b1", "i1"], "check": [{"type": "esp32_devkit", "at": "b1"}]},
-            {
-              "text": "电源轨：红色跳线 j1 → bp1（3V3），蓝色跳线 j14 → bn14（GND），蓝色跳线 a7 → tn7（GND）。",
-              "highlight": ["j1", "bp1", "j14", "bn14", "a7", "tn7"],
-              "check": [
-                        {"type": "wire", "pins": {"a": "j1", "b": "bp1"}},
-                        {"type": "wire", "pins": {"a": "j14", "b": "bn14"}},
-                        {"type": "wire", "pins": {"a": "a7", "b": "tn7"}}
-                      ]
-            },
-            {
-              "text": "GPIO2 只有 a15 一个空孔，先用一根跳线 a15 → a20 把它引到第 20 列，这样电阻、万用表和示波器探头都有地方接。",
-              "highlight": ["a15", "a20"],
-              "check": [{"type": "wire", "pins": {"a": "a15", "b": "a20"}}]
-            },
-            {
-              "text": "电阻 330Ω c20 → c23；红色 LED 长脚 d23、短脚 d26；蓝色跳线 a26 → tn26。",
-              "highlight": ["c20", "c23", "d23", "d26", "a26", "tn26"],
-              "check": [
-                        {"type": "resistor", "pins": {"1": "c20", "2": "c23"}, "resistance": "330"},
-                        {"type": "led", "pins": {"anode": "d23", "cathode": "d26"}},
-                        {"type": "wire", "pins": {"a": "a26", "b": "tn26"}}
-                      ]
-            },
-            {
-              "text": "单击开发板，把 **GPIO2** 设成 PWM；单击这一行展开，把占空比拖到 25 %，频率 1 kHz。LED 亮了，但比常亮暗。",
-              "highlight": ["a15"],
-              "check": [{"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "pwm", "duty": 25, "frequency": 1000}}}}]
-            },
-            {"text": "万用表红表笔点 b20：读到的是平均电压，远低于 3.3 V。", "highlight": ["b20"], "check": [{"probe": {"red": "b20"}}]},
-            {
-              "text": "示波器探头：针尖 e20、接地夹 tn18。方波：高电平仍然约 3.2 V，只占每个周期的 1/4。示波器窗口挡住面包板右半边时，点窗口右上角的 ▾ 收起它，或者拖动标题栏把它挪开。",
-              "highlight": ["e20", "tn18"],
-              "check": [{"type": "scope_probe", "pins": {"tip": "e20", "gnd": "tn18"}}]
-            },
-            {
-              "text": "把占空比改成 75 %：LED 变亮，万用表读数变成三倍，示波器上方波的高电平没变，只是变宽了。",
-              "highlight": ["a15"],
-              "check": [{"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "pwm", "duty": 75}}}}]
-            },
-            {"text": "占空比改回 25 %。", "highlight": ["a15"], "check": [{"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "pwm", "duty": 25}}}}]},
-            {
-              "text": "ADC：电位器（10kΩ）放在 h22（脚在 h22、h23、h24）；蓝色跳线 j22 → bn22（GND），红色跳线 j24 → bp24（3V3）。",
-              "highlight": ["h22", "h23", "h24", "j22", "bn22", "j24", "bp24"],
-              "check": [
-                        {"type": "potentiometer", "at": "h22", "resistance": "10k"},
-                        {"type": "wire", "pins": {"a": "j22", "b": "bn22"}},
-                        {"type": "wire", "pins": {"a": "j24", "b": "bp24"}}
-                      ]
-            },
-            {
-              "text": "滑动端接 GPIO34：跳线 g23 → j5（GPIO34 在下排第 5 列）。把 **GPIO34** 设成 ADC：这一行显示 ADC 电压和 0–4095 的读数。拖电位器看它变。",
-              "highlight": ["g23", "j5"],
-              "check": [
-                        {"type": "wire", "pins": {"a": "g23", "b": "j5"}},
-                        {"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "pwm", "duty": 25}, "GPIO34": {"mode": "adc"}}}}
-                      ]
-            },
-            {"text": "点“检查我的电路”，读示波器、万用表和引脚列表完成测量题。", "highlight": []}
-          ],
+    {"text": "选**「ESP32 开发板 DevKitC」**，单击 **`b1`**：两排针插进 b1–b19 和 i1–i19。USB 默认插着，板子已经通电。", "highlight": ["b1", "i1"], "check": [{"type": "esp32_devkit", "at": "b1"}]},
+    {
+      "text": "三根**跳线**：红的 **`j1`** → **`bp1`**（3V3），蓝的 **`j14`** → **`bn14`**（GND），蓝的 **`a7`** → **`tn7`**（GND）。",
+      "highlight": ["j1", "bp1", "j14", "bn14", "a7", "tn7"],
+      "check": [{"type": "wire", "pins": {"a": "j1", "b": "bp1"}}, {"type": "wire", "pins": {"a": "j14", "b": "bn14"}}, {"type": "wire", "pins": {"a": "a7", "b": "tn7"}}]
+    },
+    {
+      "text": "GPIO2 只有 **`a15`** 一个空孔。**跳线** **`a15`** → **`a20`** 把它引到第 20 列：电阻、表笔和探头就都有地方插了。",
+      "highlight": ["a15", "a20"],
+      "check": [{"type": "wire", "pins": {"a": "a15", "b": "a20"}}]
+    },
+    {
+      "text": "**电阻** **`330 Ω`** 插 **`c20`**–**`c23`**；**红色 LED** 长脚 **`d23`**、短脚 **`d26`**；蓝**跳线** **`a26`** → **`tn26`**。",
+      "highlight": ["c20", "c23", "d23", "d26", "a26", "tn26"],
+      "check": [
+        {"type": "resistor", "pins": {"1": "c20", "2": "c23"}, "resistance": "330"},
+        {"type": "led", "pins": {"anode": "d23", "cathode": "d26"}},
+        {"type": "wire", "pins": {"a": "a26", "b": "tn26"}}
+      ]
+    },
+    {
+      "text": "**单击开发板**，在「属性」的引脚列表里把 **GPIO2** 设成 **PWM**。单击这一行展开：占空比 **`25 %`**，频率 **`1 kHz`**。LED 亮了，但比较暗。",
+      "highlight": ["a15"],
+      "check": [{"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "pwm", "duty": 25, "frequency": 1000}}}}]
+    },
+    {"text": "**万用表**红表笔点 **`b20`**。它读到的电压，比引脚的 3.3 V 小得多。", "highlight": ["b20"], "check": [{"probe": {"red": "b20"}}]},
+    {
+      "text": "**示波器**探头：针尖 **`e20`**，接地夹 **`tn18`**。看波形：电压只在两个值之间跳。示波器窗口挡住面包板时，点它右上角的 **▾** 收起，或拖标题栏挪开。",
+      "highlight": ["e20", "tn18"],
+      "check": [{"type": "scope_probe", "pins": {"tip": "e20", "gnd": "tn18"}}]
+    },
+    {
+      "text": "占空比改成 **`75 %`**。LED 变亮，万用表读数变成三倍；示波器上方波的高度没变，只是变宽了。",
+      "highlight": ["a15"],
+      "check": [{"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "pwm", "duty": 75}}}}]
+    },
+    {"text": "占空比改回 **`25 %`**。", "highlight": ["a15"], "check": [{"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "pwm", "duty": 25}}}}]},
+    {
+      "text": "**电位器**（**`10 kΩ`**）单击 **`h22`**，三只脚在 h22、h23、h24。蓝**跳线** **`j22`** → **`bn22`**（GND），红**跳线** **`j24`** → **`bp24`**（3V3）。",
+      "highlight": ["h22", "h23", "h24", "j22", "bn22", "j24", "bp24"],
+      "check": [
+        {"type": "potentiometer", "at": "h22", "resistance": "10k"},
+        {"type": "wire", "pins": {"a": "j22", "b": "bn22"}},
+        {"type": "wire", "pins": {"a": "j24", "b": "bp24"}}
+      ]
+    },
+    {
+      "text": "滑动端接 GPIO34：**跳线** **`g23`** → **`j5`**（GPIO34 在下排第 5 列）。把 **GPIO34** 设成 **ADC**：这一行显示 ADC 电压和 0–4095 的读数。**拖动电位器**，看数字跟着变。",
+      "highlight": ["g23", "j5"],
+      "check": [
+        {"type": "wire", "pins": {"a": "g23", "b": "j5"}},
+        {"type": "esp32_devkit", "at": "b1", "props": {"pins": {"GPIO2": {"mode": "pwm", "duty": 25}, "GPIO34": {"mode": "adc"}}}}
+      ]
+    },
+    {"text": "点**「检查我的电路」**，再用示波器、万用表和引脚列表回答测量题。", "highlight": []}
+  ],
   "hints": ["万用表直流档读的是平均值：平均 = 占空比 × 高电平。", "示波器上的方波高电平和常亮时的引脚电压一样，PWM 只改变“高”的时间比例。", "ADC 读数 = 电压 / 3.3 V × 4095；滑动端在中间时电压是 3.3 V 的一半。"],
   "solution": {
-                "parts": [
-                          {
-                            "type": "esp32_devkit",
-                            "ref": "U1",
-                            "at": "b1",
-                            "props": {"usb": true, "modes": {"GPIO2": {"mode": "pwm", "duty": 25, "frequency": 1000}, "GPIO34": "adc"}}
-                          },
-                          {"type": "wire", "pins": {"a": "j1", "b": "bp1"}, "color": "red"},
-                          {"type": "wire", "pins": {"a": "j14", "b": "bn14"}, "color": "blue"},
-                          {"type": "wire", "pins": {"a": "a7", "b": "tn7"}, "color": "blue"},
-                          {"type": "wire", "pins": {"a": "a15", "b": "a20"}, "color": "yellow"},
-                          {"type": "resistor", "ref": "R1", "resistance": "330", "pins": {"1": "c20", "2": "c23"}},
-                          {"type": "led", "ref": "LED1", "color": "red", "pins": {"anode": "d23", "cathode": "d26"}},
-                          {"type": "wire", "pins": {"a": "a26", "b": "tn26"}, "color": "blue"},
-                          {"type": "scope_probe", "ref": "P1", "channel": 1, "pins": {"tip": "e20", "gnd": "tn18"}},
-                          {"type": "potentiometer", "ref": "POT1", "resistance": "10k", "wiper": 0.5, "at": "h22"},
-                          {"type": "wire", "pins": {"a": "j22", "b": "bn22"}, "color": "blue"},
-                          {"type": "wire", "pins": {"a": "j24", "b": "bp24"}, "color": "red"},
-                          {"type": "wire", "pins": {"a": "g23", "b": "j5"}, "color": "green"}
-                        ]
-              }
+    "parts": [
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO2": {"mode": "pwm", "duty": 25, "frequency": 1000}, "GPIO34": "adc"}}},
+      {"type": "wire", "pins": {"a": "j1", "b": "bp1"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "j14", "b": "bn14"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "a7", "b": "tn7"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "a15", "b": "a20"}, "color": "yellow"},
+      {"type": "resistor", "ref": "R1", "resistance": "330", "pins": {"1": "c20", "2": "c23"}},
+      {"type": "led", "ref": "LED1", "color": "red", "pins": {"anode": "d23", "cathode": "d26"}},
+      {"type": "wire", "pins": {"a": "a26", "b": "tn26"}, "color": "blue"},
+      {"type": "scope_probe", "ref": "P1", "channel": 1, "pins": {"tip": "e20", "gnd": "tn18"}},
+      {"type": "potentiometer", "ref": "POT1", "resistance": "10k", "wiper": 0.5, "at": "h22"},
+      {"type": "wire", "pins": {"a": "j22", "b": "bn22"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "j24", "b": "bp24"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "g23", "b": "j5"}, "color": "green"}
+    ]
+  }
 }
