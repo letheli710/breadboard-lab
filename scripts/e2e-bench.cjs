@@ -335,6 +335,10 @@ const TESTS = {
       const sel = 'canvas.sc-screen';
       const ink = await nonBlank(p, sel);
       assert(ink > 500, `scope lab: scope panel drew a trace (${ink} non-background pixels)`);
+      // a card-style lab shows its measurement questions on the Build card
+      const buildTab = p.locator('.card-tabs button', { hasText: 'Build' });
+      if (await buildTab.count()) await buildTab.first().click();
+      await p.waitForTimeout(200);
       assert((await p.locator('.mq-section').count()) === 1, 'scope lab: measurement stage shown');
       const q1 = p.locator('.mq').first();
       // question 1 asks for a prediction first

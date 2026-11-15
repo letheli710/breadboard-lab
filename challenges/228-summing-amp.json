@@ -2,37 +2,394 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-summing-amp",
-  "title": "实验 2-8 · 反相加法器：把直流和交流加在一起",
   "kind": "challenge",
   "level": 5,
   "phase": 2,
-  "summary": "两路输入经 47kΩ 和 10kΩ 汇到虚地：开关加上一路直流，信号发生器的正弦被整体“搬”下去；用两路输入电流算出输出。",
-  "concepts": ["summing amplifier 加法器", "virtual ground 虚地", "KCL at the summing node 求和点 KCL", "superposition 叠加"],
-  "prereq": ["lesson-lm358", "lesson-generator-scope"],
-  "description": "**目标**：反相加法器 Vo = −(RF/R1 × Vin1 + RF/R2 × Vin2)。用一个开关提供直流输入、信号发生器提供交流输入，看输出是两者之和（并反相）。\n\n**电路**（±9 V 双电源，接法同实验 2-7）：\n- IN+ 接 GND，RF（10kΩ）从 IN−（求和点 SUM）接到 OUT；\n- 输入 1：拨动开关 S1，a 侧接 +9V，b 侧接 GND，com → R1（47kΩ）→ SUM；\n- 输入 2：信号发生器 FG1（黑夹子接 GND）→ R2（10kΩ）→ SUM。\n\n**先预测**：SUM 是虚地（0 V），所以两路输入电流 I1 = Vin1 / R1、I2 = Vin2 / R2 互不影响，在 SUM 处汇合后全部流过 RF（KCL）：Vo = −RF (I1 + I2)。算出 S1 拨到 a 时的直流部分和信号部分的增益，再预测下面三种情况的输出。\n\n**测量**（信号发生器 1 kHz 正弦，示波器看输出，万用表直流档量电流）：\n1. S1→b，幅度 1 V；\n2. S1→a，幅度 1 V；\n3. S1→a，信号设成幅度 0.5 V、偏置 1 V，并测 R1、R2 的直流电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**想一想**：这就是混音器、电平平移和数模转换器（DAC）的基本原理。因为求和点是虚地，增加一路输入不会影响其他输入——这是运放加法器比“用电阻直接把信号连在一起”好的地方。\n\n**真实电路里**：输出范围同样是 V− 到 V+ − 1.5 V（仿真里也有）：情况 3 的输出最低约 −2.91 − 0.5 ≈ −3.4 V，离 −9 V 还远，不会削顶。真实 LM358 的压摆率约 0.3–0.5 V/µs，仿真里没有这个限制；1 kHz、几伏的信号不受影响。",
+  "title": "反相加法器：把直流和交流加在一起",
+  "summary": "两路输入经 47 kΩ 和 10 kΩ 汇到虚地：开关接通一路直流，信号发生器的正弦就整条被“搬”下去。",
+  "prereq": ["lesson-lm358", "lesson-scope-two-channels"],
+  "concepts": ["summing amplifier 加法器", "virtual ground 虚地", "KCL at the summing node 求和点 KCL", "level shift 电平平移"],
+  "description": "±9 V 双电源，接法同反相放大器。IN+ 接 GND，RF（10 kΩ）从求和点 SUM（IN−）接到 OUT；输入 1：开关 S1（a = +9 V，b = GND）→ R1（47 kΩ）→ SUM；输入 2：信号发生器 → R2（10 kΩ）→ SUM。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "拨一下开关，整条波掉下去",
+      "text": [
+        "- 在反相放大器的基础上，把 RF 换成 **`10 kΩ`**、RIN 换成 **R2 `10 kΩ`**，再从 IN− 多接一路：**R1 `47 kΩ`** → 开关 **S1** 的公共脚。S1 的 a 侧接 **+9 V**，b 侧接 **GND**。",
+        "- 信号发生器：正弦、**`1 kHz`**、幅度 **`1 V`**。CH2 看 OUT。",
+        "- **把 S1 从 b 拨到 a**，再拨回来。",
+        "波形的大小变了吗？变的是什么？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "两股电流在虚地汇合",
+      "text": [
+        "- 求和点 SUM 是虚地（0 V）。每一路输入各自送来一股电流，I1 = V1 / R1，I2 = v2 / R2，互不影响。",
+        "- 两股电流在 SUM 汇合（KCL），运放输入不取电流，它们只能一起穿过 RF：",
+        "$$v_o = -R_F (I_1 + I_2) = -10 kΩ × (\\frac{V_1}{47 kΩ} + \\frac{v_2}{10 kΩ})$$",
+        "![](fig:sum)",
+        "- S1 拨到 a，多了一股恒定的电流，整条波形被往下“搬”一段；拨到 b，这股电流没了，波形回到 0 V 上下。",
+        "![](fig:shift)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "量两股电流，算输出",
+      "text": [
+        "- 三种状态：① S1→b；② S1→a；③ S1→a，信号改成幅度 **`0.5 V`**、偏置 **`1 V`**。",
+        "- ③ 里用电流表（直流档）分别串进 R1、R2，量两股电流，再用它们算输出。",
+        "- 最后用万用表直接量 OUT，核对你算的数。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **虚地让每一路输入互不干扰**：多加一路输入，只是多一股电流流进 RF。",
+        "- 混音器、电平平移、数模转换器（DAC）都是这个原理。",
+        "- **真实电路里**：直接用几个电阻把几路信号连在一起也能“混合”，但各路会互相拉扯；加法器没有这个问题。输出范围仍是 V− 到 V+ − 1.5 V。"
+      ],
+      "practice": ["opamp"]
+    }
+  ],
+  "figures": {
+    "sum": {
+      "kind": "schematic",
+      "caption": {
+        "text": "V_1 来自开关 S1，v_2 来自信号发生器。I_1 和 I_2 在虚地 SUM 汇合，一起穿过 R_F。两路输入谁也不影响谁。",
+        "i18n": {
+          "en": "V_1 comes from switch S1, v_2 from the generator. I_1 and I_2 meet at the virtual ground SUM and pass R_F together. Neither input disturbs the other."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "R1", "type": "R", "from": [5, -7], "to": [5, -4], "value": "47k"},
+          {"ref": "R2", "type": "R", "from": [2, -7], "to": [2, -4], "value": "10k"},
+          {"ref": "RF", "type": "R", "from": [2, -2], "to": [6, -2], "value": "10k", "label": "R_F"},
+          {"ref": "A", "type": "OPAMP", "at": [4, 1]}
+        ],
+        "wires": [[[2, -4], [2, 0]], [[5, -4], [2, -4]], [[6, -2], [6, 1]], [[2, 2], [2, 3]]],
+        "grounds": [[2, 3]],
+        "terminals": [{"at": [5, -7], "name": "V_1"}, {"at": [2, -7], "name": "v_2"}],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I_1"},
+          {"kind": "i", "el": "R2", "name": "I_2"},
+          {"kind": "i", "el": "RF", "name": "I_1+I_2"}
+        ],
+        "notes": [{"at": [5.3, 2], "text": "v_o"}]
+      }
+    },
+    "shift": {
+      "kind": "plot",
+      "caption": {
+        "text": "S1→b：输出是翻转的正弦，绕着 0 V；S1→a：同样的正弦，整条往下移。",
+        "i18n": {"en": "S1→b: the output is the flipped sine around 0 V; S1→a: the same sine, moved down as a whole."}
+      },
+      "x": {"label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}}, "min": 0, "max": 2, "ticks": [0, 1, 2]},
+      "y": {
+        "label": {"text": "输出 (V)", "i18n": {"en": "output (V)"}},
+        "min": -3.5,
+        "max": 1.5,
+        "ticks": [-3, -2, -1, 0, 1]
+      },
+      "curves": [
+        {
+          "points": [
+            [0.0, -0.0],
+            [0.02, -0.1253],
+            [0.04, -0.2487],
+            [0.06, -0.3681],
+            [0.08, -0.4818],
+            [0.1, -0.5878],
+            [0.12, -0.6845],
+            [0.14, -0.7705],
+            [0.16, -0.8443],
+            [0.18, -0.9048],
+            [0.2, -0.9511],
+            [0.22, -0.9823],
+            [0.24, -0.998],
+            [0.26, -0.998],
+            [0.28, -0.9823],
+            [0.3, -0.9511],
+            [0.32, -0.9048],
+            [0.34, -0.8443],
+            [0.36, -0.7705],
+            [0.38, -0.6845],
+            [0.4, -0.5878],
+            [0.42, -0.4818],
+            [0.44, -0.3681],
+            [0.46, -0.2487],
+            [0.48, -0.1253],
+            [0.5, -1.225e-16],
+            [0.52, 0.1253],
+            [0.54, 0.2487],
+            [0.56, 0.3681],
+            [0.58, 0.4818],
+            [0.6, 0.5878],
+            [0.62, 0.6845],
+            [0.64, 0.7705],
+            [0.66, 0.8443],
+            [0.68, 0.9048],
+            [0.7, 0.9511],
+            [0.72, 0.9823],
+            [0.74, 0.998],
+            [0.76, 0.998],
+            [0.78, 0.9823],
+            [0.8, 0.9511],
+            [0.82, 0.9048],
+            [0.84, 0.8443],
+            [0.86, 0.7705],
+            [0.88, 0.6845],
+            [0.9, 0.5878],
+            [0.92, 0.4818],
+            [0.94, 0.3681],
+            [0.96, 0.2487],
+            [0.98, 0.1253],
+            [1.0, 2.449e-16],
+            [1.02, -0.1253],
+            [1.04, -0.2487],
+            [1.06, -0.3681],
+            [1.08, -0.4818],
+            [1.1, -0.5878],
+            [1.12, -0.6845],
+            [1.14, -0.7705],
+            [1.16, -0.8443],
+            [1.18, -0.9048],
+            [1.2, -0.9511],
+            [1.22, -0.9823],
+            [1.24, -0.998],
+            [1.26, -0.998],
+            [1.28, -0.9823],
+            [1.3, -0.9511],
+            [1.32, -0.9048],
+            [1.34, -0.8443],
+            [1.36, -0.7705],
+            [1.38, -0.6845],
+            [1.4, -0.5878],
+            [1.42, -0.4818],
+            [1.44, -0.3681],
+            [1.46, -0.2487],
+            [1.48, -0.1253],
+            [1.5, -3.674e-16],
+            [1.52, 0.1253],
+            [1.54, 0.2487],
+            [1.56, 0.3681],
+            [1.58, 0.4818],
+            [1.6, 0.5878],
+            [1.62, 0.6845],
+            [1.64, 0.7705],
+            [1.66, 0.8443],
+            [1.68, 0.9048],
+            [1.7, 0.9511],
+            [1.72, 0.9823],
+            [1.74, 0.998],
+            [1.76, 0.998],
+            [1.78, 0.9823],
+            [1.8, 0.9511],
+            [1.82, 0.9048],
+            [1.84, 0.8443],
+            [1.86, 0.7705],
+            [1.88, 0.6845],
+            [1.9, 0.5878],
+            [1.92, 0.4818],
+            [1.94, 0.3681],
+            [1.96, 0.2487],
+            [1.98, 0.1253],
+            [2.0, 4.899e-16]
+          ],
+          "tone": 1,
+          "label": "S1→b",
+          "labelAt": [0.75, 1.25]
+        },
+        {
+          "points": [
+            [0.0, -1.91],
+            [0.02, -2.035],
+            [0.04, -2.159],
+            [0.06, -2.278],
+            [0.08, -2.392],
+            [0.1, -2.498],
+            [0.12, -2.595],
+            [0.14, -2.681],
+            [0.16, -2.754],
+            [0.18, -2.815],
+            [0.2, -2.861],
+            [0.22, -2.892],
+            [0.24, -2.908],
+            [0.26, -2.908],
+            [0.28, -2.892],
+            [0.3, -2.861],
+            [0.32, -2.815],
+            [0.34, -2.754],
+            [0.36, -2.681],
+            [0.38, -2.595],
+            [0.4, -2.498],
+            [0.42, -2.392],
+            [0.44, -2.278],
+            [0.46, -2.159],
+            [0.48, -2.035],
+            [0.5, -1.91],
+            [0.52, -1.785],
+            [0.54, -1.661],
+            [0.56, -1.542],
+            [0.58, -1.428],
+            [0.6, -1.322],
+            [0.62, -1.225],
+            [0.64, -1.139],
+            [0.66, -1.066],
+            [0.68, -1.005],
+            [0.7, -0.9589],
+            [0.72, -0.9277],
+            [0.74, -0.912],
+            [0.76, -0.912],
+            [0.78, -0.9277],
+            [0.8, -0.9589],
+            [0.82, -1.005],
+            [0.84, -1.066],
+            [0.86, -1.139],
+            [0.88, -1.225],
+            [0.9, -1.322],
+            [0.92, -1.428],
+            [0.94, -1.542],
+            [0.96, -1.661],
+            [0.98, -1.785],
+            [1.0, -1.91],
+            [1.02, -2.035],
+            [1.04, -2.159],
+            [1.06, -2.278],
+            [1.08, -2.392],
+            [1.1, -2.498],
+            [1.12, -2.595],
+            [1.14, -2.681],
+            [1.16, -2.754],
+            [1.18, -2.815],
+            [1.2, -2.861],
+            [1.22, -2.892],
+            [1.24, -2.908],
+            [1.26, -2.908],
+            [1.28, -2.892],
+            [1.3, -2.861],
+            [1.32, -2.815],
+            [1.34, -2.754],
+            [1.36, -2.681],
+            [1.38, -2.595],
+            [1.4, -2.498],
+            [1.42, -2.392],
+            [1.44, -2.278],
+            [1.46, -2.159],
+            [1.48, -2.035],
+            [1.5, -1.91],
+            [1.52, -1.785],
+            [1.54, -1.661],
+            [1.56, -1.542],
+            [1.58, -1.428],
+            [1.6, -1.322],
+            [1.62, -1.225],
+            [1.64, -1.139],
+            [1.66, -1.066],
+            [1.68, -1.005],
+            [1.7, -0.9589],
+            [1.72, -0.9277],
+            [1.74, -0.912],
+            [1.76, -0.912],
+            [1.78, -0.9277],
+            [1.8, -0.9589],
+            [1.82, -1.005],
+            [1.84, -1.066],
+            [1.86, -1.139],
+            [1.88, -1.225],
+            [1.9, -1.322],
+            [1.92, -1.428],
+            [1.94, -1.542],
+            [1.96, -1.661],
+            [1.98, -1.785],
+            [2.0, -1.91]
+          ],
+          "tone": 2,
+          "label": "S1→a",
+          "labelAt": [0.75, -0.65]
+        }
+      ],
+      "hlines": [{"y": 0, "dashed": true}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 2-8 · Inverting summing amplifier: add DC and AC together",
-      "summary": "Two inputs meet at a virtual ground through 47kΩ and 10kΩ: a switch adds a DC input that shifts the whole sine down; work out the output from the two input currents.",
-      "concepts": ["summing amplifier", "virtual ground", "KCL at the summing node", "superposition"],
-      "description": "**Goal**: the inverting summing amplifier gives Vo = −(RF/R1 × Vin1 + RF/R2 × Vin2). A switch provides a DC input and the function generator an AC input; the output is their sum (inverted).\n\n**Circuit** (±9 V dual supply, wired as in Experiment 2-7):\n- IN+ to GND, RF (10kΩ) from IN− (the summing node SUM) to OUT;\n- input 1: slide switch S1, side a to +9V, side b to GND, com → R1 (47kΩ) → SUM;\n- input 2: function generator FG1 (black clip to GND) → R2 (10kΩ) → SUM.\n\n**Predict first**: SUM is a virtual ground (0 V), so the two input currents I1 = Vin1 / R1 and I2 = Vin2 / R2 don't disturb each other; they meet at SUM and all of it flows through RF (KCL): Vo = −RF (I1 + I2). Work out the DC part with S1 on a and the gain for the signal, then predict the output in the three cases below.\n\n**Measure** (generator at 1 kHz sine, scope on the output, multimeter DC range for currents):\n1. S1→b, amplitude 1 V;\n2. S1→a, amplitude 1 V;\n3. S1→a, generator set to amplitude 0.5 V with a 1 V offset; also measure the DC currents in R1 and R2. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Think about it**: this is the basic idea behind audio mixers, level shifters and digital-to-analog converters (DACs). Because the summing node is a virtual ground, adding another input doesn't affect the others; that is what makes an op-amp summer better than just tying signals together with resistors.\n\n**In a real circuit**: the output range is again V− to V+ − 1.5 V (the simulator has this too): in case 3 the output only goes down to about −2.91 − 0.5 ≈ −3.4 V, far from −9 V, so nothing clips. A real LM358 slews at about 0.3–0.5 V/µs, which the simulator does not model; a few volts at 1 kHz are not affected.",
-      "compare": "**Compare**: DC part = −10k × 9 / 47k ≈ **−1.91 V**; signal part = −10k / 10k × v_fg = **−v_fg** (gain −1).\n1. AC only, the output is ≈ **1.99 Vpp** with a 0 V average (not 2.00 Vpp because of the generator's 50Ω output resistance, see Experiment 2-7);\n2. still 1.99 Vpp, but the whole waveform moves down to between **−0.92 V and −2.91 V**, average −1.91 V;\n3. output average ≈ **−2.91 V** = −(1.91 + 1.00). R1 ≈ 0.19 mA, R2 ≈ 0.10 mA on average, together 0.29 mA, all of which flows through RF (from SUM toward OUT).",
-      "measurements": [
-        {"ask": "S1→a, amplitude 1 V: multimeter DC range, OUT to GND (the average)", "explain": "DC part = −10k × 9 / 47k ≈ −1.91 V; the AC part averages to 0."},
-        {"ask": "Same state: the output maximum on the scope", "explain": "−1.91 V plus the ±0.995 V sine at gain −1: top ≈ −0.92 V, bottom ≈ −2.91 V."},
-        {"ask": "S1→a, signal 0.5 V amplitude with 1 V offset: the current in R1 (ammeter in series with R1, DC range)", "explain": "SUM is a virtual ground: I1 = 9 V / 47 kΩ ≈ 0.19 mA."},
-        {"ask": "Same state: the current in R2 (DC range = average)", "explain": "Average I2 = 1 V × 0.995 / 10 kΩ ≈ 0.10 mA (the 50 Ω output resistance makes it slightly under 0.1 mA)."},
-        {"ask": "From your two current readings, the output average Vo = −RF (I1 + I2) (RF = 10 kΩ)", "explain": "The two currents meet at the virtual ground and all flow through RF: Vo ≈ −10 kΩ × 0.29 mA ≈ −2.91 V = −(1.91 + 1.00). Check it with the multimeter on OUT."}
-      ],
+      "title": "The summing amplifier: adding DC to AC",
+      "summary": "Two inputs meet at a virtual ground through 47 kΩ and 10 kΩ: switch on a DC input and the generator's sine shifts down as a whole.",
+      "concepts": ["summing amplifier", "virtual ground", "KCL at the summing node", "level shift"],
+      "description": "±9 V supply, wired as for the inverting amplifier. IN+ to GND, RF (10 kΩ) from the summing node SUM (IN−) to OUT; input 1: switch S1 (a = +9 V, b = GND) → R1 (47 kΩ) → SUM; input 2: generator → R2 (10 kΩ) → SUM.",
+      "compare": "**Compare**: DC part = −10k × 9 / 47k ≈ **−1.91 V**; signal part = −(10k / 10k) × v2 = **−v2** (gain −1).\n1. AC only: output ≈ **1.99 Vpp**, average 0 V (not 2.00 Vpp: the generator's 50 Ω);\n2. The same 1.99 Vpp, but the whole wave moves down to between **−0.92 V and −2.91 V**, average −1.91 V;\n3. Output average ≈ **−2.91 V** = −(1.91 + 1.00). R1 ≈ 0.19 mA, R2 on average ≈ 0.10 mA; together 0.29 mA, all through RF (from SUM to OUT).",
       "hints": [
-        "Dual supply: two 9 V supplies in series, the middle point is GND; V1 + → op-amp pin 8, V2 − → op-amp pin 4. IN+ to GND.",
-        "S1: side a to +9V, side b to GND, com through R1 (47kΩ) to IN−.",
-        "Generator + through R2 (10kΩ) to IN−; RF (10kΩ) between IN− and OUT."
+        "Dual supply: two 9 V supplies in series, the middle is GND; the upper one's + to op-amp pin 8, the lower one's − to pin 4. IN+ to GND.",
+        "S1: a side to +9 V, b side to GND, common pin through R1 (47 kΩ) to IN−.",
+        "Generator + through R2 (10 kΩ) to IN−; RF (10 kΩ) between IN− and OUT."
       ],
       "tests": [
-        "S1→b (AC only): an inverted copy of the signal, average 0 V",
-        "S1→a (DC added): same peak-to-peak, the whole waveform shifts down",
-        "S1→a with a 1 V offset on the signal: the two DC inputs add; KCL at the virtual ground: both input currents flow on through RF"
+        "S1→b (AC only): the output is the inverted signal, average 0 V",
+        "S1→a (DC added): same peak-to-peak, the whole wave shifted down",
+        "S1→a, signal with 1 V offset: the two DC parts add; both input currents flow through RF"
+      ],
+      "measurements": [
+        {
+          "ask": "② S1→a, amplitude 1 V: OUT to GND on the multimeter's DC range (the average)",
+          "explain": "DC part = −10k × 9 / 47k ≈ −1.91 V; the AC part averages to 0."
+        },
+        {
+          "ask": "Same state: the output's maximum on the scope",
+          "explain": "−1.91 V plus the ±0.995 V sine at gain −1: top ≈ −0.92 V, bottom ≈ −2.91 V."
+        },
+        {
+          "ask": "③ S1→a, signal 0.5 V amplitude, 1 V offset: the current in R1 (ammeter in series with R1, DC)",
+          "explain": "SUM is a virtual ground: I1 = 9 V / 47 kΩ ≈ 0.19 mA."
+        },
+        {
+          "ask": "Same state: the current in R2 (DC range = the average)",
+          "explain": "Average I2 = 1 V × 0.995 / 10 kΩ ≈ 0.10 mA (the 50 Ω output resistance makes it a hair under 0.1 mA)."
+        },
+        {
+          "ask": "From your two current readings, the output average v_o = −RF (I1 + I2) (RF = 10 kΩ)",
+          "explain": "Both currents meet at the virtual ground and all pass RF: v_o ≈ −10 kΩ × 0.29 mA ≈ −2.91 V = −(1.91 + 1.00)."
+        }
+      ],
+      "cards": [
+        {
+          "title": "Flip a switch, the whole wave drops",
+          "text": [
+            "- Start from the inverting amplifier: RF becomes **`10 kΩ`**, RIN becomes **R2 `10 kΩ`**, and one more input goes to IN−: **R1 `47 kΩ`** → the common pin of switch **S1**. S1's a side goes to **+9 V**, its b side to **GND**.",
+            "- Generator: sine, **`1 kHz`**, amplitude **`1 V`**. CH2 on OUT.",
+            "- **Flip S1 from b to a**, and back.",
+            "Did the wave's size change? What did change?"
+          ]
+        },
+        {
+          "title": "Two currents meet at the virtual ground",
+          "text": [
+            "- The summing node SUM is a virtual ground (0 V). Each input sends its own current, I1 = V1 / R1 and I2 = v2 / R2, without disturbing the other.",
+            "- They meet at SUM (KCL); the op-amp's input draws nothing, so they have to pass RF together:",
+            "$$v_o = -R_F (I_1 + I_2) = -10 kΩ × (\\frac{V_1}{47 kΩ} + \\frac{v_2}{10 kΩ})$$",
+            "![](fig:sum)",
+            "- With S1 on a there is one extra steady current and the whole wave is shifted down; on b that current is gone and the wave sits around 0 V again.",
+            "![](fig:shift)"
+          ]
+        },
+        {
+          "title": "Measure both currents, work out the output",
+          "text": [
+            "- Three states: ① S1→b; ② S1→a; ③ S1→a with the signal at amplitude **`0.5 V`**, offset **`1 V`**.",
+            "- In ③ put the ammeter (DC) in series with R1, then R2, to measure the two currents; then work out the output from them.",
+            "- Finally measure OUT directly with the multimeter to check your result."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **The virtual ground keeps the inputs apart**: one more input is just one more current into RF.",
+            "- Audio mixers, level shifters and digital-to-analogue converters (DACs) all work this way.",
+            "- **In a real circuit**: tying several signals together with plain resistors also \"mixes\" them, but they pull on each other; the summing amplifier doesn't. The output range is still V− to V+ − 1.5 V."
+          ]
+        }
       ]
     }
   },
@@ -73,7 +430,7 @@
       "voltages": [{"pin": "U1.out", "ref": "V1.-", "min": -2.0, "max": -1.83}]
     },
     {
-      "name": "S1→a、信号带 1 V 偏置：两路直流相加；虚地 KCL：两路输入电流全部流过 RF",
+      "name": "S1→a、信号带 1 V 偏置：两路直流相加；两路输入电流全部流过 RF",
       "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1}},
       "voltages": [{"pin": "U1.out", "ref": "V1.-", "min": -3.0, "max": -2.83}],
       "currents": [
@@ -83,23 +440,82 @@
       ]
     }
   ],
-  "compare": "**对比**：直流部分 = −10k × 9 / 47k ≈ **−1.91 V**；信号部分 = −10k / 10k × v_fg = **−v_fg**（增益 −1）。\n1. 只有交流，输出 ≈ **1.99 Vpp**、平均 0 V（不是 2.00 Vpp，原因是信号发生器的 50Ω 输出电阻，见实验 2-7）；\n2. 同样 1.99 Vpp，但整条波形下移到 **−0.92 V ~ −2.91 V** 之间，平均 −1.91 V；\n3. 输出平均 ≈ **−2.91 V** = −(1.91 + 1.00)。R1 ≈ 0.19 mA，R2 平均 ≈ 0.10 mA，合起来 0.29 mA 全部流过 RF（从 SUM 流向 OUT）。",
+  "compare": "**对比**：直流部分 = −10k × 9 / 47k ≈ **−1.91 V**；信号部分 = −(10k / 10k) × v2 = **−v2**（增益 −1）。\n1. 只有交流：输出 ≈ **1.99 Vpp**、平均 0 V（不是 2.00 Vpp：信号发生器的 50 Ω）；\n2. 同样 1.99 Vpp，但整条波形下移到 **−0.92 V ~ −2.91 V**，平均 −1.91 V；\n3. 输出平均 ≈ **−2.91 V** = −(1.91 + 1.00)。R1 ≈ 0.19 mA，R2 平均 ≈ 0.10 mA，合起来 0.29 mA 全部流过 RF（从 SUM 流向 OUT）。",
   "measurements": [
-    {"id": "vdca", "voltage": "U1.out", "ref": "V1.-", "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [-2.01, -1.82], "ask": "S1→a、幅度 1 V：万用表直流档测 OUT 对 GND（平均值）", "explain": "直流部分 = −10k × 9 / 47k ≈ −1.91 V；交流部分平均为 0。"},
-    {"id": "vmaxa", "scope": "vmax", "pin": "U1.out", "ref": "V1.-", "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [-0.966, -0.874], "ask": "同一状态：示波器上输出的最大值", "explain": "−1.91 V 加上增益 −1 的 ±0.995 V 正弦：最高 ≈ −0.92 V，最低 ≈ −2.91 V。"},
-    {"id": "i1", "current": "R1", "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1}}, "unit": "mA", "predict": true, "range": [0.000182, 0.000201], "ask": "S1→a、信号幅度 0.5 V 偏置 1 V：R1 的电流（电流表串进 R1，直流档）", "explain": "SUM 是虚地：I1 = 9 V / 47 kΩ ≈ 0.19 mA。"},
-    {"id": "i2", "current": "R2", "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1}}, "unit": "mA", "predict": true, "range": [9.45e-05, 0.000104], "ask": "同一状态：R2 的电流（直流档 = 平均值）", "explain": "平均 I2 = 1 V × 0.995 / 10 kΩ ≈ 0.10 mA（50 Ω 输出电阻让它略小于 0.1 mA）。"},
-    {"id": "uo", "formula": "-10000 * (i1 + i2)", "unit": "V", "predict": true, "range": [-3.06, -2.76], "ask": "用你的两个电流读数算输出平均值 Vo = −RF (I1 + I2)（RF = 10 kΩ）", "explain": "两路电流在虚地汇合后全部流过 RF：Vo ≈ −10 kΩ × 0.29 mA ≈ −2.91 V = −(1.91 + 1.00)。可以再用万用表直接测 OUT 核对。"}
+    {
+      "id": "vdca",
+      "voltage": "U1.out",
+      "ref": "V1.-",
+      "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [-2.01, -1.82],
+      "ask": "② S1→a、幅度 1 V：万用表直流档测 OUT 对 GND（平均值）",
+      "explain": "直流部分 = −10k × 9 / 47k ≈ −1.91 V；交流部分平均为 0。"
+    },
+    {
+      "id": "vmaxa",
+      "scope": "vmax",
+      "pin": "U1.out",
+      "ref": "V1.-",
+      "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [-0.966, -0.874],
+      "ask": "同一状态：示波器上输出的最大值",
+      "explain": "−1.91 V 加上增益 −1 的 ±0.995 V 正弦：最高 ≈ −0.92 V，最低 ≈ −2.91 V。"
+    },
+    {
+      "id": "i1",
+      "current": "R1",
+      "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.000182, 0.000201],
+      "ask": "③ S1→a、信号幅度 0.5 V 偏置 1 V：R1 的电流（电流表串进 R1，直流档）",
+      "explain": "SUM 是虚地：I1 = 9 V / 47 kΩ ≈ 0.19 mA。"
+    },
+    {
+      "id": "i2",
+      "current": "R2",
+      "set": {"S1": {"position": "a"}, "FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1}},
+      "unit": "mA",
+      "predict": true,
+      "range": [9.45e-05, 0.000104],
+      "ask": "同一状态：R2 的电流（直流档 = 平均值）",
+      "explain": "平均 I2 = 1 V × 0.995 / 10 kΩ ≈ 0.10 mA（50 Ω 输出电阻让它略小于 0.1 mA）。"
+    },
+    {
+      "id": "uo",
+      "formula": "-10000 * (i1 + i2)",
+      "unit": "V",
+      "predict": true,
+      "range": [-3.06, -2.76],
+      "ask": "用你的两个电流读数算输出平均值 v_o = −RF (I1 + I2)（RF = 10 kΩ）",
+      "explain": "两路电流在虚地汇合后全部流过 RF：v_o ≈ −10 kΩ × 0.29 mA ≈ −2.91 V = −(1.91 + 1.00)。"
+    }
   ],
   "hints": [
-    "双电源：两台 9 V 电源串联，中点为 GND；V1 + → 运放 8 脚，V2 − → 运放 4 脚。IN+ 接 GND。",
-    "S1：a 侧接 +9V，b 侧接 GND，com 经 R1（47kΩ）接 IN−。",
-    "信号发生器 + 经 R2（10kΩ）接 IN−；RF（10kΩ）在 IN− 和 OUT 之间。"
+    "双电源：两台 9 V 电源串联，中点为 GND；上面那台的 + 接运放 8 脚，下面那台的 − 接 4 脚。IN+ 接 GND。",
+    "S1：a 侧接 +9 V，b 侧接 GND，公共脚经 R1（47 kΩ）接 IN−。",
+    "信号发生器 + 经 R2（10 kΩ）接 IN−；RF（10 kΩ）在 IN− 和 OUT 之间。"
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "bench_supply", "ref": "PSU2", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tn2", "-": "bn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
+      {
+        "type": "bench_supply",
+        "ref": "PSU2",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tn2", "-": "bn1"}
+      },
       {"type": "opamp", "ref": "U1", "at": "e10"},
       {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
       {"type": "wire", "pins": {"a": "d13", "b": "bn13"}, "color": "white"},

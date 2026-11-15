@@ -2,146 +2,411 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp3-led-breathing",
-  "title": "实验 3-5 · 呼吸灯：电容让 LED 慢慢亮、慢慢暗",
   "kind": "challenge",
   "level": 3,
   "phase": 3,
-  "summary": "0.5 Hz 方波经二极管给 1000 µF 电容充电，电容再通过 470 Ω 给 LED 供电：充电快、放电慢，LED 像呼吸一样一明一暗。",
-  "concepts": ["充电与放电时间常数不同 different charge / discharge τ", "二极管单向导电 diode blocks back-flow", "储能元件 energy storage", "滤波 smoothing"],
-  "prereq": ["lesson-generator-scope"],
-  "description": [
-    "**目标**：用一个二极管让电容的充电和放电走不同的路径，得到两个不同的时间常数，让 LED 像“呼吸”一样慢慢变亮、变暗。",
-    "",
-    "**电路**：信号发生器红夹子 → 二极管 D1（正极朝信号发生器）→ R1（220 Ω）→ 结点 VC。VC 上接 C1（1000 µF，到 GND），同时接 R2（470 Ω）→ 红色 LED → GND。黑夹子接 GND。1000 µF 一般是电解电容，有极性：长脚（+）接 VC，短脚接 GND。",
-    "",
-    "**信号发生器**：方波，幅度 4.5 V、偏置 4.5 V（0 ↔ 9 V），频率 0.5 Hz（周期 2 s，慢到眼睛能看清）。",
-    "",
-    "**示波器**：CH1 接 VC，CH2 接 LED 正极。R2 上的电压 VC − V(LED+) 除以 470 Ω 就是 LED 电流。时基调到 500 ms/格左右。",
-    "",
-    "**先预测**：高电平时电容经哪条路径充电？充电时间常数要用 VC 结点看进去的戴维宁电阻（信号发生器 50 Ω、LED 约 12 Ω 也要算上）。低电平时 D1 处于什么状态，电容只能经哪条路径放电？分别估算 τ充 和 τ放，想一想 LED 会不会完全熄灭。",
-    "",
-    "**测量**：0.5 Hz 下看 VC 的最高、最低值和 LED 电流的起伏；然后把 D1 换成导线试试，再把频率调到 20 Hz 看看。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "注：示波器的“亮 / 灭”判断按平均电流（人眼对快速闪烁取平均）。"
+  "title": "呼吸灯：电容让 LED 慢慢亮、慢慢暗",
+  "summary": "0.5 Hz 的方波经二极管给 1000 µF 电容充电，电容再通过 470 Ω 点亮 LED：充得快、放得慢，LED 像呼吸一样一明一暗。",
+  "prereq": ["lesson-scope-two-channels"],
+  "concepts": [
+    "capacitor 电容",
+    "dv/dt = i/C 电压变化率",
+    "charge / discharge 充电 / 放电",
+    "diode as a one-way valve 二极管单向导电",
+    "smoothing 滤波"
   ],
+  "description": "信号发生器（方波 0 ↔ 9 V、0.5 Hz）→ 二极管 D1 → R1（220 Ω）→ 结点 VC；VC 上接 C1（1000 µF）到 GND，并经 R2（470 Ω）→ 红色 LED → GND。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "先看 LED 呼吸",
+      "text": [
+        "- 这是第一个用到**电容**的电路。1000 µF 是电解电容，分正负：**长脚（+）接 VC**，短脚接 GND。",
+        "- 照目标电路搭：信号发生器 → **二极管 D1**（只让电流单向通过；带色环的一头朝 R1）→ **R1 `220 Ω`** → 结点 **VC**；VC 上接 **C1 `1000 µF`** 到 GND，还有 **R2 `470 Ω`** → **红色 LED** → GND。",
+        "- 信号发生器：**方波**、**`0.5 Hz`**、幅度 **`4.5 V`**、偏置 **`4.5 V`**（在 0 和 9 V 之间跳）。",
+        "盯着 LED 看几秒：它是一下亮、一下灭吗？变亮和变暗，哪个快？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "电容是一个装电荷的水桶",
+      "text": [
+        "- 电容像一个**水桶**：电流往里灌，桶里的“水位”——电容两端的电压——慢慢升高；电流往外流，水位慢慢下降。",
+        "- 桶越大（电容 C 越大），同样的电流让水位变得越慢：",
+        "$$\\frac{dv}{dt} = \\frac{i}{C}$$",
+        "- 例如 5 mA 从 1000 µF 里流出：每秒只降 0.005 / 0.001 = 5 V。所以 LED 不会“啪”地灭掉，而是跟着水位慢慢变暗。",
+        "![](fig:vc)",
+        "- **二极管**是一个单向阀（LED 也是二极管，只是会发光；这一颗导通时压降约 0.65 V）。高电平时它放电流进来；低电平时它不让电容倒流回信号发生器，电容只能经 R2 和 LED 慢慢放电。",
+        "![](fig:loop)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "用示波器看水位",
+      "text": [
+        "- CH1 接 **VC**（电容上端），CH2 接 **LED 的长脚**。时间/格调到约 **`500 ms`**，看 VC 一快一慢地爬升、下滑。",
+        "- R2 两端的电压 = CH1 − CH2，除以 470 Ω 就是 LED 的电流。",
+        "- 最后把频率调到 **`20 Hz`**：电容来不及充放，VC 变成什么样？LED 呢？",
+        "- 想再故意做错一次？把 D1 换成一根导线，LED 还“呼吸”吗？试完换回来。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **电容的电压不会突变**：dv/dt = i / C，电容越大，变得越慢。",
+        "- **进、出走不同的路，快慢就不同**：充电走 R1（快），放电只能走 R2 + LED（慢）。",
+        "- **频率高到电容来不及反应**，它的电压几乎是一条直线：这就是电容滤波，每个电源里都有。",
+        "- **真实电路里**：电解电容接反会漏电、发热，严重时鼓包。上电前先看清 + 脚；仿真里的电容没有极性。"
+      ],
+      "practice": ["storage"]
+    }
+  ],
+  "figures": {
+    "vc": {
+      "kind": "plot",
+      "caption": {
+        "text": "虚线是信号发生器（0 ↔ 9 V），实线是 VC：高电平时很快充上去，低电平时慢慢放下来，但从不降到 0——LED 一直微微亮着。",
+        "i18n": {
+          "en": "Dashed: the generator (0 ↔ 9 V); solid: VC. It charges up quickly at the high level and slides down slowly at the low level, never reaching 0 — the LED never quite goes out."
+        }
+      },
+      "x": {"label": {"text": "时间 (s)", "i18n": {"en": "time (s)"}}, "min": 0, "max": 4, "ticks": [0, 1, 2, 3, 4]},
+      "y": {"label": {"text": "电压 (V)", "i18n": {"en": "voltage (V)"}}, "min": 0, "max": 10, "ticks": [0, 3, 6, 9]},
+      "curves": [
+        {
+          "points": [[0, 0], [0, 9], [1, 9], [1, 0], [2, 0], [2, 9], [3, 9], [3, 0], [4, 0]],
+          "tone": 3,
+          "dashed": true,
+          "label": {"text": "输入", "i18n": {"en": "input"}},
+          "labelAt": [1.5, 9.6]
+        },
+        {
+          "points": [
+            [0.0, 2.35],
+            [0.04, 3.1],
+            [0.08, 3.7],
+            [0.12, 4.17],
+            [0.16, 4.55],
+            [0.2, 4.85],
+            [0.24, 5.08],
+            [0.28, 5.27],
+            [0.32, 5.42],
+            [0.36, 5.54],
+            [0.4, 5.63],
+            [0.44, 5.71],
+            [0.48, 5.77],
+            [0.52, 5.81],
+            [0.56, 5.85],
+            [0.6, 5.88],
+            [0.64, 5.9],
+            [0.68, 5.92],
+            [0.72, 5.94],
+            [0.76, 5.95],
+            [0.8, 5.96],
+            [0.84, 5.97],
+            [0.88, 5.97],
+            [0.92, 5.98],
+            [0.96, 5.98],
+            [1.0, 5.97],
+            [1.04, 5.64],
+            [1.08, 5.33],
+            [1.12, 5.05],
+            [1.16, 4.79],
+            [1.2, 4.56],
+            [1.24, 4.34],
+            [1.28, 4.13],
+            [1.32, 3.95],
+            [1.36, 3.78],
+            [1.4, 3.62],
+            [1.44, 3.47],
+            [1.48, 3.34],
+            [1.52, 3.22],
+            [1.56, 3.1],
+            [1.6, 3.0],
+            [1.64, 2.9],
+            [1.68, 2.82],
+            [1.72, 2.74],
+            [1.76, 2.66],
+            [1.8, 2.59],
+            [1.84, 2.53],
+            [1.88, 2.47],
+            [1.92, 2.42],
+            [1.96, 2.37],
+            [2.0, 2.35],
+            [2.04, 3.1],
+            [2.08, 3.7],
+            [2.12, 4.17],
+            [2.16, 4.55],
+            [2.2, 4.85],
+            [2.24, 5.08],
+            [2.28, 5.27],
+            [2.32, 5.42],
+            [2.36, 5.54],
+            [2.4, 5.63],
+            [2.44, 5.71],
+            [2.48, 5.77],
+            [2.52, 5.81],
+            [2.56, 5.85],
+            [2.6, 5.88],
+            [2.64, 5.9],
+            [2.68, 5.92],
+            [2.72, 5.94],
+            [2.76, 5.95],
+            [2.8, 5.96],
+            [2.84, 5.97],
+            [2.88, 5.97],
+            [2.92, 5.98],
+            [2.96, 5.98],
+            [3.0, 5.97],
+            [3.04, 5.64],
+            [3.08, 5.33],
+            [3.12, 5.05],
+            [3.16, 4.79],
+            [3.2, 4.56],
+            [3.24, 4.34],
+            [3.28, 4.13],
+            [3.32, 3.95],
+            [3.36, 3.78],
+            [3.4, 3.62],
+            [3.44, 3.47],
+            [3.48, 3.34],
+            [3.52, 3.22],
+            [3.56, 3.1],
+            [3.6, 3.0],
+            [3.64, 2.9],
+            [3.68, 2.82],
+            [3.72, 2.74],
+            [3.76, 2.66],
+            [3.8, 2.59],
+            [3.84, 2.53],
+            [3.88, 2.47],
+            [3.92, 2.42],
+            [3.96, 2.37]
+          ],
+          "tone": 1,
+          "label": "VC",
+          "labelAt": [0.5, 7.2]
+        }
+      ]
+    },
+    "loop": {
+      "kind": "schematic",
+      "caption": {
+        "text": "低电平时，二极管挡住了回信号发生器的路，电容只能经 R2 和 LED 放电：电流 i 小，v_C 降得慢。",
+        "i18n": {
+          "en": "At the low level the diode blocks the way back to the generator, so the capacitor can only discharge through R2 and the LED: the current i is small and v_C falls slowly."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "C1", "type": "C", "from": [0, 0], "to": [0, 4], "value": "1000u", "label": "1000 µF"},
+          {"ref": "R2", "type": "R", "from": [0, 0], "to": [4, 0], "value": 470},
+          {"ref": "LED1", "type": "LED", "from": [4, 0], "to": [4, 4], "value": "red"}
+        ],
+        "wires": [[[4, 4], [0, 4]]],
+        "marks": [{"kind": "v", "el": "C1", "name": "v_C"}, {"kind": "i", "el": "R2", "name": "i"}]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 3-5 · Breathing LED: a capacitor makes the LED fade in and out",
-      "summary": "A 0.5 Hz square wave charges a 1000 µF capacitor through a diode; the capacitor feeds an LED through 470 Ω. Fast charge, slow discharge: the LED \"breathes\".",
-      "concepts": ["different charge / discharge time constants", "a diode blocks back-flow", "energy storage", "smoothing"],
-      "description": [
-        "**Goal**: use a diode to send the capacitor's charge and discharge along different paths, giving two different time constants, so the LED slowly brightens and dims as if \"breathing\".",
-        "",
-        "**Circuit**: generator red clip → diode D1 (anode toward the generator) → R1 (220 Ω) → node VC. From VC, C1 (1000 µF) goes to GND, and R2 (470 Ω) → red LED → GND. Black clip to GND. A 1000 µF capacitor is usually electrolytic and polarised: long lead (+) to VC, short lead to GND.",
-        "",
-        "**Generator**: square wave, amplitude 4.5 V, offset 4.5 V (0 ↔ 9 V), 0.5 Hz (2 s period, slow enough to follow by eye).",
-        "",
-        "**Scope**: CH1 on VC, CH2 on the LED anode. The voltage across R2, VC − V(LED+), divided by 470 Ω is the LED current. Set the time base to about 500 ms/div.",
-        "",
-        "**Predict first**: while the generator is high, along which path does the capacitor charge? The charging time constant uses the Thévenin resistance seen from VC (count the generator's 50 Ω and the LED's ~12 Ω). While it is low, what state is D1 in, and which path is left for the discharge? Estimate τ_charge and τ_discharge and decide whether the LED ever goes fully dark.",
-        "",
-        "**Measure**: at 0.5 Hz watch VC's highest and lowest values and how the LED current rises and falls; then try D1 replaced by a wire, and then the frequency turned up to 20 Hz. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "Note: the LED's on/off is judged by its average current (the eye averages fast blinking)."
-      ],
-      "compare": [
-        "**Compare**:",
-        "- **High (9 V) for 1 s**: current flows through D1 and R1, charging the capacitor and lighting the LED. τ_charge ≈ C × [(R1 + 50 Ω) ∥ (R2 + 12 Ω)] ≈ 1000 µF × 173 Ω ≈ 0.17 s, so the LED brightens quickly.",
-        "- **Low (0 V) for 1 s**: D1 is reverse-biased, so the capacitor cannot flow back into the generator; it can only discharge slowly through R2 and the LED: LED current ≈ (VC − 1.8 V)/(470 + 12 Ω), decaying with τ_discharge ≈ 1000 µF × 482 Ω ≈ 0.48 s — the LED dims slowly.",
-        "- In steady state VC swings between about 2.3 V and 6.0 V; the LED current rises and falls between about 1.1 mA and 8.7 mA (about 0.5 V to 4.1 V across R2). It never goes fully dark, so it looks like breathing rather than blinking.",
-        "- **D1 replaced by a wire**: while the generator is low the capacitor quickly discharges back into the generator through R1 (τ only about 0.17 s); VC drops to about 0.1 V and the LED is completely off half the time — an ordinary slow blink.",
-        "- **20 Hz**: a 25 ms half period is far shorter than both time constants, so the capacitor has no time to charge or discharge much: VC is almost flat (≈ 4.9 V with ≈ 0.16 Vpp ripple) and the LED glows steadily (≈ 6.4 mA). That's capacitor smoothing — exactly the principle of the rectifier filters you'll meet later."
-      ],
-      "measurements": [
-        {"ask": "0.5 Hz: the highest value of CH1 (VC)", "explain": "Charging, τ ≈ 1000 µF × 173 Ω ≈ 0.17 s, so 1 s nearly reaches the final value set by the two branches: about 6.0 V."},
-        {"ask": "0.5 Hz: the lowest value of CH1 (VC)", "explain": "While low, D1 is off and the capacitor can only discharge through R2 + LED, τ ≈ 1000 µF × 482 Ω ≈ 0.48 s, and the LED hardly conducts below about 1.8 V: VC only falls to about 2.3 V."},
-        {"ask": "0.5 Hz: the minimum voltage across R2 (CH1 − CH2)"},
-        {"ask": "From your reading, the LED current at its dimmest, I = V_R2 / 470 Ω", "explain": "≈ 0.5 V / 470 Ω ≈ 1.1 mA: the current never reaches 0, so it looks like breathing rather than blinking. Replace D1 with a wire and the capacitor dumps back into the generator through R1, and the LED is fully off half the time."},
-        {"ask": "At 20 Hz: VC's ripple Vpp", "explain": "A 25 ms half period is far shorter than both time constants, so the capacitor barely moves: only about 0.16 Vpp ripple, the LED steady at ≈ 6.4 mA. That is capacitor filtering."}
-      ],
+      "title": "Breathing LED: a capacitor makes it fade in and out",
+      "summary": "A 0.5 Hz square wave charges a 1000 µF capacitor through a diode, and the capacitor lights an LED through 470 Ω: quick to fill, slow to empty, the LED breathes.",
+      "concepts": ["capacitor", "dv/dt = i/C", "charging / discharging", "diode as a one-way valve", "smoothing"],
+      "description": "Generator (square 0 ↔ 9 V, 0.5 Hz) → diode D1 → R1 (220 Ω) → node VC; VC has C1 (1000 µF) to GND, and R2 (470 Ω) → red LED → GND.",
+      "compare": "**Compare**:\n- **High level (9 V), 1 s**: current flows through D1 and R1, charging the capacitor and lighting the LED; VC quickly rises to about **6.0 V** (the two branches share it).\n- **Low level (0 V), 1 s**: D1 is off, so the capacitor can discharge only through R2 and the LED: LED current ≈ (VC − 1.8 V) / (470 + 12 Ω), slowly shrinking. VC only drops to about **2.3 V**.\n- The voltage across R2 swings between about 0.5 V and 4.1 V, the LED current between about **1.1 mA** and 8.7 mA: it never goes out, hence breathing.\n- **D1 replaced by a wire**: at the low level the capacitor empties quickly back into the generator through R1, VC falls to about 0.1 V and the LED is fully off half the time — just a slow blink.\n- **20 Hz**: half a period is 25 ms, too short to fill or empty the capacitor; VC is almost flat (about 4.9 V, ripple about **0.16 Vpp**) and the LED steadies at about 6.4 mA.",
       "hints": [
-        "Diode anode (no stripe) toward the generator, cathode (striped end) toward R1.",
-        "The capacitor and the R2 + LED branch both hang from the same node VC.",
-        "Charging goes through the diode; discharging can only go through R2 and the LED."
+        "Capacitor long leg (+) to VC, short leg to GND; the diode's banded end towards R1.",
+        "VC is where R1, C1 and R2 meet. The LED's short leg goes to GND.",
+        "Charging current comes in through D1 and R1; on discharge D1 blocks the way back, so the capacitor empties only through R2 + LED."
       ],
       "tests": [
-        "0.5 Hz: the LED breathes — the current rises and falls but never reaches zero",
+        "0.5 Hz: the LED breathes — its current rises and falls but never stops",
         "0.5 Hz: VC swings between two levels",
-        "20 Hz: the capacitor smooths it out — little ripple on VC, the LED stays steadily on"
+        "20 Hz: the capacitor smooths — little ripple on VC, the LED steadily on"
+      ],
+      "measurements": [
+        {
+          "ask": "0.5 Hz: CH1 (VC) maximum",
+          "explain": "In the 1 s high level the capacitor nearly fills: the current is shared with the LED branch and VC settles near 6.0 V."
+        },
+        {
+          "ask": "0.5 Hz: CH1 (VC) minimum",
+          "explain": "At the low level D1 blocks the way back, the capacitor discharges only through R2 + LED, and below about 1.8 V the LED barely conducts: VC only drops to about 2.3 V."
+        },
+        {"ask": "0.5 Hz: the minimum voltage across R2 (CH1 − CH2)"},
+        {
+          "ask": "From your reading, the LED current at its dimmest: I = V_R2 / 470 Ω",
+          "explain": "≈ 0.5 V / 470 Ω ≈ 1.1 mA: the current never falls to 0, so it looks like breathing, not blinking."
+        },
+        {
+          "ask": "At 20 Hz: VC's ripple (peak-to-peak)",
+          "explain": "Half a period is only 25 ms, too short to fill or empty the capacitor: the ripple is only about 0.16 Vpp and the LED steadies at about 6.4 mA. That is capacitor smoothing."
+        }
+      ],
+      "cards": [
+        {
+          "title": "Watch the LED breathe first",
+          "text": [
+            "- This is the first circuit with a **capacitor**. A 1000 µF part is an electrolytic and has a polarity: **long leg (+) to VC**, short leg to GND.",
+            "- Build the target circuit: generator → **diode D1** (it lets current through one way only; the banded end towards R1) → **R1 `220 Ω`** → node **VC**; from VC, **C1 `1000 µF`** to GND, and **R2 `470 Ω`** → **red LED** → GND.",
+            "- Generator: **square**, **`0.5 Hz`**, amplitude **`4.5 V`**, offset **`4.5 V`** (jumping between 0 and 9 V).",
+            "Watch the LED for a few seconds: does it just blink on and off? Which is quicker, brightening or dimming?"
+          ]
+        },
+        {
+          "title": "A capacitor is a bucket of charge",
+          "text": [
+            "- A capacitor is like a **bucket**: current pours in and the \"water level\" — the voltage across it — rises gradually; current flows out and the level falls gradually.",
+            "- The bigger the bucket (the larger C), the slower the same current moves the level:",
+            "$$\\frac{dv}{dt} = \\frac{i}{C}$$",
+            "- For example 5 mA flowing out of 1000 µF: the level drops only 0.005 / 0.001 = 5 V per second. So the LED doesn't snap off; it dims as the level falls.",
+            "![](fig:vc)",
+            "- The **diode** is a one-way valve (an LED is a diode too, one that glows; this one drops about 0.65 V when it conducts). At the high level it lets current in; at the low level it stops the capacitor draining back into the generator, so the only way out is slowly through R2 and the LED.",
+            "![](fig:loop)"
+          ]
+        },
+        {
+          "title": "Watch the level on the scope",
+          "text": [
+            "- CH1 on **VC** (the capacitor's top), CH2 on the **LED's long leg**. Set time/div to about **`500 ms`** and watch VC climb fast and slide down slowly.",
+            "- The voltage across R2 is CH1 − CH2; divided by 470 Ω it is the LED current.",
+            "- Finally set **`20 Hz`**: the capacitor has no time to fill and empty. What does VC look like now? And the LED?",
+            "- Want one more deliberate mistake? Replace D1 with a wire: does the LED still breathe? Put D1 back afterwards."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A capacitor's voltage can't jump**: dv/dt = i / C; the larger C, the slower it changes.",
+            "- **Different paths in and out, different speeds**: charging goes through R1 (fast), discharging only through R2 + LED (slow).",
+            "- **When the frequency is too high for the capacitor to follow**, its voltage is almost flat: that is capacitor smoothing, found in every power supply.",
+            "- **In a real circuit**: an electrolytic fitted backwards leaks, heats up and can bulge. Check the + leg before power-up; the simulated capacitor has no polarity."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "D1", "type": "diode" },
-    { "ref": "R1", "type": "resistor", "resistance": "220" },
-    { "ref": "C1", "type": "capacitor", "capacitance": "1000u" },
-    { "ref": "R2", "type": "resistor", "resistance": "470" },
-    { "ref": "LED1", "type": "led", "color": "red" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "D1", "type": "diode"},
+    {"ref": "R1", "type": "resistor", "resistance": "220"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "1000u"},
+    {"ref": "R2", "type": "resistor", "resistance": "470"},
+    {"ref": "LED1", "type": "led", "color": "red"}
   ],
   "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "D1.anode"] },
-    { "name": "ND", "pins": ["D1.cathode", "R1.1"] },
-    { "name": "VC", "pins": ["R1.2", "C1.1", "R2.1"] },
-    { "name": "NLED", "pins": ["R2.2", "LED1.anode"] },
-    { "name": "GND", "pins": ["C1.2", "LED1.cathode", "FG1.-"] }
+    {"name": "VIN", "pins": ["FG1.+", "D1.anode"]},
+    {"name": "ND", "pins": ["D1.cathode", "R1.1"]},
+    {"name": "VC", "pins": ["R1.2", "C1.1", "R2.1"]},
+    {"name": "NLED", "pins": ["R2.2", "LED1.anode"]},
+    {"name": "GND", "pins": ["C1.2", "LED1.cathode", "FG1.-"]}
   ],
   "tests": [
     {
       "name": "0.5 Hz：LED 呼吸——电流起伏，但从不完全熄灭",
-      "set": { "FG1": { "waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5 } },
-      "expect": { "LED1": "on" },
+      "set": {"FG1": {"waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5}},
+      "expect": {"LED1": "on"},
       "scope": [
-        { "pin": "R2.1", "ref": "R2.2", "measure": "vmax", "min": 3.85, "max": 4.3 },
-        { "pin": "R2.1", "ref": "R2.2", "measure": "vmin", "min": 0.4, "max": 0.65 }
+        {"pin": "R2.1", "ref": "R2.2", "measure": "vmax", "min": 3.85, "max": 4.3},
+        {"pin": "R2.1", "ref": "R2.2", "measure": "vmin", "min": 0.4, "max": 0.65}
       ]
     },
     {
       "name": "0.5 Hz：VC 在两个电平之间来回",
-      "set": { "FG1": { "waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5 } },
+      "set": {"FG1": {"waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5}},
       "scope": [
-        { "pin": "C1.1", "measure": "vmax", "min": 5.8, "max": 6.2 },
-        { "pin": "C1.1", "measure": "vmin", "min": 2.15, "max": 2.5 }
+        {"pin": "C1.1", "measure": "vmax", "min": 5.8, "max": 6.2},
+        {"pin": "C1.1", "measure": "vmin", "min": 2.15, "max": 2.5}
       ]
     },
     {
       "name": "20 Hz：电容滤平——VC 纹波很小，LED 稳定地亮",
-      "set": { "FG1": { "waveform": "square", "frequency": 20, "amplitude": 4.5, "offset": 4.5 } },
-      "expect": { "LED1": "on" },
-      "scope": [{ "pin": "C1.1", "measure": "vpp", "max": 0.2 }],
-      "currents": [{ "el": "LED1", "min": 0.0061, "max": 0.0067 }]
+      "set": {"FG1": {"waveform": "square", "frequency": 20, "amplitude": 4.5, "offset": 4.5}},
+      "expect": {"LED1": "on"},
+      "scope": [{"pin": "C1.1", "measure": "vpp", "max": 0.2}],
+      "currents": [{"el": "LED1", "min": 0.0061, "max": 0.0067}]
     }
   ],
-  "compare": [
-    "**对比**：",
-    "- **高电平（9 V）1 s**：电流经 D1、R1 给电容充电，同时点亮 LED。τ充 ≈ C × [(R1 + 50 Ω) ∥ (R2 + 12 Ω)] ≈ 1000 µF × 173 Ω ≈ 0.17 s，所以 LED 很快亮起来。",
-    "- **低电平（0 V）1 s**：D1 反偏截止，电容不能倒灌回信号发生器，只能经 R2 和 LED 慢慢放电：LED 电流 ≈ (VC − 1.8 V)/(470 + 12 Ω)，按 τ放 ≈ 1000 µF × 482 Ω ≈ 0.48 s 指数减小——LED 慢慢变暗。",
-    "- 稳态下 VC 在约 2.3 V 和 6.0 V 之间来回；LED 电流在约 1.1 mA 和 8.7 mA 之间起伏（R2 上电压约 0.5 V ~ 4.1 V），从不完全熄灭，所以看起来是“呼吸”而不是“闪烁”。",
-    "- **D1 换成导线**：低电平时电容会经 R1 快速放电回信号发生器（τ 只有约 0.17 s），VC 掉到 0.1 V 左右，LED 有一半时间完全熄灭——变成普通的慢闪。",
-    "- **20 Hz**：半周期 25 ms 远小于两个时间常数，电容来不及充放，VC 几乎是一条直线（≈ 4.9 V，纹波约 0.16 Vpp），LED 稳定地亮着（≈ 6.4 mA）。这就是“电容滤波”：后面学到的整流滤波电路正是这个原理。"
-  ],
+  "compare": "**对比**：\n- **高电平（9 V）1 s**：电流经 D1、R1 给电容充电，同时点亮 LED；VC 很快升到约 **6.0 V**（两条支路分压）。\n- **低电平（0 V）1 s**：D1 截止，电容只能经 R2 和 LED 放电：LED 电流 ≈ (VC − 1.8 V) / (470 + 12 Ω)，慢慢变小。VC 只降到约 **2.3 V**。\n- R2 上的电压在约 0.5 V 和 4.1 V 之间，LED 电流在约 **1.1 mA** 和 8.7 mA 之间：从不熄灭，所以是“呼吸”。\n- **D1 换成导线**：低电平时电容经 R1 快速倒流回信号发生器，VC 掉到 0.1 V 左右，LED 有一半时间完全熄灭——变成普通的慢闪。\n- **20 Hz**：半个周期 25 ms，电容来不及充放，VC 几乎是一条直线（约 4.9 V，纹波约 **0.16 Vpp**），LED 稳定在约 6.4 mA。",
   "measurements": [
-    {"id": "vcmax", "scope": "vmax", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5}}, "unit": "V", "predict": true, "range": [5.68, 6.28], "ask": "0.5 Hz：CH1（VC）的最高值", "explain": "充电 τ充 ≈ 1000 µF × 173 Ω ≈ 0.17 s，1 s 里几乎充到终值：两条支路分压，约 6.0 V。"},
-    {"id": "vcmin", "scope": "vmin", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5}}, "unit": "V", "predict": true, "range": [2.21, 2.44], "ask": "0.5 Hz：CH1（VC）的最低值", "explain": "低电平时 D1 截止，电容只能经 R2 + LED 放电，τ放 ≈ 1000 µF × 482 Ω ≈ 0.48 s，而且 LED 低于约 1.8 V 就几乎不导通：VC 只降到约 2.3 V。"},
-    {"id": "vrmin", "scope": "vmin", "pin": "R2.1", "ref": "R2.2", "set": {"FG1": {"waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5}}, "unit": "V", "range": [0.487, 0.538], "ask": "0.5 Hz：R2 两端电压（CH1 − CH2）的最小值"},
-    {"id": "imin", "formula": "vrmin / 470", "unit": "mA", "predict": true, "range": [0.00104, 0.00114], "ask": "用你的读数算 LED 最暗时的电流 I = V_R2 / 470 Ω", "explain": "≈ 0.5 V / 470 Ω ≈ 1.1 mA：电流从不降到 0，所以看起来是“呼吸”而不是“闪烁”。把 D1 换成导线，电容会经 R1 倒灌回信号发生器，LED 就有一半时间完全熄灭。"},
-    {"id": "ripple", "scope": "vpp", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 20, "amplitude": 4.5, "offset": 4.5}}, "unit": "V", "predict": true, "range": [0.152, 0.168], "ask": "调到 20 Hz：VC 的纹波 Vpp", "explain": "半周期 25 ms 远小于两个时间常数，电容来不及充放：纹波只有约 0.16 Vpp，LED 稳定在 ≈ 6.4 mA。这就是电容滤波。"}
+    {
+      "id": "vcmax",
+      "scope": "vmax",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [5.68, 6.28],
+      "ask": "0.5 Hz：CH1（VC）的最高值",
+      "explain": "高电平 1 s 里电容几乎充满：电流同时分给电容和 LED 支路，VC 停在约 6.0 V。"
+    },
+    {
+      "id": "vcmin",
+      "scope": "vmin",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.21, 2.44],
+      "ask": "0.5 Hz：CH1（VC）的最低值",
+      "explain": "低电平时 D1 挡住回路，电容只能经 R2 + LED 放电，而且 LED 低于约 1.8 V 就几乎不导通：VC 只降到约 2.3 V。"
+    },
+    {
+      "id": "vrmin",
+      "scope": "vmin",
+      "pin": "R2.1",
+      "ref": "R2.2",
+      "set": {"FG1": {"waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5}},
+      "unit": "V",
+      "range": [0.487, 0.538],
+      "ask": "0.5 Hz：R2 两端电压（CH1 − CH2）的最小值"
+    },
+    {
+      "id": "imin",
+      "formula": "vrmin / 470",
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00104, 0.00114],
+      "ask": "用你的读数算 LED 最暗时的电流 I = V_R2 / 470 Ω",
+      "explain": "≈ 0.5 V / 470 Ω ≈ 1.1 mA：电流从不降到 0，所以看起来是“呼吸”而不是“闪烁”。"
+    },
+    {
+      "id": "ripple",
+      "scope": "vpp",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 20, "amplitude": 4.5, "offset": 4.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.152, 0.168],
+      "ask": "调到 20 Hz：VC 的纹波（峰峰值）",
+      "explain": "半个周期只有 25 ms，电容来不及充放：纹波只有约 0.16 Vpp，LED 稳定在约 6.4 mA。这就是电容滤波。"
+    }
   ],
   "hints": [
-    "二极管正极（没有色环的一端）朝信号发生器，负极（有色环）朝 R1。",
-    "电容和“R2 + LED”这条支路都挂在同一个结点 VC 上。",
-    "充电走二极管；放电只能走 R2 和 LED。"
+    "电容的长脚（+）接 VC，短脚接 GND；二极管带色环的一头朝 R1。",
+    "VC 是 R1、C1、R2 相交的那一点。LED 的短脚接 GND。",
+    "充电时电流经 D1、R1 进来；放电时 D1 不让电流倒流，电容只能经 R2 + LED 放电。"
   ],
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 0.5, "amplitude": 4.5, "offset": 4.5, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "diode", "ref": "D1", "pins": { "anode": "b3", "cathode": "b7" } },
-      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "c7", "2": "c12" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "1000u", "pins": { "1": "d12", "2": "tn12" } },
-      { "type": "resistor", "ref": "R2", "resistance": "470", "pins": { "1": "a12", "2": "a18" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "b18", "cathode": "tn18" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e12", "gnd": "tn25" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "c18", "gnd": "tn26" } }
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "square",
+        "frequency": 0.5,
+        "amplitude": 4.5,
+        "offset": 4.5,
+        "pins": {"+": "a3", "-": "tn3"}
+      },
+      {"type": "diode", "ref": "D1", "pins": {"anode": "b3", "cathode": "b7"}},
+      {"type": "resistor", "ref": "R1", "resistance": "220", "pins": {"1": "c7", "2": "c12"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "1000u", "pins": {"1": "d12", "2": "tn12"}},
+      {"type": "resistor", "ref": "R2", "resistance": "470", "pins": {"1": "a12", "2": "a18"}},
+      {"type": "led", "ref": "LED1", "color": "red", "pins": {"anode": "b18", "cathode": "tn18"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e12", "gnd": "tn25"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "c18", "gnd": "tn26"}}
     ]
   }
 }

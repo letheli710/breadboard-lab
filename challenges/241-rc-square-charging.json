@@ -2,142 +2,388 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp3-rc-square-charging",
-  "title": "实验 3-1 · RC 充放电：用方波看时间常数",
   "kind": "challenge",
   "level": 2,
   "phase": 3,
-  "summary": "信号发生器输出 0–5 V 方波，经 10 kΩ 给 100 nF 电容充放电；改变频率，看电容电压在半个周期里能走多远。",
-  "concepts": ["RC 电路 RC circuit", "时间常数 τ = RC", "零状态响应 / 零输入响应", "三要素法 v(t) = v(∞) + [v(0+) − v(∞)]e^(−t/τ)"],
-  "prereq": ["lesson-generator-scope"],
-  "description": [
-    "**目标**：用方波反复给 RC 电路充放电，在示波器上看一阶电路的指数曲线，并看清时间常数 τ 和信号周期的比值怎样决定波形。",
-    "",
-    "**电路**：信号发生器红夹子 → R1（10 kΩ）→ 结点 VC → C1（100 nF）→ GND；信号发生器黑夹子接 GND。",
-    "",
-    "**信号发生器设置**：方波（square），幅度 2.5 V、偏置 2.5 V，也就是在 0 V 和 5 V 之间跳变。方波的高电平半周期相当于“开关合上给电容充电”，低电平半周期相当于“开关拨到地让电容放电”——一个方波就是一台每秒自动开关几百次的直流电路。",
-    "",
-    "**示波器**：CH1 接信号发生器输出（R1 左端），CH2 接 VC（电容上端），两个探头的地夹都接 GND。",
-    "",
-    "**先预测**：用三要素法写出充电和放电半周期的 v_C(t)，算出 τ = RC（R 要算上信号发生器的 50 Ω 输出电阻）。再估计 50 Hz、500 Hz、5 kHz 三个频率下，半个周期是几个 τ，CH2 的最大值、最小值和形状各是什么样。经验规律：过了 1τ 走完 63%，3τ 走完 95%，5τ 走完 99.3%。",
-    "",
-    "**测量**：依次把频率设成 50 Hz、500 Hz、5 kHz，读 CH2 的最大值、最小值和 Vpp，看波形形状。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**想一想**：如果只看 500 Hz 的 Vpp，你能反过来算出 τ 吗？"
+  "title": "RC 充放电：用方波看时间常数",
+  "summary": "0–5 V 方波经 10 kΩ 给 100 nF 电容充放电：改变频率，看电容电压在半个周期里能走多远，再从曲线读出 τ。",
+  "prereq": ["lesson-scope-two-channels"],
+  "concepts": ["RC circuit RC 电路", "time constant τ = RC 时间常数", "charging / discharging 充电 / 放电", "rise time 上升时间"],
+  "description": "信号发生器（方波 0 ↔ 5 V）→ R1（10 kΩ）→ 结点 VC → C1（100 nF）→ GND。CH1 看输入，CH2 看 VC。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "让电容一遍遍充满、放空",
+      "text": [
+        "- 板上已经放好信号发生器和两个探头。加上 **R1 `10 kΩ`**（**`b3`** → **`b10`**）和 **C1 `100 nF`**（**`c10`** → GND 轨）。",
+        "- 信号发生器是**方波**，在 0 和 5 V 之间跳：高电平像“合上开关给电容充电”，低电平像“拨到地让它放电”。",
+        "- 把频率调到 **`50 Hz`**，看 CH2（电容）的形状；再试 **`5 kHz`**。",
+        "电容电压是一下子跳上去的吗？频率高了以后，它还充得满吗？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "先快后慢：时间常数 τ",
+      "text": [
+        "- 刚开始充电时电容是空的，电阻两端的电压最大，电流最大，所以升得快。越接近 5 V，电阻上剩下的电压越小，电流越小，升得越慢。",
+        "- 快慢只由一个数决定，叫**时间常数**。R 要算上信号发生器的 50 Ω：",
+        "$$τ = RC = 10.05 kΩ × 100 nF$$",
+        "- 每过一个 τ，离终点的距离就只剩约 37%：1τ 走完 63%，3τ 走完 95%，5τ 几乎走完。",
+        "![](fig:tau)",
+        "- 所以要比的是**半个周期和 τ**：半个周期 ≫ τ，每次都充满、放空；差不多长，充不满就开始放；半个周期 ≪ τ，只走了曲线最开头的一小段，像一个小三角波。",
+        "![](fig:half)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "从曲线读出 τ",
+      "text": [
+        "- **`50 Hz`** 时读 CH2 的上升时间：电容电压从 10% 升到 90% 用的时间。",
+        "- 指数曲线从 10% 到 90% 正好要 τ × ln 9 ≈ 2.2τ，所以 τ = 上升时间 / ln 9。",
+        "- 再调到 **`500 Hz`** 读 CH2 的峰峰值，最后看一眼 **`5 kHz`** 的形状。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **τ = RC**：电阻、电容越大，充放得越慢。信号发生器的 50 Ω 也在 R 里。",
+        "- **1τ 63%，3τ 95%，5τ 约 99%**：工程上过了 5τ 就算“充满了”。",
+        "- **半个周期 ≫ τ** 时每次充满放空；**≪ τ** 时只剩一个小三角波，骑在平均值上。",
+        "- **真实电路里**：瓷片电容的误差常有 ±10%～±20%，量出的 τ 和算的差一两成很正常。反过来，量 τ 就能测出电容的真实值。"
+      ],
+      "practice": ["first-order"]
+    }
   ],
+  "figures": {
+    "tau": {
+      "kind": "plot",
+      "caption": {
+        "text": "从 0 开始充电：横轴按 τ 计。1τ 到 63%，3τ 到 95%，5τ 几乎到顶。",
+        "i18n": {"en": "Charging from 0, time counted in τ: 63 % at 1τ, 95 % at 3τ, nearly all the way at 5τ."}
+      },
+      "x": {"label": {"text": "时间 (τ)", "i18n": {"en": "time (τ)"}}, "min": 0, "max": 5, "ticks": [0, 1, 2, 3, 4, 5]},
+      "y": {
+        "label": {"text": "走完的比例 (%)", "i18n": {"en": "share done (%)"}},
+        "min": 0,
+        "max": 100,
+        "ticks": [0, 63, 95]
+      },
+      "curves": [
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.1, 9.516],
+            [0.2, 18.13],
+            [0.3, 25.92],
+            [0.4, 32.97],
+            [0.5, 39.35],
+            [0.6, 45.12],
+            [0.7, 50.34],
+            [0.8, 55.07],
+            [0.9, 59.34],
+            [1.0, 63.21],
+            [1.1, 66.71],
+            [1.2, 69.88],
+            [1.3, 72.75],
+            [1.4, 75.34],
+            [1.5, 77.69],
+            [1.6, 79.81],
+            [1.7, 81.73],
+            [1.8, 83.47],
+            [1.9, 85.04],
+            [2.0, 86.47],
+            [2.1, 87.75],
+            [2.2, 88.92],
+            [2.3, 89.97],
+            [2.4, 90.93],
+            [2.5, 91.79],
+            [2.6, 92.57],
+            [2.7, 93.28],
+            [2.8, 93.92],
+            [2.9, 94.5],
+            [3.0, 95.02],
+            [3.1, 95.5],
+            [3.2, 95.92],
+            [3.3, 96.31],
+            [3.4, 96.66],
+            [3.5, 96.98],
+            [3.6, 97.27],
+            [3.7, 97.53],
+            [3.8, 97.76],
+            [3.9, 97.98],
+            [4.0, 98.17],
+            [4.1, 98.34],
+            [4.2, 98.5],
+            [4.3, 98.64],
+            [4.4, 98.77],
+            [4.5, 98.89],
+            [4.6, 98.99],
+            [4.7, 99.09],
+            [4.8, 99.18],
+            [4.9, 99.26],
+            [5.0, 99.33]
+          ],
+          "tone": 1
+        }
+      ],
+      "dots": [{"at": [1, 63.2], "label": "63%"}, {"at": [3, 95], "label": "95%"}]
+    },
+    "half": {
+      "kind": "plot",
+      "caption": {
+        "text": "半个周期差不多是一个 τ：电容充不满就开始放电，稳定后在两个电平之间来回，中心是 2.5 V。",
+        "i18n": {
+          "en": "Half a period about one τ: the capacitor starts emptying before it is full, and settles to swinging between two levels around 2.5 V."
+        }
+      },
+      "x": {"label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}}, "min": 0, "max": 4, "ticks": [0, 1, 2, 3, 4]},
+      "y": {"label": {"text": "电压 (V)", "i18n": {"en": "voltage (V)"}}, "min": 0, "max": 5.5, "ticks": [0, 2.5, 5]},
+      "curves": [
+        {
+          "points": [[0, 0], [0, 5], [1, 5], [1, 0], [2, 0], [2, 5], [3, 5], [3, 0], [4, 0]],
+          "tone": 3,
+          "dashed": true,
+          "label": {"text": "输入", "i18n": {"en": "input"}},
+          "labelAt": [1.5, 5.25]
+        },
+        {
+          "points": [
+            [0.0, 1.35],
+            [0.1, 1.7],
+            [0.2, 2.01],
+            [0.3, 2.29],
+            [0.4, 2.55],
+            [0.5, 2.78],
+            [0.6, 2.99],
+            [0.7, 3.18],
+            [0.8, 3.35],
+            [0.9, 3.51],
+            [1.0, 3.65],
+            [1.1, 3.3],
+            [1.2, 2.99],
+            [1.3, 2.71],
+            [1.4, 2.45],
+            [1.5, 2.22],
+            [1.6, 2.01],
+            [1.7, 1.82],
+            [1.8, 1.65],
+            [1.9, 1.49],
+            [2.0, 1.35],
+            [2.1, 1.7],
+            [2.2, 2.01],
+            [2.3, 2.29],
+            [2.4, 2.55],
+            [2.5, 2.78],
+            [2.6, 2.99],
+            [2.7, 3.18],
+            [2.8, 3.35],
+            [2.9, 3.51],
+            [3.0, 3.65],
+            [3.1, 3.3],
+            [3.2, 2.99],
+            [3.3, 2.71],
+            [3.4, 2.45],
+            [3.5, 2.22],
+            [3.6, 2.01],
+            [3.7, 1.82],
+            [3.8, 1.65],
+            [3.9, 1.49],
+            [4.0, 1.35]
+          ],
+          "tone": 1,
+          "label": "VC",
+          "labelAt": [0.55, 2.0]
+        }
+      ]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 3-1 · RC charging: see the time constant with a square wave",
-      "summary": "A 0–5 V square wave charges and discharges a 100 nF capacitor through 10 kΩ; change the frequency and see how far the capacitor voltage gets in half a period.",
-      "concepts": ["RC circuit", "time constant τ = RC", "zero-state / zero-input response", "three-element method v(t) = v(∞) + [v(0+) − v(∞)]e^(−t/τ)"],
-      "description": [
-        "**Goal**: charge and discharge an RC circuit over and over with a square wave, watch the first-order exponentials on the scope, and see how the ratio of the time constant τ to the signal period shapes the waveform.",
-        "",
-        "**Circuit**: generator red clip → R1 (10 kΩ) → node VC → C1 (100 nF) → GND; the generator's black clip goes to GND.",
-        "",
-        "**Generator settings**: square wave, amplitude 2.5 V, offset 2.5 V — it jumps between 0 V and 5 V. The high half-period is like \"switch closed, charge the capacitor\", the low half-period like \"switch to ground, discharge it\": a square wave is a DC circuit with a switch flipped automatically hundreds of times a second.",
-        "",
-        "**Scope**: CH1 on the generator output (left end of R1), CH2 on VC (top of the capacitor), both ground clips on GND.",
-        "",
-        "**Predict first**: write v_C(t) for the charging and discharging half-periods with the three-element method and work out τ = RC (R must include the generator's 50 Ω output resistance). Then estimate, for 50 Hz, 500 Hz and 5 kHz, how many τ fit in half a period and what CH2's maximum, minimum and shape will be. Rules of thumb: after 1τ the voltage has covered 63% of the way, after 3τ 95%, after 5τ 99.3%.",
-        "",
-        "**Measure**: set the frequency to 50 Hz, 500 Hz and 5 kHz in turn; read CH2's maximum, minimum and Vpp and look at the shape. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Think about it**: if you only knew the Vpp at 500 Hz, could you work back to τ?"
-      ],
-      "compare": [
-        "**Compare**: charging, v(∞) = 5 V and v_C(t) = 5 − [5 − v(0+)]·e^(−t/τ); discharging, v(∞) = 0 and v_C(t) = v(0+)·e^(−t/τ). τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms.",
-        "- **50 Hz**: half a period is 10 ms ≈ 10τ. The capacitor fills up to almost 5 V and empties to almost 0 V every time; CH2 shows the textbook \"exponential rise + exponential fall\", max ≈ 5.0 V, min ≈ 0.0 V.",
-        "- **500 Hz**: half a period is 1 ms ≈ τ. The capacitor starts discharging before it is full and settles into a swing between two levels: Vpp = 5 V × tanh(T/(4τ)) ≈ 5 × tanh(0.5) ≈ 2.3 V, about 1.35 V to 3.65 V, centred on 2.5 V.",
-        "- **5 kHz**: half a period is 0.1 ms = 0.1τ. Each half-period covers only the very first, almost straight, bit of the exponential, so CH2 becomes a **triangle wave** of about 0.25 Vpp sitting on 2.5 V (the square wave's average).",
-        "",
-        "Where the Vpp formula comes from: in steady state the capacitor swings between VL and VH. Charging: VH = 5 − (5 − VL)·e^(−T/2τ); discharging: VL = VH·e^(−T/2τ). Solving both gives VH − VL = 5·(1 − e^(−T/2τ))/(1 + e^(−T/2τ)) = 5·tanh(T/4τ)."
-      ],
-      "measurements": [
-        {"ask": "50 Hz: the time t_r CH2's rising edge takes from 10% to 90% (0.5 V → 4.5 V), read off the scope's time grid"},
-        {"ask": "From your t_r, the time constant τ = t_r / ln 9", "explain": "An exponential takes exactly τ·ln 9 ≈ 2.2τ from 10% to 90%. τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms."},
-        {"ask": "500 Hz: CH2's (the capacitor's) Vpp", "explain": "Half a period ≈ τ, so the capacitor never fills: Vpp = 5 V × tanh(T/(4τ)) ≈ 2.3 V."}
-      ],
+      "title": "RC charging: seeing the time constant with a square wave",
+      "summary": "A 0–5 V square wave charges and discharges 100 nF through 10 kΩ: change the frequency, see how far the capacitor voltage gets in half a period, and read τ off the curve.",
+      "concepts": ["RC circuit", "time constant τ = RC", "charging / discharging", "rise time"],
+      "description": "Generator (square 0 ↔ 5 V) → R1 (10 kΩ) → node VC → C1 (100 nF) → GND. CH1 on the input, CH2 on VC.",
+      "compare": "**Compare**: τ = (10 kΩ + 50 Ω) × 100 nF ≈ **1.0 ms**; rise time t_r = τ·ln 9 ≈ **2.2 ms**.\n- **50 Hz**: half a period, 10 ms, ≈ 10τ. Nearly full to 5 V and empty to 0 V every time.\n- **500 Hz**: half a period, 1 ms, ≈ τ. It settles between about 1.35 V and 3.65 V; Vpp = 5 × tanh(T / 4τ) ≈ **2.3 V**.\n- **5 kHz**: half a period, 0.1 ms, = 0.1τ; only a **triangle** of about 0.25 Vpp is left, riding on 2.5 V.\n\nWhere the tanh comes from: in steady state the charging half gives VH = 5 − (5 − VL)·e^(−T/2τ) and the discharging half VL = VH·e^(−T/2τ); together VH − VL = 5·tanh(T/4τ).",
       "hints": [
-        "The generator's black clip goes to GND; the capacitor goes from VC to GND.",
-        "Square wave 0–5 V means amplitude 2.5 V (peak) plus offset 2.5 V.",
-        "τ = (R + 50 Ω)·C. Compare half a period T/2 = 1/(2f) with τ to predict the shape."
+        "R1 from the generator's column (column 3) to column 10; C1 from column 10 to the GND rail.",
+        "The scope's rise-time reading is the 10 %→90 % time.",
+        "τ = t_r / ln 9; at 500 Hz half a period is about one τ."
       ],
       "tests": [
-        "50 Hz (T/2 ≫ τ): the capacitor fills and empties every time",
-        "500 Hz (T/2 ≈ τ): it never fills, swinging about the centre",
-        "5 kHz (T/2 ≪ τ): only a small triangle is left"
+        "50 Hz (half a period ≫ τ): the capacitor fills and empties every time",
+        "500 Hz (half a period ≈ τ): never full, swinging around the centre",
+        "5 kHz (half a period ≪ τ): only a small triangle left"
+      ],
+      "measurements": [
+        {"ask": "50 Hz: CH2's rise time t_r (10 % to 90 %)"},
+        {
+          "ask": "From your t_r, the time constant τ = t_r / ln 9",
+          "explain": "An exponential takes τ·ln 9 ≈ 2.2τ from 10 % to 90 %. τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms."
+        },
+        {
+          "ask": "500 Hz: CH2 (capacitor voltage) peak-to-peak",
+          "explain": "Half a period ≈ τ, the capacitor can't fill: Vpp = 5 V × tanh(T / 4τ) ≈ 2.3 V."
+        },
+        {
+          "ask": "At 5 kHz, what does CH2 look like?",
+          "explain": "Half a period, 0.1 ms, is only 0.1τ: each half covers just the nearly straight start of the curve. The centre is the square wave's average, 2.5 V.",
+          "choices": ["a very small triangle riding on about 2.5 V", "a square wave like the input", "a flat line at 5 V"]
+        }
+      ],
+      "cards": [
+        {
+          "title": "Fill and empty a capacitor, again and again",
+          "text": [
+            "- The generator and two probes are already on the board. Add **R1 `10 kΩ`** (**`b3`** → **`b10`**) and **C1 `100 nF`** (**`c10`** → the GND rail).",
+            "- The generator gives a **square wave** jumping between 0 and 5 V: the high level is like closing a switch to charge the capacitor, the low level like switching to ground to discharge it.",
+            "- Set **`50 Hz`** and look at the shape on CH2 (the capacitor); then try **`5 kHz`**.",
+            "Does the capacitor voltage jump straight up? At the higher frequency, does it still fill up?"
+          ]
+        },
+        {
+          "title": "Fast, then slower: the time constant τ",
+          "text": [
+            "- At the start the capacitor is empty, the resistor has the most voltage across it and the current is largest, so it rises fast. The nearer it gets to 5 V, the less is left across the resistor, the smaller the current, the slower the rise.",
+            "- One number sets the pace, the **time constant**. R includes the generator's 50 Ω:",
+            "$$τ = RC = 10.05 kΩ × 100 nF$$",
+            "- Each τ leaves only about 37 % of the remaining distance: 63 % done after 1τ, 95 % after 3τ, practically all after 5τ.",
+            "![](fig:tau)",
+            "- So compare **half a period with τ**: much longer, and it fills and empties every time; about equal, and it starts emptying before it is full; much shorter, and it only covers the very start of the curve — a small triangle.",
+            "![](fig:half)"
+          ]
+        },
+        {
+          "title": "Read τ off the curve",
+          "text": [
+            "- At **`50 Hz`** read CH2's rise time: how long the capacitor voltage takes from 10 % to 90 %.",
+            "- An exponential takes exactly τ × ln 9 ≈ 2.2τ from 10 % to 90 %, so τ = rise time / ln 9.",
+            "- Then set **`500 Hz`** and read CH2's peak-to-peak; finally look at the shape at **`5 kHz`**."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **τ = RC**: the larger R and C, the slower the charging. The generator's 50 Ω is part of R.",
+            "- **1τ 63 %, 3τ 95 %, 5τ about 99 %**: in practice 5τ counts as \"full\".",
+            "- **Half a period ≫ τ**: full charge and discharge every time; **≪ τ**: only a small triangle riding on the average.",
+            "- **In a real circuit**: ceramic capacitors are often ±10–20 %, so a measured τ 10–20 % off the calculation is normal. Turned around, measuring τ tells you the capacitor's real value."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "R1", "type": "resistor", "resistance": "10k" },
-    { "ref": "C1", "type": "capacitor", "capacitance": "100n" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "R1", "type": "resistor", "resistance": "10k"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "100n"}
   ],
   "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
-    { "name": "VC", "pins": ["R1.2", "C1.1"] },
-    { "name": "GND", "pins": ["C1.2", "FG1.-"] }
+    {"name": "VIN", "pins": ["FG1.+", "R1.1"]},
+    {"name": "VC", "pins": ["R1.2", "C1.1"]},
+    {"name": "GND", "pins": ["C1.2", "FG1.-"]}
   ],
   "tests": [
     {
-      "name": "50 Hz（T/2 ≫ τ）：电容每次都充满、放空",
-      "set": { "FG1": { "waveform": "square", "frequency": 50, "amplitude": 2.5, "offset": 2.5 } },
+      "name": "50 Hz（半个周期 ≫ τ）：电容每次都充满、放空",
+      "set": {"FG1": {"waveform": "square", "frequency": 50, "amplitude": 2.5, "offset": 2.5}},
       "scope": [
-        { "pin": "C1.1", "measure": "vmax", "min": 4.95, "max": 5.01 },
-        { "pin": "C1.1", "measure": "vmin", "min": -0.01, "max": 0.05 }
+        {"pin": "C1.1", "measure": "vmax", "min": 4.95, "max": 5.01},
+        {"pin": "C1.1", "measure": "vmin", "min": -0.01, "max": 0.05}
       ]
     },
     {
-      "name": "500 Hz（T/2 ≈ τ）：来不及充满，围绕中心来回",
-      "set": { "FG1": { "waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 2.5 } },
+      "name": "500 Hz（半个周期 ≈ τ）：来不及充满，围绕中心来回",
+      "set": {"FG1": {"waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 2.5}},
       "scope": [
-        { "pin": "C1.1", "measure": "vpp", "min": 2.2, "max": 2.4 },
-        { "pin": "C1.1", "measure": "vmax", "min": 3.55, "max": 3.75 },
-        { "pin": "C1.1", "measure": "vavg", "min": 2.4, "max": 2.6 }
+        {"pin": "C1.1", "measure": "vpp", "min": 2.2, "max": 2.4},
+        {"pin": "C1.1", "measure": "vmax", "min": 3.55, "max": 3.75},
+        {"pin": "C1.1", "measure": "vavg", "min": 2.4, "max": 2.6}
       ]
     },
     {
-      "name": "5 kHz（T/2 ≪ τ）：只剩一个小三角波",
-      "set": { "FG1": { "waveform": "square", "frequency": 5000, "amplitude": 2.5, "offset": 2.5 } },
+      "name": "5 kHz（半个周期 ≪ τ）：只剩一个小三角波",
+      "set": {"FG1": {"waveform": "square", "frequency": 5000, "amplitude": 2.5, "offset": 2.5}},
       "scope": [
-        { "pin": "C1.1", "measure": "vpp", "min": 0.23, "max": 0.27 },
-        { "pin": "C1.1", "measure": "vavg", "min": 2.45, "max": 2.55 }
+        {"pin": "C1.1", "measure": "vpp", "min": 0.23, "max": 0.27},
+        {"pin": "C1.1", "measure": "vavg", "min": 2.45, "max": 2.55}
       ]
     }
   ],
-  "compare": [
-    "**对比**：充电时 v(∞) = 5 V，v_C(t) = 5 − [5 − v(0+)]·e^(−t/τ)；放电时 v(∞) = 0，v_C(t) = v(0+)·e^(−t/τ)。τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms。",
-    "- **50 Hz**：半个周期 10 ms ≈ 10τ。电容每次都几乎充满到 5 V、放空到 0 V，CH2 是标准的“指数上升 + 指数下降”，最大约 5.0 V、最小约 0.0 V。",
-    "- **500 Hz**：半个周期 1 ms ≈ τ。电容来不及充满就开始放电，稳定后在两个值之间来回：Vpp = 5 V × tanh(T/(4τ)) ≈ 5 × tanh(0.5) ≈ 2.3 V，大约 1.35 V ~ 3.65 V，中心 2.5 V。",
-    "- **5 kHz**：半个周期 0.1 ms = 0.1τ。每半周期只走了指数曲线最开头几乎是直线的一小段，CH2 变成一个约 0.25 Vpp 的**三角波**，骑在 2.5 V（方波的平均值）上。",
-    "",
-    "Vpp 公式的来历：稳态时电容在 VL 和 VH 之间来回，充电半周期 VH = 5 − (5 − VL)·e^(−T/2τ)，放电半周期 VL = VH·e^(−T/2τ)，两式联立就得到 VH − VL = 5·(1 − e^(−T/2τ))/(1 + e^(−T/2τ)) = 5·tanh(T/4τ)。"
-  ],
+  "compare": "**对比**：τ = (10 kΩ + 50 Ω) × 100 nF ≈ **1.0 ms**；上升时间 t_r = τ·ln 9 ≈ **2.2 ms**。\n- **50 Hz**：半个周期 10 ms ≈ 10τ。每次几乎充满到 5 V、放空到 0 V。\n- **500 Hz**：半个周期 1 ms ≈ τ。稳定后在约 1.35 V 和 3.65 V 之间来回，Vpp = 5 × tanh(T / 4τ) ≈ **2.3 V**。\n- **5 kHz**：半个周期 0.1 ms = 0.1τ，只剩一个约 0.25 Vpp 的**三角波**，骑在 2.5 V 上。\n\ntanh 公式的来历：稳态时充电半周期 VH = 5 − (5 − VL)·e^(−T/2τ)，放电半周期 VL = VH·e^(−T/2τ)，两式联立得 VH − VL = 5·tanh(T/4τ)。",
   "measurements": [
-    {"id": "tr", "scope": "rise", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 50, "amplitude": 2.5, "offset": 2.5}}, "unit": "ms", "range": [0.0021, 0.0023], "ask": "50 Hz：CH2 的上升沿从 10% 升到 90%（0.5 V → 4.5 V）用的时间 t_r（从示波器的时间格读）"},
-    {"id": "tau", "formula": "tr / ln(9)", "unit": "ms", "predict": true, "range": [0.00095, 0.00106], "ask": "由你读的 t_r 算时间常数 τ = t_r / ln 9", "explain": "指数曲线从 10% 到 90% 正好要 τ·ln 9 ≈ 2.2τ。τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms。"},
-    {"id": "vpp500", "scope": "vpp", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 2.5}}, "unit": "V", "predict": true, "range": [2.2, 2.4], "ask": "500 Hz：CH2（电容电压）的 Vpp", "explain": "半个周期 ≈ τ，电容来不及充满：Vpp = 5 V × tanh(T/(4τ)) ≈ 2.3 V。"}
+    {
+      "id": "tr",
+      "scope": "rise",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 50, "amplitude": 2.5, "offset": 2.5}},
+      "unit": "ms",
+      "range": [0.0021, 0.0023],
+      "ask": "50 Hz：CH2 的上升时间 t_r（从 10% 升到 90%）"
+    },
+    {
+      "id": "tau",
+      "formula": "tr / ln(9)",
+      "unit": "ms",
+      "predict": true,
+      "range": [0.00095, 0.00106],
+      "ask": "由你读的 t_r 算时间常数 τ = t_r / ln 9",
+      "explain": "指数曲线从 10% 到 90% 正好要 τ·ln 9 ≈ 2.2τ。τ = (10 kΩ + 50 Ω) × 100 nF ≈ 1.0 ms。"
+    },
+    {
+      "id": "vpp500",
+      "scope": "vpp",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 2.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.2, 2.4],
+      "ask": "500 Hz：CH2（电容电压）的峰峰值",
+      "explain": "半个周期 ≈ τ，电容来不及充满：Vpp = 5 V × tanh(T / 4τ) ≈ 2.3 V。"
+    },
+    {
+      "id": "shape",
+      "correct": 0,
+      "ask": "5 kHz 时，CH2 是什么样子？",
+      "choices": ["一个很小的三角波，骑在约 2.5 V 上", "和输入一样的方波", "一条停在 5 V 的直线"],
+      "explain": "半个周期 0.1 ms 只有 0.1τ：每次只走了曲线开头几乎是直线的一小段。中心是方波的平均值 2.5 V。"
+    }
   ],
   "hints": [
-    "信号发生器的黑夹子接 GND；电容从 VC 接到 GND。",
-    "0–5 V 方波 = 幅度（峰值）2.5 V + 偏置 2.5 V。",
-    "τ = (R + 50 Ω)·C。拿半个周期 T/2 = 1/(2f) 和 τ 比一比，就能猜出波形的样子。"
+    "R1 从信号发生器那一列（第 3 列）接到第 10 列；C1 从第 10 列接到 GND 轨。",
+    "示波器的上升时间读数就是 10%→90% 的时间。",
+    "τ = t_r / ln 9；500 Hz 时半个周期大约是一个 τ。"
   ],
   "start": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 2.5, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "square",
+        "frequency": 500,
+        "amplitude": 2.5,
+        "offset": 2.5,
+        "pins": {"+": "a3", "-": "tn3"}
+      },
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   },
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 2.5, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "resistor", "ref": "R1", "resistance": "10k", "pins": { "1": "b3", "2": "b10" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "c10", "2": "tn10" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "square",
+        "frequency": 500,
+        "amplitude": 2.5,
+        "offset": 2.5,
+        "pins": {"+": "a3", "-": "tn3"}
+      },
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "b3", "2": "b10"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": {"1": "c10", "2": "tn10"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   }
 }

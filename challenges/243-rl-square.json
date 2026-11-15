@@ -2,135 +2,538 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp3-rl-square",
-  "title": "实验 3-3 · RL 电路：电感电压的尖峰与电流的斜坡",
   "kind": "challenge",
   "level": 3,
   "phase": 3,
-  "summary": "方波驱动 100 Ω + 10 mH 串联电路：电感两端是一跳一衰减的尖峰，电阻电压（= 电流 × R）是慢慢爬升的斜坡。",
-  "concepts": ["RL 电路 RL circuit", "τ = L/R", "电感电流不能突变 continuity of inductor current", "v_L = L·di/dt", "用电阻电压观察电流 current via a sense resistor"],
-  "prereq": ["lesson-generator-scope"],
-  "description": [
-    "**目标**：用方波驱动 RL 电路，在示波器上看电感电流连续、电感电压可以跳变，并和 RC 电路对比。",
-    "",
-    "**电路**：信号发生器红夹子 → R1（100 Ω）→ 结点 VL → L1（10 mH）→ GND，黑夹子接 GND。",
-    "",
-    "**信号发生器**：方波，幅度 1 V、偏置 0（±1 V，每次跳 2 V），频率 1 kHz（半周期 0.5 ms）。",
-    "",
-    "**示波器**：CH1 接信号发生器输出 VIN，CH2 接 VL（电感上端）。电阻电压 v_R = CH1 − CH2，许多示波器有 MATH 功能直接相减；v_R / 100 Ω 就是电流。为什么不直接把探头夹在电阻两端？真实示波器的地夹是接大地的，信号发生器的黑夹子也是，所以地夹只能夹在 GND 上，否则会把电路某一点短路到地。这就是把电感放在接地一侧、用“两个通道相减”看电阻电压的原因。",
-    "",
-    "**先预测**：电感电流不能突变（i_L(0+) = i_L(0−)），v_L = L·di/dt。算出回路总电阻（要算上信号发生器 50 Ω 和电感线圈电阻 1 Ω）、τ = L/R总 和稳态电流；半周期是几个 τ？方波跳变的瞬间，2 V 的跳变落在谁身上？再想 10 kHz 时会怎样。",
-    "",
-    "**测量**：1 kHz 下读电阻电压（CH1 − CH2）的范围和电感电压的尖峰；再把频率调到 10 kHz 看两者的变化。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**想一想（和 RC 对比）**：RC 中电容**电压**连续、电流可以跳；RL 中电感**电流**连续、电压可以跳。实际电路里突然切断电感电流（di/dt 极大）会产生很高的反向电压，这就是继电器线圈旁边要并一个续流二极管的原因。",
-    "",
-    "**真实电路里**：仿真里线圈电阻只有 1 Ω。真实的 10 mH 小电感线圈电阻常在 10 ~ 30 Ω，它会加进 R总，使 τ 变小、稳态电流变小，电感电压衰减后也停在更高的电平上。"
+  "title": "RL 电路：电感电压的尖峰，电流的斜坡",
+  "summary": "方波驱动 100 Ω + 10 mH：电感两端是一跳一衰减的尖峰，电阻电压（= 电流 × R）是慢慢爬升的斜坡。",
+  "prereq": ["lesson-scope-two-channels"],
+  "concepts": [
+    "inductor 电感",
+    "v_L = L·di/dt",
+    "τ = L/R",
+    "continuity of inductor current 电感电流不能突变",
+    "current via a resistor 用电阻电压看电流"
   ],
+  "description": "信号发生器（方波 ±1 V、1 kHz）→ R1（100 Ω）→ 结点 VL → L1（10 mH）→ GND。CH1 看输入，CH2 看 VL；电阻电压 = CH1 − CH2。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "把电容换成电感",
+      "text": [
+        "- 板上已经放好信号发生器和两个探头。加上 **R1 `100 Ω`**（**`b3`** → **`b10`**）和**电感 L1 `10 mH`**（**`c10`** → GND 轨）。电感就是绕成一圈圈的导线。",
+        "- 信号发生器：方波、**`1 kHz`**、幅度 **`1 V`**、偏置 **`0 V`**（在 −1 V 和 +1 V 之间跳）。CH1 看输入，CH2 看电感上端。",
+        "CH2 是什么样子？和 3.4 里电容上的电压比，像还是不像？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "电感是一个沉重的飞轮",
+      "text": [
+        "- 电容不让**电压**突变；电感不让**电流**突变。它像一个沉重的飞轮：转起来要时间，停下来也要时间。",
+        "- 方波一跳，电流来不及变，整个跳变只好全落在电感上：CH2 出现一个尖峰。之后电流慢慢跟上，电感上的电压也就消失了。",
+        "- 电感的电压和电流**变化的快慢**成正比。比如电流每毫秒变 1 mA：",
+        "$$v_L = L\\frac{di}{dt} = 10 mH × \\frac{1 mA}{1 ms}$$",
+        "![](fig:rl)",
+        "- 电流看不见，就看电阻：电阻电压 v_R = i × R，形状和电流一模一样。它在 CH1 和 CH2 之间。",
+        "![](fig:sch)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "量电流的斜坡和电感的尖峰",
+      "text": [
+        "- v_R 用两个通道相减：**CH1 − CH2**（示波器的 MATH 功能）。不要把接地夹夹到中间去。",
+        "- 读 v_R 的峰峰值和上升时间，再读 v_L 尖峰的最高值。",
+        "- 电流的时间常数是 τ = L / R总，R总 = 100 Ω + 50 Ω（信号发生器）+ 1 Ω（线圈）。",
+        "- 最后调到 **`10 kHz`**：半个周期比 τ 还短，v_R 变成什么样？"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **电感电流不能突变**：v_L = L·di/dt。电流一变，电感就“顶”一个电压回去。",
+        "- **τ = L / R**：R 越大越快——和 RC 正好相反。",
+        "- **和 RC 对照**：电容电压连续、电流可以跳；电感电流连续、电压可以跳。",
+        "- **真实电路里**：突然切断电感电流，di/dt 极大，会冒出很高的反向电压，所以继电器线圈旁边要并一个续流二极管（5.4）。真实 10 mH 小电感的线圈电阻常有 10–30 Ω，比仿真的 1 Ω 大得多。"
+      ],
+      "practice": ["first-order"]
+    }
+  ],
+  "figures": {
+    "rl": {
+      "kind": "plot",
+      "caption": {
+        "text": "v_L（电感）在每次跳变时冲到约 ±2 V 再衰减；v_R（电阻，形状和电流一样）在两次跳变之间按指数爬到新的值。",
+        "i18n": {
+          "en": "v_L (inductor) shoots to about ±2 V at every step and decays; v_R (resistor, the current's shape) climbs exponentially to its new value between steps."
+        }
+      },
+      "x": {
+        "label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}},
+        "min": 0,
+        "max": 2,
+        "ticks": [0, 0.5, 1, 1.5, 2]
+      },
+      "y": {
+        "label": {"text": "电压 (V)", "i18n": {"en": "voltage (V)"}},
+        "min": -2.2,
+        "max": 2.2,
+        "ticks": [-2, -1, 0, 1, 2]
+      },
+      "curves": [
+        {
+          "points": [
+            [0.0, 1.99],
+            [0.02, 1.48],
+            [0.04, 1.09],
+            [0.06, 0.809],
+            [0.08, 0.6],
+            [0.1, 0.445],
+            [0.12, 0.331],
+            [0.14, 0.246],
+            [0.16, 0.184],
+            [0.18, 0.138],
+            [0.2, 0.103],
+            [0.22, 0.0782],
+            [0.24, 0.0595],
+            [0.26, 0.0457],
+            [0.28, 0.0355],
+            [0.3, 0.028],
+            [0.32, 0.0224],
+            [0.34, 0.0183],
+            [0.36, 0.0153],
+            [0.38, 0.013],
+            [0.4, 0.0113],
+            [0.42, 0.0101],
+            [0.44, 0.0092],
+            [0.46, 0.00853],
+            [0.48, 0.00803],
+            [0.5, 0.00766],
+            [0.5, -1.99],
+            [0.52, -1.48],
+            [0.54, -1.09],
+            [0.56, -0.809],
+            [0.58, -0.6],
+            [0.6, -0.445],
+            [0.62, -0.331],
+            [0.64, -0.246],
+            [0.66, -0.184],
+            [0.68, -0.138],
+            [0.7, -0.103],
+            [0.72, -0.0782],
+            [0.74, -0.0595],
+            [0.76, -0.0457],
+            [0.78, -0.0355],
+            [0.8, -0.028],
+            [0.82, -0.0224],
+            [0.84, -0.0183],
+            [0.86, -0.0153],
+            [0.88, -0.013],
+            [0.9, -0.0113],
+            [0.92, -0.0101],
+            [0.94, -0.0092],
+            [0.96, -0.00853],
+            [0.98, -0.00803],
+            [1.0, -0.00766],
+            [1.0, 1.99],
+            [1.02, 1.48],
+            [1.04, 1.09],
+            [1.06, 0.809],
+            [1.08, 0.6],
+            [1.1, 0.445],
+            [1.12, 0.331],
+            [1.14, 0.246],
+            [1.16, 0.184],
+            [1.18, 0.138],
+            [1.2, 0.103],
+            [1.22, 0.0782],
+            [1.24, 0.0595],
+            [1.26, 0.0457],
+            [1.28, 0.0355],
+            [1.3, 0.028],
+            [1.32, 0.0224],
+            [1.34, 0.0183],
+            [1.36, 0.0153],
+            [1.38, 0.013],
+            [1.4, 0.0113],
+            [1.42, 0.0101],
+            [1.44, 0.0092],
+            [1.46, 0.00853],
+            [1.48, 0.00803],
+            [1.5, 0.00766],
+            [1.5, -1.99],
+            [1.52, -1.48],
+            [1.54, -1.09],
+            [1.56, -0.809],
+            [1.58, -0.6],
+            [1.6, -0.445],
+            [1.62, -0.331],
+            [1.64, -0.246],
+            [1.66, -0.184],
+            [1.68, -0.138],
+            [1.7, -0.103],
+            [1.72, -0.0782],
+            [1.74, -0.0595],
+            [1.76, -0.0457],
+            [1.78, -0.0355],
+            [1.8, -0.028],
+            [1.82, -0.0224],
+            [1.84, -0.0183],
+            [1.86, -0.0153],
+            [1.88, -0.013],
+            [1.9, -0.0113],
+            [1.92, -0.0101],
+            [1.94, -0.0092],
+            [1.96, -0.00853],
+            [1.98, -0.00803],
+            [2.0, -0.00766]
+          ],
+          "tone": 2,
+          "label": "v_L",
+          "labelAt": [0.1, 1.95]
+        },
+        {
+          "points": [
+            [0.0, -0.662],
+            [0.02, -0.317],
+            [0.04, -0.0616],
+            [0.06, 0.127],
+            [0.08, 0.267],
+            [0.1, 0.37],
+            [0.12, 0.446],
+            [0.14, 0.502],
+            [0.16, 0.544],
+            [0.18, 0.575],
+            [0.2, 0.598],
+            [0.22, 0.615],
+            [0.24, 0.627],
+            [0.26, 0.636],
+            [0.28, 0.643],
+            [0.3, 0.648],
+            [0.32, 0.652],
+            [0.34, 0.654],
+            [0.36, 0.656],
+            [0.38, 0.658],
+            [0.4, 0.659],
+            [0.42, 0.66],
+            [0.44, 0.661],
+            [0.46, 0.661],
+            [0.48, 0.661],
+            [0.5, 0.662],
+            [0.5, 0.662],
+            [0.52, 0.317],
+            [0.54, 0.0616],
+            [0.56, -0.127],
+            [0.58, -0.267],
+            [0.6, -0.37],
+            [0.62, -0.446],
+            [0.64, -0.502],
+            [0.66, -0.544],
+            [0.68, -0.575],
+            [0.7, -0.598],
+            [0.72, -0.615],
+            [0.74, -0.627],
+            [0.76, -0.636],
+            [0.78, -0.643],
+            [0.8, -0.648],
+            [0.82, -0.652],
+            [0.84, -0.654],
+            [0.86, -0.656],
+            [0.88, -0.658],
+            [0.9, -0.659],
+            [0.92, -0.66],
+            [0.94, -0.661],
+            [0.96, -0.661],
+            [0.98, -0.661],
+            [1.0, -0.662],
+            [1.0, -0.662],
+            [1.02, -0.317],
+            [1.04, -0.0616],
+            [1.06, 0.127],
+            [1.08, 0.267],
+            [1.1, 0.37],
+            [1.12, 0.446],
+            [1.14, 0.502],
+            [1.16, 0.544],
+            [1.18, 0.575],
+            [1.2, 0.598],
+            [1.22, 0.615],
+            [1.24, 0.627],
+            [1.26, 0.636],
+            [1.28, 0.643],
+            [1.3, 0.648],
+            [1.32, 0.652],
+            [1.34, 0.654],
+            [1.36, 0.656],
+            [1.38, 0.658],
+            [1.4, 0.659],
+            [1.42, 0.66],
+            [1.44, 0.661],
+            [1.46, 0.661],
+            [1.48, 0.661],
+            [1.5, 0.662],
+            [1.5, 0.662],
+            [1.52, 0.317],
+            [1.54, 0.0616],
+            [1.56, -0.127],
+            [1.58, -0.267],
+            [1.6, -0.37],
+            [1.62, -0.446],
+            [1.64, -0.502],
+            [1.66, -0.544],
+            [1.68, -0.575],
+            [1.7, -0.598],
+            [1.72, -0.615],
+            [1.74, -0.627],
+            [1.76, -0.636],
+            [1.78, -0.643],
+            [1.8, -0.648],
+            [1.82, -0.652],
+            [1.84, -0.654],
+            [1.86, -0.656],
+            [1.88, -0.658],
+            [1.9, -0.659],
+            [1.92, -0.66],
+            [1.94, -0.661],
+            [1.96, -0.661],
+            [1.98, -0.661],
+            [2.0, -0.662]
+          ],
+          "tone": 1,
+          "label": "v_R",
+          "labelAt": [0.3, 0.95]
+        }
+      ]
+    },
+    "sch": {
+      "kind": "schematic",
+      "caption": {
+        "text": "CH1 在 R1 左边，CH2 在电感上端：v_R = CH1 − CH2，v_L 就是 CH2。同一个电流 i 穿过两者。",
+        "i18n": {
+          "en": "CH1 left of R1, CH2 on top of the inductor: v_R = CH1 − CH2 and v_L is CH2. The same current i passes both."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"ac": {"mag": 1}}, "label": "FG1"},
+          {"ref": "R1", "type": "R", "from": [1, 0], "to": [4, 0], "value": 100},
+          {"ref": "L1", "type": "L", "from": [4, 0], "to": [4, 4], "value": "10m"}
+        ],
+        "wires": [[[0, 0], [1, 0]], [[4, 4], [0, 4]]],
+        "grounds": [[0, 4]],
+        "marks": [
+          {"kind": "v", "el": "R1", "name": "v_R"},
+          {"kind": "i", "el": "R1", "name": "i"},
+          {"kind": "v", "el": "L1", "name": "v_L"}
+        ],
+        "notes": [{"at": [1, -0.9], "text": "CH1"}, {"at": [4.6, -0.7], "text": "CH2"}]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 3-3 · RL circuit: inductor voltage spikes and a current ramp",
-      "summary": "A square wave drives 100 Ω + 10 mH in series: the inductor shows a jump-and-decay spike, the resistor voltage (= current × R) a slow ramp.",
-      "concepts": ["RL circuit", "τ = L/R", "inductor current cannot jump", "v_L = L·di/dt", "seeing current through a sense resistor"],
-      "description": [
-        "**Goal**: drive an RL circuit with a square wave and see on the scope that the inductor current is continuous while the inductor voltage can jump; compare with the RC circuit.",
-        "",
-        "**Circuit**: generator red clip → R1 (100 Ω) → node VL → L1 (10 mH) → GND; black clip to GND.",
-        "",
-        "**Generator**: square wave, amplitude 1 V, offset 0 (±1 V, 2 V per jump), 1 kHz (half period 0.5 ms).",
-        "",
-        "**Scope**: CH1 on the generator output VIN, CH2 on VL (top of the inductor). The resistor voltage is v_R = CH1 − CH2 — many scopes have a MATH function that subtracts them; v_R / 100 Ω is the current. Why not clip a probe straight across the resistor? A real scope's ground clip is tied to mains earth, and so is the generator's black clip, so the ground clip may only go on GND — anywhere else it shorts that point to ground. That is why the inductor sits on the grounded side and the resistor voltage is seen as the difference of two channels.",
-        "",
-        "**Predict first**: inductor current cannot jump (i_L(0+) = i_L(0−)), and v_L = L·di/dt. Work out the loop resistance (including the generator's 50 Ω and the coil's 1 Ω winding), τ = L/R_total and the steady current; how many τ fit in half a period? At the instant of a jump, which element takes the 2 V step? Then think about 10 kHz.",
-        "",
-        "**Measure**: at 1 kHz read the range of the resistor voltage (CH1 − CH2) and the inductor-voltage spikes; then turn the frequency up to 10 kHz and watch both change. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Think about it (compare with RC)**: in RC the capacitor *voltage* is continuous and its current may jump; in RL the inductor *current* is continuous and its voltage may jump. Suddenly interrupting an inductor's current (huge di/dt) produces a large reverse voltage — that's why relay coils get a flyback diode across them.",
-        "",
-        "**In a real circuit**: the simulated coil has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω; it adds to R_total, so τ and the steady current get smaller and the inductor voltage settles at a higher level after the spike."
+      "title": "RL circuit: spikes across the inductor, a ramp in the current",
+      "summary": "A square wave drives 100 Ω + 10 mH: the inductor shows a spike that dies away, the resistor voltage (= current × R) a slowly climbing ramp.",
+      "concepts": [
+        "inductor",
+        "v_L = L·di/dt",
+        "τ = L/R",
+        "inductor current can't jump",
+        "watching current through a resistor"
       ],
-      "compare": [
-        "**Compare**: R_total = 100 + 50 + 1 = 151 Ω, τ = 10 mH / 151 Ω ≈ 66 µs.",
-        "- Steady current I = 1 V / 151 Ω ≈ 6.6 mA. Half a period, 0.5 ms ≈ 7.5τ, is long enough for the current to travel all the way from −6.6 mA to +6.6 mA: the resistor voltage swings between ±0.66 V (Vpp ≈ 1.32 V), with an exponential ramp after each edge.",
-        "- At the instant of a jump the current hasn't changed yet, so practically the whole 2 V step lands on the inductor: v_L jumps to about ±2 V (ideally 1 + 150/151 ≈ 1.99 V), then decays with τ down to just the ±6.6 mV across the winding resistance. The simulated scope samples every 3.9 µs and reads a spike of about 1.88 V.",
-        "- **10 kHz (half period 50 µs < τ)**: the current has no time to finish, it just climbs back and forth in the middle; the resistor voltage becomes a near-triangle with Vpp ≈ 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V, while the inductor voltage stays large (most of the voltage sits on the inductor because the current keeps changing)."
-      ],
-      "measurements": [
-        {"ask": "1 kHz: Vpp of the resistor voltage v_R (CH1 − CH2)", "explain": "Steady current I = 1 V / 151 Ω ≈ 6.6 mA, so v_R swings ±0.66 V, ≈ 1.32 Vpp."},
-        {"ask": "1 kHz: the maximum of the CH2 (inductor voltage v_L) spikes", "explain": "At a jump the current hasn't changed yet, so nearly the whole 2 V step lands on the inductor: ideally 1 + 150/151 ≈ 1.99 V; sampling every 3.9 µs the scope reads about 1.9 V."},
-        {"ask": "1 kHz: the 10%–90% rise time t_r of v_R (that is, of the current)"},
-        {"ask": "From your t_r, the time constant τ = t_r / ln 9", "explain": "τ = L / R_total = 10 mH / (100 + 50 + 1) Ω ≈ 66 µs."},
-        {"ask": "At 10 kHz: Vpp of v_R", "explain": "A 50 µs half period < τ, so the current only climbs back and forth in the middle: 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V."}
-      ],
+      "description": "Generator (square ±1 V, 1 kHz) → R1 (100 Ω) → node VL → L1 (10 mH) → GND. CH1 on the input, CH2 on VL; the resistor voltage = CH1 − CH2.",
+      "compare": "**Compare**: R_total = 100 + 50 + 1 = 151 Ω, τ = 10 mH / 151 Ω ≈ **66 µs** (rise time ≈ 2.2τ ≈ 146 µs).\n- Steady current 1 V / 151 Ω ≈ 6.6 mA. Half a period, 0.5 ms, ≈ 7.5τ, so it settles every time: v_R between ±0.66 V, about **1.32 Vpp**.\n- At each step nearly all of the 2 V lands on the inductor: v_L ideally ±1.99 V, read as about **1.9 V**, then decaying to a few millivolts across the coil resistance.\n- **10 kHz**: half a period, 50 µs, < τ; v_R becomes nearly a triangle, Vpp ≈ 1.32 × tanh(0.38) ≈ **0.48 V**; the inductor voltage stays large because the current never stops changing.",
       "hints": [
-        "The inductor goes from VL to GND, the resistor between the generator's red clip and VL.",
-        "τ = L / (R + 50 Ω + 1 Ω). Compare it with half a period.",
-        "The current is the resistor voltage divided by 100 Ω: watch CH1 − CH2."
+        "R1 from column 3 to column 10; L1 from column 10 to the GND rail.",
+        "v_R = CH1 − CH2; divided by 100 Ω it is the current.",
+        "τ = L / R_total, and R_total includes the generator's 50 Ω and the coil's 1 Ω."
       ],
       "tests": [
-        "1 kHz: v_L spikes ± at every edge; v_R reaches its steady value every half period",
-        "10 kHz (T/2 < τ): the current can't finish its ramp, v_R shrinks"
+        "1 kHz: v_L has positive and negative spikes at the steps; v_R settles in every half period",
+        "10 kHz (half a period < τ): the current can't finish, v_R shrinks"
+      ],
+      "measurements": [
+        {
+          "ask": "1 kHz: resistor voltage v_R (CH1 − CH2) peak-to-peak",
+          "explain": "Steady current I = 1 V / 151 Ω ≈ 6.6 mA, so v_R swings ±0.66 V, about 1.32 Vpp."
+        },
+        {
+          "ask": "1 kHz: the top of CH2's spike (inductor voltage v_L)",
+          "explain": "At the step the current can't change, so nearly the whole 2 V step lands on the inductor: ideally 1 + 150/151 ≈ 1.99 V; sampling every 3.9 µs the scope reads about 1.9 V."
+        },
+        {"ask": "1 kHz: the rise time t_r of v_R (i.e. the current), 10 % to 90 %"},
+        {
+          "ask": "From your t_r, the time constant τ = t_r / ln 9",
+          "explain": "τ = L / R_total = 10 mH / (100 + 50 + 1) Ω ≈ 66 µs."
+        },
+        {
+          "ask": "At 10 kHz: v_R's peak-to-peak",
+          "explain": "Half a period, 50 µs, < τ: the current only crawls back and forth in the middle: 1.32 V × tanh(T / 4τ) ≈ 0.48 V."
+        }
+      ],
+      "cards": [
+        {
+          "title": "Swap the capacitor for an inductor",
+          "text": [
+            "- The generator and two probes are already on the board. Add **R1 `100 Ω`** (**`b3`** → **`b10`**) and an **inductor L1 `10 mH`** (**`c10`** → the GND rail). An inductor is just wire wound into a coil.",
+            "- Generator: square, **`1 kHz`**, amplitude **`1 V`**, offset **`0 V`** (jumping between −1 V and +1 V). CH1 on the input, CH2 on the top of the inductor.",
+            "What does CH2 look like? Is it like the capacitor voltage in 3.4, or not?"
+          ]
+        },
+        {
+          "title": "An inductor is a heavy flywheel",
+          "text": [
+            "- A capacitor won't let its **voltage** jump; an inductor won't let its **current** jump. It is like a heavy flywheel: it takes time to spin up and time to slow down.",
+            "- When the square wave steps, the current can't follow at once, so the whole step lands on the inductor: a spike on CH2. Then the current catches up and the inductor's voltage fades away.",
+            "- The inductor's voltage is proportional to **how fast its current changes**. For a current changing 1 mA per millisecond:",
+            "$$v_L = L\\frac{di}{dt} = 10 mH × \\frac{1 mA}{1 ms}$$",
+            "![](fig:rl)",
+            "- You can't see current, so watch the resistor: v_R = i × R has exactly the current's shape. It sits between CH1 and CH2.",
+            "![](fig:sch)"
+          ]
+        },
+        {
+          "title": "Measure the current's ramp and the inductor's spike",
+          "text": [
+            "- Get v_R by subtracting the channels: **CH1 − CH2** (the scope's MATH function). Don't move a ground clip to the middle.",
+            "- Read v_R's peak-to-peak and rise time, then the top of v_L's spike.",
+            "- The current's time constant is τ = L / R_total, with R_total = 100 Ω + 50 Ω (generator) + 1 Ω (coil).",
+            "- Finally set **`10 kHz`**: half a period is shorter than τ. What does v_R look like now?"
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Inductor current can't jump**: v_L = L·di/dt. Change the current and the inductor pushes back with a voltage.",
+            "- **τ = L / R**: the larger R, the faster — the opposite of RC.",
+            "- **Next to RC**: a capacitor's voltage is continuous and its current may jump; an inductor's current is continuous and its voltage may jump.",
+            "- **In a real circuit**: break an inductor's current suddenly and di/dt is huge, so a high reverse voltage appears — that is why a relay coil gets a flyback diode (5.4). A real small 10 mH inductor often has 10–30 Ω of winding resistance, far more than the simulated 1 Ω."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "R1", "type": "resistor", "resistance": "100" },
-    { "ref": "L1", "type": "inductor", "inductance": "10m" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "R1", "type": "resistor", "resistance": "100"},
+    {"ref": "L1", "type": "inductor", "inductance": "10m"}
   ],
   "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
-    { "name": "VL", "pins": ["R1.2", "L1.1"] },
-    { "name": "GND", "pins": ["L1.2", "FG1.-"] }
+    {"name": "VIN", "pins": ["FG1.+", "R1.1"]},
+    {"name": "VL", "pins": ["R1.2", "L1.1"]},
+    {"name": "GND", "pins": ["L1.2", "FG1.-"]}
   ],
   "tests": [
     {
-      "name": "1 kHz：v_L 在跳变处有正负尖峰；v_R 每半周期都走到稳态",
-      "set": { "FG1": { "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0 } },
+      "name": "1 kHz：v_L 在跳变处有正负尖峰；v_R 每半个周期都走到稳态",
+      "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "L1.1", "measure": "vmax", "min": 1.75, "max": 2.0 },
-        { "pin": "L1.1", "measure": "vmin", "min": -2.0, "max": -1.75 },
-        { "pin": "R1.1", "ref": "R1.2", "measure": "vpp", "min": 1.27, "max": 1.37 },
-        { "pin": "R1.1", "ref": "R1.2", "measure": "vmax", "min": 0.63, "max": 0.69 }
+        {"pin": "L1.1", "measure": "vmax", "min": 1.75, "max": 2.0},
+        {"pin": "L1.1", "measure": "vmin", "min": -2.0, "max": -1.75},
+        {"pin": "R1.1", "ref": "R1.2", "measure": "vpp", "min": 1.27, "max": 1.37},
+        {"pin": "R1.1", "ref": "R1.2", "measure": "vmax", "min": 0.63, "max": 0.69}
       ]
     },
     {
-      "name": "10 kHz（T/2 < τ）：电流来不及走完，v_R 变小",
-      "set": { "FG1": { "waveform": "square", "frequency": 10000, "amplitude": 1, "offset": 0 } },
-      "scope": [{ "pin": "R1.1", "ref": "R1.2", "measure": "vpp", "min": 0.44, "max": 0.52 }]
+      "name": "10 kHz（半个周期 < τ）：电流来不及走完，v_R 变小",
+      "set": {"FG1": {"waveform": "square", "frequency": 10000, "amplitude": 1, "offset": 0}},
+      "scope": [{"pin": "R1.1", "ref": "R1.2", "measure": "vpp", "min": 0.44, "max": 0.52}]
     }
   ],
-  "compare": [
-    "**对比**：R总 = 100 + 50 + 1 = 151 Ω，τ = 10 mH / 151 Ω ≈ 66 µs。",
-    "- 稳态电流 I = 1 V / 151 Ω ≈ 6.6 mA。半周期 0.5 ms ≈ 7.5τ，所以每半周期电流都能从 −6.6 mA 走到 +6.6 mA：电阻电压在 ±0.66 V 之间（Vpp ≈ 1.32 V），边沿处是指数形状的斜坡。",
-    "- 方波跳变的瞬间电流还来不及变，这 2 V 的跳变几乎全部落在电感上：v_L 跳到约 ±2 V（理想值 1 + 150/151 ≈ 1.99 V），随后以 τ 衰减到只剩线圈电阻上的 ±6.6 mV。仿真示波器每 3.9 µs 取一个点，读到的尖峰约 1.88 V。",
-    "- **10 kHz（半周期 50 µs < τ）**：电流来不及走完，只在中间来回爬，电阻电压变成近似三角波，Vpp ≈ 1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V；而电感电压一直很大（大部分电压都落在电感上，因为电流一直在变）。"
-  ],
+  "compare": "**对比**：R总 = 100 + 50 + 1 = 151 Ω，τ = 10 mH / 151 Ω ≈ **66 µs**（上升时间 ≈ 2.2τ ≈ 146 µs）。\n- 稳态电流 1 V / 151 Ω ≈ 6.6 mA。半个周期 0.5 ms ≈ 7.5τ，每次都走完：v_R 在 ±0.66 V 之间，约 **1.32 Vpp**。\n- 跳变瞬间 2 V 几乎全落在电感上：v_L 理想值约 ±1.99 V，读到约 **1.9 V**，随后衰减到只剩线圈电阻上的几毫伏。\n- **10 kHz**：半个周期 50 µs < τ，v_R 变成近似三角波，Vpp ≈ 1.32 × tanh(0.38) ≈ **0.48 V**；电感电压一直很大，因为电流一直在变。",
   "measurements": [
-    {"id": "urpp", "scope": "vpp", "pin": "R1.1", "ref": "R1.2", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.26, 1.39], "ask": "1 kHz：电阻电压 v_R（CH1 − CH2）的 Vpp", "explain": "稳态电流 I = 1 V / 151 Ω ≈ 6.6 mA，v_R 在 ±0.66 V 之间，≈ 1.32 Vpp。"},
-    {"id": "ulmax", "scope": "vmax", "pin": "L1.1", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.79, 1.98], "ask": "1 kHz：CH2（电感电压 v_L）尖峰的最大值", "explain": "跳变瞬间电流来不及变，2 V 的跳变几乎全落在电感上：理想 1 + 150/151 ≈ 1.99 V；示波器每 3.9 µs 取一点，读到约 1.9 V。"},
-    {"id": "tr", "scope": "rise", "pin": "R1.1", "ref": "R1.2", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "µs", "range": [0.000138, 0.000152], "ask": "1 kHz：v_R（也就是电流）上升沿从 10% 到 90% 的时间 t_r"},
-    {"id": "tau", "formula": "tr / ln(9)", "unit": "µs", "predict": true, "range": [6.27e-05, 6.93e-05], "ask": "由你的 t_r 算时间常数 τ = t_r / ln 9", "explain": "τ = L / R总 = 10 mH / (100 + 50 + 1) Ω ≈ 66 µs。"},
-    {"id": "urpp10", "scope": "vpp", "pin": "R1.1", "ref": "R1.2", "set": {"FG1": {"waveform": "square", "frequency": 10000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [0.454, 0.501], "ask": "调到 10 kHz：v_R 的 Vpp", "explain": "半周期 50 µs < τ，电流只在中间来回爬：1.32 V × tanh(T/(4τ)) ≈ 1.32 × tanh(0.38) ≈ 0.48 V。"}
+    {
+      "id": "urpp",
+      "scope": "vpp",
+      "pin": "R1.1",
+      "ref": "R1.2",
+      "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.26, 1.39],
+      "ask": "1 kHz：电阻电压 v_R（CH1 − CH2）的峰峰值",
+      "explain": "稳态电流 I = 1 V / 151 Ω ≈ 6.6 mA，v_R 在 ±0.66 V 之间，约 1.32 Vpp。"
+    },
+    {
+      "id": "ulmax",
+      "scope": "vmax",
+      "pin": "L1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.79, 1.98],
+      "ask": "1 kHz：CH2（电感电压 v_L）尖峰的最高值",
+      "explain": "跳变瞬间电流来不及变，2 V 的跳变几乎全落在电感上：理想值 1 + 150/151 ≈ 1.99 V；示波器每 3.9 µs 取一个点，读到约 1.9 V。"
+    },
+    {
+      "id": "tr",
+      "scope": "rise",
+      "pin": "R1.1",
+      "ref": "R1.2",
+      "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "µs",
+      "range": [0.000138, 0.000152],
+      "ask": "1 kHz：v_R（也就是电流）从 10% 升到 90% 的上升时间 t_r"
+    },
+    {
+      "id": "tau",
+      "formula": "tr / ln(9)",
+      "unit": "µs",
+      "predict": true,
+      "range": [6.27e-05, 6.93e-05],
+      "ask": "由你的 t_r 算时间常数 τ = t_r / ln 9",
+      "explain": "τ = L / R总 = 10 mH / (100 + 50 + 1) Ω ≈ 66 µs。"
+    },
+    {
+      "id": "urpp10",
+      "scope": "vpp",
+      "pin": "R1.1",
+      "ref": "R1.2",
+      "set": {"FG1": {"waveform": "square", "frequency": 10000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.454, 0.501],
+      "ask": "调到 10 kHz：v_R 的峰峰值",
+      "explain": "半个周期 50 µs < τ，电流只在中间来回爬：1.32 V × tanh(T / 4τ) ≈ 0.48 V。"
+    }
   ],
   "hints": [
-    "电感从 VL 接到 GND，电阻接在信号发生器红夹子和 VL 之间。",
-    "τ = L / (R + 50 Ω + 1 Ω)，和半个周期比一比。",
-    "电流 = 电阻电压 / 100 Ω：看 CH1 − CH2。"
+    "R1 从第 3 列接到第 10 列；L1 从第 10 列接到 GND 轨。",
+    "v_R = CH1 − CH2；它除以 100 Ω 就是电流。",
+    "τ = L / R总，R总里要算上信号发生器的 50 Ω 和线圈的 1 Ω。"
   ],
   "start": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "square",
+        "frequency": 1000,
+        "amplitude": 1,
+        "offset": 0,
+        "pins": {"+": "a3", "-": "tn3"}
+      },
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   },
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "resistor", "ref": "R1", "resistance": "100", "pins": { "1": "b3", "2": "b10" } },
-      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "c10", "2": "tn10" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "square",
+        "frequency": 1000,
+        "amplitude": 1,
+        "offset": 0,
+        "pins": {"+": "a3", "-": "tn3"}
+      },
+      {"type": "resistor", "ref": "R1", "resistance": "100", "pins": {"1": "b3", "2": "b10"}},
+      {"type": "inductor", "ref": "L1", "inductance": "10m", "pins": {"1": "c10", "2": "tn10"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   }
 }
