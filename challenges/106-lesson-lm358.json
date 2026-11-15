@@ -2,154 +2,310 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-lm358",
-  "title": "第 14 课 · LM358 运放上面包板：电压跟随器",
+  "title": "LM358 上面包板：先不接反馈，再接成跟随器",
   "kind": "lesson",
   "level": 3,
-  "summary": "DIP-8 芯片横跨凹槽、认引脚、接电源脚，搭第一个运放电路——电压跟随器，看看单电源时输出能到多高。",
+  "summary": "芯片横跨凹槽、接好电源脚。先不接反馈线，看输出一下子顶到头；接上反馈，它就乖乖跟着输入走。",
   "concepts": ["op-amp 运放", "LM358", "DIP-8 pinout 引脚", "voltage follower 电压跟随器", "output swing 输出摆幅"],
-  "description": "**这一课学什么**：把 LM358（一颗芯片里有两个运放）插到面包板上，接好电源，搭最简单的运放电路。第 2 期的同相 / 反相 / 求和放大器和第 3、4 期的有源滤波器都从这里开始。\n\n**插芯片**：DIP-8 芯片必须**横跨中间凹槽**——1–4 脚在 e 行，8–5 脚在 f 行，每只脚独占一列金属条。如果整颗插在凹槽一边，对面两只脚会被同一条金属条短路。芯片上有缺口 / 小圆点的一端是 1 脚，从 1 脚开始**逆时针**数：1、2、3、4 在一排，5、6、7、8 从另一排的另一头回来。\n\n**LM358 引脚**：1 = A 的输出，2 = A 的反相输入 IN−，3 = A 的同相输入 IN+，4 = V−（单电源时接 GND），8 = V+，7 / 6 / 5 = B 的输出 / IN− / IN+。\n\n**电压跟随器**：输出直接接回 IN−，信号接 IN+。运放让 IN− ≈ IN+，所以输出 = 输入（增益 1）。它的用处是“隔离”：输入几乎不取电流，输出却能带负载。\n\n**单电源的限制**：LM358 的输出最高只能到 **V+ − 1.5 V** 左右（低端可以接近 0 V）。输入超过这个值，输出就“到顶”不动了。\n\n**电路**：9V 电池；电位器（10kΩ）两端接 9V 和 GND，滑动端给 IN+ 一个 0–9 V 可调的电压；A 运放接成跟随器。\n\n**仿真和真实芯片**：这里的 LM358 是简化模型：开环增益 10⁵、输出电阻 10 Ω、输入不取电流，没有压摆率和带宽限制，也没有输入失调电压。真实 LM358 的压摆率约 0.3 V/µs、增益带宽约 1 MHz，输出接近 V+ 的程度还和负载电流有关；没用到的那一半最好也接成跟随器、输入接到一个固定电压，避免它自己振荡。",
+  "description": "LM358 是一颗 DIP-8 芯片，里面有两个运放。运放把两个输入的差放大约 10 万倍；把输出接回反相输入（负反馈），它就成了电压跟随器：输出 = 输入。单电源时输出最高约 V+ − 1.5 V。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "不接反馈，会怎样？",
+      "text": [
+        "LM358 在一颗 8 脚芯片里装了**两个运放**。我们用第一个，叫 **A**：1 脚是输出，2 脚是 **IN−**，3 脚是 **IN+**。",
+        "插好芯片、接好电源，用电位器给 IN+ 一个电压。**先不接**那根把输出连回 IN− 的线。",
+        "然后转电位器，看输出。它跟着旋钮走吗？"
+      ],
+      "steps": 5
+    },
+    {
+      "kind": "explain",
+      "title": "运放：一个放大十万倍的裁判",
+      "text": [
+        "- 运放比较两个输入，把它们的差 $v_d = V(IN+) − V(IN−)$ 乘上一个很大的增益 $A$：",
+        "$$v_o = A\\,v_d$$",
+        "- 这里 $A ≈ 100\\,000$。IN− 悬空、IN+ 有 1 V 时，输出要 $100\\,000 × 1$ V。做不到，它就停在天花板上，比 V+ 低约 1.5 V。",
+        "- **负反馈**解决这个问题：把输出接回 IN−。输出只升到 IN− 追上 IN+ 为止，然后停住。输出复制了输入：这就是**电压跟随器**。",
+        "![](fig:follower)",
+        "- 跟随器不放大电压。它给的是**力气**：IN+ 不取电流，输出却能带负载。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "接上反馈，跟着走",
+      "text": ["- **接上反馈线**，再转旋钮：输出跟着走了。", "- 比较输出（1 脚）和 IN+（3 脚）。再把旋钮拧到底，看输出停在哪里。", "- 每道测量题都写了滑动端放在哪里。"],
+      "steps": 4
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 有了负反馈，两条规则几乎就够用：**$V(IN−) ≈ V(IN+)$**（虚短）和**输入端不取电流**（虚断）。",
+        "- 单电源 LM358 的输出只能从约 0 V 摆到约 **V+ − 1.5 V**。真实芯片的输入也最好低于这条线。",
+        "- 坑：别像第一次那样让运放的输入悬空——真实芯片会乱来。没用到的 B 半也接成跟随器，IN+ 接到一个固定电压。",
+        "- 下一步：用跟随器救一个被负载拉低的分压器。"
+      ],
+      "practice": ["opamp"]
+    }
+  ],
+  "figures": {
+    "pins": {
+      "kind": "breadboard",
+      "caption": {
+        "text": "LM358 横跨凹槽：上排 e 是 1–4 脚，下排 f 从右往左是 5–8 脚。每只脚独占一条金属条。",
+        "i18n": {
+          "en": "The LM358 straddles the trench: row e holds pins 1–4, row f pins 8–5 (left to right). Each pin has its own strip."
+        }
+      },
+      "cols": [8, 15],
+      "rails": "none",
+      "strips": [
+        {"at": "e10", "tone": 1, "label": {"text": "1 输出", "i18n": {"en": "1 OUT"}}},
+        {"at": "e11", "tone": 2, "label": {"text": "2 IN−", "i18n": {"en": "2 IN−"}}},
+        {"at": "e12", "tone": 3, "label": {"text": "3 IN+", "i18n": {"en": "3 IN+"}}},
+        {"at": "e13", "tone": 2, "label": {"text": "4 V−", "i18n": {"en": "4 V−"}}},
+        {"at": "f10", "tone": 1, "label": {"text": "8 V+", "i18n": {"en": "8 V+"}}}
+      ]
+    },
+    "follower": {
+      "kind": "schematic",
+      "caption": {
+        "text": "电压跟随器：输出接回 IN−。运放让 IN− 追上 IN+，所以 V_out = V_in。",
+        "i18n": {
+          "en": "Voltage follower: the output feeds IN−. The op-amp makes IN− catch up with IN+, so V_out = V_in."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "U1", "type": "OPAMP", "at": [3, 3]},
+          {"ref": "Vin", "type": "V", "from": [1, 4], "to": [1, 7], "label": "V_in"}
+        ],
+        "wires": [[[5, 3], [5, 0], [1, 0], [1, 2]]],
+        "labels": [{"at": [5, 3], "name": "V_out"}],
+        "grounds": [[1, 7]]
+      }
+    }
+  },
   "compare": "**对比**：\n- 滑动端 70 %：IN+ ≈ 0.7 × 9 V ≈ **6.3 V**，输出也是 **6.3 V**（跟随）；\n- 滑动端 100 %：IN+ = 9 V，但输出到顶：9 V − 1.5 V = **7.5 V**。",
   "i18n": {
-            "en": {
-                    "title": "Lesson 14 · An LM358 op-amp on the breadboard: voltage follower",
-                    "summary": "Seat a DIP-8 chip across the trench, find its pins, power it, and build the first op-amp circuit — a voltage follower — and see how high a single-supply output can go.",
-                    "concepts": ["op-amp", "LM358", "DIP-8 pinout", "voltage follower", "output swing"],
-                    "description": "**What you learn**: seating an LM358 (two op-amps in one chip) on the breadboard, powering it and building the simplest op-amp circuit. The phase 2 non-inverting / inverting / summing amplifiers and the active filters of phases 3 and 4 all start here.\n\n**Seating the chip**: a DIP-8 must **straddle the centre trench** — pins 1–4 in row e, pins 8–5 in row f, each pin on its own strip. Plugged into one side only, opposite pins would be shorted by the same strip. The end with the notch / dot is pin 1; count **anticlockwise** from it: 1, 2, 3, 4 along one row, then 5, 6, 7, 8 back along the other.\n\n**LM358 pins**: 1 = output A, 2 = inverting input IN− A, 3 = non-inverting input IN+ A, 4 = V− (GND on a single supply), 8 = V+, 7 / 6 / 5 = output / IN− / IN+ of B.\n\n**Voltage follower**: the output goes straight back to IN−, the signal to IN+. The op-amp makes IN− ≈ IN+, so output = input (gain 1). It isolates: the input draws almost no current, while the output can drive a load.\n\n**Single-supply limit**: the LM358 output can only reach about **V+ − 1.5 V** (the low end gets close to 0 V). Push the input above that and the output stops at the top.\n\n**Circuit**: 9V battery; a 10kΩ potentiometer across 9V and GND, whose wiper gives IN+ an adjustable 0–9 V; op-amp A wired as a follower.\n\n**Simulated vs real chip**: this LM358 is simplified: open-loop gain 10⁵, 10 Ω output resistance, no input current, no slew-rate or bandwidth limit and no input offset voltage. A real LM358 slews about 0.3 V/µs, has about 1 MHz gain-bandwidth, and how close its output gets to V+ depends on the load current; wire the unused half as a follower with its input on a fixed voltage so it doesn't oscillate.",
-                    "compare": "**Compare**:\n- wiper at 70 %: IN+ ≈ 0.7 × 9 V ≈ **6.3 V**, and the output is **6.3 V** too (it follows);\n- wiper at 100 %: IN+ = 9 V, but the output tops out at 9 V − 1.5 V = **7.5 V**.",
-                    "steps": [
-                              "Battery (9V): tp1 (+), tn1 (−).",
-                              "Pin 8 is in the bottom half, so the bottom rails need power too: red jumper tp30 → bp30, blue jumper tn29 → bn29.",
-                              "Pick \"Op-amp LM358\" and click e10 (pin 1, notch on the left). The chip straddles the trench: pins 1–4 at e10–e13, pins 8–5 at f10–f13.",
-                              "Power pins: red jumper j10 → bp10 (pin 8, V+, to +9V), blue jumper a13 → tn13 (pin 4, V−, to GND).",
-                              "The follower's feedback: jumper a10 → a11, from pin 1 (output) back to pin 2 (IN−).",
-                              "Pick \"Potentiometer\" (10kΩ) and click c20: its three legs are c20, c21 (wiper) and c22.",
-                              "The pot's ends: blue jumper a20 → tn20 (GND), red jumper a22 → tp22 (+9V).",
-                              "Wiper to IN+: jumper b21 → b12 (pin 3).",
-                              "Put the multimeter's red probe on d10 (output). Click the pot and drag its wiper in Properties: the output follows. Then probe d12 (IN+) and compare.",
-                              "Turn the wiper to 100 % (IN+ = 9 V). The output stops well below 9 V — a single-supply LM358 can't reach V+. Diagnostics notes that the output is saturated.",
-                              "Press \"Check my circuit\", set the wiper as each question says and read the multimeter."
-                            ],
-                    "hints": [
-                              "Follower: output to IN−, signal to IN+; the op-amp makes the two inputs equal.",
-                              "Wiper voltage = wiper position × 9 V (with leg 1 on GND and leg 3 on 9 V).",
-                              "The output never goes above V+ − 1.5 V."
-                            ],
-                    "tests": ["Wiper in the middle: the output follows the input", "Wiper at the top: the supply limits the output"],
-                    "measurements": [
-                                      {"ask": "Wiper at 70 %: IN+ (column 12, pin 3) to GND", "explain": "The pot divides: 0.7 × 9 V ≈ 6.3 V."},
-                                      {"ask": "Same state: the output (column 10, pin 1) to GND", "explain": "Follower: output = IN+."},
-                                      {
-                                        "ask": "Wiper turned to 100 %: the output to GND",
-                                        "explain": "IN+ is at 9 V now, but the output can only reach V+ − 1.5 V ≈ 7.5 V."
-                                      },
-                                      {
-                                        "ask": "Why does the output stop following the input at 100 %?",
-                                        "choices": [
-                                                    "the LM358's output can't reach V+; it tops out about 1.5 V below",
-                                                    "the potentiometer is broken",
-                                                    "a follower's gain is below 1"
-                                                  ],
-                                        "explain": "A single-supply op-amp's output swing is limited. For signals close to the rail, use a rail-to-rail op-amp or a higher V+."
-                                      }
-                                    ]
-                  }
-          },
-  "components": [{"ref": "V1", "type": "battery", "variant": "9V"}, {"ref": "U1", "type": "opamp"}, {"ref": "POT1", "type": "potentiometer", "resistance": "10k"}],
+    "en": {
+      "title": "LM358 on the breadboard: no feedback first, then a follower",
+      "summary": "Straddle the trench, power the chip. Leave the feedback wire out and watch the output slam to the top; wire it in and the output follows the input.",
+      "concepts": ["op-amp", "LM358", "DIP-8 pinout", "voltage follower", "output swing"],
+      "description": "The LM358 is a DIP-8 chip with two op-amps inside. An op-amp multiplies the difference of its two inputs by about 100 000; wiring the output back to the inverting input (negative feedback) makes a voltage follower: output = input. On a single supply the output reaches only about V+ − 1.5 V.",
+      "compare": "**Compare**:\n- wiper at 70 %: IN+ ≈ 0.7 × 9 V ≈ **6.3 V**, and the output is **6.3 V** too (it follows);\n- wiper at 100 %: IN+ = 9 V, but the output tops out at 9 V − 1.5 V = **7.5 V**.",
+      "steps": [
+        "**9 V battery**: + in **`tp1`**, − in **`tn1`**. Pin 8 sits in the bottom half, so the bottom rails need power too: red jumper **`tp30`** → **`bp30`**, blue jumper **`tn29`** → **`bn29`**.",
+        "Pick **Op-amp LM358** and click **`e10`** (pin 1, notch on the left). The chip straddles the trench: pins 1–4 in `e10`–`e13`, pins 8–5 in `f10`–`f13`, each pin on its own strip.\n\n![](fig:pins)",
+        "**Power pins**: red jumper **`j10`** → **`bp10`** (pin 8, V+, to +9 V), blue jumper **`a13`** → **`tn13`** (pin 4, V−, to GND).",
+        "**Potentiometer** `10 kΩ`, click **`c20`** (legs in `c20`, `c21`, `c22`). Its ends: blue jumper **`a20`** → **`tn20`**, red jumper **`a22`** → **`tp22`**. Wiper to IN+: jumper **`b21`** → **`b12`** (pin 3).",
+        "**No feedback wire yet.** Put the multimeter's red probe on **`d10`** (pin 1, the output). Click the pot and drag its wiper in **Properties** from `10%` to `90%`: what does the output do?",
+        "**Add the feedback**: jumper **`a10`** → **`a11`**, from pin 1 (output) back to pin 2 (IN−).",
+        "Drag the wiper again and watch **`d10`**; then move the red probe to **`d12`** (pin 3, IN+) and compare.",
+        "Turn the wiper to **`100%`** (IN+ = 9 V) and look at the output again: it stops well short of 9 V. **Diagnostics** reports the output as saturated.",
+        "Press **Check my circuit**, set the wiper as each question says, and read the multimeter."
+      ],
+      "hints": [
+        "Follower: output to IN−, signal to IN+; the op-amp makes the two inputs equal.",
+        "With pin 1 on GND and pin 3 on 9 V, the wiper voltage = wiper position × 9 V.",
+        "The output never goes above V+ − 1.5 V."
+      ],
+      "tests": [
+        "Wiper in the middle: the output follows the input",
+        "Wiper at the top: the supply limits the output"
+      ],
+      "measurements": [
+        {
+          "ask": "Wiper at `70%`: IN+ (column 12, pin 3) to GND",
+          "explain": "The pot divides: 0.7 × 9 V ≈ 6.3 V."
+        },
+        {"ask": "Same setting: the output (column 10, pin 1) to GND", "explain": "Follower: output = IN+."},
+        {
+          "ask": "Wiper at `100%`: the output to GND",
+          "explain": "IN+ is at 9 V, but the output tops out at V+ − 1.5 V ≈ 7.5 V."
+        },
+        {
+          "choices": [
+            "the LM358's output can't reach V+; it tops out about 1.5 V below",
+            "the potentiometer is broken",
+            "a follower's gain is below 1"
+          ],
+          "ask": "Why does the output stop following the input at 100%?",
+          "explain": "A single-supply op-amp has a limited output swing. For signals close to the supply, pick a rail-to-rail op-amp or raise V+."
+        }
+      ],
+      "cards": [
+        {
+          "title": "What happens with no feedback?",
+          "text": [
+            "The LM358 holds **two op-amps** in one 8-pin chip. We use the first one, called **A**: pin 1 is its output, pin 2 its **IN−**, pin 3 its **IN+**.",
+            "Put in the chip, power it, and feed IN+ from a pot. **Leave out** the wire that would join the output to IN−.",
+            "Then turn the pot and watch the output. Does it follow the knob?"
+          ]
+        },
+        {
+          "title": "The op-amp: a referee that multiplies by 100 000",
+          "text": [
+            "- An op-amp compares its two inputs and multiplies the difference $v_d = V(IN+) − V(IN−)$ by a huge gain $A$:",
+            "$$v_o = A\\,v_d$$",
+            "- Here $A ≈ 100\\,000$. With IN− left open and 1 V on IN+, the output would need $100\\,000 × 1$ V. It can't, so it sits at its ceiling, about 1.5 V below V+.",
+            "- **Negative feedback** fixes it: wire the output back to IN−. The output now rises only until IN− has caught up with IN+, then holds still. The output copies the input: a **voltage follower**.",
+            "![](fig:follower)",
+            "- The follower gains nothing in voltage. Its gift is **strength**: IN+ takes no current, yet the output can drive a load."
+          ]
+        },
+        {
+          "title": "Add the feedback and follow",
+          "text": [
+            "- **Add the feedback wire**, then turn the knob: the output follows it.",
+            "- Compare the output (pin 1) with IN+ (pin 3). Then turn the knob all the way up and see where the output stops.",
+            "- The measurement questions say where to set the wiper for each reading."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- With negative feedback, two rules do almost all the work: **$V(IN−) ≈ V(IN+)$** (virtual short) and **no current into the inputs** (virtual open).",
+            "- A single-supply LM358 swings its output from about 0 V up to about **V+ − 1.5 V**. A real one also wants its inputs below that line.",
+            "- Pitfall: never leave an op-amp input floating, as in the first try — a real chip then does anything. Wire the unused half B as a follower with its IN+ tied to a fixed voltage.",
+            "- Next: use the follower to rescue a divider that a load has pulled down."
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {"ref": "V1", "type": "battery", "variant": "9V"},
+    {"ref": "U1", "type": "opamp"},
+    {"ref": "POT1", "type": "potentiometer", "resistance": "10k"}
+  ],
   "connections": [["V1.+", "U1.v+", "POT1.3"], ["V1.-", "U1.v-", "POT1.1"], ["POT1.2", "U1.inA+"], ["U1.outA", "U1.inA-"]],
   "tests": [
-            {"name": "滑动端在中间：输出跟着输入", "set": {"POT1": {"wiper": 0.5}}, "voltages": [{"pin": "U1.outA", "min": 4.3, "max": 4.7}]},
-            {"name": "滑动端到顶：输出被电源限制", "set": {"POT1": {"wiper": 1}}, "voltages": [{"pin": "U1.outA", "min": 7.2, "max": 7.7}]}
-          ],
+    {
+      "name": "滑动端在中间：输出跟着输入",
+      "set": {"POT1": {"wiper": 0.5}},
+      "voltages": [{"pin": "U1.outA", "min": 4.3, "max": 4.7}]
+    },
+    {
+      "name": "滑动端到顶：输出被电源限制",
+      "set": {"POT1": {"wiper": 1}},
+      "voltages": [{"pin": "U1.outA", "min": 7.2, "max": 7.7}]
+    }
+  ],
   "measurements": [
-                    {
-                      "id": "vin",
-                      "voltage": "POT1.2",
-                      "set": {"POT1": {"wiper": 0.7}},
-                      "unit": "V",
-                      "predict": true,
-                      "range": [6.1, 6.5],
-                      "ask": "滑动端 70 %：IN+（3 脚所在的第 12 列）对 GND 的电压",
-                      "explain": "电位器分压：0.7 × 9 V ≈ 6.3 V。"
-                    },
-                    {
-                      "id": "vout",
-                      "voltage": "U1.outA",
-                      "set": {"POT1": {"wiper": 0.7}},
-                      "unit": "V",
-                      "predict": true,
-                      "range": [6.1, 6.5],
-                      "ask": "同一状态：输出（1 脚所在的第 10 列）对 GND 的电压",
-                      "explain": "跟随器：输出 = IN+。"
-                    },
-                    {
-                      "id": "vtop",
-                      "voltage": "U1.outA",
-                      "set": {"POT1": {"wiper": 1}},
-                      "unit": "V",
-                      "predict": true,
-                      "range": [7.3, 7.6],
-                      "ask": "滑动端拧到 100 %：输出对 GND 的电压",
-                      "explain": "IN+ 已经是 9 V，可输出最高只有 V+ − 1.5 V ≈ 7.5 V。"
-                    },
-                    {
-                      "id": "why",
-                      "correct": 0,
-                      "ask": "为什么滑动端在 100 % 时输出不再等于输入？",
-                      "choices": ["LM358 的输出到不了 V+，最高约 V+ − 1.5 V", "电位器坏了", "跟随器的增益小于 1"],
-                      "explain": "单电源运放的输出摆幅有限。要放大接近电源的信号，选“轨到轨”（rail-to-rail）运放，或者提高 V+。"
-                    }
-                  ],
+    {
+      "id": "vin",
+      "voltage": "POT1.2",
+      "set": {"POT1": {"wiper": 0.7}},
+      "unit": "V",
+      "predict": true,
+      "range": [6.1, 6.5],
+      "ask": "滑动端 `70%`：IN+（3 脚所在的第 12 列）对 GND 的电压",
+      "explain": "电位器分压：0.7 × 9 V ≈ 6.3 V。"
+    },
+    {
+      "id": "vout",
+      "voltage": "U1.outA",
+      "set": {"POT1": {"wiper": 0.7}},
+      "unit": "V",
+      "predict": true,
+      "range": [6.1, 6.5],
+      "ask": "同一状态：输出（1 脚所在的第 10 列）对 GND 的电压",
+      "explain": "跟随器：输出 = IN+。"
+    },
+    {
+      "id": "vtop",
+      "voltage": "U1.outA",
+      "set": {"POT1": {"wiper": 1}},
+      "unit": "V",
+      "predict": true,
+      "range": [7.3, 7.6],
+      "ask": "滑动端拧到 `100%`：输出对 GND 的电压",
+      "explain": "IN+ 已经是 9 V，可输出最高只有 V+ − 1.5 V ≈ 7.5 V。",
+      "stated": true
+    },
+    {
+      "id": "why",
+      "correct": 0,
+      "ask": "为什么滑动端在 100% 时，输出不再等于输入？",
+      "choices": ["LM358 的输出到不了 V+，最高约 V+ − 1.5 V", "电位器坏了", "跟随器的增益小于 1"],
+      "explain": "单电源运放的输出摆幅有限。要处理接近电源的信号，选“轨到轨”（rail-to-rail）运放，或者提高 V+。"
+    }
+  ],
   "steps": [
-            {"text": "电池（9V）：tp1（+）、tn1（−）。", "highlight": ["tp1", "tn1"], "check": [{"type": "battery", "pins": {"+": "tp1", "-": "tn1"}}]},
-            {
-              "text": "芯片的 8 脚在下半区，所以下方轨道也要有电：红色跳线 tp30 → bp30，蓝色跳线 tn29 → bn29。",
-              "highlight": ["tp30", "bp30", "tn29", "bn29"],
-              "check": [{"type": "wire", "pins": {"a": "tp30", "b": "bp30"}}, {"type": "wire", "pins": {"a": "tn29", "b": "bn29"}}]
-            },
-            {
-              "text": "选“运放 LM358”，单击 e10（1 脚，带缺口的一端在左边）。芯片横跨凹槽：1–4 脚在 e10–e13，8–5 脚在 f10–f13。",
-              "highlight": ["e10", "e11", "e12", "e13", "f10", "f11", "f12", "f13"],
-              "check": [{"type": "opamp", "at": "e10"}]
-            },
-            {
-              "text": "电源脚：红色跳线 j10 → bp10（8 脚 V+ 接 +9V），蓝色跳线 a13 → tn13（4 脚 V− 接 GND）。",
-              "highlight": ["j10", "bp10", "a13", "tn13"],
-              "check": [{"type": "wire", "pins": {"a": "j10", "b": "bp10"}}, {"type": "wire", "pins": {"a": "a13", "b": "tn13"}}]
-            },
-            {"text": "跟随器的反馈：跳线 a10 → a11，把 1 脚（输出）接回 2 脚（IN−）。", "highlight": ["a10", "a11"], "check": [{"type": "wire", "pins": {"a": "a10", "b": "a11"}}]},
-            {
-              "text": "选“电位器”（10kΩ），单击 c20：三只脚在 c20、c21（滑动端）、c22。",
-              "highlight": ["c20", "c21", "c22"],
-              "check": [{"type": "potentiometer", "at": "c20", "resistance": "10k"}]
-            },
-            {
-              "text": "电位器两端：蓝色跳线 a20 → tn20（GND），红色跳线 a22 → tp22（+9V）。",
-              "highlight": ["a20", "tn20", "a22", "tp22"],
-              "check": [{"type": "wire", "pins": {"a": "a20", "b": "tn20"}}, {"type": "wire", "pins": {"a": "a22", "b": "tp22"}}]
-            },
-            {"text": "滑动端接 IN+：跳线 b21 → b12（3 脚）。", "highlight": ["b21", "b12"], "check": [{"type": "wire", "pins": {"a": "b21", "b": "b12"}}]},
-            {"text": "万用表红表笔点 d10（输出）。单击电位器，在“属性”里拖滑动端：输出跟着变。再点 d12（IN+）比一比。", "highlight": ["d10", "d12"], "check": [{"probe": {"red": "d10"}}]},
-            {
-              "text": "把滑动端拧到 100 %（IN+ = 9 V）。输出停在比 9 V 低一截的地方——单电源 LM358 的输出到不了 V+。“诊断”里会提示输出饱和。",
-              "highlight": ["c21"],
-              "check": [{"type": "potentiometer", "at": "c20", "wiper": 1}]
-            },
-            {"text": "点“检查我的电路”，按每道题的状态调滑动端，读万用表。", "highlight": []}
-          ],
-  "hints": ["跟随器：输出接 IN−，信号接 IN+，运放让两个输入相等。", "电位器滑动端的电压 = 滑动端位置 × 9 V（1 脚接 GND、3 脚接 9 V 时）。", "输出不会超过 V+ − 1.5 V。"],
+    {
+      "text": "**9 V 电池**：+ 接 **`tp1`**，− 接 **`tn1`**。芯片的 8 脚在下半区，下方轨道也要有电：红跳线 **`tp30`** → **`bp30`**，蓝跳线 **`tn29`** → **`bn29`**。",
+      "highlight": ["tp1", "tn1", "tp30", "bp30", "tn29", "bn29"],
+      "check": [
+        {"type": "battery", "pins": {"+": "tp1", "-": "tn1"}},
+        {"type": "wire", "pins": {"a": "tp30", "b": "bp30"}},
+        {"type": "wire", "pins": {"a": "tn29", "b": "bn29"}}
+      ]
+    },
+    {
+      "text": "选**「运放 LM358」**，单击 **`e10`**（1 脚，缺口在左）。芯片横跨凹槽：1–4 脚在 `e10`–`e13`，8–5 脚在 `f10`–`f13`，每只脚独占一条金属条。\n\n![](fig:pins)",
+      "highlight": ["e10", "e11", "e12", "e13", "f10", "f11", "f12", "f13"],
+      "check": [{"type": "opamp", "at": "e10"}]
+    },
+    {
+      "text": "**电源脚**：红跳线 **`j10`** → **`bp10`**（8 脚 V+ 接 +9 V），蓝跳线 **`a13`** → **`tn13`**（4 脚 V− 接 GND）。",
+      "highlight": ["j10", "bp10", "a13", "tn13"],
+      "check": [
+        {"type": "wire", "pins": {"a": "j10", "b": "bp10"}},
+        {"type": "wire", "pins": {"a": "a13", "b": "tn13"}}
+      ]
+    },
+    {
+      "text": "**电位器** `10 kΩ`，单击 **`c20`**（三只脚在 `c20`、`c21`、`c22`）。两端：蓝跳线 **`a20`** → **`tn20`**，红跳线 **`a22`** → **`tp22`**。滑动端接 IN+：跳线 **`b21`** → **`b12`**（3 脚）。",
+      "highlight": ["c20", "c21", "c22", "a20", "tn20", "a22", "tp22", "b21", "b12"],
+      "check": [
+        {"type": "potentiometer", "at": "c20", "resistance": "10k"},
+        {"type": "wire", "pins": {"a": "a20", "b": "tn20"}},
+        {"type": "wire", "pins": {"a": "a22", "b": "tp22"}},
+        {"type": "wire", "pins": {"a": "b21", "b": "b12"}}
+      ]
+    },
+    {
+      "text": "**先不接反馈线。** 万用表红表笔点 **`d10`**（1 脚，输出）。单击电位器，在「属性」里把滑动端从 `10%` 拖到 `90%`：输出怎么变？",
+      "highlight": ["d10"],
+      "check": [{"probe": {"red": "d10"}}]
+    },
+    {
+      "text": "**接上反馈**：跳线 **`a10`** → **`a11`**，把 1 脚（输出）接回 2 脚（IN−）。",
+      "highlight": ["a10", "a11"],
+      "check": [{"type": "wire", "pins": {"a": "a10", "b": "a11"}}]
+    },
+    {
+      "text": "再拖一次滑动端，看 **`d10`** 的读数；然后把红表笔移到 **`d12`**（3 脚，IN+）比一比。",
+      "highlight": ["d10", "d12"],
+      "check": [{"probe": {"red": "d12"}}]
+    },
+    {
+      "text": "把滑动端拧到 **`100%`**（IN+ = 9 V），再看输出：它停在比 9 V 低一截的地方。「诊断」会提示输出饱和。",
+      "highlight": ["c21"],
+      "check": [{"type": "potentiometer", "at": "c20", "wiper": 1}]
+    },
+    "点**「检查我的电路」**，按每道测量题写的状态调滑动端，读万用表。"
+  ],
+  "hints": [
+    "跟随器：输出接 IN−，信号接 IN+，运放让两个输入相等。",
+    "电位器 1 脚接 GND、3 脚接 9 V 时，滑动端的电压 = 滑动端位置 × 9 V。",
+    "输出不会超过 V+ − 1.5 V。"
+  ],
   "solution": {
-                "parts": [
-                          {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "tp1", "-": "tn1"}},
-                          {"type": "wire", "pins": {"a": "tp30", "b": "bp30"}, "color": "red"},
-                          {"type": "wire", "pins": {"a": "tn29", "b": "bn29"}, "color": "blue"},
-                          {"type": "opamp", "ref": "U1", "at": "e10"},
-                          {"type": "wire", "pins": {"a": "j10", "b": "bp10"}, "color": "red"},
-                          {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"},
-                          {"type": "wire", "pins": {"a": "a10", "b": "a11"}, "color": "green"},
-                          {"type": "potentiometer", "ref": "POT1", "resistance": "10k", "wiper": 1, "at": "c20"},
-                          {"type": "wire", "pins": {"a": "a20", "b": "tn20"}, "color": "blue"},
-                          {"type": "wire", "pins": {"a": "a22", "b": "tp22"}, "color": "red"},
-                          {"type": "wire", "pins": {"a": "b21", "b": "b12"}, "color": "yellow"}
-                        ]
-              }
+    "parts": [
+      {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp30", "b": "bp30"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "tn29", "b": "bn29"}, "color": "blue"},
+      {"type": "opamp", "ref": "U1", "at": "e10"},
+      {"type": "wire", "pins": {"a": "j10", "b": "bp10"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "a10", "b": "a11"}, "color": "green"},
+      {"type": "potentiometer", "ref": "POT1", "resistance": "10k", "wiper": 1, "at": "c20"},
+      {"type": "wire", "pins": {"a": "a20", "b": "tn20"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "a22", "b": "tp22"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "b21", "b": "b12"}, "color": "yellow"}
+    ]
+  }
 }
