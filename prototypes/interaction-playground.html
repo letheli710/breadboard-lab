@@ -73,6 +73,7 @@ svg.i { width: 16px; height: 16px; flex: none; }
 .tool[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
 .tool .k { position: absolute; top: 3px; right: 5px; font-family: var(--cond); font-size: 10px; color: var(--muted); }
 .tool svg { width: 28px; height: 28px; }
+.tb-bottom { margin-top: auto; border-top: 1px solid var(--line); padding-top: 6px; display: flex; flex-direction: column; }
 .tool.erase[aria-pressed="true"] { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
 
 .canvas { flex: 1; min-width: 0; position: relative; overflow: hidden; background-color: var(--canvas);
@@ -99,6 +100,17 @@ svg.i { width: 16px; height: 16px; flex: none; }
 .dock button { white-space: nowrap; border: 0; background: transparent; border-radius: 8px; padding: 6px 8px; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
 .dock button:hover:not(:disabled) { background: var(--accent-soft); }
 .dock button:disabled { opacity: .35; cursor: default; }
+.dock { max-width: calc(100% - 16px); overflow-x: auto; }
+.dock .rec { display: flex; gap: 2px; align-items: center; }
+.dock .rec .lbl { font-family: var(--cond); font-size: 11px; letter-spacing: .08em; color: var(--muted); padding: 0 4px 0 6px; white-space: nowrap; }
+.dock .rec button { flex-direction: column; gap: 1px; padding: 3px 7px; font-size: 11px; position: relative; }
+.dock .rec button svg { width: 24px; height: 24px; }
+.dock .rec button .k { position: absolute; top: 1px; right: 3px; font-family: var(--cond); font-size: 9px; color: var(--muted); }
+.dock .rec button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-ink); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.rot-btn { cursor: pointer; }
+.rot-btn circle { fill: var(--card); stroke: var(--accent); stroke-width: 2; }
+.rot-btn:hover circle { fill: var(--accent-soft); }
+@media (max-width: 560px) { .dock .zgrp { display: none; } }
 .dock .zoom { font-family: var(--cond); min-width: 42px; text-align: center; font-variant-numeric: tabular-nums; }
 .dock .sep { width: 1px; align-self: stretch; background: var(--line); margin: 2px 2px; }
 
@@ -229,13 +241,17 @@ summary { font-family: var(--cond); font-weight: 600; letter-spacing: .08em; cur
           <div class="ctx" id="ctx" hidden role="menu"></div>
           <div class="toast" id="toast" hidden role="status"></div>
           <button class="panel-tab" id="panelTab" hidden title="展开右侧教学栏">教学栏 ‹</button>
-          <div class="dock" role="toolbar" aria-label="视图">
+          <div class="dock" role="toolbar" aria-label="常用器材与视图">
+            <div class="rec" id="recent" role="group" aria-label="常用器材"></div>
+            <span class="sep"></span>
             <button id="undoBtn" title="撤销 (Ctrl+Z)"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
             <button id="redoBtn" title="重做 (Ctrl+Shift+Z)"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></button>
             <span class="sep"></span>
+            <span class="zgrp" style="display:contents">
             <button id="zoomOut" title="缩小">−</button>
             <button class="zoom" id="zoomPct" title="回到 100%">100%</button>
             <button id="zoomIn" title="放大">+</button>
+            </span>
             <span class="sep"></span>
             <button id="fitBtn" title="整块板放进视野 (F)"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>适应</button>
           </div>
@@ -280,6 +296,10 @@ summary { font-family: var(--cond); font-weight: 600; letter-spacing: .08em; cur
             <tr><td>2b</td><td><b>橡皮擦</b>：器材栏里或按 <span class="kbd">E</span>。点一下擦一个，按住拖过去连续擦；<span class="kbd">Ctrl</span>+<span class="kbd">Z</span> 一次撤回整笔。</td></tr>
             <tr><td>2c</td><td><b>中间分隔条可拖</b>：双击复原，拖到最右收起；也可以用方向键调。宽度会被记住。</td></tr>
             <tr><td>2d</td><td><b>课程栏收起来了</b>：左上「课程」按钮打开课程列表，「器材」开关显示 / 隐藏左侧器材栏。</td></tr>
+            <tr><td>3</td><td><b>橡皮擦挪到器材栏最底下</b>，和其它器件分开，不容易误点。</td></tr>
+            <tr><td>4</td><td><b>放完一个就回到「选择」</b>：跳线也一样，下一个器件要重新挑。</td></tr>
+            <tr><td>5</td><td><b>底部横条加了「常用」5 格</b>：最近用过的器件，点一下就能放；用到新器件时替换掉最久没用的那个。</td></tr>
+            <tr><td>6</td><td><b>电池能转向</b>：选中后点机身旁的 ↻，或按 <span class="kbd">T</span>，每次转 90°，拖动中、放下前也能转。正式版里所有放在板外的器件（稳压电源、信号发生器、示波器、开发板）都用同一套。</td></tr>
           </tbody></table>
         </details>
         <details>
@@ -325,14 +345,25 @@ const TYPES = {
   wire: { name: '跳线', key: 'W' },
   resistor: { name: '电阻', key: 'R' },
   led: { name: 'LED', key: 'L' },
+  capacitor: { name: '电容', key: 'C' },
 };
-const PREFIX = { battery: 'BAT', wire: 'W', resistor: 'R', led: 'D' };
+const PREFIX = { battery: 'BAT', wire: 'W', resistor: 'R', led: 'D', capacitor: 'C' };
+const C_VALUES = [100e-9, 1e-6, 10e-6, 100e-6];
+const fmtC = (c) => (c >= 1e-6 ? +(c * 1e6).toPrecision(3) + ' µF' : +(c * 1e9).toPrecision(3) + ' nF');
 const E_VALUES = [100, 150, 220, 330, 390, 470, 680, 1000, 2200, 4700, 10000];
 const LED_COLORS = { red: { name: '红', vf: 1.8, c: '#ff3b3b' }, yellow: { name: '黄', vf: 2.0, c: '#ffc53d' }, green: { name: '绿', vf: 2.1, c: '#34d36b' }, blue: { name: '蓝', vf: 3.0, c: '#3b8cff' } };
 const WIRE_COLORS = { '#2ba59b': '青', '#e63946': '红', '#1f2a44': '黑', '#f0a202': '黄', '#2b59c3': '蓝' };
 const BAT = { '9V': { v: 9, r: 1.5, label: '9V 电池' }, '3AA': { v: 4.5, r: 0.45, label: '3 节 AA（4.5 V）' } };
 const BAT_W = 58, BAT_H = 96;
-const batTerm = (p, which) => ({ x: p.bx + (which === 'a' ? 17 : 41), y: p.by + 6 });
+// Off-board bodies (battery here; in the real app also bench supply, signal generator, scope, MCU boards)
+// keep a rotation in 90° steps around their centre. Pins and lead directions rotate with the body.
+const rotPt = (p, lx, ly) => {
+  const a = ((p.rot || 0) * Math.PI) / 180, dx = lx - BAT_W / 2, dy = ly - BAT_H / 2;
+  return { x: p.bx + BAT_W / 2 + dx * Math.cos(a) - dy * Math.sin(a), y: p.by + BAT_H / 2 + dx * Math.sin(a) + dy * Math.cos(a) };
+};
+const batTerm = (p, which) => rotPt(p, which === 'a' ? 17 : 41, 6);
+const batDir = (p) => { const a = ((p.rot || 0) * Math.PI) / 180; return { x: Math.sin(a), y: -Math.cos(a) }; };
+const batBox = (p) => { const side = (p.rot || 0) % 180, w = side ? BAT_H : BAT_W, h = side ? BAT_W : BAT_H, cx = p.bx + BAT_W / 2, cy = p.by + BAT_H / 2; return { x0: cx - w / 2, y0: cy - h / 2, x1: cx + w / 2, y1: cy + h / 2 }; };
 const fmtR = (r) => (r >= 1000 ? (r / 1000).toString().replace(/\.0$/, '') + ' kΩ' : r + ' Ω');
 const fmtI = (i) => (Math.abs(i) < 1e-4 ? '0 mA' : (i * 1000).toFixed(1) + ' mA');
 
@@ -455,7 +486,7 @@ function solve(A, b) {
 
 /* ---------- lesson steps (evaluated live from the circuit, never from step order) ---------- */
 const STEPS = [
-  { t: '放电池', d: '在器材栏选「电池」，先点一下放下机身（板旁空地就行，之后随时能拖走），再依次点红线 + 和黑线 − 要插的孔：红线插上方红色 + 轨，黑线插上方蓝色 − 轨。' },
+  { t: '放电池', d: '在器材栏选「电池」，先点一下放下机身（板旁空地就行，之后随时能拖走），再依次点红线 + 和黑线 − 要插的孔：红线插上方红色 + 轨，黑线插上方蓝色 − 轨。导线绕得乱？选中电池按 T（或点 ↻）转个方向。' },
   { t: '放电阻', d: '一脚插 + 轨，另一脚插到中间区域任意一列。放下后会弹出详情，可以直接选阻值。' },
   { t: '放 LED', d: '长脚（+ 阳极）和电阻下脚在同一列（同一列 a–e 五个孔内部相通），短脚插到另一列。' },
   { t: '接回 −', d: '用跳线把 LED 短脚那一列接到 − 轨，回路就闭合了。' },
@@ -556,18 +587,19 @@ function drawPart(p, ghost) {
   if (p.type === 'battery') {
     const { bx, by } = ghost ? p : batBody(p);
     const bp = { ...p, bx, by };
-    const ta = batTerm(bp, 'a'), tb = batTerm(bp, 'b');
+    const ta = batTerm(bp, 'a'), tb = batTerm(bp, 'b'), dir = batDir(bp), rot = bp.rot || 0, ccx = bx + BAT_W / 2, ccy = by + BAT_H / 2, box = batBox(bp);
     const lead = (t, end, col) => {
       if (!end) return '';
-      const mid = Math.max(40, Math.hypot(end.x - t.x, end.y - t.y) * 0.35);
-      return `<path d="M${t.x} ${t.y} C${t.x} ${t.y - mid} ${end.x} ${end.y - mid * 0.6} ${end.x} ${end.y}" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M${t.x} ${t.y} C${t.x} ${t.y - mid} ${end.x} ${end.y - mid * 0.6} ${end.x} ${end.y}" stroke="transparent" stroke-width="12" fill="none"/>` +
+      const mid = Math.max(30, Math.hypot(end.x - t.x, end.y - t.y) * 0.35);
+      const d = `M${t.x} ${t.y} C${t.x + dir.x * mid} ${t.y + dir.y * mid} ${end.x} ${end.y - mid * 0.4} ${end.x} ${end.y}`;
+      return `<path d="${d}" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="${d}" stroke="transparent" stroke-width="12" fill="none"/>` +
         `<rect x="${end.x - 3}" y="${end.y - 3}" width="6" height="6" rx="1" fill="#333"/>`;
     };
     const ea = ghost ? p.ea : endXY(p, 'a'), eb = ghost ? p.eb : endXY(p, 'b');
     const is9 = p.variant === '9V';
     s += `<g class="${cls.join(' ')}" ${attrs}>`;
     s += lead(tb, eb, '#22252b') + lead(ta, ea, '#e23b3b');
-    s += `<g data-body="1"><rect class="body-hl" x="${bx - 5}" y="${by - 5}" width="${BAT_W + 10}" height="${BAT_H + 10}" rx="10" fill="none"/>`;
+    s += `<g data-body="1"><g transform="rotate(${rot} ${ccx} ${ccy})"><rect class="body-hl" x="${bx - 5}" y="${by - 5}" width="${BAT_W + 10}" height="${BAT_H + 10}" rx="10" fill="none"/>`;
     if (is9) {
       s += `<rect x="${bx}" y="${by}" width="${BAT_W}" height="${BAT_H}" rx="7" fill="#2a2e38"/><rect x="${bx}" y="${by + 34}" width="${BAT_W}" height="30" fill="#e8b23a"/>` +
         `<text x="${bx + BAT_W / 2}" y="${by + 55}" font-size="16" font-weight="700" text-anchor="middle" fill="#2a2e38" font-family="Barlow Condensed, sans-serif">9V</text>`;
@@ -575,10 +607,15 @@ function drawPart(p, ghost) {
       s += `<rect x="${bx}" y="${by}" width="${BAT_W}" height="${BAT_H}" rx="6" fill="#30343e"/>`;
       for (let i = 0; i < 3; i++) s += `<rect x="${bx + 5 + i * 17}" y="${by + 16}" width="14" height="74" rx="6" fill="#b9bdc6"/><rect x="${bx + 5 + i * 17}" y="${by + 16}" width="14" height="22" rx="5" fill="#c73a3a"/>`;
     }
-    s += `<circle cx="${ta.x}" cy="${ta.y}" r="5" fill="#d9d9d9" stroke="#555"/><text x="${ta.x}" y="${ta.y + 20}" font-size="12" font-weight="700" fill="#ff8a8a" text-anchor="middle">+</text>`;
-    s += `<rect x="${tb.x - 5}" y="${tb.y - 5}" width="10" height="10" rx="2" fill="#d9d9d9" stroke="#555"/><text x="${tb.x}" y="${tb.y + 21}" font-size="13" font-weight="700" fill="#aab" text-anchor="middle">−</text>`;
-    s += `<text x="${bx + BAT_W / 2}" y="${by + BAT_H + 14}" font-size="11" text-anchor="middle" fill="var(--muted)">${ghost ? '' : p.id}</text></g>`;
+    const la = { x: bx + 17, y: by + 6 }, lb = { x: bx + 41, y: by + 6 };
+    s += `<circle cx="${la.x}" cy="${la.y}" r="5" fill="#d9d9d9" stroke="#555"/><text x="${la.x}" y="${la.y + 20}" font-size="12" font-weight="700" fill="#ff8a8a" text-anchor="middle">+</text>`;
+    s += `<rect x="${lb.x - 5}" y="${lb.y - 5}" width="10" height="10" rx="2" fill="#d9d9d9" stroke="#555"/><text x="${lb.x}" y="${lb.y + 21}" font-size="13" font-weight="700" fill="#aab" text-anchor="middle">−</text></g>`;
+    s += `<text x="${(box.x0 + box.x1) / 2}" y="${box.y1 + 14}" font-size="11" text-anchor="middle" fill="var(--muted)">${ghost ? '' : p.id}</text></g>`;
     if (!ghost) { if (ea) s += handle(p, 'a', ea); if (eb) s += handle(p, 'b', eb); }
+    if (!ghost && sel === p.id && !(drag && drag.kind === 'bat')) {
+      const rx = box.x1 + 14, ry = box.y0 - 2;
+      s += `<g class="rot-btn" data-rotate="${p.id}"><title>转 90°（T）</title><circle cx="${rx}" cy="${ry}" r="11"/><path d="M${rx - 5} ${ry + 1} a5 5 0 1 1 2 4" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round"/><path d="M${rx - 8} ${ry - 1} l3 3 l3 -3" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+    }
     return s + '</g>';
   }
   const A = ghost ? p.A : endXY(p, 'a'), B = ghost ? p.B : endXY(p, 'b');
@@ -604,6 +641,10 @@ function drawPart(p, ghost) {
     s += `</g>`;
     if (!ghost) { const nx = -dy / L, ny = dx / L, sgn = Math.abs(nx) > 0.5 ? (nx > 0 ? 1 : -1) : (ny < 0 ? 1 : -1), lx = mx + nx * sgn * 16, ly = my + ny * sgn * 16 + 3;
       s += `<text x="${lx}" y="${ly}" font-size="10" text-anchor="${Math.abs(nx) > 0.5 ? (nx * sgn > 0 ? 'start' : 'end') : 'middle'}" fill="#1f2a44" style="paint-order:stroke" stroke="#e9e6df" stroke-width="3">${p.id} ${fmtR(p.value)}</text>`; }
+  } else if (p.type === 'capacitor') {
+    s += hit + `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#9aa0a8" stroke-width="2.4" stroke-linecap="round"/>`;
+    s += `<g transform="translate(${mx} ${my}) rotate(${ang})"><rect class="body-hl" x="-14" y="-14" width="28" height="28" rx="14"/><ellipse rx="8" ry="9.5" fill="#d9a441" stroke="#a87924" stroke-width="1.2"/></g>`;
+    if (!ghost) s += `<text x="${mx}" y="${my - 14}" font-size="10" text-anchor="middle" fill="#1f2a44" style="paint-order:stroke" stroke="#e9e6df" stroke-width="3">${p.id} ${fmtC(p.value)}</text>`;
   } else if (p.type === 'led') {
     const col = LED_COLORS[p.color].c;
     const I = !ghost && sim && sim.ok ? sim.I[p.id] || 0 : 0;
@@ -637,8 +678,8 @@ function drawPreview() {
   if (place && cursorW) {
     const tgt = hoverHole ? holes.get(hoverHole) : cursorW;
     if (place.type === 'battery') {
-      if (place.stage === 'body') s = drawPart({ type: 'battery', variant: '9V', bx: cursorW.x - BAT_W / 2, by: cursorW.y - BAT_H / 2 }, true);
-      else s = drawPart({ type: 'battery', variant: '9V', bx: place.bx, by: place.by, ea: place.a ? holes.get(place.a) : tgt, eb: place.a ? tgt : null }, true);
+      if (place.stage === 'body') s = drawPart({ type: 'battery', variant: '9V', rot: place.rot || 0, bx: cursorW.x - BAT_W / 2, by: cursorW.y - BAT_H / 2 }, true);
+      else s = drawPart({ type: 'battery', variant: '9V', rot: place.rot || 0, bx: place.bx, by: place.by, ea: place.a ? holes.get(place.a) : tgt, eb: place.a ? tgt : null }, true);
     } else if (place.a) {
       const A = holes.get(place.a);
       s = drawPart({ type: place.type, value: 1000, color: place.type === 'led' ? 'red' : '#2ba59b', A, B: { x: tgt.x, y: tgt.y } }, true);
@@ -672,27 +713,36 @@ const ICONS = {
   select: '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l15 10-7 1.5L13.5 24z" stroke-linejoin="round"/></svg>',
   eraser: '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><g transform="rotate(-35 16 16)"><rect x="6" y="11" width="21" height="11" rx="2.5"/><path d="M13 11v11" /></g><path d="M7 27h18"/></svg>',
   battery: '<svg viewBox="0 0 32 32"><rect x="9" y="7" width="14" height="22" rx="2.5" fill="#2a2e38"/><rect x="9" y="15" width="14" height="7" fill="#e8b23a"/><circle cx="13" cy="7" r="2" fill="#ccc"/><rect x="17.5" y="5" width="3.5" height="3.5" fill="#ccc"/></svg>',
+  capacitor: '<svg viewBox="0 0 32 32"><line x1="12" y1="20" x2="12" y2="30" stroke="#9aa0a8" stroke-width="2"/><line x1="20" y1="20" x2="20" y2="30" stroke="#9aa0a8" stroke-width="2"/><ellipse cx="16" cy="14" rx="9" ry="8" fill="#d9a441" stroke="#a87924"/></svg>',
   wire: '<svg viewBox="0 0 32 32" fill="none"><path d="M6 25C6 8 26 8 26 25" stroke="#2ba59b" stroke-width="3.5" stroke-linecap="round"/></svg>',
   resistor: '<svg viewBox="0 0 32 32"><line x1="2" y1="16" x2="30" y2="16" stroke="#9aa0a8" stroke-width="2"/><rect x="8" y="11" width="16" height="10" rx="5" fill="#e6cf9f" stroke="#b49864"/><rect x="11" y="11" width="2" height="10" fill="#f07f1a"/><rect x="15" y="11" width="2" height="10" fill="#f07f1a"/><rect x="19" y="11" width="2" height="10" fill="#7a4a22"/></svg>',
   led: '<svg viewBox="0 0 32 32"><line x1="13" y1="20" x2="13" y2="30" stroke="#9aa0a8" stroke-width="2"/><line x1="19" y1="20" x2="19" y2="27" stroke="#9aa0a8" stroke-width="2"/><path d="M9 21V12a7 7 0 0 1 14 0v9z" fill="#ff3b3b"/></svg>',
 };
 const TOOLS = [
-  { group: '工具', items: [['select', '选择', 'V'], ['eraser', '橡皮擦', 'E']] },
+  { group: '工具', items: [['select', '选择', 'V']] },
   { group: '电源', items: [['battery', '电池', 'B']] },
   { group: '连线', items: [['wire', '跳线', 'W']] },
-  { group: '元件', items: [['resistor', '电阻', 'R'], ['led', 'LED', 'L']] },
+  { group: '元件', items: [['resistor', '电阻', 'R'], ['led', 'LED', 'L'], ['capacitor', '电容', 'C']] },
 ];
+const TOOL_INFO = Object.fromEntries(TOOLS.flatMap((g) => g.items).concat([['eraser', '橡皮擦', 'E']]).map(([id, n, k]) => [id, { n, k }]));
+let recent = store.get('recent', ['battery', 'wire', 'resistor', 'led', 'capacitor']).filter((t) => TOOL_INFO[t]).slice(0, 5);
 function renderTools() {
   const cur = place ? place.type : tool;
-  $('#toolbox').innerHTML = TOOLS.map((g) => `<div class="tb-title">${g.group}</div>` + g.items.map(([id, name, k]) =>
-    `<button class="tool ${id === 'eraser' ? 'erase' : ''}" data-tool="${id}" aria-pressed="${cur === id}" title="${name}（${k}）"><span class="k">${k}</span>${ICONS[id]}<span>${name}</span></button>`).join('')).join('');
+  const btn = ([id, name, k]) => `<button class="tool ${id === 'eraser' ? 'erase' : ''}" data-tool="${id}" aria-pressed="${cur === id}" title="${name}（${k}）"><span class="k">${k}</span>${ICONS[id]}<span>${name}</span></button>`;
+  $('#toolbox').innerHTML = TOOLS.map((g) => `<div class="tb-title">${g.group}</div>` + g.items.map(btn).join('')).join('') +
+    `<div class="tb-bottom">${btn(['eraser', '橡皮擦', 'E'])}</div>`;
+  $('#recent').innerHTML = '<span class="lbl">常用</span>' + recent.map((id) => `<button data-tool="${id}" aria-pressed="${cur === id}" title="${TOOL_INFO[id].n}（${TOOL_INFO[id].k}）"><span class="k">${TOOL_INFO[id].k}</span>${ICONS[id]}<span>${TOOL_INFO[id].n}</span></button>`).join('');
 }
+$('#recent').addEventListener('click', (e) => { const b = e.target.closest('[data-tool]'); if (b) setTool(b.dataset.tool); });
 $('#toolbox').addEventListener('click', (e) => { const b = e.target.closest('[data-tool]'); if (b) setTool(b.dataset.tool); });
 function setTool(t) {
   closeMenus();
   if (t === 'select' || t === 'eraser') { place = null; tool = t; }
   else if (place && place.type === t) { place = null; tool = 'select'; }
-  else { tool = 'place'; place = t === 'battery' ? { type: t, stage: 'body' } : { type: t, a: null }; sel = null; popFor = null; }
+  else {
+    tool = 'place'; place = t === 'battery' ? { type: t, stage: 'body', rot: 0 } : { type: t, a: null }; sel = null; popFor = null;
+    if (!recent.includes(t)) { recent = [t, ...recent].slice(0, 5); store.set('recent', recent); }
+  }
   if (t === 'eraser') { sel = null; popFor = null; }
   render();
 }
@@ -701,13 +751,13 @@ function setTool(t) {
 function renderHint() {
   let h;
   if (drag && drag.kind === 'pan') h = '<b>平移中</b> · 松开右键结束';
-  else if (drag && drag.kind === 'bat') h = '<b>拖动电池</b>：放到哪都行，导线跟着走';
+  else if (drag && drag.kind === 'bat') h = '<b>拖动电池</b>：放到哪都行，导线跟着走 · 拖着的时候按 <kbd>T</kbd> 转向';
   else if (drag && drag.kind === 'end') h = drag.snap ? `松手插到 <b>${drag.snap}</b>（${stripName(drag.snap)}）` : '靠近一个空孔就会吸上去 · 在空白处松手 = 取消';
   else if (drag && drag.kind === 'move') h = drag.ok ? '松手放下，两只脚会贴合到最近的孔' : '这里放不下（孔被占了或在板外），松手会放回原处';
   else if (tool === 'eraser') h = '<b>橡皮擦</b>：点器件擦掉，按住拖过去连续擦 · <kbd>Ctrl</kbd>+<kbd>Z</kbd> 撤销 · <kbd>Esc</kbd> 退出';
-  else if (place && place.type === 'battery') h = place.stage === 'body' ? '点一下放下电池机身（放板外空地最清爽，之后还能拖）' : place.stage === 'a' ? '点<b>红线 +</b> 要插的孔（红色 + 轨）' : '点<b>黑线 −</b> 要插的孔（蓝色 − 轨）';
-  else if (place) h = place.a ? `点第二个孔放下${TYPES[place.type].name} · 再点起点 = 取消 · <kbd>Esc</kbd>` : `点第一个孔开始放${TYPES[place.type].name}（也可以按住拖到第二个孔）`;
-  else if (hoverPart) { const p = byId(hoverPart); h = p.type === 'battery' ? '<b>拖机身</b>挪电池 · <b>拖线头</b>换孔 · 左键单击看详情 · 右键单击 = 菜单' : `左键单击 <b>${p.id}</b> 看详情 / 改参数 · 拖动挪位置 · 拖端点换孔 · 右键单击 = 菜单`; }
+  else if (place && place.type === 'battery') h = place.stage === 'body' ? '点一下放下电池机身（放板外空地最清爽，之后还能拖）· <kbd>T</kbd> 转向' : place.stage === 'a' ? '点<b>红线 +</b> 要插的孔（红色 + 轨）' : '点<b>黑线 −</b> 要插的孔（蓝色 − 轨）';
+  else if (place) h = place.a ? `点第二个孔放下${TYPES[place.type].name}（放完自动回到「选择」）· 再点起点 = 取消 · <kbd>Esc</kbd>` : `点第一个孔开始放${TYPES[place.type].name}（也可以按住拖到第二个孔）`;
+  else if (hoverPart) { const p = byId(hoverPart); h = p.type === 'battery' ? '<b>拖机身</b>挪电池 · <b>拖线头</b>换孔 · 选中后点 ↻ 或按 <kbd>T</kbd> 转向 · 右键单击 = 菜单' : `左键单击 <b>${p.id}</b> 看详情 / 改参数 · 拖动挪位置 · 拖端点换孔 · 右键单击 = 菜单`; }
   else if (hoverHole) h = `<b>${hoverHole}</b> · ${stripName(hoverHole)}：高亮的孔内部是连通的`;
   else h = '<span><kbd>左键</kbd> 点选 / 拖动器件</span><span><kbd>右键拖</kbd> 平移</span><span><kbd>滚轮</kbd> 缩放</span><span><kbd>右键单击</kbd> 器件菜单</span><span><kbd>E</kbd> 橡皮擦</span>';
   $('#hint').innerHTML = h.startsWith('<span') ? h : `<span>${h}</span>`;
@@ -749,13 +799,15 @@ function popHTML(p) {
   } else if (p.type === 'led') {
     body = `<div class="row"><label for="pc">颜色</label><select id="pc" data-f="color">${Object.entries(LED_COLORS).map(([k, o]) => `<option value="${k}" ${k === p.color ? 'selected' : ''}>${o.name}（Vf ≈ ${o.vf} V）</option>`).join('')}</select></div>` + pins('长脚 +', '短脚 −');
     if (I !== undefined) { const cls = I > 0.03 ? 'bad' : I < 0.015 ? 'warn' : ''; live = `<div class="live ${cls}">${I <= 0 ? '不亮：没有电流（回路没通，或者接反了）' : `电流 ${fmtI(I)}${I < 0.015 ? '，偏暗' : I > 0.03 ? '，太大了' : '，正好'}`}</div>`; }
+  } else if (p.type === 'capacitor') {
+    body = `<div class="row"><label for="pcv">容值</label><select id="pcv" data-f="value">${C_VALUES.map((v) => `<option value="${v}" ${Math.abs(v - p.value) < 1e-12 ? 'selected' : ''}>${fmtC(v)}</option>`).join('')}</select></div>` + pins('脚 1', '脚 2') + '<div class="pins">直流电路里电容充满电后相当于断开，本课用不到它。</div>';
   } else if (p.type === 'wire') {
     body = `<div class="row"><label for="pw">颜色</label><select id="pw" data-f="color">${Object.entries(WIRE_COLORS).map(([k, n]) => `<option value="${k}" ${k === p.color ? 'selected' : ''}>${n}</option>`).join('')}</select></div>` + pins('端 1', '端 2');
   } else if (p.type === 'battery') {
     body = `<div class="row"><label for="pb">型号</label><select id="pb" data-f="variant">${Object.entries(BAT).map(([k, o]) => `<option value="${k}" ${k === p.variant ? 'selected' : ''}>${o.label}</option>`).join('')}</select></div>` + pins('红线 +', '黑线 −');
     if (I !== undefined) live = `<div class="live">输出电流 ${fmtI(I)}</div>`;
   }
-  const swap = p.type !== 'battery' && p.type !== 'wire' ? `<button class="btn small" data-act="swap">${p.type === 'led' ? '翻转方向' : '对调两脚'}</button>` : '';
+  const swap = p.type === 'battery' ? `<button class="btn small" data-act="rot">↻ 转 90° <span class="kbd">T</span></button>` : p.type !== 'wire' ? `<button class="btn small" data-act="swap">${p.type === 'led' ? '翻转方向' : '对调两脚'}</button>` : '';
   return `<h4>${p.id} · ${TYPES[p.type].name}<button class="x" data-act="close" title="关闭 (Esc)">×</button></h4>${body}${live}<div class="acts">${swap}<button class="btn small danger" data-act="del">删除 <span class="kbd">Del</span></button></div>`;
 }
 function renderPopover() {
@@ -770,7 +822,7 @@ function renderPopover() {
 function partBBox(p) {
   const pts = [];
   for (const w of ['a', 'b']) { const e = endXY(p, w); if (e) pts.push(e); }
-  if (p.type === 'battery') { pts.push({ x: p.bx, y: p.by }, { x: p.bx + BAT_W, y: p.by + BAT_H }); }
+  if (p.type === 'battery') { const b = batBox(p); pts.push({ x: b.x0, y: b.y0 }, { x: b.x1 + 26, y: b.y1 }); }
   const xs = pts.map((q) => q.x), ys = pts.map((q) => q.y);
   return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
 }
@@ -802,9 +854,15 @@ function act(a, id) {
   if (a === 'fit') { fit(); return; }
   if (a === 'undo') { undo(); return; }
   if (!p) return;
+  if (a === 'rot') { rotatePart(id); return; }
   if (a === 'edit') { sel = id; popFor = id; render(); const f = $('#pop select'); if (f) f.focus(); }
   else if (a === 'swap') { commit(() => { [p.a, p.b] = [p.b, p.a]; }); toast(p.type === 'led' ? `${p.id} 已翻转方向` : `${p.id} 两脚已对调`); }
   else if (a === 'del') removeParts([id]);
+}
+function rotatePart(id) {
+  const p = byId(id); if (!p || p.type !== 'battery') return;
+  commit(() => { p.rot = ((p.rot || 0) + 90) % 360; });
+  sel = id; render();
 }
 function removeParts(ids) {
   if (!ids.length) return;
@@ -819,6 +877,7 @@ function openCtx(sx, sy, id) {
     sel = id; popFor = null;
     m.innerHTML = `<div class="t">${p.id} · ${TYPES[p.type].name}</div>` +
       `<button data-act="edit" role="menuitem">修改参数…<span class="kbd">左键单击</span></button>` +
+      (p.type === 'battery' ? `<button data-act="rot" role="menuitem">转 90°<span class="kbd">T</span></button>` : '') +
       (p.type === 'resistor' || p.type === 'led' ? `<button data-act="swap" role="menuitem">${p.type === 'led' ? '翻转方向' : '对调两脚'}</button>` : '') +
       `<button data-act="del" class="danger" role="menuitem">删除<span class="kbd">Del</span></button>`;
   } else {
@@ -842,7 +901,7 @@ function toWorld(e) { const r = canvas.getBoundingClientRect(); return { x: (e.c
 function zoomAt(sx, sy, k) { k = Math.max(0.35, Math.min(3.5, k)); cam.x = sx - (sx - cam.x) * (k / cam.k); cam.y = sy - (sy - cam.y) * (k / cam.k); cam.k = k; applyCam(); }
 function fit() {
   let x0 = BOARD.x, y0 = BOARD.y, x1 = BOARD.x + BOARD.w, y1 = BOARD.y + BOARD.h;
-  for (const p of parts) if (p.type === 'battery') { x0 = Math.min(x0, p.bx); y0 = Math.min(y0, p.by - 60); x1 = Math.max(x1, p.bx + BAT_W); y1 = Math.max(y1, p.by + BAT_H + 16); }
+  for (const p of parts) if (p.type === 'battery') { const b = batBox(p); x0 = Math.min(x0, b.x0 - 40); y0 = Math.min(y0, b.y0 - 50); x1 = Math.max(x1, b.x1 + 40); y1 = Math.max(y1, b.y1 + 18); }
   const W = canvas.clientWidth, H = canvas.clientHeight - 60, pad = 30;
   const k = Math.max(0.35, Math.min(2.2, Math.min((W - pad * 2) / (x1 - x0), (H - pad * 2) / (y1 - y0))));
   cam.k = k; cam.x = (W - (x1 - x0) * k) / 2 - x0 * k; cam.y = (H - (y1 - y0) * k) / 2 - y0 * k + 6;
@@ -877,6 +936,8 @@ canvas.addEventListener('pointerdown', (e) => {
     if (touches.size === 2) { clearTimeout(longPress); drag = null; const [a, b] = [...touches.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k: cam.k, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, cx: cam.x, cy: cam.y }; return; }
   }
   closeDrawer();
+  const rb = e.button === 0 && !place && tool !== 'eraser' && e.target.closest && e.target.closest('[data-rotate]');
+  if (rb) { closeCtx(); rotatePart(rb.dataset.rotate); return; }
   const w = toWorld(e);
   canvas.setPointerCapture(e.pointerId);
   const isRight = e.button === 2 || (e.button === 0 && e.ctrlKey && /Mac/.test(navigator.platform));
@@ -1022,7 +1083,7 @@ function onPlaceDown(w) {
     if (!h) { const raw = holeAt(w.x, w.y, 13); if (raw && occ.has(raw)) toast(`${raw} 已经插了 ${occ.get(raw).id}`); return; }
     if (place.stage === 'a') { place.a = h; place.stage = 'b'; renderOverlayOnly(); return; }
     if (h === place.a) return;
-    const id = nextIdFor('battery'); const np = { id, type: 'battery', variant: '9V', bx: place.bx, by: place.by, a: place.a, b: h };
+    const id = nextIdFor('battery'); const np = { id, type: 'battery', variant: '9V', rot: place.rot || 0, bx: place.bx, by: place.by, a: place.a, b: h };
     place = null; tool = 'select';
     commit(() => parts.push(np)); sel = id; render(); toast(`已放下 ${id}。拖机身可以随时挪走`);
     return;
@@ -1036,9 +1097,10 @@ function onPlaceDown(w) {
   if (type === 'resistor') np.value = 1000;
   if (type === 'led') np.color = 'red';
   if (type === 'wire') np.color = '#2ba59b';
+  if (type === 'capacitor') np.value = 100e-9;
   commit(() => parts.push(np));
-  if (type === 'wire') { place = { type: 'wire', a: null }; }
-  else { place = null; tool = 'select'; sel = id; popFor = id; }
+  // every placement ends the tool: the next part is picked again on purpose
+  place = null; tool = 'select'; sel = id; popFor = type === 'wire' ? null : id;
   render();
 }
 
@@ -1062,8 +1124,14 @@ window.addEventListener('keydown', (e) => {
   if (mod) return;
   if (e.key === ' ' && document.activeElement === document.body) { spaceDown = true; e.preventDefault(); return; }
   if ((e.key === 'Delete' || e.key === 'Backspace') && sel) { e.preventDefault(); removeParts([sel]); return; }
-  const map = { v: 'select', e: 'eraser', b: 'battery', w: 'wire', r: 'resistor', l: 'led' };
+  const map = { v: 'select', e: 'eraser', b: 'battery', w: 'wire', r: 'resistor', l: 'led', c: 'capacitor' };
   const k = e.key.toLowerCase();
+  if (k === 't') {
+    if (place && place.type === 'battery') { place.rot = ((place.rot || 0) + 90) % 360; renderOverlayOnly(); return; }
+    if (drag && drag.kind === 'bat') { const p = byId(drag.id); hist.push(snapshot()); fut = []; p.rot = ((p.rot || 0) + 90) % 360; partsOnly(); return; }
+    const p = sel && byId(sel); if (p && p.type === 'battery') rotatePart(p.id); else if (p) toast('只有板外的器件（这里是电池）能转向'); else toast('先选中电池，再按 T 转向');
+    return;
+  }
   if (map[k] && !e.target.closest('.splitter')) { setTool(map[k]); return; }
   if (k === 'f') fit();
 });
