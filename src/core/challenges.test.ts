@@ -102,8 +102,11 @@ describe('challenge "phase"', () => {
     for (const f of files) {
       const name = f.slice(DIR.length);
       const n = Number(/^(\d+)-/.exec(name)?.[1]);
-      const phase = JSON.parse(readFileSync(f, 'utf8')).phase;
-      if (n >= 200) expect(phase, name).toBe(Math.floor((n - 200) / 20) + 1);
+      const json = JSON.parse(readFileSync(f, 'utf8'));
+      const phase = json.phase;
+      // 300–319: later additions to World 5 (its 280–299 range is full); labs are phase 5, lessons carry none
+      if (n >= 300) expect(phase, name).toBe(json.kind === 'lesson' ? undefined : 5);
+      else if (n >= 200) expect(phase, name).toBe(Math.floor((n - 200) / 20) + 1);
       else expect(phase, name).toBeUndefined();
     }
   });

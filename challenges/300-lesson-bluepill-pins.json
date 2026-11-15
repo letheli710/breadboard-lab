@@ -1,0 +1,301 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-bluepill-pins",
+  "title": "Blue Pill 的引脚：哪个脚能干什么",
+  "kind": "lesson",
+  "level": 3,
+  "summary": "Blue Pill 的引脚长得一样，本事不一样：有的耐 5 V，有的只能给 3 mA，只有几个能读模拟电压。先把 5 V 送错一次，再挑对引脚。",
+  "concepts": ["5 V tolerant (FT) 耐 5 V 引脚", "clamp diode 保护二极管", "PC13 weak pin 弱引脚", "onboard LED 板载 LED", "ADC pins 模拟输入引脚"],
+  "description": "STM32F103 “Blue Pill” 的逻辑电平是 3.3 V。标 FT 的引脚（PA8–PA15、PB3、PB4、PB6–PB15）能直接收 5 V，其他引脚不行。PC13–PC15 最多 3 mA；板载 LED 接在 PC13 上，输出低才亮。模拟输入（ADC）只在 PA0–PA7、PB0、PB1。",
+  "prereq": ["lesson-mcu-gpio"],
+  "cards": [
+    {
+      "kind": "try",
+      "title": "把 5 V 送错一次",
+      "steps": 5,
+      "text": ["把 **Blue Pill** 插上面包板，让它的 5V 脚给下方电源轨供电。", "然后把 5 V **故意**送进一个不该送的引脚，看诊断怎么说；再挪一列，送进旁边的引脚。", "两个引脚紧挨着，为什么一个报警、一个没事？"]
+    },
+    {
+      "kind": "explain",
+      "title": "引脚长得一样，本事不一样",
+      "text": [
+        "- **单击开发板**，引脚列表里每一行都有小标签：**FT**、**ADC**、**3 mA**。接线之前先看标签。",
+        "- **FT = 耐 5 V。** 普通引脚里有一只通往 3V3 的保护二极管。送进 5 V，它就导通，电流从 5 V 灌进 3V3。FT 引脚没有这一只，能直接收 5 V 信号：",
+        "![](fig:clamp)",
+        "- FT 引脚是 PA8–PA15、PB3、PB4、PB6–PB15。PB5 夹在中间，偏偏不是。",
+        "- **PC13–PC15 是弱引脚**，最多 3 mA。板载 LED 就接在 PC13 上，电流流进引脚，所以输出低才亮：",
+        "![](fig:pc13)",
+        "$$I = \\frac{3.3 - V_f}{R + 12 + 40}$$",
+        "- 代入数字：要是外面再接一颗配 220 Ω 的红灯，$I = \\frac{3.3 - 1.8}{220 + 12 + 40} ≈ 0.0055$ A，也就是 5.5 mA——PC13 吃不消。",
+        "- **模拟输入（ADC）**只在 PA0–PA7、PB0、PB1 上。它把 0–3.3 V 的电压读成数字，5.7 会细讲。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "点板载灯，读一个电压",
+      "steps": 5,
+      "text": ["- 先让 PC13 输出低，点亮板载 LED，看它用了多少电流。", "- 再用两个 `10 kΩ` 把 5 V 分成一半左右，送进模拟输入 PA0。ADC 引脚**不耐 5 V**，所以 5 V 不能直接接上去。", "- 先预测：5V 脚比 5 V 低一点（107 课量过），分压器的中点是多少？"]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **接线之前先看引脚标签**：同一排相邻的两个脚，本事可能完全不同。",
+        "- **5 V 信号只能进 FT 引脚**，而且只能当输入（或者开漏输出，5.6 会讲）。",
+        "- **PC13–PC15 最多 3 mA**，只适合灌一点点电流；板载 LED 已经用掉了 PC13 的大半。",
+        "- 真实电路里的坑：ADC 引脚都不耐 5 V。5 V 传感器的输出要先分压，就像你刚搭的那样。"
+      ],
+      "practice": ["basics"]
+    }
+  ],
+  "figures": {
+    "clamp": {
+      "kind": "schematic",
+      "caption": {
+        "text": "普通引脚里的保护二极管：引脚上的 5 V 比 3V3 高，二极管导通，电流 I 灌进 3V3。FT 引脚没有这一只。",
+        "i18n": {"en": "The clamp diode inside an ordinary pin: 5 V on the pin is above 3V3, the diode conducts and a current I flows into 3V3. An FT pin has no such diode."}
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_sig", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 5},
+          {"ref": "D_c", "type": "NR", "from": [3, 0], "to": [6, 0], "law": {"diode": {}}},
+          {"ref": "V_dd", "type": "BAT", "from": [6, 0], "to": [6, 4], "value": 3.3}
+        ],
+        "wires": [[[0, 0], [3, 0]], [[6, 4], [0, 4]]],
+        "marks": [{"kind": "i", "el": "D_c", "name": "I"}],
+        "notes": [{"at": [2.2, -0.5], "text": "PB5"}]
+      },
+      "highlight": ["D_c"]
+    },
+    "pc13": {
+      "kind": "schematic",
+      "caption": {
+        "text": "板载 LED：3V3 → 510 Ω → LED → PC13。PC13 输出低时，下开关（约 40 Ω）合上，电流 I 流进引脚。",
+        "i18n": {"en": "The onboard LED: 3V3 → 510 Ω → LED → PC13. When PC13 outputs LOW its low side (about 40 Ω) is on and a current I flows into the pin."}
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_dd", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 3.3},
+          {"ref": "R_b", "type": "R", "from": [0, 0], "to": [3, 0], "value": 510},
+          {"ref": "LED_b", "type": "LED", "from": [3, 0], "to": [6, 0], "value": "green"},
+          {"ref": "R_dn", "type": "R", "from": [6, 0], "to": [6, 4], "value": 40}
+        ],
+        "wires": [[[6, 4], [0, 4]]],
+        "marks": [{"kind": "i", "el": "R_b", "name": "I"}],
+        "notes": [{"at": [5.4, -0.4], "text": "PC13"}]
+      },
+      "highlight": ["R_dn"]
+    }
+  },
+  "components": [
+    {"ref": "U1", "type": "stm32_bluepill", "modes": {"ADC1": "adc"}},
+    {"ref": "R1", "type": "resistor", "resistance": "10k"},
+    {"ref": "R2", "type": "resistor", "resistance": "10k"}
+  ],
+  "connections": [["U1.5V", "R1.1", "U1.PB6"], ["R1.2", "R2.1", "U1.ADC1"], ["R2.2", "U1.GND"]],
+  "tests": [
+    {
+      "name": "5 V 进 FT 引脚读高；PA0 的电压在 ADC 量程内；PC13 点亮板载 LED，电流在 3 mA 以内",
+      "set": {"U1": {"modes": {"PC13": "out_low"}}},
+      "gpio": [
+        {"pin": "U1.PB6", "read": "high"},
+        {"pin": "U1.ADC1", "measure": "adc_v", "min": 2.1, "max": 2.6},
+        {"pin": "U1.PC13", "measure": "current", "min": -0.0029, "max": -0.0024}
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "vadc",
+      "voltage": "U1.ADC1",
+      "ref": "U1.GND",
+      "unit": "V",
+      "predict": true,
+      "range": [2.2, 2.45],
+      "ask": "万用表：PA0（分压器的中点）对 GND 的电压",
+      "explain": "两个一样的电阻把 5V 脚的电压平分。5V 脚约 4.68 V（USB 后面有一只二极管），所以中点约 2.34 V，在 0–3.3 V 的量程里。"
+    },
+    {
+      "id": "vpc13",
+      "voltage": "U1.PC13",
+      "ref": "U1.GND",
+      "set": {"U1": {"modes": {"PC13": "out_low"}}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.09, 0.12],
+      "ask": "PC13 输出低、板载 LED 亮着：万用表测 PC13 对 GND 的电压",
+      "explain": "电流流过下开关的约 40 Ω：40 × 0.00265 ≈ 0.106 V。低电平也不是正好 0 V。"
+    },
+    {
+      "id": "ipc13",
+      "formula": "vpc13 / 40",
+      "unit": "mA",
+      "range": [0.0024, 0.0029],
+      "ask": "用你的读数算流进 PC13 的电流：I = V / 40 Ω",
+      "explain": "(3.3 − 1.8) / (510 + 12 + 40) ≈ 2.7 mA，离 3 mA 的上限只差一点。"
+    },
+    {
+      "id": "more",
+      "choices": ["不行：板载 LED 已经用了约 2.7 mA，再加 1.4 mA 就超过 3 mA", "可以：1 kΩ 的电流很小", "可以：PC13 是普通引脚，能给 20 mA"],
+      "correct": 0,
+      "ask": "想在 PC13 上再接一颗配 1 kΩ 的 LED（也是灌电流），行吗？",
+      "explain": "两颗灯的电流都流进 PC13：2.7 + (3.3 − 1.8) / (1000 + 12 + 40) ≈ 4.1 mA，超过了 3 mA。要多接灯，换一个普通引脚。"
+    },
+    {
+      "id": "pick",
+      "choices": ["PB6：耐 5 V（FT）", "PB5：就在 PB6 旁边", "PA0：它是 ADC，什么电压都能读"],
+      "correct": 0,
+      "ask": "一个 5 V 供电的传感器输出 0 / 5 V 的数字信号，直接接 Blue Pill 的哪个引脚？",
+      "explain": "只有 FT 引脚能直接收 5 V。PB5 和 PA0 都不耐 5 V，5 V 会让保护二极管导通；要接它们，先分压。"
+    }
+  ],
+  "steps": [
+    {
+      "text": "选**「STM32 最小系统板 Blue Pill」**，单击 **`c1`**（左上角的 GND 脚）。上排针插在 c 行、下排插在 g 行，各占 20 列。USB 默认插着。",
+      "highlight": ["c1", "c20", "g1", "g20"],
+      "check": [{"type": "stm32_bluepill", "at": "c1"}]
+    },
+    {
+      "text": "下方电源轨接上 5 V：红色跳线 **`j18`** → **`bp18`**（5V 脚），蓝色跳线 **`j19`** → **`bn19`**（GND 脚）。下方红轨现在是 5 V。",
+      "highlight": ["j18", "bp18", "j19", "bn19"],
+      "check": [{"type": "wire", "pins": {"a": "j18", "b": "bp18"}}, {"type": "wire", "pins": {"a": "j19", "b": "bn19"}}]
+    },
+    {
+      "text": "**故意接错一次**：黄色跳线 **`bp13`** → **`j13`**，把 5 V 直接送进 **PB5**。**单击开发板**，看 PB5 那一行和右边的**诊断**。",
+      "highlight": ["bp13", "j13"],
+      "check": [{"type": "wire", "pins": {"a": "bp13", "b": "j13"}}]
+    },
+    {"text": "选中这根跳线，按 **Delete** 删掉。", "highlight": ["bp13", "j13"], "check": [{"empty": ["bp13", "j13"]}]},
+    {
+      "text": "挪一列再接：黄色跳线 **`bp14`** → **`j14`**，5 V 进 **PB6**。PB6 读到什么？诊断还报警吗？在引脚列表里比一比 PB5 和 PB6 的小标签。",
+      "highlight": ["bp14", "j14"],
+      "check": [{"type": "wire", "pins": {"a": "bp14", "b": "j14"}}]
+    },
+    {
+      "text": "**单击开发板**，把 **PC13** 设成**「输出 低」**。板子上的小灯亮了。看 PC13 那一行：电流是负的，表示电流流**进**引脚。",
+      "highlight": ["c19"],
+      "check": [{"type": "stm32_bluepill", "at": "c1", "props": {"pins": {"PC13": {"mode": "out_low"}}}}]
+    },
+    {
+      "text": "分压器：两个 **`10 kΩ`**。R1 插 **`bp22`**–**`j22`**，R2 插 **`i22`**–**`bn22`**。第 22 列下半边就是 5 V 的一半左右。",
+      "highlight": ["bp22", "j22", "i22", "bn22"],
+      "check": [{"type": "resistor", "pins": {"1": "bp22", "2": "j22"}, "resistance": "10k"}, {"type": "resistor", "pins": {"1": "i22", "2": "bn22"}, "resistance": "10k"}]
+    },
+    {"text": "跳线 **`g22`** → **`a16`**：分压器的中点接到 **PA0**。", "highlight": ["g22", "a16"], "check": [{"type": "wire", "pins": {"a": "g22", "b": "a16"}}]},
+    {
+      "text": "把 **PA0** 设成**「ADC」**（模拟输入）。引脚列表里会显示它读到的电压。",
+      "highlight": ["a16"],
+      "check": [{"type": "stm32_bluepill", "at": "c1", "props": {"pins": {"PC13": {"mode": "out_low"}, "PA0": {"mode": "adc"}}}}]
+    },
+    {"text": "点**「检查我的电路」**，再用万用表和引脚列表回答测量题。", "highlight": []}
+  ],
+  "hints": [
+    "单击开发板，引脚列表里每一行的小标签说明这个脚能干什么：FT（耐 5 V）、ADC、3 mA（弱引脚）。",
+    "下排从左数：PB12、PB13、PB14、PB15、PA8……第 13 列是 PB5，第 14 列是 PB6，第 18 列是 5V，第 19 列是 GND。",
+    "上排第 16 列是 PA0，第 19 列是 PC13；空孔在 a、b 行。"
+  ],
+  "solution": {
+    "parts": [
+      {"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PC13": "out_low", "PA0": "adc", "PB6": "input"}}},
+      {"type": "wire", "pins": {"a": "j18", "b": "bp18"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "j19", "b": "bn19"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "bp14", "b": "j14"}, "color": "yellow"},
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "bp22", "2": "j22"}},
+      {"type": "resistor", "ref": "R2", "resistance": "10k", "pins": {"1": "i22", "2": "bn22"}},
+      {"type": "wire", "pins": {"a": "g22", "b": "a16"}, "color": "green"}
+    ]
+  },
+  "i18n": {
+    "en": {
+      "title": "Blue Pill pins: which pin does what",
+      "summary": "The Blue Pill's pins look alike but can do different things: some take 5 V, some give only 3 mA, only a few read analog voltages. Send 5 V to the wrong pin once, then pick the right ones.",
+      "concepts": ["5 V tolerant (FT) pins", "clamp diode", "PC13 weak pin", "onboard LED", "ADC pins"],
+      "description": "The STM32F103 \"Blue Pill\" runs at 3.3 V logic. Pins marked FT (PA8–PA15, PB3, PB4, PB6–PB15) can take 5 V directly; the others cannot. PC13–PC15 give at most 3 mA; the onboard LED is on PC13 and lights when the pin outputs LOW. Analog inputs (ADC) are only PA0–PA7, PB0 and PB1.",
+      "cards": [
+        {
+          "title": "Send 5 V to the wrong pin once",
+          "text": [
+            "Plug the **Blue Pill** into the breadboard and let its 5V pin power the bottom rails.",
+            "Then send 5 V into a pin where it does not belong, **on purpose**, and see what the diagnostics say; then move one column over to the next pin.",
+            "The two pins sit side by side — why does one complain and the other not?"
+          ]
+        },
+        {
+          "title": "Pins that look alike, but aren't",
+          "text": [
+            "- **Click the board**: every row of the pin list has little tags — **FT**, **ADC**, **3 mA**. Read the tags before you wire.",
+            "- **FT = five-volt tolerant.** An ordinary pin has a clamp diode to 3V3 inside. Feed it 5 V and the diode conducts, pushing current from 5 V into 3V3. An FT pin has no such diode and can take a 5 V signal directly:",
+            "![](fig:clamp)",
+            "- The FT pins are PA8–PA15, PB3, PB4 and PB6–PB15. PB5 sits in the middle and is the odd one out.",
+            "- **PC13–PC15 are weak pins**, 3 mA at most. The onboard LED hangs on PC13 with its current flowing into the pin, so it lights on LOW:",
+            "![](fig:pc13)",
+            "$$I = \\frac{3.3 - V_f}{R + 12 + 40}$$",
+            "- With numbers: add one more red LED with 220 Ω outside, and $I = \\frac{3.3 - 1.8}{220 + 12 + 40} ≈ 0.0055$ A, that is 5.5 mA — too much for PC13.",
+            "- **Analog inputs (ADC)** are only on PA0–PA7, PB0 and PB1. They turn a voltage of 0–3.3 V into a number; 5.7 goes into detail."
+          ]
+        },
+        {
+          "title": "Light the onboard LED, read a voltage",
+          "text": [
+            "- First make PC13 output LOW to light the onboard LED, and see how much current it takes.",
+            "- Then split 5 V roughly in half with two `10 kΩ` and feed it to the analog input PA0. ADC pins are **not 5 V tolerant**, so 5 V cannot go there directly.",
+            "- Predict first: the 5V pin is a little under 5 V (you measured it in the dev-board lesson). What is the divider's midpoint?"
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Read the pin tags before wiring**: two neighbouring pins in one row can do completely different things.",
+            "- **5 V signals only go into FT pins**, and only as inputs (or open-drain outputs, see 5.6).",
+            "- **PC13–PC15 give at most 3 mA** and are only good for sinking a little current; the onboard LED already uses most of PC13's share.",
+            "- A real-circuit catch: no ADC pin is 5 V tolerant. A 5 V sensor's output needs a divider first, just like the one you built."
+          ]
+        }
+      ],
+      "steps": [
+        "Pick **STM32 Blue Pill** and click **`c1`** (the GND pin at the top left). The upper pins go into row c and the lower pins into row g, 20 columns each. USB is plugged in by default.",
+        "Put 5 V on the bottom rails: red jumper **`j18`** → **`bp18`** (the 5V pin), blue jumper **`j19`** → **`bn19`** (a GND pin). The bottom red rail is now 5 V.",
+        "**Get it wrong on purpose**: yellow jumper **`bp13`** → **`j13`**, putting 5 V straight into **PB5**. **Click the board** and look at PB5's row and the **diagnostics** on the right.",
+        "Select this jumper and press **Delete**.",
+        "One column over: yellow jumper **`bp14`** → **`j14`**, 5 V into **PB6**. What does PB6 read? Do the diagnostics still complain? Compare the little tags of PB5 and PB6 in the pin list.",
+        "**Click the board** and set **PC13** to **OUT LOW**. The little LED on the board lights. Look at PC13's row: the current is negative, meaning it flows **into** the pin.",
+        "A divider: two **`10 kΩ`** resistors. R1 from **`bp22`** to **`j22`**, R2 from **`i22`** to **`bn22`**. The lower half of column 22 now sits at about half of 5 V.",
+        "Jumper **`g22`** → **`a16`**: the divider's midpoint goes to **PA0**.",
+        "Set **PA0** to **ADC** (analog input). The pin list shows the voltage it reads.",
+        "Press **Check my circuit**, then answer the questions with the multimeter and the pin list."
+      ],
+      "measurements": [
+        {
+          "ask": "Multimeter: PA0 (the divider's midpoint) to GND",
+          "explain": "Two equal resistors split the 5V pin's voltage in half. The 5V pin is about 4.68 V (there is a diode after USB), so the midpoint is about 2.34 V, inside the 0–3.3 V range."
+        },
+        {
+          "ask": "PC13 output LOW, onboard LED lit: multimeter on PC13 to GND",
+          "explain": "The current flows through the low side's 40 Ω or so: 40 × 0.00265 ≈ 0.106 V. A LOW is not exactly 0 V."
+        },
+        {"ask": "From your reading, the current into PC13: I = V / 40 Ω", "explain": "(3.3 − 1.8) / (510 + 12 + 40) ≈ 2.7 mA, just under the 3 mA limit."},
+        {
+          "ask": "You want one more LED with 1 kΩ on PC13 (sinking too). Can you?",
+          "choices": [
+            "No: the onboard LED already takes about 2.7 mA, and another 1.4 mA would pass 3 mA",
+            "Yes: 1 kΩ draws very little",
+            "Yes: PC13 is an ordinary pin that gives 20 mA"
+          ],
+          "explain": "Both LEDs' currents flow into PC13: 2.7 + (3.3 − 1.8) / (1000 + 12 + 40) ≈ 4.1 mA, over 3 mA. For more LEDs, use an ordinary pin."
+        },
+        {
+          "ask": "A 5 V sensor puts out a 0 / 5 V digital signal. Which Blue Pill pin can take it directly?",
+          "choices": ["PB6: 5 V tolerant (FT)", "PB5: right next to PB6", "PA0: it's an ADC pin, it reads any voltage"],
+          "explain": "Only FT pins take 5 V directly. PB5 and PA0 are not 5 V tolerant: 5 V turns their clamp diode on. To use them, divide the voltage first."
+        }
+      ],
+      "hints": [
+        "Click the board: the tags on each row of the pin list say what the pin can do — FT (5 V tolerant), ADC, 3 mA (weak pin).",
+        "The lower row from the left: PB12, PB13, PB14, PB15, PA8 … column 13 is PB5, column 14 is PB6, column 18 is 5V, column 19 is GND.",
+        "In the upper row, column 16 is PA0 and column 19 is PC13; the free holes are in rows a and b."
+      ],
+      "tests": ["5 V into an FT pin reads high; PA0 inside the ADC range; PC13 lights the onboard LED under 3 mA"]
+    }
+  }
+}
