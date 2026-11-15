@@ -135,6 +135,10 @@ async function setup(p, kind) {
     await p.locator('.confirm-pop button.danger-solid').click();
     await p.waitForTimeout(300);
     await p.locator('.actions button.primary.big').click();
+    // every lab now has measurement questions, so a passing check is only stage 1: the done
+    // dialog (what this view audits) comes once the readings are answered; open it directly
+    await p.waitForSelector('.check-result .ok-box', { timeout: 5000 });
+    await p.evaluate(() => window.__bb.store.getState().setCelebrate(true));
     await p.waitForSelector('.modal[role="dialog"]', { timeout: 5000 });
   }
   if (kind === 'answered') {
