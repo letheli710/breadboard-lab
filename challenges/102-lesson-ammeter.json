@@ -30,7 +30,9 @@
       "text": [
         "- **电压**是两点之间的：万用表并联在两点上，自己几乎不取电流。",
         "- **电流**是流过一条路的：要知道多少水流过一根管子，就得把管子**切开**，让水全部从表里流过。电流表要**串联**进电路。",
+        "![](fig:series)",
         "- 电流表的内阻很小，这里只有 **0.1 Ω**，几乎就是一根导线。把它并联在 LED 两端，电流全从它身上抄近路走了——LED 被**短路**，所以灭了。",
+        "![](fig:parallel)",
         "- 读数是“**从红表笔流进去**的电流”。红黑接反，读数变成负数——电流没变，变的是参考方向。"
       ]
     },
@@ -54,6 +56,61 @@
       ]
     }
   ],
+  "figures": {
+    "series": {
+      "kind": "schematic",
+      "caption": {
+        "text": "✓ 电流表串进电路：电流全部从红表笔流进去、黑表笔流出来。",
+        "i18n": {
+          "en": "✓ The ammeter in series: all of the current goes in at the red probe and out at the black one."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 9},
+          {"ref": "AM1", "type": "ammeter", "from": [0, 0], "to": [3, 0]},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [6, 0], "value": "1k"},
+          {"ref": "LED1", "type": "LED", "from": [6, 0], "to": [6, 4], "value": "red"}
+        ],
+        "wires": [
+          [[6, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "AM1", "name": "I"}
+        ]
+      },
+      "highlight": [
+        "AM1"
+      ]
+    },
+    "parallel": {
+      "kind": "schematic",
+      "caption": {
+        "text": "✗ 电流表并在 LED 两端：它几乎就是一根导线，电流全从它身上抄近路，LED 被短路熄灭。",
+        "i18n": {
+          "en": "✗ The ammeter across the LED: it is almost a wire, the current takes the shortcut through it and the LED goes out (shorted)."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": "1k"},
+          {"ref": "LED1", "type": "LED", "from": [3, 0], "to": [3, 4], "value": "red"},
+          {"ref": "AM1", "type": "ammeter", "from": [6, 0], "to": [6, 4]}
+        ],
+        "wires": [
+          [[3, 0], [6, 0]],
+          [[6, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "AM1", "name": "I"}
+        ]
+      },
+      "highlight": [
+        "AM1"
+      ]
+    }
+  },
   "i18n": {
     "en": {
       "title": "The ammeter: in series, always",
@@ -124,7 +181,9 @@
           "text": [
             "- **Voltage** is between two points: the multimeter sits across the two points and takes almost no current.",
             "- **Current** flows along a path: to know how much water goes through a pipe you have to **cut the pipe** and send all of it through the meter. An ammeter goes **in series**.",
+            "![](fig:series)",
             "- An ammeter has a tiny resistance, here just **0.1 Ω** — practically a wire. Across the LED, all the current takes the shortcut through the meter: the LED is **shorted out**, so it goes dark.",
+            "![](fig:parallel)",
             "- The reading is the current **flowing in at the red probe**. Swap red and black and it turns negative — same current, opposite reference direction."
           ]
         },

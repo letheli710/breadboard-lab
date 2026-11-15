@@ -773,3 +773,41 @@ Card-style units: the task panel shows one short card at a time. A file with `ca
 
 The cards take the top-level steps in order (their `steps` must add up to the step count); `text` takes the §7 Markdown plus `$…$` / `$$…$$` formulas (subscripts, `\\frac`, `\\sqrt`, `^{}`); `practice` links theory chapters; the answer-leak check covers card text too.
 
+
+### 16.3 插图 `figures` / Figures in cards
+
+段落多了不好懂的地方，配一张图。图都由程序画（跟着语言切换、能点“放大”全屏缩放，读屏软件读 `caption`），不放图片文件。顶层 `figures` 是“名字 → 图”的对象；在卡片或步骤的文字里**单独一行**写 `![](fig:名字)`，图就出现在那一行。校验器检查：名字存在、没用到的图（警告）、电路连得上、孔位存在；答案泄露检查也扫描图里的文字。
+
+Figures are drawn by the app (they follow the language, open full screen with "Enlarge", and screen readers read the `caption`). Top-level `figures` maps an id to a figure; a line `![](fig:<id>)` on its own in a card's or a step's text shows it there. The validator checks the references, the drawing and the holes; the answer-leak scan reads figure text too.
+
+图里的每段文字（`caption`、`label`、`text`）可以是字符串，或者 `{ "text": "中文", "i18n": { "en": "English" } }`。文字里的 `V_f`、`I_1` 显示成下标。
+
+| `kind` | 画什么 | 字段 |
+|---|---|---|
+| `schematic` | 电路图（和理论题同一种写法，PROBLEM_FORMAT §3：整数坐标、`marks` 电流箭头 / +− 标记、`loops` 回路箭头、`labels` 结点名、`notes`） | `schematic`；`highlight`：用强调色画的元件。接地符号可以不画；另有两种**只画不算**的元件：`LED`（`from` = 正极，`value` = 颜色 red / green / yellow / blue / white / orange）和 `BAT`（电池，`from` = +，`value` = 伏） |
+| `breadboard` | 面包板的一段：哪些孔相通、元件插在哪 | `cols`（[起, 止]，默认 [1, 12]）、`rows`（top / bottom / both）、`rails`（top / bottom / both / none）、`strips`（`at` 孔位 → 整条金属条上色，`tone` 1–3，`label`）、`parts`（`type` wire / resistor / led / battery / probe，`from` / `to` 孔位，`label`，`color`）、`apart`（两个孔之间画 ✗ 不通）、`notes`（`at` 孔位 + `text`，`side`） |
+| `plot` | 曲线 | `x` / `y`（`label`、`min`、`max`、`ticks`）、`curves`（`points` 折线点，`label`，`labelAt`，`tone`，`dashed`）、`dots`、`hlines`、`vlines` |
+
+```json
+"cards": [{ "kind": "explain", "title": "一条路，同一个电流", "text": ["- **串联 = 只有一条路。** …", "![](fig:series)", "- …"] }],
+"figures": {
+  "series": {
+    "kind": "schematic",
+    "caption": { "text": "同一个电流 I 依次穿过 R1、R2、LED", "i18n": { "en": "The same current I passes R1, R2 and the LED" } },
+    "schematic": {
+      "elements": [
+        { "ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 9 },
+        { "ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": 220 },
+        { "ref": "R2", "type": "R", "from": [3, 0], "to": [6, 0], "value": 220 },
+        { "ref": "LED1", "type": "LED", "from": [6, 0], "to": [6, 4], "value": "red" }
+      ],
+      "wires": [[[6, 4], [0, 4]]],
+      "marks": [{ "kind": "i", "el": "R1", "name": "I" }, { "kind": "v", "el": "R1", "name": "V_R1" }]
+    }
+  }
+}
+```
+
+**画得窄一点**：任务面板只有 300 多像素宽。电路图宽度控制在 **6 格以内**（一格 40 px），竖着放的元件两侧要留标签的位置；面包板图 8–11 列。图放不下时会变成左右滑动——截图检查一下。
+
+Keep figures narrow: the task panel is a little over 300 px wide. Circuits at most **6 grid units** wide, breadboard strips 8–11 columns; a figure that does not fit scrolls sideways, so check a screenshot.

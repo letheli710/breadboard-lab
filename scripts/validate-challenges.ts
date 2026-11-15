@@ -45,6 +45,7 @@ import { buildNetlist } from '../src/core/netlist';
 import { simulate } from '../src/core/solver';
 import { hasGenerator, simulateTransient } from '../src/core/transient';
 import type { Layout } from '../src/core/types';
+import { figureTexts } from '../src/core/figures';
 
 const LED_MAX = 0.025;
 /** --readings: print every measurement question's reading on the reference solution */
@@ -157,6 +158,9 @@ function visibleTexts(json: Record<string, unknown>): { where: string; text: str
   };
   scan(json, '');
   for (const [lang, t] of Object.entries((json.i18n as Record<string, Record<string, unknown>>) ?? {})) scan(t, `i18n.${lang}.`);
+  // figures (§16.3): captions, notes and labels, both languages
+  if (json.figures && typeof json.figures === 'object')
+    for (const [id, f] of Object.entries(json.figures as Record<string, unknown>)) for (const t of figureTexts(f)) out.push({ where: `figures.${id}`, text: t });
   return out;
 }
 

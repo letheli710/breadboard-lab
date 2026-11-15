@@ -2,7 +2,7 @@
 // first, understand why, build and measure, take it with you. Each card owns a run of the
 // lesson steps; the step navigator is the same one the classic lessons use.
 
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef, type ReactNode } from 'react';
 import type { CardKind, Challenge, ChallengeCard } from '../core/challenge';
 import { inCourseOrder } from '../core/course';
 import { chapterById } from '../core/problem/chapters';
@@ -11,6 +11,21 @@ import { onPage, useStore } from '../state/store';
 import { Icon } from './Icons';
 import { Md } from './Md';
 import { StepStatus } from './StepCheck';
+
+// figures are a chunk of their own (the circuit drawing code): only units that have figures load it
+const CardFigureView = lazy(() => import('./CardFigure'));
+
+/** Renders `![](fig:<id>)` lines of a challenge's card and step text (core/figures.ts). */
+export function figureOf(ch: Challenge): ((id: string) => ReactNode) | undefined {
+  const figs = ch.figures;
+  if (!figs || !Object.keys(figs).length) return undefined;
+  return (id) =>
+    figs[id] ? (
+      <Suspense fallback={<div className="card-figure cf-loading" aria-hidden />}>
+        <CardFigureView fig={figs[id]} />
+      </Suspense>
+    ) : null;
+}
 
 const KIND: Record<CardKind, { icon: string; zh: string; en: string }> = {
   try: { icon: '🔥', zh: '试一试', en: 'Try it' },
@@ -68,7 +83,7 @@ export function StepNav({ ch, from, to, sc, endLabel, onEnd }: { ch: Challenge; 
       <div className="step-cur">
         {/* only the step text is live (announced on Back / Next); the check list is a status of its own */}
         <div aria-live="polite">
-          <Md text={ch.steps[cur].text} math />
+          <Md text={ch.steps[cur].text} math figure={figureOf(ch)} />
         </div>
         <StepStatus unmet={sc.unmet[cur]} />
       </div>
@@ -137,7 +152,7 @@ export function CardDeck({ ch, sc }: { ch: Challenge; sc: StepChecks }) {
           <span className="sr-only">{tr(`卡片 ${card + 1} / ${cards.length}，${cardKindLabel(c.kind)}：`, `Card ${card + 1} of ${cards.length}, ${cardKindLabel(c.kind)}: `)}</span>
           {c.title}
         </h3>
-        {c.text && <Md text={c.text} math />}
+        {c.text && <Md text={c.text} math figure={figureOf(ch)} />}
         {c.kind === 'wrap' && c.practice.length > 0 && (
           <div className="card-practice">
             <span className="eyebrow">{tr('趁热练理论题', 'Practise the theory while it is fresh')}</span>

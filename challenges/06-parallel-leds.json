@@ -29,7 +29,9 @@
       "text": [
         "- **并联**的两颗 LED 两端接在**同样的两个结点**上，所以它们两端的电压**必须相等**（还记得 KVL 实验里的回路 ② 吗）。",
         "- 红色 LED 在 1.8 V 左右就导通，把这两个结点之间的电压**卡在约 2 V**。绿色 LED 要 2.1 V 才开始导通——电压不够，它就不亮。",
+        "![](fig:shared)",
         "- 解决办法：**每条支路一个自己的电阻**。这样每颗 LED 的电压由自己的支路决定，互不干扰：",
+        "![](fig:own)",
         "$$I_1 = \\frac{5 - 1.8}{150 + 12}, \\quad I_2 = \\frac{5 - 2.1}{150 + 12}$$"
       ]
     },
@@ -55,6 +57,59 @@
       ]
     }
   ],
+  "figures": {
+    "shared": {
+      "kind": "schematic",
+      "caption": {
+        "text": "共用一个电阻：两颗 LED 接在同样两个结点上，电压 V 必须一样。红灯先导通，把 V 卡在约 2 V，绿灯够不着 2.1 V。",
+        "i18n": {
+          "en": "One shared resistor: both LEDs sit on the same two nodes, so they get the same V. The red one turns on first and holds V near 2 V, short of the green one's 2.1 V."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 5},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": 150},
+          {"ref": "LED1", "type": "LED", "from": [3, 0], "to": [3, 4], "value": "red"},
+          {"ref": "LED2", "type": "LED", "from": [6, 0], "to": [6, 4], "value": "green"}
+        ],
+        "wires": [
+          [[3, 0], [6, 0]],
+          [[6, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "v", "el": "LED1", "name": "V"},
+          {"kind": "v", "el": "LED2", "name": "V"}
+        ]
+      }
+    },
+    "own": {
+      "kind": "schematic",
+      "caption": {
+        "text": "每条支路一个自己的电阻：两颗 LED 各走各的路，I_1、I_2 互不干扰。",
+        "i18n": {
+          "en": "Each branch gets its own resistor: the two LEDs take separate paths and I_1, I_2 no longer interfere."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 6], "value": 5},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [3, 3], "value": 150},
+          {"ref": "LED1", "type": "LED", "from": [3, 3], "to": [3, 6], "value": "red"},
+          {"ref": "R2", "type": "R", "from": [6, 0], "to": [6, 3], "value": 150},
+          {"ref": "LED2", "type": "LED", "from": [6, 3], "to": [6, 6], "value": "green"}
+        ],
+        "wires": [
+          [[0, 0], [6, 0]],
+          [[6, 6], [0, 6]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I_1"},
+          {"kind": "i", "el": "R2", "name": "I_2"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "Parallel: every path has its own current",
@@ -96,7 +151,9 @@
           "text": [
             "- Two LEDs **in parallel** connect to **the same two nodes**, so the voltage across them **must be equal** (remember loop ② in the KVL lab).",
             "- The red LED conducts from about 1.8 V and **clamps the voltage between those nodes at about 2 V**. The green LED needs 2.1 V to start — not enough voltage, no light.",
+            "![](fig:shared)",
             "- The fix: **each branch gets its own resistor**. Then each LED's voltage is set by its own branch and they no longer interfere:",
+            "![](fig:own)",
             "$$I_1 = \\frac{5 - 1.8}{150 + 12}, \\quad I_2 = \\frac{5 - 2.1}{150 + 12}$$"
           ]
         },

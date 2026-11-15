@@ -33,6 +33,7 @@
       "text": [
         "- 结点只是几根导线的交汇点，它**不能存电荷，也不能造电荷**。所以每一秒流进来多少，就得流出去多少。",
         "- 写成式子：$I_1 = I_2 + I_3$，或者把流出记为正、流进记为负：$-I_1 + I_2 + I_3 = 0$。这就是**基尔霍夫电流定律（KCL）**。",
+        "![](fig:node)",
         "- 两条支路两端电压一样（都是 N 对 GND），所以**电阻小的那条电流大**：$I_2 = \\frac{V_N}{R_2}$，$I_3 = \\frac{V_N}{R_3}$。",
         "- 接表之前，先自己算出 I1、I2、I3 和 N 点电压：R2 ∥ R3 再和 R1 串联，得到总电阻和 I1。"
       ]
@@ -60,6 +61,37 @@
       ]
     }
   ],
+  "figures": {
+    "node": {
+      "kind": "schematic",
+      "caption": {
+        "text": "I_1 来到结点 N，分成 I_2 和 I_3 两路：I_1 = I_2 + I_3。电阻小的那条路电流大。",
+        "i18n": {
+          "en": "I_1 reaches node N and splits into I_2 and I_3: I_1 = I_2 + I_3. The branch with the smaller resistor carries more."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 5], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": 330},
+          {"ref": "R2", "type": "R", "from": [3, 0], "to": [3, 5], "value": "1k"},
+          {"ref": "R3", "type": "R", "from": [6, 0], "to": [6, 5], "value": "2.2k"}
+        ],
+        "wires": [
+          [[3, 0], [6, 0]],
+          [[6, 5], [0, 5]]
+        ],
+        "labels": [
+          {"at": [3, 0], "name": "N"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I_1"},
+          {"kind": "i", "el": "R2", "name": "I_2"},
+          {"kind": "i", "el": "R3", "name": "I_3"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "KCL: what flows into a node flows out",
@@ -120,6 +152,7 @@
           "text": [
             "- A node is just where wires meet; it **cannot store charge or make charge**. So whatever flows in each second must flow out.",
             "- As an equation: $I_1 = I_2 + I_3$, or with outgoing currents positive and incoming negative: $-I_1 + I_2 + I_3 = 0$. That is **Kirchhoff's current law (KCL)**.",
+            "![](fig:node)",
             "- Both branches have the same voltage across them (N to GND), so **the branch with the smaller resistance carries more**: $I_2 = \\frac{V_N}{R_2}$, $I_3 = \\frac{V_N}{R_3}$.",
             "- Before you connect the meters, work out I1, I2, I3 and the voltage at N yourself: R2 ∥ R3 in series with R1 gives the total resistance and I1."
           ]

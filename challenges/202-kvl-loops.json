@@ -33,6 +33,7 @@
         "- 把电压想成**高度**。沿着一个圈走，经过电源是“上山”，经过电阻、LED 是“下山”。回到原点时，高度一定和出发时一样。",
         "- 所以：**沿任何闭合回路，电压的代数和为 0**。这就是基尔霍夫电压定律（KVL）。",
         "- 这里有三个圈：① 电源 → R1 → LED；② LED 和 R2、R3 组成的圈（里面**没有电源**）；③ 电源 → R1 → R2 → R3。",
+        "![](fig:loops)",
         "- 动手之前，先把三个圈的 KVL 方程写下来。想一想：LED 两端会正好是 1.8 V 吗？"
       ]
     },
@@ -57,6 +58,38 @@
       ]
     }
   ],
+  "figures": {
+    "loops": {
+      "kind": "schematic",
+      "caption": {
+        "text": "圈 ①：电源 → R1 → LED；圈 ②：LED → R2 → R3（没有电源）；圈 ③ 是外面的大圈：电源 → R1 → R2 → R3。",
+        "i18n": {
+          "en": "Loop ①: source → R1 → LED; loop ②: LED → R2 → R3 (no source); loop ③ is the outer one: source → R1 → R2 → R3."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 6], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": 470},
+          {"ref": "LED1", "type": "LED", "from": [3, 0], "to": [3, 6], "value": "red"},
+          {"ref": "R2", "type": "R", "from": [6, 0], "to": [6, 3], "value": "1k"},
+          {"ref": "R3", "type": "R", "from": [6, 3], "to": [6, 6], "value": "2.2k"}
+        ],
+        "wires": [
+          [[3, 0], [6, 0]],
+          [[6, 6], [0, 6]]
+        ],
+        "labels": [
+          {"at": [4, 0], "name": "M"},
+          {"at": [6, 3], "name": "X"}
+        ],
+        "loops": [
+          {"at": [1.5, 4.5], "name": "①"},
+          {"at": [4.5, 4.5], "name": "②"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "KVL: around a loop, the voltages add up to 0",
@@ -111,6 +144,7 @@
             "- Think of voltage as **height**. Walking around a loop, a source takes you \"uphill\" and resistors and LEDs take you \"downhill\". Back at the start, you are at the same height you left.",
             "- So: **around any closed loop the voltages add up to zero**. That is Kirchhoff's voltage law (KVL).",
             "- There are three loops here: ① source → R1 → LED; ② the LED with R2 and R3 (**no source** in it); ③ source → R1 → R2 → R3.",
+            "![](fig:loops)",
             "- Before you measure, write the KVL equation of each loop. And think: will the LED show exactly 1.8 V?"
           ]
         },

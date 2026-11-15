@@ -13,7 +13,9 @@
 import { tr } from '../i18n';
 import type { Netlist, Pt, ProblemElement, Schematic, TwoTerminalElement } from './types';
 
-export const TWO_TERMINAL_TYPES = ['R', 'C', 'L', 'V', 'I', 'VCVS', 'VCCS', 'CCVS', 'CCCS', 'SW', 'Z', 'ammeter', 'voltmeter', 'NR'] as const;
+export const TWO_TERMINAL_TYPES = ['R', 'C', 'L', 'V', 'I', 'VCVS', 'VCCS', 'CCVS', 'CCCS', 'SW', 'Z', 'ammeter', 'voltmeter', 'NR', 'LED', 'BAT'] as const;
+/** element types that only lesson card figures may use: drawn, never simulated */
+export const FIGURE_ONLY_TYPES: readonly string[] = ['LED', 'BAT'];
 
 export function isTwoTerminal(el: ProblemElement): el is TwoTerminalElement {
   return (TWO_TERMINAL_TYPES as readonly string[]).includes(el.type);
@@ -147,7 +149,8 @@ export interface ExtractResult {
   warnings: string[];
 }
 
-export function extractNetlist(s: Schematic): ExtractResult {
+/** `groundOptional`: a lesson card figure may leave the ground symbol out (problems need one). */
+export function extractNetlist(s: Schematic, opts: { groundOptional?: boolean } = {}): ExtractResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   const elements: ProblemElement[] = Array.isArray(s?.elements) ? s.elements : [];
@@ -270,7 +273,8 @@ export function extractNetlist(s: Schematic): ExtractResult {
     }
     if (!isAnchored(g)) errors.push(tr(`接地符号在 ${P(g)}，那里没有导线或元件端点`, `Ground at ${P(g)} is not on a wire or element terminal`));
   }
-  if (grounds.length === 0) errors.push(tr('电路图里没有接地符号（grounds），请放一个作为参考点', 'No ground symbol: add one to "grounds" as the reference node'));
+  if (grounds.length === 0 && !opts.groundOptional)
+    errors.push(tr('电路图里没有接地符号（grounds），请放一个作为参考点', 'No ground symbol: add one to "grounds" as the reference node'));
 
   // element bodies: things lying strictly inside them are likely mistakes
   for (const el of elements) {

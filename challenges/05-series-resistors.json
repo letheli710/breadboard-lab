@@ -28,6 +28,7 @@
       "title": "一条路，同一个电流",
       "text": [
         "- **串联 = 只有一条路。** 电流从 + 出发，必须依次穿过 R1、R2、LED，没有岔路，所以**流过每个元件的电流都一样**。",
+        "![](fig:series)",
         "- 电阻串联，总电阻**相加**：$R_{eq} = R_1 + R_2$。路越长越难走，电流变小。",
         "- 电压按电阻的比例**分**掉：两个一样的电阻，各分到一样多。所有元件的电压加起来正好等于电源电压——这就是 **KVL**（基尔霍夫电压定律）。",
         "$$I = \\frac{V_s - V_f}{R_1 + R_2}$$"
@@ -55,6 +56,36 @@
       ]
     }
   ],
+  "figures": {
+    "series": {
+      "kind": "schematic",
+      "caption": {
+        "text": "只有一条路：同一个电流 I 依次穿过 R1、R2、LED；三段电压加起来等于电源电压。",
+        "i18n": {
+          "en": "One path: the same current I passes R1, R2 and the LED in turn; the three voltages add up to the supply voltage."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": 220},
+          {"ref": "R2", "type": "R", "from": [3, 0], "to": [6, 0], "value": 220},
+          {"ref": "LED1", "type": "LED", "from": [6, 0], "to": [6, 4], "value": "red"}
+        ],
+        "wires": [
+          [[6, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I"},
+          {"kind": "i", "el": "R2", "name": "I"},
+          {"kind": "i", "el": "LED1", "name": "I"},
+          {"kind": "v", "el": "R1", "name": "V_R1"},
+          {"kind": "v", "el": "R2", "name": "V_R2"},
+          {"kind": "v", "el": "LED1", "name": "V_LED"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "Series: one path only",
@@ -94,6 +125,7 @@
           "title": "One path, one current",
           "text": [
             "- **Series = one path.** The current leaves + and has to pass R1, R2 and the LED in turn; there is no side road, so **every part carries the same current**.",
+            "![](fig:series)",
             "- In series the resistances **add**: $R_{eq} = R_1 + R_2$. A longer road is harder to travel, so the current drops.",
             "- The voltage is **shared** in proportion to the resistances: two equal resistors get equal shares. All the parts' voltages add up to exactly the supply voltage — that is **KVL** (Kirchhoff's voltage law).",
             "$$I = \\frac{V_s - V_f}{R_1 + R_2}$$"

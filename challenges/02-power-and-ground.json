@@ -31,6 +31,7 @@
         "- 电流从电池 **+** 出发，穿过元件，**必须回到电池 −**。只出不回，就一点电流都没有——LED 的短脚悬在空中，圈没有闭合。",
         "- **电压是两点之间的差。** 说“这里是 9 V”，其实省略了“相对谁”。这个默认的参考点叫 **GND**（地），规定它是 **0 V**。",
         "- 我们把电池的 **− 端定为 GND**：红轨 = VCC（+9 V），蓝轨 = GND（0 V）。",
+        "![](fig:loop)",
         "- GND 不是大地，也不是“电流消失的地方”。电流到了 GND 还要继续流，回到电池里。"
       ]
     },
@@ -54,6 +55,37 @@
       ]
     }
   ],
+  "figures": {
+    "loop": {
+      "kind": "schematic",
+      "caption": {
+        "text": "电流从电池 + 出发，穿过 R1 和 LED，再回到电池 −。电池 − 端就是 GND（0 V）。",
+        "i18n": {
+          "en": "Current leaves the battery at +, passes R1 and the LED and returns to the battery at −. The − end is GND (0 V)."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "B1", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [4, 0], "value": 470},
+          {"ref": "LED1", "type": "LED", "from": [4, 0], "to": [4, 4], "value": "red"}
+        ],
+        "wires": [
+          [[4, 4], [0, 4]]
+        ],
+        "grounds": [[0, 4]],
+        "loops": [
+          {"at": [2, 2], "name": "I"}
+        ],
+        "labels": [
+          {"at": [0, 0], "name": "VCC"}
+        ],
+        "notes": [
+          {"at": [0.6, 4.7], "text": "GND = 0 V"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "Power and GND: the way home",
@@ -87,6 +119,7 @@
             "- Current leaves the battery at **+**, goes through the parts and **must get back to the battery −**. Out without a way back means no current at all — the LED's short lead is hanging in the air, so the loop is open.",
             "- **A voltage is a difference between two points.** \"This point is at 9 V\" leaves out \"relative to what\". That default reference point is called **GND** (ground) and it is **0 V** by definition.",
             "- We make the battery's **− terminal GND**: red rail = VCC (+9 V), blue rail = GND (0 V).",
+            "![](fig:loop)",
             "- GND is not the earth, and it is not \"where current disappears\". At GND the current keeps flowing, back into the battery."
           ]
         },

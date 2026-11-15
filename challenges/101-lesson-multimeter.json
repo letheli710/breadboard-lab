@@ -31,6 +31,7 @@
         "- 万用表有两支表笔。**读数 = 红表笔那点 − 黑表笔那点。**",
         "- 只放红表笔时，黑表笔默认在 **GND**，读到的就是“这一点对 GND 的电压”，叫**结点电压**。",
         "- 两支表笔放在一个元件两端，读到的就是**这个元件两端的电压**。",
+        "![](fig:probes)",
         "- 红黑对调，读数只变符号：电压没变，变的是你选的参考方向。",
         "- 表笔点在什么都没接的孔上，那一点**悬空**，没有确定的电压，屏幕显示“悬空”。"
       ]
@@ -54,6 +55,39 @@
       ]
     }
   ],
+  "figures": {
+    "probes": {
+      "kind": "schematic",
+      "caption": {
+        "text": "读数 = 红表笔那点 − 黑表笔那点。上面的表跨在 R1 两端，读 R1 的电压；右边的表黑表笔在 GND，读 M 点的结点电压。",
+        "i18n": {
+          "en": "Reading = red-probe point − black-probe point. The top meter spans R1 and reads its voltage; the right one has its black probe on GND and reads the node voltage at M."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 5], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [4, 0], "value": "1k"},
+          {"ref": "R2", "type": "R", "from": [4, 0], "to": [4, 5], "value": "2.2k"},
+          {"ref": "VM1", "type": "voltmeter", "from": [0, -2], "to": [4, -2], "label": "V_R1"},
+          {"ref": "VM2", "type": "voltmeter", "from": [6, 0], "to": [6, 5], "label": "V_M"}
+        ],
+        "wires": [
+          [[4, 0], [6, 0]],
+          [[6, 5], [0, 5]],
+          [[0, 0], [0, -2]],
+          [[4, -2], [4, 0]]
+        ],
+        "grounds": [[0, 5]],
+        "labels": [
+          {"at": [5, 0], "name": "M"}
+        ],
+        "marks": [
+          {"kind": "v", "el": "VM1", "name": ""}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "The multimeter: seeing voltage",
@@ -128,6 +162,7 @@
             "- A multimeter has two probes. **Reading = the red probe's point − the black probe's point.**",
             "- With only the red probe placed, the black one sits on **GND** by default: you read \"this point relative to GND\", called a **node voltage**.",
             "- With the probes on the two ends of one part, you read **the voltage across that part**.",
+            "![](fig:probes)",
             "- Swap red and black and only the sign changes: the voltage is the same, your chosen reference direction is not.",
             "- A probe on a hole with nothing in it touches a **floating** point with no defined voltage; the display shows \"floating\"."
           ]

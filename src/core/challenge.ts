@@ -6,6 +6,7 @@ import { getLang, isLang, LANGS, tr, type Lang } from './i18n';
 import { parseValue } from './format';
 import { MOSFETS } from './devices';
 import { chapterById } from './problem/chapters';
+import { figureRefs, parseFigures, type CardFigure } from './figures';
 import { isMcu, mcuPin, modesFor, normalizeMcuPin } from './mcu';
 import { BATTERIES, LED_COLORS, PARTS, terminalsOf } from './parts';
 import { MEASURES, type Measure } from './transient';
@@ -166,6 +167,8 @@ export interface Challenge {
   steps: ChallengeStep[];
   /** card-style unit (§16): one card at a time, each owning a run of the steps; [] = classic layout */
   cards: ChallengeCard[];
+  /** figures shown in card and step text by a `![](fig:<id>)` line (§16.3; core/figures.ts) */
+  figures: Record<string, CardFigure>;
   /** ids of the lessons to do first (shown as links in the task panel) */
   prereq?: string[];
   solution?: Layout;
@@ -1105,6 +1108,31 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     else errors.push(tr(`"phase" 必须是 ${PHASES.join(' / ')}（课程第几期，见 docs/ROADMAP.md）`, `"phase" must be ${PHASES.join(' / ')} (the course phase, see docs/ROADMAP.md)`));
   }
 
+  // figures, and the `![](fig:id)` lines that show them (cards and steps, every language)
+  const fig = parseFigures(json.figures);
+  errors.push(...fig.errors);
+  warnings.push(...fig.warnings);
+  {
+    const texts: string[] = [];
+    const add = (v: unknown) => {
+      if (typeof v === 'string') texts.push(v);
+      else if (Array.isArray(v)) v.forEach(add);
+      else if (isObj(v)) add(v.text);
+    };
+    const scan = (o: unknown) => {
+      if (!isObj(o)) return;
+      if (Array.isArray(o.cards)) o.cards.forEach(add);
+      if (Array.isArray(o.steps)) o.steps.forEach(add);
+    };
+    scan(json);
+    if (isObj(json.i18n)) Object.values(json.i18n).forEach(scan);
+    const used = new Set(texts.flatMap(figureRefs));
+    const declared = isObj(json.figures) ? Object.keys(json.figures) : [];
+    for (const id of used)
+      if (!declared.includes(id)) errors.push(tr(`![](fig:${id})："figures" 里没有 "${id}" 这张图`, `![](fig:${id}): there is no figure "${id}" in "figures"`));
+    for (const id of declared) if (!used.has(id)) warnings.push(tr(`figures.${id}：没有卡片或步骤用到这张图`, `figures.${id}: no card or step shows this figure`));
+  }
+
   const level = typeof json.level === 'number' ? Math.min(5, Math.max(1, Math.round(json.level))) : 1;
   const challenge: Challenge = {
     id,
@@ -1122,6 +1150,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     hints: txHints.length === baseHints.length ? txHints : baseHints,
     steps,
     cards,
+    figures: fig.figures,
     prereq: strs(json.prereq),
     solution,
     start,

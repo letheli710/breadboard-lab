@@ -71,7 +71,10 @@ export type TwoTerminalType =
   | 'Z' // generic impedance for AC problems: value {re, im} ohms at the analysis frequency
   | 'ammeter' // ideal ammeter (0 Ω), current reading p→n
   | 'voltmeter' // ideal voltmeter (open), reading V(p) − V(n)
-  | 'NR'; // nonlinear resistor, law: see NonlinearLaw (DC operating point / small-signal AC only)
+  | 'NR' // nonlinear resistor, law: see NonlinearLaw (DC operating point / small-signal AC only)
+  // drawing only, for lesson card figures (never simulated; problems reject them):
+  | 'LED' // light-emitting diode, anode = p; value: colour name ("red", "green", …)
+  | 'BAT'; // battery (long plate = + at p); value: volts
 
 /** Characteristic of a nonlinear resistor (type NR), passive convention (u = V(p) − V(n), i p → n):
  *  {i: [c0, c1, …]} i = Σ c_k·u^k (voltage-controlled; optional umin/umax: constant outside);

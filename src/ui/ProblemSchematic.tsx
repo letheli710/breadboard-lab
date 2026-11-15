@@ -31,7 +31,8 @@ export { richRuns };
 
 /** Element refs / mark names: "R1" → R₁, "Vs" → V_s, "RL" → R_L (unless they already use "_"). */
 export function symbolText(ref: string): string {
-  if (ref.includes('_')) return ref;
+  // breadboard names in lesson figures stay as they are: LED1, AM1 (ammeter), VM1 (voltmeter)
+  if (ref.includes('_') || /^(LED|AM|VM)\d*$/.test(ref)) return ref;
   const m = ref.match(/^([A-Za-z])([A-Za-z]{0,3}\d*|\d+)$/);
   return m && m[2] ? `${m[1]}_${m[2]}` : ref;
 }
@@ -43,7 +44,7 @@ const textWidth = (runs: Run[], size = FS) =>
     return w + n * size * (r.sub ? 0.75 : 1);
   }, 0);
 
-function Rich({ runs, ...p }: { runs: Run[]; x: number; y: number; anchor?: 'start' | 'middle' | 'end'; className?: string; fill?: string }) {
+export function Rich({ runs, ...p }: { runs: Run[]; x: number; y: number; anchor?: 'start' | 'middle' | 'end'; className?: string; fill?: string }) {
   let dy = 0;
   return (
     <text x={p.x} y={p.y} textAnchor={p.anchor ?? 'start'} className={p.className} fill={p.fill}>
@@ -223,6 +224,10 @@ export function elementValueText(el: TwoTerminalElement): string | null {
     }
     case 'NR':
       return lawText(el.law);
+    case 'BAT':
+      return siOrRaw(v, 'V');
+    case 'LED':
+      return null;
     case 'VCVS':
     case 'VCCS':
     case 'CCVS':
@@ -261,10 +266,24 @@ function bodySize(el: TwoTerminalElement): { B: number; hw: number } {
       return { B: 36, hw: 15 };
     case 'SW':
       return { B: 36, hw: 16 };
+    case 'LED':
+      return { B: 22, hw: 17 };
+    case 'BAT':
+      return { B: 12, hw: 16 };
     default:
       return { B: 28, hw: 14 };
   }
 }
+
+/** LED figure colours (fill of the diode triangle) */
+const LED_TINT: Record<string, string> = {
+  red: '#f29b8f',
+  green: '#9ad7a4',
+  yellow: '#f5d77a',
+  blue: '#9cc3f2',
+  white: '#f3f1ea',
+  orange: '#f6b980',
+};
 
 const isAC = (v: unknown) => !!v && typeof v === 'object' && ('ac' in (v as object) || 'sin' in (v as object));
 
@@ -404,6 +423,8 @@ const KIND: Record<string, [string, string]> = {
   ammeter: ['电流表', 'ammeter'],
   voltmeter: ['电压表', 'voltmeter'],
   NR: ['非线性电阻', 'nonlinear resistor'],
+  LED: ['发光二极管', 'LED'],
+  BAT: ['电池', 'battery'],
   OPAMP: ['理想运放', 'ideal op-amp'],
   XFMR: ['变压器', 'transformer'],
   K: ['耦合', 'coupling'],
@@ -433,7 +454,10 @@ export function describeSchematic(s: Schematic): string {
             const t = elementValueText(el);
             return t ? ` ${t}` : '';
           })();
-      const pol = el.type === 'V' || el.type === 'I' || el.type.endsWith('VS') || el.type.endsWith('CS') ? tr('（+ 端 / 箭头起点在前）', ' (+ / arrow tail first)') : '';
+      const pol =
+        el.type === 'V' || el.type === 'BAT' || el.type === 'LED' || el.type === 'I' || el.type.endsWith('VS') || el.type.endsWith('CS')
+          ? tr('（+ 端 / 箭头起点在前）', ' (+ / arrow tail first)')
+          : '';
       return tr(`${name}${v}，接在${at(el.ref, 'p')}与${at(el.ref, 'n')}之间${pol}`, `${name}${v}, between ${at(el.ref, 'p')} and ${at(el.ref, 'n')}${pol}`);
     }
     if (el.type === 'OPAMP')
@@ -784,6 +808,44 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         );
         break;
       }
+      case 'LED': {
+        // diode triangle (anode = p) and bar, filled with the LED's colour; two arrows of light
+        // leave on the side away from the label
+        const tint = LED_TINT[String(el.value ?? '').toLowerCase()] ?? 'var(--paper)';
+        // the light leaves away from the label, unless a +/− voltage mark takes that side
+        const vMark = (s.marks ?? []).some((m) => m?.el === el.ref && m.kind === 'v');
+        const out = vMark ? ls : -ls;
+        const ray = (x0: number) => {
+          const a: V2 = [x0, out * 12];
+          const b: V2 = [x0 + 7, out * 21];
+          const d: V2 = [0.6, out * 0.8];
+          return (
+            <g key={x0}>
+              <line x1={a[0]} y1={a[1]} x2={b[0] - d[0] * 3} y2={b[1] - d[1] * 3} {...common} strokeWidth={1.2} />
+              <polygon points={arrowHead(b, d, 5, 2.6)} fill={col} />
+            </g>
+          );
+        };
+        body = (
+          <g>
+            <polygon points={`${-h},-10 ${-h},10 ${h - 2},0`} {...common} fill={tint} />
+            <line x1={h - 2} y1={-10} x2={h - 2} y2={10} {...common} />
+            {ray(-4)}
+            {ray(3)}
+          </g>
+        );
+        break;
+      }
+      case 'BAT':
+        // long thin plate = +, short thick plate = −
+        body = (
+          <g {...common}>
+            <line x1={-h} y1={-15} x2={-h} y2={15} />
+            <line x1={h} y1={-8} x2={h} y2={8} strokeWidth={SW * 2.4} strokeLinecap="butt" />
+          </g>
+        );
+        sym('+', -h - 8, -ls * 13, 12);
+        break;
       case 'ammeter':
       case 'voltmeter':
         body = <circle r={h} {...common} fill="var(--paper)" />;

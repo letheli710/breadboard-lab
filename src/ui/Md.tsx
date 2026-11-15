@@ -5,11 +5,14 @@ import { MathText } from './mathText';
 const MATH_INLINE = /(\$[^$\s][^$]*?\$)/g;
 const MATH_LINE = /^\$\$(.+)\$\$$/;
 
+// a figure of a lesson card on a line of its own: `![](fig:<id>)` (core/figures.ts)
+const FIG_LINE = /^\s*!\[[^\]]*\]\(fig:([a-z0-9-]+)\)\s*$/;
+
 /** Tiny markdown subset: paragraphs, "- " lists, "## " headings, **bold**, `code`, tables, ``` blocks.
  *  With `math`, "$…$" is a formula (MathText: X_sub, \frac{}{}, \sqrt{}, ^{}) and a line that is
  *  "$$…$$" is a centred formula; lesson text opts in, the docs shown on the Import page do not
- *  (they mention `$schema`). */
-export function Md({ text, math = false }: { text: string; math?: boolean }) {
+ *  (they mention `$schema`). With `figure`, a line `![](fig:<id>)` is that figure (lesson cards). */
+export function Md({ text, math = false, figure }: { text: string; math?: boolean; figure?: (id: string) => ReactNode }) {
   const blocks: JSX.Element[] = [];
   let list: string[] = [];
   const formulas = (s: string): ReactNode =>
@@ -92,6 +95,12 @@ export function Md({ text, math = false }: { text: string; math?: boolean }) {
       continue;
     }
     flushTable();
+    const fig = figure ? FIG_LINE.exec(line) : null;
+    if (fig) {
+      flush();
+      blocks.push(<Fragment key={blocks.length}>{figure!(fig[1])}</Fragment>);
+      continue;
+    }
     const display = math ? MATH_LINE.exec(line.trim()) : null;
     if (display) {
       flush();

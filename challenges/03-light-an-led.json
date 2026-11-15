@@ -29,9 +29,11 @@
       "title": "LED 是一道矮水坝",
       "text": [
         "- LED 导通以后，两端电压几乎**固定**在它的正向压降 $V_f$：红 ≈ 1.8 V，黄 ≈ 2.0 V，**绿 ≈ 2.1 V**，蓝 / 白 ≈ 3.0 V。",
+        "![](fig:iv)",
         "- 电源有 5 V，LED 只“拦住”2.1 V。剩下的 2.9 V 没人拦，就全压在 LED 内部很小的电阻上——电流冲得很大，LED 烧了。",
         "- 解决办法：**串一个电阻，让它替 LED 吃掉多出来的电压。** 串联时电流处处相同，所以：",
         "$$R = \\frac{V_s - V_f}{I}$$",
+        "![](fig:budget)",
         "想要大约 20 mA：$R = \\frac{5 - 2.1}{0.02} = 145$ Ω，取最接近的常用值 **150 Ω**。"
       ]
     },
@@ -57,6 +59,90 @@
       ]
     }
   ],
+  "figures": {
+    "iv": {
+      "kind": "plot",
+      "caption": {
+        "text": "LED 像一道矮水坝：电压不到 V_f 几乎没有电流；一过 V_f，电压只多一点点，电流就猛涨。",
+        "i18n": {
+          "en": "An LED is a low dam: below V_f almost no current flows; past V_f a tiny bit more voltage sends the current soaring."
+        }
+      },
+      "x": {
+        "label": {
+          "text": "LED 两端电压 (V)",
+          "i18n": {
+            "en": "LED voltage (V)"
+          }
+        },
+        "min": 0,
+        "max": 3,
+        "ticks": [0, 1, 1.8, 2.1, 3]
+      },
+      "y": {
+        "label": {
+          "text": "电流 (mA)",
+          "i18n": {
+            "en": "current (mA)"
+          }
+        },
+        "min": 0,
+        "max": 40,
+        "ticks": [0, 20, 40]
+      },
+      "curves": [
+        {
+          "points": [[0, 0], [1.8, 0], [2.28, 40]],
+          "tone": 2,
+          "label": {
+            "text": "红",
+            "i18n": {
+              "en": "red"
+            }
+          },
+          "labelAt": [1.7, 32]
+        },
+        {
+          "points": [[0, 0], [2.1, 0], [2.58, 40]],
+          "tone": 1,
+          "label": {
+            "text": "绿",
+            "i18n": {
+              "en": "green"
+            }
+          },
+          "labelAt": [2.75, 26]
+        }
+      ],
+      "hlines": [
+        {"y": 20, "label": {"text": "20 mA：够亮了", "i18n": {"en": "20 mA: bright enough"}}}
+      ]
+    },
+    "budget": {
+      "kind": "schematic",
+      "caption": {
+        "text": "5 V 分成两份：LED 拦住 V_f，剩下的 V_R 全落在电阻上，电阻值决定电流。",
+        "i18n": {
+          "en": "The 5 V splits in two: the LED holds back V_f, the rest, V_R, falls across the resistor, and the resistor sets the current."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 5},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [4, 0], "value": 150},
+          {"ref": "LED1", "type": "LED", "from": [4, 0], "to": [4, 4], "value": "green"}
+        ],
+        "wires": [
+          [[4, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "v", "el": "R1", "name": "V_R"},
+          {"kind": "v", "el": "LED1", "name": "V_f"},
+          {"kind": "i", "el": "R1", "name": "I"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "LEDs: why the resistor is not optional",
@@ -88,9 +174,11 @@
           "title": "An LED is a low dam",
           "text": [
             "- Once an LED conducts, the voltage across it stays almost **fixed** at its forward voltage $V_f$: red ≈ 1.8 V, yellow ≈ 2.0 V, **green ≈ 2.1 V**, blue / white ≈ 3.0 V.",
+            "![](fig:iv)",
             "- The supply has 5 V and the LED only \"holds back\" 2.1 V. The other 2.9 V has nothing to stop it, so it all lands on the tiny resistance inside the LED — a huge current, and the LED is gone.",
             "- The fix: **put a resistor in series and let it take the extra voltage.** In series the current is the same everywhere, so:",
             "$$R = \\frac{V_s - V_f}{I}$$",
+            "![](fig:budget)",
             "For about 20 mA: $R = \\frac{5 - 2.1}{0.02} = 145$ Ω; take the nearest standard value, **150 Ω**."
           ]
         },
