@@ -27,6 +27,7 @@
       "text": [
         "- 1、3 两脚之间是一整条 10 kΩ 的电阻，2 脚是在上面**滑动的触点**。旋钮在 1 脚那头时，1–2 之间≈0；在 3 脚那头时≈10 kΩ。",
         "- 把 2、3 脚连起来，电位器就成了一个 **0–10 kΩ 的可变电阻**，串在 LED 的路上。电阻越大，电流越小，灯越暗。",
+        "![](fig:rheostat)",
         "- **为什么还要 220 Ω？** 旋钮转到 0 时电位器一点电阻都没有，没有它，LED 就直接接在 5 V 上了（第 1.3 课你见过后果）。"
       ]
     },
@@ -47,6 +48,31 @@
       ]
     }
   ],
+  "figures": {
+    "rheostat": {
+      "kind": "schematic",
+      "caption": {
+        "text": "2、3 脚接在一起，电位器就是一个 0–10 kΩ 的可变电阻：阻值越大，电流 I 越小。220 Ω 保证旋到 0 时也有限流。",
+        "i18n": {
+          "en": "With pins 2 and 3 joined the pot is a 0–10 kΩ variable resistor: more resistance, less current I. The 220 Ω still limits the current at 0."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 5], "value": 5},
+          {"ref": "RV1", "type": "RV", "from": [0, 0], "to": [3, 0], "value": "10k", "label": "RV1 0–10 kΩ"},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [6, 0], "value": 220},
+          {"ref": "LED1", "type": "LED", "from": [6, 0], "to": [6, 5], "value": "red"}
+        ],
+        "wires": [
+          [[6, 5], [0, 5]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "Potentiometer dimmer",
@@ -79,6 +105,7 @@
           "text": [
             "- Between pins 1 and 3 is one strip of 10 kΩ; pin 2 is a **contact that slides along it**. With the knob at pin 1's end, 1–2 is ≈ 0; at pin 3's end, ≈ 10 kΩ.",
             "- Join pins 2 and 3 and the pot becomes a **0–10 kΩ variable resistor** in the LED's path. More resistance, less current, dimmer light.",
+            "![](fig:rheostat)",
             "- **Why the 220 Ω as well?** At 0 the pot has no resistance at all; without it the LED would sit straight across 5 V (you saw the result in 1.3)."
           ]
         },

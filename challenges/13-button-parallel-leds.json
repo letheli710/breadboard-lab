@@ -25,6 +25,7 @@
       "title": "开关放在哪里，就管哪一段",
       "text": [
         "- 开关串在哪条路上，就只管那条路。想让一个按键**同时**管两条支路，它必须放在两条支路**分岔之前**。",
+        "![](fig:split)",
         "- 按键的输出端就是结点 **SWOUT**：两个电阻的一只脚都插在这一列。"
       ]
     },
@@ -45,6 +46,39 @@
       ]
     }
   ],
+  "figures": {
+    "split": {
+      "kind": "schematic",
+      "caption": {
+        "text": "按键放在分岔之前，两条支路的电流都要从它经过：I = I_1 + I_2。",
+        "i18n": {
+          "en": "The button sits before the fork, so both branch currents pass through it: I = I_1 + I_2."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 6], "value": 5},
+          {"ref": "SW1", "type": "S", "from": [0, 0], "to": [2, 0], "value": "closed", "label": "SW1"},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [3, 3], "value": 220},
+          {"ref": "LED1", "type": "LED", "from": [3, 3], "to": [3, 6], "value": "red"},
+          {"ref": "R2", "type": "R", "from": [6, 0], "to": [6, 3], "value": 220},
+          {"ref": "LED2", "type": "LED", "from": [6, 3], "to": [6, 6], "value": "yellow"}
+        ],
+        "wires": [
+          [[2, 0], [6, 0]],
+          [[6, 6], [0, 6]]
+        ],
+        "labels": [
+          {"at": [2, 0], "name": "SWOUT"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "SW1", "name": "I"},
+          {"kind": "i", "el": "R1", "name": "I_1"},
+          {"kind": "i", "el": "R2", "name": "I_2"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "One button, two LEDs",
@@ -75,6 +109,7 @@
           "title": "A switch controls the stretch it sits in",
           "text": [
             "- A switch in series with a path controls only that path. For one button to control **both** branches **at once**, it must sit **before the fork**.",
+            "![](fig:split)",
             "- The button's output is node **SWOUT**: one leg of each resistor goes into that column."
           ]
         },
