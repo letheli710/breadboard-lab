@@ -30,6 +30,7 @@
         "- **电压旋钮**：输出电压最多到这里。**限流旋钮**：输出电流最多到这里。",
         "- 负载想要的电流 $\\frac{V}{R}$ 没到限流值：电源输出设定电压，显示 **CV**（恒压，绿色）。",
         "- 负载想要的电流超过限流值：电源把电流**卡在限流值**，电压自己降到 $I \\times R$，显示 **CC**（恒流，红色）。",
+        "![](fig:cvcc)",
         "- 屏幕上大字是**实际输出**，下面一行小字是**旋钮位置**。设定值不等于实际值——这是新手最常看错的地方。"
       ]
     },
@@ -51,6 +52,77 @@
       ]
     }
   ],
+  "figures": {
+    "cvcc": {
+      "kind": "plot",
+      "caption": {
+        "text": "电源的输出被两条线围住：电压不超过 V_set，电流不超过 I_limit。负载电阻大，工作点落在横线上（CV）；电阻小，落在竖线上（CC），电压被迫降下来。",
+        "i18n": {
+          "en": "The output is fenced in by two lines: voltage up to V_set, current up to I_limit. A large load resistance lands on the horizontal line (CV); a small one lands on the vertical line (CC) and the voltage is forced down."
+        }
+      },
+      "x": {
+        "label": {
+          "text": "电流 I",
+          "i18n": {
+            "en": "current I"
+          }
+        },
+        "min": 0,
+        "max": 120
+      },
+      "y": {
+        "label": {
+          "text": "电压 V",
+          "i18n": {
+            "en": "voltage V"
+          }
+        },
+        "min": 0,
+        "max": 15
+      },
+      "curves": [
+        {
+          "points": [[0, 12], [60, 12], [60, 0]],
+          "tone": 1
+        },
+        {
+          "points": [[0, 0], [42, 14.7]],
+          "tone": 3,
+          "dashed": true,
+          "label": {
+            "text": "大 R",
+            "i18n": {
+              "en": "large R"
+            }
+          },
+          "labelAt": [10, 7.5]
+        },
+        {
+          "points": [[0, 0], [120, 7]],
+          "tone": 2,
+          "dashed": true,
+          "label": {
+            "text": "小 R",
+            "i18n": {
+              "en": "small R"
+            }
+          },
+          "labelAt": [100, 4.4]
+        }
+      ],
+      "dots": [
+        {"at": [34.3, 12], "label": "CV", "tone": 3},
+        {"at": [60, 3.5], "label": "CC", "tone": 2}
+      ],
+      "hlines": [
+        {"y": 12, "label": "V_set"}
+      ],
+      "vlines": [
+        {"x": 60, "label": "I_limit"}
+      ]
+    }
+  },
   "i18n": {
     "en": {
       "title": "Bench supply: constant voltage, constant current, current limit",
@@ -113,6 +185,7 @@
             "- **Voltage knob**: the output voltage goes up to here at most. **Current-limit knob**: the output current goes up to here at most.",
             "- The load wants $\\frac{V}{R}$, which is below the limit: the supply outputs the set voltage and shows **CV** (constant voltage, green).",
             "- The load wants more than the limit: the supply **holds the current at the limit** and the voltage drops by itself to $I \\times R$; it shows **CC** (constant current, red).",
+            "![](fig:cvcc)",
             "- The big digits are the **actual output**, the small line below is **where the knobs are**. Setting is not output — the most common beginner mistake."
           ]
         },

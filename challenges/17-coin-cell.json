@@ -25,8 +25,10 @@
       "title": "真实电池 = 理想电源 + 内阻",
       "text": [
         "- 把电池想成一个**理想的 3 V 电源，里面串着一个小电阻**（内阻 $r$）。",
+        "![](fig:model)",
         "- 有电流时，内阻上会掉一点电压，所以电池两端的**端电压**比 3 V 低：",
         "$$V_{bat} = 3\\ \\text{V} - I \\cdot r$$",
+        "![](fig:droop)",
         "- 网上常说“纽扣电池可以直接点 LED，不用电阻”。算一算：不加电阻时 $I \\approx \\frac{3 - 1.8}{15 + 12} \\approx 44$ mA——比 LED 的 20 mA 大一倍多，纽扣电池也吃不消。加 47 Ω 就合适了。"
       ]
     },
@@ -51,6 +53,71 @@
       ]
     }
   ],
+  "figures": {
+    "model": {
+      "kind": "schematic",
+      "caption": {
+        "text": "真实电池 = 理想的 3 V + 内阻 r。有电流时 r 上掉一点电压，两端量到的 V_bat 就比 3 V 低。",
+        "i18n": {
+          "en": "A real cell = an ideal 3 V + an internal resistance r. With current flowing, r drops a little, so the V_bat you measure is below 3 V."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "B1", "type": "BAT", "from": [0, 0], "to": [0, 3], "value": 3},
+          {"ref": "r", "type": "R", "from": [0, 3], "to": [0, 6], "value": 15, "label": "r 15 Ω"},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [4, 0], "value": 47},
+          {"ref": "LED1", "type": "LED", "from": [4, 0], "to": [4, 6], "value": "red"},
+          {"ref": "VM1", "type": "voltmeter", "from": [-2, 0], "to": [-2, 6], "label": "V_bat"}
+        ],
+        "wires": [
+          [[4, 6], [0, 6]],
+          [[0, 0], [-2, 0]],
+          [[-2, 6], [0, 6]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I"}
+        ]
+      }
+    },
+    "droop": {
+      "kind": "plot",
+      "caption": {
+        "text": "电流越大，内阻上掉的电压越多：端电压 V_bat = 3 V − I·r 沿直线往下走。",
+        "i18n": {
+          "en": "The more current, the more r drops: the terminal voltage V_bat = 3 V − I·r falls along a straight line."
+        }
+      },
+      "x": {
+        "label": {
+          "text": "电流 I (mA)",
+          "i18n": {
+            "en": "current I (mA)"
+          }
+        },
+        "min": 0,
+        "max": 60,
+        "ticks": [0, 20, 40, 60]
+      },
+      "y": {
+        "label": {
+          "text": "端电压 (V)",
+          "i18n": {
+            "en": "terminal voltage (V)"
+          }
+        },
+        "min": 0,
+        "max": 3.4,
+        "ticks": [0, 1, 2, 3]
+      },
+      "curves": [
+        {"points": [[0, 3], [60, 2.1]], "tone": 1, "label": "V_bat", "labelAt": [48, 2.65]}
+      ],
+      "hlines": [
+        {"y": 3, "label": {"text": "理想电源", "i18n": {"en": "ideal source"}}}
+      ]
+    }
+  },
   "i18n": {
     "en": {
       "title": "Coin cell: internal resistance you can see",
@@ -79,8 +146,10 @@
           "title": "Real battery = ideal source + internal resistance",
           "text": [
             "- Think of the battery as an **ideal 3 V source with a small resistor inside** (the internal resistance $r$).",
+            "![](fig:model)",
             "- With current flowing, the internal resistance takes a little voltage, so the battery's **terminal voltage** is below 3 V:",
             "$$V_{bat} = 3\\ \\text{V} - I \\cdot r$$",
+            "![](fig:droop)",
             "- You will read online that \"a coin cell can drive an LED without a resistor\". Do the sum: with no resistor $I \\approx \\frac{3 - 1.8}{15 + 12} \\approx 44$ mA — more than twice an LED's 20 mA, and too much for a coin cell. 47 Ω gets it right."
           ]
         },

@@ -13,9 +13,9 @@
 import { tr } from '../i18n';
 import type { Netlist, Pt, ProblemElement, Schematic, TwoTerminalElement } from './types';
 
-export const TWO_TERMINAL_TYPES = ['R', 'C', 'L', 'V', 'I', 'VCVS', 'VCCS', 'CCVS', 'CCCS', 'SW', 'Z', 'ammeter', 'voltmeter', 'NR', 'LED', 'BAT'] as const;
+export const TWO_TERMINAL_TYPES = ['R', 'C', 'L', 'V', 'I', 'VCVS', 'VCCS', 'CCVS', 'CCCS', 'SW', 'Z', 'ammeter', 'voltmeter', 'NR', 'LED', 'BAT', 'RV', 'S'] as const;
 /** element types that only lesson card figures may use: drawn, never simulated */
-export const FIGURE_ONLY_TYPES: readonly string[] = ['LED', 'BAT'];
+export const FIGURE_ONLY_TYPES: readonly string[] = ['LED', 'BAT', 'RV', 'S'];
 
 export function isTwoTerminal(el: ProblemElement): el is TwoTerminalElement {
   return (TWO_TERMINAL_TYPES as readonly string[]).includes(el.type);

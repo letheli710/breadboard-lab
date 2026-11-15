@@ -167,6 +167,7 @@ export function partRect(g: BoardGeom, p: BoardPart): Rect | null {
   if (!b) return null;
   const box = union([padRect({ x: a[0], y: a[1], w: 0, h: 0 }, 3.5), padRect({ x: b[0], y: b[1], w: 0, h: 0 }, 3.5)]);
   const horiz = Math.abs(b[0] - a[0]) >= Math.abs(b[1] - a[1]);
+  if (p.type === 'button') return padRect(box, 6);
   if (p.type === 'resistor') return horiz ? union([box, { x: box.x, y: a[1] - 6, w: box.w, h: 12 }]) : union([box, { x: a[0] - 6, y: box.y, w: 12, h: box.h }]);
   if (p.type === 'wire') {
     const bow = Math.min(22, 6 + Math.hypot(b[0] - a[0], b[1] - a[1]) * 0.18);
@@ -283,12 +284,14 @@ export function placeLabels(g: BoardGeom, labels: LabelSpec[], fixed: Rect[], wi
     taken.push(best.box);
     const cx = best.box.x + best.box.w / 2;
     const cy = best.box.y + best.box.h / 2;
+    // one pointer, to the nearest target (the others share its colour and light up with it)
     const pointers: [Pt, Pt][] = [];
-    for (const t of L.targets) {
+    const ends = L.targets.map((t) => {
       const q = nearestOn(cx, cy, padRect(t, -3));
-      const p = nearestOn(q[0], q[1], best.box);
-      if (Math.hypot(q[0] - p[0], q[1] - p[1]) > 3) pointers.push([p, q]);
-    }
+      return { q, p: nearestOn(q[0], q[1], best.box) };
+    });
+    const e = ends.reduce((a, b) => (Math.hypot(b.q[0] - b.p[0], b.q[1] - b.p[1]) < Math.hypot(a.q[0] - a.p[0], a.q[1] - a.p[1]) ? b : a));
+    if (Math.hypot(e.q[0] - e.p[0], e.q[1] - e.p[1]) > 3) pointers.push([e.p, e.q]);
     out.push({ key: L.key, kind: 'tag', box: best.box, pointers });
   }
 
@@ -317,7 +320,10 @@ export function placeLabels(g: BoardGeom, labels: LabelSpec[], fixed: Rect[], wi
       const base = top ? g.frame.y - 12 - row * 22 : g.frame.y + g.frame.h + 22 + row * 22;
       const cx = x + it.w / 2;
       const elbow = top ? base + 6 : base - 18;
-      const leaders: Pt[][] = it.L.targets.map((t, i) => {
+      // a leader to the target nearest the lane (the others share its colour and light up with it)
+      const near = it.L.targets.reduce((bi, t, i, all) => ((top ? t.y < all[bi].y : t.y + t.h > all[bi].y + all[bi].h) ? i : bi), 0);
+      const leaders: Pt[][] = [it.L.targets[near]].map((t) => {
+        const i = near;
         const gx = it.L.gutters[i];
         const tipY = top ? t.y + Math.min(12, t.h / 2) : t.y + t.h - Math.min(12, t.h / 2);
         const edgeX = gx > t.x + t.w / 2 ? t.x + t.w : t.x;

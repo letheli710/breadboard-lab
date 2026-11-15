@@ -26,6 +26,7 @@
       "text": [
         "- SPDT = **单刀双掷**：一个“刀”（com），可以合到两个位置之一（a 或 b）。",
         "- 拨到 a：com–a 接通，红灯那条路通；b 那条路断开。拨到 b 正好相反。",
+        "![](fig:spdt)",
         "- 所以两条支路**永远只有一条通**，不会两颗同时亮。"
       ]
     },
@@ -46,6 +47,35 @@
       ]
     }
   ],
+  "figures": {
+    "spdt": {
+      "kind": "schematic",
+      "caption": {
+        "text": "拨到 a：com 和 a 接通，红灯那条路通，b 那条路断开。拨到 b 正好相反，所以两颗灯永远只亮一颗。",
+        "i18n": {
+          "en": "Set to a: com joins a, the red branch conducts and the b branch is open. Set to b it is the other way round, so only one LED is ever lit."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 6], "value": 5},
+          {"ref": "Sa", "type": "S", "from": [1, 0], "to": [4, 0], "value": "closed", "label": "a"},
+          {"ref": "R1", "type": "R", "from": [4, 0], "to": [4, 3], "value": 220},
+          {"ref": "LED1", "type": "LED", "from": [4, 3], "to": [4, 6], "value": "red"},
+          {"ref": "Sb", "type": "S", "from": [1, -2], "to": [6, -2], "value": "open", "label": "b"},
+          {"ref": "R2", "type": "R", "from": [6, -2], "to": [6, 2], "value": 220},
+          {"ref": "LED2", "type": "LED", "from": [6, 2], "to": [6, 6], "value": "green"}
+        ],
+        "wires": [
+          [[0, 0], [1, 0], [1, -2]],
+          [[6, 6], [0, 6]]
+        ],
+        "labels": [
+          {"at": [1, -1], "name": "com"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "Toggle switch: red or green",
@@ -77,6 +107,7 @@
           "text": [
             "- SPDT = **single pole, double throw**: one \"pole\" (com) that can connect to one of two positions (a or b).",
             "- Towards a: com–a closes and the red LED's path conducts; the b path is open. Towards b, the other way round.",
+            "![](fig:spdt)",
             "- So **only one branch conducts at a time** — both LEDs are never lit together."
           ]
         },
