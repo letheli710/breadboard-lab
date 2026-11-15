@@ -74,7 +74,9 @@ export type TwoTerminalType =
   | 'NR' // nonlinear resistor, law: see NonlinearLaw (DC operating point / small-signal AC only)
   // drawing only, for lesson card figures (never simulated; problems reject them):
   | 'LED' // light-emitting diode, anode = p; value: colour name ("red", "green", …)
-  | 'BAT'; // battery (long plate = + at p); value: volts
+  | 'BAT' // battery (long plate = + at p); value: volts
+  | 'RV' // variable resistor (resistor with an arrow through it); value: ohms
+  | 'S'; // plain switch; value: "open" | "closed"
 
 /** Characteristic of a nonlinear resistor (type NR), passive convention (u = V(p) − V(n), i p → n):
  *  {i: [c0, c1, …]} i = Σ c_k·u^k (voltage-controlled; optional umin/umax: constant outside);

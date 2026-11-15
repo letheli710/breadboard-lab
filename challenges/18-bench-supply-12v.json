@@ -28,6 +28,7 @@
       "title": "为什么限流设 50 mA",
       "text": [
         "- 两颗白光 LED 各约 3 V，共 6 V；电阻上 $12 - 6 = 6$ V，$I \\approx \\frac{6}{330} \\approx 18$ mA（算上两颗 LED 的小电阻，再稍小一点）。远低于 50 mA，电源一直是 **CV**。",
+        "![](fig:chain)",
         "- 万一电阻被短路（比如两只脚插进了同一列）：只剩两颗 LED，电流会冲到几百毫安，两颗都烧。",
         "- 有了 50 mA 限流：电源进入 **CC**，把电流卡在 50 mA，电压自己降下来。50 mA 对 LED 仍然偏大，但不会立刻烧掉——这就是限流保护。"
       ]
@@ -49,6 +50,34 @@
       ]
     }
   ],
+  "figures": {
+    "chain": {
+      "kind": "schematic",
+      "caption": {
+        "text": "两颗白光 LED 各拦住约 3 V，剩下的电压落在 R1 上，电流 I 由 R1 决定。",
+        "i18n": {
+          "en": "Each white LED holds back about 3 V; the rest falls across R1, and R1 sets the current I."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "V", "from": [0, 0], "to": [0, 6], "value": 12},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [4, 0], "value": 330},
+          {"ref": "LED1", "type": "LED", "from": [4, 0], "to": [4, 3], "value": "white"},
+          {"ref": "LED2", "type": "LED", "from": [4, 3], "to": [4, 6], "value": "white"}
+        ],
+        "wires": [
+          [[4, 6], [0, 6]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I"},
+          {"kind": "v", "el": "R1", "name": "V_R"},
+          {"kind": "v", "el": "LED1", "name": "V_f"},
+          {"kind": "v", "el": "LED2", "name": "V_f"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "Bench supply at 12 V, two white LEDs",
@@ -78,6 +107,7 @@
           "title": "Why a 50 mA limit",
           "text": [
             "- Two white LEDs at about 3 V each make 6 V; the resistor gets $12 - 6 = 6$ V, $I \\approx \\frac{6}{330} \\approx 18$ mA (a bit less with the LEDs' small resistances). Far below 50 mA, so the supply stays in **CV**.",
+            "![](fig:chain)",
             "- If the resistor were shorted (say both legs in the same column), only the two LEDs would be left and the current would jump to hundreds of milliamps — both LEDs gone.",
             "- With a 50 mA limit the supply goes into **CC**, holds the current at 50 mA and lets its voltage drop. 50 mA is still a lot for an LED, but not instant death — that is current-limit protection."
           ]

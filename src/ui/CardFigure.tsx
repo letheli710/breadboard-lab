@@ -331,6 +331,27 @@ function BoardPartView({ p, pos, left }: { p: BoardPart; pos: (id: string) => [n
       </g>
     );
   }
+  if (p.type === 'button') {
+    // a four-leg pushbutton: `from` and `to` are opposite corners (e.g. e5 and f7, across the trench)
+    const x0 = Math.min(a[0], b[0]);
+    const y0 = Math.min(a[1], b[1]);
+    const w = Math.abs(b[0] - a[0]);
+    const h = Math.abs(b[1] - a[1]);
+    return (
+      <g className="cf-button">
+        <rect x={x0 - 5} y={y0 - 5} width={w + 10} height={h + 10} rx={3} fill="#3a3d45" />
+        <circle cx={x0 + w / 2} cy={y0 + h / 2} r={Math.min(w, h) / 2 - 2} fill="#d9d3c4" stroke="#8e8a80" strokeWidth={1} />
+        {[
+          [x0, y0],
+          [x0 + w, y0],
+          [x0, y0 + h],
+          [x0 + w, y0 + h],
+        ].map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r={2.6} fill="#b8b2a3" />
+        ))}
+      </g>
+    );
+  }
   if (p.type === 'resistor') {
     const L = Math.min(30, Math.hypot(b[0] - a[0], b[1] - a[1]) - 8);
     const ang = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;

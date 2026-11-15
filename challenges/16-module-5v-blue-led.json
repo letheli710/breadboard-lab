@@ -26,6 +26,7 @@
       "text": [
         "- 限流电阻能稳住电流，靠的是它两端有**足够的电压**。",
         "- 3.3 V 时电阻只分到 $3.3 - 3.0 = 0.3$ V：电流小，而且 LED 的压降稍微大一点点，电流就会大幅变化，甚至完全不亮。",
+        "![](fig:headroom)",
         "- 5 V 时电阻分到 2 V：$R = \\frac{5 - 3.0}{0.02} = 100$ Ω，亮度合适也稳定。"
       ]
     },
@@ -46,6 +47,43 @@
       ]
     }
   ],
+  "figures": {
+    "headroom": {
+      "kind": "plot",
+      "caption": {
+        "text": "都按 20 mA 设计：5 V 时电阻有 2 V 余量，LED 压降差一点电流几乎不变；3.3 V 时只剩 0.3 V，压降稍大一点电流就掉一大截。",
+        "i18n": {
+          "en": "Both designed for 20 mA: at 5 V the resistor has 2 V of headroom and a slightly different LED barely changes the current; at 3.3 V only 0.3 V is left and a slightly higher LED voltage cuts the current hard."
+        }
+      },
+      "x": {
+        "label": {
+          "text": "蓝 LED 压降 V_f (V)",
+          "i18n": {
+            "en": "blue LED V_f (V)"
+          }
+        },
+        "min": 2.8,
+        "max": 3.2,
+        "ticks": [2.8, 3.0, 3.2]
+      },
+      "y": {
+        "label": {
+          "text": "电流 (mA)",
+          "i18n": {
+            "en": "current (mA)"
+          }
+        },
+        "min": 0,
+        "max": 30,
+        "ticks": [0, 10, 20, 30]
+      },
+      "curves": [
+        {"points": [[2.8, 19.6], [3.2, 16.1]], "tone": 1, "label": "5 V + 100 Ω", "labelAt": [3.0, 22.5]},
+        {"points": [[2.8, 18.5], [3.2, 3.7]], "tone": 2, "label": "3.3 V + 15 Ω", "labelAt": [2.92, 7]}
+      ]
+    }
+  },
   "i18n": {
     "en": {
       "title": "Blue LED: 3.3 V or 5 V?",
@@ -75,6 +113,7 @@
           "text": [
             "- A current-limiting resistor can only hold the current steady if it has **enough voltage across it**.",
             "- At 3.3 V the resistor gets just $3.3 - 3.0 = 0.3$ V: little current, and a tiny change in the LED's drop changes the current a lot — or the LED doesn't light at all.",
+            "![](fig:headroom)",
             "- At 5 V the resistor gets 2 V: $R = \\frac{5 - 3.0}{0.02} = 100$ Ω, bright enough and steady."
           ]
         },
