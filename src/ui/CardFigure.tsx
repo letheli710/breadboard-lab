@@ -113,7 +113,6 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
       <rect key={`rail${r}`} x={X(c0) - 9} y={yy - 7} width={X(c1) - X(c0) + 18} height={14} rx={7} fill={r.endsWith('p') ? 'var(--plus)' : 'var(--minus)'} opacity={0.14} />,
     );
   }
-  const labelsAbove: ReactNode[] = [];
   (fig.strips ?? []).forEach((s, i) => {
     const h = HOLE_MAP.get(s.at);
     if (!h) return;
@@ -129,12 +128,34 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
       const y0 = Math.min(...ys);
       const y1 = Math.max(...ys);
       shades.push(<rect key={`s${i}`} x={X(h.col) - 9} y={y0 - 9} width={18} height={y1 - y0 + 18} rx={9} fill={tone.fill} opacity={0.3} />);
-      if (s.label) {
-        const top = half[0] === 'a';
-        labelsAbove.push(<Rich key={`sl${i}`} runs={runs(s.label)} x={X(h.col)} y={top ? y0 - 14 : y1 + 22} anchor="middle" className="cf-note" fill={tone.ink} />);
-      }
     }
   });
+
+  // strip labels go in a legend under the board (colour swatch + text), never on the holes
+  const legend: ReactNode[] = [];
+  let legendBottom = bottom;
+  {
+    const x0 = left - 30;
+    let lx = x0;
+    let ly = bottom + 20;
+    (fig.strips ?? []).forEach((s, i) => {
+      if (!s.label) return;
+      const tone = TONE[s.tone ?? 1];
+      const w = 20 + estW(txt(s.label), 12.5) + 18;
+      if (lx > x0 && lx + w > right + 8) {
+        lx = x0;
+        ly += 22;
+      }
+      legend.push(
+        <g key={`lg${i}`}>
+          <rect x={lx} y={ly - 11} width={14} height={14} rx={4} fill={tone.fill} opacity={0.45} />
+          <Rich runs={runs(s.label)} x={lx + 20} y={ly} className="cf-note" fill={tone.ink} />
+        </g>,
+      );
+      lx += w;
+      legendBottom = ly + 8;
+    });
+  }
 
   const holes: ReactNode[] = [];
   for (const r of shownRows)
@@ -153,17 +174,10 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
     </text>
   ));
   const firstMain = (['a', 'f'] as RowId[]).find((r) => Y.has(r));
-  // column numbers, except where a strip label above row a covers them
-  const covered = (fig.strips ?? []).flatMap((s) => {
-    const h = HOLE_MAP.get(s.at);
-    if (!h || !s.label || !'abcde'.includes(h.row)) return [];
-    const w = estW(txt(s.label)) / 2 + 8;
-    return [[X(h.col) - w, X(h.col) + w]];
-  });
   const colNums: ReactNode[] = [];
   if (firstMain)
     for (let c = c0; c <= c1; c++)
-      if ((c === c0 || c === c1 || c % 5 === 0) && !covered.some(([a, b]) => X(c) > a && X(c) < b))
+      if (c === c0 || c === c1 || c % 5 === 0)
         colNums.push(
           <text key={c} x={X(c)} y={Y.get(firstMain)! - 12} textAnchor="middle" className="cf-col-num">
             {c}
@@ -187,8 +201,8 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
     );
   });
 
-  // the drawing grows to hold every label (notes beside the board, strip labels near its edge)
-  const box = { x0: 0, y0: 0, x1: right + 12, y1: bottom };
+  // the drawing grows to hold every label (notes beside the board, the legend under it)
+  const box = { x0: 0, y0: 0, x1: right + 12, y1: legendBottom };
   const fit = (x: number, y: number, t: string, anchor: 'start' | 'middle' | 'end') => {
     const w = estW(t);
     const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
@@ -197,10 +211,6 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
     box.y0 = Math.min(box.y0, y - 14);
     box.y1 = Math.max(box.y1, y + 6);
   };
-  (fig.strips ?? []).forEach((s) => {
-    const h = HOLE_MAP.get(s.at);
-    if (h && s.label) fit(X(h.col), Y.get(h.row) ?? 0, txt(s.label), 'middle');
-  });
   const notes = (fig.notes ?? []).map((n, i) => {
     const p = pos(n.at);
     if (!p) return null;
@@ -227,7 +237,7 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
         {holes}
         {rowNames}
         {colNums}
-        {labelsAbove}
+        {legend}
         {apart}
         {drawn}
         {notes}

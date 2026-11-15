@@ -49,7 +49,7 @@ export interface BreadboardFigure {
   rows?: 'top' | 'bottom' | 'both';
   /** power rails shown: "top", "bottom", "both" or "none" (default: the rails next to the rows shown) */
   rails?: 'top' | 'bottom' | 'both' | 'none';
-  /** the connected group of each hole is shaded (a5 → a5–e5; tp3 → the whole tp rail) */
+  /** the connected group of each hole is shaded (a5 → a5–e5; tp3 → the whole tp rail); labels go in a legend under the board */
   strips?: { at: string; tone?: Tone; label?: FigText }[];
   parts?: BoardPart[];
   /** a "not connected" cross between two holes (e.g. e5 / f5 across the gap) */
