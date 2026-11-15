@@ -774,12 +774,18 @@ const TESTS = {
       await drag(p, sb.x + sb.width / 2, sb.y + 300, sb.x - 150, sb.y + 300);
       const w1 = await side();
       assert(w1 > w0 + 100, `dragging the divider widens the panel (${w0} → ${w1})`);
+      // (the grid width settles a frame later: under reduced motion every property has a 0.01 ms transition)
+      const widthIs = (w) =>
+        p
+          .waitForFunction((w) => Math.abs((document.querySelector('aside.side')?.offsetWidth ?? 0) - w) < 2, w, { timeout: 2000 })
+          .then(() => true)
+          .catch(() => false);
       await p.locator('.splitter').dblclick();
-      assert(Math.abs((await side()) - w0) < 2, 'a double-click resets it');
+      assert(await widthIs(w0), `a double-click resets it (${await side()})`);
       await p.locator('.side-collapse').click();
-      assert((await p.locator('aside.side').count()) === 0 || (await side()) === 0, 'the panel hides');
+      assert((await p.locator('aside.side').count()) === 0 || (await widthIs(0)), 'the panel hides');
       await p.locator('.side-reopen').click();
-      assert(Math.abs((await side()) - w0) < 2, 'and comes back');
+      assert(await widthIs(w0), `and comes back (${await side()})`);
       assert(errors.length === 0, 'bench interactions: no page errors ' + errors.join(' | '));
     } finally {
       await shot(p, 'bench-interactions');
