@@ -1,0 +1,294 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "lesson-generator-load",
+  "kind": "lesson",
+  "level": 3,
+  "title": "信号发生器里的 50 Ω，探头的接地夹",
+  "summary": "同一台信号发生器，接上小电阻，波形就变小：它里面串着 50 Ω。再故意把探头的接地夹夹错一次。",
+  "prereq": ["lesson-generator-scope"],
+  "concepts": ["output resistance 输出电阻", "load 负载", "voltage divider 分压", "ground clip 接地夹"],
+  "description": "信号发生器（正弦、1 kHz、幅度 1 V）接一个 50 Ω 负载：输出被它自己的 50 Ω 和负载分压。探头的接地夹只能夹在 GND 上。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "换一个电阻，波形变小了",
+      "text": ["先搭出上一课的电路：信号发生器、**`100 kΩ`** 电阻、一个探头。", "然后只把电阻换成 **`50 Ω`**，信号发生器一个旋钮都不碰。", "屏幕上的波形怎么了？信号发生器的设定没变，为什么？"],
+      "steps": 4
+    },
+    {
+      "kind": "explain",
+      "title": "信号发生器里串着一个电阻",
+      "text": [
+        "- 信号发生器里面不是一个理想的电压，而是**理想波形 + 一个 50 Ω 电阻**串在一起——就像 1.10 里 9 V 电池里有 1.5 Ω。",
+        "- 接上负载 R，这 50 Ω 和 R 组成一个**分压器**。例如负载 1 kΩ 时：",
+        "$$V_{out} = 2\\ Vpp × \\frac{1000}{50 + 1000}$$",
+        "![](fig:inside)",
+        "- R 比 50 Ω 大得多时几乎看不出；R 和 50 Ω 差不多时，波形就明显变小。",
+        "- 示波器测的是**针尖 − 接地夹**。接地夹要夹在 GND 上，读数才是“这一点对 GND”。",
+        "![](fig:clip)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "夹错一次，再量分压",
+      "text": ["- 先**故意把接地夹夹错**：夹在和针尖同一列上。看「诊断」标签和屏幕。", "- 改回来以后，再给信号加一个偏置。直流偏置也要经过那 50 Ω。", "- 先在测量题里写预测，再读屏幕下面的读数。"],
+      "steps": 5
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **信号发生器 = 理想波形 + 50 Ω。** 负载越小，输出被分掉得越多；直流偏置也一样。",
+        "- **接地夹只夹 GND。** 示波器只会测“针尖 − 接地夹”。",
+        "- **真实仪器**：很多信号发生器默认按“接 50 Ω 负载”显示幅度。接到高阻电路上，实际幅度是显示值的两倍——把输出设成 High-Z 显示才对。",
+        "- 真实示波器的接地夹都连到大地。夹在信号上，会把那一点直接短路到地。",
+        "- 下一课：两个探头一起用，比较两个电压谁先到。"
+      ]
+    }
+  ],
+  "figures": {
+    "inside": {
+      "kind": "schematic",
+      "caption": {
+        "text": "OUT、COM 左边是信号发生器里面：理想波形 v_s 串 50 Ω。接上负载 R_L，输出 v_out 是 50 Ω 和 R_L 分压的结果。",
+        "i18n": {
+          "en": "Left of OUT/COM is the inside of the generator: an ideal waveform v_s in series with 50 Ω. With a load R_L, the output v_out is what the 50 Ω and R_L divide it to."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"ac": {"mag": 1}}, "label": "v_s"},
+          {"ref": "R_int", "type": "R", "from": [0, 0], "to": [3, 0], "value": 50},
+          {"ref": "R_L", "type": "R", "from": [5, 0], "to": [5, 4], "value": 50, "label": "R_L"}
+        ],
+        "wires": [[[3, 0], [5, 0]], [[5, 4], [0, 4]]],
+        "notes": [{"at": [3, -0.7], "text": "OUT"}, {"at": [3, 4.7], "text": "COM"}],
+        "marks": [{"kind": "v", "el": "R_L", "name": "v_out"}]
+      }
+    },
+    "clip": {
+      "kind": "breadboard",
+      "caption": {
+        "text": "针尖插在信号那一列，接地夹夹在 GND 轨上：屏幕画的是“针尖 − 接地夹”，也就是这一列对 GND 的电压。",
+        "i18n": {
+          "en": "The tip sits in the signal column, the ground clip on the GND rail: the screen draws tip − clip, the voltage of that column relative to GND."
+        }
+      },
+      "cols": [3, 13],
+      "rows": "top",
+      "strips": [
+        {"at": "a5", "tone": 1, "label": {"text": "信号", "i18n": {"en": "signal"}}},
+        {"at": "tn5", "tone": 2, "label": {"text": "GND", "i18n": {"en": "GND"}}}
+      ],
+      "parts": [
+        {"type": "resistor", "from": "b5", "to": "tn12"},
+        {"type": "probe", "from": "c5", "color": "yellow", "label": {"text": "针尖", "i18n": {"en": "tip"}}},
+        {"type": "probe", "from": "tn8", "color": "black", "label": {"text": "接地夹", "i18n": {"en": "clip"}}}
+      ]
+    }
+  },
+  "i18n": {
+    "en": {
+      "title": "The 50 Ω inside the generator, and the probe's ground clip",
+      "summary": "The same generator gives a smaller wave once a small resistor is connected: there are 50 Ω inside it. Then put the probe's ground clip in the wrong place, on purpose, once.",
+      "concepts": ["output resistance", "load", "voltage divider", "ground clip"],
+      "description": "A function generator (sine, 1 kHz, 1 V amplitude) with a 50 Ω load: its own 50 Ω and the load divide the output. The probe's ground clip goes on GND only.",
+      "compare": "**Compare**: 1 V amplitude set (2 Vpp); with the 50 Ω load the divider gives 50 / (50 + 50) = 1/2: **1.0 Vpp**, R_int ≈ **50 Ω** worked back; with +1 V offset the DC part is halved too, average **0.5 V**. With the clip on the tip's point the screen shows a flat **0 V** line.",
+      "steps": [
+        "**Function generator**: red clip **`a5`**, black clip **`tn5`**. Keep sine, **`1 kHz`**, amplitude **`1 V`**, offset **`0 V`**.",
+        "**Scope probe**: tip **`c5`**, ground clip **`tn8`**.",
+        "**Resistor R1**: **`b5`** and **`tn12`**, set to **`100 kΩ`**. Remember how tall the wave is.",
+        "Click R1 and change it to **`50 Ω`** (custom) in Properties. Leave the generator alone. What happened to the wave?",
+        "**Clip it wrong once, on purpose**: delete the probe (select it, press Delete) and place it again: tip **`c5`**, ground clip **`d5`** — the tip's own column, not GND. Read the Diagnostics tab: what does it say? What is left on the screen?",
+        "Fix it: delete the probe and place it again, tip **`c5`**, ground clip **`tn8`**.",
+        "Click the generator and set the **offset** to **`+1 V`**. How far did the wave move up? Write your prediction in the questions first.",
+        "Set the offset back to **`0 V`**.",
+        "Press **Check my circuit** and answer the questions from the scope (set the offset to `+1 V` for the offset question)."
+      ],
+      "hints": [
+        "Think of the generator as \"ideal waveform + 50 Ω\", forming a divider with the load.",
+        "50 Ω against 50 Ω splits exactly in half: the AC part and the DC offset alike.",
+        "The scope draws tip minus clip. With both on the same point the difference is 0."
+      ],
+      "tests": ["With the 50 Ω load the amplitude drops"],
+      "measurements": [
+        {
+          "ask": "With the 50 Ω load and 1 V amplitude set: CH1 peak-to-peak Vpp",
+          "explain": "2 Vpp × 50 / (50 + 50) = 1 Vpp: the generator's own 50 Ω and the load take half each."
+        },
+        {
+          "ask": "From your reading, work back to the resistance inside the generator: R_int = 50 Ω × (2 Vpp / your Vpp − 1)",
+          "explain": "The divider gives Vpp = 2 × 50 / (50 + R_int); solve for R_int. A 1 Vpp reading gives exactly 50 Ω."
+        },
+        {
+          "ask": "Offset at +1 V: CH1's average",
+          "explain": "The offset is DC and is halved by the 50 Ω and 50 Ω as well: 0.5 V."
+        },
+        {
+          "ask": "With the ground clip in the same column as the tip, what was on the screen?",
+          "explain": "Tip − clip = the same point minus itself = 0. A real scope would also short that point to ground.",
+          "choices": ["the same sine as before", "a flat line at 0 V", "a sine twice as tall"]
+        }
+      ],
+      "cards": [
+        {
+          "title": "Swap a resistor and the wave shrinks",
+          "text": [
+            "First rebuild the last lesson's circuit: generator, a **`100 kΩ`** resistor, one probe.",
+            "Then change only the resistor, to **`50 Ω`**, without touching a single generator knob.",
+            "What happened to the wave? The generator's settings didn't change — so why?"
+          ]
+        },
+        {
+          "title": "A resistor sits inside the generator",
+          "text": [
+            "- Inside, the generator is not an ideal voltage but an **ideal waveform in series with a 50 Ω resistor** — just like the 1.5 Ω inside the 9 V battery in 1.10.",
+            "- Connect a load R and the 50 Ω and R form a **voltage divider**. With a 1 kΩ load, for example:",
+            "$$V_{out} = 2\\ Vpp × \\frac{1000}{50 + 1000}$$",
+            "![](fig:inside)",
+            "- With R much larger than 50 Ω you hardly notice; with R near 50 Ω the wave clearly shrinks.",
+            "- The scope measures **tip − ground clip**. The clip has to be on GND for the reading to mean \"this point relative to GND\".",
+            "![](fig:clip)"
+          ]
+        },
+        {
+          "title": "Clip it wrong once, then measure the divider",
+          "text": [
+            "- First **put the ground clip in the wrong place on purpose**: in the same column as the tip. Look at the Diagnostics tab and the screen.",
+            "- After fixing it, add an offset to the signal. The DC offset has to pass the 50 Ω too.",
+            "- Write your prediction in each question first, then read the numbers under the screen."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A generator = an ideal waveform + 50 Ω.** The smaller the load, the more of the output is lost; the DC offset too.",
+            "- **The ground clip goes on GND only.** A scope only ever measures \"tip − clip\".",
+            "- **Real instruments**: many generators display the amplitude assuming a 50 Ω load. Into a high-resistance circuit the real amplitude is twice the display — set the output to High-Z.",
+            "- A real scope's ground clips all go to mains earth. Clipped onto a signal, it shorts that point straight to ground.",
+            "- Next: two probes at once, to see which of two voltages arrives first."
+          ]
+        }
+      ]
+    }
+  },
+  "components": [{"ref": "FG1", "type": "function_gen"}, {"ref": "R1", "type": "resistor", "resistance": "50"}],
+  "connections": [["FG1.+", "R1.1"], ["R1.2", "FG1.-"]],
+  "tests": [
+    {
+      "name": "接上 50 Ω 负载后幅度变小",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "scope": [{"pin": "R1.1", "measure": "vpp", "min": 0.95, "max": 1.05}]
+    }
+  ],
+  "compare": "**对比**：设定 1 V 幅度（2 Vpp），接 50 Ω 负载后分压 50 / (50 + 50) = 1/2：峰峰值 **1.0 Vpp**，反算 R_int ≈ **50 Ω**；偏置 +1 V 时直流部分也被分掉一半，平均值 **0.5 V**。接地夹和针尖在同一点时，屏幕是 **0 V** 的直线。",
+  "measurements": [
+    {
+      "id": "vpp",
+      "scope": "vpp",
+      "pin": "R1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.97, 1.03],
+      "ask": "接着 50 Ω 负载、设定幅度 1 V：CH1 的峰峰值 Vpp",
+      "explain": "2 Vpp × 50 / (50 + 50) = 1 Vpp：信号发生器自己的 50 Ω 和负载各分一半。"
+    },
+    {
+      "id": "rint",
+      "formula": "50 * (2 / vpp - 1)",
+      "unit": "Ω",
+      "stated": true,
+      "range": [45, 55],
+      "ask": "用你的读数反算信号发生器里面的电阻：R_int = 50 Ω × (2 Vpp / 你的 Vpp − 1)",
+      "explain": "分压 Vpp = 2 × 50 / (50 + R_int)，解出 R_int。读数是 1 Vpp 时正好 50 Ω。"
+    },
+    {
+      "id": "avg",
+      "scope": "vavg",
+      "pin": "R1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 1}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.48, 0.52],
+      "ask": "把偏置调到 +1 V：CH1 的平均值",
+      "explain": "偏置是直流，同样被 50 Ω 和 50 Ω 分掉一半：0.5 V。"
+    },
+    {
+      "id": "clip",
+      "correct": 1,
+      "ask": "接地夹夹在和针尖同一列时，屏幕上是什么？",
+      "choices": ["还是原来的正弦波", "一条 0 V 的直线", "大一倍的正弦波"],
+      "explain": "针尖 − 接地夹 = 同一点减同一点 = 0。真实示波器还会把这一点短路到地。"
+    }
+  ],
+  "steps": [
+    {
+      "text": "**信号发生器**：红夹子 **`a5`**，黑夹子 **`tn5`**。保持正弦、**`1 kHz`**、幅度 **`1 V`**、偏置 **`0 V`**。",
+      "highlight": ["a5", "tn5"],
+      "check": [
+        {
+          "type": "function_gen",
+          "pins": {"+": "a5", "-": "tn5"},
+          "waveform": "sine",
+          "frequency": "1k",
+          "amplitude": 1,
+          "offset": 0
+        }
+      ]
+    },
+    {
+      "text": "**示波器探头**：针尖 **`c5`**，接地夹 **`tn8`**。",
+      "highlight": ["c5", "tn8"],
+      "check": [{"type": "scope_probe", "pins": {"tip": "c5", "gnd": "tn8"}}]
+    },
+    {
+      "text": "**电阻 R1**：**`b5`** 和 **`tn12`**，设 **`100 kΩ`**。记住波形有多高。",
+      "highlight": ["b5", "tn12"],
+      "check": [{"type": "resistor", "pins": {"1": "b5", "2": "tn12"}, "resistance": "100k"}]
+    },
+    {
+      "text": "单击 R1，在「属性」里把阻值改成 **`50 Ω`**（自定义）。信号发生器不动。波形变成了什么样？",
+      "highlight": ["b5", "tn12"],
+      "check": [{"type": "resistor", "pins": {"1": "b5", "2": "tn12"}, "resistance": 50}]
+    },
+    {
+      "text": "**故意夹错一次**：删掉探头（选中它，按「删除」），重新放：针尖 **`c5`**，接地夹 **`d5`**——和针尖同一列，不是 GND。看「诊断」标签：它说什么？屏幕上剩下什么？",
+      "highlight": ["c5", "d5"],
+      "check": [{"type": "scope_probe", "pins": {"tip": "c5", "gnd": "d5"}}]
+    },
+    {
+      "text": "改回来：删掉探头，重新放，针尖 **`c5`**、接地夹 **`tn8`**。",
+      "highlight": ["c5", "tn8"],
+      "check": [{"type": "scope_probe", "pins": {"tip": "c5", "gnd": "tn8"}}]
+    },
+    {
+      "text": "单击信号发生器，把**偏置**调到 **`+1 V`**。波形往上移了多少？先在测量题里写预测再看。",
+      "highlight": ["a5"],
+      "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "offset": 1}]
+    },
+    {
+      "text": "偏置调回 **`0 V`**。",
+      "highlight": ["a5"],
+      "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "offset": 0}]
+    },
+    {"text": "点**「检查我的电路」**，读示波器完成测量题（偏置那题先把偏置调到 `+1 V`）。", "highlight": []}
+  ],
+  "hints": ["把信号发生器看成“理想波形 + 50 Ω”，和负载组成一个分压器。", "50 Ω 对 50 Ω 正好分一半：交流部分和直流偏置都一样。", "示波器画的是针尖减接地夹。两者在同一点上，差就是 0。"],
+  "solution": {
+    "parts": [
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "sine",
+        "frequency": 1000,
+        "amplitude": 1,
+        "offset": 0,
+        "pins": {"+": "a5", "-": "tn5"}
+      },
+      {"type": "scope_probe", "ref": "P1", "channel": 1, "pins": {"tip": "c5", "gnd": "tn8"}},
+      {"type": "resistor", "ref": "R1", "resistance": "50", "pins": {"1": "b5", "2": "tn12"}}
+    ]
+  }
+}

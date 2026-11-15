@@ -2,156 +2,390 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-generator-scope",
-  "title": "第 12 课 · 信号发生器和示波器",
   "kind": "lesson",
   "level": 3,
-  "summary": "幅度、峰峰值、有效值、偏置、频率和周期；探头的针尖和接地夹；时间/格、伏/格；以及信号发生器 50 Ω 的输出电阻。",
-  "concepts": ["function generator 信号发生器", "oscilloscope 示波器", "amplitude / Vpp / RMS 幅度 / 峰峰值 / 有效值", "offset 直流偏置", "period 周期", "output resistance 输出电阻"],
-  "description": "**这一课学什么**：第 3、4 期的实验都用信号发生器产生波形、用示波器看波形。这一课先只看信号发生器自己的输出。\n\n**信号发生器的设定**（“属性”里）：\n- **幅度（峰值）**：正弦波最高点离中心线的距离；**峰峰值** Vpp = 2 × 幅度；**有效值**（RMS）= 幅度 / √2（只对正弦波）。\n- **直流偏置**（offset）：把整个波形往上或往下平移。\n- **频率** f 和**周期** T = 1 / f。\n\n**示波器探头**：针尖（tip）接要看的点，**接地夹**（ground clip）必须夹在电路的 GND 上。屏幕显示的是“针尖 − 接地夹”的电压随时间的变化。\n\n**读屏幕**：横轴每一格的时间叫**时间/格**（time/div），纵轴每一格的电压叫**伏/格**（V/div）。数一个周期占几格 × 时间/格 = 周期；波峰到波谷占几格 × 伏/格 = 峰峰值。屏幕下面也直接列出 Vpp、频率等读数。旋钮在“自动”时示波器自己挑合适的格子。\n\n**50 Ω 输出电阻**：信号发生器内部 = 理想波形源串联 50 Ω。不接负载时输出就是设定值；接上负载 R，输出被 50 Ω 和 R 分压，幅度变成设定值 × R / (50 + R)。\n\n**先预测**：接上 50 Ω 负载以后，峰峰值、有效值各是多少？\n\n**仿真和真实仪器**：很多真实信号发生器默认按“接 50 Ω 负载”显示幅度——接到高阻电路上实际幅度是显示值的 2 倍，要把输出设成 High-Z 显示才对。这里的设定值是不接负载时的幅度。真实示波器探头有 1 MΩ（×1）或 10 MΩ（×10）输入电阻和十几 pF 电容，会轻微影响高阻、高频电路；这里的探头是理想的。真实示波器所有接地夹都连在一起、连到大地。",
-  "compare": "**对比**：设定 1 V 幅度（2 Vpp），接 50 Ω 负载后分压 50 / (50 + 50) = 1/2：\n- 峰峰值 **1.0 Vpp**；有效值 = 0.5 / √2 ≈ **0.354 V**；\n- 频率 1 kHz，周期 **1 ms**（时间/格 100 µs 时正好 10 格）；\n- 偏置 +1 V 时，直流部分也被 50 Ω 分掉一半：平均值 **0.5 V**。",
+  "title": "信号发生器和示波器：第一条波形",
+  "summary": "信号发生器造出一个随时间变化的电压，示波器把它画成曲线。读懂屏幕上的格子，就能读出峰峰值、周期和偏置。",
+  "concepts": [
+    "function generator 信号发生器",
+    "oscilloscope 示波器",
+    "amplitude / Vpp 幅度 / 峰峰值",
+    "period / frequency 周期 / 频率",
+    "time/div, V/div 时间/格、伏/格",
+    "offset 直流偏置",
+    "rms 有效值"
+  ],
+  "description": "信号发生器（正弦、1 kHz、幅度 1 V）接一个 100 kΩ 电阻和一个示波器探头：看懂屏幕上的格子，读出峰峰值、频率、周期、有效值和偏置。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "先接上，看一条波",
+      "text": ["这一课只用两台仪器：**信号发生器**造出一个会变的电压，**示波器**把它画出来。", "按下面几步接好，然后改一下频率。", "屏幕上的曲线怎么变了？横着的方向和竖着的方向，各代表什么？"],
+      "steps": 4
+    },
+    {
+      "kind": "explain",
+      "title": "屏幕是一张图：横轴时间，竖轴电压",
+      "text": [
+        "- 示波器的屏幕是一张**电压—时间图**：曲线越高，那一刻电压越大；越往右，时间越晚。",
+        "- 格子是尺子。横着一格的时间叫**时间/格**，竖着一格的电压叫**伏/格**。",
+        "- 曲线重复一次用的时间叫**周期** T，每秒重复的次数叫**频率** f。两者互为倒数，比如刚才的 2 kHz：",
+        "$$T = \\frac{1}{f} = \\frac{1}{2000\\ Hz}$$",
+        "![](fig:sine)",
+        "- 波峰离中线的距离叫**幅度**；波峰到波谷叫**峰峰值** Vpp，是幅度的两倍。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "数格子，读读数",
+      "text": [
+        "- 频率改回 **`1 kHz`**，把旋钮从「自动」改成固定的格子，自己数一数。",
+        "- 再给波形加一个**偏置**：整条曲线上下平移，形状不变。",
+        "- 正弦波还有一个常用的量叫**有效值**（rms）：幅度除以 √2。万用表交流档读到的就是它。"
+      ],
+      "steps": 4
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **示波器 = 电压随时间的图。** 横轴读时间，竖轴读电压，格子是尺子。",
+        "- **T = 1 / f**；峰峰值 = 2 × 幅度；正弦波的有效值 = 幅度 / √2。",
+        "- **真实的探头**有 ×1 和 ×10 两档。探头拨在 ×10、示波器还设成 ×1 时，读数会小 10 倍——先看一眼这两个开关。",
+        "- 下一课：给信号发生器接上一个电阻，波形会变小——它里面藏着一个电阻。"
+      ]
+    }
+  ],
+  "figures": {
+    "sine": {
+      "kind": "plot",
+      "caption": {
+        "text": "2 kHz、幅度 1 V 的正弦波：两条竖虚线之间是一个周期 T。数格子：一个周期占几格，再乘以时间/格。",
+        "i18n": {
+          "en": "A 2 kHz sine, 1 V amplitude: one period T lies between the two vertical dashed lines. Count how many squares it takes and multiply by time/div."
+        }
+      },
+      "x": {
+        "label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}},
+        "min": 0,
+        "max": 1.5,
+        "ticks": [0, 0.5, 1, 1.5]
+      },
+      "y": {"label": {"text": "电压 (V)", "i18n": {"en": "voltage (V)"}}, "min": -1.5, "max": 1.5, "ticks": [-1, 0, 1]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.01667, 0.2079],
+            [0.03333, 0.4067],
+            [0.05, 0.5878],
+            [0.06667, 0.7431],
+            [0.08333, 0.866],
+            [0.1, 0.9511],
+            [0.1167, 0.9945],
+            [0.1333, 0.9945],
+            [0.15, 0.9511],
+            [0.1667, 0.866],
+            [0.1833, 0.7431],
+            [0.2, 0.5878],
+            [0.2167, 0.4067],
+            [0.2333, 0.2079],
+            [0.25, 1.225e-16],
+            [0.2667, -0.2079],
+            [0.2833, -0.4067],
+            [0.3, -0.5878],
+            [0.3167, -0.7431],
+            [0.3333, -0.866],
+            [0.35, -0.9511],
+            [0.3667, -0.9945],
+            [0.3833, -0.9945],
+            [0.4, -0.9511],
+            [0.4167, -0.866],
+            [0.4333, -0.7431],
+            [0.45, -0.5878],
+            [0.4667, -0.4067],
+            [0.4833, -0.2079],
+            [0.5, -2.449e-16],
+            [0.5167, 0.2079],
+            [0.5333, 0.4067],
+            [0.55, 0.5878],
+            [0.5667, 0.7431],
+            [0.5833, 0.866],
+            [0.6, 0.9511],
+            [0.6167, 0.9945],
+            [0.6333, 0.9945],
+            [0.65, 0.9511],
+            [0.6667, 0.866],
+            [0.6833, 0.7431],
+            [0.7, 0.5878],
+            [0.7167, 0.4067],
+            [0.7333, 0.2079],
+            [0.75, 3.674e-16],
+            [0.7667, -0.2079],
+            [0.7833, -0.4067],
+            [0.8, -0.5878],
+            [0.8167, -0.7431],
+            [0.8333, -0.866],
+            [0.85, -0.9511],
+            [0.8667, -0.9945],
+            [0.8833, -0.9945],
+            [0.9, -0.9511],
+            [0.9167, -0.866],
+            [0.9333, -0.7431],
+            [0.95, -0.5878],
+            [0.9667, -0.4067],
+            [0.9833, -0.2079],
+            [1.0, -4.899e-16],
+            [1.017, 0.2079],
+            [1.033, 0.4067],
+            [1.05, 0.5878],
+            [1.067, 0.7431],
+            [1.083, 0.866],
+            [1.1, 0.9511],
+            [1.117, 0.9945],
+            [1.133, 0.9945],
+            [1.15, 0.9511],
+            [1.167, 0.866],
+            [1.183, 0.7431],
+            [1.2, 0.5878],
+            [1.217, 0.4067],
+            [1.233, 0.2079],
+            [1.25, 6.123e-16],
+            [1.267, -0.2079],
+            [1.283, -0.4067],
+            [1.3, -0.5878],
+            [1.317, -0.7431],
+            [1.333, -0.866],
+            [1.35, -0.9511],
+            [1.367, -0.9945],
+            [1.383, -0.9945],
+            [1.4, -0.9511],
+            [1.417, -0.866],
+            [1.433, -0.7431],
+            [1.45, -0.5878],
+            [1.467, -0.4067],
+            [1.483, -0.2079],
+            [1.5, -7.348e-16]
+          ],
+          "tone": 1
+        }
+      ],
+      "vlines": [{"x": 0.125, "dashed": true}, {"x": 0.625, "dashed": true, "label": "T"}],
+      "hlines": [{"y": 1, "dashed": true, "label": {"text": "幅度", "i18n": {"en": "amplitude"}}}]
+    }
+  },
   "i18n": {
-            "en": {
-                    "title": "Lesson 12 · Function generator and oscilloscope",
-                    "summary": "Amplitude, peak-to-peak, RMS, offset, frequency and period; the probe tip and ground clip; time/div and volts/div; and the generator's 50 Ω output resistance.",
-                    "concepts": ["function generator", "oscilloscope", "amplitude / Vpp / RMS", "DC offset", "period", "output resistance"],
-                    "description": "**What you learn**: the labs in phases 3 and 4 make waveforms with a function generator and look at them with an oscilloscope. This lesson looks at the generator's own output first.\n\n**Generator settings** (in Properties):\n- **Amplitude (peak)**: from the centre line to the top of the sine; **peak-to-peak** Vpp = 2 × amplitude; **RMS** = amplitude / √2 (for a sine only).\n- **DC offset**: moves the whole waveform up or down.\n- **Frequency** f and **period** T = 1 / f.\n\n**Scope probe**: the tip goes on the point you want to see; the **ground clip** must go on the circuit's GND. The screen shows tip − ground clip against time.\n\n**Reading the screen**: the time per horizontal division is **time/div**, the voltage per vertical division **V/div**. Divisions in one period × time/div = period; divisions from peak to trough × V/div = peak-to-peak. The readouts under the screen also list Vpp, frequency and more. With the knobs on \"auto\" the scope picks the divisions itself.\n\n**50 Ω output resistance**: inside, the generator is an ideal waveform source in series with 50 Ω. With no load the output is what you set; with a load R the 50 Ω and R divide it, and the amplitude becomes setting × R / (50 + R).\n\n**Predict first**: with a 50 Ω load, what are the peak-to-peak and RMS voltages?\n\n**Simulated vs real instruments**: many real generators display the amplitude assuming a 50 Ω load — into a high-impedance circuit you get twice the displayed value unless you set the output to High-Z. Here the setting is the no-load amplitude. A real scope probe has 1 MΩ (×1) or 10 MΩ (×10) and some ten pF, which slightly loads high-impedance, high-frequency circuits; this probe is ideal. On a real scope every ground clip is tied together and to earth.",
-                    "compare": "**Compare**: 1 V amplitude set (2 Vpp); the 50 Ω load divides it by 50 / (50 + 50) = 1/2:\n- peak-to-peak **1.0 Vpp**; RMS = 0.5 / √2 ≈ **0.354 V**;\n- frequency 1 kHz, period **1 ms** (exactly 10 divisions at 100 µs/div);\n- with a +1 V offset the DC part is halved by the 50 Ω too: average **0.5 V**.",
-                    "steps": [
-                              "Pick \"Function generator\", click a5 (red clip, signal +), then tn5 (black clip, COM). There is no other supply on the board, so its black clip is GND.",
-                              "Look at Properties: sine, 1 kHz, amplitude 1 V (2 Vpp), offset 0 V. Keep these settings.",
-                              "Pick \"Scope probe\", click c5 (tip) then tn8 (ground clip, on GND). It goes to CH1 and the scope window appears: a sine, 2 Vpp.",
-                              "The knobs under the scope screen are on AUTO now. Use − / + to set **time/div** to 100 µs and **CH1 V/div** to 1 V. Count: one period is 10 divisions (10 × 100 µs = 1 ms), peak to trough 2 divisions (2 × 1 V = 2 Vpp).",
-                              "Click the generator and set the **offset** to +1 V: the whole trace moves up 1 division (1 V/div); the shape doesn't change.",
-                              "Set the offset back to 0 V.",
-                              "Add a load: resistor from b5 to tn12, and type 50 as a custom value in Properties. The trace is now half as tall — the generator's own 50 Ω and the load divide the voltage.",
-                              "Press \"Check my circuit\" and answer from the readouts under the scope screen (the last question needs the offset at +1 V first)."
-                            ],
-                    "hints": [
-                              "Peak-to-peak = 2 × amplitude; RMS = peak / √2; period = 1 / frequency.",
-                              "With a load, treat the generator as an ideal source plus 50 Ω, forming a divider with the load.",
-                              "50 Ω against 50 Ω divides by exactly two, for the AC and the DC (offset) alike."
-                            ],
-                    "tests": ["With the load the amplitude drops"],
-                    "measurements": [
-                                      {
-                                        "ask": "CH1 peak-to-peak Vpp (50 Ω load connected, amplitude set to 1 V)",
-                                        "explain": "2 Vpp × 50 / (50 + 50) = 1 Vpp: the generator's own 50 Ω and the load form a divider."
-                                      },
-                                      {"ask": "The frequency on the screen", "explain": "Same as the setting: a load changes the amplitude, not the frequency."},
-                                      {
-                                        "ask": "Period T = 1 / f (count it: how many divisions is one period at 100 µs/div?)",
-                                        "explain": "1 / 1 kHz = 1 ms = 10 divisions × 100 µs."
-                                      },
-                                      {
-                                        "ask": "CH1 RMS (same state)",
-                                        "explain": "Sine: RMS = peak / √2 = 0.5 / 1.414 ≈ 0.354 V. A multimeter's AC range shows this value."
-                                      },
-                                      {"ask": "Set the offset to +1 V: CH1 average", "explain": "The offset is DC and is halved by the same 50 Ω / 50 Ω divider: 0.5 V."}
-                                    ]
-                  }
-          },
-  "components": [{"ref": "FG1", "type": "function_gen"}, {"ref": "R1", "type": "resistor", "resistance": "50"}],
+    "en": {
+      "title": "Function generator and scope: a first waveform",
+      "summary": "The function generator makes a voltage that changes in time and the scope draws it. Read the grid and you can read peak-to-peak, period and offset.",
+      "concepts": [
+        "function generator",
+        "oscilloscope",
+        "amplitude / Vpp",
+        "period / frequency",
+        "time/div, V/div",
+        "DC offset",
+        "rms value"
+      ],
+      "description": "A function generator (sine, 1 kHz, 1 V amplitude) driving a 100 kΩ resistor, with one scope probe on its output: learn the screen's grid and read peak-to-peak, frequency, period, rms and offset.",
+      "compare": "**Compare**: 1 V amplitude → **2 V** peak-to-peak; 1 kHz → a **1 ms** period (exactly 10 squares at 100 µs/div); rms 1 / √2 ≈ **0.707 V**; with +1 V offset the average is **1 V**.",
+      "steps": [
+        "Pick **Function generator**, click **`a5`** (red clip, signal), then **`tn5`** (black clip, COM). There is no other supply on the board, so its black clip is GND.",
+        "**Resistor**: **`b5`** and **`tn12`**, set to **`100 kΩ`** in Properties. It stands for the circuit the generator drives — a very light one that draws almost no current.",
+        "Pick **Scope probe**, click **`c5`** (tip), then **`tn8`** (ground clip, on GND). The probe goes to **CH1** and the scope window opens.",
+        "Click the generator and in Properties change the **frequency** from **`1 kHz`** to **`2 kHz`**. Watch the screen: does the height change, or the spacing?",
+        "Set the frequency back to **`1 kHz`**. Under the scope screen use − / + to set **time/div** to **`100 µs`** and **CH1 V/div** to **`1 V`**. Count: how many squares is one period? Peak to trough?",
+        "Click the generator and set the **offset** to **`+1 V`**: the whole wave moves up, its shape unchanged. By how many squares?",
+        "Set the offset back to **`0 V`**.",
+        "Press **Check my circuit** and read the numbers under the scope screen as each question says (for the last one, set the offset to `+1 V` first)."
+      ],
+      "hints": [
+        "Peak-to-peak = 2 × amplitude; period = 1 / frequency; a sine's rms = amplitude / √2.",
+        "Count squares: squares per period × time/div = period; squares from peak to trough × V/div = peak-to-peak.",
+        "The offset only shifts the whole wave up or down; the average equals the offset."
+      ],
+      "tests": ["The generator has an output: peak-to-peak about 2 × amplitude"],
+      "measurements": [
+        {
+          "ask": "CH1 peak-to-peak Vpp (amplitude set to 1 V)",
+          "explain": "Peak-to-peak = 2 × amplitude = 2 V. At 1 V/div, peak to trough is exactly 2 squares."
+        },
+        {"ask": "The frequency shown under the screen", "explain": "The same as the generator's setting."},
+        {
+          "ask": "Period T = 1 / f. Then count: at 100 µs/div, how many squares is one period?",
+          "explain": "1 / 1 kHz = 1 ms = 10 squares × 100 µs."
+        },
+        {
+          "ask": "CH1 rms value (same settings)",
+          "explain": "For a sine: rms = amplitude / √2 = 1 / 1.414 ≈ 0.707 V."
+        },
+        {
+          "ask": "Offset at +1 V: CH1's average",
+          "explain": "A sine is symmetric, its own average is 0; the offset lifts the whole wave, so the average equals the offset."
+        }
+      ],
+      "cards": [
+        {
+          "title": "Connect it and look at a wave",
+          "text": [
+            "This lesson uses just two instruments: the **function generator** makes a voltage that keeps changing, the **oscilloscope** draws it.",
+            "Connect them in the steps below, then change the frequency.",
+            "How did the curve on the screen change? What do the across and up directions stand for?"
+          ]
+        },
+        {
+          "title": "The screen is a graph: time across, voltage up",
+          "text": [
+            "- The scope screen is a **voltage–time graph**: the higher the curve, the larger the voltage at that moment; further right is later.",
+            "- The grid is a ruler. The time of one square across is **time/div**; the voltage of one square up is **V/div**.",
+            "- The time the curve takes to repeat is the **period** T; the number of repeats per second is the **frequency** f. Each is one over the other — for the 2 kHz you just set:",
+            "$$T = \\frac{1}{f} = \\frac{1}{2000\\ Hz}$$",
+            "![](fig:sine)",
+            "- The distance from the centre line to a peak is the **amplitude**; peak to trough is the **peak-to-peak** value Vpp, twice the amplitude."
+          ]
+        },
+        {
+          "title": "Count squares, read numbers",
+          "text": [
+            "- Set the frequency back to **`1 kHz`**, turn the knobs from Auto to fixed squares and count for yourself.",
+            "- Then add an **offset**: the whole curve moves up or down, its shape unchanged.",
+            "- A sine wave has one more common number, the **rms value**: the amplitude divided by √2. A multimeter's AC range reads this one."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A scope draws voltage against time.** Read time across, voltage up; the squares are the ruler.",
+            "- **T = 1 / f**; peak-to-peak = 2 × amplitude; a sine's rms value = amplitude / √2.",
+            "- **Real probes** have a ×1 and a ×10 setting. With the probe on ×10 and the scope still set to ×1, every reading is ten times too small — check both switches first.",
+            "- Next: put a resistor on the generator's output and the wave shrinks — there is a resistor hidden inside it."
+          ]
+        }
+      ]
+    }
+  },
+  "components": [{"ref": "FG1", "type": "function_gen"}, {"ref": "R1", "type": "resistor", "resistance": "100k"}],
   "connections": [["FG1.+", "R1.1"], ["R1.2", "FG1.-"]],
   "tests": [
-            {
-              "name": "接上负载后幅度变小",
-              "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
-              "scope": [{"pin": "R1.1", "measure": "vpp", "min": 0.95, "max": 1.05}]
-            }
-          ],
+    {
+      "name": "信号发生器有输出：峰峰值约等于 2 × 幅度",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "scope": [{"pin": "FG1.+", "measure": "vpp", "min": 1.9, "max": 2.1}]
+    }
+  ],
+  "compare": "**对比**：幅度 1 V → 峰峰值 **2 V**；1 kHz → 周期 **1 ms**（100 µs/格 时正好 10 格）；有效值 1 / √2 ≈ **0.707 V**；偏置 +1 V 时平均值 **1 V**。",
   "measurements": [
-                    {
-                      "id": "vpp",
-                      "scope": "vpp",
-                      "pin": "R1.1",
-                      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
-                      "unit": "V",
-                      "predict": true,
-                      "range": [0.97, 1.03],
-                      "ask": "CH1 的峰峰值 Vpp（接着 50 Ω 负载，设定幅度 1 V）",
-                      "explain": "2 Vpp × 50 / (50 + 50) = 1 Vpp：信号发生器自己的 50 Ω 和负载分压。"
-                    },
-                    {
-                      "id": "f",
-                      "scope": "freq",
-                      "pin": "R1.1",
-                      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
-                      "unit": "kHz",
-                      "range": [990.0, 1010.0],
-                      "ask": "屏幕上的频率",
-                      "explain": "和设定一样：负载只改变幅度，不改变频率。"
-                    },
-                    {
-                      "id": "T",
-                      "formula": "1 / f",
-                      "unit": "ms",
-                      "range": [0.00099, 0.00101],
-                      "ask": "周期 T = 1 / f（数一数：时间/格 100 µs 时一个周期占几格？）",
-                      "explain": "1 / 1 kHz = 1 ms = 10 格 × 100 µs。"
-                    },
-                    {
-                      "id": "vrms",
-                      "scope": "vrms",
-                      "pin": "R1.1",
-                      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
-                      "unit": "V",
-                      "predict": true,
-                      "range": [0.34, 0.37],
-                      "ask": "CH1 的有效值 RMS（同一状态）",
-                      "explain": "正弦波：有效值 = 峰值 / √2 = 0.5 / 1.414 ≈ 0.354 V。万用表交流档读到的就是它。"
-                    },
-                    {
-                      "id": "avg",
-                      "scope": "vavg",
-                      "pin": "R1.1",
-                      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 1}},
-                      "unit": "V",
-                      "predict": true,
-                      "range": [0.48, 0.52],
-                      "ask": "把偏置调到 +1 V：CH1 的平均值",
-                      "explain": "偏置是直流，同样被 50 Ω 和 50 Ω 分掉一半：0.5 V。"
-                    }
-                  ],
+    {
+      "id": "vpp",
+      "scope": "vpp",
+      "pin": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.95, 2.05],
+      "ask": "CH1 的峰峰值 Vpp（幅度设为 1 V）",
+      "explain": "峰峰值 = 2 × 幅度 = 2 V。在 1 V/格 时，波峰到波谷正好 2 格。"
+    },
+    {
+      "id": "f",
+      "scope": "freq",
+      "pin": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "kHz",
+      "range": [990.0, 1010.0],
+      "ask": "屏幕下面显示的频率",
+      "explain": "和信号发生器的设定一样。"
+    },
+    {
+      "id": "T",
+      "formula": "1 / f",
+      "unit": "ms",
+      "range": [0.00099, 0.00101],
+      "ask": "周期 T = 1 / f。再数一数：时间/格 100 µs 时，一个周期占几格？",
+      "explain": "1 / 1 kHz = 1 ms = 10 格 × 100 µs。"
+    },
+    {
+      "id": "vrms",
+      "scope": "vrms",
+      "pin": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.69, 0.72],
+      "ask": "CH1 的有效值 rms（同一状态）",
+      "explain": "正弦波：有效值 = 幅度 / √2 = 1 / 1.414 ≈ 0.707 V。"
+    },
+    {
+      "id": "avg",
+      "scope": "vavg",
+      "pin": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 1}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.97, 1.03],
+      "ask": "把偏置调到 +1 V：CH1 的平均值",
+      "explain": "正弦波上下对称，自己的平均是 0；偏置把整条波形抬高，平均值就等于偏置。"
+    }
+  ],
   "steps": [
-            {
-              "text": "选“信号发生器”，单击 a5（红夹子，信号 +），再单击 tn5（黑夹子，COM）。板上没有别的电源，所以它的黑夹子就是 GND。",
-              "highlight": ["a5", "tn5"],
-              "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}}]
-            },
-            {
-              "text": "看“属性”：正弦波、1 kHz、幅度 1 V（2 Vpp）、偏置 0 V，就用这个设定。",
-              "highlight": ["a5"],
-              "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "waveform": "sine", "frequency": "1k", "amplitude": 1, "offset": 0}]
-            },
-            {
-              "text": "选“示波器探头”，单击 c5（针尖），再单击 tn8（接地夹，夹在 GND 上）。它自动接 CH1，示波器窗口出现：正弦波，Vpp 2 V。",
-              "highlight": ["c5", "tn8"],
-              "check": [{"type": "scope_probe", "pins": {"tip": "c5", "gnd": "tn8"}}]
-            },
-            {
-              "text": "示波器窗口下面的旋钮现在是 AUTO。用 − / + 把**时间/格**调到 100 µs，**CH1 伏/格**调到 1 V。数一数：一个周期 10 格（10 × 100 µs = 1 ms），波峰到波谷 2 格（2 × 1 V = 2 Vpp）。",
-              "highlight": [],
-              "check": [{"scope": {"tdiv": "100u", "vdiv1": 1}}]
-            },
-            {
-              "text": "单击信号发生器，把**偏置**调到 +1 V：整条波形往上移 1 格（1 V/格），形状不变。",
-              "highlight": ["a5"],
-              "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "offset": 1}]
-            },
-            {"text": "偏置调回 0 V。", "highlight": ["a5"], "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "offset": 0}]},
-            {
-              "text": "接一个负载：电阻单击 b5 和 tn12，阻值在“属性”里输入 50（自定义）。波形只剩一半高——信号发生器自己的 50 Ω 和负载分压了。",
-              "highlight": ["b5", "tn12"],
-              "check": [{"type": "resistor", "pins": {"1": "b5", "2": "tn12"}, "resistance": 50}]
-            },
-            {"text": "点“检查我的电路”，读示波器屏幕下面的读数完成测量题（最后一题要先把偏置调到 +1 V）。", "highlight": []}
-          ],
-  "hints": ["峰峰值 = 2 × 幅度；有效值 = 峰值 / √2；周期 = 1 / 频率。", "接上负载以后，把信号发生器看成“理想源 + 50 Ω”，和负载组成一个分压器。", "50 Ω 对 50 Ω 正好分一半：交流和直流（偏置）都一样。"],
+    {
+      "text": "选**「信号发生器」**，单击 **`a5`**（红夹子，信号），再单击 **`tn5`**（黑夹子，COM）。板上没有别的电源，它的黑夹子就是 GND。",
+      "highlight": ["a5", "tn5"],
+      "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}}]
+    },
+    {
+      "text": "**电阻**：**`b5`** 和 **`tn12`**，「属性」里设 **`100 kΩ`**。它代表信号发生器要驱动的电路——一个很“轻”的电路，几乎不取电流。",
+      "highlight": ["b5", "tn12"],
+      "check": [{"type": "resistor", "pins": {"1": "b5", "2": "tn12"}, "resistance": "100k"}]
+    },
+    {
+      "text": "选**「示波器探头」**，单击 **`c5`**（针尖），再单击 **`tn8`**（接地夹，夹在 GND 上）。探头自动接 **CH1**，示波器窗口弹出来。",
+      "highlight": ["c5", "tn8"],
+      "check": [{"type": "scope_probe", "pins": {"tip": "c5", "gnd": "tn8"}}]
+    },
+    {
+      "text": "单击信号发生器，在「属性」里把**频率**从 **`1 kHz`** 改成 **`2 kHz`**。盯着屏幕：变的是波的高度，还是波的疏密？",
+      "highlight": ["a5"],
+      "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "frequency": "2k"}]
+    },
+    {
+      "text": "把频率改回 **`1 kHz`**。在示波器窗口下面用 − / + 把**时间/格**调到 **`100 µs`**、**CH1 伏/格**调到 **`1 V`**。数一数：一个周期占几格？波峰到波谷占几格？",
+      "highlight": ["a5"],
+      "check": [
+        {"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "frequency": "1k"},
+        {"scope": {"tdiv": "100u", "vdiv1": 1}}
+      ]
+    },
+    {
+      "text": "单击信号发生器，把**偏置**调到 **`+1 V`**：整条波形往上移，形状不变。它移了几格？",
+      "highlight": ["a5"],
+      "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "offset": 1}]
+    },
+    {
+      "text": "偏置调回 **`0 V`**。",
+      "highlight": ["a5"],
+      "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "offset": 0}]
+    },
+    {"text": "点**「检查我的电路」**，按测量题的说明读示波器屏幕下面的读数（最后一题要先把偏置调到 `+1 V`）。", "highlight": []}
+  ],
+  "hints": [
+    "峰峰值 = 2 × 幅度；周期 = 1 / 频率；正弦波的有效值 = 幅度 / √2。",
+    "数格子：一个周期占的格数 × 时间/格 = 周期；波峰到波谷的格数 × 伏/格 = 峰峰值。",
+    "偏置只把整条波形上下平移，平均值就等于偏置。"
+  ],
   "solution": {
-                "parts": [
-                          {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": {"+": "a5", "-": "tn5"}},
-                          {"type": "scope_probe", "ref": "P1", "channel": 1, "pins": {"tip": "c5", "gnd": "tn8"}},
-                          {"type": "resistor", "ref": "R1", "resistance": "50", "pins": {"1": "b5", "2": "tn12"}}
-                        ]
-              }
+    "parts": [
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "sine",
+        "frequency": 1000,
+        "amplitude": 1,
+        "offset": 0,
+        "pins": {"+": "a5", "-": "tn5"}
+      },
+      {"type": "resistor", "ref": "R1", "resistance": "100k", "pins": {"1": "b5", "2": "tn12"}},
+      {"type": "scope_probe", "ref": "P1", "channel": 1, "pins": {"tip": "c5", "gnd": "tn8"}}
+    ]
+  }
 }

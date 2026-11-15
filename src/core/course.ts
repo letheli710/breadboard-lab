@@ -79,7 +79,7 @@ export const WORLDS: World[] = [
     id: 3,
     books: 'S 6–8 · B 10–11, 25 · M 9',
     units: [
-      { num: '3.1', items: ['lesson-generator-scope', 'lesson-scope-two-channels'] },
+      { num: '3.1', items: ['lesson-generator-scope', 'lesson-generator-load', 'lesson-scope-two-channels'] },
       { num: '3.2', items: ['exp-inverting-amp', 'exp-summing-amp'], practice: ['opamp'] },
       { num: '3.3', items: ['exp3-led-breathing'], practice: ['storage'] },
       { num: '3.4', items: ['exp3-rc-square-charging', 'exp3-rc-thevenin-tau'], practice: ['first-order'] },
