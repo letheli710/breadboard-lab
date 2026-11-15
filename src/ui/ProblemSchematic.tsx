@@ -876,9 +876,10 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
           <g>
             <line x1={-h} y1={0} x2={piv} y2={0} {...common} />
             <line x1={h - 3} y1={0} x2={h} y2={0} {...common} />
-            <line x1={piv} y1={0} x2={tip[0]} y2={tip[1]} {...common} />
-            <circle cx={piv} cy={0} r={2.4} {...common} fill="var(--paper)" />
-            <circle cx={h - 3} cy={0} r={2.4} {...common} fill="var(--paper)" />
+            {/* the lever: heavier than a wire, so a closed switch still reads as a switch */}
+            <line x1={piv} y1={0} x2={tip[0]} y2={tip[1]} {...common} strokeWidth={SW * 1.7} />
+            <circle cx={piv} cy={0} r={2.6} {...common} fill="var(--paper)" />
+            <circle cx={h - 3} cy={0} r={2.6} {...common} fill="var(--paper)" />
           </g>
         );
         break;
