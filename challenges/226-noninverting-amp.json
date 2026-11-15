@@ -2,37 +2,154 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-noninverting-amp",
-  "title": "实验 2-6 · 同相放大器：电位器给输入，测出电压增益",
+  "title": "同相放大器：反馈里放两个电阻",
   "kind": "challenge",
   "level": 4,
   "phase": 2,
-  "summary": "LM358 + RF 22kΩ + RG 10kΩ 同相放大：用电位器给直流输入，逐点测输入和输出，算出增益，再把输入调大看输出饱和。",
+  "summary": "把跟随器的反馈线换成 RF 22 kΩ 和 RG 10 kΩ：输出变成输入的好几倍。用电位器逐点测增益，再把输入调大，看输出顶到头。",
   "concepts": ["non-inverting amplifier 同相放大器", "gain = 1 + RF/RG", "virtual short 虚短", "saturation 饱和"],
   "prereq": ["lesson-lm358"],
-  "description": "**目标**：搭一个同相放大器，用直流电压逐点测它的输入—输出关系，验证 Vo = (1 + RF/RG) × Vi，并看看输出饱和。\n\n**电路**（单电源 9 V）：\n- LM358：8 脚 V+ 接 +9V，4 脚 V− 接 GND；\n- 输入：电位器 RV1（10kΩ）**1 脚接 GND、3 脚接 +9V**，滑动端接 IN+。这样 Vi ≈ 9 V × 旋钮位置（10% ≈ 0.9 V）。运放输入不取电流，所以电位器不受影响；\n- 反馈：RF（22kΩ）从 OUT 接到 IN−，RG（10kΩ）从 IN− 接到 GND。\n\nLM358 横跨凹槽，每只脚独占一列：凹槽上方一排从左到右是 1 脚 OUT A、2 脚 IN− A、3 脚 IN+ A、4 脚 V−（单电源时接 GND）；下方一排从左到右是 8 脚 V+、7 脚 OUT B、6 脚 IN− B、5 脚 IN+ B。芯片里有两个运放，用 A、B 哪一个都可以。\n\n**先预测**：用虚短（V(IN−) = V(IN+) = Vi）和虚断（RG 上的电流全部流过 RF）推出增益，再算旋钮在 10%、20%、50% 时的 Vo。别忘了 LM358 的输出最高只到 V+ − 1.5 V：哪一个位置会超出？\n\n**测量**：把旋钮转到 10%、20%、50%，每次测 IN+、IN− 和 OUT 对 GND 的电压，再测 RG、RF 的电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**想一想**：这个放大器的线性输入范围是多少？多转几个位置，把 Vo–Vi 画成一条线：斜率是多少，在哪里变平？\n\n**真实电路里**：输出到不了 V+（约 V+ − 1.5 V）这一点仿真里也有。真实 LM358 的输入共模范围也只到约 V+ − 1.5 V = 7.5 V：旋钮转到约 83%（7.5 / 9）以上时 IN+ 超过这个值，真实芯片的行为就不可靠了（仿真不模拟输入端的这个限制）。",
+  "description": "同相放大器：电位器给 IN+ 一个 0–9 V 的直流电压（10% ≈ 0.9 V），输出经 RF、RG 分压后送回 IN−。虚短（V(IN−) = V(IN+)）和虚断（输入不取电流）给出 Vo = (1 + RF/RG) × Vi。输出超出 0 … V+ − 1.5 V 时就饱和，虚短不再成立。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "跟随器，但反馈打了折",
+      "text": [
+        "从 2.5 的跟随器出发，IN+ 接电位器 **RV1** `10 kΩ`（1 脚接 GND，3 脚接 +9 V）。",
+        "把 OUT–IN− 那根线换掉：**RF** `22 kΩ` 从 OUT 接到 IN−，**RG** `10 kΩ` 从 IN− 接到 GND。",
+        "旋钮拨到 `10%`，测 **IN+** 和 **OUT** 对 GND 的电压。",
+        "输出是输入的几倍？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "输出必须把 IN− 抬到 IN+ 那么高",
+      "text": [
+        "- RF 和 RG 从 OUT 到 GND 组成一个分压器。IN− 在中间，只拿到输出的一部分：$\\frac{R_G}{R_F + R_G}$。",
+        "- 运放会一直推，直到 IN− 等于 IN+（虚短）。所以输出必须比输入大，大的倍数正好是这个比例的倒数。",
+        "![](fig:amp)",
+        "- 用电流说也一样：IN− 不取电流（虚断），RG 里的电流 $V_{in}/R_G$ 全部也流过 RF。两段电压加起来：",
+        "$$V_o = \\left(1 + \\frac{R_F}{R_G}\\right) V_{in}$$",
+        "- 如果 RF = RG = 10 kΩ，增益就是 $1 + 10/10 = 2$。用 RF = 22 kΩ 算出你的增益，再预测 `10%`、`20%`、`50%` 时的 OUT。别忘了 V+ − 1.5 V 的天花板。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "逐点测，直到顶到头",
+      "text": [
+        "- 旋钮依次拨到 `10%`、`20%`、`50%`。",
+        "- 每次都测 **IN+**、**IN−**、**OUT** 对 GND 的电压。",
+        "- 在 `20%` 时把电流表先串进 **RG**、再串进 **RF**：电流一样吗？",
+        "- 电路检查通过后填测量题。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **同相放大器**：$V_o = (1 + R_F/R_G)\\,V_{in}$，和输入同号，增益不小于 1。",
+        "- 虚短只在输出没出范围时成立。一饱和，IN− 就追不上 IN+，公式失效。",
+        "- 从外面看，带反馈的运放就是一个**电压控制电压源**：一个数值由另一个电压决定的电源。这就是理论题里的受控源。",
+        "- 坑：真实的 LM358 **输入端**也最好低于约 V+ − 1.5 V。这个电位器转过约 `83%`，真实芯片就不可靠了；仿真没有模拟这一点。"
+      ],
+      "practice": ["opamp", "dependent-sources"]
+    }
+  ],
+  "figures": {
+    "amp": {
+      "kind": "schematic",
+      "caption": {
+        "text": "V_in 接 IN+。同一个电流 I 从输出经 RF、RG 流到 GND；IN− 拿到输出的 RG / (RF + RG)。",
+        "i18n": {
+          "en": "V_in drives IN+. One current I flows from the output through RF and RG to GND; IN− gets RG / (RF + RG) of the output."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "U1", "type": "OPAMP", "at": [3, 3], "flip": true},
+          {"ref": "RF", "type": "R", "from": [5, 5], "to": [1, 5], "value": "22k"},
+          {"ref": "RG", "type": "R", "from": [1, 5], "to": [1, 8], "value": "10k"}
+        ],
+        "wires": [[[5, 3], [5, 5]], [[1, 4], [1, 5]]],
+        "terminals": [{"at": [1, 2], "name": "V_in"}],
+        "labels": [{"at": [5, 3], "name": "V_o"}],
+        "marks": [{"kind": "i", "el": "RF", "name": "I"}, {"kind": "i", "el": "RG", "name": "I"}],
+        "grounds": [[1, 8]]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 2-6 · Non-inverting amplifier: a pot for the input, measure the gain",
-      "summary": "An LM358 non-inverting amplifier with RF 22kΩ and RG 10kΩ: feed DC from a pot, measure input and output point by point, work out the gain, then turn the input up and watch the output saturate.",
+      "title": "The non-inverting amplifier: two resistors in the feedback",
+      "summary": "Replace the follower's feedback wire with RF 22 kΩ and RG 10 kΩ: the output becomes several times the input. Measure the gain with a pot, then turn the input up and watch the output hit the ceiling.",
       "concepts": ["non-inverting amplifier", "gain = 1 + RF/RG", "virtual short", "saturation"],
-      "description": "**Goal**: build a non-inverting amplifier, measure its input–output relation point by point with DC voltages, check Vo = (1 + RF/RG) × Vi, and see the output saturate.\n\n**Circuit** (single 9 V supply):\n- LM358: pin 8 V+ to +9V, pin 4 V− to GND;\n- input: pot RV1 (10kΩ) with **pin 1 to GND and pin 3 to +9V**, wiper to IN+. Then Vi ≈ 9 V × knob position (10% ≈ 0.9 V). The op-amp input draws no current, so it doesn't disturb the pot;\n- feedback: RF (22kΩ) from OUT to IN−, RG (10kΩ) from IN− to GND.\n\nThe LM358 straddles the gap, each pin on its own column: the row above the gap is, left to right, pin 1 OUT A, pin 2 IN− A, pin 3 IN+ A, pin 4 V− (GND on a single supply); the row below is, left to right, pin 8 V+, pin 7 OUT B, pin 6 IN− B, pin 5 IN+ B. The chip holds two op-amps; either A or B is fine.\n\n**Predict first**: derive the gain from the virtual short (V(IN−) = V(IN+) = Vi) and the virtual open (the current in RG all flows through RF), then work out Vo with the knob at 10%, 20% and 50%. Remember the LM358 output only reaches V+ − 1.5 V: which setting goes past it?\n\n**Measure**: set the knob to 10%, 20% and 50%; each time measure IN+, IN− and OUT to GND, and the currents in RG and RF. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Think about it**: what is the linear input range of this amplifier? Try more knob positions and plot Vo against Vi: what is the slope, and where does the line go flat?\n\n**In a real circuit**: the output not reaching V+ (about V+ − 1.5 V) is in the simulator too. A real LM358's common-mode input range also only reaches about V+ − 1.5 V = 7.5 V: above about 83% on the knob (7.5 / 9) IN+ goes past it and a real chip no longer behaves reliably (the simulator does not model this input limit).",
-      "compare": "**Compare**: the gain is Vo = Vi + RF × Vi / RG = (1 + 22/10) Vi = **3.2 Vi**.\n- 10%: Vi ≈ 0.90 V → Vo ≈ **2.88 V**, and IN− is 0.90 V too (virtual short);\n- 20%: Vi ≈ 1.80 V → Vo ≈ **5.76 V**; the current in RG = 1.80 / 10k = 0.18 mA, and RF carries the same 0.18 mA;\n- 50%: Vi = 4.50 V → 14.4 V in theory, but the output can only reach V+ − 1.5 V = **7.5 V**, so it is clipped (saturated). Now IN− = 7.5 × 10 / 32 ≈ 2.34 V, no longer equal to IN+: the virtual short fails in saturation.",
+      "description": "Non-inverting amplifier: a pot gives IN+ a DC voltage of 0–9 V (10% ≈ 0.9 V), and the output comes back to IN− through the RF–RG divider. The virtual short (V(IN−) = V(IN+)) and virtual open (no input current) give Vo = (1 + RF/RG) × Vi. Outside 0 … V+ − 1.5 V the output saturates and the virtual short no longer holds.",
+      "compare": "**Compare**: gain Vo = Vi + RF × Vi / RG = (1 + 22/10) Vi = **3.2 Vi**.\n- 10%: Vi ≈ 0.90 V → Vo ≈ **2.88 V**, and IN− is 0.90 V too (virtual short).\n- 20%: Vi ≈ 1.80 V → Vo ≈ **5.76 V**; RG's current = 1.80 / 10k = 0.18 mA, and RF carries 0.18 mA as well.\n- 50%: Vi = 4.50 V → 14.4 V in theory, but the output tops out at V+ − 1.5 V = **7.5 V**: clipped (saturated). IN− is then 7.5 × 10 / 32 ≈ 2.34 V, no longer equal to IN+.",
       "measurements": [
-        {"ask": "Knob at 10%: IN+ to GND, Vi"},
-        {"ask": "Knob at 10%: OUT to GND, Vo", "explain": "Vo = 3.2 × 0.90 ≈ 2.88 V."},
-        {"ask": "From your two readings, the voltage gain Vo / Vi", "explain": "Virtual short V(IN−) = Vi; virtual open, so RG's current all flows through RF: Vo = Vi + RF × Vi / RG = (1 + 22/10) Vi = 3.2 Vi."},
-        {"ask": "Knob at 50%: OUT to GND", "explain": "3.2 × 4.5 = 14.4 V in theory, but the LM358 output tops out at V+ − 1.5 V ≈ 7.5 V: saturated (clipped)."},
-        {"ask": "Knob at 50%: IN− to GND (compare it with IN+)", "explain": "IN− = 7.5 × 10 / 32 ≈ 2.34 V, no longer equal to IN+ = 4.5 V: when saturated the feedback cannot regulate, so the virtual short fails."}
+        {"ask": "Knob at `10%`: IN+ to GND, Vi"},
+        {"ask": "Knob at `10%`: OUT to GND, Vo", "explain": "Vo = 3.2 × 0.90 ≈ 2.88 V."},
+        {
+          "ask": "From your two readings, the voltage gain Vo / Vi",
+          "explain": "Virtual short V(IN−) = Vi; virtual open, so RG's current all flows through RF: Vo = Vi + RF × Vi / RG = (1 + 22/10) Vi = 3.2 Vi."
+        },
+        {
+          "ask": "Knob at `50%`: OUT to GND",
+          "explain": "3.2 × 4.5 = 14.4 V in theory, but the LM358 output tops out at V+ − 1.5 V ≈ 7.5 V: saturated (clipped)."
+        },
+        {
+          "ask": "Knob at `50%`: IN− to GND (compare it with IN+)",
+          "explain": "IN− = 7.5 × 10 / 32 ≈ 2.34 V, no longer equal to IN+ = 4.5 V: saturated, the feedback can't regulate, so the virtual short fails."
+        }
       ],
       "hints": [
-        "Power the op-amp first: pin 8 to +9V, pin 4 to GND.",
-        "Pot direction: pin 1 to GND, pin 3 to +9V, the middle wiper to IN+ (pin 3 of the chip). Wired the other way, the knob works backwards.",
+        "Power the op-amp first: pin 8 to +9 V, pin 4 to GND.",
+        "Pot: pin 1 to GND, pin 3 to +9 V, the middle wiper to IN+ (pin 3). Wired the other way, the knob turns backwards.",
         "RF goes between OUT and IN− (not IN+); RG from IN− to GND."
       ],
       "tests": [
         "10%: OUT is IN+ times the gain, IN− follows IN+ (virtual short)",
         "20%: OUT still linear; RG's current all flows through RF",
         "50%: the output saturates"
+      ],
+      "cards": [
+        {
+          "title": "A follower with a discounted feedback",
+          "text": [
+            "Start from the follower of 2.5, with pot **RV1** `10 kΩ` on IN+ (pin 1 to GND, pin 3 to +9 V).",
+            "Replace the OUT–IN− wire: **RF** `22 kΩ` from OUT to IN−, and **RG** `10 kΩ` from IN− to GND.",
+            "Set the knob to `10%` and measure **IN+** and **OUT** against GND.",
+            "How many times larger is the output than the input?"
+          ]
+        },
+        {
+          "title": "The output must lift IN− up to IN+",
+          "text": [
+            "- RF and RG form a divider from OUT down to GND. IN− sits at its middle and only gets a fraction of the output: $\\frac{R_G}{R_F + R_G}$.",
+            "- The op-amp keeps pushing until IN− equals IN+ (virtual short). So the output has to be larger than the input by exactly the inverse of that fraction.",
+            "![](fig:amp)",
+            "- Same story with currents: IN− takes no current (virtual open), so the current through RG, $V_{in}/R_G$, all flows through RF too. Adding up the two voltage drops:",
+            "$$V_o = \\left(1 + \\frac{R_F}{R_G}\\right) V_{in}$$",
+            "- With RF = RG = 10 kΩ the gain would be $1 + 10/10 = 2$. Work out yours with RF = 22 kΩ, then predict OUT at `10%`, `20%` and `50%`. Mind the ceiling at V+ − 1.5 V."
+          ]
+        },
+        {
+          "title": "Point by point, up to the ceiling",
+          "text": [
+            "- Turn the knob to `10%`, `20%` and `50%`.",
+            "- Each time, measure **IN+**, **IN−** and **OUT** against GND.",
+            "- At `20%`, put the ammeter in series with **RG**, then with **RF**: same current?",
+            "- Once the circuit check passes, fill in the questions."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Non-inverting amplifier**: $V_o = (1 + R_F/R_G)\\,V_{in}$, same sign as the input. Gain at least 1.",
+            "- The virtual short holds only while the output is inside its range. Saturated, IN− falls behind IN+ and the formula stops.",
+            "- To the outside, an op-amp with feedback is a **voltage-controlled voltage source**: a source whose value is set by another voltage. That is the dependent source of the theory chapter.",
+            "- Pitfall: a real LM358 also wants its **inputs** below about V+ − 1.5 V. Above about `83%` on this pot a real chip misbehaves; the simulator doesn't model that."
+          ]
+        }
       ]
     }
   },
@@ -75,22 +192,75 @@
       ]
     }
   ],
-  "compare": "**对比**：增益 Vo = Vi + RF × Vi / RG = (1 + 22/10) Vi = **3.2 Vi**。\n- 10%：Vi ≈ 0.90 V → Vo ≈ **2.88 V**，IN− 也是 0.90 V（虚短）；\n- 20%：Vi ≈ 1.80 V → Vo ≈ **5.76 V**；RG 电流 = 1.80 / 10k = 0.18 mA，RF 里也是 0.18 mA；\n- 50%：Vi = 4.50 V → 理论 14.4 V，但输出最高只有 V+ − 1.5 V = **7.5 V**，输出被“削顶”（饱和）。这时 IN− = 7.5 × 10 / 32 ≈ 2.34 V，不再等于 IN+——饱和时虚短不成立。",
+  "compare": "**对比**：增益 Vo = Vi + RF × Vi / RG = (1 + 22/10) Vi = **3.2 Vi**。\n- 10%：Vi ≈ 0.90 V → Vo ≈ **2.88 V**，IN− 也是 0.90 V（虚短）。\n- 20%：Vi ≈ 1.80 V → Vo ≈ **5.76 V**；RG 的电流 = 1.80 / 10k = 0.18 mA，RF 里也是 0.18 mA。\n- 50%：Vi = 4.50 V → 理论 14.4 V，但输出最高只有 V+ − 1.5 V = **7.5 V**，被削顶（饱和）。这时 IN− = 7.5 × 10 / 32 ≈ 2.34 V，不再等于 IN+。",
   "measurements": [
-    {"id": "ui", "stated": true, "voltage": "U1.in+", "ref": "V1.-", "set": {"RV1": {"wiper": 0.1}}, "unit": "V", "range": [0.855, 0.945], "ask": "旋钮 10%：IN+ 对 GND 的电压 Vi"},
-    {"id": "uo", "voltage": "U1.out", "ref": "V1.-", "set": {"RV1": {"wiper": 0.1}}, "unit": "V", "predict": true, "range": [2.74, 3.02], "ask": "旋钮 10%：OUT 对 GND 的电压 Vo", "explain": "Vo = 3.2 × 0.90 ≈ 2.88 V。"},
-    {"id": "gain", "formula": "uo / ui", "predict": true, "range": [3.04, 3.36], "ask": "用你的两个读数算电压增益 Vo / Vi", "explain": "虚短 V(IN−) = Vi，虚断让 RG 的电流全部流过 RF：Vo = Vi + RF × Vi / RG = (1 + 22/10) Vi = 3.2 Vi。"},
-    {"id": "uo50", "stated": true, "voltage": "U1.out", "ref": "V1.-", "set": {"RV1": {"wiper": 0.5}}, "unit": "V", "predict": true, "range": [7.12, 7.87], "ask": "旋钮 50%：OUT 对 GND 的电压", "explain": "理论 3.2 × 4.5 = 14.4 V，但 LM358 输出最高只有 V+ − 1.5 V ≈ 7.5 V：饱和（削顶）。"},
-    {"id": "un50", "voltage": "U1.in-", "ref": "V1.-", "set": {"RV1": {"wiper": 0.5}}, "unit": "V", "predict": true, "range": [2.23, 2.46], "ask": "旋钮 50%：IN− 对 GND 的电压（和 IN+ 比一比）", "explain": "IN− = 7.5 × 10 / 32 ≈ 2.34 V，不再等于 IN+ 的 4.5 V：饱和时没有负反馈调节，虚短不成立。"}
+    {
+      "id": "ui",
+      "stated": true,
+      "voltage": "U1.in+",
+      "ref": "V1.-",
+      "set": {"RV1": {"wiper": 0.1}},
+      "unit": "V",
+      "range": [0.855, 0.945],
+      "ask": "旋钮 `10%`：IN+ 对 GND 的电压 Vi"
+    },
+    {
+      "id": "uo",
+      "voltage": "U1.out",
+      "ref": "V1.-",
+      "set": {"RV1": {"wiper": 0.1}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.74, 3.02],
+      "ask": "旋钮 `10%`：OUT 对 GND 的电压 Vo",
+      "explain": "Vo = 3.2 × 0.90 ≈ 2.88 V。"
+    },
+    {
+      "id": "gain",
+      "formula": "uo / ui",
+      "predict": true,
+      "range": [3.04, 3.36],
+      "ask": "用你的两个读数算电压增益 Vo / Vi",
+      "explain": "虚短 V(IN−) = Vi，虚断让 RG 的电流全部流过 RF：Vo = Vi + RF × Vi / RG = (1 + 22/10) Vi = 3.2 Vi。"
+    },
+    {
+      "id": "uo50",
+      "stated": true,
+      "voltage": "U1.out",
+      "ref": "V1.-",
+      "set": {"RV1": {"wiper": 0.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [7.12, 7.87],
+      "ask": "旋钮 `50%`：OUT 对 GND 的电压",
+      "explain": "理论上 3.2 × 4.5 = 14.4 V，但 LM358 输出最高只有 V+ − 1.5 V ≈ 7.5 V：饱和（削顶）。"
+    },
+    {
+      "id": "un50",
+      "voltage": "U1.in-",
+      "ref": "V1.-",
+      "set": {"RV1": {"wiper": 0.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.23, 2.46],
+      "ask": "旋钮 `50%`：IN− 对 GND 的电压（和 IN+ 比一比）",
+      "explain": "IN− = 7.5 × 10 / 32 ≈ 2.34 V，不再等于 IN+ 的 4.5 V：饱和时负反馈调节不动了，虚短不成立。"
+    }
   ],
   "hints": [
-    "先给运放供电：8 脚 +9V，4 脚 GND。",
-    "电位器方向：1 脚接 GND，3 脚接 +9V，中间滑动端接 IN+（3 脚）。反了的话旋钮方向也反了。",
+    "先给运放供电：8 脚接 +9 V，4 脚接 GND。",
+    "电位器：1 脚接 GND，3 脚接 +9 V，中间滑动端接 IN+（3 脚）。接反了，旋钮方向也反了。",
     "RF 接在 OUT 和 IN− 之间（不是 IN+），RG 从 IN− 接到 GND。"
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
       {"type": "opamp", "ref": "U1", "at": "e10"},
       {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
       {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"},

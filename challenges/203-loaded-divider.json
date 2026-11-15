@@ -2,36 +2,158 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-loaded-divider",
-  "title": "实验 1-3 · 分压器接上负载会怎样",
+  "title": "分压器接上负载会怎样",
   "kind": "challenge",
   "level": 3,
   "phase": 1,
-  "summary": "两个 10kΩ 组成分压器：空载、接 100kΩ 负载、接 1kΩ 负载各测一次 VOUT，看负载越重、电压掉得越多。",
+  "summary": "10 kΩ + 10 kΩ 的分压器，先接 100 kΩ，再接 1 kΩ：一个几乎没影响，一个让电压塌掉。用戴维宁等效看懂为什么。",
   "concepts": ["voltage divider 分压器", "load 负载", "loading effect 负载效应", "parallel resistance 并联电阻"],
   "prereq": ["lesson-multimeter"],
-  "description": "**目标**：分压公式 VOUT = V × R2 / (R1 + R2) 只在**空载**（没有东西从 VOUT 取电流）时成立。这个实验测量负载对分压器的影响。\n\n**电路**：+9V → R1（10kΩ）→ VOUT → R2（10kΩ）→ GND。VOUT 经过按键 SW1 接到拨动开关 S1 的中间脚（com）：\n- S1 的 a 侧 → RL1（1kΩ）→ GND；\n- S1 的 b 侧 → RL2（100kΩ）→ GND。\n\n按键松开 = 不接负载；按下 = 接上 S1 选中的那个负载。\n\n**先预测**：分别算出三种情况下的 VOUT：空载、接 100kΩ、接 1kΩ。思路：负载和 R2 并联，先求并联电阻，再用分压公式。哪个负载会让电压明显下降？\n\n**测量**：测 VOUT（相对 GND）：\n1. 松开按键（空载）；\n2. 按下，拨到 b（100kΩ）；\n3. 按下，拨到 a（1kΩ）。\n电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**真实电路里**：经验是负载电阻至少是分压电阻的 10 倍以上，分压器才“准”。万用表电压档本身也是一个负载（常见约 10MΩ），对这里的 10kΩ 分压器影响可以忽略，但测 MΩ 级的分压器时就要注意。要给 1kΩ 这种重负载提供空载时的电压，可以用运放做一个电压跟随器（实验 2-5）。",
+  "description": "分压公式 VOUT = V × R2 / (R1 + R2) 只在空载时成立。从 VOUT 看进去，分压器是一个电压源串一个 R1 ∥ R2 的内阻；负载比这个内阻小，电压就塌了。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "两个负载，哪个拉得动？",
+      "text": [
+        "照目标电路图搭：`9 V` → **R1** `10 kΩ` → **VOUT** → **R2** `10 kΩ` → GND。",
+        "从 VOUT 出发，按键 **SW1** 通到开关 **S1** 的中间脚。S1 的 **a** 侧接 **RL1** `1 kΩ` 到 GND，**b** 侧接 **RL2** `100 kΩ`。",
+        "**松开按键，测 VOUT**。再**按住按键**，S1 先拨 **b**，再拨 **a**。",
+        "哪个负载把 VOUT 拉下来了？为什么是它？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "分压器也是一节“带内阻的电池”",
+      "text": [
+        "- 2.4 学过：从 VOUT 和 GND 看进去，分压器就是一个戴维宁电源。$V_{Th}$ 是空载电压；$R_{Th}$ 是 9 V 换成导线后 R1 和 R2 的并联：$R_{Th} = 10\\,k ∥ 10\\,k = 5$ kΩ。",
+        "![](fig:thevenin)",
+        "- 负载 $R_L$ 和这个内部的 5 kΩ 又组成一个分压器：",
+        "$$V_{out} = V_{Th}\\,\\frac{R_L}{R_{Th} + R_L}$$",
+        "- 接 10 kΩ 负载：$V_{out} = V_{Th} × \\frac{10}{5 + 10}$，只剩空载值的三分之二。",
+        "- 所以要拿 5 kΩ 当尺子。预测一下：100 kΩ（大 20 倍）和 1 kΩ（小 5 倍）时的 VOUT。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "三种状态，三个读数",
+      "text": [
+        "- **松开按键**（空载）：测 VOUT 对 GND。",
+        "- **按住按键、S1 拨 b**（100 kΩ）：测 VOUT。",
+        "- **按住按键、S1 拨 a**（1 kΩ）：测 VOUT。",
+        "- 电路检查通过后填测量题。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 分压公式是**空载**公式。负载和 R2 并联，把 VOUT 拉低。",
+        "- 经验：负载至少是分压器 $R_{Th}$ = R1 ∥ R2 的 **10 倍**。",
+        "- 万用表也是负载（一般 10 MΩ）。对这里 5 kΩ 的分压器没影响，测兆欧级的分压器时就要注意。",
+        "- 想让它带 1 kΩ 而不塌，就在中间加一个**电压跟随器**。下一项先认识 LM358，再来做这件事。"
+      ],
+      "practice": ["theorems"]
+    }
+  ],
+  "figures": {
+    "thevenin": {
+      "kind": "schematic",
+      "caption": {
+        "text": "从 VOUT 看进去：V_Th 串 R_Th = R1 ∥ R2 = 5 kΩ。负载 R_L 和 R_Th 分压。",
+        "i18n": {
+          "en": "Seen from VOUT: V_Th in series with R_Th = R1 ∥ R2 = 5 kΩ. The load R_L and R_Th divide the voltage."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Vth", "type": "V", "from": [0, 0], "to": [0, 4], "label": "V_Th"},
+          {"ref": "Rth", "type": "R", "from": [0, 0], "to": [4, 0], "label": "R_Th = 5 kΩ"},
+          {"ref": "RL", "type": "R", "from": [4, 0], "to": [4, 4], "label": "R_L"}
+        ],
+        "wires": [[[0, 4], [4, 4]]],
+        "labels": [{"at": [4, 0], "name": "VOUT"}],
+        "marks": [{"kind": "v", "el": "RL", "name": "V_out"}],
+        "grounds": [[0, 4]]
+      },
+      "highlight": ["RL"]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 1-3 · What a load does to a voltage divider",
-      "summary": "Two 10kΩ resistors make a divider: measure VOUT with no load, a 100kΩ load and a 1kΩ load, and see the heavier load drag it down further.",
+      "title": "What a load does to a divider",
+      "summary": "A 10 kΩ + 10 kΩ divider, first with a 100 kΩ load, then with 1 kΩ: one barely matters, the other makes the voltage collapse. Thévenin explains why.",
       "concepts": ["voltage divider", "load", "loading effect", "parallel resistance"],
-      "description": "**Goal**: the divider formula VOUT = V × R2 / (R1 + R2) is only true with **no load** (nothing drawing current from VOUT). This lab measures how a load changes a divider.\n\n**Circuit**: +9V → R1 (10kΩ) → VOUT → R2 (10kΩ) → GND. VOUT goes through push button SW1 to the middle pin (com) of slide switch S1:\n- S1 side a → RL1 (1kΩ) → GND;\n- S1 side b → RL2 (100kΩ) → GND.\n\nButton released = no load; pressed = the load S1 selects is connected.\n\n**Predict first**: work out VOUT for the three cases: no load, 100kΩ load, 1kΩ load. Method: the load is in parallel with R2, so find that parallel resistance first and then use the divider formula. Which load will pull the voltage down noticeably?\n\n**Measure**: measure VOUT (relative to GND):\n1. button released (no load);\n2. pressed, switched to b (100kΩ);\n3. pressed, switched to a (1kΩ).\nOnce the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**In a real circuit**: as a rule of thumb the load should be at least 10 times the divider resistors for the divider to be \"accurate\". A multimeter's voltage range is itself a load (typically about 10MΩ): negligible for this 10kΩ divider, but it matters when you measure a divider made of MΩ resistors. To give a heavy 1kΩ load the unloaded voltage, use an op-amp voltage follower (Experiment 2-5).",
-      "compare": "**Compare**:\n1. No load: 9 × 10k / 20k = **4.50 V**;\n2. 100kΩ: the lower half becomes 10k ∥ 100k = 9.09kΩ, VOUT = 9 × 9.09 / 19.09 ≈ **4.29 V** (only about 5% lower);\n3. 1kΩ: the lower half becomes 10k ∥ 1k = 909Ω, VOUT = 9 × 0.909 / 10.909 ≈ **0.75 V** (almost nothing left!).\n\nIf pressing the button changes nothing, check that S1's middle pin sits after the button and that the far end of each load goes to GND.\n\n**Why**: the load is in parallel with R2; in parallel the resistance gets smaller, so it gets a smaller share of the voltage. Seen from VOUT, the divider behaves like a 4.5 V source with an internal resistance of R1 ∥ R2 = 5kΩ (the Thevenin equivalent you will meet in phase 2). A load much larger than 5kΩ hardly matters; a load near 5kΩ or smaller makes the voltage collapse.",
+      "description": "The divider formula VOUT = V × R2 / (R1 + R2) holds only with no load. Seen from VOUT, the divider is a voltage source in series with R1 ∥ R2; a load smaller than that makes the voltage collapse.",
+      "compare": "**Compare**:\n1. No load: 9 × 10k / 20k = **4.50 V**.\n2. 100 kΩ: the bottom half becomes 10k ∥ 100k = 9.09 kΩ, VOUT = 9 × 9.09 / 19.09 ≈ **4.29 V** (only about 5 % lower).\n3. 1 kΩ: the bottom half becomes 10k ∥ 1k = 909 Ω, VOUT = 9 × 0.909 / 10.909 ≈ **0.75 V** (almost nothing left).\n\nThévenin gives the same: 4.50 × R_L / (5k + R_L). If pressing the button changes nothing, check that S1's middle pin is behind the button and that the loads' far ends reach GND.",
       "measurements": [
-        {"ask": "Button released (no load): VOUT to GND"},
-        {"ask": "Button pressed, S1 on b (100 kΩ load): VOUT"},
-        {"ask": "Button pressed, S1 on a (1 kΩ load): VOUT"},
-        {"ask": "Which load makes VOUT drop noticeably, and why?", "choices": ["1 kΩ: it is much smaller than the 5 kΩ (R1 ∥ R2) you see looking into VOUT", "100 kΩ: the larger the load resistance, the more voltage it takes", "Both the same: the divider formula has no load in it"], "explain": "The load sits in parallel with R2 and makes the lower half smaller. A load much larger than 5 kΩ hardly matters; a smaller one collapses the voltage."}
+        {"ask": "Button released (no load): VOUT to GND", "explain": "9 × 10k / 20k = 4.50 V — that is V_Th."},
+        {
+          "ask": "Button held, S1 on b (100 kΩ load): VOUT",
+          "explain": "4.50 × 100 / (5 + 100) ≈ 4.29 V, only about 5 % lower."
+        },
+        {
+          "ask": "Button held, S1 on a (1 kΩ load): VOUT",
+          "explain": "4.50 × 1 / (5 + 1) = 0.75 V — almost nothing left."
+        },
+        {
+          "choices": [
+            "1 kΩ: it is much smaller than the inner resistance seen from VOUT, R1 ∥ R2 = 5 kΩ",
+            "100 kΩ: the bigger the load, the more voltage it takes",
+            "Both the same: the divider formula has no load in it"
+          ],
+          "ask": "Which load pulls VOUT down a lot, and why?",
+          "explain": "The load divides with the divider's inner R_Th = 5 kΩ. A load much bigger than 5 kΩ hardly matters; a smaller one makes the voltage collapse."
+        }
       ],
       "hints": [
-        "S1's three pins sit in three neighbouring columns of one row, com in the middle. Side a goes to 1kΩ, side b to 100kΩ; don't mix them up, the tests rely on it.",
-        "The push button straddles the centre gap: its left column connects to VOUT, its right column to S1's com.",
-        "The other ends of RL1 and RL2 must go back to GND. If you use the bottom blue rail, join the top and bottom blue rails with a jumper."
+        "S1's three pins sit in three columns of one row; the middle one is com. The a side goes to 1 kΩ, the b side to 100 kΩ — the check expects this way round.",
+        "The button straddles the trench: one side to VOUT, the other to S1's com.",
+        "The far ends of RL1 and RL2 go back to GND. If you use the bottom blue rail, join the two blue rails with a jumper."
       ],
       "tests": [
         "Button released (no load): VOUT is the unloaded divider voltage",
         "Pressed, switch on b (100 kΩ load): VOUT drops only slightly",
         "Pressed, switch on a (1 kΩ load): VOUT collapses"
+      ],
+      "cards": [
+        {
+          "title": "Two loads — which one drags it down?",
+          "text": [
+            "Build it from the target schematic: `9 V` → **R1** `10 kΩ` → **VOUT** → **R2** `10 kΩ` → GND.",
+            "From VOUT, the button **SW1** leads to the middle pin of switch **S1**. S1's **a** side has **RL1** `1 kΩ` to GND, its **b** side **RL2** `100 kΩ`.",
+            "**Measure VOUT** with the button released. Then **hold the button** with S1 on **b**, then on **a**.",
+            "Which load pulls VOUT down — and why that one?"
+          ]
+        },
+        {
+          "title": "A divider is a battery with internal resistance too",
+          "text": [
+            "- From 2.4: seen from VOUT and GND, the divider is a Thévenin source. $V_{Th}$ is the no-load voltage. $R_{Th}$ is R1 and R2 in parallel, with the 9 V turned into a wire: $R_{Th} = 10\\,k ∥ 10\\,k = 5$ kΩ.",
+            "![](fig:thevenin)",
+            "- A load $R_L$ makes a divider with that inner 5 kΩ:",
+            "$$V_{out} = V_{Th}\\,\\frac{R_L}{R_{Th} + R_L}$$",
+            "- With a 10 kΩ load: $V_{out} = V_{Th} × \\frac{10}{5 + 10}$, two thirds of the no-load value.",
+            "- So the yardstick is 5 kΩ. Predict VOUT for 100 kΩ (twenty times bigger) and for 1 kΩ (five times smaller)."
+          ]
+        },
+        {
+          "title": "Three states, three readings",
+          "text": [
+            "- **Button released** (no load): measure VOUT to GND.",
+            "- **Button held, S1 on b** (100 kΩ): measure VOUT.",
+            "- **Button held, S1 on a** (1 kΩ): measure VOUT.",
+            "- Once the circuit check passes, fill in the questions."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- The divider formula is a **no-load** formula. A load sits in parallel with R2 and pulls VOUT down.",
+            "- Rule of thumb: the load should be at least **10 ×** the divider's $R_{Th}$ = R1 ∥ R2.",
+            "- A multimeter is a load too (typically 10 MΩ). Harmless on this 5 kΩ divider, noticeable on a megohm one.",
+            "- To feed a 1 kΩ load without the collapse, put a **voltage follower** in between. Next you meet the LM358, then you do exactly that."
+          ]
+        }
       ]
     }
   },
@@ -69,21 +191,63 @@
       "voltages": [{"pin": "R2.1", "ref": "V1.-", "min": 0.71, "max": 0.79}]
     }
   ],
-  "compare": "**对比**：\n1. 空载：9 × 10k / 20k = **4.50 V**；\n2. 100kΩ：下半边变成 10k ∥ 100k = 9.09kΩ，VOUT = 9 × 9.09 / 19.09 ≈ **4.29 V**（只低了约 5%）；\n3. 1kΩ：下半边变成 10k ∥ 1k = 909Ω，VOUT = 9 × 0.909 / 10.909 ≈ **0.75 V**（几乎全没了！）。\n\n如果按下按键后电压不变，检查 S1 的中间脚是不是接在按键后面、负载的另一端是不是接到了 GND。\n\n**为什么**：负载和 R2 是并联的，并联后电阻变小，分到的电压就变小。从 VOUT 往里看，这个分压器相当于一个 4.5 V 电源串一个 R1 ∥ R2 = 5kΩ 的内阻（这就是第 2 期要学的戴维宁等效）。负载电阻比 5kΩ 大得多时影响小；和 5kΩ 差不多或更小时，电压就塌了。",
+  "compare": "**对比**：\n1. 空载：9 × 10k / 20k = **4.50 V**。\n2. 100 kΩ：下半边变成 10k ∥ 100k = 9.09 kΩ，VOUT = 9 × 9.09 / 19.09 ≈ **4.29 V**（只低了约 5%）。\n3. 1 kΩ：下半边变成 10k ∥ 1k = 909 Ω，VOUT = 9 × 0.909 / 10.909 ≈ **0.75 V**（几乎全没了）。\n\n用戴维宁算也一样：4.50 × R_L / (5k + R_L)。按下按键后电压不变时，检查 S1 的中间脚是不是接在按键后面、负载的另一端是不是接到了 GND。",
   "measurements": [
-    {"id": "v0", "voltage": "R2.1", "ref": "V1.-", "set": {"SW1": {"pressed": false}}, "unit": "V", "predict": true, "range": [4.4, 4.6], "ask": "松开按键（空载）：VOUT 对 GND 的电压"},
-    {"id": "v100k", "voltage": "R2.1", "ref": "V1.-", "set": {"SW1": {"pressed": true}, "S1": {"position": "b"}}, "unit": "V", "predict": true, "range": [4.2, 4.38], "ask": "按下按键、S1 拨到 b（100 kΩ 负载）：VOUT"},
-    {"id": "v1k", "voltage": "R2.1", "ref": "V1.-", "set": {"SW1": {"pressed": true}, "S1": {"position": "a"}}, "unit": "V", "predict": true, "range": [0.71, 0.79], "ask": "按下按键、S1 拨到 a（1 kΩ 负载）：VOUT"},
-    {"id": "why", "choices": ["1 kΩ：它比从 VOUT 看进去的内阻 R1 ∥ R2 = 5 kΩ 小得多", "100 kΩ：负载电阻越大，分走的电压越多", "两个负载影响一样：分压公式里根本没有负载"], "correct": 0, "ask": "哪个负载让 VOUT 明显下降？为什么？", "explain": "负载和 R2 并联，并联后下半边变小。负载比 5 kΩ 大得多时几乎没影响，比它小时电压就塌了。"}
+    {
+      "id": "v0",
+      "voltage": "R2.1",
+      "ref": "V1.-",
+      "set": {"SW1": {"pressed": false}},
+      "unit": "V",
+      "predict": true,
+      "range": [4.4, 4.6],
+      "ask": "松开按键（空载）：VOUT 对 GND 的电压",
+      "explain": "9 × 10k / 20k = 4.50 V，就是 V_Th。"
+    },
+    {
+      "id": "v100k",
+      "voltage": "R2.1",
+      "ref": "V1.-",
+      "set": {"SW1": {"pressed": true}, "S1": {"position": "b"}},
+      "unit": "V",
+      "predict": true,
+      "range": [4.2, 4.38],
+      "ask": "按住按键、S1 拨到 b（100 kΩ 负载）：VOUT",
+      "explain": "4.50 × 100 / (5 + 100) ≈ 4.29 V，只低了约 5%。"
+    },
+    {
+      "id": "v1k",
+      "voltage": "R2.1",
+      "ref": "V1.-",
+      "set": {"SW1": {"pressed": true}, "S1": {"position": "a"}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.71, 0.79],
+      "ask": "按住按键、S1 拨到 a（1 kΩ 负载）：VOUT",
+      "explain": "4.50 × 1 / (5 + 1) = 0.75 V，几乎全没了。"
+    },
+    {
+      "id": "why",
+      "choices": ["1 kΩ：它比从 VOUT 看进去的内阻 R1 ∥ R2 = 5 kΩ 小得多", "100 kΩ：负载电阻越大，分走的电压越多", "两个负载影响一样：分压公式里根本没有负载"],
+      "correct": 0,
+      "ask": "哪个负载让 VOUT 明显下降？为什么？",
+      "explain": "负载和分压器的内阻 R_Th = 5 kΩ 分压。负载比 5 kΩ 大得多时几乎没影响，比它小时电压就塌了。"
+    }
   ],
   "hints": [
-    "S1 的三个脚在同一行连续三列：中间是 com。a 侧接 1kΩ，b 侧接 100kΩ——别接反，测试按这个来判。",
-    "按键要横跨中间凹槽：左边一列接 VOUT，右边一列接 S1 的 com。",
-    "RL1、RL2 的另一端都要回到 GND。如果用下方的蓝轨，记得用跳线把上下两条蓝轨连起来。"
+    "S1 的三只脚在同一行连续三列，中间是 com。a 侧接 1 kΩ，b 侧接 100 kΩ——别接反，判分按这个来。",
+    "按键横跨中间凹槽：一边接 VOUT，另一边接 S1 的 com。",
+    "RL1、RL2 的另一端都要回到 GND。用下方的蓝轨时，记得用跳线把上下两条蓝轨连起来。"
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
       {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
       {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "b3", "2": "b8"}},
       {"type": "resistor", "ref": "R2", "resistance": "10k", "pins": {"1": "c8", "2": "c12"}},

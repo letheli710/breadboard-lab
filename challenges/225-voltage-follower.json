@@ -2,36 +2,161 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-voltage-follower",
-  "title": "实验 2-5 · 电压跟随器：给分压器加一个“缓冲”",
+  "title": "电压跟随器：把塌下去的电压救回来",
   "kind": "challenge",
   "level": 3,
   "phase": 2,
-  "summary": "实验 1-3 里 1kΩ 负载把分压器拉垮了。在中间加一个 LM358 电压跟随器，比较有、无缓冲时负载上的电压和电流从哪里来。",
+  "summary": "同一个分压器、同一个 1 kΩ 负载：直接接，电压塌掉；中间隔一个 LM358 跟随器，电压回来了。",
   "concepts": ["voltage follower 电压跟随器", "buffer 缓冲", "op-amp LM358 运放", "input / output resistance 输入 / 输出电阻"],
   "prereq": ["lesson-lm358"],
-  "description": "**目标**：认识运放最简单的电路——电压跟随器（voltage follower，增益 1），看它怎么解决分压器带不动负载的问题（实验 1-3）。\n\n**电路**：\n- 分压器：+9V → R1（10kΩ）→ VD → R2（10kΩ）→ GND；\n- LM358：8 脚 V+ 接 +9V，4 脚 V− 接 GND；IN+ 接 VD；OUT 直接连到 IN−（这就是跟随器）；\n- 拨动开关 S1：a 侧接 VD（分压器直接带负载），b 侧接运放 OUT（经跟随器带负载），com → RL（1kΩ）→ GND。\n\nLM358 横跨凹槽，每只脚独占一列：凹槽上方一排从左到右是 1 脚 OUT A、2 脚 IN− A、3 脚 IN+ A、4 脚 V−（单电源时接 GND）；下方一排从左到右是 8 脚 V+、7 脚 OUT B、6 脚 IN− B、5 脚 IN+ B。芯片里有两个运放，用 A、B 哪一个都可以。\n\n**先预测**：S1 拨到 a 时，负载和 R2 并联，VD 会是多少？拨到 b 时，用虚短（V(IN−) = V(IN+)）和虚断（输入不取电流）想一想：OUT 等于什么、分压器还会不会被负载拉低、RL 的电流从哪里来？\n\n**测量**：分别把 S1 拨到 a 和 b，测 VD 和负载 RL 上的电压。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**真实电路里**：单电源 LM358 的输出只能在 0 V 到 V+ − 1.5 V = 7.5 V 之间（仿真里也是这样）。空载分压值在范围内；如果 VD 超过 7.5 V，输出就跟不上了。真实的 LM358 输入端也有同样的限制：共模输入范围从 0 V（V−）到约 V+ − 1.5 V，输入超过它时运放工作不正常——仿真没有模拟这一点。",
+  "description": "电压跟随器的输入几乎不取电流，输出电阻又很小：分压器“感觉不到”负载，负载却能从运放的电源拿到它要的电流。这叫阻抗变换，也叫缓冲。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "先让它塌一次",
+      "text": [
+        "搭**分压器**（`9 V` → **R1** `10 kΩ` → **VD** → **R2** `10 kΩ` → GND）和 2.5 学过的 **LM358 跟随器**：8 脚、4 脚接电源，OUT 接 IN−，**IN+ 接 VD**。",
+        "开关 **S1** 给负载 **RL** `1 kΩ` 供电：**a** 侧直接接 VD，**b** 侧接运放的 OUT。",
+        "**S1 → a**：测 RL 两端的电压。它塌下去了，和上次一样。",
+        "现在**把 S1 拨到 b**，再测一次。电压怎么样了？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "跟随器是一个隔离的中间人",
+      "text": [
+        "- **输入这一边**：IN+ 不取电流，分压器又回到了空载。VD 回到空载值。",
+        "- **输出这一边**：运放让 OUT = IN+。RL 要多少电流，它都从运放自己的电源脚拿，不再找分压器要。",
+        "![](fig:buffer)",
+        "- 从负载看，电源变成了运放的输出端。运放 10 Ω 的输出电阻被负反馈缩小，大约缩小增益那么多倍：",
+        "$$R_{out} ≈ \\frac{R_o}{A} = \\frac{10\\,Ω}{100\\,000} = 0.1\\text{ mΩ}$$",
+        "- 从 5 kΩ 降到不到一毫欧：1 kΩ 的负载根本拉不动。这就是**阻抗变换**——输入端电阻很大，输出端电阻很小。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "拨到 b，看看谁在出力",
+      "text": [
+        "- 测 RL 两端的电压：**S1 拨 a** 一次，**S1 拨 b** 一次。",
+        "- S1 在 b 时，把电流表**串进 R1**（分压器的电流），再**串进 RL**（负载的电流）。",
+        "- 电路检查通过后填测量题。比较两个电流：RL 的电流是谁给的？"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **跟随器**（缓冲器）增益是 1，它的工作是隔离：输入电阻大，输出电阻小。",
+        "- 负载的电流来自运放的电源；分压器只负责定电压。",
+        "- 坑：单 9 V 电源时 LM358 的输出最高约 **7.5 V**，真实芯片的输入最好也低于它。分压器调到 7.5 V 以上，跟随器就跟不上了。",
+        "- 下一步：在反馈路径里放两个电阻，跟随器就变成了放大器。"
+      ],
+      "practice": ["opamp"]
+    }
+  ],
+  "figures": {
+    "buffer": {
+      "kind": "schematic",
+      "caption": {
+        "text": "分压器的中点 V_D 只接 IN+，不给出电流；R_L 的电流 I_L 由运放的输出端供给，输出又接回 IN−。",
+        "i18n": {
+          "en": "The divider's midpoint V_D only feeds IN+ and gives no current; R_L's current I_L comes from the op-amp's output, which also feeds back to IN−."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "U1", "type": "OPAMP", "at": [3, 3]},
+          {"ref": "VD", "type": "V", "from": [1, 4], "to": [1, 7], "label": "V_D"},
+          {"ref": "RL", "type": "R", "from": [5, 3], "to": [5, 7], "label": "R_L"}
+        ],
+        "wires": [[[5, 3], [5, 1], [1, 1], [1, 2]], [[1, 7], [5, 7]]],
+        "marks": [{"kind": "i", "el": "RL", "name": "I_L"}],
+        "grounds": [[1, 7]]
+      },
+      "highlight": ["U1"]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 2-5 · Voltage follower: a buffer for the divider",
-      "summary": "In Experiment 1-3 a 1kΩ load dragged the divider down. Put an LM358 voltage follower in between and compare the load voltage with and without the buffer, and where the load current comes from.",
+      "title": "The voltage follower: bring the sagging voltage back",
+      "summary": "The same divider, the same 1 kΩ load: connected directly, the voltage collapses; with an LM358 follower in between, it comes back.",
       "concepts": ["voltage follower", "buffer", "op-amp LM358", "input / output resistance"],
-      "description": "**Goal**: meet the simplest op-amp circuit, the voltage follower (gain 1), and see how it fixes the divider that couldn't drive a load (Experiment 1-3).\n\n**Circuit**:\n- divider: +9V → R1 (10kΩ) → VD → R2 (10kΩ) → GND;\n- LM358: pin 8 V+ to +9V, pin 4 V− to GND; IN+ to VD; OUT wired straight to IN− (that makes it a follower);\n- slide switch S1: side a to VD (the divider drives the load directly), side b to the op-amp OUT (the load is driven through the follower), com → RL (1kΩ) → GND.\n\nThe LM358 straddles the gap, each pin on its own column: the row above the gap is, left to right, pin 1 OUT A, pin 2 IN− A, pin 3 IN+ A, pin 4 V− (GND on a single supply); the row below is, left to right, pin 8 V+, pin 7 OUT B, pin 6 IN− B, pin 5 IN+ B. The chip holds two op-amps; either A or B is fine.\n\n**Predict first**: with S1 on a, the load is in parallel with R2: what will VD be? With S1 on b, use the virtual short (V(IN−) = V(IN+)) and the virtual open (no input current): what does OUT equal, does the load still pull the divider down, and where does RL's current come from?\n\n**Measure**: put S1 on a and then on b; measure VD and the voltage across RL each time. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**In a real circuit**: a single-supply LM358's output can only go from 0 V up to V+ − 1.5 V = 7.5 V (the simulator models this too). the unloaded divider voltage is fine; if VD were above 7.5 V, the output could not follow. A real LM358 has the same kind of limit at its inputs: the common-mode input range runs from 0 V (V−) to about V+ − 1.5 V, and beyond it the op-amp misbehaves; the simulator does not model this.",
-      "compare": "**Compare**:\n- switch on a: just like Experiment 1-3, VD drops to ≈ **0.75 V** (10k ∥ 1k = 909Ω);\n- switch on b: the load gets ≈ **4.50 V** and VD stays at 4.50 V. RL's 4.5 mA comes from the op-amp output (the energy comes in through its V+ pin), while the divider itself still carries only 0.45 mA.\n\n**Why**: negative feedback makes OUT chase IN+, so OUT = VD. The op-amp's input draws almost no current, so the divider doesn't \"feel\" the load; and the output resistance is tiny (10Ω in the model, made even smaller by the feedback), so a 1kΩ load can't pull it down. A follower is an **impedance converter**: high input resistance, low output resistance.",
+      "description": "A voltage follower takes almost no input current and has a tiny output resistance: the divider no longer feels the load, and the load draws the current it needs from the op-amp's supply. This is impedance conversion, or buffering.",
+      "compare": "**Compare**:\n- On a: as in the last lab, VD drops to about **0.75 V** (10k ∥ 1k = 909 Ω).\n- On b: about **4.50 V** on the load, and VD stays at 4.50 V. RL's **4.5 mA** comes from the op-amp's output (the energy from its V+ pin); the divider still carries only **0.45 mA**.",
       "measurements": [
-        {"ask": "S1 on a (the divider drives RL directly): voltage across RL", "explain": "RL is in parallel with R2: 10k ∥ 1k = 909 Ω, VD = 9 × 0.909 / 10.909 ≈ 0.75 V."},
-        {"ask": "S1 on b (through the follower): voltage across RL", "explain": "OUT = IN+ = VD, and VD is no longer dragged down: ≈ 4.50 V."},
-        {"ask": "S1 on b: the divider current in R1 (ammeter in series with R1)", "explain": "The op-amp input draws no current, so the divider is still unloaded: 9 V / 20 kΩ = 0.45 mA."},
-        {"ask": "S1 on b: the load current in RL", "explain": "4.5 V / 1 kΩ = 4.5 mA, ten times the divider current."},
-        {"ask": "Compare your two current readings: with S1 on b, where does RL's current come from?", "explain": "Negative feedback makes OUT chase IN+; the input draws almost nothing and the output resistance is tiny. A follower is an impedance converter: high input resistance, low output resistance.", "choices": ["the op-amp output (the energy comes in through its V+ supply pin)", "the divider (through the op-amp input)", "the op-amp's IN− input"]}
+        {
+          "ask": "S1 on a (the divider drives RL directly): voltage across RL",
+          "explain": "RL is in parallel with R2: 10k ∥ 1k = 909 Ω, VD = 9 × 0.909 / 10.909 ≈ 0.75 V."
+        },
+        {
+          "ask": "S1 on b (through the follower): voltage across RL",
+          "explain": "OUT = IN+ = VD, and VD is no longer pulled down: about 4.50 V."
+        },
+        {
+          "ask": "S1 on b: current in the divider's R1 (ammeter in series with R1)",
+          "explain": "The op-amp input takes no current, so the divider is unloaded: 9 V / 20 kΩ = 0.45 mA."
+        },
+        {
+          "ask": "S1 on b: current in the load RL",
+          "explain": "4.5 V / 1 kΩ = 4.5 mA, ten times the divider's current."
+        },
+        {
+          "choices": [
+            "the op-amp output (the energy comes in through its V+ supply pin)",
+            "the divider (through the op-amp input)",
+            "the op-amp's IN− input"
+          ],
+          "ask": "Compare your two current readings: with S1 on b, where does RL's current come from?",
+          "explain": "Negative feedback keeps OUT chasing IN+; the input takes almost no current and the output resistance is tiny. A follower converts impedance: high input resistance, low output resistance."
+        }
       ],
       "hints": [
-        "Power the op-amp first: pin 8 to +9V, pin 4 to GND. An unpowered op-amp does nothing.",
-        "Follower: join OUT (pin 1) and IN− (pin 2) with a short jumper; IN+ (pin 3) goes to the divider midpoint VD.",
-        "S1 side a to VD, side b to OUT, the middle com to RL."
+        "Power the op-amp first: pin 8 to +9 V, pin 4 to GND. An unpowered op-amp does nothing.",
+        "Follower: join OUT (pin 1) and IN− (pin 2) with a short jumper; IN+ (pin 3) goes to the divider's midpoint VD.",
+        "S1's a side to VD, b side to OUT, middle com to RL."
       ],
       "tests": [
         "Switch on a (1 kΩ load directly): VD is dragged down by the load",
         "Switch on b (through the follower): the load gets the unloaded divider voltage; the divider current is unchanged"
+      ],
+      "cards": [
+        {
+          "title": "Let it sag once more",
+          "text": [
+            "Build the **divider** (`9 V` → **R1** `10 kΩ` → **VD** → **R2** `10 kΩ` → GND) and the **LM358 follower** from 2.5: power on pins 8 and 4, OUT joined to IN−, **IN+ on VD**.",
+            "Switch **S1** feeds the load **RL** `1 kΩ`: side **a** from VD directly, side **b** from the op-amp's OUT.",
+            "**S1 → a**: measure the voltage across RL. It sags, just like last time.",
+            "Now **flip S1 to b** and measure again. What happened to the voltage?"
+          ]
+        },
+        {
+          "title": "The follower is a go-between that isolates",
+          "text": [
+            "- **Input side**: IN+ takes no current, so the divider is unloaded again. VD goes back to its no-load value.",
+            "- **Output side**: the op-amp makes OUT = IN+. Whatever RL demands, it takes from the op-amp's own supply pin, not from the divider.",
+            "![](fig:buffer)",
+            "- Seen by the load, the source is now the op-amp's output. Its 10 Ω output resistance is shrunk by the feedback, about by the gain:",
+            "$$R_{out} ≈ \\frac{R_o}{A} = \\frac{10\\,Ω}{100\\,000} = 0.1\\text{ mΩ}$$",
+            "- From 5 kΩ down to a fraction of a milliohm: a 1 kΩ load can't pull that down. This is **impedance conversion** — a high-resistance input, a low-resistance output."
+          ]
+        },
+        {
+          "title": "On b: who does the work?",
+          "text": [
+            "- Measure the voltage across RL with **S1 on a**, then with **S1 on b**.",
+            "- With S1 on b, put the ammeter **in series with R1** (the divider's current), then **in series with RL** (the load's current).",
+            "- Once the circuit check passes, fill in the questions. Compare the two currents: who supplies RL?"
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- A **follower** (buffer) has gain 1. Its job is to isolate: high input resistance, low output resistance.",
+            "- The load's current comes from the op-amp's supply. The divider only sets the voltage.",
+            "- Pitfall: on a single 9 V supply the LM358 output tops out near **7.5 V**, and a real chip wants its inputs below that too. A divider set above 7.5 V will not be followed.",
+            "- Next: put resistors in the feedback path and the follower becomes an amplifier."
+          ]
+        }
       ]
     }
   },
@@ -66,28 +191,75 @@
         {"pin": "RL.1", "ref": "V1.-", "min": 4.4, "max": 4.6},
         {"pin": "R2.1", "ref": "V1.-", "min": 4.4, "max": 4.6}
       ],
-      "currents": [
-        {"el": "RL", "min": 0.0044, "max": 0.0046},
-        {"el": "R1", "min": 0.00044, "max": 0.00046}
-      ]
+      "currents": [{"el": "RL", "min": 0.0044, "max": 0.0046}, {"el": "R1", "min": 0.00044, "max": 0.00046}]
     }
   ],
-  "compare": "**对比**：\n- 拨到 a：和实验 1-3 一样，VD 跌到 ≈ **0.75 V**（10k ∥ 1k = 909Ω）；\n- 拨到 b：负载上 ≈ **4.50 V**，VD 也保持 4.50 V。RL 的 4.5 mA 由运放输出端提供（能量来自运放的 V+ 电源脚），分压器自己仍然只流 0.45 mA。\n\n**为什么**：负反馈让 OUT 一直追着 IN+，所以 OUT = VD。运放的输入几乎不取电流，所以分压器“感觉不到”负载；而运放的输出电阻很小（模型 10Ω，再经过负反馈变得更小），1kΩ 负载也拉不动它。跟随器的作用是**阻抗变换**：高输入电阻、低输出电阻。",
+  "compare": "**对比**：\n- 拨到 a：和上一个实验一样，VD 跌到约 **0.75 V**（10k ∥ 1k = 909 Ω）。\n- 拨到 b：负载上约 **4.50 V**，VD 也保持 4.50 V。RL 的 **4.5 mA** 由运放输出端提供（能量来自运放的 V+ 电源脚），分压器自己仍然只流 **0.45 mA**。",
   "measurements": [
-    {"id": "va", "voltage": "RL.1", "ref": "V1.-", "set": {"S1": {"position": "a"}}, "unit": "V", "predict": true, "range": [0.712, 0.787], "ask": "S1 拨到 a（分压器直接带 RL）：RL 两端电压", "explain": "RL 和 R2 并联：10k ∥ 1k = 909 Ω，VD = 9 × 0.909 / 10.909 ≈ 0.75 V。"},
-    {"id": "vb", "voltage": "RL.1", "ref": "V1.-", "set": {"S1": {"position": "b"}}, "unit": "V", "predict": true, "range": [4.27, 4.72], "ask": "S1 拨到 b（经跟随器）：RL 两端电压", "explain": "OUT = IN+ = VD，而 VD 不再被拉低：≈ 4.50 V。"},
-    {"id": "ir1", "current": "R1", "set": {"S1": {"position": "b"}}, "unit": "mA", "predict": true, "range": [0.000428, 0.000473], "ask": "S1 拨到 b：分压器 R1 里的电流（电流表串进 R1）", "explain": "运放输入不取电流，分压器仍是空载：9 V / 20 kΩ = 0.45 mA。"},
-    {"id": "irl", "current": "RL", "set": {"S1": {"position": "b"}}, "unit": "mA", "predict": true, "range": [0.00427, 0.00472], "ask": "S1 拨到 b：负载 RL 里的电流", "explain": "4.5 V / 1 kΩ = 4.5 mA，是分压器电流的 10 倍。"},
-    {"id": "src", "choices": ["运放的输出端（能量来自运放的 V+ 电源脚）", "分压器（经过运放的输入端）", "运放的 IN− 输入端"], "correct": 0, "ask": "比较你的两个电流读数：S1 拨到 b 时，RL 的电流从哪里来？", "explain": "负反馈让 OUT 一直追着 IN+；输入几乎不取电流，输出电阻很小。跟随器做的是阻抗变换：高输入电阻、低输出电阻。"}
+    {
+      "id": "va",
+      "voltage": "RL.1",
+      "ref": "V1.-",
+      "set": {"S1": {"position": "a"}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.712, 0.787],
+      "ask": "S1 拨到 a（分压器直接带 RL）：RL 两端的电压",
+      "explain": "RL 和 R2 并联：10k ∥ 1k = 909 Ω，VD = 9 × 0.909 / 10.909 ≈ 0.75 V。"
+    },
+    {
+      "id": "vb",
+      "voltage": "RL.1",
+      "ref": "V1.-",
+      "set": {"S1": {"position": "b"}},
+      "unit": "V",
+      "predict": true,
+      "range": [4.27, 4.72],
+      "ask": "S1 拨到 b（经跟随器）：RL 两端的电压",
+      "explain": "OUT = IN+ = VD，而 VD 不再被拉低：约 4.50 V。"
+    },
+    {
+      "id": "ir1",
+      "current": "R1",
+      "set": {"S1": {"position": "b"}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.000428, 0.000473],
+      "ask": "S1 拨到 b：分压器 R1 里的电流（电流表串进 R1）",
+      "explain": "运放输入不取电流，分压器仍是空载：9 V / 20 kΩ = 0.45 mA。"
+    },
+    {
+      "id": "irl",
+      "current": "RL",
+      "set": {"S1": {"position": "b"}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00427, 0.00472],
+      "ask": "S1 拨到 b：负载 RL 里的电流",
+      "explain": "4.5 V / 1 kΩ = 4.5 mA，是分压器电流的 10 倍。"
+    },
+    {
+      "id": "src",
+      "choices": ["运放的输出端（能量来自运放的 V+ 电源脚）", "分压器（经过运放的输入端）", "运放的 IN− 输入端"],
+      "correct": 0,
+      "ask": "比较你的两个电流读数：S1 拨到 b 时，RL 的电流从哪里来？",
+      "explain": "负反馈让 OUT 一直追着 IN+；输入几乎不取电流，输出电阻很小。跟随器做的是阻抗变换：高输入电阻、低输出电阻。"
+    }
   ],
   "hints": [
-    "先给运放供电：8 脚接 +9V，4 脚接 GND。没有电源的运放什么都不做。",
+    "先给运放供电：8 脚接 +9 V，4 脚接 GND。没有电源的运放什么都不做。",
     "跟随器：OUT（1 脚）和 IN−（2 脚）用一根短跳线连起来；IN+（3 脚）接分压器中点 VD。",
     "S1 的 a 侧接 VD，b 侧接 OUT，中间 com 接 RL。"
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
       {"type": "opamp", "ref": "U1", "at": "e10"},
       {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
       {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"},

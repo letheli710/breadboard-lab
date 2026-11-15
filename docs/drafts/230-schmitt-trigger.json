@@ -1,0 +1,339 @@
+{
+  "$schema": "../../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp-schmitt-trigger",
+  "title": "施密特触发器：会“记事”的比较器",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 2,
+  "summary": "这次故意把反馈接到 IN+。三角波慢慢升、慢慢降，输出却在两个不同的高度翻转——这就是回差。",
+  "concepts": ["Schmitt trigger 施密特触发器", "positive feedback 正反馈", "hysteresis 回差", "comparator 比较器", "threshold 门限"],
+  "prereq": ["lesson-lm358", "lesson-generator-scope"],
+  "description": "施密特触发器：运放的输出经 RF 接回同相输入 IN+（正反馈）。输出一动，IN+ 就被往同一个方向推，所以输出要么在顶、要么在底；IN+ 也随之在两个门限之间跳。输入要超过上门限才翻到低，要低于下门限才翻回高。两个门限之差叫回差，比回差小的噪声不会让输出乱跳。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "上去和下来，在同一个地方翻吗？",
+      "text": [
+        "**LM358** 接 `9 V`（8 脚接 +9 V，4 脚接 GND）。**RA** `10 kΩ` 从 +9 V 接到 **IN+**，**RB** `10 kΩ` 从 IN+ 接到 GND，**RF** `47 kΩ` 从 **OUT 接到 IN+**——这次故意接 + 输入。",
+        "信号发生器接 **IN−**：**三角波**、`100 Hz`、幅度 **`2 V`**、偏置 **`4.5 V`**。示波器 **CH1** 看输入，**CH2** 看 OUT。",
+        "看两条波形。输出在三角波的哪个高度掉下来？又在哪个高度跳回去？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "正反馈：一推到底",
+      "text": [
+        "- 2.5 里反馈接 IN−，让输出安静下来。接到 **IN+** 正好相反：输出一动，就把 IN+ 往同一个方向推得更远，输出一下子撞到电源轨。",
+        "- 所以 IN+ 有两个值。输出在高处时，RF 把 IN+ **往上**拉到上门限 $V_{TH}$；输出在低处时，把 IN+ **往下**拉到下门限 $V_{TL}$。",
+        "- 每个门限就是 IN+ 的结点电压（2.2 的结点电压法），OUT 当作又一个电源：",
+        "$$V_T = \\frac{V_{CC}/R_A + V_o/R_F}{1/R_A + 1/R_B + 1/R_F}$$",
+        "- 举例：RF = 100 kΩ、输出在 0 V 时，$V_T = \\frac{9/10}{0.1 + 0.1 + 0.01} = 4.29$ V。现在用 RF = 47 kΩ 算出两个门限：$V_o$ 取 0 V 和 7.5 V。",
+        "![](fig:node)",
+        "- 输入要爬过 $V_{TH}$，输出才翻到低；要降到 $V_{TL}$ 以下，才翻回高。就像恒温器：低于 19 °C 开始加热，高于 21 °C 才停。",
+        "![](fig:loop)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "把门限找出来",
+      "text": [
+        "- 在 CH2 上读 **OUT 的高电平**。",
+        "- **把 CH2 移到 IN+**（3 脚）。它也是方波：顶是 $V_{TH}$，底是 $V_{TL}$。",
+        "- 再把信号发生器的幅度调到 **`0.25 V`**：三角波只在两个门限之间晃。OUT 会怎样？",
+        "- 电路检查通过后填测量题。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **负反馈**（接 IN−）做放大器；**正反馈**（接 IN+）做一个有两种状态的开关。",
+        "- 施密特触发器有两个门限。两者之差叫**回差**，决定它能忽略多大的噪声。",
+        "- 真实用途：单片机读一个慢慢变化或者带噪声的信号之前（黄昏时的光敏电阻、按键），先用它整形。",
+        "- 坑：LM358 是慢运放，翻转一次要几十微秒。要快的边沿，用真正的比较器，比如 LM393——它的输出要接上拉电阻。"
+      ],
+      "practice": ["opamp"]
+    }
+  ],
+  "figures": {
+    "node": {
+      "kind": "schematic",
+      "caption": {
+        "text": "IN+ 这个结点连着三个电阻：RA 从 +9 V 来，RB 到 GND，RF 从输出来。输出的高低决定 IN+ 的电压。",
+        "i18n": {
+          "en": "Three resistors meet at IN+: RA from +9 V, RB to GND, RF from the output. The output's level sets the voltage of IN+."
+        }
+      },
+      "schematic": {
+        "elements": [
+          { "ref": "RA", "type": "R", "from": [2, 0], "to": [2, 3], "value": "10k" },
+          { "ref": "RB", "type": "R", "from": [2, 3], "to": [2, 6], "value": "10k" },
+          { "ref": "RF", "type": "R", "from": [5, 3], "to": [2, 3], "value": "47k" }
+        ],
+        "wires": [],
+        "terminals": [
+          { "at": [2, 0], "name": "+9V" },
+          { "at": [5, 3], "name": "V_o" }
+        ],
+        "labels": [{ "at": [2, 3], "name": "IN+" }],
+        "grounds": [[2, 6]]
+      }
+    },
+    "loop": {
+      "kind": "plot",
+      "caption": {
+        "text": "回差曲线（示意，不按比例）：输入上升时在 V_TH 翻到低，下降时在 V_TL 才翻回高。",
+        "i18n": {
+          "en": "The hysteresis loop (a sketch, not to scale): rising, the output flips low at V_TH; falling, it flips back high only at V_TL."
+        }
+      },
+      "x": { "label": { "text": "输入电压", "i18n": { "en": "input voltage" } }, "min": 2, "max": 7, "ticks": [] },
+      "y": { "label": { "text": "输出电压", "i18n": { "en": "output voltage" } }, "min": 0, "max": 9, "ticks": [] },
+      "curves": [
+        {
+          "points": [
+            [2, 7.5],
+            [5, 7.5],
+            [5, 0.3],
+            [7, 0.3]
+          ],
+          "tone": 1,
+          "label": { "text": "上升", "i18n": { "en": "rising" } },
+          "labelAt": [3, 8.3]
+        },
+        {
+          "points": [
+            [7, 0.3],
+            [4, 0.3],
+            [4, 7.5]
+          ],
+          "tone": 2,
+          "dashed": true,
+          "label": { "text": "下降", "i18n": { "en": "falling" } },
+          "labelAt": [6, 1.3]
+        }
+      ],
+      "vlines": [
+        { "x": 4, "label": { "text": "V_TL", "i18n": { "en": "V_TL" } } },
+        { "x": 5, "label": { "text": "V_TH", "i18n": { "en": "V_TH" } } }
+      ]
+    }
+  },
+  "components": [
+    { "ref": "V1", "type": "dc_source", "voltage": 9 },
+    { "ref": "U1", "type": "opamp" },
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "RA", "type": "resistor", "resistance": "10k" },
+    { "ref": "RB", "type": "resistor", "resistance": "10k" },
+    { "ref": "RF", "type": "resistor", "resistance": "47k" }
+  ],
+  "nets": [
+    { "name": "VCC", "pins": ["V1.+", "U1.v+", "RA.1"] },
+    { "name": "GND", "pins": ["V1.-", "U1.v-", "RB.2", "FG1.-"] },
+    { "name": "VIN", "pins": ["FG1.+", "U1.in-"] },
+    { "name": "REF", "pins": ["RA.2", "RB.1", "RF.2", "U1.in+"] },
+    { "name": "VOUT", "pins": ["U1.out", "RF.1"] }
+  ],
+  "tests": [
+    {
+      "name": "三角波 4 Vpp：输出在两个电平之间翻转，IN+ 跳到两个门限",
+      "set": {
+        "FG1": { "waveform": "triangle", "frequency": 100, "amplitude": 2, "offset": 4.5 }
+      },
+      "scope": [
+        { "pin": "U1.out", "ref": "V1.-", "measure": "vmax", "min": 7.3, "max": 7.6 },
+        { "pin": "U1.out", "ref": "V1.-", "measure": "vmin", "max": 0.1 },
+        { "pin": "U1.out", "ref": "V1.-", "measure": "freq", "min": 97, "max": 103 },
+        { "pin": "U1.in+", "ref": "V1.-", "measure": "vmax", "min": 4.6, "max": 4.95 },
+        { "pin": "U1.in+", "ref": "V1.-", "measure": "vmin", "min": 3.9, "max": 4.25 }
+      ]
+    },
+    {
+      "name": "三角波 0.5 Vpp：在两个门限之间晃，输出不动",
+      "set": {
+        "FG1": { "waveform": "triangle", "frequency": 100, "amplitude": 0.25, "offset": 4.5 }
+      },
+      "scope": [{ "pin": "U1.out", "ref": "V1.-", "measure": "vpp", "max": 0.1 }]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "vhi",
+      "scope": "vmax",
+      "pin": "U1.out",
+      "ref": "V1.-",
+      "set": {
+        "FG1": { "waveform": "triangle", "frequency": 100, "amplitude": 2, "offset": 4.5 }
+      },
+      "unit": "V",
+      "stated": true,
+      "range": [7.2, 7.8],
+      "ask": "CH2 在 OUT：输出的高电平",
+      "explain": "单电源 LM358 的输出上限：V+ − 1.5 V ≈ 7.5 V。"
+    },
+    {
+      "id": "vth",
+      "scope": "vmax",
+      "pin": "U1.in+",
+      "ref": "V1.-",
+      "set": {
+        "FG1": { "waveform": "triangle", "frequency": 100, "amplitude": 2, "offset": 4.5 }
+      },
+      "unit": "V",
+      "predict": true,
+      "range": [4.6, 4.95],
+      "ask": "CH2 移到 IN+：它的最高值，也就是上门限 V_TH",
+      "explain": "输出在 7.5 V：V_TH = (0.9 + 7.5/47) / (0.1 + 0.1 + 0.0213) ≈ 4.79 V。"
+    },
+    {
+      "id": "vtl",
+      "scope": "vmin",
+      "pin": "U1.in+",
+      "ref": "V1.-",
+      "set": {
+        "FG1": { "waveform": "triangle", "frequency": 100, "amplitude": 2, "offset": 4.5 }
+      },
+      "unit": "V",
+      "predict": true,
+      "range": [3.9, 4.25],
+      "ask": "同一状态：IN+ 的最低值，也就是下门限 V_TL",
+      "explain": "输出在 0 V：V_TL = 0.9 / 0.2213 ≈ 4.07 V。"
+    },
+    {
+      "id": "hyst",
+      "formula": "vth - vtl",
+      "unit": "V",
+      "predict": true,
+      "range": [0.6, 0.85],
+      "ask": "用你的两个读数算回差 V_TH − V_TL",
+      "explain": "≈ 4.79 − 4.07 = 0.72 V。也等于输出摆幅 7.5 V 乘以 RF 在 IN+ 结点上分到的份额：7.5 × 0.0213 / 0.2213 ≈ 0.72 V。"
+    },
+    {
+      "id": "small",
+      "scope": "vpp",
+      "pin": "U1.out",
+      "ref": "V1.-",
+      "set": {
+        "FG1": { "waveform": "triangle", "frequency": 100, "amplitude": 0.25, "offset": 4.5 }
+      },
+      "unit": "V",
+      "tolAbs": 0.05,
+      "range": [-0.01, 0.1],
+      "ask": "幅度调到 0.25 V：OUT 的峰峰值",
+      "explain": "三角波只在 4.25 V 和 4.75 V 之间晃，碰不到任何一个门限：输出停在原来的电平，峰峰值约为 0。"
+    }
+  ],
+  "hints": [
+    "RF 接在 OUT 和 IN+ 之间（3 脚），不是 IN−：这次要的就是正反馈。",
+    "RA、RB 在 IN+ 上组成分压器：一个接 +9 V，一个接 GND。",
+    "信号发生器的红夹子接 IN−（2 脚），黑夹子接 GND；三角波要加 4.5 V 偏置，否则一半时间低于 0 V。"
+  ],
+  "solution": {
+    "parts": [
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": { "+": "tp1", "-": "tn1" }
+      },
+      { "type": "opamp", "ref": "U1", "at": "e10" },
+      { "type": "wire", "pins": { "a": "tp10", "b": "j10" }, "color": "red" },
+      { "type": "wire", "pins": { "a": "a13", "b": "tn13" }, "color": "blue" },
+      { "type": "resistor", "ref": "RA", "resistance": "10k", "pins": { "1": "tp12", "2": "a12" } },
+      { "type": "resistor", "ref": "RB", "resistance": "10k", "pins": { "1": "b12", "2": "tn15" } },
+      { "type": "resistor", "ref": "RF", "resistance": "47k", "pins": { "1": "c10", "2": "c12" } },
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "triangle",
+        "frequency": 100,
+        "amplitude": 2,
+        "offset": 4.5,
+        "pins": { "+": "a20", "-": "tn20" }
+      },
+      { "type": "wire", "pins": { "a": "b20", "b": "b11" }, "color": "yellow" },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "c20", "gnd": "tn22" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "a10", "gnd": "tn23" } }
+    ]
+  },
+  "i18n": {
+    "en": {
+      "tests": ["4 Vpp triangle: the output flips between two levels, IN+ jumps between two thresholds", "0.5 Vpp triangle: wobbling between the thresholds, the output stays put"],
+      "title": "The Schmitt trigger: a comparator with a memory",
+      "summary": "This time the feedback goes to IN+ on purpose. A triangle rises and falls slowly, yet the output flips at two different heights — that is hysteresis.",
+      "description": "Schmitt trigger: the op-amp's output feeds back through RF to the non-inverting input IN+ (positive feedback). Once the output moves, IN+ is pushed the same way, so the output sits at the top or the bottom, and IN+ jumps between two thresholds with it. The input must rise above the upper threshold to flip the output low and fall below the lower one to flip it back. The gap is the hysteresis; noise smaller than it cannot make the output chatter.",
+      "cards": [
+        {
+          "title": "Does it flip at the same place going up and coming down?",
+          "text": [
+            "Power the **LM358** from `9 V` (pin 8 to +9 V, pin 4 to GND). **RA** `10 kΩ` from +9 V to **IN+**, **RB** `10 kΩ` from IN+ to GND, and **RF** `47 kΩ` from **OUT to IN+** — the + input, on purpose.",
+            "Signal generator to **IN−**: **triangle**, `100 Hz`, amplitude **`2 V`**, offset **`4.5 V`**. Scope **CH1** on the input, **CH2** on OUT.",
+            "Watch the two traces. Where on the triangle does the output drop — and where does it jump back up?"
+          ]
+        },
+        {
+          "title": "Positive feedback: all or nothing",
+          "text": [
+            "- In 2.5 the feedback went to IN− and calmed the output down. Fed to **IN+**, it does the opposite: once the output starts to move, it pushes IN+ further the same way, and the output snaps to a rail.",
+            "- So IN+ has two values. With the output high, RF pulls IN+ **up** to the upper threshold $V_{TH}$; with the output low, it pulls IN+ **down** to $V_{TL}$.",
+            "- Each threshold is the node voltage of IN+ (2.2's nodal analysis), with OUT as one more source:",
+            "$$V_T = \\frac{V_{CC}/R_A + V_o/R_F}{1/R_A + 1/R_B + 1/R_F}$$",
+            "- Example with RF = 100 kΩ and the output at 0 V: $V_T = \\frac{9/10}{0.1 + 0.1 + 0.01} = 4.29$ V. Now work out both thresholds for RF = 47 kΩ, with $V_o$ = 0 V and 7.5 V.",
+            "![](fig:node)",
+            "- The input has to climb past $V_{TH}$ to flip the output low, and fall below $V_{TL}$ to flip it back. Like a thermostat that heats below 19 °C and stops above 21 °C.",
+            "![](fig:loop)"
+          ]
+        },
+        {
+          "title": "Find the two thresholds",
+          "text": [
+            "- Read the **top level of OUT** on CH2.",
+            "- **Move CH2 to IN+** (pin 3). It is a square wave too: its top is $V_{TH}$, its bottom $V_{TL}$.",
+            "- Now set the generator's amplitude to **`0.25 V`**: the triangle wobbles between the two thresholds. What does OUT do?",
+            "- Once the circuit check passes, fill in the questions."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Negative feedback** (to IN−) makes an amplifier; **positive feedback** (to IN+) makes a switch with two states.",
+            "- A Schmitt trigger has two thresholds. The gap, the **hysteresis**, sets how much noise it ignores.",
+            "- Real use: cleaning a slow or noisy signal (a light sensor at dusk, a button) before a microcontroller reads it.",
+            "- Pitfall: the LM358 is a slow op-amp; its edges take tens of microseconds. For fast edges use a real comparator such as the LM393, which needs a pull-up resistor on its output."
+          ]
+        }
+      ],
+      "hints": [
+        "RF goes between OUT and IN+ (pin 3), not IN−: positive feedback is the point this time.",
+        "RA and RB make a divider at IN+: one to +9 V, one to GND.",
+        "The generator's red clip goes to IN− (pin 2), the black one to GND; give the triangle a 4.5 V offset, or it spends half its time below 0 V."
+      ],
+      "measurements": [
+        {
+          "ask": "CH2 on OUT: the output's high level",
+          "explain": "The single-supply LM358's ceiling: V+ − 1.5 V ≈ 7.5 V."
+        },
+        {
+          "ask": "CH2 moved to IN+: its top value, the upper threshold V_TH",
+          "explain": "With the output at 7.5 V: V_TH = (0.9 + 7.5/47) / (0.1 + 0.1 + 0.0213) ≈ 4.79 V."
+        },
+        {
+          "ask": "Same setting: the bottom of IN+, the lower threshold V_TL",
+          "explain": "With the output at 0 V: V_TL = 0.9 / 0.2213 ≈ 4.07 V."
+        },
+        {
+          "ask": "From your two readings, the hysteresis V_TH − V_TL",
+          "explain": "≈ 4.79 − 4.07 = 0.72 V. It also equals the 7.5 V output swing times RF's share at the IN+ node: 7.5 × 0.0213 / 0.2213 ≈ 0.72 V."
+        },
+        {
+          "ask": "Amplitude at 0.25 V: OUT's peak-to-peak value",
+          "explain": "The triangle wobbles between 4.25 V and 4.75 V and reaches neither threshold: the output stays where it was, about 0 V peak to peak."
+        }
+      ],
+      "compare": "**Compare** (by hand; the simulator cannot solve this circuit yet, see docs/REBUILD_PLAN.md §6):\n- Output high ≈ **7.5 V**, low ≈ 0 V, at the input's frequency (100 Hz).\n- V_TH = (0.9 + 7.5/47) / 0.2213 ≈ **4.79 V**, V_TL = 0.9 / 0.2213 ≈ **4.07 V**, hysteresis ≈ **0.72 V**.\n- At 0.25 V amplitude the triangle never reaches a threshold, so the output does not flip."
+    }
+  },
+  "compare": "**对比**（手算，模拟器暂时算不出这个电路，见 docs/REBUILD_PLAN.md §6）：\n- 输出高电平 ≈ **7.5 V**，低电平 ≈ 0 V，频率和输入一样（100 Hz）。\n- V_TH = (0.9 + 7.5/47) / 0.2213 ≈ **4.79 V**，V_TL = 0.9 / 0.2213 ≈ **4.07 V**，回差 ≈ **0.72 V**。\n- 幅度 0.25 V 时，三角波碰不到门限，输出不翻转。"
+}

@@ -45,7 +45,7 @@ const UNIT: Record<string, () => string> = {
   '1.11': () => tr('混联、电桥与排错', 'Series-parallel, bridges and fault-finding'),
   '2.1': () => tr('电流源与分流', 'Current sources and current division'),
   '2.2': () => tr('结点电压法', 'Nodal analysis'),
-  '2.3': () => tr('电源变换与叠加', 'Source transformation and superposition'),
+  '2.3': () => tr('叠加与电源变换', 'Superposition and source transformation'),
   '2.4': () => tr('戴维宁等效与最大功率', 'Thevenin and maximum power'),
   '2.5': () => tr('LM358：拯救被负载压垮的分压器', 'LM358: rescuing a loaded divider'),
   '2.6': () => tr('同相放大器', 'The non-inverting amplifier'),
