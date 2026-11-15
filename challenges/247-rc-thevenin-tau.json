@@ -2,158 +2,352 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp3-rc-thevenin-tau",
-  "title": "实验 3-7 · 三要素法 + 戴维宁：电容旁边并一个电阻",
   "kind": "challenge",
   "level": 3,
   "phase": 3,
-  "summary": "在 RC 电路的电容两端再并一个 10 kΩ：终值和时间常数都变了。用三要素法和戴维宁电阻预测，再用示波器读数反算 τ。",
-  "concepts": ["三要素法 three-element method", "戴维宁等效电阻 Thévenin resistance", "τ = R_eq·C", "由 VH/VL 求 τ measuring τ from the swing"],
-  "prereq": ["lesson-generator-scope"],
-  "description": [
-    "**目标**：电容不是直接串一个电阻接电源时，用三要素法和戴维宁等效电阻求时间常数，并学会从示波器读数反算 τ。",
-    "",
-    "**电路**：信号发生器红夹子 → R1（10 kΩ）→ 结点 VC；VC 到 GND 之间并联 C1（100 nF）和 R2（10 kΩ）。黑夹子接 GND。",
-    "",
-    "**信号发生器**：方波，幅度 2.5 V、偏置 2.5 V（0 ↔ 5 V）。**示波器**：CH1 看 VIN，CH2 看 VC。",
-    "",
-    "**先预测**：用三要素法 v_C(t) = v(∞) + [v(0+) − v(∞)]·e^(−t/τ)，自己求出三个要素，再估计 100 Hz 和 1 kHz 时 VC 的波形：",
-    "- **终值 v(∞)**：电容开路，R1 和 R2 分压。别忘了 R1 要加上信号发生器的 50 Ω。",
-    "- **时间常数 τ = R_eq·C**：R_eq 是从电容两端看进去的戴维宁电阻（电压源置零）。",
-    "- **初值 v(0+)**：电容电压不能突变，等于上一个半周期结束时的值。",
-    "放电半周期也一样：方波为 0 V 时 v(∞) = 0，从电容看进去的电阻不变，τ 也不变。",
-    "",
-    "**测量**：先用 100 Hz 看 VC 的最高值；再换 1 kHz，读出 VC 的最高值 VH 和最低值 VL。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**动手**：在板上测出 VH、VL，自己算一次 τ；然后把 R2 拔掉，猜一猜 VH、VL 会变成多少（提示：回到实验 3-1 的情况，τ 变成 ≈ 1 ms，终值 5 V）。",
-    "",
-    "**真实电路里**：常见瓷片电容的容值误差是 ±10%～±20%，所以实际测出的 τ 和用标称值算出的差一两成很正常；用读数反算 τ 正好可以把电容的实际值测出来。"
+  "title": "电容旁边并一个电阻：戴维宁求 τ",
+  "summary": "在 RC 电路的电容两端再并一个 10 kΩ：终值和时间常数都变了。用戴维宁等效电阻预测，再用示波器读数反算 τ。",
+  "prereq": ["lesson-scope-two-channels"],
+  "concepts": ["Thevenin resistance 戴维宁等效电阻", "τ = R_eq·C", "three-element method 三要素法", "τ from VH / VL 由读数反算 τ"],
+  "description": "信号发生器（方波 0 ↔ 5 V）→ R1（10 kΩ）→ 结点 VC；VC 到 GND 之间并联 C1（100 nF）和 R2（10 kΩ）。CH1 看输入，CH2 看 VC。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "给电容并一个电阻",
+      "text": [
+        "- 板上已经是上一个 RC 电路。在电容两端再并一个 **R2 `10 kΩ`**：**`d10`** → GND 轨。",
+        "- 信号发生器还是 0 ↔ 5 V 方波。先用 **`100 Hz`** 看 CH2 的最高点，再换 **`1 kHz`**。",
+        "和没有 R2 时比：电容最后充到哪里？曲线是变快了还是变慢了？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "从电容往外看：戴维宁",
+      "text": [
+        "- 电容只“看见”它两端外面的电路。把外面化成**戴维宁等效**（2.4）：一个电压源串一个电阻。",
+        "- **终点**：电容充满后不再取电流，R1 和 R2 分压，所以不再是 5 V。",
+        "- **快慢**：把电源置零，从电容两端看进去，R1 和 R2 是**并联**的：",
+        "$$τ = R_{eq} C = (10.05 kΩ ∥ 10 kΩ) × 100 nF$$",
+        "![](fig:req)",
+        "- 每个半周期仍是一条指数曲线：从上一个半周期结束的位置出发，朝新的终点走，速度由 τ 决定。",
+        "![](fig:swing)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "用两个读数反算 τ",
+      "text": [
+        "- **`100 Hz`** 时读 VC 的最高值：每半个周期都走到了终点，这就是终值。",
+        "- **`1 kHz`** 时读 VC 的最高值 VH 和最低值 VL。",
+        "- 放电的半个周期里，VC 从 VH 按指数往 0 走，走了 T/2 正好到 VL：VL = VH·e^(−T/2τ)。所以 τ = (T/2) / ln(VH / VL)。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **三要素**：v(t) = v(∞) + [v(0+) − v(∞)]·e^(−t/τ)。一阶电路的响应都长这样：起点、终点、τ。",
+        "- **τ = R_eq·C**：R_eq 是电源置零后，从电容两端看进去的电阻。",
+        "- 用 VH、VL 反算 τ 不需要知道终值，任何频率都能用。",
+        "- **真实电路里**：电容误差大（±10%～±20%）。用读数反算 τ，再除以 R_eq，就测出了电容的实际值。"
+      ],
+      "practice": ["first-order"]
+    }
   ],
+  "figures": {
+    "req": {
+      "kind": "schematic",
+      "caption": {
+        "text": "电源置零（信号发生器那端接地）：从电容两端看进去，R1 和 R2 并联，就是 R_eq。",
+        "i18n": {
+          "en": "Source set to zero (the generator end goes to ground): seen from the capacitor's ends, R1 and R2 are in parallel — that is R_eq."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": "10k"},
+          {"ref": "R2", "type": "R", "from": [3, 0], "to": [3, 4], "value": "10k"},
+          {"ref": "C1", "type": "C", "from": [6, 0], "to": [6, 4], "value": "100n"}
+        ],
+        "wires": [[[0, 0], [0, 4], [6, 4]], [[3, 0], [4, 0]], [[5, 0], [6, 0]]],
+        "terminals": [{"at": [4, 0], "name": "a"}, {"at": [5, 0], "name": "b"}],
+        "grounds": [[0, 4]],
+        "notes": [{"at": [4.5, 2], "text": "R_eq"}]
+      }
+    },
+    "swing": {
+      "kind": "plot",
+      "caption": {
+        "text": "1 kHz 时的 VC：每个半周期都是一段指数曲线，在 VH 和 VL 之间来回。放电那一段从 VH 走 T/2 到 VL。",
+        "i18n": {
+          "en": "VC at 1 kHz: every half period is a piece of exponential, swinging between VH and VL. The falling piece goes from VH to VL in T/2."
+        }
+      },
+      "x": {
+        "label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}},
+        "min": 0,
+        "max": 2,
+        "ticks": [0, 0.5, 1, 1.5, 2]
+      },
+      "y": {"label": {"text": "电压 (V)", "i18n": {"en": "voltage (V)"}}, "min": 0, "max": 3, "ticks": [0, 1, 2, 3]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 1.39],
+            [0.05, 1.49],
+            [0.1, 1.59],
+            [0.15, 1.67],
+            [0.2, 1.75],
+            [0.25, 1.82],
+            [0.3, 1.65],
+            [0.35, 1.49],
+            [0.4, 1.35],
+            [0.45, 1.22],
+            [0.5, 1.11],
+            [0.55, 1.0],
+            [0.6, 0.906],
+            [0.65, 0.82],
+            [0.7, 0.742],
+            [0.75, 0.672],
+            [0.8, 0.845],
+            [0.85, 1.0],
+            [0.9, 1.14],
+            [0.95, 1.27],
+            [1.0, 1.39],
+            [1.05, 1.49],
+            [1.1, 1.59],
+            [1.15, 1.67],
+            [1.2, 1.75],
+            [1.25, 1.82],
+            [1.3, 1.65],
+            [1.35, 1.49],
+            [1.4, 1.35],
+            [1.45, 1.22],
+            [1.5, 1.11],
+            [1.55, 1.0],
+            [1.6, 0.906],
+            [1.65, 0.82],
+            [1.7, 0.742],
+            [1.75, 0.672],
+            [1.8, 0.845],
+            [1.85, 1.0],
+            [1.9, 1.14],
+            [1.95, 1.27],
+            [2.0, 1.39]
+          ],
+          "tone": 1,
+          "label": "VC",
+          "labelAt": [0.2, 2.3]
+        }
+      ],
+      "hlines": [{"y": 1.82, "dashed": true, "label": "VH"}, {"y": 0.672, "dashed": true, "label": "VL"}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 3-7 · Three-element method + Thévenin: a resistor across the capacitor",
-      "summary": "Put a 10 kΩ across the capacitor of an RC circuit: both the final value and the time constant change. Predict them with the three-element method and the Thévenin resistance, then work τ out from scope readings.",
-      "concepts": ["three-element method", "Thévenin resistance", "τ = R_eq·C", "measuring τ from the swing VH/VL"],
-      "description": [
-        "**Goal**: when the capacitor is not simply in series with one resistor, find the time constant with the three-element method and the Thévenin resistance, and learn to work τ out from scope readings.",
-        "",
-        "**Circuit**: generator red clip → R1 (10 kΩ) → node VC; between VC and GND, C1 (100 nF) and R2 (10 kΩ) in parallel. Black clip to GND.",
-        "",
-        "**Generator**: square wave, amplitude 2.5 V, offset 2.5 V (0 ↔ 5 V). **Scope**: CH1 on VIN, CH2 on VC.",
-        "",
-        "**Predict first**: with the three-element method v_C(t) = v(∞) + [v(0+) − v(∞)]·e^(−t/τ), find each element yourself, then sketch VC at 100 Hz and at 1 kHz:",
-        "- **Final value v(∞)**: capacitor open, R1 and R2 form a divider. Don't forget to add the generator's 50 Ω to R1.",
-        "- **Time constant τ = R_eq·C**: R_eq is the Thévenin resistance seen from the capacitor's terminals (sources set to zero).",
-        "- **Initial value v(0+)**: the capacitor voltage cannot jump, so it is the value at the end of the previous half period.",
-        "The discharging half period works the same way: with the square wave at 0 V, v(∞) = 0 and the capacitor sees the same resistance, so τ is unchanged.",
-        "",
-        "**Measure**: at 100 Hz read the highest value of VC; then at 1 kHz read its highest value VH and lowest value VL. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Try it**: read VH and VL on your board and compute τ yourself; then pull R2 out and predict the new VH and VL (hint: you're back to Experiment 3-1, τ ≈ 1 ms, final value 5 V).",
-        "",
-        "**In a real circuit**: common ceramic capacitors have a ±10% to ±20% tolerance, so a measured τ 10–20% away from the nominal value is normal; working τ out from the readings is exactly how you measure the capacitor's real value."
-      ],
-      "compare": [
-        "**Compare**:",
-        "- v(∞) = 5 V × 10 k / (10.05 k + 10 k) ≈ 2.49 V — not 5 V! R_eq = (10.05 k) ∥ (10 k) ≈ 5.01 kΩ, so τ ≈ 5.01 kΩ × 100 nF ≈ 0.50 ms — half of the plain series RC.",
-        "- **100 Hz (half period 5 ms ≈ 10τ)**: the final value is reached every time; VC swings between 0 and ≈ 2.49 V.",
-        "- **1 kHz (half period 0.5 ms ≈ τ)**: VC swings between VL ≈ 0.67 V and VH ≈ 1.82 V, centred on v(∞)/2 ≈ 1.25 V.",
-        "",
-        "**Working τ out from the readings**: discharging from VH towards 0, the voltage reaches exactly VL after T/2, so VL = VH·e^(−T/(2τ)), i.e. τ = (T/2) / ln(VH/VL) = 0.5 ms / ln(1.82/0.67) ≈ 0.50 ms. You don't need the final value or a start from 0, and it works at any frequency (at 2 kHz, VH ≈ 1.55 V and VL ≈ 0.94 V still give ≈ 0.50 ms)."
-      ],
-      "measurements": [
-        {"ask": "100 Hz: the highest value of CH2 (VC), i.e. the final value v(∞)", "explain": "Capacitor open, (R1 + 50 Ω) and R2 divide: 5 × 10 / 20.05 ≈ 2.49 V, not 5 V."},
-        {"ask": "1 kHz: the highest value of VC, VH"},
-        {"ask": "1 kHz: the lowest value of VC, VL", "explain": "A 0.5 ms half period ≈ τ, so VC swings between VL and VH, centred on v(∞)/2 ≈ 1.25 V."},
-        {"ask": "Discharging from VH, VC reaches VL exactly T/2 later: from your readings, τ = (T/2) / ln(VH/VL)", "explain": "R_eq = (10.05 k) ∥ (10 k) ≈ 5.01 kΩ, τ = R_eq·C ≈ 0.50 ms, half the plain series RC value. The method needs no final value and works at any frequency."},
-        {"ask": "With C = 100 nF, the resistance the capacitor sees, R_eq = τ / C", "explain": "≈ 5.0 kΩ = (R1 + 50 Ω) ∥ R2: with the source zeroed, R1 and R2 are in parallel as seen from the capacitor."}
-      ],
+      "title": "A resistor across the capacitor: τ from Thevenin",
+      "summary": "Put another 10 kΩ across the capacitor of an RC circuit: both the final value and the time constant change. Predict them with the Thevenin resistance, then work τ back from scope readings.",
+      "concepts": ["Thevenin resistance", "τ = R_eq·C", "initial value, final value, time constant", "τ from VH / VL"],
+      "description": "Generator (square 0 ↔ 5 V) → R1 (10 kΩ) → node VC; between VC and GND, C1 (100 nF) in parallel with R2 (10 kΩ). CH1 on the input, CH2 on VC.",
+      "compare": "**Compare**:\n- v(∞) = 5 V × 10 k / (10.05 k + 10 k) ≈ **2.49 V** — not 5 V! R_eq = 10.05 k ∥ 10 k ≈ 5.01 kΩ, τ ≈ **0.50 ms**, half of the plain series RC.\n- **100 Hz** (half a period 5 ms ≈ 10τ): it reaches the end every time; VC between 0 and about 2.49 V.\n- **1 kHz** (half a period 0.5 ms ≈ τ): VC between VL ≈ **0.67 V** and VH ≈ **1.82 V**; τ = 0.5 ms / ln(1.82 / 0.67) ≈ 0.50 ms.\n- At 2 kHz VH ≈ 1.55 V and VL ≈ 0.94 V; the result is still about 0.50 ms.",
       "hints": [
-        "C1 and R2 both go from VC to GND, side by side.",
-        "Final value: a divider of (R1 + 50 Ω) and R2. τ: (R1 + 50 Ω) ∥ R2, times C.",
-        "τ = (T/2) / ln(VH/VL)."
+        "R2 is in parallel with C1: both have their legs in VC (column 10) and on the GND rail.",
+        "Final value: with the capacitor open, R1 (plus 50 Ω) and R2 form a divider.",
+        "τ = R_eq·C with R_eq = (R1 + 50 Ω) ∥ R2; worked back, τ = (T/2) / ln(VH / VL)."
       ],
       "tests": [
-        "100 Hz: the final value is reached every half period; discharges to ≈ 0",
+        "100 Hz: every half period reaches its final value, discharging to ≈ 0",
         "1 kHz: sensible VH and VL (τ set by R1 ∥ R2)",
-        "2 kHz: a smaller swing, the same average"
+        "2 kHz: smaller swing, same average"
+      ],
+      "measurements": [
+        {
+          "ask": "100 Hz: CH2 (VC) maximum, i.e. the final value v(∞)",
+          "explain": "With the capacitor open, (R1 + 50 Ω) and R2 divide: 5 × 10 / 20.05 ≈ 2.49 V, not 5 V."
+        },
+        {"ask": "1 kHz: VC's maximum VH"},
+        {
+          "ask": "1 kHz: VC's minimum VL",
+          "explain": "Half a period, 0.5 ms, ≈ τ: VC swings between VL and VH around v(∞) / 2 ≈ 1.25 V."
+        },
+        {
+          "ask": "From your readings, τ = (T/2) / ln(VH / VL) (T/2 = 0.5 ms)",
+          "explain": "R_eq = 10.05 kΩ ∥ 10 kΩ ≈ 5.01 kΩ, τ = R_eq·C ≈ 0.50 ms: half of the plain series RC."
+        },
+        {
+          "ask": "Then with C = 100 nF, the resistance seen from the capacitor: R_eq = τ / C",
+          "explain": "≈ 5.0 kΩ = (R1 + 50 Ω) ∥ R2: with the source zeroed, R1 and R2 are in parallel as the capacitor sees them."
+        }
+      ],
+      "cards": [
+        {
+          "title": "Put a resistor across the capacitor",
+          "text": [
+            "- The last RC circuit is already on the board. Add **R2 `10 kΩ`** across the capacitor: **`d10`** → the GND rail.",
+            "- The generator is still a 0 ↔ 5 V square wave. Look at CH2's top at **`100 Hz`**, then switch to **`1 kHz`**.",
+            "Compared with no R2: where does the capacitor end up? Is the curve faster or slower?"
+          ]
+        },
+        {
+          "title": "Looking out from the capacitor: Thevenin",
+          "text": [
+            "- The capacitor only \"sees\" the circuit outside its two ends. Reduce that outside to its **Thevenin equivalent** (2.4): a source in series with a resistor.",
+            "- **The end point**: once full the capacitor draws no current, R1 and R2 divide the voltage, so it is no longer 5 V.",
+            "- **The pace**: set the source to zero and look in from the capacitor's ends: R1 and R2 are **in parallel**:",
+            "$$τ = R_{eq} C = (10.05 kΩ ∥ 10 kΩ) × 100 nF$$",
+            "![](fig:req)",
+            "- Every half period is still one exponential: it starts where the last half ended and heads for the new end point, at a pace set by τ.",
+            "![](fig:swing)"
+          ]
+        },
+        {
+          "title": "Work τ back from two readings",
+          "text": [
+            "- At **`100 Hz`** read VC's maximum: every half period reaches the end point, so this is the final value.",
+            "- At **`1 kHz`** read VC's maximum VH and minimum VL.",
+            "- In the discharging half, VC heads from VH towards 0 along an exponential and after T/2 it is exactly at VL: VL = VH·e^(−T/2τ). So τ = (T/2) / ln(VH / VL)."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Three numbers**: v(t) = v(∞) + [v(0+) − v(∞)]·e^(−t/τ). Every first-order response looks like this: start, end, τ.",
+            "- **τ = R_eq·C**: R_eq is the resistance seen from the capacitor's ends with the source set to zero.",
+            "- Working τ back from VH and VL needs no final value and works at any frequency.",
+            "- **In a real circuit**: capacitors are loose (±10–20 %). Work τ back from readings, divide by R_eq, and you have measured the capacitor's real value."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "R1", "type": "resistor", "resistance": "10k" },
-    { "ref": "C1", "type": "capacitor", "capacitance": "100n" },
-    { "ref": "R2", "type": "resistor", "resistance": "10k" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "R1", "type": "resistor", "resistance": "10k"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "100n"},
+    {"ref": "R2", "type": "resistor", "resistance": "10k"}
   ],
   "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
-    { "name": "VC", "pins": ["R1.2", "C1.1", "R2.1"] },
-    { "name": "GND", "pins": ["C1.2", "R2.2", "FG1.-"] }
+    {"name": "VIN", "pins": ["FG1.+", "R1.1"]},
+    {"name": "VC", "pins": ["R1.2", "C1.1", "R2.1"]},
+    {"name": "GND", "pins": ["C1.2", "R2.2", "FG1.-"]}
   ],
   "tests": [
     {
       "name": "100 Hz：每半周期都走到终值，放电到 ≈ 0",
-      "set": { "FG1": { "waveform": "square", "frequency": 100, "amplitude": 2.5, "offset": 2.5 } },
+      "set": {"FG1": {"waveform": "square", "frequency": 100, "amplitude": 2.5, "offset": 2.5}},
       "scope": [
-        { "pin": "C1.1", "measure": "vmax", "min": 2.44, "max": 2.54 },
-        { "pin": "C1.1", "measure": "vmin", "min": -0.01, "max": 0.03 }
+        {"pin": "C1.1", "measure": "vmax", "min": 2.44, "max": 2.54},
+        {"pin": "C1.1", "measure": "vmin", "min": -0.01, "max": 0.03}
       ]
     },
     {
       "name": "1 kHz：VH、VL 合理（τ 由 R1 ∥ R2 决定）",
-      "set": { "FG1": { "waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5 } },
+      "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5}},
       "scope": [
-        { "pin": "C1.1", "measure": "vmax", "min": 1.77, "max": 1.87 },
-        { "pin": "C1.1", "measure": "vmin", "min": 0.62, "max": 0.72 }
+        {"pin": "C1.1", "measure": "vmax", "min": 1.77, "max": 1.87},
+        {"pin": "C1.1", "measure": "vmin", "min": 0.62, "max": 0.72}
       ]
     },
     {
       "name": "2 kHz：摆幅变小，平均值不变",
-      "set": { "FG1": { "waveform": "square", "frequency": 2000, "amplitude": 2.5, "offset": 2.5 } },
+      "set": {"FG1": {"waveform": "square", "frequency": 2000, "amplitude": 2.5, "offset": 2.5}},
       "scope": [
-        { "pin": "C1.1", "measure": "vmax", "min": 1.5, "max": 1.6 },
-        { "pin": "C1.1", "measure": "vmin", "min": 0.89, "max": 0.99 },
-        { "pin": "C1.1", "measure": "vavg", "min": 1.2, "max": 1.3 }
+        {"pin": "C1.1", "measure": "vmax", "min": 1.5, "max": 1.6},
+        {"pin": "C1.1", "measure": "vmin", "min": 0.89, "max": 0.99},
+        {"pin": "C1.1", "measure": "vavg", "min": 1.2, "max": 1.3}
       ]
     }
   ],
-  "compare": [
-    "**对比**：",
-    "- v(∞) = 5 V × 10 k / (10.05 k + 10 k) ≈ 2.49 V——不是 5 V！R_eq = (10.05 k) ∥ (10 k) ≈ 5.01 kΩ，τ ≈ 5.01 kΩ × 100 nF ≈ 0.50 ms，只有 RC 串联时的一半。",
-    "- **100 Hz（半周期 5 ms ≈ 10τ）**：每次都走到终值，VC 在 0 和 ≈ 2.49 V 之间。",
-    "- **1 kHz（半周期 0.5 ms ≈ τ）**：VC 在 VL ≈ 0.67 V 和 VH ≈ 1.82 V 之间来回，中心是 v(∞)/2 ≈ 1.25 V。",
-    "",
-    "**用读数反算 τ**：放电半周期从 VH 指数衰减到 0 的过程中，经过 T/2 时恰好到 VL，所以 VL = VH·e^(−T/(2τ))，即 τ = (T/2) / ln(VH/VL) = 0.5 ms / ln(1.82/0.67) ≈ 0.50 ms。这个办法不需要知道终值，也不需要从 0 开始，任何频率都能用（2 kHz 时 VH ≈ 1.55 V、VL ≈ 0.94 V，算出来还是 ≈ 0.50 ms）。"
-  ],
+  "compare": "**对比**：\n- v(∞) = 5 V × 10 k / (10.05 k + 10 k) ≈ **2.49 V**——不是 5 V！R_eq = 10.05 k ∥ 10 k ≈ 5.01 kΩ，τ ≈ **0.50 ms**，只有 RC 串联时的一半。\n- **100 Hz**（半个周期 5 ms ≈ 10τ）：每次都走到终值，VC 在 0 和约 2.49 V 之间。\n- **1 kHz**（半个周期 0.5 ms ≈ τ）：VC 在 VL ≈ **0.67 V** 和 VH ≈ **1.82 V** 之间，τ = 0.5 ms / ln(1.82 / 0.67) ≈ 0.50 ms。\n- 2 kHz 时 VH ≈ 1.55 V、VL ≈ 0.94 V，算出来还是约 0.50 ms。",
   "measurements": [
-    {"id": "uinf", "scope": "vmax", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 100, "amplitude": 2.5, "offset": 2.5}}, "unit": "V", "predict": true, "range": [2.37, 2.62], "ask": "100 Hz：CH2（VC）的最高值，也就是终值 v(∞)", "explain": "电容开路，(R1 + 50 Ω) 和 R2 分压：5 × 10 / 20.05 ≈ 2.49 V，不是 5 V。"},
-    {"id": "vh", "scope": "vmax", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5}}, "unit": "V", "predict": true, "range": [1.73, 1.91], "ask": "1 kHz：VC 的最高值 VH"},
-    {"id": "vl", "scope": "vmin", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5}}, "unit": "V", "predict": true, "range": [0.638, 0.705], "ask": "1 kHz：VC 的最低值 VL", "explain": "半周期 0.5 ms ≈ τ，VC 在 VL 和 VH 之间来回，中心是 v(∞)/2 ≈ 1.25 V。"},
-    {"id": "tau", "formula": "0.0005 / ln(vh / vl)", "unit": "ms", "predict": true, "range": [0.000476, 0.000526], "ask": "放电半周期从 VH 衰减，经过 T/2 正好到 VL：用你的读数算 τ = (T/2) / ln(VH/VL)", "explain": "R_eq = (10.05 k) ∥ (10 k) ≈ 5.01 kΩ，τ = R_eq·C ≈ 0.50 ms，只有 RC 串联时的一半。这个方法不需要知道终值，任何频率都能用。"},
-    {"id": "req", "formula": "tau / 100e-9", "unit": "kΩ", "range": [4760.0, 5260.0], "ask": "再用 C = 100 nF 算从电容看进去的等效电阻 R_eq = τ / C", "explain": "≈ 5.0 kΩ = (R1 + 50 Ω) ∥ R2：电压源置零后，R1 和 R2 从电容看过去是并联的。"}
+    {
+      "id": "uinf",
+      "scope": "vmax",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 100, "amplitude": 2.5, "offset": 2.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.37, 2.62],
+      "ask": "100 Hz：CH2（VC）的最高值，也就是终值 v(∞)",
+      "explain": "电容开路，(R1 + 50 Ω) 和 R2 分压：5 × 10 / 20.05 ≈ 2.49 V，不是 5 V。"
+    },
+    {
+      "id": "vh",
+      "scope": "vmax",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.73, 1.91],
+      "ask": "1 kHz：VC 的最高值 VH"
+    },
+    {
+      "id": "vl",
+      "scope": "vmin",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.638, 0.705],
+      "ask": "1 kHz：VC 的最低值 VL",
+      "explain": "半个周期 0.5 ms ≈ τ，VC 在 VL 和 VH 之间来回，中心是 v(∞) / 2 ≈ 1.25 V。"
+    },
+    {
+      "id": "tau",
+      "formula": "0.0005 / ln(vh / vl)",
+      "unit": "ms",
+      "predict": true,
+      "range": [0.000476, 0.000526],
+      "ask": "用你的读数算 τ = (T/2) / ln(VH / VL)（T/2 = 0.5 ms）",
+      "explain": "R_eq = 10.05 kΩ ∥ 10 kΩ ≈ 5.01 kΩ，τ = R_eq·C ≈ 0.50 ms：只有 RC 串联时的一半。"
+    },
+    {
+      "id": "req",
+      "formula": "tau / 100e-9",
+      "unit": "kΩ",
+      "range": [4760.0, 5260.0],
+      "ask": "再用 C = 100 nF 算从电容看进去的等效电阻 R_eq = τ / C",
+      "explain": "≈ 5.0 kΩ = (R1 + 50 Ω) ∥ R2：电源置零后，R1 和 R2 从电容看过去是并联的。"
+    }
   ],
   "hints": [
-    "C1 和 R2 都从 VC 接到 GND，并排放。",
-    "终值：(R1 + 50 Ω) 和 R2 分压；τ：(R1 + 50 Ω) ∥ R2，再乘 C。",
-    "τ = (T/2) / ln(VH/VL)。"
+    "R2 和 C1 并联：两只脚都在 VC（第 10 列）和 GND 轨上。",
+    "终值：电容开路后 R1（加 50 Ω）和 R2 分压。",
+    "τ = R_eq·C，R_eq = (R1 + 50 Ω) ∥ R2；反算 τ = (T/2) / ln(VH / VL)。"
   ],
   "start": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "resistor", "ref": "R1", "resistance": "10k", "pins": { "1": "b3", "2": "b10" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "c10", "2": "tn10" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "square",
+        "frequency": 1000,
+        "amplitude": 2.5,
+        "offset": 2.5,
+        "pins": {"+": "a3", "-": "tn3"}
+      },
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "b3", "2": "b10"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": {"1": "c10", "2": "tn10"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   },
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 1000, "amplitude": 2.5, "offset": 2.5, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "resistor", "ref": "R1", "resistance": "10k", "pins": { "1": "b3", "2": "b10" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "c10", "2": "tn10" } },
-      { "type": "resistor", "ref": "R2", "resistance": "10k", "pins": { "1": "d10", "2": "tn11" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "square",
+        "frequency": 1000,
+        "amplitude": 2.5,
+        "offset": 2.5,
+        "pins": {"+": "a3", "-": "tn3"}
+      },
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "b3", "2": "b10"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": {"1": "c10", "2": "tn10"}},
+      {"type": "resistor", "ref": "R2", "resistance": "10k", "pins": {"1": "d10", "2": "tn11"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   }
 }
