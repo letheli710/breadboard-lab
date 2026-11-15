@@ -133,9 +133,14 @@ const INSTRUMENT_LESSONS: [string, [string, string], [string, string]][] = [
   [
     'lesson-generator-scope',
     ['信号发生器和示波器', 'Function generator and scope'],
-    ['幅度 / 峰峰值 / 有效值、偏置、周期、时间/格和伏/格、50 Ω 输出电阻', 'amplitude / Vpp / RMS, offset, period, time/div and V/div, 50 Ω output resistance'],
+    ['幅度 / 峰峰值 / 有效值、偏置、周期、时间/格和伏/格', 'amplitude / Vpp / RMS, offset, period, time/div and V/div'],
   ],
-  ['lesson-scope-two-channels', ['示波器双通道', 'Two scope channels'], ['CH1 / CH2、相位差、接地夹只能夹 GND', 'CH1 / CH2, phase difference, ground clips on GND only']],
+  [
+    'lesson-generator-load',
+    ['信号发生器的 50 Ω 和探头接地', "The generator's 50 Ω and the probe ground"],
+    ['50 Ω 输出电阻让波形变小、接地夹只能夹 GND', 'the 50 Ω output resistance shrinks the wave, the ground clip goes on GND only'],
+  ],
+  ['lesson-scope-two-channels', ['示波器双通道', 'Two scope channels'], ['CH1 / CH2、相位差（谁先到）', 'CH1 / CH2, phase difference (which arrives first)']],
   [
     'lesson-lm358',
     ['LM358 运放', 'LM358 op-amp'],
@@ -146,6 +151,7 @@ const INSTRUMENT_LESSONS: [string, [string, string], [string, string]][] = [
     ['开发板：供电和 GPIO', 'Dev board: power and GPIO'],
     ['3V3 / 5V / GND、输出点灯、上拉输入读按键、引脚电流上限', '3V3 / 5V / GND, an output driving an LED, a pulled-up input reading a button, pin current limits'],
   ],
+  ['lesson-bluepill-pins', ['Blue Pill 的引脚', 'Blue Pill pins'], ['耐 5 V 的 FT 引脚、PC13 只能 3 mA、ADC 引脚', '5 V-tolerant FT pins, PC13 limited to 3 mA, the ADC pins']],
   [
     'lesson-mcu-pwm-adc',
     ['开发板：PWM 和 ADC', 'Dev board: PWM and ADC'],

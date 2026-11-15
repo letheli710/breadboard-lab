@@ -23,7 +23,7 @@ const LANG = opt('--lang') || 'en';
 const ROOT = join(__dirname, '..');
 const ART = join(ROOT, 'e2e-artifacts');
 const ALL = readdirSync(join(ROOT, 'challenges'))
-  .filter((f) => /^[13]\d\d-lesson-.*\.json$/.test(f))
+  .filter((f) => /^\d{3}-lesson-.*\.json$/.test(f))
   .sort();
 const pick = opt('--only')?.split(',');
 const FILES = pick ? ALL.filter((f) => pick.some((n) => f.startsWith(n))) : args.includes('--all') ? ALL : ALL.filter((f) => /^(101|102|105)-/.test(f));
