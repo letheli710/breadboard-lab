@@ -2,52 +2,213 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp4-rl-phasors",
-  "title": "实验 4-3 · RL 串联电路：电流落后电压，电压三角形",
+  "title": "RL 串联：电流为什么慢半拍",
   "kind": "challenge",
   "level": 3,
   "phase": 4,
-  "summary": "10 mH 电感串 100 Ω 电阻接正弦信号。用示波器读电阻电压、电感电压和总电压的 Vpp 以及相位差，检查交流电路的 KVL 怎么成立。",
+  "summary": "电感串电阻接正弦波：用示波器看电流落后电压，再量出三段电压，发现它们不能直接相加。",
   "concepts": ["感抗 X_L = ωL", "阻抗 Z = R + jωL", "电流落后电压 current lags voltage", "相量图 / 电压三角形 phasor diagram", "用电阻电压看电流 sense resistor"],
   "prereq": ["lesson-scope-two-channels"],
-  "description": [
-    "**目标**：用示波器同时看 RL 串联电路的电流和各部分电压，验证交流 KVL 是相量相加，并认识 RL 低通滤波器。",
-    "",
-    "**电路**：信号发生器红夹子 → L1（10 mH）→ 结点 VR → R1（100 Ω）→ GND，黑夹子接 GND。",
-    "",
-    "**信号发生器**：正弦波，幅度 1 V、偏置 0，频率 1.6 kHz（再试 160 Hz 和 16 kHz）。",
-    "",
-    "**示波器**：CH1 接 VIN（信号发生器端子），CH2 接 VR。电阻电压 v_R = R·i 和电流同相，所以 **CH2 就是电流的波形**。电感电压 v_L = CH1 − CH2（MATH 相减）。",
-    "",
-    "**先预测**：电感的阻抗 Z_L = r + jωL，r = 1 Ω 是线圈电阻；从 VIN 往右看的总阻抗 Z = (R + r) + jωL。先算 1.6 kHz 时的 X_L、电流落后电压的角度、V_R/V_in，再估计 v_R、v_L 的峰峰值：它们直接相加等于 VIN 吗？",
-    "",
-    "**测量**：读 CH1、CH2 和 MATH（CH1 − CH2）的峰峰值，以及 CH2 相对 CH1 的相位差；再换到 160 Hz 和 16 kHz 各读一次。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**真实电路里**：仿真里线圈电阻 r 只有 1 Ω；面包板上常见的 10 mH 小电感，绕组电阻往往有几欧到几十欧，铁氧体磁芯在高频还有损耗。r 越大，电流落后的角度越小、v_R 越小，fc 也往高处移；测 v_L 时会发现它和 v_R 的夹角小于 90°。"
+  "description": "信号发生器 → L1（10 mH）→ VR → R1（100 Ω）→ GND，1.6 kHz 正弦波。CH2 在电阻上，看到的就是电流的波形；把 CH2 夹到电感两端读 v_L，用三段电压检查交流 KVL。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "两条正弦波，谁先到顶？",
+      "text": [
+        "信号发生器和两支探头已经在板上了。**电感**（`10 mH`）插 **`b3`**–**`b10`**，**电阻**（`100 Ω`）插 **`c10`**–**`tn10`**。",
+        "信号发生器设成 **正弦波、`1.6 kHz`、幅度 `1 V`**。CH1 看加上去的电压；CH2 看电阻上的电压——电阻上的电压和流过它的电流同一个形状。",
+        "看两条波形：CH2 的波峰比 CH1 **早**到还是**晚**到？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "电感讨厌变化",
+      "text": [
+        "- 电感会顶住电流的**变化**。所以电流跟不上电压，总是**晚一点**才到顶。",
+        "![](fig:waves)",
+        "- 频率越高，变化越快，电感顶得越狠。这种“交流里的电阻”叫**感抗**：",
+        "$$X_L = 2\\pi f L$$",
+        "1.6 kHz 时 $X_L = 2\\pi × 1600 × 0.01 ≈ 100$ Ω，和 R 差不多大。",
+        "- 两段电压不是同时到顶的，所以不能直接相加。把每个电压画成一支箭头（**相量**，长度取有效值）：电阻的箭头沿着电流，电感的箭头**超前四分之一圈**。加上去的电压是三角形的斜边。",
+        "![](fig:triangle)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "量出三角形的三条边",
+      "text": [
+        "- 先保持 CH2 在电阻上：读 CH1、CH2 的 **Vpp**，再读示波器下面的 **CH2 相对 CH1 的相位差**。",
+        "- 再把 **CH2 夹到电感两端**：针尖插 **`d3`**，接地夹插 **`d10`**。这里的探头量的是“针尖减接地夹”，所以 CH2 显示的就是电感电压 v_L。",
+        "- 电路检查通过后填测量题。填完可以把频率换成 `160 Hz` 和 `16 kHz`，看落后的角度怎么变。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 电感里**电流落后电压**。频率越高，$X_L$ 越大，落后得越多。",
+        "- 交流电压按**相量**（箭头）相加，不能把读数直接加。本课程的相量一律用**有效值**。",
+        "- 坑：真实示波器的接地夹连着市电的地线。把它夹在电感两端，等于把 R1 那头短接到地。真实电路里要用两个通道都对地测，再相减。",
+        "- 真实的 10 mH 小电感有几欧到几十欧的线圈电阻（这里按 1 Ω 算），落后的角度会小一些。"
+      ],
+      "practice": ["phasors", "ac-analysis"]
+    }
   ],
+  "figures": {
+    "waves": {
+      "kind": "plot",
+      "caption": {
+        "text": "电压先到顶，电流（CH2）晚一点才到顶：电流落后电压。",
+        "i18n": {"en": "The voltage peaks first and the current (CH2) a little later: the current lags the voltage."}
+      },
+      "x": {"label": {"text": "时间（周期）", "i18n": {"en": "time (periods)"}}, "min": 0, "max": 2, "ticks": [0, 0.5, 1, 1.5, 2]},
+      "y": {"label": {"text": "电压 / 电流", "i18n": {"en": "voltage / current"}}, "min": -1.2, "max": 1.2, "ticks": [0]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.0417, 0.259],
+            [0.0833, 0.5],
+            [0.125, 0.707],
+            [0.1667, 0.866],
+            [0.2083, 0.966],
+            [0.25, 1.0],
+            [0.2917, 0.966],
+            [0.3333, 0.866],
+            [0.375, 0.707],
+            [0.4167, 0.5],
+            [0.4583, 0.259],
+            [0.5, 0.0],
+            [0.5417, -0.259],
+            [0.5833, -0.5],
+            [0.625, -0.707],
+            [0.6667, -0.866],
+            [0.7083, -0.966],
+            [0.75, -1.0],
+            [0.7917, -0.966],
+            [0.8333, -0.866],
+            [0.875, -0.707],
+            [0.9167, -0.5],
+            [0.9583, -0.259],
+            [1.0, -0.0],
+            [1.0417, 0.259],
+            [1.0833, 0.5],
+            [1.125, 0.707],
+            [1.1667, 0.866],
+            [1.2083, 0.966],
+            [1.25, 1.0],
+            [1.2917, 0.966],
+            [1.3333, 0.866],
+            [1.375, 0.707],
+            [1.4167, 0.5],
+            [1.4583, 0.259],
+            [1.5, 0.0],
+            [1.5417, -0.259],
+            [1.5833, -0.5],
+            [1.625, -0.707],
+            [1.6667, -0.866],
+            [1.7083, -0.966],
+            [1.75, -1.0],
+            [1.7917, -0.966],
+            [1.8333, -0.866],
+            [1.875, -0.707],
+            [1.9167, -0.5],
+            [1.9583, -0.259],
+            [2.0, -0.0]
+          ],
+          "tone": 1,
+          "label": {"text": "电压", "i18n": {"en": "voltage"}},
+          "labelAt": [1.12, 1.12]
+        },
+        {
+          "points": [
+            [0.0, -0.606],
+            [0.0417, -0.495],
+            [0.0833, -0.35],
+            [0.125, -0.181],
+            [0.1667, 0.0],
+            [0.2083, 0.181],
+            [0.25, 0.35],
+            [0.2917, 0.495],
+            [0.3333, 0.606],
+            [0.375, 0.676],
+            [0.4167, 0.7],
+            [0.4583, 0.676],
+            [0.5, 0.606],
+            [0.5417, 0.495],
+            [0.5833, 0.35],
+            [0.625, 0.181],
+            [0.6667, 0.0],
+            [0.7083, -0.181],
+            [0.75, -0.35],
+            [0.7917, -0.495],
+            [0.8333, -0.606],
+            [0.875, -0.676],
+            [0.9167, -0.7],
+            [0.9583, -0.676],
+            [1.0, -0.606],
+            [1.0417, -0.495],
+            [1.0833, -0.35],
+            [1.125, -0.181],
+            [1.1667, -0.0],
+            [1.2083, 0.181],
+            [1.25, 0.35],
+            [1.2917, 0.495],
+            [1.3333, 0.606],
+            [1.375, 0.676],
+            [1.4167, 0.7],
+            [1.4583, 0.676],
+            [1.5, 0.606],
+            [1.5417, 0.495],
+            [1.5833, 0.35],
+            [1.625, 0.181],
+            [1.6667, 0.0],
+            [1.7083, -0.181],
+            [1.75, -0.35],
+            [1.7917, -0.495],
+            [1.8333, -0.606],
+            [1.875, -0.676],
+            [1.9167, -0.7],
+            [1.9583, -0.676],
+            [2.0, -0.606]
+          ],
+          "tone": 2,
+          "label": {"text": "电流", "i18n": {"en": "current"}},
+          "labelAt": [1.62, 0.85]
+        }
+      ]
+    },
+    "triangle": {
+      "kind": "plot",
+      "caption": {
+        "text": "相量三角形：V_R 沿着电流，V_L 超前 90°，加上去的电压 V_in 是斜边——它比 V_R + V_L 短。",
+        "i18n": {"en": "The phasor triangle: V_R along the current, V_L 90° ahead, and the applied V_in is the long side — shorter than V_R + V_L."}
+      },
+      "x": {"label": {"text": "沿电流方向", "i18n": {"en": "along the current"}}, "min": 0, "max": 1.6},
+      "y": {"label": {"text": "超前 90°", "i18n": {"en": "90° ahead"}}, "min": 0, "max": 1.2},
+      "curves": [
+        {"points": [[0, 0], [1.2, 0]], "tone": 2, "label": "V_R", "labelAt": [0.6, 0.08]},
+        {"points": [[1.2, 0], [1.2, 0.9]], "tone": 3, "label": "V_L", "labelAt": [1.35, 0.45]},
+        {"points": [[0, 0], [1.2, 0.9]], "tone": 1, "label": "V_in", "labelAt": [0.45, 0.55]}
+      ]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 4-3 · Series RL: current lags voltage, the voltage triangle",
-      "summary": "A 10 mH inductor in series with 100 Ω on a sine. Read the Vpp of the resistor, inductor and total voltages and the phase shift on the scope, and check how KVL holds in an AC circuit.",
-      "concepts": ["inductive reactance X_L = ωL", "impedance Z = R + jωL", "current lags voltage", "phasor diagram / voltage triangle", "seeing current through a sense resistor"],
-      "description": [
-        "**Goal**: watch the current and the part voltages of a series RL circuit on the scope, check that AC KVL adds phasors, and meet the RL low-pass filter.",
-        "",
-        "**Circuit**: generator red clip → L1 (10 mH) → node VR → R1 (100 Ω) → GND; black clip to GND.",
-        "",
-        "**Generator**: sine, amplitude 1 V, offset 0, 1.6 kHz (then try 160 Hz and 16 kHz).",
-        "",
-        "**Scope**: CH1 on VIN (the generator's terminals), CH2 on VR. The resistor voltage v_R = R·i is in phase with the current, so **CH2 is the current waveform**. The inductor voltage is v_L = CH1 − CH2 (MATH subtract).",
-        "",
-        "**Predict first**: the inductor's impedance is Z_L = r + jωL with r = 1 Ω winding resistance; the total impedance looking right from VIN is Z = (R + r) + jωL. Work out X_L at 1.6 kHz, how far the current lags the voltage and V_R/V_in, then estimate the peak-to-peak values of v_R and v_L: do they add up to VIN?",
-        "",
-        "**Measure**: read the peak-to-peak values of CH1, CH2 and MATH (CH1 − CH2) and the phase of CH2 relative to CH1; repeat at 160 Hz and 16 kHz. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**In a real circuit**: the simulated winding resistance r is only 1 Ω; the small 10 mH inductors common on breadboards often have a few ohms to tens of ohms, and a ferrite core adds losses at high frequency. A larger r means a smaller lag, a smaller v_R and a higher fc; when you measure v_L you will find it less than 90° ahead of v_R."
+      "title": "Series RL: why the current is late",
+      "summary": "An inductor and a resistor on a sine: watch the current lag the voltage on the scope, then measure three voltages and find they do not simply add.",
+      "concepts": [
+        "inductive reactance X_L = ωL",
+        "impedance Z = R + jωL",
+        "current lags voltage",
+        "phasor diagram / voltage triangle",
+        "seeing current through a sense resistor"
       ],
+      "description": "Generator → L1 (10 mH) → VR → R1 (100 Ω) → GND on a 1.6 kHz sine. CH2 across the resistor shows the current; clipping CH2 across the inductor gives v_L, and the three voltages check AC KVL.",
       "compare": [
         "**Compare**:",
         "- At f = 1.6 kHz: X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r = 101 Ω. The current I = V_in/Z lags V_in by arctan(X_L/(R + r)) ≈ 45°; V_R/V_in = R/|Z| ≈ 100/142.5 ≈ 0.70.",
-        "- **Voltage triangle**: V_in = V_R + V_L as phasors, with V_L about 90° ahead of V_R. On the scope VIN ≈ 1.57 Vpp (the 50 Ω output resistance takes a share, see below), v_R ≈ 1.10 Vpp, v_L ≈ 1.11 Vpp: 1.10 + 1.11 = 2.21 ≠ 1.57, but √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57. **KVL in AC circuits adds phasors, not RMS or peak-to-peak values.**",
+        "- **Voltage triangle**: V_in = V_R + V_L as (rms) phasors, with V_L about 90° ahead of V_R. On the scope VIN ≈ 1.57 Vpp (the 50 Ω output resistance takes a share, see below), v_R ≈ 1.10 Vpp, v_L ≈ 1.11 Vpp: 1.10 + 1.11 = 2.21 ≠ 1.57, but √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57. **KVL in AC circuits adds phasors, not RMS or peak-to-peak values.**",
         "- RMS current I = (1 V/√2) / |151 + j100.5| Ω ≈ 3.9 mA (count the 50 Ω here, because the 1 V is the generator's internal EMF).",
         "",
         "**Why VIN is only 1.57 Vpp**: the generator's 1 V is the amplitude of its internal ideal source, which reaches the terminals through 50 Ω. Terminal voltage = 1 V × |Z| / |Z + 50 Ω| = 142.5 / |151 + j100.5| ≈ 0.786 V peak. Using the terminal voltage (CH1) as the reference for gain and phase removes this effect.",
@@ -59,75 +220,123 @@
         "**Think about it**: taking v_R as the output, this circuit is an **RL low-pass filter** with cutoff fc = (R + r)/(2πL) ≈ 1.6 kHz."
       ],
       "measurements": [
-        {"ask": "1.6 kHz: CH1 (VIN, the generator terminals) Vpp", "explain": "The 1 V is the generator's internal EMF, which reaches the terminals through 50 Ω: 2 × 1 V × 142.5 / |151 + j100.5| ≈ 1.57 Vpp."},
+        {
+          "ask": "1.6 kHz: CH1 (VIN, the generator terminals) Vpp",
+          "explain": "The 1 V is the generator's internal EMF, which reaches the terminals through 50 Ω: 2 × 1 V × 142.5 / |151 + j100.5| ≈ 1.57 Vpp."
+        },
         {"ask": "1.6 kHz: CH2 (v_R, the current's waveform) Vpp", "explain": "V_R / V_in = R / |Z| ≈ 100 / 142.5 ≈ 0.70, ≈ 1.10 Vpp."},
-        {"ask": "1.6 kHz: MATH (CH1 − CH2, the inductor voltage v_L) Vpp", "explain": "X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r, so v_L is about as big as v_R, ≈ 1.11 Vpp."},
-        {"ask": "Check KVL with your three readings:", "explain": "1.10 + 1.11 = 2.21 ≠ 1.57, but √(1.10² + 1.11²) ≈ 1.56. AC KVL adds phasors: V_L leads V_R by about 90°.", "choices": ["VIN ≈ √(V_R² + V_L²): phasors add, about 90° apart", "VIN ≈ V_R + V_L: they simply add", "VIN ≈ V_L − V_R"]},
-        {"ask": "1.6 kHz: phase of CH2 (the current) relative to CH1 (lagging is negative)", "explain": "The current lags by arctan(X_L/(R + r)) ≈ arctan(100.5/101) ≈ 45°. This frequency is the RL low-pass cutoff fc = (R + r)/(2πL)."}
+        {
+          "ask": "1.6 kHz: phase of CH2 on the resistor (the current) relative to CH1 (lagging is negative)",
+          "explain": "The current lags by arctan(X_L/(R + r)) ≈ arctan(100.5/101) ≈ 45°. This frequency is the RL low-pass cutoff fc = (R + r)/(2πL)."
+        },
+        {
+          "ask": "1.6 kHz: CH2 across the inductor (tip d3, clip d10), the Vpp of the inductor voltage v_L",
+          "explain": "X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r, so v_L is about as big as v_R, ≈ 1.11 Vpp."
+        },
+        {
+          "ask": "Check KVL with your three readings:",
+          "explain": "1.10 + 1.11 = 2.21 ≠ 1.57, but √(1.10² + 1.11²) ≈ 1.56. AC KVL adds phasors: V_L leads V_R by about 90°.",
+          "choices": ["VIN ≈ √(V_R² + V_L²): phasors add, about 90° apart", "VIN ≈ V_R + V_L: they simply add", "VIN ≈ V_L − V_R"]
+        }
       ],
       "hints": [
-        "Inductor first (from the red clip), then the resistor to GND.",
-        "The voltage across the resistor has the shape and phase of the current.",
-        "X_L = 2πfL; at 1.6 kHz that is about 100 Ω."
+        "Inductor first (in the red clip's column), then the resistor to GND.",
+        "A resistor's voltage has the shape and phase of its current: CH2 on the resistor shows the current.",
+        "X_L = 2πfL; at 1.6 kHz that is about 100 Ω, close to R."
       ],
       "tests": [
         "1.6 kHz: the current (v_R) lags VIN; sensible RMS current",
         "1.6 kHz: the peak-to-peak v_R, v_L and VIN add as phasors",
         "160 Hz: almost purely resistive",
         "16 kHz: mostly inductive"
+      ],
+      "cards": [
+        {
+          "title": "Two sines: which one peaks first?",
+          "text": [
+            "The generator and both probes are already on the board. **Inductor** (`10 mH`) into **`b3`**–**`b10`**, **resistor** (`100 Ω`) into **`c10`**–**`tn10`**.",
+            "Set the generator to **sine, `1.6 kHz`, amplitude `1 V`**. CH1 shows the voltage you apply; CH2 shows the voltage across the resistor — and a resistor's voltage has the same shape as its current.",
+            "Look at the two traces: does CH2 reach its top **before** CH1 or **after** it?"
+          ]
+        },
+        {
+          "title": "An inductor hates change",
+          "text": [
+            "- An inductor pushes back against any **change** of current. So the current cannot keep up with the voltage: it always peaks a little **later**.",
+            "![](fig:waves)",
+            "- The higher the frequency, the faster the change and the harder the inductor pushes back. This \"AC resistance\" is the **inductive reactance**:",
+            "$$X_L = 2\\pi f L$$",
+            "At 1.6 kHz: $X_L = 2\\pi × 1600 × 0.01 ≈ 100$ Ω, about the same as R.",
+            "- The two voltages do not peak at the same moment, so they do not simply add. Draw each one as an arrow (a **phasor**, its length the rms value): the resistor's arrow points along the current, the inductor's is **a quarter turn ahead**. The applied voltage is the long side of the triangle.",
+            "![](fig:triangle)"
+          ]
+        },
+        {
+          "title": "Measure the three sides",
+          "text": [
+            "- Keep CH2 on the resistor first: read the **Vpp** of CH1 and CH2, then the **phase of CH2 vs CH1** under the scope screen.",
+            "- Then **clip CH2 across the inductor**: tip into **`d3`**, ground clip into **`d10`**. These probes measure tip minus clip, so CH2 now shows the inductor voltage v_L.",
+            "- Once the circuit check passes, fill in the questions. Afterwards try `160 Hz` and `16 kHz` and watch how the lag changes."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- In an inductor **the current lags the voltage**. The higher the frequency, the bigger $X_L$ and the bigger the lag.",
+            "- AC voltages add as **phasors** (arrows), not as plain readings. Phasors in this course are always **rms** values.",
+            "- Pitfall: a real scope's ground clip is tied to mains earth. Clip it across the inductor and you short R1's end to ground. On a real bench, measure both channels to ground and subtract.",
+            "- A real 10 mH coil has a few to tens of ohms of winding resistance (this one has 1 Ω), so the lag comes out a little smaller."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "L1", "type": "inductor", "inductance": "10m" },
-    { "ref": "R1", "type": "resistor", "resistance": "100" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "L1", "type": "inductor", "inductance": "10m"},
+    {"ref": "R1", "type": "resistor", "resistance": "100"}
   ],
-  "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "L1.1"] },
-    { "name": "VR", "pins": ["L1.2", "R1.1"] },
-    { "name": "GND", "pins": ["R1.2", "FG1.-"] }
-  ],
+  "nets": [{"name": "VIN", "pins": ["FG1.+", "L1.1"]}, {"name": "VR", "pins": ["L1.2", "R1.1"]}, {"name": "GND", "pins": ["R1.2", "FG1.-"]}],
   "tests": [
     {
       "name": "1.6 kHz：电流（v_R）落后 VIN；电流有效值合理",
-      "set": { "FG1": { "waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
-        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -48, "max": -42 }
+        {"pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73},
+        {"pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -48, "max": -42}
       ],
-      "currents": [{ "el": "L1", "mode": "rms", "min": 0.0037, "max": 0.0041 }]
+      "currents": [{"el": "L1", "mode": "rms", "min": 0.0037, "max": 0.0041}]
     },
     {
       "name": "1.6 kHz：v_R、v_L、VIN 的峰峰值按相量相加",
-      "set": { "FG1": { "waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "R1.1", "measure": "vpp", "min": 1.05, "max": 1.15 },
-        { "pin": "L1.1", "ref": "L1.2", "measure": "vpp", "min": 1.06, "max": 1.16 },
-        { "pin": "FG1.+", "measure": "vpp", "min": 1.5, "max": 1.64 }
+        {"pin": "R1.1", "measure": "vpp", "min": 1.05, "max": 1.15},
+        {"pin": "L1.1", "ref": "L1.2", "measure": "vpp", "min": 1.06, "max": 1.16},
+        {"pin": "FG1.+", "measure": "vpp", "min": 1.5, "max": 1.64}
       ]
     },
     {
       "name": "160 Hz：几乎是纯电阻",
-      "set": { "FG1": { "waveform": "sine", "frequency": 160, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 160, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.97, "max": 0.995 },
-        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -8.5, "max": -3.5 }
+        {"pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.97, "max": 0.995},
+        {"pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -8.5, "max": -3.5}
       ]
     },
     {
       "name": "16 kHz：电感为主",
-      "set": { "FG1": { "waveform": "sine", "frequency": 16000, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 16000, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.106 },
-        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -87, "max": -81 }
+        {"pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.106},
+        {"pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -87, "max": -81}
       ]
     }
   ],
   "compare": [
     "**对比**：",
     "- 在 f = 1.6 kHz：X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r = 101 Ω。电流 İ = V̇in/Z 落后 V̇in 的角度 = arctan(X_L/(R + r)) ≈ 45°；V_R/V_in = R/|Z| ≈ 100/142.5 ≈ 0.70。",
-    "- **电压三角形**：V̇in = V̇R + V̇L，而 V̇L 超前 V̇R 约 90°。示波器上 VIN ≈ 1.57 Vpp（50 Ω 输出电阻分掉了一部分，见下）、v_R ≈ 1.10 Vpp、v_L ≈ 1.11 Vpp：1.10 + 1.11 = 2.21 ≠ 1.57，但 √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57。**交流电路的 KVL 是相量相加，不是有效值 / 峰峰值直接相加**。",
+    "- **电压三角形**：V̇in = V̇R + V̇L（有效值相量），而 V̇L 超前 V̇R 约 90°。示波器上 VIN ≈ 1.57 Vpp（50 Ω 输出电阻分掉了一部分，见下）、v_R ≈ 1.10 Vpp、v_L ≈ 1.11 Vpp：1.10 + 1.11 = 2.21 ≠ 1.57，但 √(1.10² + 1.11²) ≈ 1.56 ≈ 1.57。**交流电路的 KVL 是相量相加，不是有效值 / 峰峰值直接相加**。",
     "- 电流有效值 I = 1 V/√2 / |151 + j100.5| Ω ≈ 3.9 mA（这里要把 50 Ω 算进去，因为 1 V 是信号发生器内部的电动势）。",
     "",
     "**为什么 VIN 只有 1.57 Vpp**：信号发生器的 1 V 是它内部理想源的幅度，经过 50 Ω 才到端子。端子电压 = 1 V × |Z| / |Z + 50 Ω| = 142.5 / |151 + j100.5| ≈ 0.786 V 峰值。测滤波器、相位时都拿端子电压（CH1）作参考，这个影响就消掉了。",
@@ -139,31 +348,75 @@
     "**想一想**：这个电路取 v_R 作输出，就是一个 **RL 低通滤波器**，截止频率 fc = (R + r)/(2πL) ≈ 1.6 kHz。"
   ],
   "measurements": [
-    {"id": "uin", "scope": "vpp", "pin": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.49, 1.65], "ask": "1.6 kHz：CH1（VIN，信号发生器端子）的 Vpp", "explain": "1 V 是信号发生器内部的电动势，经过 50 Ω 才到端子：2 × 1 V × 142.5 / |151 + j100.5| ≈ 1.57 Vpp。"},
-    {"id": "ur", "scope": "vpp", "pin": "R1.1", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.05, 1.16], "ask": "1.6 kHz：CH2（v_R，也就是电流的波形）的 Vpp", "explain": "V_R / V_in = R / |Z| ≈ 100 / 142.5 ≈ 0.70，≈ 1.10 Vpp。"},
-    {"id": "ul", "scope": "vpp", "pin": "L1.1", "ref": "L1.2", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.05, 1.16], "ask": "1.6 kHz：MATH（CH1 − CH2，电感电压 v_L）的 Vpp", "explain": "X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r，所以 v_L 和 v_R 差不多大，≈ 1.11 Vpp。"},
-    {"id": "kvl", "choices": ["VIN ≈ √(V_R² + V_L²)：相量相加，两者相差约 90°", "VIN ≈ V_R + V_L：直接相加", "VIN ≈ V_L − V_R"], "correct": 0, "ask": "用你的三个读数检查 KVL：", "explain": "1.10 + 1.11 = 2.21 ≠ 1.57，但 √(1.10² + 1.11²) ≈ 1.56。交流 KVL 是相量相加：V̇L 超前 V̇R 约 90°。"},
-    {"id": "ph", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}}, "unit": "°", "predict": true, "range": [-47.1, -42.6], "ask": "1.6 kHz：CH2（电流）相对 CH1 的相位差（落后为负）", "explain": "电流落后 arctan(X_L/(R + r)) ≈ arctan(100.5/101) ≈ 45°。这个频率就是 RL 低通的截止频率 fc = (R + r)/(2πL)。"}
+    {
+      "id": "uin",
+      "scope": "vpp",
+      "pin": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.49, 1.65],
+      "ask": "1.6 kHz：CH1（VIN，信号发生器端子）的 Vpp",
+      "explain": "1 V 是信号发生器内部的电动势，经过 50 Ω 才到端子：2 × 1 V × 142.5 / |151 + j100.5| ≈ 1.57 Vpp。"
+    },
+    {
+      "id": "ur",
+      "scope": "vpp",
+      "pin": "R1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.05, 1.16],
+      "ask": "1.6 kHz：CH2（v_R，也就是电流的波形）的 Vpp",
+      "explain": "V_R / V_in = R / |Z| ≈ 100 / 142.5 ≈ 0.70，≈ 1.10 Vpp。"
+    },
+    {
+      "id": "ph",
+      "scope": "phase",
+      "pin": "R1.1",
+      "vs": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}},
+      "unit": "°",
+      "predict": true,
+      "range": [-47.1, -42.6],
+      "ask": "1.6 kHz：CH2 在电阻上（电流）相对 CH1 的相位差（落后为负）",
+      "explain": "电流落后 arctan(X_L/(R + r)) ≈ arctan(100.5/101) ≈ 45°。这个频率就是 RL 低通的截止频率 fc = (R + r)/(2πL)。"
+    },
+    {
+      "id": "ul",
+      "scope": "vpp",
+      "pin": "L1.1",
+      "ref": "L1.2",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.05, 1.16],
+      "ask": "1.6 kHz：CH2 夹到电感两端（针尖 d3、接地夹 d10），读电感电压 v_L 的 Vpp",
+      "explain": "X_L = 2π × 1600 × 10 mH ≈ 100.5 Ω ≈ R + r，所以 v_L 和 v_R 差不多大，≈ 1.11 Vpp。"
+    },
+    {
+      "id": "kvl",
+      "choices": ["VIN ≈ √(V_R² + V_L²)：相量相加，两者相差约 90°", "VIN ≈ V_R + V_L：直接相加", "VIN ≈ V_L − V_R"],
+      "correct": 0,
+      "ask": "用你的三个读数检查 KVL：",
+      "explain": "1.10 + 1.11 = 2.21 ≠ 1.57，但 √(1.10² + 1.11²) ≈ 1.56。交流 KVL 是相量相加：V̇L 超前 V̇R 约 90°。"
+    }
   ],
-  "hints": [
-    "电感在前（接红夹子），电阻在后接 GND。",
-    "电阻上的电压和电流同形状、同相位。",
-    "X_L = 2πfL，1.6 kHz 时约 100 Ω。"
-  ],
+  "hints": ["电感在前（接红夹子那一列），电阻在后接 GND。", "电阻上的电压和电流同形状、同相位：CH2 在电阻上，看到的就是电流。", "X_L = 2πfL，1.6 kHz 时约 100 Ω，和 R 差不多。"],
   "start": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   },
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "b3", "2": "b10" } },
-      { "type": "resistor", "ref": "R1", "resistance": "100", "pins": { "1": "c10", "2": "tn10" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1600, "amplitude": 1, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "inductor", "ref": "L1", "inductance": "10m", "pins": {"1": "b3", "2": "b10"}},
+      {"type": "resistor", "ref": "R1", "resistance": "100", "pins": {"1": "c10", "2": "tn10"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   }
 }

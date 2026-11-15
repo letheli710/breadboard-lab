@@ -2,52 +2,214 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp4-series-resonance",
-  "title": "实验 4-4 · RLC 串联谐振：扫频找 f0，电容电压比电源还高",
+  "title": "RLC 串联谐振：扫频找 f0",
   "kind": "challenge",
   "level": 4,
   "phase": 4,
-  "summary": "10 mH + 100 nF + 100 Ω 串联。扫频率找电流最大、电流和电压同相的谐振频率 f0，再看偏离 f0 时电路呈容性还是感性。",
+  "summary": "10 mH + 100 nF + 100 Ω 串联。扫频找电流最大、和电压同相的谐振频率 f0，看谐振时电容上的电压比电源还高，再看 f0 两边电路呈容性还是感性。",
   "concepts": ["串联谐振 series resonance", "f0 = 1/(2π√(LC))", "品质因数 Q = ω0L/R", "谐振时 V_L = V_C = Q·V", "容性 / 感性 capacitive / inductive"],
   "prereq": ["lesson-scope-two-channels"],
-  "description": [
-    "**目标**：扫频找到 RLC 串联电路的谐振频率，观察谐振时电流最大、与电压同相，以及电容、电感上的“电压放大”。",
-    "",
-    "**电路**：信号发生器红夹子 → L1（10 mH）→ C1（100 nF）→ 结点 VR → R1（100 Ω）→ GND，黑夹子接 GND。电阻放在接地一端，这样 VR 就是电流的波形（i = v_R / 100 Ω）。",
-    "",
-    "**信号发生器**：正弦波，幅度 1 V、偏置 0。频率从 2.5 kHz 慢慢调到 10 kHz（扫频），找 VR 最大的地方。",
-    "",
-    "**示波器**：CH1 接 VIN（信号发生器端子），CH2 接 VR。电容电压 = (L1 和 C1 之间的结点) − VR，可以把 CH1 挪到那个结点上用 MATH 相减来看。",
-    "",
-    "**先预测**：Z = (R + r) + j(ωL − 1/(ωC))，r = 1 Ω 是线圈电阻。动手前先算：谐振频率 f0 是多少？谐振时 v_R/v_in 和相位是多少？谐振时 X_L = X_C 等于多少、电容电压是 VIN 的几倍（Q）？低于和高于 f0 时电流超前还是落后？",
-    "",
-    "**测量**：扫频找 VR 最大的频率，读那里的 VR/VIN 和相位；把 CH1 挪到 L1、C1 之间的结点看电容电压；再在 2.5 kHz 和 10 kHz 各读一次幅度比和相位。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**真实电路里**：",
-    "- 仿真里线圈电阻 r 只有 1 Ω。真实的 10 mH 小电感绕组电阻常在 10 ~ 30 Ω，它和 R1 串联在一起：例如 r ≈ 20 Ω 时，谐振时 v_R/v_in 只有 100/120 ≈ 0.83，电流峰值更低，Q ≈ 316/120 ≈ 2.6，峰也更宽。谐振频率 f0 基本不变。",
-    "- **安全提示**：Q 很高的串联谐振电路，元件上的电压可以是电源电压的几十倍，实际中要注意电容的耐压。"
+  "description": "信号发生器 → L1（10 mH）→ C1（100 nF）→ VR → R1（100 Ω）→ GND。电阻放在接地一端，CH2 在 VR 上看到的就是电流的波形。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "转旋钮，找最大的那一刻",
+      "text": [
+        "三个元件串成一串：**电感**（`10 mH`）**`b3`**–**`b9`**，**电容**（`100 nF`）**`c9`**–**`c14`**，**电阻**（`100 Ω`）**`d14`**–**`tn14`**。CH2 在电阻上，看的是电流。",
+        "信号发生器：**正弦波、幅度 `1 V`**，频率从 **`2.5 kHz`** 慢慢调到 **`10 kHz`**。",
+        "CH2 先变大、再变小。它最大的时候，CH1 和 CH2 两条波形的波峰对得齐吗？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "两个方向相反的“阻力”正好抵消",
+      "text": [
+        "- 电感的感抗 $X_L = 2\\pi f L$ 随频率**变大**；电容的容抗 $X_C = \\frac{1}{2\\pi f C}$ 随频率**变小**。",
+        "- 它们的作用方向相反：电感让电流落后，电容让电流超前。两者相等的那个频率，它们正好**抵消**，只剩电阻挡着电流——电流最大，而且和电压同相。这叫**谐振**。",
+        "![](fig:reactances)",
+        "- 令 $X_L = X_C$，就得到谐振频率：",
+        "$$f_0 = \\frac{1}{2\\pi\\sqrt{LC}} = \\frac{1}{2\\pi\\sqrt{0.01 × 100 × 10^{-9}}}$$",
+        "动手之前先算出来。低于 $f_0$ 电容占上风，高于 $f_0$ 电感占上风。",
+        "![](fig:peak)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "找 f0，再看电容上的电压",
+      "text": [
+        "- **扫频**：找 CH2 和 CH1 相位差正好过 0 的频率，那里 CH2 也最大。",
+        "- 频率调到 **`2.5 kHz`**：读 CH2 相对 CH1 的相位差；再调到 **`10 kHz`** 看一眼相位的正负。",
+        "- 回到 $f_0$，把 **CH2 夹到电容两端**：针尖插 **`d9`**，接地夹插 **`a14`**（探头量的是“针尖减接地夹”）。和 CH1 比一比，电容上的电压比加上去的电压大还是小？"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **串联谐振**：$X_L = X_C$，阻抗最小（只剩电阻），电流最大，电流和电压同相。",
+        "- 低于 $f_0$ 电路呈**容性**（电流超前），高于 $f_0$ 呈**感性**（电流落后）。",
+        "- 谐振时 L 和 C 上的电压大小相等、方向相反，各自可以是电源电压的好几倍（品质因数 Q 倍）。",
+        "- 坑：Q 很高的串联谐振电路里，电容上的电压能比电源高几十倍。真实电路要看电容的**耐压**。"
+      ],
+      "practice": ["frequency"]
+    }
   ],
+  "figures": {
+    "reactances": {
+      "kind": "plot",
+      "caption": {
+        "text": "X_L 随频率上升，X_C 随频率下降；两条线相交的地方就是谐振频率 f_0。",
+        "i18n": {"en": "X_L rises with frequency and X_C falls; where the two lines cross is the resonant frequency f_0."}
+      },
+      "x": {"label": {"text": "频率 f / f_0", "i18n": {"en": "frequency f / f_0"}}, "min": 0, "max": 3, "ticks": [0, 1, 2, 3]},
+      "y": {"label": {"text": "电抗（相对值）", "i18n": {"en": "reactance (relative)"}}, "min": 0, "max": 3, "ticks": [0, 1, 2, 3]},
+      "curves": [
+        {"points": [[0, 0], [3, 3]], "tone": 3, "label": "X_L", "labelAt": [2.6, 2.85]},
+        {
+          "points": [
+            [0.35, 2.857],
+            [0.4, 2.5],
+            [0.45, 2.222],
+            [0.5, 2.0],
+            [0.55, 1.818],
+            [0.6, 1.667],
+            [0.65, 1.538],
+            [0.7, 1.429],
+            [0.75, 1.333],
+            [0.8, 1.25],
+            [0.85, 1.176],
+            [0.9, 1.111],
+            [0.95, 1.053],
+            [1.0, 1.0],
+            [1.05, 0.952],
+            [1.1, 0.909],
+            [1.15, 0.87],
+            [1.2, 0.833],
+            [1.25, 0.8],
+            [1.3, 0.769],
+            [1.35, 0.741],
+            [1.4, 0.714],
+            [1.45, 0.69],
+            [1.5, 0.667],
+            [1.55, 0.645],
+            [1.6, 0.625],
+            [1.65, 0.606],
+            [1.7, 0.588],
+            [1.75, 0.571],
+            [1.8, 0.556],
+            [1.85, 0.541],
+            [1.9, 0.526],
+            [1.95, 0.513],
+            [2.0, 0.5],
+            [2.05, 0.488],
+            [2.1, 0.476],
+            [2.15, 0.465],
+            [2.2, 0.455],
+            [2.25, 0.444],
+            [2.3, 0.435],
+            [2.35, 0.426],
+            [2.4, 0.417],
+            [2.45, 0.408],
+            [2.5, 0.4],
+            [2.55, 0.392],
+            [2.6, 0.385],
+            [2.65, 0.377],
+            [2.7, 0.37],
+            [2.75, 0.364],
+            [2.8, 0.357],
+            [2.85, 0.351],
+            [2.9, 0.345],
+            [2.95, 0.339],
+            [3.0, 0.333]
+          ],
+          "tone": 1,
+          "label": "X_C",
+          "labelAt": [2.6, 0.62]
+        }
+      ],
+      "dots": [{"at": [1, 1], "tone": 2, "label": "f_0"}]
+    },
+    "peak": {
+      "kind": "plot",
+      "caption": {
+        "text": "电流（CH2 的大小）随频率变化：在 f_0 处达到最高，两边都下降。",
+        "i18n": {"en": "The current (the size of CH2) against frequency: highest at f_0, falling on both sides."}
+      },
+      "x": {"label": {"text": "频率 f / f_0", "i18n": {"en": "frequency f / f_0"}}, "min": 0, "max": 3, "ticks": [0, 1, 2, 3]},
+      "y": {"label": {"text": "电流（相对最大值）", "i18n": {"en": "current (relative to the peak)"}}, "min": 0, "max": 1.1, "ticks": [0, 1]},
+      "curves": [
+        {
+          "points": [
+            [0.2, 0.0671],
+            [0.25, 0.0857],
+            [0.3, 0.1057],
+            [0.35, 0.1276],
+            [0.4, 0.1518],
+            [0.45, 0.1791],
+            [0.5, 0.2102],
+            [0.55, 0.2465],
+            [0.6, 0.2895],
+            [0.65, 0.3413],
+            [0.7, 0.4049],
+            [0.75, 0.4839],
+            [0.8, 0.5826],
+            [0.85, 0.7029],
+            [0.9, 0.8367],
+            [0.95, 0.9529],
+            [1.0, 1.0],
+            [1.05, 0.9571],
+            [1.1, 0.8606],
+            [1.15, 0.7547],
+            [1.2, 0.6605],
+            [1.25, 0.5826],
+            [1.3, 0.5194],
+            [1.35, 0.4679],
+            [1.4, 0.4257],
+            [1.45, 0.3906],
+            [1.5, 0.361],
+            [1.55, 0.3358],
+            [1.6, 0.3141],
+            [1.65, 0.2952],
+            [1.7, 0.2787],
+            [1.75, 0.264],
+            [1.8, 0.2509],
+            [1.85, 0.2392],
+            [1.9, 0.2286],
+            [1.95, 0.219],
+            [2.0, 0.2102],
+            [2.05, 0.2022],
+            [2.1, 0.1948],
+            [2.15, 0.188],
+            [2.2, 0.1817],
+            [2.25, 0.1759],
+            [2.3, 0.1704],
+            [2.35, 0.1653],
+            [2.4, 0.1605],
+            [2.45, 0.1561],
+            [2.5, 0.1518],
+            [2.55, 0.1478],
+            [2.6, 0.1441],
+            [2.65, 0.1405],
+            [2.7, 0.1372],
+            [2.75, 0.134],
+            [2.8, 0.1309],
+            [2.85, 0.128],
+            [2.9, 0.1253],
+            [2.95, 0.1226],
+            [3.0, 0.1201]
+          ],
+          "tone": 2
+        }
+      ],
+      "vlines": [{"x": 1, "label": "f_0", "dashed": true}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 4-4 · Series RLC resonance: sweep for f0; the capacitor voltage beats the source",
-      "summary": "10 mH + 100 nF + 100 Ω in series. Sweep the frequency to find the resonance f0, where the current peaks and is in phase with the voltage, then see whether the circuit is capacitive or inductive away from f0.",
+      "title": "Series RLC resonance: sweep for f0",
+      "summary": "10 mH + 100 nF + 100 Ω in series. Sweep for the resonant frequency f0, where the current is largest and in phase with the voltage; see the capacitor voltage beat the source there, and find which side of f0 is capacitive and which inductive.",
       "concepts": ["series resonance", "f0 = 1/(2π√(LC))", "quality factor Q = ω0L/R", "at resonance V_L = V_C = Q·V", "capacitive / inductive"],
-      "description": [
-        "**Goal**: sweep the frequency to find the resonance of a series RLC circuit, and see that at resonance the current is largest and in phase with the voltage, while the capacitor and inductor voltages are \"magnified\".",
-        "",
-        "**Circuit**: generator red clip → L1 (10 mH) → C1 (100 nF) → node VR → R1 (100 Ω) → GND; black clip to GND. The resistor sits at the grounded end, so VR is the current waveform (i = v_R / 100 Ω).",
-        "",
-        "**Generator**: sine, amplitude 1 V, offset 0. Turn the frequency slowly from 2.5 kHz up to 10 kHz (a sweep) and find where VR is largest.",
-        "",
-        "**Scope**: CH1 on VIN (the generator's terminals), CH2 on VR. The capacitor voltage is (the node between L1 and C1) − VR: move CH1 to that node and use MATH subtract.",
-        "",
-        "**Predict first**: Z = (R + r) + j(ωL − 1/(ωC)), with r = 1 Ω winding resistance. Before you start, work out: what is the resonant frequency f0? What are v_R/v_in and the phase at resonance? What is X_L = X_C at resonance, and how many times VIN is the capacitor voltage (Q)? Below and above f0, does the current lead or lag?",
-        "",
-        "**Measure**: sweep to the frequency where VR peaks and read VR/VIN and the phase there; move CH1 to the node between L1 and C1 to see the capacitor voltage; then read the ratio and phase at 2.5 kHz and at 10 kHz. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**In a real circuit**:",
-        "- The simulated coil has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω, and it adds to R1: with r ≈ 20 Ω, v_R/v_in at resonance is only 100/120 ≈ 0.83, the peak current is lower, Q ≈ 316/120 ≈ 2.6 and the peak is wider. f0 hardly moves.",
-        "- **Safety note**: in a high-Q series resonant circuit the component voltages can be dozens of times the source voltage — mind the capacitor's voltage rating in real life."
-      ],
+      "description": "Generator → L1 (10 mH) → C1 (100 nF) → VR → R1 (100 Ω) → GND. The resistor sits at the grounded end, so CH2 on VR shows the current.",
       "compare": [
         "**Compare**:",
         "- When ωL = 1/(ωC) the reactances cancel, |Z| is at its minimum R + r, the current is at its maximum, and current and voltage are **in phase**: f0 = 1/(2π√(LC)) = 1/(2π√(10 mH × 100 nF)) ≈ 5033 Hz.",
@@ -58,67 +220,116 @@
         "- The half-power points (v_R/v_in = 0.707 × 0.99) are near 4.3 kHz and 5.9 kHz; bandwidth BW = (R + r)/(2πL) ≈ 1.6 kHz, and f0/BW ≈ 3.1 = Q."
       ],
       "measurements": [
-        {"ask": "Sweep: the frequency f0 where VR is in phase with VIN (0° phase difference) and largest", "explain": "The reactances cancel when ωL = 1/(ωC): f0 = 1/(2π√(LC)) ≈ 5.03 kHz."},
-        {"ask": "f = 2.5 kHz: the phase of VR (i.e. the current) relative to VIN", "explain": "Below f0, 1/(ωC) > ωL: the circuit is capacitive and the current leads, so the phase is positive."},
-        {"ask": "Set 10 kHz and look at the phase again: how does the circuit behave?", "choices": ["Inductive: the current lags the voltage (negative phase)", "Capacitive: the current leads the voltage (positive phase)", "Purely resistive: in phase"], "explain": "Above f0, ωL > 1/(ωC): the inductance wins and the current lags by about 78°."}
+        {
+          "ask": "Sweep: the frequency f0 where VR is in phase with VIN (0° phase difference) and largest",
+          "explain": "The reactances cancel when ωL = 1/(ωC): f0 = 1/(2π√(LC)) ≈ 5.03 kHz."
+        },
+        {
+          "ask": "f = 2.5 kHz: the phase of VR (i.e. the current) relative to VIN",
+          "explain": "Below f0, 1/(ωC) > ωL: the circuit is capacitive and the current leads, so the phase is positive."
+        },
+        {
+          "ask": "f = 5033 Hz: CH2 across the capacitor (tip d9, clip a14), the capacitor voltage's Vpp",
+          "explain": "At resonance X_C = X_L = √(L/C) ≈ 316 Ω and the current is ≈ 4.7 mA (rms), so the capacitor voltage is Q = 316/101 ≈ 3.1 times VIN: about 4.2 Vpp while VIN is only about 1.34 Vpp. V_L and V_C are equal and opposite, so KVL still holds."
+        },
+        {
+          "ask": "Set 10 kHz and look at the phase again: how does the circuit behave?",
+          "choices": [
+            "Inductive: the current lags the voltage (negative phase)",
+            "Capacitive: the current leads the voltage (positive phase)",
+            "Purely resistive: in phase"
+          ],
+          "explain": "Above f0, ωL > 1/(ωC): the inductance wins and the current lags by about 78°."
+        }
       ],
       "hints": [
         "Series order: generator → inductor → capacitor → resistor → GND.",
         "f0 = 1/(2π√(LC)). At f0, VR is in phase with VIN: sweep for the frequency where the phase difference crosses zero.",
         "Below f0 the circuit is capacitive (current leads); above f0 inductive (current lags)."
       ],
-      "tests": [
-        "f0: current in phase with the voltage",
-        "f0: the capacitor voltage exceeds VIN (Q > 1)",
-        "2.5 kHz: capacitive",
-        "10 kHz: inductive"
+      "tests": ["f0: current in phase with the voltage", "f0: the capacitor voltage exceeds VIN (Q > 1)", "2.5 kHz: capacitive", "10 kHz: inductive"],
+      "cards": [
+        {
+          "title": "Turn the knob, find the biggest moment",
+          "text": [
+            "Three parts in one string: **inductor** (`10 mH`) **`b3`**–**`b9`**, **capacitor** (`100 nF`) **`c9`**–**`c14`**, **resistor** (`100 Ω`) **`d14`**–**`tn14`**. CH2 sits on the resistor, so it shows the current.",
+            "Generator: **sine, amplitude `1 V`**; turn the frequency slowly from **`2.5 kHz`** up to **`10 kHz`**.",
+            "CH2 grows, then shrinks. At its biggest, do the peaks of CH1 and CH2 line up?"
+          ]
+        },
+        {
+          "title": "Two opposite \"resistances\" cancel",
+          "text": [
+            "- The inductor's reactance $X_L = 2\\pi f L$ **grows** with frequency; the capacitor's $X_C = \\frac{1}{2\\pi f C}$ **shrinks**.",
+            "- They pull in opposite directions: the inductor makes the current lag, the capacitor makes it lead. At the frequency where they are equal they **cancel**, and only the resistor holds the current back — the current is largest and in phase with the voltage. This is **resonance**.",
+            "![](fig:reactances)",
+            "- Setting $X_L = X_C$ gives the resonant frequency:",
+            "$$f_0 = \\frac{1}{2\\pi\\sqrt{LC}} = \\frac{1}{2\\pi\\sqrt{0.01 × 100 × 10^{-9}}}$$",
+            "Work it out before you start. Below $f_0$ the capacitor wins; above $f_0$ the inductor wins.",
+            "![](fig:peak)"
+          ]
+        },
+        {
+          "title": "Find f0, then look at the capacitor",
+          "text": [
+            "- **Sweep**: find the frequency where the phase of CH2 vs CH1 crosses 0; CH2 is also largest there.",
+            "- Set **`2.5 kHz`**: read the phase of CH2 vs CH1; then set **`10 kHz`** and note the sign of the phase.",
+            "- Back at $f_0$, **clip CH2 across the capacitor**: tip into **`d9`**, ground clip into **`a14`** (the probes measure tip minus clip). Compared with CH1, is the capacitor voltage bigger or smaller than the voltage you apply?"
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Series resonance**: $X_L = X_C$, the impedance is smallest (just the resistance), the current is largest and in phase with the voltage.",
+            "- Below $f_0$ the circuit is **capacitive** (current leads); above $f_0$ it is **inductive** (current lags).",
+            "- At resonance the L and C voltages are equal and opposite, and each can be several times the source voltage (Q times, the quality factor).",
+            "- Pitfall: in a high-Q series circuit the capacitor can see dozens of times the source voltage. In real circuits, check the capacitor's **voltage rating**."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "L1", "type": "inductor", "inductance": "10m" },
-    { "ref": "C1", "type": "capacitor", "capacitance": "100n" },
-    { "ref": "R1", "type": "resistor", "resistance": "100" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "L1", "type": "inductor", "inductance": "10m"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "100n"},
+    {"ref": "R1", "type": "resistor", "resistance": "100"}
   ],
   "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "L1.1"] },
-    { "name": "NLC", "pins": ["L1.2", "C1.1"] },
-    { "name": "VR", "pins": ["C1.2", "R1.1"] },
-    { "name": "GND", "pins": ["R1.2", "FG1.-"] }
+    {"name": "VIN", "pins": ["FG1.+", "L1.1"]},
+    {"name": "NLC", "pins": ["L1.2", "C1.1"]},
+    {"name": "VR", "pins": ["C1.2", "R1.1"]},
+    {"name": "GND", "pins": ["R1.2", "FG1.-"]}
   ],
   "tests": [
     {
       "name": "f0：电流与电压同相",
-      "set": { "FG1": { "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.96, "max": 1.0 },
-        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -3, "max": 3 }
+        {"pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.96, "max": 1.0},
+        {"pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -3, "max": 3}
       ],
-      "currents": [{ "el": "R1", "mode": "rms", "min": 0.0045, "max": 0.0049 }]
+      "currents": [{"el": "R1", "mode": "rms", "min": 0.0045, "max": 0.0049}]
     },
     {
       "name": "f0：电容电压比 VIN 高（Q > 1）",
-      "set": { "FG1": { "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0 } },
-      "scope": [
-        { "pin": "C1.1", "ref": "C1.2", "measure": "vpp", "min": 4.0, "max": 4.4 },
-        { "pin": "FG1.+", "measure": "vpp", "min": 1.28, "max": 1.4 }
-      ]
+      "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}},
+      "scope": [{"pin": "C1.1", "ref": "C1.2", "measure": "vpp", "min": 4.0, "max": 4.4}, {"pin": "FG1.+", "measure": "vpp", "min": 1.28, "max": 1.4}]
     },
     {
       "name": "2.5 kHz：容性",
-      "set": { "FG1": { "waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.18, "max": 0.22 },
-        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 75, "max": 81 }
+        {"pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.18, "max": 0.22},
+        {"pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 75, "max": 81}
       ]
     },
     {
       "name": "10 kHz：感性",
-      "set": { "FG1": { "waveform": "sine", "frequency": 10000, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 10000, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.19, "max": 0.23 },
-        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -81, "max": -75 }
+        {"pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.19, "max": 0.23},
+        {"pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -81, "max": -75}
       ]
     }
   ],
@@ -132,23 +343,67 @@
     "- 半功率点（v_R/v_in = 0.707×0.99）大约在 4.3 kHz 和 5.9 kHz，带宽 BW = (R + r)/(2πL) ≈ 1.6 kHz，f0/BW ≈ 3.1 = Q。"
   ],
   "measurements": [
-    {"id": "f0", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "solve": {"el": "FG1", "from": 2500, "to": 10000, "value": 0}, "set": {"FG1": {"waveform": "sine", "amplitude": 1, "offset": 0}}, "unit": "kHz", "predict": true, "range": [4900, 5150], "ask": "扫频：VR 和 VIN 同相（相位差 0°）、VR 最大的频率 f0", "explain": "ωL = 1/(ωC) 时电抗抵消：f0 = 1/(2π√(LC)) ≈ 5.03 kHz。"},
-    {"id": "ph25", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0}}, "unit": "°", "predict": true, "range": [75, 81], "ask": "f = 2.5 kHz：VR（也就是电流）相对 VIN 的相位差", "explain": "低于 f0 时 1/(ωC) > ωL，电路呈容性，电流超前电压，相位为正。"},
-    {"id": "ind", "choices": ["感性：电流落后电压（相位差为负）", "容性：电流超前电压（相位差为正）", "纯电阻：同相"], "correct": 0, "ask": "把频率调到 10 kHz 再看相位：电路呈什么性质？", "explain": "高于 f0 时 ωL > 1/(ωC)，感抗占上风，电流落后电压约 78°。"}
+    {
+      "id": "f0",
+      "scope": "phase",
+      "pin": "R1.1",
+      "vs": "FG1.+",
+      "solve": {"el": "FG1", "from": 2500, "to": 10000, "value": 0},
+      "set": {"FG1": {"waveform": "sine", "amplitude": 1, "offset": 0}},
+      "unit": "kHz",
+      "predict": true,
+      "range": [4900, 5150],
+      "ask": "扫频：VR 和 VIN 同相（相位差 0°）、VR 最大的频率 f0",
+      "explain": "ωL = 1/(ωC) 时电抗抵消：f0 = 1/(2π√(LC)) ≈ 5.03 kHz。"
+    },
+    {
+      "id": "ph25",
+      "scope": "phase",
+      "pin": "R1.1",
+      "vs": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0}},
+      "unit": "°",
+      "predict": true,
+      "range": [75, 81],
+      "ask": "f = 2.5 kHz：VR（也就是电流）相对 VIN 的相位差",
+      "explain": "低于 f0 时 1/(ωC) > ωL，电路呈容性，电流超前电压，相位为正。"
+    },
+    {
+      "id": "vc",
+      "scope": "vpp",
+      "pin": "C1.1",
+      "ref": "C1.2",
+      "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [4.0, 4.4],
+      "ask": "f = 5033 Hz：CH2 夹到电容两端（针尖 d9、接地夹 a14），电容电压的 Vpp",
+      "explain": "谐振时 X_C = X_L = √(L/C) ≈ 316 Ω，电流 ≈ 4.7 mA（有效值），电容电压是 VIN 的 Q = 316/101 ≈ 3.1 倍：约 4.2 Vpp，而 VIN 只有约 1.34 Vpp。V̇L 和 V̇C 大小相等、方向相反，所以 KVL 仍然成立。"
+    },
+    {
+      "id": "ind",
+      "choices": ["感性：电流落后电压（相位差为负）", "容性：电流超前电压（相位差为正）", "纯电阻：同相"],
+      "correct": 0,
+      "ask": "把频率调到 10 kHz 再看相位：电路呈什么性质？",
+      "explain": "高于 f0 时 ωL > 1/(ωC)，感抗占上风，电流落后电压约 78°。"
+    }
   ],
-  "hints": [
-    "串联顺序：信号发生器 → 电感 → 电容 → 电阻 → GND。",
-    "f0 = 1/(2π√(LC))。在 f0 处 VR 和 VIN 同相：扫频时找相位差过零的地方。",
-    "低于 f0 电路呈容性（电流超前），高于 f0 呈感性（电流落后）。"
-  ],
+  "hints": ["串联顺序：信号发生器 → 电感 → 电容 → 电阻 → GND。", "f0 = 1/(2π√(LC))。在 f0 处 VR 和 VIN 同相：扫频时找相位差过零的地方。", "低于 f0 电路呈容性（电流超前），高于 f0 呈感性（电流落后）。"],
+  "start": {
+    "parts": [
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e14", "gnd": "tn21"}}
+    ]
+  },
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "b3", "2": "b9" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "c9", "2": "c14" } },
-      { "type": "resistor", "ref": "R1", "resistance": "100", "pins": { "1": "d14", "2": "tn14" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e14", "gnd": "tn21" } }
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "inductor", "ref": "L1", "inductance": "10m", "pins": {"1": "b3", "2": "b9"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": {"1": "c9", "2": "c14"}},
+      {"type": "resistor", "ref": "R1", "resistance": "100", "pins": {"1": "d14", "2": "tn14"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e14", "gnd": "tn21"}}
     ]
   }
 }

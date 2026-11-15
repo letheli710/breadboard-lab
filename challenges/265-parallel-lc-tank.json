@@ -2,48 +2,246 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp4-parallel-lc-tank",
-  "title": "实验 4-5 · LC 并联谐振（槽路）：只让一个频率通过",
+  "title": "LC 并联槽路：只让一个频率通过",
   "kind": "challenge",
   "level": 4,
   "phase": 4,
-  "summary": "10 kΩ 串一个 10 mH ∥ 100 nF 的并联槽路。扫频找出槽路的谐振频率，测谐振时的输出和槽路里的环流，看它为什么只让一个频率通过。",
+  "summary": "10 kΩ 串一个 10 mH ∥ 100 nF 的槽路。扫频找槽路的谐振频率，再用电流表量槽路里来回流的电流，看它比外面的电流大多少倍。",
   "concepts": ["并联谐振 parallel resonance", "槽路阻抗 Z0 = L/(rC)", "谐振时导纳虚部为零 susceptance cancels", "环流 circulating current", "选频 frequency selection"],
   "prereq": ["lesson-scope-two-channels"],
-  "description": [
-    "**目标**：扫频观察 LC 并联槽路的谐振：谐振时阻抗最大、输出最大，并看到 L、C 之间远大于外部电流的环流。",
-    "",
-    "**电路**：信号发生器红夹子 → R1（10 kΩ）→ 结点 VT；VT 到 GND 之间并联 L1（10 mH）和 C1（100 nF）。黑夹子接 GND。",
-    "",
-    "**信号发生器**：正弦波，幅度 1 V、偏置 0。频率在 2.5 kHz ~ 10 kHz 之间扫，在峰值附近要非常慢地调（峰很尖）。",
-    "",
-    "**示波器**：CH1 接 VIN，CH2 接 VT。",
-    "",
-    "**先预测**：用导纳——并联支路的导纳相加：Y = 1/(r + jωL) + jωC（r = 1 Ω 线圈电阻）。先算谐振频率 f0、谐振时槽路阻抗 Z0 ≈ L/(rC)，再由 R1 和 Z0 分压估计 VT/VIN；偏离谐振（f0/2、2f0）时槽路呈感性还是容性？整个电路的 Q 和带宽大约多少？",
-    "",
-    "**测量**：慢慢扫频找 VT 最大的频率，读那里的 VT/VIN 和相位；再在 2.5 kHz 和 10 kHz 各读一次；找出 VT 降到峰值 0.707 倍的两个频率。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**真实电路里**：仿真里线圈电阻只有 1 Ω，所以 Z0 高达 100 kΩ。真实的 10 mH 小电感线圈电阻常在 10 ~ 30 Ω，Z0 会降到几 kΩ，峰值也会低很多、宽很多——这正是“品质因数”这个名字的来历。"
+  "description": "信号发生器 → R1（10 kΩ）→ VT；VT 到 GND 并联 L1（10 mH）和 C1（100 nF）。CH1 看 VIN，CH2 看 VT。谐振时槽路像一个很大的电阻，VT 最大；L、C 之间的环流远大于流进来的电流。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "一个很尖的峰",
+      "text": [
+        "**电阻**（`10 kΩ`）插 **`b3`**–**`b10`**。**电感**（`10 mH`）插 **`c10`**–**`tn10`**，**电容**（`100 nF`）插 **`d10`**–**`tn11`**：L 和 C 并排，都从 VT 接到 GND。",
+        "信号发生器：**正弦波、幅度 `1 V`**，频率从 **`2.5 kHz`** 往 **`10 kHz`** 调。峰很窄，到中间要**非常慢**地调。",
+        "大部分频率下 CH2 几乎是一条平线。在哪里它突然变大？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "L 和 C 在里面荡秋千",
+      "text": [
+        "- 谐振时，能量在电感的磁场和电容的电场之间**来回倒**：电容放电推动电感，电感再把电容反向充满……就像荡秋千。",
+        "- 这股电流只在 L 和 C 之间转圈。从外面看，L 的电流和 C 的电流大小几乎相等、方向相反，**互相抵消**。外面只需要补一点线圈电阻上的损耗。",
+        "![](fig:tank)",
+        "- 所以谐振时槽路像一个**很大的电阻**，VT 几乎等于 VIN；偏离一点，L 或 C 就把信号短路到 GND。谐振频率和串联时一样：",
+        "$$f_0 = \\frac{1}{2\\pi\\sqrt{LC}}$$",
+        "![](fig:select)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "找 f0，量里外两个电流",
+      "text": [
+        "- **扫频**：找 CH2 最大、和 CH1 同相的频率，读那里的幅度比（CH2 ÷ CH1）。",
+        "- **电流表**的表盘写着 “DC A”，显示的是**平均值**——正弦电流的平均值几乎是 0。**点一下电流表**，右侧「属性」里的「有效值 RMS」才是要读的数。",
+        "- 外面的电流：把 R1 右脚挪到 **`b7`**，电流表红笔插 **`a7`**、黑笔插 **`a10`**。",
+        "- 里面的电流：把 L1 上面那只脚挪到 **`c13`**，再放一块电流表，红笔 **`b10`**、黑笔 **`a13`**。两块表都在频率停在 $f_0$ 时读。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **并联谐振**：L、C 的电流互相抵消，槽路阻抗最大，输出最大。偏离 $f_0$，槽路很快变成小电感或小电容。",
+        "- 槽路里的**环流**可以是外面电流的几百倍。收音机就是用这样的回路“选台”的。",
+        "- 坑：仿真里线圈电阻只有 1 Ω。真实 10 mH 小电感常有 10～30 Ω，峰会低很多、宽很多——这就是“品质因数”名字的来历。"
+      ],
+      "practice": ["frequency"]
+    }
   ],
+  "figures": {
+    "tank": {
+      "kind": "schematic",
+      "caption": {
+        "text": "谐振时 I_L 和 I_C 大小几乎相等、方向相反：它们在 L、C 之间转圈（回路箭头），从 R1 流进来的 I 只是很小的一点。",
+        "i18n": {
+          "en": "At resonance I_L and I_C are almost equal and opposite: they circle between L and C (the loop arrow); the I coming in through R1 is only a trickle."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [2, 0], "value": "10k"},
+          {"ref": "L1", "type": "L", "from": [2, 4], "to": [2, 0], "value": "10m"},
+          {"ref": "C1", "type": "C", "from": [5, 0], "to": [5, 4], "value": "100n"}
+        ],
+        "wires": [[[2, 0], [5, 0]], [[2, 4], [5, 4]]],
+        "terminals": [{"at": [0, 0], "name": "VIN"}],
+        "labels": [{"at": [4, 0], "name": "VT"}],
+        "grounds": [[3, 4]],
+        "marks": [{"kind": "i", "el": "R1", "name": "I"}, {"kind": "i", "el": "L1", "name": "I_L"}, {"kind": "i", "el": "C1", "name": "I_C"}],
+        "loops": [{"at": [3.5, 2], "name": ""}]
+      }
+    },
+    "select": {
+      "kind": "plot",
+      "caption": {"text": "VT 随频率变化：只有 f_0 附近很窄的一段能通过。", "i18n": {"en": "VT against frequency: only a narrow band around f_0 gets through."}},
+      "x": {"label": {"text": "频率 f / f_0", "i18n": {"en": "frequency f / f_0"}}, "min": 0, "max": 3, "ticks": [0, 1, 2, 3]},
+      "y": {"label": {"text": "VT（相对最大值）", "i18n": {"en": "VT (relative to the peak)"}}, "min": 0, "max": 1.1, "ticks": [0, 1]},
+      "curves": [
+        {
+          "points": [
+            [0.2, 0.0072],
+            [0.22, 0.008],
+            [0.24, 0.0088],
+            [0.26, 0.0096],
+            [0.28, 0.0105],
+            [0.3, 0.0114],
+            [0.32, 0.0123],
+            [0.34, 0.0133],
+            [0.36, 0.0143],
+            [0.38, 0.0153],
+            [0.4, 0.0164],
+            [0.42, 0.0176],
+            [0.44, 0.0188],
+            [0.46, 0.0201],
+            [0.48, 0.0215],
+            [0.5, 0.023],
+            [0.52, 0.0246],
+            [0.54, 0.0263],
+            [0.56, 0.0281],
+            [0.58, 0.0301],
+            [0.6, 0.0323],
+            [0.62, 0.0347],
+            [0.64, 0.0374],
+            [0.66, 0.0403],
+            [0.68, 0.0436],
+            [0.7, 0.0473],
+            [0.72, 0.0515],
+            [0.74, 0.0563],
+            [0.76, 0.0619],
+            [0.78, 0.0685],
+            [0.8, 0.0764],
+            [0.82, 0.086],
+            [0.84, 0.0979],
+            [0.86, 0.1132],
+            [0.88, 0.1333],
+            [0.9, 0.1612],
+            [0.92, 0.2023],
+            [0.94, 0.2683],
+            [0.96, 0.389],
+            [0.97, 0.4925],
+            [0.98, 0.6491],
+            [0.99, 0.8639],
+            [1.0, 1.0],
+            [1.01, 0.8661],
+            [1.02, 0.6566],
+            [1.03, 0.5038],
+            [1.04, 0.4023],
+            [1.06, 0.2836],
+            [1.08, 0.2184],
+            [1.1, 0.1777],
+            [1.12, 0.1501],
+            [1.14, 0.1301],
+            [1.16, 0.115],
+            [1.18, 0.1031],
+            [1.2, 0.0936],
+            [1.22, 0.0858],
+            [1.24, 0.0793],
+            [1.26, 0.0737],
+            [1.28, 0.069],
+            [1.3, 0.0648],
+            [1.32, 0.0612],
+            [1.34, 0.058],
+            [1.36, 0.0551],
+            [1.38, 0.0525],
+            [1.4, 0.0502],
+            [1.42, 0.0481],
+            [1.44, 0.0462],
+            [1.46, 0.0444],
+            [1.48, 0.0428],
+            [1.5, 0.0413],
+            [1.52, 0.04],
+            [1.54, 0.0387],
+            [1.56, 0.0375],
+            [1.58, 0.0364],
+            [1.6, 0.0353],
+            [1.62, 0.0344],
+            [1.64, 0.0335],
+            [1.66, 0.0326],
+            [1.68, 0.0318],
+            [1.7, 0.031],
+            [1.72, 0.0303],
+            [1.74, 0.0296],
+            [1.76, 0.0289],
+            [1.78, 0.0283],
+            [1.8, 0.0277],
+            [1.82, 0.0271],
+            [1.84, 0.0266],
+            [1.86, 0.0261],
+            [1.88, 0.0256],
+            [1.9, 0.0251],
+            [1.92, 0.0246],
+            [1.94, 0.0242],
+            [1.96, 0.0238],
+            [1.98, 0.0234],
+            [2.0, 0.023],
+            [2.02, 0.0226],
+            [2.04, 0.0222],
+            [2.06, 0.0219],
+            [2.08, 0.0216],
+            [2.1, 0.0212],
+            [2.12, 0.0209],
+            [2.14, 0.0206],
+            [2.16, 0.0203],
+            [2.18, 0.02],
+            [2.2, 0.0198],
+            [2.22, 0.0195],
+            [2.24, 0.0192],
+            [2.26, 0.019],
+            [2.28, 0.0187],
+            [2.3, 0.0185],
+            [2.32, 0.0183],
+            [2.34, 0.018],
+            [2.36, 0.0178],
+            [2.38, 0.0176],
+            [2.4, 0.0174],
+            [2.42, 0.0172],
+            [2.44, 0.017],
+            [2.46, 0.0168],
+            [2.48, 0.0166],
+            [2.5, 0.0164],
+            [2.52, 0.0162],
+            [2.54, 0.0161],
+            [2.56, 0.0159],
+            [2.58, 0.0157],
+            [2.6, 0.0156],
+            [2.62, 0.0154],
+            [2.64, 0.0152],
+            [2.66, 0.0151],
+            [2.68, 0.0149],
+            [2.7, 0.0148],
+            [2.72, 0.0147],
+            [2.74, 0.0145],
+            [2.76, 0.0144],
+            [2.78, 0.0142],
+            [2.8, 0.0141],
+            [2.82, 0.014],
+            [2.84, 0.0139],
+            [2.86, 0.0137],
+            [2.88, 0.0136],
+            [2.9, 0.0135],
+            [2.92, 0.0134],
+            [2.94, 0.0133],
+            [2.96, 0.0131],
+            [2.98, 0.013],
+            [3.0, 0.0129]
+          ],
+          "tone": 2
+        }
+      ],
+      "vlines": [{"x": 1, "label": "f_0", "dashed": true}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 4-5 · Parallel LC resonance (tank): let only one frequency through",
-      "summary": "10 kΩ in series with a 10 mH ∥ 100 nF tank. Sweep to find the tank's resonance, measure the output and the circulating current there, and see why it passes only one frequency.",
+      "title": "Parallel LC tank: only one frequency gets through",
+      "summary": "10 kΩ in series with a 10 mH ∥ 100 nF tank. Sweep for the tank's resonance, then use the ammeter to compare the current sloshing inside the tank with the current coming in.",
       "concepts": ["parallel resonance", "tank impedance Z0 = L/(rC)", "susceptances cancel at resonance", "circulating current", "frequency selection"],
-      "description": [
-        "**Goal**: sweep the frequency to watch a parallel LC tank resonate: at resonance its impedance and the output peak, and a circulating current far larger than the outside current flows between L and C.",
-        "",
-        "**Circuit**: generator red clip → R1 (10 kΩ) → node VT; between VT and GND, L1 (10 mH) and C1 (100 nF) in parallel. Black clip to GND.",
-        "",
-        "**Generator**: sine, amplitude 1 V, offset 0. Sweep from 2.5 kHz to 10 kHz, and turn the knob very slowly near the peak (it is sharp).",
-        "",
-        "**Scope**: CH1 on VIN, CH2 on VT.",
-        "",
-        "**Predict first**: use admittance — parallel admittances add: Y = 1/(r + jωL) + jωC (r = 1 Ω winding resistance). Work out f0 and the tank impedance at resonance Z0 ≈ L/(rC), then VT/VIN from the R1–Z0 divider. Away from resonance (f0/2, 2f0), is the tank inductive or capacitive? Roughly what are the whole circuit's Q and bandwidth?",
-        "",
-        "**Measure**: sweep slowly to the frequency where VT peaks and read VT/VIN and the phase there; read them again at 2.5 kHz and 10 kHz; find the two frequencies where VT falls to 0.707 of its peak. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**In a real circuit**: the simulated coil has only 1 Ω of winding resistance, so Z0 reaches 100 kΩ. A real small 10 mH inductor often has 10–30 Ω, which brings Z0 down to a few kΩ and makes the peak much lower and wider — which is where the name \"quality factor\" comes from."
-      ],
+      "description": "Generator → R1 (10 kΩ) → VT; L1 (10 mH) and C1 (100 nF) in parallel from VT to GND. CH1 on VIN, CH2 on VT. At resonance the tank looks like a very large resistor and VT peaks; the current circulating between L and C is far larger than the current coming in.",
       "compare": [
         "**Compare**:",
         "- At f0 = 1/(2π√(LC)) ≈ 5033 Hz the inductor's and capacitor's susceptances cancel, leaving only a tiny real part, so the tank impedance peaks: Z0 ≈ L/(rC) = 10 mH / (1 Ω × 100 nF) = 100 kΩ.",
@@ -54,11 +252,26 @@
         "**Think about it (circulating current)**: at resonance only about 6.5 µA (RMS) flows into the tank through R1, while about 2.0 mA flows back and forth between L and C — over 300× the outside current (≈ the tank's own Q = √(L/C)/r ≈ 316). Energy sloshes between the inductor's magnetic field and the capacitor's electric field; the outside only has to make up the loss in the winding resistance. (Phasor diagram: I_L and I_C are almost equal and opposite.)"
       ],
       "measurements": [
-        {"ask": "Sweep: the frequency f0 where VT peaks and is in phase with VIN (0° phase difference)", "explain": "f0 = 1/(2π√(LC)) ≈ 5.03 kHz: the inductor's and capacitor's susceptances cancel."},
-        {"ask": "f = 5033 Hz: amplitude ratio VT/VIN", "explain": "The tank impedance Z0 ≈ L/(rC) = 100 kΩ divides with R1: 100/110 ≈ 0.91."},
-        {"ask": "f = 5033 Hz: ammeter (AC RMS) in series with R1, the current into the tank", "explain": "The tank looks like about 100 kΩ: ≈ 0.707 V / 110 kΩ ≈ 6.5 µA."},
-        {"ask": "Same frequency: move the ammeter into the inductor branch and read L1's current", "explain": "I_L ≈ V_T / (ωL) ≈ 0.64 V / 316 Ω ≈ 2.0 mA: energy swings back and forth between L and C."},
-        {"ask": "From your two readings, the circulating-current ratio I_L / I_R1", "explain": "≈ 300, close to the tank's own Q = √(L/C)/r ≈ 316. The outside only has to make up the winding-resistance loss; I_L and I_C are nearly equal and opposite."}
+        {
+          "ask": "Sweep: the frequency f0 where VT peaks and is in phase with VIN (0° phase difference)",
+          "explain": "f0 = 1/(2π√(LC)) ≈ 5.03 kHz: the inductor's and capacitor's susceptances cancel."
+        },
+        {
+          "ask": "f = 5033 Hz: amplitude ratio VT/VIN (CH2 Vpp ÷ CH1 Vpp)",
+          "explain": "The tank impedance Z0 ≈ L/(rC) = 100 kΩ divides with R1: 100/110 ≈ 0.91."
+        },
+        {
+          "ask": "f = 5033 Hz: the ammeter in series with R1, its RMS value under Properties (the current into the tank)",
+          "explain": "The tank looks like about 100 kΩ: ≈ 0.707 V / 110 kΩ ≈ 6.5 µA."
+        },
+        {
+          "ask": "Same frequency: the ammeter in the inductor branch, its RMS value (L1's current)",
+          "explain": "I_L ≈ V_T / (ωL) ≈ 0.64 V / 316 Ω ≈ 2.0 mA: energy swings back and forth between L and C."
+        },
+        {
+          "ask": "From your two readings, the circulating-current ratio I_L / I_R1",
+          "explain": "≈ 300, close to the tank's own Q = √(L/C)/r ≈ 316. The outside only has to make up the winding-resistance loss; I_L and I_C are nearly equal and opposite."
+        }
       ],
       "hints": [
         "L1 and C1 are side by side, both from VT to GND; R1 connects the generator to VT.",
@@ -70,51 +283,82 @@
         "f0: the circulating tank current is far larger than the current in R1",
         "f0/2 = 2.5 kHz: inductive tank, VT is small",
         "2f0 = 10 kHz: capacitive tank, VT is small"
+      ],
+      "cards": [
+        {
+          "title": "A very sharp peak",
+          "text": [
+            "**Resistor** (`10 kΩ`) into **`b3`**–**`b10`**. **Inductor** (`10 mH`) into **`c10`**–**`tn10`**, **capacitor** (`100 nF`) into **`d10`**–**`tn11`**: L and C side by side, both from VT to GND.",
+            "Generator: **sine, amplitude `1 V`**; turn the frequency from **`2.5 kHz`** towards **`10 kHz`**. The peak is narrow — near the middle, turn **very slowly**.",
+            "At most frequencies CH2 is almost a flat line. Where does it suddenly grow?"
+          ]
+        },
+        {
+          "title": "L and C play on a swing",
+          "text": [
+            "- At resonance the energy **sloshes back and forth** between the inductor's magnetic field and the capacitor's electric field: the capacitor discharges into the inductor, the inductor charges the capacitor the other way round… like a swing.",
+            "- That current only circles between L and C. From outside, the L current and the C current are almost equal and opposite and **cancel**. The outside only has to make up a little loss in the coil's resistance.",
+            "![](fig:tank)",
+            "- So at resonance the tank looks like a **very large resistor** and VT is almost VIN; a little off, and L or C shorts the signal to GND. The resonant frequency is the same as in the series circuit:",
+            "$$f_0 = \\frac{1}{2\\pi\\sqrt{LC}}$$",
+            "![](fig:select)"
+          ]
+        },
+        {
+          "title": "Find f0, measure the inside and outside currents",
+          "text": [
+            "- **Sweep**: find the frequency where CH2 is largest and in phase with CH1; read the amplitude ratio there (CH2 ÷ CH1).",
+            "- The **ammeter**'s face says \"DC A\" and shows the **average** — and the average of a sine current is almost 0. **Click the ammeter**: the \"RMS\" line under Properties on the right is the number to read.",
+            "- The outside current: move R1's right lead to **`b7`**; ammeter red lead into **`a7`**, black into **`a10`**.",
+            "- The inside current: move L1's top lead to **`c13`** and add a second ammeter, red **`b10`**, black **`a13`**. Read both with the frequency at $f_0$."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Parallel resonance**: the L and C currents cancel, the tank's impedance is largest and so is the output. Away from $f_0$ the tank quickly turns into a small inductor or capacitor.",
+            "- The **circulating current** inside the tank can be hundreds of times the current coming in. A radio \"picks a station\" with a circuit like this.",
+            "- Pitfall: the simulated coil has only 1 Ω of resistance. A real small 10 mH inductor often has 10–30 Ω, so the peak is much lower and wider — which is where the name \"quality factor\" comes from."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "R1", "type": "resistor", "resistance": "10k" },
-    { "ref": "L1", "type": "inductor", "inductance": "10m" },
-    { "ref": "C1", "type": "capacitor", "capacitance": "100n" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "R1", "type": "resistor", "resistance": "10k"},
+    {"ref": "L1", "type": "inductor", "inductance": "10m"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "100n"}
   ],
-  "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
-    { "name": "VT", "pins": ["R1.2", "L1.1", "C1.1"] },
-    { "name": "GND", "pins": ["L1.2", "C1.2", "FG1.-"] }
-  ],
+  "nets": [{"name": "VIN", "pins": ["FG1.+", "R1.1"]}, {"name": "VT", "pins": ["R1.2", "L1.1", "C1.1"]}, {"name": "GND", "pins": ["L1.2", "C1.2", "FG1.-"]}],
   "tests": [
     {
       "name": "f0：VT 最大，和 VIN 同相",
-      "set": { "FG1": { "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "L1.1", "measure": "gain", "vs": "FG1.+", "min": 0.87, "max": 0.94 },
-        { "pin": "L1.1", "measure": "phase", "vs": "FG1.+", "min": -4, "max": 4 }
+        {"pin": "L1.1", "measure": "gain", "vs": "FG1.+", "min": 0.87, "max": 0.94},
+        {"pin": "L1.1", "measure": "phase", "vs": "FG1.+", "min": -4, "max": 4}
       ]
     },
     {
       "name": "f0：槽路里的环流远大于 R1 的电流",
-      "set": { "FG1": { "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0 } },
-      "currents": [
-        { "el": "L1", "mode": "rms", "min": 0.0019, "max": 0.0021 },
-        { "el": "R1", "mode": "rms", "min": 0.0000055, "max": 0.0000075 }
-      ]
+      "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}},
+      "currents": [{"el": "L1", "mode": "rms", "min": 0.0019, "max": 0.0021}, {"el": "R1", "mode": "rms", "min": 5.5e-06, "max": 7.5e-06}]
     },
     {
       "name": "f0/2 = 2.5 kHz：槽路呈感性，VT 很小",
-      "set": { "FG1": { "waveform": "sine", "frequency": 2516, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 2516, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "L1.1", "measure": "gain", "vs": "FG1.+", "min": 0.019, "max": 0.023 },
-        { "pin": "L1.1", "measure": "phase", "vs": "FG1.+", "min": 85, "max": 91 }
+        {"pin": "L1.1", "measure": "gain", "vs": "FG1.+", "min": 0.019, "max": 0.023},
+        {"pin": "L1.1", "measure": "phase", "vs": "FG1.+", "min": 85, "max": 91}
       ]
     },
     {
       "name": "2f0 = 10 kHz：槽路呈容性，VT 很小",
-      "set": { "FG1": { "waveform": "sine", "frequency": 10066, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 10066, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "L1.1", "measure": "gain", "vs": "FG1.+", "min": 0.019, "max": 0.023 },
-        { "pin": "L1.1", "measure": "phase", "vs": "FG1.+", "min": -92, "max": -86 }
+        {"pin": "L1.1", "measure": "gain", "vs": "FG1.+", "min": 0.019, "max": 0.023},
+        {"pin": "L1.1", "measure": "phase", "vs": "FG1.+", "min": -92, "max": -86}
       ]
     }
   ],
@@ -128,25 +372,77 @@
     "**想一想（环流）**：谐振时从 R1 流进槽路的电流只有约 6.5 µA（有效值），而在 L 和 C 之间来回流动的电流约 2.0 mA——是外部电流的 300 多倍（≈ 槽路自身的 Q = √(L/C)/r ≈ 316）。能量在电感的磁场和电容的电场之间来回交换，外面只需要补充线圈电阻上的损耗。（相量图：İL 和 İC 大小几乎相等、方向相反。）"
   ],
   "measurements": [
-    {"id": "f0", "scope": "phase", "pin": "L1.1", "vs": "FG1.+", "solve": {"el": "FG1", "from": 2500, "to": 10000, "value": 0}, "set": {"FG1": {"waveform": "sine", "amplitude": 1, "offset": 0}}, "unit": "kHz", "predict": true, "range": [4780.0, 5280.0], "ask": "扫频：VT 最大、和 VIN 同相（相位差 0°）的频率 f0", "explain": "f0 = 1/(2π√(LC)) ≈ 5.03 kHz：电感和电容的电纳互相抵消。"},
-    {"id": "g0", "scope": "gain", "pin": "L1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}}, "predict": true, "range": [0.863, 0.954], "ask": "f = 5033 Hz：幅度比 VT/VIN", "explain": "槽路阻抗 Z0 ≈ L/(rC) = 100 kΩ，和 R1 分压：100/110 ≈ 0.91。"},
-    {"id": "ir", "current": "R1", "mode": "rms", "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}}, "unit": "µA", "predict": true, "range": [6.19e-06, 6.84e-06], "ask": "f = 5033 Hz：电流表（交流有效值）串在 R1 里，读流进槽路的电流", "explain": "槽路几乎像 100 kΩ 的电阻：≈ 0.707 V / 110 kΩ ≈ 6.5 µA。"},
-    {"id": "il", "current": "L1", "mode": "rms", "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}}, "unit": "mA", "predict": true, "range": [0.00193, 0.00213], "ask": "同一频率：把电流表换到电感支路，读 L1 的电流", "explain": "I_L ≈ V_T / (ωL) ≈ 0.64 V / 316 Ω ≈ 2.0 mA：能量在电感和电容之间来回交换。"},
-    {"id": "ratio", "formula": "il / ir", "predict": true, "range": [296.0, 327.0], "ask": "用你的两个读数算环流放大倍数 I_L / I_R1", "explain": "≈ 300，约等于槽路自身的 Q = √(L/C)/r ≈ 316。外面只需补充线圈电阻上的损耗；İL 和 İC 大小几乎相等、方向相反。"}
+    {
+      "id": "f0",
+      "scope": "phase",
+      "pin": "L1.1",
+      "vs": "FG1.+",
+      "solve": {"el": "FG1", "from": 2500, "to": 10000, "value": 0},
+      "set": {"FG1": {"waveform": "sine", "amplitude": 1, "offset": 0}},
+      "unit": "kHz",
+      "predict": true,
+      "range": [4780.0, 5280.0],
+      "ask": "扫频：VT 最大、和 VIN 同相（相位差 0°）的频率 f0",
+      "explain": "f0 = 1/(2π√(LC)) ≈ 5.03 kHz：电感和电容的电纳互相抵消。"
+    },
+    {
+      "id": "g0",
+      "scope": "gain",
+      "pin": "L1.1",
+      "vs": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}},
+      "predict": true,
+      "range": [0.863, 0.954],
+      "ask": "f = 5033 Hz：幅度比 VT/VIN（CH2 的 Vpp ÷ CH1 的 Vpp）",
+      "explain": "槽路阻抗 Z0 ≈ L/(rC) = 100 kΩ，和 R1 分压：100/110 ≈ 0.91。"
+    },
+    {
+      "id": "ir",
+      "current": "R1",
+      "mode": "rms",
+      "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}},
+      "unit": "µA",
+      "predict": true,
+      "range": [6.19e-06, 6.84e-06],
+      "ask": "f = 5033 Hz：串在 R1 里的电流表，「属性」里的有效值（流进槽路的电流）",
+      "explain": "槽路几乎像 100 kΩ 的电阻：≈ 0.707 V / 110 kΩ ≈ 6.5 µA。"
+    },
+    {
+      "id": "il",
+      "current": "L1",
+      "mode": "rms",
+      "set": {"FG1": {"waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00193, 0.00213],
+      "ask": "同一频率：电感支路里的电流表，有效值（L1 的电流）",
+      "explain": "I_L ≈ V_T / (ωL) ≈ 0.64 V / 316 Ω ≈ 2.0 mA：能量在电感和电容之间来回交换。"
+    },
+    {
+      "id": "ratio",
+      "formula": "il / ir",
+      "predict": true,
+      "range": [296.0, 327.0],
+      "ask": "用你的两个读数算环流放大倍数 I_L / I_R1",
+      "explain": "≈ 300，约等于槽路自身的 Q = √(L/C)/r ≈ 316。外面只需补充线圈电阻上的损耗；İL 和 İC 大小几乎相等、方向相反。"
+    }
   ],
-  "hints": [
-    "L1 和 C1 并排放，都从 VT 接到 GND；R1 把信号发生器接到 VT。",
-    "f0 时槽路像一个很大的电阻；偏离 f0 时它像一个小电感或小电容。",
-    "在峰值附近要慢慢调：通带很窄。"
-  ],
+  "hints": ["L1 和 C1 并排放，都从 VT 接到 GND；R1 把信号发生器接到 VT。", "f0 时槽路像一个很大的电阻；偏离 f0 时它像一个小电感或小电容。", "在峰值附近要慢慢调：通带很窄。"],
+  "start": {
+    "parts": [
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
+    ]
+  },
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "resistor", "ref": "R1", "resistance": "10k", "pins": { "1": "b3", "2": "b10" } },
-      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "c10", "2": "tn10" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "d10", "2": "tn11" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "b3", "2": "b10"}},
+      {"type": "inductor", "ref": "L1", "inductance": "10m", "pins": {"1": "c10", "2": "tn10"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": {"1": "d10", "2": "tn11"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   }
 }
