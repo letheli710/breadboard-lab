@@ -262,9 +262,26 @@ kbd {
   color: var(--muted);
 }
 
-/* course map button + dropdown (App.tsx CourseButton, ui/CourseMap.tsx) */
+/* course map button next to the logo + side panel (App.tsx CourseButton, ui/CourseMap.tsx) */
 .course-btn-wrap {
   position: relative;
+  min-width: 0;
+}
+.progress-card.course-btn {
+  padding: 6px 12px;
+}
+@media (max-width: 760px) {
+  /* row 1: the logo; row 2: course map button + language switch; row 3: the page tabs */
+  .top > .brand {
+    flex: 1 1 100%;
+  }
+  .course-btn-wrap {
+    order: 2;
+    flex: 1 1 0;
+  }
+  .progress-card.course-btn {
+    width: 100%;
+  }
 }
 .progress-card.course-btn {
   cursor: pointer;
@@ -290,13 +307,14 @@ kbd {
 .course-btn.open .pc-chev {
   transform: rotate(180deg);
 }
+/* the course map: a panel down the left side of the window, from just below its button (top is set
+   inline) to the bottom */
 .course-pop {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
   z-index: 70;
-  width: min(460px, calc(100vw - 24px));
-  max-height: min(72vh, 680px);
+  width: min(440px, calc(100vw - 24px));
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -315,14 +333,6 @@ kbd {
   margin: 0 0 8px;
   font-size: 13px;
   line-height: 1.5;
-}
-/* phone header: the button sits at the left edge, so the dropdown hangs from its left side */
-@media (max-width: 760px) {
-  .course-pop {
-    left: 0;
-    right: auto;
-    max-height: calc(100dvh - 140px);
-  }
 }
 .course-map {
   display: flex;
@@ -454,6 +464,103 @@ kbd {
   grid-template-columns: 1fr;
   gap: 2px;
 }
+/* "All parts" (Workbench.tsx Toolbox / PartsPanel) */
+.parts-all-btn {
+  width: 100%;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 10px;
+  padding: 6px 2px;
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 11px;
+  line-height: 1.2;
+}
+.parts-all-btn .pab-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.parts-all-btn:hover,
+.parts-all-btn.open {
+  border-color: var(--accent);
+  border-style: solid;
+}
+.parts-panel {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 8px;
+  z-index: 25;
+  width: min(680px, calc(100vw - 600px));
+  min-width: 320px;
+  max-height: calc(100% - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(31, 42, 68, 0.22);
+  padding: 10px 12px 12px;
+}
+.pp-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.pp-head .muted {
+  font-size: 12px;
+  flex: 1;
+}
+.pp-close {
+  padding: 2px 9px;
+  border-radius: 8px;
+}
+.pp-group + .pp-group {
+  border-top: 1px solid var(--line);
+}
+.pp-group-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 8px 2px;
+  text-align: left;
+  font-size: 14px;
+}
+.pp-title {
+  font-family: var(--cond);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.pp-chev {
+  width: 12px;
+  color: var(--muted);
+}
+.pp-peek {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: auto;
+  opacity: 0.7;
+}
+.pp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 4px;
+  padding-bottom: 8px;
+}
+.pp-grid .tool {
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  padding: 6px 4px;
+}
+.pp-grid .tool:hover {
+  border-color: var(--line);
+  background: var(--paper);
+}
+
 .tool-group-title {
   font-family: var(--cond);
   font-weight: 700;
@@ -3081,11 +3188,13 @@ button.primary:focus-visible,
   .brand-sub {
     display: none;
   }
+  /* row 2: the course map button (grows) and the language switch; the nav is row 3 */
   .top-right {
     gap: 8px;
     margin-left: 0;
-    flex: 1 1 100%;
-    justify-content: space-between;
+    order: 2;
+    flex: 0 0 auto;
+    justify-content: flex-end;
     min-width: 0;
   }
   .progress-card {
@@ -3117,6 +3226,20 @@ button.primary:focus-visible,
   .toolbox-wrap {
     border-right: none;
     border-bottom: 1.5px solid var(--line);
+  }
+  .parts-panel {
+    left: 8px;
+    right: 8px;
+    top: calc(100% + 6px);
+    width: auto;
+    min-width: 0;
+    max-height: 70vh;
+  }
+  .parts-all-btn {
+    width: auto;
+    min-width: 72px;
+    margin: 0 0 0 6px;
+    flex-shrink: 0;
   }
   .toolbox-wrap::before,
   .toolbox-wrap::after {

@@ -20,6 +20,8 @@ const PAGES = [
   { name: 'learn', hash: '#/learn/lesson-breadboard-basics', ready: '.task h2' },
   // the course map dropdown, open
   { name: 'course-map', hash: '#/learn/lesson-series', ready: '.task h2', setup: 'coursemap' },
+  // the "All parts" panel, open
+  { name: 'parts-panel', hash: '#/learn/lesson-series', ready: '.task h2', setup: 'partspanel' },
   { name: 'challenge-lab', hash: '#/challenges/exp-inverting-amp', ready: '.task h2' },
   { name: 'sandbox', hash: '#/sandbox', ready: '.stage-view canvas' },
   { name: 'practice', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title' },
@@ -112,6 +114,10 @@ async function setup(p, kind) {
   }
   if (kind === 'parts') {
     await p.locator('.kb-bench > summary').click();
+  }
+  if (kind === 'partspanel') {
+    await p.locator('.parts-all-btn').click();
+    await p.waitForSelector('.parts-panel .pp-grid .tool', { timeout: 10000 });
   }
   if (kind === 'coursemap') {
     await p.locator('.course-btn').click();

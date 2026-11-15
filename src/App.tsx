@@ -113,16 +113,14 @@ function PracticeProgressCard() {
   );
 }
 
+/** Top right: the Practice progress (the course map button sits next to the logo, CourseButton). */
 function ProgressCard() {
   const mode = useStore((s) => s.mode);
-  const status = useStore((s) => s.challengeIndex);
-  useIdleLoad(mode === 'practice' ? 'ready' : status, ensureChallengeIndex);
-  if (mode === 'practice') return <PracticeProgressCard />;
-  return <CourseButton />;
+  return mode === 'practice' ? <PracticeProgressCard /> : null;
 }
 
-/** Header button on every page but Practice: where you are in the course and how much is done.
- *  It opens the course map as a dropdown (also opened by the panel breadcrumb, event
+/** Next to the logo: where you are in the course and how much is done. It opens the course map as
+ *  a panel down the left side (also opened by the task panel's breadcrumb, event
  *  "bb-open-course-map"); Esc, a click outside or opening another item / page closes it. */
 function CourseButton() {
   const challenges = useStore((s) => s.challenges);
@@ -130,6 +128,8 @@ function CourseButton() {
   const mode = useStore((s) => s.mode);
   const activeId = useStore((s) => s.activeId);
   const status = useStore((s) => s.challengeIndex);
+  // the counts need the challenge index: fetch it at idle on pages that don't load it themselves
+  useIdleLoad(mode === 'practice' ? 'ready' : status, ensureChallengeIndex);
   const page = mode === 'challenge' ? 'challenge' : 'learn';
   const list = challenges.filter((c) => onPage(c, page));
   const done = list.filter((c) => completed[c.id]).length;
@@ -146,6 +146,15 @@ function CourseButton() {
   const open = openKey === key;
   const btn = useRef<HTMLButtonElement>(null);
   const pop = useRef<HTMLDivElement>(null);
+  // the side panel starts just below the button (the header's height changes with the width)
+  const [top, setTop] = useState(80);
+  useEffect(() => {
+    if (!open) return;
+    const place = () => setTop(Math.round((btn.current?.getBoundingClientRect().bottom ?? 72) + 8));
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, [open]);
   useEffect(() => {
     const on = () => setOpenKey(keyRef.current);
     window.addEventListener('bb-open-course-map', on);
@@ -196,7 +205,7 @@ function CourseButton() {
         </span>
       </button>
       {open && (
-        <div className="course-pop" id="course-map-pop" ref={pop} role="dialog" aria-label={name}>
+        <div className="course-pop" id="course-map-pop" ref={pop} role="dialog" aria-label={name} style={{ top }}>
           <Suspense fallback={<PageLoading />}>
             <CourseMap kind={page === 'learn' ? 'lesson' : 'challenge'} onPick={() => setOpenKey(null)} />
           </Suspense>
@@ -421,6 +430,7 @@ export default function App() {
             </div>
           </div>
         </div>
+        <CourseButton />
         <nav className="nav" aria-label={tr('主导航', 'Main')}>
           {NAV.map((n) => (
             <button key={n.mode} className={mode === n.mode ? 'on' : ''} aria-current={mode === n.mode ? 'page' : undefined} onClick={() => setMode(n.mode)}>

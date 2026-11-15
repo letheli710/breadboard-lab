@@ -76,7 +76,13 @@ async function settleFrames(p) {
     await p.waitForTimeout(700);
   }
 }
-const tool = (p, name) => p.locator(`button.tool[title="${name}"]`).click();
+// a part not in the toolbox column (tools + this lesson's parts) is picked from the "All parts" panel
+const tool = async (p, name) => {
+  const inColumn = p.locator(`.toolbox button.tool[title="${name}"]`);
+  if (await inColumn.count()) return inColumn.first().click();
+  await p.locator('.parts-all-btn').click();
+  await p.locator(`.parts-panel button.tool[title="${name}"]`).click();
+};
 const pinsOf = async (p, ref) => (await layout(p)).parts.find((x) => x.ref === ref)?.pins;
 const nonBlank = (p, sel) =>
   p.evaluate((s) => {

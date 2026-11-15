@@ -5,6 +5,10 @@ import { volts } from '../core/format';
 import { vavg } from '../core/transient';
 import { HOLE_MAP, holeLabel, stripLabel } from '../core/breadboard';
 import type { PartType } from '../core/types';
+import type { Challenge } from '../core/challenge';
+import { placeOf } from '../core/course';
+import { levelOfWorld, PART_LEVELS, type PartLevelId } from '../core/partLevels';
+import { useActiveChallenge } from '../state/challenges';
 import { useDerived } from '../state/derived';
 import { occupied, useStore, type Tool } from '../state/store';
 import { confirmPending, setPending, shiftHole, useTouchPick } from '../three/touchPick';
@@ -23,26 +27,38 @@ import { Mixed } from './Mixed';
 
 const smooth = (): ScrollBehavior => (prefersReducedMotion() ? 'auto' : 'smooth');
 
-const groups = (): { title: string; items: Tool[] }[] => [
-  { title: tr('工具', 'Tools'), items: ['select', 'probe'] },
-  { title: tr('电源', 'Power'), items: PART_ORDER.filter((t) => PARTS[t].category === 'power') },
-  { title: tr('连线', 'Wiring'), items: ['wire'] },
-  { title: tr('元件', 'Parts'), items: PART_ORDER.filter((t) => PARTS[t].category === 'basic' && t !== 'opamp') },
-  { title: tr('芯片 ICs', 'ICs'), items: ['opamp'] },
-  { title: tr('输入', 'Inputs'), items: PART_ORDER.filter((t) => PARTS[t].category === 'input') },
-  { title: tr('仪器', 'Instruments'), items: (['ammeter', 'function_gen', 'scope_probe'] as PartType[]).filter((t) => PARTS[t].category === 'instrument') },
-  { title: tr('单片机 MCU', 'MCU boards'), items: PART_ORDER.filter((t) => PARTS[t].category === 'mcu') },
-  { title: tr('器件 Devices', 'Devices'), items: PART_ORDER.filter((t) => PARTS[t].category === 'device') },
-  { title: tr('传感器 Sensors', 'Sensors'), items: PART_ORDER.filter((t) => PARTS[t].category === 'sensor') },
-];
+const TOOLS: Tool[] = ['select', 'probe'];
 
 const toolName = (t: Tool) => (t === 'select' ? tr('选择 / 操作', 'Select / use') : t === 'probe' ? tr('万用表', 'Multimeter') : PARTS[t].name);
 
+/** Part types a lesson places: its reference solution plus the parts its step checks ask for. */
+function lessonParts(ch: Challenge | null): PartType[] {
+  if (!ch) return [];
+  const set = new Set<PartType>();
+  for (const p of ch.solution?.parts ?? []) set.add(p.type);
+  for (const st of ch.steps) for (const c of st.check ?? []) if (c.kind === 'part') set.add(c.type);
+  return PART_ORDER.filter((t) => set.has(t));
+}
+
+/** The left column: the two tools, the parts this lesson uses (the basics in the sandbox), and a
+ *  button that opens every part, grouped by course level (PartsPanel). */
 function Toolbox() {
   const tool = useStore((s) => s.tool);
   const setTool = useStore((s) => s.setTool);
+  const activeId = useStore((s) => s.activeId);
+  const ch = useActiveChallenge();
+  const lesson = lessonParts(ch);
+  const quick: PartType[] = lesson.length ? lesson : PART_LEVELS[0].items;
+  // a part picked from the full panel stays visible (and pressed) in the column
+  const shown: Tool[] = tool !== 'select' && tool !== 'probe' && !quick.includes(tool) ? [...quick, tool] : quick;
+  const columns: { title: string; items: Tool[] }[] = [
+    { title: tr('工具', 'Tools'), items: TOOLS },
+    { title: lesson.length ? tr('本课用到', 'This lesson') : PART_LEVELS[0].title(), items: shown },
+  ];
+  const [allOpen, setAllOpen] = useState(false);
+  const allBtn = useRef<HTMLButtonElement>(null);
   const box = useRef<HTMLDivElement>(null);
-  // the full parts list is taller than most screens: say so, and let one click scroll on
+  // the column can still be taller than a small screen: say so, and let one click scroll on
   const [more, setMore] = useState({ up: false, down: false });
   useEffect(() => {
     const el = box.current;
@@ -72,7 +88,7 @@ function Toolbox() {
   return (
     <nav className={`toolbox-wrap ${more.up ? 'more-up' : ''} ${more.down ? 'more-down' : ''}`} aria-label={tr('元件箱', 'Parts toolbox')}>
       <div className="toolbox" ref={box}>
-        {groups().map((g) => (
+        {columns.map((g) => (
           <div key={g.title} className="tool-group" role="group" aria-label={g.title}>
             <div className="tool-group-title">
               <Mixed text={g.title} />
@@ -89,6 +105,12 @@ function Toolbox() {
             </div>
           </div>
         ))}
+        <button ref={allBtn} className={`parts-all-btn ${allOpen ? 'open' : ''}`} aria-expanded={allOpen} aria-controls="parts-panel" onClick={() => setAllOpen(!allOpen)}>
+          <span className="pab-icon" aria-hidden>
+            ⊞
+          </span>
+          <span>{tr('全部元件', 'All parts')}</span>
+        </button>
       </div>
       {more.up && (
         <button className="toolbox-more up" onClick={() => page(-1)} tabIndex={-1} aria-hidden title={tr('向上滚动', 'Scroll back')}>
@@ -100,7 +122,106 @@ function Toolbox() {
           {tr('更多', 'More')} ▼
         </button>
       )}
+      {allOpen && (
+        <PartsPanel
+          key={activeId ?? 'sandbox'}
+          current={levelOfWorld(activeId ? placeOf(activeId)?.world.id : undefined)}
+          anchor={allBtn}
+          onClose={(focusBack) => {
+            setAllOpen(false);
+            if (focusBack) allBtn.current?.focus();
+          }}
+        />
+      )}
     </nav>
+  );
+}
+
+/** Every part, grouped by course level (core/partLevels.ts). When the screen has room every group is
+ *  open, so everything is visible at once; otherwise only the current level's group is, and the
+ *  others open on a click. Picking a part selects it and closes the panel; Esc / a click outside close it. */
+function PartsPanel({ current, anchor, onClose }: { current: PartLevelId; anchor: React.RefObject<HTMLButtonElement | null>; onClose: (focusBack: boolean) => void }) {
+  const tool = useStore((s) => s.tool);
+  const setTool = useStore((s) => s.setTool);
+  const roomy = () => typeof window !== 'undefined' && window.innerWidth > 1000 && window.innerHeight >= 760;
+  const [open, setOpen] = useState<Record<PartLevelId, boolean>>(() =>
+    roomy() ? { basic: true, signal: true, mcu: true } : { basic: current === 'basic', signal: current === 'signal', mcu: current === 'mcu' },
+  );
+  const ref = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
+  close.current = onClose;
+  // on open: focus the pressed part, else the first one (once — re-renders must not move the focus)
+  useEffect(() => {
+    const q = (sel: string) => ref.current?.querySelector<HTMLElement>(sel);
+    (q('.pp-grid .tool.on') ?? q('.pp-grid .tool') ?? q('.pp-group-head'))?.focus({ preventScroll: true });
+  }, []);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      e.stopPropagation();
+      close.current(true);
+    };
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!ref.current?.contains(t) && !anchor.current?.contains(t)) close.current(false);
+    };
+    window.addEventListener('keydown', onKey, true);
+    document.addEventListener('pointerdown', onDown);
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      document.removeEventListener('pointerdown', onDown);
+    };
+  }, [anchor]);
+  return (
+    <div className="parts-panel" id="parts-panel" ref={ref} role="dialog" aria-label={tr('全部元件', 'All parts')}>
+      <div className="pp-head">
+        <b>{tr('全部元件', 'All parts')}</b>
+        <span className="muted">{tr('按课程进度分组', 'grouped by how far into the course you need them')}</span>
+        <button className="pp-close" onClick={() => onClose(true)} aria-label={tr('关闭', 'Close')}>
+          ✕
+        </button>
+      </div>
+      {PART_LEVELS.map((l) => (
+        <section key={l.id} className={`pp-group ${open[l.id] ? 'open' : ''}`}>
+          <button className="pp-group-head" aria-expanded={open[l.id]} aria-controls={`pp-${l.id}`} onClick={() => setOpen({ ...open, [l.id]: !open[l.id] })}>
+            <span className="pp-chev" aria-hidden>
+              {open[l.id] ? '▾' : '▸'}
+            </span>
+            <span className="pp-title">{l.title()}</span>
+            <span className="muted">{tr(`${l.items.length} 种`, `${l.items.length}`)}</span>
+            {!open[l.id] && (
+              <span className="pp-peek" aria-hidden>
+                {l.items.slice(0, 6).map((t) => (
+                  <PartIcon key={t} type={t} size={18} />
+                ))}
+              </span>
+            )}
+          </button>
+          {open[l.id] && (
+            <div className="pp-grid" id={`pp-${l.id}`}>
+              {l.items.map((t) => (
+                <button
+                  key={t}
+                  className={`tool ${tool === t ? 'on' : ''}`}
+                  aria-pressed={tool === t}
+                  title={toolName(t)}
+                  onClick={() => {
+                    setTool(t);
+                    onClose(true);
+                  }}
+                >
+                  <PartIcon type={t} size={30} />
+                  <span>
+                    <Mixed text={toolName(t)} />
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      ))}
+    </div>
   );
 }
 
