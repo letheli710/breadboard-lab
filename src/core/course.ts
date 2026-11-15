@@ -113,10 +113,10 @@ export const WORLDS: World[] = [
       },
       {
         num: '4.4',
-        items: [],
+        items: ['exp4-pf-correction'],
         practice: ['ac-power', 'three-phase', 'coupled'],
       },
-      { num: '4.5', items: [], practice: ['s-domain', 'non-sinusoidal', 'two-port'] },
+      { num: '4.5', items: ['exp4-half-wave-rectifier'], practice: ['non-sinusoidal', 's-domain', 'two-port'] },
     ],
   },
   {

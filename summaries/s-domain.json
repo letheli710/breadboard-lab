@@ -2,16 +2,16 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "s-domain",
-  "intro": "拉普拉斯变换把线性动态电路的微分方程变成代数方程：画出**运算电路**（激励 → 象函数，L、C → sL、1/(sC) 加上反映初始值的附加电源），就能像电阻电路一样求解，再用部分分式展开回到时域。网络函数 H(s) 的零点、极点把时域响应（冲激响应、稳定性）和频率响应联系在一起。最重要的习惯：**附加电源的方向从变换式推出，结果用初值、终值检验。**",
+  "intro": "拉普拉斯变换把线性动态电路的微分方程变成代数方程：画出**运算电路**（激励 → 象函数，L、C → sL、1/(sC) 加上反映初始值的附加电源），就能像电阻电路一样求解，再用部分分式展开回到时域。网络函数 H(s) 的零点、极点把时域响应（冲激响应、稳定性）和频率响应联系在一起。最重要的习惯：**附加电源的方向从变换式推出，结果用初值、终值检验。**要点分两组：**A · 运算电路与部分分式**（要点 1–5：变换与性质、运算模型、运算法的步骤、部分分式）；**B · 网络函数与零极点**（要点 6–9：网络函数、极点与时域响应、极点与频率响应、卷积）。",
   "i18n": {
     "en": {
-      "intro": "The Laplace transform turns the differential equations of linear dynamic circuits into algebraic ones: draw the **s-domain circuit** (inputs → transforms, L and C → sL and 1/(sC) plus initial-condition sources for the initial values), solve it like a resistive circuit, and return to the time domain by partial fractions. The zeros and poles of the network function H(s) tie the time response (impulse response, stability) to the frequency response. The key habit: **derive the direction of every initial-condition source from the transformed equation, and check results with the initial and final values.**"
+      "intro": "The Laplace transform turns the differential equations of linear dynamic circuits into algebraic ones: draw the **s-domain circuit** (inputs → transforms, L and C → sL and 1/(sC) plus initial-condition sources for the initial values), solve it like a resistive circuit, and return to the time domain by partial fractions. The zeros and poles of the network function H(s) tie the time response (impulse response, stability) to the frequency response. The key habit: **derive the direction of every initial-condition source from the transformed equation, and check results with the initial and final values.** The key ideas come in two groups: **A · s-domain circuits and partial fractions** (ideas 1–5: the transform and its properties, element models, the method, partial fractions); **B · network functions, poles and zeros** (ideas 6–9: network functions, poles vs the time response, poles vs the frequency response, convolution)."
     }
   },
   "ideas": [
     {
       "id": "transform",
-      "title": "拉普拉斯变换：把微分方程变成代数方程",
+      "title": "A · 拉普拉斯变换：把微分方程变成代数方程",
       "text": [
         "F(s) = ℒ[f(t)] = ∫_{0₋}^{∞}f(t)e^{−st}dt，s = σ + jω 称为**复频率**。积分下限取 0₋，t = 0 处的冲激也包括在内；只关心 t ≥ 0 的部分，所以时域结果都要乘 u(t)。",
         "电路里常见的激励只有几种：冲激 δ(t) ↔ 1，阶跃 u(t) ↔ 1/s，指数 e^{−at} ↔ 1/(s + a)，正弦 ↔ 分母 s² + ω²。记住这几对，再加上性质，就能写出所有激励的象函数。",
@@ -20,7 +20,7 @@
       "problems": ["s-domain-01-transforms", "s-domain-13-convolution"],
       "i18n": {
         "en": {
-          "title": "Laplace transform: differential equations become algebraic ones",
+          "title": "A · Laplace transform: differential equations become algebraic ones",
           "text": [
             "F(s) = ℒ[f(t)] = ∫_{0−}^{∞}f(t)e^{−st}dt, where s = σ + jω is the **complex frequency**. The lower limit 0− includes an impulse at t = 0; only t ≥ 0 matters, so every time-domain result carries a factor u(t).",
             "Circuits use only a few inputs: impulse δ(t) ↔ 1, step u(t) ↔ 1/s, exponential e^{−at} ↔ 1/(s + a), sinusoids ↔ denominators s² + ω². Know these pairs plus the properties and you can transform every input.",
@@ -31,7 +31,7 @@
     },
     {
       "id": "properties",
-      "title": "性质：微分、初值定理与终值定理",
+      "title": "A · 性质：微分、初值定理与终值定理",
       "text": [
         "**微分性质** ℒ[f′] = sF(s) − f(0₋) 是运算电路的来源：电感 v = L di/dt、电容 i = C dv/dt 变换后都多出一个与初值有关的常数项——这就是**附加电源**。",
         "**初值定理** f(0₊) = lim_{s→∞} sF(s)（F(s) 为真分式时）和**终值定理** f(∞) = lim_{s→0} sF(s)（sF(s) 的极点都在左半平面时）可以不做反变换就检查结果。终值定理的条件不满足时（极点在虚轴上或右半平面）响应没有终值，硬算出来的数没有意义。",
@@ -40,7 +40,7 @@
       "problems": ["s-domain-01-transforms", "s-domain-02-initial-final-value"],
       "i18n": {
         "en": {
-          "title": "Properties: derivative, initial- and final-value theorems",
+          "title": "A · Properties: derivative, initial- and final-value theorems",
           "text": [
             "The **derivative rule** ℒ[f′] = sF(s) − f(0−) is where the s-domain circuit comes from: transforming v = L di/dt and i = C dv/dt leaves an extra constant term containing the initial value — the **initial-condition source**.",
             "The **initial-value theorem** f(0+) = lim_{s→∞} sF(s) (F(s) strictly proper) and the **final-value theorem** f(∞) = lim_{s→0} sF(s) (all poles of sF(s) in the left half-plane) check a result without inverting it. When the final-value conditions fail (poles on the jω axis or in the right half-plane) there is no final value, and a number computed anyway means nothing.",
@@ -51,7 +51,7 @@
     },
     {
       "id": "models",
-      "title": "元件的运算模型与附加电源",
+      "title": "A · 元件的运算模型与附加电源",
       "text": [
         "电阻 V(s) = RI(s)。电感 V_L(s) = sL·I_L(s) − L·i_L(0₋)：**串联形式**是运算阻抗 sL 串一个电压源 L·i_L(0₋)，方向是沿 i_L 推动电流（“+”在 i_L 流出的一端）；**并联形式**是 sL 并一个与 i_L 同向的电流源 i_L(0₋)/s。",
         "电容 V_C(s) = I_C(s)/(sC) + v_C(0₋)/s：**串联形式**是 1/(sC) 串电压源 v_C(0₋)/s，“+”与 v_C 的“+”同侧；**并联形式**是 1/(sC) 并电流源 C·v_C(0₋)，方向与 i_C 相反（从“−”端流向“+”端）。",
@@ -67,7 +67,7 @@
       ],
       "i18n": {
         "en": {
-          "title": "s-domain element models and initial-condition sources",
+          "title": "A · s-domain element models and initial-condition sources",
           "text": [
             "Resistor V(s) = RI(s). Inductor V_L(s) = sL·I_L(s) − L·i_L(0−): the **series form** is the impedance sL with a voltage source L·i_L(0−) that pushes current along i_L (+ at the end where i_L leaves); the **parallel form** is sL with a current source i_L(0−)/s in the direction of i_L.",
             "Capacitor V_C(s) = I_C(s)/(sC) + v_C(0−)/s: the **series form** is 1/(sC) with a voltage source v_C(0−)/s, + on the + side of v_C; the **parallel form** is 1/(sC) with a current source C·v_C(0−) directed against i_C (from − to +).",
@@ -78,7 +78,7 @@
     },
     {
       "id": "method",
-      "title": "运算法的步骤",
+      "title": "A · 运算法的步骤",
       "text": [
         "1. 由 t < 0 的电路求 i_L(0₋)、v_C(0₋)。2. 画 t > 0 的**运算电路**：激励换成象函数，R、L、C 换成 R、sL、1/(sC)，加上附加电源。3. 用电阻电路的任何方法（串并联、分压、结点法、网孔法、戴维宁、叠加）求所要的象函数。4. 部分分式展开、反变换。5. 用 0₊ 值、终值、KVL 检验。",
         "运算电路里**初值的处理是自动的**：不需要像时域法那样另外求导数的初始值，二阶、高阶电路都一样。叠加时可以把响应分成零状态（激励）和零输入（附加电源）两部分。",
@@ -94,7 +94,7 @@
       ],
       "i18n": {
         "en": {
-          "title": "The s-domain method step by step",
+          "title": "A · The s-domain method step by step",
           "text": [
             "1. From the circuit for t < 0 find i_L(0−) and v_C(0−). 2. Draw the **s-domain circuit** for t > 0: inputs become transforms, R, L, C become R, sL, 1/(sC), plus the initial-condition sources. 3. Find the wanted transform with any resistive-circuit method (series/parallel, dividers, nodal, mesh, Thévenin, superposition). 4. Partial fractions and inverse transform. 5. Check with 0+ values, the final value and KVL.",
             "In the s-domain circuit **initial values are handled automatically**: unlike the time-domain method you never need initial derivatives, for second- and higher-order circuits alike. With superposition the response splits into a zero-state part (inputs) and a zero-input part (initial-condition sources).",
@@ -105,7 +105,7 @@
     },
     {
       "id": "pfe",
-      "title": "部分分式展开（海维赛德展开）",
+      "title": "A · 部分分式展开（海维赛德展开）",
       "text": [
         "响应的象函数是有理分式 F(s) = N(s)/D(s)。分子次数 ≥ 分母次数时先做多项式除法，商式对应 δ(t) 及其导数。真分式按 D(s) 的根展开：",
         "- **单极点** p_i：K_i = [(s − p_i)F(s)]_{s = p_i} = N(p_i)/D′(p_i)，对应 K_{i}e^{p_{i}t}。",
@@ -123,7 +123,7 @@
       ],
       "i18n": {
         "en": {
-          "title": "Partial fractions (Heaviside expansion)",
+          "title": "A · Partial fractions (Heaviside expansion)",
           "text": [
             "The transform of a response is a rational function F(s) = N(s)/D(s). If the numerator degree is ≥ the denominator degree, divide first: the quotient gives δ(t) and its derivatives. A proper fraction is expanded over the roots of D(s):",
             "- **simple pole** p_i: K_i = [(s − p_i)F(s)]_{s = p_i} = N(p_i)/D′(p_i), giving K_{i}e^{p_{i}t}.",
@@ -135,7 +135,7 @@
     },
     {
       "id": "netfun",
-      "title": "网络函数、冲激响应与阶跃响应",
+      "title": "B · 网络函数、冲激响应与阶跃响应",
       "text": [
         "**零状态**下，响应与激励象函数之比 H(s) = R(s)/E(s) 叫网络函数。同一端口时是驱动点函数（输入阻抗、输入导纳），不同端口时是转移函数（电压比、转移阻抗……）。H(s) 只由电路结构和参数决定，与激励无关。",
         "ℒ[δ(t)] = 1，所以**冲激响应** h(t) = ℒ⁻¹[H(s)]；**阶跃响应** s(t) = ℒ⁻¹[H(s)/s]，h(t) = ds(t)/dt。冲激可以使电感电流、电容电压跳变：i_L(0₊) − i_L(0₋) = \\frac{1}{L}∫_{0₋}^{0₊}v_L dt。",
@@ -150,7 +150,7 @@
       ],
       "i18n": {
         "en": {
-          "title": "Network functions, impulse and step responses",
+          "title": "B · Network functions, impulse and step responses",
           "text": [
             "In the **zero state**, the ratio of the response transform to the input transform, H(s) = R(s)/E(s), is the network function. At one port it is a driving-point function (input impedance, input admittance); between ports a transfer function (voltage ratio, transfer impedance, …). H(s) depends only on the circuit, not on the input.",
             "ℒ[δ(t)] = 1, so the **impulse response** is h(t) = ℒ⁻¹[H(s)]; the **step response** is s(t) = ℒ⁻¹[H(s)/s], and h(t) = ds(t)/dt. An impulse can make an inductor current or a capacitor voltage jump: i_L(0+) − i_L(0−) = \\frac{1}{L}∫_{0−}^{0+}v_L dt.",
@@ -161,7 +161,7 @@
     },
     {
       "id": "poles-time",
-      "title": "极点位置与时域响应、稳定性",
+      "title": "B · 极点位置与时域响应、稳定性",
       "text": [
         "负实数极点 → 单调衰减的指数；左半平面的共轭复数极点 → 衰减振荡，实部 −α 决定衰减快慢、虚部 ω_d 决定振荡频率；虚轴上的单极点 → 等幅振荡（或常数）；右半平面的极点或虚轴上的重极点 → 发散。",
         "**稳定性**：H(s) 的极点全在左半平面时电路稳定（冲激响应趋于 0）。无源 RLC 电路总是稳定或临界；含受控源、运放时等效电阻可能为负，极点可能进入右半平面。",
@@ -176,7 +176,7 @@
       ],
       "i18n": {
         "en": {
-          "title": "Pole positions vs the time response; stability",
+          "title": "B · Pole positions vs the time response; stability",
           "text": [
             "Negative real poles → monotonic decaying exponentials; a complex pair in the left half-plane → a decaying oscillation, the real part −α setting the decay and the imaginary part ω_d the frequency; simple poles on the jω axis → a sustained oscillation (or a constant); poles in the right half-plane or repeated on the jω axis → growth.",
             "**Stability**: the circuit is stable when all poles of H(s) are in the left half-plane (the impulse response tends to 0). Passive RLC circuits are always stable or marginal; with dependent sources or op-amps the net resistance can be negative and poles can move into the right half-plane.",
@@ -187,7 +187,7 @@
     },
     {
       "id": "poles-freq",
-      "title": "网络函数与频率响应",
+      "title": "B · 网络函数与频率响应",
       "text": [
         "正弦稳态的网络函数就是 H(s) 在虚轴上的值：H(jω) = H(s)|_{s = jω}（电路稳定时）。|H(jω)| 是 jω 到各零点的距离之积除以到各极点的距离之积（乘 |K|）。",
         "极点靠近虚轴时，ω 经过它附近 |H(jω)| 出现尖峰——谐振；零点在虚轴上时该频率被完全抑制（零点在原点：隔直，高通/带通）。串联 RLC 的极点到原点距离是 ω_0，Q = ω_0/(2α)：同一对极点同时决定了时域振荡衰减的快慢和频域谐振峰的尖锐程度。"
@@ -195,7 +195,7 @@
       "problems": ["s-domain-09-network-function-ladder", "s-domain-10-impedance-zeros", "s-domain-12-pole-zero-response", "s-domain-14-opamp-bandpass"],
       "i18n": {
         "en": {
-          "title": "Network functions and the frequency response",
+          "title": "B · Network functions and the frequency response",
           "text": [
             "The sinusoidal steady-state network function is H(s) on the imaginary axis: H(jω) = H(s)|_{s = jω} (for a stable circuit). |H(jω)| is |K| times the product of the distances from jω to the zeros divided by the product of the distances to the poles.",
             "A pole close to the jω axis makes |H(jω)| peak as ω passes it — resonance; a zero on the jω axis suppresses that frequency completely (a zero at the origin blocks DC: high-pass or band-pass). For a series RLC circuit the poles lie at distance ω_0 from the origin and Q = ω_0/(2α): the same pair of poles sets both how slowly the oscillation decays in time and how sharp the resonance peak is in frequency."
@@ -205,7 +205,7 @@
     },
     {
       "id": "convolution",
-      "title": "卷积积分",
+      "title": "B · 卷积积分",
       "text": [
         "零状态响应 = 激励与冲激响应的卷积：r(t) = ∫_{0}^{t}h(τ)e(t − τ)dτ = ∫_{0}^{t}e(τ)h(t − τ)dτ。物理意义：把激励看成一串冲激，每个冲激引起一个移位的 h，叠加起来。",
         "**时域卷积定理**：ℒ[h * e] = H(s)E(s)。所以卷积可以在复频域里用乘法完成，再反变换；直接积分时注意“反转、平移”和积分上限 t。"
@@ -213,7 +213,7 @@
       "problems": ["s-domain-13-convolution", "s-domain-08-impulse-response"],
       "i18n": {
         "en": {
-          "title": "The convolution integral",
+          "title": "B · The convolution integral",
           "text": [
             "The zero-state response is the convolution of the input with the impulse response: r(t) = ∫_{0}^{t}h(τ)e(t − τ)dτ = ∫_{0}^{t}e(τ)h(t − τ)dτ. Physically: the input is a train of impulses, each producing a shifted h, and they add up.",
             "**Time-convolution theorem**: ℒ[h * e] = H(s)E(s). A convolution can therefore be done as a product in the s-domain and inverted; when integrating directly, mind the \"flip and shift\" and the upper limit t."
