@@ -2,39 +2,175 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-max-power",
-  "title": "实验 2-3 · 最大功率传输：转电位器找功率最大点",
+  "title": "最大功率传输：转电位器，找功率最大的点",
   "kind": "challenge",
   "level": 4,
   "phase": 2,
-  "summary": "给实验 2-2 的网络接一个可变负载，测电压和电流算功率，找出功率最大时的负载电阻和最大功率。",
+  "summary": "上一个实验的网络接一个可调负载：负载太小电压没了，太大电流没了，中间某处功率最大。",
   "concepts": ["maximum power transfer 最大功率传输", "RL = Req", "Pmax = Uoc² / (4Req)", "efficiency 效率"],
   "prereq": ["lesson-ammeter", "lesson-multimeter"],
-  "description": "**目标**：负载电阻取多大时，从电源网络得到的功率最大？\n\n**电路**：实验 2-2 的网络（+9V → R1 1kΩ → A；A → R2 2.2kΩ → GND；A → R3 470Ω → T），T → 电流表 AM1（红表笔接 T）→ 负载 RV1 → GND。RV1 是 2.2kΩ 电位器当可变电阻：1 脚接电流表黑表笔，滑动端和 3 脚连在一起接 GND，RL = 2.2kΩ × 旋钮位置。\n\n**先预测**：网络等效为 Uoc = 6.19 V 串 Req = 1158Ω（实验 2-2）。负载功率 P = Uoc² × RL / (Req + RL)²。RL 取多大时 P 最大？最大是多少？旋钮大约在百分之几？再想一想：此时 9 V 电源送出的功率有多少到了负载？\n\n**测量**：把旋钮转到 25%、53%、100%（可以再多试几个位置），每次测负载电压和电流表读数，算 P = V × I，把 P–RL 曲线画出来。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**想一想**：这也是为什么电力系统追求高效率（RL ≫ Req），而通信、传感器电路才追求“匹配”取最大功率。",
+  "description": "最大功率传输：负载电阻等于网络的戴维宁电阻（R_L = R_Th）时，负载得到的功率最大，P_max = V_Th² / (4R_Th)。这时效率最多 50%。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "电压和电流在拔河",
+      "text": [
+        "搭上一个实验的网络（`9 V`、**R1**、**R2**、**R3** 接到端子 **T**）。从 T 出发，电流表 **AM1** 接到电位器 **RV1** `2.2 kΩ` 当可调负载：**中间脚和 3 脚连在一起**，接 GND。",
+        "**慢慢把 RV1** 从 `0%` 转到 `100%`。看电流表，再用万用表看 RV1 两端的电压。",
+        "`0%` 时电流很大、电压为零；`100%` 时正好反过来。功率 = 电压 × 电流。它在哪里最大？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "负载和内阻一样大时，功率最大",
+      "text": [
+        "- 对负载来说，网络就是 $V_{Th}$ 串 $R_{Th}$（上一个实验）。电流 $= V_{Th}/(R_{Th} + R_L)$，负载得到 $P = I^2R_L$。",
+        "- $R_L$ 很小：电流大，电压几乎没有；$R_L$ 很大：电压有了，电流几乎没有。乘积在中间最大，就在 $R_L = R_{Th}$ 处：",
+        "$$P_{max} = \\frac{V_{Th}^2}{4R_{Th}}$$",
+        "- 举例：9 V 电池（$R_{Th}$ = 1.5 Ω）接 1.5 Ω 的负载，得到 $9^2 / (4 × 1.5) = 13.5$ W——同时电池内部也烧掉 13.5 W。",
+        "![](fig:peak)",
+        "- 峰很平：负载是 $R_{Th}$ 的一半或两倍，功率仍有最大值的约 89%。用上一个实验的 $R_{Th}$ 预测旋钮的位置。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "三个位置，算三个功率",
+      "text": [
+        "- 把 RV1 转到 `25%`、`53%`、`100%`（愿意的话多试几个位置）。",
+        "- 每次**测 RV1 两端的电压**（1 脚对 GND），**读 AM1**，再相乘：$P = V × I$。",
+        "- 电路检查通过后，填 `53%` 和 `100%` 两个位置的测量题。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **最大功率传输**：$R_L = R_{Th}$，这时 $P_{max} = V_{Th}^2 / (4R_{Th})$。",
+        "- 峰值时负载和 $R_{Th}$ 平分功率：效率最多 50%。这里真实的 9 V 电源效率更低——等效电路只对外等效，和 2.3 一样。",
+        "- 电网要效率，负载远大于 $R_{Th}$；无线电、音响、传感器要的是信号最大，所以讲究**匹配**。",
+        "- 坑：匹配时电池自己和负载一样发热。直接短路更糟：功率全部烧在电池里面。"
+      ],
+      "practice": ["theorems"]
+    }
+  ],
+  "figures": {
+    "peak": {
+      "kind": "plot",
+      "caption": {
+        "text": "负载功率随 R_L 变化：R_L = R_Th 时最大，两边下降得很慢。",
+        "i18n": {"en": "Load power against R_L: it peaks at R_L = R_Th and falls off slowly on both sides."}
+      },
+      "x": {
+        "label": {"text": "R_L / R_Th", "i18n": {"en": "R_L / R_Th"}},
+        "min": 0,
+        "max": 4,
+        "ticks": [0, 0.5, 1, 2, 3, 4]
+      },
+      "y": {
+        "label": {"text": "P / P_max", "i18n": {"en": "P / P_max"}},
+        "min": 0,
+        "max": 1.1,
+        "ticks": [0, 0.5, 1]
+      },
+      "curves": [
+        {
+          "points": [
+            [0, 0],
+            [0.1, 0.331],
+            [0.25, 0.64],
+            [0.5, 0.889],
+            [0.75, 0.98],
+            [1, 1],
+            [1.5, 0.96],
+            [2, 0.889],
+            [2.5, 0.816],
+            [3, 0.75],
+            [3.5, 0.691],
+            [4, 0.64]
+          ],
+          "tone": 1
+        }
+      ],
+      "vlines": [{"x": 1, "label": {"text": "R_L = R_Th", "i18n": {"en": "R_L = R_Th"}}}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 2-3 · Maximum power transfer: turn the pot to find the peak",
-      "summary": "Put a variable load on the network from Experiment 2-2, measure voltage and current, compute the power, and find the load resistance and power at the peak.",
+      "title": "Maximum power transfer: turn the pot, find the peak",
+      "summary": "The network from the last lab drives an adjustable load: too small and the voltage vanishes, too large and the current does; the power peaks in between.",
       "concepts": ["maximum power transfer", "RL = Req", "Pmax = Uoc² / (4Req)", "efficiency"],
-      "description": "**Goal**: which load resistance gets the most power out of a source network?\n\n**Circuit**: the network from Experiment 2-2 (+9V → R1 1kΩ → A; A → R2 2.2kΩ → GND; A → R3 470Ω → T), then T → ammeter AM1 (red lead at T) → load RV1 → GND. RV1 is a 2.2kΩ pot used as a variable resistor: pin 1 to the ammeter's black lead, wiper and pin 3 joined to GND, RL = 2.2kΩ × knob position.\n\n**Predict first**: the network is equivalent to Uoc = 6.19 V in series with Req = 1158Ω (Experiment 2-2). The load power is P = Uoc² × RL / (Req + RL)². For which RL is P largest, and how large? Roughly where is the knob then? And how much of the power the 9 V supply delivers actually reaches the load?\n\n**Measure**: turn the knob to 25%, 53% and 100% (try more positions too); each time measure the load voltage and the ammeter reading, compute P = V × I and sketch the P–RL curve. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Is the efficiency only one half?** For the equivalent circuit, at maximum power the load and Req get half each: 50%. The equivalent is only equivalent to the outside; it can't tell you the power inside (just like Experiment 1-8).\n\n**Think about it**: that is why power systems aim for high efficiency (RL ≫ Req), while communication and sensor circuits aim for \"matching\" to get the most power.",
-      "compare": "**Compare**: P is largest when **RL = Req**: Pmax = Uoc² / (4Req) = 6.19² / 4632 ≈ **8.27 mW**.\n- 25% (RL = 550Ω): V ≈ 1.99 V, I ≈ 3.62 mA, P ≈ **7.2 mW**;\n- 53% (RL ≈ 1166Ω ≈ Req): V ≈ 3.10 V, I ≈ 2.66 mA, P ≈ **8.27 mW** (the maximum);\n- 100% (RL = 2.2kΩ): V ≈ 4.05 V, I ≈ 1.84 mA, P ≈ **7.5 mW**.\n\nThe curve has a flat peak at RL = Req.",
+      "description": "Maximum power transfer: a load gets the most power when its resistance equals the network's Thévenin resistance (R_L = R_Th); then P_max = V_Th² / (4R_Th), at no more than 50 % efficiency.",
+      "compare": "**Compare**: the peak is at **R_L = R_Th**: P_max = V_Th² / (4R_Th) = 6.19² / 4632 ≈ **8.27 mW**.\n- 25% (R_L = 550 Ω): V ≈ 1.99 V, I ≈ 3.62 mA, P ≈ **7.2 mW**.\n- 53% (R_L ≈ 1166 Ω ≈ R_Th): V ≈ 3.10 V, I ≈ 2.66 mA, P ≈ **8.27 mW** (the peak).\n- 100% (R_L = 2.2 kΩ): V ≈ 4.05 V, I ≈ 1.84 mA, P ≈ **7.5 mW**.\n\n**Efficiency**: in the equivalent circuit the load and R_Th share the peak power equally, 50 %. The real circuit needs its own sum: at 53% the 9 V source delivers 4.64 mA, i.e. 41.8 mW, and only 8.27 mW (about 20 %) reaches the load.",
       "measurements": [
-        {"ask": "Knob at 53%: load voltage V (RV1 pin 1 to GND)"},
-        {"ask": "Knob at 53%: current I (AM1's reading)"},
-        {"ask": "Knob at 53%: load power P = V × I (from your readings)"},
-        {"ask": "Knob at 100%: load voltage V"},
-        {"ask": "Knob at 100%: current I"},
-        {"ask": "Knob at 100%: load power P = V × I"},
-        {"ask": "Compare the powers you worked out (try more positions too): where is P largest?", "choices": ["RL ≈ Req ≈ 1.16 kΩ (about 53%)", "The larger RL the better: largest at 100%", "The smaller RL the better: largest near 0%"], "explain": "P peaks at RL = Req, Pmax = Uoc² / (4Req). The peak is flat: with RL off by a factor of two, P drops only about 10%."}
+        {"ask": "Knob at `53%`: load voltage V (RV1 pin 1 to GND)"},
+        {"ask": "Knob at `53%`: current I (AM1 reading)"},
+        {
+          "ask": "Knob at `53%`: load power P = V × I (from your readings)",
+          "explain": "53% × 2.2 kΩ ≈ 1166 Ω ≈ R_Th: the peak, P_max = 6.19² / (4 × 1158) ≈ 8.27 mW."
+        },
+        {"ask": "Knob at `100%`: load voltage V"},
+        {"ask": "Knob at `100%`: current I"},
+        {
+          "ask": "Knob at `100%`: load power P = V × I",
+          "explain": "R_L = 2.2 kΩ ≈ 1.9 R_Th: only about 10 % below the peak."
+        },
+        {
+          "choices": [
+            "R_L ≈ R_Th ≈ 1.16 kΩ (about 53%)",
+            "The larger R_L the better: largest at 100%",
+            "The smaller R_L the better: largest near 0%"
+          ],
+          "ask": "Compare your powers (try more positions if you like): where is P largest?",
+          "explain": "P peaks at R_L = R_Th, P_max = V_Th² / (4R_Th). The peak is gentle: twice or half R_Th costs only about 10 %."
+        }
       ],
       "hints": [
-        "First build the Experiment 2-2 network (R1, R2, R3); the port is the far end of R3, T.",
-        "Ammeter red lead at T, black lead to pin 1 of the pot; join the pot's wiper and pin 3 and take them to GND.",
-        "At 0% the knob gives RL = 0 (a short); at 100% RL = 2.2kΩ."
+        "First build the last lab's network (R1, R2, R3); the terminal is R3's far end, T.",
+        "Ammeter red lead on T, black lead on the pot's pin 1; join the pot's middle pin and pin 3 and take them to GND.",
+        "At 0% the load is 0 (a short); at 100% it is 2.2 kΩ."
       ],
       "tests": [
         "25% (RL = 550 Ω): sensible current and voltage",
         "53% (RL ≈ Req): sensible current and voltage",
         "100% (RL = 2.2 kΩ): sensible current and voltage"
+      ],
+      "cards": [
+        {
+          "title": "Voltage and current in a tug of war",
+          "text": [
+            "Build the network from the last lab (`9 V`, **R1**, **R2**, **R3** to terminal **T**). From T, the ammeter **AM1** feeds the pot **RV1** `2.2 kΩ` as a variable load: **join its middle pin to pin 3** and take them to GND.",
+            "**Turn RV1 slowly** from `0%` to `100%`. Watch the ammeter, and the voltage across RV1 with the multimeter.",
+            "At `0%` there is plenty of current but no voltage; at `100%` it is the other way round. The power is voltage × current. Where is it largest?"
+          ]
+        },
+        {
+          "title": "The power peaks when the load matches the inner resistance",
+          "text": [
+            "- To the load, the network is just $V_{Th}$ in series with $R_{Th}$ (last lab). The current is $V_{Th}/(R_{Th} + R_L)$, and the load gets $P = I^2R_L$.",
+            "- A tiny $R_L$ takes a big current but almost no voltage; a huge $R_L$ takes the voltage but almost no current. The product peaks in between, at $R_L = R_{Th}$:",
+            "$$P_{max} = \\frac{V_{Th}^2}{4R_{Th}}$$",
+            "- Example, a 9 V battery ($R_{Th}$ = 1.5 Ω): a 1.5 Ω load gets $9^2 / (4 × 1.5) = 13.5$ W — and the battery burns the same 13.5 W inside itself.",
+            "![](fig:peak)",
+            "- The peak is flat: half or twice $R_{Th}$ still gives about 89 % of the maximum. Use the $R_{Th}$ from the last lab to predict the knob position."
+          ]
+        },
+        {
+          "title": "Three positions, three powers",
+          "text": [
+            "- Turn RV1 to `25%`, `53%` and `100%` (more positions if you like).",
+            "- Each time, **measure the voltage across RV1** (pin 1 to GND) and **read AM1**, then multiply: $P = V × I$.",
+            "- Once the circuit check passes, fill in the questions for `53%` and `100%`."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Maximum power transfer**: $R_L = R_{Th}$, and then $P_{max} = V_{Th}^2 / (4R_{Th})$.",
+            "- At the peak the load and $R_{Th}$ share the power equally: 50 % efficiency at best. Here the real 9 V source does even worse — the equivalent is only equal outside, as in 2.3.",
+            "- Power grids want efficiency, so their loads are far larger than $R_{Th}$. Radio, audio and sensor circuits want the most signal, so they **match**.",
+            "- Pitfall: a matched battery heats up as much as its load. Shorting a battery is worse: all the power stays inside."
+          ]
+        }
       ]
     }
   },
@@ -73,24 +209,81 @@
       "voltages": [{"pin": "RV1.1", "ref": "V1.-", "min": 4.0, "max": 4.3}]
     }
   ],
-  "compare": "**对比**：当 **RL = Req** 时最大：Pmax = Uoc² / (4Req) = 6.19² / 4632 ≈ **8.27 mW**。\n- 25%（RL = 550Ω）：V ≈ 1.99 V，I ≈ 3.62 mA，P ≈ **7.2 mW**；\n- 53%（RL ≈ 1166Ω ≈ Req）：V ≈ 3.10 V，I ≈ 2.66 mA，P ≈ **8.27 mW**（最大）；\n- 100%（RL = 2.2kΩ）：V ≈ 4.05 V，I ≈ 1.84 mA，P ≈ **7.5 mW**。\n\n曲线在 RL = Req 处有一个平缓的峰。\n\n**效率只有一半吗？** 对等效电路来说，最大功率时负载和 Req 各分一半，效率 50%。但对真实电路要重新算：53% 时 9 V 电源输出 4.64 mA，也就是 41.8 mW，只有 8.27 mW（约 20%）到了负载。等效电路只对外等效，内部功率不能用它来算（和实验 1-8 一样）。",
+  "compare": "**对比**：**R_L = R_Th** 时最大：P_max = V_Th² / (4R_Th) = 6.19² / 4632 ≈ **8.27 mW**。\n- 25%（R_L = 550 Ω）：V ≈ 1.99 V，I ≈ 3.62 mA，P ≈ **7.2 mW**。\n- 53%（R_L ≈ 1166 Ω ≈ R_Th）：V ≈ 3.10 V，I ≈ 2.66 mA，P ≈ **8.27 mW**（最大）。\n- 100%（R_L = 2.2 kΩ）：V ≈ 4.05 V，I ≈ 1.84 mA，P ≈ **7.5 mW**。\n\n**效率**：对等效电路来说，峰值时负载和 R_Th 各分一半，效率 50%。真实电路要重新算：53% 时 9 V 电源输出 4.64 mA，也就是 41.8 mW，只有 8.27 mW（约 20%）到了负载。",
   "measurements": [
-    {"id": "u53", "voltage": "RV1.1", "ref": "V1.-", "set": {"RV1": {"wiper": 0.53}}, "unit": "V", "range": [2.98, 3.22], "ask": "旋钮在 53%：负载电压 V（RV1 的 1 脚对 GND）"},
-    {"id": "i53", "current": "AM1", "set": {"RV1": {"wiper": 0.53}}, "unit": "mA", "range": [0.00255, 0.0028], "ask": "旋钮在 53%：电流 I（AM1 的读数）"},
-    {"id": "p53", "formula": "u53 * i53", "unit": "mW", "predict": true, "range": [0.0078, 0.0087], "ask": "旋钮在 53%：负载功率 P = V × I（用你的读数算）"},
-    {"id": "u100", "voltage": "RV1.1", "ref": "V1.-", "set": {"RV1": {"wiper": 1}}, "unit": "V", "range": [4.0, 4.3], "ask": "旋钮在 100%：负载电压 V"},
-    {"id": "i100", "current": "AM1", "set": {"RV1": {"wiper": 1}}, "unit": "mA", "range": [0.00175, 0.0019], "ask": "旋钮在 100%：电流 I"},
-    {"id": "p100", "formula": "u100 * i100", "unit": "mW", "range": [0.0071, 0.0079], "ask": "旋钮在 100%：负载功率 P = V × I"},
-    {"id": "peak", "choices": ["RL ≈ Req ≈ 1.16 kΩ（约 53%）", "RL 越大越好：100% 时最大", "RL 越小越好：越接近 0% 越大"], "correct": 0, "ask": "比较你算出的功率（也可以多试几个位置）：P 在哪里最大？", "explain": "RL = Req 时 P 最大，Pmax = Uoc² / (4Req)。峰很平缓：RL 偏离 Req 一倍，P 也只少约 10%。"}
+    {
+      "id": "u53",
+      "voltage": "RV1.1",
+      "ref": "V1.-",
+      "set": {"RV1": {"wiper": 0.53}},
+      "unit": "V",
+      "range": [2.98, 3.22],
+      "ask": "旋钮在 `53%`：负载电压 V（RV1 的 1 脚对 GND）"
+    },
+    {
+      "id": "i53",
+      "current": "AM1",
+      "set": {"RV1": {"wiper": 0.53}},
+      "unit": "mA",
+      "range": [0.00255, 0.0028],
+      "ask": "旋钮在 `53%`：电流 I（AM1 的读数）"
+    },
+    {
+      "id": "p53",
+      "formula": "u53 * i53",
+      "unit": "mW",
+      "predict": true,
+      "range": [0.0078, 0.0087],
+      "ask": "旋钮在 `53%`：负载功率 P = V × I（用你的读数算）",
+      "explain": "53% × 2.2 kΩ ≈ 1166 Ω ≈ R_Th：功率最大，P_max = 6.19² / (4 × 1158) ≈ 8.27 mW。"
+    },
+    {
+      "id": "u100",
+      "voltage": "RV1.1",
+      "ref": "V1.-",
+      "set": {"RV1": {"wiper": 1}},
+      "unit": "V",
+      "range": [4.0, 4.3],
+      "ask": "旋钮在 `100%`：负载电压 V"
+    },
+    {
+      "id": "i100",
+      "current": "AM1",
+      "set": {"RV1": {"wiper": 1}},
+      "unit": "mA",
+      "range": [0.00175, 0.0019],
+      "ask": "旋钮在 `100%`：电流 I"
+    },
+    {
+      "id": "p100",
+      "formula": "u100 * i100",
+      "unit": "mW",
+      "range": [0.0071, 0.0079],
+      "ask": "旋钮在 `100%`：负载功率 P = V × I",
+      "explain": "R_L = 2.2 kΩ ≈ 1.9 R_Th：功率只比峰值少约 10%。"
+    },
+    {
+      "id": "peak",
+      "choices": ["R_L ≈ R_Th ≈ 1.16 kΩ（约 53%）", "R_L 越大越好：100% 时最大", "R_L 越小越好：越接近 0% 越大"],
+      "correct": 0,
+      "ask": "比较你算出的功率（也可以多试几个位置）：P 在哪里最大？",
+      "explain": "R_L = R_Th 时 P 最大，P_max = V_Th² / (4R_Th)。峰很平缓：R_L 偏离 R_Th 一倍，P 也只少约 10%。"
+    }
   ],
   "hints": [
-    "先搭好实验 2-2 的网络（R1、R2、R3），端口是 R3 的另一端 T。",
-    "电流表红表笔接 T，黑表笔接电位器的 1 脚；电位器滑动端和 3 脚连起来接 GND。",
-    "旋钮 0% 时 RL = 0（短路），100% 时 RL = 2.2kΩ。"
+    "先搭好上一个实验的网络（R1、R2、R3），端口是 R3 的另一端 T。",
+    "电流表红表笔接 T，黑表笔接电位器的 1 脚；电位器中间脚和 3 脚连起来接 GND。",
+    "旋钮 0% 时负载为 0（短路），100% 时负载是 2.2 kΩ。"
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
       {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
       {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b3", "2": "b7"}},
       {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c7", "2": "tn8"}},
