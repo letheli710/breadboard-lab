@@ -128,8 +128,8 @@ export const WORLDS: World[] = [
         num: '5.2',
         items: ['lesson-mcu-gpio', 'exp5-gpio-led-resistor', 'exp5-sink-vs-source', 'exp5-button-pull-resistors'],
       },
-      { num: '5.3', items: ['exp5-npn-buzzer-switch', 'exp5-high-side-vs-low-side'] },
-      { num: '5.4', items: ['exp5-mosfet-logic-level', 'exp5-relay-flyback'] },
+      { num: '5.3', items: ['exp5-npn-buzzer-switch'] },
+      { num: '5.4', items: ['exp5-mosfet-logic-level', 'exp5-relay-flyback', 'exp5-high-side-vs-low-side'] },
       { num: '5.5', items: ['exp5-ldo-dropout', 'exp5-board-power-budget'] },
       { num: '5.6', items: ['exp5-5v-signal-level-shift', 'exp5-open-drain-level-shifter'] },
       {
