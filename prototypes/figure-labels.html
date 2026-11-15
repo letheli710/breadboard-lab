@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>面包板标注方案</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* layout: a strip of five option cards; each card = the lesson panel at its real width (340 px) on the left, the notes on the right; stacked on phones */
+:root {
+  --bg: #f3ead9;
+  --card: #fdfaf4;
+  --paper: #fbf7ef;
+  --ink: #1f2a44;
+  --muted: #5f626b;
+  --line: #e3d8c2;
+  --accent: #2ba59b;
+  --accent-ink: #17756c;
+  --t1: #2ba59b;
+  --t1-ink: #17756c;
+  --t2: #f4a261;
+  --t2-ink: #9a4f12;
+  --t3: #9b5de5;
+  --t3-ink: #6a35b0;
+  --board: #f7f2e7;
+  --board-edge: #d6c9ae;
+  --hole: #3a3d45;
+  --trench: #e6dccb;
+  --plus: #e63946;
+  --plus-ink: #b52f2f;
+  --minus: #2b59c3;
+  --bad: #b83a3a;
+  --ring: #1f2a44;
+  --lead: #8e8a80;
+  --res-body: #dcc394;
+  --res-edge: #9c8358;
+  --pill: rgba(253, 250, 244, 0.95);
+  --algo-hard: rgba(184, 58, 58, 0.28);
+  --algo-soft: #c98a1a;
+  --display: 'Barlow Condensed', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --body: 'Barlow', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1e25; --card: #242830; --paper: #2a2e37; --ink: #ece7dc; --muted: #a9a59c; --line: #3b404b;
+    --accent: #3cbcb1; --accent-ink: #7fd8cf; --t1-ink: #7fd8cf; --t2-ink: #f2b37e; --t3-ink: #c9a4f3;
+    --ring: #f4efe4; --pill: rgba(42, 46, 55, 0.95); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1e25; --card: #242830; --paper: #2a2e37; --ink: #ece7dc; --muted: #a9a59c; --line: #3b404b;
+  --accent: #3cbcb1; --accent-ink: #7fd8cf; --t1-ink: #7fd8cf; --t2-ink: #f2b37e; --t3-ink: #c9a4f3;
+  --ring: #f4efe4; --pill: rgba(42, 46, 55, 0.95); color-scheme: dark;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 22px; }
+header { display: grid; gap: 8px; }
+h1 { font-family: var(--display); font-size: 34px; letter-spacing: 0.02em; margin: 0; line-height: 1.15; text-wrap: balance; }
+.lede { margin: 0; max-width: 64ch; color: var(--muted); }
+.jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.jump a {
+  font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: 0.03em;
+  color: var(--ink); text-decoration: none; border: 1.5px solid var(--line); background: var(--card);
+  border-radius: 999px; padding: 3px 12px;
+}
+.jump a:hover, .jump a:focus-visible { border-color: var(--accent); outline: none; }
+.hint { font-size: 13.5px; color: var(--muted); margin: 0; }
+.hint b { color: var(--ink); }
+
+.concept {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 16px;
+  padding: 18px; display: grid; grid-template-columns: 352px minmax(0, 1fr); gap: 22px; align-items: start;
+  scroll-margin-top: 16px;
+}
+@media (max-width: 760px) { .concept { grid-template-columns: minmax(0, 1fr); } }
+.panel { width: 100%; max-width: 352px; display: grid; gap: 12px; justify-self: center; }
+.panel-tag { font-size: 12px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; font-family: var(--display); }
+.fig {
+  margin: 0; background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 6px;
+  display: grid; gap: 6px;
+}
+.fig svg { display: block; width: 100%; height: auto; font-family: var(--body); }
+.fig figcaption { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.45; padding: 0 4px; }
+.notes { display: grid; gap: 12px; min-width: 0; }
+.notes h2 { display: flex; align-items: center; gap: 10px; margin: 0; font-family: var(--display); font-size: 25px; letter-spacing: 0.02em; line-height: 1.2; }
+.letter {
+  display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 9px;
+  background: var(--ink); color: var(--card); font-size: 18px; flex: none;
+}
+.idea { margin: 0; font-size: 16px; }
+.notes dl { margin: 0; display: grid; grid-template-columns: 5.2em minmax(0, 1fr); gap: 6px 12px; }
+.notes dt { font-family: var(--display); font-weight: 700; color: var(--muted); letter-spacing: 0.04em; }
+.notes dd { margin: 0; }
+.notes dd.plus::before { content: '＋ '; color: var(--accent-ink); font-weight: 700; }
+.notes dd.minus::before { content: '－ '; color: var(--bad); font-weight: 700; }
+.tool {
+  justify-self: start; font: inherit; font-size: 14px; color: var(--ink); background: var(--paper);
+  border: 1.5px solid var(--line); border-radius: 10px; padding: 4px 12px; cursor: pointer;
+}
+.tool[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--card); }
+.tool:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.algo-key { display: none; font-size: 13px; color: var(--muted); gap: 4px 14px; flex-wrap: wrap; }
+.show-algo .algo-key { display: flex; }
+.algo-key span::before { content: ''; display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.algo-key .k-hard::before { background: var(--algo-hard); }
+.algo-key .k-soft::before { border: 1.5px solid var(--algo-soft); }
+.algo-key .k-pill::before { border: 1.5px dashed var(--ink); }
+
+/* the board drawing */
+.b-frame { fill: var(--board); stroke: var(--board-edge); stroke-width: 1.5; }
+.b-trench { fill: var(--trench); }
+.b-railp { fill: var(--plus); opacity: 0.14; }
+.b-railn { fill: var(--minus); opacity: 0.14; }
+.hole { fill: var(--hole); pointer-events: none; transition: opacity 0.2s; }
+.hole.dim { opacity: 0.18; }
+.rowname, .colnum { font-size: 11px; fill: #6b6f7a; pointer-events: none; }
+.railname { font-size: 13px; font-weight: 700; pointer-events: none; }
+.shade { opacity: 0.32; transition: opacity 0.2s; cursor: pointer; }
+.ring { fill: none; stroke: var(--ring); stroke-width: 2.4; stroke-dasharray: 6 4; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
+.apart line { stroke: var(--bad); stroke-width: 2; stroke-linecap: round; }
+.lbl { font-size: 12.5px; }
+.pill rect { fill: var(--pill); stroke-width: 1.4; }
+.pill, .callout, .vlabel, .badge { cursor: pointer; transition: opacity 0.2s; }
+.badge text { font-size: 11.5px; font-weight: 700; fill: #fff; }
+.lead { fill: none; stroke-width: 1.3; }
+.algo { display: none; pointer-events: none; }
+.show-algo .algo { display: inline; }
+.algo .hard { fill: var(--algo-hard); }
+.algo .soft { fill: none; stroke: var(--algo-soft); stroke-width: 1; }
+.algo .cand { fill: none; stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 2; }
+
+/* linked highlight: point at a label, a number or a strip */
+.demo.has-on .shade:not(.on) { opacity: 0.1; }
+.demo.has-on .shade.on { opacity: 0.45; }
+.ring.on { opacity: 1; animation: march 0.9s linear infinite; }
+.demo.has-on .pill:not(.on), .demo.has-on .callout:not(.on), .demo.has-on .vlabel:not(.on), .demo.has-on .badge:not(.on) { opacity: 0.35; }
+@keyframes march { to { stroke-dashoffset: -20; } }
+@media (prefers-reduced-motion: reduce) { .ring.on { animation: none; } }
+
+.legend { list-style: none; margin: 2px 6px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13.5px; }
+.legend li { display: flex; align-items: center; gap: 7px; cursor: pointer; border-radius: 8px; padding: 2px 6px 2px 2px; transition: opacity 0.2s, background 0.2s; }
+.legend li:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.legend .sw { width: 14px; height: 14px; border-radius: 4px; opacity: 0.55; flex: none; }
+.legend .num { width: 19px; height: 19px; border-radius: 50%; color: #fff; font-weight: 700; font-size: 12px; display: grid; place-items: center; flex: none; }
+.demo.has-on .legend li:not(.on) { opacity: 0.4; }
+.legend li.on { background: var(--card); box-shadow: inset 0 0 0 1.5px var(--ring); }
+
+.pick { background: var(--card); border: 1.5px solid var(--accent); border-radius: 16px; padding: 18px; display: grid; gap: 8px; }
+.pick h2 { margin: 0; font-family: var(--display); font-size: 24px; }
+.pick p { margin: 0; max-width: 70ch; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>面包板图上的文字放哪里</h1>
+    <p class="lede">两张图都来自 1.1 课：上面一张讲“金属条怎么连”，下面一张讲“电阻插错和插对”。每个方案都按右侧面板的真实宽度（340 像素）画，所以你看到的大小就是课程里的大小。</p>
+    <p class="hint"><b>试一试：</b>把鼠标放到文字、编号或者彩色的金属条上，对应的那条会描出一圈黑边；手机上点一下，再点空白处取消。</p>
+    <nav class="jump" aria-label="跳到方案">
+      <a href="#opt-a">A 图例联动</a><a href="#opt-b">B 编号徽标</a><a href="#opt-c">C 引线标注</a><a href="#opt-d">D 板上避让</a><a href="#opt-e">E 贴边竖排</a>
+    </nav>
+  </header>
+
+  <section class="concept" id="opt-a">
+    <div class="panel demo" data-kind="a"><span class="panel-tag">课程卡片里的样子</span></div>
+    <div class="notes">
+      <h2><span class="letter">A</span>图例 + 联动描边</h2>
+      <p class="idea">板上一个字都不写，文字放在图下面的图例里。指到哪一句，板上那一条就描黑边，其他颜色变淡。</p>
+      <dl>
+        <dt>板上</dt><dd>只有颜色。</dd>
+        <dt>怎么对上</dt><dd>靠颜色；鼠标指上去（手机点一下）时描边确认。反过来指金属条，图例那一行也会亮。</dd>
+        <dt>优点</dt><dd class="plus">面包板最干净，文字想写多长都行。</dd>
+        <dt>代价</dt><dd class="minus">不动鼠标时，要自己用颜色去对；颜色相近或色弱时会吃力。</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="concept" id="opt-b">
+    <div class="panel demo" data-kind="b"><span class="panel-tag">课程卡片里的样子</span></div>
+    <div class="notes">
+      <h2><span class="letter">B</span>编号徽标 + 图例</h2>
+      <p class="idea">板上只放一个小圆圈编号，文字按编号列在图下面。同一句话管两条时，两条上都有同一个编号。</p>
+      <dl>
+        <dt>放在哪</dt><dd>金属条一端的外面：列号那一行，或者中间的凹槽里。这些地方本来就没有孔。</dd>
+        <dt>规则</dt><dd>先试上端，再试下端；和别的编号、✗ 标记、元件碰上就换位置。被编号挡住的列号暂时不显示。</dd>
+        <dt>优点</dt><dd class="plus">不动鼠标也能一眼对上，不靠颜色；板上只多几个小圆点。指上去同样会描边。</dd>
+        <dt>代价</dt><dd class="minus">眼睛要在图和图例之间走一个来回。</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="concept" id="opt-c">
+    <div class="panel demo" data-kind="c"><span class="panel-tag">课程卡片里的样子</span></div>
+    <div class="notes">
+      <h2><span class="letter">C</span>引线标注</h2>
+      <p class="idea">像教科书插图：文字放在面包板上方或下方，一条细线连到金属条。板上没有字，只有线。</p>
+      <dl>
+        <dt>规则</dt><dd>上半边（a–e）的标签放上方，下半边（f–j）放下方。标签先对准目标，挤在一起就左右推开，推不开换一行。</dd>
+        <dt>引线</dt><dd>只走两列孔之间的空隙，从不压在孔上；最后拐一个小弯进到金属条。</dd>
+        <dt>优点</dt><dd class="plus">文字和位置用线直接连着，不需要任何交互，截图、打印都清楚。</dd>
+        <dt>代价</dt><dd class="minus">图会高一些；标签一多，线也多。</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="concept" id="opt-d">
+    <div class="panel demo" data-kind="d"><span class="panel-tag">课程卡片里的样子</span>
+      <div class="algo-key"><span class="k-hard">不许压</span><span class="k-soft">尽量别压（电源轨）</span><span class="k-pill">选中的位置</span></div>
+    </div>
+    <div class="notes">
+      <h2><span class="letter">D</span>板上标签 + 避让算法</h2>
+      <p class="idea">文字装进一个小标签框，直接放在板上，用一个短指针指向金属条。位置由打分决定，不靠手工摆。</p>
+      <dl>
+        <dt>打分</dt><dd>压到金属条、元件、✗ 标记或别的标签：不允许。压到电源轨的孔：每个扣 5 分。压到普通空孔：每个扣 1 分。离目标越远扣得越多。每个标签取扣分最少的位置。</dd>
+        <dt>结果</dt><dd>标签会自己找到列号那一行、中间凹槽这些“没有孔”的空地；实在没有空地才去压空孔，被压的孔变淡而不是消失。</dd>
+        <dt>优点</dt><dd class="plus">文字就在金属条旁边，不用交互，图也不变大。</dd>
+        <dt>代价</dt><dd class="minus">板子小、标签多的时候可能找不到好位置，需要换短一点的文字。</dd>
+      </dl>
+      <button class="tool" type="button" id="algo-toggle" aria-pressed="false">显示算法</button>
+    </div>
+  </section>
+
+  <section class="concept" id="opt-e">
+    <div class="panel demo" data-kind="e"><span class="panel-tag">课程卡片里的样子</span></div>
+    <div class="notes">
+      <h2><span class="letter">E</span>贴边竖排</h2>
+      <p class="idea">文字竖着写，贴在金属条旁边两列孔之间的空隙里，和金属条平行。</p>
+      <dl>
+        <dt>规则</dt><dd>先放右边的空隙，右边有元件或别的金属条就放左边。</dd>
+        <dt>优点</dt><dd class="plus">文字紧挨着它说的那一条，一个孔都不压。</dd>
+        <dt>代价</dt><dd class="minus">一句话只能有 6–8 个字；竖排读起来慢一点；英文要转 90°。</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="pick">
+    <h2>我的建议</h2>
+    <p><b>默认用 B（编号徽标），再加上 A 的联动描边。</b>板上只多几个小圆点，不动鼠标也能一眼对上，指上去还能确认是哪一条。需要强调“就是这里”的时候（比如“这两个孔不通”），单独用 C 的引线。D 的效果最直接，但标签一多就容易挤，可以留给只有一两个标签的图。</p>
+    <p>你挑一个（或者组合），我就把它做进课程里的所有面包板图。</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  const P = 22, HOLE = 7;
+  const TOP = ['a', 'b', 'c', 'd', 'e'], BOT = ['f', 'g', 'h', 'i', 'j'];
+  const ORDER = ['tp', 'tn', ...TOP, ...BOT, 'bp', 'bn'];
+  const TONE = { 1: ['var(--t1)', 'var(--t1-ink)'], 2: ['var(--t2)', 'var(--t2-ink)'], 3: ['var(--t3)', 'var(--t3-ink)'] };
+
+  const FIGS = [
+    {
+      caption: '同一列 a–e 是一条金属条，f–j 是另一条；中间的凹槽把它们隔开（✗ 不通）。',
+      cols: [1, 9], rows: 'both', rails: 'both',
+      labels: [
+        { k: 's1', text: 'a–e 是一条', tone: 1, targets: ['a3'] },
+        { k: 's2', text: 'f–j 另一条', tone: 2, targets: ['f3'] },
+        { k: 's3', text: '第 7 列', tone: 3, targets: ['a7'] },
+      ],
+      apart: [['e3', 'f3']], parts: [],
+    },
+    {
+      caption: '左：两只脚在同一条金属条上，电阻被短路；右：两只脚在两条不同的金属条上。',
+      cols: [2, 12], rows: 'top', rails: 'none',
+      labels: [
+        { k: 'r1', text: '✗ 同一条：短路', tone: 2, targets: ['a4'] },
+        { k: 'r2', text: '✓ 分在两条上', tone: 1, targets: ['a8', 'a11'] },
+      ],
+      apart: [], parts: [{ from: 'a4', to: 'd4' }, { from: 'b8', to: 'b11' }],
+    },
+  ];
+
+  const estW = (t, size = 12.5) => [...t].reduce((w, ch) => w + (/[⺀-鿿＀-￯]/.test(ch) ? size : /[ .,:;!|]/.test(ch) ? size * 0.3 : size * 0.62), 0);
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const hole = (id) => { const m = /^(tp|tn|bp|bn|[a-j])(\d+)$/.exec(id); return { row: m[1], col: +m[2] }; };
+  const isRail = (r) => r.length === 2;
+  const hit = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  const pad = (r, p) => ({ x: r.x - p, y: r.y - p, w: r.w + 2 * p, h: r.h + 2 * p });
+  const near = (px, py, r) => [Math.max(r.x, Math.min(px, r.x + r.w)), Math.max(r.y, Math.min(py, r.y + r.h))];
+
+  function geom(fig) {
+    const [c0, c1] = fig.cols;
+    const Y = {};
+    let y = 30;
+    const take = (r, gap = 18) => { Y[r] = y; y += gap; };
+    if (fig.rails === 'top' || fig.rails === 'both') { take('tp'); take('tn', 28); }
+    if (fig.rows !== 'bottom') { ['a', 'b', 'c', 'd'].forEach((r) => take(r)); take('e', 30); }
+    const gapY = y - 15;
+    if (fig.rows !== 'top') { ['f', 'g', 'h', 'i'].forEach((r) => take(r)); take('j', 28); }
+    if (fig.rails === 'bottom' || fig.rails === 'both') { take('bp'); take('bn'); }
+    const left = 34;
+    const X = (c) => left + (c - c0) * P;
+    const right = X(c1) + 16;
+    const rows = ORDER.filter((r) => r in Y);
+    const firstMain = 'a' in Y ? 'a' : 'f';
+    const pos = (id) => { const h = hole(id); return [X(h.col), Y[h.row]]; };
+    const stripRect = (id) => {
+      const h = hole(id);
+      if (isRail(h.row)) return { x: X(c0) - 10, y: Y[h.row] - 9, w: X(c1) - X(c0) + 20, h: 18, top: h.row[0] === 't' };
+      const half = TOP.includes(h.row) ? TOP : BOT;
+      const ys = half.filter((r) => r in Y).map((r) => Y[r]);
+      const y0 = Math.min(...ys), y1 = Math.max(...ys);
+      return { x: X(h.col) - 9, y: y0 - 9, w: 18, h: y1 - y0 + 18, top: half === TOP };
+    };
+    const partBox = (p, m = 7) => { const a = pos(p.from), b = pos(p.to); return { x: Math.min(a[0], b[0]) - m, y: Math.min(a[1], b[1]) - m, w: Math.abs(b[0] - a[0]) + 2 * m, h: Math.abs(b[1] - a[1]) + 2 * m }; };
+    const apartBox = ([a, b]) => { const pa = pos(a), pb = pos(b); return { x: Math.min(pa[0], pb[0]) - 9, y: Math.min(pa[1], pb[1]), w: Math.abs(pb[0] - pa[0]) + 18, h: Math.abs(pb[1] - pa[1]) }; };
+    const frame = { x: left - 30, y: 4, w: right - left + 38, h: y + 6 - 8 };
+    // the holes of a strip only (its rounded, empty ends left out)
+    const stripCore = (id) => { const r = stripRect(id); return { x: r.x + 4.5, y: r.y + 4.5, w: r.w - 9, h: r.h - 9 }; };
+    return { c0, c1, Y, gapY, left, X, right, bottom: y + 6, rows, firstMain, pos, stripRect, stripCore, partBox, apartBox, frame, hasGap: fig.rows === 'both' };
+  }
+
+  // the board: frame, rails, shaded strips, holes, names, ✗ marks, resistors, rings (linked outline)
+  function board(g, fig, { dim = new Set(), hideNums = () => false } = {}) {
+    let s = `<rect class="b-frame" x="${g.frame.x}" y="${g.frame.y}" width="${g.frame.w}" height="${g.frame.h}" rx="10"/>`;
+    if (g.hasGap) s += `<rect class="b-trench" x="${g.frame.x}" y="${g.gapY - 5}" width="${g.frame.w}" height="10"/>`;
+    for (const r of g.rows.filter(isRail)) s += `<rect class="${r.endsWith('p') ? 'b-railp' : 'b-railn'}" x="${g.X(g.c0) - 9}" y="${g.Y[r] - 7}" width="${g.X(g.c1) - g.X(g.c0) + 18}" height="14" rx="7"/>`;
+    for (const L of fig.labels)
+      for (const t of L.targets) {
+        const r = g.stripRect(t);
+        s += `<rect class="shade" data-k="${L.k}" data-hit="1" x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="9" style="fill:${TONE[L.tone][0]}"/>`;
+      }
+    for (const r of g.rows)
+      for (let c = g.c0; c <= g.c1; c++) s += `<rect class="hole${dim.has(r + c) ? ' dim' : ''}" x="${g.X(c) - HOLE / 2}" y="${g.Y[r] - HOLE / 2}" width="${HOLE}" height="${HOLE}" rx="1.2"/>`;
+    for (const r of g.rows)
+      s += isRail(r)
+        ? `<text class="railname" x="${g.X(g.c0) - 16}" y="${g.Y[r] + 4}" text-anchor="end" fill="${r.endsWith('p') ? 'var(--plus-ink)' : 'var(--minus)'}">${r.endsWith('p') ? '+' : '−'}</text>`
+        : `<text class="rowname" x="${g.X(g.c0) - 16}" y="${g.Y[r] + 4}" text-anchor="end">${r}</text>`;
+    for (let c = g.c0; c <= g.c1; c++)
+      if ((c === g.c0 || c === g.c1 || c % 5 === 0) && !hideNums(c)) s += `<text class="colnum" x="${g.X(c)}" y="${g.Y[g.firstMain] - 12}" text-anchor="middle">${c}</text>`;
+    for (const [a, b] of fig.apart) {
+      const pa = g.pos(a), pb = g.pos(b), mx = (pa[0] + pb[0]) / 2, my = (pa[1] + pb[1]) / 2;
+      s += `<g class="apart"><line x1="${pa[0]}" y1="${pa[1]}" x2="${pb[0]}" y2="${pb[1]}" stroke-dasharray="3 3"/><line x1="${mx - 6}" y1="${my - 6}" x2="${mx + 6}" y2="${my + 6}"/><line x1="${mx - 6}" y1="${my + 6}" x2="${mx + 6}" y2="${my - 6}"/></g>`;
+    }
+    for (const p of fig.parts) s += resistor(g.pos(p.from), g.pos(p.to));
+    for (const L of fig.labels)
+      for (const t of L.targets) {
+        const r = pad(g.stripRect(t), 3);
+        s += `<rect class="ring" data-k="${L.k}" x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="11"/>`;
+      }
+    return s;
+  }
+
+  function resistor(a, b) {
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+    const L = Math.min(30, Math.hypot(b[0] - a[0], b[1] - a[1]) - 8);
+    const ang = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+    const bands = [[-0.28, '#c0392b'], [-0.1, '#c0392b'], [0.08, '#6b3e1e'], [0.3, '#c9a227']].map(([f, c]) => `<rect x="${L * f - 1.5}" y="-5.5" width="3" height="11" fill="${c}"/>`).join('');
+    return `<g pointer-events="none"><line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="var(--lead)" stroke-width="1.8"/>` +
+      `<g transform="translate(${mx},${my}) rotate(${ang})"><rect x="${-L / 2}" y="-5.5" width="${L}" height="11" rx="4" fill="var(--res-body)" stroke="var(--res-edge)" stroke-width="1"/>${bands}</g>` +
+      `<circle cx="${a[0]}" cy="${a[1]}" r="3.2" fill="var(--lead)"/><circle cx="${b[0]}" cy="${b[1]}" r="3.2" fill="var(--lead)"/></g>`;
+  }
+
+  // ---------------------------------------------------------------- the five options
+  const legendSw = (fig) => `<ul class="legend">${fig.labels.map((L) => `<li data-k="${L.k}" data-hit="1" tabindex="0"><span class="sw" style="background:${TONE[L.tone][0]}"></span>${esc(L.text)}</li>`).join('')}</ul>`;
+
+  function optA(g, fig) {
+    return { svg: board(g, fig), after: legendSw(fig) };
+  }
+
+  function optB(g, fig) {
+    const lane = g.Y[g.firstMain] - 12;
+    const blocks = [...fig.parts.map(g.partBox), ...fig.apart.map(g.apartBox)];
+    const placed = [];
+    fig.labels.forEach((L, i) => {
+      for (const t of L.targets) {
+        const r = g.stripRect(t), x = r.x + r.w / 2;
+        const cands = [[x, r.y - 5], [x, r.y + r.h + 5]];
+        const ok = cands.find(([cx, cy]) => {
+          const box = { x: cx - 9, y: cy - 9, w: 18, h: 18 };
+          return box.y > g.frame.y && box.y + box.h < g.frame.y + g.frame.h && !blocks.some((b) => hit(box, b)) && !placed.some((p) => Math.hypot(p.x - cx, p.y - cy) < 19);
+        }) ?? cands[0];
+        placed.push({ x: ok[0], y: ok[1], L, n: i + 1 });
+      }
+    });
+    const hideNums = (c) => placed.some((p) => Math.abs(p.y - lane) < 10 && Math.abs(p.x - g.X(c)) < 14);
+    let s = board(g, fig, { hideNums });
+    for (const p of placed)
+      s += `<g class="badge" data-k="${p.L.k}" data-hit="1"><circle cx="${p.x}" cy="${p.y}" r="8.5" fill="${TONE[p.L.tone][0]}" stroke="var(--paper)" stroke-width="1.5"/><text x="${p.x}" y="${p.y + 4}" text-anchor="middle">${p.n}</text></g>`;
+    const after = `<ul class="legend">${fig.labels.map((L, i) => `<li data-k="${L.k}" data-hit="1" tabindex="0"><span class="num" style="background:${TONE[L.tone][0]}">${i + 1}</span>${esc(L.text)}</li>`).join('')}</ul>`;
+    return { svg: s, after };
+  }
+
+  function optC(g, fig) {
+    const lanes = { top: [], bot: [] };
+    for (const L of fig.labels) {
+      const anchors = L.targets.map((t) => {
+        const h = hole(t), r = g.stripRect(t);
+        const gx = h.col < g.c1 ? g.X(h.col) + P / 2 : g.X(h.col) - P / 2;
+        return { gx, r, side: gx > g.X(h.col) ? 1 : -1 };
+      });
+      const top = anchors[0].r.top;
+      const w = estW(L.text) + 6;
+      (top ? lanes.top : lanes.bot).push({ L, anchors, w, want: anchors.reduce((a, b) => a + b.gx, 0) / anchors.length });
+    }
+    const minX = g.frame.x, maxX = g.frame.x + g.frame.w;
+    let s = board(g, fig);
+    let y0 = 0, y1 = g.bottom;
+    for (const [name, items] of Object.entries(lanes)) {
+      items.sort((a, b) => a.want - b.want);
+      const rowsUsed = [];
+      for (const it of items) {
+        let row = 0;
+        for (;;) {
+          const lastR = rowsUsed[row] ?? -Infinity;
+          let x = Math.max(it.want - it.w / 2, lastR + 10, minX);
+          if (x + it.w <= maxX || !isFinite(lastR)) { x = Math.min(x, maxX - it.w); it.x = x; it.row = row; rowsUsed[row] = x + it.w; break; }
+          row++;
+        }
+      }
+      for (const it of items) {
+        const top = name === 'top';
+        const ly = top ? g.frame.y - 12 - it.row * 22 : g.frame.y + g.frame.h + 22 + it.row * 22;
+        const ink = TONE[it.L.tone][1];
+        const cx = it.x + it.w / 2;
+        y0 = Math.min(y0, ly - 16);
+        y1 = Math.max(y1, ly + 8);
+        let path = '';
+        it.anchors.forEach((a) => {
+          const elbowY = top ? ly + 6 : ly - 18;
+          const tipY = top ? a.r.y + 12 : a.r.y + a.r.h - 12;
+          const edgeX = a.side > 0 ? a.r.x + a.r.w : a.r.x;
+          path += `<path class="lead" d="M${cx},${top ? ly + 4 : ly - 14} L${cx},${elbowY} L${a.gx},${elbowY} L${a.gx},${tipY} L${edgeX},${tipY}" stroke="${ink}"/><circle cx="${edgeX}" cy="${tipY}" r="2.6" fill="${ink}"/>`;
+        });
+        s += `<g class="callout" data-k="${it.L.k}" data-hit="1">${path}<text class="lbl" x="${cx}" y="${ly}" text-anchor="middle" fill="${ink}" font-weight="600">${esc(it.L.text)}</text></g>`;
+      }
+    }
+    return { svg: s, box: { y0, y1 } };
+  }
+
+  function optD(g, fig) {
+    const fixed = [...fig.parts.map((p) => g.partBox(p, 3.5)), ...fig.apart.map(g.apartBox)];
+    const hardFor = (L) => [
+      ...fig.labels.filter((o) => o !== L).flatMap((o) => o.targets.map((t) => pad(g.stripRect(t), 2))),
+      ...L.targets.map((t) => pad(g.stripCore(t), 1)),
+      ...fixed,
+    ];
+    const hard = [...fig.labels.flatMap((L) => L.targets.map((t) => g.stripCore(t))), ...fixed];
+    const holes = [];
+    for (const r of g.rows)
+      for (let c = g.c0; c <= g.c1; c++) {
+        const box = { x: g.X(c) - HOLE / 2, y: g.Y[r] - HOLE / 2, w: HOLE, h: HOLE };
+        if (!hard.some((h) => hit(box, h))) holes.push({ id: r + c, box, cost: isRail(r) ? 5 : 1 });
+      }
+    const nums = [];
+    for (let c = g.c0; c <= g.c1; c++) if (c === g.c0 || c === g.c1 || c % 5 === 0) nums.push({ c, box: { x: g.X(c) - 6, y: g.Y[g.firstMain] - 21, w: 12, h: 12 } });
+    const inner = { x: g.frame.x + 3, y: g.frame.y + 3, w: g.frame.w - 6, h: g.frame.h - 6 };
+    const ys = new Set([...g.rows.map((r) => g.Y[r]), g.Y[g.firstMain] - 12]);
+    for (let i = 0; i + 1 < g.rows.length; i++) ys.add((g.Y[g.rows[i]] + g.Y[g.rows[i + 1]]) / 2);
+    if (g.hasGap) ys.add(g.gapY);
+    const placed = [];
+    const out = [];
+    for (const L of [...fig.labels].sort((a, b) => estW(b.text) - estW(a.text))) {
+      const w = estW(L.text) + 14, h = 17;
+      const targets = L.targets.map((t) => g.stripCore(t));
+      const hardL = hardFor(L);
+      let best = null;
+      for (let cx = inner.x + w / 2; cx <= inner.x + inner.w - w / 2; cx += 5.5)
+        for (const cy of ys) {
+          const r = { x: cx - w / 2, y: cy - h / 2, w, h };
+          if (r.y < inner.y || r.y + r.h > inner.y + inner.h) continue;
+          if (hardL.some((o) => hit(r, o)) || placed.some((o) => hit(r, pad(o, 4)))) continue;
+          let cost = 0;
+          for (const hh of holes) if (hit(r, hh.box)) cost += hh.cost;
+          for (const n of nums) if (hit(r, n.box)) cost += 0.5;
+          const d = Math.min(...targets.map((t) => { const q = near(cx, cy, t); return Math.hypot(q[0] - cx, q[1] - cy); }));
+          cost += d * 0.05;
+          if (!best || cost < best.cost) best = { r, cost };
+        }
+      if (best) { placed.push(best.r); out.push({ L, r: best.r, targets }); }
+    }
+    const dim = new Set(holes.filter((hh) => placed.some((p) => hit(p, hh.box))).map((hh) => hh.id));
+    const hideNums = (c) => placed.some((p) => nums.some((n) => n.c === c && hit(p, n.box)));
+    let s = board(g, fig, { dim, hideNums });
+    for (const o of out) {
+      const [fill, ink] = TONE[o.L.tone];
+      const cx = o.r.x + o.r.w / 2, cy = o.r.y + o.r.h / 2;
+      let ptr = '';
+      for (const t of o.targets) {
+        const q = near(cx, cy, t);
+        const p = near(q[0], q[1], o.r);
+        if (Math.hypot(q[0] - p[0], q[1] - p[1]) > 3) ptr += `<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="${ink}" stroke-width="1.4"/><circle cx="${q[0]}" cy="${q[1]}" r="2.4" fill="${ink}"/>`;
+      }
+      s += `<g class="pill" data-k="${o.L.k}" data-hit="1">${ptr}<rect x="${o.r.x}" y="${o.r.y}" width="${o.r.w}" height="${o.r.h}" rx="8.5" stroke="${fill}"/><text class="lbl" x="${cx}" y="${cy + 4.3}" text-anchor="middle" fill="${ink}" font-weight="600">${esc(o.L.text)}</text></g>`;
+    }
+    s += `<g class="algo">${hard.map((r) => `<rect class="hard" x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="3"/>`).join('')}` +
+      `${holes.filter((hh) => hh.cost > 1).map((hh) => `<rect class="soft" x="${hh.box.x - 1.5}" y="${hh.box.y - 1.5}" width="${hh.box.w + 3}" height="${hh.box.h + 3}" rx="2"/>`).join('')}` +
+      `${placed.map((r) => `<rect class="cand" x="${r.x - 2}" y="${r.y - 2}" width="${r.w + 4}" height="${r.h + 4}" rx="9"/>`).join('')}</g>`;
+    return { svg: s };
+  }
+
+  function optE(g, fig) {
+    const blocks = [...fig.parts.map(g.partBox), ...fig.apart.map(g.apartBox)];
+    const strips = fig.labels.flatMap((L) => L.targets.map((t) => g.stripRect(t)));
+    let s = board(g, fig);
+    for (const L of fig.labels) {
+      const r = g.stripRect(L.targets[0]);
+      const col = hole(L.targets[0]).col;
+      const chars = [...L.text].map((ch) => (ch === '–' ? '︱' : ch === '：' ? '︰' : ch));
+      const height = chars.reduce((hh, ch) => hh + (ch === ' ' ? 6 : 13), 0);
+      const sides = [1, -1].filter((sd) => (sd > 0 ? col < g.c1 : col > g.c0));
+      const side = sides.find((sd) => {
+        const gx = g.X(col) + (sd * P) / 2;
+        const box = { x: gx - 6, y: r.y + 2, w: 12, h: height };
+        return !blocks.some((b) => hit(box, b)) && !strips.some((st) => st !== r && hit(box, st));
+      }) ?? 1;
+      const gx = g.X(col) + (side * P) / 2;
+      const ink = TONE[L.tone][1];
+      let y = r.y + 12, t = '';
+      for (const ch of chars) {
+        if (ch === ' ') { y += 6; continue; }
+        t += `<text x="${gx}" y="${y}" text-anchor="middle" font-size="11.5" font-weight="600" fill="${ink}">${esc(ch)}</text>`;
+        y += 13;
+      }
+      s += `<g class="vlabel" data-k="${L.k}" data-hit="1">${t}</g>`;
+    }
+    return { svg: s };
+  }
+
+  const OPT = { a: optA, b: optB, c: optC, d: optD, e: optE };
+
+  // ---------------------------------------------------------------- render + link
+  for (const panel of document.querySelectorAll('.demo')) {
+    const kind = panel.dataset.kind;
+    FIGS.forEach((fig) => {
+      const g = geom(fig);
+      const o = OPT[kind](g, fig);
+      const y0 = Math.min(0, o.box?.y0 ?? 0), y1 = Math.max(g.bottom, o.box?.y1 ?? 0);
+      const w = g.right + 12;
+      const fg = document.createElement('figure');
+      fg.className = 'fig';
+      fg.innerHTML = `<svg viewBox="0 ${y0} ${w} ${y1 - y0}" role="img" aria-label="${esc(fig.caption)}">${o.svg}</svg>${o.after ?? ''}<figcaption>${esc(fig.caption)}</figcaption>`;
+      panel.appendChild(fg);
+    });
+  }
+
+  for (const fg of document.querySelectorAll('.demo .fig')) {
+    const els = [...fg.querySelectorAll('[data-k]')];
+    const demo = fg.closest('.demo');
+    let pinned = null;
+    const set = (k) => {
+      demo.classList.toggle('has-on', !!k);
+      for (const e of els) e.classList.toggle('on', e.dataset.k === k);
+    };
+    for (const e of els.filter((x) => x.dataset.hit)) {
+      e.addEventListener('pointerenter', (ev) => { if (ev.pointerType === 'mouse') set(e.dataset.k); });
+      e.addEventListener('pointerleave', (ev) => { if (ev.pointerType === 'mouse') set(pinned); });
+      e.addEventListener('click', (ev) => { ev.stopPropagation(); pinned = pinned === e.dataset.k ? null : e.dataset.k; set(pinned); });
+      e.addEventListener('focus', () => set(e.dataset.k));
+      e.addEventListener('blur', () => set(pinned));
+      e.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); e.click(); } });
+    }
+    document.addEventListener('click', () => { if (pinned) { pinned = null; set(null); } });
+  }
+
+  const tog = document.getElementById('algo-toggle');
+  tog.addEventListener('click', () => {
+    const on = tog.getAttribute('aria-pressed') !== 'true';
+    tog.setAttribute('aria-pressed', String(on));
+    tog.textContent = on ? '隐藏算法' : '显示算法';
+    document.querySelector('.demo[data-kind="d"]').classList.toggle('show-algo', on);
+  });
+})();
+</script>
+</body>
+</html>

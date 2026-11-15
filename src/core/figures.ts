@@ -49,8 +49,8 @@ export interface BreadboardFigure {
   rows?: 'top' | 'bottom' | 'both';
   /** power rails shown: "top", "bottom", "both" or "none" (default: the rails next to the rows shown) */
   rails?: 'top' | 'bottom' | 'both' | 'none';
-  /** the connected group of each hole is shaded (a5 → a5–e5; tp3 → the whole tp rail); labels go in a legend under the board */
-  strips?: { at: string; tone?: Tone; label?: FigText }[];
+  /** the connected group of each hole is shaded (a5 → a5–e5; tp3 → the whole tp rail); `at` may list several holes that one label names. Labels are placed by boardFigure.placeLabels. */
+  strips?: { at: string | string[]; tone?: Tone; label?: FigText }[];
   parts?: BoardPart[];
   /** a "not connected" cross between two holes (e.g. e5 / f5 across the gap) */
   apart?: [string, string][];
@@ -168,7 +168,9 @@ function checkBoard(f: Record<string, unknown>, err: Err) {
   const list = (k: string) => (f[k] === undefined ? [] : Array.isArray(f[k]) ? (f[k] as unknown[]) : (err(`"${k}" 必须是数组`, `"${k}" must be an array`), []));
   list('strips').forEach((s, i) => {
     if (!isObj(s)) return err(`strips[${i}] 必须是对象`, `strips[${i}] must be an object`);
-    holeErr(`strips[${i}].at`, s.at);
+    const at = Array.isArray(s.at) ? s.at : [s.at];
+    if (!at.length) err(`strips[${i}].at 不能是空数组`, `strips[${i}].at must not be an empty array`);
+    at.forEach((h) => holeErr(`strips[${i}].at`, h));
     if (s.tone !== undefined && ![1, 2, 3].includes(s.tone as number)) err(`strips[${i}].tone 必须是 1、2 或 3`, `strips[${i}].tone must be 1, 2 or 3`);
   });
   list('parts').forEach((p, i) => {

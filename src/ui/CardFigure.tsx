@@ -2,8 +2,9 @@
 // a strip of breadboard or a plot, with its caption underneath. Loaded on demand (Cards.tsx): only
 // units that have figures fetch this chunk.
 
-import type { ReactNode } from 'react';
-import { HOLE_MAP, MAIN_ROWS, RAIL_ROWS, type RowId } from '../core/breadboard';
+import { useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
+import { HOLE_MAP, RAIL_ROWS, type RowId } from '../core/breadboard';
+import { boardGeom, gutterNear, HOLE_PX, padRect, partRect, PITCH, placeLabels, type LabelSpec, type Rect } from '../core/boardFigure';
 import { figText, type BoardPart, type BreadboardFigure, type CardFigure, type FigText, type PlotFigure, type Tone } from '../core/figures';
 import { getLang, tr } from '../core/i18n';
 import { FigureFrame } from './FigureFrame';
@@ -55,117 +56,142 @@ export default function CardFigureView({ fig }: { fig: CardFigure }) {
 
 // ---------------------------------------------------------------- breadboard
 
-const P = 22; // hole pitch, px
-const HOLE = 7;
-
-/** rough width of a label (CJK ≈ 1 em, others ≈ 0.6 em), to keep it inside the viewBox */
-const estW = (t: string, size = 12) => [...t].reduce((w, ch) => w + (/[\u2e80-\u9fff\uff00-\uffef]/.test(ch) ? size : /[ .,:;!|]/.test(ch) ? size * 0.3 : size * 0.6), 0);
-
+/** The board, its parts and its text. All text goes through boardFigure.placeLabels: on the board
+ *  where a good spot exists, else above / below it with a leader. Pointing at a label (or tapping
+ *  it) outlines what it is about. */
 function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string }) {
-  const [c0, c1] = fig.cols ?? [1, 12];
-  const rowsShown = fig.rows ?? 'both';
-  const railsShown = fig.rails ?? (rowsShown === 'top' ? 'top' : rowsShown === 'bottom' ? 'bottom' : 'both');
+  const g = boardGeom(fig);
   const parts = fig.parts ?? [];
-  const battery = parts.some((p) => p.type === 'battery');
-
-  // vertical layout: row → y
-  const Y = new Map<RowId, number>();
-  let y = 30; // room for column numbers / labels above
-  const take = (r: RowId, gap = 18) => {
-    Y.set(r, y);
-    y += gap;
-  };
-  if (railsShown === 'top' || railsShown === 'both') {
-    take('tp');
-    take('tn', 28);
-  }
-  if (rowsShown !== 'bottom') {
-    for (const r of ['a', 'b', 'c', 'd'] as RowId[]) take(r);
-    take('e', 30);
-  }
-  const gapY = y - 15;
-  if (rowsShown !== 'top') {
-    for (const r of ['f', 'g', 'h', 'i'] as RowId[]) take(r);
-    take('j', 28);
-  }
-  if (railsShown === 'bottom' || railsShown === 'both') {
-    take('bp');
-    take('bn');
-  }
-  const left = battery ? 92 : 34;
-  const X = (c: number) => left + (c - c0) * P;
-  const right = X(c1) + 16;
-  const bottom = y + 6;
-  const pos = (id: string): [number, number] | null => {
-    const h = HOLE_MAP.get(id);
-    if (!h || h.col < c0 || h.col > c1) return null;
-    const yy = Y.get(h.row);
-    return yy === undefined ? null : [X(h.col), yy];
-  };
-  const shownRows = [...RAIL_ROWS, ...MAIN_ROWS].filter((r) => Y.has(r));
   const isRail = (r: RowId) => (RAIL_ROWS as readonly string[]).includes(r);
+  const rowOf = (id: string) => HOLE_MAP.get(id)?.row;
+  const topHalf = (id: string) => {
+    const r = rowOf(id);
+    return r === 'tp' || r === 'tn' || (r !== undefined && 'abcde'.includes(r));
+  };
+  const gutterFor = (id: string) => {
+    const h = HOLE_MAP.get(id);
+    if (!h) return g.X(g.c1) - PITCH / 2;
+    return isRail(h.row) ? g.X(g.c1) - PITCH / 2 : h.col < g.c1 ? g.X(h.col) + PITCH / 2 : g.X(h.col) - PITCH / 2;
+  };
 
-  // shaded groups
+  // labels: strips, notes, part labels
+  type Lab = LabelSpec & { runs: ReturnType<typeof runs>; tone?: Tone };
+  const labels: Lab[] = [];
+  const stripTargets = (fig.strips ?? []).map((s) => (Array.isArray(s.at) ? s.at : [s.at]));
+  (fig.strips ?? []).forEach((s, i) => {
+    if (!s.label) return;
+    const ids = stripTargets[i].filter((id) => g.stripRect(id));
+    if (!ids.length) return;
+    labels.push({
+      key: `s${i}`,
+      text: txt(s.label),
+      runs: runs(s.label),
+      tone: s.tone ?? 1,
+      targets: ids.map((id) => g.stripRect(id)!),
+      cores: ids.map((id) => g.stripCore(id)!),
+      top: topHalf(ids[0]),
+      gutters: ids.map(gutterFor),
+    });
+  });
+  (fig.notes ?? []).forEach((n, i) => {
+    const r = g.holeRect(n.at);
+    if (!r) return;
+    labels.push({ key: `n${i}`, text: txt(n.text), runs: runs(n.text), targets: [padRect(r, 3)], cores: [r], top: topHalf(n.at), gutters: [gutterFor(n.at)], side: n.side });
+  });
+  parts.forEach((p, i) => {
+    const r = partRect(g, p);
+    if (!p.label || !r) return;
+    labels.push({ key: `p${i}`, text: txt(p.label), runs: runs(p.label), targets: [r], cores: [r], top: r.y + r.h / 2 < g.bottom / 2, gutters: [gutterNear(g, r.x + r.w / 2)] });
+  });
+  // never covered: parts, ✗ marks, shaded strips that carry no label
+  const fixed: Rect[] = [
+    ...parts.map((p) => partRect(g, p)).filter((r): r is Rect => !!r),
+    ...(fig.apart ?? []).flatMap(([a, b]) => {
+      const pa = g.pos(a);
+      const pb = g.pos(b);
+      return pa && pb ? [{ x: Math.min(pa[0], pb[0]) - 9, y: Math.min(pa[1], pb[1]), w: Math.abs(pb[0] - pa[0]) + 18, h: Math.abs(pb[1] - pa[1]) }] : [];
+    }),
+    ...(fig.strips ?? []).flatMap((s, i) =>
+      s.label
+        ? []
+        : stripTargets[i]
+            .map((id) => g.stripRect(id))
+            .filter((r): r is Rect => !!r)
+            .map((r) => padRect(r, 2)),
+    ),
+  ];
+  const lay = placeLabels(g, labels, fixed);
+  const labelOf = new Map(labels.map((l) => [l.key, l]));
+
+  // pointing at a label, a strip or its tag outlines it; a tap pins it until the next tap
+  const [hover, setHover] = useState<string | null>(null);
+  const [pinned, setPinned] = useState<string | null>(null);
+  const on = hover ?? pinned;
+  const link = (key: string) => ({
+    onPointerEnter: (e: ReactPointerEvent) => e.pointerType === 'mouse' && setHover(key),
+    onPointerLeave: (e: ReactPointerEvent) => e.pointerType === 'mouse' && setHover(null),
+    onClick: () => setPinned((k) => (k === key ? null : key)),
+  });
+  const cls = (key: string, base: string) => `${base}${on ? (on === key ? ' on' : ' off') : ''}`;
+
   const shades: ReactNode[] = [];
-  for (const r of shownRows.filter(isRail)) {
-    const yy = Y.get(r)!;
+  for (const r of g.rows.filter(isRail)) {
+    const yy = g.Y.get(r)!;
     shades.push(
-      <rect key={`rail${r}`} x={X(c0) - 9} y={yy - 7} width={X(c1) - X(c0) + 18} height={14} rx={7} fill={r.endsWith('p') ? 'var(--plus)' : 'var(--minus)'} opacity={0.14} />,
+      <rect
+        key={`rail${r}`}
+        x={g.X(g.c0) - 9}
+        y={yy - 7}
+        width={g.X(g.c1) - g.X(g.c0) + 18}
+        height={14}
+        rx={7}
+        fill={r.endsWith('p') ? 'var(--plus)' : 'var(--minus)'}
+        opacity={0.14}
+      />,
     );
   }
   (fig.strips ?? []).forEach((s, i) => {
-    const h = HOLE_MAP.get(s.at);
-    if (!h) return;
     const tone = TONE[s.tone ?? 1];
-    if (isRail(h.row)) {
-      const yy = Y.get(h.row);
-      if (yy === undefined) return;
-      shades.push(<rect key={`s${i}`} x={X(c0) - 10} y={yy - 9} width={X(c1) - X(c0) + 20} height={18} rx={9} fill={tone.fill} opacity={0.32} />);
-    } else {
-      const half = 'abcde'.includes(h.row) ? ['a', 'b', 'c', 'd', 'e'] : ['f', 'g', 'h', 'i', 'j'];
-      const ys = half.map((r) => Y.get(r as RowId)).filter((v): v is number => v !== undefined);
-      if (!ys.length || h.col < c0 || h.col > c1) return;
-      const y0 = Math.min(...ys);
-      const y1 = Math.max(...ys);
-      shades.push(<rect key={`s${i}`} x={X(h.col) - 9} y={y0 - 9} width={18} height={y1 - y0 + 18} rx={9} fill={tone.fill} opacity={0.3} />);
-    }
+    const key = `s${i}`;
+    stripTargets[i].forEach((id, j) => {
+      const r = g.stripRect(id);
+      if (!r) return;
+      shades.push(
+        <rect
+          key={`s${i}-${j}`}
+          className={s.label ? cls(key, 'cf-shade linked') : 'cf-shade'}
+          x={r.x}
+          y={r.y}
+          width={r.w}
+          height={r.h}
+          rx={9}
+          fill={tone.fill}
+          {...(s.label ? link(key) : {})}
+        />,
+      );
+    });
   });
 
-  // strip labels go in a legend under the board (colour swatch + text), never on the holes
-  const legend: ReactNode[] = [];
-  let legendBottom = bottom;
-  {
-    const x0 = left - 30;
-    let lx = x0;
-    let ly = bottom + 20;
-    (fig.strips ?? []).forEach((s, i) => {
-      if (!s.label) return;
-      const tone = TONE[s.tone ?? 1];
-      const w = 20 + estW(txt(s.label), 12.5) + 18;
-      if (lx > x0 && lx + w > right + 8) {
-        lx = x0;
-        ly += 22;
-      }
-      legend.push(
-        <g key={`lg${i}`}>
-          <rect x={lx} y={ly - 11} width={14} height={14} rx={4} fill={tone.fill} opacity={0.45} />
-          <Rich runs={runs(s.label)} x={lx + 20} y={ly} className="cf-note" fill={tone.ink} />
-        </g>,
-      );
-      lx += w;
-      legendBottom = ly + 8;
-    });
-  }
-
   const holes: ReactNode[] = [];
-  for (const r of shownRows)
-    for (let c = c0; c <= c1; c++) holes.push(<rect key={`${r}${c}`} x={X(c) - HOLE / 2} y={Y.get(r)! - HOLE / 2} width={HOLE} height={HOLE} rx={1.2} className="cf-hole" />);
+  for (const r of g.rows)
+    for (let c = g.c0; c <= g.c1; c++)
+      holes.push(
+        <rect
+          key={`${r}${c}`}
+          className={lay.dimmed.has(`${r}${c}`) ? 'cf-hole dim' : 'cf-hole'}
+          x={g.X(c) - HOLE_PX / 2}
+          y={g.Y.get(r)! - HOLE_PX / 2}
+          width={HOLE_PX}
+          height={HOLE_PX}
+          rx={1.2}
+        />,
+      );
 
-  const rowNames = shownRows.map((r) => (
+  const rowNames = g.rows.map((r) => (
     <text
       key={r}
-      x={X(c0) - 16}
-      y={Y.get(r)! + 4}
+      x={g.X(g.c0) - 16}
+      y={g.Y.get(r)! + 4}
       className={isRail(r) ? 'cf-rail-name' : 'cf-row-name'}
       textAnchor="end"
       fill={isRail(r) ? (r.endsWith('p') ? 'var(--plus-ink)' : 'var(--minus)') : undefined}
@@ -173,22 +199,17 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
       {isRail(r) ? (r.endsWith('p') ? '+' : '−') : r}
     </text>
   ));
-  const firstMain = (['a', 'f'] as RowId[]).find((r) => Y.has(r));
-  const colNums: ReactNode[] = [];
-  if (firstMain)
-    for (let c = c0; c <= c1; c++)
-      if (c === c0 || c === c1 || c % 5 === 0)
-        colNums.push(
-          <text key={c} x={X(c)} y={Y.get(firstMain)! - 12} textAnchor="middle" className="cf-col-num">
-            {c}
-          </text>,
-        );
-
-  const drawn = parts.map((p, i) => <BoardPartView key={i} p={p} pos={pos} left={left} />);
+  const colNums = g.colNums
+    .filter((c) => !lay.hiddenCols.has(c))
+    .map((c) => (
+      <text key={c} x={g.X(c)} y={g.Y.get(g.firstMain!)! - 12} textAnchor="middle" className="cf-col-num">
+        {c}
+      </text>
+    ));
 
   const apart = (fig.apart ?? []).map(([a, b], i) => {
-    const pa = pos(a);
-    const pb = pos(b);
+    const pa = g.pos(a);
+    const pb = g.pos(b);
     if (!pa || !pb) return null;
     const mx = (pa[0] + pb[0]) / 2;
     const my = (pa[1] + pb[1]) / 2;
@@ -201,46 +222,75 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
     );
   });
 
-  // the drawing grows to hold every label (notes beside the board, the legend under it)
-  const box = { x0: 0, y0: 0, x1: right + 12, y1: legendBottom };
-  const fit = (x: number, y: number, t: string, anchor: 'start' | 'middle' | 'end') => {
-    const w = estW(t);
-    const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
-    box.x0 = Math.min(box.x0, x0 - 4);
-    box.x1 = Math.max(box.x1, x0 + w + 4);
-    box.y0 = Math.min(box.y0, y - 14);
-    box.y1 = Math.max(box.y1, y + 6);
-  };
-  const notes = (fig.notes ?? []).map((n, i) => {
-    const p = pos(n.at);
-    if (!p) return null;
-    const side = n.side ?? 'right';
-    const dx = side === 'right' ? 12 : side === 'left' ? -12 : 0;
-    const dy = side === 'above' ? -12 : side === 'below' ? 18 : 4;
-    const anchor = side === 'right' ? 'start' : side === 'left' ? 'end' : 'middle';
-    fit(p[0] + dx, p[1] + dy, txt(n.text), anchor);
-    return <Rich key={`n${i}`} runs={runs(n.text)} x={p[0] + dx} y={p[1] + dy} anchor={anchor} className="cf-note" />;
-  });
-  for (const p of parts) {
-    const a = pos(p.from);
-    if (a && p.label) fit(a[0], a[1] - 30, txt(p.label), 'start');
-  }
+  // outlines of what each label is about (shown while it is pointed at)
+  const rings = labels.flatMap((l) =>
+    l.targets.map((t, j) => {
+      const r = padRect(t, 3);
+      return <rect key={`r${l.key}-${j}`} className={`cf-ring${on === l.key ? ' on' : ''}`} x={r.x} y={r.y} width={r.w} height={r.h} rx={10} />;
+    }),
+  );
 
+  const texts = lay.labels.map((p) => {
+    const l = labelOf.get(p.key)!;
+    const tone = l.tone ? TONE[l.tone] : null;
+    const ink = tone?.ink ?? 'var(--ink)';
+    if (p.kind === 'tag') {
+      const cx = p.box.x + p.box.w / 2;
+      return (
+        <g key={p.key} className={cls(p.key, 'cf-tag')} {...link(p.key)}>
+          {p.pointers.map(([a, b], i) => (
+            <g key={i}>
+              <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={ink} strokeWidth={1.4} />
+              <circle cx={b[0]} cy={b[1]} r={2.4} fill={ink} />
+            </g>
+          ))}
+          <rect x={p.box.x} y={p.box.y} width={p.box.w} height={p.box.h} rx={p.box.h / 2} stroke={tone?.fill ?? 'var(--line-2)'} />
+          <Rich runs={l.runs} x={cx} y={p.box.y + p.box.h / 2 + 4.3} anchor="middle" className="cf-label" fill={ink} />
+        </g>
+      );
+    }
+    return (
+      <g key={p.key} className={cls(p.key, 'cf-callout')} {...link(p.key)}>
+        {p.leaders.map((pts, i) => (
+          <g key={i}>
+            <polyline points={pts.map((q) => q.join(',')).join(' ')} fill="none" stroke={ink} strokeWidth={1.3} />
+            <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r={2.6} fill={ink} />
+          </g>
+        ))}
+        <Rich runs={l.runs} x={p.at[0]} y={p.at[1]} anchor="middle" className="cf-label" fill={ink} />
+      </g>
+    );
+  });
+
+  const box = {
+    x0: Math.min(0, lay.bounds.x),
+    y0: Math.min(0, lay.bounds.y),
+    x1: Math.max(g.right + 12, lay.bounds.x + lay.bounds.w),
+    y1: Math.max(g.bottom, lay.bounds.y + lay.bounds.h),
+  };
   const w = box.x1 - box.x0;
   const h = box.y1 - box.y0;
   return (
     <FigureFrame label={caption || tr('面包板示意图', 'Breadboard diagram')}>
-      <svg className="cf-svg" viewBox={`${box.x0} ${box.y0} ${w} ${h}`} style={{ maxWidth: Math.round(w * 1.25) }} role="img" aria-label={caption}>
-        <rect x={left - 30} y={4} width={right - left + 38} height={bottom - 8} rx={10} className="cf-board" />
-        {rowsShown === 'both' && <rect x={left - 30} y={gapY - 5} width={right - left + 38} height={10} className="cf-gap" />}
+      <svg
+        className={`cf-svg cf-board-svg${on ? ' has-on' : ''}`}
+        viewBox={`${box.x0} ${box.y0} ${w} ${h}`}
+        style={{ maxWidth: Math.round(w * 1.25) }}
+        role="img"
+        aria-label={caption}
+      >
+        <rect x={g.frame.x} y={g.frame.y} width={g.frame.w} height={g.frame.h} rx={10} className="cf-board" />
+        {g.gapY !== null && <rect x={g.frame.x} y={g.gapY - 5} width={g.frame.w} height={10} className="cf-gap" />}
         {shades}
         {holes}
         {rowNames}
         {colNums}
-        {legend}
         {apart}
-        {drawn}
-        {notes}
+        {parts.map((p, i) => (
+          <BoardPartView key={i} p={p} pos={g.pos} left={g.left} />
+        ))}
+        {rings}
+        {texts}
       </svg>
     </FigureFrame>
   );
@@ -249,7 +299,6 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
 function BoardPartView({ p, pos, left }: { p: BoardPart; pos: (id: string) => [number, number] | null; left: number }) {
   const a = pos(p.from);
   const b = p.to ? pos(p.to) : null;
-  const label = p.label ? runs(p.label) : null;
   if (!a) return null;
   const end = (q: [number, number], col: string) => <circle cx={q[0]} cy={q[1]} r={3.2} fill={col} />;
   if (p.type === 'probe') {
@@ -260,7 +309,6 @@ function BoardPartView({ p, pos, left }: { p: BoardPart; pos: (id: string) => [n
       <g className="cf-probe">
         <line x1={back[0]} y1={back[1]} x2={tip[0] + 5} y2={tip[1] - 6} stroke={col} strokeWidth={6} strokeLinecap="round" />
         <line x1={tip[0] + 5} y1={tip[1] - 6} x2={tip[0]} y2={tip[1]} stroke="#9aa0a6" strokeWidth={2.2} strokeLinecap="round" />
-        {label && <Rich runs={label} x={back[0] + 6} y={back[1] - 2} className="cf-note" fill={p.color === 'black' ? 'var(--ink)' : 'var(--plus-ink)'} />}
       </g>
     );
   }
@@ -280,7 +328,6 @@ function BoardPartView({ p, pos, left }: { p: BoardPart; pos: (id: string) => [n
         <path d={`M${a[0]},${a[1]} Q${cx},${cy} ${b[0]},${b[1]}`} stroke={col === WIRE.white ? '#bdb6a5' : col} strokeWidth={3.4} fill="none" strokeLinecap="round" />
         {end(a, col)}
         {end(b, col)}
-        {label && <Rich runs={label} x={cx + (horiz ? 0 : 8)} y={cy - (horiz ? 4 : -4)} anchor={horiz ? 'middle' : 'start'} className="cf-note" />}
       </g>
     );
   }
@@ -299,7 +346,6 @@ function BoardPartView({ p, pos, left }: { p: BoardPart; pos: (id: string) => [n
         </g>
         {end(a, '#8e8a80')}
         {end(b, '#8e8a80')}
-        {label && <Rich runs={label} x={horiz ? mx : mx + 11} y={horiz ? my - 11 : my + 4} anchor={horiz ? 'middle' : 'start'} className="cf-note" />}
       </g>
     );
   }
@@ -318,7 +364,6 @@ function BoardPartView({ p, pos, left }: { p: BoardPart; pos: (id: string) => [n
         </text>
         {end(a, '#8e8a80')}
         {end(b, '#8e8a80')}
-        {label && <Rich runs={label} x={top[0] + (horiz ? 0 : 14)} y={top[1] + (horiz ? -14 : 4)} anchor={horiz ? 'middle' : 'start'} className="cf-note" />}
       </g>
     );
   }
@@ -340,7 +385,6 @@ function BoardPartView({ p, pos, left }: { p: BoardPart; pos: (id: string) => [n
       <path d={`M${bx + 34},${by + bh * 0.72} C${bx + 52},${by + bh * 0.72} ${b[0] - 24},${b[1]} ${b[0]},${b[1]}`} stroke={WIRE.black} strokeWidth={3} fill="none" />
       {end(a, WIRE.red)}
       {end(b, WIRE.black)}
-      {label && <Rich runs={label} x={bx + 17} y={by + bh + 14} anchor="middle" className="cf-note" />}
     </g>
   );
 }

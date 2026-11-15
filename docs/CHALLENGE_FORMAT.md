@@ -785,7 +785,7 @@ Figures are drawn by the app (they follow the language, open full screen with "E
 | `kind` | 画什么 | 字段 |
 |---|---|---|
 | `schematic` | 电路图（和理论题同一种写法，PROBLEM_FORMAT §3：整数坐标、`marks` 电流箭头 / +− 标记、`loops` 回路箭头、`labels` 结点名、`notes`） | `schematic`；`highlight`：用强调色画的元件。接地符号可以不画；另有两种**只画不算**的元件：`LED`（`from` = 正极，`value` = 颜色 red / green / yellow / blue / white / orange）和 `BAT`（电池，`from` = +，`value` = 伏） |
-| `breadboard` | 面包板的一段：哪些孔相通、元件插在哪 | `cols`（[起, 止]，默认 [1, 12]）、`rows`（top / bottom / both）、`rails`（top / bottom / both / none）、`strips`（`at` 孔位 → 整条金属条上色，`tone` 1–3，`label`）、`parts`（`type` wire / resistor / led / battery / probe，`from` / `to` 孔位，`label`，`color`）、`apart`（两个孔之间画 ✗ 不通）、`notes`（`at` 孔位 + `text`，`side`） |
+| `breadboard` | 面包板的一段：哪些孔相通、元件插在哪 | `cols`（[起, 止]，默认 [1, 12]）、`rows`（top / bottom / both）、`rails`（top / bottom / both / none）、`strips`（`at` 孔位或孔位数组 → 整条金属条上色，`tone` 1–3，`label`：一句话可以同时指几条）、`parts`（`type` wire / resistor / led / battery / probe，`from` / `to` 孔位，`label`，`color`）、`apart`（两个孔之间画 ✗ 不通）、`notes`（`at` 孔位 + `text`，`side` 只是偏好） |
 | `plot` | 曲线 | `x` / `y`（`label`、`min`、`max`、`ticks`）、`curves`（`points` 折线点，`label`，`labelAt`，`tone`，`dashed`）、`dots`、`hlines`、`vlines` |
 
 ```json
@@ -807,6 +807,10 @@ Figures are drawn by the app (they follow the language, open full screen with "E
   }
 }
 ```
+
+**面包板图上的文字自动摆放**（`src/core/boardFigure.ts`，方案见 `prototypes/figure-labels.html`）：`strips` 的 `label`、`notes`、`parts` 的 `label` 都不用给坐标。每段文字先在板上找位置（一个小标签，必要时带一个短指针）：不许压别的金属条、元件、✗ 标记和别的标签，压电源轨的孔扣 5 分、压空孔扣 1 分、离目标越远扣分越多，取扣分最少的位置；找不到好位置就放到板子上方（目标在上半边）或下方，用一条走在两列孔之间空隙里的细线连过去。鼠标指到文字（手机点一下）时，它说的那一条会描一圈虚线。文字越短越容易留在板上：一句 4–8 个字最好。
+
+Text on breadboard figures is placed automatically: on the board where a good spot exists (a small tag, scored: strips, parts, ✗ marks and other tags are off limits, rail holes cost 5, empty holes 1, distance counts), otherwise above or below the board with a leader that runs between the columns of holes. Pointing at a label outlines what it names. Short labels (4–8 characters) stay on the board.
 
 **画得窄一点**：任务面板只有 300 多像素宽。电路图宽度控制在 **6 格以内**（一格 40 px），竖着放的元件两侧要留标签的位置；面包板图 8–11 列。图放不下时会变成左右滑动——截图检查一下。
 
