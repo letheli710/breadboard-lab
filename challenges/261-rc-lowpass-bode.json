@@ -27,10 +27,10 @@
         "- 电阻和电容组成一个**分压器**，VOUT 是电容上分到的那一份。",
         "- 电容对慢信号几乎是断开的；信号越快，它越像一根导线，把信号直接引到 GND。所以高频分到的越来越少。",
         "![](fig:divider)",
-        "- 电容的“交流电阻”（**容抗**）$X_C = \\frac{1}{2\\pi f C}$ 随频率变小。它等于 R 的那个频率叫**截止频率**：",
-        "$$f_c = \\frac{1}{2\\pi R C}$$",
-        "代入：$f_c = \\frac{1}{2\\pi × 1500 × 100 × 10^{-9}} ≈ 1061$ Hz。",
-        "- 在 $f_c$ 处输出是输入的 0.707 倍（−3 dB）；再往上，频率每高 10 倍，输出就小 10 倍。",
+        "- 电容的“交流电阻”（**容抗**）$X_C = \\frac{1}{2π f C}$ 随频率变小。它等于 R 的那个频率叫**截止频率**：",
+        "$$f_c = \\frac{1}{2π R C}$$",
+        "代入：$f_c = \\frac{1}{2π × 1500 × 100 × 10^{-9}} ≈ 1061$ Hz。",
+        "- 在 $f_c$ 处输出是输入的 0.707 倍；过了 $f_c$，频率越高，输出越小。",
         "![](fig:bode)"
       ]
     },
@@ -47,7 +47,8 @@
       "kind": "wrap",
       "title": "带走",
       "text": [
-        "- **低通**：低于 $f_c$ 几乎原样通过；高于 $f_c$ 每十倍频下降 20 dB，输出越来越落后于输入。",
+        "- **低通**：低于 $f_c$ 几乎原样通过；高于 $f_c$，频率每高 10 倍，输出就小到 1/10，而且越来越落后于输入。",
+        "- 工程上把倍数写成**分贝**（dB）：0.707 倍 = −3 dB，1/10 = −20 dB。所以常说“截止频率是 −3 dB 点，之后每十倍频下降 20 dB”。",
         "- $f_c$ 是“输出 = 0.707 × 输入”的频率，只由 R 和 C 决定。",
         "- 坑：瓷片电容常有 ±10%～±20% 的误差，$f_c$ 跟着偏。真实电路里先扫频找 0.707 的那个点，那才是你这块板的 $f_c$。"
       ],
@@ -177,10 +178,10 @@
             "- The resistor and the capacitor form a **voltage divider**; VOUT is the share that lands on the capacitor.",
             "- A capacitor is almost open for slow signals; the faster the signal, the more it looks like a wire straight to GND. So high frequencies get a smaller and smaller share.",
             "![](fig:divider)",
-            "- The capacitor's \"AC resistance\" (its **capacitive reactance**) $X_C = \\frac{1}{2\\pi f C}$ falls with frequency. The frequency where it equals R is the **cutoff frequency**:",
-            "$$f_c = \\frac{1}{2\\pi R C}$$",
-            "Plugging in: $f_c = \\frac{1}{2\\pi × 1500 × 100 × 10^{-9}} ≈ 1061$ Hz.",
-            "- At $f_c$ the output is 0.707 of the input (−3 dB); above it, every 10× in frequency makes the output 10× smaller.",
+            "- The capacitor's \"AC resistance\" (its **capacitive reactance**) $X_C = \\frac{1}{2π f C}$ falls with frequency. The frequency where it equals R is the **cutoff frequency**:",
+            "$$f_c = \\frac{1}{2π R C}$$",
+            "Plugging in: $f_c = \\frac{1}{2π × 1500 × 100 × 10^{-9}} ≈ 1061$ Hz.",
+            "- At $f_c$ the output is 0.707 of the input; past $f_c$, the higher the frequency, the smaller the output.",
             "![](fig:bode)"
           ]
         },
@@ -195,7 +196,8 @@
         {
           "title": "Take away",
           "text": [
-            "- **Low-pass**: below $f_c$ the signal passes almost unchanged; above $f_c$ it falls 20 dB per decade and lags further and further behind the input.",
+            "- **Low-pass**: below $f_c$ the signal passes almost unchanged; above $f_c$ every 10× in frequency leaves 1/10 of the output, lagging further and further behind the input.",
+            "- Engineers write ratios in **decibels** (dB): 0.707 = −3 dB, 1/10 = −20 dB. Hence \"the cutoff is the −3 dB point, and above it the gain falls 20 dB per decade\".",
             "- $f_c$ is the frequency where output = 0.707 × input. Only R and C set it.",
             "- Pitfall: ceramic capacitors are often ±10% to ±20% off, and $f_c$ moves with them. On a real board, sweep for the 0.707 point first — that is your board's actual $f_c$."
           ]
