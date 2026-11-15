@@ -2,90 +2,99 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-pwm-rc-dac",
-  "title": "实验 5-14 · PWM + RC 低通 = 最便宜的 DAC",
+  "title": "PWM + RC：最便宜的 DAC",
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "ESP32 的 PWM 引脚经 10 kΩ / 1 µF 低通滤波，得到平均值 = 占空比 × 3.3 V 的直流电压，再用 ADC1 读回来。看看纹波怎样随 PWM 频率和 RC 变化，以及“纹波小”和“响应快”之间的取舍。",
-  "concepts": [
-    "PWM 平均值 PWM average",
-    "RC 低通 RC low-pass",
-    "纹波 ripple ≈ V·D(1−D)/(f·RC)",
-    "建立时间 settling time",
-    "DAC 数模转换"
-  ],
+  "summary": "PWM 引脚只会 0 V 和 3.3 V。串一个电阻、并一个电容，就得到一个随占空比连续变化的直流电压，再让 ADC 自己读回来。",
+  "concepts": ["PWM 平均值 PWM average", "RC 低通 RC low-pass", "纹波 ripple", "建立时间 settling time", "DAC 数模转换"],
   "prereq": ["lesson-mcu-pwm-adc"],
-  "description": [
-    "**目标**：用 PWM 加一级 RC 低通做一个简易 DAC：验证输出平均值 V̄ = D × 3.3 V，并看纹波怎样随占空比、频率和 RC 变化。",
-    "",
-    "**电路**：ESP32 插在 b1，USB 供电。任意一个能输出 PWM 的 GPIO（参考答案用 GPIO27，i11）→ R1 **10 kΩ** → 结点 VDAC；VDAC 接 C1 **1 µF** 到 GND，同时用跳线接到一个 **ADC1** 引脚（参考答案用 GPIO34，i5），让芯片自己把滤波后的电压读回来。GND：j14 → bn14。示波器 CH1 接 VDAC，CH2 接 PWM 引脚（可选，只用来看波形）。",
-    "",
-    "**引脚设置**：ADC 引脚设成“模拟输入 ADC”；PWM 引脚设成“PWM 输出”。测试会自动改占空比（25 / 50 / 75 %）和频率（100 Hz / 1 kHz / 10 kHz）。",
-    "",
-    "**原理**：PWM 是在 0 V 和 3.3 V 之间切换的方波，它的平均值（直流分量）是 D × 3.3 V，其余是 f、2f、3f…… 的交流分量。RC 低通的截止频率 fc = 1/(2πRC)；只要 fc 远低于 PWM 频率，交流分量几乎全被滤掉，只剩直流。",
-    "**纹波公式**（τ ≫ T 时，电容电压近似线性地上下爬）：高电平期间电容电流 ≈ (3.3 − V̄)/R，持续 D·T；所以 **ΔV ≈ 3.3 V × D(1 − D) / (f·R·C)**。τ 和 T 差不多时用精确值 3.3 × tanh(T/4τ)（50 % 占空比）。",
-    "",
-    "**先预测**：fc 是多少？25 / 50 / 75 % 时 VDAC 的平均值和 12 位 ADC 读数各是多少？1 kHz 下哪个占空比纹波最大，各是多少 mV？100 Hz 和 10 kHz、50 % 时纹波又是多少？",
-    "",
-    "**测量**：",
-    "- VDAC 的**平均值**（示波器 vavg）和 ADC 读数：验证 V̄ = D × 3.3 V，PWM + RC 就是一个 DAC；",
-    "- VDAC 的**纹波**（vpp）：滤波没滤干净的那部分，决定了这个 DAC 的“噪声”；",
-    "- 不同频率下的纹波：说明为什么要让 τ = RC ≫ PWM 周期 T。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**取舍：纹波 vs 建立时间**：RC 越大纹波越小，但输出跟随占空比变化也越慢。占空比突变后，VDAC 按 τ = RC = **10 ms** 指数逼近新值：到 1 % 以内要 4.6τ ≈ 46 ms，到 12 位的 1 LSB 以内要约 8.3τ ≈ 83 ms。所以：",
-    "- 想要纹波小又响应快 → **提高 PWM 频率**（纹波 ∝ 1/f，不影响 τ）；",
-    "- 还不够 → 用**两级 RC**（二阶，纹波按 (f/fc)² 下降）或有源滤波器。",
-    "",
-    "**实际项目经验**：",
-    "- ESP32 的 PWM（LEDC）频率和分辨率是绑在一起的：f × 2^位数 ≤ 80 MHz。10 位分辨率最高约 78 kHz，8 位约 312 kHz；要 12 位只能 ≤ 19.5 kHz。DAC 用途选“够高的频率 + 够用的位数”。",
-    "- ESP32 其实有两个真正的 8 位 DAC：**GPIO25、GPIO26**（ESP32-S3 / C3 没有）。只要 8 位、并且引脚空着，直接用它们更省事；需要更多路或更高分辨率时才用 PWM + RC。",
-    "- STM32F103C8 没有 DAC（F103RC 以上才有），PWM + RC 是最常见的替代方案。",
-    "- ESP32 的 ADC 本身不线性：两端（< 0.1 V、> 3.1 V，11 dB 衰减时）几乎读不准，中间也有 ±几十 LSB 的误差；用 `esp_adc_cal` 校准，或者只做相对比较。这里读到的 1023 / 2045 / 3068 是理想 ADC。",
-    "- ADC 读 PWM 滤波电压时要“同步”或多次取平均，否则纹波会混进读数。",
-    "",
-    "**模型说明**：PWM 输出级是理想开关串 25 Ω；ADC 用直流模型（等于 PWM 平均值，看不到纹波）；示波器测量取稳态后的最后两个周期；电容是理想的（没有漏电和 ESR）。"
+  "description": "ESP32 的 PWM 引脚 → 10 kΩ → 结点 VDAC；VDAC 接 1 µF 到 GND，并接到一个 ADC1 引脚读回来。VDAC 的平均值 = 占空比 × 3.3 V，纹波随 PWM 频率升高而变小。测平均值、不同频率下的纹波，体会“纹波小”和“响应快”之间的取舍。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "方波去哪了？",
+      "text": [
+        "**PWM 引脚**（任意一个能输出的引脚）→ **`10 kΩ`** → 一列空孔，把这一列叫 **VDAC**。在「属性」里把引脚设成 **PWM**，**`1 kHz`**、**`50 %`**。",
+        "示波器 **CH1** 和**万用表**都接 VDAC。示波器上是方波，万用表显示什么？",
+        "再从 VDAC 到 GND 加一个 **`1 µF`** 电容，看 CH1：方波去哪了？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "电容是一个慢慢装水的桶",
+      "text": [
+        "- PWM 引脚要么是 3.3 V，要么是 0 V，从来不停在中间。能调的只是每个周期里 3.3 V 占多少时间：**占空比 D**。",
+        "![](fig:pwm)",
+        "- 电容是一个慢慢装水的桶：经过 10 kΩ 充电，它要 τ = RC = 10 ms 左右才装满，而引脚不到 1 ms 就翻一次。它跟不上，只好停在**平均值**附近。",
+        "- 平均值就是 3.3 V 占的时间比例：",
+        "$$\\bar V = D × 3.3$$",
+        "- 代入 D = 60 %：$\\bar V = 0.6 × 3.3 = 1.98$ V。D 怎么变，电压就沿一条直线跟着变——一个电阻加一个电容，就是一个**数模转换器（DAC）**。",
+        "![](fig:line)",
+        "- 剩下的小起伏叫**纹波**：引脚高时电容多充一点，低时多放一点。每个周期越短，它来不及动得越少。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "让芯片自己读回来",
+      "text": [
+        "- 保留电路，再加一根**跳线**：VDAC → 一个 **ADC1** 引脚（GPIO32–39），这个引脚设成 **ADC** 模式。芯片就能读回自己的输出。",
+        "- 点**「检查我的电路」**。检查会自己改占空比（25 / 50 / 75 %）和频率（100 Hz / 1 kHz / 10 kHz）。",
+        "- 回答测量题时，按题目在「属性」里设好占空比和频率：平均值用万用表读，纹波（Vpp）用示波器读。先预测，再读。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **PWM + RC = 便宜的 DAC**：平均值是 D × 3.3 V，RC 留下平均值、滤掉跳变。",
+        "- **纹波和速度要取舍**：RC 越大越平，但占空比一变，输出要约 5τ 才跟上。更好的办法是**提高 PWM 频率**：纹波变小，速度不变。",
+        "- 真实电路里的坑：VDAC 后面接负载，负载会和 10 kΩ 分压，电压被拉低——中间加一个 2.5 的电压跟随器。ESP32 还有两个真正的 8 位 DAC 引脚（GPIO25、GPIO26）；Blue Pill 的 STM32F103C8 一个都没有。"
+      ],
+      "practice": ["first-order"]
+    }
   ],
+  "figures": {
+    "pwm": {
+      "kind": "plot",
+      "caption": {
+        "text": "D = 60 %：引脚 60 % 的时间在 3.3 V。VDAC 跟不上这么快的开关，只在平均值（虚线）附近小幅起伏（起伏画得夸张了）。",
+        "i18n": {
+          "en": "D = 60 %: the pin spends 60 % of the time at 3.3 V. VDAC cannot follow such fast switching and only wobbles around the average (dashed line; the wobble is exaggerated here)."
+        }
+      },
+      "x": {"label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}}, "min": 0, "max": 3, "ticks": [0, 1, 2, 3]},
+      "y": {"label": {"text": "电压 (V)", "i18n": {"en": "voltage (V)"}}, "min": 0, "max": 3.6, "ticks": [0, 3.3]},
+      "curves": [
+        {
+          "points": [[0, 3.3], [0.6, 3.3], [0.6, 0], [1, 0], [1, 3.3], [1.6, 3.3], [1.6, 0], [2, 0], [2, 3.3], [2.6, 3.3], [2.6, 0], [3, 0]],
+          "tone": 2,
+          "label": {"text": "引脚", "i18n": {"en": "pin"}},
+          "labelAt": [0.8, 2.9]
+        },
+        {"points": [[0, 1.75], [0.6, 2.2], [1, 1.75], [1.6, 2.2], [2, 1.75], [2.6, 2.2], [3, 1.75]], "tone": 1, "label": "VDAC", "labelAt": [2.8, 2.45]}
+      ],
+      "hlines": [{"y": 1.98, "dashed": true}]
+    },
+    "line": {
+      "kind": "plot",
+      "caption": {
+        "text": "平均值和占空比成正比：一条从 0 V 到 3.3 V 的直线。这就是一个 DAC。",
+        "i18n": {
+          "en": "The average is proportional to the duty cycle: a straight line from 0 V to 3.3 V. That is a DAC."
+        }
+      },
+      "x": {"label": {"text": "占空比 D (%)", "i18n": {"en": "duty cycle D (%)"}}, "min": 0, "max": 100, "ticks": [0, 50, 100]},
+      "y": {"label": {"text": "VDAC 平均值 (V)", "i18n": {"en": "VDAC average (V)"}}, "min": 0, "max": 3.6, "ticks": [0, 3.3]},
+      "curves": [{"points": [[0, 0], [100, 3.3]], "tone": 1, "label": "V̄ = D × 3.3 V", "labelAt": [30, 2.6]}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-14 · PWM + RC low-pass = the cheapest DAC",
-      "summary": "An ESP32 PWM pin through a 10 kΩ / 1 µF low-pass gives a DC voltage equal to duty × 3.3 V, read back by ADC1. See how the ripple depends on the PWM frequency and RC, and the trade-off between low ripple and fast response.",
-      "concepts": [
-        "PWM average",
-        "RC low-pass",
-        "ripple ≈ V·D(1−D)/(f·RC)",
-        "settling time",
-        "DAC"
-      ],
-      "description": [
-        "**Goal**: build a simple DAC from PWM and one RC low-pass: check that the output average is V̄ = D × 3.3 V, and see how the ripple depends on duty cycle, frequency and RC.",
-        "",
-        "**Circuit**: an ESP32 at b1, powered from USB. Any PWM-capable GPIO (the solution uses GPIO27, i11) → R1 **10 kΩ** → node VDAC; VDAC has C1 **1 µF** to GND and a jumper to an **ADC1** pin (the solution uses GPIO34, i5), so the chip reads the filtered voltage back itself. GND: j14 → bn14. Scope CH1 on VDAC, CH2 on the PWM pin (optional, just to look at the waveforms).",
-        "",
-        "**Pin table settings**: the ADC pin as \"analog input (ADC)\"; the PWM pin as \"PWM output\". The tests change the duty cycle (25 / 50 / 75 %) and the frequency (100 Hz / 1 kHz / 10 kHz).",
-        "",
-        "**How it works**: PWM is a square wave switching between 0 V and 3.3 V. Its average (DC component) is D × 3.3 V; the rest is AC at f, 2f, 3f… The RC low-pass cuts off at fc = 1/(2πRC); as long as fc is far below the PWM frequency, almost all of the AC is removed and the DC remains.",
-        "**Ripple formula** (for τ ≫ T the capacitor voltage ramps almost linearly up and down): during the high time the capacitor current is ≈ (3.3 − V̄)/R for D·T, so **ΔV ≈ 3.3 V × D(1 − D) / (f·R·C)**. When τ is comparable to T use the exact value 3.3 × tanh(T/4τ) (50 % duty).",
-        "",
-        "**Predict first**: what is fc? What are the VDAC average and the 12-bit ADC reading at 25 / 50 / 75 %? At 1 kHz, which duty cycle gives the largest ripple, and how many mV each? What is the ripple at 100 Hz and at 10 kHz with 50 %?",
-        "",
-        "**Measure**:",
-        "- the **average** of VDAC (scope vavg) and the ADC reading: checks V̄ = D × 3.3 V — PWM + RC is a DAC;",
-        "- the **ripple** of VDAC (vpp): what the filter didn't remove, the \"noise\" of this DAC;",
-        "- the ripple at different frequencies: why τ = RC must be ≫ the PWM period T. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Trade-off: ripple vs settling time**: a bigger RC means less ripple but a slower response to a duty change. After a step, VDAC approaches the new value with τ = RC = **10 ms**: within 1 % after 4.6τ ≈ 46 ms, within one 12-bit LSB after about 8.3τ ≈ 83 ms. So:",
-        "- low ripple *and* fast response → **raise the PWM frequency** (ripple ∝ 1/f, τ unchanged);",
-        "- still not enough → **two RC stages** (second order: ripple falls as (f/fc)²) or an active filter.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- ESP32 PWM (LEDC) frequency and resolution are tied: f × 2^bits ≤ 80 MHz. 10-bit resolution tops out around 78 kHz, 8-bit around 312 kHz; 12-bit only up to 19.5 kHz. For a DAC pick \"a high enough frequency + enough bits\".",
-        "- The ESP32 has two real 8-bit DACs on **GPIO25 and GPIO26** (not on the ESP32-S3 / C3). If 8 bits are enough and the pins are free, just use them; PWM + RC is for more channels or more resolution.",
-        "- The STM32F103C8 has no DAC (only the F103RC and up do), so PWM + RC is the usual substitute.",
-        "- The ESP32 ADC is not linear: near the ends (< 0.1 V, > 3.1 V at 11 dB attenuation) it barely reads, and in the middle it is off by tens of LSB. Calibrate with `esp_adc_cal` or only compare relative values. The 1023 / 2045 / 3068 here are an ideal ADC.",
-        "- When the ADC reads a filtered PWM voltage, synchronise or average several samples, or the ripple leaks into the reading.",
-        "",
-        "**Model note**: the PWM output stage is an ideal switch behind 25 Ω; the ADC uses the DC model (the PWM average, so it doesn't see the ripple); scope measurements use the last two periods after steady state; the capacitor is ideal (no leakage, no ESR)."
-      ],
+      "title": "PWM + RC: the cheapest DAC",
+      "summary": "A PWM pin only knows 0 V and 3.3 V. Add a series resistor and a capacitor and you get a DC voltage that follows the duty cycle smoothly — and the ADC reads it back.",
+      "concepts": ["PWM average", "RC low-pass", "ripple", "settling time", "DAC"],
+      "description": "An ESP32 PWM pin → 10 kΩ → node VDAC; VDAC has 1 µF to GND and goes to an ADC1 pin to be read back. VDAC's average = duty × 3.3 V, and its ripple shrinks as the PWM frequency rises. Measure the average and the ripple at several frequencies, and see the trade-off between a small ripple and a fast response.",
       "compare": [
         "**Compare** (simulated):",
         "- fc = 1/(2π × 10 kΩ × 1 µF) ≈ **16 Hz**, far below the 1 kHz PWM.",
@@ -97,15 +106,27 @@
       ],
       "measurements": [
         {"ask": "1 kHz, 25 %: multimeter DC range on VDAC to GND (the average)", "explain": "V̄ = D × 3.3 V ≈ 0.82 V (an ADC reading of about 1023)."},
-        {"ask": "From your reading, the duty cycle D = V̄ / 3.3 V", "explain": "≈ 0.25: the RC low-pass keeps only the PWM's DC component (its average), so PWM + RC is a DAC."},
-        {"ask": "1 kHz, 50 %: VDAC's ripple Vpp on the scope", "explain": "For τ ≫ T the ripple ≈ 3.3 × D(1 − D) / (f·RC) = 3.3 × 0.25 / (1000 × 10 ms) ≈ 82 mV, largest at 50 %."},
-        {"ask": "100 Hz, 50 %: VDAC's ripple Vpp", "explain": "τ is only one period, so the approximation breaks down: 3.3 × tanh(T/4τ) ≈ 0.81 V, VDAC swings between about 1.25 V and 2.05 V — no longer DC."},
-        {"ask": "10 kHz, 50 %: VDAC's ripple Vpp", "explain": "Ripple ∝ 1/f: about 8 mV, a tenth of the 1 kHz value, with the same average. Raising the PWM frequency cuts ripple without slowing the output (τ is unchanged)."}
+        {
+          "ask": "From your reading, the duty cycle D = V̄ / 3.3 V",
+          "explain": "≈ 0.25: the RC low-pass keeps only the PWM's DC component (its average), so PWM + RC is a DAC."
+        },
+        {
+          "ask": "1 kHz, 50 %: VDAC's ripple Vpp on the scope",
+          "explain": "For τ ≫ T the ripple ≈ 3.3 × D(1 − D) / (f·RC) = 3.3 × 0.25 / (1000 × 10 ms) ≈ 82 mV, largest at 50 %."
+        },
+        {
+          "ask": "100 Hz, 50 %: VDAC's ripple Vpp",
+          "explain": "τ is only one period, so the approximation breaks down: 3.3 × tanh(T/4τ) ≈ 0.81 V, VDAC swings between about 1.25 V and 2.05 V — no longer DC."
+        },
+        {
+          "ask": "10 kHz, 50 %: VDAC's ripple Vpp",
+          "explain": "Ripple ∝ 1/f: about 8 mV, a tenth of the 1 kHz value, with the same average. Raising the PWM frequency cuts ripple without slowing the output (τ is unchanged)."
+        }
       ],
       "hints": [
-        "PWM pin → 10 kΩ → VDAC; 1 µF from VDAC to GND; a jumper from VDAC to an ADC1 pin (GPIO32–39).",
-        "Set the ADC pin to analog input and the other pin to PWM.",
-        "The average is duty × 3.3 V; the ripple shrinks with a higher frequency or a bigger RC."
+        "PWM pin → 10 kΩ → VDAC; 1 µF from VDAC to GND; then a jumper from VDAC to an ADC1 pin (GPIO32–39).",
+        "Set the ADC pin to ADC mode and the other pin to PWM.",
+        "Average = duty × 3.3 V; a higher PWM frequency or a larger RC gives less ripple."
       ],
       "tests": [
         "1 kHz, 25 %: sensible average and ripple",
@@ -113,225 +134,82 @@
         "1 kHz, 75 %: sensible average and ripple",
         "100 Hz, 50 %: τ = T, a big ripple — no longer DC",
         "10 kHz, 50 %: a tiny ripple, the same average"
+      ],
+      "cards": [
+        {
+          "title": "Where did the square wave go?",
+          "text": [
+            "**PWM pin** (any output pin) → **`10 kΩ`** → a free column; call that column **VDAC**. In **Properties** set the pin to **PWM**, **`1 kHz`**, **`50 %`**.",
+            "Put scope **CH1** and the **multimeter** on VDAC. The scope shows a square wave; what does the multimeter show?",
+            "Now add a **`1 µF`** capacitor from VDAC to GND and look at CH1: where did the square wave go?"
+          ]
+        },
+        {
+          "title": "A capacitor is a slowly filling bucket",
+          "text": [
+            "- A PWM pin is either at 3.3 V or at 0 V; it never stops in between. All you can set is how much of each period it spends at 3.3 V: the **duty cycle D**.",
+            "![](fig:pwm)",
+            "- A capacitor is a slowly filling bucket: charging through 10 kΩ it needs about τ = RC = 10 ms to fill, while the pin flips in under 1 ms. It cannot keep up, so it settles near the **average**.",
+            "- The average is just the share of time at 3.3 V:",
+            "$$\\bar V = D × 3.3$$",
+            "- With D = 60 %: $\\bar V = 0.6 × 3.3 = 1.98$ V. As D changes, the voltage follows along a straight line — one resistor and one capacitor make a **digital-to-analog converter (DAC)**.",
+            "![](fig:line)",
+            "- The small wobble left over is the **ripple**: the capacitor charges a little while the pin is high and drains a little while it is low. The shorter each period, the less it can move."
+          ]
+        },
+        {
+          "title": "Let the chip read it back",
+          "text": [
+            "- Keep the circuit and add one **jumper**: VDAC → an **ADC1** pin (GPIO32–39), set to **ADC** mode. Now the chip can read its own output.",
+            "- Press **Check my circuit**. The check changes the duty (25 / 50 / 75 %) and the frequency (100 Hz / 1 kHz / 10 kHz) by itself.",
+            "- For each measurement question, set the duty and frequency in Properties as it says: read the average on the multimeter and the ripple (Vpp) on the scope. Predict first, then read."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **PWM + RC = a cheap DAC**: the average is D × 3.3 V; the RC keeps the average and filters out the jumps.",
+            "- **Ripple trades against speed**: a bigger RC is smoother, but after a duty change the output needs about 5τ to catch up. The better fix is a **higher PWM frequency**: less ripple, same speed.",
+            "- A real-world catch: a load on VDAC forms a divider with the 10 kΩ and pulls the voltage down — put the voltage follower from 2.5 in between. The ESP32 also has two true 8-bit DAC pins (GPIO25, GPIO26); the Blue Pill's STM32F103C8 has none."
+          ]
+        }
       ]
     }
   },
-  "components": [
-    {
-      "ref": "U1",
-      "type": "esp32_devkit"
-    },
-    {
-      "ref": "R1",
-      "type": "resistor",
-      "resistance": "10k"
-    },
-    {
-      "ref": "C1",
-      "type": "capacitor",
-      "capacitance": "1u"
-    }
-  ],
-  "nets": [
-    {
-      "name": "PWM",
-      "pins": [
-        "U1.PWM1",
-        "R1.1"
-      ]
-    },
-    {
-      "name": "VDAC",
-      "pins": [
-        "R1.2",
-        "C1.1",
-        "U1.ADC1"
-      ]
-    },
-    {
-      "name": "GND",
-      "pins": [
-        "C1.2",
-        "U1.GND"
-      ]
-    }
-  ],
+  "components": [{"ref": "U1", "type": "esp32_devkit"}, {"ref": "R1", "type": "resistor", "resistance": "10k"}, {"ref": "C1", "type": "capacitor", "capacitance": "1u"}],
+  "nets": [{"name": "PWM", "pins": ["U1.PWM1", "R1.1"]}, {"name": "VDAC", "pins": ["R1.2", "C1.1", "U1.ADC1"]}, {"name": "GND", "pins": ["C1.2", "U1.GND"]}],
   "tests": [
     {
       "name": "1 kHz、25 %：平均值和纹波合理",
-      "set": {
-        "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "pwm",
-              "duty": 25,
-              "frequency": 1000
-            }
-          }
-        }
-      },
-      "scope": [
-        {
-          "pin": "C1.1",
-          "measure": "vavg",
-          "min": 0.79,
-          "max": 0.86
-        },
-        {
-          "pin": "C1.1",
-          "measure": "vpp",
-          "min": 0.058,
-          "max": 0.066
-        }
-      ],
-      "gpio": [
-        {
-          "pin": "U1.ADC1",
-          "measure": "adc",
-          "min": 980,
-          "max": 1065
-        },
-        {
-          "pin": "U1.PWM1",
-          "measure": "voltage",
-          "min": 0.79,
-          "max": 0.86
-        }
-      ]
+      "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 25, "frequency": 1000}}}},
+      "scope": [{"pin": "C1.1", "measure": "vavg", "min": 0.79, "max": 0.86}, {"pin": "C1.1", "measure": "vpp", "min": 0.058, "max": 0.066}],
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 980, "max": 1065}, {"pin": "U1.PWM1", "measure": "voltage", "min": 0.79, "max": 0.86}]
     },
     {
       "name": "1 kHz、50 %：平均值合理，纹波最大",
-      "set": {
-        "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 1000
-            }
-          }
-        }
-      },
-      "scope": [
-        {
-          "pin": "C1.1",
-          "measure": "vavg",
-          "min": 1.6,
-          "max": 1.7
-        },
-        {
-          "pin": "C1.1",
-          "measure": "vpp",
-          "min": 0.078,
-          "max": 0.087
-        }
-      ],
-      "gpio": [
-        {
-          "pin": "U1.ADC1",
-          "measure": "adc",
-          "min": 1985,
-          "max": 2105
-        }
-      ]
+      "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 1000}}}},
+      "scope": [{"pin": "C1.1", "measure": "vavg", "min": 1.6, "max": 1.7}, {"pin": "C1.1", "measure": "vpp", "min": 0.078, "max": 0.087}],
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 1985, "max": 2105}]
     },
     {
       "name": "1 kHz、75 %：平均值和纹波合理",
-      "set": {
-        "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "pwm",
-              "duty": 75,
-              "frequency": 1000
-            }
-          }
-        }
-      },
-      "scope": [
-        {
-          "pin": "C1.1",
-          "measure": "vavg",
-          "min": 2.4,
-          "max": 2.55
-        },
-        {
-          "pin": "C1.1",
-          "measure": "vpp",
-          "min": 0.058,
-          "max": 0.066
-        }
-      ],
-      "gpio": [
-        {
-          "pin": "U1.ADC1",
-          "measure": "adc",
-          "min": 2980,
-          "max": 3155
-        }
-      ]
+      "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 75, "frequency": 1000}}}},
+      "scope": [{"pin": "C1.1", "measure": "vavg", "min": 2.4, "max": 2.55}, {"pin": "C1.1", "measure": "vpp", "min": 0.058, "max": 0.066}],
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 2980, "max": 3155}]
     },
     {
       "name": "100 Hz、50 %：τ = T，纹波很大，已经不是直流了",
-      "set": {
-        "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 100
-            }
-          }
-        }
-      },
+      "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 100}}}},
       "scope": [
-        {
-          "pin": "C1.1",
-          "measure": "vpp",
-          "min": 0.76,
-          "max": 0.85
-        },
-        {
-          "pin": "C1.1",
-          "measure": "vmin",
-          "min": 1.18,
-          "max": 1.31
-        },
-        {
-          "pin": "C1.1",
-          "measure": "vmax",
-          "min": 1.98,
-          "max": 2.12
-        }
+        {"pin": "C1.1", "measure": "vpp", "min": 0.76, "max": 0.85},
+        {"pin": "C1.1", "measure": "vmin", "min": 1.18, "max": 1.31},
+        {"pin": "C1.1", "measure": "vmax", "min": 1.98, "max": 2.12}
       ]
     },
     {
       "name": "10 kHz、50 %：纹波很小，平均值不变",
-      "set": {
-        "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 10000
-            }
-          }
-        }
-      },
-      "scope": [
-        {
-          "pin": "C1.1",
-          "measure": "vavg",
-          "min": 1.6,
-          "max": 1.7
-        },
-        {
-          "pin": "C1.1",
-          "measure": "vpp",
-          "min": 0.0075,
-          "max": 0.009
-        }
-      ]
+      "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 10000}}}},
+      "scope": [{"pin": "C1.1", "measure": "vavg", "min": 1.6, "max": 1.7}, {"pin": "C1.1", "measure": "vpp", "min": 0.0075, "max": 0.009}]
     }
   ],
   "compare": [
@@ -344,89 +222,69 @@
     "- ESP32 的 ADC 引脚不取电流，所以没有负载误差；如果 VDAC 后面接一个 10 kΩ 的负载，它和 R1 会组成分压，平均值会掉一半——要接负载就加一个运放跟随器。"
   ],
   "measurements": [
-    {"id": "v25", "voltage": "C1.1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 25, "frequency": 1000}}}}, "unit": "V", "predict": true, "range": [0.783, 0.866], "ask": "1 kHz、25 %：万用表直流档测 VDAC 对 GND（平均值）", "explain": "V̄ = D × 3.3 V ≈ 0.82 V（ADC 读数约 1023）。"},
-    {"id": "duty", "formula": "v25 / 3.3", "predict": true, "range": [0.237, 0.262], "ask": "用你的读数反算占空比 D = V̄ / 3.3 V", "explain": "≈ 0.25：RC 低通只留下 PWM 的直流分量（平均值），PWM + RC 就是一个 DAC。"},
-    {"id": "r50", "scope": "vpp", "pin": "C1.1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 1000}}}}, "unit": "mV", "predict": true, "range": [0.0781, 0.0863], "ask": "1 kHz、50 %：示波器测 VDAC 的纹波 Vpp", "explain": "τ ≫ T 时纹波 ≈ 3.3 × D(1 − D) / (f·RC) = 3.3 × 0.25 / (1000 × 10 ms) ≈ 82 mV，50 % 时最大。"},
-    {"id": "r100", "scope": "vpp", "pin": "C1.1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 100}}}}, "unit": "V", "predict": true, "range": [0.765, 0.846], "ask": "100 Hz、50 %：VDAC 的纹波 Vpp", "explain": "τ 只等于一个周期，近似公式不再适用：3.3 × tanh(T/4τ) ≈ 0.81 V，VDAC 在约 1.25 V 和 2.05 V 之间摆——已经不是直流了。"},
-    {"id": "r10k", "tolAbs": 0.0005, "scope": "vpp", "pin": "C1.1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 10000}}}}, "unit": "mV", "predict": true, "range": [0.00781, 0.00863], "ask": "10 kHz、50 %：VDAC 的纹波 Vpp", "explain": "纹波 ∝ 1/f：约 8 mV，是 1 kHz 时的 1/10，平均值不变。提高 PWM 频率能减小纹波，又不会让输出变慢（τ 不变）。"}
+    {
+      "id": "v25",
+      "voltage": "C1.1",
+      "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 25, "frequency": 1000}}}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.783, 0.866],
+      "ask": "1 kHz、25 %：万用表直流档测 VDAC 对 GND（平均值）",
+      "explain": "V̄ = D × 3.3 V ≈ 0.82 V（ADC 读数约 1023）。"
+    },
+    {
+      "id": "duty",
+      "formula": "v25 / 3.3",
+      "predict": true,
+      "range": [0.237, 0.262],
+      "ask": "用你的读数反算占空比 D = V̄ / 3.3 V",
+      "explain": "≈ 0.25：RC 低通只留下 PWM 的直流分量（平均值），PWM + RC 就是一个 DAC。"
+    },
+    {
+      "id": "r50",
+      "scope": "vpp",
+      "pin": "C1.1",
+      "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 1000}}}},
+      "unit": "mV",
+      "predict": true,
+      "range": [0.0781, 0.0863],
+      "ask": "1 kHz、50 %：示波器测 VDAC 的纹波 Vpp",
+      "explain": "τ ≫ T 时纹波 ≈ 3.3 × D(1 − D) / (f·RC) = 3.3 × 0.25 / (1000 × 10 ms) ≈ 82 mV，50 % 时最大。"
+    },
+    {
+      "id": "r100",
+      "scope": "vpp",
+      "pin": "C1.1",
+      "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 100}}}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.765, 0.846],
+      "ask": "100 Hz、50 %：VDAC 的纹波 Vpp",
+      "explain": "τ 只等于一个周期，近似公式不再适用：3.3 × tanh(T/4τ) ≈ 0.81 V，VDAC 在约 1.25 V 和 2.05 V 之间摆——已经不是直流了。"
+    },
+    {
+      "id": "r10k",
+      "tolAbs": 0.0005,
+      "scope": "vpp",
+      "pin": "C1.1",
+      "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 10000}}}},
+      "unit": "mV",
+      "predict": true,
+      "range": [0.00781, 0.00863],
+      "ask": "10 kHz、50 %：VDAC 的纹波 Vpp",
+      "explain": "纹波 ∝ 1/f：约 8 mV，是 1 kHz 时的 1/10，平均值不变。提高 PWM 频率能减小纹波，又不会让输出变慢（τ 不变）。"
+    }
   ],
-  "hints": [
-    "PWM 引脚 → 10 kΩ → VDAC；VDAC 到 GND 接 1 µF；再用跳线把 VDAC 接到一个 ADC1 引脚（GPIO32–39）。",
-    "ADC 引脚设成“模拟输入”，另一个引脚设成 PWM。",
-    "平均值 = 占空比 × 3.3 V；纹波随频率升高、RC 增大而变小。"
-  ],
+  "hints": ["PWM 引脚 → 10 kΩ → VDAC；VDAC 到 GND 接 1 µF；再用跳线把 VDAC 接到一个 ADC1 引脚（GPIO32–39）。", "ADC 引脚设成 ADC 模式，另一个引脚设成 PWM。", "平均值 = 占空比 × 3.3 V；PWM 频率越高、RC 越大，纹波越小。"],
   "solution": {
     "parts": [
-      {
-        "type": "esp32_devkit",
-        "ref": "U1",
-        "at": "b1",
-        "props": {
-          "usb": true,
-          "modes": {
-            "GPIO27": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 1000
-            },
-            "GPIO34": "adc"
-          }
-        }
-      },
-      {
-        "type": "wire",
-        "ref": "W1",
-        "color": "black",
-        "pins": {
-          "a": "j14",
-          "b": "bn14"
-        }
-      },
-      {
-        "type": "resistor",
-        "ref": "R1",
-        "resistance": "10k",
-        "pins": {
-          "1": "j11",
-          "2": "j22"
-        }
-      },
-      {
-        "type": "capacitor",
-        "ref": "C1",
-        "capacitance": "1u",
-        "pins": {
-          "1": "h22",
-          "2": "bn22"
-        }
-      },
-      {
-        "type": "wire",
-        "ref": "W2",
-        "color": "yellow",
-        "pins": {
-          "a": "j5",
-          "b": "g22"
-        }
-      },
-      {
-        "type": "scope_probe",
-        "ref": "PR1",
-        "channel": 1,
-        "pins": {
-          "tip": "f22",
-          "gnd": "bn24"
-        }
-      },
-      {
-        "type": "scope_probe",
-        "ref": "PR2",
-        "channel": 2,
-        "pins": {
-          "tip": "h11",
-          "gnd": "bn25"
-        }
-      }
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO27": {"mode": "pwm", "duty": 50, "frequency": 1000}, "GPIO34": "adc"}}},
+      {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "j14", "b": "bn14"}},
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "j11", "2": "j22"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "1u", "pins": {"1": "h22", "2": "bn22"}},
+      {"type": "wire", "ref": "W2", "color": "yellow", "pins": {"a": "j5", "b": "g22"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "f22", "gnd": "bn24"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "h11", "gnd": "bn25"}}
     ]
   }
 }
