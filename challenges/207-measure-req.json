@@ -31,6 +31,7 @@
       "title": "从最远处往回收",
       "text": [
         "- 先 $R_4 \\parallel R_5$，再串 $R_3$，再与 $R_2$ 并联，最后串 $R_1$，得到 $R_{eq}$。",
+        "![](fig:network)",
         "- 有了 $R_{eq}$，总电流 $I = \\frac{9\\ \\text{V}}{R_{eq}}$；再一路往回算 A、B 两点的电压。",
         "- 反过来，只要测出电压和电流，$R_{eq} = \\frac{V}{I}$——不用拆盒子。"
       ]
@@ -56,6 +57,39 @@
       ]
     }
   ],
+  "figures": {
+    "network": {
+      "kind": "schematic",
+      "caption": {
+        "text": "从最远处往回收：R4 ∥ R5，再串 R3，再并 R2，最后串 R1，就是 R_eq。AM1 量的是总电流 I。",
+        "i18n": {
+          "en": "Fold it up from the far end: R4 ∥ R5, then R3 in series, then R2 in parallel, then R1 in series gives R_eq. AM1 reads the total current I."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 3], "to": [0, 6], "value": 9},
+          {"ref": "AM1", "type": "ammeter", "from": [0, 3], "to": [0, 0]},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [2, 0], "value": "1k"},
+          {"ref": "R2", "type": "R", "from": [2, 0], "to": [2, 6], "value": "2.2k"},
+          {"ref": "R3", "type": "R", "from": [2, 0], "to": [4, 0], "value": "1k"},
+          {"ref": "R4", "type": "R", "from": [4, 0], "to": [4, 6], "value": "3.3k"},
+          {"ref": "R5", "type": "R", "from": [6, 0], "to": [6, 6], "value": "4.7k"}
+        ],
+        "wires": [
+          [[4, 0], [6, 0]],
+          [[6, 6], [0, 6]]
+        ],
+        "labels": [
+          {"at": [2, 0], "name": "A"},
+          {"at": [5, 0], "name": "B"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "AM1", "name": "I"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
       "title": "Measuring a network's equivalent resistance",
@@ -106,6 +140,7 @@
           "title": "Fold it back from the far end",
           "text": [
             "- First $R_4 \\parallel R_5$, add $R_3$, put that in parallel with $R_2$, finally add $R_1$: that is $R_{eq}$.",
+            "![](fig:network)",
             "- With $R_{eq}$ the total current is $I = \\frac{9\\ \\text{V}}{R_{eq}}$; then work back to the voltages at A and B.",
             "- The other way round: measure the voltage and the current and $R_{eq} = \\frac{V}{I}$ — no need to open the box."
           ]

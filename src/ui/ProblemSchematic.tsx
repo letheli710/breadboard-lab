@@ -32,7 +32,8 @@ export { richRuns };
 /** Element refs / mark names: "R1" → R₁, "Vs" → V_s, "RL" → R_L (unless they already use "_"). */
 export function symbolText(ref: string): string {
   // breadboard names in lesson figures stay as they are: LED1, AM1 (ammeter), VM1 (voltmeter)
-  if (ref.includes('_') || /^(LED|AM|VM)\d*$/.test(ref)) return ref;
+  // (and a lowercase word such as "com" or "out" is a name, not a symbol)
+  if (ref.includes('_') || /^(LED|AM|VM)\d*$/.test(ref) || /^[a-z]{3,}$/.test(ref)) return ref;
   const m = ref.match(/^([A-Za-z])([A-Za-z]{0,3}\d*|\d+)$/);
   return m && m[2] ? `${m[1]}_${m[2]}` : ref;
 }
@@ -226,6 +227,10 @@ export function elementValueText(el: TwoTerminalElement): string | null {
       return lawText(el.law);
     case 'BAT':
       return siOrRaw(v, 'V');
+    case 'RV':
+      return siOrRaw(v, 'Ω');
+    case 'S':
+      return null;
     case 'LED':
       return null;
     case 'VCVS':
@@ -268,6 +273,10 @@ function bodySize(el: TwoTerminalElement): { B: number; hw: number } {
       return { B: 36, hw: 16 };
     case 'LED':
       return { B: 22, hw: 17 };
+    case 'RV':
+      return { B: 48, hw: 14 };
+    case 'S':
+      return { B: 34, hw: 13 };
     case 'BAT':
       return { B: 12, hw: 16 };
     default:
@@ -425,6 +434,8 @@ const KIND: Record<string, [string, string]> = {
   NR: ['非线性电阻', 'nonlinear resistor'],
   LED: ['发光二极管', 'LED'],
   BAT: ['电池', 'battery'],
+  RV: ['可变电阻', 'variable resistor'],
+  S: ['开关', 'switch'],
   OPAMP: ['理想运放', 'ideal op-amp'],
   XFMR: ['变压器', 'transformer'],
   K: ['耦合', 'coupling'],
@@ -832,6 +843,42 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
             <line x1={h - 2} y1={-10} x2={h - 2} y2={10} {...common} />
             {ray(-4)}
             {ray(3)}
+          </g>
+        );
+        break;
+      }
+      case 'RV':
+        // the resistor with an arrow through it (a variable resistor / potentiometer as a rheostat)
+        body = (
+          <g>
+            {zh ? (
+              <rect x={-h} y={-8} width={2 * h} height={16} {...common} fill="var(--paper)" />
+            ) : (
+              <polyline
+                points={[-h, ...[0, 1, 2, 3, 4, 5].map((i) => -h + (2 * h * (2 * i + 1)) / 12), h]
+                  .map((x, i, arr) => `${x},${i === 0 || i === arr.length - 1 ? 0 : i % 2 ? -8 : 8}`)
+                  .join(' ')}
+                {...common}
+              />
+            )}
+            <line x1={-h + 6} y1={13} x2={h - 9} y2={-10} {...common} strokeWidth={1.4} />
+            <polygon points={arrowHead([h - 5, -13], [0.8, -0.6], 7, 3.4)} fill={col} />
+          </g>
+        );
+        break;
+      case 'S': {
+        // a plain switch: two contacts and a lever, open (tilted) or closed (flat)
+        const closed = String(el.value ?? 'open') === 'closed';
+        const piv = -h + 3;
+        const R = 2 * h - 6;
+        const tip: V2 = closed ? [h - 3, 0] : [piv + R * Math.cos(Math.PI / 6), -ls * R * Math.sin(Math.PI / 6)];
+        body = (
+          <g>
+            <line x1={-h} y1={0} x2={piv} y2={0} {...common} />
+            <line x1={h - 3} y1={0} x2={h} y2={0} {...common} />
+            <line x1={piv} y1={0} x2={tip[0]} y2={tip[1]} {...common} />
+            <circle cx={piv} cy={0} r={2.4} {...common} fill="var(--paper)" />
+            <circle cx={h - 3} cy={0} r={2.4} {...common} fill="var(--paper)" />
           </g>
         );
         break;
