@@ -5,8 +5,6 @@
 import { useEffect, useMemo } from 'react';
 import type { Challenge } from '../core/challenge';
 import { tr } from '../core/i18n';
-import { describeComponent } from '../core/parts';
-import type { CompType } from '../core/types';
 import { unmetStepChecks } from '../core/stepCheck';
 import { useStore } from '../state/store';
 
@@ -48,38 +46,6 @@ export function StepStatus({ unmet }: { unmet: string[] | null }) {
           <li key={i}>{u}</li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-/** After a placement in a lesson the step stays in view; this chip names the new part, with a way
- *  to its settings (the Properties tab) and to dismiss it. */
-export function PlacedChip() {
-  const selectedId = useStore((s) => s.selectedId);
-  const part = useStore((s) => s.layout.parts.find((p) => p.id === s.selectedId));
-  const setPanel = useStore((s) => s.setPanel);
-  const select = useStore((s) => s.select);
-  if (!selectedId || !part || part.type === 'wire') return null;
-  return (
-    // not a live region: a keyboard placement is announced by the keyboard form already (once)
-    <div className="placed-chip" role="group" aria-label={tr('刚放好的元件', 'Part just placed')}>
-      <span>
-        {tr('刚放好：', 'Just placed: ')}
-        <b>{part.ref}</b> · {describeComponent({ type: part.type as CompType, props: part.props })}
-      </span>
-      <button
-        className="link"
-        onClick={() => {
-          setPanel('inspect');
-          // this chip leaves with the task tab: keep keyboard focus on the panel that opened
-          requestAnimationFrame(() => document.getElementById('side-panel')?.focus());
-        }}
-      >
-        {tr('在“属性”里修改', 'Edit in Properties')}
-      </button>
-      <button className="chip-x" aria-label={tr('关闭', 'Dismiss')} onClick={() => select(null)}>
-        ×
-      </button>
     </div>
   );
 }

@@ -1,6 +1,9 @@
 // Drag-to-move in select mode: press on a placed part and drag it to other holes (a jumper wire
 // grabbed near one end moves only that end). A translucent preview follows the pointer, red when
 // the drop would be rejected; releasing calls the store's movePart (validated, one undo step).
+// Off-board equipment (battery, bench supply, generator, ammeter) grabbed by its body moves freely
+// around the bench instead (its leads stay plugged in); grabbed at a lead's end, that lead moves.
+// Also here: which part a right click landed on (the bench's context menu) and eraser strokes.
 
 import type { ThreeEvent } from '@react-three/fiber';
 import { useThree } from '@react-three/fiber';
@@ -9,11 +12,12 @@ import * as THREE from 'three';
 import { create } from 'zustand';
 import { HOLES, HOLE_MAP } from '../core/breadboard';
 import { PARTS } from '../core/parts';
-import type { PlacedPart } from '../core/types';
+import type { BenchPose, PlacedPart } from '../core/types';
+import { useBenchUi } from '../state/benchUi';
 import { moveError, useStore } from '../state/store';
 import type { PartCtxValue } from './common';
 import { PartView } from './Parts';
-import { assignSlots } from './slots';
+import { assignSlots, benchPose, isBenchPart } from './slots';
 import { rowIndex, shiftHole } from './touchPick';
 
 interface Drag {
@@ -33,6 +37,49 @@ interface Drag {
   active: boolean;
   /** pins at the current pointer position (null: nowhere valid to show) */
   pins: Record<string, string> | null;
+  /** an off-board body being moved: where it would stand, and the press point's offset from it */
+  body: { pose: BenchPose; ox: number; oz: number } | null;
+}
+
+/** The part the last right-button press landed on (read by the bench's context menu on release;
+ *  the stage clears it at the start of every press). */
+export const rightPick: { id: string | null } = { id: null };
+
+/** Pointer travel of the current press, so a click that ends a drag (a pan) isn't taken as a click. */
+const press = { x: 0, y: 0, moved: false };
+if (typeof window !== 'undefined') {
+  window.addEventListener(
+    'pointerdown',
+    (e) => {
+      press.x = e.clientX;
+      press.y = e.clientY;
+      press.moved = false;
+      // an eraser stroke can start anywhere on the board, not only on a part
+      if (e.button === 0 && (e.target as Element | null)?.tagName === 'CANVAS' && useStore.getState().tool === 'eraser') erasing = true;
+    },
+    true,
+  );
+  window.addEventListener('pointermove', (e) => !press.moved && e.buttons && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 5 && (press.moved = true), true);
+}
+export const pressWasDrag = () => press.moved;
+
+/** Eraser: a stroke is in progress (the left button went down on a part or the board). */
+let erasing = false;
+if (typeof window !== 'undefined') {
+  const stop = () => (erasing = false);
+  window.addEventListener('pointerup', stop, true);
+  window.addEventListener('pointercancel', stop, true);
+}
+
+/** Pointer entering / leaving a part: the eraser tints it, and erases it while a stroke is held. */
+export function hoverPart(part: PlacedPart, on: boolean, e: ThreeEvent<PointerEvent>) {
+  if (useStore.getState().tool !== 'eraser') return;
+  const ui = useBenchUi.getState();
+  if (on) {
+    e.stopPropagation();
+    if (erasing && e.buttons & 1) useStore.getState().erasePart(part.id);
+    else if (ui.eraseHover !== part.id) ui.setEraseHover(part.id);
+  } else if (ui.eraseHover === part.id) ui.setEraseHover(null);
 }
 
 /** The OrbitControls of the scene (set by DragLayer), so grabPart can pause them. */
@@ -93,7 +140,19 @@ const samePins = (a: Record<string, string>, b: Record<string, string>) => Objec
 
 /** Start a (potential) drag: pointer pressed on a placed part. Stable; passed to PartView. */
 export function grabPart(part: PlacedPart, e: ThreeEvent<PointerEvent>) {
-  if (useStore.getState().tool !== 'select' || e.button !== 0) return;
+  if (e.button === 2) {
+    rightPick.id = part.id;
+    return;
+  }
+  const tool = useStore.getState().tool;
+  if (tool === 'eraser' && e.button === 0) {
+    e.stopPropagation();
+    erasing = true;
+    useBenchUi.getState().setEraseHover(null);
+    useStore.getState().erasePart(part.id);
+    return;
+  }
+  if (tool !== 'select' || e.button !== 0) return;
   if (!e.ray.intersectPlane(plane, hitPoint)) return;
   const pinHoles = Object.values(part.pins).filter((h) => HOLE_MAP.has(h));
   if (pinHoles.length === 0) return;
@@ -114,6 +173,45 @@ export function grabPart(part: PlacedPart, e: ThreeEvent<PointerEvent>) {
     const len = Math.hypot(a.x - b.x, a.z - b.z);
     if (gd < Math.min(1.5, len * 0.35)) end = grab;
   }
+  if (isBenchPart(part.type)) {
+    e.stopPropagation();
+    const controls = sceneControls.current;
+    if (controls) controls.enabled = false;
+    const gh = HOLE_MAP.get(grab)!;
+    if (gd < 1.5) {
+      // at a lead's plug: re-plug that lead
+      setDrag({
+        part,
+        grab,
+        end: grab,
+        anchor: null,
+        dx: gh.x - hitPoint.x,
+        dz: gh.z - hitPoint.z,
+        x0: e.nativeEvent.clientX,
+        y0: e.nativeEvent.clientY,
+        active: false,
+        pins: null,
+        body: null,
+      });
+    } else {
+      // the body: move it around the bench
+      const { pose } = benchPose(part, assignSlots(useStore.getState().layout.parts).get(part.id) ?? 0);
+      setDrag({
+        part,
+        grab,
+        end: null,
+        anchor: null,
+        dx: 0,
+        dz: 0,
+        x0: e.nativeEvent.clientX,
+        y0: e.nativeEvent.clientY,
+        active: false,
+        pins: null,
+        body: { pose, ox: pose.x - hitPoint.x, oz: pose.z - hitPoint.z },
+      });
+    }
+    return;
+  }
   let anchor: string | null = null;
   const def = PARTS[part.type];
   if (!end && def.placement.kind === 'footprint') {
@@ -130,7 +228,7 @@ export function grabPart(part: PlacedPart, e: ThreeEvent<PointerEvent>) {
   const controls = sceneControls.current;
   if (controls) controls.enabled = false;
   const gh = HOLE_MAP.get(grab)!;
-  setDrag({ part, grab, end, anchor, dx: gh.x - hitPoint.x, dz: gh.z - hitPoint.z, x0: e.nativeEvent.clientX, y0: e.nativeEvent.clientY, active: false, pins: null });
+  setDrag({ part, grab, end, anchor, dx: gh.x - hitPoint.x, dz: gh.z - hitPoint.z, x0: e.nativeEvent.clientX, y0: e.nativeEvent.clientY, active: false, pins: null, body: null });
 }
 
 const PREVIEW_OK: PartCtxValue = { ghost: true, tint: 'none' };
@@ -158,6 +256,14 @@ export function DragLayer() {
       const r = gl.domElement.getBoundingClientRect();
       ndc.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
       raycaster.setFromCamera(ndc, camera);
+      if (d.body) {
+        if (!raycaster.ray.intersectPlane(plane, hitPoint)) return;
+        const r = (v: number) => Math.round(v * 10) / 10;
+        const pose = { ...d.body.pose, x: r(Math.max(-60, Math.min(60, hitPoint.x + d.body.ox))), z: r(Math.max(-45, Math.min(45, hitPoint.z + d.body.oz))) };
+        setDrag({ ...d, active: true, body: { ...d.body, pose } });
+        invalidate();
+        return;
+      }
       const to = raycaster.ray.intersectPlane(plane, hitPoint) ? nearestHole(hitPoint.add(new THREE.Vector3(d.dx, 0, d.dz))) : null;
       if (!to) {
         // between holes (trench, off the board): keep the last target, just start the drag
@@ -176,6 +282,11 @@ export function DragLayer() {
       invalidate();
       if (!d?.active) return; // a plain click: selection is handled by the part's onClick
       const st = useStore.getState();
+      if (d.body) {
+        st.setPose(d.part.id, d.body.pose);
+        st.select(d.part.id);
+        return;
+      }
       if (d.pins && !samePins(d.pins, d.part.pins)) st.movePart(d.part.id, d.pins);
       st.select(d.part.id);
     };
@@ -189,9 +300,10 @@ export function DragLayer() {
     };
   }, [dragging, camera, gl, raycaster, controls, invalidate]);
 
+  const slot = drag ? (assignSlots(layout.parts).get(drag.part.id) ?? 0) : 0;
+  if (drag?.active && drag.body) return <PartView part={{ ...drag.part, id: 'drag-preview', pose: drag.body.pose }} slot={slot} ctx={PREVIEW_OK} label={false} />;
   const preview = drag?.active && drag.pins ? { ...drag.part, id: 'drag-preview', pins: drag.pins } : null;
   if (!drag || !preview) return null;
   const ok = moveError(layout, drag.part.id, preview.pins) === null;
-  const slot = assignSlots(layout.parts).get(drag.part.id) ?? 0;
   return <PartView part={preview} slot={slot} ctx={ok ? PREVIEW_OK : PREVIEW_BAD} label={false} />;
 }

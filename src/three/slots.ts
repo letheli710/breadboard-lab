@@ -4,7 +4,7 @@
 
 import * as THREE from 'three';
 import { BOARD } from '../core/breadboard';
-import type { PartType, PlacedPart } from '../core/types';
+import type { BenchPose, PartType, PlacedPart } from '../core/types';
 
 export type SlotKind = 'bench';
 
@@ -35,4 +35,28 @@ export function assignSlots(parts: PlacedPart[]): Map<string, number> {
 export function nextSlot(parts: PlacedPart[], t: PartType): number {
   const k = slotKind(t);
   return k ? parts.filter((p) => slotKind(p.type) === k).length : 0;
+}
+
+/** Off-board equipment the student can move around the bench and turn (battery, bench supply,
+ *  function generator, ammeter). */
+export const isBenchPart = (t: PartType) => slotKind(t) === 'bench';
+
+const Y = new THREE.Vector3(0, 1, 0);
+
+/** Where an off-board part's body stands (the default spot of its slot unless the student moved
+ *  it) and its turn about the vertical axis in radians. */
+export function benchPose(part: PlacedPart, slot: number): { pos: THREE.Vector3; rot: number; pose: BenchPose } {
+  const pose: BenchPose = part.pose ?? { ...xz(slotPosition(slot)), rot: 0 };
+  return { pos: new THREE.Vector3(pose.x, 0, pose.z), rot: (pose.rot * Math.PI) / 2, pose };
+}
+const xz = (v: THREE.Vector3) => ({ x: v.x, z: v.z });
+
+/** A point given in the body's own frame, on the bench. */
+export function onBench(pos: THREE.Vector3, rot: number, local: THREE.Vector3): THREE.Vector3 {
+  return local.clone().applyAxisAngle(Y, rot).add(pos);
+}
+
+/** The pose a quarter turn on (clockwise seen from above), about the body's centre. */
+export function turned(pose: BenchPose): BenchPose {
+  return { ...pose, rot: (pose.rot + 3) % 4 };
 }

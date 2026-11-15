@@ -7,12 +7,13 @@ import { useLang, useStore, type Mode } from './state/store';
 import { Icon } from './ui/Icons';
 import { Toast } from './ui/Toast';
 import { Mixed } from './ui/Mixed';
+import { useBenchUi } from './state/benchUi';
+import { Splitter } from './ui/Splitter';
 
 // every page is its own chunk; the 3D workbench (three.js) is only fetched for learn / challenge / sandbox
 const Workbench = lazy(() => import('./ui/Workbench').then((m) => ({ default: m.Workbench })));
 const SidePanel = lazy(() => import('./ui/Panel').then((m) => ({ default: m.SidePanel })));
 const BenchBar = lazy(() => import('./ui/BenchBar').then((m) => ({ default: m.BenchBar })));
-const Carousel = lazy(() => import('./ui/Carousel').then((m) => ({ default: m.Carousel })));
 const Practice = lazy(() => import('./ui/Practice').then((m) => ({ default: m.Practice })));
 const Guide = lazy(() => import('./ui/Guide').then((m) => ({ default: m.Guide })));
 // "N due today" on the Practice card (the review schedule is a lazy chunk too)
@@ -274,6 +275,8 @@ export default function App() {
   const lang = useLang();
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
+  const sideW = useBenchUi((s) => s.sideW);
+  const sideHidden = useBenchUi((s) => s.sideCollapsed);
 
   // challenge text (and import diagnostics) are localized while parsing, so rebuild the lists
   // whenever the language changes (once their index is in; until then this does nothing, and
@@ -297,8 +300,24 @@ export default function App() {
       if ((tag === 'INPUT' && !slider) || tag === 'TEXTAREA') return;
       if (slider && !(e.ctrlKey || e.metaKey)) return;
       const s = useStore.getState();
+      const ui = useBenchUi.getState();
       if (e.key === 'Escape') {
-        if (!s.cancelPlacement()) s.setTool('select');
+        // one thing per press: the menu, then the details, then a half-placed part, then the tool
+        if (ui.menu) ui.openMenu(null);
+        else if (ui.popoverId) ui.openPopover(null);
+        else if (!s.cancelPlacement()) s.setTool('select');
+      }
+      const benchKeys = (s.mode === 'learn' || s.mode === 'challenge' || s.mode === 'sandbox') && !e.ctrlKey && !e.metaKey && !e.altKey && !slider && !e.repeat;
+      if (benchKeys && tag !== 'SELECT' && !el?.closest?.('[role="tablist"], .kb-bench')) {
+        const key = e.key.toLowerCase();
+        if (key === 't' && s.selectedId) {
+          void import('./three/benchActions').then(
+            (m) =>
+              m.turnBenchPart(s.selectedId!) ||
+              s.notify(tr('只有电池、稳压电源、信号发生器、电流表这些板外仪器能转向', 'Only off-board equipment (battery, supply, generator, ammeter) can be turned')),
+          );
+        } else if (key === 'e') s.setTool(s.tool === 'eraser' ? 'select' : 'eraser');
+        else if (key === 'v') s.setTool('select');
       }
       // removePart shows an "Undo" toast, so a stray Backspace is recoverable
       if ((e.key === 'Delete' || e.key === 'Backspace') && s.selectedId) {
@@ -366,12 +385,12 @@ export default function App() {
 
       {bench && (
         <Suspense fallback={<PageLoading />}>
-          <main className="main" id="main">
+          <main className={`main ${sideHidden ? 'side-hidden' : ''}`} id="main" style={sideW ? ({ '--side-w': `${sideW}px` } as React.CSSProperties) : undefined}>
             <BenchHeading />
             <div className="left">
               <Workbench />
-              {mode !== 'sandbox' && <Carousel kind={mode === 'learn' ? 'lesson' : 'challenge'} />}
             </div>
+            <Splitter />
             <SidePanel />
             {mode !== 'sandbox' && <BenchBar />}
           </main>

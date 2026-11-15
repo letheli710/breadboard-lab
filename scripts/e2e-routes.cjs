@@ -8,7 +8,8 @@
 // current problem and unknown ids are also checked with the index held back until after the first
 // paint (a throttled network), recording every URL, tab title and problem title on the way, so a
 // flash of another problem or a rewritten URL / bb.route fails. Then the Practice sidebar (current
-// chapter expanded, active item in view), the Challenges carousel and the [ ] shortcuts.
+// chapter expanded, active item in view), the Challenges list (the drawer opened from the bench's
+// top-left lesson button) and the [ ] shortcuts.
 const { chromium } = require('playwright');
 const BASE = process.argv[2] || 'http://localhost:4173/';
 const assert = (c, m) => {
@@ -43,7 +44,7 @@ const assert = (c, m) => {
   await page.goBack();
   await settle();
   assert((await hash()) === chal, 'Back → ' + (await hash()));
-  assert((await page.locator('.carousel-wrap').count()) === 1 && (await page.title()).includes('Challenges'), 'challenge page shown, title ' + (await page.title()));
+  assert((await page.locator('.lesson-pick').count()) === 1 && (await page.title()).includes('Challenges'), 'challenge page shown, title ' + (await page.title()));
   await page.goBack();
   await settle();
   assert((await hash()) === lesson, 'Back → ' + (await hash()));
@@ -60,18 +61,27 @@ const assert = (c, m) => {
   // group tab bug: tabs open that group's challenge, panel+URL follow
   await page.goBack();
   await settle();
+  // the list is a drawer (bench top-left); opening another challenge closes it
+  const openList = async () => {
+    if (!(await page.locator('.lesson-drawer').count())) await page.click('.lesson-pick');
+    await page.waitForSelector('.lesson-drawer .phase-tabs button');
+  };
+  await openList();
   const tabs = page.locator('.phase-tabs button');
   const n = await tabs.count();
+  assert(n > 1, `challenge list: ${n} group tabs`);
   for (let i = 0; i < n; i++) {
+    await openList();
+    // (the drawer closes when another challenge opens: read the tab's label first)
+    const label = await tabs.nth(i).textContent();
     await tabs.nth(i).click();
     await settle();
     const h2 = await hash();
     const onCard = await page
-      .locator('.lesson-card.on .lc-title')
+      .locator('.lesson-pick-name[data-active]')
       .textContent()
       .catch(() => null);
     const panelTitle = await page.title();
-    const label = await tabs.nth(i).textContent();
     assert(onCard && panelTitle.startsWith(onCard), `tab ${label.trim()} → ${h2}, highlighted card "${onCard}" = title`);
   }
   // board edits don't add history entries — click a hole? skip; check reload restores location
@@ -204,7 +214,7 @@ const RECORDER = () => {
   }
   const note = () => {
     if (log.titles[log.titles.length - 1] !== document.title) log.titles.push(document.title);
-    const el = document.querySelector('.pr-main .pr-title, .lesson-card.on .lc-title');
+    const el = document.querySelector('.pr-main .pr-title, .lesson-pick-name[data-active]');
     const t = el && el.textContent;
     if (t && log.shown[log.shown.length - 1] !== t) log.shown.push(t);
   };
@@ -366,18 +376,18 @@ async function lazyIndexChecks(browser) {
   }
 
   // 6. deep link to a challenge (phase 5) with a late challenge index: no other challenge
-  //    flashes, URL kept, the active card scrolled into view in the carousel
+  //    flashes, URL kept, the active one named on the lesson button and in view in the list
   {
     const ID = 'exp5-gpio-led-resistor';
     // (the bench page loads three.js first, which can take longer than DELAY: hold the index longer)
     const { p, ctx, js } = await open(`#/challenges/${ID}`, { delay: 6000, storage: { 'bb.lang': 'en', 'bb.route': '#/learn/lesson-power-and-ground' } });
-    await p.waitForSelector('.carousel-wrap');
+    await p.waitForSelector('.lesson-pick');
     await p.waitForTimeout(300);
     assert(
-      (await p.locator('.lesson-card').count()) === 0 && (await progress(p)).trim() === '–/–',
-      `late challenge index: loading state, neutral card (${await p.locator('.lesson-card').count()} cards, ${await progress(p)})`,
+      (await p.locator('.lesson-pick-name[data-active]').count()) === 0 && (await progress(p)).trim() === '–/–',
+      `late challenge index: loading state, neutral button (${await p.locator('.lesson-pick-name[data-active]').count()} named, ${await progress(p)})`,
     );
-    await p.waitForSelector('.lesson-card.on', { timeout: 20000 });
+    await p.waitForSelector('.lesson-pick-name[data-active]', { timeout: 20000 });
     await p.waitForTimeout(800);
     const l = await log(p);
     assert(
@@ -390,17 +400,19 @@ async function lazyIndexChecks(browser) {
     await ctx.close();
   }
   {
-    // a late card in a long group, narrow screen: it is scrolled into view in the carousel
+    // a late card in a long group, narrow screen: opening the list shows it (the drawer scrolls to it)
     const { p, ctx } = await open('#/challenges/exp5-pwm-mosfet-motor', { delay: 0, viewport: { width: 390, height: 844 }, storage: { 'bb.lang': 'en' } });
-    await p.waitForSelector('.lesson-card.on', { timeout: 15000 });
-    await p.waitForTimeout(800);
+    await p.waitForSelector('.lesson-pick-name[data-active]', { timeout: 15000 });
+    await p.click('.lesson-pick');
+    await p.waitForSelector('.lesson-drawer .lesson-card.on', { timeout: 15000 });
+    await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
-      const c = document.querySelector('.carousel');
+      const c = document.querySelector('.lesson-drawer');
       const a = c.getBoundingClientRect();
-      const b = document.querySelector('.lesson-card.on').getBoundingClientRect();
-      return { inView: b.left >= a.left - 1 && b.right <= a.right + 1, scrollLeft: c.scrollLeft };
+      const b = document.querySelector('.lesson-drawer .lesson-card.on').getBoundingClientRect();
+      return { inView: b.top >= a.top - 1 && b.bottom <= a.bottom + 1, scrollTop: c.scrollTop };
     });
-    assert(r.inView && r.scrollLeft > 0, `carousel: active card in view (scrollLeft ${r.scrollLeft})`);
+    assert(r.inView && r.scrollTop > 0, `lesson list: active card in view (scrollTop ${r.scrollTop})`);
     await ctx.close();
   }
 

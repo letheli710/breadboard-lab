@@ -6,7 +6,7 @@
 import { HOLE_MAP } from '../core/breadboard';
 import { MOSFETS } from '../core/devices';
 import { BATTERIES, LED_COLORS, PARTS } from '../core/parts';
-import { PIN_MODES, type Layout, type PartProps, type PartType, type PinConfig, type PlacedPart } from '../core/types';
+import { PIN_MODES, type BenchPose, type Layout, type PartProps, type PartType, type PinConfig, type PlacedPart } from '../core/types';
 import type { ChallengeReadings, ReadingAnswer } from '../core/readings';
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -89,9 +89,17 @@ export function sanitizeLayout(raw: unknown, newId: () => string): { layout: Lay
     refs.add(p.ref);
     const id = typeof p.id === 'string' && p.id && !ids.has(p.id) ? p.id : newId();
     ids.add(id);
-    parts.push({ id, ref: p.ref, type, props: sanitizeProps(type, p.props), pins });
+    const pose = sanitizePose(p.pose);
+    parts.push({ id, ref: p.ref, type, props: sanitizeProps(type, p.props), pins, ...(pose ? { pose } : {}) });
   }
   return { layout: { version: 1, parts }, dropped: list.length - parts.length };
+}
+
+/** A stored bench pose: finite coordinates within the table, a quarter-turn count. */
+export function sanitizePose(v: unknown): BenchPose | undefined {
+  if (!isObj(v) || !num(v.x) || !num(v.z) || !num(v.rot)) return undefined;
+  if (Math.abs(v.x) > 200 || Math.abs(v.z) > 200) return undefined;
+  return { x: v.x, z: v.z, rot: ((Math.round(v.rot) % 4) + 4) % 4 };
 }
 
 export const isBoolRecord = (v: unknown): v is Record<string, boolean> => isObj(v) && Object.values(v).every((x) => typeof x === 'boolean');

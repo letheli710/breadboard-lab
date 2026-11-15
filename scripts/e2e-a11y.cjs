@@ -17,8 +17,8 @@ const AXE = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 const BASELINE = JSON.parse(readFileSync(join(__dirname, 'a11y-baseline.json'), 'utf8'));
 
 const PAGES = [
-  { name: 'learn', hash: '#/learn/lesson-breadboard-basics', ready: '.lesson-card.on' },
-  { name: 'challenge-lab', hash: '#/challenges/exp-inverting-amp', ready: '.lesson-card.on' },
+  { name: 'learn', hash: '#/learn/lesson-breadboard-basics', ready: '.lesson-pick-name[data-active]' },
+  { name: 'challenge-lab', hash: '#/challenges/exp-inverting-amp', ready: '.lesson-pick-name[data-active]' },
   { name: 'sandbox', hash: '#/sandbox', ready: '.stage-view canvas' },
   { name: 'practice', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title' },
   { name: 'practice-choice', hash: '#/practice/basics-03-power-sign', ready: '.pr-main .pr-title' },
@@ -27,8 +27,8 @@ const PAGES = [
   { name: 'import', hash: '#/import', ready: 'main, .import-page' },
   // states: the sandbox with parts, the inspector and an open confirm popover; a checked lab
   { name: 'sandbox-parts', hash: '#/sandbox', ready: '.stage-view canvas', setup: 'parts' },
-  { name: 'lab-checked', hash: '#/challenges/exp-inverting-amp', ready: '.lesson-card.on', setup: 'checked' },
-  { name: 'lesson-done', hash: '#/learn/lesson-breadboard-basics', ready: '.lesson-card.on', setup: 'celebrate' },
+  { name: 'lab-checked', hash: '#/challenges/exp-inverting-amp', ready: '.lesson-pick-name[data-active]', setup: 'checked' },
+  { name: 'lesson-done', hash: '#/learn/lesson-breadboard-basics', ready: '.lesson-pick-name[data-active]', setup: 'celebrate' },
   { name: 'practice-answered', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', setup: 'answered' },
   // Practice mastery pages
   { name: 'review', hash: '#/practice/review', ready: '.ms-main' },
@@ -39,8 +39,8 @@ const PAGES = [
   { name: 'quiz-paused', hash: '#/practice/quiz', ready: '.ms-main', setup: 'quiz-paused' },
   { name: 'quiz-results', hash: '#/practice/quiz', ready: '.ms-main', setup: 'quiz-results' },
   // an instrument lesson with per-step checks
-  { name: 'lesson-steps', hash: '#/learn/lesson-ammeter', ready: '.lesson-card.on' },
-  { name: 'lesson-placed', hash: '#/learn/lesson-ammeter', ready: '.lesson-card.on', setup: 'placed' },
+  { name: 'lesson-steps', hash: '#/learn/lesson-ammeter', ready: '.lesson-pick-name[data-active]' },
+  { name: 'lesson-placed', hash: '#/learn/lesson-ammeter', ready: '.lesson-pick-name[data-active]', setup: 'placed' },
   // phone UI (390 × 844, touch)
   { name: 'phone-drawer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'drawer' },
   { name: 'phone-figure-viewer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'viewer' },
@@ -141,7 +141,7 @@ async function setup(p, kind) {
       s.clickHole('c24');
       s.setTool('select');
     });
-    await p.waitForSelector('.placed-chip', { timeout: 5000 });
+    await p.waitForSelector('.part-pop', { timeout: 5000 });
   }
   if (kind === 'reviewmenu') await p.locator('.pr-phone-review').click();
   if (kind === 'viewer') {

@@ -210,8 +210,10 @@ const TESTS = {
       assert(bat && bat.pins['+'] === 'tp3' && bat.pins['-'] === 'tn3', 'place: battery saved at tp3 / tn3 ' + JSON.stringify(bat?.pins));
       assert(res && res.pins['1'] === 'c10' && res.pins['2'] === 'c14', 'place: resistor saved at c10 → c14 ' + JSON.stringify(res?.pins));
 
-      // hover tip (after the camera has finished any move a placement started)
+      // hover tip (after the camera has finished any move a placement started; the details of the
+      // part just placed closed first — they sit beside it, over the board)
       await tool(p, 'Select / use');
+      await p.keyboard.press('Escape');
       await settleFrames(p);
       const e20 = await hole(p, 'e20');
       await p.mouse.move(e20.x, e20.y);
@@ -486,8 +488,8 @@ const TESTS = {
     }
   },
 
-  // placing a part in a lesson keeps the step in view (a chip names the part and leads to
-  // Properties); in the sandbox a part tool still opens its settings
+  // placing a part in a lesson keeps the step in view (its details open beside it on the board, with
+  // a way to Properties); in the sandbox a part tool still opens its settings
   async lessonPlacement(browser) {
     const { p, ctx, errors } = await open(browser, '#/learn/lesson-multimeter');
     try {
@@ -498,10 +500,11 @@ const TESTS = {
       await clickHole(p, 'tn1');
       assert(/^Lesson/.test(await tab()), 'lesson: after placing, the Lesson tab is still shown');
       assert(await p.locator('section.steps .step-check.ok').isVisible(), 'lesson: the step shows its check as done');
-      const chip = p.locator('.placed-chip');
-      assert(/BAT1/.test((await chip.textContent()) || ''), 'lesson: a chip names the part just placed');
-      await chip.locator('button.link').click();
-      assert(/^Properties/.test(await tab()), 'lesson: the chip opens Properties on request');
+      const pop = p.locator('.part-pop');
+      assert(/BAT1/.test((await pop.textContent()) || ''), 'lesson: the details of the part just placed open beside it');
+      assert((await p.evaluate(() => window.__bb.store.getState().tool)) === 'select', 'lesson: placing a part puts the tool down');
+      await pop.locator('button', { hasText: 'More settings' }).click();
+      assert(/^Properties/.test(await tab()), 'lesson: "More settings" opens Properties on request');
       await p.evaluate(() => (location.hash = '#/sandbox'));
       await p.waitForTimeout(800);
       await tool(p, 'Resistor');
@@ -648,6 +651,136 @@ const TESTS = {
     }
   },
 
+  // the bench's mouse model: a click opens a part's details beside it (edit at any step), a right
+  // click without a drag opens its menu, left-drag on empty space and right-drag pan, the eraser
+  // removes a stroke's parts as one undo step, off-board equipment moves and turns, every placement
+  // puts the tool down, the recent strip keeps the part tools used, the side panel resizes / hides
+  async benchInteractions(browser) {
+    const { p, ctx, errors } = await open(browser, '#/sandbox', { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+    try {
+      await settleFrames(p);
+      const st = () => p.evaluate(() => window.__bb.store.getState());
+      const parts = async () => (await st()).layout.parts;
+      await tool(p, 'Resistor');
+      await clickHole(p, 'c10');
+      await clickHole(p, 'c14');
+      assert((await st()).tool === 'select', 'placing a part puts the tool down (back to Select)');
+      assert(await p.locator('.part-pop').isVisible(), 'the details of the part just placed open beside it');
+      await p.locator('.part-pop .chips button', { hasText: /^470/ }).click();
+      assert((await parts())[0].props.resistance === 470, 'its value is changed in the details');
+      await p.keyboard.press('Escape');
+      assert((await p.locator('.part-pop').count()) === 0, 'Esc closes the details');
+      // a click on the part opens them again
+      await settleFrames(p);
+      const mid = await p.evaluate(() => {
+        const a = window.__bb.hole('c11');
+        const b = window.__bb.hole('c13');
+        return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 - 4 };
+      });
+      await p.mouse.click(mid.x, mid.y);
+      await p.waitForTimeout(200);
+      assert(
+        /R1/.test(
+          (await p
+            .locator('.part-pop')
+            .textContent()
+            .catch(() => '')) || '',
+        ),
+        'a click on a part opens its details',
+      );
+      await p.keyboard.press('Escape');
+      // right click without a drag: the part's menu
+      await p.mouse.click(mid.x, mid.y, { button: 'right' });
+      await p.waitForTimeout(200);
+      assert(
+        /Swap legs/.test(
+          (await p
+            .locator('.bench-menu')
+            .textContent()
+            .catch(() => '')) || '',
+        ),
+        'a right click on a part opens its menu',
+      );
+      await p.keyboard.press('Escape');
+      assert((await p.locator('.bench-menu').count()) === 0, 'Esc closes the menu');
+      // left-drag on empty space pans (the camera moves, nothing is selected or moved)
+      const cam0 = await p.evaluate(() => window.__bb.camera());
+      const empty = await p.evaluate(() => window.__bb.hole('j28'));
+      await drag(p, empty.x, empty.y + 60, empty.x - 120, empty.y + 20);
+      await settleFrames(p);
+      const cam1 = await p.evaluate(() => window.__bb.camera());
+      assert(Math.hypot(...cam1.map((v, i) => v - cam0[i])) > 0.5, 'left-drag on empty space pans the view');
+      assert((await parts())[0].pins['1'] === 'c10', 'panning moves no part');
+      // off-board equipment: placed at its spot, turned with T, moved by its body
+      await tool(p, 'Battery');
+      await clickHole(p, 'tp3');
+      await clickHole(p, 'tn3');
+      await p.keyboard.press('Escape');
+      await p.keyboard.press('t');
+      await p
+        .waitForFunction(() => window.__bb.store.getState().layout.parts.some((x) => x.type === 'battery' && x.pose && x.pose.rot === 3), null, { timeout: 5000 })
+        .catch(() => {});
+      const bat = (await parts()).find((x) => x.type === 'battery');
+      assert(bat.pose && bat.pose.rot === 3, 'T turns the selected battery a quarter turn ' + JSON.stringify(bat.pose));
+      await settleFrames(p);
+      const at = await p.evaluate((q) => window.__bb.world(q.x, 1.2, q.z), bat.pose);
+      await drag(p, at.x, at.y, at.x - 90, at.y + 60);
+      const moved = (await parts()).find((x) => x.type === 'battery');
+      assert(
+        Math.hypot(moved.pose.x - bat.pose.x, moved.pose.z - bat.pose.z) > 1 && moved.pins['+'] === 'tp3',
+        'dragging its body moves the battery, its leads stay plugged in ' + JSON.stringify(moved.pose),
+      );
+      // eraser: one stroke over two parts is one undo step
+      await tool(p, 'Jumper wire');
+      await clickHole(p, 'h5');
+      await clickHole(p, 'h9');
+      await p.keyboard.press('e');
+      assert((await st()).tool === 'eraser', 'E picks the eraser');
+      const past = (await st()).past.length;
+      await settleFrames(p);
+      // across the resistor's body, then across the wire's raised arc
+      const a = await p.evaluate(() => window.__bb.above('a12', 0.6));
+      const m = await p.evaluate(() => window.__bb.above('h7', 0.9));
+      await p.mouse.move(a.x, a.y);
+      await p.mouse.down();
+      for (let i = 1; i <= 16; i++) await p.mouse.move(a.x + ((m.x - a.x) * i) / 16, a.y + ((m.y - a.y) * i) / 16);
+      for (let i = 1; i <= 6; i++) await p.mouse.move(m.x, m.y + i * 6);
+      await p.mouse.up();
+      await p.waitForTimeout(150);
+      const left = (await parts()).map((x) => x.type);
+      assert(!left.includes('resistor') && !left.includes('wire') && left.includes('battery'), 'an eraser stroke removes the parts it crosses ' + left.join(','));
+      assert((await st()).past.length === past + 1, `the stroke is one undo step (${past} → ${(await st()).past.length})`);
+      await p.keyboard.press('Control+z');
+      assert((await parts()).length === 3, 'Ctrl+Z brings the stroke back');
+      await p.keyboard.press('Escape');
+      // recent strip: a part tool used joins it
+      await tool(p, 'Diode');
+      await p.keyboard.press('Escape');
+      assert(/Diode/.test(await p.locator('.toolbar .recent').textContent()), 'a part tool used joins the recent strip');
+      // the divider: drag to widen the panel, double-click to reset, collapse and reopen
+      const side = () =>
+        p
+          .locator('aside.side')
+          .evaluate((e) => e.offsetWidth)
+          .catch(() => 0);
+      const w0 = await side();
+      const sb = await p.locator('.splitter').boundingBox();
+      await drag(p, sb.x + sb.width / 2, sb.y + 300, sb.x - 150, sb.y + 300);
+      const w1 = await side();
+      assert(w1 > w0 + 100, `dragging the divider widens the panel (${w0} → ${w1})`);
+      await p.locator('.splitter').dblclick();
+      assert(Math.abs((await side()) - w0) < 2, 'a double-click resets it');
+      await p.locator('.side-collapse').click();
+      assert((await p.locator('aside.side').count()) === 0 || (await side()) === 0, 'the panel hides');
+      await p.locator('.side-reopen').click();
+      assert(Math.abs((await side()) - w0) < 2, 'and comes back');
+      assert(errors.length === 0, 'bench interactions: no page errors ' + errors.join(' | '));
+    } finally {
+      await shot(p, 'bench-interactions');
+      await ctx.close();
+    }
+  },
+
   // keyboard only: skip link, build / move / delete by hole id, tabs by arrow keys, focus on route change
   async keyboard(browser) {
     const { p, ctx, errors } = await open(browser, '#/sandbox');
@@ -767,13 +900,6 @@ const TESTS = {
       );
       assert(live === 1, `lesson: the placement is announced by one live region (${live})`);
       assert((await p.locator('.side [role="tab"][aria-selected="true"]').textContent()) !== 'Properties', 'lesson: placing keeps the task tab (no jump to Properties)');
-      const chip = p.locator('.placed-chip button.link');
-      if (await chip.count()) {
-        await chip.focus();
-        await p.keyboard.press('Enter');
-        await p.waitForTimeout(200);
-        assert(await p.evaluate(() => document.activeElement.id === 'side-panel'), 'lesson: "Edit in Properties" moves focus to the properties panel');
-      }
       assert(errors.length === 0, 'keyboard lesson: no page errors ' + errors.join(' | '));
     } finally {
       await shot(p, 'kb-lesson');
