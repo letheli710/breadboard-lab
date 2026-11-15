@@ -2,36 +2,158 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-nodal-analysis",
-  "title": "实验 2-4 · 结点电压法：一个电压源 + 一个电流源",
+  "title": "结点电压法：一个电压源加一个电流源",
   "kind": "challenge",
   "level": 4,
   "phase": 2,
-  "summary": "9 V 电压源和 5 mA 电流源（CC 模式）同时接在一个两结点网络上：列结点方程算 VN1、VN2，再测出来对照。",
+  "summary": "9 V 电压源和 5 mA 电流源接在同一个网络上。先量两个结点，再列结点方程解释读数。",
   "concepts": ["nodal analysis 结点电压法", "current source 电流源", "reference direction 参考方向", "negative current 负电流"],
-  "prereq": ["lesson-multimeter"],
-  "description": "**目标**：用结点电压法求解一个含电压源和电流源的电路，然后在面包板上测量验证。\n\n**电路**（GND 为参考结点）：\n- V1：9 V 电压源，+ 端经 R1（1kΩ）接结点 N1；\n- N1 → R2（2.2kΩ）→ GND；N1 → R3（1kΩ）→ 结点 N2；N2 → R4（3.3kΩ）→ GND；\n- PSU2：稳压电源 12 V、限流 0.005 A（CC 模式 = 5 mA 电流源），+ 端接 N2，− 端接 GND。\n\n**先预测**：对 N1、N2 列结点方程（单位用 V、mA、kΩ，电导 mS），解出 VN1、VN2；再求各支路电流 I_R1、I_R3、I_R4（参考方向都按“从前一个结点流向后一个”）。电流源直接写在方程右边（流入结点为正），电压源串电阻写成 V/R。\n\n**测量**：用万用表测 N1、N2 对 GND 的电压和电流源的输出电流，再测或算出三条支路电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
+  "prereq": ["lesson-multimeter", "lesson-ammeter"],
+  "description": "结点电压法：选 GND 作参考结点，给其余结点各起一个电压名，对每个结点写 KCL，支路电流用“两端电压差 ÷ 电阻”表示。电流源直接写在方程右边。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "哪个结点更高？",
+      "text": [
+        "照目标电路图搭。**PSU1** `9 V` 经 R1 接结点 **N1**。**PSU2** 当电流源：`12 V`、限流 **`0.005 A`**，+ 接结点 **N2**，− 接 GND。",
+        "两台电源要共用一个 GND：**用跳线把上下两条蓝轨连起来**。",
+        "**测 N1、N2 对 GND 的电压**。N2 只能经过 R3 和 N1 相连——两个结点哪个更高？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "每个结点记一笔账",
+      "text": [
+        "- 把结点电压想成**水位**。水从高水位经过每根水管流向低水位，流量 = 水位差 ÷ 水管的电阻。",
+        "- 选 GND 作零水位，给其余结点起名字：这里是 $V_{N1}$ 和 $V_{N2}$。两个未知数，就要两个方程。",
+        "- 每个结点：**流出 = 流进**（KCL）。在 N2，电流经 R3 和 R4 流出，电流源把 $I_s$ 推进来：",
+        "$$\\frac{V_{N2} - V_{N1}}{R_3} + \\frac{V_{N2}}{R_4} = I_s$$",
+        "- 用 V、kΩ、mA 作单位：$\\frac{V_{N2} - V_{N1}}{1} + \\frac{V_{N2}}{3.3} = 5$。N1 的账照样写（R1 从 9 V 一侧来，R2 到 GND，R3 到 N2），两个方程联立求解。",
+        "![](fig:nodes)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "量两个结点、两条支路",
+      "text": [
+        "- **万用表**：红表笔先点 N1，再点 N2；黑表笔接 GND。",
+        "- **电流表串进 R3 支路**，红表笔在 N1 一侧：图里的箭头就是参考方向。读数可以是负的。",
+        "- **电流表串进 R4 支路**，红表笔在 N2 一侧。",
+        "- 电路检查通过后填测量题。最后一题用 N2 的 KCL，从你自己的读数算出电流源的电流。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **结点电压法**：选参考结点，每个结点一个电压，对每个结点写 KCL，支路电流写成“电压差 ÷ R”。",
+        "- 电流源最好写：它的电流直接放到方程右边。",
+        "- 支路电流算出来是负的，只说明箭头猜反了。保留负号，不要去改方程。",
+        "- 真实电路里，电流源能把它的结点推得比其他电源都高——直到它自己的电压上限（这里是 PSU2 设的 12 V）。"
+      ],
+      "practice": ["methods"]
+    }
+  ],
+  "figures": {
+    "nodes": {
+      "kind": "schematic",
+      "caption": {
+        "text": "两个未知结点 N1、N2，GND 是参考。箭头是参考方向：I_3 从 N1 指向 N2，电流源把 I_s 推进 N2。",
+        "i18n": {
+          "en": "Two unknown nodes, N1 and N2, with GND as the reference. The arrows are reference directions: I_3 from N1 to N2, and the current source pushes I_s into N2."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 3], "to": [0, 0], "value": "1k"},
+          {"ref": "R2", "type": "R", "from": [2, 0], "to": [2, 6], "value": "2.2k"},
+          {"ref": "R3", "type": "R", "from": [2, 0], "to": [4, 0], "value": "1k"},
+          {"ref": "R4", "type": "R", "from": [4, 0], "to": [4, 6], "value": "3.3k"},
+          {"ref": "Is", "type": "I", "from": [6, 6], "to": [6, 0], "value": "5m"}
+        ],
+        "wires": [[[0, 0], [2, 0]], [[4, 0], [6, 0]], [[0, 6], [6, 6]]],
+        "labels": [{"at": [1, 0], "name": "N1"}, {"at": [5, 0], "name": "N2"}],
+        "marks": [{"kind": "i", "el": "R3", "name": "I_3"}, {"kind": "i", "el": "R4", "name": "I_4"}]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 2-4 · Nodal analysis: a voltage source plus a current source",
-      "summary": "A 9 V voltage source and a 5 mA current source (CC mode) feed a two-node network: write the node equations for VN1 and VN2, then measure them.",
+      "title": "Nodal analysis: one voltage source, one current source",
+      "summary": "A 9 V voltage source and a 5 mA current source share one network. Measure the two nodes first, then write node equations that explain them.",
       "concepts": ["nodal analysis", "current source", "reference direction", "negative current"],
-      "description": "**Goal**: solve a circuit with a voltage source and a current source by nodal analysis, then check it on the breadboard.\n\n**Circuit** (GND is the reference node):\n- V1: 9 V voltage source, its + terminal through R1 (1kΩ) to node N1;\n- N1 → R2 (2.2kΩ) → GND; N1 → R3 (1kΩ) → node N2; N2 → R4 (3.3kΩ) → GND;\n- PSU2: bench supply at 12 V with a 0.005 A limit (CC mode = a 5 mA current source), + to N2, − to GND.\n\n**Predict first**: write the node equations for N1 and N2 (units V, mA, kΩ; conductances in mS) and solve for VN1 and VN2; then find the branch currents I_R1, I_R3, I_R4 (each reference direction \"from the first node to the second\"). A current source goes straight to the right-hand side (positive when it flows into the node); a voltage source in series with a resistor becomes V/R.\n\n**Measure**: with the multimeter, measure N1 and N2 to GND and the current source's output current, then measure or compute the three branch currents. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-      "compare": "**Compare**:\n- Node equations: N1: (1/1 + 1/2.2 + 1/1) VN1 − (1/1) VN2 = 9/1, i.e. 2.4545 VN1 − VN2 = 9; N2: −(1/1) VN1 + (1/1 + 1/3.3) VN2 = 5, i.e. −VN1 + 1.3030 VN2 = 5. Solution: **VN1 ≈ 7.61 V, VN2 ≈ 9.68 V**.\n- Simulator readings: VN1 ≈ 7.60 V, VN2 ≈ 9.67 V, current source output ≈ 4.99 mA (CC mode gives 0.01 mA less than 5 mA, hence the slightly lower values).\n- I_R1 = (9 − 7.60) / 1k ≈ **1.40 mA**; I_R3 = (VN1 − VN2) / 1k ≈ **−2.06 mA** (the minus sign says the current really flows from N2 to N1); I_R4 = 9.67 / 3.3k ≈ **2.93 mA**; KCL at N2: 4.99 = 2.06 + 2.93 ✔.\n\n**Think about it**: VN2 ≈ 9.67 V is higher than the 9 V voltage source: a current source pushes its node to whatever voltage it takes. As long as that is below PSU2's 12 V setting, the supply stays in CC mode and remains a current source.",
+      "description": "Nodal analysis: take GND as the reference node, name the voltage of every other node, write KCL at each node with every branch current written as (voltage difference) / resistance. A current source goes straight to the right-hand side.",
+      "compare": "**Compare**:\n- Node equations (V, kΩ, mA): N1: (1/1 + 1/2.2 + 1/1) VN1 − VN2 = 9, i.e. 2.4545 VN1 − VN2 = 9; N2: −VN1 + (1/1 + 1/3.3) VN2 = 5, i.e. −VN1 + 1.3030 VN2 = 5. Solution: **VN1 ≈ 7.61 V, VN2 ≈ 9.68 V**.\n- Simulator: VN1 ≈ 7.60 V, VN2 ≈ 9.67 V, source ≈ 4.99 mA (CC mode gives 0.01 mA less than 5 mA, hence slightly lower).\n- I_R1 = (9 − 7.60) / 1k ≈ **1.40 mA**; I_R3 = (VN1 − VN2) / 1k ≈ **−2.06 mA** (the current really flows from N2 to N1); I_R4 = 9.67 / 3.3k ≈ **2.93 mA**; KCL at N2: 4.99 = 2.06 + 2.93 ✔.",
       "measurements": [
-        {"ask": "Multimeter: N1 to GND, VN1", "explain": "Solving 2.4545 VN1 − VN2 = 9 and −VN1 + 1.3030 VN2 = 5 gives VN1 ≈ 7.6 V."},
-        {"ask": "Multimeter: N2 to GND, VN2", "explain": "VN2 ≈ 9.67 V, above the 9 V source: a current source pushes its node to whatever voltage it takes (as long as it stays below PSU2's 12 V)."},
-        {"ask": "Ammeter in series with R3, red lead on the N1 side: reading I_R3 (reference direction N1 → N2)", "explain": "I_R3 = (VN1 − VN2) / 1 kΩ ≈ −2.06 mA. The minus sign says the current really flows from N2 to N1."},
-        {"ask": "Ammeter in series with R4: reading I_R4 (N2 → GND)", "explain": "I_R4 = VN2 / 3.3 kΩ ≈ 2.93 mA."},
-        {"ask": "From KCL at N2 and your two readings, the source current Is = I_R4 − I_R3", "explain": "Into N2: Is + I_R3; out: I_R4. So Is = I_R4 − I_R3 ≈ 2.93 + 2.06 ≈ 4.99 mA, the 5 mA set on PSU2 (CC mode gives 0.01 mA less)."}
+        {
+          "ask": "Multimeter: N1 to GND, VN1",
+          "explain": "Solve the two node equations, 2.4545 VN1 − VN2 = 9 and −VN1 + 1.3030 VN2 = 5: VN1 ≈ 7.6 V."
+        },
+        {
+          "ask": "Multimeter: N2 to GND, VN2",
+          "explain": "VN2 ≈ 9.67 V, higher than the 9 V source: the current source lifts its node to whatever voltage it needs (as long as that stays below PSU2's 12 V)."
+        },
+        {
+          "ask": "Ammeter in series with R3, red lead on the N1 side: reading I_R3 (reference N1 → N2)",
+          "explain": "I_R3 = (VN1 − VN2) / 1 kΩ ≈ −2.06 mA. The minus sign says the current really flows from N2 to N1."
+        },
+        {
+          "ask": "Ammeter in series with R4: reading I_R4 (N2 → GND)",
+          "explain": "I_R4 = VN2 / 3.3 kΩ ≈ 2.93 mA."
+        },
+        {
+          "ask": "KCL at N2 with your two readings gives the source current: Is = I_R4 − I_R3",
+          "explain": "Into N2: Is + I_R3; out: I_R4. So Is = I_R4 − I_R3 ≈ 2.93 + 2.06 ≈ 4.99 mA — PSU2's 5 mA (the model gives 0.01 mA less in CC mode)."
+        }
       ],
       "hints": [
-        "Two supplies: one on the top rails, one on the bottom rails, and a jumper joining the two blue rails as GND.",
-        "PSU2 at 12 V with a 0.005 A limit; its + goes to N2 (R3, R4 and the supply share a column).",
-        "A short jumper across the centre gap joins the top and bottom halves of a column, which makes it easy to bring N2 down to the bottom rail."
+        "Two supplies: one on the top rails, one on the bottom rails; join the two blue rails with a jumper as GND.",
+        "PSU2: 12 V, current limit 0.005 A; its + goes to N2 (the column R3 and R4 share).",
+        "A short jumper across the trench joins the two halves of a column, so you can bring N2 down to the bottom rails."
       ],
       "tests": [
         "Node voltages are sensible; the current source delivers its limit",
         "Branch currents have sensible sizes and directions"
+      ],
+      "cards": [
+        {
+          "title": "Which node is higher?",
+          "text": [
+            "Build it from the target schematic. **PSU1** `9 V` feeds node **N1** through R1. **PSU2** is a current source: `12 V`, limit **`0.005 A`**, + on node **N2**, − on GND.",
+            "Two supplies need one shared GND: **join the two blue rails** with a jumper.",
+            "**Measure N1 and N2** against GND. N2 only gets its voltage through N1 and R3 — which of the two is higher?"
+          ]
+        },
+        {
+          "title": "Keep one account per node",
+          "text": [
+            "- Think of node voltages as **water levels**. Water flows through every pipe from the higher level to the lower one, and the flow is the level difference divided by the pipe's resistance.",
+            "- Choose GND as the zero level. Give every other node a name: here $V_{N1}$ and $V_{N2}$. Two unknowns, so two equations.",
+            "- At each node, **flowing out = flowing in** (KCL). At N2, current leaves through R3 and R4, and the current source pushes $I_s$ in:",
+            "$$\\frac{V_{N2} - V_{N1}}{R_3} + \\frac{V_{N2}}{R_4} = I_s$$",
+            "- In V, kΩ and mA this is $\\frac{V_{N2} - V_{N1}}{1} + \\frac{V_{N2}}{3.3} = 5$. Write the account for N1 the same way (R1 from the 9 V side, R2 to GND, R3 to N2) and solve the pair.",
+            "![](fig:nodes)"
+          ]
+        },
+        {
+          "title": "Measure two nodes and two branches",
+          "text": [
+            "- **Multimeter**: red lead on N1, then on N2; black lead on GND.",
+            "- **Ammeter in R3's branch**, red lead on the N1 side: the arrow in the figure is your reference direction. A negative reading is allowed.",
+            "- **Ammeter in R4's branch**, red lead on the N2 side.",
+            "- Once the circuit check passes, fill in the questions. The last one uses KCL at N2 to find the source current from your own readings."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Nodal analysis**: reference node, one voltage per node, KCL at each node, branch currents as (voltage difference) / R.",
+            "- A current source is the easiest part to write: its current goes straight to the right-hand side.",
+            "- A negative branch current only means the guessed arrow points the wrong way. Keep the sign; don't flip the equation.",
+            "- In a real circuit a current source can lift its node above every other supply — up to its own voltage ceiling (here PSU2's 12 V)."
+          ]
+        }
       ]
     }
   },
@@ -67,23 +189,76 @@
       ]
     }
   ],
-  "compare": "**对比**：\n- 结点方程：N1：(1/1 + 1/2.2 + 1/1) VN1 − (1/1) VN2 = 9/1，即 2.4545 VN1 − VN2 = 9；N2：−(1/1) VN1 + (1/1 + 1/3.3) VN2 = 5，即 −VN1 + 1.3030 VN2 = 5。解得 **VN1 ≈ 7.61 V，VN2 ≈ 9.68 V**。\n- 模拟器读数：VN1 ≈ 7.60 V，VN2 ≈ 9.67 V，电流源输出 ≈ 4.99 mA（CC 模式比 5 mA 少 0.01 mA，所以比计算略低一点点）。\n- I_R1 = (9 − 7.60) / 1k ≈ **1.40 mA**；I_R3 = (VN1 − VN2) / 1k ≈ **−2.06 mA**（负号说明电流实际从 N2 流向 N1）；I_R4 = 9.67 / 3.3k ≈ **2.93 mA**；N2 处 KCL：4.99 = 2.06 + 2.93 ✔。\n\n**想一想**：VN2 ≈ 9.67 V 比电压源的 9 V 还高——电流源会把结点电压“推”到需要的值。只要它低于 PSU2 设的 12 V，电源就保持 CC 模式，仍然是电流源。",
+  "compare": "**对比**：\n- 结点方程（V、kΩ、mA）：N1：(1/1 + 1/2.2 + 1/1) VN1 − VN2 = 9，即 2.4545 VN1 − VN2 = 9；N2：−VN1 + (1/1 + 1/3.3) VN2 = 5，即 −VN1 + 1.3030 VN2 = 5。解得 **VN1 ≈ 7.61 V，VN2 ≈ 9.68 V**。\n- 模拟器读数：VN1 ≈ 7.60 V，VN2 ≈ 9.67 V，电流源 ≈ 4.99 mA（CC 模式比 5 mA 少 0.01 mA，所以略低一点）。\n- I_R1 = (9 − 7.60) / 1k ≈ **1.40 mA**；I_R3 = (VN1 − VN2) / 1k ≈ **−2.06 mA**（电流实际从 N2 流向 N1）；I_R4 = 9.67 / 3.3k ≈ **2.93 mA**；N2 的 KCL：4.99 = 2.06 + 2.93 ✔。",
   "measurements": [
-    {"id": "u1", "voltage": "R1.2", "ref": "V1.-", "unit": "V", "predict": true, "range": [7.22, 7.98], "ask": "万用表：N1 对 GND 的电压 VN1", "explain": "解结点方程 2.4545 VN1 − VN2 = 9、−VN1 + 1.3030 VN2 = 5，得 VN1 ≈ 7.6 V。"},
-    {"id": "u2", "voltage": "R3.2", "ref": "V1.-", "unit": "V", "predict": true, "range": [9.18, 10.1], "ask": "万用表：N2 对 GND 的电压 VN2", "explain": "VN2 ≈ 9.67 V，比电压源的 9 V 还高：电流源会把结点电压“推”到需要的值（只要低于 PSU2 设的 12 V）。"},
-    {"id": "ir3", "current": "R3", "unit": "mA", "predict": true, "range": [-0.00216, -0.00196], "ask": "电流表串进 R3，红表笔在 N1 一侧：读数 I_R3（参考方向 N1 → N2）", "explain": "I_R3 = (VN1 − VN2) / 1 kΩ ≈ −2.06 mA。负号说明电流实际从 N2 流向 N1。"},
-    {"id": "ir4", "current": "R4", "unit": "mA", "predict": true, "range": [0.00278, 0.00308], "ask": "电流表串进 R4：读数 I_R4（N2 → GND）", "explain": "I_R4 = VN2 / 3.3 kΩ ≈ 2.93 mA。"},
-    {"id": "isrc", "formula": "ir4 - ir3", "unit": "mA", "range": [0.00474, 0.00524], "ask": "用 N2 的 KCL 和你的两个读数算电流源的电流 Is = I_R4 − I_R3", "explain": "流进 N2：Is + I_R3；流出：I_R4。所以 Is = I_R4 − I_R3 ≈ 2.93 + 2.06 ≈ 4.99 mA，就是 PSU2 设的 5 mA（CC 模式比设定值少 0.01 mA）。"}
+    {
+      "id": "u1",
+      "voltage": "R1.2",
+      "ref": "V1.-",
+      "unit": "V",
+      "predict": true,
+      "range": [7.22, 7.98],
+      "ask": "万用表：N1 对 GND 的电压 VN1",
+      "explain": "解两个结点方程：2.4545 VN1 − VN2 = 9，−VN1 + 1.3030 VN2 = 5，得 VN1 ≈ 7.6 V。"
+    },
+    {
+      "id": "u2",
+      "voltage": "R3.2",
+      "ref": "V1.-",
+      "unit": "V",
+      "predict": true,
+      "range": [9.18, 10.1],
+      "ask": "万用表：N2 对 GND 的电压 VN2",
+      "explain": "VN2 ≈ 9.67 V，比电压源的 9 V 还高：电流源会把结点推到需要的电压（只要低于 PSU2 设的 12 V）。"
+    },
+    {
+      "id": "ir3",
+      "current": "R3",
+      "unit": "mA",
+      "predict": true,
+      "range": [-0.00216, -0.00196],
+      "ask": "电流表串进 R3，红表笔在 N1 一侧：读数 I_R3（参考方向 N1 → N2）",
+      "explain": "I_R3 = (VN1 − VN2) / 1 kΩ ≈ −2.06 mA。负号说明电流实际从 N2 流向 N1。"
+    },
+    {
+      "id": "ir4",
+      "current": "R4",
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00278, 0.00308],
+      "ask": "电流表串进 R4：读数 I_R4（N2 → GND）",
+      "explain": "I_R4 = VN2 / 3.3 kΩ ≈ 2.93 mA。"
+    },
+    {
+      "id": "isrc",
+      "formula": "ir4 - ir3",
+      "unit": "mA",
+      "range": [0.00474, 0.00524],
+      "ask": "用 N2 的 KCL 和你的两个读数算电流源的电流：Is = I_R4 − I_R3",
+      "explain": "流进 N2：Is + I_R3；流出：I_R4。所以 Is = I_R4 − I_R3 ≈ 2.93 + 2.06 ≈ 4.99 mA，就是 PSU2 设的 5 mA（模型在 CC 模式下少 0.01 mA）。"
+    }
   ],
   "hints": [
     "两台电源：一台用上方电源轨，一台用下方电源轨，两条蓝轨用跳线连起来作为 GND。",
-    "PSU2 设 12 V、限流 0.005 A，它的 + 端接 N2（R3、R4 和它共用一列）。",
-    "可以用一根跨凹槽的短跳线把同一列的上下两半连起来，方便把 N2 引到下方电源轨。"
+    "PSU2 设 12 V、限流 0.005 A，它的 + 端接 N2（和 R3、R4 共用一列）。",
+    "用一根跨凹槽的短跳线把同一列的上下两半连起来，就能把 N2 引到下方的电源轨。"
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "bench_supply", "ref": "PSU2", "voltage": 12, "currentLimit": 0.005, "pins": {"+": "bp1", "-": "bn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
+      {
+        "type": "bench_supply",
+        "ref": "PSU2",
+        "voltage": 12,
+        "currentLimit": 0.005,
+        "pins": {"+": "bp1", "-": "bn1"}
+      },
       {"type": "wire", "pins": {"a": "tn3", "b": "bn3"}, "color": "blue"},
       {"type": "wire", "pins": {"a": "tp4", "b": "a4"}, "color": "red"},
       {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b4", "2": "b8"}},
