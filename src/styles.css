@@ -262,6 +262,103 @@ kbd {
   color: var(--muted);
 }
 
+/* course map button + dropdown (App.tsx CourseButton, ui/CourseMap.tsx) */
+.course-btn-wrap {
+  position: relative;
+}
+.progress-card.course-btn {
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+.progress-card.course-btn:hover,
+.progress-card.course-btn.open {
+  border-color: var(--accent);
+}
+.pc-where {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+.pc-chev {
+  font-size: 13px;
+  color: var(--muted);
+  transition: transform 0.15s;
+}
+.course-btn.open .pc-chev {
+  transform: rotate(180deg);
+}
+.course-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 70;
+  width: min(460px, calc(100vw - 24px));
+  max-height: min(72vh, 680px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(31, 42, 68, 0.22);
+  padding: 12px 12px 14px;
+}
+.course-map .section-title {
+  flex-wrap: wrap;
+  row-gap: 6px;
+  margin-bottom: 6px;
+}
+.world-line {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+/* phone header: the button sits at the left edge, so the dropdown hangs from its left side */
+@media (max-width: 760px) {
+  .course-pop {
+    left: 0;
+    right: auto;
+    max-height: calc(100dvh - 140px);
+  }
+}
+.course-map {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+/* tabs and the World line stay put; only the list scrolls */
+.course-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 4px 2px 2px;
+}
+.course-list .cm-unit {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 8px 2px 0;
+}
+.course-list .lesson-card {
+  display: flex;
+  flex: none;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 10px;
+}
+.course-list .lesson-card .lc-title {
+  font-size: 14px;
+}
+
 .main {
   flex: 1;
   display: grid;
@@ -895,8 +992,35 @@ kbd {
 /* card-style units (ui/Cards.tsx): one card at a time */
 .course-crumb {
   margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.course-crumb .crumb-map {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 2px 0;
   font-size: 13px;
   color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.course-crumb .crumb-map:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+.crumb-nav {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.crumb-nav button {
+  padding: 3px 8px;
+  border-radius: 8px;
 }
 .unit-cards {
   margin: 10px 0 4px;
@@ -2920,9 +3044,6 @@ button.primary:focus-visible,
     flex: 1;
     height: auto;
     min-height: 0;
-  }
-  .app.is-bench .carousel-wrap {
-    flex-shrink: 0;
   }
   .app.is-bench .side {
     position: static;

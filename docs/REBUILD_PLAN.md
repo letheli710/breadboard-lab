@@ -50,7 +50,7 @@ The textbooks are used for chapter structure and conventions only; all lesson te
 
 ## 3. 交互结构 / How a unit works
 
-- **Learn 页面 = 整个课程地图**（`src/core/course.ts`）：World 1–5 标签，单元编号 1.1、1.4a、1.4b……；课程、挑战、实验按顺序混排。挑战页只列挑战和实验，同样按 World 分组。
+- **Learn 页面 = 整个课程地图**（`src/core/course.ts`）：课程、挑战、实验按顺序混排。地图平时收起：右上角的「课程地图」按钮显示当前位置和进度，点开是下拉列表（World 1–5 标签，按单元分组，编号 1.1、1.4a、1.4b……）；任务面板顶部的“World · 单元”也能打开它，旁边的 ‹ › 跳到上一个 / 下一个。挑战页的下拉只列挑战和实验。
 - **卡片**（`docs/CHALLENGE_FORMAT.md` §16）：🔥 试一试 → 💡 想明白 → 🛠️ 动手做 → 🚀 带走，一次只显示一张。每张卡片拥有一段步骤，步骤带自动检查；测量题在“动手做”卡片上；“带走”卡片链接到理论章节和下一个单元。
 - **理论练习**按 Sadiku 的章节顺序，按 World 分组；`matrix-form`、`transmission-line` 放到“选学”。受控源单独成一章（`dependent-sources`），放在运放之后。
 - 测量题的期望值永远按你自己的面包板仿真；卡片文字里不写测量题的答案（校验器会检查）。

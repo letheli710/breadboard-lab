@@ -10,7 +10,7 @@ import { isFloating } from '../core/netlist';
 import { describeComponent, PARTS, terminalLabel } from '../core/parts';
 import { simulate } from '../core/solver';
 import { nodeAc, useActiveChallenge, useDerived, type Derived } from '../state/derived';
-import { useStore, type PanelTab } from '../state/store';
+import { onPage, useStore, type PanelTab } from '../state/store';
 import { ConfirmButton } from './Confirm';
 import { Icon } from './Icons';
 import { Inspector } from './Inspector';
@@ -25,7 +25,7 @@ import { allAnswered, emptyReadings, matchBoard, revalidate, structureKey } from
 import { Md } from './Md';
 import { Prereqs, useStepChecks } from './StepCheck';
 import { CardDeck, measureCardOf, StepNav } from './Cards';
-import { placeOf } from '../core/course';
+import { inCourseOrder, itemLabel, placeOf } from '../core/course';
 import { unitTitle } from '../core/courseText';
 import { tabListKeys } from './a11y';
 import { Mixed } from './Mixed';
@@ -65,6 +65,60 @@ function Stars({ n }: { n: number }) {
     <span className="stars" role="img" aria-label={tr(`难度 ${n} / 5`, `Level ${n} of 5`)}>
       {'★'.repeat(n) + '☆'.repeat(5 - n)}
     </span>
+  );
+}
+
+/** Where this item sits in the course: "World 1 · 1.3 …" opens the course map; ‹ › go to the
+ *  previous / next item of this page in course order (so the map is rarely needed). */
+function CourseCrumb({ ch }: { ch: Challenge }) {
+  const challenges = useStore((s) => s.challenges);
+  const mode = useStore((s) => s.mode);
+  const open = useStore((s) => s.openChallenge);
+  const page = mode === 'challenge' ? 'challenge' : 'learn';
+  const list = inCourseOrder(challenges.filter((c) => onPage(c, page)));
+  const i = list.findIndex((c) => c.id === ch.id);
+  const prev = i > 0 ? list[i - 1] : undefined;
+  const next = i >= 0 && i < list.length - 1 ? list[i + 1] : undefined;
+  const place = placeOf(ch.id);
+  const label = (c: Challenge) => {
+    const p = placeOf(c.id);
+    return p ? `${itemLabel(p)} ${c.title}` : c.title;
+  };
+  if (!place && !prev && !next) return null;
+  return (
+    <div className="course-crumb">
+      <button className="crumb-map" onClick={() => window.dispatchEvent(new Event('bb-open-course-map'))} title={tr('打开课程地图', 'Open the course map')}>
+        {place ? (
+          <>
+            World {place.world.id} · {place.unit.num} {unitTitle(place.unit.num)}
+            {place.unit.items.length > 1 && (
+              <span className="muted"> · {tr(`第 ${place.pos + 1} / ${place.unit.items.length} 项`, `item ${place.pos + 1} of ${place.unit.items.length}`)}</span>
+            )}
+          </>
+        ) : (
+          tr('课程地图', 'Course map')
+        )}{' '}
+        <span aria-hidden>▾</span>
+      </button>
+      <span className="crumb-nav">
+        <button
+          disabled={!prev}
+          onClick={() => prev && open(prev.id, page)}
+          aria-label={prev ? tr(`上一个：${label(prev)}`, `Previous: ${label(prev)}`) : tr('上一个', 'Previous')}
+          title={prev ? label(prev) : undefined}
+        >
+          <Icon name="prev" size={14} />
+        </button>
+        <button
+          disabled={!next}
+          onClick={() => next && open(next.id, page)}
+          aria-label={next ? tr(`下一个：${label(next)}`, `Next: ${label(next)}`) : tr('下一个', 'Next')}
+          title={next ? label(next) : undefined}
+        >
+          <Icon name="next" size={14} />
+        </button>
+      </span>
+    </div>
   );
 }
 
@@ -138,7 +192,6 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   const usesCards = ch.cards.length > 0;
   const card = useStore((s) => s.card);
   const onMeasureCard = !usesCards || Math.min(card, ch.cards.length - 1) === measureCardOf(ch.cards);
-  const place = placeOf(ch.id);
 
   return (
     <div className="task">
@@ -150,14 +203,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         {completed[ch.id] && <span className="badge done">✓ {tr('已完成', 'Done')}</span>}
         {ch.source !== 'folder' && <span className="badge src">{tr('导入', 'Imported')}</span>}
       </div>
-      {place && (
-        <p className="course-crumb">
-          World {place.world.id} · {place.unit.num} {unitTitle(place.unit.num)}
-          {place.unit.items.length > 1 && (
-            <span className="muted"> · {tr(`第 ${place.pos + 1} / ${place.unit.items.length} 项`, `item ${place.pos + 1} of ${place.unit.items.length}`)}</span>
-          )}
-        </p>
-      )}
+      <CourseCrumb ch={ch} />
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
       <Prereqs ch={ch} />

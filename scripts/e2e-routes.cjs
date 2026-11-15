@@ -8,7 +8,7 @@
 // current problem and unknown ids are also checked with the index held back until after the first
 // paint (a throttled network), recording every URL, tab title and problem title on the way, so a
 // flash of another problem or a rewritten URL / bb.route fails. Then the Practice sidebar (current
-// chapter expanded, active item in view), the Challenges carousel and the [ ] shortcuts.
+// chapter expanded, active item in view), the course map dropdown and the [ ] shortcuts.
 const { chromium } = require('playwright');
 const BASE = process.argv[2] || 'http://localhost:4173/';
 const assert = (c, m) => {
@@ -43,7 +43,7 @@ const assert = (c, m) => {
   await page.goBack();
   await settle();
   assert((await hash()) === chal, 'Back → ' + (await hash()));
-  assert((await page.locator('.carousel-wrap').count()) === 1 && (await page.title()).includes('Challenges'), 'challenge page shown, title ' + (await page.title()));
+  assert((await page.locator('.course-btn').count()) === 1 && (await page.title()).includes('Challenges'), 'challenge page shown, title ' + (await page.title()));
   await page.goBack();
   await settle();
   assert((await hash()) === lesson, 'Back → ' + (await hash()));
@@ -57,23 +57,39 @@ const assert = (c, m) => {
   const histLen = await page.evaluate(() => history.length);
   assert(histLen === 4, 'history length ' + histLen + ' (blank start + 3 entries)');
 
-  // group tab bug: tabs open that group's challenge, panel+URL follow
+  // the course map is a dropdown (header button): closed by default; World tabs only browse
+  // (no navigation); picking an item opens it, closes the map and adds one history entry
   await page.goBack();
   await settle();
-  const tabs = page.locator('.phase-tabs button');
+  assert((await page.locator('.course-pop').count()) === 0, 'course map closed by default');
+  await page.click('.course-btn');
+  await page.waitForSelector('.course-pop .lesson-card.on');
+  assert(await page.evaluate(() => document.activeElement?.classList.contains('lesson-card')), 'course map: focus on the current item');
+  const tabs = page.locator('.course-pop .phase-tabs button');
   const n = await tabs.count();
+  const atMap = await hash();
   for (let i = 0; i < n; i++) {
     await tabs.nth(i).click();
-    await settle();
-    const h2 = await hash();
-    const onCard = await page
-      .locator('.lesson-card.on .lc-title')
-      .textContent()
-      .catch(() => null);
-    const panelTitle = await page.title();
-    const label = await tabs.nth(i).textContent();
-    assert(onCard && panelTitle.startsWith(onCard), `tab ${label.trim()} → ${h2}, highlighted card "${onCard}" = title`);
+    await page.waitForTimeout(150);
+    const label = (await tabs.nth(i).textContent()).trim();
+    assert((await hash()) === atMap && (await page.locator('.course-pop').count()) === 1, `tab ${label}: browses only (URL kept, map open)`);
   }
+  const target = page.locator('.course-pop .course-list .lesson-card:not(.theory-card)').first();
+  const want = (await target.locator('.lc-title').textContent()).trim();
+  await target.click();
+  await settle();
+  assert((await page.locator('.course-pop').count()) === 0, 'course map: closes after a pick');
+  assert((await page.title()).startsWith(want) && (await hash()) !== atMap, `course map: picked "${want}" → ${await hash()}`);
+  await page.click('.course-btn');
+  await page.waitForSelector('.course-pop');
+  await page.keyboard.press('Escape');
+  assert(
+    (await page.locator('.course-pop').count()) === 0 && (await page.evaluate(() => document.activeElement?.classList.contains('course-btn'))),
+    'course map: Esc closes it and returns focus to the button',
+  );
+  await page.goBack();
+  await settle();
+  assert((await hash()) === atMap, 'Back after a pick → ' + (await hash()));
   // board edits don't add history entries — click a hole? skip; check reload restores location
   const before = await hash();
   await page.goto(BASE);
@@ -204,7 +220,7 @@ const RECORDER = () => {
   }
   const note = () => {
     if (log.titles[log.titles.length - 1] !== document.title) log.titles.push(document.title);
-    const el = document.querySelector('.pr-main .pr-title, .lesson-card.on .lc-title');
+    const el = document.querySelector('.pr-main .pr-title, .task h2');
     const t = el && el.textContent;
     if (t && log.shown[log.shown.length - 1] !== t) log.shown.push(t);
   };
@@ -366,18 +382,18 @@ async function lazyIndexChecks(browser) {
   }
 
   // 6. deep link to a challenge (phase 5) with a late challenge index: no other challenge
-  //    flashes, URL kept, the active card scrolled into view in the carousel
+  //    flashes, URL kept, one item ever shown
   {
     const ID = 'exp5-gpio-led-resistor';
     // (the bench page loads three.js first, which can take longer than DELAY: hold the index longer)
     const { p, ctx, js } = await open(`#/challenges/${ID}`, { delay: 6000, storage: { 'bb.lang': 'en', 'bb.route': '#/learn/lesson-power-and-ground' } });
-    await p.waitForSelector('.carousel-wrap');
+    await p.waitForSelector('.course-btn');
     await p.waitForTimeout(300);
     assert(
-      (await p.locator('.lesson-card').count()) === 0 && (await progress(p)).trim() === '–/–',
-      `late challenge index: loading state, neutral card (${await p.locator('.lesson-card').count()} cards, ${await progress(p)})`,
+      (await p.locator('.task h2').count()) === 0 && (await progress(p)).trim() === '–/–',
+      `late challenge index: loading state, neutral button (${await p.locator('.task h2').count()} items, ${await progress(p)})`,
     );
-    await p.waitForSelector('.lesson-card.on', { timeout: 20000 });
+    await p.waitForSelector('.task h2', { timeout: 20000 });
     await p.waitForTimeout(800);
     const l = await log(p);
     assert(
@@ -390,17 +406,20 @@ async function lazyIndexChecks(browser) {
     await ctx.close();
   }
   {
-    // a late card in a long group, narrow screen: it is scrolled into view in the carousel
+    // a late item in a long World, narrow screen: the open course map scrolls it into view
     const { p, ctx } = await open('#/challenges/exp5-pwm-mosfet-motor', { delay: 0, viewport: { width: 390, height: 844 }, storage: { 'bb.lang': 'en' } });
-    await p.waitForSelector('.lesson-card.on', { timeout: 15000 });
-    await p.waitForTimeout(800);
+    await p.waitForSelector('.task h2', { timeout: 15000 });
+    await p.click('.course-btn');
+    await p.waitForSelector('.course-pop .lesson-card.on', { timeout: 15000 });
+    await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
-      const c = document.querySelector('.carousel');
+      const c = document.querySelector('.course-pop .course-list');
       const a = c.getBoundingClientRect();
-      const b = document.querySelector('.lesson-card.on').getBoundingClientRect();
-      return { inView: b.left >= a.left - 1 && b.right <= a.right + 1, scrollLeft: c.scrollLeft };
+      const b = document.querySelector('.course-pop .lesson-card.on').getBoundingClientRect();
+      const pop = document.querySelector('.course-pop').getBoundingClientRect();
+      return { inView: b.top >= a.top - 1 && b.bottom <= a.bottom + 1, scrollTop: c.scrollTop, onScreen: pop.left >= 0 && pop.right <= window.innerWidth };
     });
-    assert(r.inView && r.scrollLeft > 0, `carousel: active card in view (scrollLeft ${r.scrollLeft})`);
+    assert(r.inView && r.scrollTop > 0 && r.onScreen, `course map: active item in view (scrollTop ${r.scrollTop}), dropdown on screen`);
     await ctx.close();
   }
 
