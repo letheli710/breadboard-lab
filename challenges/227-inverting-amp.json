@@ -2,37 +2,388 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-inverting-amp",
-  "title": "实验 2-7 · 反相放大器：±9 V 双电源 + 信号发生器",
   "kind": "challenge",
   "level": 4,
   "phase": 2,
-  "summary": "RIN 10kΩ、RF 22kΩ 反相放大，±9 V 双电源：用示波器看 1 kHz 正弦被放大并反相，用直流偏置看符号，再输入过大看削顶。",
-  "concepts": ["inverting amplifier 反相放大器", "gain = −RF/RIN", "virtual ground 虚地", "dual supply 双电源"],
-  "prereq": ["lesson-lm358", "lesson-generator-scope"],
-  "description": "**目标**：搭反相放大器 Vo = −(RF/RIN) × Vi，用信号发生器和示波器观察放大、反相和削顶。\n\n**双电源**：两台 9 V 电源串联：V1 的 − 和 V2 的 + 接在一起作为 GND；V1 的 + 是 +9 V，接运放 8 脚 V+；V2 的 − 是 −9 V，接运放 4 脚 V−。这样输出可以是负的，交流信号不用加偏置。\n\n**电路**：IN+ 接 GND；信号发生器 FG1（黑夹子接 GND）→ RIN（10kΩ）→ IN−；RF（22kΩ）从 IN− 接到 OUT。\n\nLM358 横跨凹槽，每只脚独占一列：凹槽上方一排从左到右是 1 脚 OUT A、2 脚 IN− A、3 脚 IN+ A、4 脚 V−（这里接 −9 V）；下方一排从左到右是 8 脚 V+、7 脚 OUT B、6 脚 IN− B、5 脚 IN+ B。芯片里有两个运放，用 A、B 哪一个都可以。\n\n**先预测**：IN+ 接地，虚短让 IN− 也是 0 V（**虚地**），RIN 上的电流全部流进 RF。由此写出 Vo 和 Vi 的关系，再预测下面三种输入时输出的峰峰值、平均值和削顶位置（输出最高 V+ − 1.5 V，最低 V−）。这个电路的输入电阻是多少？\n\n**测量**（在示波器上放两个探头：CH1 看输入，CH2 看输出）：\n1. 1 kHz 正弦、幅度 0.5 V（1 Vpp）；\n2. 再加 1 V 直流偏置；\n3. 幅度改成 5 V（10 Vpp）。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**真实电路里**：削顶电平仿真里已经有了，但仿真里的运放没有压摆率限制。真实 LM358 的压摆率只有约 0.3–0.5 V/µs：1 kHz 时没有问题，信号频率升到几十 kHz、输出幅度又大时，正弦波会变成三角波，方波的边沿也会变成斜坡。",
+  "title": "反相放大器：翻个身，再放大",
+  "summary": "LM358 接 ±9 V 双电源，RIN 10 kΩ、RF 22 kΩ：1 kHz 的正弦被放大、上下翻转；输入太大时，输出被削平。",
+  "prereq": ["lesson-lm358", "lesson-scope-two-channels"],
+  "concepts": ["inverting amplifier 反相放大器", "virtual ground 虚地", "gain = −RF/RIN 增益", "dual supply 双电源", "clipping 削顶"],
+  "description": "±9 V 双电源（两台 9 V 电源串联，中点接 GND）。LM358 的 IN+ 接 GND；信号发生器 → RIN（10 kΩ）→ IN−；RF（22 kΩ）从 IN− 接到 OUT。CH1 看输入，CH2 看输出。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "搭好，看两条波",
+      "text": [
+        "- **两台 9 V 电源串联**：中间那一点接 GND，上面是 +9 V（接 LM358 的 8 脚），下面是 −9 V（接 4 脚）。这样输出可以是负的。",
+        "- **IN+ 接 GND**；信号发生器 → **RIN** → **IN−**；**RF** 从 IN− 接回 OUT。引脚位置和 2.5 一样，用 A 半、B 半都行。",
+        "- 信号发生器：正弦、**`1 kHz`**、幅度 **`0.5 V`**。CH1 看输入，CH2 看 OUT。",
+        "两条波比一比：CH2 的大小和方向，和 CH1 有什么不同？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "虚地：IN− 被钉在 0 V",
+      "text": [
+        "- 接成负反馈的运放会调整输出，让 **IN− 和 IN+ 一样高**。IN+ 接地，所以 IN− 也一直在 0 V，叫**虚地**。",
+        "- 输入电流 i = v_in / RIN 流到 IN− 无路可走（运放输入不取电流），只能**全部穿过 RF** 流向 OUT。",
+        "![](fig:inv)",
+        "- RF 一端在 0 V，所以输出就是 RF 上的电压，方向反过来：",
+        "$$v_o = -\\frac{R_F}{R_{IN}} v_{in} = -\\frac{22 kΩ}{10 kΩ} v_{in}$$",
+        "- 负号就是“翻个身”：输入往上走时，输出往下走。",
+        "![](fig:wave)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "量放大、反相和削顶",
+      "text": [
+        "- 依次试三种输入：① 幅度 **`0.5 V`**；② 再加 **`1 V`** 偏置；③ 幅度改成 **`5 V`**、偏置 **`0 V`**。",
+        "- ② 用万用表直流档量 OUT 对 GND：直流也被放大、翻转了吗？",
+        "- ③ 按公式输出应该很大，屏幕上却被**削平**了。看看上下各平在哪里。",
+        "- 先在测量题里写预测，再读。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **虚地**：IN+ 接地时，IN− 也被拉到 0 V。所以这个放大器的输入电阻就是 RIN。",
+        "- **增益 = −RF / RIN**：负号表示反相；直流也一样被放大、翻转。",
+        "- **LM358 的输出到不了正电源**：最高只到约 V+ − 1.5 V，最低能到 V−，所以削顶上下不对称。",
+        "- **真实电路里**：LM358 的压摆率只有约 0.3–0.5 V/µs。频率升到几十 kHz、幅度又大时，正弦会变成三角波；仿真里没有这个限制。"
+      ],
+      "practice": ["opamp"]
+    }
+  ],
+  "figures": {
+    "inv": {
+      "kind": "schematic",
+      "caption": {
+        "text": "v_in 从左端进来。同一个电流 i 先穿过 RIN、再穿过 RF。IN− 在 0 V（虚地），所以 v_o 就是 RF 上的电压，方向和输入相反。",
+        "i18n": {
+          "en": "v_in comes in on the left. The same current i passes RIN, then RF. IN− sits at 0 V (virtual ground), so v_o is the voltage across RF, pointing the other way from the input."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "RIN", "type": "R", "from": [0, 0], "to": [2, 0], "value": "10k", "label": "R_IN"},
+          {"ref": "RF", "type": "R", "from": [2, -2], "to": [6, -2], "value": "22k", "label": "R_F"},
+          {"ref": "A", "type": "OPAMP", "at": [4, 1]}
+        ],
+        "wires": [[[2, 0], [2, -2]], [[6, -2], [6, 1]], [[2, 2], [2, 3]]],
+        "grounds": [[2, 3]],
+        "marks": [{"kind": "i", "el": "RIN", "name": "i"}, {"kind": "i", "el": "RF", "name": "i"}],
+        "notes": [{"at": [5.3, 2], "text": "v_o"}, {"at": [1.2, -1], "text": "0 V"}]
+      }
+    },
+    "wave": {
+      "kind": "plot",
+      "caption": {
+        "text": "输入往上时输出往下：形状一样，大了 RF / RIN 倍，上下翻转。",
+        "i18n": {"en": "When the input goes up the output goes down: same shape, RF / RIN times larger, upside down."}
+      },
+      "x": {"label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}}, "min": 0, "max": 2, "ticks": [0, 1, 2]},
+      "y": {"label": {"text": "电压 (V)", "i18n": {"en": "voltage (V)"}}, "min": -1.5, "max": 1.5, "ticks": [-1, 0, 1]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.02, 0.06267],
+            [0.04, 0.1243],
+            [0.06, 0.1841],
+            [0.08, 0.2409],
+            [0.1, 0.2939],
+            [0.12, 0.3423],
+            [0.14, 0.3853],
+            [0.16, 0.4222],
+            [0.18, 0.4524],
+            [0.2, 0.4755],
+            [0.22, 0.4911],
+            [0.24, 0.499],
+            [0.26, 0.499],
+            [0.28, 0.4911],
+            [0.3, 0.4755],
+            [0.32, 0.4524],
+            [0.34, 0.4222],
+            [0.36, 0.3853],
+            [0.38, 0.3423],
+            [0.4, 0.2939],
+            [0.42, 0.2409],
+            [0.44, 0.1841],
+            [0.46, 0.1243],
+            [0.48, 0.06267],
+            [0.5, 6.123e-17],
+            [0.52, -0.06267],
+            [0.54, -0.1243],
+            [0.56, -0.1841],
+            [0.58, -0.2409],
+            [0.6, -0.2939],
+            [0.62, -0.3423],
+            [0.64, -0.3853],
+            [0.66, -0.4222],
+            [0.68, -0.4524],
+            [0.7, -0.4755],
+            [0.72, -0.4911],
+            [0.74, -0.499],
+            [0.76, -0.499],
+            [0.78, -0.4911],
+            [0.8, -0.4755],
+            [0.82, -0.4524],
+            [0.84, -0.4222],
+            [0.86, -0.3853],
+            [0.88, -0.3423],
+            [0.9, -0.2939],
+            [0.92, -0.2409],
+            [0.94, -0.1841],
+            [0.96, -0.1243],
+            [0.98, -0.06267],
+            [1.0, -1.225e-16],
+            [1.02, 0.06267],
+            [1.04, 0.1243],
+            [1.06, 0.1841],
+            [1.08, 0.2409],
+            [1.1, 0.2939],
+            [1.12, 0.3423],
+            [1.14, 0.3853],
+            [1.16, 0.4222],
+            [1.18, 0.4524],
+            [1.2, 0.4755],
+            [1.22, 0.4911],
+            [1.24, 0.499],
+            [1.26, 0.499],
+            [1.28, 0.4911],
+            [1.3, 0.4755],
+            [1.32, 0.4524],
+            [1.34, 0.4222],
+            [1.36, 0.3853],
+            [1.38, 0.3423],
+            [1.4, 0.2939],
+            [1.42, 0.2409],
+            [1.44, 0.1841],
+            [1.46, 0.1243],
+            [1.48, 0.06267],
+            [1.5, 1.837e-16],
+            [1.52, -0.06267],
+            [1.54, -0.1243],
+            [1.56, -0.1841],
+            [1.58, -0.2409],
+            [1.6, -0.2939],
+            [1.62, -0.3423],
+            [1.64, -0.3853],
+            [1.66, -0.4222],
+            [1.68, -0.4524],
+            [1.7, -0.4755],
+            [1.72, -0.4911],
+            [1.74, -0.499],
+            [1.76, -0.499],
+            [1.78, -0.4911],
+            [1.8, -0.4755],
+            [1.82, -0.4524],
+            [1.84, -0.4222],
+            [1.86, -0.3853],
+            [1.88, -0.3423],
+            [1.9, -0.2939],
+            [1.92, -0.2409],
+            [1.94, -0.1841],
+            [1.96, -0.1243],
+            [1.98, -0.06267],
+            [2.0, -2.449e-16]
+          ],
+          "tone": 1,
+          "label": "v_in",
+          "labelAt": [0.3, 0.75]
+        },
+        {
+          "points": [
+            [0.0, -0.0],
+            [0.02, -0.1379],
+            [0.04, -0.2736],
+            [0.06, -0.4049],
+            [0.08, -0.5299],
+            [0.1, -0.6466],
+            [0.12, -0.753],
+            [0.14, -0.8476],
+            [0.16, -0.9288],
+            [0.18, -0.9953],
+            [0.2, -1.046],
+            [0.22, -1.081],
+            [0.24, -1.098],
+            [0.26, -1.098],
+            [0.28, -1.081],
+            [0.3, -1.046],
+            [0.32, -0.9953],
+            [0.34, -0.9288],
+            [0.36, -0.8476],
+            [0.38, -0.753],
+            [0.4, -0.6466],
+            [0.42, -0.5299],
+            [0.44, -0.4049],
+            [0.46, -0.2736],
+            [0.48, -0.1379],
+            [0.5, -1.347e-16],
+            [0.52, 0.1379],
+            [0.54, 0.2736],
+            [0.56, 0.4049],
+            [0.58, 0.5299],
+            [0.6, 0.6466],
+            [0.62, 0.753],
+            [0.64, 0.8476],
+            [0.66, 0.9288],
+            [0.68, 0.9953],
+            [0.7, 1.046],
+            [0.72, 1.081],
+            [0.74, 1.098],
+            [0.76, 1.098],
+            [0.78, 1.081],
+            [0.8, 1.046],
+            [0.82, 0.9953],
+            [0.84, 0.9288],
+            [0.86, 0.8476],
+            [0.88, 0.753],
+            [0.9, 0.6466],
+            [0.92, 0.5299],
+            [0.94, 0.4049],
+            [0.96, 0.2736],
+            [0.98, 0.1379],
+            [1.0, 2.694e-16],
+            [1.02, -0.1379],
+            [1.04, -0.2736],
+            [1.06, -0.4049],
+            [1.08, -0.5299],
+            [1.1, -0.6466],
+            [1.12, -0.753],
+            [1.14, -0.8476],
+            [1.16, -0.9288],
+            [1.18, -0.9953],
+            [1.2, -1.046],
+            [1.22, -1.081],
+            [1.24, -1.098],
+            [1.26, -1.098],
+            [1.28, -1.081],
+            [1.3, -1.046],
+            [1.32, -0.9953],
+            [1.34, -0.9288],
+            [1.36, -0.8476],
+            [1.38, -0.753],
+            [1.4, -0.6466],
+            [1.42, -0.5299],
+            [1.44, -0.4049],
+            [1.46, -0.2736],
+            [1.48, -0.1379],
+            [1.5, -4.041e-16],
+            [1.52, 0.1379],
+            [1.54, 0.2736],
+            [1.56, 0.4049],
+            [1.58, 0.5299],
+            [1.6, 0.6466],
+            [1.62, 0.753],
+            [1.64, 0.8476],
+            [1.66, 0.9288],
+            [1.68, 0.9953],
+            [1.7, 1.046],
+            [1.72, 1.081],
+            [1.74, 1.098],
+            [1.76, 1.098],
+            [1.78, 1.081],
+            [1.8, 1.046],
+            [1.82, 0.9953],
+            [1.84, 0.9288],
+            [1.86, 0.8476],
+            [1.88, 0.753],
+            [1.9, 0.6466],
+            [1.92, 0.5299],
+            [1.94, 0.4049],
+            [1.96, 0.2736],
+            [1.98, 0.1379],
+            [2.0, 5.388e-16]
+          ],
+          "tone": 2,
+          "label": "v_o",
+          "labelAt": [0.92, 1.3]
+        }
+      ]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 2-7 · Inverting amplifier: ±9 V dual supply + function generator",
-      "summary": "An inverting amplifier with RIN 10kΩ and RF 22kΩ on ±9 V: watch a 1 kHz sine get amplified and inverted on the scope, use a DC offset to see the sign, then overdrive it and watch it clip.",
-      "concepts": ["inverting amplifier", "gain = −RF/RIN", "virtual ground", "dual supply"],
-      "description": "**Goal**: build an inverting amplifier, Vo = −(RF/RIN) × Vi, and watch amplification, inversion and clipping with a function generator and a scope.\n\n**Dual supply**: two 9 V supplies in series: V1's − and V2's + joined as GND; V1's + is +9 V, to op-amp pin 8 (V+); V2's − is −9 V, to op-amp pin 4 (V−). Now the output can go negative and an AC signal needs no offset.\n\n**Circuit**: IN+ to GND; function generator FG1 (black clip to GND) → RIN (10kΩ) → IN−; RF (22kΩ) from IN− to OUT.\n\nThe LM358 straddles the gap, each pin on its own column: the row above the gap is, left to right, pin 1 OUT A, pin 2 IN− A, pin 3 IN+ A, pin 4 V− (−9 V here); the row below is, left to right, pin 8 V+, pin 7 OUT B, pin 6 IN− B, pin 5 IN+ B. The chip holds two op-amps; either A or B is fine.\n\n**Predict first**: IN+ is grounded and the virtual short keeps IN− at 0 V too (a **virtual ground**); the current in RIN all flows on into RF. Write Vo in terms of Vi, then predict the peak-to-peak output, its average and where it clips (the output reaches V+ − 1.5 V at most and V− at least) for the three inputs below. What is the input resistance of this circuit?\n\n**Measure** (put two scope probes on the board: CH1 on the input, CH2 on the output):\n1. 1 kHz sine, amplitude 0.5 V (1 Vpp);\n2. add a 1 V DC offset;\n3. change the amplitude to 5 V (10 Vpp). Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**In a real circuit**: the clipping levels are in the simulator, but its op-amp has no slew-rate limit. A real LM358 slews at only about 0.3–0.5 V/µs: no problem at 1 kHz, but at tens of kHz with a large output swing a sine turns into a triangle and square-wave edges become ramps.",
-      "compare": "**Compare**: Vo = 0 − RF × Vi / RIN = **−2.2 Vi**, and the input resistance is just RIN = 10kΩ.\n1. The output is ≈ **2.19 Vpp**, average 0 V, inverted (180° apart). Why not 2.2 Vpp? The generator has a 50Ω output resistance, so with the 10kΩ input resistance its terminal voltage is only 1 × 10000 / 10050 ≈ 0.995 Vpp; measured against the terminal voltage, the gain is exactly 2.20;\n2. the output average is ≈ **−2.19 V**: DC is amplified and inverted too; IN− stays at 0 V (virtual ground);\n3. in theory 22 Vpp out, but the output only reaches V+ − 1.5 = **+7.5 V** at the top and V− = **−9 V** at the bottom. The clipping is lopsided, typical of the LM358 (its output reaches the negative rail but not the positive one).",
-      "measurements": [
-        {"ask": "1 kHz, amplitude 0.5 V (1 Vpp): CH2 (output) Vpp", "explain": "|Vo| = 2.2 × 1 Vpp = 2.2 Vpp; the generator's 50 Ω and the 10 kΩ input resistance divide, leaving 0.995 Vpp at the port, so about 2.19 Vpp."},
-        {"ask": "Same state: output amplitude / input amplitude (CH2 / CH1, the voltage at the generator's terminal)", "explain": "Using the terminal voltage, |Vo / Vi| = RF / RIN = 22 / 10 = 2.2. The scope also shows the two waves inverted (180° apart)."},
-        {"ask": "With a 1 V offset: multimeter DC range, OUT to GND (the average)", "explain": "DC is amplified and inverted too: −2.2 × 0.995 ≈ −2.19 V. IN− stays at 0 V (virtual ground)."},
-        {"ask": "Amplitude 5 V (10 Vpp): the output maximum", "explain": "±11 V in theory, but the output tops out at V+ − 1.5 V ≈ +7.5 V."},
-        {"ask": "Same state: the output minimum", "explain": "The LM358 output can swing all the way down to V− = −9 V: the clipping is lopsided."}
-      ],
+      "title": "The inverting amplifier: flip it, then enlarge it",
+      "summary": "An LM358 on ±9 V, RIN 10 kΩ and RF 22 kΩ: a 1 kHz sine comes out larger and upside down; with too much input the output is clipped.",
+      "concepts": ["inverting amplifier", "virtual ground", "gain = −RF/RIN", "dual supply", "clipping"],
+      "description": "A ±9 V supply (two 9 V supplies in series, the middle on GND). The LM358's IN+ goes to GND; generator → RIN (10 kΩ) → IN−; RF (22 kΩ) from IN− to OUT. CH1 on the input, CH2 on the output.",
+      "compare": "**Compare**: v_o = −(RF / RIN) × v_in = **−2.2 v_in**; the input resistance is RIN = 10 kΩ.\n1. Output ≈ **2.19 Vpp**, average 0 V, inverted (180°). Not 2.2 Vpp: the generator's 50 Ω divides against 10 kΩ, the port gives about 0.995 Vpp, and the gain on the port voltage is exactly 2.20;\n2. Output average ≈ **−2.19 V**: DC is enlarged and inverted as well; IN− stays at 0 V;\n3. The formula asks for 22 Vpp, but the output reaches only V+ − 1.5 = **+7.5 V** at the top and V− = **−9 V** at the bottom: lopsided clipping.",
       "hints": [
-        "Dual supply: two 9 V supplies in series, the middle point is GND. V1 + → op-amp pin 8, V2 − → op-amp pin 4.",
+        "Dual supply: two 9 V supplies in series, the middle is GND. The upper one's + goes to op-amp pin 8, the lower one's − to pin 4.",
         "IN+ (pin 3) to GND; generator + → RIN → IN− (pin 2); RF between IN− and OUT (pin 1).",
-        "Place two scope probes (CH1 input, CH2 output), both ground clips on GND, and compare the two traces on the scope."
+        "Place two probes (CH1 input, CH2 output), both ground clips on GND."
       ],
       "tests": [
-        "1 kHz, 1 Vpp sine: the output is amplified, average 0 V",
-        "1 V offset added: DC is amplified and inverted too; IN− is a virtual ground",
-        "10 Vpp input: the output clips at the top and bottom"
+        "1 kHz, 1 Vpp sine: the output is enlarged, average 0 V",
+        "With a 1 V offset: DC is enlarged and inverted too, IN− is a virtual ground",
+        "10 Vpp input: the output clips top and bottom"
+      ],
+      "measurements": [
+        {
+          "ask": "① Amplitude 0.5 V: CH2 (output) peak-to-peak",
+          "explain": "|v_o| = 2.2 × 1 Vpp ≈ 2.2 Vpp. The generator's 50 Ω and the 10 kΩ input resistance divide a little, so the port gives about 0.995 Vpp and you read about 2.19 Vpp."
+        },
+        {
+          "ask": "Same state: output amplitude / input amplitude (CH2 / CH1, with CH1 on the generator's output)",
+          "explain": "On the port voltage |v_o / v_in| = RF / RIN = 2.2. On screen the two waves are exactly upside down to each other (180° apart)."
+        },
+        {
+          "ask": "② With a 1 V offset: OUT to GND on the multimeter's DC range",
+          "explain": "DC is enlarged and inverted too: −2.2 × 0.995 ≈ −2.19 V. IN− stays at 0 V (virtual ground)."
+        },
+        {
+          "ask": "③ Amplitude 5 V: the output's maximum",
+          "explain": "The formula says +11 V, but the output tops out at V+ − 1.5 V ≈ +7.5 V."
+        },
+        {
+          "ask": "Same state: the output's minimum",
+          "explain": "The LM358's output reaches all the way to V− = −9 V: lopsided clipping."
+        }
+      ],
+      "cards": [
+        {
+          "title": "Build it, watch two waves",
+          "text": [
+            "- **Two 9 V supplies in series**: the point between them is GND, the top is +9 V (to LM358 pin 8), the bottom −9 V (pin 4). Now the output can go negative.",
+            "- **IN+ to GND**; generator → **RIN** → **IN−**; **RF** from IN− back to OUT. The pins are as in 2.5; either half A or B works.",
+            "- Generator: sine, **`1 kHz`**, amplitude **`0.5 V`**. CH1 on the input, CH2 on OUT.",
+            "Compare the two waves: how do CH2's size and direction differ from CH1's?"
+          ]
+        },
+        {
+          "title": "Virtual ground: IN− pinned at 0 V",
+          "text": [
+            "- An op-amp with negative feedback moves its output until **IN− is as high as IN+**. IN+ is on ground, so IN− stays at 0 V too: a **virtual ground**.",
+            "- The input current i = v_in / RIN reaches IN− and has nowhere else to go (the op-amp's inputs draw no current), so **all of it passes through RF** to OUT.",
+            "![](fig:inv)",
+            "- One end of RF sits at 0 V, so the output is the voltage across RF, with the direction reversed:",
+            "$$v_o = -\\frac{R_F}{R_{IN}} v_{in} = -\\frac{22 kΩ}{10 kΩ} v_{in}$$",
+            "- The minus sign is the flip: when the input goes up, the output goes down.",
+            "![](fig:wave)"
+          ]
+        },
+        {
+          "title": "Measure the gain, the flip and the clipping",
+          "text": [
+            "- Try three inputs in turn: ① amplitude **`0.5 V`**; ② add a **`1 V`** offset; ③ amplitude **`5 V`**, offset **`0 V`**.",
+            "- In ② measure OUT to GND with the multimeter on DC: is the DC part enlarged and flipped too?",
+            "- In ③ the formula promises a big output, but the screen shows it **clipped flat**. Where are the top and bottom limits?",
+            "- Write your prediction in each question first, then read."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Virtual ground**: with IN+ on ground, IN− is held at 0 V too. So this amplifier's input resistance is just RIN.",
+            "- **Gain = −RF / RIN**: the minus means inverted; DC is enlarged and flipped the same way.",
+            "- **The LM358's output can't reach the positive supply**: it tops out near V+ − 1.5 V but reaches V−, so the clipping is lopsided.",
+            "- **In a real circuit**: the LM358 slews only about 0.3–0.5 V/µs. At tens of kHz and large swings a sine turns into a triangle; the simulation has no such limit."
+          ]
+        }
       ]
     }
   },
@@ -79,23 +430,91 @@
       ]
     }
   ],
-  "compare": "**对比**：Vo = 0 − RF × Vi / RIN = **−2.2 Vi**，输入电阻就是 RIN = 10kΩ。\n1. 输出 ≈ **2.19 Vpp**，平均 0 V，和输入反相（相差 180°）。为什么不是 2.2 Vpp？信号发生器有 50Ω 输出电阻，接上 10kΩ 输入电阻后它的端口电压只有 1 × 10000 / 10050 ≈ 0.995 Vpp，以端口电压算增益正好 2.20；\n2. 输出平均值 ≈ **−2.19 V**——直流也被放大并反相；IN− 一直在 0 V（虚地）；\n3. 理论输出 22 Vpp，但输出最高只到 V+ − 1.5 = **+7.5 V**，最低到 V− = **−9 V**——上下削顶不对称，这是 LM358 的特点（输出能到负电源，到不了正电源）。",
+  "compare": "**对比**：v_o = −(RF / RIN) × v_in = **−2.2 v_in**，输入电阻就是 RIN = 10 kΩ。\n1. 输出 ≈ **2.19 Vpp**，平均 0 V，和输入反相（相差 180°）。不是 2.2 Vpp：信号发生器的 50 Ω 和 10 kΩ 分压，端口只有约 0.995 Vpp，按端口电压算增益正好 2.20；\n2. 输出平均值 ≈ **−2.19 V**：直流也被放大并反相；IN− 一直在 0 V；\n3. 按公式输出 22 Vpp，但最高只到 V+ − 1.5 = **+7.5 V**，最低到 V− = **−9 V**：削顶上下不对称。",
   "measurements": [
-    {"id": "vpp", "scope": "vpp", "pin": "U1.out", "ref": "V1.-", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 0}}, "unit": "V", "predict": true, "range": [2.08, 2.3], "ask": "1 kHz、幅度 0.5 V（1 Vpp）：CH2（输出）的 Vpp", "explain": "|Vo| = 2.2 × 1 Vpp = 2.2 Vpp；信号发生器的 50 Ω 和 10 kΩ 输入电阻分压，端口只有 0.995 Vpp，所以约 2.19 Vpp。"},
-    {"id": "gain", "scope": "gain", "pin": "U1.out", "ref": "V1.-", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 0}}, "predict": true, "range": [2.09, 2.31], "ask": "同一状态：输出幅度 / 输入幅度（CH2 / CH1，信号发生器端口的电压）", "explain": "以端口电压算 |Vo / Vi| = RF / RIN = 22 / 10 = 2.2。示波器上还能看到两条波形反相（相差 180°）。"},
-    {"id": "vdc", "voltage": "U1.out", "ref": "V1.-", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1}}, "unit": "V", "predict": true, "range": [-2.3, -2.08], "ask": "加 1 V 偏置：万用表直流档测 OUT 对 GND（平均值）", "explain": "直流也被放大并反相：−2.2 × 0.995 ≈ −2.19 V。IN− 一直在 0 V（虚地）。"},
-    {"id": "vmax", "scope": "vmax", "pin": "U1.out", "ref": "V1.-", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 5, "offset": 0}}, "unit": "V", "predict": true, "range": [7.12, 7.87], "ask": "幅度 5 V（10 Vpp）：输出的最大值", "explain": "理论 ±11 V，但输出最高只有 V+ − 1.5 V ≈ +7.5 V。"},
-    {"id": "vmin", "scope": "vmin", "pin": "U1.out", "ref": "V1.-", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 5, "offset": 0}}, "unit": "V", "predict": true, "range": [-9.45, -8.55], "ask": "同一状态：输出的最小值", "explain": "LM358 的输出能一直到负电源 V− = −9 V：上下削顶不对称。"}
+    {
+      "id": "vpp",
+      "scope": "vpp",
+      "pin": "U1.out",
+      "ref": "V1.-",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.08, 2.3],
+      "ask": "① 幅度 0.5 V：CH2（输出）的峰峰值",
+      "explain": "|v_o| = 2.2 × 1 Vpp ≈ 2.2 Vpp。信号发生器的 50 Ω 和 10 kΩ 输入电阻分压，端口只有约 0.995 Vpp，所以约 2.19 Vpp。"
+    },
+    {
+      "id": "gain",
+      "scope": "gain",
+      "pin": "U1.out",
+      "ref": "V1.-",
+      "vs": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 0}},
+      "predict": true,
+      "range": [2.09, 2.31],
+      "ask": "同一状态：输出幅度 / 输入幅度（CH2 / CH1，CH1 接在信号发生器的输出端）",
+      "explain": "按端口电压算 |v_o / v_in| = RF / RIN = 2.2。屏幕上两条波正好上下颠倒（相差 180°）。"
+    },
+    {
+      "id": "vdc",
+      "voltage": "U1.out",
+      "ref": "V1.-",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 0.5, "offset": 1}},
+      "unit": "V",
+      "predict": true,
+      "range": [-2.3, -2.08],
+      "ask": "② 加 1 V 偏置：万用表直流档测 OUT 对 GND",
+      "explain": "直流也被放大并反相：−2.2 × 0.995 ≈ −2.19 V。IN− 一直在 0 V（虚地）。"
+    },
+    {
+      "id": "vmax",
+      "scope": "vmax",
+      "pin": "U1.out",
+      "ref": "V1.-",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 5, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [7.12, 7.87],
+      "stated": true,
+      "ask": "③ 幅度 5 V：输出的最大值",
+      "explain": "按公式应到 +11 V，但输出最高只有 V+ − 1.5 V ≈ +7.5 V。"
+    },
+    {
+      "id": "vmin",
+      "scope": "vmin",
+      "pin": "U1.out",
+      "ref": "V1.-",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 5, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [-9.45, -8.55],
+      "stated": true,
+      "ask": "同一状态：输出的最小值",
+      "explain": "LM358 的输出能一直到负电源 V− = −9 V：上下削顶不对称。"
+    }
   ],
   "hints": [
-    "双电源：两台 9 V 电源串联，中点是 GND。V1 + → 运放 8 脚，V2 − → 运放 4 脚。",
+    "双电源：两台 9 V 电源串联，中点是 GND。上面那台的 + 接运放 8 脚，下面那台的 − 接 4 脚。",
     "IN+（3 脚）接 GND；信号发生器 + → RIN → IN−（2 脚）；RF 在 IN− 和 OUT（1 脚）之间。",
-    "放两个示波器探头（CH1 输入、CH2 输出），黑夹子都接 GND，在示波器上对比两条波形。"
+    "放两个探头（CH1 输入、CH2 输出），接地夹都夹 GND。"
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "bench_supply", "ref": "PSU2", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tn2", "-": "bn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
+      {
+        "type": "bench_supply",
+        "ref": "PSU2",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tn2", "-": "bn1"}
+      },
       {"type": "opamp", "ref": "U1", "at": "e10"},
       {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
       {"type": "wire", "pins": {"a": "d13", "b": "bn13"}, "color": "white"},
