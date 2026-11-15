@@ -1,6 +1,6 @@
 /* global require, process, console, window, document, localStorage, __dirname */
 /* eslint-disable @typescript-eslint/no-require-imports */
-// The instrument lessons (challenges/101-…108-…) end to end, as a student does them: every step's
+// The instrument lessons (challenges/101-…108-…, 3NN-lesson-… for World 5 additions) end to end, as a student does them: every step's
 // parts are placed by clicking holes on the 3D board (positions from the test hook window.__bb, so
 // no hard-coded pixels), the multimeter probes and the scope knobs are set, and each step's live
 // check must say "done" before Next. Then "Check my circuit" must pass and every measurement
@@ -23,7 +23,7 @@ const LANG = opt('--lang') || 'en';
 const ROOT = join(__dirname, '..');
 const ART = join(ROOT, 'e2e-artifacts');
 const ALL = readdirSync(join(ROOT, 'challenges'))
-  .filter((f) => /^1\d\d-lesson-.*\.json$/.test(f))
+  .filter((f) => /^[13]\d\d-lesson-.*\.json$/.test(f))
   .sort();
 const pick = opt('--only')?.split(',');
 const FILES = pick ? ALL.filter((f) => pick.some((n) => f.startsWith(n))) : args.includes('--all') ? ALL : ALL.filter((f) => /^(101|102|105)-/.test(f));
