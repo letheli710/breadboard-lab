@@ -33,7 +33,8 @@ export { richRuns };
 export function symbolText(ref: string): string {
   // breadboard names in lesson figures stay as they are: LED1, AM1 (ammeter), VM1 (voltmeter)
   // (and a lowercase word such as "com" or "out" is a name, not a symbol)
-  if (ref.includes('_') || /^(LED|AM|VM)\d*$/.test(ref) || /^[a-z]{3,}$/.test(ref)) return ref;
+  // and so are microcontroller pins and bench names (PA0, GPIO2, ADC, SDA, SW1, SWOUT, VCC)
+  if (ref.includes('_') || /^(LED|AM|VM)\d*$/.test(ref) || /^[a-z]{3,}$/.test(ref) || /^(GPIO|ADC|BUS|SDA|SCL|SWOUT|SW|VCC|GND|P[A-C])\d*$/.test(ref)) return ref;
   const m = ref.match(/^([A-Za-z])([A-Za-z]{0,3}\d*|\d+)$/);
   return m && m[2] ? `${m[1]}_${m[2]}` : ref;
 }
