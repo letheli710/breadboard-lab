@@ -2,79 +2,160 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-open-drain-level-shifter",
-  "title": "实验 5-11 · 开漏输出 + 5 V 上拉：3.3 V 单片机输出 5 V 逻辑电平",
+  "title": "开漏输出：3.3 V 单片机送出 5 V 高电平",
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "耐 5 V 的 FT 引脚设成开漏输出，外接 4.7 kΩ 上拉到 5V：测输出低、“输出高”（引脚松开）和推挽输出高三种情况。起始电路用的是不耐 5 V 的 PA0。",
+  "summary": "一个耐 5 V 的 FT 引脚设成开漏输出，外接 4.7 kΩ 上拉到 5V。起始电路用的是不耐 5 V 的 PA0。测开漏低、开漏高和推挽高三种情况。",
   "concepts": ["开漏输出 open-drain output", "上拉电阻 pull-up resistor", "推挽输出 push-pull output", "5 V 耐受 FT pin", "电平转换 level shifting", "I²C 总线 I2C bus"],
   "prereq": ["lesson-mcu-gpio"],
-  "description": [
-    "**目标**：用 3.3 V 单片机的**开漏输出**加一个上拉电阻，给 5 V 逻辑芯片送出真正的 5 V 高电平，并看清楚为什么必须用耐 5 V 的引脚。",
-    "",
-    "**电路**（Blue Pill 插在 USB 上）：",
-    "- R1（4.7 kΩ）：一端接开发板 **5V** 脚，另一端接结点 OUT5。",
-    "- OUT5 接一个 **FT（耐 5 V）引脚**（参考答案 PB12）。OUT5 就是要送给 5 V 逻辑芯片（例如 5 V 的 74HC 芯片、Arduino Uno 的输入）的信号。",
-    "- **起始状态**：上拉已经接好，但信号线接在 **PA0** 上，引脚设成开漏“高”。诊断报错“U1 PA0 上的电压太高：3.9 V”，保护二极管在往 3V3 灌 0.2 mA；判分也提示“PA0 不能当 GPIO_FT1 用”。把线换到一个 FT 引脚。",
-    "",
-    "**引脚设置**：参考答案设为“输出高 + 开漏”；测试会依次设成开漏低、开漏高、推挽高。",
-    "",
-    "**开漏是什么**：普通（推挽）输出里有两个开关：一个接 3.3 V，一个接 GND。开漏输出把接 3.3 V 的那个去掉了：",
-    "- **输出低**：下面的开关接通，引脚接地，从上拉电阻灌进电流。",
-    "- **输出高**：开关断开，引脚“松开”，电压由上拉电阻决定——拉到哪个电压就是哪个电压。",
-    "- **推挽输出高**：引脚自己输出 3.3 V。",
-    "",
-    "**先预测**：5V 脚约 4.69 V，引脚开关导通时约 40 Ω。三种设置下 OUT5 各是多少伏？开漏低时引脚灌进多少电流？推挽高时，5 V 经上拉的电流往哪里流？5 V CMOS 输入的 VIH ≈ 0.7 × 5 V，哪种设置能被它认作高电平？",
-    "",
-    "**测量**：开漏低的电压和灌电流、开漏高的电压（≈ 5 V，没有电流），推挽高的电压（只有 3.3 V）。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**上拉电阻怎么选**：",
-    "- 越小，上升沿越快（上升时间 ≈ 2.2 × R × C，100 pF 的线 + 输入电容时 4.7 kΩ ≈ 1 µs），但输出低时灌电流越大（5 V / R）。",
-    "- 越大，越省电，但越慢、越容易受干扰。1 kΩ–10 kΩ 是常用范围。",
-    "",
-    "**实际项目经验**：",
-    "- **I²C 就是开漏总线**：SDA、SCL 都是开漏 + 上拉，所以不同芯片可以“线与”而不会打架。STM32 的 I²C 引脚 PB6–PB9、PB10/PB11 都是 FT，可以上拉到 5 V 直接和 5 V 器件通信（器件的 VIH 要满足）。",
-    "- **ESP32 不行**：它没有耐 5 V 的引脚，开漏上拉到 5 V 同样会通过保护二极管倒灌。要用 BSS138 MOSFET 双向电平转换模块（两侧各一个上拉：3.3 V 侧和 5 V 侧），或者把上拉接到 3.3 V，并确认 5 V 器件认 3.3 V 为高电平。",
-    "- 开漏也用来“线与”多个中断输出、驱动比 VDD 高电压的 LED（FT 引脚、5 V 侧）。",
-    "- 即使是 FT 引脚，开漏上拉到 5 V 时也**不要**同时打开内部上拉 / 下拉。",
-    "",
-    "**模型说明**：输出级是 40 Ω 接 GND（开漏低）或高阻（开漏高）；保护二极管只接在非 FT 引脚上。仿真没有“5 V 逻辑输入”元件，用引脚电压对比 VIH 来判断。"
+  "description": "R1（4.7 kΩ）从开发板 5V 脚接到信号结点 OUT5，OUT5 接一个设成开漏输出的引脚。开漏输出只能把线拉到 GND，“高”的时候松手，由上拉电阻把线拉到 5 V——所以这个引脚必须耐 5 V。起始电路里 OUT5 接在 PA0（不耐 5 V）上。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "PA0 想送出 5 V",
+      "text": [
+        "起始电路：**`4.7 kΩ`** 的电阻 R1 从开发板 **5V** 脚接到信号线 OUT5，OUT5 接在 **PA0** 上。",
+        "单击开发板，看引脚表：PA0 设成了**「输出 高」**，并勾选了**「开漏」**。",
+        "看右边的**「诊断」**：OUT5 到了 5 V 吗？想一想上一个实验里，藏在普通引脚里的那只二极管。"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "开漏：只会拉低，不会推高",
+      "text": [
+        "- 普通的**推挽**输出里有两个开关：上面一个接 3.3 V，下面一个接 GND。**开漏**输出拆掉了上面那个，只剩一个通往 GND 的开关。",
+        "![](fig:od)",
+        "- **输出低**：开关合上，OUT5 接地，电流从上拉电阻灌进引脚。**输出高**：开关断开，引脚“松手”，上拉电阻把线拉到它接的电压——这里是 5 V。",
+        "- 输出低时灌进引脚的电流，就是上拉电阻上的电流：",
+        "$$I = \\frac{V_{5V}}{R_1}$$",
+        "- 代入整 5 V：$I = \\frac{5}{4700} ≈ 0.0011$ A，引脚轻松吃得下。",
+        "- 松手时引脚上真的是 5 V，所以它必须**耐 5 V**。PA0 不行：它的保护二极管把线钳在 3V3 上面一点点。要用 FT 引脚。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "换到 FT 引脚",
+      "text": [
+        "- 把 OUT5 的信号线从 PA0 挪到一个 **FT 引脚**（下排，例如 **PB12**）。",
+        "- 在引脚表里把它设成**「输出 高」**，勾选**「开漏」**。",
+        "- 点**「检查我的电路」**。通过后，按测量题依次换成开漏低、开漏高、推挽高，量 OUT5 的电压和 R1 的电流。",
+        "- 先预测：推挽输出高时，上拉电阻里的电流往哪边流？"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **开漏输出只会拉低**；“高”由上拉电阻决定，上拉到几伏就是几伏。所以它能做电平转换，前提是引脚耐得住那个电压。",
+        "- 上拉电阻常用 **1–10 kΩ**：越小边沿越快，但输出低时灌电流越大。",
+        "- **I²C 就是开漏总线**：几个芯片可以共用一根线而不打架。Blue Pill 的 I²C 引脚是 FT，可以上拉到 5 V。",
+        "- 真实电路里的坑：ESP32 没有耐 5 V 的引脚，开漏上拉到 5 V 同样会倒灌。要用 BSS138 一类的电平转换模块。FT 引脚接 5 V 上拉时，也**不要**再打开内部上拉。"
+      ],
+      "practice": ["nonlinear"]
+    }
   ],
+  "figures": {
+    "od": {
+      "kind": "schematic",
+      "caption": {
+        "text": "开漏引脚 = 一个通往 GND 的开关 S。合上：OUT5 被拉低，电流 I 从上拉 R1 灌进引脚。断开：R1 把 OUT5 拉到 5V。",
+        "i18n": {
+          "en": "An open-drain pin = a switch S to GND. Closed: OUT5 is pulled low and the current I flows from the pull-up R1 into the pin. Open: R1 pulls OUT5 up to 5V."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {
+            "ref": "V_5V",
+            "type": "BAT",
+            "from": [0, 0],
+            "to": [0, 4],
+            "value": 5
+          },
+          {
+            "ref": "R1",
+            "type": "R",
+            "from": [0, 0],
+            "to": [4, 0],
+            "value": "4.7k"
+          },
+          {
+            "ref": "S",
+            "type": "S",
+            "from": [4, 0],
+            "to": [4, 4],
+            "value": "closed"
+          }
+        ],
+        "wires": [
+          [
+            [4, 4],
+            [0, 4]
+          ]
+        ],
+        "notes": [
+          {
+            "at": [5, 0],
+            "text": "OUT5"
+          }
+        ],
+        "marks": [
+          {
+            "kind": "i",
+            "el": "R1",
+            "name": "I"
+          }
+        ]
+      },
+      "highlight": ["S"]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-11 · Open-drain + 5 V pull-up: a 3.3 V MCU outputs a 5 V logic level",
-      "summary": "A 5 V-tolerant FT pin as an open-drain output with a 4.7 kΩ pull-up to 5V: measure output LOW, output \"HIGH\" (pin released) and push-pull HIGH. The starting board uses PA0, which is not 5 V tolerant.",
+      "title": "Open drain: a 3.3 V chip sending a 5 V HIGH",
+      "summary": "A 5 V-tolerant FT pin set to open-drain output, with an external 4.7 kΩ pull-up to 5V. The starting circuit uses PA0, which is not 5 V-tolerant. Measure open-drain LOW, open-drain HIGH and push-pull HIGH.",
       "concepts": ["open-drain output", "pull-up resistor", "push-pull output", "5 V-tolerant FT pin", "level shifting", "I2C bus"],
-      "description": [
-        "**Goal**: use a 3.3 V microcontroller's **open-drain output** plus one pull-up resistor to give a 5 V logic chip a real 5 V HIGH, and see why the pin must be 5 V tolerant.",
-        "",
-        "**Circuit** (Blue Pill on USB):",
-        "- R1 (4.7 kΩ): one end to the board's **5V** pin, the other to node OUT5.",
-        "- OUT5 to an **FT (5 V-tolerant) pin** (the reference uses PB12). OUT5 is the signal for a 5 V logic chip (e.g. a 5 V 74HC chip or an Arduino Uno input).",
-        "- **Starting board**: the pull-up is in place but the signal goes to **PA0**, set to open-drain \"high\". The diagnostics say \"U1 PA0 voltage is too high: 3.9 V\" with the clamp diode pushing 0.2 mA into 3V3; the checker also says \"PA0 can't be used as GPIO_FT1\". Move the wire to an FT pin.",
-        "",
-        "**Pin table settings**: the reference sets output HIGH + open-drain; the tests use open-drain LOW, open-drain HIGH and push-pull HIGH in turn.",
-        "",
-        "**What open-drain means**: a normal (push-pull) output has two switches, one to 3.3 V and one to GND. An open-drain output drops the one to 3.3 V:",
-        "- **Output LOW**: the lower switch closes, the pin is grounded and sinks current from the pull-up.",
-        "- **Output HIGH**: the switch opens and the pin \"lets go\"; the pull-up decides the voltage — whatever it is tied to.",
-        "- **Push-pull HIGH**: the pin drives 3.3 V itself.",
-        "",
-        "**Predict first**: the 5V pin is about 4.69 V and the pin's switch is about 40 Ω when on. What is OUT5 in each of the three settings? How much current does the pin sink at open-drain LOW? At push-pull HIGH, where does the current from 5 V through the pull-up go? A 5 V CMOS input has VIH ≈ 0.7 × 5 V: which setting does it accept as HIGH?",
-        "",
-        "**Measure**: the open-drain LOW voltage and sink current, the open-drain HIGH voltage (≈ 5 V, no current) and the push-pull HIGH voltage (only 3.3 V). Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Choosing the pull-up**:",
-        "- Smaller is faster (rise time ≈ 2.2 × R × C; with 100 pF of wiring and input capacitance 4.7 kΩ gives ≈ 1 µs) but sinks more current at LOW (5 V / R).",
-        "- Larger saves power but is slower and picks up more noise. 1 kΩ–10 kΩ is the usual range.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- **I²C is an open-drain bus**: SDA and SCL are open-drain + pull-up, so several chips can share a line (\"wired-AND\") without fighting. The STM32's I²C pins PB6–PB9 and PB10/PB11 are FT, so the bus can be pulled up to 5 V to talk to 5 V parts directly (as long as their VIH is met).",
-        "- **The ESP32 can't do this**: it has no 5 V-tolerant pins, so an open-drain pin pulled up to 5 V back-feeds through its clamp diode too. Use a BSS138 MOSFET bidirectional level-shifter module (one pull-up on each side, 3.3 V and 5 V), or pull up to 3.3 V and check the 5 V part accepts 3.3 V as HIGH.",
-        "- Open-drain is also used to wire-AND several interrupt outputs and to sink LEDs from a supply above VDD (FT pin, 5 V side).",
-        "- Even on an FT pin, do **not** enable the internal pull-up / pull-down when it is pulled up to 5 V.",
-        "",
-        "**Model note**: the output stage is 40 Ω to GND (open-drain LOW) or high impedance (open-drain HIGH); clamp diodes exist only on non-FT pins. There is no \"5 V logic input\" part, so the pin voltage is compared with VIH by hand."
+      "description": "R1 (4.7 kΩ) runs from the board's 5V pin to the signal node OUT5, and OUT5 goes to a pin set to open-drain output. An open-drain output can only pull the line to GND; for \"HIGH\" it lets go and the pull-up takes the line to 5 V — so the pin must be 5 V-tolerant. In the starting circuit OUT5 is on PA0 (not 5 V-tolerant).",
+      "cards": [
+        {
+          "title": "PA0 tries to send 5 V",
+          "text": [
+            "Starting circuit: a **`4.7 kΩ`** resistor R1 from the board's **5V** pin to the signal line OUT5, and OUT5 on **PA0**.",
+            "Click the board and look at the pin table: PA0 is set to **output HIGH** with **open drain** ticked.",
+            "Look at the **diagnostics** on the right: does OUT5 reach 5 V? Think of the diode hidden inside an ordinary pin in the previous experiment."
+          ]
+        },
+        {
+          "title": "Open drain: it pulls down, it never pushes up",
+          "text": [
+            "- An ordinary **push-pull** output has two switches: the upper one to 3.3 V, the lower one to GND. An **open-drain** output removes the upper one, leaving only a switch to GND.",
+            "![](fig:od)",
+            "- **Output LOW**: the switch closes, OUT5 goes to ground, and current flows from the pull-up into the pin. **Output HIGH**: the switch opens, the pin \"lets go\", and the pull-up takes the line to whatever it is tied to — 5 V here.",
+            "- The current the pin sinks when LOW is the current in the pull-up:",
+            "$$I = \\frac{V_{5V}}{R_1}$$",
+            "- With a round 5 V: $I = \\frac{5}{4700} ≈ 0.0011$ A — easy for a pin.",
+            "- When it lets go there really are 5 V on the pin, so the pin must be **5 V-tolerant**. PA0 is not: its protection diode clamps the line a little above 3V3. Use an FT pin."
+          ]
+        },
+        {
+          "title": "Move to an FT pin",
+          "text": [
+            "- Move OUT5's signal wire from PA0 to an **FT pin** (bottom row, for example **PB12**).",
+            "- In the pin table set it to **output HIGH** and tick **open drain**.",
+            "- Press **Check my circuit**. Once it passes, switch to open-drain LOW, open-drain HIGH and push-pull HIGH as the questions say, and measure OUT5's voltage and R1's current.",
+            "- Predict first: with a push-pull HIGH, which way does the current in the pull-up flow?"
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **An open-drain output only pulls down**; HIGH is whatever the pull-up is tied to. That makes it a level shifter — as long as the pin can stand that voltage.",
+            "- Pull-ups are usually **1–10 kΩ**: smaller gives faster edges but more sink current when LOW.",
+            "- **I²C is an open-drain bus**: several chips share one line without fighting. The Blue Pill's I²C pins are FT and may be pulled up to 5 V.",
+            "- A real-world catch: the ESP32 has no 5 V-tolerant pins, so an open-drain pull-up to 5 V leaks back into it too; use a level-shifter module such as a BSS138 board. On an FT pin with a 5 V pull-up, **don't** also turn on the internal pull-up."
+          ]
+        }
       ],
       "compare": [
         "**Compare** (simulated):",
@@ -85,16 +166,31 @@
         "**Why it must be an FT pin**: at open-drain \"high\" the pin sees 5 V. A normal pin has a clamp diode to 3V3 that holds OUT5 at about 3.9 V (3.3 V + one diode drop), with current flowing from 5 V through the pull-up and the diode into 3V3 — it can't output 5 V and it back-feeds the supply. An FT pin has no such diode and withstands 5 V."
       ],
       "measurements": [
-        {"ask": "Open-drain LOW: OUT5 to GND", "explain": "The N-channel switch is about 40 Ω: 40 Ω × 0.99 mA ≈ 40 mV."},
-        {"ask": "Open-drain LOW: the current in the pull-up R1 (the current the pin sinks)", "explain": "4.69 V / 4.7 kΩ ≈ 0.99 mA. A smaller pull-up gives faster edges but more sink current in LOW."},
-        {"ask": "Open-drain HIGH (pin released): OUT5 to GND", "explain": "The pin lets go, R1 carries no current, and OUT5 equals the 5V pin's 4.69 V — an FT pin has no clamp diode to 3V3, so nothing holds it down."},
-        {"ask": "Push-pull HIGH instead: OUT5 to GND", "explain": "The high-side switch holds OUT5 at about 3.3 V, below a 5 V CMOS input's VIH ≈ 3.5 V: it may not count as HIGH."},
-        {"ask": "Same state: the current in R1 (from the 5V pin toward the pin)", "explain": "(4.69 − 3.31) / 4.7 kΩ ≈ 0.29 mA flows back from 5 V into the pin and on into 3V3: push-pull is fighting the 5 V pull-up."}
+        {
+          "ask": "Open-drain LOW: OUT5 to GND",
+          "explain": "The N-channel switch is about 40 Ω: 40 Ω × 0.99 mA ≈ 40 mV."
+        },
+        {
+          "ask": "Open-drain LOW: the current in the pull-up R1 (the current the pin sinks)",
+          "explain": "4.69 V / 4.7 kΩ ≈ 0.99 mA. A smaller pull-up gives faster edges but more sink current in LOW."
+        },
+        {
+          "ask": "Open-drain HIGH (pin released): OUT5 to GND",
+          "explain": "The pin lets go, R1 carries no current, and OUT5 equals the 5V pin's 4.69 V — an FT pin has no clamp diode to 3V3, so nothing holds it down."
+        },
+        {
+          "ask": "Push-pull HIGH instead: OUT5 to GND",
+          "explain": "The high-side switch holds OUT5 at about 3.3 V, below a 5 V CMOS input's VIH ≈ 3.5 V: it may not count as HIGH."
+        },
+        {
+          "ask": "Same state: the current in R1 (from the 5V pin toward the pin)",
+          "explain": "(4.69 − 3.31) / 4.7 kΩ ≈ 0.29 mA flows back from 5 V into the pin and on into 3V3: push-pull is fighting the 5 V pull-up."
+        }
       ],
       "hints": [
-        "Start: PA0 is not 5 V tolerant. Move the signal wire to a lower-row FT pin such as PB12.",
+        "Starting circuit: PA0 is not 5 V-tolerant. Move the signal wire to an FT pin on the bottom row, for example PB12.",
         "Only one resistor: 4.7 kΩ from the 5V pin to the signal node.",
-        "In the pin table choose output HIGH and tick \"open-drain\"."
+        "In the pin table choose output HIGH and tick open drain."
       ],
       "tests": [
         "Open-drain LOW: close to 0 V, sinking the pull-up current",
@@ -104,37 +200,107 @@
     }
   },
   "components": [
-    { "ref": "U1", "type": "stm32_bluepill" },
-    { "ref": "R1", "type": "resistor", "resistance": "4.7k" }
+    {
+      "ref": "U1",
+      "type": "stm32_bluepill"
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "4.7k"
+    }
   ],
   "nets": [
-    { "name": "5V", "pins": ["U1.5V", "R1.1"] },
-    { "name": "OUT5", "pins": ["R1.2", "U1.GPIO_FT1"] }
+    {
+      "name": "5V",
+      "pins": ["U1.5V", "R1.1"]
+    },
+    {
+      "name": "OUT5",
+      "pins": ["R1.2", "U1.GPIO_FT1"]
+    }
   ],
   "tests": [
     {
       "name": "开漏输出低：接近 0 V，从上拉灌入电流",
-      "set": { "U1": { "modes": { "GPIO_FT1": { "mode": "out_low", "openDrain": true } } } },
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_FT1": {
+              "mode": "out_low",
+              "openDrain": true
+            }
+          }
+        }
+      },
       "gpio": [
-        { "pin": "U1.GPIO_FT1", "read": "low" },
-        { "pin": "U1.GPIO_FT1", "measure": "voltage", "min": 0.02, "max": 0.06 },
-        { "pin": "U1.GPIO_FT1", "measure": "current", "min": -0.00104, "max": -0.00094 }
+        {
+          "pin": "U1.GPIO_FT1",
+          "read": "low"
+        },
+        {
+          "pin": "U1.GPIO_FT1",
+          "measure": "voltage",
+          "min": 0.02,
+          "max": 0.06
+        },
+        {
+          "pin": "U1.GPIO_FT1",
+          "measure": "current",
+          "min": -0.00104,
+          "max": -0.00094
+        }
       ]
     },
     {
       "name": "开漏输出高：引脚松开，上拉拉到 5V 脚的电压，没有电流（FT 引脚，没有保护二极管）",
-      "set": { "U1": { "modes": { "GPIO_FT1": { "mode": "out_high", "openDrain": true } } } },
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_FT1": {
+              "mode": "out_high",
+              "openDrain": true
+            }
+          }
+        }
+      },
       "gpio": [
-        { "pin": "U1.GPIO_FT1", "measure": "voltage", "min": 4.5, "max": 4.9 },
-        { "pin": "U1.GPIO_FT1", "measure": "current", "min": -0.000002, "max": 0.000002 }
+        {
+          "pin": "U1.GPIO_FT1",
+          "measure": "voltage",
+          "min": 4.5,
+          "max": 4.9
+        },
+        {
+          "pin": "U1.GPIO_FT1",
+          "measure": "current",
+          "min": -2e-06,
+          "max": 2e-06
+        }
       ]
     },
     {
       "name": "换成推挽输出高：只有 3.3 V，电流倒流进引脚",
-      "set": { "U1": { "modes": { "GPIO_FT1": "out_high" } } },
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_FT1": "out_high"
+          }
+        }
+      },
       "gpio": [
-        { "pin": "U1.GPIO_FT1", "measure": "voltage", "min": 3.25, "max": 3.4 },
-        { "pin": "U1.GPIO_FT1", "measure": "current", "min": -0.00031, "max": -0.00027 }
+        {
+          "pin": "U1.GPIO_FT1",
+          "measure": "voltage",
+          "min": 3.25,
+          "max": 3.4
+        },
+        {
+          "pin": "U1.GPIO_FT1",
+          "measure": "current",
+          "min": -0.00031,
+          "max": -0.00027
+        }
       ]
     }
   ],
@@ -147,31 +313,186 @@
     "**为什么必须是 FT 引脚**：开漏“高”时引脚上是 5 V。普通引脚内部有接 3V3 的保护二极管，会把 OUT5 钳在约 3.9 V（3.3 V + 二极管压降），电流从 5 V 经上拉、二极管灌进 3V3——既输出不了 5 V，又在倒灌电源。FT 引脚没有这个二极管，可以承受 5 V。"
   ],
   "measurements": [
-    {"id": "vl", "tolAbs": 0.002, "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_low", "openDrain": true}}}}, "unit": "mV", "predict": true, "range": [0.0376, 0.0416], "ask": "开漏输出低：OUT5 对 GND 的电压", "explain": "N 管约 40 Ω：40 Ω × 0.99 mA ≈ 40 mV。"},
-    {"id": "il", "current": "R1", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_low", "openDrain": true}}}}, "unit": "mA", "predict": true, "range": [0.00094, 0.00104], "ask": "开漏输出低：上拉 R1 的电流（也就是引脚灌进的电流）", "explain": "4.69 V / 4.7 kΩ ≈ 0.99 mA。上拉越小上升沿越快，但输出低时灌电流越大。"},
-    {"id": "vh", "stated": true, "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": {"mode": "out_high", "openDrain": true}}}}, "unit": "V", "predict": true, "range": [4.46, 4.92], "ask": "开漏输出高（引脚松开）：OUT5 对 GND", "explain": "引脚不再拉，R1 里没有电流，OUT5 等于 5V 脚的 4.69 V——FT 引脚没有接 3V3 的保护二极管，所以不会被钳住。"},
-    {"id": "vpp", "voltage": "U1.GPIO_FT1", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_FT1": "out_high"}}}, "unit": "V", "predict": true, "range": [3.15, 3.48], "ask": "改成推挽输出高：OUT5 对 GND", "explain": "上管把 OUT5 拉在约 3.3 V，低于 5 V CMOS 的 VIH ≈ 3.5 V：不一定能被认作高电平。"},
-    {"id": "ipp", "current": "R1", "set": {"U1": {"modes": {"GPIO_FT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.000279, 0.000308], "ask": "同一状态：R1 的电流（从 5V 脚流向引脚）", "explain": "(4.69 − 3.31) / 4.7 kΩ ≈ 0.29 mA 从 5 V 倒流进引脚、再灌进 3V3：推挽和 5 V 上拉在打架。"}
+    {
+      "id": "vl",
+      "tolAbs": 0.002,
+      "voltage": "U1.GPIO_FT1",
+      "ref": "U1.GND",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_FT1": {
+              "mode": "out_low",
+              "openDrain": true
+            }
+          }
+        }
+      },
+      "unit": "mV",
+      "predict": true,
+      "range": [0.0376, 0.0416],
+      "ask": "开漏输出低：OUT5 对 GND 的电压",
+      "explain": "N 管约 40 Ω：40 Ω × 0.99 mA ≈ 40 mV。"
+    },
+    {
+      "id": "il",
+      "current": "R1",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_FT1": {
+              "mode": "out_low",
+              "openDrain": true
+            }
+          }
+        }
+      },
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00094, 0.00104],
+      "ask": "开漏输出低：上拉 R1 的电流（也就是引脚灌进的电流）",
+      "explain": "4.69 V / 4.7 kΩ ≈ 0.99 mA。上拉越小上升沿越快，但输出低时灌电流越大。"
+    },
+    {
+      "id": "vh",
+      "stated": true,
+      "voltage": "U1.GPIO_FT1",
+      "ref": "U1.GND",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_FT1": {
+              "mode": "out_high",
+              "openDrain": true
+            }
+          }
+        }
+      },
+      "unit": "V",
+      "predict": true,
+      "range": [4.46, 4.92],
+      "ask": "开漏输出高（引脚松开）：OUT5 对 GND",
+      "explain": "引脚不再拉，R1 里没有电流，OUT5 等于 5V 脚的 4.69 V——FT 引脚没有接 3V3 的保护二极管，所以不会被钳住。"
+    },
+    {
+      "id": "vpp",
+      "voltage": "U1.GPIO_FT1",
+      "ref": "U1.GND",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_FT1": "out_high"
+          }
+        }
+      },
+      "unit": "V",
+      "predict": true,
+      "range": [3.15, 3.48],
+      "ask": "改成推挽输出高：OUT5 对 GND",
+      "explain": "上管把 OUT5 拉在约 3.3 V，低于 5 V CMOS 的 VIH ≈ 3.5 V：不一定能被认作高电平。"
+    },
+    {
+      "id": "ipp",
+      "current": "R1",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_FT1": "out_high"
+          }
+        }
+      },
+      "unit": "mA",
+      "predict": true,
+      "range": [0.000279, 0.000308],
+      "ask": "同一状态：R1 的电流（从 5V 脚流向引脚）",
+      "explain": "(4.69 − 3.31) / 4.7 kΩ ≈ 0.29 mA 从 5 V 倒流进引脚、再灌进 3V3：推挽和 5 V 上拉在打架。"
+    }
   ],
-  "hints": [
-    "起始电路：PA0 不耐 5 V。把信号线换到下排的 FT 引脚，例如 PB12。",
-    "只要一个电阻：4.7 kΩ 从 5V 脚接到信号结点。",
-    "在引脚表里选“输出高电平”，并勾选“开漏”。"
-  ],
+  "hints": ["起始电路：PA0 不耐 5 V。把信号线换到下排的 FT 引脚，例如 PB12。", "只要一个电阻：4.7 kΩ 从 5V 脚接到信号结点。", "在引脚表里选「输出 高」，并勾选「开漏」。"],
   "solution": {
     "parts": [
-      { "type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": { "usb": true, "modes": { "PB12": { "mode": "out_high", "openDrain": true } } } },
-      { "type": "wire", "color": "red", "pins": { "a": "h18", "b": "bp18" } },
-      { "type": "resistor", "ref": "R1", "resistance": "4.7k", "pins": { "1": "bp24", "2": "j24" } },
-      { "type": "wire", "color": "green", "pins": { "a": "h1", "b": "h24" } }
+      {
+        "type": "stm32_bluepill",
+        "ref": "U1",
+        "at": "c1",
+        "props": {
+          "usb": true,
+          "modes": {
+            "PB12": {
+              "mode": "out_high",
+              "openDrain": true
+            }
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "color": "red",
+        "pins": {
+          "a": "h18",
+          "b": "bp18"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "4.7k",
+        "pins": {
+          "1": "bp24",
+          "2": "j24"
+        }
+      },
+      {
+        "type": "wire",
+        "color": "green",
+        "pins": {
+          "a": "h1",
+          "b": "h24"
+        }
+      }
     ]
   },
   "start": {
     "parts": [
-      { "type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": { "usb": true, "modes": { "PA0": { "mode": "out_high", "openDrain": true } } } },
-      { "type": "wire", "color": "red", "pins": { "a": "h18", "b": "bp18" } },
-      { "type": "resistor", "ref": "R1", "resistance": "4.7k", "pins": { "1": "bp24", "2": "j24" } },
-      { "type": "wire", "color": "green", "pins": { "a": "a16", "b": "h24" } }
+      {
+        "type": "stm32_bluepill",
+        "ref": "U1",
+        "at": "c1",
+        "props": {
+          "usb": true,
+          "modes": {
+            "PA0": {
+              "mode": "out_high",
+              "openDrain": true
+            }
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "color": "red",
+        "pins": {
+          "a": "h18",
+          "b": "bp18"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "4.7k",
+        "pins": {
+          "1": "bp24",
+          "2": "j24"
+        }
+      },
+      {
+        "type": "wire",
+        "color": "green",
+        "pins": {
+          "a": "a16",
+          "b": "h24"
+        }
+      }
     ]
   }
 }
