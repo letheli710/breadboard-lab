@@ -37,8 +37,24 @@ npm run dev
 元件：跳线、电阻（色环）、LED（5 色）、二极管、电容、电感、四脚按键、拨动开关、电位器、LM358 运放。
 仪器：电流表（串联测电流）、信号发生器（正弦/方波/三角波）、双通道示波器（自动 V/div、time/div，Vpp/频率/相位读数）。有信号发生器时，面包板电路按时域仿真。
 单片机（第 5 期，只教电路、不跑程序）：ESP32-DevKitC 和 STM32 Blue Pill 开发板——每个 GPIO 在属性里设模式（输出高/低、输入、内部上拉/下拉、PWM、ADC、开漏），实时显示引脚电压、电流、读到的电平和 ADC 值；真实的输出电阻、引脚电流上限（超限“烧坏”）、3.3 V 不耐 5 V（STM32 的 FT 引脚除外）、板载稳压器和 USB 供电。器件：NPN 三极管、N-MOSFET（逻辑电平 / 标准电平）、5 V 继电器、直流电机、有源蜂鸣器、LDO 稳压器、光敏电阻、NTC 热敏电阻。PWM 按时域仿真（可接 RC 滤波、调速，看继电器/电机线圈断电时的感应电压尖峰）。详见 `docs/ROADMAP.md` 的 Phase 5 contract 和规范第 14 节。
-元件箱：左栏只放“选择 / 万用表”和**本课用到的元件**（沙盒里是基础元件），底下的「全部元件」打开完整面板，按课程进度分成三组——基础（World 1）、信号与运放（World 2–4）、单片机与器件（World 5）；屏幕够大时三组全部展开，否则只展开当前这一组，其余折叠。
+元件箱：左栏只放“选择 / 万用表”和**本课用到的元件**（沙盒里是基础元件），最下面是橡皮擦；「全部元件」打开完整面板，按课程进度分成三组——基础（World 1）、信号与运放（World 2–4）、单片机与器件（World 5）；屏幕够大时三组全部展开，否则只展开当前这一组，其余折叠。
 工具：万用表（点孔读电压）、结点着色、悬停孔位显示内部相通的孔。实时诊断：短路、LED 烧毁/接反、元件被同一列短路、引脚悬空、多电源未共地。
+
+## 工作台操作 Bench controls
+
+| 操作 | 作用 |
+|---|---|
+| 左键单击元件 | 在它旁边打开详情：改参数（阻值、颜色、电池型号……）、看实时读数、对调两脚 / 转向、删除。课程做到哪一步都能直接改，不用退回去 |
+| 左键拖元件 | 挪位置，松手贴合到最近的孔；拖导线或电池线头只挪那一端 |
+| 拖电池、稳压电源、信号发生器、电流表的机身 | 在桌面上随意摆放，导线跟着走；选中后按 **T**（或点 ↻ 转 90°）转向 |
+| 右键单击 | 元件上：修改 / 对调 / 转向 / 删除菜单；空白处：回到默认视角、撤销。放置中：取消 |
+| 拖空白处 / 右键拖动 | 平移；滚轮缩放；中键拖动（或 Shift + 左键拖动）旋转视角 |
+| 橡皮擦（元件箱最下方，**E**） | 点元件擦掉，按住拖过去连续擦；Ctrl+Z 一次撤回整笔 |
+| 放好一个元件 | 自动回到「选择」；下方工具条的「常用」五格放最近用过的元件 |
+| Logo 旁「课程地图」· 工作台左上「元件」 | 打开课程 / 挑战列表；显示或隐藏元件箱 |
+| 工作台与右侧面板之间的分隔条 | 拖动调宽度，双击复原，拖到最右（或点面板右上 ›）收起 |
+
+Click a part for its details beside it (edit at any step); drag parts to move them; drag off-board equipment anywhere on the bench and press **T** to turn it; right-click for a part menu; drag empty space or right-drag to pan, scroll to zoom, middle-drag (or Shift + drag) to rotate; the eraser (**E**) removes parts by click or stroke; every placement returns to Select, and the bottom toolbar keeps the five recent parts; the lesson list opens from the course map button next to the logo, the Parts switch at the stage's top-left hides the toolbox; the divider before the side panel resizes or hides it.
 
 ## 链接与浏览器历史 Links
 

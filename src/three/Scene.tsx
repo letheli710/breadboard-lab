@@ -7,15 +7,16 @@ import { BOARD, HOLE_MAP } from '../core/breadboard';
 import { PARTS } from '../core/parts';
 import type { PlacedPart } from '../core/types';
 import { ammeterReading, ledOf, useDerived } from '../state/derived';
-import { scopeChannelFor, useStore } from '../state/store';
+import { isPartTool, scopeChannelFor, useStore } from '../state/store';
+import { OPERATED, useBenchUi } from '../state/benchUi';
 import { E2E } from '../e2e/flag';
 import { E2EProbe } from '../e2e/Probe';
 import { Board } from './Board';
 import type { PartCtxValue } from './common';
-import { DragLayer, grabPart } from './Drag';
+import { DragLayer, grabPart, hoverPart } from './Drag';
 import { PartView } from './Parts';
 import { qualityParams, useLowQuality, useQuality } from './quality';
-import { bumpView, setHoleProjector } from './view';
+import { bumpView, setHoleProjector, setPointProjector } from './view';
 import { assignSlots, nextSlot } from './slots';
 import { prefersReducedMotion } from '../ui/reveal';
 
@@ -147,7 +148,17 @@ function HoleView() {
       const r = gl.domElement.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     });
-    return () => setHoleProjector(null);
+    const w = new THREE.Vector3();
+    setPointProjector((x, y, z) => {
+      w.set(x, y, z).project(camera);
+      if (w.z > 1) return null;
+      const r = gl.domElement.getBoundingClientRect();
+      return { x: r.left + ((w.x + 1) / 2) * r.width, y: r.top + ((1 - w.y) / 2) * r.height };
+    });
+    return () => {
+      setHoleProjector(null);
+      setPointProjector(null);
+    };
   }, [camera, gl]);
   useEffect(() => bumpView(), [size]);
   useEffect(() => {
@@ -166,13 +177,16 @@ const CTX: Record<PartCtxValue['tint'], PartCtxValue> = {
 };
 const GHOST_CTX: PartCtxValue = { ghost: true, tint: 'none' };
 
-/** Click on a placed part in select mode (stable: reads the store at click time). */
+/** Click on a placed part in select mode (stable: reads the store at click time): select it and
+ *  open its details beside it. A button or switch is operated instead (its details are in the
+ *  right-click menu). */
 function pickPart(p: PlacedPart, e: ThreeEvent<MouseEvent>) {
   const st = useStore.getState();
   if (st.tool !== 'select' || e.delta > 5) return;
   e.stopPropagation();
-  if (p.type === 'pushbutton' || p.type === 'switch') st.togglePart(p.id);
+  if (OPERATED.has(p.type)) st.togglePart(p.id);
   st.select(p.id);
+  useBenchUi.getState().openPopover(OPERATED.has(p.type) ? null : p.id);
 }
 
 /** Placed parts. Does not subscribe to the hovered hole (see PlacementGhost), and passes
@@ -182,6 +196,7 @@ function Parts() {
   const selectedId = useStore((s) => s.selectedId);
   const highlight = useStore((s) => s.highlight);
   const showLabels = useStore((s) => s.showLabels);
+  const eraseHover = useBenchUi((s) => s.eraseHover);
   const derived = useDerived();
   const { sim, issues } = derived;
 
@@ -201,11 +216,12 @@ function Parts() {
           source={sim.sources.get(p.ref)}
           reading={p.type === 'ammeter' ? ammeterReading(derived, p.ref) : undefined}
           sim={sim}
-          ctx={CTX[p.id === selectedId ? 'select' : hlRefs.has(p.ref) ? (highlight?.tone === 'error' ? 'error' : 'hover') : 'none']}
+          ctx={CTX[p.id === eraseHover ? 'error' : p.id === selectedId ? 'select' : hlRefs.has(p.ref) ? (highlight?.tone === 'error' ? 'error' : 'hover') : 'none']}
           label={showLabels}
           labelTone={errorRefs.has(p.ref) ? 'error' : 'normal'}
           onPick={pickPart}
           onGrab={grabPart}
+          onHover={hoverPart}
         />
       ))}
       <PlacementGhost />
@@ -218,12 +234,12 @@ function Parts() {
 function PlacementGhost() {
   const tool = useStore((s) => s.tool);
   const firstHole = useStore((s) => s.firstHole);
-  const hoverHole = useStore((s) => (s.tool === 'select' || s.tool === 'probe' ? null : s.hoverHole));
+  const hoverHole = useStore((s) => (isPartTool(s.tool) ? s.hoverHole : null));
   const placingProps = useStore((s) => s.placingProps);
   const layout = useStore((s) => s.layout);
 
   const ghost = useMemo((): PlacedPart | null => {
-    if (tool === 'select' || tool === 'probe' || !hoverHole) return null;
+    if (!isPartTool(tool) || !hoverHole) return null;
     const def = PARTS[tool];
     const props = { ...def.defaults, ...placingProps[tool], ...(tool === 'scope_probe' ? { channel: scopeChannelFor(layout) } : {}) };
     if (def.placement.kind === 'footprint') {
@@ -285,6 +301,18 @@ function KeyLight({ size }: { size: number }) {
   );
 }
 
+/** Eraser cursor (hotspot at the eraser's tip). */
+const ERASER_CURSOR =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cg transform='rotate(-35 13 13)'%3E%3Crect x='5' y='8' width='17' height='10' rx='2' fill='%23f3a6a6' stroke='%231f2a44' stroke-width='1.6'/%3E%3Crect x='5' y='8' width='6' height='10' rx='2' fill='%231f2a44'/%3E%3C/g%3E%3C/svg%3E\") 4 20, cell";
+
+// Mouse: left-drag on empty space and right-drag pan (along the table), the wheel zooms, the
+// middle button — or Shift + left-drag, for trackpads — orbits. Left on a part selects / moves it.
+// The eraser keeps the left button for erasing strokes.
+const PAN = THREE.MOUSE.PAN;
+const ROTATE = THREE.MOUSE.ROTATE;
+const MOUSE_SELECT = { LEFT: PAN, MIDDLE: ROTATE, RIGHT: PAN };
+const MOUSE_ERASE = { LEFT: -1 as unknown as THREE.MOUSE, MIDDLE: ROTATE, RIGHT: PAN };
+
 export function Scene() {
   const tool = useStore((s) => s.tool);
   const low = useLowQuality();
@@ -297,8 +325,8 @@ export function Scene() {
       frameloop="demand"
       dpr={q.dpr}
       camera={{ position: HOME.toArray(), fov: 40, near: 0.5, far: 400 }}
-      style={{ cursor: tool === 'select' ? 'default' : 'crosshair' }}
-      onPointerMissed={() => useStore.getState().tool === 'select' && useStore.getState().select(null)}
+      style={{ cursor: tool === 'select' ? 'default' : tool === 'eraser' ? ERASER_CURSOR : 'crosshair' }}
+      onPointerMissed={(e) => e.button === 0 && useStore.getState().tool === 'select' && useStore.getState().select(null)}
     >
       <hemisphereLight args={['#fffaf0', '#d8cbb3', 0.9]} />
       <KeyLight size={q.shadowMapSize} />
@@ -311,7 +339,17 @@ export function Scene() {
         <planeGeometry args={[400, 400]} />
         <shadowMaterial opacity={0.12} />
       </mesh>
-      <OrbitControls makeDefault target={TARGET_ARR} enableDamping dampingFactor={0.12} maxPolarAngle={Math.PI / 2.15} minDistance={10} maxDistance={90} />
+      <OrbitControls
+        makeDefault
+        target={TARGET_ARR}
+        enableDamping
+        dampingFactor={0.12}
+        maxPolarAngle={Math.PI / 2.15}
+        minDistance={10}
+        maxDistance={90}
+        screenSpacePanning={false}
+        mouseButtons={tool === 'eraser' ? MOUSE_ERASE : MOUSE_SELECT}
+      />
       <CameraRig />
       <HoleView />
       <FrameProbe />

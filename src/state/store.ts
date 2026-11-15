@@ -7,7 +7,7 @@ import { ensureChallenge, isPending } from './challenges';
 import type { CheckResult } from '../core/check';
 import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS, nextScopeChannel } from '../core/parts';
-import type { Layout, PartProps, PartType, PlacedPart } from '../core/types';
+import type { BenchPose, Layout, PartProps, PartType, PlacedPart } from '../core/types';
 import { modeOf, startRoute } from './router';
 import { inCourseOrder, placeOf } from '../core/course';
 import { boolRecord, readStored, sanitizeLayout, sanitizeReadings, sanitizeScope, writeStored, writeStoredLater } from './persist';
@@ -30,7 +30,9 @@ export interface SummaryTarget {
 
 import { applyEvent, countsAsDone, mergeAnswers, migrateAnswers, problemStatus, type PracticeEvent, type PracticeRecord } from './practice';
 export type { PracticeRecord } from './practice';
-export type Tool = PartType | 'select' | 'probe';
+export type Tool = PartType | 'select' | 'probe' | 'eraser';
+/** tools that put a part on the board (not select / multimeter / eraser) */
+export const isPartTool = (t: Tool): t is PartType => t !== 'select' && t !== 'probe' && t !== 'eraser';
 export type PanelTab = 'task' | 'schematic' | 'issues' | 'inspect';
 
 export interface InvalidFile {
@@ -118,6 +120,8 @@ interface State {
   firstHole: string | null;
   placingProps: Partial<Record<PartType, PartProps>>;
   selectedId: string | null;
+  /** the part just put on the board (its details open beside it); null once acknowledged */
+  placedId: string | null;
   /** dev board: the pin picked in the 3D view / pin table (physical pin name), shown in the inspector */
   selectedPin: string | null;
   hoverHole: string | null;
@@ -183,6 +187,11 @@ interface State {
   /** press / release a pushbutton, flip a switch (not an undo step) */
   togglePart(id: string): void;
   removePart(id: string): void;
+  /** Eraser: remove a part. Every part erased in one stroke (until the pointer is released) is a
+   *  single undo step. */
+  erasePart(id: string): void;
+  /** Where an off-board instrument's body stands and which way it faces; one undo step. */
+  setPose(id: string, pose: BenchPose): void;
   /** Move a placed part to new holes (physical pin → hole id). Validated like placement
    *  (holes exist, not used by another part, footprint shape kept); one undo step.
    *  Returns false — with a toast — when the move is not allowed. */
@@ -334,6 +343,7 @@ export const useStore = create<State>((set, get) => {
     firstHole: null,
     placingProps: {},
     selectedId: null,
+    placedId: null,
     selectedPin: null,
     hoverHole: null,
     hoverNet: null,
@@ -403,7 +413,7 @@ export const useStore = create<State>((set, get) => {
       // a lesson (or a challenge with steps) keeps its step in view while parts are placed: only a
       // deliberate pick of a part opens Properties there; elsewhere a part tool shows its settings
       const guided = s.panel === 'task' && (s.mode === 'learn' || !!s.challenges.find((c) => c.id === s.activeId)?.steps.length);
-      set({ tool, firstHole: null, selectedId: tool === 'select' ? s.selectedId : null, panel: tool !== 'select' && tool !== 'probe' && !guided ? 'inspect' : s.panel });
+      set({ tool, firstHole: null, placedId: null, selectedId: tool === 'select' ? s.selectedId : null, panel: isPartTool(tool) && !guided ? 'inspect' : s.panel });
     },
     setPlacingProps(t, p) {
       set({ placingProps: { ...get().placingProps, [t]: { ...get().placingProps[t], ...p } } });
@@ -418,7 +428,13 @@ export const useStore = create<State>((set, get) => {
       if (s.tool === 'select') {
         const ref = occ.get(h);
         const p = ref ? s.layout.parts.find((x) => x.ref === ref) : null;
-        set({ selectedId: p ? p.id : null, panel: p ? 'inspect' : s.panel });
+        set({ selectedId: p ? p.id : null });
+        return;
+      }
+      if (s.tool === 'eraser') {
+        const ref = occ.get(h);
+        const p = ref ? s.layout.parts.find((x) => x.ref === ref) : null;
+        if (p) get().erasePart(p.id);
         return;
       }
       const def = PARTS[s.tool];
@@ -431,7 +447,8 @@ export const useStore = create<State>((set, get) => {
         const clash = Object.values(fp).find((x) => occ.has(x));
         if (clash) return get().notify(busy(clash, occ.get(clash)!));
         const part: PlacedPart = { id: newId(), ref: nextRef(s.layout, s.tool), type: s.tool, props, pins: fp };
-        commit({ ...s.layout, parts: [...s.layout.parts, part] }, { selectedId: part.id });
+        // every placement ends the tool: the next part is picked again on purpose
+        commit({ ...s.layout, parts: [...s.layout.parts, part] }, { selectedId: part.id, placedId: part.id, tool: 'select' });
         return;
       }
       if (occ.has(h)) return get().notify(busy(h, occ.get(h)!));
@@ -456,7 +473,7 @@ export const useStore = create<State>((set, get) => {
               : props,
         pins: { [p1]: s.firstHole, [p2]: h },
       };
-      commit({ ...s.layout, parts: [...s.layout.parts, part] }, { firstHole: null, selectedId: part.id });
+      commit({ ...s.layout, parts: [...s.layout.parts, part] }, { firstHole: null, selectedId: part.id, placedId: part.id, tool: 'select' });
     },
     setHoverHole(hoverHole) {
       if (get().hoverHole !== hoverHole) set({ hoverHole });
@@ -465,7 +482,9 @@ export const useStore = create<State>((set, get) => {
       if (get().hoverNet !== hoverNet) set({ hoverNet });
     },
     select(selectedId) {
-      set({ selectedId, selectedPin: selectedId === get().selectedId ? get().selectedPin : null, panel: selectedId ? 'inspect' : get().panel });
+      // the part's details open beside it on the board (ui/PartPopover); the side panel stays on
+      // whatever the student was reading (the lesson step, the schematic)
+      set({ selectedId, placedId: null, selectedPin: selectedId === get().selectedId ? get().selectedPin : null });
     },
     selectPin(partId, pin) {
       set({ selectedId: partId, selectedPin: pin, panel: 'inspect' });
@@ -496,6 +515,26 @@ export const useStore = create<State>((set, get) => {
       if (!part) return;
       commit({ ...s.layout, parts: s.layout.parts.filter((x) => x.id !== id) }, { selectedId: null });
       get().notify(tr(`已删除 ${part.ref}`, `Deleted ${part.ref}`), { undo: true });
+    },
+    erasePart(id) {
+      const s = get();
+      const part = s.layout.parts.find((x) => x.id === id);
+      if (!part) return;
+      // the stroke's first erase opens an edit (like a slider drag); the pointer release closes it
+      if (!s.editBase) {
+        finishEdit();
+        set({ editBase: s.layout });
+      }
+      transient({ ...s.layout, parts: s.layout.parts.filter((x) => x.id !== id) });
+      if (s.selectedId === id) set({ selectedId: null, placedId: null });
+      get().notify(tr(`已擦除 ${part.ref}`, `Erased ${part.ref}`), { undo: true });
+    },
+    setPose(id, pose) {
+      const s = get();
+      const cur = s.layout.parts.find((p) => p.id === id);
+      if (!cur) return;
+      if (cur.pose && cur.pose.x === pose.x && cur.pose.z === pose.z && cur.pose.rot === pose.rot) return;
+      commit({ ...s.layout, parts: s.layout.parts.map((p) => (p.id === id ? { ...p, pose: { ...pose } } : p)) });
     },
     movePart(id, pins) {
       const s = get();

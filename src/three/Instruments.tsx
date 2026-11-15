@@ -9,7 +9,7 @@ import { tr } from '../core/i18n';
 import type { PlacedPart, Waveform } from '../core/types';
 import { CH_COLORS, CanvasPlane, Leg, Mat, Seg, TextPlane, Tube, holeVec } from './common';
 import { Leads, useSpan, type PartViewProps } from './Parts';
-import { slotPosition } from './slots';
+import { benchPose, onBench } from './slots';
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 
@@ -150,15 +150,19 @@ function drawMeterLcd(g: CanvasRenderingContext2D, w: number, h: number, text: s
 }
 
 export function Ammeter({ part, slot, reading, onClick }: PartViewProps) {
-  const base = slotPosition(slot, 'bench').add(V(0, 0, -1.6));
+  // the meter is modelled in its own frame (body centre at the origin), which stands at the pose
+  const { pos, rot } = benchPose(part, slot);
+  const base = V(0, 0, -1.6);
   // pivot at the near bottom edge; the stand lifts the far (display) end
   const toWorld = useMemo(() => {
     const m = new THREE.Matrix4()
-      .makeTranslation(base.x, 0, base.z + METER_LEN / 2)
+      .makeTranslation(pos.x, 0, pos.z)
+      .multiply(new THREE.Matrix4().makeRotationY(rot))
+      .multiply(new THREE.Matrix4().makeTranslation(0, 0, -1.6 + METER_LEN / 2))
       .multiply(new THREE.Matrix4().makeRotationX(METER_TILT))
       .multiply(new THREE.Matrix4().makeTranslation(0, 0, -METER_LEN / 2));
     return (x: number, y: number, z: number) => V(x, y, z).applyMatrix4(m);
-  }, [base.x, base.z]);
+  }, [pos.x, pos.z, rot]);
   const I = reading ?? 0;
   const lcd = Math.abs(I) < 5e-7 ? '0.000 A' : amps(Math.abs(I));
   const jackZ = 2.55;
@@ -170,108 +174,120 @@ export function Ammeter({ part, slot, reading, onClick }: PartViewProps) {
       const to = holeVec(hole);
       const p0 = toWorld(jx, 1.75, jackZ);
       const p1 = toWorld(jx, 2.0, jackZ + 0.8);
-      const p2 = V(p0.x + (to.x - p0.x) * 0.12, 0.6, p0.z + 2.2);
+      // out towards the meter's front, wherever it faces
+      const front = onBench(V(0, 0, 0), rot, V(0, 0, 2.2));
+      const p2 = V(p0.x + front.x + (to.x - p0.x) * 0.12, 0.6, p0.z + front.z + (to.z - p0.z) * 0.12);
       const mid = p2.clone().lerp(to, 0.5).setY(2.0);
       return [p0, p1, p2, mid, to.clone().setY(1.0), to.clone().setY(0.2)];
     };
     return { red: route(jacks.A, part.pins['+']), black: route(jacks.COM, part.pins['-']) };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toWorld, part.pins['+'], part.pins['-']]);
-  const standA = toWorld(0, 0, -METER_LEN + 0.6);
+  }, [toWorld, rot, part.pins['+'], part.pins['-']]);
+  // height of the stand under the display end, in the meter's frame
+  const standY = V(0, 0, -METER_LEN + 0.6)
+    .applyMatrix4(
+      new THREE.Matrix4()
+        .makeTranslation(0, 0, METER_LEN / 2)
+        .multiply(new THREE.Matrix4().makeRotationX(METER_TILT))
+        .multiply(new THREE.Matrix4().makeTranslation(0, 0, -METER_LEN / 2)),
+    )
+    .add(V(0, 0, base.z));
   return (
     <group onClick={onClick}>
-      <group position={[base.x, 0, base.z + METER_LEN / 2]} rotation={[METER_TILT, 0, 0]}>
-        <group position={[0, 0, -METER_LEN / 2]}>
-          {/* yellow rubber holster + dark face */}
-          <RoundedBox args={[4.4, 1.0, METER_LEN]} radius={0.35} smoothness={3} position={[0, 0.5, 0]} castShadow>
-            <Mat color="#f2c14e" roughness={0.7} />
-          </RoundedBox>
-          <RoundedBox args={[3.7, 0.2, METER_LEN - 0.7]} radius={0.08} smoothness={2} position={[0, 0.95, 0]}>
-            <Mat color="#2b2f38" roughness={0.6} />
-          </RoundedBox>
-          <CanvasPlane
-            width={3.2}
-            height={1.55}
-            draw={(g, w, h) => drawMeterLcd(g, w, h, lcd, I < -5e-7)}
-            deps={[lcd, I < -5e-7]}
-            position={[0, 1.06, -2.15]}
-            rotation={[-Math.PI / 2, 0, 0]}
-          />
-          {/* rotary selector with the pointer on A */}
-          <CanvasPlane
-            width={2.7}
-            height={2.7}
-            draw={(g, w, h) => {
-              g.translate(w / 2, h / 2);
-              g.fillStyle = '#e9ecef';
-              g.font = `700 ${h * 0.1}px "Barlow Condensed", sans-serif`;
-              g.textAlign = 'center';
-              g.textBaseline = 'middle';
-              const labels = ['OFF', 'V⎓', 'V~', 'Ω', 'mA', 'A'];
-              labels.forEach((l, i) => {
-                const a = -Math.PI * 0.85 + (i / (labels.length - 1)) * Math.PI * 0.9 + Math.PI * 0.35;
-                g.fillStyle = l === 'A' ? '#f2c14e' : '#e9ecef';
-                g.fillText(l, Math.cos(a - Math.PI / 2) * w * 0.4, Math.sin(a - Math.PI / 2) * h * 0.4);
-              });
-            }}
-            deps={[]}
-            position={[0, 1.061, 0.55]}
-            rotation={[-Math.PI / 2, 0, 0]}
-          />
-          <mesh position={[0, 1.16, 0.55]} castShadow>
-            <cylinderGeometry args={[0.78, 0.82, 0.22, 28]} />
-            <Mat color="#1e2128" roughness={0.5} />
-          </mesh>
-          <mesh position={[0, 1.29, 0.55]} rotation={[0, -0.62, 0]}>
-            <boxGeometry args={[0.2, 0.08, 1.45]} />
-            <Mat color="#d9dce2" roughness={0.4} />
-          </mesh>
-          {/* input jacks */}
-          {(Object.entries(jacks) as [keyof typeof jacks, number][]).map(([k, x]) => (
-            <group key={k} position={[x, 1.06, jackZ]}>
-              <mesh>
-                <cylinderGeometry args={[0.28, 0.28, 0.06, 18]} />
-                <Mat color={k === 'COM' ? '#1b1b1b' : '#d62828'} />
-              </mesh>
-              <mesh position={[0, 0.01, 0]}>
-                <cylinderGeometry args={[0.12, 0.12, 0.06, 12]} />
-                <Mat color="#0b0b0b" />
-              </mesh>
-            </group>
-          ))}
-          {/* one label above each jack (the test leads run out below them), so they line up whatever the font metrics */}
-          {(Object.entries(jacks) as [keyof typeof jacks, number][]).map(([k, x]) => (
-            <TextPlane
-              key={k}
-              text={k === 'V' ? 'VΩ' : k}
-              width={0.9}
-              height={0.32}
-              color={k === 'COM' ? '#e9ecef' : '#ff8a8a'}
-              font='700 36px "Barlow Condensed", sans-serif'
-              position={[x, 1.065, jackZ - 0.62]}
+      <group position={pos} rotation={[0, rot, 0]}>
+        <group position={[base.x, 0, base.z + METER_LEN / 2]} rotation={[METER_TILT, 0, 0]}>
+          <group position={[0, 0, -METER_LEN / 2]}>
+            {/* yellow rubber holster + dark face */}
+            <RoundedBox args={[4.4, 1.0, METER_LEN]} radius={0.35} smoothness={3} position={[0, 0.5, 0]} castShadow>
+              <Mat color="#f2c14e" roughness={0.7} />
+            </RoundedBox>
+            <RoundedBox args={[3.7, 0.2, METER_LEN - 0.7]} radius={0.08} smoothness={2} position={[0, 0.95, 0]}>
+              <Mat color="#2b2f38" roughness={0.6} />
+            </RoundedBox>
+            <CanvasPlane
+              width={3.2}
+              height={1.55}
+              draw={(g, w, h) => drawMeterLcd(g, w, h, lcd, I < -5e-7)}
+              deps={[lcd, I < -5e-7]}
+              position={[0, 1.06, -2.15]}
               rotation={[-Math.PI / 2, 0, 0]}
             />
-          ))}
-          {/* plugs in the A and COM jacks */}
-          {part.pins['+'] && (
-            <mesh position={[jacks.A, 1.4, jackZ]} castShadow>
-              <cylinderGeometry args={[0.2, 0.24, 0.7, 14]} />
-              <Mat color="#d62828" />
+            {/* rotary selector with the pointer on A */}
+            <CanvasPlane
+              width={2.7}
+              height={2.7}
+              draw={(g, w, h) => {
+                g.translate(w / 2, h / 2);
+                g.fillStyle = '#e9ecef';
+                g.font = `700 ${h * 0.1}px "Barlow Condensed", sans-serif`;
+                g.textAlign = 'center';
+                g.textBaseline = 'middle';
+                const labels = ['OFF', 'V⎓', 'V~', 'Ω', 'mA', 'A'];
+                labels.forEach((l, i) => {
+                  const a = -Math.PI * 0.85 + (i / (labels.length - 1)) * Math.PI * 0.9 + Math.PI * 0.35;
+                  g.fillStyle = l === 'A' ? '#f2c14e' : '#e9ecef';
+                  g.fillText(l, Math.cos(a - Math.PI / 2) * w * 0.4, Math.sin(a - Math.PI / 2) * h * 0.4);
+                });
+              }}
+              deps={[]}
+              position={[0, 1.061, 0.55]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            />
+            <mesh position={[0, 1.16, 0.55]} castShadow>
+              <cylinderGeometry args={[0.78, 0.82, 0.22, 28]} />
+              <Mat color="#1e2128" roughness={0.5} />
             </mesh>
-          )}
-          {part.pins['-'] && (
-            <mesh position={[jacks.COM, 1.4, jackZ]} castShadow>
-              <cylinderGeometry args={[0.2, 0.24, 0.7, 14]} />
-              <Mat color="#1b1b1b" />
+            <mesh position={[0, 1.29, 0.55]} rotation={[0, -0.62, 0]}>
+              <boxGeometry args={[0.2, 0.08, 1.45]} />
+              <Mat color="#d9dce2" roughness={0.4} />
             </mesh>
-          )}
+            {/* input jacks */}
+            {(Object.entries(jacks) as [keyof typeof jacks, number][]).map(([k, x]) => (
+              <group key={k} position={[x, 1.06, jackZ]}>
+                <mesh>
+                  <cylinderGeometry args={[0.28, 0.28, 0.06, 18]} />
+                  <Mat color={k === 'COM' ? '#1b1b1b' : '#d62828'} />
+                </mesh>
+                <mesh position={[0, 0.01, 0]}>
+                  <cylinderGeometry args={[0.12, 0.12, 0.06, 12]} />
+                  <Mat color="#0b0b0b" />
+                </mesh>
+              </group>
+            ))}
+            {/* one label above each jack (the test leads run out below them), so they line up whatever the font metrics */}
+            {(Object.entries(jacks) as [keyof typeof jacks, number][]).map(([k, x]) => (
+              <TextPlane
+                key={k}
+                text={k === 'V' ? 'VΩ' : k}
+                width={0.9}
+                height={0.32}
+                color={k === 'COM' ? '#e9ecef' : '#ff8a8a'}
+                font='700 36px "Barlow Condensed", sans-serif'
+                position={[x, 1.065, jackZ - 0.62]}
+                rotation={[-Math.PI / 2, 0, 0]}
+              />
+            ))}
+            {/* plugs in the A and COM jacks */}
+            {part.pins['+'] && (
+              <mesh position={[jacks.A, 1.4, jackZ]} castShadow>
+                <cylinderGeometry args={[0.2, 0.24, 0.7, 14]} />
+                <Mat color="#d62828" />
+              </mesh>
+            )}
+            {part.pins['-'] && (
+              <mesh position={[jacks.COM, 1.4, jackZ]} castShadow>
+                <cylinderGeometry args={[0.2, 0.24, 0.7, 14]} />
+                <Mat color="#1b1b1b" />
+              </mesh>
+            )}
+          </group>
         </group>
+        {/* tilt stand */}
+        <mesh position={[base.x, standY.y / 2, standY.z + 0.25]} castShadow>
+          <boxGeometry args={[3.0, standY.y, 0.35]} />
+          <Mat color="#2b2f38" roughness={0.7} />
+        </mesh>
       </group>
-      {/* tilt stand */}
-      <mesh position={[base.x, standA.y / 2, standA.z + 0.25]} castShadow>
-        <boxGeometry args={[3.0, standA.y, 0.35]} />
-        <Mat color="#2b2f38" roughness={0.7} />
-      </mesh>
       {leads.red && <Tube pts={leads.red} color="#d62828" r={0.11} />}
       {leads.black && <Tube pts={leads.black} color="#1b1b1b" r={0.11} />}
       {part.pins['+'] && <Seg a={holeVec(part.pins['+']).setY(-0.3)} b={holeVec(part.pins['+']).setY(0.3)} r={0.07} />}
@@ -333,7 +349,7 @@ function drawGenLcd(g: CanvasRenderingContext2D, w: number, h: number, wf: Wavef
 }
 
 export function FunctionGen({ part, slot, onClick }: PartViewProps) {
-  const base = slotPosition(slot, 'bench');
+  const { pos: base, rot } = benchPose(part, slot);
   const wf = part.props.waveform ?? 'sine';
   const f = part.props.frequency ?? 1000;
   const a = part.props.amplitude ?? 1;
@@ -341,7 +357,7 @@ export function FunctionGen({ part, slot, onClick }: PartViewProps) {
   const W = 8.0;
   return (
     <group onClick={onClick}>
-      <group position={base}>
+      <group position={base} rotation={[0, rot, 0]}>
         <mesh position={[0, 1.8, 0]} castShadow>
           <boxGeometry args={[W, 3.6, 4.6]} />
           <Mat color="#3a4a5c" roughness={0.55} />
@@ -418,7 +434,7 @@ export function FunctionGen({ part, slot, onClick }: PartViewProps) {
           <Mat color="#1b1b1b" roughness={0.5} />
         </mesh>
       </group>
-      <Leads base={base} part={part} plusAt={V(2.88, 0.75, 3.0)} minusAt={V(3.12, 0.75, 3.0)} />
+      <Leads base={base} rot={rot} part={part} plusAt={V(2.88, 0.75, 3.0)} minusAt={V(3.12, 0.75, 3.0)} />
     </group>
   );
 }
@@ -492,8 +508,11 @@ export function ScopeProbe({ part }: PartViewProps) {
 /* ------------------------------------------------------------------ labels */
 
 export function instrumentAnchor(part: PlacedPart, slot: number): THREE.Vector3 | null {
-  if (part.type === 'ammeter') return slotPosition(slot, 'bench').add(V(0, 4.6, -4.2));
-  if (part.type === 'function_gen') return slotPosition(slot, 'bench').add(V(0, 4.4, 0));
+  if (part.type === 'ammeter') {
+    const { pos, rot } = benchPose(part, slot);
+    return onBench(pos, rot, V(0, 4.6, -4.2));
+  }
+  if (part.type === 'function_gen') return benchPose(part, slot).pos.add(V(0, 4.4, 0));
   if (part.type === 'scope_probe') return holeVec(part.pins.tip ?? '').setY(4.4);
   return null;
 }

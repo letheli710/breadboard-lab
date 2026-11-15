@@ -3,8 +3,17 @@
 // version when the camera or the canvas size changes; overlays subscribe.
 
 export type HoleProjector = (hole: string) => { x: number; y: number } | null;
+/** client coordinates of a point in the scene */
+export type PointProjector = (x: number, y: number, z: number) => { x: number; y: number } | null;
 
 let projector: HoleProjector | null = null;
+let pointProjector: PointProjector | null = null;
+
+export function setPointProjector(p: PointProjector | null) {
+  pointProjector = p;
+  bumpView();
+}
+export const projectPoint: PointProjector = (x, y, z) => pointProjector?.(x, y, z) ?? null;
 let version = 0;
 let queued = false;
 const subs = new Set<() => void>();

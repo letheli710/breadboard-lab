@@ -11,6 +11,8 @@ interface BBTest {
   store: typeof useStore;
   /** client coordinates of a hole (null: unknown id) */
   hole(id: string): { x: number; y: number } | null;
+  /** client coordinates of the point `y` units above a hole (where a raised wire arc is drawn) */
+  above(id: string, y: number): { x: number; y: number } | null;
   world(x: number, y: number, z: number): { x: number; y: number };
   /** number of visible lesson-step pulse rings */
   pulses(): number;
@@ -59,6 +61,10 @@ export function E2EProbe() {
       hole(id) {
         const h = HOLE_MAP.get(id);
         return h ? world(h.x, 0.02, h.z) : null;
+      },
+      above(id, y) {
+        const h = HOLE_MAP.get(id);
+        return h ? world(h.x, y, h.z) : null;
       },
       pulses() {
         let n = 0;

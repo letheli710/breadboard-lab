@@ -8,7 +8,7 @@ import type { BatteryVariant, LedColor, PartProps, PartType, PlacedPart, Wavefor
 import { vavg, vmax, vmin, vrms } from '../core/transient';
 import { ammeterAc, ammeterReading, ledOf, useDerived } from '../state/derived';
 import { CH_COLORS } from './scopeColors';
-import { WIRE_COLORS, useStore } from '../state/store';
+import { WIRE_COLORS, isPartTool, useStore } from '../state/store';
 import { PartIcon } from './Icons';
 import { DeviceEditor, DeviceReadout, McuInspector, OWN_READOUT } from './McuInspector';
 import { HiddenReadingsNote } from './HiddenReadings';
@@ -18,7 +18,7 @@ import { Mixed } from './Mixed';
 
 const R_VALUES = [10, 47, 100, 150, 220, 330, 470, 680, 1000, 2200, 4700, 10000, 22000, 47000, 100000, 1000000];
 
-function PropEditor({ type, props, onChange }: { type: PartType; props: PartProps; onChange: (p: PartProps) => void }) {
+export function PropEditor({ type, props, onChange }: { type: PartType; props: PartProps; onChange: (p: PartProps) => void }) {
   const [custom, setCustom] = useState('');
   switch (type) {
     case 'resistor': {
@@ -430,7 +430,7 @@ let autoId = 0;
 /** The editors write "<label>text</label>" followed by the control it names (a slider, field, select or
  *  a row of chips): connect them for assistive technology (aria-labelledby; a chip row becomes a
  *  labelled group whose chips report their pressed state). Runs after every render of the inspector. */
-function useEditorLabels(root: RefObject<HTMLDivElement | null>) {
+export function useEditorLabels(root: RefObject<HTMLDivElement | null>) {
   useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
@@ -467,7 +467,7 @@ export function Inspector() {
   const part = layout.parts.find((p) => p.id === selectedId);
 
   if (!part) {
-    if (tool !== 'select' && tool !== 'probe') {
+    if (isPartTool(tool)) {
       const def = PARTS[tool];
       return (
         <div className="inspector" ref={root}>
@@ -515,8 +515,8 @@ export function Inspector() {
           </li>
           <li>
             {tr(
-              '拖动旋转视角，滚轮缩放，右键拖动平移；右上角“视角”按钮一键切换预设视角',
-              'Drag to rotate, scroll to zoom, right-drag to pan; the "View" button (top right) cycles preset views',
+              '左键点元件看详情、拖元件挪位置；右键单击元件弹出菜单；拖空白处或右键拖动平移，滚轮缩放，中键（或 Shift + 左键）拖动旋转；右上角“视角”按钮切换预设视角',
+              'Click a part for its details, drag it to move it; right-click a part for its menu; drag empty space or right-drag to pan, scroll to zoom, middle-drag (or Shift + drag) to rotate; the "View" button (top right) cycles preset views',
             )}
           </li>
         </ul>

@@ -14,7 +14,7 @@ import { Leg, Mat, PartCtx, type PartCtxValue, Seg, TextPlane, Tube, holeVec } f
 import { Buzzer, Ldo, Ldr, Motor, Nmos, Npn, Ntc, Relay, deviceAnchor, deviceLabel } from './Devices';
 import { Ammeter, FunctionGen, Inductor, OpAmp, ScopeProbe, instrumentAnchor, instrumentLabel } from './Instruments';
 import { McuBoard, mcuAnchor, mcuLabel } from './Mcu';
-import { slotPosition } from './slots';
+import { benchPose, onBench } from './slots';
 import { useReadingsHidden } from '../state/readingsHidden';
 
 const LABEL_KEEPS = new Set<PlacedPart['type']>(['ammeter', 'function_gen', 'battery', 'power_module', 'bench_supply']);
@@ -41,6 +41,8 @@ export type PartViewOuterProps = Omit<PartViewProps, 'onClick'> & {
   onPick?: (part: PlacedPart, e: ThreeEvent<MouseEvent>) => void;
   /** pointer pressed on the part (select-mode drag to move) */
   onGrab?: (part: PlacedPart, e: ThreeEvent<PointerEvent>) => void;
+  /** pointer entering (true) / leaving (false) the part (eraser) */
+  onHover?: (part: PlacedPart, on: boolean, e: ThreeEvent<PointerEvent>) => void;
 };
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
@@ -307,9 +309,11 @@ export function leadPoints(from: THREE.Vector3, hole: string | undefined, sag = 
   ];
 }
 
-export function Leads({ base, part, plusAt, minusAt }: { base: THREE.Vector3; part: PlacedPart; plusAt: THREE.Vector3; minusAt: THREE.Vector3 }) {
-  const lp = leadPoints(base.clone().add(plusAt), part.pins['+']);
-  const ln = leadPoints(base.clone().add(minusAt), part.pins['-']);
+/** The red and black leads from an off-board body (`plusAt` / `minusAt` in the body's frame, which
+ *  stands at `base` turned by `rot`) to the holes of the + and − pins. */
+export function Leads({ base, rot, part, plusAt, minusAt }: { base: THREE.Vector3; rot: number; part: PlacedPart; plusAt: THREE.Vector3; minusAt: THREE.Vector3 }) {
+  const lp = leadPoints(onBench(base, rot, plusAt), part.pins['+']);
+  const ln = leadPoints(onBench(base, rot, minusAt), part.pins['-']);
   return (
     <>
       {lp && <Tube pts={lp} color="#d62828" r={0.12} />}
@@ -321,13 +325,13 @@ export function Leads({ base, part, plusAt, minusAt }: { base: THREE.Vector3; pa
 }
 
 function Battery({ part, slot, onClick }: PartViewProps) {
-  const base = slotPosition(slot);
+  const { pos: base, rot } = benchPose(part, slot);
   const variant = part.props.variant ?? '9V';
   const info = BATTERIES[variant];
   if (variant === '9V') {
     return (
       <group onClick={onClick}>
-        <group position={base} rotation={[0, Math.PI, 0]}>
+        <group position={base} rotation={[0, rot + Math.PI, 0]}>
           <mesh position={[0, 0.9, 0]} castShadow>
             <boxGeometry args={[2.6, 1.8, 4.6]} />
             <Mat color="#26303f" roughness={0.5} />
@@ -346,14 +350,14 @@ function Battery({ part, slot, onClick }: PartViewProps) {
             <Mat color="#c9ccd1" metalness={0.7} />
           </mesh>
         </group>
-        <Leads base={base} part={part} plusAt={V(-0.55, 2.05, 1.9)} minusAt={V(0.55, 2.05, 1.9)} />
+        <Leads base={base} rot={rot} part={part} plusAt={V(-0.55, 2.05, 1.9)} minusAt={V(0.55, 2.05, 1.9)} />
       </group>
     );
   }
   if (variant === 'CR2032') {
     return (
       <group onClick={onClick}>
-        <group position={base} rotation={[0, Math.PI, 0]}>
+        <group position={base} rotation={[0, rot + Math.PI, 0]}>
           <mesh position={[0, 0.3, 0]} castShadow>
             <boxGeometry args={[3, 0.6, 3]} />
             <Mat color="#2b2d33" />
@@ -364,7 +368,7 @@ function Battery({ part, slot, onClick }: PartViewProps) {
           </mesh>
           <TextPlane text="CR2032" width={2} height={0.6} position={[0, 0.92, 0]} rotation={[-Math.PI / 2, 0, 0]} />
         </group>
-        <Leads base={base} part={part} plusAt={V(-0.9, 0.6, 1.2)} minusAt={V(0.9, 0.6, 1.2)} />
+        <Leads base={base} rot={rot} part={part} plusAt={V(-0.9, 0.6, 1.2)} minusAt={V(0.9, 0.6, 1.2)} />
       </group>
     );
   }
@@ -372,7 +376,7 @@ function Battery({ part, slot, onClick }: PartViewProps) {
   const w = n * 1.25 + 0.4;
   return (
     <group onClick={onClick}>
-      <group position={base} rotation={[0, Math.PI, 0]}>
+      <group position={base} rotation={[0, rot + Math.PI, 0]}>
         <mesh position={[0, 0.45, 0]} castShadow>
           <boxGeometry args={[w, 0.9, 5.8]} />
           <Mat color="#2b2d33" roughness={0.7} />
@@ -391,19 +395,19 @@ function Battery({ part, slot, onClick }: PartViewProps) {
         ))}
         <TextPlane text={info.name} width={w + 0.6} height={0.7} position={[0, 0.02, 3.4]} rotation={[-Math.PI / 2, 0, 0]} />
       </group>
-      <Leads base={base} part={part} plusAt={V(-(w / 2 - 0.3), 0.6, 2.9)} minusAt={V(w / 2 - 0.3, 0.6, 2.9)} />
+      <Leads base={base} rot={rot} part={part} plusAt={V(-(w / 2 - 0.3), 0.6, 2.9)} minusAt={V(w / 2 - 0.3, 0.6, 2.9)} />
     </group>
   );
 }
 
 function BenchSupply({ part, slot, source, onClick }: PartViewProps) {
-  const base = slotPosition(slot);
+  const { pos: base, rot } = benchPose(part, slot);
   const v = source?.terminalVoltage ?? 0;
   const i = source?.current ?? 0;
   const cc = source?.ccMode ?? false;
   return (
     <group onClick={onClick}>
-      <group position={base}>
+      <group position={base} rotation={[0, rot, 0]}>
         <mesh position={[0, 1.8, 0]} castShadow>
           <boxGeometry args={[7.2, 3.6, 4.6]} />
           <Mat color="#e9e4d8" roughness={0.6} />
@@ -445,7 +449,7 @@ function BenchSupply({ part, slot, source, onClick }: PartViewProps) {
           <Mat color="#1b1b1b" />
         </mesh>
       </group>
-      <Leads base={base} part={part} plusAt={V(1.6, 1.0, 2.65)} minusAt={V(2.6, 1.0, 2.65)} />
+      <Leads base={base} rot={rot} part={part} plusAt={V(1.6, 1.0, 2.65)} minusAt={V(2.6, 1.0, 2.65)} />
     </group>
   );
 }
@@ -483,30 +487,41 @@ function PowerModule({ part, onClick }: PartViewProps) {
   );
 }
 
-export const PartView = memo(function PartView({ onPick, onGrab, ...rest }: PartViewOuterProps) {
+export const PartView = memo(function PartView({ onPick, onGrab, onHover, ...rest }: PartViewOuterProps) {
   const { part } = rest;
   const onClick = useCallback((e: ThreeEvent<MouseEvent>) => onPick?.(part, e), [onPick, part]);
   const onDown = useCallback((e: ThreeEvent<PointerEvent>) => onGrab?.(part, e), [onGrab, part]);
+  const onOver = useCallback((e: ThreeEvent<PointerEvent>) => onHover?.(part, true, e), [onHover, part]);
+  const onOut = useCallback((e: ThreeEvent<PointerEvent>) => onHover?.(part, false, e), [onHover, part]);
   const body = <PartBody {...rest} onClick={onPick ? onClick : undefined} />;
-  return onGrab ? <group onPointerDown={onDown}>{body}</group> : body;
+  return onGrab ? (
+    <group onPointerDown={onDown} onPointerOver={onHover ? onOver : undefined} onPointerOut={onHover ? onOut : undefined}>
+      {body}
+    </group>
+  ) : (
+    body
+  );
 });
+
+/** Where a part's label floats (and its details popover points): above its body. */
+export function partAnchor(part: PlacedPart, slot: number): THREE.Vector3 {
+  const holes = Object.values(part.pins).map((h) => holeVec(h));
+  if (part.type === 'battery' || part.type === 'bench_supply') return benchPose(part, slot).pos.add(V(0, part.type === 'bench_supply' ? 4.4 : 2.6, 0));
+  const inst = instrumentAnchor(part, slot);
+  if (inst) return inst;
+  if (isMcuBoard(part.type)) return mcuAnchor(part);
+  const dev = deviceAnchor(part);
+  if (dev) return dev;
+  if (holes.length === 0) return V(0, 0, 0);
+  const c = holes.reduce((s, p) => s.add(p), V(0, 0, 0)).multiplyScalar(1 / holes.length);
+  c.y = part.type === 'wire' ? 1.4 : 2.4;
+  if (part.type === 'power_module') c.set(colX(1), 2.8, 0).setX(holes[0].x - 0.6);
+  return c;
+}
 
 function PartBody(props: PartViewProps) {
   const { part, ctx, label, labelTone, led, source } = props;
-  const anchor = useMemo(() => {
-    const holes = Object.values(part.pins).map((h) => holeVec(h));
-    if (part.type === 'battery' || part.type === 'bench_supply') return slotPosition(props.slot).add(V(0, part.type === 'bench_supply' ? 4.4 : 2.6, 0));
-    const inst = instrumentAnchor(part, props.slot);
-    if (inst) return inst;
-    if (isMcuBoard(part.type)) return mcuAnchor(part);
-    const dev = deviceAnchor(part);
-    if (dev) return dev;
-    if (holes.length === 0) return V(0, 0, 0);
-    const c = holes.reduce((s, p) => s.add(p), V(0, 0, 0)).multiplyScalar(1 / holes.length);
-    c.y = part.type === 'wire' ? 1.4 : 2.4;
-    if (part.type === 'power_module') c.set(colX(1), 2.8, 0).setX(holes[0].x - 0.6);
-    return c;
-  }, [part, props.slot]);
+  const anchor = useMemo(() => partAnchor(part, props.slot), [part, props.slot]);
 
   let body: JSX.Element | null = null;
   switch (part.type) {

@@ -154,7 +154,7 @@ async function setup(p, kind) {
       s.clickHole('c24');
       s.setTool('select');
     });
-    await p.waitForSelector('.placed-chip', { timeout: 5000 });
+    await p.waitForSelector('.part-pop', { timeout: 5000 });
   }
   if (kind === 'reviewmenu') await p.locator('.pr-phone-review').click();
   if (kind === 'viewer') {

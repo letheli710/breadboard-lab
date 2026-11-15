@@ -27,6 +27,7 @@ import { Prereqs, useStepChecks } from './StepCheck';
 import { CardDeck, measureCardOf, StepNav } from './Cards';
 import { inCourseOrder, itemLabel, placeOf } from '../core/course';
 import { unitTitle } from '../core/courseText';
+import { useBenchUi } from '../state/benchUi';
 import { tabListKeys } from './a11y';
 import { Mixed } from './Mixed';
 
@@ -528,21 +529,31 @@ export function SidePanel() {
   const cur = panel === 'task' && !ch ? 'schematic' : panel;
   return (
     <aside className="side card" aria-label={tr('任务与电路', 'Task and circuit')}>
-      <div className="tabs" role="tablist" aria-label={tr('面板', 'Panel')} onKeyDown={tabListKeys}>
-        {tabs.map(([k, label]) => (
-          <button
-            key={k}
-            id={`side-tab-${k}`}
-            role="tab"
-            aria-selected={cur === k}
-            aria-controls="side-panel"
-            tabIndex={cur === k ? 0 : -1}
-            className={cur === k ? 'on' : ''}
-            onClick={() => setPanel(k)}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="side-top">
+        <div className="tabs" role="tablist" aria-label={tr('面板', 'Panel')} onKeyDown={tabListKeys}>
+          {tabs.map(([k, label]) => (
+            <button
+              key={k}
+              id={`side-tab-${k}`}
+              role="tab"
+              aria-selected={cur === k}
+              aria-controls="side-panel"
+              tabIndex={cur === k ? 0 : -1}
+              className={cur === k ? 'on' : ''}
+              onClick={() => setPanel(k)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <button
+          className="side-collapse"
+          onClick={() => useBenchUi.getState().setSide(useBenchUi.getState().sideW, true)}
+          title={tr('收起面板，让面包板更宽（拖动中间的分隔条也行）', 'Hide the panel to widen the board (or drag the divider)')}
+          aria-label={tr('收起面板', 'Hide the panel')}
+        >
+          ›
+        </button>
       </div>
       <div className="side-body" role="tabpanel" id="side-panel" tabIndex={-1} aria-labelledby={`side-tab-${cur}`}>
         {cur === 'task' && ch && <TaskPanel ch={ch} />}

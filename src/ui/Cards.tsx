@@ -10,7 +10,7 @@ import { tr } from '../core/i18n';
 import { onPage, useStore } from '../state/store';
 import { Icon } from './Icons';
 import { Md } from './Md';
-import { PlacedChip, StepStatus } from './StepCheck';
+import { StepStatus } from './StepCheck';
 
 const KIND: Record<CardKind, { icon: string; zh: string; en: string }> = {
   try: { icon: '🔥', zh: '试一试', en: 'Try it' },
@@ -71,7 +71,6 @@ export function StepNav({ ch, from, to, sc, endLabel, onEnd }: { ch: Challenge; 
           <Md text={ch.steps[cur].text} math />
         </div>
         <StepStatus unmet={sc.unmet[cur]} />
-        <PlacedChip />
       </div>
       <div className="row">
         <button disabled={cur === from} onClick={() => setStep(cur - 1)}>

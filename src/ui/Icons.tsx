@@ -2,7 +2,7 @@ import type { PartType } from '../core/types';
 
 const S = { stroke: 'currentColor', strokeWidth: 2, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
-export function PartIcon({ type, size = 34 }: { type: PartType | 'select' | 'probe'; size?: number }) {
+export function PartIcon({ type, size = 34 }: { type: PartType | 'select' | 'probe' | 'eraser'; size?: number }) {
   let g: JSX.Element;
   switch (type) {
     case 'select':
@@ -14,6 +14,17 @@ export function PartIcon({ type, size = 34 }: { type: PartType | 'select' | 'pro
           <rect x="9" y="6" width="22" height="28" rx="4" fill="#f2c14e" />
           <rect x="13" y="10" width="14" height="7" rx="1" fill="#dff5e3" />
           <circle cx="20" cy="26" r="4" />
+        </g>
+      );
+      break;
+    case 'eraser':
+      g = (
+        <g {...S}>
+          <g transform="rotate(-35 20 20)">
+            <rect x="8" y="14" width="26" height="13" rx="3" fill="#f3a6a6" />
+            <rect x="8" y="14" width="9" height="13" rx="3" fill="#1f2a44" />
+          </g>
+          <line x1="9" y1="34" x2="31" y2="34" />
         </g>
       );
       break;

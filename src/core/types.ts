@@ -93,6 +93,18 @@ export interface PlacedPart {
   props: PartProps;
   /** physical pin name -> hole id. Missing entry = not plugged in yet. */
   pins: Record<string, string>;
+  /** off-board equipment (battery, bench supply, function generator, ammeter): where its body
+   *  stands on the bench and which way it faces (quarter turns). Absent: the default spot. Pure
+   *  presentation — never part of the circuit. */
+  pose?: BenchPose;
+}
+
+export interface BenchPose {
+  /** board-plane coordinates of the body's centre */
+  x: number;
+  z: number;
+  /** quarter turns about the vertical axis, 0–3 */
+  rot: number;
 }
 
 export interface Layout {

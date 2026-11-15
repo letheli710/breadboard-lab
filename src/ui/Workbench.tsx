@@ -10,7 +10,12 @@ import { placeOf } from '../core/course';
 import { levelOfWorld, PART_LEVELS, type PartLevelId } from '../core/partLevels';
 import { useActiveChallenge } from '../state/challenges';
 import { useDerived } from '../state/derived';
-import { occupied, useStore, type Tool } from '../state/store';
+import { isPartTool, occupied, useStore, type Tool } from '../state/store';
+import { useBenchUi } from '../state/benchUi';
+import { rightPick } from '../three/Drag';
+import { BenchMenu } from './BenchMenu';
+import { PartPopover } from './PartPopover';
+export { Splitter } from './Splitter';
 import { confirmPending, setPending, shiftHole, useTouchPick } from '../three/touchPick';
 import { Scene, VIEWS, type ViewName } from '../three/Scene';
 import { emitCameraView } from '../three/common';
@@ -29,7 +34,8 @@ const smooth = (): ScrollBehavior => (prefersReducedMotion() ? 'auto' : 'smooth'
 
 const TOOLS: Tool[] = ['select', 'probe'];
 
-const toolName = (t: Tool) => (t === 'select' ? tr('选择 / 操作', 'Select / use') : t === 'probe' ? tr('万用表', 'Multimeter') : PARTS[t].name);
+const toolName = (t: Tool) =>
+  t === 'select' ? tr('选择 / 操作', 'Select / use') : t === 'probe' ? tr('万用表', 'Multimeter') : t === 'eraser' ? tr('橡皮擦', 'Eraser') : PARTS[t].name;
 
 /** Part types a lesson places: its reference solution plus the parts its step checks ask for. */
 function lessonParts(ch: Challenge | null): PartType[] {
@@ -50,13 +56,14 @@ function Toolbox() {
   const lesson = lessonParts(ch);
   const quick: PartType[] = lesson.length ? lesson : PART_LEVELS[0].items;
   // a part picked from the full panel stays visible (and pressed) in the column
-  const shown: Tool[] = tool !== 'select' && tool !== 'probe' && !quick.includes(tool) ? [...quick, tool] : quick;
+  const shown: Tool[] = isPartTool(tool) && !quick.includes(tool) ? [...quick, tool] : quick;
   const columns: { title: string; items: Tool[] }[] = [
     { title: tr('工具', 'Tools'), items: TOOLS },
     { title: lesson.length ? tr('本课用到', 'This lesson') : PART_LEVELS[0].title(), items: shown },
   ];
   const [allOpen, setAllOpen] = useState(false);
   const allBtn = useRef<HTMLButtonElement>(null);
+  const kit = useBenchUi((s) => s.kit);
   const box = useRef<HTMLDivElement>(null);
   // the column can still be taller than a small screen: say so, and let one click scroll on
   const [more, setMore] = useState({ up: false, down: false });
@@ -86,54 +93,72 @@ function Toolbox() {
     else el.scrollBy({ top: dir * el.clientHeight * 0.8, behavior: smooth() });
   };
   return (
-    <nav className={`toolbox-wrap ${more.up ? 'more-up' : ''} ${more.down ? 'more-down' : ''}`} aria-label={tr('元件箱', 'Parts toolbox')}>
-      <div className="toolbox" ref={box}>
-        {columns.map((g) => (
-          <div key={g.title} className="tool-group" role="group" aria-label={g.title}>
-            <div className="tool-group-title">
-              <Mixed text={g.title} />
+    <div className="toolbox-col" hidden={!kit}>
+      <nav className={`toolbox-wrap ${more.up ? 'more-up' : ''} ${more.down ? 'more-down' : ''}`} aria-label={tr('元件箱', 'Parts toolbox')}>
+        <div className="toolbox" ref={box}>
+          {columns.map((g) => (
+            <div key={g.title} className="tool-group" role="group" aria-label={g.title}>
+              <div className="tool-group-title">
+                <Mixed text={g.title} />
+              </div>
+              <div className="tool-grid">
+                {g.items.map((t) => (
+                  <button key={t} className={`tool ${tool === t ? 'on' : ''}`} aria-pressed={tool === t} onClick={() => setTool(tool === t ? 'select' : t)} title={toolName(t)}>
+                    <PartIcon type={t} size={28} />
+                    <span>
+                      <Mixed text={toolName(t)} />
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="tool-grid">
-              {g.items.map((t) => (
-                <button key={t} className={`tool ${tool === t ? 'on' : ''}`} aria-pressed={tool === t} onClick={() => setTool(tool === t ? 'select' : t)} title={toolName(t)}>
-                  <PartIcon type={t} size={28} />
-                  <span>
-                    <Mixed text={toolName(t)} />
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-        <button ref={allBtn} className={`parts-all-btn ${allOpen ? 'open' : ''}`} aria-expanded={allOpen} aria-controls="parts-panel" onClick={() => setAllOpen(!allOpen)}>
-          <span className="pab-icon" aria-hidden>
-            ⊞
-          </span>
-          <span>{tr('全部元件', 'All parts')}</span>
+          ))}
+          <button ref={allBtn} className={`parts-all-btn ${allOpen ? 'open' : ''}`} aria-expanded={allOpen} aria-controls="parts-panel" onClick={() => setAllOpen(!allOpen)}>
+            <span className="pab-icon" aria-hidden>
+              ⊞
+            </span>
+            <span>{tr('全部元件', 'All parts')}</span>
+          </button>
+        </div>
+        {more.up && (
+          <button className="toolbox-more up" onClick={() => page(-1)} tabIndex={-1} aria-hidden title={tr('向上滚动', 'Scroll back')}>
+            ▲
+          </button>
+        )}
+        {more.down && (
+          <button className="toolbox-more down" onClick={() => page(1)} tabIndex={-1} aria-hidden title={tr('还有更多元件，点击或滚动查看', 'More parts below — click or scroll')}>
+            {tr('更多', 'More')} ▼
+          </button>
+        )}
+        {allOpen && (
+          <PartsPanel
+            key={activeId ?? 'sandbox'}
+            current={levelOfWorld(activeId ? placeOf(activeId)?.world.id : undefined)}
+            anchor={allBtn}
+            onClose={(focusBack) => {
+              setAllOpen(false);
+              if (focusBack) allBtn.current?.focus();
+            }}
+          />
+        )}
+      </nav>
+      {/* the eraser sits apart at the foot of the toolbox, away from the parts */}
+      <div className="toolbox-foot">
+        <button
+          className={`tool eraser ${tool === 'eraser' ? 'on' : ''}`}
+          aria-pressed={tool === 'eraser'}
+          aria-keyshortcuts="E"
+          onClick={() => setTool(tool === 'eraser' ? 'select' : 'eraser')}
+          title={tr(
+            '橡皮擦 (E)：点元件擦掉，按住拖过去连续擦；Ctrl+Z 撤回整笔',
+            'Eraser (E): click a part to remove it, drag across parts to remove several; Ctrl+Z undoes the stroke',
+          )}
+        >
+          <PartIcon type="eraser" size={28} />
+          <span>{tr('橡皮擦', 'Eraser')}</span>
         </button>
       </div>
-      {more.up && (
-        <button className="toolbox-more up" onClick={() => page(-1)} tabIndex={-1} aria-hidden title={tr('向上滚动', 'Scroll back')}>
-          ▲
-        </button>
-      )}
-      {more.down && (
-        <button className="toolbox-more down" onClick={() => page(1)} tabIndex={-1} aria-hidden title={tr('还有更多元件，点击或滚动查看', 'More parts below — click or scroll')}>
-          {tr('更多', 'More')} ▼
-        </button>
-      )}
-      {allOpen && (
-        <PartsPanel
-          key={activeId ?? 'sandbox'}
-          current={levelOfWorld(activeId ? placeOf(activeId)?.world.id : undefined)}
-          anchor={allBtn}
-          onClose={(focusBack) => {
-            setAllOpen(false);
-            if (focusBack) allBtn.current?.focus();
-          }}
-        />
-      )}
-    </nav>
+    </div>
   );
 }
 
@@ -245,14 +270,14 @@ function TouchChip() {
   const tool = useStore((s) => s.tool);
   const firstHole = useStore((s) => s.firstHole);
   const layout = useStore((s) => s.layout);
-  if (!pending || tool === 'select') return null;
+  if (!pending || !(isPartTool(tool) || tool === 'probe')) return null;
   const h = HOLE_MAP.get(pending);
   const busy = occupied(layout).get(pending);
   const nudge = (dc: number, dr: number) => {
     const n = shiftHole(pending, dc, dr);
     if (n) setPending(n);
   };
-  const footprint = tool !== 'probe' && PARTS[tool].placement.kind === 'footprint';
+  const footprint = isPartTool(tool) && PARTS[tool].placement.kind === 'footprint';
   const place = tool === 'probe' ? tr('红表笔', 'Red probe') : footprint ? tr('放在这里', 'Place here') : firstHole ? tr('终点放这里', 'End here') : tr('起点放这里', 'Start here');
   return (
     <div className="touch-chip" role="group" aria-label={tr('选中的孔', 'Chosen hole')} data-hole={pending}>
@@ -295,16 +320,21 @@ function Prompt() {
   const cancelPlacement = useStore((s) => s.cancelPlacement);
   const layout = useStore((s) => s.layout);
   let text: string;
-  if (coarse && tool === 'select')
+  if (tool === 'eraser')
     text = tr(
-      '单指拖元件移动它，拖空白处旋转 · 双指捏合缩放、双指拖动平移 · 点元件选中，点孔（或长按）看它和哪些孔相连',
-      'Drag a part to move it, drag empty space to rotate · pinch to zoom, two-finger drag to pan · tap a part to select it, tap (or long-press) a hole to see what it connects to',
+      '橡皮擦：点元件擦掉，按住拖过去连续擦 · Ctrl+Z 撤回整笔 · Esc 或右键退出',
+      'Eraser: click a part to remove it, drag across parts to remove several · Ctrl+Z undoes the stroke · Esc or right-click to stop',
+    );
+  else if (coarse && tool === 'select')
+    text = tr(
+      '单指拖元件移动它，拖空白处旋转 · 双指捏合缩放、双指拖动平移 · 点元件看详情，点孔（或长按）看它和哪些孔相连',
+      'Drag a part to move it, drag empty space to rotate · pinch to zoom, two-finger drag to pan · tap a part for its details, tap (or long-press) a hole to see what it connects to',
     );
   else if (coarse && tool === 'probe') text = tr('万用表：点一个孔，再在下方选红表笔或黑表笔', 'Multimeter: tap a hole, then choose red or black probe below');
   else if (tool === 'select')
     text = tr(
-      '拖动元件可移动它，在空白处拖动旋转视角 · 点击元件选中，点按键 / 开关切换 · 悬停在孔上看哪些孔连通',
-      'Drag a part to move it; drag empty space to rotate the view · click to select, click a button / switch to flip it · hover a hole to see what it connects to',
+      '左键点元件看详情、拖元件挪位置 · 右键单击元件出菜单 · 拖空白处或右键拖动平移，滚轮缩放，中键（或 Shift+拖动）旋转 · 选中电池等板外仪器按 T 转向',
+      'Click a part for its details, drag it to move it · right-click a part for its menu · drag empty space or right-drag to pan, scroll to zoom, middle-drag (or Shift+drag) to rotate · T turns a selected battery or instrument',
     );
   else if (tool === 'probe')
     text = tr(
@@ -312,7 +342,7 @@ function Prompt() {
       'Multimeter: click a hole for the red probe; Shift + click for the black probe (GND if not placed)',
     );
   else {
-    const pl = PARTS[tool as PartType].placement;
+    const pl = PARTS[tool].placement;
     text = pl.kind === 'footprint' ? pl.prompt : pl.prompts[firstHole ? 1 : 0] + (firstHole ? tr(`（起点 ${firstHole}）`, ` (from ${firstHole})`) : '');
     if (coarse) text += tr(' · 点一下选孔，再点一次（或点“放这里”）确认', ' · tap to pick a hole, tap it again (or press Place) to confirm');
     if (tool === 'scope_probe') {
@@ -363,8 +393,8 @@ function ViewButton() {
         emitCameraView(next);
       }}
       title={tr(
-        `切换视角（下一个：${VIEW_NAME[next]()}）· 也可以在空白处拖动旋转（按住元件拖动是移动元件）、滚轮缩放、右键拖动平移`,
-        `Switch view (next: ${VIEW_NAME[next]()}) · you can also drag on empty space to rotate (dragging a part moves it), scroll to zoom, right-drag to pan`,
+        `切换视角（下一个：${VIEW_NAME[next]()}）· 也可以中键（或 Shift + 左键）拖动旋转、滚轮缩放、右键或空白处拖动平移`,
+        `Switch view (next: ${VIEW_NAME[next]()}) · you can also middle-drag (or Shift + drag) to rotate, scroll to zoom, right-drag or drag empty space to pan`,
       )}
     >
       <Icon name="eye" />
@@ -430,6 +460,8 @@ function Toolbar() {
   const canRedo = useStore((s) => s.future.length > 0);
   return (
     <div className="toolbar" role="toolbar" aria-label={tr('视图与编辑', 'View and edit')}>
+      <RecentParts />
+      <i />
       <button
         className={showNets ? 'on' : ''}
         aria-pressed={showNets}
@@ -476,6 +508,43 @@ function Toolbar() {
   );
 }
 
+/** The five part tools used most recently, one click away at the bottom of the board. */
+function RecentParts() {
+  const recent = useBenchUi((s) => s.recent);
+  const tool = useStore((s) => s.tool);
+  const setTool = useStore((s) => s.setTool);
+  return (
+    <span className="recent" role="group" aria-label={tr('常用元件', 'Recent parts')}>
+      <span className="recent-label" aria-hidden>
+        {tr('常用', 'Recent')}
+      </span>
+      {recent.map((t) => (
+        <button key={t} className={tool === t ? 'on' : ''} aria-pressed={tool === t} onClick={() => setTool(tool === t ? 'select' : t)} title={toolName(t)}>
+          <PartIcon type={t} size={24} />
+          <span>
+            <Mixed text={PARTS[t].name} />
+          </span>
+        </button>
+      ))}
+    </span>
+  );
+}
+
+/** Top-left of the stage: the toolbox switch (the lesson list opens from the course map button next
+ *  to the logo). */
+function StageSwitches() {
+  const kit = useBenchUi((s) => s.kit);
+  const setKit = useBenchUi((s) => s.setKit);
+  return (
+    <div className="stage-switches" role="group" aria-label={tr('元件箱', 'Toolbox')}>
+      <button className={kit ? 'on' : ''} aria-pressed={kit} onClick={() => setKit(!kit)} title={tr('显示 / 隐藏左侧元件箱', 'Show / hide the parts toolbox')}>
+        <Icon name="folder" size={16} />
+        <span>{tr('元件', 'Parts')}</span>
+      </button>
+    </div>
+  );
+}
+
 /** Screen-reader text of the 3D view (its region's description). */
 function BoardSummary() {
   const parts = useStore((s) => s.layout.parts);
@@ -488,24 +557,37 @@ function BoardSummary() {
 }
 
 export function Workbench() {
-  // a right click that isn't a drag (right-drag pans the view) drops a half-placed part
+  // a right click that isn't a drag (right-drag pans the view): drops a half-placed part, else puts
+  // the tool down, else opens the menu of the part under the pointer (or of the empty bench)
   const rightDown = useRef<{ x: number; y: number } | null>(null);
+  const sideCollapsed = useBenchUi((s) => s.sideCollapsed);
+  const setSide = useBenchUi((s) => s.setSide);
+  const sideW = useBenchUi((s) => s.sideW);
   return (
     <div className="bench card">
       <Toolbox />
       <div
         className="stage"
-        onPointerDown={(e) => {
-          if (e.button === 2) rightDown.current = { x: e.clientX, y: e.clientY };
+        onPointerDownCapture={(e) => {
+          if (e.button !== 2) return;
+          rightDown.current = { x: e.clientX, y: e.clientY };
+          rightPick.id = null;
         }}
         onPointerUp={(e) => {
           const d = rightDown.current;
           rightDown.current = null;
-          if (e.button === 2 && d && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 5) useStore.getState().cancelPlacement();
+          if (e.button !== 2 || !d || Math.hypot(e.clientX - d.x, e.clientY - d.y) >= 5) return;
+          if (!(e.target as Element).closest?.('.stage-view')) return;
+          const s = useStore.getState();
+          if (s.cancelPlacement()) return;
+          if (s.tool !== 'select') return s.setTool('select');
+          if (rightPick.id) s.select(rightPick.id);
+          useBenchUi.getState().openMenu({ x: e.clientX, y: e.clientY, partId: rightPick.id });
         }}
         onContextMenu={(e) => e.preventDefault()}
       >
         <div className="stage-top">
+          <StageSwitches />
           <Prompt />
           <ViewButton />
           {/* touch: the candidate hole's chip lies over the prompt (the board neither moves nor gets covered) */}
@@ -516,8 +598,8 @@ export function Workbench() {
           role="region"
           aria-describedby="board-desc"
           aria-label={tr(
-            '3D 面包板：拖动元件移动，在空白处拖动旋转，滚轮缩放，右键拖动平移',
-            '3D breadboard: drag a part to move it, drag empty space to rotate, scroll to zoom, right-drag to pan',
+            '3D 面包板：点元件看详情，拖动元件移动，右键单击出菜单，拖空白处或右键拖动平移，滚轮缩放，中键拖动旋转',
+            '3D breadboard: click a part for its details, drag it to move it, right-click for its menu, drag empty space or right-drag to pan, scroll to zoom, middle-drag to rotate',
           )}
         >
           <ErrorBoundary scope="canvas">
@@ -526,7 +608,14 @@ export function Workbench() {
           </ErrorBoundary>
           <Multimeter />
           <Scope />
+          <PartPopover />
+          {sideCollapsed && (
+            <button className="side-reopen" onClick={() => setSide(sideW, false)} title={tr('展开右侧面板', 'Show the side panel')}>
+              {tr('面板', 'Panel')} ‹
+            </button>
+          )}
         </div>
+        <BenchMenu />
         <Toolbar />
         <BoardSummary />
         <BenchKeyboard />
