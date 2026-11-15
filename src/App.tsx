@@ -128,12 +128,16 @@ function CourseButton() {
   const mode = useStore((s) => s.mode);
   const activeId = useStore((s) => s.activeId);
   const status = useStore((s) => s.challengeIndex);
-  // the counts need the challenge index: fetch it at idle on pages that don't load it themselves
+  // the counts need the challenge index: fetch it at idle on the Guide and Sandbox pages. Practice
+  // stays light: there it loads once the button is pointed at, focused or opened.
   useIdleLoad(mode === 'practice' ? 'ready' : status, ensureChallengeIndex);
+  const prefetch = () => void ensureChallengeIndex();
   const page = mode === 'challenge' ? 'challenge' : 'learn';
   const list = challenges.filter((c) => onPage(c, page));
   const done = list.filter((c) => completed[c.id]).length;
   const total = status === 'ready' ? list.length : null;
+  // not requested yet (Practice): no count at all rather than a placeholder that never fills in
+  const counts = total !== null ? tr(`已完成 ${done} / ${total}`, `${done} of ${total} done`) : status === 'idle' ? '' : tr('加载中', 'loading');
   const place = activeId && (mode === 'learn' || mode === 'challenge') ? placeOf(activeId) : undefined;
   const where = place ? `World ${place.world.id} · ${itemLabel(place)}` : '';
   const name = page === 'learn' ? tr('课程地图', 'Course map') : tr('挑战', 'Challenges');
@@ -156,7 +160,10 @@ function CourseButton() {
     return () => window.removeEventListener('resize', place);
   }, [open]);
   useEffect(() => {
-    const on = () => setOpenKey(keyRef.current);
+    const on = () => {
+      void ensureChallengeIndex();
+      setOpenKey(keyRef.current);
+    };
     window.addEventListener('bb-open-course-map', on);
     return () => window.removeEventListener('bb-open-course-map', on);
   }, []);
@@ -185,12 +192,17 @@ function CourseButton() {
     <div className="course-btn-wrap">
       <button
         ref={btn}
-        className={`progress-card course-btn ${total === null ? 'pending' : ''} ${open ? 'open' : ''}`}
+        className={`course-btn ${total === null ? 'pending' : ''} ${open ? 'open' : ''}`}
         aria-expanded={open}
         aria-controls="course-map-pop"
         aria-haspopup="dialog"
-        aria-label={`${name}${where ? `：${where}` : ''}，${total === null ? tr('加载中', 'loading') : tr(`已完成 ${done} / ${total}`, `${done} of ${total} done`)}`}
-        onClick={() => setOpenKey(open ? null : key)}
+        aria-label={`${name}${where ? `：${where}` : ''}${counts ? `，${counts}` : ''}`}
+        onPointerEnter={prefetch}
+        onFocus={prefetch}
+        onClick={() => {
+          prefetch();
+          setOpenKey(open ? null : key);
+        }}
       >
         <Icon name={page === 'learn' ? 'book' : 'target'} size={22} />
         <div aria-hidden>
@@ -199,7 +211,7 @@ function CourseButton() {
           </div>
           <div className="pc-where">{where || tr('点开选一课', 'pick a unit')}</div>
         </div>
-        <b aria-hidden>{total === null ? '–/–' : `${done}/${total}`}</b>
+        {status !== 'idle' && <b aria-hidden>{total === null ? '–/–' : `${done}/${total}`}</b>}
         <span className="pc-chev" aria-hidden>
           ▾
         </span>

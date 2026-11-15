@@ -256,6 +256,8 @@ async function lazyIndexChecks(browser) {
   };
   const log = (p) => p.evaluate(() => window.__log);
   const progress = (p) => p.locator('.progress-card b').textContent();
+  // the course map button next to the logo (Learn / Challenges counts)
+  const courseCount = (p) => p.locator('.course-btn b').textContent();
 
   // 1. deep link to a problem in the last chapter, index late: the page and a neutral progress
   //    card first, the URL / bb.route / tab title untouched, then that problem — never another
@@ -284,6 +286,10 @@ async function lazyIndexChecks(browser) {
     assert((await p.evaluate(() => JSON.parse(localStorage.getItem('bb.route')))) === `#/practice/${LAST}`, 'late index: bb.route saved once resolved');
     assert(/^\d+\/\d+$/.test((await progress(p)).trim()), 'late index: progress card counts ' + (await progress(p)));
     assert(!js.some((f) => /^challenge-index-/.test(f)), 'practice link: no challenge index fetched up front');
+    assert((await p.locator('.course-btn b').count()) === 0, 'practice: course button shows no placeholder count');
+    // pointing at the course button loads the lesson list, and its counts fill in
+    await p.hover('.course-btn');
+    await p.waitForFunction(() => /^\d+\/\d+$/.test(document.querySelector('.course-btn b')?.textContent.trim() ?? ''));
     // sidebar: the last chapter is expanded, the active problem is in view inside the sidebar
     const side = await p.evaluate(() => {
       const s = document.querySelector('.pr-side');
@@ -390,8 +396,8 @@ async function lazyIndexChecks(browser) {
     await p.waitForSelector('.course-btn');
     await p.waitForTimeout(300);
     assert(
-      (await p.locator('.task h2').count()) === 0 && (await progress(p)).trim() === '–/–',
-      `late challenge index: loading state, neutral button (${await p.locator('.task h2').count()} items, ${await progress(p)})`,
+      (await p.locator('.task h2').count()) === 0 && (await courseCount(p)).trim() === '–/–',
+      `late challenge index: loading state, neutral button (${await p.locator('.task h2').count()} items, ${await courseCount(p)})`,
     );
     await p.waitForSelector('.task h2', { timeout: 20000 });
     await p.waitForTimeout(800);
@@ -430,7 +436,7 @@ async function lazyIndexChecks(browser) {
     const atLoad = [...js];
     await p.waitForTimeout(3500);
     assert(!atLoad.some((f) => /^problem-index-/.test(f)) && !js.some((f) => /^problem-index-/.test(f)), 'guide: no problem index');
-    assert(/^\d+\/\d+$/.test((await progress(p)).trim()), 'guide: lesson counts after idle ' + (await progress(p)));
+    assert(/^\d+\/\d+$/.test((await courseCount(p)).trim()), 'guide: lesson counts after idle ' + (await courseCount(p)));
     await ctx.close();
   }
 }
