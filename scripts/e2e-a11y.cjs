@@ -20,6 +20,9 @@ const PAGES = [
   { name: 'learn', hash: '#/learn/lesson-breadboard-basics', ready: '.task h2' },
   // the course map dropdown, open
   { name: 'course-map', hash: '#/learn/lesson-series', ready: '.task h2', setup: 'coursemap' },
+  // an explain card with figures (a circuit drawing and a breadboard strip)
+  { name: 'card-figures', hash: '#/learn/lesson-breadboard-basics', ready: '.task h2', setup: 'figures' },
+  { name: 'card-figure-circuit', hash: '#/learn/lesson-series', ready: '.task h2', setup: 'figures' },
   // the "All parts" panel, open
   { name: 'parts-panel', hash: '#/learn/lesson-series', ready: '.task h2', setup: 'partspanel' },
   { name: 'challenge-lab', hash: '#/challenges/exp-inverting-amp', ready: '.task h2' },
@@ -118,6 +121,10 @@ async function setup(p, kind) {
   if (kind === 'partspanel') {
     await p.locator('.parts-all-btn').click();
     await p.waitForSelector('.parts-panel .pp-grid .tool', { timeout: 10000 });
+  }
+  if (kind === 'figures') {
+    await p.locator('.card-tabs button').nth(1).click();
+    await p.waitForSelector('.card-figure svg', { timeout: 15000 });
   }
   if (kind === 'coursemap') {
     await p.locator('.course-btn').click();
