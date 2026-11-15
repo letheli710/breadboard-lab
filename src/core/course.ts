@@ -69,7 +69,7 @@ export const WORLDS: World[] = [
       { num: '2.4', items: ['exp-thevenin-measure', 'exp-max-power'], practice: ['theorems'] },
       {
         num: '2.5',
-        items: ['lesson-lm358', 'exp-loaded-divider', 'exp-voltage-follower'],
+        items: ['exp-loaded-divider', 'lesson-lm358', 'exp-voltage-follower'],
         practice: ['opamp'],
       },
       { num: '2.6', items: ['exp-noninverting-amp'], practice: ['opamp', 'dependent-sources'] },
