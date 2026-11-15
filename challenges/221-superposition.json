@@ -2,37 +2,167 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-superposition",
-  "title": "实验 2-1 · 叠加定理：两台电源分别作用再相加",
+  "title": "叠加定理：两台电源分别作用，再相加",
   "kind": "challenge",
   "level": 4,
   "phase": 2,
-  "summary": "9 V 和 5 V 两台电源一起驱动 R3。用两个开关把电源换成导线，分别测，再一起测：电流正好相加。",
-  "concepts": ["superposition 叠加定理", "zeroing a voltage source = short 电压源置零 = 短路", "linearity 线性", "power is not superposable 功率不能叠加"],
+  "summary": "9 V 和 5 V 两台电源一起驱动 R3。用开关把电源换成导线，分别测、再一起测：电流正好相加，功率却不行。",
+  "concepts": [
+    "superposition 叠加定理",
+    "zeroing a voltage source = short 电压源置零 = 短路",
+    "linearity 线性",
+    "power is not superposable 功率不能叠加"
+  ],
   "prereq": ["lesson-ammeter", "lesson-multimeter"],
-  "description": "**目标**：线性电路中，多个独立源共同作用的响应 = 每个源单独作用的响应之和。\n\n**电路**：两台稳压电源 V1 = 9 V、V2 = 5 V，负极连在一起作为 GND。\n- S1：a 侧接 V1 的 +，b 侧接 GND，com → R1（1kΩ）→ 结点 N；\n- S2：a 侧接 V2 的 +，b 侧接 GND，com → R2（2.2kΩ）→ 结点 N；\n- N → 电流表 AM1（红表笔接 N）→ R3（3.3kΩ）→ GND。\n\n**怎么让一个电源“不起作用”**：叠加定理里“电压源置零”是把它换成**短路**，不是断开！开关拨到 b，就是把 R1（或 R2）的那一端从电源上拿下来接到 GND——相当于这个电源变成了一根导线。\n\n**先预测**：用结点电压法 V_N = (V1/R1 + V2/R2) / (1/R1 + 1/R2 + 1/R3)，分别算出只有 V1、只有 V2、两个都接时的 V_N 和 R3 的电流 I3。检查：两个单独作用的 I3 加起来，是否等于一起作用时的 I3？R3 的功率也能这样相加吗？\n\n**测量**：开关依次拨到（a, b）、（b, a）、（a, a），每次读 AM1，并测 N 点对 GND 的电压。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**想一想**：只有 V2 时，R1 的电流是 −1.29 mA——电流从 N 经 R1 流到 GND，方向和两个电源都接时相反。",
+  "description": "线性电路里，几个独立源一起作用产生的电流或电压，等于每个源单独作用（其他电压源换成导线）时的结果之和。功率不能这样叠加。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "三次读数，找找关系",
+      "text": [
+        "照目标电路图搭：**两台稳压电源**，`9 V` 和 `5 V`，两条蓝轨连起来当 GND。每个开关的 **a** 侧接电源 +，**b** 侧接 GND。",
+        "**S1 → a，S2 → b**：读电流表 **AM1**。",
+        "**S1 → b，S2 → a**：再读一次。然后**两个都拨到 a**：读第三次。",
+        "第三个读数和前两个有什么关系？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "各推各的，推力相加",
+      "text": [
+        "- 开关拨到 **b**，电阻的那一端就接到了 GND：电源被换成了**一根导线**（0 V）。这就是“把电压源置零”——是短路，**不是**把线拔掉悬空。",
+        "- 只由电阻和电源组成的电路里，每个电源推动 R3 里的电流时，都好像另一个电源只是那根导线。一起作用时，推力直接相加：",
+        "$$I_3 = I_3' + I_3''$$",
+        "![](fig:alone)",
+        "- 每一部分用 2.2 的结点电压来预测：只有 V1 时，$V_N' = \\frac{V_1/R_1}{1/R_1 + 1/R_2 + 1/R_3}$，分母 $1 + 0.4545 + 0.3030 = 1.758$ mS。只有 V2 时照样算。",
+        "- 量之前想一想：R3 的**功率**也能这样相加吗？"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "三种组合，逐一读数",
+      "text": [
+        "- **S1 → a、S2 → b**（只有 V1），**S1 → b、S2 → a**（只有 V2），**两个都 → a**：每次读 AM1。",
+        "- 两个都在 a 时，再用万用表**测 N 对 GND 的电压**。",
+        "- 电路检查通过后填测量题。最后一题把电流平方，算功率。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **叠加定理**：线性电路里，几个电源产生的电流、电压可以相加。",
+        "- 置零：电压源换成**导线**，电流源换成**断开**。",
+        "- **功率不能叠加**：$P = I^2R$，而 $(a + b)^2 ≠ a^2 + b^2$。",
+        "- 坑：LED、二极管不是线性元件。路上有一颗，加法就不灵了。"
+      ],
+      "practice": ["theorems"]
+    }
+  ],
+  "figures": {
+    "alone": {
+      "kind": "schematic",
+      "caption": {
+        "text": "只有 V1 作用：S2 拨到 b，V2 被换成一根导线，R2 的那一端直接接 GND。",
+        "i18n": {"en": "V1 alone: S2 on b replaces V2 with a wire, so R2's end goes straight to GND."}
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "V", "from": [0, 0], "to": [0, 4], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": "1k"},
+          {"ref": "R3", "type": "R", "from": [3, 0], "to": [3, 4], "value": "3.3k"},
+          {"ref": "R2", "type": "R", "from": [6, 0], "to": [3, 0], "value": "2.2k"}
+        ],
+        "wires": [[[6, 0], [6, 4]], [[0, 4], [6, 4]]],
+        "labels": [{"at": [3, 0], "name": "N"}],
+        "notes": [{"text": "V2 → 导线", "i18n": {"en": "V2 → wire"}, "at": [6, 2]}],
+        "marks": [{"kind": "i", "el": "R3", "name": "I_3'"}]
+      },
+      "highlight": ["V1"]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 2-1 · Superposition: two supplies one at a time, then together",
-      "summary": "A 9 V and a 5 V supply drive R3 together. Two switches replace each supply with a wire; measure each one alone, then both: the currents add up exactly.",
+      "title": "Superposition: one source at a time, then add",
+      "summary": "A 9 V and a 5 V supply drive R3 together. Swap a supply for a wire with a switch, measure each alone and then both: the currents add up — the power does not.",
       "concepts": ["superposition", "zeroing a voltage source = short circuit", "linearity", "power is not superposable"],
-      "description": "**Goal**: in a linear circuit, the response to several independent sources together equals the sum of the responses to each source alone.\n\n**Circuit**: two bench supplies V1 = 9 V and V2 = 5 V, negatives joined as GND.\n- S1: side a to V1 +, side b to GND, com → R1 (1kΩ) → node N;\n- S2: side a to V2 +, side b to GND, com → R2 (2.2kΩ) → node N;\n- N → ammeter AM1 (red lead at N) → R3 (3.3kΩ) → GND.\n\n**How to \"switch off\" a source**: in superposition, zeroing a voltage source means replacing it with a **short circuit**, not opening it! Switching to b takes that end of R1 (or R2) off the supply and puts it on GND: the source has become a wire.\n\n**Predict first**: with nodal analysis, V_N = (V1/R1 + V2/R2) / (1/R1 + 1/R2 + 1/R3), work out V_N and R3's current I3 with V1 only, V2 only and both on. Check: do the two single-source values of I3 add up to the value with both on? Can R3's power be added the same way?\n\n**Measure**: set the switches to (a, b), (b, a) and (a, a); each time read AM1 and measure N to GND. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Think about it**: with V2 alone, R1's current is −1.29 mA: current flows from N through R1 to GND, the opposite way to when both sources are on.",
-      "compare": "**Compare**: the denominator is 1 + 0.4545 + 0.3030 = 1.7576 mS.\n- V1 only (S1→a, S2→b): V_N = 9 / 1.7576 ≈ **5.12 V**, I3 ≈ **1.55 mA**;\n- V2 only (S1→b, S2→a): V_N = 2.273 / 1.7576 ≈ **1.29 V**, I3 ≈ **0.39 mA**;\n- both on (a, a): V_N ≈ **6.41 V**, I3 ≈ **1.94 mA** = 1.55 + 0.39 ✔.\n\nIf the readings don't add up, first make sure the \"zeroed\" switch is on b (to GND), not left floating.\n\n**Power does not superpose**: R3's power is P = I²R. Alone: 1.55² × 3.3 ≈ 7.9 mW and 0.39² × 3.3 ≈ 0.5 mW, together 8.4 mW; but with both sources on it is 1.94² × 3.3 ≈ 12.5 mW. Power goes with the square of the current, so it is not linear.",
+      "description": "In a linear circuit the current or voltage produced by several independent sources together is the sum of what each produces alone (with the other voltage sources replaced by wires). Power does not add this way.",
+      "compare": "**Compare**: the bottom is 1 + 0.4545 + 0.3030 = 1.7576 mS.\n- Only V1 (S1 → a, S2 → b): V_N = 9 / 1.7576 ≈ **5.12 V**, I3 ≈ **1.55 mA**.\n- Only V2 (S1 → b, S2 → a): V_N = 2.273 / 1.7576 ≈ **1.29 V**, I3 ≈ **0.39 mA**.\n- Both (a, a): V_N ≈ **6.41 V**, I3 ≈ **1.94 mA** = 1.55 + 0.39 ✔.\n\nIf the readings don't fit, first make sure the switch of the source you turned off is on b (GND), not left open.\n\n**Power does not add**: alone, 1.55² × 3.3 ≈ 7.9 mW and 0.39² × 3.3 ≈ 0.5 mW, together 8.4 mW; with both on it is 1.94² × 3.3 ≈ 12.5 mW.",
       "measurements": [
-        {"ask": "V1 only (S1→a, S2→b): AM1 reading I3′", "explain": "V_N = 9 / 1.7576 ≈ 5.12 V, I3′ = V_N / 3.3 kΩ ≈ 1.55 mA."},
-        {"ask": "V2 only (S1→b, S2→a): AM1 reading I3″", "explain": "V_N = 2.273 / 1.7576 ≈ 1.29 V, I3″ ≈ 0.39 mA."},
-        {"ask": "Both on (a, a): AM1 reading I3", "explain": "I3 = I3′ + I3″ ≈ 1.55 + 0.39 = 1.94 mA: superposition holds."},
-        {"ask": "Both on: node N to GND, V_N", "explain": "V_N = (9/1 + 5/2.2) / 1.7576 ≈ 6.41 V = 5.12 + 1.29."},
-        {"ask": "From your three current readings, R3's power P = I²R: compared with I3²R, I3′²R + I3″²R is", "explain": "≈ 7.9 + 0.5 = 8.4 mW, but 1.94² × 3.3 ≈ 12.5 mW. (a + b)² = a² + b² + 2ab, and the 2ab is the difference: power goes with the square of the current and does not superpose.", "choices": ["smaller than the power with both sources on", "equal: power superposes too", "larger than the power with both sources on"]}
+        {
+          "ask": "Only V1 (S1 → a, S2 → b): AM1 reading I3′",
+          "explain": "V_N = 9 / 1.7576 ≈ 5.12 V, I3′ = V_N / 3.3 kΩ ≈ 1.55 mA."
+        },
+        {
+          "ask": "Only V2 (S1 → b, S2 → a): AM1 reading I3″",
+          "explain": "V_N = (5 / 2.2) / 1.7576 ≈ 1.29 V, I3″ ≈ 0.39 mA."
+        },
+        {
+          "ask": "Both on (a, a): AM1 reading I3",
+          "explain": "I3 = I3′ + I3″ ≈ 1.55 + 0.39 = 1.94 mA: superposition holds."
+        },
+        {
+          "ask": "Both on: N to GND, V_N",
+          "explain": "V_N = (9/1 + 5/2.2) / 1.7576 ≈ 6.41 V = 5.12 + 1.29. Voltages add too."
+        },
+        {
+          "choices": [
+            "smaller than the power with both sources on",
+            "equal: power superposes too",
+            "larger than the power with both sources on"
+          ],
+          "ask": "Square your three currents for R3's power P = I²R: I3′²R + I3″²R compared with I3²R is",
+          "explain": "≈ 7.9 + 0.5 = 8.4 mW, but 1.94² × 3.3 ≈ 12.5 mW. (a + b)² = a² + b² + 2ab; the extra 2ab is the gap. Power goes with the square of the current, so it does not superpose."
+        }
       ],
       "hints": [
-        "Two supplies: one on the top rails, one on the bottom rails, and a jumper joining the two blue rails as GND.",
-        "Each switch: side a to the supply +, side b to GND (really to GND, not left open), the middle com to the resistor.",
-        "Ammeter red lead at node N, black lead toward R3."
+        "Two supplies: one on the top rails, one on the bottom rails; join the two blue rails with a jumper as GND.",
+        "Each switch: a side to the supply's +, b side to GND (it must be GND, not left open), middle com to the resistor.",
+        "Ammeter: red lead on node N, black lead on R3."
       ],
       "tests": [
         "V1 only (S1→a, S2→b): sensible I3 and N",
         "V2 only (S1→b, S2→a): sensible I3 and N",
         "Both on (a, a): I3 is the sum of the two single-source currents"
+      ],
+      "cards": [
+        {
+          "title": "Three readings — spot the pattern",
+          "text": [
+            "Build it from the target schematic: **two bench supplies**, `9 V` and `5 V`, with their blue rails joined as GND. Each switch has its **a** side on a supply's + and its **b** side on GND.",
+            "**S1 → a, S2 → b**: read the ammeter **AM1**.",
+            "**S1 → b, S2 → a**: read AM1 again. Then **both on a**: read it a third time.",
+            "How does the third reading relate to the first two?"
+          ]
+        },
+        {
+          "title": "Each source pushes on its own; the pushes add",
+          "text": [
+            "- With a switch on **b**, its end of the resistor goes to GND: the supply is replaced by **a plain wire** (0 V). That is what \"turning a voltage source off\" means — a short, **not** an open lead.",
+            "- In a circuit made of resistors and sources, each source pushes current through R3 as if the other were that wire. Together, the pushes simply add:",
+            "$$I_3 = I_3' + I_3''$$",
+            "![](fig:alone)",
+            "- To predict each part, use the node voltage from 2.2: with only V1, $V_N' = \\frac{V_1/R_1}{1/R_1 + 1/R_2 + 1/R_3}$. The bottom is $1 + 0.4545 + 0.3030 = 1.758$ mS. Do the same for V2 alone.",
+            "- Before you measure: will the **power** in R3 add the same way?"
+          ]
+        },
+        {
+          "title": "Three settings, one by one",
+          "text": [
+            "- **S1 → a, S2 → b** (only V1), **S1 → b, S2 → a** (only V2), **both → a**: read AM1 each time.",
+            "- With both on a, also **measure N to GND** with the multimeter.",
+            "- Once the circuit check passes, fill in the questions. The last one squares your currents to get the power."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Superposition**: in a linear circuit, currents and voltages from several sources add up.",
+            "- Turning a source off: a voltage source becomes a **wire**, a current source becomes an **open** gap.",
+            "- **Power does not superpose**: $P = I^2R$ and $(a + b)^2 ≠ a^2 + b^2$.",
+            "- Pitfall: an LED or a diode is not linear. Put one in the path and the sums stop working."
+          ]
+        }
       ]
     }
   },
@@ -75,23 +205,78 @@
       "voltages": [{"pin": "R3.1", "ref": "V1.-", "min": 6.1, "max": 6.7}]
     }
   ],
-  "compare": "**对比**：分母 = 1 + 0.4545 + 0.3030 = 1.7576 mS。\n- 只有 V1（S1→a，S2→b）：V_N = 9 / 1.7576 ≈ **5.12 V**，I3 ≈ **1.55 mA**；\n- 只有 V2（S1→b，S2→a）：V_N = 2.273 / 1.7576 ≈ **1.29 V**，I3 ≈ **0.39 mA**；\n- 两个都接（a，a）：V_N ≈ **6.41 V**，I3 ≈ **1.94 mA** = 1.55 + 0.39 ✔。\n\n读数对不上时，先确认“置零”的那个开关拨到了 b（接 GND），而不是悬空。\n\n**功率不能叠加**：R3 的功率 P = I²R。单独作用时 1.55² × 3.3 ≈ 7.9 mW、0.39² × 3.3 ≈ 0.5 mW，加起来 8.4 mW；但两个一起时是 1.94² × 3.3 ≈ 12.5 mW。功率和电流是平方关系，不是线性的。",
+  "compare": "**对比**：分母 = 1 + 0.4545 + 0.3030 = 1.7576 mS。\n- 只有 V1（S1 → a，S2 → b）：V_N = 9 / 1.7576 ≈ **5.12 V**，I3 ≈ **1.55 mA**。\n- 只有 V2（S1 → b，S2 → a）：V_N = 2.273 / 1.7576 ≈ **1.29 V**，I3 ≈ **0.39 mA**。\n- 两个都接（a，a）：V_N ≈ **6.41 V**，I3 ≈ **1.94 mA** = 1.55 + 0.39 ✔。\n\n读数对不上时，先确认“置零”的那个开关拨到了 b（接 GND），而不是悬空。\n\n**功率不能叠加**：单独作用时 1.55² × 3.3 ≈ 7.9 mW、0.39² × 3.3 ≈ 0.5 mW，加起来 8.4 mW；两个一起时是 1.94² × 3.3 ≈ 12.5 mW。",
   "measurements": [
-    {"id": "i1", "current": "AM1", "set": {"S1": {"position": "a"}, "S2": {"position": "b"}}, "unit": "mA", "predict": true, "range": [0.00147, 0.00163], "ask": "只有 V1（S1→a，S2→b）：AM1 的读数 I3′", "explain": "V_N = 9 / 1.7576 ≈ 5.12 V，I3′ = V_N / 3.3 kΩ ≈ 1.55 mA。"},
-    {"id": "i2", "current": "AM1", "set": {"S1": {"position": "b"}, "S2": {"position": "a"}}, "unit": "mA", "predict": true, "range": [0.000372, 0.000411], "ask": "只有 V2（S1→b，S2→a）：AM1 的读数 I3″", "explain": "V_N = 2.273 / 1.7576 ≈ 1.29 V，I3″ ≈ 0.39 mA。"},
-    {"id": "i12", "current": "AM1", "set": {"S1": {"position": "a"}, "S2": {"position": "a"}}, "unit": "mA", "predict": true, "range": [0.00185, 0.00204], "ask": "两个都接（a，a）：AM1 的读数 I3", "explain": "I3 = I3′ + I3″ ≈ 1.55 + 0.39 = 1.94 mA，叠加定理成立。"},
-    {"id": "un", "voltage": "R3.1", "ref": "V1.-", "set": {"S1": {"position": "a"}, "S2": {"position": "a"}}, "unit": "V", "predict": true, "range": [6.09, 6.73], "ask": "两个都接：N 点对 GND 的电压 V_N", "explain": "V_N = (9/1 + 5/2.2) / 1.7576 ≈ 6.41 V = 5.12 + 1.29。"},
-    {"id": "power", "choices": ["单独作用的两个功率加起来，比一起作用时的功率小", "两者相等：功率也满足叠加定理", "单独作用的两个功率加起来，比一起作用时的功率大"], "correct": 0, "ask": "用你的三个电流读数算 R3 的功率 P = I²R：I3′²R + I3″²R 和 I3²R 相比，", "explain": "≈ 7.9 + 0.5 = 8.4 mW，而 1.94² × 3.3 ≈ 12.5 mW。(a + b)² = a² + b² + 2ab，多出的 2ab 就是差别：功率和电流是平方关系，不能叠加。"}
+    {
+      "id": "i1",
+      "current": "AM1",
+      "set": {"S1": {"position": "a"}, "S2": {"position": "b"}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00147, 0.00163],
+      "ask": "只有 V1（S1 → a，S2 → b）：AM1 的读数 I3′",
+      "explain": "V_N = 9 / 1.7576 ≈ 5.12 V，I3′ = V_N / 3.3 kΩ ≈ 1.55 mA。"
+    },
+    {
+      "id": "i2",
+      "current": "AM1",
+      "set": {"S1": {"position": "b"}, "S2": {"position": "a"}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.000372, 0.000411],
+      "ask": "只有 V2（S1 → b，S2 → a）：AM1 的读数 I3″",
+      "explain": "V_N = (5 / 2.2) / 1.7576 ≈ 1.29 V，I3″ ≈ 0.39 mA。"
+    },
+    {
+      "id": "i12",
+      "current": "AM1",
+      "set": {"S1": {"position": "a"}, "S2": {"position": "a"}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00185, 0.00204],
+      "ask": "两个都接（a，a）：AM1 的读数 I3",
+      "explain": "I3 = I3′ + I3″ ≈ 1.55 + 0.39 = 1.94 mA，叠加定理成立。"
+    },
+    {
+      "id": "un",
+      "voltage": "R3.1",
+      "ref": "V1.-",
+      "set": {"S1": {"position": "a"}, "S2": {"position": "a"}},
+      "unit": "V",
+      "predict": true,
+      "range": [6.09, 6.73],
+      "ask": "两个都接：N 对 GND 的电压 V_N",
+      "explain": "V_N = (9/1 + 5/2.2) / 1.7576 ≈ 6.41 V = 5.12 + 1.29。电压也能叠加。"
+    },
+    {
+      "id": "power",
+      "choices": ["单独作用的两个功率加起来，比一起作用时的功率小", "两者相等：功率也满足叠加定理", "单独作用的两个功率加起来，比一起作用时的功率大"],
+      "correct": 0,
+      "ask": "用你的三个电流读数算 R3 的功率 P = I²R：I3′²R + I3″²R 和 I3²R 相比，",
+      "explain": "≈ 7.9 + 0.5 = 8.4 mW，而 1.94² × 3.3 ≈ 12.5 mW。(a + b)² = a² + b² + 2ab，多出的 2ab 就是差别：功率和电流是平方关系，不能叠加。"
+    }
   ],
   "hints": [
     "两台电源：一台接上方电源轨，一台接下方电源轨，用跳线把两条蓝轨连起来当 GND。",
-    "开关的 a 侧接电源 +，b 侧接 GND（一定是接 GND，不是空着），中间 com 接电阻。",
+    "开关的 a 侧接电源 +，b 侧接 GND（一定要接 GND，不能空着），中间 com 接电阻。",
     "电流表红表笔接结点 N，黑表笔接 R3。"
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "bench_supply", "ref": "PSU2", "voltage": 5, "currentLimit": 0.1, "pins": {"+": "bp1", "-": "bn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
+      {
+        "type": "bench_supply",
+        "ref": "PSU2",
+        "voltage": 5,
+        "currentLimit": 0.1,
+        "pins": {"+": "bp1", "-": "bn1"}
+      },
       {"type": "wire", "pins": {"a": "tn3", "b": "bn3"}, "color": "blue"},
       {"type": "switch", "ref": "S1", "at": "c5"},
       {"type": "wire", "pins": {"a": "tp5", "b": "a5"}, "color": "red"},

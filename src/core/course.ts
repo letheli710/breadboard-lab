@@ -63,7 +63,7 @@ export const WORLDS: World[] = [
       { num: '2.2', items: ['exp-nodal-analysis'], practice: ['methods'] },
       {
         num: '2.3',
-        items: ['exp-source-transformation', 'exp-superposition'],
+        items: ['exp-superposition', 'exp-source-transformation'],
         practice: ['theorems'],
       },
       { num: '2.4', items: ['exp-thevenin-measure', 'exp-max-power'], practice: ['theorems'] },
