@@ -398,6 +398,8 @@ const TESTS = {
       };
       await setTemp(25);
       assert(/is LOW/.test(await ruleNote()), 'rule: 25 °C, the fan pin is LOW (' + (await ruleNote()) + ')');
+      const code = (await p.locator('.rule-editor .rule-code').first().textContent()) || '';
+      assert(code.includes('else if (analogRead(GPIO34) < 2524) GPIO26 = LOW;'), 'rule: the code line spells out the hysteresis turn-off reading (' + code + ')');
       await setTemp(60);
       assert(/is HIGH/.test(await ruleNote()), 'rule: dragged to 60 °C, the fan pin turns HIGH by itself');
       await setTemp(39);

@@ -13,6 +13,7 @@ import { pinReadout, useDerived } from '../state/derived';
 import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { HiddenReadingsNote } from './HiddenReadings';
 import { useStore } from '../state/store';
+import { ruleCode } from '../core/mcuRules';
 import { prefersReducedMotion } from './reveal';
 
 const T = (p: [string, string]) => tr(p[0], p[1]);
@@ -207,7 +208,7 @@ function RuleEditor({ part, pin, rule, onChange }: { part: PlacedPart; pin: stri
   const out = st?.pins.get(pin)?.logic;
   return (
     <div className="editor rule-editor">
-      <code className="rule-code">{`if (analogRead(${r.adc}) ${below ? '<' : '>'} ${thr}) ${pin} = HIGH; else ${pin} = LOW;`}</code>
+      <code className="rule-code">{ruleCode(r, pin)}</code>
       <div className="row">
         <label>
           {tr('读哪个 ADC 引脚', 'ADC pin to read')}{' '}

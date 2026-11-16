@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseChallenge } from './challenge';
 import { checkCircuit } from './check';
-import { ruleOutput, type RuleState } from './mcuRules';
+import { ruleCode, ruleOutput, type RuleState } from './mcuRules';
 import { buildNetlist } from './netlist';
 import { simulate } from './solver';
 import { simulateTransient } from './transient';
@@ -34,6 +34,21 @@ describe('threshold rules', () => {
     expect([ruleOutput(r, 2001, false), ruleOutput(r, 1950, false), ruleOutput(r, 1950, true), ruleOutput(r, 1899, true)]).toEqual([true, false, true, false]);
     const b = { adc: 'X', below: 1000 };
     expect([ruleOutput(b, 999, false), ruleOutput(b, 1001, true)]).toEqual([true, false]);
+    // exactly the code line: off only when the reading is strictly past threshold ∓ hysteresis
+    expect([ruleOutput(r, 1900, true), ruleOutput(r, 1899, true), ruleOutput(r, 2000, true), ruleOutput(r, 2000, false)]).toEqual([true, false, true, false]);
+    const bh = { adc: 'X', below: 1000, hysteresis: 50 };
+    expect([ruleOutput(bh, 1050, true), ruleOutput(bh, 1051, true), ruleOutput(bh, 1020, false)]).toEqual([true, false, false]);
+  });
+
+  it('spell the turn-off reading out in the code line when there is hysteresis', () => {
+    expect(ruleCode({ adc: 'GPIO34', above: 2674, hysteresis: 150 }, 'GPIO26')).toBe(
+      'if (analogRead(GPIO34) > 2674) GPIO26 = HIGH; else if (analogRead(GPIO34) < 2524) GPIO26 = LOW;',
+    );
+    expect(ruleCode({ adc: 'GPIO34', below: 800, hysteresis: 100 }, 'GPIO27')).toBe(
+      'if (analogRead(GPIO34) < 800) GPIO27 = HIGH; else if (analogRead(GPIO34) > 900) GPIO27 = LOW;',
+    );
+    expect(ruleCode({ adc: 'GPIO34', above: 2674 }, 'GPIO26')).toBe('if (analogRead(GPIO34) > 2674) GPIO26 = HIGH; else GPIO26 = LOW;');
+    expect(ruleCode({ adc: 'GPIO34', above: 100, hysteresis: 500 }, 'GPIO26')).toContain('< 0)');
   });
 
   it('switch the fan and the LED with the temperature', () => {

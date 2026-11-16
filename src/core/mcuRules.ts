@@ -37,12 +37,35 @@ export function hasRules(circuit: Circuit): boolean {
   return rulePins(circuit).length > 0;
 }
 
-/** The output a rule wants for a reading, given its present output (hysteresis). */
-export function ruleOutput(rule: PinRule, raw: number, wasHigh: boolean): boolean {
+/** The reading that turns a HIGH rule output off again (hysteresis > 0), or null without
+ *  hysteresis. `above`: off once the reading drops below threshold − hysteresis; `below`: off once
+ *  it rises above threshold + hysteresis. Clamped to the 12-bit range, as the editor shows it. */
+export function ruleOffAt(rule: PinRule): number | null {
   const h = Math.max(0, rule.hysteresis ?? 0);
-  if (rule.below !== undefined) return wasHigh ? raw < rule.below + h : raw < rule.below;
-  if (rule.above !== undefined) return wasHigh ? raw > rule.above - h : raw > rule.above;
+  if (!h) return null;
+  if (rule.below !== undefined) return Math.min(4095, rule.below + h);
+  if (rule.above !== undefined) return Math.max(0, rule.above - h);
+  return null;
+}
+
+/** The output a rule wants for a reading, given its present output (hysteresis). It is exactly the
+ *  firmware the editor shows:
+ *      if (raw > above) HIGH; else if (raw < above − h) LOW;   // otherwise keep the output
+ */
+export function ruleOutput(rule: PinRule, raw: number, wasHigh: boolean): boolean {
+  const off = ruleOffAt(rule);
+  if (rule.below !== undefined) return raw < rule.below || (wasHigh && off !== null && raw <= off);
+  if (rule.above !== undefined) return raw > rule.above || (wasHigh && off !== null && raw >= off);
   return false;
+}
+
+/** The firmware line a rule stands for; with hysteresis the turn-off reading is spelled out. */
+export function ruleCode(r: PinRule, pin: string): string {
+  const below = r.below !== undefined;
+  const thr = (below ? r.below : r.above) ?? 2048;
+  const on = `if (analogRead(${r.adc}) ${below ? '<' : '>'} ${thr}) ${pin} = HIGH;`;
+  const off = ruleOffAt(r);
+  return off === null ? `${on} else ${pin} = LOW;` : `${on} else if (analogRead(${r.adc}) ${below ? '>' : '<'} ${off}) ${pin} = LOW;`;
 }
 
 /** The circuit with every rule pin replaced by out_high / out_low per `state` (unset = LOW). */

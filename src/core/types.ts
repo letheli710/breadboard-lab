@@ -44,8 +44,9 @@ export const PIN_MODES: PinMode[] = ['out_high', 'out_low', 'input', 'input_pull
 
 /** A threshold rule (pin mode `rule`): the output follows an ADC pin of the same board, like
  *  `digitalWrite(pin, analogRead(adc) > above)` in a loop. Readings are 12-bit counts (0–4095).
- *  With `hysteresis` the output turns on past the threshold and only turns off again
- *  `hysteresis` counts back on the other side (a firmware Schmitt trigger). */
+ *  With `hysteresis` the output turns on past the threshold and only turns off once the reading
+ *  is strictly past threshold ∓ hysteresis (`else if (analogRead(adc) < above - h) LOW;`, a
+ *  firmware Schmitt trigger); in between it keeps its output. */
 export interface PinRule {
   /** the board's pin whose ADC reading is compared */
   adc: string;

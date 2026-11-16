@@ -624,7 +624,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 
 模式：`out_high`（输出高）、`out_low`（输出低）、`input`（浮空输入）、`input_pullup`（输入 + 内部上拉）、`input_pulldown`（输入 + 内部下拉）、`pwm`（`duty` 0–100 %，默认 50；`frequency` Hz，默认 1000）、`adc`（模拟输入）。没写的引脚是 `input`。输出模式（`out_high` / `out_low` / `pwm`）可以加 `"openDrain": true`（开漏）：输出“高”时只是松开引脚，要靠上拉电阻拉高——I²C 总线就是这样，可以配合示波器的 `rise` 测上拉电阻 × 总线电容决定的上升时间（约 2.2·R·C），例如 `{ "mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true }`。引脚不支持的模式会报错（例如 GPIO34 的 `out_high`）。
 
-**阈值规则** `rule`（代替几行固件）：输出跟着同一块板子上某个 ADC 引脚的读数（12 位，0–4095），`{ "mode": "rule", "rule": { "adc": "ADC1", "above": 2674, "hysteresis": 150 } }` 就是 `digitalWrite(pin, analogRead(ADC1) > 2674)`；`below` 代替 `above` 时读数低于阈值才输出高。`hysteresis`（回差，默认 0）：输出高之后，读数要退回阈值另一侧这么多才变低。`adc` 可以写逻辑引脚（会翻译成学生用的物理引脚）。仿真时规则在直流求解外面迭代到稳定（每次检查 / 每个测试都从“输出低”开始）；面包板上拖温度、光照滑块时，规则记得上一次的输出，所以回差有效。规则引脚算输出（只能用能输出的引脚，可以加 `openDrain`）。
+**阈值规则** `rule`（代替几行固件）：输出跟着同一块板子上某个 ADC 引脚的读数（12 位，0–4095），`{ "mode": "rule", "rule": { "adc": "ADC1", "above": 2674, "hysteresis": 150 } }` 就是 `digitalWrite(pin, analogRead(ADC1) > 2674)`；`below` 代替 `above` 时读数低于阈值才输出高。`hysteresis`（回差，默认 0）：输出高之后，读数要越过 阈值 ∓ 回差 才变低，即 `if (analogRead(ADC1) > 2674) HIGH; else if (analogRead(ADC1) < 2524) LOW;`（其余情况保持原输出，编辑器里显示的就是这行代码）。`adc` 可以写逻辑引脚（会翻译成学生用的物理引脚）。仿真时规则在直流求解外面迭代到稳定（每次检查 / 每个测试都从“输出低”开始）；面包板上拖温度、光照滑块时，规则记得上一次的输出，所以回差有效。规则引脚算输出（只能用能输出的引脚，可以加 `openDrain`）。
 
 - 写在**目标电路**里的模式是答案的一部分：学生必须在属性里把对应的引脚设成同样的模式（PWM 的占空比相差 ≤ 1 %、频率在 `tolerance` 内）。如果模式不是考点，就不要写在目标里，而是在每个 test 的 `set` 里设置。
 - 目标里没写模式的逻辑引脚，自检时按默认模式仿真：`GPIO_OUT` → `out_low`，`PWM` → `pwm`，`ADC` → `adc`，其他 → `input`。
