@@ -250,7 +250,10 @@ function RuleEditor({ part, pin, rule, onChange }: { part: PlacedPart; pin: stri
         {v === undefined
           ? tr(`${r.adc} 没有接线：规则读不到电压，输出保持低。`, `${r.adc} is not wired: the rule reads nothing, so the output stays LOW.`)
           : hide
-            ? tr('现在的读数：—', 'Reading now: —')
+            ? tr(
+                `现在 ${pin} 输出${out === 'high' ? '高' : '低'}（ADC 读数先隐藏，答完测量题再看）。`,
+                `${pin} is ${out === 'high' ? 'HIGH' : 'LOW'} now (the ADC number stays hidden until the measurement questions are answered).`,
+              )
             : tr(
                 `现在 ${r.adc} 读到 ${adcRaw(v)}（${v.toFixed(2)} V）→ ${pin} 输出${out === 'high' ? '高' : '低'}。`,
                 `${r.adc} reads ${adcRaw(v)} (${v.toFixed(2)} V) now → ${pin} is ${out === 'high' ? 'HIGH' : 'LOW'}.`,
