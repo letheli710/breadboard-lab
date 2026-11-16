@@ -90,7 +90,10 @@ export function checkerView(user: Circuit, targetHasAmmeter: boolean): { circuit
 }
 
 /** Typical wiring mistakes worth naming: user-terminal relabelling that would fix the wiring. */
-const MISTAKES: Partial<Record<CComponent['type'], { swap: Record<string, string>; zh: (r: string) => string; en: (r: string) => string; title: [string, string] }[]>> = {
+/** `posFb`: the target op-amp feeds its output back to IN+ on purpose (a Schmitt trigger) */
+const MISTAKES: Partial<
+  Record<CComponent['type'], { swap: Record<string, string>; zh: (r: string, posFb?: boolean) => string; en: (r: string, posFb?: boolean) => string; title: [string, string] }[]>
+> = {
   npn: [
     {
       swap: { e: 'c', c: 'e' },
@@ -129,12 +132,32 @@ const MISTAKES: Partial<Record<CComponent['type'], { swap: Record<string, string
     {
       swap: { 'inA-': 'inA+', 'inA+': 'inA-', 'inB-': 'inB+', 'inB+': 'inB-' },
       title: [' 的 + 和 − 输入接反了', "'s + and − inputs are swapped"],
-      zh: (r) => `${r} 的反相输入（IN−）和同相输入（IN+）对调了。反馈必须接到 IN−（负反馈）；接到 IN+ 会变成正反馈，输出直接撞到电源轨。`,
-      en: (r) =>
-        `${r}'s inverting (IN−) and non-inverting (IN+) inputs are swapped. Feedback must go to IN− (negative feedback); feeding IN+ makes positive feedback and the output slams into a rail.`,
+      zh: (r, posFb) =>
+        posFb
+          ? `${r} 的反相输入（IN−）和同相输入（IN+）对调了。这个电路故意把反馈接到 IN+（正反馈），才有两个门限；输入信号接 IN−。接反以后它变成普通的负反馈放大器，回差就没了。`
+          : `${r} 的反相输入（IN−）和同相输入（IN+）对调了。反馈必须接到 IN−（负反馈）；接到 IN+ 会变成正反馈，输出直接撞到电源轨。`,
+      en: (r, posFb) =>
+        posFb
+          ? `${r}'s inverting (IN−) and non-inverting (IN+) inputs are swapped. This circuit feeds its output back to IN+ on purpose (positive feedback) — that is what makes the two thresholds — and the input signal goes to IN−. Swapped, it turns into an ordinary negative-feedback amplifier and the hysteresis is gone.`
+          : `${r}'s inverting (IN−) and non-inverting (IN+) inputs are swapped. Feedback must go to IN− (negative feedback); feeding IN+ makes positive feedback and the output slams into a rail.`,
     },
   ],
 };
+
+/** True if a part of the target joins an op-amp's output to its own IN+ (positive feedback by design). */
+function feedsPlus(ctx: Ctx, ref: string): boolean {
+  for (const h of ['A', 'B']) {
+    const out = ctx.tNetOf.get(`${ref}.out${h}`);
+    const plus = ctx.tNetOf.get(`${ref}.in${h}+`);
+    if (out === undefined || plus === undefined) continue;
+    for (const c of ctx.target.components) {
+      if (c.ref === ref) continue;
+      const nets = new Set(terminalsOf(c.type).map((x) => ctx.tNetOf.get(pinId(c.ref, x))));
+      if (nets.has(out) && nets.has(plus)) return true;
+    }
+  }
+  return false;
+}
 
 function compatible(t: CComponent, u: CComponent): boolean {
   if (t.type === 'dc_source') return isPower(u.type);
@@ -688,10 +711,11 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
       }
     if (bestAlt) {
       const { mk } = bestAlt;
+      const posFb = t.type === 'opamp' && feedsPlus(ctx, t.ref);
       issues.push({
         severity: 'error',
         title: tr(`${a.u.ref}${mk.title[0]}`, `${a.u.ref}${mk.title[1]}`),
-        detail: tr(mk.zh(a.u.ref), mk.en(a.u.ref)),
+        detail: tr(mk.zh(a.u.ref, posFb), mk.en(a.u.ref, posFb)),
         refs: [a.u.ref],
         holes: holesOf(terminalsOf(a.u.type).map((x) => pinId(a.u.ref, x))),
       });

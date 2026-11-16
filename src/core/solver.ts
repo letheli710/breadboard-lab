@@ -329,6 +329,8 @@ export interface COpAmpHalf {
   vn: number;
   used: boolean;
   mode: OpAmpMode;
+  /** the rail it just left for 'linear' (positive-feedback detection, see updatePwl) */
+  bounce?: 'high' | 'low' | null;
 }
 
 // ---- phase 5 compiled devices -------------------------------------------------------
@@ -1050,15 +1052,21 @@ export function updatePwl(c: Compiled, x: Float64Array | number[], emf: (src: CS
       // way. Leaving a rail always goes back to 'linear' first; the linear solution then
       // decides whether the other rail is really reached (jumping straight to the opposite
       // rail turned every amplifier into a comparator).
+      // With positive feedback (a Schmitt trigger, or IN+ / IN− swapped) the linear solution is
+      // an unstable balance point: an output that has just left one rail and lands beyond the
+      // same rail again in 'linear' is being pushed away, so it goes to the opposite rail.
       if (mode === 'off') mode = 'linear';
-      else if (mode === 'linear') mode = ideal > hi + eps ? 'high' : ideal < lo - eps ? 'low' : 'linear';
-      else if (mode === 'high' && ideal < hi - eps) mode = 'linear';
+      else if (mode === 'linear') {
+        if (ideal > hi + eps) mode = o.bounce === 'high' ? 'low' : 'high';
+        else if (ideal < lo - eps) mode = o.bounce === 'low' ? 'high' : 'low';
+      } else if (mode === 'high' && ideal < hi - eps) mode = 'linear';
       else if (mode === 'low' && ideal > lo + eps) mode = 'linear';
     }
     if (mode !== o.mode && !frozen) {
+      o.bounce = o.mode === 'high' || o.mode === 'low' ? (mode === 'linear' ? o.mode : null) : mode === 'linear' ? o.bounce : null;
       o.mode = mode;
       changed = true;
-    }
+    } else if (mode === 'linear' && o.mode === 'linear') o.bounce = null;
   }
   const set = <T, K extends keyof T>(o: T, k: K, v: T[K]) => {
     if (o[k] !== v && !frozen) {
@@ -1144,6 +1152,31 @@ function stampDcLinear(c: Compiled, s: Stamper) {
 /** DC operating point of a compiled circuit (PWL states are updated in place). `lu` is the
  *  factorised DC matrix of the final state (used for impedance probing). */
 export function solveDcCompiled(c: Compiled, emf: (src: CSource) => number = (s) => s.v): { x: Float64Array; converged: boolean; lu: LU | null } {
+  let r = settleDc(c, emf);
+  // An op-amp that settled in 'linear' may be sitting on the unstable balance point of a
+  // positive-feedback loop (a Schmitt trigger inside its hysteresis band). Try each rail: if the
+  // circuit holds the op-amp there by itself, that is where a real one ends up.
+  for (const o of c.opamps) {
+    if (!o.used || o.mode !== 'linear' || !r.converged) continue;
+    const keep = c.opamps.map((q) => q.mode);
+    let held = false;
+    for (const rail of ['high', 'low'] as const) {
+      o.mode = rail;
+      o.bounce = null;
+      const t = settleDc(c, emf);
+      if (t.converged && o.mode === rail) {
+        r = t;
+        held = true;
+        break;
+      }
+      c.opamps.forEach((q, i) => (q.mode = keep[i]));
+    }
+    if (!held) r = settleDc(c, emf);
+  }
+  return r;
+}
+
+function settleDc(c: Compiled, emf: (src: CSource) => number): { x: Float64Array; converged: boolean; lu: LU | null } {
   const N = c.N;
   let x = new Float64Array(N);
   let converged = N === 0;
