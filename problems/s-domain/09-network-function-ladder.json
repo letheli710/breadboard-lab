@@ -7,8 +7,8 @@
   "level": 3,
   "tags": ["网络函数", "极点", "频率响应", "阶跃响应"],
   "statement": [
-    "图示两节 RC 梯形网络中 R_1 = R_2 = 1 kΩ，C_1 = C_2 = 1 mF，输入 v_s = u(t) V，输出为 o 端对地的电压 v_o，t < 0 时无储能。",
-    "求电压转移函数 H(s) = V_o(s)/V_s(s)，写成 \\frac{b_0}{s² + a_1 s + a_0}（分母首项系数为 1），求它的极点、H(0) 和 |H(j1)|，并判断阶跃响应的形状。"
+    "图示两节 RC 梯形网络中 R_1 = R_2 = 1 kΩ，C_1 = C_2 = 1 mF。输入 v_s = u(t) V，输出 v_o 是 o 端对地的电压。t < 0 时无储能。",
+    "求电压转移函数 H(s) = V_o(s)/V_s(s)，写成 \\frac{b_0}{s² + a_1 s + a_0}（分母首项系数为 1）。再求它的极点、H(0) 和 |H(j1)|，并判断阶跃响应的形状。"
   ],
   "schematic": {
     "elements": [
@@ -31,7 +31,7 @@
       "find": {"kind": "hcoef", "out": ["o"], "input": "Vs", "of": "den", "power": 1},
       "answer": 3.0,
       "unit": "1/s",
-      "explain": "结点 a、o 列 KCL（运算形式）可得 H(s) = \\frac{1}{s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1}。各 RC = 1 s：H(s) = \\frac{1}{s² + 3s + 1}，a_1 = 3（注意交叉项 R_{1}C_{2}，两节不能简单相乘）。"
+      "explain": "结点 a、o 列 KCL（运算形式）可得 H(s) = \\frac{1}{s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1}。各 RC = 1 s，所以 H(s) = \\frac{1}{s² + 3s + 1}，a_1 = 3。注意交叉项 R_{1}C_{2}：两节的函数不能简单相乘。"
     },
     {
       "id": "p1",
@@ -47,7 +47,7 @@
       "find": {"kind": "pole", "out": ["o"], "input": "Vs", "n": 2},
       "answer": -2.618034,
       "unit": "1/s",
-      "explain": "p_2 = (−3 − √5)/2 ≈ −2.618 s⁻¹；p_1p_2 = 1 = a_0，p_1 + p_2 = −3 = −a_1。"
+      "explain": "p_2 = (−3 − √5)/2 ≈ −2.618 s⁻¹。验算：p_{1}p_{2} = 1 = a_0，p_1 + p_2 = −3 = −a_1。"
     },
     {
       "id": "H0",
@@ -55,7 +55,7 @@
       "find": {"kind": "H", "out": ["o"], "input": "Vs", "s": 0},
       "answer": 1.0,
       "unit": "",
-      "explain": "H(0) = 1/1 = 1：直流时电容开路，电阻上没有电流，v_o = v_s。它也是阶跃响应的终值 v_o(∞)（终值定理：lim_{s→0} s·H(s)/s = H(0)）。"
+      "explain": "H(0) = 1/1 = 1：直流时电容开路，电阻上没有电流，v_o = v_s。它也是阶跃响应的终值 v_o(∞)，由终值定理：lim_{s→0} s·H(s)/s = H(0)。"
     },
     {
       "id": "Hj1",
@@ -68,43 +68,43 @@
     {
       "id": "shape",
       "ask": "阶跃响应 v_o(t) 的形状是：",
-      "choices": ["单调上升到 1 V，没有过冲（两个负实数极点）", "衰减振荡，最终趋于 1 V", "等幅振荡", "先上升后下降到 0"],
+      "choices": ["单调上升到终值，没有过冲（两个负实数极点）", "衰减振荡，最终趋于终值", "等幅振荡", "先上升后下降到 0"],
       "correct": 0,
       "choiceExplain": ["", "振荡需要共轭复数极点；只由 R、C 组成的电路没有复数极点。", "等幅振荡要求极点在虚轴上。", "终值由 H(0) 决定（终值定理）；这个网络 H(0) ≠ 0，阶跃响应不会回到 0。"],
-      "explain": "极点 −0.382、−2.618 都在负实轴上，v_o = 1 + K_{1}e^{p_{1}t} + K_{2}e^{p_{2}t}，不振荡；RC 梯形网络的极点总是负实数。"
+      "explain": "极点 −0.382、−2.618 都在负实轴上，v_o = 1 + K_{1}e^{p_{1}t} + K_{2}e^{p_{2}t}，不振荡。RC 梯形网络的极点总是负实数。"
     }
   ],
   "hints": [
-    "运算电路：电容 1/(sC)，零初始状态；对结点 a、o 列结点方程（或从输出端往回推）。",
-    "从输出端倒推：V_o 已知时，I_{R2} = sC_2V_o，V_a = (1 + sR_{2}C_{2})V_o，再求 V_s。",
+    "运算电路：电容 1/(sC)，零初始状态。对结点 a、o 列结点方程，或者从输出端往回推。",
+    "从输出端倒推：V_o 已知时，I_{R2} = sC_{2}V_o，V_a = (1 + sR_{2}C_{2})V_o，再求 V_s。",
     "分母 s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1。"
   ],
   "solution": [
-    "**1. 倒推。** V_a = (1 + sR_{2}C_{2})V_o = (1 + s)V_o；R_1 中的电流 = sC_{1}V_a + sC_{2}V_o = [s(1 + s) + s]V_o；V_s = V_a + R_1·(…) = (s² + 3s + 1)V_o（数值按 R = 1 kΩ、C = 1 mF，RC = 1 s 代入）。",
+    "**1. 倒推。** 代入 R = 1 kΩ、C = 1 mF，每个 RC = 1 s。V_a = (1 + sR_{2}C_{2})V_o = (1 + s)V_o。R_1 上的电压 = R_1(sC_{1}V_a + sC_{2}V_o) = [s(1 + s) + s]V_o。所以 V_s = V_a + R_1 上的电压 = (s² + 3s + 1)V_o。",
     "**2. 网络函数。** H(s) = \\frac{1}{s² + 3s + 1}：**b_0 = 1，a_1 = 3，a_0 = 1**。",
     "**3. 极点。** **p_{1,2} = (−3 ± √5)/2 ≈ −0.382、−2.618 s⁻¹**。",
     "**4. 特殊值。** **H(0) = 1**；**|H(j1)| = 1/|j3| = 1/3**。",
     "**5. 阶跃响应。** V_o(s) = H(s)/s，v_o = 1 + K_{1}e^{−0.382t} + K_{2}e^{−2.618t}，单调上升到 1 V。",
-    "**检验：** 只有 R_{1}C_{1} 时 H = 1/(1 + s)；第二节的负载效应使 a_1 从 1 + 1 = 2 变成 3。"
+    "**检验：** 只有 R_{1}C_{1} 一节时 H = 1/(1 + s)。第二节的负载效应使 a_1 从 1 + 1 = 2 变成 3。"
   ],
   "i18n": {
     "en": {
       "title": "Network function of an RC ladder",
       "tags": ["network function", "poles", "frequency response", "step response"],
       "statement": [
-        "In the two-section RC ladder R_1 = R_2 = 1 kΩ, C_1 = C_2 = 1 mF, the input is v_s = u(t) V and the output is the voltage v_o from o to ground; no energy is stored for t < 0.",
-        "Find the voltage transfer function H(s) = V_o(s)/V_s(s) in the form \\frac{b_0}{s² + a_1 s + a_0} (leading denominator coefficient 1), its poles, H(0) and |H(j1)|, and decide the shape of the step response."
+        "In the two-section RC ladder R_1 = R_2 = 1 kΩ and C_1 = C_2 = 1 mF. The input is v_s = u(t) V; the output v_o is the voltage from o to ground. No energy is stored for t < 0.",
+        "Find the voltage transfer function H(s) = V_o(s)/V_s(s) in the form \\frac{b_0}{s² + a_1 s + a_0} (leading denominator coefficient 1). Then find its poles, H(0) and |H(j1)|, and decide the shape of the step response."
       ],
       "questions": [
         {
           "ask": "Denominator coefficient a_1 = ?",
-          "explain": "KCL at nodes a and o in the s-domain gives H(s) = \\frac{1}{s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1}. Every RC = 1 s: H(s) = \\frac{1}{s² + 3s + 1}, a_1 = 3 (mind the cross term R_{1}C_{2}: the two sections do not simply multiply)."
+          "explain": "KCL at nodes a and o in the s-domain gives H(s) = \\frac{1}{s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1}. Every RC = 1 s, so H(s) = \\frac{1}{s² + 3s + 1} and a_1 = 3. Mind the cross term R_{1}C_{2}: the two sections' functions do not simply multiply."
         },
         {"ask": "The pole closer to the jω axis, p_1 = ?", "explain": "s² + 3s + 1 = 0 → s = (−3 ± √5)/2: p_1 = −0.382 1/s."},
-        {"ask": "The other pole p_2 = ?", "explain": "p_2 = (−3 − √5)/2 ≈ −2.618 1/s; p_1p_2 = 1 = a_0 and p_1 + p_2 = −3 = −a_1."},
+        {"ask": "The other pole p_2 = ?", "explain": "p_2 = (−3 − √5)/2 ≈ −2.618 1/s. Check: p_{1}p_{2} = 1 = a_0 and p_1 + p_2 = −3 = −a_1."},
         {
           "ask": "H(0) = ?",
-          "explain": "H(0) = 1/1 = 1: at DC the capacitors are open, no current flows in the resistors and v_o = v_s. It is also the final value of the step response (final-value theorem: lim_{s→0} s·H(s)/s = H(0))."
+          "explain": "H(0) = 1/1 = 1: at DC the capacitors are open, no current flows in the resistors and v_o = v_s. It is also the final value of the step response, by the final-value theorem: lim_{s→0} s·H(s)/s = H(0)."
         },
         {
           "ask": "|H(j1)| = ?",
@@ -112,10 +112,10 @@
         },
         {
           "ask": "The step response v_o(t) is:",
-          "explain": "Both poles −0.382 and −2.618 are on the negative real axis: v_o = 1 + K_{1}e^{p_{1}t} + K_{2}e^{p_{2}t} does not oscillate; RC ladders always have negative real poles.",
+          "explain": "Both poles −0.382 and −2.618 are on the negative real axis: v_o = 1 + K_{1}e^{p_{1}t} + K_{2}e^{p_{2}t} does not oscillate. RC ladders always have negative real poles.",
           "choices": [
-            "a monotonic rise to 1 V without overshoot (two negative real poles)",
-            "a decaying oscillation settling at 1 V",
+            "a monotonic rise to the final value without overshoot (two negative real poles)",
+            "a decaying oscillation settling at the final value",
             "a sustained oscillation",
             "a rise followed by a decay to 0"
           ],
@@ -128,17 +128,17 @@
         }
       ],
       "hints": [
-        "s-domain circuit: capacitors 1/(sC), zero initial state; write node equations at a and o (or work back from the output).",
-        "Working back: with V_o known, I_{R2} = sC_2V_o, V_a = (1 + sR_{2}C_{2})V_o, then find V_s.",
+        "s-domain circuit: capacitors 1/(sC), zero initial state. Write node equations at a and o, or work back from the output.",
+        "Working back: with V_o known, I_{R2} = sC_{2}V_o, V_a = (1 + sR_{2}C_{2})V_o, then find V_s.",
         "The denominator is s²R_{1}C_{1}R_{2}C_{2} + s(R_{1}C_{1} + R_{2}C_{2} + R_{1}C_{2}) + 1."
       ],
       "solution": [
-        "**1. Work back.** V_a = (1 + sR_{2}C_{2})V_o = (1 + s)V_o; the current in R_1 = sC_{1}V_a + sC_{2}V_o = [s(1 + s) + s]V_o; V_s = V_a + R_1·(…) = (s² + 3s + 1)V_o (with R = 1 kΩ, C = 1 mF, RC = 1 s).",
+        "**1. Work back.** With R = 1 kΩ and C = 1 mF, every RC = 1 s. V_a = (1 + sR_{2}C_{2})V_o = (1 + s)V_o. The voltage across R_1 = R_1(sC_{1}V_a + sC_{2}V_o) = [s(1 + s) + s]V_o. So V_s = V_a + the voltage across R_1 = (s² + 3s + 1)V_o.",
         "**2. Network function.** H(s) = \\frac{1}{s² + 3s + 1}: **b_0 = 1, a_1 = 3, a_0 = 1**.",
         "**3. Poles.** **p_{1,2} = (−3 ± √5)/2 ≈ −0.382, −2.618 1/s**.",
         "**4. Special values.** **H(0) = 1**; **|H(j1)| = 1/|j3| = 1/3**.",
         "**5. Step response.** V_o(s) = H(s)/s, v_o = 1 + K_{1}e^{−0.382t} + K_{2}e^{−2.618t}: a monotonic rise to 1 V.",
-        "**Check:** with R_{1}C_{1} alone H = 1/(1 + s); the loading by the second section turns a_1 = 1 + 1 = 2 into 3."
+        "**Check:** with the R_{1}C_{1} section alone H = 1/(1 + s). The loading by the second section turns a_1 = 1 + 1 = 2 into 3."
       ]
     }
   }

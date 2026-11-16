@@ -132,7 +132,7 @@ The textbooks are used for chapter structure and conventions only; all lesson te
 | 4.3 | 有源低通；两级 RC 的负载效应 → 加跟随器 | 266、267、268 |
 | 4.4 | 交流功率：功率因数校正（新实验） | 270 |
 | 4.5 | 半波整流 + 电容滤波（新实验，非正弦波的入口）；选学：拉普拉斯、二端口 | 271 |
-| 理论 | `phasors`、`ac-analysis`、`frequency`；`ac-power`、`three-phase`、`coupled`（4.4）；`non-sinusoidal`、`s-domain`、`two-port`（4.5） | |
+| 理论 | `phasors`、`ac-analysis`、`frequency`；`ac-power`、`three-phase`、`coupled`（4.4）；`non-sinusoidal`、`s-domain`、`two-port`（4.5）。9 章要点和 126 道题都已按写作规范润色：要点改成一条一件事，题干拆成短句，去掉了泄露别的小题答案的选项和提示，旧记号 U 改成 V | |
 
 ### World 5 · 从元件到 ESP32 项目（P 3–6, 12 · M 7, 10–11）✅ 全部完成
 
@@ -187,7 +187,7 @@ The textbooks are used for chapter structure and conventions only; all lesson te
 - 逻辑引脚 `GPIO_FT1` 和 `U1.5V` 在同一结点时目标电路自检报错，300 只好写物理引脚 `PB6`。
 
 **全局**
-- 课程卡片的语言风格统一后，再按同一规范润色理论题的题干和解答（先 World 1 的 `basics`、`equivalence`）。
+- 课程卡片的语言风格统一后，再按同一规范润色理论题的题干和解答。已完成：`nonlinear`、World 4 全部 9 章。剩下 World 1–3 的理论章（`basics`、`equivalence`、`methods`、`theorems`、`opamp`、`dependent-sources`、`storage`、`first-order`、`second-order`）；`theorems` 里第二次实验的电压还写成 `û`，按 NOTATION.md 应为 `v̂`。
 - `docs/course-report.html` 是旧结构的快照，重构完成后用 `scripts/course-report.py` 重新生成。
 
 ## 7. 检查流程 / How every change is checked

@@ -8,7 +8,7 @@
   "tags": ["运算电路", "附加电源", "初始条件", "RL 零输入"],
   "statement": [
     "图示电路中 V_s = 10 V，R_1 = 2 Ω，R_2 = 3 Ω，L = 1 H。开关 S 闭合已久，t = 0 时断开。i_L、v_L 为关联参考方向（i_L 从上向下流过 L，v_L 上“+”下“−”）。",
-    "画出 t > 0 的运算电路：电感用 sL 加上反映初始电流 i_L(0₋) 的附加电源（串联电压源或并联电流源两种形式都要会）。求 I_L(s) 的展开系数、v_L(0₊) 和 t = 0.2 s 时的 i_L。"
+    "画出 t > 0 的运算电路。电感用 sL 加上一个附加电源，它反映初始电流 i_L(0₋)；串联电压源和并联电流源两种形式都要会。然后求 I_L(s) 的展开系数 K、v_L(0₊)，以及 t = 0.2 s 时的 i_L。"
   ],
   "schematic": {
     "elements": [
@@ -28,9 +28,9 @@
       "id": "series",
       "ask": "电感的**串联**形式运算模型是：",
       "choices": [
-        "sL = s Ω 与电压源 L·i_L(0₋) = 5 V·s 串联，电压源的“+”在 i_L 流出的一端（下端）",
-        "sL = s Ω 与电压源 L·i_L(0₋) = 5 V·s 串联，电压源的“+”在 i_L 流入的一端（上端）",
-        "sL = s Ω 与电压源 i_L(0₋)/s = 5/s 串联",
+        "sL = s Ω 与电压源 L·i_L(0₋) 串联，电压源的“+”在 i_L 流出的一端（下端）",
+        "sL = s Ω 与电压源 L·i_L(0₋) 串联，电压源的“+”在 i_L 流入的一端（上端）",
+        "sL = s Ω 与电压源 i_L(0₋)/s 串联",
         "只有 sL = s Ω，初始电流在 t > 0 不起作用"
       ],
       "correct": 0,
@@ -40,15 +40,15 @@
         "i_L(0₋)/s 是并联形式里电流源的值；串联形式里电压源的值是 L·i_L(0₋)。",
         "电感储有能量 ½L·i_L²(0₋)，t > 0 的电流正是由它维持的；去掉附加电源 I_L(s) 就成了 0。"
       ],
-      "explain": "v_L = L di_L/dt → V_L(s) = sL·I_L(s) − L·i_L(0₋)。端电压等于阻抗压降 sL·I_L 减去 L·i_L(0₋)，所以附加电压源的方向与 v_L 的参考方向相反：“+”在下端，它沿 i_L 的方向推动电流——这正是电感“维持原电流”的作用。"
+      "explain": "v_L = L di_L/dt → V_L(s) = sL·I_L(s) − L·i_L(0₋)。端电压等于阻抗压降 sL·I_L 减去 L·i_L(0₋)。所以附加电压源的方向与 v_L 的参考方向相反：“+”在下端。它沿 i_L 的方向推动电流，这正是电感“维持原电流”的作用。"
     },
     {
       "id": "parallel",
       "ask": "电感的**并联**形式运算模型是：",
-      "choices": ["sL 与电流源 i_L(0₋)/s = 5/s 并联，电流源方向与 i_L 相同（向下）", "sL 与电流源 i_L(0₋) = 5 并联，方向与 i_L 相同", "sL 与电流源 5/s 并联，方向与 i_L 相反", "1/(sL) 与电流源 L·i_L(0₋) 串联"],
+      "choices": ["sL 与电流源 i_L(0₋)/s 并联，电流源方向与 i_L 相同（向下）", "sL 与电流源 i_L(0₋) 并联，方向与 i_L 相同", "sL 与电流源 i_L(0₋)/s 并联，方向与 i_L 相反", "1/(sL) 与电流源 L·i_L(0₋) 串联"],
       "correct": 0,
-      "choiceExplain": ["", "电流源的象函数是常数 5u(t) 的变换 5/s，不是 5。", "方向反了：并联电流源要与 i_L 同向，表示电感原有的电流。", "1/(sL) 不是电感的运算阻抗；模型也不是串联电流源。"],
-      "explain": "I_L(s) = V_L(s)/(sL) + i_L(0₋)/s：sL 中的电流加上一个与 i_L 同向、大小为 i_L(0₋)/s 的电流源，就是两种形式的电源等效变换（5 V·s ÷ s Ω = 5/s A·s）。"
+      "choiceExplain": ["", "电流源的象函数是常数 i_L(0₋)u(t) 的变换 i_L(0₋)/s，不是 i_L(0₋)。", "方向反了：并联电流源要与 i_L 同向，表示电感原有的电流。", "1/(sL) 不是电感的运算阻抗；模型也不是串联电流源。"],
+      "explain": "I_L(s) = V_L(s)/(sL) + i_L(0₋)/s：sL 中的电流，加上一个与 i_L 同向、大小为 i_L(0₋)/s 的电流源。这就是对串联形式做电源等效变换：L·i_L(0₋) ÷ sL = i_L(0₋)/s。"
     },
     {
       "id": "K",
@@ -56,7 +56,7 @@
       "find": {"kind": "residue", "out": {"i": "L"}, "at": -3},
       "answer": 5.0,
       "unit": "A",
-      "explain": "i_L(0₋) = V_s/R_1 = 5 A（R_2 被电感短路）。t > 0 只剩 L 与 R_2 的回路：I_L(s) = \\frac{L·i_L(0₋)}{sL + R_2} = \\frac{5}{s + 3}，K = 5 A。"
+      "explain": "i_L(0₋) = V_s/R_1 = 5 A（R_2 被电感短路）。t > 0 时只剩 L 与 R_2 的回路：I_L(s) = \\frac{L·i_L(0₋)}{sL + R_2} = \\frac{5}{s + 3}，K = 5 A。"
     },
     {
       "id": "ul0",
@@ -64,7 +64,7 @@
       "find": {"kind": "v", "el": "L", "t": "0+"},
       "answer": -15.0,
       "unit": "V",
-      "explain": "V_L(s) = sL·I_L(s) − L·i_L(0₋) = \\frac{5s}{s + 3} − 5 = −\\frac{15}{s + 3}，v_L(t) = −15e^{−3t} V，v_L(0₊) = −15 V（= −R_2·i_L(0₊)）。"
+      "explain": "V_L(s) = sL·I_L(s) − L·i_L(0₋) = \\frac{5s}{s + 3} − 5 = −\\frac{15}{s + 3}，v_L(t) = −15e^{−3t} V。所以 v_L(0₊) = −15 V，也就是 −R_2·i_L(0₊)。"
     },
     {
       "id": "il",
@@ -76,14 +76,14 @@
     }
   ],
   "hints": [
-    "先求 t < 0 的 i_L(0₋)；t > 0 电源已断开，只剩 L、R_2 一个回路。",
+    "先求 t < 0 的 i_L(0₋)。t > 0 时电源已断开，只剩 L、R_2 一个回路。",
     "从 v_L = L di_L/dt 出发做拉普拉斯变换（微分性质 ℒ[f′] = sF(s) − f(0₋)），看附加电源该放在哪一侧。",
     "回路的 KVL：(sL + R_2)·I_L(s) = L·i_L(0₋)。"
   ],
   "solution": [
     "**1. t = 0₋。** 直流稳态电感短路，**i_L(0₋) = 10/2 = 5 A**。",
-    "**2. 运算模型。** V_L(s) = sL·I_L(s) − L·i_L(0₋)：串联形式是 sL 与电压源 L·i_L(0₋) = 5 V·s 串联（“+”在 i_L 流出端）；等效变换成并联形式是 sL 与同向电流源 i_L(0₋)/s = 5/s 并联。",
-    "**3. 求解。** 回路 KVL：(s + 3)I_L(s) = 5 → I_L(s) = \\frac{5}{s + 3}，**K = 5 A**，i_L(t) = 5e^{−3t} A，**i_L(0.2) ≈ 2.744 A**。",
+    "**2. 运算模型。** V_L(s) = sL·I_L(s) − L·i_L(0₋)。串联形式：sL 与电压源 L·i_L(0₋) = 5 V·s 串联，“+”在 i_L 流出端。等效变换成并联形式：sL 与同向电流源 i_L(0₋)/s = 5/s 并联。",
+    "**3. 求解。** 回路 KVL：(s + 3)I_L(s) = 5 → I_L(s) = \\frac{5}{s + 3}，**K = 5 A**。所以 i_L(t) = 5e^{−3t} A，**i_L(0.2) ≈ 2.744 A**。",
     "**4. v_L。** V_L(s) = \\frac{5s}{s + 3} − 5 = −\\frac{15}{s + 3}，**v_L(0₊) = −15 V**。",
     "**检验：** KVL v_L + R_2·i_L = −15e^{−3t} + 3 × 5e^{−3t} = 0 ✓；τ = L/R_2 = 1/3 s 与极点 −3 一致 ✓。"
   ],
@@ -93,16 +93,16 @@
       "tags": ["s-domain circuit", "initial-condition source", "initial conditions", "RL zero-input"],
       "statement": [
         "V_s = 10 V, R_1 = 2 Ω, R_2 = 3 Ω, L = 1 H. Switch S has been closed for a long time and opens at t = 0. i_L and v_L follow the passive convention (i_L flows down through L, v_L is + at the top).",
-        "Draw the s-domain circuit for t > 0: the inductor becomes sL plus an initial-condition source for i_L(0−) (know both the series-voltage and the parallel-current form). Find the expansion coefficient of I_L(s), v_L(0+) and i_L at t = 0.2 s."
+        "Draw the s-domain circuit for t > 0. The inductor becomes sL plus an initial-condition source that represents the initial current i_L(0−); know both the series-voltage and the parallel-current form. Then find the expansion coefficient K of I_L(s), v_L(0+), and i_L at t = 0.2 s."
       ],
       "questions": [
         {
           "ask": "The **series** s-domain model of the inductor is:",
-          "explain": "v_L = L di_L/dt → V_L(s) = sL·I_L(s) − L·i_L(0−). The terminal voltage is the drop sL·I_L minus L·i_L(0−), so the source points against the reference of v_L: + at the bottom, pushing current in the direction of i_L — the inductor \"keeps its current going\".",
+          "explain": "v_L = L di_L/dt → V_L(s) = sL·I_L(s) − L·i_L(0−). The terminal voltage is the drop sL·I_L minus L·i_L(0−). So the source points against the reference of v_L: + at the bottom. It pushes current in the direction of i_L: this is how the inductor \"keeps its current going\".",
           "choices": [
-            "sL = s Ω in series with a voltage source L·i_L(0−) = 5 V·s, + at the end where i_L leaves (bottom)",
-            "sL = s Ω in series with a voltage source L·i_L(0−) = 5 V·s, + at the end where i_L enters (top)",
-            "sL = s Ω in series with a voltage source i_L(0−)/s = 5/s",
+            "sL = s Ω in series with a voltage source L·i_L(0−), + at the end where i_L leaves (bottom)",
+            "sL = s Ω in series with a voltage source L·i_L(0−), + at the end where i_L enters (top)",
+            "sL = s Ω in series with a voltage source i_L(0−)/s",
             "just sL = s Ω: the initial current plays no role for t > 0"
           ],
           "choiceExplain": [
@@ -114,16 +114,16 @@
         },
         {
           "ask": "The **parallel** s-domain model of the inductor is:",
-          "explain": "I_L(s) = V_L(s)/(sL) + i_L(0−)/s: the current in sL plus a source of i_L(0−)/s in the direction of i_L — the source transformation of the series form (5 V·s ÷ s Ω = 5/s A·s).",
+          "explain": "I_L(s) = V_L(s)/(sL) + i_L(0−)/s: the current in sL plus a source of i_L(0−)/s in the direction of i_L. This is the source transformation of the series form: L·i_L(0−) ÷ sL = i_L(0−)/s.",
           "choices": [
-            "sL in parallel with a current source i_L(0−)/s = 5/s in the direction of i_L (down)",
-            "sL in parallel with a current source i_L(0−) = 5 in the direction of i_L",
-            "sL in parallel with a current source 5/s against i_L",
+            "sL in parallel with a current source i_L(0−)/s in the direction of i_L (down)",
+            "sL in parallel with a current source i_L(0−) in the direction of i_L",
+            "sL in parallel with a current source i_L(0−)/s against i_L",
             "1/(sL) in series with a current source L·i_L(0−)"
           ],
           "choiceExplain": [
             "",
-            "The source is the transform of the constant 5u(t), i.e. 5/s, not 5.",
+            "The source is the transform of the constant i_L(0−)u(t), i.e. i_L(0−)/s, not i_L(0−).",
             "Wrong direction: the parallel source points like i_L — it represents the inductor's existing current.",
             "1/(sL) is not the inductor's impedance, and the model is not a series current source."
           ]
@@ -134,19 +134,19 @@
         },
         {
           "ask": "v_L(0+) = ?",
-          "explain": "V_L(s) = sL·I_L(s) − L·i_L(0−) = \\frac{5s}{s + 3} − 5 = −\\frac{15}{s + 3}, v_L(t) = −15e^{−3t} V, v_L(0+) = −15 V (= −R_2·i_L(0+))."
+          "explain": "V_L(s) = sL·I_L(s) − L·i_L(0−) = \\frac{5s}{s + 3} − 5 = −\\frac{15}{s + 3}, v_L(t) = −15e^{−3t} V. So v_L(0+) = −15 V, which is −R_2·i_L(0+)."
         },
         {"ask": "i_L at t = 0.2 s = ?", "explain": "i_L(t) = 5e^{−3t} A; at t = 0.2 s: 5e^{−0.6} ≈ 2.744 A."}
       ],
       "hints": [
-        "First find i_L(0−) for t < 0; for t > 0 the source is cut off and only the loop L, R_2 is left.",
+        "First find i_L(0−) for t < 0. For t > 0 the source is cut off and only the loop L, R_2 is left.",
         "Transform v_L = L di_L/dt (derivative rule ℒ[f′] = sF(s) − f(0−)) and see on which side the extra source goes.",
         "KVL around the loop: (sL + R_2)·I_L(s) = L·i_L(0−)."
       ],
       "solution": [
         "**1. t = 0−.** DC steady state, inductor shorted: **i_L(0−) = 10/2 = 5 A**.",
-        "**2. s-domain model.** V_L(s) = sL·I_L(s) − L·i_L(0−): series form = sL in series with a voltage source L·i_L(0−) = 5 V·s (+ where i_L leaves); its source transformation is sL in parallel with a current source i_L(0−)/s = 5/s pointing like i_L.",
-        "**3. Solve.** Loop KVL: (s + 3)I_L(s) = 5 → I_L(s) = \\frac{5}{s + 3}, **K = 5 A**, i_L(t) = 5e^{−3t} A, **i_L(0.2) ≈ 2.744 A**.",
+        "**2. s-domain model.** V_L(s) = sL·I_L(s) − L·i_L(0−). Series form: sL in series with a voltage source L·i_L(0−) = 5 V·s, + where i_L leaves. Its source transformation, the parallel form: sL in parallel with a current source i_L(0−)/s = 5/s pointing like i_L.",
+        "**3. Solve.** Loop KVL: (s + 3)I_L(s) = 5 → I_L(s) = \\frac{5}{s + 3}, **K = 5 A**. So i_L(t) = 5e^{−3t} A, **i_L(0.2) ≈ 2.744 A**.",
         "**4. v_L.** V_L(s) = \\frac{5s}{s + 3} − 5 = −\\frac{15}{s + 3}, **v_L(0+) = −15 V**.",
         "**Check:** KVL v_L + R_2·i_L = −15e^{−3t} + 3 × 5e^{−3t} = 0 ✓; τ = L/R_2 = 1/3 s matches the pole −3 ✓."
       ]

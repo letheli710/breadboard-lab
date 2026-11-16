@@ -7,8 +7,8 @@
   "level": 4,
   "tags": ["卷积积分", "冲激响应", "时域卷积定理"],
   "statement": [
-    "图示 RC 电路中 R = 1 Ω，C = 0.5 F，t < 0 时无储能，输出取电容电压 v_C。",
-    "先求以 v_C 为输出的单位冲激响应 h(t)，再用卷积积分 v_C(t) = ∫_{0}^{t}h(τ)v_s(t − τ)dτ 求激励 v_s(t) = e^{−t}u(t) V 的零状态响应，并用时域卷积定理 V_C(s) = H(s)V_s(s) 验证。"
+    "图示 RC 电路中 R = 1 Ω，C = 0.5 F，t < 0 时无储能，输出取电容电压 v_C（参考方向如图）。",
+    "先求以 v_C 为输出的单位冲激响应 h(t)。再用卷积积分 v_C(t) = ∫_{0}^{t}h(τ)v_s(t − τ)dτ，求激励 v_s(t) = e^{−t}u(t) V 的零状态响应。最后用时域卷积定理 V_C(s) = H(s)V_s(s) 验证。"
   ],
   "schematic": {
     "elements": [
@@ -34,8 +34,8 @@
       "id": "conv",
       "ask": "用卷积求 v_C(t)（t > 0），正确的积分是：",
       "choices": [
-        "∫_{0}^{t}2e^{−2τ}·e^{−(t − τ)}dτ = 2e^{−t}(1 − e^{−t})",
-        "∫_{0}^{t}2e^{−2τ}·e^{−τ}dτ = \\frac{2}{3}(1 − e^{−3t})",
+        "∫_{0}^{t}2e^{−2τ}·e^{−(t − τ)}dτ",
+        "∫_{0}^{t}2e^{−2τ}·e^{−τ}dτ",
         "2e^{−2t}·e^{−t} = 2e^{−3t}",
         "∫_{0}^{∞}2e^{−2τ}·e^{−(t − τ)}dτ"
       ],
@@ -65,19 +65,19 @@
       "find": {"kind": "v", "el": "C", "t": 0.6931471805599453, "deriv": 1},
       "answer": 0.0,
       "unit": "V/s",
-      "explain": "dv_C/dt = 2(−e^{−t} + 2e^{−2t}) = 2e^{−t}(2e^{−t} − 1)，在 e^{−t} = 1/2 时为 0：t = ln 2 s 处 v_C 取最大值 0.5 V。"
+      "explain": "dv_C/dt = 2(−e^{−t} + 2e^{−2t}) = 2e^{−t}(2e^{−t} − 1)，在 e^{−t} = 1/2 时为 0。所以 t = ln 2 s 处 v_C 取最大值 0.5 V。"
     }
   ],
   "hints": [
     "冲激响应是网络函数的反变换：先求 H(s) = V_C(s)/V_s(s)。",
-    "卷积：v_C(t) = ∫_{0}^{t}h(τ)v_s(t − τ)dτ，把与 τ 无关的 e^{−t} 提到积分号外。",
+    "卷积：v_C(t) = ∫_{0}^{t}h(τ)v_s(t − τ)dτ。把与 τ 无关的 e^{−t} 提到积分号外。",
     "时域卷积 ↔ 复频域相乘：V_C(s) = H(s)·\\frac{1}{s + 1}，展开后对照结果。"
   ],
   "solution": [
     "**1. 冲激响应。** H(s) = \\frac{1}{1 + sRC} = \\frac{2}{s + 2}，**h(t) = 2e^{−2t}u(t)**。",
     "**2. 卷积。** v_C(t) = ∫_{0}^{t}2e^{−2τ}e^{−(t − τ)}dτ = 2e^{−t}∫_{0}^{t}e^{−τ}dτ = 2e^{−t}(1 − e^{−t}) = 2(e^{−t} − e^{−2t}) V。",
     "**3. 卷积定理验证。** V_C(s) = \\frac{2}{s + 2}·\\frac{1}{s + 1} = \\frac{2}{s + 1} − \\frac{2}{s + 2}，反变换相同 ✓。",
-    "**4. 数值。** **v_C(1) ≈ 0.465 V**；dv_C/dt = 0 时 e^{−t} = 1/2，**t = ln 2 s 时 v_C = 0.5 V（最大），dv_C/dt = 0**。",
+    "**4. 数值。** **v_C(1) ≈ 0.465 V**。dv_C/dt = 0 时 e^{−t} = 1/2，所以 **t = ln 2 s 时 v_C = 0.5 V（最大），dv_C/dt = 0**。",
     "**检验：** v_C(0₊) = 0（电源有限，电容电压连续）✓；KVL：RC·dv_C/dt + v_C = (−e^{−t} + 2e^{−2t}) + 2e^{−t} − 2e^{−2t} = e^{−t} = v_s ✓。"
   ],
   "i18n": {
@@ -85,8 +85,8 @@
       "title": "Convolution: an RC circuit driven by an exponential",
       "tags": ["convolution integral", "impulse response", "time-convolution theorem"],
       "statement": [
-        "In the RC circuit R = 1 Ω, C = 0.5 F, nothing is stored for t < 0, and the output is the capacitor voltage v_C.",
-        "Find the unit impulse response h(t) for the output v_C, then use the convolution integral v_C(t) = ∫_{0}^{t}h(τ)v_s(t − τ)dτ to find the zero-state response to v_s(t) = e^{−t}u(t) V, and verify it with the convolution theorem V_C(s) = H(s)V_s(s)."
+        "In the RC circuit R = 1 Ω, C = 0.5 F, nothing is stored for t < 0, and the output is the capacitor voltage v_C (referenced as drawn).",
+        "First find the unit impulse response h(t) for the output v_C. Then use the convolution integral v_C(t) = ∫_{0}^{t}h(τ)v_s(t − τ)dτ to find the zero-state response to v_s(t) = e^{−t}u(t) V. Finally verify it with the convolution theorem V_C(s) = H(s)V_s(s)."
       ],
       "questions": [
         {
@@ -104,8 +104,8 @@
           "ask": "The correct convolution for v_C(t), t > 0, is:",
           "explain": "f_1 * f_2 = ∫_{0}^{t}f_1(τ)f_2(t − τ)dτ for causal signals. The integrand 2e^{−2τ}e^{−t + τ} = 2e^{−t}e^{−τ} integrates to 2e^{−t}(1 − e^{−t}) = 2(e^{−t} − e^{−2t}) V.",
           "choices": [
-            "∫_{0}^{t}2e^{−2τ}·e^{−(t − τ)}dτ = 2e^{−t}(1 − e^{−t})",
-            "∫_{0}^{t}2e^{−2τ}·e^{−τ}dτ = \\frac{2}{3}(1 − e^{−3t})",
+            "∫_{0}^{t}2e^{−2τ}·e^{−(t − τ)}dτ",
+            "∫_{0}^{t}2e^{−2τ}·e^{−τ}dτ",
             "2e^{−2t}·e^{−t} = 2e^{−3t}",
             "∫_{0}^{∞}2e^{−2τ}·e^{−(t − τ)}dτ"
           ],
@@ -123,19 +123,19 @@
         {"ask": "v_C at t = ln 2 s (≈ 0.6931 s) = ?", "explain": "e^{−t} = 1/2: v_C = 2(1/2 − 1/4) = 0.5 V."},
         {
           "ask": "dv_C/dt at t = ln 2 s = ?",
-          "explain": "dv_C/dt = 2(−e^{−t} + 2e^{−2t}) = 2e^{−t}(2e^{−t} − 1), which is 0 at e^{−t} = 1/2: v_C peaks at 0.5 V at t = ln 2 s."
+          "explain": "dv_C/dt = 2(−e^{−t} + 2e^{−2t}) = 2e^{−t}(2e^{−t} − 1), which is 0 at e^{−t} = 1/2. So v_C peaks at 0.5 V at t = ln 2 s."
         }
       ],
       "hints": [
         "The impulse response is the inverse transform of the network function: find H(s) = V_C(s)/V_s(s) first.",
-        "Convolution: v_C(t) = ∫_{0}^{t}h(τ)v_s(t − τ)dτ; take the factor e^{−t}, which does not depend on τ, out of the integral.",
+        "Convolution: v_C(t) = ∫_{0}^{t}h(τ)v_s(t − τ)dτ. Take the factor e^{−t}, which does not depend on τ, out of the integral.",
         "Convolution in time ↔ product in s: V_C(s) = H(s)·\\frac{1}{s + 1}; expand and compare."
       ],
       "solution": [
         "**1. Impulse response.** H(s) = \\frac{1}{1 + sRC} = \\frac{2}{s + 2}, **h(t) = 2e^{−2t}u(t)**.",
         "**2. Convolution.** v_C(t) = ∫_{0}^{t}2e^{−2τ}e^{−(t − τ)}dτ = 2e^{−t}∫_{0}^{t}e^{−τ}dτ = 2e^{−t}(1 − e^{−t}) = 2(e^{−t} − e^{−2t}) V.",
         "**3. Convolution theorem.** V_C(s) = \\frac{2}{s + 2}·\\frac{1}{s + 1} = \\frac{2}{s + 1} − \\frac{2}{s + 2}: the same inverse transform ✓.",
-        "**4. Values.** **v_C(1) ≈ 0.465 V**; dv_C/dt = 0 where e^{−t} = 1/2, **so at t = ln 2 s v_C = 0.5 V (the maximum) and dv_C/dt = 0**.",
+        "**4. Values.** **v_C(1) ≈ 0.465 V**. dv_C/dt = 0 where e^{−t} = 1/2, **so at t = ln 2 s v_C = 0.5 V (the maximum) and dv_C/dt = 0**.",
         "**Check:** v_C(0+) = 0 (finite source, continuous capacitor voltage) ✓; KVL: RC·dv_C/dt + v_C = (−e^{−t} + 2e^{−2t}) + 2e^{−t} − 2e^{−2t} = e^{−t} = v_s ✓."
       ]
     }

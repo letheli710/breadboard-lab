@@ -7,8 +7,8 @@
   "level": 5,
   "tags": ["耦合电感", "互感附加电源", "运算电路", "网孔法"],
   "statement": [
-    "图示电路中 V_s = 10 V，R_1 = 2 Ω，R_3 = 2 Ω，L_1 = L_2 = 1 H，M = 0.5 H（同名端都在线圈上端），R_2 = 2 Ω。开关 S 与 R_3 并联，原来闭合（R_3 被短路），电路已稳定；t = 0 时 S 断开。",
-    "取原边电流 i_1（流过 R_1，向右，从同名端流入 L_1）和副边电流 i_2（流过 R_2，向下，从同名端流出 L_2）。运算电路中耦合电感除 sL_1、sL_2、sM 外还有附加电压源：原边 L_1·i_1(0₋) − M·i_2(0₋)，副边 M·i_1(0₋) − L_2·i_2(0₋)（按 v_{L1} = L_1 di_1/dt − M di_2/dt、v_{L2} = M di_1/dt − L_2 di_2/dt 变换得到）。求极点、I_2(s) 的展开系数和几个时刻的电流。"
+    "图示电路中 V_s = 10 V，R_1 = 2 Ω，R_3 = 2 Ω，L_1 = L_2 = 1 H，M = 0.5 H（同名端都在线圈上端），R_2 = 2 Ω。开关 S 与 R_3 并联。S 原来闭合，R_3 被短路，电路已经稳定；t = 0 时 S 断开。",
+    "取原边电流 i_1：流过 R_1 向右，从同名端流入 L_1。取副边电流 i_2：流过 R_2 向下，从同名端流出 L_2。v_{L1}、v_{L2} 都取上“+”下“−”，于是 v_{L1} = L_1 di_1/dt − M di_2/dt，v_{L2} = M di_1/dt − L_2 di_2/dt。变换后，运算电路中的耦合电感除了 sL_1、sL_2、sM，还有附加电压源：原边是 L_1·i_1(0₋) − M·i_2(0₋)，副边是 M·i_1(0₋) − L_2·i_2(0₋)。求极点、I_2(s) 的展开系数和几个时刻的电流。"
   ],
   "schematic": {
     "elements": [
@@ -42,7 +42,7 @@
       "choices": ["M·i_1(0₋) = 2.5 V·s", "0（因为 i_2(0₋) = 0）", "L_2·i_1(0₋) = 5 V·s", "M·i_1(0₋)/s = 2.5/s"],
       "correct": 0,
       "choiceExplain": ["", "副边自己的电流初值为 0，但原边电流的初值通过互感也产生附加电源。", "互感耦合用 M，不是 L_2。", "微分性质给出的初值项是常数 M·i_1(0₋)，不除以 s。"],
-      "explain": "i_1(0₋) = V_s/R_1 = 5 A，i_2(0₋) = 0（直流不感应）。v_{L2} = M di_1/dt − L_2 di_2/dt → V_{L2}(s) = sM·I_1 − M·i_1(0₋) − sL_2·I_2 + L_2·i_2(0₋)：互感带来的附加电源 M·i_1(0₋) = 2.5 V·s。"
+      "explain": "i_1(0₋) = V_s/R_1 = 5 A，i_2(0₋) = 0（直流不感应）。v_{L2} = M di_1/dt − L_2 di_2/dt → V_{L2}(s) = sM·I_1 − M·i_1(0₋) − sL_2·I_2 + L_2·i_2(0₋)。所以互感带来的附加电源是 M·i_1(0₋) = 2.5 V·s。"
     },
     {
       "id": "i20",
@@ -66,7 +66,7 @@
       "find": {"kind": "residue", "out": {"i": "R2"}, "at": -1.690599},
       "answer": -1.443376,
       "unit": "A",
-      "explain": "消去 I_1：I_2(s) = \\frac{−10}{1.5s² + 12s + 16} = \\frac{−20/3}{(s − p_1)(s − p_2)}，K_1 = \\frac{−20/3}{p_1 − p_2} = \\frac{−20/3}{2√(16/3)} ≈ −1.443 A（K_2 = −K_1）。"
+      "explain": "消去 I_1：I_2(s) = \\frac{−10}{1.5s² + 12s + 16} = \\frac{−20/3}{(s − p_1)(s − p_2)}。所以 K_1 = \\frac{−20/3}{p_1 − p_2} = \\frac{−20/3}{2√(16/3)} ≈ −1.443 A（K_2 = −K_1）。"
     },
     {
       "id": "i2",
@@ -74,7 +74,7 @@
       "find": {"kind": "i", "el": "R2", "t": 0.3},
       "answer": -0.6517494,
       "unit": "A",
-      "explain": "i_2(t) = K_1(e^{p_{1}t} − e^{p_{2}t}) = −1.443(e^{−1.6906t} − e^{−6.3094t}) A；t = 0.3 s：≈ −1.443 × (0.6022 − 0.1506) ≈ −0.652 A（负号：原边电流减小，副边感应电流与 i_2 的参考方向相反）。"
+      "explain": "i_2(t) = K_1(e^{p_{1}t} − e^{p_{2}t}) = −1.443(e^{−1.6906t} − e^{−6.3094t}) A；t = 0.3 s：≈ −1.443 × (0.6022 − 0.1506) ≈ −0.652 A。负号表示：原边电流减小时，副边的感应电流与 i_2 的参考方向相反。"
     },
     {
       "id": "i1inf",
@@ -86,15 +86,15 @@
     }
   ],
   "hints": [
-    "t < 0 求 i_1(0₋)、i_2(0₋)；t > 0 原边电阻变为 R_1 + R_3。",
-    "先写时域方程 v_{L1} = L_1 di_1/dt − M di_2/dt、v_{L2} = M di_1/dt − L_2 di_2/dt（i_2 从同名端流出所以是减号），再逐项做拉普拉斯变换，每个导数项都带出一个初值。",
-    "两个网孔方程：(s + 4)I_1 − 0.5sI_2 = 10/s + 5，0.5sI_1 − (s + 2)I_2 = 2.5；消去 I_1 得 I_2(s)。"
+    "t < 0 求 i_1(0₋)、i_2(0₋)。t > 0 时原边电阻变为 R_1 + R_3。",
+    "先写时域方程 v_{L1} = L_1 di_1/dt − M di_2/dt、v_{L2} = M di_1/dt − L_2 di_2/dt。i_2 从同名端流出，所以含 di_2/dt 的项是减号。再逐项做拉普拉斯变换：每个导数项都带出一个初值。",
+    "两个网孔方程：(s + 4)I_1 − 0.5sI_2 = 10/s + 5，0.5sI_1 − (s + 2)I_2 = 2.5。消去 I_1 得 I_2(s)。"
   ],
   "solution": [
     "**1. 初值。** i_1(0₋) = 10/2 = 5 A，i_2(0₋) = 0。",
-    "**2. 运算方程。** 原边 KVL：\\frac{10}{s} = 4I_1 + (sI_1 − 5) − 0.5(sI_2 − 0)；副边：V_{L2} = R_2I_2 → 0.5(sI_1 − 5) − (sI_2 − 0) = 2I_2。附加电源：原边 L_1·i_1(0₋) = 5，副边 **M·i_1(0₋) = 2.5**。",
-    "**3. 求解。** 由副边式 I_1 = \\frac{5 + 2(s + 2)I_2}{s}，代入原边式得 I_2(s) = \\frac{−10}{1.5s² + 12s + 16}，**极点 −4 ± √(16/3) ≈ −1.6906、−6.3094 s⁻¹**。",
-    "**4. 反变换。** **K_1 ≈ −1.443 A**，i_2(t) = −1.443(e^{−1.6906t} − e^{−6.3094t}) A：**i_2(0₊) = 0**，**i_2(0.3) ≈ −0.652 A**；**i_1(∞) = 2.5 A**。",
+    "**2. 运算方程。** 原边 KVL：\\frac{10}{s} = 4I_1 + (sI_1 − 5) − 0.5(sI_2 − 0)。副边：V_{L2} = R_{2}I_2 → 0.5(sI_1 − 5) − (sI_2 − 0) = 2I_2。附加电源：原边 L_1·i_1(0₋) = 5，副边 **M·i_1(0₋) = 2.5**。",
+    "**3. 求解。** 由副边式 I_1 = \\frac{5 + 2(s + 2)I_2}{s}。代入原边式得 I_2(s) = \\frac{−10}{1.5s² + 12s + 16}，**极点 −4 ± √(16/3) ≈ −1.6906、−6.3094 s⁻¹**。",
+    "**4. 反变换。** **K_1 ≈ −1.443 A**，i_2(t) = −1.443(e^{−1.6906t} − e^{−6.3094t}) A：**i_2(0₊) = 0**，**i_2(0.3) ≈ −0.652 A**。终值 **i_1(∞) = 2.5 A**。",
     "**检验：** 初值定理 lim sI_2(s) = 0 ✓；网络函数 I_2/V_s = \\frac{s}{1.5s² + 12s + 16} 的极点与上面相同（固有频率与激励无关）✓。"
   ],
   "i18n": {
@@ -102,13 +102,13 @@
       "title": "Coupled inductors in the s-domain (initial-condition sources of the mutual inductance)",
       "tags": ["coupled inductors", "mutual initial-condition sources", "s-domain circuit", "mesh analysis"],
       "statement": [
-        "V_s = 10 V, R_1 = 2 Ω, R_3 = 2 Ω, L_1 = L_2 = 1 H, M = 0.5 H (both dots at the top ends of the coils), R_2 = 2 Ω. Switch S is across R_3 and has been closed (R_3 shorted) for a long time; it opens at t = 0.",
-        "Take the primary current i_1 (through R_1 to the right, entering L_1 at its dot) and the secondary current i_2 (down through R_2, leaving L_2 at its dot). Besides sL_1, sL_2 and sM, the s-domain coupled inductors carry initial-condition voltage sources: L_1·i_1(0−) − M·i_2(0−) in the primary and M·i_1(0−) − L_2·i_2(0−) in the secondary (from transforming v_{L1} = L_1 di_1/dt − M di_2/dt and v_{L2} = M di_1/dt − L_2 di_2/dt). Find the poles, the expansion coefficient of I_2(s) and the currents at a few instants."
+        "V_s = 10 V, R_1 = 2 Ω, R_3 = 2 Ω, L_1 = L_2 = 1 H, M = 0.5 H (both dots at the top ends of the coils), R_2 = 2 Ω. Switch S is across R_3. It has been closed for a long time, shorting R_3; it opens at t = 0.",
+        "Take the primary current i_1: through R_1 to the right, entering L_1 at its dot. Take the secondary current i_2: down through R_2, leaving L_2 at its dot. With v_{L1} and v_{L2} both + at the top, v_{L1} = L_1 di_1/dt − M di_2/dt and v_{L2} = M di_1/dt − L_2 di_2/dt. After transforming, the coupled inductors in the s-domain circuit carry initial-condition voltage sources besides sL_1, sL_2 and sM: L_1·i_1(0−) − M·i_2(0−) in the primary, M·i_1(0−) − L_2·i_2(0−) in the secondary. Find the poles, the expansion coefficient of I_2(s) and the currents at a few instants."
       ],
       "questions": [
         {
           "ask": "The initial-condition voltage source of the secondary loop is:",
-          "explain": "i_1(0−) = V_s/R_1 = 5 A and i_2(0−) = 0 (DC induces nothing). v_{L2} = M di_1/dt − L_2 di_2/dt → V_{L2}(s) = sM·I_1 − M·i_1(0−) − sL_2·I_2 + L_2·i_2(0−): the mutual inductance contributes the source M·i_1(0−) = 2.5 V·s.",
+          "explain": "i_1(0−) = V_s/R_1 = 5 A and i_2(0−) = 0 (DC induces nothing). v_{L2} = M di_1/dt − L_2 di_2/dt → V_{L2}(s) = sM·I_1 − M·i_1(0−) − sL_2·I_2 + L_2·i_2(0−). So the mutual inductance contributes the source M·i_1(0−) = 2.5 V·s.",
           "choices": ["M·i_1(0−) = 2.5 V·s", "0 (because i_2(0−) = 0)", "L_2·i_1(0−) = 5 V·s", "M·i_1(0−)/s = 2.5/s"],
           "choiceExplain": [
             "",
@@ -127,24 +127,24 @@
         },
         {
           "ask": "Coefficient K_1 of I_2(s) at p_1 = ?",
-          "explain": "Eliminate I_1: I_2(s) = \\frac{−10}{1.5s² + 12s + 16} = \\frac{−20/3}{(s − p_1)(s − p_2)}, K_1 = \\frac{−20/3}{p_1 − p_2} = \\frac{−20/3}{2√(16/3)} ≈ −1.443 A (K_2 = −K_1)."
+          "explain": "Eliminate I_1: I_2(s) = \\frac{−10}{1.5s² + 12s + 16} = \\frac{−20/3}{(s − p_1)(s − p_2)}. So K_1 = \\frac{−20/3}{p_1 − p_2} = \\frac{−20/3}{2√(16/3)} ≈ −1.443 A (K_2 = −K_1)."
         },
         {
           "ask": "i_2 at t = 0.3 s = ?",
-          "explain": "i_2(t) = K_1(e^{p_{1}t} − e^{p_{2}t}) = −1.443(e^{−1.6906t} − e^{−6.3094t}) A; at t = 0.3 s: ≈ −1.443 × (0.6022 − 0.1506) ≈ −0.652 A (negative: the primary current decreases and the induced secondary current flows against the reference of i_2)."
+          "explain": "i_2(t) = K_1(e^{p_{1}t} − e^{p_{2}t}) = −1.443(e^{−1.6906t} − e^{−6.3094t}) A; at t = 0.3 s: ≈ −1.443 × (0.6022 − 0.1506) ≈ −0.652 A. The minus sign: as the primary current decreases, the induced secondary current flows against the reference of i_2."
         },
         {"ask": "i_1(∞) = ?", "explain": "Final-value theorem (or the DC steady state): i_1(∞) = V_s/(R_1 + R_3) = 2.5 A and i_2(∞) = 0."}
       ],
       "hints": [
-        "For t < 0 find i_1(0−) and i_2(0−); for t > 0 the primary resistance becomes R_1 + R_3.",
-        "Write the time-domain equations v_{L1} = L_1 di_1/dt − M di_2/dt and v_{L2} = M di_1/dt − L_2 di_2/dt (minus signs because i_2 leaves the dot), then transform term by term: every derivative brings an initial value along.",
-        "Two mesh equations: (s + 4)I_1 − 0.5sI_2 = 10/s + 5 and 0.5sI_1 − (s + 2)I_2 = 2.5; eliminate I_1 to get I_2(s)."
+        "For t < 0 find i_1(0−) and i_2(0−). For t > 0 the primary resistance becomes R_1 + R_3.",
+        "Write the time-domain equations v_{L1} = L_1 di_1/dt − M di_2/dt and v_{L2} = M di_1/dt − L_2 di_2/dt. The terms in di_2/dt carry a minus sign because i_2 leaves the dot. Then transform term by term: every derivative brings an initial value along.",
+        "Two mesh equations: (s + 4)I_1 − 0.5sI_2 = 10/s + 5 and 0.5sI_1 − (s + 2)I_2 = 2.5. Eliminate I_1 to get I_2(s)."
       ],
       "solution": [
         "**1. Initial values.** i_1(0−) = 10/2 = 5 A, i_2(0−) = 0.",
-        "**2. s-domain equations.** Primary KVL: \\frac{10}{s} = 4I_1 + (sI_1 − 5) − 0.5(sI_2 − 0); secondary: V_{L2} = R_2I_2 → 0.5(sI_1 − 5) − (sI_2 − 0) = 2I_2. Initial-condition sources: L_1·i_1(0−) = 5 in the primary and **M·i_1(0−) = 2.5** in the secondary.",
-        "**3. Solve.** From the secondary I_1 = \\frac{5 + 2(s + 2)I_2}{s}; substituting into the primary gives I_2(s) = \\frac{−10}{1.5s² + 12s + 16}, **poles −4 ± √(16/3) ≈ −1.6906, −6.3094 1/s**.",
-        "**4. Inverse transform.** **K_1 ≈ −1.443 A**, i_2(t) = −1.443(e^{−1.6906t} − e^{−6.3094t}) A: **i_2(0+) = 0**, **i_2(0.3) ≈ −0.652 A**; **i_1(∞) = 2.5 A**.",
+        "**2. s-domain equations.** Primary KVL: \\frac{10}{s} = 4I_1 + (sI_1 − 5) − 0.5(sI_2 − 0). Secondary: V_{L2} = R_{2}I_2 → 0.5(sI_1 − 5) − (sI_2 − 0) = 2I_2. Initial-condition sources: L_1·i_1(0−) = 5 in the primary and **M·i_1(0−) = 2.5** in the secondary.",
+        "**3. Solve.** From the secondary I_1 = \\frac{5 + 2(s + 2)I_2}{s}. Substituting into the primary gives I_2(s) = \\frac{−10}{1.5s² + 12s + 16}, **poles −4 ± √(16/3) ≈ −1.6906, −6.3094 1/s**.",
+        "**4. Inverse transform.** **K_1 ≈ −1.443 A**, i_2(t) = −1.443(e^{−1.6906t} − e^{−6.3094t}) A: **i_2(0+) = 0**, **i_2(0.3) ≈ −0.652 A**. Final value: **i_1(∞) = 2.5 A**.",
         "**Check:** initial-value theorem lim sI_2(s) = 0 ✓; the network function I_2/V_s = \\frac{s}{1.5s² + 12s + 16} has the same poles (natural frequencies do not depend on the input) ✓."
       ]
     }

@@ -7,8 +7,8 @@
   "level": 4,
   "tags": ["网络函数", "极点零点", "冲激响应", "频率响应", "谐振"],
   "statement": [
-    "图示 RLC 串联电路中 L = 0.5 H，C = 0.5 F，R = 1 Ω，输出取电阻电压 v_R。激励为单位冲激 v_s = δ(t) V，t < 0 时无储能，所以 v_R 就是冲激响应 h(t)。",
-    "求 H(s) = V_R(s)/V_s(s) 的零点和极点，由极点位置判断 h(t) 的形式，并把 H(s) 与频率响应 H(jω) 联系起来。"
+    "图示 RLC 串联电路中 L = 0.5 H，C = 0.5 F，R = 1 Ω，输出取电阻电压 v_R，参考方向如图。激励为单位冲激 v_s = δ(t) V，t < 0 时无储能，所以 v_R 就是冲激响应 h(t)。",
+    "求 H(s) = V_R(s)/V_s(s) 的零点和极点。由极点位置判断 h(t) 的形式，再把 H(s) 和频率响应 H(jω) 联系起来。"
   ],
   "schematic": {
     "elements": [
@@ -45,7 +45,7 @@
       "find": {"kind": "pole", "out": {"v": "R"}, "input": "Vs", "n": 1, "part": "im"},
       "answer": 1.732051,
       "unit": "rad/s",
-      "explain": "ω_d = √(ω_0² − α²) = √(4 − 1) = √3 ≈ 1.732 rad/s，ω_0 = 1/√(LC) = 2 rad/s 是极点到原点的距离。"
+      "explain": "ω_d = √(ω_0² − α²) = √(4 − 1) = √3 ≈ 1.732 rad/s。其中 ω_0 = 1/√(LC) = 2 rad/s，是极点到原点的距离。"
     },
     {
       "id": "h0",
@@ -69,26 +69,26 @@
       "find": {"kind": "H", "out": {"v": "R"}, "input": "Vs", "s": {"re": 0, "im": 2}, "part": "mag"},
       "answer": 1.0,
       "unit": "",
-      "explain": "H(j2) = \\frac{j4}{−4 + j4 + 4} = 1：ω = ω_0 = 2 rad/s 时 L、C 串联谐振，电源电压全部加在 R 上，这是带通特性的峰值。"
+      "explain": "H(j2) = \\frac{j4}{−4 + j4 + 4} = 1。ω = ω_0 = 2 rad/s 时 L、C 串联谐振，电源电压全部加在 R 上。这是带通特性的峰值。"
     },
     {
       "id": "R",
       "ask": "若把 R 减小为 0.2 Ω（L、C 不变），会怎样？",
       "choices": ["极点 −0.2 ± j1.99 更靠近虚轴：h(t) 振荡衰减得更慢，|H(jω)| 的峰更尖（Q 更高，带宽更窄）", "极点远离虚轴：h(t) 衰减更快，通带变宽", "零点从 0 移到 −0.2，峰值频率改变", "极点变成两个负实数，h(t) 不再振荡"],
       "correct": 0,
-      "choiceExplain": ["", "方向反了：R 减小使 α 减小，极点向虚轴靠近。", "零点仍在 s = 0（H(s) 的分子是 sRC）；峰值频率 ω_0 = 1/√(LC) 与 R 无关。", "R 减小阻尼更小，更加欠阻尼；R 增大到 2√(L/C) = 2 Ω 以上才变成两个实数极点。"],
-      "explain": "极点 s² + (R/L)s + 1/(LC) = 0：α = R/(2L) = 0.2，ω_0 = 2 不变。α 越小极点越靠近 jω 轴，时域衰减越慢、频域谐振峰越尖：Q = ω_0/(2α) 从 1 增大到 5。"
+      "choiceExplain": ["", "方向反了：R 减小使 α 减小，极点向虚轴靠近。", "零点仍在 s = 0（H(s) 的分子是 sRC）；峰值频率 ω_0 = 1/√(LC) 与 R 无关。", "R 减小，阻尼更小，更加欠阻尼。R 增大到 2√(L/C) = 2 Ω 以上，才变成两个实数极点。"],
+      "explain": "极点满足 s² + (R/L)s + 1/(LC) = 0：α = R/(2L) = 0.2，ω_0 = 2 不变。α 越小，极点越靠近 jω 轴：时域衰减越慢，频域谐振峰越尖。Q = ω_0/(2α) 从 1 增大到 5。"
     }
   ],
   "hints": [
     "运算阻抗串联分压：H(s) = R/(R + sL + 1/(sC))，分子分母同乘 sC。",
-    "冲激响应 h(t) = ℒ⁻¹[H(s)]：共轭极点 −α ± jω_d 给出 e^{−αt} 乘正弦；把分子凑成 (s + α) 和常数两部分。",
-    "频率响应 H(jω) 就是 H(s) 在 s = jω 处的值；极点离 jω 轴越近，|H(jω)| 在 ω ≈ ω_d 附近的峰越尖。"
+    "冲激响应 h(t) = ℒ⁻¹[H(s)]：共轭极点 −α ± jω_d 给出 e^{−αt} 乘正弦。把分子凑成 (s + α) 和常数两部分。",
+    "频率响应 H(jω) 就是 H(s) 在 s = jω 处的值。极点离 jω 轴越近，|H(jω)| 的峰越尖。"
   ],
   "solution": [
     "**1. 网络函数。** H(s) = \\frac{sRC}{s²LC + sRC + 1} = \\frac{2s}{s² + 2s + 4}：**零点 0**，**极点 −1 ± j√3**。",
-    "**2. 冲激响应。** H(s) = \\frac{2(s + 1)}{(s + 1)² + 3} − \\frac{2}{(s + 1)² + 3}，h(t) = 2e^{−t}(cos √3t − \\frac{1}{√3}sin √3t) V：**h(0₊) = 2 V**，**h(0.5) ≈ 0.252 V**（衰减振荡，因为极点是左半平面的共轭复数）。",
-    "**3. 频率响应。** H(jω) = \\frac{j2ω}{4 − ω² + j2ω}，ω = 0 和 ω → ∞ 时为 0，ω = 2 rad/s 时 **|H(j2)| = 1**：带通。",
+    "**2. 冲激响应。** H(s) = \\frac{2(s + 1)}{(s + 1)² + 3} − \\frac{2}{(s + 1)² + 3}，h(t) = 2e^{−t}(cos √3t − \\frac{1}{√3}sin √3t) V。**h(0₊) = 2 V**，**h(0.5) ≈ 0.252 V**。极点是左半平面的共轭复数，所以是衰减振荡。",
+    "**3. 频率响应。** H(jω) = \\frac{j2ω}{4 − ω² + j2ω}。ω = 0 和 ω → ∞ 时为 0，ω = 2 rad/s 时 **|H(j2)| = 1**：带通。",
     "**检验：** ∫_{0}^{∞}h dt = H(0) = 0（冲激过后电容电荷又放完）；h(0₊) = 2 = lim sH(s) ✓。"
   ],
   "i18n": {
@@ -96,8 +96,8 @@
       "title": "Poles and zeros vs the impulse and frequency responses",
       "tags": ["network function", "poles and zeros", "impulse response", "frequency response", "resonance"],
       "statement": [
-        "In the series RLC circuit L = 0.5 H, C = 0.5 F, R = 1 Ω, and the output is the resistor voltage v_R. The input is a unit impulse v_s = δ(t) V and nothing is stored for t < 0, so v_R is the impulse response h(t).",
-        "Find the zero and poles of H(s) = V_R(s)/V_s(s), decide the form of h(t) from the pole positions, and connect H(s) with the frequency response H(jω)."
+        "In the series RLC circuit L = 0.5 H, C = 0.5 F, R = 1 Ω, and the output is the resistor voltage v_R, referenced as drawn. The input is a unit impulse v_s = δ(t) V and nothing is stored for t < 0, so v_R is the impulse response h(t).",
+        "Find the zero and poles of H(s) = V_R(s)/V_s(s). Decide the form of h(t) from the pole positions, then connect H(s) with the frequency response H(jω)."
       ],
       "questions": [
         {
@@ -107,7 +107,7 @@
         {"ask": "Real part of the poles, −α = ?", "explain": "s² + 2s + 4 = 0 → s = −1 ± j√3: α = R/(2L) = 1 1/s."},
         {
           "ask": "Imaginary part of p_1, ω_d = ?",
-          "explain": "ω_d = √(ω_0² − α²) = √(4 − 1) = √3 ≈ 1.732 rad/s; ω_0 = 1/√(LC) = 2 rad/s is the distance of the poles from the origin."
+          "explain": "ω_d = √(ω_0² − α²) = √(4 − 1) = √3 ≈ 1.732 rad/s. Here ω_0 = 1/√(LC) = 2 rad/s is the distance of the poles from the origin."
         },
         {
           "ask": "h(0+) = v_R(0+) = ?",
@@ -119,11 +119,11 @@
         },
         {
           "ask": "|H(j2)| = ?",
-          "explain": "H(j2) = \\frac{j4}{−4 + j4 + 4} = 1: at ω = ω_0 = 2 rad/s the series L and C resonate and the whole source voltage is across R — the peak of the band-pass response."
+          "explain": "H(j2) = \\frac{j4}{−4 + j4 + 4} = 1. At ω = ω_0 = 2 rad/s the series L and C resonate, and the whole source voltage is across R. This is the peak of the band-pass response."
         },
         {
           "ask": "What happens if R is reduced to 0.2 Ω (same L, C)?",
-          "explain": "The poles solve s² + (R/L)s + 1/(LC) = 0: α = R/(2L) = 0.2 and ω_0 = 2 is unchanged. A smaller α puts the poles closer to the jω axis: slower decay in time and a sharper resonance peak in frequency, Q = ω_0/(2α) grows from 1 to 5.",
+          "explain": "The poles solve s² + (R/L)s + 1/(LC) = 0: α = R/(2L) = 0.2 and ω_0 = 2 is unchanged. A smaller α puts the poles closer to the jω axis: slower decay in time and a sharper resonance peak in frequency. Q = ω_0/(2α) grows from 1 to 5.",
           "choices": [
             "The poles −0.2 ± j1.99 move closer to the jω axis: h(t) decays more slowly and the peak of |H(jω)| gets sharper (higher Q, narrower band)",
             "The poles move away from the jω axis: h(t) decays faster and the pass band widens",
@@ -134,19 +134,19 @@
             "",
             "The other way round: a smaller R means a smaller α, so the poles approach the jω axis.",
             "The zero stays at s = 0 (the numerator is sRC); the peak frequency ω_0 = 1/√(LC) does not depend on R.",
-            "A smaller R means less damping — more underdamped; real poles need R above 2√(L/C) = 2 Ω."
+            "A smaller R means less damping: more underdamped. Real poles need R above 2√(L/C) = 2 Ω."
           ]
         }
       ],
       "hints": [
         "Voltage division of s-domain impedances in series: H(s) = R/(R + sL + 1/(sC)); multiply top and bottom by sC.",
-        "The impulse response is h(t) = ℒ⁻¹[H(s)]: the conjugate poles −α ± jω_d give e^{−αt} times sinusoids; split the numerator into an (s + α) part and a constant.",
-        "The frequency response H(jω) is H(s) at s = jω; the closer the poles are to the jω axis, the sharper the peak of |H(jω)| near ω ≈ ω_d."
+        "The impulse response is h(t) = ℒ⁻¹[H(s)]: the conjugate poles −α ± jω_d give e^{−αt} times sinusoids. Split the numerator into an (s + α) part and a constant.",
+        "The frequency response H(jω) is H(s) at s = jω. The closer the poles are to the jω axis, the sharper the peak of |H(jω)|."
       ],
       "solution": [
         "**1. Network function.** H(s) = \\frac{sRC}{s²LC + sRC + 1} = \\frac{2s}{s² + 2s + 4}: **zero 0**, **poles −1 ± j√3**.",
-        "**2. Impulse response.** H(s) = \\frac{2(s + 1)}{(s + 1)² + 3} − \\frac{2}{(s + 1)² + 3}, h(t) = 2e^{−t}(cos √3t − \\frac{1}{√3}sin √3t) V: **h(0+) = 2 V**, **h(0.5) ≈ 0.252 V** (a decaying oscillation, because the poles are a complex pair in the left half-plane).",
-        "**3. Frequency response.** H(jω) = \\frac{j2ω}{4 − ω² + j2ω}: 0 at ω = 0 and ω → ∞, **|H(j2)| = 1** at ω = 2 rad/s — a band-pass.",
+        "**2. Impulse response.** H(s) = \\frac{2(s + 1)}{(s + 1)² + 3} − \\frac{2}{(s + 1)² + 3}, h(t) = 2e^{−t}(cos √3t − \\frac{1}{√3}sin √3t) V. **h(0+) = 2 V**, **h(0.5) ≈ 0.252 V**. The poles are a complex pair in the left half-plane, so this is a decaying oscillation.",
+        "**3. Frequency response.** H(jω) = \\frac{j2ω}{4 − ω² + j2ω}. It is 0 at ω = 0 and ω → ∞, and **|H(j2)| = 1** at ω = 2 rad/s: a band-pass.",
         "**Check:** ∫_{0}^{∞}h dt = H(0) = 0 (the capacitor discharges again after the impulse); h(0+) = 2 = lim sH(s) ✓."
       ]
     }
