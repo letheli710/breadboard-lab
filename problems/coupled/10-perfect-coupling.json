@@ -7,7 +7,7 @@
   "level": 4,
   "tags": ["全耦合 k = 1", "理想变压器", "励磁电流", "空心变压器"],
   "statement": [
-    "V̇_s = 40∠0° V（有效值），ω = 100 rad/s。耦合电感 L_1 = 0.16 H、L_2 = 0.04 H，耦合系数 k = 1（全耦合），副边接 R_L = 4 Ω。",
+    "V̇_s = 40∠0° V（有效值），ω = 100 rad/s。耦合电感 L_1 = 0.16 H、L_2 = 0.04 H，耦合系数 k = 1（全耦合），两线圈的同名端都在上端。副边接 R_L = 4 Ω。",
     "求负载电压 V_2、原边电流 İ_1 的有效值和相位，并说明它与理想变压器的区别。"
   ],
   "schematic": {
@@ -60,7 +60,7 @@
     {
       "id": "ideal",
       "ask": "保持 L_1/L_2 = 4、k = 1，让 L_1、L_2 都趋于无穷大，I_1 趋于多少？",
-      "choices": ["2.5 A（理想变压器）", "3.536 A（不变）", "0"], "choiceExplain": ["", "原边电流中的励磁电流 V_1/(ωL_1) 随 L_1 增大而趋于 0，所以 I_1 会变小，不会保持 3.536 A。", "电感趋于无穷只让励磁电流趋于 0；副边的负载电流仍然按 I_2/n 折算到原边，I_1 不为零。"],
+      "choices": ["2.5 A（理想变压器）", "不变（仍是现在的 I_1）", "0"], "choiceExplain": ["", "原边电流中的励磁电流 V_1/(ωL_1) 随 L_1 增大而趋于 0，所以 I_1 会变小，不会保持不变。", "电感趋于无穷只让励磁电流趋于 0；副边的负载电流仍然按 I_2/n 折算到原边，I_1 不为零。"],
       "correct": 0,
       "explain": "励磁电流 V_1/(ωL_1) → 0，只剩折算的负载电流 I_2/n = 2.5 A：全耦合 + L_1 → ∞ 就是 n = 2 的理想变压器。"
     }
@@ -73,14 +73,14 @@
     "**1. 参数。** M = k√(L_{1}L_{2}) = 0.08 H；ωL_1 = 16 Ω，ωL_2 = 4 Ω，ωM = 8 Ω；n = √(L_1/L_2) = 2。",
     "**2. 回路方程（İ_2 方向如图，从副边同名端流出）。** 原边：V̇_s = j16İ_1 − j8İ_2；副边：j8İ_1 − j4İ_2 = 4İ_2 → İ_2 = j8İ_1/(4 + j4) = √2∠45°·İ_1。",
     "**3. 求解。** V̇_s = (j16 − j8 × √2∠45°)İ_1 = (j16 + 8 − j8)İ_1 = (8 + j8)İ_1 → **İ_1 = 3.536∠−45° A**；İ_2 = √2∠45° × 3.536∠−45° = 5∠0° A，**V_2 = 20 V**。",
-    "**4. 等效电路解释。** 全耦合时 V̇_1/V̇_2 = n = 2 恒成立；原边电流 = 励磁电流 V̇_1/(jωL_1) = −j2.5 A + 折算负载电流 İ_2/n = 2.5 A。理想变压器（L_1 → ∞）没有励磁电流，I_1 = 2.5 A。"
+    "**4. 等效电路解释。** 全耦合时 V̇_1/V̇_2 = n = 2 恒成立。原边电流 = 励磁电流 + 折算负载电流：励磁电流 V̇_1/(jωL_1) = −j2.5 A，折算负载电流 İ_2/n = 2.5 A。理想变压器（L_1 → ∞）没有励磁电流，I_1 = 2.5 A。"
   ],
   "i18n": {
     "en": {
       "title": "Perfectly coupled transformer vs. ideal transformer",
       "tags": ["perfect coupling k = 1", "ideal transformer", "magnetizing current", "linear transformer"],
       "statement": [
-        "V̇_s = 40∠0° V (rms), ω = 100 rad/s. Coupled inductors L_1 = 0.16 H and L_2 = 0.04 H have coupling coefficient k = 1 (perfect coupling); the secondary feeds R_L = 4 Ω.",
+        "V̇_s = 40∠0° V (rms), ω = 100 rad/s. Coupled inductors L_1 = 0.16 H and L_2 = 0.04 H have coupling coefficient k = 1 (perfect coupling), both dots at the top. The secondary feeds R_L = 4 Ω.",
         "Find the load voltage V_2 and the rms value and phase of the primary current İ_1, and explain how this differs from an ideal transformer."
       ],
       "questions": [
@@ -89,7 +89,7 @@
         { "ask": "Phase of İ_1 = ?", "explain": "İ_1 = 2.5 − j2.5 A = 3.536∠−45° A: the source sees jωL_1 ∥ n²R_L = j16 ∥ 16 = 8 + j8 Ω." },
         {
           "ask": "Keeping L_1/L_2 = 4 and k = 1, let L_1 and L_2 both go to infinity. I_1 tends to…",
-          "choices": ["2.5 A (ideal transformer)", "3.536 A (unchanged)", "0"], "choiceExplain": ["", "The magnetizing part of the primary current, V_1/(ωL_1), goes to 0 as L_1 grows, so I_1 decreases rather than staying at 3.536 A.", "Infinite inductance only drives the magnetizing current to 0; the secondary's load current is still reflected to the primary as I_2/n, so I_1 is not zero."],
+          "choices": ["2.5 A (ideal transformer)", "unchanged (the present I_1)", "0"], "choiceExplain": ["", "The magnetizing part of the primary current, V_1/(ωL_1), goes to 0 as L_1 grows, so I_1 decreases rather than staying the same.", "Infinite inductance only drives the magnetizing current to 0; the secondary's load current is still reflected to the primary as I_2/n, so I_1 is not zero."],
           "explain": "The magnetizing current V_1/(ωL_1) → 0 and only the reflected load current I_2/n = 2.5 A is left: perfect coupling with L_1 → ∞ is exactly an ideal transformer with n = 2."
         }
       ],
@@ -101,7 +101,7 @@
         "**1. Parameters.** M = k√(L_{1}L_{2}) = 0.08 H; ωL_1 = 16 Ω, ωL_2 = 4 Ω, ωM = 8 Ω; n = √(L_1/L_2) = 2.",
         "**2. Loop equations (İ_2 as drawn, leaving the secondary dot).** Primary: V̇_s = j16İ_1 − j8İ_2; secondary: j8İ_1 − j4İ_2 = 4İ_2 → İ_2 = j8İ_1/(4 + j4) = √2∠45°·İ_1.",
         "**3. Solve.** V̇_s = (j16 − j8 × √2∠45°)İ_1 = (j16 + 8 − j8)İ_1 = (8 + j8)İ_1 → **İ_1 = 3.536∠−45° A**; İ_2 = √2∠45° × 3.536∠−45° = 5∠0° A, **V_2 = 20 V**.",
-        "**4. Equivalent-circuit view.** With perfect coupling V̇_1/V̇_2 = n = 2 always; the primary current = magnetizing current V̇_1/(jωL_1) = −j2.5 A + reflected load current İ_2/n = 2.5 A. An ideal transformer (L_1 → ∞) has no magnetizing current, so I_1 = 2.5 A."
+        "**4. Equivalent-circuit view.** With perfect coupling V̇_1/V̇_2 = n = 2 always. The primary current = magnetizing current + reflected load current: the magnetizing current is V̇_1/(jωL_1) = −j2.5 A, the reflected load current İ_2/n = 2.5 A. An ideal transformer (L_1 → ∞) has no magnetizing current, so I_1 = 2.5 A."
       ]
     }
   }
