@@ -2,10 +2,18 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "ac-analysis",
-  "intro": "引入复阻抗 Z 和复导纳 Y 之后，正弦稳态电路就“长得像”电阻电路：串并联、分压分流、结点法、网孔法、叠加、戴维宁全部照搬，只是所有量都换成相量、电阻换成复阻抗。难点在复数运算和相量图。",
+  "intro": [
+    "引入复阻抗 Z 和复导纳 Y 之后，正弦稳态电路就“长得像”电阻电路。",
+    "串并联、分压分流、结点法、网孔法、叠加、戴维宁都可以照搬。只是所有量都换成相量，电阻换成复阻抗。",
+    "难点在复数运算和相量图。"
+  ],
   "i18n": {
     "en": {
-      "intro": "With impedance Z and admittance Y, a sinusoidal steady-state circuit “looks like” a resistive one: series/parallel, dividers, nodal and mesh analysis, superposition and Thévenin all carry over, with phasors for every quantity and impedances for resistances. The difficulty is in the complex arithmetic and the phasor diagrams."
+      "intro": [
+        "With impedance Z and admittance Y, a sinusoidal steady-state circuit “looks like” a resistive one.",
+        "Series and parallel, dividers, nodal and mesh analysis, superposition and Thévenin all carry over. Every quantity just becomes a phasor, and every resistance an impedance.",
+        "The difficulty is in the complex arithmetic and the phasor diagrams."
+      ]
     }
   },
   "ideas": [
@@ -13,18 +21,22 @@
       "id": "impedance",
       "title": "复阻抗 Z 与电路的性质",
       "text": [
-        "无源二端网络端口电压相量与电流相量之比（关联参考方向）称为**复阻抗**：Z = V̇/İ = R + jX = |Z|∠φ_Z。|Z| = V/I，阻抗角 φ_Z = ψ_v − ψ_i 就是电压超前电流的角度。",
-        "R、L、C 的阻抗分别为 R、jωL、−j/(ωC)。RLC 串联：Z = R + j(ωL − \\frac{1}{ωC})。",
-        "X > 0（φ_Z > 0）电路呈**感性**，电压超前电流；X < 0 呈**容性**，电压滞后电流；X = 0 呈**电阻性**，电压电流同相。串联电路中分电压可以大于总电压（L、C 电压部分抵消）。"
+        "- 无源二端网络端口的电压相量与电流相量之比（关联参考方向）叫**复阻抗**：Z = V̇/İ = R + jX = |Z|∠φ_Z。",
+        "- |Z| = V/I。阻抗角 φ_Z = ψ_v − ψ_i，就是电压超前电流的角度。",
+        "- R、L、C 的阻抗分别是 R、jωL、−j/(ωC)。RLC 串联：Z = R + j(ωL − \\frac{1}{ωC})。",
+        "- X > 0（φ_Z > 0）电路呈**感性**，电压超前电流。X < 0 呈**容性**，电压滞后电流。X = 0 呈**电阻性**，电压、电流同相。",
+        "- 串联电路里，分电压可以大于总电压，因为 L、C 的电压会部分抵消。面包板 4.2 的串联谐振里见过：电容上的电压比加上去的电压还大。"
       ],
       "problems": ["ac-analysis-01-rc-series-impedance", "ac-analysis-02-rlc-series-voltages", "ac-analysis-04-series-parallel-impedance"],
       "i18n": {
         "en": {
           "title": "Impedance Z and the character of a circuit",
           "text": [
-            "The ratio of the port voltage phasor to the current phasor of a passive one-port (passive sign convention) is its **impedance**: Z = V̇/İ = R + jX = |Z|∠φ_Z. |Z| = V/I, and the impedance angle φ_Z = ψ_v − ψ_i is the angle by which the voltage leads the current.",
-            "The impedances of R, L and C are R, jωL and −j/(ωC). Series RLC: Z = R + j(ωL − \\frac{1}{ωC}).",
-            "X > 0 (φ_Z > 0): **inductive**, voltage leads current; X < 0: **capacitive**, voltage lags; X = 0: **resistive**, in phase. In a series circuit a partial voltage can exceed the total (the L and C voltages partly cancel)."
+            "- The ratio of the port voltage phasor to the current phasor of a passive one-port (passive sign convention) is its **impedance**: Z = V̇/İ = R + jX = |Z|∠φ_Z.",
+            "- |Z| = V/I. The impedance angle φ_Z = ψ_v − ψ_i is the angle by which the voltage leads the current.",
+            "- The impedances of R, L and C are R, jωL and −j/(ωC). Series RLC: Z = R + j(ωL − \\frac{1}{ωC}).",
+            "- X > 0 (φ_Z > 0): **inductive**, the voltage leads the current. X < 0: **capacitive**, the voltage lags. X = 0: **resistive**, voltage and current in phase.",
+            "- In a series circuit a part voltage can exceed the total, because the L and C voltages partly cancel. You saw it in the series resonance lab on the breadboard (4.2): the capacitor voltage was larger than the applied voltage."
           ]
         }
       }
@@ -33,18 +45,22 @@
       "id": "admittance",
       "title": "复导纳 Y 与并联电路",
       "text": [
-        "Y = 1/Z = İ/V̇ = G + jB。R、L、C 的导纳为 1/R、−j/(ωL)、jωC；RLC 并联 Y = G + j(ωC − \\frac{1}{ωL})。",
-        "**B > 0 呈容性**（电流超前电压），B < 0 呈感性——符号与 X 的规律相反，最好直接看电流超前还是滞后。",
-        "注意：Z = R + jX 时 Y 的实部 G = R/(R² + X²)，不是 1/R。并联电路适合用导纳（导纳相加），串联电路适合用阻抗。"
+        "- Y = 1/Z = İ/V̇ = G + jB。",
+        "- R、L、C 的导纳是 1/R、−j/(ωL)、jωC。RLC 并联：Y = G + j(ωC − \\frac{1}{ωL})。",
+        "- **B > 0 呈容性**（电流超前电压），B < 0 呈感性。符号规律和 X 相反，最稳妥的是直接看电流超前还是滞后。",
+        "- 注意：Z = R + jX 时，Y 的实部 G = R/(R² + X²)，不是 1/R。",
+        "- 并联电路适合用导纳（导纳相加），串联电路适合用阻抗。"
       ],
       "problems": ["ac-analysis-03-rlc-parallel-admittance"],
       "i18n": {
         "en": {
           "title": "Admittance Y and parallel circuits",
           "text": [
-            "Y = 1/Z = İ/V̇ = G + jB. The admittances of R, L and C are 1/R, −j/(ωL) and jωC; parallel RLC: Y = G + j(ωC − \\frac{1}{ωL}).",
-            "**B > 0 is capacitive** (current leads voltage) and B < 0 inductive — the opposite sign rule from X, so it is safest to ask whether the current leads or lags.",
-            "Careful: for Z = R + jX the real part of Y is G = R/(R² + X²), not 1/R. Use admittances for parallel circuits (they add) and impedances for series circuits."
+            "- Y = 1/Z = İ/V̇ = G + jB.",
+            "- The admittances of R, L and C are 1/R, −j/(ωL) and jωC. Parallel RLC: Y = G + j(ωC − \\frac{1}{ωL}).",
+            "- **B > 0 is capacitive** (current leads voltage) and B < 0 inductive. The sign rule is the opposite of X's, so it is safest to ask whether the current leads or lags.",
+            "- Careful: for Z = R + jX the real part of Y is G = R/(R² + X²), not 1/R.",
+            "- Use admittances for parallel circuits (they add) and impedances for series circuits."
           ]
         }
       }
@@ -53,16 +69,18 @@
       "id": "combine",
       "title": "阻抗的串并联、分压与分流",
       "text": [
-        "串联 Z = Z_1 + Z_2 + …；并联 Y = Y_1 + Y_2 + …，两个阻抗并联 Z = \\frac{Z_1Z_2}{Z_1 + Z_2}。分压 V̇_k = \\frac{Z_k}{Z}V̇，分流 İ_k = \\frac{Y_k}{Y}İ——形式与电阻电路完全相同，但都是复数运算。",
-        "阻抗随频率变化：同一个网络在某个频率下可以是纯电阻性的，换一个频率就不是了。"
+        "- 串联 Z = Z_1 + Z_2 + …。并联 Y = Y_1 + Y_2 + …；两个阻抗并联时 Z = \\frac{Z_1Z_2}{Z_1 + Z_2}。",
+        "- 分压 V̇_k = \\frac{Z_k}{Z}V̇，分流 İ_k = \\frac{Y_k}{Y}İ。形式和电阻电路完全一样，只是都要做复数运算。",
+        "- 阻抗随频率变化：同一个网络在某个频率下可以是纯电阻性的，换一个频率就不是了。"
       ],
       "problems": ["ac-analysis-04-series-parallel-impedance", "ac-analysis-06-rc-time-domain", "ac-analysis-14-rc-phase-shifter", "ac-analysis-02-rlc-series-voltages"],
       "i18n": {
         "en": {
           "title": "Series and parallel impedances, dividers",
           "text": [
-            "Series Z = Z_1 + Z_2 + …; parallel Y = Y_1 + Y_2 + …, two in parallel Z = \\frac{Z_1Z_2}{Z_1 + Z_2}. Divider V̇_k = \\frac{Z_k}{Z}V̇, current divider İ_k = \\frac{Y_k}{Y}İ — the same forms as for resistors, with complex arithmetic.",
-            "Impedance depends on frequency: a network can be purely resistive at one frequency and not at another."
+            "- Series Z = Z_1 + Z_2 + …. Parallel Y = Y_1 + Y_2 + …; two impedances in parallel give Z = \\frac{Z_1Z_2}{Z_1 + Z_2}.",
+            "- Voltage divider V̇_k = \\frac{Z_k}{Z}V̇, current divider İ_k = \\frac{Y_k}{Y}İ. The forms are exactly those for resistors; only the arithmetic is complex.",
+            "- Impedance depends on frequency: a network can be purely resistive at one frequency and not at another."
           ]
         }
       }
@@ -71,19 +89,19 @@
       "id": "procedure",
       "title": "相量法的步骤",
       "text": [
-        "1. 把激励写成相量（先化为 cos），元件换成复阻抗，画出相量模型；",
-        "2. 用电阻电路的任何方法求所要的相量；",
+        "1. 把激励写成相量（先化成 cos），元件换成复阻抗，画出相量模型。",
+        "2. 用电阻电路的任何一种方法，求出所要的相量。",
         "3. 把结果写回时域：İ = I∠ψ_i ↔ i(t) = √2I cos(ωt + ψ_i)（有效值相量）。",
-        "相量法只给出**稳态**响应，且要求全电路同一频率。"
+        "相量法只给出**稳态**响应，而且要求全电路是同一个频率。"
       ],
       "problems": ["ac-analysis-06-rc-time-domain", "ac-analysis-02-rlc-series-voltages"],
       "i18n": {
         "en": {
           "title": "The phasor method, step by step",
           "text": [
-            "1. Write the sources as phasors (convert to cosine first), replace the elements by impedances, draw the phasor model;",
-            "2. find the phasors you need with any resistive-circuit method;",
-            "3. convert back to the time domain: İ = I∠ψ_i ↔ i(t) = √2I cos(ωt + ψ_i) (rms phasors).",
+            "1. Write the sources as phasors (convert to cosine first), replace the elements by impedances and draw the phasor model.",
+            "2. Find the phasors you need with any resistive-circuit method.",
+            "3. Convert back to the time domain: İ = I∠ψ_i ↔ i(t) = √2I cos(ωt + ψ_i) (rms phasors).",
             "The phasor method gives only the **steady-state** response, and the whole circuit must run at one frequency."
           ]
         }
@@ -93,18 +111,24 @@
       "id": "diagram",
       "title": "相量图辅助求解：三表法与同相条件",
       "text": [
-        "只给有效值（电表读数）时，画相量图：串联部分以电流为参考，并联部分以电压为参考。R 上电压与电流同向，L、C 上电压与电流垂直。",
-        "**三电压表法**：V̇ = V̇_1 + V̇_2，三个读数是三角形的三边，用余弦定理求线圈电压与电流的夹角，再得 r、X_L。",
-        "“端口电压与电流同相”说明整体呈纯电阻性（总阻抗虚部为零），在相量图上给出一个直角或特定角度，往往就是解题的关键条件。"
+        "- 只给有效值（电表读数）时，画相量图。串联部分以电流为参考，并联部分以电压为参考。",
+        "- R 上的电压与电流同向；L、C 上的电压与电流垂直。",
+        "- **三电压表法**：V̇ = V̇_1 + V̇_2，三个读数就是三角形的三条边。",
+        "- 用余弦定理求出线圈电压与电流的夹角，再得到 r、X_L。",
+        "- “端口电压与电流同相”说明整体呈纯电阻性，总阻抗的虚部为零。",
+        "- 它在相量图上给出一个直角或一个已知的角度，往往就是解题的关键条件。"
       ],
       "problems": ["ac-analysis-05-ammeter-phasor-kcl", "ac-analysis-07-three-voltmeter", "ac-analysis-13-phasor-diagram-in-phase", "ac-analysis-14-rc-phase-shifter"],
       "i18n": {
         "en": {
           "title": "Solving with phasor diagrams: three-meter methods, in-phase conditions",
           "text": [
-            "When only rms values (meter readings) are given, draw a phasor diagram: the current as reference for a series part, the voltage for a parallel part. The voltage of R is along its current; those of L and C are perpendicular to theirs.",
-            "**Three-voltmeter method**: V̇ = V̇_1 + V̇_2, so the three readings are the sides of a triangle; the law of cosines gives the angle between the coil voltage and the current, and from it r and X_L.",
-            "“Port voltage in phase with the current” means the whole is purely resistive (zero imaginary part of the total impedance); on the diagram this fixes a right angle or another known angle, often the key condition."
+            "- When only rms values (meter readings) are given, draw a phasor diagram. Take the current as reference for a series part and the voltage for a parallel part.",
+            "- The voltage of R is along its current; those of L and C are perpendicular to theirs.",
+            "- **Three-voltmeter method**: V̇ = V̇_1 + V̇_2, so the three readings are the three sides of a triangle.",
+            "- The law of cosines gives the angle between the coil voltage and the current, and from it r and X_L.",
+            "- “Port voltage in phase with the current” means the whole is purely resistive: the total impedance has zero imaginary part.",
+            "- On the diagram this fixes a right angle or another known angle, which is often the key condition."
           ]
         }
       }
@@ -113,18 +137,24 @@
       "id": "methods",
       "title": "结点电压法、网孔电流法（相量形式）",
       "text": [
-        "方程的列写规则与电阻电路相同，电导换成复导纳、电阻换成复阻抗：结点法中自导纳 × 本结点电压 − 互导纳 × 相邻结点电压 = 流入的电源电流；网孔法中自阻抗 × 本网孔电流 ± 互阻抗 × 相邻网孔电流 = 电压源电压升。",
-        "与电流源串联的元件不进入结点方程（它不影响结点电压，只影响电流源两端电压）。含受控源时把它当独立源列方程，再补控制量方程。",
-        "解复数方程组：常用代入消元，算完用一个没用过的 KCL 或 KVL 验算。"
+        "- 方程的列法和电阻电路相同：电导换成复导纳，电阻换成复阻抗。",
+        "- 结点法：自导纳 × 本结点电压 − 互导纳 × 相邻结点电压 = 流入的电源电流。",
+        "- 网孔法：自阻抗 × 本网孔电流 ± 互阻抗 × 相邻网孔电流 = 电压源的电压升。",
+        "- 与电流源串联的元件不进入结点方程。它不影响结点电压，只影响电流源两端的电压。",
+        "- 有受控源时，先把它当独立源列方程，再补一个控制量方程。",
+        "- 复数方程组常用代入消元来解。算完，用一个没用过的 KCL 或 KVL 验算。"
       ],
       "problems": ["ac-analysis-08-nodal-analysis", "ac-analysis-09-mesh-analysis", "ac-analysis-16-nodal-cccs", "ac-analysis-10-superposition"],
       "i18n": {
         "en": {
           "title": "Nodal and mesh analysis with phasors",
           "text": [
-            "The equations are written exactly as for resistive circuits, with admittances for conductances and impedances for resistances: nodal — self-admittance × own node voltage − mutual admittance × neighbouring node voltage = source current flowing in; mesh — self-impedance × own mesh current ± mutual impedance × neighbouring mesh current = source voltage rise.",
-            "An element in series with a current source does not enter the nodal equations (it changes only the voltage across the current source). With a dependent source, treat it as independent and add the controlling-quantity equation.",
-            "Solve the complex system by substitution, then check with a KCL or KVL equation you have not used."
+            "- The equations are written exactly as for resistive circuits, with admittances for conductances and impedances for resistances.",
+            "- Nodal: self-admittance × own node voltage − mutual admittance × neighbouring node voltage = source current flowing in.",
+            "- Mesh: self-impedance × own mesh current ± mutual impedance × neighbouring mesh current = source voltage rise.",
+            "- An element in series with a current source does not enter the nodal equations. It changes no node voltage, only the voltage across the current source.",
+            "- With a dependent source, first treat it as independent, then add an equation for the controlling quantity.",
+            "- Solve the complex system by substitution. Then check with a KCL or KVL equation you have not used."
           ]
         }
       }
@@ -133,16 +163,22 @@
       "id": "theorems",
       "title": "叠加定理与戴维宁定理",
       "text": [
-        "**叠加**：各电源单独作用的**相量**相加（电压源置零为短路，电流源置零为开路，受控源保留）。只有同一频率的分量才能把相量相加；不同频率的分量只能在时域相加。两个分量的模之和一般不等于合成量的模。",
-        "**戴维宁**：V̇_oc 为端口开路电压，Z_eq 为独立源置零后的入端阻抗，Z_eq = V̇_oc/İ_sc。含受控源时用**外加电源法**（端口加 İ 求 V̇，或加 V̇ 求 İ）或开路电压/短路电流法求 Z_eq，受控源不能置零。"
+        "- **叠加**：把各电源单独作用时得到的**相量**相加。电压源置零是短路，电流源置零是开路，受控源保留。",
+        "- 只有同一频率的分量才能按相量相加；不同频率的分量只能在时域相加。",
+        "- 两个分量的模之和，一般不等于合成量的模。",
+        "- **戴维宁**：V̇_oc 是端口开路电压，Z_eq 是独立源置零后的入端阻抗，也等于 V̇_oc/İ_sc。",
+        "- 有受控源时，受控源不能置零。用**外加电源法**（端口加 İ 求 V̇，或加 V̇ 求 İ），或者开路电压 / 短路电流法求 Z_eq。"
       ],
       "problems": ["ac-analysis-10-superposition", "ac-analysis-11-thevenin-ac", "ac-analysis-17-thevenin-vccs"],
       "i18n": {
         "en": {
           "title": "Superposition and Thévenin's theorem",
           "text": [
-            "**Superposition**: add the **phasors** produced by each source acting alone (a zeroed voltage source is a short, a zeroed current source an open; dependent sources stay). Only components of the same frequency may be added as phasors; components of different frequencies are added in the time domain. The magnitudes of the parts generally do not add up to the magnitude of the total.",
-            "**Thévenin**: V̇_oc is the open-circuit port voltage, Z_eq the input impedance with independent sources zeroed, Z_eq = V̇_oc/İ_sc. With dependent sources use a **test source** (apply İ and find V̇, or the other way round) or the open-circuit/short-circuit method; never zero a dependent source."
+            "- **Superposition**: add the **phasors** produced by each source acting alone. A zeroed voltage source is a short, a zeroed current source an open; dependent sources stay.",
+            "- Only components of the same frequency may be added as phasors; components of different frequencies are added in the time domain.",
+            "- The magnitudes of the parts generally do not add up to the magnitude of the total.",
+            "- **Thévenin**: V̇_oc is the open-circuit port voltage and Z_eq the input impedance with independent sources zeroed; also Z_eq = V̇_oc/İ_sc.",
+            "- Never zero a dependent source. Find Z_eq with a **test source** (apply İ and find V̇, or the other way round) or by the open-circuit / short-circuit method."
           ]
         }
       }
@@ -151,16 +187,18 @@
       "id": "opamp",
       "title": "含理想运放的正弦稳态电路",
       "text": [
-        "虚短（V̇_{+} = V̇_{−}）、虚断（输入电流为零）对相量同样成立，在输入端结点列 KCL 即可。",
-        "反相放大器的电阻换成阻抗：V̇_o = −\\frac{Z_f}{Z_1}V̇_i；增益的模和相位都随频率变化（这就是有源滤波器）。"
+        "- 虚短（V̇_{+} = V̇_{−}）和虚断（输入电流为零）对相量同样成立。在输入端结点列 KCL 即可。",
+        "- 反相放大器的电阻换成阻抗：V̇_o = −\\frac{Z_f}{Z_1}V̇_i。",
+        "- 增益的模和相位都随频率变化，这就是有源滤波器。面包板 4.3 的有源低通正是 R_f 旁并一个电容：在截止频率处，输出相对输入的相位差是 +135°，即反相的 180° 再落后 45°。"
       ],
       "problems": ["ac-analysis-12-opamp-rc-feedback", "ac-analysis-18-opamp-two-capacitors"],
       "i18n": {
         "en": {
           "title": "Ideal op-amps in sinusoidal steady state",
           "text": [
-            "Virtual short (V̇_{+} = V̇_{−}) and virtual open (no input current) hold for phasors too; write KCL at the input nodes.",
-            "The inverting amplifier with impedances: V̇_o = −\\frac{Z_f}{Z_1}V̇_i; both the magnitude and the phase of the gain vary with frequency (that is an active filter)."
+            "- Virtual short (V̇_{+} = V̇_{−}) and virtual open (no input current) hold for phasors too. Write KCL at the input nodes.",
+            "- The inverting amplifier with impedances: V̇_o = −\\frac{Z_f}{Z_1}V̇_i.",
+            "- Both the magnitude and the phase of the gain vary with frequency: that is an active filter. The active low-pass on the breadboard (4.3) is exactly this, with a capacitor across R_f. At the cutoff frequency the output is +135° from the input: the 180° inversion, then 45° behind."
           ]
         }
       }
@@ -169,16 +207,18 @@
       "id": "bridge",
       "title": "交流电桥的平衡",
       "text": [
-        "四臂阻抗 Z_1、Z_x、Z_3、Z_4 的电桥，检流计电流为零的条件是**对边阻抗乘积相等**：Z_1Z_4 = Z_3Z_x。",
-        "这是一个复数等式，相当于实部、虚部两个实数条件（或模与辐角两个条件），所以交流电桥一般要调节两个元件才能平衡，也正好能测出未知线圈的 R_x 和 L_x 两个参数。"
+        "- 四臂阻抗为 Z_1、Z_x、Z_3、Z_4 的电桥，检流计电流为零的条件是**对边阻抗乘积相等**：Z_1Z_4 = Z_3Z_x。",
+        "- 这是一个复数等式，相当于两个实数条件：实部、虚部各一个（或者模、辐角各一个）。",
+        "- 所以交流电桥一般要调两个元件才能平衡；也正好能测出未知线圈的两个参数 R_x 和 L_x。"
       ],
       "problems": ["ac-analysis-15-maxwell-bridge"],
       "i18n": {
         "en": {
           "title": "Balancing an AC bridge",
           "text": [
-            "For a bridge with arm impedances Z_1, Z_x, Z_3, Z_4, the detector current is zero when **the products of opposite arms are equal**: Z_1Z_4 = Z_3Z_x.",
-            "This is one complex equation, i.e. two real conditions (real and imaginary parts, or magnitude and angle). An AC bridge therefore needs two adjustments to balance, and it yields two unknowns of a coil, R_x and L_x."
+            "- For a bridge with arm impedances Z_1, Z_x, Z_3, Z_4, the detector current is zero when **the products of opposite arms are equal**: Z_1Z_4 = Z_3Z_x.",
+            "- This is one complex equation, i.e. two real conditions: one for the real part and one for the imaginary part (or magnitude and angle).",
+            "- So an AC bridge usually needs two adjustments to balance, and it yields exactly two unknowns of a coil, R_x and L_x."
           ]
         }
       }
@@ -230,16 +270,16 @@
       "idea": "methods",
       "name": "弥尔曼定理（两结点）",
       "expr": "V̇_a = \\frac{ΣY_kV̇_{sk} + Σİ_s}{ΣY_k}",
-      "when": "只有一个独立结点 a（另一结点为参考点）；V̇_{sk} 为与 Y_k 串联的电压源（“+”朝 a 取正），İ_s 为注入 a 的电流源；与电流源串联的元件不计入 ΣY_k。",
-      "i18n": { "en": { "name": "Millman's theorem (two nodes)", "expr": "V̇_a = \\frac{ΣY_kV̇_{sk} + Σİ_s}{ΣY_k}", "when": "One independent node a (the other is the reference); V̇_{sk} is the voltage source in series with Y_k (positive with “+” towards a), İ_s the current sources into a; elements in series with a current source are left out of ΣY_k." } }
+      "when": "只有一个独立结点 a，另一个结点是参考点。V̇_{sk} 是与 Y_k 串联的电压源，“+”朝 a 时取正。İ_s 是注入 a 的电流源。与电流源串联的元件不计入 ΣY_k。",
+      "i18n": { "en": { "name": "Millman's theorem (two nodes)", "expr": "V̇_a = \\frac{ΣY_kV̇_{sk} + Σİ_s}{ΣY_k}", "when": "One independent node a; the other node is the reference. V̇_{sk} is the voltage source in series with Y_k, positive with “+” towards a. İ_s are the current sources into a. Elements in series with a current source are left out of ΣY_k." } }
     },
     {
       "id": "thevenin",
       "idea": "theorems",
       "name": "戴维宁等效",
       "expr": "V̇ = V̇_oc − Z_eqİ，Z_eq = \\frac{V̇_oc}{İ_sc}",
-      "when": "线性网络、同一频率；İ 从等效电路“+”端流出；Z_eq 求法：独立源置零（受控源保留），或外加电源法。",
-      "i18n": { "en": { "name": "Thévenin equivalent", "expr": "V̇ = V̇_oc − Z_eqİ, Z_eq = \\frac{V̇_oc}{İ_sc}", "when": "Linear network, one frequency; İ leaves the “+” terminal of the equivalent; find Z_eq with independent sources zeroed (dependent ones kept) or with a test source." } }
+      "when": "线性网络，同一频率。İ 从等效电路的“+”端流出。求 Z_eq：独立源置零（受控源保留），或用外加电源法。",
+      "i18n": { "en": { "name": "Thévenin equivalent", "expr": "V̇ = V̇_oc − Z_eqİ, Z_eq = \\frac{V̇_oc}{İ_sc}", "when": "Linear network, one frequency. İ leaves the “+” terminal of the equivalent. Find Z_eq with independent sources zeroed (dependent ones kept) or with a test source." } }
     },
     {
       "id": "opamp",
@@ -254,8 +294,8 @@
       "idea": "bridge",
       "name": "电桥平衡",
       "expr": "Z_1Z_4 = Z_3Z_x",
-      "when": "检流计接在两条分压支路的中点之间；Z_1 与 Z_x、Z_3 与 Z_4 各为一条支路，对边相乘；实部、虚部同时相等。",
-      "i18n": { "en": { "name": "Bridge balance", "expr": "Z_1Z_4 = Z_3Z_x", "when": "Detector between the midpoints of the two divider branches; Z_1 with Z_x and Z_3 with Z_4 form the branches, opposite arms multiplied; real and imaginary parts both equal." } }
+      "when": "检流计接在两条分压支路的中点之间。Z_1 与 Z_x 是一条支路，Z_3 与 Z_4 是另一条；对边相乘。实部、虚部要同时相等。",
+      "i18n": { "en": { "name": "Bridge balance", "expr": "Z_1Z_4 = Z_3Z_x", "when": "Detector between the midpoints of the two divider branches. Z_1 with Z_x form one branch, Z_3 with Z_4 the other; multiply opposite arms. Real and imaginary parts must both be equal." } }
     }
   ],
   "examples": [
