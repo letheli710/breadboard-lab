@@ -270,12 +270,12 @@ The `wave` shapes above are expanded up to harmonic `upTo` (state it in the prob
 | `{"kind":"req","port":["a","b"],"harmonic":3}` | 3ω₁ 时的端口阻抗；`gain`、`twoport` 同理（这些量必须写 `harmonic`） |
 | `{"kind":"v","el":"R"}`（不写 `harmonic`） | 整个波形：`part` 默认 `"rms"` = √(V₀² + V₁² + …)；`"avg"` = 平均值（直流分量）；`"absavg"` = 绝对平均值 (1/T)∫\|v\|dt；`"peak"` = 一个周期内的最大 \|v(t)\|。`i`、`meter` 同理 |
 | `{"kind":"v","el":"R","t":0.0025}` | 瞬时值 v(t)（秒） |
-| `{"kind":"p","el":"R"}` | 平均功率 P = P₀ + Σ P_k；`q` = Σ Q_k；`s` = UI（有效值之积）；`pf` = \|P\|/S；`wattmeter` = 各次谐波读数之和 |
+| `{"kind":"p","el":"R"}` | 平均功率 P = P₀ + Σ P_k；`q` = Σ Q_k；`s` = VI（有效值之积）；`pf` = \|P\|/S；`wattmeter` = 各次谐波读数之和 |
 | `f0`、`Q`、`fc`、`bw`、`val` | 与电源无关的量照常计算（`val` 不能用于电源） |
 
 整个波形没有单一相量，所以不写 `harmonic` 时 `part` 不能是 `mag` / `phase` / `re` / `im` / `db`。
 
-The circuit is solved harmonic by harmonic (k = 0: DC with L shorted and C open; k ≥ 1: phasors at kω₁) and the results are superposed. Ask one harmonic with `"harmonic": k` (phasors are rms by default), or the whole waveform without it: `rms` (default), `avg`, `absavg`, `peak`, an instant `t`, average power `p` = Σ P_k, `q` = Σ Q_k, `s` = UI, `pf` = P/S. `req` / `gain` / `twoport` need a harmonic. `step` / `sin` sources and `Z` elements are rejected.
+The circuit is solved harmonic by harmonic (k = 0: DC with L shorted and C open; k ≥ 1: phasors at kω₁) and the results are superposed. Ask one harmonic with `"harmonic": k` (phasors are rms by default), or the whole waveform without it: `rms` (default), `avg`, `absavg`, `peak`, an instant `t`, average power `p` = Σ P_k, `q` = Σ Q_k, `s` = VI, `pf` = P/S. `req` / `gain` / `twoport` need a harmonic. `step` / `sin` sources and `Z` elements are rejected.
 
 ---
 
@@ -812,11 +812,11 @@ A `TL` element is a two-port: `line` gives the primary parameters per metre (`R0
 - 变量名用下标标记，和图一致：`R_1`、`V_s`、`i_1`、`v_ab`、`z_11`（不写 `R1`、`Vs`、`i1`）；直接相乘的两个带下标的量要加花括号：`R_{1}R_{4}`；中文或 `+`/`−` 下标写 `v_{+}`、`R_{左}`。`schematic` 里的 `ref` 和 `marks` 的 `name` 照常写 `R1`、`i1`（图上自动加下标）。
 - 电压在中英文里都用 v / V（和图一致，英文不用 v / V），电流 i / I；小写 = 瞬时值，大写 = 直流量或有效值。
 - 相量加点：`V̇_s`、`İ_1`；有效值、模、∠ 前的模、`I²R` 里的 I、阻抗 Z、导纳 Y 不加点。复功率 `S̄ = V̇·İ*`。
-- 特勒根定理、互易定理中第二次实验的量带帽：`û_1`、`î_k`（不写 `û1`）；复功率可写 `S̄_Us`。
+- 特勒根定理、互易定理中第二次实验的量带帽：`v̂_1`、`î_k`（不写 `v̂1`）；复功率可写 `S̄_Vs`。
 - 正弦量以 cos 为参考：v = √2·V·cos(ωt + ψ) ↔ V̇ = V∠ψ。
 - 中文用“结点”。提示由浅入深：方向 → 方法 → 接近答案。
 
-Write symbols as described in [`NOTATION.md`](./NOTATION.md): subscript markup for variable names (`R_1`, `V_s`, `i_1`, braces for products `R_{1}R_{4}`), v / V for voltage in both languages, dotted phasors (`V̇_s`, `İ_1`) but undotted magnitudes, hatted second-experiment quantities (`û_1`, `î_k`), the cosine reference for sinusoids, 结点 in Chinese, and graded hints.
+Write symbols as described in [`NOTATION.md`](./NOTATION.md): subscript markup for variable names (`R_1`, `V_s`, `i_1`, braces for products `R_{1}R_{4}`), v / V for voltage in both languages, dotted phasors (`V̇_s`, `İ_1`) but undotted magnitudes, hatted second-experiment quantities (`v̂_1`, `î_k`), the cosine reference for sinusoids, 结点 in Chinese, and graded hints.
 
 ---
 
