@@ -47,7 +47,7 @@
       "kind": "wrap",
       "title": "带走",
       "text": [
-        "- **线性稳压器只能降压**，输入至少要比输出高一个压差（LM1117 约 1.1 V）。低于这一点，输出跟着输入往下掉。",
+        "- **线性稳压器只能降压**，输入至少要比输出高一个压差（LM1117 约 1.1 V，老式的 7805、LM317 要 2 V 左右）。低于这一点，输出跟着输入往下掉。",
         "- 多出来的电压全变成热：$P = (V_{IN} - V_{OUT}) × I$。12 V 降到 3.3 V 时，大部分电能都烧在稳压器上，这时该用开关电源。",
         "- 真实项目里的坑：**一节锂电池（3.0–4.2 V）+ AMS1117-3.3** 是经典错误。电池一降到 4 V 左右，3.3 V 就守不住，ESP32 一开 Wi-Fi 就重启。要选压差只有 0.1–0.25 V 的**低压差稳压器**（如 ME6211、HT7333）。",
         "- 外部电源接 3V3 脚时，**不要同时插 USB**：两个电源会互相打架。"
@@ -183,7 +183,7 @@
         {
           "title": "Take away",
           "text": [
-            "- **A linear regulator only steps down**, and its input must stay at least one dropout above the output (about 1.1 V for the LM1117). Below that, the output follows the input down.",
+            "- **A linear regulator only steps down**, and its input must stay at least one dropout above the output (about 1.1 V for the LM1117; the classic 7805 or LM317 needs about 2 V). Below that, the output follows the input down.",
             "- All the extra voltage becomes heat: $P = (V_{IN} - V_{OUT}) × I$. From 12 V down to 3.3 V most of the energy is burned in the regulator; that is a job for a switching supply.",
             "- A real-world catch: **one lithium cell (3.0–4.2 V) + AMS1117-3.3** is the classic mistake. Once the cell drops to about 4 V the 3.3 V gives way, and the ESP32 reboots as soon as Wi-Fi transmits. Choose a **low-dropout regulator** with only 0.1–0.25 V (ME6211, HT7333).",
             "- When an outside supply feeds the 3V3 pin, **don't plug in USB as well**: the two supplies fight."
