@@ -7,9 +7,9 @@
   "level": 3,
   "tags": ["三角波", "谐波", "电感", "有效值"],
   "statement": [
-    "电流源 i_s 是峰值 I_m = 0.5 A、f = 1 kHz 的对称三角波：t = 0 时为零并上升，t = T/4 时达到 +0.5 A，3T/4 时为 −0.5 A。它的傅里叶级数为",
+    "电流源 i_s 是对称三角波，峰值 I_m = 0.5 A，f = 1 kHz。t = 0 时它为零并上升，t = T/4 时达到 +0.5 A，3T/4 时为 −0.5 A。它的傅里叶级数为",
     "i_s = \\frac{8I_m}{π²}(sin ωt − \\frac{1}{9}sin 3ωt + \\frac{1}{25}sin 5ωt − …)，ω = 2π × 1000 rad/s（计算取到 99 次谐波）。",
-    "i_s 全部流过电感 L = 10 mH。求 i_L 的有效值和基波振幅、v_L 的 3 次谐波振幅和基波初相，并判断 v_L 的波形。"
+    "i_s 全部流过电感 L = 10 mH。求 i_L 的有效值和基波振幅。再求 v_L 的 3 次谐波振幅和基波初相，并判断 v_L 的波形。"
   ],
   "schematic": {
     "elements": [
@@ -28,16 +28,16 @@
   },
   "analysis": { "type": "periodic", "freq": 1000, "phasor": "peak" },
   "questions": [
-    { "id": "I", "ask": "i_L 的有效值 I = ?", "find": { "kind": "i", "el": "L" }, "answer": 0.2886751, "unit": "A", "explain": "三角波的有效值 I = I_m/√3 = 0.5/√3 ≈ 0.2887 A（与幅值相同的锯齿波一样，都是“线性变化”的波形）。" },
+    { "id": "I", "ask": "i_L 的有效值 I = ?", "find": { "kind": "i", "el": "L" }, "answer": 0.2886751, "unit": "A", "explain": "三角波的有效值 I = I_m/√3 = 0.5/√3 ≈ 0.2887 A。幅值相同的锯齿波也是这个值：两者都是线性变化的波形。" },
     { "id": "I1", "ask": "i_L 的基波振幅 I_1m = ?", "find": { "kind": "i", "el": "L", "harmonic": 1 }, "answer": 0.4052847, "unit": "A", "explain": "I_1m = 8I_m/π² = 4/π² ≈ 0.4053 A。" },
     { "id": "U3", "ask": "v_L 的 3 次谐波振幅 V_L3m = ?", "find": { "kind": "v", "el": "L", "harmonic": 3 }, "answer": 8.488264, "unit": "V", "explain": "I_3m = 8I_m/(9π²) = 0.04503 A，3ωL = 188.5 Ω，V_L3m = 3ωL·I_3m = 8.488 V。" },
     { "id": "ph1", "ask": "v_L 基波的初相 = ?（cos 参考）", "find": { "kind": "v", "el": "L", "harmonic": 1, "part": "phase" }, "answer": 0, "unit": "°", "explain": "i_L 的基波 I_1m sin ωt = I_1m cos(ωt − 90°)，电感电压超前电流 90°，所以 v_L 基波初相为 0°。" },
     {
       "id": "shape",
       "ask": "v_L 是什么波形？",
-      "choices": ["幅值 20 V 的方波", "幅值 25.5 V 的正弦波", "三角波", "锯齿波"],
+      "choices": ["方波", "正弦波", "三角波", "锯齿波"],
       "correct": 0,
-      "choiceExplain": ["", "25.5 V 只是基波的振幅；v_L 还含有各奇次谐波。", "电感电压是电流的导数，三角波的导数不是三角波。", "锯齿波含偶次谐波，而 i_L 半波对称、只有奇次谐波，导数也一样。"],
+      "choiceExplain": ["", "正弦波只是 v_L 的基波；v_L 还含有各奇次谐波。", "电感电压是电流的导数，三角波的导数不是三角波。", "锯齿波含偶次谐波，而 i_L 半波对称、只有奇次谐波，导数也一样。"],
       "explain": "v_L = L di/dt：三角波每段的斜率是 ±4I_m/T，所以 v_L 在 ±L·4I_m f = ±10m × 4 × 0.5 × 1000 = ±20 V 之间跳变，是方波。从谐波看：V_Lkm = kωL·I_km ∝ k·(1/k²) = 1/k，正是方波的频谱。"
     },
     { "id": "U", "ask": "v_L 的有效值 V_L = ?", "find": { "kind": "v", "el": "L" }, "answer": 19.95943, "unit": "V", "explain": "方波的有效值等于幅值 20 V（取到 99 次谐波的级数给出 19.96 V）。" }
@@ -60,9 +60,9 @@
       "title": "A triangle-wave current through an inductor",
       "tags": ["triangle wave", "harmonics", "inductor", "rms value"],
       "statement": [
-        "The current source i_s is a symmetric triangle wave of peak I_m = 0.5 A and f = 1 kHz: zero and rising at t = 0, +0.5 A at t = T/4, −0.5 A at 3T/4. Its Fourier series is",
+        "The current source i_s is a symmetric triangle wave of peak I_m = 0.5 A and f = 1 kHz. It is zero and rising at t = 0, reaches +0.5 A at t = T/4 and −0.5 A at 3T/4. Its Fourier series is",
         "i_s = \\frac{8I_m}{π²}(sin ωt − \\frac{1}{9}sin 3ωt + \\frac{1}{25}sin 5ωt − …), ω = 2π × 1000 rad/s (harmonics up to the 99th are kept).",
-        "All of i_s flows through the inductor L = 10 mH. Find the rms value and the fundamental amplitude of i_L, the 3rd-harmonic amplitude and the fundamental's initial phase of v_L, and identify the waveform of v_L."
+        "All of i_s flows through the inductor L = 10 mH. Find the rms value and the fundamental amplitude of i_L. Then find the 3rd-harmonic amplitude and the fundamental's initial phase of v_L, and identify the waveform of v_L."
       ],
       "hints": [
         "Read the current's harmonic amplitudes from the series; the rms value follows from the definition of a triangle wave (a linearly changing wave has rms = peak/√3).",
@@ -78,16 +78,16 @@
         "**Check:** a square wave's fundamental has amplitude 4 × 20/π = 25.46 V, the same V_L1m as in step 2."
       ],
       "questions": [
-        { "ask": "rms value of i_L, I = ?", "explain": "The rms value of a triangle wave is I = I_m/√3 = 0.5/√3 ≈ 0.2887 A (the same as a sawtooth with the same peak: both change linearly)." },
+        { "ask": "rms value of i_L, I = ?", "explain": "The rms value of a triangle wave is I = I_m/√3 = 0.5/√3 ≈ 0.2887 A. A sawtooth with the same peak has the same value: both change linearly." },
         { "ask": "Amplitude of the fundamental of i_L, I_1m = ?", "explain": "I_1m = 8I_m/π² = 4/π² ≈ 0.4053 A." },
         { "ask": "Amplitude of the 3rd harmonic of v_L, V_L3m = ?", "explain": "I_3m = 8I_m/(9π²) = 0.04503 A, 3ωL = 188.5 Ω, V_L3m = 3ωL·I_3m = 8.488 V." },
         { "ask": "Initial phase of the fundamental of v_L = ? (cosine reference)", "explain": "The fundamental of i_L is I_1m sin ωt = I_1m cos(ωt − 90°); the inductor voltage leads by 90°, so the fundamental of v_L has initial phase 0°." },
         {
           "ask": "What is the waveform of v_L?",
-          "choices": ["A square wave of amplitude 20 V", "A sine wave of amplitude 25.5 V", "A triangle wave", "A sawtooth wave"],
+          "choices": ["A square wave", "A sine wave", "A triangle wave", "A sawtooth wave"],
           "choiceExplain": [
             "",
-            "25.5 V is only the amplitude of the fundamental; v_L contains all the odd harmonics too.",
+            "A sine wave is only the fundamental of v_L; v_L contains all the odd harmonics too.",
             "The inductor voltage is the derivative of the current, and the derivative of a triangle is not a triangle.",
             "A sawtooth contains even harmonics, while i_L has half-wave symmetry and only odd harmonics — and so does its derivative."
           ],
