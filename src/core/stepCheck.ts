@@ -101,6 +101,7 @@ const MODES: Record<string, [string, string]> = {
   input: ['输入', 'INPUT'],
   input_pullup: ['输入 上拉', 'IN pull-up'],
   input_pulldown: ['输入 下拉', 'IN pull-down'],
+  rule: ['阈值规则', 'threshold rule'],
 };
 const label = (k: string) => (LABELS[k] ? tr(...LABELS[k]) : k);
 

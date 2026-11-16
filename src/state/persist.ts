@@ -30,6 +30,15 @@ function sanitizePinConfigs(raw: unknown): Record<string, PinConfig> | undefined
     if (num(v.duty) && v.duty >= 0 && v.duty <= 100) c.duty = v.duty;
     if (num(v.frequency) && v.frequency > 0) c.frequency = v.frequency;
     if (v.openDrain === true) c.openDrain = true;
+    if (c.mode === 'rule') {
+      const r = v.rule;
+      if (!isObj(r) || typeof r.adc !== 'string') continue;
+      const cnt = (x: unknown) => num(x) && x >= 0 && x <= 4095;
+      if (cnt(r.below)) c.rule = { adc: r.adc, below: r.below as number };
+      else if (cnt(r.above)) c.rule = { adc: r.adc, above: r.above as number };
+      else continue;
+      if (num(r.hysteresis) && r.hysteresis > 0) c.rule.hysteresis = r.hysteresis;
+    }
     out[k] = c;
   }
   return out;

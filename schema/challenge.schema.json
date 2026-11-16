@@ -269,6 +269,11 @@
           "type": "boolean",
           "default": false,
           "description": "If true, extra parts on the board are not errors."
+        },
+        "grading": {
+          "enum": ["circuit", "behaviour"],
+          "default": "circuit",
+          "description": "circuit: compare wiring and values with the target, then run the tests. behaviour: an open design task, graded by the tests only (the parts they name are found on the board by type; the target is one reference design)."
         }
       }
     }
@@ -933,12 +938,13 @@
         "input_pullup",
         "input_pulldown",
         "pwm",
-        "adc"
+        "adc",
+        "rule"
       ]
     },
     "pinModes": {
       "type": "object",
-      "description": "Dev-board pin modes by pin name (physical, e.g. GPIO2 / PA0, or logical, e.g. GPIO_OUT1): a mode string or { mode, duty (0–100 %), frequency (Hz) }. Unlisted pins are plain inputs.",
+      "description": "Dev-board pin modes by pin name (physical, e.g. GPIO2 / PA0, or logical, e.g. GPIO_OUT1): a mode string or { mode, duty (0–100 %), frequency (Hz), openDrain, rule }. Unlisted pins are plain inputs.",
       "additionalProperties": {
         "oneOf": [
           {
@@ -965,6 +971,18 @@
               "openDrain": {
                 "type": "boolean",
                 "description": "Open-drain output (out_high / out_low / pwm): the high state releases the pin (I²C style, needs a pull-up)."
+              },
+              "rule": {
+                "type": "object",
+                "description": "Mode rule: the output follows an ADC pin of the same board, like digitalWrite(pin, analogRead(adc) > above). Readings are 12-bit counts; give above or below. hysteresis: counts back past the threshold before the output turns off again.",
+                "required": ["adc"],
+                "properties": {
+                  "adc": {"type": "string", "description": "the board's ADC pin to read (physical, e.g. GPIO34, or logical, e.g. ADC1)"},
+                  "above": {"type": "number", "minimum": 0, "maximum": 4095},
+                  "below": {"type": "number", "minimum": 0, "maximum": 4095},
+                  "hysteresis": {"type": "number", "minimum": 0}
+                },
+                "additionalProperties": false
               }
             },
             "additionalProperties": false

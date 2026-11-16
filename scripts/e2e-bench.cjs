@@ -363,6 +363,54 @@ const TESTS = {
     }
   },
 
+  // the NTC fan capstone (296): two pins in threshold-rule mode follow the ADC, so dragging the
+  // NTC's temperature turns the fan on and off by itself, with hysteresis on the way down
+  async thresholdRule(browser) {
+    const { p, ctx, errors } = await open(browser, '#/challenges/exp5-capstone-ntc-fan');
+    try {
+      await p.locator('.actions button', { hasText: 'Show answer' }).click();
+      await p.locator('.confirm-pop button.danger-solid').first().click();
+      await p.waitForTimeout(800);
+      const ids = await p.evaluate(() => {
+        const s = window.__bb.store.getState();
+        return { ntc: s.layout.parts.find((x) => x.type === 'ntc').id, board: s.layout.parts.find((x) => x.type === 'esp32_devkit').id };
+      });
+      const setTemp = async (t) => {
+        await p.evaluate((id) => {
+          const s = window.__bb.store.getState();
+          s.select(id);
+          s.setPanel('inspect');
+        }, ids.ntc);
+        const slider = p.locator('.inspector input[type="range"][min="-20"][max="120"]').first();
+        await slider.waitFor({ state: 'visible', timeout: 5000 });
+        await slider.fill(String(t));
+        await p.waitForTimeout(150);
+      };
+      const ruleNote = async () => {
+        await p.evaluate((id) => {
+          const s = window.__bb.store.getState();
+          s.selectPin(id, 'GPIO26');
+          s.setPanel('inspect');
+        }, ids.board);
+        const note = p.locator('.rule-editor .note').first();
+        await note.waitFor({ state: 'visible', timeout: 5000 });
+        return (await note.textContent()) || '';
+      };
+      await setTemp(25);
+      assert(/is LOW/.test(await ruleNote()), 'rule: 25 °C, the fan pin is LOW (' + (await ruleNote()) + ')');
+      await setTemp(60);
+      assert(/is HIGH/.test(await ruleNote()), 'rule: dragged to 60 °C, the fan pin turns HIGH by itself');
+      await setTemp(39);
+      assert(/is HIGH/.test(await ruleNote()), 'rule: back to 39 °C it stays HIGH (inside the hysteresis band)');
+      await setTemp(30);
+      assert(/is LOW/.test(await ruleNote()), 'rule: at 30 °C it turns LOW again');
+      assert(errors.length === 0, 'rule: no page errors ' + errors.join(' | '));
+    } finally {
+      await shot(p, 'threshold-rule');
+      await ctx.close();
+    }
+  },
+
   // a Phase 5 MCU lab with PWM: frames run while the motor spins, none when the scene is idle
   async mcuPwm(browser) {
     const { p, ctx, errors } = await open(browser, '#/challenges/exp5-pwm-mosfet-motor');

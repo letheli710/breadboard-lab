@@ -61,6 +61,7 @@ import {
   terminalsOfComp,
 } from './parts';
 import type { CComponent, Circuit, PinMode } from './types';
+import { hasRules, settleRules, type RuleState } from './mcuRules';
 import { pinId } from './types';
 
 export const GMIN = 1e-9;
@@ -1203,7 +1204,25 @@ function settleDc(c: Compiled, emf: (src: CSource) => number): { x: Float64Array
   return { x, converged, lu: last };
 }
 
-export function simulate(circuit: Circuit): SimResult {
+/** DC operating point. Threshold-rule pins (mcuRules.ts) are settled first: `ruleState` gives
+ *  their starting outputs (hysteresis between solves) and receives the settled ones. */
+export function simulate(circuit: Circuit, ruleState?: RuleState): SimResult {
+  if (!hasRules(circuit)) return simulateOnce(circuit);
+  const r = settleRules(circuit, simulateOnce, ruleState);
+  if (ruleState) {
+    ruleState.clear();
+    r.state.forEach((v, k) => ruleState.set(k, v));
+  }
+  return r.sim;
+}
+
+/** The circuit with its threshold-rule pins set to the outputs a DC solve settles on (for the
+ *  transient engine, which needs plain outputs). */
+export function settleRuleOutputs(circuit: Circuit, ruleState?: RuleState): Circuit {
+  return hasRules(circuit) ? settleRules(circuit, simulateOnce, ruleState).circuit : circuit;
+}
+
+function simulateOnce(circuit: Circuit): SimResult {
   const c = compileCircuit(circuit);
   const { x, converged, lu } = solveDcCompiled(c);
   const V = (i: number) => (i < 0 ? 0 : x[i]);

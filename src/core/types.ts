@@ -39,8 +39,23 @@ export type PartType =
 export type CompType = Exclude<PartType, 'wire'> | 'dc_source' | 'mcu';
 
 /** GPIO modes of a dev-board pin (there is no firmware: the mode *is* the program). */
-export type PinMode = 'out_high' | 'out_low' | 'input' | 'input_pullup' | 'input_pulldown' | 'pwm' | 'adc';
-export const PIN_MODES: PinMode[] = ['out_high', 'out_low', 'input', 'input_pullup', 'input_pulldown', 'pwm', 'adc'];
+export type PinMode = 'out_high' | 'out_low' | 'input' | 'input_pullup' | 'input_pulldown' | 'pwm' | 'adc' | 'rule';
+export const PIN_MODES: PinMode[] = ['out_high', 'out_low', 'input', 'input_pullup', 'input_pulldown', 'pwm', 'adc', 'rule'];
+
+/** A threshold rule (pin mode `rule`): the output follows an ADC pin of the same board, like
+ *  `digitalWrite(pin, analogRead(adc) > above)` in a loop. Readings are 12-bit counts (0–4095).
+ *  With `hysteresis` the output turns on past the threshold and only turns off again
+ *  `hysteresis` counts back on the other side (a firmware Schmitt trigger). */
+export interface PinRule {
+  /** the board's pin whose ADC reading is compared */
+  adc: string;
+  /** HIGH while the reading is above this, else LOW */
+  above?: number;
+  /** HIGH while the reading is below this, else LOW (instead of `above`) */
+  below?: number;
+  /** counts between the on and the off threshold (default 0) */
+  hysteresis?: number;
+}
 
 export interface PinConfig {
   mode: PinMode;
@@ -51,6 +66,8 @@ export interface PinConfig {
   /** open-drain output (out_high / pwm): "high" releases the pin instead of driving it
    *  (I²C-style; needs a pull-up) */
   openDrain?: boolean;
+  /** `rule` mode: what drives the output */
+  rule?: PinRule;
 }
 
 export type MosfetModel = 'IRLZ44N' | 'IRF540N';

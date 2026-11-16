@@ -134,6 +134,8 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   const setCelebrate = useStore((s) => s.setCelebrate);
   const { nl, issues } = useDerived();
   const targetSim = useMemo(() => simulate(ch.target), [ch]);
+  /** open design task (options.grading "behaviour"): the target is one reference design */
+  const open = ch.grading === 'behaviour';
 
   const evaluate = () => {
     const r = checkCircuit(ch, nl.circuit, nl.pinHoles);
@@ -276,17 +278,22 @@ function TaskPanel({ ch }: { ch: Challenge }) {
 
       <details className="fold" open={!usesCards}>
         <summary>
-          <Mixed text={tr('目标电路图 TARGET SCHEMATIC', 'Target schematic')} />
+          <Mixed text={open ? tr('参考设计 ONE WAY TO DO IT', 'One way to do it') : tr('目标电路图 TARGET SCHEMATIC', 'Target schematic')} />
         </summary>
         <div className="schem-card">
           {/* with measurement questions the target's simulated currents / voltages would give the readings away */}
           <SchematicView circuit={ch.target} sim={targetSim} showValues hideReadings={hasM} />
         </div>
         <p className="note">
-          {tr(
-            '原理图只说明“谁和谁连在一起”，不规定插在面包板哪个孔。只要连接关系一样就算对。',
-            'A schematic only says what connects to what — not which breadboard holes to use. Any layout with the same connections counts as correct.',
-          )}
+          {open
+            ? tr(
+                '开放式设计题：只看电路的表现。下面的测试都通过就算完成——用什么元件、什么接法、什么阻值都可以，上图只是其中一种做法。',
+                'An open design task: only what the circuit does counts. Pass the tests and you are done — any parts, wiring and values will do; the drawing is just one way.',
+              )
+            : tr(
+                '原理图只说明“谁和谁连在一起”，不规定插在面包板哪个孔。只要连接关系一样就算对。',
+                'A schematic only says what connects to what — not which breadboard holes to use. Any layout with the same connections counts as correct.',
+              )}
         </p>
       </details>
 

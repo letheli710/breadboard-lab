@@ -137,7 +137,7 @@ export const WORLDS: World[] = [
         items: ['lesson-mcu-pwm-adc', 'exp5-adc-battery-divider', 'exp5-ldr-light-sensor', 'exp5-ntc-thermometer'],
       },
       { num: '5.8', items: ['exp5-pwm-rc-dac', 'exp5-pwm-mosfet-motor', 'exp5-i2c-pullup-rise-time'] },
-      { num: '5.9', items: ['exp5-capstone-ntc-fan'] },
+      { num: '5.9', items: ['exp5-capstone-ntc-fan', 'exp5-design-night-light'] },
     ],
   },
 ];

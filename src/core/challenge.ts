@@ -175,6 +175,9 @@ export interface Challenge {
   start?: Layout;
   tolerance: number;
   allowExtraComponents: boolean;
+  /** `circuit` (default): wiring and values are compared with the target, then the tests run.
+   *  `behaviour`: an open design task — only the tests decide (check.ts checkBehaviour). */
+  grading?: 'circuit' | 'behaviour';
   /** language the text fields ended up in (the file's base language when no translation fits) */
   textLang: Lang;
   /** where it came from: "builtin", "folder", "imported" */
@@ -427,7 +430,7 @@ function parsePinConfigs(type: CompType, raw: unknown, where: string, errors: st
     }
     const cfg: Partial<PinConfig> = typeof v === 'string' ? { mode: v as PinMode } : isObj(v) ? { mode: v.mode as PinMode } : {};
     if (isObj(v) && v.openDrain !== undefined) {
-      if (cfg.mode !== 'out_high' && cfg.mode !== 'out_low' && cfg.mode !== 'pwm')
+      if (cfg.mode !== 'out_high' && cfg.mode !== 'out_low' && cfg.mode !== 'pwm' && cfg.mode !== 'rule')
         errors.push(
           tr(
             `${where}.pins.${k}: "openDrain" 只用于输出模式（out_high / out_low / pwm）`,
@@ -462,6 +465,34 @@ function parsePinConfigs(type: CompType, raw: unknown, where: string, errors: st
           );
         else cfg[key] = n;
       }
+    }
+    if (cfg.mode === 'rule') {
+      const r = isObj(v) ? v.rule : undefined;
+      const adc = isObj(r) && typeof r.adc === 'string' ? normalizeMcuPin(type, r.adc) : null;
+      const adcDef = adc ? mcuPin(type, adc) : null;
+      const n = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) ? x : undefined);
+      const above = isObj(r) ? n(r.above) : undefined;
+      const below = isObj(r) ? n(r.below) : undefined;
+      const hysteresis = isObj(r) ? n(r.hysteresis) : undefined;
+      if (!isObj(r) || !adc || !adcDef || adcDef.kind !== 'gpio' || !adcDef.gpio?.adc)
+        errors.push(
+          tr(
+            `${where}.pins.${k}: "rule" 模式要写 "rule": { "adc": "<这块板子的 ADC 引脚>", "above": 读数 }`,
+            `${where}.pins.${k}: mode "rule" needs "rule": { "adc": "<an ADC pin of this board>", "above": counts }`,
+          ),
+        );
+      else if (
+        (above === undefined) === (below === undefined) ||
+        [above, below].some((x) => x !== undefined && (x < 0 || x > 4095)) ||
+        (hysteresis !== undefined && hysteresis < 0)
+      )
+        errors.push(
+          tr(
+            `${where}.pins.${k}.rule: "above" 和 "below" 只写一个（ADC 读数 0–4095），"hysteresis" ≥ 0`,
+            `${where}.pins.${k}.rule: give one of "above" / "below" (ADC counts 0–4095); "hysteresis" ≥ 0`,
+          ),
+        );
+      else cfg.rule = { adc, ...(above !== undefined ? { above } : { below: below! }), ...(hysteresis ? { hysteresis } : {}) };
     }
     out[pin] = cfg as PinConfig;
   }
@@ -1137,6 +1168,30 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     for (const id of declared) if (!used.has(id)) warnings.push(tr(`figures.${id}：没有卡片或步骤用到这张图`, `figures.${id}: no card or step shows this figure`));
   }
 
+  const grading = opts.grading === 'behaviour' || opts.grading === 'behavior' ? 'behaviour' : 'circuit';
+  if (opts.grading !== undefined && opts.grading !== 'circuit' && grading !== 'behaviour')
+    errors.push(tr('options.grading 必须是 "circuit" 或 "behaviour"', 'options.grading must be "circuit" or "behaviour"'));
+  if (grading === 'behaviour') {
+    if (!tests.length)
+      errors.push(
+        tr(
+          'options.grading 是 "behaviour"：至少要有一个测试（只看表现的题全靠测试判分）',
+          'options.grading is "behaviour": give at least one test (the tests are all that grades an open task)',
+        ),
+      );
+    const types = components.map((c) => c.type);
+    for (const t of tests)
+      for (const ref of [...Object.keys(t.expect), ...Object.keys(t.set)]) {
+        const c = components.find((x) => x.ref === ref);
+        if (c && types.filter((x) => x === c.type).length > 1)
+          warnings.push(
+            tr(
+              `测试 "${t.name}"：${ref} 的类型 ${c.type} 在目标电路里不止一个——只看表现的题按类型找元件，学生的板子上可能对应到另一个`,
+              `test "${t.name}": the target has more than one ${c.type}, so behaviour grading (which finds parts by type) may pick another one than ${ref}`,
+            ),
+          );
+      }
+  }
   const level = typeof json.level === 'number' ? Math.min(5, Math.max(1, Math.round(json.level))) : 1;
   const challenge: Challenge = {
     id,
@@ -1160,6 +1215,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     start,
     tolerance: typeof opts.tolerance === 'number' ? opts.tolerance : 0.05,
     allowExtraComponents: opts.allowExtraComponents === true,
+    grading,
     textLang: Object.keys(tx).length ? getLang() : baseLang,
     source,
     file,

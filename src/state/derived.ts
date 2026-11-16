@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { acDiagnostics, boardDiagnostics, type Issue } from '../core/diagnostics';
 import { buildNetlist, isFloating, type BoardNetlist } from '../core/netlist';
-import { simulate, type LedState, type SimResult } from '../core/solver';
+import { settleRuleOutputs, simulate, type LedState, type SimResult } from '../core/solver';
+import type { RuleState } from '../core/mcuRules';
 import { hasGenerator, simulateTransient, vavg, vpp, type AcLedState, type MeterReading, type TransientResult } from '../core/transient';
 import { getLang, type Lang } from '../core/i18n';
 import type { Layout, MeterMode } from '../core/types';
@@ -26,13 +27,16 @@ type Base = Omit<Derived, 'ac' | 'acError' | 'acStale'>;
 let cacheKey: Layout | null = null;
 let cacheLang: Lang | null = null;
 let cacheVal: Derived | null = null;
+/** Outputs of the board's threshold-rule pins after the last solve: a rule with hysteresis keeps
+ *  its state while the temperature / light slider moves inside the band (mcuRules.ts). */
+const ruleMemory: RuleState = new Map();
 
 /** Netlist + DC solve + diagnostics, memoised per layout object (and language: diagnostics are text). Synchronous and cheap; it does
  *  not include the transient (see useDerived). */
 export function derive(layout: Layout): Derived {
   if (cacheKey === layout && cacheLang === getLang() && cacheVal) return cacheVal;
   const nl = buildNetlist(layout);
-  const sim = simulate(nl.circuit);
+  const sim = simulate(nl.circuit, ruleMemory);
   const issues = boardDiagnostics(nl, sim);
   cacheKey = layout;
   cacheLang = getLang();
@@ -64,7 +68,7 @@ function computeAc(layout: Layout): AcEntry {
   const { nl } = derive(layout);
   let e: AcEntry = { ac: null, error: null };
   try {
-    e = { ac: simulateTransient(nl.circuit), error: null };
+    e = { ac: simulateTransient(settleRuleOutputs(nl.circuit, ruleMemory)), error: null };
   } catch (err) {
     e = { ac: null, error: err instanceof Error ? err.message : String(err) };
   }
