@@ -60,6 +60,9 @@ export type Waveform = 'sine' | 'square' | 'triangle';
 export type LedColor = 'red' | 'yellow' | 'green' | 'blue' | 'white';
 export type BatteryVariant = '9V' | '2xAA' | '3xAA' | '4xAA' | 'CR2032';
 
+/** What the ammeter's screen shows: `auto` picks RMS when the current is AC (average ≈ 0). */
+export type MeterMode = 'auto' | 'dc' | 'ac';
+
 export interface PartProps {
   resistance?: number; // ohms (resistor, potentiometer)
   color?: LedColor; // led
@@ -84,6 +87,7 @@ export interface PartProps {
   model?: MosfetModel; // nmos
   lux?: number; // ldr light level
   temperature?: number; // ntc, °C
+  meterMode?: MeterMode; // ammeter display: auto (default), DC average or true RMS
 }
 
 export interface PlacedPart {

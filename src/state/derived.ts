@@ -4,7 +4,7 @@ import { buildNetlist, isFloating, type BoardNetlist } from '../core/netlist';
 import { simulate, type LedState, type SimResult } from '../core/solver';
 import { hasGenerator, simulateTransient, vavg, vpp, type AcLedState, type MeterReading, type TransientResult } from '../core/transient';
 import { getLang, type Lang } from '../core/i18n';
-import type { Layout } from '../core/types';
+import type { Layout, MeterMode } from '../core/types';
 import { useLang, useStore } from './store';
 
 export interface Derived {
@@ -146,6 +146,27 @@ export function ledOf(d: Pick<Derived, 'sim' | 'ac'>, ref: string): LedState | A
 export function ammeterReading(d: Pick<Derived, 'sim' | 'ac'>, ref: string): number {
   const m = d.ac?.meters.get(ref);
   return m ? m.dc : (d.sim.meters.get(ref)?.current ?? 0);
+}
+
+/** What an ammeter's screen shows. `dc` is the average (a DMM's DC A range). `rms` is the true
+ *  RMS: `ac` when the current has (almost) no DC part, `acdc` when it rides on one. In `auto` mode
+ *  the meter shows RMS when there are AC statistics and the average is under 5 % of the RMS. */
+export interface AmmeterDisplay {
+  value: number;
+  kind: 'dc' | 'ac' | 'acdc';
+  auto: boolean;
+}
+
+export function ammeterDisplay(d: Pick<Derived, 'sim' | 'ac'>, ref: string, mode: MeterMode = 'auto'): AmmeterDisplay {
+  const m = d.ac?.meters.get(ref);
+  const auto = mode === 'auto';
+  if (!m) {
+    const I = d.sim.meters.get(ref)?.current ?? 0;
+    return mode === 'ac' ? { value: Math.abs(I), kind: 'acdc', auto } : { value: I, kind: 'dc', auto };
+  }
+  const pureAc = m.rms > 5e-7 && Math.abs(m.dc) < 0.05 * m.rms;
+  if (mode === 'dc' || (auto && !pureAc)) return { value: m.dc, kind: 'dc', auto };
+  return { value: m.rms, kind: pureAc ? 'ac' : 'acdc', auto };
 }
 
 /** AC statistics of an ammeter (null without a generator). */

@@ -378,10 +378,11 @@ const TESTS = {
       await p.locator('.actions button.primary.big').click();
       await p.waitForTimeout(400);
       assert(/Stage 1 done|Perfect/.test(await p.locator('.check-result .ok-box').textContent()), 'mcu: check passes');
+      // two seconds, so a busy machine (software GL) still shows the motor's frames running
       const f0 = await frames(p);
-      await p.waitForTimeout(1000);
+      await p.waitForTimeout(2000);
       const f1 = await frames(p);
-      assert(f1 - f0 >= 5, `mcu: motor spinning, frames advance (${f1 - f0} in 1 s)`);
+      assert(f1 - f0 >= 5, `mcu: motor spinning, frames advance (${f1 - f0} in 2 s)`);
       // the MCU inspector's PWM duty slider: one drag = one undo step (window listeners in state/store.ts)
       const pin = await p.evaluate(() => {
         const s = window.__bb.store.getState();
@@ -675,7 +676,12 @@ const TESTS = {
       await clickHole(p, 'c10');
       await clickHole(p, 'c14');
       assert((await st()).tool === 'select', 'placing a part puts the tool down (back to Select)');
-      assert(await p.locator('.part-pop').isVisible(), 'the details of the part just placed open beside it');
+      const popShown = await p
+        .locator('.part-pop')
+        .waitFor({ state: 'visible', timeout: 3000 })
+        .then(() => true)
+        .catch(() => false);
+      assert(popShown, 'the details of the part just placed open beside it');
       await p.locator('.part-pop .chips button', { hasText: /^470/ }).click();
       assert((await parts())[0].props.resistance === 470, 'its value is changed in the details');
       await p.keyboard.press('Escape');

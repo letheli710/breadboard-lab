@@ -137,7 +137,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `power_module` | 面包板电源模块 | `+`, `-` | +: `pos` `vcc`；−: `neg` `gnd` | `voltage`（5 或 3.3） |
 | `dc_source` | 任意直流电源 | `+`, `-` | 同 battery | `voltage` |
 | `inductor` | 电感 | `1`, `2` | — | `inductance`（或 `value`），如 `"10m"`、`"10mH"` |
-| `ammeter` | 电流表（万用表 A 档） | `+`（红表笔，电流流入）, `-`（黑表笔 COM） | +: `red` `pos` `in`；−: `com` `black` `neg` `out` | — |
+| `ammeter` | 电流表（万用表 A 档） | `+`（红表笔，电流流入）, `-`（黑表笔 COM） | +: `red` `pos` `in`；−: `com` `black` `neg` `out` | `meterMode`: `auto`（默认：电流是交流、平均值≈0 时显示 **AC RMS**，否则显示 DC 平均值）\| `dc` \| `ac`（真有效值） |
 | `opamp` | 运放 LM358（双运放 DIP-8） | `outA`, `inA-`, `inA+`, `v-`, `inB+`, `inB-`, `outB`, `v+` | 见 §13.2 | — |
 | `function_gen` | 信号发生器 | `+`（红，信号）, `-`（黑，COM） | +: `out` `sig` `red`；−: `com` `gnd` `black` | `waveform`: `sine` `square` `triangle`；`frequency`（Hz）；`amplitude`（峰值 V）；`offset`（V） |
 | `esp32_devkit` / `stm32_bluepill` / `mcu` | 单片机开发板（`mcu` = 两种都行） | 电源脚 `3V3` `5V` `GND` `EN`（Blue Pill 叫 `NRST`），GPIO 用**逻辑引脚** `GPIO_OUT1`、`GPIO_IN1`、`ADC1`、`PWM1`、`GPIO_FT1`、`IO1`（或物理引脚 `GPIO2`、`PA0`） | 见 §14.2 | `modes`（引脚模式）、`usb` |

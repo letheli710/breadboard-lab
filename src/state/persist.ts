@@ -48,6 +48,7 @@ export function sanitizeProps(type: PartType, raw: unknown): PartProps {
   if (typeof r.wireColor === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(r.wireColor)) p.wireColor = r.wireColor;
   if (r.waveform === 'sine' || r.waveform === 'square' || r.waveform === 'triangle') p.waveform = r.waveform;
   if (r.channel === 1 || r.channel === 2) p.channel = r.channel;
+  if (r.meterMode === 'auto' || r.meterMode === 'dc' || r.meterMode === 'ac') p.meterMode = r.meterMode;
   if (typeof r.model === 'string' && r.model in MOSFETS) p.model = r.model as PartProps['model'];
   const pins = sanitizePinConfigs(r.pins);
   if (pins) p.pins = pins;

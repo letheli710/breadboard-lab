@@ -42,7 +42,7 @@ describe('positive feedback', () => {
       nets: target.nets.map((n) => ({ ...n, pins: n.pins.map((p) => (p === 'U1.inA-' ? 'U1.inA+' : p === 'U1.inA+' ? 'U1.inA-' : p)) })),
     };
     const r = checkCircuit(ch, swapped);
-    const swap = r.issues.find((i) => /IN−|IN-/.test(i.detail));
+    const swap = r.issues.find((i) => /IN−|IN-/.test(i.detail ?? ''));
     expect(swap?.detail).toMatch(/on purpose|故意/);
   });
 });

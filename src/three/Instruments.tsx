@@ -129,7 +129,12 @@ const METER_TILT = 0.62;
 const METER_LEN = 7.0;
 
 /** Ammeter LCD: big reading plus mode markers. */
-function drawMeterLcd(g: CanvasRenderingContext2D, w: number, h: number, text: string, neg: boolean) {
+/** Mode text at the top left of the ammeter's screen. */
+export function meterModeText(kind: 'dc' | 'ac' | 'acdc' = 'dc'): string {
+  return kind === 'dc' ? 'DC  A' : kind === 'ac' ? 'AC RMS  A' : 'AC+DC RMS  A';
+}
+
+function drawMeterLcd(g: CanvasRenderingContext2D, w: number, h: number, text: string, neg: boolean, mode: string, auto: boolean) {
   g.fillStyle = '#cfdcc0';
   g.fillRect(0, 0, w, h);
   g.fillStyle = 'rgba(31,42,30,0.08)';
@@ -138,9 +143,11 @@ function drawMeterLcd(g: CanvasRenderingContext2D, w: number, h: number, text: s
   g.textBaseline = 'middle';
   g.textAlign = 'left';
   g.font = `700 ${h * 0.16}px "Barlow Condensed", sans-serif`;
-  g.fillText('DC  A', w * 0.05, h * 0.14);
-  g.textAlign = 'right';
-  g.fillText('AUTO', w * 0.95, h * 0.14);
+  g.fillText(mode, w * 0.05, h * 0.14);
+  if (auto) {
+    g.textAlign = 'right';
+    g.fillText('AUTO', w * 0.95, h * 0.14);
+  }
   g.font = `700 ${h * 0.5}px "Barlow Condensed", monospace`;
   g.fillText(text, w * 0.95, h * 0.52, w * 0.9);
   if (neg) {
@@ -149,7 +156,7 @@ function drawMeterLcd(g: CanvasRenderingContext2D, w: number, h: number, text: s
   }
 }
 
-export function Ammeter({ part, slot, reading, onClick }: PartViewProps) {
+export function Ammeter({ part, slot, reading, readingKind, readingAuto = true, onClick }: PartViewProps) {
   // the meter is modelled in its own frame (body centre at the origin), which stands at the pose
   const { pos, rot } = benchPose(part, slot);
   const base = V(0, 0, -1.6);
@@ -165,6 +172,7 @@ export function Ammeter({ part, slot, reading, onClick }: PartViewProps) {
   }, [pos.x, pos.z, rot]);
   const I = reading ?? 0;
   const lcd = Math.abs(I) < 5e-7 ? '0.000 A' : amps(Math.abs(I));
+  const mode = meterModeText(readingKind);
   const jackZ = 2.55;
   const jacks = { A: -1.15, COM: 0, V: 1.15 };
   const leads = useMemo(() => {
@@ -207,8 +215,8 @@ export function Ammeter({ part, slot, reading, onClick }: PartViewProps) {
             <CanvasPlane
               width={3.2}
               height={1.55}
-              draw={(g, w, h) => drawMeterLcd(g, w, h, lcd, I < -5e-7)}
-              deps={[lcd, I < -5e-7]}
+              draw={(g, w, h) => drawMeterLcd(g, w, h, lcd, I < -5e-7, mode, readingAuto)}
+              deps={[lcd, I < -5e-7, mode, readingAuto]}
               position={[0, 1.06, -2.15]}
               rotation={[-Math.PI / 2, 0, 0]}
             />
@@ -517,8 +525,8 @@ export function instrumentAnchor(part: PlacedPart, slot: number): THREE.Vector3 
   return null;
 }
 
-export function instrumentLabel(part: PlacedPart, reading?: number): string {
-  if (part.type === 'ammeter') return ` ${amps(reading ?? 0)}`;
+export function instrumentLabel(part: PlacedPart, reading?: number, kind?: 'dc' | 'ac' | 'acdc'): string {
+  if (part.type === 'ammeter') return ` ${amps(reading ?? 0)}${kind && kind !== 'dc' ? ' RMS' : ''}`;
   if (part.type === 'function_gen') return ` ${formatSI(part.props.frequency ?? 1000, 'Hz')}`;
   if (part.type === 'scope_probe') return ` CH${part.props.channel === 2 ? 2 : 1}`;
   return '';

@@ -399,6 +399,10 @@ function parseProps(type: CompType, raw: Record<string, unknown>, where: string,
     if (raw.position === 'a' || raw.position === 'b') props.position = raw.position;
     else errors.push(tr(`${where}: "position" 必须是 "a" 或 "b"`, `${where}: "position" must be "a" or "b"`));
   }
+  if (raw.meterMode !== undefined) {
+    if (raw.meterMode === 'auto' || raw.meterMode === 'dc' || raw.meterMode === 'ac') props.meterMode = raw.meterMode;
+    else errors.push(tr(`${where}: "meterMode" 必须是 "auto"、"dc" 或 "ac"`, `${where}: "meterMode" must be "auto", "dc" or "ac"`));
+  }
   return props;
 }
 
