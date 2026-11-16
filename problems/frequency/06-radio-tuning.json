@@ -7,8 +7,8 @@
   "level": 3,
   "tags": ["串联谐振", "调谐", "品质因数 Q", "选择性"],
   "statement": [
-    "收音机输入回路可等效为 RLC 串联电路：线圈电感 L = 0.5 mH，线圈电阻 R = 5 Ω，C 为可调电容。天线感应到某电台信号 V̇_s = 1∠0° mV（有效值），角频率 ω = 10⁶ rad/s。",
-    "调节 C 使回路对该电台谐振。求所需的 C、谐振时回路电流 I、电容电压 V_C 的有效值和相位（相对于 V_s）。"
+    "收音机的输入回路可以等效为 RLC 串联电路：线圈电感 L = 0.5 mH，线圈电阻 R = 5 Ω，C 是可调电容。天线感应到某电台的信号 V̇_s = 1∠0° mV（有效值），角频率 ω = 10⁶ rad/s。",
+    "调节 C，使回路对这个电台谐振。求所需的 C。再求谐振时的回路电流 I，以及电容电压 V_C 的有效值和相位（以 V_s 为 0°）。"
   ],
   "schematic": {
     "elements": [
@@ -35,7 +35,7 @@
       "find": { "kind": "val", "el": "C" },
       "answer": 2e-09,
       "unit": "nF",
-      "explain": "谐振条件 ωL = 1/(ωC)：C = 1/(ω²L) = 1/(10¹² × 0.5 × 10⁻³) = 2 × 10⁻⁹ F = 2 nF。此时 X_L = X_C = 500 Ω；下一问的电流 I = V_s/R 正说明回路确实处于谐振。"
+      "explain": "谐振条件 ωL = 1/(ωC)：C = 1/(ω²L) = 1/(10¹² × 0.5 × 10⁻³) = 2 × 10⁻⁹ F = 2 nF。此时 X_L = X_C = 500 Ω，回路里只剩 R 在限制电流。"
     },
     { "id": "I", "ask": "谐振时回路电流有效值 I = ?", "find": { "kind": "i", "el": "R", "part": "mag" }, "answer": 0.0002, "unit": "mA", "explain": "谐振时 Z = R = 5 Ω，I = 1 mV / 5 Ω = 0.2 mA。" },
     { "id": "UC", "ask": "电容电压有效值 V_C = ?", "find": { "kind": "v", "el": "C", "part": "mag" }, "answer": 0.1, "unit": "mV", "explain": "V_C = I·X_C = 0.2 mA × 500 Ω = 0.1 V = 100 mV，是天线信号的 Q = ω₀L/R = 500/5 = 100 倍。" },
@@ -49,7 +49,7 @@
     "**1. 调谐电容。** X_L = ωL = 10⁶ × 0.5 × 10⁻³ = 500 Ω。谐振要求 X_C = 500 Ω：C = 1/(ωX_C) = 1/(10⁶ × 500) = **2 nF**。",
     "**2. 电流。** 谐振时 Z = R = 5 Ω（最小），I = 1 mV/5 Ω = **0.2 mA**，与 V_s 同相。",
     "**3. 电容电压。** V̇_C = −jX_C·İ = −j500 × 0.2 mA = −j0.1 V：有效值 **100 mV**，相位 **−90°**。",
-    "**4. 品质因数。** Q = ω₀L/R = 500/5 = 100 = V_C/V_s。串联谐振把微弱的电台信号“放大”了 100 倍送到后级；其他频率的电台不谐振，阻抗大得多，电流和 V_C 都很小——这就是谐振回路的选择性，Q 越高选择性越好。"
+    "**4. 品质因数。** Q = ω₀L/R = 500/5 = 100 = V_C/V_s。串联谐振把微弱的电台信号“放大”了 100 倍，送到后级。其他频率的电台不谐振，阻抗大得多，电流和 V_C 都很小。这就是谐振回路的选择性：Q 越高，选择性越好。"
   ],
   "i18n": {
     "en": {
@@ -57,12 +57,12 @@
       "tags": ["series resonance", "tuning", "quality factor Q", "selectivity"],
       "statement": [
         "The input circuit of a radio is modelled as a series RLC circuit: coil inductance L = 0.5 mH, coil resistance R = 5 Ω, and a variable capacitor C. The antenna picks up a station's signal V̇_s = 1∠0° mV (rms) at ω = 10⁶ rad/s.",
-        "C is adjusted so that the circuit resonates with this station. Find the required C, the loop current I at resonance, and the rms value and phase (relative to V_s) of the capacitor voltage V_C."
+        "C is adjusted so that the circuit resonates with this station. Find the required C. Then find the loop current I at resonance, and the rms value and phase (with V_s at 0°) of the capacitor voltage V_C."
       ],
       "questions": [
         {
           "ask": "To resonate at ω = 10⁶ rad/s, what must C be set to?",
-          "explain": "Resonance: ωL = 1/(ωC), so C = 1/(ω²L) = 1/(10¹² × 0.5 × 10⁻³) = 2 × 10⁻⁹ F = 2 nF. Then X_L = X_C = 500 Ω; the current in the next question, I = V_s/R, confirms that the circuit really is at resonance."
+          "explain": "Resonance: ωL = 1/(ωC), so C = 1/(ω²L) = 1/(10¹² × 0.5 × 10⁻³) = 2 × 10⁻⁹ F = 2 nF. Then X_L = X_C = 500 Ω, and only R is left to limit the current."
         },
         { "ask": "rms loop current at resonance I = ?", "explain": "At resonance Z = R = 5 Ω, so I = 1 mV / 5 Ω = 0.2 mA." },
         { "ask": "rms capacitor voltage V_C = ?", "explain": "V_C = I·X_C = 0.2 mA × 500 Ω = 0.1 V = 100 mV, which is Q = ω₀L/R = 500/5 = 100 times the antenna signal." },
@@ -76,7 +76,7 @@
         "**1. Tuning capacitor.** X_L = ωL = 10⁶ × 0.5 × 10⁻³ = 500 Ω. Resonance needs X_C = 500 Ω: C = 1/(ωX_C) = 1/(10⁶ × 500) = **2 nF**.",
         "**2. Current.** At resonance Z = R = 5 Ω (minimum), I = 1 mV/5 Ω = **0.2 mA**, in phase with V_s.",
         "**3. Capacitor voltage.** V̇_C = −jX_C·İ = −j500 × 0.2 mA = −j0.1 V: rms value **100 mV**, phase **−90°**.",
-        "**4. Quality factor.** Q = ω₀L/R = 500/5 = 100 = V_C/V_s. Series resonance 'amplifies' the weak station signal 100 times for the next stage; other stations are off resonance, see a much larger impedance and produce a far smaller current and V_C — that is the selectivity of a resonant circuit, and the higher Q, the better it is."
+        "**4. Quality factor.** Q = ω₀L/R = 500/5 = 100 = V_C/V_s. Series resonance 'amplifies' the weak station signal 100 times for the next stage. Other stations are off resonance: they see a much larger impedance and produce a far smaller current and V_C. That is the selectivity of a resonant circuit: the higher Q, the better it is."
       ]
     }
   }

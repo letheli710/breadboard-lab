@@ -2,10 +2,10 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "frequency",
-  "intro": "前几章在**一个**频率下求正弦稳态；本章把 ω 当作变量，看电路的响应怎样随频率变化。核心工具是**网络函数** H(jω) = 响应相量/激励相量：它的模给出幅频特性，辐角给出相频特性。滤波器（低通、高通、带通）和谐振都是从 H(jω) 读出来的。",
+  "intro": ["前几章在**一个**频率下求正弦稳态。本章把 ω 当作变量，看电路的响应怎样随频率变化。", "核心工具是**网络函数** H(jω) = 响应相量 / 激励相量。它的模给出幅频特性，辐角给出相频特性。", "滤波器（低通、高通、带通）和谐振，都是从 H(jω) 里读出来的。"],
   "i18n": {
     "en": {
-      "intro": "Earlier chapters solved the sinusoidal steady state at **one** frequency; here ω becomes a variable and we ask how the response changes with frequency. The central tool is the **network function** H(jω) = response phasor / excitation phasor: its magnitude gives the amplitude response, its angle the phase response. Filters (low-pass, high-pass, band-pass) and resonance are all read off H(jω)."
+      "intro": ["Earlier chapters solved the sinusoidal steady state at **one** frequency. Here ω becomes a variable, and we ask how the response changes with frequency.", "The central tool is the **network function** H(jω) = response phasor / excitation phasor. Its magnitude gives the amplitude response, its angle the phase response.", "Filters (low-pass, high-pass, band-pass) and resonance are all read off H(jω)."]
     }
   },
   "ideas": [
@@ -13,18 +13,18 @@
       "id": "netfunc",
       "title": "网络函数 H(jω)：幅频与相频特性",
       "text": [
-        "单一正弦激励下，网络函数 H(jω) = \\frac{响应相量}{激励相量}（例如 V̇_o/V̇_s）。它与激励的大小、初相无关，只由电路结构、参数和 ω 决定。|H(jω)| 随 ω 变化的曲线是**幅频特性**，arg H(jω) 是**相频特性**。",
-        "求法：用相量法（阻抗、分压、分流、结点法）把输出写成输入的倍数，再整理成标准形式，看 ω → 0 和 ω → ∞ 的极限判断类型。增益常用分贝表示：20lg|H| dB；|H| = 1/√2 对应 −3 dB。",
-        "多节级联时，后一节会从前一节取电流（**负载效应**），总的 H **不等于**各节单独开路时 H 的乘积；只有中间加了电压跟随器等隔离时才能直接相乘。"
+        "- 单一正弦激励下，网络函数 H(jω) = \\frac{响应相量}{激励相量}，例如 V̇_o/V̇_s。", "- 它和激励的大小、初相无关，只由电路结构、参数和 ω 决定。", "- |H(jω)| 随 ω 变化的曲线是**幅频特性**，arg H(jω) 是**相频特性**。",
+        "- 求法：用相量法（阻抗、分压、分流、结点法）把输出写成输入的倍数，再整理成标准形式。看 ω → 0 和 ω → ∞ 的极限，就能判断类型。", "- 增益常用分贝表示：20lg|H| dB。|H| = 1/√2 对应 −3 dB。",
+        "- 多节级联时，后一节要从前一节取电流，这叫**负载效应**。所以总的 H **不等于**各节单独开路时 H 的乘积（面包板 4.3 里亲眼见过）。", "- 只有中间加了隔离（例如电压跟随器），各节的 H 才能直接相乘。"
       ],
       "problems": ["frequency-01-rc-lowpass-network-function", "frequency-11-two-section-rc-lowpass", "frequency-02-rl-highpass-cutoff"],
       "i18n": {
         "en": {
           "title": "The network function H(jω): amplitude and phase response",
           "text": [
-            "For a single sinusoidal input the network function is H(jω) = \\frac{response phasor}{excitation phasor} (e.g. V̇_o/V̇_s). It does not depend on the input's size or phase, only on the circuit, its values and ω. |H(jω)| against ω is the **amplitude (magnitude) response**, arg H(jω) the **phase response**.",
-            "To find it: use phasor methods (impedances, dividers, nodal analysis) to write the output as a multiple of the input, put it in a standard form, and look at the limits ω → 0 and ω → ∞ to see what kind of filter it is. Gain is often given in decibels, 20lg|H| dB; |H| = 1/√2 is −3 dB.",
-            "When sections are cascaded, the second draws current from the first (the **loading effect**), so the overall H is **not** the product of the sections' open-circuit H; only with isolation (e.g. a voltage follower in between) do they multiply."
+            "- For a single sinusoidal input the network function is H(jω) = \\frac{response phasor}{excitation phasor}, e.g. V̇_o/V̇_s.", "- It does not depend on the input's size or phase, only on the circuit, its values and ω.", "- |H(jω)| against ω is the **amplitude (magnitude) response**; arg H(jω) is the **phase response**.",
+            "- To find it, use phasor methods (impedances, dividers, nodal analysis) to write the output as a multiple of the input, then put it in a standard form. The limits ω → 0 and ω → ∞ tell you what kind of filter it is.", "- Gain is often given in decibels: 20lg|H| dB. |H| = 1/√2 is −3 dB.",
+            "- When sections are cascaded, the second draws current from the first: the **loading effect**. So the overall H is **not** the product of the sections' open-circuit H (you saw it on the breadboard in 4.3).", "- Only with isolation in between (e.g. a voltage follower) can the sections' H be multiplied."
           ]
         }
       }
@@ -33,18 +33,18 @@
       "id": "first-order",
       "title": "一阶低通、高通与截止频率",
       "text": [
-        "RC 电路输出取电容电压是**低通**：H = \\frac{1}{1 + jωRC}；RL 电路输出取电感电压是**高通**：H = \\frac{jωL}{R + jωL}。一般地，一阶电路的转折（截止）角频率 ω_c = 1/τ，τ = R_{eq}C 或 L/R_eq。",
-        "**截止频率**定义为 |H| 降到最大值的 1/√2（比通带低 3 dB）的频率，也叫**半功率点**。在 ω_c 处一阶低通的相位为 −45°，一阶高通为 +45°。",
-        "R_eq 是**从储能元件两端看进去**的戴维宁等效电阻（独立源置零）。输出端接了负载电阻时，R_eq 和通带增益都会变——这是无源滤波器的缺点。"
+        "- RC 电路输出取电容电压，是**低通**：H = \\frac{1}{1 + jωRC}。", "- RL 电路输出取电感电压，是**高通**：H = \\frac{jωL}{R + jωL}。", "- 一般地，一阶电路的转折（截止）角频率 ω_c = 1/τ，τ = R_{eq}C 或 L/R_eq。",
+        "- **截止频率**是 |H| 降到最大值 1/√2 的频率，比通带低 3 dB，也叫**半功率点**。", "- 在 ω_c 处，一阶低通的相位是 −45°，一阶高通是 +45°。",
+        "- R_eq 是**从储能元件两端看进去**的戴维宁等效电阻，独立源置零。", "- 输出端接了负载电阻，R_eq 和通带增益都会变。这是无源滤波器的缺点。"
       ],
       "problems": ["frequency-01-rc-lowpass-network-function", "frequency-02-rl-highpass-cutoff", "frequency-05-loaded-rc-lowpass"],
       "i18n": {
         "en": {
           "title": "First-order low-pass, high-pass and the cut-off frequency",
           "text": [
-            "An RC circuit with the output across C is a **low-pass**: H = \\frac{1}{1 + jωRC}; an RL circuit with the output across L is a **high-pass**: H = \\frac{jωL}{R + jωL}. In general a first-order circuit's corner (cut-off) angular frequency is ω_c = 1/τ, with τ = R_{eq}C or L/R_eq.",
-            "The **cut-off frequency** is where |H| has dropped to 1/√2 of its maximum (3 dB below the passband), also called the **half-power point**. There a first-order low-pass has phase −45°, a high-pass +45°.",
-            "R_eq is the Thévenin resistance **seen from the terminals of the storage element** (independent sources zeroed). A load resistor at the output changes both R_eq and the passband gain — the drawback of passive filters."
+            "- An RC circuit with the output across C is a **low-pass**: H = \\frac{1}{1 + jωRC}.", "- An RL circuit with the output across L is a **high-pass**: H = \\frac{jωL}{R + jωL}.", "- In general a first-order circuit's corner (cut-off) angular frequency is ω_c = 1/τ, with τ = R_{eq}C or L/R_eq.",
+            "- The **cut-off frequency** is where |H| has dropped to 1/√2 of its maximum, 3 dB below the passband. It is also called the **half-power point**.", "- At ω_c a first-order low-pass has phase −45°, a high-pass +45°.",
+            "- R_eq is the Thévenin resistance **seen from the terminals of the storage element**, with independent sources zeroed.", "- A load resistor at the output changes both R_eq and the passband gain. That is the drawback of passive filters."
           ]
         }
       }
@@ -53,18 +53,18 @@
       "id": "series-res",
       "title": "RLC 串联谐振",
       "text": [
-        "串联 RLC 的阻抗 Z = R + j(ωL − \\frac{1}{ωC})。虚部为零时电压与电流同相，称为**谐振**：ω_0 = \\frac{1}{\\sqrt{LC}}，f_0 = \\frac{ω_0}{2π}。",
-        "谐振时 |Z| = R 最小，电流 I = V_s/R 最大；V̇_L 与 V̇_C 大小相等、相位相反、互相抵消，L、C 串联部分相当于短路。",
-        "**品质因数** Q = \\frac{ω_0L}{R} = \\frac{1}{ω_0CR} = \\frac{1}{R}\\sqrt{\\frac{L}{C}}；谐振时 V_L = V_C = QV_s，Q 很大时会出现远高于电源电压的“过电压”（电压谐振）。调节 C 使回路对某一频率谐振，就是收音机的**调谐**。"
+        "- 串联 RLC 的阻抗 Z = R + j(ωL − \\frac{1}{ωC})。", "- 虚部为零时，电压与电流同相，叫**谐振**：ω_0 = \\frac{1}{\\sqrt{LC}}，f_0 = \\frac{ω_0}{2π}。",
+        "- 谐振时 |Z| = R 最小，电流 I = V_s/R 最大。", "- V̇_L 与 V̇_C 大小相等、相位相反，互相抵消。L、C 串联的部分相当于短路。",
+        "- **品质因数** Q = \\frac{ω_0L}{R} = \\frac{1}{ω_0CR} = \\frac{1}{R}\\sqrt{\\frac{L}{C}}。谐振时 V_L = V_C = QV_s。", "- Q 很大时，L、C 上会出现远高于电源电压的“过电压”，所以串联谐振也叫电压谐振（面包板 4.2 里在电容两端量过）。", "- 调节 C，使回路对某一个频率谐振，就是收音机的**调谐**。"
       ],
       "problems": ["frequency-03-series-rlc-resonance", "frequency-06-radio-tuning"],
       "i18n": {
         "en": {
           "title": "Series RLC resonance",
           "text": [
-            "A series RLC has Z = R + j(ωL − \\frac{1}{ωC}). When the imaginary part vanishes voltage and current are in phase: **resonance**, at ω_0 = \\frac{1}{\\sqrt{LC}}, f_0 = \\frac{ω_0}{2π}.",
-            "At resonance |Z| = R is minimal and the current I = V_s/R maximal; V̇_L and V̇_C are equal in size and opposite in phase, so they cancel and the L–C part acts as a short circuit.",
-            "The **quality factor** is Q = \\frac{ω_0L}{R} = \\frac{1}{ω_0CR} = \\frac{1}{R}\\sqrt{\\frac{L}{C}}; at resonance V_L = V_C = QV_s, so a high-Q circuit shows voltages far above the source (voltage resonance). Adjusting C to resonate at one station's frequency is how a radio is **tuned**."
+            "- A series RLC has Z = R + j(ωL − \\frac{1}{ωC}).", "- When the imaginary part vanishes, voltage and current are in phase: **resonance**, at ω_0 = \\frac{1}{\\sqrt{LC}}, f_0 = \\frac{ω_0}{2π}.",
+            "- At resonance |Z| = R is minimal and the current I = V_s/R is maximal.", "- V̇_L and V̇_C are equal in size and opposite in phase, so they cancel. The series L–C part acts as a short circuit.",
+            "- The **quality factor** is Q = \\frac{ω_0L}{R} = \\frac{1}{ω_0CR} = \\frac{1}{R}\\sqrt{\\frac{L}{C}}. At resonance V_L = V_C = QV_s.", "- With a high Q, L and C carry voltages far above the source voltage, which is why series resonance is also called voltage resonance (you measured it across the capacitor on the breadboard in 4.2).", "- Adjusting C so the circuit resonates at one station's frequency is how a radio is **tuned**."
           ]
         }
       }
@@ -73,18 +73,18 @@
       "id": "bandpass",
       "title": "带通特性与通频带",
       "text": [
-        "串联 RLC 的输出取电阻电压时 H = \\frac{R}{R + j(ωL − 1/(ωC))}，谐振时 H = 1，偏离 ω_0 越远越小：**带通**。",
-        "|H| = 1/√2 时 |ωL − 1/(ωC)| = R，得到两个半功率频率 ω_1 < ω_0 < ω_2，满足 ω_1ω_2 = ω_0²（ω_0 是它们的几何平均）。**通频带** BW = ω_2 − ω_1 = R/L = ω_0/Q。",
-        "Q 越大，通频带越窄、选择性越好。注意题目要求带宽用 rad/s 还是 Hz：BW_{Hz} = BW_{rad/s}/(2π)。"
+        "- 串联 RLC 的输出取电阻电压时，H = \\frac{R}{R + j(ωL − 1/(ωC))}。", "- 谐振时 H = 1；ω 偏离 ω_0 越远，|H| 越小。这就是**带通**。",
+        "- |H| = 1/√2 时 |ωL − 1/(ωC)| = R，由此得到两个半功率频率 ω_1 < ω_0 < ω_2。", "- 它们满足 ω_1ω_2 = ω_0²，也就是说 ω_0 是两者的几何平均。", "- **通频带** BW = ω_2 − ω_1 = R/L = ω_0/Q。",
+        "- Q 越大，通频带越窄，选择性越好。", "- 看清题目要的带宽单位是 rad/s 还是 Hz：BW_{Hz} = BW_{rad/s}/(2π)。"
       ],
       "problems": ["frequency-07-series-bandpass-bandwidth", "frequency-12-parallel-tank-bandpass"],
       "i18n": {
         "en": {
           "title": "Band-pass behaviour and bandwidth",
           "text": [
-            "A series RLC with the output across R has H = \\frac{R}{R + j(ωL − 1/(ωC))}: H = 1 at resonance and smaller the further ω is from ω_0 — a **band-pass**.",
-            "|H| = 1/√2 where |ωL − 1/(ωC)| = R, which gives two half-power frequencies ω_1 < ω_0 < ω_2 with ω_1ω_2 = ω_0² (ω_0 is their geometric mean). The **bandwidth** is BW = ω_2 − ω_1 = R/L = ω_0/Q.",
-            "Higher Q means a narrower band and better selectivity. Check whether the bandwidth is wanted in rad/s or Hz: BW_{Hz} = BW_{rad/s}/(2π)."
+            "- A series RLC with the output across R has H = \\frac{R}{R + j(ωL − 1/(ωC))}.", "- H = 1 at resonance, and |H| gets smaller the further ω is from ω_0: a **band-pass**.",
+            "- |H| = 1/√2 where |ωL − 1/(ωC)| = R. This gives two half-power frequencies ω_1 < ω_0 < ω_2.", "- They satisfy ω_1ω_2 = ω_0², so ω_0 is their geometric mean.", "- The **bandwidth** is BW = ω_2 − ω_1 = R/L = ω_0/Q.",
+            "- Higher Q means a narrower band and better selectivity.", "- Check whether the bandwidth is wanted in rad/s or in Hz: BW_{Hz} = BW_{rad/s}/(2π)."
           ]
         }
       }
@@ -93,18 +93,18 @@
       "id": "parallel-res",
       "title": "GCL 并联谐振",
       "text": [
-        "并联电路用导纳：Y = G + j(ωC − \\frac{1}{ωL})。虚部为零时谐振，ω_0 = 1/\\sqrt{LC}；此时 |Y| = G 最小、|Z| = R 最大，电流源激励下端电压 V = I_s/G 最大。",
-        "谐振时 L、C 支路电流大小相等、相位相反，L∥C 部分相当于**开路**；Q = \\frac{R}{ω_0L} = ω_0RC，I_L = I_C = QI_s（电流谐振）。通频带 BW = \\frac{G}{C} = \\frac{1}{RC}。",
-        "电压源带内阻 R_s 驱动并联回路时，先化成诺顿等效（电流源 V_s/R_s 并 R_s）：内阻并在回路上，使总电导增大、**有载 Q 下降、通带变宽**。"
+        "- 并联电路用导纳：Y = G + j(ωC − \\frac{1}{ωL})。虚部为零时谐振，ω_0 = 1/\\sqrt{LC}。", "- 谐振时 |Y| = G 最小，|Z| = R 最大。电流源激励下，端电压 V = I_s/G 最大。",
+        "- L、C 支路的电流大小相等、相位相反，L∥C 部分相当于**开路**。", "- Q = \\frac{R}{ω_0L} = ω_0RC，I_L = I_C = QI_s，所以并联谐振也叫电流谐振。通频带 BW = \\frac{G}{C} = \\frac{1}{RC}。",
+        "- 电压源带内阻 R_s 驱动并联回路时，先化成诺顿等效：电流源 V_s/R_s 并 R_s。", "- 这样内阻就并在了回路上，总电导变大：**有载 Q 下降，通带变宽**。"
       ],
       "problems": ["frequency-04-parallel-gcl-resonance", "frequency-12-parallel-tank-bandpass"],
       "i18n": {
         "en": {
           "title": "Parallel GCL resonance",
           "text": [
-            "Use admittance for a parallel circuit: Y = G + j(ωC − \\frac{1}{ωL}). Resonance where the imaginary part vanishes, ω_0 = 1/\\sqrt{LC}; then |Y| = G is minimal, |Z| = R maximal, and with a current source the voltage V = I_s/G is maximal.",
-            "At resonance the L and C currents are equal and opposite, so the L∥C pair acts as an **open circuit**; Q = \\frac{R}{ω_0L} = ω_0RC and I_L = I_C = QI_s (current resonance). The bandwidth is BW = \\frac{G}{C} = \\frac{1}{RC}.",
-            "When a voltage source with internal resistance R_s drives the tank, convert it to its Norton form (V_s/R_s in parallel with R_s): R_s appears across the tank, raising the total conductance, so the **loaded Q drops and the band widens**."
+            "- Use admittance for a parallel circuit: Y = G + j(ωC − \\frac{1}{ωL}). Resonance is where the imaginary part vanishes, ω_0 = 1/\\sqrt{LC}.", "- At resonance |Y| = G is minimal and |Z| = R maximal. With a current source, the voltage V = I_s/G is maximal.",
+            "- The L and C currents are equal and opposite, so the L∥C pair acts as an **open circuit**.", "- Q = \\frac{R}{ω_0L} = ω_0RC and I_L = I_C = QI_s, which is why parallel resonance is also called current resonance. The bandwidth is BW = \\frac{G}{C} = \\frac{1}{RC}.",
+            "- When a voltage source with internal resistance R_s drives the tank, convert it to its Norton form first: V_s/R_s in parallel with R_s.", "- Now R_s sits across the tank and raises the total conductance: the **loaded Q drops and the band widens**."
           ]
         }
       }
@@ -113,16 +113,16 @@
       "id": "coil",
       "title": "实际线圈与电容并联",
       "text": [
-        "实际线圈是 R 与 L 串联，它和电容并联时**不能**直接套 1/\\sqrt{LC}。写导纳 Y = jωC + \\frac{R − jωL}{R^{2} + ω^{2}L^{2}}，令虚部为零：C = \\frac{L}{R^{2} + ω_0^{2}L^{2}}，即 ω_0 = \\sqrt{\\frac{1}{LC} − \\frac{R^{2}}{L^{2}}}（要求 R < \\sqrt{L/C}）。",
-        "谐振时端口阻抗为纯电阻 Z_0 = \\frac{L}{RC}；线圈电流的无功分量被电容电流抵消，所以线圈电流可以比电源电流大。"
+        "- 实际线圈是 R 与 L 串联。它和电容并联时，**不能**直接套 1/\\sqrt{LC}。", "- 写出导纳 Y = jωC + \\frac{R − jωL}{R^{2} + ω^{2}L^{2}}，令虚部为零：C = \\frac{L}{R^{2} + ω_0^{2}L^{2}}。", "- 解出 ω_0 = \\sqrt{\\frac{1}{LC} − \\frac{R^{2}}{L^{2}}}。要有谐振，必须 R < \\sqrt{L/C}。",
+        "- 谐振时端口阻抗是纯电阻 Z_0 = \\frac{L}{RC}。", "- 线圈电流的无功分量被电容电流抵消，所以线圈电流可以比电源电流还大。"
       ],
       "problems": ["frequency-10-coil-capacitor-resonance"],
       "i18n": {
         "en": {
           "title": "A real coil in parallel with a capacitor",
           "text": [
-            "A real coil is R in series with L; in parallel with a capacitor you **cannot** just use 1/\\sqrt{LC}. Write Y = jωC + \\frac{R − jωL}{R^{2} + ω^{2}L^{2}} and set the imaginary part to zero: C = \\frac{L}{R^{2} + ω_0^{2}L^{2}}, i.e. ω_0 = \\sqrt{\\frac{1}{LC} − \\frac{R^{2}}{L^{2}}} (requires R < \\sqrt{L/C}).",
-            "At resonance the port impedance is purely resistive, Z_0 = \\frac{L}{RC}; the reactive part of the coil current is cancelled by the capacitor current, so the coil current can exceed the source current."
+            "- A real coil is R in series with L. In parallel with a capacitor you **cannot** just use 1/\\sqrt{LC}.", "- Write Y = jωC + \\frac{R − jωL}{R^{2} + ω^{2}L^{2}} and set the imaginary part to zero: C = \\frac{L}{R^{2} + ω_0^{2}L^{2}}.", "- That gives ω_0 = \\sqrt{\\frac{1}{LC} − \\frac{R^{2}}{L^{2}}}. Resonance exists only if R < \\sqrt{L/C}.",
+            "- At resonance the port impedance is purely resistive, Z_0 = \\frac{L}{RC}.", "- The capacitor current cancels the reactive part of the coil current, so the coil current can exceed the source current."
           ]
         }
       }
@@ -131,16 +131,16 @@
       "id": "selective",
       "title": "串、并联谐振组合的选频电路",
       "text": [
-        "L∥C 在 ω_p = 1/\\sqrt{LC} 时阻抗 → ∞（**阻断**该频率，陷波）；低于 ω_p 时呈感性，高于 ω_p 时呈容性。呈感性的 L∥C 再和一个电容串联，可在另一个频率发生串联谐振（阻抗最小，**导通**）。",
-        "分析方法：先写出总阻抗，分别令其虚部为零（串联谐振）或令某并联部分的导纳为零（并联谐振）。一个电路可以有多个谐振频率，题目问“最低谐振频率”时要逐个比较。"
+        "- L∥C 在 ω_p = 1/\\sqrt{LC} 时阻抗 → ∞，把这个频率**阻断**（陷波）。", "- 低于 ω_p 时 L∥C 呈感性，高于 ω_p 时呈容性。", "- 呈感性的 L∥C 再串一个电容，可以在另一个频率发生串联谐振。那里阻抗最小，信号**导通**。",
+        "- 分析方法：先写出总阻抗。令它的虚部为零，得到串联谐振；令某个并联部分的导纳为零，得到并联谐振。", "- 一个电路可以有好几个谐振频率。题目问“最低谐振频率”时，要逐个比较。"
       ],
       "problems": ["frequency-13-series-parallel-resonance-filter"],
       "i18n": {
         "en": {
           "title": "Frequency-selective circuits combining series and parallel resonance",
           "text": [
-            "L∥C has infinite impedance at ω_p = 1/\\sqrt{LC} (it **blocks** that frequency — a notch); below ω_p it is inductive, above it capacitive. An inductive L∥C in series with a capacitor can resonate in series at another frequency (minimum impedance — it **passes** that frequency).",
-            "Method: write the total impedance and set its imaginary part to zero (series resonance), or a parallel part's admittance to zero (parallel resonance). A circuit can have several resonant frequencies; for “the lowest” compare them all."
+            "- L∥C has infinite impedance at ω_p = 1/\\sqrt{LC}, so it **blocks** that frequency (a notch).", "- Below ω_p the L∥C pair is inductive, above it capacitive.", "- An inductive L∥C in series with a capacitor can be in series resonance at another frequency. There the impedance is minimal and the signal **passes**.",
+            "- Method: write the total impedance first. Setting its imaginary part to zero gives series resonance; setting a parallel part's admittance to zero gives parallel resonance.", "- A circuit can have several resonant frequencies. When asked for “the lowest”, compare them all."
           ]
         }
       }
@@ -149,18 +149,18 @@
       "id": "active",
       "title": "运放构成的一阶有源滤波器",
       "text": [
-        "理想运放的反相放大器公式对阻抗同样成立：H(jω) = −\\frac{Z_f}{Z_1}。反馈支路 R_f∥C_f 给出**低通** H = −\\frac{R_f}{R_1}·\\frac{1}{1 + jωR_fC_f}；输入支路 R_1 串 C_1 给出**高通** H = −\\frac{R_f}{R_1}·\\frac{jωR_1C_1}{1 + jωR_1C_1}；两者都有就是**带通**。",
-        "转折频率由与电容相关的那一个 RC 决定（低通 1/(R_fC_f)，高通 1/(R_1C_1)），通带增益为 −R_f/R_1。反相放大器的相位要多加 180°。",
-        "有源滤波器的输出由运放驱动，接负载不改变 H，通带增益可以大于 1；输入阻抗就是 Z_1（反相端虚地）。"
+        "- 理想运放的反相放大器公式对阻抗同样成立：H(jω) = −\\frac{Z_f}{Z_1}。", "- 反馈支路 R_f∥C_f 给出**低通**：H = −\\frac{R_f}{R_1}·\\frac{1}{1 + jωR_fC_f}。", "- 输入支路 R_1 串 C_1 给出**高通**：H = −\\frac{R_f}{R_1}·\\frac{jωR_1C_1}{1 + jωR_1C_1}。两者都有，就是**带通**。",
+        "- 转折频率由含电容的那一个 RC 决定：低通是 1/(R_fC_f)，高通是 1/(R_1C_1)。通带增益是 −R_f/R_1。", "- 反相放大器的相位要多加 180°。",
+        "- 有源滤波器的输出由运放驱动，接负载不改变 H，通带增益还可以大于 1。", "- 输入阻抗就是 Z_1，因为反相端是虚地。"
       ],
       "problems": ["frequency-08-active-lowpass", "frequency-09-active-highpass", "frequency-14-active-bandpass"],
       "i18n": {
         "en": {
           "title": "First-order active filters with op-amps",
           "text": [
-            "The ideal inverting amplifier formula holds for impedances too: H(jω) = −\\frac{Z_f}{Z_1}. A feedback R_f∥C_f gives a **low-pass** H = −\\frac{R_f}{R_1}·\\frac{1}{1 + jωR_fC_f}; an input branch R_1 in series with C_1 gives a **high-pass** H = −\\frac{R_f}{R_1}·\\frac{jωR_1C_1}{1 + jωR_1C_1}; both together make a **band-pass**.",
-            "The corner frequency comes from the RC that contains the capacitor (1/(R_fC_f) for the low-pass, 1/(R_1C_1) for the high-pass); the passband gain is −R_f/R_1. The inverting amplifier adds 180° to the phase.",
-            "An active filter's output is driven by the op-amp, so a load does not change H and the passband gain can exceed 1; the input impedance is just Z_1 (virtual ground)."
+            "- The ideal inverting-amplifier formula holds for impedances too: H(jω) = −\\frac{Z_f}{Z_1}.", "- A feedback branch R_f∥C_f gives a **low-pass**: H = −\\frac{R_f}{R_1}·\\frac{1}{1 + jωR_fC_f}.", "- An input branch R_1 in series with C_1 gives a **high-pass**: H = −\\frac{R_f}{R_1}·\\frac{jωR_1C_1}{1 + jωR_1C_1}. Both together make a **band-pass**.",
+            "- The corner frequency comes from the RC that contains the capacitor: 1/(R_fC_f) for the low-pass, 1/(R_1C_1) for the high-pass. The passband gain is −R_f/R_1.", "- The inverting amplifier adds 180° to the phase.",
+            "- An active filter's output is driven by the op-amp, so a load does not change H, and the passband gain can exceed 1.", "- The input impedance is just Z_1, because the inverting input is a virtual ground."
           ]
         }
       }
@@ -180,8 +180,8 @@
       "idea": "first-order",
       "name": "一阶 RC 低通",
       "expr": "H = \\frac{1}{1 + jω/ω_c}，ω_c = \\frac{1}{RC}，|H| = \\frac{1}{\\sqrt{1 + (ω/ω_c)^{2}}}，φ = −arctan(ω/ω_c)",
-      "when": "输出取电容电压且输出端开路；接负载时用从 C 看进去的 R_eq，并乘以直流分压比。",
-      "i18n": { "en": { "name": "First-order RC low-pass", "expr": "H = \\frac{1}{1 + jω/ω_c}, ω_c = \\frac{1}{RC}, |H| = \\frac{1}{\\sqrt{1 + (ω/ω_c)^{2}}}, φ = −arctan(ω/ω_c)", "when": "Output across C, output open; with a load use the R_eq seen by C and multiply by the DC divider ratio." } }
+      "when": "输出取电容电压，且输出端开路。接了负载时，用从 C 看进去的 R_eq，并乘以直流分压比。",
+      "i18n": { "en": { "name": "First-order RC low-pass", "expr": "H = \\frac{1}{1 + jω/ω_c}, ω_c = \\frac{1}{RC}, |H| = \\frac{1}{\\sqrt{1 + (ω/ω_c)^{2}}}, φ = −arctan(ω/ω_c)", "when": "Output across C, output open. With a load, use the R_eq seen by C and multiply by the DC divider ratio." } }
     },
     {
       "id": "rl-hp",
@@ -212,48 +212,48 @@
       "idea": "series-res",
       "name": "串联谐振的品质因数",
       "expr": "Q = \\frac{ω_0L}{R} = \\frac{1}{ω_0CR} = \\frac{1}{R}\\sqrt{\\frac{L}{C}}，V_L = V_C = QV_s",
-      "when": "RLC 串联，谐振时；V 为有效值，V̇_L 超前电流 90°，V̇_C 滞后 90°。",
-      "i18n": { "en": { "name": "Quality factor (series)", "expr": "Q = \\frac{ω_0L}{R} = \\frac{1}{ω_0CR} = \\frac{1}{R}\\sqrt{\\frac{L}{C}}, V_L = V_C = QV_s", "when": "Series RLC at resonance; rms values, V̇_L leads the current by 90°, V̇_C lags by 90°." } }
+      "when": "RLC 串联，谐振时；V 为有效值。V̇_L 超前电流 90°，V̇_C 滞后 90°。",
+      "i18n": { "en": { "name": "Quality factor (series)", "expr": "Q = \\frac{ω_0L}{R} = \\frac{1}{ω_0CR} = \\frac{1}{R}\\sqrt{\\frac{L}{C}}, V_L = V_C = QV_s", "when": "Series RLC at resonance; rms values. V̇_L leads the current by 90°, V̇_C lags by 90°." } }
     },
     {
       "id": "bw",
       "idea": "bandpass",
       "name": "通频带",
       "expr": "BW = ω_2 − ω_1 = \\frac{R}{L} = \\frac{ω_0}{Q}，ω_1ω_2 = ω_0^{2}",
-      "when": "串联 RLC，输出取 R 上电压；ω_1、ω_2 为 |H| = 1/√2 的半功率频率。单位 rad/s，除以 2π 得 Hz。",
-      "i18n": { "en": { "name": "Bandwidth", "expr": "BW = ω_2 − ω_1 = \\frac{R}{L} = \\frac{ω_0}{Q}, ω_1ω_2 = ω_0^{2}", "when": "Series RLC with the output across R; ω_1, ω_2 are the half-power frequencies where |H| = 1/√2. In rad/s; divide by 2π for Hz." } }
+      "when": "串联 RLC，输出取 R 上的电压。ω_1、ω_2 是 |H| = 1/√2 的半功率频率。单位 rad/s，除以 2π 得 Hz。",
+      "i18n": { "en": { "name": "Bandwidth", "expr": "BW = ω_2 − ω_1 = \\frac{R}{L} = \\frac{ω_0}{Q}, ω_1ω_2 = ω_0^{2}", "when": "Series RLC with the output across R. ω_1, ω_2 are the half-power frequencies where |H| = 1/√2. In rad/s; divide by 2π for Hz." } }
     },
     {
       "id": "q-par",
       "idea": "parallel-res",
       "name": "并联谐振",
       "expr": "Q = \\frac{R}{ω_0L} = ω_0RC，I_L = I_C = QI_s，BW = \\frac{1}{RC}",
-      "when": "理想 GCL 并联，电流源激励；R 为与回路并联的总电阻（含折算的电源内阻）。",
-      "i18n": { "en": { "name": "Parallel resonance", "expr": "Q = \\frac{R}{ω_0L} = ω_0RC, I_L = I_C = QI_s, BW = \\frac{1}{RC}", "when": "Ideal parallel GCL driven by a current source; R is the total resistance across the tank (including a referred source resistance)." } }
+      "when": "理想 GCL 并联，电流源激励。R 是与回路并联的总电阻，包括折算过来的电源内阻。",
+      "i18n": { "en": { "name": "Parallel resonance", "expr": "Q = \\frac{R}{ω_0L} = ω_0RC, I_L = I_C = QI_s, BW = \\frac{1}{RC}", "when": "Ideal parallel GCL driven by a current source. R is the total resistance across the tank, including a referred source resistance." } }
     },
     {
       "id": "coil",
       "idea": "coil",
       "name": "线圈与电容并联谐振",
       "expr": "ω_0 = \\sqrt{\\frac{1}{LC} − \\frac{R^{2}}{L^{2}}}，Z_0 = \\frac{L}{RC}",
-      "when": "线圈为 R 与 L 串联，再与 C 并联；按端口阻抗为纯电阻定义谐振，要求 R < \\sqrt{L/C}。",
-      "i18n": { "en": { "name": "Coil in parallel with a capacitor", "expr": "ω_0 = \\sqrt{\\frac{1}{LC} − \\frac{R^{2}}{L^{2}}}, Z_0 = \\frac{L}{RC}", "when": "Coil = R in series with L, in parallel with C; resonance defined by a purely resistive port impedance, requires R < \\sqrt{L/C}." } }
+      "when": "线圈是 R 与 L 串联，再与 C 并联。谐振按端口阻抗为纯电阻来定义，要求 R < \\sqrt{L/C}。",
+      "i18n": { "en": { "name": "Coil in parallel with a capacitor", "expr": "ω_0 = \\sqrt{\\frac{1}{LC} − \\frac{R^{2}}{L^{2}}}, Z_0 = \\frac{L}{RC}", "when": "Coil = R in series with L, in parallel with C. Resonance is defined by a purely resistive port impedance and requires R < \\sqrt{L/C}." } }
     },
     {
       "id": "lc-par",
       "idea": "selective",
       "name": "L∥C 的阻抗",
       "expr": "Z_p = \\frac{jωL}{1 − ω^{2}LC}",
-      "when": "理想 L 与 C 并联；ω < 1/\\sqrt{LC} 感性，ω > 1/\\sqrt{LC} 容性，ω = 1/\\sqrt{LC} 时 → ∞。",
-      "i18n": { "en": { "name": "Impedance of L∥C", "expr": "Z_p = \\frac{jωL}{1 − ω^{2}LC}", "when": "Ideal L in parallel with C; inductive below 1/\\sqrt{LC}, capacitive above, infinite at 1/\\sqrt{LC}." } }
+      "when": "理想 L 与 C 并联。ω < 1/\\sqrt{LC} 时感性，ω > 1/\\sqrt{LC} 时容性，ω = 1/\\sqrt{LC} 时 → ∞。",
+      "i18n": { "en": { "name": "Impedance of L∥C", "expr": "Z_p = \\frac{jωL}{1 − ω^{2}LC}", "when": "Ideal L in parallel with C. Inductive below 1/\\sqrt{LC}, capacitive above, infinite at 1/\\sqrt{LC}." } }
     },
     {
       "id": "active",
       "idea": "active",
       "name": "反相有源滤波器",
       "expr": "H(jω) = −\\frac{Z_f}{Z_1}",
-      "when": "理想运放，同相端接地，线性工作区；Z_1 为输入支路阻抗，Z_f 为反馈支路阻抗。",
-      "i18n": { "en": { "name": "Inverting active filter", "expr": "H(jω) = −\\frac{Z_f}{Z_1}", "when": "Ideal op-amp, non-inverting input grounded, linear region; Z_1 input-branch impedance, Z_f feedback-branch impedance." } }
+      "when": "理想运放，同相端接地，工作在线性区。Z_1 是输入支路阻抗，Z_f 是反馈支路阻抗。",
+      "i18n": { "en": { "name": "Inverting active filter", "expr": "H(jω) = −\\frac{Z_f}{Z_1}", "when": "Ideal op-amp, non-inverting input grounded, linear region. Z_1 is the input-branch impedance, Z_f the feedback-branch impedance." } }
     }
   ],
   "examples": [
@@ -261,7 +261,7 @@
       "id": "series-rlc",
       "ideas": ["series-res", "bandpass"],
       "title": "串联 RLC：谐振、Q 值与通频带",
-      "statement": "R = 20 Ω，L = 0.2 H，C = 5 µF 串联，V̇_s = 1∠0° V（有效值），电源频率等于谐振频率；输出取电阻电压 V_o。求 f_0、谐振电流 I、V_L 和 V_C、品质因数 Q、两个半功率频率和通频带。",
+      "statement": "R = 20 Ω、L = 0.2 H、C = 5 µF 串联，V̇_s = 1∠0° V（有效值），电源频率等于谐振频率。输出取电阻电压 V_o。求 f_0、谐振电流 I、V_L 和 V_C、品质因数 Q，再求两个半功率频率和通频带。",
       "schematic": {
         "elements": [
           { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "1∠0° V" },
@@ -292,16 +292,16 @@
       ],
       "steps": [
         "1. **谐振频率。** ω_0 = 1/√(LC) = 1/√(0.2 × 5×10⁻⁶) = **1000 rad/s**，f_0 = 1000/(2π) ≈ **159.2 Hz**。",
-        "2. **谐振电流。** X_L = ω_0L = 1000 × 0.2 = 200，X_C = 1/(ω_0C) = 200（单位 Ω），二者相等，Z = R = 20 Ω：I = 1/20 = **0.05 A**，与 V_s 同相。",
-        "3. **L、C 上的电压。** V_L = V_C = I × 200 = **10 V**，是电源电压的 10 倍；V̇_C 的相位为 **−90°**，V̇_L 为 +90°，二者抵消。",
+        "2. **谐振电流。** X_L = ω_0L = 1000 × 0.2 = 200，X_C = 1/(ω_0C) = 200（单位 Ω）。二者相等，所以 Z = R = 20 Ω，I = 1/20 = **0.05 A**，与 V_s 同相。",
+        "3. **L、C 上的电压。** V_L = V_C = I × 200 = **10 V**，是电源电压的 10 倍。V̇_C 的相位是 **−90°**，V̇_L 是 +90°，二者抵消。",
         "4. **品质因数。** Q = ω_0L/R = 200/20 = **10** = V_C/V_s。",
-        "5. **半功率频率。** |H| = 1/√2 时 |ωL − 1/(ωC)| = R，解得 ω_{1,2} = ∓R/(2L) + √((R/(2L))² + ω_0²) ≈ 951.2、1051.2（rad/s），即 **f_1 ≈ 151.4 Hz**、**f_2 ≈ 167.3 Hz**。可以验证 ω_1ω_2 = ω_0²。",
+        "5. **半功率频率。** |H| = 1/√2 时 |ωL − 1/(ωC)| = R。解得 ω_{1,2} = ∓R/(2L) + √((R/(2L))² + ω_0²) ≈ 951.2、1051.2（rad/s），即 **f_1 ≈ 151.4 Hz**、**f_2 ≈ 167.3 Hz**。可以验证 ω_1ω_2 = ω_0²。",
         "6. **通频带。** BW = ω_2 − ω_1 = R/L，换算成频率 f_2 − f_1 = R/(2πL) = **15.92 Hz** = f_0/Q。"
       ],
       "i18n": {
         "en": {
           "title": "Series RLC: resonance, Q and bandwidth",
-          "statement": "R = 20 Ω, L = 0.2 H and C = 5 µF in series, V̇_s = 1∠0° V (rms) at the resonant frequency; the output V_o is the resistor voltage. Find f_0, the current I at resonance, V_L and V_C, the quality factor Q, the two half-power frequencies and the bandwidth.",
+          "statement": "R = 20 Ω, L = 0.2 H and C = 5 µF are in series, driven by V̇_s = 1∠0° V (rms) at the resonant frequency. The output V_o is the resistor voltage. Find f_0, the current I at resonance, V_L and V_C, and the quality factor Q; then find the two half-power frequencies and the bandwidth.",
           "results": [
             { "ask": "f_0" },
             { "ask": "I" },
@@ -315,10 +315,10 @@
           ],
           "steps": [
             "1. **Resonant frequency.** ω_0 = 1/√(LC) = 1/√(0.2 × 5×10⁻⁶) = **1000 rad/s**, f_0 = 1000/(2π) ≈ **159.2 Hz**.",
-            "2. **Current at resonance.** X_L = ω_0L = 1000 × 0.2 = 200, X_C = 1/(ω_0C) = 200 (in Ω): equal, so Z = R = 20 Ω and I = 1/20 = **0.05 A**, in phase with V_s.",
-            "3. **Voltages on L and C.** V_L = V_C = I × 200 = **10 V**, ten times the source voltage; V̇_C has phase **−90°**, V̇_L +90°, so they cancel.",
+            "2. **Current at resonance.** X_L = ω_0L = 1000 × 0.2 = 200, X_C = 1/(ω_0C) = 200 (in Ω). They are equal, so Z = R = 20 Ω and I = 1/20 = **0.05 A**, in phase with V_s.",
+            "3. **Voltages on L and C.** V_L = V_C = I × 200 = **10 V**, ten times the source voltage. V̇_C has phase **−90°** and V̇_L +90°, so they cancel.",
             "4. **Quality factor.** Q = ω_0L/R = 200/20 = **10** = V_C/V_s.",
-            "5. **Half-power frequencies.** |H| = 1/√2 where |ωL − 1/(ωC)| = R, giving ω_{1,2} = ∓R/(2L) + √((R/(2L))² + ω_0²) ≈ 951.2 and 1051.2 (rad/s), i.e. **f_1 ≈ 151.4 Hz**, **f_2 ≈ 167.3 Hz**. Check: ω_1ω_2 = ω_0².",
+            "5. **Half-power frequencies.** |H| = 1/√2 where |ωL − 1/(ωC)| = R. This gives ω_{1,2} = ∓R/(2L) + √((R/(2L))² + ω_0²) ≈ 951.2 and 1051.2 (rad/s), i.e. **f_1 ≈ 151.4 Hz**, **f_2 ≈ 167.3 Hz**. Check: ω_1ω_2 = ω_0².",
             "6. **Bandwidth.** BW = ω_2 − ω_1 = R/L; in hertz f_2 − f_1 = R/(2πL) = **15.92 Hz** = f_0/Q."
           ]
         }
@@ -328,7 +328,7 @@
       "id": "buffered-lp",
       "ideas": ["first-order", "active", "netfunc"],
       "title": "RC 低通加同相放大器：有源低通",
-      "statement": "R = 1 kΩ、C = 1 µF 组成 RC 低通，电容电压 v_a 送入理想运放构成的同相放大器（R_1 = 10 kΩ，R_f = 10 kΩ），输出端接负载 R_L = 1 kΩ。V̇_s = 1∠0° V（有效值），ω = 1000 rad/s。求 H(jω) = V̇_o/V̇_s 在该频率下的模、分贝值和相位，以及直流增益和截止频率。",
+      "statement": "R = 1 kΩ、C = 1 µF 组成 RC 低通。电容电压 v_a 送入理想运放构成的同相放大器（R_1 = 10 kΩ，R_f = 10 kΩ），放大器输出端接负载 R_L = 1 kΩ。V̇_s = 1∠0° V（有效值），ω = 1000 rad/s。求该频率下 H(jω) = V̇_o/V̇_s 的模、分贝值和相位，再求直流增益和截止频率。",
       "schematic": {
         "elements": [
           { "ref": "Vs", "type": "V", "from": [0, 5], "to": [0, 9], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "1∠0° V" },
@@ -365,14 +365,14 @@
       "steps": [
         "1. **RC 部分。** 运放同相输入端不取电流（虚断），所以电容右边相当于开路：V̇_a/V̇_s = 1/(1 + jωRC)，ω_c = 1/(RC) = 1/(10³ × 10⁻⁶) = **1000 rad/s**。",
         "2. **同相放大器。** 虚短：v_{−} = v_a，R_1、R_f 分压得 V̇_o = (1 + R_f/R_1)V̇_a = 2V̇_a。",
-        "3. **网络函数。** H(jω) = \\frac{2}{1 + jω/ω_c}：直流增益 **2**（**6.02 dB**），ω → ∞ 时 → 0，是一阶有源低通，**f_c = 159.2 Hz**。",
-        "4. **ω = 1000 rad/s。** 正好 ω = ω_c：H = 2/(1 + j) = 1.414∠**−45°**，20lg|H| = **3.01 dB**，比直流增益低 3 dB。",
-        "5. **负载不影响 H。** 输出由运放直接驱动，R_L 取多少 V̇_o 都不变；如果把 R_L 直接接在电容两端（没有运放），截止频率和增益都会改变。"
+        "3. **网络函数。** H(jω) = \\frac{2}{1 + jω/ω_c}。直流增益 **2**（**6.02 dB**），ω → ∞ 时 H → 0，是一阶有源低通，**f_c = 159.2 Hz**。",
+        "4. **ω = 1000 rad/s。** 正好 ω = ω_c：H = 2/(1 + j) = 1.414∠**−45°**。20lg|H| = **3.01 dB**，比直流增益低 3 dB。",
+        "5. **负载不影响 H。** 输出由运放直接驱动，R_L 取多少，V̇_o 都不变。如果把 R_L 直接接在电容两端（没有运放），截止频率和增益都会改变。"
       ],
       "i18n": {
         "en": {
           "title": "RC low-pass followed by a non-inverting amplifier: an active low-pass",
-          "statement": "R = 1 kΩ and C = 1 µF form an RC low-pass; the capacitor voltage v_a drives a non-inverting amplifier built with an ideal op-amp (R_1 = 10 kΩ, R_f = 10 kΩ), whose output feeds a load R_L = 1 kΩ. V̇_s = 1∠0° V (rms), ω = 1000 rad/s. Find the magnitude, dB value and phase of H(jω) = V̇_o/V̇_s at this frequency, the DC gain and the cut-off frequency.",
+          "statement": "R = 1 kΩ and C = 1 µF form an RC low-pass. The capacitor voltage v_a drives a non-inverting amplifier built with an ideal op-amp (R_1 = 10 kΩ, R_f = 10 kΩ), and the amplifier output feeds a load R_L = 1 kΩ. V̇_s = 1∠0° V (rms), ω = 1000 rad/s. Find the magnitude, dB value and phase of H(jω) = V̇_o/V̇_s at this frequency, then the DC gain and the cut-off frequency.",
           "results": [
             { "ask": "|H(jω)|" },
             { "ask": "20lg|H|" },
@@ -384,9 +384,9 @@
           "steps": [
             "1. **RC part.** The non-inverting input draws no current (virtual open), so the capacitor is unloaded: V̇_a/V̇_s = 1/(1 + jωRC), ω_c = 1/(RC) = 1/(10³ × 10⁻⁶) = **1000 rad/s**.",
             "2. **Non-inverting amplifier.** Virtual short: v_{−} = v_a, and the divider R_1, R_f gives V̇_o = (1 + R_f/R_1)V̇_a = 2V̇_a.",
-            "3. **Network function.** H(jω) = \\frac{2}{1 + jω/ω_c}: DC gain **2** (**6.02 dB**), → 0 as ω → ∞ — a first-order active low-pass with **f_c = 159.2 Hz**.",
-            "4. **At ω = 1000 rad/s.** Exactly ω = ω_c: H = 2/(1 + j) = 1.414∠**−45°**, 20lg|H| = **3.01 dB**, 3 dB below the DC gain.",
-            "5. **The load does not change H.** The op-amp drives the output, so V̇_o is the same for any R_L; with R_L connected straight across the capacitor (no op-amp), both the cut-off and the gain would change."
+            "3. **Network function.** H(jω) = \\frac{2}{1 + jω/ω_c}. The DC gain is **2** (**6.02 dB**) and H → 0 as ω → ∞: a first-order active low-pass with **f_c = 159.2 Hz**.",
+            "4. **At ω = 1000 rad/s.** Exactly ω = ω_c: H = 2/(1 + j) = 1.414∠**−45°**. 20lg|H| = **3.01 dB**, 3 dB below the DC gain.",
+            "5. **The load does not change H.** The op-amp drives the output, so V̇_o is the same for any R_L. With R_L connected straight across the capacitor (no op-amp), both the cut-off and the gain would change."
           ]
         }
       }
@@ -402,32 +402,32 @@
     {
       "id": "wrong-r",
       "idea": "first-order",
-      "text": "求截止频率时只用了串联的那个 R，忘了负载电阻或其他电阻。τ 里的 R 是从 C（或 L）两端看进去的等效电阻。",
+      "text": "求截止频率时只用了串联的那个 R，忘了负载电阻或别的电阻。τ 里的 R 是从 C（或 L）两端看进去的等效电阻。",
       "i18n": { "en": { "text": "Using only the series R for the cut-off and forgetting the load or other resistors. The R in τ is the equivalent resistance seen from the terminals of C (or L)." } }
     },
     {
       "id": "cascade",
       "idea": "netfunc",
-      "text": "两节无源 RC 直接级联时把各节单独的 H 相乘。后一节是前一节的负载，要整体计算；只有中间有隔离（跟随器）时才能相乘。",
-      "i18n": { "en": { "text": "Multiplying the separate H of two passive RC sections connected directly. The second section loads the first, so compute the whole circuit; multiply only when a buffer isolates them." } }
+      "text": "两节无源 RC 直接级联时，把各节单独的 H 相乘。后一节是前一节的负载，要整体计算。只有中间有隔离（跟随器）时才能相乘。",
+      "i18n": { "en": { "text": "Multiplying the separate H of two passive RC sections connected directly. The second section loads the first, so compute the whole circuit. Multiply only when a buffer isolates them." } }
     },
     {
       "id": "coil-res",
       "idea": "coil",
-      "text": "实际线圈（有电阻）与电容并联时仍用 ω_0 = 1/√(LC)。必须写出导纳令虚部为零，结果比 1/√(LC) 小。",
+      "text": "实际线圈（有电阻）与电容并联时，仍用 ω_0 = 1/√(LC)。必须写出导纳、令虚部为零，结果比 1/√(LC) 小。",
       "i18n": { "en": { "text": "Using ω_0 = 1/√(LC) for a real (resistive) coil in parallel with a capacitor. Write the admittance and set its imaginary part to zero; the result is below 1/√(LC)." } }
     },
     {
       "id": "lc-total",
       "idea": "series-res",
-      "text": "以为串联谐振时 L、C 上的电压都是零。它们各自可以是电源电压的 Q 倍，只是相位相反、相加为零。并联谐振时 L、C 的电流同理。",
+      "text": "以为串联谐振时 L、C 上的电压都是零。它们各自可以是电源电压的 Q 倍，只是相位相反，相加才为零。并联谐振时 L、C 的电流也一样。",
       "i18n": { "en": { "text": "Thinking the L and C voltages are zero at series resonance. Each can be Q times the source voltage; they are opposite in phase and only their sum is zero. Likewise for the L and C currents at parallel resonance." } }
     },
     {
       "id": "loaded-q",
       "idea": "parallel-res",
-      "text": "求并联谐振回路的 Q、带宽时忘了把信号源内阻并进去。有载时 G 应为所有并联电导之和，Q 变小、通带变宽。",
-      "i18n": { "en": { "text": "Forgetting the source resistance when finding Q and bandwidth of a parallel tank. Loaded, G is the sum of all parallel conductances, so Q drops and the band widens." } }
+      "text": "求并联谐振回路的 Q 和带宽时，忘了把信号源内阻并进去。有载时 G 是所有并联电导之和，所以 Q 变小、通带变宽。",
+      "i18n": { "en": { "text": "Forgetting the source resistance when finding the Q and bandwidth of a parallel tank. Loaded, G is the sum of all parallel conductances, so Q drops and the band widens." } }
     }
   ]
 }

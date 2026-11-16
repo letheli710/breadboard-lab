@@ -2,10 +2,10 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "ac-power",
-  "intro": "正弦稳态下“功率”分成好几种：瞬时功率 p(t)、有功功率 P、无功功率 Q、视在功率 S 和复功率 S̄。最好用的工具是**复功率 S̄ = V̇İ***——实部是 P、虚部是 Q，并且整个电路的 S̄ 守恒。本章相量一律用**有效值相量**，元件取关联参考方向时算的都是**吸收**功率。",
+  "intro": ["正弦稳态下的“功率”有好几种：瞬时功率 p(t)、有功功率 P、无功功率 Q、视在功率 S 和复功率 S̄。", "最好用的工具是**复功率 S̄ = V̇İ***。它的实部是 P，虚部是 Q，而且整个电路的 S̄ 守恒。", "本章相量一律用**有效值相量**。元件取关联参考方向时，算出来的都是**吸收**功率。"],
   "i18n": {
     "en": {
-      "intro": "In sinusoidal steady state “power” comes in several kinds: the instantaneous power p(t), active power P, reactive power Q, apparent power S and complex power S̄. The most useful tool is **complex power S̄ = V̇İ*** — its real part is P, its imaginary part Q, and S̄ is conserved over the whole circuit. Phasors in this chapter are **rms phasors**, and with the passive sign convention every power computed is **absorbed** power."
+      "intro": ["In sinusoidal steady state “power” comes in several kinds: the instantaneous power p(t), active power P, reactive power Q, apparent power S and complex power S̄.", "The most useful tool is **complex power S̄ = V̇İ***. Its real part is P, its imaginary part is Q, and S̄ is conserved over the whole circuit.", "Phasors in this chapter are **rms phasors**. With the passive sign convention, every power computed is **absorbed** power."]
     }
   },
   "ideas": [
@@ -13,18 +13,18 @@
       "id": "instant",
       "title": "瞬时功率与平均功率",
       "text": [
-        "设 v = √2V cos(ωt + ψ_v)，i = √2I cos(ωt + ψ_i)（关联参考方向），φ = ψ_v − ψ_i 为阻抗角。瞬时功率 p = ui = UI cos φ + UI cos(2ωt + ψ_v + ψ_i)：一个恒定分量加一个**两倍频率**的波动分量。",
-        "恒定分量就是**平均功率（有功功率）** P = UI cos φ。电阻的 p ≥ 0，始终吸收能量；电感、电容的 p 正负交替、平均为零——它们只和电源来回交换能量。",
-        "求某一时刻的瞬时功率时，先用相量法求出 v(t)、i(t) 的时域表达式，再把 t 代入相乘；不能用有效值直接相乘。"
+        "- 设 v = √2V cos(ωt + ψ_v)，i = √2I cos(ωt + ψ_i)，取关联参考方向。φ = ψ_v − ψ_i 是阻抗角。", "- 瞬时功率 p = vi = VI cos φ + VI cos(2ωt + ψ_v + ψ_i)：一个恒定分量，加一个**两倍频率**的波动分量。",
+        "- 恒定分量就是**平均功率（有功功率）** P = VI cos φ。", "- 电阻的 p ≥ 0，始终吸收能量。电感、电容的 p 正负交替、平均为零：它们只和电源来回交换能量。",
+        "- 求某一时刻的瞬时功率：先用相量法求出 v(t)、i(t) 的时域表达式，再代入 t 相乘。不能把有效值直接相乘。"
       ],
       "problems": ["ac-power-03-instantaneous-power"],
       "i18n": {
         "en": {
           "title": "Instantaneous and average power",
           "text": [
-            "Let v = √2V cos(ωt + ψ_v) and i = √2I cos(ωt + ψ_i) (passive sign convention), with impedance angle φ = ψ_v − ψ_i. The instantaneous power is p = ui = UI cos φ + UI cos(2ωt + ψ_v + ψ_i): a constant term plus a term oscillating at **twice the frequency**.",
-            "The constant term is the **average (active) power** P = UI cos φ. A resistor has p ≥ 0 and always absorbs energy; for an inductor or capacitor p alternates in sign and averages to zero — they only trade energy back and forth with the source.",
-            "To get the instantaneous power at a given instant, first find v(t) and i(t) in the time domain with phasors, then substitute t and multiply; never multiply rms values."
+            "- Let v = √2V cos(ωt + ψ_v) and i = √2I cos(ωt + ψ_i), with the passive sign convention. φ = ψ_v − ψ_i is the impedance angle.", "- The instantaneous power is p = vi = VI cos φ + VI cos(2ωt + ψ_v + ψ_i): a constant term plus a term oscillating at **twice the frequency**.",
+            "- The constant term is the **average (active) power** P = VI cos φ.", "- A resistor has p ≥ 0 and always absorbs energy. For an inductor or capacitor p alternates in sign and averages to zero: they only trade energy back and forth with the source.",
+            "- For the instantaneous power at a given instant, first find v(t) and i(t) in the time domain with phasors, then substitute t and multiply. Never multiply rms values."
           ]
         }
       }
@@ -33,20 +33,20 @@
       "id": "pqs",
       "title": "有功功率、无功功率、视在功率与功率因数",
       "text": [
-        "对一个无源单口网络（端口 v、i 关联）：有功功率 P = UI cos φ（W），无功功率 Q = UI sin φ（var），视在功率 S = UI（VA），三者构成**功率三角形** S² = P² + Q²。功率因数 λ = cos φ = P/S。",
-        "各元件：电阻只有有功 P = I²R = V²/R；电感只有无功 Q_L = I²X_L = V²/X_L > 0（吸收无功）；电容只有无功 Q_C = −I²X_C = −V²/X_C < 0（发出无功）。",
-        "感性负载 φ > 0，电流滞后电压，功率因数称为**滞后**；容性负载 φ < 0，称为**超前**。λ 本身不带符号，必须说明是超前还是滞后。",
-        "实际线圈（R 与 L 串联）可以用“三表法”测参数：|Z| = V/I，R = P/I²，X_L = \\sqrt{|Z|^{2} − R^{2}}。"
+        "- 无源单口网络，端口 v、i 取关联方向。有功功率 P = VI cos φ（W），无功功率 Q = VI sin φ（var），视在功率 S = VI（VA）。", "- 三者构成**功率三角形**：S² = P² + Q²。功率因数 λ = cos φ = P/S。",
+        "- 电阻只有有功：P = I²R = V²/R。", "- 电感只有无功：Q_L = I²X_L = V²/X_L > 0，它吸收无功。电容也只有无功：Q_C = −I²X_C = −V²/X_C < 0，它发出无功。",
+        "- 感性负载 φ > 0，电流滞后电压，功率因数叫**滞后**。容性负载 φ < 0，叫**超前**。", "- λ 本身不带符号，所以一定要说明是超前还是滞后。",
+        "- 实际线圈（R 与 L 串联）可以用“三表法”测参数：|Z| = V/I，R = P/I²，X_L = \\sqrt{|Z|^{2} − R^{2}}。"
       ],
       "problems": ["ac-power-rl-load", "ac-power-02-rlc-element-power", "ac-power-05-three-meter-method", "ac-power-04-complex-power-rc"],
       "i18n": {
         "en": {
           "title": "Active, reactive and apparent power; power factor",
           "text": [
-            "For a passive one-port (port v, i associated): active power P = UI cos φ (W), reactive power Q = UI sin φ (var), apparent power S = UI (VA); they form the **power triangle** S² = P² + Q². The power factor is λ = cos φ = P/S.",
-            "Element by element: a resistor has only active power P = I²R = V²/R; an inductor only reactive power Q_L = I²X_L = V²/X_L > 0 (absorbs reactive power); a capacitor Q_C = −I²X_C = −V²/X_C < 0 (delivers reactive power).",
-            "An inductive load has φ > 0, the current lags the voltage, and the power factor is called **lagging**; a capacitive load has φ < 0, **leading**. λ itself carries no sign, so always say leading or lagging.",
-            "A real coil (R in series with L) can be measured with the three-meter method: |Z| = V/I, R = P/I², X_L = \\sqrt{|Z|^{2} − R^{2}}."
+            "- Take a passive one-port with port v, i associated. Active power P = VI cos φ (W), reactive power Q = VI sin φ (var), apparent power S = VI (VA).", "- They form the **power triangle**: S² = P² + Q². The power factor is λ = cos φ = P/S.",
+            "- A resistor has only active power: P = I²R = V²/R.", "- An inductor has only reactive power: Q_L = I²X_L = V²/X_L > 0, so it absorbs reactive power. A capacitor also has only reactive power: Q_C = −I²X_C = −V²/X_C < 0, so it delivers reactive power.",
+            "- An inductive load has φ > 0: the current lags the voltage, and the power factor is called **lagging**. A capacitive load has φ < 0: **leading**.", "- λ itself carries no sign, so always say leading or lagging.",
+            "- A real coil (R in series with L) can be measured with the three-meter method: |Z| = V/I, R = P/I², X_L = \\sqrt{|Z|^{2} − R^{2}}."
           ]
         }
       }
@@ -55,18 +55,18 @@
       "id": "complex",
       "title": "复功率及其守恒",
       "text": [
-        "复功率 S̄ = V̇İ* = P + jQ（İ* 是电流相量的共轭，V̇、İ 关联）。模 |S̄| = S，辐角就是阻抗角 φ。对阻抗 Z：S̄ = I²Z = V²/Z*。",
-        "**复功率守恒**：一个电路中所有元件（含电源，都按关联方向算吸收）的复功率之和为零，所以 **P 守恒、Q 也守恒**，但**视在功率 S 不守恒**——各元件的 S 不能直接相加。",
-        "电源按关联方向算出 P < 0 表示它发出有功；两个电源之间也可能一个发出、一个吸收。混联电路可以先求总电流，再逐支路用 I²R、±I²X 求功率，最后用守恒验算。"
+        "- 复功率 S̄ = V̇İ* = P + jQ。İ* 是电流相量的共轭，V̇、İ 取关联方向。", "- 它的模 |S̄| = S，辐角就是阻抗角 φ。对一个阻抗 Z：S̄ = I²Z = V²/Z*。",
+        "- **复功率守恒**：一个电路中所有元件的复功率之和为零。电源也算在内，都按关联方向算吸收。", "- 所以 **P 守恒，Q 也守恒**；但**视在功率 S 不守恒**，各元件的 S 不能直接相加。",
+        "- 电源按关联方向算出 P < 0，表示它在发出有功。两个电源之间，也可能一个发出、一个吸收。", "- 混联电路：先求总电流，再逐条支路用 I²R、±I²X 求功率，最后用守恒验算。"
       ],
       "problems": ["ac-power-04-complex-power-rc", "ac-power-06-complex-power-balance", "ac-power-12-two-source-power-balance", "ac-power-02-rlc-element-power"],
       "i18n": {
         "en": {
           "title": "Complex power and its conservation",
           "text": [
-            "Complex power S̄ = V̇İ* = P + jQ (İ* is the conjugate of the current phasor; V̇, İ associated). Its magnitude is S and its angle is the impedance angle φ. For an impedance Z: S̄ = I²Z = V²/Z*.",
-            "**Conservation of complex power**: the complex powers of all elements of a circuit (sources included, all counted as absorbed with the passive convention) add up to zero, so **P is conserved and so is Q**, but **apparent power S is not** — element S values cannot be simply added.",
-            "A source with P < 0 (passive convention) delivers active power; of two sources, one may deliver while the other absorbs. In a series–parallel circuit, find the total current first, then each branch's power with I²R and ±I²X, and finally check with conservation."
+            "- Complex power S̄ = V̇İ* = P + jQ. İ* is the conjugate of the current phasor, and V̇, İ are associated.", "- Its magnitude is S and its angle is the impedance angle φ. For an impedance Z: S̄ = I²Z = V²/Z*.",
+            "- **Conservation of complex power**: the complex powers of all elements of a circuit add up to zero. Sources are included, and everything is counted as absorbed with the passive convention.", "- So **P is conserved and so is Q**, but **apparent power S is not**: element S values cannot simply be added.",
+            "- A source with P < 0 (passive convention) is delivering active power. Of two sources, one may deliver while the other absorbs.", "- In a series–parallel circuit, find the total current first, then each branch's power with I²R and ±I²X, and finally check with conservation."
           ]
         }
       }
@@ -75,18 +75,18 @@
       "id": "pf-correction",
       "title": "功率因数的提高：并联电容",
       "text": [
-        "感性负载两端并联电容，负载自身的电压、电流、有功功率都不变，只是电容提供了一部分无功，电源（线路）提供的无功减少，于是线路电流减小、线路损耗减小。",
-        "从 cos φ₁ 提高到 cos φ₂（P 不变）：电容需提供的无功 |Q_C| = P(tan φ₁ − tan φ₂)，再由 |Q_C| = ωCV² 求 C。用导纳更直观：Y = G − jB_L，并联电容使 ωC = B_L 时功率因数为 1，右侧等效为电导 G。",
-        "电容不是越大越好：超过完全补偿后 Q 变负，功率因数变成**超前**，电源电流反而又增大（**过补偿**）。"
+        "- 在感性负载两端并联电容，负载自己的电压、电流和有功功率都不变。", "- 电容提供了一部分无功，电源（线路）要提供的无功就少了。于是线路电流减小，线路损耗也减小（面包板 4.4 里按下按键，电流表的读数变小了）。",
+        "- 从 cos φ₁ 提高到 cos φ₂（P 不变）：电容要提供的无功 |Q_C| = P(tan φ₁ − tan φ₂)。再由 |Q_C| = ωCV² 求 C。", "- 用导纳更直观：Y = G − jB_L。并联电容使 ωC = B_L 时，功率因数为 1，剩下的只是电导 G。",
+        "- 电容不是越大越好。超过完全补偿后 Q 变负，功率因数变成**超前**，电源电流反而又变大，这叫**过补偿**。"
       ],
       "problems": ["ac-power-07-pf-correction-find-c", "ac-power-08-overcompensation", "ac-power-13-compensation-line-loss"],
       "i18n": {
         "en": {
           "title": "Power-factor correction with a parallel capacitor",
           "text": [
-            "With a capacitor in parallel with an inductive load, the load's own voltage, current and active power do not change; the capacitor supplies part of the reactive power, so the source (and the line) supplies less, the line current drops and so do the line losses.",
-            "To go from cos φ₁ to cos φ₂ at constant P, the capacitor must supply |Q_C| = P(tan φ₁ − tan φ₂); then |Q_C| = ωCV² gives C. With admittances it is even clearer: Y = G − jB_L; a parallel capacitor with ωC = B_L makes the power factor 1 and leaves just the conductance G.",
-            "Bigger is not better: beyond full compensation Q turns negative, the power factor becomes **leading** and the source current rises again (**over-compensation**)."
+            "- With a capacitor in parallel with an inductive load, the load's own voltage, current and active power do not change.", "- The capacitor supplies part of the reactive power, so the source (and the line) supplies less. The line current drops, and so do the line losses (on the breadboard in 4.4, pressing the button made the ammeter reading drop).",
+            "- To go from cos φ₁ to cos φ₂ at constant P, the capacitor must supply |Q_C| = P(tan φ₁ − tan φ₂). Then |Q_C| = ωCV² gives C.", "- With admittances it is even clearer: Y = G − jB_L. A parallel capacitor with ωC = B_L makes the power factor 1 and leaves just the conductance G.",
+            "- Bigger is not better. Beyond full compensation Q turns negative, the power factor becomes **leading** and the source current rises again: **over-compensation**."
           ]
         }
       }
@@ -95,16 +95,16 @@
       "id": "wattmeter",
       "title": "功率表的读数",
       "text": [
-        "功率表有一个电流线圈（串联在支路里）和一个电压线圈（并接在两点之间）。读数 P_W = Re[V̇İ*] = UI cos(ψ_v − ψ_i)，V̇ 是电压线圈两端的电压（从“*”端到另一端），İ 是从“*”端流入电流线圈的电流。",
-        "读数是电压线圈“框住”的那部分电路吸收的有功功率：电压线圈接负载两端时读负载功率，接电源两端时还包括线路损耗。有功功率只消耗在电阻上，所以常用 P = I²R 验算。"
+        "- 功率表有一个电流线圈（串在支路里）和一个电压线圈（并接在两点之间）。", "- 读数 P_W = Re[V̇İ*] = VI cos(ψ_v − ψ_i)。V̇ 是电压线圈两端的电压（从“*”端到另一端），İ 是从“*”端流进电流线圈的电流。",
+        "- 读数是电压线圈“框住”的那部分电路吸收的有功功率。电压线圈接在负载两端，读的是负载功率；接在电源两端，还包括线路损耗。", "- 有功功率只消耗在电阻上，所以常用 P = I²R 验算。"
       ],
       "problems": ["ac-power-09-wattmeter-line-loss", "ac-power-05-three-meter-method"],
       "i18n": {
         "en": {
           "title": "Wattmeter readings",
           "text": [
-            "A wattmeter has a current coil (in series with a branch) and a voltage coil (across two points). It reads P_W = Re[V̇İ*] = UI cos(ψ_v − ψ_i), where V̇ is the voltage across the voltage coil (from its “*” end) and İ the current entering the current coil at its “*” end.",
-            "The reading is the active power absorbed by the part of the circuit the voltage coil “spans”: across the load it reads the load power; across the source it includes the line losses too. Active power is dissipated only in resistors, so P = I²R is a handy check."
+            "- A wattmeter has a current coil (in series with a branch) and a voltage coil (across two points).", "- It reads P_W = Re[V̇İ*] = VI cos(ψ_v − ψ_i). V̇ is the voltage across the voltage coil (from its “*” end), and İ is the current entering the current coil at its “*” end.",
+            "- The reading is the active power absorbed by the part of the circuit the voltage coil “spans”. Across the load it reads the load power; across the source it includes the line losses too.", "- Active power is dissipated only in resistors, so P = I²R is a handy check."
           ]
         }
       }
@@ -113,16 +113,16 @@
       "id": "max-conj",
       "title": "最大功率传输：共轭匹配",
       "text": [
-        "先求负载两端的戴维宁等效：开路电压 V̇_oc 和等效阻抗 Z_eq = R_eq + jX_eq（独立源置零，受控源保留，含受控源时用外加电源法求 Z_eq = V̇/İ）。",
-        "负载 Z_L 的电阻和电抗**都可调**时，负载功率 P = \\frac{V_oc^{2}R_L}{(R_eq + R_L)^{2} + (X_eq + X_L)^{2}}。取 X_L = −X_eq 消去电抗、再取 R_L = R_eq，得到**共轭匹配** Z_L = Z_eq*，P_max = \\frac{V_oc^{2}}{4R_eq}（V_oc 为有效值）。"
+        "- 先求负载两端的戴维宁等效：开路电压 V̇_oc 和等效阻抗 Z_eq = R_eq + jX_eq。", "- 求 Z_eq 时独立源置零、受控源保留。有受控源时用外加电源法：Z_eq = V̇/İ。",
+        "- 负载 Z_L 的电阻和电抗**都可调**时，负载功率 P = \\frac{V_oc^{2}R_L}{(R_eq + R_L)^{2} + (X_eq + X_L)^{2}}。", "- 先取 X_L = −X_eq 消去电抗，再取 R_L = R_eq，就是**共轭匹配** Z_L = Z_eq*。此时 P_max = \\frac{V_oc^{2}}{4R_eq}，V_oc 取有效值。"
       ],
       "problems": ["ac-power-10-conjugate-matching", "ac-power-14-matching-with-ccvs"],
       "i18n": {
         "en": {
           "title": "Maximum power transfer: conjugate matching",
           "text": [
-            "First find the Thévenin equivalent seen by the load: open-circuit voltage V̇_oc and equivalent impedance Z_eq = R_eq + jX_eq (independent sources zeroed, dependent sources kept; with dependent sources use a test source, Z_eq = V̇/İ).",
-            "If **both** the resistance and reactance of Z_L can be chosen, the load power is P = \\frac{V_oc^{2}R_L}{(R_eq + R_L)^{2} + (X_eq + X_L)^{2}}. Taking X_L = −X_eq cancels the reactance and then R_L = R_eq maximises it: **conjugate matching** Z_L = Z_eq*, P_max = \\frac{V_oc^{2}}{4R_eq} (V_oc rms)."
+            "- First find the Thévenin equivalent seen by the load: the open-circuit voltage V̇_oc and the equivalent impedance Z_eq = R_eq + jX_eq.", "- For Z_eq, zero the independent sources and keep the dependent ones. With dependent sources, use a test source: Z_eq = V̇/İ.",
+            "- If **both** the resistance and the reactance of Z_L can be chosen, the load power is P = \\frac{V_oc^{2}R_L}{(R_eq + R_L)^{2} + (X_eq + X_L)^{2}}.", "- Taking X_L = −X_eq cancels the reactance, and then R_L = R_eq maximises the power: **conjugate matching** Z_L = Z_eq*. Then P_max = \\frac{V_oc^{2}}{4R_eq}, with V_oc rms."
           ]
         }
       }
@@ -131,16 +131,16 @@
       "id": "max-mod",
       "title": "纯电阻负载：模匹配",
       "text": [
-        "如果负载只能是纯电阻 R_L（不能加电抗），电源内部的 X_eq 无法抵消。对 P = \\frac{V_oc^{2}R_L}{(R_eq + R_L)^{2} + X_eq^{2}} 求导得 R_L = |Z_eq| = \\sqrt{R_eq^{2} + X_eq^{2}}——**模匹配**。",
-        "模匹配得到的功率小于共轭匹配的 V_oc²/(4R_eq)。照搬直流结论取 R_L = R_eq 是错误的，得到的功率比模匹配时还小。"
+        "- 负载只能是纯电阻 R_L（不能加电抗）时，电源内部的 X_eq 无法抵消。", "- 对 P = \\frac{V_oc^{2}R_L}{(R_eq + R_L)^{2} + X_eq^{2}} 求导，得 R_L = |Z_eq| = \\sqrt{R_eq^{2} + X_eq^{2}}，叫**模匹配**。",
+        "- 模匹配得到的功率小于共轭匹配的 V_oc²/(4R_eq)。", "- 照搬直流结论取 R_L = R_eq 是错的：得到的功率比模匹配时还小。"
       ],
       "problems": ["ac-power-11-magnitude-matching"],
       "i18n": {
         "en": {
           "title": "Purely resistive load: magnitude matching",
           "text": [
-            "If the load can only be a resistor R_L (no reactance), the source's X_eq cannot be cancelled. Differentiating P = \\frac{V_oc^{2}R_L}{(R_eq + R_L)^{2} + X_eq^{2}} gives R_L = |Z_eq| = \\sqrt{R_eq^{2} + X_eq^{2}} — **magnitude matching**.",
-            "It delivers less than the conjugate-matched V_oc²/(4R_eq). Copying the DC result R_L = R_eq is wrong and gives even less power than magnitude matching."
+            "- If the load can only be a resistor R_L (no reactance), the source's X_eq cannot be cancelled.", "- Differentiating P = \\frac{V_oc^{2}R_L}{(R_eq + R_L)^{2} + X_eq^{2}} gives R_L = |Z_eq| = \\sqrt{R_eq^{2} + X_eq^{2}}: **magnitude matching**.",
+            "- It delivers less than the conjugate-matched V_oc²/(4R_eq).", "- Copying the DC result R_L = R_eq is wrong: it gives even less power than magnitude matching."
           ]
         }
       }
@@ -151,41 +151,41 @@
       "id": "p-inst",
       "idea": "instant",
       "name": "瞬时功率",
-      "expr": "p = ui = UI cos φ + UI cos(2ωt + ψ_v + ψ_i)",
-      "when": "v = √2V cos(ωt + ψ_v)、i = √2I cos(ωt + ψ_i)，关联参考方向；φ = ψ_v − ψ_i；V、I 为有效值。",
-      "i18n": { "en": { "name": "Instantaneous power", "expr": "p = ui = UI cos φ + UI cos(2ωt + ψ_v + ψ_i)", "when": "v = √2V cos(ωt + ψ_v), i = √2I cos(ωt + ψ_i), passive sign convention; φ = ψ_v − ψ_i; V, I rms." } }
+      "expr": "p = vi = VI cos φ + VI cos(2ωt + ψ_v + ψ_i)",
+      "when": "v = √2V cos(ωt + ψ_v)、i = √2I cos(ωt + ψ_i)，关联参考方向。φ = ψ_v − ψ_i；V、I 为有效值。",
+      "i18n": { "en": { "name": "Instantaneous power", "expr": "p = vi = VI cos φ + VI cos(2ωt + ψ_v + ψ_i)", "when": "v = √2V cos(ωt + ψ_v), i = √2I cos(ωt + ψ_i), passive sign convention. φ = ψ_v − ψ_i; V, I rms." } }
     },
     {
       "id": "p",
       "idea": "pqs",
       "name": "有功功率",
-      "expr": "P = UI cos φ = I^{2}R",
-      "when": "无源单口网络，端口 v、i 关联，V、I 有效值；I²R 中 R 为等效阻抗的实部（或对所有电阻求和）。单位 W。",
-      "i18n": { "en": { "name": "Active power", "expr": "P = UI cos φ = I^{2}R", "when": "Passive one-port, port v and i associated, V and I rms; in I²R, R is the real part of the equivalent impedance (or sum over all resistors). Unit W." } }
+      "expr": "P = VI cos φ = I^{2}R",
+      "when": "无源单口网络，端口 v、i 关联，V、I 为有效值。I²R 中的 R 是等效阻抗的实部（或对所有电阻求和）。单位 W。",
+      "i18n": { "en": { "name": "Active power", "expr": "P = VI cos φ = I^{2}R", "when": "Passive one-port, port v and i associated, V and I rms. In I²R, R is the real part of the equivalent impedance (or sum over all resistors). Unit W." } }
     },
     {
       "id": "q",
       "idea": "pqs",
       "name": "无功功率",
-      "expr": "Q = UI sin φ；Q_L = I^{2}X_L > 0，Q_C = −I^{2}X_C < 0",
+      "expr": "Q = VI sin φ；Q_L = I^{2}X_L > 0，Q_C = −I^{2}X_C < 0",
       "when": "同上；φ > 0 感性（吸收无功），φ < 0 容性（发出无功）。X_L = ωL，X_C = \\frac{1}{ωC}。单位 var。",
-      "i18n": { "en": { "name": "Reactive power", "expr": "Q = UI sin φ; Q_L = I^{2}X_L > 0, Q_C = −I^{2}X_C < 0", "when": "As above; φ > 0 inductive (absorbs reactive power), φ < 0 capacitive (delivers). X_L = ωL, X_C = \\frac{1}{ωC}. Unit var." } }
+      "i18n": { "en": { "name": "Reactive power", "expr": "Q = VI sin φ; Q_L = I^{2}X_L > 0, Q_C = −I^{2}X_C < 0", "when": "As above; φ > 0 inductive (absorbs reactive power), φ < 0 capacitive (delivers). X_L = ωL, X_C = \\frac{1}{ωC}. Unit var." } }
     },
     {
       "id": "s",
       "idea": "pqs",
       "name": "视在功率与功率因数",
-      "expr": "S = UI = \\sqrt{P^{2} + Q^{2}}，λ = cos φ = \\frac{P}{S}",
+      "expr": "S = VI = \\sqrt{P^{2} + Q^{2}}，λ = cos φ = \\frac{P}{S}",
       "when": "单位 VA；φ 为阻抗角（电压超前电流的角度）。φ > 0 滞后，φ < 0 超前。",
-      "i18n": { "en": { "name": "Apparent power and power factor", "expr": "S = UI = \\sqrt{P^{2} + Q^{2}}, λ = cos φ = \\frac{P}{S}", "when": "Unit VA; φ is the impedance angle (how far the voltage leads the current). φ > 0 lagging, φ < 0 leading." } }
+      "i18n": { "en": { "name": "Apparent power and power factor", "expr": "S = VI = \\sqrt{P^{2} + Q^{2}}, λ = cos φ = \\frac{P}{S}", "when": "Unit VA; φ is the impedance angle (how far the voltage leads the current). φ > 0 lagging, φ < 0 leading." } }
     },
     {
       "id": "sbar",
       "idea": "complex",
       "name": "复功率",
       "expr": "S̄ = V̇İ* = P + jQ = I^{2}Z = \\frac{V^{2}}{Z*}",
-      "when": "V̇、İ 为有效值相量，关联参考方向（吸收）。必须取电流的共轭；振幅相量时 S̄ = ½V̇_mİ_m*。",
-      "i18n": { "en": { "name": "Complex power", "expr": "S̄ = V̇İ* = P + jQ = I^{2}Z = \\frac{V^{2}}{Z*}", "when": "V̇, İ rms phasors, passive sign convention (absorbed). The current must be conjugated; with amplitude phasors S̄ = ½V̇_mİ_m*." } }
+      "when": "V̇、İ 为有效值相量，关联参考方向（吸收）。电流必须取共轭。用振幅相量时 S̄ = ½V̇_mİ_m*。",
+      "i18n": { "en": { "name": "Complex power", "expr": "S̄ = V̇İ* = P + jQ = I^{2}Z = \\frac{V^{2}}{Z*}", "when": "V̇, İ rms phasors, passive sign convention (absorbed). The current must be conjugated. With amplitude phasors S̄ = ½V̇_mİ_m*." } }
     },
     {
       "id": "balance",
@@ -200,40 +200,40 @@
       "idea": "pf-correction",
       "name": "补偿电容",
       "expr": "C = \\frac{P(tan φ_1 − tan φ_2)}{ωV^{2}}",
-      "when": "电容与负载并联，负载电压 V（有效值）不变，有功功率 P 不变；φ₁、φ₂ 为补偿前后的阻抗角（同为滞后）。",
-      "i18n": { "en": { "name": "Correction capacitor", "expr": "C = \\frac{P(tan φ_1 − tan φ_2)}{ωV^{2}}", "when": "Capacitor in parallel with the load, load voltage V (rms) and active power P unchanged; φ₁, φ₂ are the impedance angles before and after (both lagging)." } }
+      "when": "电容与负载并联，负载电压 V（有效值）和有功功率 P 都不变。φ₁、φ₂ 是补偿前后的阻抗角，都是滞后。",
+      "i18n": { "en": { "name": "Correction capacitor", "expr": "C = \\frac{P(tan φ_1 − tan φ_2)}{ωV^{2}}", "when": "Capacitor in parallel with the load; load voltage V (rms) and active power P unchanged. φ₁, φ₂ are the impedance angles before and after, both lagging." } }
     },
     {
       "id": "c-unity",
       "idea": "pf-correction",
       "name": "补偿到功率因数为 1",
       "expr": "ωC = B_L，Y = \\frac{1}{R + jωL} = G − jB_L",
-      "when": "电容直接并联在 R–L 负载两端；补偿后该部分等效为电导 G（电阻 1/G）。",
-      "i18n": { "en": { "name": "Correction to unity power factor", "expr": "ωC = B_L, Y = \\frac{1}{R + jωL} = G − jB_L", "when": "Capacitor directly across the R–L load; afterwards that part is just the conductance G (a resistance 1/G)." } }
+      "when": "电容直接并联在 R–L 负载两端。补偿后，这部分等效为电导 G，即电阻 1/G。",
+      "i18n": { "en": { "name": "Correction to unity power factor", "expr": "ωC = B_L, Y = \\frac{1}{R + jωL} = G − jB_L", "when": "Capacitor directly across the R–L load. Afterwards that part is just the conductance G, i.e. a resistance 1/G." } }
     },
     {
       "id": "watt",
       "idea": "wattmeter",
       "name": "功率表读数",
-      "expr": "P_W = Re[V̇İ*] = UI cos(ψ_v − ψ_i)",
+      "expr": "P_W = Re[V̇İ*] = VI cos(ψ_v − ψ_i)",
       "when": "V̇ 为电压线圈两端电压（“*”端为正），İ 为从“*”端流入电流线圈的电流，均为有效值相量。",
-      "i18n": { "en": { "name": "Wattmeter reading", "expr": "P_W = Re[V̇İ*] = UI cos(ψ_v − ψ_i)", "when": "V̇ is the voltage across the voltage coil (“*” end positive), İ the current entering the current coil at its “*” end; rms phasors." } }
+      "i18n": { "en": { "name": "Wattmeter reading", "expr": "P_W = Re[V̇İ*] = VI cos(ψ_v − ψ_i)", "when": "V̇ is the voltage across the voltage coil (“*” end positive), İ the current entering the current coil at its “*” end; rms phasors." } }
     },
     {
       "id": "conj",
       "idea": "max-conj",
       "name": "共轭匹配",
       "expr": "Z_L = Z_eq*，P_{max} = \\frac{V_oc^{2}}{4R_eq}",
-      "when": "负载电阻、电抗均可任意调节；V̇_oc、Z_eq 为负载两端的戴维宁等效，V_oc 为有效值。",
-      "i18n": { "en": { "name": "Conjugate matching", "expr": "Z_L = Z_eq*, P_{max} = \\frac{V_oc^{2}}{4R_eq}", "when": "Load resistance and reactance both freely adjustable; V̇_oc, Z_eq are the Thévenin equivalent at the load, V_oc rms." } }
+      "when": "负载的电阻和电抗都可以任意调节。V̇_oc、Z_eq 是负载两端的戴维宁等效，V_oc 为有效值。",
+      "i18n": { "en": { "name": "Conjugate matching", "expr": "Z_L = Z_eq*, P_{max} = \\frac{V_oc^{2}}{4R_eq}", "when": "Load resistance and reactance both freely adjustable. V̇_oc, Z_eq are the Thévenin equivalent at the load, V_oc rms." } }
     },
     {
       "id": "mod",
       "idea": "max-mod",
       "name": "模匹配",
       "expr": "R_L = |Z_eq| = \\sqrt{R_eq^{2} + X_eq^{2}}",
-      "when": "负载只能是纯电阻；此时的最大功率小于共轭匹配的 P_max。",
-      "i18n": { "en": { "name": "Magnitude matching", "expr": "R_L = |Z_eq| = \\sqrt{R_eq^{2} + X_eq^{2}}", "when": "Load restricted to a pure resistance; the power obtained is less than the conjugate-matched P_max." } }
+      "when": "负载只能是纯电阻。此时的最大功率小于共轭匹配的 P_max。",
+      "i18n": { "en": { "name": "Magnitude matching", "expr": "R_L = |Z_eq| = \\sqrt{R_eq^{2} + X_eq^{2}}", "when": "Load restricted to a pure resistance. The power obtained is less than the conjugate-matched P_max." } }
     }
   ],
   "examples": [
@@ -241,7 +241,7 @@
       "id": "correct-to-unity",
       "ideas": ["pqs", "complex", "pf-correction"],
       "title": "感性负载的功率与补偿到功率因数为 1",
-      "statement": "V̇_s = 100∠0° V（有效值），ω = 1000 rad/s，负载为 R = 8 Ω 与 L = 6 mH 串联。求负载电流、各功率和功率因数；再求并联在负载两端、使电源端功率因数恰为 1 的电容 C，以及补偿后的电源电流。",
+      "statement": "V̇_s = 100∠0° V（有效值），ω = 1000 rad/s。负载是 R = 8 Ω 与 L = 6 mH 串联。先求负载电流、各功率和功率因数。再求并联在负载两端、使电源端功率因数恰为 1 的电容 C，以及补偿后的电源电流。",
       "schematic": {
         "elements": [
           { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 100, "phase": 0 } }, "label": "100∠0° V" },
@@ -272,14 +272,14 @@
       "steps": [
         "1. **负载阻抗。** X_L = ωL = 1000 × 6×10⁻³ = 6 Ω，Z = 8 + j6 = 10∠36.87° Ω。",
         "2. **负载电流。** İ_L = V̇_s/Z = 100∠0°/10∠36.87° = 10∠−36.87° A，滞后电压 36.87°。并联电容不改变负载两端电压，所以补偿前后负载电流都是 **10 A**。",
-        "3. **复功率。** S̄ = V̇İ_L* = 100 × 10∠36.87° = 800 + j600 VA：**P = 800 W**（全在 R 上，= I²R = 10² × 8），**Q = 600 var**（全在 L 上，= I²X_L = 10² × 6），S = 1000 VA，λ = cos 36.87° = 0.8（滞后）。",
-        "4. **补偿条件。** 功率因数为 1 要求电源端总 Q = 0，电容必须提供全部 600 var：Q_C = **−600 var**。由 |Q_C| = ωCV² 得 C = 600/(1000 × 100²) = **60 µF**。",
-        "5. **补偿后电源电流。** 电源只提供有功：I = P/V = 800/100 = **8 A**（原来是 10 A）。负载的 P、Q 一点没变，变的只是无功由谁提供。"
+        "3. **复功率。** S̄ = V̇İ_L* = 100 × 10∠36.87° = 800 + j600 VA。**P = 800 W**，全在 R 上（= I²R = 10² × 8）；**Q = 600 var**，全在 L 上（= I²X_L = 10² × 6）。S = 1000 VA，λ = cos 36.87° = 0.8（滞后）。",
+        "4. **补偿条件。** 功率因数为 1，要求电源端的总 Q = 0，所以电容必须提供全部 600 var：Q_C = **−600 var**。由 |Q_C| = ωCV² 得 C = 600/(1000 × 100²) = **60 µF**。",
+        "5. **补偿后电源电流。** 电源现在只提供有功：I = P/V = 800/100 = **8 A**，原来是 10 A。负载的 P、Q 一点没变，变的只是无功由谁提供。"
       ],
       "i18n": {
         "en": {
           "title": "Power of an inductive load, corrected to unity power factor",
-          "statement": "V̇_s = 100∠0° V (rms), ω = 1000 rad/s, the load is R = 8 Ω in series with L = 6 mH. Find the load current, the powers and the power factor; then find the capacitor C, connected across the load, that makes the power factor at the source exactly 1, and the source current after correction.",
+          "statement": "V̇_s = 100∠0° V (rms), ω = 1000 rad/s. The load is R = 8 Ω in series with L = 6 mH. First find the load current, the powers and the power factor. Then find the capacitor C, connected across the load, that makes the power factor at the source exactly 1, and the source current after correction.",
           "results": [
             { "ask": "X_L = Im Z" },
             { "ask": "|Z|" },
@@ -295,9 +295,9 @@
           "steps": [
             "1. **Load impedance.** X_L = ωL = 1000 × 6×10⁻³ = 6 Ω, Z = 8 + j6 = 10∠36.87° Ω.",
             "2. **Load current.** İ_L = V̇_s/Z = 100∠0°/10∠36.87° = 10∠−36.87° A, lagging the voltage by 36.87°. A parallel capacitor does not change the load voltage, so the load current is **10 A** before and after correction.",
-            "3. **Complex power.** S̄ = V̇İ_L* = 100 × 10∠36.87° = 800 + j600 VA: **P = 800 W** (all in R, = I²R = 10² × 8), **Q = 600 var** (all in L, = I²X_L = 10² × 6), S = 1000 VA, λ = cos 36.87° = 0.8 (lagging).",
-            "4. **Correction condition.** Unity power factor needs total Q = 0 at the source, so the capacitor must supply all 600 var: Q_C = **−600 var**. From |Q_C| = ωCV², C = 600/(1000 × 100²) = **60 µF**.",
-            "5. **Source current after correction.** The source now supplies only active power: I = P/V = 800/100 = **8 A** (it was 10 A). The load's P and Q did not change at all — only who supplies the reactive power."
+            "3. **Complex power.** S̄ = V̇İ_L* = 100 × 10∠36.87° = 800 + j600 VA. **P = 800 W**, all in R (= I²R = 10² × 8); **Q = 600 var**, all in L (= I²X_L = 10² × 6). S = 1000 VA, λ = cos 36.87° = 0.8 (lagging).",
+            "4. **Correction condition.** Unity power factor needs a total Q = 0 at the source, so the capacitor must supply all 600 var: Q_C = **−600 var**. From |Q_C| = ωCV², C = 600/(1000 × 100²) = **60 µF**.",
+            "5. **Source current after correction.** The source now supplies only active power: I = P/V = 800/100 = **8 A**; it was 10 A. The load's P and Q did not change at all; only who supplies the reactive power did."
           ]
         }
       }
@@ -306,7 +306,7 @@
       "id": "conjugate",
       "ideas": ["max-conj", "max-mod"],
       "title": "戴维宁等效与共轭匹配",
-      "statement": "V̇_s = 20∠0° V（有效值），ω = 1000 rad/s，R_1 = 2 Ω，C = 500 µF。负载 Z_L 接在 a 与地之间，电阻和电抗都可以调。求 a 与地之间的戴维宁等效、使负载获得最大功率的 Z_L 和最大功率（图中 Z_L 已取该值）。",
+      "statement": "V̇_s = 20∠0° V（有效值），ω = 1000 rad/s，R_1 = 2 Ω，C = 500 µF。负载 Z_L 接在 a 与地之间，电阻和电抗都可以调。求 a 与地之间的戴维宁等效。再求使负载获得最大功率的 Z_L 和最大功率；图中 Z_L 已取该值。",
       "schematic": {
         "elements": [
           { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "20∠0° V" },
@@ -333,16 +333,16 @@
         { "id": "pl", "ask": "Z_L 实际吸收的 P", "find": { "kind": "p", "el": "ZL" }, "answer": 50, "unit": "W" }
       ],
       "steps": [
-        "1. **等效阻抗。** X_C = 1/(ωC) = 1/(1000 × 500×10⁻⁶) = 2 Ω。V̇_s 短路，从 a 看进去是 R_1 与 C 并联：Z_eq = 2(−j2)/(2 − j2) = **1 − j1 Ω**。",
+        "1. **等效阻抗。** X_C = 1/(ωC) = 1/(1000 × 500×10⁻⁶) = 2 Ω。V̇_s 短路后，从 a 看进去是 R_1 与 C 并联：Z_eq = 2(−j2)/(2 − j2) = **1 − j1 Ω**。",
         "2. **开路电压。** 断开 Z_L，分压：V̇_oc = 20 × (−j2)/(2 − j2) = 10(1 − j) = **14.14∠−45° V**。",
         "3. **共轭匹配。** R、X 都可调，取 Z_L = Z_eq* = **1 + j1 Ω**。此时回路总阻抗 Z_eq + Z_L = 2 Ω 为纯电阻。",
         "4. **最大功率。** P_max = V_oc²/(4R_eq) = 14.14²/(4 × 1) = **50 W**。验算：I = V_oc/(2R_eq) = **7.07 A**，P = I² × 1 = 50 W ✓。",
-        "5. **若负载只能是电阻**，应取 R_L = |Z_eq| = √2 Ω（模匹配），得到的功率小于 50 W；取 R_L = R_eq 则更小。"
+        "5. **若负载只能是电阻**，应取 R_L = |Z_eq| = √2 Ω（模匹配），得到的功率小于 50 W。取 R_L = R_eq 则更小。"
       ],
       "i18n": {
         "en": {
           "title": "Thévenin equivalent and conjugate matching",
-          "statement": "V̇_s = 20∠0° V (rms), ω = 1000 rad/s, R_1 = 2 Ω, C = 500 µF. The load Z_L between a and ground has adjustable resistance and reactance. Find the Thévenin equivalent at a, the Z_L that receives maximum power, and that power (Z_L in the drawing already has this value).",
+          "statement": "V̇_s = 20∠0° V (rms), ω = 1000 rad/s, R_1 = 2 Ω, C = 500 µF. The load Z_L between a and ground has adjustable resistance and reactance. Find the Thévenin equivalent at a. Then find the Z_L that receives maximum power, and that power; Z_L in the drawing already has this value.",
           "results": [
             { "ask": "V_oc" },
             { "ask": "R_eq = Re Z_eq" },
@@ -357,7 +357,7 @@
             "2. **Open-circuit voltage.** Remove Z_L and divide: V̇_oc = 20 × (−j2)/(2 − j2) = 10(1 − j) = **14.14∠−45° V**.",
             "3. **Conjugate matching.** Both R and X adjustable, so Z_L = Z_eq* = **1 + j1 Ω**. The loop impedance Z_eq + Z_L = 2 Ω is then purely resistive.",
             "4. **Maximum power.** P_max = V_oc²/(4R_eq) = 14.14²/(4 × 1) = **50 W**. Check: I = V_oc/(2R_eq) = **7.07 A**, P = I² × 1 = 50 W ✓.",
-            "5. **If the load had to be a resistor**, the best is R_L = |Z_eq| = √2 Ω (magnitude matching), which gives less than 50 W; R_L = R_eq gives even less."
+            "5. **If the load had to be a resistor**, the best is R_L = |Z_eq| = √2 Ω (magnitude matching), which gives less than 50 W. R_L = R_eq gives even less."
           ]
         }
       }
@@ -367,7 +367,7 @@
     {
       "id": "no-conj",
       "idea": "complex",
-      "text": "复功率写成 V̇İ（电流不取共轭），得到的角度是 ψ_v + ψ_i，没有物理意义。必须是 S̄ = V̇İ*，辐角为 ψ_v − ψ_i。",
+      "text": "复功率写成 V̇İ，电流没取共轭：得到的角度是 ψ_v + ψ_i，没有物理意义。必须是 S̄ = V̇İ*，辐角为 ψ_v − ψ_i。",
       "i18n": { "en": { "text": "Writing complex power as V̇İ (no conjugate): its angle ψ_v + ψ_i means nothing. It must be S̄ = V̇İ*, whose angle is ψ_v − ψ_i." } }
     },
     {
@@ -379,25 +379,25 @@
     {
       "id": "pf-sign",
       "idea": "pqs",
-      "text": "只写“功率因数 0.8”而不说明超前还是滞后；或把容性负载说成滞后。电流滞后电压（感性，Q > 0）才是滞后。",
+      "text": "只写“功率因数 0.8”，不说明超前还是滞后；或者把容性负载说成滞后。电流滞后电压（感性，Q > 0）才是滞后。",
       "i18n": { "en": { "text": "Stating “power factor 0.8” without leading or lagging, or calling a capacitive load lagging. Lagging means the current lags the voltage (inductive, Q > 0)." } }
     },
     {
       "id": "corr-load",
       "idea": "pf-correction",
-      "text": "以为并联电容后负载电流、负载功率也变了。负载两端电压不变，它自己的 I、P、Q 都不变；变的是电源（线路）电流。电容过大还会过补偿。",
+      "text": "以为并联电容后，负载电流、负载功率也变了。负载两端电压不变，它自己的 I、P、Q 都不变；变的是电源（线路）电流。电容过大还会过补偿。",
       "i18n": { "en": { "text": "Thinking a parallel capacitor changes the load's own current or power. The load voltage is unchanged, so its I, P, Q are unchanged; only the source (line) current changes. Too large a capacitor over-compensates." } }
     },
     {
       "id": "dc-match",
       "idea": "max-mod",
-      "text": "负载只能是电阻时照搬直流的 R_L = R_eq。交流中纯电阻负载应取 R_L = |Z_eq|；只有电抗也能调时才是共轭匹配。",
+      "text": "负载只能是电阻时，照搬直流的 R_L = R_eq。交流中纯电阻负载应取 R_L = |Z_eq|；只有电抗也能调时，才是共轭匹配。",
       "i18n": { "en": { "text": "Copying the DC result R_L = R_eq for a purely resistive load. In AC a resistive load should be R_L = |Z_eq|; conjugate matching applies only when the reactance can be chosen too." } }
     },
     {
       "id": "inst-rms",
       "idea": "instant",
-      "text": "求瞬时功率时用有效值或相量直接相乘。瞬时功率要先写出 v(t)、i(t)（注意 √2 和初相），代入时刻后再相乘。",
+      "text": "求瞬时功率时，把有效值或相量直接相乘。瞬时功率要先写出 v(t)、i(t)（注意 √2 和初相），代入时刻后再相乘。",
       "i18n": { "en": { "text": "Multiplying rms values or phasors to get an instantaneous power. Write v(t) and i(t) first (mind the √2 and the initial phases), substitute the instant, then multiply." } }
     }
   ]

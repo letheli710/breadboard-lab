@@ -7,8 +7,8 @@
   "level": 4,
   "tags": ["有源滤波器", "一阶高通", "理想运放", "输入阻抗"],
   "statement": [
-    "反相放大器的输入支路由 C₁ 与 R₁ 串联组成：C₁ = 1 µF，R₁ = 1 kΩ，R_f = 10 kΩ，运放为理想运放。网络函数 H(jω) = V̇_o/V̇_s，电源角频率 ω = 1000 rad/s。",
-    "求此时的 |H(jω)|、H(jω) 的相位、从 a 端看进去的输入阻抗模 |Z_in|，并说明电路的高频增益与截止频率。"
+    "反相放大器的输入支路由 C₁ 与 R₁ 串联组成。C₁ = 1 µF，R₁ = 1 kΩ，R_f = 10 kΩ，运放是理想运放。网络函数 H(jω) = V̇_o/V̇_s，电源角频率 ω = 1000 rad/s。",
+    "求此时的 |H(jω)|、H(jω) 的相位，以及从 a 端看进去的输入阻抗模 |Z_in|。再求电路的高频增益和截止频率。"
   ],
   "schematic": {
     "elements": [
@@ -43,7 +43,7 @@
       "find": { "kind": "gain", "out": ["o"], "input": "Vs", "omega": 10000000.0, "part": "re" },
       "answer": -10,
       "unit": "",
-      "explain": "高频增益：在很高的频率 ω = 10⁷ rad/s 下 C₁ 相当于短路，H ≈ −R_f/R₁ = −10（20 dB）；ω → 0 时 C₁ 开路，H → 0，所以是高通。"
+      "explain": "高频增益：在很高的频率 ω = 10⁷ rad/s 下，C₁ 相当于短路，H ≈ −R_f/R₁ = −10（20 dB）。ω → 0 时 C₁ 开路，H → 0，所以是高通。"
     },
     {
       "id": "fc",
@@ -51,7 +51,7 @@
       "find": { "kind": "fc", "out": ["o"], "input": "Vs" },
       "answer": 159.1549,
       "unit": "Hz",
-      "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁)，截止频率 ω_c = 1/(R₁C₁) = 1000 rad/s，f_c ≈ 159.2 Hz；本题 |H| = 10/√2 正是比 20 dB 低 3 dB 的 16.99 dB。"
+      "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁)，截止频率 ω_c = 1/(R₁C₁) = 1000 rad/s，f_c ≈ 159.2 Hz。本题的 |H| = 10/√2，即 16.99 dB，正好比 20 dB 低 3 dB。"
     }
   ],
   "hints": [
@@ -69,8 +69,8 @@
       "title": "First-order active high-pass filter",
       "tags": ["active filter", "first-order high-pass", "ideal op-amp", "input impedance"],
       "statement": [
-        "The input branch of an inverting amplifier is C₁ in series with R₁: C₁ = 1 µF, R₁ = 1 kΩ, R_f = 10 kΩ, and the op-amp is ideal. The network function is H(jω) = V̇_o/V̇_s and the source angular frequency is ω = 1000 rad/s.",
-        "Find |H(jω)|, the phase of H(jω), the magnitude of the input impedance |Z_in| seen at terminal a, and state the high-frequency gain and the cut-off frequency of the circuit."
+        "The input branch of an inverting amplifier is C₁ in series with R₁. C₁ = 1 µF, R₁ = 1 kΩ, R_f = 10 kΩ, and the op-amp is ideal. The network function is H(jω) = V̇_o/V̇_s and the source angular frequency is ω = 1000 rad/s.",
+        "Find |H(jω)|, the phase of H(jω), and the magnitude of the input impedance |Z_in| seen at terminal a. Then find the high-frequency gain and the cut-off frequency of the circuit."
       ],
       "questions": [
         { "ask": "|H(jω)| = ?", "explain": "H = −R_f/Z₁ with Z₁ = R₁ + 1/(jωC₁) = 1000 − j1000 Ω, |Z₁| = 1414.2 Ω, so |H| = 10000/1414.2 ≈ 7.071." },
@@ -78,11 +78,11 @@
         { "ask": "Magnitude of the input impedance seen at a (to ground), |Z_in| = ?", "explain": "The inverting input is a virtual ground, so from a you see C₁ in series with R₁ to 'ground': Z_in = 1000 − j1000 Ω, |Z_in| = 1000√2 ≈ 1414 Ω. It depends on frequency and is large at low frequencies." },
         {
           "ask": "High-frequency gain (H at ω = 10⁷ rad/s, real part) = ?",
-          "explain": "High-frequency gain: at a very high frequency, ω = 10⁷ rad/s, C₁ is practically a short and H ≈ −R_f/R₁ = −10 (20 dB); as ω → 0 C₁ is open and H → 0, so this is a high-pass filter."
+          "explain": "High-frequency gain: at a very high frequency, ω = 10⁷ rad/s, C₁ is practically a short and H ≈ −R_f/R₁ = −10 (20 dB). As ω → 0, C₁ is open and H → 0, so this is a high-pass filter."
         },
         {
           "ask": "Cut-off frequency f_c = ?",
-          "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁), cut-off ω_c = 1/(R₁C₁) = 1000 rad/s, f_c ≈ 159.2 Hz; here |H| = 10/√2 is exactly 3 dB below 20 dB (16.99 dB)."
+          "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁), cut-off ω_c = 1/(R₁C₁) = 1000 rad/s, f_c ≈ 159.2 Hz. Here |H| = 10/√2, i.e. 16.99 dB, exactly 3 dB below 20 dB."
         }
       ],
       "hints": [

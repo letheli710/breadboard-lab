@@ -8,7 +8,7 @@
   "tags": ["网络函数 H(jω)", "二阶低通", "负载效应", "相频特性"],
   "statement": [
     "两节相同的 RC 低通电路直接级联：R₁ = R₂ = R = 1 kΩ，C₁ = C₂ = C = 1 µF，输出端 o 开路。H(jω) = V̇_o/V̇_s。",
-    "取 ω = 1/(RC) = 1000 rad/s。求 |V_a/V_s|、|H(jω)| 和 H(jω) 的相位，并与“两节互不影响”的情况比较。"
+    "取 ω = 1/(RC) = 1000 rad/s。求 |V_a/V_s|、|H(jω)| 和 H(jω) 的相位。再和“两节互不影响”的情况比较。"
   ],
   "schematic": {
     "elements": [
@@ -37,7 +37,7 @@
     {
       "id": "buf",
       "ask": "如果在 a 点后插入理想电压跟随器，使第二节不再从第一节取电流，ω = 1/(RC) 时 |H| 变为多少？",
-      "choices": ["1/2（每节 1/√2，相乘）", "1/3（不变）", "1/√2", "1/4"], "choiceExplain": ["", "1/3 是直接级联、第二节从第一节取电流时的结果；插入跟随器后负载效应消失，|V_a/V_s| 回到 1/√2。", "1/√2 只是一节的 |H|，忘了乘上第二节的 1/√2。", "1/4 是把每节当成电阻分压、把模直接相加：1000/(1000 + 1000) = 1/2；R 与 C 上的电压相差 90°，要用复阻抗，单节是 |1/(1 + j)| = 1/√2。"],
+      "choices": ["1/2（每节 1/√2，相乘）", "不变（和直接级联时一样）", "1/√2", "1/4"], "choiceExplain": ["", "“不变”只对直接级联成立：那时第二节从第一节取电流。插入跟随器后负载效应消失，|V_a/V_s| 回到 1/√2。", "1/√2 只是一节的 |H|，忘了乘上第二节的 1/√2。", "1/4 是把每节当成了电阻分压：把 R 和 X_C 的大小直接相加，单节得 1000/(1000 + 1000) = 1/2。R 与 C 上的电压相差 90°，要用复阻抗：单节是 |1/(1 + j)| = 1/√2。"],
       "correct": 0,
       "explain": "隔离后两节各自 H₁ = H₂ = 1/(1 + j)，|H| = (1/√2)² = 1/2，相位 −90°。直接级联时第二节是第一节的负载，|V_a/V_s| 从 0.7071 降到 0.4714，总的 |H| 从 1/2 降到 1/3。网络函数不能简单地把各节“单独算的” H 相乘，除非后级不取电流。"
     }
@@ -59,7 +59,7 @@
       "tags": ["network function H(jω)", "second-order low-pass", "loading effect", "phase response"],
       "statement": [
         "Two identical RC low-pass sections are cascaded directly: R₁ = R₂ = R = 1 kΩ, C₁ = C₂ = C = 1 µF, and the output o is open. H(jω) = V̇_o/V̇_s.",
-        "Take ω = 1/(RC) = 1000 rad/s. Find |V_a/V_s|, |H(jω)| and the phase of H(jω), and compare with the case where the sections don't affect each other."
+        "Take ω = 1/(RC) = 1000 rad/s. Find |V_a/V_s|, |H(jω)| and the phase of H(jω). Then compare with the case where the sections don't affect each other."
       ],
       "questions": [
         { "ask": "|V_a/V_s| = ?", "explain": "Looking right from a: Z₂ = R + 1/(jωC) = 1000 − j1000 Ω, in parallel with C₁ (−j1000 Ω) gives Z_p = 200 − j600 Ω. V̇_a/V̇_s = Z_p/(R + Z_p) = (200 − j600)/(1200 − j600) = (1 − j)/3, magnitude √2/3 ≈ 0.4714." },
@@ -67,7 +67,7 @@
         { "ask": "Phase of H(jω) = ?", "explain": "H = −j/3, phase −90°. In general H = 1/(1 − (ωRC)² + j3ωRC), whose real part vanishes at ωRC = 1." },
         {
           "ask": "If an ideal voltage follower is inserted after a, so that the second section draws no current from the first, what does |H| become at ω = 1/(RC)?",
-          "choices": ["1/2 (1/√2 per section, multiplied)", "1/3 (unchanged)", "1/√2", "1/4"], "choiceExplain": ["", "1/3 is the result of the direct cascade, where the second section draws current from the first; with the follower the loading disappears and |V_a/V_s| returns to 1/√2.", "1/√2 is one section's |H|; the second section's 1/√2 has not been multiplied in.", "1/4 treats each section as a resistive divider and adds magnitudes: 1000/(1000 + 1000) = 1/2; the voltages on R and C are 90° apart, so complex impedances are needed and one section gives |1/(1 + j)| = 1/√2."],
+          "choices": ["1/2 (1/√2 per section, multiplied)", "unchanged (the same as the direct cascade)", "1/√2", "1/4"], "choiceExplain": ["", "'Unchanged' holds only for the direct cascade, where the second section draws current from the first. With the follower the loading disappears and |V_a/V_s| returns to 1/√2.", "1/√2 is one section's |H|; the second section's 1/√2 has not been multiplied in.", "1/4 treats each section as a resistive divider: adding the sizes of R and X_C directly gives 1000/(1000 + 1000) = 1/2 per section. The voltages on R and C are 90° apart, so complex impedances are needed: one section gives |1/(1 + j)| = 1/√2."],
           "explain": "With a buffer each section has H₁ = H₂ = 1/(1 + j), so |H| = (1/√2)² = 1/2 with phase −90°. Cascaded directly, the second section loads the first: |V_a/V_s| drops from 0.7071 to 0.4714 and the overall |H| from 1/2 to 1/3. You can't just multiply the sections' stand-alone H's unless the later stage draws no current."
         }
       ],

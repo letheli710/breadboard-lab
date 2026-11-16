@@ -30,7 +30,7 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "QC", "ask": "电容吸收的无功功率 Q_C = ?", "find": { "kind": "q", "el": "C" }, "answer": -1875, "unit": "var", "explain": "负载导纳 Y = 1/(16 + j12) = 0.04 − j0.03 S，需 ωC = 0.03 S（C = 30 µF），并联后 Y = 0.04 S，即 25 Ω 纯电阻。V_a = 260 × 25/26 = 250 V，Q_C = −ωC·V_a² = −0.03 × 62500 = −1875 var。" },
+    { "id": "QC", "ask": "电容吸收的无功功率 Q_C = ?", "find": { "kind": "q", "el": "C" }, "answer": -1875, "unit": "var", "explain": "负载导纳 Y = 1/(16 + j12) = 0.04 − j0.03 S，所以需要 ωC = 0.03 S（C = 30 µF）。并联后 Y = 0.04 S，即 25 Ω 纯电阻。V_a = 260 × 25/26 = 250 V，Q_C = −ωC·V_a² = −0.03 × 62500 = −1875 var。" },
     { "id": "I", "ask": "线路电流有效值 I = ?", "find": { "kind": "i", "el": "Rl" }, "answer": 10, "unit": "A", "explain": "总阻抗 = 1 + 25 = 26 Ω（纯电阻），I = 260/26 = 10 A。" },
     { "id": "IL", "ask": "负载电流有效值 I_L = ?", "find": { "kind": "i", "el": "R" }, "answer": 12.5, "unit": "A", "explain": "I_L = V_a/|16 + j12| = 250/20 = 12.5 A——比线路电流还大：负载需要的无功电流由电容就地提供，不再流经线路。" },
     { "id": "Pl", "ask": "线路损耗 P_l = ?", "find": { "kind": "p", "el": "Rl" }, "answer": 100, "unit": "W", "explain": "P_l = I²R_l = 100 × 1 = 100 W。不补偿时 I = 260/|17 + j12| ≈ 12.49 A，线路损耗约 156 W。" }
@@ -43,7 +43,7 @@
   "solution": [
     "**1. 负载导纳。** Z = 16 + j12 = 20∠36.87° Ω，Y = 1/Z = (16 − j12)/400 = 0.04 − j0.03 S。",
     "**2. 补偿条件。** 并联电容后 Y' = 0.04 + j(ωC − 0.03)，功率因数为 1 要求 ωC = 0.03 S → C = 30 µF；此时 a 点右侧等效为 1/0.04 = 25 Ω。",
-    "**3. 电流电压。** I = 260/(1 + 25) = **10 A**，V_a = 25 × 10 = 250 V，I_L = 250/20 = **12.5 A**，I_C = 0.03 × 250 = 7.5 A（验算：I_L 的无功分量 12.5 × 0.6 = 7.5 A 被 I_C 抵消，有功分量 12.5 × 0.8 = 10 A = I ✓）。",
+    "**3. 电流电压。** I = 260/(1 + 25) = **10 A**，V_a = 25 × 10 = 250 V，I_L = 250/20 = **12.5 A**，I_C = 0.03 × 250 = 7.5 A。验算：I_L 的无功分量 12.5 × 0.6 = 7.5 A 被 I_C 抵消，有功分量 12.5 × 0.8 = 10 A = I ✓。",
     "**4. 功率。** Q_C = −ωC·V_a² = **−1875 var**（= −Q_{负载} = −I_L² × 12 = −1875 ✓）；负载 P = I_L² × 16 = 2500 W；线路损耗 P_l = I²R_l = **100 W**。",
     "**5. 对比不补偿。** I = 260/|17 + j12| = 260/20.81 ≈ 12.49 A，线路损耗 ≈ 156 W。补偿后负载得到的功率几乎不变（2500 W 对 2498 W），线路损耗却减少了约 36%。"
   ],
@@ -57,7 +57,7 @@
         "Find the reactive power absorbed by the capacitor, the line current I, the load current I_L and the line loss."
       ],
       "questions": [
-        { "ask": "Reactive power absorbed by the capacitor, Q_C = ?", "explain": "Load admittance Y = 1/(16 + j12) = 0.04 − j0.03 S, so ωC = 0.03 S is needed (C = 30 µF); the parallel combination is Y = 0.04 S, i.e. a pure 25 Ω. V_a = 260 × 25/26 = 250 V, Q_C = −ωC·V_a² = −0.03 × 62500 = −1875 var." },
+        { "ask": "Reactive power absorbed by the capacitor, Q_C = ?", "explain": "Load admittance Y = 1/(16 + j12) = 0.04 − j0.03 S, so ωC = 0.03 S is needed (C = 30 µF). The parallel combination is Y = 0.04 S, i.e. a pure 25 Ω. V_a = 260 × 25/26 = 250 V, Q_C = −ωC·V_a² = −0.03 × 62500 = −1875 var." },
         { "ask": "rms line current I = ?", "explain": "Total impedance = 1 + 25 = 26 Ω (purely resistive), I = 260/26 = 10 A." },
         { "ask": "rms load current I_L = ?", "explain": "I_L = V_a/|16 + j12| = 250/20 = 12.5 A — larger than the line current: the reactive current the load needs is supplied locally by the capacitor and no longer flows through the line." },
         { "ask": "Line loss P_l = ?", "explain": "P_l = I²R_l = 100 × 1 = 100 W. Without compensation I = 260/|17 + j12| ≈ 12.49 A and the line loss is about 156 W." }
@@ -70,7 +70,7 @@
       "solution": [
         "**1. Load admittance.** Z = 16 + j12 = 20∠36.87° Ω, Y = 1/Z = (16 − j12)/400 = 0.04 − j0.03 S.",
         "**2. Compensation condition.** With the capacitor Y' = 0.04 + j(ωC − 0.03); unity power factor requires ωC = 0.03 S → C = 30 µF, and the load to the right of a is then 1/0.04 = 25 Ω.",
-        "**3. Currents and voltage.** I = 260/(1 + 25) = **10 A**, V_a = 25 × 10 = 250 V, I_L = 250/20 = **12.5 A**, I_C = 0.03 × 250 = 7.5 A (check: the reactive component of I_L, 12.5 × 0.6 = 7.5 A, is cancelled by I_C, and its active component 12.5 × 0.8 = 10 A = I ✓).",
+        "**3. Currents and voltage.** I = 260/(1 + 25) = **10 A**, V_a = 25 × 10 = 250 V, I_L = 250/20 = **12.5 A**, I_C = 0.03 × 250 = 7.5 A. Check: the reactive component of I_L, 12.5 × 0.6 = 7.5 A, is cancelled by I_C, and its active component 12.5 × 0.8 = 10 A = I ✓.",
         "**4. Powers.** Q_C = −ωC·V_a² = **−1875 var** (= −Q_load = −I_L² × 12 = −1875 ✓); load P = I_L² × 16 = 2500 W; line loss P_l = I²R_l = **100 W**.",
         "**5. Without compensation.** I = 260/|17 + j12| = 260/20.81 ≈ 12.49 A and the line loss ≈ 156 W. With compensation the load receives practically the same power (2500 W vs 2498 W) while the line loss drops by about 36%."
       ]

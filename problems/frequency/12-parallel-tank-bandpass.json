@@ -7,8 +7,8 @@
   "level": 4,
   "tags": ["并联谐振", "带通滤波", "通频带", "有载品质因数"],
   "statement": [
-    "信号源 V̇_s = 10∠0° V（有效值）、内阻 R_s = 2 kΩ，接到 R = 2 kΩ、L = 1 mH、C = 0.1 µF 的并联谐振回路上，输出取回路两端电压 V_o。电源角频率等于谐振角频率 ω₀。",
-    "求谐振频率 f₀、谐振时的输出电压 V_o 和电容电流 I_C，并求电路的通频带。"
+    "信号源 V̇_s = 10∠0° V（有效值），内阻 R_s = 2 kΩ。它接到 R = 2 kΩ、L = 1 mH、C = 0.1 µF 的并联谐振回路上，输出取回路两端的电压 V_o。电源角频率等于谐振角频率 ω₀。",
+    "求谐振频率 f₀，以及谐振时的输出电压 V_o 和电容电流 I_C。再求计入内阻后的品质因数 Q 和电路的通频带。"
   ],
   "schematic": {
     "elements": [
@@ -38,7 +38,7 @@
       "find": { "kind": "Q", "port": ["o", "o'"] },
       "answer": 10,
       "unit": "",
-      "explain": "把 V_s、R_s 化成诺顿等效，回路两端的总电导是 1/R_s + 1/R，即等效电阻 R_s∥R = 1 kΩ。有载 Q = (R_s∥R)/(ω₀L) = 1000/100 = 10。只看回路本身（R = 2 kΩ）会得到 Q = 20——信号源内阻使 Q 下降。"
+      "explain": "把 V_s、R_s 化成诺顿等效后，回路两端的总电导是 1/R_s + 1/R，即等效电阻 R_s∥R = 1 kΩ。有载 Q = (R_s∥R)/(ω₀L) = 1000/100 = 10。只看回路本身（R = 2 kΩ）会得到 Q = 20：信号源内阻使 Q 下降。"
     },
     {
       "id": "bw",
@@ -57,7 +57,7 @@
     "**1. 谐振频率。** ω₀ = 1/√(LC) = **10⁵ rad/s**，f₀ = 10⁵/(2π) ≈ **15.92 kHz**。",
     "**2. 输出电压。** 谐振时 Y_LC = jω₀C + 1/(jω₀L) = 0，只剩 R：V_o = V_s·R/(R_s + R) = **5 V**。",
     "**3. 电容电流。** I_C = ω₀C·V_o = 0.01 × 5 = **50 mA**；I_L 同样 50 mA，相位相反。",
-    "**4. 通频带。** 诺顿等效：I_N = V_s/R_s = 5 mA，并联电导 G = 1/2k + 1/2k = 1 mS（即 1 kΩ）。并联 RLC 的 BW = G/C = 10⁻³/10⁻⁷ = **10⁴ rad/s** ≈ 1.59 kHz；Q = ω₀/BW = **10** = I_C/I_N。",
+    "**4. 通频带。** 诺顿等效：I_N = V_s/R_s = 5 mA，并联总电导 G = 1/2k + 1/2k = 1 mS（即 1 kΩ）。并联 RLC 的 BW = G/C = 10⁻³/10⁻⁷ = **10⁴ rad/s** ≈ 1.59 kHz。Q = ω₀/BW = **10** = I_C/I_N。",
     "通带内（约 15.1 ~ 16.7 kHz）的信号能通过，远离 f₀ 的信号被 L 或 C 短路掉：这就是 LC 并联回路构成的带通滤波器。"
   ],
   "i18n": {
@@ -65,8 +65,8 @@
       "title": "Parallel resonant band-pass circuit and loaded Q",
       "tags": ["parallel resonance", "band-pass filter", "bandwidth", "loaded quality factor"],
       "statement": [
-        "A signal source V̇_s = 10∠0° V (rms) with internal resistance R_s = 2 kΩ drives a parallel resonant circuit R = 2 kΩ, L = 1 mH, C = 0.1 µF; the output V_o is the voltage across the tank. The source runs at the resonant angular frequency ω₀.",
-        "Find the resonant frequency f₀, the output voltage V_o and the capacitor current I_C at resonance, and the bandwidth of the circuit."
+        "A signal source V̇_s = 10∠0° V (rms) has internal resistance R_s = 2 kΩ. It drives a parallel resonant circuit R = 2 kΩ, L = 1 mH, C = 0.1 µF, and the output V_o is the voltage across the tank. The source runs at the resonant angular frequency ω₀.",
+        "Find the resonant frequency f₀, and the output voltage V_o and capacitor current I_C at resonance. Then find the quality factor Q with the source resistance included, and the bandwidth of the circuit."
       ],
       "questions": [
         { "ask": "Resonant frequency f₀ = ?", "explain": "ω₀ = 1/√(LC) = 1/√(10⁻³ × 10⁻⁷) = 10⁵ rad/s, f₀ ≈ 15.92 kHz." },
@@ -74,7 +74,7 @@
         { "ask": "rms capacitor current at resonance I_C = ?", "explain": "I_C = ω₀C·V_o = 10⁵ × 10⁻⁷ × 5 = 0.05 A = 50 mA, while the source only supplies (10 − 5)/2k = 2.5 mA." },
         {
           "ask": "Taking the source resistance into account, the quality factor seen from o, o′ is Q = ?",
-          "explain": "Turning V_s, R_s into a Norton equivalent, the total conductance across the tank is 1/R_s + 1/R, i.e. R_s∥R = 1 kΩ. Loaded Q = (R_s∥R)/(ω₀L) = 1000/100 = 10. The tank alone (R = 2 kΩ) would give Q = 20 — the source resistance lowers Q."
+          "explain": "Once V_s, R_s are turned into a Norton equivalent, the total conductance across the tank is 1/R_s + 1/R, i.e. R_s∥R = 1 kΩ. Loaded Q = (R_s∥R)/(ω₀L) = 1000/100 = 10. The tank alone (R = 2 kΩ) would give Q = 20: the source resistance lowers Q."
         },
         {
           "ask": "Bandwidth BW = ? (in Hz)",
@@ -89,7 +89,7 @@
         "**1. Resonant frequency.** ω₀ = 1/√(LC) = **10⁵ rad/s**, f₀ = 10⁵/(2π) ≈ **15.92 kHz**.",
         "**2. Output voltage.** At resonance Y_LC = jω₀C + 1/(jω₀L) = 0, leaving only R: V_o = V_s·R/(R_s + R) = **5 V**.",
         "**3. Capacitor current.** I_C = ω₀C·V_o = 0.01 × 5 = **50 mA**; I_L is also 50 mA, in opposite phase.",
-        "**4. Bandwidth.** Norton equivalent: I_N = V_s/R_s = 5 mA with total conductance G = 1/2k + 1/2k = 1 mS (1 kΩ). For a parallel RLC, BW = G/C = 10⁻³/10⁻⁷ = **10⁴ rad/s** ≈ 1.59 kHz; Q = ω₀/BW = **10** = I_C/I_N.",
+        "**4. Bandwidth.** Norton equivalent: I_N = V_s/R_s = 5 mA with total conductance G = 1/2k + 1/2k = 1 mS (1 kΩ). For a parallel RLC, BW = G/C = 10⁻³/10⁻⁷ = **10⁴ rad/s** ≈ 1.59 kHz. Q = ω₀/BW = **10** = I_C/I_N.",
         "Signals inside the pass band (about 15.1 to 16.7 kHz) get through, while those far from f₀ are shorted by L or C: an LC parallel tank used as a band-pass filter."
       ]
     }

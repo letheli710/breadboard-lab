@@ -7,8 +7,8 @@
   "level": 5,
   "tags": ["串联谐振", "并联谐振", "陷波", "选频电路"],
   "statement": [
-    "图示电路用来从信号中滤掉 ω = 1000 rad/s 的干扰，同时让另一个较低频率的有用信号无衰减地送到负载 R = 50 Ω。L = 0.1 H，C₂ = 10 µF，C₁ = 30 µF。",
-    "(1) 求电路的最低谐振频率 f₀（从电源看进去阻抗为纯电阻）；(2) 设电源为 ω = 1000 rad/s 的干扰 V̇_s = 10∠0° V（有效值），求 L∥C₂ 两端电压 V_ab 和电感电流 I_L 的有效值；(3) 说明电路为什么能实现上述要求，以及有用信号应取什么频率。"
+    "图示电路有两个任务：滤掉 ω = 1000 rad/s 的干扰；把另一个较低频率的有用信号无衰减地送到负载 R = 50 Ω。L = 0.1 H，C₂ = 10 µF，C₁ = 30 µF。",
+    "(1) 求电路的最低谐振频率 f₀，即从电源看进去阻抗为纯电阻的最低频率。(2) 设电源是 ω = 1000 rad/s 的干扰，V̇_s = 10∠0° V（有效值）。求 L∥C₂ 两端电压 V_ab 和电感电流 I_L 的有效值。(3) 说明电路为什么能完成上面两个任务，以及有用信号应取什么频率。"
   ],
   "schematic": {
     "elements": [
@@ -49,7 +49,7 @@
       "find": { "kind": "v", "el": "R", "part": "mag", "omega": 500 },
       "answer": 10,
       "unit": "V",
-      "explain": "ω = 500 rad/s 时 L∥C₂ 呈感性（等效电感 L/(1 − ω²LC₂) = 0.1/0.75 = 0.1333 H，感抗 66.67 Ω），正好与 C₁ 的容抗 1/(500 × 30×10⁻⁶) = 66.67 Ω 串联谐振，相当于短路，V_R = V_s = 10 V。"
+      "explain": "ω = 500 rad/s 时 L∥C₂ 呈感性：等效电感 L/(1 − ω²LC₂) = 0.1/0.75 = 0.1333 H，感抗 66.67 Ω。C₁ 的容抗 1/(500 × 30×10⁻⁶) 也是 66.67 Ω，两者串联谐振，相当于短路，所以 V_R = V_s = 10 V。"
     }
   ],
   "hints": [
@@ -58,7 +58,7 @@
   ],
   "solution": [
     "**1. L∥C₂ 的阻抗。** Z_p = jωL·(1/jωC₂)/(jωL + 1/jωC₂) = jωL/(1 − ω²LC₂)。并联谐振频率 ω_p = 1/√(LC₂) = 1/√(10⁻⁶) = 1000 rad/s。",
-    "**2. 串联谐振。** 总阻抗 Z = R − j/(ωC₁) + jωL/(1 − ω²LC₂)。令虚部为零：1 − ω²LC₂ = ω²LC₁ → ω_s = 1/√(L(C₁ + C₂)) = **500 rad/s**，f₀ = 500/(2π) ≈ **79.58 Hz**。这是最低的谐振频率（ω_p = 1000 rad/s 时阻抗 → ∞，是另一个“纯电阻”点）。",
+    "**2. 串联谐振。** 总阻抗 Z = R − j/(ωC₁) + jωL/(1 − ω²LC₂)。令虚部为零：1 − ω²LC₂ = ω²LC₁ → ω_s = 1/√(L(C₁ + C₂)) = **500 rad/s**，f₀ = 500/(2π) ≈ **79.58 Hz**。这是最低的谐振频率。另一个“纯电阻”点在 ω_p = 1000 rad/s，那里阻抗 → ∞。",
     "**3. ω = 1000 rad/s。** Z_p → ∞，电源电流 I = 0，V_C₁ = 0，V_R = 0，所以 V_ab = V_s = **10 V**；İ_L = 10/(j100) = −j0.1 A，有效值 **0.1 A**，İ_C₂ = +j0.1 A。",
     "**4. ω = 500 rad/s。** Z_p = j50/(1 − 0.25) = j66.67 Ω，C₁ 的阻抗 −j66.67 Ω，二者相消，Z = R，V_R = V_s：有用信号无衰减通过。",
     "**结论：** 并联谐振用来“阻断”（陷波），串联谐振用来“导通”，组合起来实现选频。"
@@ -68,8 +68,8 @@
       "title": "A frequency-selective circuit using series and parallel resonance",
       "tags": ["series resonance", "parallel resonance", "notch", "frequency selection"],
       "statement": [
-        "The circuit shown is meant to remove an interfering signal at ω = 1000 rad/s and pass a useful signal at another, lower frequency to the load R = 50 Ω without attenuation. L = 0.1 H, C₂ = 10 µF, C₁ = 30 µF.",
-        "(1) Find the lowest resonant frequency f₀ (where the impedance seen by the source is purely resistive). (2) With the source being the interference at ω = 1000 rad/s, V̇_s = 10∠0° V (rms), find the rms voltage V_ab across L∥C₂ and the rms inductor current I_L. (3) Explain why the circuit does what is required, and at what frequency the useful signal must be."
+        "The circuit shown has two jobs: remove an interfering signal at ω = 1000 rad/s, and pass a useful signal at another, lower frequency to the load R = 50 Ω without attenuation. L = 0.1 H, C₂ = 10 µF, C₁ = 30 µF.",
+        "(1) Find the lowest resonant frequency f₀, i.e. the lowest frequency at which the impedance seen by the source is purely resistive. (2) Let the source be the interference at ω = 1000 rad/s, V̇_s = 10∠0° V (rms). Find the rms voltage V_ab across L∥C₂ and the rms inductor current I_L. (3) Explain why the circuit can do both jobs, and at what frequency the useful signal must be."
       ],
       "questions": [
         { "ask": "(1) Lowest resonant frequency f₀ = ?", "explain": "Z = R + 1/(jωC₁) + jωL/(1 − ω²LC₂). Zero imaginary part: 1/(ωC₁) = ωL/(1 − ω²LC₂) → ω² = 1/(L(C₁ + C₂)) = 1/(0.1 × 40×10⁻⁶) = 2.5×10⁵, ω = 500 rad/s, f₀ ≈ 79.58 Hz (series resonance)." },
@@ -81,7 +81,7 @@
         },
         {
           "ask": "(3) If the source is instead the wanted 10 V signal at the frequency f₀ found in (1), rms V_R = ?",
-          "explain": "At ω = 500 rad/s, L∥C₂ is inductive (equivalent inductance L/(1 − ω²LC₂) = 0.1/0.75 = 0.1333 H, reactance 66.67 Ω) and forms a series resonance with C₁ (reactance 1/(500 × 30×10⁻⁶) = 66.67 Ω): a short, so V_R = V_s = 10 V."
+          "explain": "At ω = 500 rad/s, L∥C₂ is inductive: equivalent inductance L/(1 − ω²LC₂) = 0.1/0.75 = 0.1333 H, reactance 66.67 Ω. C₁'s reactance 1/(500 × 30×10⁻⁶) is also 66.67 Ω, so the two are in series resonance and act as a short: V_R = V_s = 10 V."
         }
       ],
       "hints": [
@@ -90,7 +90,7 @@
       ],
       "solution": [
         "**1. Impedance of L∥C₂.** Z_p = jωL·(1/jωC₂)/(jωL + 1/jωC₂) = jωL/(1 − ω²LC₂). Parallel resonance at ω_p = 1/√(LC₂) = 1/√(10⁻⁶) = 1000 rad/s.",
-        "**2. Series resonance.** Total impedance Z = R − j/(ωC₁) + jωL/(1 − ω²LC₂). Zero imaginary part: 1 − ω²LC₂ = ω²LC₁ → ω_s = 1/√(L(C₁ + C₂)) = **500 rad/s**, f₀ = 500/(2π) ≈ **79.58 Hz**. This is the lowest resonance (at ω_p = 1000 rad/s the impedance → ∞, the other 'purely resistive' point).",
+        "**2. Series resonance.** Total impedance Z = R − j/(ωC₁) + jωL/(1 − ω²LC₂). Zero imaginary part: 1 − ω²LC₂ = ω²LC₁ → ω_s = 1/√(L(C₁ + C₂)) = **500 rad/s**, f₀ = 500/(2π) ≈ **79.58 Hz**. This is the lowest resonance. The other 'purely resistive' point is at ω_p = 1000 rad/s, where the impedance → ∞.",
         "**3. At ω = 1000 rad/s.** Z_p → ∞, the source current is I = 0, V_C₁ = 0 and V_R = 0, so V_ab = V_s = **10 V**; İ_L = 10/(j100) = −j0.1 A, rms **0.1 A**, and İ_C₂ = +j0.1 A.",
         "**4. At ω = 500 rad/s.** Z_p = j50/(1 − 0.25) = j66.67 Ω, C₁'s impedance is −j66.67 Ω; they cancel, Z = R and V̇_R = V̇_s: the useful signal passes without attenuation.",
         "**Conclusion:** parallel resonance 'blocks' (a notch) and series resonance 'passes'; combining them gives frequency selection."
