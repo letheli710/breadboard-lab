@@ -67,14 +67,20 @@
         "elements": [
           {"ref": "Vg", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 3.3, "label": "GPIO 3.3 V"},
           {"ref": "R1", "type": "R", "from": [0, 0], "to": [2, 0], "value": "1k"},
-          {"ref": "BE", "type": "NR", "from": [2, 0], "to": [4, 0], "law": {"diode": {}}, "label": "B–E"},
-          {"ref": "K1", "type": "R", "from": [4, 0], "to": [4, 4], "value": 70}
+          {"ref": "Q1", "type": "NPN", "at": [4, 0]},
+          {"ref": "K1", "type": "R", "from": [5, 2], "to": [5, 4], "value": 70}
         ],
-        "wires": [[[4, 4], [0, 4]]],
-        "marks": [{"kind": "v", "el": "BE", "name": "V_BE"}, {"kind": "v", "el": "K1", "name": "V_E"}],
-        "loops": [{"at": [2, 2], "name": ""}]
+        "wires": [
+          [[5, 4], [0, 4]]
+        ],
+        "terminals": [
+          {"at": [5, -2], "name": "5V"}
+        ],
+        "marks": [
+          {"kind": "v", "el": "K1", "name": "V_E"}
+        ]
       },
-      "highlight": ["BE"]
+      "highlight": ["Q1"]
     },
     "low": {
       "kind": "schematic",
@@ -88,10 +94,18 @@
         "elements": [
           {"ref": "Vs", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 5, "label": "5V"},
           {"ref": "K2", "type": "R", "from": [0, 0], "to": [4, 0], "value": 70},
-          {"ref": "Q2", "type": "S", "from": [4, 0], "to": [4, 4], "value": "closed", "label": "Q2 C–E"}
+          {"ref": "Q2", "type": "NPN", "at": [5, 2], "flip": true}
         ],
-        "wires": [[[4, 4], [0, 4]]],
-        "marks": [{"kind": "v", "el": "K2", "name": "V_coil"}, {"kind": "i", "el": "K2", "name": "I"}]
+        "wires": [
+          [[4, 4], [0, 4]]
+        ],
+        "terminals": [
+          {"at": [7, 2], "name": "GPIO"}
+        ],
+        "marks": [
+          {"kind": "v", "el": "K2", "name": "V_coil"},
+          {"kind": "i", "el": "K2", "name": "I"}
+        ]
       },
       "highlight": ["Q2"]
     }

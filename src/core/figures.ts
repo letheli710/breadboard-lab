@@ -28,7 +28,7 @@ export interface SchematicFigure {
   highlight?: string[];
 }
 
-export type BoardPartType = 'wire' | 'resistor' | 'led' | 'battery' | 'probe' | 'button';
+export type BoardPartType = 'wire' | 'resistor' | 'led' | 'battery' | 'probe' | 'button' | 'capacitor' | 'electrolytic' | 'inductor' | 'diode' | 'board';
 
 export interface BoardPart {
   type: BoardPartType;
@@ -88,7 +88,7 @@ const FIG_ANY = /!\[[^\]]*\]\(fig:([a-z0-9-]+)\)/g;
 /** ids referenced in a text */
 export const figureRefs = (text: string): string[] => [...text.matchAll(FIG_ANY)].map((m) => m[1]);
 
-const PART_TYPES: BoardPartType[] = ['wire', 'resistor', 'led', 'battery', 'probe', 'button'];
+const PART_TYPES: BoardPartType[] = ['wire', 'resistor', 'led', 'battery', 'probe', 'button', 'capacitor', 'electrolytic', 'inductor', 'diode', 'board'];
 const COLORS = ['red', 'black', 'green', 'yellow', 'blue', 'white', 'orange'];
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);

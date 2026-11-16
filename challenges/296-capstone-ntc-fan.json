@@ -87,15 +87,23 @@
       },
       "schematic": {
         "elements": [
-          {"ref": "V5", "type": "BAT", "from": [0, 0], "to": [0, 6], "value": 5},
+          {"ref": "V5", "type": "BAT", "from": [0, 0], "to": [0, 7], "value": 5},
           {"ref": "R_S", "type": "R", "from": [0, 0], "to": [3, 0], "value": 4.7},
-          {"ref": "M1", "type": "R", "from": [3, 0], "to": [3, 3], "value": 8},
-          {"ref": "Q1", "type": "S", "from": [3, 3], "to": [3, 6], "value": "closed"},
-          {"ref": "D1", "type": "NR", "from": [6, 3], "to": [6, 0], "law": {"diode": {}}}
+          {"ref": "M1", "type": "M", "from": [3, 0], "to": [3, 3]},
+          {"ref": "Q1", "type": "NMOS", "at": [4, 5], "flip": true},
+          {"ref": "D1", "type": "D", "from": [6, 3], "to": [6, 0]}
         ],
-        "wires": [[[3, 0], [6, 0]], [[3, 3], [6, 3]], [[3, 6], [0, 6]]],
-        "marks": [{"kind": "i", "el": "M1", "name": "I_fan"}],
-        "notes": [{"at": [4.8, 5], "text": "引脚控制", "i18n": {"en": "pin drives"}}]
+        "wires": [
+          [[3, 0], [6, 0]],
+          [[3, 3], [6, 3]],
+          [[3, 7], [0, 7]]
+        ],
+        "terminals": [
+          {"at": [6, 5], "name": "GPIO"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "M1", "name": "I_fan"}
+        ]
       },
       "highlight": ["Q1"]
     }

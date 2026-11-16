@@ -167,7 +167,14 @@ export function partRect(g: BoardGeom, p: BoardPart): Rect | null {
   if (!b) return null;
   const box = union([padRect({ x: a[0], y: a[1], w: 0, h: 0 }, 3.5), padRect({ x: b[0], y: b[1], w: 0, h: 0 }, 3.5)]);
   const horiz = Math.abs(b[0] - a[0]) >= Math.abs(b[1] - a[1]);
-  if (p.type === 'button') return padRect(box, 6);
+  if (p.type === 'button' || p.type === 'board') return padRect(box, 6);
+  if (p.type === 'capacitor' || p.type === 'electrolytic') {
+    // it stands up from its holes: a disc / can above the pair
+    const mx = (a[0] + b[0]) / 2;
+    return union([box, horiz ? { x: mx - 10, y: Math.min(a[1], b[1]) - 26, w: 20, h: 24 } : { x: Math.max(a[0], b[0]) + 2, y: (a[1] + b[1]) / 2 - 10, w: 24, h: 20 }]);
+  }
+  if (p.type === 'inductor' || p.type === 'diode')
+    return horiz ? union([box, { x: box.x, y: a[1] - 6, w: box.w, h: 12 }]) : union([box, { x: a[0] - 6, y: box.y, w: 12, h: box.h }]);
   if (p.type === 'resistor') return horiz ? union([box, { x: box.x, y: a[1] - 6, w: box.w, h: 12 }]) : union([box, { x: a[0] - 6, y: box.y, w: 12, h: box.h }]);
   if (p.type === 'wire') {
     const bow = Math.min(22, 6 + Math.hypot(b[0] - a[0], b[1] - a[1]) * 0.18);

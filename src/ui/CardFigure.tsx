@@ -100,7 +100,8 @@ function BoardFigure({ fig, caption }: { fig: BreadboardFigure; caption: string 
   });
   parts.forEach((p, i) => {
     const r = partRect(g, p);
-    if (!p.label || !r) return;
+    // (a dev board prints its name on itself)
+    if (!p.label || !r || p.type === 'board') return;
     labels.push({ key: `p${i}`, text: txt(p.label), runs: runs(p.label), targets: [r], cores: [r], top: r.y + r.h / 2 < g.bottom / 2, gutters: [gutterNear(g, r.x + r.w / 2)] });
   });
   // never covered: parts, ✗ marks, shaded strips that carry no label
@@ -349,6 +350,80 @@ function BoardPartView({ p, pos, left }: { p: BoardPart; pos: (id: string) => [n
         ].map(([x, y], i) => (
           <circle key={i} cx={x} cy={y} r={2.6} fill="#b8b2a3" />
         ))}
+      </g>
+    );
+  }
+  if (p.type === 'board') {
+    // a dev board: a PCB over the holes from `from` to `to` (opposite corners), its name printed on it
+    const x0 = Math.min(a[0], b[0]);
+    const y0 = Math.min(a[1], b[1]);
+    const w = Math.abs(b[0] - a[0]);
+    const h = Math.abs(b[1] - a[1]);
+    return (
+      <g className="cf-board-part">
+        <rect x={x0 - 6} y={y0 - 6} width={w + 12} height={h + 12} rx={3} fill="#1f4e79" />
+        {Array.from({ length: Math.round(w / 22) + 1 }, (_, i) => (
+          <g key={i}>
+            <circle cx={x0 + i * 22} cy={y0} r={2.6} fill="#e3c26a" />
+            <circle cx={x0 + i * 22} cy={y0 + h} r={2.6} fill="#e3c26a" />
+          </g>
+        ))}
+        {/* a tall board shows its chip with the name under it; a short one only the name */}
+        {h >= 50 && <rect x={x0 + w / 2 - 14} y={y0 + h / 2 - 16} width={28} height={18} rx={2} fill="#2f3138" />}
+        {p.label && <Rich runs={runs(p.label)} x={x0 + w / 2} y={h >= 50 ? y0 + h / 2 + 16 : y0 + h / 2 + 4.5} anchor="middle" className="cf-label" fill="#f3f1ea" />}
+      </g>
+    );
+  }
+  if (p.type === 'capacitor' || p.type === 'electrolytic') {
+    // it stands up from its two holes; an electrolytic's − side (the stripe) is `to`
+    const top: [number, number] = horiz ? [mx, Math.min(a[1], b[1]) - 16] : [Math.max(a[0], b[0]) + 14, my];
+    return (
+      <g className="cf-cap">
+        <line x1={a[0]} y1={a[1]} x2={top[0] - (horiz ? 4 : 0)} y2={top[1] + (horiz ? 0 : -4)} stroke="#8e8a80" strokeWidth={1.8} />
+        <line x1={b[0]} y1={b[1]} x2={top[0] + (horiz ? 4 : 0)} y2={top[1] + (horiz ? 0 : 4)} stroke="#8e8a80" strokeWidth={1.8} />
+        {p.type === 'capacitor' ? (
+          <ellipse cx={top[0]} cy={top[1]} rx={9} ry={8} fill="#e4a83a" stroke="#a8741c" strokeWidth={1} />
+        ) : (
+          <g>
+            <rect x={top[0] - 9} y={top[1] - 11} width={18} height={22} rx={3} fill="#2b4a8f" />
+            <rect
+              x={horiz ? (a[0] < b[0] ? top[0] + 3 : top[0] - 9) : top[0] - 9}
+              y={horiz ? top[1] - 11 : a[1] < b[1] ? top[1] + 5 : top[1] - 11}
+              width={horiz ? 6 : 18}
+              height={horiz ? 22 : 6}
+              fill="#c9d3e6"
+            />
+          </g>
+        )}
+        {end(a, '#8e8a80')}
+        {end(b, '#8e8a80')}
+      </g>
+    );
+  }
+  if (p.type === 'inductor' || p.type === 'diode') {
+    const L = Math.min(30, Math.hypot(b[0] - a[0], b[1] - a[1]) - 8);
+    const ang = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+    return (
+      <g className={`cf-${p.type}`}>
+        <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#8e8a80" strokeWidth={1.8} />
+        <g transform={`translate(${mx},${my}) rotate(${ang})`}>
+          {p.type === 'inductor' ? (
+            <g>
+              <rect x={-L / 2} y={-6} width={L} height={12} rx={5} fill="#3f6b4a" />
+              {[-0.3, -0.1, 0.1, 0.3].map((f, i) => (
+                <rect key={i} x={L * f - 1.5} y={-6} width={3} height={12} fill={['#6b3e1e', '#2f3138', '#c0392b', '#c9a227'][i]} />
+              ))}
+            </g>
+          ) : (
+            <g>
+              {/* a glass / black body with the band at the cathode (`to`) end */}
+              <rect x={-L / 2} y={-5} width={L} height={10} rx={3} fill="#2f3138" />
+              <rect x={L / 2 - 7} y={-5} width={4} height={10} fill="#d9d3c4" />
+            </g>
+          )}
+        </g>
+        {end(a, '#8e8a80')}
+        {end(b, '#8e8a80')}
       </g>
     );
   }

@@ -13,9 +13,10 @@
 import { tr } from '../i18n';
 import type { Netlist, Pt, ProblemElement, Schematic, TwoTerminalElement } from './types';
 
-export const TWO_TERMINAL_TYPES = ['R', 'C', 'L', 'V', 'I', 'VCVS', 'VCCS', 'CCVS', 'CCCS', 'SW', 'Z', 'ammeter', 'voltmeter', 'NR', 'LED', 'BAT', 'RV', 'S'] as const;
+export const TWO_TERMINAL_TYPES = ['R', 'C', 'L', 'V', 'I', 'VCVS', 'VCCS', 'CCVS', 'CCCS', 'SW', 'Z', 'ammeter', 'voltmeter', 'NR', 'LED', 'BAT', 'RV', 'S', 'D', 'M'] as const;
 /** element types that only lesson card figures may use: drawn, never simulated */
-export const FIGURE_ONLY_TYPES: readonly string[] = ['LED', 'BAT', 'RV', 'S'];
+export const FIGURE_ONLY_TYPES: readonly string[] = ['LED', 'BAT', 'RV', 'S', 'D', 'M', 'NPN', 'NMOS', 'REG'];
+export const DEVICE_TYPES: readonly string[] = ['NPN', 'NMOS', 'REG'];
 
 export function isTwoTerminal(el: ProblemElement): el is TwoTerminalElement {
   return (TWO_TERMINAL_TYPES as readonly string[]).includes(el.type);
@@ -41,6 +42,18 @@ export function terminalPoints(el: ProblemElement): Record<string, Pt> {
     case 'XFMR': {
       const [x, y] = el.at;
       return { p1: [x - 2, y - 1], n1: [x - 2, y + 1], p2: [x + 2, y - 1], n2: [x + 2, y + 1] };
+    }
+    case 'NPN':
+    case 'NMOS': {
+      const [x, y] = el.at;
+      const f = el.flip ? -1 : 1;
+      const [a, b, c] = el.type === 'NPN' ? ['b', 'c', 'e'] : ['g', 'd', 's'];
+      return { [a]: [x - 2 * f, y], [b]: [x + f, y - 2], [c]: [x + f, y + 2] };
+    }
+    case 'REG': {
+      const [x, y] = el.at;
+      const f = el.flip ? -1 : 1;
+      return { in: [x - 2 * f, y], out: [x + 2 * f, y], gnd: [x, y + 2] };
     }
     case 'TL': {
       const [x, y] = el.at;
@@ -170,7 +183,7 @@ export function extractNetlist(s: Schematic, opts: { groundOptional?: boolean } 
     }
     if (byRef.has(ref)) errors.push(tr(`元件编号 ${ref} 重复`, `Duplicate element ref ${ref}`));
     else byRef.set(ref, el);
-    if (el.type === 'OPAMP' || el.type === 'XFMR') {
+    if (el.type === 'OPAMP' || el.type === 'XFMR' || el.type === 'NPN' || el.type === 'NMOS' || el.type === 'REG') {
       if (!validPt(el.at) || !intPt(el.at)) errors.push(tr(`${ref} 的位置 at 必须是整数坐标`, `${ref}: "at" must be an integer grid point`));
       else geomOk.add(el);
       if (el.type === 'XFMR' && !(typeof el.n === 'number' && Number.isFinite(el.n) && el.n !== 0))
@@ -502,6 +515,8 @@ export function extractNetlist(s: Schematic, opts: { groundOptional?: boolean } 
         if (onSegment(at, el.from, el.to)) hit = el.ref;
       } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
         if (Math.abs(at[0] - el.at[0]) <= 2 && Math.abs(at[1] - el.at[1]) <= 1) hit = el.ref;
+      } else if (el.type === 'NPN' || el.type === 'NMOS' || el.type === 'REG') {
+        if (Math.abs(at[0] - el.at[0]) <= 1.5 && Math.abs(at[1] - el.at[1]) <= 1) hit = el.ref;
       } else if (el.type === 'TL') {
         if (at[0] >= el.at[0] && at[0] <= el.at[0] + lineWidth(el) && at[1] >= el.at[1] && at[1] <= el.at[1] + 2) hit = el.ref;
       }

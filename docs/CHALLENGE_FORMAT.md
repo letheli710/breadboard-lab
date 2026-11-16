@@ -784,8 +784,8 @@ Figures are drawn by the app (they follow the language, open full screen with "E
 
 | `kind` | 画什么 | 字段 |
 |---|---|---|
-| `schematic` | 电路图（和理论题同一种写法，PROBLEM_FORMAT §3：整数坐标、`marks` 电流箭头 / +− 标记、`loops` 回路箭头、`labels` 结点名、`notes`） | `schematic`；`highlight`：用强调色画的元件。接地符号可以不画；另有几种**只画不算**的元件：`LED`（`from` = 正极，`value` = 颜色 red / green / yellow / blue / white / orange）、`BAT`（电池，`from` = +，`value` = 伏）、`RV`（可变电阻 / 当可变电阻用的电位器，`value` = 欧）、`S`（普通开关，`value` = `open` / `closed`） |
-| `breadboard` | 面包板的一段：哪些孔相通、元件插在哪 | `cols`（[起, 止]，默认 [1, 12]）、`rows`（top / bottom / both）、`rails`（top / bottom / both / none）、`strips`（`at` 孔位或孔位数组 → 整条金属条上色，`tone` 1–3，`label`：一句话可以同时指几条）、`parts`（`type` wire / resistor / led / battery / probe / button（四脚按键：`from`、`to` 是对角的两个孔，如 `e5`、`f7`），`from` / `to` 孔位，`label`，`color`）、`apart`（两个孔之间画 ✗ 不通）、`notes`（`at` 孔位 + `text`，`side` 只是偏好） |
+| `schematic` | 电路图（和理论题同一种写法，PROBLEM_FORMAT §3：整数坐标、`marks` 电流箭头 / +− 标记、`loops` 回路箭头、`labels` 结点名、`notes`） | `schematic`；`highlight`：用强调色画的元件。接地符号可以不画；另有几种**只画不算**的元件：`LED`（`from` = 正极，`value` = 颜色 red / green / yellow / blue / white / orange）、`BAT`（电池，`from` = +，`value` = 伏）、`RV`（可变电阻 / 当可变电阻用的电位器，`value` = 欧）、`S`（普通开关，`value` = `open` / `closed`）、`D`（二极管，`from` = 阳极）、`M`（电机）；三脚器件用 `at` 放置（`flip: true` 左右镜像）：`NPN`（b (−2, 0)、c (+1, −2)、e (+1, +2)）、`NMOS`（g、d、s，位置同上）、`REG`（稳压器：in (−2, 0)、out (+2, 0)、gnd (0, +2)，`label` 写型号或电压）。引到图外的脚用 `terminals` 画成小圆圈并命名（如 GPIO） |
+| `breadboard` | 面包板的一段：哪些孔相通、元件插在哪 | `cols`（[起, 止]，默认 [1, 12]）、`rows`（top / bottom / both）、`rails`（top / bottom / both / none）、`strips`（`at` 孔位或孔位数组 → 整条金属条上色，`tone` 1–3，`label`：一句话可以同时指几条）、`parts`（`type` wire / resistor / led / battery / probe / button（四脚按键：`from`、`to` 是对角的两个孔，如 `e5`、`f7`）/ capacitor（瓷片电容）/ electrolytic（电解电容，`to` 是 − 极）/ inductor / diode（`to` 是带色环的阴极）/ board（开发板：`from`、`to` 是对角的两个孔，`label` 印在板上），`from` / `to` 孔位，`label`，`color`）、`apart`（两个孔之间画 ✗ 不通）、`notes`（`at` 孔位 + `text`，`side` 只是偏好） |
 | `plot` | 曲线 | `x` / `y`（`label`、`min`、`max`、`ticks`）、`curves`（`points` 折线点，`label`，`labelAt`，`tone`，`dashed`）、`dots`、`hlines`、`vlines` |
 
 ```json

@@ -87,6 +87,73 @@ describe('card figures', () => {
     expect(t).toEqual(expect.arrayContaining(['一条回路', 'One loop', '9 V', 'nine volts']));
   });
 
+  it('draw transistors, MOSFETs, regulators, diodes and motors, and new board parts', () => {
+    const r = parseFigures({
+      sw: {
+        kind: 'schematic',
+        caption: 'x',
+        schematic: {
+          elements: [
+            { ref: 'V1', type: 'BAT', from: [0, 0], to: [0, 7], value: 5 },
+            { ref: 'M1', type: 'M', from: [3, 0], to: [3, 3] },
+            { ref: 'D1', type: 'D', from: [6, 3], to: [6, 0] },
+            { ref: 'Q1', type: 'NMOS', at: [4, 5], flip: true },
+            { ref: 'U1', type: 'REG', at: [9, 0] },
+            { ref: 'Q2', type: 'NPN', at: [10, 5] },
+          ],
+          wires: [
+            [
+              [0, 0],
+              [7, 0],
+            ],
+            [
+              [3, 3],
+              [6, 3],
+            ],
+            [
+              [3, 7],
+              [0, 7],
+            ],
+            [
+              [11, 0],
+              [12, 0],
+              [12, 7],
+              [11, 7],
+            ],
+            [
+              [9, 2],
+              [9, 7],
+              [3, 7],
+            ],
+            [
+              [8, 5],
+              [8, 6],
+              [11, 6],
+              [11, 7],
+            ],
+          ],
+          terminals: [
+            { at: [6, 5], name: 'GPIO' },
+            { at: [11, 3], name: 'C' },
+          ],
+        },
+      },
+      bb: {
+        kind: 'breadboard',
+        caption: 'x',
+        parts: [
+          { type: 'capacitor', from: 'a3', to: 'a4' },
+          { type: 'electrolytic', from: 'a6', to: 'a7' },
+          { type: 'inductor', from: 'b3', to: 'b7' },
+          { type: 'diode', from: 'c3', to: 'c7' },
+          { type: 'board', from: 'e9', to: 'f12', label: 'ESP32' },
+        ],
+      },
+    });
+    expect(r.errors).toEqual([]);
+    expect(Object.keys(r.figures)).toEqual(['sw', 'bb']);
+  });
+
   it('keep LED and BAT out of practice problems', () => {
     const r = parseProblem({
       format: 'circuit-problem/1',

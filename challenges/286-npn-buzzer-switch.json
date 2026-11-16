@@ -76,20 +76,29 @@
     "base": {
       "kind": "schematic",
       "caption": {
-        "text": "基极这一侧：GPIO 是 3.3 V 串 25 Ω，B–E 结是一个二极管（5.1 那种）。R1 决定基极电流 I_B。",
-        "i18n": {"en": "The base side: the GPIO is 3.3 V behind 25 Ω, and the base–emitter junction is a diode (as in 5.1). R1 sets the base current I_B."}
+        "text": "基极这一侧：GPIO 给 3.3 V，B–E 结是一个二极管（5.1 那种），约 0.7 V。R1 决定基极电流 I_B，集电极 C 接蜂鸣器。",
+        "i18n": {"en": "The base side: the GPIO gives 3.3 V, and the base–emitter junction is a diode (as in 5.1), about 0.7 V. R1 sets the base current I_B; the collector C goes to the buzzer."}
       },
       "schematic": {
         "elements": [
           {"ref": "Vg", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 3.3, "label": "GPIO 3.3 V"},
-          {"ref": "Rout", "type": "R", "from": [0, 0], "to": [2, 0], "value": 25},
-          {"ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0]},
-          {"ref": "BE", "type": "NR", "from": [5, 0], "to": [5, 4], "law": {"diode": {}}, "label": "B–E"}
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0]},
+          {"ref": "Q1", "type": "NPN", "at": [5, 0]}
         ],
-        "wires": [[[5, 4], [0, 4]]],
-        "marks": [{"kind": "i", "el": "R1", "name": "I_B"}, {"kind": "v", "el": "BE", "name": "V_BE"}]
+        "wires": [
+          [[6, 2], [6, 4], [0, 4]]
+        ],
+        "terminals": [
+          {"at": [6, -2], "name": "C"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I_B"}
+        ],
+        "notes": [
+          {"at": [2.4, 1.3], "text": "V_BE ≈ 0.7 V"}
+        ]
       },
-      "highlight": ["R1"]
+      "highlight": ["Q1"]
     }
   },
   "i18n": {

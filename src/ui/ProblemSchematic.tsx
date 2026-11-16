@@ -34,7 +34,7 @@ export function symbolText(ref: string): string {
   // breadboard names in lesson figures stay as they are: LED1, AM1 (ammeter), VM1 (voltmeter)
   // (and a lowercase word such as "com" or "out" is a name, not a symbol)
   // and so are microcontroller pins and bench names (PA0, GPIO2, ADC, SDA, SW1, SWOUT, VCC)
-  if (ref.includes('_') || /^(LED|AM|VM)\d*$/.test(ref) || /^[a-z]{3,}$/.test(ref) || /^(GPIO|ADC|BUS|SDA|SCL|SWOUT|SW|VCC|GND|P[A-C])\d*$/.test(ref)) return ref;
+  if (ref.includes('_') || /^(LED|AM|VM)\d*$/.test(ref) || /^[a-z]{3,}$/.test(ref) || /^(GPIO|ADC|DAC|PWM|BUS|SDA|SCL|TX|RX|SWOUT|SW|VCC|GND|P[A-C])\d*$/.test(ref)) return ref;
   const m = ref.match(/^([A-Za-z])([A-Za-z]{0,3}\d*|\d+)$/);
   return m && m[2] ? `${m[1]}_${m[2]}` : ref;
 }
@@ -231,6 +231,8 @@ export function elementValueText(el: TwoTerminalElement): string | null {
     case 'RV':
       return siOrRaw(v, 'Ω');
     case 'S':
+    case 'D':
+    case 'M':
       return null;
     case 'LED':
       return null;
@@ -278,6 +280,10 @@ function bodySize(el: TwoTerminalElement): { B: number; hw: number } {
       return { B: 48, hw: 14 };
     case 'S':
       return { B: 34, hw: 13 };
+    case 'D':
+      return { B: 20, hw: 11 };
+    case 'M':
+      return { B: 30, hw: 15 };
     case 'BAT':
       return { B: 12, hw: 16 };
     default:
@@ -436,6 +442,11 @@ const KIND: Record<string, [string, string]> = {
   LED: ['发光二极管', 'LED'],
   BAT: ['电池', 'battery'],
   RV: ['可变电阻', 'variable resistor'],
+  D: ['二极管', 'diode'],
+  M: ['电机', 'motor'],
+  NPN: ['NPN 三极管', 'NPN transistor'],
+  NMOS: ['N 沟道 MOSFET', 'N-channel MOSFET'],
+  REG: ['稳压器', 'regulator'],
   S: ['开关', 'switch'],
   OPAMP: ['理想运放', 'ideal op-amp'],
   XFMR: ['变压器', 'transformer'],
@@ -478,6 +489,21 @@ export function describeSchematic(s: Schematic): string {
         `${name}: − input at ${at(el.ref, 'minus')}, + input at ${at(el.ref, 'plus')}, output at ${at(el.ref, 'out')}`,
       );
     if (el.type === 'K') return name;
+    if (el.type === 'NPN' || el.type === 'NMOS' || el.type === 'REG') {
+      const pins = Object.keys(terminalPoints(el));
+      const pinName: Record<string, [string, string]> = {
+        b: ['基极', 'base'],
+        c: ['集电极', 'collector'],
+        e: ['发射极', 'emitter'],
+        g: ['栅极', 'gate'],
+        d: ['漏极', 'drain'],
+        s: ['源极', 'source'],
+        in: ['输入', 'in'],
+        out: ['输出', 'out'],
+        gnd: ['地', 'GND'],
+      };
+      return `${name}${tr('：', ': ')}${pins.map((p) => `${tr(pinName[p][0], pinName[p][1])} ${at(el.ref, p)}`).join(tr('，', ', '))}`;
+    }
     return tr(
       `${name}：端口 1 在${at(el.ref, 'p1')}与${at(el.ref, 'n1')}之间，端口 2 在${at(el.ref, 'p2')}与${at(el.ref, 'n2')}之间`,
       `${name}: port 1 between ${at(el.ref, 'p1')} and ${at(el.ref, 'n1')}, port 2 between ${at(el.ref, 'p2')} and ${at(el.ref, 'n2')}`,
@@ -547,6 +573,12 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
     } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
       const [x, y] = px(el.at);
       obstacles.push({ x0: x - 2 * U, y0: y - 1.45 * U, x1: x + 2 * U, y1: y + 1.45 * U });
+    } else if ((el.type === 'NPN' || el.type === 'NMOS') && Array.isArray(el.at)) {
+      const [x, y] = px(el.at);
+      obstacles.push({ x0: x - 2 * U, y0: y - 1.05 * U, x1: x + 1.3 * U, y1: y + 1.05 * U });
+    } else if (el.type === 'REG' && Array.isArray(el.at)) {
+      const [x, y] = px(el.at);
+      obstacles.push({ x0: x - 1.4 * U, y0: y - 0.8 * U, x1: x + 1.4 * U, y1: y + 0.8 * U });
     } else if (el.type === 'TL' && Array.isArray(el.at)) {
       const [x, y] = px(el.at);
       obstacles.push({ x0: x, y0: y - 4, x1: x + lineWidth(el) * U, y1: y + 2 * U + 30 });
@@ -587,6 +619,13 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         if (el.to[0] === p[0] && el.to[1] === p[1]) mark(el.from[0] - p[0], el.from[1] - p[1]);
       } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
         for (const q of Object.values(terminalPoints(el))) if (q[0] === p[0] && q[1] === p[1]) mark(el.at[0] - p[0], 0);
+      } else if (el.type === 'NPN' || el.type === 'NMOS' || el.type === 'REG') {
+        // leads leave the base / gate / in / out sideways, the others vertically
+        for (const q of Object.values(terminalPoints(el)))
+          if (q[0] === p[0] && q[1] === p[1]) {
+            if (q[1] === el.at[1]) mark(el.at[0] - p[0], 0);
+            else mark(0, el.at[1] - p[1]);
+          }
       } else if (el.type === 'TL' && Array.isArray(el.at)) {
         const mid = el.at[0] + lineWidth(el) / 2;
         for (const q of Object.values(terminalPoints(el))) if (q[0] === p[0] && q[1] === p[1]) mark(mid - p[0], 0);
@@ -895,6 +934,19 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         );
         sym('+', -h - 8, -ls * 13, 12);
         break;
+      case 'D':
+        // diode: anode = p (triangle), cathode = n (bar)
+        body = (
+          <g {...common}>
+            <polygon points={`${-h},-10 ${-h},10 ${h},0`} fill="var(--paper)" />
+            <line x1={h} y1={-10} x2={h} y2={10} />
+          </g>
+        );
+        break;
+      case 'M':
+        body = <circle r={h} {...common} fill="var(--paper)" />;
+        sym('M', 0, 0, 14, 'ps-sym ps-meter');
+        break;
       case 'ammeter':
       case 'voltmeter':
         body = <circle r={h} {...common} fill="var(--paper)" />;
@@ -1001,6 +1053,51 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         const up = hits(above) <= hits(below);
         addText(runs, cx, up ? y - 8 : y + 19, 'middle', 'ps-mark', col);
       }
+    } else if ((el.type === 'NPN' || el.type === 'NMOS' || el.type === 'REG') && Array.isArray(el.at)) {
+      const [x, y] = px(el.at);
+      const f = el.flip ? -1 : 1;
+      const X = (dx: number) => x + f * dx * U;
+      const Y = (dy: number) => y + dy * U;
+      const parts: ReactNode[] = [];
+      if (el.type === 'NPN') {
+        const xb = X(-0.35);
+        const tipE: V2 = [X(1), Y(0.9)];
+        const dirE: V2 = [tipE[0] - xb, tipE[1] - Y(0.25)];
+        const lenE = Math.hypot(dirE[0], dirE[1]);
+        parts.push(
+          <circle key="c" cx={X(0.25)} cy={y} r={0.95 * U} {...common} fill="var(--paper)" />,
+          <path key="l" d={`M${X(-2)},${y}H${xb}M${xb},${Y(-0.25)}L${X(1)},${Y(-0.9)}V${Y(-2)}M${xb},${Y(0.25)}L${tipE[0]},${tipE[1]}V${Y(2)}`} {...common} />,
+          <line key="bar" x1={xb} y1={Y(-0.55)} x2={xb} y2={Y(0.55)} {...common} strokeWidth={SW * 2} />,
+          <polygon key="a" points={arrowHead([xb + dirE[0] * 0.78, Y(0.25) + dirE[1] * 0.78], [dirE[0] / lenE, dirE[1] / lenE], 9, 4)} fill={col} />,
+        );
+      } else if (el.type === 'NMOS') {
+        const xg = X(-0.6);
+        const xc = X(-0.32);
+        parts.push(
+          <circle key="c" cx={X(0.25)} cy={y} r={0.95 * U} {...common} fill="var(--paper)" />,
+          <path key="g" d={`M${X(-2)},${y}H${xg}M${xg},${Y(-0.55)}V${Y(0.55)}`} {...common} />,
+          ...[-0.45, 0, 0.45].map((dy) => <line key={`ch${dy}`} x1={xc} y1={Y(dy - 0.15)} x2={xc} y2={Y(dy + 0.15)} {...common} strokeWidth={SW * 1.6} />),
+          <path key="ds" d={`M${xc},${Y(-0.45)}H${X(1)}V${Y(-2)}M${xc},${Y(0.45)}H${X(1)}V${Y(2)}M${xc},${y}H${X(1)}V${Y(0.45)}`} {...common} />,
+          <polygon key="a" points={arrowHead([xc + f * 4, y], [-f, 0], 8, 3.6)} fill={col} />,
+        );
+      } else {
+        parts.push(
+          <path key="l" d={`M${X(-2)},${y}H${X(-1.3)}M${X(1.3)},${y}H${X(2)}M${x},${Y(0.7)}V${Y(2)}`} {...common} />,
+          <rect key="b" x={x - 1.3 * U} y={Y(-0.7)} width={2.6 * U} height={1.4 * U} rx={3} {...common} fill="var(--paper)" />,
+          <text key="i" x={X(-1.05)} y={y + 4} textAnchor={f > 0 ? 'start' : 'end'} fontSize={11} className="ps-sym" fill={col}>
+            IN
+          </text>,
+          <text key="o" x={X(1.05)} y={y + 4} textAnchor={f > 0 ? 'end' : 'start'} fontSize={11} className="ps-sym" fill={col}>
+            OUT
+          </text>,
+          <text key="g" x={x} y={Y(0.55)} textAnchor="middle" fontSize={11} className="ps-sym" fill={col}>
+            GND
+          </text>,
+        );
+      }
+      bodies.push(<g key={`dev${el.ref}`}>{parts}</g>);
+      if (el.type === 'REG') addText(richRuns(el.label ?? symbolText(el.ref)), x, Y(-0.7) - 6, 'middle', 'ps-ref', hl.has(el.ref) ? col : undefined);
+      else addText(richRuns(el.label ?? symbolText(el.ref)), X(1.35), y + 5, f > 0 ? 'start' : 'end', 'ps-ref', hl.has(el.ref) ? col : undefined);
     } else if (el.type === 'XFMR') {
       if (!Array.isArray(el.at)) continue;
       const [x, y] = px(el.at);
