@@ -79,11 +79,65 @@ details.sub{margin:8px 0;font-size:13.5px} details.sub summary{cursor:pointer;co
 <header>
 <h1>Breadboard Lab 课程清单与教学评估</h1>
 <p class="lede">这份文档列出项目里现有的全部课程、实验和理论题，说明每一个单元教什么、怎么实现、学生能做哪些操作、用了哪些引导发散思考的手段，并给出一条推荐学习路线和一份教学评估。写给负责审查的 Agent 和课程负责人。</p>
-<p class="dim">数据基准：<code>main</code> 分支提交 <code>dfcec1e</code>，2026-11-14。清单、计数、指标矩阵由脚本直接从 <code>challenges/</code>、<code>problems/</code>、<code>summaries/</code> 读出；学习路线、时间估计和评估结论是协调者（我）的判断，文中都标明了依据和把握程度。</p>
+<p class="dim">数据基准：2026-11-17 的 World 重构（<code>course/worlds.json</code>、<code>course/portals.json</code>、<code>units/</code>）；“本轮重构”一节在最前面，其余各节的评估文字写于 2026-11-14（提交 <code>dfcec1e</code>），计数和清单已按当前内容重新生成。清单、计数、指标矩阵由脚本直接从 <code>challenges/</code>、<code>problems/</code>、<code>summaries/</code> 读出；学习路线、时间估计和评估结论是协调者（我）的判断，文中都标明了依据和把握程度。</p>
 </header>
 <nav class="top" aria-label="目录">
-<a href="#overview">总览</a><a href="#path">学习路线</a><a href="#eval">教学评估</a><a href="#how">怎么做出来的</a><a href="#interact">交互清单</a><a href="#diverge">发散思维手段</a><a href="#catalog">面包板课程与实验</a><a href="#theory">理论练习</a><a href="#review">给审查者</a>
+<a href="#rebuild">本轮重构</a><a href="#overview">总览</a><a href="#path">学习路线</a><a href="#eval">教学评估</a><a href="#how">怎么做出来的</a><a href="#interact">交互清单</a><a href="#diverge">发散思维手段</a><a href="#catalog">面包板课程与实验</a><a href="#theory">理论练习</a><a href="#review">给审查者</a>
 </nav>
+
+<h2 id="rebuild">本轮重构：World、传送门、单元</h2>
+<p>课程从“第 1–5 期”改成按 QCC 课程组织的 <b>8 个主线 World + 1 个 UB 衔接区</b>。归属只改 <code>course/worlds.json</code>，所有单元原有的 id 和文件名都没动（本地进度、交叉引用、e2e 不受影响）。应用里新增“路线”页（<code>#/map</code>）、学习单元页（<code>#/unit/&lt;id&gt;</code>）、传送门、页眉的“待看”队列和传送后的面包屑；挑战列表的分组标签和练习区的章节分组也改成 World。</p>
+
+<h3>1. 新旧 World 归属对照</h3>
+<p>“原来在哪”是重构前的分组（入门课、仪器课、入门挑战、第 1–5 期实验、理论第 1–4 期）。</p>
+<!--WORLDS-->
+
+<h3>2. 传送门及其状态</h3>
+<!--PORTALS-->
+
+<h3>3. 新建的单元和新增的 block 类型</h3>
+<p><b>新的内容类型：学习单元</b>（<code>learning-unit/1</code>，格式见 <code>docs/UNIT_FORMAT.md</code>）。一个单元只回答一个问题，最多五层，顺序固定：直觉 → 推导 → 仿真 → 面包板 → 回链。共 10 种 block：</p>
+<ul>
+<li><code>text</code> 文字（支持表格和公式记号）；<code>note</code> 提示框（合理性检查、常见错误）；<code>steps</code> 推导分步揭开；</li>
+<li><code>predict</code> 先作答再揭晓（选择、数字或文字答案，即时判对错）；</li>
+<li><code>explore</code> 滑块 + 实时结果（公式模型，可对数滑块）；<code>sim</code> 情景仿真：先预测 → 运行 → 解释，包括“故意做坏事”；</li>
+<li><code>circuit</code> 电路图（复用理论题的画图格式，校验时按同一套几何规则提取电路）；<code>bench</code> 面包板入口；<code>problems</code> 挂理论题；<code>portal</code> 在指定位置放传送门。</li>
+</ul>
+<p>面包板题格式新增可选字段 <code>figures</code>（配图，复用理论题画图代码，见 <code>docs/CHALLENGE_FORMAT.md</code> §16），已用于 <code>04-schematic-to-breadboard</code>、<code>09-two-leds-series</code>、<code>10-voltage-divider</code>。</p>
+<!--UNITS-->
+<p><b>新面包板实验</b>：<code>229-difference-amp</code>（World 3 · 5g，差分放大 = 叠加定理）、<code>248-rlc-step-response</code>（World 4，二阶阶跃响应，α 与 ω0）、<code>260-rlc-series-ac</code>（World 5 Part A，串联 RLC 正弦稳态，Boylestad Lab 14）。<b>新理论题</b>：<code>ac-analysis-19…22</code>（Midterm 2 交流版：叠加、网孔、结点、戴维宁，把 R 换成 Z）。<b>润色</b>：<code>opamp</code>、<code>storage</code>、<code>first-order</code>、<code>second-order</code> 四章 56 题逐题重解，改了 38 题（没有发现答案错误；修了提示 / 选项泄题、推理顺序、记号，以及二阶要点页 36 处下标吞字母的显示错误）。</p>
+
+<h3>4. 和指令对不上的文件名或编号</h3>
+<p>指令里的编号来自之前的规划讨论，仓库里没有 “World” 和 “1.1–1.11” 这套编号。能按内容确定对应关系的，按内容放；对不上的列在这里。<b>标“请确认”的是我的判断。</b></p>
+<div class="tw"><table><thead><tr><th>指令写的</th><th>仓库里实际</th><th>本轮怎么处理</th></tr></thead><tbody>
+<tr><td>World 1 移走 <code>08</code>、<code>09</code>、<code>209</code>、<code>210</code>（二极管 / LED 非线性）</td><td><code>08</code> 是“电源大比较”，不是二极管；<code>09</code> 是两个 LED 串联；<code>209</code>、<code>210</code> 不存在</td><td><code>09</code> 移到 World 6；<code>08</code> 留在 World 1。另外 <code>14</code> 防反接（二极管）、<code>16</code> 蓝光 LED、<code>18</code> 白光 LED 也属于二极管 / LED 非线性，指令没点名，留在 World 1 —— 请确认</td></tr>
+<tr><td>World 2：<code>202</code> 带载分压、<code>203</code> 电桥、<code>204</code> 叠加、<code>205</code> 戴维南与最大功率</td><td>202 是 KVL，203 是带载分压，206 是电桥，221 叠加，222 戴维宁，223 最大功率</td><td>按内容放了 203、206、221、222、223，另加 224 结点法、208 电源等效变换（Sadiku Ch 4）</td></tr>
+<tr><td>World 2：原 <code>2.7</code> 受控源面包板；理论章 <code>dependent-sources</code></td><td>没有受控源面包板实验；没有单独的受控源章（分散在 <code>basics</code>、<code>methods</code>）</td><td>World 2 里注明；运放 → 受控源的传送门指向 <code>methods-13-nodal-grounded-vcvs</code>（结点法里的 VCVS）</td></tr>
+<tr><td>World 4：<code>105</code>、<code>239</code>、<code>240</code>、<code>242</code> 电容与 RC 暂态</td><td>105 是“示波器双通道：相位差”课；239、240 不存在</td><td>RC 暂态用 241、247、245、242；105 按内容放到 World 5 Part A（相位差）</td></tr>
+<tr><td>World 4：<code>243</code>、<code>244</code> 电感 RL 暂态与续流</td><td>243 是 RL 方波；244 是 RLC 振铃；续流二极管在 288（继电器，World 8）</td><td>243 放 RL，244 放二阶 RLC</td></tr>
+<tr><td>World 5 Part A：<code>250</code> 峰值 / RMS / 相位差</td><td>不存在</td><td>用 105（相位差课）+ 263（RL 相量）+ 新建的 260</td></tr>
+<tr><td>World 5 Part B：<code>263</code>、<code>264</code> 无源 RC 滤波；<code>269</code> 谐振；<code>270</code> PFC</td><td>无源 RC 滤波是 261、262（还有 267 带通）；263 是 RL 相量，264 是串联谐振；269、270 不存在</td><td>Part B 放 261、262、267、264、265；PFC 登记为待建 <code>w5-ac-power-pfc</code></td></tr>
+<tr><td>World 6：<code>271</code> 半波整流</td><td>不存在</td><td>登记为待建 <code>w6-half-wave-rectifier</code></td></tr>
+<tr><td>World 7：<code>230</code> 施密特触发器，删掉对比段里“模拟器暂时算不出”</td><td>230 不存在；全仓库搜不到这句话</td><td>登记为待建 <code>w7-schmitt</code>；没有可删的句子</td></tr>
+<tr><td>World 7：<code>268</code> 有源带通</td><td>268 是“两级 RC + 电压跟随器”（缓冲带通），不是有源带通</td><td>照放 World 7，标题没改</td></tr>
+<tr><td>理论章名 <code>sinusoids-phasors</code>、<code>resonance</code>、<code>coupled-inductors</code>、<code>transfer-functions</code></td><td>实际叫 <code>phasors</code>、<code>frequency</code>、<code>coupled</code>；传递函数没有单独的章（在 <code>s-domain</code>、<code>frequency</code> 里）</td><td>按实际章名放</td></tr>
+<tr><td>（指令没提）<code>nonlinear</code>、<code>non-sinusoidal</code> 两章</td><td>非线性电阻电路（二极管分段线性、小信号）；非正弦周期电路（傅里叶级数）</td><td><code>nonlinear</code> 放 World 6，<code>non-sinusoidal</code> 放 UB 区 —— 请确认</td></tr>
+<tr><td><code>docs/REBUILD_PLAN.md</code></td><td>原来不存在</td><td>本轮新建</td></tr>
+<tr><td>特勒根题 <code>û</code> → <code>v̂</code></td><td>项目约定电压用 u（邱关源），同一题里还有 u_1、u_2</td><td>为了不在一题里混用，这道题和要点页的特勒根部分 u、û 都改成 v、v̂；互易定理部分（15、18 题）仍是 û —— 请确认是否也改</td></tr>
+<tr><td>P2 新增“二阶 RLC 阶跃响应”</td><td>244 已经覆盖三种阻尼的振铃</td><td>新建 248，重点放在算出并测出 α、ω0，与 244 互补</td></tr>
+</tbody></table></div>
+
+<h3>5. 没完成的项目及原因</h3>
+<ul>
+<li><b>LM358 参数没能在线核对。</b>本会话的网络不允许访问 ti.com，<code>w3-chip</code> 里的数值按 TI datasheet 的典型值写，并标了“典型值”。GBW 写的是 0.7 MHz，而 106 课写“约 1 MHz”，需要对着 datasheet 统一。</li>
+<li><b>106 课没有开环部分。</b>它只搭跟随器。5a、5i 的面包板层让学生自己改接线看饱和 / 比较器，没有自动检查；要检查需要加一节短实验。</li>
+<li><b>opamp-11（负阻抗变换器）在真实运放上会锁死。</b>正反馈系数 0.6 大于负反馈 0.5；理想模型下答案正确。建议把 R_4 改到 2 kΩ 以下（本轮没改电路）。</li>
+<li><b>248 的 α 没有单位。</b>面包板题的校验器不接受单位 “1/s”，题面写“只填数字”。另外示波器的振铃频率测量在某些方波频率下偏低 2–3 %，实验选了读数干净的 480 Hz。</li>
+<li><b>260 的标题编号是“实验 4-0”</b>，因为文件排在 4-1 之前；需要的话可以改名。</li>
+<li><b>记号没有全项目统一。</b>单元按 Sadiku 用 v，理论题仍用 u（单元里提示一次）。全部改成 v 是单独的决定，本轮没做。</li>
+<li><b>可选项 P3.3</b>（World 2 末尾电压表 / 电流表设计）没做，写进了 <code>REBUILD_PLAN.md</code> 的长期规划。</li>
+<li><b>§7 的待建单元、五层结构推广、器件档案</b>：按指令只登记在 <code>REBUILD_PLAN.md</code>，本轮不开发。</li>
+</ul>
 
 <h2 id="overview">总览</h2>
 <div class="tiles">
