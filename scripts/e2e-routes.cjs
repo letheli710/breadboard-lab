@@ -30,12 +30,12 @@ const assert = (c, m) => {
   assert(h.startsWith('#/learn/'), 'first visit → ' + h);
   const lesson = h;
   // learn → challenge
-  await page.click('nav.nav button:nth-child(2)');
+  await page.click('nav.nav button:nth-child(4)');
   await settle();
   const chal = await hash();
   assert(chal.startsWith('#/challenges/'), 'nav Challenges → ' + chal);
   // challenge → practice
-  await page.click('nav.nav button:nth-child(3)');
+  await page.click('nav.nav button:nth-child(5)');
   await settle();
   const prac = await hash();
   assert(prac.startsWith('#/practice/'), 'nav Practice → ' + prac);
@@ -96,14 +96,37 @@ const assert = (c, m) => {
   await settle();
   assert((await hash()) === '#/learn/lesson-power-and-ground', 'kind mismatch normalised → ' + (await hash()));
   // guide deep link via card link
-  await page.click('nav.nav button:nth-child(5)');
+  await page.click('nav.nav button:nth-child(7)');
   await settle();
   await page.click('#guide-led a.concept-num');
   await settle();
   assert((await hash()) === '#/guide/led', 'guide card link → ' + (await hash()));
-  await page.click('nav.nav button:nth-child(4)');
+  await page.click('nav.nav button:nth-child(6)');
   await settle();
   assert((await hash()) === '#/sandbox', 'sandbox ' + (await hash()));
+  // Inside (teardowns) and Calc: list pages, a deep link, Back
+  await page.click('nav.nav button:nth-child(2)');
+  await settle();
+  assert((await hash()) === '#/inside', 'nav Inside → ' + (await hash()));
+  await page.click('.inside-card');
+  await settle();
+  await page.waitForSelector('svg.td-fig', { timeout: 15000 });
+  assert((await hash()).startsWith('#/inside/') && (await page.locator('svg.td-fig').count()) === 1, 'teardown opened → ' + (await hash()));
+  await page.click('nav.nav button:nth-child(3)');
+  await settle();
+  assert((await hash()) === '#/calc' && (await page.locator('.calc-card').count()) > 20, 'nav Calc → ' + (await hash()));
+  await page.evaluate(() => (location.hash = '#/calc/led-resistor'));
+  await settle();
+  assert((await page.locator('#calc-led-resistor .calc-out b').innerText()).includes('Ω'), 'calc card computes');
+  // Back walks through the calc card, the Calc list and the teardown to the sandbox
+  const back = [];
+  for (let i = 0; i < 6 && (await hash()) !== '#/sandbox'; i++) {
+    await page.goBack();
+    await settle();
+    back.push(await hash());
+  }
+  assert(back.includes('#/calc') && back.some((h) => h.startsWith('#/inside/')), 'Back through calc and the teardown → ' + back.join(' '));
+  assert((await hash()) === '#/sandbox', 'Back to sandbox → ' + (await hash()));
   await page.goBack();
   await settle();
   assert((await hash()) === '#/guide/led', 'back to guide section');

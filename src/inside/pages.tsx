@@ -217,6 +217,8 @@ export function LookInside({ chId }: { chId: string }) {
   const show = useStore((s) => s.setBenchInside);
   // the first time a lesson with a teardown opens, show the teardown instead of the empty board
   useEffect(() => {
+    // browser-test builds start lessons on the bench (their suites drive the board)
+    if (__E2E__) return;
     const seen = readSeen();
     const first = list.find((t) => !seen[t.id]);
     if (first && !useStore.getState().benchInside) show(first.id);
