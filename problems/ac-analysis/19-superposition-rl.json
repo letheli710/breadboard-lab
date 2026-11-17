@@ -1,0 +1,94 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-analysis-19-superposition-rl",
+  "chapter": "ac-analysis",
+  "title": "叠加定理的交流版：R_2 换成 L",
+  "level": 2,
+  "tags": ["叠加定理", "相量相加", "从直流到交流"],
+  "statement": [
+    "和 World 2 的 `theorems-01-superposition-basic` 同一个结构，只是 R_2 换成了电感 L（阻抗 Z_L），两个源换成了同频率的正弦源。",
+    "ω = 1000 rad/s，U̇_s = 12∠0° V，İ_s = 3∠90° A（有效值相量），R_1 = 4 Ω，L = 4 mH。",
+    "用**叠加定理**求电感电流 İ_L（参考方向见图）和结点电压 U̇_a。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 12, "phase": 0 } } },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4 },
+      { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": "4m" },
+      { "ref": "Is", "type": "I", "from": [12, 4], "to": [12, 0], "value": { "ac": { "mag": 3, "phase": 90 } } }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [12, 0]],
+      [[12, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [8, 0], "name": "a" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "L", "name": "I_L" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    {
+      "id": "zero",
+      "ask": "求 İ_s 单独作用的分量时，U̇_s 应该怎样处理？",
+      "choices": ["用短路线代替（U̇_s 置零）", "用开路代替", "只把它的相位改成 0°"],
+      "choiceExplain": ["", "开路是电流源置零的做法。电压源置零是让它两端电压为 0，也就是短路，交流和直流一样。", "相位改成 0° 它还是一个 12 V 的源，不是置零。置零是让相量 U̇_s = 0。"],
+      "correct": 0,
+      "explain": "和直流完全一样：电压源置零 = 短路，电流源置零 = 开路。换成相量不改变这条规则。"
+    },
+    { "id": "IL", "ask": "|İ_L| = ?", "find": { "kind": "i", "el": "L" }, "answer": 3, "unit": "A", "explain": "U̇_a = j12 V，İ_L = U̇_a/Z_L = j12/(j4) = 3 A。和直流题的 i_2 = 3 A 一样大，这是特意选的数。" },
+    { "id": "ILph", "ask": "İ_L 的相位 = ?", "find": { "kind": "i", "el": "L", "part": "phase" }, "answer": 0, "unit": "°", "explain": "两个分量 1.5 − j1.5 A 和 1.5 + j1.5 A 的虚部抵消，İ_L = 3∠0° A。" },
+    { "id": "Ua", "ask": "|U̇_a| = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 12, "unit": "V", "explain": "U̇_a′ = 6 + j6 V，U̇_a″ = −6 + j6 V，相加得 j12 V，模 12 V。两个分量的模都是 8.49 V，合起来却不是 16.97 V。" },
+    { "id": "Uaph", "ask": "U̇_a 的相位 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "phase" }, "answer": 90, "unit": "°", "explain": "U̇_a = j12 = 12∠90° V。" }
+  ],
+  "hints": [
+    "和直流题一样画两个分电路：U̇_s 单独作用时 İ_s 开路；İ_s 单独作用时 U̇_s 短路。",
+    "先把 L 写成阻抗 Z_L = jωL。分压、分流公式照用，只是算复数；两个分量按复数相加，不能把模直接相加。",
+    "İ_s 单独作用时，它流进 R_1 ∥ Z_L = 2 + j2 Ω。"
+  ],
+  "solution": [
+    "**1. 阻抗。** Z_L = jωL = j1000 × 0.004 = j4 Ω。R_1 不变，仍是 4 Ω。",
+    "**2. U̇_s 单独作用（İ_s 开路）。** R_1 与 Z_L 分压：U̇_a′ = U̇_s·Z_L/(R_1 + Z_L) = 12 × j4/(4 + j4) = 12 × j/(1 + j) = **6 + j6 V**。",
+    "**3. İ_s 单独作用（U̇_s 短路）。** R_1 ∥ Z_L = 4 × j4/(4 + j4) = 2 + j2 Ω，U̇_a″ = İ_s·(2 + j2) = j3 × (2 + j2) = **−6 + j6 V**。",
+    "**4. 叠加。** U̇_a = U̇_a′ + U̇_a″ = **j12 V = 12∠90° V**。İ_L = U̇_a/Z_L = j12/(j4) = **3∠0° A**。",
+    "**5. 验算（结点 a 的 KCL）。** R_1 中向右的电流 (U̇_s − U̇_a)/R_1 = (12 − j12)/4 = 3 − j3 A，加上 İ_s = j3 A，得 3 A = İ_L ✓。",
+    "和直流题相比：步骤一模一样，只是 R_2 变成了 j4 Ω，数变成了复数。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Superposition, AC edition: R_2 becomes L",
+      "tags": ["superposition", "adding phasors", "from DC to AC"],
+      "statement": [
+        "Same structure as World 2's `theorems-01-superposition-basic`; only R_2 has become an inductor L (impedance Z_L) and the two sources are sinusoids of the same frequency.",
+        "ω = 1000 rad/s, U̇_s = 12∠0° V, İ_s = 3∠90° A (rms phasors), R_1 = 4 Ω, L = 4 mH.",
+        "Use **superposition** to find the inductor current İ_L (reference direction as drawn) and the node voltage U̇_a."
+      ],
+      "questions": [
+        {
+          "ask": "When you find the part due to İ_s alone, what do you do with U̇_s?",
+          "choices": ["Replace it with a short (U̇_s set to zero)", "Replace it with an open circuit", "Only change its phase to 0°"],
+          "choiceExplain": ["", "An open circuit is how you zero a current source. Zeroing a voltage source means zero volts across it, which is a short, in AC just as in DC.", "With its phase changed to 0° it is still a 12 V source, not zero. Zeroing means the phasor U̇_s = 0."],
+          "explain": "Exactly as in DC: a zeroed voltage source is a short, a zeroed current source is an open. Phasors do not change this rule."
+        },
+        { "ask": "|İ_L| = ?", "explain": "U̇_a = j12 V, so İ_L = U̇_a/Z_L = j12/(j4) = 3 A. The same size as i_2 = 3 A in the DC problem; the numbers were chosen that way." },
+        { "ask": "Phase of İ_L = ?", "explain": "The imaginary parts of the two parts 1.5 − j1.5 A and 1.5 + j1.5 A cancel, so İ_L = 3∠0° A." },
+        { "ask": "|U̇_a| = ?", "explain": "U̇_a′ = 6 + j6 V and U̇_a″ = −6 + j6 V add to j12 V, magnitude 12 V. Each part has magnitude 8.49 V, yet the total is not 16.97 V." },
+        { "ask": "Phase of U̇_a = ?", "explain": "U̇_a = j12 = 12∠90° V." }
+      ],
+      "hints": [
+        "Draw the two part-circuits as in the DC problem: with U̇_s alone, İ_s is open; with İ_s alone, U̇_s is shorted.",
+        "First write L as an impedance, Z_L = jωL. The divider formulas still work, only with complex numbers; add the two parts as complex numbers, never their magnitudes.",
+        "With İ_s alone, it flows into R_1 ∥ Z_L = 2 + j2 Ω."
+      ],
+      "solution": [
+        "**1. Impedance.** Z_L = jωL = j1000 × 0.004 = j4 Ω. R_1 stays 4 Ω.",
+        "**2. U̇_s alone (İ_s open).** R_1 and Z_L form a divider: U̇_a′ = U̇_s·Z_L/(R_1 + Z_L) = 12 × j4/(4 + j4) = 12 × j/(1 + j) = **6 + j6 V**.",
+        "**3. İ_s alone (U̇_s shorted).** R_1 ∥ Z_L = 4 × j4/(4 + j4) = 2 + j2 Ω, U̇_a″ = İ_s·(2 + j2) = j3 × (2 + j2) = **−6 + j6 V**.",
+        "**4. Add.** U̇_a = U̇_a′ + U̇_a″ = **j12 V = 12∠90° V**. İ_L = U̇_a/Z_L = j12/(j4) = **3∠0° A**.",
+        "**5. Check (KCL at a).** The current to the right in R_1 is (U̇_s − U̇_a)/R_1 = (12 − j12)/4 = 3 − j3 A; adding İ_s = j3 A gives 3 A = İ_L ✓.",
+        "Compared with the DC problem: the steps are identical; R_2 has just become j4 Ω and the numbers are complex."
+      ]
+    }
+  }
+}
