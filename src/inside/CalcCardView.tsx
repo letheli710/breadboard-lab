@@ -11,7 +11,7 @@ import { useStore } from '../state/store';
 import { Icon } from '../ui/Icons';
 import { MathText } from '../ui/mathText';
 import { useCalcs } from './hooks';
-import { InsideMd } from './InsideMd';
+import { inline, InsideMd } from './InsideMd';
 import { tdById } from './registry';
 import type { CalcCard } from './types';
 
@@ -48,7 +48,7 @@ function Calculator({ c }: { c: CalcCard }) {
             <span className="calc-sym">
               <MathText text={v.sym.replace(/^([A-Za-z])(\d+)$/, '$1_$2')} />
             </span>
-            <span className="calc-name">{v.name}</span>
+            <span className="calc-name">{inline(v.name)}</span>
             <span className="calc-field">
               <input
                 value={txt[v.sym] ?? ''}
@@ -64,7 +64,7 @@ function Calculator({ c }: { c: CalcCard }) {
       </div>
       <div className="calc-out" aria-live="polite">
         <span className="calc-out-name">
-          <MathText text={c.out.sym} /> · {c.out.name}
+          <MathText text={c.out.sym} /> · {inline(c.out.name)}
         </span>
         <b>{fmt(res, c.out.unit)}</b>
       </div>
@@ -81,7 +81,7 @@ export function CalcCardView({ c, onTeardown, onClose }: { c: CalcCard; onTeardo
   return (
     <article className="calc-card card" aria-labelledby={`calc-h-${c.id}`}>
       <header className="calc-head">
-        <h3 id={`calc-h-${c.id}`}>{c.title}</h3>
+        <h3 id={`calc-h-${c.id}`}>{inline(c.title)}</h3>
         <p className="calc-use">{c.use}</p>
       </header>
       <div className="calc-top">
@@ -165,7 +165,7 @@ export function CalcChipsInner({ ids, onOpen }: { ids: string[]; onOpen?: (id: s
       </span>
       {cards.map((c) => (
         <button key={c.id} className="chip calc-chip" onClick={() => (onOpen ? onOpen(c.id) : setShown(c.id))}>
-          {c.title}
+          {inline(c.title)}
         </button>
       ))}
       {shown && <CalcDialog id={shown} onClose={() => setShown(null)} />}

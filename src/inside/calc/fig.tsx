@@ -2,6 +2,7 @@
 // currentColor through the .cf-* classes so the figures follow the page theme.
 
 import type { ReactNode } from 'react';
+import { sub } from '../TeardownView';
 
 type P = { x1: number; y1: number; x2: number; y2: number };
 
@@ -31,7 +32,7 @@ export function R({ x1, y1, x2, y2, label, lx, ly }: P & { label?: string; lx?: 
       <polyline points={pts.join(' ')} className="cf-w" fill="none" />
       {label && (
         <text x={lx ?? (uy ? mx + 10 : mx)} y={ly ?? (uy ? my + 4 : my - 10)} className="cf-t" textAnchor={uy ? 'start' : 'middle'}>
-          {label}
+          {sub(label)}
         </text>
       )}
     </g>
@@ -62,7 +63,7 @@ export function C({ x1, y1, x2, y2, label }: P & { label?: string }) {
       )}
       {label && (
         <text x={vert ? mx + 16 : mx} y={vert ? my + 4 : my - 16} className="cf-t" textAnchor={vert ? 'start' : 'middle'}>
-          {label}
+          {sub(label)}
         </text>
       )}
     </g>
@@ -82,7 +83,7 @@ export function L({ x1, y1, x2, y2, label }: P & { label?: string }) {
       <path d={d} className="cf-w" fill="none" />
       {label && (
         <text x={vert ? x1 + 12 : (x1 + x2) / 2} y={vert ? (y1 + y2) / 2 + 4 : y1 - 10} className="cf-t" textAnchor={vert ? 'start' : 'middle'}>
-          {label}
+          {sub(label)}
         </text>
       )}
     </g>
@@ -105,7 +106,7 @@ export function V({ x, y1, y2, label }: { x: number; y1: number; y2: number; lab
       </text>
       {label && (
         <text x={x - 20} y={my + 4} textAnchor="end" className="cf-t">
-          {label}
+          {sub(label)}
         </text>
       )}
     </g>
@@ -123,7 +124,7 @@ export function I({ x, y1, y2, label }: { x: number; y1: number; y2: number; lab
       <path d={`M${x} ${my + 8} V${my - 8} M${x - 4} ${my - 3} L${x} ${my - 9} L${x + 4} ${my - 3}`} className="cf-w" fill="none" />
       {label && (
         <text x={x - 20} y={my + 4} textAnchor="end" className="cf-t">
-          {label}
+          {sub(label)}
         </text>
       )}
     </g>
@@ -155,7 +156,7 @@ export function D({ x1, y1, x2, y2, label, led }: P & { label?: string; led?: bo
       {led && <path d={`M${mx + 10} ${my - 10} l8 -8 M${mx + 14} ${my - 6} l8 -8`} className="cf-w thin" />}
       {label && (
         <text x={vert ? mx + 16 : mx} y={vert ? my + 4 : my + 24} className="cf-t" textAnchor={vert ? 'start' : 'middle'}>
-          {label}
+          {sub(label)}
         </text>
       )}
     </g>
@@ -191,7 +192,7 @@ export const Dot = ({ x, y }: { x: number; y: number }) => <circle cx={x} cy={y}
 
 export const T = ({ x, y, children, anchor = 'middle', cls = '' }: { x: number; y: number; children: ReactNode; anchor?: 'start' | 'middle' | 'end'; cls?: string }) => (
   <text x={x} y={y} textAnchor={anchor} className={`cf-t ${cls}`}>
-    {children}
+    {typeof children === 'string' ? sub(children) : children}
   </text>
 );
 
@@ -200,7 +201,7 @@ export const VArrow = ({ x, y1, y2, label }: { x: number; y1: number; y2: number
   <g>
     <path d={`M${x} ${y1} V${y2} M${x - 4} ${y2 + (y2 < y1 ? 6 : -6)} L${x} ${y2} L${x + 4} ${y2 + (y2 < y1 ? 6 : -6)}`} className="cf-w accent" fill="none" />
     <text x={x + 6} y={(y1 + y2) / 2 + 4} className="cf-t accent">
-      {label}
+      {sub(label)}
     </text>
   </g>
 );

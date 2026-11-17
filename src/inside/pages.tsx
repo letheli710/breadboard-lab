@@ -12,7 +12,7 @@ import { Icon } from '../ui/Icons';
 import { MathText } from '../ui/mathText';
 import { CalcCardView, CalcDialog } from './CalcCardView';
 import { useCalcs, useTeardown } from './hooks';
-import { InsideMd } from './InsideMd';
+import { inline, InsideMd } from './InsideMd';
 import { TEARDOWNS, tdById, teardownsFor } from './registry';
 import { TeardownView } from './TeardownView';
 
@@ -262,7 +262,7 @@ export function LessonCalcs({ chId }: { chId: string }) {
         {cards.map((c) => (
           <li key={c.id}>
             <button className="lesson-calc" onClick={() => setOpen(c.id)}>
-              <span className="lesson-calc-t">{c.title}</span>
+              <span className="lesson-calc-t">{inline(c.title)}</span>
               <span className="lesson-calc-f">
                 <MathText text={c.tex} />
               </span>

@@ -316,7 +316,7 @@ function Follower({ layer }: { layer: number }) {
       <Output x2={500} />
       <path d={`M460 ${AP.y} L460 ${Y_INN - 70} L100 ${Y_INN - 70} L100 ${Y_INN} L150 ${Y_INN}`} className="oa-wire fb" data-part="fb" />
       <circle cx={460} cy={AP.y} r={4} className="oa-term" data-part="fb" />
-      <text x={280} y={Y_INN - 78} textAnchor="middle" className="oa-lbl fb" data-part="fb">
+      <text x={390} y={Y_INN - 78} textAnchor="middle" className="oa-lbl fb" data-part="fb">
         {tr('负反馈：vₒ 接回 IN−', 'negative feedback: vₒ back to IN−')}
       </text>
       <g data-part="vin">
@@ -517,35 +517,35 @@ That is what "**dual**" means. They share only two things: [[vplus|V+ (pin 8)]] 
         title: tr('③ 符号：教授画的那个三角形', '③ The symbol: the triangle on the blackboard'),
         body: tr(
           `原理图里，一个 op-amp 画成一个 [[tri|三角形]]，信号从左往右走：
-- [[inn|IN−（反相输入 inverting input）]]：标“−”的那只脚，它上面的电压记作 $v_-$；
-- [[inp|IN+（同相输入 non-inverting input）]]：标“+”的那只脚，电压记作 $v_+$；
+- [[inn|IN−（反相输入 inverting input）]]：标“−”的那只脚，它上面的电压记作 $v₋$；
+- [[inp|IN+（同相输入 non-inverting input）]]：标“+”的那只脚，电压记作 $v₊$；
 - [[out|OUT（输出）]]：三角形的尖，电压 $v_o$；
 - [[vplus|V+]] 和 [[vminus|V−]]：电源脚。理论题里常常 **省略不画**，但真实电路里必须接，否则它不工作。
 
 注意：“+”“−”不是电源正负极，而是“这只输入对输出的作用是同向还是反向”。op-amp 只关心两个输入之间的 **差**：
-$$v_d = v_+ - v_-$$
+$$v_d = v₊ - v₋$$
 [[vd|v_d]] 叫 **差模输入电压**（differential input voltage）。`,
           `On a schematic an op-amp is a [[tri|triangle]] and signals flow left to right:
-- [[inn|IN− (inverting input)]]: the pin marked "−"; its voltage is $v_-$;
-- [[inp|IN+ (non-inverting input)]]: the pin marked "+"; its voltage is $v_+$;
+- [[inn|IN− (inverting input)]]: the pin marked "−"; its voltage is $v₋$;
+- [[inp|IN+ (non-inverting input)]]: the pin marked "+"; its voltage is $v₊$;
 - [[out|OUT]]: the tip of the triangle, voltage $v_o$;
 - [[vplus|V+]] and [[vminus|V−]]: the power pins. Theory problems often **leave them out**, but a real circuit needs them or nothing works.
 
 Note: "+" and "−" are not the supply polarity. They say whether that input pushes the output the same way or the opposite way. An op-amp only cares about the **difference** between its inputs:
-$$v_d = v_+ - v_-$$
+$$v_d = v₊ - v₋$$
 [[vd|v_d]] is the **differential input voltage**.`,
         ),
         table: {
           head: [tr('端子', 'Terminal'), tr('符号', 'Symbol'), tr('LM358 A 的脚', 'LM358 pin (A)'), tr('作用', 'Role')],
           rows: [
-            ['IN+', '$v_+$', '3', tr('$v_+$ 升高 → $v_o$ 升高', '$v_+$ up → $v_o$ up')],
-            ['IN−', '$v_-$', '2', tr('$v_-$ 升高 → $v_o$ 降低', '$v_-$ up → $v_o$ down')],
+            ['IN+', '$v₊$', '3', tr('$v₊$ 升高 → $v_o$ 升高', '$v₊$ up → $v_o$ up')],
+            ['IN−', '$v₋$', '2', tr('$v₋$ 升高 → $v_o$ 降低', '$v₋$ up → $v_o$ down')],
             ['OUT', '$v_o$', '1', tr('输出 $A·v_d$', 'outputs $A·v_d$')],
             ['V+ / V−', '—', '8 / 4', tr('能量从这里来，也限制 $v_o$ 的范围', 'power comes from here; it also limits $v_o$')],
           ],
           parts: ['inp', 'inn', 'out', 'vplus'],
         },
-        formulas: [{ tex: 'v_d = v_+ - v_-', note: tr('op-amp 唯一“看”的量', 'the only thing an op-amp looks at') }],
+        formulas: [{ tex: 'v_d = v₊ - v₋', note: tr('op-amp 唯一“看”的量', 'the only thing an op-amp looks at') }],
       },
       {
         id: 'model',
@@ -559,7 +559,7 @@ $$v_d = v_+ - v_-$$
 3. [[rout|输出电阻 R_out]]：受控源到输出脚之间，几十 Ω 量级。
 
 于是不接任何反馈时：
-$$v_o = A·v_d = A(v_+ - v_-)$$
+$$v_o = A·v_d = A(v₊ - v₋)$$
 这个电路你在第 5 章“含运算放大器的电阻电路”和受控源那一节都能直接用结点法分析。`,
           `When the professor "takes the op-amp apart into a circuit", these three elements come out (the **linear model** of an op-amp used in circuit analysis):
 
@@ -568,7 +568,7 @@ $$v_o = A·v_d = A(v_+ - v_-)$$
 3. [[rout|output resistance R_out]] between the source and the output pin, tens of ohms.
 
 So with no feedback at all:
-$$v_o = A·v_d = A(v_+ - v_-)$$
+$$v_o = A·v_d = A(v₊ - v₋)$$
 You can analyse this with nodal analysis exactly like any circuit with a dependent source (chapter 5, op-amp circuits).`,
         ),
         table: {
@@ -580,7 +580,7 @@ You can analyse this with nodal analysis exactly like any circuit with a depende
           ],
           parts: ['vcvs', 'rin', 'rout'],
         },
-        formulas: [{ tex: 'v_o = A(v_+ - v_-)', note: tr('开环（不接反馈），且输出没到电源边界时', 'open loop, while the output is inside the supply range') }],
+        formulas: [{ tex: 'v_o = A(v₊ - v₋)', note: tr('开环（不接反馈），且输出没到电源边界时', 'open loop, while the output is inside the supply range') }],
         calcs: ['opamp-open-loop'],
       },
       {
@@ -591,15 +591,15 @@ You can analyse this with nodal analysis exactly like any circuit with a depende
           `用上一层的公式算一下。LM358 接 9 V 单电源，输出最多到约 7.5 V。要让输出在 0–7.5 V 之间（[[linear|线性区]]），输入差只能是：
 $$0 < v_d < \\frac{7.5 V}{10^5} = 75 µV$$
 75 微伏！你手一碰导线、电位器动一点点、甚至输入失调电压（LM358 典型 2 mV）都比它大几十倍。所以 **开环** 的 op-amp 几乎永远停在两头：
-- $v_+ > v_-$（哪怕多 1 mV）→ 输出 [[sat-hi|顶到 ≈ V+ − 1.5 V]]
-- $v_+ < v_-$ → 输出 [[sat-lo|掉到 ≈ 0 V]]
+- $v₊ > v₋$（哪怕多 1 mV）→ 输出 [[sat-hi|顶到 ≈ V+ − 1.5 V]]
+- $v₊ < v₋$ → 输出 [[sat-lo|掉到 ≈ 0 V]]
 
 这叫 **饱和**（saturation）。这样用 op-amp 就成了 **比较器**（comparator）：只回答“哪个输入大”。想让它当放大器，必须加 **负反馈**——下面两层就讲为什么反馈能把 $v_d$ 稳稳地压在 75 µV 以内。`,
           `Use the formula from the last layer. On a 9 V single supply the LM358 output reaches about 7.5 V at most. For the output to stay between 0 and 7.5 V (the [[linear|linear region]]) the input difference must be:
 $$0 < v_d < \\frac{7.5 V}{10^5} = 75 µV$$
 75 microvolts! Touching a wire, nudging a pot, even the input offset voltage (2 mV typical for the LM358) is tens of times bigger. So an **open-loop** op-amp almost always sits at one end:
-- $v_+ > v_-$ (by even 1 mV) → the output [[sat-hi|tops out at ≈ V+ − 1.5 V]]
-- $v_+ < v_-$ → the output [[sat-lo|drops to ≈ 0 V]]
+- $v₊ > v₋$ (by even 1 mV) → the output [[sat-hi|tops out at ≈ V+ − 1.5 V]]
+- $v₊ < v₋$ → the output [[sat-lo|drops to ≈ 0 V]]
 
 That is **saturation**. Used this way an op-amp is a **comparator**: it only says which input is larger. To make it an amplifier you need **negative feedback** — the next two layers show how feedback holds $v_d$ inside those 75 µV.`,
         ),
@@ -616,25 +616,25 @@ That is **saturation**. Used this way an op-amp is a **comparator**: it only say
 **法则 1 · 虚断（virtual open）**：$R_{in} → ∞$，所以 [[vopen|两个输入端都不取电流]]：
 $$i_+ = i_- = 0$$
 **法则 2 · 虚短（virtual short）**：有负反馈、输出没饱和时，$v_o$ 是有限值（几伏），而 $v_d = \\frac{v_o}{A}$，A → ∞，所以 [[vshort|两个输入电压相等]]：
-$$v_+ = v_-$$
+$$v₊ = v₋$$
 “虚”的意思：两个输入 **电压相等，但并没有真的连在一起**（没有电流流过）。
 
-⚠ 虚短 **只在有负反馈时成立**。上一层的开环电路里 $v_+ ≠ v_-$，输出是饱和的。`,
+⚠ 虚短 **只在有负反馈时成立**。上一层的开环电路里 $v₊ ≠ v₋$，输出是饱和的。`,
           `Push the three parameters of the model to their limits: $A → ∞$, $R_{in} → ∞$, $R_{out} → 0$. Every op-amp problem in a circuits course uses these two rules:
 
 **Rule 1 · virtual open**: $R_{in} → ∞$, so [[vopen|neither input takes current]]:
 $$i_+ = i_- = 0$$
 **Rule 2 · virtual short**: with negative feedback and an unsaturated output, $v_o$ is finite (a few volts) and $v_d = \\frac{v_o}{A}$ with A → ∞, so [[vshort|the two input voltages are equal]]:
-$$v_+ = v_-$$
+$$v₊ = v₋$$
 "Virtual" means the inputs are at **the same voltage but not actually connected** (no current flows between them).
 
-⚠ The virtual short **only holds with negative feedback**. In the open-loop circuit of the last layer $v_+ ≠ v_-$ and the output is saturated.`,
+⚠ The virtual short **only holds with negative feedback**. In the open-loop circuit of the last layer $v₊ ≠ v₋$ and the output is saturated.`,
         ),
         table: {
           head: [tr('法则', 'Rule'), tr('式子', 'Equation'), tr('来自', 'Comes from'), tr('什么时候成立', 'Holds when')],
           rows: [
             [tr('虚断', 'virtual open'), '$i_+ = i_- = 0$', '$R_{in} → ∞$', tr('总是（输入电流 nA 级）', 'always (nA input current)')],
-            [tr('虚短', 'virtual short'), '$v_+ = v_-$', '$A → ∞$', tr('有负反馈且输出未饱和', 'negative feedback and no saturation')],
+            [tr('虚短', 'virtual short'), '$v₊ = v₋$', '$A → ∞$', tr('有负反馈且输出未饱和', 'negative feedback and no saturation')],
           ],
           parts: ['vopen', 'vshort'],
         },
@@ -645,25 +645,25 @@ $$v_+ = v_-$$
         title: tr('⑦ 负反馈第一例：电压跟随器，一步步推', '⑦ Feedback, example 1: the voltage follower, step by step'),
         body: tr(
           `把 [[fb|输出直接接回 IN−]]，[[vin|信号接 IN+]]。先 **不用** 黄金法则，用 ④ 的模型硬算（忽略 $R_{out}$）：
-1. 接线告诉我们：$v_+ = v_{in}$，$v_- = v_o$
-2. op-amp 的方程：$v_o = A(v_+ - v_-) = A(v_{in} - v_o)$
+1. 接线告诉我们：$v₊ = v_{in}$，$v₋ = v_o$
+2. op-amp 的方程：$v_o = A(v₊ - v₋) = A(v_{in} - v_o)$
 3. 移项：$v_o(1 + A) = A·v_{in}$
 4. 所以 $v_o = \\frac{A}{1+A}v_{in}$。代入 $A = 10^5$：$v_o = 0.99999 v_{in}$
 
 再看反馈 **为什么能稳住**：如果 $v_o$ 偏低，$v_d = v_{in} - v_o$ 变大，A 倍放大后把 $v_o$ 往上推；偏高则往下拉。输出一直“追”着输入，$v_d$ 只剩 $\\frac{v_o}{A}$——几十 µV。
 
-用黄金法则一行就出来：虚短 $v_- = v_+$，而 $v_- = v_o$，所以 $v_o = v_{in}$。两种方法结果一致，这就是黄金法则的来历。
+用黄金法则一行就出来：虚短 $v₋ = v₊$，而 $v₋ = v_o$，所以 $v_o = v_{in}$。两种方法结果一致，这就是黄金法则的来历。
 
 **用处**：输入几乎不取电流（虚断），输出能提供几十 mA——它把“带不动负载的信号”变成“能带负载的信号”，叫 **缓冲器**（buffer）。`,
           `Wire [[fb|the output straight back to IN−]] and [[vin|the signal to IN+]]. First solve it **without** the golden rules, with the model of ④ (ignoring $R_{out}$):
-1. The wiring says: $v_+ = v_{in}$, $v_- = v_o$
-2. The op-amp's equation: $v_o = A(v_+ - v_-) = A(v_{in} - v_o)$
+1. The wiring says: $v₊ = v_{in}$, $v₋ = v_o$
+2. The op-amp's equation: $v_o = A(v₊ - v₋) = A(v_{in} - v_o)$
 3. Rearrange: $v_o(1 + A) = A·v_{in}$
 4. So $v_o = \\frac{A}{1+A}v_{in}$. With $A = 10^5$: $v_o = 0.99999 v_{in}$
 
 Now **why feedback holds it steady**: if $v_o$ is a bit low, $v_d = v_{in} - v_o$ grows and, multiplied by A, pushes $v_o$ up; too high, it pulls it down. The output keeps chasing the input, and $v_d$ is left at only $\\frac{v_o}{A}$ — tens of µV.
 
-With the golden rules it is one line: virtual short $v_- = v_+$, and $v_- = v_o$, so $v_o = v_{in}$. Both methods agree — that is where the golden rules come from.
+With the golden rules it is one line: virtual short $v₋ = v₊$, and $v₋ = v_o$, so $v_o = v_{in}$. Both methods agree — that is where the golden rules come from.
 
 **What for**: the input takes almost no current (virtual open) while the output can supply tens of mA — it turns "a signal that can't drive a load" into one that can. It is called a **buffer**.`,
         ),
@@ -678,27 +678,27 @@ With the golden rules it is one line: virtual short $v_- = v_+$, and $v_- = v_o$
           `跟随器把 **全部** 输出送回 IN−。如果只送回 **一部分**，就能放大。用 [[rf|R_f]] 和 [[r1|R_1]] 分压，送回 IN− 的是 [[beta|βvₒ]]：
 $$β = \\frac{R_1}{R_1 + R_f}$$
 **同相放大器**（non-inverting），信号接 IN+：
-1. 虚断：IN− 不取电流，所以 R_f、R_1 是简单的串联分压：$v_- = β v_o$
-2. 虚短：$v_- = v_+ = v_{in}$
+1. 虚断：IN− 不取电流，所以 R_f、R_1 是简单的串联分压：$v₋ = β v_o$
+2. 虚短：$v₋ = v₊ = v_{in}$
 3. 所以 $β v_o = v_{in}$，$v_o = \\frac{1}{β}v_{in} = (1 + \\frac{R_f}{R_1})v_{in}$
 
 用有限 A 推（同 ⑦ 的方法）得到 $v_o = \\frac{A}{1+Aβ}v_{in}$：只要 $Aβ ≫ 1$，增益就只由 **两个电阻** 决定，和 op-amp 本身的 A 无关——这就是负反馈的价值。
 
 **反相放大器**（inverting）：IN+ 接 GND，信号经 $R_1$ 接 IN−，$R_f$ 从 OUT 接回 IN−。
-1. 虚短：$v_- = v_+ = 0$，IN− 是 **虚地**（virtual ground）
+1. 虚短：$v₋ = v₊ = 0$，IN− 是 **虚地**（virtual ground）
 2. 虚断：流进 $R_1$ 的电流全部流过 $R_f$：$\\frac{v_{in} - 0}{R_1} = \\frac{0 - v_o}{R_f}$
 3. 所以 $v_o = -\\frac{R_f}{R_1}v_{in}$（负号 = 反相）`,
           `The follower sends **all** of the output back to IN−. Send back only **part** of it and you get gain. [[rf|R_f]] and [[r1|R_1]] form a divider, and what reaches IN− is [[beta|βvₒ]]:
 $$β = \\frac{R_1}{R_1 + R_f}$$
 **Non-inverting amplifier**, signal on IN+:
-1. Virtual open: IN− takes no current, so R_f and R_1 are a plain series divider: $v_- = β v_o$
-2. Virtual short: $v_- = v_+ = v_{in}$
+1. Virtual open: IN− takes no current, so R_f and R_1 are a plain series divider: $v₋ = β v_o$
+2. Virtual short: $v₋ = v₊ = v_{in}$
 3. So $β v_o = v_{in}$, $v_o = \\frac{1}{β}v_{in} = (1 + \\frac{R_f}{R_1})v_{in}$
 
 With a finite A (the method of ⑦) you get $v_o = \\frac{A}{1+Aβ}v_{in}$: as long as $Aβ ≫ 1$ the gain is set by **two resistors only**, not by the op-amp's A — that is the point of negative feedback.
 
 **Inverting amplifier**: IN+ to GND, the signal through $R_1$ into IN−, $R_f$ from OUT back to IN−.
-1. Virtual short: $v_- = v_+ = 0$ — IN− is a **virtual ground**
+1. Virtual short: $v₋ = v₊ = 0$ — IN− is a **virtual ground**
 2. Virtual open: all the current in $R_1$ goes on through $R_f$: $\\frac{v_{in} - 0}{R_1} = \\frac{0 - v_o}{R_f}$
 3. So $v_o = -\\frac{R_f}{R_1}v_{in}$ (the minus sign = inverted)`,
         ),
@@ -762,8 +762,8 @@ This layer explains three things you saw in the labs:
       },
     ],
     recap: tr(
-      'op-amp = 一个只看 $v_+ - v_-$ 的超高增益放大器。开环时它是比较器；加了负反馈，输出会调到让 $v_+ = v_-$（虚短），输入不取电流（虚断）——从这两条就能推出所有放大器公式。',
-      'An op-amp is a huge-gain amplifier that only looks at $v_+ - v_-$. Open loop it is a comparator; with negative feedback its output settles where $v_+ = v_-$ (virtual short) while the inputs take no current (virtual open) — every amplifier formula follows from those two rules.',
+      'op-amp = 一个只看 $v₊ - v₋$ 的超高增益放大器。开环时它是比较器；加了负反馈，输出会调到让 $v₊ = v₋$（虚短），输入不取电流（虚断）——从这两条就能推出所有放大器公式。',
+      'An op-amp is a huge-gain amplifier that only looks at $v₊ - v₋$. Open loop it is a comparator; with negative feedback its output settles where $v₊ = v₋$ (virtual short) while the inputs take no current (virtual open) — every amplifier formula follows from those two rules.',
     ),
   };
 }
