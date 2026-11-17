@@ -1,0 +1,390 @@
+{
+  "format": "learning-unit/1",
+  "id": "w3-5a-black-box",
+  "world": "w3",
+  "code": "5a",
+  "title": { "zh": "运放只做一件事", "en": "An op-amp does one thing" },
+  "question": { "zh": "运放的输出由什么决定？不接反馈会怎样？", "en": "What sets an op-amp's output, and what happens with no feedback?" },
+  "minutes": 12,
+  "connects": ["challenge:lesson-lm358", "chapter:methods"],
+  "layers": [
+    {
+      "layer": "intuition",
+      "blocks": [
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "先把运放当成一个黑盒子，不管里面有什么。",
+              "",
+              "它有两个输入端。**同相输入**的电压记作 v_{+}，**反相输入**的电压记作 v_{−}，都是对地测的。它有一个输出，电压记作 v_o。"
+            ],
+            "en": [
+              "Treat the op-amp as a black box for now. Ignore what is inside.",
+              "",
+              "It has two inputs. The voltage at the **non-inverting input** is v_{+}; the voltage at the **inverting input** is v_{−}. Both are measured to ground. It has one output, at voltage v_o."
+            ]
+          }
+        },
+        {
+          "type": "circuit",
+          "schematic": {
+            "elements": [
+              { "ref": "Vm", "type": "V", "from": [0, 3], "to": [0, 8], "value": 1, "label": "v_{−}" },
+              { "ref": "Vp", "type": "V", "from": [3, 5], "to": [3, 8], "value": 1, "label": "v_{+}" },
+              { "ref": "A", "type": "OPAMP", "at": [8, 4] }
+            ],
+            "wires": [
+              [
+                [0, 3],
+                [6, 3]
+              ],
+              [
+                [3, 5],
+                [6, 5]
+              ],
+              [
+                [10, 4],
+                [13, 4]
+              ],
+              [
+                [0, 8],
+                [3, 8]
+              ]
+            ],
+            "terminals": [{ "at": [13, 4], "name": "v_o" }],
+            "grounds": [[0, 8]]
+          },
+          "caption": {
+            "zh": "两个输入、一个输出。电源脚没有画出来，但它们一直接着。",
+            "en": "Two inputs, one output. The supply pins are not drawn, but they are always connected."
+          }
+        },
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "运放只做一件事：",
+              "",
+              "**v_o = A(v_{+} − v_{−})**",
+              "",
+              "A 是**开环增益**：没有任何反馈时的放大倍数。LM358 的 A 约为 10⁵（十万）。",
+              "",
+              "它只看两个输入的**差**。两个输入一起升高 1 V，差不变，输出也不变。"
+            ],
+            "en": [
+              "An op-amp does one thing:",
+              "",
+              "**v_o = A(v_{+} − v_{−})**",
+              "",
+              "A is the **open-loop gain**: the gain with no feedback at all. For the LM358, A is about 10⁵ (a hundred thousand).",
+              "",
+              "It only looks at the **difference** between its inputs. Raise both inputs by 1 V and the difference stays the same, so the output does too."
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "但输出跑不出电源。LM358 接 9 V 单电源时，输出只能在 0 V 到约 7.5 V（V+ − 1.5 V）之间。",
+              "",
+              "算出来的 A(v_{+} − v_{−}) 超出这个范围，输出就停在边上不动。这叫**饱和**。"
+            ],
+            "en": [
+              "But the output can't leave the supply. On a single 9 V supply, the LM358 output stays between 0 V and about 7.5 V (V+ − 1.5 V).",
+              "",
+              "When A(v_{+} − v_{−}) comes out beyond that range, the output stops at the edge and stays there. This is called **saturation**."
+            ]
+          }
+        },
+        {
+          "type": "note",
+          "tone": "tip",
+          "md": {
+            "zh": "类比：运放像一台极其灵敏的秤。一边多放一粒米，指针就打到头。想让指针停在中间，两边必须几乎一样重。",
+            "en": "Analogy: the op-amp is an extremely sensitive scale. Add one grain of rice to one side and the needle slams to the end. To keep the needle in the middle, both sides must weigh almost exactly the same."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "A = 10⁵，v_{+} = 1.001 V，v_{−} = 1.000 V。先不管电源，A(v_{+} − v_{−}) 是多少？",
+            "en": "A = 10⁵, v_{+} = 1.001 V, v_{−} = 1.000 V. Ignoring the supply for now, what is A(v_{+} − v_{−})?"
+          },
+          "answer": 100,
+          "unit": "V",
+          "explain": {
+            "zh": "差是 1 mV。1 mV × 10⁵ = 100 V。可电源只有 9 V，所以真实的输出停在约 7.5 V：饱和了。",
+            "en": "The difference is 1 mV. 1 mV × 10⁵ = 100 V. The supply is only 9 V, so the real output stops at about 7.5 V: it saturates."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "9 V 单电源，输出最高 7.5 V。v_{+} 比 v_{−} 最多能高多少，输出才不饱和？",
+            "en": "Single 9 V supply, output at most 7.5 V. How much higher than v_{−} can v_{+} be before the output saturates?"
+          },
+          "answer": 0.000075,
+          "unit": "V",
+          "explain": {
+            "zh": "7.5 V ÷ 10⁵ = 75 µV。这比普通万用表能分辨的还小。用手拧电位器，几乎不可能停在这么窄的范围里。所以开环的运放几乎总是饱和。",
+            "en": "7.5 V ÷ 10⁵ = 75 µV. That is smaller than an ordinary multimeter can resolve. Turning a potentiometer by hand, you will almost never land inside such a narrow window. So an open-loop op-amp is almost always saturated."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "derive",
+      "title": { "zh": "运放的电路模型", "en": "The op-amp's circuit model" },
+      "blocks": [
+        {
+          "type": "steps",
+          "steps": [
+            {
+              "zh": "输入端几乎不取电流。两个输入之间像一个非常大的电阻 R_i（LM358 的输入偏置电流只有约 20 nA）。理想化：R_i → ∞，输入电流 = 0。",
+              "en": "The inputs draw almost no current. Between them sits a very large resistance R_i (the LM358's input bias current is only about 20 nA). Ideal version: R_i → ∞, input current = 0."
+            },
+            {
+              "zh": "输出是一个电压源，它的电压由两个输入的差决定：A(v_{+} − v_{−})。",
+              "en": "The output is a voltage source whose value is set by the input difference: A(v_{+} − v_{−})."
+            },
+            {
+              "zh": "由另一个电压控制的电压源，就是 Midterm 2 学过的**电压控制电压源（VCVS）**。运放的模型就是一个 VCVS。",
+              "en": "A voltage source controlled by another voltage is the **voltage-controlled voltage source (VCVS)** from Midterm 2. The op-amp model is a VCVS."
+            },
+            {
+              "zh": "真实的输出还串着一个小电阻 R_o（本课程的仿真里是 10 Ω）。理想化：R_o = 0。",
+              "en": "A real output also has a small resistance R_o in series (10 Ω in this course's simulator). Ideal version: R_o = 0."
+            },
+            {
+              "zh": "所以运放电路 = 电阻 + 一个 VCVS。结点法照样能解，不需要新定律。",
+              "en": "So an op-amp circuit is just resistors plus one VCVS. Nodal analysis solves it as before. No new laws."
+            }
+          ]
+        },
+        {
+          "type": "circuit",
+          "schematic": {
+            "elements": [
+              { "ref": "Ri", "type": "R", "from": [2, 0], "to": [2, 4], "label": "R_i → ∞" },
+              { "ref": "E", "type": "VCVS", "from": [8, 0], "to": [8, 4], "value": 100000, "ctrl": { "vnodes": ["v_{+}", "v_{−}"] }, "label": "A(v_{+} − v_{−})" },
+              { "ref": "Ro", "type": "R", "from": [8, 0], "to": [12, 0], "label": "R_o" }
+            ],
+            "wires": [
+              [
+                [0, 0],
+                [2, 0]
+              ],
+              [
+                [0, 4],
+                [2, 4]
+              ],
+              [
+                [12, 0],
+                [14, 0]
+              ]
+            ],
+            "terminals": [
+              { "at": [0, 0], "name": "v_{+}" },
+              { "at": [0, 4], "name": "v_{−}" },
+              { "at": [14, 0], "name": "v_o" }
+            ],
+            "grounds": [[8, 4]]
+          },
+          "caption": {
+            "zh": "运放的电路模型：输入之间是很大的 R_i；输出是一个受 v_{+} − v_{−} 控制的电压源（VCVS），串一个小 R_o。",
+            "en": "The op-amp's circuit model: a very large R_i between the inputs; at the output, a voltage source controlled by v_{+} − v_{−} (a VCVS) with a small R_o in series."
+          }
+        },
+        { "type": "portal", "id": "vcvs-model" },
+        {
+          "type": "explore",
+          "title": { "zh": "开环：拖一拖输入", "en": "Open loop: drag the inputs" },
+          "params": [
+            { "id": "A", "label": { "zh": "开环增益 A", "en": "open-loop gain A" }, "value": 100000, "min": 10, "max": 100000, "log": true },
+            { "id": "vp", "label": { "zh": "同相输入 v_{+}", "en": "non-inverting input v_{+}" }, "value": 2, "min": 0, "max": 5, "unit": "V" },
+            { "id": "vm", "label": { "zh": "反相输入 v_{−}", "en": "inverting input v_{−}" }, "value": 2, "min": 0, "max": 5, "unit": "V" },
+            { "id": "Vs", "label": { "zh": "电源 V+（单电源）", "en": "supply V+ (single supply)" }, "value": 9, "min": 5, "max": 15, "unit": "V" }
+          ],
+          "outputs": [
+            { "id": "vd", "label": { "zh": "输入差 v₊ − v₋", "en": "input difference v₊ − v₋" }, "expr": "vp - vm", "unit": "V" },
+            { "id": "ideal", "label": { "zh": "A(v₊ − v₋)，不管电源", "en": "A(v₊ − v₋), ignoring the supply" }, "expr": "A * vd", "unit": "V" },
+            { "id": "vo", "label": { "zh": "输出 v_o（0 到 V+ − 1.5 V）", "en": "output v_o (0 to V+ − 1.5 V)" }, "expr": "clamp(ideal, 0, Vs - 1.5)", "unit": "V" },
+            { "label": { "zh": "饱和了吗？（1 = 是，0 = 否）", "en": "saturated? (1 = yes, 0 = no)" }, "expr": "step(abs(ideal - vo) - 0.000001)", "digits": 1 }
+          ],
+          "note": {
+            "zh": "先把 A 调到 10：v_{+} 比 v_{−} 高 0.5 V，输出才 5 V，能看到中间的线性区。再把 A 调回 10⁵：两个输入只要差一点点，输出就到 0 V 或顶到上限。",
+            "en": "First set A to 10: v_{+} must be 0.5 V above v_{−} to give 5 V, so you can see the linear region in the middle. Then set A back to 10⁵: the slightest difference sends the output to 0 V or to the top."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "sim",
+      "blocks": [
+        {
+          "type": "sim",
+          "title": { "zh": "开环会怎样", "en": "What open loop does" },
+          "intro": {
+            "zh": "LM358，9 V 单电源，没有反馈：v_o = A(v_{+} − v_{−})，再被限制在 0 V 到 7.5 V 之间。先猜，再运行。",
+            "en": "LM358 on a single 9 V supply, no feedback: v_o = A(v_{+} − v_{−}), held between 0 V and 7.5 V. Guess first, then run."
+          },
+          "params": [
+            { "id": "A", "label": { "zh": "开环增益 A", "en": "open-loop gain A" }, "value": 100000 },
+            { "id": "Vs", "label": { "zh": "电源 V+", "en": "supply V+" }, "value": 9, "unit": "V" },
+            { "id": "vp", "label": { "zh": "v_{+}", "en": "v_{+}" }, "value": 2, "unit": "V" },
+            { "id": "vm", "label": { "zh": "v_{−}", "en": "v_{−}" }, "value": 2, "unit": "V" },
+            { "id": "Vos", "label": { "zh": "输入失调 V_{os}", "en": "input offset V_{os}" }, "value": 0, "unit": "V" }
+          ],
+          "outputs": [
+            { "id": "vd", "label": { "zh": "v₊ − v₋", "en": "v₊ − v₋" }, "expr": "vp - vm", "unit": "V" },
+            { "label": { "zh": "输出 v_o", "en": "output v_o" }, "expr": "clamp(A * (vd + Vos), 0, Vs - 1.5)", "unit": "V" }
+          ],
+          "scenarios": [
+            {
+              "label": { "zh": "v₊ 比 v₋ 高 10 mV", "en": "v₊ is 10 mV above v₋" },
+              "set": { "vp": 2.01 },
+              "ask": { "zh": "输出是多少？", "en": "What is the output?" },
+              "choices": [
+                { "zh": "约 10 mV", "en": "about 10 mV" },
+                { "zh": "约 1 V", "en": "about 1 V" },
+                { "zh": "约 7.5 V，顶到上限", "en": "about 7.5 V, stuck at the top" }
+              ],
+              "correct": 2,
+              "explain": {
+                "zh": "10 mV × 10⁵ = 1000 V，远超电源。输出停在 V+ − 1.5 V = 7.5 V。",
+                "en": "10 mV × 10⁵ = 1000 V, far beyond the supply. The output stops at V+ − 1.5 V = 7.5 V."
+              }
+            },
+            {
+              "label": { "zh": "对调：v₊ 比 v₋ 低 10 mV", "en": "Swapped: v₊ is 10 mV below v₋" },
+              "set": { "vp": 1.99 },
+              "ask": { "zh": "现在输出是多少？", "en": "What is the output now?" },
+              "choices": [
+                { "zh": "约 −7.5 V", "en": "about −7.5 V" },
+                { "zh": "约 0 V，到了下限", "en": "about 0 V, at the bottom" },
+                { "zh": "还是 7.5 V", "en": "still 7.5 V" }
+              ],
+              "correct": 1,
+              "explain": {
+                "zh": "差变成负的：A(v_{+} − v_{−}) = −1000 V。单电源没有负电压，输出停在下限 0 V。两个输入一对调，输出就从一头跳到另一头。",
+                "en": "The difference is now negative: A(v_{+} − v_{−}) = −1000 V. A single supply has no negative voltage, so the output stops at the bottom, 0 V. Swap the inputs and the output jumps from one end to the other."
+              }
+            },
+            {
+              "label": { "zh": "两个输入接在一起（真实芯片）", "en": "Both inputs tied together (real chip)" },
+              "set": { "Vos": 0.003 },
+              "ask": {
+                "zh": "v_{+} = v_{−}，按公式输出应该是 0。真实的 LM358 会怎样？",
+                "en": "v_{+} = v_{−}, so the formula says 0. What does a real LM358 do?"
+              },
+              "choices": [
+                { "zh": "正好 0 V", "en": "exactly 0 V" },
+                { "zh": "停在中间约 3.75 V", "en": "sits in the middle, about 3.75 V" },
+                { "zh": "顶到某一边，哪一边由芯片自己决定", "en": "goes to one end; the chip decides which" }
+              ],
+              "correct": 2,
+              "explain": {
+                "zh": "真实芯片有约 3 mV 的**输入失调电压** V_{os}（TI LM358 数据手册的典型值）：芯片里面好像多了一个 3 mV 的差。3 mV × 10⁵ = 300 V，照样饱和。V_{os} 的正负每颗芯片不一样，所以哪一边说不准。",
+                "en": "A real chip has an **input offset voltage** V_{os} of about 3 mV (typical value, TI LM358 datasheet): as if a 3 mV difference were built in. 3 mV × 10⁵ = 300 V, so it saturates anyway. The sign of V_{os} differs from chip to chip, so you can't say which end."
+              }
+            },
+            {
+              "label": { "zh": "如果 A 只有 10", "en": "If A were only 10" },
+              "set": { "A": 10, "vp": 2.3 },
+              "ask": { "zh": "A = 10，v_{+} 比 v_{−} 高 0.3 V。输出是多少？", "en": "A = 10, v_{+} is 0.3 V above v_{−}. What is the output?" },
+              "choices": [
+                { "zh": "3 V，在范围之内", "en": "3 V, inside the range" },
+                { "zh": "7.5 V，饱和", "en": "7.5 V, saturated" },
+                { "zh": "0.3 V", "en": "0.3 V" }
+              ],
+              "correct": 0,
+              "explain": {
+                "zh": "10 × 0.3 V = 3 V，在 0–7.5 V 之内，没有饱和。A 越大，线性区越窄。真实运放的 A 很大，所以开环几乎只能饱和。要靠反馈把输出拉回中间：下一单元 5b。",
+                "en": "10 × 0.3 V = 3 V, inside 0–7.5 V, so no saturation. The larger A is, the narrower the linear region. A real op-amp's A is huge, so open loop it almost always saturates. Feedback is what pulls the output back into the middle: next unit, 5b."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "layer": "bench",
+      "blocks": [
+        {
+          "type": "bench",
+          "challenge": "lesson-lm358",
+          "note": {
+            "zh": [
+              "这个实验搭的是跟随器（有反馈）。最后把滑动端拧到 100 %：输出停在约 7.5 V，不再跟着输入走。这就是饱和。",
+              "",
+              "想亲眼看开环：搭完以后拆掉 a10 → a11 这根反馈跳线，再用一根跳线把 2 脚（IN−）接到 GND。慢慢拧电位器：滑动端一离开 0 %，输出就跳到约 7.5 V。"
+            ],
+            "en": [
+              "This lesson builds a follower (with feedback). At the end you turn the wiper to 100 %: the output stops at about 7.5 V and no longer follows the input. That is saturation.",
+              "",
+              "To see open loop for yourself: after the build, remove the feedback jumper a10 → a11 and add a jumper from pin 2 (IN−) to GND. Turn the pot slowly: as soon as the wiper leaves 0 %, the output jumps to about 7.5 V."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "layer": "connect",
+      "blocks": [
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "Midterm 2 的 VCVS：输出电压 = 增益 × 控制电压。在运放的模型里，控制电压是哪一个？",
+            "en": "The VCVS from Midterm 2: output voltage = gain × controlling voltage. In the op-amp model, which voltage is the controlling one?"
+          },
+          "choices": [
+            { "zh": "v_{+} − v_{−}", "en": "v_{+} − v_{−}" },
+            { "zh": "v_o", "en": "v_o" },
+            { "zh": "电源电压 V+", "en": "the supply voltage V+" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "运放就是一个控制电压为 v_{+} − v_{−}、增益为 A 的 VCVS。methods 一章里含 VCVS 的结点法题，解法和运放电路一样。",
+            "en": "The op-amp is a VCVS with controlling voltage v_{+} − v_{−} and gain A. The nodal-analysis problems with a VCVS in the methods chapter are solved exactly like op-amp circuits."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "输入电流为零。在 v_{−} 结点列 KCL 时，流进运放反相端的那一项写多少？",
+            "en": "The input current is zero. In the KCL equation at the v_{−} node, what do you write for the current into the op-amp's inverting input?"
+          },
+          "choices": [
+            { "zh": "0", "en": "0" },
+            { "zh": "v_{−}/R_i，要先算出来", "en": "v_{−}/R_i, which you must work out" },
+            { "zh": "等于输出电流", "en": "the output current" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "输入电流为零，这一项直接写 0，只剩外面的电阻支路。这叫**虚断**，后面每个电路都要用。",
+            "en": "The input current is zero, so that term is simply 0 and only the outside resistor branches remain. This is the **virtual open**, used in every circuit that follows."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "A → ∞，可输出又要停在 0–7.5 V 之间的某个值。v_{+} − v_{−} 必须是多少？",
+            "en": "A → ∞, yet the output must sit somewhere between 0 and 7.5 V. What must v_{+} − v_{−} be?"
+          },
+          "choices": [
+            { "zh": "几乎是 0", "en": "almost 0" },
+            { "zh": "约 7.5 V", "en": "about 7.5 V" },
+            { "zh": "多少都行", "en": "anything" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "v_{+} − v_{−} = v_o/A。A 很大，这个差就很小。怎样让电路自己把差调到几乎为 0？靠负反馈：下一单元 5b。",
+            "en": "v_{+} − v_{−} = v_o/A. With A huge, the difference is tiny. How does a circuit hold the difference near zero by itself? Negative feedback: next unit, 5b."
+          }
+        }
+      ]
+    }
+  ]
+}

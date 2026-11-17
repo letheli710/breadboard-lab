@@ -1,0 +1,350 @@
+{
+  "format": "learning-unit/1",
+  "id": "w3-5h-cascade",
+  "world": "w3",
+  "code": "5h",
+  "title": { "zh": "级联：为什么不用担心负载效应", "en": "Cascading: why loading is not a worry" },
+  "question": { "zh": "把两级运放电路串起来，为什么总增益就是两级增益相乘？", "en": "When you chain two op-amp stages, why is the total gain just the two gains multiplied?" },
+  "minutes": 11,
+  "connects": ["chapter:theorems", "unit:w3-5c-follower"],
+  "layers": [
+    {
+      "layer": "intuition",
+      "blocks": [
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "级联就是把第一级的输出 v_{o1} 接到第二级的输入。",
+              "",
+              "用戴维宁定理看第一级的输出：它是一个电压源 v_{o1} 串一个输出电阻 R_{out}。负反馈让 R_{out} 约为 0（5c 里跟随器的输出就是这样）。",
+              "",
+              "第二级是第一级的负载，它的输入电阻是 R_{in2}。负载拿到的电压是 v_{o1} × R_{in2}/(R_{in2} + R_{out})。R_{out} ≈ 0，这个比例就是 1：第二级拿到全部 v_{o1}，一点也不会被“拉低”。所以每一级可以单独算，再把增益乘起来。"
+            ],
+            "en": [
+              "Cascading means feeding the first stage's output v_{o1} into the second stage's input.",
+              "",
+              "Look at the first stage's output with Thévenin's theorem: a voltage source v_{o1} in series with an output resistance R_{out}. Negative feedback makes R_{out} about 0 (just like the follower's output in 5c).",
+              "",
+              "The second stage is the first stage's load, with input resistance R_{in2}. The load gets v_{o1} × R_{in2}/(R_{in2} + R_{out}). With R_{out} ≈ 0 that fraction is 1: stage 2 gets all of v_{o1} and does not drag it down at all. So you can work out each stage on its own and multiply the gains."
+            ]
+          }
+        },
+        {
+          "type": "circuit",
+          "schematic": {
+            "elements": [
+              { "ref": "Vin", "type": "V", "from": [0, 3], "to": [0, 7], "value": 0.5, "label": "v_in = 0.5 V" },
+              { "ref": "A1", "type": "OPAMP", "at": [10, 4], "flip": true },
+              { "ref": "R1", "type": "R", "from": [6, 5], "to": [6, 10], "value": "10k" },
+              { "ref": "Rf1", "type": "R", "from": [8, 8], "to": [12, 8], "value": "22k" },
+              { "ref": "R3", "type": "R", "from": [15, 4], "to": [19, 4], "value": "10k" },
+              { "ref": "Rf2", "type": "R", "from": [21, 1], "to": [25, 1], "value": "22k" },
+              { "ref": "A2", "type": "OPAMP", "at": [23, 5] }
+            ],
+            "wires": [
+              [
+                [0, 3],
+                [8, 3]
+              ],
+              [
+                [8, 5],
+                [6, 5]
+              ],
+              [
+                [7, 5],
+                [7, 8],
+                [8, 8]
+              ],
+              [
+                [12, 8],
+                [14, 8],
+                [14, 4]
+              ],
+              [
+                [12, 4],
+                [15, 4]
+              ],
+              [
+                [19, 4],
+                [21, 4]
+              ],
+              [
+                [20, 4],
+                [20, 1],
+                [21, 1]
+              ],
+              [
+                [25, 1],
+                [27, 1],
+                [27, 5]
+              ],
+              [
+                [25, 5],
+                [29, 5]
+              ],
+              [
+                [21, 6],
+                [20, 6],
+                [20, 10]
+              ],
+              [
+                [0, 7],
+                [0, 10],
+                [29, 10]
+              ]
+            ],
+            "labels": [
+              { "at": [14, 4], "name": "v_{o1}" },
+              { "at": [29, 5], "name": "v_o" }
+            ],
+            "grounds": [[0, 10]]
+          },
+          "caption": {
+            "zh": "第一级是实验 2-6 的同相放大器（增益 3.2），第二级是实验 2-7 的反相放大器（增益 −2.2）。第二级的输入电阻就是 R_3 = 10 kΩ。",
+            "en": "Stage 1 is the non-inverting amplifier of lab 2-6 (gain 3.2); stage 2 is the inverting amplifier of lab 2-7 (gain −2.2). Stage 2's input resistance is just R_3 = 10 kΩ."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "derive",
+      "blocks": [
+        {
+          "type": "steps",
+          "title": { "zh": "五步法，两级各走一遍：v_{in} = 0.5 V", "en": "The five steps, once per stage: v_{in} = 0.5 V" },
+          "steps": [
+            {
+              "zh": "**① 有负反馈吗？** 两级都有：R_{f1} 把 v_{o1} 接回 A1 的 v_{−}，R_{f2} 把 v_o 接回 A2 的 v_{−}。",
+              "en": "**① Is there negative feedback?** In both stages: R_{f1} takes v_{o1} back to A1's v_{−}, and R_{f2} takes v_o back to A2's v_{−}."
+            },
+            {
+              "zh": "**② 虚短、虚断。** A1：v_{−} = v_{+} = v_{in} = 0.5 V。A2：v_{+} 接地，v_{−} = 0（虚地）。两个运放的输入端都不取电流。",
+              "en": "**② Virtual short, virtual open.** A1: v_{−} = v_{+} = v_{in} = 0.5 V. A2: v_{+} is grounded, so v_{−} = 0 (virtual ground). Neither op-amp's inputs draw current."
+            },
+            {
+              "zh": "**③ 在两个 v_{−} 列 KCL。** A1：v_{in}/R_1 = (v_{o1} − v_{in})/R_{f1}。A2：v_{o1}/R_3 = (0 − v_o)/R_{f2}。",
+              "en": "**③ KCL at both v_{−} nodes.** A1: v_{in}/R_1 = (v_{o1} − v_{in})/R_{f1}. A2: v_{o1}/R_3 = (0 − v_o)/R_{f2}."
+            },
+            {
+              "zh": "**④ 解出 v_o。** 第一级：v_{o1} = (1 + 22/10) × 0.5 = 1.6 V。第二级：v_o = −(22/10) × 1.6 = −3.52 V。总增益 3.2 × (−2.2) = −7.04。第二级从 v_{o1} 取了 1.6 V / 10 kΩ = 0.16 mA，但 v_{o1} 不变，因为 A1 的 R_{out} ≈ 0。",
+              "en": "**④ Solve for v_o.** Stage 1: v_{o1} = (1 + 22/10) × 0.5 = 1.6 V. Stage 2: v_o = −(22/10) × 1.6 = −3.52 V. Total gain 3.2 × (−2.2) = −7.04. Stage 2 draws 1.6 V / 10 kΩ = 0.16 mA from v_{o1}, yet v_{o1} does not move, because A1's R_{out} ≈ 0."
+            },
+            {
+              "zh": "**⑤ 合理性检查。** ±9 V 双电源，输出约 −9 … +7.5 V：v_{o1} = 1.6 V ✓，v_o = −3.52 V ✓。**每一级都要查**。电流：A1 要供 0.16 mA（给 R_3）+ 0.05 mA（给自己的 R_{f1}、R_1）≈ 0.21 mA ✓；A2 吸收 0.16 mA ✓。v_{in} 再大到约 1.28 V 时，第二级先到 −9 V：先削顶的是后一级。",
+              "en": "**⑤ Sanity check.** On ±9 V the output spans about −9 … +7.5 V: v_{o1} = 1.6 V ✓ and v_o = −3.52 V ✓. **Check every stage.** Currents: A1 sources 0.16 mA (into R_3) + 0.05 mA (into its own R_{f1} and R_1) ≈ 0.21 mA ✓; A2 sinks 0.16 mA ✓. Raise v_{in} to about 1.28 V and stage 2 reaches −9 V first: the later stage clips first."
+            }
+          ]
+        },
+        {
+          "type": "explore",
+          "title": { "zh": "第一级的输出电阻 vs 第二级的输入电阻", "en": "Stage 1 output resistance vs stage 2 input resistance" },
+          "params": [
+            {
+              "id": "Rout",
+              "label": { "zh": "第一级输出电阻 R_{out}", "en": "stage 1 output resistance R_{out}" },
+              "value": 0.01,
+              "min": 0.001,
+              "max": 10000,
+              "log": true,
+              "unit": "Ω"
+            },
+            {
+              "id": "Rin2",
+              "label": { "zh": "第二级输入电阻 R_{in2}（= R_3）", "en": "stage 2 input resistance R_{in2} (= R_3)" },
+              "value": 10000,
+              "min": 100,
+              "max": 100000,
+              "log": true,
+              "unit": "Ω"
+            }
+          ],
+          "outputs": [
+            { "id": "f", "label": { "zh": "v_{o1} 传到第二级的比例", "en": "fraction of v_{o1} reaching stage 2" }, "expr": "Rin2 / (Rin2 + Rout)", "percent": true, "digits": 4 },
+            { "label": { "zh": "第二级输入端的电压", "en": "voltage at stage 2's input" }, "expr": "1.6 * f", "unit": "V", "digits": 4 },
+            { "label": { "zh": "带负载的总增益", "en": "overall gain, loaded" }, "expr": "-7.04 * f", "digits": 4 },
+            { "label": { "zh": "理想总增益", "en": "ideal overall gain" }, "expr": "3.2 * -2.2", "digits": 4 },
+            { "label": { "zh": "增益误差", "en": "gain error" }, "expr": "1 - f", "percent": true, "digits": 2 },
+            { "label": { "zh": "第一级要供给第二级的电流", "en": "current stage 1 feeds into stage 2" }, "expr": "1.6 / (Rin2 + Rout)", "unit": "A" }
+          ],
+          "note": {
+            "zh": "第二级的增益固定为 −2.2（R_{f2} 跟着 R_3 一起变）。运放级的 R_{out} 只有毫欧量级，误差小得看不见。把 R_{out} 拉到几 kΩ（像一个分压器或传感器那样），误差马上变大。负载效应只取决于 R_{out} 和 R_{in2} 的比。",
+            "en": "Stage 2's gain stays −2.2 (R_{f2} moves together with R_3). An op-amp stage has R_{out} of milliohms, so the error is invisible. Drag R_{out} up to a few kΩ (like a divider or a sensor) and the error jumps. Loading depends only on the ratio of R_{out} to R_{in2}."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "sim",
+      "blocks": [
+        {
+          "type": "sim",
+          "intro": {
+            "zh": "先预测，再运行，再看为什么。两级都按 LM358 建模：±9 V 双电源，输出 −9 … +7.5 V。",
+            "en": "Predict, run, then see why. Both stages are LM358s on ±9 V: output −9 … +7.5 V."
+          },
+          "params": [
+            { "id": "vin", "value": 0.5 },
+            { "id": "R1", "value": 10000 },
+            { "id": "Rf1", "value": 22000 },
+            { "id": "R3", "value": 10000 },
+            { "id": "Rf2", "value": 22000 },
+            { "id": "Rout", "value": 0 },
+            { "id": "order", "value": 1 }
+          ],
+          "outputs": [
+            {
+              "id": "vs1",
+              "label": { "zh": "第一级空载输出", "en": "stage 1 output, unloaded" },
+              "expr": "if(order, clamp(vin * (1 + Rf1 / R1), -9, 7.5), clamp(-Rf2 / R3 * vin, -9, 7.5))",
+              "unit": "V"
+            },
+            {
+              "label": { "zh": "第一级输出端 v_{o1}（接上第二级后）", "en": "stage 1 output v_{o1} (with stage 2 connected)" },
+              "expr": "if(order, vs1 * R3 / (Rout + R3), vs1)",
+              "unit": "V"
+            },
+            {
+              "id": "vo",
+              "label": { "zh": "输出 v_o", "en": "output v_o" },
+              "expr": "if(order, clamp(-Rf2 * vs1 / (Rout + R3), -9, 7.5), clamp(vs1 * (1 + Rf1 / R1), -9, 7.5))",
+              "unit": "V"
+            },
+            { "label": { "zh": "总增益 v_o/v_{in}", "en": "overall gain v_o/v_{in}" }, "expr": "vo / vin" }
+          ],
+          "scenarios": [
+            {
+              "label": { "zh": "正常：v_{in} = 0.5 V", "en": "Normal: v_{in} = 0.5 V" },
+              "set": {},
+              "ask": { "zh": "v_o 是多少？", "en": "What is v_o?" },
+              "choices": [
+                { "zh": "−3.52 V", "en": "−3.52 V" },
+                { "zh": "+3.52 V", "en": "+3.52 V" },
+                { "zh": "−1.1 V", "en": "−1.1 V" },
+                { "zh": "−7.04 V", "en": "−7.04 V" }
+              ],
+              "correct": 0,
+              "explain": {
+                "zh": "0.5 × 3.2 = 1.6 V，再 × (−2.2) = −3.52 V。−1.1 V 只算了第二级；−7.04 是总增益，不是电压。",
+                "en": "0.5 × 3.2 = 1.6 V, then × (−2.2) = −3.52 V. −1.1 V uses only stage 2; −7.04 is the overall gain, not a voltage."
+              }
+            },
+            {
+              "label": { "zh": "两级对调顺序", "en": "Swap the order of the stages" },
+              "set": { "order": 0 },
+              "ask": { "zh": "先过反相级，再过同相级。v_o 会怎样？", "en": "Put the inverting stage first and the non-inverting stage second. What happens to v_o?" },
+              "choices": [
+                { "zh": "一样，−3.52 V", "en": "the same, −3.52 V" },
+                { "zh": "变成 +3.52 V", "en": "it becomes +3.52 V" },
+                { "zh": "变小，因为负载变了", "en": "smaller, because the loading changed" }
+              ],
+              "correct": 0,
+              "explain": {
+                "zh": "每级的输出电阻都约为 0，谁接谁都不会拉低，所以只是两个数相乘：(−2.2) × 3.2 = −7.04，顺序无关。（前提是中间那一级没有削顶：这里是 −1.1 V，没问题。）",
+                "en": "Every stage has an output resistance of about 0, so neither one drags the other down; it is just two numbers multiplied: (−2.2) × 3.2 = −7.04, in either order. (As long as the middle point does not clip: here it is −1.1 V, fine.)"
+              }
+            },
+            {
+              "label": { "zh": "做坏事：第一级换成“软”信号源", "en": "Doing it wrong: a \"soft\" source as stage 1" },
+              "set": { "Rout": 10000 },
+              "ask": {
+                "zh": "假设第一级的输出电阻是 10 kΩ（像分压器或传感器），空载仍是 1.6 V。v_o 是多少？",
+                "en": "Suppose stage 1 has a 10 kΩ output resistance (like a divider or a sensor), still 1.6 V unloaded. What is v_o?"
+              },
+              "choices": [
+                { "zh": "仍是 −3.52 V", "en": "still −3.52 V" },
+                { "zh": "约 −1.76 V", "en": "about −1.76 V" },
+                { "zh": "0 V", "en": "0 V" }
+              ],
+              "correct": 1,
+              "explain": {
+                "zh": "第二级的 v_{−} 是虚地，所以信号源的 10 kΩ 和 R_3 串在一起：电流 = 1.6/(10 k + 10 k) = 0.08 mA，v_o = −22 kΩ × 0.08 mA = −1.76 V。增益少了一半。解决办法：中间加一个跟随器（5c）。",
+                "en": "Stage 2's v_{−} is a virtual ground, so the source's 10 kΩ simply adds to R_3: current = 1.6/(10 k + 10 k) = 0.08 mA and v_o = −22 kΩ × 0.08 mA = −1.76 V. Half the gain is gone. The fix: put a follower (5c) in between."
+              }
+            },
+            {
+              "label": { "zh": "做坏事：输入太大", "en": "Doing it wrong: too big an input" },
+              "set": { "vin": 2 },
+              "ask": { "zh": "v_{in} = 2 V。v_o 是多少？", "en": "v_{in} = 2 V. What is v_o?" },
+              "choices": [
+                { "zh": "约 −14.1 V", "en": "about −14.1 V" },
+                { "zh": "约 −9 V（第二级顶住了）", "en": "about −9 V (stage 2 clipped)" },
+                { "zh": "约 +7.5 V（第一级顶住了）", "en": "about +7.5 V (stage 1 clipped)" }
+              ],
+              "correct": 1,
+              "explain": {
+                "zh": "第一级：2 × 3.2 = 6.4 V，还在 7.5 V 以内。第二级：−2.2 × 6.4 = −14.1 V，超出 −9 V，顶住。第 ⑤ 步要每一级都查，不能只查最后的输出。",
+                "en": "Stage 1: 2 × 3.2 = 6.4 V, still under 7.5 V. Stage 2: −2.2 × 6.4 = −14.1 V, beyond −9 V, so it clips. Step ⑤ has to check every stage, not just the final output."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "layer": "connect",
+      "blocks": [
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "（Midterm 2：戴维宁定理）第一级等效成 1.6 V 串 R_{Th}，带 R_3 = 10 kΩ。要让 R_3 上的电压和 1.6 V 相差不到 1%，R_{Th} 大约要小于多少？",
+            "en": "(Midterm 2: Thévenin) Stage 1 is 1.6 V behind R_{Th}, driving R_3 = 10 kΩ. For the voltage on R_3 to be within 1% of 1.6 V, R_{Th} must be below about…"
+          },
+          "choices": [
+            { "zh": "约 100 Ω", "en": "about 100 Ω" },
+            { "zh": "约 1 kΩ", "en": "about 1 kΩ" },
+            { "zh": "约 10 kΩ", "en": "about 10 kΩ" },
+            { "zh": "必须正好是 0", "en": "it must be exactly 0" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "分压：R_3/(R_3 + R_{Th}) ≥ 0.99，得 R_{Th} ≤ 10 kΩ/99 ≈ 101 Ω。经验法则：输出电阻比下一级输入电阻小 100 倍，就可以忽略负载效应。运放级的输出电阻只有毫欧，远远满足。",
+            "en": "Divider: R_3/(R_3 + R_{Th}) ≥ 0.99 gives R_{Th} ≤ 10 kΩ/99 ≈ 101 Ω. Rule of thumb: if the output resistance is 100 times smaller than the next input resistance, ignore loading. An op-amp stage, at milliohms, clears that easily."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "（接 5c）一个传感器空载输出 1.6 V，内阻 10 kΩ，直接接到第二级（R_3 = 10 kΩ，R_{f2} = 22 kΩ）。最好的办法是？",
+            "en": "(Back to 5c) A sensor gives 1.6 V unloaded and has 10 kΩ inside. It drives stage 2 (R_3 = 10 kΩ, R_{f2} = 22 kΩ) directly. What is the best fix?"
+          },
+          "choices": [
+            { "zh": "在传感器和第二级之间加一个跟随器", "en": "put a follower between the sensor and stage 2" },
+            { "zh": "把 R_3 换小一点", "en": "make R_3 smaller" },
+            { "zh": "什么都不用做，运放能解决", "en": "nothing; the op-amp takes care of it" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "跟随器的输入不取电流，传感器不被拉低；它的输出电阻约为 0，第二级拿到全部 1.6 V。R_3 换小只会更糟：传感器的 10 kΩ 占的比例更大。",
+            "en": "The follower's input draws no current, so the sensor is not dragged down, and its output resistance is about 0, so stage 2 gets the full 1.6 V. A smaller R_3 only makes it worse: the sensor's 10 kΩ becomes a bigger share."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "如果第二级是**同相**放大器，它的输入电阻是多少？",
+            "en": "If stage 2 were a **non-inverting** amplifier, what would its input resistance be?"
+          },
+          "choices": [
+            { "zh": "约为无穷大", "en": "about infinite" },
+            { "zh": "R_1", "en": "R_1" },
+            { "zh": "R_1 + R_f", "en": "R_1 + R_f" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "信号进的是 v_{+}，虚断：不取电流，输入电阻约为无穷大。所以同相级对前一级完全没有负载；反相级的输入电阻是 R_{in}，前一级必须是“硬”的（R_{out} ≈ 0）才行。",
+            "en": "The signal enters at v_{+}, and by the virtual open it draws no current: the input resistance is about infinite. So a non-inverting stage puts no load at all on the stage before it; an inverting stage has input resistance R_{in}, so the stage before it must be stiff (R_{out} ≈ 0)."
+          }
+        },
+        {
+          "type": "problems",
+          "ids": ["opamp-08-two-stage-cascade", "opamp-13-two-opamp-loop", "opamp-14-instrumentation-amp"],
+          "note": {
+            "zh": "理论题沿用中文教材的记号：电压写作 u（u_o 就是这里的 v_o）。13 题有一条跨过两级的反馈，先数清楚绕一圈的符号，确认是负反馈；14 题的仪表放大器是两个同相级加一个差分放大器（5g）。",
+            "en": "The theory problems follow the Chinese textbook and write voltage as u (their u_o is our v_o). Problem 13 has feedback around both stages: count the signs around the loop to make sure it is negative. Problem 14, the instrumentation amplifier, is two non-inverting stages followed by a difference amplifier (5g)."
+          }
+        }
+      ]
+    }
+  ]
+}

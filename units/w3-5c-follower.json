@@ -1,0 +1,323 @@
+{
+  "format": "learning-unit/1",
+  "id": "w3-5c-follower",
+  "world": "w3",
+  "code": "5c",
+  "title": { "zh": "电压跟随器：增益 1 有什么用", "en": "The voltage follower: what a gain of 1 is good for" },
+  "question": { "zh": "β = 1、输出等于输入的电路，到底有什么用？", "en": "With β = 1 the output just equals the input. So what is it good for?" },
+  "minutes": 12,
+  "connects": ["chapter:theorems", "unit:w3-5b-virtual-short"],
+  "layers": [
+    {
+      "layer": "intuition",
+      "blocks": [
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "跟随器把输出 v_o 用一根导线直接接回反相输入端 v_{−}。",
+              "",
+              "反馈系数 β 是输出电压送回 v_{−} 的比例。这里整个 v_o 都送回去了，所以 β = 1，增益 1/β = 1：输出等于输入。",
+              "",
+              "听起来没用。可以把它想成一个“复印员”：它盯着输入，用自己的电源造出一个一样大的电压。负载要的电流从运放的电源脚来，不从输入那里拿。"
+            ],
+            "en": [
+              "A follower takes the output v_o and wires it straight back to the inverting input v_{−}.",
+              "",
+              "The feedback factor β is the fraction of the output sent back to v_{−}. Here all of v_o goes back, so β = 1 and the gain 1/β = 1: the output equals the input.",
+              "",
+              "That sounds useless. Think of it as a copier: it watches the input and builds the same voltage from its own supply. The load's current comes from the op-amp's supply pin, not from the input."
+            ]
+          }
+        },
+        {
+          "type": "circuit",
+          "schematic": {
+            "elements": [
+              { "ref": "Vs", "type": "V", "from": [0, 3], "to": [0, 7], "value": 9 },
+              { "ref": "R1", "type": "R", "from": [4, 1], "to": [4, 5], "value": "10k" },
+              { "ref": "R2", "type": "R", "from": [4, 5], "to": [4, 9], "value": "10k" },
+              { "ref": "A", "type": "OPAMP", "at": [10, 4] },
+              { "ref": "RL", "type": "R", "from": [16, 4], "to": [16, 9], "value": "1k" }
+            ],
+            "wires": [
+              [
+                [0, 3],
+                [0, 1],
+                [4, 1]
+              ],
+              [
+                [4, 5],
+                [8, 5]
+              ],
+              [
+                [8, 3],
+                [7, 3],
+                [7, 1],
+                [13, 1],
+                [13, 4]
+              ],
+              [
+                [12, 4],
+                [16, 4]
+              ],
+              [
+                [0, 7],
+                [0, 9],
+                [16, 9]
+              ]
+            ],
+            "labels": [
+              { "at": [6, 5], "name": "a" },
+              { "at": [15, 4], "name": "v_o" }
+            ],
+            "grounds": [[0, 9]],
+            "marks": [{ "kind": "i", "el": "RL", "name": "i_L" }]
+          },
+          "caption": {
+            "zh": "实验 2-5 的电路：9 V 经 R_1、R_2（各 10 kΩ）分压，得到 a 点。跟随器把 a 点的电压复制到输出 v_o，再去驱动负载 R_L = 1 kΩ。",
+            "en": "The circuit of lab 2-5: 9 V divided by R_1 and R_2 (10 kΩ each) gives node a. The follower copies the voltage of a to its output v_o, which then drives the load R_L = 1 kΩ."
+          }
+        },
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "用 Midterm 2 的戴维宁定理来看。",
+              "",
+              "从 a 点看回去，分压器等效成 4.5 V 串一个 5 kΩ 的电阻（戴维宁电阻 R_{Th}）。直接接 1 kΩ 负载，大部分电压掉在这 5 kΩ 上。",
+              "",
+              "跟随器的输出等效成 4.5 V 串一个约 0 Ω 的电阻。负载拿到全部 4.5 V。跟随器的作用就是**隔离**：把“软”的信号源变成“硬”的。"
+            ],
+            "en": [
+              "Look at it with Thévenin's theorem from Midterm 2.",
+              "",
+              "Seen from node a, the divider is 4.5 V in series with 5 kΩ (the Thévenin resistance R_{Th}). Hang 1 kΩ on it and most of the voltage is lost across that 5 kΩ.",
+              "",
+              "The follower's output is 4.5 V in series with about 0 Ω. The load gets the full 4.5 V. That is the follower's job: **isolation**. It turns a \"soft\" source into a \"stiff\" one."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "layer": "derive",
+      "blocks": [
+        {
+          "type": "steps",
+          "title": { "zh": "五步法：跟随器带 1 kΩ 负载", "en": "The five steps: a follower driving 1 kΩ" },
+          "steps": [
+            {
+              "zh": "**① 有负反馈吗？** 有。一根导线把输出接回 v_{−}。v_o 偏高一点，v_{−} 跟着变高，v_{+} − v_{−} 变小，运放就把 v_o 往下拉。偏差自己被纠正，这就是负反馈。",
+              "en": "**① Is there negative feedback?** Yes. A wire takes the output back to v_{−}. If v_o drifts a little high, v_{−} rises with it, v_{+} − v_{−} shrinks, and the op-amp pulls v_o back down. The error corrects itself: that is negative feedback."
+            },
+            {
+              "zh": "**② 虚短、虚断。** 虚断：v_{+} 不取电流，所以分压器没有负载，v_{+} = 9 V × 10/(10 + 10) = 4.5 V。虚短：v_{−} ≈ v_{+} = 4.5 V。",
+              "en": "**② Virtual short, virtual open.** Virtual open: v_{+} draws no current, so the divider is unloaded and v_{+} = 9 V × 10/(10 + 10) = 4.5 V. Virtual short: v_{−} ≈ v_{+} = 4.5 V."
+            },
+            {
+              "zh": "**③ 在 v_{−} 列 KCL。** v_{−} 只连着一根导线，通到 v_o。虚断：没有电流流进 v_{−}，所以这根导线里的电流是 0。没有电流，导线两端电压相同：v_o = v_{−}。",
+              "en": "**③ KCL at v_{−}.** Node v_{−} has only one wire, and it goes to v_o. Virtual open: no current enters v_{−}, so the wire carries zero current. With no current, both ends of the wire are at the same voltage: v_o = v_{−}."
+            },
+            {
+              "zh": "**④ 解出 v_o。** v_o = v_{−} = 4.5 V。负载电流 i_L = 4.5 V / 1 kΩ = 4.5 mA，由运放的输出端供给。分压器里的电流仍是 9 V / 20 kΩ = 0.45 mA，和没接负载时一样。",
+              "en": "**④ Solve for v_o.** v_o = v_{−} = 4.5 V. The load current i_L = 4.5 V / 1 kΩ = 4.5 mA comes from the op-amp output. The divider current is still 9 V / 20 kΩ = 0.45 mA, the same as with no load."
+            },
+            {
+              "zh": "**⑤ 合理性检查。** LM358 接单电源 9 V，输出范围约 0 V … 9 − 1.5 = 7.5 V：4.5 V 在里面 ✓。输出要供 4.5 mA，低于约 20 mA 的输出能力 ✓。两项都通过，答案可信。",
+              "en": "**⑤ Sanity check.** On a single 9 V supply the LM358 output swings from about 0 V to 9 − 1.5 = 7.5 V: 4.5 V is inside ✓. The output sources 4.5 mA, well below its roughly 20 mA limit ✓. Both pass, so the answer stands."
+            }
+          ]
+        },
+        {
+          "type": "explore",
+          "title": { "zh": "有缓冲和没缓冲，负载上的电压", "en": "Load voltage with and without the buffer" },
+          "params": [
+            { "id": "R", "label": { "zh": "分压电阻 R_1 = R_2", "en": "divider resistors R_1 = R_2" }, "value": 10000, "min": 1000, "max": 100000, "log": true, "unit": "Ω" },
+            { "id": "RL", "label": { "zh": "负载 R_L", "en": "load R_L" }, "value": 1000, "min": 10, "max": 100000, "log": true, "unit": "Ω" }
+          ],
+          "outputs": [
+            { "id": "Rth", "label": { "zh": "从 a 点看回去的 R_{Th}", "en": "R_{Th} seen from node a" }, "expr": "R / 2", "unit": "Ω" },
+            { "id": "vno", "label": { "zh": "没缓冲：负载电压", "en": "no buffer: load voltage" }, "expr": "4.5 * RL / (Rth + RL)", "unit": "V" },
+            { "id": "vbuf", "label": { "zh": "有缓冲：负载电压", "en": "with buffer: load voltage" }, "expr": "min(4.5, 0.02 * RL)", "unit": "V" },
+            { "label": { "zh": "有缓冲：负载电流（运放供给）", "en": "with buffer: load current (from the op-amp)" }, "expr": "vbuf / RL", "unit": "A" },
+            { "label": { "zh": "运放到了约 20 mA 的上限？（1 = 是）", "en": "op-amp at its ~20 mA limit? (1 = yes)" }, "expr": "step(4.5 / RL - 0.02)" }
+          ],
+          "note": {
+            "zh": "拖动 R_L。没缓冲时，负载越小，电压掉得越多。有缓冲时电压一直是 4.5 V，直到负载要的电流超过约 20 mA（R_L 小于 225 Ω）。那时第 ⑤ 步的电流检查就不通过了。",
+            "en": "Drag R_L. Without the buffer, the smaller the load, the more the voltage drops. With the buffer it stays at 4.5 V, until the load asks for more than about 20 mA (R_L below 225 Ω). Then the current check in step ⑤ fails."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "sim",
+      "blocks": [
+        {
+          "type": "sim",
+          "intro": {
+            "zh": "先预测，再运行，再看为什么。运放按 LM358 建模：单电源 9 V，输出 0 … 7.5 V，最多约 20 mA。",
+            "en": "Predict, run, then see why. The op-amp is modelled as an LM358 on a single 9 V supply: output 0 … 7.5 V, at most about 20 mA."
+          },
+          "params": [
+            { "id": "Vs", "value": 9 },
+            { "id": "R1", "value": 10000 },
+            { "id": "R2", "value": 10000 },
+            { "id": "RL", "value": 1000 },
+            { "id": "buf", "value": 1 },
+            { "id": "swap", "value": 0 }
+          ],
+          "outputs": [
+            { "id": "vth", "label": { "zh": "分压器空载电压", "en": "divider open-circuit voltage" }, "expr": "Vs * R2 / (R1 + R2)", "unit": "V" },
+            { "id": "rth", "label": { "zh": "R_{Th}", "en": "R_{Th}" }, "expr": "R1 * R2 / (R1 + R2)", "unit": "Ω" },
+            { "id": "va", "label": { "zh": "a 点电压 v_a", "en": "node voltage v_a" }, "expr": "if(buf, vth, vth * RL / (rth + RL))", "unit": "V" },
+            { "id": "vL", "label": { "zh": "负载电压 v_L", "en": "load voltage v_L" }, "expr": "if(buf, if(swap, 7.5, min(clamp(va, 0, 7.5), 0.02 * RL)), va)", "unit": "V" },
+            { "label": { "zh": "负载电流 i_L", "en": "load current i_L" }, "expr": "vL / RL", "unit": "A" },
+            { "label": { "zh": "R_1 里的电流", "en": "current in R_1" }, "expr": "(Vs - va) / R1", "unit": "A" }
+          ],
+          "scenarios": [
+            {
+              "label": { "zh": "做坏事：不用缓冲，分压器直接带负载", "en": "Doing it wrong: the divider drives the load directly" },
+              "set": { "buf": 0 },
+              "ask": { "zh": "把 1 kΩ 负载直接接到 a 点。v_L 是多少？", "en": "Connect the 1 kΩ load straight to node a. What is v_L?" },
+              "choices": [
+                { "zh": "4.5 V", "en": "4.5 V" },
+                { "zh": "约 2.25 V", "en": "about 2.25 V" },
+                { "zh": "约 0.75 V", "en": "about 0.75 V" },
+                { "zh": "0 V", "en": "0 V" }
+              ],
+              "correct": 2,
+              "explain": {
+                "zh": "从 a 点看，分压器是 4.5 V 串 5 kΩ。1 kΩ 负载只分到 4.5 × 1/(5 + 1) = 0.75 V。负载太“重”，把分压器拉垮了。",
+                "en": "Seen from a, the divider is 4.5 V behind 5 kΩ. The 1 kΩ load gets only 4.5 × 1/(5 + 1) = 0.75 V. The load is too \"heavy\" and drags the divider down."
+              }
+            },
+            {
+              "label": { "zh": "加上跟随器", "en": "Put the follower in" },
+              "set": { "buf": 1 },
+              "ask": {
+                "zh": "跟随器放在 a 点和负载之间。v_L 和 R_1 里的电流会怎样？",
+                "en": "The follower sits between node a and the load. What happens to v_L and to the current in R_1?"
+              },
+              "choices": [
+                { "zh": "v_L = 4.5 V，R_1 电流仍是 0.45 mA", "en": "v_L = 4.5 V; R_1 still carries 0.45 mA" },
+                { "zh": "v_L = 4.5 V，R_1 电流变成约 4.95 mA", "en": "v_L = 4.5 V; R_1 now carries about 4.95 mA" },
+                { "zh": "v_L 仍是 0.75 V", "en": "v_L is still 0.75 V" }
+              ],
+              "correct": 0,
+              "explain": {
+                "zh": "虚断：v_{+} 不取电流，分压器又变回空载，a 点是 4.5 V。虚短：v_o = 4.5 V。负载的 4.5 mA 从运放的电源脚来，分压器根本“看不见”负载。",
+                "en": "Virtual open: v_{+} draws no current, so the divider is unloaded again and node a is at 4.5 V. Virtual short: v_o = 4.5 V. The load's 4.5 mA comes from the op-amp's supply pin; the divider never \"sees\" the load."
+              }
+            },
+            {
+              "label": { "zh": "做坏事：负载太小", "en": "Doing it wrong: a load that is too small" },
+              "set": { "buf": 1, "RL": 100 },
+              "ask": { "zh": "有跟随器，但负载换成 100 Ω。v_L 是多少？", "en": "The follower is in, but the load is now 100 Ω. What is v_L?" },
+              "choices": [
+                { "zh": "仍是 4.5 V", "en": "still 4.5 V" },
+                { "zh": "约 2 V", "en": "about 2 V" },
+                { "zh": "约 0.09 V", "en": "about 0.09 V" }
+              ],
+              "correct": 1,
+              "explain": {
+                "zh": "4.5 V / 100 Ω 要 45 mA，超过 LM358 约 20 mA 的输出能力。输出被电流限住：v_L ≈ 20 mA × 100 Ω = 2 V。第 ⑤ 步查电流，就是为了发现这种情况。（真实芯片的上限每片不同，但量级是这样。）",
+                "en": "4.5 V / 100 Ω needs 45 mA, more than the LM358's roughly 20 mA. The output is current-limited: v_L ≈ 20 mA × 100 Ω = 2 V. The current check in step ⑤ is there to catch exactly this. (The exact limit varies from chip to chip, but this is the size of it.)"
+              }
+            },
+            {
+              "label": { "zh": "做坏事：对调两个输入端", "en": "Doing it wrong: swap the two inputs" },
+              "set": { "buf": 1, "swap": 1 },
+              "ask": { "zh": "把 a 点接到 v_{−}，把输出接回 v_{+}。v_L 会是多少？", "en": "Connect node a to v_{−} and feed the output back to v_{+}. What will v_L be?" },
+              "choices": [
+                { "zh": "仍是 4.5 V", "en": "still 4.5 V" },
+                { "zh": "−4.5 V", "en": "−4.5 V" },
+                { "zh": "顶在 7.5 V（或 0 V）不动", "en": "stuck at 7.5 V (or 0 V)" }
+              ],
+              "correct": 2,
+              "explain": {
+                "zh": "现在是正反馈：v_o 高一点，v_{+} 也高一点，v_{+} − v_{−} 变大，v_o 再往上走，一直冲到 7.5 V 停住。（如果一开始 v_o 偏低，它会一路冲到 0 V。）第 ① 步不成立，虚短就不能用。",
+                "en": "This is positive feedback: v_o goes up a little, v_{+} goes up with it, v_{+} − v_{−} grows, and v_o climbs further until it sticks at 7.5 V. (Had v_o started low, it would have run down to 0 V.) Step ① fails, so the virtual short does not apply."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "layer": "bench",
+      "blocks": [
+        {
+          "type": "bench",
+          "challenge": "exp-voltage-follower",
+          "note": {
+            "zh": "把 S1 在 a、b 之间来回拨：R_L 上的电压应该从约 0.75 V 跳到约 4.5 V，而 R_1 里的电流一直是约 0.45 mA。",
+            "en": "Flip S1 between a and b: the voltage on R_L should jump from about 0.75 V to about 4.5 V, while the current in R_1 stays at about 0.45 mA."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "connect",
+      "blocks": [
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "（Midterm 2：戴维宁定理）从 a 点看回去，分压器（9 V、10 kΩ、10 kΩ）的戴维宁等效电路是什么？",
+            "en": "(Midterm 2: Thévenin) Seen from node a, what is the Thévenin equivalent of the divider (9 V, 10 kΩ, 10 kΩ)?"
+          },
+          "choices": [
+            { "zh": "v_{Th} = 4.5 V，R_{Th} = 5 kΩ", "en": "v_{Th} = 4.5 V, R_{Th} = 5 kΩ" },
+            { "zh": "v_{Th} = 9 V，R_{Th} = 20 kΩ", "en": "v_{Th} = 9 V, R_{Th} = 20 kΩ" },
+            { "zh": "v_{Th} = 4.5 V，R_{Th} = 10 kΩ", "en": "v_{Th} = 4.5 V, R_{Th} = 10 kΩ" },
+            { "zh": "v_{Th} = 9 V，R_{Th} = 5 kΩ", "en": "v_{Th} = 9 V, R_{Th} = 5 kΩ" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "开路电压就是空载分压：4.5 V。把 9 V 电源置零（换成导线），R_1 和 R_2 并联：10 ∥ 10 = 5 kΩ。负载和 5 kΩ 差不多大或更小时，电压就掉得很厉害。",
+            "en": "The open-circuit voltage is the unloaded divider output, 4.5 V. Turn the 9 V source off (replace it with a wire) and R_1 is in parallel with R_2: 10 ∥ 10 = 5 kΩ. A load near 5 kΩ or smaller pulls the voltage down hard."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "从跟随器的输出端看回去，戴维宁电阻是多少？",
+            "en": "Looking back into the follower's output, what is the Thévenin resistance?"
+          },
+          "choices": [
+            { "zh": "约 0 Ω", "en": "about 0 Ω" },
+            { "zh": "5 kΩ", "en": "5 kΩ" },
+            { "zh": "1 kΩ", "en": "1 kΩ" },
+            { "zh": "无穷大", "en": "infinite" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "负载从 100 kΩ 换到 1 kΩ，v_o 都是 4.5 V。电流变了，电压不变，说明串联的电阻约为 0。负反馈一直把 v_o 拉回 v_{+}。所以跟随器把“4.5 V 串 5 kΩ”变成了“4.5 V 串约 0 Ω”。",
+            "en": "Change the load from 100 kΩ to 1 kΩ and v_o stays at 4.5 V. The current changes but the voltage does not, so the series resistance is about 0. Negative feedback keeps pulling v_o back to v_{+}. The follower turns \"4.5 V behind 5 kΩ\" into \"4.5 V behind about 0 Ω\"."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "（接 5b 的虚断）有跟随器、负载 1 kΩ 时，R_1 里的电流是多少 mA？",
+            "en": "(Back to the virtual open of 5b) With the follower in and a 1 kΩ load, what is the current in R_1, in mA?"
+          },
+          "answer": 0.45,
+          "unit": "mA",
+          "explain": {
+            "zh": "虚断：v_{+} 不取电流，所以 R_1、R_2 串联，电流 = 9 V / 20 kΩ = 0.45 mA，和没接负载时一样。负载的 4.5 mA 不经过分压器。",
+            "en": "Virtual open: v_{+} draws no current, so R_1 and R_2 are in series and carry 9 V / 20 kΩ = 0.45 mA, the same as with no load. The load's 4.5 mA never passes through the divider."
+          }
+        },
+        {
+          "type": "problems",
+          "ids": ["opamp-03-voltage-follower"],
+          "note": {
+            "zh": "理论题沿用中文教材的记号：电压写作 u（u_o 就是这里的 v_o）。",
+            "en": "The theory problems follow the Chinese textbook and write voltage as u (their u_o is our v_o)."
+          }
+        }
+      ]
+    }
+  ]
+}

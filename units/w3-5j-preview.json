@@ -1,0 +1,205 @@
+{
+  "format": "learning-unit/1",
+  "id": "w3-5j-preview",
+  "world": "w3",
+  "code": "5j",
+  "title": { "zh": "把电阻换成别的", "en": "Swap the resistor for something else" },
+  "question": { "zh": "反相放大器的 R_f 换成电容或阻抗 Z，会得到什么？", "en": "What do you get when the inverting amplifier's R_f becomes a capacitor or an impedance Z?" },
+  "minutes": 5,
+  "connects": ["unit:w3-5e-inverting"],
+  "layers": [
+    {
+      "layer": "intuition",
+      "blocks": [
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "5e 的反相放大器：v_o = −\\frac{R_f}{R_{in}} v_{in}。",
+              "",
+              "推导只用了两件事：反相端是虚地（0 V）；流过 R_{in} 的电流全部流过 R_f。这两件事和元件是不是电阻无关。"
+            ],
+            "en": [
+              "The inverting amplifier of 5e: v_o = −\\frac{R_f}{R_{in}} v_{in}.",
+              "",
+              "The derivation used just two facts: the inverting input is a virtual ground (0 V), and all of the current through R_{in} flows on through R_f. Neither fact cares whether the parts are resistors."
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "md": {
+            "zh": ["把电阻推广成**阻抗 Z**：交流电路里的“电阻”，电容、电感都有（World 5 讲）。同样的 KCL 给出：", "", "**v_o = −\\frac{Z_f}{Z_{in}} v_{in}**"],
+            "en": [
+              "Generalise resistance to **impedance Z**, the AC version of resistance that capacitors and inductors have too (World 5). The same KCL gives:",
+              "",
+              "**v_o = −\\frac{Z_f}{Z_{in}} v_{in}**"
+            ]
+          }
+        },
+        {
+          "type": "circuit",
+          "schematic": {
+            "elements": [
+              { "ref": "Vin", "type": "V", "from": [0, 3], "to": [0, 7], "value": 1, "label": "v_{in}" },
+              { "ref": "Zin", "type": "Z", "from": [2, 3], "to": [6, 3], "value": { "re": 1000, "im": 0 }, "label": "Z_{in}" },
+              { "ref": "Zf", "type": "Z", "from": [8, 0], "to": [12, 0], "value": { "re": 1000, "im": 0 }, "label": "Z_f" },
+              { "ref": "A", "type": "OPAMP", "at": [10, 4] }
+            ],
+            "wires": [
+              [
+                [0, 3],
+                [2, 3]
+              ],
+              [
+                [6, 3],
+                [8, 3]
+              ],
+              [
+                [7, 3],
+                [7, 0],
+                [8, 0]
+              ],
+              [
+                [12, 0],
+                [14, 0],
+                [14, 4]
+              ],
+              [
+                [12, 4],
+                [16, 4]
+              ],
+              [
+                [8, 5],
+                [7, 5],
+                [7, 7]
+              ],
+              [
+                [0, 7],
+                [7, 7]
+              ]
+            ],
+            "terminals": [{ "at": [16, 4], "name": "v_o" }],
+            "grounds": [[0, 7]]
+          },
+          "caption": {
+            "zh": "反相放大器的一般形式：R_{in} 换成 Z_{in}，R_f 换成 Z_f。",
+            "en": "The inverting amplifier in general form: R_{in} becomes Z_{in}, R_f becomes Z_f."
+          }
+        },
+        {
+          "type": "text",
+          "md": {
+            "zh": "**Z_f 是一个电容 C**：电容的电流 i = C \\frac{dv}{dt}。输出变成输入的积分：方波进，三角波出。这是积分器（Sadiku §6.6，World 4）。",
+            "en": "**Z_f is a capacitor C**: a capacitor's current is i = C \\frac{dv}{dt}, so the output becomes the integral of the input: square wave in, triangle wave out. This is the integrator (Sadiku §6.6, World 4)."
+          }
+        },
+        {
+          "type": "circuit",
+          "schematic": {
+            "elements": [
+              { "ref": "Vin", "type": "V", "from": [0, 3], "to": [0, 7], "value": 1, "label": "v_{in}" },
+              { "ref": "R", "type": "R", "from": [2, 3], "to": [6, 3], "label": "R" },
+              { "ref": "C", "type": "C", "from": [8, 0], "to": [12, 0], "label": "C" },
+              { "ref": "A", "type": "OPAMP", "at": [10, 4] }
+            ],
+            "wires": [
+              [
+                [0, 3],
+                [2, 3]
+              ],
+              [
+                [6, 3],
+                [8, 3]
+              ],
+              [
+                [7, 3],
+                [7, 0],
+                [8, 0]
+              ],
+              [
+                [12, 0],
+                [14, 0],
+                [14, 4]
+              ],
+              [
+                [12, 4],
+                [16, 4]
+              ],
+              [
+                [8, 5],
+                [7, 5],
+                [7, 7]
+              ],
+              [
+                [0, 7],
+                [7, 7]
+              ]
+            ],
+            "terminals": [{ "at": [16, 4], "name": "v_o" }],
+            "grounds": [[0, 7]]
+          },
+          "caption": {
+            "zh": "积分器：R_f 的位置放一个电容。",
+            "en": "Integrator: a capacitor where R_f used to be."
+          }
+        },
+        { "type": "portal", "id": "preview-integrator" },
+        {
+          "type": "text",
+          "md": {
+            "zh": "**Z_f 是 R_f 并 C**：低频时电容像断开，增益还是 −\\frac{R_f}{R_{in}}；高频时电容把 R_f 短路，增益变小。这是有源低通滤波器。",
+            "en": "**Z_f is R_f in parallel with C**: at low frequency the capacitor is nearly open and the gain is still −\\frac{R_f}{R_{in}}; at high frequency the capacitor shorts out R_f and the gain falls. This is an active low-pass filter."
+          }
+        },
+        { "type": "portal", "id": "preview-active-lowpass" },
+        {
+          "type": "text",
+          "md": {
+            "zh": "跟随器（5c）也能帮滤波器：两级 RC 滤波器中间插一个跟随器，后一级就不再拖累前一级。",
+            "en": "The follower (5c) helps filters too: put one between two RC filter stages and the second stage stops loading the first."
+          }
+        },
+        { "type": "portal", "id": "preview-buffered-bandpass" }
+      ]
+    },
+    {
+      "layer": "connect",
+      "blocks": [
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "Z_f = R_f，Z_{in} = R_{in}。−\\frac{Z_f}{Z_{in}} 变回什么？",
+            "en": "Z_f = R_f and Z_{in} = R_{in}. What does −\\frac{Z_f}{Z_{in}} turn back into?"
+          },
+          "choices": [
+            { "zh": "反相放大器的增益 −\\frac{R_f}{R_{in}}", "en": "the inverting amplifier's gain −\\frac{R_f}{R_{in}}" },
+            { "zh": "同相放大器的增益 1 + \\frac{R_f}{R_g}", "en": "the non-inverting amplifier's gain 1 + \\frac{R_f}{R_g}" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "电阻就是虚部为零的阻抗。新公式包含旧公式，所以 5e 学的东西一点不浪费。",
+            "en": "A resistor is an impedance with no imaginary part. The new formula contains the old one, so nothing from 5e is wasted."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "电容阻抗的大小是 \\frac{1}{ωC}，频率越高越小。R_f 换成 C 以后，频率升高，增益的大小怎样？",
+            "en": "A capacitor's impedance has size \\frac{1}{ωC}, smaller at higher frequency. With C in place of R_f, what happens to the size of the gain as frequency rises?"
+          },
+          "choices": [
+            { "zh": "变小", "en": "it falls" },
+            { "zh": "变大", "en": "it rises" },
+            { "zh": "不变", "en": "it stays the same" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "增益大小 = \\frac{|Z_f|}{R} = \\frac{1}{ωRC}。ω 越大，增益越小：频率每高 10 倍，增益小 10 倍。",
+            "en": "Gain size = \\frac{|Z_f|}{R} = \\frac{1}{ωRC}. The larger ω, the smaller the gain: ten times the frequency, one tenth the gain."
+          }
+        }
+      ]
+    }
+  ]
+}
