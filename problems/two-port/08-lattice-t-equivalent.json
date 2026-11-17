@@ -7,7 +7,7 @@
   "level": 4,
   "tags": ["Z 参数", "对称二端口", "T 形等效电路", "格形网络"],
   "statement": [
-    "图示对称格形（桥形）二端口：两个“串臂”电阻 R_a1 = R_a2 = 2 Ω（1–2、1'–2'），两个“交叉臂”电阻 R_b1 = R_b2 = 6 Ω（1'–2、1–2'）。图中两条引线交叉处**不相连**。端口 2 的两个端子都不接地。",
+    "图示是对称格形（桥形）二端口。两个“串臂”电阻 R_a1 = R_a2 = 2 Ω，分别接在 1–2 和 1'–2' 之间。两个“交叉臂”电阻 R_b1 = R_b2 = 6 Ω，分别接在 1'–2 和 1–2' 之间。图中两条引线交叉处**不相连**。端口 2 的两个端子都不接地。端口电压的“+”在 1、2 端，端口电流从 1、2 端流入。",
     "求 Z 参数 z_11、z_21，并求它的 T 形等效电路。"
   ],
   "schematic": {
@@ -51,7 +51,7 @@
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z21" },
       "answer": 2,
       "unit": "Ω",
-      "explain": "i_1 = 1 A 时每条支路 0.5 A，取 1' 为参考：u_1 = 4 V，V(2) = 4 − 0.5 × 2 = 3 V，V(2') = 4 − 0.5 × 6 = 1 V，u_2 = 2 V，z_21 = 2 Ω = (R_b − R_a)/2。"
+      "explain": "i_1 = 1 A 时每条支路 0.5 A，取 1' 为参考：v_1 = 4 V，V(2) = 4 − 0.5 × 2 = 3 V，V(2') = 4 − 0.5 × 6 = 1 V，v_2 = 2 V，z_21 = 2 Ω = (R_b − R_a)/2。"
     },
     {
       "id": "teq",
@@ -68,19 +68,19 @@
     {
       "id": "bal",
       "ask": "如果交叉臂也改成 2 Ω（R_a = R_b），会怎样？",
-      "choices": ["z_12 = z_21 = 0，电桥平衡，端口 2 得不到任何信号", "z_11 变为 0", "z_12 = z_21 = 2 Ω 不变", "网络变得不互易"], "choiceExplain": ["", "z_11 是从端口 1 看进去的开路电阻：两条 2 + 2 Ω 的支路并联，得 2 Ω，不会为零。", "z_12 = (R_b − R_a)/2 取决于两种臂电阻之差，R_b 从 6 Ω 改为 2 Ω 后它会跟着变。", "互易性取决于是否含受控源等非互易元件；改变电阻值后仍是纯电阻网络，仍然互易。"],
+      "choices": ["z_12 = z_21 = 0，电桥平衡，端口 2 得不到任何信号", "z_11 变为 0", "z_12 = z_21 不变", "网络变得不互易"], "choiceExplain": ["", "z_11 是从端口 1 看进去的开路电阻：两条 2 + 2 Ω 的支路并联，得 2 Ω，不会为零。", "z_12 = (R_b − R_a)/2 取决于两种臂电阻之差，R_b 从 6 Ω 改为 2 Ω 后它会跟着变。", "互易性取决于是否含受控源等非互易元件；改变电阻值后仍是纯电阻网络，仍然互易。"],
       "correct": 0,
       "explain": "z_12 = (R_b − R_a)/2 = 0：四个臂相等时是平衡电桥，端口 1 加电流在端口 2 产生的电压为零。"
     }
   ],
   "hints": [
     "求 z_11、z_21 时端口 2 开路：从 1–1' 看进去是两条各含一个 R_a、一个 R_b 的并联支路。",
-    "取 1' 为参考点，分别算出 2 和 2' 的电位，u_2 = V(2) − V(2')。T 形等效：Z_1 = z_11 − z_12，Z_2 = z_22 − z_12，Z_3 = z_12。"
+    "取 1' 为参考点，分别算出 2 和 2' 的电位，v_2 = V(2) − V(2')。T 形等效：Z_1 = z_11 − z_12，Z_2 = z_22 − z_12，Z_3 = z_12。"
   ],
   "solution": [
     "**1. 端口 2 开路，在 1–1' 加电流 i_1。** 两条并联支路 1→R_a1→2→R_b1→1'、1→R_b2→2'→R_a2→1' 电阻都是 8 Ω，各分得 i_1/2。",
-    "u_1 = (8 ∥ 8)·i_1 = 4i_1 → **z_11 = 4 Ω**。",
-    "**2. 端口电压。** 以 1' 为参考：V(2) = u_1 − R_a·i_1/2 = 3i_1，V(2') = u_1 − R_b·i_1/2 = i_1，u_2 = V(2) − V(2') = 2i_1 → **z_21 = 2 Ω**。",
+    "v_1 = (8 ∥ 8)·i_1 = 4i_1 → **z_11 = 4 Ω**。",
+    "**2. 端口电压。** 以 1' 为参考：V(2) = v_1 − R_a·i_1/2 = 3i_1，V(2') = v_1 − R_b·i_1/2 = i_1，v_2 = V(2) − V(2') = 2i_1 → **z_21 = 2 Ω**。",
     "**3. 对称、互易。** 网络左右对称，z_22 = z_11 = 4 Ω；纯电阻网络互易，z_12 = z_21 = 2 Ω。一般地，对称格形网络 z_11 = (R_a + R_b)/2，z_12 = (R_b − R_a)/2。",
     "**4. T 形等效。** Z_1 = z_11 − z_12 = **2 Ω**，Z_2 = z_22 − z_12 = **2 Ω**，Z_3 = z_12 = **2 Ω**。验算：T 形网络 z_11 = Z_1 + Z_3 = 4 Ω ✓。",
     "**注意：** T 形等效电路的 1' 与 2' 相连，原格形网络中 1' 与 2' 并不等电位——等效只对端口的外部特性成立。"
@@ -90,12 +90,12 @@
       "title": "A symmetric lattice network and its T equivalent",
       "tags": ["Z parameters", "symmetric two-port", "T equivalent circuit", "lattice network"],
       "statement": [
-        "The symmetric lattice (bridge) two-port has two series-arm resistors R_a1 = R_a2 = 2 Ω (1–2 and 1'–2') and two cross-arm resistors R_b1 = R_b2 = 6 Ω (1'–2 and 1–2'). The two leads that cross in the drawing are **not connected**. Neither terminal of port 2 is grounded.",
+        "The circuit is a symmetric lattice (bridge) two-port. Two series-arm resistors R_a1 = R_a2 = 2 Ω connect 1–2 and 1'–2'. Two cross-arm resistors R_b1 = R_b2 = 6 Ω connect 1'–2 and 1–2'. The two leads that cross in the drawing are **not connected**. Neither terminal of port 2 is grounded. The port voltages are + at terminals 1 and 2, and the port currents flow into terminals 1 and 2.",
         "Find the Z parameters z_11 and z_21, and the T equivalent circuit."
       ],
       "questions": [
         { "ask": "z_11 = ?", "explain": "With port 2 open, port 1 sees two parallel paths 1→R_a1→2→R_b1→1' and 1→R_b2→2'→R_a2→1', each 2 + 6 = 8 Ω: z_11 = 8 ∥ 8 = 4 Ω." },
-        { "ask": "z_21 = ?", "explain": "With i_1 = 1 A each path carries 0.5 A. Taking 1' as reference: u_1 = 4 V, V(2) = 4 − 0.5 × 2 = 3 V, V(2') = 4 − 0.5 × 6 = 1 V, u_2 = 2 V, z_21 = 2 Ω = (R_b − R_a)/2." },
+        { "ask": "z_21 = ?", "explain": "With i_1 = 1 A each path carries 0.5 A. Taking 1' as reference: v_1 = 4 V, V(2) = 4 − 0.5 × 2 = 3 V, V(2') = 4 − 0.5 × 6 = 1 V, v_2 = 2 V, z_21 = 2 Ω = (R_b − R_a)/2." },
         {
           "ask": "Its T equivalent (series arms Z_1, Z_2 and shunt arm Z_3) is …",
           "choices": ["Z_1 = Z_2 = 2 Ω, Z_3 = 2 Ω", "Z_1 = Z_2 = 4 Ω, Z_3 = 2 Ω", "Z_1 = Z_2 = 2 Ω, Z_3 = 6 Ω", "Z_1 = Z_2 = 1 Ω, Z_3 = 3 Ω"], "choiceExplain": ["", "This takes the series arm as z_11 = 4 Ω and forgets to subtract z_12: the T equivalent's series arm is Z_1 = z_11 − z_12.", "Z_3 = 6 Ω just copies the cross arm R_b; the T's shunt arm must be Z_3 = z_12.", "This halves every arm resistance (as if the two parallel paths simply halve each element); the T equivalent comes from the Z parameters: Z_1 = z_11 − z_12, Z_3 = z_12."],
@@ -103,18 +103,18 @@
         },
         {
           "ask": "What happens if the cross arms are also 2 Ω (R_a = R_b)?",
-          "choices": ["z_12 = z_21 = 0: the bridge is balanced and port 2 receives no signal", "z_11 becomes 0", "z_12 = z_21 = 2 Ω, unchanged", "The network becomes non-reciprocal"], "choiceExplain": ["", "z_11 is the open-circuit resistance seen at port 1: two 2 + 2 Ω paths in parallel give 2 Ω, not zero.", "z_12 = (R_b − R_a)/2 depends on the difference between the arms, so it changes when R_b goes from 6 Ω to 2 Ω.", "Reciprocity depends on non-reciprocal elements such as dependent sources; changing resistor values leaves a purely resistive, still reciprocal network."],
+          "choices": ["z_12 = z_21 = 0: the bridge is balanced and port 2 receives no signal", "z_11 becomes 0", "z_12 = z_21, unchanged", "The network becomes non-reciprocal"], "choiceExplain": ["", "z_11 is the open-circuit resistance seen at port 1: two 2 + 2 Ω paths in parallel give 2 Ω, not zero.", "z_12 = (R_b − R_a)/2 depends on the difference between the arms, so it changes when R_b goes from 6 Ω to 2 Ω.", "Reciprocity depends on non-reciprocal elements such as dependent sources; changing resistor values leaves a purely resistive, still reciprocal network."],
           "explain": "z_12 = (R_b − R_a)/2 = 0: with four equal arms the bridge is balanced, so a current into port 1 produces no voltage at port 2."
         }
       ],
       "hints": [
         "For z_11 and z_21 port 2 is open: port 1 sees two parallel paths, each containing one R_a and one R_b.",
-        "Take 1' as reference and find the potentials of 2 and 2'; u_2 = V(2) − V(2'). T equivalent: Z_1 = z_11 − z_12, Z_2 = z_22 − z_12, Z_3 = z_12."
+        "Take 1' as reference and find the potentials of 2 and 2'; v_2 = V(2) − V(2'). T equivalent: Z_1 = z_11 − z_12, Z_2 = z_22 − z_12, Z_3 = z_12."
       ],
       "solution": [
         "**1. Port 2 open, drive port 1 with i_1.** The parallel paths 1→R_a1→2→R_b1→1' and 1→R_b2→2'→R_a2→1' are both 8 Ω, so each carries i_1/2.",
-        "u_1 = (8 ∥ 8)·i_1 = 4i_1 → **z_11 = 4 Ω**.",
-        "**2. Port voltage.** With 1' as reference: V(2) = u_1 − R_a·i_1/2 = 3i_1, V(2') = u_1 − R_b·i_1/2 = i_1, u_2 = V(2) − V(2') = 2i_1 → **z_21 = 2 Ω**.",
+        "v_1 = (8 ∥ 8)·i_1 = 4i_1 → **z_11 = 4 Ω**.",
+        "**2. Port voltage.** With 1' as reference: V(2) = v_1 − R_a·i_1/2 = 3i_1, V(2') = v_1 − R_b·i_1/2 = i_1, v_2 = V(2) − V(2') = 2i_1 → **z_21 = 2 Ω**.",
         "**3. Symmetric and reciprocal.** The network is left–right symmetric, so z_22 = z_11 = 4 Ω; it is purely resistive, so z_12 = z_21 = 2 Ω. In general a symmetric lattice has z_11 = (R_a + R_b)/2, z_12 = (R_b − R_a)/2.",
         "**4. T equivalent.** Z_1 = z_11 − z_12 = **2 Ω**, Z_2 = z_22 − z_12 = **2 Ω**, Z_3 = z_12 = **2 Ω**. Check: for the T network z_11 = Z_1 + Z_3 = 4 Ω ✓.",
         "**Note:** in the T equivalent 1' and 2' are joined, whereas in the lattice they are not at the same potential — the equivalence holds only for the behaviour at the ports."

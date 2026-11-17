@@ -27,6 +27,10 @@ export interface PartViewProps {
   slot: number;
   /** ammeter: live reading in amps (current flowing in at the red lead) */
   reading?: number;
+  /** ammeter: what `reading` is (DC average, or true RMS of an AC / AC+DC current) */
+  readingKind?: 'dc' | 'ac' | 'acdc';
+  /** ammeter: the meter picked `readingKind` itself (auto mode) */
+  readingAuto?: boolean;
   /** DC operating point (phase-5 parts read their state from it; absent for the ghost) */
   sim?: SimResult;
   ctx: PartCtxValue;
@@ -614,7 +618,7 @@ function PartBody(props: PartViewProps) {
         ? ` ${volts(source.terminalVoltage)}`
         : isMcuBoard(part.type)
           ? mcuLabel(props.sim?.mcus.get(part.ref))
-          : instrumentLabel(part, props.reading) || deviceLabel(part, props.sim);
+          : instrumentLabel(part, props.reading, props.readingKind) || deviceLabel(part, props.sim);
   // a lab with unanswered measurement questions: no simulated numbers on labels (instruments and
   // supplies, which show their own displays, keep theirs)
   const extra = hideReadings && !LABEL_KEEPS.has(part.type) && /\d/.test(shown) ? '' : shown;

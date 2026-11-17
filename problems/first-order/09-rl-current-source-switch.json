@@ -8,7 +8,7 @@
   "tags": ["全响应", "三要素法", "电流源激励", "开关断开"],
   "statement": [
     "图示电路中 I_s = 9 A，R_1 = 4 Ω，R_2 = 1 Ω，R_3 = 4 Ω，L = 0.5 H。开关 S 闭合已久，t = 0 时断开。",
-    "求 i_L(∞)、时间常数 τ、R_1 两端电压 u 的初值 u(0₊)，以及 t = 0.1 s 时的 u。"
+    "求 i_L(∞)、时间常数 τ、R_1 两端电压 v 的初值 v(0₊)，以及 t = 0.1 s 时的 v。"
   ],
   "schematic": {
     "elements": [
@@ -28,7 +28,7 @@
     "labels": [{ "at": [3, 0], "name": "a" }],
     "grounds": [[0, 6]],
     "marks": [
-      { "kind": "v", "el": "R1", "name": "u" },
+      { "kind": "v", "el": "R1", "name": "v" },
       { "kind": "i", "el": "L", "name": "i_L" }
     ]
   },
@@ -36,21 +36,21 @@
   "questions": [
     { "id": "iinf", "ask": "i_L(∞) = ?", "find": { "kind": "i", "el": "L", "t": "inf" }, "answer": 7.2, "unit": "A", "explain": "S 断开后稳态：电感短路，I_s 在 R_1 与 R_2 之间分流：i_L(∞) = 9 × 4/(4 + 1) = 7.2 A。" },
     { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.1, "unit": "s", "explain": "电流源置零（开路），从电感看进去 R_1 与 R_2 串联：R_eq = 5 Ω，τ = L/R_eq = 0.5/5 = 0.1 s。" },
-    { "id": "u0", "ask": "u(0₊) = ?", "find": { "kind": "v", "el": "R1", "t": "0+" }, "answer": 12, "unit": "V", "explain": "t < 0：R_1、R_3、R_2 并联（电感短路），u(0₋) = 9/(1/4 + 1/4 + 1) = 6 V，i_L(0₋) = 6 A。0₊：i_L 仍为 6 A，R_3 已断开，R_1 中电流 9 − 6 = 3 A，u(0₊) = 12 V（由 6 V 跃变为 12 V）。" },
-    { "id": "u01", "ask": "t = 0.1 s 时 u = ?", "find": { "kind": "v", "el": "R1", "t": 0.1 }, "answer": 8.965821, "unit": "V", "explain": "u(∞) = 4 × (9 − 7.2) = 7.2 V，u(t) = 7.2 + (12 − 7.2)e^(−10t) V，t = 0.1 s 时 u = 7.2 + 4.8e⁻¹ ≈ 8.966 V。" }
+    { "id": "u0", "ask": "v(0₊) = ?", "find": { "kind": "v", "el": "R1", "t": "0+" }, "answer": 12, "unit": "V", "explain": "t < 0：R_1、R_3、R_2 并联（电感短路），v(0₋) = 9/(1/4 + 1/4 + 1) = 6 V，i_L(0₋) = 6 A。0₊：i_L 仍为 6 A，R_3 已断开，R_1 中电流 9 − 6 = 3 A，v(0₊) = 12 V（由 6 V 跃变为 12 V）。" },
+    { "id": "u01", "ask": "t = 0.1 s 时 v = ?", "find": { "kind": "v", "el": "R1", "t": 0.1 }, "answer": 8.965821, "unit": "V", "explain": "v(∞) = 4 × (9 − 7.2) = 7.2 V，v(t) = 7.2 + (12 − 7.2)e^(−10t) V，t = 0.1 s 时 v = 7.2 + 4.8e⁻¹ ≈ 8.966 V。" }
   ],
   "hints": [
     "t < 0 时电感短路，三个电阻支路并联在电流源上；求出 i_L(0₋)。",
     "求 τ 时电流源要“置零”，也就是开路，而不是短路。",
-    "u 是非状态量：u(0₊) 要在 0₊ 等效电路（电感换成 6 A 电流源）中求。"
+    "v 是非状态量：v(0₊) 要在 0₊ 等效电路（电感换成 6 A 电流源）中求。"
   ],
   "solution": [
-    "**1. t = 0₋。** 电感短路，R_1、R_2、R_3 并联：G = 1/4 + 1/1 + 1/4 = 1.5 S，u(0₋) = 9/1.5 = 6 V，i_L(0₋) = 6/1 = 6 A。",
-    "**2. 0₊ 等效电路。** i_L(0₊) = 6 A（电感换成 6 A 电流源），R_3 断开：R_1 中电流 = 9 − 6 = 3 A，**u(0₊) = 12 V**。",
-    "**3. 终值。** 电感短路，R_1 与 R_2 分流：**i_L(∞) = 9 × 4/5 = 7.2 A**，u(∞) = 4 × 1.8 = 7.2 V。",
+    "**1. t = 0₋。** 电感短路，R_1、R_2、R_3 并联：G = 1/4 + 1/1 + 1/4 = 1.5 S，v(0₋) = 9/1.5 = 6 V，i_L(0₋) = 6/1 = 6 A。",
+    "**2. 0₊ 等效电路。** i_L(0₊) = 6 A（电感换成 6 A 电流源），R_3 断开：R_1 中电流 = 9 − 6 = 3 A，**v(0₊) = 12 V**。",
+    "**3. 终值。** 电感短路，R_1 与 R_2 分流：**i_L(∞) = 9 × 4/5 = 7.2 A**，v(∞) = 4 × 1.8 = 7.2 V。",
     "**4. 时间常数。** 电流源开路，R_eq = R_1 + R_2 = 5 Ω，**τ = 0.5/5 = 0.1 s**。",
-    "**5. 三要素公式。** i_L(t) = 7.2 − 1.2e^(−10t) A；u(t) = 7.2 + 4.8e^(−10t) V（t > 0）。t = 0.1 s：u = 7.2 + 4.8e⁻¹ ≈ **8.966 V**。",
-    "**验算：** u = R_2·i_L + L di_L/dt = 7.2 − 1.2e^(−10t) + 0.5 × 12e^(−10t) = 7.2 + 4.8e^(−10t) V ✓。"
+    "**5. 三要素公式。** i_L(t) = 7.2 − 1.2e^(−10t) A；v(t) = 7.2 + 4.8e^(−10t) V（t > 0）。t = 0.1 s：v = 7.2 + 4.8e⁻¹ ≈ **8.966 V**。",
+    "**验算：** v = R_2·i_L + L di_L/dt = 7.2 − 1.2e^(−10t) + 0.5 × 12e^(−10t) = 7.2 + 4.8e^(−10t) V ✓。"
   ],
   "i18n": {
     "en": {
@@ -58,26 +58,26 @@
       "tags": ["complete response", "three-element method", "current-source excitation", "switch opening"],
       "statement": [
         "In the circuit, I_s = 9 A, R_1 = 4 Ω, R_2 = 1 Ω, R_3 = 4 Ω, L = 0.5 H. Switch S has been closed for a long time and opens at t = 0.",
-        "Find i_L(∞), the time constant τ, the initial value u(0+) of the voltage u across R_1, and u at t = 0.1 s."
+        "Find i_L(∞), the time constant τ, the initial value v(0+) of the voltage v across R_1, and v at t = 0.1 s."
       ],
       "questions": [
         { "ask": "i_L(∞) = ?", "explain": "Steady state with S open: the inductor is a short, and I_s divides between R_1 and R_2: i_L(∞) = 9 × 4/(4 + 1) = 7.2 A." },
         { "ask": "τ = ?", "explain": "Zero the current source (open it); seen from the inductor R_1 and R_2 are in series: R_eq = 5 Ω, τ = L/R_eq = 0.5/5 = 0.1 s." },
-        { "ask": "u(0+) = ?", "explain": "t < 0: R_1, R_3 and R_2 are in parallel (inductor shorted), u(0−) = 9/(1/4 + 1/4 + 1) = 6 V, i_L(0−) = 6 A. At 0+: i_L is still 6 A and R_3 is disconnected, so R_1 carries 9 − 6 = 3 A and u(0+) = 12 V (it jumps from 6 V to 12 V)." },
-        { "ask": "u at t = 0.1 s = ?", "explain": "u(∞) = 4 × (9 − 7.2) = 7.2 V, u(t) = 7.2 + (12 − 7.2)e^(−10t) V; at t = 0.1 s, u = 7.2 + 4.8e⁻¹ ≈ 8.966 V." }
+        { "ask": "v(0+) = ?", "explain": "t < 0: R_1, R_3 and R_2 are in parallel (inductor shorted), v(0−) = 9/(1/4 + 1/4 + 1) = 6 V, i_L(0−) = 6 A. At 0+: i_L is still 6 A and R_3 is disconnected, so R_1 carries 9 − 6 = 3 A and v(0+) = 12 V (it jumps from 6 V to 12 V)." },
+        { "ask": "v at t = 0.1 s = ?", "explain": "v(∞) = 4 × (9 − 7.2) = 7.2 V, v(t) = 7.2 + (12 − 7.2)e^(−10t) V; at t = 0.1 s, v = 7.2 + 4.8e⁻¹ ≈ 8.966 V." }
       ],
       "hints": [
         "For t < 0 the inductor is a short and the three resistive branches are in parallel across the current source; find i_L(0−).",
         "To find τ the current source is 'zeroed', i.e. replaced by an open circuit, not a short.",
-        "u is not a state variable: find u(0+) from the 0+ equivalent circuit (inductor replaced by a 6 A current source)."
+        "v is not a state variable: find v(0+) from the 0+ equivalent circuit (inductor replaced by a 6 A current source)."
       ],
       "solution": [
-        "**1. t = 0−.** The inductor is a short; R_1, R_2, R_3 are in parallel: G = 1/4 + 1/1 + 1/4 = 1.5 S, u(0−) = 9/1.5 = 6 V, i_L(0−) = 6/1 = 6 A.",
-        "**2. 0+ equivalent circuit.** i_L(0+) = 6 A (replace the inductor by a 6 A source) and R_3 is disconnected: the current in R_1 is 9 − 6 = 3 A, **u(0+) = 12 V**.",
-        "**3. Final values.** Inductor shorted, R_1 and R_2 share the current: **i_L(∞) = 9 × 4/5 = 7.2 A**, u(∞) = 4 × 1.8 = 7.2 V.",
+        "**1. t = 0−.** The inductor is a short; R_1, R_2, R_3 are in parallel: G = 1/4 + 1/1 + 1/4 = 1.5 S, v(0−) = 9/1.5 = 6 V, i_L(0−) = 6/1 = 6 A.",
+        "**2. 0+ equivalent circuit.** i_L(0+) = 6 A (replace the inductor by a 6 A source) and R_3 is disconnected: the current in R_1 is 9 − 6 = 3 A, **v(0+) = 12 V**.",
+        "**3. Final values.** Inductor shorted, R_1 and R_2 share the current: **i_L(∞) = 9 × 4/5 = 7.2 A**, v(∞) = 4 × 1.8 = 7.2 V.",
         "**4. Time constant.** Current source open, R_eq = R_1 + R_2 = 5 Ω, **τ = 0.5/5 = 0.1 s**.",
-        "**5. Three-element formula.** i_L(t) = 7.2 − 1.2e^(−10t) A; u(t) = 7.2 + 4.8e^(−10t) V (t > 0). At t = 0.1 s: u = 7.2 + 4.8e⁻¹ ≈ **8.966 V**.",
-        "**Check:** u = R_2·i_L + L di_L/dt = 7.2 − 1.2e^(−10t) + 0.5 × 12e^(−10t) = 7.2 + 4.8e^(−10t) V ✓."
+        "**5. Three-element formula.** i_L(t) = 7.2 − 1.2e^(−10t) A; v(t) = 7.2 + 4.8e^(−10t) V (t > 0). At t = 0.1 s: v = 7.2 + 4.8e⁻¹ ≈ **8.966 V**.",
+        "**Check:** v = R_2·i_L + L di_L/dt = 7.2 − 1.2e^(−10t) + 0.5 × 12e^(−10t) = 7.2 + 4.8e^(−10t) V ✓."
       ]
     }
   }

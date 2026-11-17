@@ -305,7 +305,8 @@ export function SummaryPage({ target, problems }: { target: SummaryTarget; probl
       <header className="pr-head">
         <div className="pr-crumbs no-print">
           <span className="eyebrow">
-            {tr(`第 ${chapter?.phase ?? '?'} 期`, `Phase ${chapter?.phase ?? '?'}`)} · {chapter?.title()}
+            {chapter?.world === 6 ? tr('选学', 'Elective') : `World ${chapter?.world ?? '?'}`}
+            {chapter?.sadiku ? ` · Sadiku ${chapter.sadiku}` : ''} · {chapter?.title()}
           </span>
           {back ? (
             <button className="pr-link" onClick={() => openProblem(back.id)}>

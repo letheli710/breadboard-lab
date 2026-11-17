@@ -6,7 +6,7 @@
   "title": "流控型电阻：负的动态电阻",
   "level": 2,
   "tags": ["流控型电阻", "负动态电阻", "静态电阻与动态电阻"],
-  "statement": ["非线性电阻 N 是电流控制型的：u = i² − 3i + 4（i 单位 A，u 单位 V，关联参考方向，i ≥ 0 的范围内讨论），由 I_s = 1 A 的直流电流源供电。", "求 U_Q、N 吸收的功率、静态电阻 R 和动态电阻 R_d，并判断 N 是否也是电压控制型。"],
+  "statement": ["非线性电阻 N 是电流控制型的：v = i² − 3i + 4，i 单位 A，v 单位 V，取关联参考方向。只讨论 i ≥ 0 的范围。N 由 I_s = 1 A 的直流电流源供电。", "求 V_Q、N 吸收的功率、静态电阻 R 和动态电阻 R_d，并判断 N 是否也是电压控制型。"],
   "schematic": {
     "elements": [
       {"ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": 1},
@@ -14,17 +14,17 @@
     ],
     "wires": [[[0, 0], [5, 0]], [[5, 4], [0, 4]]],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}]
+    "marks": [{"kind": "v", "el": "N", "name": "v"}, {"kind": "i", "el": "N", "name": "i"}]
   },
   "analysis": {"type": "dc"},
   "questions": [
     {
       "id": "uq",
-      "ask": "U_Q = ?",
+      "ask": "V_Q = ?",
       "find": {"kind": "v", "el": "N"},
       "answer": 2,
       "unit": "V",
-      "explain": "电流源决定 I_Q = 1 A（从上往下流过 N），U_Q = 1 − 3 + 4 = 2 V。"
+      "explain": "电流源决定 I_Q = 1 A（从上往下流过 N），V_Q = 1 − 3 + 4 = 2 V。"
     },
     {
       "id": "p",
@@ -32,32 +32,32 @@
       "find": {"kind": "p", "el": "N"},
       "answer": 2,
       "unit": "W",
-      "explain": "P = U_Q·I_Q = 2 × 1 = 2 W > 0：N 在吸收功率，虽然它的动态电阻是负的。"
+      "explain": "P = V_Q·I_Q = 2 × 1 = 2 W > 0：N 在吸收功率，虽然它的动态电阻是负的。"
     },
-    {"id": "rs", "ask": "静态电阻 R = ?", "find": {"kind": "rs", "el": "N"}, "answer": 2, "unit": "Ω", "explain": "R = U_Q/I_Q = 2/1 = 2 Ω。"},
+    {"id": "rs", "ask": "静态电阻 R = ?", "find": {"kind": "rs", "el": "N"}, "answer": 2, "unit": "Ω", "explain": "R = V_Q/I_Q = 2/1 = 2 Ω。"},
     {
       "id": "rd",
       "ask": "动态电阻 R_d = ?",
       "find": {"kind": "rd", "el": "N"},
       "answer": -1,
       "unit": "Ω",
-      "explain": "R_d = du/di = 2i − 3 = −1 Ω（i = 1 A）：电流增大时电压反而下降。"
+      "explain": "R_d = dv/di = 2i − 3 = −1 Ω（i = 1 A）：电流增大时电压反而下降。"
     },
     {
       "id": "vc",
       "ask": "N 是否也是电压控制型？",
-      "choices": ["是，因为它是单调的", "不是：u = 2 V 时 i 可以是 1 A，也可以是 2 A"],
+      "choices": ["是，因为它是单调的", "不是：v = 2 V 时 i 可以是 1 A，也可以是 2 A"],
       "correct": 1,
-      "choiceExplain": ["u = i² − 3i + 4 在 i = 1.5 A 处有极小值，不单调。", "对。i² − 3i + 4 = 2 有两个根 i = 1 和 i = 2：同一个电压对应两个电流，i 不是 u 的单值函数，所以只是流控型（类似气体放电管的 S 形特性）。"],
+      "choiceExplain": ["v = i² − 3i + 4 在 i = 1.5 A 处有极小值，不单调。", "对。i² − 3i + 4 = 2 有两个根 i = 1 和 i = 2：同一个电压对应两个电流，i 不是 v 的单值函数，所以只是流控型（类似气体放电管的 S 形特性）。"],
       "explain": "流控型电阻用电流源驱动时工作点唯一；若改用电压源驱动，可能有多个工作点。"
     }
   ],
-  "hints": ["电流源直接给出了 N 的电流。", "流控型：u = h(i)。静态电阻用 U/I，动态电阻用导数 du/di。", "动态电阻 du/di = 2i − 3，代入工作点电流。"],
+  "hints": ["电流源直接给出了 N 的电流。", "流控型：v = h(i)。静态电阻用 V/I，动态电阻用导数 dv/di。", "动态电阻 dv/di = 2i − 3，代入工作点电流。"],
   "solution": [
-    "**工作点。** 电流源与 N 串联，I_Q = I_s = 1 A，U_Q = h(1) = 1 − 3 + 4 = **2 V**；P = U_Q·I_Q = **2 W**（吸收）。",
-    "**静态电阻。** R = U_Q/I_Q = **2 Ω**（总是正的，因为 U_Q、I_Q 同号）。",
+    "**工作点。** 电流源与 N 串联，I_Q = I_s = 1 A，V_Q = h(1) = 1 − 3 + 4 = **2 V**；P = V_Q·I_Q = **2 W**（吸收）。",
+    "**静态电阻。** R = V_Q/I_Q = **2 Ω**（总是正的，因为 V_Q、I_Q 同号）。",
     "**动态电阻。** R_d = dh/di = 2i − 3 = **−1 Ω**。负的动态电阻表示：在 Q 点附近电流增加时电压减小（曲线下降段）。",
-    "**分类。** h(i) 在 i = 1.5 A 处取极小值 1.75 V，不单调；u = 2 V 时 i = 1 A 或 2 A，所以 N **只是流控型**。",
+    "**分类。** h(i) 在 i = 1.5 A 处取极小值 1.75 V，不单调；v = 2 V 时 i = 1 A 或 2 A，所以 N **只是流控型**。",
     "**检查：** h(2) = 4 − 6 + 4 = 2 V ✓（同一电压的第二个电流）。"
   ],
   "i18n": {
@@ -65,43 +65,43 @@
       "title": "A current-controlled resistor with negative dynamic resistance",
       "tags": ["current-controlled resistor", "negative dynamic resistance", "static vs dynamic resistance"],
       "statement": [
-        "The nonlinear resistor N is current-controlled: u = i² − 3i + 4 (i in A, u in V, passive convention, considered for i ≥ 0). It is fed by a DC current source I_s = 1 A.",
-        "Find U_Q, the power absorbed by N, the static resistance R and the dynamic resistance R_d, and decide whether N is also voltage-controlled."
+        "The nonlinear resistor N is current-controlled: v = i² − 3i + 4, with i in A, v in V and the passive convention. Only i ≥ 0 is considered. N is fed by a DC current source I_s = 1 A.",
+        "Find V_Q, the power absorbed by N, the static resistance R and the dynamic resistance R_d, and decide whether N is also voltage-controlled."
       ],
       "questions": [
         {
-          "ask": "U_Q = ?",
-          "explain": "The current source fixes I_Q = 1 A (downwards through N), so U_Q = 1 − 3 + 4 = 2 V."
+          "ask": "V_Q = ?",
+          "explain": "The current source fixes I_Q = 1 A (downwards through N), so V_Q = 1 − 3 + 4 = 2 V."
         },
         {
           "ask": "Power absorbed by N = ?",
-          "explain": "P = U_Q·I_Q = 2 × 1 = 2 W > 0: N absorbs power although its dynamic resistance is negative."
+          "explain": "P = V_Q·I_Q = 2 × 1 = 2 W > 0: N absorbs power although its dynamic resistance is negative."
         },
-        {"ask": "Static resistance R = ?", "explain": "R = U_Q/I_Q = 2/1 = 2 Ω."},
+        {"ask": "Static resistance R = ?", "explain": "R = V_Q/I_Q = 2/1 = 2 Ω."},
         {
           "ask": "Dynamic resistance R_d = ?",
-          "explain": "R_d = du/di = 2i − 3 = −1 Ω at i = 1 A: the voltage falls as the current rises."
+          "explain": "R_d = dv/di = 2i − 3 = −1 Ω at i = 1 A: the voltage falls as the current rises."
         },
         {
           "ask": "Is N also voltage-controlled?",
-          "choices": ["yes, because it is monotonic", "no: at u = 2 V the current can be 1 A or 2 A"],
+          "choices": ["yes, because it is monotonic", "no: at v = 2 V the current can be 1 A or 2 A"],
           "choiceExplain": [
-            "u = i² − 3i + 4 has a minimum at i = 1.5 A; it is not monotonic.",
-            "Right. i² − 3i + 4 = 2 has two roots, i = 1 and i = 2: one voltage, two currents, so i is not a function of u — N is current-controlled only (like the S-shaped curve of a gas discharge tube)."
+            "v = i² − 3i + 4 has a minimum at i = 1.5 A; it is not monotonic.",
+            "Right. i² − 3i + 4 = 2 has two roots, i = 1 and i = 2: one voltage, two currents, so i is not a function of v — N is current-controlled only (like the S-shaped curve of a gas discharge tube)."
           ],
           "explain": "Driven by a current source a current-controlled resistor has a unique operating point; driven by a voltage source it may have several."
         }
       ],
       "hints": [
         "The current source gives N's current directly.",
-        "Current-controlled: u = h(i). Static resistance is U/I, dynamic resistance the derivative du/di.",
-        "The dynamic resistance is du/di = 2i − 3; insert the operating current."
+        "Current-controlled: v = h(i). Static resistance is V/I, dynamic resistance the derivative dv/di.",
+        "The dynamic resistance is dv/di = 2i − 3; insert the operating current."
       ],
       "solution": [
-        "**Operating point.** The current source is in series with N: I_Q = I_s = 1 A, U_Q = h(1) = 1 − 3 + 4 = **2 V**; P = U_Q·I_Q = **2 W** (absorbed).",
-        "**Static resistance.** R = U_Q/I_Q = **2 Ω** (always positive when U_Q and I_Q have the same sign).",
+        "**Operating point.** The current source is in series with N: I_Q = I_s = 1 A, V_Q = h(1) = 1 − 3 + 4 = **2 V**; P = V_Q·I_Q = **2 W** (absorbed).",
+        "**Static resistance.** R = V_Q/I_Q = **2 Ω** (always positive when V_Q and I_Q have the same sign).",
         "**Dynamic resistance.** R_d = dh/di = 2i − 3 = **−1 Ω**. A negative dynamic resistance means that near Q the voltage falls when the current rises (a falling part of the curve).",
-        "**Classification.** h(i) has a minimum 1.75 V at i = 1.5 A, so it is not monotonic; at u = 2 V, i = 1 A or 2 A, so N is **current-controlled only**.",
+        "**Classification.** h(i) has a minimum 1.75 V at i = 1.5 A, so it is not monotonic; at v = 2 V, i = 1 A or 2 A, so N is **current-controlled only**.",
         "**Check:** h(2) = 4 − 6 + 4 = 2 V ✓ (the second current for the same voltage)."
       ]
     }

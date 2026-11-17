@@ -5,14 +5,14 @@
   "chapter": "coupled",
   "title": "同名端与互感电压的方向（时域）",
   "level": 2,
-  "tags": ["同名端", "互感电压 u = M di/dt", "一阶 RL 电路"],
+  "tags": ["同名端", "互感电压 v = M di/dt", "一阶 RL 电路"],
   "statement": [
-    "电压源在 t = 0 由 0 跳变为 10 V，R_1 = 5 Ω，L_1 = 1 H。线圈 L_2 = 4 H 与 L_1 的互感 M = 0.5 H，L_2 开路，同名端如图（L_1 在上端，L_2 在下端）。",
-    "求开路电压 u_cd 在 t = 0₊ 和 t = 0.2 s 时的值，以及 i_1(0.2 s)。"
+    "电压源在 t = 0 由 0 跳变为 10 V。R_1 = 5 Ω，L_1 = 1 H。线圈 L_2 = 4 H 开路，它与 L_1 的互感 M = 0.5 H。同名端如图：L_1 的在上端，L_2 的在下端 d。",
+    "求开路电压 v_cd（c 端为 +）在 t = 0₊ 和 t = 0.2 s 时的值，以及 i_1(0.2 s)（i_1 方向如图）。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 10 } }, "label": "10ε(t) V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 10 } }, "label": "10u(t) V" },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 5 },
       { "ref": "L1", "type": "L", "from": [8, 0], "to": [8, 4], "value": 1 },
       { "ref": "L2", "type": "L", "from": [12, 4], "to": [12, 0], "value": 4 },
@@ -33,19 +33,19 @@
   "questions": [
     {
       "id": "u0",
-      "ask": "u_cd(0₊) = ?",
+      "ask": "v_cd(0₊) = ?",
       "find": { "kind": "v", "nodes": ["c", "d"], "t": "0+" },
       "answer": -5,
       "unit": "V",
-      "explain": "i_1(0₊) = 0，R_1 上无压降，di_1/dt(0₊) = 10 / L_1 = 10 A/s。i_1 从 L_1 的同名端（上）流入，互感电压在 L_2 的同名端（下端 d）为正：u_cd = −M·di_1/dt = −0.5 × 10 = −5 V。"
+      "explain": "i_1(0₊) = 0，R_1 上无压降，di_1/dt(0₊) = 10 / L_1 = 10 A/s。i_1 从 L_1 的同名端（上）流入，互感电压在 L_2 的同名端（下端 d）为正：v_cd = −M·di_1/dt = −0.5 × 10 = −5 V。"
     },
     {
       "id": "u02",
-      "ask": "t = 0.2 s 时 u_cd = ?",
+      "ask": "t = 0.2 s 时 v_cd = ?",
       "find": { "kind": "v", "nodes": ["c", "d"], "t": 0.2 },
       "answer": -1.839397,
       "unit": "V",
-      "explain": "L_2 开路不影响原边：i_1 = 2(1 − e^(−5t)) A，di_1/dt = 10e^(−5t)，u_cd = −0.5 × 10e^(−5t) = −5e^(−1) ≈ −1.839 V。"
+      "explain": "L_2 开路不影响原边：i_1 = 2(1 − e^(−5t)) A，di_1/dt = 10e^(−5t)，v_cd = −0.5 × 10e^(−5t) = −5e^(−1) ≈ −1.839 V。"
     },
     {
       "id": "i1",
@@ -57,49 +57,49 @@
     },
     {
       "id": "dot",
-      "ask": "如果把 L_2 的同名端改标在上端（c 端），u_cd(0₊) 变为多少？",
-      "choices": ["+5 V", "−5 V（不变）", "0 V"], "choiceExplain": ["", "同名端决定互感电压的极性：同名端从 d 移到 c，互感电压的“+”也随之移到 c，u_cd 变号。", "互感电压是 M·di_1/dt，不是 M·i_1；t = 0₊ 时 i_1 = 0 但 di_1/dt = 10 A/s，u_cd 不为零（0 V 是 t → ∞ 的值）。"],
+      "ask": "如果把 L_2 的同名端改标在上端（c 端），v_cd(0₊) 变为多少？",
+      "choices": ["+5 V", "−5 V（不变）", "0 V"], "choiceExplain": ["", "同名端决定互感电压的极性：同名端从 d 移到 c，互感电压的“+”也随之移到 c，v_cd 变号。", "互感电压是 M·di_1/dt，不是 M·i_1；t = 0₊ 时 i_1 = 0 但 di_1/dt = 10 A/s，v_cd 不为零（0 V 是 t → ∞ 的值）。"],
       "correct": 0,
-      "explain": "互感电压的“+”总在与电流流入端互为同名端的那一端。同名端改到 c，u_cd = +M·di_1/dt = +5 V。同名端只决定互感电压的极性，不改变大小。"
+      "explain": "互感电压的“+”总在与电流流入端互为同名端的那一端。同名端改到 c，v_cd = +M·di_1/dt = +5 V。同名端只决定互感电压的极性，不改变大小。"
     }
   ],
   "hints": [
     "L_2 开路，i_2 = 0：原边就是普通的 RL 一阶电路，L_2 上只有互感电压 M·di_1/dt。",
-    "电流从一个线圈的同名端流入且增大时，另一线圈的同名端电位升高——先判断 c、d 哪一端是同名端。"
+    "电流从一个线圈的同名端流入且增大时，另一线圈的同名端电位升高。先判断 c、d 哪一端是同名端。"
   ],
   "solution": [
-    "**1. 原边电流。** i_2 = 0，所以原边不受副边影响：τ = L_1/R_1 = 0.2 s，i_1(∞) = 10/5 = 2 A，i_1(t) = 2(1 − e^(−5t)) A，i_1(0.2) = 2(1 − e⁻¹) ≈ **1.264 A**。",
+    "**1. 原边电流。** i_2 = 0，所以原边不受副边影响。τ = L_1/R_1 = 0.2 s，i_1(∞) = 10/5 = 2 A，i_1(t) = 2(1 − e^(−5t)) A，i_1(0.2) = 2(1 − e⁻¹) ≈ **1.264 A**。",
     "**2. 变化率。** di_1/dt = 10e^(−5t) A/s，t = 0₊ 时为 10 A/s（也可由 L_1·di_1/dt = 10 − R_1·i_1(0₊) = 10 V 得到）。",
-    "**3. 互感电压的极性。** i_1 从 L_1 的同名端（上端）流入，L_2 上的互感电压以 L_2 的同名端（下端 d）为“+”：u_dc = M·di_1/dt，所以 u_cd = −M·di_1/dt。",
-    "**4. 数值。** u_cd(0₊) = −0.5 × 10 = **−5 V**；u_cd(0.2) = −5e⁻¹ ≈ **−1.839 V**；t → ∞ 时 i_1 不再变化，u_cd → 0。"
+    "**3. 互感电压的极性。** i_1 从 L_1 的同名端（上端）流入，L_2 上的互感电压以 L_2 的同名端（下端 d）为“+”：v_dc = M·di_1/dt，所以 v_cd = −M·di_1/dt。",
+    "**4. 数值。** v_cd(0₊) = −0.5 × 10 = **−5 V**；v_cd(0.2) = −5e⁻¹ ≈ **−1.839 V**；t → ∞ 时 i_1 不再变化，v_cd → 0。"
   ],
   "i18n": {
     "en": {
       "title": "Dot convention and the polarity of the mutual voltage (time domain)",
-      "tags": ["dot convention", "mutual voltage u = M di/dt", "first-order RL circuit"],
+      "tags": ["dot convention", "mutual voltage v = M di/dt", "first-order RL circuit"],
       "statement": [
-        "The source steps from 0 to 10 V at t = 0; R_1 = 5 Ω, L_1 = 1 H. Coil L_2 = 4 H is coupled to L_1 with M = 0.5 H and is left open; the dots are as drawn (top of L_1, bottom of L_2).",
-        "Find the open-circuit voltage u_cd at t = 0+ and at t = 0.2 s, and i_1(0.2 s)."
+        "The source steps from 0 to 10 V at t = 0. R_1 = 5 Ω, L_1 = 1 H. Coil L_2 = 4 H is left open; its mutual inductance with L_1 is M = 0.5 H. The dots are as drawn: at the top of L_1 and at the bottom end d of L_2.",
+        "Find the open-circuit voltage v_cd (+ at c) at t = 0+ and at t = 0.2 s, and i_1(0.2 s) (i_1 as drawn)."
       ],
       "questions": [
-        { "ask": "u_cd(0+) = ?", "explain": "i_1(0+) = 0, so there is no drop on R_1 and di_1/dt(0+) = 10 / L_1 = 10 A/s. i_1 enters L_1 at its dot (top), so the mutual voltage is + at L_2's dot (bottom, d): u_cd = −M·di_1/dt = −0.5 × 10 = −5 V." },
-        { "ask": "u_cd at t = 0.2 s = ?", "explain": "The open L_2 does not load the primary: i_1 = 2(1 − e^(−5t)) A, di_1/dt = 10e^(−5t), u_cd = −0.5 × 10e^(−5t) = −5e^(−1) ≈ −1.839 V." },
+        { "ask": "v_cd(0+) = ?", "explain": "i_1(0+) = 0, so there is no drop on R_1 and di_1/dt(0+) = 10 / L_1 = 10 A/s. i_1 enters L_1 at its dot (top), so the mutual voltage is + at L_2's dot (bottom, d): v_cd = −M·di_1/dt = −0.5 × 10 = −5 V." },
+        { "ask": "v_cd at t = 0.2 s = ?", "explain": "The open L_2 does not load the primary: i_1 = 2(1 − e^(−5t)) A, di_1/dt = 10e^(−5t), v_cd = −0.5 × 10e^(−5t) = −5e^(−1) ≈ −1.839 V." },
         { "ask": "i_1(0.2 s) = ?", "explain": "τ = L_1 / R_1 = 0.2 s, i_1(∞) = 2 A: i_1(0.2) = 2(1 − e⁻¹) ≈ 1.264 A." },
         {
-          "ask": "If L_2's dot were moved to its top terminal (c), what would u_cd(0+) be?",
-          "choices": ["+5 V", "−5 V (unchanged)", "0 V"], "choiceExplain": ["", "The dots set the polarity of the mutual voltage: moving the dot from d to c moves the + of the mutual voltage to c, so u_cd changes sign.", "The mutual voltage is M·di_1/dt, not M·i_1; at t = 0+ i_1 = 0 but di_1/dt = 10 A/s, so u_cd is not zero (0 V is the t → ∞ value)."],
-          "explain": "The mutual voltage is always + at the terminal that corresponds (by the dots) to the terminal where the current enters. With the dot at c, u_cd = +M·di_1/dt = +5 V. The dots set only the polarity, not the magnitude."
+          "ask": "If L_2's dot were moved to its top terminal (c), what would v_cd(0+) be?",
+          "choices": ["+5 V", "−5 V (unchanged)", "0 V"], "choiceExplain": ["", "The dots set the polarity of the mutual voltage: moving the dot from d to c moves the + of the mutual voltage to c, so v_cd changes sign.", "The mutual voltage is M·di_1/dt, not M·i_1; at t = 0+ i_1 = 0 but di_1/dt = 10 A/s, so v_cd is not zero (0 V is the t → ∞ value)."],
+          "explain": "The mutual voltage is always + at the terminal that corresponds (by the dots) to the terminal where the current enters. With the dot at c, v_cd = +M·di_1/dt = +5 V. The dots set only the polarity, not the magnitude."
         }
       ],
       "hints": [
         "L_2 is open, so i_2 = 0: the primary is an ordinary first-order RL circuit, and L_2 carries only the mutual voltage M·di_1/dt.",
-        "When a current entering one coil's dot is increasing, the dotted end of the other coil goes positive — first decide which of c, d is dotted."
+        "When a current entering one coil's dot is increasing, the dotted end of the other coil goes positive. First decide which of c, d is dotted."
       ],
       "solution": [
-        "**1. Primary current.** i_2 = 0, so the secondary does not affect the primary: τ = L_1/R_1 = 0.2 s, i_1(∞) = 10/5 = 2 A, i_1(t) = 2(1 − e^(−5t)) A, i_1(0.2) = 2(1 − e⁻¹) ≈ **1.264 A**.",
+        "**1. Primary current.** i_2 = 0, so the secondary does not affect the primary. τ = L_1/R_1 = 0.2 s, i_1(∞) = 10/5 = 2 A, i_1(t) = 2(1 − e^(−5t)) A, i_1(0.2) = 2(1 − e⁻¹) ≈ **1.264 A**.",
         "**2. Rate of change.** di_1/dt = 10e^(−5t) A/s, which is 10 A/s at t = 0+ (also from L_1·di_1/dt = 10 − R_1·i_1(0+) = 10 V).",
-        "**3. Polarity of the mutual voltage.** i_1 enters L_1 at its dot (top), so the mutual voltage in L_2 is + at L_2's dot (bottom, d): u_dc = M·di_1/dt, hence u_cd = −M·di_1/dt.",
-        "**4. Values.** u_cd(0+) = −0.5 × 10 = **−5 V**; u_cd(0.2) = −5e⁻¹ ≈ **−1.839 V**; as t → ∞, i_1 stops changing and u_cd → 0."
+        "**3. Polarity of the mutual voltage.** i_1 enters L_1 at its dot (top), so the mutual voltage in L_2 is + at L_2's dot (bottom, d): v_dc = M·di_1/dt, hence v_cd = −M·di_1/dt.",
+        "**4. Values.** v_cd(0+) = −0.5 × 10 = **−5 V**; v_cd(0.2) = −5e⁻¹ ≈ **−1.839 V**; as t → ∞, i_1 stops changing and v_cd → 0."
       ]
     }
   }

@@ -7,12 +7,12 @@
   "level": 1,
   "tags": ["参考方向", "关联参考方向", "欧姆定律"],
   "statement": [
-    "图示单回路中 U_s = 12 V，R_1 = 2 Ω，R_2 = 4 Ω。电流 i_1、i_2 的参考方向如图中箭头所示（i_2 的箭头在 R_2 上**向上**）；电压 u_ab 的参考方向为 a 端“+”、b 端“−”。",
-    "求 i_1、i_2 和 u_ab，并判断 u_ab 与 i_2 是否为关联参考方向。"
+    "图示单回路中 V_s = 12 V，R_1 = 2 Ω，R_2 = 4 Ω。电流 i_1、i_2 的参考方向如图中箭头所示（i_2 的箭头在 R_2 上**向上**）；电压 v_ab 的参考方向为 a 端“+”、b 端“−”。",
+    "求 i_1、i_2 和 v_ab，并判断 v_ab 与 i_2 是否为关联参考方向。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
       { "ref": "R2", "type": "R", "from": [8, 4], "to": [8, 0], "value": 4 }
     ],
@@ -31,23 +31,23 @@
     { "id": "i2", "ask": "i_2 = ?", "find": { "kind": "i", "el": "R2" }, "answer": -2, "unit": "A", "explain": "实际电流在 R_2 中从上往下流，而 i_2 的箭头向上，与实际方向相反，所以 i_2 = −2 A。负号只说明实际方向与参考方向相反。" },
     {
       "id": "assoc",
-      "ask": "对 R_2 而言，u_ab 与 i_2 的参考方向是：",
+      "ask": "对 R_2 而言，v_ab 与 i_2 的参考方向是：",
       "choices": ["关联参考方向", "非关联参考方向"], "choiceExplain": ["关联参考方向要求电流从电压的“+”端流入、“−”端流出；i_2 的箭头向上，从 b 端（“−”端）流入，正好相反。", ""],
       "correct": 1,
       "explain": "i_2 从 b 端（“−”端）流入、从 a 端（“+”端）流出——电流不是从“+”流向“−”，所以是非关联参考方向。"
     },
-    { "id": "uab", "ask": "u_ab = ?", "find": { "kind": "v", "nodes": ["a", "b"] }, "answer": 8, "unit": "V", "explain": "非关联参考方向下欧姆定律要带负号：u_ab = −R_2·i_2 = −4 × (−2) = 8 V。" }
+    { "id": "uab", "ask": "v_ab = ?", "find": { "kind": "v", "nodes": ["a", "b"] }, "answer": 8, "unit": "V", "explain": "非关联参考方向下欧姆定律要带负号：v_ab = −R_2·i_2 = −4 × (−2) = 8 V。" }
   ],
   "hints": [
-    "先不管箭头，求出回路的实际电流：单回路 i = U_s / (R_1 + R_2)。",
-    "参考方向与实际方向相反时，电流取负值；电压、电流为非关联参考方向时，欧姆定律写成 u = −Ri。"
+    "先不管箭头，求出回路的实际电流：单回路 i = V_s / (R_1 + R_2)。",
+    "参考方向与实际方向相反时，电流取负值；电压、电流为非关联参考方向时，欧姆定律写成 v = −Ri。"
   ],
   "solution": [
-    "**1. 实际电流。** 单回路中电流处处相同，顺时针为 I = U_s / (R_1 + R_2) = 12 / 6 = 2 A。",
+    "**1. 实际电流。** 单回路中电流处处相同，顺时针为 I = V_s / (R_1 + R_2) = 12 / 6 = 2 A。",
     "**2. i_1。** i_1 的箭头在 R_1 上向右，即顺时针，与实际方向一致：**i_1 = 2 A**。",
     "**3. i_2。** i_2 的箭头在 R_2 上向上，是逆时针，与实际方向相反：**i_2 = −2 A**。",
-    "**4. 关联与否。** u_ab 的“+”在 a（上端），i_2 从 b（“−”端）流入 R_2，故 u_ab 与 i_2 为**非关联**参考方向。",
-    "**5. u_ab。** 非关联时 u_ab = −R_2·i_2 = −4 × (−2) = **8 V**。",
+    "**4. 关联与否。** v_ab 的“+”在 a（上端），i_2 从 b（“−”端）流入 R_2，故 v_ab 与 i_2 为**非关联**参考方向。",
+    "**5. v_ab。** 非关联时 v_ab = −R_2·i_2 = −4 × (−2) = **8 V**。",
     "**验算：** 用实际方向看，2 A 电流从 a 经 R_2 流到 b，a 点电位高 4 × 2 = 8 V，一致。"
   ],
   "i18n": {
@@ -55,29 +55,29 @@
       "title": "Reference directions and the minus sign in Ohm's law",
       "tags": ["reference direction", "passive sign convention", "Ohm's law"],
       "statement": [
-        "In the single loop, U_s = 12 V, R_1 = 2 Ω, R_2 = 4 Ω. The reference directions of i_1 and i_2 are the arrows in the drawing (the arrow of i_2 on R_2 points **up**); the reference polarity of u_ab is \"+\" at a and \"−\" at b.",
-        "Find i_1, i_2 and u_ab, and decide whether u_ab and i_2 follow the passive sign convention."
+        "In the single loop, V_s = 12 V, R_1 = 2 Ω, R_2 = 4 Ω. The reference directions of i_1 and i_2 are the arrows in the drawing (the arrow of i_2 on R_2 points **up**); the reference polarity of v_ab is \"+\" at a and \"−\" at b.",
+        "Find i_1, i_2 and v_ab, and decide whether v_ab and i_2 follow the passive sign convention."
       ],
       "questions": [
         { "ask": "i_1 = ?", "explain": "In a single loop the current is the same everywhere: the actual current flows clockwise with magnitude 12 / (2 + 4) = 2 A, in the direction of the i_1 arrow, so i_1 = 2 A." },
         { "ask": "i_2 = ?", "explain": "The actual current flows down through R_2, but the i_2 arrow points up — opposite — so i_2 = −2 A. The minus sign only says the actual direction is opposite to the reference direction." },
         {
-          "ask": "For R_2, the reference directions of u_ab and i_2 are:",
+          "ask": "For R_2, the reference directions of v_ab and i_2 are:",
           "choices": ["associated (passive sign convention)", "non-associated (active sign convention)"], "choiceExplain": ["Associated directions mean the current reference enters at the voltage's \"+\" end and leaves at the \"−\" end; i_2 points up and enters at b (the \"−\" end), the opposite.", ""],
           "explain": "i_2 enters R_2 at b (the \"−\" end) and leaves at a (the \"+\" end). It does not flow from \"+\" to \"−\", so the convention is non-associated."
         },
-        { "ask": "u_ab = ?", "explain": "With non-associated directions Ohm's law carries a minus sign: u_ab = −R_2·i_2 = −4 × (−2) = 8 V." }
+        { "ask": "v_ab = ?", "explain": "With non-associated directions Ohm's law carries a minus sign: v_ab = −R_2·i_2 = −4 × (−2) = 8 V." }
       ],
       "hints": [
-        "Ignore the arrows first and find the actual loop current: in a single loop i = U_s / (R_1 + R_2).",
-        "If the reference direction is opposite to the actual one the current is negative; when voltage and current are non-associated, Ohm's law reads u = −Ri."
+        "Ignore the arrows first and find the actual loop current: in a single loop i = V_s / (R_1 + R_2).",
+        "If the reference direction is opposite to the actual one the current is negative; when voltage and current are non-associated, Ohm's law reads v = −Ri."
       ],
       "solution": [
-        "**1. Actual current.** The current is the same all around the loop, clockwise: I = U_s / (R_1 + R_2) = 12 / 6 = 2 A.",
+        "**1. Actual current.** The current is the same all around the loop, clockwise: I = V_s / (R_1 + R_2) = 12 / 6 = 2 A.",
         "**2. i_1.** The arrow of i_1 on R_1 points right, i.e. clockwise, the same as the actual current: **i_1 = 2 A**.",
         "**3. i_2.** The arrow of i_2 on R_2 points up, i.e. counter-clockwise, opposite to the actual current: **i_2 = −2 A**.",
-        "**4. Associated or not?** The \"+\" of u_ab is at a (top) and i_2 enters R_2 at b (the \"−\" end), so u_ab and i_2 are **non-associated**.",
-        "**5. u_ab.** Non-associated: u_ab = −R_2·i_2 = −4 × (−2) = **8 V**.",
+        "**4. Associated or not?** The \"+\" of v_ab is at a (top) and i_2 enters R_2 at b (the \"−\" end), so v_ab and i_2 are **non-associated**.",
+        "**5. v_ab.** Non-associated: v_ab = −R_2·i_2 = −4 × (−2) = **8 V**.",
         "**Check:** with actual directions, 2 A flows from a through R_2 to b, so a is 4 × 2 = 8 V higher than b. Consistent."
       ]
     }

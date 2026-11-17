@@ -6,10 +6,10 @@
   "title": "解析法：平方律电阻，舍去不合理的根",
   "level": 3,
   "tags": ["解析法", "平方律电阻", "舍去不合理的根"],
-  "statement": ["U_s = 8 V，R_1 = R_2 = 2 Ω。非线性电阻 N 的特性为 i = 0.5u²（u ≥ 0；u < 0 时 i = 0），参考方向如图。", "列方程解出工作点 U_Q、I_Q，并求 R_1 中的电流和 N 吸收的功率。"],
+  "statement": ["V_s = 8 V，R_1 = R_2 = 2 Ω。非线性电阻 N 的特性为 i = 0.5v²（v ≥ 0；v < 0 时 i = 0），参考方向如图。", "列方程解出工作点 V_Q、I_Q，并求 R_1 中的电流和 N 吸收的功率。"],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 8},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 8},
       {"ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2},
       {"ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 2},
       {"ref": "N", "type": "NR", "from": [12, 0], "to": [12, 4], "law": {"i": [0, 0, 0.5], "umin": 0}}
@@ -17,29 +17,29 @@
     "wires": [[[0, 0], [2, 0]], [[6, 0], [12, 0]], [[12, 4], [0, 4]]],
     "labels": [{"at": [8, 0], "name": "a"}],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}, {"kind": "i", "el": "R1", "name": "i1"}]
+    "marks": [{"kind": "v", "el": "N", "name": "v"}, {"kind": "i", "el": "N", "name": "i"}, {"kind": "i", "el": "R1", "name": "i1"}]
   },
   "analysis": {"type": "dc"},
   "questions": [
     {
       "id": "uq",
-      "ask": "U_Q = ?",
+      "ask": "V_Q = ?",
       "find": {"kind": "v", "el": "N"},
       "answer": 2,
       "unit": "V",
-      "explain": "戴维宁：U_oc = 4 V，R_0 = 1 Ω；4 − u = 0.5u² → u² + 2u − 8 = 0 → u = 2 V（或 −4 V，舍去）。"
+      "explain": "戴维宁：V_oc = 4 V，R_0 = 1 Ω；4 − v = 0.5v² → v² + 2v − 8 = 0 → v = 2 V（或 −4 V，舍去）。"
     },
     {
       "id": "root",
-      "ask": "方程 u² + 2u − 8 = 0 的另一个根 u = −4 V 为什么要舍去？",
-      "choices": ["i = 0.5u² 只在 u ≥ 0 时成立；u = −4 V 时实际的 i = 0，不满足 KVL", "负电压在电阻上不可能出现", "两个根都是工作点，题目只问其中一个"],
+      "ask": "方程 v² + 2v − 8 = 0 的另一个根 v = −4 V 为什么要舍去？",
+      "choices": ["i = 0.5v² 只在 v ≥ 0 时成立；v = −4 V 时实际的 i = 0，不满足 KVL", "负电压在电阻上不可能出现", "两个根都是工作点，题目只问其中一个"],
       "correct": 0,
       "choiceExplain": [
-        "对。把 u = −4 V 代回去：按实际特性 i = 0，而负载线要求 i = 4 − (−4) = 8 A，矛盾。解析法得到的根必须回代检查是否落在特性公式的适用范围内。",
-        "电阻两端可以有负电压；问题在于这个特性公式在 u < 0 时不适用。",
-        "u = −4 V 不在特性曲线上，不是工作点；这个电路只有一个工作点。"
+        "对。把 v = −4 V 代回去：按实际特性 i = 0，而负载线要求 i = 4 − (−4) = 8 A，矛盾。解析法得到的根必须回代检查是否落在特性公式的适用范围内。",
+        "电阻两端可以有负电压；问题在于这个特性公式在 v < 0 时不适用。",
+        "v = −4 V 不在特性曲线上，不是工作点；这个电路只有一个工作点。"
       ],
-      "explain": "平方律特性只写了 u ≥ 0 的部分，解出的根要回代到“分段”的特性中检查。"
+      "explain": "平方律特性只写了 v ≥ 0 的部分，解出的根要回代到“分段”的特性中检查。"
     },
     {
       "id": "iq",
@@ -55,16 +55,16 @@
       "find": {"kind": "i", "el": "R1"},
       "answer": 3,
       "unit": "A",
-      "explain": "u_a = U_Q = 2 V：i_1 = (8 − 2)/2 = 3 A = i_2 + I_Q = 1 + 2 ✓。"
+      "explain": "v_a = V_Q = 2 V：i_1 = (8 − 2)/2 = 3 A = i_2 + I_Q = 1 + 2 ✓。"
     },
-    {"id": "p", "ask": "N 吸收的功率 = ?", "find": {"kind": "p", "el": "N"}, "answer": 4, "unit": "W", "explain": "P = U_Q·I_Q = 2 × 2 = 4 W。"}
+    {"id": "p", "ask": "N 吸收的功率 = ?", "find": {"kind": "p", "el": "N"}, "answer": 4, "unit": "W", "explain": "P = V_Q·I_Q = 2 × 2 = 4 W。"}
   ],
-  "hints": ["N 接在结点 a 与地之间，其余部分是线性的：先求从 a 看进去的戴维宁电路。", "KVL：U_oc − R_0·i = u，再代入 i = 0.5u²，得到关于 u 的一元二次方程。", "两个根都要回代到特性的适用范围（u ≥ 0）里检查。"],
+  "hints": ["N 接在结点 a 与地之间，其余部分是线性的：先求从 a 看进去的戴维宁电路。", "KVL：V_oc − R_0·i = v，再代入 i = 0.5v²，得到关于 v 的一元二次方程。", "两个根都要回代到特性的适用范围（v ≥ 0）里检查。"],
   "solution": [
-    "**1. 戴维宁等效。** U_oc = 8 × 2/(2 + 2) = 4 V，R_0 = 2 ∥ 2 = 1 Ω。",
-    "**2. 方程。** u = 4 − 1·i，i = 0.5u²（u ≥ 0）→ 0.5u² + u − 4 = 0 → u² + 2u − 8 = 0 → (u − 2)(u + 4) = 0。",
-    "**3. 取舍。** u = −4 V 不在 i = 0.5u² 的适用范围内（u < 0 时 i = 0，此时负载线要求 i = 8 A，矛盾），舍去；**U_Q = 2 V，I_Q = 2 A**。",
-    "**4. 回到原电路。** u_a = 2 V，i_1 = (8 − 2)/2 = **3 A**，R_2 中 1 A，KCL：3 = 1 + 2 ✓。",
+    "**1. 戴维宁等效。** V_oc = 8 × 2/(2 + 2) = 4 V，R_0 = 2 ∥ 2 = 1 Ω。",
+    "**2. 方程。** v = 4 − 1·i，i = 0.5v²（v ≥ 0）→ 0.5v² + v − 4 = 0 → v² + 2v − 8 = 0 → (v − 2)(v + 4) = 0。",
+    "**3. 取舍。** v = −4 V 不在 i = 0.5v² 的适用范围内（v < 0 时 i = 0，此时负载线要求 i = 8 A，矛盾），舍去；**V_Q = 2 V，I_Q = 2 A**。",
+    "**4. 回到原电路。** v_a = 2 V，i_1 = (8 − 2)/2 = **3 A**，R_2 中 1 A，KCL：3 = 1 + 2 ✓。",
     "**5. 功率。** P_N = 2 × 2 = **4 W**。"
   ],
   "i18n": {
@@ -72,45 +72,45 @@
       "title": "Analytic method: a square-law resistor and the root to reject",
       "tags": ["analytic method", "square-law resistor", "rejecting a root"],
       "statement": [
-        "U_s = 8 V, R_1 = R_2 = 2 Ω. The nonlinear resistor N has i = 0.5u² (u ≥ 0; i = 0 for u < 0), reference directions as drawn.",
-        "Solve for the operating point U_Q, I_Q, and find the current in R_1 and the power absorbed by N."
+        "V_s = 8 V, R_1 = R_2 = 2 Ω. The nonlinear resistor N has i = 0.5v² (v ≥ 0; i = 0 for v < 0), reference directions as drawn.",
+        "Solve for the operating point V_Q, I_Q, and find the current in R_1 and the power absorbed by N."
       ],
       "questions": [
         {
-          "ask": "U_Q = ?",
-          "explain": "Thevenin: U_oc = 4 V, R_0 = 1 Ω; 4 − u = 0.5u² → u² + 2u − 8 = 0 → u = 2 V (or −4 V, rejected)."
+          "ask": "V_Q = ?",
+          "explain": "Thevenin: V_oc = 4 V, R_0 = 1 Ω; 4 − v = 0.5v² → v² + 2v − 8 = 0 → v = 2 V (or −4 V, rejected)."
         },
         {
-          "ask": "Why is the other root of u² + 2u − 8 = 0, u = −4 V, rejected?",
+          "ask": "Why is the other root of v² + 2v − 8 = 0, v = −4 V, rejected?",
           "choices": [
-            "i = 0.5u² only holds for u ≥ 0; at u = −4 V the actual current is 0, which violates KVL",
+            "i = 0.5v² only holds for v ≥ 0; at v = −4 V the actual current is 0, which violates KVL",
             "a resistor can never have a negative voltage",
             "both roots are operating points; the question just asks for one"
           ],
           "choiceExplain": [
-            "Right. Substitute u = −4 V: the real characteristic gives i = 0, while the load line needs i = 4 − (−4) = 8 A — a contradiction. Roots found analytically must be checked against the range where the formula applies.",
-            "A resistor can have a negative voltage; the issue is that this formula does not apply for u < 0.",
-            "u = −4 V is not on the characteristic, so it is not an operating point; the circuit has only one."
+            "Right. Substitute v = −4 V: the real characteristic gives i = 0, while the load line needs i = 4 − (−4) = 8 A — a contradiction. Roots found analytically must be checked against the range where the formula applies.",
+            "A resistor can have a negative voltage; the issue is that this formula does not apply for v < 0.",
+            "v = −4 V is not on the characteristic, so it is not an operating point; the circuit has only one."
           ],
-          "explain": "The square law only describes u ≥ 0; check every root against the piecewise characteristic."
+          "explain": "The square law only describes v ≥ 0; check every root against the piecewise characteristic."
         },
         {"ask": "I_Q = ?", "explain": "I_Q = 0.5 × 2² = 2 A; load line: (4 − 2)/1 = 2 A ✓."},
         {
           "ask": "i_1 = ?",
-          "explain": "u_a = U_Q = 2 V: i_1 = (8 − 2)/2 = 3 A = i_2 + I_Q = 1 + 2 ✓."
+          "explain": "v_a = V_Q = 2 V: i_1 = (8 − 2)/2 = 3 A = i_2 + I_Q = 1 + 2 ✓."
         },
-        {"ask": "Power absorbed by N = ?", "explain": "P = U_Q·I_Q = 2 × 2 = 4 W."}
+        {"ask": "Power absorbed by N = ?", "explain": "P = V_Q·I_Q = 2 × 2 = 4 W."}
       ],
       "hints": [
         "N sits between node a and ground and the rest is linear: find the Thevenin circuit seen from a first.",
-        "KVL: U_oc − R_0·i = u; substitute i = 0.5u² to get a quadratic in u.",
-        "Check both roots against the range where the characteristic holds (u ≥ 0)."
+        "KVL: V_oc − R_0·i = v; substitute i = 0.5v² to get a quadratic in v.",
+        "Check both roots against the range where the characteristic holds (v ≥ 0)."
       ],
       "solution": [
-        "**1. Thevenin equivalent.** U_oc = 8 × 2/(2 + 2) = 4 V, R_0 = 2 ∥ 2 = 1 Ω.",
-        "**2. Equation.** u = 4 − 1·i, i = 0.5u² (u ≥ 0) → 0.5u² + u − 4 = 0 → u² + 2u − 8 = 0 → (u − 2)(u + 4) = 0.",
-        "**3. Choosing the root.** u = −4 V is outside the range of i = 0.5u² (for u < 0 the current is 0, while the load line would need 8 A — a contradiction), so it is rejected: **U_Q = 2 V, I_Q = 2 A**.",
-        "**4. Back to the original circuit.** u_a = 2 V, i_1 = (8 − 2)/2 = **3 A**, R_2 carries 1 A, KCL: 3 = 1 + 2 ✓.",
+        "**1. Thevenin equivalent.** V_oc = 8 × 2/(2 + 2) = 4 V, R_0 = 2 ∥ 2 = 1 Ω.",
+        "**2. Equation.** v = 4 − 1·i, i = 0.5v² (v ≥ 0) → 0.5v² + v − 4 = 0 → v² + 2v − 8 = 0 → (v − 2)(v + 4) = 0.",
+        "**3. Choosing the root.** v = −4 V is outside the range of i = 0.5v² (for v < 0 the current is 0, while the load line would need 8 A — a contradiction), so it is rejected: **V_Q = 2 V, I_Q = 2 A**.",
+        "**4. Back to the original circuit.** v_a = 2 V, i_1 = (8 − 2)/2 = **3 A**, R_2 carries 1 A, KCL: 3 = 1 + 2 ✓.",
         "**5. Power.** P_N = 2 × 2 = **4 W**."
       ]
     }

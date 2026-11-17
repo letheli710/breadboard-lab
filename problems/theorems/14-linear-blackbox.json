@@ -7,18 +7,18 @@
   "level": 4,
   "tags": ["叠加定理", "齐性定理", "线性网络"],
   "statement": [
-    "图中 R_1、R_2、R_3 和内部电压源 U_0 组成线性网络 N，它们的数值**未知**（图中未标出）。外部激励为电压源 U_s 和电流源 I_s，响应 u 为结点 b 的电压。实验测得：",
-    "- U_s = 4 V，I_s = 0 时，u = 4 V；",
-    "- U_s = 8 V，I_s = 0 时，u = 6 V；",
-    "- U_s = 4 V，I_s = 1 A 时，u = 6 V。",
-    "现在 U_s = 10 V，I_s = 2 A（如图），求 u 以及电流源 I_s 吸收的功率。"
+    "图中 R_1、R_2、R_3 和内部电压源 V_0 组成线性网络 N，它们的数值**未知**（图中未标出）。外部激励为电压源 V_s 和电流源 I_s，响应 v 为结点 b 的电压。实验测得：",
+    "- V_s = 4 V，I_s = 0 时，v = 4 V；",
+    "- V_s = 8 V，I_s = 0 时，v = 6 V；",
+    "- V_s = 4 V，I_s = 1 A 时，v = 6 V。",
+    "现在 V_s = 10 V，I_s = 2 A（如图），求 v 以及电流源 I_s 吸收的功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 1], "to": [0, 5], "value": 10 },
+      { "ref": "Vs", "type": "V", "from": [0, 1], "to": [0, 5], "value": 10 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2, "hideValue": true },
       { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 3], "value": 2, "hideValue": true },
-      { "ref": "U0", "type": "V", "from": [8, 3], "to": [8, 6], "value": 4, "hideValue": true },
+      { "ref": "V0", "type": "V", "from": [8, 3], "to": [8, 6], "value": 4, "hideValue": true },
       { "ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 1, "hideValue": true },
       { "ref": "Is", "type": "I", "from": [17, 6], "to": [17, 0], "value": 2 }
     ],
@@ -36,18 +36,18 @@
   "questions": [
     {
       "id": "u0",
-      "ask": "N 内部独立源单独作用（U_s = 0，I_s = 0）时产生的 u 为：",
-      "choices": ["2 V", "0", "4 V", "6 V"], "choiceExplain": ["", "0 是假设 u 与 U_s、I_s 成正比（没有内部源）；但实验 1、2 中 U_s 加倍 u 并没有加倍，说明有内部源的分量 u_0。", "4 V 是实验 1 中的 u，其中还包含 U_s = 4 V 产生的分量；它也不是 U_0 本身，内部源要经过 N 内的电阻才到 u。", "6 V 是实验 2 或 3 中测得的 u，里面含有外部激励的分量，不是内部源单独作用的结果。"],
+      "ask": "N 内部独立源单独作用（V_s = 0，I_s = 0）时产生的 v 为：",
+      "choices": ["2 V", "0", "4 V", "6 V"], "choiceExplain": ["", "0 是假设 v 与 V_s、I_s 成正比（没有内部源）；但实验 1、2 中 V_s 加倍 v 并没有加倍，说明有内部源的分量 v_0。", "4 V 是实验 1 中的 v，其中还包含 V_s = 4 V 产生的分量；它也不是 V_0 本身，内部源要经过 N 内的电阻才到 v。", "6 V 是实验 2 或 3 中测得的 v，里面含有外部激励的分量，不是内部源单独作用的结果。"],
       "correct": 0,
-      "explain": "设 u = k_1·U_s + k_2·I_s + u_0。由实验 1、2：4k_1 = 2 → k_1 = 0.5；代回实验 1：2 + u_0 = 4 → u_0 = 2 V。"
+      "explain": "设 v = k_1·V_s + k_2·I_s + v_0。由实验 1、2：4k_1 = 2 → k_1 = 0.5；代回实验 1：2 + v_0 = 4 → v_0 = 2 V。"
     },
     {
       "id": "u",
-      "ask": "U_s = 10 V，I_s = 2 A 时 u = ?",
+      "ask": "V_s = 10 V，I_s = 2 A 时 v = ?",
       "find": { "kind": "v", "nodes": ["b"] },
       "answer": 11,
       "unit": "V",
-      "explain": "由实验 3 与实验 1 相减：k_2 × 1 = 2 → k_2 = 2 Ω。u = 0.5 × 10 + 2 × 2 + 2 = 11 V。"
+      "explain": "由实验 3 与实验 1 相减：k_2 × 1 = 2 → k_2 = 2 Ω。v = 0.5 × 10 + 2 × 2 + 2 = 11 V。"
     },
     {
       "id": "pis",
@@ -55,22 +55,22 @@
       "find": { "kind": "p", "el": "Is" },
       "answer": -22,
       "unit": "W",
-      "explain": "I_s 两端电压就是 u = 11 V（上正），电流从“+”端流出，吸收功率 = −11 × 2 = −22 W（发出 22 W）。"
+      "explain": "I_s 两端电压就是 v = 11 V（上正），电流从“+”端流出，吸收功率 = −11 × 2 = −22 W（发出 22 W）。"
     }
   ],
   "hints": [
-    "线性网络中，响应是所有独立源作用的叠加：u = k_1·U_s + k_2·I_s + u_0，其中 u_0 是 N 内部电源的贡献。",
-    "三个实验给出三个方程：先用两次 I_s = 0 的实验求 k_1 和 u_0，再用第三个实验求 k_2。"
+    "线性网络中，响应是所有独立源作用的叠加：v = k_1·V_s + k_2·I_s + v_0，其中 v_0 是 N 内部电源的贡献。",
+    "三个实验给出三个方程：先用两次 I_s = 0 的实验求 k_1 和 v_0，再用第三个实验求 k_2。"
   ],
   "solution": [
-    "**1. 写出响应的一般形式。** 由叠加定理和齐性定理：u = k_1·U_s + k_2·I_s + u_0（k_1、k_2 由网络决定，u_0 是内部电源 U_0 单独作用的响应）。",
+    "**1. 写出响应的一般形式。** 由叠加定理和齐性定理：v = k_1·V_s + k_2·I_s + v_0（k_1、k_2 由网络决定，v_0 是内部电源 V_0 单独作用的响应）。",
     "**2. 代入实验数据：**",
-    "- 4k_1 + u_0 = 4",
-    "- 8k_1 + u_0 = 6",
-    "- 4k_1 + k_2 + u_0 = 6",
-    "前两式相减：k_1 = 0.5，u_0 = 2 V；第三式减第一式：k_2 = 2 Ω。",
-    "**3. 求响应：** u = 0.5 × 10 + 2 × 2 + 2 = **11 V**。",
-    "**4. I_s 的功率：** p = −u·I_s = **−22 W**（发出 22 W）。",
+    "- 4k_1 + v_0 = 4",
+    "- 8k_1 + v_0 = 6",
+    "- 4k_1 + k_2 + v_0 = 6",
+    "前两式相减：k_1 = 0.5，v_0 = 2 V；第三式减第一式：k_2 = 2 Ω。",
+    "**3. 求响应：** v = 0.5 × 10 + 2 × 2 + 2 = **11 V**。",
+    "**4. I_s 的功率：** p = −v·I_s = **−22 W**（发出 22 W）。",
     "**说明：** 不需要知道 N 内部的任何参数。"
   ],
   "i18n": {
@@ -78,40 +78,40 @@
       "title": "Superposition and homogeneity from measured data",
       "tags": ["superposition", "homogeneity", "linear network"],
       "statement": [
-        "R_1, R_2, R_3 and the internal voltage source U_0 form a linear network N whose values are **unknown** (not shown in the drawing). The external excitations are the voltage source U_s and the current source I_s; the response u is the voltage of node b. Measurements:",
-        "- U_s = 4 V, I_s = 0: u = 4 V;",
-        "- U_s = 8 V, I_s = 0: u = 6 V;",
-        "- U_s = 4 V, I_s = 1 A: u = 6 V.",
-        "Now U_s = 10 V and I_s = 2 A (as drawn). Find u and the power absorbed by the current source I_s."
+        "R_1, R_2, R_3 and the internal voltage source V_0 form a linear network N whose values are **unknown** (not shown in the drawing). The external excitations are the voltage source V_s and the current source I_s; the response v is the voltage of node b. Measurements:",
+        "- V_s = 4 V, I_s = 0: v = 4 V;",
+        "- V_s = 8 V, I_s = 0: v = 6 V;",
+        "- V_s = 4 V, I_s = 1 A: v = 6 V.",
+        "Now V_s = 10 V and I_s = 2 A (as drawn). Find v and the power absorbed by the current source I_s."
       ],
       "questions": [
         {
-          "ask": "The voltage u produced by N's internal source alone (U_s = 0, I_s = 0) is:",
-          "choices": ["2 V", "0", "4 V", "6 V"], "choiceExplain": ["", "0 assumes u is simply proportional to U_s and I_s (no internal source); but doubling U_s in experiments 1 and 2 does not double u, so there is an internal term u_0.", "4 V is the u of experiment 1, which still contains the part produced by U_s = 4 V; nor is it U_0 itself — the internal source reaches u through N's resistors.", "6 V is the u measured in experiment 2 or 3, which includes the contribution of the external sources, not the internal source alone."],
-          "explain": "Let u = k_1·U_s + k_2·I_s + u_0. From measurements 1 and 2: 4k_1 = 2 → k_1 = 0.5; back into measurement 1: 2 + u_0 = 4 → u_0 = 2 V."
+          "ask": "The voltage v produced by N's internal source alone (V_s = 0, I_s = 0) is:",
+          "choices": ["2 V", "0", "4 V", "6 V"], "choiceExplain": ["", "0 assumes v is simply proportional to V_s and I_s (no internal source); but doubling V_s in experiments 1 and 2 does not double v, so there is an internal term v_0.", "4 V is the v of experiment 1, which still contains the part produced by V_s = 4 V; nor is it V_0 itself — the internal source reaches v through N's resistors.", "6 V is the v measured in experiment 2 or 3, which includes the contribution of the external sources, not the internal source alone."],
+          "explain": "Let v = k_1·V_s + k_2·I_s + v_0. From measurements 1 and 2: 4k_1 = 2 → k_1 = 0.5; back into measurement 1: 2 + v_0 = 4 → v_0 = 2 V."
         },
         {
-          "ask": "u for U_s = 10 V, I_s = 2 A = ?",
-          "explain": "Measurement 3 minus measurement 1: k_2 × 1 = 2 → k_2 = 2 Ω. u = 0.5 × 10 + 2 × 2 + 2 = 11 V."
+          "ask": "v for V_s = 10 V, I_s = 2 A = ?",
+          "explain": "Measurement 3 minus measurement 1: k_2 × 1 = 2 → k_2 = 2 Ω. v = 0.5 × 10 + 2 × 2 + 2 = 11 V."
         },
         {
           "ask": "Power absorbed by I_s in this case = ?",
-          "explain": "The voltage across I_s is u = 11 V (+ at the top) and its current leaves the \"+\" terminal: absorbed power = −11 × 2 = −22 W (it delivers 22 W)."
+          "explain": "The voltage across I_s is v = 11 V (+ at the top) and its current leaves the \"+\" terminal: absorbed power = −11 × 2 = −22 W (it delivers 22 W)."
         }
       ],
       "hints": [
-        "In a linear network the response is the sum of the contributions of all independent sources: u = k_1·U_s + k_2·I_s + u_0, where u_0 is due to N's internal source.",
-        "The three measurements give three equations: use the two with I_s = 0 to find k_1 and u_0, then the third for k_2."
+        "In a linear network the response is the sum of the contributions of all independent sources: v = k_1·V_s + k_2·I_s + v_0, where v_0 is due to N's internal source.",
+        "The three measurements give three equations: use the two with I_s = 0 to find k_1 and v_0, then the third for k_2."
       ],
       "solution": [
-        "**1. General form of the response.** By superposition and homogeneity: u = k_1·U_s + k_2·I_s + u_0 (k_1, k_2 depend on the network; u_0 is the response to the internal source U_0 alone).",
+        "**1. General form of the response.** By superposition and homogeneity: v = k_1·V_s + k_2·I_s + v_0 (k_1, k_2 depend on the network; v_0 is the response to the internal source V_0 alone).",
         "**2. Insert the measurements:**",
-        "- 4k_1 + u_0 = 4",
-        "- 8k_1 + u_0 = 6",
-        "- 4k_1 + k_2 + u_0 = 6",
-        "Subtracting the first two: k_1 = 0.5, u_0 = 2 V; third minus first: k_2 = 2 Ω.",
-        "**3. Response:** u = 0.5 × 10 + 2 × 2 + 2 = **11 V**.",
-        "**4. Power of I_s:** p = −u·I_s = **−22 W** (it delivers 22 W).",
+        "- 4k_1 + v_0 = 4",
+        "- 8k_1 + v_0 = 6",
+        "- 4k_1 + k_2 + v_0 = 6",
+        "Subtracting the first two: k_1 = 0.5, v_0 = 2 V; third minus first: k_2 = 2 Ω.",
+        "**3. Response:** v = 0.5 × 10 + 2 × 2 + 2 = **11 V**.",
+        "**4. Power of I_s:** p = −v·I_s = **−22 W** (it delivers 22 W).",
         "**Note:** none of N's internal values is needed."
       ]
     }

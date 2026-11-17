@@ -2,97 +2,136 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-board-power-budget",
-  "title": "实验 5-13 · 开发板给面包板供电：3V3 / 5V 引脚的电流预算",
+  "title": "电流预算：大负载该接 5V 还是 3V3",
   "kind": "challenge",
   "level": 3,
   "phase": 5,
-  "summary": "一个 10 Ω 的大负载接在 Blue Pill 的 3V3 引脚上，把板载 300 mA 的 LDO 拖进限流，3V3 掉到 2.8 V。把它挪到 5V 引脚，让 3V3 只给芯片和小信号用，同时算清 USB 的 500 mA 预算。",
-  "concepts": [
-    "电源预算 power budget",
-    "LDO 限流 regulator current limit",
-    "5V 引脚 = USB 经肖特基二极管 5V pin = USB through a Schottky",
-    "USB 500 mA",
-    "欠压复位 brown-out"
-  ],
+  "summary": "一个 10 Ω 的大负载插在 Blue Pill 的 3V3 轨上，把板上的小稳压器拖垮了。把它挪到 5V 引脚，再算一算 USB 的 500 mA 还剩多少。",
+  "concepts": ["电源预算 power budget", "LDO 限流 regulator current limit", "5V 引脚 = USB 经肖特基二极管 5V pin = USB through a Schottky", "USB 500 mA", "欠压复位 brown-out"],
   "prereq": ["lesson-mcu-gpio"],
-  "description": [
-    "**目标**：认识开发板上的两条电源路径（5V 引脚和 3V3 引脚），列一张电源预算表，把一个大电流负载接到能供得起它的那一路上。",
-    "",
-    "**电路**（起始电路里已经摆好，但有一处接错了）：Blue Pill 插在 c1，USB 供电。上方电源轨：tp = 3V3（a3 → tp3），tn = GND（a1 → tn1）；下方电源轨：bp = 5V 引脚（j18 → bp18），bn = GND（j19 → bn19）。",
-    "- 负载 RL = **10 Ω**（代表一个要零点几安的模块，比如一小段灯带、一个舵机或一块 4G 模块；真实电阻要用 ≥ 3 W 的功率电阻）；",
-    "- 状态灯：任意一个输出 GPIO（参考答案用 PB13）→ 330 Ω → 红色 LED1 → GND；",
-    "- 3V3 指示灯：3V3 → 1 kΩ → 绿色 LED2 → GND。",
-    "",
-    "**起始电路的问题**：RL 插在了 **3V3 轨**（tp25 – tn25）上。实时诊断会立刻报错：“U1 的板载稳压器过流——RT9193-3.3 最多只能输出约 300 mA，3V3 掉到了 2.79 V”。你的任务：把 RL 挪到能供得起它的那条电源轨上，其他不动。",
-    "",
-    "**引脚设置**：不用自己设，测试会把 GPIO 设成“输出高电平 / 输出低电平”。参考答案默认 PB13 = 输出高电平。",
-    "",
-    "**板子上的电源路径**（Blue Pill 和 ESP32 开发板都一样）：",
-    "USB 5 V →（线缆 + 保险丝约 0.25 Ω）→ 肖特基二极管（≈ 0.3 V）→ **5V 引脚** → 板载 LDO → **3V3 引脚** → 芯片。",
-    "- 5V 引脚就是 USB 电源减掉一个二极管：空载约 4.7 V，电流大时还会再低一些。它能给多少电流只受 USB 口限制（电脑 USB 2.0 口按 **500 mA** 设计）。",
-    "- 3V3 引脚后面是一个小 LDO：Blue Pill 上是 RT9193 一类，**最多约 300 mA**（芯片自己要约 20 mA，板上电源灯约 1.5 mA）；ESP32 DevKitC 上是 AMS1117，标称 1 A，但芯片本身就要 50 mA 以上（开 Wi-Fi 发射时峰值 300–500 mA），而且整块板子仍然受 USB 500 mA 的限制。",
-    "",
-    "**先预测**：RL 接在 3V3 上想要多少电流？加上芯片的 20 mA，有没有超过 LDO 的 300 mA？挪到 5V 引脚后，LDO 还要输出多少电流（芯片 + 两个 LED + 电源灯）？RL 从 5V 引脚拿多少电流，USB 总共要给多少，占 500 mA 预算的百分之几？",
-    "",
-    "**测量**：",
-    "- **3V3 的电压**和绿灯 LED2 的电流——3V3 轨是不是还“健康”；",
-    "- **GPIO 输出高电平时的电压和电流**——芯片在正常工作、输出级拿到了完整的 3.3 V；",
-    "- **RL 的电流和 5V 引脚的电压**——大电流走的是哪条路、还剩多少 USB 预算。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**实际项目经验**：",
-    "- 先列电源预算表：每一路负载的**最大**电流（舵机堵转、电机启动、Wi-Fi 发射、LED 全亮）分别记在 3V3 和 5V 下面，3V3 总和不超过板载 LDO 的 70%，5V 总和不超过 USB 的 80%。",
-    "- 3V3 引脚只给传感器、逻辑芯片、小 LED 这类几十 mA 的东西用；电机、舵机、灯带、继电器、GSM / 4G 模块用 5V 引脚，或者干脆用独立电源（**GND 一定要共地**）。",
-    "- 5V 引脚不是“5.0 V”：经过 USB 的肖特基二极管后只有 4.5–4.8 V，而且随负载变化。需要精确 5 V 的模块要单独供电。",
-    "- 电脑 USB 口超过 500 mA 时，主板的保护会断电或让 USB 设备掉线，表现为“一开电机板子就断开串口”。手机充电头通常能给 1–2 A，但开发板上的肖特基二极管和 PCB 走线也有上限（常见 1 A 左右）。",
-    "- ESP32 的 Wi-Fi 发射峰值电流很大：3V3 上要有 ≥ 100 µF 的电容缓冲，否则会触发 brown-out 复位（串口里能看到 “Brownout detector was triggered”）。",
-    "- 不要同时用 USB 和外部电源给 5V / 3V3 引脚供电，可能互相倒灌。",
-    "",
-    "**模型说明**：USB 被模拟成 5 V 串 0.25 Ω，超过 500 mA 只给诊断、不会真的断电；LDO 限流是理想的恒流；芯片功耗是一个固定电阻（Blue Pill 约 20 mA），不随时钟和外设变化；10 Ω 电阻的功率不做检查，真实电路要用功率电阻。"
+  "description": "开发板有两条电源路：USB 5 V 经肖特基二极管到 5V 引脚，再经板上的小稳压器（Blue Pill 约 300 mA）到 3V3 引脚。起始电路把 10 Ω 负载 RL 接在了 3V3 轨上；任务是把它挪到 5V 轨，其他不动。电路里还有一个输出高的 GPIO 点亮红色 LED1，以及 3V3 → 1 kΩ → 绿色 LED2 作为 3V3 指示灯。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "谁在喊救命？",
+      "text": [
+        "起始电路已经搭好：Blue Pill 插着 USB。上方电源轨接的是 **3V3**，下方电源轨接的是 **5V** 引脚。",
+        "一个 **`10 Ω`** 的大负载 RL 插在上方 **3V3 轨**上。它代表一段灯带、一个舵机这样要零点几安的东西。",
+        "看右边的**「诊断」**：哪个零件在报警？再**单击绿色 LED2**，看看 3V3 轨上的电压正常吗？",
+        "猜一猜：同一块板子、同一个负载，为什么换一条电源轨就可能没事？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "两条电源路，两个上限",
+      "text": [
+        "- USB 的 5 V 先穿过一只肖特基二极管，到 **5V 引脚**。再穿过板上一个小稳压器，才到 **3V3 引脚**。",
+        "![](fig:paths)",
+        "- 两条路的上限不一样：Blue Pill 的小稳压器最多给约 **300 mA**；5V 引脚只受 USB 口限制，电脑的 USB 口按 **500 mA** 设计。",
+        "- 负载要多少电流，用欧姆定律一算就知道：",
+        "$$I = \\frac{V}{R_L}$$",
+        "- 接在 3V3 上：$I = \\frac{3.3}{10} = 0.33$ A，再加芯片自己的约 0.02 A，超过了 0.3 A。稳压器只好**限流**，3V3 被拖下来，芯片和两颗 LED 都跟着遭殃。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "挪一个电阻",
+      "text": [
+        "- 把 RL 从上方 3V3 轨挪到**下方的 5V 轨**（例如 **`bp25`**–**`bn25`**）。其他都不动。",
+        "- 点**「检查我的电路」**。诊断应该安静了，绿色 LED2 恢复正常亮度。",
+        "- 通过后量四样东西：3V3 引脚的电压、RL 的电流、5V 引脚的电压，再用读数算 RL 的功率。",
+        "- 先预测：5V 引脚会是整整 5 V 吗？USB 和它之间隔着什么？"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **先列电流预算表**：每个负载的**最大**电流（电机启动、Wi-Fi 发射、LED 全亮）分别记在 3V3 和 5V 下面。3V3 总和别超过板上稳压器的七成，5V 总和别超过 USB 的八成。",
+        "- 3V3 只给传感器、逻辑芯片、小 LED 这类几十 mA 的东西。电机、舵机、灯带、继电器用 5V 引脚，或者用独立电源，**GND 一定要连在一起**。",
+        "- 5V 引脚不是精确的 5.0 V：隔着一只二极管，电流越大越低。",
+        "- 真实电路里的坑：电脑 USB 口超过 500 mA 会断电，表现成“一开电机，串口就掉线”。10 Ω 这样的负载要用**功率电阻**，普通 1/4 W 电阻会烧。"
+      ],
+      "practice": ["nonlinear"]
+    }
   ],
+  "figures": {
+    "paths": {
+      "kind": "schematic",
+      "caption": {
+        "text": "接在 5V：RL 的电流只穿过 USB 和二极管 D1。接在 3V3：它还要穿过板上的小稳压器 U2，最多约 300 mA。",
+        "i18n": {
+          "en": "On 5V, RL's current only passes USB and the diode D1. On 3V3 it must also pass the board's small regulator U2 — about 300 mA at most."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_USB", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 5},
+          {"ref": "D1", "type": "D", "from": [0, 0], "to": [2, 0]},
+          {"ref": "RL", "type": "R", "from": [2, 0], "to": [2, 4], "value": 10},
+          {"ref": "U2", "type": "REG", "at": [4, 0], "label": "3.3 V"},
+          {"ref": "R2", "type": "R", "from": [6, 0], "to": [6, 4], "value": "1k"}
+        ],
+        "wires": [
+          [[6, 4], [0, 4]],
+          [[4, 2], [4, 4]]
+        ],
+        "labels": [
+          {"at": [2, 0], "name": "5V"},
+          {"at": [6, 0], "name": "3V3"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "RL", "name": "I_L"}
+        ]
+      },
+      "highlight": ["U2"]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-13 · Powering the breadboard from the board: the 3V3 / 5V current budget",
-      "summary": "A 10 Ω heavy load on the Blue Pill's 3V3 pin drags the onboard 300 mA LDO into current limit and 3V3 sags to 2.8 V. Move it to the 5V pin, keep 3V3 for the chip and small signals, and work out the 500 mA USB budget.",
-      "concepts": [
-        "power budget",
-        "regulator current limit",
-        "5V pin = USB through a Schottky",
-        "USB 500 mA",
-        "brown-out"
-      ],
-      "description": [
-        "**Goal**: get to know the board's two supply paths (the 5V pin and the 3V3 pin), write a power budget, and put a high-current load on the path that can actually supply it.",
-        "",
-        "**Circuit** (the starting circuit is already placed, with one mistake): a Blue Pill at c1, powered from USB. Top rails: tp = 3V3 (a3 → tp3), tn = GND (a1 → tn1); bottom rails: bp = the 5V pin (j18 → bp18), bn = GND (j19 → bn19).",
-        "- load RL = **10 Ω** (standing in for a module drawing a few tenths of an amp: a short LED strip, a servo, a 4G modem; a real one needs a ≥ 3 W power resistor);",
-        "- status LED: any output GPIO (the solution uses PB13) → 330 Ω → red LED1 → GND;",
-        "- 3V3 indicator: 3V3 → 1 kΩ → green LED2 → GND.",
-        "",
-        "**What is wrong at the start**: RL sits on the **3V3 rail** (tp25 – tn25). The live diagnostics immediately show an error: \"U1's onboard regulator is overloaded — the RT9193-3.3 gives about 300 mA at most, 3V3 dropped to 2.79 V\". Your job: move RL to the rail that can supply it and leave everything else.",
-        "",
-        "**Pin table settings**: nothing to set yourself; the tests switch the GPIO between output HIGH and output LOW. The solution's default is PB13 = output HIGH.",
-        "",
-        "**The power path on the board** (the same on a Blue Pill and an ESP32 DevKitC):",
-        "USB 5 V → (cable + polyfuse ≈ 0.25 Ω) → Schottky diode (≈ 0.3 V) → **5V pin** → onboard LDO → **3V3 pin** → chip.",
-        "- The 5V pin is just USB minus a diode: about 4.7 V unloaded, and lower still under a heavy load. Its current is limited only by the USB port (a PC USB 2.0 port is specified for **500 mA**).",
-        "- Behind the 3V3 pin is a small LDO: an RT9193-class part on the Blue Pill, **about 300 mA at most** (the chip itself takes about 20 mA, the power LED about 1.5 mA); on the ESP32 DevKitC an AMS1117 rated 1 A, but the chip alone needs 50 mA or more (300–500 mA peaks while Wi-Fi transmits), and the whole board is still behind the 500 mA USB limit.",
-        "",
-        "**Predict first**: how much current does RL want on 3V3? With the chip's 20 mA added, is that over the LDO's 300 mA? After moving it to the 5V pin, how much must the LDO still supply (chip + two LEDs + power LED)? How much does RL take from the 5V pin, how much must USB supply in total, and what fraction of the 500 mA budget is that?",
-        "",
-        "**Measure**:",
-        "- the **3V3 voltage** and the green LED2 current: is the 3V3 rail still healthy?",
-        "- the **GPIO's voltage and current in output HIGH**: the chip is running and its output stage gets the full 3.3 V;",
-        "- **RL's current and the 5V pin voltage**: which path the big current takes and how much USB budget is left. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- Write the power budget first: the **worst-case** current of every load (servo stall, motor start, Wi-Fi transmit, LEDs fully on) under 3V3 and under 5V. Keep the 3V3 total below 70 % of the onboard LDO and the 5V total below 80 % of USB.",
-        "- The 3V3 pin is for sensors, logic chips and small LEDs (tens of mA). Motors, servos, LED strips, relays and GSM / 4G modules go on the 5V pin, or better on a separate supply (**always share GND**).",
-        "- The 5V pin is not \"5.0 V\": after the USB Schottky it is 4.5–4.8 V and it moves with the load. A module that needs an accurate 5 V needs its own supply.",
-        "- Above 500 mA a PC's USB port protection cuts power or drops the device — \"the serial port disconnects every time the motor starts\". Phone chargers give 1–2 A, but the board's Schottky diode and traces have their own limit (often about 1 A).",
-        "- ESP32 Wi-Fi transmit peaks are large: put ≥ 100 µF on 3V3 or it trips the brown-out detector (\"Brownout detector was triggered\" in the serial monitor).",
-        "- Never feed the 5V / 3V3 pins from an external supply while USB is also plugged in: the two can back-feed each other.",
-        "",
-        "**Model note**: USB is 5 V behind 0.25 Ω; above 500 mA you get a diagnostic but the power is not actually cut. The LDO current limit is an ideal constant current. The chip is a fixed resistor (about 20 mA on the Blue Pill) that ignores clock speed and peripherals. The 10 Ω resistor's power is not checked — a real circuit needs a power resistor."
+      "title": "Current budget: big loads on 5V or 3V3?",
+      "summary": "A big 10 Ω load on the Blue Pill's 3V3 rail drags the board's little regulator down. Move it to the 5V pin, then work out how much of USB's 500 mA is left.",
+      "concepts": ["power budget", "regulator current limit", "5V pin = USB through a Schottky", "USB 500 mA", "brown-out"],
+      "description": "A dev board has two power paths: USB 5 V through a Schottky diode to the 5V pin, then through the board's small regulator (about 300 mA on a Blue Pill) to the 3V3 pin. The starting circuit has the 10 Ω load RL on the 3V3 rail; the task is to move it to the 5V rail and leave everything else. The board also has a GPIO set HIGH lighting the red LED1, and 3V3 → 1 kΩ → green LED2 as a 3V3 indicator.",
+      "cards": [
+        {
+          "title": "Who is crying for help?",
+          "text": [
+            "The starting circuit is built: a Blue Pill on USB. The top rails carry **3V3**, the bottom rails the **5V** pin.",
+            "A big **`10 Ω`** load RL sits on the top **3V3 rail**. It stands for a strip of LEDs or a servo — something that wants a few tenths of an amp.",
+            "Look at the **diagnostics** on the right: which part is complaining? Then **click the green LED2**: is the voltage on the 3V3 rail healthy?",
+            "Guess: same board, same load — why might moving it to the other rail fix everything?"
+          ]
+        },
+        {
+          "title": "Two power paths, two limits",
+          "text": [
+            "- USB's 5 V first passes a Schottky diode to reach the **5V pin**. Then it passes a small regulator on the board to reach the **3V3 pin**.",
+            "![](fig:paths)",
+            "- The two paths have different limits: the Blue Pill's little regulator gives at most about **300 mA**; the 5V pin is limited only by the USB port, and a computer's USB port is designed for **500 mA**.",
+            "- How much current a load wants is plain Ohm's law:",
+            "$$I = \\frac{V}{R_L}$$",
+            "- On 3V3: $I = \\frac{3.3}{10} = 0.33$ A, plus about 0.02 A for the chip itself — more than 0.3 A. The regulator has to **limit the current**, the 3V3 sags, and the chip and both LEDs suffer with it."
+          ]
+        },
+        {
+          "title": "Move one resistor",
+          "text": [
+            "- Move RL from the top 3V3 rail to the **bottom 5V rail** (for example **`bp25`**–**`bn25`**). Leave everything else.",
+            "- Press **Check my circuit**. The diagnostics should go quiet and the green LED2 shine normally again.",
+            "- Once it passes, measure four things: the 3V3 pin's voltage, RL's current, the 5V pin's voltage, and from your readings RL's power.",
+            "- Predict first: will the 5V pin be a full 5 V? What sits between it and USB?"
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Write a current budget first**: each load's **largest** current (a motor starting, Wi-Fi transmitting, every LED on) goes under 3V3 or 5V. Keep the 3V3 total under 70% of the board's regulator and the 5V total under 80% of USB.",
+            "- 3V3 is for sensors, logic chips and small LEDs — tens of mA. Motors, servos, LED strips and relays go on the 5V pin or on a separate supply, and **the GNDs must be joined**.",
+            "- The 5V pin is not an exact 5.0 V: it sits behind a diode and drops further as the current grows.",
+            "- A real-world catch: a computer's USB port cuts out above 500 mA — \"the serial port drops as soon as the motor starts\". A 10 Ω load like this needs a **power resistor**; an ordinary 1/4 W resistor burns."
+          ]
+        }
       ],
       "compare": [
         "**Compare** (simulated):",
@@ -105,15 +144,27 @@
         "- 5V (USB 500 mA): LDO input ≈ 31 mA + RL 451 mA ≈ 481 mA → almost all used up."
       ],
       "measurements": [
-        {"ask": "With RL moved to 5V: multimeter on the 3V3 pin to GND", "explain": "The LDO now supplies only about 27 mA (chip 20 + LED1 3.9 + LED2 1.2 + power LED), far below 300 mA: steady at 3.30 V."},
-        {"ask": "RL's current (ammeter in series with RL)", "explain": "≈ 4.5 V / 10 Ω ≈ 0.45 A."},
-        {"ask": "The 5V pin to GND", "explain": "USB 5 V − 0.48 A × 0.25 Ω − the diode ≈ 4.51 V. The USB total is about 0.48 A, 96% of the 500 mA budget."},
-        {"ask": "From your two readings, the power in RL, P = U × I", "explain": "≈ 2 W: a real circuit needs a ≥ 3 W power resistor; a normal 1/4 W one would burn. Left on 3V3, the LDO itself would have to dissipate about 0.5 W."}
+        {
+          "ask": "With RL moved to 5V: multimeter on the 3V3 pin to GND",
+          "explain": "The regulator now supplies only about 27 mA (chip 20 + LED1 3.9 + LED2 1.2 + power LED), far below 300 mA: steady at 3.30 V."
+        },
+        {
+          "ask": "RL's current (ammeter in series with RL)",
+          "explain": "≈ 4.5 V / 10 Ω ≈ 0.45 A."
+        },
+        {
+          "ask": "The 5V pin to GND",
+          "explain": "USB 5 V − 0.48 A × 0.25 Ω − the diode ≈ 4.51 V. The USB total is about 0.48 A, 96% of the 500 mA budget."
+        },
+        {
+          "ask": "From your two readings, the power in RL, P = V × I",
+          "explain": "≈ 2 W: a real circuit needs a ≥ 3 W power resistor; a normal 1/4 W one would burn. Left on 3V3, the LDO itself would have to dissipate about 0.5 W."
+        }
       ],
       "hints": [
-        "Look at the live diagnostics first: which regulator is overloaded, and what is on its output?",
-        "The 3V3 pin goes through the onboard 300 mA LDO; the 5V pin comes almost straight from USB.",
-        "Move RL from tp25 – tn25 to the bottom rails, e.g. bp25 – bn25 (bp is wired to the 5V pin)."
+        "Read the live diagnostics first: which regulator is overloaded? What is connected to its output?",
+        "The 3V3 pin goes through the board's small regulator (about 300 mA at most); the 5V pin comes almost straight from USB.",
+        "Move RL from tp25 – tn25 to the bottom rails, for example bp25 – bn25 (bp is connected to the 5V pin)."
       ],
       "tests": [
         "Load on 5V: 3V3 holds, the green LED is normal",
@@ -157,47 +208,27 @@
   "nets": [
     {
       "name": "V5",
-      "pins": [
-        "U1.5V",
-        "RL.1"
-      ]
+      "pins": ["U1.5V", "RL.1"]
     },
     {
       "name": "V3V3",
-      "pins": [
-        "U1.3V3",
-        "R2.1"
-      ]
+      "pins": ["U1.3V3", "R2.1"]
     },
     {
       "name": "IO",
-      "pins": [
-        "U1.GPIO_OUT1",
-        "R1.1"
-      ]
+      "pins": ["U1.GPIO_OUT1", "R1.1"]
     },
     {
       "name": "A1",
-      "pins": [
-        "R1.2",
-        "LED1.anode"
-      ]
+      "pins": ["R1.2", "LED1.anode"]
     },
     {
       "name": "A2",
-      "pins": [
-        "R2.2",
-        "LED2.anode"
-      ]
+      "pins": ["R2.2", "LED2.anode"]
     },
     {
       "name": "GND",
-      "pins": [
-        "RL.2",
-        "LED1.cathode",
-        "LED2.cathode",
-        "U1.GND"
-      ]
+      "pins": ["RL.2", "LED1.cathode", "LED2.cathode", "U1.GND"]
     }
   ],
   "tests": [
@@ -316,16 +347,67 @@
     "- 5V（USB 500 mA）：LDO 输入 ≈ 31 mA + RL 451 mA ≈ 481 mA → 几乎用完。"
   ],
   "measurements": [
-    {"id": "v33", "voltage": "U1.3V3", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [3.13, 3.46], "ask": "RL 挪到 5V 之后：万用表测 3V3 引脚对 GND", "explain": "LDO 只输出约 27 mA（芯片 20 + LED1 3.9 + LED2 1.2 + 电源灯），远低于 300 mA：稳在 3.30 V。"},
-    {"id": "irl", "current": "RL", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "A", "predict": true, "range": [0.428, 0.473], "ask": "RL 的电流（电流表串进 RL）", "explain": "≈ 4.5 V / 10 Ω ≈ 0.45 A。"},
-    {"id": "v5", "voltage": "U1.5V", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [4.28, 4.73], "ask": "5V 引脚对 GND 的电压", "explain": "USB 5 V − 0.48 A × 0.25 Ω − 二极管 ≈ 4.51 V。USB 总电流约 0.48 A，已经用掉 96% 的 500 mA 预算。"},
-    {"id": "p", "formula": "v5 * irl", "unit": "W", "predict": true, "range": [1.93, 2.13], "ask": "用你的两个读数算 RL 上的功率 P = U × I", "explain": "≈ 2 W：真实电路里要用 ≥ 3 W 的功率电阻，普通 1/4 W 电阻会烧。如果 RL 留在 3V3 上，LDO 自己就要耗散约 0.5 W。"}
+    {
+      "id": "v33",
+      "voltage": "U1.3V3",
+      "ref": "U1.GND",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "unit": "V",
+      "predict": true,
+      "range": [3.13, 3.46],
+      "ask": "RL 挪到 5V 之后：万用表测 3V3 引脚对 GND",
+      "explain": "稳压器只输出约 27 mA（芯片 20 + LED1 3.9 + LED2 1.2 + 电源灯），远低于 300 mA：稳在 3.30 V。"
+    },
+    {
+      "id": "irl",
+      "current": "RL",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "unit": "A",
+      "predict": true,
+      "range": [0.428, 0.473],
+      "ask": "RL 的电流（电流表串进 RL）",
+      "explain": "≈ 4.5 V / 10 Ω ≈ 0.45 A。"
+    },
+    {
+      "id": "v5",
+      "voltage": "U1.5V",
+      "ref": "U1.GND",
+      "set": {
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "unit": "V",
+      "predict": true,
+      "range": [4.28, 4.73],
+      "ask": "5V 引脚对 GND 的电压",
+      "explain": "USB 5 V − 0.48 A × 0.25 Ω − 二极管 ≈ 4.51 V。USB 总电流约 0.48 A，已经用掉 96% 的 500 mA 预算。"
+    },
+    {
+      "id": "p",
+      "formula": "v5 * irl",
+      "unit": "W",
+      "predict": true,
+      "range": [1.93, 2.13],
+      "ask": "用你的两个读数算 RL 上的功率 P = V × I",
+      "explain": "≈ 2 W：真实电路里要用 ≥ 3 W 的功率电阻，普通 1/4 W 电阻会烧。如果 RL 留在 3V3 上，LDO 自己就要耗散约 0.5 W。"
+    }
   ],
-  "hints": [
-    "先看实时诊断：哪个稳压器过流了？它的输出上接了什么？",
-    "3V3 引脚要经过板载 300 mA 的 LDO；5V 引脚几乎直接来自 USB。",
-    "把 RL 从 tp25 – tn25 挪到下方电源轨，例如 bp25 – bn25（bp 接的是 5V 引脚）。"
-  ],
+  "hints": ["先看实时诊断：哪个稳压器过流了？它的输出上接了什么？", "3V3 引脚要经过板上最多约 300 mA 的小稳压器；5V 引脚几乎直接来自 USB。", "把 RL 从 tp25 – tn25 挪到下方电源轨，例如 bp25 – bn25（bp 接的是 5V 引脚）。"],
   "solution": {
     "parts": [
       {

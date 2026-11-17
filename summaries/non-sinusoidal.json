@@ -2,10 +2,18 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "non-sinusoidal",
-  "intro": "电源或负载不是正弦的时候（方波、整流电压、含谐波的电网电压……），把周期信号分解成**直流 + 各次谐波**，每个分量用已经学过的直流分析和相量法单独求解，再在时域叠加。本章最重要的习惯：**每次谐波重算电抗，有效值平方和开方，平均功率按谐波相加**。相量默认取有效值，一律以 cos 为参考。",
+  "intro": [
+    "电源或负载不是正弦的时候（方波、整流电压、含谐波的电网电压……），把周期信号分解成**直流 + 各次谐波**。每个分量用学过的直流分析和相量法单独求解，再在时域叠加。",
+    "本章最重要的习惯：**每次谐波重算电抗，有效值平方和开方，平均功率按谐波相加**。",
+    "相量默认取有效值，一律以 cos 为参考。"
+  ],
   "i18n": {
     "en": {
-      "intro": "When a source or load is not sinusoidal (square waves, rectified voltages, mains voltage with harmonics, …), split the periodic signal into **DC + harmonics**, solve each component with the DC analysis and phasor methods you already know, and add the results in the time domain. The key habits of this chapter: **recompute the reactances for every harmonic, combine rms values as a root of a sum of squares, add average powers harmonic by harmonic**. Phasors are rms phasors with the cosine reference."
+      "intro": [
+        "When a source or load is not sinusoidal (square waves, rectified voltages, mains voltage with harmonics, …), split the periodic signal into **DC + harmonics**. Solve each component with the DC analysis and phasor methods you already know, then add the results in the time domain.",
+        "The key habits of this chapter: **recompute the reactances for every harmonic, combine rms values as the root of a sum of squares, add average powers harmonic by harmonic**.",
+        "Phasors are rms phasors, always with the cosine reference."
+      ]
     }
   },
   "ideas": [
@@ -13,18 +21,22 @@
       "id": "fourier",
       "title": "非正弦周期量 = 直流 + 各次谐波",
       "text": [
-        "方波、三角波、整流电压等非正弦周期量（周期 T，ω_1 = 2π/T）满足狄利赫利条件时可以展开成傅里叶级数：f(t) = A_0 + Σ A_km cos(kω_{1}t + φ_k)。A_0 是**直流分量**（平均值），k = 1 是**基波**，k ≥ 2 是 k 次**谐波**，频率都是基波的整数倍。",
-        "把 A_km 按 k 画成竖线就是**振幅频谱**：周期信号的频谱是离散的。波形越“陡”（有跳变），高次谐波衰减越慢：方波按 1/k，三角波按 1/k²，所以工程上取有限项就够了。",
-        "本章一律以 cos 为参考：给出 sin 形式时先改写，sin x = cos(x − 90°)。"
+        "- 方波、三角波、整流电压等非正弦周期量，周期为 T，ω_1 = 2π/T。满足狄利赫利条件时，它可以展开成傅里叶级数：f(t) = A_0 + Σ A_km cos(kω_{1}t + φ_k)。",
+        "- A_0 是**直流分量**（平均值）。k = 1 是**基波**，k ≥ 2 是 k 次**谐波**，频率都是基波的整数倍。",
+        "- 把 A_km 按 k 画成竖线，就是**振幅频谱**。周期信号的频谱是离散的。",
+        "- 波形越“陡”（有跳变），高次谐波衰减越慢：方波按 1/k，三角波按 1/k²。所以工程上取有限项就够了。",
+        "- 本章一律以 cos 为参考。给出 sin 形式时先改写：sin x = cos(x − 90°)。"
       ],
       "problems": ["non-sinusoidal-01-square-wave-spectrum", "non-sinusoidal-03-full-wave-rectified", "non-sinusoidal-05-triangle-current-inductor"],
       "i18n": {
         "en": {
           "title": "A non-sinusoidal periodic quantity = DC + harmonics",
           "text": [
-            "Square waves, triangle waves, rectified voltages and other non-sinusoidal periodic quantities (period T, ω_1 = 2π/T) that satisfy the Dirichlet conditions expand into a Fourier series f(t) = A_0 + Σ A_km cos(kω_{1}t + φ_k). A_0 is the **DC component** (average value), k = 1 the **fundamental**, k ≥ 2 the k-th **harmonic** — all at integer multiples of the fundamental frequency.",
-            "Plotting A_km against k gives the **amplitude spectrum**: a periodic signal has a discrete spectrum. The steeper the waveform (jumps), the slower the harmonics decay: 1/k for a square wave, 1/k² for a triangle — so a finite number of terms is enough in practice.",
-            "This chapter uses the cosine reference throughout: rewrite a sine first, sin x = cos(x − 90°)."
+            "- Square waves, triangle waves, rectified voltages and other non-sinusoidal periodic quantities have a period T and ω_1 = 2π/T. If they satisfy the Dirichlet conditions, they expand into a Fourier series: f(t) = A_0 + Σ A_km cos(kω_{1}t + φ_k).",
+            "- A_0 is the **DC component** (the average value). k = 1 is the **fundamental**, k ≥ 2 the k-th **harmonic**; their frequencies are integer multiples of the fundamental.",
+            "- Plot A_km against k as vertical lines and you have the **amplitude spectrum**. A periodic signal has a discrete spectrum.",
+            "- The steeper the waveform (jumps), the slower the harmonics decay: 1/k for a square wave, 1/k² for a triangle. So a finite number of terms is enough in practice.",
+            "- This chapter always uses the cosine reference. Rewrite a sine first: sin x = cos(x − 90°)."
           ]
         }
       }
@@ -33,16 +45,22 @@
       "id": "symmetry",
       "title": "用对称性判断哪些谐波存在",
       "text": [
-        "**偶函数** f(−t) = f(t)：只有余弦项（b_k = 0）。**奇函数** f(−t) = −f(t)：只有正弦项（a_k = 0），且直流分量为零。**半波对称** f(t + T/2) = −f(t)：只有奇次谐波（没有直流和偶次谐波）。",
-        "奇偶性与计时起点有关，移动 t = 0 只改变各次谐波的初相，不改变振幅；半波对称与计时起点无关。先看对称性，可以少算一半的系数，也能用来检查结果。"
+        "- **偶函数** f(−t) = f(t)：只有余弦项（b_k = 0）。",
+        "- **奇函数** f(−t) = −f(t)：只有正弦项（a_k = 0），而且直流分量为零。",
+        "- **半波对称** f(t + T/2) = −f(t)：只有奇次谐波，没有直流和偶次谐波。",
+        "- 奇偶性与计时起点有关：移动 t = 0 只改变各次谐波的初相，不改变振幅。半波对称与计时起点无关。",
+        "- 先看对称性，可以少算一半的系数，也能用来检查结果。"
       ],
       "problems": ["non-sinusoidal-01-square-wave-spectrum", "non-sinusoidal-05-triangle-current-inductor"],
       "i18n": {
         "en": {
           "title": "Symmetry tells which harmonics exist",
           "text": [
-            "**Even** function f(−t) = f(t): cosine terms only (b_k = 0). **Odd** function f(−t) = −f(t): sine terms only (a_k = 0) and no DC component. **Half-wave symmetry** f(t + T/2) = −f(t): odd harmonics only (no DC, no even harmonics).",
-            "Even/odd depends on the time origin; moving t = 0 changes only the initial phases, not the amplitudes. Half-wave symmetry does not depend on the origin. Checking the symmetry first halves the work and is a good check of the result."
+            "- **Even** function f(−t) = f(t): cosine terms only (b_k = 0).",
+            "- **Odd** function f(−t) = −f(t): sine terms only (a_k = 0), and no DC component.",
+            "- **Half-wave symmetry** f(t + T/2) = −f(t): odd harmonics only, no DC and no even harmonics.",
+            "- Even/odd depends on the time origin: moving t = 0 changes only the initial phases, not the amplitudes. Half-wave symmetry does not depend on the origin.",
+            "- Checking the symmetry first halves the work, and it is a good check of the result."
           ]
         }
       }
@@ -51,18 +69,26 @@
       "id": "rms",
       "title": "有效值、平均值与仪表读数",
       "text": [
-        "有效值仍按定义 I = √(\\frac{1}{T}∫_{0}^{T} i² dt)。代入傅里叶级数，不同频率的乘积在一个周期内平均为零，得到 **I = √(I_0² + I_1² + I_2² + …)**，I_k = I_km/√2 是 k 次谐波的有效值。有效值**不能**直接相加，也和各次谐波的初相无关。",
-        "**平均值**就是直流分量 I_0；**绝对平均值** \\frac{1}{T}∫_{0}^{T}|i| dt（整流平均值）在整流电路里用得多。",
-        "仪表：磁电系（动圈式）读平均值（直流分量）；电磁系、电动系读有效值；整流式仪表按绝对平均值 × 1.11 刻度，只有测正弦量时才准。功率表（电动系）读平均功率。"
+        "- 有效值仍按定义：I = √(\\frac{1}{T}∫_{0}^{T} i² dt)。",
+        "- 代入傅里叶级数，不同频率的乘积在一个周期内平均为零，得到 **I = √(I_0² + I_1² + I_2² + …)**。I_k = I_km/√2 是 k 次谐波的有效值。",
+        "- 有效值**不能**直接相加，也和各次谐波的初相无关。",
+        "- **平均值**就是直流分量 I_0。面包板 4.5 里半波整流之后，示波器读到的「平均」就是它。",
+        "- **绝对平均值** \\frac{1}{T}∫_{0}^{T}|i| dt（整流平均值）在整流电路里用得多。",
+        "- 仪表：磁电系（动圈式）读平均值，也就是直流分量；电磁系、电动系读有效值。",
+        "- 整流式仪表按绝对平均值 × 1.11 刻度，只有测正弦量时才准。功率表（电动系）读平均功率。"
       ],
       "problems": ["non-sinusoidal-02-rms-and-meters", "non-sinusoidal-03-full-wave-rectified", "non-sinusoidal-06-meter-readings-rc"],
       "i18n": {
         "en": {
           "title": "rms value, average value and meter readings",
           "text": [
-            "The rms value is still I = √(\\frac{1}{T}∫_{0}^{T} i² dt). Substituting the Fourier series, products of different frequencies average to zero over a period, so **I = √(I_0² + I_1² + I_2² + …)**, where I_k = I_km/√2 is the rms value of harmonic k. rms values **never** add directly and do not depend on the harmonics' initial phases.",
-            "The **average value** is the DC component I_0; the **absolute (rectified) average** \\frac{1}{T}∫_{0}^{T}|i| dt is common in rectifier circuits.",
-            "Meters: a moving-coil meter reads the average value (DC component); moving-iron and electrodynamic meters read the rms value; a rectifier-type meter is scaled as absolute average × 1.11 and is correct for sine waves only. An (electrodynamic) wattmeter reads the average power."
+            "- The rms value still follows its definition: I = √(\\frac{1}{T}∫_{0}^{T} i² dt).",
+            "- Substitute the Fourier series: products of different frequencies average to zero over a period, so **I = √(I_0² + I_1² + I_2² + …)**. I_k = I_km/√2 is the rms value of harmonic k.",
+            "- rms values **never** add directly, and they do not depend on the harmonics' initial phases.",
+            "- The **average value** is the DC component I_0. After the half-wave rectifier on the breadboard in 4.5, the oscilloscope's \"Vavg\" showed exactly this.",
+            "- The **absolute (rectified) average** \\frac{1}{T}∫_{0}^{T}|i| dt is common in rectifier circuits.",
+            "- Meters: a moving-coil meter reads the average value, i.e. the DC component; moving-iron and electrodynamic meters read the rms value.",
+            "- A rectifier-type meter is scaled as absolute average × 1.11, so it is correct for sine waves only. An (electrodynamic) wattmeter reads the average power."
           ]
         }
       }
@@ -71,8 +97,9 @@
       "id": "power",
       "title": "平均功率 = 各次谐波功率之和",
       "text": [
-        "一端口的 u、i（关联参考方向）都是非正弦周期量时，p = ui 的平均值中只有**同频率**的电压、电流相乘才有贡献：**P = U_{0}I_0 + Σ U_{k}I_k cos φ_k**，φ_k 是 k 次谐波电压与电流的相位差。",
-        "所以不同频率的电源各自产生的功率可以叠加（直流源只和电流的直流分量交换功率）；同频率的电源则不行。视在功率 S = UI（有效值之积），功率因数只能定义为 λ = P/S，它没有对应的“阻抗角”。"
+        "- 一端口的 v、i 取关联参考方向，都是非正弦周期量。p = vi 的平均值中，只有**同频率**的电压、电流相乘才有贡献：**P = V_{0}I_0 + Σ V_{k}I_k cos φ_k**。φ_k 是 k 次谐波电压与电流的相位差。",
+        "- 所以不同频率的电源各自产生的功率可以叠加；同频率的电源则不行。直流源只和电流的直流分量交换功率。",
+        "- 视在功率 S = VI（有效值之积）。功率因数只能定义为 λ = P/S，它没有对应的“阻抗角”。"
       ],
       "problems": [
         "non-sinusoidal-02-rms-and-meters",
@@ -84,8 +111,9 @@
         "en": {
           "title": "Average power = sum of the harmonic powers",
           "text": [
-            "When u and i of a port (passive sign convention) are both non-sinusoidal periodic, only products of voltage and current at the **same frequency** contribute to the average of p = ui: **P = U_{0}I_0 + Σ U_{k}I_k cos φ_k**, where φ_k is the phase difference between the k-th harmonics of voltage and current.",
-            "So powers produced by sources of different frequencies superpose (a DC source exchanges power only with the DC component of its current); sources of the same frequency do not. The apparent power is S = UI (product of rms values), and the power factor can only be defined as λ = P/S — there is no single impedance angle."
+            "- Take v and i of a port in the passive sign convention, both non-sinusoidal periodic. In the average of p = vi only products of voltage and current at the **same frequency** contribute: **P = V_{0}I_0 + Σ V_{k}I_k cos φ_k**, where φ_k is the phase difference between the k-th harmonics of voltage and current.",
+            "- So powers produced by sources of different frequencies superpose; sources of the same frequency do not. A DC source exchanges power only with the DC component of its current.",
+            "- The apparent power is S = VI (the product of rms values). The power factor can only be defined as λ = P/S; there is no single impedance angle behind it."
           ]
         }
       }
@@ -94,11 +122,12 @@
       "id": "method",
       "title": "谐波分析法：分别求解，时域叠加",
       "text": [
-        "线性电路在非正弦周期激励下的稳态响应用**叠加定理**求：",
-        "1. 把激励分解成直流和各次谐波（取到题目规定的次数）；",
-        "2. 直流分量单独作用：电感短路、电容开路，按电阻电路求；",
-        "3. 每个 k 次谐波单独作用：用相量法，感抗 X_Lk = kω_{1}L，容抗 X_Ck = 1/(kω_{1}C)——**每一次谐波的阻抗都要重算**；",
-        "4. 把各分量的响应写成**时域**表达式再相加；不同频率的相量不能相加。最后按需要求有效值、平均功率。"
+        "线性电路在非正弦周期激励下的稳态响应，用**叠加定理**求：",
+        "1. 把激励分解成直流和各次谐波，取到题目规定的次数。",
+        "2. 直流分量单独作用：电感短路、电容开路，按电阻电路求。",
+        "3. 每个 k 次谐波单独作用：用相量法，感抗 X_Lk = kω_{1}L，容抗 X_Ck = 1/(kω_{1}C)。**每一次谐波的阻抗都要重算**。",
+        "4. 把各分量的响应写成**时域**表达式再相加。不同频率的相量不能相加。",
+        "5. 最后按需要求有效值、平均功率。"
       ],
       "problems": [
         "non-sinusoidal-04-rl-harmonic-currents",
@@ -113,10 +142,11 @@
           "title": "Harmonic analysis: solve each component, add in the time domain",
           "text": [
             "The steady-state response of a linear circuit to a non-sinusoidal periodic source follows from **superposition**:",
-            "1. split the source into its DC component and harmonics (up to the order the problem states);",
-            "2. DC alone: inductors shorted, capacitors open — a resistive circuit;",
-            "3. each harmonic k alone: phasors with X_Lk = kω_{1}L and X_Ck = 1/(kω_{1}C) — **recompute the impedances for every harmonic**;",
-            "4. write each response in the **time domain** and add; phasors of different frequencies never add. Then compute rms values and average power as needed."
+            "1. Split the source into its DC component and harmonics, up to the order the problem states.",
+            "2. DC alone: inductors shorted, capacitors open; solve a resistive circuit.",
+            "3. Each harmonic k alone: use phasors with X_Lk = kω_{1}L and X_Ck = 1/(kω_{1}C). **Recompute the impedances for every harmonic.**",
+            "4. Write each response in the **time domain** and add them there. Phasors of different frequencies never add.",
+            "5. Then compute rms values and average power as needed."
           ]
         }
       }
@@ -125,9 +155,12 @@
       "id": "filter",
       "title": "谐波谐振与滤波",
       "text": [
-        "因为电抗随 k 变化，电路可能只对某一次谐波谐振：LC 串联支路在 kω_1 = 1/√(LC) 时阻抗为零（对该谐波**短路**），LC 并联支路此时阻抗为无穷大（对该谐波**开路**）。",
-        "利用这一点可以设计滤波器：并联 LC 串在线路里挡住某次谐波，串联 LC 并在负载两端把某次谐波旁路掉；再加一个电容或电感，让整个支路对基波串联谐振，使基波无损通过。电感、电容组成的低通滤波器则利用高次谐波的容抗小、感抗大来压低纹波。",
-        "谐波谐振时，即使该次谐波的电压很小，电流或元件电压也可能很大，要逐次检查。"
+        "- 电抗随 k 变化，所以电路可能只对某一次谐波谐振。",
+        "- LC 串联支路在 kω_1 = 1/√(LC) 时阻抗为零，对该谐波**短路**。LC 并联支路此时阻抗为无穷大，对该谐波**开路**。",
+        "- 滤波器就利用这一点：并联 LC 串在线路里，挡住某次谐波；串联 LC 并在负载两端，把某次谐波旁路掉。",
+        "- 再加一个电容或电感，让整个支路对基波串联谐振，基波就能无损通过。",
+        "- LC、RC 低通滤波器则利用高次谐波的容抗小、感抗大来压低纹波。面包板 4.5 里并上 100 µF 电容后纹波变小，就是这个道理。",
+        "- 谐波谐振时，即使该次谐波的电压很小，电流或元件电压也可能很大。要逐次检查。"
       ],
       "problems": [
         "non-sinusoidal-08-rlc-third-harmonic-resonance",
@@ -140,9 +173,12 @@
         "en": {
           "title": "Harmonic resonance and filters",
           "text": [
-            "Because reactances change with k, a circuit can be resonant at one harmonic only: a series LC branch has zero impedance at kω_1 = 1/√(LC) (a **short** for that harmonic), a parallel LC infinite impedance (an **open** for that harmonic).",
-            "Filters use this: a parallel LC in the line blocks one harmonic, a series LC across the load bypasses it; one more capacitor or inductor puts the whole branch in series resonance at the fundamental so that it passes unattenuated. LC/RC low-pass filters reduce ripple because the harmonics see small capacitive and large inductive reactances.",
-            "At a harmonic resonance a small harmonic voltage can produce a large current or element voltage — check harmonic by harmonic."
+            "- Reactances change with k, so a circuit can be resonant at one harmonic only.",
+            "- A series LC branch has zero impedance at kω_1 = 1/√(LC): a **short** for that harmonic. A parallel LC then has infinite impedance: an **open** for that harmonic.",
+            "- Filters use this: a parallel LC in the line blocks one harmonic; a series LC across the load bypasses it.",
+            "- One more capacitor or inductor puts the whole branch in series resonance at the fundamental, so the fundamental passes unattenuated.",
+            "- LC and RC low-pass filters reduce ripple because the harmonics see small capacitive and large inductive reactances. That is why the ripple shrank when you added the 100 µF capacitor on the breadboard in 4.5.",
+            "- At a harmonic resonance a small harmonic voltage can produce a large current or element voltage. Check harmonic by harmonic."
           ]
         }
       }
@@ -151,16 +187,24 @@
       "id": "three-phase",
       "title": "三相电路中的高次谐波",
       "text": [
-        "对称三相电源的 k 次谐波依次相差 k × 120°：k = 1、7、13…为**正序**，k = 5、11…为**负序**，k = 3、9…（3 的倍数）三相**同相**，为**零序**。",
-        "零序谐波的特点：线电压中互相抵消，所以 U_l < √3U_p；星形有中线时三相的零序电流在中线中相加，I_N = 3I_3；星形无中线时零序电流为零，零序电压出现在两个中性点之间，U_{N'N} = U_3；三角形联结的绕组中零序电动势形成环流，线电压中没有零序分量。"
+        "- 对称三相电源的 k 次谐波依次相差 k × 120°。",
+        "- k = 1、7、13…为**正序**；k = 5、11…为**负序**；k = 3、9…（3 的倍数）三相**同相**，为**零序**。",
+        "- 零序谐波在线电压中互相抵消，所以 V_l < √3V_p。",
+        "- 星形有中线时，三相的零序电流在中线中相加：I_N = 3I_3。",
+        "- 星形无中线时，零序电流为零，零序电压出现在两个中性点之间：V_{N'N} = V_3。",
+        "- 三角形联结的绕组中，零序电动势形成环流，线电压中没有零序分量。"
       ],
       "problems": ["non-sinusoidal-11-three-phase-neutral-current", "non-sinusoidal-12-three-phase-no-neutral", "non-sinusoidal-13-delta-circulating-third-harmonic"],
       "i18n": {
         "en": {
           "title": "Harmonics in three-phase circuits",
           "text": [
-            "In a balanced three-phase source the k-th harmonics are k × 120° apart: k = 1, 7, 13, … are **positive sequence**, k = 5, 11, … **negative sequence**, and k = 3, 9, … (multiples of 3) are **in phase** — **zero sequence**.",
-            "Zero-sequence harmonics cancel in line voltages, so U_l < √3U_p; in a Y system with a neutral the three zero-sequence currents add up in the neutral, I_N = 3I_3; without a neutral the zero-sequence current is zero and the zero-sequence voltage appears between the two neutral points, U_{N'N} = U_3; inside delta-connected windings the zero-sequence EMFs drive a circulating current and the line voltages contain no zero-sequence component."
+            "- In a balanced three-phase source the k-th harmonics are k × 120° apart.",
+            "- k = 1, 7, 13, … are **positive sequence**; k = 5, 11, … **negative sequence**; k = 3, 9, … (multiples of 3) are **in phase** in all three phases: **zero sequence**.",
+            "- Zero-sequence harmonics cancel in the line voltages, so V_l < √3V_p.",
+            "- In a Y system with a neutral, the three zero-sequence currents add up in the neutral: I_N = 3I_3.",
+            "- In a Y system without a neutral, the zero-sequence current is zero and the zero-sequence voltage appears between the two neutral points: V_{N'N} = V_3.",
+            "- Inside delta-connected windings the zero-sequence EMFs drive a circulating current, and the line voltages contain no zero-sequence component."
           ]
         }
       }
@@ -222,9 +266,9 @@
       "id": "rms-waves",
       "idea": "rms",
       "name": "常用波形的有效值与平均值",
-      "expr": "方波 A：U = A；三角波、锯齿波：U = A/√3；全波整流：U = A/√2，U_0 = 2A/π，K_f = U/U_0 = 1.11",
+      "expr": "方波 A：V = A；三角波、锯齿波：V = A/√3；全波整流：V = A/√2，V_0 = 2A/π，K_f = V/V_0 = 1.11",
       "when": "A 为峰值；三角波和锯齿波的有效值相同（都是线性变化）；整流不改变有效值。",
-      "i18n": { "en": { "name": "rms and average of standard waveforms", "expr": "square A: U = A; triangle and sawtooth: U = A/√3; full-wave rectified: U = A/√2, U_0 = 2A/π, K_f = U/U_0 = 1.11", "when": "A is the peak value; triangle and sawtooth have the same rms value (both linear); rectifying does not change the rms value." } }
+      "i18n": { "en": { "name": "rms and average of standard waveforms", "expr": "square A: V = A; triangle and sawtooth: V = A/√3; full-wave rectified: V = A/√2, V_0 = 2A/π, K_f = V/V_0 = 1.11", "when": "A is the peak value; triangle and sawtooth have the same rms value (both linear); rectifying does not change the rms value." } }
     },
     {
       "id": "avg",
@@ -244,17 +288,17 @@
       "id": "P",
       "idea": "power",
       "name": "平均功率",
-      "expr": "P = U_{0}I_0 + Σ U_{k}I_k cos φ_k",
-      "when": "u、i 为关联参考方向（P 为吸收功率）；U_k、I_k 为 k 次谐波的有效值，φ_k = ψ_uk − ψ_ik；不同频率的 u、i 不产生平均功率。电阻：P = I²R（I 为有效值）。",
+      "expr": "P = V_{0}I_0 + Σ V_{k}I_k cos φ_k",
+      "when": "v、i 为关联参考方向（P 为吸收功率）；V_k、I_k 为 k 次谐波的有效值，φ_k = ψ_vk − ψ_ik；不同频率的 v、i 不产生平均功率。电阻：P = I²R（I 为有效值）。",
       "i18n": {
         "en": {
           "name": "Average power",
-          "expr": "P = U_{0}I_0 + Σ U_{k}I_k cos φ_k",
-          "when": "u, i in the passive sign convention (P absorbed); U_k, I_k rms values of harmonic k, φ_k = ψ_uk − ψ_ik; voltage and current of different frequencies give no average power. Resistor: P = I²R (I rms)."
+          "expr": "P = V_{0}I_0 + Σ V_{k}I_k cos φ_k",
+          "when": "v, i in the passive sign convention (P absorbed); V_k, I_k rms values of harmonic k, φ_k = ψ_vk − ψ_ik; voltage and current of different frequencies give no average power. Resistor: P = I²R (I rms)."
         }
       }
     },
-    { "id": "pf", "idea": "power", "name": "视在功率与功率因数", "expr": "S = UI，λ = P/S", "when": "U、I 为非正弦量的有效值；λ 不能写成某个阻抗角的余弦。", "i18n": { "en": { "name": "Apparent power and power factor", "expr": "S = UI, λ = P/S", "when": "U, I rms values of the non-sinusoidal quantities; λ is not the cosine of any impedance angle." } } },
+    { "id": "pf", "idea": "power", "name": "视在功率与功率因数", "expr": "S = VI，λ = P/S", "when": "V、I 为非正弦量的有效值；λ 不能写成某个阻抗角的余弦。", "i18n": { "en": { "name": "Apparent power and power factor", "expr": "S = VI, λ = P/S", "when": "V, I rms values of the non-sinusoidal quantities; λ is not the cosine of any impedance angle." } } },
     {
       "id": "Zk",
       "idea": "method",
@@ -287,17 +331,17 @@
       "id": "3ph",
       "idea": "three-phase",
       "name": "零序（3 的倍数次）谐波",
-      "expr": "Y 有中线：I_N = 3I_3；Y 无中线：U_{N'N} = U_3；Δ：环流 I_3 = E_3/|Z_3|，线电压无 3 次谐波",
+      "expr": "Y 有中线：I_N = 3I_3；Y 无中线：V_{N'N} = V_3；Δ：环流 I_3 = E_3/|Z_3|，线电压无 3 次谐波",
       "when": "对称三相电源和对称负载；Z_3 为每个绕组（或每相）对 3 次谐波的阻抗；9、15… 次谐波同理。",
-      "i18n": { "en": { "name": "Zero-sequence (multiple-of-3) harmonics", "expr": "Y with neutral: I_N = 3I_3; Y without neutral: U_{N'N} = U_3; Δ: circulating I_3 = E_3/|Z_3|, no 3rd harmonic in line voltages", "when": "balanced three-phase source and load; Z_3 is the impedance of one winding (or phase) at the 3rd harmonic; the same for the 9th, 15th, … harmonics." } }
+      "i18n": { "en": { "name": "Zero-sequence (multiple-of-3) harmonics", "expr": "Y with neutral: I_N = 3I_3; Y without neutral: V_{N'N} = V_3; Δ: circulating I_3 = E_3/|Z_3|, no 3rd harmonic in line voltages", "when": "balanced three-phase source and load; Z_3 is the impedance of one winding (or phase) at the 3rd harmonic; the same for the 9th, 15th, … harmonics." } }
     },
     {
       "id": "Ul",
       "idea": "three-phase",
       "name": "线电压与相电压",
-      "expr": "U_p = √(U_1² + U_3² + U_5² + …)，U_l = √3·√(U_1² + U_5² + U_7² + …) < √3U_p",
+      "expr": "V_p = √(V_1² + V_3² + V_5² + …)，V_l = √3·√(V_1² + V_5² + V_7² + …) < √3V_p",
       "when": "对称三相星形联结；线电压中不含 3 的倍数次谐波。",
-      "i18n": { "en": { "name": "Line and phase voltage", "expr": "U_p = √(U_1² + U_3² + U_5² + …), U_l = √3·√(U_1² + U_5² + U_7² + …) < √3U_p", "when": "balanced Y connection; the line voltage contains no harmonics of order a multiple of 3." } }
+      "i18n": { "en": { "name": "Line and phase voltage", "expr": "V_p = √(V_1² + V_3² + V_5² + …), V_l = √3·√(V_1² + V_5² + V_7² + …) < √3V_p", "when": "balanced Y connection; the line voltage contains no harmonics of order a multiple of 3." } }
     }
   ],
   "examples": [
@@ -305,10 +349,10 @@
       "id": "rl-harmonics",
       "ideas": ["method", "rms", "power"],
       "title": "直流 + 基波 + 2 次谐波作用于 RL 电路",
-      "statement": "u_s = 10 + 50√2 cos(1000t) + 20√2 cos(2000t) V 加在 R = 30 Ω、L = 40 mH 串联的电路上。求电流的各分量、电流有效值 I、电源电压有效值 U 和平均功率 P。",
+      "statement": "v_s = 10 + 50√2 cos(1000t) + 20√2 cos(2000t) V 加在 R = 30 Ω、L = 40 mH 串联的电路上。求电流的各分量、电流有效值 I、电源电压有效值 V 和平均功率 P。",
       "schematic": {
         "elements": [
-          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "harmonics": { "dc": 10, "terms": [ { "k": 1, "amp": 70.710678 }, { "k": 2, "amp": 28.284271 } ] } }, "label": "u_s" },
+          { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "harmonics": { "dc": 10, "terms": [ { "k": 1, "amp": 70.710678 }, { "k": 2, "amp": 28.284271 } ] } }, "label": "v_s" },
           { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 30 },
           { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": "40m" }
         ],
@@ -337,7 +381,7 @@
           "find": {
             "kind": "req",
             "port": ["s", "0"],
-            "exclude": ["Us"],
+            "exclude": ["Vs"],
             "harmonic": 1,
             "part": "im"
           },
@@ -350,7 +394,7 @@
           "find": {
             "kind": "req",
             "port": ["s", "0"],
-            "exclude": ["Us"],
+            "exclude": ["Vs"],
             "harmonic": 1
           },
           "answer": 50.0,
@@ -362,7 +406,7 @@
           "find": {
             "kind": "req",
             "port": ["s", "0"],
-            "exclude": ["Us"],
+            "exclude": ["Vs"],
             "harmonic": 2,
             "part": "im"
           },
@@ -375,7 +419,7 @@
           "find": {
             "kind": "req",
             "port": ["s", "0"],
-            "exclude": ["Us"],
+            "exclude": ["Vs"],
             "harmonic": 2
           },
           "answer": 85.44003745317531,
@@ -386,7 +430,7 @@
         { "id": "I2", "ask": "I_2（有效值）", "find": { "kind": "i", "el": "R", "harmonic": 2 }, "answer": 0.23408229439226114, "unit": "A" },
         { "id": "ph2", "ask": "İ_2 的初相", "find": { "kind": "i", "el": "R", "harmonic": 2, "part": "phase" }, "answer": -69.44395478041653, "unit": "°" },
         { "id": "I", "ask": "I", "find": { "kind": "i", "el": "R" }, "answer": 1.0797711015113602, "unit": "A" },
-        { "id": "U", "ask": "U", "find": { "kind": "v", "el": "Us" }, "answer": 54.772255750516614, "unit": "V" },
+        { "id": "U", "ask": "V", "find": { "kind": "v", "el": "Vs" }, "answer": 54.772255750516614, "unit": "V" },
         { "id": "P", "ask": "P", "find": { "kind": "p", "el": "R" }, "answer": 34.97716894977168, "unit": "W" },
         { "id": "P0", "ask": "P_0", "find": { "kind": "p", "el": "R", "harmonic": 0 }, "answer": 3.333333333333333, "unit": "W" },
         { "id": "P1", "ask": "P_1", "find": { "kind": "p", "el": "R", "harmonic": 1 }, "answer": 30.0, "unit": "W" },
@@ -397,13 +441,13 @@
         "2. **基波**（ωL = 40 Ω）：Z_1 = 30 + j40 Ω，|Z_1| = 50 Ω，İ_1 = 50∠0°/(50∠53.13°) = **1∠−53.13° A**，P_1 = I_1²R = 30 W。",
         "3. **2 次谐波**（感抗变成 2ωL = 80 Ω）：|Z_2| = |30 + j80| = 85.44 Ω，İ_2 = 20/85.44 = **0.2341**∠−69.44° A，P_2 = 0.2341² × 30 = 1.644 W。",
         "4. **时域叠加：** i = 0.3333 + √2 cos(1000t − 53.13°) + 0.2341√2 cos(2000t − 69.44°) A。",
-        "5. **有效值：** I = √(0.3333² + 1² + 0.2341²) = **1.079 A**；U = √(10² + 50² + 20²) = **54.77 V**。",
-        "6. **平均功率：** P = P_0 + P_1 + P_2 = 3.333 + 30 + 1.644 = **34.98 W**，与 I²R = 1.079² × 30 一致。功率因数 λ = P/(UI) = 34.98/(54.77 × 1.079) = 0.592。"
+        "5. **有效值：** I = √(0.3333² + 1² + 0.2341²) = **1.079 A**；V = √(10² + 50² + 20²) = **54.77 V**。",
+        "6. **平均功率：** P = P_0 + P_1 + P_2 = 3.333 + 30 + 1.644 = **34.98 W**，与 I²R = 1.079² × 30 一致。功率因数 λ = P/(VI) = 34.98/(54.77 × 1.079) = 0.592。"
       ],
       "i18n": {
         "en": {
           "title": "DC + fundamental + 2nd harmonic in an RL circuit",
-          "statement": "u_s = 10 + 50√2 cos(1000t) + 20√2 cos(2000t) V drives R = 30 Ω in series with L = 40 mH. Find the components of the current, the rms current I, the rms source voltage U and the average power P.",
+          "statement": "v_s = 10 + 50√2 cos(1000t) + 20√2 cos(2000t) V drives R = 30 Ω in series with L = 40 mH. Find the components of the current, the rms current I, the rms source voltage V and the average power P.",
           "results": [
             { "ask": "I_0" },
             { "ask": "X_1 = ωL" },
@@ -415,7 +459,7 @@
             { "ask": "I_2 (rms)" },
             { "ask": "initial phase of İ_2" },
             { "ask": "I" },
-            { "ask": "U" },
+            { "ask": "V" },
             { "ask": "P" },
             { "ask": "P_0" },
             { "ask": "P_1" },
@@ -426,8 +470,8 @@
             "2. **Fundamental** (ωL = 40 Ω): Z_1 = 30 + j40 Ω, |Z_1| = 50 Ω, İ_1 = 50∠0°/(50∠53.13°) = **1∠−53.13° A**, P_1 = I_1²R = 30 W.",
             "3. **2nd harmonic** (the reactance becomes 2ωL = 80 Ω): |Z_2| = |30 + j80| = 85.44 Ω, İ_2 = 20/85.44 = **0.2341**∠−69.44° A, P_2 = 0.2341² × 30 = 1.644 W.",
             "4. **Add in the time domain:** i = 0.3333 + √2 cos(1000t − 53.13°) + 0.2341√2 cos(2000t − 69.44°) A.",
-            "5. **rms values:** I = √(0.3333² + 1² + 0.2341²) = **1.079 A**; U = √(10² + 50² + 20²) = **54.77 V**.",
-            "6. **Average power:** P = P_0 + P_1 + P_2 = 3.333 + 30 + 1.644 = **34.98 W**, equal to I²R = 1.079² × 30. Power factor λ = P/(UI) = 34.98/(54.77 × 1.079) = 0.592."
+            "5. **rms values:** I = √(0.3333² + 1² + 0.2341²) = **1.079 A**; V = √(10² + 50² + 20²) = **54.77 V**.",
+            "6. **Average power:** P = P_0 + P_1 + P_2 = 3.333 + 30 + 1.644 = **34.98 W**, equal to I²R = 1.079² × 30. Power factor λ = P/(VI) = 34.98/(54.77 × 1.079) = 0.592."
           ]
         }
       }
@@ -436,10 +480,10 @@
       "id": "extract-third",
       "ideas": ["filter", "method"],
       "title": "并联 LC 挡住基波，取出 3 次谐波",
-      "statement": "u_s = 100√2 cos(1000t) + 20√2 cos(3000t) V，经 L = 10 mH 与 C = 100 µF 的并联支路接到 R = 10 Ω 上。求输出 u_o 中的基波和 3 次谐波（有效值）以及 u_o 的有效值。",
+      "statement": "v_s = 100√2 cos(1000t) + 20√2 cos(3000t) V，经 L = 10 mH 与 C = 100 µF 的并联支路接到 R = 10 Ω 上。求输出 v_o 中的基波和 3 次谐波（有效值）以及 v_o 的有效值。",
       "schematic": {
         "elements": [
-          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 28.284271 } ] } }, "label": "u_s" },
+          { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 28.284271 } ] } }, "label": "v_s" },
           { "ref": "L", "type": "L", "from": [3, 0], "to": [7, 0], "value": "10m" },
           { "ref": "C", "type": "C", "from": [3, 2], "to": [7, 2], "value": "100u" },
           { "ref": "R", "type": "R", "from": [10, 0], "to": [10, 6], "value": 10 }
@@ -461,7 +505,7 @@
         ],
         "grounds": [[0, 6]],
         "marks": [
-          { "kind": "v", "el": "R", "name": "u_o" }
+          { "kind": "v", "el": "R", "name": "v_o" }
         ]
       },
       "analysis": { "type": "periodic", "omega": 1000 },
@@ -476,7 +520,7 @@
           "answer": 159.15494309189535,
           "unit": "Hz"
         },
-        { "id": "U1", "ask": "U_o1", "find": { "kind": "v", "el": "R", "harmonic": 1 }, "answer": 0, "unit": "V" },
+        { "id": "U1", "ask": "V_o1", "find": { "kind": "v", "el": "R", "harmonic": 1 }, "answer": 0, "unit": "V" },
         { "id": "ULC1", "ask": "基波时 LC 两端电压", "find": { "kind": "v", "el": "L", "harmonic": 1 }, "answer": 100, "unit": "V" },
         { "id": "IL1", "ask": "基波时 L 中电流 I_L1", "find": { "kind": "i", "el": "L", "harmonic": 1 }, "answer": 10, "unit": "A" },
         {
@@ -517,35 +561,35 @@
           "answer": -3.75,
           "unit": "Ω"
         },
-        { "id": "U3", "ask": "U_o3", "find": { "kind": "v", "el": "R", "harmonic": 3 }, "answer": 18.72658355138089, "unit": "V" },
-        { "id": "U", "ask": "U_o", "find": { "kind": "v", "el": "R" }, "answer": 18.72658355138089, "unit": "V" }
+        { "id": "U3", "ask": "V_o3", "find": { "kind": "v", "el": "R", "harmonic": 3 }, "answer": 18.72658355138089, "unit": "V" },
+        { "id": "U", "ask": "V_o", "find": { "kind": "v", "el": "R" }, "answer": 18.72658355138089, "unit": "V" }
       ],
       "steps": [
         "1. **看谐振频率。** 1/√(LC) = 1/√(0.01 × 100×10⁻⁶) = 1000 rad/s，恰好是基波角频率（f_0 = 159.2 Hz）：L∥C 对基波**并联谐振**，相当于开路。",
-        "2. **基波：** 负载中没有基波电流，U_o1 = **0**。100 V 的基波电压全部加在 LC 上，I_L1 = 100/(ωL) = 10 A，在 L、C 之间循环。",
-        "3. **3 次谐波：** 3ωL = 30 Ω，1/(3ωC) = 3.333 Ω，L∥C 的电抗为 30 × (−3.333)/(30 − 3.333) = **−3.75 Ω**（容性）。U_o3 = 20 × 10/|10 − j3.75| = **18.73 V**。",
-        "4. **输出：** u_o 中只剩 3 次谐波，U_o = **18.73 V**——这个电路把 3 次谐波“取”了出来，而且只衰减了 6%。"
+        "2. **基波：** 负载中没有基波电流，V_o1 = **0**。100 V 的基波电压全部加在 LC 上，I_L1 = 100/(ωL) = 10 A，在 L、C 之间循环。",
+        "3. **3 次谐波：** 3ωL = 30 Ω，1/(3ωC) = 3.333 Ω，L∥C 的电抗为 30 × (−3.333)/(30 − 3.333) = **−3.75 Ω**（容性）。V_o3 = 20 × 10/|10 − j3.75| = **18.73 V**。",
+        "4. **输出：** v_o 中只剩 3 次谐波，V_o = **18.73 V**——这个电路把 3 次谐波“取”了出来，而且只衰减了 6%。"
       ],
       "i18n": {
         "en": {
           "title": "A parallel LC blocks the fundamental and extracts the 3rd harmonic",
-          "statement": "u_s = 100√2 cos(1000t) + 20√2 cos(3000t) V feeds R = 10 Ω through L = 10 mH in parallel with C = 100 µF. Find the fundamental and 3rd-harmonic components (rms) of the output u_o and the rms value of u_o.",
+          "statement": "v_s = 100√2 cos(1000t) + 20√2 cos(3000t) V feeds R = 10 Ω through L = 10 mH in parallel with C = 100 µF. Find the fundamental and 3rd-harmonic components (rms) of the output v_o and the rms value of v_o.",
           "results": [
             { "ask": "resonant frequency f_0 of the LC" },
-            { "ask": "U_o1" },
+            { "ask": "V_o1" },
             { "ask": "voltage across the LC at the fundamental" },
             { "ask": "current in L at the fundamental, I_L1" },
             { "ask": "3ωL" },
             { "ask": "1/(3ωC)" },
             { "ask": "reactance of the LC at the 3rd harmonic" },
-            { "ask": "U_o3" },
-            { "ask": "U_o" }
+            { "ask": "V_o3" },
+            { "ask": "V_o" }
           ],
           "steps": [
             "1. **Resonant frequency.** 1/√(LC) = 1/√(0.01 × 100×10⁻⁶) = 1000 rad/s, exactly the fundamental (f_0 = 159.2 Hz): L∥C is in **parallel resonance** at the fundamental — an open circuit.",
-            "2. **Fundamental:** no fundamental current reaches the load, U_o1 = **0**. The whole 100 V fundamental is across the LC: I_L1 = 100/(ωL) = 10 A circulates between L and C.",
-            "3. **3rd harmonic:** 3ωL = 30 Ω, 1/(3ωC) = 3.333 Ω, the reactance of L∥C is 30 × (−3.333)/(30 − 3.333) = **−3.75 Ω** (capacitive). U_o3 = 20 × 10/|10 − j3.75| = **18.73 V**.",
-            "4. **Output:** only the 3rd harmonic is left, U_o = **18.73 V** — the circuit “extracts” the 3rd harmonic, attenuating it by only 6 %."
+            "2. **Fundamental:** no fundamental current reaches the load, V_o1 = **0**. The whole 100 V fundamental is across the LC: I_L1 = 100/(ωL) = 10 A circulates between L and C.",
+            "3. **3rd harmonic:** 3ωL = 30 Ω, 1/(3ωC) = 3.333 Ω, the reactance of L∥C is 30 × (−3.333)/(30 − 3.333) = **−3.75 Ω** (capacitive). V_o3 = 20 × 10/|10 − j3.75| = **18.73 V**.",
+            "4. **Output:** only the 3rd harmonic is left, V_o = **18.73 V** — the circuit “extracts” the 3rd harmonic, attenuating it by only 6 %."
           ]
         }
       }
@@ -553,7 +597,7 @@
   ],
   "mistakes": [
     { "id": "add-rms", "idea": "rms", "text": "把各次谐波的有效值直接相加（例如 10 + 100 + 30 = 140 V）。有效值要平方和再开方：√(10² + 100² + 30²) = 104.9 V。", "i18n": { "en": { "text": "Adding the harmonics' rms values directly (e.g. 10 + 100 + 30 = 140 V). rms values combine as the root of the sum of squares: √(10² + 100² + 30²) = 104.9 V." } } },
-    { "id": "add-phasors", "idea": "method", "text": "把基波相量和 3 次谐波相量相加得到一个“总相量”。不同频率的相量没有意义地相加——只能各自写成时域式再相加。", "i18n": { "en": { "text": "Adding the fundamental and 3rd-harmonic phasors into a “total phasor”. Phasors of different frequencies cannot be added — write each in the time domain and add there." } } },
+    { "id": "add-phasors", "idea": "method", "text": "把基波相量和 3 次谐波相量相加得到一个“总相量”。不同频率的相量相加没有意义，只能各自写成时域式再相加。", "i18n": { "en": { "text": "Adding the fundamental and 3rd-harmonic phasors into a “total phasor”. Phasors of different frequencies cannot be added; write each in the time domain and add there." } } },
     {
       "id": "same-X",
       "idea": "method",
@@ -564,14 +608,14 @@
         }
       }
     },
-    { "id": "peak-rms", "idea": "rms", "text": "把谐波振幅当成有效值代入（100√2 cos ωt 的有效值是 100 V，不是 141.4 V）；或者用 U_m²/(2R) 求非正弦电压的功率。", "i18n": { "en": { "text": "Using a harmonic's amplitude as its rms value (100√2 cos ωt has rms 100 V, not 141.4 V), or using U_m²/(2R) for the power of a non-sinusoidal voltage." } } },
+    { "id": "peak-rms", "idea": "rms", "text": "把谐波振幅当成有效值代入：100√2 cos ωt 的有效值是 100 V，不是 141.4 V。另一种错法是用 V_m²/(2R) 求非正弦电压的功率。", "i18n": { "en": { "text": "Using a harmonic's amplitude as its rms value: 100√2 cos ωt has an rms value of 100 V, not 141.4 V. A related mistake is using V_m²/(2R) for the power of a non-sinusoidal voltage." } } },
     {
       "id": "cross-power",
       "idea": "power",
-      "text": "认为不同频率的电压和电流相乘也有平均功率，或者反过来以为同频率的两个电源产生的功率也能叠加。只有同频率的 u、i 才产生平均功率；所以只有不同频率的电源，功率才能叠加。",
-      "i18n": { "en": { "text": "Thinking that a voltage and a current of different frequencies produce average power — or, conversely, that powers from two sources of the same frequency superpose. Only same-frequency u and i give average power, so powers superpose only for sources of different frequencies." } }
+      "text": "认为不同频率的电压和电流相乘也有平均功率，或者反过来以为同频率的两个电源产生的功率也能叠加。只有同频率的 v、i 才产生平均功率；所以只有不同频率的电源，功率才能叠加。",
+      "i18n": { "en": { "text": "Thinking that a voltage and a current of different frequencies produce average power — or, conversely, that powers from two sources of the same frequency superpose. Only same-frequency v and i give average power, so powers superpose only for sources of different frequencies." } }
     },
     { "id": "dc-forgot", "idea": "rms", "text": "求电容电压、电源电压的有效值或电压表读数时漏掉直流分量。电容隔直，但电容两端的直流电压往往不为零。", "i18n": { "en": { "text": "Forgetting the DC component in the rms value of a capacitor or source voltage or a voltmeter reading. A capacitor blocks DC current, yet the DC voltage across it is often not zero." } } },
-    { "id": "sqrt3", "idea": "three-phase", "text": "含 3 次谐波时仍用 U_l = √3U_p。零序谐波在线电压中抵消，U_l 只由正序、负序谐波决定，比 √3U_p 小。", "i18n": { "en": { "text": "Still using U_l = √3U_p when 3rd harmonics are present. Zero-sequence harmonics cancel in the line voltage, which depends on the positive- and negative-sequence harmonics only and is smaller than √3U_p." } } }
+    { "id": "sqrt3", "idea": "three-phase", "text": "含 3 次谐波时仍用 V_l = √3V_p。零序谐波在线电压中抵消，V_l 只由正序、负序谐波决定，比 √3V_p 小。", "i18n": { "en": { "text": "Still using V_l = √3V_p when 3rd harmonics are present. Zero-sequence harmonics cancel in the line voltage, which depends on the positive- and negative-sequence harmonics only and is smaller than √3V_p." } } }
   ]
 }

@@ -6,7 +6,7 @@ Each Practice chapter has a key-points page: ordered **key ideas** (each linking
 
 - 文件：`summaries/<chapter>.json`，每章一个，文件名就是章节 id（见 [`PROBLEM_FORMAT.md`](./PROBLEM_FORMAT.md) §2）。以 `_` 开头的文件会被跳过。
 - 编辑器 schema：[`schema/summary.schema.json`](../schema/summary.schema.json)；契约：`src/core/summary/types.ts`；校验器：`src/core/summary/parse.ts`（`parseSummary`）。
-- 符号与用语严格按 [`NOTATION.md`](./NOTATION.md)（结点；u/i 小写瞬时值；`U̇_x` 相量；cos 参考；英文也用 u/U）。
+- 符号与用语严格按 [`NOTATION.md`](./NOTATION.md)（结点；v/i 小写瞬时值；`V̇_x` 相量；cos 参考；英文也用 v/V）。
 - 运行时每章的要点是一个单独按需加载的 chunk，不影响首屏大小。
 
 ```bash
@@ -58,8 +58,8 @@ text = 字符串或字符串数组（数组按行拼接）。正文支持题目�
   "id": "ohm",
   "idea": "ohm",
   "name": "欧姆定律",
-  "expr": "u = Ri　（非关联：u = −Ri）",
-  "when": "线性电阻；u、i 为关联参考方向时取正号。",
+  "expr": "v = Ri　（非关联：v = −Ri）",
+  "when": "线性电阻；v、i 为关联参考方向时取正号。",
   "note": "可选的补充说明",
   "i18n": { "en": { "name": "Ohm's law", "expr": "...", "when": "..." } }
 }
@@ -78,18 +78,18 @@ text = 字符串或字符串数组（数组按行拼接）。正文支持题目�
   "id": "power-signs",
   "ideas": ["power", "kcl"],
   "title": "两个电源，谁在发出功率？",
-  "statement": "图示电路中 U_s = 10 V，R_1 = 2 Ω……求……",
+  "statement": "图示电路中 V_s = 10 V，R_1 = 2 Ω……求……",
   "schematic": { "elements": [...], "wires": [...], "grounds": [[0, 4]], "marks": [...] },
   "analysis": { "type": "dc" },
   "results": [
-    { "id": "ua", "ask": "u_a", "find": { "kind": "v", "nodes": ["a"] }, "answer": 8, "unit": "V" }
+    { "id": "ua", "ask": "v_a", "find": { "kind": "v", "nodes": ["a"] }, "answer": 8, "unit": "V" }
   ],
-  "steps": ["1. **找未知数。** ……", "2. **KCL（结点 a）。** …… **u_a = 8 V**……"],
-  "i18n": { "en": { "title": "...", "statement": "...", "results": [{ "ask": "u_a" }], "steps": ["..."], "notes": [] } }
+  "steps": ["1. **找未知数。** ……", "2. **KCL（结点 a）。** …… **v_a = 8 V**……"],
+  "i18n": { "en": { "title": "...", "statement": "...", "results": [{ "ask": "v_a" }], "steps": ["..."], "notes": [] } }
 }
 ```
 
-- `results`：例题得到的**每一个**数值（包括步骤里的中间结果）都写成一个带 `find` 和 `answer` 的结果（字段同题目的 question）。页面上显示为“结果（已由引擎核对）”。`ask` 写成量的名字（`u_a`、`P_Us（吸收）`），不要写“= ?”。
+- `results`：例题得到的**每一个**数值（包括步骤里的中间结果）都写成一个带 `find` 和 `answer` 的结果（字段同题目的 question）。页面上显示为“结果（已由引擎核对）”。`ask` 写成量的名字（`v_a`、`P_Us（吸收）`），不要写“= ?”。
 - `steps`：分步讲解（`1. ` 列表、`**粗体**`）。
 - **没有未经核对的数字（错误）**：`steps`（以及它的翻译）里每一个“数字 + 单位”（`8 V`、`1.5 A`、`4.7 kΩ`、`0.05 s`、`36.87°`、`50 Hz`、`−81 W`……）都必须是**已知量**（图中元件值、电源值、分析频率、题干里写出的数）或**某个 result 的值**（按绝对值比较，允许 1% 的舍入误差；15° 的整数倍的角度总是允许）。所以：算出来的数一律加进 `results`；不带单位的算式（`12/4 = 3`、`1² × 2`）不检查。
 - `i18n.<lang>.results` 与 `results` 按位置一一对应，只翻译 `ask`；`notes` 翻译图上的注释（同题目格式）。
@@ -99,24 +99,24 @@ text = 字符串或字符串数组（数组按行拼接）。正文支持题目�
 ## 5. 易错点 `mistakes`
 
 ```json
-{ "id": "ohm-sign", "idea": "ohm", "text": "u、i 非关联时仍写 u = Ri……", "i18n": { "en": { "text": "..." } } }
+{ "id": "ohm-sign", "idea": "ohm", "text": "v、i 非关联时仍写 v = Ri……", "i18n": { "en": { "text": "..." } } }
 ```
 
 `idea` 可选：写了就在易错点下面显示一个回到该要点的链接。写学生**真的会犯**的错误，并说明怎样避免。
 
 ## 6. 公式排版 / Formula markup
 
-除了题目文字的下标规则（`R_1`、`u_ab`、`U̇_s`、`R_{左}`，见 NOTATION.md §2、§4），要点页（以及所有题目文字）还支持五种排版标记，大括号可以嵌套：
+除了题目文字的下标规则（`R_1`、`v_ab`、`V̇_s`、`R_{左}`，见 NOTATION.md §2、§4），要点页（以及所有题目文字）还支持五种排版标记，大括号可以嵌套：
 
 | 写法（JSON 里反斜杠要写两个） | 显示 |
 |---|---|
-| `\\frac{U_s}{R_1 + R_2}` | 分式（分子在上、分母在下） |
+| `\\frac{V_s}{R_1 + R_2}` | 分式（分子在上、分母在下） |
 | `\\sqrt{LC}` | 带横线的根号 |
 | `e^{−t/τ}`、`I^{2}R` | 上标 |
 | `∫_{0}^{t}`、`(…)_{max}` | 非字母后面的下标 |
 | `\\mat{1 & 0 & −1 ; 0 & 1 & 1}` | 矩阵（方括号）：`&` 分隔同一行的元素，`;` 分隔各行；元素里可以再用下标、分式。很宽的矩阵在手机上在自己的框里横向滚动 |
 
-除此之外都是普通文字：Unicode 的 `²`、`√2`、`∠`、`ω`、`τ`、`·`、`×` 直接写。分式只用在公式表和需要的地方，正文里简单的比值写成 `u/R` 即可。旧题目里的 `e^(−5t)` 写法不受影响（只有 `^{` 才是上标）。
+除此之外都是普通文字：Unicode 的 `²`、`√2`、`∠`、`ω`、`τ`、`·`、`×` 直接写。分式只用在公式表和需要的地方，正文里简单的比值写成 `v/R` 即可。旧题目里的 `e^(−5t)` 写法不受影响（只有 `^{` 才是上标）。
 
 ## 7. 打印 / Printing
 

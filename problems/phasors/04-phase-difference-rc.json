@@ -7,12 +7,12 @@
   "level": 2,
   "tags": ["相位差", "超前与滞后", "电容 VCR 相量形式"],
   "statement": [
-    "u_s(t) = 20√2 cos(1000t) V，R = 10 Ω，C = 100 µF 串联。电流 i 与电容电压 u_C 的参考方向如图。",
-    "用有效值相量求电流 İ 的有效值和初相、u_C 的初相，并判断 u_s 与 i 的相位关系。"
+    "v_s(t) = 20√2 cos(1000t) V，R = 10 Ω，C = 100 µF 串联。电流 i 与电容电压 v_C 的参考方向如图。",
+    "用有效值相量求电流 İ 的有效值和初相，以及 v_C 的初相。再判断 v_s 与 i 的相位关系。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "u_s(t)" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "v_s(t)" },
       { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 10 },
       { "ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": "100u" }
     ],
@@ -22,7 +22,7 @@
       [[8, 4], [0, 4]]
     ],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "i", "el": "R", "name": "i" }, { "kind": "v", "el": "C", "name": "u_C" }]
+    "marks": [{ "kind": "i", "el": "R", "name": "i" }, { "kind": "v", "el": "C", "name": "v_C" }]
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
@@ -44,59 +44,59 @@
     },
     {
       "id": "psiC",
-      "ask": "u_C 的初相 = ?",
+      "ask": "v_C 的初相 = ?",
       "find": { "kind": "v", "el": "C", "part": "phase" },
       "answer": -45,
       "unit": "°",
-      "explain": "U̇_C = −jX_C·İ = 10∠−90° × √2∠45° = 10√2∠−45° V：电容电压滞后电流 90°。"
+      "explain": "V̇_C = −jX_C·İ = 10∠−90° × √2∠45° = 10√2∠−45° V：电容电压滞后电流 90°。"
     },
     {
       "id": "lead",
-      "ask": "u_s 与 i 的相位关系是？（φ = ψ_u − ψ_i）",
-      "choices": ["φ = 45°，u_s 超前 i 45°", "φ = −45°，i 超前 u_s 45°", "φ = 90°，u_s 超前 i 90°", "同相"], "choiceExplain": ["相减的顺序反了（算成 ψ_i − ψ_u）；φ 规定为 ψ_u − ψ_i，u_s 超前 i 是感性电路的情形。", "", "只看了电容、忽略了 R，而且纯电容时是电压滞后电流 90°（φ = −90°），不是超前；有 R 时 |φ| = arctan(X_C/R) < 90°。", "只有 X_C = 0（纯电阻）时才同相；同相的是 u_R 与 i，不是 u_s 与 i。"],
+      "ask": "v_s 与 i 的相位关系是？（φ = ψ_v − ψ_i）",
+      "choices": ["φ > 0：v_s 超前 i，不到 90°", "φ < 0：i 超前 v_s，不到 90°", "φ = 90°：v_s 超前 i 90°", "同相"], "choiceExplain": ["相减的顺序反了（算成 ψ_i − ψ_v）；φ 规定为 ψ_v − ψ_i，v_s 超前 i 是感性电路的情形。", "", "只看了电容、忽略了 R，而且纯电容时是电压滞后电流 90°（φ = −90°），不是超前；有 R 时 |φ| = arctan(X_C/R) < 90°。", "只有 X_C = 0（纯电阻）时才同相；同相的是 v_R 与 i，不是 v_s 与 i。"],
       "correct": 1,
-      "explain": "φ = ψ_u − ψ_i = 0° − 45° = −45° < 0，所以 u_s 滞后 i 45°，即 i 超前 u_s 45°——容性电路的电流超前电压。注意：只有同频率的正弦量才谈得上相位差。"
+      "explain": "φ = ψ_v − ψ_i = 0° − 45° = −45° < 0，所以 v_s 滞后 i 45°，即 i 超前 v_s 45°——容性电路的电流超前电压。注意：只有同频率的正弦量才谈得上相位差。"
     }
   ],
   "hints": [
-    "以 U̇_s = 20∠0° V 为参考相量，先求 X_C = 1/(ωC)。",
-    "串联电路的电流 İ = U̇_s/(R − jX_C)，各元件电压再按元件的相量关系求。",
-    "相位差 φ = ψ_u − ψ_i：φ > 0 电压超前，φ < 0 电压滞后。"
+    "以 V̇_s = 20∠0° V 为参考相量，先求 X_C = 1/(ωC)。",
+    "串联电路的电流 İ = V̇_s/(R − jX_C)，各元件电压再按元件的相量关系求。",
+    "相位差 φ = ψ_v − ψ_i：φ > 0 电压超前，φ < 0 电压滞后。"
   ],
   "solution": [
     "**1. 容抗。** X_C = 1/(ωC) = 1/(1000 × 100×10⁻⁶) = 10 Ω。",
-    "**2. 电流。** 由 KVL：U̇_s = R·İ + (−jX_C)·İ，İ = 20∠0°/(10 − j10) = **√2∠45° A**，I ≈ **1.414 A**，ψ_i = **45°**。",
-    "**3. 元件电压。** U̇_R = 10√2∠45° V（与 İ 同相），U̇_C = −j10 × √2∠45° = 10√2∠**−45°** V（滞后 İ 90°）。",
-    "**4. 相位差。** φ = ψ_u − ψ_i = −45°：**i 超前 u_s 45°**。另外 u_R 超前 u_C 90°，相量图上 U̇_R ⊥ U̇_C，合成 U̇_s = U̇_R + U̇_C，模 √(14.14² + 14.14²) = 20 V，验算正确。"
+    "**2. 电流。** 由 KVL：V̇_s = R·İ + (−jX_C)·İ，İ = 20∠0°/(10 − j10) = **√2∠45° A**，I ≈ **1.414 A**，ψ_i = **45°**。",
+    "**3. 元件电压。** V̇_R = 10√2∠45° V（与 İ 同相），V̇_C = −j10 × √2∠45° = 10√2∠**−45°** V（滞后 İ 90°）。",
+    "**4. 相位差。** φ = ψ_v − ψ_i = −45°：**i 超前 v_s 45°**。另外 v_R 超前 v_C 90°，相量图上 V̇_R ⊥ V̇_C。验算：V̇_s = V̇_R + V̇_C，模 √(14.14² + 14.14²) = 20 V ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Phase difference in a series RC circuit: which leads, which lags",
       "tags": ["phase difference", "leading and lagging", "capacitor phasor VCR"],
       "statement": [
-        "u_s(t) = 20√2 cos(1000t) V drives R = 10 Ω in series with C = 100 µF. The reference directions of the current i and the capacitor voltage u_C are shown.",
-        "Using rms phasors, find the rms value and initial phase of the current phasor İ, the initial phase of u_C, and decide how u_s and i are related in phase."
+        "v_s(t) = 20√2 cos(1000t) V drives R = 10 Ω in series with C = 100 µF. The reference directions of the current i and the capacitor voltage v_C are shown.",
+        "Using rms phasors, find the rms value and initial phase of the current phasor İ, and the initial phase of v_C. Then decide how v_s and i are related in phase."
       ],
       "questions": [
         { "ask": "rms current I = ?", "explain": "X_C = 1/(ωC) = 10 Ω, |Z| = √(10² + 10²) = 10√2 Ω, I = 20/(10√2) = √2 ≈ 1.414 A." },
         { "ask": "Initial phase of the current, ψ_i = ?", "explain": "İ = 20∠0°/(10 − j10) = 20∠0°/(10√2∠−45°) = √2∠45° A." },
-        { "ask": "Initial phase of u_C = ?", "explain": "U̇_C = −jX_C·İ = 10∠−90° × √2∠45° = 10√2∠−45° V: the capacitor voltage lags its current by 90°." },
+        { "ask": "Initial phase of v_C = ?", "explain": "V̇_C = −jX_C·İ = 10∠−90° × √2∠45° = 10√2∠−45° V: the capacitor voltage lags its current by 90°." },
         {
-          "ask": "How are u_s and i related in phase? (φ = ψ_u − ψ_i)",
-          "choices": ["φ = 45°, u_s leads i by 45°", "φ = −45°, i leads u_s by 45°", "φ = 90°, u_s leads i by 90°", "In phase"], "choiceExplain": ["The subtraction is reversed (ψ_i − ψ_u); φ is defined as ψ_u − ψ_i, and u_s leading i would be an inductive circuit.", "", "This ignores R, and even for a pure capacitor the voltage lags the current by 90° (φ = −90°) rather than leading; with R present |φ| = arctan(X_C/R) < 90°.", "Only a purely resistive circuit (X_C = 0) is in phase; it is u_R, not u_s, that is in phase with i."],
-          "explain": "φ = ψ_u − ψ_i = 0° − 45° = −45° < 0, so u_s lags i by 45°, i.e. i leads u_s by 45° — in a capacitive circuit the current leads the voltage. Note that a phase difference is only meaningful between sinusoids of the same frequency."
+          "ask": "How are v_s and i related in phase? (φ = ψ_v − ψ_i)",
+          "choices": ["φ > 0: v_s leads i by less than 90°", "φ < 0: i leads v_s by less than 90°", "φ = 90°: v_s leads i by 90°", "In phase"], "choiceExplain": ["The subtraction is reversed (ψ_i − ψ_v); φ is defined as ψ_v − ψ_i, and v_s leading i would be an inductive circuit.", "", "This ignores R, and even for a pure capacitor the voltage lags the current by 90° (φ = −90°) rather than leading; with R present |φ| = arctan(X_C/R) < 90°.", "Only a purely resistive circuit (X_C = 0) is in phase; it is v_R, not v_s, that is in phase with i."],
+          "explain": "φ = ψ_v − ψ_i = 0° − 45° = −45° < 0, so v_s lags i by 45°, i.e. i leads v_s by 45° — in a capacitive circuit the current leads the voltage. Note that a phase difference is only meaningful between sinusoids of the same frequency."
         }
       ],
       "hints": [
-        "Take U̇_s = 20∠0° V as the reference phasor and first compute X_C = 1/(ωC).",
-        "The series current is İ = U̇_s/(R − jX_C); each element voltage follows from its own phasor relation.",
-        "Phase difference φ = ψ_u − ψ_i: φ > 0 means the voltage leads, φ < 0 means it lags."
+        "Take V̇_s = 20∠0° V as the reference phasor and first compute X_C = 1/(ωC).",
+        "The series current is İ = V̇_s/(R − jX_C); each element voltage follows from its own phasor relation.",
+        "Phase difference φ = ψ_v − ψ_i: φ > 0 means the voltage leads, φ < 0 means it lags."
       ],
       "solution": [
         "**1. Reactance.** X_C = 1/(ωC) = 1/(1000 × 100×10⁻⁶) = 10 Ω.",
-        "**2. Current.** KVL: U̇_s = R·İ + (−jX_C)·İ, so İ = 20∠0°/(10 − j10) = **√2∠45° A**, I ≈ **1.414 A**, ψ_i = **45°**.",
-        "**3. Element voltages.** U̇_R = 10√2∠45° V (in phase with İ), U̇_C = −j10 × √2∠45° = 10√2∠**−45°** V (90° behind İ).",
-        "**4. Phase difference.** φ = ψ_u − ψ_i = −45°: **i leads u_s by 45°**. Also u_R leads u_C by 90°; in the phasor diagram U̇_R ⊥ U̇_C and U̇_s = U̇_R + U̇_C has magnitude √(14.14² + 14.14²) = 20 V, which checks."
+        "**2. Current.** KVL: V̇_s = R·İ + (−jX_C)·İ, so İ = 20∠0°/(10 − j10) = **√2∠45° A**, I ≈ **1.414 A**, ψ_i = **45°**.",
+        "**3. Element voltages.** V̇_R = 10√2∠45° V (in phase with İ), V̇_C = −j10 × √2∠45° = 10√2∠**−45°** V (90° behind İ).",
+        "**4. Phase difference.** φ = ψ_v − ψ_i = −45°: **i leads v_s by 45°**. Also v_R leads v_C by 90°, so in the phasor diagram V̇_R ⊥ V̇_C. Check: V̇_s = V̇_R + V̇_C has magnitude √(14.14² + 14.14²) = 20 V ✓."
       ]
     }
   }

@@ -2,137 +2,545 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-ammeter",
-  "title": "第 10 课 · 电流表：串联才能测电流",
+  "title": "电流表：串联才能测电流",
   "kind": "lesson",
   "level": 2,
-  "summary": "电流表要串进电路里：先断开，再把表接进断口。并联会把元件短路——这一课里你会安全地看到这个错误。",
-  "concepts": ["current 电流", "ammeter 电流表", "series 串联", "burden resistance 内阻", "reference direction 参考方向"],
-  "description": "**这一课学什么**：用电流表（万用表的电流档）测电流。第 1 期以后的实验大量用到它。\n\n**电压表和电流表正好相反**：\n- 电压是两点之间的，万用表**并联**在两点上，自己几乎不取电流；\n- 电流是流过一条路径的，电流表要**串联**：把电路在要测的地方断开，让电流从红表笔（+）流进表、从黑表笔（COM）流出来。\n- 电流表的内阻（burden resistance）很小——这里是 0.1 Ω，几乎就是一根导线。所以把它并联在一个元件两端，等于用导线把元件短路。\n\n**方向**：读数是“从红表笔流进去的电流”。红黑接反，读数变成负数——电流没变，变的是参考方向。\n\n**电路**：9V 电池 → 黄色跳线（这就是之后要接电流表的地方）→ R1（1kΩ）→ 红色 LED → GND。\n\n**先预测**：LED 正向压降约 1.8 V，算出流过 R1 的电流。\n\n**仿真和真实电流表**：这里的电流表内阻固定 0.1 Ω。真实万用表的 mA 档内阻是几欧到十几欧（看说明书上的“负担电压”），在低电压电路里会让电流明显变小；10 A 档内阻小，但读不准小电流。真实的表并联在电源两端会**烧保险丝**——这里只会把元件短路、给出诊断提示。",
-  "compare": "**对比**：I = (9 V − 1.8 V) / (1 kΩ + LED 内阻 12 Ω) ≈ **7.1 mA**。\n- 电流表两端的电压 = 0.1 Ω × 7.1 mA ≈ **0.71 mV**，所以它几乎不改变电路；\n- 表笔接反时读数 ≈ −7.1 mA；\n- 并联在 LED 两端时，LED 被短路熄灭，电流表读到的是 9 V / 1 kΩ ≈ 9 mA——这不是 LED 的电流，而是“被短路以后”的电流。",
+  "summary": "先把电流表接错一次，看它把 LED 短路；再断开电路，把表接进断口。",
+  "concepts": [
+    "ammeter 电流表",
+    "series 串联",
+    "burden resistance 内阻",
+    "short circuit 短路",
+    "reference direction 参考方向"
+  ],
+  "description": "电流表要串进电路：先断开，再把表接进断口，让电流从红表笔流进、从黑表笔流出。它的内阻只有 0.1 Ω，并联在元件两端就等于用导线把元件短路。电路：9 V 电池 → 电流表 → R1（1 kΩ）→ 红色 LED → GND。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "把电流表接错一次",
+      "text": [
+        "先搭一个点亮 LED 的小电路，然后像量电压那样，把电流表的两支表笔点在 **LED 两端**。",
+        "看 LED，再看**诊断**：发生了什么？"
+      ],
+      "steps": 6
+    },
+    {
+      "kind": "explain",
+      "title": "电压表并联，电流表串联",
+      "text": [
+        "- **电压**是两点之间的：万用表并联在两点上，自己几乎不取电流。",
+        "- **电流**是流过一条路的：要知道多少水流过一根管子，就得把管子**切开**，让水全部从表里流过。电流表要**串联**进电路。",
+        "![](fig:series)",
+        "- 电流表的内阻很小，这里只有 **0.1 Ω**，几乎就是一根导线。把它并联在 LED 两端，电流全从它身上抄近路走了——LED 被**短路**，所以灭了。",
+        "![](fig:parallel)",
+        "- 读数是“**从红表笔流进去**的电流”。红黑接反，读数变成负数——电流没变，变的是参考方向。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "断开，再把表接进断口",
+      "text": [
+        "把错的表拿掉，在 + 轨和电路之间**切一个口**，让电流表来补上这个口。"
+      ],
+      "steps": 6
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **量电流三步：断开 → 串进去 → 红进黑出。**",
+        "- 电流表并联在电源两端，真实的表会**烧保险丝**，严重时烧表。这里只会把元件短路，并给出诊断。",
+        "- 真实万用表 mA 档的内阻是几欧到十几欧（说明书里叫“负担电压”），在低电压电路里会让电流明显变小；10 A 档内阻小，但读不准小电流。",
+        "",
+        "从现在起，你能“看见”电压和电流了。接下来用它们去拆解串联和并联。"
+      ]
+    }
+  ],
+  "figures": {
+    "series": {
+      "kind": "schematic",
+      "caption": {
+        "text": "✓ 电流表串进电路：电流全部从红表笔流进去、黑表笔流出来。",
+        "i18n": {
+          "en": "✓ The ammeter in series: all of the current goes in at the red probe and out at the black one."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 9},
+          {"ref": "AM1", "type": "ammeter", "from": [0, 0], "to": [3, 0]},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [6, 0], "value": "1k"},
+          {"ref": "LED1", "type": "LED", "from": [6, 0], "to": [6, 4], "value": "red"}
+        ],
+        "wires": [
+          [[6, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "AM1", "name": "I"}
+        ]
+      },
+      "highlight": [
+        "AM1"
+      ]
+    },
+    "parallel": {
+      "kind": "schematic",
+      "caption": {
+        "text": "✗ 电流表并在 LED 两端：它几乎就是一根导线，电流全从它身上抄近路，LED 被短路熄灭。",
+        "i18n": {
+          "en": "✗ The ammeter across the LED: it is almost a wire, the current takes the shortcut through it and the LED goes out (shorted)."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": "1k"},
+          {"ref": "LED1", "type": "LED", "from": [3, 0], "to": [3, 4], "value": "red"},
+          {"ref": "AM1", "type": "ammeter", "from": [6, 0], "to": [6, 4]}
+        ],
+        "wires": [
+          [[3, 0], [6, 0]],
+          [[6, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "AM1", "name": "I"}
+        ]
+      },
+      "highlight": [
+        "AM1"
+      ]
+    }
+  },
   "i18n": {
-            "en": {
-                    "title": "Lesson 10 · Ammeter: it goes in series",
-                    "summary": "An ammeter goes into the path: open the circuit, then bridge the gap with the meter. In parallel it shorts the part out — you will see that mistake safely here.",
-                    "concepts": ["current", "ammeter", "series connection", "burden resistance", "reference direction"],
-                    "description": "**What you learn**: measuring current with an ammeter (the current range of a multimeter). The labs from phase 1 on use it all the time.\n\n**A voltmeter and an ammeter are opposites**:\n- voltage is between two points: the meter goes **in parallel** across them and draws almost no current;\n- current flows along a path: the ammeter goes **in series** — open the circuit where you want to measure and let the current flow in at the red lead (+) and out at the black lead (COM).\n- An ammeter has a tiny inside resistance (burden resistance) — 0.1 Ω here, practically a wire. Put it across a part and you short that part with a wire.\n\n**Direction**: the reading is the current flowing in at the red lead. Swap red and black and the reading turns negative — the current is the same, the reference direction is not.\n\n**Circuit**: 9V battery → yellow jumper (where the ammeter will go later) → R1 (1kΩ) → red LED → GND.\n\n**Predict first**: the LED drops about 1.8 V; work out the current through R1.\n\n**Simulated vs real ammeter**: this ammeter is always 0.1 Ω. A real multimeter's mA range has a few to over ten ohms inside (look for \"burden voltage\" in its manual), which noticeably lowers the current in a low-voltage circuit; the 10 A range has less, but cannot read small currents well. A real meter across a supply **blows its fuse** — here it only shorts the part and the diagnostics tell you.",
-                    "compare": "**Compare**: I = (9 V − 1.8 V) / (1 kΩ + the LED's 12 Ω) ≈ **7.1 mA**.\n- Voltage across the ammeter = 0.1 Ω × 7.1 mA ≈ **0.71 mV**, so it hardly changes the circuit;\n- with the leads swapped it reads ≈ −7.1 mA;\n- across the LED, the LED is shorted and goes dark, and the meter reads 9 V / 1 kΩ ≈ 9 mA — not the LED's current, but the current after the short.",
-                    "steps": [
-                              "Pick \"Battery\" (9V), click tp1 (+) then tn1 (−).",
-                              "Pick \"Jumper wire\", click tp5 and a5 (you can make it yellow in Properties). The current enters the circuit from the + rail through this jumper — the ammeter will go here later.",
-                              "R1: click c5 and c10, set 1kΩ.",
-                              "Red LED: click d10 first (long lead, +), then d13 (short lead, −).",
-                              "Jumper a13 → tn13 back to GND. The LED lights up.",
-                              "**Do it wrong once**: pick \"Ammeter\", click b10 for the red lead and b13 for the black lead — the ammeter is **in parallel** with the LED. The LED goes dark: the 0.1 Ω meter shorts it. Click the ammeter and look at its reading in Properties: that is the current through the meter after the short, not the LED's current. The Diagnostics tab and \"Check my circuit\" both point it out: the ammeter is in parallel with LED1 — an ammeter goes in series. (A real meter across a supply blows its fuse.)",
-                              "Delete that ammeter: pick \"Select / use\", click it, press Delete in Properties (or the Delete key).",
-                              "**Open the circuit**: delete the jumper tp5 → a5. The LED goes out — the current has no path.",
-                              "**Bridge the gap with the ammeter**: red lead on tp5 (where the current comes from), black lead on a5. The LED is back on and the meter shows the current of the whole loop.",
-                              "Try the leads swapped: delete the ammeter and place it again, red lead a5, black lead tp5. The reading turns negative and the LED stays on.",
-                              "Swap back: red lead tp5, black lead a5.",
-                              "Press \"Check my circuit\", then answer the measurement questions (use the multimeter for the voltage across the ammeter)."
-                            ],
-                    "hints": [
-                              "An ammeter goes in series: the current must pass through it. First find a place where the circuit can be opened.",
-                              "Remove the jumper tp5 → a5 and put the two ammeter leads in its two holes, red on the side the current comes from (the + rail).",
-                              "The voltage across the ammeter is tiny (below a millivolt); its resistance = that voltage ÷ the current."
-                            ],
-                    "tests": ["Ammeter in series, LED on"],
-                    "measurements": [
-                                      {"ask": "Ammeter AM1 reading (red lead on the + rail side)", "explain": "(9 − 1.8) V / (1 kΩ + 12 Ω) ≈ 7.1 mA."},
-                                      {
-                                        "ask": "Multimeter: red probe on the + rail (the ammeter's red side), black probe (Shift) on column 5: the voltage across the ammeter",
-                                        "explain": "0.1 Ω × 7.1 mA ≈ 0.71 mV — ten thousand times smaller than the other voltages in the circuit."
-                                      },
-                                      {
-                                        "ask": "From your two readings, the ammeter's inside resistance: R = voltage across it / current",
-                                        "explain": "0.1 Ω: practically a wire, which is why it must go in series."
-                                      },
-                                      {
-                                        "ask": "In step 10, when you swapped the ammeter's red and black leads, how did the reading change?",
-                                        "choices": ["the reading doesn't change", "the same number, but negative", "it reads 0 and the LED goes out"],
-                                        "explain": "The current didn't change and the LED stayed on; the reading is the current flowing in at the red lead, so reversed it is negative."
-                                      }
-                                    ]
-                  }
-          },
-  "components": [
-                  {"ref": "V1", "type": "battery", "variant": "9V"},
-                  {"ref": "AM1", "type": "ammeter"},
-                  {"ref": "R1", "type": "resistor", "resistance": "1k"},
-                  {"ref": "LED1", "type": "led", "color": "red"}
-                ],
-  "connections": [["V1.+", "AM1.+"], ["AM1.-", "R1.1"], ["R1.2", "LED1.anode"], ["LED1.cathode", "V1.-"]],
-  "tests": [{"name": "电流表串在电路里，LED 亮", "expect": {"LED1": "on"}, "currents": [{"el": "AM1", "min": 0.0066, "max": 0.0076}]}],
-  "measurements": [
-                    {
-                      "id": "i",
-                      "current": "AM1",
-                      "unit": "mA",
-                      "predict": true,
-                      "range": [0.0068, 0.0074],
-                      "ask": "电流表 AM1 的读数（红表笔在 + 轨一侧）",
-                      "explain": "(9 − 1.8) V / (1 kΩ + 12 Ω) ≈ 7.1 mA。"
-                    },
-                    {
-                      "id": "uam",
-                      "voltage": "AM1.+",
-                      "ref": "AM1.-",
-                      "unit": "mV",
-                      "tolAbs": 2e-05,
-                      "range": [0.0006, 0.0008],
-                      "ask": "万用表：红表笔点 tp 轨上电流表红表笔那一侧，黑表笔（Shift）点第 5 列：电流表两端的电压",
-                      "explain": "0.1 Ω × 7.1 mA ≈ 0.71 mV——比电路里其他电压小一万倍。"
-                    },
-                    {
-                      "id": "rb",
-                      "formula": "uam / i",
-                      "unit": "Ω",
-                      "stated": true,
-                      "range": [0.095, 0.105],
-                      "ask": "用你的两个读数算电流表的内阻：R = 电流表两端电压 / 电流",
-                      "explain": "0.1 Ω：几乎是一根导线，所以它必须串联。"
-                    },
-                    {
-                      "id": "swap",
-                      "correct": 1,
-                      "ask": "第 10 步把电流表的红黑表笔对调时，读数怎么变？",
-                      "choices": ["读数不变", "数值一样，变成负数", "变成 0，LED 熄灭"],
-                      "explain": "电流没变，LED 照样亮；读数是“从红表笔流进去的电流”，方向反了就是负数。"
-                    }
-                  ],
-  "steps": [
-            {"text": "选“电池”（9V），单击 tp1（+）再单击 tn1（−）。", "highlight": ["tp1", "tn1"], "check": [{"type": "battery", "pins": {"+": "tp1", "-": "tn1"}}]},
-            {
-              "text": "选“跳线”，单击 tp5 和 a5（属性里可以把颜色改成黄色）。电流从 + 轨经过这根跳线进入电路——之后电流表就接在这里。",
-              "highlight": ["tp5", "a5"],
-              "check": [{"type": "wire", "pins": {"a": "tp5", "b": "a5"}}]
-            },
-            {"text": "R1：单击 c5 和 c10，阻值 1kΩ。", "highlight": ["c5", "c10"], "check": [{"type": "resistor", "pins": {"1": "c5", "2": "c10"}, "resistance": "1k"}]},
-            {"text": "红色 LED：先单击 d10（长脚 +），再单击 d13（短脚 −）。", "highlight": ["d10", "d13"], "check": [{"type": "led", "pins": {"anode": "d10", "cathode": "d13"}}]},
-            {"text": "跳线 a13 → tn13 回到 GND。LED 亮了。", "highlight": ["a13", "tn13"], "check": [{"type": "wire", "pins": {"a": "a13", "b": "tn13"}}]},
-            {
-              "text": "**先做一次错的**：选“电流表”，红表笔单击 b10，黑表笔单击 b13——电流表**并联**在 LED 两端。LED 灭了：0.1 Ω 的表把 LED 短路了。单击电流表看“属性”里的读数：那是短路以后流过电流表的电流，不是 LED 的电流。“诊断”标签和“检查我的电路”都会指出：电流表并联在 LED1 两端——电流表要串联。（真实的表并联在电源两端会烧保险丝。）",
-              "highlight": ["b10", "b13"],
-              "check": [{"type": "ammeter", "pins": {"+": "b10", "-": "b13"}}]
-            },
-            {"text": "把这块电流表删掉：选“选择 / 操作”，单击它，在“属性”里点“删除”（或按 Delete）。", "highlight": ["b10", "b13"], "check": [{"empty": ["b10", "b13"]}]},
-            {"text": "**断开电路**：删掉 tp5 → a5 那根跳线。LED 灭了——电流没有路可走。", "highlight": ["tp5", "a5"], "check": [{"empty": ["tp5", "a5"]}]},
-            {
-              "text": "**把电流表接进断口**：红表笔单击 tp5（电流从这边来），黑表笔单击 a5。LED 又亮了，电流表显示流过整个回路的电流。",
-              "highlight": ["tp5", "a5"],
-              "check": [{"type": "ammeter", "pins": {"+": "tp5", "-": "a5"}}]
-            },
-            {"text": "对调表笔试试：删掉电流表，重新放，红表笔 a5、黑表笔 tp5。读数变成负的，LED 照样亮。", "highlight": ["a5", "tp5"], "check": [{"type": "ammeter", "pins": {"+": "a5", "-": "tp5"}}]},
-            {"text": "再换回来：红表笔 tp5、黑表笔 a5。", "highlight": ["tp5", "a5"], "check": [{"type": "ammeter", "pins": {"+": "tp5", "-": "a5"}}]},
-            {"text": "点“检查我的电路”，再完成下面的测量题（电流表两端的电压用万用表量）。", "highlight": []}
+    "en": {
+      "title": "The ammeter: in series, always",
+      "summary": "First connect the ammeter wrong and watch it short the LED; then break the circuit and put the meter into the gap.",
+      "concepts": [
+        "ammeter",
+        "series",
+        "burden resistance",
+        "short circuit",
+        "reference direction"
+      ],
+      "description": "An ammeter goes in series: break the circuit, put the meter into the gap, and let the current flow in at the red probe and out at the black one. Its resistance is only 0.1 Ω, so across a part it shorts the part out like a wire. Circuit: 9 V battery → ammeter → R1 (1 kΩ) → red LED → GND.",
+      "compare": "**Compare**: I = (9 V − 1.8 V) / (1 kΩ + the LED's 12 Ω) ≈ **7.1 mA**.\n- Voltage across the ammeter = 0.1 Ω × 7.1 mA ≈ **0.71 mV**, so it hardly changes the circuit;\n- with the leads swapped it reads ≈ −7.1 mA;\n- across the LED, the LED is shorted and goes dark, and the meter reads 9 V / 1 kΩ ≈ 9 mA — not the LED's current, but the current after the short.",
+      "steps": [
+        "Pick **Battery** (9 V): **`tp1`** (+), **`tn1`** (−).",
+        "**Jumper** **`tp5`** → **`a5`**. The current enters the circuit from the + rail through it — this is where the ammeter will go.",
+        "**R1**: **`c5`** and **`c10`**, set to **`1 kΩ`**.",
+        "**Red LED**: long lead **`d10`**, short lead **`d13`**.",
+        "**Jumper** **`a13`** → **`tn13`** back to GND. The LED lights.",
+        "**Wrong on purpose**: pick **Ammeter**, red probe on **`b10`**, black probe on **`b13`** — the ammeter is **across** the LED. What happened to the LED? Check the Diagnostics.",
+        "Delete this ammeter: click it and press **Delete**.",
+        "**Cut a gap**: delete the jumper **`tp5`** → **`a5`**. The LED goes out — the current has no path.",
+        "**Put the ammeter in the gap**: red probe on **`tp5`** (where the current comes from), black probe on **`a5`**. The LED lights again and the meter shows the current through the whole loop.",
+        "Swap it: delete the ammeter and place it again with the red probe on **`a5`** and the black probe on **`tp5`**. How does the reading change? And the LED?",
+        "Back again: red probe on **`tp5`**, black probe on **`a5`**.",
+        "Press **Check my circuit** and answer the questions (use the multimeter for the voltage across the ammeter)."
+      ],
+      "hints": [
+        "An ammeter goes into the circuit: break it where you want to measure, then let the current flow in at the red probe and out at the black one.",
+        "Negative reading? Red and black are swapped. The current did not change direction; your reference did."
+      ],
+      "tests": [
+        "Ammeter in series, LED on"
+      ],
+      "measurements": [
+        {
+          "ask": "Predict with the LED's drop of about 1.8 V, then read: ammeter AM1's reading (red probe on the + rail side)",
+          "explain": "(9 − 1.8) V / (1 kΩ + 12 Ω) ≈ 7.1 mA."
+        },
+        {
+          "ask": "Multimeter: red probe on the + rail next to the ammeter's red probe, black probe (Shift) on column 5: the voltage across the ammeter",
+          "explain": "0.1 Ω × 7.1 mA ≈ 0.71 mV — ten thousand times smaller than the other voltages in the circuit."
+        },
+        {
+          "ask": "Work out the ammeter's resistance from your two readings: R = voltage across the ammeter / current",
+          "explain": "0.1 Ω: practically a wire, which is why it must go in series."
+        },
+        {
+          "ask": "When you swap the ammeter's red and black probes, the reading:",
+          "choices": [
+            "Stays the same",
+            "Keeps its size but turns negative",
+            "Drops to 0 and the LED goes out"
           ],
-  "hints": ["电流表是串联的：电流必须“穿过”它。先找到电路里可以断开的地方。", "把 tp5 → a5 的跳线拔掉，电流表的两只表笔就插在跳线原来的两个孔里；红表笔在电流流进来的一侧（+ 轨）。", "电流表两端的电压非常小（毫伏以下）；内阻 = 这个电压 ÷ 电流。"],
+          "explain": "The current is the same and the LED stays lit; the reading is the current flowing in at the red probe, so the reversed direction shows as a minus sign."
+        }
+      ],
+      "cards": [
+        {
+          "title": "Connect the ammeter wrong once",
+          "text": [
+            "Build a small circuit that lights an LED, then touch the ammeter's two probes **across the LED**, the way you would measure a voltage.",
+            "Look at the LED, then at the **diagnostics**: what happened?"
+          ]
+        },
+        {
+          "title": "Voltmeter across, ammeter in series",
+          "text": [
+            "- **Voltage** is between two points: the multimeter sits across the two points and takes almost no current.",
+            "- **Current** flows along a path: to know how much water goes through a pipe you have to **cut the pipe** and send all of it through the meter. An ammeter goes **in series**.",
+            "![](fig:series)",
+            "- An ammeter has a tiny resistance, here just **0.1 Ω** — practically a wire. Across the LED, all the current takes the shortcut through the meter: the LED is **shorted out**, so it goes dark.",
+            "![](fig:parallel)",
+            "- The reading is the current **flowing in at the red probe**. Swap red and black and it turns negative — same current, opposite reference direction."
+          ]
+        },
+        {
+          "title": "Break the circuit, put the meter in the gap",
+          "text": [
+            "Remove the wrong meter, **cut a gap** between the + rail and the circuit, and let the ammeter close it."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Measuring current in three steps: break → put it in → red in, black out.**",
+            "- A real ammeter across a supply **blows its fuse**, or worse. Here it only shorts the part out and the diagnostics tell you.",
+            "- A real multimeter's mA range has a few ohms to a dozen ohms of resistance (the \"burden voltage\" in its manual) and can noticeably reduce the current in low-voltage circuits; the 10 A range has less resistance but reads small currents poorly.",
+            "",
+            "From now on you can \"see\" voltage and current. Next you use them to take series and parallel circuits apart."
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "ref": "V1",
+      "type": "battery",
+      "variant": "9V"
+    },
+    {
+      "ref": "AM1",
+      "type": "ammeter"
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    }
+  ],
+  "connections": [
+    [
+      "V1.+",
+      "AM1.+"
+    ],
+    [
+      "AM1.-",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "LED1.cathode",
+      "V1.-"
+    ]
+  ],
+  "tests": [
+    {
+      "name": "电流表串在电路里，LED 亮",
+      "expect": {
+        "LED1": "on"
+      },
+      "currents": [
+        {
+          "el": "AM1",
+          "min": 0.0066,
+          "max": 0.0076
+        }
+      ]
+    }
+  ],
+  "compare": "**对比**：I = (9 V − 1.8 V) / (1 kΩ + LED 内阻 12 Ω) ≈ **7.1 mA**。\n- 电流表两端的电压 = 0.1 Ω × 7.1 mA ≈ **0.71 mV**，所以它几乎不改变电路；\n- 表笔接反时读数 ≈ −7.1 mA；\n- 并联在 LED 两端时，LED 被短路熄灭，电流表读到的是 9 V / 1 kΩ ≈ 9 mA——这不是 LED 的电流，而是“被短路以后”的电流。",
+  "measurements": [
+    {
+      "id": "i",
+      "current": "AM1",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0068,
+        0.0074
+      ],
+      "ask": "先用 LED 压降约 1.8 V 预测，再读：电流表 AM1 的读数（红表笔在 + 轨一侧）",
+      "explain": "(9 − 1.8) V / (1 kΩ + 12 Ω) ≈ 7.1 mA。"
+    },
+    {
+      "id": "uam",
+      "voltage": "AM1.+",
+      "ref": "AM1.-",
+      "unit": "mV",
+      "tolAbs": 2e-05,
+      "range": [
+        0.0006,
+        0.0008
+      ],
+      "ask": "万用表：红表笔点 + 轨上电流表红表笔那一侧，黑表笔（Shift）点第 5 列：电流表两端的电压",
+      "explain": "0.1 Ω × 7.1 mA ≈ 0.71 mV——比电路里其他电压小一万倍。"
+    },
+    {
+      "id": "rb",
+      "formula": "uam / i",
+      "unit": "Ω",
+      "stated": true,
+      "range": [
+        0.095,
+        0.105
+      ],
+      "ask": "用你的两个读数算电流表的内阻：R = 电流表两端电压 / 电流",
+      "explain": "0.1 Ω：几乎是一根导线，所以它必须串联。"
+    },
+    {
+      "id": "swap",
+      "correct": 1,
+      "ask": "把电流表的红黑表笔对调时，读数怎么变？",
+      "choices": [
+        "读数不变",
+        "数值一样，变成负数",
+        "变成 0，LED 熄灭"
+      ],
+      "explain": "电流没变，LED 照样亮；读数是“从红表笔流进去的电流”，方向反了就是负数。"
+    }
+  ],
+  "steps": [
+    {
+      "text": "选**「电池」**（9 V）：**`tp1`**（+）、**`tn1`**（−）。",
+      "highlight": [
+        "tp1",
+        "tn1"
+      ],
+      "check": [
+        {
+          "type": "battery",
+          "pins": {
+            "+": "tp1",
+            "-": "tn1"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**跳线** **`tp5`** → **`a5`**。电流从 + 轨经过它进入电路——待会儿电流表就接在这里。",
+      "highlight": [
+        "tp5",
+        "a5"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "tp5",
+            "b": "a5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**R1**：**`c5`** 和 **`c10`**，设 **`1 kΩ`**。",
+      "highlight": [
+        "c5",
+        "c10"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "c5",
+            "2": "c10"
+          },
+          "resistance": "1k"
+        }
+      ]
+    },
+    {
+      "text": "**红色 LED**：长脚 **`d10`**，短脚 **`d13`**。",
+      "highlight": [
+        "d10",
+        "d13"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "d10",
+            "cathode": "d13"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**跳线** **`a13`** → **`tn13`** 回到 GND。LED 亮了。",
+      "highlight": [
+        "a13",
+        "tn13"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a13",
+            "b": "tn13"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**故意接错**：选**「电流表」**，红表笔单击 **`b10`**，黑表笔单击 **`b13`**——电流表**并联**在 LED 两端。LED 怎么了？看看「诊断」。",
+      "highlight": [
+        "b10",
+        "b13"
+      ],
+      "check": [
+        {
+          "type": "ammeter",
+          "pins": {
+            "+": "b10",
+            "-": "b13"
+          }
+        }
+      ]
+    },
+    {
+      "text": "删掉这块电流表：单击它，按 **Delete**。",
+      "highlight": [
+        "b10",
+        "b13"
+      ],
+      "check": [
+        {
+          "empty": [
+            "b10",
+            "b13"
+          ]
+        }
+      ]
+    },
+    {
+      "text": "**切一个口**：删掉 **`tp5`** → **`a5`** 那根跳线。LED 灭了——电流没路可走。",
+      "highlight": [
+        "tp5",
+        "a5"
+      ],
+      "check": [
+        {
+          "empty": [
+            "tp5",
+            "a5"
+          ]
+        }
+      ]
+    },
+    {
+      "text": "**把电流表接进断口**：红表笔 **`tp5`**（电流从这边来），黑表笔 **`a5`**。LED 又亮了，表上显示流过整个回路的电流。",
+      "highlight": [
+        "tp5",
+        "a5"
+      ],
+      "check": [
+        {
+          "type": "ammeter",
+          "pins": {
+            "+": "tp5",
+            "-": "a5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "对调试试：删掉电流表重新放，红表笔 **`a5`**、黑表笔 **`tp5`**。读数怎么变？LED 呢？",
+      "highlight": [
+        "a5",
+        "tp5"
+      ],
+      "check": [
+        {
+          "type": "ammeter",
+          "pins": {
+            "+": "a5",
+            "-": "tp5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "再换回来：红表笔 **`tp5`**、黑表笔 **`a5`**。",
+      "highlight": [
+        "tp5",
+        "a5"
+      ],
+      "check": [
+        {
+          "type": "ammeter",
+          "pins": {
+            "+": "tp5",
+            "-": "a5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "点**「检查我的电路」**，完成测量题（电流表两端的电压用万用表量）。",
+      "highlight": []
+    }
+  ],
+  "hints": [
+    "电流表要串进电路：先断开要测的地方，再让电流从红表笔流进、黑表笔流出。",
+    "读数是负的？红黑表笔接反了。电流方向没变，只是参考方向反了。"
+  ],
   "solution": {
-                "parts": [
-                          {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "tp1", "-": "tn1"}},
-                          {"type": "ammeter", "ref": "AM1", "pins": {"+": "tp5", "-": "a5"}},
-                          {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "c5", "2": "c10"}},
-                          {"type": "led", "ref": "LED1", "color": "red", "pins": {"anode": "d10", "cathode": "d13"}},
-                          {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"}
-                        ]
-              }
+    "parts": [
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "ammeter",
+        "ref": "AM1",
+        "pins": {
+          "+": "tp5",
+          "-": "a5"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "1k",
+        "pins": {
+          "1": "c5",
+          "2": "c10"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "d10",
+          "cathode": "d13"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a13",
+          "b": "tn13"
+        },
+        "color": "blue"
+      }
+    ]
+  }
 }

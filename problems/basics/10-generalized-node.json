@@ -8,7 +8,7 @@
   "tags": ["KCL", "广义结点", "割集"],
   "statement": [
     "图示电路中 I_s1 = 3 A，I_s2 = 1 A（均向上），R_ab = 2 Ω，R_ac = 2 Ω，R_bc = 1 Ω，R_3 = 2 Ω。",
-    "设想一个闭合面 S 把结点 a、b、c 以及它们之间的三个电阻 R_ab、R_ac、R_bc 都包围起来，只有 I_s1、I_s2、R_3 三条支路穿过 S。求 R_3 中的电流 i_3 和结点 c 的电位 u_c。"
+    "设想一个闭合面 S 把结点 a、b、c 以及它们之间的三个电阻 R_ab、R_ac、R_bc 都包围起来，只有 I_s1、I_s2、R_3 三条支路穿过 S。求 R_3 中的电流 i_3 和结点 c 的电位 v_c。"
   ],
   "schematic": {
     "elements": [
@@ -32,7 +32,7 @@
   "analysis": { "type": "dc" },
   "questions": [
     { "id": "i3", "ask": "i_3 = ?", "find": { "kind": "i", "el": "R3" }, "answer": 4, "unit": "A", "explain": "对闭合面 S 列 KCL：流入 S 的电流 I_s1 + I_s2 = 流出 S 的电流 i_3，所以 i_3 = 3 + 1 = 4 A。" },
-    { "id": "uc", "ask": "u_c = ?", "find": { "kind": "v", "nodes": ["c"] }, "answer": 8, "unit": "V", "explain": "u_c = R_3·i_3 = 2 × 4 = 8 V。" },
+    { "id": "uc", "ask": "v_c = ?", "find": { "kind": "v", "nodes": ["c"] }, "answer": 8, "unit": "V", "explain": "v_c = R_3·i_3 = 2 × 4 = 8 V。" },
     {
       "id": "change",
       "ask": "若把 R_ab 从 2 Ω 改为 6 Ω（其余不变），i_3 将：",
@@ -48,8 +48,8 @@
   "solution": [
     "**1. 广义结点。** 闭合面 S 内包含结点 a、b、c 和电阻 R_ab、R_ac、R_bc。穿过 S 的支路：I_s1（流入 a）、I_s2（流入 b）、R_3（从 c 流出）。",
     "**2. KCL。** 流入 S 的电流之和 = 流出之和：I_s1 + I_s2 = i_3 → **i_3 = 4 A**。",
-    "**3. 欧姆定律。** **u_c = R_3·i_3 = 8 V**。",
-    "**说明：** 若要求 S 内部各电阻的电流，就需要对 a、b 分别列方程（结果 u_a = 12 V，u_b = 10 V，i_ab = 1 A，i_ac = 2 A，i_bc = 2 A，可以验证 i_ac + i_bc = i_3）；但 i_3 本身用一个广义 KCL 就够了。"
+    "**3. 欧姆定律。** **v_c = R_3·i_3 = 8 V**。",
+    "**说明：** 若要求 S 内部各电阻的电流，就需要对 a、b 分别列方程（结果 v_a = 12 V，v_b = 10 V，i_ab = 1 A，i_ac = 2 A，i_bc = 2 A，可以验证 i_ac + i_bc = i_3）；但 i_3 本身用一个广义 KCL 就够了。"
   ],
   "i18n": {
     "en": {
@@ -57,11 +57,11 @@
       "tags": ["KCL", "generalized node", "cut set"],
       "statement": [
         "In the circuit, I_s1 = 3 A, I_s2 = 1 A (both upwards), R_ab = 2 Ω, R_ac = 2 Ω, R_bc = 1 Ω, R_3 = 2 Ω.",
-        "Imagine a closed surface S enclosing nodes a, b, c and the three resistors R_ab, R_ac, R_bc between them, so that only the branches I_s1, I_s2 and R_3 cross S. Find the current i_3 in R_3 and the potential u_c of node c."
+        "Imagine a closed surface S enclosing nodes a, b, c and the three resistors R_ab, R_ac, R_bc between them, so that only the branches I_s1, I_s2 and R_3 cross S. Find the current i_3 in R_3 and the potential v_c of node c."
       ],
       "questions": [
         { "ask": "i_3 = ?", "explain": "KCL for the closed surface S: the currents entering S, I_s1 + I_s2, equal the current leaving S, i_3. So i_3 = 3 + 1 = 4 A." },
-        { "ask": "u_c = ?", "explain": "u_c = R_3·i_3 = 2 × 4 = 8 V." },
+        { "ask": "v_c = ?", "explain": "v_c = R_3·i_3 = 2 × 4 = 8 V." },
         {
           "ask": "If R_ab is changed from 2 Ω to 6 Ω (everything else unchanged), i_3 will:",
           "choices": ["increase", "decrease", "stay the same", "can't be determined"], "choiceExplain": ["R_ab is inside the closed surface S: it only redistributes currents inside S; the KCL for S involves only I_s1, I_s2 and i_3.", "As above: KCL for a generalised node does not depend on the elements inside it; R_ab does not appear in the equation.", "", "It can be determined: KCL for the closed surface S gives i_3 without knowing the resistors inside."],
@@ -75,8 +75,8 @@
       "solution": [
         "**1. Generalized node.** S encloses nodes a, b, c and resistors R_ab, R_ac, R_bc. The branches crossing S are I_s1 (into a), I_s2 (into b) and R_3 (out of c).",
         "**2. KCL.** Sum of currents into S = sum out of S: I_s1 + I_s2 = i_3 → **i_3 = 4 A**.",
-        "**3. Ohm's law.** **u_c = R_3·i_3 = 8 V**.",
-        "**Note:** to get the currents inside S you would need equations at a and b (the result is u_a = 12 V, u_b = 10 V, i_ab = 1 A, i_ac = 2 A, i_bc = 2 A; check i_ac + i_bc = i_3). But i_3 itself needs just one generalized KCL."
+        "**3. Ohm's law.** **v_c = R_3·i_3 = 8 V**.",
+        "**Note:** to get the currents inside S you would need equations at a and b (the result is v_a = 12 V, v_b = 10 V, i_ab = 1 A, i_ac = 2 A, i_bc = 2 A; check i_ac + i_bc = i_3). But i_3 itself needs just one generalized KCL."
       ]
     }
   }

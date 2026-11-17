@@ -2,26 +2,121 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-wheatstone-bridge",
-  "title": "实验 1-6 · 惠斯通电桥：把电流表调到零",
+  "title": "惠斯通电桥：把电流表调到零",
   "kind": "challenge",
   "level": 4,
   "phase": 1,
   "summary": "两个分压器并排，中点之间接一块电流表；转动电位器让读数归零，就测出了电阻。",
-  "concepts": ["Wheatstone bridge 惠斯通电桥", "balance 平衡", "null measurement 零点测量", "R1/R2 = R3/Rx"],
-  "prereq": ["lesson-ammeter", "lesson-multimeter"],
-  "description": "**目标**：惠斯通电桥（Wheatstone bridge）是精确测电阻的经典方法：调节一个已知电阻，直到电桥中间的电流为零。\n\n**电路**：+9V 和 GND 之间并排放两个分压器：\n- 左臂：R1（1kΩ，上）→ 中点 A → R2（2.2kΩ，下）→ GND；\n- 右臂：R3（1kΩ，上）→ 中点 B → RV1（下）→ GND。RV1 是 10kΩ 电位器当可变电阻用：1 脚接 B，滑动端和 3 脚连在一起接 GND，电阻 = 10kΩ × 旋钮位置。\n- 电流表 AM1 跨接在 A、B 之间：红表笔接 A，黑表笔接 B。\n\n**先预测**：当 A、B 两点电位相等时，电流表里没有电流。这要求两个分压比相同。由此算出平衡时 RV1 应是多少、旋钮在百分之几、A 点电压是多少；再想一想：RV1 比平衡值小或大时，AM1 的读数是正还是负？\n\n**测量**：转动 RV1，找到 AM1 读数为零的位置；再分别转到 10% 和 50%，记下 AM1 的读数。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**为什么准**：平衡点只取决于电阻的**比值**，和电源电压是多少、电流表准不准都无关——我们只需要判断“是不是零”。把 R2 换成一个未知电阻，调到平衡，就能算出它的值。\n\n**真实电路里**：测出的未知电阻只和已知电阻一样准：常见色环电阻有 ±1% 或 ±5% 的误差，精密电桥要用精密电阻作比较臂。",
+  "concepts": [
+    "Wheatstone bridge 惠斯通电桥",
+    "balance 平衡",
+    "null measurement 零点测量",
+    "R1/R2 = R3/Rx"
+  ],
+  "prereq": [
+    "lesson-ammeter",
+    "lesson-multimeter"
+  ],
+  "description": "惠斯通电桥是精确测电阻的经典方法。+9 V 和 GND 之间并排放两个分压器：左臂 R1（1 kΩ）→ 中点 A → R2（2.2 kΩ）→ GND；右臂 R3（1 kΩ）→ 中点 B → RV1（10 kΩ 电位器当可变电阻）→ GND。电流表 AM1 跨接在 A、B 之间（红表笔接 A）。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "找到让表归零的那一点",
+      "text": [
+        "照目标电路图搭好。然后单击电位器，在「属性」里慢慢拖动旋钮，盯着 AM1：有没有一个位置，读数正好是 0？两边的读数一正一负吗？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "平衡 = 两个分压比相同",
+      "text": [
+        "- A、B 两点电位相等时，电流表两端没有电压差，**里面没有电流**。",
+        "![](fig:bridge)",
+        "- 这要求两个分压器的比例相同：$\\frac{R_2}{R_1 + R_2} = \\frac{R_{V1}}{R_3 + R_{V1}}$，也就是 $\\frac{R_2}{R_1} = \\frac{R_{V1}}{R_3}$。",
+        "- 动手前先算：平衡时 RV1 应是多少？旋钮在百分之几？RV1 比平衡值小或大时，AM1 是正还是负？"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "调零，再转到两侧",
+      "text": [
+        "- RV1 当可变电阻用：1 脚接 B，滑动端和 3 脚连在一起接 GND，电阻 = 10 kΩ × 旋钮位置。",
+        "- 找到读数为零的位置，再分别转到 10% 和 50%，记下读数。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 电桥准，是因为平衡点**只取决于电阻的比值**：和电源电压、电流表准不准都无关，只需要判断“是不是零”。",
+        "- 把 R2 换成一个未知电阻，调到平衡，就能算出它的值。电子秤、应变片测力用的也是电桥。",
+        "- 测出的电阻只和比较臂的电阻一样准：精密电桥要用精密电阻。"
+      ],
+      "practice": [
+        "equivalence"
+      ]
+    }
+  ],
+  "figures": {
+    "bridge": {
+      "kind": "schematic",
+      "caption": {
+        "text": "平衡时 A、B 两点电压相同，AM1 里没有电流：这要求 R2 / R1 = R_V1 / R3。",
+        "i18n": {
+          "en": "At balance A and B sit at the same voltage and no current flows in AM1: that needs R2 / R1 = R_V1 / R3."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [-1, 0], "to": [-1, 6], "value": 9},
+          {"ref": "R1", "type": "R", "from": [1, 0], "to": [1, 3], "value": "1k"},
+          {"ref": "R2", "type": "R", "from": [1, 3], "to": [1, 6], "value": "2.2k"},
+          {"ref": "R3", "type": "R", "from": [5, 0], "to": [5, 3], "value": "1k"},
+          {"ref": "RV1", "type": "RV", "from": [5, 3], "to": [5, 6], "value": "10k"},
+          {"ref": "AM1", "type": "ammeter", "from": [1, 3], "to": [5, 3]}
+        ],
+        "wires": [
+          [[-1, 0], [5, 0]],
+          [[5, 6], [-1, 6]]
+        ],
+        "labels": [
+          {"at": [1, 3], "name": "A"},
+          {"at": [5, 3], "name": "B"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 1-6 · Wheatstone bridge: null the ammeter",
-      "summary": "Two dividers side by side with an ammeter between their midpoints; turn the pot until the reading is zero and you have measured a resistance.",
-      "concepts": ["Wheatstone bridge", "balance", "null measurement", "R1/R2 = R3/Rx"],
-      "description": "**Goal**: the Wheatstone bridge is the classic way to measure a resistance precisely: adjust a known resistor until no current flows through the middle of the bridge.\n\n**Circuit**: two dividers side by side between +9V and GND:\n- left arm: R1 (1kΩ, top) → midpoint A → R2 (2.2kΩ, bottom) → GND;\n- right arm: R3 (1kΩ, top) → midpoint B → RV1 (bottom) → GND. RV1 is a 10kΩ pot used as a variable resistor: pin 1 to B, wiper and pin 3 joined to GND, resistance = 10kΩ × knob position.\n- ammeter AM1 bridges A and B: red lead at A, black lead at B.\n\n**Predict first**: when A and B are at the same potential, no current flows through the ammeter, which needs equal divider ratios. From that, work out the balancing RV1, the knob position in percent and the voltage at A; then ask: with RV1 below or above that value, is AM1's reading positive or negative?\n\n**Measure**: turn RV1 until AM1 reads zero; then set 10% and 50% and note AM1 each time. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Why it is accurate**: the balance point depends only on resistance **ratios**, not on the supply voltage or on how accurate the ammeter is: we only need to see \"zero or not\". Replace R2 with an unknown resistor, balance the bridge, and you can calculate its value.\n\n**In a real circuit**: the unknown comes out only as accurate as the known resistors: ordinary colour-band resistors are ±1% or ±5%, so a precision bridge uses precision resistors in its ratio arms.",
+      "title": "Wheatstone bridge: null the ammeter",
+      "summary": "Two dividers side by side with an ammeter between their middles; turn the pot until it reads zero and you have measured a resistance.",
+      "concepts": [
+        "Wheatstone bridge",
+        "balance",
+        "null measurement",
+        "R1/R2 = R3/Rx"
+      ],
+      "description": "The Wheatstone bridge is the classic precise way to measure a resistance. Between +9 V and GND sit two dividers side by side: left arm R1 (1 kΩ) → midpoint A → R2 (2.2 kΩ) → GND; right arm R3 (1 kΩ) → midpoint B → RV1 (a 10 kΩ pot as a variable resistor) → GND. Ammeter AM1 bridges A and B (red probe on A).",
       "compare": "**Compare**: balance needs R1 / R2 = R3 / RV1, so RV1 = R3 × R2 / R1 = **2.2kΩ**, i.e. the knob at **22%**. Then V(A) = V(B) = 9 × 2.2 / 3.2 ≈ **6.19 V** and AM1 ≈ 0. Out of balance (simulator readings):\n- 10% (RV1 = 1kΩ): the right divider gives less than the left one (without the ammeter B = 4.50 V, A = 6.19 V), so current flows from A to B, AM1 ≈ **+1.42 mA**;\n- 50% (RV1 = 5kΩ): the right divider gives more (B = 7.50 V), the current reverses, AM1 ≈ **−0.86 mA**.\n\nTip: the ammeter is only 0.1Ω, so even out of balance it pulls A and B to almost the same voltage. A multimeter across A and B shows no difference then; watch the ammeter instead.",
       "measurements": [
-        {"ask": "Knob at 22% (RV1 = 2.2 kΩ): voltage U_A from A to GND"},
-        {"ask": "Knob at 10%: AM1's reading (with its sign)"},
-        {"ask": "Knob at 50%: AM1's reading (with its sign)"},
-        {"ask": "At 50% the reading is negative. That means:", "choices": ["Current flows from B to A: B is now at a higher potential than A", "The ammeter is broken; a negative reading means nothing", "Current still flows from A to B, just less than at 10%"], "explain": "The sign only gives the current's direction relative to the leads (in at red, out at black). Above the balance value RV1 makes the right arm's divider higher, so B sits above A."}
+        {
+          "ask": "Knob at 22% (RV1 = 2.2 kΩ): voltage V_A from A to GND"
+        },
+        {
+          "ask": "Knob at 10%: AM1's reading (with its sign)"
+        },
+        {
+          "ask": "Knob at 50%: AM1's reading (with its sign)"
+        },
+        {
+          "ask": "At 50% the reading is negative. That means:",
+          "choices": [
+            "Current flows from B to A: B is now at a higher potential than A",
+            "The ammeter is broken; a negative reading means nothing",
+            "Current still flows from A to B, just less than at 10%"
+          ],
+          "explain": "The sign only gives the current's direction relative to the leads (in at red, out at black). Above the balance value RV1 makes the right arm's divider higher, so B sits above A."
+        }
       ],
       "hints": [
         "Build the two dividers first: R1 + R2 on the left, R3 + RV1 on the right, tops to +9V, bottoms to GND.",
@@ -32,50 +127,230 @@
         "RV1 at 22%: bridge balanced, AM1 ≈ 0",
         "RV1 at 10%: current flows from A to B",
         "RV1 at 50%: current reversed"
+      ],
+      "cards": [
+        {
+          "title": "Find the point where the meter reads zero",
+          "text": [
+            "Build it from the target schematic. Then click the pot and slowly drag its knob in Properties, watching AM1: is there a position where it reads exactly 0? Does it read positive on one side and negative on the other?"
+          ]
+        },
+        {
+          "title": "Balance = equal divider ratios",
+          "text": [
+            "- When A and B are at the same potential, the ammeter has no voltage across it and **no current through it**.",
+            "![](fig:bridge)",
+            "- That needs both dividers to have the same ratio: $\\frac{R_2}{R_1 + R_2} = \\frac{R_{V1}}{R_3 + R_{V1}}$, i.e. $\\frac{R_2}{R_1} = \\frac{R_{V1}}{R_3}$.",
+            "- Work it out before you touch it: what must RV1 be at balance, what percentage is the knob at, and is AM1 positive or negative when RV1 is below or above that?"
+          ]
+        },
+        {
+          "title": "Null it, then turn to either side",
+          "text": [
+            "- RV1 as a variable resistor: pin 1 to B, the wiper and pin 3 joined to GND; resistance = 10 kΩ × knob position.",
+            "- Find the zero reading, then turn to 10% and to 50% and note the readings."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- A bridge is accurate because the balance point **depends only on resistance ratios**: not on the supply voltage, not on how accurate the ammeter is — you only need to see \"zero or not\".",
+            "- Put an unknown resistor in place of R2, balance the bridge, and you can work out its value. Kitchen scales and strain-gauge force sensors use bridges too.",
+            "- The result is only as accurate as the comparison resistors: precision bridges need precision resistors."
+          ]
+        }
       ]
     }
   },
   "components": [
-    {"ref": "V1", "type": "dc_source", "voltage": 9},
-    {"ref": "R1", "type": "resistor", "resistance": "1k"},
-    {"ref": "R2", "type": "resistor", "resistance": "2.2k"},
-    {"ref": "R3", "type": "resistor", "resistance": "1k"},
-    {"ref": "RV1", "type": "potentiometer", "resistance": "10k"},
-    {"ref": "AM1", "type": "ammeter"}
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "2.2k"
+    },
+    {
+      "ref": "R3",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "RV1",
+      "type": "potentiometer",
+      "resistance": "10k"
+    },
+    {
+      "ref": "AM1",
+      "type": "ammeter"
+    }
   ],
   "nets": [
-    {"name": "VCC", "pins": ["V1.+", "R1.1", "R3.1"]},
-    {"name": "A", "pins": ["R1.2", "R2.1", "AM1.+"]},
-    {"name": "B", "pins": ["R3.2", "RV1.1", "AM1.-"]},
-    {"name": "GND", "pins": ["R2.2", "RV1.2", "RV1.3", "V1.-"]}
+    {
+      "name": "VCC",
+      "pins": [
+        "V1.+",
+        "R1.1",
+        "R3.1"
+      ]
+    },
+    {
+      "name": "A",
+      "pins": [
+        "R1.2",
+        "R2.1",
+        "AM1.+"
+      ]
+    },
+    {
+      "name": "B",
+      "pins": [
+        "R3.2",
+        "RV1.1",
+        "AM1.-"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "R2.2",
+        "RV1.2",
+        "RV1.3",
+        "V1.-"
+      ]
+    }
   ],
   "tests": [
     {
       "name": "RV1 在 22%：电桥平衡，AM1 ≈ 0",
-      "set": {"RV1": {"wiper": 0.22}},
-      "currents": [{"el": "AM1", "min": -1e-05, "max": 1e-05}],
+      "set": {
+        "RV1": {
+          "wiper": 0.22
+        }
+      },
+      "currents": [
+        {
+          "el": "AM1",
+          "min": -1e-05,
+          "max": 1e-05
+        }
+      ],
       "voltages": [
-        {"pin": "R1.2", "ref": "V1.-", "min": 6.0, "max": 6.35},
-        {"pin": "R3.2", "ref": "V1.-", "min": 6.0, "max": 6.35}
+        {
+          "pin": "R1.2",
+          "ref": "V1.-",
+          "min": 6.0,
+          "max": 6.35
+        },
+        {
+          "pin": "R3.2",
+          "ref": "V1.-",
+          "min": 6.0,
+          "max": 6.35
+        }
       ]
     },
     {
       "name": "RV1 在 10%：电流从 A 流向 B",
-      "set": {"RV1": {"wiper": 0.1}},
-      "currents": [{"el": "AM1", "min": 0.0013, "max": 0.00155}]
+      "set": {
+        "RV1": {
+          "wiper": 0.1
+        }
+      },
+      "currents": [
+        {
+          "el": "AM1",
+          "min": 0.0013,
+          "max": 0.00155
+        }
+      ]
     },
     {
       "name": "RV1 在 50%：电流反向",
-      "set": {"RV1": {"wiper": 0.5}},
-      "currents": [{"el": "AM1", "min": -0.00095, "max": -0.00078}]
+      "set": {
+        "RV1": {
+          "wiper": 0.5
+        }
+      },
+      "currents": [
+        {
+          "el": "AM1",
+          "min": -0.00095,
+          "max": -0.00078
+        }
+      ]
     }
   ],
   "compare": "**对比**：平衡条件 R1 / R2 = R3 / RV1，所以 RV1 = R3 × R2 / R1 = **2.2kΩ**，也就是旋钮在 **22%**。此时 V(A) = V(B) = 9 × 2.2 / 3.2 ≈ **6.19 V**，AM1 ≈ 0。不平衡时（模拟器读数）：\n- 10%（RV1 = 1kΩ）：右臂分压比左臂低（不接电流表时 B = 4.50 V，A = 6.19 V），电流从 A 流向 B，AM1 ≈ **+1.42 mA**；\n- 50%（RV1 = 5kΩ）：右臂分压比左臂高（B = 7.50 V），电流反过来，AM1 ≈ **−0.86 mA**。\n\n小提示：电流表只有 0.1Ω，不平衡时它也会把 A、B 两点“拉”到几乎同一个电压，所以这时用万用表量 A、B 看不出差别——要看电流表的读数。",
   "measurements": [
-    {"id": "ua", "voltage": "R1.2", "ref": "V1.-", "set": {"RV1": {"wiper": 0.22}}, "unit": "V", "predict": true, "range": [6.0, 6.35], "ask": "旋钮在 22%（RV1 = 2.2 kΩ）：A 点对 GND 的电压 U_A"},
-    {"id": "i10", "current": "AM1", "set": {"RV1": {"wiper": 0.1}}, "unit": "mA", "predict": true, "range": [0.0013, 0.00155], "ask": "旋钮在 10%：AM1 的读数（带正负号）"},
-    {"id": "i50", "current": "AM1", "set": {"RV1": {"wiper": 0.5}}, "unit": "mA", "predict": true, "range": [-0.00095, -0.00078], "ask": "旋钮在 50%：AM1 的读数（带正负号）"},
-    {"id": "dir", "choices": ["电流从 B 流向 A：这时 B 点电位比 A 点高", "电流表坏了，负的读数没有意义", "电流仍从 A 流向 B，只是比 10% 时小"], "correct": 0, "ask": "50% 时读数是负的，说明：", "explain": "读数的正负只表示电流方向相对于表笔方向（红进黑出）。RV1 大于平衡值时右臂分压比左臂高，B 点电位高于 A 点。"}
+    {
+      "id": "ua",
+      "voltage": "R1.2",
+      "ref": "V1.-",
+      "set": {
+        "RV1": {
+          "wiper": 0.22
+        }
+      },
+      "unit": "V",
+      "predict": true,
+      "range": [
+        6.0,
+        6.35
+      ],
+      "ask": "旋钮在 22%（RV1 = 2.2 kΩ）：A 点对 GND 的电压 V_A"
+    },
+    {
+      "id": "i10",
+      "current": "AM1",
+      "set": {
+        "RV1": {
+          "wiper": 0.1
+        }
+      },
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0013,
+        0.00155
+      ],
+      "ask": "旋钮在 10%：AM1 的读数（带正负号）"
+    },
+    {
+      "id": "i50",
+      "current": "AM1",
+      "set": {
+        "RV1": {
+          "wiper": 0.5
+        }
+      },
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        -0.00095,
+        -0.00078
+      ],
+      "ask": "旋钮在 50%：AM1 的读数（带正负号）"
+    },
+    {
+      "id": "dir",
+      "choices": [
+        "电流从 B 流向 A：这时 B 点电位比 A 点高",
+        "电流表坏了，负的读数没有意义",
+        "电流仍从 A 流向 B，只是比 10% 时小"
+      ],
+      "correct": 0,
+      "ask": "50% 时读数是负的，说明：",
+      "explain": "读数的正负只表示电流方向相对于表笔方向（红进黑出）。RV1 大于平衡值时右臂分压比左臂高，B 点电位高于 A 点。"
+    }
   ],
   "hints": [
     "先搭两个分压器：左边 R1 + R2，右边 R3 + RV1，上端都接 +9V，下端都接 GND。",
@@ -84,15 +359,81 @@
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
-      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b3", "2": "b7"}},
-      {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c7", "2": "tn9"}},
-      {"type": "resistor", "ref": "R3", "resistance": "1k", "pins": {"1": "tp12", "2": "b12"}},
-      {"type": "potentiometer", "ref": "RV1", "resistance": "10k", "at": "c12"},
-      {"type": "wire", "pins": {"a": "d13", "b": "d14"}, "color": "yellow"},
-      {"type": "wire", "pins": {"a": "a14", "b": "tn14"}, "color": "blue"},
-      {"type": "ammeter", "ref": "AM1", "pins": {"+": "d7", "-": "d12"}}
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "1k",
+        "pins": {
+          "1": "b3",
+          "2": "b7"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "2.2k",
+        "pins": {
+          "1": "c7",
+          "2": "tn9"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R3",
+        "resistance": "1k",
+        "pins": {
+          "1": "tp12",
+          "2": "b12"
+        }
+      },
+      {
+        "type": "potentiometer",
+        "ref": "RV1",
+        "resistance": "10k",
+        "at": "c12"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "d13",
+          "b": "d14"
+        },
+        "color": "yellow"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a14",
+          "b": "tn14"
+        },
+        "color": "blue"
+      },
+      {
+        "type": "ammeter",
+        "ref": "AM1",
+        "pins": {
+          "+": "d7",
+          "-": "d12"
+        }
+      }
     ]
   }
 }

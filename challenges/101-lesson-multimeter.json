@@ -2,152 +2,484 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-multimeter",
-  "title": "第 9 课 · 万用表：测电压",
+  "title": "万用表：看见电压",
   "kind": "lesson",
   "level": 2,
-  "summary": "电压总是“两点之间”的：红表笔、黑表笔各放哪里，读数就是哪两点的差。",
-  "concepts": ["voltage 电压", "multimeter 万用表", "probe 表笔", "reference direction 参考方向", "floating 悬空"],
-  "description": "**这一课学什么**：用万用表（multimeter）的电压档读面包板上的电压。后面所有实验都要你自己读表、填读数，这一课先把读表练熟。\n\n**电压是两点之间的**：万用表只有两支表笔。读数 = 红表笔那一点的电压 − 黑表笔那一点的电压。\n- 只放红表笔时，黑表笔默认接在 GND（电池 −），读到的就是“这一点对 GND 的电压”（结点电压）。\n- 两支都放在同一个元件的两端，读到的就是“这个元件两端的电压”。\n- 把红、黑交换，读数只变符号：电压没变，变的是你选的参考方向。\n- 表笔点在什么都没接的孔上，那一点是**悬空**（floating）的，没有确定的电压，万用表显示“悬空”。\n\n**怎么操作**：左边工具栏选“万用表”，单击一个孔放红表笔；按住 Shift 单击放黑表笔。读数显示在 3D 视图右上角的万用表屏幕上。\n\n**电路**：9V 电池 → R1（1kΩ）→ 结点 M（第 5 列）→ R2（2.2kΩ）→ GND。\n\n**先预测**：用分压公式算出 M 对 GND 的电压、R1 两端的电压，再去量。\n\n**仿真和真实万用表**：这里的万用表是理想的——它不从电路里取电流，所以量哪里都不会改变电路。真实的数字万用表电压档有约 10 MΩ 的输入电阻：量这一课的 1k、2.2k 电阻时影响小到看不出；但如果电阻是 MΩ 级的，表本身就和下面那个电阻并联，读数会明显偏小。真实的表笔点在悬空的点上也不会显示“悬空”，而是一个乱跳的数。",
-  "compare": "**对比**：电流 I = 9 V / (1 kΩ + 2.2 kΩ) ≈ 2.81 mA（电池内阻 1.5 Ω 可以忽略）。\n- 电池两端 ≈ 9.00 V；\n- M 对 GND：2.2 kΩ × 2.81 mA ≈ **6.18 V**；\n- R1 两端（红在 + 轨，黑在 M）：1 kΩ × 2.81 mA ≈ **2.81 V**；交换表笔后 ≈ **−2.81 V**；\n- 6.18 + 2.81 ≈ 9.0：沿着回路，各段电压加起来等于电池电压（KVL）。",
+  "summary": "从这一课起，电压不再是看不见的：两支表笔放哪里，读数就是哪两点的差。",
+  "concepts": [
+    "multimeter 万用表",
+    "voltage 电压",
+    "node voltage 结点电压",
+    "reference direction 参考方向",
+    "floating 悬空"
+  ],
+  "description": "用万用表的电压档读面包板上的电压：读数 = 红表笔那点的电压 − 黑表笔那点的电压；黑表笔不放时默认在 GND。电路是一个分压器：9 V 电池 → R1（1 kΩ）→ 结点 M → R2（2.2 kΩ）→ GND。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "先量一个电池",
+      "text": [
+        "搭一个两电阻的小电路，然后把万用表的红表笔点到 **+ 轨**上。",
+        "右上角的万用表屏幕会显示一个数。它在量什么？"
+      ],
+      "steps": 5
+    },
+    {
+      "kind": "explain",
+      "title": "电压是两点之间的",
+      "text": [
+        "- 万用表有两支表笔。**读数 = 红表笔那点 − 黑表笔那点。**",
+        "- 只放红表笔时，黑表笔默认在 **GND**，读到的就是“这一点对 GND 的电压”，叫**结点电压**。",
+        "- 两支表笔放在一个元件两端，读到的就是**这个元件两端的电压**。",
+        "![](fig:probes)",
+        "- 红黑对调，读数只变符号：电压没变，变的是你选的参考方向。",
+        "- 表笔点在什么都没接的孔上，那一点**悬空**，没有确定的电压，屏幕显示“悬空”。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "量三个电压",
+      "text": [
+        "电路：9 V → R1（1 kΩ）→ 结点 M（第 5 列）→ R2（2.2 kΩ）→ GND。",
+        "先用分压公式 $V_M = 9 \\times \\frac{2.2}{1 + 2.2}$ 预测，再去量。下面的测量题会先让你写预测。"
+      ],
+      "steps": 5
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **红减黑。** 黑表笔放哪里，哪里就是“0”。",
+        "- R1 两端的电压 + M 对 GND 的电压 = 电池电压：这就是 KVL 的影子，后面会正式学。",
+        "- **真实的表**：数字万用表电压档有约 10 MΩ 的输入电阻。量 kΩ 级电路时看不出影响；量 MΩ 级的电阻时，表和电阻并联，读数会明显偏小。真实的表笔点在悬空的点上会显示一个乱跳的数，而不是“悬空”。"
+      ]
+    }
+  ],
+  "figures": {
+    "probes": {
+      "kind": "schematic",
+      "caption": {
+        "text": "读数 = 红表笔那点 − 黑表笔那点。上面的表跨在 R1 两端，读 R1 的电压；右边的表黑表笔在 GND，读 M 点的结点电压。",
+        "i18n": {
+          "en": "Reading = red-probe point − black-probe point. The top meter spans R1 and reads its voltage; the right one has its black probe on GND and reads the node voltage at M."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 5], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [4, 0], "value": "1k"},
+          {"ref": "R2", "type": "R", "from": [4, 0], "to": [4, 5], "value": "2.2k"},
+          {"ref": "VM1", "type": "voltmeter", "from": [0, -2], "to": [4, -2], "label": "V_R1"},
+          {"ref": "VM2", "type": "voltmeter", "from": [6, 0], "to": [6, 5], "label": "V_M"}
+        ],
+        "wires": [
+          [[4, 0], [6, 0]],
+          [[6, 5], [0, 5]],
+          [[0, 0], [0, -2]],
+          [[4, -2], [4, 0]]
+        ],
+        "grounds": [[0, 5]],
+        "labels": [
+          {"at": [5, 0], "name": "M"}
+        ],
+        "marks": [
+          {"kind": "v", "el": "VM1", "name": ""}
+        ]
+      }
+    }
+  },
   "i18n": {
-            "en": {
-                    "title": "Lesson 9 · Multimeter: measuring voltage",
-                    "summary": "Voltage is always between two points: where the red and black probes sit decides what you read.",
-                    "concepts": ["voltage", "multimeter", "probes", "reference direction", "floating"],
-                    "description": "**What you learn**: reading voltages on the breadboard with the voltage range of a multimeter. Every lab after this asks you to read the instruments yourself and type the readings, so practise here first.\n\n**Voltage is between two points**: a multimeter has two probes. Reading = voltage at the red probe − voltage at the black probe.\n- With only the red probe placed, the black one sits on GND (battery −) by default: you read \"this point relative to GND\" (a node voltage).\n- With the two probes on the two ends of one part, you read the voltage across that part.\n- Swap red and black and only the sign changes: the voltage is the same, your reference direction is not.\n- A probe on a hole with nothing connected sits on a **floating** point: there is no defined voltage, and the meter says \"floating\".\n\n**How**: pick \"Multimeter\" in the toolbar on the left, click a hole for the red probe, Shift + click for the black probe. The reading shows on the multimeter screen at the top right of the 3D view.\n\n**Circuit**: 9V battery → R1 (1kΩ) → node M (column 5) → R2 (2.2kΩ) → GND.\n\n**Predict first**: use the divider formula for the voltage of M to GND and the voltage across R1, then measure.\n\n**Simulated vs real meter**: this multimeter is ideal — it draws no current, so measuring never changes the circuit. A real digital multimeter has about 10 MΩ input resistance on its voltage range: with the 1k and 2.2k resistors here the effect is far too small to see, but with resistors in the MΩ range the meter sits in parallel with the lower one and reads noticeably low. A real probe on a floating point does not say \"floating\" either; it shows a wandering number.",
-                    "compare": "**Compare**: current I = 9 V / (1 kΩ + 2.2 kΩ) ≈ 2.81 mA (the battery's 1.5 Ω is negligible).\n- Across the battery ≈ 9.00 V;\n- M to GND: 2.2 kΩ × 2.81 mA ≈ **6.18 V**;\n- Across R1 (red on the + rail, black on M): 1 kΩ × 2.81 mA ≈ **2.81 V**; with the probes swapped ≈ **−2.81 V**;\n- 6.18 + 2.81 ≈ 9.0: around the loop the voltages add up to the battery voltage (KVL).",
-                    "steps": [
-                              "Pick \"Battery\" in the toolbar (9V by default). Click tp1 first for the red lead (+), then tn1 for the black lead (−). The top red rail is now +9V and the blue rail is GND.",
-                              "Pick \"Resistor\", click tp5 and a5 for R1. In Properties on the right set it to 1kΩ, then click the Lesson tab to come back here.",
-                              "R2: click c5 and c12, set 2.2kΩ. Column 5 (a5–e5) is node M, where R1 meets R2.",
-                              "Pick \"Jumper wire\", click a12 and tn12: the lower end of R2 goes to GND and the current has a loop.",
-                              "Pick \"Multimeter\" and click tp10 for the red probe. The black probe isn't placed, so it is on GND. The screen at the top right shows the + rail to GND: the battery voltage.",
-                              "Move the red probe to d5 (column 5, node M). You now read M to GND. Write your prediction below before you look.",
-                              "Across R1: red probe on tp8, Shift + click e5 for the black probe. You now read the + rail minus M.",
-                              "Swap the probes: red on d5, Shift + click tp8 for black. Only the sign changes.",
-                              "Put the red probe on h20 — nothing is plugged into that column. The screen says \"floating\".",
-                              "Press \"Check my circuit\" below, then place the probes as each question says and type the readings."
-                            ],
-                    "hints": [
-                              "Think first: the reading is the red point minus the black point. An unplaced black probe is on GND.",
-                              "Node M is column 5, where the lower end of R1 and the upper end of R2 are. For the voltage across R1 the probes go on the + rail and on column 5.",
-                              "Voltage across R1 + voltage of M to GND = battery voltage; swapping the probes gives the negative of the first reading."
-                            ],
-                    "tests": ["Powered: the voltage at M lies between 0 and the battery voltage"],
-                    "measurements": [
-                                      {
-                                        "ask": "Red probe on the + rail (red line), black left on GND: the voltage across the battery",
-                                        "explain": "The 9V battery has 1.5 Ω inside; 2.8 mA lowers its terminal voltage by only 4 mV, so you read almost exactly 9 V."
-                                      },
-                                      {
-                                        "ask": "Red probe on column 5 (node M), black on GND: the voltage of M to GND",
-                                        "explain": "Divider: 9 V × 2.2k / (1k + 2.2k) ≈ 6.18 V."
-                                      },
-                                      {
-                                        "ask": "Red probe on the + rail, black probe (Shift + click) on column 5: the voltage across R1",
-                                        "explain": "1 kΩ × 2.81 mA ≈ 2.81 V; also 9 V − 6.18 V."
-                                      },
-                                      {
-                                        "ask": "Swap the probes: red on column 5, black on the + rail. What does it read? (with its sign)",
-                                        "explain": "Same size, opposite sign: the voltage didn't change, the reference direction (which point counts as +) did."
-                                      },
-                                      {
-                                        "ask": "With the red probe on the empty hole h20, what does the meter show?",
-                                        "choices": [
-                                                    "\"Floating\": nothing is connected to that column, it has no defined voltage",
-                                                    "0 V: nothing connected means 0 V",
-                                                    "the battery voltage"
-                                                  ],
-                                        "explain": "An empty strip is not part of any node of the circuit. A real meter shows a small wandering number there — it isn't 0 V, it just means nothing."
-                                      }
-                                    ]
-                  }
-          },
-  "components": [
-                  {"ref": "V1", "type": "battery", "variant": "9V"},
-                  {"ref": "R1", "type": "resistor", "resistance": "1k"},
-                  {"ref": "R2", "type": "resistor", "resistance": "2.2k"}
-                ],
-  "connections": [["V1.+", "R1.1"], ["R1.2", "R2.1"], ["R2.2", "V1.-"]],
-  "tests": [{"name": "通电：M 点电压在 0 和电池电压之间", "voltages": [{"pin": "R1.2", "ref": "V1.-", "min": 5.9, "max": 6.5}]}],
-  "measurements": [
-                    {
-                      "id": "ubat",
-                      "voltage": "V1.+",
-                      "ref": "V1.-",
-                      "unit": "V",
-                      "range": [8.9, 9.05],
-                      "ask": "红表笔点 + 轨（红线那条），黑表笔留在 GND：电池两端的电压",
-                      "explain": "9V 电池有 1.5 Ω 内阻，2.8 mA 的电流只让端电压低 4 mV，所以几乎正好是 9 V。"
-                    },
-                    {
-                      "id": "um",
-                      "voltage": "R1.2",
-                      "ref": "V1.-",
-                      "unit": "V",
-                      "predict": true,
-                      "range": [6.0, 6.4],
-                      "ask": "红表笔点第 5 列（结点 M），黑表笔在 GND：M 对 GND 的电压",
-                      "explain": "分压：9 V × 2.2k / (1k + 2.2k) ≈ 6.18 V。"
-                    },
-                    {
-                      "id": "ur1",
-                      "voltage": "R1.1",
-                      "ref": "R1.2",
-                      "unit": "V",
-                      "predict": true,
-                      "range": [2.7, 2.95],
-                      "ask": "红表笔点 + 轨，黑表笔（Shift + 单击）点第 5 列：R1 两端的电压",
-                      "explain": "1 kΩ × 2.81 mA ≈ 2.81 V；也等于 9 V − 6.18 V。"
-                    },
-                    {
-                      "id": "ur1rev",
-                      "voltage": "R1.2",
-                      "ref": "R1.1",
-                      "unit": "V",
-                      "range": [-2.95, -2.7],
-                      "ask": "交换表笔：红表笔在第 5 列，黑表笔在 + 轨，读数是多少？（带符号）",
-                      "explain": "数值一样，符号相反：电压没变，变的是参考方向（谁当“+”）。"
-                    },
-                    {
-                      "id": "float",
-                      "correct": 0,
-                      "ask": "红表笔点在空的 h20 时，万用表显示什么？",
-                      "choices": ["“悬空”：那一列什么都没接，没有确定的电压", "0 V：没接东西就是 0 V", "和电池一样的电压"],
-                      "explain": "没接任何东西的金属条不属于电路的任何结点。真实的表在这里会显示一个乱跳的小数——它不是 0 V，只是没意义。"
-                    }
-                  ],
-  "steps": [
-            {
-              "text": "左边工具栏选“电池”（默认 9V）。先单击 tp1 放红线（+），再单击 tn1 放黑线（−）。上方红轨就是 +9V，蓝轨是 GND。",
-              "highlight": ["tp1", "tn1"],
-              "check": [{"type": "battery", "pins": {"+": "tp1", "-": "tn1"}}]
-            },
-            {
-              "text": "选“电阻”，单击 tp5 和 a5，放 R1。右侧“属性”里把阻值改成 1kΩ，然后点“课程”标签回到这里。",
-              "highlight": ["tp5", "a5"],
-              "check": [{"type": "resistor", "pins": {"1": "tp5", "2": "a5"}, "resistance": "1k"}]
-            },
-            {
-              "text": "R2：单击 c5 和 c12，阻值 2.2kΩ。第 5 列（a5–e5）就是结点 M：R1 和 R2 在这里相连。",
-              "highlight": ["c5", "c12", "a5", "b5", "d5", "e5"],
-              "check": [{"type": "resistor", "pins": {"1": "c5", "2": "c12"}, "resistance": "2.2k"}]
-            },
-            {"text": "选“跳线”，单击 a12 和 tn12：R2 的下端接到 GND，电流有了回路。", "highlight": ["a12", "tn12"], "check": [{"type": "wire", "pins": {"a": "a12", "b": "tn12"}}]},
-            {"text": "选“万用表”，单击 tp10 放红表笔。黑表笔没放 = 在 GND。右上角的屏幕显示的是 + 轨对 GND 的电压，也就是电池电压。", "highlight": ["tp10"], "check": [{"probe": {"red": "tp10"}}]},
-            {"text": "红表笔改点 d5（第 5 列，结点 M）。读数是 M 对 GND 的电压。先在下面写预测再看。", "highlight": ["d5"], "check": [{"probe": {"red": "d5"}}]},
-            {"text": "测 R1 两端：红表笔点 tp8，按住 Shift 单击 e5 放黑表笔。现在读的是 + 轨减去 M。", "highlight": ["tp8", "e5"], "check": [{"probe": {"red": "tp8", "black": "e5"}}]},
-            {"text": "交换表笔：红表笔点 d5，Shift + 单击 tp8 放黑表笔。读数只变了符号。", "highlight": ["d5", "tp8"], "check": [{"probe": {"red": "d5", "black": "tp8"}}]},
-            {"text": "红表笔点 h20——那一列什么都没插。屏幕显示“悬空”。", "highlight": ["h20"], "check": [{"probe": {"red": "h20"}}]},
-            {"text": "点下面的“检查我的电路”，然后按题目说明放好表笔，把读数填进测量题。", "highlight": []}
+    "en": {
+      "title": "The multimeter: seeing voltage",
+      "summary": "From this lesson on, voltage is no longer invisible: where you put the two probes decides which two points you compare.",
+      "concepts": [
+        "multimeter",
+        "voltage",
+        "node voltage",
+        "reference direction",
+        "floating"
+      ],
+      "description": "Read voltages on the board with the multimeter's voltage range: reading = voltage at the red probe − voltage at the black probe; with the black probe not placed it sits on GND. The circuit is a divider: 9 V battery → R1 (1 kΩ) → node M → R2 (2.2 kΩ) → GND.",
+      "compare": "**Compare**: current I = 9 V / (1 kΩ + 2.2 kΩ) ≈ 2.81 mA (the battery's 1.5 Ω is negligible).\n- Across the battery ≈ 9.00 V;\n- M to GND: 2.2 kΩ × 2.81 mA ≈ **6.18 V**;\n- Across R1 (red on the + rail, black on M): 1 kΩ × 2.81 mA ≈ **2.81 V**; with the probes swapped ≈ **−2.81 V**;\n- 6.18 + 2.81 ≈ 9.0: around the loop the voltages add up to the battery voltage (KVL).",
+      "steps": [
+        "Pick **Battery** (9 V): red lead (+) in **`tp1`**, black lead (−) in **`tn1`**.",
+        "**Resistor R1**: **`tp5`** and **`a5`**, set to **`1 kΩ`** in Properties. (Then click the Lesson tab to come back here.)",
+        "**Resistor R2**: **`c5`** and **`c12`**, set to **`2.2 kΩ`**. Column 5 is **node M**: R1 and R2 meet here.",
+        "**Jumper** **`a12`** → **`tn12`**: R2's lower end goes to GND and the current has a loop.",
+        "Pick **Multimeter** and click **`tp10`** for the red probe. The black probe not placed = on GND. Look at the top right: that is the + rail relative to GND — the battery voltage.",
+        "Move the red probe to **`d5`** (node M). The reading is M's voltage to GND — write your prediction in the questions below before you look.",
+        "Across R1: red probe on **`tp8`**, hold **Shift** and click **`e5`** for the black probe. Now you read the + rail minus M.",
+        "Swap the probes: red probe on **`d5`**, **Shift** + click **`tp8`** for the black probe. How did the reading change?",
+        "Red probe on **`h20`** — nothing is plugged into that column. What does the display say?",
+        "Press **Check my circuit**, place the probes as each question says and type in your readings."
+      ],
+      "hints": [
+        "Think it through: the reading is the red probe's point minus the black probe's point. With the black probe not placed, it is on GND.",
+        "Node M is column 5: the lower end of R1 and the upper end of R2 are both in that column. To measure across R1, put one probe on the + rail and the other on column 5.",
+        "The voltage across R1 plus M's voltage to GND equals the battery voltage; swapping the probes gives the negative of the reading."
+      ],
+      "tests": [
+        "Powered: the voltage at M lies between 0 and the battery voltage"
+      ],
+      "measurements": [
+        {
+          "ask": "Red probe on the + rail (red line), black left on GND: the voltage across the battery",
+          "explain": "The 9V battery has 1.5 Ω inside; 2.8 mA lowers its terminal voltage by only 4 mV, so you read almost exactly 9 V."
+        },
+        {
+          "ask": "Red probe on column 5 (node M), black on GND: the voltage of M to GND",
+          "explain": "Divider: 9 V × 2.2k / (1k + 2.2k) ≈ 6.18 V."
+        },
+        {
+          "ask": "Red probe on the + rail, black probe (Shift + click) on column 5: the voltage across R1",
+          "explain": "1 kΩ × 2.81 mA ≈ 2.81 V; also 9 V − 6.18 V."
+        },
+        {
+          "ask": "Swap the probes: red on column 5, black on the + rail. What does it read? (with its sign)",
+          "explain": "Same size, opposite sign: the voltage didn't change, the reference direction (which point counts as +) did."
+        },
+        {
+          "ask": "With the red probe on the empty hole h20, what does the meter show?",
+          "choices": [
+            "\"Floating\": nothing is connected to that column, it has no defined voltage",
+            "0 V: nothing connected means 0 V",
+            "the battery voltage"
           ],
-  "hints": ["先想清楚：读数是红表笔那点减去黑表笔那点。黑表笔没放时它在 GND。", "结点 M 是第 5 列：R1 的下端和 R2 的上端都插在这一列。量 R1 两端，表笔要分别点在 + 轨和第 5 列。", "R1 两端的电压 + M 对 GND 的电压 = 电池电压；交换表笔后读数是原来的相反数。"],
+          "explain": "An empty strip is not part of any node of the circuit. A real meter shows a small wandering number there — it isn't 0 V, it just means nothing."
+        }
+      ],
+      "cards": [
+        {
+          "title": "Measure a battery first",
+          "text": [
+            "Build a small two-resistor circuit, then touch the multimeter's red probe to the **+ rail**.",
+            "The meter display in the top right shows a number. What is it measuring?"
+          ]
+        },
+        {
+          "title": "A voltage is between two points",
+          "text": [
+            "- A multimeter has two probes. **Reading = the red probe's point − the black probe's point.**",
+            "- With only the red probe placed, the black one sits on **GND** by default: you read \"this point relative to GND\", called a **node voltage**.",
+            "- With the probes on the two ends of one part, you read **the voltage across that part**.",
+            "![](fig:probes)",
+            "- Swap red and black and only the sign changes: the voltage is the same, your chosen reference direction is not.",
+            "- A probe on a hole with nothing in it touches a **floating** point with no defined voltage; the display shows \"floating\"."
+          ]
+        },
+        {
+          "title": "Measure three voltages",
+          "text": [
+            "Circuit: 9 V → R1 (1 kΩ) → node M (column 5) → R2 (2.2 kΩ) → GND.",
+            "Predict with the divider formula $V_M = 9 \\times \\frac{2.2}{1 + 2.2}$ first, then measure. The questions below ask for your prediction before the reading."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Red minus black.** Wherever the black probe sits is \"zero\".",
+            "- The voltage across R1 plus M's voltage to GND equals the battery voltage — a first glimpse of KVL, which comes properly later.",
+            "- **Real meters**: a digital multimeter on volts has about 10 MΩ of input resistance. In kΩ circuits you won't notice it; across MΩ resistors the meter sits in parallel and reads noticeably low. On a floating point a real meter shows a wandering number, not \"floating\"."
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "ref": "V1",
+      "type": "battery",
+      "variant": "9V"
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "2.2k"
+    }
+  ],
+  "connections": [
+    [
+      "V1.+",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "R2.1"
+    ],
+    [
+      "R2.2",
+      "V1.-"
+    ]
+  ],
+  "tests": [
+    {
+      "name": "通电：M 点电压在 0 和电池电压之间",
+      "voltages": [
+        {
+          "pin": "R1.2",
+          "ref": "V1.-",
+          "min": 5.9,
+          "max": 6.5
+        }
+      ]
+    }
+  ],
+  "compare": "**对比**：电流 I = 9 V / (1 kΩ + 2.2 kΩ) ≈ 2.81 mA（电池内阻 1.5 Ω 可以忽略）。\n- 电池两端 ≈ 9.00 V；\n- M 对 GND：2.2 kΩ × 2.81 mA ≈ **6.18 V**；\n- R1 两端（红在 + 轨，黑在 M）：1 kΩ × 2.81 mA ≈ **2.81 V**；交换表笔后 ≈ **−2.81 V**；\n- 6.18 + 2.81 ≈ 9.0：沿着回路，各段电压加起来等于电池电压（KVL）。",
+  "measurements": [
+    {
+      "id": "ubat",
+      "voltage": "V1.+",
+      "ref": "V1.-",
+      "unit": "V",
+      "range": [
+        8.9,
+        9.05
+      ],
+      "ask": "红表笔点 + 轨（红线那条），黑表笔留在 GND：电池两端的电压",
+      "explain": "9V 电池有 1.5 Ω 内阻，2.8 mA 的电流只让端电压低 4 mV，所以几乎正好是 9 V。"
+    },
+    {
+      "id": "um",
+      "voltage": "R1.2",
+      "ref": "V1.-",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        6.0,
+        6.4
+      ],
+      "ask": "红表笔点第 5 列（结点 M），黑表笔在 GND：M 对 GND 的电压",
+      "explain": "分压：9 V × 2.2k / (1k + 2.2k) ≈ 6.18 V。"
+    },
+    {
+      "id": "ur1",
+      "voltage": "R1.1",
+      "ref": "R1.2",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        2.7,
+        2.95
+      ],
+      "ask": "红表笔点 + 轨，黑表笔（Shift + 单击）点第 5 列：R1 两端的电压",
+      "explain": "1 kΩ × 2.81 mA ≈ 2.81 V；也等于 9 V − 6.18 V。"
+    },
+    {
+      "id": "ur1rev",
+      "voltage": "R1.2",
+      "ref": "R1.1",
+      "unit": "V",
+      "range": [
+        -2.95,
+        -2.7
+      ],
+      "ask": "交换表笔：红表笔在第 5 列，黑表笔在 + 轨，读数是多少？（带符号）",
+      "explain": "数值一样，符号相反：电压没变，变的是参考方向（谁当“+”）。"
+    },
+    {
+      "id": "float",
+      "correct": 0,
+      "ask": "红表笔点在空的 h20 时，万用表显示什么？",
+      "choices": [
+        "“悬空”：那一列什么都没接，没有确定的电压",
+        "0 V：没接东西就是 0 V",
+        "和电池一样的电压"
+      ],
+      "explain": "没接任何东西的金属条不属于电路的任何结点。真实的表在这里会显示一个乱跳的小数——它不是 0 V，只是没意义。"
+    }
+  ],
+  "steps": [
+    {
+      "text": "选**「电池」**（9 V）：**`tp1`** 放红线（+），**`tn1`** 放黑线（−）。",
+      "highlight": [
+        "tp1",
+        "tn1"
+      ],
+      "check": [
+        {
+          "type": "battery",
+          "pins": {
+            "+": "tp1",
+            "-": "tn1"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**电阻 R1**：**`tp5`** 和 **`a5`**，「属性」里设 **`1 kΩ`**。（写完属性点「课程」标签回到这里。）",
+      "highlight": [
+        "tp5",
+        "a5"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "tp5",
+            "2": "a5"
+          },
+          "resistance": "1k"
+        }
+      ]
+    },
+    {
+      "text": "**电阻 R2**：**`c5`** 和 **`c12`**，设 **`2.2 kΩ`**。第 5 列就是**结点 M**：R1 和 R2 在这里相连。",
+      "highlight": [
+        "c5",
+        "c12",
+        "a5",
+        "b5",
+        "d5",
+        "e5"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "c5",
+            "2": "c12"
+          },
+          "resistance": "2.2k"
+        }
+      ]
+    },
+    {
+      "text": "**跳线** **`a12`** → **`tn12`**：R2 的下端接到 GND，电流有了回路。",
+      "highlight": [
+        "a12",
+        "tn12"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a12",
+            "b": "tn12"
+          }
+        }
+      ]
+    },
+    {
+      "text": "选**「万用表」**，单击 **`tp10`** 放红表笔。黑表笔没放 = 在 GND。看右上角：这是 + 轨对 GND 的电压，也就是电池电压。",
+      "highlight": [
+        "tp10"
+      ],
+      "check": [
+        {
+          "probe": {
+            "red": "tp10"
+          }
+        }
+      ]
+    },
+    {
+      "text": "红表笔改点 **`d5`**（结点 M）。读数是 M 对 GND 的电压——先在下面的测量题里写预测再看。",
+      "highlight": [
+        "d5"
+      ],
+      "check": [
+        {
+          "probe": {
+            "red": "d5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "量 R1 两端：红表笔点 **`tp8`**，按住 **Shift** 单击 **`e5`** 放黑表笔。现在读的是 + 轨减去 M。",
+      "highlight": [
+        "tp8",
+        "e5"
+      ],
+      "check": [
+        {
+          "probe": {
+            "red": "tp8",
+            "black": "e5"
+          }
+        }
+      ]
+    },
+    {
+      "text": "对调表笔：红表笔点 **`d5`**，**Shift** + 单击 **`tp8`** 放黑表笔。读数怎么变了？",
+      "highlight": [
+        "d5",
+        "tp8"
+      ],
+      "check": [
+        {
+          "probe": {
+            "red": "d5",
+            "black": "tp8"
+          }
+        }
+      ]
+    },
+    {
+      "text": "红表笔点 **`h20`**——那一列什么都没插。屏幕显示什么？",
+      "highlight": [
+        "h20"
+      ],
+      "check": [
+        {
+          "probe": {
+            "red": "h20"
+          }
+        }
+      ]
+    },
+    {
+      "text": "点**「检查我的电路」**，按测量题的说明放好表笔，把读数填进去。",
+      "highlight": []
+    }
+  ],
+  "hints": [
+    "先想清楚：读数是红表笔那点减去黑表笔那点。黑表笔没放时它在 GND。",
+    "结点 M 是第 5 列：R1 的下端和 R2 的上端都插在这一列。量 R1 两端，表笔要分别点在 + 轨和第 5 列。",
+    "R1 两端的电压 + M 对 GND 的电压 = 电池电压；交换表笔后读数是原来的相反数。"
+  ],
   "solution": {
-                "parts": [
-                          {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "tp1", "-": "tn1"}},
-                          {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "tp5", "2": "a5"}},
-                          {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c5", "2": "c12"}},
-                          {"type": "wire", "pins": {"a": "a12", "b": "tn12"}, "color": "blue"}
-                        ]
-              }
+    "parts": [
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "1k",
+        "pins": {
+          "1": "tp5",
+          "2": "a5"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "2.2k",
+        "pins": {
+          "1": "c5",
+          "2": "c12"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a12",
+          "b": "tn12"
+        },
+        "color": "blue"
+      }
+    ]
+  }
 }

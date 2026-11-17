@@ -7,12 +7,12 @@
   "level": 4,
   "tags": ["相量图", "相量形式的 KVL", "实际线圈模型", "电压表读数"],
   "statement": [
-    "已知电阻 R = 7 Ω 与一个实际线圈串联（线圈模型为电阻 r 与电感 L 串联，参数未知），接在 U_s = 100 V（有效值）、ω = 1000 rad/s 的正弦电压源上。电压表 V_1 测得 R 两端电压 35 V，V_2 测得线圈两端电压 75 V。",
-    "以电流 i 为参考相量画相量图，求线圈内部 r、L 上的电压有效值 U_r、U_L，以及电流 i 与 u_s 的相位关系。"
+    "电阻 R = 7 Ω 与一个实际线圈串联，接在 V_s = 100 V（有效值）、ω = 1000 rad/s 的正弦电压源上。线圈的模型是电阻 r 串电感 L，参数未知。电压表 V_1 测得 R 两端电压 35 V，V_2 测得线圈两端电压 75 V。",
+    "以电流 i 为参考相量画相量图。求线圈内部 r、L 上的电压有效值 V_r、V_L，以及电流 i 与 v_s 的相位关系。最后求 r 和 L。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 100, "phase": 0 } } },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 100, "phase": 0 } } },
       { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 7 },
       { "ref": "r", "type": "R", "from": [10, 0], "to": [10, 3], "value": 9, "hideValue": true },
       { "ref": "L", "type": "L", "from": [10, 3], "to": [10, 6], "value": "12m", "hideValue": true },
@@ -34,27 +34,27 @@
   "questions": [
     {
       "id": "Ur",
-      "ask": "线圈电阻 r 上的电压 U_r = ?",
+      "ask": "线圈电阻 r 上的电压 V_r = ?",
       "find": { "kind": "v", "el": "r", "part": "mag" },
       "answer": 45,
       "unit": "V",
-      "explain": "两个直角三角形：100² = (35 + U_r)² + U_L²，75² = U_r² + U_L²。相减：4375 = 1225 + 70U_r → U_r = 45 V。"
+      "explain": "两个直角三角形：100² = (35 + V_r)² + V_L²，75² = V_r² + V_L²。相减：4375 = 1225 + 70V_r → V_r = 45 V。"
     },
     {
       "id": "UL",
-      "ask": "线圈电感 L 上的电压 U_L = ?",
+      "ask": "线圈电感 L 上的电压 V_L = ?",
       "find": { "kind": "v", "el": "L", "part": "mag" },
       "answer": 60,
       "unit": "V",
-      "explain": "U_L = √(75² − 45²) = 60 V。"
+      "explain": "V_L = √(75² − 45²) = 60 V。"
     },
     {
       "id": "phi",
-      "ask": "以 U̇_s = 100∠0° V 为参考，电流 i 的初相 = ?",
+      "ask": "以 V̇_s = 100∠0° V 为参考，电流 i 的初相 = ?",
       "find": { "kind": "i", "el": "R", "part": "phase" },
       "answer": -36.8699,
       "unit": "°",
-      "explain": "u_s 超前 i 的角度 φ = arctan[U_L/(U_R + U_r)] = arctan(60/80) = 36.87°，所以 ψ_i = −36.87°（感性，电流滞后）。"
+      "explain": "v_s 超前 i 的角度 φ = arctan[V_L/(V_R + V_r)] = arctan(60/80) = 36.87°，所以 ψ_i = −36.87°（感性，电流滞后）。"
     },
     {
       "id": "r",
@@ -62,7 +62,7 @@
       "find": { "kind": "val", "el": "r" },
       "answer": 9,
       "unit": "Ω",
-      "explain": "I = U_R/R = 35/7 = 5 A；r = U_r/I = 45/5 = 9 Ω。"
+      "explain": "I = V_R/R = 35/7 = 5 A；r = V_r/I = 45/5 = 9 Ω。"
     },
     {
       "id": "L",
@@ -70,53 +70,53 @@
       "find": { "kind": "val", "el": "L" },
       "answer": 0.012,
       "unit": "mH",
-      "explain": "X_L = U_L/I = 60/5 = 12 Ω，L = X_L/ω = 12/1000 = 12 mH。验算：线圈阻抗模 √(9² + 12²) = 15 Ω = 75/5，与 V_2 读数一致。"
+      "explain": "X_L = V_L/I = 60/5 = 12 Ω，L = X_L/ω = 12/1000 = 12 mH。验算：线圈阻抗模 √(9² + 12²) = 15 Ω = 75/5，与 V_2 读数一致。"
     }
   ],
   "hints": [
-    "串联电路以电流 İ 为参考相量：U̇_R、U̇_r 与 İ 同相（水平），U̇_L 超前 İ 90°（竖直）。",
-    "画出两个直角三角形：斜边 U_s = 100 V 对应 (U_R + U_r, U_L)，斜边 U_{线圈} = 75 V 对应 (U_r, U_L)。",
-    "两式相减消去 U_L，先求 U_r。"
+    "串联电路以电流 İ 为参考相量：V̇_R、V̇_r 与 İ 同相（水平），V̇_L 超前 İ 90°（竖直）。",
+    "画出两个直角三角形：斜边 V_s = 100 V 对应 (V_R + V_r, V_L)，斜边 V_{线圈} = 75 V 对应 (V_r, V_L)。",
+    "两式相减消去 V_L，先求 V_r。"
   ],
   "solution": [
-    "**1. 电流。** I = U_R/R = 35/7 = 5 A。以 İ = 5∠0° 为参考相量。",
-    "**2. 相量图。** U̇_R = 35∠0°，U̇_r = U_r∠0°，U̇_L = U_L∠90°。由 KVL：U̇_{线圈} = U̇_r + U̇_L，U̇_s = U̇_R + U̇_{线圈}。",
-    "**3. 列方程。** 75² = U_r² + U_L²；100² = (35 + U_r)² + U_L²。相减：10000 − 5625 = 1225 + 70U_r → **U_r = 45 V**，**U_L = √(75² − 45²) = 60 V**。",
+    "**1. 电流。** I = V_R/R = 35/7 = 5 A。以 İ = 5∠0° 为参考相量。",
+    "**2. 相量图。** V̇_R = 35∠0°，V̇_r = V_r∠0°，V̇_L = V_L∠90°。由 KVL：V̇_{线圈} = V̇_r + V̇_L，V̇_s = V̇_R + V̇_{线圈}。",
+    "**3. 列方程。** 75² = V_r² + V_L²；100² = (35 + V_r)² + V_L²。相减：10000 − 5625 = 1225 + 70V_r → **V_r = 45 V**，**V_L = √(75² − 45²) = 60 V**。",
     "**4. 线圈参数。** r = 45/5 = 9 Ω，X_L = 60/5 = 12 Ω，L = X_L/ω = 12 mH。",
-    "**5. 相位。** tan φ = U_L/(U_R + U_r) = 60/80 = 0.75，φ = 36.87°：u_s 超前 i 36.87°，以 u_s 为参考时 **ψ_i = −36.87°**。验算：√(80² + 60²) = 100 V = U_s。"
+    "**5. 相位。** tan φ = V_L/(V_R + V_r) = 60/80 = 0.75，φ = 36.87°：v_s 超前 i 36.87°，以 v_s 为参考时 **ψ_i = −36.87°**。验算：√(80² + 60²) = 100 V = V_s。"
   ],
   "i18n": {
     "en": {
       "title": "Finding a coil's parameters from a phasor diagram (three-voltmeter method)",
       "tags": ["phasor diagram", "phasor KVL", "practical coil model", "voltmeter reading"],
       "statement": [
-        "A resistor R = 7 Ω is in series with a practical coil (modelled as a resistance r in series with an inductance L, both unknown), connected to a sinusoidal source U_s = 100 V (rms), ω = 1000 rad/s. Voltmeter V_1 reads 35 V across R and V_2 reads 75 V across the coil.",
-        "Taking the current i as the reference phasor, draw the phasor diagram and find the rms voltages U_r and U_L across r and L inside the coil, and the phase relation between i and u_s."
+        "A resistor R = 7 Ω in series with a practical coil is connected to a sinusoidal source V_s = 100 V (rms), ω = 1000 rad/s. The coil is modelled as a resistance r in series with an inductance L, both unknown. Voltmeter V_1 reads 35 V across R and V_2 reads 75 V across the coil.",
+        "Draw the phasor diagram with the current i as the reference phasor. Find the rms voltages V_r and V_L across r and L inside the coil, and the phase relation between i and v_s. Finally find r and L."
       ],
       "questions": [
-        { "ask": "Voltage across the coil resistance, U_r = ?", "explain": "Two right triangles: 100² = (35 + U_r)² + U_L² and 75² = U_r² + U_L². Subtract: 4375 = 1225 + 70U_r → U_r = 45 V." },
-        { "ask": "Voltage across the coil inductance, U_L = ?", "explain": "U_L = √(75² − 45²) = 60 V." },
-        { "ask": "With U̇_s = 100∠0° V as reference, the initial phase of i = ?", "explain": "u_s leads i by φ = arctan[U_L/(U_R + U_r)] = arctan(60/80) = 36.87°, so ψ_i = −36.87° (inductive, the current lags)." },
+        { "ask": "Voltage across the coil resistance, V_r = ?", "explain": "Two right triangles: 100² = (35 + V_r)² + V_L² and 75² = V_r² + V_L². Subtract: 4375 = 1225 + 70V_r → V_r = 45 V." },
+        { "ask": "Voltage across the coil inductance, V_L = ?", "explain": "V_L = √(75² − 45²) = 60 V." },
+        { "ask": "With V̇_s = 100∠0° V as reference, the initial phase of i = ?", "explain": "v_s leads i by φ = arctan[V_L/(V_R + V_r)] = arctan(60/80) = 36.87°, so ψ_i = −36.87° (inductive, the current lags)." },
         {
           "ask": "Coil resistance r = ?",
-          "explain": "I = U_R/R = 35/7 = 5 A; r = U_r/I = 45/5 = 9 Ω."
+          "explain": "I = V_R/R = 35/7 = 5 A; r = V_r/I = 45/5 = 9 Ω."
         },
         {
           "ask": "Coil inductance L = ?",
-          "explain": "X_L = U_L/I = 60/5 = 12 Ω, L = X_L/ω = 12/1000 = 12 mH. Check: the coil impedance √(9² + 12²) = 15 Ω = 75/5, consistent with the V_2 reading."
+          "explain": "X_L = V_L/I = 60/5 = 12 Ω, L = X_L/ω = 12/1000 = 12 mH. Check: the coil impedance √(9² + 12²) = 15 Ω = 75/5, consistent with the V_2 reading."
         }
       ],
       "hints": [
-        "In a series circuit take the current İ as the reference phasor: U̇_R and U̇_r are in phase with İ (horizontal), U̇_L leads İ by 90° (vertical).",
-        "Draw two right triangles: hypotenuse U_s = 100 V with legs (U_R + U_r, U_L), and hypotenuse U_coil = 75 V with legs (U_r, U_L).",
-        "Subtract the two equations to eliminate U_L and get U_r first."
+        "In a series circuit take the current İ as the reference phasor: V̇_R and V̇_r are in phase with İ (horizontal), V̇_L leads İ by 90° (vertical).",
+        "Draw two right triangles: hypotenuse V_s = 100 V with legs (V_R + V_r, V_L), and hypotenuse V_coil = 75 V with legs (V_r, V_L).",
+        "Subtract the two equations to eliminate V_L and get V_r first."
       ],
       "solution": [
-        "**1. Current.** I = U_R/R = 35/7 = 5 A. Take İ = 5∠0° as the reference phasor.",
-        "**2. Phasor diagram.** U̇_R = 35∠0°, U̇_r = U_r∠0°, U̇_L = U_L∠90°. KVL: U̇_coil = U̇_r + U̇_L and U̇_s = U̇_R + U̇_coil.",
-        "**3. Equations.** 75² = U_r² + U_L²; 100² = (35 + U_r)² + U_L². Subtract: 10000 − 5625 = 1225 + 70U_r → **U_r = 45 V**, **U_L = √(75² − 45²) = 60 V**.",
+        "**1. Current.** I = V_R/R = 35/7 = 5 A. Take İ = 5∠0° as the reference phasor.",
+        "**2. Phasor diagram.** V̇_R = 35∠0°, V̇_r = V_r∠0°, V̇_L = V_L∠90°. KVL: V̇_coil = V̇_r + V̇_L and V̇_s = V̇_R + V̇_coil.",
+        "**3. Equations.** 75² = V_r² + V_L²; 100² = (35 + V_r)² + V_L². Subtract: 10000 − 5625 = 1225 + 70V_r → **V_r = 45 V**, **V_L = √(75² − 45²) = 60 V**.",
         "**4. Coil parameters.** r = 45/5 = 9 Ω, X_L = 60/5 = 12 Ω, L = X_L/ω = 12 mH.",
-        "**5. Phase.** tan φ = U_L/(U_R + U_r) = 60/80 = 0.75, φ = 36.87°: u_s leads i by 36.87°; with u_s as reference **ψ_i = −36.87°**. Check: √(80² + 60²) = 100 V = U_s."
+        "**5. Phase.** tan φ = V_L/(V_R + V_r) = 60/80 = 0.75, φ = 36.87°: v_s leads i by 36.87°; with v_s as reference **ψ_i = −36.87°**. Check: √(80² + 60²) = 100 V = V_s."
       ]
     }
   }

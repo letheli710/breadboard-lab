@@ -1,19 +1,22 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { tr, type Lang } from './core/i18n';
 import { ensureChallengeIndex, refreshChallenges, useActiveChallenge } from './state/challenges';
 import { refreshProblems } from './state/problems';
 import { startIndexLoads, startRouting } from './state/routeSync';
-import { useLang, useStore, type Mode } from './state/store';
+import { onPage, useLang, useStore, type Mode } from './state/store';
+import { inCourseOrder, itemLabel, placeOf } from './core/course';
 import { Icon } from './ui/Icons';
 import { Toast } from './ui/Toast';
 import { Mixed } from './ui/Mixed';
 import { useBenchUi } from './state/benchUi';
-import { Splitter } from './ui/Splitter';
 
 // every page is its own chunk; the 3D workbench (three.js) is only fetched for learn / challenge / sandbox
 const Workbench = lazy(() => import('./ui/Workbench').then((m) => ({ default: m.Workbench })));
 const SidePanel = lazy(() => import('./ui/Panel').then((m) => ({ default: m.SidePanel })));
+// the divider before the side panel rides in the workbench chunk (it is only on bench pages)
+const Splitter = lazy(() => import('./ui/Workbench').then((m) => ({ default: m.Splitter })));
 const BenchBar = lazy(() => import('./ui/BenchBar').then((m) => ({ default: m.BenchBar })));
+const CourseMap = lazy(() => import('./ui/CourseMap').then((m) => ({ default: m.CourseMap })));
 const Practice = lazy(() => import('./ui/Practice').then((m) => ({ default: m.Practice })));
 const Guide = lazy(() => import('./ui/Guide').then((m) => ({ default: m.Guide })));
 // "N due today" on the Practice card (the review schedule is a lazy chunk too)
@@ -113,23 +116,117 @@ function PracticeProgressCard() {
   );
 }
 
+/** Top right: the Practice progress (the course map button sits next to the logo, CourseButton). */
 function ProgressCard() {
+  const mode = useStore((s) => s.mode);
+  return mode === 'practice' ? <PracticeProgressCard /> : null;
+}
+
+/** Next to the logo: where you are in the course and how much is done. It opens the course map as
+ *  a panel down the left side (also opened by the task panel's breadcrumb, event
+ *  "bb-open-course-map"); Esc, a click outside or opening another item / page closes it. */
+function CourseButton() {
   const challenges = useStore((s) => s.challenges);
   const completed = useStore((s) => s.completed);
   const mode = useStore((s) => s.mode);
+  const activeId = useStore((s) => s.activeId);
   const status = useStore((s) => s.challengeIndex);
+  // the counts need the challenge index: fetch it at idle on the Guide and Sandbox pages. Practice
+  // stays light: there it loads once the button is pointed at, focused or opened.
   useIdleLoad(mode === 'practice' ? 'ready' : status, ensureChallengeIndex);
-  if (mode === 'practice') return <PracticeProgressCard />;
-  const kind = mode === 'challenge' ? 'challenge' : 'lesson';
-  const list = challenges.filter((c) => c.kind === kind);
+  const prefetch = () => void ensureChallengeIndex();
+  const page = mode === 'challenge' ? 'challenge' : 'learn';
+  const list = challenges.filter((c) => onPage(c, page));
   const done = list.filter((c) => completed[c.id]).length;
+  const total = status === 'ready' ? list.length : null;
+  // not requested yet (Practice): no count at all rather than a placeholder that never fills in
+  const counts = total !== null ? tr(`已完成 ${done} / ${total}`, `${done} of ${total} done`) : status === 'idle' ? '' : tr('加载中', 'loading');
+  const place = activeId && (mode === 'learn' || mode === 'challenge') ? placeOf(activeId) : undefined;
+  const where = place ? `World ${place.world.id} · ${itemLabel(place)}` : '';
+  const name = page === 'learn' ? tr('课程地图', 'Course map') : tr('挑战', 'Challenges');
+
+  // open for one page + item: navigating anywhere closes it without an effect
+  const key = `${mode}|${activeId ?? ''}`;
+  const keyRef = useRef(key);
+  keyRef.current = key;
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const open = openKey === key;
+  const btn = useRef<HTMLButtonElement>(null);
+  const pop = useRef<HTMLDivElement>(null);
+  // the side panel starts just below the button (the header's height changes with the width)
+  const [top, setTop] = useState(80);
+  useEffect(() => {
+    if (!open) return;
+    const place = () => setTop(Math.round((btn.current?.getBoundingClientRect().bottom ?? 72) + 8));
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, [open]);
+  useEffect(() => {
+    const on = () => {
+      void ensureChallengeIndex();
+      setOpenKey(keyRef.current);
+    };
+    window.addEventListener('bb-open-course-map', on);
+    return () => window.removeEventListener('bb-open-course-map', on);
+  }, []);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      e.stopPropagation();
+      setOpenKey(null);
+      btn.current?.focus();
+    };
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!pop.current?.contains(t) && !btn.current?.contains(t)) setOpenKey(null);
+    };
+    window.addEventListener('keydown', onKey, true);
+    document.addEventListener('pointerdown', onDown);
+    return () => {
+      window.removeEventListener('keydown', onKey, true);
+      document.removeEventListener('pointerdown', onDown);
+    };
+  }, [open]);
+
   return (
-    <ProgressView
-      icon={kind === 'lesson' ? 'book' : 'target'}
-      label={kind === 'lesson' ? tr('BASICS 基础课程', 'BASICS') : tr('CHALLENGES 挑战', 'CHALLENGES')}
-      done={done}
-      total={status === 'ready' ? list.length : null}
-    />
+    <div className="course-btn-wrap">
+      <button
+        ref={btn}
+        className={`course-btn ${total === null ? 'pending' : ''} ${open ? 'open' : ''}`}
+        aria-expanded={open}
+        aria-controls="course-map-pop"
+        aria-haspopup="dialog"
+        aria-label={`${name}${where ? `：${where}` : ''}${counts ? `，${counts}` : ''}`}
+        onPointerEnter={prefetch}
+        onFocus={prefetch}
+        onClick={() => {
+          prefetch();
+          setOpenKey(open ? null : key);
+        }}
+      >
+        <Icon name={page === 'learn' ? 'book' : 'target'} size={22} />
+        <div aria-hidden>
+          <div className="pc-title">
+            <Mixed text={page === 'learn' ? tr('课程地图 COURSE MAP', 'COURSE MAP') : tr('挑战 CHALLENGES', 'CHALLENGES')} />
+          </div>
+          <div className="pc-where">{where || tr('点开选一课', 'pick a unit')}</div>
+        </div>
+        {status !== 'idle' && <b aria-hidden>{total === null ? '–/–' : `${done}/${total}`}</b>}
+        <span className="pc-chev" aria-hidden>
+          ▾
+        </span>
+      </button>
+      {open && (
+        <div className="course-pop" id="course-map-pop" ref={pop} role="dialog" aria-label={name} style={{ top }}>
+          <Suspense fallback={<PageLoading />}>
+            <CourseMap kind={page === 'learn' ? 'lesson' : 'challenge'} onPick={() => setOpenKey(null)} />
+          </Suspense>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -175,7 +272,9 @@ function CelebrateDialog() {
       if (prev && document.contains(prev)) prev.focus();
     };
   }, [setCelebrate]);
-  const same = challenges.filter((c) => c.kind === ch.kind);
+  // next in course order on this page (Learn: the whole course map; Challenges: labs only)
+  const page = useStore.getState().mode === 'learn' ? 'learn' : 'challenge';
+  const same = inCourseOrder(challenges.filter((c) => onPage(c, page)));
   const next = same.slice(same.indexOf(ch) + 1).find((c) => !completed[c.id]) ?? same.find((c) => !completed[c.id]);
   return (
     <div className="modal-bg" onClick={() => setCelebrate(false)}>
@@ -197,7 +296,7 @@ function CelebrateDialog() {
               className="primary"
               onClick={() => {
                 setCelebrate(false);
-                open(next.id);
+                open(next.id, page);
               }}
             >
               {tr('下一个：', 'Next: ')}
@@ -364,6 +463,7 @@ export default function App() {
             </div>
           </div>
         </div>
+        <CourseButton />
         <nav className="nav" aria-label={tr('主导航', 'Main')}>
           {NAV.map((n) => (
             <button key={n.mode} className={mode === n.mode ? 'on' : ''} aria-current={mode === n.mode ? 'page' : undefined} onClick={() => setMode(n.mode)}>

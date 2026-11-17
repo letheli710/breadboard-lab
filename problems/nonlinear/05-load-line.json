@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["曲线相交法", "负载线", "戴维宁等效", "替代定理"],
   "statement": [
-    "U_s = 12 V，R_1 = R_2 = 2 kΩ，R_3 = 1 kΩ。非线性电阻 N 的 u–i 特性是分段线性的（见下方特性图）：从原点到 (1 V，0.5 mA)，再到 (2 V，1.5 mA)，之后斜率为 2 mA/V。",
-    "用曲线相交法求工作点：先求从 N 两端看进去的戴维宁等效电路，再求 U_Q、I_Q，最后求 R_2 中的电流。"
+    "V_s = 12 V，R_1 = R_2 = 2 kΩ，R_3 = 1 kΩ。非线性电阻 N 的 v–i 特性是分段线性的（见下方特性图）：从原点到 (1 V，0.5 mA)，再到 (2 V，1.5 mA)，之后斜率为 2 mA/V。",
+    "用曲线相交法求工作点：先求从 N 两端看进去的戴维宁等效电路，再求 V_Q、I_Q，最后求 R_2 中的电流。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12},
       {"ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": "2k"},
       {"ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": "2k"},
       {"ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": "1k"},
@@ -22,18 +22,18 @@
     "labels": [{"at": [8, 0], "name": "b"}],
     "terminals": [{"at": [16, 0], "name": "a"}],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}],
+    "marks": [{"kind": "v", "el": "N", "name": "v"}, {"kind": "i", "el": "N", "name": "i"}],
     "plot": {"el": "N", "u": [0, 6.5], "i": [0, 0.0045], "loadLine": true, "iUnit": "mA"}
   },
   "analysis": {"type": "dc"},
   "questions": [
     {
       "id": "uoc",
-      "ask": "断开 N，a 点对地的开路电压 U_oc = ?",
+      "ask": "断开 N，a 点对地的开路电压 V_oc = ?",
       "find": {"kind": "vth", "port": ["a", "0"], "exclude": ["N"]},
       "answer": 6,
       "unit": "V",
-      "explain": "N 断开后 R_3 中无电流，U_oc = u_b = 12 × 2/(2 + 2) = 6 V。"
+      "explain": "N 断开后 R_3 中无电流，V_oc = v_b = 12 × 2/(2 + 2) = 6 V。"
     },
     {
       "id": "r0",
@@ -41,15 +41,15 @@
       "find": {"kind": "req", "port": ["a", "0"], "exclude": ["N"]},
       "answer": 2000,
       "unit": "kΩ",
-      "explain": "U_s 短路：R_0 = R_3 + R_1 ∥ R_2 = 1 + 1 = 2 kΩ。"
+      "explain": "V_s 短路：R_0 = R_3 + R_1 ∥ R_2 = 1 + 1 = 2 kΩ。"
     },
     {
       "id": "uq",
-      "ask": "U_Q = ?",
+      "ask": "V_Q = ?",
       "find": {"kind": "v", "el": "N"},
       "answer": 2.2,
       "unit": "V",
-      "explain": "负载线 i = (6 − u)/2 kΩ 与第三段 i = 1.5 mA + 2 mA/V × (u − 2) 相交：u = 2.2 V。"
+      "explain": "负载线 i = (6 − v)/2 kΩ 与第三段 i = 1.5 mA + 2 mA/V × (v − 2) 相交：v = 2.2 V。"
     },
     {
       "id": "iq",
@@ -65,34 +65,34 @@
       "find": {"kind": "i", "el": "R2"},
       "answer": 0.00205,
       "unit": "mA",
-      "explain": "回到原电路（替代定理：N 可以换成 1.9 mA 的电流源）：u_b = U_Q + R_3·I_Q = 2.2 + 1.9 = 4.1 V，i_2 = 4.1/2 kΩ = 2.05 mA。"
+      "explain": "回到原电路（替代定理：N 可以换成 1.9 mA 的电流源）：v_b = V_Q + R_3·I_Q = 2.2 + 1.9 = 4.1 V，i_2 = 4.1/2 kΩ = 2.05 mA。"
     }
   ],
-  "hints": ["非线性电阻之外的部分是线性的，可以用戴维宁定理化简。", "化简后 KVL 给出一条直线（负载线）u = U_oc − R_0·i。把它画在特性图上，看与哪一段相交。", "负载线过 (6 V，0) 和 (0，3 mA)；逐段写出特性方程与它联立，交点必须落在该段的范围内。"],
+  "hints": ["非线性电阻之外的部分是线性的，可以用戴维宁定理化简。", "化简后 KVL 给出一条直线（负载线）v = V_oc − R_0·i。把它画在特性图上，看与哪一段相交。", "负载线过 (6 V，0) 和 (0，3 mA)；逐段写出特性方程与它联立，交点必须落在该段的范围内。"],
   "solution": [
-    "**1. 戴维宁等效。** 断开 N：U_oc = 12 × 2/(2 + 2) = **6 V**；U_s 短路：R_0 = 1 + 2 ∥ 2 = **2 kΩ**。",
-    "**2. 负载线。** u = 6 − 2000i，即 i = (6 − u)/2000，过 (6 V，0) 和 (0，3 mA)。",
-    "**3. 逐段相交。** 第一段 i = 0.5u（mA，u 单位 V）：0.5u = 3 − 0.5u → u = 3 V，超出 0～1 V ✗。第二段 i = 0.5 + (u − 1)：u − 0.5 = 3 − 0.5u → u = 2.33 V，超出 1～2 V ✗。第三段 i = 1.5 + 2(u − 2)：2u − 2.5 = 3 − 0.5u → **u = 2.2 V** ✓（u ≥ 2 V）。",
-    "**4. 工作点。** **U_Q = 2.2 V，I_Q = 1.9 mA**。",
-    "**5. 回到原电路。** u_b = 2.2 + 1 kΩ × 1.9 mA = 4.1 V，i_2 = **2.05 mA**；检查 KCL：i_1 = (12 − 4.1)/2 = 3.95 mA = 2.05 + 1.9 ✓。"
+    "**1. 戴维宁等效。** 断开 N：V_oc = 12 × 2/(2 + 2) = **6 V**；V_s 短路：R_0 = 1 + 2 ∥ 2 = **2 kΩ**。",
+    "**2. 负载线。** v = 6 − 2000i，即 i = (6 − v)/2000，过 (6 V，0) 和 (0，3 mA)。",
+    "**3. 逐段相交。** 第一段 i = 0.5v（mA，v 单位 V）：0.5v = 3 − 0.5v → v = 3 V，超出 0～1 V ✗。第二段 i = 0.5 + (v − 1)：v − 0.5 = 3 − 0.5v → v = 2.33 V，超出 1～2 V ✗。第三段 i = 1.5 + 2(v − 2)：2v − 2.5 = 3 − 0.5v → **v = 2.2 V** ✓（v ≥ 2 V）。",
+    "**4. 工作点。** **V_Q = 2.2 V，I_Q = 1.9 mA**。",
+    "**5. 回到原电路。** v_b = 2.2 + 1 kΩ × 1.9 mA = 4.1 V，i_2 = **2.05 mA**；检查 KCL：i_1 = (12 − 4.1)/2 = 3.95 mA = 2.05 + 1.9 ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Load-line method: reduce the linear part to a Thevenin circuit first",
       "tags": ["load-line method", "load line", "Thevenin equivalent", "substitution theorem"],
       "statement": [
-        "U_s = 12 V, R_1 = R_2 = 2 kΩ, R_3 = 1 kΩ. The nonlinear resistor N has a piecewise-linear u–i characteristic (see the plot below): from the origin to (1 V, 0.5 mA), then to (2 V, 1.5 mA), and beyond that a slope of 2 mA/V.",
-        "Find the operating point graphically: first the Thevenin equivalent seen from N's terminals, then U_Q and I_Q, and finally the current in R_2."
+        "V_s = 12 V, R_1 = R_2 = 2 kΩ, R_3 = 1 kΩ. The nonlinear resistor N has a piecewise-linear v–i characteristic (see the plot below): from the origin to (1 V, 0.5 mA), then to (2 V, 1.5 mA), and beyond that a slope of 2 mA/V.",
+        "Find the operating point graphically: first the Thevenin equivalent seen from N's terminals, then V_Q and I_Q, and finally the current in R_2."
       ],
       "questions": [
         {
-          "ask": "With N removed, the open-circuit voltage of a to ground, U_oc = ?",
-          "explain": "With N removed R_3 carries no current, so U_oc = u_b = 12 × 2/(2 + 2) = 6 V."
+          "ask": "With N removed, the open-circuit voltage of a to ground, V_oc = ?",
+          "explain": "With N removed R_3 carries no current, so V_oc = v_b = 12 × 2/(2 + 2) = 6 V."
         },
-        {"ask": "Thevenin resistance R_0 = ?", "explain": "Short U_s: R_0 = R_3 + R_1 ∥ R_2 = 1 + 1 = 2 kΩ."},
+        {"ask": "Thevenin resistance R_0 = ?", "explain": "Short V_s: R_0 = R_3 + R_1 ∥ R_2 = 1 + 1 = 2 kΩ."},
         {
-          "ask": "U_Q = ?",
-          "explain": "The load line i = (6 − u)/2 kΩ meets the third segment i = 1.5 mA + 2 mA/V × (u − 2) at u = 2.2 V."
+          "ask": "V_Q = ?",
+          "explain": "The load line i = (6 − v)/2 kΩ meets the third segment i = 1.5 mA + 2 mA/V × (v − 2) at v = 2.2 V."
         },
         {
           "ask": "I_Q = ?",
@@ -100,20 +100,20 @@
         },
         {
           "ask": "Current in R_2 (downwards) = ?",
-          "explain": "Back in the original circuit (substitution theorem: N may be replaced by a 1.9 mA current source): u_b = U_Q + R_3·I_Q = 2.2 + 1.9 = 4.1 V, i_2 = 4.1/2 kΩ = 2.05 mA."
+          "explain": "Back in the original circuit (substitution theorem: N may be replaced by a 1.9 mA current source): v_b = V_Q + R_3·I_Q = 2.2 + 1.9 = 4.1 V, i_2 = 4.1/2 kΩ = 2.05 mA."
         }
       ],
       "hints": [
         "Everything except the nonlinear resistor is linear and can be reduced with Thevenin's theorem.",
-        "After the reduction KVL gives a straight line (the load line) u = U_oc − R_0·i. Draw it on the characteristic and see which segment it crosses.",
+        "After the reduction KVL gives a straight line (the load line) v = V_oc − R_0·i. Draw it on the characteristic and see which segment it crosses.",
         "The load line passes (6 V, 0) and (0, 3 mA); solve it with each segment's equation — the intersection must lie inside that segment."
       ],
       "solution": [
-        "**1. Thevenin equivalent.** Remove N: U_oc = 12 × 2/(2 + 2) = **6 V**; short U_s: R_0 = 1 + 2 ∥ 2 = **2 kΩ**.",
-        "**2. Load line.** u = 6 − 2000i, i.e. i = (6 − u)/2000, through (6 V, 0) and (0, 3 mA).",
-        "**3. Segment by segment.** Segment 1, i = 0.5u (mA with u in V): 0.5u = 3 − 0.5u → u = 3 V, outside 0–1 V ✗. Segment 2, i = 0.5 + (u − 1): u − 0.5 = 3 − 0.5u → u = 2.33 V, outside 1–2 V ✗. Segment 3, i = 1.5 + 2(u − 2): 2u − 2.5 = 3 − 0.5u → **u = 2.2 V** ✓ (u ≥ 2 V).",
-        "**4. Operating point.** **U_Q = 2.2 V, I_Q = 1.9 mA**.",
-        "**5. Back to the original circuit.** u_b = 2.2 + 1 kΩ × 1.9 mA = 4.1 V, i_2 = **2.05 mA**; KCL check: i_1 = (12 − 4.1)/2 = 3.95 mA = 2.05 + 1.9 ✓."
+        "**1. Thevenin equivalent.** Remove N: V_oc = 12 × 2/(2 + 2) = **6 V**; short V_s: R_0 = 1 + 2 ∥ 2 = **2 kΩ**.",
+        "**2. Load line.** v = 6 − 2000i, i.e. i = (6 − v)/2000, through (6 V, 0) and (0, 3 mA).",
+        "**3. Segment by segment.** Segment 1, i = 0.5v (mA with v in V): 0.5v = 3 − 0.5v → v = 3 V, outside 0–1 V ✗. Segment 2, i = 0.5 + (v − 1): v − 0.5 = 3 − 0.5v → v = 2.33 V, outside 1–2 V ✗. Segment 3, i = 1.5 + 2(v − 2): 2v − 2.5 = 3 − 0.5v → **v = 2.2 V** ✓ (v ≥ 2 V).",
+        "**4. Operating point.** **V_Q = 2.2 V, I_Q = 1.9 mA**.",
+        "**5. Back to the original circuit.** v_b = 2.2 + 1 kΩ × 1.9 mA = 4.1 V, i_2 = **2.05 mA**; KCL check: i_1 = (12 − 4.1)/2 = 3.95 mA = 2.05 + 1.9 ✓."
       ]
     }
   }

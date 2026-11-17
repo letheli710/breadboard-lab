@@ -2,161 +2,511 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-scope-two-channels",
-  "title": "第 13 课 · 示波器双通道：相位差",
   "kind": "lesson",
   "level": 3,
-  "summary": "CH1 看输入、CH2 看输出，比较幅度和相位；两个接地夹都必须夹在 GND 上。",
-  "concepts": ["oscilloscope 示波器", "CH1 / CH2 双通道", "phase difference 相位差", "ground clip 接地夹", "RC circuit RC 电路"],
-  "description": "**这一课学什么**：用示波器的两个通道同时看两个电压，读出它们的峰峰值和**相位差**。第 4 期的滤波器、相量实验全靠这个。\n\n**两个通道**：第一个放的探头接 CH1（黄色），第二个接 CH2（青色）。习惯上 CH1 看输入（信号发生器的输出端），CH2 看输出。\n\n**相位差**：两个同频率的正弦波，一个比另一个晚到达波峰，晚了 Δt。相位差 = Δt / T × 360°。CH2 比 CH1 晚，就说 CH2 **滞后**（相位差为负）。屏幕下面直接显示“相位差 CH2 相对 CH1”；你也可以数格子：Δt 占几格 × 时间/格。\n\n**接地夹**：示波器只能测“针尖 − 接地夹”。真实示波器的所有接地夹在内部连在一起、连到大地，信号发生器的地也一样——所以接地夹**只能**夹在电路的 GND 上。夹在别的点上，等于用一根线把那一点接地。这一课会故意夹错一次，看看诊断怎么说。\n\n**电路**：信号发生器 → R1（1kΩ）→ 结点 OUT → C1（100nF）→ GND。CH1 看 R1 左边（输入），CH2 看 OUT（电容上的电压）。\n\n**先预测**：1 kHz 时电容的容抗 1 / (2πfC) 是多少？OUT 比输入小多少、晚多少度？\n\n**仿真和真实示波器**：这里的接地夹夹错时，仿真照样测“针尖 − 接地夹”，只给一条提示；真实示波器会把那一点短路到地，电路行为都变了。想看一个不接地的元件两端的电压，用两个探头（接地夹都在 GND），再看 CH1 − CH2（很多示波器有 MATH 功能）。",
-  "compare": "**对比**：1 kHz 时容抗 Xc = 1 / (2π × 1000 × 100 nF) ≈ 1592 Ω，和 R1 = 1 kΩ 差不多大：\n- OUT / 输入 = Xc / √(R² + Xc²) ≈ **0.847**；\n- 输入端被信号发生器的 50 Ω 拉低一点，CH1 ≈ **1.97 Vpp**，CH2 ≈ 0.847 × 1.97 ≈ **1.67 Vpp**；\n- 相位差 = −arctan(R / Xc) = −arctan(1000 / 1592) ≈ **−32°**（CH2 滞后）；时间差 Δt = 32 / 360 × 1 ms ≈ **89 µs**。\n- 接地夹夹在输入端时，CH2 测的是 OUT − 输入 = −（R1 两端的电压）：一个反相的、R1 上的电压。",
+  "title": "示波器双通道：谁先到、谁后到",
+  "summary": "CH1 看输入、CH2 看输出，同时比较两个电压的大小和时间：晚到的那个有一个相位差。",
+  "prereq": ["lesson-generator-load"],
+  "concepts": ["oscilloscope 示波器", "CH1 / CH2 双通道", "phase difference 相位差", "lag / lead 滞后 / 超前"],
+  "description": "信号发生器 → R1（1 kΩ）→ 结点 OUT → C1（100 nF）→ GND。CH1 看输入，CH2 看 OUT：读出两个峰峰值和相位差。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "两个探头，两条波",
+      "text": ["搭一个电阻加一个**电容**的小电路。电容是 3.3 才正式认识的元件；现在只要知道：它要一点时间才能“充满”。", "放两个探头：一个看输入，一个看电容。", "屏幕上有黄、青两条波。哪一条先到达波峰？"],
+      "steps": 5
+    },
+    {
+      "kind": "explain",
+      "title": "晚到多少，用角度说",
+      "text": [
+        "- 两条波频率一样、形状一样，只是一条**晚到**一点。晚的时间叫 Δt。",
+        "- 像两个人在操场上跑圈：跑完一圈是 360°，落后半圈就是 180°。所以晚到的时间换成角度：",
+        "$$φ = \\frac{Δt}{T} × 360°$$",
+        "- 例如晚 0.25 ms、周期 1 ms：φ = 0.25 / 1 × 360° = 90°。",
+        "![](fig:lag)",
+        "- CH2 比 CH1 晚，就说 CH2 **滞后**，相位差记成负数。屏幕下面直接显示“相位差 CH2 相对 CH1”。",
+        "![](fig:rc)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "读两个通道",
+      "text": ["- 把时间/格调到 **`100 µs`**，数一数两个波峰之间隔了几格。", "- 两个电压的大小、相位差都在屏幕下面。电压小的那条也是晚到的那条吗？"],
+      "steps": 2
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **CH1 看输入，CH2 看输出**，两个接地夹都夹 GND。",
+        "- **φ = Δt / T × 360°**；晚到的一方相位差为负（滞后）。",
+        "- 想看 R1 这种两端都不接地的元件的电压，用两个探头看 **CH1 − CH2**（很多示波器有 MATH 功能），不要把接地夹夹到中间去。",
+        "- 为什么正好是这个大小、这个角度？第 4 世界用相量来算。"
+      ]
+    }
+  ],
+  "figures": {
+    "lag": {
+      "kind": "plot",
+      "caption": {
+        "text": "CH2 比 CH1 晚 Δt 到达波峰。这张图里 Δt 是四分之一个周期，也就是 −90°；你的电路晚得少一些。",
+        "i18n": {
+          "en": "CH2 reaches its peak Δt after CH1. In this picture Δt is a quarter of a period, −90°; your circuit is less late."
+        }
+      },
+      "x": {
+        "label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}},
+        "min": 0,
+        "max": 2,
+        "ticks": [0, 0.5, 1, 1.5, 2]
+      },
+      "y": {"label": {"text": "电压 (V)", "i18n": {"en": "voltage (V)"}}, "min": -1.3, "max": 1.3, "ticks": [-1, 0, 1]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.02, 0.1253],
+            [0.04, 0.2487],
+            [0.06, 0.3681],
+            [0.08, 0.4818],
+            [0.1, 0.5878],
+            [0.12, 0.6845],
+            [0.14, 0.7705],
+            [0.16, 0.8443],
+            [0.18, 0.9048],
+            [0.2, 0.9511],
+            [0.22, 0.9823],
+            [0.24, 0.998],
+            [0.26, 0.998],
+            [0.28, 0.9823],
+            [0.3, 0.9511],
+            [0.32, 0.9048],
+            [0.34, 0.8443],
+            [0.36, 0.7705],
+            [0.38, 0.6845],
+            [0.4, 0.5878],
+            [0.42, 0.4818],
+            [0.44, 0.3681],
+            [0.46, 0.2487],
+            [0.48, 0.1253],
+            [0.5, 1.225e-16],
+            [0.52, -0.1253],
+            [0.54, -0.2487],
+            [0.56, -0.3681],
+            [0.58, -0.4818],
+            [0.6, -0.5878],
+            [0.62, -0.6845],
+            [0.64, -0.7705],
+            [0.66, -0.8443],
+            [0.68, -0.9048],
+            [0.7, -0.9511],
+            [0.72, -0.9823],
+            [0.74, -0.998],
+            [0.76, -0.998],
+            [0.78, -0.9823],
+            [0.8, -0.9511],
+            [0.82, -0.9048],
+            [0.84, -0.8443],
+            [0.86, -0.7705],
+            [0.88, -0.6845],
+            [0.9, -0.5878],
+            [0.92, -0.4818],
+            [0.94, -0.3681],
+            [0.96, -0.2487],
+            [0.98, -0.1253],
+            [1.0, -2.449e-16],
+            [1.02, 0.1253],
+            [1.04, 0.2487],
+            [1.06, 0.3681],
+            [1.08, 0.4818],
+            [1.1, 0.5878],
+            [1.12, 0.6845],
+            [1.14, 0.7705],
+            [1.16, 0.8443],
+            [1.18, 0.9048],
+            [1.2, 0.9511],
+            [1.22, 0.9823],
+            [1.24, 0.998],
+            [1.26, 0.998],
+            [1.28, 0.9823],
+            [1.3, 0.9511],
+            [1.32, 0.9048],
+            [1.34, 0.8443],
+            [1.36, 0.7705],
+            [1.38, 0.6845],
+            [1.4, 0.5878],
+            [1.42, 0.4818],
+            [1.44, 0.3681],
+            [1.46, 0.2487],
+            [1.48, 0.1253],
+            [1.5, 3.674e-16],
+            [1.52, -0.1253],
+            [1.54, -0.2487],
+            [1.56, -0.3681],
+            [1.58, -0.4818],
+            [1.6, -0.5878],
+            [1.62, -0.6845],
+            [1.64, -0.7705],
+            [1.66, -0.8443],
+            [1.68, -0.9048],
+            [1.7, -0.9511],
+            [1.72, -0.9823],
+            [1.74, -0.998],
+            [1.76, -0.998],
+            [1.78, -0.9823],
+            [1.8, -0.9511],
+            [1.82, -0.9048],
+            [1.84, -0.8443],
+            [1.86, -0.7705],
+            [1.88, -0.6845],
+            [1.9, -0.5878],
+            [1.92, -0.4818],
+            [1.94, -0.3681],
+            [1.96, -0.2487],
+            [1.98, -0.1253],
+            [2.0, -4.899e-16]
+          ],
+          "tone": 1,
+          "label": "CH1",
+          "labelAt": [1.05, 1.15]
+        },
+        {
+          "points": [
+            [0.0, -0.7],
+            [0.02, -0.6945],
+            [0.04, -0.678],
+            [0.06, -0.6508],
+            [0.08, -0.6134],
+            [0.1, -0.5663],
+            [0.12, -0.5103],
+            [0.14, -0.4462],
+            [0.16, -0.3751],
+            [0.18, -0.298],
+            [0.2, -0.2163],
+            [0.22, -0.1312],
+            [0.24, -0.04395],
+            [0.26, 0.04395],
+            [0.28, 0.1312],
+            [0.3, 0.2163],
+            [0.32, 0.298],
+            [0.34, 0.3751],
+            [0.36, 0.4462],
+            [0.38, 0.5103],
+            [0.4, 0.5663],
+            [0.42, 0.6134],
+            [0.44, 0.6508],
+            [0.46, 0.678],
+            [0.48, 0.6945],
+            [0.5, 0.7],
+            [0.52, 0.6945],
+            [0.54, 0.678],
+            [0.56, 0.6508],
+            [0.58, 0.6134],
+            [0.6, 0.5663],
+            [0.62, 0.5103],
+            [0.64, 0.4462],
+            [0.66, 0.3751],
+            [0.68, 0.298],
+            [0.7, 0.2163],
+            [0.72, 0.1312],
+            [0.74, 0.04395],
+            [0.76, -0.04395],
+            [0.78, -0.1312],
+            [0.8, -0.2163],
+            [0.82, -0.298],
+            [0.84, -0.3751],
+            [0.86, -0.4462],
+            [0.88, -0.5103],
+            [0.9, -0.5663],
+            [0.92, -0.6134],
+            [0.94, -0.6508],
+            [0.96, -0.678],
+            [0.98, -0.6945],
+            [1.0, -0.7],
+            [1.02, -0.6945],
+            [1.04, -0.678],
+            [1.06, -0.6508],
+            [1.08, -0.6134],
+            [1.1, -0.5663],
+            [1.12, -0.5103],
+            [1.14, -0.4462],
+            [1.16, -0.3751],
+            [1.18, -0.298],
+            [1.2, -0.2163],
+            [1.22, -0.1312],
+            [1.24, -0.04395],
+            [1.26, 0.04395],
+            [1.28, 0.1312],
+            [1.3, 0.2163],
+            [1.32, 0.298],
+            [1.34, 0.3751],
+            [1.36, 0.4462],
+            [1.38, 0.5103],
+            [1.4, 0.5663],
+            [1.42, 0.6134],
+            [1.44, 0.6508],
+            [1.46, 0.678],
+            [1.48, 0.6945],
+            [1.5, 0.7],
+            [1.52, 0.6945],
+            [1.54, 0.678],
+            [1.56, 0.6508],
+            [1.58, 0.6134],
+            [1.6, 0.5663],
+            [1.62, 0.5103],
+            [1.64, 0.4462],
+            [1.66, 0.3751],
+            [1.68, 0.298],
+            [1.7, 0.2163],
+            [1.72, 0.1312],
+            [1.74, 0.04395],
+            [1.76, -0.04395],
+            [1.78, -0.1312],
+            [1.8, -0.2163],
+            [1.82, -0.298],
+            [1.84, -0.3751],
+            [1.86, -0.4462],
+            [1.88, -0.5103],
+            [1.9, -0.5663],
+            [1.92, -0.6134],
+            [1.94, -0.6508],
+            [1.96, -0.678],
+            [1.98, -0.6945],
+            [2.0, -0.7]
+          ],
+          "tone": 2,
+          "label": "CH2",
+          "labelAt": [1.75, 0.85]
+        }
+      ],
+      "vlines": [{"x": 0.25, "dashed": true}, {"x": 0.5, "dashed": true, "label": "Δt"}]
+    },
+    "rc": {
+      "kind": "schematic",
+      "caption": {
+        "text": "CH1 接在 R1 左边（输入），CH2 接在 OUT（电容上）。两个接地夹都在 GND。",
+        "i18n": {"en": "CH1 on the left of R1 (the input), CH2 on OUT (the capacitor). Both ground clips on GND."}
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"ac": {"mag": 1}}, "label": "FG1"},
+          {"ref": "R1", "type": "R", "from": [1, 0], "to": [4, 0], "value": "1k"},
+          {"ref": "C1", "type": "C", "from": [4, 0], "to": [4, 4], "value": "100n"}
+        ],
+        "wires": [[[0, 0], [1, 0]], [[4, 4], [0, 4]]],
+        "grounds": [[0, 4]],
+        "notes": [{"at": [1, -0.7], "text": "CH1"}, {"at": [4.6, -0.7], "text": "CH2"}]
+      }
+    }
+  },
   "i18n": {
-            "en": {
-                    "title": "Lesson 13 · Two scope channels: phase difference",
-                    "summary": "CH1 on the input, CH2 on the output: compare amplitude and phase. Both ground clips must be on GND.",
-                    "concepts": ["oscilloscope", "CH1 / CH2", "phase difference", "ground clip", "RC circuit"],
-                    "description": "**What you learn**: viewing two voltages at once on the two scope channels and reading their peak-to-peak values and **phase difference**. The phase 4 filter and phasor labs are built on this.\n\n**Two channels**: the first probe you place goes to CH1 (yellow), the second to CH2 (cyan). By habit CH1 shows the input (the generator output) and CH2 the output.\n\n**Phase difference**: of two sines at the same frequency, one reaches its peak Δt later. Phase difference = Δt / T × 360°. If CH2 comes later than CH1, CH2 **lags** (negative phase). The line under the screen shows \"Phase of CH2 vs CH1\" directly; you can also count divisions: Δt in divisions × time/div.\n\n**Ground clips**: a scope only measures tip − ground clip. On a real scope all ground clips are joined inside and tied to earth, and so is the generator's ground — so a ground clip may **only** go on the circuit's GND. Clipped anywhere else, it connects that point to ground with a wire. In this lesson you clip one wrong on purpose and see what the diagnostics say.\n\n**Circuit**: generator → R1 (1kΩ) → node OUT → C1 (100nF) → GND. CH1 on the left of R1 (the input), CH2 on OUT (the capacitor voltage).\n\n**Predict first**: what is the capacitor's reactance 1 / (2πfC) at 1 kHz? How much smaller, and how many degrees later, is OUT than the input?\n\n**Simulated vs real scope**: here a misplaced ground clip still measures tip − clip and you only get a note; a real scope would short that point to ground and change the whole circuit. To see the voltage across a part that isn't grounded, use two probes (both clips on GND) and look at CH1 − CH2 (MATH on many scopes).",
-                    "compare": "**Compare**: at 1 kHz the reactance Xc = 1 / (2π × 1000 × 100 nF) ≈ 1592 Ω, about the size of R1 = 1 kΩ:\n- OUT / input = Xc / √(R² + Xc²) ≈ **0.847**;\n- the generator's 50 Ω pulls the input down a little: CH1 ≈ **1.97 Vpp**, CH2 ≈ 0.847 × 1.97 ≈ **1.67 Vpp**;\n- phase = −arctan(R / Xc) = −arctan(1000 / 1592) ≈ **−32°** (CH2 lags); time shift Δt = 32 / 360 × 1 ms ≈ **89 µs**.\n- With the clip on the input, CH2 shows OUT − input = −(voltage across R1): R1's voltage, upside down.",
-                    "steps": [
-                              "Function generator: red clip a5, black clip tn5. Keep sine, 1 kHz, amplitude 1 V, offset 0.",
-                              "R1: c5 → c10, 1kΩ.",
-                              "C1: click d10 and tn12, 100nF (the default). Column 10 is OUT.",
-                              "First probe (CH1, yellow): tip b5 (the input), ground clip tn3 (GND).",
-                              "Second probe (goes to CH2, cyan): tip b10 (OUT), ground clip tn15 (GND). The cyan trace is smaller and further right — it comes later. The phase difference is shown under the screen.",
-                              "**Clip it wrong once, on purpose**: delete the CH2 probe (select it, press Delete) and place it again: tip b10, ground clip e5 (the input, not GND). Look at the Diagnostics tab: the ground clip isn't on GND. What does the CH2 trace look like now?",
-                              "Put it right: delete that probe and place it again, tip b10, ground clip tn15.",
-                              "Press \"Check my circuit\" and answer from the scope readouts."
-                            ],
-                    "hints": [
-                              "First work out the capacitor's reactance at 1 kHz, Xc = 1 / (2πfC), and compare it with R1.",
-                              "R1 and C1 are in series and OUT is the capacitor's share: amplitude ratio Xc / √(R² + Xc²); the capacitor voltage lags.",
-                              "Phase = −arctan(R / Xc); Δt = |phase| / 360° × period."
-                            ],
-                    "tests": ["The capacitor voltage is smaller than the input and comes later"],
-                    "measurements": [
-                                      {
-                                        "ask": "CH1 (input) peak-to-peak",
-                                        "explain": "A little under 2 Vpp: the RC's impedance is about 1.88 kΩ, and the generator's 50 Ω takes a small share."
-                                      },
-                                      {"ask": "CH2 (OUT, across the capacitor) peak-to-peak", "explain": "About 0.847 × CH1: Xc / √(R² + Xc²)."},
-                                      {
-                                        "ask": "Phase difference: CH2 relative to CH1 (degrees, with its sign)",
-                                        "explain": "−arctan(R / Xc) ≈ −32°: negative means CH2 lags."
-                                      },
-                                      {
-                                        "ask": "From your phase reading, how much later CH2 is than CH1, Δt (period 1 ms)",
-                                        "explain": "Δt = |phase| / 360° × T ≈ 89 µs; less than one division at 100 µs/div."
-                                      },
-                                      {
-                                        "ask": "In step 6, with CH2's ground clip on the input (column 5), what did CH2 show?",
-                                        "choices": ["still the capacitor voltage", "the voltage across R1, upside down", "a flat 0 V line"],
-                                        "explain": "CH2 = tip − clip = OUT − input = −U(R1). Here it simply measures the difference; a real scope would short the input to ground."
-                                      }
-                                    ]
-                  }
-          },
-  "components": [{"ref": "FG1", "type": "function_gen"}, {"ref": "R1", "type": "resistor", "resistance": "1k"}, {"ref": "C1", "type": "capacitor", "capacitance": "100n"}],
+    "en": {
+      "title": "Two scope channels: who arrives first",
+      "summary": "CH1 on the input, CH2 on the output: compare two voltages' size and timing at once. The one that arrives late has a phase difference.",
+      "concepts": ["oscilloscope", "CH1 / CH2", "phase difference", "lag / lead"],
+      "description": "Generator → R1 (1 kΩ) → node OUT → C1 (100 nF) → GND. CH1 on the input, CH2 on OUT: read both peak-to-peak values and the phase difference.",
+      "compare": "**Compare**: CH1 ≈ **1.97 Vpp** (the 50 Ω takes a little), CH2 ≈ **1.67 Vpp**; phase difference ≈ **−32°** (CH2 lags), Δt = 32 / 360 × 1 ms ≈ **89 µs**. How to calculate these two: phasors, World 4.",
+      "steps": [
+        "**Function generator**: red clip **`a5`**, black clip **`tn5`**. Keep sine, **`1 kHz`**, amplitude **`1 V`**, offset **`0 V`**.",
+        "**Resistor R1**: **`c5`** → **`c10`**, **`1 kΩ`**.",
+        "**Capacitor C1**: click **`d10`** and **`tn12`**, **`100 nF`** (the default). Column 10 is **OUT**.",
+        "First **probe** (CH1, yellow): tip **`b5`** (input), ground clip **`tn3`** (GND).",
+        "Second **probe** (CH2, cyan, automatically): tip **`b10`** (OUT), ground clip **`tn15`** (GND). Look at the screen: which wave peaks first?",
+        "Set **time/div** to **`100 µs`** and **V/div** of both channels to **`0.5 V`**. How many squares lie between the two peaks?",
+        "Press **Check my circuit** and answer the questions from the numbers under the scope screen."
+      ],
+      "hints": [
+        "CH1 is the input, CH2 the capacitor voltage; both ground clips on GND.",
+        "Phase difference = Δt / T × 360°. CH2 arrives later, so it is negative.",
+        "Δt = |phase difference| / 360° × period."
+      ],
+      "tests": ["The capacitor voltage is smaller than the input, and later"],
+      "measurements": [
+        {
+          "ask": "CH1 (input) peak-to-peak",
+          "explain": "A little under 2 Vpp: the generator's 50 Ω takes a little (last lesson)."
+        },
+        {
+          "ask": "CH2 (OUT, on the capacitor) peak-to-peak",
+          "explain": "Smaller than the input: the input turns back before the capacitor has filled up."
+        },
+        {
+          "ask": "Phase difference: CH2 relative to CH1 (degrees, with its sign)",
+          "explain": "About −32°: the minus sign says CH2 lags."
+        },
+        {
+          "ask": "From your phase reading, how much later is CH2: Δt = |φ| / 360° × T (T = 1 ms)",
+          "explain": "About 89 µs: less than one square at 100 µs/div."
+        },
+        {
+          "ask": "Which channel reaches its peak first?",
+          "explain": "CH1 first. The capacitor needs time to charge, so its voltage always follows the input.",
+          "choices": ["CH2 first", "CH1 first, CH2 lags", "at the same time"]
+        }
+      ],
+      "cards": [
+        {
+          "title": "Two probes, two waves",
+          "text": [
+            "Build a small circuit of a resistor and a **capacitor**. You meet the capacitor properly in 3.3; for now all you need is that it takes a little time to \"fill up\".",
+            "Place two probes: one on the input, one on the capacitor.",
+            "There are a yellow and a cyan wave on the screen. Which one reaches its peak first?"
+          ]
+        },
+        {
+          "title": "How late, said as an angle",
+          "text": [
+            "- The two waves have the same frequency and shape; one just arrives a bit **later**. The delay is Δt.",
+            "- Like two runners on a track: one lap is 360°, half a lap behind is 180°. So the delay becomes an angle:",
+            "$$φ = \\frac{Δt}{T} × 360°$$",
+            "- For example 0.25 ms late with a 1 ms period: φ = 0.25 / 1 × 360° = 90°.",
+            "![](fig:lag)",
+            "- When CH2 comes later than CH1, CH2 **lags** and the phase difference is negative. The screen shows \"phase CH2 vs CH1\" directly.",
+            "![](fig:rc)"
+          ]
+        },
+        {
+          "title": "Read both channels",
+          "text": [
+            "- Set time/div to **`100 µs`** and count the squares between the two peaks.",
+            "- Both sizes and the phase difference are under the screen. Is the smaller wave also the later one?"
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **CH1 on the input, CH2 on the output**, both ground clips on GND.",
+            "- **φ = Δt / T × 360°**; the late one has a negative phase difference (it lags).",
+            "- To see the voltage across a part with neither end on ground, such as R1, use two probes and look at **CH1 − CH2** (many scopes have a MATH key) — don't move a ground clip to the middle.",
+            "- Why exactly this size and this angle? World 4 works it out with phasors."
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "R1", "type": "resistor", "resistance": "1k"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "100n"}
+  ],
   "connections": [["FG1.+", "R1.1"], ["R1.2", "C1.1"], ["C1.2", "FG1.-"]],
   "tests": [
-            {
-              "name": "电容上的电压比输入小、比输入晚",
-              "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
-              "scope": [
-                        {"pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.8, "max": 0.9},
-                        {"pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -36, "max": -28}
-                      ]
-            }
-          ],
+    {
+      "name": "电容上的电压比输入小、比输入晚",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "scope": [
+        {"pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.8, "max": 0.9},
+        {"pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -36, "max": -28}
+      ]
+    }
+  ],
+  "compare": "**对比**：CH1 ≈ **1.97 Vpp**（50 Ω 分掉一点），CH2 ≈ **1.67 Vpp**；相位差 ≈ **−32°**（CH2 滞后），Δt = 32 / 360 × 1 ms ≈ **89 µs**。这两个数怎么算出来：第 4 世界的相量。",
   "measurements": [
-                    {
-                      "id": "v1",
-                      "scope": "vpp",
-                      "pin": "FG1.+",
-                      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
-                      "unit": "V",
-                      "range": [1.9, 2.0],
-                      "ask": "CH1（输入）的峰峰值",
-                      "explain": "比 2 Vpp 略小：RC 的阻抗约 1.88 kΩ，信号发生器的 50 Ω 分掉一点点。"
-                    },
-                    {
-                      "id": "v2",
-                      "scope": "vpp",
-                      "pin": "C1.1",
-                      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
-                      "unit": "V",
-                      "predict": true,
-                      "range": [1.6, 1.74],
-                      "ask": "CH2（OUT，电容上）的峰峰值",
-                      "explain": "约 0.847 × CH1：Xc / √(R² + Xc²)。"
-                    },
-                    {
-                      "id": "ph",
-                      "scope": "phase",
-                      "pin": "C1.1",
-                      "vs": "FG1.+",
-                      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
-                      "predict": true,
-                      "range": [-35, -29],
-                      "ask": "相位差：CH2 相对 CH1（度，带符号）",
-                      "explain": "−arctan(R / Xc) ≈ −32°：负号表示 CH2 滞后。"
-                    },
-                    {
-                      "id": "dt",
-                      "formula": "-ph / 360 / 1000",
-                      "unit": "µs",
-                      "range": [8e-05, 9.8e-05],
-                      "ask": "用你读到的相位差算 CH2 比 CH1 晚多少时间 Δt（周期 1 ms）",
-                      "explain": "Δt = |相位差| / 360° × T ≈ 89 µs；在 100 µs/格 时还不到 1 格。"
-                    },
-                    {
-                      "id": "clip",
-                      "correct": 1,
-                      "ask": "第 6 步 CH2 的接地夹夹在输入端（第 5 列）时，CH2 显示的是什么？",
-                      "choices": ["还是电容上的电压", "R1 两端的电压，上下颠倒（反相）", "一条 0 V 的直线"],
-                      "explain": "CH2 = 针尖 − 接地夹 = OUT − 输入 = −U(R1)。这里仿真只是“测两点之差”，真实示波器会把输入端短路到地。"
-                    }
-                  ],
+    {
+      "id": "v1",
+      "scope": "vpp",
+      "pin": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "range": [1.9, 2.0],
+      "ask": "CH1（输入）的峰峰值",
+      "explain": "比 2 Vpp 略小：信号发生器的 50 Ω 分掉了一点点（上一课）。"
+    },
+    {
+      "id": "v2",
+      "scope": "vpp",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "range": [1.6, 1.74],
+      "ask": "CH2（OUT，电容上）的峰峰值",
+      "explain": "比输入小：电容还没充满，输入就已经往回走了。"
+    },
+    {
+      "id": "ph",
+      "scope": "phase",
+      "pin": "C1.1",
+      "vs": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}},
+      "range": [-35, -29],
+      "ask": "相位差：CH2 相对 CH1（度，带符号）",
+      "explain": "约 −32°：负号表示 CH2 滞后。"
+    },
+    {
+      "id": "dt",
+      "formula": "-ph / 360 / 1000",
+      "unit": "µs",
+      "range": [8e-05, 9.8e-05],
+      "ask": "用你读到的相位差算 CH2 比 CH1 晚多少时间：Δt = |φ| / 360° × T（T = 1 ms）",
+      "explain": "约 89 µs：在 100 µs/格 时还不到 1 格。"
+    },
+    {
+      "id": "late",
+      "correct": 1,
+      "ask": "哪个通道先到达波峰？",
+      "choices": ["CH2 先到", "CH1 先到，CH2 滞后", "同时到"],
+      "explain": "CH1 先到。电容要时间充电，它两端的电压总是跟在输入后面。"
+    }
+  ],
   "steps": [
-            {
-              "text": "信号发生器：红夹子 a5、黑夹子 tn5。保持正弦、1 kHz、幅度 1 V、偏置 0。",
-              "highlight": ["a5", "tn5"],
-              "check": [{"type": "function_gen", "pins": {"+": "a5", "-": "tn5"}, "waveform": "sine", "frequency": "1k", "amplitude": 1, "offset": 0}]
-            },
-            {"text": "R1：c5 → c10，1kΩ。", "highlight": ["c5", "c10"], "check": [{"type": "resistor", "pins": {"1": "c5", "2": "c10"}, "resistance": "1k"}]},
-            {
-              "text": "C1：单击 d10 和 tn12，电容 100nF（默认值）。第 10 列就是 OUT。",
-              "highlight": ["d10", "tn12"],
-              "check": [{"type": "capacitor", "pins": {"1": "d10", "2": "tn12"}, "capacitance": "100n"}]
-            },
-            {
-              "text": "第一个探头（CH1，黄色）：针尖 b5（输入），接地夹 tn3（GND）。",
-              "highlight": ["b5", "tn3"],
-              "check": [{"type": "scope_probe", "pins": {"tip": "b5", "gnd": "tn3"}, "channel": 1}]
-            },
-            {
-              "text": "第二个探头（自动接 CH2，青色）：针尖 b10（OUT），接地夹 tn15（GND）。屏幕上青色的波形更小、更靠右——它晚到。屏幕下面显示相位差。",
-              "highlight": ["b10", "tn15"],
-              "check": [{"type": "scope_probe", "pins": {"tip": "b10", "gnd": "tn15"}, "channel": 2}]
-            },
-            {
-              "text": "**故意夹错一次**：删掉 CH2 探头（选中它，按“删除”），重新放：针尖 b10，接地夹 e5（输入端，不是 GND）。看“诊断”标签：接地夹没有夹在 GND 上。CH2 的波形变成了什么？",
-              "highlight": ["b10", "e5"],
-              "check": [{"type": "scope_probe", "pins": {"tip": "b10", "gnd": "e5"}, "channel": 2}]
-            },
-            {
-              "text": "改回来：删掉这个探头，重新放，针尖 b10、接地夹 tn15。",
-              "highlight": ["b10", "tn15"],
-              "check": [{"type": "scope_probe", "pins": {"tip": "b10", "gnd": "tn15"}, "channel": 2}]
-            },
-            {"text": "点“检查我的电路”，读示波器完成测量题。", "highlight": []}
-          ],
-  "hints": ["先算 1 kHz 时电容的容抗 Xc = 1 / (2πfC)，和 R1 比一比。", "R1 和 C1 串联，OUT 是电容上的分压：幅度比 Xc / √(R² + Xc²)，电容上的电压滞后。", "相位差 = −arctan(R / Xc)；Δt = |相位差| / 360° × 周期。"],
+    {
+      "text": "**信号发生器**：红夹子 **`a5`**、黑夹子 **`tn5`**。保持正弦、**`1 kHz`**、幅度 **`1 V`**、偏置 **`0 V`**。",
+      "highlight": ["a5", "tn5"],
+      "check": [
+        {
+          "type": "function_gen",
+          "pins": {"+": "a5", "-": "tn5"},
+          "waveform": "sine",
+          "frequency": "1k",
+          "amplitude": 1,
+          "offset": 0
+        }
+      ]
+    },
+    {
+      "text": "**电阻 R1**：**`c5`** → **`c10`**，**`1 kΩ`**。",
+      "highlight": ["c5", "c10"],
+      "check": [{"type": "resistor", "pins": {"1": "c5", "2": "c10"}, "resistance": "1k"}]
+    },
+    {
+      "text": "**电容 C1**：单击 **`d10`** 和 **`tn12`**，**`100 nF`**（默认值）。第 10 列就是 **OUT**。",
+      "highlight": ["d10", "tn12"],
+      "check": [{"type": "capacitor", "pins": {"1": "d10", "2": "tn12"}, "capacitance": "100n"}]
+    },
+    {
+      "text": "第一个**探头**（CH1，黄色）：针尖 **`b5`**（输入），接地夹 **`tn3`**（GND）。",
+      "highlight": ["b5", "tn3"],
+      "check": [{"type": "scope_probe", "pins": {"tip": "b5", "gnd": "tn3"}, "channel": 1}]
+    },
+    {
+      "text": "第二个**探头**（自动接 CH2，青色）：针尖 **`b10`**（OUT），接地夹 **`tn15`**（GND）。看屏幕：哪条波先到波峰？",
+      "highlight": ["b10", "tn15"],
+      "check": [{"type": "scope_probe", "pins": {"tip": "b10", "gnd": "tn15"}, "channel": 2}]
+    },
+    {
+      "text": "把**时间/格**调到 **`100 µs`**、两个通道的**伏/格**都调到 **`0.5 V`**。两个波峰之间隔了几格？",
+      "highlight": [],
+      "check": [{"scope": {"tdiv": "100u", "vdiv1": 0.5, "vdiv2": 0.5}}]
+    },
+    {"text": "点**「检查我的电路」**，读示波器屏幕下面的读数完成测量题。", "highlight": []}
+  ],
+  "hints": ["CH1 是输入，CH2 是电容上的电压；两个接地夹都在 GND。", "相位差 = Δt / T × 360°。CH2 晚到，相位差为负。", "Δt = |相位差| / 360° × 周期。"],
   "solution": {
-                "parts": [
-                          {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": {"+": "a5", "-": "tn5"}},
-                          {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "c5", "2": "c10"}},
-                          {"type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": {"1": "d10", "2": "tn12"}},
-                          {"type": "scope_probe", "ref": "P1", "channel": 1, "pins": {"tip": "b5", "gnd": "tn3"}},
-                          {"type": "scope_probe", "ref": "P2", "channel": 2, "pins": {"tip": "b10", "gnd": "tn15"}}
-                        ]
-              }
+    "parts": [
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "sine",
+        "frequency": 1000,
+        "amplitude": 1,
+        "offset": 0,
+        "pins": {"+": "a5", "-": "tn5"}
+      },
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "c5", "2": "c10"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": {"1": "d10", "2": "tn12"}},
+      {"type": "scope_probe", "ref": "P1", "channel": 1, "pins": {"tip": "b5", "gnd": "tn3"}},
+      {"type": "scope_probe", "ref": "P2", "channel": 2, "pins": {"tip": "b10", "gnd": "tn15"}}
+    ]
+  }
 }

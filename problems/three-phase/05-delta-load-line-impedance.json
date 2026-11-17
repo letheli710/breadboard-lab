@@ -7,14 +7,14 @@
   "level": 3,
   "tags": ["Δ–Y 等效变换", "一相计算", "线路阻抗"],
   "statement": [
-    "对称三相电源（正序，U̇_A = 220∠0° V）经阻抗 Z_l = 1 + j2 Ω 的三根端线，向三角形连接的对称负载供电，每相负载 Z_Δ = 21 + j12 Ω。",
-    "求线电流 I_A、负载相电流 I_{A'B'}、负载端线电压 U_{A'B'}（均为有效值）和 Z_AB 吸收的有功功率。"
+    "对称三相电源向三角形连接的对称负载供电：正序，V̇_A = 220∠0° V（有效值）。三根端线的阻抗都是 Z_l = 1 + j2 Ω，每相负载 Z_Δ = 21 + j12 Ω。",
+    "求线电流 I_A、负载相电流 I_{A'B'}、负载端线电压 V_{A'B'}（均为有效值）和 Z_AB 吸收的有功功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "UA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 220, "phase": 0 } } },
-      { "ref": "UB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 220, "phase": -120 } } },
-      { "ref": "UC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 220, "phase": 120 } } },
+      { "ref": "VA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 220, "phase": 0 } } },
+      { "ref": "VB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 220, "phase": -120 } } },
+      { "ref": "VC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 220, "phase": 120 } } },
       { "ref": "ZlA", "type": "Z", "from": [7, 0], "to": [10, 0], "value": { "re": 1, "im": 2 }, "label": "Z_l  1+j2 Ω" },
       { "ref": "ZlB", "type": "Z", "from": [7, 3], "to": [10, 3], "value": { "re": 1, "im": 2 }, "label": "Z_l  1+j2 Ω" },
       { "ref": "ZlC", "type": "Z", "from": [7, 6], "to": [10, 6], "value": { "re": 1, "im": 2 }, "label": "Z_l  1+j2 Ω" },
@@ -66,11 +66,11 @@
     },
     {
       "id": "Ul",
-      "ask": "负载端线电压有效值 U_{A'B'} = ?",
+      "ask": "负载端线电压有效值 V_{A'B'} = ?",
       "find": { "kind": "v", "nodes": ["A'", "B'"], "part": "mag" },
       "answer": 307.2133,
       "unit": "V",
-      "explain": "U_{A'B'} = I_{A'B'}·|Z_Δ| = 12.70 × √(21² + 12²) = 12.70 × 24.19 ≈ 307.2 V（也可由等效 Y 的相电压 22 × |7 + j4| = 177.4 V 乘 √3 得到）。"
+      "explain": "V_{A'B'} = I_{A'B'}·|Z_Δ| = 12.70 × √(21² + 12²) = 12.70 × 24.19 ≈ 307.2 V。也可以由等效 Y 的相电压 22 × |7 + j4| = 177.4 V 乘 √3 得到。"
     },
     {
       "id": "P",
@@ -83,14 +83,14 @@
   ],
   "hints": [
     "端线上有阻抗时，Δ 负载两端的电压不再是电源线电压。先把 Δ 负载等效成 Y：Z_Y = Z_Δ/3。",
-    "等效后就是对称 Y–Y 电路，算 A 相：İ_A = U̇_A/(Z_l + Z_Y)。",
+    "等效后就是对称 Y–Y 电路，算 A 相：İ_A = V̇_A/(Z_l + Z_Y)。",
     "回到原 Δ 负载：相电流是线电流的 1/√3，超前 30°。"
   ],
   "solution": [
-    "**1. Δ–Y 变换。** Z_Y = Z_Δ/3 = 7 + j4 Ω。等效电路为对称 Y–Y，U̇_{N'N} = 0。",
+    "**1. Δ–Y 变换。** Z_Y = Z_Δ/3 = 7 + j4 Ω。等效电路为对称 Y–Y，V̇_{N'N} = 0。",
     "**2. 一相计算。** Z_l + Z_Y = 8 + j6 = 10∠36.87° Ω，İ_A = 220∠0°/10∠36.87° = **22∠−36.87° A**。",
     "**3. Δ 负载相电流。** İ_{A'B'} = (İ_A/√3)∠30° = **12.70∠−6.87° A**。",
-    "**4. 负载线电压。** U̇_{A'B'} = İ_{A'B'}·Z_Δ = 12.70∠−6.87° × 24.19∠29.74° = **307.2∠22.87° V**。",
+    "**4. 负载线电压。** V̇_{A'B'} = İ_{A'B'}·Z_Δ = 12.70∠−6.87° × 24.19∠29.74° = **307.2∠22.87° V**。",
     "**5. 功率。** P_AB = I_{A'B'}² × 21 = **3388 W**。验算：电源每相发出 220 × 22 × cos36.87° = 3872 W，线路每相损耗 22² × 1 = 484 W，3872 − 484 = 3388 W。"
   ],
   "i18n": {
@@ -98,25 +98,25 @@
       "title": "Δ load behind line impedance: convert to Y, then one phase",
       "tags": ["Δ–Y transformation", "per-phase analysis", "line impedance"],
       "statement": [
-        "A balanced three-phase source (positive sequence, U̇_A = 220∠0° V) feeds a balanced delta load, Z_Δ = 21 + j12 Ω per phase, through three lines of impedance Z_l = 1 + j2 Ω.",
-        "Find the line current I_A, the load phase current I_{A'B'}, the line voltage at the load U_{A'B'} (all rms), and the real power absorbed by Z_AB."
+        "A balanced three-phase source feeds a balanced delta load: positive sequence, V̇_A = 220∠0° V (rms). Each of the three lines has impedance Z_l = 1 + j2 Ω, and each load phase is Z_Δ = 21 + j12 Ω.",
+        "Find the line current I_A, the load phase current I_{A'B'}, the line voltage at the load V_{A'B'} (all rms), and the real power absorbed by Z_AB."
       ],
       "questions": [
         { "ask": "rms line current I_A = ?", "explain": "Z_Y = Z_Δ/3 = 7 + j4 Ω; the per-phase circuit has Z_l + Z_Y = 8 + j6 = 10∠36.87° Ω, so I_A = 220/10 = 22 A." },
         { "ask": "rms load phase current I_{A'B'} = ?", "explain": "For a balanced Δ load I_p = I_l/√3 = 22/√3 ≈ 12.70 A." },
-        { "ask": "rms line voltage at the load U_{A'B'} = ?", "explain": "U_{A'B'} = I_{A'B'}·|Z_Δ| = 12.70 × √(21² + 12²) = 12.70 × 24.19 ≈ 307.2 V (or: equivalent-Y phase voltage 22 × |7 + j4| = 177.4 V times √3)." },
+        { "ask": "rms line voltage at the load V_{A'B'} = ?", "explain": "V_{A'B'} = I_{A'B'}·|Z_Δ| = 12.70 × √(21² + 12²) = 12.70 × 24.19 ≈ 307.2 V. Or take the equivalent-Y phase voltage 22 × |7 + j4| = 177.4 V and multiply by √3." },
         { "ask": "Real power absorbed by Z_AB = ?", "explain": "P = I_{A'B'}² × 21 = (22²/3) × 21 = 3388 W; the whole load takes 3 × 3388 = 10164 W, equal to 3 × 22² × 7 for the equivalent Y load." }
       ],
       "hints": [
         "With impedance in the lines, the Δ load no longer sees the source line voltage. First replace the Δ load by its Y equivalent: Z_Y = Z_Δ/3.",
-        "Now it is a balanced Y–Y circuit; solve phase A: İ_A = U̇_A/(Z_l + Z_Y).",
+        "Now it is a balanced Y–Y circuit; solve phase A: İ_A = V̇_A/(Z_l + Z_Y).",
         "Back in the original Δ load, the phase current is 1/√3 of the line current and leads it by 30°."
       ],
       "solution": [
-        "**1. Δ–Y transformation.** Z_Y = Z_Δ/3 = 7 + j4 Ω. The equivalent circuit is a balanced Y–Y one, so U̇_{N'N} = 0.",
+        "**1. Δ–Y transformation.** Z_Y = Z_Δ/3 = 7 + j4 Ω. The equivalent circuit is a balanced Y–Y one, so V̇_{N'N} = 0.",
         "**2. Per-phase calculation.** Z_l + Z_Y = 8 + j6 = 10∠36.87° Ω, İ_A = 220∠0°/10∠36.87° = **22∠−36.87° A**.",
         "**3. Δ phase current.** İ_{A'B'} = (İ_A/√3)∠30° = **12.70∠−6.87° A**.",
-        "**4. Line voltage at the load.** U̇_{A'B'} = İ_{A'B'}·Z_Δ = 12.70∠−6.87° × 24.19∠29.74° = **307.2∠22.87° V**.",
+        "**4. Line voltage at the load.** V̇_{A'B'} = İ_{A'B'}·Z_Δ = 12.70∠−6.87° × 24.19∠29.74° = **307.2∠22.87° V**.",
         "**5. Power.** P_AB = I_{A'B'}² × 21 = **3388 W**. Check: each source phase delivers 220 × 22 × cos36.87° = 3872 W, each line loses 22² × 1 = 484 W, and 3872 − 484 = 3388 W."
       ]
     }

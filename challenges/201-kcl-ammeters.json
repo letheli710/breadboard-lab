@@ -2,71 +2,349 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-kcl-ammeters",
-  "title": "实验 1-1 · 用三块电流表验证 KCL",
+  "title": "KCL：流进结点的 = 流出结点的",
   "kind": "challenge",
   "level": 3,
   "phase": 1,
-  "summary": "在一个结点的三条支路里各串一块电流表：流进的电流 = 流出的电流之和。",
-  "concepts": ["KCL 基尔霍夫电流定律", "ammeter 电流表", "node 结点", "reference direction 参考方向"],
-  "prereq": ["lesson-ammeter", "lesson-multimeter"],
-  "description": "**目标**：亲手测量一个结点（node）上的所有电流，验证基尔霍夫电流定律（KCL）：流入任一结点的电流之和等于流出的电流之和，即 ΣI = 0。\n\n**电路**（面包板上已经搭好，只是还没有电流表）：+9V → R1（330Ω）→ 结点 N；从 N 分出两条支路到 GND：R2（1kΩ）和 R3（2.2kΩ）。三根黄色跳线就是要接电流表的位置：\n- AM1：R1 和 N 之间（测总电流 I1）；\n- AM2：N 和 R2 之间（测 I2）；\n- AM3：N 和 R3 之间（测 I3）。\n\n**怎么接电流表**：电流表必须**串联**——拔掉那根跳线，把电流表的两个表笔插在跳线原来的两个孔里。红表笔（+）放在电流流进来的一侧，黑表笔（COM）放在流出去的一侧。\n\n**先预测**：接表之前，先自己算出 I1、I2、I3 和 N 点电压，写下来。思路：R2 ∥ R3 再与 R1 串联得到总电阻和 I1，再由 N 点电压除以各支路电阻得到 I2、I3。\n\n**测量**：依次接好 AM1、AM2、AM3。点“检查我的电路”通过后，下面的「测量」会解锁：把三块表的读数和万用表测得的 N 点对 GND 的电压填进去（读数随你的面包板而定）。答完后会出现计算对比。\n\n**真实电路里**：仿真里每块电流表只有 0.1Ω 内阻，影响不到 0.01%。真实万用表 mA 档的负担电阻（burden：内部取样电阻加保险丝）一般有几欧到十几欧，三块表都接上时读数会比计算值小 1% 左右；被测电路的电阻越小，这个误差越明显。",
+  "summary": "在一个结点的三条支路里各串一块电流表：流进来的电流，等于流出去的电流之和。",
+  "concepts": [
+    "KCL 基尔霍夫电流定律",
+    "ammeter 电流表",
+    "node 结点",
+    "reference direction 参考方向"
+  ],
+  "prereq": [
+    "lesson-ammeter",
+    "lesson-multimeter"
+  ],
+  "description": "亲手测量一个结点上的所有电流，验证基尔霍夫电流定律（KCL）：流入任一结点的电流之和等于流出的电流之和。电路：+9 V → R1（330 Ω）→ 结点 N；从 N 分出两条支路到 GND：R2（1 kΩ）和 R3（2.2 kΩ）。三根黄色跳线是要换成电流表的位置。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "电流在岔路口怎么分？",
+      "text": [
+        "面包板上已经搭好了：电流经过 R1 来到结点 **N**，在这里分成两路，一路走 R2，一路走 R3。",
+        "猜一猜：走 1 kΩ 那条路的电流多，还是走 2.2 kΩ 那条路的多？两条加起来，和来的时候比呢？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "KCL：结点不存电荷",
+      "text": [
+        "- 结点只是几根导线的交汇点，它**不能存电荷，也不能造电荷**。所以每一秒流进来多少，就得流出去多少。",
+        "- 写成式子：$I_1 = I_2 + I_3$，或者把流出记为正、流进记为负：$-I_1 + I_2 + I_3 = 0$。这就是**基尔霍夫电流定律（KCL）**。",
+        "![](fig:node)",
+        "- 两条支路两端电压一样（都是 N 对 GND），所以**电阻小的那条电流大**：$I_2 = \\frac{V_N}{R_2}$，$I_3 = \\frac{V_N}{R_3}$。",
+        "- 接表之前，先自己算出 I1、I2、I3 和 N 点电压：R2 ∥ R3 再和 R1 串联，得到总电阻和 I1。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "换上三块电流表",
+      "text": [
+        "- 电流表要**串联**：拔掉一根黄色跳线，把电流表的两支表笔插进它空出来的两个孔。",
+        "- **红表笔朝电流来的方向**：AM1 的红表笔在 R1 一侧；AM2、AM3 的红表笔都在结点 N（第 10 列）一侧。",
+        "- 检查通过后，把三块表的读数和 N 点对 GND 的电压填进测量题。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **KCL：流进 = 流出。** 用代数和写，$-I_1 + I_2 + I_3 = 0$，不管表笔怎么接，代数和永远是 0。",
+        "- 某块表读数是负的？只是表笔接反了：电流没变，参考方向和实际方向相反。",
+        "- 真实万用表 mA 档有几欧到十几欧的负担电阻，三块表都接上时读数会比计算值小一点；被测电路电阻越小，误差越明显。"
+      ],
+      "practice": [
+        "basics",
+        "equivalence"
+      ]
+    }
+  ],
+  "figures": {
+    "node": {
+      "kind": "schematic",
+      "caption": {
+        "text": "I_1 来到结点 N，分成 I_2 和 I_3 两路：I_1 = I_2 + I_3。电阻小的那条路电流大。",
+        "i18n": {
+          "en": "I_1 reaches node N and splits into I_2 and I_3: I_1 = I_2 + I_3. The branch with the smaller resistor carries more."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 5], "value": 9},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": 330},
+          {"ref": "R2", "type": "R", "from": [3, 0], "to": [3, 5], "value": "1k"},
+          {"ref": "R3", "type": "R", "from": [6, 0], "to": [6, 5], "value": "2.2k"}
+        ],
+        "wires": [
+          [[3, 0], [6, 0]],
+          [[6, 5], [0, 5]]
+        ],
+        "labels": [
+          {"at": [3, 0], "name": "N"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I_1"},
+          {"kind": "i", "el": "R2", "name": "I_2"},
+          {"kind": "i", "el": "R3", "name": "I_3"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 1-1 · Verify KCL with three ammeters",
-      "summary": "Put an ammeter in each of the three branches at one node: the current flowing in equals the sum of the currents flowing out.",
-      "concepts": ["KCL (Kirchhoff's current law)", "ammeter", "node", "reference direction"],
-      "description": "**Goal**: measure every current at one node yourself and check Kirchhoff's current law (KCL): the currents flowing into any node add up to the currents flowing out, i.e. ΣI = 0.\n\n**Circuit** (already on the breadboard, just without ammeters): +9V → R1 (330Ω) → node N; from N two branches go to GND: R2 (1kΩ) and R3 (2.2kΩ). The three yellow jumpers mark where the ammeters go:\n- AM1: between R1 and N (measures the total current I1);\n- AM2: between N and R2 (measures I2);\n- AM3: between N and R3 (measures I3).\n\n**How to connect an ammeter**: an ammeter must go **in series**. Pull out the jumper and plug the ammeter's two leads into the two holes the jumper used. The red lead (+) goes on the side the current comes from, the black lead (COM) on the side it leaves.\n\n**Predict first**: before connecting any meter, work out I1, I2, I3 and the voltage at N and write them down. Method: R2 ∥ R3 in series with R1 gives the total resistance and I1; the voltage at N divided by each branch resistance gives I2 and I3.\n\n**Measure**: connect AM1, AM2 and AM3. Once \"Check my circuit\" passes, the Measurements below unlock: type in the three meter readings and the multimeter reading from N to GND (whatever your board shows). The worked comparison appears after you answer.\n\n**In a real circuit**: each simulated ammeter has only 0.1Ω of internal resistance, which changes this circuit by less than 0.01%. A real multimeter's mA range has a burden resistance (internal shunt plus fuse) of a few ohms up to ten-odd ohms, so with all three meters in place the readings come out about 1% below the calculation; the lower the circuit's resistances, the bigger this error.",
+      "title": "KCL: what flows into a node flows out",
+      "summary": "One ammeter in each of a node's three branches: the current flowing in equals the sum of the currents flowing out.",
+      "concepts": [
+        "KCL (Kirchhoff's current law)",
+        "ammeter",
+        "node",
+        "reference direction"
+      ],
+      "description": "Measure every current at one node and verify Kirchhoff's current law (KCL): the currents flowing into any node add up to the currents flowing out. Circuit: +9 V → R1 (330 Ω) → node N; from N two branches go to GND: R2 (1 kΩ) and R3 (2.2 kΩ). The three yellow jumpers are where the ammeters go.",
       "compare": "**Compare**: R2 ∥ R3 = 1k × 2.2k / 3.2k = 687.5Ω, total 1017.5Ω, so I1 = 9 / 1017.5 ≈ 8.84 mA, N ≈ 8.84 mA × 687.5Ω ≈ 6.08 V, I2 ≈ 6.08 mA, I3 ≈ 2.76 mA, and 6.08 + 2.76 = 8.84. If a reading is far from your prediction, look for a negative reading (leads swapped) and check that the ammeter sits in the right place in series.\n\n**Think about it**: if you swap AM3's leads it shows −2.76 mA. The current hasn't changed; the reference direction you picked is simply opposite to the real one. Written as an algebraic sum, KCL is −I1 + I2 + I3 = 0, and that sum is always 0 however the leads are connected. (The checker wants the directions described above.)",
       "measurements": [
-        {"ask": "Ammeter AM1 reading I1 (the total current into node N)", "explain": "I1 = 9 V / (R1 + R2 ∥ R3): R2 ∥ R3 = 687.5 Ω, total 1017.5 Ω, about 8.84 mA."},
-        {"ask": "Ammeter AM2 reading I2 (through R2)", "explain": "I2 = U_N / R2 ≈ 6.08 V / 1 kΩ ≈ 6.08 mA."},
-        {"ask": "Ammeter AM3 reading I3 (through R3)", "explain": "I3 = U_N / R3 ≈ 6.08 V / 2.2 kΩ ≈ 2.76 mA."},
-        {"ask": "Multimeter: voltage U_N from node N to GND (red lead on N, black on GND)", "explain": "U_N = I1 × (R2 ∥ R3) ≈ 8.84 mA × 687.5 Ω ≈ 6.08 V."},
-        {"ask": "Work out I2 + I3 from your readings and compare it with I1:", "choices": ["I2 + I3 = I1 (within the reading error): the current into N equals the current out", "I2 + I3 is smaller than I1: some current \"disappears\" at node N", "I2 + I3 is larger than I1: node N produces current"], "explain": "Charge neither piles up at a node nor appears from nowhere, so −I1 + I2 + I3 = 0 (KCL). Small differences between readings come from the digits shown, not from lost current."}
+        {
+          "ask": "Ammeter AM1 reading I1 (the total current into node N)",
+          "explain": "I1 = 9 V / (R1 + R2 ∥ R3): R2 ∥ R3 = 687.5 Ω, total 1017.5 Ω, about 8.84 mA."
+        },
+        {
+          "ask": "Ammeter AM2 reading I2 (through R2)",
+          "explain": "I2 = V_N / R2 ≈ 6.08 V / 1 kΩ ≈ 6.08 mA."
+        },
+        {
+          "ask": "Ammeter AM3 reading I3 (through R3)",
+          "explain": "I3 = V_N / R3 ≈ 6.08 V / 2.2 kΩ ≈ 2.76 mA."
+        },
+        {
+          "ask": "Multimeter: voltage V_N from node N to GND (red lead on N, black on GND)",
+          "explain": "V_N = I1 × (R2 ∥ R3) ≈ 8.84 mA × 687.5 Ω ≈ 6.08 V."
+        },
+        {
+          "ask": "Work out I2 + I3 from your readings and compare it with I1:",
+          "choices": [
+            "I2 + I3 = I1 (within the reading error): the current into N equals the current out",
+            "I2 + I3 is smaller than I1: some current \"disappears\" at node N",
+            "I2 + I3 is larger than I1: node N produces current"
+          ],
+          "explain": "Charge neither piles up at a node nor appears from nowhere, so −I1 + I2 + I3 = 0 (KCL). Small differences between readings come from the digits shown, not from lost current."
+        }
       ],
       "hints": [
         "Pull out one yellow jumper and plug the ammeter's two leads into the two free holes. That is what \"in series\" means.",
         "Red lead toward where the current comes from: AM1's red lead on the R1 side; AM2's and AM3's red leads on the node N side (column 10).",
         "A negative reading means the leads are reversed: swap that meter's two leads."
       ],
-      "tests": ["Three ammeters in series in their branches, the right way round; a sensible voltage at N"]
+      "tests": [
+        "Three ammeters in series in their branches, the right way round; a sensible voltage at N"
+      ],
+      "cards": [
+        {
+          "title": "How does current split at a fork?",
+          "text": [
+            "The board is already built: current comes through R1 to node **N** and splits there, one part through R2, the other through R3.",
+            "Guess: does more current take the 1 kΩ path or the 2.2 kΩ path? And the two together, compared with what arrived?"
+          ]
+        },
+        {
+          "title": "KCL: a node stores no charge",
+          "text": [
+            "- A node is just where wires meet; it **cannot store charge or make charge**. So whatever flows in each second must flow out.",
+            "- As an equation: $I_1 = I_2 + I_3$, or with outgoing currents positive and incoming negative: $-I_1 + I_2 + I_3 = 0$. That is **Kirchhoff's current law (KCL)**.",
+            "![](fig:node)",
+            "- Both branches have the same voltage across them (N to GND), so **the branch with the smaller resistance carries more**: $I_2 = \\frac{V_N}{R_2}$, $I_3 = \\frac{V_N}{R_3}$.",
+            "- Before you connect the meters, work out I1, I2, I3 and the voltage at N yourself: R2 ∥ R3 in series with R1 gives the total resistance and I1."
+          ]
+        },
+        {
+          "title": "Swap in three ammeters",
+          "text": [
+            "- An ammeter goes **in series**: pull out a yellow jumper and put the ammeter's two probes into the two holes it leaves.",
+            "- **Red probe towards where the current comes from**: AM1's red probe on the R1 side; AM2's and AM3's red probes both on node N's side (column 10).",
+            "- When the check passes, type the three readings and N's voltage to GND into the questions."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **KCL: in = out.** As an algebraic sum, $-I_1 + I_2 + I_3 = 0$, and however the probes are connected the sum stays 0.",
+            "- A negative reading? The probes are swapped: same current, reference direction opposite to the real one.",
+            "- A real multimeter's mA range has a few ohms to a dozen ohms of burden resistance; with three meters in, the readings come out a little below the calculation, more so in low-resistance circuits."
+          ]
+        }
+      ]
     }
   },
   "components": [
-    {"ref": "V1", "type": "dc_source", "voltage": 9},
-    {"ref": "R1", "type": "resistor", "resistance": "330"},
-    {"ref": "AM1", "type": "ammeter"},
-    {"ref": "AM2", "type": "ammeter"},
-    {"ref": "AM3", "type": "ammeter"},
-    {"ref": "R2", "type": "resistor", "resistance": "1k"},
-    {"ref": "R3", "type": "resistor", "resistance": "2.2k"}
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "330"
+    },
+    {
+      "ref": "AM1",
+      "type": "ammeter"
+    },
+    {
+      "ref": "AM2",
+      "type": "ammeter"
+    },
+    {
+      "ref": "AM3",
+      "type": "ammeter"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "1k"
+    },
+    {
+      "ref": "R3",
+      "type": "resistor",
+      "resistance": "2.2k"
+    }
   ],
   "nets": [
-    {"name": "VCC", "pins": ["V1.+", "R1.1"]},
-    {"pins": ["R1.2", "AM1.+"]},
-    {"name": "N", "pins": ["AM1.-", "AM2.+", "AM3.+"]},
-    {"pins": ["AM2.-", "R2.1"]},
-    {"pins": ["AM3.-", "R3.1"]},
-    {"name": "GND", "pins": ["R2.2", "R3.2", "V1.-"]}
+    {
+      "name": "VCC",
+      "pins": [
+        "V1.+",
+        "R1.1"
+      ]
+    },
+    {
+      "pins": [
+        "R1.2",
+        "AM1.+"
+      ]
+    },
+    {
+      "name": "N",
+      "pins": [
+        "AM1.-",
+        "AM2.+",
+        "AM3.+"
+      ]
+    },
+    {
+      "pins": [
+        "AM2.-",
+        "R2.1"
+      ]
+    },
+    {
+      "pins": [
+        "AM3.-",
+        "R3.1"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "R2.2",
+        "R3.2",
+        "V1.-"
+      ]
+    }
   ],
   "tests": [
     {
       "name": "三块电流表串在各自的支路里、方向正确；N 点电压合理",
       "currents": [
-        {"el": "AM1", "min": 0.0084, "max": 0.0093},
-        {"el": "AM2", "min": 0.0058, "max": 0.0064},
-        {"el": "AM3", "min": 0.00263, "max": 0.00291}
+        {
+          "el": "AM1",
+          "min": 0.0084,
+          "max": 0.0093
+        },
+        {
+          "el": "AM2",
+          "min": 0.0058,
+          "max": 0.0064
+        },
+        {
+          "el": "AM3",
+          "min": 0.00263,
+          "max": 0.00291
+        }
       ],
-      "voltages": [{"pin": "AM1.-", "ref": "V1.-", "min": 5.8, "max": 6.4}]
+      "voltages": [
+        {
+          "pin": "AM1.-",
+          "ref": "V1.-",
+          "min": 5.8,
+          "max": 6.4
+        }
+      ]
     }
   ],
   "compare": "**对比**：R2 ∥ R3 = 1k × 2.2k / 3.2k = 687.5Ω，总电阻 1017.5Ω，所以 I1 = 9 / 1017.5 ≈ 8.84 mA，N 点 ≈ 8.84 mA × 687.5Ω ≈ 6.08 V，I2 ≈ 6.08 mA，I3 ≈ 2.76 mA，而 6.08 + 2.76 = 8.84。读数和预测差得多时，先看有没有负读数（表笔接反）、电流表是不是串在了正确的位置。\n\n**想一想**：如果把 AM3 的表笔接反，它会显示 −2.76 mA。电流并没有变，只是你选的参考方向（reference direction）和实际方向相反。KCL 用代数和来写就是 −I1 + I2 + I3 = 0，不管表笔怎么接，代数和永远是 0。（判分要求按上面说的方向接。）",
   "measurements": [
-    {"id": "i1", "current": "AM1", "unit": "mA", "predict": true, "range": [0.0084, 0.0093], "ask": "电流表 AM1 的读数 I1（流进结点 N 的总电流）", "explain": "I1 = 9 V / (R1 + R2 ∥ R3)：R2 ∥ R3 = 687.5 Ω，总电阻 1017.5 Ω，约 8.84 mA。"},
-    {"id": "i2", "current": "AM2", "unit": "mA", "predict": true, "range": [0.0058, 0.0064], "ask": "电流表 AM2 的读数 I2（流过 R2）", "explain": "I2 = U_N / R2 ≈ 6.08 V / 1 kΩ ≈ 6.08 mA。"},
-    {"id": "i3", "current": "AM3", "unit": "mA", "predict": true, "range": [0.00263, 0.00291], "ask": "电流表 AM3 的读数 I3（流过 R3）", "explain": "I3 = U_N / R3 ≈ 6.08 V / 2.2 kΩ ≈ 2.76 mA。"},
-    {"id": "un", "voltage": "AM1.-", "ref": "V1.-", "unit": "V", "predict": true, "range": [5.8, 6.4], "ask": "万用表：结点 N 对 GND 的电压 U_N（红表笔接 N，黑表笔接 GND）", "explain": "U_N = I1 × (R2 ∥ R3) ≈ 8.84 mA × 687.5 Ω ≈ 6.08 V。"},
-    {"id": "kcl", "choices": ["I2 + I3 = I1（差别在读数误差以内）：流进 N 的电流等于流出的电流", "I2 + I3 比 I1 小：有一部分电流在结点 N “消失”了", "I2 + I3 比 I1 大：结点 N 自己产生了电流"], "correct": 0, "ask": "用你的三个读数算 I2 + I3，和 I1 比较：", "explain": "结点上电荷既不会堆积也不会凭空产生，所以 −I1 + I2 + I3 = 0（KCL）。读数之间的小差别来自读数的位数，不是电流丢了。"}
+    {
+      "id": "i1",
+      "current": "AM1",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0084,
+        0.0093
+      ],
+      "ask": "电流表 AM1 的读数 I1（流进结点 N 的总电流）",
+      "explain": "I1 = 9 V / (R1 + R2 ∥ R3)：R2 ∥ R3 = 687.5 Ω，总电阻 1017.5 Ω，约 8.84 mA。"
+    },
+    {
+      "id": "i2",
+      "current": "AM2",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0058,
+        0.0064
+      ],
+      "ask": "电流表 AM2 的读数 I2（流过 R2）",
+      "explain": "I2 = V_N / R2 ≈ 6.08 V / 1 kΩ ≈ 6.08 mA。"
+    },
+    {
+      "id": "i3",
+      "current": "AM3",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.00263,
+        0.00291
+      ],
+      "ask": "电流表 AM3 的读数 I3（流过 R3）",
+      "explain": "I3 = V_N / R3 ≈ 6.08 V / 2.2 kΩ ≈ 2.76 mA。"
+    },
+    {
+      "id": "un",
+      "voltage": "AM1.-",
+      "ref": "V1.-",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        5.8,
+        6.4
+      ],
+      "ask": "万用表：结点 N 对 GND 的电压 V_N（红表笔接 N，黑表笔接 GND）",
+      "explain": "V_N = I1 × (R2 ∥ R3) ≈ 8.84 mA × 687.5 Ω ≈ 6.08 V。"
+    },
+    {
+      "id": "kcl",
+      "choices": [
+        "I2 + I3 = I1（差别在读数误差以内）：流进 N 的电流等于流出的电流",
+        "I2 + I3 比 I1 小：有一部分电流在结点 N “消失”了",
+        "I2 + I3 比 I1 大：结点 N 自己产生了电流"
+      ],
+      "correct": 0,
+      "ask": "用你的三个读数算 I2 + I3，和 I1 比较：",
+      "explain": "结点上电荷既不会堆积也不会凭空产生，所以 −I1 + I2 + I3 = 0（KCL）。读数之间的小差别来自读数的位数，不是电流丢了。"
+    }
   ],
   "hints": [
     "拔掉一根黄色跳线，把电流表的两个表笔插进它空出来的两个孔：这就是“串联进电路”。",
@@ -75,26 +353,148 @@
   ],
   "start": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
-      {"type": "resistor", "ref": "R1", "resistance": "330", "pins": {"1": "b3", "2": "b7"}},
-      {"type": "wire", "pins": {"a": "c7", "b": "c10"}, "color": "yellow"},
-      {"type": "resistor", "ref": "R2", "resistance": "1k", "pins": {"1": "b14", "2": "tn14"}},
-      {"type": "wire", "pins": {"a": "d10", "b": "d14"}, "color": "yellow"},
-      {"type": "resistor", "ref": "R3", "resistance": "2.2k", "pins": {"1": "b18", "2": "tn18"}},
-      {"type": "wire", "pins": {"a": "a10", "b": "a18"}, "color": "yellow"}
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "330",
+        "pins": {
+          "1": "b3",
+          "2": "b7"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "c7",
+          "b": "c10"
+        },
+        "color": "yellow"
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "1k",
+        "pins": {
+          "1": "b14",
+          "2": "tn14"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "d10",
+          "b": "d14"
+        },
+        "color": "yellow"
+      },
+      {
+        "type": "resistor",
+        "ref": "R3",
+        "resistance": "2.2k",
+        "pins": {
+          "1": "b18",
+          "2": "tn18"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a10",
+          "b": "a18"
+        },
+        "color": "yellow"
+      }
     ]
   },
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
-      {"type": "resistor", "ref": "R1", "resistance": "330", "pins": {"1": "b3", "2": "b7"}},
-      {"type": "ammeter", "ref": "AM1", "pins": {"+": "c7", "-": "c10"}},
-      {"type": "ammeter", "ref": "AM2", "pins": {"+": "d10", "-": "d14"}},
-      {"type": "resistor", "ref": "R2", "resistance": "1k", "pins": {"1": "b14", "2": "tn14"}},
-      {"type": "ammeter", "ref": "AM3", "pins": {"+": "a10", "-": "a18"}},
-      {"type": "resistor", "ref": "R3", "resistance": "2.2k", "pins": {"1": "b18", "2": "tn18"}}
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "330",
+        "pins": {
+          "1": "b3",
+          "2": "b7"
+        }
+      },
+      {
+        "type": "ammeter",
+        "ref": "AM1",
+        "pins": {
+          "+": "c7",
+          "-": "c10"
+        }
+      },
+      {
+        "type": "ammeter",
+        "ref": "AM2",
+        "pins": {
+          "+": "d10",
+          "-": "d14"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "1k",
+        "pins": {
+          "1": "b14",
+          "2": "tn14"
+        }
+      },
+      {
+        "type": "ammeter",
+        "ref": "AM3",
+        "pins": {
+          "+": "a10",
+          "-": "a18"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R3",
+        "resistance": "2.2k",
+        "pins": {
+          "1": "b18",
+          "2": "tn18"
+        }
+      }
     ]
   }
 }

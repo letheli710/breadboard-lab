@@ -1,0 +1,583 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp4-half-wave-rectifier",
+  "title": "半波整流 + 电容滤波：把交流变成直流",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 4,
+  "summary": "信号发生器 → 二极管 → 1 kΩ 负载，只剩正半周。按住按键并上 100 µF 电容：输出变成一条带纹波的直流。用示波器的平均值和峰峰值看清楚。",
+  "concepts": [
+    "二极管：单向导通 diode as a one-way valve",
+    "半波整流 half-wave rectifier",
+    "平均值 = 直流分量 average = DC component",
+    "电容滤波与纹波 capacitor filter and ripple",
+    "非正弦周期波 non-sinusoidal periodic wave"
+  ],
+  "prereq": ["lesson-scope-two-channels"],
+  "description": "信号发生器（正弦波 50 Hz、幅度 5 V）→ D1（硅二极管，0.65 V + 0.8 Ω）→ VOUT → R1（1 kΩ）→ GND；按键 SW1 把 C1（100 µF）并在 VOUT 和 GND 之间。CH1 看输入，CH2 看 VOUT。整流后的波形 = 直流 + 各次谐波；电容留下直流，压小纹波。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "负半周去哪了？",
+      "text": [
+        "信号发生器和两支探头已经在板上。**二极管**：有黑圈（负极）的一头朝右，**`b3`**–**`b8`**。**电阻**（`1 kΩ`）**`c8`**–**`tn8`**。",
+        "信号发生器：**正弦波、`50 Hz`、幅度 `5 V`**（和市电同一个频率）。CH1 看输入，CH2 看电阻上的电压 VOUT。",
+        "CH1 有上半周也有下半周。CH2 呢？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "单向阀和水桶",
+      "text": [
+        "- **二极管**是一个单向阀：正极比负极高出约 0.65 V，它才导通；反过来就断开。所以只有正半周能过去，输出是一串“小山包”——这叫**半波整流**。",
+        "- 这串小山包不是正弦波，但它有一个**平均值**——这就是它的直流成分，万用表直流档读到的就是它。剩下的起伏是各种频率的交流成分。",
+        "- 想要平稳的直流，就并一个大电容当**水桶**：每到波峰，二极管把桶灌满；两次波峰之间，负载慢慢从桶里取电，电压只往下掉一点。掉的那一点叫**纹波**。",
+        "![](fig:waves)",
+        "- 两次波峰之间隔一个周期 1/f，这段时间里电容放掉的电荷约是 I/f，所以",
+        "$$ΔV ≈ \\frac{I}{f C} = \\frac{I}{50 × 100 × 10^{-6}}$$",
+        "其中 I ≈ 输出电压 ÷ 1 kΩ。动手之前先估一估。",
+        "![](fig:circuit)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "按下按键，接上水桶",
+      "text": [
+        "- **按键**放在 **`e8`**（横跨凹槽）：按下时把第 `8` 列和第 `10` 列接通。**电容**（`100 µF`）插 **`c10`**–**`tn10`**。",
+        "- **松开按键**：读 CH2 的「平均」。",
+        "- **点一下按键**让它保持按下：等波形稳定，读 CH2 的「平均」和 **Vpp**（纹波）。这时把 CH2 的伏/格调小，纹波看得更清楚。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 整流后的波形 = **直流 + 一串谐波**（频率是 50 Hz 整数倍的正弦波）。平均值就是直流成分；电容（低通）留下直流，把谐波压小。",
+        "- 纹波 $ΔV ≈ I / (fC)$：负载电流越大、电容越小，纹波越大。全波整流的波峰间隔减半，纹波也减半。",
+        "- 坑：100 µF 是**电解电容**，+ 脚接二极管负极那一侧（VOUT），− 脚接 GND。接反会发热、鼓包甚至爆开。仿真里的电容不分正负。",
+        "- 坑：千万不要直接拿市电做这个实验。真实电源先用变压器降压、隔离，再整流滤波——变压器在理论题里练。",
+        "- 选学：非正弦波怎么拆成谐波（傅里叶）、怎样用拉普拉斯变换解暂态、怎样把一级电路看成一个二端口——各章的要点从下面进入。"
+      ],
+      "practice": ["non-sinusoidal", "s-domain", "two-port"]
+    }
+  ],
+  "figures": {
+    "waves": {
+      "kind": "plot",
+      "caption": {
+        "text": "输入（虚线）；没有电容时只剩一串正半周的小山包；接上电容，输出在波峰被充满，两次波峰之间慢慢下降——下降的那一点就是纹波（图里画得夸张了）。",
+        "i18n": {
+          "en": "The input (dashed); without the capacitor only the positive humps are left; with it, the output is topped up at each peak and sags a little in between — that sag is the ripple (exaggerated here)."
+        }
+      },
+      "x": {"label": {"text": "时间（周期）", "i18n": {"en": "time (periods)"}}, "min": 0, "max": 2, "ticks": [0, 1, 2]},
+      "y": {"label": {"text": "电压", "i18n": {"en": "voltage"}}, "min": -1.1, "max": 1.2, "ticks": [0]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.0208, 0.131],
+            [0.0417, 0.259],
+            [0.0625, 0.383],
+            [0.0833, 0.5],
+            [0.1042, 0.609],
+            [0.125, 0.707],
+            [0.1458, 0.793],
+            [0.1667, 0.866],
+            [0.1875, 0.924],
+            [0.2083, 0.966],
+            [0.2292, 0.991],
+            [0.25, 1.0],
+            [0.2708, 0.991],
+            [0.2917, 0.966],
+            [0.3125, 0.924],
+            [0.3333, 0.866],
+            [0.3542, 0.793],
+            [0.375, 0.707],
+            [0.3958, 0.609],
+            [0.4167, 0.5],
+            [0.4375, 0.383],
+            [0.4583, 0.259],
+            [0.4792, 0.131],
+            [0.5, 0.0],
+            [0.5208, -0.131],
+            [0.5417, -0.259],
+            [0.5625, -0.383],
+            [0.5833, -0.5],
+            [0.6042, -0.609],
+            [0.625, -0.707],
+            [0.6458, -0.793],
+            [0.6667, -0.866],
+            [0.6875, -0.924],
+            [0.7083, -0.966],
+            [0.7292, -0.991],
+            [0.75, -1.0],
+            [0.7708, -0.991],
+            [0.7917, -0.966],
+            [0.8125, -0.924],
+            [0.8333, -0.866],
+            [0.8542, -0.793],
+            [0.875, -0.707],
+            [0.8958, -0.609],
+            [0.9167, -0.5],
+            [0.9375, -0.383],
+            [0.9583, -0.259],
+            [0.9792, -0.131],
+            [1.0, -0.0],
+            [1.0208, 0.131],
+            [1.0417, 0.259],
+            [1.0625, 0.383],
+            [1.0833, 0.5],
+            [1.1042, 0.609],
+            [1.125, 0.707],
+            [1.1458, 0.793],
+            [1.1667, 0.866],
+            [1.1875, 0.924],
+            [1.2083, 0.966],
+            [1.2292, 0.991],
+            [1.25, 1.0],
+            [1.2708, 0.991],
+            [1.2917, 0.966],
+            [1.3125, 0.924],
+            [1.3333, 0.866],
+            [1.3542, 0.793],
+            [1.375, 0.707],
+            [1.3958, 0.609],
+            [1.4167, 0.5],
+            [1.4375, 0.383],
+            [1.4583, 0.259],
+            [1.4792, 0.131],
+            [1.5, 0.0],
+            [1.5208, -0.131],
+            [1.5417, -0.259],
+            [1.5625, -0.383],
+            [1.5833, -0.5],
+            [1.6042, -0.609],
+            [1.625, -0.707],
+            [1.6458, -0.793],
+            [1.6667, -0.866],
+            [1.6875, -0.924],
+            [1.7083, -0.966],
+            [1.7292, -0.991],
+            [1.75, -1.0],
+            [1.7708, -0.991],
+            [1.7917, -0.966],
+            [1.8125, -0.924],
+            [1.8333, -0.866],
+            [1.8542, -0.793],
+            [1.875, -0.707],
+            [1.8958, -0.609],
+            [1.9167, -0.5],
+            [1.9375, -0.383],
+            [1.9583, -0.259],
+            [1.9792, -0.131],
+            [2.0, -0.0]
+          ],
+          "tone": 3,
+          "dashed": true,
+          "label": {"text": "输入", "i18n": {"en": "input"}},
+          "labelAt": [0.75, -0.95]
+        },
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.0208, 0.011],
+            [0.0417, 0.139],
+            [0.0625, 0.263],
+            [0.0833, 0.38],
+            [0.1042, 0.489],
+            [0.125, 0.587],
+            [0.1458, 0.673],
+            [0.1667, 0.746],
+            [0.1875, 0.804],
+            [0.2083, 0.846],
+            [0.2292, 0.871],
+            [0.25, 0.88],
+            [0.2708, 0.871],
+            [0.2917, 0.846],
+            [0.3125, 0.804],
+            [0.3333, 0.746],
+            [0.3542, 0.673],
+            [0.375, 0.587],
+            [0.3958, 0.489],
+            [0.4167, 0.38],
+            [0.4375, 0.263],
+            [0.4583, 0.139],
+            [0.4792, 0.011],
+            [0.5, 0.0],
+            [0.5208, 0.0],
+            [0.5417, 0.0],
+            [0.5625, 0.0],
+            [0.5833, 0.0],
+            [0.6042, 0.0],
+            [0.625, 0.0],
+            [0.6458, 0.0],
+            [0.6667, 0.0],
+            [0.6875, 0.0],
+            [0.7083, 0.0],
+            [0.7292, 0.0],
+            [0.75, 0.0],
+            [0.7708, 0.0],
+            [0.7917, 0.0],
+            [0.8125, 0.0],
+            [0.8333, 0.0],
+            [0.8542, 0.0],
+            [0.875, 0.0],
+            [0.8958, 0.0],
+            [0.9167, 0.0],
+            [0.9375, 0.0],
+            [0.9583, 0.0],
+            [0.9792, 0.0],
+            [1.0, 0.0],
+            [1.0208, 0.011],
+            [1.0417, 0.139],
+            [1.0625, 0.263],
+            [1.0833, 0.38],
+            [1.1042, 0.489],
+            [1.125, 0.587],
+            [1.1458, 0.673],
+            [1.1667, 0.746],
+            [1.1875, 0.804],
+            [1.2083, 0.846],
+            [1.2292, 0.871],
+            [1.25, 0.88],
+            [1.2708, 0.871],
+            [1.2917, 0.846],
+            [1.3125, 0.804],
+            [1.3333, 0.746],
+            [1.3542, 0.673],
+            [1.375, 0.587],
+            [1.3958, 0.489],
+            [1.4167, 0.38],
+            [1.4375, 0.263],
+            [1.4583, 0.139],
+            [1.4792, 0.011],
+            [1.5, 0.0],
+            [1.5208, 0.0],
+            [1.5417, 0.0],
+            [1.5625, 0.0],
+            [1.5833, 0.0],
+            [1.6042, 0.0],
+            [1.625, 0.0],
+            [1.6458, 0.0],
+            [1.6667, 0.0],
+            [1.6875, 0.0],
+            [1.7083, 0.0],
+            [1.7292, 0.0],
+            [1.75, 0.0],
+            [1.7708, 0.0],
+            [1.7917, 0.0],
+            [1.8125, 0.0],
+            [1.8333, 0.0],
+            [1.8542, 0.0],
+            [1.875, 0.0],
+            [1.8958, 0.0],
+            [1.9167, 0.0],
+            [1.9375, 0.0],
+            [1.9583, 0.0],
+            [1.9792, 0.0],
+            [2.0, 0.0]
+          ],
+          "tone": 2,
+          "label": {"text": "无电容", "i18n": {"en": "no C"}},
+          "labelAt": [0.5, 0.25]
+        },
+        {
+          "points": [
+            [0.25, 0.88],
+            [0.2708, 0.871],
+            [0.2917, 0.859],
+            [0.3125, 0.846],
+            [0.3333, 0.833],
+            [0.3542, 0.821],
+            [0.375, 0.809],
+            [0.3958, 0.797],
+            [0.4167, 0.785],
+            [0.4375, 0.774],
+            [0.4583, 0.762],
+            [0.4792, 0.751],
+            [0.5, 0.74],
+            [0.5208, 0.729],
+            [0.5417, 0.718],
+            [0.5625, 0.708],
+            [0.5833, 0.697],
+            [0.6042, 0.687],
+            [0.625, 0.677],
+            [0.6458, 0.667],
+            [0.6667, 0.657],
+            [0.6875, 0.647],
+            [0.7083, 0.638],
+            [0.7292, 0.628],
+            [0.75, 0.619],
+            [0.7708, 0.61],
+            [0.7917, 0.601],
+            [0.8125, 0.592],
+            [0.8333, 0.583],
+            [0.8542, 0.574],
+            [0.875, 0.566],
+            [0.8958, 0.558],
+            [0.9167, 0.549],
+            [0.9375, 0.541],
+            [0.9583, 0.533],
+            [0.9792, 0.525],
+            [1.0, 0.518],
+            [1.0208, 0.51],
+            [1.0417, 0.502],
+            [1.0625, 0.495],
+            [1.0833, 0.488],
+            [1.1042, 0.489],
+            [1.125, 0.587],
+            [1.1458, 0.673],
+            [1.1667, 0.746],
+            [1.1875, 0.804],
+            [1.2083, 0.846],
+            [1.2292, 0.871],
+            [1.25, 0.88],
+            [1.2708, 0.871],
+            [1.2917, 0.859],
+            [1.3125, 0.846],
+            [1.3333, 0.833],
+            [1.3542, 0.821],
+            [1.375, 0.809],
+            [1.3958, 0.797],
+            [1.4167, 0.785],
+            [1.4375, 0.774],
+            [1.4583, 0.762],
+            [1.4792, 0.751],
+            [1.5, 0.74],
+            [1.5208, 0.729],
+            [1.5417, 0.718],
+            [1.5625, 0.708],
+            [1.5833, 0.697],
+            [1.6042, 0.687],
+            [1.625, 0.677],
+            [1.6458, 0.667],
+            [1.6667, 0.657],
+            [1.6875, 0.647],
+            [1.7083, 0.638],
+            [1.7292, 0.628],
+            [1.75, 0.619],
+            [1.7708, 0.61],
+            [1.7917, 0.601],
+            [1.8125, 0.592],
+            [1.8333, 0.583],
+            [1.8542, 0.574],
+            [1.875, 0.566],
+            [1.8958, 0.558],
+            [1.9167, 0.549],
+            [1.9375, 0.541],
+            [1.9583, 0.533],
+            [1.9792, 0.525],
+            [2.0, 0.518]
+          ],
+          "tone": 1,
+          "label": {"text": "有电容", "i18n": {"en": "with C"}},
+          "labelAt": [1.0, 1.05]
+        }
+      ]
+    },
+    "circuit": {
+      "kind": "schematic",
+      "caption": {
+        "text": "二极管只让电流从左往右流；按住按键（S1 闭合），C1（彩色）就并在负载 R1 旁边当“水桶”。",
+        "i18n": {
+          "en": "The diode only lets current flow left to right; hold the button (S1 closed) and C1 (in colour) sits beside the load R1 as a \"bucket\"."
+        }
+      },
+      "highlight": ["C1"],
+      "schematic": {
+        "elements": [
+          {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"ac": {"mag": 1}}, "label": "v_in"},
+          {"ref": "D1", "type": "D", "from": [0, 0], "to": [2, 0]},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [3, 4], "value": "1k"},
+          {"ref": "S1", "type": "S", "from": [6, 0], "to": [6, 2], "value": "closed"},
+          {"ref": "C1", "type": "C", "from": [6, 2], "to": [6, 4], "value": "100u"}
+        ],
+        "wires": [
+          [[2, 0], [6, 0]],
+          [[6, 4], [0, 4]]
+        ],
+        "labels": [
+          {"at": [3, 0], "name": "VOUT"}
+        ]
+      }
+    }
+  },
+  "components": [
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "D1", "type": "diode"},
+    {"ref": "R1", "type": "resistor", "resistance": "1k"},
+    {"ref": "SW1", "type": "pushbutton"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "100u"}
+  ],
+  "nets": [
+    {"name": "VIN", "pins": ["FG1.+", "D1.anode"]},
+    {"name": "VOUT", "pins": ["D1.cathode", "R1.1", "SW1.1"]},
+    {"name": "SWC", "pins": ["SW1.2", "C1.1"]},
+    {"name": "GND", "pins": ["R1.2", "C1.2", "FG1.-"]}
+  ],
+  "i18n": {
+    "en": {
+      "title": "Half-wave rectifier + capacitor filter: from AC to DC",
+      "summary": "Generator → diode → 1 kΩ load: only the positive half survives. Hold a button to add 100 µF: the output becomes DC with a little ripple. The scope's average and peak-to-peak show it clearly.",
+      "concepts": ["the diode as a one-way valve", "half-wave rectifier", "average = DC component", "capacitor filter and ripple", "non-sinusoidal periodic wave"],
+      "description": "Generator (sine 50 Hz, amplitude 5 V) → D1 (silicon diode, 0.65 V + 0.8 Ω) → VOUT → R1 (1 kΩ) → GND; button SW1 puts C1 (100 µF) between VOUT and GND. CH1 on the input, CH2 on VOUT. The rectified wave is DC plus harmonics; the capacitor keeps the DC and shrinks the ripple.",
+      "cards": [
+        {
+          "title": "Where did the negative half go?",
+          "text": [
+            "The generator and both probes are already on the board. **Diode**: the end with the band (the cathode) faces right, **`b3`**–**`b8`**. **Resistor** (`1 kΩ`) **`c8`**–**`tn8`**.",
+            "Generator: **sine, `50 Hz`, amplitude `5 V`** (the mains frequency). CH1 shows the input, CH2 the voltage VOUT across the resistor.",
+            "CH1 has a top half and a bottom half. What about CH2?"
+          ]
+        },
+        {
+          "title": "A one-way valve and a bucket",
+          "text": [
+            "- A **diode** is a one-way valve: it conducts only when its anode is about 0.65 V above its cathode, and blocks the other way. So only the positive halves get through and the output is a row of humps — **half-wave rectification**.",
+            "- These humps are not a sine wave, but they have an **average** — their DC part, which is what a multimeter's DC range reads. The rest of the wobble is AC at various frequencies.",
+            "- For a steady DC, add a big capacitor as a **bucket**: at every peak the diode fills it up; between peaks the load slowly draws from it, and the voltage only sags a little. That sag is the **ripple**.",
+            "![](fig:waves)",
+            "- The peaks are one period 1/f apart, and in that time the capacitor gives away a charge of about I/f, so",
+            "$$ΔV ≈ \\frac{I}{f C} = \\frac{I}{50 × 100 × 10^{-6}}$$",
+            "with I ≈ the output voltage ÷ 1 kΩ. Estimate it before you measure.",
+            "![](fig:circuit)"
+          ]
+        },
+        {
+          "title": "Press the button: add the bucket",
+          "text": [
+            "- **Push button** at **`e8`** (straddling the gap): pressed, it joins column `8` to column `10`. **Capacitor** (`100 µF`) into **`c10`**–**`tn10`**.",
+            "- **Button released**: read CH2's \"Vavg\".",
+            "- **Click the button** so it stays pressed. Once the trace settles, read CH2's \"Vavg\" and its **Vpp** (the ripple). Turn CH2's V/div down to see the ripple better."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- A rectified wave = **DC + a series of harmonics** (sine waves at whole multiples of 50 Hz). The average is the DC part; the capacitor (a low-pass) keeps the DC and shrinks the harmonics.",
+            "- Ripple $ΔV ≈ I / (fC)$: more load current or less capacitance means more ripple. A full-wave rectifier halves the time between peaks, and the ripple with it.",
+            "- Pitfall: 100 µF is an **electrolytic**. Its + lead goes to the diode's cathode side (VOUT), its − lead to GND. Reversed, it heats up, bulges or even bursts. The simulated capacitor has no polarity.",
+            "- Pitfall: never try this straight on the mains. A real supply first steps the voltage down and isolates it with a transformer, then rectifies and filters — transformers are in the theory problems.",
+            "- Electives: how a non-sinusoidal wave splits into harmonics (Fourier), how the Laplace transform solves transients, how to treat a stage as a two-port — each chapter's key points open below."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "Button released: CH2's (VOUT's) \"Vavg\"",
+          "explain": "Each hump peaks at about 5 × 1000/1050.8 − 0.65 ≈ 4.1 V (the generator's internal 50 Ω takes a little, the diode holds back 0.65 V). The average over a period is a little below 4.1/π ≈ 1.3 V: the input must first pass 0.65 V before the diode conducts, which trims both sides of each hump."
+        },
+        {
+          "ask": "Button held: CH2's \"Vavg\" (the DC output)",
+          "explain": "The output moves between about 2.95 V and 3.45 V and averages about 3.2 V. The peaks no longer reach 4.1 V: the capacitor charges only in a short moment near each peak, with a large current, and the generator's internal 50 Ω drops part of the voltage."
+        },
+        {
+          "ask": "Button held: CH2's Vpp (the ripple)",
+          "explain": "I ≈ 3.2 V / 1 kΩ = 3.2 mA, ΔV ≈ I/(fC) = 0.0032 / (50 × 100 µF) ≈ 0.64 V. The reading, about 0.5 V, is smaller: the capacitor does not discharge for a whole period — near each peak the diode is still charging it."
+        },
+        {
+          "ask": "If the load changes from 1 kΩ to 470 Ω, the ripple will:",
+          "choices": [
+            "Grow: the load drains the bucket faster",
+            "Shrink: a smaller resistor drops less voltage",
+            "Stay the same: only the capacitor sets the ripple"
+          ],
+          "explain": "ΔV ≈ I/(fC): the resistance drops by more than half, the current more than doubles, and the capacitor gives away more than twice the charge between peaks."
+        }
+      ],
+      "hints": [
+        "The diode's cathode (the end with the band) faces VOUT (column 8); its anode goes to the generator's column.",
+        "The button straddles the gap at e8: column 8 is one end, column 10 the other; the capacitor runs from column 10 to GND.",
+        "The scope table's \"Vavg\" is what a multimeter's DC range would read."
+      ],
+      "tests": ["Button released: only the positive halves", "Button pressed: DC with ripple"],
+      "compare": [
+        "**Compare**:",
+        "- **No capacitor**: only the positive halves are left. Peak ≈ 5 × 1000/1050.8 − 0.65 ≈ 4.1 V; average ≈ 1.22 V, a little below 4.1/π (the diode waits until the input passes 0.65 V).",
+        "- **With 100 µF**: the output moves between about 2.95 and 3.45 V, averaging ≈ 3.2 V, with ≈ 0.5 Vpp of ripple. The rough ΔV ≈ I/(fC) = 3.2 mA / (50 Hz × 100 µF) ≈ 0.64 V comes out a little high, because the capacitor does not discharge for a whole period.",
+        "- **Why the peaks dropped**: the capacitor charges only in a short moment near each peak, in sharp pulses of tens of milliamps, which drop a few tenths of a volt across the generator's internal 50 Ω. In a real supply the transformer's winding resistance does the same."
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "松开按键：只剩正半周",
+      "set": {"FG1": {"waveform": "sine", "frequency": 50, "amplitude": 5, "offset": 0}, "SW1": {"pressed": false}},
+      "scope": [{"pin": "R1.1", "measure": "vmin", "min": -0.05, "max": 0.05}, {"pin": "R1.1", "measure": "vavg", "min": 1.1, "max": 1.6}]
+    },
+    {
+      "name": "按下按键：带纹波的直流",
+      "set": {"FG1": {"waveform": "sine", "frequency": 50, "amplitude": 5, "offset": 0}, "SW1": {"pressed": true}},
+      "scope": [{"pin": "R1.1", "measure": "vavg", "min": 3.0, "max": 3.4}, {"pin": "R1.1", "measure": "vpp", "min": 0.42, "max": 0.6}]
+    }
+  ],
+  "compare": [
+    "**对比**：",
+    "- **没有电容**：只剩正半周。峰值 ≈ 5 × 1000/1050.8 − 0.65 ≈ 4.1 V；平均 ≈ 1.22 V，比 4.1/π 略小（二极管要等输入过了 0.65 V 才导通）。",
+    "- **接上 100 µF**：输出在约 2.95～3.45 V 之间，平均 ≈ 3.2 V，纹波 ≈ 0.5 Vpp。粗估 ΔV ≈ I/(fC) = 3.2 mA / (50 Hz × 100 µF) ≈ 0.64 V 偏大一些，因为电容并不是放电整整一个周期。",
+    "- **波峰为什么降低了**：电容只在波峰附近短短一段时间里充电，充电电流是几十毫安的尖脉冲，在信号发生器内部 50 Ω 上压掉零点几伏。真实电源里的变压器绕组电阻也有同样的效果。"
+  ],
+  "measurements": [
+    {
+      "id": "avg0",
+      "scope": "vavg",
+      "pin": "R1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 50, "amplitude": 5, "offset": 0}, "SW1": {"pressed": false}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.1, 1.35],
+      "ask": "松开按键：CH2（VOUT）的「平均」",
+      "explain": "每个山包的峰值约 5 × 1000/1050.8 − 0.65 ≈ 4.1 V（信号发生器内部 50 Ω 分走一点，二极管再拦住 0.65 V）。整个周期的平均比 4.1/π ≈ 1.3 V 还小一点：输入要先超过 0.65 V 二极管才导通，山包两边被削掉了一些。"
+    },
+    {
+      "id": "avg1",
+      "scope": "vavg",
+      "pin": "R1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 50, "amplitude": 5, "offset": 0}, "SW1": {"pressed": true}},
+      "unit": "V",
+      "predict": true,
+      "range": [3.0, 3.4],
+      "ask": "按住按键：CH2 的「平均」（直流输出）",
+      "explain": "输出在约 2.95 V 到 3.45 V 之间，平均约 3.2 V。波峰没有到 4.1 V：电容每次只在波峰附近很短的时间里充电，充电电流很大，在信号发生器内部的 50 Ω 上压掉了一部分。"
+    },
+    {
+      "id": "rip",
+      "scope": "vpp",
+      "pin": "R1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 50, "amplitude": 5, "offset": 0}, "SW1": {"pressed": true}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.42, 0.6],
+      "ask": "按住按键：CH2 的 Vpp（纹波）",
+      "explain": "I ≈ 3.2 V / 1 kΩ = 3.2 mA，ΔV ≈ I/(fC) = 0.0032 / (50 × 100 µF) ≈ 0.64 V。实测约 0.5 V，比估计小：电容并不是整整一个周期都在放电，波峰附近二极管还在给它充电。"
+    },
+    {
+      "id": "load",
+      "choices": ["纹波变大：负载取电更快，桶里的水掉得更多", "纹波变小：电阻小了，压降小了", "不变：纹波只由电容决定"],
+      "correct": 0,
+      "ask": "如果把负载从 1 kΩ 换成 470 Ω，纹波会？",
+      "explain": "ΔV ≈ I/(fC)：电阻小了一半多，电流大了一倍多，两次波峰之间电容放掉的电荷也多一倍多。"
+    }
+  ],
+  "hints": ["二极管的负极（有黑圈的一头）朝 VOUT（第 8 列），正极接信号发生器那一列。", "按键横跨凹槽放在 e8：第 8 列是一端，第 10 列是另一端；电容从第 10 列接到 GND。", "示波器表格里的「平均」就是万用表直流档的读数。"],
+  "start": {
+    "parts": [
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 50, "amplitude": 5, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "d3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "a8", "gnd": "tn21"}}
+    ]
+  },
+  "solution": {
+    "parts": [
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 50, "amplitude": 5, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "diode", "ref": "D1", "pins": {"anode": "b3", "cathode": "b8"}},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "c8", "2": "tn8"}},
+      {"type": "pushbutton", "ref": "SW1", "at": "e8"},
+      {"type": "capacitor", "ref": "C1", "capacitance": "100u", "pins": {"1": "c10", "2": "tn10"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "d3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "a8", "gnd": "tn21"}}
+    ]
+  }
+}

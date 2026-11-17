@@ -7,7 +7,7 @@
 // "\\frac{U_s}{R_1 + R_2}".
 
 import { Fragment, type ReactNode } from 'react';
-import { richRuns } from './ProblemSchematic';
+import { richRuns } from './richRuns';
 import { subQ } from './subQ';
 
 export type MathNode =
@@ -48,8 +48,46 @@ function closeBrace(s: string, open: number): number {
 // a "_" after one of these belongs to richRuns' X_sub rule
 const SYMBOL_END = /(?:[A-Za-zα-ωΑ-Ω\u0130ûîÛÎ]|[\u0307\u0302\u0304])$/;
 
+// common TeX words written in lesson text, shown as the character they stand for
+const WORDS: Record<string, string> = {
+  approx: '≈',
+  times: '×',
+  cdot: '·',
+  parallel: '∥',
+  dots: '…',
+  quad: '\u2003',
+  qquad: '\u2003\u2003',
+  le: '≤',
+  ge: '≥',
+  ne: '≠',
+  pm: '±',
+  infty: '∞',
+  to: '→',
+  angle: '∠',
+  circ: '°',
+  Omega: 'Ω',
+  omega: 'ω',
+  pi: 'π',
+  mu: 'µ',
+  Delta: 'Δ',
+  tau: 'τ',
+  phi: 'φ',
+  theta: 'θ',
+  left: '',
+  right: '',
+};
+
+/** \text{…} → its text, "\ " → a space, \approx and friends → their character. */
+export function texWords(s: string): string {
+  return s
+    .replace(/\\text\{([^{}]*)\}/g, '$1')
+    .replace(/\\ /g, ' ')
+    .replace(/\\([A-Za-z]+)(?![A-Za-z])/g, (m, w: string) => (w in WORDS ? WORDS[w] : m));
+}
+
 /** Parse the formula markup; unmatched or unknown markup stays text. */
-export function mathNodes(s: string): MathNode[] {
+export function mathNodes(src: string): MathNode[] {
+  const s = texWords(src);
   const out: MathNode[] = [];
   let text = '';
   const flush = () => {

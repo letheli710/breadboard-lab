@@ -90,7 +90,10 @@ export function checkerView(user: Circuit, targetHasAmmeter: boolean): { circuit
 }
 
 /** Typical wiring mistakes worth naming: user-terminal relabelling that would fix the wiring. */
-const MISTAKES: Partial<Record<CComponent['type'], { swap: Record<string, string>; zh: (r: string) => string; en: (r: string) => string; title: [string, string] }[]>> = {
+/** `posFb`: the target op-amp feeds its output back to IN+ on purpose (a Schmitt trigger) */
+const MISTAKES: Partial<
+  Record<CComponent['type'], { swap: Record<string, string>; zh: (r: string, posFb?: boolean) => string; en: (r: string, posFb?: boolean) => string; title: [string, string] }[]>
+> = {
   npn: [
     {
       swap: { e: 'c', c: 'e' },
@@ -129,12 +132,32 @@ const MISTAKES: Partial<Record<CComponent['type'], { swap: Record<string, string
     {
       swap: { 'inA-': 'inA+', 'inA+': 'inA-', 'inB-': 'inB+', 'inB+': 'inB-' },
       title: [' 的 + 和 − 输入接反了', "'s + and − inputs are swapped"],
-      zh: (r) => `${r} 的反相输入（IN−）和同相输入（IN+）对调了。反馈必须接到 IN−（负反馈）；接到 IN+ 会变成正反馈，输出直接撞到电源轨。`,
-      en: (r) =>
-        `${r}'s inverting (IN−) and non-inverting (IN+) inputs are swapped. Feedback must go to IN− (negative feedback); feeding IN+ makes positive feedback and the output slams into a rail.`,
+      zh: (r, posFb) =>
+        posFb
+          ? `${r} 的反相输入（IN−）和同相输入（IN+）对调了。这个电路故意把反馈接到 IN+（正反馈），才有两个门限；输入信号接 IN−。接反以后它变成普通的负反馈放大器，回差就没了。`
+          : `${r} 的反相输入（IN−）和同相输入（IN+）对调了。反馈必须接到 IN−（负反馈）；接到 IN+ 会变成正反馈，输出直接撞到电源轨。`,
+      en: (r, posFb) =>
+        posFb
+          ? `${r}'s inverting (IN−) and non-inverting (IN+) inputs are swapped. This circuit feeds its output back to IN+ on purpose (positive feedback) — that is what makes the two thresholds — and the input signal goes to IN−. Swapped, it turns into an ordinary negative-feedback amplifier and the hysteresis is gone.`
+          : `${r}'s inverting (IN−) and non-inverting (IN+) inputs are swapped. Feedback must go to IN− (negative feedback); feeding IN+ makes positive feedback and the output slams into a rail.`,
     },
   ],
 };
+
+/** True if a part of the target joins an op-amp's output to its own IN+ (positive feedback by design). */
+function feedsPlus(ctx: Ctx, ref: string): boolean {
+  for (const h of ['A', 'B']) {
+    const out = ctx.tNetOf.get(`${ref}.out${h}`);
+    const plus = ctx.tNetOf.get(`${ref}.in${h}+`);
+    if (out === undefined || plus === undefined) continue;
+    for (const c of ctx.target.components) {
+      if (c.ref === ref) continue;
+      const nets = new Set(terminalsOf(c.type).map((x) => ctx.tNetOf.get(pinId(c.ref, x))));
+      if (nets.has(out) && nets.has(plus)) return true;
+    }
+  }
+  return false;
+}
 
 function compatible(t: CComponent, u: CComponent): boolean {
   if (t.type === 'dc_source') return isPower(u.type);
@@ -523,7 +546,74 @@ function matchComponents(ctx: Ctx, tol: number, budget: number) {
   return { targets, assign: b?.assign ?? [], complete: !aborted || (b !== null && b.score >= optimum), work };
 }
 
+/** Target parts a test talks about (by ref): what behaviour grading has to find on the board. */
+export function testRefs(test: ChallengeTest): string[] {
+  const refOf = (pin?: string) => (pin ? splitPin(pin)[0] : undefined);
+  const refs = [
+    ...Object.keys(test.set),
+    ...Object.keys(test.expect),
+    ...Object.keys(test.regions ?? {}),
+    ...(test.currents ?? []).map((c) => c.el),
+    ...(test.gpio ?? []).map((g) => refOf(g.pin)),
+    ...(test.voltages ?? []).flatMap((v) => [refOf(v.pin), refOf(v.ref)]),
+    ...(test.scope ?? []).flatMap((v) => [refOf(v.pin), refOf(v.ref), refOf(v.vs), refOf(v.vsref)]),
+  ];
+  return [...new Set(refs.filter((r): r is string => !!r))];
+}
+
+/** Behaviour grading (`options.grading: "behaviour"`, open design tasks): no wiring or value
+ *  comparison. Each part the tests name is found on the board by its type (the same ref first,
+ *  then the first unused part of that type), its pins keep their names, and the tests decide. */
+function checkBehaviour(ch: Challenge, board: Circuit, userPinHoles?: Map<string, string[]>): CheckResult {
+  const { circuit: user } = checkerView(board, true);
+  const tComp = new Map(ch.target.components.map((c) => [c.ref, c]));
+  const mapping = new Map<string, string>();
+  const pinMap = new Map<string, string>();
+  const used = new Set<string>();
+  const issues: Issue[] = [];
+  const named = [...new Set(ch.tests.flatMap(testRefs))].filter((r) => tComp.has(r));
+  for (const ref of named) {
+    const t = tComp.get(ref)!;
+    const same = user.components.find((u) => u.ref === ref && u.type === t.type && !used.has(u.ref));
+    const u = same ?? user.components.find((x) => x.type === t.type && !used.has(x.ref));
+    if (!u) {
+      issues.push({
+        severity: 'error',
+        title: tr(`缺少元件：${describeComponent(t)}`, `Missing part: ${describeComponent(t)}`),
+        detail: tr(
+          `测试要看 ${ref}（${describeComponent(t)}）的表现，但面包板上没有这种元件。`,
+          `The tests look at ${ref} (${describeComponent(t)}), but there is no such part on the breadboard.`,
+        ),
+        refs: [],
+        holes: [],
+      });
+      continue;
+    }
+    used.add(u.ref);
+    mapping.set(ref, u.ref);
+    for (const term of terminalsOf(t.type)) pinMap.set(pinId(ref, term), pinId(u.ref, term));
+  }
+  let testsPassed = 0;
+  if (issues.length === 0)
+    for (const test of ch.tests) {
+      const fail = runTest(test, user, mapping, pinMap);
+      if (fail) issues.push({ severity: 'error', title: tr(`测试失败：${test.name}`, `Test failed: ${test.name}`), detail: fail, refs: [], holes: [] });
+      else testsPassed++;
+    }
+  if (issues.length) issues.unshift(...ammeterBypassIssues(board, userPinHoles, 'error'));
+  return {
+    perfect: issues.length === 0,
+    issues,
+    mapping,
+    pinMap,
+    progress: ch.tests.length ? testsPassed / ch.tests.length : issues.length ? 0 : 1,
+    testsPassed,
+    testsTotal: ch.tests.length,
+  };
+}
+
 export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<string, string[]>, budget = SEARCH_BUDGET): CheckResult {
+  if (ch.grading === 'behaviour') return checkBehaviour(ch, board, userPinHoles);
   const target = ch.target;
   const { circuit: user, collapsed } = checkerView(
     board,
@@ -688,10 +778,11 @@ export function checkCircuit(ch: Challenge, board: Circuit, userPinHoles?: Map<s
       }
     if (bestAlt) {
       const { mk } = bestAlt;
+      const posFb = t.type === 'opamp' && feedsPlus(ctx, t.ref);
       issues.push({
         severity: 'error',
         title: tr(`${a.u.ref}${mk.title[0]}`, `${a.u.ref}${mk.title[1]}`),
-        detail: tr(mk.zh(a.u.ref), mk.en(a.u.ref)),
+        detail: tr(mk.zh(a.u.ref, posFb), mk.en(a.u.ref, posFb)),
         refs: [a.u.ref],
         holes: holesOf(terminalsOf(a.u.type).map((x) => pinId(a.u.ref, x))),
       });
@@ -847,7 +938,8 @@ export function applySet(circuit: Circuit, set: Record<string, Partial<CComponen
         const pins = { ...(c.props.pins ?? {}) };
         for (const [tp, cfg] of Object.entries(p.pins)) {
           const up = pinMap?.get(pinId(tRef, tp));
-          pins[up ? splitPin(up)[1] : tp] = { ...cfg };
+          const adc = cfg.rule && pinMap?.get(pinId(tRef, cfg.rule.adc));
+          pins[up ? splitPin(up)[1] : tp] = cfg.rule ? { ...cfg, rule: { ...cfg.rule, adc: adc ? splitPin(adc)[1] : cfg.rule.adc } } : { ...cfg };
         }
         p.pins = pins;
       }

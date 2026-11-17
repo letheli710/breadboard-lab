@@ -7,14 +7,14 @@
   "level": 3,
   "tags": ["不对称三相电路", "中线电流", "三相四线制"],
   "statement": [
-    "对称三相电源（正序，U̇_A = 220∠0° V）以三相四线制向照明负载供电，中线阻抗为零。三相负载都是纯电阻（白炽灯组）：R_A = 11 Ω，R_B = R_C = 22 Ω。电流表 A_N 测量从 N' 流向 N 的中线电流 İ_N。",
+    "对称三相电源以三相四线制向照明负载供电：正序，V̇_A = 220∠0° V（有效值），中线阻抗为零。三相负载都是纯电阻（白炽灯组）：R_A = 11 Ω，R_B = R_C = 22 Ω。电流表 A_N 测量从 N' 流向 N 的中线电流 İ_N。",
     "求 A、B 两相的电流有效值、中线电流表读数和 İ_N 的初相。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "UA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 220, "phase": 0 } } },
-      { "ref": "UB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 220, "phase": -120 } } },
-      { "ref": "UC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 220, "phase": 120 } } },
+      { "ref": "VA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 220, "phase": 0 } } },
+      { "ref": "VB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 220, "phase": -120 } } },
+      { "ref": "VC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 220, "phase": 120 } } },
       { "ref": "RA", "type": "R", "from": [10, 0], "to": [14, 0], "value": 11 },
       { "ref": "RB", "type": "R", "from": [10, 3], "to": [14, 3], "value": 22 },
       { "ref": "RC", "type": "R", "from": [10, 6], "to": [14, 6], "value": 22 },
@@ -50,7 +50,7 @@
       "find": { "kind": "i", "el": "RA", "part": "mag" },
       "answer": 20,
       "unit": "A",
-      "explain": "有理想中线，U̇_{N'N} = 0，各相负载仍承受电源相电压：I_A = 220/11 = 20 A。"
+      "explain": "有理想中线，V̇_{N'N} = 0，各相负载仍承受电源相电压：I_A = 220/11 = 20 A。"
     },
     {
       "id": "IB",
@@ -83,22 +83,22 @@
     "中线电流是三个相电流的相量和——不对称时它不再为零。"
   ],
   "solution": [
-    "**1. 各相独立。** 中线把 N' 钳在 N 的电位上，U̇_{AN'} = U̇_A，等等。",
+    "**1. 各相独立。** 中线把 N' 钳在 N 的电位上，V̇_{AN'} = V̇_A，等等。",
     "**2. 相电流。** İ_A = 220∠0°/11 = **20∠0° A**，İ_B = 220∠−120°/22 = **10∠−120° A**，İ_C = 220∠120°/22 = 10∠120° A。",
     "**3. 中线电流（KCL）。** İ_N = İ_A + İ_B + İ_C = 20 + (−5 − j8.66) + (−5 + j8.66) = **10∠0° A**，电流表读数 **10 A**。",
     "**4. 功率。** P = 220 × 20 + 220 × 10 + 220 × 10 = 8800 W。",
-    "**结论：** 负载不对称时中线中有电流，但正是这根中线保证了每相负载电压都等于 220 V。所以照明系统必须用三相四线制，中线上不允许装熔断器或开关（见下一题：中线断开会怎样）。"
+    "**结论：** 负载不对称时中线中有电流，但正是这根中线保证了每相负载电压都等于 220 V。所以照明系统必须用三相四线制，中线上不允许装熔断器或开关。下一题看看中线断开会怎样。"
   ],
   "i18n": {
     "en": {
       "title": "Unbalanced wye load: neutral current with a neutral wire",
       "tags": ["unbalanced three-phase circuit", "neutral current", "three-phase four-wire system"],
       "statement": [
-        "A balanced three-phase source (positive sequence, U̇_A = 220∠0° V) supplies a lighting load over a four-wire system whose neutral has zero impedance. All three load phases are pure resistances (banks of incandescent lamps): R_A = 11 Ω, R_B = R_C = 22 Ω. Ammeter A_N measures the neutral current İ_N flowing from N' to N.",
+        "A balanced three-phase source supplies a lighting load over a four-wire system: positive sequence, V̇_A = 220∠0° V (rms), and a neutral with zero impedance. All three load phases are pure resistances (banks of incandescent lamps): R_A = 11 Ω, R_B = R_C = 22 Ω. Ammeter A_N measures the neutral current İ_N flowing from N' to N.",
         "Find the rms currents of phases A and B, the reading of the neutral ammeter and the phase of İ_N."
       ],
       "questions": [
-        { "ask": "rms current of phase A, I_A = ?", "explain": "With an ideal neutral, U̇_{N'N} = 0 and each load phase still sees the source phase voltage: I_A = 220/11 = 20 A." },
+        { "ask": "rms current of phase A, I_A = ?", "explain": "With an ideal neutral, V̇_{N'N} = 0 and each load phase still sees the source phase voltage: I_A = 220/11 = 20 A." },
         { "ask": "rms current of phase B, I_B = ?", "explain": "I_B = 220/22 = 10 A, İ_B = 10∠−120° A; likewise İ_C = 10∠120° A." },
         { "ask": "Reading of the neutral ammeter A_N = ?", "explain": "İ_N = İ_A + İ_B + İ_C = 20 + 10∠−120° + 10∠120° = 20 − 10 = 10 A." },
         { "ask": "Phase of İ_N = ?", "explain": "10∠−120° + 10∠120° = −10, so İ_N = 20 − 10 = 10∠0° A, in phase with İ_A." }
@@ -109,11 +109,11 @@
         "The neutral current is the phasor sum of the three phase currents — for an unbalanced load it is no longer zero."
       ],
       "solution": [
-        "**1. Independent phases.** The neutral clamps N' to the potential of N, so U̇_{AN'} = U̇_A, and so on.",
+        "**1. Independent phases.** The neutral clamps N' to the potential of N, so V̇_{AN'} = V̇_A, and so on.",
         "**2. Phase currents.** İ_A = 220∠0°/11 = **20∠0° A**, İ_B = 220∠−120°/22 = **10∠−120° A**, İ_C = 220∠120°/22 = 10∠120° A.",
         "**3. Neutral current (KCL).** İ_N = İ_A + İ_B + İ_C = 20 + (−5 − j8.66) + (−5 + j8.66) = **10∠0° A**, so the ammeter reads **10 A**.",
         "**4. Power.** P = 220 × 20 + 220 × 10 + 220 × 10 = 8800 W.",
-        "**Conclusion:** with an unbalanced load the neutral carries current, but it is exactly this wire that keeps every load phase at 220 V. That is why lighting is supplied by a four-wire system and no fuse or switch is allowed in the neutral (see the next problem: what happens when the neutral is broken)."
+        "**Conclusion:** with an unbalanced load the neutral carries current, but it is exactly this wire that keeps every load phase at 220 V. That is why lighting is supplied by a four-wire system and no fuse or switch is allowed in the neutral. The next problem shows what happens when the neutral is broken."
       ]
     }
   }

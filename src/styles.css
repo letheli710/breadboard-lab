@@ -227,7 +227,8 @@ kbd {
   gap: 16px;
   align-items: center;
 }
-.progress-card {
+.progress-card,
+.course-btn {
   display: flex;
   gap: 12px;
   align-items: center;
@@ -255,13 +256,122 @@ kbd {
   background: var(--accent);
   transition: width 0.4s;
 }
-.progress-card b {
+.progress-card b,
+.course-btn b {
   font-family: var(--cond);
   font-size: 18px;
 }
 /* counts not known yet (the content index is still loading) */
-.progress-card.pending b {
+.progress-card.pending b,
+.course-btn.pending b {
   color: var(--muted);
+}
+
+/* course map button next to the logo + side panel (App.tsx CourseButton, ui/CourseMap.tsx) */
+.course-btn-wrap {
+  position: relative;
+  min-width: 0;
+}
+.course-btn {
+  padding: 6px 12px;
+}
+@media (max-width: 760px) {
+  /* row 1: the logo; row 2: course map button + language switch; row 3: the page tabs */
+  .top > .brand {
+    flex: 1 1 100%;
+  }
+  .course-btn-wrap {
+    order: 2;
+    flex: 1 1 0;
+  }
+  .course-btn {
+    width: 100%;
+  }
+}
+.course-btn {
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+.course-btn:hover,
+.course-btn.open {
+  border-color: var(--accent);
+}
+.pc-where {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+.pc-chev {
+  font-size: 13px;
+  color: var(--muted);
+  transition: transform 0.15s;
+}
+.course-btn.open .pc-chev {
+  transform: rotate(180deg);
+}
+/* the course map: a panel down the left side of the window, from just below its button (top is set
+   inline) to the bottom */
+.course-pop {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 70;
+  width: min(440px, calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(31, 42, 68, 0.22);
+  padding: 12px 12px 14px;
+}
+.course-map .section-title {
+  flex-wrap: wrap;
+  row-gap: 6px;
+  margin-bottom: 6px;
+}
+.world-line {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.course-map {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+/* tabs and the World line stay put; only the list scrolls */
+.course-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 4px 2px 2px;
+}
+.course-list .cm-unit {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 8px 2px 0;
+}
+.course-list .lesson-card {
+  display: flex;
+  flex: none;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 10px;
+}
+.course-list .lesson-card .lc-title {
+  font-size: 14px;
 }
 
 .main {
@@ -359,6 +469,103 @@ kbd {
   grid-template-columns: 1fr;
   gap: 2px;
 }
+/* "All parts" (Workbench.tsx Toolbox / PartsPanel) */
+.parts-all-btn {
+  width: 100%;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 10px;
+  padding: 6px 2px;
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 11px;
+  line-height: 1.2;
+}
+.parts-all-btn .pab-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.parts-all-btn:hover,
+.parts-all-btn.open {
+  border-color: var(--accent);
+  border-style: solid;
+}
+.parts-panel {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 8px;
+  z-index: 25;
+  width: min(680px, calc(100vw - 600px));
+  min-width: 320px;
+  max-height: calc(100% - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(31, 42, 68, 0.22);
+  padding: 10px 12px 12px;
+}
+.pp-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.pp-head .muted {
+  font-size: 12px;
+  flex: 1;
+}
+.pp-close {
+  padding: 2px 9px;
+  border-radius: 8px;
+}
+.pp-group + .pp-group {
+  border-top: 1px solid var(--line);
+}
+.pp-group-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 8px 2px;
+  text-align: left;
+  font-size: 14px;
+}
+.pp-title {
+  font-family: var(--cond);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.pp-chev {
+  width: 12px;
+  color: var(--muted);
+}
+.pp-peek {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: auto;
+  opacity: 0.7;
+}
+.pp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 4px;
+  padding-bottom: 8px;
+}
+.pp-grid .tool {
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  padding: 6px 4px;
+}
+.pp-grid .tool:hover {
+  border-color: var(--line);
+  background: var(--paper);
+}
+
 .tool-group-title {
   font-family: var(--cond);
   font-weight: 700;
@@ -696,6 +903,30 @@ kbd {
 .lesson-card.done .lc-num {
   background: var(--accent);
 }
+/* course map (core/course.ts): unit labels such as "1.10c", a gap where a new unit starts */
+.lesson-card .lc-num {
+  width: auto;
+  min-width: 32px;
+  padding: 0 6px;
+  font-size: 14px;
+}
+.lesson-card.unit-start {
+  margin-left: 10px;
+}
+.lesson-card.theory-card {
+  border-style: dashed;
+}
+.lesson-card.theory-card .lc-num {
+  background: var(--info-soft);
+}
+.world-name {
+  font-weight: 600;
+  color: var(--muted);
+}
+.badge.lab {
+  background: #fde7e3;
+  color: #9c2e22;
+}
 .lc-title {
   font-weight: 600;
   line-height: 1.3;
@@ -870,6 +1101,250 @@ kbd {
   cursor: pointer;
 }
 /* current step first: a compact card with numbered dots instead of the whole list */
+/* card-style units (ui/Cards.tsx): one card at a time */
+.course-crumb {
+  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.course-crumb .crumb-map {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 2px 0;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.course-crumb .crumb-map:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+.crumb-nav {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.crumb-nav button {
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+.unit-cards {
+  margin: 10px 0 4px;
+}
+.card-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.card-tabs button {
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+}
+.card-tabs button.on {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+.card-tabs button.done:not(.on) {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.card-body {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-left: 5px solid var(--accent);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 15px;
+  line-height: 1.65;
+}
+/* figures in card / step text (CardFigure.tsx) */
+.card-figure {
+  /* a little wider than the text: into the card's padding */
+  margin: 10px -10px 12px;
+  padding: 8px 6px 8px;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+}
+.card-figure figcaption {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.45;
+}
+.card-figure.cf-loading {
+  min-height: 140px;
+}
+.cf-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 440px;
+  margin: 0 auto;
+  font-family: var(--body);
+}
+.cf-board {
+  fill: #f7f2e7;
+  stroke: var(--line-2);
+  stroke-width: 1.5;
+}
+.cf-gap {
+  fill: #e6dccb;
+}
+.cf-hole {
+  fill: #3a3d45;
+  transition: opacity 0.2s;
+}
+/* holes under a label tag (boardFigure.placeLabels) */
+.cf-hole.dim {
+  opacity: 0.18;
+}
+.cf-shade {
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+.cf-shade.on {
+  opacity: 0.45;
+}
+.cf-shade.off {
+  opacity: 0.1;
+}
+.cf-label {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.cf-tag rect {
+  fill: var(--card);
+  fill-opacity: 0.95;
+  stroke-width: 1.4;
+}
+.cf-tag,
+.cf-callout,
+.cf-shade.linked {
+  cursor: pointer;
+}
+.cf-tag,
+.cf-callout {
+  transition: opacity 0.2s;
+}
+.cf-tag.off,
+.cf-callout.off {
+  opacity: 0.35;
+}
+/* the outline of what a label is about, while it is pointed at */
+.cf-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.2;
+  stroke-dasharray: 6 4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.cf-ring.on {
+  opacity: 1;
+  animation: cf-march 0.9s linear infinite;
+}
+@keyframes cf-march {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cf-ring.on {
+    animation: none;
+  }
+}
+.cf-row-name,
+.cf-col-num {
+  font-size: 11px;
+  fill: var(--muted);
+}
+.cf-rail-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+.cf-note {
+  font-size: 12.5px;
+  fill: var(--ink);
+}
+.cf-pol {
+  font-size: 12px;
+  font-weight: 700;
+}
+.cf-apart line {
+  stroke: var(--bad);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.cf-axis line,
+.cf-tick line {
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+.cf-axis polygon {
+  fill: var(--ink);
+}
+.cf-tick text {
+  font-size: 12px;
+  fill: var(--muted);
+}
+.cf-axis-label {
+  font-size: 13px;
+  fill: var(--ink);
+}
+.cf-guide line {
+  stroke: var(--muted);
+  stroke-width: 1.1;
+}
+.unit-cards.kind-try .card-body {
+  border-left-color: #e0703c;
+}
+.unit-cards.kind-explain .card-body {
+  border-left-color: #d39c1c;
+}
+.unit-cards.kind-wrap .card-body {
+  border-left-color: #4a6fd1;
+}
+.card-title {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+.card-title:focus {
+  outline: none;
+}
+.card-practice {
+  margin-top: 10px;
+}
+.card-practice .row.wrap {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.card-next {
+  margin: 10px 0 0;
+}
+.card-nav {
+  margin-top: 8px;
+}
+/* formulas in lesson text ($…$ / $$…$$, ui/Md.tsx) */
+.md .mx {
+  white-space: nowrap;
+}
+.md .mx-block {
+  text-align: center;
+  margin: 8px 0;
+  font-size: 1.08em;
+}
 .steps {
   margin: 10px 0 4px;
   background: var(--paper);
@@ -2823,9 +3298,6 @@ button.primary:focus-visible,
     height: auto;
     min-height: 0;
   }
-  .app.is-bench .carousel-wrap {
-    flex-shrink: 0;
-  }
   .app.is-bench .side {
     position: static;
     height: auto;
@@ -2862,14 +3334,17 @@ button.primary:focus-visible,
   .brand-sub {
     display: none;
   }
+  /* row 2: the course map button (grows) and the language switch; the nav is row 3 */
   .top-right {
     gap: 8px;
     margin-left: 0;
-    flex: 1 1 100%;
-    justify-content: space-between;
+    order: 2;
+    flex: 0 0 auto;
+    justify-content: flex-end;
     min-width: 0;
   }
-  .progress-card {
+  .progress-card,
+  .course-btn {
     padding: 6px 10px;
     gap: 8px;
     min-width: 0;
@@ -2898,6 +3373,20 @@ button.primary:focus-visible,
   .toolbox-wrap {
     border-right: none;
     border-bottom: 1.5px solid var(--line);
+  }
+  .parts-panel {
+    left: 8px;
+    right: 8px;
+    top: calc(100% + 6px);
+    width: auto;
+    min-width: 0;
+    max-height: 70vh;
+  }
+  .parts-all-btn {
+    width: auto;
+    min-width: 72px;
+    margin: 0 0 0 6px;
+    flex-shrink: 0;
   }
   .toolbox-wrap::before,
   .toolbox-wrap::after {
@@ -4583,36 +5072,6 @@ h1[tabindex='-1']:focus-visible {
     justify-content: center;
   }
 }
-/* lesson: the part just placed (StepCheck.tsx PlacedChip) */
-.placed-chip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 10px;
-  margin-top: 6px;
-  padding: 4px 8px;
-  border: 1px solid var(--line-2);
-  border-radius: 8px;
-  background: var(--card);
-  font-size: 13px;
-}
-.placed-chip button.link {
-  border: none;
-  background: none;
-  padding: 0;
-  color: var(--accent-ink, var(--accent));
-  text-decoration: underline;
-  font: inherit;
-  cursor: pointer;
-}
-.placed-chip .chip-x {
-  margin-left: auto;
-  border: none;
-  background: none;
-  padding: 0 4px;
-  font-size: 16px;
-  line-height: 1;
-}
 /* desktop: the tool prompt above the 3D view wraps to one to four lines depending on the tool;
    it floats over the stage instead of pushing the canvas down, so picking a tool never moves or
    resizes the board (a click aimed at a hole while the board jumped by a line landed on the
@@ -4812,36 +5271,6 @@ h1[tabindex='-1']:focus-visible {
   background: var(--accent-soft);
   color: var(--accent-ink);
 }
-.lesson-pick-name {
-  max-width: 22ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.lesson-drawer {
-  position: absolute;
-  z-index: 6;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: min(360px, 92%);
-  overflow-y: auto;
-  padding: 12px;
-  background: var(--card);
-  border-right: 1.5px solid var(--line);
-  box-shadow: 0 8px 28px rgba(31, 42, 68, 0.18);
-}
-.lesson-drawer .section-title {
-  flex-wrap: wrap;
-}
-.lesson-drawer .carousel {
-  flex-direction: column;
-  overflow: visible;
-}
-.lesson-drawer .lesson-card {
-  flex: 0 0 auto;
-}
-
 /* toolbox: hideable, the eraser apart at its foot */
 .toolbox-col {
   display: flex;
@@ -5040,17 +5469,6 @@ h1[tabindex='-1']:focus-visible {
     display: none;
   }
 }
-.lesson-drawer .carousel {
-  align-items: stretch;
-}
-.lesson-drawer .lesson-card {
-  display: flex;
-  width: 100%;
-  min-width: 0;
-}
-.lesson-drawer .lc-body {
-  min-width: 0;
-}
 @media (max-width: 760px) {
   .stage-top {
     flex-wrap: wrap;
@@ -5058,8 +5476,5 @@ h1[tabindex='-1']:focus-visible {
   .stage-top .prompt {
     order: 3;
     flex-basis: 100%;
-  }
-  .lesson-pick-name {
-    max-width: 14ch;
   }
 }

@@ -4,9 +4,9 @@ import { amps, formatSI, ohms, parseValue, resistorBands, volts } from '../core/
 import { getLang, tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
 import { BATTERIES, LED_COLORS, PARTS, nextScopeChannel, terminalName } from '../core/parts';
-import type { BatteryVariant, LedColor, PartProps, PartType, PlacedPart, Waveform } from '../core/types';
+import type { BatteryVariant, LedColor, MeterMode, PartProps, PartType, PlacedPart, Waveform } from '../core/types';
 import { vavg, vmax, vmin, vrms } from '../core/transient';
-import { ammeterAc, ammeterReading, ledOf, useDerived } from '../state/derived';
+import { ammeterAc, ammeterDisplay, ledOf, useDerived } from '../state/derived';
 import { CH_COLORS } from './scopeColors';
 import { WIRE_COLORS, isPartTool, useStore } from '../state/store';
 import { PartIcon } from './Icons';
@@ -15,6 +15,12 @@ import { HiddenReadingsNote } from './HiddenReadings';
 import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { isMcuBoard } from '../core/mcu';
 import { Mixed } from './Mixed';
+
+const METER_MODES: { mode: MeterMode; zh: string; en: string }[] = [
+  { mode: 'auto', zh: '自动', en: 'Auto' },
+  { mode: 'dc', zh: 'DC 平均值', en: 'DC average' },
+  { mode: 'ac', zh: 'AC 有效值', en: 'AC RMS' },
+];
 
 const R_VALUES = [10, 47, 100, 150, 220, 330, 470, 680, 1000, 2200, 4700, 10000, 22000, 47000, 100000, 1000000];
 
@@ -157,6 +163,24 @@ export function PropEditor({ type, props, onChange }: { type: PartType; props: P
             {(['a', 'b'] as const).map((p) => (
               <button key={p} className={(props.position ?? 'a') === p ? 'on' : ''} onClick={() => onChange({ position: p })}>
                 com ↔ {p}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    case 'ammeter':
+      return (
+        <div className="editor">
+          <label>{tr('档位', 'Range')}</label>
+          <div className="chips" role="group" aria-label={tr('电流表档位', 'Ammeter range')}>
+            {METER_MODES.map((m) => (
+              <button
+                key={m.mode}
+                className={(props.meterMode ?? 'auto') === m.mode ? 'on' : ''}
+                aria-pressed={(props.meterMode ?? 'auto') === m.mode}
+                onClick={() => onChange({ meterMode: m.mode })}
+              >
+                {tr(m.zh, m.en)}
               </button>
             ))}
           </div>
@@ -307,17 +331,30 @@ function LedStateRow({ led }: { led: NonNullable<ReturnType<typeof ledOf>> }) {
   );
 }
 
-function AmmeterReadout({ refName }: { refName: string }) {
+function AmmeterReadout({ part }: { part: PlacedPart }) {
   const d = useDerived();
-  const I = ammeterReading(d, refName);
-  const acm = ammeterAc(d, refName);
+  const shown = ammeterDisplay(d, part.ref, part.props.meterMode);
+  const acm = ammeterAc(d, part.ref);
+  const I = shown.value;
+  const modeText =
+    shown.kind === 'dc'
+      ? tr('DC 档：平均值', 'DC range: the average')
+      : shown.kind === 'ac'
+        ? tr('AC 档：有效值 RMS', 'AC range: the RMS value')
+        : tr('真有效值（交流 + 直流）', 'True RMS (AC + DC)');
   return (
     <div className="readout">
       <div className="eyebrow">{tr('电流表读数', 'Ammeter reading')}</div>
       <div className="am-lcd">{amps(I)}</div>
+      <div className="ac-tag">
+        <Mixed text={modeText} />
+        {shown.auto && acm ? tr('（自动选的档）', ' (picked automatically)') : ''}
+      </div>
       {acm && (
         <>
-          <div className="ac-tag">{tr('交流电路：电流表（DC 档）显示平均值', 'AC circuit: the meter (DC mode) shows the average')}</div>
+          <div>
+            {tr('平均值 DC', 'DC average')} <b>{amps(acm.dc)}</b>
+          </div>
           <div>
             <Mixed text={tr('有效值 RMS', 'RMS')} /> <b>{amps(acm.rms)}</b>
           </div>
@@ -326,11 +363,13 @@ function AmmeterReadout({ refName }: { refName: string }) {
           </div>
         </>
       )}
-      <p className="note">
-        {I < -5e-7
-          ? tr('读数为负：电流是从黑表笔流进、红表笔流出的，表笔反了。', 'Negative reading: current flows in at the black lead and out at the red one — the leads are swapped.')
-          : tr('电流从红表笔流入、黑表笔（COM）流出时读数为正。', 'The reading is positive when current flows in at the red lead and out at the black (COM) lead.')}
-      </p>
+      {shown.kind === 'dc' && (
+        <p className="note">
+          {I < -5e-7
+            ? tr('读数为负：电流是从黑表笔流进、红表笔流出的，表笔反了。', 'Negative reading: current flows in at the black lead and out at the red one — the leads are swapped.')
+            : tr('电流从红表笔流入、黑表笔（COM）流出时读数为正。', 'The reading is positive when current flows in at the red lead and out at the black (COM) lead.')}
+        </p>
+      )}
     </div>
   );
 }
@@ -548,7 +587,7 @@ export function Inspector() {
       <PropEditor type={part.type} props={part.props} onChange={(p) => updateProps(part.id, p)} />
 
       {part.type === 'opamp' && <OpAmpInfo part={part} />}
-      {part.type === 'ammeter' && <AmmeterReadout refName={part.ref} />}
+      {part.type === 'ammeter' && <AmmeterReadout part={part} />}
       {isMcuBoard(part.type) && <McuInspector part={part} />}
       <DeviceReadout part={part} />
       {part.type !== 'wire' && part.type !== 'opamp' && part.type !== 'ammeter' && part.type !== 'scope_probe' && !OWN_READOUT.has(part.type) && (

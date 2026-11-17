@@ -12,13 +12,13 @@
     "波长"
   ],
   "statement": [
-    "一段 l = 5 m 的同轴电缆可以看成无损耗线（R_0 = 0、G_0 = 0），单位长度电感 L_0 = 0.25 µH/m、电容 C_0 = 100 pF/m。信号源 U̇_s = 2∠0° V（有效值），内阻 R_s = 50 Ω，频率 f = 10 MHz，终端接 R_L = 50 Ω。",
+    "一段 l = 5 m 的同轴电缆可以看成无损耗线（R_0 = 0、G_0 = 0），单位长度电感 L_0 = 0.25 µH/m、电容 C_0 = 100 pF/m。信号源 V̇_s = 2∠0° V（有效值），内阻 R_s = 50 Ω，频率 f = 10 MHz，终端接 R_L = 50 Ω。",
     "x 从始端（1–1′）量起；图中线旁的数据只是长度，L_0、C_0 见题干。"
   ],
   "schematic": {
     "elements": [
       {
-        "ref": "Us",
+        "ref": "Vs",
         "type": "V",
         "from": [
           0,
@@ -196,7 +196,7 @@
     },
     {
       "id": "v",
-      "ask": "相速 v = ?",
+      "ask": "相速 v_p = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -204,7 +204,7 @@
       },
       "answer": 200000000.0,
       "unit": "m/s",
-      "explain": "v = 1/√(L_0C_0) = 1/√(2.5×10⁻¹⁷) = 2×10⁸ m/s，约为光速的 2/3，与频率无关。"
+      "explain": "v_p = 1/√(L_0C_0) = 1/√(2.5×10⁻¹⁷) = 2×10⁸ m/s，约为光速的 2/3，与频率无关。"
     },
     {
       "id": "lam",
@@ -216,7 +216,7 @@
       },
       "answer": 20,
       "unit": "m",
-      "explain": "λ = v/f = 2×10⁸/10⁷ = 20 m。"
+      "explain": "λ = v_p/f = 2×10⁸/10⁷ = 20 m。"
     },
     {
       "id": "beta",
@@ -232,7 +232,7 @@
     },
     {
       "id": "ph2",
-      "ask": "终端电压 U̇_2 的初相 = ?（U̇_s 初相为 0°）",
+      "ask": "终端电压 V̇_2 的初相 = ?（V̇_s 初相为 0°）",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -242,7 +242,7 @@
       },
       "answer": -90,
       "unit": "°",
-      "explain": "R_s = R_L = Z_c：始端 U̇_1 = U̇_s/2 = 1∠0° V，线上只有入射波；βl = 0.1π × 5 = π/2，所以 U̇_2 = 1∠−90° V——这段线正好是 λ/4。"
+      "explain": "R_s = R_L = Z_c：始端 V̇_1 = V̇_s/2 = 1∠0° V，线上只有入射波；βl = 0.1π × 5 = π/2，所以 V̇_2 = 1∠−90° V——这段线正好是 λ/4。"
     },
     {
       "id": "f2",
@@ -255,23 +255,23 @@
       "correct": 0,
       "choiceExplain": [
         "对：两者都只含 L_0、C_0。",
-        "λ = v/f 变成 10 m，β = 2π/λ 加倍。",
-        "βl 变成 π，U̇_2 的初相变成 −180°。"
+        "λ = v_p/f 变成 10 m，β = 2π/λ 加倍。",
+        "βl 变成 π，V̇_2 的初相变成 −180°。"
       ],
-      "explain": "无损耗线的 Z_c = √(L_0/C_0)、v = 1/√(L_0C_0) 只由原参数决定，与频率无关；λ 减半，β、βl 加倍。"
+      "explain": "无损耗线的 Z_c = √(L_0/C_0)、v_p = 1/√(L_0C_0) 只由原参数决定，与频率无关；λ 减半，β、βl 加倍。"
     }
   ],
   "hints": [
     "无损耗线的副参数只由 L_0、C_0 决定：Z_0 = jωL_0，Y_0 = jωC_0。",
-    "Z_c = √(Z_0/Y_0)、γ = √(Z_0Y_0) 代入 R_0 = G_0 = 0 后化简；λ = 2π/β，v = ω/β。",
-    "R_L = Z_c 时线上只有入射波，U̇(x) = U̇_1·e^{−jβx}；U̇_1 由 R_s 与输入阻抗分压得到。"
+    "Z_c = √(Z_0/Y_0)、γ = √(Z_0Y_0) 代入 R_0 = G_0 = 0 后化简；λ = 2π/β，v_p = ω/β。",
+    "R_L = Z_c 时线上只有入射波，V̇(x) = V̇_1·e^{−jβx}；V̇_1 由 R_s 与输入阻抗分压得到。"
   ],
   "solution": [
     "**1. 特性阻抗。** Z_c = √(jωL_0/jωC_0) = √(L_0/C_0) = **50 Ω**。",
     "**2. 传播常数。** γ = √(jωL_0·jωC_0) = jω√(L_0C_0)：α = 0，β = ω√(L_0C_0) = 2π × 10⁷ × 5×10⁻⁹ = **0.314 rad/m**。",
-    "**3. 相速与波长。** v = ω/β = 1/√(L_0C_0) = **2×10⁸ m/s**，λ = v/f = **20 m**，l = λ/4。",
-    "**4. 终端电压。** 负载匹配，Z_in = Z_c = 50 Ω，U̇_1 = 2 × 50/(50 + 50) = 1∠0° V；U̇_2 = U̇_1·e^{−jβl} = 1∠**−90°** V。",
-    "**检查：** v·(1/f) = λ ✓；Z_c·v = L_0·v² = 0.25×10⁻⁶ × 4×10¹⁶ = 10¹⁰ = 1/C_0 ✓。"
+    "**3. 相速与波长。** v_p = ω/β = 1/√(L_0C_0) = **2×10⁸ m/s**，λ = v_p/f = **20 m**，l = λ/4。",
+    "**4. 终端电压。** 负载匹配，Z_in = Z_c = 50 Ω，V̇_1 = 2 × 50/(50 + 50) = 1∠0° V；V̇_2 = V̇_1·e^{−jβl} = 1∠**−90°** V。",
+    "**检查：** v_p·(1/f) = λ ✓；Z_c·v_p = L_0·v_p² = 0.25×10⁻⁶ × 4×10¹⁶ = 10¹⁰ = 1/C_0 ✓。"
   ],
   "i18n": {
     "en": {
@@ -283,7 +283,7 @@
         "wavelength"
       ],
       "statement": [
-        "A coaxial cable of length l = 5 m may be treated as lossless (R_0 = 0, G_0 = 0), with inductance L_0 = 0.25 µH/m and capacitance C_0 = 100 pF/m per unit length. The source is U̇_s = 2∠0° V (rms) with internal resistance R_s = 50 Ω at f = 10 MHz, and the end is loaded with R_L = 50 Ω.",
+        "A coaxial cable of length l = 5 m may be treated as lossless (R_0 = 0, G_0 = 0), with inductance L_0 = 0.25 µH/m and capacitance C_0 = 100 pF/m per unit length. The source is V̇_s = 2∠0° V (rms) with internal resistance R_s = 50 Ω at f = 10 MHz, and the end is loaded with R_L = 50 Ω.",
         "x is measured from the start (1–1′); the drawing shows only the length, L_0 and C_0 are given here."
       ],
       "questions": [
@@ -292,20 +292,20 @@
           "explain": "Lossless line: Z_c = √(L_0/C_0) = √(0.25×10⁻⁶/100×10⁻¹²) = √2500 = 50 Ω (purely resistive)."
         },
         {
-          "ask": "Phase velocity v = ?",
-          "explain": "v = 1/√(L_0C_0) = 1/√(2.5×10⁻¹⁷) = 2×10⁸ m/s, about 2/3 of the speed of light, independent of frequency."
+          "ask": "Phase velocity v_p = ?",
+          "explain": "v_p = 1/√(L_0C_0) = 1/√(2.5×10⁻¹⁷) = 2×10⁸ m/s, about 2/3 of the speed of light, independent of frequency."
         },
         {
           "ask": "Wavelength λ = ?",
-          "explain": "λ = v/f = 2×10⁸/10⁷ = 20 m."
+          "explain": "λ = v_p/f = 2×10⁸/10⁷ = 20 m."
         },
         {
           "ask": "Phase constant β = ?",
           "explain": "β = ω√(L_0C_0) = 2π/λ = 2π/20 = 0.1π ≈ 0.314 rad/m."
         },
         {
-          "ask": "Initial phase of the end voltage U̇_2 = ? (U̇_s has phase 0°)",
-          "explain": "R_s = R_L = Z_c: U̇_1 = U̇_s/2 = 1∠0° V and only the incident wave exists; βl = 0.1π × 5 = π/2, so U̇_2 = 1∠−90° V — the cable is exactly λ/4 long."
+          "ask": "Initial phase of the end voltage V̇_2 = ? (V̇_s has phase 0°)",
+          "explain": "R_s = R_L = Z_c: V̇_1 = V̇_s/2 = 1∠0° V and only the incident wave exists; βl = 0.1π × 5 = π/2, so V̇_2 = 1∠−90° V — the cable is exactly λ/4 long."
         },
         {
           "ask": "The frequency is raised to 20 MHz (same cable). Which stays the same?",
@@ -314,25 +314,25 @@
             "λ and β",
             "the phase of the end voltage"
           ],
-          "explain": "For a lossless line Z_c = √(L_0/C_0) and v = 1/√(L_0C_0) depend only on the primary parameters, not on frequency; λ halves while β and βl double.",
+          "explain": "For a lossless line Z_c = √(L_0/C_0) and v_p = 1/√(L_0C_0) depend only on the primary parameters, not on frequency; λ halves while β and βl double.",
           "choiceExplain": [
             "Right: both contain only L_0 and C_0.",
-            "λ = v/f becomes 10 m and β = 2π/λ doubles.",
-            "βl becomes π, so U̇_2 gets the phase −180°."
+            "λ = v_p/f becomes 10 m and β = 2π/λ doubles.",
+            "βl becomes π, so V̇_2 gets the phase −180°."
           ]
         }
       ],
       "hints": [
         "The secondary parameters of a lossless line depend only on L_0 and C_0: Z_0 = jωL_0, Y_0 = jωC_0.",
-        "Put R_0 = G_0 = 0 into Z_c = √(Z_0/Y_0) and γ = √(Z_0Y_0); then λ = 2π/β and v = ω/β.",
-        "With R_L = Z_c only the incident wave exists, U̇(x) = U̇_1·e^{−jβx}; U̇_1 follows from the divider R_s – input impedance."
+        "Put R_0 = G_0 = 0 into Z_c = √(Z_0/Y_0) and γ = √(Z_0Y_0); then λ = 2π/β and v_p = ω/β.",
+        "With R_L = Z_c only the incident wave exists, V̇(x) = V̇_1·e^{−jβx}; V̇_1 follows from the divider R_s – input impedance."
       ],
       "solution": [
         "**1. Characteristic impedance.** Z_c = √(jωL_0/jωC_0) = √(L_0/C_0) = **50 Ω**.",
         "**2. Propagation constant.** γ = √(jωL_0·jωC_0) = jω√(L_0C_0): α = 0, β = ω√(L_0C_0) = 2π × 10⁷ × 5×10⁻⁹ = **0.314 rad/m**.",
-        "**3. Phase velocity and wavelength.** v = ω/β = 1/√(L_0C_0) = **2×10⁸ m/s**, λ = v/f = **20 m**, so l = λ/4.",
-        "**4. End voltage.** Matched load: Z_in = Z_c = 50 Ω, U̇_1 = 2 × 50/(50 + 50) = 1∠0° V; U̇_2 = U̇_1·e^{−jβl} = 1∠**−90°** V.",
-        "**Check:** v·(1/f) = λ ✓; Z_c·v = L_0·v² = 0.25×10⁻⁶ × 4×10¹⁶ = 10¹⁰ = 1/C_0 ✓."
+        "**3. Phase velocity and wavelength.** v_p = ω/β = 1/√(L_0C_0) = **2×10⁸ m/s**, λ = v_p/f = **20 m**, so l = λ/4.",
+        "**4. End voltage.** Matched load: Z_in = Z_c = 50 Ω, V̇_1 = 2 × 50/(50 + 50) = 1∠0° V; V̇_2 = V̇_1·e^{−jβl} = 1∠**−90°** V.",
+        "**Check:** v_p·(1/f) = λ ✓; Z_c·v_p = L_0·v_p² = 0.25×10⁻⁶ × 4×10¹⁶ = 10¹⁰ = 1/C_0 ✓."
       ]
     }
   }

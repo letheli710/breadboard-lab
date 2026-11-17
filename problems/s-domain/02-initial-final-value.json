@@ -7,19 +7,19 @@
   "level": 2,
   "tags": ["初值定理", "终值定理", "运算电路", "RL 电路"],
   "statement": [
-    "图示电路中 u_s = 10ε(t) V，R_1 = 2 Ω，R_2 = 3 Ω，L = 1 H，t < 0 时电路无储能。i_L、u_L 的参考方向如图。",
-    "可以求得 I_L(s) = \\frac{6}{s(s + 1.2)} A·s。不做反变换，用初值定理和终值定理求 i_L(0₊)、u_L(0₊) 和 i_L(∞)，并求 I_L(s) 除 s = 0 外的极点。"
+    "图示电路中 v_s = 10u(t) V，R_1 = 2 Ω，R_2 = 3 Ω，L = 1 H，t < 0 时电路无储能。i_L、v_L 的参考方向如图。",
+    "可以求得 I_L(s) = \\frac{6}{s(s + 1.2)} A·s。不做反变换，用初值定理和终值定理求 i_L(0₊)、v_L(0₊) 和 i_L(∞)。再求 I_L(s) 除 s = 0 外的极点。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 10}}, "label": "10ε(t) V"},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 10}}, "label": "10u(t) V"},
       {"ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2},
       {"ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": 1},
       {"ref": "R2", "type": "R", "from": [12, 0], "to": [12, 4], "value": 3}
     ],
     "wires": [[[0, 0], [2, 0]], [[6, 0], [12, 0]], [[12, 4], [0, 4]]],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "i", "el": "L", "name": "i_L"}, {"kind": "v", "el": "L", "name": "u_L"}]
+    "marks": [{"kind": "i", "el": "L", "name": "i_L"}, {"kind": "v", "el": "L", "name": "v_L"}]
   },
   "analysis": {"type": "tran"},
   "questions": [
@@ -33,11 +33,11 @@
     },
     {
       "id": "ul0",
-      "ask": "u_L(0₊) = ?",
+      "ask": "v_L(0₊) = ?",
       "find": {"kind": "v", "el": "L", "t": "0+"},
       "answer": 6.0,
       "unit": "V",
-      "explain": "U_L(s) = sL·I_L(s) − L·i_L(0₋) = 6/(s + 1.2)，sU_L(s) = 6s/(s + 1.2) → 6 V。0₊ 时电感相当于开路，u_L = 10 × 3/(2 + 3) = 6 V，结果一致。"
+      "explain": "V_L(s) = sL·I_L(s) − L·i_L(0₋) = 6/(s + 1.2)，sV_L(s) = 6s/(s + 1.2) → 6 V。0₊ 时电感相当于开路，v_L = 10 × 3/(2 + 3) = 6 V，结果一致。"
     },
     {
       "id": "ilinf",
@@ -45,15 +45,15 @@
       "find": {"kind": "i", "el": "L", "t": "inf"},
       "answer": 5.0,
       "unit": "A",
-      "explain": "sI_L(s) = 6/(s + 1.2) → 6/1.2 = 5 A（s → 0）。sI_L(s) 的极点 −1.2 在左半平面，终值定理适用；直流稳态下电感短路，i_L = 10/2 = 5 A。"
+      "explain": "sI_L(s) = 6/(s + 1.2) → 6/1.2 = 5 A（s → 0）。sI_L(s) 的极点 −1.2 在左半平面，终值定理适用。直流稳态下电感短路，i_L = 10/2 = 5 A，结果一致。"
     },
     {
       "id": "p",
       "ask": "I_L(s) 除 s = 0 外的极点 p = ?",
-      "find": {"kind": "pole", "out": {"i": "L"}, "input": "Us", "n": 1},
+      "find": {"kind": "pole", "out": {"i": "L"}, "input": "Vs", "n": 1},
       "answer": -1.2,
       "unit": "1/s",
-      "explain": "I_L(s)/U_s(s) = \\frac{R_2/(R_1 + R_2)}{R_{eq} + sL}，R_eq = R_1∥R_2 = 1.2 Ω，极点 p = −R_eq/L = −1.2 s⁻¹（时间常数 τ = 1/1.2 s）。"
+      "explain": "I_L(s)/V_s(s) = \\frac{R_2/(R_1 + R_2)}{R_{eq} + sL}，R_eq = R_1∥R_2 = 1.2 Ω，极点 p = −R_eq/L = −1.2 s⁻¹（时间常数 τ = 1/1.2 s）。"
     },
     {
       "id": "fvt",
@@ -66,12 +66,12 @@
   ],
   "hints": [
     "初值定理：f(0₊) = lim_{s→∞} sF(s)；终值定理：f(∞) = lim_{s→0} sF(s)（sF(s) 的极点要在左半平面）。",
-    "u_L 的象函数：U_L(s) = sL·I_L(s) − L·i_L(0₋)。",
-    "把 I_L(s) 写成 U_s(s) 乘一个网络函数：分母 R_eq + sL，R_eq 是从电感看进去的等效电阻。"
+    "v_L 的象函数：V_L(s) = sL·I_L(s) − L·i_L(0₋)。",
+    "把 I_L(s) 写成 V_s(s) 乘一个网络函数：分母 R_eq + sL，R_eq 是从电感看进去的等效电阻。"
   ],
   "solution": [
-    "**1. 运算电路。** U_s(s) = 10/s。对电感左侧做戴维宁等效：U_oc(s) = \\frac{10}{s}·\\frac{3}{5} = 6/s，R_eq = 2∥3 = 1.2 Ω，I_L(s) = \\frac{6/s}{1.2 + s} = \\frac{6}{s(s + 1.2)}。",
-    "**2. 初值。** **i_L(0₊) = lim sI_L(s) = 0**；U_L(s) = sI_L(s) − 0 = 6/(s + 1.2)，**u_L(0₊) = lim sU_L(s) = 6 V**。",
+    "**1. 运算电路。** V_s(s) = 10/s。从电感两端看进去，把其余部分化成戴维宁等效：V_oc(s) = \\frac{10}{s}·\\frac{3}{5} = 6/s，R_eq = 2∥3 = 1.2 Ω。所以 I_L(s) = \\frac{6/s}{1.2 + s} = \\frac{6}{s(s + 1.2)}。",
+    "**2. 初值。** **i_L(0₊) = lim sI_L(s) = 0**；V_L(s) = sI_L(s) − 0 = 6/(s + 1.2)，**v_L(0₊) = lim sV_L(s) = 6 V**。",
     "**3. 终值。** **i_L(∞) = lim_{s→0} 6/(s + 1.2) = 5 A**（极点 −1.2 在左半平面，可以用）。",
     "**4. 极点。** **p = −1.2 s⁻¹**，所以 i_L(t) = 5(1 − e^{−1.2t}) A。",
     "**检验：** 时域三要素法 i_L(0₊) = 0、i_L(∞) = 10/2 = 5 A、τ = L/R_eq = 1/1.2 s，结果一致 ✓。"
@@ -81,8 +81,8 @@
       "title": "Initial- and final-value theorems",
       "tags": ["initial-value theorem", "final-value theorem", "s-domain circuit", "RL circuit"],
       "statement": [
-        "u_s = 10ε(t) V, R_1 = 2 Ω, R_2 = 3 Ω, L = 1 H, and the circuit stores no energy for t < 0. The reference directions of i_L and u_L are as drawn.",
-        "One finds I_L(s) = \\frac{6}{s(s + 1.2)} A·s. Without inverting it, use the initial- and final-value theorems to find i_L(0+), u_L(0+) and i_L(∞), and find the pole of I_L(s) other than s = 0."
+        "v_s = 10u(t) V, R_1 = 2 Ω, R_2 = 3 Ω, L = 1 H, and the circuit stores no energy for t < 0. The reference directions of i_L and v_L are as drawn.",
+        "One finds I_L(s) = \\frac{6}{s(s + 1.2)} A·s. Without inverting it, use the initial- and final-value theorems to find i_L(0+), v_L(0+) and i_L(∞). Then find the pole of I_L(s) other than s = 0."
       ],
       "questions": [
         {
@@ -90,16 +90,16 @@
           "explain": "sI_L(s) = 6/(s + 1.2) → 0 (s → ∞). It agrees with the switching rule i_L(0+) = i_L(0−) = 0."
         },
         {
-          "ask": "u_L(0+) = ?",
-          "explain": "U_L(s) = sL·I_L(s) − L·i_L(0−) = 6/(s + 1.2), sU_L(s) = 6s/(s + 1.2) → 6 V. At 0+ the inductor is an open circuit and u_L = 10 × 3/(2 + 3) = 6 V — the same."
+          "ask": "v_L(0+) = ?",
+          "explain": "V_L(s) = sL·I_L(s) − L·i_L(0−) = 6/(s + 1.2), sV_L(s) = 6s/(s + 1.2) → 6 V. At 0+ the inductor is an open circuit and v_L = 10 × 3/(2 + 3) = 6 V — the same."
         },
         {
           "ask": "i_L(∞) = lim_{s→0} sI_L(s) = ?",
-          "explain": "sI_L(s) = 6/(s + 1.2) → 6/1.2 = 5 A (s → 0). The pole −1.2 of sI_L(s) is in the left half-plane, so the final-value theorem applies; in the DC steady state the inductor is a short and i_L = 10/2 = 5 A."
+          "explain": "sI_L(s) = 6/(s + 1.2) → 6/1.2 = 5 A (s → 0). The pole −1.2 of sI_L(s) is in the left half-plane, so the final-value theorem applies. In the DC steady state the inductor is a short and i_L = 10/2 = 5 A — the same."
         },
         {
           "ask": "The pole p of I_L(s) other than s = 0 = ?",
-          "explain": "I_L(s)/U_s(s) = \\frac{R_2/(R_1 + R_2)}{R_{eq} + sL} with R_eq = R_1∥R_2 = 1.2 Ω: the pole is p = −R_eq/L = −1.2 1/s (time constant τ = 1/1.2 s)."
+          "explain": "I_L(s)/V_s(s) = \\frac{R_2/(R_1 + R_2)}{R_{eq} + sL} with R_eq = R_1∥R_2 = 1.2 Ω: the pole is p = −R_eq/L = −1.2 1/s (time constant τ = 1/1.2 s)."
         },
         {
           "ask": "If a response has F(s) = 1/(s² + 4), can the final-value theorem give f(∞)?",
@@ -120,12 +120,12 @@
       ],
       "hints": [
         "Initial-value theorem: f(0+) = lim_{s→∞} sF(s); final-value theorem: f(∞) = lim_{s→0} sF(s) (the poles of sF(s) must be in the left half-plane).",
-        "The transform of u_L is U_L(s) = sL·I_L(s) − L·i_L(0−).",
-        "Write I_L(s) as U_s(s) times a network function: its denominator is R_eq + sL, with R_eq the resistance seen by the inductor."
+        "The transform of v_L is V_L(s) = sL·I_L(s) − L·i_L(0−).",
+        "Write I_L(s) as V_s(s) times a network function: its denominator is R_eq + sL, with R_eq the resistance seen by the inductor."
       ],
       "solution": [
-        "**1. s-domain circuit.** U_s(s) = 10/s. Thévenin equivalent to the left of the inductor: U_oc(s) = \\frac{10}{s}·\\frac{3}{5} = 6/s, R_eq = 2∥3 = 1.2 Ω, I_L(s) = \\frac{6/s}{1.2 + s} = \\frac{6}{s(s + 1.2)}.",
-        "**2. Initial values.** **i_L(0+) = lim sI_L(s) = 0**; U_L(s) = sI_L(s) − 0 = 6/(s + 1.2), **u_L(0+) = lim sU_L(s) = 6 V**.",
+        "**1. s-domain circuit.** V_s(s) = 10/s. Reduce the rest of the circuit, seen from the inductor, to its Thévenin equivalent: V_oc(s) = \\frac{10}{s}·\\frac{3}{5} = 6/s, R_eq = 2∥3 = 1.2 Ω. So I_L(s) = \\frac{6/s}{1.2 + s} = \\frac{6}{s(s + 1.2)}.",
+        "**2. Initial values.** **i_L(0+) = lim sI_L(s) = 0**; V_L(s) = sI_L(s) − 0 = 6/(s + 1.2), **v_L(0+) = lim sV_L(s) = 6 V**.",
         "**3. Final value.** **i_L(∞) = lim_{s→0} 6/(s + 1.2) = 5 A** (the pole −1.2 is in the left half-plane, so the theorem applies).",
         "**4. Pole.** **p = −1.2 1/s**, so i_L(t) = 5(1 − e^{−1.2t}) A.",
         "**Check:** the three-element method in the time domain gives i_L(0+) = 0, i_L(∞) = 10/2 = 5 A, τ = L/R_eq = 1/1.2 s — the same ✓."

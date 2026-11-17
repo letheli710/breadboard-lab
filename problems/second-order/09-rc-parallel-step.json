@@ -7,12 +7,12 @@
   "level": 4,
   "tags": ["二阶微分方程", "零状态响应", "阶跃响应", "过阻尼"],
   "statement": [
-    "图示电路原来不带电，电压源为 10ε(t) V；L = 1 H，C = 10 mF，R = 4 Ω（R 与 C 并联）。",
-    "以 u_C 为变量列出 t > 0 的微分方程，求 i_L(∞)，以及 t = 0.1 s 时的 u_C 和 i_L。"
+    "图示电路原来不带电，电压源为 10u(t) V；L = 1 H，C = 10 mF，R = 4 Ω（R 与 C 并联）。",
+    "以 v_C 为变量列出 t > 0 的微分方程，求 i_L(∞)，以及 t = 0.1 s 时的 v_C 和 i_L。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 10 } }, "label": "10ε(t) V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 10 } }, "label": "10u(t) V" },
       { "ref": "L", "type": "L", "from": [2, 0], "to": [6, 0], "value": 1 },
       { "ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": "10m" },
       { "ref": "R", "type": "R", "from": [11, 0], "to": [11, 4], "value": 4 }
@@ -26,22 +26,22 @@
     "grounds": [[0, 4]],
     "marks": [
       { "kind": "i", "el": "L", "name": "i_L" },
-      { "kind": "v", "el": "C", "name": "u_C" }
+      { "kind": "v", "el": "C", "name": "v_C" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
     {
       "id": "s1",
-      "ask": "u_C 微分方程的特征根中较大（衰减较慢）的一个 s₁ = ?",
+      "ask": "v_C 微分方程的特征根中较大（衰减较慢）的一个 s₁ = ?",
       "find": { "kind": "root", "n": 1 },
       "answer": -5,
       "unit": "1/s",
-      "explain": "KCL（结点 a）：i_L = C·du_C/dt + u_C/R；KVL：L·di_L/dt + u_C = U_s。消去 i_L：LC·u_C″ + (L/R)·u_C′ + u_C = U_s，即 0.01u_C″ + 0.25u_C′ + u_C = 10 → 特征方程 s² + 25s + 100 = 0，s₁ = −5 s⁻¹，s₂ = −20 s⁻¹（过阻尼）。"
+      "explain": "KCL（结点 a）：i_L = C·dv_C/dt + v_C/R；KVL：L·di_L/dt + v_C = V_s。消去 i_L：LC·v_C″ + (L/R)·v_C′ + v_C = V_s，即 0.01v_C″ + 0.25v_C′ + v_C = 10 → 特征方程 s² + 25s + 100 = 0，s₁ = −5 s⁻¹，s₂ = −20 s⁻¹（过阻尼）。"
     },
     {
       "id": "s2",
-      "ask": "另一个u_C 微分方程的特征根 s₂ = ?",
+      "ask": "另一个v_C 微分方程的特征根 s₂ = ?",
       "find": { "kind": "root", "n": 2 },
       "answer": -20,
       "unit": "1/s",
@@ -53,15 +53,15 @@
       "find": { "kind": "i", "el": "L", "t": "inf" },
       "answer": 2.5,
       "unit": "A",
-      "explain": "新稳态：电感短路、电容开路，u_C(∞) = 10 V，i_L(∞) = 10/4 = 2.5 A。"
+      "explain": "新稳态：电感短路、电容开路，v_C(∞) = 10 V，i_L(∞) = 10/4 = 2.5 A。"
     },
     {
       "id": "uc",
-      "ask": "t = 0.1 s 时 u_C = ?",
+      "ask": "t = 0.1 s 时 v_C = ?",
       "find": { "kind": "v", "el": "C", "t": 0.1 },
       "answer": 2.364042,
       "unit": "V",
-      "explain": "u_C = 10 − (40/3)e^(−5t) + (10/3)e^(−20t) V。t = 0.1 s：u_C = 10 − 13.333 × 0.6065 + 3.333 × 0.1353 ≈ 2.364 V。"
+      "explain": "v_C = 10 − (40/3)e^(−5t) + (10/3)e^(−20t) V。t = 0.1 s：v_C = 10 − 13.333 × 0.6065 + 3.333 × 0.1353 ≈ 2.364 V。"
     },
     {
       "id": "il",
@@ -69,62 +69,62 @@
       "find": { "kind": "i", "el": "L", "t": 0.1 },
       "answer": 0.9051408,
       "unit": "A",
-      "explain": "i_L = C·du_C/dt + u_C/R，du_C/dt = (200/3)(e^(−5t) − e^(−20t))。t = 0.1 s：C·du_C/dt ≈ 0.3141 A，u_C/R ≈ 0.5910 A，i_L ≈ 0.9051 A。"
+      "explain": "i_L = C·dv_C/dt + v_C/R，dv_C/dt = (200/3)(e^(−5t) − e^(−20t))。t = 0.1 s：C·dv_C/dt ≈ 0.3141 A，v_C/R ≈ 0.5910 A，i_L ≈ 0.9051 A。"
     }
   ],
   "hints": [
     "这个电路既不是纯串联也不是纯并联，要自己列方程：结点 a 的 KCL 加上左边回路的 KVL。",
-    "消去 i_L 得到关于 u_C 的二阶方程，系数 LC、L/R、1。",
-    "初始条件：u_C(0₊) = 0；i_L(0₊) = 0 且 u_C(0₊) = 0，所以 i_C(0₊) = 0，du_C/dt(0₊) = 0。"
+    "消去 i_L 得到关于 v_C 的二阶方程，系数 LC、L/R、1。",
+    "初始条件：v_C(0₊) = 0；i_L(0₊) = 0 且 v_C(0₊) = 0，所以 i_C(0₊) = 0，dv_C/dt(0₊) = 0。"
   ],
   "solution": [
-    "**1. 列方程。** 结点 a：i_L = C·du_C/dt + u_C/R；回路：L·di_L/dt + u_C = 10。代入得 LC·u_C″ + (L/R)·u_C′ + u_C = 10，即 **u_C″ + 25u_C′ + 100u_C = 1000**。",
+    "**1. 列方程。** 结点 a：i_L = C·dv_C/dt + v_C/R；回路：L·di_L/dt + v_C = 10。代入得 LC·v_C″ + (L/R)·v_C′ + v_C = 10，即 **v_C″ + 25v_C′ + 100v_C = 1000**。",
     "**2. 特征根。** s² + 25s + 100 = 0 → (s + 5)(s + 20) = 0，s₁ = −5 s⁻¹，s₂ = −20 s⁻¹，过阻尼。",
-    "**3. 稳态。** u_C(∞) = 10 V，**i_L(∞) = 10/4 = 2.5 A**。",
-    "**4. 定常数。** u_C = 10 + A₁e^(−5t) + A₂e^(−20t)。u_C(0₊) = 0 → A₁ + A₂ = −10；du_C/dt(0₊) = i_C(0₊)/C = [i_L(0₊) − u_C(0₊)/R]/C = 0 → −5A₁ − 20A₂ = 0 → A₁ = −40/3，A₂ = 10/3。",
-    "**5. t = 0.1 s。** **u_C = 10 − (40/3)e^(−0.5) + (10/3)e^(−2) ≈ 2.364 V**；du_C/dt = (200/3)(e^(−0.5) − e^(−2)) ≈ 31.41 V/s，**i_L = 0.01 × 31.41 + 2.364/4 ≈ 0.9051 A**。"
+    "**3. 稳态。** v_C(∞) = 10 V，**i_L(∞) = 10/4 = 2.5 A**。",
+    "**4. 定常数。** v_C = 10 + A₁e^(−5t) + A₂e^(−20t)。v_C(0₊) = 0 → A₁ + A₂ = −10；dv_C/dt(0₊) = i_C(0₊)/C = [i_L(0₊) − v_C(0₊)/R]/C = 0 → −5A₁ − 20A₂ = 0 → A₁ = −40/3，A₂ = 10/3。",
+    "**5. t = 0.1 s。** **v_C = 10 − (40/3)e^(−0.5) + (10/3)e^(−2) ≈ 2.364 V**；dv_C/dt = (200/3)(e^(−0.5) − e^(−2)) ≈ 31.41 V/s，**i_L = 0.01 × 31.41 + 2.364/4 ≈ 0.9051 A**。"
   ],
   "i18n": {
     "en": {
       "title": "Inductor feeding a parallel RC: writing the ODE for a step response",
       "tags": ["second-order differential equation", "zero-state response", "step response", "overdamped"],
       "statement": [
-        "The circuit is initially uncharged and driven by 10ε(t) V; L = 1 H, C = 10 mF, R = 4 Ω (R in parallel with C).",
-        "Write the differential equation for u_C for t > 0, find i_L(∞), and u_C and i_L at t = 0.1 s."
+        "The circuit is initially uncharged and driven by 10u(t) V; L = 1 H, C = 10 mF, R = 4 Ω (R in parallel with C).",
+        "Write the differential equation for v_C for t > 0, find i_L(∞), and v_C and i_L at t = 0.1 s."
       ],
       "questions": [
         {
-          "ask": "The larger (slower-decaying) root of the characteristic equation of u_C s₁ = ?",
-          "explain": "KCL at node a: i_L = C·du_C/dt + u_C/R; KVL: L·di_L/dt + u_C = U_s. Eliminating i_L: LC·u_C″ + (L/R)·u_C′ + u_C = U_s, i.e. 0.01u_C″ + 0.25u_C′ + u_C = 10 → characteristic equation s² + 25s + 100 = 0, s₁ = −5 1/s, s₂ = −20 1/s (overdamped)."
+          "ask": "The larger (slower-decaying) root of the characteristic equation of v_C s₁ = ?",
+          "explain": "KCL at node a: i_L = C·dv_C/dt + v_C/R; KVL: L·di_L/dt + v_C = V_s. Eliminating i_L: LC·v_C″ + (L/R)·v_C′ + v_C = V_s, i.e. 0.01v_C″ + 0.25v_C′ + v_C = 10 → characteristic equation s² + 25s + 100 = 0, s₁ = −5 1/s, s₂ = −20 1/s (overdamped)."
         },
         {
-          "ask": "The other root of the characteristic equation of u_C s₂ = ?",
+          "ask": "The other root of the characteristic equation of v_C s₂ = ?",
           "explain": "s₂ = −20 1/s (|s₂| > |s₁|, so this term dies out faster)."
         },
         {
           "ask": "i_L(∞) = ?",
-          "explain": "New steady state: L shorted, C open, u_C(∞) = 10 V and i_L(∞) = 10/4 = 2.5 A."
+          "explain": "New steady state: L shorted, C open, v_C(∞) = 10 V and i_L(∞) = 10/4 = 2.5 A."
         },
         {
-          "ask": "u_C at t = 0.1 s = ?",
-          "explain": "u_C = 10 − (40/3)e^(−5t) + (10/3)e^(−20t) V. At t = 0.1 s: u_C = 10 − 13.333 × 0.6065 + 3.333 × 0.1353 ≈ 2.364 V."
+          "ask": "v_C at t = 0.1 s = ?",
+          "explain": "v_C = 10 − (40/3)e^(−5t) + (10/3)e^(−20t) V. At t = 0.1 s: v_C = 10 − 13.333 × 0.6065 + 3.333 × 0.1353 ≈ 2.364 V."
         },
         {
           "ask": "i_L at t = 0.1 s = ?",
-          "explain": "i_L = C·du_C/dt + u_C/R with du_C/dt = (200/3)(e^(−5t) − e^(−20t)). At t = 0.1 s: C·du_C/dt ≈ 0.3141 A and u_C/R ≈ 0.5910 A, so i_L ≈ 0.9051 A."
+          "explain": "i_L = C·dv_C/dt + v_C/R with dv_C/dt = (200/3)(e^(−5t) − e^(−20t)). At t = 0.1 s: C·dv_C/dt ≈ 0.3141 A and v_C/R ≈ 0.5910 A, so i_L ≈ 0.9051 A."
         }
       ],
       "hints": [
         "This circuit is neither a pure series nor a pure parallel RLC, so write the equations yourself: KCL at node a plus KVL around the left loop.",
-        "Eliminate i_L to get a second-order equation in u_C with coefficients LC, L/R and 1.",
-        "Initial conditions: u_C(0+) = 0; i_L(0+) = 0 and u_C(0+) = 0, so i_C(0+) = 0 and du_C/dt(0+) = 0."
+        "Eliminate i_L to get a second-order equation in v_C with coefficients LC, L/R and 1.",
+        "Initial conditions: v_C(0+) = 0; i_L(0+) = 0 and v_C(0+) = 0, so i_C(0+) = 0 and dv_C/dt(0+) = 0."
       ],
       "solution": [
-        "**1. Equations.** Node a: i_L = C·du_C/dt + u_C/R; loop: L·di_L/dt + u_C = 10. Substituting gives LC·u_C″ + (L/R)·u_C′ + u_C = 10, i.e. **u_C″ + 25u_C′ + 100u_C = 1000**.",
+        "**1. Equations.** Node a: i_L = C·dv_C/dt + v_C/R; loop: L·di_L/dt + v_C = 10. Substituting gives LC·v_C″ + (L/R)·v_C′ + v_C = 10, i.e. **v_C″ + 25v_C′ + 100v_C = 1000**.",
         "**2. Roots.** s² + 25s + 100 = 0 → (s + 5)(s + 20) = 0, s₁ = −5 s⁻¹, s₂ = −20 s⁻¹, overdamped.",
-        "**3. Steady state.** u_C(∞) = 10 V, **i_L(∞) = 10/4 = 2.5 A**.",
-        "**4. Constants.** u_C = 10 + A₁e^(−5t) + A₂e^(−20t). u_C(0+) = 0 → A₁ + A₂ = −10; du_C/dt(0+) = i_C(0+)/C = [i_L(0+) − u_C(0+)/R]/C = 0 → −5A₁ − 20A₂ = 0 → A₁ = −40/3, A₂ = 10/3.",
-        "**5. t = 0.1 s.** **u_C = 10 − (40/3)e^(−0.5) + (10/3)e^(−2) ≈ 2.364 V**; du_C/dt = (200/3)(e^(−0.5) − e^(−2)) ≈ 31.41 V/s, so **i_L = 0.01 × 31.41 + 2.364/4 ≈ 0.9051 A**."
+        "**3. Steady state.** v_C(∞) = 10 V, **i_L(∞) = 10/4 = 2.5 A**.",
+        "**4. Constants.** v_C = 10 + A₁e^(−5t) + A₂e^(−20t). v_C(0+) = 0 → A₁ + A₂ = −10; dv_C/dt(0+) = i_C(0+)/C = [i_L(0+) − v_C(0+)/R]/C = 0 → −5A₁ − 20A₂ = 0 → A₁ = −40/3, A₂ = 10/3.",
+        "**5. t = 0.1 s.** **v_C = 10 − (40/3)e^(−0.5) + (10/3)e^(−2) ≈ 2.364 V**; dv_C/dt = (200/3)(e^(−0.5) − e^(−2)) ≈ 31.41 V/s, so **i_L = 0.01 × 31.41 + 2.364/4 ≈ 0.9051 A**."
       ]
     }
   }

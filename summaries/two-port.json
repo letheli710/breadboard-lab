@@ -2,10 +2,18 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "two-port",
-  "intro": "二端口网络只关心两个端口上的 4 个量 U̇_1、İ_1、U̇_2、İ_2，用两个线性方程把它们联系起来；选哪两个量当自变量，就得到 Z、Y、H、T 四套参数。本章的全部约定：**端口电流从端口的“+”端流入**（与端口电压关联），T 参数方程里出现的是 −İ_2（流向负载的电流）。每个参数都可以“按定义”求：令某个端口开路或短路。",
+  "intro": [
+    "二端口网络只关心两个端口上的 4 个量：V̇_1、İ_1、V̇_2、İ_2。两个线性方程把它们联系起来；选哪两个量当自变量，就得到 Z、Y、H、T 四套参数。",
+    "本章的全部约定：**端口电流从端口的“+”端流入**，与端口电压关联。T 参数方程里出现的是 −İ_2，也就是流向负载的电流。",
+    "每个参数都可以“按定义”求：令某个端口开路或短路。"
+  ],
   "i18n": {
     "en": {
-      "intro": "A two-port is described only by the four port quantities U̇_1, İ_1, U̇_2, İ_2, related by two linear equations; choosing which two are the independent variables gives the Z, Y, H and T parameters. The convention throughout: **each port current flows into the “+” terminal of its port** (associated with the port voltage); the T-parameter equations use −İ_2 (the current going to the load). Every parameter can be found “by definition”, by opening or shorting one port."
+      "intro": [
+        "A two-port is described only by the four port quantities V̇_1, İ_1, V̇_2, İ_2. Two linear equations relate them; choosing which two are the independent variables gives the Z, Y, H and T parameters.",
+        "The convention throughout: **each port current flows into the “+” terminal of its port**, associated with the port voltage. The T-parameter equations use −İ_2, the current going to the load.",
+        "Every parameter can be found “by definition”, by opening or shorting one port."
+      ]
     }
   },
   "ideas": [
@@ -13,16 +21,20 @@
       "id": "def",
       "title": "二端口与参考方向",
       "text": [
-        "一个网络有两对端子 1–1'、2–2'，每对满足**端口条件**（从 1 端流入的电流等于从 1' 端流出的电流），就是二端口。本章只讨论内部不含独立源、线性的二端口（可以含受控源）。",
-        "约定：u_1（U̇_1）的“+”在 1 端，i_1 从 1 端流入；u_2 的“+”在 2 端，i_2 从 2 端**流入**。直流电阻网络用 u、i，正弦稳态用相量 U̇、İ，参数方程的形式完全一样。"
+        "- 一个网络有两对端子 1–1'、2–2'。如果每对都满足**端口条件**（从 1 端流入的电流等于从 1' 端流出的电流），它就是二端口。",
+        "- 本章只讨论线性、内部不含独立源的二端口。可以含受控源。",
+        "- 约定：v_1（V̇_1）的“+”在 1 端，i_1 从 1 端流入；v_2 的“+”在 2 端，i_2 从 2 端**流入**。",
+        "- 直流电阻网络用 v、i，正弦稳态用相量 V̇、İ。参数方程的形式完全一样。"
       ],
       "problems": ["two-port-01-z-params-t", "two-port-02-y-params-pi", "two-port-07-ac-z-and-y"],
       "i18n": {
         "en": {
           "title": "Two-ports and reference directions",
           "text": [
-            "A network with two terminal pairs 1–1', 2–2', each satisfying the **port condition** (the current entering terminal 1 equals the current leaving 1'), is a two-port. This chapter covers linear two-ports without independent sources inside (dependent sources allowed).",
-            "Convention: u_1 (U̇_1) has “+” at terminal 1 and i_1 enters terminal 1; u_2 has “+” at terminal 2 and i_2 **enters** terminal 2. Resistive DC networks use u, i; sinusoidal steady state uses phasors U̇, İ — the parameter equations look exactly the same."
+            "- A network has two terminal pairs 1–1', 2–2'. If each pair satisfies the **port condition** (the current entering terminal 1 equals the current leaving 1'), it is a two-port.",
+            "- This chapter covers linear two-ports with no independent sources inside. Dependent sources are allowed.",
+            "- Convention: v_1 (V̇_1) has “+” at terminal 1 and i_1 enters terminal 1; v_2 has “+” at terminal 2 and i_2 **enters** terminal 2.",
+            "- Resistive DC networks use v, i; sinusoidal steady state uses phasors V̇, İ. The parameter equations look exactly the same."
           ]
         }
       }
@@ -31,18 +43,22 @@
       "id": "z",
       "title": "Z 参数（开路阻抗参数）",
       "text": [
-        "以两个端口电流为自变量：U̇_1 = z_11İ_1 + z_12İ_2，U̇_2 = z_21İ_1 + z_22İ_2。",
-        "按定义求：令 İ_2 = 0（端口 2 **开路**），在端口 1 加电流 İ_1，z_11 = U̇_1/İ_1、z_21 = U̇_2/İ_1；再令 İ_1 = 0 求 z_12、z_22。开路的端口上串联的元件里没有电流、没有压降。",
-        "T 形网络的 Z 参数可以直接写：z_11 = Z_1 + Z_3，z_22 = Z_2 + Z_3，z_12 = z_21 = Z_3（Z_3 为公共支路）。含受控源时按定义一步步算，受控源的控制量为零时它相当于短路（电压源）或开路（电流源）。"
+        "- 以两个端口电流为自变量：V̇_1 = z_11İ_1 + z_12İ_2，V̇_2 = z_21İ_1 + z_22İ_2。",
+        "- 按定义求：令 İ_2 = 0（端口 2 **开路**），在端口 1 加电流 İ_1，得 z_11 = V̇_1/İ_1、z_21 = V̇_2/İ_1。再令 İ_1 = 0，求 z_12、z_22。",
+        "- 和开路端口串联的元件里没有电流，也没有压降。",
+        "- T 形网络的 Z 参数可以直接写：z_11 = Z_1 + Z_3，z_22 = Z_2 + Z_3，z_12 = z_21 = Z_3。Z_3 是公共支路。",
+        "- 含受控源时，按定义一步步算。受控源的控制量为零时，它相当于短路（电压源）或开路（电流源）。"
       ],
       "problems": ["two-port-01-z-params-t", "two-port-05-reciprocity-ccvs", "two-port-07-ac-z-and-y", "two-port-08-lattice-t-equivalent", "two-port-11-terminated-twoport"],
       "i18n": {
         "en": {
           "title": "Z parameters (open-circuit impedance parameters)",
           "text": [
-            "With the two port currents as independent variables: U̇_1 = z_11İ_1 + z_12İ_2, U̇_2 = z_21İ_1 + z_22İ_2.",
-            "By definition: let İ_2 = 0 (port 2 **open**), drive port 1 with İ_1: z_11 = U̇_1/İ_1, z_21 = U̇_2/İ_1; then let İ_1 = 0 for z_12, z_22. An element in series with an open port carries no current and has no drop.",
-            "For a T network write them down directly: z_11 = Z_1 + Z_3, z_22 = Z_2 + Z_3, z_12 = z_21 = Z_3 (Z_3 = the shared branch). With dependent sources go step by step by the definition; a dependent source whose controlling quantity is zero becomes a short (voltage source) or an open (current source)."
+            "- With the two port currents as independent variables: V̇_1 = z_11İ_1 + z_12İ_2, V̇_2 = z_21İ_1 + z_22İ_2.",
+            "- By definition: let İ_2 = 0 (port 2 **open**) and drive port 1 with İ_1; then z_11 = V̇_1/İ_1 and z_21 = V̇_2/İ_1. Next let İ_1 = 0 to find z_12, z_22.",
+            "- An element in series with an open port carries no current and has no voltage drop.",
+            "- For a T network write them down directly: z_11 = Z_1 + Z_3, z_22 = Z_2 + Z_3, z_12 = z_21 = Z_3. Z_3 is the shared branch.",
+            "- With dependent sources, go step by step by the definition. A dependent source whose controlling quantity is zero becomes a short (voltage source) or an open (current source)."
           ]
         }
       }
@@ -51,18 +67,22 @@
       "id": "y",
       "title": "Y 参数（短路导纳参数）",
       "text": [
-        "以两个端口电压为自变量：İ_1 = y_11U̇_1 + y_12U̇_2，İ_2 = y_21U̇_1 + y_22U̇_2。",
-        "按定义求：令 U̇_2 = 0（端口 2 **短路**），在端口 1 加电压，y_11 = İ_1/U̇_1、y_21 = İ_2/U̇_1。注意 İ_2 以流入 2 端为正，短路线里的电流实际往外流时 y_21 为负。",
-        "Π 形网络的 Y 参数可以直接写：y_11 = Y_a + Y_c，y_22 = Y_b + Y_c，y_12 = y_21 = −Y_c（Y_c 为跨接两端口的串臂）。所以无源**电阻** Π 形网络的 y_12 总是负的（交流时 y_12 = −Y_c 是复数，谈不上正负）。"
+        "- 以两个端口电压为自变量：İ_1 = y_11V̇_1 + y_12V̇_2，İ_2 = y_21V̇_1 + y_22V̇_2。",
+        "- 按定义求：令 V̇_2 = 0（端口 2 **短路**），在端口 1 加电压，得 y_11 = İ_1/V̇_1、y_21 = İ_2/V̇_1。",
+        "- 注意 İ_2 以流入 2 端为正。短路线里的电流实际往外流时，y_21 为负。",
+        "- Π 形网络的 Y 参数可以直接写：y_11 = Y_a + Y_c，y_22 = Y_b + Y_c，y_12 = y_21 = −Y_c。Y_c 是跨接两端口的串臂。",
+        "- 所以无源**电阻** Π 形网络的 y_12 总是负的。交流时 y_12 = −Y_c 是复数，谈不上正负。"
       ],
       "problems": ["two-port-02-y-params-pi", "two-port-06-param-conversion", "two-port-07-ac-z-and-y", "two-port-09-bridged-t-pi-equivalent"],
       "i18n": {
         "en": {
           "title": "Y parameters (short-circuit admittance parameters)",
           "text": [
-            "With the two port voltages as independent variables: İ_1 = y_11U̇_1 + y_12U̇_2, İ_2 = y_21U̇_1 + y_22U̇_2.",
-            "By definition: let U̇_2 = 0 (port 2 **shorted**), drive port 1 with a voltage: y_11 = İ_1/U̇_1, y_21 = İ_2/U̇_1. İ_2 counts positive into terminal 2, so when the short carries current outwards y_21 is negative.",
-            "For a Π network write them down directly: y_11 = Y_a + Y_c, y_22 = Y_b + Y_c, y_12 = y_21 = −Y_c (Y_c = the series arm between the ports). So y_12 of a passive **resistive** Π network is always negative (in AC, y_12 = −Y_c is complex and has no sign)."
+            "- With the two port voltages as independent variables: İ_1 = y_11V̇_1 + y_12V̇_2, İ_2 = y_21V̇_1 + y_22V̇_2.",
+            "- By definition: let V̇_2 = 0 (port 2 **shorted**) and drive port 1 with a voltage; then y_11 = İ_1/V̇_1 and y_21 = İ_2/V̇_1.",
+            "- İ_2 counts positive into terminal 2. When the current in the short actually flows outwards, y_21 is negative.",
+            "- For a Π network write them down directly: y_11 = Y_a + Y_c, y_22 = Y_b + Y_c, y_12 = y_21 = −Y_c. Y_c is the series arm between the ports.",
+            "- So y_12 of a passive **resistive** Π network is always negative. In AC, y_12 = −Y_c is complex and has no sign."
           ]
         }
       }
@@ -71,16 +91,20 @@
       "id": "h",
       "title": "H 参数（混合参数）",
       "text": [
-        "以 İ_1、U̇_2 为自变量：U̇_1 = h_11İ_1 + h_12U̇_2，İ_2 = h_21İ_1 + h_22U̇_2。四个参数的量纲各不相同：h_11 是阻抗，h_22 是导纳，h_12、h_21 无量纲。",
-        "测量条件是“混合”的：h_11、h_21 令 U̇_2 = 0（输出短路），h_12、h_22 令 İ_1 = 0（输入开路）。晶体管小信号模型就是用 H 参数描述的：h_11 输入电阻、h_12 电压反馈系数、h_21 电流放大倍数 β、h_22 输出电导。"
+        "- 以 İ_1、V̇_2 为自变量：V̇_1 = h_11İ_1 + h_12V̇_2，İ_2 = h_21İ_1 + h_22V̇_2。",
+        "- 四个参数的量纲各不相同：h_11 是阻抗，h_22 是导纳，h_12、h_21 无量纲。",
+        "- 测量条件是“混合”的：求 h_11、h_21 令 V̇_2 = 0（输出短路），求 h_12、h_22 令 İ_1 = 0（输入开路）。",
+        "- 晶体管小信号模型就用 H 参数描述：h_11 是输入电阻，h_12 是电压反馈系数，h_21 是电流放大倍数 β，h_22 是输出电导。"
       ],
       "problems": ["two-port-04-h-params-transistor"],
       "i18n": {
         "en": {
           "title": "H parameters (hybrid parameters)",
           "text": [
-            "With İ_1 and U̇_2 as independent variables: U̇_1 = h_11İ_1 + h_12U̇_2, İ_2 = h_21İ_1 + h_22U̇_2. Their units all differ: h_11 is an impedance, h_22 an admittance, h_12 and h_21 dimensionless.",
-            "The test conditions are “hybrid”: h_11, h_21 with U̇_2 = 0 (output shorted), h_12, h_22 with İ_1 = 0 (input open). The small-signal transistor model is written in H parameters: h_11 input resistance, h_12 reverse voltage ratio, h_21 current gain β, h_22 output conductance."
+            "- With İ_1 and V̇_2 as independent variables: V̇_1 = h_11İ_1 + h_12V̇_2, İ_2 = h_21İ_1 + h_22V̇_2.",
+            "- Their units all differ: h_11 is an impedance, h_22 an admittance, h_12 and h_21 are dimensionless.",
+            "- The test conditions are “hybrid”: h_11, h_21 with V̇_2 = 0 (output shorted); h_12, h_22 with İ_1 = 0 (input open).",
+            "- The small-signal transistor model is written in H parameters: h_11 is the input resistance, h_12 the reverse voltage ratio, h_21 the current gain β, h_22 the output conductance."
           ]
         }
       }
@@ -89,18 +113,22 @@
       "id": "t",
       "title": "T 参数（传输参数 ABCD）",
       "text": [
-        "以输出端的 U̇_2、−İ_2 为自变量：U̇_1 = AU̇_2 − Bİ_2，İ_1 = CU̇_2 − Dİ_2。−İ_2 就是从 2 端流出、流向负载的电流——这是 T 参数方程里出现负号的原因，不是另一种参考方向。",
-        "按定义：A = U̇_1/U̇_2、C = İ_1/U̇_2（端口 2 开路，İ_2 = 0）；B = U̇_1/(−İ_2)、D = İ_1/(−İ_2)（端口 2 短路，U̇_2 = 0）。A、D 无量纲，B 是阻抗，C 是导纳。",
-        "三个基本单元：串联阻抗 Z 的 T = [1 Z; 0 1]，并联导纳 Y 的 T = [1 0; Y 1]，理想变压器 n:1 的 T = [n 0; 0 1/n]。"
+        "- 以输出端的 V̇_2、−İ_2 为自变量：V̇_1 = AV̇_2 − Bİ_2，İ_1 = CV̇_2 − Dİ_2。",
+        "- −İ_2 就是从 2 端流出、流向负载的电流。T 参数方程里的负号就是这么来的，不是另一种参考方向。",
+        "- 按定义：端口 2 开路（İ_2 = 0）时，A = V̇_1/V̇_2、C = İ_1/V̇_2；端口 2 短路（V̇_2 = 0）时，B = V̇_1/(−İ_2)、D = İ_1/(−İ_2)。",
+        "- A、D 无量纲，B 是阻抗，C 是导纳。",
+        "- 三个基本单元：串联阻抗 Z 的 T = [1 Z; 0 1]；并联导纳 Y 的 T = [1 0; Y 1]；理想变压器 n:1 的 T = [n 0; 0 1/n]。"
       ],
       "problems": ["two-port-03-abcd-l-section", "two-port-06-param-conversion", "two-port-10-cascade-abcd", "two-port-12-ac-cascade-transformer"],
       "i18n": {
         "en": {
           "title": "T parameters (transmission parameters ABCD)",
           "text": [
-            "With the output quantities U̇_2 and −İ_2 as independent variables: U̇_1 = AU̇_2 − Bİ_2, İ_1 = CU̇_2 − Dİ_2. −İ_2 is the current leaving terminal 2 towards the load — that is where the minus sign comes from; it is not a different reference direction.",
-            "By definition: A = U̇_1/U̇_2, C = İ_1/U̇_2 (port 2 open, İ_2 = 0); B = U̇_1/(−İ_2), D = İ_1/(−İ_2) (port 2 shorted, U̇_2 = 0). A, D are dimensionless, B an impedance, C an admittance.",
-            "Three building blocks: series impedance Z, T = [1 Z; 0 1]; shunt admittance Y, T = [1 0; Y 1]; ideal transformer n:1, T = [n 0; 0 1/n]."
+            "- With the output quantities V̇_2 and −İ_2 as independent variables: V̇_1 = AV̇_2 − Bİ_2, İ_1 = CV̇_2 − Dİ_2.",
+            "- −İ_2 is the current leaving terminal 2 towards the load. That is where the minus signs come from; it is not a different reference direction.",
+            "- By definition: with port 2 open (İ_2 = 0), A = V̇_1/V̇_2 and C = İ_1/V̇_2; with port 2 shorted (V̇_2 = 0), B = V̇_1/(−İ_2) and D = İ_1/(−İ_2).",
+            "- A and D are dimensionless, B is an impedance, C an admittance.",
+            "- Three building blocks: series impedance Z, T = [1 Z; 0 1]; shunt admittance Y, T = [1 0; Y 1]; ideal transformer n:1, T = [n 0; 0 1/n]."
           ]
         }
       }
@@ -109,18 +137,20 @@
       "id": "reciprocal",
       "title": "互易与对称",
       "text": [
-        "只由线性 R、L、C（及耦合电感、理想变压器）组成的二端口是**互易**的：z_12 = z_21，y_12 = y_21，h_12 = −h_21，AD − BC = 1。互易二端口只有 3 个独立参数。",
-        "互易且两个端口互换后外特性不变的叫**对称**二端口：还要求 z_11 = z_22（y_11 = y_22，A = D）。结构对称的网络一定电气对称。",
-        "含受控源的网络一般**不互易**（z_12 ≠ z_21），这时需要 4 个参数，也不能用只有 3 个元件的 T 形、Π 形无源电路等效。"
+        "- 只由线性 R、L、C（以及耦合电感、理想变压器）组成的二端口是**互易**的：z_12 = z_21，y_12 = y_21，h_12 = −h_21，AD − BC = 1。",
+        "- 互易二端口只有 3 个独立参数。",
+        "- 互易、而且两个端口互换后外特性不变的，叫**对称**二端口。它还要求 z_11 = z_22（y_11 = y_22，A = D）。结构对称的网络一定电气对称。",
+        "- 含受控源的网络一般**不互易**（z_12 ≠ z_21）。这时需要 4 个参数，也不能用只有 3 个元件的 T 形、Π 形无源电路等效。"
       ],
       "problems": ["two-port-05-reciprocity-ccvs", "two-port-03-abcd-l-section", "two-port-01-z-params-t", "two-port-08-lattice-t-equivalent", "two-port-06-param-conversion"],
       "i18n": {
         "en": {
           "title": "Reciprocity and symmetry",
           "text": [
-            "A two-port made only of linear R, L, C (and coupled inductors, ideal transformers) is **reciprocal**: z_12 = z_21, y_12 = y_21, h_12 = −h_21, AD − BC = 1. A reciprocal two-port has only 3 independent parameters.",
-            "If in addition the ports can be swapped without changing anything seen from outside, it is **symmetric**: also z_11 = z_22 (y_11 = y_22, A = D). A structurally symmetric network is always electrically symmetric.",
-            "Networks with dependent sources are generally **not reciprocal** (z_12 ≠ z_21): they need all 4 parameters and cannot be replaced by a passive three-element T or Π circuit."
+            "- A two-port made only of linear R, L, C (and coupled inductors, ideal transformers) is **reciprocal**: z_12 = z_21, y_12 = y_21, h_12 = −h_21, AD − BC = 1.",
+            "- A reciprocal two-port has only 3 independent parameters.",
+            "- If, in addition, the ports can be swapped without changing anything seen from outside, it is **symmetric**. That also needs z_11 = z_22 (y_11 = y_22, A = D). A structurally symmetric network is always electrically symmetric.",
+            "- Networks with dependent sources are generally **not reciprocal** (z_12 ≠ z_21). They need all 4 parameters and cannot be replaced by a passive three-element T or Π circuit."
           ]
         }
       }
@@ -129,18 +159,24 @@
       "id": "convert",
       "title": "参数之间的换算",
       "text": [
-        "Z 与 Y 互为逆矩阵：Y = Z^{−1}，例如 y_11 = z_22/Δ_Z，y_12 = −z_12/Δ_Z，Δ_Z = z_11z_22 − z_12z_21。复数参数也一样，按复数运算。",
-        "由 Z 求 T：A = z_11/z_21，B = Δ_Z/z_21，C = 1/z_21，D = z_22/z_21；由 Y 求 T：A = −y_22/y_21，B = −1/y_21，C = −Δ_Y/y_21，D = −y_11/y_21。",
-        "换算前先想清楚：最容易“按定义”或“直接写出”的是哪一套参数（T 形先写 Z，Π 形先写 Y），再换算到题目要的那套。某套参数可能不存在（例如 Δ_Z = 0 时没有 Y 参数）。"
+        "- Z 与 Y 互为逆矩阵：Y = Z^{−1}。例如 y_11 = z_22/Δ_Z，y_12 = −z_12/Δ_Z，其中 Δ_Z = z_11z_22 − z_12z_21。",
+        "- 复数参数也一样，按复数运算。",
+        "- 由 Z 求 T：A = z_11/z_21，B = Δ_Z/z_21，C = 1/z_21，D = z_22/z_21。",
+        "- 由 Y 求 T：A = −y_22/y_21，B = −1/y_21，C = −Δ_Y/y_21，D = −y_11/y_21。",
+        "- 换算前先想清楚：哪一套参数最容易“按定义”求或“直接写出”？T 形先写 Z，Π 形先写 Y，再换算到题目要的那套。",
+        "- 某套参数可能不存在，例如 Δ_Z = 0 时没有 Y 参数。"
       ],
       "problems": ["two-port-06-param-conversion", "two-port-07-ac-z-and-y", "two-port-09-bridged-t-pi-equivalent"],
       "i18n": {
         "en": {
           "title": "Converting between parameter sets",
           "text": [
-            "Z and Y are inverse matrices: Y = Z^{−1}, e.g. y_11 = z_22/Δ_Z, y_12 = −z_12/Δ_Z with Δ_Z = z_11z_22 − z_12z_21. Complex parameters work the same way with complex arithmetic.",
-            "From Z to T: A = z_11/z_21, B = Δ_Z/z_21, C = 1/z_21, D = z_22/z_21; from Y to T: A = −y_22/y_21, B = −1/y_21, C = −Δ_Y/y_21, D = −y_11/y_21.",
-            "Before converting, decide which set is easiest to get by definition or by inspection (Z for a T network, Y for a Π network), then convert to the set asked for. Some sets may not exist (e.g. no Y parameters when Δ_Z = 0)."
+            "- Z and Y are inverse matrices: Y = Z^{−1}. For example y_11 = z_22/Δ_Z and y_12 = −z_12/Δ_Z, with Δ_Z = z_11z_22 − z_12z_21.",
+            "- Complex parameters work the same way, with complex arithmetic.",
+            "- From Z to T: A = z_11/z_21, B = Δ_Z/z_21, C = 1/z_21, D = z_22/z_21.",
+            "- From Y to T: A = −y_22/y_21, B = −1/y_21, C = −Δ_Y/y_21, D = −y_11/y_21.",
+            "- Before converting, decide which set is easiest to get by definition or by inspection: Z for a T network, Y for a Π network. Then convert to the set asked for.",
+            "- Some sets may not exist; for example, there are no Y parameters when Δ_Z = 0."
           ]
         }
       }
@@ -149,16 +185,22 @@
       "id": "equivalent",
       "title": "等效电路：T 形与 Π 形",
       "text": [
-        "互易二端口有 3 个独立参数，所以总能用 3 个元件等效。**T 形**（由 Z 参数）：两个串臂 Z_1 = z_11 − z_12、Z_2 = z_22 − z_12，并臂 Z_3 = z_12。**Π 形**（由 Y 参数）：两个并臂 Y_a = y_11 + y_12、Y_b = y_22 + y_12，串臂 Y_c = −y_12。",
-        "等效出来的元件值可能为负（只是数学模型）。格形（桥形）、桥 T 形这类网络先求参数，再套用上面的公式化成 T 形或 Π 形。"
+        "- 互易二端口有 3 个独立参数，所以总能用 3 个元件等效。",
+        "- **T 形**（由 Z 参数）：两个串臂 Z_1 = z_11 − z_12、Z_2 = z_22 − z_12，并臂 Z_3 = z_12。",
+        "- **Π 形**（由 Y 参数）：两个并臂 Y_a = y_11 + y_12、Y_b = y_22 + y_12，串臂 Y_c = −y_12。",
+        "- 等效出来的元件值可能为负，它只是数学模型。",
+        "- 格形（桥形）、桥 T 形这类网络，先求参数，再套用上面的公式化成 T 形或 Π 形。"
       ],
       "problems": ["two-port-08-lattice-t-equivalent", "two-port-09-bridged-t-pi-equivalent"],
       "i18n": {
         "en": {
           "title": "Equivalent circuits: T and Π",
           "text": [
-            "A reciprocal two-port has 3 independent parameters, so three elements can always represent it. **T** (from Z): series arms Z_1 = z_11 − z_12, Z_2 = z_22 − z_12, shunt arm Z_3 = z_12. **Π** (from Y): shunt arms Y_a = y_11 + y_12, Y_b = y_22 + y_12, series arm Y_c = −y_12.",
-            "The equivalent element values may be negative (it is only a model). For lattice (bridge) or bridged-T networks, find the parameters first, then use these formulas."
+            "- A reciprocal two-port has 3 independent parameters, so three elements can always represent it.",
+            "- **T** (from Z): series arms Z_1 = z_11 − z_12 and Z_2 = z_22 − z_12, shunt arm Z_3 = z_12.",
+            "- **Π** (from Y): shunt arms Y_a = y_11 + y_12 and Y_b = y_22 + y_12, series arm Y_c = −y_12.",
+            "- The equivalent element values may be negative; it is only a mathematical model.",
+            "- For lattice (bridge) or bridged-T networks, find the parameters first, then use these formulas to get a T or a Π."
           ]
         }
       }
@@ -167,18 +209,22 @@
       "id": "connect",
       "title": "二端口的连接：级联、并联",
       "text": [
-        "**级联**（前一级的输出端口接后一级的输入端口）：前一级的 −İ_2 正好是后一级的 İ_1，所以 **T = T_1T_2**——矩阵乘法，顺序从输入到输出，不能交换。",
-        "**并联**（两个端口分别并联）：Y = Y_1 + Y_2；**串联**：Z = Z_1 + Z_2。并联、串联相加的前提是连接后每个子二端口仍满足端口条件（例如有公共接地线的三端网络并联总是成立）。",
-        "把复杂网络拆成串臂、并臂、理想变压器这样的基本单元再相乘，是求 T 参数最快的办法。"
+        "- **级联**：前一级的输出端口接后一级的输入端口。前一级的 −İ_2 正好是后一级的 İ_1，所以 **T = T_1T_2**。",
+        "- 这是矩阵乘法，顺序从输入到输出，不能交换。",
+        "- **并联**（两个端口分别并联）：Y = Y_1 + Y_2。**串联**：Z = Z_1 + Z_2。",
+        "- 并联、串联相加的前提是：连接后每个子二端口仍满足端口条件。有公共接地线的三端网络并联时总是成立。",
+        "- 把复杂网络拆成串臂、并臂、理想变压器这样的基本单元，再把 T 矩阵相乘，是求 T 参数最快的办法。"
       ],
       "problems": ["two-port-10-cascade-abcd", "two-port-09-bridged-t-pi-equivalent", "two-port-12-ac-cascade-transformer"],
       "i18n": {
         "en": {
           "title": "Connecting two-ports: cascade and parallel",
           "text": [
-            "**Cascade** (the output port of one stage feeds the input port of the next): −İ_2 of the first stage is İ_1 of the second, so **T = T_1T_2** — a matrix product, from input to output, and the order cannot be swapped.",
-            "**Parallel** (ports connected in parallel pairwise): Y = Y_1 + Y_2; **series**: Z = Z_1 + Z_2. Adding is valid only if each sub-two-port still satisfies the port condition after connecting (always true for three-terminal networks sharing a common ground line in parallel).",
-            "Splitting a network into series arms, shunt arms and ideal transformers and multiplying their T matrices is the quickest way to its T parameters."
+            "- **Cascade**: the output port of one stage feeds the input port of the next. −İ_2 of the first stage is İ_1 of the second, so **T = T_1T_2**.",
+            "- It is a matrix product, taken from input to output; the order cannot be swapped.",
+            "- **Parallel** (both ports connected in parallel): Y = Y_1 + Y_2. **Series**: Z = Z_1 + Z_2.",
+            "- Adding is valid only if each sub-two-port still satisfies the port condition after connecting. Three-terminal networks sharing a common ground line always do in parallel.",
+            "- Split a network into series arms, shunt arms and ideal transformers and multiply their T matrices: that is the quickest way to its T parameters."
           ]
         }
       }
@@ -187,18 +233,22 @@
       "id": "terminated",
       "title": "端接电源与负载",
       "text": [
-        "端口 2 接负载 Z_L 时 U̇_2 = −Z_Lİ_2（İ_2 流入 2 端，负载电流是 −İ_2）。把它代入参数方程消去 U̇_2、İ_2，得到从端口 1 看进去的输入阻抗：Z_in = (AZ_L + B)/(CZ_L + D) = z_11 − z_12z_21/(z_22 + Z_L)。",
-        "从端口 2 看进去的戴维宁等效（端口 1 接 U̇_s、内阻 Z_s）：开路电压在 İ_2 = 0 时求，U̇_oc = z_21U̇_s/(z_11 + Z_s)；等效阻抗 Z_eq = z_22 − z_12z_21/(z_11 + Z_s)。",
-        "端接问题本质上是 4 个方程（2 个参数方程 + 2 个端接条件）解 4 个未知数，记不住公式时直接联立即可。"
+        "- 端口 2 接负载 Z_L 时 V̇_2 = −Z_Lİ_2。İ_2 流入 2 端，所以负载电流是 −İ_2。",
+        "- 把它代入参数方程，消去 V̇_2、İ_2，得到从端口 1 看进去的输入阻抗：Z_in = (AZ_L + B)/(CZ_L + D) = z_11 − z_12z_21/(z_22 + Z_L)。",
+        "- 从端口 2 看进去的戴维宁等效（端口 1 接 V̇_s、内阻抗 Z_s）：开路电压在 İ_2 = 0 时求，V̇_oc = z_21V̇_s/(z_11 + Z_s)。",
+        "- 等效阻抗 Z_eq = z_22 − z_12z_21/(z_11 + Z_s)。",
+        "- 端接问题本质上是 4 个方程（2 个参数方程 + 2 个端接条件）解 4 个未知数。记不住公式时，直接联立即可。"
       ],
       "problems": ["two-port-11-terminated-twoport", "two-port-12-ac-cascade-transformer"],
       "i18n": {
         "en": {
           "title": "Terminating a two-port with a source and a load",
           "text": [
-            "With a load Z_L on port 2, U̇_2 = −Z_Lİ_2 (İ_2 enters terminal 2, the load current is −İ_2). Substituting into the parameter equations gives the input impedance seen at port 1: Z_in = (AZ_L + B)/(CZ_L + D) = z_11 − z_12z_21/(z_22 + Z_L).",
-            "The Thevenin equivalent seen at port 2 (port 1 driven by U̇_s with internal Z_s): open-circuit voltage with İ_2 = 0, U̇_oc = z_21U̇_s/(z_11 + Z_s); equivalent impedance Z_eq = z_22 − z_12z_21/(z_11 + Z_s).",
-            "A terminated two-port is just 4 equations (2 parameter equations + 2 termination conditions) in 4 unknowns — if you forget the formulas, solve them together directly."
+            "- With a load Z_L on port 2, V̇_2 = −Z_Lİ_2. İ_2 enters terminal 2, so the load current is −İ_2.",
+            "- Substitute this into the parameter equations and eliminate V̇_2, İ_2 to get the input impedance seen at port 1: Z_in = (AZ_L + B)/(CZ_L + D) = z_11 − z_12z_21/(z_22 + Z_L).",
+            "- Thevenin equivalent seen at port 2 (port 1 driven by V̇_s with internal impedance Z_s): find the open-circuit voltage with İ_2 = 0, V̇_oc = z_21V̇_s/(z_11 + Z_s).",
+            "- The equivalent impedance is Z_eq = z_22 − z_12z_21/(z_11 + Z_s).",
+            "- A terminated two-port is just 4 equations (2 parameter equations + 2 termination conditions) in 4 unknowns. If you forget the formulas, solve them together directly."
           ]
         }
       }
@@ -209,33 +259,33 @@
       "id": "z-eq",
       "idea": "z",
       "name": "Z 参数方程",
-      "expr": "U̇_1 = z_11İ_1 + z_12İ_2，U̇_2 = z_21İ_1 + z_22İ_2；z_11 = \\frac{U̇_1}{İ_1}|_{İ_2 = 0}，z_21 = \\frac{U̇_2}{İ_1}|_{İ_2 = 0}",
+      "expr": "V̇_1 = z_11İ_1 + z_12İ_2，V̇_2 = z_21İ_1 + z_22İ_2；z_11 = \\frac{V̇_1}{İ_1}|_{İ_2 = 0}，z_21 = \\frac{V̇_2}{İ_1}|_{İ_2 = 0}",
       "when": "线性、无独立源；İ_1、İ_2 都从端口“+”端流入。z_12、z_22 在 İ_1 = 0（端口 1 开路）时求。",
-      "i18n": { "en": { "name": "Z-parameter equations", "expr": "U̇_1 = z_11İ_1 + z_12İ_2, U̇_2 = z_21İ_1 + z_22İ_2; z_11 = \\frac{U̇_1}{İ_1}|_{İ_2 = 0}, z_21 = \\frac{U̇_2}{İ_1}|_{İ_2 = 0}", "when": "Linear, no independent sources; İ_1, İ_2 both enter the “+” terminal of their port. z_12, z_22 with İ_1 = 0 (port 1 open)." } }
+      "i18n": { "en": { "name": "Z-parameter equations", "expr": "V̇_1 = z_11İ_1 + z_12İ_2, V̇_2 = z_21İ_1 + z_22İ_2; z_11 = \\frac{V̇_1}{İ_1}|_{İ_2 = 0}, z_21 = \\frac{V̇_2}{İ_1}|_{İ_2 = 0}", "when": "Linear, no independent sources; İ_1, İ_2 both enter the “+” terminal of their port. z_12, z_22 with İ_1 = 0 (port 1 open)." } }
     },
     {
       "id": "y-eq",
       "idea": "y",
       "name": "Y 参数方程",
-      "expr": "İ_1 = y_11U̇_1 + y_12U̇_2，İ_2 = y_21U̇_1 + y_22U̇_2；y_11 = \\frac{İ_1}{U̇_1}|_{U̇_2 = 0}，y_21 = \\frac{İ_2}{U̇_1}|_{U̇_2 = 0}",
-      "when": "同上的参考方向；y_12、y_22 在 U̇_1 = 0（端口 1 短路）时求。",
-      "i18n": { "en": { "name": "Y-parameter equations", "expr": "İ_1 = y_11U̇_1 + y_12U̇_2, İ_2 = y_21U̇_1 + y_22U̇_2; y_11 = \\frac{İ_1}{U̇_1}|_{U̇_2 = 0}, y_21 = \\frac{İ_2}{U̇_1}|_{U̇_2 = 0}", "when": "Same reference directions; y_12, y_22 with U̇_1 = 0 (port 1 shorted)." } }
+      "expr": "İ_1 = y_11V̇_1 + y_12V̇_2，İ_2 = y_21V̇_1 + y_22V̇_2；y_11 = \\frac{İ_1}{V̇_1}|_{V̇_2 = 0}，y_21 = \\frac{İ_2}{V̇_1}|_{V̇_2 = 0}",
+      "when": "同上的参考方向；y_12、y_22 在 V̇_1 = 0（端口 1 短路）时求。",
+      "i18n": { "en": { "name": "Y-parameter equations", "expr": "İ_1 = y_11V̇_1 + y_12V̇_2, İ_2 = y_21V̇_1 + y_22V̇_2; y_11 = \\frac{İ_1}{V̇_1}|_{V̇_2 = 0}, y_21 = \\frac{İ_2}{V̇_1}|_{V̇_2 = 0}", "when": "Same reference directions; y_12, y_22 with V̇_1 = 0 (port 1 shorted)." } }
     },
     {
       "id": "h-eq",
       "idea": "h",
       "name": "H 参数方程",
-      "expr": "U̇_1 = h_11İ_1 + h_12U̇_2，İ_2 = h_21İ_1 + h_22U̇_2",
-      "when": "h_11、h_21：U̇_2 = 0（输出短路）；h_12、h_22：İ_1 = 0（输入开路）。İ_2 流入 2 端。",
-      "i18n": { "en": { "name": "H-parameter equations", "expr": "U̇_1 = h_11İ_1 + h_12U̇_2, İ_2 = h_21İ_1 + h_22U̇_2", "when": "h_11, h_21: U̇_2 = 0 (output shorted); h_12, h_22: İ_1 = 0 (input open). İ_2 enters terminal 2." } }
+      "expr": "V̇_1 = h_11İ_1 + h_12V̇_2，İ_2 = h_21İ_1 + h_22V̇_2",
+      "when": "h_11、h_21：V̇_2 = 0（输出短路）；h_12、h_22：İ_1 = 0（输入开路）。İ_2 流入 2 端。",
+      "i18n": { "en": { "name": "H-parameter equations", "expr": "V̇_1 = h_11İ_1 + h_12V̇_2, İ_2 = h_21İ_1 + h_22V̇_2", "when": "h_11, h_21: V̇_2 = 0 (output shorted); h_12, h_22: İ_1 = 0 (input open). İ_2 enters terminal 2." } }
     },
     {
       "id": "t-eq",
       "idea": "t",
       "name": "T 参数方程",
-      "expr": "U̇_1 = AU̇_2 − Bİ_2，İ_1 = CU̇_2 − Dİ_2",
-      "when": "İ_2 仍以流入 2 端为正，−İ_2 是流向负载的电流。A、C：İ_2 = 0（端口 2 开路）；B、D：U̇_2 = 0（端口 2 短路）。",
-      "i18n": { "en": { "name": "T-parameter equations", "expr": "U̇_1 = AU̇_2 − Bİ_2, İ_1 = CU̇_2 − Dİ_2", "when": "İ_2 still counts positive into terminal 2; −İ_2 is the current to the load. A, C: İ_2 = 0 (port 2 open); B, D: U̇_2 = 0 (port 2 shorted)." } }
+      "expr": "V̇_1 = AV̇_2 − Bİ_2，İ_1 = CV̇_2 − Dİ_2",
+      "when": "İ_2 仍以流入 2 端为正，−İ_2 是流向负载的电流。A、C：İ_2 = 0（端口 2 开路）；B、D：V̇_2 = 0（端口 2 短路）。",
+      "i18n": { "en": { "name": "T-parameter equations", "expr": "V̇_1 = AV̇_2 − Bİ_2, İ_1 = CV̇_2 − Dİ_2", "when": "İ_2 still counts positive into terminal 2; −İ_2 is the current to the load. A, C: İ_2 = 0 (port 2 open); B, D: V̇_2 = 0 (port 2 shorted)." } }
     },
     {
       "id": "t-blocks",
@@ -298,16 +348,16 @@
       "idea": "terminated",
       "name": "输入阻抗",
       "expr": "Z_in = \\frac{AZ_L + B}{CZ_L + D} = z_11 − \\frac{z_12z_21}{z_22 + Z_L}",
-      "when": "端口 2 接负载 Z_L：U̇_2 = −Z_Lİ_2（İ_2 流入 2 端）。",
-      "i18n": { "en": { "name": "Input impedance", "expr": "Z_in = \\frac{AZ_L + B}{CZ_L + D} = z_11 − \\frac{z_12z_21}{z_22 + Z_L}", "when": "Load Z_L on port 2: U̇_2 = −Z_Lİ_2 (İ_2 enters terminal 2)." } }
+      "when": "端口 2 接负载 Z_L：V̇_2 = −Z_Lİ_2（İ_2 流入 2 端）。",
+      "i18n": { "en": { "name": "Input impedance", "expr": "Z_in = \\frac{AZ_L + B}{CZ_L + D} = z_11 − \\frac{z_12z_21}{z_22 + Z_L}", "when": "Load Z_L on port 2: V̇_2 = −Z_Lİ_2 (İ_2 enters terminal 2)." } }
     },
     {
       "id": "thevenin",
       "idea": "terminated",
       "name": "输出端戴维宁等效",
-      "expr": "U̇_oc = \\frac{z_21U̇_s}{z_11 + Z_s}，Z_eq = z_22 − \\frac{z_12z_21}{z_11 + Z_s}",
-      "when": "端口 1 接电压源 U̇_s 与内阻抗 Z_s 串联（U̇_1 = U̇_s − Z_sİ_1）；U̇_oc 在端口 2 开路（İ_2 = 0）时求。",
-      "i18n": { "en": { "name": "Thevenin equivalent at the output", "expr": "U̇_oc = \\frac{z_21U̇_s}{z_11 + Z_s}, Z_eq = z_22 − \\frac{z_12z_21}{z_11 + Z_s}", "when": "Port 1 driven by U̇_s in series with Z_s (U̇_1 = U̇_s − Z_sİ_1); U̇_oc with port 2 open (İ_2 = 0)." } }
+      "expr": "V̇_oc = \\frac{z_21V̇_s}{z_11 + Z_s}，Z_eq = z_22 − \\frac{z_12z_21}{z_11 + Z_s}",
+      "when": "端口 1 接电压源 V̇_s 与内阻抗 Z_s 串联（V̇_1 = V̇_s − Z_sİ_1）；V̇_oc 在端口 2 开路（İ_2 = 0）时求。",
+      "i18n": { "en": { "name": "Thevenin equivalent at the output", "expr": "V̇_oc = \\frac{z_21V̇_s}{z_11 + Z_s}, Z_eq = z_22 − \\frac{z_12z_21}{z_11 + Z_s}", "when": "Port 1 driven by V̇_s in series with Z_s (V̇_1 = V̇_s − Z_sİ_1); V̇_oc with port 2 open (İ_2 = 0)." } }
     }
   ],
   "examples": [
@@ -315,7 +365,7 @@
       "id": "t-network",
       "ideas": ["z", "convert", "reciprocal", "t"],
       "title": "T 形网络：Z 参数，再换算成 Y、T 参数",
-      "statement": "图示 T 形电阻二端口中，R_1 = 1 Ω，R_2 = 2 Ω，R_3 = 3 Ω。端口电流 i_1、i_2 都从 1、2 端流入。求 Z 参数，再由它换算出 Y 参数中的 y_11、y_12 和 T 参数 A、B、C、D，并验证互易条件。",
+      "statement": "图示 T 形电阻二端口中，R_1 = 1 Ω，R_2 = 2 Ω，R_3 = 3 Ω。端口电流 i_1、i_2 都从 1、2 端流入。求 Z 参数。再由它换算出 Y 参数中的 y_11、y_12，以及 T 参数 A、B、C、D。最后验证互易条件。",
       "schematic": {
         "elements": [
           { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 1 },
@@ -353,22 +403,22 @@
         { "id": "d", "ask": "D", "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "d" }, "answer": 1.666667, "unit": "" }
       ],
       "steps": [
-        "1. **Z 参数按定义。** 端口 2 开路（i_2 = 0）时 R_2 中无电流，i_1 流过 R_1、R_3：u_1 = (R_1 + R_3)i_1，u_2 = R_3i_1，所以 z_11 = **4 Ω**，z_21 = **3 Ω**。同理端口 1 开路：z_22 = R_2 + R_3 = **5 Ω**，z_12 = R_3 = **3 Ω**。",
+        "1. **Z 参数按定义。** 端口 2 开路（i_2 = 0）时 R_2 中无电流，i_1 流过 R_1、R_3：v_1 = (R_1 + R_3)i_1，v_2 = R_3i_1，所以 z_11 = **4 Ω**，z_21 = **3 Ω**。同理端口 1 开路：z_22 = R_2 + R_3 = **5 Ω**，z_12 = R_3 = **3 Ω**。",
         "2. **换算成 Y（求逆）。** Δ_Z = 4 × 5 − 3 × 3 = 11，y_11 = z_22/Δ_Z = 5/11 = **0.4545 S**，y_12 = −z_12/Δ_Z = −3/11 = **−0.2727 S**（y_21 相同，y_22 = 4/11）。",
         "3. **换算成 T。** A = z_11/z_21 = 4/3 = **1.333**，B = Δ_Z/z_21 = 11/3 = **3.667 Ω**，C = 1/z_21 = **0.3333 S**，D = z_22/z_21 = 5/3 = **1.667**。",
-        "4. **验算互易：** z_12 = z_21，AD − BC = 20/9 − 11/9 = 1 ✓。也可以按 T 参数的定义直接验算 A：端口 2 开路时 u_1/u_2 = (R_1 + R_3)/R_3 = 4/3。",
+        "4. **验算互易：** z_12 = z_21，AD − BC = 20/9 − 11/9 = 1 ✓。也可以按 T 参数的定义直接验算 A：端口 2 开路时 v_1/v_2 = (R_1 + R_3)/R_3 = 4/3。",
         "注意：网络不对称（z_11 ≠ z_22，A ≠ D），因为 R_1 ≠ R_2。"
       ],
       "i18n": {
         "en": {
           "title": "T network: Z parameters, then Y and T by conversion",
-          "statement": "In the resistive T two-port, R_1 = 1 Ω, R_2 = 2 Ω, R_3 = 3 Ω. The port currents i_1, i_2 enter terminals 1 and 2. Find the Z parameters, convert them to y_11, y_12 and to the T parameters A, B, C, D, and check reciprocity.",
+          "statement": "In the resistive T two-port, R_1 = 1 Ω, R_2 = 2 Ω, R_3 = 3 Ω. The port currents i_1, i_2 enter terminals 1 and 2. Find the Z parameters. Then convert them to y_11, y_12 and to the T parameters A, B, C, D. Finally check reciprocity.",
           "results": [{ "ask": "z_11" }, { "ask": "z_12 = z_21" }, { "ask": "z_22" }, { "ask": "y_11" }, { "ask": "y_12" }, { "ask": "A" }, { "ask": "B" }, { "ask": "C" }, { "ask": "D" }],
           "steps": [
-            "1. **Z parameters by definition.** With port 2 open (i_2 = 0) no current flows in R_2 and i_1 goes through R_1 and R_3: u_1 = (R_1 + R_3)i_1, u_2 = R_3i_1, so z_11 = **4 Ω** and z_21 = **3 Ω**. Likewise with port 1 open: z_22 = R_2 + R_3 = **5 Ω**, z_12 = R_3 = **3 Ω**.",
+            "1. **Z parameters by definition.** With port 2 open (i_2 = 0) no current flows in R_2 and i_1 goes through R_1 and R_3: v_1 = (R_1 + R_3)i_1, v_2 = R_3i_1, so z_11 = **4 Ω** and z_21 = **3 Ω**. Likewise with port 1 open: z_22 = R_2 + R_3 = **5 Ω**, z_12 = R_3 = **3 Ω**.",
             "2. **Convert to Y (invert).** Δ_Z = 4 × 5 − 3 × 3 = 11, y_11 = z_22/Δ_Z = 5/11 = **0.4545 S**, y_12 = −z_12/Δ_Z = −3/11 = **−0.2727 S** (y_21 the same, y_22 = 4/11).",
             "3. **Convert to T.** A = z_11/z_21 = 4/3 = **1.333**, B = Δ_Z/z_21 = 11/3 = **3.667 Ω**, C = 1/z_21 = **0.3333 S**, D = z_22/z_21 = 5/3 = **1.667**.",
-            "4. **Check reciprocity:** z_12 = z_21 and AD − BC = 20/9 − 11/9 = 1 ✓. A can also be checked by its definition: with port 2 open, u_1/u_2 = (R_1 + R_3)/R_3 = 4/3.",
+            "4. **Check reciprocity:** z_12 = z_21 and AD − BC = 20/9 − 11/9 = 1 ✓. A can also be checked by its definition: with port 2 open, v_1/v_2 = (R_1 + R_3)/R_3 = 4/3.",
             "Note: the network is not symmetric (z_11 ≠ z_22, A ≠ D) because R_1 ≠ R_2."
           ]
         }
@@ -378,10 +428,10 @@
       "id": "terminated",
       "ideas": ["terminated", "t", "z"],
       "title": "端接电源和负载：输入电阻与输出端戴维宁等效",
-      "statement": "把上一例的 T 形二端口（z_11 = 4 Ω，z_12 = z_21 = 3 Ω，z_22 = 5 Ω）端口 1 接 U_s = 10 V、内阻 R_s = 1 Ω 的电源，端口 2 接负载 R_L = 4 Ω。求输入电阻 R_in（含 R_L）、电流 i_1、负载电压 u_2，以及断开 R_L 后从端口 2 看进去的戴维宁等效电路。",
+      "statement": "取上一例的 T 形二端口（z_11 = 4 Ω，z_12 = z_21 = 3 Ω，z_22 = 5 Ω）。端口 1 接 V_s = 10 V、内阻 R_s = 1 Ω 的电源，端口 2 接负载 R_L = 4 Ω。求输入电阻 R_in（接着 R_L）、电流 i_1 和负载电压 v_2。再断开 R_L，求从端口 2 看进去的戴维宁等效电路。",
       "schematic": {
         "elements": [
-          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
+          { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
           { "ref": "Rs", "type": "R", "from": [2, 0], "to": [5, 0], "value": 1 },
           { "ref": "R1", "type": "R", "from": [7, 0], "to": [10, 0], "value": 1 },
           { "ref": "R3", "type": "R", "from": [12, 0], "to": [12, 4], "value": 3 },
@@ -404,38 +454,38 @@
         "grounds": [[0, 4]],
         "marks": [
           { "kind": "i", "el": "R1", "name": "i1" },
-          { "kind": "v", "el": "RL", "name": "u2" }
+          { "kind": "v", "el": "RL", "name": "v2" }
         ]
       },
       "analysis": { "type": "dc" },
       "results": [
-        { "id": "rin", "ask": "R_in", "find": { "kind": "req", "port": ["1", "1'"], "exclude": ["Us", "Rs"] }, "answer": 3, "unit": "Ω" },
+        { "id": "rin", "ask": "R_in", "find": { "kind": "req", "port": ["1", "1'"], "exclude": ["Vs", "Rs"] }, "answer": 3, "unit": "Ω" },
         { "id": "i1", "ask": "i_1", "find": { "kind": "i", "el": "R1" }, "answer": 2.5, "unit": "A" },
-        { "id": "u1", "ask": "u_1", "find": { "kind": "v", "nodes": ["1"] }, "answer": 7.5, "unit": "V" },
-        { "id": "u2", "ask": "u_2", "find": { "kind": "v", "el": "RL" }, "answer": 3.333333, "unit": "V" },
-        { "id": "uoc", "ask": "u_oc（断开 R_L）", "find": { "kind": "vth", "port": ["2", "2'"], "exclude": ["RL"] }, "answer": 6, "unit": "V" },
+        { "id": "u1", "ask": "v_1", "find": { "kind": "v", "nodes": ["1"] }, "answer": 7.5, "unit": "V" },
+        { "id": "u2", "ask": "v_2", "find": { "kind": "v", "el": "RL" }, "answer": 3.333333, "unit": "V" },
+        { "id": "uoc", "ask": "v_oc（断开 R_L）", "find": { "kind": "vth", "port": ["2", "2'"], "exclude": ["RL"] }, "answer": 6, "unit": "V" },
         { "id": "req", "ask": "R_eq（断开 R_L）", "find": { "kind": "req", "port": ["2", "2'"], "exclude": ["RL"] }, "answer": 3.2, "unit": "Ω" }
       ],
       "steps": [
-        "1. **端接条件。** u_1 = U_s − R_si_1，u_2 = −R_Li_2（i_2 流入 2 端，负载电流是 −i_2）。",
+        "1. **端接条件。** v_1 = V_s − R_si_1，v_2 = −R_Li_2（i_2 流入 2 端，负载电流是 −i_2）。",
         "2. **输入电阻。** 用 T 参数：R_in = (AR_L + B)/(CR_L + D) = (16/3 + 11/3)/(4/3 + 5/3) = 9/3 = **3 Ω**；用 Z 参数：R_in = z_11 − z_12z_21/(z_22 + R_L) = 4 − 9/9，结果相同。",
-        "3. **端口 1。** i_1 = U_s/(R_s + R_in) = 10/4 = **2.5 A**，u_1 = R_ini_1 = **7.5 V**。",
-        "4. **负载电压。** 由 Z 参数第二个方程和 u_2 = −R_Li_2：i_2 = −z_21i_1/(z_22 + R_L) = −7.5/9，u_2 = −4i_2 = **3.333 V**。",
-        "5. **输出端戴维宁等效。** 断开 R_L（i_2 = 0）：i_1 = U_s/(R_s + z_11) = 10/5 = 2，u_oc = z_21i_1 = **6 V**；R_eq = z_22 − z_12z_21/(z_11 + R_s) = 5 − 9/5 = **3.2 Ω**。",
-        "6. **验算：** u_2 = u_oc·R_L/(R_eq + R_L) = 6 × 4/7.2 = 3.333 ✓。"
+        "3. **端口 1。** i_1 = V_s/(R_s + R_in) = 10/4 = **2.5 A**，v_1 = R_ini_1 = **7.5 V**。",
+        "4. **负载电压。** 由 Z 参数第二个方程和 v_2 = −R_Li_2：i_2 = −z_21i_1/(z_22 + R_L) = −7.5/9，v_2 = −4i_2 = **3.333 V**。",
+        "5. **输出端戴维宁等效。** 断开 R_L（i_2 = 0）：i_1 = V_s/(R_s + z_11) = 10/5 = 2，v_oc = z_21i_1 = **6 V**；R_eq = z_22 − z_12z_21/(z_11 + R_s) = 5 − 9/5 = **3.2 Ω**。",
+        "6. **验算：** v_2 = v_oc·R_L/(R_eq + R_L) = 6 × 4/7.2 = 3.333 ✓。"
       ],
       "i18n": {
         "en": {
           "title": "A terminated two-port: input resistance and Thevenin equivalent at the output",
-          "statement": "The T two-port of the previous example (z_11 = 4 Ω, z_12 = z_21 = 3 Ω, z_22 = 5 Ω) is driven at port 1 by U_s = 10 V with internal resistance R_s = 1 Ω and loaded at port 2 by R_L = 4 Ω. Find the input resistance R_in (with R_L), the current i_1, the load voltage u_2, and the Thevenin equivalent seen at port 2 with R_L removed.",
-          "results": [{ "ask": "R_in" }, { "ask": "i_1" }, { "ask": "u_1" }, { "ask": "u_2" }, { "ask": "u_oc (R_L removed)" }, { "ask": "R_eq (R_L removed)" }],
+          "statement": "Take the T two-port of the previous example (z_11 = 4 Ω, z_12 = z_21 = 3 Ω, z_22 = 5 Ω). Port 1 is driven by V_s = 10 V with internal resistance R_s = 1 Ω, and port 2 is loaded by R_L = 4 Ω. Find the input resistance R_in (with R_L connected), the current i_1 and the load voltage v_2. Then remove R_L and find the Thevenin equivalent seen at port 2.",
+          "results": [{ "ask": "R_in" }, { "ask": "i_1" }, { "ask": "v_1" }, { "ask": "v_2" }, { "ask": "v_oc (R_L removed)" }, { "ask": "R_eq (R_L removed)" }],
           "steps": [
-            "1. **Termination conditions.** u_1 = U_s − R_si_1, u_2 = −R_Li_2 (i_2 enters terminal 2, so the load current is −i_2).",
+            "1. **Termination conditions.** v_1 = V_s − R_si_1, v_2 = −R_Li_2 (i_2 enters terminal 2, so the load current is −i_2).",
             "2. **Input resistance.** With T parameters: R_in = (AR_L + B)/(CR_L + D) = (16/3 + 11/3)/(4/3 + 5/3) = 9/3 = **3 Ω**; with Z parameters: R_in = z_11 − z_12z_21/(z_22 + R_L) = 4 − 9/9, the same.",
-            "3. **Port 1.** i_1 = U_s/(R_s + R_in) = 10/4 = **2.5 A**, u_1 = R_ini_1 = **7.5 V**.",
-            "4. **Load voltage.** From the second Z equation and u_2 = −R_Li_2: i_2 = −z_21i_1/(z_22 + R_L) = −7.5/9, u_2 = −4i_2 = **3.333 V**.",
-            "5. **Thevenin equivalent at the output.** With R_L removed (i_2 = 0): i_1 = U_s/(R_s + z_11) = 10/5 = 2, u_oc = z_21i_1 = **6 V**; R_eq = z_22 − z_12z_21/(z_11 + R_s) = 5 − 9/5 = **3.2 Ω**.",
-            "6. **Check:** u_2 = u_oc·R_L/(R_eq + R_L) = 6 × 4/7.2 = 3.333 ✓."
+            "3. **Port 1.** i_1 = V_s/(R_s + R_in) = 10/4 = **2.5 A**, v_1 = R_ini_1 = **7.5 V**.",
+            "4. **Load voltage.** From the second Z equation and v_2 = −R_Li_2: i_2 = −z_21i_1/(z_22 + R_L) = −7.5/9, v_2 = −4i_2 = **3.333 V**.",
+            "5. **Thevenin equivalent at the output.** With R_L removed (i_2 = 0): i_1 = V_s/(R_s + z_11) = 10/5 = 2, v_oc = z_21i_1 = **6 V**; R_eq = z_22 − z_12z_21/(z_11 + R_s) = 5 − 9/5 = **3.2 Ω**.",
+            "6. **Check:** v_2 = v_oc·R_L/(R_eq + R_L) = 6 × 4/7.2 = 3.333 ✓."
           ]
         }
       }
@@ -445,14 +495,14 @@
     {
       "id": "i2-dir",
       "idea": "def",
-      "text": "把 i_2 当成从 2 端流出的电流。本章约定 i_2 **流入** 2 端；端口 2 接负载时负载电流是 −i_2，u_2 = −R_Li_2。y_21、h_21 等参数的正负都取决于这个方向。",
-      "i18n": { "en": { "text": "Taking i_2 as the current leaving terminal 2. By convention i_2 **enters** terminal 2; with a load on port 2 the load current is −i_2 and u_2 = −R_Li_2. The signs of y_21, h_21 etc. depend on this direction." } }
+      "text": "把 i_2 当成从 2 端流出的电流。本章约定 i_2 **流入** 2 端；端口 2 接负载时负载电流是 −i_2，v_2 = −R_Li_2。y_21、h_21 等参数的正负都取决于这个方向。",
+      "i18n": { "en": { "text": "Taking i_2 as the current leaving terminal 2. By convention i_2 **enters** terminal 2; with a load on port 2 the load current is −i_2 and v_2 = −R_Li_2. The signs of y_21, h_21 etc. depend on this direction." } }
     },
     {
       "id": "test-condition",
       "idea": "h",
-      "text": "求参数时用错了端口条件：Z 参数要令另一端口**开路**，Y 参数要令另一端口**短路**，H 参数两种都有（h_11、h_21 输出短路，h_12、h_22 输入开路）。先写出参数的定义式，再看分母里的量和“= 0”的量。",
-      "i18n": { "en": { "text": "Using the wrong test condition: Z parameters need the other port **open**, Y parameters the other port **shorted**, H parameters both (h_11, h_21 output shorted; h_12, h_22 input open). Write the defining ratio first and look at what is in the denominator and what is set to zero." } }
+      "text": "求参数时用错了端口条件。Z 参数要令另一端口**开路**，Y 参数要令另一端口**短路**，H 参数两种都有（h_11、h_21 输出短路，h_12、h_22 输入开路）。先写出参数的定义式，再看分母里的量和“= 0”的量。",
+      "i18n": { "en": { "text": "Using the wrong test condition. Z parameters need the other port **open**, Y parameters the other port **shorted**, H parameters both (h_11, h_21 output shorted; h_12, h_22 input open). Write the defining ratio first and look at what is in the denominator and what is set to zero." } }
     },
     {
       "id": "y-not-1-over-z",
@@ -463,8 +513,8 @@
     {
       "id": "t-sign",
       "idea": "t",
-      "text": "T 参数方程写成 u_1 = Au_2 + Bi_2，或求 B、D 时用 i_2 代替 −i_2，结果差一个负号。B = u_1/(−i_2)、D = i_1/(−i_2)，都在端口 2 短路时求，无源电阻网络的 B、D 为正。",
-      "i18n": { "en": { "text": "Writing u_1 = Au_2 + Bi_2, or using i_2 instead of −i_2 for B and D, which flips the sign. B = u_1/(−i_2) and D = i_1/(−i_2), both with port 2 shorted; for passive resistive networks B and D are positive." } }
+      "text": "T 参数方程写成 v_1 = Av_2 + Bi_2，或求 B、D 时用 i_2 代替 −i_2，结果差一个负号。B = v_1/(−i_2)、D = i_1/(−i_2)，都在端口 2 短路时求，无源电阻网络的 B、D 为正。",
+      "i18n": { "en": { "text": "Writing v_1 = Av_2 + Bi_2, or using i_2 instead of −i_2 for B and D, which flips the sign. B = v_1/(−i_2) and D = i_1/(−i_2), both with port 2 shorted; for passive resistive networks B and D are positive." } }
     },
     {
       "id": "cascade-order",

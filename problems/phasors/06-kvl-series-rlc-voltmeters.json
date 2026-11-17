@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["相量形式的 KVL", "RLC 串联", "电压表读数", "相量图"],
   "statement": [
-    "RLC 串联电路接正弦电压源 U̇_s = 50∠0° V（有效值），ω = 1000 rad/s，R = 30 Ω，L = 80 mH，C = 25 µF。电压表 V_1、V_2、V_3 分别测 R、L、C 两端的电压。",
-    "求 V_2、V_3 的读数和 b 点对地电压（即 L、C 串联部分的电压）的有效值，并解释读数之间的关系。"
+    "RLC 串联电路接正弦电压源 V̇_s = 50∠0° V（有效值），ω = 1000 rad/s，R = 30 Ω，L = 80 mH，C = 25 µF。电压表 V_1、V_2、V_3 分别测 R、L、C 两端的电压。",
+    "求 V_2、V_3 的读数，以及 b 点对地电压的有效值（也就是 L、C 串联部分的电压）。再解释读数之间的关系。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 50, "phase": 0 } } },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 50, "phase": 0 } } },
       { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 30 },
       { "ref": "L", "type": "L", "from": [8, 0], "to": [12, 0], "value": "80m" },
       { "ref": "C", "type": "C", "from": [14, 0], "to": [14, 6], "value": "25u" },
@@ -42,7 +42,7 @@
       "find": { "kind": "meter", "el": "V2" },
       "answer": 80,
       "unit": "V",
-      "explain": "X_L = 80 Ω，X_C = 40 Ω，Z = 30 + j(80 − 40) = 30 + j40 = 50∠53.13° Ω，I = 50/50 = 1 A，U_L = X_L·I = 80 V。"
+      "explain": "X_L = 80 Ω，X_C = 40 Ω，Z = 30 + j(80 − 40) = 30 + j40 = 50∠53.13° Ω，I = 50/50 = 1 A，V_L = X_L·I = 80 V。"
     },
     {
       "id": "V3",
@@ -50,27 +50,27 @@
       "find": { "kind": "meter", "el": "V3" },
       "answer": 40,
       "unit": "V",
-      "explain": "U_C = X_C·I = 40 × 1 = 40 V。"
+      "explain": "V_C = X_C·I = 40 × 1 = 40 V。"
     },
     {
       "id": "Ub",
-      "ask": "b 点对地电压 U_b（L 与 C 串联部分）的有效值 = ?",
+      "ask": "b 点对地电压 V_b（L 与 C 串联部分）的有效值 = ?",
       "find": { "kind": "v", "nodes": ["b"], "part": "mag" },
       "answer": 40,
       "unit": "V",
-      "explain": "U̇_L 与 U̇_C 反相：U̇_b = U̇_L + U̇_C = j80İ − j40İ = j40İ，模 40 V，而不是 80 + 40 = 120 V。"
+      "explain": "V̇_L 与 V̇_C 反相：V̇_b = V̇_L + V̇_C = j80İ − j40İ = j40İ，模 40 V，而不是 80 + 40 = 120 V。"
     },
     {
       "id": "why",
-      "ask": "V_2 的读数（80 V）比电源电压（50 V）还大，原因是？",
+      "ask": "V_2 的读数比电源电压（50 V）还大，原因是？",
       "choices": [
         "电路发生了谐振",
-        "U̇_L 与 U̇_C 相位相反、部分抵消，所以总电压可以小于某个元件的电压",
+        "V̇_L 与 V̇_C 相位相反、部分抵消，所以总电压可以小于某个元件的电压",
         "电压表的接法错误",
         "相量形式的 KVL 在这里不成立"
-      ], "choiceExplain": ["谐振要求 X_L = X_C，这里 X_L = 80 Ω、X_C = 40 Ω，电路是感性的，没有谐振；不谐振时元件电压也可以大于电源电压。", "", "V_2 并联在电感两端，测的就是 U_L；仪表接法没有问题。", "相量形式的 KVL 总是成立的；不成立的是有效值相加 30 + 80 + 40 ≠ 50。"],
+      ], "choiceExplain": ["谐振要求 X_L = X_C，这里 X_L = 80 Ω、X_C = 40 Ω，电路是感性的，没有谐振；不谐振时元件电压也可以大于电源电压。", "", "V_2 并联在电感两端，测的就是 V_L；仪表接法没有问题。", "相量形式的 KVL 总是成立的；不成立的是把三个读数直接相加。"],
       "correct": 1,
-      "explain": "KVL 是相量相加：U̇_s = U̇_R + U̇_L + U̇_C。相量图上 U̇_L（超前 İ 90°）与 U̇_C（滞后 İ 90°）方向相反，合成后只剩 40 V，所以 U_s = √(30² + 40²) = 50 V，比 U_L 还小。电路没有谐振（X_L ≠ X_C）。"
+      "explain": "KVL 是相量相加：V̇_s = V̇_R + V̇_L + V̇_C。相量图上 V̇_L（超前 İ 90°）与 V̇_C（滞后 İ 90°）方向相反，合成后只剩 40 V。所以 V_s = √(30² + 40²) = 50 V，比 V_L 还小。电路没有谐振（X_L ≠ X_C）。"
     }
   ],
   "hints": [
@@ -80,32 +80,32 @@
   ],
   "solution": [
     "**1. 电抗与阻抗。** X_L = ωL = 80 Ω，X_C = 1/(ωC) = 1/(1000 × 25×10⁻⁶) = 40 Ω；Z = 30 + j40 = 50∠53.13° Ω。",
-    "**2. 电流。** İ = U̇_s/Z = 50∠0°/50∠53.13° = 1∠−53.13° A。",
-    "**3. 各元件电压。** U̇_R = 30∠−53.13° V（V_1 读 30 V）；U̇_L = j80İ = 80∠36.87° V（V_2 读 **80 V**）；U̇_C = −j40İ = 40∠−143.13° V（V_3 读 **40 V**）。",
-    "**4. L、C 串联部分。** U̇_b = U̇_L + U̇_C = 40∠36.87° V，有效值 **40 V**。",
-    "**5. 验算 KVL。** U̇_R + U̇_b = 30∠−53.13° + 40∠36.87°，两者垂直，模 √(30² + 40²) = 50 V = U_s。注意 30 + 80 + 40 = 150 V ≠ 50 V：有效值不满足 KVL。"
+    "**2. 电流。** İ = V̇_s/Z = 50∠0°/50∠53.13° = 1∠−53.13° A。",
+    "**3. 各元件电压。** V̇_R = 30∠−53.13° V（V_1 读 30 V）；V̇_L = j80İ = 80∠36.87° V（V_2 读 **80 V**）；V̇_C = −j40İ = 40∠−143.13° V（V_3 读 **40 V**）。",
+    "**4. L、C 串联部分。** V̇_b = V̇_L + V̇_C = 40∠36.87° V，有效值 **40 V**。",
+    "**5. 验算 KVL。** V̇_R + V̇_b = 30∠−53.13° + 40∠36.87°，两者垂直，模 √(30² + 40²) = 50 V = V_s。注意 30 + 80 + 40 = 150 V ≠ 50 V：有效值不满足 KVL。"
   ],
   "i18n": {
     "en": {
       "title": "KVL in phasor form: voltmeter readings in a series RLC circuit",
       "tags": ["phasor KVL", "series RLC", "voltmeter reading", "phasor diagram"],
       "statement": [
-        "A series RLC circuit is driven by U̇_s = 50∠0° V (rms), ω = 1000 rad/s, R = 30 Ω, L = 80 mH, C = 25 µF. Voltmeters V_1, V_2 and V_3 measure the voltages across R, L and C.",
-        "Find the readings of V_2 and V_3 and the rms voltage of node b to ground (the voltage across L and C together), and explain how the readings are related."
+        "A series RLC circuit is driven by V̇_s = 50∠0° V (rms), ω = 1000 rad/s, R = 30 Ω, L = 80 mH, C = 25 µF. Voltmeters V_1, V_2 and V_3 measure the voltages across R, L and C.",
+        "Find the readings of V_2 and V_3, and the rms voltage of node b to ground (the voltage across L and C together). Then explain how the readings are related."
       ],
       "questions": [
-        { "ask": "Reading of voltmeter V_2 (inductor) = ?", "explain": "X_L = 80 Ω, X_C = 40 Ω, Z = 30 + j(80 − 40) = 30 + j40 = 50∠53.13° Ω, I = 50/50 = 1 A, U_L = X_L·I = 80 V." },
-        { "ask": "Reading of voltmeter V_3 (capacitor) = ?", "explain": "U_C = X_C·I = 40 × 1 = 40 V." },
-        { "ask": "rms value of U_b (node b to ground, across L and C in series) = ?", "explain": "U̇_L and U̇_C are in antiphase: U̇_b = U̇_L + U̇_C = j80·İ − j40·İ = j40·İ, magnitude 40 V — not 80 + 40 = 120 V." },
+        { "ask": "Reading of voltmeter V_2 (inductor) = ?", "explain": "X_L = 80 Ω, X_C = 40 Ω, Z = 30 + j(80 − 40) = 30 + j40 = 50∠53.13° Ω, I = 50/50 = 1 A, V_L = X_L·I = 80 V." },
+        { "ask": "Reading of voltmeter V_3 (capacitor) = ?", "explain": "V_C = X_C·I = 40 × 1 = 40 V." },
+        { "ask": "rms value of V_b (node b to ground, across L and C in series) = ?", "explain": "V̇_L and V̇_C are in antiphase: V̇_b = V̇_L + V̇_C = j80·İ − j40·İ = j40·İ, magnitude 40 V — not 80 + 40 = 120 V." },
         {
-          "ask": "V_2 reads 80 V, more than the 50 V source. Why?",
+          "ask": "V_2 reads more than the 50 V source. Why?",
           "choices": [
             "The circuit is at resonance",
-            "U̇_L and U̇_C are in antiphase and partly cancel, so the total voltage can be smaller than one element's voltage",
+            "V̇_L and V̇_C are in antiphase and partly cancel, so the total voltage can be smaller than one element's voltage",
             "The voltmeter is connected wrongly",
             "Phasor KVL does not hold here"
-          ], "choiceExplain": ["Resonance needs X_L = X_C, but here X_L = 80 Ω and X_C = 40 Ω, so the circuit is inductive, not resonant; an element voltage can exceed the source voltage without resonance.", "", "V_2 is connected across the inductor and reads U_L; nothing is wrong with the connection.", "Phasor KVL always holds; what fails is adding rms values: 30 + 80 + 40 ≠ 50."],
-          "explain": "KVL adds phasors: U̇_s = U̇_R + U̇_L + U̇_C. In the phasor diagram U̇_L (90° ahead of İ) and U̇_C (90° behind İ) point in opposite directions, leaving only 40 V, so U_s = √(30² + 40²) = 50 V, smaller than U_L. The circuit is not at resonance (X_L ≠ X_C)."
+          ], "choiceExplain": ["Resonance needs X_L = X_C, but here X_L = 80 Ω and X_C = 40 Ω, so the circuit is inductive, not resonant; an element voltage can exceed the source voltage without resonance.", "", "V_2 is connected across the inductor and reads V_L; nothing is wrong with the connection.", "Phasor KVL always holds; what fails is adding the three readings directly."],
+          "explain": "KVL adds phasors: V̇_s = V̇_R + V̇_L + V̇_C. In the phasor diagram V̇_L (90° ahead of İ) and V̇_C (90° behind İ) point in opposite directions, leaving only 40 V. So V_s = √(30² + 40²) = 50 V, smaller than V_L. The circuit is not at resonance (X_L ≠ X_C)."
         }
       ],
       "hints": [
@@ -115,10 +115,10 @@
       ],
       "solution": [
         "**1. Reactances and impedance.** X_L = ωL = 80 Ω, X_C = 1/(ωC) = 1/(1000 × 25×10⁻⁶) = 40 Ω; Z = 30 + j40 = 50∠53.13° Ω.",
-        "**2. Current.** İ = U̇_s/Z = 50∠0°/50∠53.13° = 1∠−53.13° A.",
-        "**3. Element voltages.** U̇_R = 30∠−53.13° V (V_1 reads 30 V); U̇_L = j80·İ = 80∠36.87° V (V_2 reads **80 V**); U̇_C = −j40·İ = 40∠−143.13° V (V_3 reads **40 V**).",
-        "**4. L and C together.** U̇_b = U̇_L + U̇_C = 40∠36.87° V, rms **40 V**.",
-        "**5. KVL check.** U̇_R + U̇_b = 30∠−53.13° + 40∠36.87°; the two are perpendicular, magnitude √(30² + 40²) = 50 V = U_s. Note 30 + 80 + 40 = 150 V ≠ 50 V: rms values do not satisfy KVL."
+        "**2. Current.** İ = V̇_s/Z = 50∠0°/50∠53.13° = 1∠−53.13° A.",
+        "**3. Element voltages.** V̇_R = 30∠−53.13° V (V_1 reads 30 V); V̇_L = j80·İ = 80∠36.87° V (V_2 reads **80 V**); V̇_C = −j40·İ = 40∠−143.13° V (V_3 reads **40 V**).",
+        "**4. L and C together.** V̇_b = V̇_L + V̇_C = 40∠36.87° V, rms **40 V**.",
+        "**5. KVL check.** V̇_R + V̇_b = 30∠−53.13° + 40∠36.87°; the two are perpendicular, magnitude √(30² + 40²) = 50 V = V_s. Note 30 + 80 + 40 = 150 V ≠ 50 V: rms values do not satisfy KVL."
       ]
     }
   }

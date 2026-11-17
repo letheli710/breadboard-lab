@@ -2,112 +2,118 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-capstone-ntc-fan",
-  "title": "实验 5-17 · 综合：NTC 测温 + MOSFET 风扇 + 状态灯（一块 ESP32 上的完整系统）",
+  "title": "综合项目：温控风扇",
   "kind": "challenge",
   "level": 5,
   "phase": 5,
-  "summary": "把第 5 期学过的东西放在一块板上：NTC 10k 分压接 ADC1 测温；GPIO → 100 Ω → IRLZ44N 低边开关一个由 5V 引脚供电的风扇（续流二极管 + 栅极下拉 + 限流电阻）；另一个 GPIO 点亮状态灯。检查冷 / 热两种状态和整块板的电源预算。",
-  "concepts": [
-    "系统设计 system design",
-    "NTC 分压 + ADC NTC divider + ADC",
-    "低边 MOSFET 开关 low-side MOSFET switch",
-    "续流二极管 flyback diode",
-    "电源预算 power budget",
-    "接线检查 wiring checklist"
-  ],
+  "summary": "把第 5 世界放在一块 ESP32 上：NTC 分压接 ADC 测温，GPIO 经 MOSFET 开关一个风扇，另一个 GPIO 点状态灯。先由你扮演固件、看着 ADC 读数决定阈值，再用一条阈值规则让风扇和灯跟着温度自动开关。最后核对整块板的电源预算。",
+  "concepts": ["系统设计 system design", "NTC 分压 + ADC NTC divider + ADC", "低边 MOSFET 开关 low-side MOSFET switch", "续流二极管 flyback diode", "电源预算 power budget", "接线检查 wiring checklist"],
   "prereq": ["lesson-mcu-pwm-adc"],
-  "description": [
-    "**目标**（这个系统做什么）：温度升高 → NTC 电阻变小 → ADC 读数变大；固件（这里由你在引脚表里扮演）读到超过阈值时，把风扇引脚和状态灯引脚设成高电平，风扇转、绿灯亮；温度回落后再关掉。这正是 3D 打印机热端风扇、机箱温控、温室通风这类项目的电路部分。",
-    "",
-    "**电路**（ESP32 插在 b1，USB 供电）：",
-    "- **电源轨**：上方 tp = 3V3（h1 → tp1），tn = GND（a1 → tn1）；下方 bp = 5V 引脚（j19 → bp19），bn = GND（j14 → bn14）。",
-    "- **测温**：3V3 → NTC RT1（10 kΩ @ 25 °C，B = 3950）→ 结点 VTEMP → RF **10 kΩ** → GND；VTEMP 接一个 **ADC1** 引脚（参考答案用 GPIO34，i5）。",
-    "- **风扇**：输出 GPIO（参考答案 GPIO26，i10）→ RG **100 Ω** → Q1（IRLZ44N，f24：G D S）的栅极；栅极 → RPD **10 kΩ** → GND；S → GND；D → 风扇 M1 的 − 端；M1 的 + 端 → RS **4.7 Ω** → 5V；续流二极管 D1 反并联在风扇两端（正极接 D，色环接 M1 +）。",
-    "- **状态灯**：另一个输出 GPIO（参考答案 GPIO27，i11）→ RLED **330 Ω** → 绿色 LED1 → GND。",
-    "",
-    "**引脚设置**：ADC 引脚 = “模拟输入 ADC”；风扇引脚和灯引脚 = “输出低电平”（默认关）。测试会改温度，并把两个输出引脚改成高 / 低。",
-    "",
-    "**先预测**：",
-    "- 测温：V_TEMP = 3.3 V × RF / (R_NTC + RF)，R_NTC = 10 kΩ × exp(3950 × (1/T − 1/298.15))。算出 25 °C（冷态）和 60 °C（热态）时的 R_NTC、V_TEMP 和 12 位 ADC 读数，再选一个开风扇的阈值。",
-    "- 风扇：GPIO 高电平约 3.29 V，IRLZ44N 导通时 Rds ≈ 44 mΩ，风扇模型 8 Ω，5V 引脚空载约 4.68 V，带载时会再低一点。风扇电流、Vds 和 MOSFET 的功耗各是多少？RS 上耗多少瓦？",
-    "- 电源：3V3 上一共要多少电流？USB 总电流占 500 mA 的百分之几？5V 引脚还够不够 AMS1117 的 3.3 + 1.1 V？",
-    "",
-    "**测量**：",
-    "- 冷态（25 °C）和热态（60 °C）的 **ADC 读数**：确定固件的阈值；",
-    "- 热态时风扇转、MOSFET 在**可变电阻区**（完全导通，Vds 只有十几 mV）、灯亮；",
-    "- **电源预算**：3V3 和 5V 引脚在风扇全速时还稳不稳、USB 电流有没有超。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**接线检查清单**（通电前逐条打勾）：",
-    "1. 所有 GND 连在一起：上下两条 − 轨都接到了板子的 GND；",
-    "2. NTC 分压的上端是 **3V3**，不是 5V（否则 ADC 引脚会超过 3.3 V）；",
-    "3. ADC 用的是 **ADC1**（GPIO32–39），不是 ADC2（开 Wi-Fi 后不能用）；",
-    "4. 风扇和灯用的输出引脚不是 GPIO34–39（只能输入）、不是 GPIO6–11（Flash）、最好不是 GPIO0 / 2 / 5 / 12 / 15（启动配置引脚）；",
-    "5. MOSFET 的 G、D、S 没插反（IRLZ44N 正面朝你：G D S）；栅极有下拉；",
-    "6. 续流二极管方向：色环朝 5V；",
-    "7. 状态灯有限流电阻（≤ 20 mA）；",
-    "8. 列出电源预算：3V3 < 稳压器的 70 %，USB < 80 %。",
-    "",
-    "**实际项目经验**：",
-    "- 固件里用**滞回**：例如 > 40 °C（ADC > 2674）开风扇、< 35 °C 才关，避免在阈值附近来回开关。",
-    "- NTC 读数要多次取平均，并用 Steinhart-Hart 或查表换算温度；ESP32 ADC 用 11 dB 衰减并做校准。ADC 引脚到 GND 并一个 100 nF 电容滤掉风扇的干扰。",
-    "- 风扇电机的电刷噪声会顺着 5V 和 GND 窜进 ADC：风扇的 GND 回线和模拟地分开走、最后在板子 GND 汇合（星形接地）。",
-    "- 想调速就把风扇引脚改成 20 kHz PWM（见实验 5-15）；4 线 PC 风扇自带 PWM 输入和转速输出，不需要 MOSFET。",
-    "- 上电和复位时 GPIO 是高阻，RPD 保证风扇不乱转；如果用 GPIO12 当输出，上电时被拉高会让 ESP32 选错 Flash 电压而无法启动。",
-    "",
-    "**模型说明**：风扇用 130 直流电机模型（8 Ω、无反电动势）加 RS 代替；NTC 是理想 B 值模型；ADC 是理想 12 位（0–3.3 V），没有 ESP32 的非线性和衰减设置；芯片功耗是固定的约 50 mA；USB 超过 500 mA 只给诊断。"
+  "description": "三个已经学过的模块拼在一起：测温（3V3 → NTC → VTEMP → 10 kΩ → GND，VTEMP 接 ADC1）、开关（输出引脚 → 100 Ω → IRLZ44N 栅极，10 kΩ 下拉；5V 引脚 → 4.7 Ω → 风扇 → 漏极，续流二极管）、状态灯（输出引脚 → 330 Ω → 绿色 LED）。两个输出用**阈值规则**跟着 ADC：读数超过 2674（≈ 40 °C）输出高，回差 150。冷态 25 °C 风扇停，热态 60 °C 风扇转。测 ADC 电压、风扇电流、限流电阻的功耗和风扇全速时的 5V 引脚电压。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "你来当固件",
+      "text": [
+        "这一个项目就是整个第 5 世界：一个温度计、一个风扇开关、一盏状态灯。先只搭温度计。",
+        "**3V3** → **NTC** → 一列空孔（叫它 **VTEMP**）→ **`10 kΩ`** → GND；VTEMP 再接一个 **ADC1** 引脚（GPIO32–39），设成 **ADC**。",
+        "单击 NTC，在「属性」里把温度从 **`25 °C`** 慢慢调到 **`60 °C`**。单击开发板，看引脚列表里这个引脚的 ADC 数字怎么变。",
+        "你就是固件：数字到多少时，你会打开风扇？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "三个学过的模块",
+      "text": [
+        "- **测温（5.7）**：NTC 越热电阻越小，VTEMP 就越高。",
+        "![](fig:rntc)",
+        "$$V_{TEMP} = 3.3 × \\frac{R_F}{R_{NTC} + R_F}$$",
+        "- 25 °C 时 NTC 是 10 kΩ：$V_{TEMP} = 3.3 × \\frac{10}{10 + 10} = 1.65$ V，ADC 读数约 2048。R_F 取“最关心的温度”时 NTC 的阻值，那附近读数变化最快。",
+        "- **开关（5.4、5.8）**：输出引脚推 MOSFET 的栅极，风扇在漏极上，续流二极管接住线圈的电流。**供电（5.5）**：风扇吃的是 5V 脚，和 3.3 V 稳压器共用 USB 的 500 mA，所以串一个 4.7 Ω 把风扇电流限住。",
+        "![](fig:fan)",
+        "- 固件要做的只有一次比较：ADC 读数超过阈值 → 风扇引脚和灯引脚输出高。开发板的引脚表里有一种**「阈值规则」**模式，它就是这一行固件：`if (analogRead(ADC) > 2674) 输出高; else 输出低;`"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "按清单搭完整个系统",
+      "text": [
+        "- **电源轨**：3V3 接上方 + 轨，5V 脚接下方 + 轨，两条 − 轨都接 GND。",
+        "- **风扇**：5V → **`4.7 Ω`** → 风扇 +；风扇 − → 漏极；源极 → GND；二极管色环朝风扇 +。**栅极**：输出引脚 → **`100 Ω`** → G，G 再接 **`10 kΩ`** 到 GND。**状态灯**：另一个输出引脚 → **`330 Ω`** → 绿色 LED → GND。",
+        "- **通电前核对**：NTC 上端接 **3V3** 不是 5V（ADC 最多 3.3 V）；ADC 用 **ADC1**；输出不用 GPIO34–39 和 6–11；二极管色环朝 5V。",
+        "- 两个输出引脚都设成**「阈值规则」**：读 ADC1 那个引脚，**读数 > `2674`** 时输出高（≈ 40 °C），**回差 `150`**。点**「检查我的电路」**。", "- 拖 NTC 的温度：过了 40 °C，风扇和灯**自己**打开；降回约 36 °C 才关。“热态”的题：NTC 调到 **`60 °C`**。先预测，再读。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **一个系统 = 几个学过的模块，在几个结点上接起来**：分压器进 ADC，引脚推栅极，再给电源列一张预算。",
+        "- 阈值要带**回差**：这里高于 40 °C 开风扇、低于约 36 °C 才关（回差 150 个读数），否则温度在阈值附近时风扇会一开一关地抖——和 3.2 的施密特触发器是同一个主意，只是写在固件里。",
+        "- 真实电路里的坑：风扇电刷的噪声会顺着 5V 和 GND 窜进 ADC——多次取平均，ADC 引脚到 GND 并 100 nF，风扇的地线单独走回板子的 GND。4.7 Ω 会发热，按 P = I²R 选够功率的电阻；更好的办法是换一个 5 V 小风扇。",
+        "- 下一步：把风扇引脚改成 20 kHz PWM（5.8），就能调速。"
+      ],
+      "practice": ["nonlinear"]
+    }
   ],
+  "figures": {
+    "rntc": {
+      "kind": "plot",
+      "caption": {
+        "text": "NTC 的电阻随温度下降：越热越小，而且是一条弯曲线。虚线是固定电阻 R_F = 10 kΩ，两条线在 25 °C 相交。",
+        "i18n": {
+          "en": "The NTC's resistance falls with temperature: the warmer, the smaller, along a curve. The dashed line is the fixed R_F = 10 kΩ; they cross at 25 °C."
+        }
+      },
+      "x": {"label": {"text": "温度 (°C)", "i18n": {"en": "temperature (°C)"}}, "min": 0, "max": 100, "ticks": [0, 25, 50, 75, 100]},
+      "y": {"label": {"text": "电阻 (kΩ)", "i18n": {"en": "resistance (kΩ)"}}, "min": 0, "max": 35, "ticks": [0, 10, 30]},
+      "curves": [
+        {
+          "points": [[0, 33.62], [10, 20.17], [20, 12.54], [25, 10.0], [30, 8.04], [40, 5.3], [50, 3.59], [60, 2.49], [70, 1.76], [80, 1.27], [90, 0.93], [100, 0.7]],
+          "tone": 1,
+          "label": "R_NTC",
+          "labelAt": [12, 27]
+        }
+      ],
+      "hlines": [{"y": 10, "dashed": true, "label": "R_F"}]
+    },
+    "fan": {
+      "kind": "schematic",
+      "caption": {
+        "text": "风扇支路：5V 脚经 R_S 给风扇供电，Q1（MOSFET，由输出引脚控制）在下面开关，D1 接住线圈的电流。",
+        "i18n": {
+          "en": "The fan branch: the 5V pin feeds the fan through R_S, Q1 (the MOSFET, driven by an output pin) switches it from below, and D1 catches the coil's current."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V5", "type": "BAT", "from": [0, 0], "to": [0, 7], "value": 5},
+          {"ref": "R_S", "type": "R", "from": [0, 0], "to": [3, 0], "value": 4.7},
+          {"ref": "M1", "type": "M", "from": [3, 0], "to": [3, 3]},
+          {"ref": "Q1", "type": "NMOS", "at": [4, 5], "flip": true},
+          {"ref": "D1", "type": "D", "from": [6, 3], "to": [6, 0]}
+        ],
+        "wires": [
+          [[3, 0], [6, 0]],
+          [[3, 3], [6, 3]],
+          [[3, 7], [0, 7]]
+        ],
+        "terminals": [
+          {"at": [6, 5], "name": "GPIO"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "M1", "name": "I_fan"}
+        ]
+      },
+      "highlight": ["Q1"]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-17 · Capstone: NTC thermometer + MOSFET fan + status LED (a complete system on one ESP32)",
-      "summary": "Everything from Phase 5 on one board: an NTC 10k divider into ADC1 measures temperature; GPIO → 100 Ω → an IRLZ44N low-side switch runs a fan from the 5V pin (flyback diode + gate pull-down + current-limiting resistor); another GPIO lights a status LED. Check the cold and hot states and the whole board's power budget.",
-      "concepts": [
-        "system design",
-        "NTC divider + ADC",
-        "low-side MOSFET switch",
-        "flyback diode",
-        "power budget",
-        "wiring checklist"
-      ],
-      "description": [
-        "**Goal** (what the system does): temperature rises → the NTC's resistance falls → the ADC reading rises. When the firmware (played by you in the pin table) sees it cross a threshold, it sets the fan pin and the LED pin HIGH: the fan runs and the green LED lights; when it cools down they go off again. This is the circuit side of a 3D-printer hot-end fan, a case-temperature controller or a greenhouse vent.",
-        "",
-        "**Circuit** (ESP32 at b1, on USB):",
-        "- **Rails**: top tp = 3V3 (h1 → tp1), tn = GND (a1 → tn1); bottom bp = 5V pin (j19 → bp19), bn = GND (j14 → bn14).",
-        "- **Temperature**: 3V3 → NTC RT1 (10 kΩ at 25 °C, B = 3950) → node VTEMP → RF **10 kΩ** → GND; VTEMP to an **ADC1** pin (the solution uses GPIO34, i5).",
-        "- **Fan**: an output GPIO (solution: GPIO26, i10) → RG **100 Ω** → gate of Q1 (IRLZ44N at f24: G D S); gate → RPD **10 kΩ** → GND; S → GND; D → the fan M1's − lead; M1's + lead → RS **4.7 Ω** → 5V; flyback diode D1 reversed across the fan (anode to D, band to M1 +).",
-        "- **Status LED**: another output GPIO (solution: GPIO27, i11) → RLED **330 Ω** → green LED1 → GND.",
-        "",
-        "**Pin table settings**: ADC pin = \"analog input (ADC)\"; fan pin and LED pin = \"output LOW\" (off by default). The tests change the temperature and switch both outputs HIGH / LOW.",
-        "",
-        "**Predict first**:",
-        "- Temperature: V_TEMP = 3.3 V × RF / (R_NTC + RF), R_NTC = 10 kΩ × exp(3950 × (1/T − 1/298.15)). Work out R_NTC, V_TEMP and the 12-bit ADC reading at 25 °C (cold) and 60 °C (hot), then pick a fan-on threshold.",
-        "- Fan: GPIO HIGH is about 3.29 V, the IRLZ44N's Rds ≈ 44 mΩ when on, the fan model is 8 Ω and the 5V pin is about 4.68 V unloaded and a little lower under load. What are the fan current, Vds and the MOSFET's dissipation? How many watts does RS take?",
-        "- Supply: how much current does 3V3 carry in total? What fraction of 500 mA is the USB current? Is the 5V pin still above the 3.3 + 1.1 V the AMS1117 needs?",
-        "",
-        "**Measure**:",
-        "- the **ADC reading** cold (25 °C) and hot (60 °C): to pick the firmware's threshold;",
-        "- hot: the fan runs, the MOSFET is in the **ohmic region** (fully on, Vds only about a dozen mV), the LED is on;",
-        "- the **power budget**: are 3V3 and the 5V pin still fine with the fan at full speed, and is the USB current within budget? Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Wiring checklist** (tick each before powering up):",
-        "1. All grounds joined: both − rails go to the board's GND;",
-        "2. the top of the NTC divider is **3V3**, not 5V (or the ADC pin would exceed 3.3 V);",
-        "3. the ADC is an **ADC1** pin (GPIO32–39), not ADC2 (unusable with Wi-Fi on);",
-        "4. the fan and LED outputs are not GPIO34–39 (input-only), not GPIO6–11 (flash), and preferably not GPIO0 / 2 / 5 / 12 / 15 (strapping pins);",
-        "5. the MOSFET's G, D, S are the right way round (IRLZ44N, printed face to you: G D S); the gate has a pull-down;",
-        "6. the flyback diode's band faces 5V;",
-        "7. the status LED has a series resistor (≤ 20 mA);",
-        "8. the power budget is written down: 3V3 < 70 % of the regulator, USB < 80 %.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- Use **hysteresis** in firmware: e.g. fan on above 40 °C (ADC > 2674), off only below 35 °C, so it doesn't chatter around the threshold.",
-        "- Average several NTC readings and convert with Steinhart–Hart or a table; use 11 dB attenuation and calibration on the ESP32 ADC. Put 100 nF from the ADC pin to GND to filter fan noise.",
-        "- Brush noise from the fan motor travels along 5V and GND into the ADC: route the fan's GND return separately from the analog ground and join them at the board's GND (star ground).",
-        "- For speed control make the fan pin a 20 kHz PWM (see Experiment 5-15); 4-wire PC fans have their own PWM input and tach output and need no MOSFET.",
-        "- At power-up and reset the GPIOs are high-Z and RPD keeps the fan off; if you used GPIO12 as the output, a pull-up on it at boot would make the ESP32 pick the wrong flash voltage and fail to start.",
-        "",
-        "**Model note**: the fan is the 130 DC-motor model (8 Ω, no back-EMF) plus RS; the NTC is an ideal B-parameter model; the ADC is an ideal 12-bit 0–3.3 V converter without the ESP32's non-linearity or attenuation settings; the chip draws a fixed ≈ 50 mA; above 500 mA USB only gives a diagnostic."
-      ],
+      "title": "Capstone: a temperature-controlled fan",
+      "summary": "All of World 5 on one ESP32: an NTC divider into the ADC measures temperature, a GPIO switches a fan through a MOSFET, another GPIO lights a status LED. First you play the firmware and pick a threshold from the ADC number; then a threshold rule switches the fan and the light with the temperature on its own. Then check the board's power budget.",
+      "concepts": ["system design", "NTC divider + ADC", "low-side MOSFET switch", "flyback diode", "power budget", "wiring checklist"],
+      "description": "Three blocks you already know, joined together: sensing (3V3 → NTC → VTEMP → 10 kΩ → GND, VTEMP to ADC1), switching (output pin → 100 Ω → IRLZ44N gate with a 10 kΩ pull-down; 5V pin → 4.7 Ω → fan → drain, flyback diode) and a status light (output pin → 330 Ω → green LED). Both outputs follow the ADC through a **threshold rule**: HIGH above 2674 counts (≈ 40 °C), hysteresis 150. Cold (25 °C) the fan is off, hot (60 °C) it runs. Measure the ADC voltage, the fan current, the power in the series resistor and the 5V pin with the fan at full speed.",
       "compare": [
         "**Compare: temperature part**:",
         "- 0 °C: R_NTC ≈ 33.6 kΩ → 0.756 V → ADC **938**;",
@@ -127,17 +133,29 @@
       ],
       "measurements": [
         {"ask": "Hot (60 °C): multimeter on V_TEMP (the ADC pin) to GND", "explain": "R_NTC ≈ 2.49 kΩ: 3.3 × 10 / 12.49 ≈ 2.64 V."},
-        {"ask": "The 12-bit ADC reading for that voltage (the number firmware compares with its threshold)", "explain": "≈ 3277. Cold (25 °C) is 2046 and 40 °C about 2674, so a threshold in between turns the fan on around 40 °C."},
-        {"ask": "Hot: the fan current (ammeter between 5V and RS)", "explain": "(4.53 − 0.016) V / (4.7 + 8) Ω ≈ 356 mA; the IRLZ44N is fully on with Vds only about 16 mV."},
-        {"ask": "From your current reading, the power in RS (4.7 Ω), P = I²R", "explain": "≈ 0.6 W: use a 1 W resistor; a 1/4 W one would burn. In a real project a small 5 V / 0.2 A fan is the better choice."},
-        {"ask": "Hot: the 5V pin to GND (fan at full speed)", "explain": "USB carries about 415 mA (83 % of 500 mA); the 5V pin drops from 4.68 V to ≈ 4.53 V, still above the 3.3 + 1.1 = 4.4 V the AMS1117 needs, so 3V3 holds at 3.30 V."}
+        {
+          "ask": "The 12-bit ADC reading for that voltage (the number firmware compares with its threshold)",
+          "explain": "≈ 3277. Cold (25 °C) is 2046 and 40 °C about 2674, so a threshold in between turns the fan on around 40 °C."
+        },
+        {
+          "ask": "Hot: the fan current (ammeter between 5V and RS)",
+          "explain": "(4.53 − 0.016) V / (4.7 + 8) Ω ≈ 356 mA; the IRLZ44N is fully on with Vds only about 16 mV."
+        },
+        {
+          "ask": "From your current reading, the power in RS (4.7 Ω), P = I²R",
+          "explain": "≈ 0.6 W: use a 1 W resistor; a 1/4 W one would burn. In a real project a small 5 V / 0.2 A fan is the better choice."
+        },
+        {
+          "ask": "Hot: the 5V pin to GND (fan at full speed)",
+          "explain": "USB carries about 415 mA (83 % of 500 mA); the 5V pin drops from 4.68 V to ≈ 4.53 V, still above the 3.3 + 1.1 = 4.4 V the AMS1117 needs, so 3V3 holds at 3.30 V."
+        }
       ],
       "hints": [
         "Start with the rails: 3V3 on the top + rail, 5V on the bottom + rail, both − rails to GND.",
-        "NTC from 3V3 to VTEMP, 10 kΩ from VTEMP to GND, VTEMP to GPIO32–39.",
-        "Fan path: 5V → 4.7 Ω → fan + ; fan − → MOSFET drain; source → GND. Diode band toward the fan's + end.",
-        "Gate: output pin → 100 Ω → G, and 10 kΩ from G to GND. A second output pin drives the LED through 330 Ω.",
-        "Set the ADC pin to analog input and both output pins to output LOW."
+        "NTC from 3V3 to VTEMP, 10 kΩ from VTEMP to GND, VTEMP to one of GPIO32–39.",
+        "Fan path: 5V → 4.7 Ω → fan +; fan − → MOSFET drain; source → GND. Diode band towards the fan's + end.",
+        "Gate: output pin → 100 Ω → G, and 10 kΩ from G to GND. A second output pin lights the LED through 330 Ω.",
+        "Set the ADC pin to ADC and both output pins to OUT LOW."
       ],
       "tests": [
         "Cold (25 °C), outputs LOW: sensible ADC reading; fan stopped, MOSFET off, LED off",
@@ -146,313 +164,101 @@
         "40 °C threshold: sensible ADC reading",
         "0 °C: sensible ADC reading",
         "90 °C: sensible ADC reading (the curve flattens at the top)"
+      ],
+      "cards": [
+        {
+          "title": "You are the firmware",
+          "text": [
+            "This one project is all of World 5: a thermometer, a fan switch and a status light. Start with the thermometer only.",
+            "**3V3** → **NTC** → a free column (call it **VTEMP**) → **`10 kΩ`** → GND; VTEMP also goes to an **ADC1** pin (GPIO32–39), set to **ADC**.",
+            "Click the NTC and in **Properties** turn its temperature slowly from **`25 °C`** up to **`60 °C`**. Click the board and watch that pin's ADC number in the pin list.",
+            "You are the firmware: at which number would you switch the fan on?"
+          ]
+        },
+        {
+          "title": "Three blocks you already know",
+          "text": [
+            "- **Sensing (5.7)**: the warmer the NTC, the lower its resistance, so VTEMP rises.",
+            "![](fig:rntc)",
+            "$$V_{TEMP} = 3.3 × \\frac{R_F}{R_{NTC} + R_F}$$",
+            "- At 25 °C the NTC is 10 kΩ: $V_{TEMP} = 3.3 × \\frac{10}{10 + 10} = 1.65$ V, an ADC number of about 2048. Choose R_F equal to the NTC at the temperature you care about most: the reading changes fastest there.",
+            "- **Switching (5.4, 5.8)**: an output pin drives the MOSFET's gate, the fan sits on the drain, and a flyback diode catches the coil's current. **Power (5.5)**: the fan draws from the 5V pin and shares USB's 500 mA with the 3.3 V regulator, so a 4.7 Ω in series limits the fan current.",
+            "![](fig:fan)",
+            "- All the firmware does is one comparison: ADC number above the threshold → fan pin and LED pin HIGH. The board's pin list has a **Threshold rule** mode that is exactly this line of firmware: `if (analogRead(ADC) > 2674) HIGH; else LOW;`"
+          ]
+        },
+        {
+          "title": "Build the whole system from a checklist",
+          "text": [
+            "- **Rails**: 3V3 to the top + rail, the 5V pin to the bottom + rail, both − rails to GND.",
+            "- **Fan**: 5V → **`4.7 Ω`** → fan +; fan − → drain; source → GND; diode band towards fan +. **Gate**: output pin → **`100 Ω`** → G, plus **`10 kΩ`** from G to GND. **Status light**: a second output pin → **`330 Ω`** → green LED → GND.",
+            "- **Before powering up**: the NTC's top goes to **3V3**, not 5V (the ADC takes at most 3.3 V); the ADC pin is on **ADC1**; no outputs on GPIO34–39 or 6–11; the diode's band faces 5V.",
+            "- Set both output pins to **Threshold rule**: read the ADC1 pin, HIGH when the **reading > `2674`** (≈ 40 °C), **hysteresis `150`**. Press **Check my circuit**.", "- Drag the NTC's temperature: past 40 °C the fan and the light come on **by themselves**, and go off again only below about 36 °C. For the \"hot\" questions turn the NTC to **`60 °C`**. Predict first, then read."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A system is a few blocks you know, joined at a few nodes**: a divider into an ADC, a pin into a gate, and a budget for the supply.",
+            "- A threshold wants **hysteresis**: here the fan comes on above 40 °C and goes off only below about 36 °C (150 counts); otherwise near the threshold it chatters on and off — the same idea as the Schmitt trigger in 3.2, written in firmware.",
+            "- Real-world catches: brush noise from the fan rides on 5V and GND into the ADC — average several readings, put 100 nF from the ADC pin to GND, and run the fan's ground wire back to the board's GND on its own. The 4.7 Ω gets warm: rate it from P = I²R, or better, use a small 5 V fan.",
+            "- Next step: make the fan pin a 20 kHz PWM (5.8) and you have speed control."
+          ]
+        }
       ]
     }
   },
   "components": [
-    {
-      "ref": "U1",
-      "type": "esp32_devkit"
-    },
-    {
-      "ref": "RT1",
-      "type": "ntc"
-    },
-    {
-      "ref": "RF",
-      "type": "resistor",
-      "resistance": "10k"
-    },
-    {
-      "ref": "RG",
-      "type": "resistor",
-      "resistance": "100"
-    },
-    {
-      "ref": "RPD",
-      "type": "resistor",
-      "resistance": "10k"
-    },
-    {
-      "ref": "Q1",
-      "type": "nmos",
-      "model": "IRLZ44N"
-    },
-    {
-      "ref": "M1",
-      "type": "motor"
-    },
-    {
-      "ref": "D1",
-      "type": "diode"
-    },
-    {
-      "ref": "RS",
-      "type": "resistor",
-      "resistance": "4.7"
-    },
-    {
-      "ref": "RLED",
-      "type": "resistor",
-      "resistance": "330"
-    },
-    {
-      "ref": "LED1",
-      "type": "led",
-      "color": "green"
-    }
+    {"ref": "U1", "type": "esp32_devkit", "modes": {"GPIO_OUT1": {"mode": "rule", "rule": {"adc": "ADC1", "above": 2674, "hysteresis": 150}}, "GPIO_OUT2": {"mode": "rule", "rule": {"adc": "ADC1", "above": 2674, "hysteresis": 150}}}},
+    {"ref": "RT1", "type": "ntc"},
+    {"ref": "RF", "type": "resistor", "resistance": "10k"},
+    {"ref": "RG", "type": "resistor", "resistance": "100"},
+    {"ref": "RPD", "type": "resistor", "resistance": "10k"},
+    {"ref": "Q1", "type": "nmos", "model": "IRLZ44N"},
+    {"ref": "M1", "type": "motor"},
+    {"ref": "D1", "type": "diode"},
+    {"ref": "RS", "type": "resistor", "resistance": "4.7"},
+    {"ref": "RLED", "type": "resistor", "resistance": "330"},
+    {"ref": "LED1", "type": "led", "color": "green"}
   ],
   "nets": [
-    {
-      "name": "V3V3",
-      "pins": [
-        "U1.3V3",
-        "RT1.1"
-      ]
-    },
-    {
-      "name": "VTEMP",
-      "pins": [
-        "RT1.2",
-        "RF.1",
-        "U1.ADC1"
-      ]
-    },
-    {
-      "name": "FAN_IO",
-      "pins": [
-        "U1.GPIO_OUT1",
-        "RG.1"
-      ]
-    },
-    {
-      "name": "GATE",
-      "pins": [
-        "RG.2",
-        "Q1.g",
-        "RPD.1"
-      ]
-    },
-    {
-      "name": "DRAIN",
-      "pins": [
-        "Q1.d",
-        "M1.-",
-        "D1.anode"
-      ]
-    },
-    {
-      "name": "VFAN",
-      "pins": [
-        "M1.+",
-        "D1.cathode",
-        "RS.2"
-      ]
-    },
-    {
-      "name": "V5",
-      "pins": [
-        "U1.5V",
-        "RS.1"
-      ]
-    },
-    {
-      "name": "LED_IO",
-      "pins": [
-        "U1.GPIO_OUT2",
-        "RLED.1"
-      ]
-    },
-    {
-      "name": "LED_A",
-      "pins": [
-        "RLED.2",
-        "LED1.anode"
-      ]
-    },
-    {
-      "name": "GND",
-      "pins": [
-        "RF.2",
-        "RPD.2",
-        "Q1.s",
-        "LED1.cathode",
-        "U1.GND"
-      ]
-    }
+    {"name": "V3V3", "pins": ["U1.3V3", "RT1.1"]},
+    {"name": "VTEMP", "pins": ["RT1.2", "RF.1", "U1.ADC1"]},
+    {"name": "FAN_IO", "pins": ["U1.GPIO_OUT1", "RG.1"]},
+    {"name": "GATE", "pins": ["RG.2", "Q1.g", "RPD.1"]},
+    {"name": "DRAIN", "pins": ["Q1.d", "M1.-", "D1.anode"]},
+    {"name": "VFAN", "pins": ["M1.+", "D1.cathode", "RS.2"]},
+    {"name": "V5", "pins": ["U1.5V", "RS.1"]},
+    {"name": "LED_IO", "pins": ["U1.GPIO_OUT2", "RLED.1"]},
+    {"name": "LED_A", "pins": ["RLED.2", "LED1.anode"]},
+    {"name": "GND", "pins": ["RF.2", "RPD.2", "Q1.s", "LED1.cathode", "U1.GND"]}
   ],
   "tests": [
     {
       "name": "冷态（25 °C）、输出低：ADC 读数合理，风扇停、MOSFET 截止、灯灭",
-      "set": {
-        "RT1": {
-          "temperature": 25
-        },
-        "U1": {
-          "modes": {
-            "GPIO_OUT1": "out_low",
-            "GPIO_OUT2": "out_low"
-          }
-        }
-      },
-      "expect": {
-        "M1": "off",
-        "LED1": "off"
-      },
-      "regions": {
-        "Q1": "off"
-      },
-      "gpio": [
-        {
-          "pin": "U1.ADC1",
-          "measure": "adc",
-          "min": 1990,
-          "max": 2100
-        },
-        {
-          "pin": "U1.ADC1",
-          "measure": "adc_v",
-          "min": 1.6,
-          "max": 1.7
-        }
-      ]
+      "set": {"RT1": {"temperature": 25}},
+      "expect": {"M1": "off", "LED1": "off"},
+      "regions": {"Q1": "off"},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 1990, "max": 2100}, {"pin": "U1.ADC1", "measure": "adc_v", "min": 1.6, "max": 1.7}]
     },
     {
       "name": "热态（60 °C）、输出高：风扇转，MOSFET 完全导通，灯亮",
-      "set": {
-        "RT1": {
-          "temperature": 60
-        },
-        "U1": {
-          "modes": {
-            "GPIO_OUT1": "out_high",
-            "GPIO_OUT2": "out_high"
-          }
-        }
-      },
-      "expect": {
-        "M1": "on",
-        "LED1": "on"
-      },
-      "regions": {
-        "Q1": "ohmic"
-      },
-      "gpio": [
-        {
-          "pin": "U1.ADC1",
-          "measure": "adc",
-          "min": 3180,
-          "max": 3370
-        }
-      ],
-      "currents": [
-        {
-          "el": "M1",
-          "min": 0.34,
-          "max": 0.372
-        },
-        {
-          "el": "LED1",
-          "min": 0.0031,
-          "max": 0.0034
-        }
-      ],
-      "voltages": [
-        {
-          "pin": "Q1.d",
-          "ref": "Q1.s",
-          "max": 0.05
-        }
-      ]
+      "set": {"RT1": {"temperature": 60}},
+      "expect": {"M1": "on", "LED1": "on"},
+      "regions": {"Q1": "ohmic"},
+      "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 3180, "max": 3370}],
+      "currents": [{"el": "M1", "min": 0.34, "max": 0.372}, {"el": "LED1", "min": 0.0031, "max": 0.0034}],
+      "voltages": [{"pin": "Q1.d", "ref": "Q1.s", "max": 0.05}]
     },
     {
       "name": "风扇全速时的电源预算：3V3 和 5V 引脚都还够用，引脚电流很小",
-      "set": {
-        "RT1": {
-          "temperature": 60
-        },
-        "U1": {
-          "modes": {
-            "GPIO_OUT1": "out_high",
-            "GPIO_OUT2": "out_high"
-          }
-        }
-      },
-      "voltages": [
-        {
-          "pin": "U1.3V3",
-          "min": 3.25,
-          "max": 3.35
-        },
-        {
-          "pin": "U1.5V",
-          "min": 4.42,
-          "max": 4.64
-        }
-      ],
-      "gpio": [
-        {
-          "pin": "U1.GPIO_OUT1",
-          "measure": "current",
-          "min": 0.0003,
-          "max": 0.00036
-        },
-        {
-          "pin": "U1.GPIO_OUT2",
-          "measure": "current",
-          "min": 0.0031,
-          "max": 0.0034
-        }
-      ]
+      "set": {"RT1": {"temperature": 60}},
+      "voltages": [{"pin": "U1.3V3", "min": 3.25, "max": 3.35}, {"pin": "U1.5V", "min": 4.42, "max": 4.64}],
+      "gpio": [{"pin": "U1.GPIO_OUT1", "measure": "current", "min": 0.0003, "max": 0.00036}, {"pin": "U1.GPIO_OUT2", "measure": "current", "min": 0.0031, "max": 0.0034}]
     },
-    {
-      "name": "40 °C 阈值：ADC 读数合理",
-      "set": {
-        "RT1": {
-          "temperature": 40
-        }
-      },
-      "gpio": [
-        {
-          "pin": "U1.ADC1",
-          "measure": "adc",
-          "min": 2600,
-          "max": 2750
-        }
-      ]
-    },
-    {
-      "name": "0 °C：ADC 读数合理",
-      "set": {
-        "RT1": {
-          "temperature": 0
-        }
-      },
-      "gpio": [
-        {
-          "pin": "U1.ADC1",
-          "measure": "adc",
-          "min": 900,
-          "max": 980
-        }
-      ]
-    },
-    {
-      "name": "90 °C：ADC 读数合理（曲线在上端变平）",
-      "set": {
-        "RT1": {
-          "temperature": 90
-        }
-      },
-      "gpio": [
-        {
-          "pin": "U1.ADC1",
-          "measure": "adc",
-          "min": 3660,
-          "max": 3820
-        }
-      ]
-    }
+    {"name": "40 °C 阈值：ADC 读数合理", "set": {"RT1": {"temperature": 40}}, "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 2600, "max": 2750}]},
+    {"name": "0 °C：ADC 读数合理", "set": {"RT1": {"temperature": 0}}, "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 900, "max": 980}]},
+    {"name": "90 °C：ADC 读数合理（曲线在上端变平）", "set": {"RT1": {"temperature": 90}}, "gpio": [{"pin": "U1.ADC1", "measure": "adc", "min": 3660, "max": 3820}]}
   ],
   "compare": [
     "**对比：测温部分**：",
@@ -472,172 +278,81 @@
     "- 为什么要 RS：130 电机直接接 5V 时约 0.55 A，加上板子就超过 500 mA 了。RS 4.7 Ω 把它限制在 0.36 A；真实项目里直接选一个 5 V / 0.2 A 的小风扇，或者从独立电源供电。"
   ],
   "measurements": [
-    {"id": "vh", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"RT1": {"temperature": 60}, "U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_high"}}}, "unit": "V", "predict": true, "range": [2.51, 2.77], "ask": "热态（60 °C）：万用表测 V_TEMP（ADC 引脚）对 GND", "explain": "R_NTC ≈ 2.49 kΩ：3.3 × 10 / 12.49 ≈ 2.64 V。"},
-    {"id": "raw", "formula": "vh / 3.3 * 4095", "predict": true, "range": [3110.0, 3440.0], "ask": "这个电压对应的 12 位 ADC 读数（固件里拿来和阈值比较的数）", "explain": "≈ 3277。冷态 25 °C 是 2046，40 °C 约 2674——阈值取在中间，风扇在 40 °C 左右打开。"},
-    {"id": "ifan", "current": "M1", "set": {"RT1": {"temperature": 60}, "U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.338, 0.374], "ask": "热态：风扇电流（电流表串在 5V 和 RS 之间）", "explain": "(4.53 − 0.016) V / (4.7 + 8) Ω ≈ 356 mA；IRLZ44N 完全导通，Vds 只有约 16 mV。"},
-    {"id": "prs", "formula": "ifan^2 * 4.7", "unit": "W", "range": [0.565, 0.625], "ask": "用你的电流读数算 RS（4.7 Ω）上的功耗 P = I²R", "explain": "≈ 0.6 W：要用 1 W 的电阻，1/4 W 的会烧。真实项目里直接选一个 5 V / 0.2 A 的小风扇更好。"},
-    {"id": "v5", "voltage": "U1.5V", "ref": "U1.GND", "set": {"RT1": {"temperature": 60}, "U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_high"}}}, "unit": "V", "predict": true, "range": [4.31, 4.76], "ask": "热态：5V 引脚对 GND（风扇全速时）", "explain": "USB 约 415 mA（500 mA 的 83 %），5V 引脚从 4.68 V 掉到 ≈ 4.53 V，仍高于 AMS1117 需要的 3.3 + 1.1 = 4.4 V，3V3 还稳在 3.30 V。"}
+    {
+      "id": "vh",
+      "voltage": "U1.ADC1",
+      "ref": "U1.GND",
+      "set": {"RT1": {"temperature": 60}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.51, 2.77],
+      "ask": "热态（60 °C）：万用表测 V_TEMP（ADC 引脚）对 GND",
+      "explain": "R_NTC ≈ 2.49 kΩ：3.3 × 10 / 12.49 ≈ 2.64 V。"
+    },
+    {
+      "id": "raw",
+      "formula": "vh / 3.3 * 4095",
+      "predict": true,
+      "range": [3110.0, 3440.0],
+      "ask": "这个电压对应的 12 位 ADC 读数（固件里拿来和阈值比较的数）",
+      "explain": "≈ 3277。冷态 25 °C 是 2046，40 °C 约 2674——阈值取在中间，风扇在 40 °C 左右打开。"
+    },
+    {
+      "id": "ifan",
+      "current": "M1",
+      "set": {"RT1": {"temperature": 60}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.338, 0.374],
+      "ask": "热态：风扇电流（电流表串在 5V 和 RS 之间）",
+      "explain": "(4.53 − 0.016) V / (4.7 + 8) Ω ≈ 356 mA；IRLZ44N 完全导通，Vds 只有约 16 mV。"
+    },
+    {
+      "id": "prs",
+      "formula": "ifan^2 * 4.7",
+      "unit": "W",
+      "range": [0.565, 0.625],
+      "ask": "用你的电流读数算 RS（4.7 Ω）上的功耗 P = I²R",
+      "explain": "≈ 0.6 W：要用 1 W 的电阻，1/4 W 的会烧。真实项目里直接选一个 5 V / 0.2 A 的小风扇更好。"
+    },
+    {
+      "id": "v5",
+      "voltage": "U1.5V",
+      "ref": "U1.GND",
+      "set": {"RT1": {"temperature": 60}},
+      "unit": "V",
+      "predict": true,
+      "range": [4.31, 4.76],
+      "ask": "热态：5V 引脚对 GND（风扇全速时）",
+      "explain": "USB 约 415 mA（500 mA 的 83 %），5V 引脚从 4.68 V 掉到 ≈ 4.53 V，仍高于 AMS1117 需要的 3.3 + 1.1 = 4.4 V，3V3 还稳在 3.30 V。"
+    }
   ],
   "hints": [
     "先接电源轨：3V3 到上方 + 轨，5V 到下方 + 轨，两条 − 轨都接 GND。",
-    "NTC 从 3V3 到 VTEMP，10 kΩ 从 VTEMP 到 GND，VTEMP 接 GPIO32–39。",
+    "NTC 从 3V3 到 VTEMP，10 kΩ 从 VTEMP 到 GND，VTEMP 接 GPIO32–39 中的一个。",
     "风扇回路：5V → 4.7 Ω → 风扇 +；风扇 − → MOSFET 漏极；源极 → GND。二极管色环朝风扇 + 端。",
-    "栅极：输出引脚 → 100 Ω → G，G 再接 10 kΩ 到 GND。第二个输出引脚经 330 Ω 驱动 LED。",
-    "ADC 引脚设成模拟输入，两个输出引脚设成输出低电平。"
+    "栅极：输出引脚 → 100 Ω → G，G 再接 10 kΩ 到 GND。第二个输出引脚经 330 Ω 点 LED。",
+    "ADC 引脚设成 ADC，两个输出引脚设成「输出 低」。"
   ],
   "solution": {
     "parts": [
-      {
-        "type": "esp32_devkit",
-        "ref": "U1",
-        "at": "b1",
-        "props": {
-          "usb": true,
-          "modes": {
-            "GPIO34": "adc",
-            "GPIO26": "out_low",
-            "GPIO27": "out_low"
-          }
-        }
-      },
-      {
-        "type": "wire",
-        "ref": "W1",
-        "color": "black",
-        "pins": {
-          "a": "a1",
-          "b": "tn1"
-        }
-      },
-      {
-        "type": "wire",
-        "ref": "W2",
-        "color": "orange",
-        "pins": {
-          "a": "h1",
-          "b": "tp1"
-        }
-      },
-      {
-        "type": "wire",
-        "ref": "W3",
-        "color": "black",
-        "pins": {
-          "a": "j14",
-          "b": "bn14"
-        }
-      },
-      {
-        "type": "wire",
-        "ref": "W4",
-        "color": "red",
-        "pins": {
-          "a": "j19",
-          "b": "bp19"
-        }
-      },
-      {
-        "type": "ntc",
-        "ref": "RT1",
-        "pins": {
-          "1": "tp21",
-          "2": "a21"
-        }
-      },
-      {
-        "type": "resistor",
-        "ref": "RF",
-        "resistance": "10k",
-        "pins": {
-          "1": "b21",
-          "2": "tn21"
-        }
-      },
-      {
-        "type": "wire",
-        "ref": "W5",
-        "color": "yellow",
-        "pins": {
-          "a": "c21",
-          "b": "h5"
-        }
-      },
-      {
-        "type": "resistor",
-        "ref": "RG",
-        "resistance": "100",
-        "pins": {
-          "1": "g10",
-          "2": "j24"
-        }
-      },
-      {
-        "type": "nmos",
-        "ref": "Q1",
-        "model": "IRLZ44N",
-        "at": "f24"
-      },
-      {
-        "type": "resistor",
-        "ref": "RPD",
-        "resistance": "10k",
-        "pins": {
-          "1": "i24",
-          "2": "bn24"
-        }
-      },
-      {
-        "type": "wire",
-        "ref": "W6",
-        "color": "black",
-        "pins": {
-          "a": "j26",
-          "b": "bn26"
-        }
-      },
-      {
-        "type": "motor",
-        "ref": "M1",
-        "pins": {
-          "+": "i28",
-          "-": "i25"
-        }
-      },
-      {
-        "type": "diode",
-        "ref": "D1",
-        "pins": {
-          "anode": "h25",
-          "cathode": "h28"
-        }
-      },
-      {
-        "type": "resistor",
-        "ref": "RS",
-        "resistance": "4.7",
-        "pins": {
-          "1": "bp28",
-          "2": "j28"
-        }
-      },
-      {
-        "type": "resistor",
-        "ref": "RLED",
-        "resistance": "330",
-        "pins": {
-          "1": "j11",
-          "2": "j21"
-        }
-      },
-      {
-        "type": "led",
-        "ref": "LED1",
-        "color": "green",
-        "pins": {
-          "anode": "i21",
-          "cathode": "bn21"
-        }
-      }
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO34": "adc", "GPIO26": {"mode": "rule", "rule": {"adc": "GPIO34", "above": 2674, "hysteresis": 150}}, "GPIO27": {"mode": "rule", "rule": {"adc": "GPIO34", "above": 2674, "hysteresis": 150}}}}},
+      {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "a1", "b": "tn1"}},
+      {"type": "wire", "ref": "W2", "color": "orange", "pins": {"a": "h1", "b": "tp1"}},
+      {"type": "wire", "ref": "W3", "color": "black", "pins": {"a": "j14", "b": "bn14"}},
+      {"type": "wire", "ref": "W4", "color": "red", "pins": {"a": "j19", "b": "bp19"}},
+      {"type": "ntc", "ref": "RT1", "pins": {"1": "tp21", "2": "a21"}},
+      {"type": "resistor", "ref": "RF", "resistance": "10k", "pins": {"1": "b21", "2": "tn21"}},
+      {"type": "wire", "ref": "W5", "color": "yellow", "pins": {"a": "c21", "b": "h5"}},
+      {"type": "resistor", "ref": "RG", "resistance": "100", "pins": {"1": "g10", "2": "j24"}},
+      {"type": "nmos", "ref": "Q1", "model": "IRLZ44N", "at": "f24"},
+      {"type": "resistor", "ref": "RPD", "resistance": "10k", "pins": {"1": "i24", "2": "bn24"}},
+      {"type": "wire", "ref": "W6", "color": "black", "pins": {"a": "j26", "b": "bn26"}},
+      {"type": "motor", "ref": "M1", "pins": {"+": "i28", "-": "i25"}},
+      {"type": "diode", "ref": "D1", "pins": {"anode": "h25", "cathode": "h28"}},
+      {"type": "resistor", "ref": "RS", "resistance": "4.7", "pins": {"1": "bp28", "2": "j28"}},
+      {"type": "resistor", "ref": "RLED", "resistance": "330", "pins": {"1": "j11", "2": "j21"}},
+      {"type": "led", "ref": "LED1", "color": "green", "pins": {"anode": "i21", "cathode": "bn21"}}
     ]
   }
 }

@@ -9,7 +9,7 @@ import { Circuit, computeQuantity } from '../analysis';
 import { getLang, isLang, LANGS, tr, type Lang } from '../i18n';
 import { chapterById, CHAPTERS } from './chapters';
 import { angleDiff, fmtNum, isPhaseQuestion } from './answer';
-import { extractNetlist, isTwoTerminal } from './geometry';
+import { extractNetlist, FIGURE_ONLY_TYPES, isTwoTerminal } from './geometry';
 import { checkPlot } from './plot';
 import { SDOMAIN_KINDS, checkSdomainFind, isSdomainKind, sdomainMark } from './sdomainFind';
 import { MATRIX_KINDS, checkMatrixFind, checkMatrixSchematic, isMatrixKind } from './matrixFind';
@@ -411,7 +411,7 @@ function parseAnalysis(raw: unknown, errors: string[]): Analysis | null {
 
 /** Default symbol of an auto-added reference mark: i_R1, u_R1 (zh) / v_R1 (en). */
 /** Auto mark names use u for voltage in both languages (textbook notation, see docs/NOTATION.md). */
-const markName = (kind: 'i' | 'v', el: string) => `${kind === 'i' ? 'i' : 'u'}_${el}`;
+const markName = (kind: 'i' | 'v', el: string) => `${kind === 'i' ? 'i' : 'v'}_${el}`;
 
 export interface ParseProblemOptions {
   /**
@@ -463,6 +463,9 @@ export function parseProblem(json: unknown, source = 'folder', file?: string, op
     try {
       const r = extractNetlist(schematic);
       checkPlot(schematic, errors);
+      for (const el of Array.isArray(schematic.elements) ? schematic.elements : [])
+        if (FIGURE_ONLY_TYPES.includes(el?.type))
+          errors.push(tr(`${el.ref}：${el.type} 只能用在课程卡片的插图里（不参与计算）`, `${el.ref}: ${el.type} is for lesson card figures only (it is not simulated)`));
       errors.push(...r.errors);
       warnings.push(...r.warnings);
       if (r.errors.length === 0) netlist = r.netlist;

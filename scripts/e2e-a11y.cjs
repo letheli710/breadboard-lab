@@ -17,8 +17,15 @@ const AXE = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 const BASELINE = JSON.parse(readFileSync(join(__dirname, 'a11y-baseline.json'), 'utf8'));
 
 const PAGES = [
-  { name: 'learn', hash: '#/learn/lesson-breadboard-basics', ready: '.lesson-pick-name[data-active]' },
-  { name: 'challenge-lab', hash: '#/challenges/exp-inverting-amp', ready: '.lesson-pick-name[data-active]' },
+  { name: 'learn', hash: '#/learn/lesson-breadboard-basics', ready: '.task h2' },
+  // the course map dropdown, open
+  { name: 'course-map', hash: '#/learn/lesson-series', ready: '.task h2', setup: 'coursemap' },
+  // an explain card with figures (a circuit drawing and a breadboard strip)
+  { name: 'card-figures', hash: '#/learn/lesson-breadboard-basics', ready: '.task h2', setup: 'figures' },
+  { name: 'card-figure-circuit', hash: '#/learn/lesson-series', ready: '.task h2', setup: 'figures' },
+  // the "All parts" panel, open
+  { name: 'parts-panel', hash: '#/learn/lesson-series', ready: '.task h2', setup: 'partspanel' },
+  { name: 'challenge-lab', hash: '#/challenges/exp-inverting-amp', ready: '.task h2' },
   { name: 'sandbox', hash: '#/sandbox', ready: '.stage-view canvas' },
   { name: 'practice', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title' },
   { name: 'practice-choice', hash: '#/practice/basics-03-power-sign', ready: '.pr-main .pr-title' },
@@ -27,8 +34,9 @@ const PAGES = [
   { name: 'import', hash: '#/import', ready: 'main, .import-page' },
   // states: the sandbox with parts, the inspector and an open confirm popover; a checked lab
   { name: 'sandbox-parts', hash: '#/sandbox', ready: '.stage-view canvas', setup: 'parts' },
-  { name: 'lab-checked', hash: '#/challenges/exp-inverting-amp', ready: '.lesson-pick-name[data-active]', setup: 'checked' },
-  { name: 'lesson-done', hash: '#/learn/lesson-breadboard-basics', ready: '.lesson-pick-name[data-active]', setup: 'celebrate' },
+  { name: 'lab-checked', hash: '#/challenges/exp-inverting-amp', ready: '.task h2', setup: 'checked' },
+  // the completion dialog: a challenge without measurement questions completes on "Check my circuit"
+  { name: 'challenge-done', hash: '#/challenges/challenge-reverse-protection', ready: '.task h2', setup: 'celebrate' },
   { name: 'practice-answered', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', setup: 'answered' },
   // Practice mastery pages
   { name: 'review', hash: '#/practice/review', ready: '.ms-main' },
@@ -39,8 +47,8 @@ const PAGES = [
   { name: 'quiz-paused', hash: '#/practice/quiz', ready: '.ms-main', setup: 'quiz-paused' },
   { name: 'quiz-results', hash: '#/practice/quiz', ready: '.ms-main', setup: 'quiz-results' },
   // an instrument lesson with per-step checks
-  { name: 'lesson-steps', hash: '#/learn/lesson-ammeter', ready: '.lesson-pick-name[data-active]' },
-  { name: 'lesson-placed', hash: '#/learn/lesson-ammeter', ready: '.lesson-pick-name[data-active]', setup: 'placed' },
+  { name: 'lesson-steps', hash: '#/learn/lesson-ammeter', ready: '.task h2' },
+  { name: 'lesson-placed', hash: '#/learn/lesson-ammeter', ready: '.task h2', setup: 'placed' },
   // phone UI (390 × 844, touch)
   { name: 'phone-drawer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'drawer' },
   { name: 'phone-figure-viewer', hash: '#/practice/basics-01-ohm', ready: '.pr-main .pr-title', phone: true, setup: 'viewer' },
@@ -110,11 +118,27 @@ async function setup(p, kind) {
   if (kind === 'parts') {
     await p.locator('.kb-bench > summary').click();
   }
+  if (kind === 'partspanel') {
+    await p.locator('.parts-all-btn').click();
+    await p.waitForSelector('.parts-panel .pp-grid .tool', { timeout: 10000 });
+  }
+  if (kind === 'figures') {
+    await p.locator('.card-tabs button').nth(1).click();
+    await p.waitForSelector('.card-figure svg', { timeout: 15000 });
+  }
+  if (kind === 'coursemap') {
+    await p.locator('.course-btn').click();
+    await p.waitForSelector('.course-pop .lesson-card.on', { timeout: 10000 });
+  }
   if (kind === 'celebrate') {
     await p.locator('.actions button', { hasText: /Show answer|看答案/ }).click();
     await p.locator('.confirm-pop button.danger-solid').click();
     await p.waitForTimeout(300);
     await p.locator('.actions button.primary.big').click();
+    // every lab now has measurement questions, so a passing check is only stage 1: the done
+    // dialog (what this view audits) comes once the readings are answered; open it directly
+    await p.waitForSelector('.check-result .ok-box', { timeout: 5000 });
+    await p.evaluate(() => window.__bb.store.getState().setCelebrate(true));
     await p.waitForSelector('.modal[role="dialog"]', { timeout: 5000 });
   }
   if (kind === 'answered') {

@@ -7,12 +7,12 @@
   "level": 2,
   "tags": ["独立电压源", "独立电流源", "KCL"],
   "statement": [
-    "图示电路中 U_s = 6 V，I_s = 1 A（箭头向上），R_1 = 3 Ω，R_2 = 2 Ω。电压源电流 i_s 的参考方向如图（从“+”端流入电源），R_1 的电流 i_1 向下。",
-    "求 i_1、i_s 和结点 b 的电位 u_b，并思考：电压源的电流、电流源的电压由什么决定？"
+    "图示电路中 V_s = 6 V，I_s = 1 A（箭头向上），R_1 = 3 Ω，R_2 = 2 Ω。电压源电流 i_s 的参考方向如图（从“+”端流入电源），R_1 的电流 i_1 向下。",
+    "求 i_1、i_s 和结点 b 的电位 v_b，并思考：电压源的电流、电流源的电压由什么决定？"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 6 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 6 },
       { "ref": "R1", "type": "R", "from": [4, 0], "to": [4, 4], "value": 3 },
       { "ref": "R2", "type": "R", "from": [6, 0], "to": [10, 0], "value": 2 },
       { "ref": "Is", "type": "I", "from": [12, 4], "to": [12, 0], "value": 1 }
@@ -24,19 +24,19 @@
     ],
     "labels": [{ "at": [4, 0], "name": "a" }, { "at": [12, 0], "name": "b" }],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }, { "kind": "i", "el": "Us", "name": "i_s" }]
+    "marks": [{ "kind": "i", "el": "R1", "name": "i1" }, { "kind": "i", "el": "Vs", "name": "i_s" }]
   },
   "analysis": { "type": "dc" },
   "questions": [
     { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A", "explain": "R_1 直接并在电压源两端，电压恒为 6 V：i_1 = 6/3 = 2 A，与其他支路无关。" },
-    { "id": "is", "ask": "i_s = ?", "find": { "kind": "i", "el": "Us" }, "answer": -1, "unit": "A", "explain": "结点 a 的 KCL：i_s + i_1 = 1（I_s 的 1 A 经 R_2 流入 a），i_s = 1 − 2 = −1 A。负号表示实际有 1 A 从“+”端流出：电压源在供电。" },
-    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 8, "unit": "V", "explain": "R_2 中 1 A 从 b 流向 a：u_b = u_a + 2 × 1 = 6 + 2 = 8 V。这也是电流源两端的电压。" },
+    { "id": "is", "ask": "i_s = ?", "find": { "kind": "i", "el": "Vs" }, "answer": -1, "unit": "A", "explain": "结点 a 的 KCL：i_s + i_1 = 1（I_s 的 1 A 经 R_2 流入 a），i_s = 1 − 2 = −1 A。负号表示实际有 1 A 从“+”端流出：电压源在供电。" },
+    { "id": "ub", "ask": "v_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 8, "unit": "V", "explain": "R_2 中 1 A 从 b 流向 a：v_b = v_a + 2 × 1 = 6 + 2 = 8 V。这也是电流源两端的电压。" },
     {
       "id": "change",
       "ask": "若把 R_2 换成 5 Ω，其余不变，下列哪个量会改变？",
-      "choices": ["R_1 的电流 i_1", "电压源的电流 i_s", "电流源两端的电压 u_b"], "choiceExplain": ["i_1 = U_s/R_1，只由电压源和 R_1 决定，与电流源那一侧的 R_2 无关。", "电流源支路的电流恒为 1 A，R_2 改变时它不变，所以电压源的电流 i_s 也不变。", ""],
+      "choices": ["R_1 的电流 i_1", "电压源的电流 i_s", "电流源两端的电压 v_b"], "choiceExplain": ["i_1 = V_s/R_1，只由电压源和 R_1 决定，与电流源那一侧的 R_2 无关。", "电流源支路的电流恒为 1 A，R_2 改变时它不变，所以电压源的电流 i_s 也不变。", ""],
       "correct": 2,
-      "explain": "电流源的电流恒为 1 A，i_1 由 U_s 决定，所以 i_1、i_s 都不变；电流源两端电压 u_b = 6 + 1 × R_2 由外电路决定，变为 11 V。"
+      "explain": "电流源的电流恒为 1 A，i_1 由 V_s 决定，所以 i_1、i_s 都不变；电流源两端电压 v_b = 6 + 1 × R_2 由外电路决定，变为 11 V。"
     }
   ],
   "hints": [
@@ -44,9 +44,9 @@
     "电压源的电流要由 KCL 求，电流源的电压要由 KVL 求。"
   ],
   "solution": [
-    "**1. i_1。** R_1 与 U_s 并联，u_R1 = 6 V，**i_1 = 6/3 = 2 A**。",
+    "**1. i_1。** R_1 与 V_s 并联，v_R1 = 6 V，**i_1 = 6/3 = 2 A**。",
     "**2. i_s。** 电流源支路（I_s 与 R_2 串联）的电流就是 1 A，从 b 经 R_2 流入 a。结点 a 的 KCL（流出 = 流入）：i_s + i_1 = 1 → **i_s = −1 A**（实际 1 A 从“+”端流出）。",
-    "**3. u_b。** KVL：u_b = u_a + R_2 × 1 = 6 + 2 = **8 V**，这就是电流源的端电压（上“+”）。",
+    "**3. v_b。** KVL：v_b = v_a + R_2 × 1 = 6 + 2 = **8 V**，这就是电流源的端电压（上“+”）。",
     "**4. 结论。** 理想电压源的端电压由自身决定，电流由外电路决定；理想电流源的电流由自身决定，端电压由外电路决定。",
     "**功率验算：** P_Us = 6 × (−1) = −6 W，P_Is = −8 × 1 = −8 W；P_R1 = 12 W，P_R2 = 2 W；12 + 2 − 6 − 8 = 0。"
   ],
@@ -55,17 +55,17 @@
       "title": "Properties of independent voltage and current sources",
       "tags": ["independent voltage source", "independent current source", "KCL"],
       "statement": [
-        "In the circuit, U_s = 6 V, I_s = 1 A (arrow up), R_1 = 3 Ω, R_2 = 2 Ω. The reference direction of the voltage-source current i_s is shown (into the \"+\" terminal of the source); the current i_1 in R_1 points down.",
-        "Find i_1, i_s and the potential u_b of node b. Think about it: what determines the current of a voltage source, and the voltage of a current source?"
+        "In the circuit, V_s = 6 V, I_s = 1 A (arrow up), R_1 = 3 Ω, R_2 = 2 Ω. The reference direction of the voltage-source current i_s is shown (into the \"+\" terminal of the source); the current i_1 in R_1 points down.",
+        "Find i_1, i_s and the potential v_b of node b. Think about it: what determines the current of a voltage source, and the voltage of a current source?"
       ],
       "questions": [
         { "ask": "i_1 = ?", "explain": "R_1 is directly across the voltage source, so its voltage is always 6 V: i_1 = 6/3 = 2 A, whatever the other branches do." },
         { "ask": "i_s = ?", "explain": "KCL at node a: i_s + i_1 = 1 (the 1 A of I_s reaches a through R_2), so i_s = 1 − 2 = −1 A. The minus sign means 1 A actually leaves the \"+\" terminal: the voltage source supplies power." },
-        { "ask": "u_b = ?", "explain": "1 A flows through R_2 from b to a: u_b = u_a + 2 × 1 = 6 + 2 = 8 V. This is also the voltage across the current source." },
+        { "ask": "v_b = ?", "explain": "1 A flows through R_2 from b to a: v_b = v_a + 2 × 1 = 6 + 2 = 8 V. This is also the voltage across the current source." },
         {
           "ask": "If R_2 is changed to 5 Ω and nothing else changes, which quantity changes?",
-          "choices": ["the current i_1 in R_1", "the voltage-source current i_s", "the voltage u_b across the current source"], "choiceExplain": ["i_1 = U_s/R_1 depends only on the voltage source and R_1, not on R_2 on the current-source side.", "The current-source branch always carries 1 A whatever R_2 is, so the voltage-source current i_s does not change either.", ""],
-          "explain": "The current source still forces 1 A and i_1 is fixed by U_s, so i_1 and i_s don't change; the current-source voltage u_b = 6 + 1 × R_2 is set by the external circuit and becomes 11 V."
+          "choices": ["the current i_1 in R_1", "the voltage-source current i_s", "the voltage v_b across the current source"], "choiceExplain": ["i_1 = V_s/R_1 depends only on the voltage source and R_1, not on R_2 on the current-source side.", "The current-source branch always carries 1 A whatever R_2 is, so the voltage-source current i_s does not change either.", ""],
+          "explain": "The current source still forces 1 A and i_1 is fixed by V_s, so i_1 and i_s don't change; the current-source voltage v_b = 6 + 1 × R_2 is set by the external circuit and becomes 11 V."
         }
       ],
       "hints": [
@@ -73,9 +73,9 @@
         "The current of a voltage source comes from KCL; the voltage of a current source comes from KVL."
       ],
       "solution": [
-        "**1. i_1.** R_1 is in parallel with U_s, so u_R1 = 6 V and **i_1 = 6/3 = 2 A**.",
+        "**1. i_1.** R_1 is in parallel with V_s, so v_R1 = 6 V and **i_1 = 6/3 = 2 A**.",
         "**2. i_s.** The current-source branch (I_s in series with R_2) carries 1 A, from b through R_2 into a. KCL at a (out = in): i_s + i_1 = 1 → **i_s = −1 A** (1 A actually leaves the \"+\" terminal).",
-        "**3. u_b.** KVL: u_b = u_a + R_2 × 1 = 6 + 2 = **8 V**, which is the voltage across the current source (+ at the top).",
+        "**3. v_b.** KVL: v_b = v_a + R_2 × 1 = 6 + 2 = **8 V**, which is the voltage across the current source (+ at the top).",
         "**4. Conclusion.** An ideal voltage source sets its own voltage while its current is determined by the external circuit; an ideal current source sets its own current while its voltage is determined by the external circuit.",
         "**Power check:** P_Us = 6 × (−1) = −6 W, P_Is = −8 × 1 = −8 W; P_R1 = 12 W, P_R2 = 2 W; 12 + 2 − 6 − 8 = 0."
       ]

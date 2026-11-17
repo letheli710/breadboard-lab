@@ -7,13 +7,13 @@
   "level": 3,
   "tags": ["三表法", "相量图", "余弦定理", "实际线圈模型"],
   "statement": [
-    "用“三电压表法”测量一个实际线圈（电阻 r 与电感 L 串联，参数未知）。线圈与已知电阻 R_1 = 4 Ω 串联后接正弦电源，ω = 1000 rad/s。",
+    "用“三电压表法”测量一个实际线圈。线圈的模型是电阻 r 串电感 L，参数未知。线圈与已知电阻 R_1 = 4 Ω 串联后接正弦电源，ω = 1000 rad/s。",
     "三只理想电压表的读数（有效值）为：V（电源）150 V，V_1（R_1 两端）40 V，V_2（线圈两端）130 V。",
     "求电流 I、线圈的电阻 r 和感抗 X_L，以及线圈吸收的有功功率 P。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 150, "phase": 0 } }, "label": "u_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 150, "phase": 0 } }, "label": "v_s" },
       { "ref": "V", "type": "voltmeter", "from": [3, 0], "to": [3, 6] },
       { "ref": "R1", "type": "R", "from": [5, 0], "to": [9, 0], "value": 4 },
       { "ref": "V1", "type": "voltmeter", "from": [5, -3], "to": [9, -3] },
@@ -35,51 +35,51 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "I", "ask": "电流有效值 I = ?", "find": { "kind": "i", "el": "R1" }, "answer": 10, "unit": "A", "explain": "R_1 是已知电阻：I = U_1/R_1 = 40/4 = 10 A。" },
-    { "id": "r", "ask": "线圈电阻 r = ?（即线圈阻抗 Z_cd 的实部）", "find": { "kind": "req", "port": ["c", "d"], "exclude": ["R1"], "part": "re" }, "answer": 5, "unit": "Ω", "explain": "余弦定理：U² = U_1² + U_2² + 2U_{1}U_{2} cos φ₂ → cos φ₂ = (22500 − 1600 − 16900)/(2 × 40 × 130) = 5/13。|Z_cd| = U_2/I = 13 Ω，r = 13 × 5/13 = 5 Ω。" },
-    { "id": "X", "ask": "线圈感抗 X_L = ?（即 Z_cd 的虚部）", "find": { "kind": "req", "port": ["c", "d"], "exclude": ["R1"], "part": "im" }, "answer": 12, "unit": "Ω", "explain": "sin φ₂ = 12/13，X_L = 13 × 12/13 = 12 Ω，所以 L = X_L/ω = 12 mH。" },
-    { "id": "P", "ask": "线圈吸收的有功功率 P = ?", "find": { "kind": "p", "el": "r" }, "answer": 500, "unit": "W", "explain": "P = I²r = 10² × 5 = 500 W；三表法公式 P = (U² − U_1² − U_2²)/(2R_1) = 4000/8 = 500 W，结果一致。" }
+    { "id": "I", "ask": "电流有效值 I = ?", "find": { "kind": "i", "el": "R1" }, "answer": 10, "unit": "A", "explain": "R_1 是已知电阻：I = V_1/R_1 = 40/4 = 10 A。" },
+    { "id": "r", "ask": "线圈电阻 r = ?（即线圈阻抗 Z_cd 的实部）", "find": { "kind": "req", "port": ["c", "d"], "exclude": ["R1"], "part": "re" }, "answer": 5, "unit": "Ω", "explain": "余弦定理：V² = V_1² + V_2² + 2V_{1}V_{2} cos φ_2 → cos φ_2 = (22500 − 1600 − 16900)/(2 × 40 × 130) = 5/13。|Z_cd| = V_2/I = 13 Ω，r = 13 × 5/13 = 5 Ω。" },
+    { "id": "X", "ask": "线圈感抗 X_L = ?（即 Z_cd 的虚部）", "find": { "kind": "req", "port": ["c", "d"], "exclude": ["R1"], "part": "im" }, "answer": 12, "unit": "Ω", "explain": "sin φ_2 = 12/13，X_L = 13 × 12/13 = 12 Ω，所以 L = X_L/ω = 12 mH。" },
+    { "id": "P", "ask": "线圈吸收的有功功率 P = ?", "find": { "kind": "p", "el": "r" }, "answer": 500, "unit": "W", "explain": "P = I²r = 10² × 5 = 500 W；三表法公式 P = (V² − V_1² − V_2²)/(2R_1) = 4000/8 = 500 W，结果一致。" }
   ],
   "hints": [
-    "以电流 İ 为参考相量画相量图：U̇_1 与 İ 同相，线圈电压 U̇_2 超前 İ 一个角度 φ₂，U̇ = U̇_1 + U̇_2 构成三角形。",
-    "三条边的长度就是三个读数，用余弦定理求 φ₂：U² = U_1² + U_2² + 2U_{1}U_{2} cos φ₂。",
-    "|Z_{线圈}| = U_2/I，r = |Z|cos φ₂，X_L = |Z|sin φ₂。"
+    "以电流 İ 为参考相量画相量图：V̇_1 与 İ 同相，线圈电压 V̇_2 超前 İ 一个角度 φ_2，V̇ = V̇_1 + V̇_2 构成三角形。",
+    "三条边的长度就是三个读数，用余弦定理求 φ_2：V² = V_1² + V_2² + 2V_{1}V_{2} cos φ_2。",
+    "|Z_{线圈}| = V_2/I，r = |Z|cos φ_2，X_L = |Z|sin φ_2。"
   ],
   "solution": [
-    "**1. 电流。** R_1 已知，I = U_1/R_1 = 40/4 = **10 A**。",
-    "**2. 相量图。** 以 I 为参考：U̇_1 = 40∠0° V；线圈电压 U̇_2 = 130∠φ₂ V（感性，φ₂ > 0）；KVL：U̇ = U̇_1 + U̇_2，三个相量组成三角形，三边长 150、40、130。",
-    "**3. 余弦定理。** 150² = 40² + 130² + 2 × 40 × 130 × cos φ₂ → 22500 = 18500 + 10400 cos φ₂ → **cos φ₂ = 5/13**，sin φ₂ = 12/13。",
-    "**4. 线圈参数。** |Z| = U_2/I = 13 Ω，r = 13 × 5/13 = **5 Ω**，X_L = 13 × 12/13 = **12 Ω**，L = X_L/ω = 12 mH。",
-    "**5. 功率。** P = I²r = **500 W**，也等于 U_2·I·cos φ₂ = 130 × 10 × 5/13 = 500 W。",
-    "验算：Z_{总} = (4 + 5) + j12 = 15∠53.13° Ω，U = 15 × 10 = 150 V ✓。"
+    "**1. 电流。** R_1 已知，I = V_1/R_1 = 40/4 = **10 A**。",
+    "**2. 相量图。** 以 İ 为参考：V̇_1 = 40∠0° V；线圈电压 V̇_2 = 130∠φ_2 V（感性，φ_2 > 0）；KVL：V̇ = V̇_1 + V̇_2，三个相量组成三角形，三边长 150、40、130。",
+    "**3. 余弦定理。** 150² = 40² + 130² + 2 × 40 × 130 × cos φ_2 → 22500 = 18500 + 10400 cos φ_2 → **cos φ_2 = 5/13**，sin φ_2 = 12/13。",
+    "**4. 线圈参数。** |Z| = V_2/I = 13 Ω，r = 13 × 5/13 = **5 Ω**，X_L = 13 × 12/13 = **12 Ω**，L = X_L/ω = 12 mH。",
+    "**5. 功率。** P = I²r = **500 W**，也等于 V_2·I·cos φ_2 = 130 × 10 × 5/13 = 500 W。",
+    "验算：Z_{总} = (4 + 5) + j12 = 15∠53.13° Ω，V = 15 × 10 = 150 V ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Three-voltmeter method for a coil",
       "tags": ["three-meter method", "phasor diagram", "law of cosines", "practical coil model"],
       "statement": [
-        "A practical coil (resistance r in series with inductance L, both unknown) is measured by the \"three-voltmeter method\": the coil is put in series with a known resistor R_1 = 4 Ω across a sinusoidal source, ω = 1000 rad/s.",
+        "A practical coil is measured by the \"three-voltmeter method\". The coil is modelled as a resistance r in series with an inductance L, both unknown. It is put in series with a known resistor R_1 = 4 Ω across a sinusoidal source, ω = 1000 rad/s.",
         "The three ideal voltmeters read (rms): V (source) 150 V, V_1 (across R_1) 40 V, V_2 (across the coil) 130 V.",
         "Find the current I, the coil's resistance r and reactance X_L, and the real power P absorbed by the coil."
       ],
       "questions": [
-        { "ask": "rms current I = ?", "explain": "R_1 is known: I = U_1/R_1 = 40/4 = 10 A." },
-        { "ask": "Coil resistance r = ? (the real part of the coil impedance Z_cd)", "explain": "Law of cosines: U² = U_1² + U_2² + 2U_{1}U_{2} cos φ₂ → cos φ₂ = (22500 − 1600 − 16900)/(2 × 40 × 130) = 5/13. |Z_cd| = U_2/I = 13 Ω, r = 13 × 5/13 = 5 Ω." },
-        { "ask": "Coil reactance X_L = ? (the imaginary part of Z_cd)", "explain": "sin φ₂ = 12/13, X_L = 13 × 12/13 = 12 Ω, so L = X_L/ω = 12 mH." },
-        { "ask": "Real power absorbed by the coil, P = ?", "explain": "P = I²r = 10² × 5 = 500 W; the three-voltmeter formula P = (U² − U_1² − U_2²)/(2R_1) = 4000/8 = 500 W gives the same." }
+        { "ask": "rms current I = ?", "explain": "R_1 is known: I = V_1/R_1 = 40/4 = 10 A." },
+        { "ask": "Coil resistance r = ? (the real part of the coil impedance Z_cd)", "explain": "Law of cosines: V² = V_1² + V_2² + 2V_{1}V_{2} cos φ_2 → cos φ_2 = (22500 − 1600 − 16900)/(2 × 40 × 130) = 5/13. |Z_cd| = V_2/I = 13 Ω, r = 13 × 5/13 = 5 Ω." },
+        { "ask": "Coil reactance X_L = ? (the imaginary part of Z_cd)", "explain": "sin φ_2 = 12/13, X_L = 13 × 12/13 = 12 Ω, so L = X_L/ω = 12 mH." },
+        { "ask": "Real power absorbed by the coil, P = ?", "explain": "P = I²r = 10² × 5 = 500 W; the three-voltmeter formula P = (V² − V_1² − V_2²)/(2R_1) = 4000/8 = 500 W gives the same." }
       ],
       "hints": [
-        "Draw the phasor diagram with İ as reference: U̇_1 is in phase with İ, the coil voltage U̇_2 leads İ by some angle φ₂, and U̇ = U̇_1 + U̇_2 forms a triangle.",
-        "The three sides are the three readings; use the law of cosines for φ₂: U² = U_1² + U_2² + 2U_{1}U_{2} cos φ₂.",
-        "|Z_coil| = U_2/I, r = |Z| cos φ₂, X_L = |Z| sin φ₂."
+        "Draw the phasor diagram with İ as reference: V̇_1 is in phase with İ, the coil voltage V̇_2 leads İ by some angle φ_2, and V̇ = V̇_1 + V̇_2 forms a triangle.",
+        "The three sides are the three readings; use the law of cosines for φ_2: V² = V_1² + V_2² + 2V_{1}V_{2} cos φ_2.",
+        "|Z_coil| = V_2/I, r = |Z| cos φ_2, X_L = |Z| sin φ_2."
       ],
       "solution": [
-        "**1. Current.** R_1 is known, I = U_1/R_1 = 40/4 = **10 A**.",
-        "**2. Phasor diagram.** With I as reference: U̇_1 = 40∠0° V; the coil voltage U̇_2 = 130∠φ₂ V (inductive, φ₂ > 0); KVL: U̇ = U̇_1 + U̇_2, so the three phasors form a triangle with sides 150, 40, 130.",
-        "**3. Law of cosines.** 150² = 40² + 130² + 2 × 40 × 130 × cos φ₂ → 22500 = 18500 + 10400 cos φ₂ → **cos φ₂ = 5/13**, sin φ₂ = 12/13.",
-        "**4. Coil parameters.** |Z| = U_2/I = 13 Ω, r = 13 × 5/13 = **5 Ω**, X_L = 13 × 12/13 = **12 Ω**, L = X_L/ω = 12 mH.",
-        "**5. Power.** P = I²r = **500 W**, which also equals U_2·I·cos φ₂ = 130 × 10 × 5/13 = 500 W.",
-        "Check: Z_total = (4 + 5) + j12 = 15∠53.13° Ω, U = 15 × 10 = 150 V ✓."
+        "**1. Current.** R_1 is known, I = V_1/R_1 = 40/4 = **10 A**.",
+        "**2. Phasor diagram.** With İ as reference: V̇_1 = 40∠0° V; the coil voltage V̇_2 = 130∠φ_2 V (inductive, φ_2 > 0); KVL: V̇ = V̇_1 + V̇_2, so the three phasors form a triangle with sides 150, 40, 130.",
+        "**3. Law of cosines.** 150² = 40² + 130² + 2 × 40 × 130 × cos φ_2 → 22500 = 18500 + 10400 cos φ_2 → **cos φ_2 = 5/13**, sin φ_2 = 12/13.",
+        "**4. Coil parameters.** |Z| = V_2/I = 13 Ω, r = 13 × 5/13 = **5 Ω**, X_L = 13 × 12/13 = **12 Ω**, L = X_L/ω = 12 mH.",
+        "**5. Power.** P = I²r = **500 W**, which also equals V_2·I·cos φ_2 = 130 × 10 × 5/13 = 500 W.",
+        "Check: Z_total = (4 + 5) + j12 = 15∠53.13° Ω, V = 15 × 10 = 150 V ✓."
       ]
     }
   }

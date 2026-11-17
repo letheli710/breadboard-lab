@@ -6,7 +6,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { BOARD, HOLE_MAP } from '../core/breadboard';
 import { PARTS } from '../core/parts';
 import type { PlacedPart } from '../core/types';
-import { ammeterReading, ledOf, useDerived } from '../state/derived';
+import { ammeterDisplay, ledOf, useDerived, type AmmeterDisplay } from '../state/derived';
 import { isPartTool, scopeChannelFor, useStore } from '../state/store';
 import { OPERATED, useBenchUi } from '../state/benchUi';
 import { E2E } from '../e2e/flag';
@@ -207,23 +207,28 @@ function Parts() {
 
   return (
     <group>
-      {layout.parts.map((p) => (
-        <PartView
-          key={p.id}
-          part={p}
-          slot={slots.get(p.id) ?? 0}
-          led={ledOf(derived, p.ref)}
-          source={sim.sources.get(p.ref)}
-          reading={p.type === 'ammeter' ? ammeterReading(derived, p.ref) : undefined}
-          sim={sim}
-          ctx={CTX[p.id === eraseHover ? 'error' : p.id === selectedId ? 'select' : hlRefs.has(p.ref) ? (highlight?.tone === 'error' ? 'error' : 'hover') : 'none']}
-          label={showLabels}
-          labelTone={errorRefs.has(p.ref) ? 'error' : 'normal'}
-          onPick={pickPart}
-          onGrab={grabPart}
-          onHover={hoverPart}
-        />
-      ))}
+      {layout.parts.map((p) => {
+        const am: AmmeterDisplay | undefined = p.type === 'ammeter' ? ammeterDisplay(derived, p.ref, p.props.meterMode) : undefined;
+        return (
+          <PartView
+            key={p.id}
+            part={p}
+            slot={slots.get(p.id) ?? 0}
+            led={ledOf(derived, p.ref)}
+            source={sim.sources.get(p.ref)}
+            reading={am?.value}
+            readingKind={am?.kind}
+            readingAuto={am?.auto}
+            sim={sim}
+            ctx={CTX[p.id === eraseHover ? 'error' : p.id === selectedId ? 'select' : hlRefs.has(p.ref) ? (highlight?.tone === 'error' ? 'error' : 'hover') : 'none']}
+            label={showLabels}
+            labelTone={errorRefs.has(p.ref) ? 'error' : 'normal'}
+            onPick={pickPart}
+            onGrab={grabPart}
+            onHover={hoverPart}
+          />
+        );
+      })}
       <PlacementGhost />
       <DragLayer />
     </group>

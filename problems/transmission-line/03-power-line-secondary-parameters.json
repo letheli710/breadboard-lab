@@ -12,13 +12,13 @@
     "传播常数"
   ],
   "statement": [
-    "一条 50 Hz、长 300 km 的输电线（按单相等效），原参数：R_0 = 0.08 Ω/km，L_0 = 1.33 mH/km，C_0 = 8.6 nF/km，G_0 ≈ 0。始端电压 U̇_s = 127∠0° kV（有效值），终端接 R_L = 400 Ω。",
+    "一条 50 Hz、长 300 km 的输电线（按单相等效），原参数：R_0 = 0.08 Ω/km，L_0 = 1.33 mH/km，C_0 = 8.6 nF/km，G_0 ≈ 0。始端电压 V̇_s = 127∠0° kV（有效值），终端接 R_L = 400 Ω。",
     "求线路的副参数：特性阻抗 Z_c 和传播常数 γ = α + jβ，以及波长和相速。x 从始端量起。"
   ],
   "schematic": {
     "elements": [
       {
-        "ref": "Us",
+        "ref": "Vs",
         "type": "V",
         "from": [
           0,
@@ -34,7 +34,7 @@
             "phase": 0
           }
         },
-        "label": "U̇_s = 127∠0° kV"
+        "label": "V̇_s = 127∠0° kV"
       },
       {
         "ref": "TL",
@@ -223,7 +223,7 @@
     },
     {
       "id": "v",
-      "ask": "相速 v = ?",
+      "ask": "相速 v_p = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -231,19 +231,19 @@
       },
       "answer": 294348000.0,
       "unit": "m/s",
-      "explain": "v = ω/β = 314.16/1.067×10⁻⁶ = 2.94×10⁸ m/s。"
+      "explain": "v_p = ω/β = 314.16/1.067×10⁻⁶ = 2.94×10⁸ m/s。"
     }
   ],
   "hints": [
     "副参数只由原参数和频率决定，与负载无关：Z_c = √(Z_0/Y_0)，γ = √(Z_0Y_0)。",
     "先写出 Z_0 = R_0 + jωL_0、Y_0 = G_0 + jωC_0（每 km），化成极坐标再开方——开方时模开方、辐角减半。",
-    "γ 取实部为正的那个根；α 的单位是 Np/km，β 是 rad/km，λ = 2π/β，v = ω/β。"
+    "γ 取实部为正的那个根；α 的单位是 Np/km，β 是 rad/km，λ = 2π/β，v_p = ω/β。"
   ],
   "solution": [
     "**1. 单位长度阻抗和导纳。** ω = 314.16 rad/s：Z_0 = 0.08 + j0.4178 = 0.4254∠79.16° Ω/km，Y_0 = j2.702×10⁻⁶ S/km。",
     "**2. 特性阻抗。** Z_c = √(Z_0/Y_0) = √(1.574×10⁵∠−10.84°) = **396.8∠−5.42° Ω**。",
     "**3. 传播常数。** γ = √(Z_0Y_0) = √(1.149×10⁻⁶∠169.16°) = 1.072×10⁻³∠84.58° /km：**α = 1.013×10⁻⁴ Np/km**，**β = 1.067×10⁻³ rad/km**。",
-    "**4. 波长与相速。** λ = 2π/β = **5887 km**，v = ω/β = **2.94×10⁸ m/s**。",
+    "**4. 波长与相速。** λ = 2π/β = **5887 km**，v_p = ω/β = **2.94×10⁸ m/s**。",
     "**检查：** Z_c·γ = 396.8 × 1.072×10⁻³∠(−5.42° + 84.58°) = 0.4254∠79.16° = Z_0 ✓。整条线 αl = 0.0304 Np，匹配时终端电压只比始端小 3%。"
   ],
   "i18n": {
@@ -256,7 +256,7 @@
         "propagation constant"
       ],
       "statement": [
-        "A 50 Hz transmission line 300 km long (single-phase equivalent) has the primary parameters R_0 = 0.08 Ω/km, L_0 = 1.33 mH/km, C_0 = 8.6 nF/km, G_0 ≈ 0. The start voltage is U̇_s = 127∠0° kV (rms) and the end is loaded with R_L = 400 Ω.",
+        "A 50 Hz transmission line 300 km long (single-phase equivalent) has the primary parameters R_0 = 0.08 Ω/km, L_0 = 1.33 mH/km, C_0 = 8.6 nF/km, G_0 ≈ 0. The start voltage is V̇_s = 127∠0° kV (rms) and the end is loaded with R_L = 400 Ω.",
         "Find the secondary parameters — the characteristic impedance Z_c and the propagation constant γ = α + jβ — and the wavelength and phase velocity. x is measured from the start."
       ],
       "questions": [
@@ -281,20 +281,20 @@
           "explain": "λ = 2π/β = 5887 km, a little less than the ≈ 6000 km of a lossless line."
         },
         {
-          "ask": "Phase velocity v = ?",
-          "explain": "v = ω/β = 314.16/1.067×10⁻⁶ = 2.94×10⁸ m/s."
+          "ask": "Phase velocity v_p = ?",
+          "explain": "v_p = ω/β = 314.16/1.067×10⁻⁶ = 2.94×10⁸ m/s."
         }
       ],
       "hints": [
         "The secondary parameters depend only on the primary parameters and the frequency, not on the load: Z_c = √(Z_0/Y_0), γ = √(Z_0Y_0).",
         "Write Z_0 = R_0 + jωL_0 and Y_0 = G_0 + jωC_0 (per km) in polar form and take the square root — square-root the magnitude, halve the angle.",
-        "Take the root of γ with a positive real part; α is in Np/km, β in rad/km, λ = 2π/β, v = ω/β."
+        "Take the root of γ with a positive real part; α is in Np/km, β in rad/km, λ = 2π/β, v_p = ω/β."
       ],
       "solution": [
         "**1. Impedance and admittance per km.** ω = 314.16 rad/s: Z_0 = 0.08 + j0.4178 = 0.4254∠79.16° Ω/km, Y_0 = j2.702×10⁻⁶ S/km.",
         "**2. Characteristic impedance.** Z_c = √(Z_0/Y_0) = √(1.574×10⁵∠−10.84°) = **396.8∠−5.42° Ω**.",
         "**3. Propagation constant.** γ = √(Z_0Y_0) = √(1.149×10⁻⁶∠169.16°) = 1.072×10⁻³∠84.58° /km: **α = 1.013×10⁻⁴ Np/km**, **β = 1.067×10⁻³ rad/km**.",
-        "**4. Wavelength and phase velocity.** λ = 2π/β = **5887 km**, v = ω/β = **2.94×10⁸ m/s**.",
+        "**4. Wavelength and phase velocity.** λ = 2π/β = **5887 km**, v_p = ω/β = **2.94×10⁸ m/s**.",
         "**Check:** Z_c·γ = 396.8 × 1.072×10⁻³∠(−5.42° + 84.58°) = 0.4254∠79.16° = Z_0 ✓. Over the whole line αl = 0.0304 Np: with a matched load the end voltage is only 3% below the start voltage."
       ]
     }

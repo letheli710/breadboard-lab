@@ -95,6 +95,7 @@ import {
   motorState,
   updateRelays,
   pwlKey,
+  settleRuleOutputs,
   solveDcCompiled,
   stampPwlMatrix,
   stampPwlRhs,
@@ -433,6 +434,8 @@ const now = () => (typeof performance !== 'undefined' ? performance.now() : Date
 
 export function simulateTransient(circuit: Circuit, opts: TransientOptions = {}): TransientResult {
   const started = now();
+  // threshold-rule pins: the outputs a DC solve settles on (the rule follows slow ADC readings)
+  circuit = settleRuleOutputs(circuit);
   const c = compileCircuit(circuit);
   const warnings: string[] = [];
   const gens = c.srcs.filter((s) => s.gen);

@@ -7,20 +7,20 @@
   "level": 3,
   "tags": ["部分分式", "重极点", "临界阻尼", "电容初始电压"],
   "statement": [
-    "图示 RLC 串联电路中 u_s = 2ε(t) V，R = 4 Ω，L = 1 H，C = 0.25 F。电感原来没有电流，电容原已充电 u_C(0₋) = 1 V（极性同图中 u_C 的参考方向：上“+”下“−”）。",
-    "运算电路中电容用 1/(sC) 与电压源 u_C(0₋)/s 串联（电压源“+”在 u_C 的“+”一侧）。求回路电流 I(s)、U_C(s)，把 U_C(s) 展开为 \\frac{K_0}{s} + \\frac{K_{11}}{(s + 2)²} + \\frac{K_{12}}{s + 2}，并求 t = 0.5 s 时的 u_C 和 i。"
+    "图示 RLC 串联电路中 v_s = 2u(t) V，R = 4 Ω，L = 1 H，C = 0.25 F。电感原来没有电流，电容原已充电 v_C(0₋) = 1 V（极性同图中 v_C 的参考方向：上“+”下“−”）。",
+    "回路电流 i 的参考方向如图。运算电路中，电容用 1/(sC) 与电压源 v_C(0₋)/s 串联，电压源的“+”在 v_C 的“+”一侧。求 I(s) 和 V_C(s)，把 V_C(s) 展开为 \\frac{K_0}{s} + \\frac{K_{11}}{(s + 2)²} + \\frac{K_{12}}{s + 2}。再求 t = 0.5 s 时的 v_C 和 i。"
   ],
   "schematic": {
     "elements": [
-      {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 2}}, "label": "2ε(t) V"},
+      {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"step": {"before": 0, "after": 2}}, "label": "2u(t) V"},
       {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 4},
       {"ref": "L", "type": "L", "from": [8, 0], "to": [12, 0], "value": 1, "ic": 0},
       {"ref": "C", "type": "C", "from": [14, 0], "to": [14, 4], "value": 0.25, "ic": 1}
     ],
     "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[12, 0], [14, 0]], [[14, 4], [0, 4]]],
     "grounds": [[0, 4]],
-    "marks": [{"kind": "i", "el": "L", "name": "i"}, {"kind": "v", "el": "C", "name": "u_C"}],
-    "notes": [{"at": [16, 2], "text": "u_C(0₋) = 1 V", "i18n": {"en": "u_C(0−) = 1 V"}}]
+    "marks": [{"kind": "i", "el": "L", "name": "i"}, {"kind": "v", "el": "C", "name": "v_C"}],
+    "notes": [{"at": [16, 2], "text": "v_C(0₋) = 1 V", "i18n": {"en": "v_C(0−) = 1 V"}}]
   },
   "analysis": {"type": "tran"},
   "questions": [
@@ -30,7 +30,7 @@
       "find": {"kind": "residue", "out": {"v": "C"}, "at": -2, "order": 2},
       "answer": -2.0,
       "unit": "V/s",
-      "explain": "KVL：(R + sL + \\frac{1}{sC})I(s) = \\frac{2}{s} − \\frac{u_C(0₋)}{s} = \\frac{1}{s} → I(s) = \\frac{1}{s² + 4s + 4} = \\frac{1}{(s + 2)²}。U_C(s) = \\frac{1}{s} + \\frac{4}{s(s + 2)²}；K_11 = [(s + 2)²U_C(s)]_{s=−2} = 4/(−2) = −2。"
+      "explain": "KVL：(R + sL + \\frac{1}{sC})I(s) = \\frac{2}{s} − \\frac{v_C(0₋)}{s} = \\frac{1}{s} → I(s) = \\frac{1}{s² + 4s + 4} = \\frac{1}{(s + 2)²}。于是 V_C(s) = \\frac{1}{s} + \\frac{4}{s(s + 2)²}，K_11 = [(s + 2)²V_C(s)]_{s=−2} = 4/(−2) = −2。"
     },
     {
       "id": "K12",
@@ -38,15 +38,15 @@
       "find": {"kind": "residue", "out": {"v": "C"}, "at": -2},
       "answer": -1.0,
       "unit": "V",
-      "explain": "重极点的第二个系数要求导：K_12 = \\frac{d}{ds}[(s + 2)²U_C(s)]_{s=−2}。(s + 2)²U_C(s) = \\frac{(s + 2)²}{s} + \\frac{4}{s}，导数在 s = −2 处为 0 − 4/s² = −1。"
+      "explain": "重极点的第二个系数要求导：K_12 = \\frac{d}{ds}[(s + 2)²V_C(s)]_{s=−2}。(s + 2)²V_C(s) = \\frac{(s + 2)²}{s} + \\frac{4}{s}。第一项的导数在 s = −2 处为 0，所以 K_12 = −4/s²|_{s = −2} = −1。"
     },
     {
       "id": "uc",
-      "ask": "t = 0.5 s 时 u_C = ?",
+      "ask": "t = 0.5 s 时 v_C = ?",
       "find": {"kind": "v", "el": "C", "t": 0.5},
       "answer": 1.264241,
       "unit": "V",
-      "explain": "K_0 = [sU_C(s)]_{s=0} = 1 + 1 = 2。u_C(t) = 2 − (2t + 1)e^{−2t} V；t = 0.5 s：2 − 2e^{−1} ≈ 1.264 V。"
+      "explain": "K_0 = [sV_C(s)]_{s=0} = 1 + 1 = 2。v_C(t) = 2 − (2t + 1)e^{−2t} V；t = 0.5 s：2 − 2e^{−1} ≈ 1.264 V。"
     },
     {
       "id": "i",
@@ -54,77 +54,77 @@
       "find": {"kind": "i", "el": "L", "t": 0.5},
       "answer": 0.1839397,
       "unit": "A",
-      "explain": "I(s) = 1/(s + 2)² → i(t) = te^{−2t} A（ℒ[te^{−at}] = 1/(s + a)²）；t = 0.5 s：0.5e^{−1} ≈ 0.184 A。"
+      "explain": "I(s) = 1/(s + 2)² → i(t) = te^{−2t} A，因为 ℒ[te^{−at}] = 1/(s + a)²。t = 0.5 s：0.5e^{−1} ≈ 0.184 A。"
     },
     {
       "id": "form",
       "ask": "重极点 p（二重）在时域中对应的项是：",
       "choices": ["(K_{11}t + K_{12})e^{pt}", "K_{11}e^{pt} + K_{12}e^{pt}", "K_{11}e^{2pt} + K_{12}e^{pt}", "(K_{11} + K_{12})te^{pt}"],
       "correct": 0,
-      "choiceExplain": ["", "两项都是 e^{pt} 就只剩一个待定系数，不能满足两个初始条件；二重极点的 1/(s − p)² 项对应的不是 e^{pt}。", "二重极点不是“极点加倍”，指数仍是 e^{pt}。", "1/(s − p) 项对应的是 e^{pt}，不带 t。"],
-      "explain": "ℒ⁻¹[1/(s − p)²] = te^{pt}，ℒ⁻¹[1/(s − p)] = e^{pt}，所以二重极点给出 (K_{11}t + K_{12})e^{pt}——临界阻尼响应里的 t·e^{−αt} 项就是这样来的。"
+      "choiceExplain": ["", "两项都是 e^{pt}，就只剩一个待定系数，不能满足两个初始条件。二重极点的 1/(s − p)² 项对应的不是 e^{pt}。", "二重极点不是“极点加倍”，指数仍是 e^{pt}。", "1/(s − p) 项对应的是 e^{pt}，不带 t。"],
+      "explain": "ℒ⁻¹[1/(s − p)²] = te^{pt}，ℒ⁻¹[1/(s − p)] = e^{pt}，所以二重极点给出 (K_{11}t + K_{12})e^{pt}。临界阻尼响应里的 t·e^{−αt} 项就是这样来的。"
     }
   ],
   "hints": [
-    "运算电路：电源 2/s，电容 = 1/(sC) 串电压源 u_C(0₋)/s；回路电流 I(s) 由 KVL 求。",
-    "特征多项式 s² + 4s + 4 = (s + 2)²：二重极点。K_11 = [(s + 2)²F]_{s=−2}，K_12 = \\frac{d}{ds}[(s + 2)²F]_{s=−2}。",
-    "U_C(s) = u_C(0₋)/s + I(s)/(sC)，其中 I(s) = 1/(s + 2)²。"
+    "运算电路：电源 2/s，电容 = 1/(sC) 串电压源 v_C(0₋)/s。回路电流 I(s) 由 KVL 求。",
+    "特征多项式 s² + 4s + 4 = (s + 2)²，是二重极点。K_11 = [(s + 2)²F]_{s=−2}，K_12 = \\frac{d}{ds}[(s + 2)²F]_{s=−2}。",
+    "V_C(s) = v_C(0₋)/s + I(s)/(sC)，其中 I(s) = 1/(s + 2)²。"
   ],
   "solution": [
     "**1. 运算电路。** 回路 KVL：(4 + s + 4/s)I(s) = 2/s − 1/s → I(s) = \\frac{1}{(s + 2)²}。",
-    "**2. 电容电压。** U_C(s) = \\frac{1}{s} + \\frac{4}{s}·I(s) = \\frac{1}{s} + \\frac{4}{s(s + 2)²}。",
-    "**3. 展开。** K_0 = 1 + 4/4 = 2；**K_11 = 4/(−2) = −2**；**K_12 = d/ds(4/s)|_{s = −2} = −4/4 = −1**。U_C(s) = \\frac{2}{s} − \\frac{2}{(s + 2)²} − \\frac{1}{s + 2}。",
-    "**4. 时域。** u_C(t) = 2 − (2t + 1)e^{−2t} V，**u_C(0.5) = 2 − 2e^{−1} ≈ 1.264 V**；i(t) = te^{−2t} A，**i(0.5) ≈ 0.184 A**。",
-    "**检验：** u_C(0₊) = 2 − 1 = 1 V = u_C(0₋) ✓；i = C·du_C/dt = 0.25 × 4te^{−2t} = te^{−2t} ✓；u_C(∞) = 2 V = u_s ✓。"
+    "**2. 电容电压。** V_C(s) = \\frac{1}{s} + \\frac{4}{s}·I(s) = \\frac{1}{s} + \\frac{4}{s(s + 2)²}。",
+    "**3. 展开。** K_0 = 1 + 4/4 = 2；**K_11 = 4/(−2) = −2**；**K_12 = d/ds(4/s)|_{s = −2} = −4/4 = −1**。V_C(s) = \\frac{2}{s} − \\frac{2}{(s + 2)²} − \\frac{1}{s + 2}。",
+    "**4. 时域。** v_C(t) = 2 − (2t + 1)e^{−2t} V，**v_C(0.5) = 2 − 2e^{−1} ≈ 1.264 V**。i(t) = te^{−2t} A，**i(0.5) ≈ 0.184 A**。",
+    "**检验：** v_C(0₊) = 2 − 1 = 1 V = v_C(0₋) ✓；i = C·dv_C/dt = 0.25 × 4te^{−2t} = te^{−2t} ✓；v_C(∞) = 2 V = v_s ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Partial fractions: a repeated pole (critical damping)",
       "tags": ["partial fractions", "repeated pole", "critical damping", "initial capacitor voltage"],
       "statement": [
-        "In the series RLC circuit u_s = 2ε(t) V, R = 4 Ω, L = 1 H, C = 0.25 F. The inductor carries no current initially and the capacitor is charged to u_C(0−) = 1 V (polarity as the reference of u_C: + at the top).",
-        "In the s-domain circuit the capacitor is 1/(sC) in series with a voltage source u_C(0−)/s (+ on the + side of u_C). Find the loop current I(s) and U_C(s), expand U_C(s) as \\frac{K_0}{s} + \\frac{K_{11}}{(s + 2)²} + \\frac{K_{12}}{s + 2}, and find u_C and i at t = 0.5 s."
+        "In the series RLC circuit v_s = 2u(t) V, R = 4 Ω, L = 1 H, C = 0.25 F. The inductor carries no current initially and the capacitor is charged to v_C(0−) = 1 V (polarity as the reference of v_C: + at the top).",
+        "The loop current i is referenced as drawn. In the s-domain circuit the capacitor is 1/(sC) in series with a voltage source v_C(0−)/s, + on the + side of v_C. Find I(s) and V_C(s), and expand V_C(s) as \\frac{K_0}{s} + \\frac{K_{11}}{(s + 2)²} + \\frac{K_{12}}{s + 2}. Then find v_C and i at t = 0.5 s."
       ],
       "questions": [
         {
           "ask": "K_11 (the coefficient of 1/(s + 2)²) = ?",
-          "explain": "KVL: (R + sL + \\frac{1}{sC})I(s) = \\frac{2}{s} − \\frac{u_C(0−)}{s} = \\frac{1}{s} → I(s) = \\frac{1}{s² + 4s + 4} = \\frac{1}{(s + 2)²}. U_C(s) = \\frac{1}{s} + \\frac{4}{s(s + 2)²}; K_11 = [(s + 2)²U_C(s)]_{s=−2} = 4/(−2) = −2."
+          "explain": "KVL: (R + sL + \\frac{1}{sC})I(s) = \\frac{2}{s} − \\frac{v_C(0−)}{s} = \\frac{1}{s} → I(s) = \\frac{1}{s² + 4s + 4} = \\frac{1}{(s + 2)²}. Then V_C(s) = \\frac{1}{s} + \\frac{4}{s(s + 2)²} and K_11 = [(s + 2)²V_C(s)]_{s=−2} = 4/(−2) = −2."
         },
         {
           "ask": "K_12 (the coefficient of 1/(s + 2)) = ?",
-          "explain": "The second coefficient of a double pole needs a derivative: K_12 = \\frac{d}{ds}[(s + 2)²U_C(s)]_{s=−2}. (s + 2)²U_C(s) = \\frac{(s + 2)²}{s} + \\frac{4}{s}; its derivative at s = −2 is 0 − 4/s² = −1."
+          "explain": "The second coefficient of a double pole needs a derivative: K_12 = \\frac{d}{ds}[(s + 2)²V_C(s)]_{s=−2}. (s + 2)²V_C(s) = \\frac{(s + 2)²}{s} + \\frac{4}{s}. The first term's derivative is 0 at s = −2, so K_12 = −4/s²|_{s = −2} = −1."
         },
         {
-          "ask": "u_C at t = 0.5 s = ?",
-          "explain": "K_0 = [sU_C(s)]_{s=0} = 1 + 1 = 2. u_C(t) = 2 − (2t + 1)e^{−2t} V; at t = 0.5 s: 2 − 2e^{−1} ≈ 1.264 V."
+          "ask": "v_C at t = 0.5 s = ?",
+          "explain": "K_0 = [sV_C(s)]_{s=0} = 1 + 1 = 2. v_C(t) = 2 − (2t + 1)e^{−2t} V; at t = 0.5 s: 2 − 2e^{−1} ≈ 1.264 V."
         },
         {
           "ask": "i at t = 0.5 s = ?",
-          "explain": "I(s) = 1/(s + 2)² → i(t) = te^{−2t} A (ℒ[te^{−at}] = 1/(s + a)²); at t = 0.5 s: 0.5e^{−1} ≈ 0.184 A."
+          "explain": "I(s) = 1/(s + 2)² → i(t) = te^{−2t} A, because ℒ[te^{−at}] = 1/(s + a)². At t = 0.5 s: 0.5e^{−1} ≈ 0.184 A."
         },
         {
           "ask": "A double pole p gives the time-domain term:",
-          "explain": "ℒ⁻¹[1/(s − p)²] = te^{pt} and ℒ⁻¹[1/(s − p)] = e^{pt}, so a double pole gives (K_{11}t + K_{12})e^{pt} — the t·e^{−αt} term of a critically damped response.",
+          "explain": "ℒ⁻¹[1/(s − p)²] = te^{pt} and ℒ⁻¹[1/(s − p)] = e^{pt}, so a double pole gives (K_{11}t + K_{12})e^{pt}. This is where the t·e^{−αt} term of a critically damped response comes from.",
           "choices": ["(K_{11}t + K_{12})e^{pt}", "K_{11}e^{pt} + K_{12}e^{pt}", "K_{11}e^{2pt} + K_{12}e^{pt}", "(K_{11} + K_{12})te^{pt}"],
           "choiceExplain": [
             "",
-            "Two e^{pt} terms are really one unknown and cannot meet two initial conditions; the 1/(s − p)² term of a double pole does not correspond to e^{pt}.",
+            "Two e^{pt} terms are really one unknown and cannot meet two initial conditions. The 1/(s − p)² term of a double pole does not correspond to e^{pt}.",
             "A double pole does not double the exponent: it is still e^{pt}.",
             "The 1/(s − p) term is plain e^{pt}, without t."
           ]
         }
       ],
       "hints": [
-        "s-domain circuit: source 2/s, capacitor = 1/(sC) in series with a voltage source u_C(0−)/s; get the loop current I(s) from KVL.",
+        "s-domain circuit: source 2/s, capacitor = 1/(sC) in series with a voltage source v_C(0−)/s. Get the loop current I(s) from KVL.",
         "The characteristic polynomial s² + 4s + 4 = (s + 2)² has a double root. K_11 = [(s + 2)²F]_{s=−2}, K_12 = \\frac{d}{ds}[(s + 2)²F]_{s=−2}.",
-        "U_C(s) = u_C(0−)/s + I(s)/(sC) with I(s) = 1/(s + 2)²."
+        "V_C(s) = v_C(0−)/s + I(s)/(sC) with I(s) = 1/(s + 2)²."
       ],
       "solution": [
         "**1. s-domain circuit.** Loop KVL: (4 + s + 4/s)I(s) = 2/s − 1/s → I(s) = \\frac{1}{(s + 2)²}.",
-        "**2. Capacitor voltage.** U_C(s) = \\frac{1}{s} + \\frac{4}{s}·I(s) = \\frac{1}{s} + \\frac{4}{s(s + 2)²}.",
-        "**3. Expansion.** K_0 = 1 + 4/4 = 2; **K_11 = 4/(−2) = −2**; **K_12 = d/ds(4/s)|_{s = −2} = −4/4 = −1**. U_C(s) = \\frac{2}{s} − \\frac{2}{(s + 2)²} − \\frac{1}{s + 2}.",
-        "**4. Time domain.** u_C(t) = 2 − (2t + 1)e^{−2t} V, **u_C(0.5) = 2 − 2e^{−1} ≈ 1.264 V**; i(t) = te^{−2t} A, **i(0.5) ≈ 0.184 A**.",
-        "**Check:** u_C(0+) = 2 − 1 = 1 V = u_C(0−) ✓; i = C·du_C/dt = 0.25 × 4te^{−2t} = te^{−2t} ✓; u_C(∞) = 2 V = u_s ✓."
+        "**2. Capacitor voltage.** V_C(s) = \\frac{1}{s} + \\frac{4}{s}·I(s) = \\frac{1}{s} + \\frac{4}{s(s + 2)²}.",
+        "**3. Expansion.** K_0 = 1 + 4/4 = 2; **K_11 = 4/(−2) = −2**; **K_12 = d/ds(4/s)|_{s = −2} = −4/4 = −1**. V_C(s) = \\frac{2}{s} − \\frac{2}{(s + 2)²} − \\frac{1}{s + 2}.",
+        "**4. Time domain.** v_C(t) = 2 − (2t + 1)e^{−2t} V, **v_C(0.5) = 2 − 2e^{−1} ≈ 1.264 V**. i(t) = te^{−2t} A, **i(0.5) ≈ 0.184 A**.",
+        "**Check:** v_C(0+) = 2 − 1 = 1 V = v_C(0−) ✓; i = C·dv_C/dt = 0.25 × 4te^{−2t} = te^{−2t} ✓; v_C(∞) = 2 V = v_s ✓."
       ]
     }
   }

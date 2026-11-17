@@ -76,7 +76,13 @@ async function settleFrames(p) {
     await p.waitForTimeout(700);
   }
 }
-const tool = (p, name) => p.locator(`button.tool[title="${name}"]`).click();
+// a part not in the toolbox column (tools + this lesson's parts) is picked from the "All parts" panel
+const tool = async (p, name) => {
+  const inColumn = p.locator(`.toolbox button.tool[title="${name}"]`);
+  if (await inColumn.count()) return inColumn.first().click();
+  await p.locator('.parts-all-btn').click();
+  await p.locator(`.parts-panel button.tool[title="${name}"]`).click();
+};
 const pinsOf = async (p, ref) => (await layout(p)).parts.find((x) => x.ref === ref)?.pins;
 const nonBlank = (p, sel) =>
   p.evaluate((s) => {
@@ -329,6 +335,10 @@ const TESTS = {
       const sel = 'canvas.sc-screen';
       const ink = await nonBlank(p, sel);
       assert(ink > 500, `scope lab: scope panel drew a trace (${ink} non-background pixels)`);
+      // a card-style lab shows its measurement questions on the Build card
+      const buildTab = p.locator('.card-tabs button', { hasText: 'Build' });
+      if (await buildTab.count()) await buildTab.first().click();
+      await p.waitForTimeout(200);
       assert((await p.locator('.mq-section').count()) === 1, 'scope lab: measurement stage shown');
       const q1 = p.locator('.mq').first();
       // question 1 asks for a prediction first
@@ -353,6 +363,56 @@ const TESTS = {
     }
   },
 
+  // the NTC fan capstone (296): two pins in threshold-rule mode follow the ADC, so dragging the
+  // NTC's temperature turns the fan on and off by itself, with hysteresis on the way down
+  async thresholdRule(browser) {
+    const { p, ctx, errors } = await open(browser, '#/challenges/exp5-capstone-ntc-fan');
+    try {
+      await p.locator('.actions button', { hasText: 'Show answer' }).click();
+      await p.locator('.confirm-pop button.danger-solid').first().click();
+      await p.waitForTimeout(800);
+      const ids = await p.evaluate(() => {
+        const s = window.__bb.store.getState();
+        return { ntc: s.layout.parts.find((x) => x.type === 'ntc').id, board: s.layout.parts.find((x) => x.type === 'esp32_devkit').id };
+      });
+      const setTemp = async (t) => {
+        await p.evaluate((id) => {
+          const s = window.__bb.store.getState();
+          s.select(id);
+          s.setPanel('inspect');
+        }, ids.ntc);
+        const slider = p.locator('.inspector input[type="range"][min="-20"][max="120"]').first();
+        await slider.waitFor({ state: 'visible', timeout: 5000 });
+        await slider.fill(String(t));
+        await p.waitForTimeout(150);
+      };
+      const ruleNote = async () => {
+        await p.evaluate((id) => {
+          const s = window.__bb.store.getState();
+          s.selectPin(id, 'GPIO26');
+          s.setPanel('inspect');
+        }, ids.board);
+        const note = p.locator('.rule-editor .note').first();
+        await note.waitFor({ state: 'visible', timeout: 5000 });
+        return (await note.textContent()) || '';
+      };
+      await setTemp(25);
+      assert(/is LOW/.test(await ruleNote()), 'rule: 25 °C, the fan pin is LOW (' + (await ruleNote()) + ')');
+      const code = (await p.locator('.rule-editor .rule-code').first().textContent()) || '';
+      assert(code.includes('else if (analogRead(GPIO34) < 2524) GPIO26 = LOW;'), 'rule: the code line spells out the hysteresis turn-off reading (' + code + ')');
+      await setTemp(60);
+      assert(/is HIGH/.test(await ruleNote()), 'rule: dragged to 60 °C, the fan pin turns HIGH by itself');
+      await setTemp(39);
+      assert(/is HIGH/.test(await ruleNote()), 'rule: back to 39 °C it stays HIGH (inside the hysteresis band)');
+      await setTemp(30);
+      assert(/is LOW/.test(await ruleNote()), 'rule: at 30 °C it turns LOW again');
+      assert(errors.length === 0, 'rule: no page errors ' + errors.join(' | '));
+    } finally {
+      await shot(p, 'threshold-rule');
+      await ctx.close();
+    }
+  },
+
   // a Phase 5 MCU lab with PWM: frames run while the motor spins, none when the scene is idle
   async mcuPwm(browser) {
     const { p, ctx, errors } = await open(browser, '#/challenges/exp5-pwm-mosfet-motor');
@@ -368,10 +428,11 @@ const TESTS = {
       await p.locator('.actions button.primary.big').click();
       await p.waitForTimeout(400);
       assert(/Stage 1 done|Perfect/.test(await p.locator('.check-result .ok-box').textContent()), 'mcu: check passes');
+      // two seconds, so a busy machine (software GL) still shows the motor's frames running
       const f0 = await frames(p);
-      await p.waitForTimeout(1000);
+      await p.waitForTimeout(2000);
       const f1 = await frames(p);
-      assert(f1 - f0 >= 5, `mcu: motor spinning, frames advance (${f1 - f0} in 1 s)`);
+      assert(f1 - f0 >= 5, `mcu: motor spinning, frames advance (${f1 - f0} in 2 s)`);
       // the MCU inspector's PWM duty slider: one drag = one undo step (window listeners in state/store.ts)
       const pin = await p.evaluate(() => {
         const s = window.__bb.store.getState();
@@ -665,7 +726,12 @@ const TESTS = {
       await clickHole(p, 'c10');
       await clickHole(p, 'c14');
       assert((await st()).tool === 'select', 'placing a part puts the tool down (back to Select)');
-      assert(await p.locator('.part-pop').isVisible(), 'the details of the part just placed open beside it');
+      const popShown = await p
+        .locator('.part-pop')
+        .waitFor({ state: 'visible', timeout: 3000 })
+        .then(() => true)
+        .catch(() => false);
+      assert(popShown, 'the details of the part just placed open beside it');
       await p.locator('.part-pop .chips button', { hasText: /^470/ }).click();
       assert((await parts())[0].props.resistance === 470, 'its value is changed in the details');
       await p.keyboard.press('Escape');
@@ -768,12 +834,18 @@ const TESTS = {
       await drag(p, sb.x + sb.width / 2, sb.y + 300, sb.x - 150, sb.y + 300);
       const w1 = await side();
       assert(w1 > w0 + 100, `dragging the divider widens the panel (${w0} → ${w1})`);
+      // (the grid width settles a frame later: under reduced motion every property has a 0.01 ms transition)
+      const widthIs = (w) =>
+        p
+          .waitForFunction((w) => Math.abs((document.querySelector('aside.side')?.offsetWidth ?? 0) - w) < 2, w, { timeout: 2000 })
+          .then(() => true)
+          .catch(() => false);
       await p.locator('.splitter').dblclick();
-      assert(Math.abs((await side()) - w0) < 2, 'a double-click resets it');
+      assert(await widthIs(w0), `a double-click resets it (${await side()})`);
       await p.locator('.side-collapse').click();
-      assert((await p.locator('aside.side').count()) === 0 || (await side()) === 0, 'the panel hides');
+      assert((await p.locator('aside.side').count()) === 0 || (await widthIs(0)), 'the panel hides');
       await p.locator('.side-reopen').click();
-      assert(Math.abs((await side()) - w0) < 2, 'and comes back');
+      assert(await widthIs(w0), `and comes back (${await side()})`);
       assert(errors.length === 0, 'bench interactions: no page errors ' + errors.join(' | '));
     } finally {
       await shot(p, 'bench-interactions');

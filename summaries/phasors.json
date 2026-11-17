@@ -2,10 +2,18 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "phasors",
-  "intro": "正弦稳态下，同一频率的电压电流只差在**大小和相位**，把它们用复数（相量）表示，微分方程就变成了复数代数方程，KCL、KVL 和元件关系都照样成立。本课程一律以 **cos** 为参考函数，相量默认取**有效值**。",
+  "intro": [
+    "正弦稳态下，同一频率的电压和电流只差在**大小和相位**。把它们写成复数，也就是**相量**，微分方程就变成了复数的代数方程。",
+    "KCL、KVL 和元件关系对相量照样成立。",
+    "约定：本课程一律以 **cos** 为参考函数，相量默认取**有效值**。"
+  ],
   "i18n": {
     "en": {
-      "intro": "In sinusoidal steady state all voltages and currents share one frequency and differ only in **magnitude and phase**. Represent them by complex numbers (phasors) and the differential equations become complex algebra; KCL, KVL and the element relations all still hold. This course always uses **cosine** as the reference function, and phasors are **rms** phasors by default."
+      "intro": [
+        "In sinusoidal steady state all voltages and currents share one frequency and differ only in **magnitude and phase**. Write them as complex numbers, called **phasors**, and the differential equations become complex algebra.",
+        "KCL, KVL and the element relations all still hold for phasors.",
+        "Convention: this course always uses **cosine** as the reference function, and phasors are **rms** phasors by default."
+      ]
     }
   },
   "ideas": [
@@ -13,16 +21,20 @@
       "id": "three-elements",
       "title": "正弦量的三要素",
       "text": [
-        "u(t) = U_m cos(ωt + ψ_u)：**幅值** U_m、**角频率** ω（rad/s）、**初相** ψ_u（t = 0 时的相位，取 |ψ| ≤ 180°）。三者确定一个正弦量。",
-        "ω = 2πf = 2π/T：工频 f = 50 Hz 时 ω = 100π ≈ 314 rad/s，T = 20 ms。读题时先从表达式里把三要素读出来。"
+        "- v(t) = V_m cos(ωt + ψ_v) 有三个要素：**幅值** V_m、**角频率** ω（rad/s）、**初相** ψ_v。",
+        "- 初相是 t = 0 时的相位，取 |ψ| ≤ 180°。三个要素合起来确定一个正弦量。",
+        "- ω = 2πf = 2π/T。工频 f = 50 Hz 时 ω = 100π ≈ 314 rad/s，T = 20 ms。",
+        "- 读题时，先从表达式里把三要素读出来。"
       ],
       "problems": ["phasors-01-sinusoid-three-elements"],
       "i18n": {
         "en": {
           "title": "The three elements of a sinusoid",
           "text": [
-            "u(t) = U_m cos(ωt + ψ_u): **amplitude** U_m, **angular frequency** ω (rad/s) and **initial phase** ψ_u (the phase at t = 0, taken with |ψ| ≤ 180°). These three fix a sinusoid.",
-            "ω = 2πf = 2π/T: at mains frequency f = 50 Hz, ω = 100π ≈ 314 rad/s and T = 20 ms. Read the three elements off the expression first."
+            "- v(t) = V_m cos(ωt + ψ_v) has three elements: the **amplitude** V_m, the **angular frequency** ω (rad/s) and the **initial phase** ψ_v.",
+            "- The initial phase is the phase at t = 0, taken with |ψ| ≤ 180°. Together the three fix a sinusoid.",
+            "- ω = 2πf = 2π/T. At mains frequency f = 50 Hz, ω = 100π ≈ 314 rad/s and T = 20 ms.",
+            "- When you read a problem, read the three elements off the expression first."
           ]
         }
       }
@@ -31,16 +43,20 @@
       "id": "rms",
       "title": "有效值",
       "text": [
-        "有效值是“热效应相同的直流值”：I = √(\\frac{1}{T}∫_{0}^{T}i^{2}dt)。对正弦量 I = I_m/√2 ≈ 0.707I_m。",
-        "电表的读数、铭牌上的 220 V 都是有效值。u = 220√2 cos(100πt) V 的有效值是 220 V，幅值约 311 V。"
+        "- 有效值是“热效应相同的直流值”：I = √(\\frac{1}{T}∫_{0}^{T}i^{2}dt)。",
+        "- 对正弦量，I = I_m/√2 ≈ 0.707I_m。",
+        "- 电表的读数、铭牌上的 220 V 都是有效值。",
+        "- 例：v = 220√2 cos(100πt) V 的有效值是 220 V，幅值约 311 V。"
       ],
       "problems": ["phasors-01-sinusoid-three-elements", "phasors-02-sinusoid-to-phasor"],
       "i18n": {
         "en": {
           "title": "RMS values",
           "text": [
-            "The rms value is the DC value with the same heating effect: I = √(\\frac{1}{T}∫_{0}^{T}i^{2}dt). For a sinusoid I = I_m/√2 ≈ 0.707I_m.",
-            "Meter readings and the 220 V on a nameplate are rms values. u = 220√2 cos(100πt) V has rms value 220 V and amplitude about 311 V."
+            "- The rms value is the DC value with the same heating effect: I = √(\\frac{1}{T}∫_{0}^{T}i^{2}dt).",
+            "- For a sinusoid, I = I_m/√2 ≈ 0.707I_m.",
+            "- Meter readings and the 220 V on a nameplate are rms values.",
+            "- Example: v = 220√2 cos(100πt) V has an rms value of 220 V and an amplitude of about 311 V."
           ]
         }
       }
@@ -49,18 +65,20 @@
       "id": "phase-diff",
       "title": "相位差：超前与滞后",
       "text": [
-        "两个**同频率**正弦量的相位差等于初相之差：φ = ψ_u − ψ_i，与时间无关，取 |φ| ≤ 180°。",
-        "φ > 0：u **超前** i（u 先到达最大值）；φ < 0：u 滞后 i；φ = 0 同相；φ = ±180° 反相；φ = ±90° 正交。",
-        "比较相位前两个量必须用同一种函数（都化成 cos）、同样的符号形式（系数为正）。"
+        "- 两个**同频率**正弦量的相位差等于初相之差：φ = ψ_v − ψ_i。它与时间无关，取 |φ| ≤ 180°。",
+        "- φ > 0：v **超前** i，v 先到达最大值。面包板 4.1 的 RL 串联里，电流比电压晚到顶，就是这种情况。",
+        "- φ < 0：v 滞后 i。φ = 0 叫同相，φ = ±180° 叫反相，φ = ±90° 叫正交。",
+        "- 比较之前，两个量要写成同一种函数（都化成 cos），系数都为正。"
       ],
       "problems": ["phasors-04-phase-difference-rc", "phasors-08-kvl-phase-difference-120", "phasors-11-quadrature-branch-currents"],
       "i18n": {
         "en": {
           "title": "Phase difference: leading and lagging",
           "text": [
-            "The phase difference of two sinusoids of the **same frequency** is the difference of their initial phases: φ = ψ_u − ψ_i, independent of time, taken with |φ| ≤ 180°.",
-            "φ > 0: u **leads** i (u reaches its maximum first); φ < 0: u lags i; φ = 0 in phase; φ = ±180° in antiphase; φ = ±90° in quadrature.",
-            "Before comparing, write both with the same function (cosine) and a positive coefficient."
+            "- The phase difference of two sinusoids of the **same frequency** is the difference of their initial phases: φ = ψ_v − ψ_i. It does not depend on time and is taken with |φ| ≤ 180°.",
+            "- φ > 0: v **leads** i and reaches its maximum first. In the series RL circuit on the breadboard (4.1) the current peaked after the voltage: this is that case.",
+            "- φ < 0: v lags i. φ = 0 is called in phase, φ = ±180° antiphase, φ = ±90° quadrature.",
+            "- Before comparing, write both with the same function (cosine) and a positive coefficient."
           ]
         }
       }
@@ -69,18 +87,24 @@
       "id": "phasor",
       "title": "正弦量与相量的互换",
       "text": [
-        "u(t) = √2U cos(ωt + ψ_u) ↔ **有效值相量** U̇ = U∠ψ_u。相量只记有效值和初相，ω 是全电路共同的，不写进相量。振幅相量 U̇_m = U_m∠ψ_u = √2U̇。",
-        "给出 sin 形式时先化为 cos：sin x = cos(x − 90°)；负号化为 ±180°：−cos x = cos(x ± 180°)、−sin x = cos(x + 90°)。",
-        "相量是复数，不等于正弦量：只能写 u(t) ↔ U̇，不能写 u(t) = U̇。求得相量后，按同样的规则写回时域。"
+        "- v(t) = √2V cos(ωt + ψ_v) ↔ **有效值相量** V̇ = V∠ψ_v。",
+        "- 相量只记有效值和初相。ω 是全电路共同的，不写进相量。振幅相量 V̇_m = V_m∠ψ_v = √2V̇。",
+        "- 给出 sin 形式时，先化成 cos：sin x = cos(x − 90°)。",
+        "- 前面的负号化成 ±180°：−cos x = cos(x ± 180°)，−sin x = cos(x + 90°)。",
+        "- 相量是复数，不等于正弦量：只能写 v(t) ↔ V̇，不能写 v(t) = V̇。",
+        "- 求出相量后，按同样的规则写回时域。"
       ],
       "problems": ["phasors-02-sinusoid-to-phasor", "phasors-05-kcl-phasor-sum", "phasors-08-kvl-phase-difference-120"],
       "i18n": {
         "en": {
           "title": "From sinusoid to phasor and back",
           "text": [
-            "u(t) = √2U cos(ωt + ψ_u) ↔ **rms phasor** U̇ = U∠ψ_u. The phasor keeps only the rms value and the initial phase; ω is common to the whole circuit and not part of it. The amplitude phasor is U̇_m = U_m∠ψ_u = √2U̇.",
-            "Convert a sine to a cosine first: sin x = cos(x − 90°); turn a minus sign into ±180°: −cos x = cos(x ± 180°), −sin x = cos(x + 90°).",
-            "A phasor is a complex number, not the sinusoid: write u(t) ↔ U̇, never u(t) = U̇. Once a phasor is found, convert it back to the time domain by the same rule."
+            "- v(t) = √2V cos(ωt + ψ_v) ↔ **rms phasor** V̇ = V∠ψ_v.",
+            "- The phasor keeps only the rms value and the initial phase. ω is common to the whole circuit and is not part of it. The amplitude phasor is V̇_m = V_m∠ψ_v = √2V̇.",
+            "- If a sine is given, convert it to a cosine first: sin x = cos(x − 90°).",
+            "- Turn a leading minus sign into ±180°: −cos x = cos(x ± 180°), −sin x = cos(x + 90°).",
+            "- A phasor is a complex number, not the sinusoid: write v(t) ↔ V̇, never v(t) = V̇.",
+            "- Once a phasor is found, convert it back to the time domain by the same rule."
           ]
         }
       }
@@ -89,16 +113,22 @@
       "id": "complex",
       "title": "复数运算：代数形式与极坐标形式",
       "text": [
-        "代数形式 A = a + jb，极坐标形式 A = |A|∠θ，|A| = √(a² + b²)，θ = arctan(b/a)（注意按 a、b 的符号判断象限）。",
-        "**加减用代数形式**（实部、虚部分别相加），**乘除用极坐标形式**（模相乘除、辐角相加减）。乘以 j = 1∠90° 相当于逆时针转 90°，乘以 −j 顺时针转 90°。"
+        "- 代数形式 A = a + jb，极坐标形式 A = |A|∠θ。",
+        "- |A| = √(a² + b²)，θ = arctan(b/a)。象限要按 a、b 的符号判断。",
+        "- **加减用代数形式**：实部、虚部分别相加。",
+        "- **乘除用极坐标形式**：模相乘除，辐角相加减。",
+        "- 乘以 j = 1∠90° 相当于逆时针转 90°；乘以 −j 是顺时针转 90°。"
       ],
       "problems": ["phasors-02-sinusoid-to-phasor", "phasors-08-kvl-phase-difference-120", "phasors-10-rc-phase-shifter", "phasors-05-kcl-phasor-sum"],
       "i18n": {
         "en": {
           "title": "Complex arithmetic: rectangular and polar forms",
           "text": [
-            "Rectangular form A = a + jb, polar form A = |A|∠θ, with |A| = √(a² + b²) and θ = arctan(b/a) (pick the quadrant from the signs of a and b).",
-            "**Add and subtract in rectangular form** (real and imaginary parts separately), **multiply and divide in polar form** (magnitudes multiply/divide, angles add/subtract). Multiplying by j = 1∠90° rotates by +90° (counter-clockwise), by −j by −90°."
+            "- Rectangular form A = a + jb, polar form A = |A|∠θ.",
+            "- |A| = √(a² + b²) and θ = arctan(b/a). Pick the quadrant from the signs of a and b.",
+            "- **Add and subtract in rectangular form**: real and imaginary parts separately.",
+            "- **Multiply and divide in polar form**: magnitudes multiply or divide, angles add or subtract.",
+            "- Multiplying by j = 1∠90° rotates by 90° counter-clockwise; multiplying by −j rotates by 90° clockwise."
           ]
         }
       }
@@ -107,18 +137,24 @@
       "id": "elements",
       "title": "R、L、C 元件的相量关系",
       "text": [
-        "关联参考方向下：电阻 U̇ = Rİ，电压电流**同相**；电感 U̇ = jωLİ = jX_Lİ，电压**超前**电流 90°；电容 U̇ = \\frac{1}{jωC}İ = −jX_Cİ，电流**超前**电压 90°。",
-        "感抗 X_L = ωL 随频率升高而增大，容抗 X_C = 1/(ωC) 随频率升高而减小，单位都是 Ω。有效值关系 U = X_LI、U = X_CI 只给大小，相位要另外记。",
-        "来源：时域的 d/dt 对应相量的乘以 jω，所以 u = L di/dt ↔ U̇ = jωLİ，i = C du/dt ↔ İ = jωCU̇。"
+        "- 下面都取关联参考方向。电阻 V̇ = Rİ：电压、电流**同相**。",
+        "- 电感 V̇ = jωLİ = jX_Lİ：电压**超前**电流 90°。",
+        "- 电容 V̇ = \\frac{1}{jωC}İ = −jX_Cİ：电流**超前**电压 90°。",
+        "- 感抗 X_L = ωL，频率越高越大；容抗 X_C = 1/(ωC)，频率越高越小。单位都是 Ω。",
+        "- 有效值关系 V = X_LI、V = X_CI 只给大小，相位要另外记。",
+        "- 来源：时域的 d/dt 对应相量的乘以 jω。所以 v = L di/dt ↔ V̇ = jωLİ，i = C dv/dt ↔ İ = jωCV̇。"
       ],
       "problems": ["phasors-03-inductor-capacitor-vcr", "phasors-04-phase-difference-rc"],
       "i18n": {
         "en": {
           "title": "Phasor relations of R, L and C",
           "text": [
-            "With the passive sign convention: resistor U̇ = Rİ, voltage and current **in phase**; inductor U̇ = jωLİ = jX_Lİ, voltage **leads** current by 90°; capacitor U̇ = \\frac{1}{jωC}İ = −jX_Cİ, current **leads** voltage by 90°.",
-            "The inductive reactance X_L = ωL grows with frequency, the capacitive reactance X_C = 1/(ωC) falls with frequency; both are in Ω. The rms relations U = X_LI, U = X_CI give only magnitudes; remember the phases separately.",
-            "Why: d/dt in the time domain becomes multiplication by jω for phasors, so u = L di/dt ↔ U̇ = jωLİ and i = C du/dt ↔ İ = jωCU̇."
+            "- All with the passive sign convention. Resistor V̇ = Rİ: voltage and current **in phase**.",
+            "- Inductor V̇ = jωLİ = jX_Lİ: the voltage **leads** the current by 90°.",
+            "- Capacitor V̇ = \\frac{1}{jωC}İ = −jX_Cİ: the current **leads** the voltage by 90°.",
+            "- The inductive reactance X_L = ωL grows with frequency; the capacitive reactance X_C = 1/(ωC) falls with it. Both are in Ω.",
+            "- The rms relations V = X_LI, V = X_CI give only magnitudes; remember the phases separately.",
+            "- Why: d/dt in the time domain becomes multiplication by jω for phasors. So v = L di/dt ↔ V̇ = jωLİ and i = C dv/dt ↔ İ = jωCV̇."
           ]
         }
       }
@@ -127,16 +163,20 @@
       "id": "kirchhoff",
       "title": "相量形式的 KCL、KVL：有效值不能直接相加",
       "text": [
-        "同频正弦量之和仍是同频正弦量，所以 Σi = 0 ↔ Σİ = 0，Σu = 0 ↔ ΣU̇ = 0：基尔霍夫定律对**相量**成立。",
-        "**有效值一般不满足 KCL、KVL**：3 A 与 4 A 相差 90° 的两个电流之和是 5 A，不是 7 A；RLC 串联中电感、电容上的电压可以比电源电压还大。电表读的是有效值，合成时要用相量（或相量图）。"
+        "- 同频正弦量之和仍是同频正弦量。所以 Σi = 0 ↔ Σİ = 0，Σv = 0 ↔ ΣV̇ = 0：基尔霍夫定律对**相量**成立。",
+        "- **有效值一般不满足 KCL、KVL。** 例如相差 90° 的 3 A 和 4 A 两个电流，合起来是 5 A，不是 7 A。",
+        "- RLC 串联时，电感、电容上的电压可以比电源电压还大。",
+        "- 电表读的是有效值，合成时要用相量或相量图。面包板 4.1 里量过：电阻、电感两段电压是直角三角形的两条直角边，电源电压是斜边。"
       ],
       "problems": ["phasors-05-kcl-phasor-sum", "phasors-06-kvl-series-rlc-voltmeters", "phasors-07-parallel-rlc-ammeters", "phasors-08-kvl-phase-difference-120", "phasors-11-quadrature-branch-currents"],
       "i18n": {
         "en": {
           "title": "KCL and KVL for phasors: rms values do not add",
           "text": [
-            "The sum of same-frequency sinusoids is a sinusoid of that frequency, so Σi = 0 ↔ Σİ = 0 and Σu = 0 ↔ ΣU̇ = 0: Kirchhoff's laws hold for **phasors**.",
-            "**RMS values generally do not obey KCL or KVL**: 3 A and 4 A in quadrature add to 5 A, not 7 A; in a series RLC circuit the inductor or capacitor voltage can exceed the source voltage. Meters read rms values; combine them as phasors (or with a phasor diagram)."
+            "- The sum of same-frequency sinusoids is a sinusoid of that frequency. So Σi = 0 ↔ Σİ = 0 and Σv = 0 ↔ ΣV̇ = 0: Kirchhoff's laws hold for **phasors**.",
+            "- **RMS values generally do not obey KCL or KVL.** For example, currents of 3 A and 4 A that are 90° apart add up to 5 A, not 7 A.",
+            "- In a series RLC circuit the inductor or capacitor voltage can be larger than the source voltage.",
+            "- Meters read rms values; combine them as phasors or with a phasor diagram. You measured this on the breadboard in 4.1: the resistor and inductor voltages are the two legs of a right triangle, and the source voltage is the hypotenuse."
           ]
         }
       }
@@ -145,18 +185,22 @@
       "id": "diagram",
       "title": "相量图",
       "text": [
-        "把相量画在复平面上：长度 = 有效值，方向 = 初相。KCL、KVL 变成相量的首尾相接。",
-        "选**参考相量**：串联电路选电流（各元件共用），并联电路选电压。R 上的电压与电流平行，L、C 上的电压与电流垂直，于是常常出现直角三角形，用勾股定理、三角函数就能由电表读数反推参数（三电压表法、同相条件等）。",
-        "只知道有效值时，相量图往往是最快的方法：先画已知方向的相量，再用长度条件把三角形画全。"
+        "- 把相量画在复平面上：长度 = 有效值，方向 = 初相。KCL、KVL 就变成相量首尾相接。",
+        "- 先选**参考相量**：串联电路选电流（各元件共用），并联电路选电压。",
+        "- R 上的电压与电流平行；L、C 上的电压与电流垂直。所以图上常常出现直角三角形。",
+        "- 用勾股定理和三角函数，就能由电表读数反推参数，例如三电压表法、同相条件。",
+        "- 只知道有效值时，相量图往往最快：先画方向已知的相量，再用长度把三角形补全。"
       ],
       "problems": ["phasors-09-coil-phasor-diagram", "phasors-10-rc-phase-shifter", "phasors-11-quadrature-branch-currents", "phasors-12-in-phase-condition", "phasors-06-kvl-series-rlc-voltmeters", "phasors-07-parallel-rlc-ammeters"],
       "i18n": {
         "en": {
           "title": "Phasor diagrams",
           "text": [
-            "Draw the phasors in the complex plane: length = rms value, direction = initial phase. KCL and KVL become phasors placed head to tail.",
-            "Choose a **reference phasor**: the current for a series circuit (common to all elements), the voltage for a parallel one. The voltage of R is parallel to its current and those of L and C are perpendicular to theirs, so right triangles appear everywhere; Pythagoras and trigonometry then recover parameters from meter readings (three-voltmeter method, in-phase conditions, …).",
-            "When only rms values are known, the diagram is often the fastest method: draw the phasors whose directions you know, then complete the triangle from the lengths."
+            "- Draw the phasors in the complex plane: length = rms value, direction = initial phase. KCL and KVL become phasors placed head to tail.",
+            "- First choose a **reference phasor**: the current for a series circuit (common to all elements), the voltage for a parallel one.",
+            "- The voltage of R is parallel to its current; those of L and C are perpendicular to theirs. So right triangles appear everywhere.",
+            "- Pythagoras and trigonometry then recover parameters from meter readings, for example in the three-voltmeter method or from an in-phase condition.",
+            "- When only rms values are known, the diagram is often the fastest method: draw the phasors whose directions you know, then complete the triangle from the lengths."
           ]
         }
       }
@@ -167,33 +211,33 @@
       "id": "sinusoid",
       "idea": "three-elements",
       "name": "正弦量",
-      "expr": "u(t) = U_m cos(ωt + ψ_u)，ω = 2πf = \\frac{2π}{T}",
-      "when": "以 cos 为参考函数；初相取 |ψ_u| ≤ 180°。",
-      "i18n": { "en": { "name": "Sinusoid", "expr": "u(t) = U_m cos(ωt + ψ_u), ω = 2πf = \\frac{2π}{T}", "when": "Cosine reference; initial phase taken with |ψ_u| ≤ 180°." } }
+      "expr": "v(t) = V_m cos(ωt + ψ_v)，ω = 2πf = \\frac{2π}{T}",
+      "when": "以 cos 为参考函数；初相取 |ψ_v| ≤ 180°。",
+      "i18n": { "en": { "name": "Sinusoid", "expr": "v(t) = V_m cos(ωt + ψ_v), ω = 2πf = \\frac{2π}{T}", "when": "Cosine reference; initial phase taken with |ψ_v| ≤ 180°." } }
     },
     {
       "id": "rms",
       "idea": "rms",
       "name": "有效值",
-      "expr": "U = \\frac{U_m}{\\sqrt{2}}",
-      "when": "只对正弦量成立（一般周期量用 √(平均的平方) 定义）。",
-      "i18n": { "en": { "name": "RMS value", "expr": "U = \\frac{U_m}{\\sqrt{2}}", "when": "Sinusoids only (other periodic signals: square root of the mean of the square)." } }
+      "expr": "V = \\frac{V_m}{\\sqrt{2}}",
+      "when": "只对正弦量成立。一般的周期量用 √(平方的平均值) 定义。",
+      "i18n": { "en": { "name": "RMS value", "expr": "V = \\frac{V_m}{\\sqrt{2}}", "when": "Sinusoids only. Other periodic signals use the square root of the mean of the square." } }
     },
     {
       "id": "phase-diff",
       "idea": "phase-diff",
       "name": "相位差",
-      "expr": "φ = ψ_u − ψ_i",
-      "when": "两个同频率正弦量，同为 cos、系数为正；φ > 0 表示 u 超前 i，取 |φ| ≤ 180°。",
-      "i18n": { "en": { "name": "Phase difference", "expr": "φ = ψ_u − ψ_i", "when": "Two sinusoids of the same frequency, both cosines with positive coefficients; φ > 0 means u leads i; |φ| ≤ 180°." } }
+      "expr": "φ = ψ_v − ψ_i",
+      "when": "两个同频率正弦量，都写成系数为正的 cos。φ > 0 表示 v 超前 i；取 |φ| ≤ 180°。",
+      "i18n": { "en": { "name": "Phase difference", "expr": "φ = ψ_v − ψ_i", "when": "Two sinusoids of the same frequency, both written as cosines with positive coefficients. φ > 0 means v leads i; |φ| ≤ 180°." } }
     },
     {
       "id": "phasor",
       "idea": "phasor",
       "name": "有效值相量",
-      "expr": "u = \\sqrt{2}U cos(ωt + ψ_u) ↔ U̇ = U∠ψ_u = U cos ψ_u + jU sin ψ_u",
-      "when": "同一频率的正弦稳态量；振幅相量 U̇_m = √2U̇。",
-      "i18n": { "en": { "name": "RMS phasor", "expr": "u = \\sqrt{2}U cos(ωt + ψ_u) ↔ U̇ = U∠ψ_u = U cos ψ_u + jU sin ψ_u", "when": "Sinusoidal steady-state quantities of one frequency; the amplitude phasor is U̇_m = √2U̇." } }
+      "expr": "v = \\sqrt{2}V cos(ωt + ψ_v) ↔ V̇ = V∠ψ_v = V cos ψ_v + jV sin ψ_v",
+      "when": "同一频率的正弦稳态量；振幅相量 V̇_m = √2V̇。",
+      "i18n": { "en": { "name": "RMS phasor", "expr": "v = \\sqrt{2}V cos(ωt + ψ_v) ↔ V̇ = V∠ψ_v = V cos ψ_v + jV sin ψ_v", "when": "Sinusoidal steady-state quantities of one frequency; the amplitude phasor is V̇_m = √2V̇." } }
     },
     {
       "id": "sin-cos",
@@ -215,25 +259,25 @@
       "id": "deriv",
       "idea": "elements",
       "name": "微分与积分",
-      "expr": "\\frac{du}{dt} ↔ jωU̇，∫u dt ↔ \\frac{U̇}{jω}",
+      "expr": "\\frac{dv}{dt} ↔ jωV̇，∫v dt ↔ \\frac{V̇}{jω}",
       "when": "正弦稳态，同一 ω。",
-      "i18n": { "en": { "name": "Derivative and integral", "expr": "\\frac{du}{dt} ↔ jωU̇, ∫u dt ↔ \\frac{U̇}{jω}", "when": "Sinusoidal steady state, one ω." } }
+      "i18n": { "en": { "name": "Derivative and integral", "expr": "\\frac{dv}{dt} ↔ jωV̇, ∫v dt ↔ \\frac{V̇}{jω}", "when": "Sinusoidal steady state, one ω." } }
     },
     {
       "id": "vcr",
       "idea": "elements",
       "name": "元件 VCR",
-      "expr": "U̇_R = Rİ；U̇_L = jωLİ = jX_Lİ；U̇_C = \\frac{1}{jωC}İ = −jX_Cİ",
-      "when": "u、i 关联参考方向；X_L = ωL，X_C = 1/(ωC)，均为正值（Ω）。",
-      "i18n": { "en": { "name": "Element VCRs", "expr": "U̇_R = Rİ; U̇_L = jωLİ = jX_Lİ; U̇_C = \\frac{1}{jωC}İ = −jX_Cİ", "when": "u and i associated; X_L = ωL and X_C = 1/(ωC) are both positive (Ω)." } }
+      "expr": "V̇_R = Rİ；V̇_L = jωLİ = jX_Lİ；V̇_C = \\frac{1}{jωC}İ = −jX_Cİ",
+      "when": "v、i 关联参考方向；X_L = ωL，X_C = 1/(ωC)，均为正值（Ω）。",
+      "i18n": { "en": { "name": "Element VCRs", "expr": "V̇_R = Rİ; V̇_L = jωLİ = jX_Lİ; V̇_C = \\frac{1}{jωC}İ = −jX_Cİ", "when": "v and i associated; X_L = ωL and X_C = 1/(ωC) are both positive (Ω)." } }
     },
     {
       "id": "kcl-kvl",
       "idea": "kirchhoff",
       "name": "相量形式的 KCL、KVL",
-      "expr": "Σİ = 0，ΣU̇ = 0",
+      "expr": "Σİ = 0，ΣV̇ = 0",
       "when": "所有量同一频率；对有效值一般**不**成立。",
-      "i18n": { "en": { "name": "Phasor KCL, KVL", "expr": "Σİ = 0, ΣU̇ = 0", "when": "All quantities at one frequency; generally **not** true for rms values." } }
+      "i18n": { "en": { "name": "Phasor KCL, KVL", "expr": "Σİ = 0, ΣV̇ = 0", "when": "All quantities at one frequency; generally **not** true for rms values." } }
     }
   ],
   "examples": [
@@ -241,10 +285,10 @@
       "id": "rl-series",
       "ideas": ["elements", "kirchhoff", "complex", "phase-diff"],
       "title": "RL 串联：相量计算与电压表读数",
-      "statement": "图示 RL 串联电路接 u_s(t) = 20√2 cos(1000t) V，R = 6 Ω，L = 8 mH。求电流相量 İ（代数形式和极坐标形式）、R 和 L 上电压的有效值和初相，写出 i(t)，并说明为什么两个电压有效值之和不等于电源电压。",
+      "statement": "图示 RL 串联电路接 v_s(t) = 20√2 cos(1000t) V，R = 6 Ω，L = 8 mH。求电流相量 İ（代数形式和极坐标形式），以及 R、L 上电压的有效值和初相。再写出 i(t)，并说明为什么两个电压的有效值之和不等于电源电压。",
       "schematic": {
         "elements": [
-          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "u_s(t)" },
+          { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "v_s(t)" },
           { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 6 },
           { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": "8m" }
         ],
@@ -256,8 +300,8 @@
         "grounds": [[0, 4]],
         "marks": [
           { "kind": "i", "el": "R", "name": "i" },
-          { "kind": "v", "el": "R", "name": "u_R" },
-          { "kind": "v", "el": "L", "name": "u_L" }
+          { "kind": "v", "el": "R", "name": "v_R" },
+          { "kind": "v", "el": "L", "name": "v_L" }
         ]
       },
       "analysis": { "type": "ac", "omega": 1000 },
@@ -266,30 +310,30 @@
         { "id": "iim", "ask": "Im İ", "find": { "kind": "i", "el": "R", "part": "im" }, "answer": -1.6, "unit": "A" },
         { "id": "imag", "ask": "I", "find": { "kind": "i", "el": "R", "part": "mag" }, "answer": 2, "unit": "A" },
         { "id": "iph", "ask": "ψ_i", "find": { "kind": "i", "el": "R", "part": "phase" }, "answer": -53.1301, "unit": "°" },
-        { "id": "ur", "ask": "U_R", "find": { "kind": "v", "el": "R", "part": "mag" }, "answer": 12, "unit": "V" },
-        { "id": "ul", "ask": "U_L", "find": { "kind": "v", "el": "L", "part": "mag" }, "answer": 16, "unit": "V" },
-        { "id": "ulph", "ask": "U̇_L 的初相", "find": { "kind": "v", "el": "L", "part": "phase" }, "answer": 36.8699, "unit": "°" }
+        { "id": "ur", "ask": "V_R", "find": { "kind": "v", "el": "R", "part": "mag" }, "answer": 12, "unit": "V" },
+        { "id": "ul", "ask": "V_L", "find": { "kind": "v", "el": "L", "part": "mag" }, "answer": 16, "unit": "V" },
+        { "id": "ulph", "ask": "V̇_L 的初相", "find": { "kind": "v", "el": "L", "part": "phase" }, "answer": 36.8699, "unit": "°" }
       ],
       "steps": [
-        "1. **写相量。** u_s = 20√2 cos(1000t) V → U̇_s = 20∠0° V（有效值），ω = 1000 rad/s。",
-        "2. **元件的相量关系。** X_L = ωL = 1000 × 0.008 = 8（Ω）。KVL：U̇_s = Rİ + jX_Lİ = (6 + j8)İ。",
-        "3. **求电流（除法）。** 代数形式：İ = 20/(6 + j8) = 20(6 − j8)/(6² + 8²) = **1.2 − j1.6 A**；极坐标形式：6 + j8 = 10∠53.13°，İ = 20∠0°/10∠53.13° = **2∠−53.13° A**。所以 **I = 2 A**，**ψ_i = −53.13°**，i(t) = 2√2 cos(1000t − 53.13°) A。",
-        "4. **元件电压。** U̇_R = 6 × 2∠−53.13° = 12∠−53.13° V（与 İ 同相），**U_R = 12 V**；U̇_L = j8 × 2∠−53.13° = 16∠36.87° V（超前 İ 90°），**U_L = 16 V**，初相 **36.87°**。",
-        "5. **相位关系。** φ = ψ_u − ψ_i = 0° − (−53.13°) = 53.13° > 0：u_s 超前 i，电路呈感性。",
-        "6. **为什么 12 + 16 ≠ 20？** U̇_R 与 U̇_L 相差 90°，相量相加：√(12² + 16²) = 20，正好是 U_s。电压表读数（有效值）不满足 KVL，相量才满足。"
+        "1. **写相量。** v_s = 20√2 cos(1000t) V → V̇_s = 20∠0° V（有效值），ω = 1000 rad/s。",
+        "2. **元件的相量关系。** X_L = ωL = 1000 × 0.008 = 8（Ω）。KVL：V̇_s = Rİ + jX_Lİ = (6 + j8)İ。",
+        "3. **求电流（除法）。** 代数形式：İ = 20/(6 + j8) = 20(6 − j8)/(6² + 8²) = **1.2 − j1.6 A**。极坐标形式：6 + j8 = 10∠53.13°，İ = 20∠0°/10∠53.13° = **2∠−53.13° A**。所以 **I = 2 A**，**ψ_i = −53.13°**，i(t) = 2√2 cos(1000t − 53.13°) A。",
+        "4. **元件电压。** V̇_R = 6 × 2∠−53.13° = 12∠−53.13° V（与 İ 同相），**V_R = 12 V**。V̇_L = j8 × 2∠−53.13° = 16∠36.87° V（超前 İ 90°），**V_L = 16 V**，初相 **36.87°**。",
+        "5. **相位关系。** φ = ψ_v − ψ_i = 0° − (−53.13°) = 53.13° > 0：v_s 超前 i，电路呈感性。",
+        "6. **为什么 12 + 16 ≠ 20？** V̇_R 与 V̇_L 相差 90°，相量相加：√(12² + 16²) = 20，正好是 V_s。电压表读数（有效值）不满足 KVL，相量才满足。"
       ],
       "i18n": {
         "en": {
           "title": "Series RL: phasor arithmetic and voltmeter readings",
-          "statement": "A series RL circuit is driven by u_s(t) = 20√2 cos(1000t) V, with R = 6 Ω and L = 8 mH. Find the current phasor İ (rectangular and polar), the rms values and initial phases of the voltages across R and L, write i(t), and explain why the two rms voltages do not add up to the source voltage.",
-          "results": [{ "ask": "Re İ" }, { "ask": "Im İ" }, { "ask": "I" }, { "ask": "ψ_i" }, { "ask": "U_R" }, { "ask": "U_L" }, { "ask": "initial phase of U̇_L" }],
+          "statement": "A series RL circuit is driven by v_s(t) = 20√2 cos(1000t) V, with R = 6 Ω and L = 8 mH. Find the current phasor İ (rectangular and polar), and the rms values and initial phases of the voltages across R and L. Then write i(t) and explain why the two rms voltages do not add up to the source voltage.",
+          "results": [{ "ask": "Re İ" }, { "ask": "Im İ" }, { "ask": "I" }, { "ask": "ψ_i" }, { "ask": "V_R" }, { "ask": "V_L" }, { "ask": "initial phase of V̇_L" }],
           "steps": [
-            "1. **Phasor.** u_s = 20√2 cos(1000t) V → U̇_s = 20∠0° V (rms), ω = 1000 rad/s.",
-            "2. **Element relations.** X_L = ωL = 1000 × 0.008 = 8 (Ω). KVL: U̇_s = Rİ + jX_Lİ = (6 + j8)İ.",
-            "3. **Current (a division).** Rectangular: İ = 20/(6 + j8) = 20(6 − j8)/(6² + 8²) = **1.2 − j1.6 A**; polar: 6 + j8 = 10∠53.13°, İ = 20∠0°/10∠53.13° = **2∠−53.13° A**. So **I = 2 A**, **ψ_i = −53.13°**, i(t) = 2√2 cos(1000t − 53.13°) A.",
-            "4. **Element voltages.** U̇_R = 6 × 2∠−53.13° = 12∠−53.13° V (in phase with İ), **U_R = 12 V**; U̇_L = j8 × 2∠−53.13° = 16∠36.87° V (leading İ by 90°), **U_L = 16 V**, initial phase **36.87°**.",
-            "5. **Phase relation.** φ = ψ_u − ψ_i = 0° − (−53.13°) = 53.13° > 0: u_s leads i, the circuit is inductive.",
-            "6. **Why 12 + 16 ≠ 20?** U̇_R and U̇_L are 90° apart; as phasors they add to √(12² + 16²) = 20, exactly U_s. Voltmeter readings (rms values) do not obey KVL; phasors do."
+            "1. **Phasor.** v_s = 20√2 cos(1000t) V → V̇_s = 20∠0° V (rms), ω = 1000 rad/s.",
+            "2. **Element relations.** X_L = ωL = 1000 × 0.008 = 8 (Ω). KVL: V̇_s = Rİ + jX_Lİ = (6 + j8)İ.",
+            "3. **Current (a division).** Rectangular: İ = 20/(6 + j8) = 20(6 − j8)/(6² + 8²) = **1.2 − j1.6 A**. Polar: 6 + j8 = 10∠53.13°, İ = 20∠0°/10∠53.13° = **2∠−53.13° A**. So **I = 2 A**, **ψ_i = −53.13°**, i(t) = 2√2 cos(1000t − 53.13°) A.",
+            "4. **Element voltages.** V̇_R = 6 × 2∠−53.13° = 12∠−53.13° V (in phase with İ), **V_R = 12 V**. V̇_L = j8 × 2∠−53.13° = 16∠36.87° V (leading İ by 90°), **V_L = 16 V**, initial phase **36.87°**.",
+            "5. **Phase relation.** φ = ψ_v − ψ_i = 0° − (−53.13°) = 53.13° > 0: v_s leads i, the circuit is inductive.",
+            "6. **Why 12 + 16 ≠ 20?** V̇_R and V̇_L are 90° apart; as phasors they add to √(12² + 16²) = 20, exactly V_s. Voltmeter readings (rms values) do not obey KVL; phasors do."
           ]
         }
       }
@@ -298,10 +342,10 @@
       "id": "rc-parallel",
       "ideas": ["kirchhoff", "diagram", "elements"],
       "title": "RC 并联：电流表读数与相量图",
-      "statement": "图示电路中 U̇_s = 24∠0° V（有效值），ω = 1000 rad/s，R = 8 Ω，C = 125 µF。电流表 A_1、A_2 分别测 R、C 支路电流，A 测总电流。求三个电流表的读数和总电流的初相。",
+      "statement": "图示电路中 V̇_s = 24∠0° V（有效值），ω = 1000 rad/s，R = 8 Ω，C = 125 µF。电流表 A_1、A_2 分别测 R、C 支路电流，A 测总电流。求三个电流表的读数和总电流的初相。",
       "schematic": {
         "elements": [
-          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 24, "phase": 0 } } },
+          { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 24, "phase": 0 } } },
           { "ref": "A", "type": "ammeter", "from": [2, 0], "to": [5, 0] },
           { "ref": "A1", "type": "ammeter", "from": [7, 0], "to": [7, 2] },
           { "ref": "R", "type": "R", "from": [7, 2], "to": [7, 6], "value": 8 },
@@ -323,19 +367,19 @@
         { "id": "ph", "ask": "总电流初相", "find": { "kind": "i", "el": "A", "part": "phase" }, "answer": 45, "unit": "°" }
       ],
       "steps": [
-        "1. **并联电路选电压为参考相量：** U̇_s = 24∠0° V，两条支路电压相同。",
-        "2. **支路电流。** İ_R = U̇_s/R = 24/8 = 3∠0°，A_1 读 **3 A**。X_C = 1/(ωC) = 1/(1000 × 125×10⁻⁶) = 8（Ω），İ_C = U̇_s/(−j8) = j3 = 3∠90°，A_2 读 **3 A**（电容电流超前电压 90°）。",
+        "1. **并联电路选电压为参考相量：** V̇_s = 24∠0° V，两条支路电压相同。",
+        "2. **支路电流。** İ_R = V̇_s/R = 24/8 = 3∠0°，A_1 读 **3 A**。X_C = 1/(ωC) = 1/(1000 × 125×10⁻⁶) = 8（Ω），İ_C = V̇_s/(−j8) = j3 = 3∠90°，A_2 读 **3 A**（电容电流超前电压 90°）。",
         "3. **相量形式的 KCL。** İ = İ_R + İ_C = 3 + j3 = 3√2∠45°：A 读 **4.243 A**，初相 **45°**——总电流超前电压，电路呈容性。",
         "4. **相量图。** İ_R 沿实轴、İ_C 沿虚轴，两者组成等腰直角三角形，斜边 3√2。读数 3 + 3 = 6 ≠ 4.243：有效值不满足 KCL。"
       ],
       "i18n": {
         "en": {
           "title": "Parallel RC: ammeter readings and the phasor diagram",
-          "statement": "U̇_s = 24∠0° V (rms), ω = 1000 rad/s, R = 8 Ω, C = 125 µF. Ammeters A_1 and A_2 measure the R and C branch currents, A the total current. Find the three readings and the initial phase of the total current.",
+          "statement": "V̇_s = 24∠0° V (rms), ω = 1000 rad/s, R = 8 Ω, C = 125 µF. Ammeters A_1 and A_2 measure the R and C branch currents, A the total current. Find the three readings and the initial phase of the total current.",
           "results": [{ "ask": "reading of A_1" }, { "ask": "reading of A_2" }, { "ask": "reading of A" }, { "ask": "initial phase of the total current" }],
           "steps": [
-            "1. **Parallel circuit, so take the voltage as reference:** U̇_s = 24∠0° V across both branches.",
-            "2. **Branch currents.** İ_R = U̇_s/R = 24/8 = 3∠0°, A_1 reads **3 A**. X_C = 1/(ωC) = 1/(1000 × 125×10⁻⁶) = 8 (Ω), İ_C = U̇_s/(−j8) = j3 = 3∠90°, A_2 reads **3 A** (the capacitor current leads the voltage by 90°).",
+            "1. **Parallel circuit, so take the voltage as reference:** V̇_s = 24∠0° V across both branches.",
+            "2. **Branch currents.** İ_R = V̇_s/R = 24/8 = 3∠0°, A_1 reads **3 A**. X_C = 1/(ωC) = 1/(1000 × 125×10⁻⁶) = 8 (Ω), İ_C = V̇_s/(−j8) = j3 = 3∠90°, A_2 reads **3 A** (the capacitor current leads the voltage by 90°).",
             "3. **Phasor KCL.** İ = İ_R + İ_C = 3 + j3 = 3√2∠45°: A reads **4.243 A**, initial phase **45°** — the total current leads the voltage, the circuit is capacitive.",
             "4. **Phasor diagram.** İ_R lies on the real axis and İ_C on the imaginary axis; they form an isosceles right triangle with hypotenuse 3√2. The readings 3 + 3 = 6 ≠ 4.243: rms values do not obey KCL."
           ]
@@ -359,20 +403,20 @@
     {
       "id": "peak-rms",
       "idea": "rms",
-      "text": "幅值与有效值混用：u = 100√2 cos ωt 的有效值相量是 100∠0°，不是 100√2∠0°。写回时域时也别忘了乘 √2。",
-      "i18n": { "en": { "text": "Mixing amplitude and rms: the rms phasor of u = 100√2 cos ωt is 100∠0°, not 100√2∠0°. Remember the √2 when converting back to the time domain." } }
+      "text": "幅值与有效值混用：v = 100√2 cos ωt 的有效值相量是 100∠0°，不是 100√2∠0°。写回时域时也别忘了乘 √2。",
+      "i18n": { "en": { "text": "Mixing amplitude and rms: the rms phasor of v = 100√2 cos ωt is 100∠0°, not 100√2∠0°. Remember the √2 when converting back to the time domain." } }
     },
     {
       "id": "cap-sign",
       "idea": "elements",
-      "text": "电容写成 U̇ = jX_Cİ。电容是 −jX_C（电流超前电压），电感才是 +jX_L（电压超前电流）。",
-      "i18n": { "en": { "text": "Writing U̇ = jX_Cİ for a capacitor. A capacitor is −jX_C (current leads voltage); +jX_L belongs to the inductor (voltage leads current)." } }
+      "text": "电容写成 V̇ = jX_Cİ。电容是 −jX_C（电流超前电压），电感才是 +jX_L（电压超前电流）。",
+      "i18n": { "en": { "text": "Writing V̇ = jX_Cİ for a capacitor. A capacitor is −jX_C (current leads voltage); +jX_L belongs to the inductor (voltage leads current)." } }
     },
     {
       "id": "phasor-equals",
       "idea": "phasor",
-      "text": "写成 u(t) = 10∠30° V。相量与正弦量是对应关系（↔），不是相等。",
-      "i18n": { "en": { "text": "Writing u(t) = 10∠30° V. A phasor corresponds to a sinusoid (↔); it is not equal to it." } }
+      "text": "写成 v(t) = 10∠30° V。相量与正弦量是对应关系（↔），不是相等。",
+      "i18n": { "en": { "text": "Writing v(t) = 10∠30° V. A phasor corresponds to a sinusoid (↔); it is not equal to it." } }
     },
     {
       "id": "quadrant",

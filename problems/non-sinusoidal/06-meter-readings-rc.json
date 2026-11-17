@@ -7,13 +7,13 @@
   "level": 3,
   "tags": ["仪表读数", "有效值", "平均功率", "电容隔直"],
   "statement": [
-    "u_s = 10 + 100√2 cos(1000t) + 20√2 cos(3000t) V 加在 R = 10 Ω 与 C = 33.33 µF（1/(ωC) = 30 Ω，ω = 1000 rad/s）串联的电路上。",
-    "电流表 A、电压表 V 是测有效值的电磁系仪表，功率表 W 是电动系仪表（读平均功率），它的电流线圈串在线路中，电压线圈接在结点 a 与地之间。",
+    "v_s = 10 + 100√2 cos(1000t) + 20√2 cos(3000t) V 加在 R = 10 Ω 与 C = 33.33 µF（1/(ωC) = 30 Ω，ω = 1000 rad/s）串联的电路上。",
+    "电流表 A、电压表 V 是测有效值的电磁系仪表。功率表 W 是电动系仪表，读平均功率：它的电流线圈串在线路中，电压线圈接在结点 a 与地之间。",
     "求三只表的读数，以及电容电压的直流分量。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "harmonics": { "dc": 10, "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 28.284271 } ] } }, "label": "u_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "harmonics": { "dc": 10, "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 28.284271 } ] } }, "label": "v_s" },
       { "ref": "A", "type": "ammeter", "from": [2, 0], "to": [5, 0], "label": "A" },
       { "ref": "W", "type": "ammeter", "from": [7, 0], "to": [10, 0], "label": "W" },
       { "ref": "R", "type": "R", "from": [12, 0], "to": [16, 0], "value": 10 },
@@ -45,8 +45,8 @@
   "analysis": { "type": "periodic", "omega": 1000 },
   "questions": [
     { "id": "A", "ask": "电流表读数 = ?", "find": { "kind": "meter", "el": "A" }, "answer": 3.464101, "unit": "A", "explain": "电容隔直，I_0 = 0；I_1 = 100/|10 − j30| = 3.162 A，I_3 = 20/|10 − j10| = 1.414 A；I = √(3.162² + 1.414²) = 3.464 A。" },
-    { "id": "UC0", "ask": "电容电压的直流分量 U_C0 = ?", "find": { "kind": "v", "el": "C", "harmonic": 0 }, "answer": 10, "unit": "V", "explain": "直流时电容开路、电流为零，R 上无压降，电源的 10 V 直流全部加在电容上。" },
-    { "id": "V", "ask": "电压表读数 = ?", "find": { "kind": "meter", "el": "V" }, "answer": 96.43651, "unit": "V", "explain": "U_C1 = 3.162 × 30 = 94.87 V，U_C3 = 1.414 × 10 = 14.14 V，U_C = √(10² + 94.87² + 14.14²) = 96.44 V。别忘了直流分量。" },
+    { "id": "UC0", "ask": "电容电压的直流分量 V_C0 = ?", "find": { "kind": "v", "el": "C", "harmonic": 0 }, "answer": 10, "unit": "V", "explain": "直流时电容开路、电流为零，R 上无压降，电源的 10 V 直流全部加在电容上。" },
+    { "id": "V", "ask": "电压表读数 = ?", "find": { "kind": "meter", "el": "V" }, "answer": 96.43651, "unit": "V", "explain": "V_C1 = 3.162 × 30 = 94.87 V，V_C3 = 1.414 × 10 = 14.14 V，V_C = √(10² + 94.87² + 14.14²) = 96.44 V。别忘了直流分量。" },
     {
       "id": "W",
       "ask": "功率表读数 = ?",
@@ -62,12 +62,12 @@
   ],
   "hints": ["三个分量分别单独作用。直流时电容相当于开路；k 次谐波时容抗是 1/(kωC)，3 次谐波的容抗只有 10 Ω。", "电流表、电压表读有效值（各分量有效值的平方和再开方）；功率表读平均功率（各次谐波功率之和）。", "电压表接在电容两端：直流分量不是零。"],
   "solution": [
-    "**1. 直流**（电容开路）：I_0 = 0，U_C0 = **10 V**，P_0 = 0。",
-    "**2. 基波**（1/(ωC) = 30 Ω）：Z_1 = 10 − j30 Ω，|Z_1| = 31.62 Ω，I_1 = 100/31.62 = 3.162 A，U_C1 = 30I_1 = 94.87 V，P_1 = I_1²R = 100 W。",
-    "**3. 3 次谐波**（1/(3ωC) = 10 Ω）：Z_3 = 10 − j10 Ω，|Z_3| = 14.14 Ω，I_3 = 20/14.14 = 1.414 A，U_C3 = 10I_3 = 14.14 V，P_3 = I_3²R = 20 W。",
+    "**1. 直流**（电容开路）：I_0 = 0，V_C0 = **10 V**，P_0 = 0。",
+    "**2. 基波**（1/(ωC) = 30 Ω）：Z_1 = 10 − j30 Ω，|Z_1| = 31.62 Ω，I_1 = 100/31.62 = 3.162 A，V_C1 = 30I_1 = 94.87 V，P_1 = I_1²R = 100 W。",
+    "**3. 3 次谐波**（1/(3ωC) = 10 Ω）：Z_3 = 10 − j10 Ω，|Z_3| = 14.14 Ω，I_3 = 20/14.14 = 1.414 A，V_C3 = 10I_3 = 14.14 V，P_3 = I_3²R = 20 W。",
     "**4. 读数：**",
     "- 电流表 I = √(0 + 3.162² + 1.414²) = **3.464 A**；",
-    "- 电压表 U_C = √(10² + 94.87² + 14.14²) = **96.44 V**；",
+    "- 电压表 V_C = √(10² + 94.87² + 14.14²) = **96.44 V**；",
     "- 功率表 P = 0 + 100 + 20 = **120 W**。",
     "**检查：** 只有 R 消耗功率，P = I²R = 3.464² × 10 = 120 W，与功率表读数一致。"
   ],
@@ -76,8 +76,8 @@
       "title": "Ammeter, voltmeter and wattmeter readings in a series RC circuit",
       "tags": ["meter readings", "rms value", "average power", "DC blocking"],
       "statement": [
-        "u_s = 10 + 100√2 cos(1000t) + 20√2 cos(3000t) V drives R = 10 Ω in series with C = 33.33 µF (1/(ωC) = 30 Ω at ω = 1000 rad/s).",
-        "The ammeter A and voltmeter V are moving-iron meters (they read rms values); the wattmeter W is electrodynamic (it reads average power): its current coil is in the line and its voltage coil between node a and ground.",
+        "v_s = 10 + 100√2 cos(1000t) + 20√2 cos(3000t) V drives R = 10 Ω in series with C = 33.33 µF (1/(ωC) = 30 Ω at ω = 1000 rad/s).",
+        "The ammeter A and voltmeter V are moving-iron meters: they read rms values. The wattmeter W is electrodynamic and reads average power: its current coil is in the line and its voltage coil between node a and ground.",
         "Find the three readings and the DC component of the capacitor voltage."
       ],
       "hints": [
@@ -86,19 +86,19 @@
         "The voltmeter is across the capacitor: its DC component is not zero."
       ],
       "solution": [
-        "**1. DC** (capacitor open): I_0 = 0, U_C0 = **10 V**, P_0 = 0.",
-        "**2. Fundamental** (1/(ωC) = 30 Ω): Z_1 = 10 − j30 Ω, |Z_1| = 31.62 Ω, I_1 = 100/31.62 = 3.162 A, U_C1 = 30I_1 = 94.87 V, P_1 = I_1²R = 100 W.",
-        "**3. 3rd harmonic** (1/(3ωC) = 10 Ω): Z_3 = 10 − j10 Ω, |Z_3| = 14.14 Ω, I_3 = 20/14.14 = 1.414 A, U_C3 = 10I_3 = 14.14 V, P_3 = I_3²R = 20 W.",
+        "**1. DC** (capacitor open): I_0 = 0, V_C0 = **10 V**, P_0 = 0.",
+        "**2. Fundamental** (1/(ωC) = 30 Ω): Z_1 = 10 − j30 Ω, |Z_1| = 31.62 Ω, I_1 = 100/31.62 = 3.162 A, V_C1 = 30I_1 = 94.87 V, P_1 = I_1²R = 100 W.",
+        "**3. 3rd harmonic** (1/(3ωC) = 10 Ω): Z_3 = 10 − j10 Ω, |Z_3| = 14.14 Ω, I_3 = 20/14.14 = 1.414 A, V_C3 = 10I_3 = 14.14 V, P_3 = I_3²R = 20 W.",
         "**4. Readings:**",
         "- ammeter I = √(0 + 3.162² + 1.414²) = **3.464 A**;",
-        "- voltmeter U_C = √(10² + 94.87² + 14.14²) = **96.44 V**;",
+        "- voltmeter V_C = √(10² + 94.87² + 14.14²) = **96.44 V**;",
         "- wattmeter P = 0 + 100 + 20 = **120 W**.",
         "**Check:** only R dissipates power, P = I²R = 3.464² × 10 = 120 W, the wattmeter reading."
       ],
       "questions": [
         { "ask": "Ammeter reading = ?", "explain": "The capacitor blocks DC, I_0 = 0; I_1 = 100/|10 − j30| = 3.162 A, I_3 = 20/|10 − j10| = 1.414 A; I = √(3.162² + 1.414²) = 3.464 A." },
-        { "ask": "DC component of the capacitor voltage, U_C0 = ?", "explain": "At DC the capacitor is open and no current flows, so R drops nothing and the whole 10 V DC component appears across the capacitor." },
-        { "ask": "Voltmeter reading = ?", "explain": "U_C1 = 3.162 × 30 = 94.87 V, U_C3 = 1.414 × 10 = 14.14 V, U_C = √(10² + 94.87² + 14.14²) = 96.44 V. Don't forget the DC component." },
+        { "ask": "DC component of the capacitor voltage, V_C0 = ?", "explain": "At DC the capacitor is open and no current flows, so R drops nothing and the whole 10 V DC component appears across the capacitor." },
+        { "ask": "Voltmeter reading = ?", "explain": "V_C1 = 3.162 × 30 = 94.87 V, V_C3 = 1.414 × 10 = 14.14 V, V_C = √(10² + 94.87² + 14.14²) = 96.44 V. Don't forget the DC component." },
         { "ask": "Wattmeter reading = ?", "explain": "An electrodynamic wattmeter reads the average power P = I_1²R + I_3²R = (10 + 2) × 10 = 120 W; the DC component carries no current and contributes no power." }
       ]
     }

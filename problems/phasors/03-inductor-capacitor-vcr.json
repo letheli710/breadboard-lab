@@ -7,12 +7,12 @@
   "level": 2,
   "tags": ["电感 VCR 相量形式", "电容 VCR 相量形式", "感抗与容抗"],
   "statement": [
-    "u_s(t) = 100√2 cos(1000t + 30°) V 同时加在电感 L = 0.2 H 和电容 C = 10 µF 两端，电流 i_L、i_C 的参考方向如图（与电压关联）。",
+    "v_s(t) = 100√2 cos(1000t + 30°) V 同时加在电感 L = 0.2 H 和电容 C = 10 µF 两端。电流 i_L、i_C 的参考方向如图，与电压关联。",
     "用有效值相量求 İ_L 的有效值和初相，以及 İ_C 的初相。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 100, "phase": 30 } }, "label": "u_s(t)" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 100, "phase": 30 } }, "label": "v_s(t)" },
       { "ref": "L", "type": "L", "from": [5, 0], "to": [5, 4], "value": 0.2 },
       { "ref": "C", "type": "C", "from": [10, 0], "to": [10, 4], "value": "10u" }
     ],
@@ -31,7 +31,7 @@
       "find": { "kind": "i", "el": "L", "part": "mag" },
       "answer": 0.5,
       "unit": "A",
-      "explain": "X_L = ωL = 1000 × 0.2 = 200 Ω，I_L = U/X_L = 100/200 = 0.5 A。"
+      "explain": "X_L = ωL = 1000 × 0.2 = 200 Ω，I_L = V/X_L = 100/200 = 0.5 A。"
     },
     {
       "id": "psiL",
@@ -39,7 +39,7 @@
       "find": { "kind": "i", "el": "L", "part": "phase" },
       "answer": -60,
       "unit": "°",
-      "explain": "İ_L = U̇/(jωL) = 100∠30°/(200∠90°) = 0.5∠−60° A：电感电流滞后电压 90°。"
+      "explain": "İ_L = V̇/(jωL) = 100∠30°/(200∠90°) = 0.5∠−60° A：电感电流滞后电压 90°。"
     },
     {
       "id": "psiC",
@@ -47,55 +47,55 @@
       "find": { "kind": "i", "el": "C", "part": "phase" },
       "answer": 120,
       "unit": "°",
-      "explain": "İ_C = jωC·U̇ = (0.01∠90°)(100∠30°) = 1∠120° A：电容电流超前电压 90°。"
+      "explain": "İ_C = jωC·V̇ = (0.01∠90°)(100∠30°) = 1∠120° A：电容电流超前电压 90°。"
     },
     {
       "id": "w2",
       "ask": "若电压有效值不变、角频率提高到 2000 rad/s，两个电流有效值如何变化？",
-      "choices": ["I_L、I_C 都不变", "I_L 变为 1 A，I_C 变为 0.5 A", "I_L 变为 0.25 A，I_C 变为 2 A", "I_L、I_C 都加倍"], "choiceExplain": ["忽略了电抗随频率变化：X_L = ωL、X_C = 1/(ωC) 都与 ω 有关，电压不变时电流也会变。", "把两个电抗随频率的变化方向弄反了：X_L = ωL 随 ω 增大，X_C = 1/(ωC) 随 ω 减小，而不是相反。", "", "只有电容电流与 ω 成正比；电感电流 I_L = U/(ωL) 与 ω 成反比。"],
+      "choices": ["I_L、I_C 都不变", "I_L 变为 1 A，I_C 变为 0.5 A", "I_L 变为 0.25 A，I_C 变为 2 A", "I_L、I_C 都加倍"], "choiceExplain": ["忽略了电抗随频率变化：X_L = ωL、X_C = 1/(ωC) 都与 ω 有关，电压不变时电流也会变。", "把两个电抗随频率的变化方向弄反了：X_L = ωL 随 ω 增大，X_C = 1/(ωC) 随 ω 减小，而不是相反。", "", "只有电容电流与 ω 成正比；电感电流 I_L = V/(ωL) 与 ω 成反比。"],
       "correct": 2,
       "explain": "X_L = ωL 与频率成正比，X_C = 1/(ωC) 与频率成反比：ω 加倍时 X_L = 400 Ω、X_C = 50 Ω，I_L = 0.25 A，I_C = 2 A。"
     }
   ],
   "hints": [
-    "先写电压相量 U̇ = 100∠30° V，再算 X_L = ωL 和 X_C = 1/(ωC)。",
-    "电感：U̇ = jωL·İ（电流滞后 90°）；电容：İ = jωC·U̇（电流超前 90°）。"
+    "先写电压相量 V̇ = 100∠30° V，再算 X_L = ωL 和 X_C = 1/(ωC)。",
+    "电感：V̇ = jωL·İ（电流滞后 90°）；电容：İ = jωC·V̇（电流超前 90°）。"
   ],
   "solution": [
-    "**1. 电压相量。** U̇ = 100∠30° V（有效值）。",
+    "**1. 电压相量。** V̇ = 100∠30° V（有效值）。",
     "**2. 电抗。** X_L = ωL = 200 Ω；X_C = 1/(ωC) = 1/(1000 × 10×10⁻⁶) = 100 Ω。",
-    "**3. 电感。** İ_L = U̇/(jX_L) = 100∠30°/(200∠90°) = **0.5∠−60° A**，i_L = 0.5√2 cos(1000t − 60°) A。",
-    "**4. 电容。** İ_C = U̇/(−jX_C) = 100∠30°/(100∠−90°) = **1∠120° A**，i_C = √2 cos(1000t + 120°) A。",
-    "**5. 相量图。** 以 U̇ 为参考：İ_L 落后 U̇ 90°，İ_C 超前 U̇ 90°，两者反相；电源电流 İ_L + İ_C = 0.5∠120° A。"
+    "**3. 电感。** İ_L = V̇/(jX_L) = 100∠30°/(200∠90°) = **0.5∠−60° A**，i_L = 0.5√2 cos(1000t − 60°) A。",
+    "**4. 电容。** İ_C = V̇/(−jX_C) = 100∠30°/(100∠−90°) = **1∠120° A**，i_C = √2 cos(1000t + 120°) A。",
+    "**5. 相量图。** 以 V̇ 为参考：İ_L 落后 V̇ 90°，İ_C 超前 V̇ 90°，两者反相；电源电流 İ_L + İ_C = 0.5∠120° A。"
   ],
   "i18n": {
     "en": {
       "title": "Phasor relations of the inductor and the capacitor",
       "tags": ["inductor phasor VCR", "capacitor phasor VCR", "reactance"],
       "statement": [
-        "u_s(t) = 100√2 cos(1000t + 30°) V is applied across both an inductor L = 0.2 H and a capacitor C = 10 µF; the reference directions of i_L and i_C are shown (passive convention).",
+        "v_s(t) = 100√2 cos(1000t + 30°) V is applied across both an inductor L = 0.2 H and a capacitor C = 10 µF. The reference directions of i_L and i_C are shown; both follow the passive convention.",
         "Using rms phasors, find the rms value and initial phase of İ_L, and the initial phase of İ_C."
       ],
       "questions": [
-        { "ask": "I_L = ? (rms)", "explain": "X_L = ωL = 1000 × 0.2 = 200 Ω, I_L = U/X_L = 100/200 = 0.5 A." },
-        { "ask": "Initial phase of İ_L = ?", "explain": "İ_L = U̇/(jωL) = 100∠30°/(200∠90°) = 0.5∠−60° A: the inductor current lags its voltage by 90°." },
-        { "ask": "Initial phase of İ_C = ?", "explain": "İ_C = jωC·U̇ = (0.01∠90°)(100∠30°) = 1∠120° A: the capacitor current leads its voltage by 90°." },
+        { "ask": "I_L = ? (rms)", "explain": "X_L = ωL = 1000 × 0.2 = 200 Ω, I_L = V/X_L = 100/200 = 0.5 A." },
+        { "ask": "Initial phase of İ_L = ?", "explain": "İ_L = V̇/(jωL) = 100∠30°/(200∠90°) = 0.5∠−60° A: the inductor current lags its voltage by 90°." },
+        { "ask": "Initial phase of İ_C = ?", "explain": "İ_C = jωC·V̇ = (0.01∠90°)(100∠30°) = 1∠120° A: the capacitor current leads its voltage by 90°." },
         {
           "ask": "If the rms voltage stays the same but ω is raised to 2000 rad/s, what happens to the two rms currents?",
-          "choices": ["Neither I_L nor I_C changes", "I_L becomes 1 A, I_C becomes 0.5 A", "I_L becomes 0.25 A, I_C becomes 2 A", "Both double"], "choiceExplain": ["This forgets that reactance depends on frequency: X_L = ωL and X_C = 1/(ωC) both involve ω, so the currents change even at the same voltage.", "The directions are swapped: X_L = ωL grows with ω and X_C = 1/(ωC) shrinks, not the other way round.", "", "Only the capacitor current is proportional to ω; the inductor current I_L = U/(ωL) is inversely proportional to it."],
+          "choices": ["Neither I_L nor I_C changes", "I_L becomes 1 A, I_C becomes 0.5 A", "I_L becomes 0.25 A, I_C becomes 2 A", "Both double"], "choiceExplain": ["This forgets that reactance depends on frequency: X_L = ωL and X_C = 1/(ωC) both involve ω, so the currents change even at the same voltage.", "The directions are swapped: X_L = ωL grows with ω and X_C = 1/(ωC) shrinks, not the other way round.", "", "Only the capacitor current is proportional to ω; the inductor current I_L = V/(ωL) is inversely proportional to it."],
           "explain": "X_L = ωL grows with frequency and X_C = 1/(ωC) falls with it: at double ω, X_L = 400 Ω and X_C = 50 Ω, so I_L = 0.25 A and I_C = 2 A."
         }
       ],
       "hints": [
-        "Write the voltage phasor U̇ = 100∠30° V, then compute X_L = ωL and X_C = 1/(ωC).",
-        "Inductor: U̇ = jωL·İ (current lags by 90°); capacitor: İ = jωC·U̇ (current leads by 90°)."
+        "Write the voltage phasor V̇ = 100∠30° V, then compute X_L = ωL and X_C = 1/(ωC).",
+        "Inductor: V̇ = jωL·İ (current lags by 90°); capacitor: İ = jωC·V̇ (current leads by 90°)."
       ],
       "solution": [
-        "**1. Voltage phasor.** U̇ = 100∠30° V (rms).",
+        "**1. Voltage phasor.** V̇ = 100∠30° V (rms).",
         "**2. Reactances.** X_L = ωL = 200 Ω; X_C = 1/(ωC) = 1/(1000 × 10×10⁻⁶) = 100 Ω.",
-        "**3. Inductor.** İ_L = U̇/(jX_L) = 100∠30°/(200∠90°) = **0.5∠−60° A**, i_L = 0.5√2 cos(1000t − 60°) A.",
-        "**4. Capacitor.** İ_C = U̇/(−jX_C) = 100∠30°/(100∠−90°) = **1∠120° A**, i_C = √2 cos(1000t + 120°) A.",
-        "**5. Phasor diagram.** With U̇ as reference, İ_L is 90° behind and İ_C 90° ahead, so they are in antiphase; the source current is İ_L + İ_C = 0.5∠120° A."
+        "**3. Inductor.** İ_L = V̇/(jX_L) = 100∠30°/(200∠90°) = **0.5∠−60° A**, i_L = 0.5√2 cos(1000t − 60°) A.",
+        "**4. Capacitor.** İ_C = V̇/(−jX_C) = 100∠30°/(100∠−90°) = **1∠120° A**, i_C = √2 cos(1000t + 120°) A.",
+        "**5. Phasor diagram.** With V̇ as reference, İ_L is 90° behind and İ_C 90° ahead, so they are in antiphase; the source current is İ_L + İ_C = 0.5∠120° A."
       ]
     }
   }

@@ -7,9 +7,9 @@
   "level": 4,
   "tags": ["三相电路", "三角形联结", "3 次谐波", "环流"],
   "statement": [
-    "一台三相发电机的三个绕组接成三角形（空载，端子 A、B、C 开路）。每个绕组的电动势含基波和 3 次谐波：e_AB = 380√2 cos(314t) + 20√2 cos(942t) V，e_BC、e_CA 的基波依次滞后 120°，3 次谐波依次滞后 3 × 120°。",
+    "一台三相发电机的三个绕组接成三角形，空载（端子 A、B、C 开路）。每个绕组的电动势含基波和 3 次谐波：e_AB = 380√2 cos(314t) + 20√2 cos(942t) V。e_BC、e_CA 的基波依次滞后 120°，3 次谐波依次滞后 3 × 120°。",
     "每个绕组的电阻 R = 0.5 Ω、电感 L = 3.185 mH（ωL = 1 Ω）。图中 i 为三角形回路中的电流，参考方向见图（在绕组 AB 中由 B 指向 A）。",
-    "求回路中的基波电流和 3 次谐波电流、端子间电压 U_AB 的有效值，以及每个绕组因环流而消耗的功率。"
+    "求回路中的基波电流和 3 次谐波电流，以及端子间电压 V_AB 的有效值。再求每个绕组因环流而消耗的功率。"
   ],
   "schematic": {
     "elements": [
@@ -53,14 +53,14 @@
     { "id": "I3", "ask": "3 次谐波环流有效值 I_3 = ?", "find": { "kind": "i", "el": "R1", "harmonic": 3 }, "answer": 6.575959, "unit": "A", "explain": "三个 3 次谐波电动势同相，沿回路相加为 3 × 20 = 60 V；回路阻抗 3(R + j3ωL) = 3(0.5 + j3) Ω，I_3 = 60/(3 × 3.041) = 6.576 A。" },
     {
       "id": "UAB",
-      "ask": "端子电压 U_AB 的有效值 = ?",
+      "ask": "端子电压 V_AB 的有效值 = ?",
       "find": {
         "kind": "v",
         "nodes": ["A", "B"]
       },
       "answer": 380,
       "unit": "V",
-      "explain": "基波：U_AB1 = 380 V。3 次谐波：U̇_AB3 = Ė_3 − Z_3İ_3 = 20 − 20 = 0（每个绕组的 3 次谐波电动势恰好全部降在自己的阻抗上）。所以 U_AB = 380 V。"
+      "explain": "基波：V_AB1 = 380 V。3 次谐波：V̇_AB3 = Ė_3 − Z_3İ_3 = 20 − 20 = 0（每个绕组的 3 次谐波电动势恰好全部降在自己的阻抗上）。所以 V_AB = 380 V。"
     },
     { "id": "P", "ask": "每个绕组中 3 次谐波环流造成的损耗 P = I_3²R = ?", "find": { "kind": "p", "el": "R1" }, "answer": 21.62162, "unit": "W", "explain": "P = 6.576² × 0.5 = 21.62 W，三个绕组共 64.86 W——空载时也一直在发热。" },
     {
@@ -76,7 +76,7 @@
   "solution": [
     "**1. 基波。** 正序对称：Ė_AB1 + Ė_BC1 + Ė_CA1 = 0，回路中没有基波电流，I_1 = **0**。",
     "**2. 3 次谐波。** 3 × (−120°) ≡ 0°，三个 3 次谐波电动势同相，回路 KVL：3Ė_3 = 3(R + j3ωL)İ_3，İ_3 = Ė_3/(0.5 + j3) = 20/3.041∠80.54° = **6.576∠−80.54° A**。",
-    "**3. 端子电压。** 3 次谐波：U̇_AB3 = Ė_3 − (R + j3ωL)İ_3 = 0；基波：U_AB1 = 380 V。U_AB = **380 V**——三角形联结的线电压中没有 3 次谐波。",
+    "**3. 端子电压。** 3 次谐波：V̇_AB3 = Ė_3 − (R + j3ωL)İ_3 = 0；基波：V_AB1 = 380 V。V_AB = **380 V**——三角形联结的线电压中没有 3 次谐波。",
     "**4. 损耗：** 每个绕组 P = I_3²R = 6.576² × 0.5 = **21.62 W**。",
     "**检查：** 环流的功率 = 回路电动势发出的 3 次谐波功率：3E_{3}I_3 cos 80.54° = 3 × 20 × 6.576 × 0.1644 = 64.86 W = 3 × 21.62 W。"
   ],
@@ -85,9 +85,9 @@
       "title": "3rd-harmonic circulating current in delta-connected windings",
       "tags": ["three-phase", "delta connection", "3rd harmonic", "circulating current"],
       "statement": [
-        "The three windings of a three-phase generator are connected in delta (no load, terminals A, B, C open). Each winding EMF contains a fundamental and a 3rd harmonic: e_AB = 380√2 cos(314t) + 20√2 cos(942t) V; the fundamentals of e_BC, e_CA lag by 120° each, their 3rd harmonics by 3 × 120°.",
+        "The three windings of a three-phase generator are connected in delta, at no load (terminals A, B, C open). Each winding EMF contains a fundamental and a 3rd harmonic: e_AB = 380√2 cos(314t) + 20√2 cos(942t) V. The fundamentals of e_BC, e_CA lag by 120° each, their 3rd harmonics by 3 × 120°.",
         "Each winding has resistance R = 0.5 Ω and inductance L = 3.185 mH (ωL = 1 Ω). i is the current in the delta loop; its reference direction is shown in the figure (from B to A in winding AB).",
-        "Find the fundamental and 3rd-harmonic currents in the loop, the rms terminal voltage U_AB, and the power each winding dissipates because of the circulating current."
+        "Find the fundamental and 3rd-harmonic currents in the loop and the rms terminal voltage V_AB. Then find the power each winding dissipates because of the circulating current."
       ],
       "hints": [
         "Write KVL around the delta: what is the sum of the three EMFs? Look at the fundamental and the 3rd harmonic separately.",
@@ -97,21 +97,21 @@
       "solution": [
         "**1. Fundamental.** Balanced positive sequence: Ė_AB1 + Ė_BC1 + Ė_CA1 = 0, no fundamental current in the loop, I_1 = **0**.",
         "**2. 3rd harmonic.** 3 × (−120°) ≡ 0°: the three 3rd-harmonic EMFs are in phase. KVL around the loop: 3Ė_3 = 3(R + j3ωL)İ_3, İ_3 = Ė_3/(0.5 + j3) = 20/3.041∠80.54° = **6.576∠−80.54° A**.",
-        "**3. Terminal voltage.** 3rd harmonic: U̇_AB3 = Ė_3 − (R + j3ωL)İ_3 = 0; fundamental: U_AB1 = 380 V. U_AB = **380 V** — the line voltage of a delta contains no 3rd harmonic.",
+        "**3. Terminal voltage.** 3rd harmonic: V̇_AB3 = Ė_3 − (R + j3ωL)İ_3 = 0; fundamental: V_AB1 = 380 V. V_AB = **380 V** — the line voltage of a delta contains no 3rd harmonic.",
         "**4. Loss:** per winding P = I_3²R = 6.576² × 0.5 = **21.62 W**.",
         "**Check:** the circulating power equals the 3rd-harmonic power delivered by the loop EMF: 3E_{3}I_3 cos 80.54° = 3 × 20 × 6.576 × 0.1644 = 64.86 W = 3 × 21.62 W."
       ],
       "questions": [
         { "ask": "rms fundamental current in the loop, I_1 = ?", "explain": "The three fundamental EMFs are balanced and add up to zero around the loop: no fundamental circulating current, I_1 = 0." },
         { "ask": "rms 3rd-harmonic circulating current I_3 = ?", "explain": "The three 3rd-harmonic EMFs are in phase and add up to 3 × 20 = 60 V around the loop; the loop impedance is 3(R + j3ωL) = 3(0.5 + j3) Ω, I_3 = 60/(3 × 3.041) = 6.576 A." },
-        { "ask": "rms terminal voltage U_AB = ?", "explain": "Fundamental: U_AB1 = 380 V. 3rd harmonic: U̇_AB3 = Ė_3 − Z_3İ_3 = 20 − 20 = 0 (each winding's 3rd-harmonic EMF drops entirely across its own impedance). So U_AB = 380 V." },
+        { "ask": "rms terminal voltage V_AB = ?", "explain": "Fundamental: V_AB1 = 380 V. 3rd harmonic: V̇_AB3 = Ė_3 − Z_3İ_3 = 20 − 20 = 0 (each winding's 3rd-harmonic EMF drops entirely across its own impedance). So V_AB = 380 V." },
         { "ask": "Loss in each winding caused by the 3rd-harmonic circulating current, P = I_3²R = ?", "explain": "P = 6.576² × 0.5 = 21.62 W, 64.86 W for the three windings — heat produced even at no load." },
         {
           "ask": "If the delta is opened at one corner (e.g. between C and A), what is the rms voltage across the gap?",
           "choices": ["60 V", "0 V", "20 V", "34.6 V"],
           "choiceExplain": [
             "",
-            "The fundamentals add up to zero across the gap, but the three windings' 3rd-harmonic emfs are in phase, so they do not cancel.",
+            "The fundamentals add up to zero across the gap, but the three windings' 3rd-harmonic EMFs are in phase, so they do not cancel.",
             "That is the 3rd-harmonic EMF of one winding only.",
             "20√3: combining the zero-sequence component as if it were positive sequence."
           ],

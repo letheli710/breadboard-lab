@@ -7,12 +7,12 @@
   "level": 1,
   "tags": ["理想变压器", "变压关系", "变流关系", "阻抗变换"],
   "statement": [
-    "理想变压器 n = 10（n:1），原边接 U̇_s = 220∠0° V（有效值，f = 50 Hz），副边接负载 R_L = 11 Ω。电流表 A 串在原边。",
-    "求副边电压 U_2、负载电流 I_2、电流表读数 I_1，以及从原边端口 a 看进去的输入电阻 R_in（不含电源）。"
+    "理想变压器 n = 10（n:1），原边接 V̇_s = 220∠0° V（有效值，f = 50 Hz），副边接负载 R_L = 11 Ω。电流表 A 串在原边。",
+    "求副边电压 V_2、负载电流 I_2、电流表读数 I_1，以及从原边端口 a 看进去的输入电阻 R_in（不含电源）。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 220, "phase": 0 } }, "label": "220∠0° V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 220, "phase": 0 } }, "label": "220∠0° V" },
       { "ref": "A", "type": "ammeter", "from": [2, 0], "to": [5, 0] },
       { "ref": "T1", "type": "XFMR", "at": [9, 2], "n": 10 },
       { "ref": "RL", "type": "R", "from": [15, 0], "to": [15, 4], "value": 11 }
@@ -26,17 +26,17 @@
     ],
     "labels": [{ "at": [6, 0], "name": "a" }],
     "grounds": [[0, 4], [15, 4]],
-    "marks": [{ "kind": "i", "el": "RL", "name": "I2" }, { "kind": "v", "el": "RL", "name": "U2" }]
+    "marks": [{ "kind": "i", "el": "RL", "name": "I2" }, { "kind": "v", "el": "RL", "name": "V2" }]
   },
   "analysis": { "type": "ac", "freq": 50 },
   "questions": [
     {
       "id": "u2",
-      "ask": "副边电压 U_2 = ?",
+      "ask": "副边电压 V_2 = ?",
       "find": { "kind": "v", "el": "RL" },
       "answer": 22,
       "unit": "V",
-      "explain": "变压关系 U_1 = n·U_2：U_2 = 220 / 10 = 22 V。"
+      "explain": "变压关系 V_1 = n·V_2：V_2 = 220 / 10 = 22 V。"
     },
     {
       "id": "i2",
@@ -44,7 +44,7 @@
       "find": { "kind": "i", "el": "RL" },
       "answer": 2,
       "unit": "A",
-      "explain": "I_2 = U_2 / R_L = 22 / 11 = 2 A。"
+      "explain": "I_2 = V_2 / R_L = 22 / 11 = 2 A。"
     },
     {
       "id": "i1",
@@ -57,21 +57,21 @@
     {
       "id": "rin",
       "ask": "从 a 端看进去的输入电阻 R_in = ?",
-      "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us"] },
+      "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Vs"] },
       "answer": 1100,
       "unit": "Ω",
-      "explain": "阻抗变换：R_in = n²·R_L = 100 × 11 = 1100 Ω，也等于 U_1 / I_1 = 220 / 0.2。"
+      "explain": "阻抗变换：R_in = n²·R_L = 100 × 11 = 1100 Ω，也等于 V_1 / I_1 = 220 / 0.2。"
     }
   ],
   "hints": [
-    "理想变压器（n:1）：u_1 = n·u_2，原、副边电流之比为 1 : n（电流小的一侧电压高）。",
+    "理想变压器（n:1）：v_1 = n·v_2，原、副边电流之比为 1 : n（电流小的一侧电压高）。",
     "副边接 R_L 时，从原边看进去相当于一个 n²·R_L 的电阻。"
   ],
   "solution": [
-    "**1. 变压。** U_1 = U_s = 220 V，U_2 = U_1 / n = 220 / 10 = **22 V**。",
-    "**2. 负载电流。** I_2 = U_2 / R_L = 22 / 11 = **2 A**。",
-    "**3. 变流。** 按图示同名端，i_1 = −i_2'/n（两个电流都取流入同名端为正）；负载电流 I_2 从副边同名端流出，所以原边电流 İ_1 = İ_2 / n = **0.2 A**，与 U̇_s 同相。",
-    "**4. 阻抗变换。** R_in = U_1 / I_1 = 220 / 0.2 = n²·R_L = **1100 Ω**。",
+    "**1. 变压。** V_1 = V_s = 220 V，V_2 = V_1 / n = 220 / 10 = **22 V**。",
+    "**2. 负载电流。** I_2 = V_2 / R_L = 22 / 11 = **2 A**。",
+    "**3. 变流。** 两个电流都取流入同名端时，i_1 = −i_2/n。图中负载电流 I_2 从副边同名端流出，方向与此相反，所以原边电流 İ_1 = İ_2/n = **0.2 A**，与 V̇_s 同相。",
+    "**4. 阻抗变换。** R_in = V_1 / I_1 = 220 / 0.2 = n²·R_L = **1100 Ω**。",
     "**验算：** 电源发出 220 × 0.2 = 44 W = R_L 吸收 2² × 11 = 44 W（理想变压器不耗能）。"
   ],
   "i18n": {
@@ -79,24 +79,24 @@
       "title": "Ideal transformer: voltage, current and impedance transformation",
       "tags": ["ideal transformer", "voltage ratio", "current ratio", "impedance transformation"],
       "statement": [
-        "An ideal transformer with n = 10 (n:1) has its primary connected to U̇_s = 220∠0° V (rms, f = 50 Hz) and its secondary to a load R_L = 11 Ω. Ammeter A is in series with the primary.",
-        "Find the secondary voltage U_2, the load current I_2, the ammeter reading I_1, and the input resistance R_in seen at the primary terminal a (without the source)."
+        "An ideal transformer with n = 10 (n:1) has its primary connected to V̇_s = 220∠0° V (rms, f = 50 Hz) and its secondary to a load R_L = 11 Ω. Ammeter A is in series with the primary.",
+        "Find the secondary voltage V_2, the load current I_2, the ammeter reading I_1, and the input resistance R_in seen at the primary terminal a (without the source)."
       ],
       "questions": [
-        { "ask": "Secondary voltage U_2 = ?", "explain": "Voltage ratio U_1 = n·U_2: U_2 = 220 / 10 = 22 V." },
-        { "ask": "Load current I_2 = ?", "explain": "I_2 = U_2 / R_L = 22 / 11 = 2 A." },
+        { "ask": "Secondary voltage V_2 = ?", "explain": "Voltage ratio V_1 = n·V_2: V_2 = 220 / 10 = 22 V." },
+        { "ask": "Load current I_2 = ?", "explain": "I_2 = V_2 / R_L = 22 / 11 = 2 A." },
         { "ask": "Ammeter reading I_1 = ?", "explain": "Current ratio: the primary current is 1/n of the secondary current, I_1 = 2 / 10 = 0.2 A. Power check: 220 × 0.2 = 22 × 2 = 44 W." },
-        { "ask": "Input resistance R_in seen at terminal a = ?", "explain": "Impedance transformation: R_in = n²·R_L = 100 × 11 = 1100 Ω, which is also U_1 / I_1 = 220 / 0.2." }
+        { "ask": "Input resistance R_in seen at terminal a = ?", "explain": "Impedance transformation: R_in = n²·R_L = 100 × 11 = 1100 Ω, which is also V_1 / I_1 = 220 / 0.2." }
       ],
       "hints": [
-        "Ideal transformer (n:1): u_1 = n·u_2, and the currents are in the ratio 1 : n (the high-voltage side carries the small current).",
+        "Ideal transformer (n:1): v_1 = n·v_2, and the currents are in the ratio 1 : n (the high-voltage side carries the small current).",
         "With R_L on the secondary, the primary sees a resistance n²·R_L."
       ],
       "solution": [
-        "**1. Voltage.** U_1 = U_s = 220 V, U_2 = U_1 / n = 220 / 10 = **22 V**.",
-        "**2. Load current.** I_2 = U_2 / R_L = 22 / 11 = **2 A**.",
-        "**3. Current.** With the dots as drawn, i_1 = −i_2'/n (both currents taken as entering the dots); the load current I_2 leaves the secondary dot, so the primary current is İ_1 = İ_2 / n = **0.2 A**, in phase with U̇_s.",
-        "**4. Impedance transformation.** R_in = U_1 / I_1 = 220 / 0.2 = n²·R_L = **1100 Ω**.",
+        "**1. Voltage.** V_1 = V_s = 220 V, V_2 = V_1 / n = 220 / 10 = **22 V**.",
+        "**2. Load current.** I_2 = V_2 / R_L = 22 / 11 = **2 A**.",
+        "**3. Current.** With both currents taken as entering the dots, i_1 = −i_2/n. In the drawing the load current I_2 leaves the secondary dot, the opposite direction, so the primary current is İ_1 = İ_2/n = **0.2 A**, in phase with V̇_s.",
+        "**4. Impedance transformation.** R_in = V_1 / I_1 = 220 / 0.2 = n²·R_L = **1100 Ω**.",
         "**Check:** the source delivers 220 × 0.2 = 44 W = the power in R_L, 2² × 11 = 44 W (an ideal transformer is lossless)."
       ]
     }

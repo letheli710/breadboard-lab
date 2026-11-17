@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["同侧并联", "异侧并联", "等效电感", "支路电流"],
   "statement": [
-    "U̇_s = 15∠0° V（有效值），ω = 1000 rad/s，R = 3 Ω。耦合电感 L_1 = 5 mH、L_2 = 8 mH、M = 2 mH 并联，两线圈的同名端接在同一结点上（同侧并联）。",
+    "V̇_s = 15∠0° V（有效值），ω = 1000 rad/s，R = 3 Ω。耦合电感 L_1 = 5 mH、L_2 = 8 mH、M = 2 mH 并联，两线圈的同名端接在同一结点上（同侧并联）。",
     "求总电流 I 及两条支路电流 I_1、I_2 的有效值，并判断异侧并联时的等效电感。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 15, "phase": 0 } }, "label": "15∠0° V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 15, "phase": 0 } }, "label": "15∠0° V" },
       { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 3 },
       { "ref": "L1", "type": "L", "from": [8, 0], "to": [8, 4], "value": "5m" },
       { "ref": "L2", "type": "L", "from": [13, 0], "to": [13, 4], "value": "8m" },
@@ -54,7 +54,7 @@
       "find": { "kind": "i", "el": "L2" },
       "answer": 1,
       "unit": "A",
-      "explain": "İ_2 = İ / 3，I_2 = 1 A。注意 I_1 + I_2 = I：两支路电流同相（都是纯电感性的支路，没有电阻）。"
+      "explain": "İ_2 = İ / 3，I_2 = 1 A。注意这里 I_1 + I_2 = I 正好成立：两条支路都是纯电感，没有电阻，电流同相。"
     },
     {
       "id": "opp",
@@ -66,27 +66,27 @@
   ],
   "hints": [
     "两条支路电压相同，各写一个含互感电压的方程，再加上 KCL：İ = İ_1 + İ_2。",
-    "同侧并联的等效电感 L_eq = (L_{1}L_{2} − M²)/(L_1 + L_2 − 2M)，也可以先用 T 形去耦等效（L_1 − M、L_2 − M 两支路并联后再串 M）求得。"
+    "同侧并联的等效电感 L_eq = (L_{1}L_{2} − M²)/(L_1 + L_2 − 2M)。也可以先用 T 形去耦等效：L_1 − M、L_2 − M 两支路并联，再串 M。"
   ],
   "solution": [
-    "**1. 支路方程。** 两个电流都从同名端（上端）流入，设并联电压为 U̇：U̇ = jωL_1·İ_1 + jωM·İ_2 = jωM·İ_1 + jωL_2·İ_2。代入数值（Ω）：U̇ = j5İ_1 + j2İ_2 = j2İ_1 + j8İ_2 → 3İ_1 = 6İ_2，İ_1 = 2İ_2。",
-    "**2. 等效电感。** U̇ = j(5 × 2 + 2)İ_2 = j12İ_2，İ = 3İ_2，所以 U̇/İ = j4 Ω → L_eq = **4 mH**。（去耦法：M 串 (L_1 − M)∥(L_2 − M) = 2 + 3∥6 = 4 mH，结果相同。）",
+    "**1. 支路方程。** 两个电流都从同名端（上端）流入，设并联电压为 V̇：V̇ = jωL_1·İ_1 + jωM·İ_2 = jωM·İ_1 + jωL_2·İ_2。代入数值（Ω）：V̇ = j5İ_1 + j2İ_2 = j2İ_1 + j8İ_2 → 3İ_1 = 6İ_2，İ_1 = 2İ_2。",
+    "**2. 等效电感。** V̇ = j(5 × 2 + 2)İ_2 = j12İ_2，İ = 3İ_2，所以 V̇/İ = j4 Ω → L_eq = **4 mH**。（去耦法：M 串 (L_1 − M)∥(L_2 − M) = 2 + 3∥6 = 4 mH，结果相同。）",
     "**3. 电流。** Z = R + jωL_eq = 3 + j4 = 5∠53.13° Ω，İ = 15/Z = **3∠−53.13° A**，I_1 = **2 A**，I_2 = **1 A**。",
     "**4. 异侧并联。** L_eq = (L_{1}L_{2} − M²)/(L_1 + L_2 + 2M) = 36/17 ≈ **2.12 mH**。",
-    "**验算：** U̇ = j4 × 3∠−53.13° = 12∠36.87° V，U̇_R = 9∠−53.13° V，相量和 = 15∠0° V ✓。"
+    "**验算：** V̇ = j4 × 3∠−53.13° = 12∠36.87° V，V̇_R = 9∠−53.13° V，相量和 = 15∠0° V ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Coupled inductors in parallel, dots on the same side",
       "tags": ["parallel aiding", "parallel opposing", "equivalent inductance", "branch currents"],
       "statement": [
-        "U̇_s = 15∠0° V (rms), ω = 1000 rad/s, R = 3 Ω. The coupled inductors L_1 = 5 mH, L_2 = 8 mH, M = 2 mH are in parallel with both dotted terminals on the same node (parallel aiding).",
+        "V̇_s = 15∠0° V (rms), ω = 1000 rad/s, R = 3 Ω. The coupled inductors L_1 = 5 mH, L_2 = 8 mH, M = 2 mH are in parallel with both dotted terminals on the same node (parallel aiding).",
         "Find the rms total current I and the rms branch currents I_1 and I_2, and the equivalent inductance if the dots were on opposite sides."
       ],
       "questions": [
         { "ask": "rms total current I = ?", "explain": "Dots on the same side: L_eq = (L_{1}L_{2} − M²)/(L_1 + L_2 − 2M) = (40 − 4)/(13 − 4) = 4 mH, Z = 3 + j4 = 5∠53.13° Ω, I = 15 / 5 = 3 A." },
         { "ask": "rms current in L_1, I_1 = ?", "explain": "Both coils have the same voltage: jωL_1·İ_1 + jωM·İ_2 = jωM·İ_1 + jωL_2·İ_2 → (5 − 2)İ_1 = (8 − 2)İ_2 → İ_1 = 2İ_2; with İ_1 + İ_2 = İ, I_1 = 2 A." },
-        { "ask": "rms current in L_2, I_2 = ?", "explain": "İ_2 = İ / 3, so I_2 = 1 A. Here I_1 + I_2 = I exactly: both branches are purely inductive, so their currents are in phase." },
+        { "ask": "rms current in L_2, I_2 = ?", "explain": "İ_2 = İ / 3, so I_2 = 1 A. Here I_1 + I_2 = I holds exactly: both branches are purely inductive, with no resistance, so their currents are in phase." },
         {
           "ask": "If the ends of L_2 are swapped (dots on opposite sides), the equivalent inductance becomes…",
           "choices": ["about 2.12 mH", "4 mH", "about 3.08 mH"], "choiceExplain": ["", "4 mH is the original same-side value; swapping L_2's ends gives the opposite-side connection, whose denominator is L_1 + L_2 + 2M.", "About 3.08 mH = L_{1}L_{2}/(L_1 + L_2) ignores the mutual inductance and treats the coils as two ordinary inductors in parallel."],
@@ -95,14 +95,14 @@
       ],
       "hints": [
         "Both branches have the same voltage: write one equation per branch, each with its mutual-voltage term, plus KCL: İ = İ_1 + İ_2.",
-        "For dots on the same side, L_eq = (L_{1}L_{2} − M²)/(L_1 + L_2 − 2M); you can also get it from the T (decoupled) equivalent: (L_1 − M) ∥ (L_2 − M) in series with M."
+        "For dots on the same side, L_eq = (L_{1}L_{2} − M²)/(L_1 + L_2 − 2M). You can also use the T (decoupled) equivalent: (L_1 − M) ∥ (L_2 − M), in series with M."
       ],
       "solution": [
-        "**1. Branch equations.** Both currents enter at the dots (top). With parallel voltage U̇: U̇ = jωL_1·İ_1 + jωM·İ_2 = jωM·İ_1 + jωL_2·İ_2. In ohms: U̇ = j5İ_1 + j2İ_2 = j2İ_1 + j8İ_2 → 3İ_1 = 6İ_2, İ_1 = 2İ_2.",
-        "**2. Equivalent inductance.** U̇ = j(5 × 2 + 2)İ_2 = j12İ_2 and İ = 3İ_2, so U̇/İ = j4 Ω → L_eq = **4 mH**. (Decoupling: M in series with (L_1 − M)∥(L_2 − M) = 2 + 3∥6 = 4 mH, the same.)",
+        "**1. Branch equations.** Both currents enter at the dots (top). With parallel voltage V̇: V̇ = jωL_1·İ_1 + jωM·İ_2 = jωM·İ_1 + jωL_2·İ_2. In ohms: V̇ = j5İ_1 + j2İ_2 = j2İ_1 + j8İ_2 → 3İ_1 = 6İ_2, İ_1 = 2İ_2.",
+        "**2. Equivalent inductance.** V̇ = j(5 × 2 + 2)İ_2 = j12İ_2 and İ = 3İ_2, so V̇/İ = j4 Ω → L_eq = **4 mH**. (Decoupling: M in series with (L_1 − M)∥(L_2 − M) = 2 + 3∥6 = 4 mH, the same.)",
         "**3. Currents.** Z = R + jωL_eq = 3 + j4 = 5∠53.13° Ω, İ = 15/Z = **3∠−53.13° A**, I_1 = **2 A**, I_2 = **1 A**.",
         "**4. Opposite-side dots.** L_eq = (L_{1}L_{2} − M²)/(L_1 + L_2 + 2M) = 36/17 ≈ **2.12 mH**.",
-        "**Check:** U̇ = j4 × 3∠−53.13° = 12∠36.87° V, U̇_R = 9∠−53.13° V, phasor sum = 15∠0° V ✓."
+        "**Check:** V̇ = j4 × 3∠−53.13° = 12∠36.87° V, V̇_R = 9∠−53.13° V, phasor sum = 15∠0° V ✓."
       ]
     }
   }

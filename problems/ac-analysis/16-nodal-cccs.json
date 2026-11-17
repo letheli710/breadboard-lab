@@ -7,8 +7,8 @@
   "level": 4,
   "tags": ["结点电压法", "受控源 CCCS", "正弦稳态功率"],
   "statement": [
-    "ω = 1000 rad/s，İ_s = 10∠0° A（有效值），R_1 = 2 Ω，C = 500 µF，L = 1 mH，R_2 = 1 Ω。电流控制电流源向结点 b 注入电流 I_C，I_C 是电容中从 a 流向 b 的电流（见图）。",
-    "用结点电压法求结点电压相量 U̇_a、U̇_b，以及受控源吸收的平均功率。"
+    "ω = 1000 rad/s，İ_s = 10∠0° A（有效值），R_1 = 2 Ω，C = 500 µF，L = 1 mH，R_2 = 1 Ω。电流控制电流源向结点 b 注入电流 I_C。I_C 是电容中从 a 流向 b 的电流（见图）。",
+    "用结点电压法求结点电压相量 V̇_a、V̇_b，以及受控源吸收的平均功率。"
   ],
   "schematic": {
     "elements": [
@@ -30,66 +30,66 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "Uare", "ask": "U̇_a 的实部 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "re" }, "answer": 8, "unit": "V", "explain": "由结点 b 的方程得 U̇_b = jU̇_a，代入结点 a：(1 + j0.5)U̇_a = 10 → U̇_a = 8 − j4 V。" },
-    { "id": "Uaim", "ask": "U̇_a 的虚部 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "im" }, "answer": -4, "unit": "V", "explain": "U̇_a = 10/(1 + j0.5) = 10(1 − j0.5)/1.25 = 8 − j4 V。" },
+    { "id": "Uare", "ask": "V̇_a 的实部 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "re" }, "answer": 8, "unit": "V", "explain": "由结点 b 的方程得 V̇_b = jV̇_a，代入结点 a：(1 + j0.5)V̇_a = 10 → V̇_a = 8 − j4 V。" },
+    { "id": "Uaim", "ask": "V̇_a 的虚部 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "im" }, "answer": -4, "unit": "V", "explain": "V̇_a = 10/(1 + j0.5) = 10(1 − j0.5)/1.25 = 8 − j4 V。" },
     {
       "id": "Ub",
-      "ask": "U̇_b 与 U̇_a 的关系是？",
-      "choices": ["U̇_b = jU̇_a：大小相等，U̇_b 超前 U̇_a 90°", "U̇_b = −jU̇_a：大小相等，U̇_b 滞后 U̇_a 90°", "U̇_b = U̇_a：两结点等电位"], "choiceExplain": ["", "把电抗的符号带进了导纳：电容的导纳是 +jωC = j0.5 S，电感是 1/(jωL) = −j S；两者都取反号时才会得到 U̇_b = −jU̇_a。", "等电位意味着电容中没有电流（İ_C = 0），受控源也为零，结点 b 的 KCL 就成了 (1 − j)U̇_b = 0，U̇_b = 0，与 U̇_a ≠ 0 矛盾。"],
+      "ask": "V̇_b 与 V̇_a 的关系是？",
+      "choices": ["V̇_b = jV̇_a：大小相等，V̇_b 超前 V̇_a 90°", "V̇_b = −jV̇_a：大小相等，V̇_b 滞后 V̇_a 90°", "V̇_b = V̇_a：两结点等电位"], "choiceExplain": ["", "把电抗的符号带进了导纳：电容的导纳是 +jωC = j0.5 S，电感是 1/(jωL) = −j S；两者都取反号时才会得到 V̇_b = −jV̇_a。", "等电位意味着电容中没有电流（İ_C = 0），受控源也为零，结点 b 的 KCL 就成了 (1 − j)V̇_b = 0，V̇_b = 0，与 V̇_a ≠ 0 矛盾。"],
       "correct": 0,
-      "explain": "结点 b：İ_C + İ_C = (G_2 + Y_L)U̇_b，İ_C = j0.5(U̇_a − U̇_b)，Y_L = −j → j(U̇_a − U̇_b) = (1 − j)U̇_b → U̇_b = jU̇_a = 4 + j8 V。"
+      "explain": "结点 b：İ_C + İ_C = (G_2 + Y_L)V̇_b，İ_C = j0.5(V̇_a − V̇_b)，Y_L = −j → j(V̇_a − V̇_b) = (1 − j)V̇_b → V̇_b = jV̇_a = 4 + j8 V。"
     },
-    { "id": "P", "ask": "受控源 F 吸收的平均功率 P = ?", "find": { "kind": "p", "el": "F" }, "answer": -40, "unit": "W", "explain": "İ_C = j0.5(U̇_a − U̇_b) = 6 + j2 A。F 的电流 I_C 从地流向 b（关联方向下电压为 0 − U̇_b），P = Re[(−U̇_b)·İ_C*] = −Re[(4 + j8)(6 − j2)] = −40 W，即发出 40 W。" }
+    { "id": "P", "ask": "受控源 F 吸收的平均功率 P = ?", "find": { "kind": "p", "el": "F" }, "answer": -40, "unit": "W", "explain": "İ_C = j0.5(V̇_a − V̇_b) = 6 + j2 A。F 的电流 İ_C 从地流向 b，按关联参考方向，它的电压是 0 − V̇_b。P = Re[(−V̇_b)·İ_C*] = −Re[(4 + j8)(6 − j2)] = −40 W，即发出 40 W。" }
   ],
   "hints": [
     "复导纳：G_1 = 0.5 S，Y_C = jωC = j0.5 S，Y_L = 1/(jωL) = −j1 S，G_2 = 1 S。",
-    "先把受控源当独立源列结点方程，再补充控制量方程 İ_C = Y_C(U̇_a − U̇_b)。",
-    "结点 b 的方程化简后得到 U̇_b 与 U̇_a 的简单关系，再代回结点 a。"
+    "先把受控源当独立源列结点方程，再补充控制量方程 İ_C = Y_C(V̇_a − V̇_b)。",
+    "结点 b 的方程化简后得到 V̇_b 与 V̇_a 的简单关系，再代回结点 a。"
   ],
   "solution": [
     "**1. 复导纳。** G_1 = 1/2 = 0.5 S，Y_C = jωC = j0.5 S，Y_L = 1/(jωL) = −j1 S，G_2 = 1 S。",
     "**2. 结点方程。**",
-    "- 结点 a：(G_1 + Y_C)U̇_a − Y_C·U̇_b = İ_s → (0.5 + j0.5)U̇_a − j0.5U̇_b = 10",
-    "- 结点 b：−Y_C·U̇_a + (Y_C + Y_L + G_2)U̇_b = İ_C（受控源注入）",
-    "- 控制量：İ_C = Y_C(U̇_a − U̇_b) = j0.5(U̇_a − U̇_b)",
-    "**3. 化简结点 b。** 移项得 2·j0.5(U̇_a − U̇_b) = (G_2 + Y_L)U̇_b → j(U̇_a − U̇_b) = (1 − j)U̇_b → **U̇_b = jU̇_a**。",
-    "**4. 代入结点 a。** (0.5 + j0.5)U̇_a − j0.5·jU̇_a = (1 + j0.5)U̇_a = 10 → **U̇_a = 8 − j4 V**（8.94∠−26.57° V），U̇_b = jU̇_a = **4 + j8 V**。",
-    "**5. 功率。** İ_C = j0.5(4 − j12) = 6 + j2 A。F 两端电压（p 在地，n 在 b）为 −U̇_b，P_F = Re[(−U̇_b)·İ_C*] = −Re[(4 + j8)(6 − j2)] = −Re(40 + j40) = **−40 W**（发出 40 W）。",
-    "**6. 功率平衡。** P_R1 = |U̇_a|²/2 = 80/2 = 40 W，P_R2 = |U̇_b|²/1 = 80 W，P_Is = −Re(U̇_a·İ_s*) = −80 W。总和 40 + 80 − 80 − 40 = 0 ✓。"
+    "- 结点 a：(G_1 + Y_C)V̇_a − Y_C·V̇_b = İ_s → (0.5 + j0.5)V̇_a − j0.5V̇_b = 10",
+    "- 结点 b：−Y_C·V̇_a + (Y_C + Y_L + G_2)V̇_b = İ_C（受控源注入）",
+    "- 控制量：İ_C = Y_C(V̇_a − V̇_b) = j0.5(V̇_a − V̇_b)",
+    "**3. 化简结点 b。** 移项得 2·j0.5(V̇_a − V̇_b) = (G_2 + Y_L)V̇_b → j(V̇_a − V̇_b) = (1 − j)V̇_b → **V̇_b = jV̇_a**。",
+    "**4. 代入结点 a。** (0.5 + j0.5)V̇_a − j0.5·jV̇_a = (1 + j0.5)V̇_a = 10 → **V̇_a = 8 − j4 V**（8.94∠−26.57° V），V̇_b = jV̇_a = **4 + j8 V**。",
+    "**5. 功率。** İ_C = j0.5(4 − j12) = 6 + j2 A。F 两端电压（p 在地，n 在 b）为 −V̇_b，P_F = Re[(−V̇_b)·İ_C*] = −Re[(4 + j8)(6 − j2)] = −Re(40 + j40) = **−40 W**（发出 40 W）。",
+    "**6. 功率平衡。** P_R1 = |V̇_a|²/2 = 80/2 = 40 W，P_R2 = |V̇_b|²/1 = 80 W，P_Is = −Re(V̇_a·İ_s*) = −80 W。总和 40 + 80 − 80 − 40 = 0 ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Nodal analysis with a CCCS in sinusoidal steady state",
       "tags": ["nodal analysis", "dependent source CCCS", "AC power"],
       "statement": [
-        "ω = 1000 rad/s, İ_s = 10∠0° A (rms), R_1 = 2 Ω, C = 500 µF, L = 1 mH, R_2 = 1 Ω. The current-controlled current source injects I_C into node b, where I_C is the capacitor current from a to b (see the figure).",
-        "Use nodal analysis to find the node-voltage phasors U̇_a, U̇_b and the average power absorbed by the dependent source."
+        "ω = 1000 rad/s, İ_s = 10∠0° A (rms), R_1 = 2 Ω, C = 500 µF, L = 1 mH, R_2 = 1 Ω. The current-controlled current source injects I_C into node b. I_C is the capacitor current from a to b (see the figure).",
+        "Use nodal analysis to find the node-voltage phasors V̇_a, V̇_b and the average power absorbed by the dependent source."
       ],
       "questions": [
-        { "ask": "Real part of U̇_a = ?", "explain": "The node-b equation gives U̇_b = jU̇_a; then node a: (1 + j0.5)U̇_a = 10 → U̇_a = 8 − j4 V." },
-        { "ask": "Imaginary part of U̇_a = ?", "explain": "U̇_a = 10/(1 + j0.5) = 10(1 − j0.5)/1.25 = 8 − j4 V." },
+        { "ask": "Real part of V̇_a = ?", "explain": "The node-b equation gives V̇_b = jV̇_a; then node a: (1 + j0.5)V̇_a = 10 → V̇_a = 8 − j4 V." },
+        { "ask": "Imaginary part of V̇_a = ?", "explain": "V̇_a = 10/(1 + j0.5) = 10(1 − j0.5)/1.25 = 8 − j4 V." },
         {
-          "ask": "How are U̇_b and U̇_a related?",
-          "choices": ["U̇_b = jU̇_a: equal magnitude, U̇_b leads U̇_a by 90°", "U̇_b = −jU̇_a: equal magnitude, U̇_b lags U̇_a by 90°", "U̇_b = U̇_a: the two nodes are equipotential"], "choiceExplain": ["", "This carries the sign of reactance into the admittances: the capacitor's admittance is +jωC = j0.5 S and the inductor's 1/(jωL) = −j S; flipping both signs gives U̇_b = −jU̇_a.", "Equal potentials would mean no capacitor current (İ_C = 0) and a zero dependent source, so KCL at b reduces to (1 − j)U̇_b = 0, i.e. U̇_b = 0, contradicting U̇_a ≠ 0."],
-          "explain": "Node b: İ_C + İ_C = (G_2 + Y_L)U̇_b with İ_C = j0.5(U̇_a − U̇_b) and Y_L = −j → j(U̇_a − U̇_b) = (1 − j)U̇_b → U̇_b = jU̇_a = 4 + j8 V."
+          "ask": "How are V̇_b and V̇_a related?",
+          "choices": ["V̇_b = jV̇_a: equal magnitude, V̇_b leads V̇_a by 90°", "V̇_b = −jV̇_a: equal magnitude, V̇_b lags V̇_a by 90°", "V̇_b = V̇_a: the two nodes are equipotential"], "choiceExplain": ["", "This carries the sign of reactance into the admittances: the capacitor's admittance is +jωC = j0.5 S and the inductor's 1/(jωL) = −j S; flipping both signs gives V̇_b = −jV̇_a.", "Equal potentials would mean no capacitor current (İ_C = 0) and a zero dependent source, so KCL at b reduces to (1 − j)V̇_b = 0, i.e. V̇_b = 0, contradicting V̇_a ≠ 0."],
+          "explain": "Node b: İ_C + İ_C = (G_2 + Y_L)V̇_b with İ_C = j0.5(V̇_a − V̇_b) and Y_L = −j → j(V̇_a − V̇_b) = (1 − j)V̇_b → V̇_b = jV̇_a = 4 + j8 V."
         },
-        { "ask": "Average power absorbed by the dependent source F, P = ?", "explain": "İ_C = j0.5(U̇_a − U̇_b) = 6 + j2 A. F carries I_C from ground to b (with the passive convention its voltage is 0 − U̇_b), P = Re[(−U̇_b)·İ_C*] = −Re[(4 + j8)(6 − j2)] = −40 W, i.e. it delivers 40 W." }
+        { "ask": "Average power absorbed by the dependent source F, P = ?", "explain": "İ_C = j0.5(V̇_a − V̇_b) = 6 + j2 A. F carries İ_C from ground to b, so with the passive convention its voltage is 0 − V̇_b. P = Re[(−V̇_b)·İ_C*] = −Re[(4 + j8)(6 − j2)] = −40 W, i.e. it delivers 40 W." }
       ],
       "hints": [
         "Admittances: G_1 = 0.5 S, Y_C = jωC = j0.5 S, Y_L = 1/(jωL) = −j1 S, G_2 = 1 S.",
-        "Write the node equations treating the dependent source as an independent one, then add the controlling equation İ_C = Y_C(U̇_a − U̇_b).",
-        "The node-b equation simplifies to a very simple relation between U̇_b and U̇_a; substitute it back into node a."
+        "Write the node equations treating the dependent source as an independent one, then add the controlling equation İ_C = Y_C(V̇_a − V̇_b).",
+        "The node-b equation simplifies to a very simple relation between V̇_b and V̇_a; substitute it back into node a."
       ],
       "solution": [
         "**1. Admittances.** G_1 = 1/2 = 0.5 S, Y_C = jωC = j0.5 S, Y_L = 1/(jωL) = −j1 S, G_2 = 1 S.",
         "**2. Node equations.**",
-        "- Node a: (G_1 + Y_C)U̇_a − Y_C·U̇_b = İ_s → (0.5 + j0.5)U̇_a − j0.5U̇_b = 10",
-        "- Node b: −Y_C·U̇_a + (Y_C + Y_L + G_2)U̇_b = İ_C (injected by the dependent source)",
-        "- Control: İ_C = Y_C(U̇_a − U̇_b) = j0.5(U̇_a − U̇_b)",
-        "**3. Simplify node b.** Rearranged: 2·j0.5(U̇_a − U̇_b) = (G_2 + Y_L)U̇_b → j(U̇_a − U̇_b) = (1 − j)U̇_b → **U̇_b = jU̇_a**.",
-        "**4. Into node a.** (0.5 + j0.5)U̇_a − j0.5·jU̇_a = (1 + j0.5)U̇_a = 10 → **U̇_a = 8 − j4 V** (8.94∠−26.57° V), U̇_b = jU̇_a = **4 + j8 V**.",
-        "**5. Power.** İ_C = j0.5(4 − j12) = 6 + j2 A. The voltage of F (p at ground, n at b) is −U̇_b, so P_F = Re[(−U̇_b)·İ_C*] = −Re[(4 + j8)(6 − j2)] = −Re(40 + j40) = **−40 W** (it delivers 40 W).",
-        "**6. Power balance.** P_R1 = |U̇_a|²/2 = 80/2 = 40 W, P_R2 = |U̇_b|²/1 = 80 W, P_Is = −Re(U̇_a·İ_s*) = −80 W. Sum: 40 + 80 − 80 − 40 = 0 ✓."
+        "- Node a: (G_1 + Y_C)V̇_a − Y_C·V̇_b = İ_s → (0.5 + j0.5)V̇_a − j0.5V̇_b = 10",
+        "- Node b: −Y_C·V̇_a + (Y_C + Y_L + G_2)V̇_b = İ_C (injected by the dependent source)",
+        "- Control: İ_C = Y_C(V̇_a − V̇_b) = j0.5(V̇_a − V̇_b)",
+        "**3. Simplify node b.** Rearranged: 2·j0.5(V̇_a − V̇_b) = (G_2 + Y_L)V̇_b → j(V̇_a − V̇_b) = (1 − j)V̇_b → **V̇_b = jV̇_a**.",
+        "**4. Into node a.** (0.5 + j0.5)V̇_a − j0.5·jV̇_a = (1 + j0.5)V̇_a = 10 → **V̇_a = 8 − j4 V** (8.94∠−26.57° V), V̇_b = jV̇_a = **4 + j8 V**.",
+        "**5. Power.** İ_C = j0.5(4 − j12) = 6 + j2 A. The voltage of F (p at ground, n at b) is −V̇_b, so P_F = Re[(−V̇_b)·İ_C*] = −Re[(4 + j8)(6 − j2)] = −Re(40 + j40) = **−40 W** (it delivers 40 W).",
+        "**6. Power balance.** P_R1 = |V̇_a|²/2 = 80/2 = 40 W, P_R2 = |V̇_b|²/1 = 80 W, P_Is = −Re(V̇_a·İ_s*) = −80 W. Sum: 40 + 80 − 80 − 40 = 0 ✓."
       ]
     }
   }

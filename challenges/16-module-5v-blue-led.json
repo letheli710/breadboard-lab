@@ -2,52 +2,265 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-module-blue-led",
-  "title": "挑战 8 · 蓝色 LED：3.3V 还是 5V？",
+  "title": "蓝色 LED：3.3 V 还是 5 V？",
   "kind": "challenge",
   "level": 3,
-  "summary": "选择正确的电源模块电压，给蓝色 LED 足够的电流。",
-  "concepts": ["power module 3.3V / 5V", "blue LED Vf ≈ 3.0V", "headroom 电压余量"],
-  "description": "蓝色 LED 的正向压降 Vf 约 3.0V，比红色高很多。用电源模块供电，跳线帽可以选 3.3V 或 5V，该选哪个？\n\n• 3.3V：留给电阻的只有 3.3 − 3.0 = 0.3V。用 100Ω 时电流只有约 3mA，很暗；而且 Vf 稍有偏差就可能完全不亮。电压余量（headroom）太小。\n• 5V：电阻上有 2V，用 100Ω 得到约 18mA，亮度合适、也更稳定。\n\n要求：电源模块设为 5V，+5V → 100Ω → 蓝色 LED → GND。\n（本题指定了 power_module 类型和 5V 电压：用电池或 3.3V 都不算对。）",
+  "summary": "蓝色 LED 的压降约 3 V，用 3.3 V 供电几乎没有余量。选对电源模块的电压。",
+  "concepts": [
+    "forward voltage 正向压降",
+    "headroom 电压余量",
+    "power module 电源模块"
+  ],
+  "description": "蓝色 LED 的正向压降约 3.0 V。电源模块可以选 3.3 V 或 5 V：3.3 V 只给电阻留 0.3 V，电流很小又不稳；5 V 给电阻留 2 V，用 100 Ω 得到合适的电流。电路：+5 V → 100 Ω → 蓝色 LED → GND。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "先试 3.3 V",
+      "text": [
+        "这一题没有步骤，**照目标电路图自己搭**。搭好后，先在电源模块的「属性」里选 **3.3 V**，看蓝灯有多亮；再换成 **5 V**。"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "电压余量（headroom）",
+      "text": [
+        "- 限流电阻能稳住电流，靠的是它两端有**足够的电压**。",
+        "- 3.3 V 时电阻只分到 $3.3 - 3.0 = 0.3$ V：电流小，而且 LED 的压降稍微大一点点，电流就会大幅变化，甚至完全不亮。",
+        "![](fig:headroom)",
+        "- 5 V 时电阻分到 2 V：$R = \\frac{5 - 3.0}{0.02} = 100$ Ω，亮度合适也稳定。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "选 5 V，量电流",
+      "text": [
+        "- 选中电源模块，把电压设成 **5 V**。",
+        "- 搭好后单击 LED，读电流；再把模块临时改成 3.3 V 对比一下。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 白光、蓝光、绿光（部分）LED 的压降约 3 V：**3.3 V 电源点它们很勉强**。ESP32 这类 3.3 V 单片机直接驱动蓝灯时要特别小心。",
+        "- 规律：**电源电压要比 LED 压降高出一截**，留给电阻去稳住电流。"
+      ]
+    }
+  ],
+  "figures": {
+    "headroom": {
+      "kind": "plot",
+      "caption": {
+        "text": "都按 20 mA 设计：5 V 时电阻有 2 V 余量，LED 压降差一点电流几乎不变；3.3 V 时只剩 0.3 V，压降稍大一点电流就掉一大截。",
+        "i18n": {
+          "en": "Both designed for 20 mA: at 5 V the resistor has 2 V of headroom and a slightly different LED barely changes the current; at 3.3 V only 0.3 V is left and a slightly higher LED voltage cuts the current hard."
+        }
+      },
+      "x": {
+        "label": {
+          "text": "蓝 LED 压降 V_f (V)",
+          "i18n": {
+            "en": "blue LED V_f (V)"
+          }
+        },
+        "min": 2.8,
+        "max": 3.2,
+        "ticks": [2.8, 3.0, 3.2]
+      },
+      "y": {
+        "label": {
+          "text": "电流 (mA)",
+          "i18n": {
+            "en": "current (mA)"
+          }
+        },
+        "min": 0,
+        "max": 30,
+        "ticks": [0, 10, 20, 30]
+      },
+      "curves": [
+        {"points": [[2.8, 19.6], [3.2, 16.1]], "tone": 1, "label": "5 V + 100 Ω", "labelAt": [3.0, 22.5]},
+        {"points": [[2.8, 18.5], [3.2, 3.7]], "tone": 2, "label": "3.3 V + 15 Ω", "labelAt": [2.92, 7]}
+      ]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Challenge 8 · Blue LED: 3.3V or 5V?",
-      "summary": "Choose the right power module voltage to give a blue LED enough current.",
-      "concepts": ["power module 3.3V / 5V", "blue LED Vf ≈ 3.0V", "headroom"],
-      "description": "A blue LED's forward voltage Vf is about 3.0V, much higher than a red one. The power module's jumper cap can select 3.3V or 5V. Which should you pick?\n\n• 3.3V: only 3.3 − 3.0 = 0.3V is left for the resistor. With 100Ω the current is only about 3mA, so it is very dim; and if Vf is a little off, it may not light at all. There is too little voltage headroom.\n• 5V: 2V across the resistor; with 100Ω you get about 18mA, which is bright enough and more stable.\n\nTask: set the power module to 5V, +5V → 100Ω → blue LED → GND.\n(This challenge requires the power_module type at 5V: using a battery or 3.3V does not count.)",
-      "hints": [
-        "Select the power module and change its voltage to 5V in the properties.",
-        "R = (5 − 3.0) / 0.02 = 100Ω."
+      "title": "Blue LED: 3.3 V or 5 V?",
+      "summary": "A blue LED drops about 3 V, so 3.3 V leaves almost no headroom. Pick the right power-module voltage.",
+      "concepts": [
+        "forward voltage",
+        "headroom",
+        "power module"
       ],
-      "tests": ["Blue LED on, module output 5V"]
+      "description": "A blue LED has a forward voltage of about 3.0 V. The power module offers 3.3 V or 5 V: 3.3 V leaves only 0.3 V for the resistor, giving a small and unsteady current; 5 V leaves 2 V, and 100 Ω gives a sensible current. Circuit: +5 V → 100 Ω → blue LED → GND.",
+      "hints": [
+        "Click the power module and set its voltage to 5 V in Properties.",
+        "R = (5 − 3.0) / 0.02 = 100 Ω."
+      ],
+      "tests": [
+        "Blue LED on, module at 5 V"
+      ],
+      "cards": [
+        {
+          "title": "Try 3.3 V first",
+          "text": [
+            "No steps here — **build it from the target schematic**. Then choose **3.3 V** in the power module's Properties and see how bright the blue LED is; then switch to **5 V**."
+          ]
+        },
+        {
+          "title": "Headroom",
+          "text": [
+            "- A current-limiting resistor can only hold the current steady if it has **enough voltage across it**.",
+            "- At 3.3 V the resistor gets just $3.3 - 3.0 = 0.3$ V: little current, and a tiny change in the LED's drop changes the current a lot — or the LED doesn't light at all.",
+            "![](fig:headroom)",
+            "- At 5 V the resistor gets 2 V: $R = \\frac{5 - 3.0}{0.02} = 100$ Ω, bright enough and steady."
+          ]
+        },
+        {
+          "title": "Choose 5 V, measure the current",
+          "text": [
+            "- Click the power module and set it to **5 V**.",
+            "- Then click the LED and read its current; switch the module to 3.3 V for a moment to compare."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- White, blue and some green LEDs drop about 3 V: **a 3.3 V supply barely lights them**. Take care when a 3.3 V microcontroller like the ESP32 drives a blue LED directly.",
+            "- Rule: **the supply should sit well above the LED drop**, leaving voltage for the resistor to steady the current."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "Module at 5 V: click the LED — the current in Properties",
+          "explain": "(5 − 3.0) / (100 + 12) ≈ 17.9 mA."
+        },
+        {
+          "ask": "Switch the module to 3.3 V: the LED current",
+          "explain": "(3.3 − 3.0) / (100 + 12) ≈ 2.7 mA: about a seventh of the 5 V current."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "PM1", "type": "power_module", "voltage": 5 },
-    { "ref": "R1", "type": "resistor", "resistance": "100" },
-    { "ref": "LED1", "type": "led", "color": "blue" }
+    {
+      "ref": "PM1",
+      "type": "power_module",
+      "voltage": 5
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "100"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "blue"
+    }
   ],
   "connections": [
-    ["PM1.+", "R1.1"],
-    ["R1.2", "LED1.anode"],
-    ["LED1.cathode", "PM1.-"]
+    [
+      "PM1.+",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "LED1.cathode",
+      "PM1.-"
+    ]
   ],
   "tests": [
     {
-      "name": "蓝色 LED 亮，模块输出 5V",
-      "expect": { "LED1": "on" },
-      "voltages": [{ "pin": "PM1.+", "ref": "PM1.-", "min": 4.9, "max": 5.05 }]
+      "name": "蓝色 LED 亮，模块输出 5 V",
+      "expect": {
+        "LED1": "on"
+      },
+      "voltages": [
+        {
+          "pin": "PM1.+",
+          "ref": "PM1.-",
+          "min": 4.9,
+          "max": 5.05
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "i5",
+      "current": "LED1",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0165,
+        0.0195
+      ],
+      "ask": "模块 5 V：单击 LED，「属性」里的电流",
+      "explain": "(5 − 3.0) / (100 + 12) ≈ 17.9 mA。"
+    },
+    {
+      "id": "i33",
+      "current": "LED1",
+      "unit": "mA",
+      "predict": true,
+      "set": {
+        "PM1": {
+          "voltage": 3.3
+        }
+      },
+      "range": [
+        0.0022,
+        0.0032
+      ],
+      "tolAbs": 5e-05,
+      "ask": "把模块改成 3.3 V：LED 的电流",
+      "explain": "(3.3 − 3.0) / (100 + 12) ≈ 2.7 mA：只有 5 V 时的七分之一左右。"
     }
   ],
   "hints": [
-    "选中电源模块，在属性里把电压改成 5V。",
-    "R = (5 − 3.0) / 0.02 = 100Ω。"
+    "选中电源模块，在属性里把电压改成 5 V。",
+    "R = (5 − 3.0) / 0.02 = 100 Ω。"
   ],
   "solution": {
     "parts": [
-      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
-      { "type": "resistor", "ref": "R1", "resistance": "100", "pins": { "1": "tp5", "2": "b5" } },
-      { "type": "led", "ref": "LED1", "color": "blue", "pins": { "anode": "c5", "cathode": "c8" } },
-      { "type": "wire", "pins": { "a": "a8", "b": "tn8" }, "color": "blue" }
+      {
+        "type": "power_module",
+        "ref": "PM1",
+        "voltage": 5,
+        "at": "tp1"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "100",
+        "pins": {
+          "1": "tp5",
+          "2": "b5"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "blue",
+        "pins": {
+          "anode": "c5",
+          "cathode": "c8"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a8",
+          "b": "tn8"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

@@ -7,14 +7,14 @@
   "level": 4,
   "tags": ["最大功率传输", "受控源 VCVS", "外加电源法"],
   "statement": [
-    "图示电路中 I_s = 4 A，R_1 = 4 Ω，R_2 = 2 Ω。电压控制电压源 E 的电压为 0.5u_1（“+” 在左），u_1 是 R_1 两端电压（上正下负）。负载 R_L 可调。",
+    "图示电路中 I_s = 4 A，R_1 = 4 Ω，R_2 = 2 Ω。电压控制电压源 E 的电压为 0.5v_1（“+” 在左），v_1 是 R_1 两端电压（上正下负）。负载 R_L 可调。",
     "求 a、b 左侧电路的戴维宁等效电路，R_L 为何值时获得最大功率，P_max 是多少。图中 R_L 已调到该值，求此时受控源 E 吸收的功率。"
   ],
   "schematic": {
     "elements": [
       { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": 4 },
       { "ref": "R1", "type": "R", "from": [3, 0], "to": [3, 4], "value": 4 },
-      { "ref": "E", "type": "VCVS", "from": [5, 0], "to": [9, 0], "value": 0.5, "ctrl": { "v": "R1" }, "label": "0.5u_1" },
+      { "ref": "E", "type": "VCVS", "from": [5, 0], "to": [9, 0], "value": 0.5, "ctrl": { "v": "R1" }, "label": "0.5v_1" },
       { "ref": "R2", "type": "R", "from": [11, 0], "to": [14, 0], "value": 2 },
       { "ref": "RL", "type": "R", "from": [19, 0], "to": [19, 4], "value": 4, "label": "R_L", "hideValue": true }
     ],
@@ -26,17 +26,17 @@
     ],
     "terminals": [{ "at": [16, 0], "name": "a" }, { "at": [16, 4], "name": "b" }],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "v", "el": "R1", "name": "u1" }]
+    "marks": [{ "kind": "v", "el": "R1", "name": "v1" }]
   },
   "analysis": { "type": "dc" },
   "questions": [
     {
       "id": "uoc",
-      "ask": "断开 R_L，u_oc = ?",
+      "ask": "断开 R_L，v_oc = ?",
       "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 8,
       "unit": "V",
-      "explain": "开路时 E、R_2 中无电流，I_s 全部流过 R_1：u_1 = 16 V；u_oc = u_1 − 0.5u_1 = 8 V。"
+      "explain": "开路时 E、R_2 中无电流，I_s 全部流过 R_1：v_1 = 16 V；v_oc = v_1 − 0.5v_1 = 8 V。"
     },
     {
       "id": "req",
@@ -44,7 +44,7 @@
       "find": { "kind": "req", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 4,
       "unit": "Ω",
-      "explain": "I_s 开路，从 a 注入 i_x：它经 R_2、E 流进 R_1，u_1 = 4i_x；u = 2i_x + (u_1 − 0.5u_1) = 2i_x + 2i_x = 4i_x，R_eq = 4 Ω。"
+      "explain": "I_s 开路，从 a 注入 i_x：它经 R_2、E 流进 R_1，v_1 = 4i_x；v = 2i_x + (v_1 − 0.5v_1) = 2i_x + 2i_x = 4i_x，R_eq = 4 Ω。"
     },
     {
       "id": "pmax",
@@ -52,7 +52,7 @@
       "find": { "kind": "pmax", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 4,
       "unit": "W",
-      "explain": "R_L = R_eq = 4 Ω 时，P_max = u_oc²/(4R_eq) = 64/16 = 4 W。"
+      "explain": "R_L = R_eq = 4 Ω 时，P_max = v_oc²/(4R_eq) = 64/16 = 4 W。"
     },
     {
       "id": "pe",
@@ -60,19 +60,19 @@
       "find": { "kind": "p", "el": "E" },
       "answer": 6,
       "unit": "W",
-      "explain": "i_L = 8/8 = 1 A，自左向右流过 E（从“+”流入）。R_1 电流 4 − 1 = 3 A，u_1 = 12 V，E 的电压 6 V，P_E = 6 × 1 = 6 W（吸收）。"
+      "explain": "i_L = 8/8 = 1 A，自左向右流过 E（从“+”流入）。R_1 电流 4 − 1 = 3 A，v_1 = 12 V，E 的电压 6 V，P_E = 6 × 1 = 6 W（吸收）。"
     }
   ],
   "hints": [
-    "开路时 E 和 R_2 中都没有电流，但 E 两端仍有电压 0.5u_1。",
-    "R_eq 用外加电源法：I_s 置零（开路），受控源保留；注入电流 i_x 全部流过 R_1，所以 u_1 = 4i_x。",
-    "求 E 的功率要回到原电路：先由戴维宁电路求 i_L，再用 KCL 求 u_1。"
+    "开路时 E 和 R_2 中都没有电流，但 E 两端仍有电压 0.5v_1。",
+    "R_eq 用外加电源法：I_s 置零（开路），受控源保留；注入电流 i_x 全部流过 R_1，所以 v_1 = 4i_x。",
+    "求 E 的功率要回到原电路：先由戴维宁电路求 i_L，再用 KCL 求 v_1。"
   ],
   "solution": [
-    "**1. 开路电压。** 端口开路：E、R_2 无电流，u_1 = I_s·R_1 = 16 V。沿 a → R_2 → E → R_1 → 地写 KVL：u_oc = u_1 − 0.5u_1 = **8 V**。",
-    "**2. 等效电阻（外加电源法）。** I_s 开路，从 a 注入 i_x，它经 R_2、E 流入 R_1：u_1 = 4i_x，u = R_2·i_x + u_1 − 0.5u_1 = 2i_x + 2i_x → **R_eq = 4 Ω**。",
+    "**1. 开路电压。** 端口开路：E、R_2 无电流，v_1 = I_s·R_1 = 16 V。沿 a → R_2 → E → R_1 → 地写 KVL：v_oc = v_1 − 0.5v_1 = **8 V**。",
+    "**2. 等效电阻（外加电源法）。** I_s 开路，从 a 注入 i_x，它经 R_2、E 流入 R_1：v_1 = 4i_x，v = R_2·i_x + v_1 − 0.5v_1 = 2i_x + 2i_x → **R_eq = 4 Ω**。",
     "**3. 最大功率。** R_L = 4 Ω，P_max = 8²/(4 × 4) = **4 W**。",
-    "**4. 受控源功率。** i_L = u_oc/(2R_eq) = 1 A；R_1 中电流 4 − 1 = 3 A，u_1 = 12 V，E 电压 6 V，电流 1 A 从“+”端流入：P_E = **6 W**（吸收）。",
+    "**4. 受控源功率。** i_L = v_oc/(2R_eq) = 1 A；R_1 中电流 4 − 1 = 3 A，v_1 = 12 V，E 电压 6 V，电流 1 A 从“+”端流入：P_E = **6 W**（吸收）。",
     "**功率平衡：** I_s 发出 4 × 12 = 48 W；吸收：R_1 36 W + R_2 2 W + R_L 4 W + E 6 W = 48 W ✓。"
   ],
   "i18n": {
@@ -80,37 +80,37 @@
       "title": "Maximum power transfer with a VCVS",
       "tags": ["maximum power transfer", "dependent source VCVS", "test-source method"],
       "statement": [
-        "In the circuit, I_s = 4 A, R_1 = 4 Ω, R_2 = 2 Ω. The voltage-controlled voltage source E has voltage 0.5u_1 (\"+\" on the left), where u_1 is the voltage across R_1 (+ at the top). The load R_L is adjustable.",
+        "In the circuit, I_s = 4 A, R_1 = 4 Ω, R_2 = 2 Ω. The voltage-controlled voltage source E has voltage 0.5v_1 (\"+\" on the left), where v_1 is the voltage across R_1 (+ at the top). The load R_L is adjustable.",
         "Find the Thevenin equivalent of the circuit to the left of a, b, the value of R_L for maximum power, and P_max. R_L in the drawing has been set to that value: find the power absorbed by the dependent source E."
       ],
       "questions": [
         {
-          "ask": "With R_L removed, u_oc = ?",
-          "explain": "With the port open, E and R_2 carry no current and all of I_s flows through R_1: u_1 = 16 V; u_oc = u_1 − 0.5u_1 = 8 V."
+          "ask": "With R_L removed, v_oc = ?",
+          "explain": "With the port open, E and R_2 carry no current and all of I_s flows through R_1: v_1 = 16 V; v_oc = v_1 − 0.5v_1 = 8 V."
         },
         {
           "ask": "R_eq = ?",
-          "explain": "Open I_s and inject i_x at a: it flows through R_2 and E into R_1, u_1 = 4i_x; u = 2i_x + (u_1 − 0.5u_1) = 2i_x + 2i_x = 4i_x, R_eq = 4 Ω."
+          "explain": "Open I_s and inject i_x at a: it flows through R_2 and E into R_1, v_1 = 4i_x; v = 2i_x + (v_1 − 0.5v_1) = 2i_x + 2i_x = 4i_x, R_eq = 4 Ω."
         },
         {
           "ask": "P_max = ?",
-          "explain": "With R_L = R_eq = 4 Ω, P_max = u_oc²/(4R_eq) = 64/16 = 4 W."
+          "explain": "With R_L = R_eq = 4 Ω, P_max = v_oc²/(4R_eq) = 64/16 = 4 W."
         },
         {
           "ask": "With R_L = R_eq, power absorbed by the dependent source E = ?",
-          "explain": "i_L = 8/8 = 1 A flows left to right through E (entering at \"+\"). R_1 carries 4 − 1 = 3 A, u_1 = 12 V, E's voltage is 6 V, P_E = 6 × 1 = 6 W (absorbed)."
+          "explain": "i_L = 8/8 = 1 A flows left to right through E (entering at \"+\"). R_1 carries 4 − 1 = 3 A, v_1 = 12 V, E's voltage is 6 V, P_E = 6 × 1 = 6 W (absorbed)."
         }
       ],
       "hints": [
-        "With the port open, E and R_2 carry no current, but E still has the voltage 0.5u_1.",
-        "Find R_eq with a test source: I_s zeroed (open), dependent source kept; the injected current i_x all flows through R_1, so u_1 = 4i_x.",
-        "For the power of E go back to the original circuit: get i_L from the Thevenin circuit, then u_1 from KCL."
+        "With the port open, E and R_2 carry no current, but E still has the voltage 0.5v_1.",
+        "Find R_eq with a test source: I_s zeroed (open), dependent source kept; the injected current i_x all flows through R_1, so v_1 = 4i_x.",
+        "For the power of E go back to the original circuit: get i_L from the Thevenin circuit, then v_1 from KCL."
       ],
       "solution": [
-        "**1. Open-circuit voltage.** Port open: no current in E or R_2, u_1 = I_s·R_1 = 16 V. KVL along a → R_2 → E → R_1 → ground: u_oc = u_1 − 0.5u_1 = **8 V**.",
-        "**2. Equivalent resistance (test source).** Open I_s, inject i_x at a; it flows through R_2 and E into R_1: u_1 = 4i_x, u = R_2·i_x + u_1 − 0.5u_1 = 2i_x + 2i_x → **R_eq = 4 Ω**.",
+        "**1. Open-circuit voltage.** Port open: no current in E or R_2, v_1 = I_s·R_1 = 16 V. KVL along a → R_2 → E → R_1 → ground: v_oc = v_1 − 0.5v_1 = **8 V**.",
+        "**2. Equivalent resistance (test source).** Open I_s, inject i_x at a; it flows through R_2 and E into R_1: v_1 = 4i_x, v = R_2·i_x + v_1 − 0.5v_1 = 2i_x + 2i_x → **R_eq = 4 Ω**.",
         "**3. Maximum power.** R_L = 4 Ω, P_max = 8²/(4 × 4) = **4 W**.",
-        "**4. Power of the dependent source.** i_L = u_oc/(2R_eq) = 1 A; R_1 carries 4 − 1 = 3 A, u_1 = 12 V, E has 6 V and the 1 A enters its \"+\" terminal: P_E = **6 W** (absorbed).",
+        "**4. Power of the dependent source.** i_L = v_oc/(2R_eq) = 1 A; R_1 carries 4 − 1 = 3 A, v_1 = 12 V, E has 6 V and the 1 A enters its \"+\" terminal: P_E = **6 W** (absorbed).",
         "**Power balance:** I_s delivers 4 × 12 = 48 W; absorbed: R_1 36 W + R_2 2 W + R_L 4 W + E 6 W = 48 W ✓."
       ]
     }

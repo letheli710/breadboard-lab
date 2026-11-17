@@ -6,10 +6,10 @@
   "title": "非正弦电压的有效值、平均值与仪表读数",
   "level": 1,
   "tags": ["有效值", "平均值", "平均功率", "仪表读数"],
-  "statement": ["电阻 R = 50 Ω 两端的电压为 u = 10 + 100√2 cos(314t) + 30√2 cos(942t − 60°) V。", "求 u 的有效值 U 和平均值、电阻吸收的平均功率 P，并判断两种电压表的读数。"],
+  "statement": ["电阻 R = 50 Ω 两端的电压为 v = 10 + 100√2 cos(314t) + 30√2 cos(942t − 60°) V。", "求 v 的有效值 V 和平均值，以及电阻吸收的平均功率 P。再判断两种电压表的读数。"],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "harmonics": { "dc": 10, "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 42.426407, "phase": -60 } ] } }, "label": "u" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "harmonics": { "dc": 10, "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 42.426407, "phase": -60 } ] } }, "label": "v" },
       { "ref": "R", "type": "R", "from": [5, 0], "to": [5, 4], "value": 50 }
     ],
     "wires": [
@@ -18,18 +18,18 @@
     ],
     "grounds": [[0, 4]],
     "marks": [
-      { "kind": "v", "el": "R", "name": "u" },
+      { "kind": "v", "el": "R", "name": "v" },
       { "kind": "i", "el": "R", "name": "i" }
     ]
   },
   "analysis": { "type": "periodic", "omega": 314 },
   "questions": [
-    { "id": "U", "ask": "u 的有效值 U = ?", "find": { "kind": "v", "el": "R" }, "answer": 104.8809, "unit": "V", "explain": "U = √(U_0² + U_1² + U_3²) = √(10² + 100² + 30²) = √11000 ≈ 104.9 V。各次谐波用**有效值**（100√2 的有效值是 100 V）。" },
-    { "id": "avg", "ask": "u 的平均值 U_0 = ?", "find": { "kind": "v", "el": "R", "part": "avg" }, "answer": 10, "unit": "V", "explain": "正弦量在一个周期内的平均值为零，所以平均值就是直流分量 10 V。" },
-    { "id": "P", "ask": "电阻吸收的平均功率 P = ?", "find": { "kind": "p", "el": "R" }, "answer": 220, "unit": "W", "explain": "电阻上 P = U²/R = 11000/50 = 220 W；也等于各次谐波功率之和 10²/50 + 100²/50 + 30²/50 = 2 + 200 + 18 = 220 W。" },
+    { "id": "U", "ask": "v 的有效值 V = ?", "find": { "kind": "v", "el": "R" }, "answer": 104.8809, "unit": "V", "explain": "V = √(V_0² + V_1² + V_3²) = √(10² + 100² + 30²) = √11000 ≈ 104.9 V。各次谐波用**有效值**（100√2 的有效值是 100 V）。" },
+    { "id": "avg", "ask": "v 的平均值 V_0 = ?", "find": { "kind": "v", "el": "R", "part": "avg" }, "answer": 10, "unit": "V", "explain": "正弦量在一个周期内的平均值为零，所以平均值就是直流分量 10 V。" },
+    { "id": "P", "ask": "电阻吸收的平均功率 P = ?", "find": { "kind": "p", "el": "R" }, "answer": 220, "unit": "W", "explain": "电阻上 P = V²/R = 11000/50 = 220 W；也等于各次谐波功率之和 10²/50 + 100²/50 + 30²/50 = 2 + 200 + 18 = 220 W。" },
     {
       "id": "mc",
-      "ask": "用磁电系（永磁动圈式）电压表测 u，读数约为多少？",
+      "ask": "用磁电系（永磁动圈式）电压表测 v，读数约为多少？",
       "choices": ["10 V", "104.9 V", "100 V", "141.4 V"],
       "correct": 0,
       "choiceExplain": ["", "有效值由电磁系或电动系电压表测量。", "100 V 只是基波有效值；磁电系仪表对正弦分量的平均偏转为零。", "141.4 V 是基波的振幅，磁电系仪表对正弦分量的平均偏转为零。"],
@@ -37,19 +37,19 @@
     },
     {
       "id": "me",
-      "ask": "用电磁系（动铁式）电压表测 u，读数约为多少？",
+      "ask": "用电磁系（动铁式）电压表测 v，读数约为多少？",
       "choices": ["10 V", "104.9 V", "140 V", "148.0 V"],
       "correct": 1,
       "choiceExplain": ["电磁系仪表的转矩与 i² 成正比，读的是有效值，不是平均值。", "", "140 V 是把三个有效值直接相加——有效值不能相加。", "这是把振幅 100√2 V、30√2 V 当作有效值代入：√(10² + 141.4² + 42.43²) = 148.0 V。"],
       "explain": "电磁系仪表读**有效值**：104.9 V。"
     }
   ],
-  "hints": ["非正弦周期量的有效值不是各次谐波有效值之和，而是“平方和再开方”。", "先把每一项换成有效值：直流 10 V，基波 100√2/√2 = 100 V，3 次谐波 30 V。初相与有效值无关。", "平均功率可以用 U²/R，也可以把各次谐波的功率相加；磁电系仪表读平均值，电磁系读有效值。"],
+  "hints": ["非正弦周期量的有效值不是各次谐波有效值之和，而是“平方和再开方”。", "先把每一项换成有效值：直流 10 V，基波 100√2/√2 = 100 V，3 次谐波 30 V。初相与有效值无关。", "平均功率可以用 V²/R，也可以把各次谐波的功率相加。磁电系仪表读平均值，电磁系读有效值。"],
   "solution": [
-    "**1. 各分量的有效值。** 直流 U_0 = 10 V；基波 U_1 = 100√2/√2 = 100 V；3 次谐波（942 = 3 × 314）U_3 = 30 V。初相 −60° 不影响有效值。",
-    "**2. 有效值。** U = √(U_0² + U_1² + U_3²) = √(100 + 10000 + 900) = **104.9 V**。",
-    "**3. 平均值。** 正弦分量在一个周期内平均为零，U_0 = **10 V**。",
-    "**4. 平均功率。** P = U²/R = 11000/50 = **220 W**。",
+    "**1. 各分量的有效值。** 直流 V_0 = 10 V；基波 V_1 = 100√2/√2 = 100 V；3 次谐波（942 = 3 × 314）V_3 = 30 V。初相 −60° 不影响有效值。",
+    "**2. 有效值。** V = √(V_0² + V_1² + V_3²) = √(100 + 10000 + 900) = **104.9 V**。",
+    "**3. 平均值。** 正弦分量在一个周期内平均为零，V_0 = **10 V**。",
+    "**4. 平均功率。** P = V²/R = 11000/50 = **220 W**。",
     "**检查：** 按谐波分别算：P_0 = 10²/50 = 2 W，P_1 = 100²/50 = 200 W，P_3 = 30²/50 = 18 W，合计 220 W，一致。",
     "**5. 仪表。** 磁电系仪表反映平均值，读 **10 V**；电磁系（以及电动系）仪表反映有效值，读 **104.9 V**。"
   ],
@@ -58,28 +58,28 @@
       "title": "rms value, average value and meter readings of a non-sinusoidal voltage",
       "tags": ["rms value", "average value", "average power", "meter readings"],
       "statement": [
-        "The voltage across a resistor R = 50 Ω is u = 10 + 100√2 cos(314t) + 30√2 cos(942t − 60°) V.",
-        "Find the rms value U and the average value of u and the average power P absorbed by the resistor, and decide what two kinds of voltmeter read."
+        "The voltage across a resistor R = 50 Ω is v = 10 + 100√2 cos(314t) + 30√2 cos(942t − 60°) V.",
+        "Find the rms value V and the average value of v, and the average power P absorbed by the resistor. Then decide what two kinds of voltmeter read."
       ],
       "hints": [
         "The rms value of a non-sinusoidal periodic quantity is not the sum of the harmonics' rms values but the square root of the sum of their squares.",
         "Turn every term into an rms value first: DC 10 V, fundamental 100√2/√2 = 100 V, 3rd harmonic 30 V. The initial phases do not matter for rms values.",
-        "The average power is U²/R, or the sum of the harmonics' powers; a moving-coil meter reads the average value, a moving-iron meter the rms value."
+        "The average power is V²/R, or the sum of the harmonics' powers. A moving-coil meter reads the average value, a moving-iron meter the rms value."
       ],
       "solution": [
-        "**1. rms value of each component.** DC U_0 = 10 V; fundamental U_1 = 100√2/√2 = 100 V; 3rd harmonic (942 = 3 × 314) U_3 = 30 V. The −60° phase does not affect the rms value.",
-        "**2. rms value.** U = √(U_0² + U_1² + U_3²) = √(100 + 10000 + 900) = **104.9 V**.",
-        "**3. Average value.** The sinusoidal terms average to zero over a period, U_0 = **10 V**.",
-        "**4. Average power.** P = U²/R = 11000/50 = **220 W**.",
+        "**1. rms value of each component.** DC V_0 = 10 V; fundamental V_1 = 100√2/√2 = 100 V; 3rd harmonic (942 = 3 × 314) V_3 = 30 V. The −60° phase does not affect the rms value.",
+        "**2. rms value.** V = √(V_0² + V_1² + V_3²) = √(100 + 10000 + 900) = **104.9 V**.",
+        "**3. Average value.** The sinusoidal terms average to zero over a period, V_0 = **10 V**.",
+        "**4. Average power.** P = V²/R = 11000/50 = **220 W**.",
         "**Check:** harmonic by harmonic, P_0 = 10²/50 = 2 W, P_1 = 100²/50 = 200 W, P_3 = 30²/50 = 18 W, total 220 W — the same.",
         "**5. Meters.** A moving-coil meter responds to the average value and reads **10 V**; a moving-iron (or electrodynamic) meter responds to the rms value and reads **104.9 V**."
       ],
       "questions": [
-        { "ask": "rms value of u, U = ?", "explain": "U = √(U_0² + U_1² + U_3²) = √(10² + 100² + 30²) = √11000 ≈ 104.9 V. Use the **rms value** of each harmonic (100√2 peak is 100 V rms)." },
-        { "ask": "Average value of u, U_0 = ?", "explain": "A sinusoid averages to zero over a period, so the average value is the DC component, 10 V." },
-        { "ask": "Average power absorbed by the resistor, P = ?", "explain": "For a resistor P = U²/R = 11000/50 = 220 W; it also equals the sum of the harmonic powers 10²/50 + 100²/50 + 30²/50 = 2 + 200 + 18 = 220 W." },
+        { "ask": "rms value of v, V = ?", "explain": "V = √(V_0² + V_1² + V_3²) = √(10² + 100² + 30²) = √11000 ≈ 104.9 V. Use the **rms value** of each harmonic (100√2 peak is 100 V rms)." },
+        { "ask": "Average value of v, V_0 = ?", "explain": "A sinusoid averages to zero over a period, so the average value is the DC component, 10 V." },
+        { "ask": "Average power absorbed by the resistor, P = ?", "explain": "For a resistor P = V²/R = 11000/50 = 220 W; it also equals the sum of the harmonic powers 10²/50 + 100²/50 + 30²/50 = 2 + 200 + 18 = 220 W." },
         {
-          "ask": "What does a moving-coil (permanent-magnet) voltmeter read when measuring u?",
+          "ask": "What does a moving-coil (permanent-magnet) voltmeter read when measuring v?",
           "choices": ["10 V", "104.9 V", "100 V", "141.4 V"],
           "choiceExplain": [
             "",
@@ -90,7 +90,7 @@
           "explain": "A moving-coil meter deflects in proportion to the average current, so it reads the **DC component** (average value), 10 V."
         },
         {
-          "ask": "What does a moving-iron voltmeter read when measuring u?",
+          "ask": "What does a moving-iron voltmeter read when measuring v?",
           "choices": ["10 V", "104.9 V", "140 V", "148.0 V"],
           "choiceExplain": [
             "A moving-iron meter's torque is proportional to i², so it reads the rms value, not the average.",

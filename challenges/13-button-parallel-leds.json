@@ -2,44 +2,288 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-button-parallel",
-  "title": "挑战 5 · 一个按键控制两个 LED",
+  "title": "一个按键控制两颗 LED",
   "kind": "challenge",
   "level": 3,
-  "summary": "按下按键，两条并联的 LED 支路同时点亮。",
-  "concepts": ["push button", "parallel 并联", "bottom rails 下方电源轨"],
-  "description": "要求：+5V → 按键 → 结点 SWOUT；从 SWOUT 分出两条支路：220Ω + 红色 LED、220Ω + 黄色 LED，都回到 GND。\n• 松开按键：两个 LED 都灭；\n• 按下按键：两个 LED 都亮。\n\n按键是两条支路共用的“总开关”，所以它要放在分岔点之前。",
+  "summary": "按下按键，两条并联的 LED 支路同时点亮：开关要放在分岔点之前。",
+  "concepts": [
+    "switch 开关",
+    "parallel 并联",
+    "node 结点"
+  ],
+  "description": "+5 V → 按键 → 结点 SWOUT；从 SWOUT 分出两条支路：220 Ω + 红色 LED、220 Ω + 黄色 LED，都回到 GND。松开按键两颗都灭，按下两颗都亮。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "一个总开关",
+      "text": [
+        "这一题没有步骤，**照目标电路图自己搭**：一个按键，后面分成两条 LED 支路。"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "开关放在哪里，就管哪一段",
+      "text": [
+        "- 开关串在哪条路上，就只管那条路。想让一个按键**同时**管两条支路，它必须放在两条支路**分岔之前**。",
+        "![](fig:split)",
+        "- 按键的输出端就是结点 **SWOUT**：两个电阻的一只脚都插在这一列。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "搭好，量一量",
+      "text": [
+        "- 按键横跨凹槽放在 e 行；它右边那一列（上下两段都算）就是 SWOUT。",
+        "- 两条支路各回各的 GND（用电源模块时，下方的 bn 轨也是 GND）。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **总开关在分岔前，分开关在支路里。** 家里的总闸和每个房间的开关就是这样排的。",
+        "- 两条支路并联：按下后它们两端电压相同，电流各自由自己的电阻和 LED 决定。"
+      ]
+    }
+  ],
+  "figures": {
+    "split": {
+      "kind": "schematic",
+      "caption": {
+        "text": "按键放在分岔之前，两条支路的电流都要从它经过：I = I_1 + I_2。",
+        "i18n": {
+          "en": "The button sits before the fork, so both branch currents pass through it: I = I_1 + I_2."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 6], "value": 5},
+          {"ref": "SW1", "type": "S", "from": [0, 0], "to": [2, 0], "value": "closed", "label": "SW1"},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [3, 3], "value": 220},
+          {"ref": "LED1", "type": "LED", "from": [3, 3], "to": [3, 6], "value": "red"},
+          {"ref": "R2", "type": "R", "from": [6, 0], "to": [6, 3], "value": 220},
+          {"ref": "LED2", "type": "LED", "from": [6, 3], "to": [6, 6], "value": "yellow"}
+        ],
+        "wires": [
+          [[2, 0], [6, 0]],
+          [[6, 6], [0, 6]]
+        ],
+        "labels": [
+          {"at": [2, 0], "name": "SWOUT"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "SW1", "name": "I"},
+          {"kind": "i", "el": "R1", "name": "I_1"},
+          {"kind": "i", "el": "R2", "name": "I_2"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Challenge 5 · One button, two LEDs",
-      "summary": "Press the button and two parallel LED branches light up together.",
-      "concepts": ["push button", "parallel", "bottom rails"],
-      "description": "Task: +5V → push button → node SWOUT; from SWOUT split into two branches: 220Ω + red LED and 220Ω + yellow LED, both returning to GND.\n• Button released: both LEDs off;\n• Button pressed: both LEDs on.\n\nThe button is the \"main switch\" shared by both branches, so it has to come before the point where they split.",
-      "hints": [
-        "Put the button across the trench on row e; the column to its right (both the top and bottom halves) is SWOUT.",
-        "One lead of each resistor goes into the SWOUT column.",
-        "If you use the power module, the bottom bn rail is GND too."
+      "title": "One button, two LEDs",
+      "summary": "Press the button and two parallel LED branches light together: the switch goes before the fork.",
+      "concepts": [
+        "switch",
+        "parallel",
+        "node"
       ],
-      "tests": ["Released: both off", "Pressed: both on"]
+      "description": "+5 V → button → node SWOUT; from SWOUT two branches: 220 Ω + red LED and 220 Ω + yellow LED, both back to GND. Released, both are off; pressed, both are on.",
+      "hints": [
+        "The button straddles the trench in row e; the column to its right (both halves count) is SWOUT.",
+        "One leg of each resistor goes into the SWOUT column.",
+        "With the power module, the lower bn rail is GND as well."
+      ],
+      "tests": [
+        "Released: both off",
+        "Pressed: both on"
+      ],
+      "cards": [
+        {
+          "title": "One master switch",
+          "text": [
+            "No steps here — **build it from the target schematic**: one button, then two LED branches."
+          ]
+        },
+        {
+          "title": "A switch controls the stretch it sits in",
+          "text": [
+            "- A switch in series with a path controls only that path. For one button to control **both** branches **at once**, it must sit **before the fork**.",
+            "![](fig:split)",
+            "- The button's output is node **SWOUT**: one leg of each resistor goes into that column."
+          ]
+        },
+        {
+          "title": "Build it, measure it",
+          "text": [
+            "- The button straddles the trench in row e; the column to its right (both halves) is SWOUT.",
+            "- Each branch goes back to GND (with the power module, the lower bn rail is GND too)."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Master switch before the fork, branch switches in the branches.** That is how a home's main switch and the room switches are arranged.",
+            "- The two branches are in parallel: pressed, they have the same voltage across them, and each current is set by its own resistor and LED."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "Button pressed: the red LED's current (click it and look at Properties)",
+          "explain": "(5 − 1.8) / (220 + 12) ≈ 13.8 mA."
+        },
+        {
+          "ask": "Button pressed: the yellow LED's current",
+          "explain": "Yellow drops about 2.0 V: (5 − 2.0) / (220 + 12) ≈ 12.9 mA."
+        },
+        {
+          "ask": "From your two readings: the current through the button",
+          "explain": "Both branch currents pass through the button first, so its current is their sum (KCL)."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 5 },
-    { "ref": "SW1", "type": "pushbutton" },
-    { "ref": "R1", "type": "resistor", "resistance": "220" },
-    { "ref": "LED1", "type": "led", "color": "red" },
-    { "ref": "R2", "type": "resistor", "resistance": "220" },
-    { "ref": "LED2", "type": "led", "color": "yellow" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 5
+    },
+    {
+      "ref": "SW1",
+      "type": "pushbutton"
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED2",
+      "type": "led",
+      "color": "yellow"
+    }
   ],
   "nets": [
-    { "name": "VCC", "pins": ["V1.+", "SW1.1"] },
-    { "name": "SWOUT", "pins": ["SW1.2", "R1.1", "R2.1"] },
-    { "pins": ["R1.2", "LED1.anode"] },
-    { "pins": ["R2.2", "LED2.anode"] },
-    { "name": "GND", "pins": ["LED1.cathode", "LED2.cathode", "V1.-"] }
+    {
+      "name": "VCC",
+      "pins": [
+        "V1.+",
+        "SW1.1"
+      ]
+    },
+    {
+      "name": "SWOUT",
+      "pins": [
+        "SW1.2",
+        "R1.1",
+        "R2.1"
+      ]
+    },
+    {
+      "pins": [
+        "R1.2",
+        "LED1.anode"
+      ]
+    },
+    {
+      "pins": [
+        "R2.2",
+        "LED2.anode"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "LED1.cathode",
+        "LED2.cathode",
+        "V1.-"
+      ]
+    }
   ],
   "tests": [
-    { "name": "松开：都灭", "set": { "SW1": { "pressed": false } }, "expect": { "LED1": "off", "LED2": "off" } },
-    { "name": "按下：都亮", "set": { "SW1": { "pressed": true } }, "expect": { "LED1": "on", "LED2": "on" } }
+    {
+      "name": "松开：都灭",
+      "set": {
+        "SW1": {
+          "pressed": false
+        }
+      },
+      "expect": {
+        "LED1": "off",
+        "LED2": "off"
+      }
+    },
+    {
+      "name": "按下：都亮",
+      "set": {
+        "SW1": {
+          "pressed": true
+        }
+      },
+      "expect": {
+        "LED1": "on",
+        "LED2": "on"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "id": "ired",
+      "current": "LED1",
+      "unit": "mA",
+      "predict": true,
+      "set": {
+        "SW1": {
+          "pressed": true
+        }
+      },
+      "range": [
+        0.0125,
+        0.015
+      ],
+      "ask": "按下按键：红色 LED 的电流（单击它看「属性」）",
+      "explain": "(5 − 1.8) / (220 + 12) ≈ 13.8 mA。"
+    },
+    {
+      "id": "iyel",
+      "current": "LED2",
+      "unit": "mA",
+      "predict": true,
+      "set": {
+        "SW1": {
+          "pressed": true
+        }
+      },
+      "range": [
+        0.0117,
+        0.014
+      ],
+      "ask": "按下按键：黄色 LED 的电流",
+      "explain": "黄色压降约 2.0 V：(5 − 2.0) / (220 + 12) ≈ 12.9 mA。"
+    },
+    {
+      "id": "isw",
+      "formula": "ired + iyel",
+      "unit": "mA",
+      "range": [
+        0.0245,
+        0.0285
+      ],
+      "ask": "用你的两个读数算：流过按键的电流",
+      "explain": "两条支路的电流都要先经过按键，所以按键里的电流是两者之和（KCL）。"
+    }
   ],
   "hints": [
     "按键横跨凹槽放在 e 行；它右边那一列（上下两段都算）就是 SWOUT。",
@@ -48,15 +292,77 @@
   ],
   "solution": {
     "parts": [
-      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
-      { "type": "wire", "pins": { "a": "tp5", "b": "a5" }, "color": "red" },
-      { "type": "pushbutton", "ref": "SW1", "at": "e5" },
-      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "h7", "2": "h11" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "i11", "cathode": "i14" } },
-      { "type": "wire", "pins": { "a": "j14", "b": "bn14" }, "color": "blue" },
-      { "type": "resistor", "ref": "R2", "resistance": "220", "pins": { "1": "g7", "2": "g17" } },
-      { "type": "led", "ref": "LED2", "color": "yellow", "pins": { "anode": "h17", "cathode": "h20" } },
-      { "type": "wire", "pins": { "a": "j20", "b": "bn20" }, "color": "blue" }
+      {
+        "type": "power_module",
+        "ref": "PM1",
+        "voltage": 5,
+        "at": "tp1"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp5",
+          "b": "a5"
+        },
+        "color": "red"
+      },
+      {
+        "type": "pushbutton",
+        "ref": "SW1",
+        "at": "e5"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "220",
+        "pins": {
+          "1": "h7",
+          "2": "h11"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "i11",
+          "cathode": "i14"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "j14",
+          "b": "bn14"
+        },
+        "color": "blue"
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "220",
+        "pins": {
+          "1": "g7",
+          "2": "g17"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED2",
+        "color": "yellow",
+        "pins": {
+          "anode": "h17",
+          "cathode": "h20"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "j20",
+          "b": "bn20"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

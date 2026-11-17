@@ -7,14 +7,15 @@
   "level": 3,
   "tags": ["二瓦计法", "三相功率", "功率因数"],
   "statement": [
-    "线电压 380 V、50 Hz 的对称三相电源（正序，U̇_A = (380/√3)∠0° V）经三根端线向对称星形负载 Z（未知）供电，没有中线。用二瓦计法测量功率：功率表 W_1 的电流线圈串在 A 线、电压线圈接在 A、C 之间；W_2 的电流线圈串在 B 线、电压线圈接在 B、C 之间（图中画出了两只功率表的电流线圈 W_1、W_2，电压线圈未画出）。",
+    "对称三相电源经三根端线向对称星形负载 Z（未知）供电，没有中线。电源线电压 380 V（有效值），50 Hz，正序，V̇_A = (380/√3)∠0° V。",
+    "用二瓦计法测量功率：功率表 W_1 的电流线圈串在 A 线、电压线圈接在 A、C 之间；W_2 的电流线圈串在 B 线、电压线圈接在 B、C 之间。图中只画出了两只功率表的电流线圈 W_1、W_2，电压线圈没有画。",
     "测得 W_1 = 7220 W，W_2 = 0。已知负载为感性，求负载的功率因数、线电流，以及每相阻抗 Z = R + jX 的 R 和 X。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "UA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 219.39310229205772, "phase": 0 } }, "label": "U_A" },
-      { "ref": "UB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 219.39310229205772, "phase": -120 } }, "label": "U_B" },
-      { "ref": "UC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 219.39310229205772, "phase": 120 } }, "label": "U_C" },
+      { "ref": "VA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 219.39310229205772, "phase": 0 } }, "label": "V_A" },
+      { "ref": "VB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 219.39310229205772, "phase": -120 } }, "label": "V_B" },
+      { "ref": "VC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 219.39310229205772, "phase": 120 } }, "label": "V_C" },
       { "ref": "ZA", "type": "Z", "from": [10, 0], "to": [14, 0], "value": { "re": 5, "im": 8.660254037844386 }, "hideValue": true },
       { "ref": "ZB", "type": "Z", "from": [10, 3], "to": [14, 3], "value": { "re": 5, "im": 8.660254037844386 }, "hideValue": true },
       { "ref": "ZC", "type": "Z", "from": [10, 6], "to": [14, 6], "value": { "re": 5, "im": 8.660254037844386 }, "hideValue": true },
@@ -47,10 +48,10 @@
     {
       "id": "pf",
       "ask": "负载功率因数 cos φ = ?",
-      "find": { "kind": "pf", "el": "UA" },
+      "find": { "kind": "pf", "el": "VA" },
       "answer": 0.5,
       "unit": "",
-      "explain": "对称负载时 W_1 = U_l·I_l·cos(φ − 30°)，W_2 = U_l·I_l·cos(φ + 30°)。W_2 = 0 说明 φ + 30° = 90°，φ = 60°，cos φ = 0.5。也可用 tan φ = √3(W_1 − W_2)/(W_1 + W_2) = √3。"
+      "explain": "对称负载时 W_1 = V_l·I_l·cos(φ − 30°)，W_2 = V_l·I_l·cos(φ + 30°)。W_2 = 0 说明 φ + 30° = 90°，φ = 60°，cos φ = 0.5。也可用 tan φ = √3(W_1 − W_2)/(W_1 + W_2) = √3。"
     },
     {
       "id": "Il",
@@ -58,20 +59,20 @@
       "find": { "kind": "i", "el": "ZA", "part": "mag" },
       "answer": 21.93931,
       "unit": "A",
-      "explain": "P = W_1 + W_2 = 7220 W = √3·U_l·I_l·cos φ，I_l = 7220/(√3 × 380 × 0.5) ≈ 21.94 A。"
+      "explain": "P = W_1 + W_2 = 7220 W = √3·V_l·I_l·cos φ，I_l = 7220/(√3 × 380 × 0.5) ≈ 21.94 A。"
     },
     {
       "id": "R",
       "ask": "每相电阻 R = ?",
-      "find": { "kind": "req", "port": ["A", "N'"], "exclude": ["ZB", "ZC", "UA", "UB", "UC"], "part": "re" },
+      "find": { "kind": "req", "port": ["A", "N'"], "exclude": ["ZB", "ZC", "VA", "VB", "VC"], "part": "re" },
       "answer": 5,
       "unit": "Ω",
-      "explain": "|Z| = U_p/I_p = 219.39/21.94 = 10 Ω，R = |Z|·cos φ = 5 Ω（或 R = P/(3I_l²) = 7220/(3 × 481.3) = 5 Ω）。"
+      "explain": "|Z| = V_p/I_p = 219.39/21.94 = 10 Ω，R = |Z|·cos φ = 5 Ω（或 R = P/(3I_l²) = 7220/(3 × 481.3) = 5 Ω）。"
     },
     {
       "id": "X",
       "ask": "每相电抗 X = ?",
-      "find": { "kind": "req", "port": ["A", "N'"], "exclude": ["ZB", "ZC", "UA", "UB", "UC"], "part": "im" },
+      "find": { "kind": "req", "port": ["A", "N'"], "exclude": ["ZB", "ZC", "VA", "VB", "VC"], "part": "im" },
       "answer": 8.660254,
       "unit": "Ω",
       "explain": "X = |Z|·sin φ = 10 × sin60° = 5√3 ≈ 8.660 Ω（感性取正）。"
@@ -82,7 +83,7 @@
       "find": { "kind": "wattmeter", "current": "W1", "nodes": ["A", "C"] },
       "answer": 7220,
       "unit": "W",
-      "explain": "W_1 = U_l·I_l·cos(φ − 30°) = 380 × 21.94 × cos30° = 7220 W，与测量值一致。"
+      "explain": "W_1 = V_l·I_l·cos(φ − 30°) = 380 × 21.94 × cos30° = 7220 W，与测量值一致。"
     },
     {
       "id": "W2",
@@ -90,48 +91,49 @@
       "find": { "kind": "wattmeter", "current": "W2", "nodes": ["B", "C"] },
       "answer": 0,
       "unit": "W",
-      "explain": "W_2 = U_l·I_l·cos(φ + 30°) = 380 × 21.94 × cos90° = 0。φ > 60° 时 W_2 会变为负值（读数反转）。"
+      "explain": "W_2 = V_l·I_l·cos(φ + 30°) = 380 × 21.94 × cos90° = 0。φ > 60° 时 W_2 会变为负值（读数反转）。"
     }
   ],
   "hints": [
     "二瓦计法：两表读数之和就是三相总有功功率 P = W_1 + W_2。",
-    "对称负载时 W_1 = U_l·I_l·cos(φ − 30°)、W_2 = U_l·I_l·cos(φ + 30°)，由此 tan φ = √3(W_1 − W_2)/(W_1 + W_2)。",
-    "求出 φ 和 I_l 后，|Z| = U_p/I_p，再分解为 R = |Z|cos φ、X = |Z|sin φ。"
+    "对称负载时 W_1 = V_l·I_l·cos(φ − 30°)、W_2 = V_l·I_l·cos(φ + 30°)，由此 tan φ = √3(W_1 − W_2)/(W_1 + W_2)。",
+    "求出 φ 和 I_l 后，|Z| = V_p/I_p，再分解为 R = |Z|cos φ、X = |Z|sin φ。"
   ],
   "solution": [
     "**1. 总功率。** P = W_1 + W_2 = 7220 W。",
-    "**2. 功率因数角。** W_1 测的是 Re(U̇_AC·İ_A*)，以 U̇_A 为 0°，U̇_AC 的相位是 −30°，所以 W_1 = U_l·I_l·cos(φ − 30°)；同理 W_2 = U_l·I_l·cos(φ + 30°)。tan φ = √3(W_1 − W_2)/(W_1 + W_2) = √3 → φ = 60°，**cos φ = 0.5**。",
-    "**3. 线电流。** I_l = P/(√3·U_l·cos φ) = 7220/(√3 × 380 × 0.5) = **21.94 A**。",
-    "**4. 负载阻抗。** |Z| = U_p/I_p = (380/√3)/21.94 = 10 Ω，Z = 10∠60° = **5 + j8.660 Ω**。",
-    "**验算：** W_1 = 380 × 21.94 × cos30° = 7220 W，W_2 = 380 × 21.94 × cos90° = 0。φ > 60° 时 W_2 会变为负值（读数反转）；三相总无功 Q = √3(W_1 − W_2) = 12505 var。"
+    "**2. 功率因数角。** W_1 测的是 Re(V̇_AC·İ_A*)。以 V̇_A 为 0°，V̇_AC 的相位是 −30°，所以 W_1 = V_l·I_l·cos(φ − 30°)；同理 W_2 = V_l·I_l·cos(φ + 30°)。于是 tan φ = √3(W_1 − W_2)/(W_1 + W_2) = √3 → φ = 60°，**cos φ = 0.5**。",
+    "**3. 线电流。** I_l = P/(√3·V_l·cos φ) = 7220/(√3 × 380 × 0.5) = **21.94 A**。",
+    "**4. 负载阻抗。** |Z| = V_p/I_p = (380/√3)/21.94 = 10 Ω，Z = 10∠60° = **5 + j8.660 Ω**。",
+    "**验算：** W_1 = 380 × 21.94 × cos30° = 7220 W，W_2 = 380 × 21.94 × cos90° = 0。φ > 60° 时 W_2 会变为负值（读数反转）。三相总无功 Q = √3(W_1 − W_2) = 12505 var。"
   ],
   "i18n": {
     "en": {
       "title": "Two-wattmeter method: load parameters from the readings",
       "tags": ["two-wattmeter method", "three-phase power", "power factor"],
       "statement": [
-        "A balanced three-phase source, 380 V line voltage at 50 Hz (positive sequence, U̇_A = (380/√3)∠0° V), feeds an unknown balanced wye load Z through three lines, with no neutral. The power is measured by the two-wattmeter method: wattmeter W_1 has its current coil in line A and its voltage coil between A and C; W_2 has its current coil in line B and its voltage coil between B and C (the drawing shows the current coils W_1, W_2; the voltage coils are not drawn).",
+        "A balanced three-phase source feeds an unknown balanced wye load Z through three lines, with no neutral. The source has a 380 V (rms) line voltage at 50 Hz, positive sequence, V̇_A = (380/√3)∠0° V.",
+        "The power is measured by the two-wattmeter method: wattmeter W_1 has its current coil in line A and its voltage coil between A and C; W_2 has its current coil in line B and its voltage coil between B and C. The drawing shows only the current coils W_1, W_2; the voltage coils are not drawn.",
         "The readings are W_1 = 7220 W and W_2 = 0. The load is known to be inductive. Find the load power factor, the line current, and R and X of the per-phase impedance Z = R + jX."
       ],
       "questions": [
-        { "ask": "Load power factor cos φ = ?", "explain": "For a balanced load W_1 = U_l·I_l·cos(φ − 30°) and W_2 = U_l·I_l·cos(φ + 30°). W_2 = 0 means φ + 30° = 90°, so φ = 60° and cos φ = 0.5. Or use tan φ = √3(W_1 − W_2)/(W_1 + W_2) = √3." },
-        { "ask": "rms line current I_l = ?", "explain": "P = W_1 + W_2 = 7220 W = √3·U_l·I_l·cos φ, so I_l = 7220/(√3 × 380 × 0.5) ≈ 21.94 A." },
-        { "ask": "Per-phase resistance R = ?", "explain": "|Z| = U_p/I_p = 219.39/21.94 = 10 Ω and R = |Z|·cos φ = 5 Ω (or R = P/(3I_L²) = 7220/(3 × 481.3) = 5 Ω)." },
+        { "ask": "Load power factor cos φ = ?", "explain": "For a balanced load W_1 = V_l·I_l·cos(φ − 30°) and W_2 = V_l·I_l·cos(φ + 30°). W_2 = 0 means φ + 30° = 90°, so φ = 60° and cos φ = 0.5. Or use tan φ = √3(W_1 − W_2)/(W_1 + W_2) = √3." },
+        { "ask": "rms line current I_l = ?", "explain": "P = W_1 + W_2 = 7220 W = √3·V_l·I_l·cos φ, so I_l = 7220/(√3 × 380 × 0.5) ≈ 21.94 A." },
+        { "ask": "Per-phase resistance R = ?", "explain": "|Z| = V_p/I_p = 219.39/21.94 = 10 Ω and R = |Z|·cos φ = 5 Ω (or R = P/(3I_l²) = 7220/(3 × 481.3) = 5 Ω)." },
         { "ask": "Per-phase reactance X = ?", "explain": "X = |Z|·sin φ = 10 × sin60° = 5√3 ≈ 8.660 Ω (positive, since the load is inductive)." },
-        { "ask": "Check: with the Z you found, the reading of wattmeter W_1 (current coil W_1, voltage coil across A, C) = ?", "explain": "W_1 = U_l·I_l·cos(φ − 30°) = 380 × 21.94 × cos 30° = 7220 W, matching the measurement." },
-        { "ask": "Check: the reading of wattmeter W_2 (voltage coil across B, C) = ?", "explain": "W_2 = U_l·I_l·cos(φ + 30°) = 380 × 21.94 × cos 90° = 0. For φ > 60° W_2 would go negative (reversed reading)." }
+        { "ask": "Check: with the Z you found, the reading of wattmeter W_1 (current coil W_1, voltage coil across A, C) = ?", "explain": "W_1 = V_l·I_l·cos(φ − 30°) = 380 × 21.94 × cos 30° = 7220 W, matching the measurement." },
+        { "ask": "Check: the reading of wattmeter W_2 (voltage coil across B, C) = ?", "explain": "W_2 = V_l·I_l·cos(φ + 30°) = 380 × 21.94 × cos 90° = 0. For φ > 60° W_2 would go negative (reversed reading)." }
       ],
       "hints": [
         "Two-wattmeter method: the sum of the two readings is the total three-phase real power, P = W_1 + W_2.",
-        "For a balanced load W_1 = U_l·I_l·cos(φ − 30°) and W_2 = U_l·I_l·cos(φ + 30°), which gives tan φ = √3(W_1 − W_2)/(W_1 + W_2).",
-        "With φ and I_l known, |Z| = U_p/I_p; then split it into R = |Z|cos φ and X = |Z|sin φ."
+        "For a balanced load W_1 = V_l·I_l·cos(φ − 30°) and W_2 = V_l·I_l·cos(φ + 30°), which gives tan φ = √3(W_1 − W_2)/(W_1 + W_2).",
+        "With φ and I_l known, |Z| = V_p/I_p; then split it into R = |Z|cos φ and X = |Z|sin φ."
       ],
       "solution": [
         "**1. Total power.** P = W_1 + W_2 = 7220 W.",
-        "**2. Power-factor angle.** W_1 measures Re(U̇_AC·İ_A*), and with U̇_A at 0° the phase of U̇_AC is −30°, so W_1 = U_l·I_l·cos(φ − 30°); likewise W_2 = U_l·I_l·cos(φ + 30°). tan φ = √3(W_1 − W_2)/(W_1 + W_2) = √3 → φ = 60°, **cos φ = 0.5**.",
-        "**3. Line current.** I_l = P/(√3·U_l·cos φ) = 7220/(√3 × 380 × 0.5) = **21.94 A**.",
-        "**4. Load impedance.** |Z| = U_p/I_p = (380/√3)/21.94 = 10 Ω, Z = 10∠60° = **5 + j8.660 Ω**.",
-        "**Check:** W_1 = 380 × 21.94 × cos30° = 7220 W, W_2 = 380 × 21.94 × cos90° = 0. For φ > 60° the reading W_2 becomes negative (the meter reverses); the total reactive power is Q = √3(W_1 − W_2) = 12505 var."
+        "**2. Power-factor angle.** W_1 measures Re(V̇_AC·İ_A*). With V̇_A at 0° the phase of V̇_AC is −30°, so W_1 = V_l·I_l·cos(φ − 30°); likewise W_2 = V_l·I_l·cos(φ + 30°). Then tan φ = √3(W_1 − W_2)/(W_1 + W_2) = √3 → φ = 60°, **cos φ = 0.5**.",
+        "**3. Line current.** I_l = P/(√3·V_l·cos φ) = 7220/(√3 × 380 × 0.5) = **21.94 A**.",
+        "**4. Load impedance.** |Z| = V_p/I_p = (380/√3)/21.94 = 10 Ω, Z = 10∠60° = **5 + j8.660 Ω**.",
+        "**Check:** W_1 = 380 × 21.94 × cos30° = 7220 W, W_2 = 380 × 21.94 × cos90° = 0. For φ > 60° the reading W_2 becomes negative (the meter reverses). The total reactive power is Q = √3(W_1 − W_2) = 12505 var."
       ]
     }
   }

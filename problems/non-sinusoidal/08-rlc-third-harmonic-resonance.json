@@ -6,10 +6,10 @@
   "title": "串联 RLC 对 3 次谐波谐振",
   "level": 3,
   "tags": ["谐波谐振", "串联谐振", "有效值", "电容电压"],
-  "statement": ["R = 10 Ω、L = 5 mH、C = 22.22 µF 串联，接在 u_s = 100√2 cos(1000t) + 30√2 cos(3000t) V 上。", "求电流的基波、3 次谐波分量和有效值，电容电压的有效值，以及电路吸收的平均功率。"],
+  "statement": ["R = 10 Ω、L = 5 mH、C = 22.22 µF 串联，接在 v_s = 100√2 cos(1000t) + 30√2 cos(3000t) V 上。", "求电流的基波分量、3 次谐波分量和有效值。再求电容电压的有效值和电路吸收的平均功率。"],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 42.426407 } ] } }, "label": "u_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 42.426407 } ] } }, "label": "v_s" },
       { "ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 10 },
       { "ref": "L", "type": "L", "from": [8, 0], "to": [12, 0], "value": "5m" },
       { "ref": "C", "type": "C", "from": [14, 0], "to": [14, 4], "value": 2.2222222e-05 }
@@ -23,7 +23,7 @@
     "grounds": [[0, 4]],
     "marks": [
       { "kind": "i", "el": "R", "name": "i" },
-      { "kind": "v", "el": "C", "name": "u_C" }
+      { "kind": "v", "el": "C", "name": "v_C" }
     ]
   },
   "analysis": { "type": "periodic", "omega": 1000 },
@@ -32,7 +32,7 @@
     { "id": "ph1", "ask": "基波电流 İ_1 的初相 = ?", "find": { "kind": "i", "el": "R", "harmonic": 1, "part": "phase" }, "answer": 75.96376, "unit": "°", "explain": "İ_1 = 100∠0°/(41.23∠−75.96°) = 2.425∠75.96° A，超前电压 75.96°。" },
     { "id": "I3", "ask": "3 次谐波电流有效值 I_3 = ?", "find": { "kind": "i", "el": "R", "harmonic": 3 }, "answer": 3, "unit": "A", "explain": "3ωL = 15 Ω，1/(3ωC) = 15 Ω，电路对 3 次谐波**串联谐振**，Z_3 = R = 10 Ω，I_3 = 30/10 = 3 A——比基波电流还大。" },
     { "id": "I", "ask": "电流有效值 I = ?", "find": { "kind": "i", "el": "R" }, "answer": 3.857765, "unit": "A", "explain": "I = √(2.425² + 3²) = 3.858 A。" },
-    { "id": "UC", "ask": "电容电压有效值 U_C = ?", "find": { "kind": "v", "el": "C" }, "answer": 118.0541, "unit": "V", "explain": "U_C1 = 2.425 × 45 = 109.1 V，U_C3 = 3 × 15 = 45 V，U_C = √(109.1² + 45²) = 118.1 V，比电源电压的有效值 √(100² + 30²) = 104.4 V 还高。" },
+    { "id": "UC", "ask": "电容电压有效值 V_C = ?", "find": { "kind": "v", "el": "C" }, "answer": 118.0541, "unit": "V", "explain": "V_C1 = 2.425 × 45 = 109.1 V，V_C3 = 3 × 15 = 45 V，V_C = √(109.1² + 45²) = 118.1 V，比电源电压的有效值 √(100² + 30²) = 104.4 V 还高。" },
     { "id": "P", "ask": "电路吸收的平均功率 P = ?", "find": { "kind": "p", "el": "R" }, "answer": 148.8235, "unit": "W", "explain": "P = I²R = (2.425² + 3²) × 10 = 148.8 W，其中 3 次谐波占 90 W。" }
   ],
   "hints": ["对每一次谐波重新计算电抗：感抗乘以 k，容抗除以 k。", "算出 3ωL 和 1/(3ωC) 之后比较一下——有什么特别的？", "有效值和功率都按“各次谐波分别算、平方和/求和”合成，不要把不同频率的相量相加。"],
@@ -40,17 +40,17 @@
     "**1. 基波**（ω = 1000 rad/s）：ωL = 5 Ω，1/(ωC) = 1/(1000 × 22.22×10⁻⁶) = 45 Ω。Z_1 = 10 + j(5 − 45) = 10 − j40 = 41.23∠−75.96° Ω，İ_1 = 100∠0°/Z_1 = **2.425∠75.96° A**。",
     "**2. 3 次谐波**（3ω = 3000 rad/s）：3ωL = 15 Ω，1/(3ωC) = 15 Ω，X_3 = 0，电路对 3 次谐波发生**串联谐振**：Z_3 = 10 Ω，İ_3 = 30∠0°/10 = **3∠0° A**。",
     "**3. 电流：** i = 2.425√2 cos(1000t + 75.96°) + 3√2 cos(3000t) A，I = √(2.425² + 3²) = **3.858 A**。虽然 3 次谐波电压只有基波的 30%，电流却比基波大。",
-    "**4. 电容电压：** U_C1 = 45I_1 = 109.1 V，U_C3 = 15I_3 = 45 V，U_C = √(109.1² + 45²) = **118.1 V**。",
+    "**4. 电容电压：** V_C1 = 45I_1 = 109.1 V，V_C3 = 15I_3 = 45 V，V_C = √(109.1² + 45²) = **118.1 V**。",
     "**5. 功率：** P = I²R = **148.8 W**（基波 58.82 W + 3 次谐波 90 W）。",
-    "**检查：** 电源端 P = U_{1}I_1 cos φ_1 + U_{3}I_3 cos φ_3 = 100 × 2.425 × cos 75.96° + 30 × 3 × 1 = 58.82 + 90 = 148.8 W，一致。"
+    "**检查：** 电源端 P = V_{1}I_1 cos φ_1 + V_{3}I_3 cos φ_3 = 100 × 2.425 × cos 75.96° + 30 × 3 × 1 = 58.82 + 90 = 148.8 W，一致。"
   ],
   "i18n": {
     "en": {
       "title": "Series RLC resonant at the 3rd harmonic",
       "tags": ["harmonic resonance", "series resonance", "rms value", "capacitor voltage"],
       "statement": [
-        "R = 10 Ω, L = 5 mH and C = 22.22 µF in series are driven by u_s = 100√2 cos(1000t) + 30√2 cos(3000t) V.",
-        "Find the fundamental and 3rd-harmonic components and the rms value of the current, the rms capacitor voltage and the average power absorbed."
+        "R = 10 Ω, L = 5 mH and C = 22.22 µF in series are driven by v_s = 100√2 cos(1000t) + 30√2 cos(3000t) V.",
+        "Find the fundamental and 3rd-harmonic components and the rms value of the current. Then find the rms capacitor voltage and the average power absorbed."
       ],
       "hints": [
         "Recompute the reactances for every harmonic: inductive reactance times k, capacitive reactance divided by k.",
@@ -61,16 +61,16 @@
         "**1. Fundamental** (ω = 1000 rad/s): ωL = 5 Ω, 1/(ωC) = 1/(1000 × 22.22×10⁻⁶) = 45 Ω. Z_1 = 10 + j(5 − 45) = 10 − j40 = 41.23∠−75.96° Ω, İ_1 = 100∠0°/Z_1 = **2.425∠75.96° A**.",
         "**2. 3rd harmonic** (3ω = 3000 rad/s): 3ωL = 15 Ω, 1/(3ωC) = 15 Ω, X_3 = 0: **series resonance** at the 3rd harmonic, Z_3 = 10 Ω, İ_3 = 30∠0°/10 = **3∠0° A**.",
         "**3. Current:** i = 2.425√2 cos(1000t + 75.96°) + 3√2 cos(3000t) A, I = √(2.425² + 3²) = **3.858 A**. The 3rd-harmonic voltage is only 30 % of the fundamental, yet its current is larger.",
-        "**4. Capacitor voltage:** U_C1 = 45I_1 = 109.1 V, U_C3 = 15I_3 = 45 V, U_C = √(109.1² + 45²) = **118.1 V**.",
+        "**4. Capacitor voltage:** V_C1 = 45I_1 = 109.1 V, V_C3 = 15I_3 = 45 V, V_C = √(109.1² + 45²) = **118.1 V**.",
         "**5. Power:** P = I²R = **148.8 W** (58.82 W fundamental + 90 W 3rd harmonic).",
-        "**Check:** at the source P = U_{1}I_1 cos φ_1 + U_{3}I_3 cos φ_3 = 100 × 2.425 × cos 75.96° + 30 × 3 × 1 = 58.82 + 90 = 148.8 W — the same."
+        "**Check:** at the source P = V_{1}I_1 cos φ_1 + V_{3}I_3 cos φ_3 = 100 × 2.425 × cos 75.96° + 30 × 3 × 1 = 58.82 + 90 = 148.8 W — the same."
       ],
       "questions": [
         { "ask": "rms value of the fundamental current, I_1 = ?", "explain": "ωL = 5 Ω, 1/(ωC) = 45 Ω, Z_1 = 10 − j40 Ω, I_1 = 100/41.23 = 2.425 A (capacitive)." },
         { "ask": "Initial phase of the fundamental current İ_1 = ?", "explain": "İ_1 = 100∠0°/(41.23∠−75.96°) = 2.425∠75.96° A, leading the voltage by 75.96°." },
         { "ask": "rms value of the 3rd-harmonic current, I_3 = ?", "explain": "3ωL = 15 Ω and 1/(3ωC) = 15 Ω: the circuit is in **series resonance** at the 3rd harmonic, Z_3 = R = 10 Ω, I_3 = 30/10 = 3 A — larger than the fundamental current." },
         { "ask": "rms current I = ?", "explain": "I = √(2.425² + 3²) = 3.858 A." },
-        { "ask": "rms capacitor voltage U_C = ?", "explain": "U_C1 = 2.425 × 45 = 109.1 V, U_C3 = 3 × 15 = 45 V, U_C = √(109.1² + 45²) = 118.1 V — higher than the source's rms voltage √(100² + 30²) = 104.4 V." },
+        { "ask": "rms capacitor voltage V_C = ?", "explain": "V_C1 = 2.425 × 45 = 109.1 V, V_C3 = 3 × 15 = 45 V, V_C = √(109.1² + 45²) = 118.1 V — higher than the source's rms voltage √(100² + 30²) = 104.4 V." },
         { "ask": "Average power absorbed by the circuit, P = ?", "explain": "P = I²R = (2.425² + 3²) × 10 = 148.8 W, of which 90 W is at the 3rd harmonic." }
       ]
     }

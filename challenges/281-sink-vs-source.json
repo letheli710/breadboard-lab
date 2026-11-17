@@ -2,111 +2,94 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-sink-vs-source",
-  "title": "实验 5-2 · 拉电流与灌电流：低电平点亮的 LED",
+  "title": "拉电流与灌电流：低电平点亮的 LED",
   "kind": "challenge",
   "level": 2,
   "phase": 5,
-  "summary": "同一块 Blue Pill 上接两个 LED：一个从引脚“拉电流”（输出高电平亮），一个从 3V3 经 LED “灌”进引脚（输出低电平亮）。板载 PC13 LED 就是后一种。",
-  "concepts": [
-    "拉电流 source current",
-    "灌电流 sink current",
-    "低电平有效 active-low",
-    "推挽输出 push-pull output",
-    "弱驱动引脚 PC13–PC15 weak pins"
-  ],
+  "summary": "Blue Pill 上接两颗 LED：一颗从引脚流出电流（输出高亮），一颗把电流流进引脚（输出低亮）。两颗灯的逻辑正好相反。",
+  "concepts": ["拉电流 source current", "灌电流 sink current", "低电平有效 active-low", "推挽输出 push-pull output", "弱驱动引脚 PC13–PC15 weak pins"],
   "prereq": ["lesson-mcu-gpio"],
-  "description": [
-    "**目标**：同一块 Blue Pill 上比较两种接法：引脚“拉电流”点亮 LED（输出高电平亮）和 LED 电流“灌”进引脚（输出低电平亮）。",
-    "",
-    "**电路**（Blue Pill，USB 供电）：",
-    "- **LED1（拉电流 / sourcing）**：GPIO_OUT1 → R1（220 Ω）→ 红色 LED1 正极；LED1 负极 → GND。",
-    "- **LED2（灌电流 / sinking）**：3V3 → R2（220 Ω）→ 红色 LED2 正极；LED2 负极 → GPIO_OUT2。",
-    "参考答案用 PB11 和 PB10，换成别的 GPIO 也算对（PC13–PC15 除外最好——见下文）。",
-    "",
-    "**引脚设置**：测试会依次把两个引脚设成不同的输出电平。你自己在属性的引脚表里切换，可以看到两个 LED 的逻辑是**相反**的。",
-    "",
-    "**先预测**：先想清楚每种引脚设置下哪个 LED 亮，再估算电流：推挽输出的上管、下管各按约 40 Ω 算，LED 是 Vf = 1.8 V 串约 12 Ω，电阻 220 Ω。电流从哪里流进、从哪里流出引脚？板载 LED（3V3 → 510 Ω → LED → PC13）又是哪一种？",
-    "",
-    "**测量**：",
-    "- OUT1 高、OUT2 低：两个 LED 的状态和两个引脚的电流（注意符号）；",
-    "- OUT1 低、OUT2 高：两个 LED 的状态；",
-    "- OUT2 设成输入（高阻）：LED2 的状态和引脚电压；",
-    "- 再把 PC13 设成输出低电平：板载 LED 和 PC13 的电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**板载 LED 和 PC13**：Blue Pill 板上的 LED 是 3V3 → 510 Ω → LED → PC13，正是“灌电流”接法：程序里 `digitalWrite(PC13, LOW)` 灯才亮，这让很多初学者困惑。I = 1.5 / (510 + 40 + 12) ≈ **2.7 mA**——刚好在 **PC13–PC15 只能 3 mA** 的限制以内：这三个脚和 RTC 共用一个很弱的供电开关，ST 的手册要求它们只能灌电流、最多 3 mA、速度 ≤ 2 MHz，不能驱动负载。",
-    "",
-    "**实际项目经验**：",
-    "- 低电平有效（active-low）在复位脚、片选（CS）、中断线、继电器模块里非常常见；看到信号名上有横线或 `n` / `_N` 前缀（如 NRST）就是低电平有效。",
-    "- 灌电流接法的好处：LED 那一侧可以接到比 3.3 V 高的电源（例如 5 V），只要引脚是**开漏输出**且**耐 5 V（FT）**——Blue Pill 的 PA8–PA15、PB3、PB4、PB6–PB15。推挽输出时千万别这样做：输出高电平时 5 V 会经保护二极管灌进 3V3。",
-    "- 所有引脚灌 + 拉的总电流也有上限：STM32F103 的 VDD 总电流 ≤ 150 mA，VSS 总电流 ≤ 150 mA。",
-    "- 引脚设成输入时 LED 不亮，但引脚电压停在 VIL 与 VIH 之间。真实芯片的输入还有微安级漏电，LED 有时会微微发光。",
-    "",
-    "**模型说明**：输出级的上下管都用固定 40 Ω 表示，真实的 P 管 / N 管强度不同，并随电源电压和温度变化。板载 LED 用 Vf = 1.8 V 的模型计算。"
-  ],
+  "description": "LED1：GPIO_OUT1 → 220 Ω → LED1 → GND（拉电流）。LED2：3V3 → 220 Ω → LED2 → GPIO_OUT2（灌电流）。推挽输出里有一个接 3V3 的上开关和一个接 GND 的下开关，模型里各约 40 Ω。参考答案用 PB11 和 PB10，别的输出脚也算对。",
   "i18n": {
     "en": {
-      "title": "Experiment 5-2 · Sourcing vs sinking: an LED that lights on LOW",
-      "summary": "Two LEDs on one Blue Pill: one is fed by the pin (\"sourcing\", lit on HIGH), the other draws from 3V3 through the LED into the pin (\"sinking\", lit on LOW). The onboard PC13 LED is wired the second way.",
+      "title": "Sourcing and sinking: an LED lit by LOW",
+      "summary": "Two LEDs on a Blue Pill: one takes current out of a pin (lit by HIGH), the other sends current into a pin (lit by LOW). Their logic is exactly opposite.",
       "concepts": ["source current", "sink current", "active-low", "push-pull output", "weak pins PC13–PC15"],
-      "description": [
-        "**Goal**: Compare two ways to drive an LED from one Blue Pill: the pin sourcing current (lights on HIGH) and the LED's current sinking into the pin (lights on LOW).",
-        "",
-        "**Circuit** (Blue Pill, USB powered):",
-        "- **LED1 (sourcing)**: GPIO_OUT1 → R1 (220 Ω) → red LED1 anode; LED1 cathode → GND.",
-        "- **LED2 (sinking)**: 3V3 → R2 (220 Ω) → red LED2 anode; LED2 cathode → GPIO_OUT2.",
-        "The reference answer uses PB11 and PB10; any other GPIO is accepted (preferably not PC13–PC15 — see below).",
-        "",
-        "**Pin table settings**: the tests set the two pins to different output levels in turn. Toggle them yourself in the pin table under Properties and you'll see the two LEDs follow **opposite** logic.",
-        "",
-        "**Predict first**: First decide which LED lights for each pin setting, then estimate the currents: take the push-pull high-side and low-side switches as about 40 Ω each, the LED as Vf = 1.8 V plus about 12 Ω, and the resistors as 220 Ω. Does current flow into or out of the pin? Which kind is the onboard LED (3V3 → 510 Ω → LED → PC13)?",
-        "",
-        "**Measure**:",
-        "- OUT1 HIGH, OUT2 LOW: both LEDs and both pin currents (mind the sign);",
-        "- OUT1 LOW, OUT2 HIGH: both LEDs;",
-        "- OUT2 as an input (high-Z): LED2 and the pin voltage;",
-        "- then PC13 as output LOW: the onboard LED and PC13's current. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**The onboard LED and PC13**: the Blue Pill's LED is 3V3 → 510 Ω → LED → PC13 — the sinking arrangement, so it lights on `digitalWrite(PC13, LOW)`, which confuses many beginners. I = 1.5 / (510 + 40 + 12) ≈ **2.7 mA** — just inside the **3 mA limit of PC13–PC15**: these three pins sit behind a weak power switch shared with the RTC, and ST's datasheet says they may only sink, at most 3 mA, at ≤ 2 MHz, and must not drive loads.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- Active-low signals are everywhere: reset pins, chip selects (CS), interrupt lines, relay modules. A bar over the name or an `n` / `_N` prefix (as in NRST) means active-low.",
-        "- A bonus of sinking: the LED side can go to a supply higher than 3.3 V (e.g. 5 V), as long as the pin is **open-drain** and **5 V tolerant (FT)** — on the Blue Pill PA8–PA15, PB3, PB4, PB6–PB15. Never do this with a push-pull output: when it drives HIGH, 5 V pushes current through the protection diode into 3V3.",
-        "- The total of all pins is limited as well: an STM32F103 allows ≤ 150 mA total through VDD and ≤ 150 mA through VSS.",
-        "- With the pin as an input the LED stays dark, but the pin sits between VIL and VIH. A real input also leaks microamps, so the LED may glow faintly.",
-        "",
-        "**Model note**: both output transistors are a fixed 40 Ω here; real P- and N-channel devices differ and vary with supply voltage and temperature. The onboard LED is computed with the Vf = 1.8 V red LED model."
-      ],
+      "description": "LED1: GPIO_OUT1 → 220 Ω → LED1 → GND (sourcing). LED2: 3V3 → 220 Ω → LED2 → GPIO_OUT2 (sinking). A push-pull output has a switch to 3V3 and a switch to GND, about 40 Ω each in the model. The reference uses PB11 and PB10; other output pins count too.",
       "compare": [
-        "**Compare**: expected readings:",
-        "- OUT1 = HIGH, OUT2 = LOW: **both LEDs on**. OUT1's pin current is **+5.5 mA** (flowing out of the pin), OUT2's is **−5.5 mA** (negative = flowing **into** the pin).",
-        "- OUT1 = LOW, OUT2 = HIGH: **both off** — LED2 has 3.3 V on both ends, so no voltage across it.",
-        "- OUT2 as an input (high-Z): LED2 is off too, and the LED pulls the pin to about 1.5 V.",
-        "- PC13 set to output LOW at the same time: the onboard LED lights and PC13 sinks about 2.7 mA.",
-        "If a current has the opposite sign, check the LED's direction and which pin it is on. The working:",
-        "",
-        "**The two switches of a push-pull output**: a GPIO output stage has a high-side transistor to 3V3 and a low-side transistor to GND, about 40 Ω each (model value).",
-        "- Output HIGH = high side on: current flows from 3V3 through it, **out of** the pin, through R1 and LED1 to GND — **sourcing**.",
-        "  I1 = (3.3 − 1.8) / (40 + 220 + 12) ≈ 1.5 / 272 ≈ **5.5 mA**; pin voltage ≈ 3.3 − 40 × 5.5 mA ≈ 3.08 V (simulated 3.08 V).",
-        "- Output LOW = low side on: current flows from 3V3 through R2 and LED2 **into** the pin and down to GND — **sinking**.",
-        "  I2 = (3.3 − 1.8) / (220 + 12 + 40) ≈ **5.5 mA**; pin voltage ≈ 40 × 5.5 mA ≈ 0.22 V.",
-        "In this model both directions have the same resistance, so the currents are equal; **in a real chip the N-channel low side is usually stronger** than the P-channel high side, so it drops less when sinking. Old TTL parts and 8051s could sink but hardly source, which is why so many classic circuits light their LEDs on LOW."
+        "**Compare**:",
+        "- OUT1 HIGH, OUT2 LOW: **both LEDs on**. I1 = I2 = (3.3 − 1.8) / (40 + 220 + 12) ≈ **5.5 mA**; OUT1's pin current is +5.5 mA (out), OUT2's −5.5 mA (in).",
+        "- OUT2's LOW ≈ 40 Ω × 5.5 mA ≈ **0.22 V**: a LOW is not exactly 0 V.",
+        "- OUT1 LOW, OUT2 HIGH: **both off**. Both ends of LED2 are at 3.3 V, so there is no voltage across it.",
+        "- OUT2 as an input: LED2 off, the pin pulled to about 3.3 − 1.8 ≈ 1.5 V.",
+        "In real chips the low side (N-channel) is usually stronger than the high side, so sinking drops less. Old TTL and 8051 parts could only sink, which is why so many classic circuits light their LEDs with LOW."
       ],
       "measurements": [
         {"ask": "OUT1 HIGH, OUT2 LOW: the current in LED1 (sourcing)", "explain": "High side on: (3.3 − 1.8) / (40 + 220 + 12) ≈ 5.5 mA, flowing out of the pin."},
         {"ask": "Same state: the current in LED2 (sinking)", "explain": "Low side on: (3.3 − 1.8) / (220 + 12 + 40) ≈ 5.5 mA, flowing into the pin."},
-        {"ask": "Same state: multimeter on the OUT2 pin to GND (output LOW, but sinking current)", "explain": "≈ 40 Ω × 5.5 mA ≈ 0.22 V: a LOW is not exactly 0 V either."},
-        {"ask": "From your two readings, the low-side (N-channel) on-resistance = U_OL / I2", "explain": "≈ 40 Ω (the model uses the same for both sides). In a real chip the N-channel side is usually stronger, so sinking drops less; old TTL / 8051 parts could only sink."},
-        {"ask": "OUT2 set as an input (high-Z): the OUT2 pin to GND", "explain": "No current, LED2 is off; 3V3 pulls the pin through R2 and the LED to 3.3 − 1.8 ≈ 1.5 V, between VIL and VIH."}
+        {
+          "ask": "Same state: multimeter on the OUT2 pin to GND (output LOW, but sinking current)",
+          "explain": "≈ 40 Ω × 5.5 mA ≈ 0.22 V: a LOW is not exactly 0 V either."
+        },
+        {
+          "ask": "From your two readings, the low-side (N-channel) on-resistance = V_OL / I2",
+          "explain": "≈ 40 Ω (the model uses the same for both sides). In a real chip the N-channel side is usually stronger, so sinking drops less; old TTL / 8051 parts could only sink."
+        },
+        {
+          "ask": "OUT2 set as an input (high-Z): the OUT2 pin to GND",
+          "explain": "No current, LED2 is off; 3V3 pulls the pin through R2 and the LED to 3.3 − 1.8 ≈ 1.5 V, between VIL and VIH."
+        }
       ],
       "hints": [
         "LED1 is the familiar way: pin → resistor → LED → GND.",
-        "LED2 is upside down: 3V3 → resistor → LED anode; the LED's cathode goes to the second GPIO.",
-        "Wire a board 3V3 pin to the top + rail so R2 can reach it."
+        "LED2 is upside down: 3V3 → resistor → LED long lead; the LED's short lead goes to the second pin.",
+        "Wire a board 3V3 pin to the top + rail first so R2 can reach it."
       ],
       "tests": [
         "OUT1 HIGH, OUT2 LOW: both on; OUT1 sources, OUT2 sinks",
         "OUT1 LOW, OUT2 HIGH: both off",
         "OUT2 as input: LED2 off; PC13 LOW: the onboard LED sinks less than 3 mA"
+      ],
+      "cards": [
+        {
+          "title": "Two LEDs, opposite logic",
+          "text": [
+            "Wire two red LEDs to a **Blue Pill**, each with **`220 Ω`**:",
+            "- **LED1**: pin → resistor → LED → GND, the familiar way.",
+            "- **LED2** upside down: **3V3** → resistor → LED long lead; the LED's short lead goes to a **second pin**.",
+            "Under Properties set **both pins to OUT HIGH**, then **both to OUT LOW**. When is each LED lit?"
+          ]
+        },
+        {
+          "title": "Two switches inside a pin",
+          "text": [
+            "- An output pin holds two switches: one to **3V3** (the high side) and one to **GND** (the low side), about 40 Ω each in the model. Output high closes the high side; output low closes the low side.",
+            "- **Output high**: current comes from 3V3 through the high side, **out of** the pin, through LED1 back to GND. This is **sourcing**:",
+            "![](fig:source)",
+            "- **Output low**: current comes from 3V3 through LED2, **into** the pin, and through the low side to GND. This is **sinking**:",
+            "![](fig:sink)",
+            "- Both paths hold the same resistances, so the sum is the same:",
+            "$$I = \\frac{3.3 - V_f}{R + 12 + 40}$$",
+            "- For example with 470 Ω: $I = \\frac{3.3 - 1.8}{470 + 12 + 40} ≈ 0.0029$ A, about 2.9 mA."
+          ]
+        },
+        {
+          "title": "Wire it, measure both ways",
+          "text": [
+            "- First wire the board's **3V3** pin to the top + rail and a **GND** pin to the − rail, so R2 can reach them.",
+            "- Use two ordinary output pins (the reference uses PB11 and PB10). **Avoid PC13–PC15**: they only give 3 mA.",
+            "- Press **Check my circuit**; the check switches both pins by itself. Once it passes, read both LED currents and the pin voltage, and watch the current's direction."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Output high → current flows out of the pin (sourcing); output low → current flows in (sinking).** An LED on the 3V3 side is \"lit by LOW\".",
+            "- The Blue Pill's onboard PC13 LED is wired to sink, which is why the program writes LOW to light it. Active-low signals are common on reset pins and chip-select lines too.",
+            "- With the pin set as an input LED2 is off, but the pin voltage sits between low and high. Real chips leak a little, so the LED sometimes glows faintly.",
+            "- A real-circuit catch: to hang the LED on 5 V instead, the pin must be a **5 V-tolerant FT pin** set to open-drain (5.6). With a push-pull output, 5 V would flow through the protection diode into 3V3."
+          ]
+        }
       ]
     }
   },
@@ -141,48 +124,77 @@
       "name": "OUT1 低、OUT2 高：两个 LED 都灭",
       "set": {"U1": {"modes": {"GPIO_OUT1": "out_low", "GPIO_OUT2": "out_high"}}},
       "expect": {"LED1": "off", "LED2": "off"},
-      "gpio": [
-        {"pin": "U1.GPIO_OUT1", "measure": "current", "min": -0.0001, "max": 0.0001},
-        {"pin": "U1.GPIO_OUT2", "measure": "current", "min": -0.0001, "max": 0.0001}
-      ]
+      "gpio": [{"pin": "U1.GPIO_OUT1", "measure": "current", "min": -0.0001, "max": 0.0001}, {"pin": "U1.GPIO_OUT2", "measure": "current", "min": -0.0001, "max": 0.0001}]
     },
     {
       "name": "OUT2 设为输入：LED2 灭；PC13 输出低：板载 LED 的灌电流在 3 mA 以内",
       "set": {"U1": {"modes": {"GPIO_OUT1": "out_low", "GPIO_OUT2": "input", "PC13": "out_low"}}},
       "expect": {"LED2": "off"},
-      "gpio": [
-        {"pin": "U1.GPIO_OUT2", "measure": "voltage", "min": 1.4, "max": 1.6},
-        {"pin": "U1.PC13", "measure": "current", "min": -0.0029, "max": -0.0025}
-      ]
+      "gpio": [{"pin": "U1.GPIO_OUT2", "measure": "voltage", "min": 1.4, "max": 1.6}, {"pin": "U1.PC13", "measure": "current", "min": -0.0029, "max": -0.0025}]
     }
   ],
   "compare": [
-    "**对比**：预期读数：",
-    "- OUT1 = 高、OUT2 = 低：两个 LED **都亮**。OUT1 的引脚电流 **+5.5 mA**（从引脚流出），OUT2 的引脚电流 **−5.5 mA**（负号 = 电流流**进**引脚）。",
-    "- OUT1 = 低、OUT2 = 高：两个 LED **都灭**——LED2 两端都是 3.3 V，没有电压差。",
-    "- OUT2 设成输入（高阻）：LED2 也灭，引脚被 LED 拉到约 1.5 V。",
-    "- 同时把 PC13 设成输出低电平：板载 LED 亮，PC13 灌入约 2.7 mA。",
-    "电流符号和预期相反时，检查 LED 方向和接的是哪个引脚。计算过程：",
-    "",
-    "**推挽输出的两个开关**：GPIO 输出级里有一个接 3V3 的上管和一个接 GND 的下管，各约 40 Ω（模型值）。",
-    "- 输出高电平 = 上管导通：电流从 3V3 经上管**流出**引脚，经 R1、LED1 到 GND —— 这叫**拉电流（source）**。",
-    "  I1 = (3.3 − 1.8) / (40 + 220 + 12) ≈ 1.5 / 272 ≈ **5.5 mA**，引脚电压 ≈ 3.3 − 40 × 5.5 mA ≈ 3.08 V（仿真 3.08 V）。",
-    "- 输出低电平 = 下管导通：电流从 3V3 经 R2、LED2 **流进**引脚，经下管到 GND —— 这叫**灌电流（sink）**。",
-    "  I2 = (3.3 − 1.8) / (220 + 12 + 40) ≈ **5.5 mA**，引脚电压 ≈ 40 × 5.5 mA ≈ 0.22 V。",
-    "在这个模型里两个方向的电阻一样，所以电流一样大；**真实芯片里 N 管（下管）一般比 P 管更强**，灌电流时压降更小。老的 TTL / 51 单片机只能灌、不能拉，所以很多经典电路里 LED 都是“低电平点亮”的。"
+    "**对比**：",
+    "- OUT1 高、OUT2 低：两颗灯**都亮**。I1 = I2 = (3.3 − 1.8) / (40 + 220 + 12) ≈ **5.5 mA**；OUT1 的引脚电流是 +5.5 mA（流出），OUT2 是 −5.5 mA（流进）。",
+    "- OUT2 的低电平 ≈ 40 Ω × 5.5 mA ≈ **0.22 V**：低电平也不是正好 0 V。",
+    "- OUT1 低、OUT2 高：两颗灯**都灭**。LED2 两端都是 3.3 V，没有电压差。",
+    "- OUT2 设成输入：LED2 灭，引脚被拉到约 3.3 − 1.8 ≈ 1.5 V。",
+    "真实芯片里下开关（N 管）一般比上开关更强，灌电流时压降更小。老的 TTL / 51 单片机只能灌、不能拉，所以很多经典电路里的 LED 都是低电平点亮。"
   ],
   "measurements": [
-    {"id": "i1", "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "mA", "predict": true, "range": [0.00523, 0.00578], "ask": "OUT1 高、OUT2 低：LED1（拉电流）的电流", "explain": "上管导通：(3.3 − 1.8) / (40 + 220 + 12) ≈ 5.5 mA，从引脚流出。"},
-    {"id": "i2", "current": "LED2", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "mA", "predict": true, "range": [0.00523, 0.00578], "ask": "同一状态：LED2（灌电流）的电流", "explain": "下管导通：(3.3 − 1.8) / (220 + 12 + 40) ≈ 5.5 mA，流进引脚。"},
-    {"id": "vol", "voltage": "U1.GPIO_OUT2", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}}, "unit": "V", "predict": true, "range": [0.209, 0.231], "ask": "同一状态：万用表测 OUT2 引脚对 GND 的电压（输出低电平，但在灌电流）", "explain": "≈ 40 Ω × 5.5 mA ≈ 0.22 V：低电平也不是正好 0 V。"},
-    {"id": "rlow", "stated": true, "formula": "vol / i2", "unit": "Ω", "range": [38.0, 42.0], "ask": "用你的两个读数算下管（N 管）的导通电阻 = U_OL / I2", "explain": "≈ 40 Ω（模型里上下管一样）。真实芯片的 N 管一般更强，灌电流时压降更小；老的 TTL / 51 单片机只能灌、不能拉。"},
-    {"id": "vin", "voltage": "U1.GPIO_OUT2", "ref": "U1.GND", "set": {"U1": {"modes": {"GPIO_OUT1": "out_low", "GPIO_OUT2": "input"}}}, "unit": "V", "predict": true, "range": [1.42, 1.57], "ask": "把 OUT2 设成输入（高阻）：OUT2 引脚对 GND 的电压", "explain": "没有电流，LED2 灭；引脚被 3V3 经 R2 和 LED 拉到 3.3 − 1.8 ≈ 1.5 V，介于 VIL 和 VIH 之间。"}
+    {
+      "id": "i1",
+      "current": "LED1",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00523, 0.00578],
+      "ask": "OUT1 高、OUT2 低：LED1（拉电流）的电流",
+      "explain": "上管导通：(3.3 − 1.8) / (40 + 220 + 12) ≈ 5.5 mA，从引脚流出。"
+    },
+    {
+      "id": "i2",
+      "current": "LED2",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00523, 0.00578],
+      "ask": "同一状态：LED2（灌电流）的电流",
+      "explain": "下管导通：(3.3 − 1.8) / (220 + 12 + 40) ≈ 5.5 mA，流进引脚。"
+    },
+    {
+      "id": "vol",
+      "voltage": "U1.GPIO_OUT2",
+      "ref": "U1.GND",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high", "GPIO_OUT2": "out_low"}}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.209, 0.231],
+      "ask": "同一状态：万用表测 OUT2 引脚对 GND 的电压（输出低电平，但在灌电流）",
+      "explain": "≈ 40 Ω × 5.5 mA ≈ 0.22 V：低电平也不是正好 0 V。"
+    },
+    {
+      "id": "rlow",
+      "stated": true,
+      "formula": "vol / i2",
+      "unit": "Ω",
+      "range": [38.0, 42.0],
+      "ask": "用你的两个读数算下管（N 管）的导通电阻 = V_OL / I2",
+      "explain": "≈ 40 Ω（模型里上下管一样）。真实芯片的 N 管一般更强，灌电流时压降更小；老的 TTL / 51 单片机只能灌、不能拉。"
+    },
+    {
+      "id": "vin",
+      "voltage": "U1.GPIO_OUT2",
+      "ref": "U1.GND",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_low", "GPIO_OUT2": "input"}}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.42, 1.57],
+      "ask": "把 OUT2 设成输入（高阻）：OUT2 引脚对 GND 的电压",
+      "explain": "没有电流，LED2 灭；引脚被 3V3 经 R2 和 LED 拉到 3.3 − 1.8 ≈ 1.5 V，介于 VIL 和 VIH 之间。"
+    }
   ],
-  "hints": [
-    "LED1 是熟悉的接法：引脚 → 电阻 → LED → GND。",
-    "LED2 是倒过来的：3V3 → 电阻 → LED 正极；LED 负极接第二个 GPIO。",
-    "先把开发板的 3V3 引脚接到上方 + 电源轨，R2 才好接。"
-  ],
+  "hints": ["LED1 是熟悉的接法：引脚 → 电阻 → LED → GND。", "LED2 是倒过来的：3V3 → 电阻 → LED 长脚；LED 短脚接第二个引脚。", "先把开发板的 3V3 脚接到上方 + 轨，R2 才好接。"],
   "solution": {
     "parts": [
       {"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PB11": "out_high", "PB10": "out_low"}}},
@@ -194,5 +206,91 @@
       {"type": "led", "ref": "LED2", "color": "red", "pins": {"anode": "b26", "cathode": "b28"}},
       {"type": "wire", "ref": "W3", "color": "yellow", "pins": {"a": "a28", "b": "a6"}}
     ]
+  },
+  "cards": [
+    {
+      "kind": "try",
+      "title": "两颗灯，逻辑相反",
+      "text": [
+        "在 **Blue Pill** 上接两颗红色 LED，都配 **`220 Ω`**：",
+        "- **LED1**：引脚 → 电阻 → LED → GND，熟悉的接法。",
+        "- **LED2** 倒过来：**3V3** → 电阻 → LED 长脚；LED 短脚接**第二个引脚**。",
+        "在「属性」里把两个引脚**都设成「输出 高」**，再**都设成「输出 低」**。每颗灯什么时候亮？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "引脚里有两个开关",
+      "text": [
+        "- 输出引脚里有两个开关：一个通 **3V3**（上开关），一个通 **GND**（下开关），模型里各约 40 Ω。输出高时上开关合上，输出低时下开关合上。",
+        "- **输出高**：电流从 3V3 经上开关**流出**引脚，穿过 LED1 回到 GND。这叫**拉电流**：",
+        "![](fig:source)",
+        "- **输出低**：电流从 3V3 经 LED2 **流进**引脚，再经下开关到 GND。这叫**灌电流**：",
+        "![](fig:sink)",
+        "- 两条路的电阻一样，所以算法也一样：",
+        "$$I = \\frac{3.3 - V_f}{R + 12 + 40}$$",
+        "- 例如用 470 Ω：$I = \\frac{3.3 - 1.8}{470 + 12 + 40} ≈ 0.0029$ A，约 2.9 mA。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "接好，测两个方向",
+      "text": [
+        "- 先把开发板的 **3V3** 脚接到上方 + 轨，**GND** 脚接到 − 轨，R2 才好接。",
+        "- 用两个普通输出脚（参考答案用 PB11、PB10）。**别用 PC13–PC15**：它们只能给 3 mA。",
+        "- 点**「检查我的电路」**，检查会自动切换两个引脚。通过后读两颗灯的电流和引脚电压，注意电流的方向。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **输出高 → 电流流出引脚（拉电流）；输出低 → 电流流进引脚（灌电流）。** 灯接在 3V3 一侧，就是“低电平点亮”。",
+        "- Blue Pill 板载的 PC13 灯就是灌电流接法，所以程序写 LOW 它才亮。低电平有效在复位脚、片选线里也很常见。",
+        "- 引脚设成输入时 LED2 不亮，可引脚电压停在高低之间。真实芯片有微小漏电，灯有时会微微发光。",
+        "- 真实电路里的坑：想让灯接到 5 V 上，引脚必须是**耐 5 V 的 FT 脚**，而且设成开漏输出（5.6 会讲）。推挽输出时 5 V 会经保护二极管灌进 3V3。"
+      ],
+      "practice": ["basics"]
+    }
+  ],
+  "figures": {
+    "source": {
+      "kind": "schematic",
+      "caption": {
+        "text": "拉电流：上开关（40 Ω）合上，电流 I1 从 3V3 流出引脚，经 R1、LED1 到 GND。",
+        "i18n": {"en": "Sourcing: the high side (40 Ω) is on; I1 leaves the pin from 3V3 and runs through R1 and LED1 to GND."}
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_dd", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 3.3},
+          {"ref": "R_up", "type": "R", "from": [0, 0], "to": [2, 0], "value": 40},
+          {"ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 220},
+          {"ref": "LED1", "type": "LED", "from": [5, 0], "to": [5, 4], "value": "red"}
+        ],
+        "wires": [[[5, 4], [0, 4]]],
+        "marks": [{"kind": "i", "el": "R1", "name": "I_1"}],
+        "notes": [{"at": [1, 1], "text": "OUT1"}]
+      },
+      "highlight": ["R_up"]
+    },
+    "sink": {
+      "kind": "schematic",
+      "caption": {
+        "text": "灌电流：下开关（40 Ω）合上，电流 I2 从 3V3 经 R2、LED2 流进引脚，再到 GND。",
+        "i18n": {"en": "Sinking: the low side (40 Ω) is on; I2 runs from 3V3 through R2 and LED2 into the pin, then to GND."}
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_dd", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 3.3},
+          {"ref": "R2", "type": "R", "from": [0, 0], "to": [3, 0], "value": 220},
+          {"ref": "LED2", "type": "LED", "from": [3, 0], "to": [6, 0], "value": "red"},
+          {"ref": "R_dn", "type": "R", "from": [6, 0], "to": [6, 4], "value": 40}
+        ],
+        "wires": [[[6, 4], [0, 4]]],
+        "marks": [{"kind": "i", "el": "R2", "name": "I_2"}],
+        "notes": [{"at": [5.4, -0.4], "text": "OUT2"}]
+      },
+      "highlight": ["R_dn"]
+    }
   }
 }

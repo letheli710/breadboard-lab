@@ -8,8 +8,7 @@
 // current problem and unknown ids are also checked with the index held back until after the first
 // paint (a throttled network), recording every URL, tab title and problem title on the way, so a
 // flash of another problem or a rewritten URL / bb.route fails. Then the Practice sidebar (current
-// chapter expanded, active item in view), the Challenges list (the drawer opened from the bench's
-// top-left lesson button) and the [ ] shortcuts.
+// chapter expanded, active item in view), the course map dropdown and the [ ] shortcuts.
 const { chromium } = require('playwright');
 const BASE = process.argv[2] || 'http://localhost:4173/';
 const assert = (c, m) => {
@@ -44,7 +43,7 @@ const assert = (c, m) => {
   await page.goBack();
   await settle();
   assert((await hash()) === chal, 'Back → ' + (await hash()));
-  assert((await page.locator('.lesson-pick').count()) === 1 && (await page.title()).includes('Challenges'), 'challenge page shown, title ' + (await page.title()));
+  assert((await page.locator('.course-btn').count()) === 1 && (await page.title()).includes('Challenges'), 'challenge page shown, title ' + (await page.title()));
   await page.goBack();
   await settle();
   assert((await hash()) === lesson, 'Back → ' + (await hash()));
@@ -58,32 +57,39 @@ const assert = (c, m) => {
   const histLen = await page.evaluate(() => history.length);
   assert(histLen === 4, 'history length ' + histLen + ' (blank start + 3 entries)');
 
-  // group tab bug: tabs open that group's challenge, panel+URL follow
+  // the course map is a dropdown (header button): closed by default; World tabs only browse
+  // (no navigation); picking an item opens it, closes the map and adds one history entry
   await page.goBack();
   await settle();
-  // the list is a drawer (bench top-left); opening another challenge closes it
-  const openList = async () => {
-    if (!(await page.locator('.lesson-drawer').count())) await page.click('.lesson-pick');
-    await page.waitForSelector('.lesson-drawer .phase-tabs button');
-  };
-  await openList();
-  const tabs = page.locator('.phase-tabs button');
+  assert((await page.locator('.course-pop').count()) === 0, 'course map closed by default');
+  await page.click('.course-btn');
+  await page.waitForSelector('.course-pop .lesson-card.on');
+  assert(await page.evaluate(() => document.activeElement?.classList.contains('lesson-card')), 'course map: focus on the current item');
+  const tabs = page.locator('.course-pop .phase-tabs button');
   const n = await tabs.count();
-  assert(n > 1, `challenge list: ${n} group tabs`);
+  const atMap = await hash();
   for (let i = 0; i < n; i++) {
-    await openList();
-    // (the drawer closes when another challenge opens: read the tab's label first)
-    const label = await tabs.nth(i).textContent();
     await tabs.nth(i).click();
-    await settle();
-    const h2 = await hash();
-    const onCard = await page
-      .locator('.lesson-pick-name[data-active]')
-      .textContent()
-      .catch(() => null);
-    const panelTitle = await page.title();
-    assert(onCard && panelTitle.startsWith(onCard), `tab ${label.trim()} → ${h2}, highlighted card "${onCard}" = title`);
+    await page.waitForTimeout(150);
+    const label = (await tabs.nth(i).textContent()).trim();
+    assert((await hash()) === atMap && (await page.locator('.course-pop').count()) === 1, `tab ${label}: browses only (URL kept, map open)`);
   }
+  const target = page.locator('.course-pop .course-list .lesson-card:not(.theory-card)').first();
+  const want = (await target.locator('.lc-title').textContent()).trim();
+  await target.click();
+  await settle();
+  assert((await page.locator('.course-pop').count()) === 0, 'course map: closes after a pick');
+  assert((await page.title()).startsWith(want) && (await hash()) !== atMap, `course map: picked "${want}" → ${await hash()}`);
+  await page.click('.course-btn');
+  await page.waitForSelector('.course-pop');
+  await page.keyboard.press('Escape');
+  assert(
+    (await page.locator('.course-pop').count()) === 0 && (await page.evaluate(() => document.activeElement?.classList.contains('course-btn'))),
+    'course map: Esc closes it and returns focus to the button',
+  );
+  await page.goBack();
+  await settle();
+  assert((await hash()) === atMap, 'Back after a pick → ' + (await hash()));
   // board edits don't add history entries — click a hole? skip; check reload restores location
   const before = await hash();
   await page.goto(BASE);
@@ -214,7 +220,7 @@ const RECORDER = () => {
   }
   const note = () => {
     if (log.titles[log.titles.length - 1] !== document.title) log.titles.push(document.title);
-    const el = document.querySelector('.pr-main .pr-title, .lesson-pick-name[data-active]');
+    const el = document.querySelector('.pr-main .pr-title, .task h2');
     const t = el && el.textContent;
     if (t && log.shown[log.shown.length - 1] !== t) log.shown.push(t);
   };
@@ -250,6 +256,8 @@ async function lazyIndexChecks(browser) {
   };
   const log = (p) => p.evaluate(() => window.__log);
   const progress = (p) => p.locator('.progress-card b').textContent();
+  // the course map button next to the logo (Learn / Challenges counts)
+  const courseCount = (p) => p.locator('.course-btn b').textContent();
 
   // 1. deep link to a problem in the last chapter, index late: the page and a neutral progress
   //    card first, the URL / bb.route / tab title untouched, then that problem — never another
@@ -278,6 +286,10 @@ async function lazyIndexChecks(browser) {
     assert((await p.evaluate(() => JSON.parse(localStorage.getItem('bb.route')))) === `#/practice/${LAST}`, 'late index: bb.route saved once resolved');
     assert(/^\d+\/\d+$/.test((await progress(p)).trim()), 'late index: progress card counts ' + (await progress(p)));
     assert(!js.some((f) => /^challenge-index-/.test(f)), 'practice link: no challenge index fetched up front');
+    assert((await p.locator('.course-btn b').count()) === 0, 'practice: course button shows no placeholder count');
+    // pointing at the course button loads the lesson list, and its counts fill in
+    await p.hover('.course-btn');
+    await p.waitForFunction(() => /^\d+\/\d+$/.test(document.querySelector('.course-btn b')?.textContent.trim() ?? ''));
     // sidebar: the last chapter is expanded, the active problem is in view inside the sidebar
     const side = await p.evaluate(() => {
       const s = document.querySelector('.pr-side');
@@ -376,18 +388,18 @@ async function lazyIndexChecks(browser) {
   }
 
   // 6. deep link to a challenge (phase 5) with a late challenge index: no other challenge
-  //    flashes, URL kept, the active one named on the lesson button and in view in the list
+  //    flashes, URL kept, one item ever shown
   {
     const ID = 'exp5-gpio-led-resistor';
     // (the bench page loads three.js first, which can take longer than DELAY: hold the index longer)
     const { p, ctx, js } = await open(`#/challenges/${ID}`, { delay: 6000, storage: { 'bb.lang': 'en', 'bb.route': '#/learn/lesson-power-and-ground' } });
-    await p.waitForSelector('.lesson-pick');
+    await p.waitForSelector('.course-btn');
     await p.waitForTimeout(300);
     assert(
-      (await p.locator('.lesson-pick-name[data-active]').count()) === 0 && (await progress(p)).trim() === '–/–',
-      `late challenge index: loading state, neutral button (${await p.locator('.lesson-pick-name[data-active]').count()} named, ${await progress(p)})`,
+      (await p.locator('.task h2').count()) === 0 && (await courseCount(p)).trim() === '–/–',
+      `late challenge index: loading state, neutral button (${await p.locator('.task h2').count()} items, ${await courseCount(p)})`,
     );
-    await p.waitForSelector('.lesson-pick-name[data-active]', { timeout: 20000 });
+    await p.waitForSelector('.task h2', { timeout: 20000 });
     await p.waitForTimeout(800);
     const l = await log(p);
     assert(
@@ -400,19 +412,20 @@ async function lazyIndexChecks(browser) {
     await ctx.close();
   }
   {
-    // a late card in a long group, narrow screen: opening the list shows it (the drawer scrolls to it)
+    // a late item in a long World, narrow screen: the open course map scrolls it into view
     const { p, ctx } = await open('#/challenges/exp5-pwm-mosfet-motor', { delay: 0, viewport: { width: 390, height: 844 }, storage: { 'bb.lang': 'en' } });
-    await p.waitForSelector('.lesson-pick-name[data-active]', { timeout: 15000 });
-    await p.click('.lesson-pick');
-    await p.waitForSelector('.lesson-drawer .lesson-card.on', { timeout: 15000 });
+    await p.waitForSelector('.task h2', { timeout: 15000 });
+    await p.click('.course-btn');
+    await p.waitForSelector('.course-pop .lesson-card.on', { timeout: 15000 });
     await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
-      const c = document.querySelector('.lesson-drawer');
+      const c = document.querySelector('.course-pop .course-list');
       const a = c.getBoundingClientRect();
-      const b = document.querySelector('.lesson-drawer .lesson-card.on').getBoundingClientRect();
-      return { inView: b.top >= a.top - 1 && b.bottom <= a.bottom + 1, scrollTop: c.scrollTop };
+      const b = document.querySelector('.course-pop .lesson-card.on').getBoundingClientRect();
+      const pop = document.querySelector('.course-pop').getBoundingClientRect();
+      return { inView: b.top >= a.top - 1 && b.bottom <= a.bottom + 1, scrollTop: c.scrollTop, onScreen: pop.left >= 0 && pop.right <= window.innerWidth };
     });
-    assert(r.inView && r.scrollTop > 0, `lesson list: active card in view (scrollTop ${r.scrollTop})`);
+    assert(r.inView && r.scrollTop > 0 && r.onScreen, `course map: active item in view (scrollTop ${r.scrollTop}), dropdown on screen`);
     await ctx.close();
   }
 
@@ -423,7 +436,7 @@ async function lazyIndexChecks(browser) {
     const atLoad = [...js];
     await p.waitForTimeout(3500);
     assert(!atLoad.some((f) => /^problem-index-/.test(f)) && !js.some((f) => /^problem-index-/.test(f)), 'guide: no problem index');
-    assert(/^\d+\/\d+$/.test((await progress(p)).trim()), 'guide: lesson counts after idle ' + (await progress(p)));
+    assert(/^\d+\/\d+$/.test((await courseCount(p)).trim()), 'guide: lesson counts after idle ' + (await courseCount(p)));
     await ctx.close();
   }
 }

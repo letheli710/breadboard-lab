@@ -1,0 +1,76 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "basics-11-cccs-amplifier",
+  "chapter": "dependent-sources",
+  "title": "晶体管放大电路的 CCCS 模型",
+  "level": 3,
+  "tags": ["受控源 CCCS", "欧姆定律", "功率"],
+  "statement": [
+    "图示为共射放大电路的简化模型：信号源 V_s = 2 V，R_s = 9 kΩ，R_b = 1 kΩ；电流控制电流源 F 的电流为 50·i_b（方向向下），i_b 为流过 R_b 的电流（向下）；负载 R_L = 1 kΩ。",
+    "求 i_b、输出电压 v_o（结点 o 对地）、电压增益 v_o/V_s 以及 F 吸收的功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 2 },
+      { "ref": "Rs", "type": "R", "from": [2, 0], "to": [5, 0], "value": "9k" },
+      { "ref": "Rb", "type": "R", "from": [7, 0], "to": [7, 4], "value": "1k" },
+      { "ref": "F", "type": "CCCS", "from": [10, 0], "to": [10, 4], "value": 50, "ctrl": { "i": "Rb" }, "label": "50i_b" },
+      { "ref": "RL", "type": "R", "from": [13, 0], "to": [13, 4], "value": "1k" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [7, 0]],
+      [[10, 0], [13, 0]],
+      [[13, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [13, 0], "name": "o" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "Rb", "name": "i_b" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "ib", "ask": "i_b = ?", "find": { "kind": "i", "el": "Rb" }, "answer": 0.0002, "unit": "mA", "explain": "输入回路 V_s、R_s、R_b 串联：i_b = 2/(9k + 1k) = 0.2 mA。" },
+    { "id": "uo", "ask": "v_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": -10, "unit": "V", "explain": "F 把 50 × 0.2 = 10 mA 从结点 o 向下抽走，这个电流只能由 R_L 从地向上提供，所以 R_L 中电流（向下）为 −10 mA，v_o = 1k × (−10 mA) = −10 V。" },
+    { "id": "gain", "ask": "电压增益 v_o/V_s = ?", "find": { "kind": "gain", "out": ["o"], "input": "Vs" }, "answer": -5, "unit": "", "explain": "v_o/V_s = −10/2 = −5。负号表示输出与输入反相（共射放大电路的特点）。" },
+    { "id": "pf", "ask": "受控源 F 吸收的功率 = ?", "find": { "kind": "p", "el": "F" }, "answer": -0.1, "unit": "W", "explain": "F 两端电压（上“+”下“−”）为 v_o = −10 V，电流 10 mA 从上向下，关联：P = (−10) × 0.01 = −0.1 W，F 发出 0.1 W，全部被 R_L 吸收。" }
+  ],
+  "hints": [
+    "受控电流源不影响输入回路，先求 i_b。",
+    "在结点 o 列 KCL：F 的 50i_b 和 R_L 的电流之和为零，注意方向带来的负号。"
+  ],
+  "solution": [
+    "**1. 输入回路。** **i_b = V_s/(R_s + R_b) = 2 V/10 kΩ = 0.2 mA**。",
+    "**2. 结点 o 的 KCL。** 设 R_L 中电流 i_L 向下：i_L + 50i_b = 0 → i_L = −10 mA。",
+    "**3. 欧姆定律。** **v_o = R_L·i_L = 1 kΩ × (−10 mA) = −10 V**，增益 **v_o/V_s = −5**。",
+    "**4. F 的功率。** v_F = v_o = −10 V（上“+”），电流 10 mA 向下（关联）：**P_F = −10 × 0.01 = −0.1 W**。",
+    "**验算：** P_RL = i_L²·R_L = 0.1 W；输入回路 V_s 发出 0.4 mW，R_s、R_b 吸收 0.36 + 0.04 = 0.4 mW。输出端的 0.1 W 来自受控源，而不是来自信号源——受控源是“放大”的能量通道。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "CCCS model of a transistor amplifier",
+      "tags": ["dependent source CCCS", "Ohm's law", "power"],
+      "statement": [
+        "The circuit is a simplified model of a common-emitter amplifier: signal source V_s = 2 V, R_s = 9 kΩ, R_b = 1 kΩ; the current-controlled current source F carries 50·i_b (downwards), where i_b is the current through R_b (downwards); load R_L = 1 kΩ.",
+        "Find i_b, the output voltage v_o (node o to ground), the voltage gain v_o/V_s and the power absorbed by F."
+      ],
+      "questions": [
+        { "ask": "i_b = ?", "explain": "The input loop is V_s, R_s, R_b in series: i_b = 2/(9k + 1k) = 0.2 mA." },
+        { "ask": "v_o = ?", "explain": "F pulls 50 × 0.2 = 10 mA down out of node o; only R_L can supply it, flowing up from ground. So the (downward) current in R_L is −10 mA and v_o = 1k × (−10 mA) = −10 V." },
+        { "ask": "Voltage gain v_o/V_s = ?", "explain": "v_o/V_s = −10/2 = −5. The minus sign means the output is inverted, typical of a common-emitter stage." },
+        { "ask": "Power absorbed by F = ?", "explain": "The voltage across F (+ at the top) is v_o = −10 V and its 10 mA flows downwards (passive convention): P = (−10) × 0.01 = −0.1 W. F delivers 0.1 W, all absorbed by R_L." }
+      ],
+      "hints": [
+        "The dependent current source does not affect the input loop: find i_b first.",
+        "Write KCL at node o: the 50i_b of F and the current in R_L add up to zero — watch the sign that comes from the directions."
+      ],
+      "solution": [
+        "**1. Input loop.** **i_b = V_s/(R_s + R_b) = 2 V/10 kΩ = 0.2 mA**.",
+        "**2. KCL at node o.** Let i_L be the downward current in R_L: i_L + 50i_b = 0 → i_L = −10 mA.",
+        "**3. Ohm's law.** **v_o = R_L·i_L = 1 kΩ × (−10 mA) = −10 V**, gain **v_o/V_s = −5**.",
+        "**4. Power of F.** v_F = v_o = −10 V (+ at the top), 10 mA downwards (passive convention): **P_F = −10 × 0.01 = −0.1 W**.",
+        "**Check:** P_RL = i_L²·R_L = 0.1 W; in the input loop V_s delivers 0.4 mW and R_s, R_b absorb 0.36 + 0.04 = 0.4 mW. The 0.1 W at the output comes from the dependent source, not from the signal source — the dependent source is the energy path of the \"amplification\"."
+      ]
+    }
+  }
+}

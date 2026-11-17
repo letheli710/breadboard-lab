@@ -7,8 +7,8 @@
   "level": 2,
   "tags": ["RLC 串联", "欠阻尼", "衰减系数 α", "阻尼振荡角频率 ω_d"],
   "statement": [
-    "图示电路中电容原已充电，u_C(0₋) = 8 V；R = 2 Ω，L = 0.5 H，C = 0.1 F。t = 0 时开关 S 闭合。",
-    "求衰减系数 α 和阻尼振荡角频率 ω_d，以及 t = π/8 s 时的电流 i、t = π/4 s 时的 u_C。"
+    "图示电路中电容原已充电，v_C(0₋) = 8 V；R = 2 Ω，L = 0.5 H，C = 0.1 F。t = 0 时开关 S 闭合。",
+    "求衰减系数 α 和阻尼振荡角频率 ω_d，以及 t = π/8 s 时的电流 i、t = π/4 s 时的 v_C。"
   ],
   "schematic": {
     "elements": [
@@ -25,7 +25,7 @@
     ],
     "grounds": [[0, 4]],
     "marks": [
-      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "v", "el": "C", "name": "v_C" },
       { "kind": "i", "el": "L", "name": "i" }
     ]
   },
@@ -53,43 +53,43 @@
       "find": { "kind": "i", "el": "L", "t": 0.3926991 },
       "answer": 1.823753,
       "unit": "A",
-      "explain": "i(t) = U₀/(ω_d L)·e^(−αt)·sin ω_d t = 8/(4 × 0.5)·e^(−2t)·sin 4t = 4e^(−2t) sin 4t A。t = π/8：sin(π/2) = 1，i = 4e^(−π/4) ≈ 1.824 A。"
+      "explain": "i(t) = V₀/(ω_d L)·e^(−αt)·sin ω_d t = 8/(4 × 0.5)·e^(−2t)·sin 4t = 4e^(−2t) sin 4t A。t = π/8：sin(π/2) = 1，i = 4e^(−π/4) ≈ 1.824 A。"
     },
     {
       "id": "uc",
-      "ask": "t = π/4 s（≈ 0.7854 s）时 u_C = ?",
+      "ask": "t = π/4 s（≈ 0.7854 s）时 v_C = ?",
       "find": { "kind": "v", "el": "C", "t": 0.7853982 },
       "answer": -1.663037,
       "unit": "V",
-      "explain": "u_C(t) = 8e^(−2t)(cos 4t + 0.5 sin 4t) V。t = π/4：cos π = −1，sin π = 0，u_C = −8e^(−π/2) ≈ −1.663 V——电容被反向充电，这正是振荡的表现。"
+      "explain": "v_C(t) = 8e^(−2t)(cos 4t + 0.5 sin 4t) V。t = π/4：cos π = −1，sin π = 0，v_C = −8e^(−π/2) ≈ −1.663 V——电容被反向充电，这正是振荡的表现。"
     },
     {
       "id": "zero",
       "ask": "放电电流 i 第一次过零（改变方向）是在什么时刻？",
       "choices": ["t = π/ω_d = π/4 s", "t = π/(2ω_d) = π/8 s", "t = 1/α = 0.5 s", "电流不会改变方向"], "choiceExplain": ["", "π/8 s 是 ω_d t = π/2，即 sin ω_d t 达到最大的时刻，此时电流仍为正，还没有过零。", "1/α 是临界阻尼时电流达到最大的时刻，与欠阻尼电流的过零点无关；欠阻尼时过零由 sin ω_d t 决定。", "电流不改变方向只在过阻尼或临界阻尼时成立；这里 R = 2 Ω < 2√(L/C) ≈ 4.47 Ω，是欠阻尼，电流振荡反向。"],
       "correct": 0,
-      "explain": "i ∝ e^(−αt) sin ω_d t，第一次为零在 ω_d t = π，即 t = π/4 s。此时 i = −C·du_C/dt = 0，u_C 正好达到反向极值（第 4 问）。"
+      "explain": "i ∝ e^(−αt) sin ω_d t，第一次为零在 ω_d t = π，即 t = π/4 s。此时 i = −C·dv_C/dt = 0，v_C 正好达到反向极值（第 4 问）。"
     }
   ],
   "hints": [
     "先判断：2√(L/C) = 2√5 ≈ 4.47 Ω > R，是欠阻尼。",
     "α = R/(2L)，ω₀ = 1/√(LC)，ω_d = √(ω₀² − α²)；特征根 s = −α ± jω_d。",
-    "通解 u_C = e^(−αt)(A₁cos ω_d t + A₂sin ω_d t)，由 u_C(0₊) = 8 V、du_C/dt(0₊) = −i(0₊)/C = 0 确定 A₁、A₂。"
+    "通解 v_C = e^(−αt)(A₁cos ω_d t + A₂sin ω_d t)，由 v_C(0₊) = 8 V、dv_C/dt(0₊) = −i(0₊)/C = 0 确定 A₁、A₂。"
   ],
   "solution": [
     "**1. 阻尼判别。** 2√(L/C) = 2√(0.5/0.1) = 2√5 ≈ 4.47 Ω > R = 2 Ω → **欠阻尼**。",
     "**2. 参数。** α = R/(2L) = **2 s⁻¹**，ω₀² = 1/(LC) = 20 (rad/s)²，ω_d = √(20 − 4) = **4 rad/s**；特征根 s = −2 ± j4。",
-    "**3. u_C(t)。** u_C = e^(−2t)(A₁cos 4t + A₂sin 4t)。u_C(0₊) = 8 → A₁ = 8；du_C/dt(0₊) = −i(0₊)/C = 0 → −2A₁ + 4A₂ = 0 → A₂ = 4。所以 u_C = 8e^(−2t)(cos 4t + 0.5 sin 4t) V。",
-    "**4. i(t)。** i = −C·du_C/dt。du_C/dt = 8e^(−2t)[−2cos 4t − sin 4t − 4sin 4t + 2cos 4t] = −40e^(−2t) sin 4t，i = 0.1 × 40e^(−2t) sin 4t = 4e^(−2t) sin 4t A（与公式 U₀/(ω_d L) = 4 一致）。",
-    "**5. 数值。** t = π/8：**i = 4e^(−π/4) ≈ 1.824 A**；t = π/4：**u_C = −8e^(−π/2) ≈ −1.663 V**。电流在 t = π/4 s 第一次过零，周期 T_d = 2π/ω_d = π/2 s。"
+    "**3. v_C(t)。** v_C = e^(−2t)(A₁cos 4t + A₂sin 4t)。v_C(0₊) = 8 → A₁ = 8；dv_C/dt(0₊) = −i(0₊)/C = 0 → −2A₁ + 4A₂ = 0 → A₂ = 4。所以 v_C = 8e^(−2t)(cos 4t + 0.5 sin 4t) V。",
+    "**4. i(t)。** i = −C·dv_C/dt。dv_C/dt = 8e^(−2t)[−2cos 4t − sin 4t − 4sin 4t + 2cos 4t] = −40e^(−2t) sin 4t，i = 0.1 × 40e^(−2t) sin 4t = 4e^(−2t) sin 4t A（与公式 V₀/(ω_d L) = 4 一致）。",
+    "**5. 数值。** t = π/8：**i = 4e^(−π/4) ≈ 1.824 A**；t = π/4：**v_C = −8e^(−π/2) ≈ −1.663 V**。电流在 t = π/4 s 第一次过零，周期 T_d = 2π/ω_d = π/2 s。"
   ],
   "i18n": {
     "en": {
       "title": "Underdamped discharge: damping coefficient and damped frequency",
       "tags": ["series RLC", "underdamped", "damping coefficient α", "damped angular frequency ω_d"],
       "statement": [
-        "The capacitor is initially charged, u_C(0−) = 8 V; R = 2 Ω, L = 0.5 H, C = 0.1 F. Switch S closes at t = 0.",
-        "Find the damping coefficient α and the damped angular frequency ω_d, the current i at t = π/8 s, and u_C at t = π/4 s."
+        "The capacitor is initially charged, v_C(0−) = 8 V; R = 2 Ω, L = 0.5 H, C = 0.1 F. Switch S closes at t = 0.",
+        "Find the damping coefficient α and the damped angular frequency ω_d, the current i at t = π/8 s, and v_C at t = π/4 s."
       ],
       "questions": [
         { "ask": "Damping coefficient α = ?", "explain": "α = R/(2L) = 2/(2 × 0.5) = 2 1/s." },
@@ -99,29 +99,29 @@
         },
         {
           "ask": "i at t = π/8 s (≈ 0.3927 s) = ? (reference direction as drawn)",
-          "explain": "i(t) = U₀/(ω_d L)·e^(−αt)·sin ω_d t = 8/(4 × 0.5)·e^(−2t)·sin 4t = 4e^(−2t) sin 4t A. At t = π/8, sin(π/2) = 1, so i = 4e^(−π/4) ≈ 1.824 A."
+          "explain": "i(t) = V₀/(ω_d L)·e^(−αt)·sin ω_d t = 8/(4 × 0.5)·e^(−2t)·sin 4t = 4e^(−2t) sin 4t A. At t = π/8, sin(π/2) = 1, so i = 4e^(−π/4) ≈ 1.824 A."
         },
         {
-          "ask": "u_C at t = π/4 s (≈ 0.7854 s) = ?",
-          "explain": "u_C(t) = 8e^(−2t)(cos 4t + 0.5 sin 4t) V. At t = π/4, cos π = −1 and sin π = 0, so u_C = −8e^(−π/2) ≈ −1.663 V — the capacitor has been charged the other way round, which is the oscillation at work."
+          "ask": "v_C at t = π/4 s (≈ 0.7854 s) = ?",
+          "explain": "v_C(t) = 8e^(−2t)(cos 4t + 0.5 sin 4t) V. At t = π/4, cos π = −1 and sin π = 0, so v_C = −8e^(−π/2) ≈ −1.663 V — the capacitor has been charged the other way round, which is the oscillation at work."
         },
         {
           "ask": "When does the discharge current i first cross zero (reverse direction)?",
           "choices": ["t = π/ω_d = π/4 s", "t = π/(2ω_d) = π/8 s", "t = 1/α = 0.5 s", "The current never reverses"], "choiceExplain": ["", "π/8 s is where ω_d t = π/2, i.e. where sin ω_d t peaks; the current is still positive there and has not crossed zero yet.", "1/α is the peak-current time of the critically damped case; it has nothing to do with the zero crossing of an underdamped current, which is set by sin ω_d t.", "A current that never reverses belongs to the overdamped or critically damped case; here R = 2 Ω < 2√(L/C) ≈ 4.47 Ω, so it is underdamped and the current oscillates."],
-          "explain": "i ∝ e^(−αt) sin ω_d t first vanishes at ω_d t = π, i.e. t = π/4 s. There i = −C·du_C/dt = 0, so u_C is at its negative extreme (question 4)."
+          "explain": "i ∝ e^(−αt) sin ω_d t first vanishes at ω_d t = π, i.e. t = π/4 s. There i = −C·dv_C/dt = 0, so v_C is at its negative extreme (question 4)."
         }
       ],
       "hints": [
         "Classify first: 2√(L/C) = 2√5 ≈ 4.47 Ω > R, so the circuit is underdamped.",
         "α = R/(2L), ω₀ = 1/√(LC), ω_d = √(ω₀² − α²); the characteristic roots are s = −α ± jω_d.",
-        "The general solution is u_C = e^(−αt)(A₁cos ω_d t + A₂sin ω_d t); find A₁, A₂ from u_C(0+) = 8 V and du_C/dt(0+) = −i(0+)/C = 0."
+        "The general solution is v_C = e^(−αt)(A₁cos ω_d t + A₂sin ω_d t); find A₁, A₂ from v_C(0+) = 8 V and dv_C/dt(0+) = −i(0+)/C = 0."
       ],
       "solution": [
         "**1. Damping.** 2√(L/C) = 2√(0.5/0.1) = 2√5 ≈ 4.47 Ω > R = 2 Ω → **underdamped**.",
         "**2. Parameters.** α = R/(2L) = **2 s⁻¹**, ω₀² = 1/(LC) = 20 (rad/s)², ω_d = √(20 − 4) = **4 rad/s**; roots s = −2 ± j4.",
-        "**3. u_C(t).** u_C = e^(−2t)(A₁cos 4t + A₂sin 4t). u_C(0+) = 8 → A₁ = 8; du_C/dt(0+) = −i(0+)/C = 0 → −2A₁ + 4A₂ = 0 → A₂ = 4. So u_C = 8e^(−2t)(cos 4t + 0.5 sin 4t) V.",
-        "**4. i(t).** i = −C·du_C/dt. du_C/dt = 8e^(−2t)[−2cos 4t − sin 4t − 4sin 4t + 2cos 4t] = −40e^(−2t) sin 4t, so i = 0.1 × 40e^(−2t) sin 4t = 4e^(−2t) sin 4t A (matching the formula U₀/(ω_d L) = 4).",
-        "**5. Values.** At t = π/8: **i = 4e^(−π/4) ≈ 1.824 A**; at t = π/4: **u_C = −8e^(−π/2) ≈ −1.663 V**. The current first crosses zero at t = π/4 s; the damped period is T_d = 2π/ω_d = π/2 s."
+        "**3. v_C(t).** v_C = e^(−2t)(A₁cos 4t + A₂sin 4t). v_C(0+) = 8 → A₁ = 8; dv_C/dt(0+) = −i(0+)/C = 0 → −2A₁ + 4A₂ = 0 → A₂ = 4. So v_C = 8e^(−2t)(cos 4t + 0.5 sin 4t) V.",
+        "**4. i(t).** i = −C·dv_C/dt. dv_C/dt = 8e^(−2t)[−2cos 4t − sin 4t − 4sin 4t + 2cos 4t] = −40e^(−2t) sin 4t, so i = 0.1 × 40e^(−2t) sin 4t = 4e^(−2t) sin 4t A (matching the formula V₀/(ω_d L) = 4).",
+        "**5. Values.** At t = π/8: **i = 4e^(−π/4) ≈ 1.824 A**; at t = π/4: **v_C = −8e^(−π/2) ≈ −1.663 V**. The current first crosses zero at t = π/4 s; the damped period is T_d = 2π/ω_d = π/2 s."
       ]
     }
   }

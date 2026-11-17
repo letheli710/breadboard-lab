@@ -382,8 +382,8 @@ export function checkAnswer(q: Question, input: string): AnswerCheck {
     return no(
       'sqrt3',
       tr(
-        '差了 √3 倍——线电压/线电流和相电压/相电流弄混了？Y 接 U_线 = √3·U_相，Δ 接 I_线 = √3·I_相。',
-        'Off by a factor of √3 — line and phase quantities mixed up? Wye: U_line = √3·U_phase; delta: I_line = √3·I_phase.',
+        '差了 √3 倍——线电压/线电流和相电压/相电流弄混了？Y 接 V_线 = √3·V_相，Δ 接 I_线 = √3·I_相。',
+        'Off by a factor of √3 — line and phase quantities mixed up? Wye: V_line = √3·V_phase; delta: I_line = √3·I_phase.',
       ) + signToo,
     );
   if (factor(2 * Math.PI))

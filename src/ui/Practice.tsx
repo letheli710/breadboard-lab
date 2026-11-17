@@ -6,7 +6,9 @@ import { lazy, Suspense, useEffect, useId, useLayoutEffect, useMemo, useRef, use
 import { radioFocusKeys } from './a11y';
 import { formatSI } from '../core/format';
 import { tr } from '../core/i18n';
-import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
+import { CHAPTERS, chapterById, type Chapter, type ChapterWorld } from '../core/problem/chapters';
+import { WORLDS } from '../core/course';
+import { worldTitle } from '../core/courseText';
 import { answerTolerance, checkAnswer, formatAnswer, isPhaseQuestion, type AnswerCheck, type Problem } from '../core/problem/parse';
 import type { Analysis, Question } from '../core/problem/types';
 import { useMastery } from '../state/masteryStore';
@@ -34,12 +36,12 @@ const MasteryPage = lazy(() => import('./mastery/MasteryPage'));
 
 export { Sym };
 
-const PHASES: { n: 1 | 2 | 3 | 4; zh: string; en: string }[] = [
-  { n: 1, zh: '电阻电路基础', en: 'Resistive circuit basics' },
-  { n: 2, zh: '分析方法与电路定理', en: 'Analysis methods & theorems' },
-  { n: 3, zh: '动态电路', en: 'Dynamic circuits' },
-  { n: 4, zh: '正弦稳态与交流', en: 'Sinusoidal steady state & AC' },
+/** Sidebar groups: the Worlds of the course map (core/course.ts), then the electives. */
+const GROUPS: { n: ChapterWorld; label: () => string }[] = [
+  ...WORLDS.map((w) => ({ n: w.id, label: () => `World ${w.id} · ${worldTitle(w.id)}` })),
+  { n: 6, label: () => tr('选学（主线之外）', 'Electives (off the main path)') },
 ];
+const groupName = (n: ChapterWorld | undefined) => (n === 6 ? tr('选学', 'Elective') : n ? `World ${n}` : '?');
 
 function Stars({ n }: { n: number }) {
   return <span className="stars">{'★'.repeat(n) + '☆'.repeat(5 - n)}</span>;
@@ -353,9 +355,9 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
           }}
         >
           <option value="">{tr('跳到章节…', 'Jump to chapter…')}</option>
-          {PHASES.map((ph) => (
-            <optgroup key={ph.n} label={tr(`第 ${ph.n} 期 · ${ph.zh}`, `Phase ${ph.n} · ${ph.en}`)}>
-              {CHAPTERS.filter((c) => c.phase === ph.n).map((c) => {
+          {GROUPS.map((ph) => (
+            <optgroup key={ph.n} label={ph.label()}>
+              {CHAPTERS.filter((c) => c.world === ph.n).map((c) => {
                 const list = byChapter.get(c.id) ?? [];
                 return (
                   <option key={c.id} value={c.id} disabled={ready && !list.length}>
@@ -370,14 +372,14 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
         <ShortcutHelp />
       </div>
       <MasteryNav />
-      {PHASES.map((ph) => {
-        const chs = CHAPTERS.filter((c) => c.phase === ph.n);
+      {GROUPS.map((ph) => {
+        const chs = CHAPTERS.filter((c) => c.world === ph.n);
         const all = chs.flatMap((c) => byChapter.get(c.id) ?? []);
         const d = all.filter(done).length;
         return (
           <section key={ph.n} className="pr-phase">
             <div className="eyebrow pr-phase-head">
-              <span>{tr(`第 ${ph.n} 期 · ${ph.zh}`, `Phase ${ph.n} · ${ph.en}`)}</span>
+              <span>{ph.label()}</span>
               {all.length > 0 && (
                 <span>
                   {d}/{all.length}
@@ -724,7 +726,7 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
       <header className="pr-head">
         <div className="pr-crumbs">
           <span className="eyebrow">
-            {tr(`第 ${chapter?.phase ?? '?'} 期`, `Phase ${chapter?.phase ?? '?'}`)} · {chapter?.title()}
+            {groupName(chapter?.world)} · {chapter?.title()}
           </span>
           <div className="row">
             <KeyPointsLink p={p} />

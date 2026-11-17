@@ -8,7 +8,7 @@
   "tags": ["结点电压法", "自电导", "互电导"],
   "statement": [
     "图示电路中 I_s1 = 4 A（向上，注入结点 a），I_s2 = 1 A（向下，从结点 b 流出），R_1 = 4 Ω，R_2 = 2 Ω，R_3 = 4 Ω。以底部为参考结点。",
-    "用**结点电压法**求结点电压 u_a、u_b，R_2 中的电流 i_2，以及 I_s2 吸收的功率。"
+    "用**结点电压法**求结点电压 v_a、v_b，R_2 中的电流 i_2，以及 I_s2 吸收的功率。"
   ],
   "schematic": {
     "elements": [
@@ -31,26 +31,26 @@
   "questions": [
     {
       "id": "g",
-      "ask": "按标准形式 G_aa·u_a + G_ab·u_b = i_sa 列结点 a 的方程，互电导 G_ab = ?",
+      "ask": "按标准形式 G_aa·v_a + G_ab·v_b = i_sa 列结点 a 的方程，互电导 G_ab = ?",
       "choices": ["+1/2 S", "−1/2 S", "+3/4 S", "0"], "choiceExplain": ["漏了负号：标准形式中互电导是连接两结点的支路电导之和取负。", "", "3/4 S 是 a 的自电导 G_aa = 1/R_1 + 1/R_2，不是互电导。", "a、b 之间直接连着 R_2，互电导不为零；只有两结点之间没有直接相连的支路时才是 0。"],
       "correct": 1,
       "explain": "互电导是连接 a、b 两结点的支路电导之和再取负号：G_ab = −1/R_2 = −1/2 S。自电导 G_aa = 1/R_1 + 1/R_2 = 3/4 S 总是正的。"
     },
-    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 8, "unit": "V", "explain": "0.75u_a − 0.5u_b = 4，−0.5u_a + 0.75u_b = −1，解得 u_a = 8 V。" },
-    { "id": "ub", "ask": "u_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 4, "unit": "V", "explain": "同一组方程解得 u_b = 4 V。" },
+    { "id": "ua", "ask": "v_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 8, "unit": "V", "explain": "0.75v_a − 0.5v_b = 4，−0.5v_a + 0.75v_b = −1，解得 v_a = 8 V。" },
+    { "id": "ub", "ask": "v_b = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 4, "unit": "V", "explain": "同一组方程解得 v_b = 4 V。" },
     { "id": "p", "ask": "I_s2 吸收的功率 P = ?", "find": { "kind": "p", "el": "Is2" }, "answer": 4, "unit": "W", "explain": "I_s2 的电流 1 A 从高电位端（b，4 V）流向参考结点，电压与电流为关联方向：P = 4 × 1 = 4 W（吸收）。" }
   ],
   "hints": [
     "两个独立结点 a、b，各列一个 KCL：流出结点的电阻电流之和 = 注入结点的电流源电流。",
     "注入 b 的电流源电流是 −I_s2 = −1 A（I_s2 是从 b 流出的）。",
-    "求出 u_a、u_b 后，i_2 = (u_a − u_b)/R_2。"
+    "求出 v_a、v_b 后，i_2 = (v_a − v_b)/R_2。"
   ],
   "solution": [
-    "**1. 结点 a：** (1/R_1 + 1/R_2)·u_a − (1/R_2)·u_b = I_s1 → 0.75u_a − 0.5u_b = 4。",
-    "**2. 结点 b：** −(1/R_2)·u_a + (1/R_2 + 1/R_3)·u_b = −I_s2 → −0.5u_a + 0.75u_b = −1。",
-    "**3. 求解：** 第一式 ×3 加第二式 ×2：2.25u_a − 1.5u_b − u_a + 1.5u_b = 12 − 2 → 1.25u_a = 10 → **u_a = 8 V**，代回得 **u_b = 4 V**。",
-    "**4. 支路电流：** i_2 = (u_a − u_b)/R_2 = 4/2 = **2 A**。",
-    "**5. I_s2 的功率：** P = u_b × I_s2 = 4 × 1 = **4 W**（吸收）。",
+    "**1. 结点 a：** (1/R_1 + 1/R_2)·v_a − (1/R_2)·v_b = I_s1 → 0.75v_a − 0.5v_b = 4。",
+    "**2. 结点 b：** −(1/R_2)·v_a + (1/R_2 + 1/R_3)·v_b = −I_s2 → −0.5v_a + 0.75v_b = −1。",
+    "**3. 求解：** 第一式 ×3 加第二式 ×2：2.25v_a − 1.5v_b − v_a + 1.5v_b = 12 − 2 → 1.25v_a = 10 → **v_a = 8 V**，代回得 **v_b = 4 V**。",
+    "**4. 支路电流：** i_2 = (v_a − v_b)/R_2 = 4/2 = **2 A**。",
+    "**5. I_s2 的功率：** P = v_b × I_s2 = 4 × 1 = **4 W**（吸收）。",
     "**验算：** I_s1 发出 8 × 4 = 32 W；电阻吸收 8²/4 + 4²/2 + 4²/4 = 16 + 8 + 4 = 28 W；I_s2 吸收 4 W。28 + 4 = 32 W。"
   ],
   "i18n": {
@@ -59,29 +59,29 @@
       "tags": ["nodal analysis", "self-conductance", "mutual conductance"],
       "statement": [
         "In the circuit, I_s1 = 4 A (upwards, into node a), I_s2 = 1 A (downwards, out of node b), R_1 = 4 Ω, R_2 = 2 Ω, R_3 = 4 Ω. The bottom node is the reference.",
-        "Use **nodal analysis** to find the node voltages u_a and u_b, the current i_2 in R_2, and the power absorbed by I_s2."
+        "Use **nodal analysis** to find the node voltages v_a and v_b, the current i_2 in R_2, and the power absorbed by I_s2."
       ],
       "questions": [
         {
-          "ask": "Writing the equation of node a in the standard form G_aa·u_a + G_ab·u_b = i_sa, the mutual conductance G_ab = ?",
+          "ask": "Writing the equation of node a in the standard form G_aa·v_a + G_ab·v_b = i_sa, the mutual conductance G_ab = ?",
           "choices": ["+1/2 S", "−1/2 S", "+3/4 S", "0"], "choiceExplain": ["The minus sign is missing: in the standard form the mutual conductance is minus the sum of the conductances joining the two nodes.", "", "3/4 S is the self-conductance of a, G_aa = 1/R_1 + 1/R_2, not the mutual conductance.", "R_2 joins a and b directly, so the mutual conductance is not zero; it is 0 only when no branch connects the two nodes directly."],
           "explain": "The mutual conductance is minus the sum of the conductances joining a and b: G_ab = −1/R_2 = −1/2 S. The self-conductance G_aa = 1/R_1 + 1/R_2 = 3/4 S is always positive."
         },
-        { "ask": "u_a = ?", "explain": "0.75u_a − 0.5u_b = 4 and −0.5u_a + 0.75u_b = −1 give u_a = 8 V." },
-        { "ask": "u_b = ?", "explain": "The same equations give u_b = 4 V." },
+        { "ask": "v_a = ?", "explain": "0.75v_a − 0.5v_b = 4 and −0.5v_a + 0.75v_b = −1 give v_a = 8 V." },
+        { "ask": "v_b = ?", "explain": "The same equations give v_b = 4 V." },
         { "ask": "Power absorbed by I_s2, P = ?", "explain": "The 1 A of I_s2 flows from the higher-potential end (b, 4 V) to the reference: passive convention, P = 4 × 1 = 4 W (absorbed)." }
       ],
       "hints": [
         "There are two independent nodes, a and b. At each, write KCL: resistor currents leaving the node = current-source currents injected into it.",
         "The source current injected into b is −I_s2 = −1 A (I_s2 takes current out of b).",
-        "Once you have u_a and u_b, i_2 = (u_a − u_b)/R_2."
+        "Once you have v_a and v_b, i_2 = (v_a − v_b)/R_2."
       ],
       "solution": [
-        "**1. Node a:** (1/R_1 + 1/R_2)·u_a − (1/R_2)·u_b = I_s1 → 0.75u_a − 0.5u_b = 4.",
-        "**2. Node b:** −(1/R_2)·u_a + (1/R_2 + 1/R_3)·u_b = −I_s2 → −0.5u_a + 0.75u_b = −1.",
-        "**3. Solve:** 3 × (first) + 2 × (second): 2.25u_a − 1.5u_b − u_a + 1.5u_b = 12 − 2 → 1.25u_a = 10 → **u_a = 8 V**; back-substituting, **u_b = 4 V**.",
-        "**4. Branch current:** i_2 = (u_a − u_b)/R_2 = 4/2 = **2 A**.",
-        "**5. Power of I_s2:** P = u_b × I_s2 = 4 × 1 = **4 W** (absorbed).",
+        "**1. Node a:** (1/R_1 + 1/R_2)·v_a − (1/R_2)·v_b = I_s1 → 0.75v_a − 0.5v_b = 4.",
+        "**2. Node b:** −(1/R_2)·v_a + (1/R_2 + 1/R_3)·v_b = −I_s2 → −0.5v_a + 0.75v_b = −1.",
+        "**3. Solve:** 3 × (first) + 2 × (second): 2.25v_a − 1.5v_b − v_a + 1.5v_b = 12 − 2 → 1.25v_a = 10 → **v_a = 8 V**; back-substituting, **v_b = 4 V**.",
+        "**4. Branch current:** i_2 = (v_a − v_b)/R_2 = 4/2 = **2 A**.",
+        "**5. Power of I_s2:** P = v_b × I_s2 = 4 × 1 = **4 W** (absorbed).",
         "**Check:** I_s1 delivers 8 × 4 = 32 W; the resistors absorb 8²/4 + 4²/2 + 4²/4 = 16 + 8 + 4 = 28 W; I_s2 absorbs 4 W. 28 + 4 = 32 W."
       ]
     }

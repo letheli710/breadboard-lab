@@ -8,7 +8,7 @@
   "tags": ["并联谐振", "电流谐振", "品质因数 Q", "导纳"],
   "statement": [
     "正弦电流源 İ_s = 10∠0° mA（有效值）向 R = 1 kΩ、L = 10 mH、C = 1 µF 的并联电路供电，电源角频率等于电路的谐振角频率 ω₀。",
-    "求谐振频率 f₀、谐振时的端电压 U、电容电流 I_C，并判断 L、C 两条支路电流的相量和。"
+    "求谐振频率 f₀，以及谐振时的端电压 V 和电容电流 I_C。再判断 L、C 两条支路电流的相量和。"
   ],
   "schematic": {
     "elements": [
@@ -22,29 +22,29 @@
       [[12, 4], [0, 4]]
     ],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "v", "el": "R", "name": "U" }, { "kind": "i", "el": "L", "name": "I_L" }, { "kind": "i", "el": "C", "name": "I_C" }]
+    "marks": [{ "kind": "v", "el": "R", "name": "V" }, { "kind": "i", "el": "L", "name": "I_L" }, { "kind": "i", "el": "C", "name": "I_C" }]
   },
   "analysis": { "type": "ac", "omega": 10000 },
   "questions": [
     { "id": "f0", "ask": "谐振频率 f₀ = ?", "find": { "kind": "f0" }, "answer": 1591.549, "unit": "Hz", "explain": "并联谐振条件 ωC = 1/(ωL)，ω₀ = 1/√(LC) = 1/√(10⁻² × 10⁻⁶) = 10⁴ rad/s，f₀ ≈ 1591.5 Hz。" },
-    { "id": "U", "ask": "谐振时端电压有效值 U = ?", "find": { "kind": "v", "el": "R", "part": "mag" }, "answer": 10, "unit": "V", "explain": "谐振时 Y = G + j(ωC − 1/ωL) = G，导纳最小、阻抗最大且等于 R：U = I_s·R = 10 mA × 1 kΩ = 10 V。" },
-    { "id": "IC", "ask": "电容电流有效值 I_C = ?", "find": { "kind": "i", "el": "C", "part": "mag" }, "answer": 0.1, "unit": "mA", "explain": "I_C = ω₀C·U = 10⁴ × 10⁻⁶ × 10 = 0.1 A = 100 mA，是电源电流的 Q = R/(ω₀L) = 1000/100 = 10 倍。" },
+    { "id": "U", "ask": "谐振时端电压有效值 V = ?", "find": { "kind": "v", "el": "R", "part": "mag" }, "answer": 10, "unit": "V", "explain": "谐振时 Y = G + j(ωC − 1/ωL) = G，导纳最小、阻抗最大且等于 R：V = I_s·R = 10 mA × 1 kΩ = 10 V。" },
+    { "id": "IC", "ask": "电容电流有效值 I_C = ?", "find": { "kind": "i", "el": "C", "part": "mag" }, "answer": 0.1, "unit": "mA", "explain": "I_C = ω₀C·V = 10⁴ × 10⁻⁶ × 10 = 0.1 A = 100 mA，是电源电流的 Q = R/(ω₀L) = 1000/100 = 10 倍。" },
     {
       "id": "sum",
       "ask": "谐振时 L、C 两条支路电流的相量和 İ_L + İ_C 的有效值 |İ_L + İ_C| 等于多少？",
-      "choices": ["0（两者大小相等、相位相反，电源电流全部流过 R）", "200 mA", "10 mA", "无法确定"], "choiceExplain": ["", "把有效值直接相加了：İ_L 滞后 U̇ 90°、İ_C 超前 U̇ 90°，两者反相，要按相量相加。", "10 mA 是电源电流，也等于电阻电流 I_R；题目问的是 L、C 两条支路电流的相量和，不是电源电流。", "U̇ 已知，İ_L = U̇/(jω₀L)、İ_C = jω₀CU̇ 的大小和相位都能算出，可以确定。"],
+      "choices": ["0（两者大小相等、相位相反，电源电流全部流过 R）", "I_L + I_C（两个有效值直接相加）", "10 mA", "无法确定"], "choiceExplain": ["", "把有效值直接相加了：İ_L 滞后 V̇ 90°、İ_C 超前 V̇ 90°，两者反相，要按相量相加。", "10 mA 是电源电流，也等于电阻电流 I_R；题目问的是 L、C 两条支路电流的相量和，不是电源电流。", "V̇ 已知，İ_L = V̇/(jω₀L)、İ_C = jω₀CV̇ 的大小和相位都能算出，可以确定。"],
       "correct": 0,
-      "explain": "İ_L = U̇/(jω₀L) = −j100 mA，İ_C = jω₀CU̇ = j100 mA，相加为 0。LC 并联部分对外相当于开路，但内部有 100 mA 的电流在 L、C 之间来回交换能量。所以并联谐振又叫电流谐振。"
+      "explain": "İ_L = V̇/(jω₀L) = −j100 mA，İ_C = jω₀CV̇ = j100 mA，相加为 0。LC 并联部分对外相当于开路，但内部有 100 mA 的电流在 L、C 之间来回交换能量。所以并联谐振又叫电流谐振。"
     }
   ],
   "hints": [
     "并联电路用导纳：Y = G + j(ωC − 1/(ωL))，虚部为零就是谐振。",
-    "谐振时 U = I_s/G；支路电流 I_C = ω₀CU，I_L = U/(ω₀L)。"
+    "谐振时 V = I_s/G。支路电流 I_C = ω₀CV，I_L = V/(ω₀L)。"
   ],
   "solution": [
     "**1. 谐振频率。** Im Y = ωC − 1/(ωL) = 0 → ω₀ = 1/√(LC) = **10⁴ rad/s**，f₀ = 10⁴/(2π) ≈ **1591.5 Hz**。",
-    "**2. 端电压。** 谐振时 Y = G = 1 mS（最小），U = I_s/G = 10 mA × 1 kΩ = **10 V**，与 I_s 同相。",
-    "**3. 支路电流。** I_R = 10 mA；I_C = ω₀CU = 10⁴ × 10⁻⁶ × 10 = **100 mA**（超前 U 90°）；I_L = U/(ω₀L) = 10/100 = 100 mA（滞后 U 90°）。",
+    "**2. 端电压。** 谐振时 Y = G = 1 mS（最小），V = I_s/G = 10 mA × 1 kΩ = **10 V**，与 I_s 同相。",
+    "**3. 支路电流。** I_R = 10 mA；I_C = ω₀CV = 10⁴ × 10⁻⁶ × 10 = **100 mA**（超前 V 90°）；I_L = V/(ω₀L) = 10/100 = 100 mA（滞后 V 90°）。",
     "**4. 品质因数。** Q = R/(ω₀L) = ω₀CR = 1000/100 = 10，I_L = I_C = Q·I_s。",
     "KCL 检查：İ_R + İ_L + İ_C = 10 − j100 + j100 = 10 mA = İ_s ✓。"
   ],
@@ -54,26 +54,26 @@
       "tags": ["parallel resonance", "current resonance", "quality factor Q", "admittance"],
       "statement": [
         "A sinusoidal current source İ_s = 10∠0° mA (rms) feeds R = 1 kΩ, L = 10 mH and C = 1 µF in parallel, at the circuit's resonant angular frequency ω₀.",
-        "Find the resonant frequency f₀, the terminal voltage U at resonance, the capacitor current I_C, and decide what the phasor sum of the L and C branch currents is."
+        "Find the resonant frequency f₀, and the terminal voltage V and capacitor current I_C at resonance. Then decide what the phasor sum of the L and C branch currents is."
       ],
       "questions": [
         { "ask": "Resonant frequency f₀ = ?", "explain": "Parallel resonance: ωC = 1/(ωL), ω₀ = 1/√(LC) = 1/√(10⁻² × 10⁻⁶) = 10⁴ rad/s, f₀ ≈ 1591.5 Hz." },
-        { "ask": "rms terminal voltage at resonance U = ?", "explain": "At resonance Y = G + j(ωC − 1/ωL) = G: the admittance is minimum and the impedance maximum, equal to R. U = I_s·R = 10 mA × 1 kΩ = 10 V." },
-        { "ask": "rms capacitor current I_C = ?", "explain": "I_C = ω₀C·U = 10⁴ × 10⁻⁶ × 10 = 0.1 A = 100 mA, which is Q = R/(ω₀L) = 1000/100 = 10 times the source current." },
+        { "ask": "rms terminal voltage at resonance V = ?", "explain": "At resonance Y = G + j(ωC − 1/ωL) = G: the admittance is minimum and the impedance maximum, equal to R. V = I_s·R = 10 mA × 1 kΩ = 10 V." },
+        { "ask": "rms capacitor current I_C = ?", "explain": "I_C = ω₀C·V = 10⁴ × 10⁻⁶ × 10 = 0.1 A = 100 mA, which is Q = R/(ω₀L) = 1000/100 = 10 times the source current." },
         {
           "ask": "At resonance, what is the rms value |İ_L + İ_C| of the phasor sum of the L and C branch currents?",
-          "choices": ["0 (equal in size and opposite in phase; the whole source current flows in R)", "200 mA", "10 mA", "Cannot be determined"], "choiceExplain": ["", "This adds rms values: İ_L lags U̇ by 90° and İ_C leads it by 90°, so they are in antiphase and must be added as phasors.", "10 mA is the source current, which equals I_R; the question asks for the phasor sum of the L and C branch currents, not the source current.", "U̇ is known, so İ_L = U̇/(jω₀L) and İ_C = jω₀CU̇ are both known in size and phase; it can be determined."],
-          "explain": "İ_L = U̇/(jω₀L) = −j100 mA and İ_C = jω₀CU̇ = j100 mA add to 0. The parallel L–C pair looks like an open circuit from outside, while 100 mA circulates between L and C, exchanging energy. That is why parallel resonance is also called current resonance."
+          "choices": ["0 (equal in size and opposite in phase; the whole source current flows in R)", "I_L + I_C (the two rms values simply added)", "10 mA", "Cannot be determined"], "choiceExplain": ["", "This adds rms values: İ_L lags V̇ by 90° and İ_C leads it by 90°, so they are in antiphase and must be added as phasors.", "10 mA is the source current, which equals I_R; the question asks for the phasor sum of the L and C branch currents, not the source current.", "V̇ is known, so İ_L = V̇/(jω₀L) and İ_C = jω₀CV̇ are both known in size and phase; it can be determined."],
+          "explain": "İ_L = V̇/(jω₀L) = −j100 mA and İ_C = jω₀CV̇ = j100 mA add to 0. The parallel L–C pair looks like an open circuit from outside, while 100 mA circulates between L and C, exchanging energy. That is why parallel resonance is also called current resonance."
         }
       ],
       "hints": [
         "Use admittance for a parallel circuit: Y = G + j(ωC − 1/(ωL)); resonance is where the imaginary part is zero.",
-        "At resonance U = I_s/G; the branch currents are I_C = ω₀CU and I_L = U/(ω₀L)."
+        "At resonance V = I_s/G. The branch currents are I_C = ω₀CV and I_L = V/(ω₀L)."
       ],
       "solution": [
         "**1. Resonant frequency.** Im Y = ωC − 1/(ωL) = 0 → ω₀ = 1/√(LC) = **10⁴ rad/s**, f₀ = 10⁴/(2π) ≈ **1591.5 Hz**.",
-        "**2. Terminal voltage.** At resonance Y = G = 1 mS (minimum), U = I_s/G = 10 mA × 1 kΩ = **10 V**, in phase with I_s.",
-        "**3. Branch currents.** I_R = 10 mA; I_C = ω₀CU = 10⁴ × 10⁻⁶ × 10 = **100 mA** (leading U by 90°); I_L = U/(ω₀L) = 10/100 = 100 mA (lagging U by 90°).",
+        "**2. Terminal voltage.** At resonance Y = G = 1 mS (minimum), V = I_s/G = 10 mA × 1 kΩ = **10 V**, in phase with I_s.",
+        "**3. Branch currents.** I_R = 10 mA; I_C = ω₀CV = 10⁴ × 10⁻⁶ × 10 = **100 mA** (leading V by 90°); I_L = V/(ω₀L) = 10/100 = 100 mA (lagging V by 90°).",
         "**4. Quality factor.** Q = R/(ω₀L) = ω₀CR = 1000/100 = 10, and I_L = I_C = Q·I_s.",
         "KCL check: İ_R + İ_L + İ_C = 10 − j100 + j100 = 10 mA = İ_s ✓."
       ]

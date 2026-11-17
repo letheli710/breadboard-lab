@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["带通滤波", "通频带", "半功率频率", "品质因数 Q"],
   "statement": [
-    "L = 0.1 H，C = 10 µF，R = 45 Ω 串联，输出取电阻电压 U_o，H(jω) = U̇_o/U̇_s。",
-    "求中心（谐振）频率 f₀；再求 ω = 1250 rad/s 时的 |H(jω)| 和相位，并由此判断通频带。"
+    "L = 0.1 H，C = 10 µF，R = 45 Ω 串联。输出取电阻电压 V_o，网络函数 H(jω) = V̇_o/V̇_s。",
+    "求中心（谐振）频率 f₀。再求 ω = 1250 rad/s 时的 |H(jω)| 和相位，由此求通频带和品质因数 Q。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "U_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "V_s" },
       { "ref": "L", "type": "L", "from": [2, 0], "to": [5, 0], "value": 0.1 },
       { "ref": "C", "type": "C", "from": [7, 0], "to": [10, 0], "value": "10u" },
       { "ref": "R", "type": "R", "from": [12, 0], "to": [12, 4], "value": 45 }
@@ -25,17 +25,17 @@
     ],
     "terminals": [{ "at": [15, 0], "name": "o" }, { "at": [15, 4], "name": "o'" }],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "v", "el": "R", "name": "U_o" }]
+    "marks": [{ "kind": "v", "el": "R", "name": "V_o" }]
   },
   "analysis": { "type": "ac", "omega": 1250 },
   "questions": [
     { "id": "f0", "ask": "中心频率 f₀ = ?", "find": { "kind": "f0" }, "answer": 159.1549, "unit": "Hz", "explain": "ω₀ = 1/√(LC) = 1000 rad/s，f₀ ≈ 159.15 Hz。此时 H = 1（最大）。" },
-    { "id": "mag", "ask": "ω = 1250 rad/s 时 |H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "mag" }, "answer": 0.7071068, "unit": "", "explain": "X = ωL − 1/(ωC) = 125 − 80 = 45 Ω = R，H = 45/(45 + j45)，|H| = 1/√2 ≈ 0.7071。" },
-    { "id": "ph", "ask": "ω = 1250 rad/s 时 H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": -45, "unit": "°", "explain": "ω > ω₀，电路呈感性，电流（即 U_o）滞后 U_s：−arctan(45/45) = −45°。" },
+    { "id": "mag", "ask": "ω = 1250 rad/s 时 |H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Vs", "part": "mag" }, "answer": 0.7071068, "unit": "", "explain": "X = ωL − 1/(ωC) = 125 − 80 = 45 Ω = R，H = 45/(45 + j45)，|H| = 1/√2 ≈ 0.7071。" },
+    { "id": "ph", "ask": "ω = 1250 rad/s 时 H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Vs", "part": "phase" }, "answer": -45, "unit": "°", "explain": "ω > ω₀，电路呈感性，电流（即 V_o）滞后 V_s：−arctan(45/45) = −45°。" },
     {
       "id": "bw",
       "ask": "这个带通电路的通频带（−3 dB 带宽）BW = ?（用 Hz 表示）",
-      "find": { "kind": "bw", "out": ["o"], "input": "Us" },
+      "find": { "kind": "bw", "out": ["o"], "input": "Vs" },
       "answer": 71.61972,
       "unit": "Hz",
       "explain": "|H| = 1/√2 的两个频率满足 |ωL − 1/(ωC)| = R，且 ω₁ω₂ = ω₀²。已知 ω₂ = 1250 rad/s，ω₁ = 10⁶/1250 = 800 rad/s。BW = ω₂ − ω₁ = 450 rad/s = R/L，换成频率 450/(2π) ≈ 71.62 Hz。"
@@ -65,13 +65,13 @@
       "title": "Bandwidth of a series RLC band-pass circuit",
       "tags": ["band-pass filter", "bandwidth", "half-power frequencies", "quality factor Q"],
       "statement": [
-        "L = 0.1 H, C = 10 µF and R = 45 Ω are in series; the output is the resistor voltage U̇_o and H(jω) = U̇_o/U̇_s.",
-        "Find the centre (resonant) frequency f₀; then find |H(jω)| and its phase at ω = 1250 rad/s, and use them to determine the bandwidth."
+        "L = 0.1 H, C = 10 µF and R = 45 Ω are in series. The output is the resistor voltage V_o, and the network function is H(jω) = V̇_o/V̇_s.",
+        "Find the centre (resonant) frequency f₀. Then find |H(jω)| and its phase at ω = 1250 rad/s, and use them to find the bandwidth and the quality factor Q."
       ],
       "questions": [
         { "ask": "Centre frequency f₀ = ?", "explain": "ω₀ = 1/√(LC) = 1000 rad/s, f₀ ≈ 159.15 Hz. Here H = 1 (its maximum)." },
         { "ask": "|H(jω)| at ω = 1250 rad/s = ?", "explain": "X = ωL − 1/(ωC) = 125 − 80 = 45 Ω = R, H = 45/(45 + j45), |H| = 1/√2 ≈ 0.7071." },
-        { "ask": "Phase of H(jω) at ω = 1250 rad/s = ?", "explain": "Above ω₀ the circuit is inductive and the current (i.e. U_o) lags U_s: −arctan(45/45) = −45°." },
+        { "ask": "Phase of H(jω) at ω = 1250 rad/s = ?", "explain": "Above ω₀ the circuit is inductive and the current (i.e. V_o) lags V_s: −arctan(45/45) = −45°." },
         {
           "ask": "Bandwidth (−3 dB) of this band-pass circuit, BW = ? (in Hz)",
           "explain": "The two frequencies with |H| = 1/√2 satisfy |ωL − 1/(ωC)| = R and ω₁ω₂ = ω₀². With ω₂ = 1250 rad/s, ω₁ = 10⁶/1250 = 800 rad/s. BW = ω₂ − ω₁ = 450 rad/s = R/L, i.e. 450/(2π) ≈ 71.62 Hz."

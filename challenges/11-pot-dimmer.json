@@ -2,56 +2,302 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-pot-dimmer",
-  "title": "挑战 3 · 电位器调光",
+  "title": "电位器调光",
   "kind": "challenge",
   "level": 3,
-  "summary": "用电位器当可变电阻，旋转旋钮改变 LED 亮度。",
-  "concepts": ["potentiometer 电位器", "wiper 滑动端", "rheostat 可变电阻"],
-  "description": "电位器（potentiometer）有 3 只脚：1、3 两端之间是固定的总电阻（10kΩ），中间 2 脚是滑动端（wiper）。旋钮转到 1 脚那头时，1–2 之间电阻≈0；转到 3 脚那头时，1–2 之间≈10kΩ。\n\n把电位器当可变电阻（rheostat）用：+5V 接 1 脚，2 脚和 3 脚连在一起，再串 220Ω 保护电阻和红色 LED 到 GND。\n• 旋到 0%（靠 1 脚）：只剩 220Ω，LED 很亮（≈14mA）。\n• 旋到 100%（靠 3 脚）：多了 10kΩ，电流 < 0.5mA，LED 灭。\n\n为什么要 220Ω 保护电阻？因为旋钮转到 0 时电位器的电阻是 0，没有它 LED 会直接接在 5V 上烧掉。\n\n本题请按上面的接法：电源接 1 脚（tests 中 wiper = 0 表示旋到 1 脚那头）。",
+  "summary": "把电位器当可变电阻，转动旋钮改变 LED 亮度。",
+  "concepts": [
+    "potentiometer 电位器",
+    "rheostat 可变电阻",
+    "wiper 滑动端",
+    "protective resistor 保护电阻"
+  ],
+  "description": "电位器有 3 只脚：1、3 之间是固定的 10 kΩ，中间 2 脚是滑动端。把 2 脚和 3 脚连在一起，它就变成一个 0–10 kΩ 的可变电阻。电路：+5 V → 电位器 1 脚；2、3 脚相连 → 220 Ω 保护电阻 → 红色 LED → GND。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "转一转，灯会变",
+      "text": [
+        "这一题没有步骤，**照目标电路图自己搭**。搭好后单击电位器，在「属性」里拖动**旋钮**，看 LED 怎么变。"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "电位器是一根能滑动的电阻条",
+      "text": [
+        "- 1、3 两脚之间是一整条 10 kΩ 的电阻，2 脚是在上面**滑动的触点**。旋钮在 1 脚那头时，1–2 之间≈0；在 3 脚那头时≈10 kΩ。",
+        "- 把 2、3 脚连起来，电位器就成了一个 **0–10 kΩ 的可变电阻**，串在 LED 的路上。电阻越大，电流越小，灯越暗。",
+        "![](fig:rheostat)",
+        "- **为什么还要 220 Ω？** 旋钮转到 0 时电位器一点电阻都没有，没有它，LED 就直接接在 5 V 上了（第 1.3 课你见过后果）。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "搭好，再用 LED 的电流验证",
+      "text": [
+        "- 电位器三只脚占三个相邻的列，中间那列是滑动端。用一根短跳线把 2 脚那列和 3 脚那列连起来。",
+        "- **+5 V 接 1 脚**（最左边那列）：旋钮在 0% 时电阻最小，灯最亮。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 同一个电位器两种接法：**三只脚都用**，它是分压器（中间脚输出一个可调电压）；**只用两只脚**，它是可变电阻。",
+        "- 用可变电阻调光很浪费：多出来的电压全变成了电位器里的热。以后学了 PWM（第 5 世界），会用开关得飞快的方法调光，几乎不发热。"
+      ]
+    }
+  ],
+  "figures": {
+    "rheostat": {
+      "kind": "schematic",
+      "caption": {
+        "text": "2、3 脚接在一起，电位器就是一个 0–10 kΩ 的可变电阻：阻值越大，电流 I 越小。220 Ω 保证旋到 0 时也有限流。",
+        "i18n": {
+          "en": "With pins 2 and 3 joined the pot is a 0–10 kΩ variable resistor: more resistance, less current I. The 220 Ω still limits the current at 0."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 5], "value": 5},
+          {"ref": "RV1", "type": "RV", "from": [0, 0], "to": [3, 0], "value": "10k", "label": "RV1 0–10 kΩ"},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [6, 0], "value": 220},
+          {"ref": "LED1", "type": "LED", "from": [6, 0], "to": [6, 5], "value": "red"}
+        ],
+        "wires": [
+          [[6, 5], [0, 5]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Challenge 3 · Potentiometer dimmer",
+      "title": "Potentiometer dimmer",
       "summary": "Use a potentiometer as a variable resistor and turn the knob to change the LED brightness.",
-      "concepts": ["potentiometer", "wiper", "rheostat"],
-      "description": "A potentiometer has 3 pins: between the two ends, pins 1 and 3, is the fixed total resistance (10kΩ), and the middle pin 2 is the sliding contact (wiper). With the knob turned all the way to the pin 1 end, the resistance between pins 1 and 2 is ≈0; turned to the pin 3 end, it is ≈10kΩ between pins 1 and 2.\n\nUse the potentiometer as a variable resistor (rheostat): +5V to pin 1, pins 2 and 3 tied together, then a 220Ω protection resistor and a red LED in series to GND.\n• Turned to 0% (toward pin 1): only the 220Ω is left, and the LED is very bright (≈14mA).\n• Turned to 100% (toward pin 3): an extra 10kΩ, the current drops below 0.5mA, and the LED goes out.\n\nWhy the 220Ω protection resistor? With the knob at 0 the potentiometer's resistance is 0; without it the LED would sit directly across 5V and burn out.\n\nPlease wire it as described above: the supply goes to pin 1 (in the tests, wiper = 0 means turned to the pin 1 end).",
-      "hints": [
-        "The potentiometer's three pins take up three neighbouring columns; the middle column is the wiper, pin 2.",
-        "Use a short jumper to connect the column of pin 2 to the column of pin 3.",
-        "+5V goes to pin 1 (the leftmost column)."
+      "concepts": [
+        "potentiometer",
+        "rheostat",
+        "wiper",
+        "protective resistor"
       ],
-      "tests": ["Turned to 0%: LED on", "Turned to 100%: LED off"]
+      "description": "A potentiometer has 3 pins: a fixed 10 kΩ between 1 and 3, and the wiper on pin 2. Join pins 2 and 3 and it becomes a 0–10 kΩ variable resistor. Circuit: +5 V → pot pin 1; pins 2 and 3 joined → 220 Ω protective resistor → red LED → GND.",
+      "hints": [
+        "The pot's three pins take three neighbouring columns; the middle one is the wiper, pin 2.",
+        "Join pin 2's column and pin 3's column with a short jumper.",
+        "+5 V goes to pin 1 (the leftmost column)."
+      ],
+      "tests": [
+        "At 0%: LED on",
+        "At 100%: LED off"
+      ],
+      "cards": [
+        {
+          "title": "Turn it and the light changes",
+          "text": [
+            "No steps here — **build it from the target schematic**. Then click the potentiometer and drag its **knob** in Properties; watch the LED."
+          ]
+        },
+        {
+          "title": "A pot is a resistor strip with a slider",
+          "text": [
+            "- Between pins 1 and 3 is one strip of 10 kΩ; pin 2 is a **contact that slides along it**. With the knob at pin 1's end, 1–2 is ≈ 0; at pin 3's end, ≈ 10 kΩ.",
+            "- Join pins 2 and 3 and the pot becomes a **0–10 kΩ variable resistor** in the LED's path. More resistance, less current, dimmer light.",
+            "![](fig:rheostat)",
+            "- **Why the 220 Ω as well?** At 0 the pot has no resistance at all; without it the LED would sit straight across 5 V (you saw the result in 1.3)."
+          ]
+        },
+        {
+          "title": "Build it, then check with the LED current",
+          "text": [
+            "- The pot takes three neighbouring columns; the middle one is the wiper. Join the wiper column and the pin-3 column with a short jumper.",
+            "- **+5 V goes to pin 1** (the leftmost column): at 0% the resistance is lowest and the LED brightest."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- One pot, two uses: **all three pins**, it is a divider (the middle pin outputs an adjustable voltage); **two pins**, it is a variable resistor.",
+            "- Dimming with a variable resistor wastes power: the extra voltage turns into heat in the pot. With PWM (World 5) you will dim by switching very fast instead, with almost no heat."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "Knob at 0%: click the LED — the current in Properties",
+          "explain": "The pot is close to 0 Ω, leaving only 220 Ω: (5 − 1.8) / (220 + 12) ≈ 13.8 mA."
+        },
+        {
+          "ask": "Knob at 100%: the LED current",
+          "explain": "With 10 kΩ more: (5 − 1.8) / (10 220 + 12) ≈ 0.31 mA — too dim to see."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 5 },
-    { "ref": "RV1", "type": "potentiometer", "resistance": "10k" },
-    { "ref": "R1", "type": "resistor", "resistance": "220" },
-    { "ref": "LED1", "type": "led", "color": "red" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 5
+    },
+    {
+      "ref": "RV1",
+      "type": "potentiometer",
+      "resistance": "10k"
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    }
   ],
   "connections": [
-    ["V1.+", "RV1.1"],
-    ["RV1.2", "RV1.3", "R1.1"],
-    ["R1.2", "LED1.anode"],
-    ["LED1.cathode", "V1.-"]
+    [
+      "V1.+",
+      "RV1.1"
+    ],
+    [
+      "RV1.2",
+      "RV1.3",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "LED1.cathode",
+      "V1.-"
+    ]
   ],
   "tests": [
-    { "name": "旋到 0%：LED 亮", "set": { "RV1": { "wiper": 0 } }, "expect": { "LED1": "on" } },
-    { "name": "旋到 100%：LED 灭", "set": { "RV1": { "wiper": 1 } }, "expect": { "LED1": "off" } }
+    {
+      "name": "旋到 0%：LED 亮",
+      "set": {
+        "RV1": {
+          "wiper": 0
+        }
+      },
+      "expect": {
+        "LED1": "on"
+      }
+    },
+    {
+      "name": "旋到 100%：LED 灭",
+      "set": {
+        "RV1": {
+          "wiper": 1
+        }
+      },
+      "expect": {
+        "LED1": "off"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "id": "i0",
+      "current": "LED1",
+      "unit": "mA",
+      "predict": true,
+      "set": {
+        "RV1": {
+          "wiper": 0
+        }
+      },
+      "range": [
+        0.0125,
+        0.015
+      ],
+      "ask": "旋钮在 0%：单击 LED，「属性」里的电流",
+      "explain": "电位器接近 0 Ω，只剩 220 Ω：(5 − 1.8) / (220 + 12) ≈ 13.8 mA。"
+    },
+    {
+      "id": "i100",
+      "current": "LED1",
+      "unit": "mA",
+      "predict": true,
+      "set": {
+        "RV1": {
+          "wiper": 1
+        }
+      },
+      "range": [
+        0.00025,
+        0.00036
+      ],
+      "ask": "旋钮在 100%：LED 的电流",
+      "explain": "多了 10 kΩ：(5 − 1.8) / (10 220 + 12) ≈ 0.31 mA，暗到看不见。"
+    }
   ],
   "hints": [
     "电位器三只脚占三个相邻的列；中间那列是滑动端 2 脚。",
     "用一根短跳线把 2 脚所在的列和 3 脚所在的列连起来。",
-    "+5V 接 1 脚（最左边那列）。"
+    "+5 V 接 1 脚（最左边那列）。"
   ],
   "solution": {
     "parts": [
-      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
-      { "type": "wire", "pins": { "a": "tp4", "b": "a4" }, "color": "red" },
-      { "type": "potentiometer", "ref": "RV1", "resistance": "10k", "at": "c4" },
-      { "type": "wire", "pins": { "a": "a5", "b": "a6" }, "color": "yellow" },
-      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "d6", "2": "d10" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "e10", "cathode": "e13" } },
-      { "type": "wire", "pins": { "a": "a13", "b": "tn13" }, "color": "blue" }
+      {
+        "type": "power_module",
+        "ref": "PM1",
+        "voltage": 5,
+        "at": "tp1"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp4",
+          "b": "a4"
+        },
+        "color": "red"
+      },
+      {
+        "type": "potentiometer",
+        "ref": "RV1",
+        "resistance": "10k",
+        "at": "c4"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a5",
+          "b": "a6"
+        },
+        "color": "yellow"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "220",
+        "pins": {
+          "1": "d6",
+          "2": "d10"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "e10",
+          "cathode": "e13"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a13",
+          "b": "tn13"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

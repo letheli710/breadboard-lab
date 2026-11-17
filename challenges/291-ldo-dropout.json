@@ -2,75 +2,193 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-ldo-dropout",
-  "title": "实验 5-12 · LM1117 稳压器与压差：为什么锂电池 + AMS1117 不行",
+  "title": "稳压器的压差：电池越来越没电时",
   "kind": "challenge",
   "level": 3,
   "phase": 5,
-  "summary": "稳压电源 → LM1117-3.3（输入、输出各 10 µF）→ ESP32 的 3V3 脚（拔掉 USB）。把输入从 5 V 往下调到锂电池的电压，看稳压区、压差区和欠压复位，再算稳压器的发热。",
+  "summary": "ESP32 拔掉 USB，只靠 LM1117-3.3 稳压器供电。把输入电压往下调，像一节慢慢没电的锂电池：3.3 V 什么时候守不住，芯片什么时候复位？",
   "concepts": ["线性稳压器 linear regulator / LDO", "压差 dropout voltage", "去耦电容 decoupling capacitors", "欠压复位 brown-out", "功耗 P = (Vin − Vout)·I"],
   "prereq": ["lesson-mcu-gpio"],
-  "description": [
-    "**目标**：用 LM1117-3.3 线性稳压器给 ESP32 供电，改变输入电压，看稳压区、压差（dropout）区和欠压复位，并算出稳压器的发热。",
-    "",
-    "**电路**：",
-    "- 稳压电源 PS1（5 V）的 + 接 U2（LM1117-3.3，正面朝你 GND OUT IN）的 **IN**，− 接 GND。",
-    "- C1（10 µF）从 IN 到 GND，C2（10 µF）从 OUT 到 GND，都尽量靠近稳压器。",
-    "- U2 的 OUT 接 ESP32 的 **3V3** 脚，ESP32 的 GND 接 GND。ESP32 **拔掉 USB**（属性里 usb 关掉），完全由这个稳压器供电。",
-    "- 负载指示：任意输出 GPIO（参考答案 GPIO4，设为输出高）→ R1（330 Ω）→ 红色 LED → GND。芯片在运行时 LED 亮。",
-    "",
-    "**引脚设置**：参考答案把 GPIO4 设为输出高；测试也会设一次。ESP32 的 **usb: false** 是题目要求。",
-    "",
-    "**线性稳压器的原理**：它就是一个自动调节的“可变电阻”，串在输入和输出之间，把多余的电压吃掉。所以：",
-    "- 输出永远比输入低——至少低一个**压差**。LM1117 的输入至少要比输出高约 **1.1 V**。",
-    "- 输入电流 ≈ 输出电流（+ 静态电流），效率 ≈ Vout/Vin。",
-    "- 发热 **P = (Vin − Vout) × I**。",
-    "",
-    "**先预测**：负载约 56 mA（ESP32 芯片约 50 mA + LED 4 mA），稳压器的压差模型是“输出 = 输入 − 1.1 V − 0.2 Ω × I”，ESP32 的欠压阈值（仿真）是 2.5 V。电源为 5 V、4.0 V、3.7 V、3.4 V、9 V 时，OUT 各是多少？哪一档 ESP32 会复位、LED 会灭？5 V 和 9 V 时稳压器各发热多少瓦，效率各是多少？",
-    "",
-    "**测量**：测试会把电源电压依次设成 5 V、4.0 V、3.7 V、3.4 V、9 V，看输出电压和 LED。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**实际项目经验**：",
-    "- **锂电池（3.0–4.2 V）+ AMS1117-3.3 是经典错误**：满电 4.2 V 时勉强够，电池电压一降到 4.0 V 以下，3.3 V 就开始往下掉，ESP32 一开 Wi-Fi 就复位。要选真正的低压差 LDO：**ME6211、HT7333、XC6220、RT9080**（压差 0.1–0.25 V），或者 Buck-Boost 开关电源。",
-    "- ESP32-DevKitC 板上就是 AMS1117，所以用锂电池时不要接到 5V 脚，而是用低压差 LDO 接到 3V3 脚。",
-    "- LDO 的**输出电容**不能省：LM1117 / AMS1117 要 ≥ 10 µF（钽电容或数据手册允许的 ESR），否则可能自激振荡；输入电容让它在电源线很长时也稳定。ESP32 旁边再加 100 µF 吸收 Wi-Fi 的电流尖峰。",
-    "- 电流大、压差大时用开关电源（Buck）：12 V → 3.3 V、500 mA 用 LDO 要发热 4.4 W，根本不现实。",
-    "- 3V3 脚外部供电时**不要同时插 USB**（两个电源打架），也不要超过 3.6 V。",
-    "",
-    "**模型说明**：LDO 模型：稳压 / 压差（输出 = 输入 − 1.1 V − 0.2 Ω × I）/ 限流 800 mA / 关断，静态电流 5 mA。ESP32 的负载按约 50 mA 建模，没有 Wi-Fi 的电流尖峰；欠压阈值取 2.5 V（真实芯片的欠压检测约 2.4–2.8 V，而且官方要求 3.0–3.6 V 才保证正常工作）。电容在直流下不起作用，这里只是检查有没有接。"
+  "description": "稳压电源 → LM1117-3.3（输入、输出各 10 µF）→ ESP32 的 3V3 脚，ESP32 不插 USB；一个输出高的 GPIO 串 330 Ω 点亮红色 LED，表示芯片在运行。线性稳压器只能降压，输入至少要比输出高一个压差（这里约 1.1 V）；多出来的电压全部变成热。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "把电池慢慢“用完”",
+      "text": [
+        "这次 ESP32 **不插 USB**：单击它，在右侧「属性」里取消勾选**「USB 供电」**。它只能靠你给的电。",
+        "**稳压电源**（`5 V`）的 + 接 **LM1117-3.3** 的 IN（正面朝你，三只脚是 GND、OUT、IN），稳压器的 OUT 接 ESP32 的 **3V3** 脚，GND 都连在一起。",
+        "任意一个 GPIO 设成**「输出 高」**，串 **`330 Ω`** 接一颗**红色 LED** 到 GND。LED 亮着，就说明芯片在运行。",
+        "现在把稳压电源从 `5 V` **一点一点往下调**，像一节越用越没电的锂电池。LED 在哪里熄灭？输入明明还有 3 V 多，为什么不够？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "稳压器是一个自动拧的水龙头",
+      "text": [
+        "- 线性稳压器像串在输入和输出之间的一个**自动拧的水龙头**。输入多出来的电压它都吃掉，输出就稳在 3.3 V。",
+        "- 可是水龙头全开时，自己也要吃掉一段电压，叫**压差**。输入再往下降，输出只能跟着降。本仿真里 LM1117 的压差是 1.1 V 再加 0.2 Ω：",
+        "$$V_{OUT} = V_{IN} - 1.1 - 0.2 × I$$",
+        "- 代入数字：输入 3.6 V、电流 0.05 A 时，$V_{OUT} = 3.6 - 1.1 - 0.2 × 0.05 = 2.49$ V。已经掉到 ESP32 的欠压线以下，芯片复位，所有引脚松开，LED 灭。",
+        "![](fig:dropout)",
+        "- 反过来，输入很高时输出照样是 3.3 V，但多出来的电压 × 电流，全部变成稳压器上的**热**。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "加上电容，再测一遍",
+      "text": [
+        "- 两个 **`10 µF`**：一个从 IN 到 GND，一个从 OUT 到 GND，都插在稳压器旁边。真实的 LM1117 没有输出电容可能自己振荡。",
+        "- 电源调回 **`5 V`**，点**「检查我的电路」**。检查会把电源依次调到 5 V、4.0 V、3.7 V、3.4 V 和 9 V，看输出和 LED。",
+        "- 通过后，按测量题把电源调到对应的电压，用万用表和电流表读数。先预测：4.0 V 在水龙头全开的那一段吗？",
+        "- 9 V 那几道题算的是稳压器的发热：它两端的电压乘以流过它的电流。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **线性稳压器只能降压**，输入至少要比输出高一个压差（LM1117 约 1.1 V，老式的 7805、LM317 要 2 V 左右）。低于这一点，输出跟着输入往下掉。",
+        "- 多出来的电压全变成热：$P = (V_{IN} - V_{OUT}) × I$。12 V 降到 3.3 V 时，大部分电能都烧在稳压器上，这时该用开关电源。",
+        "- 真实项目里的坑：**一节锂电池（3.0–4.2 V）+ AMS1117-3.3** 是经典错误。电池一降到 4 V 左右，3.3 V 就守不住，ESP32 一开 Wi-Fi 就重启。要选压差只有 0.1–0.25 V 的**低压差稳压器**（如 ME6211、HT7333）。",
+        "- 外部电源接 3V3 脚时，**不要同时插 USB**：两个电源会互相打架。"
+      ],
+      "practice": ["nonlinear"]
+    }
   ],
+  "figures": {
+    "dropout": {
+      "kind": "plot",
+      "caption": {
+        "text": "输入高于约 4.4 V：输出稳在 3.3 V。再往下，输出只比输入低一个压差，跟着一起掉；掉到欠压线，芯片复位。",
+        "i18n": {
+          "en": "Above about 4.4 V in: the output holds at 3.3 V. Below that, the output sits one dropout under the input and falls with it; at the brown-out line the chip resets."
+        }
+      },
+      "x": {
+        "label": {
+          "text": "输入电压 V_IN (V)",
+          "i18n": {
+            "en": "input voltage V_IN (V)"
+          }
+        },
+        "min": 2.5,
+        "max": 6,
+        "ticks": [3, 4, 5, 6]
+      },
+      "y": {
+        "label": {
+          "text": "输出电压 V_OUT (V)",
+          "i18n": {
+            "en": "output voltage V_OUT (V)"
+          }
+        },
+        "min": 0,
+        "max": 4,
+        "ticks": [0, 1, 2, 3.3]
+      },
+      "curves": [
+        {
+          "points": [
+            [2.5, 1.39],
+            [4.41, 3.3],
+            [6, 3.3]
+          ],
+          "tone": 1,
+          "label": {
+            "text": "V_OUT",
+            "i18n": {
+              "en": "V_OUT"
+            }
+          },
+          "labelAt": [5.4, 3.6]
+        },
+        {
+          "points": [
+            [2.8, 2.8],
+            [4, 4]
+          ],
+          "tone": 3,
+          "dashed": true,
+          "label": {
+            "text": "V_IN",
+            "i18n": {
+              "en": "V_IN"
+            }
+          },
+          "labelAt": [3.85, 3.35]
+        }
+      ],
+      "hlines": [
+        {
+          "y": 2.5,
+          "dashed": true,
+          "label": {
+            "text": "欠压线",
+            "i18n": {
+              "en": "brown-out"
+            }
+          }
+        }
+      ],
+      "vlines": [
+        {
+          "x": 4.41,
+          "dashed": true,
+          "label": {
+            "text": "压差",
+            "i18n": {
+              "en": "dropout"
+            }
+          }
+        }
+      ]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-12 · LM1117 regulator and dropout: why a Li-ion cell + AMS1117 fails",
-      "summary": "Bench supply → LM1117-3.3 (10 µF in and out) → the ESP32's 3V3 pin (USB unplugged). Turn the input down from 5 V to Li-ion voltages to see regulation, dropout and brown-out reset, and work out the regulator's heat.",
+      "title": "Regulator dropout: when the battery runs down",
+      "summary": "The ESP32 runs without USB, only from an LM1117-3.3 regulator. Turn the input down like a lithium cell running flat: when does the 3.3 V give way, and when does the chip reset?",
       "concepts": ["linear regulator / LDO", "dropout voltage", "decoupling capacitors", "brown-out", "power P = (Vin − Vout)·I"],
-      "description": [
-        "**Goal**: power an ESP32 from an LM1117-3.3 linear regulator, vary the input voltage, and see regulation, dropout and brown-out reset; work out the regulator's heat.",
-        "",
-        "**Circuit**:",
-        "- Bench supply PS1 (5 V): + to the **IN** pin of U2 (LM1117-3.3, printed face towards you: GND OUT IN), − to GND.",
-        "- C1 (10 µF) from IN to GND and C2 (10 µF) from OUT to GND, both close to the regulator.",
-        "- U2's OUT to the ESP32's **3V3** pin, the ESP32's GND to GND. **Unplug the ESP32's USB** (turn usb off in Properties) so it runs only from this regulator.",
-        "- Load indicator: any output GPIO (the reference uses GPIO4, output HIGH) → R1 (330 Ω) → red LED → GND. The LED is lit while the chip runs.",
-        "",
-        "**Pin table settings**: the reference sets GPIO4 to output HIGH (the tests set it too). The ESP32's **usb: false** is part of the task.",
-        "",
-        "**How a linear regulator works**: it is a self-adjusting \"variable resistor\" in series between input and output that eats the extra voltage. So:",
-        "- The output is always lower than the input — by at least the **dropout**. The LM1117 needs its input at least about **1.1 V** above its output.",
-        "- Input current ≈ output current (+ quiescent current), efficiency ≈ Vout/Vin.",
-        "- Heat **P = (Vin − Vout) × I**.",
-        "",
-        "**Predict first**: the load is about 56 mA (about 50 mA for the ESP32 chip + 4 mA LED), the dropout model is \"out = in − 1.1 V − 0.2 Ω × I\", and the simulated ESP32 browns out at 2.5 V. What is OUT with the supply at 5 V, 4.0 V, 3.7 V, 3.4 V and 9 V? At which setting does the ESP32 reset and the LED go off? How many watts does the regulator dissipate at 5 V and at 9 V, and what is the efficiency?",
-        "",
-        "**Measure**: the tests set the supply to 5 V, 4.0 V, 3.7 V, 3.4 V and 9 V in turn and check the output voltage and the LED. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- **Li-ion (3.0–4.2 V) + AMS1117-3.3 is the classic mistake**: it scrapes by at a full 4.2 V, but below about 4.0 V the 3.3 V rail sags and the ESP32 resets as soon as Wi-Fi transmits. Use a real low-dropout part — **ME6211, HT7333, XC6220, RT9080** (0.1–0.25 V dropout) — or a buck-boost converter.",
-        "- The ESP32-DevKitC itself carries an AMS1117, so on a Li-ion cell don't feed the 5V pin: use a low-dropout LDO into the 3V3 pin.",
-        "- Don't skip the LDO's **output capacitor**: the LM1117 / AMS1117 needs ≥ 10 µF (tantalum, or the ESR the datasheet allows) or it may oscillate; the input capacitor keeps it stable with long supply leads. Add 100 µF near the ESP32 for the Wi-Fi current bursts.",
-        "- For high current and a big voltage difference use a switching (buck) regulator: 12 V → 3.3 V at 500 mA would burn 4.4 W in an LDO — not realistic.",
-        "- When feeding the 3V3 pin from outside, **don't plug USB in at the same time** (two supplies fighting), and never exceed 3.6 V.",
-        "",
-        "**Model note**: the LDO model has regulate / dropout (out = in − 1.1 V − 0.2 Ω × I) / current limit 800 mA / off, with 5 mA quiescent current. The ESP32 load is about 50 mA without Wi-Fi bursts; brown-out is at 2.5 V (a real chip's brown-out detector sits around 2.4–2.8 V, and Espressif only guarantees operation at 3.0–3.6 V). Capacitors do nothing at DC; here they are only checked for being present."
+      "description": "Bench supply → LM1117-3.3 (10 µF on the input and the output) → the ESP32's 3V3 pin, with the ESP32's USB unplugged; a GPIO set HIGH drives a red LED through 330 Ω to show the chip is running. A linear regulator can only step down, and its input must sit at least one dropout above the output (about 1.1 V here); all the extra voltage turns into heat.",
+      "cards": [
+        {
+          "title": "Run a battery down, slowly",
+          "text": [
+            "This time the ESP32 has **no USB**: click it and untick **USB power** in Properties on the right. It only gets what you give it.",
+            "The **bench supply** (`5 V`) + goes to the IN pin of an **LM1117-3.3** (printed face towards you, the pins are GND, OUT, IN); the regulator's OUT goes to the ESP32's **3V3** pin, and all the GNDs join.",
+            "Set any GPIO to **output HIGH** and drive a **red LED** through **`330 Ω`** to GND. While the LED is lit, the chip is running.",
+            "Now turn the bench supply down from `5 V`, **a little at a time**, like a lithium cell running flat. Where does the LED go out? The input still has more than 3 V — why is that not enough?"
+          ]
+        },
+        {
+          "title": "A regulator is a tap that turns itself",
+          "text": [
+            "- A linear regulator is like a **tap that turns itself**, sitting between input and output. It eats whatever extra voltage the input has, so the output stays at 3.3 V.",
+            "- But even wide open, the tap eats a slice of voltage of its own: the **dropout**. Once the input falls further, the output has to fall with it. In this simulator the LM1117's dropout is 1.1 V plus 0.2 Ω:",
+            "$$V_{OUT} = V_{IN} - 1.1 - 0.2 × I$$",
+            "- With numbers: input 3.6 V and 0.05 A, $V_{OUT} = 3.6 - 1.1 - 0.2 × 0.05 = 2.49$ V. That is below the ESP32's brown-out line: the chip resets, every pin lets go, and the LED goes dark.",
+            "![](fig:dropout)",
+            "- The other way round, with a high input the output is still 3.3 V, but the extra voltage times the current all turns into **heat** in the regulator."
+          ]
+        },
+        {
+          "title": "Add the capacitors, measure again",
+          "text": [
+            "- Two **`10 µF`** capacitors: one from IN to GND and one from OUT to GND, both right next to the regulator. A real LM1117 without its output capacitor can oscillate.",
+            "- Set the supply back to **`5 V`** and press **Check my circuit**. The check sets the supply to 5 V, 4.0 V, 3.7 V, 3.4 V and 9 V in turn and looks at the output and the LED.",
+            "- Once it passes, set the supply as each question says and read the multimeter and ammeter. Predict first: is 4.0 V on the wide-open stretch of the tap?",
+            "- The 9 V questions work out the regulator's heat: the voltage across it times the current through it."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A linear regulator only steps down**, and its input must stay at least one dropout above the output (about 1.1 V for the LM1117; the classic 7805 or LM317 needs about 2 V). Below that, the output follows the input down.",
+            "- All the extra voltage becomes heat: $P = (V_{IN} - V_{OUT}) × I$. From 12 V down to 3.3 V most of the energy is burned in the regulator; that is a job for a switching supply.",
+            "- A real-world catch: **one lithium cell (3.0–4.2 V) + AMS1117-3.3** is the classic mistake. Once the cell drops to about 4 V the 3.3 V gives way, and the ESP32 reboots as soon as Wi-Fi transmits. Choose a **low-dropout regulator** with only 0.1–0.25 V (ME6211, HT7333).",
+            "- When an outside supply feeds the 3V3 pin, **don't plug in USB as well**: the two supplies fight."
+          ]
+        }
       ],
       "compare": [
         "**Compare** (simulated):",
@@ -82,15 +200,36 @@
         "- With Wi-Fi on, an ESP32 peaks at 300–500 mA: from 5 V that is 0.5–0.85 W, already very hot for a small SOT-223."
       ],
       "measurements": [
-        {"ask": "Supply at 4.0 V: the regulator's OUT to GND", "explain": "Dropout: OUT ≈ 4.0 − 1.1 − 0.2 Ω × I ≈ 2.89 V, no longer 3.3 V."},
-        {"ask": "Supply at 9 V: the drop across the regulator U_IN − U_OUT (red lead on IN, black on OUT)"},
-        {"ask": "Supply at 9 V: the regulator's output current (put the ammeter in series in the OUT → ESP32 3V3 wire)"},
-        {"ask": "Heat in the regulator at 9 V, P = (U_IN − U_OUT) × I (from your readings)", "explain": "A linear regulator turns all the extra voltage into heat: (9 − 3.3) V × 56 mA ≈ 0.32 W, an efficiency of only 3.3/9 ≈ 37%."}
+        {
+          "ask": "Supply at 4.0 V: the regulator's OUT to GND",
+          "explain": "Dropout: OUT ≈ 4.0 − 1.1 − 0.2 Ω × I ≈ 2.89 V, no longer 3.3 V."
+        },
+        {
+          "ask": "Supply at 9 V: the drop across the regulator V_IN − V_OUT (red lead on IN, black on OUT)",
+          "explain": "9 − 3.3 ≈ 5.7 V: the regulator eats more than half of the input voltage."
+        },
+        {
+          "ask": "Supply at 9 V: the regulator's output current (put the ammeter in the wire from OUT to the ESP32's 3V3)",
+          "explain": "About 50 mA for the ESP32 chip plus about 4 mA for the LED. The input current is almost the same: the current passes, the voltage is eaten."
+        },
+        {
+          "ask": "Heat in the regulator at 9 V: P = (V_IN − V_OUT) × I (from your readings)",
+          "explain": "A linear regulator turns all the extra voltage into heat: (9 − 3.3) V × 56 mA ≈ 0.32 W, an efficiency of only 3.3/9 ≈ 37%."
+        },
+        {
+          "ask": "Supply at 3.4 V. The LED:",
+          "choices": [
+            "goes out: the output is below the brown-out line, the ESP32 resets and every pin lets go",
+            "stays lit, just a little dimmer",
+            "burns out: a lower voltage means a bigger current"
+          ],
+          "explain": "3.4 − 1.1 − 0.2 × 0.05 ≈ 2.3 V, below the ESP32's brown-out line (2.5 V in the simulator). After the reset the pins are high-impedance and the LED gets no current."
+        }
       ],
       "hints": [
-        "LM1117 legs with the printed face towards you: GND, OUT, IN. The supply goes to IN (right leg).",
-        "10 µF from IN to GND and 10 µF from OUT to GND; OUT to the ESP32's 3V3 pin.",
-        "Select the ESP32 and switch usb off — otherwise USB powers it and the experiment shows nothing."
+        "With the LM1117's printed face towards you, the pins are GND, OUT, IN. The supply goes to IN (the right-hand pin).",
+        "10 µF from IN to GND and 10 µF from OUT to GND; OUT goes to the ESP32's 3V3 pin.",
+        "Click the ESP32 and untick USB power in Properties — otherwise it runs from USB and the regulator shows nothing."
       ],
       "tests": [
         "5 V in: regulating, LED on",
@@ -102,57 +241,212 @@
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 5 },
-    { "ref": "U2", "type": "ldo", "voltage": 3.3 },
-    { "ref": "C1", "type": "capacitor", "capacitance": "10u" },
-    { "ref": "C2", "type": "capacitor", "capacitance": "10u" },
-    { "ref": "U1", "type": "esp32_devkit", "usb": false },
-    { "ref": "R1", "type": "resistor", "resistance": "330" },
-    { "ref": "LED1", "type": "led", "color": "red" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 5
+    },
+    {
+      "ref": "U2",
+      "type": "ldo",
+      "voltage": 3.3
+    },
+    {
+      "ref": "C1",
+      "type": "capacitor",
+      "capacitance": "10u"
+    },
+    {
+      "ref": "C2",
+      "type": "capacitor",
+      "capacitance": "10u"
+    },
+    {
+      "ref": "U1",
+      "type": "esp32_devkit",
+      "usb": false
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "330"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    }
   ],
   "nets": [
-    { "name": "VIN", "pins": ["V1.+", "U2.in", "C1.1"] },
-    { "name": "3V3", "pins": ["U2.out", "C2.1", "U1.3V3"] },
-    { "name": "IO", "pins": ["U1.GPIO_OUT1", "R1.1"] },
-    { "name": "LA", "pins": ["R1.2", "LED1.anode"] },
-    { "name": "GND", "pins": ["V1.-", "U2.gnd", "C1.2", "C2.2", "U1.GND", "LED1.cathode"] }
+    {
+      "name": "VIN",
+      "pins": ["V1.+", "U2.in", "C1.1"]
+    },
+    {
+      "name": "3V3",
+      "pins": ["U2.out", "C2.1", "U1.3V3"]
+    },
+    {
+      "name": "IO",
+      "pins": ["U1.GPIO_OUT1", "R1.1"]
+    },
+    {
+      "name": "LA",
+      "pins": ["R1.2", "LED1.anode"]
+    },
+    {
+      "name": "GND",
+      "pins": ["V1.-", "U2.gnd", "C1.2", "C2.2", "U1.GND", "LED1.cathode"]
+    }
   ],
   "tests": [
     {
       "name": "输入 5 V：稳压，LED 亮",
-      "set": { "V1": { "voltage": 5 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
-      "expect": { "LED1": "on" },
-      "voltages": [{ "pin": "U2.out", "ref": "U2.gnd", "min": 3.25, "max": 3.35 }],
-      "currents": [{ "el": "U2", "min": 0.053, "max": 0.059 }]
+      "set": {
+        "V1": {
+          "voltage": 5
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "expect": {
+        "LED1": "on"
+      },
+      "voltages": [
+        {
+          "pin": "U2.out",
+          "ref": "U2.gnd",
+          "min": 3.25,
+          "max": 3.35
+        }
+      ],
+      "currents": [
+        {
+          "el": "U2",
+          "min": 0.053,
+          "max": 0.059
+        }
+      ]
     },
     {
       "name": "输入 4.0 V：压差区，ESP32 还在运行",
-      "set": { "V1": { "voltage": 4.0 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
-      "expect": { "LED1": "on" },
-      "voltages": [{ "pin": "U2.out", "ref": "U2.gnd", "min": 2.8, "max": 2.98 }]
+      "set": {
+        "V1": {
+          "voltage": 4.0
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "expect": {
+        "LED1": "on"
+      },
+      "voltages": [
+        {
+          "pin": "U2.out",
+          "ref": "U2.gnd",
+          "min": 2.8,
+          "max": 2.98
+        }
+      ]
     },
     {
       "name": "输入 3.7 V（锂电池）：GPIO 的高电平也跟着降低",
-      "set": { "V1": { "voltage": 3.7 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
-      "expect": { "LED1": "on" },
-      "voltages": [{ "pin": "U2.out", "ref": "U2.gnd", "min": 2.5, "max": 2.68 }],
-      "gpio": [{ "pin": "U1.GPIO_OUT1", "measure": "voltage", "min": 2.45, "max": 2.68 }]
+      "set": {
+        "V1": {
+          "voltage": 3.7
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "expect": {
+        "LED1": "on"
+      },
+      "voltages": [
+        {
+          "pin": "U2.out",
+          "ref": "U2.gnd",
+          "min": 2.5,
+          "max": 2.68
+        }
+      ],
+      "gpio": [
+        {
+          "pin": "U1.GPIO_OUT1",
+          "measure": "voltage",
+          "min": 2.45,
+          "max": 2.68
+        }
+      ]
     },
     {
       "name": "输入 3.4 V：ESP32 欠压复位，LED 灭",
-      "set": { "V1": { "voltage": 3.4 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
-      "expect": { "LED1": "off" },
-      "voltages": [{ "pin": "U2.out", "ref": "U2.gnd", "min": 2.2, "max": 2.38 }]
+      "set": {
+        "V1": {
+          "voltage": 3.4
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "expect": {
+        "LED1": "off"
+      },
+      "voltages": [
+        {
+          "pin": "U2.out",
+          "ref": "U2.gnd",
+          "min": 2.2,
+          "max": 2.38
+        }
+      ]
     },
     {
       "name": "输入 9 V：仍然稳压，但稳压器发热",
-      "set": { "V1": { "voltage": 9 }, "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
-      "expect": { "LED1": "on" },
+      "set": {
+        "V1": {
+          "voltage": 9
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "expect": {
+        "LED1": "on"
+      },
       "voltages": [
-        { "pin": "U2.out", "ref": "U2.gnd", "min": 3.25, "max": 3.35 },
-        { "pin": "U2.in", "ref": "U2.out", "min": 5.5, "max": 5.9 }
+        {
+          "pin": "U2.out",
+          "ref": "U2.gnd",
+          "min": 3.25,
+          "max": 3.35
+        },
+        {
+          "pin": "U2.in",
+          "ref": "U2.out",
+          "min": 5.5,
+          "max": 5.9
+        }
       ],
-      "currents": [{ "el": "U2", "min": 0.053, "max": 0.059 }]
+      "currents": [
+        {
+          "el": "U2",
+          "min": 0.053,
+          "max": 0.059
+        }
+      ]
     }
   ],
   "compare": [
@@ -165,29 +459,193 @@
     "- ESP32 开 Wi-Fi 时峰值电流 300–500 mA：从 5 V 降压要发热 0.5–0.85 W，SOT-223 小封装已经很烫。"
   ],
   "measurements": [
-    {"id": "v4", "voltage": "U2.out", "ref": "U2.gnd", "set": {"V1": {"voltage": 4}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [2.8, 2.98], "ask": "电源调到 4.0 V：稳压器 OUT 对 GND 的电压", "explain": "进入压差区：OUT ≈ 4.0 − 1.1 − 0.2 Ω × I ≈ 2.89 V，已经不是 3.3 V。"},
-    {"id": "u9", "voltage": "U2.in", "ref": "U2.out", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "range": [5.5, 5.9], "ask": "电源调到 9 V：稳压器上的压降 U_IN − U_OUT（红表笔 IN，黑表笔 OUT）"},
-    {"id": "i9", "stated": true, "current": "U2", "set": {"V1": {"voltage": 9}, "U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "range": [0.053, 0.059], "ask": "电源调到 9 V：稳压器的输出电流（把电流表串进 OUT 到 ESP32 3V3 的连线里读）"},
-    {"id": "p9", "formula": "u9 * i9", "unit": "W", "predict": true, "range": [0.3, 0.36], "ask": "9 V 时稳压器的发热 P = (U_IN − U_OUT) × I（用你的读数算）", "explain": "线性稳压器把多余的电压全变成热：(9 − 3.3) V × 56 mA ≈ 0.32 W，效率只有 3.3/9 ≈ 37%。"}
+    {
+      "id": "v4",
+      "voltage": "U2.out",
+      "ref": "U2.gnd",
+      "set": {
+        "V1": {
+          "voltage": 4
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "unit": "V",
+      "predict": true,
+      "range": [2.8, 2.98],
+      "ask": "电源调到 4.0 V：稳压器 OUT 对 GND 的电压",
+      "explain": "进入压差区：OUT ≈ 4.0 − 1.1 − 0.2 Ω × I ≈ 2.89 V，已经不是 3.3 V。"
+    },
+    {
+      "id": "u9",
+      "voltage": "U2.in",
+      "ref": "U2.out",
+      "set": {
+        "V1": {
+          "voltage": 9
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "unit": "V",
+      "range": [5.5, 5.9],
+      "ask": "电源调到 9 V：稳压器上的压降 V_IN − V_OUT（红表笔 IN，黑表笔 OUT）",
+      "explain": "9 − 3.3 ≈ 5.7 V：输入里一大半的电压被稳压器吃掉了。"
+    },
+    {
+      "id": "i9",
+      "stated": true,
+      "current": "U2",
+      "set": {
+        "V1": {
+          "voltage": 9
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "unit": "mA",
+      "range": [0.053, 0.059],
+      "ask": "电源调到 9 V：稳压器的输出电流（把电流表串进 OUT 到 ESP32 3V3 的连线里读）",
+      "explain": "ESP32 芯片约 50 mA，加上 LED 约 4 mA。输入电流几乎一样，所以稳压器是“电流照样过，电压被吃掉”。"
+    },
+    {
+      "id": "p9",
+      "formula": "u9 * i9",
+      "unit": "W",
+      "predict": true,
+      "range": [0.3, 0.36],
+      "ask": "9 V 时稳压器的发热 P = (V_IN − V_OUT) × I（用你的读数算）",
+      "explain": "线性稳压器把多余的电压全变成热：(9 − 3.3) V × 56 mA ≈ 0.32 W，效率只有 3.3/9 ≈ 37%。"
+    },
+    {
+      "id": "reset",
+      "set": {
+        "V1": {
+          "voltage": 3.4
+        },
+        "U1": {
+          "modes": {
+            "GPIO_OUT1": "out_high"
+          }
+        }
+      },
+      "ask": "电源调到 3.4 V，LED 会？",
+      "choices": ["灭：输出低于欠压线，ESP32 复位，所有引脚松开", "照样亮，只是暗一点", "烧掉：电压太低，电流变大"],
+      "correct": 0,
+      "explain": "3.4 − 1.1 − 0.2 × 0.05 ≈ 2.3 V，低于 ESP32 的欠压线（仿真取 2.5 V）。芯片复位后引脚变成高阻，LED 没有电流。"
+    }
   ],
   "hints": [
-    "LM1117 正面朝你，三只脚是 GND、OUT、IN。电源接 IN（右脚）。",
+    "LM1117 正面朝你，三只脚依次是 GND、OUT、IN。电源接 IN（右边那只脚）。",
     "IN 到 GND 一个 10 µF，OUT 到 GND 一个 10 µF；OUT 接 ESP32 的 3V3 脚。",
-    "选中 ESP32，把 usb 关掉——否则它从 USB 取电，实验就看不出效果。"
+    "单击 ESP32，在「属性」里取消勾选「USB 供电」——否则它从 USB 取电，就看不出稳压器的作用。"
   ],
   "solution": {
     "parts": [
-      { "type": "bench_supply", "ref": "PS1", "voltage": 5, "currentLimit": 0.5, "pins": { "+": "tp30", "-": "tn30" } },
-      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": false, "modes": { "GPIO4": "out_high" } } },
-      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
-      { "type": "ldo", "ref": "U2", "voltage": 3.3, "at": "c22" },
-      { "type": "wire", "color": "black", "pins": { "a": "a22", "b": "tn22" } },
-      { "type": "wire", "color": "red", "pins": { "a": "a24", "b": "tp24" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "10u", "pins": { "1": "b24", "2": "tn25" } },
-      { "type": "capacitor", "ref": "C2", "capacitance": "10u", "pins": { "1": "b23", "2": "tn23" } },
-      { "type": "wire", "color": "orange", "pins": { "a": "d23", "b": "j1" } },
-      { "type": "resistor", "ref": "R1", "resistance": "330", "pins": { "1": "a13", "2": "a27" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "b27", "cathode": "tn27" } }
+      {
+        "type": "bench_supply",
+        "ref": "PS1",
+        "voltage": 5,
+        "currentLimit": 0.5,
+        "pins": {
+          "+": "tp30",
+          "-": "tn30"
+        }
+      },
+      {
+        "type": "esp32_devkit",
+        "ref": "U1",
+        "at": "b1",
+        "props": {
+          "usb": false,
+          "modes": {
+            "GPIO4": "out_high"
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "color": "black",
+        "pins": {
+          "a": "a1",
+          "b": "tn1"
+        }
+      },
+      {
+        "type": "ldo",
+        "ref": "U2",
+        "voltage": 3.3,
+        "at": "c22"
+      },
+      {
+        "type": "wire",
+        "color": "black",
+        "pins": {
+          "a": "a22",
+          "b": "tn22"
+        }
+      },
+      {
+        "type": "wire",
+        "color": "red",
+        "pins": {
+          "a": "a24",
+          "b": "tp24"
+        }
+      },
+      {
+        "type": "capacitor",
+        "ref": "C1",
+        "capacitance": "10u",
+        "pins": {
+          "1": "b24",
+          "2": "tn25"
+        }
+      },
+      {
+        "type": "capacitor",
+        "ref": "C2",
+        "capacitance": "10u",
+        "pins": {
+          "1": "b23",
+          "2": "tn23"
+        }
+      },
+      {
+        "type": "wire",
+        "color": "orange",
+        "pins": {
+          "a": "d23",
+          "b": "j1"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "330",
+        "pins": {
+          "1": "a13",
+          "2": "a27"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "b27",
+          "cathode": "tn27"
+        }
+      }
     ]
   }
 }

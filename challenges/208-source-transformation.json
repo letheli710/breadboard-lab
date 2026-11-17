@@ -2,36 +2,177 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-source-transformation",
-  "title": "实验 1-8 · 电源等效变换：诺顿 ⇄ 戴维宁",
+  "title": "电源等效变换：诺顿 ⇄ 戴维宁",
   "kind": "challenge",
   "level": 5,
   "phase": 1,
-  "summary": "10 mA 电流源并 470Ω，和 4.7 V 电压源串 470Ω：用开关轮流接同一个负载，负载根本分不出来。",
-  "concepts": ["source transformation 电源等效变换", "Norton 诺顿（电流源 ∥ R）", "Thevenin 戴维宁（电压源 + R）", "equivalent to the outside 对外等效"],
+  "summary": "10 mA 电流源并 470 Ω，和 4.7 V 电压源串 470 Ω：用开关轮流接同一个负载，负载分不出来——电源内部却很不一样。",
+  "concepts": [
+    "source transformation 电源等效变换",
+    "Norton 诺顿（电流源 ∥ R）",
+    "Thevenin 戴维宁（电压源 + R）",
+    "equivalent to the outside 对外等效"
+  ],
   "prereq": ["lesson-multimeter"],
-  "description": "**目标**：验证电源等效变换：电流源 Is 并联电阻 R，对外等效于电压源 Us = Is × R 串联同一个 R。\n\n**电路**（两台稳压电源，负极都接 GND）：\n- 诺顿（Norton）：PSU1 设 12 V、限流 0.01 A（CC 模式 = 10 mA 电流源），它的 + 端接 RN（470Ω）到 GND，+ 端就是端口 a；\n- 戴维宁（Thevenin）：PSU2 设 **4.7 V**（= 10 mA × 470Ω），+ 端串 RT（470Ω），RT 的另一端是端口 b。\n\n拨动开关 S1：a 侧接诺顿端口，b 侧接戴维宁端口，中间 com 接负载 RL（1kΩ）到 GND。\n\n**先预测**：分别算出诺顿网络和戴维宁网络带 1kΩ 负载时 RL 上的电压，以及没接负载的那个网络的端口开路电压。思路：诺顿是 10 mA 分给 RN 和 RL；戴维宁是 4.7 V 在 RT 和 RL 上分压。两者对负载一样吗？两个内阻 RN、RT 的发热一样吗？\n\n**测量**：S1 分别拨到 a 和 b，测 RL 上的电压和电流，以及另一个空着的端口对 GND 的电压。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
+  "description": "电源等效变换：电流源 Is 并联电阻 R，对外等效于电压源 Vs = Is × R 串联同一个 R。两种接法对负载一样，对内部电阻的电流和发热不一样。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "负载认得出吗？",
+      "text": [
+        "照目标电路图搭两个网络。**PSU1**：`12 V`、限流 **`0.01 A`**，两端并一个 **RN** `470 Ω`。**PSU2**：**`4.7 V`**，串一个 **RT** `470 Ω`。",
+        "两条蓝轨连起来当 GND。开关 **S1** 把负载 **RL** `1 kΩ` 接到第一个网络（**a**）或第二个网络（**b**）。",
+        "**把 S1 在 a、b 之间来回拨**，每次测 RL 两端的电压。",
+        "一个是电流源，一个是电压源。RL 认得出自己接的是哪一个吗？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "两个黑盒子，端口一模一样",
+      "text": [
+        "- 只从两个端子看一个盒子。两个数就能描述它：端子**什么都不接**时的电压，和端子**短接**时的电流。",
+        "- 左边的盒子（诺顿）：开路时 10 mA 全走 RN，10 mA × 470 Ω = 4.7 V；短路时 10 mA 全部流出来。",
+        "- 右边的盒子（戴维宁）：开路时 4.7 V；短路时 4.7 V / 470 Ω = 10 mA。**两个数一样**，所以任何负载看到的都一样。",
+        "![](fig:boxes)",
+        "- 规则：R 不变，电源用欧姆定律换算：",
+        "$$V_s = I_s\\,R = 0.01 × 470 = 4.7\\text{ V}$$",
+        "- 对外一样，不等于对内一样。预测一下：接上 RL 时，RN 和 RT 里各流过多少电流？"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "看看盒子里面",
+      "text": [
+        "- **S1 → a**：测 RL 两端的电压。再把电流表**串进 RN**，读数。",
+        "- **S1 → b**：测 RL 两端的电压。再把电流表**串进 RT**，读数。",
+        "- 电路检查通过后填测量题。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **电源等效变换**：$I_s$ 并 R ⇄ $V_s = I_sR$ 串同一个 R。",
+        "- 只是**对外**等效。内部电阻的电流和发热不一样。",
+        "- 用处是化简：把电源换成另一种形式，电阻就能串联或并联合并。",
+        "- 坑：空闲的诺顿网络也在内部电阻上耗电——这里什么都不接也有 47 mW；空闲的戴维宁网络一点不耗。"
+      ],
+      "practice": ["theorems"]
+    }
+  ],
+  "figures": {
+    "boxes": {
+      "kind": "schematic",
+      "caption": {
+        "text": "左：诺顿（10 mA 并 470 Ω），端口 a；右：戴维宁（4.7 V 串 470 Ω），端口 b。两个端口开路都是 4.7 V，短路都是 10 mA。",
+        "i18n": {
+          "en": "Left: Norton (10 mA with 470 Ω across it), terminal a. Right: Thévenin (4.7 V with 470 Ω in series), terminal b. Both read 4.7 V open and give 10 mA shorted."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": "10m"},
+          {"ref": "RN", "type": "R", "from": [1, 0], "to": [1, 4], "value": 470},
+          {"ref": "Vs", "type": "V", "from": [4, 0], "to": [4, 4], "value": 4.7},
+          {"ref": "RT", "type": "R", "from": [4, 0], "to": [6, 0], "value": 470}
+        ],
+        "wires": [[[0, 0], [2, 0]], [[0, 4], [2, 4]], [[4, 4], [6, 4]]],
+        "terminals": [
+          {"at": [2, 0], "name": "a"},
+          {"at": [2, 4], "name": "a'"},
+          {"at": [6, 0], "name": "b"},
+          {"at": [6, 4], "name": "b'"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 1-8 · Source transformation: Norton ⇄ Thevenin",
-      "summary": "A 10 mA current source in parallel with 470Ω versus a 4.7 V source in series with 470Ω: switch the same load between them and it cannot tell the difference.",
-      "concepts": ["source transformation", "Norton (current source ∥ R)", "Thevenin (voltage source + R)", "equivalent to the outside"],
-      "description": "**Goal**: verify source transformation: a current source Is in parallel with a resistor R behaves, seen from outside, exactly like a voltage source Us = Is × R in series with the same R.\n\n**Circuit** (two bench supplies, both negatives to GND):\n- Norton: PSU1 set to 12 V with a 0.01 A current limit (CC mode = a 10 mA current source); RN (470Ω) goes from its + terminal to GND, and the + terminal is port a;\n- Thevenin: PSU2 set to **4.7 V** (= 10 mA × 470Ω), with RT (470Ω) in series from its + terminal; the far end of RT is port b.\n\nSlide switch S1: side a to the Norton port, side b to the Thevenin port, the middle com to the load RL (1kΩ) to GND.\n\n**Predict first**: work out the voltage on RL when the Norton network drives the 1kΩ load and when the Thevenin network does, and the open-circuit voltage of the network left without the load. Method: in the Norton network 10 mA is shared by RN and RL; in the Thevenin network 4.7 V divides over RT and RL. Does the load see any difference? Do RN and RT get equally warm?\n\n**Measure**: with S1 on a and then on b, measure the voltage and current of RL and the unused port's voltage to GND. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-      "compare": "**Compare**:\n- Norton with the load: V = 10 mA × (470 ∥ 1000 = 319.7Ω) ≈ **3.20 V**;\n- Thevenin with the load: V = 4.7 × 1000 / 1470 ≈ **3.20 V**;\n- the unused port: 10 mA × 470Ω = 4.70 V (Norton), and 4.70 V for Thevenin too.\n\nSo with S1 on a or on b, RL gets ≈ 3.20 V and ≈ 3.20 mA; the unused port reads ≈ 4.70 V either way (simulator: 3.196 V and 3.197 V; the difference comes from the 9.99 mA of CC mode). If the voltages differ a lot, check that PSU1 really is in CC mode and that PSU2 is set to 4.7 V.\n\n**But the insides differ**: with the 1kΩ load, RN in the Norton network carries 6.8 mA and dissipates ≈ 21.7 mW; RT in the Thevenin network carries only 3.2 mA and dissipates ≈ 4.8 mW. Without a load the difference is even bigger: the Norton RN keeps burning 47 mW, the Thevenin network nothing. Source transformation is **equivalent to the outside**, not inside.",
+      "title": "Source transformation: Norton ⇄ Thévenin",
+      "summary": "A 10 mA source with 470 Ω across it, and a 4.7 V source with 470 Ω in series: switch the same load between them and it cannot tell — inside, though, they differ a lot.",
+      "concepts": [
+        "source transformation",
+        "Norton (current source ∥ R)",
+        "Thevenin (voltage source + R)",
+        "equivalent to the outside"
+      ],
+      "description": "Source transformation: a current source Is with R in parallel looks, from outside, exactly like a voltage source Vs = Is × R with the same R in series. The load cannot tell them apart; the current and heat in the inner resistor differ.",
+      "compare": "**Compare**:\n- Norton with the load: V = 10 mA × (470 ∥ 1000 = 319.7 Ω) ≈ **3.20 V**.\n- Thévenin with the load: V = 4.7 × 1000 / 1470 ≈ **3.20 V**.\n- The idle terminal: Norton 10 mA × 470 Ω = 4.70 V, Thévenin 4.70 V too.\n\nThe simulator reads 3.196 V and 3.197 V; the difference comes from the 9.99 mA of CC mode. If the voltages differ a lot, check that PSU1 really is in CC mode and that PSU2 is set to 4.7 V.\n\n**Inside they differ**: with the 1 kΩ load, Norton's RN carries 6.8 mA and dissipates about 21.7 mW; Thévenin's RT carries only 3.2 mA, about 4.8 mW.",
       "measurements": [
-        {"ask": "S1 on a (Norton drives the load): voltage across RL", "explain": "10 mA shared by RN and RL: V = 10 mA × (470 ∥ 1000 = 319.7 Ω) ≈ 3.20 V."},
-        {"ask": "S1 on b (Thevenin drives the load): voltage across RL", "explain": "4.7 V divided by RT and RL: 4.7 × 1000 / 1470 ≈ 3.20 V, the same as Norton."},
-        {"ask": "S1 on a: the current in the Norton resistor RN", "explain": "10 mA − 3.2 mA ≈ 6.8 mA; RN dissipates ≈ 21.7 mW."},
-        {"ask": "S1 on b: the current in the Thevenin resistor RT", "explain": "RT is in series with RL, so it carries the load current ≈ 3.2 mA; RT dissipates only ≈ 4.8 mW."},
-        {"ask": "From your four readings, source transformation is", "explain": "A transformation only keeps the port's U–I relation: equivalent outside, not inside. With no load the Norton RN burns 47 mW all the time; the Thevenin RT burns nothing.", "choices": ["equivalent for the load (RL sees the same), but the currents and heating in the internal resistors differ", "fully equivalent: the internal resistors carry the same current too", "not equivalent at all: the load voltage differs too"]}
+        {
+          "ask": "S1 on a (Norton with the load): voltage across RL",
+          "explain": "10 mA shared by RN and RL: V = 10 mA × (470 ∥ 1000 = 319.7 Ω) ≈ 3.20 V."
+        },
+        {
+          "ask": "S1 on b (Thévenin with the load): voltage across RL",
+          "explain": "4.7 V divided by RT and RL: 4.7 × 1000 / 1470 ≈ 3.20 V, the same as Norton."
+        },
+        {
+          "ask": "S1 on a: current in the Norton resistor RN",
+          "explain": "10 mA − 3.2 mA ≈ 6.8 mA; RN dissipates about 21.7 mW."
+        },
+        {
+          "ask": "S1 on b: current in the Thévenin resistor RT",
+          "explain": "RT is in series with RL, so it carries the load current, about 3.2 mA; RT dissipates only about 4.8 mW."
+        },
+        {
+          "choices": [
+            "equivalent for the load (RL sees the same), but the currents and heating in the internal resistors differ",
+            "fully equivalent: the internal resistors carry the same current too",
+            "not equivalent at all: the load voltage differs too"
+          ],
+          "ask": "From your four readings, source transformation is:",
+          "explain": "A transformation only keeps the terminal voltage–current relation: equal outside, not inside. With no load, Norton's RN burns 47 mW all the time; Thévenin's RT burns nothing."
+        }
       ],
       "hints": [
-        "Two supplies: one on the top power rails, the other on the bottom rails, and a jumper joining the two blue (−) rails as a common GND.",
-        "PSU1: 12 V, current limit 0.01 A (so it goes into CC mode); PSU2: 4.7 V.",
-        "S1 side a to the Norton port (the column with PSU1 + and RN), side b to the far end of RT, com to RL."
+        "Two supplies: one on the top rails, the other on the bottom rails; a jumper joins the two blue (−) rails as the common GND.",
+        "PSU1: 12 V, current limit 0.01 A (so it runs in CC mode); PSU2: 4.7 V.",
+        "S1's a side goes to the Norton terminal (the column with PSU1 + and RN), its b side to RT's far end, com to RL."
       ],
       "tests": [
         "Switch on a (Norton): sensible voltage and current on RL; Thevenin port open",
         "Switch on b (Thevenin): RL gets the same as on a; Norton port open"
+      ],
+      "cards": [
+        {
+          "title": "Can the load tell?",
+          "text": [
+            "Build both networks from the target schematic. **PSU1**: `12 V`, limit **`0.01 A`**, with **RN** `470 Ω` across it. **PSU2**: **`4.7 V`**, with **RT** `470 Ω` in series.",
+            "Join the two blue rails as GND. Switch **S1** connects the load **RL** `1 kΩ` to the first network (**a**) or the second (**b**).",
+            "**Flip S1 between a and b** and measure the voltage across RL each time.",
+            "One network is a current source, the other a voltage source. Can RL tell which one it is on?"
+          ]
+        },
+        {
+          "title": "Two black boxes with the same terminals",
+          "text": [
+            "- Judge a box only by its two terminals. Two numbers describe it: the voltage with **nothing connected** and the current with the terminals **shorted**.",
+            "- Left box (Norton): open, all 10 mA goes through RN, so 10 mA × 470 Ω = 4.7 V. Shorted, all 10 mA comes out.",
+            "- Right box (Thévenin): open, 4.7 V. Shorted, 4.7 V / 470 Ω = 10 mA. **Same two numbers**, so every load sees the same thing.",
+            "![](fig:boxes)",
+            "- The rule: keep R, and swap the source using Ohm's law:",
+            "$$V_s = I_s\\,R = 0.01 × 470 = 4.7\\text{ V}$$",
+            "- Equal outside does not mean equal inside. Predict the current in RN and in RT with RL connected."
+          ]
+        },
+        {
+          "title": "Look inside the boxes",
+          "text": [
+            "- **S1 → a**: measure the voltage across RL. Then put the ammeter **in series with RN** and read it.",
+            "- **S1 → b**: measure the voltage across RL. Then put the ammeter **in series with RT** and read it.",
+            "- Once the circuit check passes, fill in the questions."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Source transformation**: $I_s$ in parallel with R ⇄ $V_s = I_sR$ in series with the same R.",
+            "- It is equal **outside** only. The current and heat in the inner resistor are different.",
+            "- Use it to simplify: turn a source into the form that lets you merge resistors in series or in parallel.",
+            "- Pitfall: an idle Norton network still burns power in its resistor — here 47 mW with nothing connected. An idle Thévenin network burns none."
+          ]
+        }
       ]
     }
   },
@@ -70,13 +211,57 @@
       "currents": [{"el": "RL", "min": 0.0031, "max": 0.0033}]
     }
   ],
-  "compare": "**对比**：\n- 诺顿带负载：V = 10 mA × (470 ∥ 1000 = 319.7Ω) ≈ **3.20 V**；\n- 戴维宁带负载：V = 4.7 × 1000 / 1470 ≈ **3.20 V**；\n- 空着的端口：诺顿 10 mA × 470Ω = 4.70 V，戴维宁也是 4.70 V。\n\n所以 S1 拨到 a 或 b，RL 上都是 ≈ 3.20 V、≈ 3.20 mA；另一个空着的端口都是 ≈ 4.70 V（模拟器：3.196 V 和 3.197 V，差别来自 CC 模式的 9.99 mA）。电压差得多时，检查 PSU1 是不是真的进入了 CC 模式、PSU2 是不是设成了 4.7 V。\n\n**但内部不一样**：带 1kΩ 负载时，诺顿里的 RN 流过 6.8 mA，发热 ≈ 21.7 mW；戴维宁里的 RT 只流 3.2 mA，发热 ≈ 4.8 mW。空载时差别更大：诺顿的 RN 一直在耗 47 mW，戴维宁一点都不耗。所以说等效变换是**对外等效**，对内不等效。",
+  "compare": "**对比**：\n- 诺顿带负载：V = 10 mA × (470 ∥ 1000 = 319.7 Ω) ≈ **3.20 V**。\n- 戴维宁带负载：V = 4.7 × 1000 / 1470 ≈ **3.20 V**。\n- 空着的端口：诺顿 10 mA × 470 Ω = 4.70 V，戴维宁也是 4.70 V。\n\n模拟器读数是 3.196 V 和 3.197 V，差别来自 CC 模式的 9.99 mA。电压差得多时，检查 PSU1 是不是真的进入了 CC 模式、PSU2 是不是设成了 4.7 V。\n\n**但内部不一样**：带 1 kΩ 负载时，诺顿的 RN 流过 6.8 mA，发热约 21.7 mW；戴维宁的 RT 只流 3.2 mA，发热约 4.8 mW。",
   "measurements": [
-    {"id": "va", "voltage": "RL.1", "ref": "PSU1.-", "set": {"S1": {"position": "a"}}, "unit": "V", "predict": true, "range": [3.04, 3.36], "ask": "S1 拨到 a（诺顿带负载）：RL 两端电压", "explain": "10 mA 分给 RN 和 RL：V = 10 mA × (470 ∥ 1000 = 319.7 Ω) ≈ 3.20 V。"},
-    {"id": "vb", "voltage": "RL.1", "ref": "PSU1.-", "set": {"S1": {"position": "b"}}, "unit": "V", "predict": true, "range": [3.04, 3.36], "ask": "S1 拨到 b（戴维宁带负载）：RL 两端电压", "explain": "4.7 V 在 RT 和 RL 上分压：4.7 × 1000 / 1470 ≈ 3.20 V，和诺顿一样。"},
-    {"id": "irn", "current": "RN", "set": {"S1": {"position": "a"}}, "unit": "mA", "predict": true, "range": [0.00646, 0.00714], "ask": "S1 拨到 a：诺顿内阻 RN 里的电流", "explain": "10 mA − 3.2 mA ≈ 6.8 mA，RN 发热 ≈ 21.7 mW。"},
-    {"id": "irt", "current": "RT", "set": {"S1": {"position": "b"}}, "unit": "mA", "predict": true, "range": [0.00304, 0.00336], "ask": "S1 拨到 b：戴维宁内阻 RT 里的电流", "explain": "RT 和 RL 串联，电流就是负载电流 ≈ 3.2 mA，RT 发热只有 ≈ 4.8 mW。"},
-    {"id": "equiv", "choices": ["对负载等效（RL 上一样），但内阻里的电流和发热不一样", "完全等效：内阻里的电流也一样", "都不等效：负载电压也不一样"], "correct": 0, "ask": "根据你的四个读数，电源等效变换是：", "explain": "等效变换只保证端口的 U–I 关系相同，对外等效、对内不等效。空载时诺顿的 RN 一直耗 47 mW，戴维宁的 RT 一点都不耗。"}
+    {
+      "id": "va",
+      "voltage": "RL.1",
+      "ref": "PSU1.-",
+      "set": {"S1": {"position": "a"}},
+      "unit": "V",
+      "predict": true,
+      "range": [3.04, 3.36],
+      "ask": "S1 拨到 a（诺顿带负载）：RL 两端的电压",
+      "explain": "10 mA 分给 RN 和 RL：V = 10 mA × (470 ∥ 1000 = 319.7 Ω) ≈ 3.20 V。"
+    },
+    {
+      "id": "vb",
+      "voltage": "RL.1",
+      "ref": "PSU1.-",
+      "set": {"S1": {"position": "b"}},
+      "unit": "V",
+      "predict": true,
+      "range": [3.04, 3.36],
+      "ask": "S1 拨到 b（戴维宁带负载）：RL 两端的电压",
+      "explain": "4.7 V 在 RT 和 RL 上分压：4.7 × 1000 / 1470 ≈ 3.20 V，和诺顿一样。"
+    },
+    {
+      "id": "irn",
+      "current": "RN",
+      "set": {"S1": {"position": "a"}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00646, 0.00714],
+      "ask": "S1 拨到 a：诺顿内阻 RN 里的电流",
+      "explain": "10 mA − 3.2 mA ≈ 6.8 mA，RN 发热约 21.7 mW。"
+    },
+    {
+      "id": "irt",
+      "current": "RT",
+      "set": {"S1": {"position": "b"}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00304, 0.00336],
+      "ask": "S1 拨到 b：戴维宁内阻 RT 里的电流",
+      "explain": "RT 和 RL 串联，电流就是负载电流，约 3.2 mA，RT 发热只有约 4.8 mW。"
+    },
+    {
+      "id": "equiv",
+      "choices": ["对负载等效（RL 上一样），但内阻里的电流和发热不一样", "完全等效：内阻里的电流也一样", "都不等效：负载电压也不一样"],
+      "correct": 0,
+      "ask": "根据你的四个读数，电源等效变换是：",
+      "explain": "等效变换只保证端口的电压–电流关系相同：对外等效，对内不等效。空载时诺顿的 RN 一直耗 47 mW，戴维宁的 RT 一点不耗。"
+    }
   ],
   "hints": [
     "两台电源：一台用上方的电源轨，另一台用下方的电源轨，再用一根跳线把两条蓝轨（−）连起来作为共同的 GND。",
@@ -85,8 +270,20 @@
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 12, "currentLimit": 0.01, "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "bench_supply", "ref": "PSU2", "voltage": 4.7, "currentLimit": 0.1, "pins": {"+": "bp1", "-": "bn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 12,
+        "currentLimit": 0.01,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
+      {
+        "type": "bench_supply",
+        "ref": "PSU2",
+        "voltage": 4.7,
+        "currentLimit": 0.1,
+        "pins": {"+": "bp1", "-": "bn1"}
+      },
       {"type": "wire", "pins": {"a": "tn3", "b": "bn3"}, "color": "blue"},
       {"type": "wire", "pins": {"a": "tp4", "b": "a4"}, "color": "red"},
       {"type": "resistor", "ref": "RN", "resistance": "470", "pins": {"1": "b4", "2": "tn6"}},

@@ -2,52 +2,298 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp4-rc-highpass-coupling",
-  "title": "实验 4-2 · RC 高通滤波器：隔直通交",
+  "title": "RC 高通：电容挡住直流，放过交流",
   "kind": "challenge",
   "level": 3,
   "phase": 4,
-  "summary": "10 nF + 15 kΩ 高通滤波器，输入带 2 V 直流偏置的正弦波：看直流分量被挡住，测增益、相位，扫频找出截止频率。",
+  "summary": "10 nF + 15 kΩ，输入带 2 V 直流偏置：看偏置被电容挡住，测低频的增益和相位，再扫频找出截止频率。",
   "concepts": ["高通滤波器 high-pass filter", "H(jω) = jωRC/(1 + jωRC)", "相位超前 phase lead", "隔直电容 coupling capacitor", "叠加定理：直流和交流分开算 superposition of DC and AC"],
   "prereq": ["lesson-scope-two-channels"],
-  "description": [
-    "**目标**：把低通的 R 和 C 对调成高通，测三个频率下的增益和相位，并看耦合（隔直）电容怎样挡住直流偏置。",
-    "",
-    "**电路**：信号发生器红夹子 → C1（10 nF）→ 结点 VOUT → R1（15 kΩ）→ GND，黑夹子接 GND。和低通相比，只是把 R 和 C 的位置对调。",
-    "",
-    "**信号发生器**：正弦波，幅度 1 V，**偏置 2 V**（输入在 1 V 和 3 V 之间摆动）。频率依次调到 106 Hz、1061 Hz、10.6 kHz。",
-    "",
-    "**示波器**：CH1 接 VIN，CH2 接 VOUT，两个通道都用 DC 耦合，这样能看见直流偏置。",
-    "",
-    "**先预测**：用叠加定理把直流和交流分开看。直流部分：电容对直流开路，VOUT 的平均值是多少？交流部分：写出 H(jω) = R/(R + 1/(jωC))，求 fc，再算三个频率下的 |H| 和 ∠H。写下来再动手。",
-    "",
-    "**测量**：读 CH1、CH2 的平均值；每个频率读 VOUT 与 VIN 的幅度比和相位差。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**想一想**（和实验 4-1 对比）：两个电路的 fc 相同。低通的相位从 0 走到 −90°（输出落后），高通的相位从 +90° 走到 0（输出超前）；在 fc 处，低通和高通的输出幅度都是 0.707，而且两者之和（相量相加）正好等于输入——因为 u_R + u_C = u_in。",
-    "",
-    "**真实电路里**：这里的 10 nF 是瓷片电容，没有极性。放大器之间用的 µF 级耦合电容大多是铝电解电容，有极性：+ 脚要接直流电位高的一侧（在这个电路里就是 VIN 一侧，2 V；VOUT 一侧是 0 V）。接反的电解电容漏电变大，会把一点直流漏到下一级，时间长了还可能损坏。仿真里的电容没有极性。"
+  "description": "信号发生器（正弦波，偏置 2 V）→ C1（10 nF）→ VOUT → R1（15 kΩ）→ GND。和低通相比，只是 R 和 C 对调。直流和交流分开看：直流被电容挡住，交流按 H = jωRC/(1 + jωRC) 通过。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "2 V 偏置去哪了？",
+      "text": [
+        "这次**电容**（`10 nF`）在前：**`b3`**–**`b10`**；**电阻**（`15 kΩ`）在后：**`c10`**–**`tn10`**。和低通相比，只是两个元件对调了。",
+        "信号发生器：**正弦波、`1 kHz`、幅度 `1 V`、偏置 `2 V`**。CH1 的波形整体抬高了 2 V，在 1 V 到 3 V 之间摆动。",
+        "看 CH2：它的中心线在哪里？那 2 V 去哪了？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "电容是一扇只让变化通过的门",
+      "text": [
+        "- 电容的两块极板之间是绝缘的。**直流**进去，充满以后就再也没有电流——2 V 偏置全“存”在电容上，电阻上一点也分不到。",
+        "- **交流**一直在变，电容一直在充、放电，变化就传过去了。所以 VOUT 只剩以 0 V 为中心的那一部分。",
+        "![](fig:dcblock)",
+        "- 交流部分也看频率：频率越低，电容越像断开，传过去的越少。所以这是**高通**。截止频率的公式和低通一样：",
+        "$$f_c = \\frac{1}{2π R C} = \\frac{1}{2π × 15 × 10^{3} × 10 × 10^{-9}}$$",
+        "动手之前先把它算出来，再看下图：高通的曲线正好和低通左右相反。",
+        "![](fig:hp)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "先量直流，再扫频",
+      "text": [
+        "- **万用表**红表笔点 VOUT（第 `10` 列），黑表笔在 GND：读平均电压（或者看示波器 CH2 的「平均」）。",
+        "- 频率调到 **`106 Hz`**：读幅度比（CH2 的 Vpp ÷ CH1 的 Vpp）和 **CH2 相对 CH1 的相位差**。",
+        "- 最后**扫频**：慢慢往上调，找到 CH2 的 Vpp 正好是 CH1 的 0.707 倍的那个频率。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **隔直电容**：直流过不去，交流过得去。放大器之间常用它把上一级的偏置挡掉。",
+        "- **高通**：$f_c$ 以下越来越小，而且输出**超前**输入；$f_c$ 以上几乎原样通过。同样的 R、C，低通和高通的 $f_c$ 一样。",
+        "- 坑：µF 级的隔直电容多是**铝电解电容**，有正负。+ 脚要接直流电位高的一侧（这里是 2 V 的 VIN 一侧）。接反会漏电、发热，时间长了会坏。仿真里的电容不分正负。"
+      ],
+      "practice": ["frequency"]
+    }
   ],
+  "figures": {
+    "dcblock": {
+      "kind": "plot",
+      "caption": {
+        "text": "输入（CH1）以 2 V 为中心摆动；过了电容，输出（CH2）以 0 V 为中心——直流被挡住了。",
+        "i18n": {"en": "The input (CH1) swings around 2 V; past the capacitor the output (CH2) swings around 0 V — the DC is blocked."}
+      },
+      "x": {"label": {"text": "时间（周期）", "i18n": {"en": "time (periods)"}}, "min": 0, "max": 2, "ticks": [0, 1, 2]},
+      "y": {"label": {"text": "电压 (V)", "i18n": {"en": "voltage (V)"}}, "min": -1.5, "max": 3.5, "ticks": [-1, 0, 1, 2, 3]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 2.0],
+            [0.0417, 2.259],
+            [0.0833, 2.5],
+            [0.125, 2.707],
+            [0.1667, 2.866],
+            [0.2083, 2.966],
+            [0.25, 3.0],
+            [0.2917, 2.966],
+            [0.3333, 2.866],
+            [0.375, 2.707],
+            [0.4167, 2.5],
+            [0.4583, 2.259],
+            [0.5, 2.0],
+            [0.5417, 1.741],
+            [0.5833, 1.5],
+            [0.625, 1.293],
+            [0.6667, 1.134],
+            [0.7083, 1.034],
+            [0.75, 1.0],
+            [0.7917, 1.034],
+            [0.8333, 1.134],
+            [0.875, 1.293],
+            [0.9167, 1.5],
+            [0.9583, 1.741],
+            [1.0, 2.0],
+            [1.0417, 2.259],
+            [1.0833, 2.5],
+            [1.125, 2.707],
+            [1.1667, 2.866],
+            [1.2083, 2.966],
+            [1.25, 3.0],
+            [1.2917, 2.966],
+            [1.3333, 2.866],
+            [1.375, 2.707],
+            [1.4167, 2.5],
+            [1.4583, 2.259],
+            [1.5, 2.0],
+            [1.5417, 1.741],
+            [1.5833, 1.5],
+            [1.625, 1.293],
+            [1.6667, 1.134],
+            [1.7083, 1.034],
+            [1.75, 1.0],
+            [1.7917, 1.034],
+            [1.8333, 1.134],
+            [1.875, 1.293],
+            [1.9167, 1.5],
+            [1.9583, 1.741],
+            [2.0, 2.0]
+          ],
+          "tone": 1,
+          "label": "CH1",
+          "labelAt": [0.3, 3.3]
+        },
+        {
+          "points": [
+            [0.0, 0.354],
+            [0.0417, 0.451],
+            [0.0833, 0.517],
+            [0.125, 0.548],
+            [0.1667, 0.542],
+            [0.2083, 0.498],
+            [0.25, 0.421],
+            [0.2917, 0.315],
+            [0.3333, 0.188],
+            [0.375, 0.048],
+            [0.4167, -0.096],
+            [0.4583, -0.232],
+            [0.5, -0.354],
+            [0.5417, -0.451],
+            [0.5833, -0.517],
+            [0.625, -0.548],
+            [0.6667, -0.542],
+            [0.7083, -0.498],
+            [0.75, -0.421],
+            [0.7917, -0.315],
+            [0.8333, -0.188],
+            [0.875, -0.048],
+            [0.9167, 0.096],
+            [0.9583, 0.232],
+            [1.0, 0.354],
+            [1.0417, 0.451],
+            [1.0833, 0.517],
+            [1.125, 0.548],
+            [1.1667, 0.542],
+            [1.2083, 0.498],
+            [1.25, 0.421],
+            [1.2917, 0.315],
+            [1.3333, 0.188],
+            [1.375, 0.048],
+            [1.4167, -0.096],
+            [1.4583, -0.232],
+            [1.5, -0.354],
+            [1.5417, -0.451],
+            [1.5833, -0.517],
+            [1.625, -0.548],
+            [1.6667, -0.542],
+            [1.7083, -0.498],
+            [1.75, -0.421],
+            [1.7917, -0.315],
+            [1.8333, -0.188],
+            [1.875, -0.048],
+            [1.9167, 0.096],
+            [1.9583, 0.232],
+            [2.0, 0.354]
+          ],
+          "tone": 2,
+          "label": "CH2",
+          "labelAt": [1.3, -1.25]
+        }
+      ],
+      "hlines": [{"y": 2, "dashed": true}, {"y": 0, "dashed": true}]
+    },
+    "hp": {
+      "kind": "plot",
+      "caption": {
+        "text": "同样的 R、C：高通（实线）和低通（虚线）在 f_c 处交叉，两边正好相反。",
+        "i18n": {"en": "Same R and C: the high-pass (solid) and the low-pass (dashed) cross at f_c and mirror each other."}
+      },
+      "x": {"label": {"text": "频率 f / f_c", "i18n": {"en": "frequency f / f_c"}}, "min": 0, "max": 4, "ticks": [0, 1, 2, 3, 4]},
+      "y": {"label": {"text": "VOUT / VIN", "i18n": {"en": "VOUT / VIN"}}, "min": 0, "max": 1.1, "ticks": [0, 0.707, 1]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.1, 0.0995],
+            [0.2, 0.1961],
+            [0.3, 0.2873],
+            [0.4, 0.3714],
+            [0.5, 0.4472],
+            [0.6, 0.5145],
+            [0.7, 0.5735],
+            [0.8, 0.6247],
+            [0.9, 0.669],
+            [1.0, 0.7071],
+            [1.1, 0.7399],
+            [1.2, 0.7682],
+            [1.3, 0.7926],
+            [1.4, 0.8137],
+            [1.5, 0.8321],
+            [1.6, 0.848],
+            [1.7, 0.8619],
+            [1.8, 0.8742],
+            [1.9, 0.8849],
+            [2.0, 0.8944],
+            [2.1, 0.9029],
+            [2.2, 0.9104],
+            [2.3, 0.9171],
+            [2.4, 0.9231],
+            [2.5, 0.9285],
+            [2.6, 0.9333],
+            [2.7, 0.9377],
+            [2.8, 0.9417],
+            [2.9, 0.9454],
+            [3.0, 0.9487],
+            [3.1, 0.9517],
+            [3.2, 0.9545],
+            [3.3, 0.957],
+            [3.4, 0.9594],
+            [3.5, 0.9615],
+            [3.6, 0.9635],
+            [3.7, 0.9654],
+            [3.8, 0.9671],
+            [3.9, 0.9687],
+            [4.0, 0.9701]
+          ],
+          "tone": 1,
+          "label": {"text": "高通", "i18n": {"en": "high-pass"}},
+          "labelAt": [3.2, 1.03]
+        },
+        {
+          "points": [
+            [0.0, 1.0],
+            [0.1, 0.995],
+            [0.2, 0.9806],
+            [0.3, 0.9578],
+            [0.4, 0.9285],
+            [0.5, 0.8944],
+            [0.6, 0.8575],
+            [0.7, 0.8192],
+            [0.8, 0.7809],
+            [0.9, 0.7433],
+            [1.0, 0.7071],
+            [1.1, 0.6727],
+            [1.2, 0.6402],
+            [1.3, 0.6097],
+            [1.4, 0.5812],
+            [1.5, 0.5547],
+            [1.6, 0.53],
+            [1.7, 0.507],
+            [1.8, 0.4856],
+            [1.9, 0.4657],
+            [2.0, 0.4472],
+            [2.1, 0.4299],
+            [2.2, 0.4138],
+            [2.3, 0.3987],
+            [2.4, 0.3846],
+            [2.5, 0.3714],
+            [2.6, 0.359],
+            [2.7, 0.3473],
+            [2.8, 0.3363],
+            [2.9, 0.326],
+            [3.0, 0.3162],
+            [3.1, 0.307],
+            [3.2, 0.2983],
+            [3.3, 0.29],
+            [3.4, 0.2822],
+            [3.5, 0.2747],
+            [3.6, 0.2676],
+            [3.7, 0.2609],
+            [3.8, 0.2545],
+            [3.9, 0.2484],
+            [4.0, 0.2425]
+          ],
+          "tone": 2,
+          "dashed": true,
+          "label": {"text": "低通", "i18n": {"en": "low-pass"}},
+          "labelAt": [3.2, 0.36]
+        }
+      ],
+      "vlines": [{"x": 1, "label": "f_c", "dashed": true}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 4-2 · RC high-pass filter: block DC, pass AC",
-      "summary": "A 10 nF + 15 kΩ high-pass filter fed a sine with a 2 V DC offset: watch the DC part get blocked, measure gain and phase, and sweep to find the cutoff frequency.",
+      "title": "RC high-pass: the capacitor blocks DC and passes AC",
+      "summary": "10 nF + 15 kΩ with a 2 V DC offset on the input: watch the capacitor block the offset, measure gain and phase at a low frequency, and sweep for the cutoff frequency.",
       "concepts": ["high-pass filter", "H(jω) = jωRC/(1 + jωRC)", "phase lead", "coupling (DC-blocking) capacitor", "superposition: DC and AC separately"],
-      "description": [
-        "**Goal**: swap the R and C of the low-pass to get a high-pass, measure its gain and phase at three frequencies, and see how a coupling (DC-blocking) capacitor removes a DC offset.",
-        "",
-        "**Circuit**: generator red clip → C1 (10 nF) → node VOUT → R1 (15 kΩ) → GND; black clip to GND. Compared with the low-pass, R and C have simply swapped places.",
-        "",
-        "**Generator**: sine, amplitude 1 V, **offset 2 V** (the input swings between 1 V and 3 V). Set the frequency to 106 Hz, 1061 Hz and 10.6 kHz in turn.",
-        "",
-        "**Scope**: CH1 on VIN, CH2 on VOUT, both channels DC-coupled so you can see the offset.",
-        "",
-        "**Predict first**: use superposition and look at DC and AC separately. DC: a capacitor is open at DC, so what is the average of VOUT? AC: write H(jω) = R/(R + 1/(jωC)), find fc, and work out |H| and ∠H at the three frequencies. Write them down before you start.",
-        "",
-        "**Measure**: read the averages of CH1 and CH2; at each frequency read the amplitude ratio VOUT/VIN and the phase shift. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Think about it** (compare with Experiment 4-1): both circuits have the same fc. The low-pass phase goes from 0 to −90° (output lags), the high-pass from +90° to 0 (output leads). At fc both outputs are 0.707 of the input, and their phasor sum is exactly the input — because u_R + u_C = u_in.",
-        "",
-        "**In a real circuit**: the 10 nF part here is a ceramic capacitor with no polarity. The µF-size coupling capacitors between amplifier stages are mostly aluminium electrolytics, which are polarised: the + lead must sit at the higher DC potential (in this circuit the VIN side at 2 V; the VOUT side is at 0 V). A reversed electrolytic leaks, lets some DC through to the next stage and can fail over time. The simulated capacitor has no polarity."
-      ],
+      "description": "Generator (sine, 2 V offset) → C1 (10 nF) → VOUT → R1 (15 kΩ) → GND — the low-pass with R and C swapped. Look at DC and AC separately: the capacitor blocks the DC, and the AC passes as H = jωRC/(1 + jωRC).",
       "compare": [
         "**Compare**:",
         "- **The DC part (2 V)**: in steady state no current flows in R1 and the DC part of VOUT is 0; the capacitor quietly \"stores\" the 2 V. CH1 averages ≈ 2 V, CH2 averages ≈ 0. That's the **coupling (DC-blocking) capacitor** used between amplifier stages.",
@@ -57,10 +303,19 @@
         "- **10.6 kHz (10fc)**: |H| ≈ 0.995, phase +5.7° — at high frequency the capacitor is almost a wire."
       ],
       "measurements": [
-        {"ask": "Multimeter DC range (or the scope's average): VOUT to GND, the average", "explain": "The capacitor is open at DC, so in steady state R1 carries no DC: VOUT has no DC part and the whole 2 V sits on the capacitor. That is a DC-blocking (coupling) capacitor."},
-        {"ask": "f = 106 Hz: amplitude ratio VOUT/VIN", "explain": "|H| = (f/fc)/√(1 + (f/fc)²) = 0.1/√1.01 ≈ 0.0995 (−20 dB)."},
-        {"ask": "f = 106 Hz: phase of VOUT relative to VIN (leading is positive)", "explain": "∠H = 90° − arctan(0.1) ≈ +84.3°: what little gets through at low frequency leads by nearly 90°."},
-        {"ask": "Sweep: the frequency fc where the amplitude ratio is 0.707", "explain": "fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz, the same as the low-pass; the phase there is +45°."}
+        {
+          "ask": "Multimeter DC range (or the scope's average): VOUT to GND, the average",
+          "explain": "The capacitor is open at DC, so in steady state R1 carries no DC: VOUT has no DC part and the whole 2 V sits on the capacitor. That is a DC-blocking (coupling) capacitor."
+        },
+        {"ask": "f = 106 Hz: amplitude ratio VOUT/VIN (CH2 Vpp ÷ CH1 Vpp)", "explain": "|H| = (f/fc)/√(1 + (f/fc)²) = 0.1/√1.01 ≈ 0.0995 (−20 dB)."},
+        {
+          "ask": "f = 106 Hz: phase of VOUT relative to VIN (leading is positive)",
+          "explain": "∠H = 90° − arctan(0.1) ≈ +84.3°: what little gets through at low frequency leads by nearly 90°."
+        },
+        {
+          "ask": "Sweep: the frequency fc where the amplitude ratio is 0.707",
+          "explain": "fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz, the same as the low-pass; the phase there is +45°."
+        }
       ],
       "hints": [
         "Capacitor in series first, resistor from VOUT to GND.",
@@ -72,50 +327,81 @@
         "fc/10 = 106 Hz: sensible gain and phase",
         "fc = 1061 Hz: sensible gain and phase",
         "10fc = 10.6 kHz: sensible gain and phase"
+      ],
+      "cards": [
+        {
+          "title": "Where did the 2 V go?",
+          "text": [
+            "This time the **capacitor** (`10 nF`) comes first: **`b3`**–**`b10`**; the **resistor** (`15 kΩ`) after it: **`c10`**–**`tn10`**. Compared with the low-pass, the two parts have simply swapped places.",
+            "Generator: **sine, `1 kHz`, amplitude `1 V`, offset `2 V`**. The whole CH1 trace is lifted by 2 V and swings between 1 V and 3 V.",
+            "Look at CH2: where is its centre line? Where did the 2 V go?"
+          ]
+        },
+        {
+          "title": "A capacitor is a door that only lets change through",
+          "text": [
+            "- The two plates of a capacitor are insulated from each other. Put **DC** in and, once it has charged, no more current flows — the whole 2 V offset sits on the capacitor, and the resistor gets none of it.",
+            "- **AC** keeps changing, so the capacitor keeps charging and discharging, and the change gets through. VOUT keeps only the part centred on 0 V.",
+            "![](fig:dcblock)",
+            "- The AC part depends on frequency too: the lower the frequency, the more the capacitor looks open and the less gets through. So this is a **high-pass**. Its cutoff frequency has the same formula as the low-pass:",
+            "$$f_c = \\frac{1}{2π R C} = \\frac{1}{2π × 15 × 10^{3} × 10 × 10^{-9}}$$",
+            "Work it out before you start, then look at the curve below: the high-pass is the low-pass mirrored.",
+            "![](fig:hp)"
+          ]
+        },
+        {
+          "title": "DC first, then sweep",
+          "text": [
+            "- **Multimeter** red probe on VOUT (column `10`), black on GND: read the average voltage (or CH2's \"Vavg\" on the scope).",
+            "- Set **`106 Hz`**: read the amplitude ratio (CH2 Vpp ÷ CH1 Vpp) and the **phase of CH2 vs CH1**.",
+            "- Finally **sweep**: turn the frequency up slowly and find where CH2's Vpp is exactly 0.707 × CH1's."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **DC-blocking (coupling) capacitor**: DC can't get through, AC can. Amplifier stages use it to keep one stage's bias out of the next.",
+            "- **High-pass**: below $f_c$ the output gets smaller and **leads** the input; above $f_c$ it passes almost unchanged. With the same R and C, low-pass and high-pass share one $f_c$.",
+            "- Pitfall: µF coupling capacitors are mostly **aluminium electrolytics**, which have a + and a − lead. The + lead goes to the side at the higher DC voltage (here the 2 V VIN side). Reversed, they leak, heat up and eventually fail. The simulated capacitor has no polarity."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "C1", "type": "capacitor", "capacitance": "10n" },
-    { "ref": "R1", "type": "resistor", "resistance": "15k" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "10n"},
+    {"ref": "R1", "type": "resistor", "resistance": "15k"}
   ],
-  "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "C1.1"] },
-    { "name": "VOUT", "pins": ["C1.2", "R1.1"] },
-    { "name": "GND", "pins": ["R1.2", "FG1.-"] }
-  ],
+  "nets": [{"name": "VIN", "pins": ["FG1.+", "C1.1"]}, {"name": "VOUT", "pins": ["C1.2", "R1.1"]}, {"name": "GND", "pins": ["R1.2", "FG1.-"]}],
   "tests": [
     {
       "name": "隔直：VIN 带直流偏置，VOUT 没有",
-      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
-      "voltages": [
-        { "pin": "FG1.+", "min": 1.95, "max": 2.05 },
-        { "pin": "R1.1", "min": -0.02, "max": 0.02 }
-      ]
+      "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}},
+      "voltages": [{"pin": "FG1.+", "min": 1.95, "max": 2.05}, {"pin": "R1.1", "min": -0.02, "max": 0.02}]
     },
     {
       "name": "fc/10 = 106 Hz：增益、相位合理",
-      "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2}},
       "scope": [
-        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.105 },
-        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 81, "max": 87 }
+        {"pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.105},
+        {"pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 81, "max": 87}
       ]
     },
     {
       "name": "fc = 1061 Hz：增益、相位合理",
-      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}},
       "scope": [
-        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
-        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 42, "max": 48 }
+        {"pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73},
+        {"pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 42, "max": 48}
       ]
     },
     {
       "name": "10fc = 10.6 kHz：增益、相位合理",
-      "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 2 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 2}},
       "scope": [
-        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.98, "max": 1.0 },
-        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 3.5, "max": 8 }
+        {"pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.98, "max": 1.0},
+        {"pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 3.5, "max": 8}
       ]
     }
   ],
@@ -128,30 +414,69 @@
     "- **10.6 kHz（10fc）**：|H| ≈ 0.995，相位 +5.7°——高频时电容几乎是导线。"
   ],
   "measurements": [
-    {"id": "vavg", "voltage": "R1.1", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}}, "unit": "V", "predict": true, "tolAbs": 0.01, "range": [-0.02, 0.02], "ask": "万用表直流档（或示波器的平均值）：VOUT 对 GND 的平均电压", "explain": "电容对直流开路，稳态下 R1 没有直流电流：VOUT 的直流分量是 0，2 V 全“存”在电容上。这就是隔直（耦合）电容。"},
-    {"id": "g106", "scope": "gain", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2}}, "predict": true, "range": [0.0945, 0.104], "ask": "f = 106 Hz：幅度比 VOUT/VIN", "explain": "|H| = (f/fc)/√(1 + (f/fc)²) = 0.1/√1.01 ≈ 0.0995（−20 dB）。"},
-    {"id": "ph106", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2}}, "unit": "°", "predict": true, "range": [80.1, 88.5], "ask": "f = 106 Hz：VOUT 相对 VIN 的相位差（超前为正）", "explain": "∠H = 90° − arctan(0.1) ≈ +84.3°：低频时剩下的一点输出超前将近 90°。"},
-    {"id": "fc", "scope": "gain", "pin": "R1.1", "vs": "FG1.+", "solve": {"el": "FG1", "from": 300, "to": 5000, "value": 0.707}, "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}}, "unit": "Hz", "predict": true, "range": [1010.0, 1110.0], "ask": "扫频：幅度比降到 0.707 的频率 fc", "explain": "fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz，和低通一样；在 fc 处相位是 +45°。"}
+    {
+      "id": "vavg",
+      "voltage": "R1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}},
+      "unit": "V",
+      "predict": true,
+      "tolAbs": 0.01,
+      "range": [-0.02, 0.02],
+      "ask": "万用表直流档（或示波器的平均值）：VOUT 对 GND 的平均电压",
+      "explain": "电容对直流开路，稳态下 R1 没有直流电流：VOUT 的直流分量是 0，2 V 全“存”在电容上。这就是隔直（耦合）电容。"
+    },
+    {
+      "id": "g106",
+      "scope": "gain",
+      "pin": "R1.1",
+      "vs": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2}},
+      "predict": true,
+      "range": [0.0945, 0.104],
+      "ask": "f = 106 Hz：幅度比 VOUT/VIN（CH2 的 Vpp ÷ CH1 的 Vpp）",
+      "explain": "|H| = (f/fc)/√(1 + (f/fc)²) = 0.1/√1.01 ≈ 0.0995（−20 dB）。"
+    },
+    {
+      "id": "ph106",
+      "scope": "phase",
+      "pin": "R1.1",
+      "vs": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 2}},
+      "unit": "°",
+      "predict": true,
+      "range": [80.1, 88.5],
+      "ask": "f = 106 Hz：VOUT 相对 VIN 的相位差（超前为正）",
+      "explain": "∠H = 90° − arctan(0.1) ≈ +84.3°：低频时剩下的一点输出超前将近 90°。"
+    },
+    {
+      "id": "fc",
+      "scope": "gain",
+      "pin": "R1.1",
+      "vs": "FG1.+",
+      "solve": {"el": "FG1", "from": 300, "to": 5000, "value": 0.707},
+      "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}},
+      "unit": "Hz",
+      "predict": true,
+      "range": [1010.0, 1110.0],
+      "ask": "扫频：幅度比降到 0.707 的频率 fc",
+      "explain": "fc = 1/(2π × 15 kΩ × 10 nF) ≈ 1061 Hz，和低通一样；在 fc 处相位是 +45°。"
+    }
   ],
-  "hints": [
-    "电容串联在前，电阻从 VOUT 接到 GND。",
-    "直流偏置过不了电容：稳态下 R1 里有没有直流电流？",
-    "fc = 1/(2πRC) ≈ 1061 Hz；在 fc 处应看到 0.707 和 +45°。"
-  ],
+  "hints": ["电容串联在前，电阻从 VOUT 接到 GND。", "直流偏置过不了电容：稳态下 R1 里有没有直流电流？", "fc = 1/(2πRC) ≈ 1061 Hz；在 fc 处应看到 0.707 和 +45°。"],
   "start": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 2, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   },
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "10n", "pins": { "1": "b3", "2": "b10" } },
-      { "type": "resistor", "ref": "R1", "resistance": "15k", "pins": { "1": "c10", "2": "tn10" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 2, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "10n", "pins": {"1": "b3", "2": "b10"}},
+      {"type": "resistor", "ref": "R1", "resistance": "15k", "pins": {"1": "c10", "2": "tn10"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   }
 }

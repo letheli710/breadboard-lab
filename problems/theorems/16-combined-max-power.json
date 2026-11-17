@@ -7,14 +7,14 @@
   "level": 4,
   "tags": ["综合", "叠加定理", "戴维宁定理", "最大功率传输", "替代定理"],
   "statement": [
-    "图示电路中 U_s = 20 V，I_s = 1 A，R_1 = 5 Ω，R_2 = 20 Ω，R_3 = 4 Ω，负载 R_L 接在结点 a 与地之间，阻值可调。",
+    "图示电路中 V_s = 20 V，I_s = 1 A，R_1 = 5 Ω，R_2 = 20 Ω，R_3 = 4 Ω，负载 R_L 接在结点 a 与地之间，阻值可调。",
     "（1）用叠加定理求断开 R_L 后 a 点的开路电压，并求从 R_L 两端看进去的等效电阻；",
     "（2）R_L 为何值时获得最大功率？P_max = ?",
     "（3）图中 R_L 已调到该值，求此时电流源 I_s 吸收的功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 20 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 20 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 5 },
       { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 20 },
       { "ref": "RL", "type": "R", "from": [12, 0], "to": [12, 4], "value": 4, "label": "R_L", "hideValue": true },
@@ -35,11 +35,11 @@
   "questions": [
     {
       "id": "uoc",
-      "ask": "断开 R_L 后 a 点开路电压 u_oc = ?",
+      "ask": "断开 R_L 后 a 点开路电压 v_oc = ?",
       "find": { "kind": "vth", "port": ["a", "0"], "exclude": ["RL"] },
       "answer": 20,
       "unit": "V",
-      "explain": "U_s 单独作用：20 × 20/(5 + 20) = 16 V；I_s 单独作用：1 × (5 ∥ 20) = 4 V（R_3 与电流源串联，不影响）；u_oc = 20 V。"
+      "explain": "V_s 单独作用：20 × 20/(5 + 20) = 16 V；I_s 单独作用：1 × (5 ∥ 20) = 4 V（R_3 与电流源串联，不影响）；v_oc = 20 V。"
     },
     {
       "id": "req",
@@ -47,7 +47,7 @@
       "find": { "kind": "req", "port": ["a", "0"], "exclude": ["RL"] },
       "answer": 4,
       "unit": "Ω",
-      "explain": "U_s 短路、I_s 开路：R_3 一端悬空，不起作用；R_eq = R_1 ∥ R_2 = 4 Ω。"
+      "explain": "V_s 短路、I_s 开路：R_3 一端悬空，不起作用；R_eq = R_1 ∥ R_2 = 4 Ω。"
     },
     {
       "id": "pmax",
@@ -55,7 +55,7 @@
       "find": { "kind": "pmax", "port": ["a", "0"], "exclude": ["RL"] },
       "answer": 25,
       "unit": "W",
-      "explain": "P_max = u_oc²/(4R_eq) = 400/16 = 25 W。"
+      "explain": "P_max = v_oc²/(4R_eq) = 400/16 = 25 W。"
     },
     {
       "id": "pis",
@@ -63,58 +63,58 @@
       "find": { "kind": "p", "el": "Is" },
       "answer": -14,
       "unit": "W",
-      "explain": "u_a = u_oc/2 = 10 V。I_s 的 1 A 流过 R_3 产生 4 V，I_s 两端电压 = 10 + 4 = 14 V（上正），吸收功率 = −14 W。"
+      "explain": "v_a = v_oc/2 = 10 V。I_s 的 1 A 流过 R_3 产生 4 V，I_s 两端电压 = 10 + 4 = 14 V（上正），吸收功率 = −14 W。"
     }
   ],
   "hints": [
-    "与电流源串联的电阻 R_3 对外电路不起作用：它既不影响 u_oc，也不影响 R_eq——但会影响电流源自身的电压和功率。",
-    "求出 u_a 后，可以用替代定理把 R_L 换成 u_a 的电压源，再求电路其余部分。"
+    "与电流源串联的电阻 R_3 对外电路不起作用：它既不影响 v_oc，也不影响 R_eq——但会影响电流源自身的电压和功率。",
+    "求出 v_a 后，可以用替代定理把 R_L 换成 v_a 的电压源，再求电路其余部分。"
   ],
   "solution": [
-    "**1. 叠加求 u_oc。** U_s 单独作用（I_s 开路）：u' = 20 × 20/25 = 16 V；I_s 单独作用（U_s 短路）：I_s 流入 a，经 R_1 ∥ R_2 = 4 Ω：u'' = 4 V。**u_oc = 20 V**。",
+    "**1. 叠加求 v_oc。** V_s 单独作用（I_s 开路）：v' = 20 × 20/25 = 16 V；I_s 单独作用（V_s 短路）：I_s 流入 a，经 R_1 ∥ R_2 = 4 Ω：v'' = 4 V。**v_oc = 20 V**。",
     "**2. 等效电阻。** 独立源置零后 R_3 与开路串联，没有电流：**R_eq = R_1 ∥ R_2 = 4 Ω**。",
-    "**3. 最大功率。** R_L = 4 Ω，**P_max = 20²/(4 × 4) = 25 W**，此时 u_a = 10 V，i_L = 2.5 A。",
-    "**4. 替代定理。** 把 R_L 换成 10 V 电压源，其余不变：I_s 两端电压 = u_a + R_3·I_s = 10 + 4 = 14 V，**P_Is = −14 W**（发出 14 W）。",
-    "**功率平衡：** U_s 发出 20 × (20 − 10)/5 = 40 W，I_s 发出 14 W，共 54 W；吸收：R_1 20 W + R_2 5 W + R_3 4 W + R_L 25 W = 54 W ✓。"
+    "**3. 最大功率。** R_L = 4 Ω，**P_max = 20²/(4 × 4) = 25 W**，此时 v_a = 10 V，i_L = 2.5 A。",
+    "**4. 替代定理。** 把 R_L 换成 10 V 电压源，其余不变：I_s 两端电压 = v_a + R_3·I_s = 10 + 4 = 14 V，**P_Is = −14 W**（发出 14 W）。",
+    "**功率平衡：** V_s 发出 20 × (20 − 10)/5 = 40 W，I_s 发出 14 W，共 54 W；吸收：R_1 20 W + R_2 5 W + R_3 4 W + R_L 25 W = 54 W ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Combined: superposition + Thevenin + maximum power + substitution",
       "tags": ["combined", "superposition", "Thevenin's theorem", "maximum power transfer", "substitution theorem"],
       "statement": [
-        "In the circuit, U_s = 20 V, I_s = 1 A, R_1 = 5 Ω, R_2 = 20 Ω, R_3 = 4 Ω, and an adjustable load R_L is connected between node a and ground.",
+        "In the circuit, V_s = 20 V, I_s = 1 A, R_1 = 5 Ω, R_2 = 20 Ω, R_3 = 4 Ω, and an adjustable load R_L is connected between node a and ground.",
         "(1) Use superposition to find the open-circuit voltage at a with R_L removed, and the equivalent resistance seen by R_L;",
         "(2) For which R_L does the load receive maximum power? P_max = ?",
         "(3) R_L in the drawing has been set to that value: find the power absorbed by the current source I_s."
       ],
       "questions": [
         {
-          "ask": "Open-circuit voltage at a with R_L removed, u_oc = ?",
-          "explain": "U_s alone: 20 × 20/(5 + 20) = 16 V; I_s alone: 1 × (5 ∥ 20) = 4 V (R_3 is in series with the current source and has no effect); u_oc = 20 V."
+          "ask": "Open-circuit voltage at a with R_L removed, v_oc = ?",
+          "explain": "V_s alone: 20 × 20/(5 + 20) = 16 V; I_s alone: 1 × (5 ∥ 20) = 4 V (R_3 is in series with the current source and has no effect); v_oc = 20 V."
         },
         {
           "ask": "R_eq = ? (this is also the R_L for maximum power)",
-          "explain": "Short U_s, open I_s: one end of R_3 is left floating, so it plays no role; R_eq = R_1 ∥ R_2 = 4 Ω."
+          "explain": "Short V_s, open I_s: one end of R_3 is left floating, so it plays no role; R_eq = R_1 ∥ R_2 = 4 Ω."
         },
         {
           "ask": "P_max = ?",
-          "explain": "P_max = u_oc²/(4R_eq) = 400/16 = 25 W."
+          "explain": "P_max = v_oc²/(4R_eq) = 400/16 = 25 W."
         },
         {
           "ask": "With R_L = R_eq, power absorbed by I_s = ?",
-          "explain": "u_a = u_oc/2 = 10 V. The 1 A of I_s through R_3 drops 4 V, so the voltage across I_s is 10 + 4 = 14 V (+ at the top); absorbed power = −14 W."
+          "explain": "v_a = v_oc/2 = 10 V. The 1 A of I_s through R_3 drops 4 V, so the voltage across I_s is 10 + 4 = 14 V (+ at the top); absorbed power = −14 W."
         }
       ],
       "hints": [
-        "A resistor in series with a current source (R_3) doesn't matter to the rest of the circuit: it affects neither u_oc nor R_eq — but it does change the voltage and power of the current source itself.",
-        "Once u_a is known, use the substitution theorem: replace R_L by a voltage source equal to u_a and solve the rest."
+        "A resistor in series with a current source (R_3) doesn't matter to the rest of the circuit: it affects neither v_oc nor R_eq — but it does change the voltage and power of the current source itself.",
+        "Once v_a is known, use the substitution theorem: replace R_L by a voltage source equal to v_a and solve the rest."
       ],
       "solution": [
-        "**1. u_oc by superposition.** U_s alone (I_s open): u' = 20 × 20/25 = 16 V; I_s alone (U_s shorted): I_s flows into a and through R_1 ∥ R_2 = 4 Ω: u'' = 4 V. **u_oc = 20 V**.",
+        "**1. v_oc by superposition.** V_s alone (I_s open): v' = 20 × 20/25 = 16 V; I_s alone (V_s shorted): I_s flows into a and through R_1 ∥ R_2 = 4 Ω: v'' = 4 V. **v_oc = 20 V**.",
         "**2. Equivalent resistance.** With the sources zeroed, R_3 is in series with an open circuit and carries no current: **R_eq = R_1 ∥ R_2 = 4 Ω**.",
-        "**3. Maximum power.** R_L = 4 Ω, **P_max = 20²/(4 × 4) = 25 W**; then u_a = 10 V, i_L = 2.5 A.",
-        "**4. Substitution.** Replace R_L by a 10 V voltage source; nothing else changes: the voltage across I_s = u_a + R_3·I_s = 10 + 4 = 14 V, **P_Is = −14 W** (it delivers 14 W).",
-        "**Power balance:** U_s delivers 20 × (20 − 10)/5 = 40 W and I_s 14 W, 54 W in total; absorbed: R_1 20 W + R_2 5 W + R_3 4 W + R_L 25 W = 54 W ✓."
+        "**3. Maximum power.** R_L = 4 Ω, **P_max = 20²/(4 × 4) = 25 W**; then v_a = 10 V, i_L = 2.5 A.",
+        "**4. Substitution.** Replace R_L by a 10 V voltage source; nothing else changes: the voltage across I_s = v_a + R_3·I_s = 10 + 4 = 14 V, **P_Is = −14 W** (it delivers 14 W).",
+        "**Power balance:** V_s delivers 20 × (20 − 10)/5 = 40 W and I_s 14 W, 54 W in total; absorbed: R_1 20 W + R_2 5 W + R_3 4 W + R_L 25 W = 54 W ✓."
       ]
     }
   }

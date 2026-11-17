@@ -2,24 +2,32 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "nonlinear",
-  "intro": "本章只讲非线性**电阻**电路：方程不再是线性的，叠加定理不再成立，但线性部分仍可以用戴维宁定理化简。核心是工作点——用曲线相交（负载线）、解析或分段线性化的方法求出来，再用动态电阻做小信号分析。每求出一个解都要回到特性的适用范围里检验。",
+  "intro": [
+    "本章只讲非线性**电阻**电路。方程不再是线性的，叠加定理不再成立；但线性部分仍然可以用戴维宁定理化简。",
+    "核心是**工作点**：用曲线相交（负载线）、解析或分段线性的方法求出它，再用动态电阻做小信号分析。",
+    "最重要的习惯：每求出一个解，都回到特性的适用范围里检验一次。"
+  ],
   "ideas": [
     {
       "id": "classify",
       "title": "非线性电阻及其分类",
       "text": [
-        "电阻的 u–i 关系不是过原点的直线，就是**非线性电阻**（图形符号：电阻方框上加一条带短横的斜线）。它仍然是**无记忆**的：任一时刻的电流只由同一时刻的电压决定，所以本章的电路仍是“电阻电路”，只是方程不再是线性的。",
-        "**电压控制型（压控型）**：i 是 u 的单值函数 i = f(u)，如隧道二极管的 N 形特性——同一电流可以对应几个电压。**电流控制型（流控型）**：u 是 i 的单值函数 u = h(i)，如充气管的 S 形特性。**单调型**（如普通二极管、i = u + u³）既是压控型又是流控型。",
-        "**双向**电阻的曲线关于原点对称（f(−u) = −f(u)），两个端子可以互换；二极管是**单向**的，接反了电路的工作完全不同。"
+        "- 一个电阻的 v–i 关系不是过原点的直线，它就是**非线性电阻**。图形符号是电阻方框上加一条带短横的斜线。",
+        "- 它仍然**没有记忆**：某一时刻的电流只由同一时刻的电压决定。所以本章的电路仍是电阻电路，只是方程不再线性。",
+        "- **压控型**：i 是 v 的单值函数，i = f(v)。隧道二极管的 N 形曲线就是这样：同一个电流可以对应几个电压。",
+        "- **流控型**：v 是 i 的单值函数，v = h(i)，例如充气管的 S 形曲线。**单调**的特性（普通二极管、i = v + v³）两种都算。",
+        "- **双向**电阻的曲线关于原点对称，f(−v) = −f(v)，两个端子可以互换。二极管是**单向**的：接反了，电路的工作完全不同（面包板 5.1 里亲眼见过）。"
       ],
       "problems": ["nonlinear-01-classification", "nonlinear-02-negative-dynamic-resistance"],
       "i18n": {
         "en": {
           "title": "Nonlinear resistors and their classification",
           "text": [
-            "A resistor whose u–i relation is not a straight line through the origin is **nonlinear** (symbol: the resistor box crossed by an oblique stroke with a short foot). It is still **memoryless**: the current at any instant depends only on the voltage at that instant, so the circuits of this chapter are still resistive — only their equations are no longer linear.",
-            "**Voltage-controlled**: i is a single-valued function i = f(u), e.g. the N-shaped curve of a tunnel diode — one current can belong to several voltages. **Current-controlled**: u is a single-valued function u = h(i), e.g. the S-shaped curve of a gas discharge tube. A **monotonic** resistor (an ordinary diode, i = u + u³) is both.",
-            "A **bilateral** resistor has a curve symmetric about the origin (f(−u) = −f(u)) and its terminals can be swapped; a diode is **unilateral** — connected the other way round the circuit behaves completely differently."
+            "- A resistor whose v–i relation is not a straight line through the origin is a **nonlinear resistor**. Its symbol is a resistor box crossed by a slanted line with a short bar.",
+            "- It still has **no memory**: the current at any instant depends only on the voltage at that instant. So the circuits in this chapter are still resistive; only the equations are no longer linear.",
+            "- **Voltage-controlled**: i is a single-valued function of v, i = f(v). A tunnel diode's N-shaped curve is one: one current can belong to several voltages.",
+            "- **Current-controlled**: v is a single-valued function of i, v = h(i), like a gas tube's S-shaped curve. A **monotonic** characteristic (an ordinary diode, i = v + v³) is both.",
+            "- A **bilateral** resistor's curve is symmetric about the origin, f(−v) = −f(v), so its terminals can be swapped. A diode is **unilateral**: connected the other way, the circuit behaves completely differently (you saw it on the breadboard in 5.1)."
           ]
         }
       }
@@ -28,16 +36,22 @@
       "id": "static-dynamic",
       "title": "静态电阻与动态电阻",
       "text": [
-        "在工作点 Q(U_Q，I_Q) 处，**静态电阻** R = U_Q/I_Q（Q 与原点连线），**动态电阻** R_d = du/di|_{Q}（Q 点切线的斜率），动态电导 G_d = di/du|_{Q} = 1/R_d。两者都随工作点变化；线性电阻处处 R = R_d。",
-        "静态电阻用来算工作点处的功率和比值；动态电阻描述**增量**：Δu ≈ R_d·Δi。曲线的下降段 R_d < 0（**负动态电阻**），这时元件仍在吸收功率（U_Q·I_Q > 0），只是电压增加时电流反而减小。曲线水平处 R_d = ∞，竖直处 R_d = 0。"
+        "- 工作点 Q(V_Q，I_Q) 处有两种电阻。**静态电阻** R = V_Q/I_Q，是 Q 和原点连线的斜率。",
+        "- **动态电阻** R_d = dv/di|_{Q}，是 Q 点切线的斜率。动态电导 G_d = 1/R_d。两者都随工作点变化；只有线性电阻处处 R = R_d。",
+        "- 静态电阻用来算工作点的功率和比值。动态电阻描述**变化量**：Δv ≈ R_d·Δi。",
+        "- 曲线下降的一段 R_d < 0，叫**负动态电阻**。这时元件仍在吸收功率（V_Q·I_Q > 0），只是电压升高时电流反而减小。",
+        "- 曲线水平的地方 R_d = ∞，竖直的地方 R_d = 0。"
       ],
       "problems": ["nonlinear-01-classification", "nonlinear-02-negative-dynamic-resistance", "nonlinear-12-small-signal-norton"],
       "i18n": {
         "en": {
           "title": "Static and dynamic resistance",
           "text": [
-            "At the operating point Q(U_Q, I_Q) the **static resistance** is R = U_Q/I_Q (the line from the origin to Q) and the **dynamic resistance** is R_d = du/di at Q (the slope of the tangent), with dynamic conductance G_d = di/du = 1/R_d. Both depend on the operating point; for a linear resistor R = R_d everywhere.",
-            "The static resistance gives ratios and power at the operating point; the dynamic resistance describes **increments**: Δu ≈ R_d·Δi. On a falling part of the curve R_d < 0 (**negative dynamic resistance**): the element still absorbs power (U_Q·I_Q > 0), but its current falls as its voltage rises. Where the curve is horizontal R_d = ∞; where it is vertical R_d = 0."
+            "- At the operating point Q(V_Q, I_Q) there are two resistances. The **static resistance** R = V_Q/I_Q is the slope of the line from the origin to Q.",
+            "- The **dynamic resistance** R_d = dv/di at Q is the slope of the tangent at Q; the dynamic conductance is G_d = 1/R_d. Both change with the operating point; only a linear resistor has R = R_d everywhere.",
+            "- Use the static resistance for power and ratios at the operating point. The dynamic resistance describes **changes**: Δv ≈ R_d·Δi.",
+            "- On a falling part of the curve R_d < 0: **negative dynamic resistance**. The element still absorbs power (V_Q·I_Q > 0); the current just drops when the voltage rises.",
+            "- Where the curve is horizontal R_d = ∞; where it is vertical R_d = 0."
           ]
         }
       }
@@ -46,16 +60,20 @@
       "id": "combine",
       "title": "非线性电阻的串联与并联",
       "text": [
-        "**串联**：各元件电流相同，电压相加——在**同一个 i** 下把各曲线的 u 相加（横向叠加），得到等效特性 u = h_1(i) + h_2(i)。**并联**：电压相同，电流相加——在**同一个 u** 下把 i 相加（纵向叠加），i = f_1(u) + f_2(u)。",
-        "解析叠加要求函数形式匹配：流控型元件串联、压控型元件并联最方便。含二极管时等效特性也是分段的：例如二极管截止时，整条串联支路的电流为零。"
+        "- **串联**：电流相同，电压相加。在**同一个 i** 下把各条曲线的 v 加起来（横着叠），v = h_1(i) + h_2(i)。",
+        "- **并联**：电压相同，电流相加。在**同一个 v** 下把 i 加起来（竖着叠），i = f_1(v) + f_2(v)。",
+        "- 写成式子相加时，函数形式要配得上：流控型元件串联、压控型元件并联最方便。",
+        "- 有二极管时，等效特性也是分段的。例如二极管截止时，整条串联支路的电流都是零。"
       ],
       "problems": ["nonlinear-03-series-combination", "nonlinear-04-parallel-combination", "nonlinear-14-two-nonlinear-small-signal"],
       "i18n": {
         "en": {
           "title": "Nonlinear resistors in series and in parallel",
           "text": [
-            "**Series**: the same current, voltages add — at **the same i** add the voltages of the curves (horizontal addition): u = h_1(i) + h_2(i). **Parallel**: the same voltage, currents add — at **the same u** add the currents (vertical addition): i = f_1(u) + f_2(u).",
-            "Adding analytically needs matching forms: current-controlled elements in series and voltage-controlled ones in parallel are the easy cases. With diodes the combined characteristic is piecewise too: with the diode off, a whole series branch carries no current."
+            "- **Series**: the same current, voltages add. At the **same i**, add the curves' v values (stack them sideways): v = h_1(i) + h_2(i).",
+            "- **Parallel**: the same voltage, currents add. At the **same v**, add the i values (stack them vertically): i = f_1(v) + f_2(v).",
+            "- To add them as formulas the forms must match: current-controlled elements in series and voltage-controlled ones in parallel are the easy cases.",
+            "- With a diode the combined characteristic is piecewise too. For example, while the diode blocks, the whole series branch carries no current."
           ]
         }
       }
@@ -64,16 +82,20 @@
       "id": "load-line",
       "title": "曲线相交法（负载线）",
       "text": [
-        "电路中只有一个非线性电阻时，把**其余的线性部分**用戴维宁（或诺顿）定理化成 U_oc 串 R_0。KVL 给出一条直线 u = U_oc − R_0·i，叫**负载线**，它过 (U_oc，0) 和 (0，U_oc/R_0)。负载线与非线性电阻特性的交点就是**工作点 Q**。",
-        "线性部分含受控源时一样可以化简（受控源是线性元件），但求 R_0 要用开路电压/短路电流或外加电源法，**不能**把受控源置零。求出 U_Q、I_Q 后，用**替代定理**把非线性电阻换成 U_Q 的电压源（或 I_Q 的电流源），再回到原电路求其他支路的量。"
+        "- 电路里只有一个非线性电阻时，把**其余的线性部分**用戴维宁定理化成 V_oc 串 R_0。",
+        "- KVL 给出一条直线 v = V_oc − R_0·i，叫**负载线**。它过 (V_oc，0) 和 (0，V_oc/R_0)。负载线和特性曲线的交点就是**工作点 Q**。",
+        "- 线性部分有受控源也一样能化简，因为受控源是线性元件。但求 R_0 要用开路电压 / 短路电流，或外加电源法，**不能**把受控源置零。",
+        "- 求出 V_Q、I_Q 后用**替代定理**：把非线性电阻换成 V_Q 的电压源或 I_Q 的电流源，再回到原电路求别的支路。"
       ],
       "problems": ["nonlinear-05-load-line", "nonlinear-10-multiple-operating-points", "nonlinear-11-dependent-source-load-line", "nonlinear-13-zener-ripple"],
       "i18n": {
         "en": {
           "title": "Load-line (curve intersection) method",
           "text": [
-            "With a single nonlinear resistor, reduce **the rest of the circuit** (which is linear) to a Thevenin (or Norton) equivalent U_oc in series with R_0. KVL gives a straight line u = U_oc − R_0·i, the **load line**, through (U_oc, 0) and (0, U_oc/R_0). Its intersection with the characteristic is the **operating point Q**.",
-            "A linear part with dependent sources reduces the same way (dependent sources are linear elements), but find R_0 by open-circuit voltage / short-circuit current or a test source — **never** zero the dependent source. Once U_Q, I_Q are known, the **substitution theorem** lets you replace the nonlinear resistor by a U_Q voltage source (or an I_Q current source) to find the other branch quantities in the original circuit."
+            "- With a single nonlinear resistor in the circuit, reduce **everything else** (the linear part) with Thevenin's theorem to V_oc in series with R_0.",
+            "- KVL then gives a straight line v = V_oc − R_0·i, the **load line**, through (V_oc, 0) and (0, V_oc/R_0). Where it crosses the characteristic is the **operating point Q**.",
+            "- Dependent sources in the linear part are fine, since they are linear elements. But find R_0 from the open-circuit voltage and short-circuit current, or with a test source; **never** zero a dependent source.",
+            "- Once V_Q and I_Q are known, use the **substitution theorem**: replace the nonlinear resistor by a V_Q voltage source or an I_Q current source and go back to the original circuit for the other branches."
           ]
         }
       }
@@ -82,16 +104,18 @@
       "id": "analytic",
       "title": "解析法：解非线性方程并检验根",
       "text": [
-        "特性有解析式时，把它代入负载线方程（或结点、回路方程）就得到一个非线性代数方程，平方律特性得到一元二次方程。",
-        "解出来的每个根都要**回代检查**：它是否落在特性公式的适用范围内（例如 i = au² 只对 u ≥ 0 成立）。不满足的根不是工作点，要舍去；满足的根可能不止一个，那就是多个工作点。"
+        "- 特性有解析式时，把它代进负载线方程（或结点、回路方程），得到一个非线性代数方程。平方律特性得到的是一元二次方程。",
+        "- 解出的每个根都要**回代检查**：它在不在特性公式的适用范围里？例如 i = av² 只对 v ≥ 0 成立。",
+        "- 不在范围里的根不是工作点，舍去。在范围里的根可能不止一个，那就是多个工作点。"
       ],
       "problems": ["nonlinear-03-series-combination", "nonlinear-04-parallel-combination", "nonlinear-06-quadratic-root", "nonlinear-11-dependent-source-load-line"],
       "i18n": {
         "en": {
           "title": "Analytic method: solve the nonlinear equation and check the roots",
           "text": [
-            "If the characteristic has a formula, substitute it into the load-line equation (or nodal / loop equations) to get a nonlinear algebraic equation; a square law gives a quadratic.",
-            "**Check every root**: does it lie in the range where the formula holds (e.g. i = au² only for u ≥ 0)? A root outside it is not an operating point and is rejected; if several roots pass, the circuit has several operating points."
+            "- When the characteristic has a formula, substitute it into the load-line equation (or the node or mesh equations). The result is a nonlinear algebraic equation; a square law gives a quadratic.",
+            "- **Check every root**: does it lie in the range where the formula holds? For example, i = av² only holds for v ≥ 0.",
+            "- A root outside the range is not an operating point; drop it. More than one root inside the range means more than one operating point."
           ]
         }
       }
@@ -100,16 +124,22 @@
       "id": "pwl",
       "title": "分段线性化法与理想二极管",
       "text": [
-        "把特性近似成几段直线，每一段都可以写成 u = U_0k + R_k·i（电压源串电阻，R_k 是该段斜率，U_0k 是延长线在 u 轴上的截距），只在本段的范围内有效。**假设**工作点在某一段（或某几个元件各处于哪一段），用对应的线性电路求解，再**检验**结果是否落在所设的段内；不在就换一个假设。",
-        "**理想二极管**是最简单的两段特性：导通时 u = 0、i ≥ 0（短路），截止时 i = 0、u ≤ 0（开路）。加上开启电压 U_on 和导通电阻 R_on 就是“理想二极管 + 电压源 + 电阻”的模型。多个二极管时逐个假设状态，检验导通管电流 ≥ 0、截止管电压 ≤ U_on。"
+        "- 把特性近似成几段直线。每一段都能写成 v = V_0k + R_k·i，也就是一个电压源串一个电阻：R_k 是这一段的斜率，V_0k 是延长线在 v 轴上的截距。它只在本段范围内有效。",
+        "- 方法是**先假设、再检验**：假设工作点在某一段，用对应的线性电路求解，再看结果是否真的落在这一段。不在，就换一个假设。",
+        "- **理想二极管**是最简单的两段特性。导通时 v = 0、i ≥ 0，像短路；截止时 i = 0、v ≤ 0，像开路。",
+        "- 再加上开启电压 V_on 和导通电阻 R_on，就是“理想二极管 + 电压源 + 电阻”的模型。面包板上的硅二极管正是这样：0.65 V 加 0.8 Ω。",
+        "- 有几个二极管时，逐个假设导通或截止，再检验：导通的管子电流 ≥ 0，截止的管子电压 ≤ V_on。"
       ],
       "problems": ["nonlinear-03-series-combination", "nonlinear-07-ideal-diodes", "nonlinear-08-piecewise-linear", "nonlinear-13-zener-ripple"],
       "i18n": {
         "en": {
           "title": "Piecewise-linear method and ideal diodes",
           "text": [
-            "Approximate the characteristic by straight segments; each is u = U_0k + R_k·i (a source in series with a resistor: R_k is the segment's slope, U_0k the intercept of its extension on the u axis), valid only inside the segment. **Assume** the operating point is on a segment (or which segment each element is on), solve that linear circuit, then **check** that the result lies in the assumed segments; if not, change the assumption.",
-            "The **ideal diode** is the simplest two-segment characteristic: on, u = 0 with i ≥ 0 (a short); off, i = 0 with u ≤ 0 (an open). Adding a turn-on voltage U_on and an on-resistance R_on gives the model \"ideal diode + source + resistor\". With several diodes assume each state, then check that conducting diodes carry current ≥ 0 and blocking ones have voltage ≤ U_on."
+            "- Approximate the characteristic by straight segments. Each segment is v = V_0k + R_k·i, a voltage source in series with a resistor: R_k is the segment's slope, V_0k where its extension meets the v axis. It holds only inside that segment.",
+            "- The method is **assume, then check**: assume the operating point lies on one segment, solve the matching linear circuit, then see whether the result really lies on that segment. If not, try another.",
+            "- The **ideal diode** is the simplest two-segment characteristic. On: v = 0, i ≥ 0, a short circuit. Off: i = 0, v ≤ 0, an open circuit.",
+            "- Add a turn-on voltage V_on and an on-resistance R_on and you have the \"ideal diode + voltage source + resistor\" model. The breadboard's silicon diode is exactly that: 0.65 V plus 0.8 Ω.",
+            "- With several diodes, assume each one on or off, then check: every conducting diode carries i ≥ 0, every blocking one has v ≤ V_on."
           ]
         }
       }
@@ -118,16 +148,20 @@
       "id": "multiple",
       "title": "多个工作点",
       "text": [
-        "非单调的特性可以与负载线有多个交点：压控型的 N 形特性（隧道二极管）用电压源加串联电阻驱动时，可能有三个工作点；流控型的 S 形特性用电压源驱动时也可能有多个。工作点的个数随 U_s、R 变化。",
-        "哪个工作点会真正出现，要看稳定性：器件两端的寄生电容 C 看到的小信号电导是 1/R + 1/R_d，它为正时扰动衰减（稳定），为负时扰动增长（不稳定）。负阻段上的工作点在 |R_d| < R 时不稳定——这正是双稳态电路的原理。"
+        "- 特性不单调时，它和负载线可以有好几个交点。N 形曲线（隧道二极管）用电压源串电阻驱动，可能有三个工作点；S 形曲线也可能有多个。",
+        "- 工作点的个数随 V_s 和 R 变化。",
+        "- 哪个工作点真的会出现，要看**稳定性**。器件两端总有一点寄生电容 C，它看到的小信号电导是 1/R + 1/R_d：为正时扰动衰减（稳定），为负时扰动增长（不稳定）。",
+        "- 所以负阻段上的工作点在 |R_d| < R 时不稳定。这正是双稳态电路的原理。"
       ],
       "problems": ["nonlinear-02-negative-dynamic-resistance", "nonlinear-10-multiple-operating-points"],
       "i18n": {
         "en": {
           "title": "Several operating points",
           "text": [
-            "A non-monotonic characteristic can meet the load line several times: an N-shaped voltage-controlled curve (tunnel diode) driven by a voltage source through a resistor can have three operating points, and so can an S-shaped current-controlled one driven by a voltage source. The number depends on U_s and R.",
-            "Which one actually occurs is a question of stability: the parasitic capacitance C across the device sees the small-signal conductance 1/R + 1/R_d. If it is positive a disturbance decays (stable); if negative it grows (unstable). An operating point on the negative-resistance segment with |R_d| < R is unstable — the principle of bistable circuits."
+            "- A non-monotonic characteristic can cross the load line several times. An N-shaped curve (a tunnel diode) driven by a voltage source and series resistor may have three operating points; an S-shaped curve can have several too.",
+            "- The number of operating points changes with V_s and R.",
+            "- Which one actually appears is a question of **stability**. There is always a little stray capacitance C across the device, and it sees a small-signal conductance 1/R + 1/R_d: positive, and a disturbance dies away (stable); negative, and it grows (unstable).",
+            "- So an operating point on the negative-resistance part is unstable when |R_d| < R. That is how bistable circuits work."
           ]
         }
       }
@@ -136,16 +170,22 @@
       "id": "small-signal",
       "title": "小信号分析法",
       "text": [
-        "激励 = 直流 U_s + 很小的变化量 u_s(t) 时，响应 ≈ 直流工作点 + 小信号分量：u = U_Q + u_1，i = I_Q + i_1。步骤：**① 只留直流源**，求工作点 Q；**② 求 Q 点的动态电阻** R_d；**③ 小信号等效电路**：直流源置零，非线性电阻换成 R_d，只留小信号源，求 u_1、i_1（正弦小信号可以用相量）；**④ 叠加**得到总响应。",
-        "依据是特性在 Q 点的泰勒展开 f(U_Q + u_1) ≈ f(U_Q) + f'(U_Q)·u_1：小信号足够小、曲线在这个范围内近似直线时才准确；若工作点在分段线性特性的一段内且信号不越过折点，结果就是精确的。小信号电路里用的是 R_d，不是静态电阻。"
+        "- 激励是直流 V_s 加一个很小的变化量 v_s(t) 时，响应 ≈ 直流工作点 + 小信号分量：v = V_Q + v_1，i = I_Q + i_1。",
+        "- 四步：**① 只留直流源**，求工作点 Q；**② 求 Q 点的动态电阻** R_d；**③ 画小信号等效电路**：直流源置零，非线性电阻换成 R_d，只留小信号源，求 v_1、i_1（正弦小信号可以用相量）；**④ 叠加**，得到总响应。",
+        "- 依据是特性在 Q 点的泰勒展开：f(V_Q + v_1) ≈ f(V_Q) + f'(V_Q)·v_1。信号足够小、曲线在这个范围里近似直线时，结果才准。",
+        "- 工作点在分段线性特性的某一段里、信号又不越过折点时，结果是精确的。",
+        "- 小信号电路里用的是 R_d，不是静态电阻。"
       ],
       "problems": ["nonlinear-09-small-signal-basic", "nonlinear-12-small-signal-norton", "nonlinear-13-zener-ripple", "nonlinear-14-two-nonlinear-small-signal"],
       "i18n": {
         "en": {
           "title": "Small-signal analysis",
           "text": [
-            "With an excitation DC U_s + a small variation u_s(t), the response ≈ DC operating point + small-signal part: u = U_Q + u_1, i = I_Q + i_1. Steps: **① DC source only**: find Q; **② the dynamic resistance** R_d at Q; **③ small-signal equivalent circuit**: zero the DC sources, replace the nonlinear resistor by R_d, keep only the small-signal source and find u_1, i_1 (phasors work for a sinusoidal signal); **④ add** to get the total response.",
-            "It rests on the Taylor expansion at Q, f(U_Q + u_1) ≈ f(U_Q) + f'(U_Q)·u_1: accurate when the signal is small enough that the curve is nearly straight over its range; on one segment of a piecewise-linear characteristic, with the signal not crossing a corner, it is exact. The small-signal circuit uses R_d, not the static resistance."
+            "- When the excitation is a DC V_s plus a very small change v_s(t), the response ≈ DC operating point + small-signal part: v = V_Q + v_1, i = I_Q + i_1.",
+            "- Four steps: **① keep only the DC sources** and find Q; **② find the dynamic resistance** R_d at Q; **③ draw the small-signal circuit**: zero the DC sources, replace the nonlinear resistor by R_d, keep only the small-signal source and find v_1, i_1 (phasors for a sinusoidal signal); **④ add** to get the total response.",
+            "- The basis is the Taylor expansion at Q: f(V_Q + v_1) ≈ f(V_Q) + f'(V_Q)·v_1. It is accurate only when the signal is small enough that the curve is nearly straight over its range.",
+            "- When Q lies inside one segment of a piecewise-linear characteristic and the signal never crosses a corner, the result is exact.",
+            "- The small-signal circuit uses R_d, not the static resistance."
           ]
         }
       }
@@ -156,13 +196,13 @@
       "id": "vc-cc",
       "idea": "classify",
       "name": "压控型 / 流控型",
-      "expr": "i = f(u)　/　u = h(i)",
-      "when": "u、i 取关联参考方向。f 为单值函数即压控型，h 为单值函数即流控型；单调特性两者都是。双向：f(−u) = −f(u)。",
+      "expr": "i = f(v)　/　v = h(i)",
+      "when": "v、i 取关联参考方向。f 为单值函数即压控型，h 为单值函数即流控型；单调特性两者都是。双向：f(−v) = −f(v)。",
       "i18n": {
         "en": {
           "name": "Voltage- / current-controlled",
-          "expr": "i = f(u)　/　u = h(i)",
-          "when": "Passive sign convention. Voltage-controlled if f is single-valued, current-controlled if h is; a monotonic characteristic is both. Bilateral: f(−u) = −f(u)."
+          "expr": "i = f(v)　/　v = h(i)",
+          "when": "Passive sign convention. Voltage-controlled if f is single-valued, current-controlled if h is; a monotonic characteristic is both. Bilateral: f(−v) = −f(v)."
         }
       }
     },
@@ -170,12 +210,12 @@
       "id": "rs",
       "idea": "static-dynamic",
       "name": "静态电阻",
-      "expr": "R = \\frac{U_Q}{I_Q}",
+      "expr": "R = \\frac{V_Q}{I_Q}",
       "when": "工作点 Q 处，关联参考方向；I_Q = 0 时无定义。",
       "i18n": {
         "en": {
           "name": "Static resistance",
-          "expr": "R = \\frac{U_Q}{I_Q}",
+          "expr": "R = \\frac{V_Q}{I_Q}",
           "when": "At the operating point Q, passive convention; undefined when I_Q = 0."
         }
       }
@@ -184,13 +224,13 @@
       "id": "rd",
       "idea": "static-dynamic",
       "name": "动态电阻",
-      "expr": "R_d = \\frac{du}{di}|_{Q} = \\frac{1}{f'(U_Q)}",
-      "when": "Q 点切线斜率的倒数（u–i 图上 u 为横轴时）；下降段 R_d < 0，水平段 R_d = ∞，竖直段 R_d = 0；折点处无定义。",
+      "expr": "R_d = \\frac{dv}{di}|_{Q} = \\frac{1}{f'(V_Q)}",
+      "when": "Q 点切线斜率的倒数（v–i 图上 v 为横轴时）；下降段 R_d < 0，水平段 R_d = ∞，竖直段 R_d = 0；折点处无定义。",
       "i18n": {
         "en": {
           "name": "Dynamic resistance",
-          "expr": "R_d = \\frac{du}{di}|_{Q} = \\frac{1}{f'(U_Q)}",
-          "when": "Reciprocal slope of the tangent at Q (u on the horizontal axis); R_d < 0 on a falling part, ∞ where horizontal, 0 where vertical; undefined at a corner."
+          "expr": "R_d = \\frac{dv}{di}|_{Q} = \\frac{1}{f'(V_Q)}",
+          "when": "Reciprocal slope of the tangent at Q (v on the horizontal axis); R_d < 0 on a falling part, ∞ where horizontal, 0 where vertical; undefined at a corner."
         }
       }
     },
@@ -198,12 +238,12 @@
       "id": "power",
       "idea": "static-dynamic",
       "name": "非线性电阻吸收的功率",
-      "expr": "P = U_Q·I_Q",
+      "expr": "P = V_Q·I_Q",
       "when": "直流工作点处，关联参考方向。不能用 R_d 计算功率。",
       "i18n": {
         "en": {
           "name": "Power absorbed by a nonlinear resistor",
-          "expr": "P = U_Q·I_Q",
+          "expr": "P = V_Q·I_Q",
           "when": "At the DC operating point, passive convention. Never compute power with R_d."
         }
       }
@@ -212,12 +252,12 @@
       "id": "series",
       "idea": "combine",
       "name": "串联等效特性",
-      "expr": "u = h_1(i) + h_2(i)",
+      "expr": "v = h_1(i) + h_2(i)",
       "when": "串联：各元件电流相同（同一个 i），电压相加；适合流控型（或单调）元件。",
       "i18n": {
         "en": {
           "name": "Series combination",
-          "expr": "u = h_1(i) + h_2(i)",
+          "expr": "v = h_1(i) + h_2(i)",
           "when": "Series: the same current i through each element, voltages add; suits current-controlled (or monotonic) elements."
         }
       }
@@ -226,12 +266,12 @@
       "id": "parallel",
       "idea": "combine",
       "name": "并联等效特性",
-      "expr": "i = f_1(u) + f_2(u)",
+      "expr": "i = f_1(v) + f_2(v)",
       "when": "并联：各元件电压相同，电流相加；适合压控型（或单调）元件。",
       "i18n": {
         "en": {
           "name": "Parallel combination",
-          "expr": "i = f_1(u) + f_2(u)",
+          "expr": "i = f_1(v) + f_2(v)",
           "when": "Parallel: the same voltage across each element, currents add; suits voltage-controlled (or monotonic) elements."
         }
       }
@@ -240,13 +280,13 @@
       "id": "loadline",
       "idea": "load-line",
       "name": "负载线",
-      "expr": "u = U_{oc} − R_0·i",
-      "when": "U_oc、R_0 是从非线性电阻两端看进去的线性部分的戴维宁参数；i 从 U_oc 的“+”端流出、流入非线性电阻（关联方向）。工作点：同时满足 i = f(u)。",
+      "expr": "v = V_{oc} − R_0·i",
+      "when": "V_oc、R_0 是从非线性电阻两端看进去的线性部分的戴维宁参数；i 从 V_oc 的“+”端流出、流入非线性电阻（关联方向）。工作点：同时满足 i = f(v)。",
       "i18n": {
         "en": {
           "name": "Load line",
-          "expr": "u = U_{oc} − R_0·i",
-          "when": "U_oc, R_0: Thevenin parameters of the linear part seen from the nonlinear resistor; i leaves the \"+\" of U_oc and enters the nonlinear resistor (its passive convention). Operating point: i = f(u) at the same time."
+          "expr": "v = V_{oc} − R_0·i",
+          "when": "V_oc, R_0: Thevenin parameters of the linear part seen from the nonlinear resistor; i leaves the \"+\" of V_oc and enters the nonlinear resistor (its passive convention). Operating point: i = f(v) at the same time."
         }
       }
     },
@@ -254,13 +294,13 @@
       "id": "segment",
       "idea": "pwl",
       "name": "分段线性模型",
-      "expr": "u = U_{0k} + R_k·i",
-      "when": "只在第 k 段的范围内成立；R_k 为该段斜率（动态电阻），U_0k 为延长线在 u 轴上的截距。解出后必须检验结果在该段内。",
+      "expr": "v = V_{0k} + R_k·i",
+      "when": "只在第 k 段的范围内成立；R_k 为该段斜率（动态电阻），V_0k 为延长线在 v 轴上的截距。解出后必须检验结果在该段内。",
       "i18n": {
         "en": {
           "name": "Piecewise-linear segment",
-          "expr": "u = U_{0k} + R_k·i",
-          "when": "Valid only inside segment k; R_k is its slope (dynamic resistance), U_0k the intercept of its extension on the u axis. Check that the solution lies in the segment."
+          "expr": "v = V_{0k} + R_k·i",
+          "when": "Valid only inside segment k; R_k is its slope (dynamic resistance), V_0k the intercept of its extension on the v axis. Check that the solution lies in the segment."
         }
       }
     },
@@ -268,13 +308,13 @@
       "id": "diode",
       "idea": "pwl",
       "name": "理想二极管",
-      "expr": "导通：u = 0，i ≥ 0；截止：i = 0，u ≤ 0",
-      "when": "u 为阳极对阴极电压，i 从阳极流入。带开启电压时导通条件为 u = U_on + R_on·i、i ≥ 0，截止条件为 u ≤ U_on。",
+      "expr": "导通：v = 0，i ≥ 0；截止：i = 0，v ≤ 0",
+      "when": "v 为阳极对阴极电压，i 从阳极流入。带开启电压时导通条件为 v = V_on + R_on·i、i ≥ 0，截止条件为 v ≤ V_on。",
       "i18n": {
         "en": {
           "name": "Ideal diode",
-          "expr": "on: u = 0, i ≥ 0;  off: i = 0, u ≤ 0",
-          "when": "u from anode to cathode, i into the anode. With a turn-on voltage: on means u = U_on + R_on·i with i ≥ 0, off means u ≤ U_on."
+          "expr": "on: v = 0, i ≥ 0;  off: i = 0, v ≤ 0",
+          "when": "v from anode to cathode, i into the anode. With a turn-on voltage: on means v = V_on + R_on·i with i ≥ 0, off means v ≤ V_on."
         }
       }
     },
@@ -296,13 +336,13 @@
       "id": "ss",
       "idea": "small-signal",
       "name": "小信号近似",
-      "expr": "u ≈ U_Q + u_1，　u_1 = R_d·i_1",
-      "when": "|u_1|、|i_1| 足够小，使特性在 Q 附近近似为直线；u_1、i_1 由小信号等效电路求得（直流源置零，非线性电阻 → R_d）。",
+      "expr": "v ≈ V_Q + v_1，　v_1 = R_d·i_1",
+      "when": "|v_1|、|i_1| 足够小，使特性在 Q 附近近似为直线；v_1、i_1 由小信号等效电路求得（直流源置零，非线性电阻 → R_d）。",
       "i18n": {
         "en": {
           "name": "Small-signal approximation",
-          "expr": "u ≈ U_Q + u_1,　u_1 = R_d·i_1",
-          "when": "|u_1|, |i_1| small enough that the characteristic is nearly straight around Q; u_1, i_1 come from the small-signal circuit (DC sources zeroed, nonlinear resistor → R_d)."
+          "expr": "v ≈ V_Q + v_1,　v_1 = R_d·i_1",
+          "when": "|v_1|, |i_1| small enough that the characteristic is nearly straight around Q; v_1, i_1 come from the small-signal circuit (DC sources zeroed, nonlinear resistor → R_d)."
         }
       }
     },
@@ -310,13 +350,13 @@
       "id": "taylor",
       "idea": "small-signal",
       "name": "线性化的依据",
-      "expr": "f(U_Q + u_1) ≈ f(U_Q) + f'(U_Q)·u_1",
-      "when": "压控型 i = f(u)，在 Q 点一阶泰勒展开，忽略 u_1 的高次项；f'(U_Q) = G_d = 1/R_d。",
+      "expr": "f(V_Q + v_1) ≈ f(V_Q) + f'(V_Q)·v_1",
+      "when": "压控型 i = f(v)，在 Q 点一阶泰勒展开，忽略 v_1 的高次项；f'(V_Q) = G_d = 1/R_d。",
       "i18n": {
         "en": {
           "name": "Why linearisation works",
-          "expr": "f(U_Q + u_1) ≈ f(U_Q) + f'(U_Q)·u_1",
-          "when": "Voltage-controlled i = f(u), first-order Taylor expansion at Q, higher powers of u_1 neglected; f'(U_Q) = G_d = 1/R_d."
+          "expr": "f(V_Q + v_1) ≈ f(V_Q) + f'(V_Q)·v_1",
+          "when": "Voltage-controlled i = f(v), first-order Taylor expansion at Q, higher powers of v_1 neglected; f'(V_Q) = G_d = 1/R_d."
         }
       }
     }
@@ -326,10 +366,10 @@
       "id": "load-line-square",
       "ideas": ["load-line", "analytic", "static-dynamic"],
       "title": "戴维宁化简 + 负载线：平方律电阻的工作点",
-      "statement": "图示电路中 U_s = 9 V，R_1 = 3 Ω，R_2 = 6 Ω，非线性电阻 N 的特性为 i = 0.5u²（u ≥ 0；u < 0 时 i = 0）。求工作点、R_1 中的电流、N 的静态电阻和动态电阻。",
+      "statement": "图示电路中 V_s = 9 V，R_1 = 3 Ω，R_2 = 6 Ω，非线性电阻 N 的特性为 i = 0.5v²（v ≥ 0；v < 0 时 i = 0）。求工作点、R_1 中的电流、N 的静态电阻和动态电阻。",
       "schematic": {
         "elements": [
-          {"ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 9},
+          {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 9},
           {"ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 3},
           {"ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 6},
           {"ref": "N", "type": "NR", "from": [12, 0], "to": [12, 4], "law": {"i": [0, 0, 0.5], "umin": 0}}
@@ -337,14 +377,14 @@
         "wires": [[[0, 0], [2, 0]], [[6, 0], [12, 0]], [[12, 4], [0, 4]]],
         "labels": [{"at": [8, 0], "name": "a"}],
         "grounds": [[0, 4]],
-        "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}, {"kind": "i", "el": "R1", "name": "i1"}],
+        "marks": [{"kind": "v", "el": "N", "name": "v"}, {"kind": "i", "el": "N", "name": "i"}, {"kind": "i", "el": "R1", "name": "i1"}],
         "plot": {"el": "N", "u": [0, 6.5], "i": [0, 3.5], "loadLine": true, "points": true}
       },
       "analysis": {"type": "dc"},
       "results": [
-        {"id": "uoc", "ask": "U_oc（断开 N）", "find": {"kind": "vth", "port": ["a", "0"], "exclude": ["N"]}, "answer": 6, "unit": "V"},
+        {"id": "uoc", "ask": "V_oc（断开 N）", "find": {"kind": "vth", "port": ["a", "0"], "exclude": ["N"]}, "answer": 6, "unit": "V"},
         {"id": "r0", "ask": "R_0", "find": {"kind": "req", "port": ["a", "0"], "exclude": ["N"]}, "answer": 2, "unit": "Ω"},
-        {"id": "uq", "ask": "U_Q", "find": {"kind": "v", "el": "N"}, "answer": 2, "unit": "V"},
+        {"id": "uq", "ask": "V_Q", "find": {"kind": "v", "el": "N"}, "answer": 2, "unit": "V"},
         {"id": "iq", "ask": "I_Q", "find": {"kind": "i", "el": "N"}, "answer": 2, "unit": "A"},
         {"id": "i1", "ask": "i_1", "find": {"kind": "i", "el": "R1"}, "answer": 2.333333, "unit": "A"},
         {"id": "i2", "ask": "i_R2", "find": {"kind": "i", "el": "R2"}, "answer": 0.333333, "unit": "A"},
@@ -353,20 +393,20 @@
         {"id": "p", "ask": "P_N（吸收）", "find": {"kind": "p", "el": "N"}, "answer": 4, "unit": "W"}
       ],
       "steps": [
-        "1. **只把线性部分化简。** 断开 N：U_oc = 9 × 6/(3 + 6) = **6 V**；U_s 短路：R_0 = 3 ∥ 6 = **2 Ω**。",
-        "2. **负载线。** u = 6 − 2i，在特性图上是过 (6 V，0) 和 (0，3 A) 的虚线。",
-        "3. **解析求交点。** 代入 i = 0.5u²：u = 6 − u² → u² + u − 6 = 0 → (u − 2)(u + 3) = 0。u = −3 不在 u ≥ 0 的范围内（那里 i = 0，负载线却要求 i = 4.5），舍去：**U_Q = 2 V，I_Q = 2 A**，与图中的交点 Q 一致。",
-        "4. **回到原电路（替代定理）。** u_a = U_Q = 2 V，**i_1 = (9 − 2)/3 ≈ 2.333 A**；R_2 中 2/6 ≈ 0.333 A，KCL：0.333 + 2 = 2.333 ✓。",
-        "5. **两种电阻。** 静态 R = 2/2 = **1 Ω**；动态 di/du = u = 2 S，**R_d = 0.5 Ω**。功率 P_N = 2 × 2 = **4 W**。"
+        "1. **只把线性部分化简。** 断开 N：V_oc = 9 × 6/(3 + 6) = **6 V**；V_s 短路：R_0 = 3 ∥ 6 = **2 Ω**。",
+        "2. **负载线。** v = 6 − 2i，在特性图上是过 (6 V，0) 和 (0，3 A) 的虚线。",
+        "3. **解析求交点。** 代入 i = 0.5v²：v = 6 − v² → v² + v − 6 = 0 → (v − 2)(v + 3) = 0。v = −3 不在 v ≥ 0 的范围内（那里 i = 0，负载线却要求 i = 4.5），舍去：**V_Q = 2 V，I_Q = 2 A**，与图中的交点 Q 一致。",
+        "4. **回到原电路（替代定理）。** v_a = V_Q = 2 V，**i_1 = (9 − 2)/3 ≈ 2.333 A**；R_2 中 2/6 ≈ 0.333 A，KCL：0.333 + 2 = 2.333 ✓。",
+        "5. **两种电阻。** 静态 R = 2/2 = **1 Ω**；动态 di/dv = v = 2 S，**R_d = 0.5 Ω**。功率 P_N = 2 × 2 = **4 W**。"
       ],
       "i18n": {
         "en": {
           "title": "Thevenin reduction + load line: operating point of a square-law resistor",
-          "statement": "U_s = 9 V, R_1 = 3 Ω, R_2 = 6 Ω; the nonlinear resistor N has i = 0.5u² (u ≥ 0; i = 0 for u < 0). Find the operating point, the current in R_1, and the static and dynamic resistances of N.",
+          "statement": "V_s = 9 V, R_1 = 3 Ω, R_2 = 6 Ω; the nonlinear resistor N has i = 0.5v² (v ≥ 0; i = 0 for v < 0). Find the operating point, the current in R_1, and the static and dynamic resistances of N.",
           "results": [
-            {"ask": "U_oc (N removed)"},
+            {"ask": "V_oc (N removed)"},
             {"ask": "R_0"},
-            {"ask": "U_Q"},
+            {"ask": "V_Q"},
             {"ask": "I_Q"},
             {"ask": "i_1"},
             {"ask": "i_R2"},
@@ -375,11 +415,11 @@
             {"ask": "P_N (absorbed)"}
           ],
           "steps": [
-            "1. **Reduce only the linear part.** Remove N: U_oc = 9 × 6/(3 + 6) = **6 V**; short U_s: R_0 = 3 ∥ 6 = **2 Ω**.",
-            "2. **Load line.** u = 6 − 2i, the dashed line through (6 V, 0) and (0, 3 A) on the plot.",
-            "3. **Intersect analytically.** With i = 0.5u²: u = 6 − u² → u² + u − 6 = 0 → (u − 2)(u + 3) = 0. u = −3 is outside u ≥ 0 (there i = 0 while the load line needs i = 4.5), so it is rejected: **U_Q = 2 V, I_Q = 2 A**, the point Q on the plot.",
-            "4. **Back to the original circuit (substitution theorem).** u_a = U_Q = 2 V, **i_1 = (9 − 2)/3 ≈ 2.333 A**; R_2 carries 2/6 ≈ 0.333 A, KCL: 0.333 + 2 = 2.333 ✓.",
-            "5. **The two resistances.** Static R = 2/2 = **1 Ω**; dynamic di/du = u = 2 S, **R_d = 0.5 Ω**. Power P_N = 2 × 2 = **4 W**."
+            "1. **Reduce only the linear part.** Remove N: V_oc = 9 × 6/(3 + 6) = **6 V**; short V_s: R_0 = 3 ∥ 6 = **2 Ω**.",
+            "2. **Load line.** v = 6 − 2i, the dashed line through (6 V, 0) and (0, 3 A) on the plot.",
+            "3. **Intersect analytically.** With i = 0.5v²: v = 6 − v² → v² + v − 6 = 0 → (v − 2)(v + 3) = 0. v = −3 is outside v ≥ 0 (there i = 0 while the load line needs i = 4.5), so it is rejected: **V_Q = 2 V, I_Q = 2 A**, the point Q on the plot.",
+            "4. **Back to the original circuit (substitution theorem).** v_a = V_Q = 2 V, **i_1 = (9 − 2)/3 ≈ 2.333 A**; R_2 carries 2/6 ≈ 0.333 A, KCL: 0.333 + 2 = 2.333 ✓.",
+            "5. **The two resistances.** Static R = 2/2 = **1 Ω**; dynamic di/dv = v = 2 S, **R_d = 0.5 Ω**. Power P_N = 2 × 2 = **4 W**."
           ]
         }
       }
@@ -388,52 +428,52 @@
       "id": "small-signal-cc",
       "ideas": ["small-signal", "static-dynamic", "analytic"],
       "title": "小信号分析：流控型电阻",
-      "statement": "直流 U_s = 4 V 与小信号源 u_s(t) = 0.05cos(100t) V 串联，经 R = 2 Ω 给非线性电阻 N 供电，N 的特性为 u = i + i²（i ≥ 0；i < 0 时 u = 0）。求 N 的电压 u(t) 和电流 i(t)。",
+      "statement": "直流 V_s = 4 V 与小信号源 v_s(t) = 0.05cos(100t) V 串联，经 R = 2 Ω 给非线性电阻 N 供电，N 的特性为 v = i + i²（i ≥ 0；i < 0 时 v = 0）。求 N 的电压 v(t) 和电流 i(t)。",
       "schematic": {
         "elements": [
-          {"ref": "us", "type": "V", "from": [0, 0], "to": [0, 3], "value": {"ac": {"mag": 0.05, "phase": 0}}, "label": "u_s(t)"},
-          {"ref": "Us", "type": "V", "from": [0, 3], "to": [0, 6], "value": {"dc": 4}},
+          {"ref": "vs", "type": "V", "from": [0, 0], "to": [0, 3], "value": {"ac": {"mag": 0.05, "phase": 0}}, "label": "v_s(t)"},
+          {"ref": "Vs", "type": "V", "from": [0, 3], "to": [0, 6], "value": {"dc": 4}},
           {"ref": "R", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2},
           {"ref": "N", "type": "NR", "from": [8, 0], "to": [8, 6], "law": {"u": [0, 1, 1], "imin": 0}}
         ],
         "wires": [[[0, 0], [2, 0]], [[6, 0], [8, 0]], [[8, 6], [0, 6]]],
         "grounds": [[0, 6]],
-        "marks": [{"kind": "v", "el": "N", "name": "u"}, {"kind": "i", "el": "N", "name": "i"}]
+        "marks": [{"kind": "v", "el": "N", "name": "v"}, {"kind": "i", "el": "N", "name": "i"}]
       },
       "analysis": {"type": "ac", "omega": 100, "phasor": "peak"},
       "results": [
         {"id": "iq", "ask": "I_Q", "find": {"kind": "i", "el": "N", "dc": true}, "answer": 1, "unit": "A"},
-        {"id": "uq", "ask": "U_Q", "find": {"kind": "v", "el": "N", "dc": true}, "answer": 2, "unit": "V"},
+        {"id": "uq", "ask": "V_Q", "find": {"kind": "v", "el": "N", "dc": true}, "answer": 2, "unit": "V"},
         {"id": "rd", "ask": "R_d", "find": {"kind": "rd", "el": "N"}, "answer": 3, "unit": "Ω"},
         {"id": "rs", "ask": "静态电阻 R", "find": {"kind": "rs", "el": "N"}, "answer": 2, "unit": "Ω"},
-        {"id": "u1", "ask": "U_1m（u_1 的振幅）", "find": {"kind": "v", "el": "N"}, "answer": 0.03, "unit": "V"},
+        {"id": "u1", "ask": "V_1m（v_1 的振幅）", "find": {"kind": "v", "el": "N"}, "answer": 0.03, "unit": "V"},
         {"id": "i1", "ask": "I_1m（i_1 的振幅）", "find": {"kind": "i", "el": "N"}, "answer": 0.01, "unit": "A"}
       ],
       "steps": [
-        "1. **直流工作点（u_s = 0）。** KVL：4 − 2i = i + i² → i² + 3i − 4 = 0 → (i − 1)(i + 4) = 0，i = −4 不满足 i ≥ 0，舍去：**I_Q = 1 A，U_Q = 2 V**。",
-        "2. **动态电阻。** 流控型直接求导：R_d = du/di = 1 + 2i = **3 Ω**（静态电阻 R = 2/1 = **2 Ω**，两者不同）。",
-        "3. **小信号等效电路。** U_s 短路，N 换成 R_d = 3 Ω：u_1 = u_s·3/(2 + 3)，**U_1m = 0.03 V**；**I_1m = 0.05/5 = 0.01 A**。",
-        "4. **总响应。** u(t) ≈ 2 + 0.03cos(100t) V，i(t) ≈ 1 + 0.01cos(100t) A。",
-        "5. **检查（两次精确求解作差）。** 把 U_s 分别改为 4 + 0.05 V 和 4 − 0.05 V 精确求解 i² + 3i = U_s，两次电流之差的一半与 **I_1m = 0.01 A** 相差不到 0.01% ✓。若在第 3 步误用静态电阻 R = 2 Ω，会算出 U_1m = 0.05 × 2/4，偏小。"
+        "1. **直流工作点（v_s = 0）。** KVL：4 − 2i = i + i² → i² + 3i − 4 = 0 → (i − 1)(i + 4) = 0，i = −4 不满足 i ≥ 0，舍去：**I_Q = 1 A，V_Q = 2 V**。",
+        "2. **动态电阻。** 流控型直接求导：R_d = dv/di = 1 + 2i = **3 Ω**（静态电阻 R = 2/1 = **2 Ω**，两者不同）。",
+        "3. **小信号等效电路。** V_s 短路，N 换成 R_d = 3 Ω：v_1 = v_s·3/(2 + 3)，**V_1m = 0.03 V**；**I_1m = 0.05/5 = 0.01 A**。",
+        "4. **总响应。** v(t) ≈ 2 + 0.03cos(100t) V，i(t) ≈ 1 + 0.01cos(100t) A。",
+        "5. **检查（两次精确求解作差）。** 把 V_s 分别改为 4 + 0.05 V 和 4 − 0.05 V 精确求解 i² + 3i = V_s，两次电流之差的一半与 **I_1m = 0.01 A** 相差不到 0.01% ✓。若在第 3 步误用静态电阻 R = 2 Ω，会算出 V_1m = 0.05 × 2/4，偏小。"
       ],
       "i18n": {
         "en": {
           "title": "Small-signal analysis of a current-controlled resistor",
-          "statement": "A DC source U_s = 4 V in series with a small-signal source u_s(t) = 0.05cos(100t) V feeds the nonlinear resistor N through R = 2 Ω; N has u = i + i² (i ≥ 0; u = 0 for i < 0). Find N's voltage u(t) and current i(t).",
+          "statement": "A DC source V_s = 4 V in series with a small-signal source v_s(t) = 0.05cos(100t) V feeds the nonlinear resistor N through R = 2 Ω; N has v = i + i² (i ≥ 0; v = 0 for i < 0). Find N's voltage v(t) and current i(t).",
           "results": [
             {"ask": "I_Q"},
-            {"ask": "U_Q"},
+            {"ask": "V_Q"},
             {"ask": "R_d"},
             {"ask": "static resistance R"},
-            {"ask": "U_1m (amplitude of u_1)"},
+            {"ask": "V_1m (amplitude of v_1)"},
             {"ask": "I_1m (amplitude of i_1)"}
           ],
           "steps": [
-            "1. **DC operating point (u_s = 0).** KVL: 4 − 2i = i + i² → i² + 3i − 4 = 0 → (i − 1)(i + 4) = 0; i = −4 violates i ≥ 0 and is rejected: **I_Q = 1 A, U_Q = 2 V**.",
-            "2. **Dynamic resistance.** Current-controlled, so differentiate directly: R_d = du/di = 1 + 2i = **3 Ω** (the static resistance R = 2/1 = **2 Ω** is different).",
-            "3. **Small-signal circuit.** Short U_s and replace N by R_d = 3 Ω: u_1 = u_s·3/(2 + 3), **U_1m = 0.03 V**; **I_1m = 0.05/5 = 0.01 A**.",
-            "4. **Total response.** u(t) ≈ 2 + 0.03cos(100t) V, i(t) ≈ 1 + 0.01cos(100t) A.",
-            "5. **Check (difference of two exact solutions).** Solve i² + 3i = U_s exactly with U_s = 4 + 0.05 V and 4 − 0.05 V: half the difference of the two currents agrees with **I_1m = 0.01 A** to better than 0.01 % ✓. Using the static resistance R = 2 Ω in step 3 would give U_1m = 0.05 × 2/4, too small."
+            "1. **DC operating point (v_s = 0).** KVL: 4 − 2i = i + i² → i² + 3i − 4 = 0 → (i − 1)(i + 4) = 0; i = −4 violates i ≥ 0 and is rejected: **I_Q = 1 A, V_Q = 2 V**.",
+            "2. **Dynamic resistance.** Current-controlled, so differentiate directly: R_d = dv/di = 1 + 2i = **3 Ω** (the static resistance R = 2/1 = **2 Ω** is different).",
+            "3. **Small-signal circuit.** Short V_s and replace N by R_d = 3 Ω: v_1 = v_s·3/(2 + 3), **V_1m = 0.03 V**; **I_1m = 0.05/5 = 0.01 A**.",
+            "4. **Total response.** v(t) ≈ 2 + 0.03cos(100t) V, i(t) ≈ 1 + 0.01cos(100t) A.",
+            "5. **Check (difference of two exact solutions).** Solve i² + 3i = V_s exactly with V_s = 4 + 0.05 V and 4 − 0.05 V: half the difference of the two currents agrees with **I_1m = 0.01 A** to better than 0.01 % ✓. Using the static resistance R = 2 Ω in step 3 would give V_1m = 0.05 × 2/4, too small."
           ]
         }
       }
@@ -443,10 +483,10 @@
     {
       "id": "static-in-ss",
       "idea": "small-signal",
-      "text": "在小信号等效电路里用静态电阻 U_Q/I_Q 代替非线性电阻。增量之间的比例是切线斜率 R_d = du/di|_{Q}，不是 Q 与原点连线的斜率。",
+      "text": "在小信号等效电路里用静态电阻 V_Q/I_Q 代替非线性电阻。增量之间的比例是切线斜率 R_d = dv/di|_{Q}，不是 Q 与原点连线的斜率。",
       "i18n": {
         "en": {
-          "text": "Using the static resistance U_Q/I_Q in the small-signal circuit. Increments are related by the tangent slope R_d = du/di at Q, not by the slope of the line from the origin."
+          "text": "Using the static resistance V_Q/I_Q in the small-signal circuit. Increments are related by the tangent slope R_d = dv/di at Q, not by the slope of the line from the origin."
         }
       }
     },
@@ -463,10 +503,10 @@
     {
       "id": "root",
       "idea": "analytic",
-      "text": "解出二次方程后两个根都保留，或者随手取正根而不检验。每个根都要代回带适用范围的特性（如 i = au² 只对 u ≥ 0）和电路方程；有时两个根都合理，那就是两个工作点。",
+      "text": "解出二次方程后两个根都保留，或者随手取正根而不检验。每个根都要代回带适用范围的特性（如 i = av² 只对 v ≥ 0）和电路方程；有时两个根都合理，那就是两个工作点。",
       "i18n": {
         "en": {
-          "text": "Keeping both roots of the quadratic, or taking the positive one without checking. Substitute each root into the characteristic with its range (i = au² only for u ≥ 0) and into the circuit equations; sometimes both pass, and then there are two operating points."
+          "text": "Keeping both roots of the quadratic, or taking the positive one without checking. Substitute each root into the characteristic with its range (i = av² only for v ≥ 0) and into the circuit equations; sometimes both pass, and then there are two operating points."
         }
       }
     },
@@ -503,17 +543,21 @@
     {
       "id": "power-rd",
       "idea": "static-dynamic",
-      "text": "用动态电阻算功率（P = R_d·I_Q²），负动态电阻时还得出“发出功率”。非线性电阻吸收的功率是 U_Q·I_Q。",
+      "text": "用动态电阻算功率（P = R_d·I_Q²），负动态电阻时还得出“发出功率”。非线性电阻吸收的功率是 V_Q·I_Q。",
       "i18n": {
         "en": {
-          "text": "Computing power with the dynamic resistance (P = R_d·I_Q²), and concluding that a negative R_d means power is delivered. The power absorbed is U_Q·I_Q."
+          "text": "Computing power with the dynamic resistance (P = R_d·I_Q²), and concluding that a negative R_d means power is delivered. The power absorbed is V_Q·I_Q."
         }
       }
     }
   ],
   "i18n": {
     "en": {
-      "intro": "This chapter covers nonlinear **resistive** circuits only: the equations are no longer linear and superposition fails, but the linear part can still be reduced with Thevenin's theorem. Everything revolves around the operating point — found by curve intersection (the load line), analytically or piecewise-linearly — followed by small-signal analysis with the dynamic resistance. Check every solution against the range where the characteristic holds."
+      "intro": [
+      "This chapter covers nonlinear **resistive** circuits only. The equations are no longer linear and superposition fails; the linear part can still be reduced with Thevenin's theorem.",
+      "Everything revolves around the **operating point**: find it by curve intersection (the load line), analytically or piecewise-linearly, then use the dynamic resistance for small-signal analysis.",
+      "The habit that matters most: check every solution against the range where the characteristic holds."
+    ]
     }
   }
 }

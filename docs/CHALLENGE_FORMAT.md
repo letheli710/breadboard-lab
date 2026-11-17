@@ -98,6 +98,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `compare` | string 或 string[] | | “对比”段：预期读数和计算过程。学生答完全部必答测量题后才显示（§15）。有测量题时，预期读数只放这里和各题的 `explain`，不要放进 description / hints / 测试名 |
 | `hints` | string[] | | 提示，学生卡住时逐条显示 |
 | `steps` | array | | 步骤引导，lesson 必备（见 §7）；每一步可以带 `check`（§7.1） |
+| `cards` | array | | 卡片式单元（§16）：试一试 / 想明白 / 动手做 / 带走，一次只显示一张，每张卡片拥有一段 steps |
 | `prereq` | string[] | | 先修课程的 id（必须是内置 lesson），任务面板顶部显示成链接，例如实验 1-1 写 `["lesson-ammeter"]` |
 | `solution` | layout | | 参考答案在面包板上的摆法（见 §5）。强烈建议写，校验器会用它证明题目可解 |
 | `start` | layout | | 题目开始时面包板上已经摆好的东西（例如“找错题”） |
@@ -136,7 +137,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `power_module` | 面包板电源模块 | `+`, `-` | +: `pos` `vcc`；−: `neg` `gnd` | `voltage`（5 或 3.3） |
 | `dc_source` | 任意直流电源 | `+`, `-` | 同 battery | `voltage` |
 | `inductor` | 电感 | `1`, `2` | — | `inductance`（或 `value`），如 `"10m"`、`"10mH"` |
-| `ammeter` | 电流表（万用表 A 档） | `+`（红表笔，电流流入）, `-`（黑表笔 COM） | +: `red` `pos` `in`；−: `com` `black` `neg` `out` | — |
+| `ammeter` | 电流表（万用表 A 档） | `+`（红表笔，电流流入）, `-`（黑表笔 COM） | +: `red` `pos` `in`；−: `com` `black` `neg` `out` | `meterMode`: `auto`（默认：电流是交流、平均值≈0 时显示 **AC RMS**，否则显示 DC 平均值）\| `dc` \| `ac`（真有效值） |
 | `opamp` | 运放 LM358（双运放 DIP-8） | `outA`, `inA-`, `inA+`, `v-`, `inB+`, `inB-`, `outB`, `v+` | 见 §13.2 | — |
 | `function_gen` | 信号发生器 | `+`（红，信号）, `-`（黑，COM） | +: `out` `sig` `red`；−: `com` `gnd` `black` | `waveform`: `sine` `square` `triangle`；`frequency`（Hz）；`amplitude`（峰值 V）；`offset`（V） |
 | `esp32_devkit` / `stm32_bluepill` / `mcu` | 单片机开发板（`mcu` = 两种都行） | 电源脚 `3V3` `5V` `GND` `EN`（Blue Pill 叫 `NRST`），GPIO 用**逻辑引脚** `GPIO_OUT1`、`GPIO_IN1`、`ADC1`、`PWM1`、`GPIO_FT1`、`IO1`（或物理引脚 `GPIO2`、`PA0`） | 见 §14.2 | `modes`（引脚模式）、`usb` |
@@ -337,6 +338,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 |---|---|---|
 | `tolerance` | `0.05` | 元件数值的相对容差（0.05 = ±5%）。例如要求 330Ω，则 313.5–346.5Ω 都算对 |
 | `allowExtraComponents` | `false` | `false`：学生面包板上多出来的元件算错误；`true`：允许多余元件 |
+| `grading` | `"circuit"` | `"circuit"`：先比对连接和元件值，再跑 `tests`（§9）。`"behaviour"`：**开放式设计题，只看表现**——不比对连接、不检查元件值，只跑 `tests`；测试里点名的元件按**类型**在学生板上找（同名优先，否则第一个同类元件），引脚名不变。`target` 只是一种参考设计。测试里别写开发板的逻辑引脚（`GPIO_OUT1`），也别让同一类型的元件出现两次 |
 
 ---
 
@@ -353,6 +355,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
    - **多连了 / 短路**：目标里不同结点的引脚被连到了一起；
    - 目标里**没有列出的引脚不检查**（don't care）。
 5. 只有拓扑完全正确时才运行 `tests`；全部通过 = 完成。
+   - `options.grading: "behaviour"` 的题跳过 1–5 的比对，直接跑 `tests`（见 §8）。
 6. 测量工具：学生板上的示波器探头**永远忽略**；如果目标电路里**没有**电流表，学生的电流表被当作一根导线（见 §13.3）。
 
 ---
@@ -383,6 +386,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `concepts` | string[] | 概念标签（可以和顶层数量不同） |
 | `steps` | string[] | **只写文字**，和顶层 `steps` **按位置一一对应、数量相同**。高亮孔位（`highlight`）沿用顶层 steps，不用重复写 |
 | `hints` | string[] | 和顶层 `hints` 按位置一一对应、数量相同 |
+| `cards` | object[] | 每张卡片的 `title`、`text`，和顶层 `cards` 按位置一一对应、数量相同（`kind`、`steps`、`practice` 不用重复写） |
 | `tests` | string[] | **只写测试名**，和顶层 `tests` 按位置一一对应（`set` / `expect` / `voltages` 不用重复写） |
 | `measurements` | object[] | 和顶层 `measurements` 按位置一一对应：`{ "ask", "explain"?, "choices"? }`（选项数量要和原文相同） |
 | `compare` | string 或 string[] | “对比”段的翻译 |
@@ -620,6 +624,8 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 
 模式：`out_high`（输出高）、`out_low`（输出低）、`input`（浮空输入）、`input_pullup`（输入 + 内部上拉）、`input_pulldown`（输入 + 内部下拉）、`pwm`（`duty` 0–100 %，默认 50；`frequency` Hz，默认 1000）、`adc`（模拟输入）。没写的引脚是 `input`。输出模式（`out_high` / `out_low` / `pwm`）可以加 `"openDrain": true`（开漏）：输出“高”时只是松开引脚，要靠上拉电阻拉高——I²C 总线就是这样，可以配合示波器的 `rise` 测上拉电阻 × 总线电容决定的上升时间（约 2.2·R·C），例如 `{ "mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true }`。引脚不支持的模式会报错（例如 GPIO34 的 `out_high`）。
 
+**阈值规则** `rule`（代替几行固件）：输出跟着同一块板子上某个 ADC 引脚的读数（12 位，0–4095），`{ "mode": "rule", "rule": { "adc": "ADC1", "above": 2674, "hysteresis": 150 } }` 就是 `digitalWrite(pin, analogRead(ADC1) > 2674)`；`below` 代替 `above` 时读数低于阈值才输出高。`hysteresis`（回差，默认 0）：输出高之后，读数要越过 阈值 ∓ 回差 才变低，即 `if (analogRead(ADC1) > 2674) HIGH; else if (analogRead(ADC1) < 2524) LOW;`（其余情况保持原输出，编辑器里显示的就是这行代码）。`adc` 可以写逻辑引脚（会翻译成学生用的物理引脚）。仿真时规则在直流求解外面迭代到稳定（每次检查 / 每个测试都从“输出低”开始）；面包板上拖温度、光照滑块时，规则记得上一次的输出，所以回差有效。规则引脚算输出（只能用能输出的引脚，可以加 `openDrain`）。
+
 - 写在**目标电路**里的模式是答案的一部分：学生必须在属性里把对应的引脚设成同样的模式（PWM 的占空比相差 ≤ 1 %、频率在 `tolerance` 内）。如果模式不是考点，就不要写在目标里，而是在每个 test 的 `set` 里设置。
 - 目标里没写模式的逻辑引脚，自检时按默认模式仿真：`GPIO_OUT` → `out_low`，`PWM` → `pwm`，`ADC` → `adc`，其他 → `input`。
 - `set` 里改模式：`"set": { "U1": { "modes": { "GPIO_OUT1": "out_low" } } }`（会翻译成学生实际用的物理引脚；只改列出的引脚）。也可以 `"usb": false` 拔掉 USB。
@@ -740,3 +746,76 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 
 **校验器**（`npm run validate`）对每道测量题：在 `solution` 上读出这个量（读不出 = 错误）、检查它在 `range` 里、检查按 3 位有效数字输入时会被判对（容差太紧会报错）。另外检查**答案泄露**：标题、summary、description、hints、测试名（各语言）里带单位的数（如 `4.5V`、`2.53 mA`、`1.2kΩ`）如果和某道有单位的测量题的参考读数相差在 3%（或这题的容差）以内，就给警告——把它移到 `compare` / `explain`。题目给定的量（元件值、电源和信号发生器的设置、3.3 V、5 V）不算泄露；有意写出的模型参数用 `"stated": true` 标出。`npm run validate -- --readings` 会把每道题在参考答案上的读数打印出来，写 `range` 和 `compare` 时用。
 
+## 16. 卡片式单元 `cards`（2026-11 起的写法）
+
+课程改成“一次只看一张卡片”（`docs/REBUILD_PLAN.md`）：每个单元分成四张短卡片，任务面板一次只显示一张，卡片标签可以来回切。写了 `cards` 的文件不再显示 `description`（它只作为概要留在文件里，导入页和索引还会用到）；目标原理图默认折起来，免得提前剧透“试一试”。
+
+Card-style units: the task panel shows one short card at a time. A file with `cards` no longer shows its `description` (keep it as a short overview); the target schematic starts folded so it does not give the "try it" card away.
+
+| `kind` | 卡片 | 写什么 |
+|---|---|---|
+| `try` | 🔥 试一试 Try it | 先动手、先看现象（可以故意做错：LED 不串电阻、电流表并联、两颗灯共用电阻）。不讲公式，只提一个问题 |
+| `explain` | 💡 想明白 Why | 用一个比喻或一句话讲清刚才的现象，再给**一个**核心公式（`$…$`），代入数字 |
+| `build` | 🛠️ 动手做 Build | 搭正确的电路、用仪表测量。测量题（§15）显示在这张卡片上 |
+| `wrap` | 🚀 带走 Take away | 两三条要点、真实电路里的坑、下一步；`practice` 链接到对应的理论章节 |
+
+```json
+"cards": [
+  { "kind": "try", "title": "不加电阻，直接接", "text": ["…", "…"], "steps": 3 },
+  { "kind": "explain", "title": "LED 是一道矮水坝", "text": ["…", "$$R = \\frac{V_s - V_f}{I}$$"] },
+  { "kind": "build", "title": "加上电阻，重新搭", "text": "…", "steps": 4 },
+  { "kind": "wrap", "title": "带走", "text": ["- …", "- …"], "practice": ["basics"] }
+]
+```
+
+- `steps`：这张卡片拥有的步骤数。卡片按顺序依次领取顶层 `steps`，**全部卡片的 `steps` 加起来必须等于步骤总数**（校验器检查）。没有步骤的卡片（想明白、带走，以及挑战题的全部卡片）不写或写 0。
+- `text`：字符串或字符串数组（数组按行拼接）。支持 §7 的 Markdown 子集，另外支持公式：行内 `$…$`，单独一行的 `$$…$$` 居中显示。公式里有下标（`V_s`、`R_{eq}`）和 `\\frac{}{}`、`\\sqrt{}`、`^{}`（同理论题的 `mathText`）；JSON 里反斜杠要写两次。
+- `practice`：理论题的章节 id（`src/core/problem/chapters.ts`），在卡片上显示成“趁热练理论题”的链接；校验器检查章节存在。
+- 卡片切换时，步骤跳到这张卡片的第一步。每张卡片最后一步的“下一步”按钮变成“下一张：…”。
+- **文字规矩**（`docs/REBUILD_PLAN.md` §4）：每张卡片 2–5 个短段落或要点，一句话一件事；动作写成**粗体**，孔位、阻值写成 `` `代码` ``（``**`tp1`**``）；不出现程序里的字段名（tests、currents、usb: false……），用界面上的叫法；一个括号里不要再套解释。
+- **答案泄露**检查（§15）也扫描卡片的标题和文字：测量题的预期读数只写在 `explain` / `compare` 里。
+
+The cards take the top-level steps in order (their `steps` must add up to the step count); `text` takes the §7 Markdown plus `$…$` / `$$…$$` formulas (subscripts, `\\frac`, `\\sqrt`, `^{}`); `practice` links theory chapters; the answer-leak check covers card text too.
+
+
+### 16.3 插图 `figures` / Figures in cards
+
+段落多了不好懂的地方，配一张图。图都由程序画（跟着语言切换、能点“放大”全屏缩放，读屏软件读 `caption`），不放图片文件。顶层 `figures` 是“名字 → 图”的对象；在卡片或步骤的文字里**单独一行**写 `![](fig:名字)`，图就出现在那一行。校验器检查：名字存在、没用到的图（警告）、电路连得上、孔位存在；答案泄露检查也扫描图里的文字。
+
+Figures are drawn by the app (they follow the language, open full screen with "Enlarge", and screen readers read the `caption`). Top-level `figures` maps an id to a figure; a line `![](fig:<id>)` on its own in a card's or a step's text shows it there. The validator checks the references, the drawing and the holes; the answer-leak scan reads figure text too.
+
+图里的每段文字（`caption`、`label`、`text`）可以是字符串，或者 `{ "text": "中文", "i18n": { "en": "English" } }`。文字里的 `V_f`、`I_1` 显示成下标。
+
+| `kind` | 画什么 | 字段 |
+|---|---|---|
+| `schematic` | 电路图（和理论题同一种写法，PROBLEM_FORMAT §3：整数坐标、`marks` 电流箭头 / +− 标记、`loops` 回路箭头、`labels` 结点名、`notes`） | `schematic`；`highlight`：用强调色画的元件。接地符号可以不画；另有几种**只画不算**的元件：`LED`（`from` = 正极，`value` = 颜色 red / green / yellow / blue / white / orange）、`BAT`（电池，`from` = +，`value` = 伏）、`RV`（可变电阻 / 当可变电阻用的电位器，`value` = 欧）、`S`（普通开关，`value` = `open` / `closed`）、`D`（二极管，`from` = 阳极）、`M`（电机）；三脚器件用 `at` 放置（`flip: true` 左右镜像）：`NPN`（b (−2, 0)、c (+1, −2)、e (+1, +2)）、`NMOS`（g、d、s，位置同上）、`REG`（稳压器：in (−2, 0)、out (+2, 0)、gnd (0, +2)，`label` 写型号或电压）。引到图外的脚用 `terminals` 画成小圆圈并命名（如 GPIO） |
+| `breadboard` | 面包板的一段：哪些孔相通、元件插在哪 | `cols`（[起, 止]，默认 [1, 12]）、`rows`（top / bottom / both）、`rails`（top / bottom / both / none）、`strips`（`at` 孔位或孔位数组 → 整条金属条上色，`tone` 1–3，`label`：一句话可以同时指几条）、`parts`（`type` wire / resistor / led / battery / probe / button（四脚按键：`from`、`to` 是对角的两个孔，如 `e5`、`f7`）/ capacitor（瓷片电容）/ electrolytic（电解电容，`to` 是 − 极）/ inductor / diode（`to` 是带色环的阴极）/ board（开发板：`from`、`to` 是对角的两个孔，`label` 印在板上），`from` / `to` 孔位，`label`，`color`）、`apart`（两个孔之间画 ✗ 不通）、`notes`（`at` 孔位 + `text`，`side` 只是偏好） |
+| `plot` | 曲线 | `x` / `y`（`label`、`min`、`max`、`ticks`）、`curves`（`points` 折线点，`label`，`labelAt`，`tone`，`dashed`）、`dots`、`hlines`、`vlines` |
+
+```json
+"cards": [{ "kind": "explain", "title": "一条路，同一个电流", "text": ["- **串联 = 只有一条路。** …", "![](fig:series)", "- …"] }],
+"figures": {
+  "series": {
+    "kind": "schematic",
+    "caption": { "text": "同一个电流 I 依次穿过 R1、R2、LED", "i18n": { "en": "The same current I passes R1, R2 and the LED" } },
+    "schematic": {
+      "elements": [
+        { "ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 9 },
+        { "ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": 220 },
+        { "ref": "R2", "type": "R", "from": [3, 0], "to": [6, 0], "value": 220 },
+        { "ref": "LED1", "type": "LED", "from": [6, 0], "to": [6, 4], "value": "red" }
+      ],
+      "wires": [[[6, 4], [0, 4]]],
+      "marks": [{ "kind": "i", "el": "R1", "name": "I" }, { "kind": "v", "el": "R1", "name": "V_R1" }]
+    }
+  }
+}
+```
+
+**面包板图上的文字自动摆放**（`src/core/boardFigure.ts`，方案见 `prototypes/figure-labels.html`）：`strips` 的 `label`、`notes`、`parts` 的 `label` 都不用给坐标。每段文字先在板上找位置（一个小标签，必要时带一个短指针）：不许压别的金属条、元件、✗ 标记和别的标签，压电源轨的孔扣 5 分、压空孔扣 1 分、离目标越远扣分越多，取扣分最少的位置；找不到好位置就放到板子上方（目标在上半边）或下方，用一条走在两列孔之间空隙里的细线连过去。鼠标指到文字（手机点一下）时，它说的那一条会描一圈虚线。文字越短越容易留在板上：一句 4–8 个字最好。
+
+Text on breadboard figures is placed automatically: on the board where a good spot exists (a small tag, scored: strips, parts, ✗ marks and other tags are off limits, rail holes cost 5, empty holes 1, distance counts), otherwise above or below the board with a leader that runs between the columns of holes. Pointing at a label outlines what it names. Short labels (4–8 characters) stay on the board.
+
+**画得窄一点**：任务面板只有 300 多像素宽。电路图宽度控制在 **6 格以内**（一格 40 px），竖着放的元件两侧要留标签的位置；面包板图 8–11 列。图放不下时会变成左右滑动——截图检查一下。
+
+Keep figures narrow: the task panel is a little over 300 px wide. Circuits at most **6 grid units** wide, breadboard strips 8–11 columns; a figure that does not fit scrolls sideways, so check a screenshot.

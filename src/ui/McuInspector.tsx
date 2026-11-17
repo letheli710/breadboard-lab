@@ -8,11 +8,12 @@ import { tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
 import { MCU_BOARDS, adcRaw, isOutputMode, modeName, modesFor, pinConfig, type McuPinDef, type McuType } from '../core/mcu';
 import type { LogicLevel, McuState, PinState, RegMode } from '../core/solver';
-import type { MosfetModel, PartProps, PartType, PinConfig, PinMode, PlacedPart } from '../core/types';
+import type { MosfetModel, PartProps, PartType, PinConfig, PinMode, PinRule, PlacedPart } from '../core/types';
 import { pinReadout, useDerived } from '../state/derived';
 import { HIDDEN, useReadingsHidden } from '../state/readingsHidden';
 import { HiddenReadingsNote } from './HiddenReadings';
 import { useStore } from '../state/store';
+import { ruleCode } from '../core/mcuRules';
 import { prefersReducedMotion } from './reveal';
 
 const T = (p: [string, string]) => tr(p[0], p[1]);
@@ -53,6 +54,7 @@ const MODE_SHORT: Record<PinMode, [string, string]> = {
   input_pulldown: ['输入 下拉', 'IN pull-down'],
   pwm: ['PWM', 'PWM'],
   adc: ['ADC', 'ADC'],
+  rule: ['规则', 'RULE'],
 };
 
 function Badges({ def }: { def: McuPinDef }) {
@@ -139,7 +141,7 @@ function pinAlert(ps: PinState | undefined, mode: PinMode): { cls: string; text:
 
 const PWM_F = [50, 500, 1000, 5000, 20000];
 
-function PwmEditor({ cfg, onChange }: { cfg: Required<PinConfig>; onChange: (c: Partial<PinConfig>) => void }) {
+function PwmEditor({ cfg, onChange }: { cfg: { duty: number; frequency: number }; onChange: (c: Partial<PinConfig>) => void }) {
   const [f, setF] = useState('');
   return (
     <div className="editor pwm-editor">
@@ -172,6 +174,91 @@ function PwmEditor({ cfg, onChange }: { cfg: Required<PinConfig>; onChange: (c: 
           `PWM：引脚在 0 V 和 3.3 V 之间快速切换，平均电压 ≈ ${((cfg.duty / 100) * 3.3).toFixed(2)} V。万用表测到的是平均值，用示波器探头能看到方波。`,
           `PWM: the pin switches between 0 V and 3.3 V; its average is ≈ ${((cfg.duty / 100) * 3.3).toFixed(2)} V. A multimeter shows the average; a scope probe shows the square wave.`,
         )}
+      </p>
+    </div>
+  );
+}
+
+/** The board's pins with an ADC, by physical name (what a rule can read). */
+const adcPins = (type: McuType) =>
+  Object.values(MCU_BOARDS[type].pins)
+    .filter((d) => d.kind === 'gpio' && d.gpio?.adc && !d.gpio.adc2)
+    .map((d) => d.name);
+
+/** Editor of a threshold rule (pin mode `rule`): which ADC pin, above / below, threshold, hysteresis,
+ *  and what the rule sees right now. */
+function RuleEditor({ part, pin, rule, onChange }: { part: PlacedPart; pin: string; rule?: PinRule; onChange: (r: PinRule) => void }) {
+  const d = useDerived();
+  const hide = useReadingsHidden();
+  const pins = adcPins(part.type as McuType);
+  const r: PinRule = rule ?? { adc: pins[0] ?? '', above: 2048 };
+  const below = r.below !== undefined;
+  const thr = (below ? r.below : r.above) ?? 2048;
+  const set = (p: Partial<PinRule> & { cmp?: 'above' | 'below'; thr?: number }) => {
+    const cmp = p.cmp ?? (below ? 'below' : 'above');
+    const t = Math.round(Math.min(4095, Math.max(0, p.thr ?? thr)));
+    onChange({
+      adc: p.adc ?? r.adc,
+      ...(cmp === 'below' ? { below: t } : { above: t }),
+      ...((p.hysteresis ?? r.hysteresis) ? { hysteresis: Math.max(0, Math.round(p.hysteresis ?? r.hysteresis ?? 0)) } : {}),
+    });
+  };
+  const st = d.sim.mcus.get(part.ref);
+  const v = st?.pins.get(r.adc)?.vLocal;
+  const out = st?.pins.get(pin)?.logic;
+  return (
+    <div className="editor rule-editor">
+      <code className="rule-code">{ruleCode(r, pin)}</code>
+      <div className="row">
+        <label>
+          {tr('读哪个 ADC 引脚', 'ADC pin to read')}{' '}
+          <select value={r.adc} onChange={(e) => set({ adc: e.target.value })}>
+            {pins.map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          {tr('条件', 'Condition')}{' '}
+          <select value={below ? 'below' : 'above'} onChange={(e) => set({ cmp: e.target.value as 'above' | 'below' })}>
+            <option value="above">{tr('读数 > 阈值 → 高', 'reading > threshold → HIGH')}</option>
+            <option value="below">{tr('读数 < 阈值 → 高', 'reading < threshold → HIGH')}</option>
+          </select>
+        </label>
+      </div>
+      <label>
+        {tr('阈值', 'Threshold')} {thr} <small>{`≈ ${((thr / 4095) * 3.3).toFixed(2)} V`}</small>
+      </label>
+      <input type="range" min={0} max={4095} step={1} value={thr} aria-label={tr('阈值（ADC 读数）', 'Threshold (ADC counts)')} onChange={(e) => set({ thr: +e.target.value })} />
+      <label>
+        {tr('回差', 'Hysteresis')} {r.hysteresis ?? 0}
+        <small>
+          {tr('（读数要退回这么多才关断，防止在阈值附近来回跳）', ' (the reading must fall back this far before the output turns off, so it does not chatter at the threshold)')}
+        </small>
+      </label>
+      <input
+        type="range"
+        min={0}
+        max={500}
+        step={5}
+        value={r.hysteresis ?? 0}
+        aria-label={tr('回差（ADC 读数）', 'Hysteresis (ADC counts)')}
+        onChange={(e) => set({ hysteresis: +e.target.value })}
+      />
+      <p className="note">
+        {v === undefined
+          ? tr(`${r.adc} 没有接线：规则读不到电压，输出保持低。`, `${r.adc} is not wired: the rule reads nothing, so the output stays LOW.`)
+          : hide
+            ? tr(
+                `现在 ${pin} 输出${out === 'high' ? '高' : '低'}（ADC 读数先隐藏，答完测量题再看）。`,
+                `${pin} is ${out === 'high' ? 'HIGH' : 'LOW'} now (the ADC number stays hidden until the measurement questions are answered).`,
+              )
+            : tr(
+                `现在 ${r.adc} 读到 ${adcRaw(v)}（${v.toFixed(2)} V）→ ${pin} 输出${out === 'high' ? '高' : '低'}。`,
+                `${r.adc} reads ${adcRaw(v)} (${v.toFixed(2)} V) now → ${pin} is ${out === 'high' ? 'HIGH' : 'LOW'}.`,
+              )}
       </p>
     </div>
   );
@@ -214,7 +301,14 @@ function PinRow({
   const isOut = isOutputMode(cfg.mode);
   /** new config for a mode: keeps the PWM settings and open-drain where they still apply */
   const withMode = (m: PinMode): PinConfig | null =>
-    m === 'input' ? null : { mode: m, ...(m === 'pwm' ? { duty: cfg.duty, frequency: cfg.frequency } : {}), ...(cfg.openDrain && isOutputMode(m) ? { openDrain: true } : {}) };
+    m === 'input'
+      ? null
+      : {
+          mode: m,
+          ...(m === 'pwm' ? { duty: cfg.duty, frequency: cfg.frequency } : {}),
+          ...(m === 'rule' ? { rule: cfg.rule ?? { adc: adcPins(part.type as McuType)[0] ?? '', above: 2048 } } : {}),
+          ...(cfg.openDrain && isOutputMode(m) ? { openDrain: true } : {}),
+        };
   return (
     <div ref={rowRef} className={`pin-row ${selected ? 'sel' : ''} ${ps?.damaged ? 'dmg' : ''} ${can ? '' : 'locked'}`}>
       <div className="pin-line" onClick={onSelect}>
@@ -298,6 +392,9 @@ function PinRow({
                 )}
               </small>
             </label>
+          )}
+          {cfg.mode === 'rule' && (
+            <RuleEditor part={part} pin={def.name} rule={cfg.rule} onChange={(rule) => setPin({ mode: 'rule', rule, ...(cfg.openDrain ? { openDrain: true } : {}) })} />
           )}
           {cfg.mode === 'pwm' && <PwmEditor cfg={cfg} onChange={(c) => setPin({ ...cfg, ...c, mode: 'pwm', openDrain: cfg.openDrain || undefined })} />}
           <ul className="pin-caps">

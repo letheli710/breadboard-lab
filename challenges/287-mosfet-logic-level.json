@@ -2,115 +2,180 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-mosfet-logic-level",
-  "title": "实验 5-8 · 逻辑电平 MOSFET：3.3 V 引脚开关大电流电机",
+  "title": "逻辑电平 MOSFET：3.3 V 引脚开关大电流电机",
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "GPIO → 100 Ω → IRLZ44N 栅极（100 kΩ 下拉），电机 + 续流二极管接在 5 V 电源和漏极之间。测逻辑电平 MOSFET 在 3.3 V 栅压下的导通情况，再换成普通的 IRF540N 比较。",
-  "concepts": [
-    "N-MOSFET 低边开关 low-side switch",
-    "逻辑电平 logic-level gate",
-    "阈值电压 Vth 与 Rds(on)",
-    "栅极下拉 gate pull-down",
-    "续流二极管 flyback diode",
-    "PWM 调速 PWM speed control"
-  ],
+  "summary": "先用普通的 IRF540N：3.3 V 栅压只让它半开，电机几乎不动。换成逻辑电平的 IRLZ44N，它全开，0.6 A 的电机转起来，自己几乎不发热。",
+  "concepts": ["N 沟道 MOSFET 低边开关 low-side switch", "阈值电压 Vth", "导通电阻 Rds(on)", "逻辑电平 logic-level gate", "工作区对照 BJT / MOSFET regions", "栅极下拉 gate pull-down"],
   "prereq": ["lesson-mcu-gpio"],
-  "description": [
-    "**目标**：用逻辑电平 MOSFET（IRLZ44N）让 3.3 V 的 GPIO 开关一个 0.6 A 的电机，并看到普通 MOSFET（IRF540N）在 3.3 V 栅压下为什么不行。",
-    "",
-    "**电路**（ESP32 插在 USB 上，电机用单独的电源）：",
-    "- 稳压电源 PS1：**5 V，电流限制调到 1 A**（默认 0.1 A 会让电源进入恒流模式，电机转不起来）。电源 − 和开发板 GND 连在一起（**共地**）。",
-    "- 任意输出 GPIO（参考答案 GPIO4）→ RG（100 Ω）→ Q1（IRLZ44N，正面朝你 G D S）的栅极 G。",
-    "- RPD（100 kΩ）从栅极 G 接到 GND（栅极下拉）。Q1 的源极 S 接 GND。",
-    "- 电机 M1：+ 接电源 +5 V，− 接漏极 D。",
-    "- 续流二极管 D1 反向并联在电机两端：**负极（有环的一端）接 +5 V**，正极接漏极 D。",
-    "",
-    "**引脚设置**：不用设，测试会依次设成输出高、输出低、输入（模拟上电复位）、PWM 50 %。",
-    "",
-    "**先预测**：先估算电机电流（约 8 Ω 接 5 V），再想一想：栅极 3.3 V 时 MOSFET 应该工作在哪个区，Vds 大约多少？100 kΩ 下拉和续流二极管分别在什么时候起作用？",
-    "",
-    "**测量**：",
-    "- 输出高：MOSFET 的工作区、Vds 和电机电流；",
-    "- 输入模式（复位）：电机是否停；",
-    "- PWM：漏极电压的峰值。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**看数据手册的陷阱**：IRF540N 的 Vth 写着 2–4 V，看起来 3.3 V“够了”；但 **Vth 是 Id = 250 µA 时的栅压**，只是“开始导通”。Rds(on) = 44 mΩ 是在 **Vgs = 10 V** 时测的。3.3 V 单片机要找 Rds(on) 在 **Vgs = 2.5 V 或 4.5 V** 下有规定值的“逻辑电平”MOSFET：IRLZ44N、IRLB8721、AO3400（SOT-23）、Si2302。",
-    "",
-    "**实际项目经验**：",
-    "- **栅极下拉**（10 kΩ–100 kΩ）一定要加：上电、复位、下载程序时 GPIO 是高阻输入，栅极悬空会让电机突然转起来。",
-    "- **栅极电阻**（47–220 Ω）限制给栅极电容充电的瞬间电流、减少振铃；它在直流下没有压降。",
-    "- **续流二极管**：低频用 1N4007 可以，PWM 调速用快恢复或肖特基二极管（1N5819、SS34）。没有它，关断瞬间漏极的电压会冲到 MOSFET 的雪崩电压。",
-    "- 电机电流要从独立电源出（电池组、电源适配器），不要从 USB 或开发板的 5V 脚取——0.6 A 超过电脑 USB 的 500 mA，电机启动和堵转电流还会是额定的好几倍。电源和开发板一定要**共地**，否则栅压没有参考点。",
-    "- ESP32 的 GPIO0/2/5/12/15 是启动配置脚，开机时可能输出脉冲，别用来开电机。",
-    "",
-    "**模型说明**：电机是 8 Ω + 2 mH，没有反电动势，所以平均电流比真实电机（转起来后电流会下降）大。MOSFET 用分段线性的平方律模型，没有栅极电容和开关损耗；真实 MOSFET 在 PWM 时还要考虑栅极驱动能力。"
+  "description": "直流开关：GPIO → 100 Ω → MOSFET 栅极（100 kΩ 下拉到 GND），电机和续流二极管接在 5 V 稳压电源和漏极之间。比较 IRF540N（Vth ≈ 3 V，3.3 V 栅压下只半开）和逻辑电平的 IRLZ44N（全开，Rds ≈ 43 mΩ），并对照三极管和 MOSFET 的工作区名称。PWM 调速在 5.8。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "先用一颗“普通” MOSFET",
+      "text": [
+        "**稳压电源**调到 **`5 V`**，限流调到 **`1 A`**，它的 − 接开发板 GND（**共地**）。",
+        "栅极这一串：GPIO → **`100 Ω`** → Q1 栅极 G；**`100 kΩ`** 从 G 接到 GND；Q1 的源极 S 接 GND。电机接在 +5 V 和漏极 D 之间，电机两端反并一个二极管（色环朝 +5 V）。",
+        "Q1 先用 **IRF540N**。把 GPIO 设成**「输出 高」**：电机转得起来吗？单击 Q1，看它在哪个区、自己发热多少。"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "Vth 只是“开始导通”",
+      "text": [
+        "- MOSFET 的栅极像电容的一块极板：**直流下不取电流**。栅压越高，D–S 之间的通道开得越大。",
+        "- 数据手册上的 **Vth** 是“刚刚开始导通”的栅压（只有零点几毫安）。IRF540N 的 Vth 约 3 V，3.3 V 只比它高一点，通道只开了一小半。**逻辑电平** MOSFET（IRLZ44N）的 Vth 约 1.5 V，3.3 V 足够让它全开。",
+        "![](fig:gate)",
+        "- 名字容易搞反：MOSFET 的“饱和区”是**半开**，三极管的“饱和区”才是**全开**。",
+        "",
+        "| | NPN 三极管 | MOSFET |",
+        "|---|---|---|",
+        "| 关断 | 截止区 | 截止区 |",
+        "| 半开（受控的电流源） | 放大区 | **饱和区** |",
+        "| 全开（当开关用） | **饱和区** | **可变电阻区** |",
+        "",
+        "- 全开时 D–S 就是一个很小的电阻 $R_{DS(on)}$，上面的电压很小：",
+        "$$V_{DS} = I_D × R_{DS(on)}$$",
+        "- 代入数字：本模拟器取 IRLZ44N 在 5 V 栅压下 22 mΩ（数据手册给的上限是 25 mΩ），1 A 时 $V_{DS} = 1 × 0.022 = 0.022$ V，自己几乎不发热。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "换成逻辑电平 MOSFET",
+      "text": [
+        "- 单击 **Q1**，在「属性」里把型号换成 **IRLZ44N**。再看它的工作区和电机。",
+        "- 点**「检查我的电路」**。通过后用电流表、万用表完成测量题；有一题要把型号**临时换回 IRF540N**。",
+        "- 先预测：电机约 8 Ω，接在 5 V 上要多大电流？全开的 Q1 上会剩多少电压？"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **3.3 V 单片机要选逻辑电平 MOSFET**：看数据手册里 $R_{DS(on)}$ 是在多大栅压下规定的（要有 2.5 V 或 4.5 V 的值）。IRLZ44N、AO3400、Si2302 都可以。",
+        "- 当开关用的 MOSFET 要在**可变电阻区**，不是“饱和区”。",
+        "- **栅极下拉**（10–100 kΩ）一定要加：上电、复位时 GPIO 是输入，栅极悬空会让电机突然转起来。",
+        "- 真实电路里的坑：电机电流从单独的电源出，别从 USB 取；电源和开发板一定要**共地**。电机两端那个反并的二极管，下一个实验讲它为什么救命。"
+      ],
+      "practice": ["nonlinear"]
+    }
   ],
+  "figures": {
+    "gate": {
+      "kind": "plot",
+      "caption": {
+        "text": "栅压从 0 往上加：IRLZ44N 过了 1.5 V 很快就全开；IRF540N 要到 3 V 才开始导通，GPIO 的 3.3 V 只让它开了一小半。",
+        "i18n": {
+          "en": "Raising the gate voltage from 0: the IRLZ44N is fully on soon after 1.5 V; the IRF540N only starts at 3 V, and the GPIO's 3.3 V opens it only a little."
+        }
+      },
+      "x": {"label": {"text": "栅极电压 Vgs (V)", "i18n": {"en": "gate voltage Vgs (V)"}}, "min": 0, "max": 5, "ticks": [0, 1.5, 3, 5]},
+      "y": {"label": {"text": "电机电流（占全开的比例）", "i18n": {"en": "motor current (share of fully on)"}}, "min": 0, "max": 1.2, "ticks": [0, 1]},
+      "curves": [
+        {
+          "points": [[0, 0], [1.5, 0.0], [1.552, 0.028], [1.603, 0.111], [1.655, 0.25], [1.707, 0.444], [1.758, 0.694], [1.81, 1.0], [5, 1]],
+          "tone": 1,
+          "label": "IRLZ44N",
+          "labelAt": [0.9, 1.1]
+        },
+        {
+          "points": [[0, 0], [3.0, 0.0], [3.103, 0.028], [3.207, 0.111], [3.31, 0.25], [3.413, 0.444], [3.517, 0.694], [3.62, 1.0], [5, 1]],
+          "tone": 2,
+          "label": "IRF540N",
+          "labelAt": [4.3, 0.6]
+        }
+      ],
+      "vlines": [{"x": 3.3, "dashed": true, "label": {"text": "GPIO 高", "i18n": {"en": "GPIO high"}}}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-8 · Logic-level MOSFET: a 3.3 V pin switches a high-current motor",
-      "summary": "GPIO → 100 Ω → IRLZ44N gate (100 kΩ pull-down), motor + flyback diode between the 5 V supply and the drain. Measure how fully a logic-level MOSFET turns on at 3.3 V gate drive, then compare an ordinary IRF540N.",
+      "title": "Logic-level MOSFET: a 3.3 V pin switches a high-current motor",
+      "summary": "First an ordinary IRF540N: 3.3 V on the gate opens it only halfway and the motor barely moves. Swap in a logic-level IRLZ44N: fully on, the 0.6 A motor runs and the MOSFET hardly warms up.",
       "concepts": [
-        "N-MOSFET low-side switch",
+        "N-channel MOSFET low-side switch",
+        "threshold voltage Vth",
+        "on-resistance Rds(on)",
         "logic-level gate",
-        "threshold voltage Vth vs Rds(on)",
-        "gate pull-down",
-        "flyback diode",
-        "PWM speed control"
+        "BJT / MOSFET regions compared",
+        "gate pull-down"
       ],
-      "description": [
-        "**Goal**: Switch a 0.6 A motor from a 3.3 V GPIO with a logic-level MOSFET (IRLZ44N), and see why an ordinary MOSFET (IRF540N) fails at 3.3 V gate drive.",
-        "",
-        "**Circuit** (ESP32 on USB, the motor on its own supply):",
-        "- Bench supply PS1: **5 V, current limit set to 1 A** (the default 0.1 A puts the supply into constant-current mode and the motor won't run). Join the supply's − to the board's GND (**common ground**).",
-        "- Any output GPIO (the reference uses GPIO4) → RG (100 Ω) → the gate G of Q1 (IRLZ44N, printed face towards you: G D S).",
-        "- RPD (100 kΩ) from the gate G to GND (gate pull-down). Q1's source S to GND.",
-        "- Motor M1: + to the supply's +5 V, − to the drain D.",
-        "- Flyback diode D1 reversed across the motor: **cathode (the band) to +5 V**, anode to the drain D.",
-        "",
-        "**Pin table settings**: nothing to set; the tests switch the pin to output HIGH, output LOW, input (as during reset) and PWM 50 %.",
-        "",
-        "**Predict first**: Estimate the motor current first (about 8 Ω on 5 V), then think: at 3.3 V on the gate, which region should the MOSFET be in, and roughly what Vds? When do the 100 kΩ pull-down and the flyback diode matter?",
-        "",
-        "**Measure**:",
-        "- output HIGH: the MOSFET's region, Vds and the motor current;",
-        "- input mode (reset): whether the motor stays off;",
-        "- PWM: the peak drain voltage. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**The datasheet trap**: the IRF540N's Vth is listed as 2–4 V, so 3.3 V looks \"enough\"; but **Vth is the gate voltage at Id = 250 µA** — just starting to conduct. Its Rds(on) = 44 mΩ is measured at **Vgs = 10 V**. With a 3.3 V MCU pick a \"logic-level\" MOSFET whose Rds(on) is specified at **Vgs = 2.5 V or 4.5 V**: IRLZ44N, IRLB8721, AO3400 (SOT-23), Si2302.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- Always fit a **gate pull-down** (10 kΩ–100 kΩ): during power-up, reset and firmware upload the GPIO is a high-impedance input, and a floating gate can start the motor on its own.",
-        "- A **gate resistor** (47–220 Ω) limits the inrush into the gate capacitance and damps ringing; at DC it drops nothing.",
-        "- **Flyback diode**: a 1N4007 is fine for slow switching; for PWM use a fast or Schottky diode (1N5819, SS34). Without it the drain flies up to the MOSFET's avalanche voltage at every turn-off.",
-        "- Take motor current from a separate supply (battery pack, adapter), not from USB or the board's 5V pin — 0.6 A is above a computer port's 500 mA, and start-up and stall currents are several times the running current. The supply and the board must share **GND**, or the gate voltage has no reference.",
-        "- ESP32 GPIO0/2/5/12/15 are strapping pins that may glitch at boot — don't drive a motor from them.",
-        "",
-        "**Model note**: the motor is 8 Ω + 2 mH with no back-EMF, so currents are higher than for a real spinning motor (whose current drops once it is up to speed). The MOSFET uses a piecewise-linear square-law model without gate capacitance or switching losses; a real PWM design also has to consider gate-drive strength."
+      "description": "A DC switch: GPIO → 100 Ω → MOSFET gate (100 kΩ pull-down to GND); the motor and a flyback diode sit between a 5 V bench supply and the drain. Compare the IRF540N (Vth ≈ 3 V, only half open at a 3.3 V gate) with the logic-level IRLZ44N (fully on, Rds ≈ 43 mΩ), and line up the transistor's and the MOSFET's region names. PWM speed control is in 5.8.",
+      "cards": [
+        {
+          "title": "First, an \"ordinary\" MOSFET",
+          "text": [
+            "Set the **bench supply** to **`5 V`** with a **`1 A`** current limit, and wire its − to the board's GND (**common ground**).",
+            "The gate chain: GPIO → **`100 Ω`** → Q1's gate G; **`100 kΩ`** from G to GND; Q1's source S to GND. The motor goes between +5 V and the drain D, with a reversed diode across it (band towards +5 V).",
+            "Use an **IRF540N** for Q1 first. Set the GPIO to **Output HIGH**: does the motor get going? Click Q1 and look at its region and how much it heats itself."
+          ]
+        },
+        {
+          "title": "Vth only means \"starting to conduct\"",
+          "text": [
+            "- A MOSFET's gate is like one plate of a capacitor: **it takes no DC current**. The higher the gate voltage, the wider the channel between D and S opens.",
+            "- The datasheet's **Vth** is the gate voltage where it *just starts* to conduct (a fraction of a milliamp). The IRF540N's Vth is about 3 V, so 3.3 V opens its channel only a little. A **logic-level** MOSFET (IRLZ44N) has Vth ≈ 1.5 V, and 3.3 V turns it fully on.",
+            "![](fig:gate)",
+            "- The names are easy to mix up: a MOSFET's \"saturation\" is **half open**; a transistor's \"saturation\" is **fully on**.",
+            "",
+            "| | NPN transistor | MOSFET |",
+            "|---|---|---|",
+            "| off | cutoff | cutoff |",
+            "| half open (a controlled current source) | active | **saturation** |",
+            "| fully on (as a switch) | **saturation** | **ohmic** |",
+            "",
+            "- Fully on, D–S is just a small resistance $R_{DS(on)}$, with very little voltage across it:",
+            "$$V_{DS} = I_D × R_{DS(on)}$$",
+            "- With numbers: this simulator gives the IRLZ44N 22 mΩ at a 5 V gate (the datasheet's maximum is 25 mΩ); at 1 A, $V_{DS} = 1 × 0.022 = 0.022$ V, so it hardly heats up."
+          ]
+        },
+        {
+          "title": "Swap in a logic-level MOSFET",
+          "text": [
+            "- Click **Q1** and change its model to **IRLZ44N** in Properties. Look at its region and the motor again.",
+            "- Press **Check my circuit**. Once it passes, answer the questions with the ammeter and multimeter; one of them has you switch the model **back to IRF540N for a moment**.",
+            "- Predict first: the motor is about 8 Ω; how much current does it take from 5 V? How much voltage is left across a fully-on Q1?"
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A 3.3 V microcontroller needs a logic-level MOSFET**: check the gate voltage the datasheet specifies $R_{DS(on)}$ at (it should list 2.5 V or 4.5 V). IRLZ44N, AO3400 and Si2302 all work.",
+            "- A MOSFET used as a switch should be in the **ohmic** region, not \"saturation\".",
+            "- Always add a **gate pull-down** (10–100 kΩ): at power-up and reset the GPIO is an input, and a floating gate can start the motor by itself.",
+            "- A real-world catch: take the motor current from its own supply, not USB, and always **share the ground** with the board. The reversed diode across the motor — the next lab shows why it saves the transistor."
+          ]
+        }
       ],
       "compare": [
-        "**Compare**: expected readings:",
-        "- Region: a MOSFET used as a switch must be in the **ohmic region**, not \"saturation\" — a MOSFET's saturation region is its constant-current region, the opposite of a BJT's \"saturation\".",
-        "- A tiny Vds (< 50 mV) proves it is fully on; the motor draws about 0.6 A.",
-        "- In input mode (reset) the motor must stay off too: that is the pull-down's job.",
-        "- With PWM the drain peak is clamped by the flyback diode instead of shooting up to tens of volts.",
-        "If Vds is well above 50 mV or the motor current is far below expectation, check you have the right MOSFET (not the IRF540N) and that the gate is wired.",
+        "**Compare** (simulated):",
+        "- IRLZ44N, Output HIGH: Vgs ≈ 3.29 V, ohmic, Id ≈ **0.62 A**, Vds ≈ **27 mV**, Rds ≈ 43 mΩ; Q1 dissipates only about 17 mW.",
+        "- IRF540N, Output HIGH: saturation (half open), Id ≈ 0.14 A, Vds ≈ **3.9 V**; Q1 dissipates about 0.54 W and the motor gets under a quarter of the current.",
+        "- Pin as input: the pull-down holds the gate at 0 V, motor stopped.",
         "",
-        "**Why a MOSFET**: the motor is about 8 Ω and draws **0.62 A** at 5 V — 30 times what a GPIO gives, and a 2N2222 would need 60 mA of base current to saturate. A MOSFET's gate is a capacitor and **draws no DC current**: with enough gate voltage D–S becomes a resistance of tens of milliohms.",
-        "",
-        "**Numbers (simulated)**:",
-        "- Output HIGH: Vgs = **3.29 V**, Q1 in the ohmic region (fully on), Id = **620 mA**, Vds = **27 mV**, i.e. Rds ≈ 43 mΩ; Q1 dissipates only **17 mW**.",
-        "- Model: Id = K·(Vgs − Vth)·Vds; the IRLZ44N has Vth = 1.5 V and Rds(on) = 22 mΩ specified at Vgs = 5 V → at 3.3 V gate drive Rds ≈ 1/(K·1.8 V) ≈ 43 mΩ.",
-        "- Output LOW / pin as input (reset): RPD holds the gate at 0 V, Q1 is off, the motor stops.",
-        "- PWM 50 %, 1 kHz: average motor current **0.26 A**, average drain voltage 2.9 V. During the off half-cycles the motor inductance's current flows back through D1 to +5 V (86 mA average in D1) and the drain is clamped at **6.1 V** (5 V + one diode drop).",
-        "- **Swap in an IRF540N** (still 3.3 V on the gate): its Vth ≈ 3 V is only a little below 3.3 V. Q1 sits in its **constant-current (saturation) region**: Id = K·Vov²/2 ≈ **0.14 A**, Vds = **3.9 V**, Q1 heats up like a resistor (**0.54 W**) and the motor gets 23 % of its current and barely turns."
+        "**Model note**: the motor is 8 Ω + 2 mH with no back EMF; the MOSFET is a piecewise square-law model Id = min(K·Vov·Vds, K·Vov²/2), with no gate capacitance or switching losses."
       ],
       "measurements": [
         {"ask": "Output HIGH: the motor current (ammeter between +5 V and the motor)", "explain": "About 8 Ω on 5 V: ≈ 0.62 A, 30 times what a GPIO can give."},
         {"ask": "Output HIGH: Vds (red lead on D, black on S)", "explain": "Fully on (ohmic region), Vds ≈ 27 mV."},
-        {"ask": "From your two readings, the on-resistance Rds = Vds / Id", "explain": "≈ 43 mΩ: the datasheet's 22 mΩ is at Vgs = 5 V; with 3.3 V on the gate it roughly doubles. Q1 dissipates only about 17 mW."},
-        {"ask": "PWM 50 %, 1 kHz: the maximum drain voltage on the scope", "explain": "In the off half-cycles the motor inductance's current flows back through D1 to +5 V, so the drain is clamped at 5 V + one diode drop ≈ 6.1 V instead of tens of volts."},
-        {"ask": "Swap Q1 for an IRF540N (still 3.3 V on the gate): Vds", "explain": "Vth ≈ 3 V is only a little below 3.3 V: it sits in the constant-current (saturation) region, Id ≈ 0.14 A, Vds ≈ 3.9 V, dissipating 0.54 W itself. Vth is only where conduction starts."}
+        {
+          "ask": "From your two readings, the on-resistance Rds = Vds / Id",
+          "explain": "≈ 43 mΩ: the model's 22 mΩ is at a 5 V gate; with 3.3 V on the gate it roughly doubles. Q1 dissipates only about 17 mW."
+        },
+        {
+          "ask": "Switch Q1 back to an IRF540N for a moment (still 3.3 V on the gate): Vds",
+          "explain": "Vth ≈ 3 V is only a little below 3.3 V: it sits in \"saturation\" (half open), Id ≈ 0.14 A, Vds ≈ 3.9 V, dissipating 0.54 W itself."
+        },
+        {
+          "ask": "Set the GPIO to Input (as at the moment of power-up or reset). The motor:",
+          "choices": [
+            "stays still: the 100 kΩ pull-down holds the gate at 0 V",
+            "starts: the gate floats and may be pulled up by noise",
+            "stays still: a MOSFET is fully on with no gate voltage"
+          ],
+          "explain": "An input pin drives nothing, so the gate only sees 100 kΩ to GND: 0 V, Q1 off. Without the pull-down the gate floats, and in a real circuit the motor may start by itself."
+        }
       ],
       "hints": [
         "Gate chain: GPIO → 100 Ω → G, plus 100 kΩ from G to GND. S to GND.",
@@ -118,357 +183,128 @@
         "Set the bench supply to 5 V with a 1 A limit and wire its − to the board's GND."
       ],
       "tests": [
-        "Output HIGH: motor runs, Q1 ohmic (fully on)",
+        "Output HIGH: motor runs, Q1 fully on (ohmic)",
         "Output LOW: Q1 off, motor stopped",
         "Pin as input (reset): the pull-down keeps the gate at 0 V, motor stopped",
-        "PWM 50 % 1 kHz: about half the current on average, the drain peak clamped by D1",
-        "IRF540N instead: stuck in saturation (constant current), little current"
+        "IRF540N instead: stuck in saturation (half open), little current"
       ]
     }
   },
   "components": [
-    {
-      "ref": "U1",
-      "type": "esp32_devkit"
-    },
-    {
-      "ref": "V1",
-      "type": "dc_source",
-      "voltage": 5
-    },
-    {
-      "ref": "RG",
-      "type": "resistor",
-      "resistance": "100"
-    },
-    {
-      "ref": "RPD",
-      "type": "resistor",
-      "resistance": "100k"
-    },
-    {
-      "ref": "Q1",
-      "type": "nmos",
-      "model": "IRLZ44N"
-    },
-    {
-      "ref": "M1",
-      "type": "motor"
-    },
-    {
-      "ref": "D1",
-      "type": "diode"
-    }
+    {"ref": "U1", "type": "esp32_devkit"},
+    {"ref": "V1", "type": "dc_source", "voltage": 5},
+    {"ref": "RG", "type": "resistor", "resistance": "100"},
+    {"ref": "RPD", "type": "resistor", "resistance": "100k"},
+    {"ref": "Q1", "type": "nmos", "model": "IRLZ44N"},
+    {"ref": "M1", "type": "motor"},
+    {"ref": "D1", "type": "diode"}
   ],
   "nets": [
-    {
-      "name": "IO",
-      "pins": [
-        "U1.GPIO_OUT1",
-        "RG.1"
-      ]
-    },
-    {
-      "name": "GATE",
-      "pins": [
-        "RG.2",
-        "Q1.g",
-        "RPD.1"
-      ]
-    },
-    {
-      "name": "DRAIN",
-      "pins": [
-        "Q1.d",
-        "M1.-",
-        "D1.anode"
-      ]
-    },
-    {
-      "name": "VM",
-      "pins": [
-        "V1.+",
-        "M1.+",
-        "D1.cathode"
-      ]
-    },
-    {
-      "name": "GND",
-      "pins": [
-        "V1.-",
-        "Q1.s",
-        "RPD.2",
-        "U1.GND"
-      ]
-    }
+    {"name": "IO", "pins": ["U1.GPIO_OUT1", "RG.1"]},
+    {"name": "GATE", "pins": ["RG.2", "Q1.g", "RPD.1"]},
+    {"name": "DRAIN", "pins": ["Q1.d", "M1.-", "D1.anode"]},
+    {"name": "VM", "pins": ["V1.+", "M1.+", "D1.cathode"]},
+    {"name": "GND", "pins": ["V1.-", "Q1.s", "RPD.2", "U1.GND"]}
   ],
   "tests": [
     {
-      "name": "输出高：电机转，Q1 完全导通（ohmic）",
-      "set": {
-        "U1": {
-          "modes": {
-            "GPIO_OUT1": "out_high"
-          }
-        }
-      },
-      "expect": {
-        "M1": "on"
-      },
-      "regions": {
-        "Q1": "ohmic"
-      },
-      "voltages": [
-        {
-          "pin": "Q1.d",
-          "ref": "Q1.s",
-          "min": 0.02,
-          "max": 0.05
-        },
-        {
-          "pin": "Q1.g",
-          "ref": "Q1.s",
-          "min": 3.15,
-          "max": 3.35
-        }
-      ],
-      "currents": [
-        {
-          "el": "M1",
-          "min": 0.59,
-          "max": 0.65
-        }
-      ]
+      "name": "「输出 高」：电机转，Q1 全开（可变电阻区）",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}},
+      "expect": {"M1": "on"},
+      "regions": {"Q1": "ohmic"},
+      "voltages": [{"pin": "Q1.d", "ref": "Q1.s", "min": 0.02, "max": 0.05}, {"pin": "Q1.g", "ref": "Q1.s", "min": 3.15, "max": 3.35}],
+      "currents": [{"el": "M1", "min": 0.59, "max": 0.65}]
+    },
+    {"name": "「输出 低」：Q1 截止，电机停", "set": {"U1": {"modes": {"GPIO_OUT1": "out_low"}}}, "expect": {"M1": "off"}, "regions": {"Q1": "off"}},
+    {
+      "name": "引脚是输入（复位时）：下拉让栅极保持 0 V，电机停",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "input"}}},
+      "expect": {"M1": "off"},
+      "regions": {"Q1": "off"},
+      "voltages": [{"pin": "Q1.g", "ref": "Q1.s", "max": 0.1}]
     },
     {
-      "name": "输出低：Q1 截止，电机停",
-      "set": {
-        "U1": {
-          "modes": {
-            "GPIO_OUT1": "out_low"
-          }
-        }
-      },
-      "expect": {
-        "M1": "off"
-      },
-      "regions": {
-        "Q1": "off"
-      }
-    },
-    {
-      "name": "引脚处于输入（复位时）：下拉电阻让栅极保持 0 V，电机停",
-      "set": {
-        "U1": {
-          "modes": {
-            "GPIO_OUT1": "input"
-          }
-        }
-      },
-      "expect": {
-        "M1": "off"
-      },
-      "regions": {
-        "Q1": "off"
-      },
-      "voltages": [
-        {
-          "pin": "Q1.g",
-          "ref": "Q1.s",
-          "max": 0.1
-        }
-      ]
-    },
-    {
-      "name": "PWM 50 % 1 kHz：平均电流约一半，漏极峰值被 D1 钳住",
-      "set": {
-        "U1": {
-          "modes": {
-            "GPIO_OUT1": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 1000
-            }
-          }
-        }
-      },
-      "currents": [
-        {
-          "el": "M1",
-          "min": 0.25,
-          "max": 0.28
-        },
-        {
-          "el": "D1",
-          "min": 0.08,
-          "max": 0.092
-        }
-      ],
-      "scope": [
-        {
-          "pin": "Q1.d",
-          "ref": "Q1.s",
-          "measure": "vmax",
-          "min": 5.6,
-          "max": 6.4
-        },
-        {
-          "pin": "Q1.d",
-          "ref": "Q1.s",
-          "measure": "vavg",
-          "min": 2.75,
-          "max": 3.05
-        }
-      ]
-    },
-    {
-      "name": "换成 IRF540N：卡在恒流（饱和）区，电流很小",
-      "set": {
-        "U1": {
-          "modes": {
-            "GPIO_OUT1": "out_high"
-          }
-        },
-        "Q1": {
-          "model": "IRF540N"
-        }
-      },
-      "regions": {
-        "Q1": "saturation"
-      },
-      "voltages": [
-        {
-          "pin": "Q1.d",
-          "ref": "Q1.s",
-          "min": 3.7,
-          "max": 4.05
-        }
-      ],
-      "currents": [
-        {
-          "el": "M1",
-          "min": 0.13,
-          "max": 0.15
-        }
-      ]
+      "name": "换成 IRF540N：停在饱和区（半开），电流很小",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}, "Q1": {"model": "IRF540N"}},
+      "regions": {"Q1": "saturation"},
+      "voltages": [{"pin": "Q1.d", "ref": "Q1.s", "min": 3.7, "max": 4.05}],
+      "currents": [{"el": "M1", "min": 0.13, "max": 0.15}]
     }
   ],
   "compare": [
-    "**对比**：预期读数：",
-    "- 区域：开关用的 MOSFET 应该在 **ohmic（可变电阻区）**，不是“饱和区”——MOSFET 的饱和区是恒流区，恰好和三极管的“饱和”相反。",
-    "- Vds 很小（< 50 mV）才说明完全导通；电机电流约 0.6 A。",
-    "- 输入模式（复位）下电机也必须停：这就是下拉电阻的作用。",
-    "- PWM 时漏极峰值被续流二极管钳住，不会冲到几十伏。",
-    "Vds 明显大于 50 mV 或电机电流远小于预期时，看看是不是用错了 MOSFET（IRF540N）或栅极没接好。",
+    "**对比**（仿真）：",
+    "- IRLZ44N，「输出 高」：Vgs ≈ 3.29 V，可变电阻区，Id ≈ **0.62 A**，Vds ≈ **27 mV**，Rds ≈ 43 mΩ，Q1 只发热约 17 mW。",
+    "- IRF540N，「输出 高」：饱和区（半开），Id ≈ 0.14 A，Vds ≈ **3.9 V**，Q1 自己发热约 0.54 W，电机只拿到不到四分之一的电流。",
+    "- 引脚是输入：下拉把栅极拉到 0 V，电机停。",
     "",
-    "**为什么要 MOSFET**：电机约 8 Ω，5 V 时要 **0.62 A**——GPIO 的 30 倍，2N2222 的基极也要 60 mA 才能饱和。MOSFET 的栅极是一个电容，**直流下不取电流**，只要栅压够高，D–S 就变成几十毫欧的电阻。",
-    "",
-    "**数值（仿真）**：",
-    "- 输出高：Vgs = **3.29 V**，Q1 在可变电阻区（完全导通），Id = **620 mA**，Vds = **27 mV**，相当于 Rds ≈ 43 mΩ，Q1 只发热 **17 mW**。",
-    "- 模型：Id = K·(Vgs − Vth)·Vds，IRLZ44N 的 Vth = 1.5 V、Rds(on) = 22 mΩ（在 Vgs = 5 V 时规定）→ 3.3 V 栅压时 Rds ≈ 1/(K·1.8 V) ≈ 43 mΩ。",
-    "- 输出低 / 引脚处于输入（复位时）：RPD 把栅极拉到 0 V，Q1 截止，电机停。",
-    "- PWM 50 %、1 kHz：电机平均电流 **0.26 A**，漏极平均 2.9 V。关断的那半个周期里，电机电感的电流从 D1 流回 +5 V（D1 平均 86 mA），漏极电压被钳在 **6.1 V**（5 V + 二极管压降）。",
-    "- **换成 IRF540N**（栅极 3.3 V 不变）：它的 Vth ≈ 3 V，只比 3.3 V 低一点。Q1 处于**恒流（饱和）区**：Id = K·Vov²/2 ≈ **0.14 A**，Vds = **3.9 V**，Q1 像一个电阻在发热（**0.54 W**），电机只拿到 23 % 的电流，勉强转动。"
+    "**模型说明**：电机是 8 Ω + 2 mH，没有反电动势；MOSFET 是分段的平方律模型 Id = min(K·Vov·Vds, K·Vov²/2)，没有栅极电容和开关损耗。"
   ],
   "measurements": [
-    {"id": "im", "current": "M1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "A", "predict": true, "range": [0.589, 0.651], "ask": "输出高：电机电流（电流表串在 +5 V 和电机之间）", "explain": "电机约 8 Ω 接 5 V：≈ 0.62 A——GPIO 能给的 30 倍。"},
-    {"id": "vds", "tolAbs": 0.001, "voltage": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mV", "predict": true, "range": [0.0253, 0.0279], "ask": "输出高：Vds（红表笔 D，黑表笔 S）", "explain": "完全导通（可变电阻区），Vds ≈ 27 mV。"},
-    {"id": "rds", "stated": true, "formula": "vds / im", "unit": "mΩ", "predict": true, "range": [0.0408, 0.045], "ask": "用你的两个读数算导通电阻 Rds = Vds / Id", "explain": "≈ 43 mΩ：数据手册的 22 mΩ 是 Vgs = 5 V 时的值，3.3 V 栅压时大约翻倍。Q1 只发热约 17 mW。"},
-    {"id": "vpk", "scope": "vmax", "pin": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": {"mode": "pwm", "duty": 50, "frequency": 1000}}}}, "unit": "V", "predict": true, "range": [5.77, 6.38], "ask": "PWM 50 %、1 kHz：示波器看漏极电压的最大值", "explain": "关断的半个周期里电机电感的电流经 D1 流回 +5 V，漏极被钳在 5 V + 二极管压降 ≈ 6.1 V，不会冲到几十伏。"},
-    {"id": "vds540", "voltage": "Q1.d", "ref": "Q1.s", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}, "Q1": {"model": "IRF540N"}}, "unit": "V", "predict": true, "range": [3.68, 4.07], "ask": "把 Q1 换成 IRF540N（栅极仍是 3.3 V）：Vds", "explain": "Vth ≈ 3 V，只比 3.3 V 低一点：它卡在恒流（饱和）区，Id ≈ 0.14 A，Vds ≈ 3.9 V，自己发热 0.54 W。Vth 只是“开始导通”的栅压。"}
+    {
+      "id": "im",
+      "current": "M1",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}},
+      "unit": "A",
+      "predict": true,
+      "range": [0.589, 0.651],
+      "ask": "「输出 高」：电机电流（电流表串在 +5 V 和电机之间）",
+      "explain": "电机约 8 Ω 接 5 V：≈ 0.62 A——GPIO 能给的 30 倍。"
+    },
+    {
+      "id": "vds",
+      "tolAbs": 0.001,
+      "voltage": "Q1.d",
+      "ref": "Q1.s",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}},
+      "unit": "mV",
+      "predict": true,
+      "range": [0.0253, 0.0279],
+      "ask": "「输出 高」：Vds（红表笔接 D，黑表笔接 S）",
+      "explain": "完全导通（可变电阻区），Vds ≈ 27 mV。"
+    },
+    {
+      "id": "rds",
+      "stated": true,
+      "formula": "vds / im",
+      "unit": "mΩ",
+      "predict": true,
+      "range": [0.0408, 0.045],
+      "ask": "用你的两个读数算导通电阻 Rds = Vds / Id",
+      "explain": "≈ 43 mΩ：模型的 22 mΩ 是栅压 5 V 时的值，3.3 V 栅压时大约翻倍。Q1 只发热约 17 mW。"
+    },
+    {
+      "id": "vds540",
+      "voltage": "Q1.d",
+      "ref": "Q1.s",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}, "Q1": {"model": "IRF540N"}},
+      "unit": "V",
+      "predict": true,
+      "range": [3.68, 4.07],
+      "ask": "把 Q1 临时换回 IRF540N（栅极仍是 3.3 V）：Vds",
+      "explain": "Vth ≈ 3 V，只比 3.3 V 低一点：它停在“饱和区”（半开），Id ≈ 0.14 A，Vds ≈ 3.9 V，自己发热 0.54 W。"
+    },
+    {
+      "id": "pulldown",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "input"}}},
+      "ask": "把 GPIO 设成「输入」（就像上电、复位的那一瞬间），电机会？",
+      "choices": ["停着：100 kΩ 下拉把栅极拉到 0 V", "转起来：栅极悬空，可能被干扰抬高", "停着：MOSFET 没有栅极电压也是全开的"],
+      "correct": 0,
+      "explain": "引脚是输入时什么都不驱动，栅极只靠 100 kΩ 接到 GND，所以是 0 V，Q1 截止。没有下拉，栅极悬空，真实电路里电机可能自己转起来。"
+    }
   ],
-  "hints": [
-    "栅极链：GPIO → 100 Ω → G，再加一个 100 kΩ 从 G 到 GND。S 接 GND。",
-    "电机接在 +5 V 和 D 之间；二极管并在电机两端，有环的一端（负极）朝 +5 V。",
-    "稳压电源调到 5 V、限流 1 A，它的 − 接开发板 GND。"
-  ],
+  "hints": ["栅极这一串：GPIO → 100 Ω → G，再加一个 100 kΩ 从 G 接到 GND。S 接 GND。", "电机接在 +5 V 和 D 之间；二极管并在电机两端，色环（负极）朝 +5 V。", "稳压电源调到 5 V、限流 1 A，它的 − 接开发板 GND。"],
   "solution": {
     "parts": [
-      {
-        "type": "esp32_devkit",
-        "ref": "U1",
-        "at": "b1",
-        "props": {
-          "usb": true,
-          "modes": {
-            "GPIO4": "out_high"
-          }
-        }
-      },
-      {
-        "type": "wire",
-        "color": "black",
-        "pins": {
-          "a": "a1",
-          "b": "tn1"
-        }
-      },
-      {
-        "type": "bench_supply",
-        "ref": "PS1",
-        "voltage": 5,
-        "currentLimit": 1,
-        "pins": {
-          "+": "bp30",
-          "-": "bn30"
-        }
-      },
-      {
-        "type": "wire",
-        "color": "black",
-        "pins": {
-          "a": "bn29",
-          "b": "tn29"
-        }
-      },
-      {
-        "type": "resistor",
-        "ref": "RG",
-        "resistance": "100",
-        "pins": {
-          "1": "a13",
-          "2": "a21"
-        }
-      },
-      {
-        "type": "resistor",
-        "ref": "RPD",
-        "resistance": "100k",
-        "pins": {
-          "1": "b21",
-          "2": "tn21"
-        }
-      },
-      {
-        "type": "nmos",
-        "ref": "Q1",
-        "model": "IRLZ44N",
-        "at": "c21"
-      },
-      {
-        "type": "wire",
-        "color": "black",
-        "pins": {
-          "a": "a23",
-          "b": "tn23"
-        }
-      },
-      {
-        "type": "motor",
-        "ref": "M1",
-        "pins": {
-          "+": "bp25",
-          "-": "d22"
-        }
-      },
-      {
-        "type": "diode",
-        "ref": "D1",
-        "pins": {
-          "anode": "e22",
-          "cathode": "bp26"
-        }
-      }
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO4": "out_high"}}},
+      {"type": "wire", "color": "black", "pins": {"a": "a1", "b": "tn1"}},
+      {"type": "bench_supply", "ref": "PS1", "voltage": 5, "currentLimit": 1, "pins": {"+": "bp30", "-": "bn30"}},
+      {"type": "wire", "color": "black", "pins": {"a": "bn29", "b": "tn29"}},
+      {"type": "resistor", "ref": "RG", "resistance": "100", "pins": {"1": "a13", "2": "a21"}},
+      {"type": "resistor", "ref": "RPD", "resistance": "100k", "pins": {"1": "b21", "2": "tn21"}},
+      {"type": "nmos", "ref": "Q1", "model": "IRLZ44N", "at": "c21"},
+      {"type": "wire", "color": "black", "pins": {"a": "a23", "b": "tn23"}},
+      {"type": "motor", "ref": "M1", "pins": {"+": "bp25", "-": "d22"}},
+      {"type": "diode", "ref": "D1", "pins": {"anode": "e22", "cathode": "bp26"}}
     ]
   }
 }

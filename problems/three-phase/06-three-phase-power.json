@@ -3,18 +3,18 @@
   "format": "circuit-problem/1",
   "id": "three-phase-06-three-phase-power",
   "chapter": "three-phase",
-  "title": "对称三相负载的功率 P = √3·U_l·I_l·cos φ",
+  "title": "对称三相负载的功率 P = √3·V_l·I_l·cos φ",
   "level": 3,
   "tags": ["三相功率", "功率因数", "对称三相电路"],
   "statement": [
-    "线电压 380 V、频率 50 Hz 的对称三相电源（正序，U̇_A = (380/√3)∠0° V）向星形连接的对称负载供电（三相三线制）。每相负载为 R = 8 Ω 与 L 串联，感抗 X_L = ωL = 6 Ω（L = 6/(100π) H ≈ 19.10 mH）。",
-    "求线电流 I_l、负载功率因数 cos φ、A 相电阻吸收的有功功率，并判断三相总有功功率。"
+    "对称三相电源向星形连接的对称负载供电，三相三线制。电源线电压 380 V（有效值），频率 50 Hz，正序，V̇_A = (380/√3)∠0° V。每相负载为 R = 8 Ω 与 L 串联，感抗 X_L = ωL = 6 Ω，即 L = 6/(100π) H ≈ 19.10 mH。",
+    "求线电流 I_l、负载功率因数 cos φ、A 相电阻吸收的有功功率，并选出三相总有功功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "UA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 219.39310229205772, "phase": 0 } }, "label": "U_A" },
-      { "ref": "UB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 219.39310229205772, "phase": -120 } }, "label": "U_B" },
-      { "ref": "UC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 219.39310229205772, "phase": 120 } }, "label": "U_C" },
+      { "ref": "VA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "ac": { "mag": 219.39310229205772, "phase": 0 } }, "label": "V_A" },
+      { "ref": "VB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "ac": { "mag": 219.39310229205772, "phase": -120 } }, "label": "V_B" },
+      { "ref": "VC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "ac": { "mag": 219.39310229205772, "phase": 120 } }, "label": "V_C" },
       { "ref": "RA", "type": "R", "from": [9, 0], "to": [12, 0], "value": 8 },
       { "ref": "RB", "type": "R", "from": [9, 3], "to": [12, 3], "value": 8 },
       { "ref": "RC", "type": "R", "from": [9, 6], "to": [12, 6], "value": 8 },
@@ -50,12 +50,12 @@
       "find": { "kind": "i", "el": "RA", "part": "mag" },
       "answer": 21.93931,
       "unit": "A",
-      "explain": "Y 形负载 I_l = I_p = U_p/|Z| = (380/√3)/√(8² + 6²) = 219.39/10 ≈ 21.94 A。"
+      "explain": "Y 形负载 I_l = I_p = V_p/|Z| = (380/√3)/√(8² + 6²) = 219.39/10 ≈ 21.94 A。"
     },
     {
       "id": "pf",
       "ask": "负载功率因数 cos φ = ?",
-      "find": { "kind": "pf", "el": "UA" },
+      "find": { "kind": "pf", "el": "VA" },
       "answer": 0.8,
       "unit": "",
       "explain": "φ 是每相负载的阻抗角：cos φ = R/|Z| = 8/10 = 0.8（感性）。注意它不是线电压与线电流之间的夹角。"
@@ -66,57 +66,57 @@
       "find": { "kind": "p", "el": "RA" },
       "answer": 3850.667,
       "unit": "W",
-      "explain": "P_A = I_p²·R = 21.94² × 8 ≈ 3850.7 W，也等于 U_p·I_p·cos φ = 219.39 × 21.94 × 0.8。"
+      "explain": "P_A = I_p²·R = 21.94² × 8 ≈ 3850.7 W，也等于 V_p·I_p·cos φ = 219.39 × 21.94 × 0.8。"
     },
     {
       "id": "Ptot",
       "ask": "三相负载吸收的总有功功率 P = ?",
-      "choices": ["11552 W", "20009 W", "14440 W", "6670 W"], "choiceExplain": ["", "20009 W = 3·U_l·I_l·cos φ：公式里的 3 要配相电压 U_p，配线电压 U_l 时系数是 √3。", "14440 W = √3·U_l·I_l 是视在功率 S，漏乘了功率因数 cos φ = 0.8。", "6670 W = U_l·I_l·cos φ，少乘了 √3（只算了“一相”却又用了线电压）。"],
+      "choices": ["11552 W", "20009 W", "14440 W", "6670 W"], "choiceExplain": ["", "20009 W = 3·V_l·I_l·cos φ：公式里的 3 要配相电压 V_p，配线电压 V_l 时系数是 √3。", "14440 W = √3·V_l·I_l 是视在功率 S，漏乘了功率因数 cos φ = 0.8。", "6670 W = V_l·I_l·cos φ，少乘了 √3（只算了“一相”却又用了线电压）。"],
       "correct": 0,
-      "explain": "P = 3P_A = √3·U_l·I_l·cos φ = √3 × 380 × 21.94 × 0.8 = 11552 W。20009 W 是错用了 3·U_l·I_l·cos φ；14440 W 是视在功率 S = √3·U_l·I_l；6670 W 少乘了 √3。"
+      "explain": "P = 3P_A = √3·V_l·I_l·cos φ = √3 × 380 × 21.94 × 0.8 = 11552 W。20009 W 是错用了 3·V_l·I_l·cos φ；14440 W 是视在功率 S = √3·V_l·I_l；6670 W 少乘了 √3。"
     }
   ],
   "hints": [
     "对称电路归结为一相：每相负载 Z = 8 + j6 Ω 承受相电压 380/√3 V。",
     "功率因数角 φ 就是每相负载的阻抗角。",
-    "三相总功率 P = 3·U_p·I_p·cos φ；对 Y、Δ 两种接法都可以写成 √3·U_l·I_l·cos φ。"
+    "三相总功率 P = 3·V_p·I_p·cos φ；对 Y、Δ 两种接法都可以写成 √3·V_l·I_l·cos φ。"
   ],
   "solution": [
-    "**1. 一相计算。** U_p = 380/√3 = 219.39 V，Z = 8 + j6 = 10∠36.87° Ω，I_l = I_p = **21.94 A**。",
+    "**1. 一相计算。** V_p = 380/√3 = 219.39 V，Z = 8 + j6 = 10∠36.87° Ω，I_l = I_p = **21.94 A**。",
     "**2. 功率因数。** cos φ = cos36.87° = **0.8**（感性）。",
     "**3. 一相功率。** P_A = I_p²·R = **3850.7 W**；Q_A = I_p²·X_L = 2888 var。",
-    "**4. 三相功率。** P = 3P_A = √3 × 380 × 21.94 × 0.8 = **11552 W**，Q = √3·U_l·I_l·sin φ = 8664 var，S = √3·U_l·I_l = 14440 VA。",
-    "**注意：** 公式 √3·U_l·I_l·cos φ 中的 φ 是相电压与相电流的夹角（负载阻抗角），而不是线电压与线电流的夹角。"
+    "**4. 三相功率。** P = 3P_A = √3 × 380 × 21.94 × 0.8 = **11552 W**，Q = √3·V_l·I_l·sin φ = 8664 var，S = √3·V_l·I_l = 14440 VA。",
+    "**注意：** 公式 √3·V_l·I_l·cos φ 中的 φ 是相电压与相电流的夹角（负载阻抗角），而不是线电压与线电流的夹角。"
   ],
   "i18n": {
     "en": {
-      "title": "Power of a balanced three-phase load: P = √3·U_l·I_l·cos φ",
+      "title": "Power of a balanced three-phase load: P = √3·V_l·I_l·cos φ",
       "tags": ["three-phase power", "power factor", "balanced three-phase circuit"],
       "statement": [
-        "A balanced three-phase source, 380 V line voltage at 50 Hz (positive sequence, U̇_A = (380/√3)∠0° V), feeds a balanced wye load (three-wire system). Each phase is R = 8 Ω in series with L of reactance X_L = ωL = 6 Ω (L = 6/(100π) H ≈ 19.10 mH).",
-        "Find the line current I_l, the load power factor cos φ, the real power absorbed by the phase-A resistor, and decide the total three-phase real power."
+        "A balanced three-phase source feeds a balanced wye load over a three-wire system. The source has a 380 V (rms) line voltage at 50 Hz, positive sequence, V̇_A = (380/√3)∠0° V. Each load phase is R = 8 Ω in series with L of reactance X_L = ωL = 6 Ω, i.e. L = 6/(100π) H ≈ 19.10 mH.",
+        "Find the line current I_l, the load power factor cos φ and the real power absorbed by the phase-A resistor, and pick the total three-phase real power."
       ],
       "questions": [
-        { "ask": "rms line current I_l = ?", "explain": "For a Y load I_l = I_p = U_p/|Z| = (380/√3)/√(8² + 6²) = 219.39/10 ≈ 21.94 A." },
+        { "ask": "rms line current I_l = ?", "explain": "For a Y load I_l = I_p = V_p/|Z| = (380/√3)/√(8² + 6²) = 219.39/10 ≈ 21.94 A." },
         { "ask": "Load power factor cos φ = ?", "explain": "φ is the impedance angle of one load phase: cos φ = R/|Z| = 8/10 = 0.8 (inductive). It is not the angle between a line voltage and a line current." },
-        { "ask": "Real power absorbed by the phase-A resistor, P_A = ?", "explain": "P_A = I_p²·R = 21.94² × 8 ≈ 3850.7 W, which also equals U_p·I_p·cos φ = 219.39 × 21.94 × 0.8." },
+        { "ask": "Real power absorbed by the phase-A resistor, P_A = ?", "explain": "P_A = I_p²·R = 21.94² × 8 ≈ 3850.7 W, which also equals V_p·I_p·cos φ = 219.39 × 21.94 × 0.8." },
         {
           "ask": "Total real power absorbed by the three-phase load, P = ?",
-          "choices": ["11552 W", "20009 W", "14440 W", "6670 W"], "choiceExplain": ["", "20009 W = 3·U_l·I_l·cos φ: the factor 3 goes with the phase voltage U_p; with the line voltage U_l the factor is √3.", "14440 W = √3·U_l·I_l is the apparent power S; the power factor cos φ = 0.8 is missing.", "6670 W = U_l·I_l·cos φ is missing the √3 (one phase's worth, but computed with the line voltage)."],
-          "explain": "P = 3P_A = √3·U_l·I_l·cos φ = √3 × 380 × 21.94 × 0.8 = 11552 W. 20009 W wrongly uses 3·U_l·I_l·cos φ; 14440 W is the apparent power S = √3·U_l·I_l; 6670 W forgets the √3."
+          "choices": ["11552 W", "20009 W", "14440 W", "6670 W"], "choiceExplain": ["", "20009 W = 3·V_l·I_l·cos φ: the factor 3 goes with the phase voltage V_p; with the line voltage V_l the factor is √3.", "14440 W = √3·V_l·I_l is the apparent power S; the power factor cos φ = 0.8 is missing.", "6670 W = V_l·I_l·cos φ is missing the √3 (one phase's worth, but computed with the line voltage)."],
+          "explain": "P = 3P_A = √3·V_l·I_l·cos φ = √3 × 380 × 21.94 × 0.8 = 11552 W. 20009 W wrongly uses 3·V_l·I_l·cos φ; 14440 W is the apparent power S = √3·V_l·I_l; 6670 W forgets the √3."
         }
       ],
       "hints": [
         "Reduce the balanced circuit to one phase: each load phase Z = 8 + j6 Ω sees the phase voltage 380/√3 V.",
         "The power-factor angle φ is the impedance angle of one load phase.",
-        "Total power P = 3·U_p·I_p·cos φ, which for both Y and Δ loads can be written √3·U_l·I_l·cos φ."
+        "Total power P = 3·V_p·I_p·cos φ, which for both Y and Δ loads can be written √3·V_l·I_l·cos φ."
       ],
       "solution": [
-        "**1. Per phase.** U_p = 380/√3 = 219.39 V, Z = 8 + j6 = 10∠36.87° Ω, I_l = I_p = **21.94 A**.",
+        "**1. Per phase.** V_p = 380/√3 = 219.39 V, Z = 8 + j6 = 10∠36.87° Ω, I_l = I_p = **21.94 A**.",
         "**2. Power factor.** cos φ = cos36.87° = **0.8** (inductive).",
         "**3. Power of one phase.** P_A = I_p²·R = **3850.7 W**; Q_A = I_p²·X_L = 2888 var.",
-        "**4. Three-phase power.** P = 3P_A = √3 × 380 × 21.94 × 0.8 = **11552 W**, Q = √3·U_l·I_l·sin φ = 8664 var, S = √3·U_l·I_l = 14440 VA.",
-        "**Note:** in √3·U_l·I_l·cos φ the angle φ is between the phase voltage and the phase current (the load impedance angle), not between a line voltage and a line current."
+        "**4. Three-phase power.** P = 3P_A = √3 × 380 × 21.94 × 0.8 = **11552 W**, Q = √3·V_l·I_l·sin φ = 8664 var, S = √3·V_l·I_l = 14440 VA.",
+        "**Note:** in √3·V_l·I_l·cos φ the angle φ is between the phase voltage and the phase current (the load impedance angle), not between a line voltage and a line current."
       ]
     }
   }

@@ -7,13 +7,13 @@
   "level": 3,
   "tags": ["相量形式的 KVL", "相位差", "相量减法", "电压表读数"],
   "statement": [
-    "两个同频电压源的“−”端接在公共结点 n（接地）：u_a(t) = 220√2 cos(100πt) V，u_b(t) = 220√2 cos(100πt − 120°) V。结点 a、b 之间接电阻 R = 100 Ω，电压表 V 并联在 R 两端。",
-    "求电压表读数、u_ab 的初相和电阻电流的有效值。"
+    "两个同频电压源的“−”端接在公共结点 n（接地）：v_a(t) = 220√2 cos(100πt) V，v_b(t) = 220√2 cos(100πt − 120°) V。结点 a、b 之间接电阻 R = 100 Ω，电压表 V 并联在 R 两端。",
+    "求电压表读数、v_ab 的初相和电阻电流的有效值。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Ua", "type": "V", "from": [0, 0], "to": [0, 5], "value": { "ac": { "mag": 220, "phase": 0 } }, "label": "u_a" },
-      { "ref": "Ub", "type": "V", "from": [12, 0], "to": [12, 5], "value": { "ac": { "mag": 220, "phase": -120 } }, "label": "u_b" },
+      { "ref": "Va", "type": "V", "from": [0, 0], "to": [0, 5], "value": { "ac": { "mag": 220, "phase": 0 } }, "label": "v_a" },
+      { "ref": "Vb", "type": "V", "from": [12, 0], "to": [12, 5], "value": { "ac": { "mag": 220, "phase": -120 } }, "label": "v_b" },
       { "ref": "R", "type": "R", "from": [4, 0], "to": [8, 0], "value": 100 },
       { "ref": "V", "type": "voltmeter", "from": [4, -3], "to": [8, -3] }
     ],
@@ -32,19 +32,19 @@
   "questions": [
     {
       "id": "V",
-      "ask": "电压表读数 U_ab = ?",
+      "ask": "电压表读数 V_ab = ?",
       "find": { "kind": "meter", "el": "V" },
       "answer": 381.0512,
       "unit": "V",
-      "explain": "U̇_ab = U̇_a − U̇_b = 220∠0° − 220∠−120° = 330 + j190.5 = 381.05∠30° V，读数 220√3 ≈ 381.1 V。"
+      "explain": "V̇_ab = V̇_a − V̇_b = 220∠0° − 220∠−120° = 330 + j190.5 = 381.05∠30° V，读数 220√3 ≈ 381.1 V。"
     },
     {
       "id": "psi",
-      "ask": "u_ab 的初相 = ?",
+      "ask": "v_ab 的初相 = ?",
       "find": { "kind": "v", "nodes": ["a", "b"], "part": "phase" },
       "answer": 30,
       "unit": "°",
-      "explain": "U̇_ab = 330 + j190.5，辐角 arctan(190.5/330) = 30°：u_ab 超前 u_a 30°。"
+      "explain": "V̇_ab = 330 + j190.5，辐角 arctan(190.5/330) = 30°：v_ab 超前 v_a 30°。"
     },
     {
       "id": "I",
@@ -52,63 +52,63 @@
       "find": { "kind": "i", "el": "R", "part": "mag" },
       "answer": 3.810512,
       "unit": "A",
-      "explain": "İ = U̇_ab/R = 381.05∠30°/100 = 3.81∠30° A。"
+      "explain": "İ = V̇_ab/R = 381.05∠30°/100 = 3.81∠30° A。"
     },
     {
       "id": "wrong",
       "ask": "下面哪种算法是错的？",
       "choices": [
-        "U_ab = 220 − 220 = 0 V，因为两电源有效值相同",
-        "U_ab = 2 × 220 × cos30° = 220√3 V",
-        "画相量图：U̇_a、−U̇_b 相差 60°，合成为 220√3∠30° V",
-        "化为代数形式：220 − (−110 − j190.5) = 330 + j190.5 V"
-      ], "choiceExplain": ["", "这种算法是对的：相位差 120° 的两个等长相量之差的模为 2 × 220 × sin60° = 2 × 220 × cos30° = 220√3 V。", "这种算法是对的：−U̇_b = 220∠60°，与 U̇_a 夹角 60°，合成相量沿角平分线（30°），长度 220√3 V。", "这种算法是对的：U̇_b = −110 − j190.5 V，相减得 330 + j190.5 = 381.05∠30° V。"],
+        "V_ab = 220 − 220 = 0 V，因为两电源有效值相同",
+        "用两个等长相量之差的公式：V_ab = 2 × 220 × cos30°",
+        "画相量图：V̇_a 与 −V̇_b 相差 60°，按平行四边形合成",
+        "化成代数形式：把 V̇_b 写成 −110 − j190.5 V，再相减"
+      ], "choiceExplain": ["", "这种算法是对的：相位差 120° 的两个等长相量之差的模为 2 × 220 × sin60° = 2 × 220 × cos30° = 220√3 V。", "这种算法是对的：−V̇_b = 220∠60°，与 V̇_a 夹角 60°，合成相量沿角平分线（30°），长度 220√3 V。", "这种算法是对的：V̇_b = −110 − j190.5 V，相减得 330 + j190.5 = 381.05∠30° V。"],
       "correct": 0,
-      "explain": "KVL 对相量成立：U̇_ab = U̇_a − U̇_b，不能直接用有效值相减。两电源相位差 120°，差的模是 2 × 220 × sin60° = 220√3 V（与三相电路中“线电压 = √3 相电压、超前 30°”是同一回事）。"
+      "explain": "KVL 对相量成立：V̇_ab = V̇_a − V̇_b，不能直接用有效值相减。两电源相位差 120°，差的模是 2 × 220 × sin60° = 220√3 V（与三相电路中“线电压 = √3 相电压、超前 30°”是同一回事）。"
     }
   ],
   "hints": [
-    "写出相量 U̇_a = 220∠0° V，U̇_b = 220∠−120° V。",
-    "对回路 a → R → b → n → a 列 KVL：U̇_ab = U̇_a − U̇_b。把 U̇_b 化成代数形式再相减，或者画相量图。"
+    "写出相量 V̇_a = 220∠0° V，V̇_b = 220∠−120° V。",
+    "对回路 a → R → b → n → a 列 KVL：V̇_ab = V̇_a − V̇_b。把 V̇_b 化成代数形式再相减，或者画相量图。"
   ],
   "solution": [
-    "**1. 相量。** U̇_a = 220∠0° V，U̇_b = 220∠−120° = −110 − j190.5 V。",
-    "**2. 相量形式的 KVL。** U̇_ab = U̇_a − U̇_b = 220 + 110 + j190.5 = 330 + j190.5 = **381.05∠30° V**（= 220√3∠30° V）。电压表读 **381.1 V**，初相 **30°**。",
-    "**3. 相量图解法。** U̇_a 与 −U̇_b = 220∠60° 等长、夹角 60°，合成相量沿角平分线（30°），长度 2 × 220 × cos30° = 220√3 V。",
-    "**4. 电流。** İ = U̇_ab/R = **3.81∠30° A**，i(t) = 3.81√2 cos(100πt + 30°) A。"
+    "**1. 相量。** V̇_a = 220∠0° V，V̇_b = 220∠−120° = −110 − j190.5 V。",
+    "**2. 相量形式的 KVL。** V̇_ab = V̇_a − V̇_b = 220 + 110 + j190.5 = 330 + j190.5 = **381.05∠30° V**（= 220√3∠30° V）。电压表读 **381.1 V**，初相 **30°**。",
+    "**3. 相量图解法。** V̇_a 与 −V̇_b = 220∠60° 等长、夹角 60°，合成相量沿角平分线（30°），长度 2 × 220 × cos30° = 220√3 V。",
+    "**4. 电流。** İ = V̇_ab/R = **3.81∠30° A**，i(t) = 3.81√2 cos(100πt + 30°) A。"
   ],
   "i18n": {
     "en": {
       "title": "KVL in phasor form: two voltage sources 120° apart",
       "tags": ["phasor KVL", "phase difference", "phasor subtraction", "voltmeter reading"],
       "statement": [
-        "Two voltage sources of the same frequency have their “−” terminals on the common node n (grounded): u_a(t) = 220√2 cos(100πt) V and u_b(t) = 220√2 cos(100πt − 120°) V. A resistor R = 100 Ω is connected between nodes a and b, with voltmeter V across it.",
-        "Find the voltmeter reading, the initial phase of u_ab and the rms current in the resistor."
+        "Two voltage sources of the same frequency have their “−” terminals on the common node n (grounded): v_a(t) = 220√2 cos(100πt) V and v_b(t) = 220√2 cos(100πt − 120°) V. A resistor R = 100 Ω is connected between nodes a and b, with voltmeter V across it.",
+        "Find the voltmeter reading, the initial phase of v_ab and the rms current in the resistor."
       ],
       "questions": [
-        { "ask": "Voltmeter reading U_ab = ?", "explain": "U̇_ab = U̇_a − U̇_b = 220∠0° − 220∠−120° = 330 + j190.5 = 381.05∠30° V; the reading is 220√3 ≈ 381.1 V." },
-        { "ask": "Initial phase of u_ab = ?", "explain": "U̇_ab = 330 + j190.5 has angle arctan(190.5/330) = 30°: u_ab leads u_a by 30°." },
-        { "ask": "rms value of the resistor current i = ?", "explain": "İ = U̇_ab/R = 381.05∠30°/100 = 3.81∠30° A." },
+        { "ask": "Voltmeter reading V_ab = ?", "explain": "V̇_ab = V̇_a − V̇_b = 220∠0° − 220∠−120° = 330 + j190.5 = 381.05∠30° V; the reading is 220√3 ≈ 381.1 V." },
+        { "ask": "Initial phase of v_ab = ?", "explain": "V̇_ab = 330 + j190.5 has angle arctan(190.5/330) = 30°: v_ab leads v_a by 30°." },
+        { "ask": "rms value of the resistor current i = ?", "explain": "İ = V̇_ab/R = 381.05∠30°/100 = 3.81∠30° A." },
         {
           "ask": "Which of these methods is wrong?",
           "choices": [
-            "U_ab = 220 − 220 = 0 V, since the two sources have the same rms value",
-            "U_ab = 2 × 220 × cos30° = 220√3 V",
-            "Phasor diagram: U̇_a and −U̇_b are 60° apart, their sum is 220√3∠30° V",
-            "Rectangular form: 220 − (−110 − j190.5) = 330 + j190.5 V"
-          ], "choiceExplain": ["", "This method is correct: the difference of two equal phasors 120° apart has magnitude 2 × 220 × sin60° = 2 × 220 × cos30° = 220√3 V.", "This method is correct: −U̇_b = 220∠60° is 60° from U̇_a, and their sum lies on the bisector (30°) with length 220√3 V.", "This method is correct: U̇_b = −110 − j190.5 V, and the subtraction gives 330 + j190.5 = 381.05∠30° V."],
-          "explain": "KVL holds for phasors: U̇_ab = U̇_a − U̇_b; rms values cannot simply be subtracted. The sources are 120° apart, so the difference has magnitude 2 × 220 × sin60° = 220√3 V (the same fact as “line voltage = √3 × phase voltage, leading by 30°” in three-phase circuits)."
+            "V_ab = 220 − 220 = 0 V, since the two sources have the same rms value",
+            "Formula for the difference of two equal phasors: V_ab = 2 × 220 × cos30°",
+            "Phasor diagram: V̇_a and −V̇_b are 60° apart; add them with the parallelogram rule",
+            "Rectangular form: write V̇_b as −110 − j190.5 V, then subtract"
+          ], "choiceExplain": ["", "This method is correct: the difference of two equal phasors 120° apart has magnitude 2 × 220 × sin60° = 2 × 220 × cos30° = 220√3 V.", "This method is correct: −V̇_b = 220∠60° is 60° from V̇_a, and their sum lies on the bisector (30°) with length 220√3 V.", "This method is correct: V̇_b = −110 − j190.5 V, and the subtraction gives 330 + j190.5 = 381.05∠30° V."],
+          "explain": "KVL holds for phasors: V̇_ab = V̇_a − V̇_b; rms values cannot simply be subtracted. The sources are 120° apart, so the difference has magnitude 2 × 220 × sin60° = 220√3 V (the same fact as “line voltage = √3 × phase voltage, leading by 30°” in three-phase circuits)."
         }
       ],
       "hints": [
-        "Write the phasors U̇_a = 220∠0° V and U̇_b = 220∠−120° V.",
-        "KVL around a → R → b → n → a: U̇_ab = U̇_a − U̇_b. Convert U̇_b to rectangular form and subtract, or draw the phasor diagram."
+        "Write the phasors V̇_a = 220∠0° V and V̇_b = 220∠−120° V.",
+        "KVL around a → R → b → n → a: V̇_ab = V̇_a − V̇_b. Convert V̇_b to rectangular form and subtract, or draw the phasor diagram."
       ],
       "solution": [
-        "**1. Phasors.** U̇_a = 220∠0° V, U̇_b = 220∠−120° = −110 − j190.5 V.",
-        "**2. Phasor KVL.** U̇_ab = U̇_a − U̇_b = 220 + 110 + j190.5 = 330 + j190.5 = **381.05∠30° V** (= 220√3∠30° V). The voltmeter reads **381.1 V**, initial phase **30°**.",
-        "**3. Phasor diagram.** U̇_a and −U̇_b = 220∠60° have equal length and are 60° apart, so their sum lies on the bisector (30°) with length 2 × 220 × cos30° = 220√3 V.",
-        "**4. Current.** İ = U̇_ab/R = **3.81∠30° A**, i(t) = 3.81√2 cos(100πt + 30°) A."
+        "**1. Phasors.** V̇_a = 220∠0° V, V̇_b = 220∠−120° = −110 − j190.5 V.",
+        "**2. Phasor KVL.** V̇_ab = V̇_a − V̇_b = 220 + 110 + j190.5 = 330 + j190.5 = **381.05∠30° V** (= 220√3∠30° V). The voltmeter reads **381.1 V**, initial phase **30°**.",
+        "**3. Phasor diagram.** V̇_a and −V̇_b = 220∠60° have equal length and are 60° apart, so their sum lies on the bisector (30°) with length 2 × 220 × cos30° = 220√3 V.",
+        "**4. Current.** İ = V̇_ab/R = **3.81∠30° A**, i(t) = 3.81√2 cos(100πt + 30°) A."
       ]
     }
   }

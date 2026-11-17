@@ -1,0 +1,174 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp5-design-night-light",
+  "title": "开放设计：天黑自动亮灯",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 5,
+  "summary": "第一道开放式设计题：只规定电路要做什么——天黑时灯亮、屋里开着灯时灯灭——怎么做由你定。用 ESP32 的阈值规则可以，用一个三极管也可以。",
+  "concepts": ["开放式设计 open-ended design", "光敏电阻分压 LDR divider", "阈值与回差 threshold & hysteresis", "只看表现判分 behaviour-only grading"],
+  "prereq": ["lesson-mcu-pwm-adc"],
+  "description": "要求只有三条：屋里亮着（100 lux）时 LED 灭；天黑（1 lux）时 LED 亮；LED 电流在 1–20 mA 之间。元件、接法、阻值都由你选，检查只看这三条。参考设计：ESP32 的 3V3 → 光敏电阻 → VLIGHT → 6.8 kΩ → GND，VLIGHT 接 GPIO34；GPIO27 设成阈值规则（读数 < 800 时输出高，回差 100）→ 330 Ω → LED → GND。",
+  "options": { "grading": "behaviour" },
+  "cards": [
+    {
+      "kind": "try",
+      "title": "这次没有标准答案",
+      "text": [
+        "前面每个实验都给你一张电路图。这一题只给**要求**：",
+        "- 屋里亮着灯（**`100 lux`**）时，LED **灭**；",
+        "- 天黑（**`1 lux`**）时，LED **亮**；",
+        "- LED 的电流在 **1–20 mA** 之间。",
+        "先别动手。用你学过的东西，能想出几种做法？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "两种做法都对",
+      "text": [
+        "- **测光**（5.7）：光敏电阻在上、固定电阻在下，越暗中点电压越低。",
+        "![](fig:ref)",
+        "- **做法 A · 单片机**：中点接一个 ADC 引脚；另一个引脚设成**「阈值规则」**，选「读数 < 阈值 → 高」。1 lux 时读数约 340，100 lux 时约 2840——阈值取在中间偏暗的地方，比如 800。",
+        "- **做法 B · 三极管**（5.3）：把分压器上下对调（光敏电阻在下），中点接 NPN 的基极，LED 和限流电阻接在集电极上。天黑时光敏电阻变大，基极电压升过约 0.7 V，三极管导通，灯亮。",
+        "- 检查**只看表现**：测试把光照设成 100 lux 和 1 lux，看灯亮不亮、电流多大。用什么元件、插在哪里都不管。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "搭一个，再改进它",
+      "text": [
+        "- 选一种做法搭出来。点**「检查我的电路」**：哪条要求没达到，它就告诉你哪条。",
+        "- 通过以后，单击光敏电阻，把光照从 **`100 lux`** 慢慢拖到 **`1 lux`**：灯在多少 lux 时亮？",
+        "- 做法 A 再试试**回差**：设成 `100`，来回拖光照，灯打开和关掉的位置不一样了。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **设计题先写要求**，再选做法：要求能测（几 lux、几 mA），检查就能写成测试。",
+        "- 同一个要求可以有很多电路。单片机的阈值可以随时改，三极管的阈值靠电阻比；三极管更省事，单片机更灵活。",
+        "- 回差让灯不会在黄昏时一闪一闪：打开和关掉用两个阈值——和 3.2 的施密特触发器、296 的风扇是同一个主意。"
+      ]
+    }
+  ],
+  "figures": {
+    "ref": {
+      "kind": "schematic",
+      "caption": { "text": "参考设计（做法 A）：分压器的中点 VLIGHT 进 ADC，越暗电压越低；规则引脚推 LED。", "i18n": { "en": "Reference design (way A): the divider's middle node VLIGHT goes to the ADC, lower when darker; the rule pin drives the LED." } },
+      "schematic": {
+        "elements": [
+          { "ref": "R_LDR", "type": "RV", "from": [0, 0], "to": [0, 3] },
+          { "ref": "R1", "type": "R", "from": [0, 3], "to": [0, 6], "value": "6.8k" },
+          { "ref": "R2", "type": "R", "from": [5, 0], "to": [5, 3], "value": 330 },
+          { "ref": "D1", "type": "LED", "from": [5, 3], "to": [5, 6], "value": "green" }
+        ],
+        "wires": [
+          [[0, 3], [2, 3]],
+          [[0, 6], [5, 6]]
+        ],
+        "terminals": [
+          { "at": [0, 0], "name": "3V3" },
+          { "at": [2, 3], "name": "GPIO34" },
+          { "at": [5, 0], "name": "GPIO27" }
+        ],
+        "grounds": [[0, 6]]
+      },
+      "highlight": ["R_LDR"]
+    }
+  },
+  "i18n": {
+    "en": {
+      "title": "Open design: a light that comes on in the dark",
+      "summary": "The first open design task: you are told only what the circuit must do — light on in the dark, off while the room lights are on — and how is up to you. An ESP32 threshold rule works; so does one transistor.",
+      "concepts": ["open-ended design", "LDR divider", "threshold & hysteresis", "behaviour-only grading"],
+      "description": "Three requirements only: with the room lit (100 lux) the LED is off; in the dark (1 lux) it is on; the LED current is between 1 and 20 mA. Parts, wiring and values are your choice; the check looks at these three things only. Reference design: the ESP32's 3V3 → LDR → VLIGHT → 6.8 kΩ → GND, VLIGHT to GPIO34; GPIO27 as a threshold rule (HIGH while the reading is below 800, hysteresis 100) → 330 Ω → LED → GND.",
+      "hints": [
+        "Start with the light meter from 5.7: LDR from 3V3 to a middle node, 6.8 kΩ from there to GND.",
+        "Way A: wire the middle node to GPIO34, then set another pin (GPIO27) to Threshold rule, reading GPIO34, \"reading < threshold → HIGH\", threshold 800. LED through 330 Ω from that pin to GND.",
+        "Way B: put the LDR at the bottom of the divider, feed the middle node to an NPN's base through about 1 kΩ, and hang the LED and a resistor between the supply and the collector."
+      ],
+      "tests": ["Room lit (100 lux): the LED is off", "Dark (1 lux): the LED is on, at 1–20 mA"],
+      "cards": [
+        {
+          "title": "No set answer this time",
+          "text": [
+            "Every lab so far gave you a schematic. This one gives you only the **requirements**:",
+            "- with the room lit (**`100 lux`**) the LED is **off**;",
+            "- in the dark (**`1 lux`**) the LED is **on**;",
+            "- the LED current is between **1 and 20 mA**.",
+            "Hands off for now. With what you have learned, how many ways can you think of?"
+          ]
+        },
+        {
+          "title": "Both ways are right",
+          "text": [
+            "- **Sensing light** (5.7): LDR on top, fixed resistor below, and the darker it is, the lower the middle node.",
+            "![](fig:ref)",
+            "- **Way A · microcontroller**: the middle node goes to an ADC pin; set another pin to **Threshold rule**, \"reading < threshold → HIGH\". At 1 lux the reading is about 340, at 100 lux about 2840 — put the threshold in between, on the dark side, say 800.",
+            "- **Way B · transistor** (5.3): swap the divider (LDR at the bottom) and feed its middle node to an NPN's base, with the LED and its resistor on the collector. In the dark the LDR grows, the base rises past about 0.7 V, the transistor turns on and the light comes on.",
+            "- The check looks **only at behaviour**: the tests set the light to 100 lux and to 1 lux and look at whether the LED is lit and how much current it takes. Which parts you use and where they sit does not matter."
+          ]
+        },
+        {
+          "title": "Build one, then improve it",
+          "text": [
+            "- Build one of the ways. Press **Check my circuit**: it tells you which requirement is not met.",
+            "- Once it passes, click the LDR and drag the light slowly from **`100 lux`** down to **`1 lux`**: at how many lux does the light come on?",
+            "- With way A, try **hysteresis**: set it to `100` and drag the light back and forth — the light now turns on and off at different places."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A design task starts with requirements**, then a way to meet them: when the requirements can be measured (so many lux, so many mA), the check can be written as tests.",
+            "- One requirement fits many circuits. A microcontroller's threshold changes with a setting; a transistor's is set by a resistor ratio. The transistor is simpler, the microcontroller more flexible.",
+            "- Hysteresis keeps the light from flickering at dusk: one threshold to turn on, another to turn off — the same idea as the Schmitt trigger in 3.2 and the fan in 296."
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    { "ref": "U1", "type": "esp32_devkit", "modes": { "GPIO34": "adc", "GPIO27": { "mode": "rule", "rule": { "adc": "GPIO34", "below": 800, "hysteresis": 100 } } } },
+    { "ref": "LDR1", "type": "ldr" },
+    { "ref": "R1", "type": "resistor", "resistance": "6.8k" },
+    { "ref": "RLED", "type": "resistor", "resistance": "330" },
+    { "ref": "LED1", "type": "led", "color": "green" }
+  ],
+  "nets": [
+    { "name": "3V3", "pins": ["U1.3V3", "LDR1.1"] },
+    { "name": "VLIGHT", "pins": ["LDR1.2", "R1.1", "U1.GPIO34"] },
+    { "name": "LED_IO", "pins": ["U1.GPIO27", "RLED.1"] },
+    { "name": "LED_A", "pins": ["RLED.2", "LED1.anode"] },
+    { "name": "GND", "pins": ["R1.2", "LED1.cathode", "U1.GND"] }
+  ],
+  "tests": [
+    { "name": "屋里亮着（100 lux）：LED 灭", "set": { "LDR1": { "lux": 100 } }, "expect": { "LED1": "off" } },
+    {
+      "name": "天黑（1 lux）：LED 亮，电流 1–20 mA",
+      "set": { "LDR1": { "lux": 1 } },
+      "expect": { "LED1": "on" },
+      "currents": [{ "el": "LED1", "min": 0.001, "max": 0.02 }]
+    }
+  ],
+  "hints": [
+    "先搭 5.7 的测光分压器：光敏电阻从 3V3 接到中点，6.8 kΩ 从中点接到 GND。",
+    "做法 A：中点接 GPIO34，再把另一个引脚（GPIO27）设成「阈值规则」，读 GPIO34，「读数 < 阈值 → 高」，阈值 800。LED 经 330 Ω 从这个引脚接到 GND。",
+    "做法 B：把光敏电阻放到分压器下面，中点经约 1 kΩ 接 NPN 的基极，LED 和电阻接在电源和集电极之间。"
+  ],
+  "solution": {
+    "parts": [
+      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": true, "modes": { "GPIO34": "adc", "GPIO27": { "mode": "rule", "rule": { "adc": "GPIO34", "below": 800, "hysteresis": 100 } } } } },
+      { "type": "wire", "ref": "W1", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "wire", "ref": "W2", "color": "orange", "pins": { "a": "h1", "b": "tp1" } },
+      { "type": "wire", "ref": "W3", "color": "black", "pins": { "a": "j14", "b": "bn14" } },
+      { "type": "ldr", "ref": "LDR1", "lux": 100, "pins": { "1": "tp21", "2": "a21" } },
+      { "type": "resistor", "ref": "R1", "resistance": "6.8k", "pins": { "1": "b21", "2": "tn21" } },
+      { "type": "wire", "ref": "W4", "color": "yellow", "pins": { "a": "c21", "b": "h5" } },
+      { "type": "resistor", "ref": "RLED", "resistance": "330", "pins": { "1": "j11", "2": "j23" } },
+      { "type": "led", "ref": "LED1", "color": "green", "pins": { "anode": "i23", "cathode": "bn23" } }
+    ]
+  }
+}

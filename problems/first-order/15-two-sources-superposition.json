@@ -7,12 +7,12 @@
   "level": 4,
   "tags": ["全响应", "零输入响应", "零状态响应", "叠加定理", "三要素法"],
   "statement": [
-    "图示电路中 U_s = 12 V，I_s = 1.5 mA，R_1 = 6 kΩ，R_2 = 3 kΩ，R_3 = 2 kΩ，C = 50 µF。开关 S 原来断开，电路已稳定；t = 0 时 S 闭合。",
-    "求 a 点电位的初值 u_a(0₊)、时间常数 τ、t = 0.2 s 时的 u_C，并分析电路的线性性质。"
+    "图示电路中 V_s = 12 V，I_s = 1.5 mA，R_1 = 6 kΩ，R_2 = 3 kΩ，R_3 = 2 kΩ，C = 50 µF。开关 S 原来断开，电路已稳定；t = 0 时 S 闭合。",
+    "求 a 点电位的初值 v_a(0₊)、时间常数 τ、t = 0.2 s 时的 v_C，并分析电路的线性性质。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
       { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "open", "after": "closed" } },
       { "ref": "R1", "type": "R", "from": [5, 0], "to": [8, 0], "value": "6k" },
       { "ref": "R2", "type": "R", "from": [10, 0], "to": [10, 4], "value": "3k" },
@@ -30,55 +30,55 @@
     "labels": [{ "at": [10, 0], "name": "a" }, { "at": [17, 0], "name": "b" }],
     "grounds": [[0, 4]],
     "marks": [
-      { "kind": "v", "el": "C", "name": "u_C" }
+      { "kind": "v", "el": "C", "name": "v_C" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "ua0", "ask": "u_a(0₊) = ?", "find": { "kind": "v", "nodes": ["a"], "t": "0+" }, "answer": 5.75, "unit": "V", "explain": "u_C(0₋) = I_s·(R_3 + R_2) = 1.5 × 5 = 7.5 V = u_C(0₊)。0₊ 时结点 a（单位 kΩ、mA）：(12 − u_a)/6 = u_a/3 + (u_a − 7.5)/2 → 6u_a = 34.5 → u_a(0₊) = 5.75 V（换路前为 4.5 V）。" },
-    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "U_s 短路、I_s 开路，从电容看进去 R_eq = R_3 + R_1 ∥ R_2 = 2 + 2 = 4 kΩ，τ = 4×10³ × 50×10⁻⁶ = 0.2 s。" },
-    { "id": "uc", "ask": "t = 0.2 s 时 u_C = ?", "find": { "kind": "v", "el": "C", "t": 0.2 }, "answer": 9.080301, "unit": "V", "explain": "u_C(∞) = 4 + 6 = 10 V（U_s 单独作用 12 × 3/9 = 4 V，I_s 单独作用 1.5 × 4 = 6 V），u_C(t) = 10 − 2.5e^(−5t) V，t = 0.2 s 时 u_C = 10 − 2.5e⁻¹ ≈ 9.080 V。" },
-    { "id": "lin", "ask": "若 I_s 改为 3 mA（加倍），其余不变，下列说法正确的是：", "choices": ["零输入分量和 I_s 产生的零状态分量都加倍，U_s 产生的零状态分量不变，所以 u_C(t) 并不简单加倍", "u_C(t) 整体加倍，因为电路是线性的", "只有零状态响应加倍，零输入响应不变", "只有零输入响应加倍，零状态响应不变"], "choiceExplain": ["", "全响应对激励不是线性的（除非把初始状态也算作激励）：U_s 不变，它产生的零状态分量 4(1 − e^(−5t)) 也不变。", "零输入分量并非不变：初始电压 u_C(0₋) = 7.5 V 是 I_s 产生的，会随 I_s 改变；零状态响应也不是整体加倍。", "I_s 产生的零状态分量 6(1 − e^(−5t)) 与 I_s 成正比，也会改变，零状态响应并非不变。"], "correct": 0, "explain": "u_C(t) = 7.5e^(−5t) [零输入] + 4(1 − e^(−5t)) [U_s 的零状态] + 6(1 − e^(−5t)) [I_s 的零状态]。初始电压 7.5 V 由 I_s 产生，所以零输入分量随 I_s 加倍；零状态分量对各激励分别成比例。I_s 加倍后 u_C = 15e^(−5t) + 4(1 − e^(−5t)) + 12(1 − e^(−5t)) = 16 − e^(−5t) V，不是原来的 2 倍。" }
+    { "id": "ua0", "ask": "v_a(0₊) = ?", "find": { "kind": "v", "nodes": ["a"], "t": "0+" }, "answer": 5.75, "unit": "V", "explain": "v_C(0₋) = I_s·(R_3 + R_2) = 1.5 × 5 = 7.5 V = v_C(0₊)。0₊ 时结点 a（单位 kΩ、mA）：(12 − v_a)/6 = v_a/3 + (v_a − 7.5)/2 → 6v_a = 34.5 → v_a(0₊) = 5.75 V（换路前为 4.5 V）。" },
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "V_s 短路、I_s 开路，从电容看进去 R_eq = R_3 + R_1 ∥ R_2 = 2 + 2 = 4 kΩ，τ = 4×10³ × 50×10⁻⁶ = 0.2 s。" },
+    { "id": "uc", "ask": "t = 0.2 s 时 v_C = ?", "find": { "kind": "v", "el": "C", "t": 0.2 }, "answer": 9.080301, "unit": "V", "explain": "v_C(∞) = 4 + 6 = 10 V（V_s 单独作用 12 × 3/9 = 4 V，I_s 单独作用 1.5 × 4 = 6 V），v_C(t) = 10 − 2.5e^(−5t) V，t = 0.2 s 时 v_C = 10 − 2.5e⁻¹ ≈ 9.080 V。" },
+    { "id": "lin", "ask": "若 I_s 改为 3 mA（加倍），其余不变，下列说法正确的是：", "choices": ["零输入分量和 I_s 产生的零状态分量都加倍，V_s 产生的零状态分量不变，所以 v_C(t) 并不简单加倍", "v_C(t) 整体加倍，因为电路是线性的", "只有零状态响应加倍，零输入响应不变", "只有零输入响应加倍，零状态响应不变"], "choiceExplain": ["", "全响应对激励不是线性的（除非把初始状态也算作激励）：V_s 不变，它产生的零状态分量 4(1 − e^(−5t)) 也不变。", "零输入分量并非不变：初始电压 v_C(0₋) = 7.5 V 是 I_s 产生的，会随 I_s 改变；零状态响应也不是整体加倍。", "I_s 产生的零状态分量 6(1 − e^(−5t)) 与 I_s 成正比，也会改变，零状态响应并非不变。"], "correct": 0, "explain": "v_C(t) = 7.5e^(−5t) [零输入] + 4(1 − e^(−5t)) [V_s 的零状态] + 6(1 − e^(−5t)) [I_s 的零状态]。初始电压 7.5 V 由 I_s 产生，所以零输入分量随 I_s 加倍；零状态分量对各激励分别成比例。I_s 加倍后 v_C = 15e^(−5t) + 4(1 − e^(−5t)) + 12(1 − e^(−5t)) = 16 − e^(−5t) V，不是原来的 2 倍。" }
   ],
   "hints": [
     "t < 0 时 S 断开，只有 I_s 作用：I_s 经 R_3、R_2 流到地，电容开路。",
-    "终值可以用叠加定理：U_s、I_s 分别单独作用，电容开路。",
-    "u_a 不是状态量：在 0₊ 等效电路中把电容换成 7.5 V 电压源，对结点 a 列方程。"
+    "终值可以用叠加定理：V_s、I_s 分别单独作用，电容开路。",
+    "v_a 不是状态量：在 0₊ 等效电路中把电容换成 7.5 V 电压源，对结点 a 列方程。"
   ],
   "solution": [
-    "**1. 初值。** t < 0：电容开路，I_s 流过 R_3、R_2：u_C(0₋) = 1.5 mA × 5 kΩ = 7.5 V，u_a(0₋) = 1.5 × 3 = 4.5 V。换路后 u_C(0₊) = 7.5 V。",
-    "0₊ 等效电路（电容为 7.5 V 电压源）中对结点 a 列方程：(12 − u_a)/6 = u_a/3 + (u_a − 7.5)/2 → **u_a(0₊) = 5.75 V**。",
-    "**2. 终值（叠加）。** U_s 单独作用：R_3 中无电流，u_C' = 12 × 3/9 = 4 V；I_s 单独作用：I_s 流经 R_3 后看到 R_1 ∥ R_2 = 2 kΩ，u_C'' = 1.5 × (2 + 2) = 6 V。u_C(∞) = 10 V；u_a(∞) = 12 × 3/9 + 1.5 × 2 = 7 V。",
+    "**1. 初值。** t < 0：电容开路，I_s 流过 R_3、R_2：v_C(0₋) = 1.5 mA × 5 kΩ = 7.5 V，v_a(0₋) = 1.5 × 3 = 4.5 V。换路后 v_C(0₊) = 7.5 V。",
+    "0₊ 等效电路（电容为 7.5 V 电压源）中对结点 a 列方程：(12 − v_a)/6 = v_a/3 + (v_a − 7.5)/2 → **v_a(0₊) = 5.75 V**。",
+    "**2. 终值（叠加）。** V_s 单独作用：R_3 中无电流，v_C' = 12 × 3/9 = 4 V；I_s 单独作用：I_s 流经 R_3 后看到 R_1 ∥ R_2 = 2 kΩ，v_C'' = 1.5 × (2 + 2) = 6 V。v_C(∞) = 10 V；v_a(∞) = 12 × 3/9 + 1.5 × 2 = 7 V。",
     "**3. 时间常数。** R_eq = R_3 + R_1 ∥ R_2 = 4 kΩ，**τ = 0.2 s**。",
-    "**4. 全响应。** u_C(t) = 10 + (7.5 − 10)e^(−5t) = 10 − 2.5e^(−5t) V；u_a(t) = 7 − 1.25e^(−5t) V（t > 0）。t = 0.2 s：u_C = 10 − 2.5e⁻¹ ≈ **9.080 V**。",
-    "**5. 分解。** 零输入：7.5e^(−5t)；零状态：10(1 − e^(−5t))，其中 U_s 贡献 4(1 − e^(−5t))，I_s 贡献 6(1 − e^(−5t))。零状态响应对每个激励成线性；全响应对“激励”并不成线性，除非把初始状态也看作一种激励。"
+    "**4. 全响应。** v_C(t) = 10 + (7.5 − 10)e^(−5t) = 10 − 2.5e^(−5t) V；v_a(t) = 7 − 1.25e^(−5t) V（t > 0）。t = 0.2 s：v_C = 10 − 2.5e⁻¹ ≈ **9.080 V**。",
+    "**5. 分解。** 零输入：7.5e^(−5t)；零状态：10(1 − e^(−5t))，其中 V_s 贡献 4(1 − e^(−5t))，I_s 贡献 6(1 − e^(−5t))。零状态响应对每个激励成线性；全响应对“激励”并不成线性，除非把初始状态也看作一种激励。"
   ],
   "i18n": {
     "en": {
       "title": "Complete RC response with two sources, and linearity",
       "tags": ["complete response", "zero-input response", "zero-state response", "superposition", "three-element method"],
       "statement": [
-        "In the circuit, U_s = 12 V, I_s = 1.5 mA, R_1 = 6 kΩ, R_2 = 3 kΩ, R_3 = 2 kΩ, C = 50 µF. Switch S is open and the circuit is in steady state; S closes at t = 0.",
-        "Find the initial value u_a(0+) of the potential of node a, the time constant τ, u_C at t = 0.2 s, and analyse the linearity of the circuit."
+        "In the circuit, V_s = 12 V, I_s = 1.5 mA, R_1 = 6 kΩ, R_2 = 3 kΩ, R_3 = 2 kΩ, C = 50 µF. Switch S is open and the circuit is in steady state; S closes at t = 0.",
+        "Find the initial value v_a(0+) of the potential of node a, the time constant τ, v_C at t = 0.2 s, and analyse the linearity of the circuit."
       ],
       "questions": [
-        { "ask": "u_a(0+) = ?", "explain": "u_C(0−) = I_s·(R_3 + R_2) = 1.5 × 5 = 7.5 V = u_C(0+). At 0+, node a (in kΩ and mA): (12 − u_a)/6 = u_a/3 + (u_a − 7.5)/2 → 6u_a = 34.5 → u_a(0+) = 5.75 V (it was 4.5 V before switching)." },
-        { "ask": "τ = ?", "explain": "Short U_s and open I_s; seen from the capacitor R_eq = R_3 + R_1 ∥ R_2 = 2 + 2 = 4 kΩ, τ = 4×10³ × 50×10⁻⁶ = 0.2 s." },
-        { "ask": "u_C at t = 0.2 s = ?", "explain": "u_C(∞) = 4 + 6 = 10 V (U_s alone gives 12 × 3/9 = 4 V, I_s alone 1.5 × 4 = 6 V), u_C(t) = 10 − 2.5e^(−5t) V; at t = 0.2 s, u_C = 10 − 2.5e⁻¹ ≈ 9.080 V." },
-        { "ask": "If I_s is changed to 3 mA (doubled) with everything else unchanged, which statement is correct?", "choices": ["The zero-input component and the zero-state component due to I_s both double, the zero-state component due to U_s doesn't, so u_C(t) does not simply double", "u_C(t) doubles as a whole, because the circuit is linear", "Only the zero-state response doubles; the zero-input response stays the same", "Only the zero-input response doubles; the zero-state response stays the same"], "choiceExplain": ["", "The complete response is not linear in the sources unless the initial state is counted as a source: U_s is unchanged, so its zero-state part 4(1 − e^(−5t)) stays the same.", "The zero-input part does not stay the same: the initial voltage u_C(0−) = 7.5 V is produced by I_s, so it changes with I_s; nor does the whole zero-state response double.", "The zero-state part due to I_s, 6(1 − e^(−5t)), is proportional to I_s and changes too, so the zero-state response is not unchanged."], "explain": "u_C(t) = 7.5e^(−5t) [zero-input] + 4(1 − e^(−5t)) [zero-state, U_s] + 6(1 − e^(−5t)) [zero-state, I_s]. The initial 7.5 V is produced by I_s, so the zero-input part doubles with I_s; each zero-state part is proportional to its own source. With I_s doubled, u_C = 15e^(−5t) + 4(1 − e^(−5t)) + 12(1 − e^(−5t)) = 16 − e^(−5t) V, which is not twice the original." }
+        { "ask": "v_a(0+) = ?", "explain": "v_C(0−) = I_s·(R_3 + R_2) = 1.5 × 5 = 7.5 V = v_C(0+). At 0+, node a (in kΩ and mA): (12 − v_a)/6 = v_a/3 + (v_a − 7.5)/2 → 6v_a = 34.5 → v_a(0+) = 5.75 V (it was 4.5 V before switching)." },
+        { "ask": "τ = ?", "explain": "Short V_s and open I_s; seen from the capacitor R_eq = R_3 + R_1 ∥ R_2 = 2 + 2 = 4 kΩ, τ = 4×10³ × 50×10⁻⁶ = 0.2 s." },
+        { "ask": "v_C at t = 0.2 s = ?", "explain": "v_C(∞) = 4 + 6 = 10 V (V_s alone gives 12 × 3/9 = 4 V, I_s alone 1.5 × 4 = 6 V), v_C(t) = 10 − 2.5e^(−5t) V; at t = 0.2 s, v_C = 10 − 2.5e⁻¹ ≈ 9.080 V." },
+        { "ask": "If I_s is changed to 3 mA (doubled) with everything else unchanged, which statement is correct?", "choices": ["The zero-input component and the zero-state component due to I_s both double, the zero-state component due to V_s doesn't, so v_C(t) does not simply double", "v_C(t) doubles as a whole, because the circuit is linear", "Only the zero-state response doubles; the zero-input response stays the same", "Only the zero-input response doubles; the zero-state response stays the same"], "choiceExplain": ["", "The complete response is not linear in the sources unless the initial state is counted as a source: V_s is unchanged, so its zero-state part 4(1 − e^(−5t)) stays the same.", "The zero-input part does not stay the same: the initial voltage v_C(0−) = 7.5 V is produced by I_s, so it changes with I_s; nor does the whole zero-state response double.", "The zero-state part due to I_s, 6(1 − e^(−5t)), is proportional to I_s and changes too, so the zero-state response is not unchanged."], "explain": "v_C(t) = 7.5e^(−5t) [zero-input] + 4(1 − e^(−5t)) [zero-state, V_s] + 6(1 − e^(−5t)) [zero-state, I_s]. The initial 7.5 V is produced by I_s, so the zero-input part doubles with I_s; each zero-state part is proportional to its own source. With I_s doubled, v_C = 15e^(−5t) + 4(1 − e^(−5t)) + 12(1 − e^(−5t)) = 16 − e^(−5t) V, which is not twice the original." }
       ],
       "hints": [
         "For t < 0, S is open and only I_s acts: I_s flows through R_3 and R_2 to ground, with the capacitor open.",
-        "The final value can be found by superposition: U_s and I_s acting alone, capacitor open.",
-        "u_a is not a state variable: in the 0+ equivalent circuit replace the capacitor by a 7.5 V source and write the node equation at a."
+        "The final value can be found by superposition: V_s and I_s acting alone, capacitor open.",
+        "v_a is not a state variable: in the 0+ equivalent circuit replace the capacitor by a 7.5 V source and write the node equation at a."
       ],
       "solution": [
-        "**1. Initial values.** t < 0: capacitor open, I_s flows through R_3 and R_2: u_C(0−) = 1.5 mA × 5 kΩ = 7.5 V, u_a(0−) = 1.5 × 3 = 4.5 V. After switching u_C(0+) = 7.5 V.",
-        "In the 0+ equivalent circuit (capacitor = 7.5 V source), node a: (12 − u_a)/6 = u_a/3 + (u_a − 7.5)/2 → **u_a(0+) = 5.75 V**.",
-        "**2. Final values (superposition).** U_s alone: no current in R_3, u_C' = 12 × 3/9 = 4 V; I_s alone: after R_3 it sees R_1 ∥ R_2 = 2 kΩ, u_C'' = 1.5 × (2 + 2) = 6 V. u_C(∞) = 10 V; u_a(∞) = 12 × 3/9 + 1.5 × 2 = 7 V.",
+        "**1. Initial values.** t < 0: capacitor open, I_s flows through R_3 and R_2: v_C(0−) = 1.5 mA × 5 kΩ = 7.5 V, v_a(0−) = 1.5 × 3 = 4.5 V. After switching v_C(0+) = 7.5 V.",
+        "In the 0+ equivalent circuit (capacitor = 7.5 V source), node a: (12 − v_a)/6 = v_a/3 + (v_a − 7.5)/2 → **v_a(0+) = 5.75 V**.",
+        "**2. Final values (superposition).** V_s alone: no current in R_3, v_C' = 12 × 3/9 = 4 V; I_s alone: after R_3 it sees R_1 ∥ R_2 = 2 kΩ, v_C'' = 1.5 × (2 + 2) = 6 V. v_C(∞) = 10 V; v_a(∞) = 12 × 3/9 + 1.5 × 2 = 7 V.",
         "**3. Time constant.** R_eq = R_3 + R_1 ∥ R_2 = 4 kΩ, **τ = 0.2 s**.",
-        "**4. Complete response.** u_C(t) = 10 + (7.5 − 10)e^(−5t) = 10 − 2.5e^(−5t) V; u_a(t) = 7 − 1.25e^(−5t) V (t > 0). At t = 0.2 s: u_C = 10 − 2.5e⁻¹ ≈ **9.080 V**.",
-        "**5. Decomposition.** Zero-input: 7.5e^(−5t); zero-state: 10(1 − e^(−5t)), of which U_s contributes 4(1 − e^(−5t)) and I_s 6(1 − e^(−5t)). The zero-state response is linear in each source; the complete response is not linear in the sources unless the initial state is also treated as an input."
+        "**4. Complete response.** v_C(t) = 10 + (7.5 − 10)e^(−5t) = 10 − 2.5e^(−5t) V; v_a(t) = 7 − 1.25e^(−5t) V (t > 0). At t = 0.2 s: v_C = 10 − 2.5e⁻¹ ≈ **9.080 V**.",
+        "**5. Decomposition.** Zero-input: 7.5e^(−5t); zero-state: 10(1 − e^(−5t)), of which V_s contributes 4(1 − e^(−5t)) and I_s 6(1 − e^(−5t)). The zero-state response is linear in each source; the complete response is not linear in the sources unless the initial state is also treated as an input."
       ]
     }
   }

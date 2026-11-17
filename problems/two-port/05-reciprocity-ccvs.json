@@ -7,7 +7,7 @@
   "level": 3,
   "tags": ["Z 参数", "互易二端口", "对称二端口", "受控源 CCVS"],
   "statement": [
-    "图示 T 形二端口中，R_1 = R_2 = 3 Ω，R_3 = 2 Ω；公共支路中串有电流控制电压源 2i_1（“+”在上），i_1 是从 1 端流入、流过 R_1 的电流。端口电流 i_1、i_2 都以流入端口为正。",
+    "图示 T 形二端口中，R_1 = R_2 = 3 Ω，R_3 = 2 Ω。公共支路中还串有一个电流控制电压源 2i_1（“+”在上），i_1 是从 1 端流入、流过 R_1 的电流。端口电流 i_1、i_2 都以流入端口为正。",
     "求 Z 参数 z_11、z_21、z_12，并判断网络是否互易、是否对称。"
   ],
   "schematic": {
@@ -40,7 +40,7 @@
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z11" },
       "answer": 7,
       "unit": "Ω",
-      "explain": "i_2 = 0：i_1 流过 R_1、R_3 和受控源，u_1 = 3i_1 + 2i_1 + 2i_1 = 7i_1，z_11 = 7 Ω。"
+      "explain": "i_2 = 0：i_1 流过 R_1、R_3 和受控源，v_1 = 3i_1 + 2i_1 + 2i_1 = 7i_1，z_11 = 7 Ω。"
     },
     {
       "id": "z21",
@@ -48,7 +48,7 @@
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z21" },
       "answer": 4,
       "unit": "Ω",
-      "explain": "i_2 = 0 时 R_2 无压降，u_2 = 公共支路电压 = 2i_1 + 2i_1 = 4i_1，z_21 = 4 Ω。"
+      "explain": "i_2 = 0 时 R_2 无压降，v_2 = 公共支路电压 = 2i_1 + 2i_1 = 4i_1，z_21 = 4 Ω。"
     },
     {
       "id": "z12",
@@ -56,7 +56,7 @@
       "find": { "kind": "twoport", "ports": [["1", "1'"], ["2", "2'"]], "param": "z12" },
       "answer": 2,
       "unit": "Ω",
-      "explain": "i_1 = 0 时受控源电压 2i_1 = 0（相当于短路），u_1 = 公共支路电压 = R_3·i_2 = 2i_2，z_12 = 2 Ω。"
+      "explain": "i_1 = 0 时受控源电压 2i_1 = 0（相当于短路），v_1 = 公共支路电压 = R_3·i_2 = 2i_2，z_12 = 2 Ω。"
     },
     {
       "id": "kind",
@@ -71,10 +71,10 @@
     "i_1 = 0 时受控源 2i_1 的电压为零，相当于一根导线；i_2 = 0 时它的电压是 2i_1。互易要求 z_12 = z_21，对称还要求 z_11 = z_22。"
   ],
   "solution": [
-    "**1. 令 i_2 = 0（2–2' 开路）。** i_1 依次流过 R_1、R_3、受控源：公共支路电压 u_c = R_3·i_1 + 2i_1 = 4i_1。",
-    "u_1 = R_1·i_1 + u_c = 7i_1 → **z_11 = 7 Ω**；u_2 = u_c = 4i_1 → **z_21 = 4 Ω**。",
+    "**1. 令 i_2 = 0（2–2' 开路）。** i_1 依次流过 R_1、R_3、受控源：公共支路电压 v_c = R_3·i_1 + 2i_1 = 4i_1。",
+    "v_1 = R_1·i_1 + v_c = 7i_1 → **z_11 = 7 Ω**；v_2 = v_c = 4i_1 → **z_21 = 4 Ω**。",
     "**2. 令 i_1 = 0（1–1' 开路）。** 受控源电压为零；i_2 流过 R_2、R_3：",
-    "u_2 = (R_2 + R_3)·i_2 = 5i_2 → z_22 = 5 Ω；u_1 = R_3·i_2 = 2i_2 → **z_12 = 2 Ω**。",
+    "v_2 = (R_2 + R_3)·i_2 = 5i_2 → z_22 = 5 Ω；v_1 = R_3·i_2 = 2i_2 → **z_12 = 2 Ω**。",
     "**3. 判断：** Z = [7 2; 4 5] Ω。z_12 ≠ z_21 → **不互易**；z_11 ≠ z_22 → **不对称**。",
     "**对比：** 没有受控源时 Z = [5 2; 2 5] Ω，互易（z_12 = z_21）且对称（z_11 = z_22）。互易定理只适用于不含受控源的线性网络。"
   ],
@@ -83,13 +83,13 @@
       "title": "A dependent source breaks reciprocity and symmetry",
       "tags": ["Z parameters", "reciprocal two-port", "symmetric two-port", "dependent source CCVS"],
       "statement": [
-        "In the T two-port, R_1 = R_2 = 3 Ω, R_3 = 2 Ω; the shared branch also contains a current-controlled voltage source 2i_1 (+ at the top), where i_1 is the current entering terminal 1 and flowing through R_1. Both port currents i_1, i_2 are positive into the port.",
+        "In the T two-port, R_1 = R_2 = 3 Ω, R_3 = 2 Ω. The shared branch also contains a current-controlled voltage source 2i_1 (+ at the top), where i_1 is the current entering terminal 1 and flowing through R_1. Both port currents i_1, i_2 are positive into the port.",
         "Find the Z parameters z_11, z_21 and z_12, and decide whether the network is reciprocal and whether it is symmetric."
       ],
       "questions": [
-        { "ask": "z_11 = ?", "explain": "i_2 = 0: i_1 flows through R_1, R_3 and the dependent source, u_1 = 3i_1 + 2i_1 + 2i_1 = 7i_1, z_11 = 7 Ω." },
-        { "ask": "z_21 = ?", "explain": "With i_2 = 0 there is no drop across R_2, so u_2 = voltage of the shared branch = 2i_1 + 2i_1 = 4i_1, z_21 = 4 Ω." },
-        { "ask": "z_12 = ?", "explain": "With i_1 = 0 the source voltage 2i_1 is zero (a short), so u_1 = voltage of the shared branch = R_3·i_2 = 2i_2, z_12 = 2 Ω." },
+        { "ask": "z_11 = ?", "explain": "i_2 = 0: i_1 flows through R_1, R_3 and the dependent source, v_1 = 3i_1 + 2i_1 + 2i_1 = 7i_1, z_11 = 7 Ω." },
+        { "ask": "z_21 = ?", "explain": "With i_2 = 0 there is no drop across R_2, so v_2 = voltage of the shared branch = 2i_1 + 2i_1 = 4i_1, z_21 = 4 Ω." },
+        { "ask": "z_12 = ?", "explain": "With i_1 = 0 the source voltage 2i_1 is zero (a short), so v_1 = voltage of the shared branch = R_3·i_2 = 2i_2, z_12 = 2 Ω." },
         {
           "ask": "This two-port is …",
           "choices": ["neither reciprocal nor symmetric", "reciprocal but not symmetric", "symmetric but not reciprocal", "both reciprocal and symmetric"], "choiceExplain": ["", "That looks only at the resistive T; the source 2i_1 acts only when i_1 ≠ 0, which makes z_21 ≠ z_12 — a network with a dependent source is generally not reciprocal.", "R_1 = R_2 only makes the drawing look symmetric; the dependent source is controlled by i_1 alone, so z_11 ≠ z_22 and the network is not symmetric.", "That holds with the dependent source removed (shorted); with 2i_1 in place, compare the z_12 and z_21 found above, and work out z_22 to compare with z_11."],
@@ -101,10 +101,10 @@
         "With i_1 = 0 the source 2i_1 has zero voltage and acts as a wire; with i_2 = 0 its voltage is 2i_1. Reciprocity requires z_12 = z_21; symmetry also requires z_11 = z_22."
       ],
       "solution": [
-        "**1. Set i_2 = 0 (port 2 open).** i_1 flows through R_1, R_3 and the source: the shared-branch voltage is u_c = R_3·i_1 + 2i_1 = 4i_1.",
-        "u_1 = R_1·i_1 + u_c = 7i_1 → **z_11 = 7 Ω**; u_2 = u_c = 4i_1 → **z_21 = 4 Ω**.",
+        "**1. Set i_2 = 0 (port 2 open).** i_1 flows through R_1, R_3 and the source: the shared-branch voltage is v_c = R_3·i_1 + 2i_1 = 4i_1.",
+        "v_1 = R_1·i_1 + v_c = 7i_1 → **z_11 = 7 Ω**; v_2 = v_c = 4i_1 → **z_21 = 4 Ω**.",
         "**2. Set i_1 = 0 (port 1 open).** The source voltage is zero; i_2 flows through R_2 and R_3:",
-        "u_2 = (R_2 + R_3)·i_2 = 5i_2 → z_22 = 5 Ω; u_1 = R_3·i_2 = 2i_2 → **z_12 = 2 Ω**.",
+        "v_2 = (R_2 + R_3)·i_2 = 5i_2 → z_22 = 5 Ω; v_1 = R_3·i_2 = 2i_2 → **z_12 = 2 Ω**.",
         "**3. Verdict:** Z = [7 2; 4 5] Ω. z_12 ≠ z_21 → **not reciprocal**; z_11 ≠ z_22 → **not symmetric**.",
         "**Compare:** without the dependent source Z = [5 2; 2 5] Ω, which is reciprocal (z_12 = z_21) and symmetric (z_11 = z_22). The reciprocity theorem holds only for linear networks without dependent sources."
       ]

@@ -2,60 +2,509 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-parallel",
-  "title": "第 6 课 · 并联 LED（parallel）",
+  "title": "并联：每条路有自己的电流",
   "kind": "lesson",
   "level": 2,
-  "summary": "并排连接：电压相同，电流分开。每个 LED 要有自己的电阻。",
-  "concepts": ["parallel 并联", "branch 支路", "KCL 基尔霍夫电流定律", "each LED its own resistor"],
-  "description": "【什么是并联】\n几个支路（branch）的两端分别接在同一对结点上，这叫并联（parallel）。这里两条支路都是从 VCC 接到 GND，所以每条支路两端的电压都是 5V。\n\n【并联的规律】\n1. 电压相同：每条支路两端都是电源电压。\n2. 电流相加（KCL）：电源输出的总电流 = 各支路电流之和。\n3. 支路彼此独立：拔掉一条支路，另一条照样工作。\n\n【为什么每个 LED 要有自己的电阻】\n如果两个 LED 直接并联、共用一个电阻，Vf 低的那个（比如红色 1.8V）会把电压“钳”在 1.8V，Vf 高的那个（绿色 2.1V）根本达不到导通电压，几乎不亮，所有电流都挤进红色 LED。所以正确做法是：每个 LED 串一个自己的限流电阻，再把这些“电阻 + LED”支路并联。\n\n【面包板小技巧】\n电阻的一只脚可以直接插进电源轨，另一只脚插到主区——这样省一根跳线。本课就是这么做的。",
+  "summary": "两颗不同颜色的 LED 共用一个电阻，绿色的不亮。为什么？给每条支路一个自己的电阻就好了。",
+  "concepts": [
+    "parallel 并联",
+    "branch 支路",
+    "same voltage 两端电压相同",
+    "KCL"
+  ],
+  "description": "并联的几条支路两端接在同样的两个结点上，所以两端电压相同，各自的电流由自己的元件决定，总电流是各支路电流之和。两颗颜色不同的 LED 不能共用一个限流电阻：压降低的那颗会把电压“卡住”，另一颗点不亮。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "两颗灯共用一个电阻",
+      "text": [
+        "先搭红色 LED 和它的 150 Ω 电阻。然后把一颗**绿色** LED **并联**在红色 LED 旁边，共用同一个电阻。",
+        "看看两颗灯：哪颗亮，哪颗不亮？"
+      ],
+      "steps": 4
+    },
+    {
+      "kind": "explain",
+      "title": "并联：两端电压一样",
+      "text": [
+        "- **并联**的两颗 LED 两端接在**同样的两个结点**上，所以它们两端的电压**必须相等**（还记得 KVL 实验里的回路 ② 吗）。",
+        "- 红色 LED 在 1.8 V 左右就导通，把这两个结点之间的电压**卡在约 2 V**。绿色 LED 要 2.1 V 才开始导通——电压不够，它就不亮。",
+        "![](fig:shared)",
+        "- 解决办法：**每条支路一个自己的电阻**。这样每颗 LED 的电压由自己的支路决定，互不干扰：",
+        "![](fig:own)",
+        "$$I_1 = \\frac{5 - 1.8}{150 + 12}, \\quad I_2 = \\frac{5 - 2.1}{150 + 12}$$"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "每条支路一个电阻",
+      "text": [
+        "拿掉共用电阻的绿色 LED，给它单独搭一条支路。"
+      ],
+      "steps": 4
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 并联：**两端电压相同**，电流各走各的，**总电流 = 各支路电流之和**（这就是 KCL，下一个实验专门测它）。",
+        "- 家里的插座全是并联的：每个电器都拿到同样的 220 V（或 120 V），关掉一个不影响别的。",
+        "- 并联 LED 规则：**一颗 LED，一个电阻**。同颜色同型号的 LED 共用电阻也不保险——压降稍有差别，电流就会偏向一颗。"
+      ],
+      "practice": [
+        "basics",
+        "equivalence"
+      ]
+    }
+  ],
+  "figures": {
+    "shared": {
+      "kind": "schematic",
+      "caption": {
+        "text": "共用一个电阻：两颗 LED 接在同样两个结点上，电压 V 必须一样。红灯先导通，把 V 卡在约 2 V，绿灯够不着 2.1 V。",
+        "i18n": {
+          "en": "One shared resistor: both LEDs sit on the same two nodes, so they get the same V. The red one turns on first and holds V near 2 V, short of the green one's 2.1 V."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 5},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [3, 0], "value": 150},
+          {"ref": "LED1", "type": "LED", "from": [3, 0], "to": [3, 4], "value": "red"},
+          {"ref": "LED2", "type": "LED", "from": [6, 0], "to": [6, 4], "value": "green"}
+        ],
+        "wires": [
+          [[3, 0], [6, 0]],
+          [[6, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "v", "el": "LED1", "name": "V"},
+          {"kind": "v", "el": "LED2", "name": "V"}
+        ]
+      }
+    },
+    "own": {
+      "kind": "schematic",
+      "caption": {
+        "text": "每条支路一个自己的电阻：两颗 LED 各走各的路，I_1、I_2 互不干扰。",
+        "i18n": {
+          "en": "Each branch gets its own resistor: the two LEDs take separate paths and I_1, I_2 no longer interfere."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 6], "value": 5},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [3, 3], "value": 150},
+          {"ref": "LED1", "type": "LED", "from": [3, 3], "to": [3, 6], "value": "red"},
+          {"ref": "R2", "type": "R", "from": [6, 0], "to": [6, 3], "value": 150},
+          {"ref": "LED2", "type": "LED", "from": [6, 3], "to": [6, 6], "value": "green"}
+        ],
+        "wires": [
+          [[0, 0], [6, 0]],
+          [[6, 6], [0, 6]]
+        ],
+        "marks": [
+          {"kind": "i", "el": "R1", "name": "I_1"},
+          {"kind": "i", "el": "R2", "name": "I_2"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Lesson 6 · LEDs in parallel",
-      "summary": "Side by side: same voltage, the current splits. Each LED needs its own resistor.",
-      "concepts": ["parallel", "branch", "KCL (Kirchhoff's current law)", "each LED its own resistor"],
-      "description": "**What \"parallel\" means**\nWhen several branches each have their two ends connected to the same pair of nodes, they are in parallel. Here both branches go from VCC to GND, so each branch has 5V across it.\n\n**Rules of parallel circuits**\n1. Same voltage: every branch has the full supply voltage across it.\n2. Currents add up (KCL): the total current from the supply = the sum of the branch currents.\n3. Branches are independent: remove one branch and the other keeps working.\n\n**Why each LED needs its own resistor**\nIf two LEDs are connected directly in parallel and share one resistor, the one with the lower Vf (for example red, 1.8V) \"clamps\" the voltage at 1.8V. The one with the higher Vf (green, 2.1V) never reaches its turn-on voltage and barely lights, while all the current crowds into the red LED. The right way: give each LED its own current-limiting resistor in series, then put these \"resistor + LED\" branches in parallel.\n\n**Breadboard tip**\nOne lead of a resistor can go straight into a power rail with the other lead in the main area, saving a jumper. That is what this lesson does.",
-      "steps": [
-        "Power module in column 1, 5V.",
-        "Branch 1: plug one lead of R1 straight into the red rail at tp5 and the other lead into b5.",
-        "Red LED1 long lead c5, short lead c8; blue jumper a8 → tn8.",
-        "Branch 2: one lead of R2 in tp12, the other in b12.",
-        "Green LED2 long lead c12, short lead c15; blue jumper a15 → tn15. Both branches have their top end on the red rail and their bottom end on the blue rail: the parallel circuit is done."
+      "title": "Parallel: every path has its own current",
+      "summary": "Two LEDs of different colours share one resistor and the green one stays dark. Why? Give each branch its own resistor.",
+      "concepts": [
+        "parallel",
+        "branch",
+        "same voltage across",
+        "KCL"
       ],
-      "hints": ["Don't let two LEDs share one resistor: each branch = one resistor + one LED."],
-      "tests": ["Both LEDs on"]
+      "description": "Parallel branches connect to the same two nodes, so they have the same voltage across them; each branch's current is set by its own parts, and the total current is the sum of the branch currents. Two LEDs of different colours cannot share one resistor: the one with the lower drop clamps the voltage and the other one never lights.",
+      "steps": [
+        "**Breadboard power module** in **`tp1`**, keep **5 V**.",
+        "**R1** (**`150 Ω`**): one leg straight into the red rail at **`tp5`**, the other in **`b5`**.",
+        "**Red LED1**: long lead **`c5`**, short lead **`c8`**; blue **jumper** **`a8`** → **`tn8`**. The red LED is lit.",
+        "**Green LED**: long lead **`d5`**, short lead **`d8`** — the same two columns as the red one, sharing R1. Are both lit?",
+        "Click the **green LED** and press **Delete**.",
+        "Second branch: **R2** (**`150 Ω`**) with one leg in **`tp12`** and the other in **`b12`**.",
+        "**Green LED2**: long lead **`c12`**, short lead **`c15`**; blue **jumper** **`a15`** → **`tn15`**. Both branches start at the red rail and end at the blue rail: parallel.",
+        "Both are lit. Press **Check my circuit**, then **click each LED** and read its current in Properties."
+      ],
+      "hints": [
+        "Each branch starts at the red rail and ends at the blue rail: the resistor's top leg in the red rail, the LED's short lead jumpered to the blue rail.",
+        "Green LED dark? Check whether it still shares a resistor with the red one."
+      ],
+      "tests": [
+        "Both LEDs on"
+      ],
+      "cards": [
+        {
+          "title": "Two lights, one resistor",
+          "text": [
+            "First build the red LED with its 150 Ω resistor. Then put a **green** LED **in parallel** with the red one, sharing the same resistor.",
+            "Look at both: which one lights, and which one does not?"
+          ]
+        },
+        {
+          "title": "Parallel: the same voltage across",
+          "text": [
+            "- Two LEDs **in parallel** connect to **the same two nodes**, so the voltage across them **must be equal** (remember loop ② in the KVL lab).",
+            "- The red LED conducts from about 1.8 V and **clamps the voltage between those nodes at about 2 V**. The green LED needs 2.1 V to start — not enough voltage, no light.",
+            "![](fig:shared)",
+            "- The fix: **each branch gets its own resistor**. Then each LED's voltage is set by its own branch and they no longer interfere:",
+            "![](fig:own)",
+            "$$I_1 = \\frac{5 - 1.8}{150 + 12}, \\quad I_2 = \\frac{5 - 2.1}{150 + 12}$$"
+          ]
+        },
+        {
+          "title": "One resistor per branch",
+          "text": [
+            "Remove the green LED that shares the resistor and give it a branch of its own."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- Parallel: **same voltage across**, each current goes its own way, **total current = sum of the branch currents** (that is KCL — the next lab measures it).",
+            "- The sockets in your home are all in parallel: every appliance gets the same mains voltage, and switching one off does not affect the others.",
+            "- Rule for parallel LEDs: **one LED, one resistor**. Even identical LEDs should not share one — a slight difference in their drops sends most of the current through one of them."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "In step 4, with both LEDs sharing one resistor, why did the green one stay dark?",
+          "choices": [
+            "The green LED is broken",
+            "In parallel both see the same voltage; the red one clamps it at about 2 V, too little for green",
+            "The resistor is too small"
+          ],
+          "explain": "Parts in parallel share the same voltage. The red LED has the lower drop, conducts first and holds the voltage down; the 2.1 V the green one needs never arrives."
+        },
+        {
+          "ask": "Click the red LED1: the current in Properties",
+          "explain": "(5 − 1.8) / (150 + 12) ≈ 19.8 mA."
+        },
+        {
+          "ask": "Click the green LED2: the current in Properties",
+          "explain": "(5 − 2.1) / (150 + 12) ≈ 17.9 mA. Same voltage on both branches, different drops, different currents."
+        },
+        {
+          "ask": "From your two readings: how much current does the power module deliver in total?",
+          "explain": "The two branch currents meet at the red rail, so the total is their sum — that is KCL."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 5 },
-    { "ref": "R1", "type": "resistor", "resistance": "150" },
-    { "ref": "LED1", "type": "led", "color": "red" },
-    { "ref": "R2", "type": "resistor", "resistance": "150" },
-    { "ref": "LED2", "type": "led", "color": "green" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 5
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "150"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "150"
+    },
+    {
+      "ref": "LED2",
+      "type": "led",
+      "color": "green"
+    }
   ],
   "connections": [
-    ["V1.+", "R1.1", "R2.1"],
-    ["R1.2", "LED1.anode"],
-    ["R2.2", "LED2.anode"],
-    ["LED1.cathode", "LED2.cathode", "V1.-"]
+    [
+      "V1.+",
+      "R1.1",
+      "R2.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "R2.2",
+      "LED2.anode"
+    ],
+    [
+      "LED1.cathode",
+      "LED2.cathode",
+      "V1.-"
+    ]
   ],
-  "tests": [{ "name": "两个 LED 都亮", "expect": { "LED1": "on", "LED2": "on" } }],
+  "tests": [
+    {
+      "name": "两个 LED 都亮",
+      "expect": {
+        "LED1": "on",
+        "LED2": "on"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "id": "shared",
+      "ask": "第 4 步里两颗 LED 共用一个电阻时，为什么绿色的不亮？",
+      "choices": [
+        "绿色 LED 坏了",
+        "并联时两颗灯两端电压相同，红灯把它卡在约 2 V，不够绿灯导通",
+        "电阻太小了"
+      ],
+      "correct": 1,
+      "explain": "并联元件两端电压相同。红灯的压降低，先导通，把电压限住；绿灯需要的 2.1 V 永远到不了。"
+    },
+    {
+      "id": "i1",
+      "current": "LED1",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.018,
+        0.0215
+      ],
+      "ask": "单击红色 LED1：「属性」里显示的电流",
+      "explain": "(5 − 1.8) / (150 + 12) ≈ 19.8 mA。"
+    },
+    {
+      "id": "i2",
+      "current": "LED2",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0165,
+        0.0195
+      ],
+      "ask": "单击绿色 LED2：「属性」里显示的电流",
+      "explain": "(5 − 2.1) / (150 + 12) ≈ 17.9 mA。两条支路电压一样，压降不同，电流就不同。"
+    },
+    {
+      "id": "total",
+      "formula": "i1 + i2",
+      "unit": "mA",
+      "range": [
+        0.0345,
+        0.041
+      ],
+      "ask": "用你的两个读数算：电源模块一共送出多少电流？",
+      "explain": "两条支路的电流在红轨汇合，总电流就是两者之和——这就是 KCL。"
+    }
+  ],
   "steps": [
-    { "text": "电源模块插在第 1 列，5V。", "highlight": ["tp1", "tn1", "bp1", "bn1"] },
-    { "text": "支路 1：R1 一只脚直接插红轨 tp5，另一只脚插 b5。", "highlight": ["tp5", "b5"] },
-    { "text": "红色 LED1 长脚 c5、短脚 c8；蓝色跳线 a8 → tn8。", "highlight": ["c5", "c8", "a8", "tn8"] },
-    { "text": "支路 2：R2 一只脚插 tp12，另一只脚插 b12。", "highlight": ["tp12", "b12"] },
-    { "text": "绿色 LED2 长脚 c12、短脚 c15；蓝色跳线 a15 → tn15。两条支路的上端都在红轨、下端都在蓝轨：并联完成。", "highlight": ["c12", "c15", "a15", "tn15"] }
+    {
+      "text": "**面包板电源模块**插 **`tp1`**，保持 **5 V**。",
+      "highlight": [
+        "tp1",
+        "tn1",
+        "bp1",
+        "bn1"
+      ],
+      "check": [
+        {
+          "type": "power_module",
+          "at": "tp1",
+          "voltage": 5
+        }
+      ]
+    },
+    {
+      "text": "**R1**（**`150 Ω`**）：一只脚直接插红轨 **`tp5`**，另一只脚插 **`b5`**。",
+      "highlight": [
+        "tp5",
+        "b5"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "tp5",
+            "2": "b5"
+          },
+          "resistance": "150"
+        }
+      ]
+    },
+    {
+      "text": "**红色 LED1**：长脚 **`c5`**、短脚 **`c8`**；蓝色**跳线** **`a8`** → **`tn8`**。红灯亮了。",
+      "highlight": [
+        "c5",
+        "c8",
+        "a8",
+        "tn8"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "c5",
+            "cathode": "c8"
+          },
+          "color": "red"
+        },
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a8",
+            "b": "tn8"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**绿色 LED**：长脚 **`d5`**、短脚 **`d8`**——和红灯插在同样的两列里，共用 R1。两颗灯都亮了吗？",
+      "highlight": [
+        "d5",
+        "d8"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "d5",
+            "cathode": "d8"
+          },
+          "color": "green"
+        }
+      ]
+    },
+    {
+      "text": "选中**绿色 LED**，按 **Delete** 删掉。",
+      "highlight": [
+        "d5",
+        "d8"
+      ],
+      "check": [
+        {
+          "empty": [
+            "d5",
+            "d8"
+          ]
+        }
+      ]
+    },
+    {
+      "text": "第二条支路：**R2**（**`150 Ω`**）一只脚插 **`tp12`**，另一只脚插 **`b12`**。",
+      "highlight": [
+        "tp12",
+        "b12"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "tp12",
+            "2": "b12"
+          },
+          "resistance": "150"
+        }
+      ]
+    },
+    {
+      "text": "**绿色 LED2**：长脚 **`c12`**、短脚 **`c15`**；蓝色**跳线** **`a15`** → **`tn15`**。两条支路的上端都在红轨、下端都在蓝轨：并联完成。",
+      "highlight": [
+        "c12",
+        "c15",
+        "a15",
+        "tn15"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "c12",
+            "cathode": "c15"
+          },
+          "color": "green"
+        },
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a15",
+            "b": "tn15"
+          }
+        }
+      ]
+    },
+    {
+      "text": "两颗都亮了。点**「检查我的电路」**，然后**单击每颗 LED**，在「属性」里读它的电流。",
+      "highlight": []
+    }
   ],
-  "hints": ["两个 LED 不要共用一个电阻：每条支路 = 一个电阻 + 一个 LED。"],
+  "hints": [
+    "每条支路都要从红轨出发、回到蓝轨：电阻上端插红轨，LED 短脚用跳线接蓝轨。",
+    "绿色 LED 不亮？看看它是不是还和红色 LED 共用一个电阻。"
+  ],
   "solution": {
     "parts": [
-      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
-      { "type": "resistor", "ref": "R1", "resistance": "150", "pins": { "1": "tp5", "2": "b5" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c5", "cathode": "c8" } },
-      { "type": "wire", "pins": { "a": "a8", "b": "tn8" }, "color": "blue" },
-      { "type": "resistor", "ref": "R2", "resistance": "150", "pins": { "1": "tp12", "2": "b12" } },
-      { "type": "led", "ref": "LED2", "color": "green", "pins": { "anode": "c12", "cathode": "c15" } },
-      { "type": "wire", "pins": { "a": "a15", "b": "tn15" }, "color": "blue" }
+      {
+        "type": "power_module",
+        "ref": "PM1",
+        "voltage": 5,
+        "at": "tp1"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "150",
+        "pins": {
+          "1": "tp5",
+          "2": "b5"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "c5",
+          "cathode": "c8"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a8",
+          "b": "tn8"
+        },
+        "color": "blue"
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "150",
+        "pins": {
+          "1": "tp12",
+          "2": "b12"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED2",
+        "color": "green",
+        "pins": {
+          "anode": "c12",
+          "cathode": "c15"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a15",
+          "b": "tn15"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

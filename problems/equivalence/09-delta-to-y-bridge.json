@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["Y–Δ 变换", "不平衡电桥", "等效电阻"],
   "statement": [
-    "图示电桥中，U_s = 21 V，R_1 = 4 Ω，R_2 = 6 Ω，R_5 = 10 Ω，R_3 = 4 Ω，R_4 = 3 Ω。",
-    "R_1、R_2、R_5 构成接在结点 a、c、d 之间的 Δ 形连接。把它变换为 Y 形连接，求 R_ab，进而求 U_s 吸收的功率、R_1 中的电流 i_1 和桥支路电流 i_5（参考方向见图）。"
+    "图示电桥中，V_s = 21 V，R_1 = 4 Ω，R_2 = 6 Ω，R_5 = 10 Ω，R_3 = 4 Ω，R_4 = 3 Ω。",
+    "R_1、R_2、R_5 构成接在结点 a、c、d 之间的 Δ 形连接。把它变换为 Y 形连接，求 R_ab，进而求 V_s 吸收的功率、R_1 中的电流 i_1 和桥支路电流 i_5（参考方向见图）。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 2], "to": [0, 6], "value": 21 },
+      { "ref": "Vs", "type": "V", "from": [0, 2], "to": [0, 6], "value": 21 },
       { "ref": "R1", "type": "R", "from": [5, 0], "to": [5, 4], "value": 4 },
       { "ref": "R3", "type": "R", "from": [5, 4], "to": [5, 8], "value": 4 },
       { "ref": "R2", "type": "R", "from": [11, 0], "to": [11, 4], "value": 6 },
@@ -36,21 +36,21 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "pus", "ask": "U_s 吸收的功率 P = ?（发出为负）", "find": { "kind": "p", "el": "Us" }, "answer": -105, "unit": "W", "explain": "Δ→Y 后 R_ab = 1.2 + (2 + 4) ∥ (3 + 3) = 4.2 Ω，电源电流 21 / 4.2 = 5 A，P = −21 × 5 = −105 W（发出 105 W）。" },
-    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2.75, "unit": "A", "explain": "Y 形电路中两条支路各 2.5 A：u_cb = 2.5 × 4 = 10 V，u_db = 2.5 × 3 = 7.5 V。回到原电路：i_1 = (21 − 10) / 4 = 2.75 A。" },
-    { "id": "i5", "ask": "i_5 = ?", "find": { "kind": "i", "el": "R5" }, "answer": 0.25, "unit": "A", "explain": "i_5 = (u_c − u_d) / R_5 = (10 − 7.5) / 10 = 0.25 A；验算 KCL：i_1 − i_5 = 2.5 A = R_3 中的电流。" }
+    { "id": "pus", "ask": "V_s 吸收的功率 P = ?（发出为负）", "find": { "kind": "p", "el": "Vs" }, "answer": -105, "unit": "W", "explain": "Δ→Y 后 R_ab = 1.2 + (2 + 4) ∥ (3 + 3) = 4.2 Ω，电源电流 21 / 4.2 = 5 A，P = −21 × 5 = −105 W（发出 105 W）。" },
+    { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": 2.75, "unit": "A", "explain": "Y 形电路中两条支路各 2.5 A：v_cb = 2.5 × 4 = 10 V，v_db = 2.5 × 3 = 7.5 V。回到原电路：i_1 = (21 − 10) / 4 = 2.75 A。" },
+    { "id": "i5", "ask": "i_5 = ?", "find": { "kind": "i", "el": "R5" }, "answer": 0.25, "unit": "A", "explain": "i_5 = (v_c − v_d) / R_5 = (10 − 7.5) / 10 = 0.25 A；验算 KCL：i_1 − i_5 = 2.5 A = R_3 中的电流。" }
   ],
   "hints": [
     "R_1·R_4 = 12 ≠ R_2·R_3 = 24，电桥不平衡，不能直接用串并联。",
     "Δ→Y：R_Y = 相邻两 Δ 电阻之积 / 三个 Δ 电阻之和。例如接 a 的 Y 电阻 R_a = R_1·R_2 / (R_1 + R_2 + R_5)。",
-    "Y 形等效只保证 a、c、d 三点的电压不变：先在等效电路里求 u_c、u_d，再回到原电路求 i_1、i_5。"
+    "Y 形等效只保证 a、c、d 三点的电压不变：先在等效电路里求 v_c、v_d，再回到原电路求 i_1、i_5。"
   ],
   "solution": [
     "**1. 不平衡。** R_1·R_4 = 12，R_2·R_3 = 24，不相等，桥支路有电流。",
     "**2. Δ→Y。** ΣR = 4 + 6 + 10 = 20 Ω。R_a = R_1·R_2/20 = 24/20 = 1.2 Ω；R_c = R_1·R_5/20 = 40/20 = 2 Ω；R_d = R_2·R_5/20 = 60/20 = 3 Ω。",
     "**3. 串并联。** c 支路 R_c + R_3 = 2 + 4 = 6 Ω，d 支路 R_d + R_4 = 3 + 3 = 6 Ω，并联 3 Ω，再串 R_a：**R_ab = 4.2 Ω**。",
     "**4. 电源。** i = 21 / 4.2 = 5 A，P_Us = −21 × 5 = **−105 W**。",
-    "**5. 回到原电路。** 两条支路各 2.5 A：u_c = 2.5 × 4 = 10 V，u_d = 2.5 × 3 = 7.5 V（对 b）。i_1 = (21 − 10)/4 = **2.75 A**，i_5 = (10 − 7.5)/10 = **0.25 A**，i_2 = (21 − 7.5)/6 = 2.25 A。",
+    "**5. 回到原电路。** 两条支路各 2.5 A：v_c = 2.5 × 4 = 10 V，v_d = 2.5 × 3 = 7.5 V（对 b）。i_1 = (21 − 10)/4 = **2.75 A**，i_5 = (10 − 7.5)/10 = **0.25 A**，i_2 = (21 − 7.5)/6 = 2.25 A。",
     "**验算：** i_1 + i_2 = 5 A ✓；R_3 中 i_1 − i_5 = 2.5 A = 10/4 ✓；R_4 中 i_2 + i_5 = 2.5 A = 7.5/3 ✓。"
   ],
   "i18n": {
@@ -58,25 +58,25 @@
       "title": "Unbalanced bridge: Δ–Y transformation",
       "tags": ["Y–Δ transformation", "unbalanced bridge", "equivalent resistance"],
       "statement": [
-        "In the bridge, U_s = 21 V, R_1 = 4 Ω, R_2 = 6 Ω, R_5 = 10 Ω, R_3 = 4 Ω, R_4 = 3 Ω.",
-        "R_1, R_2 and R_5 form a Δ (delta) connection between nodes a, c and d. Transform it into a Y (wye), find R_ab, and then find the power absorbed by U_s, the current i_1 in R_1 and the bridge current i_5 (reference directions as drawn)."
+        "In the bridge, V_s = 21 V, R_1 = 4 Ω, R_2 = 6 Ω, R_5 = 10 Ω, R_3 = 4 Ω, R_4 = 3 Ω.",
+        "R_1, R_2 and R_5 form a Δ (delta) connection between nodes a, c and d. Transform it into a Y (wye), find R_ab, and then find the power absorbed by V_s, the current i_1 in R_1 and the bridge current i_5 (reference directions as drawn)."
       ],
       "questions": [
-        { "ask": "Power absorbed by U_s, P = ? (negative = delivered)", "explain": "After Δ→Y, R_ab = 1.2 + (2 + 4) ∥ (3 + 3) = 4.2 Ω; the source current is 21 / 4.2 = 5 A, so P = −21 × 5 = −105 W (it delivers 105 W)." },
-        { "ask": "i_1 = ?", "explain": "In the Y circuit each lower branch carries 2.5 A: u_cb = 2.5 × 4 = 10 V, u_db = 2.5 × 3 = 7.5 V. Back in the original circuit: i_1 = (21 − 10) / 4 = 2.75 A." },
-        { "ask": "i_5 = ?", "explain": "i_5 = (u_c − u_d) / R_5 = (10 − 7.5) / 10 = 0.25 A; KCL check: i_1 − i_5 = 2.5 A = the current in R_3." }
+        { "ask": "Power absorbed by V_s, P = ? (negative = delivered)", "explain": "After Δ→Y, R_ab = 1.2 + (2 + 4) ∥ (3 + 3) = 4.2 Ω; the source current is 21 / 4.2 = 5 A, so P = −21 × 5 = −105 W (it delivers 105 W)." },
+        { "ask": "i_1 = ?", "explain": "In the Y circuit each lower branch carries 2.5 A: v_cb = 2.5 × 4 = 10 V, v_db = 2.5 × 3 = 7.5 V. Back in the original circuit: i_1 = (21 − 10) / 4 = 2.75 A." },
+        { "ask": "i_5 = ?", "explain": "i_5 = (v_c − v_d) / R_5 = (10 − 7.5) / 10 = 0.25 A; KCL check: i_1 − i_5 = 2.5 A = the current in R_3." }
       ],
       "hints": [
         "R_1·R_4 = 12 ≠ R_2·R_3 = 24: the bridge is unbalanced, so plain series–parallel reduction doesn't work.",
         "Δ→Y: R_Y = product of the two adjacent Δ resistors / sum of all three. For example, the Y resistor at a is R_a = R_1·R_2 / (R_1 + R_2 + R_5).",
-        "The Y equivalent only preserves the voltages of a, c and d: find u_c and u_d in the equivalent circuit, then go back to the original for i_1 and i_5."
+        "The Y equivalent only preserves the voltages of a, c and d: find v_c and v_d in the equivalent circuit, then go back to the original for i_1 and i_5."
       ],
       "solution": [
         "**1. Not balanced.** R_1·R_4 = 12 and R_2·R_3 = 24 differ, so the bridge branch carries current.",
         "**2. Δ→Y.** ΣR = 4 + 6 + 10 = 20 Ω. R_a = R_1·R_2/20 = 24/20 = 1.2 Ω; R_c = R_1·R_5/20 = 40/20 = 2 Ω; R_d = R_2·R_5/20 = 60/20 = 3 Ω.",
         "**3. Series–parallel.** Branch c: R_c + R_3 = 2 + 4 = 6 Ω; branch d: R_d + R_4 = 3 + 3 = 6 Ω; in parallel 3 Ω, plus R_a: **R_ab = 4.2 Ω**.",
         "**4. Source.** i = 21 / 4.2 = 5 A, P_Us = −21 × 5 = **−105 W**.",
-        "**5. Back to the original circuit.** Each branch carries 2.5 A: u_c = 2.5 × 4 = 10 V, u_d = 2.5 × 3 = 7.5 V (relative to b). i_1 = (21 − 10)/4 = **2.75 A**, i_5 = (10 − 7.5)/10 = **0.25 A**, i_2 = (21 − 7.5)/6 = 2.25 A.",
+        "**5. Back to the original circuit.** Each branch carries 2.5 A: v_c = 2.5 × 4 = 10 V, v_d = 2.5 × 3 = 7.5 V (relative to b). i_1 = (21 − 10)/4 = **2.75 A**, i_5 = (10 − 7.5)/10 = **0.25 A**, i_2 = (21 − 7.5)/6 = 2.25 A.",
         "**Check:** i_1 + i_2 = 5 A ✓; R_3 carries i_1 − i_5 = 2.5 A = 10/4 ✓; R_4 carries i_2 + i_5 = 2.5 A = 7.5/3 ✓."
       ]
     }

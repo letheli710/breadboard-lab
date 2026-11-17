@@ -1,0 +1,587 @@
+{
+  "$schema": "../schema/summary.schema.json",
+  "format": "chapter-summary/1",
+  "chapter": "dependent-sources",
+  "intro": "受控源就是**放大器的模型**：刚才在面包板上搭的同相放大器，输出电压跟着输入电压走，v_o = (1 + R_f/R_g)·v_i——这正是一个电压控制电压源 VCVS。所以受控源放在运放之后学：先见过实物，再看抽象的符号。解题时只多一步：把控制量当成一个未知数，补一个“控制量 = …”的方程。",
+  "i18n": {
+    "en": {
+      "intro": "A dependent source is **the model of an amplifier**: the non-inverting amplifier you just built on the breadboard makes its output follow its input, v_o = (1 + R_f/R_g)·v_i — that is a voltage-controlled voltage source (VCVS). That is why dependent sources come after the op-amp: first the real thing, then the abstract symbol. Solving takes only one extra step: treat the controlling quantity as an unknown and add one equation “controlling quantity = …”."
+    }
+  },
+  "ideas": [
+    {
+      "id": "dependent",
+      "title": "受控源：四种类型与识别",
+      "text": [
+        "受控源的电压或电流由电路中另一处的电压或电流（**控制量**）决定。按“谁控制谁”分为四种：电压控制电压源 VCVS（v = μv_1）、电压控制电流源 VCCS（i = gv_1）、电流控制电压源 CCVS（v = ri_1）、电流控制电流源 CCCS（i = βi_1）。符号是**菱形**。",
+        "识别方法：先看菱形里画的是电压源符号（+ −）还是电流源符号（箭头），决定后两个字母（VS / CS）；再看系数后面的控制量是电压还是电流，决定前两个字母（VC / CC）。",
+        "受控源反映的是电子器件（晶体管、放大器）的放大作用，**本身不是激励**：电路中没有独立源时，受控源不会产生任何电压、电流。它可以吸收也可以发出功率。"
+      ],
+      "problems": [
+        "basics-09-vcvs-amplifier",
+        "basics-11-cccs-amplifier",
+        "basics-12-vccs-absorbs",
+        "basics-ccvs-loop",
+        "basics-15-meters-ccvs",
+        "basics-16-two-dependent-sources"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Dependent sources: four types and how to tell them apart",
+          "text": [
+            "The voltage or current of a dependent source is set by a voltage or current elsewhere in the circuit (the **controlling quantity**). There are four kinds: voltage-controlled voltage source VCVS (v = μv_1), voltage-controlled current source VCCS (i = gv_1), current-controlled voltage source CCVS (v = ri_1), current-controlled current source CCCS (i = βi_1). The symbol is a **diamond**.",
+            "To identify one: the symbol inside the diamond (+ − for a voltage source, an arrow for a current source) gives the last two letters (VS / CS); the controlling quantity after the coefficient (a voltage or a current) gives the first two (VC / CC).",
+            "Dependent sources model the amplifying action of devices such as transistors and amplifiers; **they are not excitations**: with no independent source in the circuit they produce no voltage or current. They can absorb or deliver power."
+          ]
+        }
+      }
+    },
+    {
+      "id": "strategy",
+      "title": "含受控源电路的解题步骤",
+      "text": [
+        "1. 把**控制量**当作一个未知数，在图上标出它的参考方向。",
+        "2. 先把受控源当作普通电源，用 KCL、KVL 和元件 VCR 列方程。",
+        "3. 补一个“控制量 = 用未知数表示”的方程，联立求解。",
+        "4. 求出控制量后，受控源就相当于一个已知数值的电源；最后用功率守恒验算。",
+        "不要把受控源“置零”或者当作独立源处理——它的值随电路状态变化。"
+      ],
+      "problems": [
+        "basics-ccvs-loop",
+        "basics-12-vccs-absorbs",
+        "basics-14-power-balance",
+        "basics-15-meters-ccvs",
+        "basics-16-two-dependent-sources"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Solving a circuit with dependent sources",
+          "text": [
+            "1. Treat the **controlling quantity** as an unknown and mark its reference direction on the drawing.",
+            "2. Treat the dependent source as an ordinary source and write KCL, KVL and the element VCRs.",
+            "3. Add one equation expressing the controlling quantity in terms of the unknowns, and solve the set.",
+            "4. Once the controlling quantity is known, the dependent source behaves like a source of known value; finally check with conservation of power.",
+            "Never set a dependent source to zero or treat it as an independent source — its value changes with the state of the circuit."
+          ]
+        }
+      }
+    },
+    {
+      "id": "dep-transform",
+      "title": "受控源也能做等效变换，但控制量要留在图上",
+      "text": [
+        "受控电压源串一个电阻，可以和受控电流源并一个电阻互相变换，规则和独立源一样：i = v/R，电阻不变。",
+        "唯一的限制：**控制量所在的那条支路不能被变换掉**。变换前先确认控制电压、控制电流在变换后还能在图上找到；找不到，就先把控制量用端口电压、电流重新表示，再变换。"
+      ],
+      "problems": [
+        "equivalence-14-dependent-source-transformation"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Dependent sources can be transformed too — keep the controlling quantity on the drawing",
+          "text": [
+            "A dependent voltage source in series with a resistor can be swapped for a dependent current source in parallel with the same resistor, exactly as for independent sources: i = v/R, same R.",
+            "The one limit: **never transform away the branch that carries the controlling quantity**. Before you transform, check that the controlling voltage or current can still be found on the new drawing; if not, first rewrite it in terms of port quantities, then transform."
+          ]
+        }
+      }
+    },
+    {
+      "id": "input-resistance",
+      "title": "输入电阻：外加电源法（加压求流）",
+      "text": [
+        "不含独立源的单口网络，从端口看进去等效为一个电阻：输入电阻 R_in = v/i（v、i 对网络取关联参考方向）。只含电阻时用串并联、Y–Δ 求。",
+        "**含受控源**时不能直接串并联，受控源**不能置零**。在端口外加电压 v（或电流 i），把控制量和端口电流都用 v 表示，求 R_in = v/i。",
+        "受控源可以使 R_in 为**负**（网络向外发出功率，能量来自受控源），也可以为无穷大。"
+      ],
+      "problems": [
+        "equivalence-13-input-resistance-cccs",
+        "equivalence-15-negative-input-resistance"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Input resistance: the test-source method",
+          "text": [
+            "A one-port with no independent sources is equivalent to a single resistor seen from its port: the input resistance R_in = v/i (v and i associated for the network). With resistors only, use series–parallel and Y–Δ reduction.",
+            "**With dependent sources** series–parallel reduction does not work and the dependent source must **not** be set to zero. Apply a test voltage v (or current i) at the port, express the controlling quantity and the port current in terms of v, and take R_in = v/i.",
+            "Dependent sources can make R_in **negative** (the network delivers power to the outside, the energy coming from the dependent source) or even infinite."
+          ]
+        }
+      }
+    }
+  ],
+  "formulas": [
+    {
+      "id": "dep",
+      "idea": "dependent",
+      "name": "受控源",
+      "expr": "VCVS v = μv_1；VCCS i = gv_1；CCVS v = ri_1；CCCS i = βi_1",
+      "when": "v_1、i_1 为控制量（按图中标出的参考方向）；μ、β 无量纲，g 单位 S，r 单位 Ω。",
+      "i18n": {
+        "en": {
+          "name": "Dependent sources",
+          "expr": "VCVS v = μv_1; VCCS i = gv_1; CCVS v = ri_1; CCCS i = βi_1",
+          "when": "v_1, i_1 are the controlling quantities (with the reference directions drawn); μ and β are dimensionless, g in S, r in Ω."
+        }
+      }
+    },
+    {
+      "id": "rin",
+      "idea": "input-resistance",
+      "name": "输入电阻",
+      "expr": "R_in = \\frac{v}{i}",
+      "when": "单口网络内部独立源置零（电压源短路、电流源开路）、受控源保留；端口外加 v（或 i），v、i 对网络为关联参考方向。结果可正、可负。",
+      "i18n": {
+        "en": {
+          "name": "Input resistance",
+          "expr": "R_in = \\frac{v}{i}",
+          "when": "Independent sources inside zeroed (voltage sources shorted, current sources opened), dependent sources kept; apply v (or i) at the port with v, i associated for the network. Can be positive or negative."
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "id": "vccs",
+      "ideas": [
+        "dependent",
+        "strategy"
+      ],
+      "title": "受控源发出功率、电压源反而吸收",
+      "statement": "图示电路中 V_s = 12 V，R_1 = 4 Ω，R_2 = 6 Ω。电压控制电流源 G 的电流为 0.25v_2（单位 A，箭头向上，注入结点 a），v_2 为 R_2 两端的电压（“+”在上）。求 v_2、i_1、G 的电流，以及各元件吸收的功率。",
+      "schematic": {
+        "elements": [
+          {
+            "ref": "Vs",
+            "type": "V",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              0,
+              4
+            ],
+            "value": 12
+          },
+          {
+            "ref": "R1",
+            "type": "R",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              6,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "ref": "R2",
+            "type": "R",
+            "from": [
+              8,
+              0
+            ],
+            "to": [
+              8,
+              4
+            ],
+            "value": 6
+          },
+          {
+            "ref": "G",
+            "type": "VCCS",
+            "from": [
+              12,
+              4
+            ],
+            "to": [
+              12,
+              0
+            ],
+            "value": 0.25,
+            "ctrl": {
+              "v": "R2"
+            },
+            "label": "0.25v_2"
+          }
+        ],
+        "wires": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          [
+            [
+              6,
+              0
+            ],
+            [
+              12,
+              0
+            ]
+          ],
+          [
+            [
+              12,
+              4
+            ],
+            [
+              0,
+              4
+            ]
+          ]
+        ],
+        "labels": [
+          {
+            "at": [
+              8,
+              0
+            ],
+            "name": "a"
+          }
+        ],
+        "grounds": [
+          [
+            0,
+            4
+          ]
+        ],
+        "marks": [
+          {
+            "kind": "i",
+            "el": "R1",
+            "name": "i1"
+          },
+          {
+            "kind": "v",
+            "el": "R2",
+            "name": "v2"
+          }
+        ]
+      },
+      "analysis": {
+        "type": "dc"
+      },
+      "results": [
+        {
+          "id": "u2",
+          "ask": "v_2",
+          "find": {
+            "kind": "v",
+            "el": "R2"
+          },
+          "answer": 18,
+          "unit": "V"
+        },
+        {
+          "id": "i1",
+          "ask": "i_1",
+          "find": {
+            "kind": "i",
+            "el": "R1"
+          },
+          "answer": -1.5,
+          "unit": "A"
+        },
+        {
+          "id": "ig",
+          "ask": "G 的电流 0.25v_2",
+          "find": {
+            "kind": "i",
+            "el": "G"
+          },
+          "answer": 4.5,
+          "unit": "A"
+        },
+        {
+          "id": "pg",
+          "ask": "P_G（吸收）",
+          "find": {
+            "kind": "p",
+            "el": "G"
+          },
+          "answer": -81,
+          "unit": "W"
+        },
+        {
+          "id": "pus",
+          "ask": "P_Us（吸收）",
+          "find": {
+            "kind": "p",
+            "el": "Vs"
+          },
+          "answer": 18,
+          "unit": "W"
+        },
+        {
+          "id": "pr1",
+          "ask": "P_R1",
+          "find": {
+            "kind": "p",
+            "el": "R1"
+          },
+          "answer": 9,
+          "unit": "W"
+        },
+        {
+          "id": "pr2",
+          "ask": "P_R2",
+          "find": {
+            "kind": "p",
+            "el": "R2"
+          },
+          "answer": 54,
+          "unit": "W"
+        }
+      ],
+      "steps": [
+        "1. **控制量当未知数。** 结点 a 的电位就是 v_2（R_2 接在 a 与地之间，“+”在上）。",
+        "2. **KCL（结点 a），受控源先当普通电流源：** i_1 + 0.25v_2 = v_2/6，其中 i_1 = (12 − v_2)/4。",
+        "3. **解方程：** (12 − v_2)/4 + 0.25v_2 = v_2/6 → 3 = v_2/6 → **v_2 = 18 V**。于是 **i_1 = −1.5 A**（负号：实际电流从 a 流向 V_s，与箭头相反），G 的电流 0.25 × 18 = **4.5 A**。",
+        "4. **功率（吸收为正）。**",
+        "- G：两端电压上“+”、为 18 V，电流从上端流出，非关联：P = −18 × 4.5 = **−81 W**（发出）。",
+        "- V_s：实际电流 1.5 A 从“+”端流入，P = 12 × 1.5 = **18 W**——电压源在**吸收**功率。",
+        "- R_1：P = 1.5² × 4 = **9 W**；R_2：P = 18²/6 = **54 W**。",
+        "5. **验算：** −81 + 18 + 9 + 54 = 0 ✓。受控源发出的功率来自它所代表的器件的外部电源，这里它把 v_a 抬到了比 V_s 还高。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "A dependent source delivers, the voltage source absorbs",
+          "statement": "In the circuit V_s = 12 V, R_1 = 4 Ω, R_2 = 6 Ω. The voltage-controlled current source G carries 0.25v_2 (in A, arrow up, into node a), where v_2 is the voltage across R_2 (“+” at the top). Find v_2, i_1, the current of G and the power absorbed by every element.",
+          "results": [
+            {
+              "ask": "v_2"
+            },
+            {
+              "ask": "i_1"
+            },
+            {
+              "ask": "current of G, 0.25v_2"
+            },
+            {
+              "ask": "P_G (absorbed)"
+            },
+            {
+              "ask": "P_Us (absorbed)"
+            },
+            {
+              "ask": "P_R1"
+            },
+            {
+              "ask": "P_R2"
+            }
+          ],
+          "steps": [
+            "1. **Controlling quantity as an unknown.** The potential of node a is v_2 itself (R_2 is between a and ground, “+” at the top).",
+            "2. **KCL at node a, treating the dependent source as an ordinary current source:** i_1 + 0.25v_2 = v_2/6, with i_1 = (12 − v_2)/4.",
+            "3. **Solve:** (12 − v_2)/4 + 0.25v_2 = v_2/6 → 3 = v_2/6 → **v_2 = 18 V**. Hence **i_1 = −1.5 A** (negative: the actual current flows from a into V_s, against the arrow), and G carries 0.25 × 18 = **4.5 A**.",
+            "4. **Powers (absorbed positive).**",
+            "- G: 18 V across it, “+” at the top, current leaving at the top — not associated: P = −18 × 4.5 = **−81 W** (delivers).",
+            "- V_s: the actual 1.5 A enters its “+” terminal, P = 12 × 1.5 = **18 W** — the voltage source **absorbs** power.",
+            "- R_1: P = 1.5² × 4 = **9 W**; R_2: P = 18²/6 = **54 W**.",
+            "5. **Check:** −81 + 18 + 9 + 54 = 0 ✓. The power delivered by a dependent source comes from the external supply of the device it models; here it lifts v_a above V_s."
+          ]
+        }
+      }
+    },
+    {
+      "id": "rin-ccvs",
+      "ideas": [
+        "input-resistance"
+      ],
+      "title": "含 CCVS 的单口网络的输入电阻",
+      "statement": "图示单口网络中 R_1 = 6 Ω，R_2 = 3 Ω；电流控制电压源的电压为 3i_1（“+”在上），i_1 为流过 R_1 的电流（向下）。用加压求流法求 a、b 端的输入电阻 R_in。",
+      "schematic": {
+        "elements": [
+          {
+            "ref": "R1",
+            "type": "R",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              4
+            ],
+            "value": 6
+          },
+          {
+            "ref": "R2",
+            "type": "R",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              10,
+              0
+            ],
+            "value": 3
+          },
+          {
+            "ref": "H",
+            "type": "CCVS",
+            "from": [
+              12,
+              0
+            ],
+            "to": [
+              12,
+              4
+            ],
+            "value": 3,
+            "ctrl": {
+              "i": "R1"
+            },
+            "label": "3i_1"
+          }
+        ],
+        "wires": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              6,
+              0
+            ]
+          ],
+          [
+            [
+              10,
+              0
+            ],
+            [
+              12,
+              0
+            ]
+          ],
+          [
+            [
+              12,
+              4
+            ],
+            [
+              0,
+              4
+            ]
+          ]
+        ],
+        "terminals": [
+          {
+            "at": [
+              0,
+              0
+            ],
+            "name": "a"
+          },
+          {
+            "at": [
+              0,
+              4
+            ],
+            "name": "b"
+          }
+        ],
+        "labels": [
+          {
+            "at": [
+              12,
+              0
+            ],
+            "name": "c"
+          }
+        ],
+        "grounds": [
+          [
+            0,
+            4
+          ]
+        ],
+        "marks": [
+          {
+            "kind": "i",
+            "el": "R1",
+            "name": "i1"
+          }
+        ]
+      },
+      "analysis": {
+        "type": "dc"
+      },
+      "results": [
+        {
+          "id": "rin",
+          "ask": "R_in",
+          "find": {
+            "kind": "req",
+            "port": [
+              "a",
+              "b"
+            ]
+          },
+          "answer": 3,
+          "unit": "Ω"
+        }
+      ],
+      "steps": [
+        "1. **外加电压。** 在 a、b 端加电压 v（a 为“+”），端口电流 i 从 a 流入。受控源保留，不能置零。",
+        "2. **控制量。** R_1 直接接在端口上：i_1 = v/6。",
+        "3. **R_2 支路。** KVL：v = 3i_2 + 3i_1 = 3i_2 + v/2，得 i_2 = v/6。",
+        "4. **端口电流。** i = i_1 + i_2 = v/3，所以 **R_in = v/i = 3 Ω**。",
+        "对比：若错误地把受控源置零（短路），会得到 6 ∥ 3 = 2，比正确结果小——受控源“帮”着抵消了一部分 R_2 中的电流。"
+      ],
+      "i18n": {
+        "en": {
+          "title": "Input resistance of a one-port with a CCVS",
+          "statement": "In the one-port, R_1 = 6 Ω and R_2 = 3 Ω; the current-controlled voltage source has voltage 3i_1 (“+” at the top), where i_1 is the current in R_1 (downwards). Find the input resistance R_in at a, b with the test-voltage method.",
+          "results": [
+            {
+              "ask": "R_in"
+            }
+          ],
+          "steps": [
+            "1. **Test voltage.** Apply v across a, b (a positive); the port current i enters at a. Keep the dependent source — it must not be zeroed.",
+            "2. **Controlling quantity.** R_1 sits directly across the port: i_1 = v/6.",
+            "3. **R_2 branch.** KVL: v = 3i_2 + 3i_1 = 3i_2 + v/2, so i_2 = v/6.",
+            "4. **Port current.** i = i_1 + i_2 = v/3, hence **R_in = v/i = 3 Ω**.",
+            "Compare: wrongly zeroing (shorting) the dependent source gives 6 ∥ 3 = 2, too small — the dependent source opposes part of the current in R_2."
+          ]
+        }
+      }
+    }
+  ],
+  "mistakes": [
+    {
+      "id": "dep-as-indep",
+      "idea": "strategy",
+      "text": "把受控源当成独立源（或在列方程时把它置零），漏了控制量方程。受控源的值是未知数的函数，要补一个控制量方程。",
+      "i18n": {
+        "en": {
+          "text": "Treating a dependent source as an independent one (or zeroing it) and forgetting the controlling-quantity equation. Its value is a function of the unknowns."
+        }
+      }
+    },
+    {
+      "id": "zero-dependent",
+      "idea": "input-resistance",
+      "text": "求含受控源网络的输入电阻时把受控源置零后直接串并联，或在等效变换中把控制量所在的支路变换掉。受控源要保留，用外加电源法。",
+      "i18n": {
+        "en": {
+          "text": "Zeroing a dependent source and then using series–parallel rules to find the input resistance, or transforming away the branch that carries the controlling quantity. Keep the dependent source and use the test-source method."
+        }
+      }
+    }
+  ]
+}

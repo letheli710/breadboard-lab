@@ -2,37 +2,194 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-cc-current-source",
-  "title": "实验 1-4 · 稳压电源的 CC 模式：一个电流源",
+  "title": "稳压电源的恒流模式：一个电流源",
   "kind": "challenge",
   "level": 4,
   "phase": 1,
-  "summary": "把限流设成 10 mA，让电源工作在恒流模式：负载怎么变，电流都是 10 mA——直到电压不够用。",
+  "summary": "限流设成 10 mA：负载怎么变，电流都不变——直到电压用完。",
   "concepts": ["current source 电流源", "CC / CV mode 恒流 / 恒压", "compliance voltage 输出电压上限", "rheostat 可变电阻"],
   "prereq": ["lesson-bench-supply", "lesson-ammeter"],
-  "description": "**目标**：理论课里的“理想电流源”在实验室里怎么得到？最常用的办法就是稳压电源的**恒流（CC）模式**。\n\n**设置电源**：选中稳压电源，电压设 **12 V**，限流（current limit）设 **0.01 A**（10 mA）。\n\n**电路**：电源 + → 电流表 AM1（红表笔接 +）→ R1（470Ω）→ 红色 LED → 电位器 RV1（1kΩ，当可变电阻用）→ 电源 −。\n\nRV1 的接法：1 脚接 LED 负极，滑动端（中间脚 2）和 3 脚连在一起接 GND。这样 1 脚和滑动端之间的电阻 = 1kΩ × 旋钮位置（0% = 0Ω，100% = 1kΩ）。\n\n**原理**：电源先试着输出 12 V；如果这样电流会超过 10 mA，它就自动把电压降下来，让电流正好是 10 mA，面板上的 CC 灯亮。要维持 10 mA，电路需要的电压是 V = 1.8 V（LED）+ 10 mA × (470 + 12 + R_RV1)Ω。\n\n**先预测**：用上面的式子，算出 RV1 在 0%、40%、100% 时电路需要的电压。哪几种情况电源能维持 10 mA（需要的电压 < 12 V）？维持不了时，电流是多少？\n\n**测量**：转动 RV1 到 0%、40%、100%，每次看电流表读数和电源的输出电压、CC/CV 指示。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**结论**：在 CC 模式下，负载电阻变了，电流不变、电压跟着变——这正是电流源的定义。\n\n**真实电路里**：真实电流源有一个**输出电压上限**（这里是设定的 12 V，叫 compliance voltage）：负载太大时它就不再是电流源了。",
+  "description": "稳压电源工作在恒流（CC）模式时就是一个电流源：负载电阻变大，电流不变，电压跟着升高；电压升到设定值后，它退回恒压（CV）模式。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "电阻变大了，电流呢？",
+      "text": [
+        "**选中稳压电源**：电压设 **`12 V`**，限流设 **`0.01 A`**。",
+        "照目标电路图搭一个回路：电源 + → 电流表 **AM1** → **R1** `470 Ω` → 红色 **LED** → **RV1** → 电源 −。RV1 在这里当可变电阻：**中间脚和 3 脚连在一起**。",
+        "**把 RV1 从 `0%` 转到 `40%`**，盯住两个数：电流表，和电源屏幕上的电压。",
+        "回路里的电阻变大了。两个数里，哪一个变了？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "恒压守电压，恒流守电流",
+      "text": [
+        "- **恒压（CV）模式**：电源守住电压，电流由负载决定。电池也是这样。",
+        "- **恒流（CC）模式**：电源守住电流，电压由负载决定。想象一台每秒送固定水量的泵：管子越细，它推得越用力。",
+        "- 要推多大的力，由回路里的欧姆定律决定（LED 按 1.8 V 加 12 Ω 算）：",
+        "$$V = V_f + I\\,(R_1 + 12\\,Ω + R_{RV1})$$",
+        "![](fig:loop)",
+        "- 旋钮在 `20%`（RV1 = 200 Ω）：$V = 1.8 + 0.01 × (470 + 12 + 200) = 8.62$ V。每多 100 Ω，就要多 1 V。",
+        "- 电源最多只能给到设定的 12 V。超过约 `54%`，电压用完了，它退回恒压模式，电流开始变小。",
+        "![](fig:curve)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "在三个位置读数",
+      "text": [
+        "- **把 RV1 依次转到** `0%`、`40%`、`100%`。",
+        "- 每次都**读 AM1**，再**测电源的输出电压**：红表笔接电源 +，黑表笔接电源 −。",
+        "- 顺便看一眼电源面板：显示的是 **CC** 还是 **CV**？",
+        "- 电路检查通过后，把读数填进测量题。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **电流源**守住电流；它两端的电压是负载需要多少就给多少。",
+        "- 真实的电流源都有一个电压上限，叫**输出电压上限**（compliance voltage，这里就是设定的 12 V）。超过它，就不再是电流源了。",
+        "- 坑：限流值就是你的保险丝。**先设好限流，再接电路**，别等东西发烫了才想起来。",
+        "- 下一步：把这 10 mA 送进几条支路，看它怎么分。"
+      ],
+      "practice": ["equivalence", "methods"]
+    }
+  ],
+  "figures": {
+    "loop": {
+      "kind": "schematic",
+      "caption": {
+        "text": "电源在 CC 模式下像一个电流源：同一个 I 流过整个回路，RV1 越大，它两端的电压越大。",
+        "i18n": {
+          "en": "In CC mode the supply acts as a current source: the same I flows round the loop, and the bigger RV1, the more voltage across it."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": "10m"},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [4, 0], "value": 470},
+          {"ref": "LED1", "type": "LED", "from": [4, 0], "to": [4, 4], "value": "red"},
+          {"ref": "RV1", "type": "RV", "from": [4, 4], "to": [0, 4], "value": "1k"}
+        ],
+        "wires": [],
+        "marks": [{"kind": "i", "el": "R1", "name": "I"}, {"kind": "v", "el": "RV1", "name": "V_RV1"}]
+      }
+    },
+    "curve": {
+      "kind": "plot",
+      "caption": {
+        "text": "旋钮转到约 54% 之前，电流一直是 10 mA，电源电压跟着升高；之后 12 V 用完，电流开始下降。",
+        "i18n": {
+          "en": "Up to about 54 % the current stays at 10 mA while the supply voltage climbs; after that the 12 V is used up and the current falls."
+        }
+      },
+      "x": {
+        "label": {"text": "RV1 旋钮位置 (%)", "i18n": {"en": "RV1 knob position (%)"}},
+        "min": 0,
+        "max": 100,
+        "ticks": [0, 20, 54, 100]
+      },
+      "y": {"label": {"text": "电流 (mA)", "i18n": {"en": "current (mA)"}}, "min": 0, "max": 12, "ticks": [0, 10]},
+      "curves": [
+        {
+          "points": [[0, 10], [54, 10]],
+          "tone": 1,
+          "label": {"text": "CC：电流不变", "i18n": {"en": "CC: current fixed"}},
+          "labelAt": [24, 11.2]
+        },
+        {
+          "points": [[54, 10], [70, 8.9], [85, 7.8], [100, 6.9]],
+          "tone": 2,
+          "dashed": true,
+          "label": {"text": "CV：电流下降", "i18n": {"en": "CV: current falls"}},
+          "labelAt": [74, 6]
+        }
+      ],
+      "vlines": [{"x": 54, "label": {"text": "12 V 用完", "i18n": {"en": "12 V used up"}}}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 1-4 · Bench supply in CC mode: a current source",
-      "summary": "Set the current limit to 10 mA so the supply runs in constant-current mode: whatever the load, the current stays 10 mA, until the voltage runs out.",
+      "title": "The bench supply's CC mode: a current source",
+      "summary": "Set a 10 mA limit and the current stays put whatever the load — until the voltage runs out.",
       "concepts": ["current source", "CC / CV mode", "compliance voltage", "rheostat"],
-      "description": "**Goal**: how do you get the \"ideal current source\" of circuit theory in a real lab? The usual way is the **constant-current (CC) mode** of a bench supply.\n\n**Set the supply**: select the bench supply, set the voltage to **12 V** and the current limit to **0.01 A** (10 mA).\n\n**Circuit**: supply + → ammeter AM1 (red lead at +) → R1 (470Ω) → red LED → potentiometer RV1 (1kΩ, used as a variable resistor) → supply −.\n\nHow RV1 is wired: pin 1 to the LED's cathode, the wiper (middle pin 2) and pin 3 joined together to GND. Then the resistance between pin 1 and the wiper is 1kΩ × knob position (0% = 0Ω, 100% = 1kΩ).\n\n**How it works**: the supply first tries to output 12 V; if that would push the current above 10 mA, it lowers its voltage until the current is exactly 10 mA, and the CC indicator lights. To keep 10 mA flowing, the circuit needs V = 1.8 V (LED) + 10 mA × (470 + 12 + R_RV1)Ω.\n\n**Predict first**: with that formula, work out the voltage the circuit needs with RV1 at 0%, 40% and 100%. In which cases can the supply hold 10 mA (needed voltage < 12 V)? When it cannot, what current flows?\n\n**Measure**: turn RV1 to 0%, 40% and 100%; each time read the ammeter, the supply's output voltage and its CC/CV indicator. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Conclusion**: in CC mode the load resistance changes, the current stays put and the voltage follows. That is exactly what a current source is.\n\n**In a real circuit**: a real current source has a **maximum output voltage** (here the 12 V setting, called the compliance voltage): with too big a load it stops being a current source.",
-      "compare": "**Compare**:\n- 0% (RV1 = 0Ω): needs 1.8 + 4.82 ≈ 6.6 V < 12 V → CC mode, I ≈ **10 mA**, supply output ≈ **6.63 V**;\n- 40% (RV1 = 400Ω): needs ≈ 10.6 V, still < 12 V → the current is still **10 mA**, the output rises to ≈ **10.61 V**;\n- 100% (RV1 = 1kΩ): needs ≈ 16.6 V > 12 V, more than the supply can give → back to CV mode at 12 V, and the current drops to (12 − 1.8) / 1482Ω ≈ **6.88 mA**.\n\nThe simulator shows 9.99 mA in CC mode; the missing 0.01 mA is a tiny error of the supply model.",
+      "description": "A bench supply in constant-current (CC) mode is a current source: as the load resistance grows the current stays the same and the voltage rises; once the voltage reaches its setting, it falls back to constant-voltage (CV) mode.",
+      "compare": "**Compare**:\n- `0%` (RV1 = 0 Ω): needs 1.8 + 4.82 ≈ 6.6 V, less than 12 V → CC mode, I ≈ **10 mA**, supply output ≈ **6.63 V**.\n- `40%` (RV1 = 400 Ω): needs ≈ 10.6 V, still less than 12 V → still **10 mA**, the output rises to ≈ **10.61 V**.\n- `100%` (RV1 = 1 kΩ): needs ≈ 16.6 V, more than the supply can give → back to CV at 12 V, and the current drops to (12 − 1.8) / 1482 Ω ≈ **6.88 mA**.\n\nThe simulator shows 9.99 mA in CC mode; the missing 0.01 mA is a tiny error of the supply model.",
       "measurements": [
-        {"ask": "RV1 at 0%: ammeter AM1 reading", "explain": "The circuit needs 1.8 + 10 mA × 482 Ω ≈ 6.6 V < 12 V, so the supply goes CC and the current is the 10 mA limit."},
-        {"ask": "RV1 at 0%: the supply's output voltage (red lead on supply +, black on −)", "explain": "In CC mode the supply outputs just the voltage that pushes 10 mA: 1.8 V + 10 mA × 482 Ω ≈ 6.6 V."},
-        {"ask": "RV1 at 40%: the supply's output voltage", "explain": "400 Ω more at the same current adds 10 mA × 400 Ω = 4 V, about 10.6 V."},
-        {"ask": "From your readings, RV1's resistance at 40%: (U₄₀ − U₀) / I", "explain": "The current is fixed, so all the extra voltage is across RV1: ≈ 4 V / 10 mA = 400 Ω = 40% × 1 kΩ. A current source turns measuring a resistance into measuring a voltage."},
-        {"ask": "RV1 at 100%: ammeter AM1 reading (and check whether the supply panel shows CC or CV)", "explain": "10 mA would need ≈ 16.6 V, more than 12 V: the supply falls back to CV at 12 V and I = (12 − 1.8) / 1482 Ω ≈ 6.9 mA."}
+        {
+          "ask": "RV1 at `0%`: ammeter AM1 reading",
+          "explain": "The loop needs 1.8 + 10 mA × 482 Ω ≈ 6.6 V, less than 12 V: the supply runs in CC and the current is the 10 mA limit."
+        },
+        {
+          "ask": "RV1 at `0%`: the supply's output voltage (red lead on supply +, black on −)",
+          "explain": "In CC mode the supply outputs just the voltage that pushes 10 mA: 1.8 V + 10 mA × 482 Ω ≈ 6.6 V."
+        },
+        {
+          "ask": "RV1 at `40%`: the supply's output voltage",
+          "explain": "400 Ω more at the same current adds 10 mA × 400 Ω = 4 V, about 10.6 V."
+        },
+        {
+          "ask": "From your readings, RV1's resistance at 40%: (V₄₀ − V₀) / I",
+          "explain": "The current is fixed, so all the extra voltage is across RV1: ≈ 4 V / 10 mA = 400 Ω = 40% × 1 kΩ. A current source turns measuring a resistance into measuring a voltage."
+        },
+        {
+          "ask": "RV1 at `100%`: ammeter AM1 reading (and does the panel say CC or CV?)",
+          "explain": "10 mA would need about 16.6 V, more than 12 V: the supply falls back to CV at 12 V and I = (12 − 1.8) / 1482 Ω ≈ 6.9 mA."
+        }
       ],
       "hints": [
-        "Select the bench supply: 12 V, current limit 0.01 A. Without the limit the current is far above 10 mA and the tests fail.",
-        "Use the pot as a variable resistor: pin 1 to the LED's cathode; join the middle wiper and pin 3 with a jumper and take them to GND.",
+        "Select the bench supply: 12 V, current limit 0.01 A. Without the limit the current is far above 10 mA.",
+        "RV1 as a variable resistor: pin 1 to the LED's cathode; join the middle pin and pin 3 with a jumper and take them to GND.",
         "The ammeter goes in series between supply + and R1, red lead toward supply +."
       ],
       "tests": [
         "RV1 at 0%: CC mode, the current equals the limit",
         "RV1 at 40%: same current, the supply's output voltage rises",
         "RV1 at 100%: the circuit needs more than 12 V, back to CV mode"
+      ],
+      "cards": [
+        {
+          "title": "More resistance — and the current?",
+          "text": [
+            "**Select the bench supply**: set **`12 V`** and a current limit of **`0.01 A`**.",
+            "Build one loop from the target schematic: supply + → ammeter **AM1** → **R1** `470 Ω` → red **LED** → **RV1** → supply −. RV1 is a variable resistor here: **join its middle pin to pin 3**.",
+            "**Turn RV1** from `0%` to `40%` and watch two numbers: the ammeter and the voltage on the supply's display.",
+            "The loop just gained resistance. Which of the two numbers moved?"
+          ]
+        },
+        {
+          "title": "CV holds the voltage, CC holds the current",
+          "text": [
+            "- In **CV** mode (constant voltage) the supply holds its voltage and the load decides the current. A battery does the same.",
+            "- In **CC** mode (constant current) it holds the current and the load decides the voltage. Think of a pump that moves a fixed amount of water per second: the narrower the pipe, the harder it pushes.",
+            "- How hard it has to push follows from Ohm's law around the loop (the LED counts as 1.8 V plus 12 Ω):",
+            "$$V = V_f + I\\,(R_1 + 12\\,Ω + R_{RV1})$$",
+            "![](fig:loop)",
+            "- At `20%` (RV1 = 200 Ω): $V = 1.8 + 0.01 × (470 + 12 + 200) = 8.62$ V. Every extra 100 Ω costs 1 V more.",
+            "- The supply cannot go above its 12 V setting. Past about `54%` it runs out of voltage, falls back to CV, and the current starts to drop.",
+            "![](fig:curve)"
+          ]
+        },
+        {
+          "title": "Read it at three settings",
+          "text": [
+            "- **Turn RV1** to `0%`, `40%` and `100%`.",
+            "- Each time, **read AM1** and **measure the supply's output**: red lead on supply +, black lead on supply −.",
+            "- Also look at the supply's panel: does it say **CC** or **CV**?",
+            "- Once the circuit check passes, type your readings into the measurement questions."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- A **current source** holds its current. The voltage across it is whatever the load needs.",
+            "- Every real current source has a voltage ceiling, the **compliance voltage** (here the 12 V setting). Above it, it is no longer a current source.",
+            "- Pitfall: the current limit is your fuse. **Set it before you connect the circuit**, not after something gets hot.",
+            "- Next: send these 10 mA into several branches and see how they split."
+          ]
+        }
       ]
     }
   },
@@ -73,22 +230,73 @@
       "voltages": [{"pin": "PSU1.+", "ref": "PSU1.-", "min": 11.9, "max": 12.05}]
     }
   ],
-  "compare": "**对比**：\n- 0%（RV1 = 0Ω）：需要 1.8 + 4.82 ≈ 6.6 V < 12 V → CC 模式，I ≈ **10 mA**，电源输出 ≈ **6.63 V**；\n- 40%（RV1 = 400Ω）：需要 ≈ 10.6 V，仍然 < 12 V → 电流还是 **10 mA**，电源输出升到 ≈ **10.61 V**；\n- 100%（RV1 = 1kΩ）：需要 ≈ 16.6 V > 12 V，电源给不了 → 退回 CV 模式，输出 12 V，电流只剩 (12 − 1.8) / 1482Ω ≈ **6.88 mA**。\n\n模拟器里 CC 读数是 9.99 mA，那 0.01 mA 是电源模型的一点点误差。",
+  "compare": "**对比**：\n- `0%`（RV1 = 0 Ω）：需要 1.8 + 4.82 ≈ 6.6 V，小于 12 V → CC 模式，I ≈ **10 mA**，电源输出 ≈ **6.63 V**。\n- `40%`（RV1 = 400 Ω）：需要 ≈ 10.6 V，仍然小于 12 V → 电流还是 **10 mA**，电源输出升到 ≈ **10.61 V**。\n- `100%`（RV1 = 1 kΩ）：需要 ≈ 16.6 V，电源给不了 → 退回 CV，输出 12 V，电流只剩 (12 − 1.8) / 1482 Ω ≈ **6.88 mA**。\n\n模拟器的 CC 读数是 9.99 mA，那 0.01 mA 是电源模型的一点误差。",
   "measurements": [
-    {"id": "i0", "current": "AM1", "set": {"RV1": {"wiper": 0}}, "unit": "mA", "predict": true, "range": [0.00949, 0.0105], "ask": "RV1 在 0%：电流表 AM1 的读数", "explain": "需要的电压 1.8 + 10 mA × 482 Ω ≈ 6.6 V < 12 V，电源进入 CC，电流就是限流值 10 mA。"},
-    {"id": "v0", "voltage": "PSU1.+", "ref": "PSU1.-", "set": {"RV1": {"wiper": 0}}, "unit": "V", "predict": true, "range": [6.3, 6.96], "ask": "RV1 在 0%：电源输出电压（万用表红表笔接电源 +，黑表笔接 −）", "explain": "CC 模式下电源输出的是“刚好推得动 10 mA”的电压：1.8 V + 10 mA × 482 Ω ≈ 6.6 V。"},
-    {"id": "v40", "voltage": "PSU1.+", "ref": "PSU1.-", "set": {"RV1": {"wiper": 0.4}}, "unit": "V", "predict": true, "range": [10.1, 11.1], "ask": "RV1 转到 40%：电源输出电压", "explain": "多了 400 Ω，电流不变，电压多出 10 mA × 400 Ω = 4 V，约 10.6 V。"},
-    {"id": "rv", "formula": "(v40 - v0) / i0", "unit": "Ω", "range": [379.0, 419.0], "ask": "用你的读数算 RV1 在 40% 时的电阻：(U₄₀ − U₀) / I", "explain": "电流不变，多出来的电压全落在 RV1 上：≈ 4 V / 10 mA = 400 Ω = 40% × 1 kΩ。电流源把“测电阻”变成了“测电压”。"},
-    {"id": "i100", "current": "AM1", "set": {"RV1": {"wiper": 1}}, "unit": "mA", "predict": true, "range": [0.00654, 0.00723], "ask": "RV1 转到 100%：电流表 AM1 的读数（看一眼电源面板是 CC 还是 CV）", "explain": "要 10 mA 需要 ≈ 16.6 V，超过 12 V：电源退回 CV，输出 12 V，I = (12 − 1.8) / 1482 Ω ≈ 6.9 mA。"}
+    {
+      "id": "i0",
+      "current": "AM1",
+      "set": {"RV1": {"wiper": 0}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00949, 0.0105],
+      "ask": "RV1 在 `0%`：电流表 AM1 的读数",
+      "explain": "需要的电压 1.8 + 10 mA × 482 Ω ≈ 6.6 V，比 12 V 小：电源工作在 CC，电流就是限流值 10 mA。"
+    },
+    {
+      "id": "v0",
+      "voltage": "PSU1.+",
+      "ref": "PSU1.-",
+      "set": {"RV1": {"wiper": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [6.3, 6.96],
+      "ask": "RV1 在 `0%`：电源的输出电压（红表笔接电源 +，黑表笔接 −）",
+      "explain": "CC 模式下，电源输出“刚好推得动 10 mA”的电压：1.8 V + 10 mA × 482 Ω ≈ 6.6 V。"
+    },
+    {
+      "id": "v40",
+      "voltage": "PSU1.+",
+      "ref": "PSU1.-",
+      "set": {"RV1": {"wiper": 0.4}},
+      "unit": "V",
+      "predict": true,
+      "range": [10.1, 11.1],
+      "ask": "RV1 转到 `40%`：电源的输出电压",
+      "explain": "多了 400 Ω，电流不变，电压多出 10 mA × 400 Ω = 4 V，约 10.6 V。"
+    },
+    {
+      "id": "rv",
+      "formula": "(v40 - v0) / i0",
+      "unit": "Ω",
+      "range": [379.0, 419.0],
+      "ask": "用你的读数算 RV1 在 40% 时的电阻：(V₄₀ − V₀) / I",
+      "explain": "电流不变，多出来的电压全落在 RV1 上：≈ 4 V / 10 mA = 400 Ω = 40% × 1 kΩ。电流源把“测电阻”变成了“测电压”。"
+    },
+    {
+      "id": "i100",
+      "current": "AM1",
+      "set": {"RV1": {"wiper": 1}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00654, 0.00723],
+      "ask": "RV1 转到 `100%`：电流表 AM1 的读数（看一眼电源面板：CC 还是 CV？）",
+      "explain": "要 10 mA 需要约 16.6 V，超过 12 V：电源退回 CV，输出 12 V，I = (12 − 1.8) / 1482 Ω ≈ 6.9 mA。"
+    }
   ],
   "hints": [
-    "选中稳压电源：电压 12 V，限流 0.01 A。限流没设好，电流会远大于 10 mA，测试会失败。",
-    "电位器当可变电阻用：1 脚接 LED 的负极，中间的滑动端和 3 脚用一根跳线连起来，再接 GND。",
+    "选中稳压电源：电压 12 V，限流 0.01 A。限流没设好，电流会远大于 10 mA。",
+    "RV1 当可变电阻用：1 脚接 LED 的负极，中间脚和 3 脚用一根跳线连起来，再接 GND。",
     "电流表串在电源 + 和 R1 之间，红表笔朝电源 +。"
   ],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 12, "currentLimit": 0.01, "pins": {"+": "tp1", "-": "tn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 12,
+        "currentLimit": 0.01,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
       {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
       {"type": "ammeter", "ref": "AM1", "pins": {"+": "b3", "-": "b6"}},
       {"type": "resistor", "ref": "R1", "resistance": "470", "pins": {"1": "c6", "2": "c10"}},

@@ -7,12 +7,12 @@
   "level": 4,
   "tags": ["滤波器设计", "谐波谐振", "串联谐振", "并联谐振"],
   "statement": [
-    "u_s = 100√2 cos(1000t) + 20√2 cos(3000t) V，经图示滤波电路（L = 10 mH 与 C_1 并联，再串联 C_2）接到负载 R = 50 Ω 上。",
-    "要求输出 u_o 中**完全不含 3 次谐波**，而**基波全部加在负载上**（u_o1 = u_s1）。求 C_1、C_2，并验证输出。"
+    "v_s = 100√2 cos(1000t) + 20√2 cos(3000t) V。它经图示滤波电路接到负载 R = 50 Ω 上：L = 10 mH 与 C_1 并联，再串联 C_2。",
+    "要求输出 v_o 中**完全不含 3 次谐波**，而**基波全部加在负载上**（v_o1 = v_s1）。求 C_1、C_2，并验证输出。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 28.284271 } ] } }, "label": "u_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 141.421356 }, { "k": 3, "amp": 28.284271 } ] } }, "label": "v_s" },
       { "ref": "L", "type": "L", "from": [3, 0], "to": [7, 0], "value": "10m" },
       { "ref": "C1", "type": "C", "from": [3, 2], "to": [7, 2], "value": 1.1111111111111112e-05, "label": "C_1", "hideValue": true },
       { "ref": "C2", "type": "C", "from": [9, 0], "to": [13, 0], "value": 8.888888888888889e-05, "label": "C_2", "hideValue": true },
@@ -32,22 +32,22 @@
     ],
     "grounds": [[0, 6]],
     "marks": [
-      { "kind": "v", "el": "R", "name": "u_o" }
+      { "kind": "v", "el": "R", "name": "v_o" }
     ]
   },
   "analysis": { "type": "periodic", "omega": 1000 },
   "questions": [
     { "id": "C1", "ask": "C_1 = ?", "find": { "kind": "val", "el": "C1" }, "answer": 1.111111e-05, "unit": "µF", "explain": "L∥C_1 对 3ω 并联谐振（开路）：C_1 = 1/(9ω²L) = 1/(9 × 10⁶ × 0.01) = 11.11 µF。" },
     { "id": "C2", "ask": "C_2 = ?", "find": { "kind": "val", "el": "C2" }, "answer": 8.888889e-05, "unit": "µF", "explain": "基波时 L∥C_1 的阻抗为 jωL/(1 − 1/9) = j11.25 Ω，C_2 与它对 ω 串联谐振：1/(ωC_2) = 11.25 Ω，C_2 = 88.89 µF。" },
-    { "id": "U3", "ask": "验证：u_o 的 3 次谐波有效值 U_o3 = ?", "find": { "kind": "v", "el": "R", "harmonic": 3 }, "answer": 0, "unit": "V", "explain": "3 次谐波被并联谐振的 L∥C_1 挡住，U_o3 = 0。" },
-    { "id": "U1", "ask": "验证：u_o 的基波有效值 U_o1 = ?", "find": { "kind": "v", "el": "R", "harmonic": 1 }, "answer": 100, "unit": "V", "explain": "基波时整个串联支路阻抗为零（串联谐振），U_o1 = U_s1 = 100 V。" },
-    { "id": "ph1", "ask": "u_o 基波的初相 = ?", "find": { "kind": "v", "el": "R", "harmonic": 1, "part": "phase" }, "answer": 0, "unit": "°", "explain": "串联支路阻抗为零，u_o1 = u_s1，初相 0°。" }
+    { "id": "U3", "ask": "验证：v_o 的 3 次谐波有效值 V_o3 = ?", "find": { "kind": "v", "el": "R", "harmonic": 3 }, "answer": 0, "unit": "V", "explain": "3 次谐波被并联谐振的 L∥C_1 挡住，V_o3 = 0。" },
+    { "id": "U1", "ask": "验证：v_o 的基波有效值 V_o1 = ?", "find": { "kind": "v", "el": "R", "harmonic": 1 }, "answer": 100, "unit": "V", "explain": "基波时整个串联支路阻抗为零（串联谐振），V_o1 = V_s1 = 100 V。" },
+    { "id": "ph1", "ask": "v_o 基波的初相 = ?", "find": { "kind": "v", "el": "R", "harmonic": 1, "part": "phase" }, "answer": 0, "unit": "°", "explain": "串联支路阻抗为零，v_o1 = v_s1，初相 0°。" }
   ],
   "hints": ["分两步：先让某个部分对 3 次谐波“开路”，再让整个串联支路对基波“短路”。", "L∥C_1 对 3ω 并联谐振时阻抗无穷大，3 次谐波电流为零；由此求 C_1。", "基波时 L∥C_1 不谐振，是一个感抗（算出来）；C_2 的容抗要与它相等，使串联支路对 ω 串联谐振。"],
   "solution": [
-    "**1. 滤除 3 次谐波。** 让 L∥C_1 对 3ω 并联谐振：9ω²LC_1 = 1，C_1 = 1/(9 × 1000² × 0.01) = **11.11 µF**。此时 3 次谐波电流为零，U_o3 = **0**。",
+    "**1. 滤除 3 次谐波。** 让 L∥C_1 对 3ω 并联谐振：9ω²LC_1 = 1，C_1 = 1/(9 × 1000² × 0.01) = **11.11 µF**。此时 3 次谐波电流为零，V_o3 = **0**。",
     "**2. 基波全部通过。** 基波时 ω²LC_1 = 1/9，Z_{L∥C1} = jωL/(1 − 1/9) = j10 × 9/8 = j11.25 Ω（感性）。要使串联支路阻抗为零，C_2 的容抗应为 11.25 Ω：C_2 = 1/(1000 × 11.25) = **88.89 µF**。",
-    "**3. 输出。** 基波：串联支路阻抗为零，U̇_o1 = U̇_s1 = **100∠0° V**；3 次谐波：0。u_o = 100√2 cos(1000t) V。",
+    "**3. 输出。** 基波：串联支路阻抗为零，V̇_o1 = V̇_s1 = **100∠0° V**；3 次谐波：0。v_o = 100√2 cos(1000t) V。",
     "**检查：** 3ω 时 X_L = 30 Ω、X_{C1} = 1/(3000 × 11.11×10⁻⁶) = 30 Ω，相等；ω 时 j11.25 − j/(1000 × 88.89×10⁻⁶) = j11.25 − j11.25 = 0。"
   ],
   "i18n": {
@@ -55,8 +55,8 @@
       "title": "Filter design: pass the whole fundamental, remove the 3rd harmonic",
       "tags": ["filter design", "harmonic resonance", "series resonance", "parallel resonance"],
       "statement": [
-        "u_s = 100√2 cos(1000t) + 20√2 cos(3000t) V feeds a load R = 50 Ω through the filter shown (L = 10 mH in parallel with C_1, in series with C_2).",
-        "The output u_o must contain **no 3rd harmonic at all**, while the **whole fundamental reaches the load** (u_o1 = u_s1). Find C_1 and C_2 and check the output."
+        "v_s = 100√2 cos(1000t) + 20√2 cos(3000t) V feeds a load R = 50 Ω through the filter shown: L = 10 mH in parallel with C_1, then in series with C_2.",
+        "The output v_o must contain **no 3rd harmonic at all**, while the **whole fundamental reaches the load** (v_o1 = v_s1). Find C_1 and C_2 and check the output."
       ],
       "hints": [
         "Two steps: first make one part an “open circuit” at the 3rd harmonic, then make the whole series branch a “short circuit” at the fundamental.",
@@ -64,17 +64,17 @@
         "At the fundamental L∥C_1 is not resonant but an inductive reactance (compute it); C_2's reactance must equal it so that the series branch is in series resonance at ω."
       ],
       "solution": [
-        "**1. Remove the 3rd harmonic.** Put L∥C_1 in parallel resonance at 3ω: 9ω²LC_1 = 1, C_1 = 1/(9 × 1000² × 0.01) = **11.11 µF**. Then the 3rd-harmonic current is zero and U_o3 = **0**.",
+        "**1. Remove the 3rd harmonic.** Put L∥C_1 in parallel resonance at 3ω: 9ω²LC_1 = 1, C_1 = 1/(9 × 1000² × 0.01) = **11.11 µF**. Then the 3rd-harmonic current is zero and V_o3 = **0**.",
         "**2. Pass the whole fundamental.** At ω, ω²LC_1 = 1/9 and Z_{L∥C1} = jωL/(1 − 1/9) = j10 × 9/8 = j11.25 Ω (inductive). For zero series-branch impedance C_2 needs a reactance of 11.25 Ω: C_2 = 1/(1000 × 11.25) = **88.89 µF**.",
-        "**3. Output.** Fundamental: zero series impedance, U̇_o1 = U̇_s1 = **100∠0° V**; 3rd harmonic: 0. u_o = 100√2 cos(1000t) V.",
+        "**3. Output.** Fundamental: zero series impedance, V̇_o1 = V̇_s1 = **100∠0° V**; 3rd harmonic: 0. v_o = 100√2 cos(1000t) V.",
         "**Check:** at 3ω X_L = 30 Ω and X_{C1} = 1/(3000 × 11.11×10⁻⁶) = 30 Ω, equal; at ω, j11.25 − j/(1000 × 88.89×10⁻⁶) = j11.25 − j11.25 = 0."
       ],
       "questions": [
         { "ask": "C_1 = ?", "explain": "L∥C_1 must be in parallel resonance (open) at 3ω: C_1 = 1/(9ω²L) = 1/(9 × 10⁶ × 0.01) = 11.11 µF." },
         { "ask": "C_2 = ?", "explain": "At the fundamental L∥C_1 has impedance jωL/(1 − 1/9) = j11.25 Ω; C_2 must resonate with it in series at ω: 1/(ωC_2) = 11.25 Ω, C_2 = 88.89 µF." },
-        { "ask": "Check: rms 3rd harmonic of u_o, U_o3 = ?", "explain": "The 3rd harmonic is blocked by the parallel-resonant L∥C_1, U_o3 = 0." },
-        { "ask": "Check: rms fundamental of u_o, U_o1 = ?", "explain": "At the fundamental the whole series branch has zero impedance (series resonance), U_o1 = U_s1 = 100 V." },
-        { "ask": "Initial phase of the fundamental of u_o = ?", "explain": "The series branch has zero impedance, u_o1 = u_s1, initial phase 0°." }
+        { "ask": "Check: rms 3rd harmonic of v_o, V_o3 = ?", "explain": "The 3rd harmonic is blocked by the parallel-resonant L∥C_1, V_o3 = 0." },
+        { "ask": "Check: rms fundamental of v_o, V_o1 = ?", "explain": "At the fundamental the whole series branch has zero impedance (series resonance), V_o1 = V_s1 = 100 V." },
+        { "ask": "Initial phase of the fundamental of v_o = ?", "explain": "The series branch has zero impedance, v_o1 = v_s1, initial phase 0°." }
       ]
     }
   }

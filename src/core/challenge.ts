@@ -5,6 +5,8 @@ import { HOLE_MAP } from './breadboard';
 import { getLang, isLang, LANGS, tr, type Lang } from './i18n';
 import { parseValue } from './format';
 import { MOSFETS } from './devices';
+import { chapterById } from './problem/chapters';
+import { figureRefs, parseFigures, type CardFigure } from './figures';
 import { isMcu, mcuPin, modesFor, normalizeMcuPin } from './mcu';
 import { BATTERIES, LED_COLORS, PARTS, terminalsOf } from './parts';
 import { MEASURES, type Measure } from './transient';
@@ -69,6 +71,22 @@ export interface ChallengeStep {
   highlight: string[];
   /** what must be on the board for this step to count as done (§7.1); empty = no check */
   check?: StepCheck[];
+}
+
+/** The four kinds of lesson card (§16): try it first, understand it, build and measure it, take it with you. */
+export const CARD_KINDS = ['try', 'explain', 'build', 'wrap'] as const;
+export type CardKind = (typeof CARD_KINDS)[number];
+
+/** One card of a card-style unit (§16): the panel shows one card at a time. */
+export interface ChallengeCard {
+  kind: CardKind;
+  title: string;
+  text: string;
+  /** the steps this card owns: steps[first … first + count − 1] (cards take the steps in order) */
+  first: number;
+  count: number;
+  /** theory chapters (problem chapter ids) to practise next — links on the card */
+  practice: string[];
 }
 
 /** Scope measurements a measurement question may ask for: the test measures plus "ring", the
@@ -147,12 +165,19 @@ export interface Challenge {
   compare: string;
   hints: string[];
   steps: ChallengeStep[];
+  /** card-style unit (§16): one card at a time, each owning a run of the steps; [] = classic layout */
+  cards: ChallengeCard[];
+  /** figures shown in card and step text by a `![](fig:<id>)` line (§16.3; core/figures.ts) */
+  figures: Record<string, CardFigure>;
   /** ids of the lessons to do first (shown as links in the task panel) */
   prereq?: string[];
   solution?: Layout;
   start?: Layout;
   tolerance: number;
   allowExtraComponents: boolean;
+  /** `circuit` (default): wiring and values are compared with the target, then the tests run.
+   *  `behaviour`: an open design task — only the tests decide (check.ts checkBehaviour). */
+  grading?: 'circuit' | 'behaviour';
   /** language the text fields ended up in (the file's base language when no translation fits) */
   textLang: Lang;
   /** where it came from: "builtin", "folder", "imported" */
@@ -377,6 +402,10 @@ function parseProps(type: CompType, raw: Record<string, unknown>, where: string,
     if (raw.position === 'a' || raw.position === 'b') props.position = raw.position;
     else errors.push(tr(`${where}: "position" 必须是 "a" 或 "b"`, `${where}: "position" must be "a" or "b"`));
   }
+  if (raw.meterMode !== undefined) {
+    if (raw.meterMode === 'auto' || raw.meterMode === 'dc' || raw.meterMode === 'ac') props.meterMode = raw.meterMode;
+    else errors.push(tr(`${where}: "meterMode" 必须是 "auto"、"dc" 或 "ac"`, `${where}: "meterMode" must be "auto", "dc" or "ac"`));
+  }
   return props;
 }
 
@@ -401,7 +430,7 @@ function parsePinConfigs(type: CompType, raw: unknown, where: string, errors: st
     }
     const cfg: Partial<PinConfig> = typeof v === 'string' ? { mode: v as PinMode } : isObj(v) ? { mode: v.mode as PinMode } : {};
     if (isObj(v) && v.openDrain !== undefined) {
-      if (cfg.mode !== 'out_high' && cfg.mode !== 'out_low' && cfg.mode !== 'pwm')
+      if (cfg.mode !== 'out_high' && cfg.mode !== 'out_low' && cfg.mode !== 'pwm' && cfg.mode !== 'rule')
         errors.push(
           tr(
             `${where}.pins.${k}: "openDrain" 只用于输出模式（out_high / out_low / pwm）`,
@@ -436,6 +465,34 @@ function parsePinConfigs(type: CompType, raw: unknown, where: string, errors: st
           );
         else cfg[key] = n;
       }
+    }
+    if (cfg.mode === 'rule') {
+      const r = isObj(v) ? v.rule : undefined;
+      const adc = isObj(r) && typeof r.adc === 'string' ? normalizeMcuPin(type, r.adc) : null;
+      const adcDef = adc ? mcuPin(type, adc) : null;
+      const n = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) ? x : undefined);
+      const above = isObj(r) ? n(r.above) : undefined;
+      const below = isObj(r) ? n(r.below) : undefined;
+      const hysteresis = isObj(r) ? n(r.hysteresis) : undefined;
+      if (!isObj(r) || !adc || !adcDef || adcDef.kind !== 'gpio' || !adcDef.gpio?.adc)
+        errors.push(
+          tr(
+            `${where}.pins.${k}: "rule" 模式要写 "rule": { "adc": "<这块板子的 ADC 引脚>", "above": 读数 }`,
+            `${where}.pins.${k}: mode "rule" needs "rule": { "adc": "<an ADC pin of this board>", "above": counts }`,
+          ),
+        );
+      else if (
+        (above === undefined) === (below === undefined) ||
+        [above, below].some((x) => x !== undefined && (x < 0 || x > 4095)) ||
+        (hysteresis !== undefined && hysteresis < 0)
+      )
+        errors.push(
+          tr(
+            `${where}.pins.${k}.rule: "above" 和 "below" 只写一个（ADC 读数 0–4095），"hysteresis" ≥ 0`,
+            `${where}.pins.${k}.rule: give one of "above" / "below" (ADC counts 0–4095); "hysteresis" ≥ 0`,
+          ),
+        );
+      else cfg.rule = { adc, ...(above !== undefined ? { above } : { below: below! }), ...(hysteresis ? { hysteresis } : {}) };
     }
     out[pin] = cfg as PinConfig;
   }
@@ -981,6 +1038,50 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     )
     .filter((s): s is ChallengeStep => !!s && !!s.text);
 
+  // cards (§16): each takes the next `steps` steps; together they must own every step
+  const cards: ChallengeCard[] = [];
+  if (json.cards !== undefined) {
+    if (!Array.isArray(json.cards) || !json.cards.length)
+      errors.push(
+        tr(
+          '"cards" 必须是非空数组：[{ "kind": "try", "title": "...", "text": "...", "steps": 2 }, …]',
+          '"cards" must be a non-empty array: [{ "kind": "try", "title": "...", "text": "...", "steps": 2 }, …]',
+        ),
+      );
+    else {
+      let next = 0;
+      json.cards.forEach((c: unknown, i: number) => {
+        const w = `cards[${i}]`;
+        if (!isObj(c)) return errors.push(tr(`${w}: 必须是对象`, `${w}: must be an object`));
+        const kind = c.kind as CardKind;
+        if (!CARD_KINDS.includes(kind)) errors.push(tr(`${w}.kind: 必须是 ${CARD_KINDS.join(' / ')}`, `${w}.kind: must be ${CARD_KINDS.join(' / ')}`));
+        const ctitle = typeof c.title === 'string' ? c.title.trim() : '';
+        if (!ctitle) errors.push(tr(`${w}.title: 不能为空`, `${w}.title: must not be empty`));
+        const count = c.steps === undefined ? 0 : c.steps;
+        if (typeof count !== 'number' || !Number.isInteger(count) || count < 0)
+          return errors.push(tr(`${w}.steps: 必须是这张卡片拥有的步骤数（≥ 0 的整数）`, `${w}.steps: must be the number of steps this card owns (an integer ≥ 0)`));
+        const practice = strs(c.practice);
+        for (const ch of practice)
+          if (!chapterById(ch))
+            errors.push(
+              tr(
+                `${w}.practice: 没有 "${ch}" 这一章（理论题的章节 id，见 src/core/problem/chapters.ts）`,
+                `${w}.practice: there is no chapter "${ch}" (a theory chapter id, see src/core/problem/chapters.ts)`,
+              ),
+            );
+        cards.push({ kind, title: ctitle, text: textOf(c.text), first: next, count, practice });
+        next += count;
+      });
+      if (next !== steps.length)
+        errors.push(
+          tr(
+            `cards: 各卡片的 "steps" 加起来是 ${next}，但 "steps" 有 ${steps.length} 步——每一步都要属于一张卡片`,
+            `cards: the cards' "steps" add up to ${next}, but there are ${steps.length} steps — every step must belong to one card`,
+          ),
+        );
+    }
+  }
+
   // translations: "lang" names the language of the top-level text, "i18n" holds the others
   const baseLang: Lang = json.lang === undefined ? 'zh' : isLang(json.lang) ? json.lang : 'zh';
   const langList = LANGS.map((l) => `"${l}"`).join(' / ');
@@ -1000,6 +1101,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
               );
           };
           count('steps', steps.length);
+          count('cards', cards.length);
           count('hints', Array.isArray(json.hints) ? json.hints.length : 0);
           count('tests', tests.length);
           count('measurements', measurements.length);
@@ -1014,6 +1116,11 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
   });
   txList('tests').forEach((t, i) => {
     if (tests[i] && typeof t === 'string' && t) tests[i] = { ...tests[i], name: t };
+  });
+  txList('cards').forEach((t, i) => {
+    if (!cards[i] || !isObj(t)) return;
+    const ctitle = typeof t.title === 'string' && t.title.trim() ? t.title.trim() : cards[i].title;
+    cards[i] = { ...cards[i], title: ctitle, text: textOf(t.text) || cards[i].text };
   });
   txList('measurements').forEach((t, i) => {
     const q = measurements[i];
@@ -1036,6 +1143,55 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     else errors.push(tr(`"phase" 必须是 ${PHASES.join(' / ')}（课程第几期，见 docs/ROADMAP.md）`, `"phase" must be ${PHASES.join(' / ')} (the course phase, see docs/ROADMAP.md)`));
   }
 
+  // figures, and the `![](fig:id)` lines that show them (cards and steps, every language)
+  const fig = parseFigures(json.figures);
+  errors.push(...fig.errors);
+  warnings.push(...fig.warnings);
+  {
+    const texts: string[] = [];
+    const add = (v: unknown) => {
+      if (typeof v === 'string') texts.push(v);
+      else if (Array.isArray(v)) v.forEach(add);
+      else if (isObj(v)) add(v.text);
+    };
+    const scan = (o: unknown) => {
+      if (!isObj(o)) return;
+      if (Array.isArray(o.cards)) o.cards.forEach(add);
+      if (Array.isArray(o.steps)) o.steps.forEach(add);
+    };
+    scan(json);
+    if (isObj(json.i18n)) Object.values(json.i18n).forEach(scan);
+    const used = new Set(texts.flatMap(figureRefs));
+    const declared = isObj(json.figures) ? Object.keys(json.figures) : [];
+    for (const id of used)
+      if (!declared.includes(id)) errors.push(tr(`![](fig:${id})："figures" 里没有 "${id}" 这张图`, `![](fig:${id}): there is no figure "${id}" in "figures"`));
+    for (const id of declared) if (!used.has(id)) warnings.push(tr(`figures.${id}：没有卡片或步骤用到这张图`, `figures.${id}: no card or step shows this figure`));
+  }
+
+  const grading = opts.grading === 'behaviour' || opts.grading === 'behavior' ? 'behaviour' : 'circuit';
+  if (opts.grading !== undefined && opts.grading !== 'circuit' && grading !== 'behaviour')
+    errors.push(tr('options.grading 必须是 "circuit" 或 "behaviour"', 'options.grading must be "circuit" or "behaviour"'));
+  if (grading === 'behaviour') {
+    if (!tests.length)
+      errors.push(
+        tr(
+          'options.grading 是 "behaviour"：至少要有一个测试（只看表现的题全靠测试判分）',
+          'options.grading is "behaviour": give at least one test (the tests are all that grades an open task)',
+        ),
+      );
+    const types = components.map((c) => c.type);
+    for (const t of tests)
+      for (const ref of [...Object.keys(t.expect), ...Object.keys(t.set)]) {
+        const c = components.find((x) => x.ref === ref);
+        if (c && types.filter((x) => x === c.type).length > 1)
+          warnings.push(
+            tr(
+              `测试 "${t.name}"：${ref} 的类型 ${c.type} 在目标电路里不止一个——只看表现的题按类型找元件，学生的板子上可能对应到另一个`,
+              `test "${t.name}": the target has more than one ${c.type}, so behaviour grading (which finds parts by type) may pick another one than ${ref}`,
+            ),
+          );
+      }
+  }
   const level = typeof json.level === 'number' ? Math.min(5, Math.max(1, Math.round(json.level))) : 1;
   const challenge: Challenge = {
     id,
@@ -1052,11 +1208,14 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     compare: textOf(tx.compare) || textOf(json.compare),
     hints: txHints.length === baseHints.length ? txHints : baseHints,
     steps,
+    cards,
+    figures: fig.figures,
     prereq: strs(json.prereq),
     solution,
     start,
     tolerance: typeof opts.tolerance === 'number' ? opts.tolerance : 0.05,
     allowExtraComponents: opts.allowExtraComponents === true,
+    grading,
     textLang: Object.keys(tx).length ? getLang() : baseLang,
     source,
     file,

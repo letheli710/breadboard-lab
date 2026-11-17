@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["RLC 串联", "零状态响应", "阶跃响应", "欠阻尼", "超调"],
   "statement": [
-    "图示 RLC 串联电路原来不带电（零状态），电压源为 10ε(t) V；R = 6 Ω，L = 1 H，C = 40 mF。",
-    "求 u_L(0₊)、α 和 ω_d，t = π/8 s 时的电流 i，以及 t = π/4 s 时的 u_C。"
+    "图示 RLC 串联电路原来不带电（零状态），电压源为 10u(t) V；R = 6 Ω，L = 1 H，C = 40 mF。",
+    "求 v_L(0₊)、α 和 ω_d，t = π/8 s 时的电流 i，以及 t = π/4 s 时的 v_C。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 10 } }, "label": "10ε(t) V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "step": { "before": 0, "after": 10 } }, "label": "10u(t) V" },
       { "ref": "R", "type": "R", "from": [2, 0], "to": [5, 0], "value": 6 },
       { "ref": "L", "type": "L", "from": [7, 0], "to": [10, 0], "value": 1 },
       { "ref": "C", "type": "C", "from": [12, 0], "to": [12, 4], "value": "40m" }
@@ -26,19 +26,19 @@
     "grounds": [[0, 4]],
     "marks": [
       { "kind": "i", "el": "L", "name": "i" },
-      { "kind": "v", "el": "L", "name": "u_L" },
-      { "kind": "v", "el": "C", "name": "u_C" }
+      { "kind": "v", "el": "L", "name": "v_L" },
+      { "kind": "v", "el": "C", "name": "v_C" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
     {
       "id": "ul0",
-      "ask": "u_L(0₊) = ?",
+      "ask": "v_L(0₊) = ?",
       "find": { "kind": "v", "el": "L", "t": "0+" },
       "answer": 10,
       "unit": "V",
-      "explain": "零状态：u_C(0₊) = 0，i(0₊) = 0，R 上无压降，电源电压全部加在电感上：u_L(0₊) = 10 V（di/dt(0₊) = 10 A/s）。"
+      "explain": "零状态：v_C(0₊) = 0，i(0₊) = 0，R 上无压降，电源电压全部加在电感上：v_L(0₊) = 10 V（di/dt(0₊) = 10 A/s）。"
     },
     {
       "id": "alpha",
@@ -62,41 +62,41 @@
       "find": { "kind": "i", "el": "L", "t": 0.3926991 },
       "answer": 0.7696599,
       "unit": "A",
-      "explain": "i = C·du_C/dt = U_s/(ω_d L)·e^(−αt) sin ω_d t = 2.5e^(−3t) sin 4t A。t = π/8：sin(π/2) = 1，i = 2.5e^(−3π/8) ≈ 0.7697 A。"
+      "explain": "i = C·dv_C/dt = V_s/(ω_d L)·e^(−αt) sin ω_d t = 2.5e^(−3t) sin 4t A。t = π/8：sin(π/2) = 1，i = 2.5e^(−3π/8) ≈ 0.7697 A。"
     },
     {
       "id": "uc",
-      "ask": "t = π/4 s（≈ 0.7854 s）时 u_C = ?",
+      "ask": "t = π/4 s（≈ 0.7854 s）时 v_C = ?",
       "find": { "kind": "v", "el": "C", "t": 0.7853982 },
       "answer": 10.9478,
       "unit": "V",
-      "explain": "u_C = 10 − 10e^(−3t)(cos 4t + 0.75 sin 4t) V。t = π/4：cos π = −1，sin π = 0，u_C = 10 + 10e^(−3π/4) ≈ 10.948 V——超过终值 10 V（超调），也是 u_C 的最大值，因为此时 i = 0。"
+      "explain": "v_C = 10 − 10e^(−3t)(cos 4t + 0.75 sin 4t) V。t = π/4：cos π = −1，sin π = 0，v_C = 10 + 10e^(−3π/4) ≈ 10.948 V——超过终值 10 V（超调），也是 v_C 的最大值，因为此时 i = 0。"
     }
   ],
   "hints": [
-    "零状态：u_C(0₊) = 0，i(0₊) = 0。终值 u_C(∞) = 10 V（电容开路）。",
-    "判断阻尼：2√(L/C) = 10 Ω > R，欠阻尼；u_C = 10 + e^(−αt)(A₁cos ω_d t + A₂sin ω_d t)。",
-    "定常数用 u_C(0₊) = 0 和 du_C/dt(0₊) = i(0₊)/C = 0。"
+    "零状态：v_C(0₊) = 0，i(0₊) = 0。终值 v_C(∞) = 10 V（电容开路）。",
+    "判断阻尼：2√(L/C) = 10 Ω > R，欠阻尼；v_C = 10 + e^(−αt)(A₁cos ω_d t + A₂sin ω_d t)。",
+    "定常数用 v_C(0₊) = 0 和 dv_C/dt(0₊) = i(0₊)/C = 0。"
   ],
   "solution": [
-    "**1. 初值与终值。** u_C(0₊) = 0，i(0₊) = 0 → **u_L(0₊) = 10 V**；u_C(∞) = 10 V。",
+    "**1. 初值与终值。** v_C(0₊) = 0，i(0₊) = 0 → **v_L(0₊) = 10 V**；v_C(∞) = 10 V。",
     "**2. 特征根。** s² + (R/L)s + 1/(LC) = s² + 6s + 25 = 0 → s = −3 ± j4，即 **α = 3 s⁻¹，ω_d = 4 rad/s**（2√(L/C) = 10 Ω > 6 Ω，欠阻尼）。",
-    "**3. 全解 = 特解 + 齐次解。** u_C = 10 + e^(−3t)(A₁cos 4t + A₂sin 4t)。u_C(0₊) = 0 → A₁ = −10；du_C/dt(0₊) = 0 → −3A₁ + 4A₂ = 0 → A₂ = −7.5。u_C = 10 − 10e^(−3t)(cos 4t + 0.75 sin 4t) V。",
-    "**4. 电流。** i = C·du_C/dt = 0.04 × 62.5e^(−3t) sin 4t = 2.5e^(−3t) sin 4t A。t = π/8：**i = 2.5e^(−3π/8) ≈ 0.7697 A**。",
-    "**5. 超调。** t = π/ω_d = π/4 s 时 i = 0，u_C 达到最大：**u_C = 10 + 10e^(−3π/4) ≈ 10.948 V**，超调量约 9.5%。"
+    "**3. 全解 = 特解 + 齐次解。** v_C = 10 + e^(−3t)(A₁cos 4t + A₂sin 4t)。v_C(0₊) = 0 → A₁ = −10；dv_C/dt(0₊) = 0 → −3A₁ + 4A₂ = 0 → A₂ = −7.5。v_C = 10 − 10e^(−3t)(cos 4t + 0.75 sin 4t) V。",
+    "**4. 电流。** i = C·dv_C/dt = 0.04 × 62.5e^(−3t) sin 4t = 2.5e^(−3t) sin 4t A。t = π/8：**i = 2.5e^(−3π/8) ≈ 0.7697 A**。",
+    "**5. 超调。** t = π/ω_d = π/4 s 时 i = 0，v_C 达到最大：**v_C = 10 + 10e^(−3π/4) ≈ 10.948 V**，超调量约 9.5%。"
   ],
   "i18n": {
     "en": {
       "title": "Step response of a series RLC circuit (zero state)",
       "tags": ["series RLC", "zero-state response", "step response", "underdamped", "overshoot"],
       "statement": [
-        "The series RLC circuit is initially uncharged (zero state) and driven by 10ε(t) V; R = 6 Ω, L = 1 H, C = 40 mF.",
-        "Find u_L(0+), α and ω_d, the current i at t = π/8 s, and u_C at t = π/4 s."
+        "The series RLC circuit is initially uncharged (zero state) and driven by 10u(t) V; R = 6 Ω, L = 1 H, C = 40 mF.",
+        "Find v_L(0+), α and ω_d, the current i at t = π/8 s, and v_C at t = π/4 s."
       ],
       "questions": [
         {
-          "ask": "u_L(0+) = ?",
-          "explain": "Zero state: u_C(0+) = 0 and i(0+) = 0, so there is no drop across R and the whole source voltage is across the inductor: u_L(0+) = 10 V (di/dt(0+) = 10 A/s)."
+          "ask": "v_L(0+) = ?",
+          "explain": "Zero state: v_C(0+) = 0 and i(0+) = 0, so there is no drop across R and the whole source voltage is across the inductor: v_L(0+) = 10 V (di/dt(0+) = 10 A/s)."
         },
         { "ask": "Damping coefficient α = ?", "explain": "α = R/(2L) = 6/2 = 3 1/s." },
         {
@@ -105,24 +105,24 @@
         },
         {
           "ask": "i at t = π/8 s (≈ 0.3927 s) = ?",
-          "explain": "i = C·du_C/dt = U_s/(ω_d L)·e^(−αt) sin ω_d t = 2.5e^(−3t) sin 4t A. At t = π/8, sin(π/2) = 1, so i = 2.5e^(−3π/8) ≈ 0.7697 A."
+          "explain": "i = C·dv_C/dt = V_s/(ω_d L)·e^(−αt) sin ω_d t = 2.5e^(−3t) sin 4t A. At t = π/8, sin(π/2) = 1, so i = 2.5e^(−3π/8) ≈ 0.7697 A."
         },
         {
-          "ask": "u_C at t = π/4 s (≈ 0.7854 s) = ?",
-          "explain": "u_C = 10 − 10e^(−3t)(cos 4t + 0.75 sin 4t) V. At t = π/4, cos π = −1 and sin π = 0: u_C = 10 + 10e^(−3π/4) ≈ 10.948 V — above the final value of 10 V (overshoot). It is also the maximum of u_C, because i = 0 there."
+          "ask": "v_C at t = π/4 s (≈ 0.7854 s) = ?",
+          "explain": "v_C = 10 − 10e^(−3t)(cos 4t + 0.75 sin 4t) V. At t = π/4, cos π = −1 and sin π = 0: v_C = 10 + 10e^(−3π/4) ≈ 10.948 V — above the final value of 10 V (overshoot). It is also the maximum of v_C, because i = 0 there."
         }
       ],
       "hints": [
-        "Zero state: u_C(0+) = 0, i(0+) = 0. Final value u_C(∞) = 10 V (C open).",
-        "Damping: 2√(L/C) = 10 Ω > R, so it is underdamped; u_C = 10 + e^(−αt)(A₁cos ω_d t + A₂sin ω_d t).",
-        "Fix the constants with u_C(0+) = 0 and du_C/dt(0+) = i(0+)/C = 0."
+        "Zero state: v_C(0+) = 0, i(0+) = 0. Final value v_C(∞) = 10 V (C open).",
+        "Damping: 2√(L/C) = 10 Ω > R, so it is underdamped; v_C = 10 + e^(−αt)(A₁cos ω_d t + A₂sin ω_d t).",
+        "Fix the constants with v_C(0+) = 0 and dv_C/dt(0+) = i(0+)/C = 0."
       ],
       "solution": [
-        "**1. Initial and final values.** u_C(0+) = 0, i(0+) = 0 → **u_L(0+) = 10 V**; u_C(∞) = 10 V.",
+        "**1. Initial and final values.** v_C(0+) = 0, i(0+) = 0 → **v_L(0+) = 10 V**; v_C(∞) = 10 V.",
         "**2. Roots.** s² + (R/L)s + 1/(LC) = s² + 6s + 25 = 0 → s = −3 ± j4, i.e. **α = 3 s⁻¹, ω_d = 4 rad/s** (2√(L/C) = 10 Ω > 6 Ω, underdamped).",
-        "**3. Complete solution = particular + homogeneous.** u_C = 10 + e^(−3t)(A₁cos 4t + A₂sin 4t). u_C(0+) = 0 → A₁ = −10; du_C/dt(0+) = 0 → −3A₁ + 4A₂ = 0 → A₂ = −7.5. u_C = 10 − 10e^(−3t)(cos 4t + 0.75 sin 4t) V.",
-        "**4. Current.** i = C·du_C/dt = 0.04 × 62.5e^(−3t) sin 4t = 2.5e^(−3t) sin 4t A. At t = π/8: **i = 2.5e^(−3π/8) ≈ 0.7697 A**.",
-        "**5. Overshoot.** At t = π/ω_d = π/4 s, i = 0 and u_C peaks: **u_C = 10 + 10e^(−3π/4) ≈ 10.948 V**, an overshoot of about 9.5 %."
+        "**3. Complete solution = particular + homogeneous.** v_C = 10 + e^(−3t)(A₁cos 4t + A₂sin 4t). v_C(0+) = 0 → A₁ = −10; dv_C/dt(0+) = 0 → −3A₁ + 4A₂ = 0 → A₂ = −7.5. v_C = 10 − 10e^(−3t)(cos 4t + 0.75 sin 4t) V.",
+        "**4. Current.** i = C·dv_C/dt = 0.04 × 62.5e^(−3t) sin 4t = 2.5e^(−3t) sin 4t A. At t = π/8: **i = 2.5e^(−3π/8) ≈ 0.7697 A**.",
+        "**5. Overshoot.** At t = π/ω_d = π/4 s, i = 0 and v_C peaks: **v_C = 10 + 10e^(−3π/4) ≈ 10.948 V**, an overshoot of about 9.5 %."
       ]
     }
   }

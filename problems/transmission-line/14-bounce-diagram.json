@@ -12,13 +12,13 @@
     "暂态"
   ],
   "statement": [
-    "一段无损耗电缆 Z_c = 75 Ω，长 l = 100 m，波速 v = 2×10⁸ m/s，原来不带电。t = 0 时接通直流电压 U_s = 12 V（阶跃），电源内阻 R_s = 25 Ω；终端接 R_L = 225 Ω。",
+    "一段无损耗电缆 Z_c = 75 Ω，长 l = 100 m，波速 v_p = 2×10⁸ m/s，原来不带电。t = 0 时接通直流电压 V_s = 12 V（阶跃），电源内阻 R_s = 25 Ω；终端接 R_L = 225 Ω。",
     "x 从始端量起；电流 i 沿 +x 方向为正。各时刻的值都取波前刚过之后（t₊）。"
   ],
   "schematic": {
     "elements": [
       {
-        "ref": "Us",
+        "ref": "Vs",
         "type": "V",
         "from": [
           0,
@@ -181,7 +181,7 @@
   "questions": [
     {
       "id": "u0",
-      "ask": "t = 0₊ 时始端电压 u(0, 0₊) = ?",
+      "ask": "t = 0₊ 时始端电压 v(0, 0₊) = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -191,7 +191,7 @@
       },
       "answer": 9,
       "unit": "V",
-      "explain": "波刚出发时线路对电源相当于电阻 Z_c：u⁺ = 12 × 75/(25 + 75) = 9 V。"
+      "explain": "波刚出发时线路对电源相当于电阻 Z_c：v⁺ = 12 × 75/(25 + 75) = 9 V。"
     },
     {
       "id": "g2",
@@ -219,7 +219,7 @@
     },
     {
       "id": "ul1",
-      "ask": "t = 0.6 µs 时负载电压 u_2 = ?",
+      "ask": "t = 0.6 µs 时负载电压 v_2 = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -229,11 +229,11 @@
       },
       "answer": 13.5,
       "unit": "V",
-      "explain": "T = l/v = 0.5 µs。t = T 时入射波 9 V 到达负载并反射 9 × 0.5 = 4.5 V：u_2 = 9 + 4.5 = 13.5 V（在 T 到 3T 之间不变）。"
+      "explain": "T = l/v_p = 0.5 µs。t = T 时入射波 9 V 到达负载并反射 9 × 0.5 = 4.5 V：v_2 = 9 + 4.5 = 13.5 V（在 T 到 3T 之间不变）。"
     },
     {
       "id": "us2",
-      "ask": "t = 1.2 µs 时始端电压 u_1 = ?",
+      "ask": "t = 1.2 µs 时始端电压 v_1 = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -243,11 +243,11 @@
       },
       "answer": 11.25,
       "unit": "V",
-      "explain": "t = 2T = 1 µs 时 4.5 V 的反射波回到始端，再反射 4.5 × (−0.5) = −2.25 V：u_1 = 9 + 4.5 − 2.25 = 11.25 V。"
+      "explain": "t = 2T = 1 µs 时 4.5 V 的反射波回到始端，再反射 4.5 × (−0.5) = −2.25 V：v_1 = 9 + 4.5 − 2.25 = 11.25 V。"
     },
     {
       "id": "ul2",
-      "ask": "t = 1.6 µs 时负载电压 u_2 = ?",
+      "ask": "t = 1.6 µs 时负载电压 v_2 = ?",
       "find": {
         "kind": "tl",
         "el": "TL",
@@ -257,7 +257,7 @@
       },
       "answer": 10.125,
       "unit": "V",
-      "explain": "t = 3T 时 −2.25 V 的波到达负载并反射 −1.125 V：u_2 = 13.5 − 2.25 − 1.125 = 10.125 V。"
+      "explain": "t = 3T 时 −2.25 V 的波到达负载并反射 −1.125 V：v_2 = 13.5 − 2.25 − 1.125 = 10.125 V。"
     },
     {
       "id": "il",
@@ -269,7 +269,7 @@
       },
       "answer": 0.06,
       "unit": "A",
-      "explain": "i_2 = u_2/R_L = 13.5/225 = 60 mA；也等于 (9 − 4.5)/75 = 60 mA（反射波电流反向）。"
+      "explain": "i_2 = v_2/R_L = 13.5/225 = 60 mA；也等于 (9 − 4.5)/75 = 60 mA（反射波电流反向）。"
     },
     {
       "id": "uinf",
@@ -283,21 +283,21 @@
       },
       "answer": 10.8,
       "unit": "V",
-      "explain": "波来回反射，幅度每次乘 Γ_1Γ_2 = −0.25，最终趋于直流稳态：无损耗线在直流下就是两根导线，u = 12 × 225/(25 + 225) = 10.8 V。"
+      "explain": "波来回反射，幅度每次乘 Γ_1Γ_2 = −0.25，最终趋于直流稳态：无损耗线在直流下就是两根导线，v = 12 × 225/(25 + 225) = 10.8 V。"
     }
   ],
   "hints": [
-    "波从始端出发时还“看不到”负载：线路对电源相当于一个阻值为 Z_c 的电阻，所以 u⁺ = U_s·Z_c/(R_s + Z_c)。",
-    "每到一端，波按该端的反射系数 Γ = (R − Z_c)/(R + Z_c) 反射；某点某时刻的电压 = 已经到达该点的所有波之和。画一张时间–距离的网格图（单程 T = l/v）。",
+    "波从始端出发时还“看不到”负载：线路对电源相当于一个阻值为 Z_c 的电阻，所以 v⁺ = V_s·Z_c/(R_s + Z_c)。",
+    "每到一端，波按该端的反射系数 Γ = (R − Z_c)/(R + Z_c) 反射；某点某时刻的电压 = 已经到达该点的所有波之和。画一张时间–距离的网格图（单程 T = l/v_p）。",
     "t → ∞ 的终值可以直接用直流电路求，也可以把几何级数加起来验证。"
   ],
   "solution": [
-    "**1. 单程时间。** T = l/v = 100/2×10⁸ = 0.5 µs。",
-    "**2. 第一个波。** u⁺ = 12 × 75/100 = **9 V**，i⁺ = 9/75 = 0.12 A。",
+    "**1. 单程时间。** T = l/v_p = 100/2×10⁸ = 0.5 µs。",
+    "**2. 第一个波。** v⁺ = 12 × 75/100 = **9 V**，i⁺ = 9/75 = 0.12 A。",
     "**3. 反射系数。** **Γ_2 = 0.5**，**Γ_1 = −0.5**。",
-    "**4. 网格图。** 0～T：9 V 向右；T：负载处 +4.5 V 向左，u_2 = **13.5 V**；2T：始端 −2.25 V 向右，u_1 = **11.25 V**；3T：负载处 −1.125 V 向左，u_2 = **10.125 V**……",
+    "**4. 网格图。** 0～T：9 V 向右；T：负载处 +4.5 V 向左，v_2 = **13.5 V**；2T：始端 −2.25 V 向右，v_1 = **11.25 V**；3T：负载处 −1.125 V 向左，v_2 = **10.125 V**……",
     "**5. 负载电流。** T～3T 内 i_2 = 13.5/225 = **60 mA**。",
-    "**6. 终值。** u(∞) = 9 × (1 + 0.5)/(1 + 0.25) = **10.8 V** = 12 × 225/250 ✓（几何级数，公比 Γ_1Γ_2 = −0.25）。"
+    "**6. 终值。** v(∞) = 9 × (1 + 0.5)/(1 + 0.25) = **10.8 V** = 12 × 225/250 ✓（几何级数，公比 Γ_1Γ_2 = −0.25）。"
   ],
   "i18n": {
     "en": {
@@ -309,13 +309,13 @@
         "transient"
       ],
       "statement": [
-        "A lossless cable with Z_c = 75 Ω, length l = 100 m and wave speed v = 2×10⁸ m/s is initially uncharged. At t = 0 a DC voltage U_s = 12 V (a step) with internal resistance R_s = 25 Ω is connected; the end is loaded with R_L = 225 Ω.",
+        "A lossless cable with Z_c = 75 Ω, length l = 100 m and wave speed v_p = 2×10⁸ m/s is initially uncharged. At t = 0 a DC voltage V_s = 12 V (a step) with internal resistance R_s = 25 Ω is connected; the end is loaded with R_L = 225 Ω.",
         "x is measured from the start; the current i is positive in the +x direction. Every value is taken just after a wavefront has passed (t₊)."
       ],
       "questions": [
         {
-          "ask": "Voltage at the start at t = 0₊, u(0, 0₊) = ?",
-          "explain": "When the wave sets off the line looks like a resistor Z_c to the source: u⁺ = 12 × 75/(25 + 75) = 9 V."
+          "ask": "Voltage at the start at t = 0₊, v(0, 0₊) = ?",
+          "explain": "When the wave sets off the line looks like a resistor Z_c to the source: v⁺ = 12 × 75/(25 + 75) = 9 V."
         },
         {
           "ask": "Reflection coefficient at the end Γ_2 = ?",
@@ -326,38 +326,38 @@
           "explain": "Γ_1 = (R_s − Z_c)/(R_s + Z_c) = (25 − 75)/100 = −0.5."
         },
         {
-          "ask": "Load voltage u_2 at t = 0.6 µs = ?",
-          "explain": "T = l/v = 0.5 µs. At t = T the 9 V wave reaches the load and 9 × 0.5 = 4.5 V is reflected: u_2 = 9 + 4.5 = 13.5 V (constant from T to 3T)."
+          "ask": "Load voltage v_2 at t = 0.6 µs = ?",
+          "explain": "T = l/v_p = 0.5 µs. At t = T the 9 V wave reaches the load and 9 × 0.5 = 4.5 V is reflected: v_2 = 9 + 4.5 = 13.5 V (constant from T to 3T)."
         },
         {
-          "ask": "Start voltage u_1 at t = 1.2 µs = ?",
-          "explain": "At t = 2T = 1 µs the 4.5 V wave returns to the start and is re-reflected as 4.5 × (−0.5) = −2.25 V: u_1 = 9 + 4.5 − 2.25 = 11.25 V."
+          "ask": "Start voltage v_1 at t = 1.2 µs = ?",
+          "explain": "At t = 2T = 1 µs the 4.5 V wave returns to the start and is re-reflected as 4.5 × (−0.5) = −2.25 V: v_1 = 9 + 4.5 − 2.25 = 11.25 V."
         },
         {
-          "ask": "Load voltage u_2 at t = 1.6 µs = ?",
-          "explain": "At t = 3T the −2.25 V wave reaches the load and −1.125 V is reflected: u_2 = 13.5 − 2.25 − 1.125 = 10.125 V."
+          "ask": "Load voltage v_2 at t = 1.6 µs = ?",
+          "explain": "At t = 3T the −2.25 V wave reaches the load and −1.125 V is reflected: v_2 = 13.5 − 2.25 − 1.125 = 10.125 V."
         },
         {
           "ask": "Load current i_2 at t = 0.6 µs = ?",
-          "explain": "i_2 = u_2/R_L = 13.5/225 = 60 mA; also (9 − 4.5)/75 = 60 mA (the reflected current flows backwards)."
+          "explain": "i_2 = v_2/R_L = 13.5/225 = 60 mA; also (9 − 4.5)/75 = 60 mA (the reflected current flows backwards)."
         },
         {
           "ask": "Voltage everywhere on the line as t → ∞ = ?",
-          "explain": "The waves bounce with a factor Γ_1Γ_2 = −0.25 per round trip and settle to the DC steady state: at DC a lossless line is just two wires, u = 12 × 225/(25 + 225) = 10.8 V."
+          "explain": "The waves bounce with a factor Γ_1Γ_2 = −0.25 per round trip and settle to the DC steady state: at DC a lossless line is just two wires, v = 12 × 225/(25 + 225) = 10.8 V."
         }
       ],
       "hints": [
-        "When the wave leaves the start it cannot 'see' the load yet: the line looks like a resistor Z_c to the source, so u⁺ = U_s·Z_c/(R_s + Z_c).",
-        "At each end a wave is reflected with that end's Γ = (R − Z_c)/(R + Z_c); the voltage at a point and time is the sum of all waves that have reached it. Draw a time–distance lattice (one-way time T = l/v).",
+        "When the wave leaves the start it cannot 'see' the load yet: the line looks like a resistor Z_c to the source, so v⁺ = V_s·Z_c/(R_s + Z_c).",
+        "At each end a wave is reflected with that end's Γ = (R − Z_c)/(R + Z_c); the voltage at a point and time is the sum of all waves that have reached it. Draw a time–distance lattice (one-way time T = l/v_p).",
         "The final value as t → ∞ follows from the DC circuit; summing the geometric series checks it."
       ],
       "solution": [
-        "**1. One-way time.** T = l/v = 100/2×10⁸ = 0.5 µs.",
-        "**2. First wave.** u⁺ = 12 × 75/100 = **9 V**, i⁺ = 9/75 = 0.12 A.",
+        "**1. One-way time.** T = l/v_p = 100/2×10⁸ = 0.5 µs.",
+        "**2. First wave.** v⁺ = 12 × 75/100 = **9 V**, i⁺ = 9/75 = 0.12 A.",
         "**3. Reflection coefficients.** **Γ_2 = 0.5**, **Γ_1 = −0.5**.",
-        "**4. Lattice.** 0–T: 9 V travelling right; T: +4.5 V reflected at the load, u_2 = **13.5 V**; 2T: −2.25 V reflected at the start, u_1 = **11.25 V**; 3T: −1.125 V reflected at the load, u_2 = **10.125 V**; and so on.",
+        "**4. Lattice.** 0–T: 9 V travelling right; T: +4.5 V reflected at the load, v_2 = **13.5 V**; 2T: −2.25 V reflected at the start, v_1 = **11.25 V**; 3T: −1.125 V reflected at the load, v_2 = **10.125 V**; and so on.",
         "**5. Load current.** Between T and 3T, i_2 = 13.5/225 = **60 mA**.",
-        "**6. Final value.** u(∞) = 9 × (1 + 0.5)/(1 + 0.25) = **10.8 V** = 12 × 225/250 ✓ (geometric series with ratio Γ_1Γ_2 = −0.25)."
+        "**6. Final value.** v(∞) = 9 × (1 + 0.5)/(1 + 0.25) = **10.8 V** = 12 × 225/250 ✓ (geometric series with ratio Γ_1Γ_2 = −0.25)."
       ]
     }
   }

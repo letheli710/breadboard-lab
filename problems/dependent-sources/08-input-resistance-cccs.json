@@ -2,7 +2,7 @@
   "$schema": "../../schema/problem.schema.json",
   "format": "circuit-problem/1",
   "id": "equivalence-13-input-resistance-cccs",
-  "chapter": "equivalence",
+  "chapter": "dependent-sources",
   "title": "含受控源单口网络的输入电阻",
   "level": 3,
   "tags": ["输入电阻", "受控源 CCCS", "加压求流法"],
@@ -28,24 +28,24 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "rin", "ask": "R_in = ?", "find": { "kind": "req", "port": ["a", "b"] }, "answer": 8, "unit": "Ω", "explain": "端口电流就是 i_1。R_2 中电流 i_1 + 0.5i_1 = 1.5i_1，u = 2i_1 + 4 × 1.5i_1 = 8i_1，R_in = u / i_1 = 8 Ω。" },
+    { "id": "rin", "ask": "R_in = ?", "find": { "kind": "req", "port": ["a", "b"] }, "answer": 8, "unit": "Ω", "explain": "端口电流就是 i_1。R_2 中电流 i_1 + 0.5i_1 = 1.5i_1，v = 2i_1 + 4 × 1.5i_1 = 8i_1，R_in = v / i_1 = 8 Ω。" },
     {
       "id": "c",
       "ask": "如果把受控源的方向改为向下（从 c 抽走 0.5i_1），R_in 变为多少？",
       "choices": ["4 Ω", "6 Ω", "8 Ω", "12 Ω"], "choiceExplain": ["", "6 Ω = R_1 + R_2 是去掉受控源后的结果；受控源不能直接置零，要保留它再用外加电源法。", "8 Ω 是原来方向（向上注入 c）时的结果：那时 R_2 中电流是 1.5i_1；方向改为向下后变为 0.5i_1。", "12 Ω = (R_1 + R_2)/(1 − 0.5) 是凭感觉套用“分走一半电流、电阻加倍”。R_1 中仍是全部端口电流 i_1；对结点 c 列 KCL，看 R_2 中的电流究竟是多少。"],
       "correct": 0,
-      "explain": "此时 R_2 中电流 i_1 − 0.5i_1 = 0.5i_1，u = 2i_1 + 4 × 0.5i_1 = 4i_1，R_in = 4 Ω。受控源的方向直接影响输入电阻。"
+      "explain": "此时 R_2 中电流 i_1 − 0.5i_1 = 0.5i_1，v = 2i_1 + 4 × 0.5i_1 = 4i_1，R_in = 4 Ω。受控源的方向直接影响输入电阻。"
     }
   ],
   "hints": [
-    "含受控源的网络不能直接用串并联求等效电阻（受控源不能“置零”）。在端口加电流源 i（或电压源 u），求 u / i。",
+    "含受控源的网络不能直接用串并联求等效电阻（受控源不能“置零”）。在端口加电流源 i（或电压源 v），求 v / i。",
     "端口电流就等于控制量 i_1；对结点 c 列 KCL，求出 R_2 中的电流。"
   ],
   "solution": [
     "**1. 外加电源。** 在 a、b 端加电流 i 从 a 流入，则 i_1 = i。",
     "**2. 结点 c 的 KCL。** 流入 c 的有 i_1（经 R_1）和 0.5i_1（受控源），全部经 R_2 流到 b：i_R2 = 1.5i_1。",
-    "**3. KVL。** u_ab = R_1·i_1 + R_2·i_R2 = 2i_1 + 6i_1 = 8i_1。",
-    "**4.** R_in = u_ab / i_1 = **8 Ω**。",
+    "**3. KVL。** v_ab = R_1·i_1 + R_2·i_R2 = 2i_1 + 6i_1 = 8i_1。",
+    "**4.** R_in = v_ab / i_1 = **8 Ω**。",
     "**注意：** 若错误地把受控源“置零”（开路），会得到 2 + 4 = 6 Ω——受控源必须保留。"
   ],
   "i18n": {
@@ -57,22 +57,22 @@
         "Use a test source (apply a voltage and find the current, or vice versa) to find the input resistance R_in at terminals a, b."
       ],
       "questions": [
-        { "ask": "R_in = ?", "explain": "The port current is i_1. R_2 carries i_1 + 0.5i_1 = 1.5i_1, so u = 2i_1 + 4 × 1.5i_1 = 8i_1 and R_in = u / i_1 = 8 Ω." },
+        { "ask": "R_in = ?", "explain": "The port current is i_1. R_2 carries i_1 + 0.5i_1 = 1.5i_1, so v = 2i_1 + 4 × 1.5i_1 = 8i_1 and R_in = v / i_1 = 8 Ω." },
         {
           "ask": "If the dependent source pointed down instead (drawing 0.5i_1 out of c), what would R_in be?",
           "choices": ["4 Ω", "6 Ω", "8 Ω", "12 Ω"], "choiceExplain": ["", "6 Ω = R_1 + R_2 is what you get with the dependent source removed; it must be kept when you apply a test source.", "8 Ω is the result for the original direction (injecting into c), where R_2 carried 1.5i_1; pointing down it carries 0.5i_1.", "12 Ω = (R_1 + R_2)/(1 − 0.5) comes from guessing \"half the current is diverted, so the resistance doubles\". R_1 still carries the whole port current i_1; write KCL at node c to see what R_2 actually carries."],
-          "explain": "Then R_2 carries i_1 − 0.5i_1 = 0.5i_1, u = 2i_1 + 4 × 0.5i_1 = 4i_1, so R_in = 4 Ω. The direction of the dependent source directly affects the input resistance."
+          "explain": "Then R_2 carries i_1 − 0.5i_1 = 0.5i_1, v = 2i_1 + 4 × 0.5i_1 = 4i_1, so R_in = 4 Ω. The direction of the dependent source directly affects the input resistance."
         }
       ],
       "hints": [
-        "With a dependent source you can't just combine series and parallel resistors (a dependent source can't be \"zeroed\"). Apply a test current i (or voltage u) at the port and compute u / i.",
+        "With a dependent source you can't just combine series and parallel resistors (a dependent source can't be \"zeroed\"). Apply a test current i (or voltage v) at the port and compute v / i.",
         "The port current equals the controlling current i_1; write KCL at node c to get the current in R_2."
       ],
       "solution": [
         "**1. Test source.** Drive a current i into terminal a, so i_1 = i.",
         "**2. KCL at c.** Into c flow i_1 (through R_1) and 0.5i_1 (the dependent source); all of it leaves through R_2 to b: i_R2 = 1.5i_1.",
-        "**3. KVL.** u_ab = R_1·i_1 + R_2·i_R2 = 2i_1 + 6i_1 = 8i_1.",
-        "**4.** R_in = u_ab / i_1 = **8 Ω**.",
+        "**3. KVL.** v_ab = R_1·i_1 + R_2·i_R2 = 2i_1 + 6i_1 = 8i_1.",
+        "**4.** R_in = v_ab / i_1 = **8 Ω**.",
         "**Note:** wrongly \"zeroing\" the dependent source (opening it) gives 2 + 4 = 6 Ω — dependent sources must be kept."
       ]
     }

@@ -8,7 +8,7 @@
   "tags": ["KCL", "欧姆定律", "理想电流表"],
   "statement": [
     "图示电路中 I_s1 = 6 A（向上，流入结点 a），I_s2 = 1 A（向下，从结点 a 流出），R_1 = 2 Ω，R_2 = 3 Ω，A_1 为理想电流表（内阻为零），读数为从上往下流过它的电流 i_A。",
-    "对结点 a 列 KCL，求结点电压 u_a、电流表读数，以及电流源 I_s2 吸收的功率。"
+    "对结点 a 列 KCL，求结点电压 v_a、电流表读数，以及电流源 I_s2 吸收的功率。"
   ],
   "schematic": {
     "elements": [
@@ -35,18 +35,18 @@
       "correct": 0,
       "explain": "流入 a 的电流只有 I_s1 = 6 A；流出 a 的有 i_1、i_A 和 I_s2 = 1 A。流入之和 = 流出之和：6 = i_1 + i_A + 1。"
     },
-    { "id": "ua", "ask": "u_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 6, "unit": "V", "explain": "i_1 = u_a/2，i_A = u_a/3，代入 KCL：6 = u_a/2 + u_a/3 + 1 → (5/6)u_a = 5 → u_a = 6 V。" },
-    { "id": "ia", "ask": "电流表读数 i_A = ?", "find": { "kind": "meter", "el": "A1" }, "answer": 2, "unit": "A", "explain": "理想电流表不分压，R_2 两端电压就是 u_a：i_A = 6/3 = 2 A。（i_1 = 3 A，验算 3 + 2 + 1 = 6。）" },
+    { "id": "ua", "ask": "v_a = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 6, "unit": "V", "explain": "i_1 = v_a/2，i_A = v_a/3，代入 KCL：6 = v_a/2 + v_a/3 + 1 → (5/6)v_a = 5 → v_a = 6 V。" },
+    { "id": "ia", "ask": "电流表读数 i_A = ?", "find": { "kind": "meter", "el": "A1" }, "answer": 2, "unit": "A", "explain": "理想电流表不分压，R_2 两端电压就是 v_a：i_A = 6/3 = 2 A。（i_1 = 3 A，验算 3 + 2 + 1 = 6。）" },
     { "id": "p2", "ask": "电流源 I_s2 吸收的功率 = ?", "find": { "kind": "p", "el": "Is2" }, "answer": 6, "unit": "W", "explain": "I_s2 两端电压 6 V（上“+”），1 A 从“+”端流入，关联参考方向：P = 6 × 1 = 6 W，它在吸收功率。" }
   ],
   "hints": [
     "KCL：流入结点的电流之和等于流出的电流之和。电流源的电流是已知的。",
-    "所有支路都并联在 a 与地之间，用欧姆定律把 i_1、i_A 写成 u_a 的函数。"
+    "所有支路都并联在 a 与地之间，用欧姆定律把 i_1、i_A 写成 v_a 的函数。"
   ],
   "solution": [
     "**1. KCL。** 结点 a：流入 I_s1 = 6 A；流出 i_1、i_A、I_s2 = 1 A。所以 **6 = i_1 + i_A + 1**。",
-    "**2. 欧姆定律。** 各支路并联，电压都是 u_a（理想电流表上没有电压）：i_1 = u_a/R_1 = u_a/2，i_A = u_a/R_2 = u_a/3。",
-    "**3. 求解。** 6 = u_a/2 + u_a/3 + 1 → (5/6)·u_a = 5 → **u_a = 6 V**；i_1 = 3 A，**i_A = 2 A**。",
+    "**2. 欧姆定律。** 各支路并联，电压都是 v_a（理想电流表上没有电压）：i_1 = v_a/R_1 = v_a/2，i_A = v_a/R_2 = v_a/3。",
+    "**3. 求解。** 6 = v_a/2 + v_a/3 + 1 → (5/6)·v_a = 5 → **v_a = 6 V**；i_1 = 3 A，**i_A = 2 A**。",
     "**4. I_s2 的功率。** 电压 6 V（上“+”），电流 1 A 从上端流入，关联：P = **6 W**（吸收）。",
     "**验算：** P_Is1 = −6 × 6 = −36 W；P_R1 = 18 W，P_R2 = 12 W，P_Is2 = 6 W；18 + 12 + 6 − 36 = 0。"
   ],
@@ -56,7 +56,7 @@
       "tags": ["KCL", "Ohm's law", "ideal ammeter"],
       "statement": [
         "In the circuit, I_s1 = 6 A (upwards, into node a), I_s2 = 1 A (downwards, out of node a), R_1 = 2 Ω, R_2 = 3 Ω. A_1 is an ideal ammeter (zero resistance); it reads the current i_A flowing down through it.",
-        "Write KCL at node a and find the node voltage u_a, the ammeter reading and the power absorbed by the current source I_s2."
+        "Write KCL at node a and find the node voltage v_a, the ammeter reading and the power absorbed by the current source I_s2."
       ],
       "questions": [
         {
@@ -64,18 +64,18 @@
           "choices": ["6 = i_1 + i_A + 1", "6 + 1 = i_1 + i_A", "6 = i_1 + i_A − 1", "6 + i_1 = i_A + 1"], "choiceExplain": ["", "I_s2 leaves node a (its arrow points down), so it belongs on the outflow side, not with I_s1 as an inflow.", "The 1 A has the wrong sign: the right-hand side lists currents leaving a, and −1 there treats I_s2 as entering a. Look again at which way the I_s2 arrow points.", "i_1 is referenced away from node a (into R_1), so it counts as an outflow."],
           "explain": "The only current entering a is I_s1 = 6 A; i_1, i_A and I_s2 = 1 A leave it. Sum in = sum out: 6 = i_1 + i_A + 1."
         },
-        { "ask": "u_a = ?", "explain": "With i_1 = u_a/2 and i_A = u_a/3, KCL gives 6 = u_a/2 + u_a/3 + 1 → (5/6)u_a = 5 → u_a = 6 V." },
-        { "ask": "Ammeter reading i_A = ?", "explain": "An ideal ammeter has no voltage across it, so R_2 sees u_a: i_A = 6/3 = 2 A. (i_1 = 3 A; check 3 + 2 + 1 = 6.)" },
+        { "ask": "v_a = ?", "explain": "With i_1 = v_a/2 and i_A = v_a/3, KCL gives 6 = v_a/2 + v_a/3 + 1 → (5/6)v_a = 5 → v_a = 6 V." },
+        { "ask": "Ammeter reading i_A = ?", "explain": "An ideal ammeter has no voltage across it, so R_2 sees v_a: i_A = 6/3 = 2 A. (i_1 = 3 A; check 3 + 2 + 1 = 6.)" },
         { "ask": "Power absorbed by the current source I_s2 = ?", "explain": "I_s2 has 6 V across it (+ at the top) and its 1 A enters the \"+\" end — passive convention: P = 6 × 1 = 6 W, it absorbs power." }
       ],
       "hints": [
         "KCL: the currents entering a node add up to the currents leaving it. Current-source currents are known.",
-        "All branches are in parallel between a and ground; use Ohm's law to write i_1 and i_A in terms of u_a."
+        "All branches are in parallel between a and ground; use Ohm's law to write i_1 and i_A in terms of v_a."
       ],
       "solution": [
         "**1. KCL.** Node a: I_s1 = 6 A enters; i_1, i_A and I_s2 = 1 A leave. So **6 = i_1 + i_A + 1**.",
-        "**2. Ohm's law.** All branches are in parallel with voltage u_a (an ideal ammeter has no voltage drop): i_1 = u_a/R_1 = u_a/2, i_A = u_a/R_2 = u_a/3.",
-        "**3. Solve.** 6 = u_a/2 + u_a/3 + 1 → (5/6)·u_a = 5 → **u_a = 6 V**; i_1 = 3 A, **i_A = 2 A**.",
+        "**2. Ohm's law.** All branches are in parallel with voltage v_a (an ideal ammeter has no voltage drop): i_1 = v_a/R_1 = v_a/2, i_A = v_a/R_2 = v_a/3.",
+        "**3. Solve.** 6 = v_a/2 + v_a/3 + 1 → (5/6)·v_a = 5 → **v_a = 6 V**; i_1 = 3 A, **i_A = 2 A**.",
         "**4. Power of I_s2.** 6 V across it (+ at the top), 1 A entering the top end: passive convention, P = **6 W** (absorbed).",
         "**Check:** P_Is1 = −6 × 6 = −36 W; P_R1 = 18 W, P_R2 = 12 W, P_Is2 = 6 W; 18 + 12 + 6 − 36 = 0."
       ]

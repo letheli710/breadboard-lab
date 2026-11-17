@@ -2,39 +2,231 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-two-leds-series",
-  "title": "挑战 1 · 两个 LED 串联",
+  "title": "两颗 LED 串联",
   "kind": "challenge",
   "level": 2,
-  "summary": "用一个电阻同时点亮串联的红色和绿色 LED。",
-  "concepts": ["series 串联", "Vf adds up 压降相加"],
-  "description": "用 9V 电源点亮两个串联的 LED：+9V → 220Ω → 红色 LED → 绿色 LED → GND。\n\n串联时 LED 的压降相加：1.8 + 2.1 = 3.9V，电阻上剩下 9 − 3.9 = 5.1V，粗算电流 5.1 / 220 ≈ 23mA。再算上每颗 LED 约 12Ω 的内阻（第 3 课讲过），实际电流约 5.1 / (220 + 12 + 12) ≈ 21mA。\n\n思考：如果用 3V 的电源，两个 LED 还能亮吗？（不能：3V < 3.9V，达不到导通电压。）",
+  "summary": "一个电阻点亮两颗串联的 LED：它们的压降叠在一起。",
+  "concepts": [
+    "series 串联",
+    "forward voltage 正向压降",
+    "KVL"
+  ],
+  "description": "用 9 V 电源点亮两颗串联的 LED：+9 V → 220 Ω → 红色 LED → 绿色 LED → GND。串联时两颗 LED 的压降相加，电阻上剩下的电压决定电流。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "两颗灯，一个电阻",
+      "text": [
+        "这一题没有步骤，**照目标电路图自己搭**：一个 220 Ω，后面依次串红色和绿色两颗 LED。",
+        "两颗灯“排队”通过同一个电流。它们会一样亮吗？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "压降叠在一起",
+      "text": [
+        "- 两颗 LED 串联，它们的正向压降**相加**：$1.8 + 2.1 = 3.9$ V。",
+        "- 电阻上剩下 $9 - 3.9 = 5.1$ V，电流由它决定：",
+        "$$I \\approx \\frac{9 - 1.8 - 2.1}{220} \\approx 23\\ \\text{mA}$$",
+        "- 再算上每颗 LED 里约 12 Ω 的小电阻，实际会稍小一点。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "搭好，量三段电压",
+      "text": [
+        "- 红色 LED 的**短脚**和绿色 LED 的**长脚**要在同一列（首尾相接）。",
+        "- 两颗都要长脚朝 + 那一侧。中间不要接到电源轨上。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 串联 LED 只要**一个电阻**，省电又省元件：同一个电流流过所有灯。",
+        "- 代价：电源电压必须**大于所有压降之和**。3 V 的电源连两颗 LED 都点不亮（3 V < 3.9 V）。",
+        "- 白光、蓝光 LED 的压降约 3 V，所以 12 V 电源大约只能串三颗。"
+      ],
+      "practice": [
+        "basics"
+      ]
+    }
+  ],
   "i18n": {
     "en": {
-      "title": "Challenge 1 · Two LEDs in series",
-      "summary": "Light a red and a green LED in series with a single resistor.",
-      "concepts": ["series", "Vf adds up"],
-      "description": "Use a 9V supply to light two LEDs in series: +9V → 220Ω → red LED → green LED → GND.\n\nIn series, the LED voltage drops add up: 1.8 + 2.1 = 3.9V. That leaves 9 − 3.9 = 5.1V across the resistor, so the quick estimate is 5.1 / 220 ≈ 23mA. Adding each LED's internal resistance of about 12Ω (see Lesson 3), the actual current is about 5.1 / (220 + 12 + 12) ≈ 21mA.\n\nThink about it: with a 3V supply, could the two LEDs still light? (No: 3V < 3.9V, which is not enough to turn them on.)",
-      "hints": [
-        "LED1's short lead (cathode) and LED2's long lead (anode) must be on the same metal strip.",
-        "Both LEDs must point the same way: long lead toward the + side.",
-        "The whole circuit is a single path; don't connect the middle of it to a power rail."
+      "title": "Two LEDs in series",
+      "summary": "One resistor lights two LEDs in series: their voltage drops stack up.",
+      "concepts": [
+        "series",
+        "forward voltage",
+        "KVL"
       ],
-      "tests": ["Both LEDs on"]
+      "description": "Light two LEDs in series from 9 V: +9 V → 220 Ω → red LED → green LED → GND. In series the two LED drops add up, and the voltage left for the resistor sets the current.",
+      "hints": [
+        "LED1's short lead (cathode) and LED2's long lead (anode) go on the same metal strip.",
+        "Both LEDs point the same way: long lead towards the + side.",
+        "The whole circuit is one single path; nothing in the middle goes to a rail."
+      ],
+      "tests": [
+        "Both LEDs on"
+      ],
+      "cards": [
+        {
+          "title": "Two lights, one resistor",
+          "text": [
+            "No steps here — **build it from the target schematic**: one 220 Ω, then a red and a green LED in a row.",
+            "The two lights queue up for the same current. Will they be equally bright?"
+          ]
+        },
+        {
+          "title": "The drops stack up",
+          "text": [
+            "- In series the two forward voltages **add**: $1.8 + 2.1 = 3.9$ V.",
+            "- That leaves $9 - 3.9 = 5.1$ V for the resistor, which sets the current:",
+            "$$I \\approx \\frac{9 - 1.8 - 2.1}{220} \\approx 23\\ \\text{mA}$$",
+            "- Counting the small resistance of about 12 Ω inside each LED, it comes out a bit lower."
+          ]
+        },
+        {
+          "title": "Build it, measure three voltages",
+          "text": [
+            "- The red LED's **short lead** and the green LED's **long lead** share a column (end to end).",
+            "- Both long leads face the + side. Nothing in the middle goes to a rail."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- LEDs in series need **one resistor**, which saves current and parts: the same current runs through every light.",
+            "- The price: the supply must be **above the sum of all the drops**. A 3 V supply cannot light even these two (3 V < 3.9 V).",
+            "- White and blue LEDs drop about 3 V each, so 12 V runs about three in series."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "Voltage across the resistor (red probe on the +9 V end)",
+          "explain": "Current ≈ (9 − 3.9) / (220 + 12 + 12) ≈ 20.9 mA; 220 Ω × 20.9 mA ≈ 4.6 V."
+        },
+        {
+          "ask": "Voltage across the red LED (red probe on the long lead)",
+          "explain": "1.8 V + 12 Ω × 20.9 mA ≈ 2.05 V."
+        },
+        {
+          "ask": "Voltage across the green LED (red probe on the long lead)",
+          "explain": "2.1 V + 12 Ω × 20.9 mA ≈ 2.35 V."
+        },
+        {
+          "ask": "What happens with a 3 V supply instead?",
+          "choices": [
+            "Both light, just dimmer",
+            "Neither lights: 3 V is less than the two LEDs' drops added up",
+            "Only the red one lights"
+          ],
+          "explain": "Both need at least 1.8 + 2.1 = 3.9 V to conduct. Below that, no current flows anywhere in the series circuit."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 9 },
-    { "ref": "R1", "type": "resistor", "resistance": "220" },
-    { "ref": "LED1", "type": "led", "color": "red" },
-    { "ref": "LED2", "type": "led", "color": "green" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "220"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    },
+    {
+      "ref": "LED2",
+      "type": "led",
+      "color": "green"
+    }
   ],
   "connections": [
-    ["V1.+", "R1.1"],
-    ["R1.2", "LED1.anode"],
-    ["LED1.cathode", "LED2.anode"],
-    ["LED2.cathode", "V1.-"]
+    [
+      "V1.+",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "LED1.cathode",
+      "LED2.anode"
+    ],
+    [
+      "LED2.cathode",
+      "V1.-"
+    ]
   ],
-  "tests": [{ "name": "两个 LED 都亮", "expect": { "LED1": "on", "LED2": "on" } }],
+  "tests": [
+    {
+      "name": "两个 LED 都亮",
+      "expect": {
+        "LED1": "on",
+        "LED2": "on"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "id": "ur",
+      "voltage": "R1.1",
+      "ref": "R1.2",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        4.4,
+        4.9
+      ],
+      "ask": "电阻两端的电压（红表笔在靠 +9 V 的一端）",
+      "explain": "电流 ≈ (9 − 3.9) / (220 + 12 + 12) ≈ 20.9 mA，220 Ω × 20.9 mA ≈ 4.6 V。"
+    },
+    {
+      "id": "ured",
+      "voltage": "LED1.anode",
+      "ref": "LED1.cathode",
+      "unit": "V",
+      "range": [
+        1.95,
+        2.15
+      ],
+      "ask": "红色 LED 两端的电压（红表笔在长脚）",
+      "explain": "1.8 V + 12 Ω × 20.9 mA ≈ 2.05 V。"
+    },
+    {
+      "id": "ugreen",
+      "voltage": "LED2.anode",
+      "ref": "LED2.cathode",
+      "unit": "V",
+      "range": [
+        2.25,
+        2.45
+      ],
+      "ask": "绿色 LED 两端的电压（红表笔在长脚）",
+      "explain": "2.1 V + 12 Ω × 20.9 mA ≈ 2.35 V。"
+    },
+    {
+      "id": "three",
+      "ask": "如果电源换成 3 V，会怎样？",
+      "choices": [
+        "两颗都亮，只是暗一点",
+        "两颗都不亮：3 V 不够两颗 LED 的压降之和",
+        "只有红色亮"
+      ],
+      "correct": 1,
+      "explain": "要让两颗都导通，至少要 1.8 + 2.1 = 3.9 V。电压不够时串联电路里一点电流都没有。"
+    }
+  ],
   "hints": [
     "LED1 的短脚（负极）和 LED2 的长脚（正极）要在同一条金属条上。",
     "两个 LED 方向要一致：都是长脚朝 + 那一侧。",
@@ -42,12 +234,58 @@
   ],
   "solution": {
     "parts": [
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "b3", "2": "b6" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c6", "cathode": "c9" } },
-      { "type": "led", "ref": "LED2", "color": "green", "pins": { "anode": "d9", "cathode": "d12" } },
-      { "type": "wire", "pins": { "a": "a12", "b": "tn12" }, "color": "blue" }
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "220",
+        "pins": {
+          "1": "b3",
+          "2": "b6"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "c6",
+          "cathode": "c9"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED2",
+        "color": "green",
+        "pins": {
+          "anode": "d9",
+          "cathode": "d12"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a12",
+          "b": "tn12"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

@@ -7,12 +7,12 @@
   "level": 2,
   "tags": ["理想变压器", "阻抗变换 n²", "最大功率传输", "阻抗匹配"],
   "statement": [
-    "信号源 U̇_s = 20∠0° V（有效值），内阻 R_s = 400 Ω，负载为 R_L = 4 Ω 的扬声器。为了让扬声器得到最大功率，中间接一个 n = 10 的理想变压器（n:1）。",
-    "求从原边 a 端看进去的电阻 R_in（不含 U_s、R_s）、负载电压 U_2 和负载功率 P_L，并与直接连接比较。"
+    "信号源 V̇_s = 20∠0° V（有效值），内阻 R_s = 400 Ω，负载为 R_L = 4 Ω 的扬声器。为了让扬声器得到最大功率，中间接一个 n = 10 的理想变压器（n:1）。",
+    "求从原边 a 端看进去的电阻 R_in（不含 V_s、R_s）、负载电压 V_2 和负载功率 P_L，并与直接连接比较。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "20∠0° V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } }, "label": "20∠0° V" },
       { "ref": "Rs", "type": "R", "from": [2, 0], "to": [6, 0], "value": 400 },
       { "ref": "T1", "type": "XFMR", "at": [10, 2], "n": 10 },
       { "ref": "RL", "type": "R", "from": [16, 0], "to": [16, 4], "value": 4 }
@@ -26,7 +26,7 @@
     ],
     "labels": [{ "at": [8, 0], "name": "a" }],
     "grounds": [[0, 4], [16, 4]],
-    "marks": [{ "kind": "v", "el": "RL", "name": "U2" }]
+    "marks": [{ "kind": "v", "el": "RL", "name": "V2" }]
   },
   "analysis": { "type": "ac", "freq": 1000 },
   "questions": [
@@ -40,11 +40,11 @@
     },
     {
       "id": "u2",
-      "ask": "负载电压 U_2 = ?",
+      "ask": "负载电压 V_2 = ?",
       "find": { "kind": "v", "el": "RL" },
       "answer": 1,
       "unit": "V",
-      "explain": "原边：U_1 = 20 × 400 / (400 + 400) = 10 V；副边：U_2 = U_1 / n = 1 V。"
+      "explain": "原边：V_1 = 20 × 400 / (400 + 400) = 10 V；副边：V_2 = V_1 / n = 1 V。"
     },
     {
       "id": "pl",
@@ -52,24 +52,24 @@
       "find": { "kind": "p", "el": "RL" },
       "answer": 0.25,
       "unit": "W",
-      "explain": "P_L = U_2² / R_L = 1 / 4 = 0.25 W，等于最大功率 U_s² / (4R_s) = 400 / 1600 = 0.25 W。"
+      "explain": "P_L = V_2² / R_L = 1 / 4 = 0.25 W，等于最大功率 V_s² / (4R_s) = 400 / 1600 = 0.25 W。"
     },
     {
       "id": "direct",
       "ask": "如果不用变压器，把 R_L 直接接到信号源上，负载功率约为多少？",
-      "choices": ["0.25 W", "9.80 mW", "1 W"], "choiceExplain": ["0.25 W 是接变压器、R_in = R_s 匹配时的功率；直接连接时 4 Ω 远小于 400 Ω，不匹配，功率小得多。", "", "1 W = (20/400)² × 400 是用 R_s 而不是 R_L 算功率（即消耗在内阻上的功率，还忽略了 R_L 对电流的影响）；负载功率是 I²·R_L。"],
+      "choices": ["和接变压器时一样大", "9.80 mW", "1 W"], "choiceExplain": ["那是接变压器、R_in = R_s 匹配时的功率。直接连接时 4 Ω 远小于 400 Ω，不匹配，功率小得多。", "", "1 W = (20/400)² × 400 是用 R_s 而不是 R_L 算的功率，也就是内阻上的功率，还忽略了 R_L 对电流的影响。负载功率是 I²·R_L。"],
       "correct": 1,
       "explain": "I = 20 / (400 + 4) ≈ 0.0495 A，P = I²·4 ≈ 9.80 mW，只有匹配时的约 1/25。"
     }
   ],
   "hints": [
     "副边负载 R_L 折算到原边是 n²·R_L。",
-    "最大功率条件：折算后的电阻等于电源内阻，P_max = U_s² / (4R_s)。"
+    "最大功率条件：折算后的电阻等于电源内阻，P_max = V_s² / (4R_s)。"
   ],
   "solution": [
     "**1. 阻抗变换。** R_in = n²·R_L = 100 × 4 = **400 Ω** = R_s，满足最大功率传输条件。",
-    "**2. 原边电压。** 原边等效电路是 U_s、R_s 与 R_in 串联：I_1 = 20 / 800 = 0.025 A，U_1 = 0.025 × 400 = 10 V。",
-    "**3. 副边。** U_2 = U_1 / n = **1 V**，I_2 = n·I_1 = 0.25 A，P_L = U_2·I_2 = **0.25 W** = U_s²/(4R_s)。",
+    "**2. 原边电压。** 原边等效电路是 V_s、R_s 与 R_in 串联：I_1 = 20 / 800 = 0.025 A，V_1 = 0.025 × 400 = 10 V。",
+    "**3. 副边。** V_2 = V_1 / n = **1 V**，I_2 = n·I_1 = 0.25 A，P_L = V_2·I_2 = **0.25 W** = V_s²/(4R_s)。",
     "**4. 对比。** 直接连接时 P = (20/404)² × 4 ≈ **9.80 mW**。匹配所需的变比由 n²·R_L = R_s 得 n = √(400/4) = 10。"
   ],
   "i18n": {
@@ -77,27 +77,27 @@
       "title": "Impedance matching with an ideal transformer",
       "tags": ["ideal transformer", "impedance transformation n²", "maximum power transfer", "impedance matching"],
       "statement": [
-        "A signal source U̇_s = 20∠0° V (rms) with internal resistance R_s = 400 Ω drives a loudspeaker R_L = 4 Ω. To deliver maximum power to the speaker, an ideal transformer with n = 10 (n:1) is placed in between.",
-        "Find the resistance R_in seen at the primary terminal a (without U_s and R_s), the load voltage U_2 and the load power P_L, and compare with a direct connection."
+        "A signal source V̇_s = 20∠0° V (rms) with internal resistance R_s = 400 Ω drives a loudspeaker R_L = 4 Ω. To deliver maximum power to the speaker, an ideal transformer with n = 10 (n:1) is placed in between.",
+        "Find the resistance R_in seen at the primary terminal a (without V_s and R_s), the load voltage V_2 and the load power P_L, and compare with a direct connection."
       ],
       "questions": [
         { "ask": "Resistance seen at terminal a, R_in = ?", "explain": "R_in = n²·R_L = 10² × 4 = 400 Ω, exactly equal to R_s — that is matching." },
-        { "ask": "Load voltage U_2 = ?", "explain": "Primary: U_1 = 20 × 400 / (400 + 400) = 10 V; secondary: U_2 = U_1 / n = 1 V." },
-        { "ask": "Load power P_L = ?", "explain": "P_L = U_2² / R_L = 1 / 4 = 0.25 W, equal to the maximum available power U_s² / (4R_s) = 400 / 1600 = 0.25 W." },
+        { "ask": "Load voltage V_2 = ?", "explain": "Primary: V_1 = 20 × 400 / (400 + 400) = 10 V; secondary: V_2 = V_1 / n = 1 V." },
+        { "ask": "Load power P_L = ?", "explain": "P_L = V_2² / R_L = 1 / 4 = 0.25 W, equal to the maximum available power V_s² / (4R_s) = 400 / 1600 = 0.25 W." },
         {
           "ask": "Without the transformer, with R_L connected directly to the source, the load power is about…",
-          "choices": ["0.25 W", "9.80 mW", "1 W"], "choiceExplain": ["0.25 W is the matched power with the transformer (R_in = R_s); connected directly, 4 Ω is far from 400 Ω and the power is much smaller.", "", "1 W = (20/400)² × 400 uses R_s instead of R_L (the power lost in the source resistance, also ignoring R_L's effect on the current); the load power is I²·R_L."],
+          "choices": ["the same as with the transformer", "9.80 mW", "1 W"], "choiceExplain": ["That is the matched power with the transformer (R_in = R_s). Connected directly, 4 Ω is far from 400 Ω and the power is much smaller.", "", "1 W = (20/400)² × 400 uses R_s instead of R_L: it is the power lost in the source resistance, and it also ignores R_L's effect on the current. The load power is I²·R_L."],
           "explain": "I = 20 / (400 + 4) ≈ 0.0495 A, P = I²·4 ≈ 9.80 mW — only about 1/25 of the matched value."
         }
       ],
       "hints": [
         "A secondary load R_L appears on the primary side as n²·R_L.",
-        "Maximum power condition: the reflected resistance equals the source resistance, P_max = U_s² / (4R_s)."
+        "Maximum power condition: the reflected resistance equals the source resistance, P_max = V_s² / (4R_s)."
       ],
       "solution": [
         "**1. Impedance transformation.** R_in = n²·R_L = 100 × 4 = **400 Ω** = R_s, so the maximum power transfer condition holds.",
-        "**2. Primary voltage.** The primary equivalent circuit is U_s, R_s and R_in in series: I_1 = 20 / 800 = 0.025 A, U_1 = 0.025 × 400 = 10 V.",
-        "**3. Secondary.** U_2 = U_1 / n = **1 V**, I_2 = n·I_1 = 0.25 A, P_L = U_2·I_2 = **0.25 W** = U_s²/(4R_s).",
+        "**2. Primary voltage.** The primary equivalent circuit is V_s, R_s and R_in in series: I_1 = 20 / 800 = 0.025 A, V_1 = 0.025 × 400 = 10 V.",
+        "**3. Secondary.** V_2 = V_1 / n = **1 V**, I_2 = n·I_1 = 0.25 A, P_L = V_2·I_2 = **0.25 W** = V_s²/(4R_s).",
         "**4. Comparison.** Connected directly, P = (20/404)² × 4 ≈ **9.80 mW**. The turns ratio needed for matching follows from n²·R_L = R_s: n = √(400/4) = 10."
       ]
     }

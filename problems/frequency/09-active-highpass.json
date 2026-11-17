@@ -7,12 +7,12 @@
   "level": 4,
   "tags": ["有源滤波器", "一阶高通", "理想运放", "输入阻抗"],
   "statement": [
-    "反相放大器的输入支路由 C₁ 与 R₁ 串联组成：C₁ = 1 µF，R₁ = 1 kΩ，R_f = 10 kΩ，运放为理想运放。网络函数 H(jω) = U̇_o/U̇_s，电源角频率 ω = 1000 rad/s。",
-    "求此时的 |H(jω)|、H(jω) 的相位、从 a 端看进去的输入阻抗模 |Z_in|，并说明电路的高频增益与截止频率。"
+    "反相放大器的输入支路由 C₁ 与 R₁ 串联组成。C₁ = 1 µF，R₁ = 1 kΩ，R_f = 10 kΩ，运放是理想运放。网络函数 H(jω) = V̇_o/V̇_s，电源角频率 ω = 1000 rad/s。",
+    "求此时的 |H(jω)|、H(jω) 的相位，以及从 a 端看进去的输入阻抗模 |Z_in|。再求电路的高频增益和截止频率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "U_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 3], "to": [0, 7], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "V_s" },
       { "ref": "C1", "type": "C", "from": [2, 3], "to": [5, 3], "value": "1u" },
       { "ref": "R1", "type": "R", "from": [7, 3], "to": [10, 3], "value": "1k" },
       { "ref": "Rf", "type": "R", "from": [12, 0], "to": [16, 0], "value": "10k" },
@@ -34,24 +34,24 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "mag", "ask": "|H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "mag" }, "answer": 7.071068, "unit": "", "explain": "H = −R_f/Z₁，Z₁ = R₁ + 1/(jωC₁) = 1000 − j1000 Ω，|Z₁| = 1414.2 Ω，|H| = 10000/1414.2 ≈ 7.071。" },
-    { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us", "part": "phase" }, "answer": -135, "unit": "°", "explain": "H = −10/(1 − j) = −5 − j5：反相 180° 加上 RC 高通的 +45°，即 225°，等价于 −135°。" },
-    { "id": "zin", "ask": "从 a 端（对地）看进去的输入阻抗模 |Z_in| = ?", "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us"] }, "answer": 1414.214, "unit": "Ω", "explain": "反相端虚地，从 a 看进去就是 C₁ 与 R₁ 串联到“地”：Z_in = 1000 − j1000 Ω，|Z_in| = 1000√2 ≈ 1414 Ω。它随频率变化，低频时很大。" },
+    { "id": "mag", "ask": "|H(jω)| = ?", "find": { "kind": "gain", "out": ["o"], "input": "Vs", "part": "mag" }, "answer": 7.071068, "unit": "", "explain": "H = −R_f/Z₁，Z₁ = R₁ + 1/(jωC₁) = 1000 − j1000 Ω，|Z₁| = 1414.2 Ω，|H| = 10000/1414.2 ≈ 7.071。" },
+    { "id": "ph", "ask": "H(jω) 的相位 = ?", "find": { "kind": "gain", "out": ["o"], "input": "Vs", "part": "phase" }, "answer": -135, "unit": "°", "explain": "H = −10/(1 − j) = −5 − j5：反相 180° 加上 RC 高通的 +45°，即 225°，等价于 −135°。" },
+    { "id": "zin", "ask": "从 a 端（对地）看进去的输入阻抗模 |Z_in| = ?", "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Vs"] }, "answer": 1414.214, "unit": "Ω", "explain": "反相端虚地，从 a 看进去就是 C₁ 与 R₁ 串联到“地”：Z_in = 1000 − j1000 Ω，|Z_in| = 1000√2 ≈ 1414 Ω。它随频率变化，低频时很大。" },
     {
       "id": "gain",
       "ask": "高频增益（ω = 10⁷ rad/s 时的 H，取实部）= ?",
-      "find": { "kind": "gain", "out": ["o"], "input": "Us", "omega": 10000000.0, "part": "re" },
+      "find": { "kind": "gain", "out": ["o"], "input": "Vs", "omega": 10000000.0, "part": "re" },
       "answer": -10,
       "unit": "",
-      "explain": "高频增益：在很高的频率 ω = 10⁷ rad/s 下 C₁ 相当于短路，H ≈ −R_f/R₁ = −10（20 dB）；ω → 0 时 C₁ 开路，H → 0，所以是高通。"
+      "explain": "高频增益：在很高的频率 ω = 10⁷ rad/s 下，C₁ 相当于短路，H ≈ −R_f/R₁ = −10（20 dB）。ω → 0 时 C₁ 开路，H → 0，所以是高通。"
     },
     {
       "id": "fc",
       "ask": "截止频率 f_c = ?",
-      "find": { "kind": "fc", "out": ["o"], "input": "Us" },
+      "find": { "kind": "fc", "out": ["o"], "input": "Vs" },
       "answer": 159.1549,
       "unit": "Hz",
-      "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁)，截止频率 ω_c = 1/(R₁C₁) = 1000 rad/s，f_c ≈ 159.2 Hz；本题 |H| = 10/√2 正是比 20 dB 低 3 dB 的 16.99 dB。"
+      "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁)，截止频率 ω_c = 1/(R₁C₁) = 1000 rad/s，f_c ≈ 159.2 Hz。本题的 |H| = 10/√2，即 16.99 dB，正好比 20 dB 低 3 dB。"
     }
   ],
   "hints": [
@@ -59,9 +59,9 @@
     "把 H 整理成 −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁)，看 ω → 0、ω → ∞ 的极限。"
   ],
   "solution": [
-    "**1. 网络函数。** 虚地、虚断：İ₁ = U̇_s/Z₁ 全部流过 R_f，U̇_o = −R_f·İ₁，所以 H(jω) = −R_f/Z₁ = −(R_f/R₁)·(jω/ω_c)/(1 + jω/ω_c)，ω_c = 1/(R₁C₁) = 1000 rad/s。",
+    "**1. 网络函数。** 虚地、虚断：İ₁ = V̇_s/Z₁ 全部流过 R_f，V̇_o = −R_f·İ₁，所以 H(jω) = −R_f/Z₁ = −(R_f/R₁)·(jω/ω_c)/(1 + jω/ω_c)，ω_c = 1/(R₁C₁) = 1000 rad/s。",
     "**2. ω = 1000 rad/s。** Z₁ = 1000 − j1000 Ω，H = −10000/(1000 − j1000) = −10/(1 − j) = −5 − j5 = 7.071∠−135°：|H| ≈ **7.071**（16.99 dB），相位 **−135°**。",
-    "**3. 输入阻抗。** Z_in = U̇_s/İ₁ = Z₁ = 1000 − j1000 Ω，|Z_in| ≈ **1414 Ω**。",
+    "**3. 输入阻抗。** Z_in = V̇_s/İ₁ = Z₁ = 1000 − j1000 Ω，|Z_in| ≈ **1414 Ω**。",
     "**4. 类型。** 高频增益 −10（20 dB），低频 → 0：一阶**有源高通**，ω_c = 1/(R₁C₁) = 1000 rad/s。注意截止频率由 R₁C₁ 决定，R_f 只决定增益。"
   ],
   "i18n": {
@@ -69,8 +69,8 @@
       "title": "First-order active high-pass filter",
       "tags": ["active filter", "first-order high-pass", "ideal op-amp", "input impedance"],
       "statement": [
-        "The input branch of an inverting amplifier is C₁ in series with R₁: C₁ = 1 µF, R₁ = 1 kΩ, R_f = 10 kΩ, and the op-amp is ideal. The network function is H(jω) = U̇_o/U̇_s and the source angular frequency is ω = 1000 rad/s.",
-        "Find |H(jω)|, the phase of H(jω), the magnitude of the input impedance |Z_in| seen at terminal a, and state the high-frequency gain and the cut-off frequency of the circuit."
+        "The input branch of an inverting amplifier is C₁ in series with R₁. C₁ = 1 µF, R₁ = 1 kΩ, R_f = 10 kΩ, and the op-amp is ideal. The network function is H(jω) = V̇_o/V̇_s and the source angular frequency is ω = 1000 rad/s.",
+        "Find |H(jω)|, the phase of H(jω), and the magnitude of the input impedance |Z_in| seen at terminal a. Then find the high-frequency gain and the cut-off frequency of the circuit."
       ],
       "questions": [
         { "ask": "|H(jω)| = ?", "explain": "H = −R_f/Z₁ with Z₁ = R₁ + 1/(jωC₁) = 1000 − j1000 Ω, |Z₁| = 1414.2 Ω, so |H| = 10000/1414.2 ≈ 7.071." },
@@ -78,11 +78,11 @@
         { "ask": "Magnitude of the input impedance seen at a (to ground), |Z_in| = ?", "explain": "The inverting input is a virtual ground, so from a you see C₁ in series with R₁ to 'ground': Z_in = 1000 − j1000 Ω, |Z_in| = 1000√2 ≈ 1414 Ω. It depends on frequency and is large at low frequencies." },
         {
           "ask": "High-frequency gain (H at ω = 10⁷ rad/s, real part) = ?",
-          "explain": "High-frequency gain: at a very high frequency, ω = 10⁷ rad/s, C₁ is practically a short and H ≈ −R_f/R₁ = −10 (20 dB); as ω → 0 C₁ is open and H → 0, so this is a high-pass filter."
+          "explain": "High-frequency gain: at a very high frequency, ω = 10⁷ rad/s, C₁ is practically a short and H ≈ −R_f/R₁ = −10 (20 dB). As ω → 0, C₁ is open and H → 0, so this is a high-pass filter."
         },
         {
           "ask": "Cut-off frequency f_c = ?",
-          "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁), cut-off ω_c = 1/(R₁C₁) = 1000 rad/s, f_c ≈ 159.2 Hz; here |H| = 10/√2 is exactly 3 dB below 20 dB (16.99 dB)."
+          "explain": "H = −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁), cut-off ω_c = 1/(R₁C₁) = 1000 rad/s, f_c ≈ 159.2 Hz. Here |H| = 10/√2, i.e. 16.99 dB, exactly 3 dB below 20 dB."
         }
       ],
       "hints": [
@@ -90,9 +90,9 @@
         "Rewrite H as −(R_f/R₁)·jωR₁C₁/(1 + jωR₁C₁) and look at the limits ω → 0 and ω → ∞."
       ],
       "solution": [
-        "**1. Network function.** Virtual ground and no input current: İ₁ = U̇_s/Z₁ flows on through R_f and U̇_o = −R_f·İ₁, so H(jω) = −R_f/Z₁ = −(R_f/R₁)·(jω/ω_c)/(1 + jω/ω_c), with ω_c = 1/(R₁C₁) = 1000 rad/s.",
+        "**1. Network function.** Virtual ground and no input current: İ₁ = V̇_s/Z₁ flows on through R_f and V̇_o = −R_f·İ₁, so H(jω) = −R_f/Z₁ = −(R_f/R₁)·(jω/ω_c)/(1 + jω/ω_c), with ω_c = 1/(R₁C₁) = 1000 rad/s.",
         "**2. At ω = 1000 rad/s.** Z₁ = 1000 − j1000 Ω, H = −10000/(1000 − j1000) = −10/(1 − j) = −5 − j5 = 7.071∠−135°: |H| ≈ **7.071** (16.99 dB), phase **−135°**.",
-        "**3. Input impedance.** Z_in = U̇_s/İ₁ = Z₁ = 1000 − j1000 Ω, |Z_in| ≈ **1414 Ω**.",
+        "**3. Input impedance.** Z_in = V̇_s/İ₁ = Z₁ = 1000 − j1000 Ω, |Z_in| ≈ **1414 Ω**.",
         "**4. Type.** High-frequency gain −10 (20 dB), low-frequency gain → 0: a first-order **active high-pass** with ω_c = 1/(R₁C₁) = 1000 rad/s. Note that R₁C₁ sets the cut-off and R_f only sets the gain."
       ]
     }

@@ -7,12 +7,12 @@
   "level": 4,
   "tags": ["并联谐振", "带通滤波", "通频带", "有载品质因数"],
   "statement": [
-    "信号源 U̇_s = 10∠0° V（有效值）、内阻 R_s = 2 kΩ，接到 R = 2 kΩ、L = 1 mH、C = 0.1 µF 的并联谐振回路上，输出取回路两端电压 U_o。电源角频率等于谐振角频率 ω₀。",
-    "求谐振频率 f₀、谐振时的输出电压 U_o 和电容电流 I_C，并求电路的通频带。"
+    "信号源 V̇_s = 10∠0° V（有效值），内阻 R_s = 2 kΩ。它接到 R = 2 kΩ、L = 1 mH、C = 0.1 µF 的并联谐振回路上，输出取回路两端的电压 V_o。电源角频率等于谐振角频率 ω₀。",
+    "求谐振频率 f₀，以及谐振时的输出电压 V_o 和电容电流 I_C。再求计入内阻后的品质因数 Q 和电路的通频带。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } }, "label": "10∠0° V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } }, "label": "10∠0° V" },
       { "ref": "Rs", "type": "R", "from": [2, 0], "to": [6, 0], "value": "2k" },
       { "ref": "R", "type": "R", "from": [8, 0], "to": [8, 4], "value": "2k" },
       { "ref": "L", "type": "L", "from": [11, 0], "to": [11, 4], "value": "1m" },
@@ -25,25 +25,25 @@
     ],
     "terminals": [{ "at": [17, 0], "name": "o" }, { "at": [17, 4], "name": "o'" }],
     "grounds": [[0, 4]],
-    "marks": [{ "kind": "v", "el": "R", "name": "U_o" }, { "kind": "i", "el": "C", "name": "I_C" }]
+    "marks": [{ "kind": "v", "el": "R", "name": "V_o" }, { "kind": "i", "el": "C", "name": "I_C" }]
   },
   "analysis": { "type": "ac", "omega": 100000 },
   "questions": [
     { "id": "f0", "ask": "谐振频率 f₀ = ?", "find": { "kind": "f0" }, "answer": 15915.49, "unit": "kHz", "explain": "ω₀ = 1/√(LC) = 1/√(10⁻³ × 10⁻⁷) = 10⁵ rad/s，f₀ ≈ 15.92 kHz。" },
-    { "id": "Uo", "ask": "谐振时输出电压有效值 U_o = ?", "find": { "kind": "v", "nodes": ["o"], "part": "mag" }, "answer": 5, "unit": "V", "explain": "谐振时 L、C 并联部分相当于开路，回路阻抗为 R = 2 kΩ：U_o = 10 × 2/(2 + 2) = 5 V，与 U_s 同相。" },
-    { "id": "IC", "ask": "谐振时电容电流有效值 I_C = ?", "find": { "kind": "i", "el": "C", "part": "mag" }, "answer": 0.05, "unit": "mA", "explain": "I_C = ω₀C·U_o = 10⁵ × 10⁻⁷ × 5 = 0.05 A = 50 mA，而信号源只提供 (10 − 5)/2k = 2.5 mA。" },
+    { "id": "Uo", "ask": "谐振时输出电压有效值 V_o = ?", "find": { "kind": "v", "nodes": ["o"], "part": "mag" }, "answer": 5, "unit": "V", "explain": "谐振时 L、C 并联部分相当于开路，回路阻抗为 R = 2 kΩ：V_o = 10 × 2/(2 + 2) = 5 V，与 V_s 同相。" },
+    { "id": "IC", "ask": "谐振时电容电流有效值 I_C = ?", "find": { "kind": "i", "el": "C", "part": "mag" }, "answer": 0.05, "unit": "mA", "explain": "I_C = ω₀C·V_o = 10⁵ × 10⁻⁷ × 5 = 0.05 A = 50 mA，而信号源只提供 (10 − 5)/2k = 2.5 mA。" },
     {
       "id": "Q",
       "ask": "考虑信号源内阻后，回路的品质因数 Q = ?（从 o、o′ 看进去）",
       "find": { "kind": "Q", "port": ["o", "o'"] },
       "answer": 10,
       "unit": "",
-      "explain": "把 U_s、R_s 化成诺顿等效，回路两端的总电导是 1/R_s + 1/R，即等效电阻 R_s∥R = 1 kΩ。有载 Q = (R_s∥R)/(ω₀L) = 1000/100 = 10。只看回路本身（R = 2 kΩ）会得到 Q = 20——信号源内阻使 Q 下降。"
+      "explain": "把 V_s、R_s 化成诺顿等效后，回路两端的总电导是 1/R_s + 1/R，即等效电阻 R_s∥R = 1 kΩ。有载 Q = (R_s∥R)/(ω₀L) = 1000/100 = 10。只看回路本身（R = 2 kΩ）会得到 Q = 20：信号源内阻使 Q 下降。"
     },
     {
       "id": "bw",
       "ask": "电路的通频带 BW = ?（用 Hz 表示）",
-      "find": { "kind": "bw", "out": ["o"], "input": "Us" },
+      "find": { "kind": "bw", "out": ["o"], "input": "Vs" },
       "answer": 1591.549,
       "unit": "Hz",
       "explain": "BW = ω₀/Q = 1/((R_s∥R)C) = 10⁴ rad/s，即 10⁴/(2π) ≈ 1592 Hz。不计 R_s 时 BW 只有 5000 rad/s——内阻使通带变宽。"
@@ -51,13 +51,13 @@
   ],
   "hints": [
     "谐振时 L 与 C 并联部分的导纳为零，相当于开路。",
-    "求带宽时把 U_s、R_s 变成诺顿等效电流源与 R_s 并联：回路的 G = 1/R_s + 1/R，BW = G/C。"
+    "求带宽时把 V_s、R_s 变成诺顿等效电流源与 R_s 并联：回路的 G = 1/R_s + 1/R，BW = G/C。"
   ],
   "solution": [
     "**1. 谐振频率。** ω₀ = 1/√(LC) = **10⁵ rad/s**，f₀ = 10⁵/(2π) ≈ **15.92 kHz**。",
-    "**2. 输出电压。** 谐振时 Y_LC = jω₀C + 1/(jω₀L) = 0，只剩 R：U_o = U_s·R/(R_s + R) = **5 V**。",
-    "**3. 电容电流。** I_C = ω₀C·U_o = 0.01 × 5 = **50 mA**；I_L 同样 50 mA，相位相反。",
-    "**4. 通频带。** 诺顿等效：I_N = U_s/R_s = 5 mA，并联电导 G = 1/2k + 1/2k = 1 mS（即 1 kΩ）。并联 RLC 的 BW = G/C = 10⁻³/10⁻⁷ = **10⁴ rad/s** ≈ 1.59 kHz；Q = ω₀/BW = **10** = I_C/I_N。",
+    "**2. 输出电压。** 谐振时 Y_LC = jω₀C + 1/(jω₀L) = 0，只剩 R：V_o = V_s·R/(R_s + R) = **5 V**。",
+    "**3. 电容电流。** I_C = ω₀C·V_o = 0.01 × 5 = **50 mA**；I_L 同样 50 mA，相位相反。",
+    "**4. 通频带。** 诺顿等效：I_N = V_s/R_s = 5 mA，并联总电导 G = 1/2k + 1/2k = 1 mS（即 1 kΩ）。并联 RLC 的 BW = G/C = 10⁻³/10⁻⁷ = **10⁴ rad/s** ≈ 1.59 kHz。Q = ω₀/BW = **10** = I_C/I_N。",
     "通带内（约 15.1 ~ 16.7 kHz）的信号能通过，远离 f₀ 的信号被 L 或 C 短路掉：这就是 LC 并联回路构成的带通滤波器。"
   ],
   "i18n": {
@@ -65,16 +65,16 @@
       "title": "Parallel resonant band-pass circuit and loaded Q",
       "tags": ["parallel resonance", "band-pass filter", "bandwidth", "loaded quality factor"],
       "statement": [
-        "A signal source U̇_s = 10∠0° V (rms) with internal resistance R_s = 2 kΩ drives a parallel resonant circuit R = 2 kΩ, L = 1 mH, C = 0.1 µF; the output U_o is the voltage across the tank. The source runs at the resonant angular frequency ω₀.",
-        "Find the resonant frequency f₀, the output voltage U_o and the capacitor current I_C at resonance, and the bandwidth of the circuit."
+        "A signal source V̇_s = 10∠0° V (rms) has internal resistance R_s = 2 kΩ. It drives a parallel resonant circuit R = 2 kΩ, L = 1 mH, C = 0.1 µF, and the output V_o is the voltage across the tank. The source runs at the resonant angular frequency ω₀.",
+        "Find the resonant frequency f₀, and the output voltage V_o and capacitor current I_C at resonance. Then find the quality factor Q with the source resistance included, and the bandwidth of the circuit."
       ],
       "questions": [
         { "ask": "Resonant frequency f₀ = ?", "explain": "ω₀ = 1/√(LC) = 1/√(10⁻³ × 10⁻⁷) = 10⁵ rad/s, f₀ ≈ 15.92 kHz." },
-        { "ask": "rms output voltage at resonance U_o = ?", "explain": "At resonance the parallel L–C pair acts as an open circuit and the tank is just R = 2 kΩ: U_o = 10 × 2/(2 + 2) = 5 V, in phase with U_s." },
-        { "ask": "rms capacitor current at resonance I_C = ?", "explain": "I_C = ω₀C·U_o = 10⁵ × 10⁻⁷ × 5 = 0.05 A = 50 mA, while the source only supplies (10 − 5)/2k = 2.5 mA." },
+        { "ask": "rms output voltage at resonance V_o = ?", "explain": "At resonance the parallel L–C pair acts as an open circuit and the tank is just R = 2 kΩ: V_o = 10 × 2/(2 + 2) = 5 V, in phase with V_s." },
+        { "ask": "rms capacitor current at resonance I_C = ?", "explain": "I_C = ω₀C·V_o = 10⁵ × 10⁻⁷ × 5 = 0.05 A = 50 mA, while the source only supplies (10 − 5)/2k = 2.5 mA." },
         {
           "ask": "Taking the source resistance into account, the quality factor seen from o, o′ is Q = ?",
-          "explain": "Turning U_s, R_s into a Norton equivalent, the total conductance across the tank is 1/R_s + 1/R, i.e. R_s∥R = 1 kΩ. Loaded Q = (R_s∥R)/(ω₀L) = 1000/100 = 10. The tank alone (R = 2 kΩ) would give Q = 20 — the source resistance lowers Q."
+          "explain": "Once V_s, R_s are turned into a Norton equivalent, the total conductance across the tank is 1/R_s + 1/R, i.e. R_s∥R = 1 kΩ. Loaded Q = (R_s∥R)/(ω₀L) = 1000/100 = 10. The tank alone (R = 2 kΩ) would give Q = 20: the source resistance lowers Q."
         },
         {
           "ask": "Bandwidth BW = ? (in Hz)",
@@ -83,13 +83,13 @@
       ],
       "hints": [
         "At resonance the admittance of the parallel L–C pair is zero: it acts as an open circuit.",
-        "For the bandwidth, convert U_s, R_s into a Norton current source with R_s in parallel: the tank's G = 1/R_s + 1/R and BW = G/C."
+        "For the bandwidth, convert V_s, R_s into a Norton current source with R_s in parallel: the tank's G = 1/R_s + 1/R and BW = G/C."
       ],
       "solution": [
         "**1. Resonant frequency.** ω₀ = 1/√(LC) = **10⁵ rad/s**, f₀ = 10⁵/(2π) ≈ **15.92 kHz**.",
-        "**2. Output voltage.** At resonance Y_LC = jω₀C + 1/(jω₀L) = 0, leaving only R: U_o = U_s·R/(R_s + R) = **5 V**.",
-        "**3. Capacitor current.** I_C = ω₀C·U_o = 0.01 × 5 = **50 mA**; I_L is also 50 mA, in opposite phase.",
-        "**4. Bandwidth.** Norton equivalent: I_N = U_s/R_s = 5 mA with total conductance G = 1/2k + 1/2k = 1 mS (1 kΩ). For a parallel RLC, BW = G/C = 10⁻³/10⁻⁷ = **10⁴ rad/s** ≈ 1.59 kHz; Q = ω₀/BW = **10** = I_C/I_N.",
+        "**2. Output voltage.** At resonance Y_LC = jω₀C + 1/(jω₀L) = 0, leaving only R: V_o = V_s·R/(R_s + R) = **5 V**.",
+        "**3. Capacitor current.** I_C = ω₀C·V_o = 0.01 × 5 = **50 mA**; I_L is also 50 mA, in opposite phase.",
+        "**4. Bandwidth.** Norton equivalent: I_N = V_s/R_s = 5 mA with total conductance G = 1/2k + 1/2k = 1 mS (1 kΩ). For a parallel RLC, BW = G/C = 10⁻³/10⁻⁷ = **10⁴ rad/s** ≈ 1.59 kHz. Q = ω₀/BW = **10** = I_C/I_N.",
         "Signals inside the pass band (about 15.1 to 16.7 kHz) get through, while those far from f₀ are shorted by L or C: an LC parallel tank used as a band-pass filter."
       ]
     }

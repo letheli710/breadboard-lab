@@ -2,143 +2,559 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp3-rlc-ringing",
-  "title": "实验 3-4 · RLC 串联电路的振铃：欠阻尼、临界阻尼、过阻尼",
   "kind": "challenge",
   "level": 4,
   "phase": 3,
-  "summary": "方波给 RLC 串联电路一个又一个阶跃；转动电位器改变电阻，看电容电压从“叮——”地振荡到平稳上升。",
-  "concepts": ["二阶电路 second-order circuit", "阻尼比 ζ = (R/2)·√(C/L)", "临界电阻 R = 2√(L/C)", "欠阻尼 / 临界阻尼 / 过阻尼", "超调量 overshoot"],
-  "prereq": ["lesson-generator-scope"],
-  "description": [
-    "**目标**：用方波给 RLC 串联电路加阶跃，转动电位器改变电阻，看欠阻尼、临界阻尼、过阻尼三种二阶响应。",
-    "",
-    "**电路**：信号发生器红夹子 → 电位器 RV1（1 kΩ，当可变电阻用：1 脚接信号，2 脚和 3 脚连在一起）→ L1（10 mH）→ 结点 VC → C1（100 nF）→ GND，黑夹子接 GND。",
-    "",
-    "**信号发生器**：方波，幅度 1 V、偏置 1 V（0 ↔ 2 V），频率 200 Hz。每个上升沿都是一次 0 → 2 V 的阶跃，半周期 2.5 ms 足够让振荡衰减完，所以示波器上每个边沿都是一次完整的阶跃响应。",
-    "",
-    "**示波器**：CH1 接 VIN，CH2 接 VC（电容上端）。",
-    "",
-    "**先预测**：KVL 得 LC·u_C'' + RC·u_C' + u_C = u_s，特征根 s = −α ± √(α² − ω0²)，α = R/(2L)，ω0 = 1/√(LC)。算出振荡频率 f0、临界电阻 R = 2√(L/C) 和阻尼比 ζ = α/ω0 = (R/2)·√(C/L)。注意 R 是**回路总电阻**：电位器 + 信号发生器 50 Ω + 电感线圈 1 Ω。再预测电位器在 5%、30%、60%、100% 时属于哪种阻尼、超调大约多少（wiper = 电位器 1–2 之间的电阻占 1 kΩ 的比例）。",
-    "",
-    "**测量**：依次把电位器转到 5%、30%、60%、100%，读 VC 的峰值、最低值，看有没有振荡、振荡频率是多少。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**想一想**：为什么这里不能把信号发生器的 50 Ω 忽略？（提示：和临界电阻 632 Ω 比，50 Ω 并不算小；把电位器拧到 0，ζ 也只能降到约 0.08。）",
-    "",
-    "**真实电路里**：仿真里电感的线圈电阻只有 1 Ω。真实的 10 mH 小电感线圈电阻常在 10 ~ 30 Ω（见实验 4-5），它和电位器、信号发生器内阻一样串在回路里，使 R总 更大、振荡衰减得更快：5% 时的超调会明显小于 60%，电位器拧到 0 也达不到 ζ ≈ 0.08。"
+  "title": "RLC 振铃：欠阻尼、临界阻尼、过阻尼",
+  "summary": "方波给 RLC 串联电路一次次加阶跃；转动电位器改变电阻，看电容电压从“叮——”地振荡到平稳上升。",
+  "prereq": ["lesson-scope-two-channels"],
+  "concepts": [
+    "second-order circuit 二阶电路",
+    "f0 = 1/(2π√(LC)) 固有频率",
+    "damping 阻尼",
+    "critical resistance 2√(L/C) 临界电阻",
+    "overshoot 超调"
   ],
+  "description": "信号发生器（方波 0 ↔ 2 V、200 Hz）→ 电位器 RV1（1 kΩ，当可变电阻用）→ L1（10 mH）→ 结点 VC → C1（100 nF）→ GND。CH1 看输入，CH2 看 VC。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "一个阶跃，叮——",
+      "text": [
+        "- 照目标电路搭：信号发生器 → 电位器 **RV1 `1 kΩ`**（当可变电阻用：1 脚接信号，2 脚和 3 脚连在一起）→ **L1 `10 mH`** → 结点 **VC** → **C1 `100 nF`** → GND。",
+        "- 信号发生器：方波、**`200 Hz`**、幅度 **`1 V`**、偏置 **`1 V`**（0 ↔ 2 V）。CH2 看 VC。",
+        "- 把电位器转到 **`5%`**。",
+        "每个边沿之后，VC 在干什么？再慢慢往大转，它怎么变？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "能量在电容和电感之间来回",
+      "text": [
+        "- 电容把能量存成电压，电感把能量存成电流。电容放电，电流流进电感；电感不肯让电流停，又把电容充成反方向……能量就在两者之间来回，像弹簧上挂的重物。",
+        "- 来回一次的快慢只由 L 和 C 决定：",
+        "$$f_0 = \\frac{1}{2π\\sqrt{LC}} = \\frac{1}{2π\\sqrt{10 mH × 100 nF}}$$",
+        "- 电阻像空气阻力，每来回一次都吃掉一点能量。电阻小，振好多下才停（**欠阻尼**）；大到正好，一下也不振，最快地停在终点（**临界阻尼**）；再大，就慢吞吞地爬过去（**过阻尼**）。",
+        "![](fig:three)",
+        "![](fig:rlc)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "读振荡，找临界点",
+      "text": [
+        "- 电位器 **`5%`**：读 VC 振荡的频率（量相邻两个波峰的间隔 T_d，f = 1 / T_d）和第一个峰的最高电压。",
+        "- 转到 **`30%`** 再读一次最高电压：超调变小了多少？",
+        "- 慢慢往大转，找超调刚好消失的位置。那时回路电阻 ≈ 2√(L/C)，叫**临界电阻**；回路电阻 = 电位器 + 信号发生器 50 Ω + 线圈 1 Ω。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **二阶电路**有两个储能元件，能量来回交换，所以会振荡。",
+        "- **f0 = 1 / (2π√(LC))** 定快慢；电阻定振几下才停。",
+        "- **三种样子**：欠阻尼（振铃、超调）、临界阻尼（最快、不超调）、过阻尼（慢慢爬）。",
+        "- **真实电路里**：电容电压可以冲得比电源还高，电源滤波里要当心这种振铃。真实小电感的线圈电阻有 10–30 Ω，振铃会衰减得更快。"
+      ],
+      "practice": ["second-order"]
+    }
+  ],
+  "figures": {
+    "three": {
+      "kind": "plot",
+      "caption": {
+        "text": "同一个 0 → 2 V 阶跃，三种回路电阻：小电阻振铃、冲过 2 V；临界电阻最快到达且不超调；大电阻慢慢爬上去。",
+        "i18n": {
+          "en": "The same 0 → 2 V step with three loop resistances: a small one rings and overshoots 2 V; the critical one arrives fastest without overshoot; a large one crawls up."
+        }
+      },
+      "x": {
+        "label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}},
+        "min": 0,
+        "max": 1,
+        "ticks": [0, 0.25, 0.5, 0.75, 1]
+      },
+      "y": {"label": {"text": "VC (V)", "i18n": {"en": "VC (V)"}}, "min": 0, "max": 3.5, "ticks": [0, 1, 2, 3]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.0125, 0.147],
+            [0.025, 0.546],
+            [0.0375, 1.11],
+            [0.05, 1.73],
+            [0.0625, 2.32],
+            [0.075, 2.8],
+            [0.0875, 3.1],
+            [0.1, 3.21],
+            [0.113, 3.13],
+            [0.125, 2.89],
+            [0.137, 2.56],
+            [0.15, 2.18],
+            [0.163, 1.82],
+            [0.175, 1.53],
+            [0.188, 1.34],
+            [0.2, 1.27],
+            [0.212, 1.32],
+            [0.225, 1.45],
+            [0.237, 1.65],
+            [0.25, 1.88],
+            [0.263, 2.1],
+            [0.275, 2.28],
+            [0.287, 2.39],
+            [0.3, 2.44],
+            [0.312, 2.41],
+            [0.325, 2.33],
+            [0.337, 2.22],
+            [0.35, 2.08],
+            [0.362, 1.95],
+            [0.375, 1.84],
+            [0.388, 1.77],
+            [0.4, 1.74],
+            [0.412, 1.75],
+            [0.425, 1.8],
+            [0.437, 1.87],
+            [0.45, 1.95],
+            [0.462, 2.03],
+            [0.475, 2.09],
+            [0.487, 2.14],
+            [0.5, 2.16],
+            [0.512, 2.15],
+            [0.525, 2.13],
+            [0.537, 2.08],
+            [0.55, 2.03],
+            [0.562, 1.99],
+            [0.575, 1.94],
+            [0.588, 1.92],
+            [0.6, 1.9],
+            [0.612, 1.91],
+            [0.625, 1.92],
+            [0.637, 1.95],
+            [0.65, 1.98],
+            [0.662, 2.01],
+            [0.675, 2.03],
+            [0.688, 2.05],
+            [0.7, 2.06],
+            [0.712, 2.06],
+            [0.725, 2.05],
+            [0.737, 2.03],
+            [0.75, 2.01],
+            [0.762, 2.0],
+            [0.775, 1.98],
+            [0.787, 1.97],
+            [0.8, 1.97],
+            [0.812, 1.97],
+            [0.825, 1.97],
+            [0.837, 1.98],
+            [0.85, 1.99],
+            [0.862, 2.0],
+            [0.875, 2.01],
+            [0.887, 2.02],
+            [0.9, 2.02],
+            [0.912, 2.02],
+            [0.925, 2.02],
+            [0.938, 2.01],
+            [0.95, 2.01],
+            [0.962, 2.0],
+            [0.975, 1.99],
+            [0.987, 1.99],
+            [1.0, 1.99]
+          ],
+          "tone": 1,
+          "label": {"text": "欠阻尼", "i18n": {"en": "under"}},
+          "labelAt": [0.19, 3.3]
+        },
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.0125, 0.12],
+            [0.025, 0.371],
+            [0.0375, 0.655],
+            [0.05, 0.923],
+            [0.0625, 1.16],
+            [0.075, 1.35],
+            [0.0875, 1.5],
+            [0.1, 1.62],
+            [0.113, 1.72],
+            [0.125, 1.79],
+            [0.137, 1.84],
+            [0.15, 1.88],
+            [0.163, 1.91],
+            [0.175, 1.94],
+            [0.188, 1.95],
+            [0.2, 1.96],
+            [0.212, 1.97],
+            [0.225, 1.98],
+            [0.237, 1.99],
+            [0.25, 1.99],
+            [0.263, 1.99],
+            [0.275, 1.99],
+            [0.287, 2.0],
+            [0.3, 2.0],
+            [0.312, 2.0],
+            [0.325, 2.0],
+            [0.337, 2.0],
+            [0.35, 2.0],
+            [0.362, 2.0],
+            [0.375, 2.0],
+            [0.388, 2.0],
+            [0.4, 2.0],
+            [0.412, 2.0],
+            [0.425, 2.0],
+            [0.437, 2.0],
+            [0.45, 2.0],
+            [0.462, 2.0],
+            [0.475, 2.0],
+            [0.487, 2.0],
+            [0.5, 2.0],
+            [0.512, 2.0],
+            [0.525, 2.0],
+            [0.537, 2.0],
+            [0.55, 2.0],
+            [0.562, 2.0],
+            [0.575, 2.0],
+            [0.588, 2.0],
+            [0.6, 2.0],
+            [0.612, 2.0],
+            [0.625, 2.0],
+            [0.637, 2.0],
+            [0.65, 2.0],
+            [0.662, 2.0],
+            [0.675, 2.0],
+            [0.688, 2.0],
+            [0.7, 2.0],
+            [0.712, 2.0],
+            [0.725, 2.0],
+            [0.737, 2.0],
+            [0.75, 2.0],
+            [0.762, 2.0],
+            [0.775, 2.0],
+            [0.787, 2.0],
+            [0.8, 2.0],
+            [0.812, 2.0],
+            [0.825, 2.0],
+            [0.837, 2.0],
+            [0.85, 2.0],
+            [0.862, 2.0],
+            [0.875, 2.0],
+            [0.887, 2.0],
+            [0.9, 2.0],
+            [0.912, 2.0],
+            [0.925, 2.0],
+            [0.938, 2.0],
+            [0.95, 2.0],
+            [0.962, 2.0],
+            [0.975, 2.0],
+            [0.987, 2.0],
+            [1.0, 2.0]
+          ],
+          "tone": 2,
+          "label": {"text": "临界", "i18n": {"en": "critical"}},
+          "labelAt": [0.4, 1.55]
+        },
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.0125, 0.104],
+            [0.025, 0.295],
+            [0.0375, 0.493],
+            [0.05, 0.675],
+            [0.0625, 0.838],
+            [0.075, 0.982],
+            [0.0875, 1.11],
+            [0.1, 1.22],
+            [0.113, 1.32],
+            [0.125, 1.4],
+            [0.137, 1.47],
+            [0.15, 1.54],
+            [0.163, 1.6],
+            [0.175, 1.65],
+            [0.188, 1.69],
+            [0.2, 1.73],
+            [0.212, 1.76],
+            [0.225, 1.79],
+            [0.237, 1.82],
+            [0.25, 1.84],
+            [0.263, 1.86],
+            [0.275, 1.88],
+            [0.287, 1.89],
+            [0.3, 1.91],
+            [0.312, 1.92],
+            [0.325, 1.93],
+            [0.337, 1.94],
+            [0.35, 1.94],
+            [0.362, 1.95],
+            [0.375, 1.96],
+            [0.388, 1.96],
+            [0.4, 1.97],
+            [0.412, 1.97],
+            [0.425, 1.97],
+            [0.437, 1.98],
+            [0.45, 1.98],
+            [0.462, 1.98],
+            [0.475, 1.99],
+            [0.487, 1.99],
+            [0.5, 1.99],
+            [0.512, 1.99],
+            [0.525, 1.99],
+            [0.537, 1.99],
+            [0.55, 1.99],
+            [0.562, 1.99],
+            [0.575, 1.99],
+            [0.588, 2.0],
+            [0.6, 2.0],
+            [0.612, 2.0],
+            [0.625, 2.0],
+            [0.637, 2.0],
+            [0.65, 2.0],
+            [0.662, 2.0],
+            [0.675, 2.0],
+            [0.688, 2.0],
+            [0.7, 2.0],
+            [0.712, 2.0],
+            [0.725, 2.0],
+            [0.737, 2.0],
+            [0.75, 2.0],
+            [0.762, 2.0],
+            [0.775, 2.0],
+            [0.787, 2.0],
+            [0.8, 2.0],
+            [0.812, 2.0],
+            [0.825, 2.0],
+            [0.837, 2.0],
+            [0.85, 2.0],
+            [0.862, 2.0],
+            [0.875, 2.0],
+            [0.887, 2.0],
+            [0.9, 2.0],
+            [0.912, 2.0],
+            [0.925, 2.0],
+            [0.938, 2.0],
+            [0.95, 2.0],
+            [0.962, 2.0],
+            [0.975, 2.0],
+            [0.987, 2.0],
+            [1.0, 2.0]
+          ],
+          "tone": 3,
+          "dashed": true,
+          "label": {"text": "过阻尼", "i18n": {"en": "over"}},
+          "labelAt": [0.22, 0.7]
+        }
+      ],
+      "hlines": [{"y": 2, "dashed": true}]
+    },
+    "rlc": {
+      "kind": "schematic",
+      "caption": {
+        "text": "同一个电流穿过电阻、电感、电容。电阻 R 是整个回路的电阻：电位器 + 信号发生器的 50 Ω + 线圈的 1 Ω。",
+        "i18n": {
+          "en": "One current passes the resistor, the inductor and the capacitor. R is the whole loop's resistance: pot + the generator's 50 Ω + the coil's 1 Ω."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"ac": {"mag": 1}}, "label": "FG1"},
+          {"ref": "R", "type": "R", "from": [0, 0], "to": [2, 0], "value": 0, "label": "R"},
+          {"ref": "L1", "type": "L", "from": [2, 0], "to": [5, 0], "value": "10m"},
+          {"ref": "C1", "type": "C", "from": [5, 0], "to": [5, 4], "value": "100n"}
+        ],
+        "wires": [[[5, 4], [0, 4]]],
+        "grounds": [[0, 4]],
+        "marks": [{"kind": "v", "el": "C1", "name": "v_C"}, {"kind": "i", "el": "L1", "name": "i"}]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 3-4 · Series RLC ringing: under-, critically and over-damped",
-      "summary": "A square wave gives a series RLC circuit one step after another; turn a potentiometer to change R and watch the capacitor voltage go from a ringing \"ding\" to a smooth rise.",
-      "concepts": ["second-order circuit", "damping ratio ζ = (R/2)·√(C/L)", "critical resistance R = 2√(L/C)", "under- / critically / over-damped", "overshoot"],
-      "description": [
-        "**Goal**: apply steps to a series RLC circuit with a square wave, turn a potentiometer to change the resistance, and see the three second-order responses: underdamped, critically damped and overdamped.",
-        "",
-        "**Circuit**: generator red clip → potentiometer RV1 (1 kΩ used as a variable resistor: pin 1 to the signal, pins 2 and 3 tied together) → L1 (10 mH) → node VC → C1 (100 nF) → GND; black clip to GND.",
-        "",
-        "**Generator**: square wave, amplitude 1 V, offset 1 V (0 ↔ 2 V), 200 Hz. Every rising edge is a 0 → 2 V step, and the 2.5 ms half period is long enough for the ringing to die out, so each edge on the scope is a complete step response.",
-        "",
-        "**Scope**: CH1 on VIN, CH2 on VC (top of the capacitor).",
-        "",
-        "**Predict first**: KVL gives LC·u_C'' + RC·u_C' + u_C = u_s, with characteristic roots s = −α ± √(α² − ω0²), α = R/(2L), ω0 = 1/√(LC). Work out the ringing frequency f0, the critical resistance R = 2√(L/C) and the damping ratio ζ = α/ω0 = (R/2)·√(C/L). R is the **total loop resistance**: potentiometer + generator 50 Ω + inductor winding 1 Ω. Then predict the kind of damping and roughly the overshoot with the pot at 5%, 30%, 60% and 100% (wiper = the share of the 1 kΩ between pins 1 and 2).",
-        "",
-        "**Measure**: set the pot to 5%, 30%, 60% and 100% in turn; read VC's peak and minimum and see whether it rings and at what frequency. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Think about it**: why can't the generator's 50 Ω be ignored here? (Hint: compared with the 632 Ω critical resistance, 50 Ω is not small; even with the pot at 0, ζ only drops to about 0.08.)",
-        "",
-        "**In a real circuit**: the simulated inductor has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω (see Experiment 4-5); it sits in the loop just like the pot and the generator's resistance, so R_total is larger and the ringing dies faster: the overshoot at 5% is clearly less than 60%, and even with the pot at 0 ζ cannot get down to 0.08."
+      "title": "RLC ringing: under-, critically and over-damped",
+      "summary": "A square wave gives a series RLC circuit one step after another; turn a pot to change the resistance and watch the capacitor voltage go from ringing to a smooth rise.",
+      "concepts": [
+        "second-order circuit",
+        "natural frequency f0 = 1/(2π√(LC))",
+        "damping",
+        "critical resistance 2√(L/C)",
+        "overshoot"
       ],
-      "compare": [
-        "**Compare**: f0 = 1/(2π√(10 mH × 100 nF)) ≈ 5.03 kHz; critical resistance 2√(10 mH / 100 nF) ≈ 632 Ω.",
-        "- **5% (50 Ω, R_total ≈ 101 Ω, ζ ≈ 0.16, underdamped)**: u_C shoots past 2 V and rings at ≈ 5 kHz inside an e^(−αt) envelope (1/α = 2L/R ≈ 0.2 ms). The first peak overshoots by e^(−πζ/√(1−ζ²)) ≈ 60%, reaching ≈ 2 + 2 × 0.6 ≈ 3.2 V — the capacitor voltage exceeds the source voltage! The falling edge likewise undershoots below 0 V, down to about −1.2 V.",
-        "- **30% (300 Ω, R_total ≈ 351 Ω, ζ ≈ 0.56, underdamped)**: just one small bump, ≈ 12% overshoot, peak ≈ 2.25 V.",
-        "- **60% (600 Ω, R_total ≈ 651 Ω, ζ ≈ 1.03, about critical)**: no overshoot; the fastest smooth arrival at 2 V.",
-        "- **100% (1 kΩ, R_total ≈ 1051 Ω, ζ ≈ 1.66, overdamped)**: no overshoot either, but a noticeably slower rise (like a slow RC charge)."
-      ],
-      "measurements": [
-        {"ask": "Pot at 5%: the frequency VC rings at (measure the time T_d between two neighbouring peaks, f = 1/T_d)", "explain": "Underdamped, it rings at f_d = f0·√(1 − ζ²): with ζ ≈ 0.16 only about 1% below f0 ≈ 5.03 kHz."},
-        {"ask": "Pot at 5%: VC's highest voltage (the first peak)", "explain": "The overshoot e^(−πζ/√(1−ζ²)) ≈ 60%, so the peak ≈ 2 + 2 × 0.6 ≈ 3.2 V — higher than the 2 V signal."},
-        {"ask": "Turn the pot slowly: at about which position does the overshoot just disappear (critical damping)?", "choices": ["About 60%: R_total ≈ 2√(L/C) ≈ 632 Ω", "About 30%", "Only at 100% is there no overshoot"], "explain": "At 30% there is still about 12% overshoot; it disappears once R_total = pot + 50 Ω + 1 Ω reaches 2√(L/C) ≈ 632 Ω (about 60%). More resistance is overdamped and only slower."}
-      ],
+      "description": "Generator (square 0 ↔ 2 V, 200 Hz) → pot RV1 (1 kΩ, used as a variable resistor) → L1 (10 mH) → node VC → C1 (100 nF) → GND. CH1 on the input, CH2 on VC.",
+      "compare": "**Compare**: f0 = 1 / (2π√(10 mH × 100 nF)) ≈ **5.03 kHz**; critical resistance 2√(10 mH / 100 nF) ≈ **632 Ω**.\n- **5%** (loop about 101 Ω, ζ ≈ 0.16, underdamped): rings at about 5 kHz, about 60 % overshoot, peak about **3.2 V**; the falling edge likewise undershoots below 0 V to about −1.2 V.\n- **30%** (about 351 Ω, ζ ≈ 0.56): about 12 % overshoot, peak about **2.25 V**.\n- **60%** (about 651 Ω, ζ ≈ 1.03, about critical): no overshoot, the quickest smooth arrival at 2 V.\n- **100%** (about 1051 Ω, ζ ≈ 1.66, overdamped): no overshoot either, but a clearly slower rise.\nDamping ratio ζ = (R/2)·√(C/L), with R the total loop resistance.",
       "hints": [
-        "Use the pot as a variable resistor: pin 1 to the generator, pins 2 and 3 joined with a short wire.",
-        "Series order: generator → pot → inductor → capacitor → GND. Watch the capacitor voltage.",
-        "Critical damping: R_total = 2√(L/C) ≈ 632 Ω, and R_total includes the generator's 50 Ω."
+        "Pot as a variable resistor: pin 1 to the generator, pin 2 (wiper) and pin 3 joined by a wire, then on to the inductor.",
+        "Inductor and capacitor in series: VC is the point between them, the capacitor's other end on GND.",
+        "Critical resistance 2√(L/C); the loop resistance includes the generator's 50 Ω."
       ],
       "tests": [
         "Pot at 5%: strong ringing",
         "Pot at 30%: small overshoot",
-        "Pot at 60% (critical): no overshoot",
+        "Pot at 60% (critically damped): no overshoot",
         "Pot at 100% (overdamped): no overshoot"
+      ],
+      "measurements": [
+        {
+          "ask": "Pot at 5%: VC's ringing frequency (time two neighbouring peaks, T_d; f = 1 / T_d)",
+          "explain": "When underdamped the ringing frequency is f_d = f0·√(1 − ζ²); with this little damping it is only about 1 % below f0 ≈ 5.03 kHz."
+        },
+        {
+          "ask": "Pot at 5%: VC's highest voltage (the first peak)",
+          "explain": "About 60 % overshoot, so the peak ≈ 2 + 2 × 0.6 ≈ 3.2 V — above the signal's 2 V."
+        },
+        {
+          "ask": "Pot at 30%: VC's highest voltage",
+          "explain": "The loop resistance is about 351 Ω, much more damping: only about 12 % overshoot is left, peak ≈ 2.25 V."
+        },
+        {
+          "ask": "Turning the pot slowly: about where does the overshoot just disappear (critical damping)?",
+          "explain": "At 30% there is still about 12 % overshoot; when the loop resistance, pot + 50 Ω + 1 Ω, reaches 2√(L/C) ≈ 632 Ω (about 60%) the overshoot goes; beyond that it is overdamped and only slower.",
+          "choices": ["about 60%: loop resistance ≈ 2√(L/C) ≈ 632 Ω", "about 30%", "only at 100% is there no overshoot"]
+        }
+      ],
+      "cards": [
+        {
+          "title": "One step, and it rings",
+          "text": [
+            "- Build the target circuit: generator → pot **RV1 `1 kΩ`** (as a variable resistor: pin 1 to the signal, pins 2 and 3 joined) → **L1 `10 mH`** → node **VC** → **C1 `100 nF`** → GND.",
+            "- Generator: square, **`200 Hz`**, amplitude **`1 V`**, offset **`1 V`** (0 ↔ 2 V). CH2 on VC.",
+            "- Turn the pot to **`5%`**.",
+            "What does VC do after every edge? Turn the pot up slowly — how does it change?"
+          ]
+        },
+        {
+          "title": "Energy swings between C and L",
+          "text": [
+            "- A capacitor stores energy as voltage, an inductor as current. The capacitor discharges into the inductor; the inductor won't let the current stop and charges the capacitor the other way round… The energy swings between them, like a weight on a spring.",
+            "- How fast it swings depends on L and C only:",
+            "$$f_0 = \\frac{1}{2π\\sqrt{LC}} = \\frac{1}{2π\\sqrt{10 mH × 100 nF}}$$",
+            "- The resistance is like air drag, eating some energy on every swing. Small R: many swings before it stops (**underdamped**); just right: no swing at all and the quickest arrival (**critically damped**); larger still: a slow crawl (**overdamped**).",
+            "![](fig:three)",
+            "![](fig:rlc)"
+          ]
+        },
+        {
+          "title": "Read the ringing, find the critical point",
+          "text": [
+            "- Pot at **`5%`**: read the ringing frequency of VC (time two neighbouring peaks, T_d, then f = 1 / T_d) and the top of the first peak.",
+            "- At **`30%`** read the top again: how much smaller is the overshoot?",
+            "- Turn it up slowly and find where the overshoot just disappears. There the loop resistance ≈ 2√(L/C), the **critical resistance**; the loop resistance = pot + generator 50 Ω + coil 1 Ω."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- A **second-order circuit** has two energy stores that trade energy back and forth, so it can oscillate.",
+            "- **f0 = 1 / (2π√(LC))** sets the pace; the resistance sets how many swings before it stops.",
+            "- **Three shapes**: underdamped (ringing, overshoot), critically damped (fastest without overshoot), overdamped (slow crawl).",
+            "- **In a real circuit**: the capacitor can overshoot above the supply, so watch out for ringing in power-supply filters. A real small inductor has 10–30 Ω of winding resistance, so the ringing dies faster."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "RV1", "type": "potentiometer", "resistance": "1k" },
-    { "ref": "L1", "type": "inductor", "inductance": "10m" },
-    { "ref": "C1", "type": "capacitor", "capacitance": "100n" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "RV1", "type": "potentiometer", "resistance": "1k"},
+    {"ref": "L1", "type": "inductor", "inductance": "10m"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "100n"}
   ],
   "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "RV1.1"] },
-    { "name": "N1", "pins": ["RV1.2", "RV1.3", "L1.1"] },
-    { "name": "VC", "pins": ["L1.2", "C1.1"] },
-    { "name": "GND", "pins": ["C1.2", "FG1.-"] }
+    {"name": "VIN", "pins": ["FG1.+", "RV1.1"]},
+    {"name": "N1", "pins": ["RV1.2", "RV1.3", "L1.1"]},
+    {"name": "VC", "pins": ["L1.2", "C1.1"]},
+    {"name": "GND", "pins": ["C1.2", "FG1.-"]}
   ],
   "tests": [
     {
       "name": "电位器 5%：强烈振铃",
-      "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 0.05 } },
+      "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.05}},
       "scope": [
-        { "pin": "C1.1", "measure": "vmax", "min": 3.05, "max": 3.35 },
-        { "pin": "C1.1", "measure": "vmin", "min": -1.35, "max": -1.05 }
+        {"pin": "C1.1", "measure": "vmax", "min": 3.05, "max": 3.35},
+        {"pin": "C1.1", "measure": "vmin", "min": -1.35, "max": -1.05}
       ]
     },
     {
       "name": "电位器 30%：小超调",
-      "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 0.3 } },
-      "scope": [{ "pin": "C1.1", "measure": "vmax", "min": 2.15, "max": 2.35 }]
+      "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.3}},
+      "scope": [{"pin": "C1.1", "measure": "vmax", "min": 2.15, "max": 2.35}]
     },
     {
       "name": "电位器 60%（临界阻尼）：不超调",
-      "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 0.6 } },
+      "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.6}},
       "scope": [
-        { "pin": "C1.1", "measure": "vmax", "min": 1.98, "max": 2.02 },
-        { "pin": "C1.1", "measure": "vmin", "min": -0.02, "max": 0.02 }
+        {"pin": "C1.1", "measure": "vmax", "min": 1.98, "max": 2.02},
+        {"pin": "C1.1", "measure": "vmin", "min": -0.02, "max": 0.02}
       ]
     },
     {
       "name": "电位器 100%（过阻尼）：不超调",
-      "set": { "FG1": { "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1 }, "RV1": { "wiper": 1 } },
-      "scope": [{ "pin": "C1.1", "measure": "vmax", "min": 1.97, "max": 2.01 }]
+      "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 1}},
+      "scope": [{"pin": "C1.1", "measure": "vmax", "min": 1.97, "max": 2.01}]
     }
   ],
-  "compare": [
-    "**对比**：f0 = 1/(2π√(10 mH × 100 nF)) ≈ 5.03 kHz；临界电阻 2√(10 mH / 100 nF) ≈ 632 Ω。",
-    "- **5%（50 Ω，R总 ≈ 101 Ω，ζ ≈ 0.16，欠阻尼）**：u_C 冲过 2 V 后来回振荡，振荡频率 ≈ 5 kHz，包络按 e^(−αt) 衰减（1/α = 2L/R ≈ 0.2 ms）。第一个峰的超调量 = e^(−πζ/√(1−ζ²)) ≈ 60%，峰值 ≈ 2 + 2 × 0.6 ≈ 3.2 V——电容电压比电源电压还高！下降沿同样会冲到 0 V 以下，最低约 −1.2 V。",
-    "- **30%（300 Ω，R总 ≈ 351 Ω，ζ ≈ 0.56，欠阻尼）**：只剩一个小鼓包，超调 ≈ 12%，峰值 ≈ 2.25 V。",
-    "- **60%（600 Ω，R总 ≈ 651 Ω，ζ ≈ 1.03，约等于临界阻尼）**：不再超调，最快地平稳到达 2 V。",
-    "- **100%（1 kΩ，R总 ≈ 1051 Ω，ζ ≈ 1.66，过阻尼）**：也不超调，但上升明显变慢（像一个较慢的 RC 充电）。"
-  ],
+  "compare": "**对比**：f0 = 1 / (2π√(10 mH × 100 nF)) ≈ **5.03 kHz**；临界电阻 2√(10 mH / 100 nF) ≈ **632 Ω**。\n- **5%**（回路约 101 Ω，ζ ≈ 0.16，欠阻尼）：振荡频率约 5 kHz，超调约 60%，峰值约 **3.2 V**；下降沿同样会冲到 0 V 以下，最低约 −1.2 V。\n- **30%**（约 351 Ω，ζ ≈ 0.56）：超调约 12%，峰值约 **2.25 V**。\n- **60%**（约 651 Ω，ζ ≈ 1.03，约等于临界阻尼）：不超调，最快地平稳到达 2 V。\n- **100%**（约 1051 Ω，ζ ≈ 1.66，过阻尼）：也不超调，但上升明显更慢。\n阻尼比 ζ = (R/2)·√(C/L)，R 是回路总电阻。",
   "measurements": [
-    {"id": "fring", "scope": "ring", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.05}}, "unit": "kHz", "predict": true, "range": [4500, 5300], "ask": "电位器 5%：VC 振荡的频率（量相邻两个波峰的时间间隔 T_d，f = 1/T_d）", "explain": "欠阻尼时的振荡频率 f_d = f0·√(1 − ζ²)，ζ ≈ 0.16 时只比 f0 ≈ 5.03 kHz 低约 1%。"},
-    {"id": "peak", "scope": "vmax", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.05}}, "unit": "V", "predict": true, "range": [3.05, 3.35], "ask": "电位器 5%：VC 的最高电压（第一个峰）", "explain": "超调量 e^(−πζ/√(1−ζ²)) ≈ 60%，峰值 ≈ 2 + 2 × 0.6 ≈ 3.2 V——比信号的 2 V 还高。"},
-    {"id": "crit", "choices": ["约 60%：R总 ≈ 2√(L/C) ≈ 632 Ω", "约 30%", "只有转到 100% 才不超调"], "correct": 0, "ask": "慢慢转电位器：超调刚好消失（临界阻尼）大约在哪个位置？", "explain": "30% 时还有约 12% 的超调；R总 = 电位器 + 50 Ω + 1 Ω 达到 2√(L/C) ≈ 632 Ω（约 60%）时超调消失，再大就是过阻尼，只会更慢。"}
+    {
+      "id": "fring",
+      "scope": "ring",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.05}},
+      "unit": "kHz",
+      "predict": true,
+      "range": [4500, 5300],
+      "ask": "电位器 5%：VC 振荡的频率（量相邻两个波峰的间隔 T_d，f = 1 / T_d）",
+      "explain": "欠阻尼时振荡频率 f_d = f0·√(1 − ζ²)；这里阻尼很小，只比 f0 ≈ 5.03 kHz 低约 1%。"
+    },
+    {
+      "id": "peak",
+      "scope": "vmax",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.05}},
+      "unit": "V",
+      "predict": true,
+      "range": [3.05, 3.35],
+      "ask": "电位器 5%：VC 的最高电压（第一个峰）",
+      "explain": "超调约 60%，峰值 ≈ 2 + 2 × 0.6 ≈ 3.2 V：比信号的 2 V 还高。"
+    },
+    {
+      "id": "peak30",
+      "scope": "vmax",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1}, "RV1": {"wiper": 0.3}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.15, 2.35],
+      "ask": "电位器 30%：VC 的最高电压",
+      "explain": "回路电阻约 351 Ω，阻尼大了不少：只剩约 12% 的超调，峰值 ≈ 2.25 V。"
+    },
+    {
+      "id": "crit",
+      "choices": ["约 60%：回路电阻 ≈ 2√(L/C) ≈ 632 Ω", "约 30%", "只有转到 100% 才不超调"],
+      "correct": 0,
+      "ask": "慢慢转电位器：超调刚好消失（临界阻尼）大约在哪个位置？",
+      "explain": "30% 时还有约 12% 的超调；回路电阻 = 电位器 + 50 Ω + 1 Ω 达到 2√(L/C) ≈ 632 Ω（约 60%）时超调消失，再大就是过阻尼，只会更慢。"
+    }
   ],
   "hints": [
-    "电位器当可变电阻用：1 脚接信号发生器，2 脚和 3 脚用一根短跳线连起来。",
-    "串联顺序：信号发生器 → 电位器 → 电感 → 电容 → GND，看电容电压。",
-    "临界阻尼：R总 = 2√(L/C) ≈ 632 Ω，R总里要算上信号发生器的 50 Ω。"
+    "电位器当可变电阻：1 脚接信号发生器，2 脚（滑动端）和 3 脚用一根线连起来，再接电感。",
+    "电感和电容串联：VC 是它们中间那一点，电容另一端接 GND。",
+    "临界电阻 2√(L/C)；回路电阻里要算上信号发生器的 50 Ω。"
   ],
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1, "pins": { "+": "b5", "-": "tn3" } },
-      { "type": "potentiometer", "ref": "RV1", "resistance": "1k", "wiper": 0.05, "at": "a5" },
-      { "type": "wire", "pins": { "a": "b6", "b": "b7" }, "color": "yellow" },
-      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "c7", "2": "c14" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "d14", "2": "tn14" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e5", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e14", "gnd": "tn21" } }
+      {
+        "type": "function_gen",
+        "ref": "FG1",
+        "waveform": "square",
+        "frequency": 200,
+        "amplitude": 1,
+        "offset": 1,
+        "pins": {"+": "b5", "-": "tn3"}
+      },
+      {"type": "potentiometer", "ref": "RV1", "resistance": "1k", "wiper": 0.05, "at": "a5"},
+      {"type": "wire", "pins": {"a": "b6", "b": "b7"}, "color": "yellow"},
+      {"type": "inductor", "ref": "L1", "inductance": "10m", "pins": {"1": "c7", "2": "c14"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": {"1": "d14", "2": "tn14"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e5", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e14", "gnd": "tn21"}}
     ]
   }
 }

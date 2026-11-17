@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["网孔电流法", "超网孔", "无伴电流源"],
   "statement": [
-    "图示电路中 U_s = 20 V，I_s = 2 A（向上），R_1 = 2 Ω，R_2 = 2 Ω，R_3 = 4 Ω。电流源位于左、右两个网孔的公共支路上。网孔电流 i_m1（左）、i_m2（右）均取**顺时针**方向。",
+    "图示电路中 V_s = 20 V，I_s = 2 A（向上），R_1 = 2 Ω，R_2 = 2 Ω，R_3 = 4 Ω。电流源位于左、右两个网孔的公共支路上。网孔电流 i_m1（左）、i_m2（右）均取**顺时针**方向。",
     "用**网孔电流法**求 i_m1、i_m2，以及电流源吸收的功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 20 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 20 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
       { "ref": "Is", "type": "I", "from": [8, 4], "to": [8, 0], "value": 2 },
       { "ref": "R2", "type": "R", "from": [10, 0], "to": [14, 0], "value": 2 },
@@ -40,27 +40,27 @@
     },
     { "id": "im1", "ask": "i_m1 = ?（等于图中 R_1 的电流 i_1）", "find": { "kind": "i", "el": "R1" }, "answer": 1, "unit": "A", "explain": "超网孔 KVL：2i_m1 + 6i_m2 = 20，与 i_m2 = i_m1 + 2 联立，8i_m1 + 12 = 20 → i_m1 = 1 A。" },
     { "id": "im2", "ask": "i_m2 = ?（等于图中 R_3 的电流 i_3）", "find": { "kind": "i", "el": "R3" }, "answer": 3, "unit": "A", "explain": "i_m2 = i_m1 + I_s = 3 A。" },
-    { "id": "p", "ask": "电流源吸收的功率 P = ?", "find": { "kind": "p", "el": "Is" }, "answer": -36, "unit": "W", "explain": "结点 a 电压 u_a = (R_2 + R_3)·i_m2 = 18 V（上正），电流 2 A 从下往上流过电流源、从高电位端流出：P = −18 × 2 = −36 W（发出 36 W）。" }
+    { "id": "p", "ask": "电流源吸收的功率 P = ?", "find": { "kind": "p", "el": "Is" }, "answer": -36, "unit": "W", "explain": "结点 a 电压 v_a = (R_2 + R_3)·i_m2 = 18 V（上正），电流 2 A 从下往上流过电流源、从高电位端流出：P = −18 × 2 = −36 W（发出 36 W）。" }
   ],
   "hints": [
-    "电流源两端电压不能用网孔电流表示。方法一：设它的电压为 u，作为未知量写进两个网孔方程；方法二：去掉电流源支路，沿两个网孔的外围列一个“超网孔”KVL。",
-    "超网孔沿 U_s → R_1 → R_2 → R_3 绕行：R_1·i_m1 + (R_2 + R_3)·i_m2 = U_s。",
+    "电流源两端电压不能用网孔电流表示。方法一：设它的电压为 v，作为未知量写进两个网孔方程；方法二：去掉电流源支路，沿两个网孔的外围列一个“超网孔”KVL。",
+    "超网孔沿 V_s → R_1 → R_2 → R_3 绕行：R_1·i_m1 + (R_2 + R_3)·i_m2 = V_s。",
     "补充约束：I_s 支路中向上的电流等于 I_s。两个顺时针网孔电流在这条支路上一个向上、一个向下——先看清哪个向上，再用它们表示这条支路的电流。"
   ],
   "solution": [
-    "**1. 超网孔 KVL**（沿外围顺时针，不经过 I_s）：R_1·i_m1 + (R_2 + R_3)·i_m2 = U_s → 2i_m1 + 6i_m2 = 20。",
+    "**1. 超网孔 KVL**（沿外围顺时针，不经过 I_s）：R_1·i_m1 + (R_2 + R_3)·i_m2 = V_s → 2i_m1 + 6i_m2 = 20。",
     "**2. 电流源约束：** I_s 支路向上的电流 = i_m2 − i_m1 = 2。",
     "**3. 求解：** 2i_m1 + 6(i_m1 + 2) = 20 → 8i_m1 = 8 → **i_m1 = 1 A**，**i_m2 = 3 A**。",
-    "**4.（另一种做法）设电流源电压 u**（a 对地）：网孔 1：2i_m1 + u = 20；网孔 2：6i_m2 − u = 0；加上 i_m2 − i_m1 = 2，三式联立结果相同，u = 18 V。",
-    "**5. 功率：** u_a = 6 × 3 = 18 V，电流源电流从 a（高电位端）流出，P = −18 × 2 = **−36 W**（发出 36 W）。",
-    "**验算：** U_s 发出 20 × 1 = 20 W，I_s 发出 36 W，共 56 W；电阻吸收 2×1 + 2×9 + 4×9 = 2 + 18 + 36 = 56 W。"
+    "**4.（另一种做法）设电流源电压 v**（a 对地）：网孔 1：2i_m1 + v = 20；网孔 2：6i_m2 − v = 0；加上 i_m2 − i_m1 = 2，三式联立结果相同，v = 18 V。",
+    "**5. 功率：** v_a = 6 × 3 = 18 V，电流源电流从 a（高电位端）流出，P = −18 × 2 = **−36 W**（发出 36 W）。",
+    "**验算：** V_s 发出 20 × 1 = 20 W，I_s 发出 36 W，共 56 W；电阻吸收 2×1 + 2×9 + 4×9 = 2 + 18 + 36 = 56 W。"
   ],
   "i18n": {
     "en": {
       "title": "Mesh analysis: a current source shared by two meshes (supermesh)",
       "tags": ["mesh-current method", "supermesh", "unaccompanied current source"],
       "statement": [
-        "In the circuit, U_s = 20 V, I_s = 2 A (upwards), R_1 = 2 Ω, R_2 = 2 Ω, R_3 = 4 Ω. The current source sits in the branch shared by the left and right meshes. The mesh currents i_m1 (left) and i_m2 (right) are both **clockwise**.",
+        "In the circuit, V_s = 20 V, I_s = 2 A (upwards), R_1 = 2 Ω, R_2 = 2 Ω, R_3 = 4 Ω. The current source sits in the branch shared by the left and right meshes. The mesh currents i_m1 (left) and i_m2 (right) are both **clockwise**.",
         "Use the **mesh-current method** to find i_m1, i_m2 and the power absorbed by the current source."
       ],
       "questions": [
@@ -71,20 +71,20 @@
         },
         { "ask": "i_m1 = ? (equal to the current i_1 in R_1 shown in the figure)", "explain": "Supermesh KVL: 2i_m1 + 6i_m2 = 20; with i_m2 = i_m1 + 2: 8i_m1 + 12 = 20 → i_m1 = 1 A." },
         { "ask": "i_m2 = ? (equal to the current i_3 in R_3 shown in the figure)", "explain": "i_m2 = i_m1 + I_s = 3 A." },
-        { "ask": "Power absorbed by the current source, P = ?", "explain": "Node a is at u_a = (R_2 + R_3)·i_m2 = 18 V (+ at the top); 2 A flows upwards through the source and leaves at its higher-potential end: P = −18 × 2 = −36 W (it delivers 36 W)." }
+        { "ask": "Power absorbed by the current source, P = ?", "explain": "Node a is at v_a = (R_2 + R_3)·i_m2 = 18 V (+ at the top); 2 A flows upwards through the source and leaves at its higher-potential end: P = −18 × 2 = −36 W (it delivers 36 W)." }
       ],
       "hints": [
-        "The voltage across a current source can't be written in terms of mesh currents. Option 1: call it u and keep it as an extra unknown in both mesh equations. Option 2: remove the current-source branch and write one \"supermesh\" KVL around the outside of both meshes.",
-        "Going around the supermesh U_s → R_1 → R_2 → R_3: R_1·i_m1 + (R_2 + R_3)·i_m2 = U_s.",
+        "The voltage across a current source can't be written in terms of mesh currents. Option 1: call it v and keep it as an extra unknown in both mesh equations. Option 2: remove the current-source branch and write one \"supermesh\" KVL around the outside of both meshes.",
+        "Going around the supermesh V_s → R_1 → R_2 → R_3: R_1·i_m1 + (R_2 + R_3)·i_m2 = V_s.",
         "Constraint: the upward current in the I_s branch equals I_s. In that branch one clockwise mesh current goes up and the other goes down — work out which goes up, then write the branch current in terms of them."
       ],
       "solution": [
-        "**1. Supermesh KVL** (clockwise around the outside, skipping I_s): R_1·i_m1 + (R_2 + R_3)·i_m2 = U_s → 2i_m1 + 6i_m2 = 20.",
+        "**1. Supermesh KVL** (clockwise around the outside, skipping I_s): R_1·i_m1 + (R_2 + R_3)·i_m2 = V_s → 2i_m1 + 6i_m2 = 20.",
         "**2. Current-source constraint:** the upward current in the I_s branch = i_m2 − i_m1 = 2.",
         "**3. Solve:** 2i_m1 + 6(i_m1 + 2) = 20 → 8i_m1 = 8 → **i_m1 = 1 A**, **i_m2 = 3 A**.",
-        "**4. (Alternative) Use the source voltage u** (a to ground): mesh 1: 2i_m1 + u = 20; mesh 2: 6i_m2 − u = 0; together with i_m2 − i_m1 = 2 this gives the same result and u = 18 V.",
-        "**5. Power:** u_a = 6 × 3 = 18 V and the source current leaves at a (the higher-potential end): P = −18 × 2 = **−36 W** (delivers 36 W).",
-        "**Check:** U_s delivers 20 × 1 = 20 W and I_s delivers 36 W, 56 W in total; the resistors absorb 2×1 + 2×9 + 4×9 = 2 + 18 + 36 = 56 W."
+        "**4. (Alternative) Use the source voltage v** (a to ground): mesh 1: 2i_m1 + v = 20; mesh 2: 6i_m2 − v = 0; together with i_m2 − i_m1 = 2 this gives the same result and v = 18 V.",
+        "**5. Power:** v_a = 6 × 3 = 18 V and the source current leaves at a (the higher-potential end): P = −18 × 2 = **−36 W** (delivers 36 W).",
+        "**Check:** V_s delivers 20 × 1 = 20 W and I_s delivers 36 W, 56 W in total; the resistors absorb 2×1 + 2×9 + 4×9 = 2 + 18 + 36 = 56 W."
       ]
     }
   }

@@ -2,23 +2,159 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "challenge-reverse-protection",
-  "title": "挑战 6 · 二极管防反接保护",
+  "title": "二极管：电流的单行道",
   "kind": "challenge",
   "level": 3,
-  "summary": "在电源入口串一个二极管：电池接反时电路不会通电。",
-  "concepts": ["diode 二极管", "reverse polarity protection 防反接", "0.7V drop 压降"],
-  "description": "电池接反（+ 和 − 对调）可能损坏电路。最简单的保护：在电源 + 后面串联一个普通二极管（diode）。\n• 正接：二极管导通，只损失约 0.7V；\n• 反接：二极管截止，没有电流流过，后面的电路安全。\n\n要求：+9V → 二极管（anode 朝电源，cathode 朝电路）→ 470Ω → 绿色 LED → GND。\n二极管上有色环的一端是负极（cathode）。\n\ntests 会测量二极管负极的电压：应该比 9V 低大约 0.7V。",
+  "summary": "先把二极管故意插反，看 LED 不亮；再转过来。二极管只让电流朝一个方向走，代价是大约 0.65 V。",
+  "concepts": ["diode 二极管", "anode / cathode 阳极 / 阴极", "forward voltage 正向压降", "reverse polarity protection 防反接"],
+  "description": "二极管只让电流从阳极流向阴极（色环那一端）。把它串在电池 + 后面：正接时它导通，只吃掉约 0.65 V；电池接反时它截止，后面的电路一点电流都没有。电路：9 V 电池 + → 二极管 → 470 Ω → 绿色 LED → GND。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "故意插反一次",
+      "text": [
+        "**9 V 电池**接上方电源轨。然后搭一串：+ 轨 → **二极管** → **`470 Ω`** → **绿色 LED** → GND。",
+        "二极管故意**插反**：让有**色环**的那一端朝 + 轨。",
+        "LED 亮吗？再把二极管**掉个头**，看看有什么不同。色环那一端，到底是哪一端？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "二极管是一个单向阀",
+      "text": [
+        "- 二极管像水管里的**单向阀**：电流只能从**阳极**流进、从**阴极**（色环端）流出。反过来，阀门关死。",
+        "![](fig:iv)",
+        "- 正向导通时，它要“收”一小段几乎固定的电压，叫**正向压降**。本仿真把硅二极管当成 0.65 V 再串一个 0.8 Ω 的小电阻：",
+        "$$V_D = 0.65 + 0.8 × I$$",
+        "- 代入数字：就算电流大到 0.1 A，$V_D = 0.65 + 0.8 × 0.1 = 0.73$ V。电流变十倍，压降只多零点几伏——它几乎是个常数。",
+        "![](fig:loop)",
+        "- 所以把它串在电池后面，就是一道**防反接**保险：接对了只少约 0.65 V，接反了一点电流都过不去。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "接对方向，测一测",
+      "text": [
+        "- 二极管**阳极**（没有色环的一端）插 + 轨，**阴极**接 `470 Ω`，电阻接 LED 长脚，LED 短脚接 GND。",
+        "- 点**「检查我的电路」**。通过后，用万用表测下面几个电压，再单击 LED 看它的电流。",
+        "- 先自己预测：电池 9 V 减去二极管和 LED 两道“坎”，剩下的压在 470 Ω 上。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **二极管是单行道**：电流从阳极流向色环端（阴极）。LED 也是一种二极管，所以它插反了也不亮。",
+        "- 正向压降几乎不随电流变：硅二极管约 0.65 V。防反接的代价就是这一小段电压。",
+        "- 真实电路里的坑：3.3 V 或一节锂电池供电时，0.65 V 占了电源的一大块。那时改用压降只有约 0.3 V 的**肖特基二极管**——5.2 的开发板在 USB 入口就用了一只。"
+      ],
+      "practice": ["nonlinear"]
+    }
+  ],
+  "figures": {
+    "iv": {
+      "kind": "plot",
+      "caption": {
+        "text": "反向（电压为负）：电流是 0，阀门关死。正向过了约 0.65 V：电流猛涨，电压几乎不再变。",
+        "i18n": { "en": "Reverse (negative voltage): no current, the valve is shut. Forward, past about 0.65 V: the current soars while the voltage hardly moves." }
+      },
+      "x": { "label": { "text": "二极管两端电压 (V)", "i18n": { "en": "diode voltage (V)" } }, "min": -2, "max": 1, "ticks": [-2, -1, 0, 0.65, 1] },
+      "y": { "label": { "text": "电流 (mA)", "i18n": { "en": "current (mA)" } }, "min": 0, "max": 40, "ticks": [0, 20, 40] },
+      "curves": [
+        {
+          "points": [[-2, 0], [0.65, 0], [0.682, 40]],
+          "tone": 1,
+          "label": { "text": "硅二极管", "i18n": { "en": "silicon diode" } },
+          "labelAt": [-1.1, 28]
+        }
+      ],
+      "vlines": [{ "x": 0, "dashed": true }]
+    },
+    "loop": {
+      "kind": "schematic",
+      "caption": {
+        "text": "电池的 9 V 分成三份：二极管收 V_D，LED 收 V_f，剩下的落在 470 Ω 上。同一个电流 I 穿过全部。",
+        "i18n": { "en": "The battery's 9 V splits three ways: the diode takes V_D, the LED V_f, and the rest falls across 470 Ω. One current I passes through all of them." }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 9},
+          {"ref": "D1", "type": "D", "from": [0, 0], "to": [3, 0]},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [6, 0], "value": 470},
+          {"ref": "LED1", "type": "LED", "from": [6, 0], "to": [6, 4], "value": "green"}
+        ],
+        "wires": [
+          [[6, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "v", "el": "D1", "name": "V_D"},
+          {"kind": "v", "el": "LED1", "name": "V_f"},
+          {"kind": "i", "el": "R1", "name": "I"}
+        ]
+      },
+      "highlight": ["D1"]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Challenge 6 · Diode reverse-polarity protection",
-      "summary": "Put a diode in series at the power input: if the battery is connected backwards, no current flows into the circuit.",
-      "concepts": ["diode", "reverse polarity protection", "0.7V drop"],
-      "description": "Connecting a battery backwards (+ and − swapped) can damage a circuit. The simplest protection: put an ordinary diode in series right after the supply +.\n• Connected correctly: the diode conducts and you lose only about 0.7V;\n• Connected backwards: the diode blocks, no current flows, and the circuit after it is safe.\n\nTask: +9V → diode (anode toward the supply, cathode toward the circuit) → 470Ω → green LED → GND.\nThe end of the diode with the painted band is the cathode (negative).\n\nThe tests measure the voltage at the diode's cathode: it should be about 0.7V below 9V.",
-      "hints": [
-        "Like an LED, a diode has a direction: current flows from the anode to the cathode (the banded end).",
-        "The diode's anode can go straight into the red + rail."
+      "title": "Diodes: a one-way street for current",
+      "summary": "Put the diode in backwards on purpose and watch the LED stay dark; then turn it round. A diode lets current go one way only, at a cost of about 0.65 V.",
+      "concepts": ["diode", "anode / cathode", "forward voltage", "reverse polarity protection"],
+      "description": "A diode only lets current flow from its anode to its cathode (the banded end). Put one in series after the battery's +: connected correctly it conducts and takes only about 0.65 V; with the battery reversed it blocks, and no current at all reaches the circuit after it. Circuit: 9 V battery + → diode → 470 Ω → green LED → GND.",
+      "cards": [
+        {
+          "title": "Put it in backwards once",
+          "text": [
+            "Connect the **9 V battery** to the top rails. Then build a chain: + rail → **diode** → **`470 Ω`** → **green LED** → GND.",
+            "Put the diode in **backwards on purpose**: the end with the **band** faces the + rail.",
+            "Is the LED lit? Now **turn the diode round** and look again. Which end is the banded one, really?"
+          ]
+        },
+        {
+          "title": "A diode is a one-way valve",
+          "text": [
+            "- A diode is like a **check valve** in a water pipe: current can only go in at the **anode** and out at the **cathode** (the banded end). The other way, the valve is shut.",
+            "![](fig:iv)",
+            "- Conducting forward, it takes a small, almost fixed slice of voltage: the **forward voltage**. This simulator models a silicon diode as 0.65 V plus a small 0.8 Ω resistance:",
+            "$$V_D = 0.65 + 0.8 × I$$",
+            "- With numbers: even at a large 0.1 A, $V_D = 0.65 + 0.8 × 0.1 = 0.73$ V. Ten times the current adds only a few tenths of a volt — it is almost a constant.",
+            "![](fig:loop)",
+            "- So a diode in series after the battery is a **reverse-polarity** guard: connected right you lose about 0.65 V; connected wrong, no current gets through at all."
+          ]
+        },
+        {
+          "title": "The right way round, measured",
+          "text": [
+            "- The diode's **anode** (the end without the band) goes in the + rail, its **cathode** to the `470 Ω`, the resistor to the LED's long lead, the LED's short lead to GND.",
+            "- Press **Check my circuit**. Once it passes, measure the voltages below with the multimeter, then click the LED to see its current.",
+            "- Predict first: the battery's 9 V minus two \"steps\" (the diode and the LED); what is left sits across the 470 Ω."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A diode is a one-way street**: current goes from the anode to the banded end (the cathode). An LED is a diode too, which is why a reversed LED stays dark.",
+            "- The forward voltage hardly changes with current: about 0.65 V for silicon. That small slice is the price of reverse protection.",
+            "- A real-world catch: on 3.3 V or a single lithium cell, 0.65 V is a big piece of the supply. There a **Schottky diode** is used instead, with only about 0.3 V — the dev board in 5.2 has one on its USB input."
+          ]
+        }
       ],
-      "tests": ["LED on, about 8.3V after the diode"]
+      "measurements": [
+        { "ask": "Multimeter: the diode's banded end (cathode) to GND", "explain": "9 V minus the diode's drop, minus a little across the battery's own 1.5 Ω: about 8.32 V." },
+        { "ask": "Multimeter: the + rail (the diode's anode) to GND", "explain": "Slightly under 9 V: about 13 mA through the battery's 1.5 Ω costs about 0.02 V." },
+        { "ask": "From your two readings: the diode's forward voltage V_D = anode − cathode", "explain": "0.65 + 0.8 × 0.013 ≈ 0.66 V — just above the 0.65 V knee." },
+        { "ask": "Click the LED: what current do Properties show?", "explain": "(9 − 0.65 − 2.1) V / (470 + 0.8 + 12 + 1.5) Ω ≈ 12.9 mA." },
+        {
+          "ask": "Now imagine the battery connected backwards, with the diode still the right way round. The LED:",
+          "choices": ["stays dark, and nothing after the diode gets any current", "lights up anyway", "burns out"],
+          "explain": "Reversed, the diode's anode is at − and its cathode at +: the valve is shut. No current flows, so the LED (and any circuit after it) is safe."
+        }
+      ],
+      "hints": [
+        "Like an LED, a diode has a direction: current flows from the anode into the banded end (the cathode).",
+        "The diode's anode can go straight into the red + rail; its banded end goes into a row of holes."
+      ],
+      "tests": ["LED on; the diode's cathode one diode drop below the battery"]
     }
   },
   "components": [
@@ -35,14 +171,27 @@
   ],
   "tests": [
     {
-      "name": "LED 亮，二极管后约 8.3V",
+      "name": "LED 亮；二极管负极比电池低一个二极管压降",
       "expect": { "LED1": "on" },
       "voltages": [{ "pin": "D1.cathode", "ref": "V1.-", "min": 8.0, "max": 8.6 }]
     }
   ],
+  "measurements": [
+    { "id": "vk", "voltage": "D1.cathode", "ref": "V1.-", "unit": "V", "predict": true, "range": [8.0, 8.6], "ask": "万用表：二极管色环那一端（阴极）对 GND 的电压", "explain": "9 V 减去二极管的压降，再减去电池自己 1.5 Ω 内阻上的一点点：约 8.32 V。" },
+    { "id": "va", "voltage": "D1.anode", "ref": "V1.-", "unit": "V", "range": [8.9, 9.0], "ask": "万用表：+ 轨（二极管阳极）对 GND 的电压", "explain": "比 9 V 低一点：约 13 mA 流过电池的 1.5 Ω 内阻，掉了约 0.02 V。" },
+    { "id": "vd", "formula": "va - vk", "unit": "V", "stated": true, "range": [0.62, 0.7], "ask": "用你的两个读数算二极管的正向压降：V_D = 阳极 − 阴极", "explain": "0.65 + 0.8 × 0.013 ≈ 0.66 V，刚过 0.65 V 的拐点。" },
+    { "id": "iled", "current": "LED1", "unit": "mA", "predict": true, "range": [0.012, 0.014], "ask": "单击 LED：「属性」里显示的电流是多少？", "explain": "(9 − 0.65 − 2.1) V / (470 + 0.8 + 12 + 1.5) Ω ≈ 12.9 mA。" },
+    {
+      "id": "reversed",
+      "ask": "设想电池接反了（二极管方向不变），LED 会？",
+      "choices": ["不亮，二极管后面的电路一点电流都没有", "照样亮", "烧掉"],
+      "correct": 0,
+      "explain": "电池反过来，二极管的阳极在 −、阴极在 +，单向阀关死。没有电流，LED 和后面的电路都安全。"
+    }
+  ],
   "hints": [
-    "二极管和 LED 一样有方向：电流从 anode 流向 cathode（色环端）。",
-    "二极管的 anode 可以直接插在红色 + 轨上。"
+    "二极管和 LED 一样有方向：电流从阳极流进，从色环端（阴极）流出。",
+    "二极管的阳极可以直接插在红色 + 轨上；色环端插进一列孔里。"
   ],
   "solution": {
     "parts": [

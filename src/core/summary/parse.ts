@@ -73,8 +73,10 @@ export const isSummaryJson = (json: unknown): boolean => isObj(json) && typeof j
 // ---------------------------------------------------------------- numbers in worked steps
 
 const PREFIX: Record<string, number> = { p: 1e-12, n: 1e-9, µ: 1e-6, μ: 1e-6, u: 1e-6, m: 1e-3, k: 1e3, M: 1e6 };
-// longest units first; "rad/s" before "s", "Hz" before "H", "VA" / "var" before "V"
-const QTY_RE = /(^|[^\w.])([-−]?)(\d+(?:\.\d+)?)\s*(p|n|µ|μ|u|m|k|M)?(rad\/s|Hz|VA|var|Ω|V|A|W|S|F|H|J|s|°)(?![A-Za-z])/g;
+// longest units first; "rad/s" before "s", "Hz" before "H", "VA" / "var" before "V".
+// A letter followed by "_", a phasor dot (U+0307) or "(" is a symbol, not a unit: "0.5V_n2",
+// "2V̇_a", "0.5V(s)" are products with the voltage V, not 0.5 volts.
+const QTY_RE = /(^|[^\w.])([-−]?)(\d+(?:\.\d+)?)\s*(p|n|µ|μ|u|m|k|M)?(rad\/s|Hz|VA|var|Ω|V|A|W|S|F|H|J|s|°)(?![A-Za-z_(]|̇)/g;
 
 /** Every "number + unit" in a text, in SI base units (degrees for °), with the matched text. */
 export function quantitiesIn(text: string): { value: number; text: string }[] {

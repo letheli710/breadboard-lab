@@ -2,56 +2,142 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp4-rc-lowpass-bode",
-  "title": "实验 4-1 · RC 低通滤波器：测三个频率点画伯德图",
+  "title": "RC 低通：高音被电容抄了近路",
   "kind": "challenge",
   "level": 2,
   "phase": 4,
-  "summary": "1.5 kΩ + 100 nF 低通滤波器。在 fc/10、fc、10fc 三个频率测增益和相位，画出伯德图的骨架。",
+  "summary": "1.5 kΩ + 100 nF。把频率从低调到高，看输出越来越小；在截止频率和十倍截止频率处测增益和相位。",
   "concepts": ["网络函数 H(jω) = 1/(1 + jωRC)", "截止频率 fc = 1/(2πRC)", "−3 dB 点与 −45°", "−20 dB/十倍频 −20 dB/decade", "伯德图 Bode plot"],
   "prereq": ["lesson-scope-two-channels"],
-  "description": [
-    "**目标**：在三个频率下测 RC 低通滤波器的增益和相位，画出伯德图的两条渐近线，认识截止频率。",
-    "",
-    "**电路**：信号发生器红夹子 → R1（1.5 kΩ）→ 结点 VOUT → C1（100 nF）→ GND，黑夹子接 GND。",
-    "",
-    "**信号发生器**：正弦波，幅度 1 V、偏置 0。频率依次调到 106 Hz、1061 Hz、10.6 kHz。",
-    "",
-    "**示波器**：CH1 接信号发生器输出 VIN（R1 左端），CH2 接 VOUT。用两个通道的幅度之比得到增益，用两条正弦过零点的时间差 Δt 得到相位差 φ = −360° × Δt/T。",
-    "",
-    "**先预测**：把电阻和电容看成阻抗 R 和 1/(jωC)，用分压公式写出网络函数 H(jω) = U̇out/U̇in，求出截止频率 fc = 1/(2πRC)，再算三个频率下的 |H|（也换算成 dB）和 ∠H，写下来。",
-    "",
-    "**测量**：每个频率读 VOUT 与 VIN 的幅度比和过零点时间差 Δt，算出增益和相位。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**为什么用 VIN（信号发生器端子）而不是信号发生器的设定值做分母**：信号发生器有 50 Ω 输出电阻，接上负载后端子上的电压会比设定的 1 V 略小，而且随频率变（低频时滤波器输入阻抗大，掉得少；高频时电容几乎短路，输入阻抗只剩 1.5 kΩ，掉得多一点：10.6 kHz 时 VIN 约 1.94 Vpp 而不是 2 Vpp）。拿两个通道相比，这个误差自动抵消。",
-    "",
-    "**动手**：把三个点画在对数坐标上（横轴 lg f，纵轴 20 lg|H|），连起来就是伯德图的两条渐近线：fc 以下是 0 dB 水平线，fc 以上是每十倍频下降 20 dB 的斜线，两线在 fc 相交，实际曲线在交点处低 3 dB。",
-    "",
-    "**真实电路里**：瓷片电容的容值误差常有 ±10%～±20%，fc 会跟着偏移同样的比例；所以实际做时先找“幅度比 0.707、相位 −45°”的那个频率，它才是你这块电路真正的 fc。"
+  "description": "信号发生器 → R1（1.5 kΩ）→ VOUT → C1（100 nF）→ GND。CH1 看输入，CH2 看 VOUT。用两个通道的幅度比得到增益，认识截止频率 fc = 1/(2πRC) 和伯德图的两条渐近线。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "把频率往上拧",
+      "text": [
+        "**电阻**（`1.5 kΩ`）插 **`b3`**–**`b10`**，**电容**（`100 nF`）插 **`c10`**–**`tn10`**。探头已经在板上：CH1 在输入，CH2 在电阻和电容之间（VOUT）。",
+        "信号发生器设成 **正弦波、幅度 `1 V`**，频率从 **`100 Hz`** 开始，慢慢调到 **`10 kHz`**。",
+        "频率越来越高时，CH2 的波形变大还是变小？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "电容给快信号开了一条近路",
+      "text": [
+        "- 电阻和电容组成一个**分压器**，VOUT 是电容上分到的那一份。",
+        "- 电容对慢信号几乎是断开的；信号越快，它越像一根导线，把信号直接引到 GND。所以高频分到的越来越少。",
+        "![](fig:divider)",
+        "- 电容的“交流电阻”（**容抗**）$X_C = \\frac{1}{2π f C}$ 随频率变小。它等于 R 的那个频率叫**截止频率**：",
+        "$$f_c = \\frac{1}{2π R C}$$",
+        "代入：$f_c = \\frac{1}{2π × 1500 × 100 × 10^{-9}} ≈ 1061$ Hz。",
+        "- 在 $f_c$ 处输出是输入的 0.707 倍；过了 $f_c$，频率越高，输出越小。",
+        "![](fig:bode)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "两个频率，两个通道",
+      "text": [
+        "- 频率调到 **`1061 Hz`**：读 CH2 的 **Vpp**，再读示波器下面的 **CH2 相对 CH1 的相位差**。",
+        "- 频率调到 **`10.6 kHz`**：用 CH2 的 Vpp 除以 CH1 的 Vpp，得到幅度比。",
+        "- 为什么除以 CH1，而不是除以面板上的 `1 V`：信号发生器里面有 50 Ω，接上电路后端子电压会略低，而且随频率变。两个通道相比，这个误差就抵消了。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **低通**：低于 $f_c$ 几乎原样通过；高于 $f_c$，频率每高 10 倍，输出就小到 1/10，而且越来越落后于输入。",
+        "- 工程上把倍数写成**分贝**（dB）：0.707 倍 = −3 dB，1/10 = −20 dB。所以常说“截止频率是 −3 dB 点，之后每十倍频下降 20 dB”。",
+        "- $f_c$ 是“输出 = 0.707 × 输入”的频率，只由 R 和 C 决定。",
+        "- 坑：瓷片电容常有 ±10%～±20% 的误差，$f_c$ 跟着偏。真实电路里先扫频找 0.707 的那个点，那才是你这块板的 $f_c$。"
+      ],
+      "practice": ["frequency"]
+    }
   ],
+  "figures": {
+    "divider": {
+      "kind": "schematic",
+      "caption": {
+        "text": "R 和 C 分压：频率越高，C 的容抗 X_C 越小，分到 VOUT 的越少。",
+        "i18n": {"en": "R and C divide the input: the higher the frequency, the smaller C's reactance X_C and the smaller VOUT's share."}
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Vin", "type": "V", "from": [0, 0], "to": [0, 4], "value": {"ac": {"mag": 1}}, "label": "v_in"},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [4, 0], "value": "1.5k"},
+          {"ref": "C1", "type": "C", "from": [4, 0], "to": [4, 4], "value": "100n"}
+        ],
+        "wires": [[[4, 4], [0, 4]]],
+        "labels": [{"at": [4, 0], "name": "VOUT"}]
+      }
+    },
+    "bode": {
+      "kind": "plot",
+      "caption": {
+        "text": "幅度比随频率变化：f_c 以下几乎是 1，f_c 处是 0.707，再往上越来越小。",
+        "i18n": {"en": "Amplitude ratio against frequency: about 1 below f_c, 0.707 at f_c, smaller and smaller above."}
+      },
+      "x": {"label": {"text": "频率 f / f_c", "i18n": {"en": "frequency f / f_c"}}, "min": 0, "max": 4, "ticks": [0, 1, 2, 3, 4]},
+      "y": {"label": {"text": "VOUT / VIN", "i18n": {"en": "VOUT / VIN"}}, "min": 0, "max": 1.1, "ticks": [0, 0.5, 0.707, 1]},
+      "curves": [
+        {
+          "points": [
+            [0.0, 1.0],
+            [0.1, 0.995],
+            [0.2, 0.9806],
+            [0.3, 0.9578],
+            [0.4, 0.9285],
+            [0.5, 0.8944],
+            [0.6, 0.8575],
+            [0.7, 0.8192],
+            [0.8, 0.7809],
+            [0.9, 0.7433],
+            [1.0, 0.7071],
+            [1.1, 0.6727],
+            [1.2, 0.6402],
+            [1.3, 0.6097],
+            [1.4, 0.5812],
+            [1.5, 0.5547],
+            [1.6, 0.53],
+            [1.7, 0.507],
+            [1.8, 0.4856],
+            [1.9, 0.4657],
+            [2.0, 0.4472],
+            [2.1, 0.4299],
+            [2.2, 0.4138],
+            [2.3, 0.3987],
+            [2.4, 0.3846],
+            [2.5, 0.3714],
+            [2.6, 0.359],
+            [2.7, 0.3473],
+            [2.8, 0.3363],
+            [2.9, 0.326],
+            [3.0, 0.3162],
+            [3.1, 0.307],
+            [3.2, 0.2983],
+            [3.3, 0.29],
+            [3.4, 0.2822],
+            [3.5, 0.2747],
+            [3.6, 0.2676],
+            [3.7, 0.2609],
+            [3.8, 0.2545],
+            [3.9, 0.2484],
+            [4.0, 0.2425]
+          ],
+          "tone": 1
+        }
+      ],
+      "vlines": [{"x": 1, "label": "f_c", "dashed": true}],
+      "dots": [{"at": [1, 0.707], "tone": 2}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 4-1 · RC low-pass filter: three frequency points for a Bode plot",
-      "summary": "A 1.5 kΩ + 100 nF low-pass filter. Measure gain and phase at fc/10, fc and 10fc and sketch the skeleton of its Bode plot.",
+      "title": "RC low-pass: the capacitor short-cuts the high notes",
+      "summary": "1.5 kΩ + 100 nF. Turn the frequency up and watch the output shrink; measure gain and phase at the cutoff frequency and ten times it.",
       "concepts": ["network function H(jω) = 1/(1 + jωRC)", "cutoff frequency fc = 1/(2πRC)", "−3 dB point and −45°", "−20 dB/decade", "Bode plot"],
-      "description": [
-        "**Goal**: measure the gain and phase of an RC low-pass filter at three frequencies, draw the two asymptotes of its Bode plot, and see what the cutoff frequency means.",
-        "",
-        "**Circuit**: generator red clip → R1 (1.5 kΩ) → node VOUT → C1 (100 nF) → GND; black clip to GND.",
-        "",
-        "**Generator**: sine, amplitude 1 V, offset 0. Set the frequency to 106 Hz, 1061 Hz and 10.6 kHz in turn.",
-        "",
-        "**Scope**: CH1 on the generator output VIN (left end of R1), CH2 on VOUT. The ratio of the two amplitudes is the gain; the time shift Δt between the zero crossings gives the phase φ = −360° × Δt/T.",
-        "",
-        "**Predict first**: treat the resistor and capacitor as impedances R and 1/(jωC), write the network function H(jω) = U_out/U_in with the divider rule, find the cutoff frequency fc = 1/(2πRC), and work out |H| (also in dB) and ∠H at the three frequencies. Write them down.",
-        "",
-        "**Measure**: at each frequency read the amplitude ratio VOUT/VIN and the zero-crossing shift Δt, and turn them into gain and phase. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Why divide by VIN (the generator's terminals) rather than the generator setting**: the generator has a 50 Ω output resistance, so with a load its terminal voltage is a little below the 1 V you set, and that drop changes with frequency (at low frequency the filter's input impedance is high and little is lost; at high frequency the capacitor is almost a short, the input impedance is just 1.5 kΩ, and a bit more is lost: at 10.6 kHz VIN is about 1.94 Vpp instead of 2 Vpp). Taking the ratio of the two channels cancels that error.",
-        "",
-        "**Try it**: plot the three points on log axes (lg f across, 20 lg|H| up). Joined up they show the two asymptotes of the Bode plot: a flat 0 dB line below fc and a line falling 20 dB per decade above it, meeting at fc, where the real curve is 3 dB below the corner.",
-        "",
-        "**In a real circuit**: ceramic capacitors often have a ±10% to ±20% tolerance and fc shifts by the same fraction; on a real board, first look for the frequency where the ratio is 0.707 and the phase −45° — that is your circuit's actual fc."
-      ],
+      "description": "Generator → R1 (1.5 kΩ) → VOUT → C1 (100 nF) → GND. CH1 shows the input, CH2 VOUT. The ratio of the two channels is the gain; meet the cutoff frequency fc = 1/(2πRC) and the two asymptotes of a Bode plot.",
       "compare": [
         "**Compare**:",
         "  H(jω) = (1/(jωC)) / (R + 1/(jωC)) = 1 / (1 + jωRC)",
@@ -62,55 +148,93 @@
       ],
       "measurements": [
         {"ask": "f = 1061 Hz (≈ fc): CH2's (VOUT's) Vpp"},
-        {"ask": "f = 1061 Hz: the phase of VOUT relative to VIN (negative when CH2 lags)", "explain": "At fc, ωRC = 1 and H = 1/(1 + j): |H| = 1/√2 ≈ 0.707, ∠H = −45°."},
-        {"ask": "f = 10.6 kHz (10 fc): the amplitude ratio VOUT/VIN", "explain": "|H| = 1/√(1 + 10²) ≈ 0.0995, i.e. −20 dB: ten times the frequency, about a tenth of the amplitude."}
+        {
+          "ask": "f = 1061 Hz: the phase of VOUT relative to VIN (negative when CH2 lags)",
+          "explain": "At fc, ωRC = 1 and H = 1/(1 + j): |H| = 1/√2 ≈ 0.707, ∠H = −45°."
+        },
+        {
+          "ask": "f = 10.6 kHz (10 fc): the amplitude ratio VOUT/VIN (CH2 Vpp ÷ CH1 Vpp)",
+          "explain": "|H| = 1/√(1 + 10²) ≈ 0.0995, i.e. −20 dB: ten times the frequency, about a tenth of the amplitude."
+        }
       ],
       "hints": [
         "Resistor in series, capacitor from VOUT to GND.",
         "fc = 1/(2πRC). Work out |H| and ∠H at fc first, then compare with the scope.",
         "Compare VOUT with the generator's terminals (CH1), not with the number on the generator's display."
       ],
-      "tests": [
-        "fc/10 = 106 Hz: sensible gain and phase",
-        "fc = 1061 Hz: sensible gain and phase",
-        "10fc = 10.6 kHz: sensible gain and phase"
+      "tests": ["fc/10 = 106 Hz: sensible gain and phase", "fc = 1061 Hz: sensible gain and phase", "10fc = 10.6 kHz: sensible gain and phase"],
+      "cards": [
+        {
+          "title": "Turn the frequency up",
+          "text": [
+            "**Resistor** (`1.5 kΩ`) into **`b3`**–**`b10`**, **capacitor** (`100 nF`) into **`c10`**–**`tn10`**. The probes are already on the board: CH1 on the input, CH2 between the resistor and the capacitor (VOUT).",
+            "Set the generator to **sine, amplitude `1 V`**, start at **`100 Hz`** and turn it slowly up to **`10 kHz`**.",
+            "As the frequency rises, does the CH2 trace get bigger or smaller?"
+          ]
+        },
+        {
+          "title": "The capacitor is a short-cut for fast signals",
+          "text": [
+            "- The resistor and the capacitor form a **voltage divider**; VOUT is the share that lands on the capacitor.",
+            "- A capacitor is almost open for slow signals; the faster the signal, the more it looks like a wire straight to GND. So high frequencies get a smaller and smaller share.",
+            "![](fig:divider)",
+            "- The capacitor's \"AC resistance\" (its **capacitive reactance**) $X_C = \\frac{1}{2π f C}$ falls with frequency. The frequency where it equals R is the **cutoff frequency**:",
+            "$$f_c = \\frac{1}{2π R C}$$",
+            "Plugging in: $f_c = \\frac{1}{2π × 1500 × 100 × 10^{-9}} ≈ 1061$ Hz.",
+            "- At $f_c$ the output is 0.707 of the input; past $f_c$, the higher the frequency, the smaller the output.",
+            "![](fig:bode)"
+          ]
+        },
+        {
+          "title": "Two frequencies, two channels",
+          "text": [
+            "- Set **`1061 Hz`**: read the **Vpp** of CH2, then the **phase of CH2 vs CH1** under the scope screen.",
+            "- Set **`10.6 kHz`**: divide CH2's Vpp by CH1's Vpp to get the amplitude ratio.",
+            "- Why divide by CH1 and not by the `1 V` on the panel: the generator has 50 Ω inside, so with a circuit attached its terminal voltage is a little lower, and that changes with frequency. Comparing the two channels cancels it."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Low-pass**: below $f_c$ the signal passes almost unchanged; above $f_c$ every 10× in frequency leaves 1/10 of the output, lagging further and further behind the input.",
+            "- Engineers write ratios in **decibels** (dB): 0.707 = −3 dB, 1/10 = −20 dB. Hence \"the cutoff is the −3 dB point, and above it the gain falls 20 dB per decade\".",
+            "- $f_c$ is the frequency where output = 0.707 × input. Only R and C set it.",
+            "- Pitfall: ceramic capacitors are often ±10% to ±20% off, and $f_c$ moves with them. On a real board, sweep for the 0.707 point first — that is your board's actual $f_c$."
+          ]
+        }
       ]
     }
   },
   "components": [
-    { "ref": "FG1", "type": "function_gen" },
-    { "ref": "R1", "type": "resistor", "resistance": "1.5k" },
-    { "ref": "C1", "type": "capacitor", "capacitance": "100n" }
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "R1", "type": "resistor", "resistance": "1.5k"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "100n"}
   ],
-  "nets": [
-    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
-    { "name": "VOUT", "pins": ["R1.2", "C1.1"] },
-    { "name": "GND", "pins": ["C1.2", "FG1.-"] }
-  ],
+  "nets": [{"name": "VIN", "pins": ["FG1.+", "R1.1"]}, {"name": "VOUT", "pins": ["R1.2", "C1.1"]}, {"name": "GND", "pins": ["C1.2", "FG1.-"]}],
   "tests": [
     {
       "name": "fc/10 = 106 Hz：增益、相位合理",
-      "set": { "FG1": { "waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 106, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.98, "max": 1.0 },
-        { "pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -8, "max": -3.5 }
+        {"pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.98, "max": 1.0},
+        {"pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -8, "max": -3.5}
       ]
     },
     {
       "name": "fc = 1061 Hz：增益、相位合理",
-      "set": { "FG1": { "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73 },
-        { "pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -48, "max": -42 }
+        {"pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.68, "max": 0.73},
+        {"pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -48, "max": -42}
       ]
     },
     {
       "name": "10fc = 10.6 kHz：增益、相位合理",
-      "set": { "FG1": { "waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0 } },
+      "set": {"FG1": {"waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0}},
       "scope": [
-        { "pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.105 },
-        { "pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -87, "max": -81 },
-        { "pin": "FG1.+", "measure": "vpp", "min": 1.9, "max": 1.97 }
+        {"pin": "C1.1", "measure": "gain", "vs": "FG1.+", "min": 0.094, "max": 0.105},
+        {"pin": "C1.1", "measure": "phase", "vs": "FG1.+", "min": -87, "max": -81},
+        {"pin": "FG1.+", "measure": "vpp", "min": 1.9, "max": 1.97}
       ]
     }
   ],
@@ -123,29 +247,56 @@
     "- **f = 10fc = 10.6 kHz**：|H| ≈ 1/√101 ≈ 0.0995（−20 dB），相位 −84.3°。频率每升高 10 倍，幅度再降 10 倍（−20 dB/十倍频），相位趋近 −90°。"
   ],
   "measurements": [
-    {"id": "vpp", "scope": "vpp", "pin": "C1.1", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.3, 1.45], "ask": "f = 1061 Hz（≈ fc）：CH2（VOUT）的 Vpp"},
-    {"id": "ph", "scope": "phase", "pin": "C1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}}, "unit": "°", "predict": true, "range": [-48, -42], "ask": "f = 1061 Hz：VOUT 相对 VIN 的相位差（CH2 滞后为负）", "explain": "在 fc 处 ωRC = 1，H = 1/(1 + j)：|H| = 1/√2 ≈ 0.707，∠H = −45°。"},
-    {"id": "g10", "scope": "gain", "pin": "C1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0}}, "unit": "", "predict": true, "range": [0.094, 0.105], "ask": "f = 10.6 kHz（10 fc）：幅度比 VOUT/VIN", "explain": "|H| = 1/√(1 + 10²) ≈ 0.0995，即 −20 dB：频率升高 10 倍，幅度降到约 1/10。"}
+    {
+      "id": "vpp",
+      "scope": "vpp",
+      "pin": "C1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.3, 1.45],
+      "ask": "f = 1061 Hz（≈ fc）：CH2（VOUT）的 Vpp"
+    },
+    {
+      "id": "ph",
+      "scope": "phase",
+      "pin": "C1.1",
+      "vs": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0}},
+      "unit": "°",
+      "predict": true,
+      "range": [-48, -42],
+      "ask": "f = 1061 Hz：VOUT 相对 VIN 的相位差（CH2 滞后为负）",
+      "explain": "在 fc 处 ωRC = 1，H = 1/(1 + j)：|H| = 1/√2 ≈ 0.707，∠H = −45°。"
+    },
+    {
+      "id": "g10",
+      "scope": "gain",
+      "pin": "C1.1",
+      "vs": "FG1.+",
+      "set": {"FG1": {"waveform": "sine", "frequency": 10610, "amplitude": 1, "offset": 0}},
+      "unit": "",
+      "predict": true,
+      "range": [0.094, 0.105],
+      "ask": "f = 10.6 kHz（10 fc）：幅度比 VOUT/VIN（CH2 的 Vpp ÷ CH1 的 Vpp）",
+      "explain": "|H| = 1/√(1 + 10²) ≈ 0.0995，即 −20 dB：频率升高 10 倍，幅度降到约 1/10。"
+    }
   ],
-  "hints": [
-    "电阻串联在前，电容从 VOUT 接到 GND。",
-    "fc = 1/(2πRC)。先算出 fc 处的 |H| 和 ∠H，再和示波器的读数对比。",
-    "拿 VOUT 和信号发生器端子上的电压（CH1）比，而不是和信号发生器面板上的数字比。"
-  ],
+  "hints": ["电阻串联在前，电容从 VOUT 接到 GND。", "fc = 1/(2πRC)。先算出 fc 处的 |H| 和 ∠H，再和示波器的读数对比。", "拿 VOUT 和信号发生器端子上的电压（CH1）比，而不是和信号发生器面板上的数字比。"],
   "start": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   },
   "solution": {
     "parts": [
-      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
-      { "type": "resistor", "ref": "R1", "resistance": "1.5k", "pins": { "1": "b3", "2": "b10" } },
-      { "type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": { "1": "c10", "2": "tn10" } },
-      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
-      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "resistor", "ref": "R1", "resistance": "1.5k", "pins": {"1": "b3", "2": "b10"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "100n", "pins": {"1": "c10", "2": "tn10"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "e3", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e10", "gnd": "tn21"}}
     ]
   }
 }

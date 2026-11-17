@@ -2,60 +2,88 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "s-domain",
-  "intro": "拉普拉斯变换把线性动态电路的微分方程变成代数方程：画出**运算电路**（激励 → 象函数，L、C → sL、1/(sC) 加上反映初始值的附加电源），就能像电阻电路一样求解，再用部分分式展开回到时域。网络函数 H(s) 的零点、极点把时域响应（冲激响应、稳定性）和频率响应联系在一起。最重要的习惯：**附加电源的方向从变换式推出，结果用初值、终值检验。**",
+  "intro": [
+    "拉普拉斯变换把线性动态电路的微分方程变成代数方程。要点分两组。",
+    "**A · 运算电路与部分分式**（要点 1–5）：变换与性质、元件的运算模型、运算法的步骤、部分分式。激励换成象函数，L、C 换成 sL、1/(sC) 并加上附加电源，就得到**运算电路**。像电阻电路一样求解它，再用部分分式展开回到时域。",
+    "**B · 网络函数与零极点**（要点 6–9）：网络函数、极点与时域响应、极点与频率响应、卷积。H(s) 的零点、极点把时域响应（冲激响应、稳定性）和频率响应联系在一起。",
+    "最重要的习惯：**附加电源的方向从变换式推出，结果用初值、终值检验。**"
+  ],
   "i18n": {
     "en": {
-      "intro": "The Laplace transform turns the differential equations of linear dynamic circuits into algebraic ones: draw the **s-domain circuit** (inputs → transforms, L and C → sL and 1/(sC) plus initial-condition sources for the initial values), solve it like a resistive circuit, and return to the time domain by partial fractions. The zeros and poles of the network function H(s) tie the time response (impulse response, stability) to the frequency response. The key habit: **derive the direction of every initial-condition source from the transformed equation, and check results with the initial and final values.**"
+      "intro": [
+        "The Laplace transform turns the differential equations of linear dynamic circuits into algebraic ones. The key ideas come in two groups.",
+        "**A · s-domain circuits and partial fractions** (ideas 1–5): the transform and its properties, element models, the method, partial fractions. Inputs become transforms, and L and C become sL and 1/(sC) plus initial-condition sources: that is the **s-domain circuit**. Solve it like a resistive circuit, then return to the time domain by partial fractions.",
+        "**B · network functions, poles and zeros** (ideas 6–9): network functions, poles vs the time response, poles vs the frequency response, convolution. The zeros and poles of H(s) tie the time response (impulse response, stability) to the frequency response.",
+        "The key habit: **derive the direction of every initial-condition source from the transformed equation, and check results with the initial and final values.**"
+      ]
     }
   },
   "ideas": [
     {
       "id": "transform",
-      "title": "拉普拉斯变换：把微分方程变成代数方程",
+      "title": "A · 拉普拉斯变换：把微分方程变成代数方程",
       "text": [
-        "F(s) = ℒ[f(t)] = ∫_{0₋}^{∞}f(t)e^{−st}dt，s = σ + jω 称为**复频率**。积分下限取 0₋，t = 0 处的冲激也包括在内；只关心 t ≥ 0 的部分，所以时域结果都要乘 ε(t)。",
-        "电路里常见的激励只有几种：冲激 δ(t) ↔ 1，阶跃 ε(t) ↔ 1/s，指数 e^{−at} ↔ 1/(s + a)，正弦 ↔ 分母 s² + ω²。记住这几对，再加上性质，就能写出所有激励的象函数。",
-        "每个象函数的**极点**对应一种时间函数：s = −a 对应 e^{−at}，s = 0 对应常数，共轭复数 −α ± jω 对应 e^{−αt} 乘正弦，重极点多出因子 t。看极点就知道响应由哪些“模式”组成。"
+        "- F(s) = ℒ[f(t)] = ∫_{0₋}^{∞}f(t)e^{−st}dt，s = σ + jω 叫作**复频率**。",
+        "- 积分下限取 0₋，所以 t = 0 处的冲激也包括在内。我们只关心 t ≥ 0 的部分，所以时域结果都要乘 u(t)。",
+        "- 电路里常见的激励只有几种：冲激 δ(t) ↔ 1，阶跃 u(t) ↔ 1/s，指数 e^{−at} ↔ 1/(s + a)，正弦 ↔ 分母 s² + ω²。",
+        "- 记住这几对，再加上下一条的性质，就能写出所有激励的象函数。",
+        "- 象函数的每个**极点**对应一种时间函数：s = −a 对应 e^{−at}，s = 0 对应常数，共轭复数 −α ± jω 对应 e^{−αt} 乘正弦，重极点多出因子 t。",
+        "- 所以看极点就知道，响应由哪些“模式”组成。"
       ],
       "problems": ["s-domain-01-transforms", "s-domain-13-convolution"],
       "i18n": {
         "en": {
-          "title": "Laplace transform: differential equations become algebraic ones",
+          "title": "A · Laplace transform: differential equations become algebraic ones",
           "text": [
-            "F(s) = ℒ[f(t)] = ∫_{0−}^{∞}f(t)e^{−st}dt, where s = σ + jω is the **complex frequency**. The lower limit 0− includes an impulse at t = 0; only t ≥ 0 matters, so every time-domain result carries a factor ε(t).",
-            "Circuits use only a few inputs: impulse δ(t) ↔ 1, step ε(t) ↔ 1/s, exponential e^{−at} ↔ 1/(s + a), sinusoids ↔ denominators s² + ω². Know these pairs plus the properties and you can transform every input.",
-            "Each **pole** of a transform is one kind of time function: s = −a gives e^{−at}, s = 0 a constant, a complex pair −α ± jω gives e^{−αt} times a sinusoid, and a repeated pole adds a factor t. The poles tell you which \"modes\" make up a response."
+            "- F(s) = ℒ[f(t)] = ∫_{0−}^{∞}f(t)e^{−st}dt, where s = σ + jω is the **complex frequency**.",
+            "- The lower limit is 0−, so an impulse at t = 0 is included. Only t ≥ 0 matters, so every time-domain result carries a factor u(t).",
+            "- Circuits use only a few inputs: impulse δ(t) ↔ 1, step u(t) ↔ 1/s, exponential e^{−at} ↔ 1/(s + a), sinusoids ↔ denominators s² + ω².",
+            "- Know these pairs plus the properties in the next idea, and you can transform every input.",
+            "- Each **pole** of a transform is one kind of time function: s = −a gives e^{−at}, s = 0 a constant, a complex pair −α ± jω gives e^{−αt} times a sinusoid, and a repeated pole adds a factor t.",
+            "- So the poles tell you which \"modes\" make up a response."
           ]
         }
       }
     },
     {
       "id": "properties",
-      "title": "性质：微分、初值定理与终值定理",
+      "title": "A · 性质：微分、初值定理与终值定理",
       "text": [
-        "**微分性质** ℒ[f′] = sF(s) − f(0₋) 是运算电路的来源：电感 u = L di/dt、电容 i = C du/dt 变换后都多出一个与初值有关的常数项——这就是**附加电源**。",
-        "**初值定理** f(0₊) = lim_{s→∞} sF(s)（F(s) 为真分式时）和**终值定理** f(∞) = lim_{s→0} sF(s)（sF(s) 的极点都在左半平面时）可以不做反变换就检查结果。终值定理的条件不满足时（极点在虚轴上或右半平面）响应没有终值，硬算出来的数没有意义。",
-        "其他常用性质：线性；积分 ℒ[∫_{0₋}^{t}f dξ] = F(s)/s；时移 f(t − t_0)ε(t − t_0) ↔ e^{−st_0}F(s)；复频移 e^{−at}f(t) ↔ F(s + a)。"
+        "- **微分性质** ℒ[f′] = sF(s) − f(0₋) 是运算电路的来源。",
+        "- 电感 v = L di/dt、电容 i = C dv/dt 变换后，都多出一个和初值有关的常数项。这一项就是**附加电源**。",
+        "- **初值定理**：f(0₊) = lim_{s→∞} sF(s)，要求 F(s) 是真分式。",
+        "- **终值定理**：f(∞) = lim_{s→0} sF(s)，要求 sF(s) 的极点都在左半平面。",
+        "- 这两个定理不用做反变换，就能检查结果。",
+        "- 终值定理的条件不满足时（极点在虚轴上或右半平面），响应没有终值。硬算出来的数没有意义。",
+        "- 其他常用性质：线性；积分 ℒ[∫_{0₋}^{t}f dξ] = F(s)/s；时移 f(t − t_0)u(t − t_0) ↔ e^{−st_0}F(s)；复频移 e^{−at}f(t) ↔ F(s + a)。"
       ],
       "problems": ["s-domain-01-transforms", "s-domain-02-initial-final-value"],
       "i18n": {
         "en": {
-          "title": "Properties: derivative, initial- and final-value theorems",
+          "title": "A · Properties: derivative, initial- and final-value theorems",
           "text": [
-            "The **derivative rule** ℒ[f′] = sF(s) − f(0−) is where the s-domain circuit comes from: transforming u = L di/dt and i = C du/dt leaves an extra constant term containing the initial value — the **initial-condition source**.",
-            "The **initial-value theorem** f(0+) = lim_{s→∞} sF(s) (F(s) strictly proper) and the **final-value theorem** f(∞) = lim_{s→0} sF(s) (all poles of sF(s) in the left half-plane) check a result without inverting it. When the final-value conditions fail (poles on the jω axis or in the right half-plane) there is no final value, and a number computed anyway means nothing.",
-            "Other everyday properties: linearity; integration ℒ[∫_{0−}^{t}f dξ] = F(s)/s; time shift f(t − t_0)ε(t − t_0) ↔ e^{−st_0}F(s); frequency shift e^{−at}f(t) ↔ F(s + a)."
+            "- The **derivative rule** ℒ[f′] = sF(s) − f(0−) is where the s-domain circuit comes from.",
+            "- Transforming v = L di/dt and i = C dv/dt leaves an extra constant term containing the initial value. That term is the **initial-condition source**.",
+            "- **Initial-value theorem**: f(0+) = lim_{s→∞} sF(s), for a strictly proper F(s).",
+            "- **Final-value theorem**: f(∞) = lim_{s→0} sF(s), when all poles of sF(s) are in the left half-plane.",
+            "- Both theorems check a result without inverting it.",
+            "- When the final-value conditions fail (poles on the jω axis or in the right half-plane), there is no final value. A number computed anyway means nothing.",
+            "- Other everyday properties: linearity; integration ℒ[∫_{0−}^{t}f dξ] = F(s)/s; time shift f(t − t_0)u(t − t_0) ↔ e^{−st_0}F(s); frequency shift e^{−at}f(t) ↔ F(s + a)."
           ]
         }
       }
     },
     {
       "id": "models",
-      "title": "元件的运算模型与附加电源",
+      "title": "A · 元件的运算模型与附加电源",
       "text": [
-        "电阻 U(s) = RI(s)。电感 U_L(s) = sL·I_L(s) − L·i_L(0₋)：**串联形式**是运算阻抗 sL 串一个电压源 L·i_L(0₋)，方向是沿 i_L 推动电流（“+”在 i_L 流出的一端）；**并联形式**是 sL 并一个与 i_L 同向的电流源 i_L(0₋)/s。",
-        "电容 U_C(s) = I_C(s)/(sC) + u_C(0₋)/s：**串联形式**是 1/(sC) 串电压源 u_C(0₋)/s，“+”与 u_C 的“+”同侧；**并联形式**是 1/(sC) 并电流源 C·u_C(0₋)，方向与 i_C 相反（从“−”端流向“+”端）。",
-        "耦合电感每个线圈除了自己的 L·i(0₋)，还要加上互感项 ±M·i_{另一个}(0₋)，符号与 sM 项相同。**附加电源的方向永远从变换式推出**，不要凭印象画；画好后检查：它是否在“维持原来的电流 / 电压”。"
+        "- 电阻：V(s) = RI(s)。",
+        "- 电感：V_L(s) = sL·I_L(s) − L·i_L(0₋)。**串联形式**是运算阻抗 sL 串一个电压源 L·i_L(0₋)。这个电压源沿 i_L 推动电流，“+”在 i_L 流出的一端。",
+        "- 电感的**并联形式**是 sL 并一个电流源 i_L(0₋)/s，方向与 i_L 相同。",
+        "- 电容：V_C(s) = I_C(s)/(sC) + v_C(0₋)/s。**串联形式**是 1/(sC) 串电压源 v_C(0₋)/s，“+”与 v_C 的“+”同侧。",
+        "- 电容的**并联形式**是 1/(sC) 并电流源 C·v_C(0₋)。它的方向与 i_C 相反：从“−”端流向“+”端。",
+        "- 耦合电感的每个线圈，除了自己的 L·i(0₋)，还要加上互感项 ±M·i_{另一个}(0₋)。它的符号与 sM 项相同。",
+        "- **附加电源的方向永远从变换式推出**，不要凭印象画。画好后检查：它是不是在“维持原来的电流 / 电压”？"
       ],
       "problems": [
         "s-domain-03-element-models",
@@ -67,22 +95,31 @@
       ],
       "i18n": {
         "en": {
-          "title": "s-domain element models and initial-condition sources",
+          "title": "A · s-domain element models and initial-condition sources",
           "text": [
-            "Resistor U(s) = RI(s). Inductor U_L(s) = sL·I_L(s) − L·i_L(0−): the **series form** is the impedance sL with a voltage source L·i_L(0−) that pushes current along i_L (+ at the end where i_L leaves); the **parallel form** is sL with a current source i_L(0−)/s in the direction of i_L.",
-            "Capacitor U_C(s) = I_C(s)/(sC) + u_C(0−)/s: the **series form** is 1/(sC) with a voltage source u_C(0−)/s, + on the + side of u_C; the **parallel form** is 1/(sC) with a current source C·u_C(0−) directed against i_C (from − to +).",
-            "Each coil of a coupled pair adds a mutual term ±M·i_{other}(0−) to its own L·i(0−), with the same sign as its sM term. **Always derive the direction of a source from the transformed equation**, not from memory; then check that it \"keeps the old current / voltage going\"."
+            "- Resistor: V(s) = RI(s).",
+            "- Inductor: V_L(s) = sL·I_L(s) − L·i_L(0−). The **series form** is the impedance sL in series with a voltage source L·i_L(0−). This source pushes current along i_L: + at the end where i_L leaves.",
+            "- The inductor's **parallel form** is sL in parallel with a current source i_L(0−)/s, in the direction of i_L.",
+            "- Capacitor: V_C(s) = I_C(s)/(sC) + v_C(0−)/s. The **series form** is 1/(sC) in series with a voltage source v_C(0−)/s, + on the + side of v_C.",
+            "- The capacitor's **parallel form** is 1/(sC) in parallel with a current source C·v_C(0−). It points against i_C: from − to +.",
+            "- Each coil of a coupled pair adds a mutual term ±M·i_{other}(0−) to its own L·i(0−). Its sign is the same as that of the sM term.",
+            "- **Always derive the direction of a source from the transformed equation**, not from memory. Then check: does it \"keep the old current / voltage going\"?"
           ]
         }
       }
     },
     {
       "id": "method",
-      "title": "运算法的步骤",
+      "title": "A · 运算法的步骤",
       "text": [
-        "1. 由 t < 0 的电路求 i_L(0₋)、u_C(0₋)。2. 画 t > 0 的**运算电路**：激励换成象函数，R、L、C 换成 R、sL、1/(sC)，加上附加电源。3. 用电阻电路的任何方法（串并联、分压、结点法、网孔法、戴维宁、叠加）求所要的象函数。4. 部分分式展开、反变换。5. 用 0₊ 值、终值、KVL 检验。",
-        "运算电路里**初值的处理是自动的**：不需要像时域法那样另外求导数的初始值，二阶、高阶电路都一样。叠加时可以把响应分成零状态（激励）和零输入（附加电源）两部分。",
-        "含运放、受控源、耦合电感的电路照样适用：运放用“虚短虚断”，受控源保留在运算电路里，耦合电感用 sM 加互感附加电源。"
+        "1. 由 t < 0 的电路求 i_L(0₋)、v_C(0₋)。",
+        "2. 画 t > 0 的**运算电路**：激励换成象函数，R、L、C 换成 R、sL、1/(sC)，再加上附加电源。",
+        "3. 用电阻电路的任何方法求所要的象函数：串并联、分压、结点法、网孔法、戴维宁、叠加。",
+        "4. 部分分式展开，再反变换。",
+        "5. 用 0₊ 值、终值、KVL 检验。",
+        "- 运算电路里**初值的处理是自动的**。不需要像时域法那样另求导数的初始值，二阶、高阶电路都一样。",
+        "- 用叠加时，响应可以分成两部分：零状态部分（由激励引起）和零输入部分（由附加电源引起）。",
+        "- 含运放、受控源、耦合电感的电路照样适用。运放用“虚短虚断”；受控源保留在运算电路里；耦合电感用 sM，再加上互感的附加电源。"
       ],
       "problems": [
         "s-domain-02-initial-final-value",
@@ -94,23 +131,31 @@
       ],
       "i18n": {
         "en": {
-          "title": "The s-domain method step by step",
+          "title": "A · The s-domain method step by step",
           "text": [
-            "1. From the circuit for t < 0 find i_L(0−) and u_C(0−). 2. Draw the **s-domain circuit** for t > 0: inputs become transforms, R, L, C become R, sL, 1/(sC), plus the initial-condition sources. 3. Find the wanted transform with any resistive-circuit method (series/parallel, dividers, nodal, mesh, Thévenin, superposition). 4. Partial fractions and inverse transform. 5. Check with 0+ values, the final value and KVL.",
-            "In the s-domain circuit **initial values are handled automatically**: unlike the time-domain method you never need initial derivatives, for second- and higher-order circuits alike. With superposition the response splits into a zero-state part (inputs) and a zero-input part (initial-condition sources).",
-            "Op-amps, dependent sources and coupled inductors work the same way: virtual short / no input current for op-amps, dependent sources stay in the s-domain circuit, coupled coils get sM plus the mutual initial-condition sources."
+            "1. From the circuit for t < 0 find i_L(0−) and v_C(0−).",
+            "2. Draw the **s-domain circuit** for t > 0: inputs become transforms, R, L, C become R, sL, 1/(sC), plus the initial-condition sources.",
+            "3. Find the wanted transform with any resistive-circuit method: series/parallel, dividers, nodal, mesh, Thévenin, superposition.",
+            "4. Partial fractions, then the inverse transform.",
+            "5. Check with the 0+ values, the final value and KVL.",
+            "- In the s-domain circuit **initial values are handled automatically**. Unlike the time-domain method you never need initial derivatives, for second- and higher-order circuits alike.",
+            "- With superposition the response splits into two parts: a zero-state part (from the inputs) and a zero-input part (from the initial-condition sources).",
+            "- Op-amps, dependent sources and coupled inductors work the same way. Op-amps: virtual short, no input current. Dependent sources stay in the s-domain circuit. Coupled coils get sM plus the mutual initial-condition sources."
           ]
         }
       }
     },
     {
       "id": "pfe",
-      "title": "部分分式展开（海维赛德展开）",
+      "title": "A · 部分分式展开（海维赛德展开）",
       "text": [
-        "响应的象函数是有理分式 F(s) = N(s)/D(s)。分子次数 ≥ 分母次数时先做多项式除法，商式对应 δ(t) 及其导数。真分式按 D(s) 的根展开：",
+        "响应的象函数是有理分式 F(s) = N(s)/D(s)。",
+        "分子次数 ≥ 分母次数时，先做多项式除法；商式对应 δ(t) 及其导数。",
+        "剩下的真分式按 D(s) 的根展开：",
         "- **单极点** p_i：K_i = [(s − p_i)F(s)]_{s = p_i} = N(p_i)/D′(p_i)，对应 K_{i}e^{p_{i}t}。",
-        "- **共轭复极点** −α ± jω：只算 K_1 = |K_1|∠θ（在 −α + jω 处），两项合成 2|K_1|e^{−αt}cos(ωt + θ)。",
-        "- **重极点** p（m 重）：K_{1k} = \\frac{1}{(k − 1)!}\\frac{d^{k−1}}{ds^{k−1}}[(s − p)^{m}F(s)]_{s = p}，对应 \\frac{K_{11}t^{m−1}}{(m − 1)!}e^{pt} + … + K_{1m}e^{pt}；二重极点就是 (K_{11}t + K_{12})e^{pt}。"
+        "- **共轭复极点** −α ± jω：只算 −α + jω 处的 K_1 = |K_1|∠θ。两项合成 2|K_1|e^{−αt}cos(ωt + θ)。",
+        "- **重极点** p（m 重）：K_{1k} = \\frac{1}{(k − 1)!}\\frac{d^{k−1}}{ds^{k−1}}[(s − p)^{m}F(s)]_{s = p}，对应 \\frac{K_{11}t^{m−1}}{(m − 1)!}e^{pt} + … + K_{1m}e^{pt}。",
+        "- 二重极点（m = 2）给出 (K_{11}t + K_{12})e^{pt}。"
       ],
       "problems": [
         "s-domain-04-partial-fractions-real",
@@ -123,23 +168,30 @@
       ],
       "i18n": {
         "en": {
-          "title": "Partial fractions (Heaviside expansion)",
+          "title": "A · Partial fractions (Heaviside expansion)",
           "text": [
-            "The transform of a response is a rational function F(s) = N(s)/D(s). If the numerator degree is ≥ the denominator degree, divide first: the quotient gives δ(t) and its derivatives. A proper fraction is expanded over the roots of D(s):",
+            "The transform of a response is a rational function F(s) = N(s)/D(s).",
+            "If the numerator degree is ≥ the denominator degree, divide first; the quotient gives δ(t) and its derivatives.",
+            "The remaining proper fraction is expanded over the roots of D(s):",
             "- **simple pole** p_i: K_i = [(s − p_i)F(s)]_{s = p_i} = N(p_i)/D′(p_i), giving K_{i}e^{p_{i}t}.",
-            "- **complex pair** −α ± jω: compute only K_1 = |K_1|∠θ (at −α + jω); the two terms combine into 2|K_1|e^{−αt}cos(ωt + θ).",
-            "- **repeated pole** p (order m): K_{1k} = \\frac{1}{(k − 1)!}\\frac{d^{k−1}}{ds^{k−1}}[(s − p)^{m}F(s)]_{s = p}, giving \\frac{K_{11}t^{m−1}}{(m − 1)!}e^{pt} + … + K_{1m}e^{pt}; a double pole gives (K_{11}t + K_{12})e^{pt}."
+            "- **complex pair** −α ± jω: compute only K_1 = |K_1|∠θ at −α + jω. The two terms combine into 2|K_1|e^{−αt}cos(ωt + θ).",
+            "- **repeated pole** p (order m): K_{1k} = \\frac{1}{(k − 1)!}\\frac{d^{k−1}}{ds^{k−1}}[(s − p)^{m}F(s)]_{s = p}, giving \\frac{K_{11}t^{m−1}}{(m − 1)!}e^{pt} + … + K_{1m}e^{pt}.",
+            "- A double pole (m = 2) gives (K_{11}t + K_{12})e^{pt}."
           ]
         }
       }
     },
     {
       "id": "netfun",
-      "title": "网络函数、冲激响应与阶跃响应",
+      "title": "B · 网络函数、冲激响应与阶跃响应",
       "text": [
-        "**零状态**下，响应与激励象函数之比 H(s) = R(s)/E(s) 叫网络函数。同一端口时是驱动点函数（输入阻抗、输入导纳），不同端口时是转移函数（电压比、转移阻抗……）。H(s) 只由电路结构和参数决定，与激励无关。",
-        "ℒ[δ(t)] = 1，所以**冲激响应** h(t) = ℒ⁻¹[H(s)]；**阶跃响应** s(t) = ℒ⁻¹[H(s)/s]，h(t) = ds(t)/dt。冲激可以使电感电流、电容电压跳变：i_L(0₊) − i_L(0₋) = \\frac{1}{L}∫_{0₋}^{0₊}u_L dt。",
-        "H(s) 写成 K\\frac{∏(s − z_j)}{∏(s − p_i)}：z_j 是**零点**，p_i 是**极点**。极点就是电路的固有频率（除非被零点抵消），零点决定各个模式的大小（系数）。"
+        "- **零状态**下，响应与激励的象函数之比 H(s) = R(s)/E(s) 叫**网络函数**。",
+        "- 响应和激励在同一端口时，H(s) 是驱动点函数（输入阻抗、输入导纳）；在不同端口时，是转移函数（电压比、转移阻抗……）。",
+        "- H(s) 只由电路的结构和参数决定，与激励无关。",
+        "- ℒ[δ(t)] = 1，所以**冲激响应** h(t) = ℒ⁻¹[H(s)]。**阶跃响应** s(t) = ℒ⁻¹[H(s)/s]，并且 h(t) = ds(t)/dt。",
+        "- 冲激可以让电感电流、电容电压跳变：i_L(0₊) − i_L(0₋) = \\frac{1}{L}∫_{0₋}^{0₊}v_L dt。",
+        "- 把 H(s) 写成 K\\frac{∏(s − z_j)}{∏(s − p_i)}：z_j 是**零点**，p_i 是**极点**。",
+        "- 极点就是电路的固有频率（除非被零点抵消）。零点决定各个模式的大小，也就是系数。"
       ],
       "problems": [
         "s-domain-08-impulse-response",
@@ -150,22 +202,29 @@
       ],
       "i18n": {
         "en": {
-          "title": "Network functions, impulse and step responses",
+          "title": "B · Network functions, impulse and step responses",
           "text": [
-            "In the **zero state**, the ratio of the response transform to the input transform, H(s) = R(s)/E(s), is the network function. At one port it is a driving-point function (input impedance, input admittance); between ports a transfer function (voltage ratio, transfer impedance, …). H(s) depends only on the circuit, not on the input.",
-            "ℒ[δ(t)] = 1, so the **impulse response** is h(t) = ℒ⁻¹[H(s)]; the **step response** is s(t) = ℒ⁻¹[H(s)/s], and h(t) = ds(t)/dt. An impulse can make an inductor current or a capacitor voltage jump: i_L(0+) − i_L(0−) = \\frac{1}{L}∫_{0−}^{0+}u_L dt.",
-            "Write H(s) = K\\frac{∏(s − z_j)}{∏(s − p_i)}: the z_j are **zeros**, the p_i **poles**. The poles are the natural frequencies of the circuit (unless cancelled by zeros); the zeros set the size (coefficient) of each mode."
+            "- In the **zero state**, the ratio of the response transform to the input transform, H(s) = R(s)/E(s), is the **network function**.",
+            "- With response and input at the same port, H(s) is a driving-point function (input impedance, input admittance); between different ports it is a transfer function (voltage ratio, transfer impedance, …).",
+            "- H(s) depends only on the circuit's structure and values, not on the input.",
+            "- ℒ[δ(t)] = 1, so the **impulse response** is h(t) = ℒ⁻¹[H(s)]. The **step response** is s(t) = ℒ⁻¹[H(s)/s], and h(t) = ds(t)/dt.",
+            "- An impulse can make an inductor current or a capacitor voltage jump: i_L(0+) − i_L(0−) = \\frac{1}{L}∫_{0−}^{0+}v_L dt.",
+            "- Write H(s) = K\\frac{∏(s − z_j)}{∏(s − p_i)}: the z_j are **zeros**, the p_i **poles**.",
+            "- The poles are the natural frequencies of the circuit (unless cancelled by zeros). The zeros set the size of each mode, i.e. its coefficient."
           ]
         }
       }
     },
     {
       "id": "poles-time",
-      "title": "极点位置与时域响应、稳定性",
+      "title": "B · 极点位置与时域响应、稳定性",
       "text": [
-        "负实数极点 → 单调衰减的指数；左半平面的共轭复数极点 → 衰减振荡，实部 −α 决定衰减快慢、虚部 ω_d 决定振荡频率；虚轴上的单极点 → 等幅振荡（或常数）；右半平面的极点或虚轴上的重极点 → 发散。",
-        "**稳定性**：H(s) 的极点全在左半平面时电路稳定（冲激响应趋于 0）。无源 RLC 电路总是稳定或临界；含受控源、运放时等效电阻可能为负，极点可能进入右半平面。",
-        "响应 R(s) = H(s)E(s) 的极点 = 网络函数的极点（**自由分量**）+ 激励的极点（**强制分量**）。"
+        "- 负实数极点 → 单调衰减的指数。",
+        "- 左半平面的共轭复数极点 → 衰减振荡。实部 −α 决定衰减快慢，虚部 ω_d 决定振荡频率。（面包板 3.7 的 RLC 振铃里，电阻小时看到的就是它。）",
+        "- 虚轴上的单极点 → 等幅振荡（或常数）。右半平面的极点，或虚轴上的重极点 → 发散。",
+        "- **稳定性**：H(s) 的极点全在左半平面时电路稳定，冲激响应趋于 0。",
+        "- 无源 RLC 电路总是稳定或临界稳定。含受控源、运放时，等效电阻可能为负，极点可能进入右半平面。",
+        "- 响应 R(s) = H(s)E(s) 的极点有两类：网络函数的极点给出**自由分量**，激励的极点给出**强制分量**。"
       ],
       "problems": [
         "s-domain-04-partial-fractions-real",
@@ -176,47 +235,60 @@
       ],
       "i18n": {
         "en": {
-          "title": "Pole positions vs the time response; stability",
+          "title": "B · Pole positions vs the time response; stability",
           "text": [
-            "Negative real poles → monotonic decaying exponentials; a complex pair in the left half-plane → a decaying oscillation, the real part −α setting the decay and the imaginary part ω_d the frequency; simple poles on the jω axis → a sustained oscillation (or a constant); poles in the right half-plane or repeated on the jω axis → growth.",
-            "**Stability**: the circuit is stable when all poles of H(s) are in the left half-plane (the impulse response tends to 0). Passive RLC circuits are always stable or marginal; with dependent sources or op-amps the net resistance can be negative and poles can move into the right half-plane.",
-            "The poles of a response R(s) = H(s)E(s) are the poles of the network function (the **natural** part) plus the poles of the input (the **forced** part)."
+            "- Negative real poles → monotonic decaying exponentials.",
+            "- A complex pair in the left half-plane → a decaying oscillation. The real part −α sets the decay, the imaginary part ω_d the frequency. (On the breadboard in 3.7, the RLC ringing with a small resistance was exactly this.)",
+            "- Simple poles on the jω axis → a sustained oscillation (or a constant). Poles in the right half-plane, or repeated on the jω axis → growth.",
+            "- **Stability**: the circuit is stable when all poles of H(s) are in the left half-plane; the impulse response then tends to 0.",
+            "- Passive RLC circuits are always stable or marginally stable. With dependent sources or op-amps the net resistance can be negative, and poles can move into the right half-plane.",
+            "- The poles of a response R(s) = H(s)E(s) are of two kinds: the poles of the network function give the **natural** part, the poles of the input give the **forced** part."
           ]
         }
       }
     },
     {
       "id": "poles-freq",
-      "title": "网络函数与频率响应",
+      "title": "B · 网络函数与频率响应",
       "text": [
-        "正弦稳态的网络函数就是 H(s) 在虚轴上的值：H(jω) = H(s)|_{s = jω}（电路稳定时）。|H(jω)| 是 jω 到各零点的距离之积除以到各极点的距离之积（乘 |K|）。",
-        "极点靠近虚轴时，ω 经过它附近 |H(jω)| 出现尖峰——谐振；零点在虚轴上时该频率被完全抑制（零点在原点：隔直，高通/带通）。串联 RLC 的极点到原点距离是 ω_0，Q = ω_0/(2α)：同一对极点同时决定了时域振荡衰减的快慢和频域谐振峰的尖锐程度。"
+        "- 正弦稳态的网络函数就是 H(s) 在虚轴上的值：H(jω) = H(s)|_{s = jω}（电路稳定时）。",
+        "- |H(jω)| 等于 |K| 乘 jω 到各零点的距离之积，再除以 jω 到各极点的距离之积。",
+        "- 极点靠近虚轴时，ω 经过它附近，|H(jω)| 出现尖峰：这就是谐振。",
+        "- 零点在虚轴上时，那个频率被完全抑制。零点在原点就是隔直：高通或带通。",
+        "- 串联 RLC 的极点到原点的距离是 ω_0，Q = ω_0/(2α)。同一对极点既决定时域振荡衰减的快慢，也决定频域谐振峰的尖锐程度。"
       ],
       "problems": ["s-domain-09-network-function-ladder", "s-domain-10-impedance-zeros", "s-domain-12-pole-zero-response", "s-domain-14-opamp-bandpass"],
       "i18n": {
         "en": {
-          "title": "Network functions and the frequency response",
+          "title": "B · Network functions and the frequency response",
           "text": [
-            "The sinusoidal steady-state network function is H(s) on the imaginary axis: H(jω) = H(s)|_{s = jω} (for a stable circuit). |H(jω)| is |K| times the product of the distances from jω to the zeros divided by the product of the distances to the poles.",
-            "A pole close to the jω axis makes |H(jω)| peak as ω passes it — resonance; a zero on the jω axis suppresses that frequency completely (a zero at the origin blocks DC: high-pass or band-pass). For a series RLC circuit the poles lie at distance ω_0 from the origin and Q = ω_0/(2α): the same pair of poles sets both how slowly the oscillation decays in time and how sharp the resonance peak is in frequency."
+            "- The sinusoidal steady-state network function is H(s) on the imaginary axis: H(jω) = H(s)|_{s = jω} (for a stable circuit).",
+            "- |H(jω)| is |K| times the product of the distances from jω to the zeros, divided by the product of the distances to the poles.",
+            "- A pole close to the jω axis makes |H(jω)| peak as ω passes near it: resonance.",
+            "- A zero on the jω axis suppresses that frequency completely. A zero at the origin blocks DC: high-pass or band-pass.",
+            "- For a series RLC circuit the poles lie at distance ω_0 from the origin, and Q = ω_0/(2α). The same pair of poles sets both how slowly the oscillation decays in time and how sharp the resonance peak is in frequency."
           ]
         }
       }
     },
     {
       "id": "convolution",
-      "title": "卷积积分",
+      "title": "B · 卷积积分",
       "text": [
-        "零状态响应 = 激励与冲激响应的卷积：r(t) = ∫_{0}^{t}h(τ)e(t − τ)dτ = ∫_{0}^{t}e(τ)h(t − τ)dτ。物理意义：把激励看成一串冲激，每个冲激引起一个移位的 h，叠加起来。",
-        "**时域卷积定理**：ℒ[h * e] = H(s)E(s)。所以卷积可以在复频域里用乘法完成，再反变换；直接积分时注意“反转、平移”和积分上限 t。"
+        "- 零状态响应 = 激励与冲激响应的卷积：r(t) = ∫_{0}^{t}h(τ)e(t − τ)dτ = ∫_{0}^{t}e(τ)h(t − τ)dτ。",
+        "- 物理意义：把激励看成一串冲激，每个冲激引起一个移位的 h，再叠加起来。",
+        "- **时域卷积定理**：ℒ[h * e] = H(s)E(s)。所以卷积可以在复频域里用乘法完成，再反变换。",
+        "- 直接积分时，注意“反转、平移”和积分上限 t。"
       ],
       "problems": ["s-domain-13-convolution", "s-domain-08-impulse-response"],
       "i18n": {
         "en": {
-          "title": "The convolution integral",
+          "title": "B · The convolution integral",
           "text": [
-            "The zero-state response is the convolution of the input with the impulse response: r(t) = ∫_{0}^{t}h(τ)e(t − τ)dτ = ∫_{0}^{t}e(τ)h(t − τ)dτ. Physically: the input is a train of impulses, each producing a shifted h, and they add up.",
-            "**Time-convolution theorem**: ℒ[h * e] = H(s)E(s). A convolution can therefore be done as a product in the s-domain and inverted; when integrating directly, mind the \"flip and shift\" and the upper limit t."
+            "- The zero-state response is the convolution of the input with the impulse response: r(t) = ∫_{0}^{t}h(τ)e(t − τ)dτ = ∫_{0}^{t}e(τ)h(t − τ)dτ.",
+            "- Physically: the input is a train of impulses; each produces a shifted h, and they add up.",
+            "- **Time-convolution theorem**: ℒ[h * e] = H(s)E(s). So a convolution can be done as a product in the s-domain, then inverted.",
+            "- When integrating directly, mind the \"flip and shift\" and the upper limit t."
           ]
         }
       }
@@ -228,12 +300,12 @@
       "idea": "transform",
       "name": "拉普拉斯变换",
       "expr": "F(s) = ∫_{0₋}^{∞}f(t)e^{−st}dt",
-      "when": "只用 t ≥ 0 的部分；下限 0₋ 把 t = 0 的冲激计入；Re s 足够大使积分收敛。",
+      "when": "只用 t ≥ 0 的部分。下限 0₋ 把 t = 0 的冲激计入。Re s 足够大时积分收敛。",
       "i18n": {
         "en": {
           "name": "Laplace transform",
           "expr": "F(s) = ∫_{0−}^{∞}f(t)e^{−st}dt",
-          "when": "Only t ≥ 0 counts; the lower limit 0− includes an impulse at t = 0; Re s large enough for convergence."
+          "when": "Only t ≥ 0 counts. The lower limit 0− includes an impulse at t = 0. The integral converges for Re s large enough."
         }
       }
     },
@@ -241,13 +313,13 @@
       "id": "delta",
       "idea": "transform",
       "name": "冲激、阶跃",
-      "expr": "δ(t) ↔ 1　　ε(t) ↔ \\frac{1}{s}　　tε(t) ↔ \\frac{1}{s^{2}}",
-      "when": "时域函数都乘 ε(t)（t < 0 为 0）。",
+      "expr": "δ(t) ↔ 1　　u(t) ↔ \\frac{1}{s}　　tu(t) ↔ \\frac{1}{s^{2}}",
+      "when": "时域函数都乘 u(t)（t < 0 为 0）。",
       "i18n": {
         "en": {
           "name": "Impulse, step",
-          "expr": "δ(t) ↔ 1　　ε(t) ↔ \\frac{1}{s}　　tε(t) ↔ \\frac{1}{s^{2}}",
-          "when": "Every time function is multiplied by ε(t) (zero for t < 0)."
+          "expr": "δ(t) ↔ 1　　u(t) ↔ \\frac{1}{s}　　tu(t) ↔ \\frac{1}{s^{2}}",
+          "when": "Every time function is multiplied by u(t) (zero for t < 0)."
         }
       }
     },
@@ -255,12 +327,12 @@
       "id": "exp",
       "idea": "transform",
       "name": "指数",
-      "expr": "e^{−at}ε(t) ↔ \\frac{1}{s + a}　　te^{−at}ε(t) ↔ \\frac{1}{(s + a)^{2}}",
+      "expr": "e^{−at}u(t) ↔ \\frac{1}{s + a}　　te^{−at}u(t) ↔ \\frac{1}{(s + a)^{2}}",
       "when": "a 可以是任意实数或复数；a > 0 时衰减，极点在 s = −a。",
       "i18n": {
         "en": {
           "name": "Exponential",
-          "expr": "e^{−at}ε(t) ↔ \\frac{1}{s + a}　　te^{−at}ε(t) ↔ \\frac{1}{(s + a)^{2}}",
+          "expr": "e^{−at}u(t) ↔ \\frac{1}{s + a}　　te^{−at}u(t) ↔ \\frac{1}{(s + a)^{2}}",
           "when": "a may be any real or complex number; for a > 0 it decays and the pole is at s = −a."
         }
       }
@@ -298,12 +370,12 @@
       "idea": "properties",
       "name": "微分性质",
       "expr": "ℒ[\\frac{df}{dt}] = sF(s) − f(0₋)",
-      "when": "用 0₋ 时刻的值（换路前），所以 t = 0 的跳变已包含在 sF(s) 里；附加电源由此而来。",
+      "when": "用 0₋ 时刻（换路前）的值，所以 t = 0 的跳变已经包含在 sF(s) 里。附加电源由此而来。",
       "i18n": {
         "en": {
           "name": "Derivative rule",
           "expr": "ℒ[\\frac{df}{dt}] = sF(s) − f(0−)",
-          "when": "Uses the value at 0− (before switching), so any jump at t = 0 is already contained in sF(s); this is where the initial-condition sources come from."
+          "when": "Uses the value at 0− (before switching), so any jump at t = 0 is already contained in sF(s). This is where the initial-condition sources come from."
         }
       }
     },
@@ -319,12 +391,12 @@
       "id": "shift",
       "idea": "properties",
       "name": "时移与复频移",
-      "expr": "f(t − t_0)ε(t − t_0) ↔ e^{−st_0}F(s)　　e^{−at}f(t) ↔ F(s + a)",
+      "expr": "f(t − t_0)u(t − t_0) ↔ e^{−st_0}F(s)　　e^{−at}f(t) ↔ F(s + a)",
       "when": "t_0 > 0：整个波形（连同它的起点）右移 t_0。",
       "i18n": {
         "en": {
           "name": "Time and frequency shift",
-          "expr": "f(t − t_0)ε(t − t_0) ↔ e^{−st_0}F(s)　　e^{−at}f(t) ↔ F(s + a)",
+          "expr": "f(t − t_0)u(t − t_0) ↔ e^{−st_0}F(s)　　e^{−at}f(t) ↔ F(s + a)",
           "when": "t_0 > 0: the whole waveform, including its start, moves right by t_0."
         }
       }
@@ -348,12 +420,12 @@
       "idea": "properties",
       "name": "终值定理",
       "expr": "f(∞) = lim_{s→0}sF(s)",
-      "when": "sF(s) 的极点全部在左半平面（F 在 s = 0 至多一个单极点）；有虚轴上（除原点单极点外）或右半平面的极点时不能用。",
+      "when": "sF(s) 的极点全部在左半平面（F 在 s = 0 处至多有一个单极点）。F 还有虚轴上的其他极点，或有右半平面的极点时，不能用。",
       "i18n": {
         "en": {
           "name": "Final-value theorem",
           "expr": "f(∞) = lim_{s→0}sF(s)",
-          "when": "All poles of sF(s) in the left half-plane (at most a simple pole of F at s = 0); not valid with other poles on the jω axis or in the right half-plane."
+          "when": "All poles of sF(s) in the left half-plane (F may have at most a simple pole at s = 0). Not valid when F has other poles on the jω axis, or poles in the right half-plane."
         }
       }
     },
@@ -361,21 +433,21 @@
       "id": "R",
       "idea": "models",
       "name": "电阻",
-      "expr": "U(s) = R·I(s)",
+      "expr": "V(s) = R·I(s)",
       "when": "关联参考方向。",
-      "i18n": {"en": {"name": "Resistor", "expr": "U(s) = R·I(s)", "when": "Passive sign convention."}}
+      "i18n": {"en": {"name": "Resistor", "expr": "V(s) = R·I(s)", "when": "Passive sign convention."}}
     },
     {
       "id": "Lser",
       "idea": "models",
       "name": "电感（串联形式）",
-      "expr": "U_L(s) = sL·I_L(s) − L·i_L(0₋)",
-      "when": "u_L、i_L 关联；电压源 L·i_L(0₋) 与 sL 串联，“+”在 i_L 流出的一端（沿 i_L 推动电流）。",
+      "expr": "V_L(s) = sL·I_L(s) − L·i_L(0₋)",
+      "when": "v_L、i_L 关联。电压源 L·i_L(0₋) 与 sL 串联，“+”在 i_L 流出的一端，沿 i_L 推动电流。",
       "i18n": {
         "en": {
           "name": "Inductor (series form)",
-          "expr": "U_L(s) = sL·I_L(s) − L·i_L(0−)",
-          "when": "u_L and i_L associated; the source L·i_L(0−) is in series with sL, + at the end where i_L leaves (it pushes current along i_L)."
+          "expr": "V_L(s) = sL·I_L(s) − L·i_L(0−)",
+          "when": "v_L and i_L associated. The source L·i_L(0−) is in series with sL, + at the end where i_L leaves: it pushes current along i_L."
         }
       }
     },
@@ -383,12 +455,12 @@
       "id": "Lpar",
       "idea": "models",
       "name": "电感（并联形式）",
-      "expr": "I_L(s) = \\frac{U_L(s)}{sL} + \\frac{i_L(0₋)}{s}",
+      "expr": "I_L(s) = \\frac{V_L(s)}{sL} + \\frac{i_L(0₋)}{s}",
       "when": "电流源 i_L(0₋)/s 与 sL 并联，方向与 i_L 相同；与串联形式互为电源等效变换。",
       "i18n": {
         "en": {
           "name": "Inductor (parallel form)",
-          "expr": "I_L(s) = \\frac{U_L(s)}{sL} + \\frac{i_L(0−)}{s}",
+          "expr": "I_L(s) = \\frac{V_L(s)}{sL} + \\frac{i_L(0−)}{s}",
           "when": "A current source i_L(0−)/s in parallel with sL, in the direction of i_L; the source transformation of the series form."
         }
       }
@@ -397,13 +469,13 @@
       "id": "Cser",
       "idea": "models",
       "name": "电容（串联形式）",
-      "expr": "U_C(s) = \\frac{I_C(s)}{sC} + \\frac{u_C(0₋)}{s}",
-      "when": "u_C、i_C 关联；电压源 u_C(0₋)/s 与 1/(sC) 串联，“+”与 u_C 的“+”同侧。",
+      "expr": "V_C(s) = \\frac{I_C(s)}{sC} + \\frac{v_C(0₋)}{s}",
+      "when": "v_C、i_C 关联；电压源 v_C(0₋)/s 与 1/(sC) 串联，“+”与 v_C 的“+”同侧。",
       "i18n": {
         "en": {
           "name": "Capacitor (series form)",
-          "expr": "U_C(s) = \\frac{I_C(s)}{sC} + \\frac{u_C(0−)}{s}",
-          "when": "u_C and i_C associated; the source u_C(0−)/s is in series with 1/(sC), + on the + side of u_C."
+          "expr": "V_C(s) = \\frac{I_C(s)}{sC} + \\frac{v_C(0−)}{s}",
+          "when": "v_C and i_C associated; the source v_C(0−)/s is in series with 1/(sC), + on the + side of v_C."
         }
       }
     },
@@ -411,13 +483,13 @@
       "id": "Cpar",
       "idea": "models",
       "name": "电容（并联形式）",
-      "expr": "I_C(s) = sC·U_C(s) − C·u_C(0₋)",
-      "when": "电流源 C·u_C(0₋) 与 1/(sC) 并联，方向与 i_C 相反（在电容内部从“−”端流向“+”端）。",
+      "expr": "I_C(s) = sC·V_C(s) − C·v_C(0₋)",
+      "when": "电流源 C·v_C(0₋) 与 1/(sC) 并联，方向与 i_C 相反（在电容内部从“−”端流向“+”端）。",
       "i18n": {
         "en": {
           "name": "Capacitor (parallel form)",
-          "expr": "I_C(s) = sC·U_C(s) − C·u_C(0−)",
-          "when": "A current source C·u_C(0−) in parallel with 1/(sC), directed against i_C (inside the capacitor from − to +)."
+          "expr": "I_C(s) = sC·V_C(s) − C·v_C(0−)",
+          "when": "A current source C·v_C(0−) in parallel with 1/(sC), directed against i_C (inside the capacitor from − to +)."
         }
       }
     },
@@ -425,13 +497,13 @@
       "id": "M",
       "idea": "models",
       "name": "耦合电感",
-      "expr": "U_1(s) = sL_1I_1 − L_1i_1(0₋) ± [sMI_2 − Mi_2(0₋)]",
-      "when": "两线圈电流都从同名端流入时取“+”，一进一出取“−”；U_2 同理（下标 1、2 互换）。",
+      "expr": "V_1(s) = sL_{1}I_1 − L_{1}i_1(0₋) ± [sMI_2 − Mi_2(0₋)]",
+      "when": "两线圈电流都从同名端流入时取“+”，一进一出取“−”；V_2 同理（下标 1、2 互换）。",
       "i18n": {
         "en": {
           "name": "Coupled inductors",
-          "expr": "U_1(s) = sL_1I_1 − L_1i_1(0−) ± [sMI_2 − Mi_2(0−)]",
-          "when": "\"+\" when both currents enter at the dots, \"−\" when one enters and one leaves; U_2 likewise with 1 and 2 swapped."
+          "expr": "V_1(s) = sL_{1}I_1 − L_{1}i_1(0−) ± [sMI_2 − Mi_2(0−)]",
+          "when": "\"+\" when both currents enter at the dots, \"−\" when one enters and one leaves; V_2 likewise with 1 and 2 swapped."
         }
       }
     },
@@ -454,12 +526,12 @@
       "idea": "pfe",
       "name": "共轭复极点",
       "expr": "f(t) = 2|K_1|e^{−αt}cos(ωt + θ)，K_1 = |K_1|∠θ",
-      "when": "K_1 是 p_1 = −α + jω（虚部为正的那个）处的系数，另一个是 K_1*；角度 θ 配 cos。",
+      "when": "K_1 是 p_1 = −α + jω（虚部为正的那个）处的系数，另一个系数是 K_1*。角度 θ 配 cos。",
       "i18n": {
         "en": {
           "name": "Complex-conjugate pair",
           "expr": "f(t) = 2|K_1|e^{−αt}cos(ωt + θ), K_1 = |K_1|∠θ",
-          "when": "K_1 is the coefficient at p_1 = −α + jω (the one with positive imaginary part); the other is K_1*; the angle θ goes with cos."
+          "when": "K_1 is the coefficient at p_1 = −α + jω (the one with positive imaginary part); the other coefficient is K_1*. The angle θ goes with cos."
         }
       }
     },
@@ -496,12 +568,12 @@
       "idea": "netfun",
       "name": "冲激响应与阶跃响应",
       "expr": "h(t) = ℒ^{−1}[H(s)]　　s(t) = ℒ^{−1}[\\frac{H(s)}{s}]　　h(t) = \\frac{ds(t)}{dt}",
-      "when": "零状态；单位冲激 δ(t)、单位阶跃 ε(t) 激励。",
+      "when": "零状态；单位冲激 δ(t)、单位阶跃 u(t) 激励。",
       "i18n": {
         "en": {
           "name": "Impulse and step responses",
           "expr": "h(t) = ℒ^{−1}[H(s)]　　s(t) = ℒ^{−1}[\\frac{H(s)}{s}]　　h(t) = \\frac{ds(t)}{dt}",
-          "when": "Zero state; unit impulse δ(t) and unit step ε(t) inputs."
+          "when": "Zero state; unit impulse δ(t) and unit step u(t) inputs."
         }
       }
     },
@@ -509,13 +581,13 @@
       "id": "jump",
       "idea": "netfun",
       "name": "冲激引起的跳变",
-      "expr": "i_L(0₊) = i_L(0₋) + \\frac{1}{L}∫_{0₋}^{0₊}u_L dt　　u_C(0₊) = u_C(0₋) + \\frac{1}{C}∫_{0₋}^{0₊}i_C dt",
-      "when": "u_L、i_C 有限时积分为 0（换路定则）；含冲激时等于冲激强度。",
+      "expr": "i_L(0₊) = i_L(0₋) + \\frac{1}{L}∫_{0₋}^{0₊}v_L dt　　v_C(0₊) = v_C(0₋) + \\frac{1}{C}∫_{0₋}^{0₊}i_C dt",
+      "when": "v_L、i_C 有限时积分为 0（换路定则）；含冲激时等于冲激强度。",
       "i18n": {
         "en": {
           "name": "Jumps caused by impulses",
-          "expr": "i_L(0+) = i_L(0−) + \\frac{1}{L}∫_{0−}^{0+}u_L dt　　u_C(0+) = u_C(0−) + \\frac{1}{C}∫_{0−}^{0+}i_C dt",
-          "when": "With finite u_L, i_C the integrals vanish (the switching rule); with an impulse they equal its strength."
+          "expr": "i_L(0+) = i_L(0−) + \\frac{1}{L}∫_{0−}^{0+}v_L dt　　v_C(0+) = v_C(0−) + \\frac{1}{C}∫_{0−}^{0+}i_C dt",
+          "when": "With finite v_L, i_C the integrals vanish (the switching rule); with an impulse they equal its strength."
         }
       }
     },
@@ -524,12 +596,12 @@
       "idea": "poles-time",
       "name": "稳定性",
       "expr": "Re p_i < 0（全部极点）⇔ 稳定",
-      "when": "p_i 为 H(s) 的极点（未被零点抵消）；虚轴上的单极点为临界（等幅振荡），右半平面或虚轴上的重极点不稳定。",
+      "when": "p_i 是 H(s) 的极点（未被零点抵消）。虚轴上的单极点是临界情况（等幅振荡）；右半平面的极点或虚轴上的重极点不稳定。",
       "i18n": {
         "en": {
           "name": "Stability",
           "expr": "Re p_i < 0 (all poles) ⇔ stable",
-          "when": "p_i are the poles of H(s) (not cancelled by zeros); simple poles on the jω axis are marginal (sustained oscillation); poles in the right half-plane or repeated on the jω axis are unstable."
+          "when": "p_i are the poles of H(s) (not cancelled by zeros). Simple poles on the jω axis are marginal (sustained oscillation); poles in the right half-plane or repeated on the jω axis are unstable."
         }
       }
     },
@@ -567,44 +639,44 @@
       "id": "rc-current-step",
       "ideas": ["models", "method", "pfe", "properties"],
       "title": "电流源激励、电容有初值：用并联形式的运算模型",
-      "statement": "图示电路中 i_s = 2ε(t) A 向结点 a 注入电流，R = 2 Ω，C = 0.5 F，电容原已充电 u_C(0₋) = 1 V（上“+”下“−”）。用运算法求 u_C(t) 及 t = 1 s 时的值。",
+      "statement": "图示电路中 i_s = 2u(t) A 向结点 a 注入电流，R = 2 Ω，C = 0.5 F。电容原已充电，v_C(0₋) = 1 V（上“+”下“−”）。用运算法求 v_C(t)，以及 t = 1 s 时的值。",
       "schematic": {
         "elements": [
-          {"ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": {"step": {"before": 0, "after": 2}}, "label": "2ε(t) A"},
+          {"ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": {"step": {"before": 0, "after": 2}}, "label": "2u(t) A"},
           {"ref": "R", "type": "R", "from": [4, 0], "to": [4, 4], "value": 2},
           {"ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": 0.5, "ic": 1}
         ],
         "wires": [[[0, 0], [8, 0]], [[8, 4], [0, 4]]],
         "labels": [{"at": [6, 0], "name": "a"}],
         "grounds": [[0, 4]],
-        "marks": [{"kind": "v", "el": "C", "name": "u_C"}]
+        "marks": [{"kind": "v", "el": "C", "name": "v_C"}]
       },
       "analysis": {"type": "tran"},
       "results": [
-        {"id": "K0", "ask": "U_C(s) 在 s = 0 处的系数", "find": {"kind": "residue", "out": {"v": "C"}, "at": 0}, "answer": 4, "unit": "V"},
-        {"id": "K1", "ask": "U_C(s) 在 s = −1 处的系数", "find": {"kind": "residue", "out": {"v": "C"}, "at": -1}, "answer": -3, "unit": "V"},
-        {"id": "u1", "ask": "u_C(1 s)", "find": {"kind": "v", "el": "C", "t": 1}, "answer": 2.896362, "unit": "V"}
+        {"id": "K0", "ask": "V_C(s) 在 s = 0 处的系数", "find": {"kind": "residue", "out": {"v": "C"}, "at": 0}, "answer": 4, "unit": "V"},
+        {"id": "K1", "ask": "V_C(s) 在 s = −1 处的系数", "find": {"kind": "residue", "out": {"v": "C"}, "at": -1}, "answer": -3, "unit": "V"},
+        {"id": "u1", "ask": "v_C(1 s)", "find": {"kind": "v", "el": "C", "t": 1}, "answer": 2.896362, "unit": "V"}
       ],
       "steps": [
-        "1. **初值。** 题目给出 u_C(0₋) = 1 V。",
-        "2. **运算电路。** 电流源 → 2/s；电阻 → 导纳 1/R；电容用**并联形式**：导纳 sC 并一个电流源 C·u_C(0₋)，方向从电容的“−”端经电容内部流向“+”端，也就是注入结点 a。",
-        "3. **结点法。** (\\frac{1}{R} + sC)U_C(s) = \\frac{2}{s} + C·u_C(0₋) → (0.5 + 0.5s)U_C = \\frac{2}{s} + 0.5 → U_C(s) = \\frac{s + 4}{s(s + 1)}。",
+        "1. **初值。** 题目给出 v_C(0₋) = 1 V。",
+        "2. **运算电路。** 电流源 → 2/s，电阻 → 导纳 1/R。电容用**并联形式**：导纳 sC 并一个电流源 C·v_C(0₋)。这个电流源从电容的“−”端经内部流向“+”端，也就是注入结点 a。",
+        "3. **结点法。** (\\frac{1}{R} + sC)V_C(s) = \\frac{2}{s} + C·v_C(0₋) → (0.5 + 0.5s)V_C = \\frac{2}{s} + 0.5 → V_C(s) = \\frac{s + 4}{s(s + 1)}。",
         "4. **部分分式。** 在 s = 0 处 \\frac{s + 4}{s + 1} = **4 V**；在 s = −1 处 \\frac{s + 4}{s} = **−3 V**。",
-        "5. **反变换。** u_C(t) = 4 − 3e^{−t} V，**u_C(1) = 4 − 3e^{−1} ≈ 2.896 V**。",
-        "6. **检验。** u_C(0₊) = 4 − 3 = 1 V = u_C(0₋) ✓；终值 4 V = 2 A × 2 Ω ✓（电流源全部流过 R）；极点 −1 = −1/(RC) ✓。"
+        "5. **反变换。** v_C(t) = 4 − 3e^{−t} V，**v_C(1) = 4 − 3e^{−1} ≈ 2.896 V**。",
+        "6. **检验。** v_C(0₊) = 4 − 3 = 1 V = v_C(0₋) ✓；终值 4 V = 2 A × 2 Ω ✓（电流源全部流过 R）；极点 −1 = −1/(RC) ✓。"
       ],
       "i18n": {
         "en": {
           "title": "Current-source input and a charged capacitor: the parallel s-domain model",
-          "statement": "i_s = 2ε(t) A is injected into node a, R = 2 Ω, C = 0.5 F, and the capacitor is charged to u_C(0−) = 1 V (+ at the top). Find u_C(t) with the s-domain method, and its value at t = 1 s.",
-          "results": [{"ask": "coefficient of U_C(s) at s = 0"}, {"ask": "coefficient of U_C(s) at s = −1"}, {"ask": "u_C(1 s)"}],
+          "statement": "i_s = 2u(t) A is injected into node a, R = 2 Ω, C = 0.5 F. The capacitor is already charged: v_C(0−) = 1 V (+ at the top). Find v_C(t) with the s-domain method, and its value at t = 1 s.",
+          "results": [{"ask": "coefficient of V_C(s) at s = 0"}, {"ask": "coefficient of V_C(s) at s = −1"}, {"ask": "v_C(1 s)"}],
           "steps": [
-            "1. **Initial value.** Given: u_C(0−) = 1 V.",
-            "2. **s-domain circuit.** Current source → 2/s; resistor → admittance 1/R; the capacitor in **parallel form**: admittance sC with a current source C·u_C(0−) flowing from its − end through the capacitor to its + end, i.e. into node a.",
-            "3. **Nodal equation.** (\\frac{1}{R} + sC)U_C(s) = \\frac{2}{s} + C·u_C(0−) → (0.5 + 0.5s)U_C = \\frac{2}{s} + 0.5 → U_C(s) = \\frac{s + 4}{s(s + 1)}.",
+            "1. **Initial value.** Given: v_C(0−) = 1 V.",
+            "2. **s-domain circuit.** Current source → 2/s, resistor → admittance 1/R. The capacitor in **parallel form**: admittance sC with a current source C·v_C(0−). This source flows from the capacitor's − end through it to its + end, i.e. into node a.",
+            "3. **Nodal equation.** (\\frac{1}{R} + sC)V_C(s) = \\frac{2}{s} + C·v_C(0−) → (0.5 + 0.5s)V_C = \\frac{2}{s} + 0.5 → V_C(s) = \\frac{s + 4}{s(s + 1)}.",
             "4. **Partial fractions.** At s = 0: \\frac{s + 4}{s + 1} = **4 V**; at s = −1: \\frac{s + 4}{s} = **−3 V**.",
-            "5. **Inverse transform.** u_C(t) = 4 − 3e^{−t} V, **u_C(1) = 4 − 3e^{−1} ≈ 2.896 V**.",
-            "6. **Check.** u_C(0+) = 4 − 3 = 1 V = u_C(0−) ✓; final value 4 V = 2 A × 2 Ω ✓ (all the source current flows in R); pole −1 = −1/(RC) ✓."
+            "5. **Inverse transform.** v_C(t) = 4 − 3e^{−t} V, **v_C(1) = 4 − 3e^{−1} ≈ 2.896 V**.",
+            "6. **Check.** v_C(0+) = 4 − 3 = 1 V = v_C(0−) ✓; final value 4 V = 2 A × 2 Ω ✓ (all the source current flows in R); pole −1 = −1/(RC) ✓."
           ]
         }
       }
@@ -613,10 +685,10 @@
       "id": "gcl-network-function",
       "ideas": ["netfun", "poles-time", "poles-freq", "pfe"],
       "title": "GCL 并联：输入阻抗的零极点与阶跃响应",
-      "statement": "图示 R = 0.5 Ω、L = 0.2 H、C = 1 F 并联，电流源 i_s = 2ε(t) A 向结点 a 注入电流，t < 0 时无储能。求驱动点阻抗 Z(s) = U_a(s)/I_s(s) 的极点和谐振时的 |Z|，并求电感电流 i_L 的部分分式系数和 t = π/4 s 时的 u_a。",
+      "statement": "图示 R = 0.5 Ω、L = 0.2 H、C = 1 F 并联。电流源 i_s = 2u(t) A 向结点 a 注入电流，t < 0 时无储能；i_L 的参考方向如图（向下）。求驱动点阻抗 Z(s) = V_a(s)/I_s(s) 的极点和谐振时的 |Z|。再求电感电流 i_L 的部分分式系数，以及 t = π/4 s 时的 v_a。",
       "schematic": {
         "elements": [
-          {"ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": {"step": {"before": 0, "after": 2}}, "label": "2ε(t) A"},
+          {"ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": {"step": {"before": 0, "after": 2}}, "label": "2u(t) A"},
           {"ref": "R", "type": "R", "from": [4, 0], "to": [4, 4], "value": 0.5},
           {"ref": "L", "type": "L", "from": [8, 0], "to": [8, 4], "value": 0.2},
           {"ref": "C", "type": "C", "from": [12, 0], "to": [12, 4], "value": 1}
@@ -659,20 +731,20 @@
           "answer": 153.4349,
           "unit": "°"
         },
-        {"id": "ua", "ask": "u_a(π/4 s)", "find": {"kind": "v", "nodes": ["a"], "t": 0.7853982}, "answer": 0.4559381, "unit": "V"}
+        {"id": "ua", "ask": "v_a(π/4 s)", "find": {"kind": "v", "nodes": ["a"], "t": 0.7853982}, "answer": 0.4559381, "unit": "V"}
       ],
       "steps": [
         "1. **网络函数。** 并联导纳相加：Y(s) = \\frac{1}{R} + \\frac{1}{sL} + sC = 2 + \\frac{5}{s} + s，Z(s) = \\frac{1}{Y(s)} = \\frac{s}{s^{2} + 2s + 5}：零点 0，**极点 −1 ± j2**（实部 **−1**，虚部 **2**）。",
-        "2. **谐振。** ω_0 = 1/√(LC) = √5 ≈ **2.236 rad/s** 时 1/(sL) 与 sC 相消，Z = R，**|Z(j√5)| = 0.5 Ω**——极点离虚轴越近，这个峰越尖。",
-        "3. **阶跃响应。** U_a(s) = Z(s)·\\frac{2}{s} = \\frac{2}{(s + 1)^{2} + 4}，u_a(t) = e^{−t}sin 2t V，**u_a(π/4) = e^{−π/4} ≈ 0.456 V**。",
-        "4. **电感电流。** I_L(s) = \\frac{U_a(s)}{sL} = \\frac{10}{s(s^{2} + 2s + 5)}。s = 0 处系数 = 10/5 = **2 A**（终值：直流时电感把电流源全部短路）。",
-        "5. **复极点系数。** K_1 = \\frac{10}{s(s + 1 + j2)}|_{s = −1 + j2} = \\frac{10}{−8 − j4} = −1 + j0.5，**|K_1| ≈ 1.118 A**，**∠K_1 ≈ 153.4°**；i_L(t) = 2 + 2.236e^{−t}cos(2t + 153.4°) A。",
-        "6. **检验。** i_L(0₊) = 2 + 2 × (−1) = 0 ✓（2.236 × cos 153.4° = −2）；u_a = L·di_L/dt 在 t = 0₊ 为 0，与 u_a(0₊) = 0 一致 ✓。"
+        "2. **谐振。** ω_0 = 1/√(LC) = √5 ≈ **2.236 rad/s** 时，1/(sL) 与 sC 相消，Z = R：**|Z(j√5)| = 0.5 Ω**。极点离虚轴越近，这个峰越尖。",
+        "3. **阶跃响应。** V_a(s) = Z(s)·\\frac{2}{s} = \\frac{2}{(s + 1)^{2} + 4}，v_a(t) = e^{−t}sin 2t V，**v_a(π/4) = e^{−π/4} ≈ 0.456 V**。",
+        "4. **电感电流。** I_L(s) = \\frac{V_a(s)}{sL} = \\frac{10}{s(s^{2} + 2s + 5)}。s = 0 处系数 = 10/5 = **2 A**（终值：直流时电感把电流源全部短路）。",
+        "5. **复极点系数。** K_1 = \\frac{10}{s(s + 1 + j2)}|_{s = −1 + j2} = \\frac{10}{−8 − j4} = −1 + j0.5，**|K_1| ≈ 1.118 A**，**∠K_1 ≈ 153.4°**。所以 i_L(t) = 2 + 2.236e^{−t}cos(2t + 153.4°) A。",
+        "6. **检验。** i_L(0₊) = 2 + 2 × (−1) = 0 ✓（2.236 × cos 153.4° = −2）；v_a = L·di_L/dt 在 t = 0₊ 为 0，与 v_a(0₊) = 0 一致 ✓。"
       ],
       "i18n": {
         "en": {
           "title": "Parallel GCL: poles and zeros of the input impedance, and the step response",
-          "statement": "R = 0.5 Ω, L = 0.2 H and C = 1 F are in parallel; the current source i_s = 2ε(t) A injects current into node a; nothing is stored for t < 0. Find the poles of the driving-point impedance Z(s) = U_a(s)/I_s(s) and |Z| at resonance, the partial-fraction coefficients of the inductor current i_L, and u_a at t = π/4 s.",
+          "statement": "R = 0.5 Ω, L = 0.2 H and C = 1 F are in parallel. The current source i_s = 2u(t) A injects current into node a; nothing is stored for t < 0, and i_L is referenced as drawn (downward). Find the poles of the driving-point impedance Z(s) = V_a(s)/I_s(s) and |Z| at resonance. Then find the partial-fraction coefficients of the inductor current i_L, and v_a at t = π/4 s.",
           "results": [
             {"ask": "real part of the poles of Z(s)"},
             {"ask": "imaginary part of the pole p_1 of Z(s)"},
@@ -681,15 +753,15 @@
             {"ask": "coefficient of I_L(s) at s = 0"},
             {"ask": "|K_1| (I_L(s) at −1 + j2)"},
             {"ask": "∠K_1"},
-            {"ask": "u_a(π/4 s)"}
+            {"ask": "v_a(π/4 s)"}
           ],
           "steps": [
             "1. **Network function.** Parallel admittances add: Y(s) = \\frac{1}{R} + \\frac{1}{sL} + sC = 2 + \\frac{5}{s} + s, Z(s) = \\frac{1}{Y(s)} = \\frac{s}{s^{2} + 2s + 5}: zero at 0, **poles −1 ± j2** (real part **−1**, imaginary part **2**).",
-            "2. **Resonance.** At ω_0 = 1/√(LC) = √5 ≈ **2.236 rad/s**, 1/(sL) and sC cancel and Z = R: **|Z(j√5)| = 0.5 Ω** — the closer the poles are to the jω axis, the sharper this peak.",
-            "3. **Step response.** U_a(s) = Z(s)·\\frac{2}{s} = \\frac{2}{(s + 1)^{2} + 4}, u_a(t) = e^{−t}sin 2t V, **u_a(π/4) = e^{−π/4} ≈ 0.456 V**.",
-            "4. **Inductor current.** I_L(s) = \\frac{U_a(s)}{sL} = \\frac{10}{s(s^{2} + 2s + 5)}. The coefficient at s = 0 is 10/5 = **2 A** (the final value: at DC the inductor takes all of the source current).",
-            "5. **Complex pole.** K_1 = \\frac{10}{s(s + 1 + j2)}|_{s = −1 + j2} = \\frac{10}{−8 − j4} = −1 + j0.5, **|K_1| ≈ 1.118 A**, **∠K_1 ≈ 153.4°**; i_L(t) = 2 + 2.236e^{−t}cos(2t + 153.4°) A.",
-            "6. **Check.** i_L(0+) = 2 + 2 × (−1) = 0 ✓ (2.236 × cos 153.4° = −2); u_a = L·di_L/dt is 0 at t = 0+, consistent with u_a(0+) = 0 ✓."
+            "2. **Resonance.** At ω_0 = 1/√(LC) = √5 ≈ **2.236 rad/s**, 1/(sL) and sC cancel and Z = R: **|Z(j√5)| = 0.5 Ω**. The closer the poles are to the jω axis, the sharper this peak.",
+            "3. **Step response.** V_a(s) = Z(s)·\\frac{2}{s} = \\frac{2}{(s + 1)^{2} + 4}, v_a(t) = e^{−t}sin 2t V, **v_a(π/4) = e^{−π/4} ≈ 0.456 V**.",
+            "4. **Inductor current.** I_L(s) = \\frac{V_a(s)}{sL} = \\frac{10}{s(s^{2} + 2s + 5)}. The coefficient at s = 0 is 10/5 = **2 A** (the final value: at DC the inductor takes all of the source current).",
+            "5. **Complex pole.** K_1 = \\frac{10}{s(s + 1 + j2)}|_{s = −1 + j2} = \\frac{10}{−8 − j4} = −1 + j0.5, **|K_1| ≈ 1.118 A**, **∠K_1 ≈ 153.4°**. So i_L(t) = 2 + 2.236e^{−t}cos(2t + 153.4°) A.",
+            "6. **Check.** i_L(0+) = 2 + 2 × (−1) = 0 ✓ (2.236 × cos 153.4° = −2); v_a = L·di_L/dt is 0 at t = 0+, consistent with v_a(0+) = 0 ✓."
           ]
         }
       }
@@ -699,30 +771,30 @@
     {
       "id": "src-dir",
       "idea": "models",
-      "text": "附加电源方向画反。电感的电压源 L·i_L(0₋) 要沿 i_L **推动**电流（“+”在 i_L 流出端），电容的电压源 u_C(0₋)/s 的“+”与 u_C 的“+”同侧。拿不准时从 U_L = sLI_L − L·i_L(0₋)、U_C = I_C/(sC) + u_C(0₋)/s 出发重推。",
+      "text": "附加电源方向画反。电感的电压源 L·i_L(0₋) 要沿 i_L **推动**电流，“+”在 i_L 流出端。电容的电压源 v_C(0₋)/s，“+”与 v_C 的“+”同侧。拿不准时，从 V_L = sLI_L − L·i_L(0₋)、V_C = I_C/(sC) + v_C(0₋)/s 出发重推。",
       "i18n": {
         "en": {
-          "text": "Initial-condition sources drawn the wrong way round. The inductor's source L·i_L(0−) **pushes** current along i_L (+ where i_L leaves); the capacitor's source u_C(0−)/s has its + on the + side of u_C. When unsure, rederive from U_L = sLI_L − L·i_L(0−) and U_C = I_C/(sC) + u_C(0−)/s."
+          "text": "Initial-condition sources drawn the wrong way round. The inductor's source L·i_L(0−) **pushes** current along i_L: + where i_L leaves. The capacitor's source v_C(0−)/s has its + on the + side of v_C. When unsure, rederive from V_L = sLI_L − L·i_L(0−) and V_C = I_C/(sC) + v_C(0−)/s."
         }
       }
     },
     {
       "id": "src-value",
       "idea": "models",
-      "text": "把串联形式和并联形式的数值混用：电感串联电压源是 L·i_L(0₋)（不是 i_L(0₋)/s），并联电流源是 i_L(0₋)/s；电容串联电压源是 u_C(0₋)/s，并联电流源是 C·u_C(0₋)。",
+      "text": "把串联形式和并联形式的数值混用。电感：串联电压源是 L·i_L(0₋)（不是 i_L(0₋)/s），并联电流源是 i_L(0₋)/s。电容：串联电压源是 v_C(0₋)/s，并联电流源是 C·v_C(0₋)。",
       "i18n": {
         "en": {
-          "text": "Mixing up the values of the series and parallel forms: the inductor's series voltage source is L·i_L(0−) (not i_L(0−)/s), its parallel current source i_L(0−)/s; the capacitor's series voltage source is u_C(0−)/s, its parallel current source C·u_C(0−)."
+          "text": "Mixing up the values of the series and parallel forms. Inductor: the series voltage source is L·i_L(0−) (not i_L(0−)/s), the parallel current source i_L(0−)/s. Capacitor: the series voltage source is v_C(0−)/s, the parallel current source C·v_C(0−)."
         }
       }
     },
     {
       "id": "mutual-ic",
       "idea": "models",
-      "text": "耦合电感只加了自感的附加电源，漏掉互感项 M·i_{另一个}(0₋)：另一线圈原来的电流通过互感同样会“维持”下去。",
+      "text": "耦合电感只加了自感的附加电源，漏掉了互感项 M·i_{另一个}(0₋)。另一线圈原来的电流，通过互感同样会“维持”下去。",
       "i18n": {
         "en": {
-          "text": "Coupled coils with only the self-inductance sources: the mutual term M·i_{other}(0−) is missing, although the other coil's initial current acts through M too."
+          "text": "Coupled coils with only the self-inductance sources: the mutual term M·i_{other}(0−) is missing. The other coil's initial current acts through M too."
         }
       }
     },
@@ -749,10 +821,10 @@
     {
       "id": "improper",
       "idea": "pfe",
-      "text": "分子次数不低于分母（如 U_L(s) = \\frac{3s}{s + 4}）时直接套留数公式。要先除出常数（冲激部分）再展开；初值定理也只能用于真分式部分。",
+      "text": "分子次数不低于分母时（如 V_L(s) = \\frac{3s}{s + 4}），直接套留数公式。要先除出常数（冲激部分）再展开。初值定理也只能用于真分式部分。",
       "i18n": {
         "en": {
-          "text": "Applying the coefficient formula directly when the numerator degree is not lower (e.g. U_L(s) = \\frac{3s}{s + 4}). Divide out the constant (the impulse part) first; the initial-value theorem also applies to the proper part only."
+          "text": "Applying the coefficient formula directly when the numerator degree is not lower (e.g. V_L(s) = \\frac{3s}{s + 4}). Divide out the constant (the impulse part) first, then expand. The initial-value theorem also applies to the proper part only."
         }
       }
     },
@@ -769,30 +841,30 @@
     {
       "id": "h-zero-state",
       "idea": "netfun",
-      "text": "求网络函数时把初值（附加电源）也算进去。H(s) 按定义是**零状态**下响应与激励之比；有初值时全响应 = H(s)E(s) + 零输入部分。",
+      "text": "求网络函数时把初值（附加电源）也算进去。H(s) 按定义是**零状态**下响应与激励之比。有初值时，全响应 = H(s)E(s) + 零输入部分。",
       "i18n": {
         "en": {
-          "text": "Including initial values (initial-condition sources) in a network function. By definition H(s) is the ratio of response to input in the **zero state**; with initial values the complete response = H(s)E(s) + a zero-input part."
+          "text": "Including initial values (initial-condition sources) in a network function. By definition H(s) is the ratio of response to input in the **zero state**. With initial values, the complete response = H(s)E(s) + a zero-input part."
         }
       }
     },
     {
       "id": "forced-poles",
       "idea": "poles-time",
-      "text": "只看 H(s) 的极点就写响应形式，漏掉激励带来的极点：阶跃激励给出 s = 0（稳态常数），指数激励 e^{−at} 给出 s = −a。",
+      "text": "只看 H(s) 的极点就写响应形式，漏掉了激励带来的极点。阶跃激励给出 s = 0（稳态常数），指数激励 e^{−at} 给出 s = −a。",
       "i18n": {
         "en": {
-          "text": "Writing the form of a response from the poles of H(s) only, forgetting the poles of the input: a step adds s = 0 (a constant steady state), an exponential e^{−at} adds s = −a."
+          "text": "Writing the form of a response from the poles of H(s) only, forgetting the poles of the input. A step adds s = 0 (a constant steady state); an exponential e^{−at} adds s = −a."
         }
       }
     },
     {
       "id": "conv",
       "idea": "convolution",
-      "text": "卷积时写成 ∫h(τ)e(τ)dτ（忘了“反转、平移”成 e(t − τ)），或者积分上限写成 ∞。因果信号的卷积上限是 t。",
+      "text": "卷积时写成 ∫h(τ)e(τ)dτ，忘了“反转、平移”成 e(t − τ)；或者积分上限写成 ∞。因果信号的卷积上限是 t。",
       "i18n": {
         "en": {
-          "text": "Writing a convolution as ∫h(τ)e(τ)dτ (forgetting to flip and shift to e(t − τ)), or integrating up to ∞. For causal signals the upper limit is t."
+          "text": "Writing a convolution as ∫h(τ)e(τ)dτ, forgetting to flip and shift to e(t − τ); or integrating up to ∞. For causal signals the upper limit is t."
         }
       }
     }

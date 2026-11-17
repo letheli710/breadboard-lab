@@ -7,15 +7,15 @@
   "level": 4,
   "tags": ["三相电路", "3 次谐波", "零序", "中线电流"],
   "statement": [
-    "对称三相电源（正序）每相电动势含基波和 3 次谐波：u_A = 220√2 cos(314t) + 40√2 cos(942t) V，u_B、u_C 的基波依次滞后 120°，即 u_B = 220√2 cos(314t − 120°) + 40√2 cos(3(314t − 120°)) V，u_C 类推。",
-    "电源经三相四线制向对称星形负载供电，每相 R = 20 Ω、L = 15.92 mH（ωL = 5 Ω），中线阻抗为零，电流表 A_N 测中线电流。",
-    "求负载相电压（= 电源相电压）的有效值、线电压 U_AB 的有效值、A 相电流有效值和中线电流表的读数。"
+    "对称三相电源（正序）每相电动势含基波和 3 次谐波。A 相为 v_A = 220√2 cos(314t) + 40√2 cos(942t) V。v_B、v_C 的基波依次滞后 120°，即 v_B = 220√2 cos(314t − 120°) + 40√2 cos(3(314t − 120°)) V，v_C 类推。",
+    "电源经三相四线制向对称星形负载供电。每相负载 R = 20 Ω、L = 15.92 mH（ωL = 5 Ω）。中线阻抗为零，电流表 A_N 测中线电流。",
+    "求负载相电压（= 电源相电压）的有效值和线电压 V_AB 的有效值。再求 A 相电流的有效值和中线电流表的读数。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "UA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": 0 }, { "k": 3, "amp": 56.568542 } ] } }, "label": "u_A" },
-      { "ref": "UB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": -120 }, { "k": 3, "amp": 56.568542 } ] } }, "label": "u_B" },
-      { "ref": "UC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": 120 }, { "k": 3, "amp": 56.568542 } ] } }, "label": "u_C" },
+      { "ref": "VA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": 0 }, { "k": 3, "amp": 56.568542 } ] } }, "label": "v_A" },
+      { "ref": "VB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": -120 }, { "k": 3, "amp": 56.568542 } ] } }, "label": "v_B" },
+      { "ref": "VC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": 120 }, { "k": 3, "amp": 56.568542 } ] } }, "label": "v_C" },
       { "ref": "RA", "type": "R", "from": [9, 0], "to": [12, 0], "value": 20 },
       { "ref": "LA", "type": "L", "from": [12, 0], "to": [15, 0], "value": 0.015924 },
       { "ref": "RB", "type": "R", "from": [9, 3], "to": [12, 3], "value": 20 },
@@ -61,26 +61,26 @@
   "analysis": { "type": "periodic", "omega": 314 },
   "questions": [
     {
-      "id": "UA",
-      "ask": "相电压有效值 U_A = ?",
+      "id": "VA",
+      "ask": "相电压有效值 V_A = ?",
       "find": {
         "kind": "v",
         "nodes": ["A", "N"]
       },
       "answer": 223.6068,
       "unit": "V",
-      "explain": "U_A = √(220² + 40²) = 223.6 V。"
+      "explain": "V_A = √(220² + 40²) = 223.6 V。"
     },
     {
       "id": "UAB",
-      "ask": "线电压有效值 U_AB = ?",
+      "ask": "线电压有效值 V_AB = ?",
       "find": {
         "kind": "v",
         "nodes": ["A", "B"]
       },
       "answer": 381.0512,
       "unit": "V",
-      "explain": "u_AB = u_A − u_B：基波得 √3 × 220 = 381.1 V；3 次谐波同相位，相减为零。所以 U_AB = 381.1 V，**不是** √3 × 223.6 = 387.3 V。"
+      "explain": "v_AB = v_A − v_B：基波得 √3 × 220 = 381.1 V；3 次谐波同相位，相减为零。所以 V_AB = 381.1 V，**不是** √3 × 223.6 = 387.3 V。"
     },
     { "id": "IA", "ask": "A 相电流有效值 I_A = ?", "find": { "kind": "i", "el": "RA" }, "answer": 10.79083, "unit": "A", "explain": "I_A1 = 220/|20 + j5| = 10.67 A，I_A3 = 40/|20 + j15| = 1.6 A，I_A = √(10.67² + 1.6²) = 10.79 A。" },
     { "id": "IN", "ask": "中线电流表读数 I_N = ?", "find": { "kind": "meter", "el": "AN" }, "answer": 4.799953, "unit": "A", "explain": "三相基波电流对称，在中线中相加为零；3 次谐波电流同相，相加为 3I_A3 = 4.8 A。" },
@@ -89,12 +89,12 @@
       "ask": "如果把相电压的有效值乘以 √3 当作线电压，会发生什么？",
       "choices": ["偏大：3 次谐波在线电压中互相抵消，不能乘 √3", "偏小：漏掉了 3 次谐波的 √3 倍", "结果正确：线电压总是相电压的 √3 倍", "偏大：基波在线电压中会互相抵消"],
       "correct": 0,
-      "choiceExplain": ["", "3 次谐波在线电压里是**相减**为零，而不是乘以 √3。", "U_l = √3U_p 只对对称的正序（或负序）分量成立，零序的 3 次谐波不满足。", "抵消的是同相位的 3 次谐波，不是彼此相差 120° 的基波。"],
+      "choiceExplain": ["", "3 次谐波在线电压里是**相减**为零，而不是乘以 √3。", "V_l = √3V_p 只对对称的正序（或负序）分量成立，零序的 3 次谐波不满足。", "抵消的是同相位的 3 次谐波，不是彼此相差 120° 的基波。"],
       "explain": "√3 × 223.6 = 387.3 V > 381.1 V。线电压中只有基波（以及 5、7 次等非 3 倍数的谐波）满足 √3 关系，3 的倍数次谐波在线电压中消失。"
     }
   ],
   "hints": [
-    "先看 3 次谐波：把 u_B、u_C 的 3 次谐波展开，3 × 120° 是多少？三相的 3 次谐波之间是什么相位关系？",
+    "先看 3 次谐波：把 v_B、v_C 的 3 次谐波展开，3 × 120° 是多少？三相的 3 次谐波之间是什么相位关系？",
     "基波按对称三相电路计算（中线中没有基波电流）；3 次谐波三相同相，相当于三个相同的单相电路，电流都流入中线。",
     "线电压是两相电压之差：同相的分量在相减时抵消。电流和电压的有效值仍是各次谐波的平方和开方。"
   ],
@@ -103,7 +103,7 @@
     "**2. 基波**（ωL = 5 Ω）：Z_1 = 20 + j5 = 20.62∠14.04° Ω，I_A1 = 220/20.62 = 10.67 A；三相对称，中线中基波电流为零。",
     "**3. 3 次谐波**（3ωL = 15 Ω）：Z_3 = 20 + j15 = 25∠36.87° Ω，I_A3 = I_B3 = I_C3 = 40/25 = 1.6 A，三者同相，中线电流 I_N = 3 × 1.6 = **4.8 A**。",
     "**4. 相电流：** I_A = √(10.67² + 1.6²) = **10.79 A**。",
-    "**5. 电压：** 相电压 U_A = √(220² + 40²) = **223.6 V**；线电压 u_AB = u_A − u_B 中 3 次谐波抵消，U_AB = √3 × 220 = **381.1 V**，所以 U_AB < √3U_A = 387.3 V。",
+    "**5. 电压：** 相电压 V_A = √(220² + 40²) = **223.6 V**；线电压 v_AB = v_A − v_B 中 3 次谐波抵消，V_AB = √3 × 220 = **381.1 V**，所以 V_AB < √3V_A = 387.3 V。",
     "**检查：** 3 次谐波的中线电流可以看成一个单相回路：三相并联的负载 Z_3/3 接在 40 V 上，40/(25/3) = 4.8 A，一致。"
   ],
   "i18n": {
@@ -111,12 +111,12 @@
       "title": "3rd harmonics in a four-wire three-phase system: the neutral current",
       "tags": ["three-phase", "3rd harmonic", "zero sequence", "neutral current"],
       "statement": [
-        "Each phase EMF of a balanced (positive-sequence) three-phase source contains a fundamental and a 3rd harmonic: u_A = 220√2 cos(314t) + 40√2 cos(942t) V; the fundamentals of u_B, u_C lag by 120° each, i.e. u_B = 220√2 cos(314t − 120°) + 40√2 cos(3(314t − 120°)) V, and so on for u_C.",
-        "The source feeds a balanced Y load over a four-wire system; each phase is R = 20 Ω with L = 15.92 mH (ωL = 5 Ω), the neutral has zero impedance and the ammeter A_N measures the neutral current.",
-        "Find the rms load phase voltage (= source phase voltage), the rms line voltage U_AB, the rms current of phase A and the neutral ammeter reading."
+        "Each phase EMF of a balanced (positive-sequence) three-phase source contains a fundamental and a 3rd harmonic. Phase A is v_A = 220√2 cos(314t) + 40√2 cos(942t) V. The fundamentals of v_B, v_C lag by 120° each, i.e. v_B = 220√2 cos(314t − 120°) + 40√2 cos(3(314t − 120°)) V, and so on for v_C.",
+        "The source feeds a balanced Y load over a four-wire system. Each phase is R = 20 Ω with L = 15.92 mH (ωL = 5 Ω). The neutral has zero impedance, and the ammeter A_N measures the neutral current.",
+        "Find the rms load phase voltage (= source phase voltage) and the rms line voltage V_AB. Then find the rms current of phase A and the neutral ammeter reading."
       ],
       "hints": [
-        "Start with the 3rd harmonic: expand the 3rd harmonics of u_B and u_C — what is 3 × 120°? How are the three 3rd harmonics related in phase?",
+        "Start with the 3rd harmonic: expand the 3rd harmonics of v_B and v_C — what is 3 × 120°? How are the three 3rd harmonics related in phase?",
         "Treat the fundamental as a balanced three-phase circuit (no fundamental current in the neutral); the 3rd harmonics are in phase, like three identical single-phase circuits whose currents all return through the neutral.",
         "A line voltage is the difference of two phase voltages: components that are in phase cancel. rms values are still the root of the sum of the squares of the harmonics."
       ],
@@ -125,12 +125,12 @@
         "**2. Fundamental** (ωL = 5 Ω): Z_1 = 20 + j5 = 20.62∠14.04° Ω, I_A1 = 220/20.62 = 10.67 A; the three phases are balanced and the neutral carries no fundamental current.",
         "**3. 3rd harmonic** (3ωL = 15 Ω): Z_3 = 20 + j15 = 25∠36.87° Ω, I_A3 = I_B3 = I_C3 = 40/25 = 1.6 A, all in phase; the neutral current is I_N = 3 × 1.6 = **4.8 A**.",
         "**4. Phase current:** I_A = √(10.67² + 1.6²) = **10.79 A**.",
-        "**5. Voltages:** phase voltage U_A = √(220² + 40²) = **223.6 V**; in the line voltage u_AB = u_A − u_B the 3rd harmonics cancel, U_AB = √3 × 220 = **381.1 V**, so U_AB < √3U_A = 387.3 V.",
+        "**5. Voltages:** phase voltage V_A = √(220² + 40²) = **223.6 V**; in the line voltage v_AB = v_A − v_B the 3rd harmonics cancel, V_AB = √3 × 220 = **381.1 V**, so V_AB < √3V_A = 387.3 V.",
         "**Check:** for the 3rd harmonic the neutral current is a single-phase loop: the three loads in parallel, Z_3/3, across 40 V: 40/(25/3) = 4.8 A — the same."
       ],
       "questions": [
-        { "ask": "rms phase voltage U_A = ?", "explain": "U_A = √(220² + 40²) = 223.6 V." },
-        { "ask": "rms line voltage U_AB = ?", "explain": "u_AB = u_A − u_B: the fundamentals give √3 × 220 = 381.1 V; the 3rd harmonics are in phase and cancel. So U_AB = 381.1 V, **not** √3 × 223.6 = 387.3 V." },
+        { "ask": "rms phase voltage V_A = ?", "explain": "V_A = √(220² + 40²) = 223.6 V." },
+        { "ask": "rms line voltage V_AB = ?", "explain": "v_AB = v_A − v_B: the fundamentals give √3 × 220 = 381.1 V; the 3rd harmonics are in phase and cancel. So V_AB = 381.1 V, **not** √3 × 223.6 = 387.3 V." },
         { "ask": "rms current of phase A, I_A = ?", "explain": "I_A1 = 220/|20 + j5| = 10.67 A, I_A3 = 40/|20 + j15| = 1.6 A, I_A = √(10.67² + 1.6²) = 10.79 A." },
         { "ask": "Reading of the neutral ammeter, I_N = ?", "explain": "The fundamental currents are balanced and add up to zero in the neutral; the 3rd-harmonic currents are in phase and add up to 3I_A3 = 4.8 A." },
         {
@@ -144,7 +144,7 @@
           "choiceExplain": [
             "",
             "In the line voltage the 3rd harmonics **subtract** to zero; they are not multiplied by √3.",
-            "U_l = √3U_p holds only for a balanced positive- (or negative-) sequence set; the zero-sequence 3rd harmonic does not obey it.",
+            "V_l = √3V_p holds only for a balanced positive- (or negative-) sequence set; the zero-sequence 3rd harmonic does not obey it.",
             "What cancels is the in-phase 3rd harmonic, not the fundamentals that are 120° apart."
           ],
           "explain": "√3 × 223.6 = 387.3 V > 381.1 V. Only the fundamental (and the 5th, 7th, … harmonics that are not multiples of 3) obey the √3 relation; harmonics that are multiples of 3 vanish from the line voltage."

@@ -42,7 +42,7 @@
       "find": { "kind": "pmax", "port": ["a", "b"], "exclude": ["RL"] },
       "answer": 13.5,
       "unit": "W",
-      "explain": "I_s 与 R_1 等效为 36 V 串 6 Ω，再经 R_2 到 R_3 分压：u_oc = 36 × 12/24 = 18 V；P_max = u_oc²/(4R_eq) = 324/24 = 13.5 W。"
+      "explain": "I_s 与 R_1 等效为 36 V 串 6 Ω，再经 R_2 到 R_3 分压：v_oc = 36 × 12/24 = 18 V；P_max = v_oc²/(4R_eq) = 324/24 = 13.5 W。"
     },
     {
       "id": "pis",
@@ -50,26 +50,26 @@
       "find": { "kind": "p", "el": "Is" },
       "answer": -135,
       "unit": "W",
-      "explain": "u_ab = u_oc/2 = 9 V，i_L = 1.5 A；R_3 电流 0.75 A，R_2 电流 2.25 A，I_s 两端电压 9 + 2.25 × 6 = 22.5 V（上正）。I_s 吸收 −6 × 22.5 = −135 W，即发出 135 W。"
+      "explain": "v_ab = v_oc/2 = 9 V，i_L = 1.5 A；R_3 电流 0.75 A，R_2 电流 2.25 A，I_s 两端电压 9 + 2.25 × 6 = 22.5 V（上正）。I_s 吸收 −6 × 22.5 = −135 W，即发出 135 W。"
     },
     {
       "id": "eta",
       "ask": "传输效率 η = P_max/(I_s 发出的功率) 约为：",
-      "choices": ["50%", "10%", "25%", "100%"], "choiceExplain": ["50% 只对戴维宁等效电路成立（u_oc 发出 27 W，负载得 13.5 W）；等效只对外电路等效，I_s 发出的功率要回到原电路去算。", "", "25% = 13.5/54：把 I_s 两端电压当成负载电压 u_ab = 9 V（以为发出 6 × 9 = 54 W），漏掉了 R_2 上 2.25 × 6 = 13.5 V 的压降。", "100% 是忽略了 R_1、R_2、R_3 中的损耗；匹配时负载只得到电源功率的一小部分。"],
+      "choices": ["50%", "10%", "25%", "100%"], "choiceExplain": ["50% 只对戴维宁等效电路成立（v_oc 发出 27 W，负载得 13.5 W）；等效只对外电路等效，I_s 发出的功率要回到原电路去算。", "", "25% = 13.5/54：把 I_s 两端电压当成负载电压 v_ab = 9 V（以为发出 6 × 9 = 54 W），漏掉了 R_2 上 2.25 × 6 = 13.5 V 的压降。", "100% 是忽略了 R_1、R_2、R_3 中的损耗；匹配时负载只得到电源功率的一小部分。"],
       "correct": 1,
       "explain": "η = 13.5/135 = 10%。“匹配时效率 50%” 只对戴维宁等效电路成立；等效只对外电路等效，内部的功率损耗并不相同。"
     }
   ],
   "hints": [
     "先断开 R_L，求 a、b 左侧的戴维宁等效电路。可以先把 I_s ∥ R_1 变换成电压源串电阻。",
-    "R_L = R_eq 时负载功率最大，P_max = u_oc²/(4R_eq)。",
-    "求 I_s 的功率要回到原电路：知道 u_ab 后由右往左逐个用 KCL、KVL。"
+    "R_L = R_eq 时负载功率最大，P_max = v_oc²/(4R_eq)。",
+    "求 I_s 的功率要回到原电路：知道 v_ab 后由右往左逐个用 KCL、KVL。"
   ],
   "solution": [
     "**1. 等效电阻。** I_s 置零 → 开路：R_eq = (R_1 + R_2) ∥ R_3 = 12 ∥ 12 = **6 Ω**，所以 R_L = 6 Ω 时功率最大。",
-    "**2. 开路电压。** I_s ∥ R_1 等效为 I_s·R_1 = 36 V 串 6 Ω；开路时 R_3 与 (6 + 6) Ω 串联分压：u_oc = 36 × 12/24 = 18 V。",
-    "**3. 最大功率。** P_max = u_oc²/(4R_eq) = 18²/24 = **13.5 W**。",
-    "**4. 回到原电路。** u_ab = 18/2 = 9 V，i_L = 1.5 A，i_R3 = 9/12 = 0.75 A，i_R2 = 2.25 A，I_s 上端电压 = 9 + 2.25 × 6 = 22.5 V，i_R1 = 22.5/6 = 3.75 A（KCL：3.75 + 2.25 = 6 ✓）。",
+    "**2. 开路电压。** I_s ∥ R_1 等效为 I_s·R_1 = 36 V 串 6 Ω；开路时 R_3 与 (6 + 6) Ω 串联分压：v_oc = 36 × 12/24 = 18 V。",
+    "**3. 最大功率。** P_max = v_oc²/(4R_eq) = 18²/24 = **13.5 W**。",
+    "**4. 回到原电路。** v_ab = 18/2 = 9 V，i_L = 1.5 A，i_R3 = 9/12 = 0.75 A，i_R2 = 2.25 A，I_s 上端电压 = 9 + 2.25 × 6 = 22.5 V，i_R1 = 22.5/6 = 3.75 A（KCL：3.75 + 2.25 = 6 ✓）。",
     "I_s 吸收功率 = **−135 W**（发出 135 W）。**η = 13.5/135 = 10%**。",
     "**功率平衡：** R_1 84.375 W + R_2 30.375 W + R_3 6.75 W + R_L 13.5 W = 135 W ✓。"
   ],
@@ -88,28 +88,28 @@
         },
         {
           "ask": "P_max = ?",
-          "explain": "I_s with R_1 is equivalent to 36 V in series with 6 Ω; through R_2 into the divider with R_3: u_oc = 36 × 12/24 = 18 V; P_max = u_oc²/(4R_eq) = 324/24 = 13.5 W."
+          "explain": "I_s with R_1 is equivalent to 36 V in series with 6 Ω; through R_2 into the divider with R_3: v_oc = 36 × 12/24 = 18 V; P_max = v_oc²/(4R_eq) = 324/24 = 13.5 W."
         },
         {
           "ask": "Power absorbed by the current source I_s in this case = ?",
-          "explain": "u_ab = u_oc/2 = 9 V, i_L = 1.5 A; R_3 carries 0.75 A, R_2 carries 2.25 A, the voltage across I_s is 9 + 2.25 × 6 = 22.5 V (+ at the top). I_s absorbs −6 × 22.5 = −135 W, i.e. it delivers 135 W."
+          "explain": "v_ab = v_oc/2 = 9 V, i_L = 1.5 A; R_3 carries 0.75 A, R_2 carries 2.25 A, the voltage across I_s is 9 + 2.25 × 6 = 22.5 V (+ at the top). I_s absorbs −6 × 22.5 = −135 W, i.e. it delivers 135 W."
         },
         {
           "ask": "The efficiency η = P_max/(power delivered by I_s) is about:",
-          "choices": ["50%", "10%", "25%", "100%"], "choiceExplain": ["50% holds only for the Thévenin equivalent (u_oc delivers 27 W, the load gets 13.5 W); the equivalent matches only the outside, so the power I_s delivers must be found in the original circuit.", "", "25% = 13.5/54: this takes the voltage across I_s to be the load voltage u_ab = 9 V (so 6 × 9 = 54 W delivered) and leaves out the 2.25 × 6 = 13.5 V drop across R_2.", "100% ignores the losses in R_1, R_2 and R_3; at matching the load gets only a small part of the source power."],
+          "choices": ["50%", "10%", "25%", "100%"], "choiceExplain": ["50% holds only for the Thévenin equivalent (v_oc delivers 27 W, the load gets 13.5 W); the equivalent matches only the outside, so the power I_s delivers must be found in the original circuit.", "", "25% = 13.5/54: this takes the voltage across I_s to be the load voltage v_ab = 9 V (so 6 × 9 = 54 W delivered) and leaves out the 2.25 × 6 = 13.5 V drop across R_2.", "100% ignores the losses in R_1, R_2 and R_3; at matching the load gets only a small part of the source power."],
           "explain": "η = 13.5/135 = 10%. \"50 % at matching\" holds only for the Thevenin equivalent; the equivalent circuit is equivalent only to the outside, and the internal losses are different."
         }
       ],
       "hints": [
         "Remove R_L and find the Thevenin equivalent to the left of a, b. You can first convert I_s ∥ R_1 into a voltage source with a series resistor.",
-        "The load power is maximal for R_L = R_eq, with P_max = u_oc²/(4R_eq).",
-        "For the power of I_s go back to the original circuit: knowing u_ab, apply KCL and KVL from right to left."
+        "The load power is maximal for R_L = R_eq, with P_max = v_oc²/(4R_eq).",
+        "For the power of I_s go back to the original circuit: knowing v_ab, apply KCL and KVL from right to left."
       ],
       "solution": [
         "**1. Equivalent resistance.** Zero I_s → open: R_eq = (R_1 + R_2) ∥ R_3 = 12 ∥ 12 = **6 Ω**, so the power is maximal for R_L = 6 Ω.",
-        "**2. Open-circuit voltage.** I_s ∥ R_1 is equivalent to I_s·R_1 = 36 V in series with 6 Ω; with a, b open, R_3 forms a divider with (6 + 6) Ω: u_oc = 36 × 12/24 = 18 V.",
-        "**3. Maximum power.** P_max = u_oc²/(4R_eq) = 18²/24 = **13.5 W**.",
-        "**4. Back to the original circuit.** u_ab = 18/2 = 9 V, i_L = 1.5 A, i_R3 = 9/12 = 0.75 A, i_R2 = 2.25 A, the voltage at the top of I_s = 9 + 2.25 × 6 = 22.5 V, i_R1 = 22.5/6 = 3.75 A (KCL: 3.75 + 2.25 = 6 ✓).",
+        "**2. Open-circuit voltage.** I_s ∥ R_1 is equivalent to I_s·R_1 = 36 V in series with 6 Ω; with a, b open, R_3 forms a divider with (6 + 6) Ω: v_oc = 36 × 12/24 = 18 V.",
+        "**3. Maximum power.** P_max = v_oc²/(4R_eq) = 18²/24 = **13.5 W**.",
+        "**4. Back to the original circuit.** v_ab = 18/2 = 9 V, i_L = 1.5 A, i_R3 = 9/12 = 0.75 A, i_R2 = 2.25 A, the voltage at the top of I_s = 9 + 2.25 × 6 = 22.5 V, i_R1 = 22.5/6 = 3.75 A (KCL: 3.75 + 2.25 = 6 ✓).",
         "Power absorbed by I_s = **−135 W** (it delivers 135 W). **η = 13.5/135 = 10%**.",
         "**Power balance:** R_1 84.375 W + R_2 30.375 W + R_3 6.75 W + R_L 13.5 W = 135 W ✓."
       ]

@@ -7,12 +7,12 @@
   "level": 1,
   "tags": ["零状态响应", "RC 充电", "时间常数 τ"],
   "statement": [
-    "图示电路中 U_s = 10 V，R = 2 kΩ，C = 100 µF，电容原来不带电。开关 S 在 t = 0 时闭合。",
-    "求充电电流 i 的初值 i(0₊)、时间常数 τ，以及 t = 0.4 s 时的 u_C。"
+    "图示电路中 V_s = 10 V，R = 2 kΩ，C = 100 µF，电容原来不带电。开关 S 在 t = 0 时闭合。",
+    "求充电电流 i 的初值 i(0₊)、时间常数 τ，以及 t = 0.4 s 时的 v_C。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 10 },
       { "ref": "S", "type": "SW", "from": [2, 0], "to": [4, 0], "state": { "before": "open", "after": "closed" } },
       { "ref": "R", "type": "R", "from": [5, 0], "to": [9, 0], "value": "2k" },
       { "ref": "C", "type": "C", "from": [11, 0], "to": [11, 4], "value": "100u" }
@@ -26,25 +26,25 @@
     "grounds": [[0, 4]],
     "marks": [
       { "kind": "i", "el": "R", "name": "i" },
-      { "kind": "v", "el": "C", "name": "u_C" }
+      { "kind": "v", "el": "C", "name": "v_C" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "i0", "ask": "i(0₊) = ?", "find": { "kind": "i", "el": "R", "t": "0+" }, "answer": 0.005, "unit": "mA", "explain": "u_C(0₊) = u_C(0₋) = 0，换路瞬间电容相当于短路，电源电压全部加在 R 上：i(0₊) = 10 V / 2 kΩ = 5 mA。" },
+    { "id": "i0", "ask": "i(0₊) = ?", "find": { "kind": "i", "el": "R", "t": "0+" }, "answer": 0.005, "unit": "mA", "explain": "v_C(0₊) = v_C(0₋) = 0，换路瞬间电容相当于短路，电源电压全部加在 R 上：i(0₊) = 10 V / 2 kΩ = 5 mA。" },
     { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "τ = RC = 2×10³ × 100×10⁻⁶ = 0.2 s。" },
-    { "id": "u04", "ask": "t = 0.4 s 时 u_C = ?", "find": { "kind": "v", "el": "C", "t": 0.4 }, "answer": 8.646647, "unit": "V", "explain": "u_C(t) = 10(1 − e^(−t/0.2)) V，t = 0.4 s = 2τ 时 u_C = 10(1 − e⁻²) ≈ 8.647 V。" },
-    { "id": "done", "ask": "工程上一般认为过渡过程大约经过多长时间就结束了？", "choices": ["约 0.2 s（1τ）", "约 0.6～1 s（3τ～5τ）", "永远不会结束，所以无法估计", "约 2 s（10τ）以后才能认为结束"], "choiceExplain": ["1τ 时 u_C 只达到终值的 63.2%，离终值还差三分之一以上，过渡过程远没有结束。", "", "数学上指数项确实永远不为零，但它衰减得很快：几个 τ 之后剩下的部分就小到可以忽略，所以可以估计。", "10τ 过于保守：5τ 时已达到终值的 99.3%，再等下去几乎没有变化。"], "correct": 1, "explain": "t = 3τ 时 u_C 已达到终值的 95%，5τ 时达到 99.3%，工程上认为 3τ～5τ 后过渡过程结束，即约 0.6～1 s。" }
+    { "id": "u04", "ask": "t = 0.4 s 时 v_C = ?", "find": { "kind": "v", "el": "C", "t": 0.4 }, "answer": 8.646647, "unit": "V", "explain": "v_C(t) = 10(1 − e^(−t/0.2)) V，t = 0.4 s = 2τ 时 v_C = 10(1 − e⁻²) ≈ 8.647 V。" },
+    { "id": "done", "ask": "工程上一般认为过渡过程大约经过多长时间就结束了？", "choices": ["约 0.2 s（1τ）", "约 0.6～1 s（3τ～5τ）", "永远不会结束，所以无法估计", "约 2 s（10τ）以后才能认为结束"], "choiceExplain": ["1τ 时 v_C 只达到终值的 63.2%，离终值还差三分之一以上，过渡过程远没有结束。", "", "数学上指数项确实永远不为零，但它衰减得很快：几个 τ 之后剩下的部分就小到可以忽略，所以可以估计。", "10τ 过于保守：5τ 时已达到终值的 99.3%，再等下去几乎没有变化。"], "correct": 1, "explain": "t = 3τ 时 v_C 已达到终值的 95%，5τ 时达到 99.3%，工程上认为 3τ～5τ 后过渡过程结束，即约 0.6～1 s。" }
   ],
   "hints": [
     "电容原来不带电，换路瞬间电容电压不能跃变，此时电容相当于短路。",
-    "零状态响应：u_C(t) = u_C(∞)(1 − e^(−t/τ))，其中 τ = RC。"
+    "零状态响应：v_C(t) = v_C(∞)(1 − e^(−t/τ))，其中 τ = RC。"
   ],
   "solution": [
-    "**1. 初值。** 换路定则：u_C(0₊) = u_C(0₋) = 0。KVL：U_s = R·i(0₊) + u_C(0₊)，所以 i(0₊) = 10 / 2000 = **5 mA**。",
-    "**2. 终值。** 充电结束后电容开路，i(∞) = 0，u_C(∞) = U_s = 10 V。",
+    "**1. 初值。** 换路定则：v_C(0₊) = v_C(0₋) = 0。KVL：V_s = R·i(0₊) + v_C(0₊)，所以 i(0₊) = 10 / 2000 = **5 mA**。",
+    "**2. 终值。** 充电结束后电容开路，i(∞) = 0，v_C(∞) = V_s = 10 V。",
     "**3. 时间常数。** τ = RC = 2 kΩ × 100 µF = **0.2 s**。",
-    "**4. 响应。** u_C(t) = 10(1 − e^(−5t)) V，i(t) = 5e^(−5t) mA（t > 0）。t = 0.4 s：u_C = 10(1 − e⁻²) ≈ **8.647 V**。",
+    "**4. 响应。** v_C(t) = 10(1 − e^(−5t)) V，i(t) = 5e^(−5t) mA（t > 0）。t = 0.4 s：v_C = 10(1 − e⁻²) ≈ **8.647 V**。",
     "**5. 过渡过程的长短。** 1τ 时达到终值的 63.2%，3τ 时 95.0%，5τ 时 99.3%；工程上取 3τ～5τ，即约 0.6～1 s。"
   ],
   "i18n": {
@@ -52,24 +52,24 @@
       "title": "Charging an RC circuit (zero-state response)",
       "tags": ["zero-state response", "RC charging", "time constant τ"],
       "statement": [
-        "In the circuit, U_s = 10 V, R = 2 kΩ, C = 100 µF, and the capacitor is initially uncharged. Switch S closes at t = 0.",
-        "Find the initial charging current i(0+), the time constant τ, and u_C at t = 0.4 s."
+        "In the circuit, V_s = 10 V, R = 2 kΩ, C = 100 µF, and the capacitor is initially uncharged. Switch S closes at t = 0.",
+        "Find the initial charging current i(0+), the time constant τ, and v_C at t = 0.4 s."
       ],
       "questions": [
-        { "ask": "i(0+) = ?", "explain": "u_C(0+) = u_C(0−) = 0, so at the instant of switching the capacitor acts like a short and the whole source voltage is across R: i(0+) = 10 V / 2 kΩ = 5 mA." },
+        { "ask": "i(0+) = ?", "explain": "v_C(0+) = v_C(0−) = 0, so at the instant of switching the capacitor acts like a short and the whole source voltage is across R: i(0+) = 10 V / 2 kΩ = 5 mA." },
         { "ask": "τ = ?", "explain": "τ = RC = 2×10³ × 100×10⁻⁶ = 0.2 s." },
-        { "ask": "u_C at t = 0.4 s = ?", "explain": "u_C(t) = 10(1 − e^(−t/0.2)) V; at t = 0.4 s = 2τ, u_C = 10(1 − e⁻²) ≈ 8.647 V." },
-        { "ask": "In engineering practice, after roughly how long is the transient considered over?", "choices": ["About 0.2 s (1τ)", "About 0.6–1 s (3τ–5τ)", "It never ends, so it can't be estimated", "Only after about 2 s (10τ)"], "choiceExplain": ["At 1τ u_C has reached only 63.2% of its final value — more than a third is still to go, so the transient is far from over.", "", "Mathematically the exponential never reaches zero, but it decays fast: after a few τ what is left is negligible, so the duration can be estimated.", "10τ is overly cautious: at 5τ u_C is already at 99.3% of its final value and hardly changes afterwards."], "explain": "At t = 3τ u_C has reached 95 % of its final value, at 5τ 99.3 %; engineers regard the transient as over after 3τ–5τ, i.e. about 0.6–1 s." }
+        { "ask": "v_C at t = 0.4 s = ?", "explain": "v_C(t) = 10(1 − e^(−t/0.2)) V; at t = 0.4 s = 2τ, v_C = 10(1 − e⁻²) ≈ 8.647 V." },
+        { "ask": "In engineering practice, after roughly how long is the transient considered over?", "choices": ["About 0.2 s (1τ)", "About 0.6–1 s (3τ–5τ)", "It never ends, so it can't be estimated", "Only after about 2 s (10τ)"], "choiceExplain": ["At 1τ v_C has reached only 63.2% of its final value — more than a third is still to go, so the transient is far from over.", "", "Mathematically the exponential never reaches zero, but it decays fast: after a few τ what is left is negligible, so the duration can be estimated.", "10τ is overly cautious: at 5τ v_C is already at 99.3% of its final value and hardly changes afterwards."], "explain": "At t = 3τ v_C has reached 95 % of its final value, at 5τ 99.3 %; engineers regard the transient as over after 3τ–5τ, i.e. about 0.6–1 s." }
       ],
       "hints": [
         "The capacitor starts uncharged and its voltage can't jump, so at t = 0+ it behaves like a short circuit.",
-        "Zero-state response: u_C(t) = u_C(∞)(1 − e^(−t/τ)) with τ = RC."
+        "Zero-state response: v_C(t) = v_C(∞)(1 − e^(−t/τ)) with τ = RC."
       ],
       "solution": [
-        "**1. Initial value.** Switching rule: u_C(0+) = u_C(0−) = 0. KVL: U_s = R·i(0+) + u_C(0+), so i(0+) = 10 / 2000 = **5 mA**.",
-        "**2. Final value.** When charging is complete the capacitor is an open circuit: i(∞) = 0, u_C(∞) = U_s = 10 V.",
+        "**1. Initial value.** Switching rule: v_C(0+) = v_C(0−) = 0. KVL: V_s = R·i(0+) + v_C(0+), so i(0+) = 10 / 2000 = **5 mA**.",
+        "**2. Final value.** When charging is complete the capacitor is an open circuit: i(∞) = 0, v_C(∞) = V_s = 10 V.",
         "**3. Time constant.** τ = RC = 2 kΩ × 100 µF = **0.2 s**.",
-        "**4. Response.** u_C(t) = 10(1 − e^(−5t)) V, i(t) = 5e^(−5t) mA (t > 0). At t = 0.4 s: u_C = 10(1 − e⁻²) ≈ **8.647 V**.",
+        "**4. Response.** v_C(t) = 10(1 − e^(−5t)) V, i(t) = 5e^(−5t) mA (t > 0). At t = 0.4 s: v_C = 10(1 − e⁻²) ≈ **8.647 V**.",
         "**5. How long the transient lasts.** After 1τ the response reaches 63.2 % of its final value, after 3τ 95.0 %, after 5τ 99.3 %; in practice 3τ–5τ, i.e. about 0.6–1 s."
       ]
     }

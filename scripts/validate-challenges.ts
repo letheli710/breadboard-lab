@@ -45,6 +45,7 @@ import { buildNetlist } from '../src/core/netlist';
 import { simulate } from '../src/core/solver';
 import { hasGenerator, simulateTransient } from '../src/core/transient';
 import type { Layout } from '../src/core/types';
+import { figureTexts } from '../src/core/figures';
 
 const LED_MAX = 0.025;
 /** --readings: print every measurement question's reading on the reference solution */
@@ -146,9 +147,20 @@ function visibleTexts(json: Record<string, unknown>): { where: string; text: str
     if (!o) return;
     for (const k of ['title', 'summary', 'description', 'hints']) add(`${lang}${k}`, o[k]);
     add(`${lang}tests`, o.tests);
+    // card-style units (§16): the cards are what the student reads instead of the description
+    if (Array.isArray(o.cards))
+      o.cards.forEach((c: unknown, i: number) => {
+        if (!c || typeof c !== 'object') return;
+        const card = c as { title?: unknown; text?: unknown };
+        add(`${lang}cards[${i}].title`, card.title);
+        add(`${lang}cards[${i}].text`, Array.isArray(card.text) ? card.text.join('\n') : card.text);
+      });
   };
   scan(json, '');
   for (const [lang, t] of Object.entries((json.i18n as Record<string, Record<string, unknown>>) ?? {})) scan(t, `i18n.${lang}.`);
+  // figures (§16.3): captions, notes and labels, both languages
+  if (json.figures && typeof json.figures === 'object')
+    for (const [id, f] of Object.entries(json.figures as Record<string, unknown>)) for (const t of figureTexts(f)) out.push({ where: `figures.${id}`, text: t });
   return out;
 }
 

@@ -7,14 +7,14 @@
   "level": 2,
   "tags": ["全波整流", "平均值", "有效值", "波形因数"],
   "statement": [
-    "220 V、50 Hz 的市电经理想全波整流后，加在 R = 100 Ω 的负载上：u = 220√2 |cos(100πt)| V。",
+    "220 V、50 Hz 的市电经理想全波整流后，加在 R = 100 Ω 的负载上：v = 220√2 |cos(100πt)| V。",
     "整流后的电压周期是 T = 10 ms，基波频率 f_1 = 100 Hz，它的傅里叶级数为",
-    "u = \\frac{2U_m}{π} + \\frac{4U_m}{π}(\\frac{1}{3}cos ω_{1}t − \\frac{1}{15}cos 2ω_{1}t + \\frac{1}{35}cos 3ω_{1}t − …)，U_m = 220√2 V，ω_1 = 2π × 100 rad/s（计算取到 49 次谐波）。",
-    "求 u 的平均值、有效值、基波（100 Hz）振幅，以及负载吸收的平均功率。"
+    "v = \\frac{2V_m}{π} + \\frac{4V_m}{π}(\\frac{1}{3}cos ω_{1}t − \\frac{1}{15}cos 2ω_{1}t + \\frac{1}{35}cos 3ω_{1}t − …)，其中 V_m = 220√2 V，ω_1 = 2π × 100 rad/s。计算取到 49 次谐波。",
+    "求 v 的平均值、有效值、基波（100 Hz）振幅，以及负载吸收的平均功率。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "wave": { "shape": "full-rect", "amp": 311.127, "upTo": 49 } }, "label": "u" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "wave": { "shape": "full-rect", "amp": 311.127, "upTo": 49 } }, "label": "v" },
       { "ref": "R", "type": "R", "from": [5, 0], "to": [5, 4], "value": 100 }
     ],
     "wires": [
@@ -23,69 +23,69 @@
     ],
     "grounds": [[0, 4]],
     "marks": [
-      { "kind": "v", "el": "R", "name": "u" }
+      { "kind": "v", "el": "R", "name": "v" }
     ]
   },
   "analysis": { "type": "periodic", "freq": 100, "phasor": "peak" },
   "questions": [
-    { "id": "avg", "ask": "平均值（直流分量）U_0 = ?", "find": { "kind": "v", "el": "R", "part": "avg" }, "answer": 198.0696, "unit": "V", "explain": "U_0 = 2U_m/π = 2 × 311.1/π ≈ 198.1 V，约为 0.9 × 220 V。" },
-    { "id": "U", "ask": "有效值 U = ?", "find": { "kind": "v", "el": "R" }, "answer": 220, "unit": "V", "explain": "|cos| 的平方和 cos² 相同，所以整流不改变有效值：U = U_m/√2 = 220 V。" },
-    { "id": "u1", "ask": "100 Hz 分量（基波）的振幅 U_1m = ?", "find": { "kind": "v", "el": "R", "harmonic": 1 }, "answer": 132.0464, "unit": "V", "explain": "U_1m = 4U_m/(3π) ≈ 132.0 V。整流后的电压里没有 50 Hz 分量，最低的交流分量是 100 Hz。" },
-    { "id": "P", "ask": "负载吸收的平均功率 P = ?", "find": { "kind": "p", "el": "R" }, "answer": 483.9999, "unit": "W", "explain": "P = U²/R = 220²/100 = 484 W，和不整流时一样（电阻不在乎电流方向）。" },
+    { "id": "avg", "ask": "平均值（直流分量）V_0 = ?", "find": { "kind": "v", "el": "R", "part": "avg" }, "answer": 198.0696, "unit": "V", "explain": "V_0 = 2V_m/π = 2 × 311.1/π ≈ 198.1 V，约为 0.9 × 220 V。" },
+    { "id": "U", "ask": "有效值 V = ?", "find": { "kind": "v", "el": "R" }, "answer": 220, "unit": "V", "explain": "|cos| 的平方和 cos² 相同，所以整流不改变有效值：V = V_m/√2 = 220 V。" },
+    { "id": "u1", "ask": "100 Hz 分量（基波）的振幅 V_1m = ?", "find": { "kind": "v", "el": "R", "harmonic": 1 }, "answer": 132.0464, "unit": "V", "explain": "V_1m = 4V_m/(3π) ≈ 132.0 V。整流后的电压里没有 50 Hz 分量，最低的交流分量是 100 Hz。" },
+    { "id": "P", "ask": "负载吸收的平均功率 P = ?", "find": { "kind": "p", "el": "R" }, "answer": 483.9999, "unit": "W", "explain": "P = V²/R = 220²/100 = 484 W，和不整流时一样（电阻不在乎电流方向）。" },
     {
       "id": "ff",
-      "ask": "波形因数 K_f = U/U_0 约为多少？",
+      "ask": "波形因数 K_f = V/V_0 约为多少？",
       "choices": ["1.11", "1.00", "1.41", "0.90"],
       "correct": 0,
-      "choiceExplain": ["", "只有直流（或方波）的有效值才等于平均值。", "1.41 是正弦波的峰值因数 U_m/U。", "0.90 是 U_0/U，正好倒过来。"],
+      "choiceExplain": ["", "只有直流（或方波）的有效值才等于平均值。", "1.41 是正弦波的峰值因数 V_m/V。", "0.90 是 V_0/V，正好倒过来。"],
       "explain": "K_f = 220/198.1 ≈ 1.11 = π/(2√2)。用“全波整流式”仪表测正弦量时，表内就是用平均值乘 1.11 来显示有效值的。"
     }
   ],
-  "hints": ["平均值就是级数的常数项；有效值可以不用级数，直接从 u² 的平均值求。", "u² = U_m² cos²(100πt)，它和整流之前完全一样。", "基波振幅直接从级数读出：\\frac{4U_m}{π}·\\frac{1}{3}；平均功率 P = U²/R。"],
+  "hints": ["平均值就是级数的常数项；有效值可以不用级数，直接从 v² 的平均值求。", "v² = V_m² cos²(100πt)，它和整流之前完全一样。", "基波振幅直接从级数读出：\\frac{4V_m}{π}·\\frac{1}{3}；平均功率 P = V²/R。"],
   "solution": [
-    "**1. 平均值。** 级数的常数项 U_0 = 2U_m/π = 2 × 220√2/π = **198.1 V**。也可以直接积分：\\frac{1}{T}∫_{0}^{T} U_m|cos(100πt)| dt = 2U_m/π。",
-    "**2. 有效值。** u² = U_m² cos²(100πt) 与整流前相同，所以 U = U_m/√2 = **220 V**。",
-    "**3. 基波振幅。** f_1 = 100 Hz 的分量 U_1m = 4U_m/(3π) = **132.0 V**；2 次谐波（200 Hz）振幅 4U_m/(15π) = 26.41 V，衰减得很快。",
-    "**4. 平均功率。** P = U²/R = 220²/100 = **484 W**。",
-    "**检查：** 用谐波求有效值：U² = U_0² + Σ U_km²/2 ≈ 198.1² + 132.0²/2 + 26.41²/2 + … ≈ 220²，与第 2 步一致（直流分量贡献了 81%）。",
-    "**5. 波形因数。** K_f = U/U_0 = 220/198.1 = **1.11**。"
+    "**1. 平均值。** 级数的常数项 V_0 = 2V_m/π = 2 × 220√2/π = **198.1 V**。也可以直接积分：\\frac{1}{T}∫_{0}^{T} V_m|cos(100πt)| dt = 2V_m/π。",
+    "**2. 有效值。** v² = V_m² cos²(100πt) 与整流前相同，所以 V = V_m/√2 = **220 V**。",
+    "**3. 基波振幅。** f_1 = 100 Hz 的分量 V_1m = 4V_m/(3π) = **132.0 V**。2 次谐波（200 Hz）的振幅是 4V_m/(15π) = 26.41 V，衰减得很快。",
+    "**4. 平均功率。** P = V²/R = 220²/100 = **484 W**。",
+    "**检查：** 用谐波求有效值：V² = V_0² + Σ V_km²/2 ≈ 198.1² + 132.0²/2 + 26.41²/2 + … ≈ 220²，与第 2 步一致（直流分量贡献了 81%）。",
+    "**5. 波形因数。** K_f = V/V_0 = 220/198.1 = **1.11**。"
   ],
   "i18n": {
     "en": {
       "title": "Full-wave rectified voltage: average, rms value and harmonics",
       "tags": ["full-wave rectifier", "average value", "rms value", "form factor"],
       "statement": [
-        "220 V, 50 Hz mains is full-wave rectified by ideal diodes and applied to a load R = 100 Ω: u = 220√2 |cos(100πt)| V.",
+        "220 V, 50 Hz mains is full-wave rectified by ideal diodes and applied to a load R = 100 Ω: v = 220√2 |cos(100πt)| V.",
         "The rectified voltage has period T = 10 ms and fundamental frequency f_1 = 100 Hz; its Fourier series is",
-        "u = \\frac{2U_m}{π} + \\frac{4U_m}{π}(\\frac{1}{3}cos ω_{1}t − \\frac{1}{15}cos 2ω_{1}t + \\frac{1}{35}cos 3ω_{1}t − …), U_m = 220√2 V, ω_1 = 2π × 100 rad/s (harmonics up to the 49th are kept).",
-        "Find the average value and rms value of u, the amplitude of the fundamental (100 Hz) and the average power absorbed by the load."
+        "v = \\frac{2V_m}{π} + \\frac{4V_m}{π}(\\frac{1}{3}cos ω_{1}t − \\frac{1}{15}cos 2ω_{1}t + \\frac{1}{35}cos 3ω_{1}t − …), where V_m = 220√2 V and ω_1 = 2π × 100 rad/s. Harmonics up to the 49th are kept.",
+        "Find the average value and rms value of v, the amplitude of the fundamental (100 Hz) and the average power absorbed by the load."
       ],
       "hints": [
-        "The average value is the constant term of the series; the rms value can be found without the series, from the average of u².",
-        "u² = U_m² cos²(100πt), exactly as before rectification.",
-        "Read the fundamental's amplitude from the series: \\frac{4U_m}{π}·\\frac{1}{3}; the average power is P = U²/R."
+        "The average value is the constant term of the series; the rms value can be found without the series, from the average of v².",
+        "v² = V_m² cos²(100πt), exactly as before rectification.",
+        "Read the fundamental's amplitude from the series: \\frac{4V_m}{π}·\\frac{1}{3}; the average power is P = V²/R."
       ],
       "solution": [
-        "**1. Average value.** The constant term U_0 = 2U_m/π = 2 × 220√2/π = **198.1 V**. Or integrate directly: \\frac{1}{T}∫_{0}^{T} U_m|cos(100πt)| dt = 2U_m/π.",
-        "**2. rms value.** u² = U_m² cos²(100πt) is the same as before rectification, so U = U_m/√2 = **220 V**.",
-        "**3. Fundamental.** The f_1 = 100 Hz component has U_1m = 4U_m/(3π) = **132.0 V**; the 2nd harmonic (200 Hz) has 4U_m/(15π) = 26.41 V — the harmonics fall off quickly.",
-        "**4. Average power.** P = U²/R = 220²/100 = **484 W**.",
-        "**Check:** rms value from the harmonics: U² = U_0² + Σ U_km²/2 ≈ 198.1² + 132.0²/2 + 26.41²/2 + … ≈ 220², as in step 2 (the DC component contributes 81 %).",
-        "**5. Form factor.** K_f = U/U_0 = 220/198.1 = **1.11**."
+        "**1. Average value.** The constant term V_0 = 2V_m/π = 2 × 220√2/π = **198.1 V**. Or integrate directly: \\frac{1}{T}∫_{0}^{T} V_m|cos(100πt)| dt = 2V_m/π.",
+        "**2. rms value.** v² = V_m² cos²(100πt) is the same as before rectification, so V = V_m/√2 = **220 V**.",
+        "**3. Fundamental.** The f_1 = 100 Hz component has V_1m = 4V_m/(3π) = **132.0 V**. The 2nd harmonic (200 Hz) has 4V_m/(15π) = 26.41 V: the harmonics fall off quickly.",
+        "**4. Average power.** P = V²/R = 220²/100 = **484 W**.",
+        "**Check:** rms value from the harmonics: V² = V_0² + Σ V_km²/2 ≈ 198.1² + 132.0²/2 + 26.41²/2 + … ≈ 220², as in step 2 (the DC component contributes 81 %).",
+        "**5. Form factor.** K_f = V/V_0 = 220/198.1 = **1.11**."
       ],
       "questions": [
-        { "ask": "Average value (DC component) U_0 = ?", "explain": "U_0 = 2U_m/π = 2 × 311.1/π ≈ 198.1 V, about 0.9 × 220 V." },
-        { "ask": "rms value U = ?", "explain": "|cos| squared is the same as cos², so rectification does not change the rms value: U = U_m/√2 = 220 V." },
-        { "ask": "Amplitude of the 100 Hz component (the fundamental), U_1m = ?", "explain": "U_1m = 4U_m/(3π) ≈ 132.0 V. The rectified voltage has no 50 Hz component; its lowest AC component is at 100 Hz." },
-        { "ask": "Average power absorbed by the load, P = ?", "explain": "P = U²/R = 220²/100 = 484 W, the same as without the rectifier (a resistor does not care about the direction of the current)." },
+        { "ask": "Average value (DC component) V_0 = ?", "explain": "V_0 = 2V_m/π = 2 × 311.1/π ≈ 198.1 V, about 0.9 × 220 V." },
+        { "ask": "rms value V = ?", "explain": "|cos| squared is the same as cos², so rectification does not change the rms value: V = V_m/√2 = 220 V." },
+        { "ask": "Amplitude of the 100 Hz component (the fundamental), V_1m = ?", "explain": "V_1m = 4V_m/(3π) ≈ 132.0 V. The rectified voltage has no 50 Hz component; its lowest AC component is at 100 Hz." },
+        { "ask": "Average power absorbed by the load, P = ?", "explain": "P = V²/R = 220²/100 = 484 W, the same as without the rectifier (a resistor does not care about the direction of the current)." },
         {
-          "ask": "The form factor K_f = U/U_0 is about",
+          "ask": "The form factor K_f = V/V_0 is about",
           "choices": ["1.11", "1.00", "1.41", "0.90"],
           "choiceExplain": [
             "",
             "Only DC (or a square wave) has its rms value equal to its average.",
-            "1.41 is the crest factor U_m/U of a sine wave.",
-            "0.90 is U_0/U, the other way round."
+            "1.41 is the crest factor V_m/V of a sine wave.",
+            "0.90 is V_0/V, the other way round."
           ],
           "explain": "K_f = 220/198.1 ≈ 1.11 = π/(2√2). A rectifier-type meter measuring a sine wave shows the average times 1.11 as its rms reading."
         }

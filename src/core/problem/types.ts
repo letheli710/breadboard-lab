@@ -71,7 +71,14 @@ export type TwoTerminalType =
   | 'Z' // generic impedance for AC problems: value {re, im} ohms at the analysis frequency
   | 'ammeter' // ideal ammeter (0 Ω), current reading p→n
   | 'voltmeter' // ideal voltmeter (open), reading V(p) − V(n)
-  | 'NR'; // nonlinear resistor, law: see NonlinearLaw (DC operating point / small-signal AC only)
+  | 'NR' // nonlinear resistor, law: see NonlinearLaw (DC operating point / small-signal AC only)
+  // drawing only, for lesson card figures (never simulated; problems reject them):
+  | 'LED' // light-emitting diode, anode = p; value: colour name ("red", "green", …)
+  | 'BAT' // battery (long plate = + at p); value: volts
+  | 'RV' // variable resistor (resistor with an arrow through it); value: ohms
+  | 'S' // plain switch; value: "open" | "closed"
+  | 'D' // diode, anode = p
+  | 'M'; // DC motor (a circle with M)
 
 /** Characteristic of a nonlinear resistor (type NR), passive convention (u = V(p) − V(n), i p → n):
  *  {i: [c0, c1, …]} i = Σ c_k·u^k (voltage-controlled; optional umin/umax: constant outside);
@@ -108,6 +115,20 @@ export interface OpAmpElement {
   at: Pt;
   orient?: 'right' | 'left';
   flip?: boolean;
+}
+
+/** Three-pin parts for lesson card figures only (drawn, never simulated). Pins relative to `at`
+ *  (`flip: true` mirrors left–right):
+ *  NPN  — b (−2, 0), c (+1, −2), e (+1, +2)
+ *  NMOS — g (−2, 0), d (+1, −2), s (+1, +2)   (N-channel enhancement MOSFET)
+ *  REG  — in (−2, 0), out (+2, 0), gnd (0, +2) (a linear regulator; `label` names it) */
+export interface DeviceElement {
+  ref: string;
+  type: 'NPN' | 'NMOS' | 'REG';
+  at: Pt;
+  flip?: boolean;
+  /** text drawn instead of the ref (e.g. "LM1117 3.3") */
+  label?: string;
 }
 
 /** Ideal transformer n:1 (v1 = n·v2, i1 = −i2/n with currents into the dotted terminals).
@@ -147,7 +168,7 @@ export interface LineElement {
   hideValue?: boolean;
 }
 
-export type ProblemElement = TwoTerminalElement | OpAmpElement | TransformerElement | CouplingElement | LineElement;
+export type ProblemElement = TwoTerminalElement | OpAmpElement | TransformerElement | CouplingElement | LineElement | DeviceElement;
 
 export interface Schematic {
   elements: ProblemElement[];

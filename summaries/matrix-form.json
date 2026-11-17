@@ -49,7 +49,7 @@
       "title": "关联矩阵 A 与 KCL、KVL 的矩阵形式",
       "text": [
         "**关联矩阵**：a_jk = +1（支路 k 离开结点 j）、−1（进入）、0（不相连）。完整的 A_a 每列恰有一个 +1 和一个 −1；删去参考结点那一行得到 (n − 1) × b 的**降阶关联矩阵 A**。",
-        "用 A 写拓扑约束：**KCL：A·I = 0**（第 j 行是结点 j 流出电流之和）；**KVL：U = Aᵀ·U_n**（每个支路电压等于起点与终点的结点电压之差）。"
+        "用 A 写拓扑约束：**KCL：A·I = 0**（第 j 行是结点 j 流出电流之和）；**KVL：V = Aᵀ·V_n**（每个支路电压等于起点与终点的结点电压之差）。"
       ],
       "problems": ["matrix-form-03-incidence-matrix", "matrix-form-04-kcl-kvl-matrix"],
       "i18n": {
@@ -57,7 +57,7 @@
           "title": "Incidence matrix A, KCL and KVL in matrix form",
           "text": [
             "**Incidence matrix**: a_jk = +1 if branch k leaves node j, −1 if it enters, 0 otherwise. Each column of the full A_a holds exactly one +1 and one −1; deleting the reference row gives the (n − 1) × b **reduced incidence matrix A**.",
-            "Topological laws with A: **KCL: A·I = 0** (row j sums the currents leaving node j); **KVL: U = Aᵀ·U_n** (each branch voltage is the difference of its end node voltages)."
+            "Topological laws with A: **KCL: A·I = 0** (row j sums the currents leaving node j); **KVL: V = Aᵀ·V_n** (each branch voltage is the difference of its end node voltages)."
           ]
         }
       }
@@ -66,18 +66,18 @@
       "id": "bq",
       "title": "基本回路矩阵 B_f、基本割集矩阵 Q_f 及其关系",
       "text": [
-        "选定一棵树。**B_f**：每条连支一行（它与树构成的基本回路，方向同连支），b_jk = ±1/0；KVL 写成 **B_f·U = 0**。**Q_f**：每条树支一行（基本割集，方向同树支）；KCL 写成 **Q_f·I = 0**。",
+        "选定一棵树。**B_f**：每条连支一行（它与树构成的基本回路，方向同连支），b_jk = ±1/0；KVL 写成 **B_f·V = 0**。**Q_f**：每条树支一行（基本割集，方向同树支）；KCL 写成 **Q_f·I = 0**。",
         "支路按“先树支、后连支”排列时 B_f = [B_t  1_{l}]、Q_f = [1_{t}  Q_l]。回路与割集正交：**A·B_fᵀ = 0、Q_f·B_fᵀ = 0**，所以 **Q_l = −B_tᵀ**——写出一个，另一个不用再找。",
-        "连支电流就是回路电流：**I = B_fᵀ·I_l**；树支电压就是割集电压：**U = Q_fᵀ·U_t**。"
+        "连支电流就是回路电流：**I = B_fᵀ·I_l**；树支电压就是割集电压：**V = Q_fᵀ·V_t**。"
       ],
       "problems": ["matrix-form-05-loop-matrix", "matrix-form-06-cut-set-matrix", "matrix-form-07-matrix-relations"],
       "i18n": {
         "en": {
           "title": "Fundamental loop matrix B_f, cut-set matrix Q_f and their relations",
           "text": [
-            "Choose a tree. **B_f**: one row per link (its fundamental loop, directed like the link), entries ±1/0; KVL reads **B_f·U = 0**. **Q_f**: one row per tree branch (fundamental cut-set, directed like the branch); KCL reads **Q_f·I = 0**.",
+            "Choose a tree. **B_f**: one row per link (its fundamental loop, directed like the link), entries ±1/0; KVL reads **B_f·V = 0**. **Q_f**: one row per tree branch (fundamental cut-set, directed like the branch); KCL reads **Q_f·I = 0**.",
             "With the tree branches numbered first, B_f = [B_t  1_{l}] and Q_f = [1_{t}  Q_l]. Loops and cut-sets are orthogonal: **A·B_fᵀ = 0, Q_f·B_fᵀ = 0**, hence **Q_l = −B_tᵀ** — write one, and the other follows.",
-            "Link currents are the loop currents: **I = B_fᵀ·I_l**; tree-branch voltages are the cut-set voltages: **U = Q_fᵀ·U_t**."
+            "Link currents are the loop currents: **I = B_fᵀ·I_l**; tree-branch voltages are the cut-set voltages: **V = Q_fᵀ·V_t**."
           ]
         }
       }
@@ -86,8 +86,8 @@
       "id": "branch",
       "title": "标准支路与支路矩阵 Y、Z（含受控源、互感）",
       "text": [
-        "标准支路 k：**İ_k = Y_k(U̇_k + U̇_sk) − İ_sk**，即 **U̇_k = Z_k(İ_k + İ_sk) − U̇_sk**。符号：电压源“+”极在支路终点一侧（推动电流沿支路方向）时 U̇_sk 为正；电流源方向与支路方向**相反**时 İ_sk 为正。写成矩阵：I = Y(U + U_s) − I_s。",
-        "没有受控源和互感时 Y、Z 是对角阵。**受控电流源**在 Y 里加非对角元：支路 k 中的 g·U̇_ej（支路 j 无源元件的电压）→ Y_kj = ±g；β·İ_ej → Y 的第 k 行加上 ±β 倍的第 j 行（即 Y_kj = ±β·Y_j）。符号看受控源相对支路 k、控制量相对支路 j 的方向。",
+        "标准支路 k：**İ_k = Y_k(V̇_k + V̇_sk) − İ_sk**，即 **V̇_k = Z_k(İ_k + İ_sk) − V̇_sk**。符号：电压源“+”极在支路终点一侧（推动电流沿支路方向）时 V̇_sk 为正；电流源方向与支路方向**相反**时 İ_sk 为正。写成矩阵：I = Y(V + V_s) − I_s。",
+        "没有受控源和互感时 Y、Z 是对角阵。**受控电流源**在 Y 里加非对角元：支路 k 中的 g·V̇_ej（支路 j 无源元件的电压）→ Y_kj = ±g；β·İ_ej → Y 的第 k 行加上 ±β 倍的第 j 行（即 Y_kj = ±β·Y_j）。符号看受控源相对支路 k、控制量相对支路 j 的方向。",
         "**互感**：Z_jk = Z_kj = ±jωM，两支路电流都从同名端流入（或都流出）时取 +；结点法用 Y = Z⁻¹（耦合部分求逆）。"
       ],
       "problems": [
@@ -100,8 +100,8 @@
         "en": {
           "title": "Standard branch and the branch matrices Y, Z (controlled sources, coupling)",
           "text": [
-            "Standard branch k: **İ_k = Y_k(U̇_k + U̇_sk) − İ_sk**, i.e. **U̇_k = Z_k(İ_k + İ_sk) − U̇_sk**. Signs: U̇_sk is positive when the source's \"+\" faces the end of the branch (pushing current along it); İ_sk is positive when the current source points **against** the branch. In matrix form I = Y(U + U_s) − I_s.",
-            "Without controlled sources and coupling, Y and Z are diagonal. A **controlled current source** adds off-diagonal entries to Y: g·U̇_ej in branch k (U̇_ej = voltage of the passive element of branch j) → Y_kj = ±g; β·İ_ej → row k of Y gains ±β times row j (Y_kj = ±β·Y_j). The sign follows the source's direction relative to branch k and the controlling quantity's relative to branch j.",
+            "Standard branch k: **İ_k = Y_k(V̇_k + V̇_sk) − İ_sk**, i.e. **V̇_k = Z_k(İ_k + İ_sk) − V̇_sk**. Signs: V̇_sk is positive when the source's \"+\" faces the end of the branch (pushing current along it); İ_sk is positive when the current source points **against** the branch. In matrix form I = Y(V + V_s) − I_s.",
+            "Without controlled sources and coupling, Y and Z are diagonal. A **controlled current source** adds off-diagonal entries to Y: g·V̇_ej in branch k (V̇_ej = voltage of the passive element of branch j) → Y_kj = ±g; β·İ_ej → row k of Y gains ±β times row j (Y_kj = ±β·Y_j). The sign follows the source's direction relative to branch k and the controlling quantity's relative to branch j.",
             "**Coupled inductors**: Z_jk = Z_kj = ±jωM, + when both branch currents enter (or both leave) the dotted ends; the node method uses Y = Z⁻¹ on the coupled block."
           ]
         }
@@ -111,7 +111,7 @@
       "id": "node",
       "title": "结点电压方程的矩阵形式",
       "text": [
-        "把 KCL（A·I = 0）、KVL（U = Aᵀ·U_n）和支路方程 I = Y(U + U_s) − I_s 合在一起：**A·Y·Aᵀ·U_n = A·I_s − A·Y·U_s**，即 Y_n·U_n = J_n。",
+        "把 KCL（A·I = 0）、KVL（V = Aᵀ·V_n）和支路方程 I = Y(V + V_s) − I_s 合在一起：**A·Y·Aᵀ·V_n = A·I_s − A·Y·V_s**，即 Y_n·V_n = J_n。",
         "Y_n 与“观察法”的结果一致：对角元为自导，非对角元为负的互导；右端是电源（诺顿等效）注入各结点的电流。没有受控源时 Y_n 对称；有受控源时一般**不对称**。",
         "结点法要求每条支路都有有限的导纳：单独的电压源支路（无伴电压源）不能直接用。"
       ],
@@ -120,7 +120,7 @@
         "en": {
           "title": "Node equations in matrix form",
           "text": [
-            "Combining KCL (A·I = 0), KVL (U = Aᵀ·U_n) and the branch equations I = Y(U + U_s) − I_s gives **A·Y·Aᵀ·U_n = A·I_s − A·Y·U_s**, i.e. Y_n·U_n = J_n.",
+            "Combining KCL (A·I = 0), KVL (V = Aᵀ·V_n) and the branch equations I = Y(V + V_s) − I_s gives **A·Y·Aᵀ·V_n = A·I_s − A·Y·V_s**, i.e. Y_n·V_n = J_n.",
             "Y_n matches the inspection method: self-admittances on the diagonal, minus the mutual admittances off it; the right-hand side is the source current (Norton equivalent) into each node. Without controlled sources Y_n is symmetric; with them it generally is **not**.",
             "Every branch needs a finite admittance: a voltage source alone in a branch cannot be handled directly."
           ]
@@ -131,16 +131,16 @@
       "id": "loopcut",
       "title": "回路电流方程与割集电压方程",
       "text": [
-        "**回路法**：KVL B·U = 0、I = Bᵀ·I_l 和 U = Z(I + I_s) − U_s → **B·Z·Bᵀ·I_l = B·U_s − B·Z·I_s**。Z_l 的元素：自阻；两回路共有支路的阻抗，方向一致取正、相反取负；互感会耦合不共支路的回路。",
-        "**割集法**：KCL Q·I = 0、U = Qᵀ·U_t → **Q·Y·Qᵀ·U_t = Q·I_s − Q·Y·U_s**，未知量是树支电压。选“所有树支都接参考结点”的树时，它就是结点法。割集法的“互导”可以为正。"
+        "**回路法**：KVL B·V = 0、I = Bᵀ·I_l 和 V = Z(I + I_s) − V_s → **B·Z·Bᵀ·I_l = B·V_s − B·Z·I_s**。Z_l 的元素：自阻；两回路共有支路的阻抗，方向一致取正、相反取负；互感会耦合不共支路的回路。",
+        "**割集法**：KCL Q·I = 0、V = Qᵀ·V_t → **Q·Y·Qᵀ·V_t = Q·I_s − Q·Y·V_s**，未知量是树支电压。选“所有树支都接参考结点”的树时，它就是结点法。割集法的“互导”可以为正。"
       ],
       "problems": ["matrix-form-10-loop-equations", "matrix-form-11-cut-set-equations", "matrix-form-12-mutual-inductance"],
       "i18n": {
         "en": {
           "title": "Loop and cut-set equations",
           "text": [
-            "**Loop method**: KVL B·U = 0, I = Bᵀ·I_l and U = Z(I + I_s) − U_s → **B·Z·Bᵀ·I_l = B·U_s − B·Z·I_s**. Entries of Z_l: self-impedances; impedances shared by two loops, + if both run the same way, − otherwise; mutual inductance can couple loops that share no branch.",
-            "**Cut-set method**: KCL Q·I = 0 and U = Qᵀ·U_t → **Q·Y·Qᵀ·U_t = Q·I_s − Q·Y·U_s**, with the tree-branch voltages as unknowns. With a tree whose branches all touch the reference node it is the node method. Mutual terms of the cut-set method may be positive."
+            "**Loop method**: KVL B·V = 0, I = Bᵀ·I_l and V = Z(I + I_s) − V_s → **B·Z·Bᵀ·I_l = B·V_s − B·Z·I_s**. Entries of Z_l: self-impedances; impedances shared by two loops, + if both run the same way, − otherwise; mutual inductance can couple loops that share no branch.",
+            "**Cut-set method**: KCL Q·I = 0 and V = Qᵀ·V_t → **Q·Y·Qᵀ·V_t = Q·I_s − Q·Y·V_s**, with the tree-branch voltages as unknowns. With a tree whose branches all touch the reference node it is the node method. Mutual terms of the cut-set method may be positive."
           ]
         }
       }
@@ -149,8 +149,8 @@
       "id": "state",
       "title": "状态方程",
       "text": [
-        "动态电路的**状态变量**取电容电压和电感电流，写成一阶方程组 **ẋ = A·x + B·u**（u 是独立源向量）。A 的特征值就是电路的固有频率。",
-        "**常态树**：电压源、电容全部进树，电流源、电感全部作连支，电阻补齐。对每个电容树支列基本割集的 KCL（得到 C·du_C/dt），对每个电感连支列基本回路的 KVL（得到 L·di_L/dt），再消去电阻的电压、电流。",
+        "动态电路的**状态变量**取电容电压和电感电流，写成一阶方程组 **ẋ = A·x + B·z**（z 是独立源向量，Sadiku 的写法）。A 的特征值就是电路的固有频率。",
+        "**常态树**：电压源、电容全部进树，电流源、电感全部作连支，电阻补齐。对每个电容树支列基本割集的 KCL（得到 C·dv_C/dt），对每个电感连支列基本回路的 KVL（得到 L·di_L/dt），再消去电阻的电压、电流。",
         "有纯电容（与电压源）回路或纯电感（与电流源）割集时，状态变量不独立，个数少于储能元件数。"
       ],
       "problems": ["matrix-form-15-state-equations"],
@@ -158,8 +158,8 @@
         "en": {
           "title": "State equations",
           "text": [
-            "The **state variables** of a dynamic circuit are the capacitor voltages and inductor currents, written as first-order equations **ẋ = A·x + B·u** (u = independent sources). The eigenvalues of A are the natural frequencies.",
-            "**Proper tree**: all voltage sources and capacitors in the tree, all current sources and inductors as links, resistors to complete it. KCL of the fundamental cut-set of each capacitor tree branch gives C·du_C/dt; KVL of the fundamental loop of each inductor link gives L·di_L/dt; then eliminate the resistor variables.",
+            "The **state variables** of a dynamic circuit are the capacitor voltages and inductor currents, written as first-order equations **ẋ = A·x + B·z** (z = the independent sources, as in Sadiku). The eigenvalues of A are the natural frequencies.",
+            "**Proper tree**: all voltage sources and capacitors in the tree, all current sources and inductors as links, resistors to complete it. KCL of the fundamental cut-set of each capacitor tree branch gives C·dv_C/dt; KVL of the fundamental loop of each inductor link gives L·di_L/dt; then eliminate the resistor variables.",
             "Loops of capacitors (and voltage sources) or cut-sets of inductors (and current sources) make the state variables dependent: fewer states than storage elements."
           ]
         }
@@ -197,7 +197,7 @@
         "en": {
           "name": "Incidence matrix",
           "expr": "a_jk = +1 (leaves) / −1 (enters) / 0",
-          "when": "Branch direction = associated reference direction of U_k, I_k; A has the reference row deleted."
+          "when": "Branch direction = associated reference direction of V_k, I_k; A has the reference row deleted."
         }
       }
     },
@@ -205,22 +205,22 @@
       "id": "kclkvl",
       "idea": "incidence",
       "name": "KCL、KVL（用 A）",
-      "expr": "A·I = 0，　U = Aᵀ·U_n",
-      "when": "U_n 为对参考结点的结点电压；与元件性质无关。",
+      "expr": "A·I = 0，　V = Aᵀ·V_n",
+      "when": "V_n 为对参考结点的结点电压；与元件性质无关。",
       "i18n": {
-        "en": {"name": "KCL, KVL with A", "expr": "A·I = 0,　U = Aᵀ·U_n", "when": "U_n = node voltages to the reference node; independent of the elements."}
+        "en": {"name": "KCL, KVL with A", "expr": "A·I = 0,　V = Aᵀ·V_n", "when": "V_n = node voltages to the reference node; independent of the elements."}
       }
     },
     {
       "id": "bq",
       "idea": "bq",
       "name": "B_f、Q_f 的 KVL / KCL",
-      "expr": "B_f·U = 0，　Q_f·I = 0，　I = B_fᵀ·I_l，　U = Q_fᵀ·U_t",
+      "expr": "B_f·V = 0，　Q_f·I = 0，　I = B_fᵀ·I_l，　V = Q_fᵀ·V_t",
       "when": "B_f 每行一个基本回路（方向同连支），Q_f 每行一个基本割集（方向同树支），同一棵树。",
       "i18n": {
         "en": {
           "name": "KVL / KCL with B_f, Q_f",
-          "expr": "B_f·U = 0,　Q_f·I = 0,　I = B_fᵀ·I_l,　U = Q_fᵀ·U_t",
+          "expr": "B_f·V = 0,　Q_f·I = 0,　I = B_fᵀ·I_l,　V = Q_fᵀ·V_t",
           "when": "One fundamental loop per row of B_f (directed like its link), one fundamental cut-set per row of Q_f (directed like its tree branch), same tree."
         }
       }
@@ -243,13 +243,13 @@
       "id": "std",
       "idea": "branch",
       "name": "标准支路方程",
-      "expr": "İ_k = Y_k(U̇_k + U̇_sk) − İ_sk，　U̇_k = Z_k(İ_k + İ_sk) − U̇_sk",
-      "when": "U̇_k、İ_k 关联；U̇_sk 的“+”朝支路终点时为正，İ_sk 逆着支路方向时为正。相量用有效值（直流时为实数）。",
+      "expr": "İ_k = Y_k(V̇_k + V̇_sk) − İ_sk，　V̇_k = Z_k(İ_k + İ_sk) − V̇_sk",
+      "when": "V̇_k、İ_k 关联；V̇_sk 的“+”朝支路终点时为正，İ_sk 逆着支路方向时为正。相量用有效值（直流时为实数）。",
       "i18n": {
         "en": {
           "name": "Standard branch",
-          "expr": "İ_k = Y_k(U̇_k + U̇_sk) − İ_sk,　U̇_k = Z_k(İ_k + İ_sk) − U̇_sk",
-          "when": "U̇_k, İ_k associated; U̇_sk positive with \"+\" toward the branch end, İ_sk positive against the branch. rms phasors (real numbers in DC)."
+          "expr": "İ_k = Y_k(V̇_k + V̇_sk) − İ_sk,　V̇_k = Z_k(İ_k + İ_sk) − V̇_sk",
+          "when": "V̇_k, İ_k associated; V̇_sk positive with \"+\" toward the branch end, İ_sk positive against the branch. rms phasors (real numbers in DC)."
         }
       }
     },
@@ -271,12 +271,12 @@
       "id": "node",
       "idea": "node",
       "name": "结点电压方程",
-      "expr": "A·Y·Aᵀ·U_n = A·I_s − A·Y·U_s",
+      "expr": "A·Y·Aᵀ·V_n = A·I_s − A·Y·V_s",
       "when": "每条支路导纳有限（没有无伴电压源）；无受控源时 Y_n 对称。",
       "i18n": {
         "en": {
           "name": "Node equations",
-          "expr": "A·Y·Aᵀ·U_n = A·I_s − A·Y·U_s",
+          "expr": "A·Y·Aᵀ·V_n = A·I_s − A·Y·V_s",
           "when": "Every branch admittance finite (no voltage source alone); Y_n symmetric without controlled sources."
         }
       }
@@ -285,12 +285,12 @@
       "id": "loop",
       "idea": "loopcut",
       "name": "回路电流方程",
-      "expr": "B·Z·Bᵀ·I_l = B·U_s − B·Z·I_s",
+      "expr": "B·Z·Bᵀ·I_l = B·V_s − B·Z·I_s",
       "when": "每条支路阻抗有限（没有无伴电流源）；B 用基本回路时 I_l 就是连支电流。",
       "i18n": {
         "en": {
           "name": "Loop equations",
-          "expr": "B·Z·Bᵀ·I_l = B·U_s − B·Z·I_s",
+          "expr": "B·Z·Bᵀ·I_l = B·V_s − B·Z·I_s",
           "when": "Every branch impedance finite (no current source alone); with fundamental loops I_l are the link currents."
         }
       }
@@ -299,13 +299,13 @@
       "id": "cut",
       "idea": "loopcut",
       "name": "割集电压方程",
-      "expr": "Q·Y·Qᵀ·U_t = Q·I_s − Q·Y·U_s",
-      "when": "Q 用基本割集时 U_t 就是树支电压；条件同结点法。",
+      "expr": "Q·Y·Qᵀ·V_t = Q·I_s − Q·Y·V_s",
+      "when": "Q 用基本割集时 V_t 就是树支电压；条件同结点法。",
       "i18n": {
         "en": {
           "name": "Cut-set equations",
-          "expr": "Q·Y·Qᵀ·U_t = Q·I_s − Q·Y·U_s",
-          "when": "With fundamental cut-sets U_t are the tree-branch voltages; same conditions as the node method."
+          "expr": "Q·Y·Qᵀ·V_t = Q·I_s − Q·Y·V_s",
+          "when": "With fundamental cut-sets V_t are the tree-branch voltages; same conditions as the node method."
         }
       }
     },
@@ -313,13 +313,13 @@
       "id": "state",
       "idea": "state",
       "name": "状态方程",
-      "expr": "dx/dt = A·x + B·u，　det(sI − A) = 0 给出固有频率",
-      "when": "x = 电容电压、电感电流（关联方向），u = 独立源；线性时不变电路，没有纯电容回路、纯电感割集。",
+      "expr": "dx/dt = A·x + B·z，　det(sI − A) = 0 给出固有频率",
+      "when": "x = 电容电压、电感电流（关联方向），v = 独立源；线性时不变电路，没有纯电容回路、纯电感割集。",
       "i18n": {
         "en": {
           "name": "State equations",
-          "expr": "dx/dt = A·x + B·u,　det(sI − A) = 0 gives the natural frequencies",
-          "when": "x = capacitor voltages and inductor currents (associated directions), u = independent sources; linear time-invariant circuit with no capacitor-only loops or inductor-only cut-sets."
+          "expr": "dx/dt = A·x + B·z,　det(sI − A) = 0 gives the natural frequencies",
+          "when": "x = capacitor voltages and inductor currents (associated directions), v = independent sources; linear time-invariant circuit with no capacitor-only loops or inductor-only cut-sets."
         }
       }
     }
@@ -330,13 +330,13 @@
       "ideas": ["incidence", "bq"],
       "title": "选一棵树，写出 A、B_f、Q_f 并互相核对",
       "statement": [
-        "电路如图：U_s1 = 6 V，I_s5 = 1.5 A，R_1 = R_2 = 2 Ω，R_3 = R_4 = R_5 = 4 Ω。支路 1 = U_s1 串 R_1，支路 5 = R_5 并 I_s5，结点 4 为参考结点，支路方向见有向图。",
+        "电路如图：V_s1 = 6 V，I_s5 = 1.5 A，R_1 = R_2 = 2 Ω，R_3 = R_4 = R_5 = 4 Ω。支路 1 = V_s1 串 R_1，支路 5 = R_5 并 I_s5，结点 4 为参考结点，支路方向见有向图。",
         "选树 T = {1, 3, 4}，写出 A、B_f（每条连支一行）和 Q_f（每条树支一行），并验证 Q_l = −B_tᵀ。"
       ],
       "schematic": {
         "elements": [
           {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
-          {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 6},
+          {"ref": "Vs1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 6},
           {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2},
           {"ref": "R3", "type": "R", "from": [8, 0], "to": [8, 6], "value": 4},
           {"ref": "R4", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4},
@@ -351,7 +351,7 @@
           "ref": "4",
           "tree": [1, 3, 4],
           "branches": [
-            {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+            {"n": 1, "from": "4", "to": "1", "els": ["R1", "Vs1"]},
             {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
             {"n": 3, "from": "2", "to": "4", "els": ["R3"]},
             {"n": 4, "from": "2", "to": "3", "els": ["R4"]},
@@ -377,7 +377,7 @@
         "en": {
           "title": "Pick a tree, write A, B_f and Q_f, and check them against each other",
           "statement": [
-            "In the circuit U_s1 = 6 V, I_s5 = 1.5 A, R_1 = R_2 = 2 Ω, R_3 = R_4 = R_5 = 4 Ω. Branch 1 = U_s1 in series with R_1, branch 5 = R_5 in parallel with I_s5, node 4 is the reference, branch directions as in the graph.",
+            "In the circuit V_s1 = 6 V, I_s5 = 1.5 A, R_1 = R_2 = 2 Ω, R_3 = R_4 = R_5 = 4 Ω. Branch 1 = V_s1 in series with R_1, branch 5 = R_5 in parallel with I_s5, node 4 is the reference, branch directions as in the graph.",
             "Take the tree T = {1, 3, 4}. Write A, B_f (one row per link) and Q_f (one row per tree branch), and verify Q_l = −B_tᵀ."
           ],
           "results": [{"ask": "number of links"}, {"ask": "b_23 (row 2, column 3 of B_f)"}, {"ask": "q_12"}, {"ask": "q_35"}],
@@ -394,15 +394,15 @@
     {
       "id": "node-matrix",
       "ideas": ["branch", "node"],
-      "title": "结点方程的矩阵形式：A·Y·Aᵀ·U_n = A·I_s − A·Y·U_s",
+      "title": "结点方程的矩阵形式：A·Y·Aᵀ·V_n = A·I_s − A·Y·V_s",
       "statement": [
-        "电路如图：U_s1 = 6 V，I_s5 = 1.5 A，R_1 = R_2 = 2 Ω，R_3 = R_4 = R_5 = 4 Ω。支路 1 = U_s1 串 R_1，支路 5 = R_5 并 I_s5，结点 4 为参考结点，支路方向见有向图。",
-        "按标准支路写出 Y、U_s、I_s，求 Y_n = A·Y·Aᵀ、J_n = A·I_s − A·Y·U_s，解出结点电压和 I_4。"
+        "电路如图：V_s1 = 6 V，I_s5 = 1.5 A，R_1 = R_2 = 2 Ω，R_3 = R_4 = R_5 = 4 Ω。支路 1 = V_s1 串 R_1，支路 5 = R_5 并 I_s5，结点 4 为参考结点，支路方向见有向图。",
+        "按标准支路写出 Y、V_s、I_s，求 Y_n = A·Y·Aᵀ、J_n = A·I_s − A·Y·V_s，解出结点电压和 I_4。"
       ],
       "schematic": {
         "elements": [
           {"ref": "R1", "type": "R", "from": [0, 0], "to": [0, 3], "value": 2},
-          {"ref": "Us1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 6},
+          {"ref": "Vs1", "type": "V", "from": [0, 3], "to": [0, 6], "value": 6},
           {"ref": "R2", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2},
           {"ref": "R3", "type": "R", "from": [8, 0], "to": [8, 6], "value": 4},
           {"ref": "R4", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4},
@@ -417,7 +417,7 @@
           "ref": "4",
           "tree": [1, 3, 4],
           "branches": [
-            {"n": 1, "from": "4", "to": "1", "els": ["R1", "Us1"]},
+            {"n": 1, "from": "4", "to": "1", "els": ["R1", "Vs1"]},
             {"n": 2, "from": "1", "to": "2", "els": ["R2"]},
             {"n": 3, "from": "2", "to": "4", "els": ["R3"]},
             {"n": 4, "from": "2", "to": "3", "els": ["R4"]},
@@ -432,25 +432,25 @@
         {"id": "y23", "ask": "Y_23", "find": {"kind": "mat", "mat": "Yn", "row": 2, "col": 3}, "answer": -0.25, "unit": "S"},
         {"id": "j1", "ask": "J_n1", "find": {"kind": "mat", "mat": "Jn", "row": 1}, "answer": 3, "unit": "A"},
         {"id": "j3", "ask": "J_n3", "find": {"kind": "mat", "mat": "Jn", "row": 3}, "answer": 1.5, "unit": "A"},
-        {"id": "u1", "ask": "U_n1", "find": {"kind": "v", "nodes": ["1"]}, "answer": 4.8, "unit": "V"},
-        {"id": "u2", "ask": "U_n2", "find": {"kind": "v", "nodes": ["2"]}, "answer": 3.6, "unit": "V"},
-        {"id": "u3", "ask": "U_n3", "find": {"kind": "v", "nodes": ["3"]}, "answer": 4.8, "unit": "V"},
+        {"id": "u1", "ask": "V_n1", "find": {"kind": "v", "nodes": ["1"]}, "answer": 4.8, "unit": "V"},
+        {"id": "u2", "ask": "V_n2", "find": {"kind": "v", "nodes": ["2"]}, "answer": 3.6, "unit": "V"},
+        {"id": "u3", "ask": "V_n3", "find": {"kind": "v", "nodes": ["3"]}, "answer": 4.8, "unit": "V"},
         {"id": "i4", "ask": "I_4（支路 4，由 2 到 3）", "find": {"kind": "i", "el": "R4"}, "answer": -0.3, "unit": "A"},
         {"id": "i5", "ask": "R_5 的电流（向下）", "find": {"kind": "i", "el": "R5"}, "answer": 1.2, "unit": "A"}
       ],
       "steps": [
-        "1. **支路量。** Y = diag(1/2, 1/2, 1/4, 1/4, 1/4)（S）；U_s1 的“+”朝结点 1（支路 1 的终点），U_s = (6, 0, 0, 0, 0)ᵀ V；I_s5 向上，逆着支路 5（3→4），I_s = (0, 0, 0, 0, 1.5)ᵀ A。",
+        "1. **支路量。** Y = diag(1/2, 1/2, 1/4, 1/4, 1/4)（S）；V_s1 的“+”朝结点 1（支路 1 的终点），V_s = (6, 0, 0, 0, 0)ᵀ V；I_s5 向上，逆着支路 5（3→4），I_s = (0, 0, 0, 0, 1.5)ᵀ A。",
         "2. **Y_n = A·Y·Aᵀ**（A 同上例）= \\mat{1 & −1/2 & 0 ; −1/2 & 1 & −1/4 ; 0 & −1/4 & 1/2}：Y_11 = **1 S**，Y_22 = **1 S**，Y_23 = **−0.25 S**——就是观察法的自导、互导。",
-        "3. **J_n = A·I_s − A·Y·U_s。** Y·U_s = (3, 0, 0, 0, 0)ᵀ，a_11 = −1 → J_n1 = **3 A**；a_35 = +1 → J_n3 = 1.5 A。J_n = (3, 0, **1.5**)ᵀ A。",
-        "4. **解。** 由第 3 式 U_n3 = 3 + 0.5U_n2；第 1 式 U_n1 = 3 + 0.5U_n2；代入第 2 式：−0.5(3 + 0.5U_n2) + U_n2 − 0.25(3 + 0.5U_n2) = 0 → 0.625U_n2 = 2.25 → **U_n2 = 3.6 V**，**U_n1 = U_n3 = 4.8 V**。",
-        "5. **支路电流。** I_4 = (U_n2 − U_n3)/R_4 = **−0.3 A**（实际由 3 流向 2）。**检查**结点 3：I_s5 注入 1.5 A = 流出 R_5 的 4.8/4 = 1.2 A + 流向结点 2 的 0.3 A ✓。"
+        "3. **J_n = A·I_s − A·Y·V_s。** Y·V_s = (3, 0, 0, 0, 0)ᵀ，a_11 = −1 → J_n1 = **3 A**；a_35 = +1 → J_n3 = 1.5 A。J_n = (3, 0, **1.5**)ᵀ A。",
+        "4. **解。** 由第 3 式 V_n3 = 3 + 0.5V_n2；第 1 式 V_n1 = 3 + 0.5V_n2；代入第 2 式：−0.5(3 + 0.5V_n2) + V_n2 − 0.25(3 + 0.5V_n2) = 0 → 0.625V_n2 = 2.25 → **V_n2 = 3.6 V**，**V_n1 = V_n3 = 4.8 V**。",
+        "5. **支路电流。** I_4 = (V_n2 − V_n3)/R_4 = **−0.3 A**（实际由 3 流向 2）。**检查**结点 3：I_s5 注入 1.5 A = 流出 R_5 的 4.8/4 = 1.2 A + 流向结点 2 的 0.3 A ✓。"
       ],
       "i18n": {
         "en": {
-          "title": "Node equations in matrix form: A·Y·Aᵀ·U_n = A·I_s − A·Y·U_s",
+          "title": "Node equations in matrix form: A·Y·Aᵀ·V_n = A·I_s − A·Y·V_s",
           "statement": [
-            "In the circuit U_s1 = 6 V, I_s5 = 1.5 A, R_1 = R_2 = 2 Ω, R_3 = R_4 = R_5 = 4 Ω. Branch 1 = U_s1 in series with R_1, branch 5 = R_5 in parallel with I_s5, node 4 is the reference, branch directions as in the graph.",
-            "Write Y, U_s and I_s for the standard branches, form Y_n = A·Y·Aᵀ and J_n = A·I_s − A·Y·U_s, and solve for the node voltages and I_4."
+            "In the circuit V_s1 = 6 V, I_s5 = 1.5 A, R_1 = R_2 = 2 Ω, R_3 = R_4 = R_5 = 4 Ω. Branch 1 = V_s1 in series with R_1, branch 5 = R_5 in parallel with I_s5, node 4 is the reference, branch directions as in the graph.",
+            "Write Y, V_s and I_s for the standard branches, form Y_n = A·Y·Aᵀ and J_n = A·I_s − A·Y·V_s, and solve for the node voltages and I_4."
           ],
           "results": [
             {"ask": "Y_11"},
@@ -458,18 +458,18 @@
             {"ask": "Y_23"},
             {"ask": "J_n1"},
             {"ask": "J_n3"},
-            {"ask": "U_n1"},
-            {"ask": "U_n2"},
-            {"ask": "U_n3"},
+            {"ask": "V_n1"},
+            {"ask": "V_n2"},
+            {"ask": "V_n3"},
             {"ask": "I_4 (branch 4, from 2 to 3)"},
             {"ask": "current of R_5 (downwards)"}
           ],
           "steps": [
-            "1. **Branch quantities.** Y = diag(1/2, 1/2, 1/4, 1/4, 1/4) (S); the \"+\" of U_s1 faces node 1 (the end of branch 1), U_s = (6, 0, 0, 0, 0)ᵀ V; I_s5 points up, against branch 5 (3→4), I_s = (0, 0, 0, 0, 1.5)ᵀ A.",
+            "1. **Branch quantities.** Y = diag(1/2, 1/2, 1/4, 1/4, 1/4) (S); the \"+\" of V_s1 faces node 1 (the end of branch 1), V_s = (6, 0, 0, 0, 0)ᵀ V; I_s5 points up, against branch 5 (3→4), I_s = (0, 0, 0, 0, 1.5)ᵀ A.",
             "2. **Y_n = A·Y·Aᵀ** (A as in the previous example) = \\mat{1 & −1/2 & 0 ; −1/2 & 1 & −1/4 ; 0 & −1/4 & 1/2}: Y_11 = **1 S**, Y_22 = **1 S**, Y_23 = **−0.25 S** — the self- and mutual admittances of the inspection method.",
-            "3. **J_n = A·I_s − A·Y·U_s.** Y·U_s = (3, 0, 0, 0, 0)ᵀ, a_11 = −1 → J_n1 = **3 A**; a_35 = +1 → J_n3 = 1.5 A. J_n = (3, 0, **1.5**)ᵀ A.",
-            "4. **Solve.** Equation 3 gives U_n3 = 3 + 0.5U_n2, equation 1 U_n1 = 3 + 0.5U_n2; into equation 2: −0.5(3 + 0.5U_n2) + U_n2 − 0.25(3 + 0.5U_n2) = 0 → 0.625U_n2 = 2.25 → **U_n2 = 3.6 V**, **U_n1 = U_n3 = 4.8 V**.",
-            "5. **Branch current.** I_4 = (U_n2 − U_n3)/R_4 = **−0.3 A** (it actually flows from 3 to 2). **Check** at node 3: I_s5 brings 1.5 A = 4.8/4 = 1.2 A out through R_5 + 0.3 A towards node 2 ✓."
+            "3. **J_n = A·I_s − A·Y·V_s.** Y·V_s = (3, 0, 0, 0, 0)ᵀ, a_11 = −1 → J_n1 = **3 A**; a_35 = +1 → J_n3 = 1.5 A. J_n = (3, 0, **1.5**)ᵀ A.",
+            "4. **Solve.** Equation 3 gives V_n3 = 3 + 0.5V_n2, equation 1 V_n1 = 3 + 0.5V_n2; into equation 2: −0.5(3 + 0.5V_n2) + V_n2 − 0.25(3 + 0.5V_n2) = 0 → 0.625V_n2 = 2.25 → **V_n2 = 3.6 V**, **V_n1 = V_n3 = 4.8 V**.",
+            "5. **Branch current.** I_4 = (V_n2 − V_n3)/R_4 = **−0.3 A** (it actually flows from 3 to 2). **Check** at node 3: I_s5 brings 1.5 A = 4.8/4 = 1.2 A out through R_5 + 0.3 A towards node 2 ✓."
           ]
         }
       }
@@ -519,10 +519,10 @@
     {
       "id": "src-sign",
       "idea": "branch",
-      "text": "U_s、I_s 的符号按电源“在图上朝哪边”判断。标准支路的约定是相对**支路方向**：电压源“+”朝支路终点为正，电流源**逆着**支路方向为正——和结点法右端“电流源流入结点为正”是同一回事。",
+      "text": "V_s、I_s 的符号按电源“在图上朝哪边”判断。标准支路的约定是相对**支路方向**：电压源“+”朝支路终点为正，电流源**逆着**支路方向为正——和结点法右端“电流源流入结点为正”是同一回事。",
       "i18n": {
         "en": {
-          "text": "Judging the signs of U_s and I_s by how the source is drawn. The convention is relative to the **branch direction**: a voltage source with \"+\" toward the branch end is positive, a current source pointing **against** the branch is positive — the same as \"source current into a node is positive\" in the node equations."
+          "text": "Judging the signs of V_s and I_s by how the source is drawn. The convention is relative to the **branch direction**: a voltage source with \"+\" toward the branch end is positive, a current source pointing **against** the branch is positive — the same as \"source current into a node is positive\" in the node equations."
         }
       }
     },

@@ -7,15 +7,15 @@
   "level": 4,
   "tags": ["三相电路", "3 次谐波", "零序", "中性点位移"],
   "statement": [
-    "对称三相电源（正序）每相电动势为 u_A = 220√2 cos(314t) + 30√2 cos(942t) V，u_B、u_C 的基波依次滞后 120°（3 次谐波则依次滞后 3 × 120°）。",
+    "对称三相电源（正序）每相电动势为 v_A = 220√2 cos(314t) + 30√2 cos(942t) V。v_B、v_C 的基波依次滞后 120°，3 次谐波则依次滞后 3 × 120°。",
     "电源以三相三线制（**没有中线**）向对称星形电阻负载供电，每相 R = 10 Ω。电压表 V 接在负载中性点 N' 与电源中性点 N 之间。",
-    "求电压表读数、负载相电压 U_{AN'}、A 相电流和电源相电压的有效值。"
+    "求电压表读数和负载相电压 V_{AN'}。再求 A 相电流和电源相电压的有效值。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "UA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": 0 }, { "k": 3, "amp": 42.426407 } ] } }, "label": "u_A" },
-      { "ref": "UB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": -120 }, { "k": 3, "amp": 42.426407 } ] } }, "label": "u_B" },
-      { "ref": "UC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": 120 }, { "k": 3, "amp": 42.426407 } ] } }, "label": "u_C" },
+      { "ref": "VA", "type": "V", "from": [5, 0], "to": [1, 0], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": 0 }, { "k": 3, "amp": 42.426407 } ] } }, "label": "v_A" },
+      { "ref": "VB", "type": "V", "from": [5, 3], "to": [1, 3], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": -120 }, { "k": 3, "amp": 42.426407 } ] } }, "label": "v_B" },
+      { "ref": "VC", "type": "V", "from": [5, 6], "to": [1, 6], "value": { "harmonics": { "terms": [ { "k": 1, "amp": 311.126984, "phase": 120 }, { "k": 3, "amp": 42.426407 } ] } }, "label": "v_C" },
       { "ref": "RA", "type": "R", "from": [9, 0], "to": [13, 0], "value": 10 },
       { "ref": "RB", "type": "R", "from": [9, 3], "to": [13, 3], "value": 10 },
       { "ref": "RC", "type": "R", "from": [9, 6], "to": [13, 6], "value": 10 },
@@ -52,64 +52,64 @@
     ],
     "grounds": [[1, 9]],
     "marks": [
-      { "kind": "v", "el": "RA", "name": "u_{AN'}" }
+      { "kind": "v", "el": "RA", "name": "v_{AN'}" }
     ]
   },
   "analysis": { "type": "periodic", "omega": 314 },
   "questions": [
     {
       "id": "V",
-      "ask": "电压表读数 U_{N'N} = ?",
+      "ask": "电压表读数 V_{N'N} = ?",
       "find": { "kind": "meter", "el": "V" },
       "answer": 30,
       "unit": "V",
-      "explain": "没有中线时 3 次谐波电流无处流通（三相电流之和恒为零，而三个 3 次谐波电流又必须相等），所以 I_3 = 0，负载上没有 3 次谐波电压，3 次谐波电动势全部出现在 N'、N 之间：U_{N'N} = 30 V。"
+      "explain": "没有中线时，三相电流之和恒为零；而三个 3 次谐波电流又必须相等，所以 I_3 = 0。负载上没有 3 次谐波电压，3 次谐波电动势全部出现在 N'、N 之间：V_{N'N} = 30 V。"
     },
     {
       "id": "UAN",
-      "ask": "负载相电压有效值 U_{AN'} = ?",
+      "ask": "负载相电压有效值 V_{AN'} = ?",
       "find": { "kind": "v", "el": "RA" },
       "answer": 220,
       "unit": "V",
-      "explain": "负载上只有基波：U_{AN'} = 220 V。"
+      "explain": "负载上只有基波：V_{AN'} = 220 V。"
     },
     { "id": "IA", "ask": "A 相电流有效值 I_A = ?", "find": { "kind": "i", "el": "RA" }, "answer": 22, "unit": "A", "explain": "I_A = 220/10 = 22 A，只有基波。" },
     {
-      "id": "UA",
-      "ask": "电源相电压有效值 U_A = ?",
+      "id": "VA",
+      "ask": "电源相电压有效值 V_A = ?",
       "find": {
         "kind": "v",
         "nodes": ["A", "N"]
       },
       "answer": 222.036,
       "unit": "V",
-      "explain": "U_A = √(220² + 30²) = 222.0 V；它比负载相电压大，差别就是 N'N 之间的 3 次谐波电压。"
+      "explain": "V_A = √(220² + 30²) = 222.0 V；它比负载相电压大，差别就是 N'N 之间的 3 次谐波电压。"
     },
     {
       "id": "where",
       "ask": "接上中线（阻抗为零）以后，电压表读数和 A 相电流的有效值会怎样？",
-      "choices": ["电压表读数变为 0，I_A 增大到 √(22² + 3²) = 22.2 A", "电压表读数不变，I_A 不变", "电压表读数变为 0，I_A 不变", "电压表读数变为 30√3 V"],
+      "choices": ["电压表读数变为 0，I_A 增大", "电压表读数不变，I_A 不变", "电压表读数变为 0，I_A 不变", "电压表读数变为原来的 √3 倍"],
       "correct": 0,
-      "choiceExplain": ["", "中线把 N'、N 短接，电压表读数必然为零。", "接中线后 3 次谐波电压加在负载上，产生 3 A 的 3 次谐波相电流。", "N'、N 之间只有零序的 3 次谐波电压 30 V，不会出现 √3 倍。"],
-      "explain": "接中线后 U_{N'N} = 0，每相负载上出现 30 V 的 3 次谐波电压，I_A3 = 3 A，I_A = √(22² + 3²) = 22.2 A，中线电流 9 A。"
+      "choiceExplain": ["", "中线把 N'、N 短接，电压表读数必然为零。", "接中线后 3 次谐波电压加在负载上，产生 3 次谐波相电流，I_A 会增大。", "N'、N 之间只有零序的 3 次谐波电压，不会出现 √3 倍。"],
+      "explain": "接中线后 V_{N'N} = 0，每相负载上出现 30 V 的 3 次谐波电压，I_A3 = 3 A，I_A = √(22² + 3²) = 22.2 A，中线电流 9 A。"
     }
   ],
   "hints": ["三个 3 次谐波电动势同相位。没有中线时，三相电流之和恒为零——3 次谐波电流能不能流通？", "如果 3 次谐波电流为零，负载上就没有 3 次谐波电压；按 KVL，3 次谐波电动势落在哪里？", "基波仍是对称三相电路：负载中性点对基波来说与 N 等电位。"],
   "solution": [
-    "**1. 3 次谐波。** 三个 3 次谐波电动势同相（零序）。无中线时 i_A + i_B + i_C = 0；对 3 次谐波而言三相电流又必须相等，只能都为零。负载上没有 3 次谐波电压，由 KVL，U̇_{N'N3} = U̇_A3 = 30∠0° V：电压表读数 **30 V**。",
-    "**2. 基波。** 对称三相，U̇_{N'N1} = 0，负载相电压 U_{AN'} = **220 V**，I_A = 220/10 = **22 A**。",
-    "**3. 电源相电压：** U_A = √(220² + 30²) = **222.0 V**。",
-    "**4. 线电压：** 两种情况都只有基波，U_AB = √3 × 220 = 381.1 V。",
-    "**检查（KVL）：** u_A = u_AN' + u_N'N 中两项频率不同，有效值按平方和合成：√(220² + 30²) = 222.0 V，与第 3 步一致。"
+    "**1. 3 次谐波。** 三个 3 次谐波电动势同相（零序）。无中线时 i_A + i_B + i_C = 0；对 3 次谐波而言三相电流又必须相等，只能都为零。负载上没有 3 次谐波电压，由 KVL，V̇_{N'N3} = V̇_A3 = 30∠0° V：电压表读数 **30 V**。",
+    "**2. 基波。** 对称三相，V̇_{N'N1} = 0，负载相电压 V_{AN'} = **220 V**，I_A = 220/10 = **22 A**。",
+    "**3. 电源相电压：** V_A = √(220² + 30²) = **222.0 V**。",
+    "**4. 线电压：** 两种情况都只有基波，V_AB = √3 × 220 = 381.1 V。",
+    "**检查（KVL）：** v_A = v_AN' + v_N'N 中两项频率不同，有效值按平方和合成：√(220² + 30²) = 222.0 V，与第 3 步一致。"
   ],
   "i18n": {
     "en": {
       "title": "3rd harmonics in a three-wire three-phase system: the neutral-point voltage",
       "tags": ["three-phase", "3rd harmonic", "zero sequence", "neutral-point displacement"],
       "statement": [
-        "Each phase EMF of a balanced (positive-sequence) source is u_A = 220√2 cos(314t) + 30√2 cos(942t) V; the fundamentals of u_B, u_C lag by 120° each (their 3rd harmonics by 3 × 120°).",
+        "Each phase EMF of a balanced (positive-sequence) source is v_A = 220√2 cos(314t) + 30√2 cos(942t) V. The fundamentals of v_B, v_C lag by 120° each, their 3rd harmonics by 3 × 120°.",
         "The source feeds a balanced Y resistive load, R = 10 Ω per phase, over three wires (**no neutral**). A voltmeter V is connected between the load neutral N' and the source neutral N.",
-        "Find the voltmeter reading, the load phase voltage U_{AN'}, the current of phase A and the rms source phase voltage."
+        "Find the voltmeter reading and the load phase voltage V_{AN'}. Then find the rms current of phase A and the rms source phase voltage."
       ],
       "hints": [
         "The three 3rd-harmonic EMFs are in phase. Without a neutral the three line currents always add up to zero — can a 3rd-harmonic current flow?",
@@ -117,33 +117,33 @@
         "The fundamental is still a balanced three-phase circuit: for it the load neutral is at the same potential as N."
       ],
       "solution": [
-        "**1. 3rd harmonic.** The three 3rd-harmonic EMFs are in phase (zero sequence). Without a neutral i_A + i_B + i_C = 0; for the 3rd harmonic the three currents must also be equal, so they are all zero. The loads carry no 3rd-harmonic voltage and by KVL U̇_{N'N3} = U̇_A3 = 30∠0° V: the voltmeter reads **30 V**.",
-        "**2. Fundamental.** Balanced, U̇_{N'N1} = 0, load phase voltage U_{AN'} = **220 V**, I_A = 220/10 = **22 A**.",
-        "**3. Source phase voltage:** U_A = √(220² + 30²) = **222.0 V**.",
-        "**4. Line voltage:** fundamental only in both cases, U_AB = √3 × 220 = 381.1 V.",
-        "**Check (KVL):** u_A = u_AN' + u_N'N, two terms of different frequencies, so the rms values combine as a sum of squares: √(220² + 30²) = 222.0 V, as in step 3."
+        "**1. 3rd harmonic.** The three 3rd-harmonic EMFs are in phase (zero sequence). Without a neutral i_A + i_B + i_C = 0; for the 3rd harmonic the three currents must also be equal, so they are all zero. The loads carry no 3rd-harmonic voltage and by KVL V̇_{N'N3} = V̇_A3 = 30∠0° V: the voltmeter reads **30 V**.",
+        "**2. Fundamental.** Balanced, V̇_{N'N1} = 0, load phase voltage V_{AN'} = **220 V**, I_A = 220/10 = **22 A**.",
+        "**3. Source phase voltage:** V_A = √(220² + 30²) = **222.0 V**.",
+        "**4. Line voltage:** fundamental only in both cases, V_AB = √3 × 220 = 381.1 V.",
+        "**Check (KVL):** v_A = v_AN' + v_N'N, two terms of different frequencies, so the rms values combine as a sum of squares: √(220² + 30²) = 222.0 V, as in step 3."
       ],
       "questions": [
         {
-          "ask": "Voltmeter reading U_{N'N} = ?",
-          "explain": "Without a neutral the 3rd-harmonic current has nowhere to flow (the three currents always add up to zero, yet the three 3rd-harmonic currents must be equal), so I_3 = 0, the loads carry no 3rd-harmonic voltage and the whole 3rd-harmonic EMF appears between N' and N: U_{N'N} = 30 V."
+          "ask": "Voltmeter reading V_{N'N} = ?",
+          "explain": "Without a neutral the three currents always add up to zero, yet the three 3rd-harmonic currents must be equal, so I_3 = 0. The loads carry no 3rd-harmonic voltage, and the whole 3rd-harmonic EMF appears between N' and N: V_{N'N} = 30 V."
         },
         {
-          "ask": "rms load phase voltage U_{AN'} = ?",
-          "explain": "The load sees the fundamental only: U_{AN'} = 220 V."
+          "ask": "rms load phase voltage V_{AN'} = ?",
+          "explain": "The load sees the fundamental only: V_{AN'} = 220 V."
         },
         { "ask": "rms current of phase A, I_A = ?", "explain": "I_A = 220/10 = 22 A, fundamental only." },
-        { "ask": "rms source phase voltage U_A = ?", "explain": "U_A = √(220² + 30²) = 222.0 V; it exceeds the load phase voltage by exactly the 3rd-harmonic voltage between N' and N." },
+        { "ask": "rms source phase voltage V_A = ?", "explain": "V_A = √(220² + 30²) = 222.0 V; it exceeds the load phase voltage by exactly the 3rd-harmonic voltage between N' and N." },
         {
           "ask": "After a (zero-impedance) neutral wire is connected, what happens to the voltmeter reading and the rms current of phase A?",
-          "choices": ["The voltmeter reads 0 and I_A rises to √(22² + 3²) = 22.2 A", "Neither changes", "The voltmeter reads 0, I_A does not change", "The voltmeter reads 30√3 V"],
+          "choices": ["The voltmeter reads 0 and I_A rises", "Neither changes", "The voltmeter reads 0, I_A does not change", "The voltmeter reading grows by a factor √3"],
           "choiceExplain": [
             "",
             "The neutral shorts N' to N, so the voltmeter must read zero.",
-            "With the neutral the 3rd-harmonic voltage appears across the loads and drives a 3 A 3rd-harmonic phase current.",
-            "Between N' and N there is only the 30 V zero-sequence 3rd harmonic; no factor √3 appears."
+            "With the neutral the 3rd-harmonic voltage appears across the loads and drives a 3rd-harmonic phase current, so I_A grows.",
+            "Between N' and N there is only the zero-sequence 3rd-harmonic voltage; no factor √3 appears."
           ],
-          "explain": "With the neutral, U_{N'N} = 0 and each load sees a 30 V 3rd-harmonic voltage: I_A3 = 3 A, I_A = √(22² + 3²) = 22.2 A, and the neutral carries 9 A."
+          "explain": "With the neutral, V_{N'N} = 0 and each load sees a 30 V 3rd-harmonic voltage: I_A3 = 3 A, I_A = √(22² + 3²) = 22.2 A, and the neutral carries 9 A."
         }
       ]
     }

@@ -1,0 +1,309 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp4-pf-correction",
+  "title": "功率因数校正：并一个电容，电流变小了",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 4,
+  "summary": "电阻 + 电感的负载从信号发生器取电流，电流落后电压。按住按键并上一个 470 nF 电容：总电流变小、和电压对齐，电阻上的功率却不变。",
+  "concepts": [
+    "有功功率 P 与功率因数 cos θ active power, power factor",
+    "无功电流 reactive current",
+    "功率因数校正 power-factor correction",
+    "电流表有效值 RMS ammeter reading",
+    "取样电阻看电流 current-sense resistor"
+  ],
+  "prereq": ["lesson-scope-two-channels"],
+  "description": "信号发生器（正弦波 1.6 kHz、幅度 5 V）→ 电流表 AM1 → 结点 A → L1（10 mH）→ R1（100 Ω）→ S → RS（10 Ω）→ GND。按键 SW1 把 C1（470 nF）并在 A 和 S 之间。CH1 看 A，CH2 看 RS 上的电压（就是总电流的波形）。比较按下前后的总电流有效值和相位。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "电流里有一部分在白跑",
+      "text": [
+        "信号发生器、电流表、取样电阻 **RS**（`10 Ω`）和两支探头已经在板上。接上负载：**电感**（`10 mH`）**`c6`**–**`c12`**，**电阻**（`100 Ω`）**`d12`**–**`d16`**。",
+        "信号发生器：**正弦波、`1.6 kHz`、幅度 `5 V`**。CH1 看负载上的电压，CH2 看 RS 上的电压——也就是总电流的形状。",
+        "电流（CH2）比电压晚到顶。负载里只有电阻会把电能变成热：信号发生器送来的电流，全都在干活吗？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "电感借了能量又还回来",
+      "text": [
+        "- 电感每四分之一周期把能量存进磁场，下一个四分之一周期又**原样还回去**。为了这一借一还，导线里要多跑一份电流，可它什么活也没干。",
+        "- 电容正好相反：电感在“借”的时候，电容在“还”。并上一个电容，这份来回跑的电流就在 L 和 C 之间**就地交换**，不用再从信号发生器那里绕一圈。",
+        "![](fig:pfc)",
+        "- 电阻真正用掉的功率是有功功率，它比“电压 × 电流”小，差的那个系数就是**功率因数**：",
+        "$$P = V I cos θ$$",
+        "例如电流落后 60° 时，$cos 60° = 0.5$：要输送同样的功率，导线里得跑两倍的电流。",
+        "- 并电容不改变电阻上的电压，所以不改变 P；它让 θ 变小，于是总电流 I 变小。",
+        "![](fig:phasors)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "按下按键，比一比",
+      "text": [
+        "- **按键**放在 **`e6`**（横跨凹槽）：按下时把第 `6` 列和第 `8` 列接通。**电容**（`470 nF`）插 **`g8`**–**`g16`**，再用一根**跳线** **`e16`**–**`f16`** 把第 16 列上下两半接起来。",
+        "- 正弦电流的**平均值**几乎是 0，所以在交流电路里，**电流表**的屏幕会自己换到 **AC RMS**（有效值）档：左上角写着 “AC RMS” 时，屏幕上的数就是要读的有效值。**点一下电流表**，右侧「属性」里还能看到平均值和有效值两行。",
+        "- **松开按键**：读电流表的有效值和 CH2 相对 CH1 的相位差。**点一下按键**让它保持按下：再读一次。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **功率因数** $cos θ$：有功功率和“电压 × 电流”之比。感性负载（电动机、变压器、日光灯镇流器）的电流落后电压，功率因数小于 1。",
+        "- **并联电容**补上电感要的那份来回的电流：有功功率不变，总电流变小，导线和发电机都轻松了。",
+        "- 坑：电容不是越大越好。补过头，电流反而**超前**电压，总电流又变大。工厂里的电容柜按负载分档投切，就是为了不补过头。",
+        "- 三相电和变压器的功率计算，都建立在同一个 $P = V I cos θ$ 上：去理论题里练。"
+      ],
+      "practice": ["ac-power", "three-phase", "coupled"]
+    }
+  ],
+  "figures": {
+    "pfc": {
+      "kind": "schematic",
+      "caption": {
+        "text": "负载是 R1 + L1；按住按键（S1 闭合），C1（彩色）就并在负载旁边。C1 的电流 I_C 和电感要的那份电流就地交换，信号发生器送来的总电流 I 变小。",
+        "i18n": {
+          "en": "The load is R1 + L1; hold the button (S1 closed) and C1 (in colour) sits beside it. C1's current I_C trades with the inductor's back-and-forth current on the spot, and the total current I from the generator gets smaller."
+        }
+      },
+      "highlight": ["C1"],
+      "schematic": {
+        "elements": [
+          {"ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 5], "value": {"ac": {"mag": 1}}, "label": "v_s"},
+          {"ref": "AM1", "type": "ammeter", "from": [0, 0], "to": [2, 0]},
+          {"ref": "L1", "type": "L", "from": [3, 0], "to": [3, 3], "value": "10m"},
+          {"ref": "R1", "type": "R", "from": [3, 3], "to": [3, 5], "value": 100},
+          {"ref": "S1", "type": "S", "from": [6, 0], "to": [6, 2], "value": "closed"},
+          {"ref": "C1", "type": "C", "from": [6, 2], "to": [6, 5], "value": "470n"}
+        ],
+        "wires": [[[2, 0], [6, 0]], [[6, 5], [0, 5]]],
+        "marks": [{"kind": "i", "el": "AM1", "name": "I"}, {"kind": "i", "el": "C1", "name": "I_C"}]
+      }
+    },
+    "phasors": {
+      "kind": "plot",
+      "caption": {
+        "text": "电流相量：负载电流 I_RL 落后电压；加上超前 90° 的 I_C，总电流 I 变短，而且几乎和电压同方向。",
+        "i18n": {
+          "en": "Current phasors: the load current I_RL lags the voltage; adding I_C, 90° ahead, makes the total I shorter and almost in line with the voltage."
+        }
+      },
+      "x": {"label": {"text": "沿电压方向", "i18n": {"en": "along the voltage"}}, "min": 0, "max": 1.4},
+      "y": {"label": {"text": "超前 / 落后", "i18n": {"en": "ahead / behind"}}, "min": -1.1, "max": 0.3, "ticks": [0]},
+      "curves": [
+        {"points": [[0, 0], [0.75, -0.75]], "tone": 2, "label": "I_RL", "labelAt": [0.28, -0.55]},
+        {"points": [[0.75, -0.75], [0.75, -0.05]], "tone": 3, "label": "I_C", "labelAt": [0.92, -0.4]},
+        {"points": [[0, 0], [0.75, -0.05]], "tone": 1, "label": "I", "labelAt": [0.4, 0.12]}
+      ],
+      "hlines": [{"y": 0, "dashed": true, "label": {"text": "电压", "i18n": {"en": "voltage"}}}]
+    }
+  },
+  "components": [
+    {"ref": "FG1", "type": "function_gen"},
+    {"ref": "AM1", "type": "ammeter"},
+    {"ref": "L1", "type": "inductor", "inductance": "10m"},
+    {"ref": "R1", "type": "resistor", "resistance": "100"},
+    {"ref": "RS", "type": "resistor", "resistance": "10"},
+    {"ref": "SW1", "type": "pushbutton"},
+    {"ref": "C1", "type": "capacitor", "capacitance": "470n"}
+  ],
+  "nets": [
+    {"name": "VIN", "pins": ["FG1.+", "AM1.+"]},
+    {"name": "A", "pins": ["AM1.-", "L1.1", "SW1.1"]},
+    {"name": "N", "pins": ["L1.2", "R1.1"]},
+    {"name": "S", "pins": ["R1.2", "C1.2", "RS.1"]},
+    {"name": "SWC", "pins": ["SW1.2", "C1.1"]},
+    {"name": "GND", "pins": ["RS.2", "FG1.-"]}
+  ],
+  "i18n": {
+    "en": {
+      "title": "Power-factor correction: add a capacitor, and the current drops",
+      "summary": "A resistor + inductor load draws current from the generator, and the current lags the voltage. Hold a button to add a 470 nF capacitor in parallel: the total current gets smaller and lines up with the voltage, while the resistor's power stays the same.",
+      "concepts": ["active power P and power factor cos θ", "reactive current", "power-factor correction", "RMS ammeter reading", "current-sense resistor"],
+      "description": "Generator (sine 1.6 kHz, amplitude 5 V) → ammeter AM1 → node A → L1 (10 mH) → R1 (100 Ω) → S → RS (10 Ω) → GND. Button SW1 puts C1 (470 nF) between A and S. CH1 on A, CH2 across RS (the total current's waveform). Compare the total RMS current and the phase before and after pressing.",
+      "cards": [
+        {
+          "title": "Part of the current runs for nothing",
+          "text": [
+            "The generator, the ammeter, the sense resistor **RS** (`10 Ω`) and both probes are already on the board. Add the load: **inductor** (`10 mH`) **`c6`**–**`c12`**, **resistor** (`100 Ω`) **`d12`**–**`d16`**.",
+            "Generator: **sine, `1.6 kHz`, amplitude `5 V`**. CH1 shows the voltage on the load, CH2 the voltage across RS — the shape of the total current.",
+            "The current (CH2) peaks after the voltage. Only the resistor turns electrical energy into heat: is all the current from the generator doing that work?"
+          ]
+        },
+        {
+          "title": "The inductor borrows energy and gives it back",
+          "text": [
+            "- Every quarter period the inductor stores energy in its magnetic field, and the next quarter it **gives it all back**. That borrowing and returning takes an extra share of current in the wires — current that does no work.",
+            "- A capacitor does the opposite: while the inductor borrows, the capacitor returns. Put a capacitor beside the load and that back-and-forth current is **traded on the spot** between L and C, instead of making the round trip through the generator.",
+            "![](fig:pfc)",
+            "- The power the resistor really uses is the active power. It is less than \"voltage × current\", and the factor between them is the **power factor**:",
+            "$$P = V I cos θ$$",
+            "For example, with the current 60° behind, $cos 60° = 0.5$: to deliver the same power the wires must carry twice the current.",
+            "- The capacitor does not change the voltage across the resistor, so P stays; it makes θ smaller, so the total current I drops.",
+            "![](fig:phasors)"
+          ]
+        },
+        {
+          "title": "Press the button and compare",
+          "text": [
+            "- **Push button** at **`e6`** (straddling the gap): pressed, it joins column `6` to column `8`. **Capacitor** (`470 nF`) into **`g8`**–**`g16`**, plus a short **jumper** **`e16`**–**`f16`** to join the two halves of column 16.",
+            "- The **average** of a sine current is almost 0, so in an AC circuit the **ammeter**'s screen switches itself to its **AC RMS** range: when the top left says \"AC RMS\", the number on the screen is the RMS value to read. **Click the ammeter** to see both the average and the RMS under Properties on the right.",
+            "- **Button released**: read the ammeter's RMS value and the phase of CH2 vs CH1. **Click the button** so it stays pressed, and read both again."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Power factor** $cos θ$: active power divided by \"voltage × current\". Inductive loads (motors, transformers, fluorescent-lamp ballasts) draw a lagging current, so their power factor is below 1.",
+            "- A **parallel capacitor** supplies the back-and-forth current the inductor needs: the active power stays, the total current drops, and the wires and the generator have an easier time.",
+            "- Pitfall: more capacitance is not better. Overcorrect and the current **leads** the voltage, and the total current grows again. Factory capacitor banks switch in steps with the load so they never overcorrect.",
+            "- Three-phase power and transformers rest on the same $P = V I cos θ$: practise them in the theory problems."
+          ]
+        }
+      ],
+      "compare": [
+        "**Compare**:",
+        "- The load's impedance (with the coil's 1 Ω and the 10 Ω sense resistor): Z = 111 + j100.5 Ω, |Z| ≈ 150 Ω, so the current lags the voltage by about 42° (45° for R1 + L1 alone; RS makes the angle a little smaller). Power factor cos 42° ≈ 0.74.",
+        "- **Button released**: with the generator's internal 50 Ω the total RMS current is ≈ (5 V/√2) / |161 + j100.5| ≈ 18.6 mA.",
+        "- **Button pressed**: 470 nF at 1.6 kHz has a reactance of ≈ 212 Ω; its current leads by 90° and cancels the lagging part of the load current. The total current drops to ≈ 13.5 mA, with almost no phase difference (power factor ≈ 1).",
+        "- **R1's power**: the voltage at A hardly changes (less drop across the generator's 50 Ω, so it even rises a little), so R1's current rises by only about 2.6% (18.6 → 19.1 mA) and its power stays about the same — the active power is unchanged; only the back-and-forth current in the wires is gone.",
+        "- The capacitor for full correction: B_C = X_L/|Z_RL|² gives C ≈ 0.48 µF; 470 nF is the nearest standard value."
+      ],
+      "measurements": [
+        {
+          "ask": "Button released: the ammeter's RMS value (the screen shows AC RMS)",
+          "explain": "Z = (100 + 1 + 10) + j100.5 Ω, plus the generator's internal 50 Ω: I = (5/√2) / |161 + j100.5| ≈ 18.6 mA."
+        },
+        {
+          "ask": "Button released: phase of CH2 (the current) vs CH1 (the load voltage)",
+          "explain": "θ = arctan(100.5 / 111) ≈ 42°: the current lags, and the power factor cos θ ≈ 0.74."
+        },
+        {
+          "ask": "Button held: the ammeter's RMS value",
+          "explain": "C1's current leads by 90° and cancels the lagging part of the load current; what remains of the total current is the part in phase with the voltage."
+        },
+        {
+          "ask": "Button held: phase of CH2 vs CH1",
+          "explain": "Close to 0°: the power factor is close to 1. 470 nF is the standard value nearest to full correction (about 0.48 µF)."
+        },
+        {
+          "ask": "After pressing the button, what happens to the power R1 uses (the active power)?",
+          "choices": ["About the same: the voltage across R1 hardly changed", "Less: the total current dropped", "More: the power factor went up"],
+          "explain": "The capacitor uses no energy and does not change the voltage across the load, so R1's power stays about the same (less drop across the generator's internal 50 Ω even lifts A a little). What dropped is the back-and-forth current in the wires."
+        }
+      ],
+      "hints": [
+        "The load is one series branch: A (column 6) → inductor → resistor → S (column 16).",
+        "The button straddles the gap at e6: column 6 is one end, column 8 the other; the capacitor runs from the lower half of column 8 to the lower half of column 16.",
+        "Join the two halves of column 16 with a short jumper, so RS reaches both R1 and C1."
+      ],
+      "tests": ["Button released: the current lags the voltage", "Button pressed: current and voltage almost in phase, smaller total current"]
+    }
+  },
+  "tests": [
+    {
+      "name": "松开按键：电流落后电压",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 5, "offset": 0}, "SW1": {"pressed": false}},
+      "scope": [{"pin": "RS.1", "measure": "phase", "vs": "L1.1", "min": -45, "max": -35}],
+      "currents": [{"el": "AM1", "mode": "rms", "min": 0.015, "max": 0.021}]
+    },
+    {
+      "name": "按下按键：电流和电压几乎同相，总电流变小",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 5, "offset": 0}, "SW1": {"pressed": true}},
+      "scope": [{"pin": "RS.1", "measure": "phase", "vs": "L1.1", "min": -6, "max": 6}],
+      "currents": [{"el": "AM1", "mode": "rms", "min": 0.011, "max": 0.015}]
+    }
+  ],
+  "compare": [
+    "**对比**：",
+    "- 负载阻抗（含线圈电阻 1 Ω 和取样电阻 10 Ω）：Z = 111 + j100.5 Ω，|Z| ≈ 150 Ω，电流落后电压约 42°（只看 R1 + L1 是 45°，RS 让角度小了一点）。功率因数 cos 42° ≈ 0.74。",
+    "- **松开按键**：信号发生器内部还有 50 Ω，总电流有效值 ≈ (5 V/√2) / |161 + j100.5| ≈ 18.6 mA。",
+    "- **按下按键**：470 nF 在 1.6 kHz 的容抗 ≈ 212 Ω，它的电流超前 90°，正好抵掉负载电流里落后的那一部分。总电流降到 ≈ 13.5 mA，相位差接近 0（功率因数 ≈ 1）。",
+    "- **R1 的功率**：A 点电压几乎不变（信号发生器的 50 Ω 上压降变小，A 点电压反而略升），R1 的电流只多了约 2.6%（18.6 → 19.1 mA），功率基本不变——有功功率没变，只是导线里少跑了那份来回的电流。",
+    "- 完全补偿需要的电容：B_C = X_L/|Z_RL|² 时 C ≈ 0.48 µF；470 nF 是最接近的常用值。"
+  ],
+  "measurements": [
+    {
+      "id": "i1",
+      "current": "AM1",
+      "mode": "rms",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 5, "offset": 0}, "SW1": {"pressed": false}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.016, 0.021],
+      "ask": "松开按键：电流表的有效值（屏幕显示 AC RMS）",
+      "explain": "Z = (100 + 1 + 10) + j100.5 Ω，再加信号发生器内部的 50 Ω：I = (5/√2) / |161 + j100.5| ≈ 18.6 mA。"
+    },
+    {
+      "id": "ph1",
+      "scope": "phase",
+      "pin": "RS.1",
+      "vs": "L1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 5, "offset": 0}, "SW1": {"pressed": false}},
+      "unit": "°",
+      "predict": true,
+      "range": [-45, -35],
+      "ask": "松开按键：CH2（电流）相对 CH1（负载电压）的相位差",
+      "explain": "θ = arctan(100.5 / 111) ≈ 42°：电流落后，功率因数 cos θ ≈ 0.74。"
+    },
+    {
+      "id": "i2",
+      "current": "AM1",
+      "mode": "rms",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 5, "offset": 0}, "SW1": {"pressed": true}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.011, 0.015],
+      "ask": "按住按键：电流表的有效值",
+      "explain": "C1 的电流超前 90°，抵掉了负载电流里落后的那一部分，总电流只剩和电压同相的那一份。"
+    },
+    {
+      "id": "ph2",
+      "scope": "phase",
+      "pin": "RS.1",
+      "vs": "L1.1",
+      "set": {"FG1": {"waveform": "sine", "frequency": 1600, "amplitude": 5, "offset": 0}, "SW1": {"pressed": true}},
+      "unit": "°",
+      "tolAbs": 0,
+      "tolDeg": 3,
+      "range": [-6, 6],
+      "ask": "按住按键：CH2 相对 CH1 的相位差",
+      "explain": "接近 0°：功率因数接近 1。470 nF 是离完全补偿（约 0.48 µF）最近的常用值。"
+    },
+    {
+      "id": "power",
+      "choices": ["基本不变：R1 两端的电压几乎没变", "变小了：总电流变小了", "变大了：功率因数变大了"],
+      "correct": 0,
+      "ask": "按下按键后，R1 消耗的功率（有功功率）怎样？",
+      "explain": "电容不消耗能量，也没有改变负载两端的电压，所以 R1 的功率基本不变（信号发生器内部 50 Ω 上的压降变小，A 点电压还略升一点）。变小的是导线里来回跑的那份电流。"
+    }
+  ],
+  "hints": ["负载是一条串联支路：A（第 6 列）→ 电感 → 电阻 → S（第 16 列）。", "按键横跨凹槽放在 e6：第 6 列是一端，第 8 列是另一端；电容从第 8 列下半接到第 16 列下半。", "第 16 列上下两半要用一根短跳线接起来，RS 才同时接到 R1 和 C1。"],
+  "start": {
+    "parts": [
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1600, "amplitude": 5, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "b3", "-": "b6"}},
+      {"type": "resistor", "ref": "RS", "resistance": "10", "pins": {"1": "c16", "2": "tn16"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "a6", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "a16", "gnd": "tn21"}}
+    ]
+  },
+  "solution": {
+    "parts": [
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1600, "amplitude": 5, "offset": 0, "pins": {"+": "a3", "-": "tn3"}},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "b3", "-": "b6"}},
+      {"type": "inductor", "ref": "L1", "inductance": "10m", "pins": {"1": "c6", "2": "c12"}},
+      {"type": "resistor", "ref": "R1", "resistance": "100", "pins": {"1": "d12", "2": "d16"}},
+      {"type": "resistor", "ref": "RS", "resistance": "10", "pins": {"1": "c16", "2": "tn16"}},
+      {"type": "pushbutton", "ref": "SW1", "at": "e6"},
+      {"type": "capacitor", "ref": "C1", "capacitance": "470n", "pins": {"1": "g8", "2": "g16"}},
+      {"type": "wire", "pins": {"a": "e16", "b": "f16"}, "color": "yellow"},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "a6", "gnd": "tn20"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "a16", "gnd": "tn21"}}
+    ]
+  }
+}

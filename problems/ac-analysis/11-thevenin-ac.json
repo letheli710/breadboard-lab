@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["戴维宁定理", "开路电压", "等效阻抗"],
   "statement": [
-    "ω = 1000 rad/s，U̇_s = 20∠0° V（有效值），R_1 = 4 Ω，L = 4 mH，C = 500 µF，负载 R_L = 3 Ω 接在 a、b 端。",
-    "求 a、b 以左电路的戴维宁等效电路（开路电压 U̇_oc、等效阻抗 Z_eq），再求负载电流 I_L。"
+    "ω = 1000 rad/s，V̇_s = 20∠0° V（有效值），R_1 = 4 Ω，L = 4 mH，C = 500 µF，负载 R_L = 3 Ω 接在 a、b 端。",
+    "求 a、b 以左电路的戴维宁等效电路（开路电压 V̇_oc、等效阻抗 Z_eq），再求负载电流 I_L。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } } },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 0 } } },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [5, 0], "value": 4 },
       { "ref": "L", "type": "L", "from": [7, 0], "to": [7, 4], "value": "4m" },
       { "ref": "C", "type": "C", "from": [9, 0], "to": [12, 0], "value": "500u" },
@@ -31,48 +31,48 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "uoc", "ask": "|U̇_oc| = ?", "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["RL"] }, "answer": 14.14214, "unit": "V", "explain": "开路时 C 中无电流，U̇_oc = U̇_c = U̇_s·jX_L/(R_1 + jX_L) = 20 × j4/(4 + j4) = 10 + j10 V，模 10√2 ≈ 14.14 V。" },
-    { "id": "uocph", "ask": "U̇_oc 的相位 = ?", "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["RL"], "part": "phase" }, "answer": 45, "unit": "°", "explain": "U̇_oc = 10 + j10 = 14.14∠45° V。" },
-    { "id": "zeq", "ask": "Z_eq 的实部 R_eq = ?", "find": { "kind": "req", "port": ["a", "b"], "exclude": ["RL"], "part": "re" }, "answer": 2, "unit": "Ω", "explain": "U_s 短路：Z_eq = −j2 + (4 ∥ j4) = −j2 + (2 + j2) = 2 Ω，虚部恰好为零。" },
-    { "id": "IL", "ask": "负载电流有效值 I_L = ?", "find": { "kind": "i", "el": "RL" }, "answer": 2.828427, "unit": "A", "explain": "İ_L = U̇_oc/(Z_eq + R_L) = (10 + j10)/5 = 2 + j2 A = 2.83∠45° A。" }
+    { "id": "uoc", "ask": "|V̇_oc| = ?", "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["RL"] }, "answer": 14.14214, "unit": "V", "explain": "开路时 C 中无电流，V̇_oc = V̇_c = V̇_s·jX_L/(R_1 + jX_L) = 20 × j4/(4 + j4) = 10 + j10 V，模 10√2 ≈ 14.14 V。" },
+    { "id": "uocph", "ask": "V̇_oc 的相位 = ?", "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["RL"], "part": "phase" }, "answer": 45, "unit": "°", "explain": "V̇_oc = 10 + j10 = 14.14∠45° V。" },
+    { "id": "zeq", "ask": "Z_eq 的实部 R_eq = ?", "find": { "kind": "req", "port": ["a", "b"], "exclude": ["RL"], "part": "re" }, "answer": 2, "unit": "Ω", "explain": "V_s 短路：Z_eq = −j2 + (4 ∥ j4) = −j2 + (2 + j2) = 2 Ω，虚部恰好为零。" },
+    { "id": "IL", "ask": "负载电流有效值 I_L = ?", "find": { "kind": "i", "el": "RL" }, "answer": 2.828427, "unit": "A", "explain": "İ_L = V̇_oc/(Z_eq + R_L) = (10 + j10)/5 = 2 + j2 A = 2.83∠45° A。" }
   ],
   "hints": [
-    "开路电压：a、b 开路时电容中没有电流，U̇_oc 就是 L 两端的电压（R_1 与 L 分压）。",
-    "等效阻抗：U_s 短路，从 a、b 看进去是 −jX_C 串联 (R_1 ∥ jX_L)。",
-    "戴维宁等效电路接上负载：İ_L = U̇_oc/(Z_eq + R_L)。"
+    "开路电压：a、b 开路时电容中没有电流，V̇_oc 就是 L 两端的电压（R_1 与 L 分压）。",
+    "等效阻抗：V_s 短路，从 a、b 看进去是 −jX_C 串联 (R_1 ∥ jX_L)。",
+    "戴维宁等效电路接上负载：İ_L = V̇_oc/(Z_eq + R_L)。"
   ],
   "solution": [
     "**1. 复阻抗。** Z_L = jωL = j4 Ω，Z_C = −j/(ωC) = −j/(1000 × 500×10⁻⁶) = −j2 Ω。",
-    "**2. 开路电压。** 拿掉 R_L，C 中无电流，U̇_oc = U̇_c = U̇_s·j4/(4 + j4) = 20 × j/(1 + j) = 10(1 + j) = **14.14∠45° V**。",
-    "**3. 等效阻抗。** U_s 置零（短路）：R_1 ∥ Z_L = 4·j4/(4 + j4) = 2 + j2 Ω，Z_eq = Z_C + (2 + j2) = −j2 + 2 + j2 = **2 Ω**。",
-    "**4. 负载电流。** İ_L = U̇_oc/(Z_eq + R_L) = (10 + j10)/(2 + 3) = 2 + j2 A = **2.83∠45° A**。",
-    "验算：R_L 两端电压 3 × (2 + j2) = 6 + j6 V，C 上电压 −j2 × (2 + j2) = 4 − j4 V，所以 U̇_c = 10 + j2 V；R_1 中的电流 (20 − 10 − j2)/4 = 2.5 − j0.5 A 应等于 L 中的电流 (10 + j2)/(j4) = 0.5 − j2.5 A 与 İ_L 之和：0.5 − j2.5 + 2 + j2 = 2.5 − j0.5 A ✓。"
+    "**2. 开路电压。** 拿掉 R_L，C 中无电流，V̇_oc = V̇_c = V̇_s·j4/(4 + j4) = 20 × j/(1 + j) = 10(1 + j) = **14.14∠45° V**。",
+    "**3. 等效阻抗。** V_s 置零（短路）：R_1 ∥ Z_L = 4·j4/(4 + j4) = 2 + j2 Ω，Z_eq = Z_C + (2 + j2) = −j2 + 2 + j2 = **2 Ω**。",
+    "**4. 负载电流。** İ_L = V̇_oc/(Z_eq + R_L) = (10 + j10)/(2 + 3) = 2 + j2 A = **2.83∠45° A**。",
+    "验算：R_L 两端电压 3 × (2 + j2) = 6 + j6 V，C 上电压 −j2 × (2 + j2) = 4 − j4 V，所以 V̇_c = 10 + j2 V。R_1 中的电流是 (20 − 10 − j2)/4 = 2.5 − j0.5 A。它应等于 L 中的电流 (10 + j2)/(j4) = 0.5 − j2.5 A 加上 İ_L：0.5 − j2.5 + 2 + j2 = 2.5 − j0.5 A ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Thevenin equivalent in sinusoidal steady state",
       "tags": ["Thevenin's theorem", "open-circuit voltage", "equivalent impedance"],
       "statement": [
-        "ω = 1000 rad/s, U̇_s = 20∠0° V (rms), R_1 = 4 Ω, L = 4 mH, C = 500 µF; the load R_L = 3 Ω is connected at a, b.",
-        "Find the Thevenin equivalent of the circuit to the left of a, b (open-circuit voltage U̇_oc and equivalent impedance Z_eq), then the load current I_L."
+        "ω = 1000 rad/s, V̇_s = 20∠0° V (rms), R_1 = 4 Ω, L = 4 mH, C = 500 µF; the load R_L = 3 Ω is connected at a, b.",
+        "Find the Thevenin equivalent of the circuit to the left of a, b (open-circuit voltage V̇_oc and equivalent impedance Z_eq), then the load current I_L."
       ],
       "questions": [
-        { "ask": "|U̇_oc| = ?", "explain": "With a, b open no current flows in C, so U̇_oc = U̇_c = U̇_s·jX_L/(R_1 + jX_L) = 20 × j4/(4 + j4) = 10 + j10 V, magnitude 10√2 ≈ 14.14 V." },
-        { "ask": "Phase of U̇_oc = ?", "explain": "U̇_oc = 10 + j10 = 14.14∠45° V." },
-        { "ask": "Real part of Z_eq, R_eq = ?", "explain": "Short U_s: Z_eq = −j2 + (4 ∥ j4) = −j2 + (2 + j2) = 2 Ω; the imaginary part happens to be zero." },
-        { "ask": "rms load current I_L = ?", "explain": "İ_L = U̇_oc/(Z_eq + R_L) = (10 + j10)/5 = 2 + j2 A = 2.83∠45° A." }
+        { "ask": "|V̇_oc| = ?", "explain": "With a, b open no current flows in C, so V̇_oc = V̇_c = V̇_s·jX_L/(R_1 + jX_L) = 20 × j4/(4 + j4) = 10 + j10 V, magnitude 10√2 ≈ 14.14 V." },
+        { "ask": "Phase of V̇_oc = ?", "explain": "V̇_oc = 10 + j10 = 14.14∠45° V." },
+        { "ask": "Real part of Z_eq, R_eq = ?", "explain": "Short V_s: Z_eq = −j2 + (4 ∥ j4) = −j2 + (2 + j2) = 2 Ω; the imaginary part happens to be zero." },
+        { "ask": "rms load current I_L = ?", "explain": "İ_L = V̇_oc/(Z_eq + R_L) = (10 + j10)/5 = 2 + j2 A = 2.83∠45° A." }
       ],
       "hints": [
-        "Open-circuit voltage: with a, b open there is no current in the capacitor, so U̇_oc is the voltage across L (R_1 and L form a divider).",
-        "Equivalent impedance: short U_s; looking into a, b you see −jX_C in series with (R_1 ∥ jX_L).",
-        "Connect the load to the Thevenin equivalent: İ_L = U̇_oc/(Z_eq + R_L)."
+        "Open-circuit voltage: with a, b open there is no current in the capacitor, so V̇_oc is the voltage across L (R_1 and L form a divider).",
+        "Equivalent impedance: short V_s; looking into a, b you see −jX_C in series with (R_1 ∥ jX_L).",
+        "Connect the load to the Thevenin equivalent: İ_L = V̇_oc/(Z_eq + R_L)."
       ],
       "solution": [
         "**1. Impedances.** Z_L = jωL = j4 Ω, Z_C = −j/(ωC) = −j/(1000 × 500×10⁻⁶) = −j2 Ω.",
-        "**2. Open-circuit voltage.** Remove R_L; no current in C, U̇_oc = U̇_c = U̇_s·j4/(4 + j4) = 20 × j/(1 + j) = 10(1 + j) = **14.14∠45° V**.",
-        "**3. Equivalent impedance.** Zero U_s (short): R_1 ∥ Z_L = 4·j4/(4 + j4) = 2 + j2 Ω, Z_eq = Z_C + (2 + j2) = −j2 + 2 + j2 = **2 Ω**.",
-        "**4. Load current.** İ_L = U̇_oc/(Z_eq + R_L) = (10 + j10)/(2 + 3) = 2 + j2 A = **2.83∠45° A**.",
-        "Check: voltage across R_L is 3 × (2 + j2) = 6 + j6 V, across C −j2 × (2 + j2) = 4 − j4 V, so U̇_c = 10 + j2 V; the R_1 current (20 − 10 − j2)/4 = 2.5 − j0.5 A must equal the L current (10 + j2)/(j4) = 0.5 − j2.5 A plus İ_L: 0.5 − j2.5 + 2 + j2 = 2.5 − j0.5 A ✓."
+        "**2. Open-circuit voltage.** Remove R_L; no current in C, V̇_oc = V̇_c = V̇_s·j4/(4 + j4) = 20 × j/(1 + j) = 10(1 + j) = **14.14∠45° V**.",
+        "**3. Equivalent impedance.** Zero V_s (short): R_1 ∥ Z_L = 4·j4/(4 + j4) = 2 + j2 Ω, Z_eq = Z_C + (2 + j2) = −j2 + 2 + j2 = **2 Ω**.",
+        "**4. Load current.** İ_L = V̇_oc/(Z_eq + R_L) = (10 + j10)/(2 + 3) = 2 + j2 A = **2.83∠45° A**.",
+        "Check: the voltage across R_L is 3 × (2 + j2) = 6 + j6 V and across C −j2 × (2 + j2) = 4 − j4 V, so V̇_c = 10 + j2 V. The R_1 current is (20 − 10 − j2)/4 = 2.5 − j0.5 A. It must equal the L current (10 + j2)/(j4) = 0.5 − j2.5 A plus İ_L: 0.5 − j2.5 + 2 + j2 = 2.5 − j0.5 A ✓."
       ]
     }
   }

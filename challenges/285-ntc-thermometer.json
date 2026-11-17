@@ -2,88 +2,123 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-ntc-thermometer",
-  "title": "实验 5-6 · NTC 热敏电阻温度计：非线性与 B 值公式",
+  "title": "NTC 热敏电阻温度计：读数不走直线",
   "kind": "challenge",
   "level": 3,
   "phase": 5,
-  "summary": "10 kΩ 固定电阻 + 10 kΩ NTC（B = 3950）分压接到 ESP32 的 ADC1。在 0 / 25 / 50 / 80 °C 下读 ADC：温度等步长，读数却不等步长；固件用 B 值公式换算回温度。",
-  "concepts": [
-    "NTC 热敏电阻 NTC thermistor",
-    "B 值方程 / Steinhart–Hart B-parameter equation",
-    "非线性 nonlinearity",
-    "分压器灵敏度 divider sensitivity",
-    "自热 self-heating"
-  ],
+  "summary": "10 kΩ 固定电阻 + 10 kΩ NTC 分压接到 ESP32 的 ADC。温度一步步升高，读数的变化却一步比一步小；固件用 B 值公式换算回温度。",
+  "concepts": ["NTC 热敏电阻 NTC thermistor", "B 值方程 / Steinhart–Hart B-parameter equation", "非线性 nonlinearity", "分压器灵敏度 divider sensitivity", "自热 self-heating"],
   "prereq": ["lesson-mcu-pwm-adc"],
-  "description": [
-    "**目标**：用 10 kΩ 固定电阻 + 10 kΩ NTC（B = 3950）分压器测温，看到温度和读数之间不是线性关系。",
-    "",
-    "**电路**（ESP32，USB 供电）：开发板 3V3 → **R1（10 kΩ）** → 结点 VTEMP → **NTC 热敏电阻 TH1（10 kΩ @ 25 °C，B = 3950）** → GND；VTEMP 接一个 **ADC1 引脚**（GPIO32–39，参考答案用 GPIO32）。固定电阻在上、NTC 在下——很多现成的温度模块就是这样接的。",
-    "",
-    "**引脚设置**：把这个引脚设成 **模拟输入 ADC**（答案的一部分）。测试会把 NTC 的温度依次设成 0、25、50、80 °C（右侧属性里也可以改温度）。",
-    "",
-    "**先预测**：用 NTC 模型 R(T) = R25 × exp[B × (1/T − 1/298.15 K)] 算出 0、25、50、80 °C 时的电阻，再用分压公式算出 ADC 电压、读数和流过 NTC 的电流。相邻两档读数的变化一样大吗？",
-    "",
-    "**测量**：",
-    "- 每个温度下的 ADC 读数和流过 NTC 的电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**为什么选 R1 = R25 = 10 kΩ**：和光敏电阻一样，分压器在 **R1 = R_NTC** 时对电阻的相对变化最灵敏（V = Vcc/2）。选 R1 = R25，就把最灵敏的一点放在室温 25 °C，0–50 °C 都很好用。如果要测 80–120 °C（例如 3D 打印机的热床 / 喷头），就选那个温度附近的 R_NTC（例如 100 °C 时约 0.7 kΩ，取 680 Ω–1 kΩ）。",
-    "",
-    "**固件里怎么换算**（B 值公式，Steinhart–Hart 方程的简化版）：",
-    "  1. R_NTC = R1 × raw / (4095 − raw)",
-    "  2. 1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950，T 单位 K，再减 273.15",
-    "例：raw = 1081 → R_NTC = 10 k × 1081 / 3014 ≈ 3.59 kΩ → ln(0.359) = −1.025 → 1/T = 0.003354 − 0.000260 = 0.003094 → T ≈ 323.2 K = **50.0 °C**。要更精确（±0.1 °C）就用完整的 Steinhart–Hart 三参数公式 1/T = A + B·lnR + C·(lnR)³，参数从 NTC 厂家的 R–T 表拟合。",
-    "",
-    "**自热**：电流 I = 3.3 / (R1 + R_NTC)，25 °C 时 **165 µA**，NTC 上的功率 1.649² / 10 kΩ ≈ 0.27 mW（R1 = R_NTC 时最大）。小珠状 NTC 的耗散常数约 1–2 mW/°C，所以自热约 0.1–0.3 °C。测更准时用更大的分压电阻（例如 100 kΩ NTC + 100 kΩ），或者只在测量时才给分压器通电。",
-    "",
-    "**实际项目经验**：",
-    "- 只用 **ADC1（GPIO32–39）**；ESP32 ADC 在 0.15 V 以下和 2.45 V 以上都不太线性，用 ESP-IDF 校准并多次取平均。80 °C 时的电压还在可用区间，再热就要换 R1。",
-    "- 分压器的上端接 **ADC 的参考电压**（这里是 3V3），这样 R_NTC 的公式里电源电压被约掉——3V3 漂一点也不影响结果（比例测量 ratiometric）。STM32 的 VDDA 就是 ADC 参考，效果更好。",
-    "- ADC 引脚上并一个 100 nF 电容到 GND，可以减小噪声（源阻抗 R1 ∥ R_NTC 约 5 kΩ）。",
-    "- 长导线引出的 NTC 容易拾取干扰；热敏电阻有 ±1 % ~ ±5 % 的阻值误差和 ±1 % 的 B 值误差，选型时一起考虑。",
-    "",
-    "**模型说明**：NTC 严格按 B = 3950 的指数模型计算，没有模拟自热、热时间常数和阻值误差；ADC 是理想的 12 位 0–3.3 V 线性转换器，没有 ESP32 的非线性。"
+  "description": "ESP32 用 USB 供电。3V3 → R1（10 kΩ）→ 结点 VTEMP → NTC 热敏电阻 TH1（25 °C 时 10 kΩ，B = 3950）→ GND；VTEMP 接一个 ADC1 引脚（GPIO32–39），引脚设成模拟输入。温度在 0、25、50、80 °C 之间变化。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "温度等步长，读数呢？",
+      "text": [
+        "**ESP32** 的 **3V3** 接下方 + 轨，**GND** 接 − 轨。",
+        "搭一个分压器：+ 轨 → **`10 kΩ`** → 中点 → **NTC 热敏电阻** → GND。中点接 **GPIO32**，把它设成 **ADC**。",
+        "单击 NTC，在「属性」里把温度依次设成 **`0`**、**`25`**、**`50`**、**`80 °C`**，每次记下引脚列表里的 ADC 读数。",
+        "越热，读数变大还是变小？每升高一样多的度数，读数变得一样多吗？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "NTC：越热电阻越小，而且是指数地变",
+      "text": [
+        "- NTC 的意思是**负温度系数**：越热，电阻越小。它不走直线：冷的时候掉得快，热了以后掉得慢。",
+        "![](fig:rt)",
+        "- 厂家用两个数描述它：25 °C 时的电阻 $R_{25}$ 和 B 值。温度 T 用开尔文（°C + 273.15）：",
+        "$$R = R_{25} × e^{B(1/T - 1/298.15)}$$",
+        "- 代入 50 °C（T = 323.15 K）：$R = 10 × e^{3950 × (1/323.15 - 1/298.15)} = 10 × e^{-1.025} ≈ 3.59$ kΩ。",
+        "![](fig:div)",
+        "- 固定电阻选 $R_1 = R_{25}$：室温时两个电阻一样大，中点正好在电源的一半，那里最灵敏。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "测三个温度，再像固件那样反算",
+      "text": ["- 电路就是刚才那个。点**「检查我的电路」**。", "- 通过后，按题目把温度设成 0、25、80 °C，用万用表测中点对 GND。", "- 最后一题像固件那样：从电压算出 NTC 的电阻，再用 B 值公式反算温度。"]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **NTC 按指数变，分压又不是直线**，所以固件不能用一条直线换算温度，要用 B 值公式（更准就用三参数的 Steinhart–Hart 公式）。",
+        "- 固定电阻 ≈ 你最关心的温度下的 $R_{NTC}$。测 3D 打印机热床那样的 100 °C 左右，就换成 1 kΩ 上下。",
+        "- 分压器的上端接 ADC 的参考电压（这里是 3V3）：3V3 漂一点，比例不变，结果也不变。",
+        "- 坑：电流会让 NTC 自己发热，读数偏高零点几度。引脚上并一个 100 nF 到 GND 能减小噪声；只用 ADC1（GPIO32–39）。"
+      ],
+      "practice": ["equivalence"]
+    }
   ],
+  "figures": {
+    "rt": {
+      "kind": "plot",
+      "caption": {
+        "text": "越热电阻越小。冷的一端曲线陡，热的一端曲线平：同样升高 10 °C，电阻的变化差很多。",
+        "i18n": {
+          "en": "Hotter means less resistance. The curve is steep at the cold end and flat at the hot end: the same 10 °C rise changes the resistance by very different amounts."
+        }
+      },
+      "x": {"label": {"text": "温度 (°C)", "i18n": {"en": "temperature (°C)"}}, "min": 0, "max": 100, "ticks": [0, 25, 50, 75, 100]},
+      "y": {"label": {"text": "R_NTC (kΩ)", "i18n": {"en": "R_NTC (kΩ)"}}, "min": 0, "max": 35, "ticks": [0, 10, 30]},
+      "curves": [
+        {
+          "points": [
+            [0, 33.62],
+            [5, 25.92],
+            [10, 20.17],
+            [15, 15.84],
+            [20, 12.54],
+            [25, 10.0],
+            [30, 8.04],
+            [35, 6.51],
+            [40, 5.3],
+            [45, 4.35],
+            [50, 3.59],
+            [55, 2.98],
+            [60, 2.49],
+            [65, 2.09],
+            [70, 1.76],
+            [75, 1.49],
+            [80, 1.27],
+            [85, 1.09],
+            [90, 0.93],
+            [95, 0.81],
+            [100, 0.7]
+          ],
+          "tone": 1,
+          "label": "B = 3950",
+          "labelAt": [55, 20]
+        }
+      ],
+      "dots": [{"at": [25, 10], "label": "R_25"}]
+    },
+    "div": {
+      "kind": "schematic",
+      "caption": {
+        "text": "R1 在上、NTC 在下，中点 VTEMP 接 ADC 引脚：越热 R_NTC 越小，V_T 越低。",
+        "i18n": {"en": "R1 on top, the NTC below, the middle node VTEMP to the ADC pin: the hotter, the smaller R_NTC and the lower V_T."}
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 6], "value": 3.3},
+          {"ref": "R1", "type": "R", "from": [3, 0], "to": [3, 3], "value": "10k"},
+          {"ref": "R_NTC", "type": "RV", "from": [3, 3], "to": [3, 6]}
+        ],
+        "wires": [[[0, 0], [3, 0]], [[3, 6], [0, 6]], [[3, 3], [5, 3]]],
+        "marks": [{"kind": "v", "el": "R_NTC", "name": "V_T"}],
+        "terminals": [{"at": [5, 3], "name": "VTEMP"}]
+      },
+      "highlight": ["R_NTC"]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-6 · NTC thermometer: nonlinearity and the B equation",
-      "summary": "A 10 kΩ fixed resistor + 10 kΩ NTC (B = 3950) divider into an ESP32 ADC1 pin. Read the ADC at 0 / 25 / 50 / 80 °C: equal temperature steps give unequal reading steps; firmware converts back with the B-parameter equation.",
-      "concepts": [
-        "NTC thermistor",
-        "B-parameter (simplified Steinhart–Hart) equation",
-        "nonlinearity",
-        "divider sensitivity",
-        "self-heating"
-      ],
-      "description": [
-        "**Goal**: Measure temperature with a 10 kΩ fixed resistor + 10 kΩ NTC (B = 3950) divider and see that the reading is not linear in temperature.",
-        "",
-        "**Circuit** (ESP32, USB powered): board 3V3 → **R1 (10 kΩ)** → node VTEMP → **NTC thermistor TH1 (10 kΩ at 25 °C, B = 3950)** → GND; VTEMP goes to an **ADC1 pin** (GPIO32–39; the reference answer uses GPIO32). Fixed resistor on top, NTC at the bottom — the way many ready-made temperature modules are wired.",
-        "",
-        "**Pin table settings**: set that pin to **analog input (ADC)** (part of the answer). The tests set the NTC temperature to 0, 25, 50 and 80 °C in turn (you can change it under Properties too).",
-        "",
-        "**Predict first**: Use the NTC model R(T) = R25 × exp[B × (1/T − 1/298.15 K)] to get its resistance at 0, 25, 50 and 80 °C, then the divider formula for the ADC voltage, reading and NTC current. Are the steps between readings equal?",
-        "",
-        "**Measure**:",
-        "- the ADC reading and the NTC current at each temperature. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Why R1 = R25 = 10 kΩ**: as with the LDR, the divider is most sensitive to relative changes of resistance when **R1 = R_NTC** (V = Vcc/2). Choosing R1 = R25 puts the sweet spot at room temperature, good for 0–50 °C. To measure 80–120 °C (a 3D printer's bed / hot end), pick the NTC's resistance near that temperature (about 0.7 kΩ at 100 °C → 680 Ω–1 kΩ).",
-        "",
-        "**The firmware conversion** (B-parameter equation, a simplified Steinhart–Hart):",
-        "  1. R_NTC = R1 × raw / (4095 − raw)",
-        "  2. 1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950, T in K; subtract 273.15",
-        "Example: raw = 1081 → R_NTC = 10 k × 1081 / 3014 ≈ 3.59 kΩ → ln(0.359) = −1.025 → 1/T = 0.003354 − 0.000260 = 0.003094 → T ≈ 323.2 K = **50.0 °C**. For ±0.1 °C use the full three-term Steinhart–Hart equation 1/T = A + B·lnR + C·(lnR)³, fitted to the maker's R–T table.",
-        "",
-        "**Self-heating**: I = 3.3 / (R1 + R_NTC), **165 µA** at 25 °C; the NTC dissipates 1.649² / 10 kΩ ≈ 0.27 mW (the maximum, at R1 = R_NTC). A small bead NTC has a dissipation constant of about 1–2 mW/°C, so it warms itself by about 0.1–0.3 °C. For better accuracy use higher values (e.g. a 100 kΩ NTC + 100 kΩ) or power the divider only while measuring.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- Use **ADC1 (GPIO32–39)** only; the ESP32 ADC is non-linear below about 0.15 V and above about 2.45 V — calibrate with ESP-IDF and average. the 80 °C voltage is still usable; hotter than that, change R1.",
-        "- Feed the top of the divider from the **ADC's reference** (3V3 here) so the supply cancels out of the R_NTC formula — a slightly drifting 3V3 doesn't matter (ratiometric measurement). On an STM32, VDDA is the ADC reference, which works even better.",
-        "- A 100 nF capacitor from the ADC pin to GND cuts noise (the source impedance R1 ∥ R_NTC is about 5 kΩ).",
-        "- An NTC on a long cable picks up noise; thermistors have ±1 % to ±5 % resistance tolerance and about ±1 % on B — budget for both.",
-        "",
-        "**Model note**: the NTC follows the exact B = 3950 exponential model with no self-heating, thermal time constant or tolerance; the ADC is an ideal 12-bit 0–3.3 V linear converter without the ESP32's non-linearity."
-      ],
+      "title": "An NTC thermometer: the readings don't follow a straight line",
+      "summary": "A 10 kΩ resistor and a 10 kΩ NTC form a divider into an ESP32 ADC pin. The temperature rises in equal steps, but each step changes the reading less; firmware turns the reading back into a temperature with the B equation.",
+      "concepts": ["NTC thermistor", "B-parameter (simplified Steinhart–Hart) equation", "nonlinearity", "divider sensitivity", "self-heating"],
+      "description": "The ESP32 runs from USB. 3V3 → R1 (10 kΩ) → node VTEMP → NTC thermistor TH1 (10 kΩ at 25 °C, B = 3950) → GND; VTEMP goes to an ADC1 pin (GPIO32–39) set to analog input. The temperature changes between 0, 25, 50 and 80 °C.",
       "compare": [
         "**Compare**: The point: **equal temperature steps do not give equal changes in the reading**. If the reading rises with temperature, check that the NTC is at the bottom (middle node → NTC → GND). The working:",
         "",
@@ -102,8 +137,19 @@
         {"ask": "0 °C: multimeter on the ADC pin (VTEMP) to GND", "explain": "R_NTC ≈ 33.6 kΩ: 3.3 × 33.6 / 43.6 ≈ 2.54 V."},
         {"ask": "25 °C: the ADC pin to GND", "explain": "R_NTC = R1 = 10 kΩ, exactly half: 1.65 V. This is the most sensitive point."},
         {"ask": "80 °C: the ADC pin to GND", "explain": "R_NTC ≈ 1.27 kΩ: 3.3 × 1.27 / 11.27 ≈ 0.37 V."},
-        {"ask": "Compare the change per degree from your three readings: (U₀ − U₂₅)/25 and (U₂₅ − U₈₀)/55", "explain": "The NTC resistance changes exponentially and the divider is nonlinear too, so a straight line cannot turn readings into temperature. Near 80 °C one ADC count is about 0.05 °C; near 25 °C about 0.025 °C.", "choices": ["the hotter, the smaller the change per °C: about 36 mV/°C from 0 to 25 °C, only about 23 mV/°C from 25 to 80 °C", "the same per °C (linear)", "the hotter, the larger the change per °C"]},
-        {"ask": "As firmware does, convert your 80 °C reading back to a temperature (°C): R_NTC = R1 × V / (3.3 − V), 1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950 with T in K, then subtract 273.15", "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C. That is the B-parameter equation (a simplified Steinhart–Hart)."}
+        {
+          "ask": "Compare the change per degree from your three readings: (V₀ − V₂₅)/25 and (V₂₅ − V₈₀)/55",
+          "explain": "The NTC resistance changes exponentially and the divider is nonlinear too, so a straight line cannot turn readings into temperature. Near 80 °C one ADC count is about 0.05 °C; near 25 °C about 0.025 °C.",
+          "choices": [
+            "the hotter, the smaller the change per °C: about 36 mV/°C from 0 to 25 °C, only about 23 mV/°C from 25 to 80 °C",
+            "the same per °C (linear)",
+            "the hotter, the larger the change per °C"
+          ]
+        },
+        {
+          "ask": "As firmware does, convert your 80 °C reading back to a temperature (°C): R_NTC = R1 × V / (3.3 − V), 1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950 with T in K, then subtract 273.15",
+          "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C. That is the B-parameter equation (a simplified Steinhart–Hart)."
+        }
       ],
       "hints": [
         "Wire the board's 3V3 to the bottom + rail and a GND pin to the bottom − rail.",
@@ -115,19 +161,51 @@
         "25 °C: sensible ADC reading and current",
         "50 °C: sensible ADC reading and current",
         "80 °C: sensible ADC reading and current"
+      ],
+      "cards": [
+        {
+          "title": "Equal temperature steps — and the readings?",
+          "text": [
+            "Connect the **ESP32**'s **3V3** to the bottom + rail and **GND** to the − rail.",
+            "Build a divider: + rail → **`10 kΩ`** → middle node → **NTC thermistor** → GND. Wire the middle node to **GPIO32** and set it to **ADC**.",
+            "Click the NTC and, under Properties, set the temperature to **`0`**, **`25`**, **`50`** and **`80 °C`** in turn; each time note the ADC reading in the pin list.",
+            "Hotter: does the reading go up or down? Does every equal rise in temperature change the reading by the same amount?"
+          ]
+        },
+        {
+          "title": "An NTC: hotter means less resistance, exponentially",
+          "text": [
+            "- NTC means **negative temperature coefficient**: the hotter, the lower the resistance. Not along a straight line: it falls fast when cold and slowly when hot.",
+            "![](fig:rt)",
+            "- The maker describes it with two numbers: the resistance at 25 °C, $R_{25}$, and the B value. The temperature T is in kelvin (°C + 273.15):",
+            "$$R = R_{25} × e^{B(1/T - 1/298.15)}$$",
+            "- At 50 °C (T = 323.15 K): $R = 10 × e^{3950 × (1/323.15 - 1/298.15)} = 10 × e^{-1.025} ≈ 3.59$ kΩ.",
+            "![](fig:div)",
+            "- Choose the fixed resistor $R_1 = R_{25}$: at room temperature both are equal, the middle node sits at half the supply, and that is where the divider is most sensitive."
+          ]
+        },
+        {
+          "title": "Measure three temperatures, then work back like firmware",
+          "text": [
+            "- The circuit is the one you just built. Press **Check my circuit**.",
+            "- Once it passes, set the temperature to 0, 25 and 80 °C as the questions ask and measure the middle node to GND.",
+            "- The last question does what firmware does: from the voltage, get the NTC's resistance, then the temperature from the B equation."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **An NTC changes exponentially and a divider is not a straight line either**, so firmware cannot convert with a straight line: it uses the B equation (or the three-term Steinhart–Hart equation for more accuracy).",
+            "- Fixed resistor ≈ $R_{NTC}$ at the temperature you care about most. For around 100 °C, like a 3D printer's heated bed, use about 1 kΩ.",
+            "- Feed the top of the divider from the ADC's reference (here 3V3): if 3V3 drifts a little, the ratio — and the result — stays the same.",
+            "- The catch: the current warms the NTC itself, so it reads a few tenths of a degree high. 100 nF from the pin to GND reduces noise; use ADC1 only (GPIO32–39)."
+          ]
+        }
       ]
     }
   },
-  "components": [
-    {"ref": "U1", "type": "esp32_devkit", "modes": {"ADC1": "adc"}},
-    {"ref": "R1", "type": "resistor", "resistance": "10k"},
-    {"ref": "TH1", "type": "ntc"}
-  ],
-  "nets": [
-    {"name": "3V3", "pins": ["U1.3V3", "R1.1"]},
-    {"name": "VTEMP", "pins": ["R1.2", "TH1.1", "U1.ADC1"]},
-    {"name": "GND", "pins": ["TH1.2", "U1.GND"]}
-  ],
+  "components": [{"ref": "U1", "type": "esp32_devkit", "modes": {"ADC1": "adc"}}, {"ref": "R1", "type": "resistor", "resistance": "10k"}, {"ref": "TH1", "type": "ntc"}],
+  "nets": [{"name": "3V3", "pins": ["U1.3V3", "R1.1"]}, {"name": "VTEMP", "pins": ["R1.2", "TH1.1", "U1.ADC1"]}, {"name": "GND", "pins": ["TH1.2", "U1.GND"]}],
   "tests": [
     {
       "name": "0 °C：ADC 读数和电流合理",
@@ -169,17 +247,57 @@
     "**非线性**：0→25 °C 读数降 1108（约 44 计数/°C），25→50 °C 降 965（约 39 计数/°C），50→80 °C 只降 620（约 21 计数/°C）。同一个“1 个计数”在 25 °C 附近约 0.025 °C，在 80 °C 附近约 0.05 °C。所以不能用一条直线把读数换成温度。"
   ],
   "measurements": [
-    {"id": "v0", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 0}}, "unit": "V", "predict": true, "range": [2.41, 2.67], "ask": "0 °C：万用表测 ADC 引脚（VTEMP）对 GND", "explain": "R_NTC ≈ 33.6 kΩ：3.3 × 33.6 / 43.6 ≈ 2.54 V。"},
-    {"id": "v25", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 25}}, "unit": "V", "predict": true, "range": [1.57, 1.73], "ask": "25 °C：ADC 引脚对 GND", "explain": "R_NTC = R1 = 10 kΩ，正好一半：1.65 V。这一点灵敏度最高。"},
-    {"id": "v80", "voltage": "U1.ADC1", "ref": "U1.GND", "set": {"TH1": {"temperature": 80}}, "unit": "V", "predict": true, "range": [0.353, 0.39], "ask": "80 °C：ADC 引脚对 GND", "explain": "R_NTC ≈ 1.27 kΩ：3.3 × 1.27 / 11.27 ≈ 0.37 V。"},
-    {"id": "nonlin", "choices": ["越热，每升高 1 °C 电压变化越小：0→25 °C 约 36 mV/°C，25→80 °C 只有约 23 mV/°C", "每升高 1 °C 电压变化都一样（线性）", "越热，每升高 1 °C 电压变化越大"], "correct": 0, "ask": "用你的三个读数比较每度的电压变化：(U₀ − U₂₅)/25 和 (U₂₅ − U₈₀)/55", "explain": "NTC 的电阻按指数变化，分压又是非线性的，所以不能用一条直线把读数换成温度。80 °C 附近一个 ADC 计数约 0.05 °C，25 °C 附近约 0.025 °C。"},
-    {"id": "temp", "formula": "1 / (1/298.15 + ln(v80 / (3.3 - v80)) / 3950) - 273.15", "unit": "°C", "predict": true, "range": [76.0, 84.0], "ask": "像固件那样，用你的 80 °C 读数反算温度（°C）：R_NTC = R1 × V / (3.3 − V)，1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950，T 单位 K，再减 273.15", "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C。这就是 B 值公式（Steinhart–Hart 的简化版）。"}
+    {
+      "id": "v0",
+      "voltage": "U1.ADC1",
+      "ref": "U1.GND",
+      "set": {"TH1": {"temperature": 0}},
+      "unit": "V",
+      "predict": true,
+      "range": [2.41, 2.67],
+      "ask": "0 °C：万用表测 ADC 引脚（VTEMP）对 GND",
+      "explain": "R_NTC ≈ 33.6 kΩ：3.3 × 33.6 / 43.6 ≈ 2.54 V。"
+    },
+    {
+      "id": "v25",
+      "voltage": "U1.ADC1",
+      "ref": "U1.GND",
+      "set": {"TH1": {"temperature": 25}},
+      "unit": "V",
+      "predict": true,
+      "range": [1.57, 1.73],
+      "ask": "25 °C：ADC 引脚对 GND",
+      "explain": "R_NTC = R1 = 10 kΩ，正好一半：1.65 V。这一点灵敏度最高。"
+    },
+    {
+      "id": "v80",
+      "voltage": "U1.ADC1",
+      "ref": "U1.GND",
+      "set": {"TH1": {"temperature": 80}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.353, 0.39],
+      "ask": "80 °C：ADC 引脚对 GND",
+      "explain": "R_NTC ≈ 1.27 kΩ：3.3 × 1.27 / 11.27 ≈ 0.37 V。"
+    },
+    {
+      "id": "nonlin",
+      "choices": ["越热，每升高 1 °C 电压变化越小：0→25 °C 约 36 mV/°C，25→80 °C 只有约 23 mV/°C", "每升高 1 °C 电压变化都一样（线性）", "越热，每升高 1 °C 电压变化越大"],
+      "correct": 0,
+      "ask": "用你的三个读数比较每度的电压变化：(V₀ − V₂₅)/25 和 (V₂₅ − V₈₀)/55",
+      "explain": "NTC 的电阻按指数变化，分压又是非线性的，所以不能用一条直线把读数换成温度。80 °C 附近一个 ADC 计数约 0.05 °C，25 °C 附近约 0.025 °C。"
+    },
+    {
+      "id": "temp",
+      "formula": "1 / (1/298.15 + ln(v80 / (3.3 - v80)) / 3950) - 273.15",
+      "unit": "°C",
+      "predict": true,
+      "range": [76.0, 84.0],
+      "ask": "像固件那样，用你的 80 °C 读数反算温度（°C）：R_NTC = R1 × V / (3.3 − V)，1/T = 1/298.15 + ln(R_NTC / 10 kΩ) / 3950，T 单位 K，再减 273.15",
+      "explain": "R_NTC ≈ 1.27 kΩ → ln(0.127) ≈ −2.06 → T ≈ 353 K = 80 °C。这就是 B 值公式（Steinhart–Hart 的简化版）。"
+    }
   ],
-  "hints": [
-    "先把开发板的 3V3 接到下方 + 轨、GND 接到下方 − 轨。",
-    "3V3 → 10 kΩ → 中点 → NTC → GND；中点接 GPIO32–39 之一。",
-    "在引脚表里把这个引脚设成“模拟输入 ADC”。"
-  ],
+  "hints": ["先把开发板的 3V3 接到下方 + 轨、GND 接到下方 − 轨。", "3V3 → 10 kΩ → 中点 → NTC → GND；中点接 GPIO32–39 之一。", "在引脚表里把这个引脚设成“模拟输入 ADC”。"],
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO32": "adc"}}},

@@ -18,7 +18,8 @@ const useIsoLayoutEffect = typeof document !== 'undefined' ? useLayoutEffect : u
 export function minLabelPx(svg: SVGSVGElement): number {
   let min = Infinity;
   for (const t of svg.querySelectorAll('text')) {
-    if (!t.textContent?.trim()) continue;
+    // symbol glyphs drawn inside a part (the ▷ of an op-amp, + / − of a source) are not labels
+    if (!t.textContent?.trim() || t.classList.contains('ps-sym')) continue;
     const ctm = t.getScreenCTM();
     if (!ctm) continue;
     const px = parseFloat(getComputedStyle(t).fontSize) * Math.hypot(ctm.a, ctm.b);

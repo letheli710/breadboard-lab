@@ -2,75 +2,407 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-schematic-to-breadboard",
-  "title": "第 4 课 · 从原理图到面包板",
+  "title": "从原理图到面包板",
   "kind": "lesson",
   "level": 2,
-  "summary": "一个固定的方法：原理图里的每个结点 = 面包板上的一条金属条。",
-  "concepts": ["schematic 原理图", "node 结点", "net 网络", "strip 金属条", "VCC / GND rail"],
-  "description": "原理图（schematic）只关心“谁和谁连在一起”，不关心元件放在哪里。把原理图搬到面包板上，可以按下面 4 步机械地做：\n\n【第 1 步：找结点（node）】\n结点 = 原理图里所有用导线连在一起的点的集合。本题有 4 个结点：VCC（电源 +）、A（R1 和 LED 之间）、B（LED 和 R2 之间）、GND（电源 −）。数一数：每两个元件之间的连接点就是一个结点。\n\n【第 2 步：VCC → 红轨，GND → 蓝轨】\n电源 + 结点用红色 + 轨，GND 结点用蓝色 − 轨。原理图上所有的地符号都去蓝轨。\n\n【第 3 步：其余每个结点分配一条空的金属条】\n例如 A = 第 7 列（a–e），B = 第 10 列（a–e）。同一个结点的所有引脚，都插进同一条金属条（或用跳线连到它）。\n\n【第 4 步：元件跨在两条金属条之间】\n每个两脚元件连接两个结点，所以它的两只脚插在两条不同的金属条上：R1 一脚在 VCC 那条、一脚在 A 那条；LED 从 A 跨到 B；R2 从 B 跨到 GND。\n\n常见错误：把元件的两只脚插在同一列的 a–e 里——两只脚被金属条短接，元件等于不存在。\n\n检查方法：对照原理图，逐个结点问自己“这个结点的所有引脚，是不是都在同一条金属条上？”",
-  "i18n": {
-    "en": {
-      "title": "Lesson 4 · From schematic to breadboard",
-      "summary": "One reliable method: every node in the schematic = one metal strip on the breadboard.",
-      "concepts": ["schematic", "node", "net", "strip", "VCC / GND rail"],
-      "description": "A schematic only cares about \"what is connected to what\", not where the parts sit. To move a schematic onto a breadboard you can follow these 4 steps mechanically:\n\n**Step 1: Find the nodes**\nA node = the set of all points in the schematic that are joined together by wires. This circuit has 4 nodes: VCC (supply +), A (between R1 and the LED), B (between the LED and R2) and GND (supply −). Count them: every connection point between two parts is a node.\n\n**Step 2: VCC → red rail, GND → blue rail**\nThe supply + node uses the red + rail and the GND node uses the blue − rail. Every ground symbol in the schematic goes to the blue rail.\n\n**Step 3: Give every other node its own empty metal strip**\nFor example A = column 7 (a–e), B = column 10 (a–e). All the leads of one node go into the same metal strip (or are connected to it with a jumper).\n\n**Step 4: Parts bridge two metal strips**\nEvery two-lead part connects two nodes, so its two leads go into two different metal strips: R1 has one lead on the VCC strip and one on the A strip; the LED goes from A to B; R2 goes from B to GND.\n\nCommon mistake: putting both leads of a part into a–e of the same column. The metal strip shorts the two leads together, and the part might as well not be there.\n\nHow to check: go through the schematic node by node and ask yourself \"are all the leads of this node on the same metal strip?\"",
-      "steps": [
-        "Nodes VCC and GND: battery + to tp1, − to tn1.",
-        "Give VCC a metal strip for R1: red jumper tp3 → a3. Column 3 (a–e) now belongs to the VCC node.",
-        "Node A = column 7. R1 has one lead in b3 (VCC) and one in b7 (A).",
-        "Node B = column 10. LED1's long lead goes in c7 (A), its short lead in c10 (B).",
-        "R2 goes from node B to a new metal strip: one lead in d10, one in d14.",
-        "Column 14 needs to go to GND: blue jumper a14 → tn14. Check against the schematic node by node: everything matches!"
-      ],
-      "hints": [
-        "Count the nodes first, then assign metal strips. 4 nodes = 2 power rails + 2 columns (here one extra column is used to connect R2 to GND).",
-        "A two-lead part always connects two different nodes, so its two leads must be on two different metal strips."
-      ],
-      "tests": ["LED on; node A ≈ 5.5V, node B ≈ 3.5V"]
-    }
-  },
-  "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 9 },
-    { "ref": "R1", "type": "resistor", "resistance": "330" },
-    { "ref": "LED1", "type": "led", "color": "red" },
-    { "ref": "R2", "type": "resistor", "resistance": "330" }
+  "summary": "原理图上的一个结点 = 面包板上的一条金属条。先数结点，再动手。",
+  "concepts": [
+    "schematic 原理图",
+    "node 结点",
+    "terminal strip 金属条",
+    "node voltage 结点电压"
   ],
-  "nets": [
-    { "name": "VCC", "pins": ["V1.+", "R1.1"] },
-    { "name": "A", "pins": ["R1.2", "LED1.anode"] },
-    { "name": "B", "pins": ["LED1.cathode", "R2.1"] },
-    { "name": "GND", "pins": ["R2.2", "V1.-"] }
-  ],
-  "tests": [
+  "description": "把原理图搭到面包板上的方法：先在图上找出所有结点并命名，再给每个结点分一条金属条，元件跨在两条金属条之间，最后逐个结点核对。电路：9 V → R1（330 Ω）→ 结点 A → 红色 LED → 结点 B → R2（330 Ω）→ GND。",
+  "cards": [
     {
-      "name": "LED 亮；结点 A ≈ 5.5V，结点 B ≈ 3.5V",
-      "expect": { "LED1": "on" },
-      "voltages": [
-        { "pin": "R1.2", "min": 5.1, "max": 5.8 },
-        { "pin": "R2.1", "min": 3.2, "max": 3.9 }
+      "kind": "try",
+      "title": "先别动手：数一数结点",
+      "text": [
+        "打开下面的**目标电路图**。用手指沿着导线走：被导线直接连在一起的所有点，算**一个结点**。",
+        "这个图里一共有几个结点？先数，再放电池。"
+      ],
+      "steps": 1
+    },
+    {
+      "kind": "explain",
+      "title": "五步法",
+      "text": [
+        "1. **在图上给每个结点起名**：VCC、A、B、GND。",
+        "2. **一个结点 = 一条金属条**（或一条电源轨）：VCC 和 GND 用电源轨，A、B 各占一列。",
+        "3. **元件跨在两条金属条之间**：它连哪两个结点，两只脚就插哪两列。",
+        "4. 一列不够用时，用**跳线**把两条金属条接成同一个结点。",
+        "5. 搭完**逐个结点核对**：每一列上插的脚，是不是正好是图上这个结点连的那些？"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "照着结点搭",
+      "text": [
+        "结点 A = 第 7 列，结点 B = 第 10 列。搭完用万用表量 A 和 B 对 GND 的电压。"
+      ],
+      "steps": 5
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- 原理图只说**谁和谁连在一起**，不规定插哪个孔。只要每个结点对得上，怎么摆都算对。",
+        "- 排错时也按结点查：拿万用表一列一列地量结点电压，和你预测的比，哪里不对就是哪里断了。",
+        "- 电流从 VCC 往 GND 走，每经过一个元件电压就往下掉一截：A 比 VCC 低，B 又比 A 低。"
+      ],
+      "practice": [
+        "basics"
       ]
     }
   ],
+  "i18n": {
+    "en": {
+      "title": "From schematic to breadboard",
+      "summary": "One node on the schematic = one metal strip on the board. Count the nodes first, then build.",
+      "concepts": [
+        "schematic",
+        "node",
+        "terminal strip",
+        "node voltage"
+      ],
+      "description": "How to build a schematic on a breadboard: find and name every node on the drawing, give each node one metal strip, let every part bridge two strips, then check node by node. Circuit: 9 V → R1 (330 Ω) → node A → red LED → node B → R2 (330 Ω) → GND.",
+      "steps": [
+        "Nodes VCC and GND: **battery** + in **`tp1`**, − in **`tn1`**.",
+        "A piece of VCC for R1: red **jumper** **`tp3`** → **`a3`**; column 3 (a–e) now belongs to the VCC node.",
+        "**R1** (**`330 Ω`**): one leg in **`b3`** (VCC), the other in **`b7`** (node A).",
+        "**Red LED**: long lead **`c7`** (A), short lead **`c10`** (node B).",
+        "**R2** (**`330 Ω`**) from node B to a new column: **`d10`** – **`d14`**.",
+        "Column 14 goes to GND: blue **jumper** **`a14`** → **`tn14`**. Check node by node against the schematic, then press **Check my circuit** and measure A and B."
+      ],
+      "hints": [
+        "A node needs only one strip: R1's lower end and the LED's long lead go in the same column.",
+        "The LED's short lead and one end of R2 form node B — same column for them too."
+      ],
+      "tests": [
+        "LED on, sensible voltages at nodes A and B"
+      ],
+      "cards": [
+        {
+          "title": "Hands off for a moment: count the nodes",
+          "text": [
+            "Open the **target schematic** below. Trace the wires with your finger: every set of points joined directly by wire is **one node**.",
+            "How many nodes does this drawing have? Count first, then place the battery."
+          ]
+        },
+        {
+          "title": "Five steps",
+          "text": [
+            "1. **Name every node on the drawing**: VCC, A, B, GND.",
+            "2. **One node = one metal strip** (or one rail): VCC and GND use the rails, A and B get a column each.",
+            "3. **Each part bridges two strips**: whichever two nodes it connects, its two legs go into those two columns.",
+            "4. If one column is not enough, join two strips into one node with a **jumper**.",
+            "5. When you are done, **check node by node**: are the legs in each column exactly the ones this node connects on the drawing?"
+          ]
+        },
+        {
+          "title": "Build it node by node",
+          "text": [
+            "Node A = column 7, node B = column 10. When it is built, measure A and B relative to GND."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- A schematic only says **what connects to what**, not which hole. Any layout whose nodes match is correct.",
+            "- Fault-finding goes by nodes too: measure node voltages column by column and compare with your prediction — where they disagree is where it is broken.",
+            "- Current flows from VCC to GND and the voltage steps down at every part: A is below VCC, and B is below A."
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "ask": "How many nodes does the target schematic have?",
+          "choices": [
+            "3",
+            "4: VCC, A, B, GND",
+            "5: one per part"
+          ],
+          "explain": "Battery + and R1's top are VCC; R1's bottom and the LED's long lead are A; the LED's short lead and R2's top are B; R2's bottom and battery − are GND."
+        },
+        {
+          "ask": "Multimeter: red probe on node A (column 7), black probe on GND",
+          "explain": "Current ≈ (9 − 1.8) / (330 + 330 + 12) ≈ 10.7 mA; R1 drops about 3.5 V, so A ≈ 5.5 V."
+        },
+        {
+          "ask": "Multimeter: red probe on node B (column 10), black probe on GND",
+          "explain": "The same current flows through R2: 10.7 mA × 330 Ω ≈ 3.5 V. The difference between A and B is the voltage across the LED, about 2 V."
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 9
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "330"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "red"
+    },
+    {
+      "ref": "R2",
+      "type": "resistor",
+      "resistance": "330"
+    }
+  ],
+  "nets": [
+    {
+      "name": "VCC",
+      "pins": [
+        "V1.+",
+        "R1.1"
+      ]
+    },
+    {
+      "name": "A",
+      "pins": [
+        "R1.2",
+        "LED1.anode"
+      ]
+    },
+    {
+      "name": "B",
+      "pins": [
+        "LED1.cathode",
+        "R2.1"
+      ]
+    },
+    {
+      "name": "GND",
+      "pins": [
+        "R2.2",
+        "V1.-"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "name": "LED 亮，结点 A、B 的电压合理",
+      "expect": {
+        "LED1": "on"
+      },
+      "voltages": [
+        {
+          "pin": "R1.2",
+          "min": 5.1,
+          "max": 5.8
+        },
+        {
+          "pin": "R2.1",
+          "min": 3.2,
+          "max": 3.9
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "nodes",
+      "ask": "目标电路图里一共有几个结点？",
+      "choices": [
+        "3 个",
+        "4 个：VCC、A、B、GND",
+        "5 个：每个元件一个"
+      ],
+      "correct": 1,
+      "explain": "电池 + 和 R1 上端连在一起是 VCC；R1 下端和 LED 长脚是 A；LED 短脚和 R2 上端是 B；R2 下端和电池 − 是 GND。"
+    },
+    {
+      "id": "va",
+      "voltage": "R1.2",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        5.1,
+        5.8
+      ],
+      "ask": "万用表：红表笔点结点 A（第 7 列），黑表笔在 GND",
+      "explain": "电流 ≈ (9 − 1.8) / (330 + 330 + 12) ≈ 10.7 mA，R1 上掉约 3.5 V，所以 A ≈ 5.5 V。"
+    },
+    {
+      "id": "vb",
+      "voltage": "R2.1",
+      "unit": "V",
+      "predict": true,
+      "range": [
+        3.2,
+        3.9
+      ],
+      "ask": "万用表：红表笔点结点 B（第 10 列），黑表笔在 GND",
+      "explain": "同样的电流流过 R2：10.7 mA × 330 Ω ≈ 3.5 V。A 和 B 之差就是 LED 两端的电压，约 2 V。"
+    }
+  ],
   "steps": [
-    { "text": "结点 VCC 和 GND：电池 + 接 tp1，− 接 tn1。", "highlight": ["tp1", "tn1"] },
-    { "text": "给 VCC 分一条金属条给 R1 用：红色跳线 tp3 → a3，第 3 列（a–e）现在属于 VCC 结点。", "highlight": ["tp3", "a3", "b3", "c3", "d3", "e3"] },
-    { "text": "结点 A = 第 7 列。R1 一脚插 b3（VCC），一脚插 b7（A）。", "highlight": ["b3", "b7", "a7", "c7", "d7", "e7"] },
-    { "text": "结点 B = 第 10 列。LED1 长脚插 c7（A），短脚插 c10（B）。", "highlight": ["c7", "c10", "a10", "b10", "d10", "e10"] },
-    { "text": "R2 从结点 B 跨到一条新的金属条：一脚 d10，一脚 d14。", "highlight": ["d10", "d14"] },
-    { "text": "第 14 列要接到 GND：蓝色跳线 a14 → tn14。对照原理图逐个结点检查，全部对上了！", "highlight": ["a14", "tn14"] }
+    {
+      "text": "结点 VCC 和 GND：**电池** + 接 **`tp1`**，− 接 **`tn1`**。",
+      "highlight": [
+        "tp1",
+        "tn1"
+      ],
+      "check": [
+        {
+          "type": "battery",
+          "pins": {
+            "+": "tp1",
+            "-": "tn1"
+          }
+        }
+      ]
+    },
+    {
+      "text": "给 R1 分一段 VCC：红色**跳线** **`tp3`** → **`a3`**，第 3 列（a–e）现在属于 VCC 结点。",
+      "highlight": [
+        "tp3",
+        "a3"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "tp3",
+            "b": "a3"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**R1**（**`330 Ω`**）：一只脚 **`b3`**（VCC），一只脚 **`b7`**（结点 A）。",
+      "highlight": [
+        "b3",
+        "b7"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "b3",
+            "2": "b7"
+          },
+          "resistance": "330"
+        }
+      ]
+    },
+    {
+      "text": "**红色 LED**：长脚 **`c7`**（A），短脚 **`c10`**（结点 B）。",
+      "highlight": [
+        "c7",
+        "c10"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "c7",
+            "cathode": "c10"
+          },
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "text": "**R2**（**`330 Ω`**）从结点 B 跨到新的一列：**`d10`** – **`d14`**。",
+      "highlight": [
+        "d10",
+        "d14"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "d10",
+            "2": "d14"
+          },
+          "resistance": "330"
+        }
+      ]
+    },
+    {
+      "text": "第 14 列接 GND：蓝色**跳线** **`a14`** → **`tn14`**。对照原理图逐个结点核对，然后点**「检查我的电路」**，用万用表量 A、B。",
+      "highlight": [
+        "a14",
+        "tn14"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a14",
+            "b": "tn14"
+          }
+        }
+      ]
+    }
   ],
   "hints": [
-    "先数结点，再分配金属条。4 个结点 = 2 条电源轨 + 2 条列（这里另用了一列把 R2 接到 GND）。",
-    "一个两脚元件永远连接两个不同的结点，所以两只脚一定在两条不同的金属条上。"
+    "一个结点只需要一条金属条：R1 的下端和 LED 的长脚要在同一列。",
+    "LED 的短脚和 R2 的一端组成结点 B，也要在同一列。"
   ],
   "solution": {
     "parts": [
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "tp1", "-": "tn1" } },
-      { "type": "wire", "pins": { "a": "tp3", "b": "a3" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "330", "pins": { "1": "b3", "2": "b7" } },
-      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "c7", "cathode": "c10" } },
-      { "type": "resistor", "ref": "R2", "resistance": "330", "pins": { "1": "d10", "2": "d14" } },
-      { "type": "wire", "pins": { "a": "a14", "b": "tn14" }, "color": "blue" }
+      {
+        "type": "battery",
+        "ref": "BAT1",
+        "variant": "9V",
+        "pins": {
+          "+": "tp1",
+          "-": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp3",
+          "b": "a3"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "330",
+        "pins": {
+          "1": "b3",
+          "2": "b7"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "red",
+        "pins": {
+          "anode": "c7",
+          "cathode": "c10"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "R2",
+        "resistance": "330",
+        "pins": {
+          "1": "d10",
+          "2": "d14"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a14",
+          "b": "tn14"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

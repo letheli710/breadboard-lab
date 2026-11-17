@@ -468,13 +468,14 @@ export function normalizeMcuPin(type: CompType, raw: string): string | null {
 }
 
 /** Effective configuration of one pin (defaults filled in). */
-export function pinConfig(props: PartProps, pin: string): Required<PinConfig> {
+export function pinConfig(props: PartProps, pin: string): Required<Omit<PinConfig, 'rule'>> & Pick<PinConfig, 'rule'> {
   const c = props.pins?.[pin];
   return {
     mode: c?.mode ?? defaultMode(pin),
     duty: Math.min(100, Math.max(0, c?.duty ?? DEFAULT_PWM.duty)),
     frequency: Math.max(1e-3, c?.frequency ?? DEFAULT_PWM.frequency),
     openDrain: !!c?.openDrain,
+    rule: c?.rule,
   };
 }
 
@@ -487,10 +488,11 @@ export function modesFor(caps: GpioCaps | undefined): PinMode[] {
   if (caps.pull) m.push('input_pullup', 'input_pulldown');
   if (caps.output && caps.pwm) m.push('pwm');
   if (caps.adc) m.push('adc');
+  if (caps.output) m.push('rule');
   return m;
 }
 
-export const isOutputMode = (m: PinMode) => m === 'out_high' || m === 'out_low' || m === 'pwm';
+export const isOutputMode = (m: PinMode) => m === 'out_high' || m === 'out_low' || m === 'pwm' || m === 'rule';
 export const isDigitalInputMode = (m: PinMode) => m === 'input' || m === 'input_pullup' || m === 'input_pulldown';
 
 export function modeName(m: PinMode): [string, string] {
@@ -509,6 +511,8 @@ export function modeName(m: PinMode): [string, string] {
       return ['PWM 输出', 'PWM output'];
     case 'adc':
       return ['模拟输入 ADC', 'analog input (ADC)'];
+    case 'rule':
+      return ['阈值规则输出（跟着 ADC）', 'threshold rule output (follows an ADC)'];
   }
 }
 

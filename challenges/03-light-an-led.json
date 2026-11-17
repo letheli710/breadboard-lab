@@ -2,67 +2,479 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "lesson-light-an-led",
-  "title": "第 3 课 · 点亮 LED：限流电阻与极性",
+  "title": "LED：为什么一定要限流电阻",
   "kind": "lesson",
   "level": 1,
-  "summary": "LED 有正负极，还必须串一个电阻。电阻值怎么算？",
-  "concepts": ["LED", "polarity 极性", "forward voltage Vf 正向压降", "current-limiting resistor 限流电阻", "Ohm's law 欧姆定律"],
-  "description": "【LED 有方向（polarity）】\nLED（发光二极管）只让电流从正极 anode（长脚）流向负极 cathode（短脚）。插反了不会亮。在这一课的 5V 电路里插反一般也不会坏：常见 LED 能承受的反向电压（规格书里的 VR）通常只有约 5V，电源电压更高时插反就超出了规格，可能损坏。\n\n【LED 两端的电压几乎固定】\nLED 导通后两端的电压差约等于它的正向压降 Vf（forward voltage）：红 ≈ 1.8V，黄 ≈ 2.0V，绿 ≈ 2.1V，蓝 / 白 ≈ 3.0V。电源多出来的电压必须由别的元件“吃掉”，否则电流会非常大、LED 会烧掉。\n\n【限流电阻（current-limiting resistor）】\n电阻和 LED 串联（series），流过它们的电流相同。电阻两端的电压 = 电源电压 − Vf，所以：\n  R = (V电源 − Vf) / I\n例：5V 电源、绿色 LED（Vf ≈ 2.1V）、想要约 20mA：R = (5 − 2.1) / 0.02 ≈ 145Ω，选最接近的常用值 150Ω。\n\n【粗算 19mA，实际 18mA】\n用 150Ω 粗算：I ≈ (5 − 2.1) / 150 ≈ 19mA。实际电流约 18mA，略小一点，因为 Vf 并不是完全固定的：电流越大，LED 两端的电压会比 Vf 再高一点点。可以把 LED 想成“Vf + 一个约 12Ω 的小电阻”（本模拟器就是这样算的）：I = (5 − 2.1) / (150 + 12) ≈ 18mA。挑电阻时用粗算就够了，差 1–2mA 没关系。\n\n一般 LED 电流 5–20mA 就够亮，不要超过 25mA。\n\n【顺序无所谓】\n电阻放在 LED 前面还是后面都可以：串联电路里电流处处相等。\n\n本课用 5V 面包板电源模块（power module）供电，tests 会检查 LED 亮，并测量电阻两端的电压（应该约 2.7V = 18mA × 150Ω）。",
+  "summary": "先不加电阻，让 LED 烧一次（反正是仿真）。再算出该用多大的电阻。",
+  "concepts": [
+    "LED 发光二极管",
+    "forward voltage Vf 正向压降",
+    "current-limiting resistor 限流电阻",
+    "polarity 极性",
+    "series 串联"
+  ],
+  "description": "LED 两端的电压几乎固定（正向压降 Vf），电源多出来的电压必须由一个串联电阻吃掉，否则电流会大到烧坏 LED。本课先把 LED 直接接在 5 V 上看它“烧掉”，再按 R = (Vs − Vf) / I 选电阻重搭。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "不加电阻，直接接",
+      "text": [
+        "在真实世界里这一步会烧掉一颗 LED。这里是仿真，**放心烧**。",
+        "把 LED 直接接在 5 V 和 GND 之间，什么都不串，然后看右边的**诊断**。"
+      ],
+      "steps": 3
+    },
+    {
+      "kind": "explain",
+      "title": "LED 是一道矮水坝",
+      "text": [
+        "- LED 导通以后，两端电压几乎**固定**在它的正向压降 $V_f$：红 ≈ 1.8 V，黄 ≈ 2.0 V，**绿 ≈ 2.1 V**，蓝 / 白 ≈ 3.0 V。",
+        "![](fig:iv)",
+        "- 电源有 5 V，LED 只“拦住”2.1 V。剩下的 2.9 V 没人拦，就全压在 LED 内部很小的电阻上——电流冲得很大，LED 烧了。",
+        "- 解决办法：**串一个电阻，让它替 LED 吃掉多出来的电压。** 串联时电流处处相同，所以：",
+        "$$R = \\frac{V_s - V_f}{I}$$",
+        "![](fig:budget)",
+        "想要大约 20 mA：$R = \\frac{5 - 2.1}{0.02} = 145$ Ω，取最接近的常用值 **150 Ω**。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "加上电阻，重新搭",
+      "text": [
+        "拔掉烧掉的 LED，在 +5 V 和 LED 之间串一个 150 Ω。"
+      ],
+      "steps": 4
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **长脚是正极**（接 + 那边），短脚（灯头上有一个小平面的那边）是负极。插反了不亮。",
+        "- 5 V 下插反一般不会坏；但常见 LED 只能承受约 5 V 的**反向**电压，9 V、12 V 电路里插反就可能击穿。",
+        "- 一般 LED **5–20 mA** 就够亮，不要超过 25 mA。电阻放在 LED 前面还是后面都行：串联电路里电流处处相同。",
+        "- 粗算和实测差一点很正常：LED 的电压会随电流略微升高（本模拟器把它当成 $V_f$ 再加一个约 12 Ω 的小电阻）。"
+      ],
+      "practice": [
+        "basics"
+      ]
+    }
+  ],
+  "figures": {
+    "iv": {
+      "kind": "plot",
+      "caption": {
+        "text": "LED 像一道矮水坝：电压不到 V_f 几乎没有电流；一过 V_f，电压只多一点点，电流就猛涨。",
+        "i18n": {
+          "en": "An LED is a low dam: below V_f almost no current flows; past V_f a tiny bit more voltage sends the current soaring."
+        }
+      },
+      "x": {
+        "label": {
+          "text": "LED 两端电压 (V)",
+          "i18n": {
+            "en": "LED voltage (V)"
+          }
+        },
+        "min": 0,
+        "max": 3,
+        "ticks": [0, 1, 1.8, 2.1, 3]
+      },
+      "y": {
+        "label": {
+          "text": "电流 (mA)",
+          "i18n": {
+            "en": "current (mA)"
+          }
+        },
+        "min": 0,
+        "max": 40,
+        "ticks": [0, 20, 40]
+      },
+      "curves": [
+        {
+          "points": [[0, 0], [1.8, 0], [2.28, 40]],
+          "tone": 2,
+          "label": {
+            "text": "红",
+            "i18n": {
+              "en": "red"
+            }
+          },
+          "labelAt": [1.7, 32]
+        },
+        {
+          "points": [[0, 0], [2.1, 0], [2.58, 40]],
+          "tone": 1,
+          "label": {
+            "text": "绿",
+            "i18n": {
+              "en": "green"
+            }
+          },
+          "labelAt": [2.75, 26]
+        }
+      ],
+      "hlines": [
+        {"y": 20, "label": {"text": "20 mA：够亮了", "i18n": {"en": "20 mA: bright enough"}}}
+      ]
+    },
+    "budget": {
+      "kind": "schematic",
+      "caption": {
+        "text": "5 V 分成两份：LED 拦住 V_f，剩下的 V_R 全落在电阻上，电阻值决定电流。",
+        "i18n": {
+          "en": "The 5 V splits in two: the LED holds back V_f, the rest, V_R, falls across the resistor, and the resistor sets the current."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V_s", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 5},
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [4, 0], "value": 150},
+          {"ref": "LED1", "type": "LED", "from": [4, 0], "to": [4, 4], "value": "green"}
+        ],
+        "wires": [
+          [[4, 4], [0, 4]]
+        ],
+        "marks": [
+          {"kind": "v", "el": "R1", "name": "V_R"},
+          {"kind": "v", "el": "LED1", "name": "V_f"},
+          {"kind": "i", "el": "R1", "name": "I"}
+        ]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Lesson 3 · Light an LED: current-limiting resistor and polarity",
-      "summary": "An LED has a positive and a negative side, and it always needs a resistor in series. How do you work out the resistor value?",
-      "concepts": ["LED", "polarity", "forward voltage Vf", "current-limiting resistor", "Ohm's law"],
-      "description": "**LEDs have a direction (polarity)**\nAn LED (light-emitting diode) only lets current flow from the anode (long lead, positive) to the cathode (short lead, negative). Plugged in backwards it won't light. In this lesson's 5V circuit a reversed LED is normally not damaged either: a typical LED is rated for only about 5V of reverse voltage (VR in the datasheet), so with a higher supply a reversed LED is outside its rating and can fail.\n\n**The voltage across an LED is almost fixed**\nOnce an LED conducts, the voltage across it is roughly its forward voltage Vf: red ≈ 1.8V, yellow ≈ 2.0V, green ≈ 2.1V, blue / white ≈ 3.0V. The rest of the supply voltage has to be \"used up\" by some other part; otherwise the current gets huge and the LED burns out.\n\n**Current-limiting resistor**\nThe resistor and the LED are in series, so the same current flows through both. The voltage across the resistor = supply voltage − Vf, so:\n  R = (V_supply − Vf) / I\nExample: 5V supply, green LED (Vf ≈ 2.1V), aiming for about 20mA: R = (5 − 2.1) / 0.02 ≈ 145Ω; pick the nearest common value, 150Ω.\n\n**Estimate 19mA, actual 18mA**\nWith 150Ω the quick estimate is I ≈ (5 − 2.1) / 150 ≈ 19mA. The actual current is about 18mA, a little lower, because Vf is not perfectly fixed: the more current flows, the more the voltage across the LED rises above Vf. Think of an LED as \"Vf plus a small resistor of about 12Ω\" (that is how this simulator models it): I = (5 − 2.1) / (150 + 12) ≈ 18mA. The quick estimate is good enough for choosing a resistor; 1–2mA either way doesn't matter.\n\nLEDs are usually bright enough at 5–20mA; don't go above 25mA.\n\n**Order doesn't matter**\nThe resistor can go before or after the LED: in a series circuit the current is the same everywhere.\n\nThis lesson is powered by a 5V breadboard power module. The tests check that the LED is on and measure the voltage across the resistor (it should be about 2.7V = 18mA × 150Ω).",
-      "steps": [
-        "Plug the breadboard power module into column 1 (set to 5V). It plugs into tp1 / tn1 / bp1 / bn1 at the same time, so both the top and bottom pairs of rails are powered.",
-        "Red jumper tp4 → a4, bringing +5V to column 4.",
-        "Put the 150Ω resistor between b4 and b8 (a resistor has no polarity, either lead is fine).",
-        "Green LED: long lead (anode, positive) in c8, connected to the resistor; short lead (cathode, negative) in c11. The long lead must face the + side!",
-        "Blue jumper a11 → tn11: the LED's cathode goes back to GND. Do the math: the actual current is about 18mA (the quick estimate gives 19mA; the description explains why). Select the LED to see the measured current under \"Properties\" on the right."
+      "title": "LEDs: why the resistor is not optional",
+      "summary": "First let an LED burn out with no resistor (it's a simulation). Then work out the resistor it needs.",
+      "concepts": [
+        "LED",
+        "forward voltage Vf",
+        "current-limiting resistor",
+        "polarity",
+        "series"
       ],
+      "description": "An LED holds an almost fixed voltage (its forward voltage Vf); the rest of the supply voltage has to be dropped by a series resistor, or the current gets big enough to destroy the LED. In this lesson you first wire an LED straight across 5 V and watch it burn, then pick the resistor with R = (Vs − Vf) / I and rebuild.",
       "hints": [
-        "LED not lighting? First check whether it is in backwards: long lead toward the resistor / + side, short lead to GND.",
-        "R = (V − Vf) / I. A green LED's Vf is about 2.1V."
+        "LED dark? First check its direction: long lead to the resistor (the + side), short lead to GND.",
+        "R = (V − Vf) / I. A green LED has Vf ≈ 2.1 V."
       ],
-      "tests": ["LED on, about 2.7V across the resistor"]
+      "tests": [
+        "LED on, sensible voltage across the resistor"
+      ],
+      "cards": [
+        {
+          "title": "Straight across, no resistor",
+          "text": [
+            "In the real world this step costs you an LED. Here it's a simulation — **go ahead and burn it**.",
+            "Put an LED straight between 5 V and GND with nothing in series, then watch the **diagnostics** on the right."
+          ]
+        },
+        {
+          "title": "An LED is a low dam",
+          "text": [
+            "- Once an LED conducts, the voltage across it stays almost **fixed** at its forward voltage $V_f$: red ≈ 1.8 V, yellow ≈ 2.0 V, **green ≈ 2.1 V**, blue / white ≈ 3.0 V.",
+            "![](fig:iv)",
+            "- The supply has 5 V and the LED only \"holds back\" 2.1 V. The other 2.9 V has nothing to stop it, so it all lands on the tiny resistance inside the LED — a huge current, and the LED is gone.",
+            "- The fix: **put a resistor in series and let it take the extra voltage.** In series the current is the same everywhere, so:",
+            "$$R = \\frac{V_s - V_f}{I}$$",
+            "![](fig:budget)",
+            "For about 20 mA: $R = \\frac{5 - 2.1}{0.02} = 145$ Ω; take the nearest standard value, **150 Ω**."
+          ]
+        },
+        {
+          "title": "Add the resistor and rebuild",
+          "text": [
+            "Remove the burned LED and put 150 Ω in series between +5 V and the LED."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **The long lead is the anode** (towards +); the short lead, on the side where the LED body has a small flat, is the cathode. Reversed, it stays dark.",
+            "- At 5 V a reversed LED usually survives; but common LEDs only take about 5 V in **reverse**, so in a 9 V or 12 V circuit a reversed LED can break down.",
+            "- **5–20 mA** is bright enough for most LEDs; stay under 25 mA. The resistor can go before or after the LED: in series the current is the same everywhere.",
+            "- A small gap between the estimate and the reading is normal: an LED's voltage rises a little with current (this simulator models it as $V_f$ plus a small resistance of about 12 Ω)."
+          ]
+        }
+      ],
+      "steps": [
+        "Pick **Breadboard power module** and click **`tp1`** (keep **5 V**): its four pins go into tp1, tn1, bp1 and bn1, so both pairs of rails are powered.",
+        "Two **jumpers**: red **`tp4`** → **`a4`**, blue **`a11`** → **`tn11`**. Column 4 is +5 V and column 11 is GND.",
+        "**Green LED**: long lead in **`c4`**, short lead in **`c11`** — straight across 5 V and GND. Look at the **diagnostics**: how big is the current? What happened to the LED?",
+        "Click this LED and press **Delete**.",
+        "**Resistor** in **`b4`**–**`b8`**, set to **`150 Ω`** in **Properties**. A resistor has no polarity; either lead can go first.",
+        "A new **green LED**: long lead in **`c8`** (to the resistor), short lead in **`c11`** (to GND). The long lead faces the + side!",
+        "The LED is lit and the diagnostics are quiet. Press **Check my circuit**, then **click the LED**: Properties on the right show the current through it."
+      ],
+      "measurements": [
+        {
+          "ask": "Predict first, then look: click the LED — what current do Properties show?",
+          "explain": "Rough estimate: (5 − 2.1) / 150 ≈ 19 mA; counting the LED's own 12 Ω, (5 − 2.1) / (150 + 12) ≈ 17.9 mA. About 1 mA apart — the rough estimate is good enough for picking a resistor."
+        },
+        {
+          "ask": "Swap the 150 Ω for 330 Ω. The LED will be:",
+          "choices": [
+            "Brighter",
+            "Dimmer: a bigger resistor leaves roughly half the current",
+            "The same: the LED voltage is fixed"
+          ],
+          "explain": "The resistor still takes about 2.9 V; with more than twice the resistance the current drops to under half — dimmer, but still lit."
+        },
+        {
+          "ask": "What happens if you plug the LED in backwards in this 5 V circuit?",
+          "choices": [
+            "It stays dark and is usually fine",
+            "It burns out",
+            "It lights anyway"
+          ],
+          "explain": "An LED only lets current flow from the long lead to the short one. Reversed, almost no current flows, and 5 V doesn't exceed a common LED's reverse rating of about 5 V."
+        }
+      ]
     }
   },
   "components": [
-    { "ref": "V1", "type": "dc_source", "voltage": 5 },
-    { "ref": "R1", "type": "resistor", "resistance": "150" },
-    { "ref": "LED1", "type": "led", "color": "green" }
+    {
+      "ref": "V1",
+      "type": "dc_source",
+      "voltage": 5
+    },
+    {
+      "ref": "R1",
+      "type": "resistor",
+      "resistance": "150"
+    },
+    {
+      "ref": "LED1",
+      "type": "led",
+      "color": "green"
+    }
   ],
   "connections": [
-    ["V1.+", "R1.1"],
-    ["R1.2", "LED1.anode"],
-    ["LED1.cathode", "V1.-"]
+    [
+      "V1.+",
+      "R1.1"
+    ],
+    [
+      "R1.2",
+      "LED1.anode"
+    ],
+    [
+      "LED1.cathode",
+      "V1.-"
+    ]
   ],
   "tests": [
     {
-      "name": "LED 亮，电阻上约 2.7V",
-      "expect": { "LED1": "on" },
-      "voltages": [{ "pin": "R1.1", "ref": "R1.2", "min": 2.4, "max": 3.0 }]
+      "name": "LED 亮，电阻上的电压合理",
+      "expect": {
+        "LED1": "on"
+      },
+      "voltages": [
+        {
+          "pin": "R1.1",
+          "ref": "R1.2",
+          "min": 2.4,
+          "max": 3.0
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "iled",
+      "current": "LED1",
+      "unit": "mA",
+      "predict": true,
+      "range": [
+        0.0165,
+        0.0195
+      ],
+      "ask": "先预测，再看：选中 LED，「属性」里显示的电流是多少？",
+      "explain": "粗算 (5 − 2.1) / 150 ≈ 19 mA；把 LED 里那 12 Ω 也算进去，(5 − 2.1) / (150 + 12) ≈ 17.9 mA。差 1 mA 左右，挑电阻时用粗算就够了。"
+    },
+    {
+      "id": "bigger",
+      "ask": "把 150 Ω 换成 330 Ω，LED 会？",
+      "choices": [
+        "更亮",
+        "更暗：电阻大了，电流大约只剩一半",
+        "不变：LED 的电压是固定的"
+      ],
+      "correct": 1,
+      "explain": "电阻上的电压还是约 2.9 V，电阻变成两倍多，电流就变成不到一半，LED 变暗，但仍然亮。"
+    },
+    {
+      "id": "reverse",
+      "ask": "如果在这个 5 V 电路里把 LED 插反，会怎样？",
+      "choices": [
+        "不亮，一般也不会坏",
+        "烧掉",
+        "照样亮"
+      ],
+      "correct": 0,
+      "explain": "LED 只让电流从长脚流向短脚。反向时几乎没有电流；5 V 也还没有超过常见 LED 约 5 V 的反向耐压。"
     }
   ],
   "steps": [
-    { "text": "把面包板电源模块插在第 1 列（设为 5V）。它会同时插进 tp1 / tn1 / bp1 / bn1：上下两组电源轨都有电了。", "highlight": ["tp1", "tn1", "bp1", "bn1"] },
-    { "text": "红色跳线 tp4 → a4，把 +5V 引到第 4 列。", "highlight": ["tp4", "a4"] },
-    { "text": "150Ω 电阻插在 b4 和 b8 之间（电阻没有正负，哪只脚都行）。", "highlight": ["b4", "b8"] },
-    { "text": "绿色 LED：长脚（anode，正极）插 c8，接电阻；短脚（cathode，负极）插 c11。长脚要朝向 + 那一侧！", "highlight": ["c8", "c11"] },
-    { "text": "蓝色跳线 a11 → tn11，LED 负极回到 GND。算一算：实际电流约 18mA（粗算 19mA，原因见说明）。选中 LED，在右侧“属性”里能看到实测电流。", "highlight": ["a11", "tn11"] }
+    {
+      "text": "选**「面包板电源模块」**，单击 **`tp1`**（保持 **5 V**）：它的四根针同时插进 tp1、tn1、bp1、bn1，上下两组轨道都有电了。",
+      "highlight": [
+        "tp1",
+        "tn1",
+        "bp1",
+        "bn1"
+      ],
+      "check": [
+        {
+          "type": "power_module",
+          "at": "tp1",
+          "voltage": 5
+        }
+      ]
+    },
+    {
+      "text": "两根**跳线**：红的 **`tp4`** → **`a4`**，蓝的 **`a11`** → **`tn11`**。第 4 列是 +5 V，第 11 列是 GND。",
+      "highlight": [
+        "tp4",
+        "a4",
+        "a11",
+        "tn11"
+      ],
+      "check": [
+        {
+          "type": "wire",
+          "pins": {
+            "a": "tp4",
+            "b": "a4"
+          }
+        },
+        {
+          "type": "wire",
+          "pins": {
+            "a": "a11",
+            "b": "tn11"
+          }
+        }
+      ]
+    },
+    {
+      "text": "**绿色 LED**：长脚插 **`c4`**，短脚插 **`c11`**——直接跨在 5 V 和 GND 之间。看**诊断**：电流有多大？LED 怎么了？",
+      "highlight": [
+        "c4",
+        "c11"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "c4",
+            "cathode": "c11"
+          },
+          "color": "green"
+        }
+      ]
+    },
+    {
+      "text": "选中这颗 LED，按 **Delete** 删掉。",
+      "highlight": [
+        "c4",
+        "c11"
+      ],
+      "check": [
+        {
+          "empty": [
+            "c4",
+            "c11"
+          ]
+        }
+      ]
+    },
+    {
+      "text": "**电阻**插 **`b4`**–**`b8`**，在**「属性」**里设成 **`150 Ω`**。电阻没有正负，哪只脚在前都行。",
+      "highlight": [
+        "b4",
+        "b8"
+      ],
+      "check": [
+        {
+          "type": "resistor",
+          "pins": {
+            "1": "b4",
+            "2": "b8"
+          },
+          "resistance": "150"
+        }
+      ]
+    },
+    {
+      "text": "新的**绿色 LED**：长脚插 **`c8`**（接电阻），短脚插 **`c11`**（接 GND）。长脚要朝向 + 那一侧！",
+      "highlight": [
+        "c8",
+        "c11"
+      ],
+      "check": [
+        {
+          "type": "led",
+          "pins": {
+            "anode": "c8",
+            "cathode": "c11"
+          },
+          "color": "green"
+        }
+      ]
+    },
+    {
+      "text": "LED 亮了，诊断也不报警了。点**「检查我的电路」**，然后**单击选中 LED**：右边「属性」里会显示流过它的电流。",
+      "highlight": []
+    }
   ],
   "hints": [
-    "LED 不亮？先看是不是插反了：长脚接电阻 / + 那侧，短脚接 GND。",
-    "R = (V − Vf) / I。绿色 LED 的 Vf 约 2.1V。"
+    "LED 不亮？先看是不是插反了：长脚接电阻（+ 那侧），短脚接 GND。",
+    "R = (V − Vf) / I。绿色 LED 的 Vf 约 2.1 V。"
   ],
   "solution": {
     "parts": [
-      { "type": "power_module", "ref": "PM1", "voltage": 5, "at": "tp1" },
-      { "type": "wire", "pins": { "a": "tp4", "b": "a4" }, "color": "red" },
-      { "type": "resistor", "ref": "R1", "resistance": "150", "pins": { "1": "b4", "2": "b8" } },
-      { "type": "led", "ref": "LED1", "color": "green", "pins": { "anode": "c8", "cathode": "c11" } },
-      { "type": "wire", "pins": { "a": "a11", "b": "tn11" }, "color": "blue" }
+      {
+        "type": "power_module",
+        "ref": "PM1",
+        "voltage": 5,
+        "at": "tp1"
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "tp4",
+          "b": "a4"
+        },
+        "color": "red"
+      },
+      {
+        "type": "resistor",
+        "ref": "R1",
+        "resistance": "150",
+        "pins": {
+          "1": "b4",
+          "2": "b8"
+        }
+      },
+      {
+        "type": "led",
+        "ref": "LED1",
+        "color": "green",
+        "pins": {
+          "anode": "c8",
+          "cathode": "c11"
+        }
+      },
+      {
+        "type": "wire",
+        "pins": {
+          "a": "a11",
+          "b": "tn11"
+        },
+        "color": "blue"
+      }
     ]
   }
 }

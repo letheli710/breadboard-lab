@@ -2,34 +2,173 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp-thevenin-measure",
-  "title": "实验 2-2 · 测戴维宁等效：开路电压 + 短路电流",
+  "title": "戴维宁等效：量开路电压和短路电流",
   "kind": "challenge",
   "level": 3,
   "phase": 2,
-  "summary": "不拆电路，量两次：松开按键测开路电压 Uoc，按下按键用电流表测短路电流 Isc，Req = Uoc / Isc。",
-  "concepts": ["Thevenin equivalent 戴维宁等效", "open-circuit voltage 开路电压 Uoc", "short-circuit current 短路电流 Isc", "Req = Uoc / Isc"],
+  "summary": "一个电源和三个电阻组成的网络，从两个端子看出去，只需要两个数就能描述：开路电压和短路电流。",
+  "concepts": [
+    "Thevenin equivalent 戴维宁等效",
+    "open-circuit voltage 开路电压 Uoc",
+    "short-circuit current 短路电流 Isc",
+    "Req = Uoc / Isc"
+  ],
   "prereq": ["lesson-ammeter", "lesson-multimeter"],
-  "description": "**目标**：任何线性有源二端网络，对外都等效于一个电压源 Uoc 串联一个电阻 Req。实验室里最直接的测法：测开路电压，再测短路电流。\n\n**电路**：\n- 被测网络：+9V → R1（1kΩ）→ A；A → R2（2.2kΩ）→ GND；A → R3（470Ω）→ 端口 T。端口是 T 和 GND。\n- 测量装置：T → 按键 SW1 → 电流表 AM1（红表笔接按键）→ GND。\n\n**先预测**：\n1. 开路电压 Uoc：端口什么都不接时 R3 中没有电流，T 点电压等于哪一点的电压？\n2. 等效电阻 Req：用“电源置零”法，9 V 电源换成短路，从 T 看进去的电阻是多少？\n3. 由这两个数预测短路电流 Isc = Uoc / Req。\n\n**测量**：\n1. 按键松开，用万用表测 T 对 GND 的电压，得到 Uoc；\n2. 按下按键（电流表只有 0.1Ω，几乎就是把 T 短接到 GND），读 AM1，得到 Isc；\n3. 算 Req = Uoc / Isc。\n电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**真实电路里**：真实万用表 mA 档的负担电阻有几欧到十几欧，“短路”并不完全短：Isc 会小约 1%，Req 就算大约 1%。\n\n**安全提示**：短路电流法只适合 Isc 很小的网络（这里 5 mA）。千万不要直接短路电池或电源的输出端！",
+  "description": "戴维宁定理：任何线性二端网络，对外都等效于一个电压源 V_Th 串联一个电阻 R_Th。V_Th 是开路电压，R_Th = 开路电压 ÷ 短路电流，也可以把电源置零后从端口看进去求。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "两个数，认出一个盒子",
+      "text": [
+        "照目标电路图搭：`9 V` → **R1** → 结点 **A**；**R2** 从 A 到 GND；**R3** 从 A 到端子 **T**。",
+        "从 T 出发，按键 **SW1** 和电流表 **AM1** 通到 GND：按下按键，就是经过电流表把 T 短接到 GND。",
+        "**松开按键**：测 T 对 GND 的电压。**按住按键**：读 AM1。",
+        "假装看不到盒子里面。这两个数能告诉你什么？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "每个网络都是一节“带内阻的电池”",
+      "text": [
+        "- 在 1.10 里，电池 = 一个电压加一个小内阻。**戴维宁定理**：任何由电源和电阻组成的网络，从两个端子看出去，都正好是这样。",
+        "![](fig:equiv)",
+        "- $V_{Th}$ 就是什么都不接时的电压（开路电压 $V_{oc}$）。把端子短接，只剩 $R_{Th}$ 限制电流，所以：",
+        "$$R_{Th} = \\frac{V_{oc}}{I_{sc}}$$",
+        "- 拿 9 V 电池试试：$V_{oc} = 9$ V，$I_{sc} = 6$ A，$R_{Th} = 9 / 6 = 1.5$ Ω——正是电池的内阻。",
+        "- 第二种算法，不用表：把电源置零（9 V → 导线），从 T 看进去。这时 R1 和 R2 并联，再和 R3 串联。",
+        "![](fig:lookin)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "开路一次，短路一次",
+      "text": [
+        "- **松开按键**：万用表红表笔点 **T**，黑表笔接 GND。这就是 $V_{oc}$。",
+        "- **按住按键**：读 **AM1**。电流表只有 0.1 Ω，这就是 $I_{sc}$。",
+        "- 电路检查通过后填测量题；最后一题用你自己的两个读数相除。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **戴维宁**：从两个端子看，任何线性网络 = $V_{Th}$ 串 $R_{Th}$。",
+        "- 求 $R_{Th}$ 两种方法：实验台上 $V_{oc}/I_{sc}$；纸上把电源置零、从端口看进去。两者一致。",
+        "- 坑：短路电流法只适合 $I_{sc}$ 很小的网络，比如这一个。**千万不要直接短路电池或电源的输出**去“测”它。",
+        "- 真实万用表 mA 档有几欧的负担电阻，测得的 $I_{sc}$ 会小约 1%。",
+        "- 下一步：什么样的负载能从这个盒子里拿到最多的功率？"
+      ],
+      "practice": ["theorems"]
+    }
+  ],
+  "figures": {
+    "equiv": {
+      "kind": "schematic",
+      "caption": {
+        "text": "从 T 和 GND 看进去，整个网络可以换成一个电压源 V_Th 串一个电阻 R_Th。",
+        "i18n": {
+          "en": "Seen from T and GND, the whole network can be replaced by one voltage source V_Th in series with one resistor R_Th."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Vth", "type": "V", "from": [0, 0], "to": [0, 4], "label": "V_Th"},
+          {"ref": "Rth", "type": "R", "from": [0, 0], "to": [4, 0], "label": "R_Th"}
+        ],
+        "wires": [[[0, 4], [4, 4]]],
+        "terminals": [{"at": [4, 0], "name": "T"}],
+        "grounds": [[4, 4]]
+      }
+    },
+    "lookin": {
+      "kind": "schematic",
+      "caption": {
+        "text": "电源置零：9 V 换成导线。从 T 看进去，R1 和 R2 并联，再串上 R3。",
+        "i18n": {
+          "en": "Sources off: the 9 V becomes a wire. Looking in from T, R1 and R2 are in parallel, then in series with R3."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "R1", "type": "R", "from": [0, 0], "to": [2, 0], "value": "1k"},
+          {"ref": "R2", "type": "R", "from": [2, 0], "to": [2, 4], "value": "2.2k"},
+          {"ref": "R3", "type": "R", "from": [2, 0], "to": [5, 0], "value": 470}
+        ],
+        "wires": [[[0, 0], [0, 4]], [[0, 4], [5, 4]]],
+        "labels": [{"at": [2, 0], "name": "A"}],
+        "notes": [{"text": "左边：9 V 已换成导线", "i18n": {"en": "left: 9 V now a wire"}, "at": [2, 5]}],
+        "terminals": [{"at": [5, 0], "name": "T"}],
+        "grounds": [[5, 4]]
+      }
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 2-2 · Measure a Thevenin equivalent: open-circuit voltage + short-circuit current",
-      "summary": "Without taking the circuit apart, measure twice: button released for the open-circuit voltage Uoc, button pressed for the short-circuit current Isc on the ammeter; Req = Uoc / Isc.",
+      "title": "Thévenin equivalent: measure the open-circuit voltage and the short-circuit current",
+      "summary": "A network of one source and three resistors needs only two numbers to describe it from its two terminals: the open-circuit voltage and the short-circuit current.",
       "concepts": ["Thevenin equivalent", "open-circuit voltage Uoc", "short-circuit current Isc", "Req = Uoc / Isc"],
-      "description": "**Goal**: any linear two-terminal network with sources is equivalent, from outside, to a voltage source Uoc in series with a resistance Req. The most direct lab method: measure the open-circuit voltage, then the short-circuit current.\n\n**Circuit**:\n- Network under test: +9V → R1 (1kΩ) → A; A → R2 (2.2kΩ) → GND; A → R3 (470Ω) → port T. The port is T and GND.\n- Measuring setup: T → push button SW1 → ammeter AM1 (red lead at the button) → GND.\n\n**Predict first**:\n1. Open-circuit voltage Uoc: with nothing on the port no current flows in R3, so T is at the same voltage as which point?\n2. Equivalent resistance Req: zero the sources (replace the 9 V source by a short); what resistance do you see looking in from T?\n3. From these two numbers predict the short-circuit current Isc = Uoc / Req.\n\n**Measure**:\n1. Button released: measure T against GND with the multimeter to get Uoc;\n2. Press the button (the ammeter is only 0.1Ω, practically a short from T to GND) and read AM1 to get Isc;\n3. Compute Req = Uoc / Isc.\nOnce the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**In a real circuit**: a real multimeter's mA range has a burden resistance of a few ohms to ten-odd ohms, so the \"short\" is not quite a short: Isc comes out about 1% low and Req about 1% high.\n\n**Safety note**: the short-circuit method only suits networks with a small Isc (5 mA here). Never short the output of a battery or a power supply directly!",
-      "compare": "**Compare**: Uoc = 9 × 2.2 / 3.2 ≈ **6.19 V**; the simulator reads Isc ≈ **5.34 mA**; Req = 6.19 / 5.345 mA ≈ **1158Ω**. Zeroing the source: R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5Ω ✔. So from outside, this network is \"6.19 V in series with 1.16kΩ\". The next experiment (2-3) uses this to find the maximum power.",
+      "description": "Thévenin's theorem: any linear two-terminal network looks, from outside, like a voltage source V_Th in series with a resistor R_Th. V_Th is the open-circuit voltage; R_Th = open-circuit voltage ÷ short-circuit current, or the resistance seen from the terminals with the sources turned off.",
+      "compare": "**Compare**: Voc = 9 × 2.2 / 3.2 ≈ **6.19 V**; simulator Isc ≈ **5.34 mA**; R_Th = 6.19 V / 5.345 mA ≈ **1158 Ω**. Sources off: R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5 Ω ✔. From outside the network is \"6.19 V in series with 1.16 kΩ\"; the next lab uses it to find the maximum power.",
       "measurements": [
-        {"ask": "Button released: open-circuit voltage Uoc (multimeter from T to GND)"},
-        {"ask": "Button pressed: short-circuit current Isc (AM1's reading)"},
-        {"ask": "From your own two readings, the equivalent resistance Req = Uoc / Isc", "explain": "Zeroing the source: R3 + R1 ∥ R2 = 470 + 687.5 = 1157.5 Ω. A measurement within 1% of it shows both methods give the same Req."}
+        {
+          "ask": "Button released: open-circuit voltage Voc (multimeter, T to GND)",
+          "explain": "With T open no current flows in R3, so T sits at A's voltage: Voc = 9 × 2.2 / 3.2 ≈ 6.19 V."
+        },
+        {
+          "ask": "Button held: short-circuit current Isc (AM1 reading)",
+          "explain": "Isc = Voc / R_Th ≈ 6.19 V / 1158 Ω ≈ 5.34 mA."
+        },
+        {
+          "ask": "From your own two readings, the equivalent resistance R_Th = Voc / Isc",
+          "explain": "Sources off: R3 + R1 ∥ R2 = 470 + 687.5 = 1157.5 Ω. The measured value is within 1 %, so both methods give the same R_Th."
+        }
       ],
       "hints": [
-        "The push button straddles the gap: one side to T (the far end of R3), the other side to the ammeter's red lead.",
+        "The button straddles the trench: one side to T (R3's far end), the other to the ammeter's red lead.",
         "The ammeter's black lead goes to GND.",
-        "With the button released, measure T against GND with the multimeter: that is the open-circuit voltage."
+        "With the button released, the multimeter reading from T to GND is the open-circuit voltage."
       ],
-      "tests": [
-        "Released: port open, the ammeter reads 0",
-        "Pressed: port shorted, port voltage ≈ 0"
+      "tests": ["Released: port open, the ammeter reads 0", "Pressed: port shorted, port voltage ≈ 0"],
+      "cards": [
+        {
+          "title": "Two numbers to know a box",
+          "text": [
+            "Build it from the target schematic: `9 V` → **R1** → node **A**; **R2** from A to GND; **R3** from A to the terminal **T**.",
+            "From T, the button **SW1** and the ammeter **AM1** lead to GND: pressing the button shorts T to GND through the meter.",
+            "**Button released**: measure T to GND. **Button held**: read AM1.",
+            "Pretend you can't see inside. What do these two numbers tell you about the box?"
+          ]
+        },
+        {
+          "title": "Every network is a battery with internal resistance",
+          "text": [
+            "- In 1.10 a battery was a voltage plus a small internal resistance. **Thévenin's theorem**: any network of sources and resistors looks exactly like that from two terminals.",
+            "![](fig:equiv)",
+            "- $V_{Th}$ is the voltage with nothing connected (open circuit, $V_{oc}$). Shorting the terminals, only $R_{Th}$ limits the current, so:",
+            "$$R_{Th} = \\frac{V_{oc}}{I_{sc}}$$",
+            "- Check it on a 9 V battery: $V_{oc} = 9$ V, $I_{sc} = 6$ A, so $R_{Th} = 9 / 6 = 1.5$ Ω — the battery's internal resistance.",
+            "- Second way, no meter needed: turn the source off (9 V → a wire) and look into T. R1 and R2 are then in parallel, in series with R3.",
+            "![](fig:lookin)"
+          ]
+        },
+        {
+          "title": "Open once, short once",
+          "text": [
+            "- **Button released**: multimeter red lead on **T**, black lead on GND. That is $V_{oc}$.",
+            "- **Button held**: read **AM1**. The meter is only 0.1 Ω, so this is $I_{sc}$.",
+            "- Once the circuit check passes, fill in the questions; the last one divides your own two readings."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Thévenin**: from two terminals, any linear network = $V_{Th}$ in series with $R_{Th}$.",
+            "- Two ways to $R_{Th}$: $V_{oc}/I_{sc}$ on the bench, or sources off and look in on paper. They agree.",
+            "- Pitfall: the short-circuit test only suits networks with a small $I_{sc}$, like this one. **Never short a battery or a supply output** to \"measure\" it.",
+            "- A real mA range adds a few ohms, so the measured $I_{sc}$ comes out about 1 % low.",
+            "- Next: what load gets the most power out of this box?"
+          ]
+        }
       ]
     }
   },
@@ -62,20 +201,49 @@
       "voltages": [{"pin": "R3.2", "ref": "V1.-", "max": 0.01}]
     }
   ],
-  "compare": "**对比**：Uoc = 9 × 2.2 / 3.2 ≈ **6.19 V**；模拟器读数 Isc ≈ **5.34 mA**；Req = 6.19 / 5.345 mA ≈ **1158Ω**。置零法：R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5Ω ✔。所以这个网络对外等效于“6.19 V 串 1.16kΩ”。下一个实验（2-3）会用这个结果找最大功率。",
+  "compare": "**对比**：Voc = 9 × 2.2 / 3.2 ≈ **6.19 V**；模拟器 Isc ≈ **5.34 mA**；R_Th = 6.19 V / 5.345 mA ≈ **1158 Ω**。置零法：R3 + (R1 ∥ R2) = 470 + 687.5 = 1157.5 Ω ✔。这个网络对外等效于“6.19 V 串 1.16 kΩ”，下一个实验用它找最大功率。",
   "measurements": [
-    {"id": "uoc", "voltage": "R3.2", "ref": "V1.-", "set": {"SW1": {"pressed": false}}, "unit": "V", "predict": true, "range": [6.0, 6.35], "ask": "按键松开：开路电压 Uoc（万用表测 T 对 GND）"},
-    {"id": "isc", "current": "AM1", "set": {"SW1": {"pressed": true}}, "unit": "mA", "predict": true, "range": [0.0052, 0.0055], "ask": "按下按键：短路电流 Isc（AM1 的读数）"},
-    {"id": "req", "formula": "uoc / isc", "unit": "Ω", "predict": true, "range": [1100, 1220], "ask": "用你自己的两个读数算等效电阻 Req = Uoc / Isc", "explain": "置零法：R3 + R1 ∥ R2 = 470 + 687.5 = 1157.5 Ω。测量值和它差 1% 以内，说明两种方法得到的是同一个 Req。"}
+    {
+      "id": "uoc",
+      "voltage": "R3.2",
+      "ref": "V1.-",
+      "set": {"SW1": {"pressed": false}},
+      "unit": "V",
+      "predict": true,
+      "range": [6.0, 6.35],
+      "ask": "按键松开：开路电压 Voc（万用表测 T 对 GND）",
+      "explain": "端口开路时 R3 里没有电流，T 和 A 一样高：Voc = 9 × 2.2 / 3.2 ≈ 6.19 V。"
+    },
+    {
+      "id": "isc",
+      "current": "AM1",
+      "set": {"SW1": {"pressed": true}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.0052, 0.0055],
+      "ask": "按住按键：短路电流 Isc（AM1 的读数）",
+      "explain": "Isc = Voc / R_Th ≈ 6.19 V / 1158 Ω ≈ 5.34 mA。"
+    },
+    {
+      "id": "req",
+      "formula": "uoc / isc",
+      "unit": "Ω",
+      "predict": true,
+      "range": [1100, 1220],
+      "ask": "用你自己的两个读数算等效电阻 R_Th = Voc / Isc",
+      "explain": "置零法：R3 + R1 ∥ R2 = 470 + 687.5 = 1157.5 Ω。测量值和它相差 1% 以内，说明两种方法得到的是同一个 R_Th。"
+    }
   ],
-  "hints": [
-    "按键横跨凹槽：一边接 T（R3 的另一端），另一边接电流表的红表笔。",
-    "电流表黑表笔接 GND。",
-    "松开按键时用万用表测 T 对 GND 的电压，就是开路电压。"
-  ],
+  "hints": ["按键横跨凹槽：一边接 T（R3 的另一端），另一边接电流表的红表笔。", "电流表黑表笔接 GND。", "松开按键时，用万用表测 T 对 GND 的电压，就是开路电压。"],
   "solution": {
     "parts": [
-      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 9,
+        "currentLimit": 0.1,
+        "pins": {"+": "tp1", "-": "tn1"}
+      },
       {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
       {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b3", "2": "b7"}},
       {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c7", "2": "tn8"}},

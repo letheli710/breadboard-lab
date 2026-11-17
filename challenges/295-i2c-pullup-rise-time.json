@@ -2,112 +2,151 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-i2c-pullup-rise-time",
-  "title": "实验 5-16 · I²C 上拉电阻怎么选：上升时间 = R × 总线电容",
+  "title": "I²C 上拉电阻：上升沿由 R × C 决定",
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "Blue Pill 的两个开漏引脚以 100 kHz 模拟两条 I²C 线，各挂 200 pF 总线电容，一条用 10 kΩ 上拉、一条用 2.2 kΩ。用示波器的 rise / fall 对照 I²C 规范，再算出上拉电阻的下限（灌电流 3 mA）。",
-  "concepts": [
-    "开漏输出 open-drain output",
-    "I²C 上拉电阻 I²C pull-up",
-    "上升时间 rise time ≈ 0.8473·RC（30–70 %）/ 2.2·RC（10–90 %）",
-    "总线电容 bus capacitance",
-    "灌电流上限 sink-current limit"
-  ],
+  "summary": "Blue Pill 的两个开漏引脚以 100 kHz 模拟两条 I²C 线，各挂 200 pF，一条 10 kΩ 上拉、一条 2.2 kΩ。下降沿都很陡，上升沿却一慢一快。测上升时间、低电平，学会给上拉电阻定一个范围。",
+  "concepts": ["开漏输出 open-drain output", "I²C 上拉电阻 I²C pull-up", "上升时间 rise time", "总线电容 bus capacitance", "灌电流上限 sink-current limit"],
   "prereq": ["lesson-mcu-pwm-adc"],
-  "description": [
-    "**目标**：看 I²C 这类开漏总线的上升沿怎样由上拉电阻和总线电容决定（τ = R·C），并学会按 I²C 规范选上拉电阻的阻值范围。",
-    "",
-    "**电路**：Blue Pill 插在 c1，USB 供电。下排 3V3（j20）→ bp 轨，GND（j19）→ bn 轨。用两个能输出 PWM 的引脚（参考答案用 I²C1 的 **PB6 / PB7**，g14 / g15）当两条“总线”：",
-    "- 总线 A：PB6 → RA **10 kΩ** 上拉到 3V3，CA **200 pF** 到 GND；",
-    "- 总线 B：PB7 → RB **2.2 kΩ** 上拉到 3V3，CB **200 pF** 到 GND。",
-    "",
-    "200 pF 代表真实总线上的电容：每个 I²C 器件的引脚约 10 pF，每 10 cm 走线 / 杜邦线约 5–10 pF，加上示波器探头，几个模块 + 一段线很容易到 100–200 pF（规范上限 400 pF）。示波器 CH1 接总线 A，CH2 接总线 B。",
-    "",
-    "**引脚设置**：两个引脚都设成 **PWM 输出 + 开漏**（`{ \"mode\": \"pwm\", \"duty\": 50, \"frequency\": 100000, \"openDrain\": true }`），用 100 kHz 方波代替 I²C 的 SCL 时钟。测试也会改成 400 kHz，或者静态的“开漏输出低 / 松开”。",
-    "",
-    "**公式**：充电曲线 V(t) = 3.3 V × (1 − e^(−t/RC))。",
-    "- 10 % → 90 %：t = RC × ln 9 ≈ **2.197·RC**（示波器 `rise` 测的是这个）；",
-    "- I²C 规范的 t_r 是 **30 % → 70 %**：t = RC × ln(7/3) ≈ **0.8473·RC**，约为 10–90 % 时间的 0.386 倍；",
-    "- 规范上限：标准模式（100 kHz）t_r ≤ **1000 ns**，快速模式（400 kHz）t_r ≤ **300 ns**。换算成 10–90 %：约 2.59 µs 和 0.78 µs。",
-    "",
-    "**先预测**：两条总线的 τ 各是多少？10–90 % 上升时间和规范的 t_r（30–70 %）各是多少，分别满不满足标准模式和快速模式？100 kHz 的半个周期（5 µs）和 400 kHz 的半个周期（1.25 µs）里，10 kΩ 的总线能爬到多高，够不够 STM32 的 VIH（2.15 V）？输出低电平时两条总线各灌多少电流（引脚 N 管约 40 Ω）？",
-    "",
-    "**测量**：",
-    "- **上升时间 rise**（10 % → 90 %）：开漏引脚“松开”后，只能靠上拉电阻给总线电容充电，τ = R·C；",
-    "- **下降时间 fall**：引脚导通时由 N 管（约 40 Ω）直接放电，非常快；",
-    "- 高电平最高到多少（vmax）：上升太慢时，电平在下一个下降沿之前**根本爬不到** VIH；",
-    "- 输出低电平时的**灌电流**和 V_OL：上拉电阻太小，引脚拉不低。",
-    "电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**怎么选上拉电阻**：",
-    "- **上限**（够快）：R_max = t_r / (0.8473 × C_bus)。200 pF 时标准模式 R_max ≈ 5.9 kΩ，快速模式 R_max ≈ **1.77 kΩ**（用 1.5 kΩ）。",
-    "- **下限**（拉得低）：I²C 规范要求器件在灌 **3 mA** 时 V_OL ≤ **0.4 V**，所以 R_min = (3.3 V − 0.4 V) / 3 mA ≈ **967 Ω**（5 V 总线为 1.53 kΩ）。",
-    "- 所以 3.3 V、100 kHz、几个模块：**2.2–4.7 kΩ**；400 kHz 或线长：**1–2.2 kΩ**。",
-    "",
-    "**内部上拉不够用**：STM32 约 40 kΩ、ESP32 约 45 kΩ，200 pF 时 τ ≈ 8–9 µs，比 100 kHz 的整个周期还长。它们只能让单个模块在很短的线上“勉强能跑”，正式电路一定要外接上拉。",
-    "",
-    "**实际项目经验**：",
-    "- 很多 I²C 模块板上**已经带了**上拉（常见 4.7 kΩ 或 10 kΩ）。挂 5 个这样的模块，总上拉就是 4.7 kΩ / 5 ≈ 940 Ω——已经低于下限，低电平拉不下去。挂多个模块时要拆掉多余的上拉。",
-    "- 杜邦线越长电容越大，超过 30–50 cm 就容易出错；长线用更低的频率、更小的上拉，或者 I²C 缓冲芯片（P82B715、PCA9515）。",
-    "- 上拉接 **3.3 V**，不要接 5 V：ESP32 的引脚都不耐 5 V；STM32 只有 FT 引脚（PB6 / PB7 是）耐 5 V。和 5 V 器件通信用电平转换（BSS138 双向电平转换模块）。",
-    "- ESP32 的 I²C 可以用任意 GPIO，但避开 GPIO34–39（只能输入）、GPIO6–11（Flash）和启动配置引脚；默认是 GPIO21（SDA）/ GPIO22（SCL）。",
-    "- 总线“卡死”（SDA 一直是低）时先看上拉和电平，再看从机是否在复位中途被打断。",
-    "",
-    "**模型说明**：引脚的开漏 N 管是 40 Ω 的理想开关，没有输出电容；电容和电阻是理想的；时域仿真每个周期 256 步（100 kHz 时 39 ns 一步），所以 fall 只能分辨到几十 ns，波形底部有几十 mV 的数值下冲；这里只用方波模拟 SCL，没有真正的 I²C 协议。"
+  "description": "Blue Pill 的两个引脚设成 PWM + 开漏（100 kHz），代替 I²C 的时钟线。总线 A：10 kΩ 上拉到 3V3、200 pF 到 GND；总线 B：2.2 kΩ 上拉、200 pF。开漏引脚只会往下拉，往上只能靠上拉电阻给总线电容充电，所以上升时间 ≈ 2.2·R·C。测两条总线的上升沿、400 kHz 时能爬到多高、低电平时的电压和灌电流，对照 I²C 规范选上拉电阻。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "哪条线像鲨鱼鳍？",
+      "text": [
+        "**Blue Pill** 下排的 **3V3** 和 **GND** 脚接到下方电源轨。选两个能输出 PWM 的引脚（例如 **PB6**、**PB7**）当两条“总线”。",
+        "总线 A：引脚 → **`10 kΩ`** 到 3V3，再接 **`200 pF`** 到 GND。总线 B 一样，但上拉用 **`2.2 kΩ`**。",
+        "两个引脚都设成 **PWM**、**`100 kHz`**、**`50 %`**，勾选**「开漏输出」**。示波器 CH1 看总线 A，CH2 看总线 B。",
+        "下降沿都很陡。上升沿呢？哪一条像鲨鱼鳍？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "往上只能靠电阻",
+      "text": [
+        "- 开漏引脚（5.6 学过）只会**往下拉**：里面是一个约 40 Ω 的开关接到 GND。要输出高电平，它只是**松手**。",
+        "![](fig:pullup)",
+        "- 松手以后，只有上拉电阻能把线拉高，而且要先给**总线电容**充电：每个芯片引脚、每段导线都贡献几 pF。这是一次 RC 充电——慢，而且是弯的。往下拉时开关只有几十欧，所以下降沿很陡。",
+        "![](fig:edges)",
+        "- RC 充电从 10 % 到 90 % 的时间（示波器的“上升时间”）：",
+        "$$t_r ≈ 2.2 × R × C$$",
+        "- 代入 4.7 kΩ、200 pF：$t_r ≈ 2.2 × 4700 × 200$ pF ≈ 2.07 µs。半个时钟周期比这短得多时，线还没爬到高电平就又被拉下去了，对方永远读到 0。"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "量上升时间和低电平",
+      "text": [
+        "- 点**「检查我的电路」**。检查还会试 **400 kHz**，以及两个引脚静止在**「输出 低」**和松开时的样子。",
+        "- 上升时间用示波器的 **rise** 读数；400 kHz 那题在「属性」里把两个引脚都改成 400 kHz，读总线 A 的最高电压。",
+        "- 低电平那两题：两个引脚都设成**「输出 低」**（仍勾选开漏），用万用表量总线 B 对 GND。先预测，再读。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **上拉电阻有一个窗口**：太大，上升太慢（$R ≤ \\frac{t_r}{0.85 × C}$，按规范的 30–70 % 时间算）；太小，引脚拉不下来——芯片只保证灌 3 mA 时低电平 ≤ 0.4 V，所以 3.3 V 总线 R ≥ (3.3 − 0.4) / 3 mA ≈ 1 kΩ。",
+        "- 经验值：3.3 V、100 kHz、几个模块用 **2.2–4.7 kΩ**；400 kHz 或线长用 **1–2.2 kΩ**。芯片内部约 40 kΩ 的上拉太弱，正式电路一定外接。",
+        "- 真实电路里的坑：很多 I²C 模块板上已经带了 4.7 kΩ 上拉，挂五个就等于约 940 Ω 并在一起，低于下限——拆掉多余的。上拉接 **3.3 V**，不要接 5 V。"
+      ],
+      "practice": ["first-order"]
+    }
   ],
+  "figures": {
+    "pullup": {
+      "kind": "schematic",
+      "caption": {
+        "text": "开漏引脚只是一个接 GND 的开关。开关断开时，只有上拉电阻 R_P 能给总线电容 C 充电。",
+        "i18n": {
+          "en": "An open-drain pin is just a switch to GND. With the switch open, only the pull-up R_P can charge the bus capacitance C."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "V1", "type": "BAT", "from": [0, 0], "to": [0, 4], "value": 3.3},
+          {"ref": "R_P", "type": "R", "from": [0, 0], "to": [3, 0], "value": "2.2k"},
+          {"ref": "C", "type": "C", "from": [3, 0], "to": [3, 4], "value": "200p"},
+          {"ref": "Q_pin", "type": "S", "from": [6, 0], "to": [6, 4], "value": "open"}
+        ],
+        "wires": [[[3, 0], [6, 0]], [[6, 4], [3, 4]], [[3, 4], [0, 4]]],
+        "marks": [{"kind": "i", "el": "R_P", "name": "I_P"}, {"kind": "v", "el": "C", "name": "v_bus"}]
+      },
+      "highlight": ["R_P"]
+    },
+    "edges": {
+      "kind": "plot",
+      "caption": {
+        "text": "引脚松手以后的上升沿：2.2 kΩ 很快爬到 3.3 V，10 kΩ 慢慢爬，半个周期结束时还没到顶。",
+        "i18n": {
+          "en": "The rising edge after the pin lets go: 2.2 kΩ climbs quickly to 3.3 V; 10 kΩ crawls and is still short of the top when the half period ends."
+        }
+      },
+      "x": {"label": {"text": "松手后的时间 (µs)", "i18n": {"en": "time after release (µs)"}}, "min": 0, "max": 5, "ticks": [0, 1, 2, 3, 4, 5]},
+      "y": {"label": {"text": "总线电压 (V)", "i18n": {"en": "bus voltage (V)"}}, "min": 0, "max": 3.6, "ticks": [0, 3.3]},
+      "curves": [
+        {
+          "points": [
+            [0, 0.0],
+            [0.1, 0.671],
+            [0.2, 1.205],
+            [0.3, 1.631],
+            [0.4, 1.97],
+            [0.5, 2.241],
+            [0.6, 2.456],
+            [0.8, 2.764],
+            [1, 2.96],
+            [1.25, 3.107],
+            [1.5, 3.191],
+            [2, 3.265],
+            [2.5, 3.289],
+            [3, 3.296],
+            [4, 3.3],
+            [5, 3.3]
+          ],
+          "tone": 1,
+          "label": "2.2 kΩ",
+          "labelAt": [1.3, 3.55]
+        },
+        {
+          "points": [
+            [0.0, 0.0],
+            [0.25, 0.388],
+            [0.5, 0.73],
+            [0.75, 1.032],
+            [1.0, 1.298],
+            [1.25, 1.534],
+            [1.5, 1.741],
+            [1.75, 1.924],
+            [2.0, 2.086],
+            [2.25, 2.229],
+            [2.5, 2.355],
+            [2.75, 2.466],
+            [3.0, 2.564],
+            [3.25, 2.65],
+            [3.5, 2.727],
+            [3.75, 2.794],
+            [4.0, 2.853],
+            [4.25, 2.906],
+            [4.5, 2.952],
+            [4.75, 2.993],
+            [5.0, 3.029]
+          ],
+          "tone": 2,
+          "label": "10 kΩ",
+          "labelAt": [3.3, 1.9]
+        }
+      ],
+      "hlines": [{"y": 2.15, "dashed": true, "label": {"text": "高电平门限", "i18n": {"en": "HIGH threshold"}}}]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-16 · Choosing I²C pull-ups: rise time = R × bus capacitance",
-      "summary": "Two open-drain Blue Pill pins toggle at 100 kHz as two I²C lines, each with 200 pF of bus capacitance — one pulled up with 10 kΩ, one with 2.2 kΩ. Compare the scope's rise / fall with the I²C spec and work out the lower limit of the pull-up (3 mA sink current).",
-      "concepts": [
-        "open-drain output",
-        "I²C pull-up",
-        "rise time ≈ 0.8473·RC (30–70 %) / 2.2·RC (10–90 %)",
-        "bus capacitance",
-        "sink-current limit"
-      ],
-      "description": [
-        "**Goal**: see how the rising edge of an open-drain bus such as I²C is set by the pull-up resistor and the bus capacitance (τ = R·C), and learn to pick the pull-up range from the I²C spec.",
-        "",
-        "**Circuit**: a Blue Pill at c1 on USB. Lower-row 3V3 (j20) → bp rail, GND (j19) → bn rail. Two PWM-capable pins (the solution uses I²C1's **PB6 / PB7**, g14 / g15) are two \"buses\":",
-        "- bus A: PB6 → RA **10 kΩ** pull-up to 3V3, CA **200 pF** to GND;",
-        "- bus B: PB7 → RB **2.2 kΩ** pull-up to 3V3, CB **200 pF** to GND.",
-        "",
-        "The 200 pF stands for the real bus capacitance: about 10 pF per I²C device pin, about 5–10 pF per 10 cm of trace / jumper wire, plus the scope probe — a few modules and a bit of wire easily reach 100–200 pF (the spec limit is 400 pF). Scope CH1 on bus A, CH2 on bus B.",
-        "",
-        "**Pin table settings**: set both pins to **PWM output + open drain** (`{ \"mode\": \"pwm\", \"duty\": 50, \"frequency\": 100000, \"openDrain\": true }`): a 100 kHz square wave in place of the I²C SCL clock. The tests also use 400 kHz, and static \"open-drain LOW / released\".",
-        "",
-        "**Formulas**: the charging curve is V(t) = 3.3 V × (1 − e^(−t/RC)).",
-        "- 10 % → 90 %: t = RC × ln 9 ≈ **2.197·RC** (what the scope's `rise` measures);",
-        "- the I²C spec's t_r is **30 % → 70 %**: t = RC × ln(7/3) ≈ **0.8473·RC**, about 0.386 × the 10–90 % time;",
-        "- spec limits: Standard mode (100 kHz) t_r ≤ **1000 ns**, Fast mode (400 kHz) t_r ≤ **300 ns**. In 10–90 % terms that is about 2.59 µs and 0.78 µs.",
-        "",
-        "**Predict first**: what is τ for each bus? What are the 10–90 % rise time and the spec's t_r (30–70 %), and does each bus meet Standard mode and Fast mode? Within half a 100 kHz period (5 µs) and half a 400 kHz period (1.25 µs), how high does the 10 kΩ bus get — enough for the STM32's VIH (2.15 V)? How much current does each bus sink in output LOW (the pin's N-channel transistor is about 40 Ω)?",
-        "",
-        "**Measure**:",
-        "- **rise time** (10 % → 90 %): once the open-drain pin lets go, only the pull-up charges the bus capacitance, τ = R·C;",
-        "- **fall time**: when the pin conducts, its N-channel transistor (about 40 Ω) discharges the bus directly — very fast;",
-        "- the highest level reached (vmax): if the rise is too slow, the line **never reaches** VIH before the next falling edge;",
-        "- the **sink current** and V_OL in output LOW: with too small a pull-up the pin can't pull the line low.",
-        "Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**Choosing the pull-up**:",
-        "- **Upper limit** (fast enough): R_max = t_r / (0.8473 × C_bus). At 200 pF, Standard mode R_max ≈ 5.9 kΩ, Fast mode R_max ≈ **1.77 kΩ** (use 1.5 kΩ).",
-        "- **Lower limit** (can pull low): the I²C spec only guarantees V_OL ≤ **0.4 V** while sinking **3 mA**, so R_min = (3.3 V − 0.4 V) / 3 mA ≈ **967 Ω** (1.53 kΩ on a 5 V bus).",
-        "- So for 3.3 V, 100 kHz and a few modules: **2.2–4.7 kΩ**; for 400 kHz or long wires: **1–2.2 kΩ**.",
-        "",
-        "**Internal pull-ups are too weak**: about 40 kΩ (STM32) or 45 kΩ (ESP32) gives τ ≈ 8–9 µs at 200 pF — longer than a whole 100 kHz period. They only make a single module on very short wires \"sort of work\"; a real design needs external pull-ups.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- Many I²C breakout boards **already have** pull-ups (often 4.7 kΩ or 10 kΩ). Five such modules in parallel give 4.7 kΩ / 5 ≈ 940 Ω — below the lower limit, and the low level no longer gets low enough. Remove the extra pull-ups when you hang several modules on one bus.",
-        "- Longer jumper wires mean more capacitance; beyond 30–50 cm errors start. For long runs use a lower clock, smaller pull-ups, or an I²C buffer (P82B715, PCA9515).",
-        "- Pull up to **3.3 V**, not 5 V: no ESP32 pin is 5 V tolerant, and on an STM32 only the FT pins are (PB6 / PB7 are). To talk to 5 V parts use a level shifter (the BSS138 bidirectional module).",
-        "- ESP32 I²C can use any GPIO, but avoid GPIO34–39 (input-only), GPIO6–11 (flash) and the strapping pins; the default is GPIO21 (SDA) / GPIO22 (SCL).",
-        "- When the bus \"hangs\" (SDA stuck low), check the pull-ups and levels first, then whether a slave was interrupted mid-transfer by a reset.",
-        "",
-        "**Model note**: the open-drain N-channel transistor is an ideal 40 Ω switch with no output capacitance; R and C are ideal; the time-domain simulation uses 256 steps per period (39 ns per step at 100 kHz), so fall is only resolved to a few tens of ns and the bottom of the waveform shows a few tens of mV of numerical undershoot; the square wave only imitates SCL — there is no real I²C protocol."
-      ],
+      "title": "I²C pull-ups: R × C sets the rising edge",
+      "summary": "Two open-drain Blue Pill pins at 100 kHz stand in for two I²C lines, each with 200 pF, one pulled up by 10 kΩ and one by 2.2 kΩ. Both fall sharply, but one rises slowly. Measure the rise time and the LOW level, and learn the range a pull-up must sit in.",
+      "concepts": ["open-drain output", "I²C pull-up", "rise time", "bus capacitance", "sink-current limit"],
+      "description": "Two Blue Pill pins set to PWM + open-drain (100 kHz) stand in for the I²C clock line. Bus A: 10 kΩ pull-up to 3V3 and 200 pF to GND; bus B: 2.2 kΩ pull-up and 200 pF. An open-drain pin can only pull down; going up, only the pull-up can charge the bus capacitance, so the rise time ≈ 2.2·R·C. Measure both rising edges, how high bus A gets at 400 kHz, and the LOW voltage and sink current, then choose pull-ups against the I²C spec.",
       "compare": [
         "**Compare** (simulated, 200 pF):",
         "- **2.2 kΩ, 100 kHz**: τ = 440 ns, rise (10–90 %) = **0.97 µs** (2.2 × 2.2 kΩ × 200 pF = 0.97 µs), i.e. t_r(30–70 %) ≈ 373 ns: meets Standard mode, **fails** Fast mode (> 300 ns). The high level reaches 3.30 V. fall < 0.1 µs (limited by the time step; really about 2.2 × 40 Ω × 200 pF ≈ 18 ns).",
@@ -117,277 +156,144 @@
       ],
       "measurements": [
         {"ask": "100 kHz: bus B's (2.2 kΩ) rise time t_r (10% → 90%)", "explain": "t_r = RC·ln 9 ≈ 2.2 × 2.2 kΩ × 200 pF ≈ 0.97 µs."},
-        {"ask": "400 kHz: the highest voltage bus A (10 kΩ) reaches", "explain": "Half a period, 1.25 µs, is only about 0.6τ: it climbs to about 1.5 V — below the STM32's VIH (2.15 V), so the other side always reads 0."},
-        {"ask": "I²C Fast mode needs t_r(30–70%) ≤ 300 ns (about ≤ 0.78 µs for 10–90%). From your readings:", "choices": ["Neither bus meets it", "Only bus B (2.2 kΩ) meets it", "Both meet it"], "explain": "Bus B's 0.97 µs is above 0.78 µs too; at 200 pF Fast mode needs a pull-up ≤ 1.77 kΩ (use 1.5 kΩ)."}
+        {
+          "ask": "400 kHz: the highest voltage bus A (10 kΩ) reaches",
+          "explain": "Half a period, 1.25 µs, is only about 0.6τ: it climbs to about 1.5 V — below the STM32's VIH (2.15 V), so the other side always reads 0."
+        },
+        {
+          "ask": "Both pins OUT LOW: multimeter, bus B (2.2 kΩ) to GND — the LOW level V_OL",
+          "explain": "3.3 V divided between 2.2 kΩ and the pin's switch of about 40 Ω: 3.3 × 40 / 2240 ≈ 59 mV, far below 0.4 V."
+        },
+        {
+          "ask": "From your reading, the current the pin sinks: (3.3 V − V_OL) / 2.2 kΩ",
+          "explain": "≈ 1.47 mA, within the 3 mA the chip promises. A pull-up down near 1 kΩ reaches that limit."
+        },
+        {
+          "ask": "I²C Fast mode needs t_r(30–70%) ≤ 300 ns (about ≤ 0.78 µs for 10–90%). From your readings:",
+          "choices": ["Neither bus meets it", "Only bus B (2.2 kΩ) meets it", "Both meet it"],
+          "explain": "Bus B's 0.97 µs is above 0.78 µs too; at 200 pF Fast mode needs a pull-up ≤ 1.77 kΩ (use 1.5 kΩ)."
+        }
       ],
       "hints": [
-        "Each bus: GPIO → pull-up resistor → 3V3, and the 200 pF capacitor from the same GPIO to GND.",
-        "Bus A gets 10 kΩ, bus B gets 2.2 kΩ.",
-        "Set both pins to PWM, 100 kHz, 50 %, and tick open drain."
+        "Each bus: pin → pull-up → 3V3, and the same pin → 200 pF → GND.",
+        "Bus A uses 10 kΩ, bus B 2.2 kΩ.",
+        "Set both pins to PWM, 100 kHz, 50 %, and tick Open-drain output."
       ],
       "tests": [
         "100 kHz, bus B (2.2 kΩ): rise time meets Standard mode, reaches 3.3 V, fast fall",
         "100 kHz, bus A (10 kΩ): too slow a rise, never reaches 3.3 V",
         "400 kHz: bus A never reaches VIH",
-        "Open-drain LOW: bus B sinks ≈ 1.47 mA at V_OL ≈ 59 mV, bus A ≈ 0.33 mA — both under 3 mA",
+        "Open-drain LOW: both buses pulled down, sink currents within 3 mA",
         "Released (open-drain HIGH): the pull-ups hold both lines at 3.3 V"
+      ],
+      "cards": [
+        {
+          "title": "Which line looks like a shark fin?",
+          "text": [
+            "Connect the **Blue Pill**'s bottom-row **3V3** and **GND** pins to the bottom rails. Pick two PWM-capable pins (e.g. **PB6**, **PB7**) as two \"bus lines\".",
+            "Bus A: pin → **`10 kΩ`** to 3V3, plus **`200 pF`** to GND. Bus B the same, but with a **`2.2 kΩ`** pull-up.",
+            "Set both pins to **PWM**, **`100 kHz`**, **`50 %`**, and tick **Open-drain output**. Scope CH1 on bus A, CH2 on bus B.",
+            "Both falling edges are steep. What about the rising edges? Which line looks like a shark fin?"
+          ]
+        },
+        {
+          "title": "Going up, only the resistor helps",
+          "text": [
+            "- An open-drain pin (from 5.6) can only **pull down**: inside is a switch of about 40 Ω to GND. To output HIGH it simply **lets go**.",
+            "![](fig:pullup)",
+            "- Once it lets go, only the pull-up can lift the line, and it must first charge the **bus capacitance**: every chip pin and every piece of wire adds a few pF. That is an RC charge — slow and curved. Pulling down goes through a few tens of ohms, so the falling edge is steep.",
+            "![](fig:edges)",
+            "- The 10 % → 90 % time of an RC charge (the scope's \"rise time\"):",
+            "$$t_r ≈ 2.2 × R × C$$",
+            "- With 4.7 kΩ and 200 pF: $t_r ≈ 2.2 × 4700 × 200$ pF ≈ 2.07 µs. When half a clock period is much shorter than that, the line is pulled down again before it reaches HIGH, and the other chip always reads 0."
+          ]
+        },
+        {
+          "title": "Measure the rise time and the LOW level",
+          "text": [
+            "- Press **Check my circuit**. The check also tries **400 kHz**, and both pins sitting still at **OUT LOW** and released.",
+            "- Read the rise time with the scope's **rise** measurement. For the 400 kHz question set both pins to 400 kHz in Properties and read bus A's highest voltage.",
+            "- For the two LOW-level questions set both pins to **OUT LOW** (open-drain still ticked) and measure bus B to GND with the multimeter. Predict first, then read."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **A pull-up has a window**: too large and the rise is too slow ($R ≤ \\frac{t_r}{0.85 × C}$, using the spec's 30–70 % time); too small and the pin cannot pull the line down — chips only promise a LOW ≤ 0.4 V while sinking 3 mA, so on a 3.3 V bus R ≥ (3.3 − 0.4) / 3 mA ≈ 1 kΩ.",
+            "- Rules of thumb: 3.3 V, 100 kHz, a few modules: **2.2–4.7 kΩ**; 400 kHz or long wires: **1–2.2 kΩ**. The chip's internal pull-ups (about 40 kΩ) are too weak; a real bus needs external ones.",
+            "- A real-world catch: many I²C modules already carry 4.7 kΩ pull-ups; five of them in parallel make about 940 Ω, below the lower limit — remove the extras. Pull up to **3.3 V**, not 5 V."
+          ]
+        }
       ]
     }
   },
   "components": [
-    {
-      "ref": "U1",
-      "type": "stm32_bluepill"
-    },
-    {
-      "ref": "RA",
-      "type": "resistor",
-      "resistance": "10k"
-    },
-    {
-      "ref": "CA",
-      "type": "capacitor",
-      "capacitance": "200p"
-    },
-    {
-      "ref": "RB",
-      "type": "resistor",
-      "resistance": "2.2k"
-    },
-    {
-      "ref": "CB",
-      "type": "capacitor",
-      "capacitance": "200p"
-    }
+    {"ref": "U1", "type": "stm32_bluepill"},
+    {"ref": "RA", "type": "resistor", "resistance": "10k"},
+    {"ref": "CA", "type": "capacitor", "capacitance": "200p"},
+    {"ref": "RB", "type": "resistor", "resistance": "2.2k"},
+    {"ref": "CB", "type": "capacitor", "capacitance": "200p"}
   ],
   "nets": [
-    {
-      "name": "BUS_A",
-      "pins": [
-        "U1.PWM1",
-        "RA.1",
-        "CA.1"
-      ]
-    },
-    {
-      "name": "BUS_B",
-      "pins": [
-        "U1.PWM2",
-        "RB.1",
-        "CB.1"
-      ]
-    },
-    {
-      "name": "V3V3",
-      "pins": [
-        "U1.3V3",
-        "RA.2",
-        "RB.2"
-      ]
-    },
-    {
-      "name": "GND",
-      "pins": [
-        "CA.2",
-        "CB.2",
-        "U1.GND"
-      ]
-    }
+    {"name": "BUS_A", "pins": ["U1.PWM1", "RA.1", "CA.1"]},
+    {"name": "BUS_B", "pins": ["U1.PWM2", "RB.1", "CB.1"]},
+    {"name": "V3V3", "pins": ["U1.3V3", "RA.2", "RB.2"]},
+    {"name": "GND", "pins": ["CA.2", "CB.2", "U1.GND"]}
   ],
   "tests": [
     {
       "name": "100 kHz、总线 B（2.2 kΩ）：上升时间满足标准模式，到 3.3 V，下降很快",
       "set": {
         "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 100000,
-              "openDrain": true
-            },
-            "PWM2": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 100000,
-              "openDrain": true
-            }
-          }
+          "modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}}
         }
       },
       "scope": [
-        {
-          "pin": "CB.1",
-          "measure": "rise",
-          "min": 9.2e-07,
-          "max": 1.01e-06
-        },
-        {
-          "pin": "CB.1",
-          "measure": "vmax",
-          "min": 3.25,
-          "max": 3.31
-        },
-        {
-          "pin": "CB.1",
-          "measure": "fall",
-          "max": 1.2e-07
-        }
+        {"pin": "CB.1", "measure": "rise", "min": 9.2e-07, "max": 1.01e-06},
+        {"pin": "CB.1", "measure": "vmax", "min": 3.25, "max": 3.31},
+        {"pin": "CB.1", "measure": "fall", "max": 1.2e-07}
       ]
     },
     {
       "name": "100 kHz、总线 A（10 kΩ）：上升太慢，高电平到不了 3.3 V",
       "set": {
         "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 100000,
-              "openDrain": true
-            },
-            "PWM2": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 100000,
-              "openDrain": true
-            }
-          }
+          "modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}}
         }
       },
       "scope": [
-        {
-          "pin": "CA.1",
-          "measure": "rise",
-          "min": 3.15e-06,
-          "max": 3.5e-06
-        },
-        {
-          "pin": "CA.1",
-          "measure": "vmax",
-          "min": 2.9,
-          "max": 3.15
-        },
-        {
-          "pin": "CA.1",
-          "measure": "fall",
-          "max": 1.2e-07
-        }
+        {"pin": "CA.1", "measure": "rise", "min": 3.15e-06, "max": 3.5e-06},
+        {"pin": "CA.1", "measure": "vmax", "min": 2.9, "max": 3.15},
+        {"pin": "CA.1", "measure": "fall", "max": 1.2e-07}
       ]
     },
     {
       "name": "400 kHz：总线 A 爬不到 VIH",
       "set": {
         "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 400000,
-              "openDrain": true
-            },
-            "PWM2": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 400000,
-              "openDrain": true
-            }
-          }
+          "modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 400000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 400000, "openDrain": true}}
         }
       },
-      "scope": [
-        {
-          "pin": "CA.1",
-          "measure": "vmax",
-          "min": 1.45,
-          "max": 1.62
-        },
-        {
-          "pin": "CB.1",
-          "measure": "vmax",
-          "min": 3.0,
-          "max": 3.2
-        }
-      ]
+      "scope": [{"pin": "CA.1", "measure": "vmax", "min": 1.45, "max": 1.62}, {"pin": "CB.1", "measure": "vmax", "min": 3.0, "max": 3.2}]
     },
     {
-      "name": "开漏输出低电平：总线 B 灌 ≈ 1.47 mA、V_OL ≈ 59 mV，总线 A ≈ 0.33 mA——都在 3 mA 以内",
-      "set": {
-        "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "out_low",
-              "openDrain": true
-            },
-            "PWM2": {
-              "mode": "out_low",
-              "openDrain": true
-            }
-          }
-        }
-      },
+      "name": "开漏输出低电平：两条总线都被拉低，灌电流在 3 mA 以内",
+      "set": {"U1": {"modes": {"PWM1": {"mode": "out_low", "openDrain": true}, "PWM2": {"mode": "out_low", "openDrain": true}}}},
       "gpio": [
-        {
-          "pin": "U1.PWM2",
-          "read": "low"
-        },
-        {
-          "pin": "U1.PWM2",
-          "measure": "current",
-          "min": -0.00155,
-          "max": -0.0014
-        },
-        {
-          "pin": "U1.PWM2",
-          "measure": "voltage",
-          "min": 0.05,
-          "max": 0.07
-        },
-        {
-          "pin": "U1.PWM1",
-          "measure": "current",
-          "min": -0.00035,
-          "max": -0.00031
-        }
+        {"pin": "U1.PWM2", "read": "low"},
+        {"pin": "U1.PWM2", "measure": "current", "min": -0.00155, "max": -0.0014},
+        {"pin": "U1.PWM2", "measure": "voltage", "min": 0.05, "max": 0.07},
+        {"pin": "U1.PWM1", "measure": "current", "min": -0.00035, "max": -0.00031}
       ]
     },
     {
       "name": "松开（开漏输出高）：上拉把两条线都拉到 3.3 V",
-      "set": {
-        "U1": {
-          "modes": {
-            "PWM1": {
-              "mode": "out_high",
-              "openDrain": true
-            },
-            "PWM2": {
-              "mode": "out_high",
-              "openDrain": true
-            }
-          }
-        }
-      },
+      "set": {"U1": {"modes": {"PWM1": {"mode": "out_high", "openDrain": true}, "PWM2": {"mode": "out_high", "openDrain": true}}}},
       "gpio": [
-        {
-          "pin": "U1.PWM1",
-          "read": "high"
-        },
-        {
-          "pin": "U1.PWM2",
-          "read": "high"
-        },
-        {
-          "pin": "U1.PWM1",
-          "measure": "voltage",
-          "min": 3.25,
-          "max": 3.31
-        },
-        {
-          "pin": "U1.PWM2",
-          "measure": "voltage",
-          "min": 3.25,
-          "max": 3.31
-        }
+        {"pin": "U1.PWM1", "read": "high"},
+        {"pin": "U1.PWM2", "read": "high"},
+        {"pin": "U1.PWM1", "measure": "voltage", "min": 3.25, "max": 3.31},
+        {"pin": "U1.PWM2", "measure": "voltage", "min": 3.25, "max": 3.31}
       ]
     }
   ],
@@ -399,15 +305,65 @@
     "- **输出低电平**：2.2 kΩ 时灌电流 3.3 V / (2.2 kΩ + 40 Ω) ≈ **1.47 mA**，V_OL ≈ **59 mV**；10 kΩ 时只有 0.33 mA。"
   ],
   "measurements": [
-    {"id": "trb", "stated": true, "scope": "rise", "pin": "CB.1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}}}}, "unit": "µs", "predict": true, "range": [9.2e-07, 1.01e-06], "ask": "100 kHz：总线 B（2.2 kΩ）的上升时间 t_r（10% → 90%）", "explain": "t_r = RC·ln 9 ≈ 2.2 × 2.2 kΩ × 200 pF ≈ 0.97 µs。"},
-    {"id": "vmaxa", "scope": "vmax", "pin": "CA.1", "set": {"U1": {"modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 400000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 400000, "openDrain": true}}}}, "unit": "V", "predict": true, "range": [1.45, 1.62], "ask": "400 kHz：总线 A（10 kΩ）能爬到的最高电压", "explain": "半个周期 1.25 µs 只有约 0.6τ，只能爬到约 1.5 V——低于 STM32 的 VIH（2.15 V），对方永远读到 0。"},
-    {"id": "fast", "choices": ["两条都不满足", "只有 2.2 kΩ 的总线 B 满足", "两条都满足"], "correct": 0, "ask": "I²C 快速模式要求 t_r(30–70%) ≤ 300 ns（约等于 10–90% 时间 ≤ 0.78 µs）。按你测的读数：", "explain": "总线 B 的 0.97 µs 也超过了 0.78 µs；200 pF 时快速模式的上拉要 ≤ 1.77 kΩ（用 1.5 kΩ）。"}
+    {
+      "id": "trb",
+      "stated": true,
+      "scope": "rise",
+      "pin": "CB.1",
+      "set": {
+        "U1": {
+          "modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}}
+        }
+      },
+      "unit": "µs",
+      "predict": true,
+      "range": [9.2e-07, 1.01e-06],
+      "ask": "100 kHz：总线 B（2.2 kΩ）的上升时间 t_r（10% → 90%）",
+      "explain": "t_r = RC·ln 9 ≈ 2.2 × 2.2 kΩ × 200 pF ≈ 0.97 µs。"
+    },
+    {
+      "id": "vmaxa",
+      "scope": "vmax",
+      "pin": "CA.1",
+      "set": {
+        "U1": {
+          "modes": {"PWM1": {"mode": "pwm", "duty": 50, "frequency": 400000, "openDrain": true}, "PWM2": {"mode": "pwm", "duty": 50, "frequency": 400000, "openDrain": true}}
+        }
+      },
+      "unit": "V",
+      "predict": true,
+      "range": [1.45, 1.62],
+      "ask": "400 kHz：总线 A（10 kΩ）能爬到的最高电压",
+      "explain": "半个周期 1.25 µs 只有约 0.6τ，只能爬到约 1.5 V——低于 STM32 的 VIH（2.15 V），对方永远读到 0。"
+    },
+    {
+      "id": "vol",
+      "voltage": "CB.1",
+      "set": {"U1": {"modes": {"PWM1": {"mode": "out_low", "openDrain": true}, "PWM2": {"mode": "out_low", "openDrain": true}}}},
+      "unit": "mV",
+      "predict": true,
+      "range": [0.05, 0.07],
+      "ask": "两个引脚都「输出 低」：万用表测总线 B（2.2 kΩ）对 GND 的低电平 V_OL",
+      "explain": "3.3 V 被 2.2 kΩ 和引脚里约 40 Ω 的开关分压：3.3 × 40 / 2240 ≈ 59 mV，远低于 0.4 V。"
+    },
+    {
+      "id": "isink",
+      "formula": "(3.3 - vol) / 2200",
+      "unit": "mA",
+      "predict": true,
+      "range": [0.0014, 0.00155],
+      "ask": "用你的读数算引脚灌进去的电流：(3.3 V − V_OL) / 2.2 kΩ",
+      "explain": "≈ 1.47 mA，在芯片保证的 3 mA 以内。上拉小到约 1 kΩ 时就碰到这个上限。"
+    },
+    {
+      "id": "fast",
+      "choices": ["两条都不满足", "只有 2.2 kΩ 的总线 B 满足", "两条都满足"],
+      "correct": 0,
+      "ask": "I²C 快速模式要求 t_r(30–70%) ≤ 300 ns（约等于 10–90% 时间 ≤ 0.78 µs）。按你测的读数：",
+      "explain": "总线 B 的 0.97 µs 也超过了 0.78 µs；200 pF 时快速模式的上拉要 ≤ 1.77 kΩ（用 1.5 kΩ）。"
+    }
   ],
-  "hints": [
-    "每条总线：GPIO → 上拉电阻 → 3V3，同一个 GPIO 再接 200 pF 电容到 GND。",
-    "总线 A 用 10 kΩ，总线 B 用 2.2 kΩ。",
-    "两个引脚都设成 PWM、100 kHz、50 %，并勾选开漏。"
-  ],
+  "hints": ["每条总线：引脚 → 上拉电阻 → 3V3，同一个引脚再接 200 pF 电容到 GND。", "总线 A 用 10 kΩ，总线 B 用 2.2 kΩ。", "两个引脚都设成 PWM、100 kHz、50 %，并勾选「开漏输出」。"],
   "solution": {
     "parts": [
       {
@@ -416,94 +372,17 @@
         "at": "c1",
         "props": {
           "usb": true,
-          "modes": {
-            "PB6": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 100000,
-              "openDrain": true
-            },
-            "PB7": {
-              "mode": "pwm",
-              "duty": 50,
-              "frequency": 100000,
-              "openDrain": true
-            }
-          }
+          "modes": {"PB6": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}, "PB7": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}}
         }
       },
-      {
-        "type": "wire",
-        "ref": "W1",
-        "color": "black",
-        "pins": {
-          "a": "j19",
-          "b": "bn19"
-        }
-      },
-      {
-        "type": "wire",
-        "ref": "W2",
-        "color": "orange",
-        "pins": {
-          "a": "j20",
-          "b": "bp20"
-        }
-      },
-      {
-        "type": "resistor",
-        "ref": "RA",
-        "resistance": "10k",
-        "pins": {
-          "1": "h14",
-          "2": "bp14"
-        }
-      },
-      {
-        "type": "capacitor",
-        "ref": "CA",
-        "capacitance": "200p",
-        "pins": {
-          "1": "i14",
-          "2": "bn14"
-        }
-      },
-      {
-        "type": "resistor",
-        "ref": "RB",
-        "resistance": "2.2k",
-        "pins": {
-          "1": "h15",
-          "2": "bp15"
-        }
-      },
-      {
-        "type": "capacitor",
-        "ref": "CB",
-        "capacitance": "200p",
-        "pins": {
-          "1": "i15",
-          "2": "bn15"
-        }
-      },
-      {
-        "type": "scope_probe",
-        "ref": "PR1",
-        "channel": 1,
-        "pins": {
-          "tip": "f14",
-          "gnd": "bn22"
-        }
-      },
-      {
-        "type": "scope_probe",
-        "ref": "PR2",
-        "channel": 2,
-        "pins": {
-          "tip": "f15",
-          "gnd": "bn23"
-        }
-      }
+      {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "j19", "b": "bn19"}},
+      {"type": "wire", "ref": "W2", "color": "orange", "pins": {"a": "j20", "b": "bp20"}},
+      {"type": "resistor", "ref": "RA", "resistance": "10k", "pins": {"1": "h14", "2": "bp14"}},
+      {"type": "capacitor", "ref": "CA", "capacitance": "200p", "pins": {"1": "i14", "2": "bn14"}},
+      {"type": "resistor", "ref": "RB", "resistance": "2.2k", "pins": {"1": "h15", "2": "bp15"}},
+      {"type": "capacitor", "ref": "CB", "capacitance": "200p", "pins": {"1": "i15", "2": "bn15"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "f14", "gnd": "bn22"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "f15", "gnd": "bn23"}}
     ]
   }
 }

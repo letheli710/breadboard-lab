@@ -1,0 +1,90 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "basics-09-vcvs-amplifier",
+  "chapter": "dependent-sources",
+  "title": "电压放大器模型",
+  "level": 2,
+  "tags": ["受控源的识别", "功率"],
+  "statement": [
+    "图示为一个电压放大器的电路模型：信号源 V_s = 2 V，内阻 R_s = 1 Ω；放大器输入电阻 R_i = 3 Ω，输出电阻 R_o = 1 Ω；负载 R_L = 3 Ω。受控源 E 的电压为 8v_1（“+”在上），v_1 为 R_i 两端的电压（“+”在上）。",
+    "求 v_1、输出电压 v_o（结点 o 对地）和受控源 E 吸收的功率，并判断 E 属于哪一类受控源。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 2 },
+      { "ref": "Rs", "type": "R", "from": [2, 0], "to": [5, 0], "value": 1 },
+      { "ref": "Ri", "type": "R", "from": [7, 0], "to": [7, 4], "value": 3 },
+      { "ref": "E", "type": "VCVS", "from": [10, 0], "to": [10, 4], "value": 8, "ctrl": { "v": "Ri" }, "label": "8v_1" },
+      { "ref": "Ro", "type": "R", "from": [11, 0], "to": [14, 0], "value": 1 },
+      { "ref": "RL", "type": "R", "from": [16, 0], "to": [16, 4], "value": 3 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[5, 0], [7, 0]],
+      [[10, 0], [11, 0]],
+      [[14, 0], [16, 0]],
+      [[16, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [16, 0], "name": "o" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "v", "el": "Ri", "name": "v1" }]
+  },
+  "analysis": { "type": "dc" },
+  "questions": [
+    { "id": "u1", "ask": "v_1 = ?", "find": { "kind": "v", "el": "Ri" }, "answer": 1.5, "unit": "V", "explain": "输入回路是 V_s、R_s、R_i 的串联（受控源不从输入回路取电流）：v_1 = 2 × 3/(1 + 3) = 1.5 V。" },
+    { "id": "uo", "ask": "v_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 9, "unit": "V", "explain": "E 的电压 8 × 1.5 = 12 V，经 R_o、R_L 分压：v_o = 12 × 3/(1 + 3) = 9 V。电压增益 v_o/V_s = 4.5。" },
+    { "id": "pe", "ask": "受控源 E 吸收的功率 = ?", "find": { "kind": "p", "el": "E" }, "answer": -36, "unit": "W", "explain": "输出回路电流 12/(1 + 3) = 3 A，从 E 的“+”端流出，非关联：P吸 = −12 × 3 = −36 W，即 E 发出 36 W。" },
+    {
+      "id": "type",
+      "ask": "图中受控源 E 属于：",
+      "choices": ["电压控制电压源（VCVS）", "电压控制电流源（VCCS）", "电流控制电压源（CCVS）", "电流控制电流源（CCCS）"], "choiceExplain": ["", "菱形里画的是“+ −”，输出是电压，不是电流（电流源画箭头）。", "控制量 v_1 是一个电压，不是电流。", "CCCS 的菱形里画的是箭头，系数后面跟的是电流；对照图上 E 的符号和控制量 v_1 再判断一次。"],
+      "correct": 0,
+      "explain": "菱形里有“+ −”说明它的输出是电压；控制量 v_1 是一个电压，所以是 VCVS，控制系数 μ = 8 无量纲。"
+    }
+  ],
+  "hints": [
+    "受控源只“感受”控制量，不从输入回路取电流：先单独解输入回路求 v_1。",
+    "求出 v_1 后，E 就是一个电压为 8v_1 的已知电压源，再解输出回路（R_o 与 R_L 串联）。"
+  ],
+  "solution": [
+    "**1. 输入回路。** V_s、R_s、R_i 串联：i_in = 2/(1 + 3) = 0.5 A，**v_1 = R_i·i_in = 1.5 V**。",
+    "**2. 受控源电压。** E = 8v_1 = 12 V（“+”在上）。",
+    "**3. 输出回路。** i_out = 12/(R_o + R_L) = 3 A，**v_o = R_L·i_out = 9 V**。",
+    "**4. E 的功率。** 3 A 从“+”端流出，**P_E = −12 × 3 = −36 W**（发出 36 W）。",
+    "**5. 功率验算。** 输出回路：P_Ro + P_RL = 9 + 27 = 36 W，正好等于 E 发出的功率；输入回路：V_s 发出 1 W，R_s、R_i 吸收 0.25 + 0.75 = 1 W。",
+    "**6. 类型。** 输出是电压、控制量是电压 → **VCVS**。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Voltage-amplifier model",
+      "tags": ["identifying dependent sources", "power"],
+      "statement": [
+        "The circuit models a voltage amplifier: signal source V_s = 2 V with internal resistance R_s = 1 Ω; amplifier input resistance R_i = 3 Ω and output resistance R_o = 1 Ω; load R_L = 3 Ω. The dependent source E has voltage 8v_1 (\"+\" at the top), where v_1 is the voltage across R_i (\"+\" at the top).",
+        "Find v_1, the output voltage v_o (node o to ground) and the power absorbed by E, and identify the type of the dependent source."
+      ],
+      "questions": [
+        { "ask": "v_1 = ?", "explain": "The input loop is V_s, R_s and R_i in series (the dependent source draws no current from it): v_1 = 2 × 3/(1 + 3) = 1.5 V." },
+        { "ask": "v_o = ?", "explain": "E = 8 × 1.5 = 12 V, divided by R_o and R_L: v_o = 12 × 3/(1 + 3) = 9 V. Voltage gain v_o/V_s = 4.5." },
+        { "ask": "Power absorbed by E = ?", "explain": "The output current 12/(1 + 3) = 3 A leaves E's \"+\" terminal — active convention: P_abs = −12 × 3 = −36 W, i.e. E delivers 36 W." },
+        {
+          "ask": "The dependent source E is a:",
+          "choices": ["voltage-controlled voltage source (VCVS)", "voltage-controlled current source (VCCS)", "current-controlled voltage source (CCVS)", "current-controlled current source (CCCS)"], "choiceExplain": ["", "The diamond shows + and −, so its output is a voltage, not a current (a current source would show an arrow).", "The controlling quantity v_1 is a voltage, not a current.", "A CCCS has an arrow inside the diamond and a current after its coefficient; compare that with the symbol of E and its controlling quantity v_1."],
+          "explain": "The \"+ −\" inside the diamond means its output is a voltage; the controlling quantity v_1 is a voltage. So it is a VCVS with a dimensionless gain μ = 8."
+        }
+      ],
+      "hints": [
+        "A dependent source only senses its controlling quantity and draws no current from the input loop: solve the input loop alone for v_1 first.",
+        "Once v_1 is known, E is just a known voltage source of value 8v_1; then solve the output loop (R_o in series with R_L)."
+      ],
+      "solution": [
+        "**1. Input loop.** V_s, R_s, R_i in series: i_in = 2/(1 + 3) = 0.5 A, **v_1 = R_i·i_in = 1.5 V**.",
+        "**2. Dependent-source voltage.** E = 8v_1 = 12 V (\"+\" at the top).",
+        "**3. Output loop.** i_out = 12/(R_o + R_L) = 3 A, **v_o = R_L·i_out = 9 V**.",
+        "**4. Power of E.** 3 A leaves the \"+\" terminal: **P_E = −12 × 3 = −36 W** (delivers 36 W).",
+        "**5. Power check.** Output loop: P_Ro + P_RL = 9 + 27 = 36 W, exactly what E delivers; input loop: V_s delivers 1 W, R_s and R_i absorb 0.25 + 0.75 = 1 W.",
+        "**6. Type.** Output is a voltage and the control is a voltage → **VCVS**."
+      ]
+    }
+  }
+}

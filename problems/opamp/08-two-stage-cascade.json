@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["多级运放电路", "同相比例放大器", "反相比例放大器"],
   "statement": [
-    "图示两级放大电路，u_s = 0.5 V。第一级 A_1：R_1 = R_f1 = 10 kΩ；第二级 A_2：R_3 = 10 kΩ，R_f2 = 30 kΩ。运放均为理想运放。",
-    "求第一级输出 u_o1、最后输出 u_o 以及总电压放大倍数 u_o/u_s。"
+    "图示两级放大电路，v_s = 0.5 V。第一级 A_1：R_1 = R_f1 = 10 kΩ；第二级 A_2：R_3 = 10 kΩ，R_f2 = 30 kΩ。运放均为理想运放。",
+    "求第一级输出 v_o1、最后输出 v_o 以及总电压放大倍数 v_o/v_s。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": 0.5, "label": "u_s" },
+      { "ref": "Vs", "type": "V", "from": [0, 3], "to": [0, 7], "value": 0.5, "label": "v_s" },
       { "ref": "A1", "type": "OPAMP", "at": [10, 4], "flip": true },
       { "ref": "R1", "type": "R", "from": [6, 5], "to": [6, 10], "value": "10k" },
       { "ref": "Rf1", "type": "R", "from": [8, 8], "to": [12, 8], "value": "10k" },
@@ -39,22 +39,22 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "uo1", "ask": "u_o1 = ?", "find": { "kind": "v", "nodes": ["o1"] }, "answer": 1, "unit": "V", "explain": "第一级是同相比例放大器：u_o1 = (1 + R_f1/R_1)·u_s = 2 × 0.5 = 1 V。" },
-    { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": -3, "unit": "V", "explain": "第二级是反相比例放大器，输入为 u_o1：u_o = −(R_f2/R_3)·u_o1 = −3 × 1 = −3 V。" },
-    { "id": "gain", "ask": "总电压放大倍数 u_o/u_s = ?", "find": { "kind": "gain", "out": ["o"], "input": "Us" }, "answer": -6, "unit": "", "explain": "总放大倍数等于各级放大倍数之积：2 × (−3) = −6。" },
+    { "id": "uo1", "ask": "v_o1 = ?", "find": { "kind": "v", "nodes": ["o1"] }, "answer": 1, "unit": "V", "explain": "第一级是同相比例放大器：v_o1 = (1 + R_f1/R_1)·v_s = 2 × 0.5 = 1 V。" },
+    { "id": "uo", "ask": "v_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": -3, "unit": "V", "explain": "第二级是反相比例放大器，输入为 v_o1：v_o = −(R_f2/R_3)·v_o1 = −3 × 1 = −3 V。" },
+    { "id": "gain", "ask": "总电压放大倍数 v_o/v_s = ?", "find": { "kind": "gain", "out": ["o"], "input": "Vs" }, "answer": -6, "unit": "", "explain": "总放大倍数等于各级放大倍数之积：2 × (−3) = −6。" },
     {
       "id": "load",
       "ask": "为什么可以把两级分开计算，而不必考虑第二级的 R_3 对第一级的“负载效应”？",
-      "choices": ["因为 R_3 的阻值较大（10 kΩ），从第一级取的电流小到可以忽略", "因为理想运放的输出端相当于受控电压源，输出电阻为零，u_o1 与负载无关", "因为第二级反相端是虚地，R_3 中没有电流"], "choiceExplain": ["这里并没有忽略任何电流：R_3 中有 0.1 mA，由 A_1 的输出端提供。若前级有输出电阻，这 0.1 mA 就会改变 u_o1，所以“电流小”不是理由。", "", "虚地只说明 A_2 反相端电位为零，R_3 两端仍有 u_o1 = 1 V，其中有 0.1 mA 电流；不取电流的是运放输入端（虚断），不是 R_3。"],
+      "choices": ["因为 R_3 的阻值较大（10 kΩ），从第一级取的电流小到可以忽略", "因为理想运放的输出端相当于受控电压源，输出电阻为零，v_o1 与负载无关", "因为第二级反相端是虚地，R_3 中没有电流"], "choiceExplain": ["这里并没有忽略任何电流：R_3 中有 0.1 mA，由 A_1 的输出端提供。若前级有输出电阻，这 0.1 mA 就会改变 v_o1，所以“电流小”不是理由。", "", "虚地只说明 A_2 反相端电位为零，R_3 两端仍有 v_o1 = 1 V，其中有 0.1 mA 电流；不取电流的是运放输入端（虚断），不是 R_3。"],
       "correct": 1,
-      "explain": "理想运放的输出电压由输入决定，与输出端接什么负载无关（输出电阻为零）。R_3 中实际有 0.1 mA 电流，由 A_1 的输出端提供，但不改变 u_o1。所以多级运放电路可以逐级计算、放大倍数相乘。"
+      "explain": "理想运放的输出电压由输入决定，与输出端接什么负载无关（输出电阻为零）。R_3 中实际有 0.1 mA 电流，由 A_1 的输出端提供，但不改变 v_o1。所以多级运放电路可以逐级计算、放大倍数相乘。"
     }
   ],
   "hints": ["先识别每一级的类型：A_1 是什么放大器？A_2 呢？", "理想运放输出电压不受负载影响，第一级的输出就是第二级的输入电压源。"],
   "solution": [
-    "**第一级（同相比例）：** 虚短 u_{−1} = u_s = 0.5 V，R_1 电流 0.05 mA 全部来自 R_f1，u_o1 = 0.5 + 10k × 0.05 mA = **1 V**。",
-    "**第二级（反相比例）：** A_2 反相端为虚地，R_3 电流 u_o1/R_3 = 0.1 mA 全部流过 R_f2，u_o = 0 − 30k × 0.1 mA = **−3 V**。",
-    "**总放大倍数：** u_o/u_s = (1 + R_f1/R_1)·(−R_f2/R_3) = 2 × (−3) = **−6**。",
+    "**第一级（同相比例）：** 虚短 v_{−1} = v_s = 0.5 V，R_1 电流 0.05 mA 全部来自 R_f1，v_o1 = 0.5 + 10k × 0.05 mA = **1 V**。",
+    "**第二级（反相比例）：** A_2 反相端为虚地，R_3 电流 v_o1/R_3 = 0.1 mA 全部流过 R_f2，v_o = 0 − 30k × 0.1 mA = **−3 V**。",
+    "**总放大倍数：** v_o/v_s = (1 + R_f1/R_1)·(−R_f2/R_3) = 2 × (−3) = **−6**。",
     "理想运放输出电阻为零，后级不影响前级，所以可以逐级计算。"
   ],
   "i18n": {
@@ -62,24 +62,24 @@
       "title": "Cascading two op-amp stages",
       "tags": ["multi-stage op-amp circuits", "non-inverting amplifier", "inverting amplifier"],
       "statement": [
-        "A two-stage amplifier with u_s = 0.5 V. First stage A_1: R_1 = R_f1 = 10 kΩ; second stage A_2: R_3 = 10 kΩ, R_f2 = 30 kΩ. Both op-amps are ideal.",
-        "Find the first-stage output u_o1, the final output u_o and the overall voltage gain u_o/u_s."
+        "A two-stage amplifier with v_s = 0.5 V. First stage A_1: R_1 = R_f1 = 10 kΩ; second stage A_2: R_3 = 10 kΩ, R_f2 = 30 kΩ. Both op-amps are ideal.",
+        "Find the first-stage output v_o1, the final output v_o and the overall voltage gain v_o/v_s."
       ],
       "questions": [
-        { "ask": "u_o1 = ?", "explain": "The first stage is a non-inverting amplifier: u_o1 = (1 + R_f1/R_1)·u_s = 2 × 0.5 = 1 V." },
-        { "ask": "u_o = ?", "explain": "The second stage is an inverting amplifier driven by u_o1: u_o = −(R_f2/R_3)·u_o1 = −3 × 1 = −3 V." },
-        { "ask": "Overall voltage gain u_o/u_s = ?", "explain": "The overall gain is the product of the stage gains: 2 × (−3) = −6." },
+        { "ask": "v_o1 = ?", "explain": "The first stage is a non-inverting amplifier: v_o1 = (1 + R_f1/R_1)·v_s = 2 × 0.5 = 1 V." },
+        { "ask": "v_o = ?", "explain": "The second stage is an inverting amplifier driven by v_o1: v_o = −(R_f2/R_3)·v_o1 = −3 × 1 = −3 V." },
+        { "ask": "Overall voltage gain v_o/v_s = ?", "explain": "The overall gain is the product of the stage gains: 2 × (−3) = −6." },
         {
           "ask": "Why may the two stages be analysed separately, without worrying about R_3 \"loading\" the first stage?",
-          "choices": ["Because R_3 is large (10 kΩ), so the current it draws from the first stage is negligible", "Because an ideal op-amp output behaves like a dependent voltage source with zero output resistance, so u_o1 doesn't depend on the load", "Because the second stage's inverting input is a virtual ground, so R_3 carries no current"], "choiceExplain": ["No current is being neglected here: R_3 carries 0.1 mA, supplied by A_1's output. If the first stage had any output resistance this 0.1 mA would change u_o1, so \"the current is small\" is not the reason.", "", "A virtual ground only means A_2's inverting input is at 0 V; R_3 still has u_o1 = 1 V across it and carries 0.1 mA. It is the op-amp input that draws no current (virtual open), not R_3."],
-          "explain": "An ideal op-amp's output voltage is set by its inputs, whatever is connected to the output (zero output resistance). R_3 does carry 0.1 mA, supplied by A_1's output, but u_o1 is unchanged. So multi-stage op-amp circuits can be solved stage by stage, multiplying the gains."
+          "choices": ["Because R_3 is large (10 kΩ), so the current it draws from the first stage is negligible", "Because an ideal op-amp output behaves like a dependent voltage source with zero output resistance, so v_o1 doesn't depend on the load", "Because the second stage's inverting input is a virtual ground, so R_3 carries no current"], "choiceExplain": ["No current is being neglected here: R_3 carries 0.1 mA, supplied by A_1's output. If the first stage had any output resistance this 0.1 mA would change v_o1, so \"the current is small\" is not the reason.", "", "A virtual ground only means A_2's inverting input is at 0 V; R_3 still has v_o1 = 1 V across it and carries 0.1 mA. It is the op-amp input that draws no current (virtual open), not R_3."],
+          "explain": "An ideal op-amp's output voltage is set by its inputs, whatever is connected to the output (zero output resistance). R_3 does carry 0.1 mA, supplied by A_1's output, but v_o1 is unchanged. So multi-stage op-amp circuits can be solved stage by stage, multiplying the gains."
         }
       ],
       "hints": ["First identify each stage: what kind of amplifier is A_1? And A_2?", "An ideal op-amp's output voltage is unaffected by its load, so the first stage's output acts as a voltage source driving the second stage."],
       "solution": [
-        "**Stage 1 (non-inverting):** virtual short u_{−1} = u_s = 0.5 V; R_1 carries 0.05 mA, all of it from R_f1: u_o1 = 0.5 + 10k × 0.05 mA = **1 V**.",
-        "**Stage 2 (inverting):** A_2's inverting input is a virtual ground; R_3 carries u_o1/R_3 = 0.1 mA, all of it through R_f2: u_o = 0 − 30k × 0.1 mA = **−3 V**.",
-        "**Overall gain:** u_o/u_s = (1 + R_f1/R_1)·(−R_f2/R_3) = 2 × (−3) = **−6**.",
+        "**Stage 1 (non-inverting):** virtual short v_{−1} = v_s = 0.5 V; R_1 carries 0.05 mA, all of it from R_f1: v_o1 = 0.5 + 10k × 0.05 mA = **1 V**.",
+        "**Stage 2 (inverting):** A_2's inverting input is a virtual ground; R_3 carries v_o1/R_3 = 0.1 mA, all of it through R_f2: v_o = 0 − 30k × 0.1 mA = **−3 V**.",
+        "**Overall gain:** v_o/v_s = (1 + R_f1/R_1)·(−R_f2/R_3) = 2 × (−3) = **−6**.",
         "The ideal op-amp has zero output resistance, so a later stage doesn't affect an earlier one — the stages can be solved one at a time."
       ]
     }

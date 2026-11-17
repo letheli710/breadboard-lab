@@ -5,14 +5,14 @@
   "chapter": "first-order",
   "title": "电流源阶跃激励下的 RC 并联电路",
   "level": 1,
-  "tags": ["阶跃响应", "单位阶跃函数 ε(t)", "零状态响应"],
+  "tags": ["阶跃响应", "单位阶跃函数 u(t)", "零状态响应"],
   "statement": [
-    "图示电路中电流源 i_s = 2ε(t) mA（t < 0 时为零，t > 0 时为 2 mA），R = 5 kΩ，C = 10 µF。",
-    "求阶跃响应 u_C 的终值 u_C(∞)、时间常数 τ，以及 t = 0.05 s 时的 u_C 和电容电流 i_C。"
+    "图示电路中电流源 i_s = 2u(t) mA（t < 0 时为零，t > 0 时为 2 mA），R = 5 kΩ，C = 10 µF。",
+    "求阶跃响应 v_C 的终值 v_C(∞)、时间常数 τ，以及 t = 0.05 s 时的 v_C 和电容电流 i_C。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": { "step": { "before": 0, "after": 0.002 } }, "label": "2ε(t) mA" },
+      { "ref": "Is", "type": "I", "from": [0, 4], "to": [0, 0], "value": { "step": { "before": 0, "after": 0.002 } }, "label": "2u(t) mA" },
       { "ref": "R", "type": "R", "from": [4, 0], "to": [4, 4], "value": "5k" },
       { "ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": "10u" }
     ],
@@ -22,56 +22,56 @@
     ],
     "grounds": [[0, 4]],
     "marks": [
-      { "kind": "v", "el": "C", "name": "u_C" },
+      { "kind": "v", "el": "C", "name": "v_C" },
       { "kind": "i", "el": "C", "name": "i_C" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "uinf", "ask": "u_C(∞) = ?", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": 10, "unit": "V", "explain": "稳态时电容开路，2 mA 全部流过 R：u_C(∞) = 2 mA × 5 kΩ = 10 V。" },
+    { "id": "uinf", "ask": "v_C(∞) = ?", "find": { "kind": "v", "el": "C", "t": "inf" }, "answer": 10, "unit": "V", "explain": "稳态时电容开路，2 mA 全部流过 R：v_C(∞) = 2 mA × 5 kΩ = 10 V。" },
     { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.05, "unit": "s", "explain": "电流源置零（开路）后电容只看到 R：τ = RC = 5×10³ × 10×10⁻⁶ = 0.05 s。" },
-    { "id": "u1", "ask": "t = 0.05 s 时 u_C = ?", "find": { "kind": "v", "el": "C", "t": 0.05 }, "answer": 6.321206, "unit": "V", "explain": "u_C(t) = 10(1 − e^(−20t))ε(t) V，t = τ 时 u_C = 10(1 − e⁻¹) ≈ 6.321 V。" },
-    { "id": "ic1", "ask": "t = 0.05 s 时 i_C = ?", "find": { "kind": "i", "el": "C", "t": 0.05 }, "answer": 0.0007357589, "unit": "mA", "explain": "i_C = C du_C/dt = 2e^(−20t) mA（也可以用 i_C = i_s − u_C/R 求），t = τ 时 i_C = 2e⁻¹ ≈ 0.736 mA。" }
+    { "id": "u1", "ask": "t = 0.05 s 时 v_C = ?", "find": { "kind": "v", "el": "C", "t": 0.05 }, "answer": 6.321206, "unit": "V", "explain": "v_C(t) = 10(1 − e^(−20t))u(t) V，t = τ 时 v_C = 10(1 − e⁻¹) ≈ 6.321 V。" },
+    { "id": "ic1", "ask": "t = 0.05 s 时 i_C = ?", "find": { "kind": "i", "el": "C", "t": 0.05 }, "answer": 0.0007357589, "unit": "mA", "explain": "i_C = C dv_C/dt = 2e^(−20t) mA（也可以用 i_C = i_s − v_C/R 求），t = τ 时 i_C = 2e⁻¹ ≈ 0.736 mA。" }
   ],
   "hints": [
-    "ε(t) 表示 t = 0 时从 0 跳到 1；电容原来不带电，所以这是零状态响应。",
+    "u(t) 表示 t = 0 时从 0 跳到 1；电容原来不带电，所以这是零状态响应。",
     "终值把电容当开路；时间常数把电流源当开路。",
-    "i_C 可以直接求导，也可以用 KCL：i_C = i_s − u_C/R。"
+    "i_C 可以直接求导，也可以用 KCL：i_C = i_s − v_C/R。"
   ],
   "solution": [
-    "**1. 初值。** t < 0 时 i_s = 0，电容不带电：u_C(0₊) = u_C(0₋) = 0；所以 t = 0₊ 时 R 中无电流，i_C(0₊) = 2 mA。",
-    "**2. 终值。** 电容开路：u_C(∞) = 2 mA × 5 kΩ = **10 V**。",
+    "**1. 初值。** t < 0 时 i_s = 0，电容不带电：v_C(0₊) = v_C(0₋) = 0；所以 t = 0₊ 时 R 中无电流，i_C(0₊) = 2 mA。",
+    "**2. 终值。** 电容开路：v_C(∞) = 2 mA × 5 kΩ = **10 V**。",
     "**3. 时间常数。** τ = RC = **0.05 s**。",
-    "**4. 阶跃响应。** u_C(t) = 10(1 − e^(−20t))ε(t) V；i_C(t) = C du_C/dt = 10×10⁻⁶ × 200e^(−20t) = 2e^(−20t)ε(t) mA。",
-    "**5. t = 0.05 s。** u_C = 10(1 − e⁻¹) ≈ **6.321 V**，i_C = 2e⁻¹ ≈ **0.736 mA**。验算 KCL：u_C/R = 1.264 mA，1.264 + 0.736 = 2 mA ✓。",
-    "注：单位阶跃响应（i_s = ε(t) A）是 s(t) = 5000(1 − e^(−20t))ε(t) V；本题激励是 0.002ε(t) A，响应是它的 0.002 倍。"
+    "**4. 阶跃响应。** v_C(t) = 10(1 − e^(−20t))u(t) V；i_C(t) = C dv_C/dt = 10×10⁻⁶ × 200e^(−20t) = 2e^(−20t)u(t) mA。",
+    "**5. t = 0.05 s。** v_C = 10(1 − e⁻¹) ≈ **6.321 V**，i_C = 2e⁻¹ ≈ **0.736 mA**。验算 KCL：v_C/R = 1.264 mA，1.264 + 0.736 = 2 mA ✓。",
+    "注：单位阶跃响应（i_s = u(t) A）是 s(t) = 5000(1 − e^(−20t))u(t) V；本题激励是 0.002u(t) A，响应是它的 0.002 倍。"
   ],
   "i18n": {
     "en": {
       "title": "RC parallel circuit driven by a current step",
-      "tags": ["step response", "unit step ε(t)", "zero-state response"],
+      "tags": ["step response", "unit step u(t)", "zero-state response"],
       "statement": [
-        "In the circuit, the current source is i_s = 2ε(t) mA (zero for t < 0, 2 mA for t > 0), R = 5 kΩ, C = 10 µF.",
-        "Find the final value u_C(∞) of the step response, the time constant τ, and u_C and the capacitor current i_C at t = 0.05 s."
+        "In the circuit, the current source is i_s = 2u(t) mA (zero for t < 0, 2 mA for t > 0), R = 5 kΩ, C = 10 µF.",
+        "Find the final value v_C(∞) of the step response, the time constant τ, and v_C and the capacitor current i_C at t = 0.05 s."
       ],
       "questions": [
-        { "ask": "u_C(∞) = ?", "explain": "In steady state the capacitor is open and all 2 mA flows through R: u_C(∞) = 2 mA × 5 kΩ = 10 V." },
+        { "ask": "v_C(∞) = ?", "explain": "In steady state the capacitor is open and all 2 mA flows through R: v_C(∞) = 2 mA × 5 kΩ = 10 V." },
         { "ask": "τ = ?", "explain": "With the current source zeroed (open) the capacitor sees only R: τ = RC = 5×10³ × 10×10⁻⁶ = 0.05 s." },
-        { "ask": "u_C at t = 0.05 s = ?", "explain": "u_C(t) = 10(1 − e^(−20t))ε(t) V; at t = τ, u_C = 10(1 − e⁻¹) ≈ 6.321 V." },
-        { "ask": "i_C at t = 0.05 s = ?", "explain": "i_C = C du_C/dt = 2e^(−20t) mA (or use i_C = i_s − u_C/R); at t = τ, i_C = 2e⁻¹ ≈ 0.736 mA." }
+        { "ask": "v_C at t = 0.05 s = ?", "explain": "v_C(t) = 10(1 − e^(−20t))u(t) V; at t = τ, v_C = 10(1 − e⁻¹) ≈ 6.321 V." },
+        { "ask": "i_C at t = 0.05 s = ?", "explain": "i_C = C dv_C/dt = 2e^(−20t) mA (or use i_C = i_s − v_C/R); at t = τ, i_C = 2e⁻¹ ≈ 0.736 mA." }
       ],
       "hints": [
-        "ε(t) jumps from 0 to 1 at t = 0; the capacitor is initially uncharged, so this is a zero-state response.",
+        "u(t) jumps from 0 to 1 at t = 0; the capacitor is initially uncharged, so this is a zero-state response.",
         "For the final value treat the capacitor as an open circuit; for the time constant treat the current source as an open circuit.",
-        "You can differentiate to get i_C, or use KCL: i_C = i_s − u_C/R."
+        "You can differentiate to get i_C, or use KCL: i_C = i_s − v_C/R."
       ],
       "solution": [
-        "**1. Initial value.** For t < 0, i_s = 0 and C is uncharged: u_C(0+) = u_C(0−) = 0, so at t = 0+ no current flows in R and i_C(0+) = 2 mA.",
-        "**2. Final value.** Capacitor open: u_C(∞) = 2 mA × 5 kΩ = **10 V**.",
+        "**1. Initial value.** For t < 0, i_s = 0 and C is uncharged: v_C(0+) = v_C(0−) = 0, so at t = 0+ no current flows in R and i_C(0+) = 2 mA.",
+        "**2. Final value.** Capacitor open: v_C(∞) = 2 mA × 5 kΩ = **10 V**.",
         "**3. Time constant.** τ = RC = **0.05 s**.",
-        "**4. Step response.** u_C(t) = 10(1 − e^(−20t))ε(t) V; i_C(t) = C du_C/dt = 10×10⁻⁶ × 200e^(−20t) = 2e^(−20t)ε(t) mA.",
-        "**5. At t = 0.05 s.** u_C = 10(1 − e⁻¹) ≈ **6.321 V**, i_C = 2e⁻¹ ≈ **0.736 mA**. KCL check: u_C/R = 1.264 mA, 1.264 + 0.736 = 2 mA ✓.",
-        "Note: the unit step response (i_s = ε(t) A) is s(t) = 5000(1 − e^(−20t))ε(t) V; here the input is 0.002ε(t) A, so the response is 0.002 times that."
+        "**4. Step response.** v_C(t) = 10(1 − e^(−20t))u(t) V; i_C(t) = C dv_C/dt = 10×10⁻⁶ × 200e^(−20t) = 2e^(−20t)u(t) mA.",
+        "**5. At t = 0.05 s.** v_C = 10(1 − e⁻¹) ≈ **6.321 V**, i_C = 2e⁻¹ ≈ **0.736 mA**. KCL check: v_C/R = 1.264 mA, 1.264 + 0.736 = 2 mA ✓.",
+        "Note: the unit step response (i_s = u(t) A) is s(t) = 5000(1 − e^(−20t))u(t) V; here the input is 0.002u(t) A, so the response is 0.002 times that."
       ]
     }
   }

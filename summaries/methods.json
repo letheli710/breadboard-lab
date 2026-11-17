@@ -70,7 +70,7 @@
       "title": "网孔/回路法遇到电流源：已知网孔电流、超网孔",
       "text": [
         "电流源只属于**一个**网孔（在电路外边界上）：这个网孔电流就等于 ±I_s，不用列它的 KVL。",
-        "电流源在两个网孔的**公共支路**上：两种做法——① 设电流源两端电压 u 为未知数，照常列两个网孔的 KVL，再补“两网孔电流之差 = I_s”；② 把两个网孔合成**超网孔**，沿外围（绕开电流源）列一个 KVL，再加同一个约束方程。",
+        "电流源在两个网孔的**公共支路**上：两种做法——① 设电流源两端电压 v 为未知数，照常列两个网孔的 KVL，再补“两网孔电流之差 = I_s”；② 把两个网孔合成**超网孔**，沿外围（绕开电流源）列一个 KVL，再加同一个约束方程。",
         "受控电流源同样处理，约束方程的右边是控制量的表达式。"
       ],
       "problems": ["methods-07-mesh-boundary-current-source", "methods-08-supermesh", "methods-15-supermesh-cccs"],
@@ -79,7 +79,7 @@
           "title": "Current sources in mesh analysis: known mesh currents and supermeshes",
           "text": [
             "A current source in only **one** mesh (on the outer boundary): that mesh current equals ±I_s; no KVL is needed for it.",
-            "A current source in the branch **shared** by two meshes: either ① take its voltage u as an extra unknown, write both mesh KVLs as usual and add “difference of the two mesh currents = I_s”; or ② merge the two meshes into a **supermesh**, write one KVL around its outside (avoiding the current source) and add the same constraint.",
+            "A current source in the branch **shared** by two meshes: either ① take its voltage v as an extra unknown, write both mesh KVLs as usual and add “difference of the two mesh currents = I_s”; or ② merge the two meshes into a **supermesh**, write one KVL around its outside (avoiding the current source) and add the same constraint.",
             "A dependent current source is handled the same way; the constraint's right-hand side is then the expression of the controlling quantity."
           ]
         }
@@ -109,7 +109,7 @@
       "text": [
         "选一个**参考结点**（电位为零），其余 n − 1 个结点对它的电压为未知数。结点电压自动满足 KVL，只需对每个独立结点列 KCL。",
         "标准形式：自电导 × 本结点电压 + Σ 互电导 × 相邻结点电压 = 流入本结点的电源电流之和。**自电导**是接在该结点上所有支路电导之和，总为正；**互电导**是两结点之间支路电导之和的**负值**。",
-        "右边：电流源流入为正、流出为负；“电压源 U_s 串联电阻 R”的支路贡献 U_s/R（“+”端朝向本结点时为正）。与电流源串联的电阻不计入电导。求出结点电压后，支路电流 = 两端结点电压之差 / R。"
+        "右边：电流源流入为正、流出为负；“电压源 V_s 串联电阻 R”的支路贡献 V_s/R（“+”端朝向本结点时为正）。与电流源串联的电阻不计入电导。求出结点电压后，支路电流 = 两端结点电压之差 / R。"
       ],
       "problems": ["methods-03-nodal-two-nodes", "methods-05-nodal-grounded-source", "methods-14-mesh-vs-nodal-bridge", "methods-11-nodal-cccs"],
       "i18n": {
@@ -118,7 +118,7 @@
           "text": [
             "Choose a **reference node** (potential zero); the voltages of the other n − 1 nodes to it are the unknowns. Node voltages satisfy KVL automatically, so only KCL is written at each independent node.",
             "Standard form: self-conductance × own node voltage + Σ mutual conductance × neighbouring node voltage = sum of the source currents into the node. The **self-conductance** is the sum of the conductances of all branches at the node (always positive); the **mutual conductance** is **minus** the sum of the conductances between the two nodes.",
-            "Right-hand side: current sources entering count positive, leaving negative; a branch “voltage source U_s in series with R” contributes U_s/R (positive when its “+” faces the node). A resistor in series with a current source contributes no conductance. With the node voltages known, a branch current = difference of its end voltages / R."
+            "Right-hand side: current sources entering count positive, leaving negative; a branch “voltage source V_s in series with R” contributes V_s/R (positive when its “+” faces the node). A resistor in series with a current source contributes no conductance. With the node voltages known, a branch current = difference of its end voltages / R."
           ]
         }
       }
@@ -128,8 +128,8 @@
       "title": "结点法遇到电压源：接参考结点、超结点",
       "text": [
         "**无伴电压源**（没有串联电阻）的电流无法用结点电压表示，不能直接写进“自电导”形式。",
-        "电压源一端接参考结点：选好参考结点，另一端的结点电压**直接已知**（= ±U_s），不用列它的方程。",
-        "电压源接在两个非参考结点之间：① 设电压源电流为未知数，照常列两个结点的 KCL，再补约束 u_a − u_b = U_s；② 把两个结点合成**超结点**，对包围它们的闭合面列一个 KCL，再加同一个约束。受控电压源同样处理。"
+        "电压源一端接参考结点：选好参考结点，另一端的结点电压**直接已知**（= ±V_s），不用列它的方程。",
+        "电压源接在两个非参考结点之间：① 设电压源电流为未知数，照常列两个结点的 KCL，再补约束 v_a − v_b = V_s；② 把两个结点合成**超结点**，对包围它们的闭合面列一个 KCL，再加同一个约束。受控电压源同样处理。"
       ],
       "problems": ["methods-05-nodal-grounded-source", "methods-09-supernode", "methods-13-nodal-grounded-vcvs", "methods-16-nodal-ccvs-supernode"],
       "i18n": {
@@ -137,8 +137,8 @@
           "title": "Voltage sources in nodal analysis: grounded sources and supernodes",
           "text": [
             "The current of an **ideal voltage source** (no series resistor) cannot be written in terms of node voltages, so it does not fit the self-conductance form.",
-            "One end on the reference node: that makes the other node voltage **known** (= ±U_s); no equation is needed there.",
-            "Between two non-reference nodes: either ① take the source current as an extra unknown, write KCL at both nodes and add the constraint u_a − u_b = U_s; or ② merge the two nodes into a **supernode**, write one KCL for a closed surface around them, and add the same constraint. Dependent voltage sources are handled the same way."
+            "One end on the reference node: that makes the other node voltage **known** (= ±V_s); no equation is needed there.",
+            "Between two non-reference nodes: either ① take the source current as an extra unknown, write KCL at both nodes and add the constraint v_a − v_b = V_s; or ② merge the two nodes into a **supernode**, write one KCL for a closed surface around them, and add the same constraint. Dependent voltage sources are handled the same way."
           ]
         }
       }
@@ -148,7 +148,7 @@
       "title": "弥尔曼定理（两结点电路）",
       "text": [
         "只有两个结点（一个独立结点）的电路，结点电压法只有一个方程，直接写出来就是弥尔曼定理：结点电压 = 各支路“短路电流”之和 / 各支路电导之和。",
-        "注意每条电压源支路的正负：电压源“+”端朝向独立结点时 U_s/R 取正，反之取负；电流源流入取正。"
+        "注意每条电压源支路的正负：电压源“+”端朝向独立结点时 V_s/R 取正，反之取负；电流源流入取正。"
       ],
       "problems": ["methods-04-millman"],
       "i18n": {
@@ -156,7 +156,7 @@
           "title": "Millman's theorem (two-node circuits)",
           "text": [
             "With only two nodes (one independent node) nodal analysis has a single equation; written out it is Millman's theorem: node voltage = sum of the branches' short-circuit currents / sum of the branch conductances.",
-            "Mind the sign of each voltage-source branch: U_s/R is positive when the “+” faces the independent node, negative otherwise; current sources entering count positive."
+            "Mind the sign of each voltage-source branch: V_s/R is positive when the “+” faces the independent node, negative otherwise; current sources entering count positive."
           ]
         }
       }
@@ -166,7 +166,7 @@
       "title": "含受控源：先当独立源，再补控制量方程",
       "text": [
         "列网孔方程或结点方程时，先把受控源**当作独立源**写进方程（受控电压源放在 KVL 的电压源一侧，受控电流源放在 KCL 的注入电流一侧）。",
-        "再补一个**控制量方程**：把控制量用未知的网孔电流或结点电压表示（例如 i_x = i_m1 − i_m2，或 i_2 = u_a/R_2），代入后整理求解。",
+        "再补一个**控制量方程**：把控制量用未知的网孔电流或结点电压表示（例如 i_x = i_m1 − i_m2，或 i_2 = v_a/R_2），代入后整理求解。",
         "含受控源时，系数矩阵一般**不再对称**；只有受控源本身的 VCR 不同，其余规则完全一样。最后可以用功率平衡验算。"
       ],
       "problems": ["methods-11-nodal-cccs", "methods-12-mesh-ccvs", "methods-13-nodal-grounded-vcvs", "methods-15-supermesh-cccs", "methods-16-nodal-ccvs-supernode"],
@@ -175,7 +175,7 @@
           "title": "Dependent sources: treat as independent, then add the controlling equation",
           "text": [
             "When writing mesh or nodal equations, first put each dependent source in **as if it were independent** (a controlled voltage source on the source side of the KVL, a controlled current source among the injected currents of the KCL).",
-            "Then add a **controlling-quantity equation**: express the controlling quantity in terms of the unknown mesh currents or node voltages (e.g. i_x = i_m1 − i_m2, or i_2 = u_a/R_2), substitute and solve.",
+            "Then add a **controlling-quantity equation**: express the controlling quantity in terms of the unknown mesh currents or node voltages (e.g. i_x = i_m1 − i_m2, or i_2 = v_a/R_2), substitute and solve.",
             "With dependent sources the coefficient matrix is generally **no longer symmetric**; everything else follows the same rules. Check with the power balance at the end."
           ]
         }
@@ -213,25 +213,25 @@
       "id": "mesh",
       "idea": "mesh",
       "name": "网孔方程（第 k 个网孔）",
-      "expr": "R_{kk}i_{mk} + Σ_{j≠k} R_{kj}i_{mj} = u_{skk}",
-      "when": "R_{kk} = 网孔 k 中电阻之和（> 0）；R_{kj} = ± 公共支路电阻，两网孔电流在公共支路上同向取 +、反向取 −（全取顺时针时为 −）；u_{skk} = 沿 i_{mk} 方向电压源电压升之和。",
-      "i18n": { "en": { "name": "Mesh equation (mesh k)", "expr": "R_{kk}i_{mk} + Σ_{j≠k} R_{kj}i_{mj} = u_{skk}", "when": "R_{kk} = sum of resistances in mesh k (> 0); R_{kj} = ± shared resistance, + if the two mesh currents run through it in the same direction, − if opposite (− when all are clockwise); u_{skk} = sum of source-voltage rises along i_{mk}." } }
+      "expr": "R_{kk}i_{mk} + Σ_{j≠k} R_{kj}i_{mj} = v_{skk}",
+      "when": "R_{kk} = 网孔 k 中电阻之和（> 0）；R_{kj} = ± 公共支路电阻，两网孔电流在公共支路上同向取 +、反向取 −（全取顺时针时为 −）；v_{skk} = 沿 i_{mk} 方向电压源电压升之和。",
+      "i18n": { "en": { "name": "Mesh equation (mesh k)", "expr": "R_{kk}i_{mk} + Σ_{j≠k} R_{kj}i_{mj} = v_{skk}", "when": "R_{kk} = sum of resistances in mesh k (> 0); R_{kj} = ± shared resistance, + if the two mesh currents run through it in the same direction, − if opposite (− when all are clockwise); v_{skk} = sum of source-voltage rises along i_{mk}." } }
     },
     {
       "id": "nodal",
       "idea": "nodal",
       "name": "结点方程（第 k 个结点）",
-      "expr": "G_{kk}u_{nk} + Σ_{j≠k} G_{kj}u_{nj} = i_{skk}",
-      "when": "u_{nk} 为结点 k 对参考结点的电压；G_{kk} = 接在结点 k 上的电导之和（> 0），G_{kj} = −（结点 k、j 间电导之和）；i_{skk} = 流入结点 k 的电流源电流 + Σ U_s/R（“+”朝向结点 k 为正）。与电流源串联的电阻不计入。",
-      "i18n": { "en": { "name": "Nodal equation (node k)", "expr": "G_{kk}u_{nk} + Σ_{j≠k} G_{kj}u_{nj} = i_{skk}", "when": "u_{nk} = voltage of node k to the reference; G_{kk} = sum of conductances at node k (> 0), G_{kj} = −(sum of conductances between k and j); i_{skk} = current-source currents into node k + Σ U_s/R (positive when “+” faces node k). Resistors in series with current sources are left out." } }
+      "expr": "G_{kk}v_{nk} + Σ_{j≠k} G_{kj}v_{nj} = i_{skk}",
+      "when": "v_{nk} 为结点 k 对参考结点的电压；G_{kk} = 接在结点 k 上的电导之和（> 0），G_{kj} = −（结点 k、j 间电导之和）；i_{skk} = 流入结点 k 的电流源电流 + Σ V_s/R（“+”朝向结点 k 为正）。与电流源串联的电阻不计入。",
+      "i18n": { "en": { "name": "Nodal equation (node k)", "expr": "G_{kk}v_{nk} + Σ_{j≠k} G_{kj}v_{nj} = i_{skk}", "when": "v_{nk} = voltage of node k to the reference; G_{kk} = sum of conductances at node k (> 0), G_{kj} = −(sum of conductances between k and j); i_{skk} = current-source currents into node k + Σ V_s/R (positive when “+” faces node k). Resistors in series with current sources are left out." } }
     },
     {
       "id": "millman",
       "idea": "millman",
       "name": "弥尔曼定理",
-      "expr": "u = \\frac{Σ U_{sk}/R_k + Σ I_{sk}}{Σ 1/R_k}",
-      "when": "只有两个结点的电路，u 为独立结点对参考结点的电压；U_{sk} 的“+”朝向独立结点取正，I_{sk} 流入独立结点取正；分母不含与电流源串联的电阻。",
-      "i18n": { "en": { "name": "Millman's theorem", "expr": "u = \\frac{Σ U_{sk}/R_k + Σ I_{sk}}{Σ 1/R_k}", "when": "Two-node circuit, u = voltage of the independent node to the reference; U_{sk} positive when its “+” faces the independent node, I_{sk} positive when entering it; no resistor in series with a current source in the denominator." } }
+      "expr": "v = \\frac{Σ V_{sk}/R_k + Σ I_{sk}}{Σ 1/R_k}",
+      "when": "只有两个结点的电路，v 为独立结点对参考结点的电压；V_{sk} 的“+”朝向独立结点取正，I_{sk} 流入独立结点取正；分母不含与电流源串联的电阻。",
+      "i18n": { "en": { "name": "Millman's theorem", "expr": "v = \\frac{Σ V_{sk}/R_k + Σ I_{sk}}{Σ 1/R_k}", "when": "Two-node circuit, v = voltage of the independent node to the reference; V_{sk} positive when its “+” faces the independent node, I_{sk} positive when entering it; no resistor in series with a current source in the denominator." } }
     },
     {
       "id": "supermesh",
@@ -245,9 +245,9 @@
       "id": "supernode",
       "idea": "nodal-vsrc",
       "name": "电压源约束（超结点）",
-      "expr": "u_a − u_b = U_s",
-      "when": "U_s 的“+”接结点 a、“−”接结点 b；超结点的 KCL 对包围 a、b 的闭合面列。一端接参考结点时直接 u_a = U_s。",
-      "i18n": { "en": { "name": "Voltage-source constraint (supernode)", "expr": "u_a − u_b = U_s", "when": "U_s with “+” at node a and “−” at node b; the supernode KCL is written for a closed surface around a and b. With b the reference, simply u_a = U_s." } }
+      "expr": "v_a − v_b = V_s",
+      "when": "V_s 的“+”接结点 a、“−”接结点 b；超结点的 KCL 对包围 a、b 的闭合面列。一端接参考结点时直接 v_a = V_s。",
+      "i18n": { "en": { "name": "Voltage-source constraint (supernode)", "expr": "v_a − v_b = V_s", "when": "V_s with “+” at node a and “−” at node b; the supernode KCL is written for a closed surface around a and b. With b the reference, simply v_a = V_s." } }
     },
     {
       "id": "branch",
@@ -262,8 +262,8 @@
       "idea": "dependent",
       "name": "控制量方程",
       "expr": "控制量 = f（网孔电流 / 结点电压）",
-      "when": "每个受控源一个；例如 i_x = i_{m1} − i_{m2}（i_x 在公共支路上与 i_{m1} 同向），i_2 = u_a/R_2。",
-      "i18n": { "en": { "name": "Controlling-quantity equation", "expr": "controlling quantity = f(mesh currents / node voltages)", "when": "One per dependent source; e.g. i_x = i_{m1} − i_{m2} (i_x along i_{m1} in the shared branch), i_2 = u_a/R_2." } }
+      "when": "每个受控源一个；例如 i_x = i_{m1} − i_{m2}（i_x 在公共支路上与 i_{m1} 同向），i_2 = v_a/R_2。",
+      "i18n": { "en": { "name": "Controlling-quantity equation", "expr": "controlling quantity = f(mesh currents / node voltages)", "when": "One per dependent source; e.g. i_x = i_{m1} − i_{m2} (i_x along i_{m1} in the shared branch), i_2 = v_a/R_2." } }
     }
   ],
   "examples": [
@@ -271,10 +271,10 @@
       "id": "nodal-grounded",
       "ideas": ["nodal", "nodal-vsrc"],
       "title": "结点电压法：一个接地电压源、一个电流源",
-      "statement": "图示电路中 U_s = 12 V，I_s = 1 A（向上注入结点 c），R_1 = 2 Ω，R_2 = 8 Ω，R_3 = 2 Ω，R_4 = 3 Ω。以底部为参考结点，用结点电压法求 u_b、u_c，以及两个电源吸收的功率。",
+      "statement": "图示电路中 V_s = 12 V，I_s = 1 A（向上注入结点 c），R_1 = 2 Ω，R_2 = 8 Ω，R_3 = 2 Ω，R_4 = 3 Ω。以底部为参考结点，用结点电压法求 v_b、v_c，以及两个电源吸收的功率。",
       "schematic": {
         "elements": [
-          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+          { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
           { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
           { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 8 },
           { "ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 2 },
@@ -296,32 +296,32 @@
       },
       "analysis": { "type": "dc" },
       "results": [
-        { "id": "ub", "ask": "u_b", "find": { "kind": "v", "nodes": ["b"] }, "answer": 8, "unit": "V" },
-        { "id": "uc", "ask": "u_c", "find": { "kind": "v", "nodes": ["c"] }, "answer": 6, "unit": "V" },
+        { "id": "ub", "ask": "v_b", "find": { "kind": "v", "nodes": ["b"] }, "answer": 8, "unit": "V" },
+        { "id": "uc", "ask": "v_c", "find": { "kind": "v", "nodes": ["c"] }, "answer": 6, "unit": "V" },
         { "id": "i1", "ask": "R_1 中的电流（a → b）", "find": { "kind": "i", "el": "R1" }, "answer": 2, "unit": "A" },
         { "id": "i3", "ask": "R_3 中的电流（b → c）", "find": { "kind": "i", "el": "R3" }, "answer": 1, "unit": "A" },
-        { "id": "pus", "ask": "P_Us（吸收）", "find": { "kind": "p", "el": "Us" }, "answer": -24, "unit": "W" },
+        { "id": "pus", "ask": "P_Us（吸收）", "find": { "kind": "p", "el": "Vs" }, "answer": -24, "unit": "W" },
         { "id": "pis", "ask": "P_Is（吸收）", "find": { "kind": "p", "el": "Is" }, "answer": -6, "unit": "W" }
       ],
       "steps": [
-        "1. **已知结点。** U_s 接在 a 与参考结点之间：u_a = 12 V，只剩 b、c 两个未知结点电压。",
-        "2. **结点 b：** (1/R_1 + 1/R_2 + 1/R_3)u_b − (1/R_3)u_c = u_a/R_1，即 (1/2 + 1/8 + 1/2)u_b − 0.5u_c = 6。",
-        "3. **结点 c：** −(1/R_3)u_b + (1/R_3 + 1/R_4)u_c = I_s，即 −0.5u_b + (1/2 + 1/3)u_c = 1。",
-        "4. **求解：** 由第 3 步 u_b = (5/3)u_c − 2，代入第 2 步：1.125 × ((5/3)u_c − 2) − 0.5u_c = 6 → 1.375u_c = 8.25 → **u_c = 6 V**，**u_b = 8 V**。",
-        "5. **支路电流与功率。** R_1 中 (12 − 8)/2 = **2 A**，从 U_s 的“+”端流出：P_Us = −12 × 2 = **−24 W**；R_3 中 (8 − 6)/2 = **1 A**。I_s 把 1 A 推向 6 V 的结点 c（从“+”端流出）：P_Is = −6 × 1 = **−6 W**。",
+        "1. **已知结点。** V_s 接在 a 与参考结点之间：v_a = 12 V，只剩 b、c 两个未知结点电压。",
+        "2. **结点 b：** (1/R_1 + 1/R_2 + 1/R_3)v_b − (1/R_3)v_c = v_a/R_1，即 (1/2 + 1/8 + 1/2)v_b − 0.5v_c = 6。",
+        "3. **结点 c：** −(1/R_3)v_b + (1/R_3 + 1/R_4)v_c = I_s，即 −0.5v_b + (1/2 + 1/3)v_c = 1。",
+        "4. **求解：** 由第 3 步 v_b = (5/3)v_c − 2，代入第 2 步：1.125 × ((5/3)v_c − 2) − 0.5v_c = 6 → 1.375v_c = 8.25 → **v_c = 6 V**，**v_b = 8 V**。",
+        "5. **支路电流与功率。** R_1 中 (12 − 8)/2 = **2 A**，从 V_s 的“+”端流出：P_Us = −12 × 2 = **−24 W**；R_3 中 (8 − 6)/2 = **1 A**。I_s 把 1 A 推向 6 V 的结点 c（从“+”端流出）：P_Is = −6 × 1 = **−6 W**。",
         "6. **验算：** 电阻吸收 2×2² + 8²/8 + 2×1² + 6²/3 = 8 + 8 + 2 + 12 = 30，电源发出 24 + 6 = 30 ✓。"
       ],
       "i18n": {
         "en": {
           "title": "Nodal analysis with a grounded voltage source and a current source",
-          "statement": "In the circuit U_s = 12 V, I_s = 1 A (upwards, into node c), R_1 = 2 Ω, R_2 = 8 Ω, R_3 = 2 Ω, R_4 = 3 Ω. With the bottom node as reference, use nodal analysis to find u_b, u_c and the power absorbed by both sources.",
-          "results": [{ "ask": "u_b" }, { "ask": "u_c" }, { "ask": "current in R_1 (a → b)" }, { "ask": "current in R_3 (b → c)" }, { "ask": "P_Us (absorbed)" }, { "ask": "P_Is (absorbed)" }],
+          "statement": "In the circuit V_s = 12 V, I_s = 1 A (upwards, into node c), R_1 = 2 Ω, R_2 = 8 Ω, R_3 = 2 Ω, R_4 = 3 Ω. With the bottom node as reference, use nodal analysis to find v_b, v_c and the power absorbed by both sources.",
+          "results": [{ "ask": "v_b" }, { "ask": "v_c" }, { "ask": "current in R_1 (a → b)" }, { "ask": "current in R_3 (b → c)" }, { "ask": "P_Us (absorbed)" }, { "ask": "P_Is (absorbed)" }],
           "steps": [
-            "1. **Known node.** U_s is between a and the reference: u_a = 12 V, leaving only u_b and u_c unknown.",
-            "2. **Node b:** (1/R_1 + 1/R_2 + 1/R_3)u_b − (1/R_3)u_c = u_a/R_1, i.e. (1/2 + 1/8 + 1/2)u_b − 0.5u_c = 6.",
-            "3. **Node c:** −(1/R_3)u_b + (1/R_3 + 1/R_4)u_c = I_s, i.e. −0.5u_b + (1/2 + 1/3)u_c = 1.",
-            "4. **Solve:** from step 3, u_b = (5/3)u_c − 2; into step 2: 1.125 × ((5/3)u_c − 2) − 0.5u_c = 6 → 1.375u_c = 8.25 → **u_c = 6 V**, **u_b = 8 V**.",
-            "5. **Branch currents and powers.** R_1 carries (12 − 8)/2 = **2 A**, leaving the “+” of U_s: P_Us = −12 × 2 = **−24 W**; R_3 carries (8 − 6)/2 = **1 A**. I_s pushes 1 A into node c at 6 V (leaving at its “+”): P_Is = −6 × 1 = **−6 W**.",
+            "1. **Known node.** V_s is between a and the reference: v_a = 12 V, leaving only v_b and v_c unknown.",
+            "2. **Node b:** (1/R_1 + 1/R_2 + 1/R_3)v_b − (1/R_3)v_c = v_a/R_1, i.e. (1/2 + 1/8 + 1/2)v_b − 0.5v_c = 6.",
+            "3. **Node c:** −(1/R_3)v_b + (1/R_3 + 1/R_4)v_c = I_s, i.e. −0.5v_b + (1/2 + 1/3)v_c = 1.",
+            "4. **Solve:** from step 3, v_b = (5/3)v_c − 2; into step 2: 1.125 × ((5/3)v_c − 2) − 0.5v_c = 6 → 1.375v_c = 8.25 → **v_c = 6 V**, **v_b = 8 V**.",
+            "5. **Branch currents and powers.** R_1 carries (12 − 8)/2 = **2 A**, leaving the “+” of V_s: P_Us = −12 × 2 = **−24 W**; R_3 carries (8 − 6)/2 = **1 A**. I_s pushes 1 A into node c at 6 V (leaving at its “+”): P_Is = −6 × 1 = **−6 W**.",
             "6. **Check:** the resistors absorb 2×2² + 8²/8 + 2×1² + 6²/3 = 8 + 8 + 2 + 12 = 30, the sources deliver 24 + 6 = 30 ✓."
           ]
         }
@@ -331,10 +331,10 @@
       "id": "mesh-ccvs",
       "ideas": ["mesh", "dependent"],
       "title": "网孔电流法：含电流控制电压源",
-      "statement": "图示电路中 U_s = 12 V，R_1 = 2 Ω，R_2 = 2 Ω，R_3 = 1 Ω。电流控制电压源 H 的电压为 2i_x（“+”在下方），i_x 为 R_2 中向下的电流。网孔电流 i_m1、i_m2 均取顺时针方向。求 i_m1、i_m2、i_x 和 H 吸收的功率。",
+      "statement": "图示电路中 V_s = 12 V，R_1 = 2 Ω，R_2 = 2 Ω，R_3 = 1 Ω。电流控制电压源 H 的电压为 2i_x（“+”在下方），i_x 为 R_2 中向下的电流。网孔电流 i_m1、i_m2 均取顺时针方向。求 i_m1、i_m2、i_x 和 H 吸收的功率。",
       "schematic": {
         "elements": [
-          { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+          { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
           { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
           { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 2 },
           { "ref": "R3", "type": "R", "from": [10, 0], "to": [14, 0], "value": 1 },
@@ -360,10 +360,10 @@
         { "id": "ix", "ask": "i_x", "find": { "kind": "i", "el": "R2" }, "answer": 1, "unit": "A" },
         { "id": "uh", "ask": "H 的电压（下正上负）", "find": { "kind": "v", "el": "H" }, "answer": 2, "unit": "V" },
         { "id": "ph", "ask": "P_H（吸收）", "find": { "kind": "p", "el": "H" }, "answer": -8, "unit": "W" },
-        { "id": "pus", "ask": "P_Us（吸收）", "find": { "kind": "p", "el": "Us" }, "answer": -60, "unit": "W" }
+        { "id": "pus", "ask": "P_Us（吸收）", "find": { "kind": "p", "el": "Vs" }, "answer": -60, "unit": "W" }
       ],
       "steps": [
-        "1. **网孔 1（顺时针）：** (R_1 + R_2)i_m1 − R_2·i_m2 = U_s → 4i_m1 − 2i_m2 = 12。",
+        "1. **网孔 1（顺时针）：** (R_1 + R_2)i_m1 − R_2·i_m2 = V_s → 4i_m1 − 2i_m2 = 12。",
         "2. **网孔 2（顺时针），H 先当独立源：** 顺时针向下经过 H，是从“−”到“+”，电压升高 2i_x，放在右边：−R_2·i_m1 + (R_2 + R_3)i_m2 = 2i_x → −2i_m1 + 3i_m2 = 2i_x。",
         "3. **控制量方程：** i_x 是公共支路中向下的电流，i_x = i_m1 − i_m2。代入：−2i_m1 + 3i_m2 = 2i_m1 − 2i_m2 → 4i_m1 = 5i_m2。（系数矩阵不再对称。）",
         "4. **求解：** 代入第 1 步：5i_m2 − 2i_m2 = 12 → **i_m2 = 4 A**，**i_m1 = 5 A**，**i_x = 1 A**。",
@@ -373,10 +373,10 @@
       "i18n": {
         "en": {
           "title": "Mesh analysis with a current-controlled voltage source",
-          "statement": "In the circuit U_s = 12 V, R_1 = 2 Ω, R_2 = 2 Ω, R_3 = 1 Ω. The current-controlled voltage source H has voltage 2i_x (“+” at the bottom), where i_x is the downward current in R_2. Both mesh currents i_m1, i_m2 are clockwise. Find i_m1, i_m2, i_x and the power absorbed by H.",
+          "statement": "In the circuit V_s = 12 V, R_1 = 2 Ω, R_2 = 2 Ω, R_3 = 1 Ω. The current-controlled voltage source H has voltage 2i_x (“+” at the bottom), where i_x is the downward current in R_2. Both mesh currents i_m1, i_m2 are clockwise. Find i_m1, i_m2, i_x and the power absorbed by H.",
           "results": [{ "ask": "i_m1 (= current in R_1)" }, { "ask": "i_m2 (= current in R_3)" }, { "ask": "i_x" }, { "ask": "voltage of H (“+” at the bottom)" }, { "ask": "P_H (absorbed)" }, { "ask": "P_Us (absorbed)" }],
           "steps": [
-            "1. **Mesh 1 (clockwise):** (R_1 + R_2)i_m1 − R_2·i_m2 = U_s → 4i_m1 − 2i_m2 = 12.",
+            "1. **Mesh 1 (clockwise):** (R_1 + R_2)i_m1 − R_2·i_m2 = V_s → 4i_m1 − 2i_m2 = 12.",
             "2. **Mesh 2 (clockwise), H treated as independent first:** going clockwise, i.e. downwards through H, runs from “−” to “+”, a rise of 2i_x on the right-hand side: −R_2·i_m1 + (R_2 + R_3)i_m2 = 2i_x → −2i_m1 + 3i_m2 = 2i_x.",
             "3. **Controlling equation:** i_x is the downward current in the shared branch, i_x = i_m1 − i_m2. Substituting: −2i_m1 + 3i_m2 = 2i_m1 − 2i_m2 → 4i_m1 = 5i_m2. (The coefficient matrix is no longer symmetric.)",
             "4. **Solve:** into step 1: 5i_m2 − 2i_m2 = 12 → **i_m2 = 4 A**, **i_m1 = 5 A**, **i_x = 1 A**.",
@@ -403,8 +403,8 @@
     {
       "id": "ideal-source",
       "idea": "nodal-vsrc",
-      "text": "无伴电压源接在两个非参考结点之间时，照常对每个结点写“自电导”形式的方程，漏掉了电压源的电流。要么设它的电流为未知数，要么用超结点并补约束 u_a − u_b = U_s。（网孔法中两网孔共用的电流源同理。）",
-      "i18n": { "en": { "text": "Writing the usual self-conductance equations at both ends of an ideal voltage source between two non-reference nodes, forgetting its current. Either make that current an unknown or use a supernode plus u_a − u_b = U_s. (Likewise for a current source shared by two meshes.)" } }
+      "text": "无伴电压源接在两个非参考结点之间时，照常对每个结点写“自电导”形式的方程，漏掉了电压源的电流。要么设它的电流为未知数，要么用超结点并补约束 v_a − v_b = V_s。（网孔法中两网孔共用的电流源同理。）",
+      "i18n": { "en": { "text": "Writing the usual self-conductance equations at both ends of an ideal voltage source between two non-reference nodes, forgetting its current. Either make that current an unknown or use a supernode plus v_a − v_b = V_s. (Likewise for a current source shared by two meshes.)" } }
     },
     {
       "id": "no-control",

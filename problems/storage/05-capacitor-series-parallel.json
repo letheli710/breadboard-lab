@@ -8,11 +8,11 @@
   "tags": ["电容串联", "电容并联", "等效电容"],
   "statement": [
     "图中 C_1 = 2 µF，C_2 = 1 µF，C_3 = 3 µF，三个电容原来都不带电。从 t = 0 起，电流源以恒定电流 I_s = 2 mA 给这组电容充电。",
-    "求 a、地之间的等效电容 C_eq，以及 t = 10 ms 时的 u_a、u_C1 和 u_C2。"
+    "求 a、地之间的等效电容 C_eq，以及 t = 10 ms 时的 v_a、v_C1 和 v_C2。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Is", "type": "I", "from": [0, 6], "to": [0, 0], "value": { "step": { "before": 0, "after": 0.002 } }, "label": "2ε(t) mA" },
+      { "ref": "Is", "type": "I", "from": [0, 6], "to": [0, 0], "value": { "step": { "before": 0, "after": 0.002 } }, "label": "2u(t) mA" },
       { "ref": "C1", "type": "C", "from": [6, 0], "to": [6, 3], "value": "2u", "ic": 0 },
       { "ref": "C2", "type": "C", "from": [6, 3], "to": [6, 6], "value": "1u", "ic": 0 },
       { "ref": "C3", "type": "C", "from": [10, 3], "to": [10, 6], "value": "3u", "ic": 0 }
@@ -25,16 +25,16 @@
     "labels": [{ "at": [3, 0], "name": "a" }, { "at": [10, 3], "name": "m" }],
     "grounds": [[0, 6]],
     "marks": [
-      { "kind": "v", "el": "C1", "name": "u_C1" },
-      { "kind": "v", "el": "C2", "name": "u_C2" }
+      { "kind": "v", "el": "C1", "name": "v_C1" },
+      { "kind": "v", "el": "C2", "name": "v_C2" }
     ]
   },
   "analysis": { "type": "tran" },
   "questions": [
     { "id": "ceq", "ask": "a、地之间的等效电容 C_eq = ?", "choices": ["4/3 µF", "6 µF", "6/11 µF", "2.75 µF"], "choiceExplain": ["", "6 µF = 2 + 1 + 3，是把三个电容全部当成并联相加；C_1 与 C_2 ∥ C_3 是串联的。", "6/11 µF 是把三个电容全部当成串联（1/C_eq = 1/2 + 1/1 + 1/3）；C_2、C_3 两端接在同样的两个结点上，是并联。", "2.75 µF 是按电阻的规则合并电容：C_2 ∥ C_3 按“积除以和”得 0.75 µF，再与 C_1 串联时直接相加；电容正好相反。"], "correct": 0, "explain": "C_2 ∥ C_3 = 1 + 3 = 4 µF（并联相加）；再与 C_1 串联：C_eq = 2 × 4/(2 + 4) = 4/3 µF ≈ 1.333 µF（串联按“积除以和”）。" },
-    { "id": "ua", "ask": "t = 10 ms 时 u_a = ?", "find": { "kind": "v", "nodes": ["a"], "t": 0.01 }, "answer": 15, "unit": "V", "explain": "送入的电荷 q = I_s·t = 2×10⁻³ × 0.01 = 20 µC，u_a = q/C_eq = 20 µC / (4/3 µF) = 15 V。" },
-    { "id": "u1", "ask": "t = 10 ms 时 u_C1 = ?", "find": { "kind": "v", "el": "C1", "t": 0.01 }, "answer": 10, "unit": "V", "explain": "C_1 中流过的就是全部电流，q_1 = 20 µC，u_C1 = q_1/C_1 = 20/2 = 10 V。" },
-    { "id": "u2", "ask": "t = 10 ms 时 u_C2 = ?", "find": { "kind": "v", "el": "C2", "t": 0.01 }, "answer": 5, "unit": "V", "explain": "C_2、C_3 并联，共同得到 20 µC：u_C2 = 20 µC / 4 µF = 5 V。验算：u_C1 + u_C2 = 15 V = u_a ✓。" }
+    { "id": "ua", "ask": "t = 10 ms 时 v_a = ?", "find": { "kind": "v", "nodes": ["a"], "t": 0.01 }, "answer": 15, "unit": "V", "explain": "送入的电荷 q = I_s·t = 2×10⁻³ × 0.01 = 20 µC，v_a = q/C_eq = 20 µC / (4/3 µF) = 15 V。" },
+    { "id": "u1", "ask": "t = 10 ms 时 v_C1 = ?", "find": { "kind": "v", "el": "C1", "t": 0.01 }, "answer": 10, "unit": "V", "explain": "C_1 中流过的就是全部电流，q_1 = 20 µC，v_C1 = q_1/C_1 = 20/2 = 10 V。" },
+    { "id": "u2", "ask": "t = 10 ms 时 v_C2 = ?", "find": { "kind": "v", "el": "C2", "t": 0.01 }, "answer": 5, "unit": "V", "explain": "C_2、C_3 并联，共同得到 20 µC：v_C2 = 20 µC / 4 µF = 5 V。验算：v_C1 + v_C2 = 15 V = v_a ✓。" }
   ],
   "hints": [
     "电容并联：C = C_2 + C_3（像电阻串联那样相加）；电容串联：1/C = 1/C_1 + 1/C'（像电阻并联）。",
@@ -43,8 +43,8 @@
   "solution": [
     "**1. 等效电容。** C_2、C_3 并联：C_23 = 1 + 3 = 4 µF。C_1 与 C_23 串联：C_eq = C_1·C_23/(C_1 + C_23) = 8/6 = **4/3 µF**。",
     "**2. 电荷。** 恒定电流 2 mA 流过 C_1 和 C_23，10 ms 内送入 q = I_s·t = **20 µC**。结点 m 原来不带电，C_1 下极板流出的电荷全部到了 C_2、C_3 的上极板：q_1 = q_2 + q_3 = 20 µC。",
-    "**3. 电压。** u_C1 = q/C_1 = **10 V**；u_C2 = u_C3 = q/C_23 = **5 V**（q_2 = 5 µC，q_3 = 15 µC，按电容分配）；u_a = u_C1 + u_C2 = **15 V**。",
-    "**4. 验算。** u_a = q/C_eq = 20/(4/3) = 15 V ✓。串联电容中，电容小的分到的电压大（C_1 = 2 µF 得 10 V，C_23 = 4 µF 得 5 V）。"
+    "**3. 电压。** v_C1 = q/C_1 = **10 V**；v_C2 = v_C3 = q/C_23 = **5 V**（q_2 = 5 µC，q_3 = 15 µC，按电容分配）；v_a = v_C1 + v_C2 = **15 V**。",
+    "**4. 验算。** v_a = q/C_eq = 20/(4/3) = 15 V ✓。串联电容中，电容小的分到的电压大（C_1 = 2 µF 得 10 V，C_23 = 4 µF 得 5 V）。"
   ],
   "i18n": {
     "en": {
@@ -52,13 +52,13 @@
       "tags": ["capacitors in series", "capacitors in parallel", "equivalent capacitance"],
       "statement": [
         "C_1 = 2 µF, C_2 = 1 µF, C_3 = 3 µF, all initially uncharged. From t = 0 on, a current source charges the group with a constant current I_s = 2 mA.",
-        "Find the equivalent capacitance C_eq between a and ground, and u_a, u_C1 and u_C2 at t = 10 ms."
+        "Find the equivalent capacitance C_eq between a and ground, and v_a, v_C1 and v_C2 at t = 10 ms."
       ],
       "questions": [
         { "ask": "Equivalent capacitance between a and ground, C_eq = ?", "choices": ["4/3 µF", "6 µF", "6/11 µF", "2.75 µF"], "choiceExplain": ["", "6 µF = 2 + 1 + 3 treats all three capacitors as parallel; C_1 is in series with C_2 ∥ C_3.", "6/11 µF treats all three as in series (1/C_eq = 1/2 + 1/1 + 1/3); C_2 and C_3 share the same two nodes, so they are in parallel.", "2.75 µF combines capacitors by the resistor rules: C_2 ∥ C_3 as product over sum gives 0.75 µF, then adding C_1 in series; for capacitors the rules are the other way round."], "explain": "C_2 ∥ C_3 = 1 + 3 = 4 µF (parallel capacitors add); in series with C_1: C_eq = 2 × 4/(2 + 4) = 4/3 µF ≈ 1.333 µF (series capacitors combine as product over sum)." },
-        { "ask": "u_a at t = 10 ms = ?", "explain": "The charge delivered is q = I_s·t = 2×10⁻³ × 0.01 = 20 µC, so u_a = q/C_eq = 20 µC / (4/3 µF) = 15 V." },
-        { "ask": "u_C1 at t = 10 ms = ?", "explain": "The whole current flows through C_1, so q_1 = 20 µC and u_C1 = q_1/C_1 = 20/2 = 10 V." },
-        { "ask": "u_C2 at t = 10 ms = ?", "explain": "C_2 and C_3 are in parallel and together receive 20 µC: u_C2 = 20 µC / 4 µF = 5 V. Check: u_C1 + u_C2 = 15 V = u_a ✓." }
+        { "ask": "v_a at t = 10 ms = ?", "explain": "The charge delivered is q = I_s·t = 2×10⁻³ × 0.01 = 20 µC, so v_a = q/C_eq = 20 µC / (4/3 µF) = 15 V." },
+        { "ask": "v_C1 at t = 10 ms = ?", "explain": "The whole current flows through C_1, so q_1 = 20 µC and v_C1 = q_1/C_1 = 20/2 = 10 V." },
+        { "ask": "v_C2 at t = 10 ms = ?", "explain": "C_2 and C_3 are in parallel and together receive 20 µC: v_C2 = 20 µC / 4 µF = 5 V. Check: v_C1 + v_C2 = 15 V = v_a ✓." }
       ],
       "hints": [
         "Capacitors in parallel add: C = C_2 + C_3 (like resistors in series); in series: 1/C = 1/C_1 + 1/C' (like resistors in parallel).",
@@ -67,8 +67,8 @@
       "solution": [
         "**1. Equivalent capacitance.** C_2 ∥ C_3: C_23 = 1 + 3 = 4 µF. C_1 in series with C_23: C_eq = C_1·C_23/(C_1 + C_23) = 8/6 = **4/3 µF**.",
         "**2. Charge.** The constant 2 mA flows through C_1 and C_23; in 10 ms it delivers q = I_s·t = **20 µC**. Node m was uncharged, so all the charge leaving C_1's lower plate ends up on the upper plates of C_2 and C_3: q_1 = q_2 + q_3 = 20 µC.",
-        "**3. Voltages.** u_C1 = q/C_1 = **10 V**; u_C2 = u_C3 = q/C_23 = **5 V** (q_2 = 5 µC, q_3 = 15 µC, shared in proportion to capacitance); u_a = u_C1 + u_C2 = **15 V**.",
-        "**4. Check.** u_a = q/C_eq = 20/(4/3) = 15 V ✓. In a series string the smaller capacitor takes the larger voltage (C_1 = 2 µF gets 10 V, C_23 = 4 µF gets 5 V)."
+        "**3. Voltages.** v_C1 = q/C_1 = **10 V**; v_C2 = v_C3 = q/C_23 = **5 V** (q_2 = 5 µC, q_3 = 15 µC, shared in proportion to capacitance); v_a = v_C1 + v_C2 = **15 V**.",
+        "**4. Check.** v_a = q/C_eq = 20/(4/3) = 15 V ✓. In a series string the smaller capacitor takes the larger voltage (C_1 = 2 µF gets 10 V, C_23 = 4 µF gets 5 V)."
       ]
     }
   }

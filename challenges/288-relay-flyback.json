@@ -2,96 +2,191 @@
   "$schema": "../schema/challenge.schema.json",
   "format": "breadboard-challenge/1",
   "id": "exp5-relay-flyback",
-  "title": "实验 5-9 · 继电器 + 续流二极管：把线圈断电时的高压钳住",
+  "title": "继电器 + 续流二极管：把线圈断电时的高压按住",
   "kind": "challenge",
   "level": 4,
   "phase": 5,
-  "summary": "GPIO → 1 kΩ → NPN 驱动 5 V 继电器线圈，线圈两端反并一个二极管；继电器触点再去开关一个 9 V 电池供电的 LED。起始电路少了二极管，断电时线圈会产生反向高压。",
-  "concepts": ["继电器 relay", "电感反电动势 inductive kick v = L·di/dt", "续流二极管 flyback diode", "NPN 驱动线圈 transistor coil driver", "触点 COM / NO / NC"],
+  "summary": "三极管驱动 5 V 继电器，触点开关一个 9 V 电池供电的 LED。起始电路少了线圈两端的二极管：每次断电，集电极都冲到几十伏。加上它。",
+  "concepts": ["继电器 relay", "电感的反向高压 inductive kick v = L·di/dt", "续流二极管 flyback diode", "触点 COM / NO / NC"],
   "prereq": ["lesson-mcu-gpio"],
-  "description": [
-    "**目标**：用 NPN 三极管驱动 5 V 继电器线圈，并用反并联的二极管吸收线圈断电时的高压尖峰；继电器触点切换一个由 9 V 电池供电的 LED。",
-    "",
-    "**电路**（ESP32 插在 USB 上）：",
-    "- **控制侧**：任意输出 GPIO（参考答案 GPIO4）→ R1（1 kΩ）→ Q1（2N2222）基极；E 接 GND。",
-    "- 继电器 K1 的线圈：一端接开发板 **5V** 脚，另一端接 Q1 的集电极 C。",
-    "- 续流二极管 D1 并在线圈两端：**负极（有环）接 +5 V 那一端**，正极接集电极。",
-    "- **负载侧**：9 V 电池 + → 继电器 COM；NO（常开）→ R2（1 kΩ）→ LED1 → 电池 −。电池 − 和开发板 GND 连在一起。",
-    "",
-    "**起始电路**：除了 D1 都搭好了，引脚设成 10 Hz 的 PWM（继电器每秒开关 10 次，故意放大问题）。诊断会提示“K1 的线圈没有续流二极管”，时域仿真还会报告“K1 关断时产生了约 24 V 的反向电压”——集电极峰值约 **29 V**。把 D1 加上。",
-    "",
-    "**引脚设置**：不用设，测试依次用输出高、输出低、PWM 10 Hz。",
-    "",
-    "**先预测**：先由线圈电阻（约 70 Ω）估算线圈电流，判断够不够吸合；再想一想：三极管突然关断时电感电流要往哪里去？没有二极管时集电极电压会怎样，有二极管时又被钳到多少？",
-    "",
-    "**测量**：",
-    "- 输出高 / 低：继电器、LED、Q1 的工作区和线圈电流；",
-    "- 10 Hz PWM：用示波器看集电极电压的最大值 Vmax。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
-    "",
-    "**续流二极管怎么工作**：通电时 D1 反偏，不起作用。断电时线圈“想”维持原来的电流方向，于是它下端（集电极）电压升高；一旦比 +5 V 高 0.7 V，D1 导通，电流沿“线圈 → D1 → 线圈”的小回路慢慢衰减（时间常数 L/R = 150 mH / 70 Ω ≈ 2 ms），能量变成热量消耗在线圈电阻和二极管上。",
-    "",
-    "**实际项目经验**：",
-    "- 买到的“5 V 继电器模块”板上已经有三极管、续流二极管和指示灯（有的还有光耦）；裸继电器才要自己搭。很多模块是**低电平触发**（IN 接 GND 时吸合）。",
-    "- 5 V 继电器线圈从 5V / VIN 取电，不要从 3V3 取；3.3 V 的模块要买“3 V 线圈”的版本。",
-    "- 二极管用 1N4007 / 1N4148 就够了。它让继电器释放慢一点（几毫秒）；对释放速度有要求时，串一个齐纳二极管加快能量消耗。",
-    "- 触点能切交流 250 V / 10 A 也不代表面包板可以——接市电要用带外壳的模块、保持安全间距，初学者不要碰 220 V。",
-    "- 这里电池 − 和 GND 连在一起；继电器真正的优点是触点和线圈**电气隔离**，负载侧可以完全不共地。",
-    "- ESP32 别用 GPIO0/2/5/12/15 驱动继电器，开机时会“咔哒”一下。",
-    "",
-    "**模型说明**：线圈是 70 Ω + 150 mH，电流 ≥ 53 mA 吸合、< 7 mA 释放，没有机械动作时间。没有二极管时仿真的尖峰约 29 V（受仿真步长和三极管关断过程限制），真实电路里还可能更高，直到三极管 C–E 击穿（约 40 V）。本题的目标电路把电池 − 接到 GND，只是为了让万用表和示波器有同一个参考点；真实项目里负载侧可以完全独立。"
+  "description": "GPIO → 1 kΩ → NPN 驱动 5 V 继电器线圈；继电器的 COM–NO 触点开关一个 9 V 电池供电的 LED。起始电路没有续流二极管，引脚每秒开关 10 次，集电极在每次关断时冲到约 29 V。在线圈两端反并一个二极管（色环朝 5V），尖峰就被钳在 5V 加一个二极管压降。",
+  "cards": [
+    {
+      "kind": "try",
+      "title": "少了一个二极管",
+      "text": [
+        "面包板上已经搭好：GPIO → `1 kΩ` → 三极管 Q1，继电器 K1 的线圈接在 **5V** 脚和 Q1 的集电极之间。继电器的触点去开关一个 **9 V 电池**供电的 LED。",
+        "这个 GPIO 已经设成**每秒开关 10 次**（这种开关方式叫 PWM，5.8 再细讲），继电器“咔哒咔哒”地响。",
+        "看**诊断**：关于 K1 的线圈它说了什么？把**示波器**的探头接到 Q1 的集电极，最高冲到多少伏？"
+      ]
+    },
+    {
+      "kind": "explain",
+      "title": "线圈不肯让电流马上停",
+      "text": [
+        "- 线圈是一个**电感**，它像一个转起来的飞轮：电流不能一下子停。你硬要它停，它就在两端憋出很高的电压：",
+        "$$v = L \\frac{di}{dt}$$",
+        "- 代入数字：线圈 150 mH，60 mA 在 0.1 ms 里被切断，$v = 0.15 × \\frac{0.06}{0.0001} = 90$ V。这个电压全压在三极管上，足够把它击穿。",
+        "![](fig:kick)",
+        "- 解决办法：在线圈两端**反并一个二极管**（色环朝 5V）。平时它反偏，什么也不做。关断的一瞬间，集电极刚比 5V 高一点，它就导通，给电流一条绕回线圈的小路。",
+        "![](fig:loop)"
+      ]
+    },
+    {
+      "kind": "build",
+      "title": "把续流二极管加上",
+      "text": [
+        "- **二极管** D1 并在线圈两端：**色环（阴极）接 5V 那一端**，另一端接 Q1 的集电极。插反了会把 5V 直接短路到饱和的三极管上！",
+        "- 再看诊断：线圈的警告没了。示波器上，集电极的尖峰被按住了。",
+        "- 点**「检查我的电路」**。通过后完成测量题：先预测线圈电流（线圈约 70 Ω，5V 脚比 5 V 低一点，饱和的三极管再占零点几伏）。"
+      ]
+    },
+    {
+      "kind": "wrap",
+      "title": "带走",
+      "text": [
+        "- **线圈、电机、电磁阀：凡是电感负载，都要并续流二极管**，色环朝电源正极那一端。1N4007 或 1N4148 就够了。",
+        "- 继电器的触点和线圈**电气隔离**：控制侧 5 V，负载侧可以是完全不同的电源。",
+        "- 真实电路里的坑：买来的“继电器模块”通常已经带了三极管、二极管和指示灯，很多是低电平触发。触点写着 250 V 也不代表面包板能接市电——初学者不要碰 220 V。"
+      ],
+      "practice": ["nonlinear"]
+    }
   ],
+  "figures": {
+    "kick": {
+      "kind": "plot",
+      "caption": {
+        "text": "三极管在这一刻关断：没有二极管，集电极猛地冲上去（实线）；有二极管，它刚过 5V 就被按住，线圈电流在小回路里慢慢消失（虚线）。",
+        "i18n": {
+          "en": "The transistor turns off at this moment: without the diode the collector shoots up (solid); with the diode it is held just above 5V while the coil current dies away in the small loop (dashed)."
+        }
+      },
+      "x": {"label": {"text": "时间 (ms)", "i18n": {"en": "time (ms)"}}, "min": 0, "max": 8, "ticks": [0, 2, 8]},
+      "y": {"label": {"text": "集电极电压 (V)", "i18n": {"en": "collector voltage (V)"}}, "min": 0, "max": 32, "ticks": [0, 5]},
+      "curves": [
+        {
+          "points": [[0, 0.3], [2, 0.3], [2.05, 30], [2.4, 8], [2.8, 5], [8, 5]],
+          "tone": 2,
+          "label": {"text": "没有二极管", "i18n": {"en": "no diode"}},
+          "labelAt": [3.6, 22]
+        },
+        {
+          "points": [[0, 0.3], [2, 0.3], [2.03, 5.6], [4, 5.3], [6, 5], [8, 5]],
+          "tone": 1,
+          "dashed": true,
+          "label": {"text": "有二极管", "i18n": {"en": "with diode"}},
+          "labelAt": [6, 10]
+        }
+      ],
+      "vlines": [{"x": 2, "dashed": true}]
+    },
+    "loop": {
+      "kind": "schematic",
+      "caption": {
+        "text": "三极管一断开，线圈的电流 i 不能马上停。二极管给它一条小回路：线圈 → 二极管 → 线圈，绕几毫秒就消失了。",
+        "i18n": {
+          "en": "When the transistor opens, the coil current i cannot stop at once. The diode gives it a small loop — coil → diode → coil — where it dies away within a few milliseconds."
+        }
+      },
+      "schematic": {
+        "elements": [
+          {"ref": "Vs", "type": "BAT", "from": [0, 0], "to": [0, 7], "value": 5, "label": "5V"},
+          {"ref": "K1", "type": "L", "from": [3, 0], "to": [3, 3], "label": "K1"},
+          {"ref": "D1", "type": "D", "from": [6, 3], "to": [6, 0]},
+          {"ref": "Q1", "type": "NPN", "at": [4, 5], "flip": true}
+        ],
+        "wires": [
+          [[0, 0], [6, 0]],
+          [[3, 3], [6, 3]],
+          [[3, 7], [0, 7]]
+        ],
+        "terminals": [
+          {"at": [6, 5], "name": "GPIO"}
+        ],
+        "marks": [
+          {"kind": "i", "el": "K1", "name": "i"}
+        ],
+        "loops": [
+          {"at": [4.5, 1.5], "name": "i"}
+        ]
+      },
+      "highlight": ["D1"]
+    }
+  },
   "i18n": {
     "en": {
-      "title": "Experiment 5-9 · Relay + flyback diode: clamp the coil's turn-off spike",
-      "summary": "GPIO → 1 kΩ → NPN drives a 5 V relay coil with a reverse diode across it; the relay contact switches an LED powered by a 9 V battery. The starting board lacks the diode, so the coil kicks back a high voltage at turn-off.",
-      "concepts": ["relay", "inductive kick v = L·di/dt", "flyback diode", "transistor coil driver", "contacts COM / NO / NC"],
-      "description": [
-        "**Goal**: Drive a 5 V relay coil with an NPN transistor and absorb the coil's turn-off spike with a reverse diode across it; the relay contact switches an LED powered by a 9 V battery.",
-        "",
-        "**Circuit** (ESP32 on USB):",
-        "- **Control side**: any output GPIO (the reference uses GPIO4) → R1 (1 kΩ) → base of Q1 (2N2222); E to GND.",
-        "- Relay K1's coil: one end to the board's **5V** pin, the other to Q1's collector C.",
-        "- Flyback diode D1 across the coil: **cathode (band) to the +5 V end**, anode to the collector.",
-        "- **Load side**: 9 V battery + → relay COM; NO (normally open) → R2 (1 kΩ) → LED1 → battery −. The battery − is joined to the board's GND.",
-        "",
-        "**Starting board**: everything except D1 is built, and the pin is set to 10 Hz PWM (the relay clicks 10 times a second, to exaggerate the problem). The diagnostics say \"K1's coil has no flyback diode\", and the time-domain simulation reports \"K1 kicks back about 24 V when it switches off\" — the collector peaks at about **29 V**. Add D1.",
-        "",
-        "**Pin table settings**: nothing to set; the tests use output HIGH, output LOW and 10 Hz PWM.",
-        "",
-        "**Predict first**: Estimate the coil current from its resistance (about 70 Ω) and check it is enough to pull in; then think: when the transistor switches off suddenly, where must the inductor current go? What happens to the collector voltage without the diode, and where is it clamped with it?",
-        "",
-        "**Measure**:",
-        "- output HIGH / LOW: the relay, the LED, Q1's region and the coil current;",
-        "- 10 Hz PWM: the collector's maximum voltage Vmax on the scope. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
-        "",
-        "**How the flyback diode works**: while the coil is on, D1 is reverse-biased and does nothing. At turn-off the coil \"wants\" to keep its current flowing the same way, so its lower end (the collector) rises; as soon as it is 0.7 V above +5 V, D1 conducts and the current decays around the small loop coil → D1 → coil (time constant L/R = 150 mH / 70 Ω ≈ 2 ms), its energy turning into heat in the coil resistance and the diode.",
-        "",
-        "**Rule of thumb for real projects**:",
-        "- A ready-made \"5 V relay module\" already carries the transistor, flyback diode and an indicator LED (some add an opto-coupler); only a bare relay needs you to build this. Many modules are **active-low** (they pull in when IN is tied to GND).",
-        "- Power a 5 V relay coil from 5V / VIN, never from 3V3; for a 3.3 V system buy the \"3 V coil\" version.",
-        "- A 1N4007 / 1N4148 is plenty. It makes the relay release a little slower (a few ms); where release speed matters, add a Zener in series to dump the energy faster.",
-        "- Contacts rated 250 V AC / 10 A do not make a breadboard mains-safe — mains needs an enclosed module and proper clearances; beginners shouldn't touch 230 V.",
-        "- Here the battery − shares GND; the real strength of a relay is that the contacts are **galvanically isolated** from the coil, so the load side needs no common ground at all.",
-        "- Don't drive a relay from ESP32 GPIO0/2/5/12/15 — it will click during boot.",
-        "",
-        "**Model note**: the coil is 70 Ω + 150 mH, pulling in at ≥ 53 mA and releasing below 7 mA, with no mechanical delay. Without the diode the simulated spike is about 29 V (limited by the time step and the transistor's turn-off); a real circuit can go higher, up to the transistor's C–E breakdown (about 40 V). In this task the target joins the battery − to GND only so the meter and scope share one reference point; in a real project the load side can be fully separate."
+      "title": "Relay + flyback diode: holding down the coil's switch-off spike",
+      "summary": "A transistor drives a 5 V relay whose contact switches an LED on a 9 V battery. The starting board lacks the diode across the coil: at every switch-off the collector shoots to tens of volts. Add it.",
+      "concepts": ["relay", "inductive kick v = L·di/dt", "flyback diode", "contacts COM / NO / NC"],
+      "description": "GPIO → 1 kΩ → NPN drives a 5 V relay coil; the relay's COM–NO contact switches an LED on a 9 V battery. The starting board has no flyback diode, and with the pin switching 10 times a second the collector hits about 29 V at each switch-off. A reversed diode across the coil (band towards 5V) clamps the spike at 5V plus one diode drop.",
+      "cards": [
+        {
+          "title": "One diode missing",
+          "text": [
+            "The board is already built: GPIO → `1 kΩ` → transistor Q1; relay K1's coil sits between the **5V** pin and Q1's collector. The relay's contact switches an LED powered by a **9 V battery**.",
+            "The GPIO is already set to **switch on and off 10 times a second** (this kind of switching is called PWM; more in 5.8), and the relay clicks away.",
+            "Look at the **diagnostics**: what do they say about K1's coil? Put the **scope** probe on Q1's collector: how high does it shoot?"
+          ]
+        },
+        {
+          "title": "A coil won't let its current stop at once",
+          "text": [
+            "- A coil is an **inductor**, like a spinning flywheel: its current cannot stop all at once. Force it to stop and it builds up a large voltage across itself:",
+            "$$v = L \\frac{di}{dt}$$",
+            "- With numbers: a 150 mH coil whose 60 mA is cut in 0.1 ms gives $v = 0.15 × \\frac{0.06}{0.0001} = 90$ V. All of it lands on the transistor, enough to break it down.",
+            "![](fig:kick)",
+            "- The fix: put a **reversed diode across the coil** (band towards 5V). Normally it is reverse-biased and does nothing. The instant the transistor turns off, the collector rises just above 5V, the diode conducts, and the current gets a small path back round the coil.",
+            "![](fig:loop)"
+          ]
+        },
+        {
+          "title": "Add the flyback diode",
+          "text": [
+            "- **Diode** D1 across the coil: **band (cathode) on the 5V end**, the other end on Q1's collector. Reversed, it would short 5V straight into the saturated transistor!",
+            "- Look at the diagnostics again: the coil warning is gone. On the scope, the collector spike is held down.",
+            "- Press **Check my circuit**. Once it passes, answer the questions; predict the coil current first (the coil is about 70 Ω, the 5V pin is a little under 5 V, and a saturated transistor takes a few tenths of a volt)."
+          ]
+        },
+        {
+          "title": "Take away",
+          "text": [
+            "- **Coils, motors, solenoid valves: every inductive load gets a flyback diode**, band towards the positive supply end. A 1N4007 or 1N4148 is enough.",
+            "- A relay's contact is **electrically isolated** from its coil: 5 V on the control side, a completely different supply on the load side.",
+            "- A real-world catch: ready-made \"relay modules\" usually include the transistor, the diode and an indicator LED, and many switch on when the input is LOW. A contact rated 250 V does not make a breadboard safe for mains — beginners should not touch 230 V."
+          ]
+        }
       ],
       "compare": [
-        "**Compare**: relay on/off and the LED; Q1 saturated; coil current ≈ 63 mA; with PWM the scope's Vmax on the collector ≈ 5.4 V, proof that the spike is clamped. If Vmax is far above 5 V, the diode is missing or reversed: its band (cathode) goes to the 5V end.",
-        "",
-        "**Numbers (simulated)**:",
-        "- Coil 70 Ω: Ic = (4.65 − 0.21) / 70 ≈ **63 mA** (the 5V pin is about 4.65 V after the USB diode), above the 53 mA pull-in current: the relay pulls in and COM–NO closes.",
-        "- Ib = **2.53 mA**, forced β = 63/2.53 ≈ 25, still far below 150, so Q1 saturates with Vce = **0.21 V**. (A GPIO can't drive the coil directly: 3.3 V gives only 47 mA, and that is way above the pin's 20 mA recommendation anyway.)",
+        "**Compare** (simulated):",
+        "- Coil: (4.65 − 0.21) / 70 Ω ≈ **63 mA**, above the 53 mA pull-in current; Ib ≈ 2.53 mA, forced β ≈ 25, Q1 saturated, Vce ≈ **0.21 V**.",
         "- Load side: (9 − 2.1) / 1 kΩ ≈ **6.8 mA**, the green LED is on.",
-        "- Output LOW: Q1 is cut off, the coil is unpowered, the relay drops out and the LED goes off.",
-        "- PWM 10 Hz **with D1**: the collector peaks at only **5.37 V** (the 5V pin plus one diode drop). Without D1 the 63 mA coil current has nowhere to go at turn-off and v = L·di/dt drives the collector to about **29 V**."
+        "- With D1: the collector peaks at ≈ **5.4 V** (the 5V pin + one diode drop). Without D1: about **29 V**, and a real circuit may go higher until C–E breaks down (about 40 V).",
+        "",
+        "**Model note**: the coil is 70 Ω + 150 mH, pulls in at ≥ 53 mA and drops out below 7 mA, with no mechanical delay. Battery − joins GND only so the instruments share a reference; in a real project the load side can be fully separate."
       ],
       "measurements": [
-        {"ask": "Output HIGH: the coil current (ammeter between the 5V pin and the coil)", "explain": "(4.65 − 0.21) / 70 Ω ≈ 63 mA, above the 53 mA pull-in current."},
-        {"ask": "Output HIGH: Vce", "explain": "Ib ≈ 2.53 mA, forced β ≈ 25, still far below 150: Q1 saturates, Vce ≈ 0.21 V."},
-        {"ask": "Output HIGH: the LED current on the load side (9 V battery through the contact)", "explain": "(9 − 2.1) / 1 kΩ ≈ 6.8 mA. The contact is isolated from the coil: 5 V on the control side, any supply on the load side."},
-        {"ask": "PWM 10 Hz: the collector's maximum voltage Vmax on the scope", "explain": "As soon as D1 conducts it clamps the collector at the 5V pin voltage + one diode drop ≈ 5.4 V."},
-        {"ask": "Without D1 (as on the starting board), what happens the instant the transistor turns off?", "explain": "The coil's 63 mA has nowhere to go: the simulated collector hits about 29 V, a real one may go higher until C–E breaks down (about 40 V). With D1 the current decays around the coil → D1 loop with L/R ≈ 2 ms.", "choices": ["the collector shoots up to tens of volts (v = L·di/dt) and may break the transistor down", "the collector voltage is the same as with D1", "the collector goes negative"]}
+        {
+          "ask": "Output HIGH: the coil current (ammeter between the 5V pin and the coil)",
+          "explain": "(4.65 − 0.21) / 70 Ω ≈ 63 mA, above the 53 mA pull-in current."
+        },
+        {"ask": "Output HIGH: Vce (red lead on C, black lead on E)", "explain": "Ib ≈ 2.53 mA, forced β ≈ 25, still far below 150: Q1 saturates, Vce ≈ 0.21 V."},
+        {
+          "ask": "Output HIGH: the LED current on the load side (9 V battery through the contact)",
+          "explain": "(9 − 2.1) / 1 kΩ ≈ 6.8 mA. The contact is isolated from the coil: 5 V on the control side, any supply on the load side."
+        },
+        {
+          "ask": "Switching 10 times a second: the collector's maximum voltage Vmax on the scope",
+          "explain": "As soon as D1 conducts it clamps the collector at the 5V pin voltage + one diode drop ≈ 5.4 V."
+        },
+        {
+          "ask": "Without D1 (as on the starting board), what happens the instant the transistor turns off?",
+          "explain": "The coil's 63 mA has nowhere to go: the simulated collector hits about 29 V, a real one may go higher until C–E breaks down (about 40 V). With D1 the current decays around the coil → D1 loop with L/R ≈ 2 ms.",
+          "choices": [
+            "the collector shoots up to tens of volts (v = L·di/dt) and may break the transistor down",
+            "the collector voltage is the same as with D1",
+            "the collector goes negative"
+          ]
+        }
       ],
       "hints": [
         "The diode goes across the coil, band (cathode) on the 5V end, plain end (anode) on the collector.",
@@ -100,116 +195,152 @@
       ],
       "tests": [
         "Output HIGH: relay pulls in, LED on, Q1 saturated",
-        "Output LOW: relay released, LED off, Q1 cut off",
-        "PWM 10 Hz: with D1 the collector spike is clamped"
+        "Output LOW: relay released, LED off, Q1 off",
+        "Switching 10 times a second: with D1 the collector spike is clamped"
       ]
     }
   },
   "components": [
-    { "ref": "U1", "type": "esp32_devkit" },
-    { "ref": "R1", "type": "resistor", "resistance": "1k" },
-    { "ref": "Q1", "type": "npn" },
-    { "ref": "K1", "type": "relay" },
-    { "ref": "D1", "type": "diode" },
-    { "ref": "V2", "type": "dc_source", "voltage": 9 },
-    { "ref": "R2", "type": "resistor", "resistance": "1k" },
-    { "ref": "LED1", "type": "led" }
+    {"ref": "U1", "type": "esp32_devkit"},
+    {"ref": "R1", "type": "resistor", "resistance": "1k"},
+    {"ref": "Q1", "type": "npn"},
+    {"ref": "K1", "type": "relay"},
+    {"ref": "D1", "type": "diode"},
+    {"ref": "V2", "type": "dc_source", "voltage": 9},
+    {"ref": "R2", "type": "resistor", "resistance": "1k"},
+    {"ref": "LED1", "type": "led"}
   ],
   "nets": [
-    { "name": "IO", "pins": ["U1.GPIO_OUT1", "R1.1"] },
-    { "name": "BASE", "pins": ["R1.2", "Q1.b"] },
-    { "name": "COLL", "pins": ["Q1.c", "K1.coil2", "D1.anode"] },
-    { "name": "5V", "pins": ["U1.5V", "K1.coil1", "D1.cathode"] },
-    { "name": "GND", "pins": ["Q1.e", "U1.GND", "LED1.cathode", "V2.-"] },
-    { "name": "VLOAD", "pins": ["V2.+", "K1.com"] },
-    { "name": "NO", "pins": ["K1.no", "R2.1"] },
-    { "name": "LA", "pins": ["R2.2", "LED1.anode"] }
+    {"name": "IO", "pins": ["U1.GPIO_OUT1", "R1.1"]},
+    {"name": "BASE", "pins": ["R1.2", "Q1.b"]},
+    {"name": "COLL", "pins": ["Q1.c", "K1.coil2", "D1.anode"]},
+    {"name": "5V", "pins": ["U1.5V", "K1.coil1", "D1.cathode"]},
+    {"name": "GND", "pins": ["Q1.e", "U1.GND", "LED1.cathode", "V2.-"]},
+    {"name": "VLOAD", "pins": ["V2.+", "K1.com"]},
+    {"name": "NO", "pins": ["K1.no", "R2.1"]},
+    {"name": "LA", "pins": ["R2.2", "LED1.anode"]}
   ],
   "tests": [
     {
-      "name": "输出高：继电器吸合，LED 亮，Q1 饱和",
-      "set": { "U1": { "modes": { "GPIO_OUT1": "out_high" } } },
-      "expect": { "K1": "on", "LED1": "on" },
-      "regions": { "Q1": "saturation" },
-      "voltages": [{ "pin": "Q1.c", "ref": "Q1.e", "max": 0.3 }],
-      "currents": [
-        { "el": "K1", "min": 0.06, "max": 0.067 },
-        { "el": "R1", "min": 0.0024, "max": 0.0027 },
-        { "el": "LED1", "min": 0.0065, "max": 0.0073 }
-      ]
+      "name": "「输出 高」：继电器吸合，LED 亮，Q1 饱和",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}},
+      "expect": {"K1": "on", "LED1": "on"},
+      "regions": {"Q1": "saturation"},
+      "voltages": [{"pin": "Q1.c", "ref": "Q1.e", "max": 0.3}],
+      "currents": [{"el": "K1", "min": 0.06, "max": 0.067}, {"el": "R1", "min": 0.0024, "max": 0.0027}, {"el": "LED1", "min": 0.0065, "max": 0.0073}]
     },
     {
-      "name": "输出低：继电器释放，LED 灭，Q1 截止",
-      "set": { "U1": { "modes": { "GPIO_OUT1": "out_low" } } },
-      "expect": { "K1": "off", "LED1": "off" },
-      "regions": { "Q1": "cutoff" }
+      "name": "「输出 低」：继电器释放，LED 灭，Q1 截止",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_low"}}},
+      "expect": {"K1": "off", "LED1": "off"},
+      "regions": {"Q1": "cutoff"}
     },
     {
-      "name": "PWM 10 Hz：有 D1 时集电极的尖峰被钳住",
-      "set": { "U1": { "modes": { "GPIO_OUT1": { "mode": "pwm", "duty": 50, "frequency": 10 } } } },
+      "name": "每秒开关 10 次：有 D1 时集电极的尖峰被钳住",
+      "set": {"U1": {"modes": {"GPIO_OUT1": {"mode": "pwm", "duty": 50, "frequency": 10}}}},
       "scope": [
-        { "pin": "Q1.c", "ref": "Q1.e", "measure": "vmax", "min": 5.1, "max": 5.7 },
-        { "pin": "Q1.c", "ref": "Q1.e", "measure": "freq", "min": 9.5, "max": 10.5 }
+        {"pin": "Q1.c", "ref": "Q1.e", "measure": "vmax", "min": 5.1, "max": 5.7},
+        {"pin": "Q1.c", "ref": "Q1.e", "measure": "freq", "min": 9.5, "max": 10.5}
       ]
     }
   ],
   "compare": [
-    "**对比**：继电器吸合 / 释放和 LED；Q1 饱和；线圈电流 ≈ 63 mA；PWM 时用示波器看集电极 Vmax ≈ 5.4 V，证明高压被钳住了。Vmax 远高于 5 V 时，二极管没装或装反了：色环（阴极）应接 5V 一端。",
-    "",
-    "**数值（仿真）**：",
-    "- 线圈 70 Ω：Ic = (4.65 − 0.21) / 70 ≈ **63 mA**（5V 脚经 USB 二极管约 4.65 V），大于 53 mA 的吸合电流，继电器吸合，COM–NO 接通。",
-    "- Ib = **2.53 mA**，强制 β = 63/2.53 ≈ 25，仍然远小于 150，Q1 饱和，Vce = **0.21 V**。（GPIO 直接驱动不了：3.3 V 只能给线圈 47 mA，还远超引脚 20 mA 的建议值。）",
+    "**对比**（仿真）：",
+    "- 线圈：(4.65 − 0.21) / 70 Ω ≈ **63 mA**，大于 53 mA 的吸合电流；Ib ≈ 2.53 mA，强制 β ≈ 25，Q1 饱和，Vce ≈ **0.21 V**。",
     "- 负载侧：(9 − 2.1) / 1 kΩ ≈ **6.8 mA**，绿色 LED 亮。",
-    "- 输出低：Q1 截止，线圈没电，继电器释放，LED 灭。",
-    "- PWM 10 Hz、**有 D1**：集电极最高只到 **5.37 V**（5V 脚电压 + 二极管压降）。没有 D1：断电瞬间线圈电流 63 mA 无处可去，v = L·di/dt 把集电极推到约 **29 V**。"
+    "- 有 D1：集电极最高 ≈ **5.4 V**（5V 脚电压 + 二极管压降）。没有 D1：约 **29 V**，真实电路可能更高，直到 C–E 击穿（约 40 V）。",
+    "",
+    "**模型说明**：线圈是 70 Ω + 150 mH，≥ 53 mA 吸合、< 7 mA 释放，没有机械动作时间。电池 − 接到 GND 只是为了让仪表有同一个参考点；真实项目里负载侧可以完全独立。"
   ],
   "measurements": [
-    {"id": "icoil", "current": "K1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.0602, 0.0666], "ask": "输出高：线圈电流（电流表串在 5V 脚和线圈之间）", "explain": "(4.65 − 0.21) / 70 Ω ≈ 63 mA，大于 53 mA 的吸合电流。"},
-    {"id": "vce", "voltage": "Q1.c", "ref": "Q1.e", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "V", "predict": true, "range": [0.203, 0.224], "ask": "输出高：Vce", "explain": "Ib ≈ 2.53 mA，强制 β ≈ 25，仍远小于 150：Q1 饱和，Vce ≈ 0.21 V。"},
-    {"id": "iled", "stated": true, "current": "LED1", "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}}, "unit": "mA", "predict": true, "range": [0.00647, 0.00715], "ask": "输出高：负载侧 LED 的电流（9 V 电池经触点供电）", "explain": "(9 − 2.1) / 1 kΩ ≈ 6.8 mA。触点和线圈电气上隔离：控制侧 5 V，负载侧可以是别的电源。"},
-    {"id": "vmax", "scope": "vmax", "pin": "Q1.c", "ref": "Q1.e", "set": {"U1": {"modes": {"GPIO_OUT1": {"mode": "pwm", "duty": 50, "frequency": 10}}}}, "unit": "V", "predict": true, "range": [5.1, 5.64], "ask": "PWM 10 Hz：示波器看集电极电压的最大值 Vmax", "explain": "D1 一导通就把集电极钳在 5V 脚电压 + 二极管压降 ≈ 5.4 V。"},
-    {"id": "nod1", "choices": ["集电极冲到几十伏（v = L·di/dt），可能击穿三极管", "集电极电压和有 D1 时一样", "集电极变成负电压"], "correct": 0, "ask": "如果拿掉 D1（像起始电路那样），三极管关断的瞬间会怎样？", "explain": "线圈的 63 mA 无处可去，仿真里集电极冲到约 29 V，真实电路可能更高，直到 C–E 击穿（约 40 V）。有 D1 时电流沿“线圈 → D1”的小回路以 L/R ≈ 2 ms 衰减。"}
+    {
+      "id": "icoil",
+      "current": "K1",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.0602, 0.0666],
+      "ask": "「输出 高」：线圈电流（电流表串在 5V 脚和线圈之间）",
+      "explain": "(4.65 − 0.21) / 70 Ω ≈ 63 mA，大于 53 mA 的吸合电流。"
+    },
+    {
+      "id": "vce",
+      "voltage": "Q1.c",
+      "ref": "Q1.e",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}},
+      "unit": "V",
+      "predict": true,
+      "range": [0.203, 0.224],
+      "ask": "「输出 高」：Vce（红表笔接 C，黑表笔接 E）",
+      "explain": "Ib ≈ 2.53 mA，强制 β ≈ 25，仍远小于 150：Q1 饱和，Vce ≈ 0.21 V。"
+    },
+    {
+      "id": "iled",
+      "stated": true,
+      "current": "LED1",
+      "set": {"U1": {"modes": {"GPIO_OUT1": "out_high"}}},
+      "unit": "mA",
+      "predict": true,
+      "range": [0.00647, 0.00715],
+      "ask": "「输出 高」：负载侧 LED 的电流（9 V 电池经过触点供电）",
+      "explain": "(9 − 2.1) / 1 kΩ ≈ 6.8 mA。触点和线圈电气上隔离：控制侧 5 V，负载侧可以是别的电源。"
+    },
+    {
+      "id": "vmax",
+      "scope": "vmax",
+      "pin": "Q1.c",
+      "ref": "Q1.e",
+      "set": {"U1": {"modes": {"GPIO_OUT1": {"mode": "pwm", "duty": 50, "frequency": 10}}}},
+      "unit": "V",
+      "predict": true,
+      "range": [5.1, 5.64],
+      "ask": "每秒开关 10 次：示波器看集电极电压的最大值 Vmax",
+      "explain": "D1 一导通就把集电极钳在 5V 脚电压 + 二极管压降 ≈ 5.4 V。"
+    },
+    {
+      "id": "nod1",
+      "choices": ["集电极冲到几十伏（v = L·di/dt），可能击穿三极管", "集电极电压和有 D1 时一样", "集电极变成负电压"],
+      "correct": 0,
+      "ask": "如果拿掉 D1（像起始电路那样），三极管关断的瞬间会怎样？",
+      "explain": "线圈的 63 mA 无处可去，仿真里集电极冲到约 29 V，真实电路可能更高，直到 C–E 击穿（约 40 V）。有 D1 时电流沿“线圈 → D1”的小回路以 L/R ≈ 2 ms 衰减。"
+    }
   ],
-  "hints": [
-    "二极管并在线圈两端：有环的一端（负极）接 5V 那头，另一端（正极）接集电极。",
-    "线圈接在 5V 脚和 C 之间；E 接 GND；GPIO → 1 kΩ → B。",
-    "负载侧：电池 + → COM，NO → 1 kΩ → LED → 电池 −；电池 − 接开发板 GND。"
-  ],
+  "hints": ["二极管并在线圈两端：色环（阴极）接 5V 那头，另一端（阳极）接集电极。", "线圈接在 5V 脚和 C 之间；E 接 GND；GPIO → 1 kΩ → B。", "负载侧：电池 + → COM，NO → 1 kΩ → LED → 电池 −；电池 − 接开发板 GND。"],
   "solution": {
     "parts": [
-      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": true, "modes": { "GPIO4": "out_high" } } },
-      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
-      { "type": "wire", "color": "red", "pins": { "a": "j19", "b": "tp19" } },
-      { "type": "resistor", "ref": "R1", "resistance": "1k", "pins": { "1": "a13", "2": "a22" } },
-      { "type": "npn", "ref": "Q1", "at": "c21" },
-      { "type": "wire", "color": "black", "pins": { "a": "a21", "b": "tn21" } },
-      { "type": "relay", "ref": "K1", "at": "e25" },
-      { "type": "wire", "color": "red", "pins": { "a": "a25", "b": "tp25" } },
-      { "type": "wire", "color": "yellow", "pins": { "a": "b23", "b": "b28" } },
-      { "type": "diode", "ref": "D1", "pins": { "anode": "d28", "cathode": "d25" } },
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "bp22", "-": "bn22" } },
-      { "type": "wire", "color": "black", "pins": { "a": "bn20", "b": "tn20" } },
-      { "type": "wire", "color": "red", "pins": { "a": "j25", "b": "bp25" } },
-      { "type": "resistor", "ref": "R2", "resistance": "1k", "pins": { "1": "h28", "2": "h30" } },
-      { "type": "led", "ref": "LED1", "color": "green", "pins": { "anode": "i30", "cathode": "bn30" } }
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO4": "out_high"}}},
+      {"type": "wire", "color": "black", "pins": {"a": "a1", "b": "tn1"}},
+      {"type": "wire", "color": "red", "pins": {"a": "j19", "b": "tp19"}},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "a13", "2": "a22"}},
+      {"type": "npn", "ref": "Q1", "at": "c21"},
+      {"type": "wire", "color": "black", "pins": {"a": "a21", "b": "tn21"}},
+      {"type": "relay", "ref": "K1", "at": "e25"},
+      {"type": "wire", "color": "red", "pins": {"a": "a25", "b": "tp25"}},
+      {"type": "wire", "color": "yellow", "pins": {"a": "b23", "b": "b28"}},
+      {"type": "diode", "ref": "D1", "pins": {"anode": "d28", "cathode": "d25"}},
+      {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "bp22", "-": "bn22"}},
+      {"type": "wire", "color": "black", "pins": {"a": "bn20", "b": "tn20"}},
+      {"type": "wire", "color": "red", "pins": {"a": "j25", "b": "bp25"}},
+      {"type": "resistor", "ref": "R2", "resistance": "1k", "pins": {"1": "h28", "2": "h30"}},
+      {"type": "led", "ref": "LED1", "color": "green", "pins": {"anode": "i30", "cathode": "bn30"}}
     ]
   },
   "start": {
     "parts": [
-      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": true, "modes": { "GPIO4": { "mode": "pwm", "duty": 50, "frequency": 10 } } } },
-      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
-      { "type": "wire", "color": "red", "pins": { "a": "j19", "b": "tp19" } },
-      { "type": "resistor", "ref": "R1", "resistance": "1k", "pins": { "1": "a13", "2": "a22" } },
-      { "type": "npn", "ref": "Q1", "at": "c21" },
-      { "type": "wire", "color": "black", "pins": { "a": "a21", "b": "tn21" } },
-      { "type": "relay", "ref": "K1", "at": "e25" },
-      { "type": "wire", "color": "red", "pins": { "a": "a25", "b": "tp25" } },
-      { "type": "wire", "color": "yellow", "pins": { "a": "b23", "b": "b28" } },
-      { "type": "battery", "ref": "BAT1", "variant": "9V", "pins": { "+": "bp22", "-": "bn22" } },
-      { "type": "wire", "color": "black", "pins": { "a": "bn20", "b": "tn20" } },
-      { "type": "wire", "color": "red", "pins": { "a": "j25", "b": "bp25" } },
-      { "type": "resistor", "ref": "R2", "resistance": "1k", "pins": { "1": "h28", "2": "h30" } },
-      { "type": "led", "ref": "LED1", "color": "green", "pins": { "anode": "i30", "cathode": "bn30" } }
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO4": {"mode": "pwm", "duty": 50, "frequency": 10}}}},
+      {"type": "wire", "color": "black", "pins": {"a": "a1", "b": "tn1"}},
+      {"type": "wire", "color": "red", "pins": {"a": "j19", "b": "tp19"}},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "a13", "2": "a22"}},
+      {"type": "npn", "ref": "Q1", "at": "c21"},
+      {"type": "wire", "color": "black", "pins": {"a": "a21", "b": "tn21"}},
+      {"type": "relay", "ref": "K1", "at": "e25"},
+      {"type": "wire", "color": "red", "pins": {"a": "a25", "b": "tp25"}},
+      {"type": "wire", "color": "yellow", "pins": {"a": "b23", "b": "b28"}},
+      {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "bp22", "-": "bn22"}},
+      {"type": "wire", "color": "black", "pins": {"a": "bn20", "b": "tn20"}},
+      {"type": "wire", "color": "red", "pins": {"a": "j25", "b": "bp25"}},
+      {"type": "resistor", "ref": "R2", "resistance": "1k", "pins": {"1": "h28", "2": "h30"}},
+      {"type": "led", "ref": "LED1", "color": "green", "pins": {"anode": "i30", "cathode": "bn30"}}
     ]
   }
 }

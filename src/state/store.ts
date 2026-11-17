@@ -9,6 +9,7 @@ import { isLang, setLang as setCoreLang, tr, type Lang } from '../core/i18n';
 import { PARTS, nextScopeChannel } from '../core/parts';
 import type { BenchPose, Layout, PartProps, PartType, PlacedPart } from '../core/types';
 import { modeOf, startRoute } from './router';
+import { inCourseOrder, placeOf } from '../core/course';
 import { boolRecord, readStored, sanitizeLayout, sanitizeReadings, sanitizeScope, writeStored, writeStoredLater } from './persist';
 import type { ChallengeReadings } from '../core/readings';
 
@@ -55,6 +56,21 @@ const str = (v: unknown) => (typeof v === 'string' ? v : undefined);
 
 const emptyLayout = (): Layout => ({ version: 1, parts: [] });
 export const layoutKey = (mode: Mode, chId: string | null) => (mode === 'sandbox' || !chId ? 'bb.layout.sandbox' : `bb.layout.ch.${chId}`);
+
+// ---- which page an item lives on (docs/REBUILD_PLAN.md): Learn is the course map in order —
+// lessons, challenges and labs together; Challenges lists the challenges and labs only.
+
+/** Is this item listed on that page? */
+export const onPage = (c: Challenge, mode: Mode): boolean => (mode === 'learn' ? c.kind === 'lesson' || !!placeOf(c.id) : mode === 'challenge' && c.kind === 'challenge');
+
+/** The page an item opens on: lessons always on Learn; a course item stays on Learn when Learn asked. */
+export const pageFor = (c: Challenge, page?: 'learn' | 'challenge'): 'learn' | 'challenge' => (c.kind === 'lesson' || (page === 'learn' && placeOf(c.id)) ? 'learn' : 'challenge');
+
+/** First unfinished item of a page, in course order (else the first one). */
+export function firstUnfinished(list: Challenge[], completed: Record<string, boolean>, mode: Mode): Challenge | undefined {
+  const items = inCourseOrder(list.filter((c) => onPage(c, mode)));
+  return items.find((c) => !completed[c.id]) ?? items[0];
+}
 
 export const WIRE_COLORS = ['#d62828', '#1d3557', '#2a9d8f', '#e9c46a', '#f4a261', '#7b2cbf', '#222222', '#f1f1f1'];
 
@@ -124,6 +140,8 @@ interface State {
    *  URL already names it */
   opening: string | null;
   step: number;
+  /** card shown in a card-style unit (Challenge.cards, CHALLENGE_FORMAT §16) */
+  card: number;
   hintsShown: number;
   check: CheckResult | null;
   celebrate: boolean;
@@ -185,8 +203,10 @@ interface State {
   clear(): void;
   loadLayout(l: Layout, remember?: boolean): void;
   setChallenges(list: Challenge[], invalid: InvalidFile[]): void;
-  openChallenge(id: string): void;
+  /** `page`: the page asking (Learn keeps every item of the course map on the Learn page) */
+  openChallenge(id: string, page?: 'learn' | 'challenge'): void;
   setStep(n: number): void;
+  setCard(n: number): void;
   showHint(): void;
   setCheck(r: CheckResult | null): void;
   setCelebrate(v: boolean): void;
@@ -338,6 +358,7 @@ export const useStore = create<State>((set, get) => {
     activeId: null,
     opening: null,
     step: 0,
+    card: 0,
     hintsShown: 0,
     check: null,
     celebrate: false,
@@ -371,11 +392,10 @@ export const useStore = create<State>((set, get) => {
       if (mode === 'sandbox') {
         set({ ...base, panel: 'schematic', layout: savedLayout('bb.layout.sandbox') ?? emptyLayout() });
       } else if (mode === 'learn' || mode === 'challenge') {
-        const kind = mode === 'learn' ? 'lesson' : 'challenge';
-        const keep = s.challenges.find((c) => c.id === s.activeId && c.kind === kind);
-        const first = keep ?? s.challenges.find((c) => c.kind === kind && !s.completed[c.id]) ?? s.challenges.find((c) => c.kind === kind);
+        const keep = s.challenges.find((c) => c.id === s.activeId && onPage(c, mode));
+        const first = keep ?? firstUnfinished(s.challenges, s.completed, mode);
         set({ ...base, panel: 'task' });
-        if (first) get().openChallenge(first.id);
+        if (first) get().openChallenge(first.id, mode);
         else set({ activeId: null, layout: emptyLayout() });
       } else if (mode === 'practice') {
         set({ ...base });
@@ -567,12 +587,11 @@ export const useStore = create<State>((set, get) => {
       // the open challenge went away (an imported file was removed): open another. (Nothing is
       // open yet at startup — then the route decides, see state/routeSync.ts.)
       if ((s.mode === 'learn' || s.mode === 'challenge') && s.activeId && !challenges.some((c) => c.id === s.activeId)) {
-        const kind = s.mode === 'learn' ? 'lesson' : 'challenge';
-        const first = challenges.find((c) => c.kind === kind && !s.completed[c.id]) ?? challenges.find((c) => c.kind === kind);
-        if (first) get().openChallenge(first.id);
+        const first = firstUnfinished(challenges, s.completed, s.mode);
+        if (first) get().openChallenge(first.id, s.mode);
       }
     },
-    openChallenge(id) {
+    openChallenge(id, page) {
       const ch = get().challenges.find((c) => c.id === id);
       if (!ch) return;
       if (isPending(ch)) {
@@ -588,7 +607,7 @@ export const useStore = create<State>((set, get) => {
           openRequest = null;
           set({ opening: null });
           const loaded = get().challenges.find((c) => c.id === id);
-          if (ok && loaded && !isPending(loaded)) get().openChallenge(id);
+          if (ok && loaded && !isPending(loaded)) get().openChallenge(id, page);
           else get().notify(tr('题目文件加载失败，请检查网络后重试。', "Couldn't load the challenge file; check the connection and try again."));
         });
         return;
@@ -599,8 +618,9 @@ export const useStore = create<State>((set, get) => {
       set({
         activeId: id,
         opening: null,
-        mode: ch.kind === 'lesson' ? 'learn' : 'challenge',
+        mode: pageFor(ch, page ?? (get().mode === 'learn' ? 'learn' : undefined)),
         step: 0,
+        card: 0,
         hintsShown: 0,
         check: null,
         highlight: null,
@@ -613,6 +633,9 @@ export const useStore = create<State>((set, get) => {
     },
     setStep(step) {
       set({ step });
+    },
+    setCard(card) {
+      set({ card });
     },
     showHint() {
       set({ hintsShown: get().hintsShown + 1 });

@@ -1,6 +1,6 @@
 // Workbench interface state that is not part of the circuit: the details popover beside a part,
-// the right-click menu, the eraser's hover, the toolbox and side-panel layout, the lesson list
-// drawer and the "recent parts" strip. Layout preferences are remembered per browser.
+// the right-click menu, the eraser's hover, the toolbox and side-panel layout and the "recent
+// parts" strip. Layout preferences are remembered per browser.
 
 import { create } from 'zustand';
 import { PARTS } from '../core/parts';
@@ -27,7 +27,6 @@ interface BenchUi {
   /** side panel width set by dragging the splitter (px); null = the layout's default */
   sideW: number | null;
   sideCollapsed: boolean;
-  lessonsOpen: boolean;
   /** recently used part tools, most recent first (5) */
   recent: PartType[];
   openPopover(id: string | null): void;
@@ -35,7 +34,6 @@ interface BenchUi {
   setEraseHover(id: string | null): void;
   setKit(v: boolean): void;
   setSide(w: number | null, collapsed: boolean): void;
-  setLessonsOpen(v: boolean): void;
 }
 
 export const RECENT_N = 5;
@@ -49,7 +47,6 @@ export const useBenchUi = create<BenchUi>((set) => ({
   kit: readStored('bb.bench.kit', true, (v) => (typeof v === 'boolean' ? v : undefined)),
   sideW: readStored<number | null>('bb.bench.sideW', null, (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 && v < 4000 ? v : undefined)),
   sideCollapsed: readStored('bb.bench.sideCollapsed', false, (v) => (typeof v === 'boolean' ? v : undefined)),
-  lessonsOpen: false,
   recent: readStored<PartType[]>('bb.bench.recent', DEFAULT_RECENT, (v) => (Array.isArray(v) && v.every(isPart) ? [...new Set(v as PartType[])].slice(0, RECENT_N) : undefined)),
   openPopover: (popoverId) => set({ popoverId, menu: null }),
   openMenu: (menu) => set({ menu }),
@@ -63,7 +60,6 @@ export const useBenchUi = create<BenchUi>((set) => ({
     writeStored('bb.bench.sideCollapsed', sideCollapsed);
     set({ sideW, sideCollapsed });
   },
-  setLessonsOpen: (lessonsOpen) => set({ lessonsOpen }),
 }));
 
 /** Parts whose click operates them (press a button, flip a switch): their details open from the
@@ -87,5 +83,5 @@ useStore.subscribe((s, prev) => {
   }
   if (ui.popoverId && (s.selectedId !== ui.popoverId || !s.layout.parts.some((p) => p.id === ui.popoverId))) useBenchUi.setState({ popoverId: null });
   if (s.tool !== prev.tool && s.tool !== 'eraser' && ui.eraseHover) useBenchUi.setState({ eraseHover: null });
-  if (s.mode !== prev.mode || s.activeId !== prev.activeId) useBenchUi.setState({ popoverId: null, menu: null, lessonsOpen: false });
+  if (s.mode !== prev.mode || s.activeId !== prev.activeId) useBenchUi.setState({ popoverId: null, menu: null });
 });

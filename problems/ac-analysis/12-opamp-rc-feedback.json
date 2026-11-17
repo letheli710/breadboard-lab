@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["理想运放", "反相放大器", "复阻抗", "正弦稳态分析"],
   "statement": [
-    "理想运放电路中 U̇_s = 1∠0° V（有效值），ω = 1000 rad/s，R_1 = 1 kΩ，反馈支路为 R_f = 2 kΩ 与 C = 0.5 µF 并联。",
-    "求输出电压 U_o（o 端对地）的有效值和相位，以及电容中的电流 I_C（参考方向见图）。"
+    "理想运放电路中 V̇_s = 1∠0° V（有效值），ω = 1000 rad/s，R_1 = 1 kΩ，反馈支路为 R_f = 2 kΩ 与 C = 0.5 µF 并联。",
+    "求输出电压 V_o（o 端对地）的有效值和相位，以及电容中的电流 I_C（参考方向见图）。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": { "ac": { "mag": 1, "phase": 0 } } },
+      { "ref": "Vs", "type": "V", "from": [0, 3], "to": [0, 7], "value": { "ac": { "mag": 1, "phase": 0 } } },
       { "ref": "R1", "type": "R", "from": [2, 3], "to": [6, 3], "value": "1k" },
       { "ref": "Rf", "type": "R", "from": [8, 0], "to": [12, 0], "value": "2k" },
       { "ref": "C", "type": "C", "from": [8, -3], "to": [12, -3], "value": "0.5u" },
@@ -36,12 +36,12 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "Uo", "ask": "|U̇_o| = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 1.414214, "unit": "V", "explain": "Z_f = R_f ∥ (−j/ωC) = 2k ∥ (−j2k) = 1k − j1k Ω。U̇_o = −(Z_f/R_1)·U̇_s = −(1 − j) = −1 + j V，|U̇_o| = √2 ≈ 1.414 V。" },
-    { "id": "Uoph", "ask": "U̇_o 的相位 = ?", "find": { "kind": "v", "nodes": ["o"], "part": "phase" }, "answer": 135, "unit": "°", "explain": "U̇_o = −1 + j = 1.414∠135° V：反相放大贡献 180°，Z_f 的阻抗角贡献 −45°。" },
-    { "id": "IC", "ask": "电容电流有效值 I_C = ?", "find": { "kind": "i", "el": "C" }, "answer": 0.0007071068, "unit": "mA", "explain": "反相端虚地，电容两端电压 0 − U̇_o = 1 − j V，İ_C = jωC × (1 − j) = j0.5 mS × (1 − j) V = 0.5 + j0.5 mA，模 0.707 mA。" },
+    { "id": "Uo", "ask": "|V̇_o| = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 1.414214, "unit": "V", "explain": "Z_f = R_f ∥ (−j/ωC) = 2k ∥ (−j2k) = 1k − j1k Ω。V̇_o = −(Z_f/R_1)·V̇_s = −(1 − j) = −1 + j V，|V̇_o| = √2 ≈ 1.414 V。" },
+    { "id": "Uoph", "ask": "V̇_o 的相位 = ?", "find": { "kind": "v", "nodes": ["o"], "part": "phase" }, "answer": 135, "unit": "°", "explain": "V̇_o = −1 + j = 1.414∠135° V：反相放大贡献 180°，Z_f 的阻抗角贡献 −45°。" },
+    { "id": "IC", "ask": "电容电流有效值 I_C = ?", "find": { "kind": "i", "el": "C" }, "answer": 0.0007071068, "unit": "mA", "explain": "反相端虚地，电容两端电压 0 − V̇_o = 1 − j V，İ_C = jωC × (1 − j) = j0.5 mS × (1 − j) V = 0.5 + j0.5 mA，模 0.707 mA。" },
     {
       "id": "lowf",
-      "ask": "如果频率降得很低（ω → 0），这个电路的电压增益 |U̇_o/U̇_s| 趋于多少？",
+      "ask": "如果频率降得很低（ω → 0），这个电路的电压增益 |V̇_o/V̇_s| 趋于多少？",
       "choices": ["2（电容相当于开路，就是普通的反相比例放大器 −R_f/R_1）", "0（电容相当于短路）", "∞（电容阻抗趋于无穷）"], "choiceExplain": ["", "电容相当于短路是 ω → ∞ 的情况（高频时增益才趋于 0）；ω → 0 时 1/(ωC) → ∞，电容相当于开路。", "电容开路后反馈支路里还剩与它并联的 R_f：Z_f → R_f 而不是 ∞，增益是有限值。"],
       "correct": 0,
       "explain": "ω → 0 时 1/(ωC) → ∞，电容支路相当于开路，Z_f → R_f，增益 → −R_f/R_1 = −2。频率越高电容分流越多，增益越小——这是一个有源低通电路。"
@@ -49,43 +49,43 @@
   ],
   "hints": [
     "虚短、虚断在相量形式下同样成立：反相端 n 是虚地，R_1 的电流全部流入反馈支路。",
-    "把 R_f 与 C 的并联写成一个复阻抗 Z_f，U̇_o = −(Z_f/R_1)·U̇_s。",
+    "把 R_f 与 C 的并联写成一个复阻抗 Z_f，V̇_o = −(Z_f/R_1)·V̇_s。",
     "1/(ωC) = 1/(1000 × 0.5×10⁻⁶) = 2 kΩ，与 R_f 相等。"
   ],
   "solution": [
     "**1. 复阻抗。** Z_C = −j/(ωC) = −j2 kΩ，Z_f = R_f ∥ Z_C = 2k(−j2k)/(2k − j2k) = −j2k/(1 − j) = 1k − j1k Ω = 1.414 kΩ∠−45°。",
-    "**2. 虚短、虚断。** U̇_n = 0，İ_1 = U̇_s/R_1 = 1 mA，全部流入 Z_f：U̇_o = 0 − Z_f·İ_1 = −(1 − j) V = **−1 + j V = 1.414∠135° V**。",
-    "**3. 电容电流。** İ_C = (U̇_n − U̇_o)/Z_C = (1 − j)/(−j2k) = (1 − j)·j/2 mA = **0.5 + j0.5 mA**（0.707 mA∠45°）。",
-    "**4. 验算（结点 n 的 KCL）。** İ_Rf = (0 − U̇_o)/R_f = (1 − j)/2 mA = 0.5 − j0.5 mA，İ_Rf + İ_C = (0.5 − j0.5) + (0.5 + j0.5) = 1 mA = İ_1 ✓。"
+    "**2. 虚短、虚断。** V̇_n = 0，İ_1 = V̇_s/R_1 = 1 mA，全部流入 Z_f：V̇_o = 0 − Z_f·İ_1 = −(1 − j) V = **−1 + j V = 1.414∠135° V**。",
+    "**3. 电容电流。** İ_C = (V̇_n − V̇_o)/Z_C = (1 − j)/(−j2k) = (1 − j)·j/2 mA = **0.5 + j0.5 mA**（0.707 mA∠45°）。",
+    "**4. 验算（结点 n 的 KCL）。** İ_Rf = (0 − V̇_o)/R_f = (1 − j)/2 mA = 0.5 − j0.5 mA，İ_Rf + İ_C = (0.5 − j0.5) + (0.5 + j0.5) = 1 mA = İ_1 ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Inverting amplifier with a capacitor in the feedback",
       "tags": ["ideal op-amp", "inverting amplifier", "complex impedance", "sinusoidal steady state"],
       "statement": [
-        "In the ideal op-amp circuit U̇_s = 1∠0° V (rms), ω = 1000 rad/s, R_1 = 1 kΩ, and the feedback branch is R_f = 2 kΩ in parallel with C = 0.5 µF.",
-        "Find the rms value and phase of the output voltage U_o (terminal o to ground) and the capacitor current I_C (reference direction as drawn)."
+        "In the ideal op-amp circuit V̇_s = 1∠0° V (rms), ω = 1000 rad/s, R_1 = 1 kΩ, and the feedback branch is R_f = 2 kΩ in parallel with C = 0.5 µF.",
+        "Find the rms value and phase of the output voltage V_o (terminal o to ground) and the capacitor current I_C (reference direction as drawn)."
       ],
       "questions": [
-        { "ask": "|U̇_o| = ?", "explain": "Z_f = R_f ∥ (−j/ωC) = 2k ∥ (−j2k) = 1k − j1k Ω. U̇_o = −(Z_f/R_1)·U̇_s = −(1 − j) = −1 + j V, |U̇_o| = √2 ≈ 1.414 V." },
-        { "ask": "Phase of U̇_o = ?", "explain": "U̇_o = −1 + j = 1.414∠135° V: the inversion contributes 180° and the angle of Z_f contributes −45°." },
-        { "ask": "rms capacitor current I_C = ?", "explain": "The inverting input is a virtual ground, so the capacitor voltage is 0 − U̇_o = 1 − j V and İ_C = jωC × (1 − j) = j0.5 mS × (1 − j) V = 0.5 + j0.5 mA, magnitude 0.707 mA." },
+        { "ask": "|V̇_o| = ?", "explain": "Z_f = R_f ∥ (−j/ωC) = 2k ∥ (−j2k) = 1k − j1k Ω. V̇_o = −(Z_f/R_1)·V̇_s = −(1 − j) = −1 + j V, |V̇_o| = √2 ≈ 1.414 V." },
+        { "ask": "Phase of V̇_o = ?", "explain": "V̇_o = −1 + j = 1.414∠135° V: the inversion contributes 180° and the angle of Z_f contributes −45°." },
+        { "ask": "rms capacitor current I_C = ?", "explain": "The inverting input is a virtual ground, so the capacitor voltage is 0 − V̇_o = 1 − j V and İ_C = jωC × (1 − j) = j0.5 mS × (1 − j) V = 0.5 + j0.5 mA, magnitude 0.707 mA." },
         {
-          "ask": "If the frequency is made very low (ω → 0), what does the voltage gain |U̇_o/U̇_s| approach?",
+          "ask": "If the frequency is made very low (ω → 0), what does the voltage gain |V̇_o/V̇_s| approach?",
           "choices": ["2 (the capacitor is an open circuit; it is the ordinary inverting amplifier −R_f/R_1)", "0 (the capacitor is a short circuit)", "∞ (the capacitor's impedance goes to infinity)"], "choiceExplain": ["", "The capacitor acts as a short when ω → ∞ (the gain goes to 0 at high frequency); as ω → 0, 1/(ωC) → ∞ and it acts as an open circuit.", "With the capacitor open, the R_f in parallel with it is still in the feedback path: Z_f → R_f, not ∞, so the gain stays finite."],
           "explain": "As ω → 0, 1/(ωC) → ∞, the capacitor branch is open, Z_f → R_f and the gain → −R_f/R_1 = −2. At higher frequencies the capacitor bypasses more current and the gain drops — this is an active low-pass circuit."
         }
       ],
       "hints": [
         "Virtual short and virtual open hold for phasors too: the inverting input n is a virtual ground and all of R_1's current goes into the feedback branch.",
-        "Combine R_f and C in parallel into one complex impedance Z_f; U̇_o = −(Z_f/R_1)·U̇_s.",
+        "Combine R_f and C in parallel into one complex impedance Z_f; V̇_o = −(Z_f/R_1)·V̇_s.",
         "1/(ωC) = 1/(1000 × 0.5×10⁻⁶) = 2 kΩ, equal to R_f."
       ],
       "solution": [
         "**1. Impedances.** Z_C = −j/(ωC) = −j2 kΩ, Z_f = R_f ∥ Z_C = 2k(−j2k)/(2k − j2k) = −j2k/(1 − j) = 1k − j1k Ω = 1.414 kΩ∠−45°.",
-        "**2. Virtual short and open.** U̇_n = 0, İ_1 = U̇_s/R_1 = 1 mA, all of it into Z_f: U̇_o = 0 − Z_f·İ_1 = −(1 − j) V = **−1 + j V = 1.414∠135° V**.",
-        "**3. Capacitor current.** İ_C = (U̇_n − U̇_o)/Z_C = (1 − j)/(−j2k) = (1 − j)·j/2 mA = **0.5 + j0.5 mA** (0.707 mA∠45°).",
-        "**4. Check (KCL at n).** İ_Rf = (0 − U̇_o)/R_f = (1 − j)/2 mA = 0.5 − j0.5 mA, İ_Rf + İ_C = (0.5 − j0.5) + (0.5 + j0.5) = 1 mA = İ_1 ✓."
+        "**2. Virtual short and open.** V̇_n = 0, İ_1 = V̇_s/R_1 = 1 mA, all of it into Z_f: V̇_o = 0 − Z_f·İ_1 = −(1 − j) V = **−1 + j V = 1.414∠135° V**.",
+        "**3. Capacitor current.** İ_C = (V̇_n − V̇_o)/Z_C = (1 − j)/(−j2k) = (1 − j)·j/2 mA = **0.5 + j0.5 mA** (0.707 mA∠45°).",
+        "**4. Check (KCL at n).** İ_Rf = (0 − V̇_o)/R_f = (1 − j)/2 mA = 0.5 − j0.5 mA, İ_Rf + İ_C = (0.5 − j0.5) + (0.5 + j0.5) = 1 mA = İ_1 ✓."
       ]
     }
   }

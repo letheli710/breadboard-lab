@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["功率因数提高", "并联电容", "无功补偿"],
   "statement": [
-    "感性负载接在 U = 220 V（有效值）、f = 50 Hz 的电源上，吸收有功功率 P = 10 kW，功率因数 cos φ₁ = 0.6（滞后），电流表 A 测电源电流。",
-    "现在负载两端并联电容 C，把电源端的功率因数提高到 cos φ₂ = 0.9（仍为滞后）。求：负载电流、电容需提供的无功功率、所需电容 C（及其容抗）和补偿后的电源电流。"
+    "感性负载接在 V = 220 V（有效值）、f = 50 Hz 的电源上，吸收有功功率 P = 10 kW，功率因数 cos φ₁ = 0.6（滞后）。电流表 A 测的是电源电流。",
+    "现在在负载两端并联电容 C，把电源端的功率因数提高到 cos φ₂ = 0.9（仍为滞后）。求负载电流、电容吸收的无功功率 Q_C、所需电容 C 及其容抗，以及补偿后的电源电流。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 220, "phase": 0 } }, "label": "220 V, 50 Hz" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 220, "phase": 0 } }, "label": "220 V, 50 Hz" },
       { "ref": "A", "type": "ammeter", "from": [2, 0], "to": [5, 0] },
       { "ref": "Z", "type": "Z", "from": [8, 0], "to": [8, 6], "value": { "re": 1.7424, "im": 2.3232 }, "label": "10 kW, cos φ₁ = 0.6", "hideValue": true },
       { "ref": "C", "type": "C", "from": [15, 0], "to": [15, 6], "value": 0.0005583650155189188, "label": "C", "hideValue": true }
@@ -28,23 +28,23 @@
   },
   "analysis": { "type": "ac", "freq": 50 },
   "questions": [
-    { "id": "IZ", "ask": "负载电流有效值 I_Z = ?", "find": { "kind": "i", "el": "Z" }, "answer": 75.75758, "unit": "A", "explain": "I_Z = P/(U cos φ₁) = 10000/(220 × 0.6) ≈ 75.76 A。并联电容不改变负载的电压，所以负载电流补偿前后不变。" },
+    { "id": "IZ", "ask": "负载电流有效值 I_Z = ?", "find": { "kind": "i", "el": "Z" }, "answer": 75.75758, "unit": "A", "explain": "I_Z = P/(V cos φ₁) = 10000/(220 × 0.6) ≈ 75.76 A。并联电容不改变负载的电压，所以负载电流补偿前后不变。" },
     { "id": "QC", "ask": "电容吸收的无功功率 Q_C = ?", "find": { "kind": "q", "el": "C" }, "answer": -8490.112, "unit": "var", "explain": "补偿前 Q₁ = P tan φ₁ = 10000 × 4/3 = 13333 var，补偿后 Q₂ = P tan φ₂ = 10000 × 0.4843 = 4843 var，Q_C = Q₂ − Q₁ = −P(tan φ₁ − tan φ₂) ≈ −8490 var。" },
-    { "id": "XC", "ask": "所需电容的容抗 X_C = 1/(ωC) = ?（由此可得 C）", "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Us", "Z"] }, "answer": 5.700749, "unit": "Ω", "explain": "|Q_C| = U²/X_C → X_C = 220²/8490 ≈ 5.70 Ω；C = 1/(ωX_C) = P(tan φ₁ − tan φ₂)/(ωU²) = 8490/(314.16 × 48400) ≈ 558 µF。" },
-    { "id": "C", "ask": "所需电容 C = ?", "find": { "kind": "val", "el": "C" }, "answer": 0.000558365, "unit": "µF", "explain": "C = 1/(ωX_C) = 1/(2π × 50 × 5.7007) ≈ 558.4 µF。图中的 C 就取这个值——上面 Q_C 和电流表读数两问正是用它算出来的，验证了补偿后 cos φ₂ = 0.9。" },
-    { "id": "I", "ask": "补偿后电流表 A 的读数（电源电流有效值）I = ?", "find": { "kind": "meter", "el": "A" }, "answer": 50.50505, "unit": "A", "explain": "有功不变：I = P/(U cos φ₂) = 10000/(220 × 0.9) ≈ 50.51 A，比补偿前的 75.76 A 小了三分之一。" }
+    { "id": "XC", "ask": "所需电容的容抗 X_C = 1/(ωC) = ?（由此可得 C）", "find": { "kind": "req", "port": ["a", "0"], "exclude": ["Vs", "Z"] }, "answer": 5.700749, "unit": "Ω", "explain": "|Q_C| = V²/X_C → X_C = 220²/8490 ≈ 5.70 Ω；C = 1/(ωX_C) = P(tan φ₁ − tan φ₂)/(ωV²) = 8490/(314.16 × 48400) ≈ 558 µF。" },
+    { "id": "C", "ask": "所需电容 C = ?", "find": { "kind": "val", "el": "C" }, "answer": 0.000558365, "unit": "µF", "explain": "C = 1/(ωX_C) = 1/(2π × 50 × 5.7007) ≈ 558.4 µF。图中的 C 就取这个值。Q_C 和电流表读数这两问都是用它算出来的，它们验证了补偿后 cos φ₂ = 0.9。" },
+    { "id": "I", "ask": "补偿后电流表 A 的读数（电源电流有效值）I = ?", "find": { "kind": "meter", "el": "A" }, "answer": 50.50505, "unit": "A", "explain": "有功不变：I = P/(V cos φ₂) = 10000/(220 × 0.9) ≈ 50.51 A，比补偿前的 75.76 A 小了三分之一。" }
   ],
   "hints": [
     "并联电容不改变负载的电压、电流和有功功率 P，只改变电源提供的无功功率。",
     "补偿前后的无功分别是 P tan φ₁ 和 P tan φ₂，差值由电容提供。",
-    "电容的无功 |Q_C| = U²/X_C = ωCU²。"
+    "电容的无功 |Q_C| = V²/X_C = ωCV²。"
   ],
   "solution": [
-    "**1. 负载电流。** I_Z = P/(U cos φ₁) = 10000/132 ≈ **75.76 A**（补偿前这也是电源电流）。",
+    "**1. 负载电流。** I_Z = P/(V cos φ₁) = 10000/132 ≈ **75.76 A**（补偿前这也是电源电流）。",
     "**2. 无功功率。** tan φ₁ = 0.8/0.6 = 4/3；cos φ₂ = 0.9 → tan φ₂ = √(1 − 0.81)/0.9 ≈ 0.4843。",
     "Q₁ = P tan φ₁ ≈ 13333 var，Q₂ = P tan φ₂ ≈ 4843 var，电容吸收 Q_C = Q₂ − Q₁ ≈ **−8490 var**（即提供 8490 var）。",
-    "**3. 电容。** X_C = U²/|Q_C| = 48400/8490 ≈ **5.70 Ω**，C = P(tan φ₁ − tan φ₂)/(ωU²) = 8490/(2π × 50 × 220²) ≈ **558 µF**。",
-    "**4. 电源电流。** I = P/(U cos φ₂) ≈ **50.51 A**。",
+    "**3. 电容。** X_C = V²/|Q_C| = 48400/8490 ≈ **5.70 Ω**，C = P(tan φ₁ − tan φ₂)/(ωV²) = 8490/(2π × 50 × 220²) ≈ **558 µF**。",
+    "**4. 电源电流。** I = P/(V cos φ₂) ≈ **50.51 A**。",
     "提高功率因数的意义：负载的工作状态不变，而线路电流从 75.76 A 降到 50.51 A，线路损耗和电源容量都随之减小。"
   ],
   "i18n": {
@@ -52,27 +52,27 @@
       "title": "Power-factor correction: find C",
       "tags": ["power-factor correction", "parallel capacitor", "reactive compensation"],
       "statement": [
-        "An inductive load on a U = 220 V (rms), f = 50 Hz supply absorbs P = 10 kW at a power factor cos φ₁ = 0.6 (lagging); ammeter A measures the source current.",
-        "A capacitor C is connected across the load to raise the power factor at the source to cos φ₂ = 0.9 (still lagging). Find the load current, the reactive power the capacitor must supply, the required capacitance C (and its reactance) and the source current after correction."
+        "An inductive load on a V = 220 V (rms), f = 50 Hz supply absorbs P = 10 kW at a power factor cos φ₁ = 0.6 (lagging). Ammeter A measures the source current.",
+        "A capacitor C is now connected across the load to raise the power factor at the source to cos φ₂ = 0.9 (still lagging). Find the load current, the reactive power Q_C absorbed by the capacitor, the required capacitance C and its reactance, and the source current after correction."
       ],
       "questions": [
-        { "ask": "rms load current I_Z = ?", "explain": "I_Z = P/(U cos φ₁) = 10000/(220 × 0.6) ≈ 75.76 A. The parallel capacitor does not change the load voltage, so the load current is the same before and after correction." },
+        { "ask": "rms load current I_Z = ?", "explain": "I_Z = P/(V cos φ₁) = 10000/(220 × 0.6) ≈ 75.76 A. The parallel capacitor does not change the load voltage, so the load current is the same before and after correction." },
         { "ask": "Reactive power absorbed by the capacitor, Q_C = ?", "explain": "Before: Q₁ = P tan φ₁ = 10000 × 4/3 = 13333 var; after: Q₂ = P tan φ₂ = 10000 × 0.4843 = 4843 var; Q_C = Q₂ − Q₁ = −P(tan φ₁ − tan φ₂) ≈ −8490 var." },
-        { "ask": "Reactance of the required capacitor, X_C = 1/(ωC) = ? (C follows from it)", "explain": "|Q_C| = U²/X_C → X_C = 220²/8490 ≈ 5.70 Ω; C = 1/(ωX_C) = P(tan φ₁ − tan φ₂)/(ωU²) = 8490/(314.16 × 48400) ≈ 558 µF." },
-        { "ask": "Required capacitance C = ?", "explain": "C = 1/(ωX_C) = 1/(2π × 50 × 5.7007) ≈ 558.4 µF. The C in the drawing has this value — the Q_C and ammeter questions above are computed with it, which confirms that cos φ₂ = 0.9 after correction." },
-        { "ask": "Reading of ammeter A after correction (rms source current), I = ?", "explain": "P is unchanged: I = P/(U cos φ₂) = 10000/(220 × 0.9) ≈ 50.51 A — a third less than the 75.76 A before correction." }
+        { "ask": "Reactance of the required capacitor, X_C = 1/(ωC) = ? (C follows from it)", "explain": "|Q_C| = V²/X_C → X_C = 220²/8490 ≈ 5.70 Ω; C = 1/(ωX_C) = P(tan φ₁ − tan φ₂)/(ωV²) = 8490/(314.16 × 48400) ≈ 558 µF." },
+        { "ask": "Required capacitance C = ?", "explain": "C = 1/(ωX_C) = 1/(2π × 50 × 5.7007) ≈ 558.4 µF. The C in the drawing has this value. The Q_C and ammeter questions are computed with it, and they confirm that cos φ₂ = 0.9 after correction." },
+        { "ask": "Reading of ammeter A after correction (rms source current), I = ?", "explain": "P is unchanged: I = P/(V cos φ₂) = 10000/(220 × 0.9) ≈ 50.51 A — a third less than the 75.76 A before correction." }
       ],
       "hints": [
         "A parallel capacitor changes neither the load's voltage, current nor real power P — only the reactive power the source must supply.",
         "The reactive power before and after is P tan φ₁ and P tan φ₂; the capacitor supplies the difference.",
-        "Capacitor reactive power: |Q_C| = U²/X_C = ωCU²."
+        "Capacitor reactive power: |Q_C| = V²/X_C = ωCV²."
       ],
       "solution": [
-        "**1. Load current.** I_Z = P/(U cos φ₁) = 10000/132 ≈ **75.76 A** (before correction this is also the source current).",
+        "**1. Load current.** I_Z = P/(V cos φ₁) = 10000/132 ≈ **75.76 A** (before correction this is also the source current).",
         "**2. Reactive power.** tan φ₁ = 0.8/0.6 = 4/3; cos φ₂ = 0.9 → tan φ₂ = √(1 − 0.81)/0.9 ≈ 0.4843.",
         "Q₁ = P tan φ₁ ≈ 13333 var, Q₂ = P tan φ₂ ≈ 4843 var, so the capacitor absorbs Q_C = Q₂ − Q₁ ≈ **−8490 var** (it supplies 8490 var).",
-        "**3. Capacitor.** X_C = U²/|Q_C| = 48400/8490 ≈ **5.70 Ω**, C = P(tan φ₁ − tan φ₂)/(ωU²) = 8490/(2π × 50 × 220²) ≈ **558 µF**.",
-        "**4. Source current.** I = P/(U cos φ₂) ≈ **50.51 A**.",
+        "**3. Capacitor.** X_C = V²/|Q_C| = 48400/8490 ≈ **5.70 Ω**, C = P(tan φ₁ − tan φ₂)/(ωV²) = 8490/(2π × 50 × 220²) ≈ **558 µF**.",
+        "**4. Source current.** I = P/(V cos φ₂) ≈ **50.51 A**.",
         "Why correct the power factor: the load works exactly as before, but the line current drops from 75.76 A to 50.51 A, reducing line losses and the required source rating."
       ]
     }

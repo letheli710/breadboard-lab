@@ -26,43 +26,15 @@ interface Box {
 
 // ---------------------------------------------------------------- rich text
 
-/** A run of text: `it` = italic quantity letter, `sub` = subscript. */
-interface Run {
-  t: string;
-  it?: boolean;
-  sub?: boolean;
-}
+import { richRuns, type Run } from './richRuns';
+export { richRuns };
 
-/** "u_R1" → u + subscript R1, "U_{ab}" → U + subscript ab; single letters are italic. A phasor dot
- *  (combining U+0307, e.g. "U̇_s", or precomposed "İ_1"), a hat (combining U+0302, or precomposed
- *  "û_1", "î_k", "Û", "Î") or a bar (combining U+0304, complex power "S̄_Us") stays on the base letter. */
-export function richRuns(s: string): Run[] {
-  const out: Run[] = [];
-  const re = /([A-Za-zα-ωΑ-Ω][\u0307\u0302\u0304]?|[\u0130ûîÛÎ])_(\{([^}]*)\}|([A-Za-z0-9]+))/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(s))) {
-    if (m.index > last) out.push({ t: s.slice(last, m.index) });
-    let sub = m[3] ?? m[4];
-    // juxtaposed products without braces ("U_lI_l", "z_12z_21", "U̇_AY_A"): a run that runs into the
-    // next symbol's "_" gives its last letter back as that symbol
-    let end = re.lastIndex;
-    if (m[4] && sub.length > 1 && /[A-Za-zα-ωΑ-Ω]$/.test(sub) && (s[end] === '_' || (/[\u0307\u0302\u0304]/.test(s[end]) && s[end + 1] === '_'))) {
-      sub = sub.slice(0, -1);
-      end -= 1;
-      re.lastIndex = end;
-    }
-    out.push({ t: m[1], it: true }, { t: sub, sub: true });
-    last = end;
-  }
-  if (last < s.length) out.push({ t: s.slice(last) });
-  if (out.length === 1 && /^(?:[A-Za-zα-ω][\u0307\u0302\u0304]?|[\u0130ûîÛÎ])$/.test(out[0].t)) out[0].it = true;
-  return out;
-}
-
-/** Element refs / mark names: "R1" → R₁, "Us" → U_s, "RL" → R_L (unless they already use "_"). */
+/** Element refs / mark names: "R1" → R₁, "Vs" → V_s, "RL" → R_L (unless they already use "_"). */
 export function symbolText(ref: string): string {
-  if (ref.includes('_')) return ref;
+  // breadboard names in lesson figures stay as they are: LED1, AM1 (ammeter), VM1 (voltmeter)
+  // (and a lowercase word such as "com" or "out" is a name, not a symbol)
+  // and so are microcontroller pins and bench names (PA0, GPIO2, ADC, SDA, SW1, SWOUT, VCC)
+  if (ref.includes('_') || /^(LED|AM|VM)\d*$/.test(ref) || /^[a-z]{3,}$/.test(ref) || /^(GPIO|ADC|DAC|PWM|BUS|SDA|SCL|TX|RX|SWOUT|SW|VCC|GND|P[A-C])\d*$/.test(ref)) return ref;
   const m = ref.match(/^([A-Za-z])([A-Za-z]{0,3}\d*|\d+)$/);
   return m && m[2] ? `${m[1]}_${m[2]}` : ref;
 }
@@ -74,7 +46,7 @@ const textWidth = (runs: Run[], size = FS) =>
     return w + n * size * (r.sub ? 0.75 : 1);
   }, 0);
 
-function Rich({ runs, ...p }: { runs: Run[]; x: number; y: number; anchor?: 'start' | 'middle' | 'end'; className?: string; fill?: string }) {
+export function Rich({ runs, ...p }: { runs: Run[]; x: number; y: number; anchor?: 'start' | 'middle' | 'end'; className?: string; fill?: string }) {
   let dy = 0;
   return (
     <text x={p.x} y={p.y} textAnchor={p.anchor ?? 'start'} className={p.className} fill={p.fill}>
@@ -175,7 +147,7 @@ function sourceText(v: TwoTerminalElement['value'], unit: string): string | null
 }
 
 function ctrlSymbol(c: CtrlRef | undefined): string {
-  const u = getLang() === 'zh' ? 'u' : 'v';
+  const u = 'v';
   if (!c) return '?';
   if ('i' in c) return `i_{${c.i}}`;
   if ('v' in c) return `${u}_{${c.v}}`;
@@ -214,12 +186,13 @@ export function lawText(law: unknown): string | null {
     const cond = lo !== null && hi !== null ? ` (${num(lo)} ≤ ${x} ≤ ${num(hi)})` : lo !== null ? ` (${x} ≥ ${num(lo)})` : hi !== null ? ` (${x} ≤ ${num(hi)})` : '';
     return `${y} = ${terms.join('')}${cond}`;
   };
-  if ('i' in o) return poly('i', 'u', o.i, o.umin, o.umax);
-  if ('u' in o) return poly('u', 'i', o.u, o.imin, o.imax);
+  // the law's data keys stay "u" / "i"; the drawing writes the voltage as v
+  if ('i' in o) return poly('i', 'v', o.i, o.umin, o.umax);
+  if ('u' in o) return poly('v', 'i', o.u, o.imin, o.imax);
   if ('diode' in o && o.diode && typeof o.diode === 'object') {
     const d = o.diode as Record<string, unknown>;
     const parts = [];
-    if (toNum(d.uon)) parts.push(`U_on = ${formatSI(toNum(d.uon)!, 'V')}`);
+    if (toNum(d.uon)) parts.push(`V_on = ${formatSI(toNum(d.uon)!, 'V')}`);
     if (toNum(d.ron)) parts.push(`R_on = ${formatSI(toNum(d.ron)!, 'Ω')}`);
     return parts.length ? parts.join(', ') : null;
   }
@@ -253,6 +226,16 @@ export function elementValueText(el: TwoTerminalElement): string | null {
     }
     case 'NR':
       return lawText(el.law);
+    case 'BAT':
+      return siOrRaw(v, 'V');
+    case 'RV':
+      return siOrRaw(v, 'Ω');
+    case 'S':
+    case 'D':
+    case 'M':
+      return null;
+    case 'LED':
+      return null;
     case 'VCVS':
     case 'VCCS':
     case 'CCVS':
@@ -291,10 +274,32 @@ function bodySize(el: TwoTerminalElement): { B: number; hw: number } {
       return { B: 36, hw: 15 };
     case 'SW':
       return { B: 36, hw: 16 };
+    case 'LED':
+      return { B: 22, hw: 17 };
+    case 'RV':
+      return { B: 48, hw: 14 };
+    case 'S':
+      return { B: 34, hw: 13 };
+    case 'D':
+      return { B: 20, hw: 11 };
+    case 'M':
+      return { B: 30, hw: 15 };
+    case 'BAT':
+      return { B: 12, hw: 16 };
     default:
       return { B: 28, hw: 14 };
   }
 }
+
+/** LED figure colours (fill of the diode triangle) */
+const LED_TINT: Record<string, string> = {
+  red: '#f29b8f',
+  green: '#9ad7a4',
+  yellow: '#f5d77a',
+  blue: '#9cc3f2',
+  white: '#f3f1ea',
+  orange: '#f6b980',
+};
 
 const isAC = (v: unknown) => !!v && typeof v === 'object' && ('ac' in (v as object) || 'sin' in (v as object));
 
@@ -434,6 +439,15 @@ const KIND: Record<string, [string, string]> = {
   ammeter: ['电流表', 'ammeter'],
   voltmeter: ['电压表', 'voltmeter'],
   NR: ['非线性电阻', 'nonlinear resistor'],
+  LED: ['发光二极管', 'LED'],
+  BAT: ['电池', 'battery'],
+  RV: ['可变电阻', 'variable resistor'],
+  D: ['二极管', 'diode'],
+  M: ['电机', 'motor'],
+  NPN: ['NPN 三极管', 'NPN transistor'],
+  NMOS: ['N 沟道 MOSFET', 'N-channel MOSFET'],
+  REG: ['稳压器', 'regulator'],
+  S: ['开关', 'switch'],
   OPAMP: ['理想运放', 'ideal op-amp'],
   XFMR: ['变压器', 'transformer'],
   K: ['耦合', 'coupling'],
@@ -463,7 +477,10 @@ export function describeSchematic(s: Schematic): string {
             const t = elementValueText(el);
             return t ? ` ${t}` : '';
           })();
-      const pol = el.type === 'V' || el.type === 'I' || el.type.endsWith('VS') || el.type.endsWith('CS') ? tr('（+ 端 / 箭头起点在前）', ' (+ / arrow tail first)') : '';
+      const pol =
+        el.type === 'V' || el.type === 'BAT' || el.type === 'LED' || el.type === 'I' || el.type.endsWith('VS') || el.type.endsWith('CS')
+          ? tr('（+ 端 / 箭头起点在前）', ' (+ / arrow tail first)')
+          : '';
       return tr(`${name}${v}，接在${at(el.ref, 'p')}与${at(el.ref, 'n')}之间${pol}`, `${name}${v}, between ${at(el.ref, 'p')} and ${at(el.ref, 'n')}${pol}`);
     }
     if (el.type === 'OPAMP')
@@ -472,6 +489,21 @@ export function describeSchematic(s: Schematic): string {
         `${name}: − input at ${at(el.ref, 'minus')}, + input at ${at(el.ref, 'plus')}, output at ${at(el.ref, 'out')}`,
       );
     if (el.type === 'K') return name;
+    if (el.type === 'NPN' || el.type === 'NMOS' || el.type === 'REG') {
+      const pins = Object.keys(terminalPoints(el));
+      const pinName: Record<string, [string, string]> = {
+        b: ['基极', 'base'],
+        c: ['集电极', 'collector'],
+        e: ['发射极', 'emitter'],
+        g: ['栅极', 'gate'],
+        d: ['漏极', 'drain'],
+        s: ['源极', 'source'],
+        in: ['输入', 'in'],
+        out: ['输出', 'out'],
+        gnd: ['地', 'GND'],
+      };
+      return `${name}${tr('：', ': ')}${pins.map((p) => `${tr(pinName[p][0], pinName[p][1])} ${at(el.ref, p)}`).join(tr('，', ', '))}`;
+    }
     return tr(
       `${name}：端口 1 在${at(el.ref, 'p1')}与${at(el.ref, 'n1')}之间，端口 2 在${at(el.ref, 'p2')}与${at(el.ref, 'n2')}之间`,
       `${name}: port 1 between ${at(el.ref, 'p1')} and ${at(el.ref, 'n1')}, port 2 between ${at(el.ref, 'p2')} and ${at(el.ref, 'n2')}`,
@@ -541,6 +573,12 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
     } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
       const [x, y] = px(el.at);
       obstacles.push({ x0: x - 2 * U, y0: y - 1.45 * U, x1: x + 2 * U, y1: y + 1.45 * U });
+    } else if ((el.type === 'NPN' || el.type === 'NMOS') && Array.isArray(el.at)) {
+      const [x, y] = px(el.at);
+      obstacles.push({ x0: x - 2 * U, y0: y - 1.05 * U, x1: x + 1.3 * U, y1: y + 1.05 * U });
+    } else if (el.type === 'REG' && Array.isArray(el.at)) {
+      const [x, y] = px(el.at);
+      obstacles.push({ x0: x - 1.4 * U, y0: y - 0.8 * U, x1: x + 1.4 * U, y1: y + 0.8 * U });
     } else if (el.type === 'TL' && Array.isArray(el.at)) {
       const [x, y] = px(el.at);
       obstacles.push({ x0: x, y0: y - 4, x1: x + lineWidth(el) * U, y1: y + 2 * U + 30 });
@@ -581,6 +619,13 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         if (el.to[0] === p[0] && el.to[1] === p[1]) mark(el.from[0] - p[0], el.from[1] - p[1]);
       } else if (el.type === 'OPAMP' || el.type === 'XFMR') {
         for (const q of Object.values(terminalPoints(el))) if (q[0] === p[0] && q[1] === p[1]) mark(el.at[0] - p[0], 0);
+      } else if (el.type === 'NPN' || el.type === 'NMOS' || el.type === 'REG') {
+        // leads leave the base / gate / in / out sideways, the others vertically
+        for (const q of Object.values(terminalPoints(el)))
+          if (q[0] === p[0] && q[1] === p[1]) {
+            if (q[1] === el.at[1]) mark(el.at[0] - p[0], 0);
+            else mark(0, el.at[1] - p[1]);
+          }
       } else if (el.type === 'TL' && Array.isArray(el.at)) {
         const mid = el.at[0] + lineWidth(el) / 2;
         for (const q of Object.values(terminalPoints(el))) if (q[0] === p[0] && q[1] === p[1]) mark(mid - p[0], 0);
@@ -814,6 +859,94 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         );
         break;
       }
+      case 'LED': {
+        // diode triangle (anode = p) and bar, filled with the LED's colour; two arrows of light
+        // leave on the side away from the label
+        const tint = LED_TINT[String(el.value ?? '').toLowerCase()] ?? 'var(--paper)';
+        // the light leaves away from the label, unless a +/− voltage mark takes that side
+        const vMark = (s.marks ?? []).some((m) => m?.el === el.ref && m.kind === 'v');
+        const out = vMark ? ls : -ls;
+        const ray = (x0: number) => {
+          const a: V2 = [x0, out * 12];
+          const b: V2 = [x0 + 7, out * 21];
+          const d: V2 = [0.6, out * 0.8];
+          return (
+            <g key={x0}>
+              <line x1={a[0]} y1={a[1]} x2={b[0] - d[0] * 3} y2={b[1] - d[1] * 3} {...common} strokeWidth={1.2} />
+              <polygon points={arrowHead(b, d, 5, 2.6)} fill={col} />
+            </g>
+          );
+        };
+        body = (
+          <g>
+            <polygon points={`${-h},-10 ${-h},10 ${h - 2},0`} {...common} fill={tint} />
+            <line x1={h - 2} y1={-10} x2={h - 2} y2={10} {...common} />
+            {ray(-4)}
+            {ray(3)}
+          </g>
+        );
+        break;
+      }
+      case 'RV':
+        // the resistor with an arrow through it (a variable resistor / potentiometer as a rheostat)
+        body = (
+          <g>
+            {zh ? (
+              <rect x={-h} y={-8} width={2 * h} height={16} {...common} fill="var(--paper)" />
+            ) : (
+              <polyline
+                points={[-h, ...[0, 1, 2, 3, 4, 5].map((i) => -h + (2 * h * (2 * i + 1)) / 12), h]
+                  .map((x, i, arr) => `${x},${i === 0 || i === arr.length - 1 ? 0 : i % 2 ? -8 : 8}`)
+                  .join(' ')}
+                {...common}
+              />
+            )}
+            <line x1={-h + 6} y1={13} x2={h - 9} y2={-10} {...common} strokeWidth={1.4} />
+            <polygon points={arrowHead([h - 5, -13], [0.8, -0.6], 7, 3.4)} fill={col} />
+          </g>
+        );
+        break;
+      case 'S': {
+        // a plain switch: two contacts and a lever, open (tilted) or closed (flat)
+        const closed = String(el.value ?? 'open') === 'closed';
+        const piv = -h + 3;
+        const R = 2 * h - 6;
+        const tip: V2 = closed ? [h - 3, 0] : [piv + R * Math.cos(Math.PI / 6), -ls * R * Math.sin(Math.PI / 6)];
+        body = (
+          <g>
+            <line x1={-h} y1={0} x2={piv} y2={0} {...common} />
+            <line x1={h - 3} y1={0} x2={h} y2={0} {...common} />
+            {/* the lever: heavier than a wire, so a closed switch still reads as a switch */}
+            <line x1={piv} y1={0} x2={tip[0]} y2={tip[1]} {...common} strokeWidth={SW * 1.7} />
+            <circle cx={piv} cy={0} r={2.6} {...common} fill="var(--paper)" />
+            <circle cx={h - 3} cy={0} r={2.6} {...common} fill="var(--paper)" />
+          </g>
+        );
+        break;
+      }
+      case 'BAT':
+        // long thin plate = +, short thick plate = −
+        body = (
+          <g {...common}>
+            <line x1={-h} y1={-15} x2={-h} y2={15} />
+            <line x1={h} y1={-8} x2={h} y2={8} strokeWidth={SW * 2.4} strokeLinecap="butt" />
+          </g>
+        );
+        sym('+', -h - 8, -ls * 13, 12);
+        break;
+      case 'D':
+        // diode: anode = p (triangle), cathode = n (bar)
+        body = (
+          <g {...common}>
+            <polygon points={`${-h},-10 ${-h},10 ${h},0`} fill="var(--paper)" />
+            <line x1={h} y1={-10} x2={h} y2={10} />
+          </g>
+        );
+        break;
+      case 'M':
+        body = <circle r={h} {...common} fill="var(--paper)" />;
+        sym('M', 0, 0, 14, 'ps-sym ps-meter');
+        break;
       case 'ammeter':
       case 'voltmeter':
         body = <circle r={h} {...common} fill="var(--paper)" />;
@@ -835,7 +968,7 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
     const col = hl.has(g.el.ref) ? 'var(--accent)' : 'var(--ink)';
     const ms = markSideOf.get(g.el.ref)!;
     const msl = Math.sign(ms[0] * g.nrm[0] + ms[1] * g.nrm[1]) || 1;
-    const name = m.name ?? (m.kind === 'i' ? `i_{${g.el.ref}}` : `${zh ? 'u' : 'v'}_{${g.el.ref}}`);
+    const name = m.name ?? (m.kind === 'i' ? `i_{${g.el.ref}}` : `v_{${g.el.ref}}`);
     const runs = richRuns(symbolText(name));
     if (m.kind === 'i') {
       const leadLen = g.len / 2 - g.B / 2;
@@ -920,6 +1053,51 @@ function drawSchematic(s: Schematic, hl: Set<string>): { body: ReactNode; box: B
         const up = hits(above) <= hits(below);
         addText(runs, cx, up ? y - 8 : y + 19, 'middle', 'ps-mark', col);
       }
+    } else if ((el.type === 'NPN' || el.type === 'NMOS' || el.type === 'REG') && Array.isArray(el.at)) {
+      const [x, y] = px(el.at);
+      const f = el.flip ? -1 : 1;
+      const X = (dx: number) => x + f * dx * U;
+      const Y = (dy: number) => y + dy * U;
+      const parts: ReactNode[] = [];
+      if (el.type === 'NPN') {
+        const xb = X(-0.35);
+        const tipE: V2 = [X(1), Y(0.9)];
+        const dirE: V2 = [tipE[0] - xb, tipE[1] - Y(0.25)];
+        const lenE = Math.hypot(dirE[0], dirE[1]);
+        parts.push(
+          <circle key="c" cx={X(0.25)} cy={y} r={0.95 * U} {...common} fill="var(--paper)" />,
+          <path key="l" d={`M${X(-2)},${y}H${xb}M${xb},${Y(-0.25)}L${X(1)},${Y(-0.9)}V${Y(-2)}M${xb},${Y(0.25)}L${tipE[0]},${tipE[1]}V${Y(2)}`} {...common} />,
+          <line key="bar" x1={xb} y1={Y(-0.55)} x2={xb} y2={Y(0.55)} {...common} strokeWidth={SW * 2} />,
+          <polygon key="a" points={arrowHead([xb + dirE[0] * 0.78, Y(0.25) + dirE[1] * 0.78], [dirE[0] / lenE, dirE[1] / lenE], 9, 4)} fill={col} />,
+        );
+      } else if (el.type === 'NMOS') {
+        const xg = X(-0.6);
+        const xc = X(-0.32);
+        parts.push(
+          <circle key="c" cx={X(0.25)} cy={y} r={0.95 * U} {...common} fill="var(--paper)" />,
+          <path key="g" d={`M${X(-2)},${y}H${xg}M${xg},${Y(-0.55)}V${Y(0.55)}`} {...common} />,
+          ...[-0.45, 0, 0.45].map((dy) => <line key={`ch${dy}`} x1={xc} y1={Y(dy - 0.15)} x2={xc} y2={Y(dy + 0.15)} {...common} strokeWidth={SW * 1.6} />),
+          <path key="ds" d={`M${xc},${Y(-0.45)}H${X(1)}V${Y(-2)}M${xc},${Y(0.45)}H${X(1)}V${Y(2)}M${xc},${y}H${X(1)}V${Y(0.45)}`} {...common} />,
+          <polygon key="a" points={arrowHead([xc + f * 4, y], [-f, 0], 8, 3.6)} fill={col} />,
+        );
+      } else {
+        parts.push(
+          <path key="l" d={`M${X(-2)},${y}H${X(-1.3)}M${X(1.3)},${y}H${X(2)}M${x},${Y(0.7)}V${Y(2)}`} {...common} />,
+          <rect key="b" x={x - 1.3 * U} y={Y(-0.7)} width={2.6 * U} height={1.4 * U} rx={3} {...common} fill="var(--paper)" />,
+          <text key="i" x={X(-1.05)} y={y + 4} textAnchor={f > 0 ? 'start' : 'end'} fontSize={11} className="ps-sym" fill={col}>
+            IN
+          </text>,
+          <text key="o" x={X(1.05)} y={y + 4} textAnchor={f > 0 ? 'end' : 'start'} fontSize={11} className="ps-sym" fill={col}>
+            OUT
+          </text>,
+          <text key="g" x={x} y={Y(0.55)} textAnchor="middle" fontSize={11} className="ps-sym" fill={col}>
+            GND
+          </text>,
+        );
+      }
+      bodies.push(<g key={`dev${el.ref}`}>{parts}</g>);
+      if (el.type === 'REG') addText(richRuns(el.label ?? symbolText(el.ref)), x, Y(-0.7) - 6, 'middle', 'ps-ref', hl.has(el.ref) ? col : undefined);
+      else addText(richRuns(el.label ?? symbolText(el.ref)), X(1.35), y + 5, f > 0 ? 'start' : 'end', 'ps-ref', hl.has(el.ref) ? col : undefined);
     } else if (el.type === 'XFMR') {
       if (!Array.isArray(el.at)) continue;
       const [x, y] = px(el.at);

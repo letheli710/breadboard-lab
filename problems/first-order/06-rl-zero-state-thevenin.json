@@ -7,12 +7,12 @@
   "level": 2,
   "tags": ["零状态响应", "RL 电路", "戴维宁等效", "时间常数 τ"],
   "statement": [
-    "图示电路中 U_s = 12 V，R_1 = 6 Ω，R_2 = 3 Ω，L = 0.4 H。开关 S 原来断开，t = 0 时闭合。",
+    "图示电路中 V_s = 12 V，R_1 = 6 Ω，R_2 = 3 Ω，L = 0.4 H。开关 S 原来断开，t = 0 时闭合。",
     "求时间常数 τ、i_L(∞)、R_2 中的电流 i_2(0₊)，以及 t = 0.4 s 时的 i_L。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": 12 },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 6 },
       { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 3 },
       { "ref": "S", "type": "SW", "from": [10, 0], "to": [12, 0], "state": { "before": "open", "after": "closed" } },
@@ -33,46 +33,46 @@
   },
   "analysis": { "type": "tran" },
   "questions": [
-    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "U_s 短路后从电感看进去：R_eq = R_1 ∥ R_2 = 6×3/9 = 2 Ω，τ = L/R_eq = 0.4/2 = 0.2 s。" },
-    { "id": "iinf", "ask": "i_L(∞) = ?", "find": { "kind": "i", "el": "L", "t": "inf" }, "answer": 2, "unit": "A", "explain": "稳态时电感短路，R_2 被短接：i_L(∞) = U_s/R_1 = 12/6 = 2 A。" },
+    { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.2, "unit": "s", "explain": "V_s 短路后从电感看进去：R_eq = R_1 ∥ R_2 = 6×3/9 = 2 Ω，τ = L/R_eq = 0.4/2 = 0.2 s。" },
+    { "id": "iinf", "ask": "i_L(∞) = ?", "find": { "kind": "i", "el": "L", "t": "inf" }, "answer": 2, "unit": "A", "explain": "稳态时电感短路，R_2 被短接：i_L(∞) = V_s/R_1 = 12/6 = 2 A。" },
     { "id": "i20", "ask": "i_2(0₊) = ?", "find": { "kind": "i", "el": "R2", "t": "0+" }, "answer": 1.333333, "unit": "A", "explain": "i_L(0₊) = i_L(0₋) = 0，0₊ 时电感相当于开路，R_1、R_2 串联：i_2(0₊) = 12/9 ≈ 1.333 A（之后逐渐减小到 0）。" },
     { "id": "i04", "ask": "t = 0.4 s 时 i_L = ?", "find": { "kind": "i", "el": "L", "t": 0.4 }, "answer": 1.729329, "unit": "A", "explain": "i_L(t) = 2(1 − e^(−5t)) A，t = 0.4 s = 2τ 时 i_L = 2(1 − e⁻²) ≈ 1.729 A。" }
   ],
   "hints": [
-    "把电感以外的部分（U_s、R_1、R_2）化成戴维宁等效电路。",
+    "把电感以外的部分（V_s、R_1、R_2）化成戴维宁等效电路。",
     "R_eq：电压源短路后 R_1 与 R_2 并联；终值：电感短路。",
     "电感原来没有电流，0₊ 时它相当于开路。"
   ],
   "solution": [
-    "**1. 戴维宁等效。** 断开电感，a 端开路电压 U_oc = 12 × 3/(6 + 3) = 4 V；U_s 短路，R_eq = 6 ∥ 3 = 2 Ω。所以电感看到的是 4 V 串 2 Ω。",
-    "**2. 三个要素。** i_L(0₊) = i_L(0₋) = 0；i_L(∞) = U_oc/R_eq = 4/2 = **2 A**（也就是 12/6，R_2 被电感短接）；τ = L/R_eq = 0.4/2 = **0.2 s**。",
-    "**3. 零状态响应。** i_L(t) = 2(1 − e^(−5t)) A，u_L(t) = L di_L/dt = 4e^(−5t) V。t = 0.4 s：i_L = 2(1 − e⁻²) ≈ **1.729 A**。",
-    "**4. R_2 的电流。** i_2 = u_L/R_2 = (4/3)e^(−5t) A：i_2(0₊) = 4/3 ≈ **1.333 A**（换路前 S 断开时就是这个值），稳态时变为 0。验算 KCL：i_R1 = i_2 + i_L = 2 − (2/3)e^(−5t) A，t = 0₊ 时 = 4/3 A = 12/9 A ✓。"
+    "**1. 戴维宁等效。** 断开电感，a 端开路电压 V_oc = 12 × 3/(6 + 3) = 4 V；V_s 短路，R_eq = 6 ∥ 3 = 2 Ω。所以电感看到的是 4 V 串 2 Ω。",
+    "**2. 三个要素。** i_L(0₊) = i_L(0₋) = 0；i_L(∞) = V_oc/R_eq = 4/2 = **2 A**（也就是 12/6，R_2 被电感短接）；τ = L/R_eq = 0.4/2 = **0.2 s**。",
+    "**3. 零状态响应。** i_L(t) = 2(1 − e^(−5t)) A，v_L(t) = L di_L/dt = 4e^(−5t) V。t = 0.4 s：i_L = 2(1 − e⁻²) ≈ **1.729 A**。",
+    "**4. R_2 的电流。** i_2 = v_L/R_2 = (4/3)e^(−5t) A：i_2(0₊) = 4/3 ≈ **1.333 A**（换路前 S 断开时就是这个值），稳态时变为 0。验算 KCL：i_R1 = i_2 + i_L = 2 − (2/3)e^(−5t) A，t = 0₊ 时 = 4/3 A = 12/9 A ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Current build-up in an RL circuit: Thevenin first",
       "tags": ["zero-state response", "RL circuit", "Thevenin equivalent", "time constant τ"],
       "statement": [
-        "In the circuit, U_s = 12 V, R_1 = 6 Ω, R_2 = 3 Ω, L = 0.4 H. Switch S is open and closes at t = 0.",
+        "In the circuit, V_s = 12 V, R_1 = 6 Ω, R_2 = 3 Ω, L = 0.4 H. Switch S is open and closes at t = 0.",
         "Find the time constant τ, i_L(∞), the current i_2(0+) in R_2, and i_L at t = 0.4 s."
       ],
       "questions": [
-        { "ask": "τ = ?", "explain": "Short U_s and look from the inductor: R_eq = R_1 ∥ R_2 = 6×3/9 = 2 Ω, τ = L/R_eq = 0.4/2 = 0.2 s." },
-        { "ask": "i_L(∞) = ?", "explain": "In steady state the inductor is a short and R_2 is shorted out: i_L(∞) = U_s/R_1 = 12/6 = 2 A." },
+        { "ask": "τ = ?", "explain": "Short V_s and look from the inductor: R_eq = R_1 ∥ R_2 = 6×3/9 = 2 Ω, τ = L/R_eq = 0.4/2 = 0.2 s." },
+        { "ask": "i_L(∞) = ?", "explain": "In steady state the inductor is a short and R_2 is shorted out: i_L(∞) = V_s/R_1 = 12/6 = 2 A." },
         { "ask": "i_2(0+) = ?", "explain": "i_L(0+) = i_L(0−) = 0, so at 0+ the inductor acts as an open circuit and R_1, R_2 are in series: i_2(0+) = 12/9 ≈ 1.333 A (it then decays to 0)." },
         { "ask": "i_L at t = 0.4 s = ?", "explain": "i_L(t) = 2(1 − e^(−5t)) A; at t = 0.4 s = 2τ, i_L = 2(1 − e⁻²) ≈ 1.729 A." }
       ],
       "hints": [
-        "Reduce everything except the inductor (U_s, R_1, R_2) to a Thevenin equivalent.",
+        "Reduce everything except the inductor (V_s, R_1, R_2) to a Thevenin equivalent.",
         "R_eq: with the voltage source shorted, R_1 and R_2 are in parallel; final value: the inductor is a short.",
         "The inductor carries no current initially, so at 0+ it behaves like an open circuit."
       ],
       "solution": [
-        "**1. Thevenin equivalent.** With the inductor removed, the open-circuit voltage at a is U_oc = 12 × 3/(6 + 3) = 4 V; with U_s shorted, R_eq = 6 ∥ 3 = 2 Ω. So the inductor sees 4 V in series with 2 Ω.",
-        "**2. The three elements.** i_L(0+) = i_L(0−) = 0; i_L(∞) = U_oc/R_eq = 4/2 = **2 A** (that is 12/6, with R_2 shorted by the inductor); τ = L/R_eq = 0.4/2 = **0.2 s**.",
-        "**3. Zero-state response.** i_L(t) = 2(1 − e^(−5t)) A, u_L(t) = L di_L/dt = 4e^(−5t) V. At t = 0.4 s: i_L = 2(1 − e⁻²) ≈ **1.729 A**.",
-        "**4. Current in R_2.** i_2 = u_L/R_2 = (4/3)e^(−5t) A: i_2(0+) = 4/3 ≈ **1.333 A** (the same as before switching, with S open), falling to 0 in steady state. KCL check: i_R1 = i_2 + i_L = 2 − (2/3)e^(−5t) A, which is 4/3 A = 12/9 A at t = 0+ ✓."
+        "**1. Thevenin equivalent.** With the inductor removed, the open-circuit voltage at a is V_oc = 12 × 3/(6 + 3) = 4 V; with V_s shorted, R_eq = 6 ∥ 3 = 2 Ω. So the inductor sees 4 V in series with 2 Ω.",
+        "**2. The three elements.** i_L(0+) = i_L(0−) = 0; i_L(∞) = V_oc/R_eq = 4/2 = **2 A** (that is 12/6, with R_2 shorted by the inductor); τ = L/R_eq = 0.4/2 = **0.2 s**.",
+        "**3. Zero-state response.** i_L(t) = 2(1 − e^(−5t)) A, v_L(t) = L di_L/dt = 4e^(−5t) V. At t = 0.4 s: i_L = 2(1 − e⁻²) ≈ **1.729 A**.",
+        "**4. Current in R_2.** i_2 = v_L/R_2 = (4/3)e^(−5t) A: i_2(0+) = 4/3 ≈ **1.333 A** (the same as before switching, with S open), falling to 0 in steady state. KCL check: i_R1 = i_2 + i_L = 2 − (2/3)e^(−5t) A, which is 4/3 A = 12/9 A at t = 0+ ✓."
       ]
     }
   }

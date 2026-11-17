@@ -7,12 +7,12 @@
   "level": 4,
   "tags": ["网孔电流法", "互感电压", "含耦合电感的正弦稳态"],
   "statement": [
-    "U̇_s = 25∠0° V（有效值），ω = 100 rad/s，R_1 = 1 Ω，R_2 = 3 Ω。L_1 = 70 mH 在两个网孔的公共支路上，L_2 = 10 mH 在右网孔的右侧支路上，二者互感 M = 20 mH，同名端都在上端。",
-    "取网孔电流 İ_1、İ_2 均为顺时针（分别等于 R_1、R_2 中的电流，方向如图），列网孔方程，求 İ_1、İ_2 和 L_1 支路电流 İ_3 的有效值。"
+    "V̇_s = 25∠0° V（有效值），ω = 100 rad/s，R_1 = 1 Ω，R_2 = 3 Ω。L_1 = 70 mH 在两个网孔的公共支路上，L_2 = 10 mH 在右网孔的右侧支路上，二者互感 M = 20 mH，同名端都在上端。",
+    "取网孔电流 İ_1、İ_2 均为顺时针，分别等于 R_1、R_2 中的电流（方向如图）。L_1 支路电流 İ_3 向下。列网孔方程，求 İ_1、İ_2、İ_3 的有效值和 İ_2 的相位。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 25, "phase": 0 } }, "label": "25∠0° V" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 25, "phase": 0 } }, "label": "25∠0° V" },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 1 },
       { "ref": "L1", "type": "L", "from": [8, 0], "to": [8, 4], "value": "70m" },
       { "ref": "R2", "type": "R", "from": [10, 0], "to": [14, 0], "value": 3 },
@@ -56,7 +56,7 @@
       "find": { "kind": "i", "el": "R2", "part": "phase" },
       "answer": 0,
       "unit": "°",
-      "explain": "相位 90° − 36.87° − 53.13° = 0°：İ_2 与 U̇_s 同相。"
+      "explain": "相位 90° − 36.87° − 53.13° = 0°：İ_2 与 V̇_s 同相。"
     },
     {
       "id": "i3",
@@ -68,44 +68,44 @@
     }
   ],
   "hints": [
-    "先写每个线圈的电压：U̇_L1 = jωL_1·İ_3 + jωM·İ_L2，U̇_L2 = jωL_2·İ_L2 + jωM·İ_3，其中 İ_3 = İ_1 − İ_2、İ_L2 = İ_2（都从同名端流入）。",
+    "先写每个线圈的电压：V̇_L1 = jωL_1·İ_3 + jωM·İ_L2，V̇_L2 = jωL_2·İ_L2 + jωM·İ_3，其中 İ_3 = İ_1 − İ_2、İ_L2 = İ_2（都从同名端流入）。",
     "把它们代入两个网孔的 KVL。网孔 2 的自阻抗里，L_1、L_2 一个顺、一个逆着同名端，互感项是 −2jωM；互阻抗是 −j(ωL_1 − ωM)。",
     "ωL_1 = 7 Ω，ωL_2 = 1 Ω，ωM = 2 Ω。"
   ],
   "solution": [
-    "**1. 线圈电压。** 两个线圈中向下的电流都从同名端流入：L_1 中为 İ_1 − İ_2，L_2 中为 İ_2。U̇_L1 = j7(İ_1 − İ_2) + j2İ_2，U̇_L2 = j1·İ_2 + j2(İ_1 − İ_2)。",
-    "**2. 网孔 1：** R_1İ_1 + U̇_L1 = U̇_s → (1 + j7)İ_1 − j5İ_2 = 25。",
-    "**3. 网孔 2：** R_2İ_2 + U̇_L2 − U̇_L1 = 0 → −j5İ_1 + [3 + j(1 + 7 − 2 × 2)]İ_2 = 0，即 −j5İ_1 + (3 + j4)İ_2 = 0。",
+    "**1. 线圈电压。** 两个线圈中向下的电流都从同名端流入：L_1 中为 İ_1 − İ_2，L_2 中为 İ_2。V̇_L1 = j7(İ_1 − İ_2) + j2İ_2，V̇_L2 = j1·İ_2 + j2(İ_1 − İ_2)。",
+    "**2. 网孔 1：** R_1İ_1 + V̇_L1 = V̇_s → (1 + j7)İ_1 − j5İ_2 = 25。",
+    "**3. 网孔 2：** R_2İ_2 + V̇_L2 − V̇_L1 = 0 → −j5İ_1 + [3 + j(1 + 7 − 2 × 2)]İ_2 = 0，即 −j5İ_1 + (3 + j4)İ_2 = 0。",
     "**4. 求解。** İ_2 = j5İ_1/(3 + j4)；代入网孔 1：[1 + j7 + 25/(3 + j4)]İ_1 = (1 + j7 + 3 − j4)İ_1 = (4 + j3)İ_1 = 25 → **İ_1 = 5∠−36.87° A**，**İ_2 = 5∠0° A**。",
     "**5. L_1 支路。** İ_3 = İ_1 − İ_2 = −1 − j3 A，I_3 = **√10 ≈ 3.162 A**。",
-    "**验算（功率）：** 电源 P = 25 × 5 × cos 36.87° = 100 W；R_1 消耗 25 W，R_2 消耗 75 W，合计 100 W ✓。（也可用 T 形去耦：L_1、L_2 下端都接地，同侧，去耦后为 L_1 − M、L_2 − M 和公共支路 M。）"
+    "**验算（功率）：** 电源 P = 25 × 5 × cos 36.87° = 100 W；R_1 消耗 25 W，R_2 消耗 75 W，合计 100 W ✓。也可以用 T 形去耦：L_1、L_2 下端都接地，是同侧连接，去耦后为 L_1 − M、L_2 − M 和公共支路 M。"
   ],
   "i18n": {
     "en": {
       "title": "Mesh analysis with coupled inductors",
       "tags": ["mesh analysis", "mutual voltage", "AC analysis with coupled inductors"],
       "statement": [
-        "U̇_s = 25∠0° V (rms), ω = 100 rad/s, R_1 = 1 Ω, R_2 = 3 Ω. L_1 = 70 mH is in the branch shared by the two meshes and L_2 = 10 mH is in the right-hand branch of the right mesh; their mutual inductance is M = 20 mH, both dots at the top.",
-        "With clockwise mesh currents İ_1 and İ_2 (equal to the currents in R_1 and R_2, as drawn), write the mesh equations and find the rms values of İ_1, İ_2 and the current İ_3 in L_1."
+        "V̇_s = 25∠0° V (rms), ω = 100 rad/s, R_1 = 1 Ω, R_2 = 3 Ω. L_1 = 70 mH is in the branch shared by the two meshes and L_2 = 10 mH is in the right-hand branch of the right mesh; their mutual inductance is M = 20 mH, both dots at the top.",
+        "Take clockwise mesh currents İ_1 and İ_2, equal to the currents in R_1 and R_2 (as drawn). The current İ_3 in L_1 flows downward. Write the mesh equations and find the rms values of İ_1, İ_2, İ_3 and the phase of İ_2."
       ],
       "questions": [
         { "ask": "I_1 = ? (rms)", "explain": "Mesh equations: (1 + j7)İ_1 − j5İ_2 = 25, −j5İ_1 + (3 + j4)İ_2 = 0. Eliminating İ_2: (1 + j7 + 25/(3 + j4))İ_1 = (4 + j3)İ_1 = 25 → İ_1 = 5∠−36.87° A." },
         { "ask": "I_2 = ? (rms)", "explain": "İ_2 = j5·İ_1/(3 + j4) = 5∠90° × 5∠−36.87° / 5∠53.13° = 5∠0° A." },
-        { "ask": "Phase of İ_2 = ?", "explain": "Phase 90° − 36.87° − 53.13° = 0°: İ_2 is in phase with U̇_s." },
+        { "ask": "Phase of İ_2 = ?", "explain": "Phase 90° − 36.87° − 53.13° = 0°: İ_2 is in phase with V̇_s." },
         { "ask": "Current in L_1, I_3 = ? (rms)", "explain": "İ_3 = İ_1 − İ_2 = (4 − j3) − 5 = −1 − j3 A, I_3 = √10 ≈ 3.162 A. Subtract phasors, not rms values (5 − 5 ≠ 3.16)." }
       ],
       "hints": [
-        "First write each coil's voltage: U̇_L1 = jωL_1·İ_3 + jωM·İ_L2, U̇_L2 = jωL_2·İ_L2 + jωM·İ_3, with İ_3 = İ_1 − İ_2 and İ_L2 = İ_2 (both entering the dots).",
+        "First write each coil's voltage: V̇_L1 = jωL_1·İ_3 + jωM·İ_L2, V̇_L2 = jωL_2·İ_L2 + jωM·İ_3, with İ_3 = İ_1 − İ_2 and İ_L2 = İ_2 (both entering the dots).",
         "Substitute them into the two mesh KVL equations. In mesh 2's self-impedance, L_1 and L_2 are traversed one with and one against the dots, so the mutual term is −2jωM; the mutual impedance between the meshes is −j(ωL_1 − ωM).",
         "ωL_1 = 7 Ω, ωL_2 = 1 Ω, ωM = 2 Ω."
       ],
       "solution": [
-        "**1. Coil voltages.** The downward currents enter both coils at their dots: İ_1 − İ_2 in L_1 and İ_2 in L_2. U̇_L1 = j7(İ_1 − İ_2) + j2İ_2, U̇_L2 = j1·İ_2 + j2(İ_1 − İ_2).",
-        "**2. Mesh 1:** R_{1}İ_{1} + U̇_L1 = U̇_s → (1 + j7)İ_1 − j5İ_2 = 25.",
-        "**3. Mesh 2:** R_{2}İ_{2} + U̇_L2 − U̇_L1 = 0 → −j5İ_1 + [3 + j(1 + 7 − 2 × 2)]İ_2 = 0, i.e. −j5İ_1 + (3 + j4)İ_2 = 0.",
+        "**1. Coil voltages.** The downward currents enter both coils at their dots: İ_1 − İ_2 in L_1 and İ_2 in L_2. V̇_L1 = j7(İ_1 − İ_2) + j2İ_2, V̇_L2 = j1·İ_2 + j2(İ_1 − İ_2).",
+        "**2. Mesh 1:** R_{1}İ_{1} + V̇_L1 = V̇_s → (1 + j7)İ_1 − j5İ_2 = 25.",
+        "**3. Mesh 2:** R_{2}İ_{2} + V̇_L2 − V̇_L1 = 0 → −j5İ_1 + [3 + j(1 + 7 − 2 × 2)]İ_2 = 0, i.e. −j5İ_1 + (3 + j4)İ_2 = 0.",
         "**4. Solve.** İ_2 = j5İ_1/(3 + j4); into mesh 1: [1 + j7 + 25/(3 + j4)]İ_1 = (1 + j7 + 3 − j4)İ_1 = (4 + j3)İ_1 = 25 → **İ_1 = 5∠−36.87° A**, **İ_2 = 5∠0° A**.",
         "**5. Branch L_1.** İ_3 = İ_1 − İ_2 = −1 − j3 A, I_3 = **√10 ≈ 3.162 A**.",
-        "**Check (power):** the source delivers P = 25 × 5 × cos 36.87° = 100 W; R_1 takes 25 W and R_2 75 W, 100 W in total ✓. (The T equivalent also works: L_1 and L_2 both have their lower ends on ground, same side, giving L_1 − M, L_2 − M and a common branch M.)"
+        "**Check (power):** the source delivers P = 25 × 5 × cos 36.87° = 100 W; R_1 takes 25 W and R_2 75 W, 100 W in total ✓. The T equivalent also works: L_1 and L_2 both have their lower ends on ground, a same-side connection, giving L_1 − M, L_2 − M and a common branch M."
       ]
     }
   }

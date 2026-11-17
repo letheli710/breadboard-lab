@@ -7,12 +7,12 @@
   "level": 3,
   "tags": ["结点电压法", "复导纳", "正弦稳态分析"],
   "statement": [
-    "ω = 1000 rad/s，U̇_s = 10∠0° V，İ_s = 2∠0° A（均为有效值相量），R_1 = R_2 = 5 Ω，C = 200 µF，L = 5 mH。",
-    "以地为参考结点，用结点电压法求结点电压相量 U̇_a、U̇_b。"
+    "ω = 1000 rad/s，V̇_s = 10∠0° V，İ_s = 2∠0° A（均为有效值相量），R_1 = R_2 = 5 Ω，C = 200 µF，L = 5 mH。",
+    "以地为参考结点，用结点电压法求结点电压相量 V̇_a、V̇_b。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } } },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 10, "phase": 0 } } },
       { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 5 },
       { "ref": "C", "type": "C", "from": [8, 0], "to": [8, 4], "value": "200u" },
       { "ref": "L", "type": "L", "from": [10, 0], "to": [14, 0], "value": "5m" },
@@ -30,50 +30,50 @@
   },
   "analysis": { "type": "ac", "omega": 1000 },
   "questions": [
-    { "id": "Ua", "ask": "|U̇_a| = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 10, "unit": "V", "explain": "解出 U̇_a = 8 − j6 V，|U̇_a| = 10 V。" },
-    { "id": "Uaph", "ask": "U̇_a 的相位 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "phase" }, "answer": -36.8699, "unit": "°", "explain": "U̇_a = 8 − j6 = 10∠−36.87° V。" },
-    { "id": "Ubre", "ask": "U̇_b 的实部 = ?", "find": { "kind": "v", "nodes": ["b"], "part": "re" }, "answer": 6, "unit": "V", "explain": "由结点 b 的方程 (2 − j)U̇_b = 10 − j10 得 U̇_b = (10 − j10)(2 + j)/5 = 6 − j2 V。" },
-    { "id": "Ubim", "ask": "U̇_b 的虚部 = ?", "find": { "kind": "v", "nodes": ["b"], "part": "im" }, "answer": -2, "unit": "V", "explain": "U̇_b = 6 − j2 V ≈ 6.32∠−18.43° V。" }
+    { "id": "Ua", "ask": "|V̇_a| = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 10, "unit": "V", "explain": "解出 V̇_a = 8 − j6 V，|V̇_a| = 10 V。" },
+    { "id": "Uaph", "ask": "V̇_a 的相位 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "phase" }, "answer": -36.8699, "unit": "°", "explain": "V̇_a = 8 − j6 = 10∠−36.87° V。" },
+    { "id": "Ubre", "ask": "V̇_b 的实部 = ?", "find": { "kind": "v", "nodes": ["b"], "part": "re" }, "answer": 6, "unit": "V", "explain": "由结点 b 的方程 (2 − j)V̇_b = 10 − j10 得 V̇_b = (10 − j10)(2 + j)/5 = 6 − j2 V。" },
+    { "id": "Ubim", "ask": "V̇_b 的虚部 = ?", "find": { "kind": "v", "nodes": ["b"], "part": "im" }, "answer": -2, "unit": "V", "explain": "V̇_b = 6 − j2 V ≈ 6.32∠−18.43° V。" }
   ],
   "hints": [
     "各元件先写成复导纳：1/R_1 = 0.2 S，jωC = j0.2 S，1/(jωL) = −j0.2 S，1/R_2 = 0.2 S。",
-    "结点 a：(0.2 + j0.2 − j0.2)U̇_a − (−j0.2)U̇_b = U̇_s/R_1；结点 b：−(−j0.2)U̇_a + (0.2 − j0.2)U̇_b = İ_s。",
-    "结点 a 的方程化简为 U̇_a + jU̇_b = 10，代入 b 的方程消去 U̇_a。"
+    "结点 a 的自导纳是 1/R_1 + jωC + 1/(jωL)，结点 b 的自导纳是 1/(jωL) + 1/R_2，两结点的互导纳是 1/(jωL)。电压源经 R_1 向 a 注入 V̇_s/R_1，电流源向 b 注入 İ_s。",
+    "结点 a 的方程化简为 V̇_a + jV̇_b = 10，代入 b 的方程消去 V̇_a。"
   ],
   "solution": [
     "**1. 复导纳。** G_1 = 1/5 = 0.2 S，Y_C = jωC = j0.2 S，Y_L = 1/(jωL) = 1/(j5) = −j0.2 S，G_2 = 0.2 S。",
-    "**2. 结点 a：** (G_1 + Y_C + Y_L)U̇_a − Y_L·U̇_b = G_1·U̇_s → 0.2U̇_a + j0.2U̇_b = 2，即 **U̇_a + jU̇_b = 10**。",
-    "**3. 结点 b：** −Y_L·U̇_a + (Y_L + G_2)U̇_b = İ_s → j0.2U̇_a + (0.2 − j0.2)U̇_b = 2，即 jU̇_a + (1 − j)U̇_b = 10。",
-    "**4. 联立。** 把 U̇_a = 10 − jU̇_b 代入：j10 + U̇_b + (1 − j)U̇_b = 10 → (2 − j)U̇_b = 10 − j10 → **U̇_b = 6 − j2 V** ≈ 6.32∠−18.43° V。",
-    "U̇_a = 10 − j(6 − j2) = **8 − j6 V = 10∠−36.87° V**。",
-    "**5. 验算（结点 b 的 KCL）。** İ_L = (U̇_a − U̇_b)/(j5) = (2 − j4)/(j5) = −0.8 − j0.4 A，İ_R2 = U̇_b/5 = 1.2 − j0.4 A；İ_L + İ_s = −0.8 − j0.4 + 2 = 1.2 − j0.4 A = İ_R2 ✓。"
+    "**2. 结点 a：** (G_1 + Y_C + Y_L)V̇_a − Y_L·V̇_b = G_1·V̇_s → 0.2V̇_a + j0.2V̇_b = 2，即 **V̇_a + jV̇_b = 10**。",
+    "**3. 结点 b：** −Y_L·V̇_a + (Y_L + G_2)V̇_b = İ_s → j0.2V̇_a + (0.2 − j0.2)V̇_b = 2，即 jV̇_a + (1 − j)V̇_b = 10。",
+    "**4. 联立。** 把 V̇_a = 10 − jV̇_b 代入：j10 + V̇_b + (1 − j)V̇_b = 10 → (2 − j)V̇_b = 10 − j10 → **V̇_b = 6 − j2 V** ≈ 6.32∠−18.43° V。",
+    "V̇_a = 10 − j(6 − j2) = **8 − j6 V = 10∠−36.87° V**。",
+    "**5. 验算（结点 b 的 KCL）。** İ_L = (V̇_a − V̇_b)/(j5) = (2 − j4)/(j5) = −0.8 − j0.4 A，İ_R2 = V̇_b/5 = 1.2 − j0.4 A；İ_L + İ_s = −0.8 − j0.4 + 2 = 1.2 − j0.4 A = İ_R2 ✓。"
   ],
   "i18n": {
     "en": {
       "title": "Nodal analysis in sinusoidal steady state",
       "tags": ["nodal analysis", "complex admittance", "sinusoidal steady state"],
       "statement": [
-        "ω = 1000 rad/s, U̇_s = 10∠0° V, İ_s = 2∠0° A (rms phasors), R_1 = R_2 = 5 Ω, C = 200 µF, L = 5 mH.",
-        "With ground as the reference node, use nodal analysis to find the node-voltage phasors U̇_a and U̇_b."
+        "ω = 1000 rad/s, V̇_s = 10∠0° V, İ_s = 2∠0° A (rms phasors), R_1 = R_2 = 5 Ω, C = 200 µF, L = 5 mH.",
+        "With ground as the reference node, use nodal analysis to find the node-voltage phasors V̇_a and V̇_b."
       ],
       "questions": [
-        { "ask": "|U̇_a| = ?", "explain": "The solution is U̇_a = 8 − j6 V, so |U̇_a| = 10 V." },
-        { "ask": "Phase of U̇_a = ?", "explain": "U̇_a = 8 − j6 = 10∠−36.87° V." },
-        { "ask": "Real part of U̇_b = ?", "explain": "From the node-b equation (2 − j)U̇_b = 10 − j10: U̇_b = (10 − j10)(2 + j)/5 = 6 − j2 V." },
-        { "ask": "Imaginary part of U̇_b = ?", "explain": "U̇_b = 6 − j2 V ≈ 6.32∠−18.43° V." }
+        { "ask": "|V̇_a| = ?", "explain": "The solution is V̇_a = 8 − j6 V, so |V̇_a| = 10 V." },
+        { "ask": "Phase of V̇_a = ?", "explain": "V̇_a = 8 − j6 = 10∠−36.87° V." },
+        { "ask": "Real part of V̇_b = ?", "explain": "From the node-b equation (2 − j)V̇_b = 10 − j10: V̇_b = (10 − j10)(2 + j)/5 = 6 − j2 V." },
+        { "ask": "Imaginary part of V̇_b = ?", "explain": "V̇_b = 6 − j2 V ≈ 6.32∠−18.43° V." }
       ],
       "hints": [
         "First write every element as a complex admittance: 1/R_1 = 0.2 S, jωC = j0.2 S, 1/(jωL) = −j0.2 S, 1/R_2 = 0.2 S.",
-        "Node a: (0.2 + j0.2 − j0.2)U̇_a − (−j0.2)U̇_b = U̇_s/R_1; node b: −(−j0.2)U̇_a + (0.2 − j0.2)U̇_b = İ_s.",
-        "The node-a equation simplifies to U̇_a + jU̇_b = 10; substitute it into the node-b equation to eliminate U̇_a."
+        "The self-admittance of node a is 1/R_1 + jωC + 1/(jωL), that of node b is 1/(jωL) + 1/R_2, and the mutual admittance is 1/(jωL). The voltage source injects V̇_s/R_1 into a through R_1; the current source injects İ_s into b.",
+        "The node-a equation simplifies to V̇_a + jV̇_b = 10; substitute it into the node-b equation to eliminate V̇_a."
       ],
       "solution": [
         "**1. Admittances.** G_1 = 1/5 = 0.2 S, Y_C = jωC = j0.2 S, Y_L = 1/(jωL) = 1/(j5) = −j0.2 S, G_2 = 0.2 S.",
-        "**2. Node a:** (G_1 + Y_C + Y_L)U̇_a − Y_L·U̇_b = G_1·U̇_s → 0.2U̇_a + j0.2U̇_b = 2, i.e. **U̇_a + jU̇_b = 10**.",
-        "**3. Node b:** −Y_L·U̇_a + (Y_L + G_2)U̇_b = İ_s → j0.2U̇_a + (0.2 − j0.2)U̇_b = 2, i.e. jU̇_a + (1 − j)U̇_b = 10.",
-        "**4. Solve.** Substitute U̇_a = 10 − jU̇_b: j10 + U̇_b + (1 − j)U̇_b = 10 → (2 − j)U̇_b = 10 − j10 → **U̇_b = 6 − j2 V** ≈ 6.32∠−18.43° V.",
-        "U̇_a = 10 − j(6 − j2) = **8 − j6 V = 10∠−36.87° V**.",
-        "**5. Check (KCL at b).** İ_L = (U̇_a − U̇_b)/(j5) = (2 − j4)/(j5) = −0.8 − j0.4 A, İ_R2 = U̇_b/5 = 1.2 − j0.4 A; İ_L + İ_s = −0.8 − j0.4 + 2 = 1.2 − j0.4 A = İ_R2 ✓."
+        "**2. Node a:** (G_1 + Y_C + Y_L)V̇_a − Y_L·V̇_b = G_1·V̇_s → 0.2V̇_a + j0.2V̇_b = 2, i.e. **V̇_a + jV̇_b = 10**.",
+        "**3. Node b:** −Y_L·V̇_a + (Y_L + G_2)V̇_b = İ_s → j0.2V̇_a + (0.2 − j0.2)V̇_b = 2, i.e. jV̇_a + (1 − j)V̇_b = 10.",
+        "**4. Solve.** Substitute V̇_a = 10 − jV̇_b: j10 + V̇_b + (1 − j)V̇_b = 10 → (2 − j)V̇_b = 10 − j10 → **V̇_b = 6 − j2 V** ≈ 6.32∠−18.43° V.",
+        "V̇_a = 10 − j(6 − j2) = **8 − j6 V = 10∠−36.87° V**.",
+        "**5. Check (KCL at b).** İ_L = (V̇_a − V̇_b)/(j5) = (2 − j4)/(j5) = −0.8 − j0.4 A, İ_R2 = V̇_b/5 = 1.2 − j0.4 A; İ_L + İ_s = −0.8 − j0.4 + 2 = 1.2 − j0.4 A = İ_R2 ✓."
       ]
     }
   }

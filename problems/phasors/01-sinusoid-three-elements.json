@@ -7,12 +7,12 @@
   "level": 1,
   "tags": ["正弦量三要素", "有效值", "电阻元件"],
   "statement": [
-    "正弦电压 u_s(t) = 20cos(100πt + 30°) V 加在电阻 R = 5 Ω 两端，电流 i 与电压取关联参考方向。",
-    "求电流 i 的幅值 I_m、有效值 I 和初相 ψ_i，并指出 u_s 的频率和周期。"
+    "正弦电压 v_s(t) = 20cos(100πt + 30°) V 加在电阻 R = 5 Ω 两端，电流 i 与电压取关联参考方向。",
+    "求电流 i 的幅值 I_m、有效值 I 和初相 ψ_i，并指出 v_s 的频率和周期。"
   ],
   "schematic": {
     "elements": [
-      { "ref": "Us", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 30 } }, "label": "u_s(t)" },
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 20, "phase": 30 } }, "label": "v_s(t)" },
       { "ref": "R", "type": "R", "from": [6, 0], "to": [6, 4], "value": 5 }
     ],
     "wires": [
@@ -30,7 +30,7 @@
       "find": { "kind": "i", "el": "R", "part": "mag" },
       "answer": 4,
       "unit": "A",
-      "explain": "电阻上 i = u/R，幅值 I_m = U_m/R = 20/5 = 4 A。"
+      "explain": "电阻上 i = v/R，幅值 I_m = V_m/R = 20/5 = 4 A。"
     },
     {
       "id": "I",
@@ -46,53 +46,53 @@
       "find": { "kind": "i", "el": "R", "part": "phase" },
       "answer": 30,
       "unit": "°",
-      "explain": "电阻的电压、电流同相，ψ_i = ψ_u = 30°，即 i(t) = 4cos(100πt + 30°) A。"
+      "explain": "电阻的电压、电流同相，ψ_i = ψ_v = 30°，即 i(t) = 4cos(100πt + 30°) A。"
     },
     {
       "id": "fT",
-      "ask": "u_s 的频率 f 和周期 T 是？",
+      "ask": "v_s 的频率 f 和周期 T 是？",
       "choices": ["f = 50 Hz，T = 3.18 ms", "f = 50 Hz，T = 20 ms", "f = 314 Hz，T = 3.18 ms", "f = 100 Hz，T = 10 ms"], "choiceExplain": ["f 算对了，但周期用了 T = 1/ω ≈ 3.18 ms，漏了 2π：ω 是每秒转过的弧度，一周是 2π rad，T = 2π/ω。", "", "314 是 ω = 100π ≈ 314 rad/s 的数值，单位是 rad/s 不是 Hz；把 ω 当成 f 后 T = 1/314 ≈ 3.18 ms 也跟着错了。", "100 = ω/π，漏掉了 f = ω/(2π) 里的 2。"],
       "correct": 1,
       "explain": "角频率 ω = 100π ≈ 314 rad/s，f = ω/(2π) = 50 Hz，T = 1/f = 0.02 s = 20 ms。不要把 ω 当成 f。"
     }
   ],
   "hints": [
-    "从表达式 u = U_m cos(ωt + ψ) 直接读出三要素：幅值 U_m、角频率 ω、初相 ψ。",
+    "从表达式 v = V_m cos(ωt + ψ) 直接读出三要素：幅值 V_m、角频率 ω、初相 ψ。",
     "电阻的电流与电压同相，幅值相差 R 倍；有效值 = 幅值/√2。"
   ],
   "solution": [
-    "**1. 读三要素。** u_s = 20cos(100πt + 30°) V：U_m = 20 V，ω = 100π ≈ 314.2 rad/s，ψ_u = 30°；有效值 U = 20/√2 ≈ 14.14 V。",
+    "**1. 读三要素。** v_s = 20cos(100πt + 30°) V：V_m = 20 V，ω = 100π ≈ 314.2 rad/s，ψ_v = 30°；有效值 V = 20/√2 ≈ 14.14 V。",
     "**2. 频率、周期。** f = ω/(2π) = **50 Hz**，T = 1/f = **20 ms**。",
-    "**3. 电阻上的电流。** i = u/R = 4cos(100πt + 30°) A，所以 **I_m = 4 A**，**ψ_i = 30°**（与电压同相）。",
-    "**4. 有效值。** I = I_m/√2 = **2√2 ≈ 2.828 A**；验算 U = R·I = 5 × 2.828 ≈ 14.14 V。"
+    "**3. 电阻上的电流。** i = v/R = 4cos(100πt + 30°) A，所以 **I_m = 4 A**，**ψ_i = 30°**（与电压同相）。",
+    "**4. 有效值。** I = I_m/√2 = **2√2 ≈ 2.828 A**；验算 V = R·I = 5 × 2.828 ≈ 14.14 V。"
   ],
   "i18n": {
     "en": {
       "title": "The three elements of a sinusoid and the rms value",
       "tags": ["sinusoid parameters", "rms value", "resistor"],
       "statement": [
-        "The sinusoidal voltage u_s(t) = 20cos(100πt + 30°) V is applied across a resistor R = 5 Ω; the current i is in the passive reference direction.",
-        "Find the amplitude I_m, the rms value I and the initial phase ψ_i of the current, and give the frequency and period of u_s."
+        "The sinusoidal voltage v_s(t) = 20cos(100πt + 30°) V is applied across a resistor R = 5 Ω; the current i is in the passive reference direction.",
+        "Find the amplitude I_m, the rms value I and the initial phase ψ_i of the current, and give the frequency and period of v_s."
       ],
       "questions": [
-        { "ask": "Amplitude of the current, I_m = ?", "explain": "For a resistor i = u/R, so I_m = U_m/R = 20/5 = 4 A." },
+        { "ask": "Amplitude of the current, I_m = ?", "explain": "For a resistor i = v/R, so I_m = V_m/R = 20/5 = 4 A." },
         { "ask": "rms value of the current, I = ?", "explain": "For a sinusoid I = I_m/√2 = 4/√2 = 2√2 ≈ 2.828 A." },
-        { "ask": "Initial phase of the current, ψ_i = ?", "explain": "A resistor's voltage and current are in phase: ψ_i = ψ_u = 30°, i.e. i(t) = 4cos(100πt + 30°) A." },
+        { "ask": "Initial phase of the current, ψ_i = ?", "explain": "A resistor's voltage and current are in phase: ψ_i = ψ_v = 30°, i.e. i(t) = 4cos(100πt + 30°) A." },
         {
-          "ask": "What are the frequency f and the period T of u_s?",
+          "ask": "What are the frequency f and the period T of v_s?",
           "choices": ["f = 50 Hz, T = 3.18 ms", "f = 50 Hz, T = 20 ms", "f = 314 Hz, T = 3.18 ms", "f = 100 Hz, T = 10 ms"], "choiceExplain": ["f is right, but the period uses T = 1/ω ≈ 3.18 ms and drops the 2π: ω is radians per second and one cycle is 2π rad, so T = 2π/ω.", "", "314 is ω = 100π ≈ 314 rad/s, in rad/s, not Hz; taking ω as f also makes T = 1/314 ≈ 3.18 ms wrong.", "100 = ω/π: the 2 in f = ω/(2π) has been dropped."],
           "explain": "The angular frequency is ω = 100π ≈ 314 rad/s, so f = ω/(2π) = 50 Hz and T = 1/f = 0.02 s = 20 ms. Don't mistake ω for f."
         }
       ],
       "hints": [
-        "Read the three elements straight from u = U_m cos(ωt + ψ): amplitude U_m, angular frequency ω, initial phase ψ.",
+        "Read the three elements straight from v = V_m cos(ωt + ψ): amplitude V_m, angular frequency ω, initial phase ψ.",
         "A resistor's current is in phase with its voltage and R times smaller; rms = amplitude/√2."
       ],
       "solution": [
-        "**1. The three elements.** u_s = 20cos(100πt + 30°) V: U_m = 20 V, ω = 100π ≈ 314.2 rad/s, ψ_u = 30°; rms value U = 20/√2 ≈ 14.14 V.",
+        "**1. The three elements.** v_s = 20cos(100πt + 30°) V: V_m = 20 V, ω = 100π ≈ 314.2 rad/s, ψ_v = 30°; rms value V = 20/√2 ≈ 14.14 V.",
         "**2. Frequency and period.** f = ω/(2π) = **50 Hz**, T = 1/f = **20 ms**.",
-        "**3. Resistor current.** i = u/R = 4cos(100πt + 30°) A, so **I_m = 4 A** and **ψ_i = 30°** (in phase with the voltage).",
-        "**4. rms value.** I = I_m/√2 = **2√2 ≈ 2.828 A**; check: U = R·I = 5 × 2.828 ≈ 14.14 V."
+        "**3. Resistor current.** i = v/R = 4cos(100πt + 30°) A, so **I_m = 4 A** and **ψ_i = 30°** (in phase with the voltage).",
+        "**4. rms value.** I = I_m/√2 = **2√2 ≈ 2.828 A**; check: V = R·I = 5 × 2.828 ≈ 14.14 V."
       ]
     }
   }
