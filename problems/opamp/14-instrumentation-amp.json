@@ -61,12 +61,12 @@
   ],
   "hints": ["先看第一级：A_1、A_2 的虚短把 u_1、u_2 直接“搬”到 R_g 两端。", "A_1、A_2 的反相端不取电流，所以 R_a、R_g、R_b 串联、电流相同；第二级是熟悉的减法器。"],
   "solution": [
-    "**1. 虚短：** u_a = u_1 = 1.0 V，u_b = u_2 = 1.2 V，R_g 两端电压就是输入差 u_1 − u_2 = −0.2 V。",
+    "**1. 虚短：** A_1、A_2 分别经 R_a、R_b 把输出接回反相端（负反馈），所以 u_a = u_1 = 1.0 V，u_b = u_2 = 1.2 V，R_g 两端电压就是输入差 u_1 − u_2 = −0.2 V。",
     "**2. 虚断：** i_g = (u_a − u_b)/R_g = **−0.02 mA**，这个电流同样流过 R_a（o1 → a）和 R_b（b → o2）。",
     "**3. 第一级输出：** u_o1 = u_a + R_a·i_g = **0.6 V**，u_o2 = u_b − R_b·i_g = **1.6 V**。",
     "u_o2 − u_o1 = (1 + 2R_a/R_g)(u_2 − u_1) = 5 × 0.2 = 1.0 V；而共模部分 (u_o1 + u_o2)/2 = 1.1 V = (u_1 + u_2)/2 不被放大。",
-    "**4. 第二级（减法器）：** u_{+3} = u_o2·R_6/(R_5 + R_6) = 1.6 × 2/3 = 16/15 V，u_o = (1 + R_f/R_3)u_{+3} − (R_f/R_3)u_o1 = 3 × 16/15 − 2 × 0.6 = 3.2 − 1.2 = **2 V**。",
-    "**总结：** u_o = (R_f/R_3)(1 + 2R_a/R_g)(u_2 − u_1) = 10 × 0.2 = 2 V。两个输入都接同相端，输入电阻为无穷大；只需改变一个电阻 R_g 就能调节放大倍数。"
+    "**4. 第二级（减法器）：** 同相端不取电流，R_5、R_6 分压：u_{+3} = u_o2·R_6/(R_5 + R_6) = 1.6 × 2/3 = 16/15 V。R_f 构成负反馈，虚短 u_{−3} = u_{+3}，对 A_3 的反相端列 KCL 得 u_o = (1 + R_f/R_3)u_{+3} − (R_f/R_3)u_o1 = 3 × 16/15 − 2 × 0.6 = 3.2 − 1.2 = **2 V**。",
+    "**验算（一般式）：** u_o = (R_f/R_3)(1 + 2R_a/R_g)(u_2 − u_1) = 10 × 0.2 = 2 V。两个输入都接同相端，输入电阻为无穷大；只需改变一个电阻 R_g 就能调节放大倍数。"
   ],
   "i18n": {
     "en": {
@@ -84,12 +84,12 @@
       ],
       "hints": ["Start with the first stage: the virtual shorts of A_1 and A_2 copy u_1 and u_2 straight onto the two ends of R_g.", "The inverting inputs of A_1 and A_2 draw no current, so R_a, R_g and R_b are in series with the same current; the second stage is the familiar subtractor."],
       "solution": [
-        "**1. Virtual short:** u_a = u_1 = 1.0 V, u_b = u_2 = 1.2 V, so the voltage across R_g is the input difference u_1 − u_2 = −0.2 V.",
+        "**1. Virtual short:** A_1 and A_2 feed their outputs back to their inverting inputs through R_a and R_b (negative feedback), so u_a = u_1 = 1.0 V, u_b = u_2 = 1.2 V, and the voltage across R_g is the input difference u_1 − u_2 = −0.2 V.",
         "**2. Virtual open:** i_g = (u_a − u_b)/R_g = **−0.02 mA**, and the same current flows through R_a (o1 → a) and R_b (b → o2).",
         "**3. First-stage outputs:** u_o1 = u_a + R_a·i_g = **0.6 V**, u_o2 = u_b − R_b·i_g = **1.6 V**.",
         "u_o2 − u_o1 = (1 + 2R_a/R_g)(u_2 − u_1) = 5 × 0.2 = 1.0 V, while the common-mode part (u_o1 + u_o2)/2 = 1.1 V = (u_1 + u_2)/2 is not amplified.",
-        "**4. Second stage (subtractor):** u_{+3} = u_o2·R_6/(R_5 + R_6) = 1.6 × 2/3 = 16/15 V, u_o = (1 + R_f/R_3)u_{+3} − (R_f/R_3)u_o1 = 3 × 16/15 − 2 × 0.6 = 3.2 − 1.2 = **2 V**.",
-        "**Summary:** u_o = (R_f/R_3)(1 + 2R_a/R_g)(u_2 − u_1) = 10 × 0.2 = 2 V. Both inputs go to non-inverting inputs, so the input resistance is infinite, and the gain is set by the single resistor R_g."
+        "**4. Second stage (subtractor):** the non-inverting input draws no current, so R_5 and R_6 divide u_o2: u_{+3} = u_o2·R_6/(R_5 + R_6) = 1.6 × 2/3 = 16/15 V. R_f gives negative feedback, so u_{−3} = u_{+3}, and KCL at A_3's inverting input gives u_o = (1 + R_f/R_3)u_{+3} − (R_f/R_3)u_o1 = 3 × 16/15 − 2 × 0.6 = 3.2 − 1.2 = **2 V**.",
+        "**Check (general form):** u_o = (R_f/R_3)(1 + 2R_a/R_g)(u_2 − u_1) = 10 × 0.2 = 2 V. Both inputs go to non-inverting inputs, so the input resistance is infinite, and the gain is set by the single resistor R_g."
       ]
     }
   }

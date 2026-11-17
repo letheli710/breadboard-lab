@@ -1,0 +1,204 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp4-rlc-series-ac",
+  "title": "实验 4-0 · RLC 串联交流电路：感抗和容抗互相抵消，阻抗三角形",
+  "kind": "challenge",
+  "level": 3,
+  "phase": 4,
+  "summary": "100 Ω + 10 mH + 1 µF 串联接正弦信号。用示波器读 U_R、U_L、U_C 和 VIN，算出电流、X_L、X_C 和 |Z|，再看电流超前还是落后。",
+  "concepts": ["感抗 X_L = ωL", "容抗 X_C = 1/(ωC)", "阻抗 Z = R + j(X_L − X_C)", "阻抗三角形 impedance triangle", "感性：电流落后 / 容性：电流超前", "用电阻电压看电流 sense resistor"],
+  "prereq": ["lesson-scope-two-channels"],
+  "description": [
+    "**目标**：在正弦稳态下测 RLC 串联电路的阻抗。看感抗 X_L 和容抗 X_C 怎样互相抵消一部分，|Z| 怎样由阻抗三角形算出，以及电流什么时候超前、什么时候落后电压。",
+    "",
+    "**电路**：信号发生器红夹子 → L1（10 mH）→ C1（1 µF）→ 结点 VR → R1（100 Ω）→ GND，黑夹子接 GND。电阻放在接地的一端，所以 VR 就是电流的波形：i = u_R / 100 Ω。",
+    "",
+    "**信号发生器**：正弦波，幅度 1 V、偏置 0，频率 1 kHz（之后再试 1.59 kHz 和 2.5 kHz）。",
+    "",
+    "**几个符号**：",
+    "- **X_L = ωL = 2πfL**：感抗（inductive reactance），单位 Ω。频率越高，X_L 越大。",
+    "- **X_C = 1/(ωC) = 1/(2πfC)**：容抗（capacitive reactance），单位 Ω。频率越高，X_C 越小。",
+    "- **Z = R + j(X_L − X_C)**：总阻抗。电感电压超前电流 90°，电容电压落后电流 90°，两者方向相反，所以 X_L 和 X_C 互相抵消一部分，剩下的净电抗是 X = X_L − X_C。",
+    "- **阻抗三角形**：|Z| = √(R² + X²)，阻抗角 θ = arctan(X/R)。X > 0 电路呈**感性**，电流落后电压；X < 0 呈**容性**，电流超前电压。这里 R 要算上线圈的 1 Ω。",
+    "",
+    "**先预测**：1 kHz 时 X_L、X_C、X 各是多少？电路是感性还是容性？|Z| 和 θ 是多少？电流超前还是落后、差多少度？2.5 kHz 时又怎样？X_L = X_C 的频率在哪里？",
+    "",
+    "**测量**：两个探头的接地夹都接 GND。1 kHz 时：",
+    "- CH2 接 VR，读 U_R 的 Vpp，电流 I_m = (U_R 的 Vpp / 2) / 100 Ω。",
+    "- CH1 接 VIN，CH2 接 L1 和 C1 之间的结点，MATH（CH1 − CH2）就是电感电压 U_L。",
+    "- CH1 挪到 L1 和 C1 之间的结点，CH2 回到 VR，MATH（CH1 − CH2）就是电容电压 U_C。",
+    "- CH1 回到 VIN，读 VIN 的 Vpp，以及 CH2（VR，也就是电流）相对 CH1 的相位差。",
+    "- 然后用 X_L = U_L / I、X_C = U_C / I、|Z| = U_in / I 算出三个阻抗（同样用峰值，或同样用 Vpp，比值不变）。最后把频率调到 2.5 kHz 再读一次相位差。",
+    "",
+    "电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
+    "",
+    "**想一想**：U_C 会不会比 VIN 还大？U_R + U_L + U_C 直接相加等于 VIN 吗？",
+    "",
+    "**真实电路里**：仿真里线圈电阻只有 1 Ω。真实的 10 mH 小电感常有 10 ~ 30 Ω，它和 R1 串联：阻抗三角形的“R 边”变长，|Z| 变大、阻抗角变小；测 U_L 时会发现它超前电流不到 90°。1 µF 的电容常用薄膜电容或陶瓷电容，容差 ±5% ~ ±20%，X_L = X_C 的频率也会跟着移动。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 4-0 · Series RLC on AC: X_L and X_C cancel, the impedance triangle",
+      "summary": "100 Ω + 10 mH + 1 µF in series on a sine. Read U_R, U_L, U_C and VIN on the scope, work out the current, X_L, X_C and |Z|, then see whether the current leads or lags.",
+      "concepts": ["inductive reactance X_L = ωL", "capacitive reactance X_C = 1/(ωC)", "impedance Z = R + j(X_L − X_C)", "impedance triangle", "inductive: current lags / capacitive: current leads", "seeing current through a sense resistor"],
+      "description": [
+        "**Goal**: measure the impedance of a series RLC circuit in sinusoidal steady state. See how the inductive reactance X_L and the capacitive reactance X_C partly cancel, how |Z| follows from the impedance triangle, and when the current leads or lags the voltage.",
+        "",
+        "**Circuit**: generator red clip → L1 (10 mH) → C1 (1 µF) → node VR → R1 (100 Ω) → GND; black clip to GND. The resistor sits at the grounded end, so VR is the current waveform: i = u_R / 100 Ω.",
+        "",
+        "**Generator**: sine, amplitude 1 V, offset 0, 1 kHz (later also 1.59 kHz and 2.5 kHz).",
+        "",
+        "**The symbols**:",
+        "- **X_L = ωL = 2πfL**: the inductive reactance, in Ω. It grows with frequency.",
+        "- **X_C = 1/(ωC) = 1/(2πfC)**: the capacitive reactance, in Ω. It shrinks with frequency.",
+        "- **Z = R + j(X_L − X_C)**: the total impedance. The inductor voltage leads the current by 90° and the capacitor voltage lags it by 90°; they point opposite ways, so X_L and X_C partly cancel and the net reactance left is X = X_L − X_C.",
+        "- **Impedance triangle**: |Z| = √(R² + X²), impedance angle θ = arctan(X/R). X > 0: the circuit is **inductive** and the current lags the voltage; X < 0: **capacitive**, the current leads. R here includes the coil's 1 Ω.",
+        "",
+        "**Predict first**: at 1 kHz, what are X_L, X_C and X? Is the circuit inductive or capacitive? What are |Z| and θ? Does the current lead or lag, and by how many degrees? What about 2.5 kHz? At what frequency is X_L = X_C?",
+        "",
+        "**Measure**: both ground clips on GND. At 1 kHz:",
+        "- CH2 on VR: read the Vpp of U_R; the current I_m = (Vpp of U_R / 2) / 100 Ω.",
+        "- CH1 on VIN, CH2 on the node between L1 and C1: MATH (CH1 − CH2) is the inductor voltage U_L.",
+        "- CH1 moved to the node between L1 and C1, CH2 back on VR: MATH (CH1 − CH2) is the capacitor voltage U_C.",
+        "- CH1 back on VIN: read VIN's Vpp, and the phase of CH2 (VR, i.e. the current) relative to CH1.",
+        "- Then work out the three impedances X_L = U_L / I, X_C = U_C / I and |Z| = U_in / I (use peaks throughout, or Vpp throughout — the ratio is the same). Finally set the frequency to 2.5 kHz and read the phase again.",
+        "",
+        "Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
+        "",
+        "**Think about it**: can U_C be larger than VIN? Do U_R + U_L + U_C simply add up to VIN?",
+        "",
+        "**In a real circuit**: the simulated coil has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω, in series with R1: the \"R side\" of the impedance triangle gets longer, |Z| grows and the impedance angle shrinks, and U_L leads the current by less than 90°. A 1 µF film or ceramic capacitor is often ±5% to ±20%, so the frequency where X_L = X_C moves too."
+      ],
+      "compare": [
+        "**Compare** (f = 1 kHz, ω = 2π × 1000 ≈ 6283 rad/s):",
+        "- X_L = 6283 × 10 mH ≈ 62.8 Ω; X_C = 1/(6283 × 1 µF) ≈ 159.2 Ω. X = X_L − X_C ≈ −96.3 Ω < 0, so the circuit is **capacitive**: below the frequency where X_L = X_C, the capacitor wins.",
+        "- **Impedance triangle**: R side = 100 + 1 = 101 Ω, X side = −96.3 Ω. |Z| = √(101² + 96.3²) ≈ 139.6 Ω, θ = arctan(−96.3/101) ≈ −43.6°. So Z ≈ 139.6∠−43.6° Ω and the current **leads** VIN by ≈ 43.6°.",
+        "- **Current**: the generator's 1 V is its internal EMF behind 50 Ω, so I_m = 1 V / |151 − j96.3| ≈ 1 / 179.1 ≈ 5.58 mA. U_R ≈ 1.12 Vpp, U_L ≈ 2 × 5.58 mA × 62.8 Ω ≈ 0.70 Vpp, U_C ≈ 2 × 5.58 mA × 159.2 Ω ≈ 1.78 Vpp, VIN ≈ 2 × 5.58 mA × 139.6 Ω ≈ 1.56 Vpp.",
+        "- **Why VIN is not 2 Vpp**: the 50 Ω output resistance takes a share. Using VIN at the terminals for |Z| = U_in / I and as the phase reference removes the 50 Ω from the answer: you measure the RLC circuit alone.",
+        "- **U_C > VIN**: 1.78 Vpp across the capacitor while the source gives only 1.56 Vpp. That is fine: U_L and U_C point opposite ways and partly cancel. Added directly, 1.12 + 0.70 + 1.78 = 3.60 ≠ 1.56; as phasors, √(1.12² + (0.70 − 1.78)²) ≈ 1.55 ≈ 1.56.",
+        "",
+        "**Other frequencies**:",
+        "- **f = 2.5 kHz**: X_L ≈ 157.1 Ω, X_C ≈ 63.7 Ω, X ≈ +93.4 Ω > 0 → **inductive**. |Z| ≈ √(101² + 93.4²) ≈ 137.6 Ω, θ ≈ +42.8°: the current **lags** by ≈ 42.8°. The roles of L and C swapped.",
+        "- **f = 1/(2π√(LC)) ≈ 1.59 kHz**: X_L = X_C = √(L/C) = 100 Ω, X = 0, so they cancel completely: |Z| = R + r = 101 Ω (its minimum), θ = 0°, the current is in phase with VIN and is largest (≈ 6.6 mA peak). This is series resonance — the endpoint of the cancellation; Experiment 4-4 sweeps through it."
+      ],
+      "measurements": [
+        {"ask": "1 kHz: CH2 (VR = u_R, the current's waveform) Vpp", "explain": "I_m = 1 V / |(100 + 1 + 50) + j(62.8 − 159.2)| ≈ 5.58 mA, so U_R ≈ 2 × 5.58 mA × 100 Ω ≈ 1.12 Vpp."},
+        {"ask": "From your reading: the current amplitude I_m = (U_R Vpp / 2) / 100 Ω", "explain": "Ohm's law on the resistor: the current through it is the current of the whole series loop, ≈ 5.58 mA peak (≈ 3.95 mA rms)."},
+        {"ask": "1 kHz: the capacitor voltage U_C Vpp (MATH: CH1 on the node between L1 and C1, CH2 on VR)", "explain": "U_C = I·X_C ≈ 2 × 5.58 mA × 159.2 Ω ≈ 1.78 Vpp — larger than VIN!"},
+        {"ask": "From your readings: the capacitive reactance X_C = (U_C Vpp / 2) / I_m", "explain": "X_C = 1/(2π × 1000 × 1 µF) ≈ 159.2 Ω."},
+        {"ask": "1 kHz: the inductor voltage U_L Vpp (MATH: CH1 on VIN, CH2 on the node between L1 and C1)", "explain": "U_L = I·X_L ≈ 2 × 5.58 mA × 62.8 Ω ≈ 0.70 Vpp."},
+        {"ask": "From your readings: the inductive reactance X_L = (U_L Vpp / 2) / I_m", "explain": "X_L = 2π × 1000 × 10 mH ≈ 62.8 Ω (strictly |1 + j62.8| ≈ 62.8 Ω: the coil's 1 Ω hardly shows)."},
+        {"ask": "1 kHz: CH1 (VIN, the generator terminals) Vpp", "explain": "VIN = I·|Z| ≈ 2 × 5.58 mA × 139.6 Ω ≈ 1.56 Vpp; the rest of the 2 Vpp EMF is lost across the generator's 50 Ω."},
+        {"ask": "From your readings: the impedance |Z| = (VIN Vpp / 2) / I_m", "explain": "Impedance triangle: |Z| = √((R + r)² + (X_L − X_C)²) = √(101² + 96.3²) ≈ 139.6 Ω. X_L and X_C partly cancel: the net reactance is only 96.3 Ω, although X_C alone is 159 Ω."},
+        {"ask": "1 kHz: the phase of CH2 (VR, the current) relative to CH1 (VIN). Leading is positive", "explain": "X < 0, capacitive: the current leads by arctan(96.3/101) ≈ 43.6°."},
+        {"ask": "2.5 kHz: the phase of CH2 (the current) relative to CH1 again", "explain": "Now X_L ≈ 157.1 Ω > X_C ≈ 63.7 Ω, X ≈ +93.4 Ω: inductive, the current lags by arctan(93.4/101) ≈ 42.8° (a negative phase)."}
+      ],
+      "hints": [
+        "Series order: generator → inductor → capacitor → resistor → GND. The resistor's voltage shows the current.",
+        "A voltage across a part that isn't grounded: put the two probes on its two ends (both clips on GND) and look at MATH (CH1 − CH2).",
+        "X_L = 2πfL grows with f, X_C = 1/(2πfC) shrinks with f. Whichever is larger decides: X_L > X_C inductive (current lags), X_C > X_L capacitive (current leads)."
+      ],
+      "tests": [
+        "1 kHz: capacitive, the current leads VIN",
+        "1 kHz: U_C is larger than VIN, U_L is smaller",
+        "X_L = X_C: the reactances cancel, the current is in phase with VIN",
+        "2.5 kHz: inductive, the current lags VIN"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "L1", "type": "inductor", "inductance": "10m" },
+    { "ref": "C1", "type": "capacitor", "capacitance": "1u" },
+    { "ref": "R1", "type": "resistor", "resistance": "100" }
+  ],
+  "nets": [
+    { "name": "VIN", "pins": ["FG1.+", "L1.1"] },
+    { "name": "NLC", "pins": ["L1.2", "C1.1"] },
+    { "name": "VR", "pins": ["C1.2", "R1.1"] },
+    { "name": "GND", "pins": ["R1.2", "FG1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "1 kHz：容性，电流超前 VIN",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.69, "max": 0.74 },
+        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": 40.5, "max": 46.5 }
+      ],
+      "currents": [{ "el": "R1", "mode": "rms", "min": 0.0038, "max": 0.0041 }]
+    },
+    {
+      "name": "1 kHz：U_C 比 VIN 还大，U_L 比 VIN 小",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "C1.1", "ref": "C1.2", "measure": "vpp", "min": 1.7, "max": 1.86 },
+        { "pin": "L1.1", "ref": "L1.2", "measure": "vpp", "min": 0.66, "max": 0.74 },
+        { "pin": "FG1.+", "measure": "vpp", "min": 1.5, "max": 1.62 }
+      ]
+    },
+    {
+      "name": "X_L = X_C：电抗完全抵消，电流和 VIN 同相",
+      "set": { "FG1": { "waveform": "sine", "frequency": 1592, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.96, "max": 1.0 },
+        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -3, "max": 3 }
+      ]
+    },
+    {
+      "name": "2.5 kHz：感性，电流落后 VIN",
+      "set": { "FG1": { "waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0 } },
+      "scope": [
+        { "pin": "R1.1", "measure": "gain", "vs": "FG1.+", "min": 0.7, "max": 0.75 },
+        { "pin": "R1.1", "measure": "phase", "vs": "FG1.+", "min": -46, "max": -40 }
+      ]
+    }
+  ],
+  "compare": [
+    "**对比**（f = 1 kHz，ω = 2π × 1000 ≈ 6283 rad/s）：",
+    "- X_L = 6283 × 10 mH ≈ 62.8 Ω；X_C = 1/(6283 × 1 µF) ≈ 159.2 Ω。X = X_L − X_C ≈ −96.3 Ω < 0，电路呈**容性**：频率低于 X_L = X_C 的那一点时，电容占上风。",
+    "- **阻抗三角形**：R 边 = 100 + 1 = 101 Ω，X 边 = −96.3 Ω。|Z| = √(101² + 96.3²) ≈ 139.6 Ω，θ = arctan(−96.3/101) ≈ −43.6°。所以 Z ≈ 139.6∠−43.6° Ω，电流**超前** VIN 约 43.6°。",
+    "- **电流**：信号发生器的 1 V 是它内部的电动势，后面串着 50 Ω，所以 I_m = 1 V / |151 − j96.3| ≈ 1 / 179.1 ≈ 5.58 mA。U_R ≈ 1.12 Vpp，U_L ≈ 2 × 5.58 mA × 62.8 Ω ≈ 0.70 Vpp，U_C ≈ 2 × 5.58 mA × 159.2 Ω ≈ 1.78 Vpp，VIN ≈ 2 × 5.58 mA × 139.6 Ω ≈ 1.56 Vpp。",
+    "- **为什么 VIN 不是 2 Vpp**：50 Ω 输出电阻分走了一部分。用端子上的 VIN 算 |Z| = U_in / I、当相位参考，50 Ω 就不影响结果：测到的就是 RLC 电路本身。",
+    "- **U_C 比 VIN 大**：电容上 1.78 Vpp，电源只给了 1.56 Vpp。这没有问题：U̇L 和 U̇C 方向相反，互相抵消了一部分。直接相加 1.12 + 0.70 + 1.78 = 3.60 ≠ 1.56；按相量相加 √(1.12² + (0.70 − 1.78)²) ≈ 1.55 ≈ 1.56。",
+    "",
+    "**换频率**：",
+    "- **f = 2.5 kHz**：X_L ≈ 157.1 Ω，X_C ≈ 63.7 Ω，X ≈ +93.4 Ω > 0 → **感性**。|Z| ≈ √(101² + 93.4²) ≈ 137.6 Ω，θ ≈ +42.8°：电流**落后**约 42.8°。L 和 C 的角色换过来了。",
+    "- **f = 1/(2π√(LC)) ≈ 1.59 kHz**：X_L = X_C = √(L/C) = 100 Ω，X = 0，完全抵消：|Z| = R + r = 101 Ω（最小），θ = 0°，电流和 VIN 同相，而且最大（峰值约 6.6 mA）。这就是串联谐振——抵消的终点；实验 4-4 会扫频经过它。"
+  ],
+  "measurements": [
+    {"id": "vr", "scope": "vpp", "pin": "R1.1", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.07, 1.17], "ask": "1 kHz：CH2（VR = u_R，也就是电流的波形）的 Vpp", "explain": "I_m = 1 V / |(100 + 1 + 50) + j(62.8 − 159.2)| ≈ 5.58 mA，所以 U_R ≈ 2 × 5.58 mA × 100 Ω ≈ 1.12 Vpp。"},
+    {"id": "im", "formula": "vr / 2 / 100", "unit": "mA", "predict": true, "range": [0.0053, 0.0059], "ask": "用你的读数算电流的幅值 I_m = (U_R 的 Vpp / 2) / 100 Ω", "explain": "电阻上的欧姆定律：流过它的电流就是整个串联回路的电流，峰值 ≈ 5.58 mA（有效值 ≈ 3.95 mA）。"},
+    {"id": "vc", "scope": "vpp", "pin": "C1.1", "ref": "C1.2", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.7, 1.86], "ask": "1 kHz：电容电压 U_C 的 Vpp（MATH：CH1 接 L1 和 C1 之间的结点，CH2 接 VR）", "explain": "U_C = I·X_C ≈ 2 × 5.58 mA × 159.2 Ω ≈ 1.78 Vpp——比 VIN 还大！"},
+    {"id": "xc", "formula": "vc / 2 / im", "unit": "Ω", "predict": true, "range": [152, 166], "ask": "用你的读数算容抗 X_C = (U_C 的 Vpp / 2) / I_m", "explain": "X_C = 1/(2π × 1000 × 1 µF) ≈ 159.2 Ω。"},
+    {"id": "vl", "scope": "vpp", "pin": "L1.1", "ref": "L1.2", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [0.66, 0.74], "ask": "1 kHz：电感电压 U_L 的 Vpp（MATH：CH1 接 VIN，CH2 接 L1 和 C1 之间的结点）", "explain": "U_L = I·X_L ≈ 2 × 5.58 mA × 62.8 Ω ≈ 0.70 Vpp。"},
+    {"id": "xl", "formula": "vl / 2 / im", "unit": "Ω", "predict": true, "range": [60, 66], "ask": "用你的读数算感抗 X_L = (U_L 的 Vpp / 2) / I_m", "explain": "X_L = 2π × 1000 × 10 mH ≈ 62.8 Ω（严格说是 |1 + j62.8| ≈ 62.8 Ω，线圈的 1 Ω 几乎看不出来）。"},
+    {"id": "vin", "scope": "vpp", "pin": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "V", "predict": true, "range": [1.5, 1.62], "ask": "1 kHz：CH1（VIN，信号发生器端子）的 Vpp", "explain": "VIN = I·|Z| ≈ 2 × 5.58 mA × 139.6 Ω ≈ 1.56 Vpp；2 Vpp 电动势剩下的部分降在信号发生器的 50 Ω 上。"},
+    {"id": "z", "formula": "vin / 2 / im", "unit": "Ω", "predict": true, "range": [134, 145], "ask": "用你的读数算阻抗 |Z| = (VIN 的 Vpp / 2) / I_m", "explain": "阻抗三角形：|Z| = √((R + r)² + (X_L − X_C)²) = √(101² + 96.3²) ≈ 139.6 Ω。X_L 和 X_C 互相抵消了一部分：虽然 X_C 单独就有 159 Ω，净电抗只剩 96.3 Ω。"},
+    {"id": "ph", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0}}, "unit": "°", "predict": true, "range": [41, 46.5], "ask": "1 kHz：CH2（VR，电流）相对 CH1（VIN）的相位差（超前为正）", "explain": "X < 0，容性：电流超前 arctan(96.3/101) ≈ 43.6°。"},
+    {"id": "ph25", "scope": "phase", "pin": "R1.1", "vs": "FG1.+", "set": {"FG1": {"waveform": "sine", "frequency": 2500, "amplitude": 1, "offset": 0}}, "unit": "°", "predict": true, "range": [-45.5, -40], "ask": "2.5 kHz：再读 CH2（电流）相对 CH1 的相位差", "explain": "这时 X_L ≈ 157.1 Ω > X_C ≈ 63.7 Ω，X ≈ +93.4 Ω：感性，电流落后 arctan(93.4/101) ≈ 42.8°（相位差为负）。"}
+  ],
+  "hints": [
+    "串联顺序：信号发生器 → 电感 → 电容 → 电阻 → GND。电阻上的电压就是电流的样子。",
+    "测一个不接地的元件两端的电压：两个探头分别接它的两端（接地夹都接 GND），看 MATH（CH1 − CH2）。",
+    "X_L = 2πfL 随 f 变大，X_C = 1/(2πfC) 随 f 变小。谁大谁说了算：X_L > X_C 感性（电流落后），X_C > X_L 容性（电流超前）。"
+  ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e15", "gnd": "tn21" } }
+    ]
+  },
+  "solution": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "b3", "2": "b9" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "1u", "pins": { "1": "c9", "2": "c15" } },
+      { "type": "resistor", "ref": "R1", "resistance": "100", "pins": { "1": "d15", "2": "tn15" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e15", "gnd": "tn21" } }
+    ]
+  }
+}

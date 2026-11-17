@@ -82,6 +82,13 @@
         }
       ]
     },
+    "figures": {
+      "type": "array",
+      "description": "Optional pictures shown under the description: a hand-placed circuit drawing in the theory-problem geometry (problem.schema.json schematic, docs/PROBLEM_FORMAT.md) with a caption. The drawing is checked like a problem's (must have a ground, valid geometry). See docs/CHALLENGE_FORMAT.md §16.",
+      "items": {
+        "$ref": "#/definitions/figure"
+      }
+    },
     "concepts": {
       "type": "array",
       "items": {
@@ -363,6 +370,66 @@
             },
             "additionalProperties": false
           }
+        },
+        "figures": {
+          "type": "array",
+          "description": "Same count and order as the top-level figures: translated caption / alt. Notes inside the drawing carry their own \"i18n\".",
+          "items": {
+            "type": "object",
+            "properties": {
+              "caption": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "alt": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "figure": {
+      "type": "object",
+      "required": [
+        "schematic",
+        "caption"
+      ],
+      "properties": {
+        "schematic": {
+          "$ref": "problem.schema.json#/definitions/schematic",
+          "description": "Hand-placed drawing, same format as a theory problem's schematic. Element labels and node names are not translated; notes take \"i18n\": {\"en\": \"...\"}."
+        },
+        "caption": {
+          "description": "Short caption under the picture (a sentence or two a beginner understands). String or array of lines; supports **bold**.",
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            }
+          ]
+        },
+        "alt": {
+          "type": "string",
+          "description": "Text alternative for screen readers. Default: generated from the drawing (element list); write one when that would mislead, e.g. an LED drawn as a diode."
         }
       },
       "additionalProperties": false

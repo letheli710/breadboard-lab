@@ -45,12 +45,12 @@
     { "id": "uo1", "ask": "t = 0.2 s 时 u_o = ?", "find": { "kind": "v", "nodes": ["o"], "t": 0.2 }, "answer": -1.264241, "unit": "V", "explain": "u_o(t) = −2(1 − e^(−5t)) V，t = τ 时 u_o = −2(1 − e⁻¹) ≈ −1.264 V。" }
   ],
   "hints": [
-    "虚短：反相输入端 n 是虚地，u_n = 0；虚断：流入运放输入端的电流为零。",
+    "R_2、C 把输出接回反相端（负反馈），所以可以用虚短、虚断。虚短：反相输入端 n 是虚地，u_n = 0；虚断：流入运放输入端的电流为零。",
     "u_o = u_n − u_C = −u_C，所以只要求出 u_C(t)。电容和 R_2 并联在 n 与 o 之间。",
     "求 τ：电容两端（n、o）看进去，n 被虚地钉住，o 由运放输出决定，等效电阻就是 R_2。"
   ],
   "solution": [
-    "**1. 分析思路。** 虚短 u_n = 0，所以 i_1 = u_s/R_1 = 0.1 mA（t > 0 时恒定）。虚断：i_1 全部流入反馈支路，分到 C 和 R_2：i_1 = i_C + u_C/R_2。",
+    "**1. 分析思路。** R_2、C 把输出接回反相端，构成负反馈。同相端接地，由虚短 u_n = 0，所以 i_1 = u_s/R_1 = 0.1 mA（t > 0 时恒定）。虚断：i_1 全部流入反馈支路，分到 C 和 R_2：i_1 = i_C + u_C/R_2。",
     "这是一个电流源 i_1 = 0.1 mA 对 R_2 ∥ C 充电的电路，就像 R_2、C 并联接在恒流源上。",
     "**2. 初值。** u_C(0₊) = 0 → R_2 中无电流，**i_C(0₊) = 0.1 mA**，u_o(0₊) = 0（输出不会立即跳变）。",
     "**3. 终值。** 电容开路：u_C(∞) = i_1·R_2 = 2 V，**u_o(∞) = −2 V**（反相比例 −R_2/R_1 = −2）。",
@@ -73,12 +73,12 @@
         { "ask": "u_o at t = 0.2 s = ?", "explain": "u_o(t) = −2(1 − e^(−5t)) V; at t = τ, u_o = −2(1 − e⁻¹) ≈ −1.264 V." }
       ],
       "hints": [
-        "Virtual short: the inverting input n is a virtual ground, u_n = 0; virtual open: no current flows into the op-amp inputs.",
+        "R_2 and C connect the output back to the inverting input (negative feedback), so the virtual short and open apply. Virtual short: the inverting input n is a virtual ground, u_n = 0; virtual open: no current flows into the op-amp inputs.",
         "u_o = u_n − u_C = −u_C, so you only need u_C(t). The capacitor and R_2 are in parallel between n and o.",
         "For τ, look in from the capacitor terminals (n, o): n is pinned at virtual ground and o is set by the op-amp output, so the equivalent resistance is just R_2."
       ],
       "solution": [
-        "**1. Approach.** Virtual short u_n = 0, so i_1 = u_s/R_1 = 0.1 mA (constant for t > 0). Virtual open: all of i_1 enters the feedback path and divides between C and R_2: i_1 = i_C + u_C/R_2.",
+        "**1. Approach.** R_2 and C connect the output back to the inverting input (negative feedback). The non-inverting input is grounded, so by the virtual short u_n = 0, so i_1 = u_s/R_1 = 0.1 mA (constant for t > 0). Virtual open: all of i_1 enters the feedback path and divides between C and R_2: i_1 = i_C + u_C/R_2.",
         "So this is a current source i_1 = 0.1 mA charging R_2 ∥ C, just like R_2 and C in parallel across a constant current source.",
         "**2. Initial values.** u_C(0+) = 0 → no current in R_2, **i_C(0+) = 0.1 mA**, u_o(0+) = 0 (the output doesn't jump).",
         "**3. Final values.** Capacitor open: u_C(∞) = i_1·R_2 = 2 V, **u_o(∞) = −2 V** (inverting gain −R_2/R_1 = −2).",

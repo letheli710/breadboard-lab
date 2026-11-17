@@ -36,7 +36,7 @@
     {
       "id": "nobuf",
       "ask": "若去掉跟随器，把 R_L 直接并接在 a 点与地之间，R_L 上的电压变为多少？",
-      "choices": ["仍为 6 V", "3 V", "4 V", "12 V"], "choiceExplain": ["6 V 是空载分压的结果。去掉跟随器后 R_L 直接并在 R_2 上，分压器带上负载，输出会被拉低。", "", "4 V = 12 × 5/(10 + 5)，是把 R_L 当成替换了 R_2；R_L 与 R_2 是并联，应先算 R_2 ∥ R_L = 10/3 kΩ。", "12 V 是电源电压 U_s；R_1 上还有压降，a 点电压不可能等于 U_s。"],
+      "choices": ["仍为 6 V", "3 V", "4 V", "12 V"], "choiceExplain": ["6 V 是空载分压的结果。去掉跟随器后 R_L 直接并在 R_2 上，分压器带上负载，输出会被拉低。", "", "4 V = 12 × 5/(10 + 5)，是把 R_L 当成替换了 R_2。R_L 与 R_2 是并联：先求两者的并联电阻，再分压。", "12 V 是电源电压 U_s；R_1 上还有压降，a 点电压不可能等于 U_s。"],
       "correct": 1,
       "explain": "R_2 ∥ R_L = 10 ∥ 5 = 10/3 kΩ，u_a = 12 × (10/3)/(10 + 10/3) = 3 V。负载“拉低”了分压器的输出；跟随器输入电阻无穷大、输出电阻为零，起到隔离（缓冲）作用。"
     }
@@ -44,7 +44,7 @@
   "hints": ["跟随器的同相端不取电流（虚断），所以 R_1、R_2 就是一个空载分压器。", "跟随器的输出等于输入：u_o = u_a。"],
   "solution": [
     "**1. 分压器：** 由虚断，i_{+} = 0，R_1、R_2 串联，u_a = U_s·R_2/(R_1 + R_2) = **6 V**。",
-    "**2. 跟随器：** 输出端直接接反相端，u_o = u_{−} = u_{+} = u_a = 6 V。",
+    "**2. 跟随器：** 输出端用导线直接接回反相端，这是负反馈；由虚短 u_o = u_{−} = u_{+} = u_a = 6 V。",
     "**3. 负载电流：** i_L = u_o/R_L = 6/5 kΩ = **1.2 mA**（由运放提供）。",
     "**4. 对比：** 不用跟随器时，R_2 ∥ R_L = 10/3 kΩ，u_a = 12 × (10/3)/(40/3) = **3 V**，负载电压只有一半。跟随器的电压放大倍数为 1，但它把信号源与负载隔开。"
   ],
@@ -61,14 +61,14 @@
         { "ask": "i_L = ?", "explain": "Follower: u_o = u_{−} = u_{+} = u_a = 6 V, so i_L = 6/5k = 1.2 mA. This current is supplied by the op-amp output, not drawn from the divider." },
         {
           "ask": "If the follower is removed and R_L is connected directly between node a and ground, what is the voltage across R_L?",
-          "choices": ["Still 6 V", "3 V", "4 V", "12 V"], "choiceExplain": ["6 V is the unloaded divider output. Without the follower R_L sits directly in parallel with R_2, so the loaded divider's output drops.", "", "4 V = 12 × 5/(10 + 5) treats R_L as replacing R_2; R_L is in parallel with R_2, so first take R_2 ∥ R_L = 10/3 kΩ.", "12 V is the source voltage U_s; there is still a drop across R_1, so node a cannot reach U_s."],
+          "choices": ["Still 6 V", "3 V", "4 V", "12 V"], "choiceExplain": ["6 V is the unloaded divider output. Without the follower R_L sits directly in parallel with R_2, so the loaded divider's output drops.", "", "4 V = 12 × 5/(10 + 5) treats R_L as replacing R_2. R_L is in parallel with R_2: combine the two first, then divide.", "12 V is the source voltage U_s; there is still a drop across R_1, so node a cannot reach U_s."],
           "explain": "R_2 ∥ R_L = 10 ∥ 5 = 10/3 kΩ, so u_a = 12 × (10/3)/(10 + 10/3) = 3 V. The load drags the divider's output down; the follower, with infinite input resistance and zero output resistance, isolates (buffers) the two."
         }
       ],
       "hints": ["The follower's non-inverting input draws no current (virtual open), so R_1 and R_2 are an unloaded divider.", "A follower's output equals its input: u_o = u_a."],
       "solution": [
         "**1. Divider:** by the virtual open, i_{+} = 0, R_1 and R_2 are in series, u_a = U_s·R_2/(R_1 + R_2) = **6 V**.",
-        "**2. Follower:** the output is wired to the inverting input, u_o = u_{−} = u_{+} = u_a = 6 V.",
+        "**2. Follower:** a wire connects the output back to the inverting input, which is negative feedback; by the virtual short u_o = u_{−} = u_{+} = u_a = 6 V.",
         "**3. Load current:** i_L = u_o/R_L = 6/5 kΩ = **1.2 mA** (supplied by the op-amp).",
         "**4. Comparison:** without the follower R_2 ∥ R_L = 10/3 kΩ and u_a = 12 × (10/3)/(40/3) = **3 V** — half the voltage. The follower has unity gain, but it separates the source from the load."
       ]

@@ -8,12 +8,15 @@
   "summary": "用一个电阻同时点亮串联的红色和绿色 LED。",
   "concepts": ["series 串联", "Vf adds up 压降相加"],
   "description": "用 9V 电源点亮两个串联的 LED：+9V → 220Ω → 红色 LED → 绿色 LED → GND。\n\n串联时 LED 的压降相加：1.8 + 2.1 = 3.9V，电阻上剩下 9 − 3.9 = 5.1V，粗算电流 5.1 / 220 ≈ 23mA。再算上每颗 LED 约 12Ω 的内阻（第 3 课讲过），实际电流约 5.1 / (220 + 12 + 12) ≈ 21mA。\n\n思考：如果用 3V 的电源，两个 LED 还能亮吗？（不能：3V < 3.9V，达不到导通电压。）",
+  "figures": [{"schematic": {"elements": [{"ref": "V1", "type": "V", "from": [0, 1], "to": [0, 5], "value": 9}, {"ref": "R1", "type": "R", "from": [1, 1], "to": [5, 1], "value": 220}, {"ref": "LED1", "type": "NR", "from": [6, 2], "to": [6, 4], "law": {"diode": {"uon": 1.8}}, "label": "LED1"}, {"ref": "LED2", "type": "NR", "from": [5, 5], "to": [1, 5], "law": {"diode": {"uon": 2.1}}, "label": "LED2"}], "wires": [[[0, 1], [1, 1]], [[5, 1], [6, 1], [6, 2]], [[6, 4], [6, 5], [5, 5]], [[1, 5], [0, 5]]],
+        "grounds": [[0, 5]], "marks": [{"kind": "v", "el": "R1", "name": "5.1 V"}, {"kind": "v", "el": "LED1", "name": "1.8 V"}, {"kind": "v", "el": "LED2", "name": "2.1 V"}], "notes": [{"at": [1.4, 3], "text": "5.1 + 1.8 + 2.1 = 9 V"}]}, "caption": "粗算：一圈走下来，各元件上的电压加起来等于电源电压。红 LED 要 1.8V，绿 LED 要 2.1V，两个先用掉 3.9V；剩下的 5.1V 落在电阻上，电流由它决定。", "alt": "电路图：9V 电池、220Ω 电阻 R1、红色 LED1、绿色 LED2 串成一圈。R1 上 5.1V，LED1 上 1.8V，LED2 上 2.1V，合计 9V。"}],
   "i18n": {
     "en": {
       "title": "Challenge 1 · Two LEDs in series",
       "summary": "Light a red and a green LED in series with a single resistor.",
       "concepts": ["series", "Vf adds up"],
       "description": "Use a 9V supply to light two LEDs in series: +9V → 220Ω → red LED → green LED → GND.\n\nIn series, the LED voltage drops add up: 1.8 + 2.1 = 3.9V. That leaves 9 − 3.9 = 5.1V across the resistor, so the quick estimate is 5.1 / 220 ≈ 23mA. Adding each LED's internal resistance of about 12Ω (see Lesson 3), the actual current is about 5.1 / (220 + 12 + 12) ≈ 21mA.\n\nThink about it: with a 3V supply, could the two LEDs still light? (No: 3V < 3.9V, which is not enough to turn them on.)",
+      "figures": [{"caption": "Rough estimate: going once around the loop, the voltages across the parts add up to the supply. The red LED needs 1.8V and the green one 2.1V, so the two take 3.9V first. The 5.1V left over sits across the resistor, and that sets the current.", "alt": "Circuit: a 9V battery, a 220Ω resistor R1, a red LED1 and a green LED2 in one series loop. 5.1V across R1, 1.8V across LED1, 2.1V across LED2, 9V in total."}],
       "hints": [
         "LED1's short lead (cathode) and LED2's long lead (anode) must be on the same metal strip.",
         "Both LEDs must point the same way: long lead toward the + side.",

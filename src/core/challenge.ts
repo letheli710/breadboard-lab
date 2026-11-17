@@ -10,6 +10,8 @@ import { BATTERIES, LED_COLORS, PARTS, terminalsOf } from './parts';
 import { MEASURES, type Measure } from './transient';
 import { PIN_MODES } from './types';
 import type { StepCheck } from './stepCheck';
+import { extractNetlist } from './problem/geometry';
+import type { Schematic } from './problem/types';
 import type { BatteryVariant, CComponent, CompType, Circuit, Layout, LedColor, MosfetModel, PartProps, PartType, PinConfig, PinMode, PlacedPart, Waveform } from './types';
 
 export const FORMAT_ID = 'breadboard-challenge/1';
@@ -129,6 +131,15 @@ export interface MeasurementQuestion {
   correct?: number;
 }
 
+/** A picture in the task description (§16): a hand-placed circuit drawing in the theory-problem
+ *  geometry (docs/PROBLEM_FORMAT.md), drawn by ProblemSchematic, with a caption. */
+export interface ChallengeFigure {
+  schematic: Schematic;
+  caption: string;
+  /** text alternative for screen readers; default: generated from the drawing */
+  alt?: string;
+}
+
 export interface Challenge {
   id: string;
   title: string;
@@ -147,6 +158,8 @@ export interface Challenge {
   compare: string;
   hints: string[];
   steps: ChallengeStep[];
+  /** pictures shown under the description (optional) */
+  figures?: ChallengeFigure[];
   /** ids of the lessons to do first (shown as links in the task panel) */
   prereq?: string[];
   solution?: Layout;
@@ -967,6 +980,28 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     });
   });
 
+  // figures: hand-placed drawings in the theory-problem geometry, checked like a problem's schematic
+  const figures: ChallengeFigure[] = [];
+  if (json.figures !== undefined && !Array.isArray(json.figures)) errors.push(tr('"figures" 必须是数组', '"figures" must be an array'));
+  (Array.isArray(json.figures) ? json.figures : []).forEach((f: unknown, i: number) => {
+    const w = `figures[${i}]`;
+    if (!isObj(f)) return errors.push(tr(`${w}: 必须是对象 { "schematic": …, "caption": "…" }`, `${w}: must be an object { "schematic": …, "caption": "…" }`));
+    const caption = textOf(f.caption);
+    if (!caption) errors.push(tr(`${w}.caption: 不能为空（一两句话说明这张图）`, `${w}.caption: must not be empty (a sentence or two on what the picture shows)`));
+    const s = f.schematic;
+    if (!isObj(s) || !Array.isArray(s.elements) || !Array.isArray(s.wires))
+      return errors.push(tr(`${w}.schematic: 必须是 { "elements": [...], "wires": [...] }`, `${w}.schematic: must be { "elements": [...], "wires": [...] }`));
+    try {
+      const r = extractNetlist(s as unknown as Schematic);
+      for (const e of r.errors) errors.push(`${w}.schematic: ${e}`);
+      for (const e of r.warnings) warnings.push(`${w}.schematic: ${e}`);
+    } catch (e) {
+      errors.push(tr(`${w}.schematic: 无法解析电路图：${(e as Error).message}`, `${w}.schematic: can't read the drawing: ${(e as Error).message}`));
+    }
+    const alt = textOf(f.alt);
+    figures.push({ schematic: s as unknown as Schematic, caption, ...(alt ? { alt } : {}) });
+  });
+
   const steps: ChallengeStep[] = (Array.isArray(json.steps) ? json.steps : [])
     .map((s: unknown, i: number) =>
       typeof s === 'string'
@@ -1003,6 +1038,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
           count('hints', Array.isArray(json.hints) ? json.hints.length : 0);
           count('tests', tests.length);
           count('measurements', measurements.length);
+          count('figures', figures.length);
           if (l === getLang() && l !== baseLang) tx = v;
         }
       }
@@ -1022,6 +1058,13 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     const explain = textOf(t.explain);
     const ch = strs(t.choices);
     measurements[i] = { ...q, ask: ask || q.ask, explain: explain || q.explain, choices: q.choices && ch.length === q.choices.length ? ch : q.choices };
+  });
+  txList('figures').forEach((t, i) => {
+    const f = figures[i];
+    if (!f || !isObj(t)) return;
+    const caption = textOf(t.caption);
+    const alt = textOf(t.alt);
+    figures[i] = { ...f, caption: caption || f.caption, ...(alt ? { alt } : {}) };
   });
   const baseHints = strs(json.hints);
   const txHints = strs(tx.hints);
@@ -1052,6 +1095,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     compare: textOf(tx.compare) || textOf(json.compare),
     hints: txHints.length === baseHints.length ? txHints : baseHints,
     steps,
+    ...(figures.length ? { figures } : {}),
     prereq: strs(json.prereq),
     solution,
     start,

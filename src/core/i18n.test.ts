@@ -73,6 +73,42 @@ describe('challenge translations', () => {
     expect(ch.title).toBe('点亮 LED');
   });
 
+  it('figures: parsed, checked like a problem drawing, captions translated by position', () => {
+    const schematic = {
+      elements: [
+        { ref: 'V1', type: 'V', from: [0, 0], to: [0, 2], value: 5 },
+        { ref: 'R1', type: 'R', from: [2, 0], to: [2, 2], value: 330 },
+      ],
+      wires: [
+        [
+          [0, 0],
+          [2, 0],
+        ],
+        [
+          [0, 2],
+          [2, 2],
+        ],
+      ],
+      grounds: [[0, 2]],
+    };
+    const figs = {
+      figures: [{ schematic, caption: '电阻上 5V。' }],
+      i18n: { en: { ...base.i18n.en, figures: [{ caption: '5V across the resistor.', alt: 'A resistor on a 5V supply.' }] } },
+    };
+    expect(parseChallenge(base).challenge!.figures).toBeUndefined();
+    const zh = parseChallenge({ ...base, ...figs }).challenge!;
+    expect(zh.figures).toEqual([{ schematic, caption: '电阻上 5V。' }]);
+    setLang('en');
+    expect(parseChallenge({ ...base, ...figs }).challenge!.figures![0]).toMatchObject({ caption: '5V across the resistor.', alt: 'A resistor on a 5V supply.' });
+    // no caption, a broken drawing, a translation that doesn't line up
+    const bad = parseChallenge({ ...base, figures: [{ schematic }, { schematic: { ...schematic, grounds: [] }, caption: 'x' }, { caption: 'x' }] });
+    expect(bad.errors.some((e) => e.includes('figures[0].caption'))).toBe(true);
+    expect(bad.errors.some((e) => e.startsWith('figures[1].schematic'))).toBe(true);
+    expect(bad.errors.some((e) => e.startsWith('figures[2].schematic'))).toBe(true);
+    const short = parseChallenge({ ...base, ...figs, i18n: { en: { figures: [] } } });
+    expect(short.warnings.some((w) => w.includes('i18n.en.figures'))).toBe(true);
+  });
+
   it('warns when translated lists do not line up and rejects unknown languages', () => {
     const r = parseChallenge({ ...base, i18n: { en: { steps: ['only one'] }, de: {} } });
     expect(r.errors.some((e) => e.includes('"de"'))).toBe(true);

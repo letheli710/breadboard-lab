@@ -87,6 +87,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `phase` | `1` \| `2` \| `3` \| `4` \| `5` | | 属于课程第几期（见 [`ROADMAP.md`](./ROADMAP.md)）：1 基本定律与等效变换，2 分析方法 / 定理 / 运放，3 暂态，4 交流，5 单片机外围电路（§14，文件名 `280-…`–`299-…`）。省略 = 原来的入门题。挑战列表按期分组显示（“入门 / 第1期 / …”）。约定文件名：第 1 期 `201-…`–`219-…`，第 2 期 `221-…`–`239-…`，以此类推 |
 | `summary` | string | | 一句话简介，显示在列表里 |
 | `description` | string 或 string[] | | 正文讲解。纯文本，用 `\n` 换行；如果是数组，会用换行拼接。支持少量格式：`**粗体**`、以 `- ` 或 `1. ` 开头的列表行。实验题按 [`NOTATION.md`](./NOTATION.md) §8 的段落结构写（目标 / 电路 / 先预测 / 测量 / 对比），用语和符号见 NOTATION.md（“结点”、u/U、cos 参考；挑战文字不支持下标） |
+| `figures` | array | | 配图（见 §16）：手工摆放的电路图 + 图注，显示在正文下面 |
 | `concepts` | string[] | | 涉及的概念标签，例如 `["series 串联", "KVL"]` |
 | `lang` | `"zh"` \| `"en"` | | 上面这些文字字段（以及 steps / hints / tests 的名字）用的语言，默认 `"zh"`（见 §11） |
 | `i18n` | object | | 其他语言的翻译，例如 `{ "en": { "title": "..." } }`（见 §11） |
@@ -386,6 +387,7 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 | `tests` | string[] | **只写测试名**，和顶层 `tests` 按位置一一对应（`set` / `expect` / `voltages` 不用重复写） |
 | `measurements` | object[] | 和顶层 `measurements` 按位置一一对应：`{ "ask", "explain"?, "choices"? }`（选项数量要和原文相同） |
 | `compare` | string 或 string[] | “对比”段的翻译 |
+| `figures` | object[] | 和顶层 `figures` 按位置一一对应：`{ "caption", "alt"? }`。图里 `notes` 的翻译写在每条 note 自己的 `"i18n"` 里（§16） |
 
 回退规则（fallback）：
 - 缺少的字段一律用顶层（基础语言）的文字。例如只翻译了 `title` 和 `summary`，正文就还是原文。
@@ -740,3 +742,45 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 
 **校验器**（`npm run validate`）对每道测量题：在 `solution` 上读出这个量（读不出 = 错误）、检查它在 `range` 里、检查按 3 位有效数字输入时会被判对（容差太紧会报错）。另外检查**答案泄露**：标题、summary、description、hints、测试名（各语言）里带单位的数（如 `4.5V`、`2.53 mA`、`1.2kΩ`）如果和某道有单位的测量题的参考读数相差在 3%（或这题的容差）以内，就给警告——把它移到 `compare` / `explain`。题目给定的量（元件值、电源和信号发生器的设置、3.3 V、5 V）不算泄露；有意写出的模型参数用 `"stated": true` 标出。`npm run validate -- --readings` 会把每道题在参考答案上的读数打印出来，写 `range` 和 `compare` 时用。
 
+---
+
+## 16. 配图 `figures`
+
+正文（description）只有文字。有些道理一张图就说清楚了：分压器的 9V 怎么分成 6V + 3V，串联 LED 的压降怎么相加，原理图的每个结点对应面包板的哪条金属条。`figures` 给题目加这样的图，显示在任务面板“题目说明 / 课程说明”的正文下面，每张图下面有图注。
+
+图用的是**练习题的电路图格式**（[`PROBLEM_FORMAT.md`](./PROBLEM_FORMAT.md) 的 `schematic`：元件按格点手工摆放，`wires` 是折线），和练习题由同一段程序画出来。它和下面的“目标电路图”不同：目标电路图由程序自动排版、显示仿真值；配图由作者决定画什么、怎么摆、标哪些数。
+
+```json
+"figures": [
+  {
+    "schematic": {
+      "elements": [
+        { "ref": "V1", "type": "V", "from": [0, 1], "to": [0, 5], "value": 9 },
+        { "ref": "R1", "type": "R", "from": [4, 1], "to": [4, 3], "value": "2k" },
+        { "ref": "R2", "type": "R", "from": [4, 3], "to": [4, 5], "value": "1k" }
+      ],
+      "wires": [[[0, 1], [4, 1]], [[0, 5], [4, 5]], [[4, 3], [6, 3]]],
+      "terminals": [{ "at": [6, 3], "name": "VOUT" }],
+      "grounds": [[2, 5]],
+      "marks": [{ "kind": "v", "el": "R1", "name": "6 V" }, { "kind": "v", "el": "R2", "name": "3 V" }]
+    },
+    "caption": "9V 加在两个串联的电阻上。电阻大的分到的电压多：2kΩ 上 6V，1kΩ 上 3V。"
+  }
+],
+"i18n": { "en": { "figures": [{ "caption": "The 9V sits across two resistors in series. The bigger one gets the bigger share: 6V across 2kΩ, 3V across 1kΩ." }] } }
+```
+
+（例子取自 `challenges/10-voltage-divider.json`；另见 `04-schematic-to-breadboard.json`、`09-two-leds-series.json`。）
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `schematic` | ✔ | 电路图，格式同练习题的 `schematic`：`elements`、`wires`，可选 `labels`（结点名）、`terminals`（开口端子）、`grounds`、`marks`（电流箭头 / 电压 +− 标记，`name` 可以直接写数值，如 `"6 V"`）、`notes`（图上的文字） |
+| `caption` | ✔ | 图注：一两句短话，说清楚这张图要学生看什么。string 或 string[]（按行拼接），支持 `**粗体**` |
+| `alt` | | 给读屏软件的文字说明。默认由图自动生成（“R1，电阻 2 kΩ，接在结点 … 之间”）；自动说明会误导时要写，例如用二极管符号画的 LED |
+
+规则：
+- **校验**：和练习题的电路图一样检查几何（端点在格点上、导线横平竖直、元件编号不重复……），而且**必须有接地符号** `grounds`。配图不参与判分，也不做电路计算——图上写的数由作者负责，要和正文一致。
+- **画什么**：只画一个要点，元件少、标注少。数值标在 `marks` 的 `name` 或 `notes` 里；每条 note 一行一个意思。LED 用 `"type": "NR"` 加 `"law": { "diode": { "uon": 1.8 } }` 画成二极管符号，并用 `"label": "LED1"` 代替自动标注。
+- **尺寸**：任务面板很窄（手机上约 340px，电脑上约 370px）。1 个格 = 40px，所以图连同文字最好不超过 7–8 格宽；太宽时图会缩小，再窄就改成左右滑动。
+- **翻译**：`caption` / `alt` 的翻译写在 `i18n.<lang>.figures`，按位置对应；`notes` 每条自己带翻译 `{ "at": [3, 2], "text": "A → 第 7 列", "i18n": { "en": "A → column 7" } }`。元件标注（`label`）、结点名、`marks` 的 `name` 不翻译，所以只写符号和数值（`LED1`、`VOUT`、`6 V`）。
+- **测量题**：有 `measurements` 时，图注、`alt`、`notes`、`marks` 也算可见文字，同样不能写出参考读数（§15 的“答案泄露”检查会扫描它们）。

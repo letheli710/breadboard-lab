@@ -38,17 +38,17 @@
     {
       "id": "rin",
       "ask": "从电压源 u_s 看进去，放大器的输入电阻是多少？",
-      "choices": ["R_1 = 10 kΩ", "R_1 + R_f = 30 kΩ", "无穷大（u_s 不提供电流）"], "choiceExplain": ["R_1 是反相放大器的输入电阻。同相放大器中 u_s 接在同相端，不经过 R_1，R_1 中的电流来自运放输出端。", "R_1、R_f 中的电流由运放输出端经 R_f、R_1 流到地，并不来自 u_s；由“虚断”，同相端不取电流。", ""],
+      "choices": ["R_1 = 10 kΩ", "R_1 + R_f = 30 kΩ", "无穷大"], "choiceExplain": ["R_1 是反相放大器的输入电阻。同相放大器中 u_s 接在同相端，不经过 R_1，R_1 中的电流来自运放输出端。", "R_1、R_f 中的电流从运放输出端经 R_f、R_1 流到地，并不经过 u_s。想一想：u_s 本身输出多大的电流？", ""],
       "correct": 2,
       "explain": "u_s 直接接在同相输入端，由“虚断”i_{+} = 0，电源不输出电流，所以输入电阻为无穷大——这是同相放大器相对反相放大器的主要优点。"
     }
   ],
-  "hints": ["先用“虚短”求反相端 n 的电位。", "R_1 与 R_f 串联构成对 u_o 的分压器：u_n = u_o·R_1/(R_1 + R_f)。"],
+  "hints": ["R_f 把输出接回反相端（负反馈）：先用“虚短”求反相端 n 的电位。", "R_1 与 R_f 串联构成对 u_o 的分压器：u_n = u_o·R_1/(R_1 + R_f)。"],
   "solution": [
-    "**1. 虚短：** u_n = u_{−} = u_{+} = u_s = 2 V。",
-    "**2. 虚断：** 反相端不取电流，R_1 与 R_f 中是同一个电流 i_1 = u_n/R_1 = 2/10 kΩ = **0.2 mA**。",
+    "**1. 负反馈与虚短：** R_f 把输出接回反相端，构成负反馈。由虚短 u_n = u_{−} = u_{+} = u_s = 2 V。",
+    "**2. 结点 n 的 KCL：** 由虚断，反相端不取电流，R_1 与 R_f 中是同一个电流：i_1 = u_n/R_1 = 2/10 kΩ = **0.2 mA**。",
     "**3. 输出：** u_o = u_n + R_f·i_1 = 2 + 20 kΩ × 0.2 mA = **6 V**。",
-    "**4. 放大倍数：** u_o/u_s = 1 + R_f/R_1 = **3**（总是 ≥ 1，输出与输入同相）。"
+    "**4. 放大倍数：** u_o/u_s = 6/2 = **3**，与公式 1 + R_f/R_1 = 1 + 20/10 = 3 一致 ✓。同相放大器的放大倍数总是 ≥ 1，输出与输入同相。"
   ],
   "i18n": {
     "en": {
@@ -64,16 +64,16 @@
         { "ask": "i_1 = ?", "explain": "Virtual short: u_n = u_{+} = u_s = 2 V, so i_1 = u_n/R_1 = 2/10k = 0.2 mA; by the virtual open this whole current comes through R_f." },
         {
           "ask": "What is the input resistance of the amplifier seen by the source u_s?",
-          "choices": ["R_1 = 10 kΩ", "R_1 + R_f = 30 kΩ", "Infinite (u_s supplies no current)"], "choiceExplain": ["R_1 is the input resistance of the inverting amplifier. Here u_s drives the non-inverting input and does not feed R_1; the current in R_1 comes from the op-amp output.", "The current in R_f and R_1 flows from the op-amp output through R_f and R_1 to ground; it does not come from u_s, because the non-inverting input draws no current (virtual open).", ""],
+          "choices": ["R_1 = 10 kΩ", "R_1 + R_f = 30 kΩ", "Infinite"], "choiceExplain": ["R_1 is the input resistance of the inverting amplifier. Here u_s drives the non-inverting input and does not feed R_1; the current in R_1 comes from the op-amp output.", "The current in R_f and R_1 flows from the op-amp output through R_f and R_1 to ground; it does not pass through u_s. How much current does u_s itself deliver?", ""],
           "explain": "u_s is connected straight to the non-inverting input, which draws no current (virtual open). The source delivers no current, so the input resistance is infinite — the main advantage over the inverting amplifier."
         }
       ],
-      "hints": ["Use the virtual short to get the potential of the inverting node n.", "R_1 and R_f in series form a voltage divider across u_o: u_n = u_o·R_1/(R_1 + R_f)."],
+      "hints": ["R_f connects the output back to the inverting input (negative feedback): use the virtual short to get the potential of the inverting node n.", "R_1 and R_f in series form a voltage divider across u_o: u_n = u_o·R_1/(R_1 + R_f)."],
       "solution": [
-        "**1. Virtual short:** u_n = u_{−} = u_{+} = u_s = 2 V.",
-        "**2. Virtual open:** no current enters the inverting input, so R_1 and R_f carry the same current i_1 = u_n/R_1 = 2/10 kΩ = **0.2 mA**.",
+        "**1. Negative feedback and the virtual short:** R_f connects the output back to the inverting input (negative feedback). By the virtual short u_n = u_{−} = u_{+} = u_s = 2 V.",
+        "**2. KCL at n:** by the virtual open no current enters the inverting input, so R_1 and R_f carry the same current: i_1 = u_n/R_1 = 2/10 kΩ = **0.2 mA**.",
         "**3. Output:** u_o = u_n + R_f·i_1 = 2 + 20 kΩ × 0.2 mA = **6 V**.",
-        "**4. Gain:** u_o/u_s = 1 + R_f/R_1 = **3** (always ≥ 1, output in phase with the input)."
+        "**4. Gain:** u_o/u_s = 6/2 = **3**, which agrees with the formula 1 + R_f/R_1 = 1 + 20/10 = 3 ✓. A non-inverting amplifier's gain is always ≥ 1, with the output in phase with the input."
       ]
     }
   }

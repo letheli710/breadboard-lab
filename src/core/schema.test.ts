@@ -48,6 +48,11 @@ describe('schema/challenge.schema.json matches the challenge files', () => {
     // measurement questions: unknown key, bad scope measure
     expect(bad((j) => ((j.measurements as Record<string, unknown>[])[0].answer = 0.00884))).toBeGreaterThan(0);
     expect(bad((j) => ((j.measurements as Record<string, unknown>[])[0] = { id: 'x', ask: 'x', scope: 'tau', pin: 'R1.1' }))).toBeGreaterThan(0);
+    // figures: a caption is required, the drawing uses the problem schematic format
+    const schematic = { elements: [{ ref: 'R1', type: 'R', from: [0, 0], to: [0, 2], value: 1 }], wires: [], grounds: [[0, 2]] };
+    expect(bad((j) => (j.figures = [{ schematic, caption: 'x' }]))).toBe(0);
+    expect(bad((j) => (j.figures = [{ schematic }]))).toBeGreaterThan(0);
+    expect(bad((j) => (j.figures = [{ schematic: { ...schematic, elements: [{ ref: 'R1', type: 'resistor' }] }, caption: 'x' }]))).toBeGreaterThan(0);
   });
 
   it('accepts what the sandbox exports ("Export as challenge JSON") for every reference solution', () => {

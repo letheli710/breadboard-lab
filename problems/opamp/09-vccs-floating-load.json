@@ -3,9 +3,9 @@
   "format": "circuit-problem/1",
   "id": "opamp-09-vccs-floating-load",
   "chapter": "opamp",
-  "title": "运放构成的电压控制电流源",
+  "title": "浮地负载中的电流",
   "level": 3,
-  "tags": ["电压控制电流源", "负载电流", "反相比例放大器"],
+  "tags": ["浮地负载", "负载电流", "反相比例放大器"],
   "statement": [
     "负载 R_L 接在理想运放的反馈支路中（“浮地负载”）。u_s = 3 V，R_1 = 1.5 kΩ，R_L = 2 kΩ。",
     "求负载电流 i_L（参考方向见图）和输出电压 u_o，并讨论 R_L 改变时的情况。"
@@ -33,56 +33,56 @@
   },
   "analysis": { "type": "dc" },
   "questions": [
-    { "id": "il", "ask": "i_L = ?", "find": { "kind": "i", "el": "RL" }, "answer": 0.002, "unit": "mA", "explain": "n 是虚地，R_1 电流 u_s/R_1 = 3/1.5k = 2 mA；虚断使它全部流过 R_L：i_L = u_s/R_1 = 2 mA，与 R_L 无关。" },
+    { "id": "il", "ask": "i_L = ?", "find": { "kind": "i", "el": "RL" }, "answer": 0.002, "unit": "mA", "explain": "n 是虚地，R_1 电流 u_s/R_1 = 3/1.5k = 2 mA；虚断使它全部流过 R_L：i_L = u_s/R_1 = 2 mA。" },
     { "id": "uo", "ask": "u_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": -4, "unit": "V", "explain": "u_o = u_n − R_L·i_L = 0 − 2k × 2 mA = −4 V。" },
     {
       "id": "rl",
       "ask": "把 R_L 换成 3 kΩ，i_L 和 u_o 分别变为多少？",
-      "choices": ["i_L = 2 mA，u_o = −6 V", "i_L = 1.33 mA，u_o = −4 V", "i_L = 1 mA，u_o = −3 V"], "choiceExplain": ["", "这是假设 u_o 仍为 −4 V、再用 4 V/3 kΩ 求电流；实际上是 i_L = u_s/R_1 固定，运放调整 u_o 去维持它。", "1 mA = u_s/R_L 是把 u_s 当成直接加在 R_L 上；R_L 中的电流由 R_1 决定（虚地 + 虚断），与 R_L 无关。"],
+      "choices": ["i_L = 2 mA，u_o = −6 V", "i_L = 1.33 mA，u_o = −4 V", "i_L = 1 mA，u_o = −3 V"], "choiceExplain": ["", "这是假设 u_o 仍为 −4 V、再用 4 V/3 kΩ 求电流。先想一想：R_L 中的电流是由哪条支路决定的？u_o 会不会跟着变？", "1 mA = u_s/R_L 是把 u_s 当成直接加在 R_L 上。n 是虚地，u_s 实际加在哪个电阻上？"],
       "correct": 0,
       "explain": "i_L = u_s/R_1 只由控制电压 u_s 决定，R_L 变化时不变（电压控制电流源，跨导 1/R_1）；运放自动调整 u_o = −R_L·i_L = −6 V 来维持这个电流。"
     },
     {
       "id": "sat",
       "ask": "实际运放的输出电压被限制在 ±12 V 以内。为保持 i_L = 2 mA，R_L 最大可以取多少？",
-      "choices": ["1.5 kΩ", "6 kΩ", "12 kΩ", "任意大"], "choiceExplain": ["1.5 kΩ 是 R_1 的值；R_1 决定电流 i_L，但 R_L 的上限由输出电压的限制 |u_o| = R_L·i_L ≤ 12 V 决定。", "", "12 kΩ = 24 V/2 mA，是把 ±12 V 的全摆幅 24 V 都算进去了；u_o 是对地电压，只能用到 12 V。", "理想模型里 R_L 可以任意大，但实际运放输出不超过 ±12 V，R_L 太大时运放饱和，虚短不再成立。"],
+      "choices": ["1.5 kΩ", "6 kΩ", "12 kΩ", "任意大"], "choiceExplain": ["1.5 kΩ 是 R_1 的值；R_1 决定的是电流 i_L。R_L 的上限要从输出电压的限制来求。", "", "12 kΩ = 24 V/2 mA，是把 ±12 V 的全摆幅 24 V 都算进去了。u_o 是对地电压，|u_o| 最大是多少？", "理想模型里 R_L 可以任意大，但实际运放输出不超过 ±12 V，R_L 太大时运放饱和，虚短不再成立。"],
       "correct": 1,
       "explain": "|u_o| = R_L·i_L ≤ 12 V → R_L ≤ 12/2 mA = 6 kΩ。超出后运放饱和，理想模型（虚短）不再成立。"
     }
   ],
-  "hints": ["反相端仍然是虚地，R_1 的电流由 u_s 和 R_1 唯一确定。", "由虚断，这个电流只能经过 R_L 流向输出端。"],
+  "hints": ["反相端是虚地，R_1 的电流由 u_s 和 R_1 唯一确定。", "由虚断，这个电流只能经过 R_L 流向输出端。"],
   "solution": [
-    "**1. 虚地：** u_n = u_{+} = 0，R_1 中电流 i_1 = u_s/R_1 = 3/1.5 kΩ = 2 mA。",
-    "**2. 虚断：** i_L = i_1 = **2 mA**——负载电流只取决于 u_s，与 R_L 无关，电路相当于跨导 g = 1/R_1 的电压控制电流源（VCCS）。",
+    "**1. 负反馈与虚地：** R_L 把输出接回反相端，构成负反馈。同相端接地，由虚短 u_n = u_{+} = 0，R_1 中电流 i_1 = u_s/R_1 = 3/1.5 kΩ = 2 mA。",
+    "**2. 结点 n 的 KCL：** 由虚断，反相端不取电流，i_L = i_1 = **2 mA**——负载电流只取决于 u_s，与 R_L 无关，电路相当于跨导 g = 1/R_1 的电压控制电流源（VCCS）。",
     "**3. 输出：** u_o = 0 − R_L·i_L = **−4 V**。",
     "**4. 适用范围：** u_o 随 R_L 线性变化，输出电压受电源限制（如 ±12 V），所以 R_L ≤ 12 V/2 mA = 6 kΩ。"
   ],
   "i18n": {
     "en": {
-      "title": "An op-amp voltage-controlled current source",
-      "tags": ["voltage-controlled current source", "load current", "inverting amplifier"],
+      "title": "Current in a floating load",
+      "tags": ["floating load", "load current", "inverting amplifier"],
       "statement": [
         "The load R_L sits in the feedback path of an ideal op-amp (a \"floating load\"). u_s = 3 V, R_1 = 1.5 kΩ, R_L = 2 kΩ.",
         "Find the load current i_L (reference as drawn) and the output voltage u_o, then discuss what happens when R_L changes."
       ],
       "questions": [
-        { "ask": "i_L = ?", "explain": "n is a virtual ground, so R_1 carries u_s/R_1 = 3/1.5k = 2 mA; by the virtual open all of it flows through R_L: i_L = u_s/R_1 = 2 mA, independent of R_L." },
+        { "ask": "i_L = ?", "explain": "n is a virtual ground, so R_1 carries u_s/R_1 = 3/1.5k = 2 mA; by the virtual open all of it flows through R_L: i_L = u_s/R_1 = 2 mA." },
         { "ask": "u_o = ?", "explain": "u_o = u_n − R_L·i_L = 0 − 2k × 2 mA = −4 V." },
         {
           "ask": "If R_L is replaced by 3 kΩ, what are i_L and u_o?",
-          "choices": ["i_L = 2 mA, u_o = −6 V", "i_L = 1.33 mA, u_o = −4 V", "i_L = 1 mA, u_o = −3 V"], "choiceExplain": ["", "This assumes u_o stays at −4 V and computes 4 V/3 kΩ; in fact i_L = u_s/R_1 is fixed and the op-amp changes u_o to maintain it.", "1 mA = u_s/R_L treats u_s as if it were across R_L; the load current is set by R_1 (virtual ground + virtual open) and does not depend on R_L."],
+          "choices": ["i_L = 2 mA, u_o = −6 V", "i_L = 1.33 mA, u_o = −4 V", "i_L = 1 mA, u_o = −3 V"], "choiceExplain": ["", "This assumes u_o stays at −4 V and computes 4 V/3 kΩ. First ask which branch sets the current in R_L, and whether u_o changes too.", "1 mA = u_s/R_L treats u_s as if it were across R_L. n is a virtual ground: which resistor is u_s actually across?"],
           "explain": "i_L = u_s/R_1 depends only on the control voltage u_s, not on R_L (a voltage-controlled current source with transconductance 1/R_1); the op-amp adjusts u_o = −R_L·i_L = −6 V to keep that current flowing."
         },
         {
           "ask": "A real op-amp's output is limited to ±12 V. What is the largest R_L that still gets i_L = 2 mA?",
-          "choices": ["1.5 kΩ", "6 kΩ", "12 kΩ", "Any value"], "choiceExplain": ["1.5 kΩ is R_1; R_1 sets the current i_L, but the limit on R_L comes from the output limit |u_o| = R_L·i_L ≤ 12 V.", "", "12 kΩ = 24 V/2 mA uses the full ±12 V swing (24 V); u_o is measured to ground and can only reach 12 V.", "In the ideal model R_L could be anything, but a real output stays within ±12 V; with too large an R_L the op-amp saturates and the virtual short no longer holds."],
+          "choices": ["1.5 kΩ", "6 kΩ", "12 kΩ", "Any value"], "choiceExplain": ["1.5 kΩ is R_1, which sets the current i_L. The limit on R_L comes from the limit on the output voltage.", "", "12 kΩ = 24 V/2 mA uses the full ±12 V swing (24 V). u_o is measured to ground: how large can |u_o| be?", "In the ideal model R_L could be anything, but a real output stays within ±12 V; with too large an R_L the op-amp saturates and the virtual short no longer holds."],
           "explain": "|u_o| = R_L·i_L ≤ 12 V → R_L ≤ 12/2 mA = 6 kΩ. Beyond that the op-amp saturates and the ideal model (virtual short) no longer holds."
         }
       ],
-      "hints": ["The inverting input is still a virtual ground, so R_1's current is fixed by u_s and R_1 alone.", "By the virtual open, that current has nowhere to go except through R_L to the output."],
+      "hints": ["The inverting input is a virtual ground, so R_1's current is fixed by u_s and R_1 alone.", "By the virtual open, that current has nowhere to go except through R_L to the output."],
       "solution": [
-        "**1. Virtual ground:** u_n = u_{+} = 0, so R_1 carries i_1 = u_s/R_1 = 3/1.5 kΩ = 2 mA.",
-        "**2. Virtual open:** i_L = i_1 = **2 mA** — the load current depends only on u_s, not on R_L: the circuit is a voltage-controlled current source (VCCS) with transconductance g = 1/R_1.",
+        "**1. Negative feedback and the virtual ground:** R_L connects the output back to the inverting input (negative feedback). The non-inverting input is grounded, so by the virtual short u_n = u_{+} = 0, and R_1 carries i_1 = u_s/R_1 = 3/1.5 kΩ = 2 mA.",
+        "**2. KCL at n:** by the virtual open the inverting input draws no current, so i_L = i_1 = **2 mA** — the load current depends only on u_s, not on R_L: the circuit is a voltage-controlled current source (VCCS) with transconductance g = 1/R_1.",
         "**3. Output:** u_o = 0 − R_L·i_L = **−4 V**.",
         "**4. Compliance:** u_o grows linearly with R_L and is limited by the supply (e.g. ±12 V), so R_L ≤ 12 V/2 mA = 6 kΩ."
       ]

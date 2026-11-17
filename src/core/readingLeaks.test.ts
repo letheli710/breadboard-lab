@@ -27,6 +27,35 @@ describe('answer-leak check: a lab must not state the readings it asks for', () 
     expect(w.some((x) => x.includes('(v1k)') && x.includes('0.75V'))).toBe(true);
   });
 
+  it('figures count as visible text: captions, translated captions, notes and mark names', () => {
+    const lab = load('203-loaded-divider.json');
+    const fig = (extra: Record<string, unknown>) => ({
+      schematic: {
+        elements: [{ ref: 'V1', type: 'V', from: [0, 0], to: [0, 2], value: 9 }],
+        wires: [
+          [
+            [0, 0],
+            [2, 0],
+            [2, 2],
+            [0, 2],
+          ],
+        ],
+        grounds: [[0, 2]],
+        ...extra,
+      },
+      caption: '分压器。',
+    });
+    lab.figures = [{ ...fig({}), caption: '中点 4.5V。' }];
+    expect(leaks(lab).some((x) => x.includes('figures[0].caption') && x.includes('4.5V'))).toBe(true);
+    lab.figures = [fig({ notes: [{ at: [3, 1], text: '中点', i18n: { en: 'middle 4.5 V' } }] })];
+    expect(leaks(lab).some((x) => x.includes('figures[0].notes'))).toBe(true);
+    lab.figures = [fig({ marks: [{ kind: 'v', el: 'V1', name: '0.75 V' }] })];
+    expect(leaks(lab).some((x) => x.includes('figures[0].marks'))).toBe(true);
+    lab.figures = [fig({})];
+    lab.i18n.en.figures = [{ caption: 'The middle is at 4.5 V.' }];
+    expect(leaks(lab).some((x) => x.includes('i18n.en.figures[0].caption'))).toBe(true);
+  });
+
   it('part values and source settings are not leaks; "stated" questions are skipped', () => {
     const lab = load('207-measure-req.json');
     lab.hints = [...lab.hints, 'R2 是 2.2kΩ。']; // a part value close to Req ≈ 2.26 kΩ

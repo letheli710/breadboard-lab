@@ -1,0 +1,171 @@
+{
+  "$schema": "../schema/challenge.schema.json",
+  "format": "breadboard-challenge/1",
+  "id": "exp3-rlc-step-response",
+  "title": "实验 3-8 · RLC 串联阶跃响应：先算 α 和 ω0，再从示波器上读回来",
+  "kind": "challenge",
+  "level": 4,
+  "phase": 3,
+  "summary": "10 mH + 10 nF 串联，R1 依次换成 220 Ω、2 kΩ、10 kΩ。每次先比较 α 和 ω0 判断阻尼情况，再从振铃的频率和第一个峰算出 α 和 ω0。",
+  "concepts": ["二阶电路 second-order circuit", "阻尼系数 α = R/(2L)", "无阻尼自然频率 ω0 = 1/√(LC)", "阻尼振荡频率 ωd = √(ω0² − α²)", "特征根 s = −α ± √(α² − ω0²)", "超调量 overshoot"],
+  "prereq": ["lesson-generator-scope"],
+  "description": [
+    "**目标**：用方波给 RLC 串联电路加阶跃。先用 α 和 ω0 判断是过阻尼、临界阻尼还是欠阻尼，再从示波器上的波形把 α 和 ω0 读回来。实验 3-4 用电位器连续地看三种情况；这里换三个固定电阻，每个都先像课本例题一样手算。",
+    "",
+    "**电路**：信号发生器红夹子 → R1 → L1（10 mH）→ 结点 VC → C1（10 nF）→ GND，黑夹子接 GND。R1 先用 220 Ω，后面换成 10 kΩ 和 2 kΩ。",
+    "",
+    "**信号发生器**：方波，幅度 1 V、偏置 1 V（0 ↔ 2 V），频率 480 Hz。每个上升沿是一次 0 → 2 V 的阶跃，每个下降沿是一次 2 V → 0 的阶跃。半个周期约 1 ms，足够让响应完全稳定。",
+    "",
+    "**示波器**：CH1 接 VIN（R1 左端），CH2 接 VC（电容上端），两个接地夹都接 GND。",
+    "",
+    "**两个关键的数**：",
+    "- **α = R/(2L)**：阻尼系数（damping factor），单位 1/s。它说明响应衰减得多快：振荡的包络按 e^(−αt) 变小。",
+    "- **ω0 = 1/√(LC)**：无阻尼自然频率（undamped natural frequency），单位 rad/s。如果回路里没有电阻，电路就按 ω0 一直振荡下去。",
+    "- 对 u_C 列 KVL，得特征方程 s² + 2αs + ω0² = 0，两个根 s = −α ± √(α² − ω0²)。α > ω0：过阻尼，两个负实根，不振荡。α = ω0：临界阻尼，重根，不振荡、最快到达终值。α < ω0：欠阻尼，共轭复根，u_C 按阻尼振荡频率 ωd = √(ω0² − α²) 振荡。",
+    "- **R 是回路的总电阻**：R1 + 信号发生器的 50 Ω 输出电阻 + 电感线圈的 1 Ω。",
+    "",
+    "**先预测**：先算 ω0。对三个 R1 分别算 R、α，和 ω0 比，判断是哪种情况。R1 = 220 Ω 时，再算 ωd、振荡频率 fd = ωd/(2π)，以及第一个峰有多高：第一个峰出现在半个振荡周期 Td/2 处，超调量 = e^(−α·Td/2) = e^(−απ/ωd)。R1 = 10 kΩ 时，算出两个根 s1、s2，想一想哪个根决定 u_C 上升有多慢。",
+    "",
+    "**测量**：R1 = 220 Ω 时，读 VC 振荡的频率（相邻两个波峰的间隔是 Td，fd = 1/Td）和第一个峰的电压，再看下降沿之后 VC 往哪边冲。然后用你的两个读数反过来算 α 和 ω0：超调量 OS = (第一个峰 − 2 V) / 2 V = e^(−α·Td/2)，所以 α = −2·fd·ln(OS)；ω0 = √(ωd² + α²)。再把 R1 换成 10 kΩ，读上升沿从 10% 到 90% 的上升时间；最后换成 2 kΩ，看还有没有超调。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
+    "",
+    "**想一想**：R1 = 220 Ω 时，如果忘了 50 Ω 和 1 Ω，算出来的 α 会差多少？第一个峰会预测高了还是低了？",
+    "",
+    "**真实电路里**：仿真里电感线圈电阻只有 1 Ω。真实的 10 mH 小电感常有 10 ~ 30 Ω，它也串在回路里：α 更大，振荡衰减更快，第一个峰更低。用示波器量出的 α 比 R1/(2L) 大，多出来的就是信号发生器内阻和线圈电阻。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Experiment 3-8 · Series RLC step response: work out α and ω0, then read them back off the scope",
+      "summary": "10 mH and 10 nF in series, with R1 swapped between 220 Ω, 2 kΩ and 10 kΩ. Each time, compare α with ω0 to decide the damping case, then get α and ω0 back from the ringing frequency and the first peak.",
+      "concepts": ["second-order circuit", "damping factor α = R/(2L)", "undamped natural frequency ω0 = 1/√(LC)", "damped natural frequency ωd = √(ω0² − α²)", "characteristic roots s = −α ± √(α² − ω0²)", "overshoot"],
+      "description": [
+        "**Goal**: apply steps to a series RLC circuit with a square wave. First use α and ω0 to decide whether it is overdamped, critically damped or underdamped, then read α and ω0 back from the waveform on the scope. Experiment 3-4 turns a potentiometer to sweep through the three cases; here you swap in three fixed resistors and work each one out by hand first, like a textbook example.",
+        "",
+        "**Circuit**: generator red clip → R1 → L1 (10 mH) → node VC → C1 (10 nF) → GND; black clip to GND. Start with R1 = 220 Ω; later swap it for 10 kΩ and 2 kΩ.",
+        "",
+        "**Generator**: square wave, amplitude 1 V, offset 1 V (0 ↔ 2 V), 480 Hz. Every rising edge is a 0 → 2 V step and every falling edge a 2 V → 0 step. Half a period is about 1 ms, long enough for the response to settle completely.",
+        "",
+        "**Scope**: CH1 on VIN (left end of R1), CH2 on VC (top of the capacitor), both ground clips on GND.",
+        "",
+        "**The two key numbers**:",
+        "- **α = R/(2L)**: the damping factor, in 1/s. It says how fast the response dies out: the envelope of the ringing shrinks as e^(−αt).",
+        "- **ω0 = 1/√(LC)**: the undamped natural frequency, in rad/s. With no resistance in the loop, the circuit would ring at ω0 forever.",
+        "- KVL for u_C gives the characteristic equation s² + 2αs + ω0² = 0, with roots s = −α ± √(α² − ω0²). α > ω0: overdamped, two negative real roots, no ringing. α = ω0: critically damped, a repeated root, no ringing and the fastest approach to the final value. α < ω0: underdamped, complex roots, and u_C rings at the damped natural frequency ωd = √(ω0² − α²).",
+        "- **R is the total loop resistance**: R1 + the generator's 50 Ω output resistance + the inductor's 1 Ω winding.",
+        "",
+        "**Predict first**: work out ω0. For each R1, work out R and α, compare α with ω0 and decide the case. For R1 = 220 Ω also work out ωd, the ringing frequency fd = ωd/(2π), and how high the first peak goes: it comes half a ringing period after the edge, at Td/2, and the overshoot is e^(−α·Td/2) = e^(−απ/ωd). For R1 = 10 kΩ, find the two roots s1 and s2 and think about which one sets how slowly u_C rises.",
+        "",
+        "**Measure**: with R1 = 220 Ω, read the frequency VC rings at (the time between two neighbouring peaks is Td, fd = 1/Td) and the voltage of the first peak, and see which way VC swings after a falling edge. Then work α and ω0 back out of your two readings: the overshoot OS = (first peak − 2 V) / 2 V = e^(−α·Td/2), so α = −2·fd·ln(OS); and ω0 = √(ωd² + α²). Next swap R1 for 10 kΩ and read the 10% → 90% rise time of the rising edge; finally swap in 2 kΩ and see whether any overshoot is left. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
+        "",
+        "**Think about it**: with R1 = 220 Ω, how far off would α be if you forgot the 50 Ω and the 1 Ω? Would you predict the first peak too high or too low?",
+        "",
+        "**In a real circuit**: the simulated inductor has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω, also in the loop: α is larger, the ringing dies faster and the first peak is lower. The α you measure on a scope is larger than R1/(2L); the extra is the generator's output resistance and the winding resistance."
+      ],
+      "compare": [
+        "**Compare**: ω0 = 1/√(10 mH × 10 nF) = 1/√(10⁻¹⁰) = 100 000 rad/s (f0 = ω0/(2π) ≈ 15.9 kHz). The critical resistance (α = ω0) is R = 2L·ω0 = 2√(L/C) = 2 kΩ. Here α = R/(2 × 10 mH) = 50 × R (α in 1/s, R in Ω).",
+        "- **R1 = 220 Ω**: R = 220 + 50 + 1 = 271 Ω, α = 13 550 1/s < ω0 → **underdamped**. ωd = √(100 000² − 13 550²) ≈ 99 080 rad/s, fd ≈ 15.8 kHz, Td ≈ 63 µs. Overshoot e^(−π × 13 550 / 99 080) ≈ 0.65, so the first peak is ≈ 2 + 0.65 × 2 ≈ 3.30 V. A falling edge is a step down, so VC overshoots **downward** to ≈ −1.30 V. The ringing dies away with time constant 1/α ≈ 74 µs.",
+        "- Forgetting the 51 Ω would give α = 11 000 1/s (19% too small) and predict a first peak of ≈ 3.41 V, too high. With only 220 Ω in R1, the generator and coil are a fifth of the loop resistance.",
+        "- **Reading α and ω0 back**: your fd ≈ 15.8 kHz and peak ≈ 3.30 V give OS ≈ 0.65, α = −2 × 15 800 × ln 0.65 ≈ 13 600 1/s and ω0 = √((2π × 15 800)² + α²) ≈ 100 000 rad/s. Note that fd is only about 1% below f0: when α ≪ ω0, the ringing frequency is almost ω0, and the decay (the overshoot) is what tells you α.",
+        "- **Simulator readings**: the simulator reads about fd ≈ 15.6 kHz and a first peak ≈ 3.28 V, giving α ≈ 13 900 1/s and ω0 ≈ 99 100 rad/s — 1% to 3% off the values above. The simulator uses a fixed time step (about 40 steps per ringing period), and the numerical method makes the ringing slightly slower and the decay slightly faster. In a real lab the errors come from part tolerances, winding resistance and reading the grid.",
+        "- **R1 = 10 kΩ**: R = 10 051 Ω, α ≈ 502 600 1/s ≫ ω0 → **overdamped**. s1 = −α + √(α² − ω0²) ≈ −10 050 1/s and s2 ≈ −995 000 1/s. The s2 term is gone after a few µs; the slow root s1 sets the rise, like an RC charge with τ = 1/|s1| ≈ 99.5 µs: the 10% → 90% rise time ≈ τ·ln 9 ≈ 219 µs. No overshoot.",
+        "- **R1 = 2 kΩ**: R = 2051 Ω, α ≈ 102 600 1/s ≈ ω0 (2.5% above it) → **critically damped** (strictly, very slightly overdamped). VC reaches 2 V with no overshoot, and the 10% → 90% rise takes only about 3.5/ω0 ≈ 35 µs — the fastest of the three without ringing. 2√(L/C) = 2 kΩ is the textbook critical value; the extra 51 Ω tips it just past critical, which you can't see on the scope."
+      ],
+      "measurements": [
+        {"ask": "R1 = 220 Ω: the frequency fd VC rings at after an edge (measure the time Td between two neighbouring peaks, fd = 1/Td)", "explain": "Underdamped, it rings at ωd = √(ω0² − α²) ≈ 99 080 rad/s, fd ≈ 15.8 kHz, only about 1% below f0 ≈ 15.9 kHz."},
+        {"ask": "R1 = 220 Ω: VC's highest voltage (the first peak after the rising edge)", "explain": "Overshoot e^(−απ/ωd) with α = 271/(2 × 10 mH) = 13 550 1/s: ≈ 0.65, so the peak ≈ 2 + 0.65 × 2 ≈ 3.30 V — higher than the 2 V the generator jumps to."},
+        {"ask": "From your two readings: the damping factor α = −2·fd·ln((first peak − 2 V) / 2 V) (in 1/s; type just the number)", "explain": "The first peak comes at t = Td/2, where the envelope is e^(−α·Td/2). Your α should be close to R/(2L) = (220 + 50 + 1)/(2 × 10 mH) = 13 550 1/s — with only 220 Ω you would get 11 000."},
+        {"ask": "From your readings: the undamped natural frequency ω0 = √((2π·fd)² + α²)", "explain": "ωd² = ω0² − α², so ω0² = ωd² + α². It should come out close to 1/√(LC) = 100 000 rad/s, whatever R1 is."},
+        {"ask": "R1 = 220 Ω: which way does VC swing right after a falling edge (2 V → 0)?", "choices": ["Down past 0 V (a negative voltage), then it rings and settles at 0 V", "Straight down to 0 V; it never goes below 0 V", "Up above 2 V first, then down to 0 V"], "explain": "A falling edge is a step of −2 V. An underdamped circuit overshoots in the direction of the step, so VC goes past 0 V to about −1.3 V — the same overshoot fraction as on the rising edge."},
+        {"ask": "R1 = 10 kΩ: the rise time of VC from 10% to 90% (0.2 V → 1.8 V), read off the time grid", "explain": "Overdamped: s1 ≈ −10 050 1/s, s2 ≈ −995 000 1/s. The fast root dies out in a few µs, so VC rises like an RC charge with τ = 1/|s1| ≈ 99.5 µs: rise time ≈ τ·ln 9 ≈ 219 µs."},
+        {"ask": "Compare α with ω0: what are the cases for R1 = 2 kΩ and R1 = 10 kΩ?", "choices": ["2 kΩ: α ≈ ω0, critically damped; 10 kΩ: α > ω0, overdamped. Neither overshoots, and 2 kΩ reaches 2 V sooner", "2 kΩ: underdamped (it still rings); 10 kΩ: critically damped", "Both are underdamped; the ringing is just too small to see"], "explain": "2 kΩ: R = 2051 Ω, α ≈ 102 600 1/s ≈ ω0 = 100 000 rad/s (critical, rise ≈ 35 µs). 10 kΩ: α ≈ 502 600 1/s, five times ω0 — overdamped and about six times slower."}
+      ],
+      "hints": [
+        "Series order: generator → R1 → inductor → capacitor → GND. Watch the capacitor voltage on CH2.",
+        "α = R/(2L) and ω0 = 1/√(LC). R is the whole loop: R1 + 50 Ω (generator) + 1 Ω (coil).",
+        "α < ω0 rings at ωd = √(ω0² − α²); α ≥ ω0 does not ring. The critical resistance is 2√(L/C)."
+      ],
+      "tests": [
+        "R1 = 220 Ω: underdamped, overshoots past 2 V and rings",
+        "R1 = 2 kΩ: about critically damped, no overshoot",
+        "R1 = 10 kΩ: overdamped, no overshoot and a slow rise"
+      ]
+    }
+  },
+  "components": [
+    { "ref": "FG1", "type": "function_gen" },
+    { "ref": "R1", "type": "resistor" },
+    { "ref": "L1", "type": "inductor", "inductance": "10m" },
+    { "ref": "C1", "type": "capacitor", "capacitance": "10n" }
+  ],
+  "nets": [
+    { "name": "VIN", "pins": ["FG1.+", "R1.1"] },
+    { "name": "N1", "pins": ["R1.2", "L1.1"] },
+    { "name": "VC", "pins": ["L1.2", "C1.1"] },
+    { "name": "GND", "pins": ["C1.2", "FG1.-"] }
+  ],
+  "tests": [
+    {
+      "name": "R1 = 220 Ω：欠阻尼，冲过 2 V 再振荡",
+      "set": { "FG1": { "waveform": "square", "frequency": 480, "amplitude": 1, "offset": 1 }, "R1": { "resistance": "220" } },
+      "scope": [
+        { "pin": "C1.1", "measure": "vmax", "min": 3.15, "max": 3.4 },
+        { "pin": "C1.1", "measure": "vmin", "min": -1.4, "max": -1.15 }
+      ]
+    },
+    {
+      "name": "R1 = 2 kΩ：约等于临界阻尼，不超调",
+      "set": { "FG1": { "waveform": "square", "frequency": 480, "amplitude": 1, "offset": 1 }, "R1": { "resistance": "2k" } },
+      "scope": [
+        { "pin": "C1.1", "measure": "vmax", "min": 1.98, "max": 2.02 },
+        { "pin": "C1.1", "measure": "vmin", "min": -0.02, "max": 0.02 }
+      ]
+    },
+    {
+      "name": "R1 = 10 kΩ：过阻尼，不超调、上升慢",
+      "set": { "FG1": { "waveform": "square", "frequency": 480, "amplitude": 1, "offset": 1 }, "R1": { "resistance": "10k" } },
+      "scope": [
+        { "pin": "C1.1", "measure": "vmax", "min": 1.97, "max": 2.01 },
+        { "pin": "C1.1", "measure": "rise", "min": 0.0002, "max": 0.00024 }
+      ]
+    }
+  ],
+  "compare": [
+    "**对比**：ω0 = 1/√(10 mH × 10 nF) = 1/√(10⁻¹⁰) = 100 000 rad/s（f0 = ω0/(2π) ≈ 15.9 kHz）。临界电阻（α = ω0）R = 2L·ω0 = 2√(L/C) = 2 kΩ。这里 α = R/(2 × 10 mH) = 50 × R（α 的单位 1/s，R 的单位 Ω）。",
+    "- **R1 = 220 Ω**：R = 220 + 50 + 1 = 271 Ω，α = 13 550 1/s < ω0 → **欠阻尼**。ωd = √(100 000² − 13 550²) ≈ 99 080 rad/s，fd ≈ 15.8 kHz，Td ≈ 63 µs。超调量 e^(−π × 13 550 / 99 080) ≈ 0.65，所以第一个峰 ≈ 2 + 0.65 × 2 ≈ 3.30 V。下降沿是一个向下的阶跃，所以 VC **向下**冲过 0 V，到约 −1.30 V。振荡按时间常数 1/α ≈ 74 µs 衰减。",
+    "- 如果忘了那 51 Ω，会算出 α = 11 000 1/s（小了 19%），预测第一个峰 ≈ 3.41 V，偏高。R1 只有 220 Ω 时，信号发生器和线圈占了回路电阻的五分之一。",
+    "- **从读数算回 α 和 ω0**：fd ≈ 15.8 kHz、第一个峰 ≈ 3.30 V，得 OS ≈ 0.65，α = −2 × 15 800 × ln 0.65 ≈ 13 600 1/s，ω0 = √((2π × 15 800)² + α²) ≈ 100 000 rad/s。注意 fd 只比 f0 低约 1%：α ≪ ω0 时，振荡频率几乎就是 ω0，要靠衰减（超调量）才能看出 α。",
+    "- **仿真读数**：仿真大约读出 fd ≈ 15.6 kHz、第一个峰 ≈ 3.28 V，算出 α ≈ 13 900 1/s、ω0 ≈ 99 100 rad/s，和上面的理论值差 1% ~ 3%。原因是仿真用固定的时间步长（每个振荡周期约 40 步），数值方法让振荡稍慢、衰减稍快。真实实验里的误差来源则是元件容差、线圈电阻和读格子的误差。",
+    "- **R1 = 10 kΩ**：R = 10 051 Ω，α ≈ 502 600 1/s ≫ ω0 → **过阻尼**。s1 = −α + √(α² − ω0²) ≈ −10 050 1/s，s2 ≈ −995 000 1/s。s2 那一项几微秒就没了；慢的根 s1 决定上升速度，就像 τ = 1/|s1| ≈ 99.5 µs 的 RC 充电：10% → 90% 上升时间 ≈ τ·ln 9 ≈ 219 µs。没有超调。",
+    "- **R1 = 2 kΩ**：R = 2051 Ω，α ≈ 102 600 1/s ≈ ω0（大 2.5%）→ **临界阻尼**（严格说是极轻微的过阻尼）。VC 不超调地到达 2 V，10% → 90% 只要约 3.5/ω0 ≈ 35 µs——三种里不振荡又最快的一种。2√(L/C) = 2 kΩ 是课本上的临界值；多出来的 51 Ω 让它刚刚越过临界，示波器上看不出差别。"
+  ],
+  "measurements": [
+    {"id": "fring", "scope": "ring", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 480, "amplitude": 1, "offset": 1}, "R1": {"resistance": "220"}}, "unit": "kHz", "predict": true, "range": [14500, 16500], "ask": "R1 = 220 Ω：每个边沿之后 VC 振荡的频率 fd（量相邻两个波峰的间隔 Td，fd = 1/Td）", "explain": "欠阻尼时按 ωd = √(ω0² − α²) ≈ 99 080 rad/s 振荡，fd ≈ 15.8 kHz，只比 f0 ≈ 15.9 kHz 低约 1%。"},
+    {"id": "peak", "scope": "vmax", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 480, "amplitude": 1, "offset": 1}, "R1": {"resistance": "220"}}, "unit": "V", "predict": true, "range": [3.15, 3.4], "ask": "R1 = 220 Ω：VC 的最高电压（上升沿之后的第一个峰）", "explain": "超调量 e^(−απ/ωd)，α = 271/(2 × 10 mH) = 13 550 1/s：≈ 0.65，所以峰值 ≈ 2 + 0.65 × 2 ≈ 3.30 V——比信号发生器跳到的 2 V 还高。"},
+    {"id": "alpha", "formula": "-2 * fring * ln((peak - 2) / 2)", "predict": true, "range": [12000, 15500], "ask": "用你的两个读数算阻尼系数 α = −2·fd·ln((第一个峰 − 2 V) / 2 V)（单位 1/s，只填数字）", "explain": "第一个峰在 t = Td/2，那里的包络是 e^(−α·Td/2)。你的 α 应该接近 R/(2L) = (220 + 50 + 1)/(2 × 10 mH) = 13 550 1/s——只算 220 Ω 会得到 11 000。"},
+    {"id": "w0", "formula": "sqrt((2 * pi * fring)^2 + alpha^2)", "unit": "rad/s", "predict": true, "range": [95000, 105000], "ask": "用你的读数算无阻尼自然频率 ω0 = √((2π·fd)² + α²)", "explain": "ωd² = ω0² − α²，所以 ω0² = ωd² + α²。结果应该接近 1/√(LC) = 100 000 rad/s，和 R1 是多少无关。"},
+    {"id": "dir", "choices": ["向下冲过 0 V（变成负电压），再振荡着回到 0 V", "直接降到 0 V，不会低于 0 V", "先往上冲到 2 V 以上，再降到 0 V"], "correct": 0, "ask": "R1 = 220 Ω：下降沿（2 V → 0）刚过，VC 往哪边冲？", "explain": "下降沿是一个 −2 V 的阶跃。欠阻尼电路沿阶跃的方向冲过头，所以 VC 冲过 0 V 到约 −1.3 V——超调量和上升沿一样。"},
+    {"id": "tr10k", "scope": "rise", "pin": "C1.1", "set": {"FG1": {"waveform": "square", "frequency": 480, "amplitude": 1, "offset": 1}, "R1": {"resistance": "10k"}}, "unit": "µs", "predict": true, "range": [0.0002, 0.00024], "ask": "R1 = 10 kΩ：VC 从 10% 升到 90%（0.2 V → 1.8 V）的上升时间（从时间格读）", "explain": "过阻尼：s1 ≈ −10 050 1/s，s2 ≈ −995 000 1/s。快的根几微秒就衰减完了，VC 像 τ = 1/|s1| ≈ 99.5 µs 的 RC 充电一样上升：上升时间 ≈ τ·ln 9 ≈ 219 µs。"},
+    {"id": "case", "choices": ["2 kΩ：α ≈ ω0，临界阻尼；10 kΩ：α > ω0，过阻尼。两种都不超调，2 kΩ 更快到达 2 V", "2 kΩ：欠阻尼（还在振荡）；10 kΩ：临界阻尼", "两种都是欠阻尼，只是振荡太小看不见"], "correct": 0, "ask": "比较 α 和 ω0：R1 = 2 kΩ 和 R1 = 10 kΩ 各是哪种情况？", "explain": "2 kΩ：R = 2051 Ω，α ≈ 102 600 1/s ≈ ω0 = 100 000 rad/s（临界，上升约 35 µs）。10 kΩ：α ≈ 502 600 1/s，是 ω0 的五倍——过阻尼，慢了约六倍。"}
+  ],
+  "hints": [
+    "串联顺序：信号发生器 → R1 → 电感 → 电容 → GND。CH2 看电容电压。",
+    "α = R/(2L)，ω0 = 1/√(LC)。R 是整个回路的电阻：R1 + 50 Ω（信号发生器）+ 1 Ω（线圈）。",
+    "α < ω0 时按 ωd = √(ω0² − α²) 振荡；α ≥ ω0 时不振荡。临界电阻是 2√(L/C)。"
+  ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 480, "amplitude": 1, "offset": 1, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e14", "gnd": "tn21" } }
+    ]
+  },
+  "solution": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 480, "amplitude": 1, "offset": 1, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "resistor", "ref": "R1", "resistance": "220", "pins": { "1": "b3", "2": "b8" } },
+      { "type": "inductor", "ref": "L1", "inductance": "10m", "pins": { "1": "c8", "2": "c14" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "10n", "pins": { "1": "d14", "2": "tn14" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e14", "gnd": "tn21" } }
+    ]
+  }
+}
