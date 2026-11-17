@@ -26,6 +26,7 @@
     "",
     "**想一想（用相位验证）**：把方波看成它的基波（500 Hz 正弦）。积分电路的电容电压落后输入 arctan(ωτi)；微分电路的电阻电压超前输入 arctan(1/(ωτd))。记住：RC 电路叫不叫积分 / 微分电路，看的是 τ 和信号周期的比值。"
   ],
+  "startNote": "**半成品**：信号发生器（已经设好波形）和两个示波器探头已经接好。**为什么**：仪器的接法第 12、13 课练过，这个实验要看的是电路本身的波形。**你要做**：搭两条 RC 支路：微分（C1 10nF 在前、R1 10kΩ 接地，CH1 看 R1）和积分（R2 10kΩ 在前、C2 1µF 接地，CH2 看 C2）。",
   "i18n": {
     "en": {
       "title": "Experiment 3-2 · RC differentiator and integrator",
@@ -48,6 +49,7 @@
         "",
         "**Think about it (check with phase)**: think of the square wave as its fundamental (a 500 Hz sine). The integrator's capacitor voltage lags the input by arctan(ωτi); the differentiator's resistor voltage leads the input by arctan(1/(ωτd)). Remember: whether an RC circuit acts as an integrator or a differentiator depends on τ compared with the signal's period."
       ],
+      "startNote": "**Half-built**: The function generator (already set up) and both scope probes are wired. **Why**: lessons 12 and 13 covered connecting the instruments; this lab is about the circuit's own waveforms. **Your job**: build the two RC branches: differentiator (C1 10nF first, R1 10kΩ to ground, CH1 on R1) and integrator (R2 10kΩ first, C2 1µF to ground, CH2 on C2).",
       "compare": [
         "**Compare**: τd ≈ 0.1 ms, τi ≈ 10 ms.",
         "- **Differentiator (τd ≪ T/2)**: when the square wave jumps by 5 V, all 5 V first appear across the resistor: VD jumps to about ±5 V, then decays with τd and is back at 0 well within half a period. VD is a train of positive and negative spikes that appear only when the input *changes*: u_R = RC·du_C/dt ≈ RC·du_in/dt (since u_C ≈ u_in). The simulated scope takes a sample every 7.8 µs while the spike loses 63% in 0.1 ms, so the peak it reads is a little below the ideal 5 V (about 4.6 V) — a real scope with too slow a sample rate does the same. The spikes are symmetric, so their average is ≈ 0 (the capacitor blocks DC).",
@@ -129,6 +131,13 @@
     "积分：电阻在前（串联），电容接地，输出取电容电压。",
     "两条支路的起点都是信号发生器红夹子，终点都回到黑夹子（GND）。"
   ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "d8", "gnd": "tn22" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e15", "gnd": "tn23" } }
+    ]
+  },
   "solution": {
     "parts": [
       { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 500, "amplitude": 2.5, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },

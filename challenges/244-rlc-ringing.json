@@ -26,6 +26,7 @@
     "",
     "**真实电路里**：仿真里电感的线圈电阻只有 1 Ω。真实的 10 mH 小电感线圈电阻常在 10 ~ 30 Ω（见实验 4-5），它和电位器、信号发生器内阻一样串在回路里，使 R总 更大、振荡衰减得更快：5% 时的超调会明显小于 60%，电位器拧到 0 也达不到 ζ ≈ 0.08。"
   ],
+  "startNote": "**半成品**：信号发生器（已经设好波形）和两个示波器探头已经接好。**为什么**：仪器的接法第 12、13 课练过，这个实验要看的是电路本身的波形。**你要做**：搭 RLC 串联：电位器（当可变电阻，滑动端和一端短接）→ L1（10mH）→ C1（100nF）→ GND，CH2 看电容。",
   "i18n": {
     "en": {
       "title": "Experiment 3-4 · Series RLC ringing: under-, critically and over-damped",
@@ -48,6 +49,7 @@
         "",
         "**In a real circuit**: the simulated inductor has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω (see Experiment 4-5); it sits in the loop just like the pot and the generator's resistance, so R_total is larger and the ringing dies faster: the overshoot at 5% is clearly less than 60%, and even with the pot at 0 ζ cannot get down to 0.08."
       ],
+      "startNote": "**Half-built**: The function generator (already set up) and both scope probes are wired. **Why**: lessons 12 and 13 covered connecting the instruments; this lab is about the circuit's own waveforms. **Your job**: build the series RLC: potentiometer (as a variable resistor, wiper tied to one end) → L1 (10mH) → C1 (100nF) → GND, with CH2 on the capacitor.",
       "compare": [
         "**Compare**: f0 = 1/(2π√(10 mH × 100 nF)) ≈ 5.03 kHz; critical resistance 2√(10 mH / 100 nF) ≈ 632 Ω.",
         "- **5% (50 Ω, R_total ≈ 101 Ω, ζ ≈ 0.16, underdamped)**: u_C shoots past 2 V and rings at ≈ 5 kHz inside an e^(−αt) envelope (1/α = 2L/R ≈ 0.2 ms). The first peak overshoots by e^(−πζ/√(1−ζ²)) ≈ 60%, reaching ≈ 2 + 2 × 0.6 ≈ 3.2 V — the capacitor voltage exceeds the source voltage! The falling edge likewise undershoots below 0 V, down to about −1.2 V.",
@@ -130,6 +132,13 @@
     "串联顺序：信号发生器 → 电位器 → 电感 → 电容 → GND，看电容电压。",
     "临界阻尼：R总 = 2√(L/C) ≈ 632 Ω，R总里要算上信号发生器的 50 Ω。"
   ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1, "pins": { "+": "b5", "-": "tn3" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e5", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e14", "gnd": "tn21" } }
+    ]
+  },
   "solution": {
     "parts": [
       { "type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 200, "amplitude": 1, "offset": 1, "pins": { "+": "b5", "-": "tn3" } },

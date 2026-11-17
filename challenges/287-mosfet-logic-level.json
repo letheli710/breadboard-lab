@@ -46,6 +46,7 @@
     "",
     "**模型说明**：电机是 8 Ω + 2 mH，没有反电动势，所以平均电流比真实电机（转起来后电流会下降）大。MOSFET 用分段线性的平方律模型，没有栅极电容和开关损耗；真实 MOSFET 在 PWM 时还要考虑栅极驱动能力。"
   ],
+  "startNote": "**半成品**：ESP32、5 V 电机电源（下方轨道）、两组地线、电机和续流二极管都已接好。**为什么**：负载和电源是重复技能；这里要学的是 MOSFET 的栅极驱动。**你要做**：放 IRLZ44N（c21：G、D、S），加 RG（100Ω，GPIO4 → 栅极）、RPD（100kΩ，栅极 → GND），再把源极接 GND。",
   "i18n": {
     "en": {
       "title": "Experiment 5-8 · Logic-level MOSFET: a 3.3 V pin switches a high-current motor",
@@ -88,6 +89,7 @@
         "",
         "**Model note**: the motor is 8 Ω + 2 mH with no back-EMF, so currents are higher than for a real spinning motor (whose current drops once it is up to speed). The MOSFET uses a piecewise-linear square-law model without gate capacitance or switching losses; a real PWM design also has to consider gate-drive strength."
       ],
+      "startNote": "**Half-built**: the ESP32, the 5 V motor supply (bottom rails), both ground jumpers, the motor and its flyback diode are wired. **Why**: the load and supply are repeated skills; the MOSFET gate drive is the lesson. **Your job**: place the IRLZ44N (c21: G, D, S), add RG (100Ω, GPIO4 → gate) and RPD (100kΩ, gate → GND), and tie the source to GND.",
       "compare": [
         "**Compare**: expected readings:",
         "- Region: a MOSFET used as a switch must be in the **ohmic region**, not \"saturation\" — a MOSFET's saturation region is its constant-current region, the opposite of a BJT's \"saturation\".",
@@ -382,6 +384,63 @@
     "电机接在 +5 V 和 D 之间；二极管并在电机两端，有环的一端（负极）朝 +5 V。",
     "稳压电源调到 5 V、限流 1 A，它的 − 接开发板 GND。"
   ],
+  "start": {
+    "parts": [
+      {
+        "type": "esp32_devkit",
+        "ref": "U1",
+        "at": "b1",
+        "props": {
+          "usb": true,
+          "modes": {
+            "GPIO4": "out_high"
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "color": "black",
+        "pins": {
+          "a": "a1",
+          "b": "tn1"
+        }
+      },
+      {
+        "type": "bench_supply",
+        "ref": "PS1",
+        "voltage": 5,
+        "currentLimit": 1,
+        "pins": {
+          "+": "bp30",
+          "-": "bn30"
+        }
+      },
+      {
+        "type": "wire",
+        "color": "black",
+        "pins": {
+          "a": "bn29",
+          "b": "tn29"
+        }
+      },
+      {
+        "type": "motor",
+        "ref": "M1",
+        "pins": {
+          "+": "bp25",
+          "-": "d22"
+        }
+      },
+      {
+        "type": "diode",
+        "ref": "D1",
+        "pins": {
+          "anode": "e22",
+          "cathode": "bp26"
+        }
+      }
+    ]
+  },
   "solution": {
     "parts": [
       {

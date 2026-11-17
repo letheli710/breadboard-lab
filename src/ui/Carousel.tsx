@@ -16,7 +16,7 @@ const groupTip = (g: Group) =>
     ? tr('入门挑战：面包板、电源、LED', 'Intro challenges: breadboard, power, LEDs')
     : [
         tr('第 1 期：KCL/KVL、分压分流、电桥、电流源', 'Phase 1: KCL/KVL, dividers, bridge, current source'),
-        tr('第 2 期：叠加、戴维宁、最大功率、运放', 'Phase 2: superposition, Thevenin, max power, op-amps'),
+        tr('第 2 期：叠加、戴维宁、最大功率、op-amp', 'Phase 2: superposition, Thevenin, max power, op-amps'),
         tr('第 3 期：暂态（RC / RL / RLC）', 'Phase 3: transients (RC / RL / RLC)'),
         tr('第 4 期：正弦稳态与频率响应', 'Phase 4: AC steady state and frequency response'),
         tr(

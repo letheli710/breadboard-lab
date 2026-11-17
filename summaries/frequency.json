@@ -147,11 +147,11 @@
     },
     {
       "id": "active",
-      "title": "运放构成的一阶有源滤波器",
+      "title": "op-amp 构成的一阶有源滤波器",
       "text": [
-        "理想运放的反相放大器公式对阻抗同样成立：H(jω) = −\\frac{Z_f}{Z_1}。反馈支路 R_f∥C_f 给出**低通** H = −\\frac{R_f}{R_1}·\\frac{1}{1 + jωR_fC_f}；输入支路 R_1 串 C_1 给出**高通** H = −\\frac{R_f}{R_1}·\\frac{jωR_1C_1}{1 + jωR_1C_1}；两者都有就是**带通**。",
+        "理想 op-amp（运算放大器）的反相放大器公式对阻抗同样成立：H(jω) = −\\frac{Z_f}{Z_1}。反馈支路 R_f∥C_f 给出**低通** H = −\\frac{R_f}{R_1}·\\frac{1}{1 + jωR_fC_f}；输入支路 R_1 串 C_1 给出**高通** H = −\\frac{R_f}{R_1}·\\frac{jωR_1C_1}{1 + jωR_1C_1}；两者都有就是**带通**。",
         "转折频率由与电容相关的那一个 RC 决定（低通 1/(R_fC_f)，高通 1/(R_1C_1)），通带增益为 −R_f/R_1。反相放大器的相位要多加 180°。",
-        "有源滤波器的输出由运放驱动，接负载不改变 H，通带增益可以大于 1；输入阻抗就是 Z_1（反相端虚地）。"
+        "有源滤波器的输出由 op-amp 驱动，接负载不改变 H，通带增益可以大于 1；输入阻抗就是 Z_1（反相端虚地）。"
       ],
       "problems": ["frequency-08-active-lowpass", "frequency-09-active-highpass", "frequency-14-active-bandpass"],
       "i18n": {
@@ -252,7 +252,7 @@
       "idea": "active",
       "name": "反相有源滤波器",
       "expr": "H(jω) = −\\frac{Z_f}{Z_1}",
-      "when": "理想运放，同相端接地，线性工作区；Z_1 为输入支路阻抗，Z_f 为反馈支路阻抗。",
+      "when": "理想 op-amp（运算放大器），同相端接地，线性工作区；Z_1 为输入支路阻抗，Z_f 为反馈支路阻抗。",
       "i18n": { "en": { "name": "Inverting active filter", "expr": "H(jω) = −\\frac{Z_f}{Z_1}", "when": "Ideal op-amp, non-inverting input grounded, linear region; Z_1 input-branch impedance, Z_f feedback-branch impedance." } }
     }
   ],
@@ -328,7 +328,7 @@
       "id": "buffered-lp",
       "ideas": ["first-order", "active", "netfunc"],
       "title": "RC 低通加同相放大器：有源低通",
-      "statement": "R = 1 kΩ、C = 1 µF 组成 RC 低通，电容电压 u_a 送入理想运放构成的同相放大器（R_1 = 10 kΩ，R_f = 10 kΩ），输出端接负载 R_L = 1 kΩ。U̇_s = 1∠0° V（有效值），ω = 1000 rad/s。求 H(jω) = U̇_o/U̇_s 在该频率下的模、分贝值和相位，以及直流增益和截止频率。",
+      "statement": "R = 1 kΩ、C = 1 µF 组成 RC 低通，电容电压 u_a 送入理想 op-amp（运算放大器）构成的同相放大器（R_1 = 10 kΩ，R_f = 10 kΩ），输出端接负载 R_L = 1 kΩ。U̇_s = 1∠0° V（有效值），ω = 1000 rad/s。求 H(jω) = U̇_o/U̇_s 在该频率下的模、分贝值和相位，以及直流增益和截止频率。",
       "schematic": {
         "elements": [
           { "ref": "Us", "type": "V", "from": [0, 5], "to": [0, 9], "value": { "ac": { "mag": 1, "phase": 0 } }, "label": "1∠0° V" },
@@ -363,11 +363,11 @@
         { "id": "fc", "ask": "f_c", "find": { "kind": "fc", "out": ["o"], "input": "Us" }, "answer": 159.1549, "unit": "Hz" }
       ],
       "steps": [
-        "1. **RC 部分。** 运放同相输入端不取电流（虚断），所以电容右边相当于开路：U̇_a/U̇_s = 1/(1 + jωRC)，ω_c = 1/(RC) = 1/(10³ × 10⁻⁶) = **1000 rad/s**。",
+        "1. **RC 部分。** op-amp（运算放大器）同相输入端不取电流（虚断），所以电容右边相当于开路：U̇_a/U̇_s = 1/(1 + jωRC)，ω_c = 1/(RC) = 1/(10³ × 10⁻⁶) = **1000 rad/s**。",
         "2. **同相放大器。** 虚短：u_{−} = u_a，R_1、R_f 分压得 U̇_o = (1 + R_f/R_1)U̇_a = 2U̇_a。",
         "3. **网络函数。** H(jω) = \\frac{2}{1 + jω/ω_c}：直流增益 **2**（**6.02 dB**），ω → ∞ 时 → 0，是一阶有源低通，**f_c = 159.2 Hz**。",
         "4. **ω = 1000 rad/s。** 正好 ω = ω_c：H = 2/(1 + j) = 1.414∠**−45°**，20lg|H| = **3.01 dB**，比直流增益低 3 dB。",
-        "5. **负载不影响 H。** 输出由运放直接驱动，R_L 取多少 U̇_o 都不变；如果把 R_L 直接接在电容两端（没有运放），截止频率和增益都会改变。"
+        "5. **负载不影响 H。** 输出由 op-amp 直接驱动，R_L 取多少 U̇_o 都不变；如果把 R_L 直接接在电容两端（没有 op-amp），截止频率和增益都会改变。"
       ],
       "i18n": {
         "en": {

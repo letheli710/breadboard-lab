@@ -24,6 +24,7 @@
     "",
     "**真实电路里**：仿真里线圈电阻只有 1 Ω，所以 Z0 高达 100 kΩ。真实的 10 mH 小电感线圈电阻常在 10 ~ 30 Ω，Z0 会降到几 kΩ，峰值也会低很多、宽很多——这正是“品质因数”这个名字的来历。"
   ],
+  "startNote": "**半成品**：信号发生器（已经设好波形）和两个示波器探头已经接好。**为什么**：仪器的接法第 12、13 课练过，这个实验要看的是电路本身的波形。**你要做**：R1（10kΩ）从信号发生器接到第 10 列，再把 L1（10mH）和 C1（100nF）**并联**在第 10 列和 GND 之间。",
   "i18n": {
     "en": {
       "title": "Experiment 4-5 · Parallel LC resonance (tank): let only one frequency through",
@@ -44,6 +45,7 @@
         "",
         "**In a real circuit**: the simulated coil has only 1 Ω of winding resistance, so Z0 reaches 100 kΩ. A real small 10 mH inductor often has 10–30 Ω, which brings Z0 down to a few kΩ and makes the peak much lower and wider — which is where the name \"quality factor\" comes from."
       ],
+      "startNote": "**Half-built**: The function generator (already set up) and both scope probes are wired. **Why**: lessons 12 and 13 covered connecting the instruments; this lab is about the circuit's own waveforms. **Your job**: run R1 (10kΩ) from the generator to column 10, then put L1 (10mH) and C1 (100nF) **in parallel** between column 10 and GND.",
       "compare": [
         "**Compare**:",
         "- At f0 = 1/(2π√(LC)) ≈ 5033 Hz the inductor's and capacitor's susceptances cancel, leaving only a tiny real part, so the tank impedance peaks: Z0 ≈ L/(rC) = 10 mH / (1 Ω × 100 nF) = 100 kΩ.",
@@ -139,6 +141,13 @@
     "f0 时槽路像一个很大的电阻；偏离 f0 时它像一个小电感或小电容。",
     "在峰值附近要慢慢调：通带很窄。"
   ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e10", "gnd": "tn21" } }
+    ]
+  },
   "solution": {
     "parts": [
       { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },

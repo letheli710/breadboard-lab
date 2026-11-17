@@ -22,6 +22,7 @@
     "",
     "**真实电路里**：测量仪器本身也是负载。仿真里的示波器探头是理想的；真实示波器输入约 1 MΩ 并联十几 pF（×10 探头约 10 MΩ），接在这里 10 kΩ 级的结点上影响约 1% 或更小。但如果电路阻抗到了几百 kΩ，探头就会像这里的第二级一样明显改变读数。"
   ],
+  "startNote": "**半成品**：信号发生器（已经设好波形）和两个示波器探头已经接好；第一级高通（C1 15nF + R1 10kΩ）也已搭好。**为什么**：仪器的接法第 12、13 课练过，这个实验要看的是电路本身的波形。**你要做**：在第一级后面直接接第二级低通：R2（10kΩ，第 8 列 → 第 14 列）、C2（15nF，第 14 列 → GND），看它怎样把第一级“压低”。",
   "i18n": {
     "en": {
       "title": "Experiment 4-7 · Two-stage RC band-pass: loading between the stages",
@@ -40,6 +41,7 @@
         "",
         "**In a real circuit**: the measuring instrument is a load too. The simulated scope probes are ideal; a real scope input is about 1 MΩ in parallel with ten-odd pF (about 10 MΩ with a ×10 probe), which changes these 10 kΩ-level nodes by about 1% or less. With circuit impedances of several hundred kΩ, though, the probe would shift the readings just as the second stage does here."
       ],
+      "startNote": "**Half-built**: The function generator (already set up) and both scope probes are wired. Stage 1, the high-pass (C1 15nF + R1 10kΩ), is built as well. **Why**: lessons 12 and 13 covered connecting the instruments; this lab is about the circuit's own waveforms. **Your job**: hang stage 2, the low-pass, straight on stage 1: R2 (10kΩ, column 8 → column 14) and C2 (15nF, column 14 → GND), and see how it drags stage 1 down.",
       "compare": [
         "**Compare**:",
         "- **The naive estimate**: fc = 1/(2π × 10 kΩ × 15 nF) ≈ 1061 Hz, so in series they should give 0.5∠0°.",
@@ -143,6 +145,15 @@
     "第二级（低通）：R2 从 A 接到 B，C2 从 B 接到 GND。",
     "结点 A 上有三个元件：C1、R1、R2。"
   ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "capacitor", "ref": "C1", "capacitance": "15n", "pins": { "1": "b3", "2": "b8" } },
+      { "type": "resistor", "ref": "R1", "resistance": "10k", "pins": { "1": "c8", "2": "tn8" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e14", "gnd": "tn21" } }
+    ]
+  },
   "solution": {
     "parts": [
       { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },

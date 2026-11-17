@@ -10,12 +10,14 @@
   "concepts": ["current source 电流源", "CC / CV mode 恒流 / 恒压", "compliance voltage 输出电压上限", "rheostat 可变电阻"],
   "prereq": ["lesson-bench-supply", "lesson-ammeter"],
   "description": "**目标**：理论课里的“理想电流源”在实验室里怎么得到？最常用的办法就是稳压电源的**恒流（CC）模式**。\n\n**设置电源**：选中稳压电源，电压设 **12 V**，限流（current limit）设 **0.01 A**（10 mA）。\n\n**电路**：电源 + → 电流表 AM1（红表笔接 +）→ R1（470Ω）→ 红色 LED → 电位器 RV1（1kΩ，当可变电阻用）→ 电源 −。\n\nRV1 的接法：1 脚接 LED 负极，滑动端（中间脚 2）和 3 脚连在一起接 GND。这样 1 脚和滑动端之间的电阻 = 1kΩ × 旋钮位置（0% = 0Ω，100% = 1kΩ）。\n\n**原理**：电源先试着输出 12 V；如果这样电流会超过 10 mA，它就自动把电压降下来，让电流正好是 10 mA，面板上的 CC 灯亮。要维持 10 mA，电路需要的电压是 V = 1.8 V（LED）+ 10 mA × (470 + 12 + R_RV1)Ω。\n\n**先预测**：用上面的式子，算出 RV1 在 0%、40%、100% 时电路需要的电压。哪几种情况电源能维持 10 mA（需要的电压 < 12 V）？维持不了时，电流是多少？\n\n**测量**：转动 RV1 到 0%、40%、100%，每次看电流表读数和电源的输出电压、CC/CV 指示。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**结论**：在 CC 模式下，负载电阻变了，电流不变、电压跟着变——这正是电流源的定义。\n\n**真实电路里**：真实电流源有一个**输出电压上限**（这里是设定的 12 V，叫 compliance voltage）：负载太大时它就不再是电流源了。",
+  "startNote": "**半成品**：负载已经搭好——电流表、470Ω、LED 和当作可变电阻的电位器串在一起。**为什么**：这些接法第 10 课和挑战 3 都练过；这个实验要学的是怎么把稳压电源设成电流源。**你要做**：放上稳压电源（+ 接 tp1，− 接 tn1），设成 12 V、限流 10 mA，再转电位器看电流和电压怎么变。",
   "i18n": {
     "en": {
       "title": "Experiment 1-4 · Bench supply in CC mode: a current source",
       "summary": "Set the current limit to 10 mA so the supply runs in constant-current mode: whatever the load, the current stays 10 mA, until the voltage runs out.",
       "concepts": ["current source", "CC / CV mode", "compliance voltage", "rheostat"],
       "description": "**Goal**: how do you get the \"ideal current source\" of circuit theory in a real lab? The usual way is the **constant-current (CC) mode** of a bench supply.\n\n**Set the supply**: select the bench supply, set the voltage to **12 V** and the current limit to **0.01 A** (10 mA).\n\n**Circuit**: supply + → ammeter AM1 (red lead at +) → R1 (470Ω) → red LED → potentiometer RV1 (1kΩ, used as a variable resistor) → supply −.\n\nHow RV1 is wired: pin 1 to the LED's cathode, the wiper (middle pin 2) and pin 3 joined together to GND. Then the resistance between pin 1 and the wiper is 1kΩ × knob position (0% = 0Ω, 100% = 1kΩ).\n\n**How it works**: the supply first tries to output 12 V; if that would push the current above 10 mA, it lowers its voltage until the current is exactly 10 mA, and the CC indicator lights. To keep 10 mA flowing, the circuit needs V = 1.8 V (LED) + 10 mA × (470 + 12 + R_RV1)Ω.\n\n**Predict first**: with that formula, work out the voltage the circuit needs with RV1 at 0%, 40% and 100%. In which cases can the supply hold 10 mA (needed voltage < 12 V)? When it cannot, what current flows?\n\n**Measure**: turn RV1 to 0%, 40% and 100%; each time read the ammeter, the supply's output voltage and its CC/CV indicator. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Conclusion**: in CC mode the load resistance changes, the current stays put and the voltage follows. That is exactly what a current source is.\n\n**In a real circuit**: a real current source has a **maximum output voltage** (here the 12 V setting, called the compliance voltage): with too big a load it stops being a current source.",
+      "startNote": "**Half-built**: the load is wired — ammeter, 470Ω, LED and a potentiometer used as a variable resistor, all in series. **Why**: lesson 10 and challenge 3 covered that wiring; this lab is about setting a bench supply up as a current source. **Your job**: place the bench supply (+ to tp1, − to tn1), set it to 12 V with a 10 mA limit, then turn the pot and watch the current and voltage.",
       "compare": "**Compare**:\n- 0% (RV1 = 0Ω): needs 1.8 + 4.82 ≈ 6.6 V < 12 V → CC mode, I ≈ **10 mA**, supply output ≈ **6.63 V**;\n- 40% (RV1 = 400Ω): needs ≈ 10.6 V, still < 12 V → the current is still **10 mA**, the output rises to ≈ **10.61 V**;\n- 100% (RV1 = 1kΩ): needs ≈ 16.6 V > 12 V, more than the supply can give → back to CV mode at 12 V, and the current drops to (12 − 1.8) / 1482Ω ≈ **6.88 mA**.\n\nThe simulator shows 9.99 mA in CC mode; the missing 0.01 mA is a tiny error of the supply model.",
       "measurements": [
         {"ask": "RV1 at 0%: ammeter AM1 reading", "explain": "The circuit needs 1.8 + 10 mA × 482 Ω ≈ 6.6 V < 12 V, so the supply goes CC and the current is the 10 mA limit."},
@@ -86,6 +88,17 @@
     "电位器当可变电阻用：1 脚接 LED 的负极，中间的滑动端和 3 脚用一根跳线连起来，再接 GND。",
     "电流表串在电源 + 和 R1 之间，红表笔朝电源 +。"
   ],
+  "start": {
+    "parts": [
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "b3", "-": "b6"}},
+      {"type": "resistor", "ref": "R1", "resistance": "470", "pins": {"1": "c6", "2": "c10"}},
+      {"type": "led", "ref": "LED1", "color": "red", "pins": {"anode": "d10", "cathode": "d13"}},
+      {"type": "potentiometer", "ref": "RV1", "resistance": "1k", "at": "a13"},
+      {"type": "wire", "pins": {"a": "b14", "b": "b15"}, "color": "yellow"},
+      {"type": "wire", "pins": {"a": "c15", "b": "tn15"}, "color": "blue"}
+    ]
+  },
   "solution": {
     "parts": [
       {"type": "bench_supply", "ref": "PSU1", "voltage": 12, "currentLimit": 0.01, "pins": {"+": "tp1", "-": "tn1"}},

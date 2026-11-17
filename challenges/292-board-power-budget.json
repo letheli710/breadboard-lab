@@ -49,6 +49,7 @@
     "",
     "**模型说明**：USB 被模拟成 5 V 串 0.25 Ω，超过 500 mA 只给诊断、不会真的断电；LDO 限流是理想的恒流；芯片功耗是一个固定电阻（Blue Pill 约 20 mA），不随时钟和外设变化；10 Ω 电阻的功率不做检查，真实电路要用功率电阻。"
   ],
+  "startNote": "**找错**：整块板的负载都已经接好，但 10Ω 的大负载 RL 插在了 **3V3 轨**上，把板载 LDO 拖进了限流。**为什么**：这个实验要学的是电源预算，不是接线。**你要做**：把 RL 挪到能供得起它的那条电源轨（5V，下方轨道），其他不动。",
   "i18n": {
     "en": {
       "title": "Experiment 5-13 · Powering the breadboard from the board: the 3V3 / 5V current budget",
@@ -94,6 +95,7 @@
         "",
         "**Model note**: USB is 5 V behind 0.25 Ω; above 500 mA you get a diagnostic but the power is not actually cut. The LDO current limit is an ideal constant current. The chip is a fixed resistor (about 20 mA on the Blue Pill) that ignores clock speed and peripherals. The 10 Ω resistor's power is not checked — a real circuit needs a power resistor."
       ],
+      "startNote": "**Fix-it**: every load on the board is wired, but the big 10Ω load RL sits on the **3V3 rail** and drags the on-board LDO into current limit. **Why**: this lab is about the power budget, not wiring. **Your job**: move RL to the rail that can supply it (5V, the bottom rails) and leave everything else.",
       "compare": [
         "**Compare** (simulated):",
         "- Start (RL on 3V3): the load wants 3.3 V / 10 Ω = 330 mA; with the chip's 20 mA that is over 300 mA, so the LDO goes into **current limit** and 3V3 sags to **2.79 V**. RL only gets 279 mA, PB13 output HIGH is only 2.69 V, LED1 drops from 3.9 mA to 2.6 mA and the green LED dims (0.68 mA). The LDO dissipates (4.58 − 2.79) V × 0.3 A ≈ 0.54 W — a tiny SOT-23 regulator gets too hot to touch.",

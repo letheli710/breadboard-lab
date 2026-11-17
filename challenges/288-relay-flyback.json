@@ -40,6 +40,7 @@
     "",
     "**模型说明**：线圈是 70 Ω + 150 mH，电流 ≥ 53 mA 吸合、< 7 mA 释放，没有机械动作时间。没有二极管时仿真的尖峰约 29 V（受仿真步长和三极管关断过程限制），真实电路里还可能更高，直到三极管 C–E 击穿（约 40 V）。本题的目标电路把电池 − 接到 GND，只是为了让万用表和示波器有同一个参考点；真实项目里负载侧可以完全独立。"
   ],
+  "startNote": "**半成品（故意缺一个元件）**：除了续流二极管 D1，整个继电器电路都搭好了；GPIO4 设成 10 Hz 的 PWM，让继电器反复开关、把问题放大。**为什么**：先在诊断里看到线圈断电时的反向高压。**你要做**：加上 D1（反并在线圈两端：负极朝 +5V），再把 GPIO4 设回“输出高”。",
   "i18n": {
     "en": {
       "title": "Experiment 5-9 · Relay + flyback diode: clamp the coil's turn-off spike",
@@ -76,6 +77,7 @@
         "",
         "**Model note**: the coil is 70 Ω + 150 mH, pulling in at ≥ 53 mA and releasing below 7 mA, with no mechanical delay. Without the diode the simulated spike is about 29 V (limited by the time step and the transistor's turn-off); a real circuit can go higher, up to the transistor's C–E breakdown (about 40 V). In this task the target joins the battery − to GND only so the meter and scope share one reference point; in a real project the load side can be fully separate."
       ],
+      "startNote": "**Half-built (one part deliberately missing)**: the whole relay circuit is built except flyback diode D1; GPIO4 runs a 10 Hz PWM so the relay keeps switching and the problem shows up clearly. **Why**: see the coil's turn-off spike in diagnostics first. **Your job**: add D1 (reverse-biased across the coil: cathode toward +5V), then set GPIO4 back to \"output high\".",
       "compare": [
         "**Compare**: relay on/off and the LED; Q1 saturated; coil current ≈ 63 mA; with PWM the scope's Vmax on the collector ≈ 5.4 V, proof that the spike is clamped. If Vmax is far above 5 V, the diode is missing or reversed: its band (cathode) goes to the 5V end.",
         "",

@@ -2,7 +2,7 @@
   "$schema": "../schema/summary.schema.json",
   "format": "chapter-summary/1",
   "chapter": "opamp",
-  "intro": "含理想运放的电路只多了两条规则：**虚短**和**虚断**。其余的仍然是 KCL、KVL 和欧姆定律。关键是**只在运放的输入端列方程**，运放的输出端电流是未知的，不能用来列 KCL。",
+  "intro": "含理想 op-amp（运算放大器）的电路只多了两条规则：**虚短**和**虚断**。其余的仍然是 KCL、KVL 和欧姆定律。关键是**只在 op-amp 的输入端列方程**，op-amp 的输出端电流是未知的，不能用来列 KCL。",
   "i18n": {
     "en": {
       "intro": "Circuits with ideal op-amps add only two rules: **virtual short** and **virtual open**. Everything else is still KCL, KVL and Ohm's law. The key is to **write equations only at the op-amp input nodes**: the output current of an op-amp is unknown, so the output node gives no usable KCL equation."
@@ -11,9 +11,9 @@
   "ideas": [
     {
       "id": "ideal",
-      "title": "理想运放：虚短与虚断",
+      "title": "理想 op-amp：虚短与虚断",
       "text": [
-        "理想运放的开环放大倍数 A → ∞、输入电阻 R_i → ∞、输出电阻 R_o = 0。接有**负反馈**（输出经电阻或导线接回反相端）并工作在线性区时，得到两条规则：",
+        "理想 op-amp（运算放大器）的开环放大倍数 A → ∞、输入电阻 R_i → ∞、输出电阻 R_o = 0。接有**负反馈**（输出经电阻或导线接回反相端）并工作在线性区时，得到两条规则：",
         "- **虚短**：u_{+} = u_{−}（两个输入端电位相等，但并没有用导线连起来）；",
         "- **虚断**：i_{+} = i_{−} = 0（两个输入端都不取电流）。",
         "同相端接地时，反相端电位也为零，称为**虚地**——它的电位是零，但电流不能从这里流进“地”。"
@@ -33,10 +33,10 @@
     },
     {
       "id": "output",
-      "title": "运放的输出端：电流由 KCL 求",
+      "title": "op-amp 的输出端：电流由 KCL 求",
       "text": [
-        "虚断只约束**输入端**。输出端相当于一个受控电压源（输出电阻为零），它可以提供或吸收任意大小的电流，这个电流由运放的电源供给，事先未知。",
-        "所以：**不要对运放的输出结点列 KCL 来求电压**；要求流出运放输出端的电流 i_o 时，先求出各支路电流，再对输出结点列 KCL。",
+        "虚断只约束**输入端**。输出端相当于一个受控电压源（输出电阻为零），它可以提供或吸收任意大小的电流，这个电流由 op-amp（运算放大器）的电源供给，事先未知。",
+        "所以：**不要对 op-amp 的输出结点列 KCL 来求电压**；要求流出 op-amp 输出端的电流 i_o 时，先求出各支路电流，再对输出结点列 KCL。",
         "也因为输出电阻为零，u_o 不随负载变化：负载电阻改变，u_o 不变，只是 i_o 变了。"
       ],
       "problems": ["opamp-04-current-input-inverting", "opamp-03-voltage-follower", "opamp-08-two-stage-cascade"],
@@ -113,10 +113,10 @@
     },
     {
       "id": "cascade",
-      "title": "多级运放电路",
+      "title": "多级 op-amp 电路",
       "text": [
-        "理想运放输出电阻为零，后一级不会改变前一级的输出电压，所以**没有级间反馈时可以逐级计算**，总放大倍数等于各级放大倍数之积。",
-        "如果后级输出又经电阻接回前级的输入端（级间反馈），就不能逐级算了：每个运放写出它的虚短、虚断约束，再对各运放的**输入端**结点列方程联立求解。"
+        "理想 op-amp（运算放大器）输出电阻为零，后一级不会改变前一级的输出电压，所以**没有级间反馈时可以逐级计算**，总放大倍数等于各级放大倍数之积。",
+        "如果后级输出又经电阻接回前级的输入端（级间反馈），就不能逐级算了：每个 op-amp 写出它的虚短、虚断约束，再对各 op-amp 的**输入端**结点列方程联立求解。"
       ],
       "problems": ["opamp-08-two-stage-cascade", "opamp-13-two-opamp-loop", "opamp-14-instrumentation-amp"],
       "i18n": {
@@ -131,9 +131,9 @@
     },
     {
       "id": "nodal",
-      "title": "用结点电压法分析运放电路",
+      "title": "用结点电压法分析 op-amp 电路",
       "text": [
-        "一般方法：1. 以地为参考点；2. 对运放的**输入端**结点和其他普通结点列结点电压方程（输入端支路电流为零，虚断）；3. 每个运放补一个虚短方程 u_{+} = u_{−}；4. **不对运放输出结点列方程**（输出电流未知），u_o 作为未知量出现在别的方程里。",
+        "一般方法：1. 以地为参考点；2. 对 op-amp（运算放大器）的**输入端**结点和其他普通结点列结点电压方程（输入端支路电流为零，虚断）；3. 每个 op-amp 补一个虚短方程 u_{+} = u_{−}；4. **不对 op-amp 输出结点列方程**（输出电流未知），u_o 作为未知量出现在别的方程里。",
         "反馈支路是 T 形网络、负载接在别处时，都按这个步骤做，不必记各种电路的公式。"
       ],
       "problems": ["opamp-10-t-network-feedback", "opamp-12-howland-current-source", "opamp-13-two-opamp-loop", "opamp-07-noninverting-summer"],
@@ -151,10 +151,10 @@
       "id": "resistance",
       "title": "输入电阻、电流源与负电阻",
       "text": [
-        "求运放电路的输入电阻用**外加电源法**：在端口加电压 u，求流入的电流 i，R_in = u/i。理想运放可以做出普通电阻做不到的端口特性。",
-        "- 负载接在反馈支路里（浮地负载）：负载电流 i_L = u_s/R_1 与 R_L 无关，相当于电压控制电流源；但要求 u_o 不超出运放输出范围。",
+        "求 op-amp（运算放大器）电路的输入电阻用**外加电源法**：在端口加电压 u，求流入的电流 i，R_in = u/i。理想 op-amp 可以做出普通电阻做不到的端口特性。",
+        "- 负载接在反馈支路里（浮地负载）：负载电流 i_L = u_s/R_1 与 R_L 无关，相当于电压控制电流源；但要求 u_o 不超出 op-amp 输出范围。",
         "- 豪兰德电流源：R_2/R_1 = R_4/R_3 时接地负载的电流 i_L = u_s/R_3，与负载无关。",
-        "- 负阻抗变换器（NIC）：输入电阻为负（−R_1R_3/R_2），这一端口实际向外**发出**功率，能量来自运放的电源。"
+        "- 负阻抗变换器（NIC）：输入电阻为负（−R_1R_3/R_2），这一端口实际向外**发出**功率，能量来自 op-amp 的电源。"
       ],
       "problems": ["opamp-04-current-input-inverting", "opamp-09-vccs-floating-load", "opamp-11-negative-resistance", "opamp-12-howland-current-source"],
       "i18n": {
@@ -176,7 +176,7 @@
       "idea": "ideal",
       "name": "虚短、虚断",
       "expr": "u_{+} = u_{−}；i_{+} = i_{−} = 0",
-      "when": "理想运放，有负反馈并工作在线性区（输出未饱和）。虚断只针对两个输入端，输出端电流不为零。",
+      "when": "理想 op-amp（运算放大器），有负反馈并工作在线性区（输出未饱和）。虚断只针对两个输入端，输出端电流不为零。",
       "i18n": { "en": { "name": "Virtual short, virtual open", "expr": "u_{+} = u_{−}; i_{+} = i_{−} = 0", "when": "Ideal op-amp with negative feedback, in its linear region (output not saturated). The virtual open applies to the two inputs only; the output current is not zero." } }
     },
     {
@@ -224,15 +224,15 @@
       "idea": "cascade",
       "name": "级联的放大倍数",
       "expr": "\\frac{u_o}{u_s} = A_1A_2…",
-      "when": "各级之间没有反馈（理想运放输出电阻为零，后级不影响前级）。",
+      "when": "各级之间没有反馈（理想 op-amp 输出电阻为零，后级不影响前级）。",
       "i18n": { "en": { "name": "Gain of a cascade", "expr": "\\frac{u_o}{u_s} = A_1A_2…", "when": "No feedback between stages (zero output resistance: a stage does not load the one before it)." } }
     },
     {
       "id": "io",
       "idea": "output",
-      "name": "运放输出电流",
+      "name": "op-amp 输出电流",
       "expr": "i_o = Σ（从输出结点流向各支路的电流）",
-      "when": "对输出结点列 KCL，i_o 为流出运放输出端的电流；只能在其他量求出之后用。",
+      "when": "对输出结点列 KCL，i_o 为流出 op-amp（运算放大器）输出端的电流；只能在其他量求出之后用。",
       "i18n": { "en": { "name": "Op-amp output current", "expr": "i_o = Σ (currents leaving the output node into the branches)", "when": "KCL at the output node, i_o leaving the op-amp output terminal; use it only after everything else is known." } }
     },
     {
@@ -257,7 +257,7 @@
       "id": "inv-load",
       "ideas": ["inverting", "output", "ideal"],
       "title": "带负载的反相放大器：输出电流从哪里来",
-      "statement": "图示反相放大器中 u_s = 2 V，R_1 = 5 kΩ，R_f = 20 kΩ，负载 R_L = 10 kΩ，运放为理想运放。求 i_1、u_o、负载电流 i_L 和流出运放输出端的电流 i_o。",
+      "statement": "图示反相放大器中 u_s = 2 V，R_1 = 5 kΩ，R_f = 20 kΩ，负载 R_L = 10 kΩ，op-amp（运算放大器）为理想 op-amp。求 i_1、u_o、负载电流 i_L 和流出 op-amp 输出端的电流 i_o。",
       "schematic": {
         "elements": [
           { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": 2, "label": "u_s" },
@@ -298,7 +298,7 @@
         "3. **虚断：** 反相端不取电流，结点 n 的 KCL 给出 i_f = i_1 = **0.4 mA**（从 n 流向 o）。",
         "4. **输出电压：** u_o = u_n − R_f·i_f = 0 − 20k × 0.4 mA = **−8 V**，即 −(R_f/R_1)u_s。负载 R_L 不出现在这一步里：u_o 与负载无关。",
         "5. **负载电流：** i_L = u_o/R_L = **−0.8 mA**（实际向上流）。",
-        "6. **输出电流（输出结点 o 的 KCL）：** 流出运放的 i_o 加上从 R_f 流来的 i_f 等于流进 R_L 的 i_L：i_o = i_L − i_f = −0.8 − 0.4 = **−1.2 mA**。负号表示运放的输出端实际在**吸收**电流——这个电流不受虚断约束，由运放的电源承担。"
+        "6. **输出电流（输出结点 o 的 KCL）：** 流出 op-amp（运算放大器）的 i_o 加上从 R_f 流来的 i_f 等于流进 R_L 的 i_L：i_o = i_L − i_f = −0.8 − 0.4 = **−1.2 mA**。负号表示 op-amp 的输出端实际在**吸收**电流——这个电流不受虚断约束，由 op-amp 的电源承担。"
       ],
       "i18n": {
         "en": {
@@ -320,7 +320,7 @@
       "id": "nodal-noninv",
       "ideas": ["nodal", "difference", "noninverting"],
       "title": "同相端有分压的同相放大器（结点电压法）",
-      "statement": "图示电路中 u_s = 3 V，R_1 = 10 kΩ，R_2 = 20 kΩ，R_g = 10 kΩ，R_f = 30 kΩ，运放为理想运放。用结点电压法求同相端电位 u_p、输出电压 u_o，以及 R_1、R_g、R_f 中的电流。",
+      "statement": "图示电路中 u_s = 3 V，R_1 = 10 kΩ，R_2 = 20 kΩ，R_g = 10 kΩ，R_f = 30 kΩ，op-amp（运算放大器）为理想 op-amp。用结点电压法求同相端电位 u_p、输出电压 u_o，以及 R_1、R_g、R_f 中的电流。",
       "schematic": {
         "elements": [
           { "ref": "Us", "type": "V", "from": [0, 3], "to": [0, 7], "value": 3, "label": "u_s" },
@@ -357,7 +357,7 @@
         { "id": "uo", "ask": "u_o", "find": { "kind": "v", "nodes": ["o"] }, "answer": 8, "unit": "V" }
       ],
       "steps": [
-        "以地为参考点，未知量 u_p、u_n、u_o。运放输出端电流未知，**只对 p、n 两个输入端结点列方程**。",
+        "以地为参考点，未知量 u_p、u_n、u_o。op-amp（运算放大器）输出端电流未知，**只对 p、n 两个输入端结点列方程**。",
         "1. **结点 p（虚断，同相端不取电流）：** (u_p − u_s)/R_1 + u_p/R_2 = 0 → (u_p − 3)/10 + u_p/20 = 0（单位 kΩ、mA）→ **u_p = 2 V**；R_1 中 i_1 = (3 − 2)/10k = **0.1 mA**。",
         "2. **虚短：** u_n = u_p = 2 V，所以 i_g = u_n/R_g = **0.2 mA**。",
         "3. **结点 n（虚断）：** u_n/R_g + (u_n − u_o)/R_f = 0 → 0.2 + (2 − u_o)/30 = 0 → **u_o = 8 V**。",
@@ -385,7 +385,7 @@
     {
       "id": "kcl-output",
       "idea": "output",
-      "text": "对运放输出结点列 KCL 并把运放输出电流当成零。虚断只适用于两个输入端；输出端电流未知，要么不在那里列方程，要么最后用 KCL 求出它。",
+      "text": "对 op-amp（运算放大器）输出结点列 KCL 并把 op-amp 输出电流当成零。虚断只适用于两个输入端；输出端电流未知，要么不在那里列方程，要么最后用 KCL 求出它。",
       "i18n": { "en": { "text": "Writing KCL at the op-amp output node with the op-amp output current taken as zero. The virtual open applies only to the inputs; the output current is unknown — either write no equation there, or find it last with KCL." } }
     },
     {
@@ -409,13 +409,13 @@
     {
       "id": "stage-loop",
       "idea": "cascade",
-      "text": "有级间反馈（后级输出接回前级输入）时仍然逐级套公式。此时要把所有运放的约束和输入端结点方程联立求解。",
+      "text": "有级间反馈（后级输出接回前级输入）时仍然逐级套公式。此时要把所有 op-amp（运算放大器）的约束和输入端结点方程联立求解。",
       "i18n": { "en": { "text": "Applying the stage-by-stage formulas when a later output feeds back to an earlier input. Then all op-amp constraints and input-node equations must be solved together." } }
     },
     {
       "id": "saturation",
       "idea": "resistance",
-      "text": "忘了实际运放的输出电压有上限：算出的 u_o 超过电源电压时，运放已经饱和，虚短不再成立（例如浮地负载电流源的 R_L 不能任意大）。",
+      "text": "忘了实际 op-amp（运算放大器）的输出电压有上限：算出的 u_o 超过电源电压时，op-amp 已经饱和，虚短不再成立（例如浮地负载电流源的 R_L 不能任意大）。",
       "i18n": { "en": { "text": "Forgetting that a real op-amp's output is limited: if the computed u_o exceeds the supply, the op-amp saturates and the virtual short no longer holds (e.g. R_L of a floating-load current source cannot be arbitrarily large)." } }
     }
   ]

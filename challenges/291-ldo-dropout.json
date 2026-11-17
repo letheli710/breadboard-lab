@@ -38,6 +38,7 @@
     "",
     "**模型说明**：LDO 模型：稳压 / 压差（输出 = 输入 − 1.1 V − 0.2 Ω × I）/ 限流 800 mA / 关断，静态电流 5 mA。ESP32 的负载按约 50 mA 建模，没有 Wi-Fi 的电流尖峰；欠压阈值取 2.5 V（真实芯片的欠压检测约 2.4–2.8 V，而且官方要求 3.0–3.6 V 才保证正常工作）。电容在直流下不起作用，这里只是检查有没有接。"
   ],
+  "startNote": "**半成品**：稳压电源、ESP32（拔掉 USB）、GND 线和 GPIO4 → 330Ω → LED 的负载已经接好。**为什么**：这个实验的重点就是稳压器怎么接。**你要做**：放 LM1117（c22：GND、OUT、IN），GND 脚接地、IN 脚接 + 轨，输入和输出各加一个 10µF 到 GND，再把 OUT 接到 ESP32 的 3V3 脚（j1）。",
   "i18n": {
     "en": {
       "title": "Experiment 5-12 · LM1117 regulator and dropout: why a Li-ion cell + AMS1117 fails",
@@ -72,6 +73,7 @@
         "",
         "**Model note**: the LDO model has regulate / dropout (out = in − 1.1 V − 0.2 Ω × I) / current limit 800 mA / off, with 5 mA quiescent current. The ESP32 load is about 50 mA without Wi-Fi bursts; brown-out is at 2.5 V (a real chip's brown-out detector sits around 2.4–2.8 V, and Espressif only guarantees operation at 3.0–3.6 V). Capacitors do nothing at DC; here they are only checked for being present."
       ],
+      "startNote": "**Half-built**: the bench supply, the ESP32 (USB unplugged), its GND wire and the GPIO4 → 330Ω → LED load are wired. **Why**: how the regulator is wired is the point of this lab. **Your job**: place the LM1117 (c22: GND, OUT, IN), ground its GND pin, IN to the + rail, a 10µF from input and from output to GND, then OUT to the ESP32's 3V3 pin (j1).",
       "compare": [
         "**Compare** (simulated):",
         "- **5 V**: regulating, OUT = **3.30 V**; load ≈ **56 mA**, the supply gives 61 mA (the extra 5 mA is the regulator's own quiescent current). Dissipation P = (5.0 − 3.3) × 0.056 ≈ **0.12 W**, efficiency 66 %.",
@@ -175,6 +177,15 @@
     "IN 到 GND 一个 10 µF，OUT 到 GND 一个 10 µF；OUT 接 ESP32 的 3V3 脚。",
     "选中 ESP32，把 usb 关掉——否则它从 USB 取电，实验就看不出效果。"
   ],
+  "start": {
+    "parts": [
+      { "type": "bench_supply", "ref": "PS1", "voltage": 5, "currentLimit": 0.5, "pins": { "+": "tp30", "-": "tn30" } },
+      { "type": "esp32_devkit", "ref": "U1", "at": "b1", "props": { "usb": false, "modes": { "GPIO4": "out_high" } } },
+      { "type": "wire", "color": "black", "pins": { "a": "a1", "b": "tn1" } },
+      { "type": "resistor", "ref": "R1", "resistance": "330", "pins": { "1": "a13", "2": "a27" } },
+      { "type": "led", "ref": "LED1", "color": "red", "pins": { "anode": "b27", "cathode": "tn27" } }
+    ]
+  },
   "solution": {
     "parts": [
       { "type": "bench_supply", "ref": "PS1", "voltage": 5, "currentLimit": 0.5, "pins": { "+": "tp30", "-": "tn30" } },

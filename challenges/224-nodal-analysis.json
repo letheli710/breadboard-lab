@@ -10,12 +10,14 @@
   "concepts": ["nodal analysis 结点电压法", "current source 电流源", "reference direction 参考方向", "negative current 负电流"],
   "prereq": ["lesson-multimeter"],
   "description": "**目标**：用结点电压法求解一个含电压源和电流源的电路，然后在面包板上测量验证。\n\n**电路**（GND 为参考结点）：\n- V1：9 V 电压源，+ 端经 R1（1kΩ）接结点 N1；\n- N1 → R2（2.2kΩ）→ GND；N1 → R3（1kΩ）→ 结点 N2；N2 → R4（3.3kΩ）→ GND；\n- PSU2：稳压电源 12 V、限流 0.005 A（CC 模式 = 5 mA 电流源），+ 端接 N2，− 端接 GND。\n\n**先预测**：对 N1、N2 列结点方程（单位用 V、mA、kΩ，电导 mS），解出 U1、U2；再求各支路电流 I_R1、I_R3、I_R4（参考方向都按“从前一个结点流向后一个”）。电流源直接写在方程右边（流入结点为正），电压源串电阻写成 V/R。\n\n**测量**：用万用表测 N1、N2 对 GND 的电压和电流源的输出电流，再测或算出三条支路电流。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。",
+  "startNote": "**半成品**：9 V 电压源 PSU1 和 R1–R4 的网络已经搭好。**为什么**：电阻网络是重复技能；这个实验的新东西是同时接一个电流源。**你要做**：放上第二台稳压电源 PSU2（下方轨道），设成 CC 模式 5 mA，接好 tn↔bn 的地线和把电流注入 R3、R4 之间那个结点（第 13 列）的两根跳线。",
   "i18n": {
     "en": {
       "title": "Experiment 2-4 · Nodal analysis: a voltage source plus a current source",
       "summary": "A 9 V voltage source and a 5 mA current source (CC mode) feed a two-node network: write the node equations for U1 and U2, then measure them.",
       "concepts": ["nodal analysis", "current source", "reference direction", "negative current"],
       "description": "**Goal**: solve a circuit with a voltage source and a current source by nodal analysis, then check it on the breadboard.\n\n**Circuit** (GND is the reference node):\n- V1: 9 V voltage source, its + terminal through R1 (1kΩ) to node N1;\n- N1 → R2 (2.2kΩ) → GND; N1 → R3 (1kΩ) → node N2; N2 → R4 (3.3kΩ) → GND;\n- PSU2: bench supply at 12 V with a 0.005 A limit (CC mode = a 5 mA current source), + to N2, − to GND.\n\n**Predict first**: write the node equations for N1 and N2 (units V, mA, kΩ; conductances in mS) and solve for U1 and U2; then find the branch currents I_R1, I_R3, I_R4 (each reference direction \"from the first node to the second\"). A current source goes straight to the right-hand side (positive when it flows into the node); a voltage source in series with a resistor becomes V/R.\n\n**Measure**: with the multimeter, measure N1 and N2 to GND and the current source's output current, then measure or compute the three branch currents. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.",
+      "startNote": "**Half-built**: the 9 V source PSU1 and the R1–R4 network are wired. **Why**: the resistor network is a repeated skill; the new thing is a current source on the same circuit. **Your job**: place the second bench supply PSU2 (bottom rails), set it to CC mode at 5 mA, and wire the tn↔bn ground jumper and the two jumpers that inject the current into the node between R3 and R4 (column 13).",
       "compare": "**Compare**:\n- Node equations: N1: (1/1 + 1/2.2 + 1/1) U1 − (1/1) U2 = 9/1, i.e. 2.4545 U1 − U2 = 9; N2: −(1/1) U1 + (1/1 + 1/3.3) U2 = 5, i.e. −U1 + 1.3030 U2 = 5. Solution: **U1 ≈ 7.61 V, U2 ≈ 9.68 V**.\n- Simulator readings: U1 ≈ 7.60 V, U2 ≈ 9.67 V, current source output ≈ 4.99 mA (CC mode gives 0.01 mA less than 5 mA, hence the slightly lower values).\n- I_R1 = (9 − 7.60) / 1k ≈ **1.40 mA**; I_R3 = (U1 − U2) / 1k ≈ **−2.06 mA** (the minus sign says the current really flows from N2 to N1); I_R4 = 9.67 / 3.3k ≈ **2.93 mA**; KCL at N2: 4.99 = 2.06 + 2.93 ✔.\n\n**Think about it**: U2 ≈ 9.67 V is higher than the 9 V voltage source: a current source pushes its node to whatever voltage it takes. As long as that is below PSU2's 12 V setting, the supply stays in CC mode and remains a current source.",
       "measurements": [
         {"ask": "Multimeter: N1 to GND, U1", "explain": "Solving 2.4545 U1 − U2 = 9 and −U1 + 1.3030 U2 = 5 gives U1 ≈ 7.6 V."},
@@ -80,6 +82,16 @@
     "PSU2 设 12 V、限流 0.005 A，它的 + 端接 N2（R3、R4 和它共用一列）。",
     "可以用一根跨凹槽的短跳线把同一列的上下两半连起来，方便把 N2 引到下方电源轨。"
   ],
+  "start": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp4", "b": "a4"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b4", "2": "b8"}},
+      {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c8", "2": "tn10"}},
+      {"type": "resistor", "ref": "R3", "resistance": "1k", "pins": {"1": "d8", "2": "d13"}},
+      {"type": "resistor", "ref": "R4", "resistance": "3.3k", "pins": {"1": "c13", "2": "tn15"}}
+    ]
+  },
   "solution": {
     "parts": [
       {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},

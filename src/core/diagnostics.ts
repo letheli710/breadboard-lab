@@ -236,7 +236,7 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
         severity: 'warning',
         title: tr(`${c.ref} 没有接电源`, `${c.ref} has no power`),
         detail: tr(
-          `运放必须供电才能工作：8 脚 V+ 接电源正极（+ 轨），4 脚 V− 接 GND（或负电源）。${!vpOk ? '现在 8 脚悬空。' : ''}${!vnOk ? '现在 4 脚悬空。' : ''}${vpOk && vnOk ? `现在 V+ 和 V− 之间只有 ${volts(st?.supply ?? 0)}（LM358 至少要 3 V）。` : ''}`,
+          `op-amp（运算放大器）必须供电才能工作：8 脚 V+ 接电源正极（+ 轨），4 脚 V− 接 GND（或负电源）。${!vpOk ? '现在 8 脚悬空。' : ''}${!vnOk ? '现在 4 脚悬空。' : ''}${vpOk && vnOk ? `现在 V+ 和 V− 之间只有 ${volts(st?.supply ?? 0)}（LM358 至少要 3 V）。` : ''}`,
           `An op-amp needs power to work: pin 8 (V+) to the supply + (the + rail), pin 4 (V−) to GND (or a negative supply).${!vpOk ? ' Pin 8 is floating now.' : ''}${!vnOk ? ' Pin 4 is floating now.' : ''}${vpOk && vnOk ? ` There is only ${volts(st?.supply ?? 0)} between V+ and V− now (the LM358 needs at least 3 V).` : ''}`,
         ),
         refs: [c.ref],
@@ -252,7 +252,7 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
             `${c.ref} input floating: ${floating.map((t) => terminalLabel(c, t)).join(', ')}`,
           ),
           detail: tr(
-            '运放的输入几乎不取电流，悬空的输入电压是不确定的（会拾取噪声），输出会乱跳或撞到电源轨。每个用到的运放，IN+ 和 IN− 都必须接到电路上。',
+            'op-amp（运算放大器）的输入几乎不取电流，悬空的输入电压是不确定的（会拾取噪声），输出会乱跳或撞到电源轨。每个用到的 op-amp，IN+ 和 IN− 都必须接到电路上。',
             'An op-amp input draws almost no current, so a floating input sits at an undefined voltage (it picks up noise) and the output jumps around or slams into a rail. For every half you use, both IN+ and IN− must be connected.',
           ),
           refs: [c.ref],
@@ -266,7 +266,7 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
             severity: 'warning',
             title: tr(`${c.ref} 的输出直接接在电源上`, `${c.ref}'s output is wired straight to a supply`),
             detail: tr(
-              `${terminalLabel(c, h.out)} 和电源的 + 或 − 在同一个结点上。运放输出是“电压源”，不能和另一个电压源硬连在一起——会有很大的电流，输出被短路。检查是不是插错了列。`,
+              `${terminalLabel(c, h.out)} 和电源的 + 或 − 在同一个结点上。op-amp 输出是“电压源”，不能和另一个电压源硬连在一起——会有很大的电流，输出被短路。检查是不是插错了列。`,
               `${terminalLabel(c, h.out)} is on the same node as a supply terminal. An op-amp output is a voltage source and must not be tied straight to another voltage source — a large current flows and the output is shorted. Check for a leg in the wrong column.`,
             ),
             refs: [c.ref],
@@ -290,7 +290,7 @@ function instrumentDiagnostics(nl: BoardNetlist, sim: SimResult): Issue[] {
     if (outs.length > 1)
       out.push({
         severity: 'warning',
-        title: tr('两个运放输出连在了一起', 'Two op-amp outputs are connected together'),
+        title: tr('两个 op-amp 输出连在了一起', 'Two op-amp outputs are connected together'),
         detail: tr(
           `${outs.join('、')} 在同一个结点（${net}）上。两个输出都想决定这个点的电压，会互相“打架”，大电流从一个流进另一个。每个输出只能驱动输入或负载。`,
           `${outs.join(', ')} are on the same node (${net}). Both outputs try to set that voltage and fight each other, with a large current flowing between them. Each output should drive only inputs or loads.`,

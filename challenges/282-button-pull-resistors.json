@@ -46,6 +46,7 @@
     "",
     "**模型说明**：输入被视为无穷大阻抗，“浮空”判定为到任何东西的直流阻抗 > 50 MΩ（浮空时显示的电压只是一个占位值）。没有模拟抖动、漏电流和噪声。"
   ],
+  "startNote": "**找错 + 搭完**：ESP32、电源轨和按键 SW1（3V3 → GPIO34）已经接好，但 GPIO34 **没有下拉电阻**，是浮空输入。**为什么**：先在诊断里看到“浮空输入”是什么样子。**你要做**：加上 R1（10kΩ，GPIO34 → GND 下拉），再把 SW2 接在 GPIO33 和 GND 之间，并把 GPIO33 设成“输入 上拉”。",
   "i18n": {
     "en": {
       "title": "Experiment 5-3 · Pull-ups and pull-downs for buttons: never leave an input floating",
@@ -88,6 +89,7 @@
         "",
         "**Model note**: inputs are treated as infinite impedance; \"floating\" means the DC impedance to everything exceeds 50 MΩ (the voltage shown for a floating pin is just a placeholder). Bounce, leakage and noise are not simulated."
       ],
+      "startNote": "**Fix, then finish**: the ESP32, the rails and button SW1 (3V3 → GPIO34) are wired, but GPIO34 has **no pull-down** and floats. **Why**: see what a floating input looks like in diagnostics first. **Your job**: add R1 (10kΩ pull-down, GPIO34 → GND), then wire SW2 between GPIO33 and GND and set GPIO33 to \"input pull-up\".",
       "compare": [
         "**Compare**: expected readings:",
         "- Both released: IN1 reads **0** (R1 pulls it to 0 V), IN2 reads **1** (internal pull-up to 3.3 V).",

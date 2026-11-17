@@ -10,12 +10,14 @@
   "concepts": ["superposition 叠加定理", "zeroing a voltage source = short 电压源置零 = 短路", "linearity 线性", "power is not superposable 功率不能叠加"],
   "prereq": ["lesson-ammeter", "lesson-multimeter"],
   "description": "**目标**：线性电路中，多个独立源共同作用的响应 = 每个源单独作用的响应之和。\n\n**电路**：两台稳压电源 V1 = 9 V、V2 = 5 V，负极连在一起作为 GND。\n- S1：a 侧接 V1 的 +，b 侧接 GND，com → R1（1kΩ）→ 结点 N；\n- S2：a 侧接 V2 的 +，b 侧接 GND，com → R2（2.2kΩ）→ 结点 N；\n- N → 电流表 AM1（红表笔接 N）→ R3（3.3kΩ）→ GND。\n\n**怎么让一个电源“不起作用”**：叠加定理里“电压源置零”是把它换成**短路**，不是断开！开关拨到 b，就是把 R1（或 R2）的那一端从电源上拿下来接到 GND——相当于这个电源变成了一根导线。\n\n**先预测**：用结点电压法 U_N = (V1/R1 + V2/R2) / (1/R1 + 1/R2 + 1/R3)，分别算出只有 V1、只有 V2、两个都接时的 U_N 和 R3 的电流 I3。检查：两个单独作用的 I3 加起来，是否等于一起作用时的 I3？R3 的功率也能这样相加吗？\n\n**测量**：开关依次拨到（a, b）、（b, a）、（a, a），每次读 AM1，并测 N 点对 GND 的电压。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**想一想**：只有 V2 时，R1 的电流是 −1.29 mA——电流从 N 经 R1 流到 GND，方向和两个电源都接时相反。",
+  "startNote": "**半成品**：两台电源、R1、R2、R3 和测 R3 电流的电流表已经搭好。**为什么**：叠加定理的关键操作是“把一个电源换成导线”，这正是两个拨动开关做的事。**你要做**：加上 S1、S2 和它们的四根跳线：每个开关的一侧接电源 +、另一侧接 GND，中间接电阻。",
   "i18n": {
     "en": {
       "title": "Experiment 2-1 · Superposition: two supplies one at a time, then together",
       "summary": "A 9 V and a 5 V supply drive R3 together. Two switches replace each supply with a wire; measure each one alone, then both: the currents add up exactly.",
       "concepts": ["superposition", "zeroing a voltage source = short circuit", "linearity", "power is not superposable"],
       "description": "**Goal**: in a linear circuit, the response to several independent sources together equals the sum of the responses to each source alone.\n\n**Circuit**: two bench supplies V1 = 9 V and V2 = 5 V, negatives joined as GND.\n- S1: side a to V1 +, side b to GND, com → R1 (1kΩ) → node N;\n- S2: side a to V2 +, side b to GND, com → R2 (2.2kΩ) → node N;\n- N → ammeter AM1 (red lead at N) → R3 (3.3kΩ) → GND.\n\n**How to \"switch off\" a source**: in superposition, zeroing a voltage source means replacing it with a **short circuit**, not opening it! Switching to b takes that end of R1 (or R2) off the supply and puts it on GND: the source has become a wire.\n\n**Predict first**: with nodal analysis, U_N = (V1/R1 + V2/R2) / (1/R1 + 1/R2 + 1/R3), work out U_N and R3's current I3 with V1 only, V2 only and both on. Check: do the two single-source values of I3 add up to the value with both on? Can R3's power be added the same way?\n\n**Measure**: set the switches to (a, b), (b, a) and (a, a); each time read AM1 and measure N to GND. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Think about it**: with V2 alone, R1's current is −1.29 mA: current flows from N through R1 to GND, the opposite way to when both sources are on.",
+      "startNote": "**Half-built**: both supplies, R1, R2, R3 and the ammeter on R3 are wired. **Why**: the key move in superposition is \"replace a source by a wire\" — exactly what the two slide switches do. **Your job**: add S1, S2 and their four jumpers: one side of each switch to its supply's +, the other side to GND, the middle to the resistor.",
       "compare": "**Compare**: the denominator is 1 + 0.4545 + 0.3030 = 1.7576 mS.\n- V1 only (S1→a, S2→b): U_N = 9 / 1.7576 ≈ **5.12 V**, I3 ≈ **1.55 mA**;\n- V2 only (S1→b, S2→a): U_N = 2.273 / 1.7576 ≈ **1.29 V**, I3 ≈ **0.39 mA**;\n- both on (a, a): U_N ≈ **6.41 V**, I3 ≈ **1.94 mA** = 1.55 + 0.39 ✔.\n\nIf the readings don't add up, first make sure the \"zeroed\" switch is on b (to GND), not left floating.\n\n**Power does not superpose**: R3's power is P = I²R. Alone: 1.55² × 3.3 ≈ 7.9 mW and 0.39² × 3.3 ≈ 0.5 mW, together 8.4 mW; but with both sources on it is 1.94² × 3.3 ≈ 12.5 mW. Power goes with the square of the current, so it is not linear.",
       "measurements": [
         {"ask": "V1 only (S1→a, S2→b): AM1 reading I3′", "explain": "U_N = 9 / 1.7576 ≈ 5.12 V, I3′ = U_N / 3.3 kΩ ≈ 1.55 mA."},
@@ -88,6 +90,18 @@
     "开关的 a 侧接电源 +，b 侧接 GND（一定是接 GND，不是空着），中间 com 接电阻。",
     "电流表红表笔接结点 N，黑表笔接 R3。"
   ],
+  "start": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "bench_supply", "ref": "PSU2", "voltage": 5, "currentLimit": 0.1, "pins": {"+": "bp1", "-": "bn1"}},
+      {"type": "wire", "pins": {"a": "tn3", "b": "bn3"}, "color": "blue"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "d6", "2": "d12"}},
+      {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "g6", "2": "g12"}},
+      {"type": "wire", "pins": {"a": "f12", "b": "e12"}, "color": "yellow"},
+      {"type": "ammeter", "ref": "AM1", "pins": {"+": "c12", "-": "c16"}},
+      {"type": "resistor", "ref": "R3", "resistance": "3.3k", "pins": {"1": "b16", "2": "tn17"}}
+    ]
+  },
   "solution": {
     "parts": [
       {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},

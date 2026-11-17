@@ -434,7 +434,7 @@ const KIND: Record<string, [string, string]> = {
   ammeter: ['电流表', 'ammeter'],
   voltmeter: ['电压表', 'voltmeter'],
   NR: ['非线性电阻', 'nonlinear resistor'],
-  OPAMP: ['理想运放', 'ideal op-amp'],
+  OPAMP: ['理想 op-amp', 'ideal op-amp'],
   XFMR: ['变压器', 'transformer'],
   K: ['耦合', 'coupling'],
   TL: ['传输线', 'transmission line'],

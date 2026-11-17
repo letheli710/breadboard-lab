@@ -151,6 +151,8 @@ export interface Challenge {
   prereq?: string[];
   solution?: Layout;
   start?: Layout;
+  /** with a `start` layout: what is pre-built, why, and what the student adds ("" = none) */
+  startNote?: string;
   tolerance: number;
   allowExtraComponents: boolean;
   /** language the text fields ended up in (the file's base language when no translation fits) */
@@ -1028,6 +1030,8 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
 
   const solution = parseLayout(json.solution, refs, 'solution', errors);
   const start = parseLayout(json.start, refs, 'start', errors);
+  if (json.startNote !== undefined && json.start === undefined)
+    warnings.push(tr('"startNote" 只在有 "start" 布局时显示', '"startNote" is only shown when there is a "start" layout'));
   const opts = isObj(json.options) ? json.options : {};
 
   let phase: ChallengePhase | undefined;
@@ -1055,6 +1059,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     prereq: strs(json.prereq),
     solution,
     start,
+    startNote: textOf(tx.startNote) || textOf(json.startNote),
     tolerance: typeof opts.tolerance === 'number' ? opts.tolerance : 0.05,
     allowExtraComponents: opts.allowExtraComponents === true,
     textLang: Object.keys(tx).length ? getLang() : baseLang,

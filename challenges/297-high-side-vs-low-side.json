@@ -49,6 +49,7 @@
     "",
     "**模型说明**：NPN 是 0.65 V + 20 Ω 的 BE 结 + 恒定 β，饱和 Vce = 0.15 V + 1 Ω × Ic；继电器线圈 70 Ω + 150 mH，53 mA 吸合、7 mA 释放（直流测试里不考虑吸合后的保持电流比吸合电流小）；ESP32 输出级是 25 Ω。"
   ],
+  "startNote": "**半成品**：ESP32、5 V 电源、两个继电器 K1、K2 和它们的续流二极管都已接好。**为什么**：这个实验只比较三极管放在负载上面还是下面。**你要做**：放两只 NPN 和两个 1kΩ 基极电阻（GPIO18 → Q1，GPIO19 → Q2）；Q1 放在 K1 上面（集电极接 +5V），Q2 放在 K2 下面（发射极接 GND）。",
   "i18n": {
     "en": {
       "title": "Experiment 5-18 · High side or low side: why a 3.3 V pin can't drive an NPN \"above\" the load",
@@ -94,6 +95,7 @@
         "",
         "**Model note**: the NPN is a 0.65 V + 20 Ω B–E junction with constant β and saturation Vce = 0.15 V + 1 Ω × Ic; the relay coil is 70 Ω + 150 mH, pulling in at 53 mA and dropping out at 7 mA (the DC tests ignore that the hold current is lower than the pull-in current); the ESP32 output stage is 25 Ω."
       ],
+      "startNote": "**Half-built**: the ESP32, the 5 V supply, relays K1 and K2 and their flyback diodes are wired. **Why**: this lab only compares a transistor above the load with one below it. **Your job**: place the two NPNs and two 1kΩ base resistors (GPIO18 → Q1, GPIO19 → Q2); Q1 goes above K1 (collector to +5V), Q2 below K2 (emitter to GND).",
       "compare": [
         "**Compare: high side**: V_E = 3.29 V − 0.23 mA × 1 kΩ − 0.65 V ≈ **2.41 V** (simulated 2.41 V). The coil only gets 2.41 V / 70 Ω ≈ **34 mA**, below the 53 mA pull-in current — **K1 does not pull in**. The remaining 5V − 2.41 V ≈ **2.26 V** sits across C–E: Q1 is in the **active region** and wastes 77 mW.",
         "- A 12 V supply instead of 5V doesn't help: the emitter is still at 2.4 V, there is just more voltage (and heat) across the transistor.",
@@ -393,6 +395,84 @@
     "每个线圈各并一个反向二极管：色环朝线圈电位更高的一端。",
     "两个基极各串一个 1 kΩ，分别接两个不同的输出 GPIO。"
   ],
+  "start": {
+    "parts": [
+      {
+        "type": "esp32_devkit",
+        "ref": "U1",
+        "at": "b1",
+        "props": {
+          "usb": true,
+          "modes": {
+            "GPIO18": "out_low",
+            "GPIO19": "out_high"
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W1",
+        "color": "black",
+        "pins": {
+          "a": "a1",
+          "b": "tn1"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W2",
+        "color": "red",
+        "pins": {
+          "a": "h19",
+          "b": "tp19"
+        }
+      },
+      {
+        "type": "relay",
+        "ref": "K1",
+        "at": "e20"
+      },
+      {
+        "type": "diode",
+        "ref": "D1",
+        "pins": {
+          "anode": "b23",
+          "cathode": "b20"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W3",
+        "color": "black",
+        "pins": {
+          "a": "a23",
+          "b": "tn23"
+        }
+      },
+      {
+        "type": "relay",
+        "ref": "K2",
+        "at": "e25"
+      },
+      {
+        "type": "wire",
+        "ref": "W6",
+        "color": "red",
+        "pins": {
+          "a": "a25",
+          "b": "tp25"
+        }
+      },
+      {
+        "type": "diode",
+        "ref": "D2",
+        "pins": {
+          "anode": "b28",
+          "cathode": "b25"
+        }
+      }
+    ]
+  },
   "solution": {
     "parts": [
       {

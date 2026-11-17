@@ -10,12 +10,14 @@
   "concepts": ["maximum power transfer 最大功率传输", "RL = Req", "Pmax = Uoc² / (4Req)", "efficiency 效率"],
   "prereq": ["lesson-ammeter", "lesson-multimeter"],
   "description": "**目标**：负载电阻取多大时，从电源网络得到的功率最大？\n\n**电路**：实验 2-2 的网络（+9V → R1 1kΩ → A；A → R2 2.2kΩ → GND；A → R3 470Ω → T），T → 电流表 AM1（红表笔接 T）→ 负载 RV1 → GND。RV1 是 2.2kΩ 电位器当可变电阻：1 脚接电流表黑表笔，滑动端和 3 脚连在一起接 GND，RL = 2.2kΩ × 旋钮位置。\n\n**先预测**：网络等效为 Uoc = 6.19 V 串 Req = 1158Ω（实验 2-2）。负载功率 P = Uoc² × RL / (Req + RL)²。RL 取多大时 P 最大？最大是多少？旋钮大约在百分之几？再想一想：此时 9 V 电源送出的功率有多少到了负载？\n\n**测量**：把旋钮转到 25%、53%、100%（可以再多试几个位置），每次测负载电压和电流表读数，算 P = U × I，把 P–RL 曲线画出来。电路检查通过后，把读数填进下面的「测量」（以你自己的面包板为准）；答完后会显示计算对比。\n\n**想一想**：这也是为什么电力系统追求高效率（RL ≫ Req），而通信、传感器电路才追求“匹配”取最大功率。",
+  "startNote": "**半成品**：和实验 2-2 一样的 R1、R2、R3 网络已经搭好。**为什么**：网络上一个实验刚搭过；这里的新东西是可变负载和功率。**你要做**：加上电流表和电位器（当可变负载）以及电位器的两根跳线，然后转电位器、测电压和电流算功率。",
   "i18n": {
     "en": {
       "title": "Experiment 2-3 · Maximum power transfer: turn the pot to find the peak",
       "summary": "Put a variable load on the network from Experiment 2-2, measure voltage and current, compute the power, and find the load resistance and power at the peak.",
       "concepts": ["maximum power transfer", "RL = Req", "Pmax = Uoc² / (4Req)", "efficiency"],
       "description": "**Goal**: which load resistance gets the most power out of a source network?\n\n**Circuit**: the network from Experiment 2-2 (+9V → R1 1kΩ → A; A → R2 2.2kΩ → GND; A → R3 470Ω → T), then T → ammeter AM1 (red lead at T) → load RV1 → GND. RV1 is a 2.2kΩ pot used as a variable resistor: pin 1 to the ammeter's black lead, wiper and pin 3 joined to GND, RL = 2.2kΩ × knob position.\n\n**Predict first**: the network is equivalent to Uoc = 6.19 V in series with Req = 1158Ω (Experiment 2-2). The load power is P = Uoc² × RL / (Req + RL)². For which RL is P largest, and how large? Roughly where is the knob then? And how much of the power the 9 V supply delivers actually reaches the load?\n\n**Measure**: turn the knob to 25%, 53% and 100% (try more positions too); each time measure the load voltage and the ammeter reading, compute P = U × I and sketch the P–RL curve. Once the circuit check passes, type your readings into the Measurements below (whatever your own board shows); the worked comparison appears after you answer.\n\n**Is the efficiency only one half?** For the equivalent circuit, at maximum power the load and Req get half each: 50%. The equivalent is only equivalent to the outside; it can't tell you the power inside (just like Experiment 1-8).\n\n**Think about it**: that is why power systems aim for high efficiency (RL ≫ Req), while communication and sensor circuits aim for \"matching\" to get the most power.",
+      "startNote": "**Half-built**: the same R1, R2, R3 network as Experiment 2-2 is wired. **Why**: you just built that network; what is new is the variable load and the power. **Your job**: add the ammeter, the potentiometer (the variable load) and the pot's two jumpers, then turn it and measure voltage and current to get the power.",
       "compare": "**Compare**: P is largest when **RL = Req**: Pmax = Uoc² / (4Req) = 6.19² / 4632 ≈ **8.27 mW**.\n- 25% (RL = 550Ω): U ≈ 1.99 V, I ≈ 3.62 mA, P ≈ **7.2 mW**;\n- 53% (RL ≈ 1166Ω ≈ Req): U ≈ 3.10 V, I ≈ 2.66 mA, P ≈ **8.27 mW** (the maximum);\n- 100% (RL = 2.2kΩ): U ≈ 4.05 V, I ≈ 1.84 mA, P ≈ **7.5 mW**.\n\nThe curve has a flat peak at RL = Req.",
       "measurements": [
         {"ask": "Knob at 53%: load voltage U (RV1 pin 1 to GND)"},
@@ -88,6 +90,15 @@
     "电流表红表笔接 T，黑表笔接电位器的 1 脚；电位器滑动端和 3 脚连起来接 GND。",
     "旋钮 0% 时 RL = 0（短路），100% 时 RL = 2.2kΩ。"
   ],
+  "start": {
+    "parts": [
+      {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},
+      {"type": "wire", "pins": {"a": "tp3", "b": "a3"}, "color": "red"},
+      {"type": "resistor", "ref": "R1", "resistance": "1k", "pins": {"1": "b3", "2": "b7"}},
+      {"type": "resistor", "ref": "R2", "resistance": "2.2k", "pins": {"1": "c7", "2": "tn8"}},
+      {"type": "resistor", "ref": "R3", "resistance": "470", "pins": {"1": "d7", "2": "d11"}}
+    ]
+  },
   "solution": {
     "parts": [
       {"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}},

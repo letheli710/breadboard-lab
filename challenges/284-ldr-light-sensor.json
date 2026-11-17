@@ -35,6 +35,7 @@
     "",
     "**模型说明**：光敏电阻按幂律模型计算（限制在 100 Ω–1 MΩ），没有响应时间和温度漂移；ADC 是理想的 12 位 0–3.3 V 线性转换器。"
   ],
+  "startNote": "**半成品**：Blue Pill（PA0 已设成 ADC）、GND 和 3V3 电源轨已经接好。**为什么**：板子的供电是重复技能；这里要学的是传感器分压。**你要做**：光敏电阻从 3V3 轨接到第 22 列，R1（6.8kΩ）从第 22 列接到 GND，再把第 22 列接到 PA0（a16）。",
   "i18n": {
     "en": {
       "title": "Experiment 5-5 · LDR light sensor: how big should the fixed resistor be?",
@@ -66,6 +67,7 @@
         "",
         "**Model note**: the LDR follows the power-law model (clamped to 100 Ω–1 MΩ) with no response time or temperature drift; the ADC is an ideal 12-bit, 0–3.3 V linear converter."
       ],
+      "startNote": "**Half-built**: the Blue Pill (PA0 already set to ADC) and the GND and 3V3 rails are wired. **Why**: powering the board is a repeated skill; the sensor divider is the lesson. **Your job**: the LDR from the 3V3 rail to column 22, R1 (6.8kΩ) from column 22 to GND, then column 22 to PA0 (a16).",
       "compare": [
         "**Compare**: If the reading moves the wrong way with light, check which of the LDR and R1 is on top. The working:",
         "",
@@ -174,6 +176,13 @@
     "光敏电阻从 3V3 接到中点，6.8 kΩ 从中点接到 GND；中点接 PA0（或别的 ADC 引脚）。",
     "在引脚表里把这个引脚设成“模拟输入 ADC”。"
   ],
+  "start": {
+    "parts": [
+      {"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PA0": "adc"}}},
+      {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "a1", "b": "tn1"}},
+      {"type": "wire", "ref": "W2", "color": "red", "pins": {"a": "a3", "b": "tp3"}}
+    ]
+  },
   "solution": {
     "parts": [
       {"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PA0": "adc"}}},

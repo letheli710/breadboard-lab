@@ -153,6 +153,14 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       <Prereqs ch={ch} />
       <LookInside chId={ch.id} />
       <LessonCalcs chId={ch.id} />
+      {ch.start && ch.startNote && (
+        <section className="start-kit" aria-label={tr('起点：已经搭好的部分', 'Starting kit: already on the board')}>
+          <div className="eyebrow">
+            <Icon name="nets" size={14} /> {tr('起点：已经搭好的部分', 'Starting kit: already on the board')}
+          </div>
+          <Md text={ch.startNote} />
+        </section>
+      )}
       {hasM && <StageBar circuitOk={ms.passed} st={ms} />}
 
       {nSteps > 0 && (

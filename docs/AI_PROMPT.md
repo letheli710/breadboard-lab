@@ -42,7 +42,7 @@ AI 返回后：
   "title": "...",
   "kind": "lesson" 或 "challenge",               // lesson 要写 steps；challenge 要写 hints
   "level": 1-5,
-  "phase": 1-5,                                  // 可选：课程第几期（1 基本定律、2 分析方法/定理/运放、3 暂态、4 交流、5 单片机外围电路）；入门题不写
+  "phase": 1-5,                                  // 可选：课程第几期（1 基本定律、2 分析方法/定理/op-amp（运算放大器）、3 暂态、4 交流、5 单片机外围电路）；入门题不写
   "summary": "一句话",
   "description": "讲解正文，教会概念",
   "concepts": ["英文术语 中文", ...],
@@ -62,7 +62,7 @@ AI 返回后：
 === components（目标电路）===
 写法：{"ref": "R1", "type": "resistor", "resistance": "330"}，属性直接平铺。省略属性 = 任何值都接受。
 ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、PSU1。
-只允许以下 type（不要发明其它元件，例如没有晶体管、蜂鸣器、电机；唯一的 IC 是运放 LM358，唯一的交流电源是信号发生器）：
+只允许以下 type（不要发明其它元件，例如没有晶体管、蜂鸣器、电机；唯一的 IC 是 op-amp LM358，唯一的交流电源是信号发生器）：
 - dc_source      引脚 + -              属性 voltage       ← 首选电源：匹配任何电池/电源模块/稳压电源
 - battery        引脚 + -              属性 variant: "9V" | "2xAA"(3V) | "3xAA"(4.5V) | "4xAA"(6V) | "CR2032"(3V)
 - power_module   引脚 + -              属性 voltage: 5 或 3.3
@@ -75,11 +75,11 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 - switch (SPDT)  引脚 a com b          测试用属性 position: "a" | "b"
 - potentiometer  引脚 1 2 3（2=滑动端） 属性 resistance；测试用属性 wiper: 0..1（0=靠 1 脚）
 - inductor       引脚 1 2              属性 inductance，如 "10m"（10 mH）
-- opamp          LM358 双运放          引脚 outA inA- inA+ v- inB+ inB- outB v+（只用一个运放时写 out、in-、in+ 即 A 半；判分时 A、B 两半可互换）
+- opamp          LM358 双 op-amp          引脚 outA inA- inA+ v- inB+ inB- outB v+（只用一个 op-amp 时写 out、in-、in+ 即 A 半；判分时 A、B 两半可互换）
 - function_gen   引脚 + -（- 是 COM）  属性一般不写，在 tests 的 set 里设定 waveform: sine|square|triangle、frequency（Hz）、amplitude（峰值 V）、offset（V）
 - ammeter        引脚 + -              只有本题要练习“怎么接电流表”时才写；否则用 tests 的 currents 直接测元件电流
 （scope_probe 示波器探头绝对不要写进 components；用 tests 的 scope 测量。）
-除非这一题就是讲某种电源，否则一律用 dc_source。整个电路只放一个直流电源（运放双电源除外：两个 dc_source 串联，中点接 GND）。
+除非这一题就是讲某种电源，否则一律用 dc_source。整个电路只放一个直流电源（op-amp 双电源除外：两个 dc_source 串联，中点接 GND）。
 
 === nets / connections ===
 引脚写成 "REF.pin"。每个结点（node）列出它包含的所有引脚。请把每个元件的每个引脚都放进某个结点（不要留空引脚）。
@@ -118,7 +118,7 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 - 每个 LED 必须串联限流电阻，使电流在 5–20mA，绝不超过 25mA：R ≈ (V − Vf) / I。并联 LED 时每个 LED 有自己的电阻。
 - 电容在直流下是断路；电感直流下是 1Ω。没有信号发生器时只算直流。
 - 信号发生器：理想波形串 50Ω 输出电阻（所以测滤波器时用 "vs": "FG1.+" 比较）。RC 截止频率 fc = 1/(2πRC)：低通在 fc 处 gain≈0.707、phase≈−45°。
-- 运放 LM358：开环增益 1e5，输出只能在 V− 到 V+ − 1.5V 之间（超出削顶），V+ 必须接电源、V− 接 GND；单电源放大交流信号要给信号加 offset。同相 Vout=(1+Rf/Rg)Vin，反相 Vout=−Rf/Rin·Vin。
+- op-amp LM358：开环增益 1e5，输出只能在 V− 到 V+ − 1.5V 之间（超出削顶），V+ 必须接电源、V− 接 GND；单电源放大交流信号要给信号加 offset。同相 Vout=(1+Rf/Rg)Vin，反相 Vout=−Rf/Rin·Vin。
 
 === solution（强烈建议提供：证明题目可解）===
 {"parts": [
@@ -143,7 +143,7 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 === 文字与符号约定（详见 docs/NOTATION.md）===
 - 用“结点”，不用“节点”（指电路里的结点；面包板上的一条金属条就是一个结点）。电压用 U / u，电流用 I / i；元件名写成和面包板上一样的普通文字：R1、I1、AM2（挑战的文字不支持下标）。
 - 交流量以 cos 为参考：u = √2·U·cos(ωt + ψ)。LED 插反的说明要带上反向耐压（常见约 5V）。
-- 实验题（第 1–5 期）的 description 用短段落、粗体标签：**目标**、**电路**、**先预测**（只写要算什么、怎么算，不写结果）、**测量**、**对比**（预期读数放在这里；有 measurements 时整段放进顶层 "compare"，答完测量题才显示）、可选的 **想一想**、**真实电路里**（仪表负担电阻、电感绕线电阻、电解电容极性、运放共模范围和压摆率等）。
+- 实验题（第 1–5 期）的 description 用短段落、粗体标签：**目标**、**电路**、**先预测**（只写要算什么、怎么算，不写结果）、**测量**、**对比**（预期读数放在这里；有 measurements 时整段放进顶层 "compare"，答完测量题才显示）、可选的 **想一想**、**真实电路里**（仪表负担电阻、电感绕线电阻、电解电容极性、op-amp 共模范围和压摆率等）。
 - hints 由浅入深：方向 → 方法 → 接近答案。找错题不要在前面的提示里逐条点名错误。
 
 === 翻译（i18n）===

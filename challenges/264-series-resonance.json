@@ -26,6 +26,7 @@
     "- 仿真里线圈电阻 r 只有 1 Ω。真实的 10 mH 小电感绕组电阻常在 10 ~ 30 Ω，它和 R1 串联在一起：例如 r ≈ 20 Ω 时，谐振时 u_R/u_in 只有 100/120 ≈ 0.83，电流峰值更低，Q ≈ 316/120 ≈ 2.6，峰也更宽。谐振频率 f0 基本不变。",
     "- **安全提示**：Q 很高的串联谐振电路，元件上的电压可以是电源电压的几十倍，实际中要注意电容的耐压。"
   ],
+  "startNote": "**半成品**：信号发生器（已经设好波形）和两个示波器探头已经接好。**为什么**：仪器的接法第 12、13 课练过，这个实验要看的是电路本身的波形。**你要做**：搭 RLC 串联：L1（10mH）→ C1（100nF）→ R1（100Ω）→ GND，CH2 看 R1（电流 × R）。",
   "i18n": {
     "en": {
       "title": "Experiment 4-4 · Series RLC resonance: sweep for f0; the capacitor voltage beats the source",
@@ -48,6 +49,7 @@
         "- The simulated coil has only 1 Ω of winding resistance. A real small 10 mH inductor often has 10–30 Ω, and it adds to R1: with r ≈ 20 Ω, u_R/u_in at resonance is only 100/120 ≈ 0.83, the peak current is lower, Q ≈ 316/120 ≈ 2.6 and the peak is wider. f0 hardly moves.",
         "- **Safety note**: in a high-Q series resonant circuit the component voltages can be dozens of times the source voltage — mind the capacitor's voltage rating in real life."
       ],
+      "startNote": "**Half-built**: The function generator (already set up) and both scope probes are wired. **Why**: lessons 12 and 13 covered connecting the instruments; this lab is about the circuit's own waveforms. **Your job**: build the series RLC: L1 (10mH) → C1 (100nF) → R1 (100Ω) → GND, with CH2 on R1 (current × R).",
       "compare": [
         "**Compare**:",
         "- When ωL = 1/(ωC) the reactances cancel, |Z| is at its minimum R + r, the current is at its maximum, and current and voltage are **in phase**: f0 = 1/(2π√(LC)) = 1/(2π√(10 mH × 100 nF)) ≈ 5033 Hz.",
@@ -141,6 +143,13 @@
     "f0 = 1/(2π√(LC))。在 f0 处 VR 和 VIN 同相：扫频时找相位差过零的地方。",
     "低于 f0 电路呈容性（电流超前），高于 f0 呈感性（电流落后）。"
   ],
+  "start": {
+    "parts": [
+      { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },
+      { "type": "scope_probe", "ref": "PR1", "channel": 1, "pins": { "tip": "e3", "gnd": "tn20" } },
+      { "type": "scope_probe", "ref": "PR2", "channel": 2, "pins": { "tip": "e14", "gnd": "tn21" } }
+    ]
+  },
   "solution": {
     "parts": [
       { "type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 5033, "amplitude": 1, "offset": 0, "pins": { "+": "a3", "-": "tn3" } },

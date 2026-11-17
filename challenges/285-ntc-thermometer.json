@@ -44,6 +44,7 @@
     "",
     "**模型说明**：NTC 严格按 B = 3950 的指数模型计算，没有模拟自热、热时间常数和阻值误差；ADC 是理想的 12 位 0–3.3 V 线性转换器，没有 ESP32 的非线性。"
   ],
+  "startNote": "**半成品**：ESP32（GPIO32 已设成 ADC）、下方电源轨的 3V3 和 GND 已经接好。**为什么**：板子的供电是重复技能；这里要学的是 NTC 分压。**你要做**：R1（10kΩ）从 3V3 轨接到第 24 列，NTC 从第 24 列接到 GND，再把第 24 列接到 GPIO32（j7）。",
   "i18n": {
     "en": {
       "title": "Experiment 5-6 · NTC thermometer: nonlinearity and the B equation",
@@ -84,6 +85,7 @@
         "",
         "**Model note**: the NTC follows the exact B = 3950 exponential model with no self-heating, thermal time constant or tolerance; the ADC is an ideal 12-bit 0–3.3 V linear converter without the ESP32's non-linearity."
       ],
+      "startNote": "**Half-built**: the ESP32 (GPIO32 already set to ADC) and the bottom 3V3 and GND rails are wired. **Why**: powering the board is a repeated skill; the NTC divider is the lesson. **Your job**: R1 (10kΩ) from the 3V3 rail to column 24, the NTC from column 24 to GND, then column 24 to GPIO32 (j7).",
       "compare": [
         "**Compare**: The point: **equal temperature steps do not give equal changes in the reading**. If the reading rises with temperature, check that the NTC is at the bottom (middle node → NTC → GND). The working:",
         "",
@@ -180,6 +182,13 @@
     "3V3 → 10 kΩ → 中点 → NTC → GND；中点接 GPIO32–39 之一。",
     "在引脚表里把这个引脚设成“模拟输入 ADC”。"
   ],
+  "start": {
+    "parts": [
+      {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO32": "adc"}}},
+      {"type": "wire", "ref": "W1", "color": "red", "pins": {"a": "j1", "b": "bp1"}},
+      {"type": "wire", "ref": "W2", "color": "black", "pins": {"a": "j14", "b": "bn14"}}
+    ]
+  },
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO32": "adc"}}},

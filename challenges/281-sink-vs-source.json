@@ -43,6 +43,7 @@
     "",
     "**模型说明**：输出级的上下管都用固定 40 Ω 表示，真实的 P 管 / N 管强度不同，并随电源电压和温度变化。板载 LED 用 Vf = 1.8 V 的模型计算。"
   ],
+  "startNote": "**半成品**：Blue Pill 已经插好，GND 和 3V3 已经引到上方电源轨，PB11 设成输出高、PB10 设成输出低。**为什么**：开发板的供电第 15 课练过；这个实验的重点是 LED 朝哪个方向接。**你要做**：搭两条支路：PB11 → 220Ω → LED1 → GND（拉电流）；3V3 → 220Ω → LED2 → PB10（灌电流）。",
   "i18n": {
     "en": {
       "title": "Experiment 5-2 · Sourcing vs sinking: an LED that lights on LOW",
@@ -76,6 +77,7 @@
         "",
         "**Model note**: both output transistors are a fixed 40 Ω here; real P- and N-channel devices differ and vary with supply voltage and temperature. The onboard LED is computed with the Vf = 1.8 V red LED model."
       ],
+      "startNote": "**Half-built**: the Blue Pill is seated, GND and 3V3 run to the top rails, PB11 is set to output high and PB10 to output low. **Why**: powering the board was lesson 15; this lab is about which way round the LED goes. **Your job**: build two branches: PB11 → 220Ω → LED1 → GND (sourcing); 3V3 → 220Ω → LED2 → PB10 (sinking).",
       "compare": [
         "**Compare**: expected readings:",
         "- OUT1 = HIGH, OUT2 = LOW: **both LEDs on**. OUT1's pin current is **+5.5 mA** (flowing out of the pin), OUT2's is **−5.5 mA** (negative = flowing **into** the pin).",
@@ -183,6 +185,13 @@
     "LED2 是倒过来的：3V3 → 电阻 → LED 正极；LED 负极接第二个 GPIO。",
     "先把开发板的 3V3 引脚接到上方 + 电源轨，R2 才好接。"
   ],
+  "start": {
+    "parts": [
+      {"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PB11": "out_high", "PB10": "out_low"}}},
+      {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "a1", "b": "tn1"}},
+      {"type": "wire", "ref": "W2", "color": "red", "pins": {"a": "a3", "b": "tp3"}}
+    ]
+  },
   "solution": {
     "parts": [
       {"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PB11": "out_high", "PB10": "out_low"}}},

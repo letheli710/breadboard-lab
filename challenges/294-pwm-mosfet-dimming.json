@@ -50,6 +50,7 @@
     "",
     "**模型说明**：电机是 8 Ω + 2 mH，没有反电动势（真实电机转起来后会产生和转速成正比的反电动势，电流会比这里小）；“转动”按平均电流 ≥ 0.1 A 判断；MOSFET 没有栅极电容，所以开关是瞬时的、没有开关损耗；`regions` 用直流模型（PWM 按平均值），只在 100 % / 输出低电平时有意义；二极管是 0.65 V + 0.8 Ω。"
   ],
+  "startNote": "**半成品**：ESP32（GPIO27 设成 PWM）、5 V 电机电源和完整的 MOSFET 栅极驱动（RG、RPD、IRLZ44N，实验 5-8 练过）都已接好。**为什么**：这个实验看的是 PWM 下电机和续流二极管里的电流。**你要做**：接上电机（+ 接 5 V，− 接漏极那一列）和反并的续流二极管 D1（负极朝 +5V），再把 5 V 轨接到电机那一列。",
   "i18n": {
     "en": {
       "title": "Experiment 5-15 · PWM + MOSFET speed control: the motor's average current follows the duty cycle",
@@ -96,6 +97,7 @@
         "",
         "**Model note**: the motor is 8 Ω + 2 mH with no back-EMF (a real spinning motor generates a back-EMF ∝ speed, so its current is lower than here); \"running\" means an average current ≥ 0.1 A; the MOSFET has no gate capacitance, so switching is instantaneous with no switching loss; `regions` uses the DC model (PWM as its average), so it is only meaningful at 100 % or output LOW; the diode is 0.65 V + 0.8 Ω."
       ],
+      "startNote": "**Half-built**: the ESP32 (GPIO27 on PWM), the 5 V motor supply and the complete MOSFET gate drive (RG, RPD, IRLZ44N — Experiment 5-8) are wired. **Why**: this lab looks at the motor and flyback-diode currents under PWM. **Your job**: connect the motor (+ to 5 V, − to the drain column) and flyback diode D1 across it (cathode toward +5V), and jumper the 5 V rail to the motor's column.",
       "compare": [
         "**Compare** (simulated, 20 kHz):",
         "- **25 %**: pin average 0.82 V; motor average 0.71 V, **89 mA**, of which 66 mA (75 %) flows in the diode. 89 mA is below the model's 0.1 A start current — **the motor doesn't turn**. Real motors have this dead band too: static friction needs a minimum current, and a low duty just hums.",
@@ -422,6 +424,77 @@
     "稳压电源的 − 必须和 ESP32 的 GND 接在一起。",
     "PWM 引脚设成 20 kHz。"
   ],
+  "start": {
+    "parts": [
+      {
+        "type": "esp32_devkit",
+        "ref": "U1",
+        "at": "b1",
+        "props": {
+          "usb": true,
+          "modes": {
+            "GPIO27": {
+              "mode": "pwm",
+              "duty": 50,
+              "frequency": 20000
+            }
+          }
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W1",
+        "color": "black",
+        "pins": {
+          "a": "j14",
+          "b": "bn14"
+        }
+      },
+      {
+        "type": "bench_supply",
+        "ref": "PSU1",
+        "voltage": 5,
+        "currentLimit": 1,
+        "pins": {
+          "+": "bp30",
+          "-": "bn30"
+        }
+      },
+      {
+        "type": "resistor",
+        "ref": "RG",
+        "resistance": "100",
+        "pins": {
+          "1": "j11",
+          "2": "j24"
+        }
+      },
+      {
+        "type": "nmos",
+        "ref": "Q1",
+        "model": "IRLZ44N",
+        "at": "f24"
+      },
+      {
+        "type": "resistor",
+        "ref": "RPD",
+        "resistance": "10k",
+        "pins": {
+          "1": "i24",
+          "2": "bn24"
+        }
+      },
+      {
+        "type": "wire",
+        "ref": "W2",
+        "color": "black",
+        "pins": {
+          "a": "j26",
+          "b": "bn26"
+        }
+      }
+    ]
+  },
   "solution": {
     "parts": [
       {
