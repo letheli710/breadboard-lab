@@ -51,7 +51,7 @@ export function Inductor({ part }: PartViewProps) {
         width={1.0}
         height={0.38}
         color="#ece6d6"
-        font='700 40px "Barlow Condensed", sans-serif'
+        font='700 40px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
         position={[0, base + fl * 2 + H + 0.005, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       />
@@ -115,7 +115,7 @@ export function OpAmp({ part }: PartViewProps) {
         width={2.5}
         height={0.62}
         color="#c9ccd1"
-        font='600 60px "Barlow Condensed", sans-serif'
+        font='600 60px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
         position={[cx + left * 0.25, top + 0.006, cz + 0.08 * -back]}
         rotation={[-Math.PI / 2, 0, left > 0 ? 0 : Math.PI]}
       />
@@ -137,11 +137,11 @@ function drawMeterLcd(g: CanvasRenderingContext2D, w: number, h: number, text: s
   g.fillStyle = '#1d281e';
   g.textBaseline = 'middle';
   g.textAlign = 'left';
-  g.font = `700 ${h * 0.16}px "Barlow Condensed", sans-serif`;
+  g.font = `700 ${h * 0.16}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillText('DC  A', w * 0.05, h * 0.14);
   g.textAlign = 'right';
   g.fillText('AUTO', w * 0.95, h * 0.14);
-  g.font = `700 ${h * 0.5}px "Barlow Condensed", monospace`;
+  g.font = `700 ${h * 0.5}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillText(text, w * 0.95, h * 0.52, w * 0.9);
   if (neg) {
     g.textAlign = 'left';
@@ -219,7 +219,7 @@ export function Ammeter({ part, slot, reading, onClick }: PartViewProps) {
               draw={(g, w, h) => {
                 g.translate(w / 2, h / 2);
                 g.fillStyle = '#e9ecef';
-                g.font = `700 ${h * 0.1}px "Barlow Condensed", sans-serif`;
+                g.font = `700 ${h * 0.1}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
                 g.textAlign = 'center';
                 g.textBaseline = 'middle';
                 const labels = ['OFF', 'V⎓', 'V~', 'Ω', 'mA', 'A'];
@@ -262,7 +262,7 @@ export function Ammeter({ part, slot, reading, onClick }: PartViewProps) {
                 width={0.9}
                 height={0.32}
                 color={k === 'COM' ? '#e9ecef' : '#ff8a8a'}
-                font='700 36px "Barlow Condensed", sans-serif'
+                font='700 36px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
                 position={[x, 1.065, jackZ - 0.62]}
                 rotation={[-Math.PI / 2, 0, 0]}
               />
@@ -335,13 +335,13 @@ function drawGenLcd(g: CanvasRenderingContext2D, w: number, h: number, wf: Wavef
   g.fillStyle = '#7fdbff';
   g.textBaseline = 'middle';
   g.textAlign = 'left';
-  g.font = `700 ${h * 0.13}px "Barlow Condensed", sans-serif`;
+  g.font = `700 ${h * 0.13}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillText(wf === 'sine' ? 'SINE' : wf === 'square' ? 'SQUARE' : 'TRIANGLE', w * 0.06, h * 0.9 - h * 0.04, w * 0.24);
   g.textAlign = 'right';
   g.fillStyle = '#f8f9fa';
-  g.font = `700 ${h * 0.4}px "Barlow Condensed", monospace`;
+  g.font = `700 ${h * 0.4}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillText(formatSI(f, 'Hz', 4), w * 0.96, h * 0.32, w * 0.62);
-  g.font = `600 ${h * 0.2}px "Barlow Condensed", monospace`;
+  g.font = `600 ${h * 0.2}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillStyle = '#ffd166';
   g.fillText(`AMPL ${a.toFixed(2)} Vp`, w * 0.96, h * 0.64, w * 0.62);
   g.fillStyle = '#9fb3c8';
@@ -371,7 +371,7 @@ export function FunctionGen({ part, slot, onClick }: PartViewProps) {
           width={4.2}
           height={0.34}
           color="#3a4560"
-          font='700 40px "Barlow Condensed", "Microsoft YaHei", sans-serif'
+          font='700 40px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
           position={[-1.55, 3.15, 2.33]}
         />
         <CanvasPlane width={4.3} height={1.75} draw={(g, w, h) => drawGenLcd(g, w, h, wf, f, a, off)} deps={[wf, f, a, off]} position={[-1.55, 2.0, 2.33]} />
@@ -412,7 +412,7 @@ export function FunctionGen({ part, slot, onClick }: PartViewProps) {
             <meshBasicMaterial color="#f8f9fa" toneMapped={false} />
           </mesh>
         </group>
-        <TextPlane text="FREQ" width={0.9} height={0.3} color="#3a4560" font='700 32px "Barlow Condensed", sans-serif' position={[1.6, 1.42, 2.33]} />
+        <TextPlane text="FREQ" width={0.9} height={0.3} color="#3a4560" font='700 32px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif' position={[1.6, 1.42, 2.33]} />
         {/* power LED */}
         <mesh position={[3.5, 3.15, 2.36]}>
           <sphereGeometry args={[0.1, 10, 8]} />
@@ -423,7 +423,14 @@ export function FunctionGen({ part, slot, onClick }: PartViewProps) {
           <planeGeometry args={[1.2, 1.4]} />
           <Mat color="#cdd2d9" roughness={0.7} />
         </mesh>
-        <TextPlane text="OUTPUT 50Ω" width={1.1} height={0.26} color="#3a4560" font='700 28px "Barlow Condensed", sans-serif' position={[3.0, 1.48, 2.33]} />
+        <TextPlane
+          text="OUTPUT 50Ω"
+          width={1.1}
+          height={0.26}
+          color="#3a4560"
+          font='700 28px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
+          position={[3.0, 1.48, 2.33]}
+        />
         {/* BNC output with coax splitting into red / black clip leads */}
         <mesh position={[3.0, 0.75, 2.5]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.36, 0.36, 0.3, 20]} />

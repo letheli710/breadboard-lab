@@ -25,7 +25,7 @@ export function netColor(name: string, index: number): string {
   return NET_PALETTE[index % NET_PALETTE.length];
 }
 
-const LABEL_FONT = '"Barlow Condensed", sans-serif';
+const LABEL_FONT = '"HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif';
 
 /** Paint the printed board surface: holes, rail stripes, row letters, column numbers. */
 function paintBoard(c: HTMLCanvasElement, ppu: number) {
@@ -110,7 +110,9 @@ function useBoardTexture() {
     let live = true;
     const fonts = typeof document !== 'undefined' ? document.fonts : undefined;
     if (!fonts) return;
-    Promise.all([fonts.load(`800 40px ${LABEL_FONT}`), fonts.load(`600 40px ${LABEL_FONT}`)])
+    // name the characters: the face is split by unicode-range and only the pieces asked for load
+    const chars = '0123456789abcdefghij+−';
+    Promise.all([fonts.load(`800 40px ${LABEL_FONT}`, chars), fonts.load(`600 40px ${LABEL_FONT}`, chars)])
       .then(() => {
         if (!live) return;
         paintBoard(tex.image as HTMLCanvasElement, tex.userData.ppu as number);

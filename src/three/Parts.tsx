@@ -422,7 +422,7 @@ function BenchSupply({ part, slot, source, onClick }: PartViewProps) {
           height={1.8}
           bg="#0f1a12"
           color="#7dff9b"
-          font='700 92px "Barlow Condensed", monospace'
+          font='700 92px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
           position={[-1.3, 2.25, 2.33]}
         />
         <TextPlane text={cc ? 'CC' : 'CV'} width={0.9} height={0.5} bg={cc ? '#e63946' : '#2ba59b'} color="#fff" position={[-1.3, 1.0, 2.33]} />
@@ -431,7 +431,7 @@ function BenchSupply({ part, slot, source, onClick }: PartViewProps) {
           width={3.2}
           height={0.4}
           color="#d9dce2"
-          font='500 44px "Barlow", "Microsoft YaHei", sans-serif'
+          font='500 44px "HarmonyOS Sans SC", sans-serif'
           position={[-1.3, 0.55, 2.33]}
         />
         {[1.6, 2.6].map((x, k) => (

@@ -1,7 +1,7 @@
-// In the UI font (Barlow) a capital Q at subscript size differs from the digit 0 only by a
-// one-pixel tick, so U_Q (operating point) reads as U_0. Inside subscripts the letter Q is
-// therefore drawn in a fallback font whose Q has a clear tail (class "sub-q", see styles.css);
-// the textbook notation itself is unchanged.
+// Subscript Q (U_Q, the operating point) must not read as U_0. Every Q inside a subscript is
+// wrapped in class "sub-q", a hook for styling it apart; the UI font (HarmonyOS Sans) draws Q
+// with a clear tail even at subscript size, so the class currently needs no style of its own.
+// The textbook notation itself is unchanged.
 
 import { Fragment, type ReactNode } from 'react';
 

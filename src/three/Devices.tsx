@@ -47,7 +47,14 @@ export function Npn({ part }: PartViewProps) {
           <boxGeometry args={[2 * r, h, 0.01]} />
           <Mat color="#1a1b1f" roughness={0.45} />
         </mesh>
-        <TextPlane text={['2N2222', 'E B C']} width={1.6} height={0.95} color="#c9ccd1" font='700 46px "Barlow Condensed", sans-serif' position={[0, h / 2 + 0.1, 0.004]} />
+        <TextPlane
+          text={['2N2222', 'E B C']}
+          width={1.6}
+          height={0.95}
+          color="#c9ccd1"
+          font='700 46px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
+          position={[0, h / 2 + 0.1, 0.004]}
+        />
       </group>
     </group>
   );
@@ -108,13 +115,20 @@ function To220({ part, pins, label }: { part: PlacedPart; pins: string[]; label:
         <mesh geometry={tab} position={[0, H, zb - D / 2 - 0.5]} castShadow>
           <Mat color="#c9ccd1" metalness={0.85} roughness={0.28} />
         </mesh>
-        <TextPlane text={label} width={3.6} height={1.5} color="#d9dce2" font='700 58px "Barlow Condensed", sans-serif' position={[0, H * 0.55, zb + D / 2 + 0.005]} />
+        <TextPlane
+          text={label}
+          width={3.6}
+          height={1.5}
+          color="#d9dce2"
+          font='700 58px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
+          position={[0, H * 0.55, zb + D / 2 + 0.005]}
+        />
         <TextPlane
           text={pins.map((p) => p.toUpperCase()).join('   ')}
           width={3.2}
           height={0.45}
           color="#8e939b"
-          font='700 40px "Barlow Condensed", sans-serif'
+          font='700 40px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
           position={[0, 0.35, zb + D / 2 + 0.005]}
         />
       </group>
@@ -170,7 +184,7 @@ function drawRelayTop(g: CanvasRenderingContext2D, w: number, h: number, on: boo
   g.lineTo(sx + (on ? w * 0.05 : -w * 0.05), h * 0.5);
   g.stroke();
   g.setLineDash([]);
-  g.font = `700 ${h * 0.1}px "Barlow Condensed", sans-serif`;
+  g.font = `700 ${h * 0.1}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   g.fillText('NC', sx - w * 0.1, h * 0.12);
@@ -186,12 +200,12 @@ function drawRelayFront(g: CanvasRenderingContext2D, w: number, h: number) {
   g.fillStyle = '#f2f6ff';
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-  g.font = `700 ${h * 0.2}px "Barlow Condensed", sans-serif`;
+  g.font = `700 ${h * 0.2}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillText('SRD-05VDC-SL-C', w / 2, h * 0.22);
-  g.font = `600 ${h * 0.12}px "Barlow Condensed", sans-serif`;
+  g.font = `600 ${h * 0.12}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillText('10A 250VAC   10A 125VAC', w / 2, h * 0.48);
   g.fillText('10A 30VDC    10A 28VDC', w / 2, h * 0.66);
-  g.font = `700 ${h * 0.13}px "Barlow Condensed", sans-serif`;
+  g.font = `700 ${h * 0.13}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillText('COIL 5V DC · 70 Ω', w / 2, h * 0.86);
 }
 
@@ -327,7 +341,7 @@ export function Motor({ part, sim }: PartViewProps) {
             <Mat color={i === 0 ? '#e0b44a' : '#d3d6db'} metalness={0.8} roughness={0.3} />
           </mesh>
         ))}
-        <TextPlane text="+" width={0.7} height={0.7} color="#d62828" font='800 90px "Barlow", sans-serif' position={[-1.1, -2.36, 0.7]} rotation={[Math.PI / 2, 0, 0]} />
+        <TextPlane text="+" width={0.7} height={0.7} color="#d62828" font='800 90px "HarmonyOS Sans SC", sans-serif' position={[-1.1, -2.36, 0.7]} rotation={[Math.PI / 2, 0, 0]} />
         {/* bushing, shaft, propeller */}
         <mesh position={[0, 0, 8.15]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.75, 0.75, 0.4, 20]} />
@@ -429,7 +443,7 @@ export function Buzzer({ part, sim }: PartViewProps) {
           width={0.8}
           height={0.8}
           color="#e9ecef"
-          font='800 100px "Barlow", sans-serif'
+          font='800 100px "HarmonyOS Sans SC", sans-serif'
           position={[plusAt.x, H + 0.012, plusAt.z]}
           rotation={[-Math.PI / 2, 0, 0]}
         />
@@ -438,7 +452,7 @@ export function Buzzer({ part, sim }: PartViewProps) {
           width={2.4}
           height={0.4}
           color="#9aa0a6"
-          font='700 44px "Barlow Condensed", sans-serif'
+          font='700 44px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
           position={[0, H + 0.012, 0]}
           rotation={[-Math.PI / 2, 0, -angle + Math.PI / 2]}
         />
@@ -529,7 +543,7 @@ export function Ntc({ part }: PartViewProps) {
         <sphereGeometry args={[0.42, 20, 14]} />
         <Mat color="#1e3a2a" roughness={0.3} emissive="#ff5a1f" emissiveIntensity={hot * 0.8} />
       </mesh>
-      <TextPlane text="103" width={0.6} height={0.25} color="#c9d6cc" font='700 40px "Barlow Condensed", sans-serif' position={[0, y, 0.345]} />
+      <TextPlane text="103" width={0.6} height={0.25} color="#c9d6cc" font='700 40px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif' position={[0, y, 0.345]} />
     </group>
   );
 }

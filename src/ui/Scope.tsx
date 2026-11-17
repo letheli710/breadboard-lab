@@ -206,7 +206,7 @@ function draw(cv: HTMLCanvasElement, data: ScopeData, tdiv: number, vdiv: Record
     g.closePath();
     g.fill();
     g.fillStyle = '#07150e';
-    g.font = '700 11px "Barlow Condensed", sans-serif';
+    g.font = '700 11px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif';
     g.textAlign = 'center';
     g.textBaseline = 'middle';
     g.fillText(String(ch.channel), 8, y0 + 0.5);

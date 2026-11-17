@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { contentChunkName, problemIndexPlugin, summaryIndexPlugin } from './scripts/problem-index-plugin.ts';
@@ -15,6 +16,10 @@ export default defineConfig({
   // browser-test hooks (src/e2e/): compiled in only for `VITE_E2E=1` builds (npm run e2e)
   define: { __E2E__: JSON.stringify(process.env.VITE_E2E === '1') },
   server: { port: 5180 },
+  // the HarmonyOS Sans web font package only exports its all-weights stylesheet; the alias lets
+  // src/fonts.css import just the weights the UI uses (each split by unicode-range into small files,
+  // so a page downloads only the pieces covering the characters it shows)
+  resolve: { alias: { '@harmonyos-sans': fileURLToPath(new URL('./node_modules/harmonyos-sans-webfont-splitted/dist', import.meta.url)) } },
   build: {
     chunkSizeWarningLimit: 1200,
     rolldownOptions: {

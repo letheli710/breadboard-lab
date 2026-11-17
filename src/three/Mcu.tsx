@@ -96,7 +96,7 @@ function drawSilk(g: CanvasRenderingContext2D, w: number, h: number, b: McuBoard
     const lab = def?.label ?? l.pin;
     const power = def && (def.kind === '3v3' || def.kind === '5v' || def.kind === 'gnd');
     g.fillStyle = power ? '#ffd3a6' : def?.kind === 'flash' ? '#a9adb6' : s.silk;
-    g.font = `700 ${0.52 * ppu}px "Barlow Condensed", sans-serif`;
+    g.font = `700 ${0.52 * ppu}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
     const zl = l.row === 0 ? z + 0.8 : z - 0.8;
     g.fillText(lab, X(x), Z(zl), 0.98 * ppu);
   }
@@ -105,12 +105,12 @@ function drawSilk(g: CanvasRenderingContext2D, w: number, h: number, b: McuBoard
   g.fillStyle = s.silk;
   if (esp) {
     // board name and button labels near the USB end
-    g.font = `700 ${0.62 * ppu}px "Barlow Condensed", sans-serif`;
+    g.font = `700 ${0.62 * ppu}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
     g.save();
     g.translate(X(12.0), Z(2.75));
     g.fillText('ESP32-DevKitC', 0, 0);
     g.restore();
-    g.font = `700 ${0.42 * ppu}px "Barlow Condensed", sans-serif`;
+    g.font = `700 ${0.42 * ppu}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
     g.fillText('EN', X(16.9), Z(-1.55));
     g.fillText('BOOT', X(16.9), Z(1.55));
     g.fillText('PWR', X(15.2), Z(-2.6));
@@ -120,14 +120,14 @@ function drawSilk(g: CanvasRenderingContext2D, w: number, h: number, b: McuBoard
     g.strokeRect(X(-2.6) + 2, Z(-3.15), 2.4 * ppu, 6.3 * ppu);
     g.setLineDash([]);
   } else {
-    g.font = `700 ${0.42 * ppu}px "Barlow Condensed", sans-serif`;
+    g.font = `700 ${0.42 * ppu}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
     g.fillText('RESET', X(3.4), Z(1.2));
     g.fillText('BOOT0', X(13.2), Z(-0.62));
     g.fillText('BOOT1', X(13.2), Z(0.62));
     g.fillText('0      1', X(15.5), Z(-1.5));
     g.fillText('PWR', X(18.6), Z(1.25));
     g.fillText('PC13', X(18.6), Z(-1.25));
-    g.font = `700 ${0.36 * ppu}px "Barlow Condensed", sans-serif`;
+    g.font = `700 ${0.36 * ppu}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
     g.fillText('8MHz', X(5.6), Z(-1.0));
     // outline of the MCU footprint
     g.save();
@@ -174,9 +174,9 @@ function drawCanTop(g: CanvasRenderingContext2D, w: number, h: number) {
   g.fillStyle = '#5b6068';
   g.textAlign = 'left';
   g.textBaseline = 'middle';
-  g.font = `700 ${h * 0.13}px "Barlow Condensed", sans-serif`;
+  g.font = `700 ${h * 0.13}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillText('ESP32-WROOM-32', w * 0.1, h * 0.3);
-  g.font = `600 ${h * 0.085}px "Barlow Condensed", sans-serif`;
+  g.font = `600 ${h * 0.085}px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif`;
   g.fillText('Wi-Fi + Bluetooth module', w * 0.1, h * 0.47);
   g.fillText('2.4 GHz · 802.11 b/g/n', w * 0.1, h * 0.6);
   g.strokeStyle = '#7a7f87';
@@ -466,7 +466,7 @@ function BluePillBody({ st }: { st?: McuState }) {
             width={2.3}
             height={1.0}
             color="#bfc3ca"
-            font='700 52px "Barlow Condensed", sans-serif'
+            font='700 52px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif'
             position={[0, 0.556, 0]}
             rotation={[-Math.PI / 2, 0, 0]}
           />

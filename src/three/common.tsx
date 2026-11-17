@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo } from 'react';
+import { createContext, useContext, useEffect, useMemo, useSyncExternalStore } from 'react';
 import * as THREE from 'three';
 import { HOLE_MAP } from '../core/breadboard';
 
@@ -133,6 +133,44 @@ export function Tube({ pts, r = 0.12, color }: { pts: THREE.Vector3[]; r?: numbe
   );
 }
 
+// Text painted into canvas textures doesn't make the browser fetch a web font (and the HarmonyOS
+// Sans faces are split by unicode-range, so each piece loads only when something asks for it).
+// Text planes ask for exactly their characters, and every texture is repainted whenever a font
+// piece finishes loading, so nothing stays in a fallback face.
+let fontsVersion = 0;
+const fontSubs = new Set<() => void>();
+if (typeof document !== 'undefined' && document.fonts) {
+  document.fonts.addEventListener('loadingdone', () => {
+    fontsVersion++;
+    for (const f of fontSubs) f();
+  });
+}
+/** Bumps when web font pieces finish loading: canvas textures depending on it repaint. */
+export function useFontsVersion(): number {
+  return useSyncExternalStore(
+    (f) => {
+      fontSubs.add(f);
+      return () => {
+        fontSubs.delete(f);
+      };
+    },
+    () => fontsVersion,
+    () => 0,
+  );
+}
+/** Ask for the font pieces `text` needs in `font` (a no-op once they are there). */
+function useFontFor(font: string, text: string) {
+  useEffect(() => {
+    const fonts = typeof document !== 'undefined' ? document.fonts : undefined;
+    if (!fonts || !text) return;
+    try {
+      if (!fonts.check(font, text)) void fonts.load(font, text).catch(() => {});
+    } catch {
+      /* an unparsable font string: the canvas uses its fallback */
+    }
+  }, [font, text]);
+}
+
 /** A plane showing text rendered to a canvas (works offline and with CJK). */
 export function TextPlane({
   text,
@@ -140,7 +178,7 @@ export function TextPlane({
   height,
   color = '#1f2a44',
   bg = 'transparent',
-  font = '600 64px "Barlow Condensed", "Microsoft YaHei", sans-serif',
+  font = '600 64px "HarmonyOS Sans Condensed", "HarmonyOS Sans SC", sans-serif',
   ...rest
 }: {
   text: string | string[];
@@ -150,6 +188,8 @@ export function TextPlane({
   bg?: string;
   font?: string;
 } & JSX.IntrinsicElements['mesh']) {
+  const fontsV = useFontsVersion();
+  useFontFor(font, Array.isArray(text) ? text.join('') : text);
   const tex = useMemo(() => {
     const lines = Array.isArray(text) ? text : [text];
     const c = document.createElement('canvas');
@@ -171,7 +211,9 @@ export function TextPlane({
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 4;
     return t;
-  }, [text, width, height, color, bg, font]);
+    // fontsV: repaint once the face's pieces have loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, width, height, color, bg, font, fontsV]);
   useEffect(() => () => tex.dispose(), [tex]);
   return (
     <mesh {...rest}>
@@ -197,6 +239,7 @@ export function CanvasPlane({
   deps: unknown[];
   ppu?: number;
 } & JSX.IntrinsicElements['mesh']) {
+  const fontsV = useFontsVersion();
   const tex = useMemo(() => {
     const c = document.createElement('canvas');
     c.width = Math.round(ppu * width);
@@ -207,7 +250,7 @@ export function CanvasPlane({
     t.anisotropy = 4;
     return t;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, ppu, ...deps]);
+  }, [width, height, ppu, fontsV, ...deps]);
   useEffect(() => () => tex.dispose(), [tex]);
   return (
     <mesh {...rest}>
