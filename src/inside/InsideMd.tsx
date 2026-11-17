@@ -46,8 +46,22 @@ export function inline(s: string, key = 0): ReactNode[] {
           <MathText text={t.slice(1, -1)} />
         </span>
       );
-    return <Fragment key={k}>{t}</Fragment>;
+    return <Fragment key={k}>{plain(t, k)}</Fragment>;
   });
+}
+
+// symbols like R_in, v_{out}, U_s in plain text get a real subscript
+const SYM = /([A-Za-zα-ωΑ-Ω]_(?:\{[^}]+\}|[A-Za-z0-9]+))/g;
+function plain(t: string, key: string): ReactNode[] {
+  return t.split(SYM).map((p, i) =>
+    i % 2 ? (
+      <span key={`${key}-s${i}`} className="td-math">
+        <MathText text={p} />
+      </span>
+    ) : (
+      <Fragment key={`${key}-p${i}`}>{p}</Fragment>
+    ),
+  );
 }
 
 export function InsideMd({ text }: { text: string }) {
