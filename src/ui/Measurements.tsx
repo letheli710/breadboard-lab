@@ -249,7 +249,10 @@ function Question({
 
       {a.stale && !answered ? (
         <div className="pr-feedback close mq-fb" role="status">
-          <b>⚠ {tr('面包板变了', 'The board changed')}</b> —{' '}
+          <b>
+            <Icon name="alert" size={14} /> {tr('面包板变了', 'The board changed')}
+          </b>{' '}
+          —{' '}
           {q.what?.kind === 'formula'
             ? tr('它用到的读数改了，按新的读数重新算。', 'the readings it uses have changed; work it out again from them.')
             : tr('这个读数和现在的电路对不上了，重新测量。', 'this reading no longer matches the circuit as it is now; measure it again.')}
@@ -341,7 +344,7 @@ export function MeasurementSection({ ch, st, onComplete }: { ch: Challenge; st: 
       </div>
       {!st.passed && (
         <p className="mq-lock" role="note">
-          🔒{' '}
+          <Icon name="lock" size={14} />{' '}
           {st.changed
             ? tr(
                 '你改动了电路。再点一次「检查我的电路」，通过后继续测量（已答的读数会按新电路重新核对）。',

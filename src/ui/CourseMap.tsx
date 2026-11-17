@@ -11,6 +11,7 @@ import { tr } from '../core/i18n';
 import { ensureChallengeIndex } from '../state/challenges';
 import { onPage, useStore } from '../state/store';
 import { tabListKeys } from './a11y';
+import { Icon } from './Icons';
 
 /** Tabs: the five Worlds of the course map, then imported files outside it. */
 type Group = World['id'] | 'other';
@@ -170,7 +171,7 @@ export function CourseMap({ kind, onPick }: { kind: 'lesson' | 'challenge'; onPi
               title={chapters.map((c) => chapterById(c)!.title()).join(' · ')}
             >
               <div className="lc-num" aria-hidden>
-                📘
+                <Icon name="book" size={17} />
               </div>
               <div className="lc-body">
                 <div className="lc-title">{tr(`World ${world!.id} 的理论练习`, `World ${world!.id} theory`)}</div>

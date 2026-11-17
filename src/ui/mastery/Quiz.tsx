@@ -189,7 +189,7 @@ function QuizItemView({ q: quiz, i }: { q: ActiveQuiz; i: number }) {
         />
         {bad && (
           <p className="ms-unreadable small" role="status">
-            ⚠ {tr('读不出这个输入（不是对错判断）：', "This input can't be read (not a right/wrong judgement): ")}
+            <Icon name="alert" size={14} /> {tr('读不出这个输入（不是对错判断）：', "This input can't be read (not a right/wrong judgement): ")}
             {bad}
           </p>
         )}

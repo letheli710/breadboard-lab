@@ -809,7 +809,7 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
 
           {isDone && (
             <div className="ok-box big pr-done">
-              🎉 {tr('全部答对！', 'All correct!')}
+              <Icon name="party" size={18} /> {tr('全部答对！', 'All correct!')}
               {next && (
                 <button className="primary" onClick={() => open(next.id)}>
                   {tr('下一题', 'Next problem')} <Icon name="next" size={16} />

@@ -178,19 +178,13 @@ kbd {
   gap: 12px;
   align-items: center;
 }
+/* the brand stays small: the header's room goes to the page */
 .brand-title {
   font-family: var(--cond);
   font-weight: 700;
-  font-size: 26px;
-  letter-spacing: 0.1em;
+  font-size: 18px;
+  letter-spacing: 0.08em;
   line-height: 1;
-}
-.brand-sub {
-  font-family: var(--cond);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  color: var(--muted);
-  margin-top: 4px;
 }
 .nav {
   display: flex;
@@ -304,10 +298,31 @@ kbd {
   margin-top: 2px;
   white-space: nowrap;
 }
+/* the course button's fold control: a chevron in a round button-like well */
 .pc-chev {
-  font-size: 13px;
-  color: var(--muted);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink-2);
   transition: transform 0.15s;
+}
+.course-btn:hover .pc-chev {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.pc-unit {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.course-btn b {
+  color: var(--muted);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 .course-btn.open .pc-chev {
   transform: rotate(180deg);
@@ -1102,28 +1117,40 @@ kbd {
 }
 /* current step first: a compact card with numbered dots instead of the whole list */
 /* card-style units (ui/Cards.tsx): one card at a time */
-.course-crumb {
-  margin: 2px 0 0;
-  display: flex;
+.badge {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 3px;
 }
-.course-crumb .crumb-map {
-  flex: 1;
-  min-width: 0;
-  text-align: left;
+/* the kind badge is the button that unfolds where the unit sits in the course */
+.badge-toggle {
   border: none;
-  background: none;
-  padding: 2px 0;
+  cursor: pointer;
+  padding: 2px 6px 2px 8px;
+}
+.badge-toggle svg {
+  transition: transform 0.15s;
+}
+.badge-toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.task-head .crumb-nav {
+  margin-left: auto;
+}
+.task-where {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin-top: 6px;
   font-size: 13px;
   color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-.course-crumb .crumb-map:hover {
-  color: var(--ink);
-  text-decoration: underline;
+.task-where .link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
 }
 .crumb-nav {
   display: flex;
@@ -1157,10 +1184,10 @@ kbd {
   border-color: var(--accent);
   color: var(--accent-ink);
 }
+/* no one-sided accent stripes anywhere in the UI: a box is outlined all round or not at all */
 .card-body {
   background: var(--card);
   border: 1.5px solid var(--line);
-  border-left: 5px solid var(--accent);
   border-radius: 12px;
   padding: 10px 14px;
   font-size: 15px;
@@ -1306,15 +1333,6 @@ kbd {
 .cf-guide line {
   stroke: var(--muted);
   stroke-width: 1.1;
-}
-.unit-cards.kind-try .card-body {
-  border-left-color: #e0703c;
-}
-.unit-cards.kind-explain .card-body {
-  border-left-color: #d39c1c;
-}
-.unit-cards.kind-wrap .card-body {
-  border-left-color: #4a6fd1;
 }
 .card-title {
   margin: 0 0 6px;
@@ -1635,9 +1653,9 @@ kbd {
 }
 .blurb {
   background: var(--paper);
-  border-left: 3px solid var(--accent);
+  border: 1px solid var(--line);
   padding: 8px 10px;
-  border-radius: 0 10px 10px 0;
+  border-radius: 10px;
   color: var(--ink-2);
   font-size: 13px;
 }
@@ -1920,7 +1938,9 @@ a.concept-num:hover {
   }
 }
 .big-emoji {
-  font-size: 54px;
+  display: flex;
+  justify-content: center;
+  color: var(--accent);
 }
 .modal h2 {
   font-family: var(--cond);
@@ -2441,9 +2461,9 @@ button,
 }
 .pr-explain {
   margin: 8px 0 0 34px;
-  border-left: 3px solid var(--accent);
+  border: 1px solid var(--line);
   background: var(--card);
-  border-radius: 0 9px 9px 0;
+  border-radius: 9px;
   padding: 4px 10px;
   font-size: 13px;
   color: var(--ink-2);
@@ -2605,8 +2625,7 @@ button,
 }
 
 /* header: one more nav item (练习 Practice) — keep it on one line down to 1280px */
-.brand-title,
-.brand-sub {
+.brand-title {
   white-space: nowrap;
 }
 @media (max-width: 1420px) {
@@ -2907,7 +2926,7 @@ button,
 .pin-row.sel {
   background: var(--accent-soft);
   border-top-color: transparent;
-  box-shadow: inset 3px 0 0 var(--accent);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 .pin-row.dmg .pin-name {
   color: var(--bad);
@@ -5477,4 +5496,10 @@ h1[tabindex='-1']:focus-visible {
     order: 3;
     flex-basis: 100%;
   }
+}
+
+/* Lucide icons (ui/Icons.tsx): sit on the text baseline when inline */
+svg.icon {
+  flex-shrink: 0;
+  vertical-align: -0.16em;
 }

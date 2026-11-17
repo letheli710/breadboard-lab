@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Zap } from 'lucide-react';
 import { FigureFrame } from './FigureFrame';
 import { tr } from '../core/i18n';
 import { isFloating } from '../core/netlist';
@@ -259,11 +260,8 @@ function Symbol({ el, sim, hl }: { el: SElement; sim?: SimResult | null; hl: boo
               <path d="M11,3 L19,-3 M15.5,-3.5 L19,-3 L18,0.5" />
             </g>
           )}
-          {st?.burnt && (
-            <text x={-26} y={4} fontSize={14}>
-              💥
-            </text>
-          )}
+          {/* burnt out: a Lucide burst beside the LED (nested svg) */}
+          {st?.burnt && <Zap x={-30} y={-8} size={15} color="var(--bad)" strokeWidth={2.2} aria-label="burnt" />}
         </g>
       );
       break;

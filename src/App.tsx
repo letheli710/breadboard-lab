@@ -5,7 +5,7 @@ import { refreshProblems } from './state/problems';
 import { startIndexLoads, startRouting } from './state/routeSync';
 import { onPage, useLang, useStore, type Mode } from './state/store';
 import { inCourseOrder, itemLabel, placeOf } from './core/course';
-import { Icon } from './ui/Icons';
+import { CoreIcon as Icon } from './ui/IconCore';
 import { Toast } from './ui/Toast';
 import { Mixed } from './ui/Mixed';
 import { useBenchUi } from './state/benchUi';
@@ -47,7 +47,7 @@ const NAV: { mode: Mode; zh: string; en: string; icon: string }[] = [
 
 function Logo() {
   return (
-    <svg width="46" height="34" viewBox="0 0 46 34" aria-hidden>
+    <svg width="32" height="24" viewBox="0 0 46 34" aria-hidden>
       <rect x="1.5" y="1.5" width="43" height="31" rx="8" fill="#f7f2e7" stroke="#1f2a44" strokeWidth="3" />
       <line x1="7" y1="8" x2="39" y2="8" stroke="#e63946" strokeWidth="2.4" strokeLinecap="round" />
       <line x1="7" y1="26" x2="39" y2="26" stroke="#2b59c3" strokeWidth="2.4" strokeLinecap="round" />
@@ -200,6 +200,7 @@ function CourseButton() {
         aria-controls="course-map-pop"
         aria-haspopup="dialog"
         aria-label={`${name}${where ? `：${where}` : ''}${counts ? `，${counts}` : ''}`}
+        title={`${name}${where ? `：${where}` : ''}`}
         onPointerEnter={prefetch}
         onFocus={prefetch}
         onClick={() => {
@@ -207,16 +208,13 @@ function CourseButton() {
           setOpenKey(open ? null : key);
         }}
       >
-        <Icon name={page === 'learn' ? 'book' : 'target'} size={22} />
-        <div aria-hidden>
-          <div className="pc-title">
-            <Mixed text={page === 'learn' ? tr('课程地图 COURSE MAP', 'COURSE MAP') : tr('挑战 CHALLENGES', 'CHALLENGES')} />
-          </div>
-          <div className="pc-where">{where || tr('点开选一课', 'pick a unit')}</div>
-        </div>
+        <Icon name={page === 'learn' ? 'book' : 'target'} size={18} />
+        <span className="pc-unit" aria-hidden>
+          {place ? itemLabel(place) : page === 'learn' ? tr('课程', 'Units') : tr('挑战', 'Challenges')}
+        </span>
         {status !== 'idle' && <b aria-hidden>{total === null ? '–/–' : `${done}/${total}`}</b>}
         <span className="pc-chev" aria-hidden>
-          ▾
+          <Icon name="down" size={18} />
         </span>
       </button>
       {open && (
@@ -280,7 +278,7 @@ function CelebrateDialog() {
     <div className="modal-bg" onClick={() => setCelebrate(false)}>
       <div className="modal card" ref={box} role="dialog" aria-modal="true" aria-labelledby="celebrate-title" onClick={(e) => e.stopPropagation()}>
         <div className="big-emoji" aria-hidden>
-          🎉
+          <Icon name="party" size={52} />
         </div>
         <h2 id="celebrate-title">{tr('完全正确！', 'Perfect!')}</h2>
         <p>
@@ -453,14 +451,8 @@ export default function App() {
       <header className="top">
         <div className="brand">
           <Logo />
-          <div>
-            <div className="brand-title" lang="en">
-              BREADBOARD LAB
-            </div>
-            <div className="brand-sub">
-              {tr('面包板实验室 · ', '')}
-              <span lang="en">EXPLORE · CONNECT · BUILD</span>
-            </div>
+          <div className="brand-title" lang="en">
+            BREADBOARD LAB
           </div>
         </div>
         <CourseButton />

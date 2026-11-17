@@ -28,10 +28,10 @@ export function figureOf(ch: Challenge): ((id: string) => ReactNode) | undefined
 }
 
 const KIND: Record<CardKind, { icon: string; zh: string; en: string }> = {
-  try: { icon: '🔥', zh: '试一试', en: 'Try it' },
-  explain: { icon: '💡', zh: '想明白', en: 'Why' },
-  build: { icon: '🛠️', zh: '动手做', en: 'Build' },
-  wrap: { icon: '🚀', zh: '带走', en: 'Take away' },
+  try: { icon: 'try', zh: '试一试', en: 'Try it' },
+  explain: { icon: 'bulb', zh: '想明白', en: 'Why' },
+  build: { icon: 'build', zh: '动手做', en: 'Build' },
+  wrap: { icon: 'wrap', zh: '带走', en: 'Take away' },
 };
 export const cardKindLabel = (k: CardKind) => tr(KIND[k].zh, KIND[k].en);
 
@@ -143,7 +143,7 @@ export function CardDeck({ ch, sc }: { ch: Challenge; sc: StepChecks }) {
       <nav className="card-tabs" aria-label={tr('卡片', 'Cards')}>
         {cards.map((k, i) => (
           <button key={i} className={`${i === card ? 'on' : ''} ${cardDone(i) ? 'done' : ''}`} aria-current={i === card ? 'step' : undefined} onClick={() => go(i)}>
-            <span aria-hidden>{cardDone(i) && i !== card ? '✓' : KIND[k.kind].icon}</span> {cardKindLabel(k.kind)}
+            <Icon name={cardDone(i) && i !== card ? 'check' : KIND[k.kind].icon} size={15} /> {cardKindLabel(k.kind)}
           </button>
         ))}
       </nav>
@@ -159,7 +159,7 @@ export function CardDeck({ ch, sc }: { ch: Challenge; sc: StepChecks }) {
             <div className="row wrap">
               {c.practice.map((id) => (
                 <button key={id} className="pr-link" onClick={() => openSummary({ chapter: id })}>
-                  📘 {chapterById(id)?.title() ?? id}
+                  <Icon name="book" size={15} /> {chapterById(id)?.title() ?? id}
                 </button>
               ))}
             </div>

@@ -492,9 +492,7 @@ function Toolbar() {
         aria-label={tr('重做', 'Redo')}
         aria-keyshortcuts="Control+Shift+Z Control+Y"
       >
-        <span className="flip-x">
-          <Icon name="undo" />
-        </span>
+        <Icon name="redo" />
       </button>
       <ConfirmButton
         message={tr('清空面包板上的所有元件？（可以撤销）', 'Remove every part from the breadboard? (You can undo.)')}

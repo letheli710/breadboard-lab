@@ -34,7 +34,12 @@ import { Mixed } from './Mixed';
 export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: string }) {
   const setHighlight = useStore((s) => s.setHighlight);
   const highlight = useStore((s) => s.highlight);
-  if (issues.length === 0) return <div className="ok-box">{emptyText ?? tr('没有发现问题 👍', 'No problems found 👍')}</div>;
+  if (issues.length === 0)
+    return (
+      <div className="ok-box">
+        <Icon name="ok" size={16} /> {emptyText ?? tr('没有发现问题', 'No problems found')}
+      </div>
+    );
   return (
     <ul className="issues">
       {issues.map((i, k) => {
@@ -71,10 +76,14 @@ function Stars({ n }: { n: number }) {
 
 /** Where this item sits in the course: "World 1 · 1.3 …" opens the course map; ‹ › go to the
  *  previous / next item of this page in course order (so the map is rarely needed). */
-function CourseCrumb({ ch }: { ch: Challenge }) {
+/** The task's head row: the kind badge (a button: it unfolds where the unit sits in the course),
+ *  difficulty, done / imported marks, and previous / next in course order. */
+function TaskHead({ ch }: { ch: Challenge }) {
   const challenges = useStore((s) => s.challenges);
+  const completed = useStore((s) => s.completed);
   const mode = useStore((s) => s.mode);
   const open = useStore((s) => s.openChallenge);
+  const [shown, setShown] = useState(false);
   const page = mode === 'challenge' ? 'challenge' : 'learn';
   const list = inCourseOrder(challenges.filter((c) => onPage(c, page)));
   const i = list.findIndex((c) => c.id === ch.id);
@@ -85,41 +94,61 @@ function CourseCrumb({ ch }: { ch: Challenge }) {
     const p = placeOf(c.id);
     return p ? `${itemLabel(p)} ${c.title}` : c.title;
   };
-  if (!place && !prev && !next) return null;
   return (
-    <div className="course-crumb">
-      <button className="crumb-map" onClick={() => window.dispatchEvent(new Event('bb-open-course-map'))} title={tr('打开课程地图', 'Open the course map')}>
-        {place ? (
-          <>
-            World {place.world.id} · {place.unit.num} {unitTitle(place.unit.num)}
-            {place.unit.items.length > 1 && (
-              <span className="muted"> · {tr(`第 ${place.pos + 1} / ${place.unit.items.length} 项`, `item ${place.pos + 1} of ${place.unit.items.length}`)}</span>
-            )}
-          </>
-        ) : (
-          tr('课程地图', 'Course map')
-        )}{' '}
-        <span aria-hidden>▾</span>
-      </button>
-      <span className="crumb-nav">
+    <>
+      <div className="task-head">
         <button
-          disabled={!prev}
-          onClick={() => prev && open(prev.id, page)}
-          aria-label={prev ? tr(`上一个：${label(prev)}`, `Previous: ${label(prev)}`) : tr('上一个', 'Previous')}
-          title={prev ? label(prev) : undefined}
+          className={`badge ${ch.kind} badge-toggle`}
+          aria-expanded={shown}
+          aria-controls="task-where"
+          onClick={() => setShown(!shown)}
+          title={tr('这一课在课程里的位置', 'Where this unit sits in the course')}
         >
-          <Icon name="prev" size={14} />
+          <Mixed text={ch.kind === 'lesson' ? tr('课程 LESSON', 'LESSON') : tr('挑战 CHALLENGE', 'CHALLENGE')} />
+          <Icon name="down" size={13} />
         </button>
-        <button
-          disabled={!next}
-          onClick={() => next && open(next.id, page)}
-          aria-label={next ? tr(`下一个：${label(next)}`, `Next: ${label(next)}`) : tr('下一个', 'Next')}
-          title={next ? label(next) : undefined}
-        >
-          <Icon name="next" size={14} />
-        </button>
-      </span>
-    </div>
+        <Stars n={ch.level} />
+        {completed[ch.id] && (
+          <span className="badge done">
+            <Icon name="check" size={12} /> {tr('已完成', 'Done')}
+          </span>
+        )}
+        {ch.source !== 'folder' && <span className="badge src">{tr('导入', 'Imported')}</span>}
+        {(prev || next) && (
+          <span className="crumb-nav">
+            <button
+              disabled={!prev}
+              onClick={() => prev && open(prev.id, page)}
+              aria-label={prev ? tr(`上一个：${label(prev)}`, `Previous: ${label(prev)}`) : tr('上一个', 'Previous')}
+              title={prev ? label(prev) : undefined}
+            >
+              <Icon name="prev" size={14} />
+            </button>
+            <button
+              disabled={!next}
+              onClick={() => next && open(next.id, page)}
+              aria-label={next ? tr(`下一个：${label(next)}`, `Next: ${label(next)}`) : tr('下一个', 'Next')}
+              title={next ? label(next) : undefined}
+            >
+              <Icon name="next" size={14} />
+            </button>
+          </span>
+        )}
+      </div>
+      {shown && (
+        <div className="task-where" id="task-where">
+          {place && (
+            <span>
+              World {place.world.id} · {place.unit.num} {unitTitle(place.unit.num)}
+              {place.unit.items.length > 1 && <> · {tr(`第 ${place.pos + 1} / ${place.unit.items.length} 项`, `item ${place.pos + 1} of ${place.unit.items.length}`)}</>}
+            </span>
+          )}
+          <button className="link" onClick={() => window.dispatchEvent(new Event('bb-open-course-map'))}>
+            <Icon name="map" size={14} /> {tr('打开课程地图', 'Open the course map')}
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -130,7 +159,6 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   const setCheck = useStore((s) => s.setCheck);
   const loadLayout = useStore((s) => s.loadLayout);
   const markCompleted = useStore((s) => s.markCompleted);
-  const completed = useStore((s) => s.completed);
   const setCelebrate = useStore((s) => s.setCelebrate);
   const { nl, issues } = useDerived();
   const targetSim = useMemo(() => simulate(ch.target), [ch]);
@@ -198,15 +226,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
 
   return (
     <div className="task">
-      <div className="task-head">
-        <span className={`badge ${ch.kind}`}>
-          <Mixed text={ch.kind === 'lesson' ? tr('课程 LESSON', 'LESSON') : tr('挑战 CHALLENGE', 'CHALLENGE')} />
-        </span>
-        <Stars n={ch.level} />
-        {completed[ch.id] && <span className="badge done">✓ {tr('已完成', 'Done')}</span>}
-        {ch.source !== 'folder' && <span className="badge src">{tr('导入', 'Imported')}</span>}
-      </div>
-      <CourseCrumb ch={ch} />
+      <TaskHead key={ch.id} ch={ch} />
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
       <Prereqs ch={ch} />
@@ -239,7 +259,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
               </div>
             ) : check.perfect ? (
               <div className="ok-box big">
-                🎉{' '}
+                <Icon name="party" size={18} />{' '}
                 {tr(
                   `完全正确！连接关系与目标电路一致${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。`,
                   `Perfect! The connections match the target circuit${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}.`,
@@ -498,8 +518,8 @@ function IssuesPanel() {
       <IssueList
         issues={issues}
         emptyText={tr(
-          '没有检测到常见错误 👍（这不代表电路一定符合题目要求——用“检查”按钮核对）',
-          'No common mistakes found 👍 (that doesn\'t mean it matches the task — use the "Check" button for that)',
+          '没有检测到常见错误（这不代表电路一定符合题目要求——用“检查”按钮核对）',
+          'No common mistakes found (that doesn\'t mean it matches the task — use the "Check" button for that)',
         )}
       />
       {Object.keys(counts).length > 0 && (
