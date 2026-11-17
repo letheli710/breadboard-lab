@@ -394,12 +394,12 @@ Example (lesson 1): [[vcc|column 5, a–e, is VCC]] (jumpered to the + rail), [[
         body: tr(
           `做实验时把金属条当成理想导线，大多数时候没问题。但工程师要知道它“差多少”，才知道什么时候不能忽略：
 
-- [[rcontact|接触电阻]] 每个触点约 10–50 mΩ。一个元件两只脚，串进去约 $2R_c$。接 470 Ω 电阻时误差约 $\\frac{0.1}{470} ≈ 0.02\\%$，完全可以忽略；但如果你用面包板测 0.1 Ω 的电流检测电阻，误差就有几十 %。
+- [[rcontact|接触电阻]] 每个触点约 10–50 mΩ。一个元件两只脚，串进去约 $2R_c$。接 470 Ω 电阻时误差约 $\\frac{0.1}{470} ≈ 0.02 %$，完全可以忽略；但如果你用面包板测 0.1 Ω 的电流检测电阻，误差就有几十 %。
 - [[cstray|相邻金属条之间的寄生电容]] 约 2–5 pF。它的容抗 $X_C = \\frac{1}{2πfC}$ 随频率下降：1 kHz 时约 50 MΩ（看不见），10 MHz 时只剩约 5 kΩ（信号会“漏”到隔壁一列）。所以 **面包板适合几 MHz 以下** 的电路。
 - 电流：每条金属条一般不超过约 1 A，大电流会发热、接触变差。`,
           `Treating a strip as an ideal wire is fine most of the time. An engineer wants to know *how far off* it is, to know when it stops being fine:
 
-- [[rcontact|contact resistance]] is about 10–50 mΩ per contact. A two-lead part adds about $2R_c$ in series. With a 470 Ω resistor that is about $\\frac{0.1}{470} ≈ 0.02\\%$ — negligible; but measure a 0.1 Ω current-sense resistor on a breadboard and the error is tens of per cent.
+- [[rcontact|contact resistance]] is about 10–50 mΩ per contact. A two-lead part adds about $2R_c$ in series. With a 470 Ω resistor that is about $\\frac{0.1}{470} ≈ 0.02 %$ — negligible; but measure a 0.1 Ω current-sense resistor on a breadboard and the error is tens of per cent.
 - [[cstray|stray capacitance between neighbouring strips]] is about 2–5 pF. Its reactance $X_C = \\frac{1}{2πfC}$ falls with frequency: about 50 MΩ at 1 kHz (invisible), only about 5 kΩ at 10 MHz (signal leaks into the next column). So **breadboards are for circuits below a few MHz**.
 - Current: keep each strip under about 1 A; more heats the contacts and makes them worse.`,
         ),
