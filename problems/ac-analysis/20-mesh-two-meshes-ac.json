@@ -1,0 +1,91 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-analysis-20-mesh-two-meshes-ac",
+  "chapter": "ac-analysis",
+  "title": "网孔电流法的交流版：两个网孔",
+  "level": 2,
+  "tags": ["网孔电流法", "复阻抗", "从直流到交流"],
+  "statement": [
+    "和 World 2 的 `methods-02-mesh-two-meshes` 同一个结构，只是 R_3 换成了电感 L、R_4 换成了电容 C，两个电压源换成了同频率的正弦源。",
+    "ω = 1000 rad/s，V̇_s1 = 10∠0° V，V̇_s2 = 6∠0° V（有效值相量），R_1 = 2 Ω，L = 2 mH，R_2 = 4 Ω，C = 250 µF。两个网孔电流 İ_m1、İ_m2 都取**顺时针**方向。",
+    "用**网孔电流法**求 İ_m1、İ_m2、中间支路向下的电流 İ_3，以及 V_s2 吸收的平均功率。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Vs1", "type": "V", "from": [0, 0], "to": [0, 6], "value": { "ac": { "mag": 10, "phase": 0 } } },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 2 },
+      { "ref": "L", "type": "L", "from": [8, 0], "to": [8, 3], "value": "2m" },
+      { "ref": "Vs2", "type": "V", "from": [8, 3], "to": [8, 6], "value": { "ac": { "mag": 6, "phase": 0 } } },
+      { "ref": "R2", "type": "R", "from": [10, 0], "to": [14, 0], "value": 4 },
+      { "ref": "C", "type": "C", "from": [16, 0], "to": [16, 6], "value": "250u" }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [10, 0]],
+      [[14, 0], [16, 0]],
+      [[16, 6], [0, 6]]
+    ],
+    "grounds": [[0, 6]],
+    "marks": [
+      { "kind": "i", "el": "R1", "name": "I1" },
+      { "kind": "i", "el": "L", "name": "I3" },
+      { "kind": "i", "el": "C", "name": "I4" }
+    ],
+    "loops": [{ "at": [4, 3], "name": "I_m1" }, { "at": [12, 3], "name": "I_m2" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "im1", "ask": "网孔电流 |İ_m1| = ?（等于图中 R_1 的电流 İ_1）", "find": { "kind": "i", "el": "R1" }, "answer": 1, "unit": "A", "explain": "解出 İ_m1 = 1∠0° A：它正好和两个电源同相。" },
+    { "id": "im2", "ask": "网孔电流 |İ_m2| = ?（等于图中 C 的电流 İ_4）", "find": { "kind": "i", "el": "C" }, "answer": 1.414214, "unit": "A", "explain": "İ_m2 = 1 + j1 A，模 √2 ≈ 1.414 A。" },
+    { "id": "im2ph", "ask": "İ_m2 的相位 = ?", "find": { "kind": "i", "el": "C", "part": "phase" }, "answer": 45, "unit": "°", "explain": "İ_m2 = 1 + j1 = 1.414∠45° A。" },
+    { "id": "i3ph", "ask": "İ_3 的相位 = ?", "find": { "kind": "i", "el": "L", "part": "phase" }, "answer": -90, "unit": "°", "explain": "İ_3 = İ_m1 − İ_m2 = 1 − (1 + j1) = −j1 A = 1∠−90° A。" },
+    { "id": "p", "ask": "V_s2 吸收的平均功率 P = ?", "find": { "kind": "p", "el": "Vs2" }, "answer": 0, "unit": "W", "explain": "P = Re(V̇_s2·İ_3*) = Re(6 × j1) = 0。V_s2 的电流比电压落后 90°，平均下来既不吸收也不发出功率。直流题里 V_s2 吸收 8 W；交流里只有和电压同相的那部分电流才产生平均功率。" }
+  ],
+  "hints": [
+    "规则和直流一样：自阻抗 × 本网孔电流 − 互阻抗 × 相邻网孔电流 = 本网孔中电压源的电压升之和。",
+    "先算阻抗：Z_L = jωL，Z_C = −j/(ωC)。两个网孔共用中间支路，互阻抗就是 Z_L；V̇_s2 在两个网孔里符号相反。",
+    "网孔 1 的方程两边除以 2 后是 (1 + j)İ_m1 − jİ_m2 = 2；用它把 İ_m2 写成 İ_m1 的式子，再代入网孔 2。"
+  ],
+  "solution": [
+    "**1. 阻抗。** Z_L = jωL = j1000 × 0.002 = j2 Ω，Z_C = −j/(ωC) = −j/(1000 × 250×10⁻⁶) = −j4 Ω。",
+    "**2. 网孔 1：** (R_1 + Z_L)İ_m1 − Z_L·İ_m2 = V̇_s1 − V̇_s2 → (2 + j2)İ_m1 − j2İ_m2 = 4。顺时针绕网孔 1，经过 V_s2 是从“+”到“−”，是电压降，所以减去。",
+    "**3. 网孔 2：** −Z_L·İ_m1 + (Z_L + R_2 + Z_C)İ_m2 = V̇_s2 → −j2İ_m1 + (4 − j2)İ_m2 = 6。",
+    "**4. 求解。** 由网孔 1：İ_m2 = (1 − j)İ_m1 + j2。代入网孔 2：−j2İ_m1 + (2 − j6)İ_m1 + (4 + j8) = 6 → (2 − j8)İ_m1 = 2 − j8 → **İ_m1 = 1∠0° A**，**İ_m2 = 1 + j1 A = 1.414∠45° A**。",
+    "**5. 中间支路：** İ_3 = İ_m1 − İ_m2 = **−j1 A = 1∠−90° A**。",
+    "**6. V_s2 的功率：** P = Re(V̇_s2·İ_3*) = Re(6 × j1) = **0 W**。",
+    "**验算（功率平衡）。** V_s1 发出 Re(10 × 1) = 10 W；R_1 吸收 1² × 2 = 2 W，R_2 吸收 (√2)² × 4 = 8 W；L、C、V_s2 都是 0 W。2 + 8 = 10 W ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Mesh analysis, AC edition: two meshes",
+      "tags": ["mesh analysis", "complex impedance", "from DC to AC"],
+      "statement": [
+        "Same structure as World 2's `methods-02-mesh-two-meshes`; only R_3 has become an inductor L, R_4 a capacitor C, and the two voltage sources are sinusoids of the same frequency.",
+        "ω = 1000 rad/s, V̇_s1 = 10∠0° V, V̇_s2 = 6∠0° V (rms phasors), R_1 = 2 Ω, L = 2 mH, R_2 = 4 Ω, C = 250 µF. Both mesh currents İ_m1 and İ_m2 are **clockwise**.",
+        "Use **mesh analysis** to find İ_m1, İ_m2, the downward current İ_3 in the middle branch, and the average power absorbed by V_s2."
+      ],
+      "questions": [
+        { "ask": "Mesh current |İ_m1| = ? (equal to the current İ_1 in R_1 on the drawing)", "explain": "The solution is İ_m1 = 1∠0° A: exactly in phase with both sources." },
+        { "ask": "Mesh current |İ_m2| = ? (equal to the current İ_4 in C on the drawing)", "explain": "İ_m2 = 1 + j1 A, magnitude √2 ≈ 1.414 A." },
+        { "ask": "Phase of İ_m2 = ?", "explain": "İ_m2 = 1 + j1 = 1.414∠45° A." },
+        { "ask": "Phase of İ_3 = ?", "explain": "İ_3 = İ_m1 − İ_m2 = 1 − (1 + j1) = −j1 A = 1∠−90° A." },
+        { "ask": "Average power absorbed by V_s2, P = ?", "explain": "P = Re(V̇_s2·İ_3*) = Re(6 × j1) = 0. The current in V_s2 lags its voltage by 90°, so on average it neither absorbs nor delivers power. In the DC problem V_s2 absorbed 8 W; in AC only the part of the current in phase with the voltage gives average power." }
+      ],
+      "hints": [
+        "Same rule as in DC: self-impedance × own mesh current − mutual impedance × neighbouring mesh current = sum of the source voltage rises in the mesh.",
+        "First compute the impedances: Z_L = jωL, Z_C = −j/(ωC). The two meshes share the middle branch, so the mutual impedance is Z_L; V̇_s2 enters the two meshes with opposite signs.",
+        "Divided by 2, the mesh-1 equation is (1 + j)İ_m1 − jİ_m2 = 2; use it to write İ_m2 in terms of İ_m1, then substitute into mesh 2."
+      ],
+      "solution": [
+        "**1. Impedances.** Z_L = jωL = j1000 × 0.002 = j2 Ω, Z_C = −j/(ωC) = −j/(1000 × 250×10⁻⁶) = −j4 Ω.",
+        "**2. Mesh 1:** (R_1 + Z_L)İ_m1 − Z_L·İ_m2 = V̇_s1 − V̇_s2 → (2 + j2)İ_m1 − j2İ_m2 = 4. Going clockwise round mesh 1 you pass V_s2 from + to −, a drop, so it is subtracted.",
+        "**3. Mesh 2:** −Z_L·İ_m1 + (Z_L + R_2 + Z_C)İ_m2 = V̇_s2 → −j2İ_m1 + (4 − j2)İ_m2 = 6.",
+        "**4. Solve.** From mesh 1: İ_m2 = (1 − j)İ_m1 + j2. Into mesh 2: −j2İ_m1 + (2 − j6)İ_m1 + (4 + j8) = 6 → (2 − j8)İ_m1 = 2 − j8 → **İ_m1 = 1∠0° A**, **İ_m2 = 1 + j1 A = 1.414∠45° A**.",
+        "**5. Middle branch:** İ_3 = İ_m1 − İ_m2 = **−j1 A = 1∠−90° A**.",
+        "**6. Power of V_s2:** P = Re(V̇_s2·İ_3*) = Re(6 × j1) = **0 W**.",
+        "**Check (power balance).** V_s1 delivers Re(10 × 1) = 10 W; R_1 absorbs 1² × 2 = 2 W, R_2 absorbs (√2)² × 4 = 8 W; L, C and V_s2 take 0 W. 2 + 8 = 10 W ✓."
+      ]
+    }
+  }
+}

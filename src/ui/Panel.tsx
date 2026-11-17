@@ -31,6 +31,10 @@ import { useBenchUi } from '../state/benchUi';
 import { tabListKeys } from './a11y';
 import { Mixed } from './Mixed';
 
+// the description's pictures (`figures`) use the theory-problem drawing code: loaded only when a
+// lesson / challenge has some
+import { PortalSlot } from './course/PortalSlot';
+
 export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: string }) {
   const setHighlight = useStore((s) => s.setHighlight);
   const highlight = useStore((s) => s.highlight);
@@ -139,7 +143,7 @@ function TaskHead({ ch }: { ch: Challenge }) {
         <div className="task-where" id="task-where">
           {place && (
             <span>
-              World {place.world.id} · {place.unit.num} {unitTitle(place.unit.num)}
+              {place.world.label()} · {place.unit.num} {unitTitle(place.unit.num)}
               {place.unit.items.length > 1 && <> · {tr(`第 ${place.pos + 1} / ${place.unit.items.length} 项`, `item ${place.pos + 1} of ${place.unit.items.length}`)}</>}
             </span>
           )}
@@ -230,6 +234,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
       <Prereqs ch={ch} />
+      {ch.source === 'folder' && <PortalSlot kind="challenge" id={ch.id} part="top" />}
       {hasM && <StageBar circuitOk={ms.passed} st={ms} />}
 
       {usesCards ? <CardDeck ch={ch} sc={sc} /> : nSteps > 0 && <StepNav ch={ch} from={0} to={nSteps} sc={sc} />}
@@ -316,6 +321,8 @@ function TaskPanel({ ch }: { ch: Challenge }) {
               )}
         </p>
       </details>
+
+      {ch.source === 'folder' && <PortalSlot kind="challenge" id={ch.id} part="bottom" />}
 
       {/* sticky at the bottom of the scrolling panel: always on screen */}
       <div className="actions">

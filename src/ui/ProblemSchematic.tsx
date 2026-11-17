@@ -422,6 +422,8 @@ interface Props {
   /** element refs drawn in the accent colour */
   highlight?: string[];
   className?: string;
+  /** text alternative; default: generated from the drawing (describeSchematic) */
+  alt?: string;
 }
 
 const KIND: Record<string, [string, string]> = {
@@ -524,7 +526,7 @@ const figureLabel = (s: Schematic) => {
   return `${tr('电路图', 'Circuit diagram')} (${refs.slice(0, 4).join(', ')}${refs.length > 4 ? ' …' : ''})`;
 };
 
-export function ProblemSchematic({ schematic, highlight, className }: Props) {
+export function ProblemSchematic({ schematic, highlight, className, alt }: Props) {
   const lang = getLang();
   const hlKey = (highlight ?? []).join('|');
   const out = useMemo(() => drawSchematic(schematic, new Set(highlight ?? [])), [schematic, hlKey, lang]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -536,7 +538,7 @@ export function ProblemSchematic({ schematic, highlight, className }: Props) {
         viewBox={`${out.box.x0} ${out.box.y0} ${out.box.x1 - out.box.x0} ${out.box.y1 - out.box.y0}`}
         style={{ maxWidth: Math.round((out.box.x1 - out.box.x0) * 1.1) }}
         role="img"
-        aria-label={desc}
+        aria-label={alt || desc}
       >
         {out.body}
       </svg>

@@ -5,7 +5,7 @@
 import { Fragment, useLayoutEffect, useRef, useState } from 'react';
 import type { Challenge } from '../core/challenge';
 import { inCourseOrder, itemLabel, placeOf, WORLDS, worldChapters, type World } from '../core/course';
-import { unitTitle, worldBlurb, worldTitle } from '../core/courseText';
+import { unitTitle, worldTitle } from '../core/courseText';
 import { chapterById } from '../core/problem/chapters';
 import { tr } from '../core/i18n';
 import { ensureChallengeIndex } from '../state/challenges';
@@ -17,7 +17,7 @@ import { Icon } from './Icons';
 type Group = World['id'] | 'other';
 const groupOf = (c: Challenge): Group => placeOf(c.id)?.world.id ?? 'other';
 const worldOf = (g: Group) => WORLDS.find((w) => w.id === g);
-const groupLabel = (g: Group) => (g === 'other' ? tr('其他', 'Other') : `World ${g}`);
+const groupLabel = (g: Group) => (g === 'other' ? tr('其他', 'Other') : (worldOf(g)?.label() ?? `World ${g}`));
 
 export function CourseMap({ kind, onPick }: { kind: 'lesson' | 'challenge'; onPick?: () => void }) {
   const challenges = useStore((s) => s.challenges);
@@ -94,7 +94,11 @@ export function CourseMap({ kind, onPick }: { kind: 'lesson' | 'challenge'; onPi
       </div>
       {world && (
         <p className="world-line">
-          <b>{worldTitle(world.id)}</b> · {worldBlurb(world.id)} <span className="muted">({world.books})</span>
+          <b>
+            {world.label()} · {worldTitle(world.id)}
+          </b>{' '}
+          <span className="muted">({world.books()})</span>
+          {world.current && <span className="badge world-here">{tr('当前进度', 'You are here')}</span>}
         </p>
       )}
       {status === 'error' ? (
@@ -174,7 +178,7 @@ export function CourseMap({ kind, onPick }: { kind: 'lesson' | 'challenge'; onPi
                 <Icon name="book" size={17} />
               </div>
               <div className="lc-body">
-                <div className="lc-title">{tr(`World ${world!.id} 的理论练习`, `World ${world!.id} theory`)}</div>
+                <div className="lc-title">{tr(`${world!.label()} 的理论练习`, `${world!.label()} theory`)}</div>
                 <div className="lc-meta">{tr(`${chapters.length} 章 · 从要点开始`, `${chapters.length} chapters · start with the key points`)}</div>
               </div>
             </button>

@@ -38,18 +38,18 @@
     {
       "id": "concept",
       "ask": "关于反相输入端结点 n，下列说法正确的是？",
-      "choices": ["n 点电位为零（虚地），但它并没有真的接地", "n 点用导线接地，所以电位为零", "n 点电位等于 v_s"], "choiceExplain": ["", "n 点并没有导线接地。它的电位为零是“虚短”的结果：同相端接地，v_{−} = v_{+} = 0，所以叫“虚地”。", "“虚短”使 v_{−} 等于同相端电位 v_{+}（这里是 0），而不是等于 v_s；只有 v_s 接在同相端时（同相放大器、跟随器）才有 v_{−} = v_s。"],
+      "choices": ["n 点电位为零（虚地），但它并没有真的接地", "n 点用导线接地，所以电位为零", "n 点电位等于 v_s"], "choiceExplain": ["", "图上 n 点并没有导线接到地。想一想：它的电位是由哪条规则决定的？", "“虚短”使 v_{−} 等于同相端电位 v_{+}，而不是等于 v_s；只有 v_s 接在同相端时（同相放大器、跟随器）才有 v_{−} = v_s。看一看这里的同相端接在哪里。"],
       "correct": 0,
       "explain": "n 点电位为零是因为“虚短”（v_{−} = v_{+} = 0），并不是真的有导线接地；正因为“虚断”，R_1 的电流不会流进运放，只能全部经过 R_f。"
     }
   ],
-  "hints": ["理想运放两条规则：虚短 v_{−} = v_{+}；虚断 i_{−} = i_{+} = 0。", "同相端接地，所以反相端 n 也是 0 V；R_1 的电流全部流过 R_f。"],
+  "hints": ["R_f 把输出接回反相端（负反馈），所以可以用理想运放的两条规则：虚短 v_{−} = v_{+}；虚断 i_{−} = i_{+} = 0。", "同相端接地，所以反相端 n 也是 0 V；R_1 的电流全部流过 R_f。"],
   "solution": [
-    "**1. 虚短。** 同相端接地，v_{+} = 0，所以 v_n = v_{−} = 0（虚地）。",
+    "**1. 负反馈与虚短。** R_f 把输出接回反相端，构成负反馈，运放工作在线性区。同相端接地，v_{+} = 0，由虚短 v_n = v_{−} = 0（虚地）。",
     "**2. R_1 的电流。** i_1 = (v_s − v_n)/R_1 = 1/10 kΩ = **0.1 mA**。",
-    "**3. 虚断。** 反相端不取电流，对结点 n 列 KCL：i_f = i_1 = 0.1 mA。",
+    "**3. 结点 n 的 KCL。** 由虚断，反相端不取电流，所以 i_f = i_1 = 0.1 mA。",
     "**4. 输出电压。** v_o = v_n − R_f·i_f = 0 − 40 kΩ × 0.1 mA = **−4 V**。",
-    "一般地 v_o = −(R_f/R_1)·v_s = −4 × 1 V，“−”号表示输出与输入反相。"
+    "**验算：** 公式 v_o = −(R_f/R_1)·v_s = −4 × 1 V = −4 V ✓。“−”号表示输出与输入反相。"
   ],
   "i18n": {
     "en": {
@@ -64,17 +64,17 @@
         { "ask": "v_o = ?", "explain": "Virtual open: no current enters the inverting input, so i_f = i_1. v_o = v_{−} − R_f·i_f = 0 − 40k × 0.1 mA = −4 V, i.e. v_o = −(R_f/R_1)·v_s." },
         {
           "ask": "Which statement about the inverting-input node n is true?",
-          "choices": ["n is at 0 V (a virtual ground), but it is not actually connected to ground", "n is wired to ground, so it is at 0 V", "n is at the potential v_s"], "choiceExplain": ["", "No wire grounds n. It sits at 0 V because of the virtual short: the non-inverting input is grounded, so v_{−} = v_{+} = 0 — hence \"virtual\" ground.", "The virtual short makes v_{−} equal to the non-inverting input v_{+} (here 0), not to v_s; v_{−} = v_s only when v_s drives the non-inverting input (non-inverting amplifier, follower)."],
+          "choices": ["n is at 0 V (a virtual ground), but it is not actually connected to ground", "n is wired to ground, so it is at 0 V", "n is at the potential v_s"], "choiceExplain": ["", "No wire connects n to ground in the figure. Which rule fixes its potential?", "The virtual short makes v_{−} equal to the non-inverting input v_{+}, not to v_s; v_{−} = v_s only when v_s drives the non-inverting input (non-inverting amplifier, follower). Look at where the non-inverting input is connected here."],
           "explain": "n is at 0 V because of the virtual short (v_{−} = v_{+} = 0), not because of a wire to ground. Because of the virtual open, the current in R_1 cannot enter the op-amp and must all flow through R_f."
         }
       ],
-      "hints": ["The two rules of the ideal op-amp: virtual short v_{−} = v_{+}; virtual open i_{−} = i_{+} = 0.", "The non-inverting input is grounded, so node n is at 0 V too; all of R_1's current goes on through R_f."],
+      "hints": ["R_f connects the output back to the inverting input (negative feedback), so the two rules of the ideal op-amp apply: virtual short v_{−} = v_{+}; virtual open i_{−} = i_{+} = 0.", "The non-inverting input is grounded, so node n is at 0 V too; all of R_1's current goes on through R_f."],
       "solution": [
-        "**1. Virtual short.** v_{+} = 0, so v_n = v_{−} = 0 (virtual ground).",
+        "**1. Negative feedback and the virtual short.** R_f connects the output back to the inverting input: negative feedback, so the op-amp works in its linear region. The non-inverting input is grounded, v_{+} = 0, so by the virtual short v_n = v_{−} = 0 (virtual ground).",
         "**2. Current in R_1.** i_1 = (v_s − v_n)/R_1 = 1/10 kΩ = **0.1 mA**.",
-        "**3. Virtual open.** The inverting input draws no current; KCL at n: i_f = i_1 = 0.1 mA.",
+        "**3. KCL at n.** By the virtual open the inverting input draws no current, so i_f = i_1 = 0.1 mA.",
         "**4. Output.** v_o = v_n − R_f·i_f = 0 − 40 kΩ × 0.1 mA = **−4 V**.",
-        "In general v_o = −(R_f/R_1)·v_s = −4 × 1 V; the minus sign means the output is inverted."
+        "**Check:** the formula v_o = −(R_f/R_1)·v_s = −4 × 1 V = −4 V ✓. The minus sign means the output is inverted."
       ]
     }
   }

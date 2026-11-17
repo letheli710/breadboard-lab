@@ -39,7 +39,7 @@
     {
       "id": "nic",
       "ask": "不含 R_4 时，从 a 端看进 NIC 的输入电阻 v_a/i_1 = ?",
-      "choices": ["2 kΩ", "−2 kΩ", "−10 kΩ", "无穷大"], "choiceExplain": ["2 kΩ 丢掉了负号：v_o = 2v_a 高于 v_a，R_1 中电流从 o 流向 a，与外加电压驱动的方向相反，所以 v_a/i_1 为负。", "", "−10 kΩ 用了 R_2 或 R_3 的阻值；R_2、R_3 只决定 v_o/v_a 的倍数，流入 a 的电流只经过 R_1，应由 i_1 = (v_a − v_o)/R_1 求输入电阻。", "“虚断”只说明同相端不取电流，a 点还接着 R_1，电流经 R_1 流动，输入电阻不是无穷大。"],
+      "choices": ["2 kΩ", "−2 kΩ", "−10 kΩ", "无穷大"], "choiceExplain": ["先比较 v_o 与 v_a 的高低（v_o 用 v_a 表示），判断 R_1 中电流的实际方向，再看 v_a/i_1 的符号。", "", "−10 kΩ 用了 R_2 或 R_3 的阻值；R_2、R_3 只决定 v_o/v_a 的倍数，流入 a 的电流只经过 R_1，应由 i_1 = (v_a − v_o)/R_1 求输入电阻。", "“虚断”只说明同相端不取电流，a 点还接着 R_1，电流经 R_1 流动，输入电阻不是无穷大。"],
       "correct": 1,
       "explain": "外加电压 v_a：虚短 v_{−} = v_a，R_2、R_3 构成同相放大，v_o = (1 + R_2/R_3)·v_a = 2v_a；虚断使流入 a 的电流全部经 R_1：i_1 = (v_a − v_o)/R_1 = −v_a/R_1，所以 R_in = −R_1·R_3/R_2 = −2 kΩ。"
     },
@@ -49,7 +49,7 @@
   ],
   "hints": ["求 NIC 的输入电阻用外加电源法：设 a 端电压为 v_a，求流入的电流 i_1。", "虚短让反相端也等于 v_a，R_2、R_3 与运放构成同相放大器，v_o 用 v_a 表示；再用 R_1 两端电压求 i_1。"],
   "solution": [
-    "**1. NIC 的输入电阻（外加电源法）：** 设 a 端电压为 v_a。虚短：v_{−} = v_{+} = v_a；虚断：R_2、R_3 串联分压，v_a = v_o·R_3/(R_2 + R_3) → v_o = 2v_a。",
+    "**1. NIC 的输入电阻（外加电源法）：** 设 a 端电压为 v_a。R_2 把输出接回反相端（负反馈），按理想运放的线性区分析。虚短：v_{−} = v_{+} = v_a；虚断：R_2、R_3 串联分压，v_a = v_o·R_3/(R_2 + R_3) → v_o = 2v_a。",
     "流入 a 的电流只能经 R_1（同相端不取电流）：i_1 = (v_a − v_o)/R_1 = −v_a/2k，所以 R_in = v_a/i_1 = **−2 kΩ**（= −R_1·R_3/R_2）。",
     "**2. 等效电阻：** R_eq = R_4 ∥ R_in = 3 × (−2)/(3 − 2) = **−6 kΩ**。",
     "**3. 电压：** v_a = I_s·R_eq = **−3 V**，v_o = 2v_a = −6 V。",
@@ -67,7 +67,7 @@
       "questions": [
         {
           "ask": "Without R_4, the input resistance of the NIC seen at a, v_a/i_1 = ?",
-          "choices": ["2 kΩ", "−2 kΩ", "−10 kΩ", "Infinite"], "choiceExplain": ["2 kΩ drops the minus sign: v_o = 2v_a is above v_a, so the current in R_1 flows from o to a, opposite to what the applied voltage would drive — v_a/i_1 is negative.", "", "−10 kΩ uses R_2 or R_3; those only set the ratio v_o/v_a. The current entering a flows only through R_1, so the input resistance follows from i_1 = (v_a − v_o)/R_1.", "The virtual open only means the non-inverting input draws no current; node a is also connected to R_1, which carries current, so the input resistance is not infinite."],
+          "choices": ["2 kΩ", "−2 kΩ", "−10 kΩ", "Infinite"], "choiceExplain": ["First compare v_o with v_a (express v_o in terms of v_a) to see which way the current in R_1 actually flows, then check the sign of v_a/i_1.", "", "−10 kΩ uses R_2 or R_3; those only set the ratio v_o/v_a. The current entering a flows only through R_1, so the input resistance follows from i_1 = (v_a − v_o)/R_1.", "The virtual open only means the non-inverting input draws no current; node a is also connected to R_1, which carries current, so the input resistance is not infinite."],
           "explain": "Apply a voltage v_a. Virtual short: v_{−} = v_a, and R_2, R_3 make a non-inverting amplifier: v_o = (1 + R_2/R_3)·v_a = 2v_a. By the virtual open all the current into a flows through R_1: i_1 = (v_a − v_o)/R_1 = −v_a/R_1, so R_in = −R_1·R_3/R_2 = −2 kΩ."
         },
         { "ask": "Equivalent resistance from a to ground, R_eq = ? (I_s set to zero)", "explain": "R_4 in parallel with −2 kΩ: R_eq = 3 × (−2)/(3 + (−2)) = −6 kΩ. A negative resistance in parallel with a positive one can give a larger negative resistance." },
@@ -76,7 +76,7 @@
       ],
       "hints": ["Find the NIC's input resistance with a test source: assume a voltage v_a at a and find the current i_1 flowing in.", "The virtual short puts the inverting input at v_a too, so R_2, R_3 and the op-amp form a non-inverting amplifier: express v_o in terms of v_a, then get i_1 from the voltage across R_1."],
       "solution": [
-        "**1. NIC input resistance (test source):** let the voltage at a be v_a. Virtual short: v_{−} = v_{+} = v_a; virtual open: R_2 and R_3 divide v_o, v_a = v_o·R_3/(R_2 + R_3) → v_o = 2v_a.",
+        "**1. NIC input resistance (test source):** let the voltage at a be v_a. R_2 connects the output back to the inverting input (negative feedback); analyse the ideal op-amp in its linear region. Virtual short: v_{−} = v_{+} = v_a; virtual open: R_2 and R_3 divide v_o, v_a = v_o·R_3/(R_2 + R_3) → v_o = 2v_a.",
         "The current into a can only go through R_1 (the + input draws none): i_1 = (v_a − v_o)/R_1 = −v_a/2k, so R_in = v_a/i_1 = **−2 kΩ** (= −R_1·R_3/R_2).",
         "**2. Equivalent resistance:** R_eq = R_4 ∥ R_in = 3 × (−2)/(3 − 2) = **−6 kΩ**.",
         "**3. Voltage:** v_a = I_s·R_eq = **−3 V**, v_o = 2v_a = −6 V.",

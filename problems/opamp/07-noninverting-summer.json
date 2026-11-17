@@ -41,13 +41,13 @@
     { "id": "i1", "ask": "i_1 = ?", "find": { "kind": "i", "el": "R1" }, "answer": -0.0001, "unit": "mA", "explain": "i_1 = (v_1 − v_p)/R_1 = (1 − 2)/10k = −0.1 mA。R_2 中电流 (4 − 2)/20k = 0.1 mA 从 v_2 流向 p，再经 R_1 流进 v_1——同相端不取电流。" },
     { "id": "uo", "ask": "v_o = ?", "find": { "kind": "v", "nodes": ["o"] }, "answer": 6, "unit": "V", "explain": "虚短 v_n = v_p = 2 V，同相放大：v_o = (1 + R_f/R_g)·v_p = 3 × 2 = 6 V。" }
   ],
-  "hints": ["同相端不取电流，结点 p 是一个只有两条支路的两结点电路，用弥尔曼定理（结点电压法）求 v_p。", "求出 v_p 后，右半部分就是一个同相比例放大器。"],
+  "hints": ["同相端不取电流，所以结点 p 只接 R_1、R_2 两条支路：用弥尔曼定理（结点电压法）求 v_p。", "求出 v_p 后，右半部分就是一个同相比例放大器。"],
   "solution": [
     "**1. 结点 p（虚断，i_{+} = 0）：** (v_p − v_1)/R_1 + (v_p − v_2)/R_2 = 0。",
     "v_p = (v_1/R_1 + v_2/R_2)/(1/R_1 + 1/R_2) = (1/10 + 4/20)/(1/10 + 1/20) = 0.3/0.15 = **2 V**。",
     "**2. R_1 的电流：** i_1 = (1 − 2)/10 kΩ = **−0.1 mA**；R_2 的电流 (4 − 2)/20 kΩ = 0.1 mA，两者在 p 点平衡。",
-    "**3. 同相放大：** v_n = v_p = 2 V，R_g 电流 2/10k = 0.2 mA 全部来自 R_f，v_o = 2 + 20k × 0.2 mA = **6 V** = (1 + R_f/R_g)·v_p。",
-    "一般式：v_o = (1 + R_f/R_g)·(R_2·v_1 + R_1·v_2)/(R_1 + R_2) = 3 × (20 + 40)/30 = 6 V。"
+    "**3. 同相放大：** R_f 把输出接回反相端，构成负反馈，由虚短 v_n = v_p = 2 V。R_g 电流 2/10k = 0.2 mA，由虚断全部来自 R_f：v_o = 2 + 20k × 0.2 mA = **6 V** = (1 + R_f/R_g)·v_p。",
+    "**验算（一般式）：** v_o = (1 + R_f/R_g)·(R_2·v_1 + R_1·v_2)/(R_1 + R_2) = 3 × (20 + 40)/30 = 6 V。"
   ],
   "i18n": {
     "en": {
@@ -62,13 +62,13 @@
         { "ask": "i_1 = ?", "explain": "i_1 = (v_1 − v_p)/R_1 = (1 − 2)/10k = −0.1 mA. R_2 carries (4 − 2)/20k = 0.1 mA from v_2 to p, which then flows through R_1 into v_1 — the non-inverting input takes none of it." },
         { "ask": "v_o = ?", "explain": "Virtual short v_n = v_p = 2 V, non-inverting gain: v_o = (1 + R_f/R_g)·v_p = 3 × 2 = 6 V." }
       ],
-      "hints": ["The non-inverting input draws no current, so node p is a two-node circuit with just two branches: use Millman's theorem (nodal analysis) for v_p.", "Once v_p is known, the right half is simply a non-inverting amplifier."],
+      "hints": ["The non-inverting input draws no current, so node p connects only the two branches R_1 and R_2: use Millman's theorem (nodal analysis) for v_p.", "Once v_p is known, the right half is simply a non-inverting amplifier."],
       "solution": [
         "**1. Node p (virtual open, i_{+} = 0):** (v_p − v_1)/R_1 + (v_p − v_2)/R_2 = 0.",
         "v_p = (v_1/R_1 + v_2/R_2)/(1/R_1 + 1/R_2) = (1/10 + 4/20)/(1/10 + 1/20) = 0.3/0.15 = **2 V**.",
         "**2. Current in R_1:** i_1 = (1 − 2)/10 kΩ = **−0.1 mA**; R_2 carries (4 − 2)/20 kΩ = 0.1 mA, and the two balance at p.",
-        "**3. Non-inverting stage:** v_n = v_p = 2 V, R_g carries 2/10k = 0.2 mA, all of it from R_f: v_o = 2 + 20k × 0.2 mA = **6 V** = (1 + R_f/R_g)·v_p.",
-        "General form: v_o = (1 + R_f/R_g)·(R_2·v_1 + R_1·v_2)/(R_1 + R_2) = 3 × (20 + 40)/30 = 6 V."
+        "**3. Non-inverting stage:** R_f connects the output back to the inverting input (negative feedback), so by the virtual short v_n = v_p = 2 V. R_g carries 2/10k = 0.2 mA, all of it from R_f (virtual open): v_o = 2 + 20k × 0.2 mA = **6 V** = (1 + R_f/R_g)·v_p.",
+        "**Check (general form):** v_o = (1 + R_f/R_g)·(R_2·v_1 + R_1·v_2)/(R_1 + R_2) = 3 × (20 + 40)/30 = 6 V."
       ]
     }
   }

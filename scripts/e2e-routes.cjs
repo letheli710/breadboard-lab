@@ -8,7 +8,8 @@
 // current problem and unknown ids are also checked with the index held back until after the first
 // paint (a throttled network), recording every URL, tab title and problem title on the way, so a
 // flash of another problem or a rewritten URL / bb.route fails. Then the Practice sidebar (current
-// chapter expanded, active item in view), the course map dropdown and the [ ] shortcuts.
+// chapter expanded, active item in view), the Challenges carousel and the [ ] shortcuts. Then the
+// course map, a learning unit and the portal round trip (courseChecks).
 const { chromium } = require('playwright');
 const BASE = process.argv[2] || 'http://localhost:4173/';
 const assert = (c, m) => {
@@ -30,12 +31,12 @@ const assert = (c, m) => {
   assert(h.startsWith('#/learn/'), 'first visit → ' + h);
   const lesson = h;
   // learn → challenge
-  await page.click('nav.nav button:nth-child(2)');
+  await page.locator('nav.nav button', { hasText: 'Challenges' }).click();
   await settle();
   const chal = await hash();
   assert(chal.startsWith('#/challenges/'), 'nav Challenges → ' + chal);
   // challenge → practice
-  await page.click('nav.nav button:nth-child(3)');
+  await page.locator('nav.nav button', { hasText: 'Practice' }).click();
   await settle();
   const prac = await hash();
   assert(prac.startsWith('#/practice/'), 'nav Practice → ' + prac);
@@ -112,12 +113,12 @@ const assert = (c, m) => {
   await settle();
   assert((await hash()) === '#/learn/lesson-power-and-ground', 'kind mismatch normalised → ' + (await hash()));
   // guide deep link via card link
-  await page.click('nav.nav button:nth-child(5)');
+  await page.locator('nav.nav button', { hasText: 'Guide' }).click();
   await settle();
   await page.click('#guide-led a.concept-num');
   await settle();
   assert((await hash()) === '#/guide/led', 'guide card link → ' + (await hash()));
-  await page.click('nav.nav button:nth-child(4)');
+  await page.locator('nav.nav button', { hasText: 'Sandbox' }).click();
   await settle();
   assert((await hash()) === '#/sandbox', 'sandbox ' + (await hash()));
   await page.goBack();
@@ -194,7 +195,8 @@ const assert = (c, m) => {
   await settle();
   assert((await page.locator('.ms-how').count()) === 1, 'explainer direct load');
   await lazyIndexChecks(browser);
-  for (const h of ['#/practice', '#/practice/summary/first-order/formulas', '#/practice/review', '#/practice/quiz', '#/guide', '#/import']) {
+  await courseChecks(browser);
+  for (const h of ['#/practice', '#/practice/summary/first-order/formulas', '#/practice/review', '#/practice/quiz', '#/guide', '#/import', '#/map', '#/unit/w3-5b-virtual-short']) {
     const c = await browser.newContext();
     const p = await c.newPage();
     const js = [];
@@ -226,6 +228,69 @@ const RECORDER = () => {
   };
   new MutationObserver(note).observe(document, { subtree: true, childList: true, characterData: true });
 };
+
+// The course map, learning units and portals (course/*.json, units/*.json, docs/PORTALS.md):
+// Map → a World 3 unit, its sliders and a prediction; a lab's portal → target with the reverse
+// link and the breadcrumb → back; the watch-later queue (kept across a reload); World tabs.
+async function courseChecks(browser) {
+  const ctx = await browser.newContext({ locale: 'en-US' });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on('pageerror', (e) => errors.push(e.message));
+  const hash = () => p.evaluate(() => location.hash);
+  await p.goto(BASE + '#/map');
+  await p.waitForSelector('#world-w3[open]', { timeout: 15000 });
+  assert((await p.locator('details.world').count()) === 9, 'map: 8 Worlds + the UB area');
+  assert(/You are here/.test(await p.locator('#world-w3 summary').textContent()), 'map: World 3 marked as current');
+  await p.locator('#world-w3 .world-item a', { hasText: '5b' }).click();
+  await p.waitForSelector('.unit-page h1', { timeout: 15000 });
+  assert((await hash()) === '#/unit/w3-5b-virtual-short', 'map → unit ' + (await hash()));
+  assert((await p.title()).startsWith('5b'), 'unit: tab title ' + (await p.title()));
+  const layers = await p.locator('.unit-layer > h2').allTextContents();
+  assert(layers.length >= 4 && /Intuition/.test(layers[0]), 'unit: layers in order ' + layers.join(' / '));
+  // a slider changes the results
+  const out = p.locator('.u-explore').first().locator('output').last();
+  const before = await out.textContent();
+  const slider = p.locator('.u-explore').first().locator('input[type=range]').first();
+  await slider.focus();
+  for (let i = 0; i < 40; i++) await slider.press('ArrowRight');
+  assert((await out.textContent()) !== before, `unit: slider updates the results (${before} → ${await out.textContent()})`);
+  // a prediction: answer, then the explanation
+  const pr = p.locator('.u-predict').first();
+  if ((await pr.locator('input[type=radio]').count()) > 0) await pr.locator('input[type=radio]').first().check();
+  else await pr.locator('input.u-input').fill('1');
+  await pr.locator('button.primary').click();
+  assert((await pr.locator('.u-reveal').count()) === 1, 'unit: prediction reveals the explanation');
+  // portal on a lab → target, reverse link, breadcrumb back
+  await p.goto(BASE + '#/challenges/exp3-rc-square-charging');
+  await p.waitForSelector('.portal', { timeout: 20000 });
+  await p.locator('.portal button', { hasText: 'Watch later' }).first().click();
+  assert((await p.locator('.later-count').textContent()) === '1', 'portal: watch later counted');
+  await p.locator('.portal button.primary').first().click();
+  await p.waitForSelector('.trail-bar', { timeout: 15000 });
+  assert((await hash()) === '#/challenges/exp4-rc-lowpass-bode', 'portal → target ' + (await hash()));
+  await p.waitForSelector('.backlink', { timeout: 10000 });
+  assert(/Experiment 3-1/.test(await p.locator('.backlink').first().textContent()), 'target: reverse link names the source');
+  await p.locator('.trail-bar a').click();
+  await p.waitForTimeout(800);
+  assert((await hash()) === '#/challenges/exp3-rc-square-charging' && (await p.locator('.trail-bar').count()) === 0, 'breadcrumb → back to the source, bar gone');
+  // the queue survives a reload; tick it off
+  await p.reload();
+  await p.waitForSelector('.later-btn', { timeout: 15000 });
+  await p.locator('.later-btn').click();
+  await p.waitForSelector('.later-item', { timeout: 10000 });
+  assert((await p.locator('.later-item').count()) === 1, 'watch later: kept across a reload');
+  await p.locator('.later-item input[type=checkbox]').check();
+  assert((await p.locator('.later-item.done').count()) === 1 && (await p.locator('.later-count').count()) === 0, 'watch later: ticked off');
+  await p.keyboard.press('Escape');
+  assert((await p.locator('.later-dialog').count()) === 0, 'watch later: Esc closes the dialog');
+  // challenge tabs are Worlds
+  await p.goto(BASE + '#/challenges/exp-difference-amp');
+  await p.waitForSelector('.phase-tabs button.on', { timeout: 15000 });
+  assert(/^W3/.test((await p.locator('.phase-tabs button.on').textContent()).trim()), 'carousel: the difference amp is in the W3 tab');
+  assert(errors.length === 0, 'course pages: no page errors ' + errors.join(' | '));
+  await ctx.close();
+}
 
 async function lazyIndexChecks(browser) {
   const LAST = 'nonlinear-14-two-nonlinear-small-signal';

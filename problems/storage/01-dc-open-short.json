@@ -3,9 +3,9 @@
   "format": "circuit-problem/1",
   "id": "storage-01-dc-open-short",
   "chapter": "storage",
-  "title": "直流稳态：电容开路、电感短路",
+  "title": "直流稳态下的电容与电感",
   "level": 1,
-  "tags": ["直流稳态", "电容开路", "电感短路"],
+  "tags": ["直流稳态", "直流等效电路", "电容与电感"],
   "statement": [
     "图示电路已处于直流稳态。V_s = 12 V，R_1 = 2 Ω，R_2 = 4 Ω，C = 10 µF，L = 0.5 H。",
     "求电感电流 i_L、电容电压 v_C 和电容电流 i_C。"
@@ -35,7 +35,7 @@
   "questions": [
     { "id": "iL", "ask": "i_L = ?", "find": { "kind": "i", "el": "L" }, "answer": 2, "unit": "A", "explain": "直流稳态下电感相当于短路、电容相当于开路，电路只剩 V_s、R_1、R_2 串联：i_L = 12 / (2 + 4) = 2 A。" },
     { "id": "uC", "ask": "v_C = ?", "find": { "kind": "v", "el": "C" }, "answer": 8, "unit": "V", "explain": "电感短路，电容两端电压就是 R_2 两端电压：v_C = 2 × 4 = 8 V（也可以用分压：12 × 4/6 = 8 V）。" },
-    { "id": "iC", "ask": "电容电流 i_C 为多少？", "choices": ["0", "2 A", "6 A", "无法确定"], "choiceExplain": ["", "2 A 是电感电流 i_L，不是电容支路的电流；i_C 要由电容自身的 VCR i_C = C dv_C/dt 判断。", "6 A = 12/2 是把电容、电感的直流模型弄反了（电容短路、电感开路）；直流稳态下应是电容开路、电感短路。", "不需要知道 C 的数值或 v_C 的变化过程：直流稳态下 v_C 是常数，代入 i_C = C dv_C/dt 就能确定 i_C。"], "correct": 0, "explain": "i_C = C·dv_C/dt，直流稳态下 v_C 不随时间变化，dv_C/dt = 0，所以 i_C = 0——这正是“电容开路”的含义。" }
+    { "id": "iC", "ask": "电容电流 i_C 为多少？", "choices": ["0", "2 A", "6 A", "无法确定"], "choiceExplain": ["", "2 A 是电感电流 i_L，不是电容支路的电流；i_C 要由电容自身的 VCR i_C = C dv_C/dt 判断。", "6 A = 12/2 是把电容、电感的直流模型弄反了（电容短路、电感开路）；直流稳态下应是电容开路、电感短路。", "不需要知道 C 的数值或 v_C 的变化过程。想一想：直流稳态下 v_C 会不会随时间变化？再用 i_C = C dv_C/dt 判断。"], "correct": 0, "explain": "i_C = C·dv_C/dt，直流稳态下 v_C 不随时间变化，dv_C/dt = 0，所以 i_C = 0——这正是“电容开路”的含义。" }
   ],
   "hints": [
     "直流稳态下一切电压、电流都是常数：dv/dt = 0、di/dt = 0。",
@@ -49,8 +49,8 @@
   ],
   "i18n": {
     "en": {
-      "title": "DC steady state: capacitor open, inductor short",
-      "tags": ["DC steady state", "capacitor as open circuit", "inductor as short circuit"],
+      "title": "Capacitor and inductor in DC steady state",
+      "tags": ["DC steady state", "DC equivalent circuit", "capacitors and inductors"],
       "statement": [
         "The circuit is in DC steady state. V_s = 12 V, R_1 = 2 Ω, R_2 = 4 Ω, C = 10 µF, L = 0.5 H.",
         "Find the inductor current i_L, the capacitor voltage v_C and the capacitor current i_C."
@@ -58,7 +58,7 @@
       "questions": [
         { "ask": "i_L = ?", "explain": "In DC steady state the inductor acts as a short and the capacitor as an open circuit, leaving V_s, R_1 and R_2 in series: i_L = 12 / (2 + 4) = 2 A." },
         { "ask": "v_C = ?", "explain": "With the inductor shorted, the capacitor voltage equals the voltage across R_2: v_C = 2 × 4 = 8 V (or by the divider rule: 12 × 4/6 = 8 V)." },
-        { "ask": "What is the capacitor current i_C?", "choices": ["0", "2 A", "6 A", "Cannot be determined"], "choiceExplain": ["", "2 A is the inductor current i_L, not the current in the capacitor branch; i_C must be judged from the capacitor's own VCR, i_C = C dv_C/dt.", "6 A = 12/2 swaps the DC models of the two elements (capacitor shorted, inductor open); in DC steady state the capacitor is an open and the inductor a short.", "Neither the value of C nor the history of v_C is needed: in DC steady state v_C is constant, and i_C = C dv_C/dt then fixes i_C."], "explain": "i_C = C·dv_C/dt. In DC steady state v_C does not change, dv_C/dt = 0, so i_C = 0 — that is exactly what \"the capacitor is an open circuit\" means." }
+        { "ask": "What is the capacitor current i_C?", "choices": ["0", "2 A", "6 A", "Cannot be determined"], "choiceExplain": ["", "2 A is the inductor current i_L, not the current in the capacitor branch; i_C must be judged from the capacitor's own VCR, i_C = C dv_C/dt.", "6 A = 12/2 swaps the DC models of the two elements (capacitor shorted, inductor open); in DC steady state the capacitor is an open and the inductor a short.", "Neither the value of C nor the history of v_C is needed. Ask whether v_C changes with time in DC steady state, then use i_C = C dv_C/dt."], "explain": "i_C = C·dv_C/dt. In DC steady state v_C does not change, dv_C/dt = 0, so i_C = 0 — that is exactly what \"the capacitor is an open circuit\" means." }
       ],
       "hints": [
         "In DC steady state every voltage and current is constant: dv/dt = 0 and di/dt = 0.",

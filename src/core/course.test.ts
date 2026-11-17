@@ -21,7 +21,7 @@ describe('course map', () => {
   });
 
   it('numbers units 1.1, 1.2, … inside each World', () => {
-    for (const w of WORLDS) w.units.forEach((u, i) => expect(u.num).toBe(`${w.id}.${i + 1}`));
+    for (const w of WORLDS) w.units.forEach((u, i) => expect(u.num).toBe(`${w.elective ? 'UB' : w.id}.${i + 1}`));
   });
 
   it('links only real theory chapters, and reaches every chapter that is not archived', () => {

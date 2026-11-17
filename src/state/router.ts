@@ -12,6 +12,8 @@
 //   #/sandbox                   free editing
 //   #/guide[/<section>]         field guide, optionally scrolled to a section card
 //   #/import                    import page
+//   #/map[/<worldId>]           the course map (Worlds), optionally scrolled to a World
+//   #/unit/<unitId>             a learning unit (units/*.json)
 //
 // Ids are URI-encoded. This module is pure (no store, no React) so the store can read the
 // starting page from it and the tests can run it without a DOM; the wiring between the URL and
@@ -28,11 +30,13 @@ export type Route =
   | { page: 'practice'; view: PracticeView }
   | { page: 'sandbox' }
   | { page: 'guide'; section?: string }
-  | { page: 'import' };
+  | { page: 'import' }
+  | { page: 'map'; world?: string }
+  | { page: 'unit'; id: string };
 
 export type Page = Route['page'];
 
-export const PAGES: readonly Page[] = ['learn', 'challenges', 'practice', 'sandbox', 'guide', 'import'];
+export const PAGES: readonly Page[] = ['learn', 'challenges', 'practice', 'sandbox', 'guide', 'import', 'map', 'unit'];
 
 const MODE_OF: Record<Page, Mode> = {
   learn: 'learn',
@@ -41,6 +45,8 @@ const MODE_OF: Record<Page, Mode> = {
   sandbox: 'sandbox',
   guide: 'guide',
   import: 'import',
+  map: 'map',
+  unit: 'unit',
 };
 
 export const modeOf = (r: Route): Mode => MODE_OF[r.page];
@@ -84,6 +90,11 @@ export function parseRoute(hash: string): Route | null {
       return (item === undefined ? { page } : { page, id: item }) as Route;
     case 'guide':
       return item === undefined ? { page } : { page, section: item };
+    case 'map':
+      return item === undefined ? { page } : { page, world: item };
+    case 'unit':
+      // a unit page needs a unit: without one, the map
+      return item === undefined ? { page: 'map' } : { page, id: item };
     default:
       return { page };
   }
@@ -92,7 +103,7 @@ export function parseRoute(hash: string): Route | null {
 export function formatRoute(r: Route): string {
   if ('view' in r) return r.view === 'quiz' ? '#/practice/quiz' : `#/practice/review${r.view === 'notebook' ? '' : `/${r.view}`}`;
   if ('summary' in r) return `#/practice/summary/${encodeURIComponent(r.summary)}${r.section ? `/${encodeURIComponent(r.section)}` : ''}`;
-  const item = 'id' in r ? r.id : 'section' in r ? r.section : undefined;
+  const item = 'id' in r ? r.id : 'section' in r ? r.section : 'world' in r ? r.world : undefined;
   return `#/${r.page}${item ? `/${encodeURIComponent(item)}` : ''}`;
 }
 

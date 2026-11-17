@@ -1,0 +1,82 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-analysis-22-thevenin-rl",
+  "chapter": "ac-analysis",
+  "title": "戴维宁等效的交流版：R_3 换成 L",
+  "level": 2,
+  "tags": ["戴维宁定理", "等效阻抗", "从直流到交流"],
+  "statement": [
+    "和 World 2 的 `theorems-02-thevenin-basic` 同一个结构，只是 R_3 换成了电感 L，电源换成了正弦源；其余数值和直流题相同。",
+    "ω = 1000 rad/s，V̇_s = 12∠0° V（有效值），R_1 = 6 Ω，R_2 = 3 Ω，L = 8 mH，负载 R_L = 4 Ω 接在端子 a、b 之间。",
+    "求 a、b 左侧电路的戴维宁等效电路（开路电压 V̇_oc、等效阻抗 Z_eq），再求负载电流 İ_L。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Vs", "type": "V", "from": [0, 0], "to": [0, 4], "value": { "ac": { "mag": 12, "phase": 0 } } },
+      { "ref": "R1", "type": "R", "from": [2, 0], "to": [6, 0], "value": 6 },
+      { "ref": "R2", "type": "R", "from": [8, 0], "to": [8, 4], "value": 3 },
+      { "ref": "L", "type": "L", "from": [10, 0], "to": [14, 0], "value": "8m" },
+      { "ref": "RL", "type": "R", "from": [19, 0], "to": [19, 4], "value": 4 }
+    ],
+    "wires": [
+      [[0, 0], [2, 0]],
+      [[6, 0], [10, 0]],
+      [[14, 0], [19, 0]],
+      [[19, 4], [0, 4]]
+    ],
+    "terminals": [{ "at": [16, 0], "name": "a" }, { "at": [16, 4], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "RL", "name": "I_L" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    { "id": "uoc", "ask": "断开 R_L 后的开路电压 |V̇_oc| = ?", "find": { "kind": "vth", "port": ["a", "b"], "exclude": ["RL"] }, "answer": 4, "unit": "V", "explain": "开路时 L 中没有电流，L 上没有压降：V̇_oc 就是 R_2 上的电压，12 × 3/(6 + 3) = 4∠0° V，和直流题一样。" },
+    { "id": "zre", "ask": "Z_eq 的实部 = ?", "find": { "kind": "req", "port": ["a", "b"], "exclude": ["RL"], "part": "re" }, "answer": 2, "unit": "Ω", "explain": "V̇_s 短路后 R_1 ∥ R_2 = 2 Ω，再串上 Z_L：Z_eq = 2 + j8 Ω。" },
+    { "id": "zim", "ask": "Z_eq 的虚部 = ?", "find": { "kind": "req", "port": ["a", "b"], "exclude": ["RL"], "part": "im" }, "answer": 8, "unit": "Ω", "explain": "虚部来自 Z_L = jωL = j8 Ω。直流题里这个位置是 R_3 = 2 Ω。" },
+    { "id": "IL", "ask": "负载电流有效值 I_L = |İ_L| = ?", "find": { "kind": "i", "el": "RL" }, "answer": 0.4, "unit": "A", "explain": "İ_L = V̇_oc/(Z_eq + R_L) = 4/(6 + j8)。|6 + j8| = 10，所以 I_L = 0.4 A。" },
+    { "id": "ILph", "ask": "İ_L 的相位 = ?", "find": { "kind": "i", "el": "RL", "part": "phase" }, "answer": -53.1301, "unit": "°", "explain": "6 + j8 = 10∠53.13°，除以它，相位减 53.13°：İ_L = 0.4∠−53.13° A。" }
+  ],
+  "hints": [
+    "先拿掉 R_L 求开路电压：这时 L 中有没有电流？",
+    "求 Z_eq 时把 V̇_s 换成短路线，从 a、b 往左看：和直流一样化简串并联，只是 L 要写成 Z_L = jωL。",
+    "İ_L = V̇_oc/(Z_eq + R_L)：先把分母写成极坐标形式再除。"
+  ],
+  "solution": [
+    "**1. 阻抗。** Z_L = jωL = j1000 × 0.008 = j8 Ω。",
+    "**2. 开路电压。** 拿掉 R_L，L 中没有电流，L 两端电压为 0：V̇_oc = V̇_s·R_2/(R_1 + R_2) = 12 × 3/9 = **4∠0° V**。",
+    "**3. 等效阻抗。** V̇_s 置零（短路）：R_1 ∥ R_2 = 6 × 3/9 = 2 Ω，再串 Z_L：**Z_eq = 2 + j8 Ω**。",
+    "**4. 负载电流。** İ_L = V̇_oc/(Z_eq + R_L) = 4/(6 + j8) = 4/(10∠53.13°) = **0.4∠−53.13° A**（= 0.24 − j0.32 A）。",
+    "**5. 和直流题对比。** 直流：v_oc = 4 V，R_eq = 4 Ω，i_L = 0.5 A。交流：V̇_oc 不变（开路时 L 和 R_3 一样没有电流），Z_eq 多了虚部 j8 Ω，所以电流变小，并且比电源电压落后 53.13°。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Thévenin equivalent, AC edition: R_3 becomes L",
+      "tags": ["Thévenin's theorem", "equivalent impedance", "from DC to AC"],
+      "statement": [
+        "Same structure as World 2's `theorems-02-thevenin-basic`; only R_3 has become an inductor L and the source is a sinusoid. All other values are the same as in the DC problem.",
+        "ω = 1000 rad/s, V̇_s = 12∠0° V (rms), R_1 = 6 Ω, R_2 = 3 Ω, L = 8 mH; the load R_L = 4 Ω is connected between terminals a and b.",
+        "Find the Thévenin equivalent of the circuit to the left of a, b (open-circuit voltage V̇_oc and equivalent impedance Z_eq), then the load current İ_L."
+      ],
+      "questions": [
+        { "ask": "With R_L removed, open-circuit voltage |V̇_oc| = ?", "explain": "With the terminals open, no current flows in L, so there is no voltage across it: V̇_oc is the voltage across R_2, 12 × 3/(6 + 3) = 4∠0° V, the same as in the DC problem." },
+        { "ask": "Real part of Z_eq = ?", "explain": "With V̇_s shorted, R_1 ∥ R_2 = 2 Ω, in series with Z_L: Z_eq = 2 + j8 Ω." },
+        { "ask": "Imaginary part of Z_eq = ?", "explain": "The imaginary part comes from Z_L = jωL = j8 Ω. In the DC problem this spot held R_3 = 2 Ω." },
+        { "ask": "rms load current I_L = |İ_L| = ?", "explain": "İ_L = V̇_oc/(Z_eq + R_L) = 4/(6 + j8). |6 + j8| = 10, so I_L = 0.4 A." },
+        { "ask": "Phase of İ_L = ?", "explain": "6 + j8 = 10∠53.13°; dividing by it subtracts 53.13°: İ_L = 0.4∠−53.13° A." }
+      ],
+      "hints": [
+        "Remove R_L first and find the open-circuit voltage: is there any current in L then?",
+        "For Z_eq, replace V̇_s with a short and look into a, b: reduce the series and parallel parts as in DC, writing L as Z_L = jωL.",
+        "İ_L = V̇_oc/(Z_eq + R_L): put the denominator in polar form first, then divide."
+      ],
+      "solution": [
+        "**1. Impedance.** Z_L = jωL = j1000 × 0.008 = j8 Ω.",
+        "**2. Open-circuit voltage.** Remove R_L; no current flows in L, so there is no voltage across it: V̇_oc = V̇_s·R_2/(R_1 + R_2) = 12 × 3/9 = **4∠0° V**.",
+        "**3. Equivalent impedance.** Zero V̇_s (short): R_1 ∥ R_2 = 6 × 3/9 = 2 Ω, in series with Z_L: **Z_eq = 2 + j8 Ω**.",
+        "**4. Load current.** İ_L = V̇_oc/(Z_eq + R_L) = 4/(6 + j8) = 4/(10∠53.13°) = **0.4∠−53.13° A** (= 0.24 − j0.32 A).",
+        "**5. Compared with DC.** DC: v_oc = 4 V, R_eq = 4 Ω, i_L = 0.5 A. AC: V̇_oc is unchanged (with the terminals open, L carries no current, just like R_3), Z_eq gains an imaginary part j8 Ω, so the current is smaller and lags the source voltage by 53.13°."
+      ]
+    }
+  }
+}

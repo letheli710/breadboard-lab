@@ -45,15 +45,15 @@
     {
       "id": "load",
       "ask": "为什么可以把两级分开计算，而不必考虑第二级的 R_3 对第一级的“负载效应”？",
-      "choices": ["因为 R_3 的阻值较大（10 kΩ），从第一级取的电流小到可以忽略", "因为理想运放的输出端相当于受控电压源，输出电阻为零，v_o1 与负载无关", "因为第二级反相端是虚地，R_3 中没有电流"], "choiceExplain": ["这里并没有忽略任何电流：R_3 中有 0.1 mA，由 A_1 的输出端提供。若前级有输出电阻，这 0.1 mA 就会改变 v_o1，所以“电流小”不是理由。", "", "虚地只说明 A_2 反相端电位为零，R_3 两端仍有 v_o1 = 1 V，其中有 0.1 mA 电流；不取电流的是运放输入端（虚断），不是 R_3。"],
+      "choices": ["因为 R_3 的阻值较大（10 kΩ），从第一级取的电流小到可以忽略", "因为理想运放的输出端相当于受控电压源，输出电阻为零，v_o1 与负载无关", "因为第二级反相端是虚地，R_3 中没有电流"], "choiceExplain": ["这里并没有忽略任何电流：R_3 中有 0.1 mA，由 A_1 的输出端提供。要问的是：这个电流会不会改变 v_o1？", "", "虚地只说明 A_2 反相端电位为零，R_3 两端仍有 v_o1 = 1 V，其中有 0.1 mA 电流；不取电流的是运放输入端（虚断），不是 R_3。"],
       "correct": 1,
       "explain": "理想运放的输出电压由输入决定，与输出端接什么负载无关（输出电阻为零）。R_3 中实际有 0.1 mA 电流，由 A_1 的输出端提供，但不改变 v_o1。所以多级运放电路可以逐级计算、放大倍数相乘。"
     }
   ],
-  "hints": ["先识别每一级的类型：A_1 是什么放大器？A_2 呢？", "理想运放输出电压不受负载影响，第一级的输出就是第二级的输入电压源。"],
+  "hints": ["先识别每一级的类型：A_1 是什么放大器？A_2 呢？", "先单独求第一级的输出 v_o1，再把它当作第二级的输入电压。"],
   "solution": [
-    "**第一级（同相比例）：** 虚短 v_{−1} = v_s = 0.5 V，R_1 电流 0.05 mA 全部来自 R_f1，v_o1 = 0.5 + 10k × 0.05 mA = **1 V**。",
-    "**第二级（反相比例）：** A_2 反相端为虚地，R_3 电流 v_o1/R_3 = 0.1 mA 全部流过 R_f2，v_o = 0 − 30k × 0.1 mA = **−3 V**。",
+    "**第一级（同相比例）：** R_f1 把 A_1 的输出接回反相端（负反馈），由虚短 v_{−1} = v_s = 0.5 V。R_1 电流 0.5 V/10 kΩ = 0.05 mA，由虚断全部来自 R_f1：v_o1 = 0.5 + 10k × 0.05 mA = **1 V**。",
+    "**第二级（反相比例）：** R_f2 构成负反馈，A_2 的同相端接地，反相端为虚地。R_3 电流 v_o1/R_3 = 0.1 mA，由虚断全部流过 R_f2：v_o = 0 − 30k × 0.1 mA = **−3 V**。",
     "**总放大倍数：** v_o/v_s = (1 + R_f1/R_1)·(−R_f2/R_3) = 2 × (−3) = **−6**。",
     "理想运放输出电阻为零，后级不影响前级，所以可以逐级计算。"
   ],
@@ -71,14 +71,14 @@
         { "ask": "Overall voltage gain v_o/v_s = ?", "explain": "The overall gain is the product of the stage gains: 2 × (−3) = −6." },
         {
           "ask": "Why may the two stages be analysed separately, without worrying about R_3 \"loading\" the first stage?",
-          "choices": ["Because R_3 is large (10 kΩ), so the current it draws from the first stage is negligible", "Because an ideal op-amp output behaves like a dependent voltage source with zero output resistance, so v_o1 doesn't depend on the load", "Because the second stage's inverting input is a virtual ground, so R_3 carries no current"], "choiceExplain": ["No current is being neglected here: R_3 carries 0.1 mA, supplied by A_1's output. If the first stage had any output resistance this 0.1 mA would change v_o1, so \"the current is small\" is not the reason.", "", "A virtual ground only means A_2's inverting input is at 0 V; R_3 still has v_o1 = 1 V across it and carries 0.1 mA. It is the op-amp input that draws no current (virtual open), not R_3."],
+          "choices": ["Because R_3 is large (10 kΩ), so the current it draws from the first stage is negligible", "Because an ideal op-amp output behaves like a dependent voltage source with zero output resistance, so v_o1 doesn't depend on the load", "Because the second stage's inverting input is a virtual ground, so R_3 carries no current"], "choiceExplain": ["No current is being neglected here: R_3 carries 0.1 mA, supplied by A_1's output. The real question is whether this current changes v_o1.", "", "A virtual ground only means A_2's inverting input is at 0 V; R_3 still has v_o1 = 1 V across it and carries 0.1 mA. It is the op-amp input that draws no current (virtual open), not R_3."],
           "explain": "An ideal op-amp's output voltage is set by its inputs, whatever is connected to the output (zero output resistance). R_3 does carry 0.1 mA, supplied by A_1's output, but v_o1 is unchanged. So multi-stage op-amp circuits can be solved stage by stage, multiplying the gains."
         }
       ],
-      "hints": ["First identify each stage: what kind of amplifier is A_1? And A_2?", "An ideal op-amp's output voltage is unaffected by its load, so the first stage's output acts as a voltage source driving the second stage."],
+      "hints": ["First identify each stage: what kind of amplifier is A_1? And A_2?", "Find the first-stage output v_o1 on its own, then use it as the input voltage of the second stage."],
       "solution": [
-        "**Stage 1 (non-inverting):** virtual short v_{−1} = v_s = 0.5 V; R_1 carries 0.05 mA, all of it from R_f1: v_o1 = 0.5 + 10k × 0.05 mA = **1 V**.",
-        "**Stage 2 (inverting):** A_2's inverting input is a virtual ground; R_3 carries v_o1/R_3 = 0.1 mA, all of it through R_f2: v_o = 0 − 30k × 0.1 mA = **−3 V**.",
+        "**Stage 1 (non-inverting):** R_f1 connects A_1's output back to its inverting input (negative feedback), so by the virtual short v_{−1} = v_s = 0.5 V. R_1 carries 0.5 V/10 kΩ = 0.05 mA, all of it from R_f1 (virtual open): v_o1 = 0.5 + 10k × 0.05 mA = **1 V**.",
+        "**Stage 2 (inverting):** R_f2 gives negative feedback and A_2's non-inverting input is grounded, so its inverting input is a virtual ground. R_3 carries v_o1/R_3 = 0.1 mA, all of it through R_f2 (virtual open): v_o = 0 − 30k × 0.1 mA = **−3 V**.",
         "**Overall gain:** v_o/v_s = (1 + R_f1/R_1)·(−R_f2/R_3) = 2 × (−3) = **−6**.",
         "The ideal op-amp has zero output resistance, so a later stage doesn't affect an earlier one — the stages can be solved one at a time."
       ]

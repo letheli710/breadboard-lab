@@ -24,6 +24,8 @@
 //   6. measurement questions: each reading must be obtainable from the reference solution
 //      (finite), fall inside the author's "range", and be accepted when typed to 3 significant
 //      figures in the question's unit (`--readings` prints them)
+// Course map (default run only): course/worlds.json, course/portals.json, units/*.json — see
+// scripts/validate-course.ts.
 // Exit code 1 on any error.
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -46,6 +48,7 @@ import { simulate } from '../src/core/solver';
 import { hasGenerator, simulateTransient } from '../src/core/transient';
 import type { Layout } from '../src/core/types';
 import { figureTexts } from '../src/core/figures';
+import { checkCourse, printCourse } from './validate-course';
 
 const LED_MAX = 0.025;
 /** --readings: print every measurement question's reading on the reference solution */
@@ -524,6 +527,11 @@ function main() {
       `${label[k]}: ${st.files} files, ${st.files - st.bad} passed, ${st.bad} failed, ${st.warn} warnings`,
     );
     console.log(st.bad ? red(line) : green(line));
+  }
+  // the course map (Worlds, portals, learning units) is checked with the default run
+  if (defaults) {
+    console.log('');
+    bad += printCourse(checkCourse(process.cwd()));
   }
   if (bad) process.exit(1);
 }

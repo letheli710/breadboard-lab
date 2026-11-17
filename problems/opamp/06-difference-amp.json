@@ -42,17 +42,17 @@
     {
       "id": "cm",
       "ask": "若 v_1 = v_2 = 5 V（共模输入），v_o = ?",
-      "choices": ["0 V", "5 V", "15 V", "−15 V"], "choiceExplain": ["", "5 V 是把电路当成跟随器、以为共模电压直接传到输出；减法电路在 R_3/R_2 = R_f/R_1 时只放大差值 v_2 − v_1。", "15 V 只是 v_2 单独作用的结果（4 × 5 × 30/40 = 15 V），漏了 v_1 单独作用（反相放大）的分量。", "−15 V 只是 v_1 单独作用的结果 −(R_f/R_1)v_1 = −15 V，漏了 v_2 单独作用（分压 + 同相放大）的分量。"],
+      "choices": ["0 V", "5 V", "15 V", "−15 V"], "choiceExplain": ["", "5 V 是把电路当成跟随器、以为共模电压直接传到输出。用叠加想一想：v_1、v_2 单独作用时，输出各是多少？", "15 V 只是 v_2 单独作用的结果（4 × 5 × 30/40 = 15 V），漏了 v_1 单独作用（反相放大）的分量。", "−15 V 只是 v_1 单独作用的结果 −(R_f/R_1)v_1 = −15 V，漏了 v_2 单独作用（分压 + 同相放大）的分量。"],
       "correct": 0,
       "explain": "电阻满足 R_3/R_2 = R_f/R_1 时 v_o = (R_f/R_1)(v_2 − v_1)，只放大两输入之差，共模输入时输出为 0。"
     }
   ],
   "hints": ["先用虚断求同相端电位 v_p（一个分压器）。", "虚短给出 v_n = v_p；再对结点 n 列 KCL。也可以用叠加定理：v_1 单独作用为反相放大，v_2 单独作用为“分压 + 同相放大”。"],
   "solution": [
-    "**1. 同相端：** i_{+} = 0，v_p = v_2·R_3/(R_2 + R_3) = 2 × 30/40 = **1.5 V**。",
-    "**2. 虚短：** v_n = v_p = 1.5 V。",
+    "**1. 同相端（虚断）：** 同相端不取电流，i_{+} = 0，R_2、R_3 是空载分压器：v_p = v_2·R_3/(R_2 + R_3) = 2 × 30/40 = **1.5 V**。",
+    "**2. 虚短：** R_f 把输出接回反相端，构成负反馈，所以 v_n = v_p = 1.5 V（不是 0）。",
     "**3. 结点 n 的 KCL：** i_1 = (v_1 − v_n)/R_1 = (1 − 1.5)/10k = **−0.05 mA**，由虚断 i_f = i_1。",
-    "**4. 输出：** v_o = v_n − R_f·i_f = 1.5 + 1.5 = **3 V**。",
+    "**4. 输出：** v_o = v_n − R_f·i_f = 1.5 − 30 kΩ × (−0.05 mA) = 1.5 + 1.5 = **3 V**。",
     "**叠加验算：** v_1 单独作用：−(R_f/R_1)v_1 = −3 V；v_2 单独作用：(1 + R_f/R_1)·v_2·R_3/(R_2 + R_3) = 4 × 1.5 = 6 V；合计 3 V。",
     "当 R_3/R_2 = R_f/R_1 时 v_o = (R_f/R_1)(v_2 − v_1)：差分放大，共模输入被抑制。"
   ],
@@ -70,16 +70,16 @@
         { "ask": "v_o = ?", "explain": "i_f = i_1, v_o = v_n − R_f·i_1 = 1.5 − 30k × (−0.05 mA) = 3 V, i.e. v_o = (R_f/R_1)(v_2 − v_1) = 3 × 1 V." },
         {
           "ask": "If v_1 = v_2 = 5 V (common-mode input), v_o = ?",
-          "choices": ["0 V", "5 V", "15 V", "−15 V"], "choiceExplain": ["", "5 V treats the circuit as a follower that passes the common-mode voltage through; with R_3/R_2 = R_f/R_1 the circuit amplifies only the difference v_2 − v_1.", "15 V is v_2 acting alone (4 × 5 × 30/40 = 15 V); the contribution of v_1 acting alone (inverting gain) was left out.", "−15 V is v_1 acting alone, −(R_f/R_1)v_1 = −15 V; the contribution of v_2 acting alone (divider + non-inverting gain) was left out."],
+          "choices": ["0 V", "5 V", "15 V", "−15 V"], "choiceExplain": ["", "5 V treats the circuit as a follower that passes the common-mode voltage through. Think in terms of superposition: what output does v_1 give alone, and v_2 alone?", "15 V is v_2 acting alone (4 × 5 × 30/40 = 15 V); the contribution of v_1 acting alone (inverting gain) was left out.", "−15 V is v_1 acting alone, −(R_f/R_1)v_1 = −15 V; the contribution of v_2 acting alone (divider + non-inverting gain) was left out."],
           "explain": "With R_3/R_2 = R_f/R_1 the output is v_o = (R_f/R_1)(v_2 − v_1): only the difference is amplified, and a common-mode input gives zero output."
         }
       ],
       "hints": ["First find the non-inverting potential v_p with the virtual open (it's a voltage divider).", "The virtual short gives v_n = v_p; then write KCL at node n. Or use superposition: v_1 alone sees an inverting amplifier, v_2 alone sees a divider plus a non-inverting amplifier."],
       "solution": [
-        "**1. Non-inverting input:** i_{+} = 0, v_p = v_2·R_3/(R_2 + R_3) = 2 × 30/40 = **1.5 V**.",
-        "**2. Virtual short:** v_n = v_p = 1.5 V.",
+        "**1. Non-inverting input (virtual open):** the input draws no current, i_{+} = 0, so R_2 and R_3 are an unloaded divider: v_p = v_2·R_3/(R_2 + R_3) = 2 × 30/40 = **1.5 V**.",
+        "**2. Virtual short:** R_f connects the output back to the inverting input (negative feedback), so v_n = v_p = 1.5 V (not 0).",
         "**3. KCL at n:** i_1 = (v_1 − v_n)/R_1 = (1 − 1.5)/10k = **−0.05 mA**, and by the virtual open i_f = i_1.",
-        "**4. Output:** v_o = v_n − R_f·i_f = 1.5 + 1.5 = **3 V**.",
+        "**4. Output:** v_o = v_n − R_f·i_f = 1.5 − 30 kΩ × (−0.05 mA) = 1.5 + 1.5 = **3 V**.",
         "**Check by superposition:** v_1 alone: −(R_f/R_1)v_1 = −3 V; v_2 alone: (1 + R_f/R_1)·v_2·R_3/(R_2 + R_3) = 4 × 1.5 = 6 V; total 3 V.",
         "With R_3/R_2 = R_f/R_1, v_o = (R_f/R_1)(v_2 − v_1): a difference amplifier that rejects common-mode input."
       ]

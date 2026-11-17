@@ -35,8 +35,7 @@ nav.top a{text-decoration:none;white-space:nowrap} nav.top a:hover{text-decorati
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0}
 .tile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
 .tile b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums} .tile span{font-size:12.5px;color:var(--dim)}
-.tag{display:inline-block;font-size:12px;line-height:1.5;padding:0 7px;border-radius:10px;background:var(--soft);color:var(--ink);margin:1px 3px 1px 0;white-space:nowrap;max-width:100%;overflow-wrap:anywhere}
-.ub .tag,.fig .tag{white-space:normal}
+.tag{display:inline-block;font-size:12px;line-height:1.5;padding:0 7px;border-radius:10px;background:var(--soft);color:var(--ink);margin:1px 3px 1px 0;white-space:nowrap}
 .tag.on{background:var(--ok-bg);color:var(--accent)} .tag.off{background:var(--red-bg);color:var(--rail-red)}
 .sev{display:inline-block;font-size:12px;font-weight:700;padding:0 8px;border-radius:3px;white-space:nowrap}
 .sev.h{background:var(--red-bg);color:var(--rail-red)} .sev.m{background:var(--amber-bg);color:var(--amber)} .sev.l{background:var(--blue-bg);color:var(--rail-blue)} .sev.ok{background:var(--ok-bg);color:var(--accent)}
@@ -75,151 +74,252 @@ details.sub{margin:8px 0;font-size:13.5px} details.sub summary{cursor:pointer;co
 .tools input{font:14px var(--sans);padding:6px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);min-width:0;flex:1 1 220px;max-width:360px}
 .tools button{font:13px var(--sans);padding:6px 12px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);cursor:pointer}
 .note{border-left:3px solid var(--amber);background:var(--amber-bg);padding:8px 12px;border-radius:0 4px 4px 0;font-size:14px;margin:12px 0}
-.world h3{border-bottom:1px solid var(--line);padding-bottom:4px}
-h4.uh{font-size:14.5px;margin:18px 0 4px;color:var(--dim)}
-.cards{display:grid;gap:8px} .card{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:4px;padding:6px 12px;background:var(--panel);min-width:0}
-.card.try{border-left-color:var(--rail-red)} .card.explain{border-left-color:var(--amber)} .card.build{border-left-color:var(--accent)} .card.wrap{border-left-color:var(--rail-blue)}
-.ck{font-weight:650;font-size:14px;margin-bottom:2px} .card p,.card li{font-size:14px}
-.fig{margin:6px 0;padding:6px 10px;background:var(--soft);border-radius:4px;font-size:13px} .fig.miss,.warn{background:var(--red-bg);color:var(--ink)}
-.warn{padding:4px 10px;border-radius:4px;font-size:13.5px}
-.tag.fg{border-color:var(--amber);color:var(--amber)}
-.math{font-family:var(--mono);font-size:.92em;background:var(--soft);padding:0 3px;border-radius:3px;overflow-wrap:anywhere}
-code{overflow-wrap:anywhere}
 </style>
 <div class="wrap">
-<div class="wrap">
 <header>
-<h1>Breadboard Lab 课程清单与教学评估（重构后版本）</h1>
-<p class="lede">这份文档列出重构后（World 1–5 卡片式）的全部课程、实验和理论题：每个单元教什么、学生看到的每张卡片、怎么判分、学生能做哪些操作，并附一份教学评估和给审查者的检查清单。写给负责审查的 Agent。</p>
-<p class="dim">数据基准：分支 <code>claude/project-direction-review-wvnuog</code>，提交 <code>{{head}}</code>（{{date}}），已合并 World 2–5 四个分支。上一版报告基于提交 <code>c11d949</code>，那时还是“第 1–5 期”的旧结构。清单、计数和指标矩阵由脚本直接读内容文件和 <code>src/core/course.ts</code> 生成；评估结论是我的判断，每条都标了依据的等级。</p>
+<h1>Breadboard Lab 课程清单与教学评估</h1>
+<p class="lede">这份文档列出项目里现有的全部课程、实验和理论题，说明每一个单元教什么、怎么实现、学生能做哪些操作、用了哪些引导发散思考的手段，并给出一条推荐学习路线和一份教学评估。写给负责审查的 Agent 和课程负责人。</p>
+<p class="dim">数据基准：2026-11-17 的 World 重构（<code>course/worlds.json</code>、<code>course/portals.json</code>、<code>units/</code>）；“本轮重构”一节在最前面，其余各节的评估文字写于 2026-11-14（提交 <code>dfcec1e</code>），计数和清单已按当前内容重新生成。清单、计数、指标矩阵由脚本直接从 <code>challenges/</code>、<code>problems/</code>、<code>summaries/</code> 读出；学习路线、时间估计和评估结论是协调者（我）的判断，文中都标明了依据和把握程度。</p>
 </header>
 <nav class="top" aria-label="目录">
-<a href="#overview">总览</a><a href="#map">课程地图</a><a href="#changes">和上一版的差别</a><a href="#eval">教学评估</a><a href="#matrix">指标矩阵</a><a href="#how">怎么做出来的</a><a href="#catalog">面包板单元</a><a href="#theory">理论练习</a><a href="#review">给审查者</a>
+<a href="#rebuild">本轮重构</a><a href="#overview">总览</a><a href="#path">学习路线</a><a href="#eval">教学评估</a><a href="#how">怎么做出来的</a><a href="#interact">交互清单</a><a href="#diverge">发散思维手段</a><a href="#catalog">面包板课程与实验</a><a href="#theory">理论练习</a><a href="#review">给审查者</a>
 </nav>
+
+<h2 id="rebuild">本轮重构：World、传送门、单元</h2>
+<p>课程从“第 1–5 期”改成按 QCC 课程组织的 <b>8 个主线 World + 1 个 UB 衔接区</b>。归属只改 <code>course/worlds.json</code>，所有单元原有的 id 和文件名都没动（本地进度、交叉引用、e2e 不受影响）。应用里新增“路线”页（<code>#/map</code>）、学习单元页（<code>#/unit/&lt;id&gt;</code>）、传送门、页眉的“待看”队列和传送后的面包屑；挑战列表的分组标签和练习区的章节分组也改成 World。</p>
+
+<h3>1. 新旧 World 归属对照</h3>
+<p>“原来在哪”是重构前的分组（入门课、仪器课、入门挑战、第 1–5 期实验、理论第 1–4 期）。</p>
+<!--WORLDS-->
+
+<h3>2. 传送门及其状态</h3>
+<!--PORTALS-->
+
+<h3>3. 新建的单元和新增的 block 类型</h3>
+<p><b>新的内容类型：学习单元</b>（<code>learning-unit/1</code>，格式见 <code>docs/UNIT_FORMAT.md</code>）。一个单元只回答一个问题，最多五层，顺序固定：直觉 → 推导 → 仿真 → 面包板 → 回链。共 10 种 block：</p>
+<ul>
+<li><code>text</code> 文字（支持表格和公式记号）；<code>note</code> 提示框（合理性检查、常见错误）；<code>steps</code> 推导分步揭开；</li>
+<li><code>predict</code> 先作答再揭晓（选择、数字或文字答案，即时判对错）；</li>
+<li><code>explore</code> 滑块 + 实时结果（公式模型，可对数滑块）；<code>sim</code> 情景仿真：先预测 → 运行 → 解释，包括“故意做坏事”；</li>
+<li><code>circuit</code> 电路图（复用理论题的画图格式，校验时按同一套几何规则提取电路）；<code>bench</code> 面包板入口；<code>problems</code> 挂理论题；<code>portal</code> 在指定位置放传送门。</li>
+</ul>
+<p>面包板题格式新增可选字段 <code>figures</code>（配图，复用理论题画图代码，见 <code>docs/CHALLENGE_FORMAT.md</code> §16），已用于 <code>04-schematic-to-breadboard</code>、<code>09-two-leds-series</code>、<code>10-voltage-divider</code>。</p>
+<!--UNITS-->
+<p><b>新面包板实验</b>：<code>229-difference-amp</code>（World 3 · 5g，差分放大 = 叠加定理）、<code>248-rlc-step-response</code>（World 4，二阶阶跃响应，α 与 ω0）、<code>260-rlc-series-ac</code>（World 5 Part A，串联 RLC 正弦稳态，Boylestad Lab 14）。<b>新理论题</b>：<code>ac-analysis-19…22</code>（Midterm 2 交流版：叠加、网孔、结点、戴维宁，把 R 换成 Z）。<b>润色</b>：<code>opamp</code>、<code>storage</code>、<code>first-order</code>、<code>second-order</code> 四章 56 题逐题重解，改了 38 题（没有发现答案错误；修了提示 / 选项泄题、推理顺序、记号，以及二阶要点页 36 处下标吞字母的显示错误）。</p>
+
+<h3>4. 和指令对不上的文件名或编号</h3>
+<p>指令里的编号来自之前的规划讨论，仓库里没有 “World” 和 “1.1–1.11” 这套编号。能按内容确定对应关系的，按内容放；对不上的列在这里。<b>标“请确认”的是我的判断。</b></p>
+<div class="tw"><table><thead><tr><th>指令写的</th><th>仓库里实际</th><th>本轮怎么处理</th></tr></thead><tbody>
+<tr><td>World 1 移走 <code>08</code>、<code>09</code>、<code>209</code>、<code>210</code>（二极管 / LED 非线性）</td><td><code>08</code> 是“电源大比较”，不是二极管；<code>09</code> 是两个 LED 串联；<code>209</code>、<code>210</code> 不存在</td><td><code>09</code> 移到 World 6；<code>08</code> 留在 World 1。另外 <code>14</code> 防反接（二极管）、<code>16</code> 蓝光 LED、<code>18</code> 白光 LED 也属于二极管 / LED 非线性，指令没点名，留在 World 1 —— 请确认</td></tr>
+<tr><td>World 2：<code>202</code> 带载分压、<code>203</code> 电桥、<code>204</code> 叠加、<code>205</code> 戴维南与最大功率</td><td>202 是 KVL，203 是带载分压，206 是电桥，221 叠加，222 戴维宁，223 最大功率</td><td>按内容放了 203、206、221、222、223，另加 224 结点法、208 电源等效变换（Sadiku Ch 4）</td></tr>
+<tr><td>World 2：原 <code>2.7</code> 受控源面包板；理论章 <code>dependent-sources</code></td><td>没有受控源面包板实验；没有单独的受控源章（分散在 <code>basics</code>、<code>methods</code>）</td><td>World 2 里注明；运放 → 受控源的传送门指向 <code>methods-13-nodal-grounded-vcvs</code>（结点法里的 VCVS）</td></tr>
+<tr><td>World 4：<code>105</code>、<code>239</code>、<code>240</code>、<code>242</code> 电容与 RC 暂态</td><td>105 是“示波器双通道：相位差”课；239、240 不存在</td><td>RC 暂态用 241、247、245、242；105 按内容放到 World 5 Part A（相位差）</td></tr>
+<tr><td>World 4：<code>243</code>、<code>244</code> 电感 RL 暂态与续流</td><td>243 是 RL 方波；244 是 RLC 振铃；续流二极管在 288（继电器，World 8）</td><td>243 放 RL，244 放二阶 RLC</td></tr>
+<tr><td>World 5 Part A：<code>250</code> 峰值 / RMS / 相位差</td><td>不存在</td><td>用 105（相位差课）+ 263（RL 相量）+ 新建的 260</td></tr>
+<tr><td>World 5 Part B：<code>263</code>、<code>264</code> 无源 RC 滤波；<code>269</code> 谐振；<code>270</code> PFC</td><td>无源 RC 滤波是 261、262（还有 267 带通）；263 是 RL 相量，264 是串联谐振；269、270 不存在</td><td>Part B 放 261、262、267、264、265；PFC 登记为待建 <code>w5-ac-power-pfc</code></td></tr>
+<tr><td>World 6：<code>271</code> 半波整流</td><td>不存在</td><td>登记为待建 <code>w6-half-wave-rectifier</code></td></tr>
+<tr><td>World 7：<code>230</code> 施密特触发器，删掉对比段里“模拟器暂时算不出”</td><td>230 不存在；全仓库搜不到这句话</td><td>登记为待建 <code>w7-schmitt</code>；没有可删的句子</td></tr>
+<tr><td>World 7：<code>268</code> 有源带通</td><td>268 是“两级 RC + 电压跟随器”（缓冲带通），不是有源带通</td><td>照放 World 7，标题没改</td></tr>
+<tr><td>理论章名 <code>sinusoids-phasors</code>、<code>resonance</code>、<code>coupled-inductors</code>、<code>transfer-functions</code></td><td>实际叫 <code>phasors</code>、<code>frequency</code>、<code>coupled</code>；传递函数没有单独的章（在 <code>s-domain</code>、<code>frequency</code> 里）</td><td>按实际章名放</td></tr>
+<tr><td>（指令没提）<code>nonlinear</code>、<code>non-sinusoidal</code> 两章</td><td>非线性电阻电路（二极管分段线性、小信号）；非正弦周期电路（傅里叶级数）</td><td><code>nonlinear</code> 放 World 6，<code>non-sinusoidal</code> 放 UB 区 —— 请确认</td></tr>
+<tr><td><code>docs/REBUILD_PLAN.md</code></td><td>原来不存在</td><td>本轮新建</td></tr>
+<tr><td>特勒根题 <code>û</code> → <code>v̂</code></td><td>项目约定电压用 u（邱关源），同一题里还有 u_1、u_2</td><td>为了不在一题里混用，这道题和要点页的特勒根部分 u、û 都改成 v、v̂；互易定理部分（15、18 题）仍是 û —— 请确认是否也改</td></tr>
+<tr><td>P2 新增“二阶 RLC 阶跃响应”</td><td>244 已经覆盖三种阻尼的振铃</td><td>新建 248，重点放在算出并测出 α、ω0，与 244 互补</td></tr>
+</tbody></table></div>
+
+<h3>5. 没完成的项目及原因</h3>
+<ul>
+<li><b>LM358 参数没能在线核对。</b>本会话的网络不允许访问 ti.com，<code>w3-chip</code> 里的数值按 TI datasheet 的典型值写，并标了“典型值”。GBW 写的是 0.7 MHz，而 106 课写“约 1 MHz”，需要对着 datasheet 统一。</li>
+<li><b>106 课没有开环部分。</b>它只搭跟随器。5a、5i 的面包板层让学生自己改接线看饱和 / 比较器，没有自动检查；要检查需要加一节短实验。</li>
+<li><b>opamp-11（负阻抗变换器）在真实运放上会锁死。</b>正反馈系数 0.6 大于负反馈 0.5；理想模型下答案正确。建议把 R_4 改到 2 kΩ 以下（本轮没改电路）。</li>
+<li><b>248 的 α 没有单位。</b>面包板题的校验器不接受单位 “1/s”，题面写“只填数字”。另外示波器的振铃频率测量在某些方波频率下偏低 2–3 %，实验选了读数干净的 480 Hz。</li>
+<li><b>260 的标题编号是“实验 4-0”</b>，因为文件排在 4-1 之前；需要的话可以改名。</li>
+<li><b>记号没有全项目统一。</b>单元按 Sadiku 用 v，理论题仍用 u（单元里提示一次）。全部改成 v 是单独的决定，本轮没做。</li>
+<li><b>可选项 P3.3</b>（World 2 末尾电压表 / 电流表设计）没做，写进了 <code>REBUILD_PLAN.md</code> 的长期规划。</li>
+<li><b>§7 的待建单元、五层结构推广、器件档案</b>：按指令只登记在 <code>REBUILD_PLAN.md</code>，本轮不开发。</li>
+</ul>
 
 <h2 id="overview">总览</h2>
 <div class="tiles">
-<div class="tile"><b>{{worlds}} · {{units}}</b><span>个 World · 单元</span></div>
-<div class="tile"><b>{{items}}</b><span>个面包板文件（{{lessons}} 课程 + {{labs}} 挑战 / 实验）</span></div>
-<div class="tile"><b>{{cards}}</b><span>张卡片，{{figs}} 幅插图</span></div>
-<div class="tile"><b>{{meas}}</b><span>道面包板测量题（{{meas_pred}} 道先预测）</span></div>
+<div class="tile"><b>{{lessons}}</b><span>节带步骤的课程（8 入门 + 8 仪器）</span></div>
+<div class="tile"><b>{{labs}}</b><span>个实验与挑战（11 入门 + 49 分期）</span></div>
 <div class="tile"><b>{{problems}}</b><span>道理论题，{{chapters}} 章，{{subq}} 个小问</span></div>
+<div class="tile"><b>{{meas}}</b><span>道面包板测量题</span></div>
+<div class="tile"><b>{{ideas}}</b><span>条章节要点，{{mistakes}} 条易错点</span></div>
 </div>
-<p>课程现在是<b>一条主线</b>：5 个 World，每个 World 分成若干单元（1.1、1.4、2.3……），每个单元按顺序放一个或几个面包板文件，再链接配套的理论章节。每个面包板文件是 4 张卡片，一次只看一张：</p>
-<ol>
-<li><b>🔥 试一试</b>：只给动作和一个问题，有时故意让学生先做错一次</li>
-<li><b>💡 想明白</b>：讲原理、给一个核心公式，配插图</li>
-<li><b>🛠️ 动手做</b>：带自动检查的搭建步骤（课程有），然后答测量题</li>
-<li><b>🚀 带走</b>：几句结论，链接到理论章节和下一个单元</li>
-</ol>
-<p>主干教材按 Alexander &amp; Sadiku《Fundamentals of Electric Circuits》的章节顺序，节奏参考 Boylestad，动手方式参考 Platt《Make: Electronics》，World 5 参考 Scherz &amp; Monk。符号：电压用 v / V，阶跃函数用 u(t)，相量取<b>有效值</b>（详见 <code>docs/NOTATION.md</code>、<code>docs/REBUILD_PLAN.md</code>）。</p>
-<div class="note">你之前问的知识点在新结构里的位置：<b>KCL / KVL</b> 在 World 1（1.7 串联与 KVL、1.8 并联与 KCL，理论章 <code>basics</code>）。<b>超网孔、超结点</b>在 World 2（2.2 结点电压法，理论章 <code>methods</code> 第 08、09、15、16 题）。<b>叠加定理</b>在 World 2（2.3，实验 221，理论章 <code>theorems</code>）。</div>
-
-<h2 id="map">课程地图（学习顺序）</h2>
-<p>下面就是应用里「课程地图」的内容和顺序（来自 <code>src/core/course.ts</code>），也是推荐的学习路线。<span class="chip th">蓝边</span>是理论章节，点名称可以跳到详细条目。</p>
-<div class="note">时间按“课程 15 分钟、实验 30 分钟、理论题 10 分钟”估算，没有学生实测数据。课程地图测试（<code>src/core/course.test.ts</code>）保证每个文件只出现一次，并且排在它的先修课之后。</div>
-<!--MAP-->
-
-<h2 id="changes">和上一版报告的差别</h2>
-<ul>
-<li><b>结构</b>：原来是“入门课 / 入门挑战 / 仪器课 / 第 1–5 期实验”五组，现在合成 World 1–5 一条线。仪器课插在第一次要用到它的地方，比如电流表在 1.5、示波器在 3.1、Blue Pill 在 5.2。</li>
-<li><b>写法</b>：全部 {{items}} 个文件改成 4 张卡片（试一试 → 想明白 → 动手做 → 带走），{{u_figs}} 个文件配了插图。插图共 {{figs}} 幅：电路图 {{fig_sch}}、曲线 {{fig_plot}}、面包板图 {{fig_bb}}。</li>
-<li><b>入门部分补上了检查</b>：上一版入门课的 44 个步骤没有一步有自动检查。现在 {{u_steps}} 节课共 {{steps}} 步，其中 {{checked}} 步有检查。除了 1 个只看表现判分的设计题，每个文件都有测量题。</li>
-<li><b>理论章节</b>：按 Sadiku 重新排序和命名。受控源单独成章 <code>dependent-sources</code>，放在运放之后。<code>matrix-form</code>、<code>transmission-line</code> 改为选学。</li>
-<li><b>符号</b>：u / U 改成 v / V，ε(t) 改成 u(t)，相量用有效值。</li>
-<li><b>引擎和界面的新功能</b>：只看表现的判分（<code>options.grading: "behaviour"</code>）、引脚阈值规则、电流表的交流有效值档、运放正反馈（施密特触发器）、卡片里的公式排版、卡片插图。</li>
-</ul>
-<!--CHANGES-->
-
-<h2 id="eval">教学评估</h2>
-<p><b>先说结论</b>：上一版评估里最严重的三个问题，有两个已经解决。一是入门课只能照着点、没有检查；二是入门挑战只有通过或不通过。现在每个文件都有“先现象、再道理、动手、带走”的完整结构，几乎每个都有测量题。剩下的主要风险在<b>文字</b>，不在结构：卡片文字、对比段落、测量题讲解都是手写的，程序只检查“有没有泄露答案”，不检查数字和道理对不对。World 1–3 的理论题也还没按新规范润色。</p>
-
-<h3>证据等级</h3>
-<div class="tw"><table><thead><tr><th>等级</th><th>含义</th></tr></thead><tbody>
-<tr><td><span class="sev ok">程序</span></td><td>由校验器或单元测试自动保证。本次生成报告前我在这个提交上实际跑过：<code>tsc -b</code> 通过；<code>vitest</code> 61 个文件 1935 个测试全部通过；<code>npm run validate</code> 中面包板 82/82、理论 291/291、要点 21/21 通过，0 警告</td></tr>
-<tr><td><span class="sev l">脚本</span></td><td>由生成本报告的脚本从内容文件里数出来的（客观，但只是“有没有”，不代表质量）</td></tr>
-<tr><td><span class="sev m">报告</span></td><td>来自 <code>docs/REBUILD_PLAN.md</code> 或提交说明的说法，我没有逐条复核</td></tr>
-<tr><td><span class="sev h">未验</span></td><td>没有任何人或程序验证过，包括浏览器端到端测试，这次没有跑</td></tr>
+<p>课程分成两条线。<b>面包板线</b>在 3D 面包板上搭真实元件模型的电路，共 {{units}} 个单元。<b>理论线</b>按邱关源《电路》第 5 版的章节出题，学生看电路图计算并填答案，共 {{problems}} 题。两条线按“期”对齐：第 1–4 期理论和实验配套，第 5 期（单片机外围电路）只有实验。</p>
+<div class="tw"><table><thead><tr><th>组</th><th>单元数</th><th>形式</th><th>内容</th></tr></thead><tbody>
+<tr><td><a href="#g-intro">入门课 1–8</a></td><td class="n">8</td><td>分步引导</td><td>面包板结构、电源轨、点亮 LED、看电路图、串联、并联、按键、几种电源</td></tr>
+<tr><td><a href="#g-chal">入门挑战 1–11</a></td><td class="n">11</td><td>只给目标，自己搭</td><td>两个 LED 串联、分压器、电位器调光、选择开关、防反接、混联、电源模块、纽扣电池、稳压电源、找错</td></tr>
+<tr><td><a href="#g-inst">仪器课 9–16</a></td><td class="n">8</td><td>分步引导，每步自动检查，结尾有测量题</td><td>万用表、电流表、稳压电源 CV/CC、信号发生器与示波器、双通道相位差、LM358、开发板 GPIO、PWM 与 ADC</td></tr>
+<tr><td><a href="#g-p1">第 1 期实验</a></td><td class="n">8</td><td rowspan="5">两段式：先搭对电路，再读自己板子上的仪表答测量题，最后看计算对比</td><td>KCL、KVL、带载分压、恒流源、分流、电桥、测等效电阻、电源等效变换</td></tr>
+<tr><td><a href="#g-p2">第 2 期实验</a></td><td class="n">8</td><td>叠加、戴维宁、最大功率、结点法、跟随器、同相、反相、加法器</td></tr>
+<tr><td><a href="#g-p3">第 3 期实验</a></td><td class="n">7</td><td>RC 充放电、微分与积分、RL、RLC 振铃、呼吸灯、运放积分器、戴维宁 τ</td></tr>
+<tr><td><a href="#g-p4">第 4 期实验</a></td><td class="n">8</td><td>RC 低通与高通、RL 相量、串联与并联谐振、有源低通、带通与负载效应</td></tr>
+<tr><td><a href="#g-p5">第 5 期实验</a></td><td class="n">18</td><td>GPIO 驱动 LED、上下拉、ADC 分压、光敏与热敏、三极管与 MOSFET 开关、继电器、电平转换、LDO、电源预算、PWM、I²C 上拉、综合项目</td></tr>
+<tr><td><a href="#theory">理论练习</a></td><td class="n">291</td><td>电路图 + 数值 / 选择小问，分级提示，完整解答</td><td>教材第 1–18 章，20 个章节，每章一页要点</td></tr>
 </tbody></table></div>
 
-<h3>做得好的地方</h3>
+<h2 id="path">学习进度推荐</h2>
+<p>下面是给学生的推荐顺序。每个阶段先上需要的仪器课，再做理论章节，最后到面包板上实测。<span class="chip th">蓝边</span> 是理论章节，<span class="chip bb">红边</span> 是面包板单元，点击可跳到详细条目。</p>
+<div class="note">时间是我按“课程 15 分钟、实验 30 分钟、理论题 10 分钟”估算的，没有学生实测数据。过关标准也是建议，应用里目前没有强制的关卡。</div>
+<!--PATH-->
+<h3>仪器课是实验的入口</h3>
+<p>60 个实验和挑战里有 {{u_prereq}} 个标了先修课。下表是每节仪器课被引用的次数，次数越多越应该早上。</p>
+<!--PREREQ-->
+<h3>两条可选的捷径</h3>
+<ul>
+<li><b>只想做项目的学生</b>：阶段 0 → 仪器课 9、10、15、16 → 理论 <code>basics</code>、<code>equivalence</code> 和 <code>theorems</code> 里戴维宁部分 → 第 5 期。约 20 小时。</li>
+<li><b>备考的学生</b>：跳过面包板，直接按章做理论题；每章先读要点页，做错的题进错题本，按 1、3、7、21 天的间隔复习，考前用章末小测自查。</li>
+</ul>
+
+<h2 id="eval">教学评估</h2>
+<p>评估回答两个问题：学生按这套内容能不能学明白；内容里有没有会把学生带偏的地方或错误。结论先行：<b>仪器课和第 1–5 期实验的教学设计是完整的；入门课和入门挑战明显弱于后面的内容；理论题的数值答案可靠，文字部分仍有未复核的区域。</b></p>
+
+<h3>证据等级</h3>
+<p>每条结论后面标了依据来自哪一级。</p>
+<div class="tw"><table><thead><tr><th>等级</th><th>含义</th></tr></thead><tbody>
+<tr><td><span class="sev ok">程序</span></td><td>由 <code>npm run check</code> 或端到端测试自动保证，每次提交都跑</td></tr>
+<tr><td><span class="sev l">亲验</span></td><td>协调者在浏览器里亲自操作或逐项核对过</td></tr>
+<tr><td><span class="sev m">报告</span></td><td>工作会话报告的结果，协调者只抽查或未复核</td></tr>
+<tr><td><span class="sev h">未验</span></td><td>没有任何人或程序验证过</td></tr>
+</tbody></table></div>
+
+<h3>能不能学明白：做得好的地方</h3>
 <div class="tw"><table class="find"><thead><tr><th>等级</th><th>做法</th><th>为什么有助于理解</th><th>覆盖范围</th></tr></thead><tbody>
-<tr><td><span class="sev l">脚本</span></td><td>统一的四卡结构，一次只看一张</td><td>先有“咦？”，再有公式。每张卡片很短，注意力不会被一大段题面淹没。</td><td>{{four}} / {{items}} 个文件，共 {{cards}} 张</td></tr>
-<tr><td><span class="sev ok">程序</span></td><td>测量题按学生自己的电路仿真出期望值</td><td>换了阻值或接法也照样判分。抄答案的数字过不了。</td><td>{{u_meas}} / {{items}} 个文件，{{meas}} 道题</td></tr>
-<tr><td><span class="sev l">脚本</span></td><td>先预测，再实测</td><td>预期和读数对不上的时候，矛盾是学生自己发现的。</td><td>{{meas_pred}} / {{meas}} 道测量题，{{u_pred}} 个文件</td></tr>
-<tr><td><span class="sev ok">程序</span></td><td>课程步骤带自动检查，高亮目标孔位</td><td>每一步做错立刻知道，不会到最后才发现整块板子都错了。</td><td>{{checked}} / {{steps}} 步</td></tr>
-<tr><td><span class="sev ok">程序</span></td><td>先修顺序由测试保证</td><td>上一版指出的几处顺序问题都改了：示波器双通道移到 3.1，2-7 / 2-8 移到 3.2，三极管排在 GPIO 之后，新增 Blue Pill 引脚课 300。</td><td>全部 {{u_prereq}} 个带先修的文件</td></tr>
-<tr><td><span class="sev ok">程序</span></td><td>防泄题检查覆盖卡片文字</td><td>卡片里不能直接写出测量题的答案。</td><td>全部卡片</td></tr>
-<tr><td><span class="sev ok">程序</span></td><td>理论题每个数值答案由分析引擎重算</td><td>作者写的答案和引擎算的不一致，题目就进不了仓库。</td><td>{{numq}} 个数值小问</td></tr>
-<tr><td><span class="sev l">脚本</span></td><td>补上了上一版的缺口</td><td>功率因数校正（270）让交流功率有了实验；半波整流（271）是非正弦波的入口；天黑自动亮灯（298）是第一道开放设计题，只看表现判分。</td><td>新增 6 个文件</td></tr>
+<tr><td><span class="sev ok">程序</span></td><td>预测 → 实测 → 对比的闭环</td><td>学生先写下预期，再读自己板子上的仪表，最后看计算和读数的差别。预期和读数不一致时，矛盾由学生自己发现。</td><td>{{u_pred}} / {{units}} 个单元有“先预测”；{{meas}} 道测量题里 {{meas_pred}} 道要求先预测；{{u_cmp}} 个单元有答后对比</td></tr>
+<tr><td><span class="sev ok">程序</span></td><td>测量题的期望值按学生自己的电路仿真</td><td>学生用了不同阻值或不同接法，只要电路对，读数题就按他自己的板子判。不会出现“照着答案抄数字”能过的情况。</td><td>全部 {{meas}} 道测量题</td></tr>
+<tr><td><span class="sev ok">程序</span></td><td>按拓扑判分，不按孔位</td><td>同一个电路可以有任意多种摆法，鼓励学生理解“结点”而不是背孔位。</td><td>全部 {{units}} 个单元</td></tr>
+<tr><td><span class="sev ok">程序</span></td><td>理论题每个数值答案由分析引擎重算</td><td>作者写的答案和引擎算的不一致，校验就失败，题目进不了仓库。</td><td>1077 个数值小问</td></tr>
+<tr><td><span class="sev ok">程序</span></td><td>选择题每个选项都有解释</td><td>选错时告诉学生这个错误选项对应哪种误解。</td><td>全部 {{choice}} 个理论选择小问</td></tr>
+<tr><td><span class="sev l">亲验</span></td><td>仪器先于实验</td><td>第一次用到万用表、示波器之前有专门一课，每一步由程序判断是否做对。</td><td>仪器课 80 步中 72 步有自动检查，其余 8 步是“点检查并答题”</td></tr>
+<tr><td><span class="sev m">报告</span></td><td>仿真与真实的差别写在题面里</td><td>避免学生把理想模型当成真实仪器的行为，例如信号发生器的 50 Ω 显示约定、探头负载、ESP32 ADC 非线性。</td><td>{{u_real}} / {{units}} 个单元</td></tr>
+<tr><td><span class="sev l">亲验</span></td><td>错题本、间隔复习、章末小测</td><td>做错的题按 1、3、7、21 天回来重做。我确认了错题会进本子、小测页面能打开；间隔调度没有跨真实天数验证。</td><td>全部理论题</td></tr>
 </tbody></table></div>
 
 <h3>偏差与问题</h3>
-<p>按对学生的影响排序。</p>
+<p>按对学生的影响排序。“高”表示我认为会让一部分学生学不明白或学到错的东西。</p>
 <div class="tw"><table class="find"><thead><tr><th>影响</th><th>问题</th><th>依据</th><th>建议</th></tr></thead><tbody>
-<tr><td><span class="sev h">高</span></td><td><b>卡片文字、对比、测量题讲解里的数字没有经过引擎核对。</b>校验器只核对参考答案板上的读数在不在范围内，不核对 {{u_cmp}} 段对比和 {{meas}} 条讲解里手写的数字和推理。这些文字在重构中几乎全部重写过。</td><td><span class="sev ok">程序</span> 校验器的检查项（见 <code>docs/CHALLENGE_FORMAT.md</code>）</td><td>审查者逐个文件核对“想明白”卡片的公式代入、对比段落和讲解里的每个数字。可以用 <code>npx tsx scripts/validate-challenges.ts &lt;文件&gt; --readings</code> 看参考答案板上的真实读数</td></tr>
-<tr><td><span class="sev h">高</span></td><td><b>World 1–3 的理论题还没按新规范润色。</b>{{unpolished_p}} 道题（<code>basics</code>、<code>equivalence</code>、<code>methods</code>、<code>theorems</code>、<code>opamp</code>、<code>dependent-sources</code>、<code>storage</code>、<code>first-order</code>、<code>second-order</code>），而学生最先做的就是这些。已经润色的是 {{polished_ch}} 章 {{polished_p}} 题。</td><td><span class="sev m">报告</span> REBUILD_PLAN §6 “全局”</td><td>按 World 4 的做法润色：要点一条一件事，题干拆成短句，去掉泄露其他小问答案的选项和提示</td></tr>
-<tr><td><span class="sev m">中</span></td><td><b>“润色”不等于“重解”。</b>World 4 九章和 <code>nonlinear</code> 的润色改的是写法和泄题，计划里没有说逐题重解过。上一版指出未充分复核的 75 道题（非正弦、复频域、矩阵形式、非线性、传输线）里，选学的 <code>matrix-form</code>、<code>transmission-line</code> 这次完全没动。</td><td><span class="sev m">报告</span></td><td>优先逐题重解 <code>s-domain</code>、<code>non-sinusoidal</code>、<code>nonlinear</code> 的解答步骤</td></tr>
-<tr><td><span class="sev m">中</span></td><td><b>计划文档和实际内容有出入。</b>REBUILD_PLAN 说 1.1–1.11 的“想明白”卡片都已配图，但 <code>04-schematic-to-breadboard</code>（1.6，这个单元唯一的文件）、<code>09-two-leds-series</code>、<code>10-voltage-divider</code> 一幅图都没有。World 5 待办里还写着“插图缺 NPN、MOSFET、稳压器、电机符号”，但后来的提交 <code>078b1d3</code> 说已经加上了。</td><td><span class="sev l">脚本</span> 配图数；<span class="sev m">报告</span> 提交说明</td><td>1.6 补一幅“结点 ↔ 金属条”对照图；更新 REBUILD_PLAN 的待办</td></tr>
-<tr><td><span class="sev m">中</span></td><td><b>“先做错一次”用得不多。</b>计划把 Make: Electronics 的“先动手、可以故意做错”当作开局方式，但“试一试”卡片里明确让学生先犯错的只有 {{u_mistake}} 个文件（如 1.1 先插错、1.3 不加电阻烧 LED、1.5 电流表先接错、2.5 运放先不接反馈、5.1 二极管先插反；完整名单见指标矩阵“先犯错”列）。大多数“试一试”只是“先搭好，再想一个问题”。</td><td><span class="sev l">脚本</span> 关键词匹配，可能漏判</td><td>在 World 2–4 挑几个最容易出错的地方加“先错一次”，比如电压源置零时直接拔掉、示波器 AC/DC 耦合选错</td></tr>
-<tr><td><span class="sev m">中</span></td><td><b>World 1 的课程提示偏少，也没有对比段落。</b>多数入门课只有 2 条提示，World 1 的挑战和入门课大多没有答后对比（只有仪器课 101–103 和实验 201、202、206、207 有）。</td><td><span class="sev l">脚本</span> 见指标矩阵 World 1</td><td>“带走”卡片承担了一部分总结的作用，可以接受；提示可以补到 3 条</td></tr>
-<tr><td><span class="sev m">中</span></td><td><b>理论题和实验之间的符号还没完全统一。</b><code>theorems/17-tellegen</code> 和 <code>summaries/theorems.json</code> 里还用 <code>û</code>，按 NOTATION.md 应该是 <code>v̂</code>。</td><td><span class="sev l">脚本</span> 文本搜索</td><td>一起改掉</td></tr>
-<tr><td><span class="sev m">中</span></td><td><b>插图的已知限制</b>：266、268 的电路图没有画运放（运放符号会让图变宽，268 用受控源代替跟随器）。曲线只有一个 y 轴、没有对数轴，所以波特图不是对数坐标。</td><td><span class="sev m">报告</span> REBUILD_PLAN World 4 待办</td><td>属于引擎和界面的工作；审查时注意这几幅图的图注有没有把这一点说清楚</td></tr>
-<tr><td><span class="sev m">中</span></td><td><b>没有学生实测</b>：难度 1–5、学时估计、卡片长短是否合适，都还没在真实学习者身上验证过。</td><td><span class="sev h">未验</span></td><td>自己按 World 1 走一遍，记录每个单元的用时和卡住的地方</td></tr>
-<tr><td><span class="sev l">低</span></td><td>1.7 的串联课 <code>05-series-resistors</code> 有 7 步，只有 5 步带检查；298 设计题没有测量题（只看表现判分，是有意的设计）。</td><td><span class="sev l">脚本</span></td><td>看一下没检查的 2 步是不是“读数 / 观察”类步骤</td></tr>
-<tr><td><span class="sev l">低</span></td><td>这次没有跑浏览器端到端测试（<code>npm run e2e</code>）。卡片在真实界面上的显示，比如手机上的长度、插图横向滚动，没有人看过。</td><td><span class="sev h">未验</span></td><td>跑一次 e2e，并在手机宽度下打开几个插图多的单元</td></tr>
+<tr><td><span class="sev h">高</span></td><td><b>入门课 1–8 只是“照着点”</b>。44 个步骤没有一步有自动检查，没有先预测、没有测量题、没有答后对比。学生可以不理解任何东西就点完。</td><td><span class="sev ok">程序</span> 见下方指标矩阵第一组，全部为空</td><td>给每一步补 <code>check</code>；每课加 1–2 道读数题，例如第 3 课让学生读 LED 电流并和 (9 − Vf) / R 比较</td></tr>
+<tr><td><span class="sev h">高</span></td><td><b>入门挑战 1–11 只有通过或不通过</b>。除“找错”外没有引导思考的环节，5 题的提示不足 3 条。</td><td><span class="sev ok">程序</span> 指标矩阵第二组</td><td>至少给分压器、电位器调光、混联三题加测量题和对比</td></tr>
+<tr><td><span class="sev h">高</span></td><td><b>文字部分的复核不完整</b>。第五轮对 216 道原有理论题逐题重解，改了 116 道，其中 13 处是解答步骤错误、12 处是提示直接泄露答案。同样强度的复核没有覆盖后加的 75 道题（非正弦、复频域、矩阵形式、非线性、传输线）和 76 个面包板单元的题面。</td><td><span class="sev m">报告</span> 第五轮文字复核会话的统计。按这个比例，未复核区域里很可能还有同类错误。</td><td>审查 Agent 优先逐题重解这 75 道题的 <code>solution</code> 和 <code>hints</code>，并核对实验“对比”里的每个数字</td></tr>
+<tr><td><span class="sev m">中</span></td><td><b>答案和判题引擎同源</b>。数值答案由引擎重算，但引擎本身是同一批会话写的。引擎的系统性错误会让题目和答案一起错而校验照样通过。</td><td><span class="sev ok">程序</span> 有独立交叉检查（<code>npm run test:slow</code>、解析解对照），但不是每种分析类型都有</td><td>用外部工具（SPICE 或手算）抽查每种 <code>find</code> 类型至少 3 题，重点是 <code>tl</code>、<code>mat</code>、<code>residue</code>、<code>twoport</code></td></tr>
+<tr><td><span class="sev m">中</span></td><td><b>20 章里有 9 章只有理论题</b>：正弦稳态功率、耦合电感、三相，以及教材第 13–18 章。这些章没有动手验证，理解只能靠计算。</td><td><span class="sev ok">程序</span> 面包板没有变压器、三相电源、传输线元件</td><td>可接受的取舍。若要补，功率因数校正和变压器阻抗变换最适合做成实验</td></tr>
+<tr><td><span class="sev m">中</span></td><td><b>概念性提问偏少</b>。理论小问里选择题占 15%，其余都是填数。学生可能套公式得到正确数字而不理解。</td><td><span class="sev ok">程序</span> {{choice}} / {{subq}}；各章比例见下表</td><td>在比例低于 10% 的章节增加“判断方向 / 判断性质 / 选方法”类小问</td></tr>
+<tr><td><span class="sev m">中</span></td><td><b>6 个第 5 期实验用 STM32 Blue Pill，但仪器课只教了 ESP32</b>。学生第一次见到 Blue Pill 的引脚表和 5 V 容忍引脚是在实验里。</td><td><span class="sev l">亲验</span> 元件统计：ESP32 14 处，Blue Pill 6 处；课 15、16 用 ESP32</td><td>加一节 Blue Pill 短课，或在这 6 个实验题面开头加一段对照说明</td></tr>
+<tr><td><span class="sev m">中</span></td><td><b>难度和时长没有经过学生验证</b>。难度 1–5 是作者标的，路线里的小时数是估算。</td><td><span class="sev h">未验</span></td><td>找 3–5 个学生各做一期，记录每单元用时和卡住的位置</td></tr>
+<tr><td><span class="sev m">中</span></td><td><b>理论线用理想模型，面包板线用真实模型</b>。同一个分压电路，理论题答案和面包板读数会差几个百分点（电池内阻、LED 压降、电流表 0.1 Ω）。实验的“对比”解释了这一点，入门课没有。</td><td><span class="sev l">亲验</span></td><td>在入门课第 5 课或第 8 课加一段说明</td></tr>
+<tr><td><span class="sev m">中</span></td><td><b>教材覆盖的缺口</b>：非线性动态电路、有损耗线的暂态、傅里叶变换、列表法没有题目。</td><td><span class="sev ok">程序</span> 见 <code>docs/ROADMAP.md</code> 对照表</td><td>按学校大纲决定是否补</td></tr>
+<tr><td><span class="sev l">低</span></td><td>仪器课 14–16 的题面没有“先预测”段落，只在测量题上有预测标记，和其他仪器课不一致。</td><td><span class="sev ok">程序</span></td><td>补一段</td></tr>
+<tr><td><span class="sev l">低</span></td><td>浏览器走查只覆盖了仪器课。阻塞式 CI 跑 3 节，全部 8 节在非阻塞任务里。入门课和 60 个实验只有“参考答案通过自身测试”这一层保证，没有模拟学生逐步操作。</td><td><span class="sev ok">程序</span></td><td>把走查脚本扩展到入门课</td></tr>
+<tr><td><span class="sev l">低</span></td><td>手机上第 1 课要约 40 次点击；实验 5-8 的参考板在默认视角下被裁掉一部分。</td><td><span class="sev m">报告</span></td><td>手机上提供“连续放置”模式；调整该实验的初始视角</td></tr>
 </tbody></table></div>
 
-<h2 id="matrix">指标矩阵</h2>
-<p>每一行是一个面包板文件，按课程地图的顺序排列；每一列是一种教学手段。● 有，○ 没有（红底），– 不适用。</p>
-<p class="dim">判定规则：“四张卡”指卡片正好是 试一试 → 想明白 → 动手做 → 带走；“步骤检查”指带检查的步骤数 ≥ 总步数 − 1，只看课程；“先犯错”指“试一试”卡片或标题里有插错、接反、故意等字样，是关键词判断；“推算”指有用自己读数推算的测量题；“为什么”指有选择题形式的测量题；“多工况”指至少一组测试会切换开关、温度、频率等条件；“链理论”指“带走”卡片链接了理论章节。</p>
+<h3>面包板单元指标矩阵</h3>
+<p>每一行是一个单元，每一列是一种教学手段。● 有，○ 没有（红底），– 不适用。空得多的行就是教学设计薄弱的单元。</p>
+<p class="dim">判定规则：“步骤检查”= 带自动检查的步骤数 ≥ 总步数 − 1；“先预测”= 题面有该段落或测量题带预测标记；“真实 / 模型”= 题面讨论了仿真与真实的差别；“多工况”= 至少一组测试会切换开关、温度、频率等条件。</p>
 <!--MATRIX-->
 
-<h3>理论章节：题量、难度、提问类型、润色状态</h3>
+<h3>理论章节：题量、难度梯度、提问类型</h3>
 <div class="legend"><span>难度</span><span><i class="l1"></i>1</span><span><i class="l2"></i>2</span><span><i class="l3"></i>3</span><span><i class="l4"></i>4</span><span><i class="l5"></i>5</span></div>
-<!--CHAPTERS-->
-<p class="dim">“已润色”一列按 REBUILD_PLAN §6 手工维护（脚本里的 <code>POLISHED</code> 集合），不是程序判断的。</p>
+<!--PHASES-->
+<p>每章的难度都从 1 铺到 5（传输线没有难度 5 的题），中间难度最多，梯度合理。选择题占比低的章节是上面“概念性提问偏少”一条的具体位置。</p>
+
+<h3>已经发现并修掉的错误</h3>
+<p>列在这里是为了说明错误出现在哪类地方，方便审查者判断还该查哪里。</p>
+<ul>
+<li><span class="sev m">报告</span> 理论题文字：13 处解答步骤错误、12 处提示泄题、10 处选择题问题，共改 116 题。数值答案本身没有发现错误。</li>
+<li><span class="sev m">报告</span> 面包板工具：点击偶尔落偏一行（工具提示换行挤动画布）；每放一个元件侧栏就跳到属性页；视角自动复位；示波器窗口盖住板子；PWM 引脚读数显示错误；稳压电源恒流模式误报短路。这些都是逐课模拟学生操作时才暴露的。</li>
+<li><span class="sev l">亲验</span> 电流表并联到元件两端时原来没有明确提示，现在诊断会指出；实验 1-5 的题面本身说明了这个错误，所以不算泄题。</li>
+<li><span class="sev m">报告</span> 手机上电路图标注最小只有 2.7 像素，现在不低于 11 像素（下标 8.3 像素）。</li>
+</ul>
+<p>规律：<b>由同一个作者写并由同一个作者的程序验证的内容，每次独立复核都能找到错误。</b>没有经过独立复核的部分应当默认存在错误。</p>
 
 <h2 id="how">每个单元是怎么做出来的</h2>
-<div class="tw"><table><thead><tr><th>步骤</th><th>面包板文件（<code>breadboard-challenge/1</code>）</th><th>理论题（<code>circuit-problem/1</code>）</th></tr></thead><tbody>
-<tr><td>1 写内容</td><td>4 张卡片（文字支持粗体、代码样式、<code>$…$</code> 公式、<code>![](fig:名字)</code> 插图），概述，知识点，目标电路的元件和结点，参考答案布局，分级提示；课程另写步骤和每步的检查条件，由卡片按顺序领取</td><td>题面、电路图几何、小问、提示、分步解答；网表由电路图推出</td></tr>
-<tr><td>2 写插图</td><td><code>figures</code>：电路图（同一套画图格式，可标电流箭头、+/−、回路）、曲线、面包板图（文字自动摆放）</td><td>—</td></tr>
-<tr><td>3 写判据</td><td>行为测试：在指定工况下某点电压、某支路电流、示波器读数、引脚读数要落在范围内；测量题写明读哪里、什么工况</td><td>每个小问写明求什么和作者算的答案</td></tr>
-<tr><td>4 自动校验</td><td>参考答案放进面包板仿真器，必须通过全部测试，测量题读数必须在范围内；卡片领取的步骤数之和要等于步骤总数；文字不能泄露答案</td><td>分析引擎独立重算每个数值，和作者答案不一致就失败</td></tr>
-<tr><td>5 双语</td><td colspan="2">中文在顶层，<code>i18n.en</code> 按位置一一对应，卡片也一样</td></tr>
-<tr><td>6 课程地图</td><td colspan="2"><code>src/core/course.ts</code> 决定顺序，<code>courseText.ts</code> 放标题；测试保证每个文件只出现一次，并且排在先修课之后</td></tr>
+<p>所有内容都是数据文件，不是手写页面。一个单元 = 一个 JSON 文件，应用按统一的方式渲染和判分。</p>
+<div class="tw"><table><thead><tr><th>步骤</th><th>面包板单元（<code>breadboard-challenge/1</code>）</th><th>理论题（<code>circuit-problem/1</code>）</th></tr></thead><tbody>
+<tr><td>1 写内容</td><td>题面、知识点、目标电路的元件和结点、参考答案的孔位布局、分级提示；课程另写步骤和每步的检查条件</td><td>题面、电路图几何（元件坐标）、小问、提示、分步解答；网表由画图几何推出</td></tr>
+<tr><td>2 写判据</td><td>行为测试：在指定工况下（按键按下、温度 60 °C、频率 1 kHz…）某点电压、某支路电流、示波器量、引脚量必须落在范围内</td><td>每个小问写明求什么（<code>find</code>）和作者算的答案</td></tr>
+<tr><td>3 自动校验</td><td>校验脚本把参考答案放进面包板仿真器，必须通过本题全部测试</td><td>分析引擎独立重算每个数值，与作者答案不一致即失败</td></tr>
+<tr><td>4 双语</td><td colspan="2">中文为基础语言，<code>i18n.en</code> 按位置一一对应</td></tr>
+<tr><td>5 独立复核</td><td>仪器课：由另一个会话在浏览器里逐步操作；实验：没有逐个走查</td><td>216 题由另一个会话逐题重解并核对文字；75 题在各自编写轮次做过复核，强度较低</td></tr>
+<tr><td>6 回归</td><td colspan="2">每次提交：类型检查、lint、单元测试、内容校验（0 警告）、构建、体积预算；端到端四套：路由、面包板操作、无障碍、课程走查</td></tr>
 </tbody></table></div>
-<p>面包板仿真用真实元件模型：LED 是 Vf 加 12 Ω，硅二极管是 0.65 V 加 0.8 Ω，电池内阻 9 V 为 1.5 Ω、AA 为 0.15 Ω、CR2032 为 15 Ω。另外还有信号发生器的 50 Ω 输出电阻、电流表内阻、运放摆幅限制和正反馈翻转。理论引擎是理想电路的改进结点分析。</p>
+<p>面包板仿真用真实元件模型：电池内阻、LED 正向压降加串联电阻、运放输出摆幅限制、信号发生器 50 Ω 输出电阻、电流表 0.1 Ω。有信号发生器时做时域仿真到周期稳态。理论引擎是理想电路的改进结点分析，支持直流、暂态、正弦稳态、非正弦周期、复频域、非线性电阻、传输线。</p>
 
-<h2 id="catalog">面包板单元（{{items}} 个文件，按课程地图顺序）</h2>
-<p>每一条可以展开，里面有：概述，<b>4 张卡片的全文</b>（插图显示为类型、图注和元件清单），步骤和检查条件，行为测试，测量题（含合格范围和讲解），对比段落，交互清单和提示。标题前的编号是“单元·第几个文件”。</p>
-<div class="tools"><input id="q" type="search" placeholder="筛选：输入标题、知识点或任何文字" aria-label="筛选单元"><button id="exp" type="button">全部展开</button><button id="col" type="button">全部收起</button></div>
+<h2 id="interact">允许的交互</h2>
+<p>每个单元条目里列了它自己用到的交互。下面是应用层面的完整清单。</p>
+<div class="cols">
+<div><h3>面包板</h3><ul>
+<li>选工具后点两个孔放置两脚元件；芯片、按键、开发板点一个孔定位</li>
+<li>拖动已放置的元件；删除；撤销与重做</li>
+<li>在属性面板改阻值、电容、电源电压、限流、波形、频率、幅度、偏置、温度、光照</li>
+<li>按下按键、拨开关、转电位器</li>
+<li>开发板引脚表：把每个引脚设为输出高 / 低、输入、上拉、ADC、PWM</li>
+<li>万用表表笔、电流表、示波器探头（自动分配 CH1 / CH2）</li>
+<li>示波器窗口：时间 / 格、伏 / 格、自动档，读 Vpp、有效值、平均值、频率、相位</li>
+<li>结点着色（同色 = 同一结点）；实时诊断（短路、电流表并联、引脚过流等）</li>
+<li>“检查我的电路”；逐级展开提示；确认后看参考答案</li>
+<li>测量题：先填预测，再填读数，或从自己的读数推算；答完显示对比</li>
+<li>旋转、缩放视角；键盘按孔位编号搭电路；触屏放置</li>
+<li>自由搭建模式；导入自定义题目文件</li>
+</ul></div>
+<div><h3>理论练习</h3><ul>
+<li>按章、按难度浏览；上一题 / 下一题</li>
+<li>填数值答案，可带单位前缀和简单表达式；选择题</li>
+<li>答错后看该小问的讲解；选择题看每个选项的解释</li>
+<li>逐级展开提示；看分步解答</li>
+<li>本章要点页：核心思路、公式表、例题、易错点，并链接到对应题目</li>
+<li>错题本；到期复习（1、3、7、21 天）；章末小测（可限时、可暂停）</li>
+<li>进度导出与导入；中英文切换</li>
+</ul></div>
+</div>
+
+<h2 id="diverge">拓展与发散思维的具体手段</h2>
+<p>这一节回答“课程用什么办法让学生不止于搭对电路”。每种手段后面是它在内容里出现的次数，每个单元条目里也标了它用到了哪些。</p>
+<div class="tw"><table class="find"><thead><tr><th>手段</th><th>具体做法</th><th>例子</th><th>出现次数</th></tr></thead><tbody>
+<tr><td><b>先预测</b></td><td>动手前要求写下预期读数；测量题里预测和实测分两栏</td><td>仪器课 12：接上 50 Ω 负载后峰峰值和有效值各是多少</td><td>{{u_pred}} 个单元，{{meas_pred}} 道测量题</td></tr>
+<tr><td><b>用自己的读数推导</b></td><td>答案不是读出来的，而是用学生自己前两个读数算出来的</td><td>实验 2-2：Req = 自己测的 Uoc ÷ 自己测的 Isc，再和置零法比较</td><td>{{meas_formula}} 道</td></tr>
+<tr><td><b>答后对比</b></td><td>通过后显示理论计算全过程，并解释和读数差在哪里</td><td>实验 5-17：电源预算表逐项列出电流</td><td>{{u_cmp}} 个单元</td></tr>
+<tr><td><b>想一想</b></td><td>题面里的开放追问，不判分</td><td>挑战 10：电阻不小心被短路后，电路里会发生什么</td><td>{{u_think}} 个单元</td></tr>
+<tr><td><b>多工况对照</b></td><td>同一个电路在几种条件下分别测，让学生看到变化规律</td><td>实验 5-17：25 °C 和 60 °C；滤波器实验：几个频率点</td><td>{{multi}} / {{tests}} 组测试</td></tr>
+<tr><td><b>“为什么”选择题</b></td><td>实验后问原因而不是问数值</td><td>实验 1-3：哪个负载让 VOUT 明显下降？为什么？</td><td>{{meas_choice}} 道</td></tr>
+<tr><td><b>从错误出发</b></td><td>开局给一个预置电路，其中一部分是错的，要学生找出来</td><td>挑战 11：三处错误的 LED 电路；实验 1-5：电流表接成了并联</td><td>{{u_start}} 个单元有预置电路</td></tr>
+<tr><td><b>联系真实世界</b></td><td>“真实电路里”“实际项目经验”“模型说明”三种段落，讲仿真没有的现象和工程做法</td><td>滞回、星形接地、启动配置引脚、探头负载</td><td>{{u_real}} 个单元</td></tr>
+<tr><td><b>一题多解</b></td><td>判分按拓扑等价，任何等效接法都算对；理论题里同一电路用两种方法各做一遍</td><td><code>methods</code> 章“方法选择”；戴维宁的三种求 Req 方法</td><td>全部面包板单元</td></tr>
+<tr><td><b>错因解释</b></td><td>每个错误选项对应一种常见误解并说明；每章列出易错点</td><td>一阶电路：把电阻电流的 f(0₋) 当成 f(0₊)</td><td>{{choice}} 个选择小问，{{mistakes}} 条易错点</td></tr>
+<tr><td><b>综合迁移</b></td><td>把前面学过的几块拼成一个系统</td><td>实验 5-17 NTC 温控风扇：分压 + ADC + MOSFET + 续流 + 电源预算</td><td>1 个综合实验</td></tr>
+</tbody></table></div>
+<p>缺口：没有真正开放的设计题（给指标、让学生自己选方案和参数，多个答案都对）；“想一想”不收集学生的回答，无法知道学生是否真的想了；入门课和入门挑战几乎没有用到上面任何一种手段。</p>
+
+<h2 id="catalog">面包板课程与实验（{{units}} 个）</h2>
+<p>每一条可以展开，里面有题面全文、实现方式、步骤与检查条件、行为测试、测量题、允许的交互、发散思维手段和提示。</p>
+<div class="tools"><input id="q" type="search" placeholder="筛选：输入标题或知识点" aria-label="筛选单元"><button id="exp" type="button">全部展开</button><button id="col" type="button">全部收起</button></div>
 <!--CATALOG-->
 
 <h2 id="theory">理论练习（{{chapters}} 章，{{problems}} 题）</h2>
-<p>按 World 分组，顺序跟着 Sadiku。每章展开后有要点页（核心思路全文、易错点、公式表）和题目清单，点题目可以看题面和每个小问；选择题会列出全部选项（正确的那项标绿）和每个选项的解释。全库共有 {{hints_p}} 条提示。分步解答没有放进本报告，请直接看 <code>problems/</code> 里的 <code>solution</code>。</p>
+<p>每章展开后有要点页的内容（核心思路、易错点、公式）和题目清单。每道题的结构相同：题面、电路图、若干小问、{{hints_p}} 条分级提示（全库合计）、分步解答、中英双语。</p>
 <!--THEORY-->
 
-<h2 id="review">给审查者的检查清单</h2>
+<h2 id="review">给审查者的检查建议</h2>
 <ol>
-<li><b>核对卡片里的物理和数字</b>：重点看每个“💡 想明白”卡片的公式代入、模型参数（LED 是 Vf 加 12 Ω，二极管是 0.65 V 加 0.8 Ω，电池内阻同上）、单位和有效值 / 峰值。本报告里每个文件都有卡片全文。</li>
-<li><b>核对 {{u_cmp}} 段对比和 {{meas}} 条测量题讲解</b>里的每个数字，这些都是手写的。</li>
-<li><b>看卡片顺序合不合理</b>：有没有用到后面才讲的术语（写作规范第 6 条），“试一试”有没有先把答案说出来，“带走”的结论和前面讲的是否一致。</li>
-<li><b>插图和文字是否一致</b>：图注说的元件和数值要和电路图元件清单、目标电路对得上；图上不能出现测量题答案。</li>
-<li><b>逐题重解理论题</b>：先做 World 1–2（学生最先做、还没润色），再做 <code>s-domain</code>、<code>non-sinusoidal</code>、<code>nonlinear</code>。</li>
-<li><b>符号</b>：全部按 <code>docs/NOTATION.md</code>（v / V、u(t)、有效值相量、cos 参考），已知 <code>theorems</code> 里还有 <code>û</code>。</li>
-<li><b>英文翻译</b>：只校验了条数对应，没有人检查过译文质量。</li>
-<li><b>教学顺序</b>：对照课程地图和 <code>docs/REBUILD_PLAN.md</code>，判断每个 World 的单元顺序和配套理论章节是否合适。</li>
+<li><b>逐题重解未充分复核的 75 道理论题</b>：<code>problems/non-sinusoidal</code>、<code>s-domain</code>、<code>matrix-form</code>、<code>nonlinear</code>、<code>transmission-line</code>。检查解答每一步的中间数字、提示是否泄露答案、选择题是否只有一个正确选项。</li>
+<li><b>核对 57 个单元“对比”段落里的数字</b>，它们是手写的，不经过引擎校验。上面每个条目里都给出了全文。</li>
+<li><b>核对测量题的讲解</b>（{{meas}} 道），同样是手写文字。</li>
+<li><b>用独立工具抽查引擎</b>：每种分析类型选几题，用 SPICE 或手算对照。</li>
+<li><b>检查入门课 1–8 的步骤文字</b>是否和实际界面一致（按钮名称、孔位编号），这部分没有浏览器走查。</li>
+<li><b>英文翻译</b>只校验了条数对应，没有人检查过译文质量和术语一致性（<code>docs/NOTATION.md</code> 规定了符号约定）。</li>
+<li><b>教学顺序</b>：本文的路线是协调者的建议，请对照所用教材和学时判断是否合适。</li>
 </ol>
-<p class="dim">生成方式：<code>python3 scripts/course-report.py . docs/course-report.html docs/course-report.narrative.html</code>。脚本读取 <code>src/core/course.ts</code>、<code>courseText.ts</code>、<code>chapters.ts</code> 和全部内容文件，套用本模板。内容变动后重新运行就能更新清单和计数；评估结论要人工更新。</p>
+<p class="dim">生成方式：仓库里 <code>scripts/course-report.py</code> 读取内容文件并套用 <code>docs/course-report.narrative.html</code>，输出 <code>docs/course-report.html</code>。内容文件变动后重新运行即可更新清单和计数；评估结论需要人工更新。</p>
 </div>
 <script>
 (function(){
   function openHash(){var id=decodeURIComponent(location.hash.slice(1));if(!id)return;var el=document.getElementById(id);if(el&&el.tagName==='DETAILS'){el.open=true;el.scrollIntoView();}}
   window.addEventListener('hashchange',openHash);openHash();
-  var units=[].slice.call(document.querySelectorAll('section.grp details.unit'));
+  var units=[].slice.call(document.querySelectorAll('#catalog ~ section details.unit'));
   document.getElementById('exp').addEventListener('click',function(){units.forEach(function(d){if(!d.hidden)d.open=true;});});
   document.getElementById('col').addEventListener('click',function(){units.forEach(function(d){d.open=false;});});
-  document.getElementById('q').addEventListener('input',function(e){var v=e.target.value.trim().toLowerCase();units.forEach(function(d){d.hidden=!!v&&d.textContent.toLowerCase().indexOf(v)<0;});});
+  document.getElementById('q').addEventListener('input',function(e){var v=e.target.value.trim().toLowerCase();units.forEach(function(d){d.hidden=!!v&&d.querySelector('summary').textContent.toLowerCase().indexOf(v)<0&&d.textContent.toLowerCase().indexOf(v)<0;});});
 })();
 </script>

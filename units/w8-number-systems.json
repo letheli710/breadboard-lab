@@ -1,0 +1,245 @@
+{
+  "format": "learning-unit/1",
+  "id": "w8-number-systems",
+  "world": "w8",
+  "code": "8a",
+  "title": { "zh": "数制：二进制、十六进制、BCD", "en": "Number systems: binary, hex and BCD" },
+  "question": {
+    "zh": "同一个数，为什么可以写成 45、101101 和 2D？",
+    "en": "How can one number be written as 45, 101101 and 2D?"
+  },
+  "minutes": 12,
+  "connects": [],
+  "layers": [
+    {
+      "layer": "intuition",
+      "blocks": [
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "数字电路里，一根线只有两种状态：高电平记作 1，低电平记作 0。所以数字电路用**二进制**（binary）数数：只有 0 和 1 两个数字。",
+              "",
+              "写法的道理和十进制一样，叫**位值**（place value）：每一位的值 = 这一位的数字 × 这一位的**权**。十进制的权是 1、10、100……；二进制的权是 1、2、4、8、16……，每往左一位翻一倍。",
+              "",
+              "| 权 | 32 | 16 | 8 | 4 | 2 | 1 |",
+              "|---|---|---|---|---|---|---|",
+              "| 101101₂ | 1 | 0 | 1 | 1 | 0 | 1 |",
+              "",
+              "101101₂ = 32 + 8 + 4 + 1 = 45。数字右下角的小字 ₂、₁₀、₁₆ 是**基数**：说明这是几进制。"
+            ],
+            "en": [
+              "In a digital circuit a wire has only two states: high is written 1, low is written 0. So digital circuits count in **binary**: only the digits 0 and 1.",
+              "",
+              "It works like decimal, by **place value**: each digit is worth the digit × the **weight** of its place. Decimal weights are 1, 10, 100, …; binary weights are 1, 2, 4, 8, 16, …, doubling with each place to the left.",
+              "",
+              "| Weight | 32 | 16 | 8 | 4 | 2 | 1 |",
+              "|---|---|---|---|---|---|---|",
+              "| 101101₂ | 1 | 0 | 1 | 1 | 0 | 1 |",
+              "",
+              "101101₂ = 32 + 8 + 4 + 1 = 45. The small ₂, ₁₀, ₁₆ after a number is the **base**: it says which system the number is in."
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "二进制太长，人读着累。**十六进制**（hexadecimal，简称 hex）每一位有 16 个数字：0–9，再加 A = 10、B = 11、C = 12、D = 13、E = 14、F = 15。权是 1、16、256……",
+              "",
+              "妙处在于 16 = 2⁴：**一个 hex 数字正好是 4 个二进制位**。所以二进制转 hex 不用算：从右往左每 4 位一组，每组换成一个 hex 数字。0010 1101₂ = 2D₁₆。",
+              "",
+              "hex 数常加前缀 0x（C 语言、Arduino）或后缀 h：0x2D 和 2Dh 都是 45。",
+              "",
+              "**BCD**（binary-coded decimal，二进制编码的十进制）是另一回事：把十进制的**每一位**分别写成 4 位二进制。45 的 BCD 是 0100 0101（4 和 5）。数码管显示常用它。1010–1111 这六种组合在 BCD 里不用。"
+            ],
+            "en": [
+              "Binary is long and tiring to read. **Hexadecimal** (hex) has 16 digits per place: 0–9, then A = 10, B = 11, C = 12, D = 13, E = 14, F = 15. The weights are 1, 16, 256, …",
+              "",
+              "The trick is 16 = 2⁴: **one hex digit is exactly 4 binary bits**. So binary to hex needs no arithmetic: group the bits in fours from the right and replace each group with one hex digit. 0010 1101₂ = 2D₁₆.",
+              "",
+              "Hex numbers usually carry the prefix 0x (C, Arduino) or the suffix h: 0x2D and 2Dh are both 45.",
+              "",
+              "**BCD** (binary-coded decimal) is a different idea: write **each decimal digit** separately as 4 bits. 45 in BCD is 0100 0101 (4 and 5). Seven-segment displays often use it. The six patterns 1010–1111 are never used in BCD."
+            ]
+          }
+        },
+        {
+          "type": "note",
+          "tone": "tip",
+          "md": {
+            "zh": [
+              "0–15 对照表（值得背下来）：",
+              "",
+              "| 十进制 | 二进制 | hex | 十进制 | 二进制 | hex |",
+              "|---|---|---|---|---|---|",
+              "| 0 | 0000 | 0 | 8 | 1000 | 8 |",
+              "| 1 | 0001 | 1 | 9 | 1001 | 9 |",
+              "| 2 | 0010 | 2 | 10 | 1010 | A |",
+              "| 3 | 0011 | 3 | 11 | 1011 | B |",
+              "| 4 | 0100 | 4 | 12 | 1100 | C |",
+              "| 5 | 0101 | 5 | 13 | 1101 | D |",
+              "| 6 | 0110 | 6 | 14 | 1110 | E |",
+              "| 7 | 0111 | 7 | 15 | 1111 | F |"
+            ],
+            "en": [
+              "0–15 at a glance (worth memorising):",
+              "",
+              "| Decimal | Binary | Hex | Decimal | Binary | Hex |",
+              "|---|---|---|---|---|---|",
+              "| 0 | 0000 | 0 | 8 | 1000 | 8 |",
+              "| 1 | 0001 | 1 | 9 | 1001 | 9 |",
+              "| 2 | 0010 | 2 | 10 | 1010 | A |",
+              "| 3 | 0011 | 3 | 11 | 1011 | B |",
+              "| 4 | 0100 | 4 | 12 | 1100 | C |",
+              "| 5 | 0101 | 5 | 13 | 1101 | D |",
+              "| 6 | 0110 | 6 | 14 | 1110 | E |",
+              "| 7 | 0111 | 7 | 15 | 1111 | F |"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "layer": "derive",
+      "blocks": [
+        {
+          "type": "steps",
+          "title": { "zh": "手算一遍：156 转成二进制、hex 和 BCD", "en": "By hand: 156 to binary, hex and BCD" },
+          "steps": [
+            {
+              "zh": "**① 反复除以 2，记下余数。** 156 ÷ 2 = 78 余 0；78 ÷ 2 = 39 余 0；39 ÷ 2 = 19 余 1；19 ÷ 2 = 9 余 1；9 ÷ 2 = 4 余 1；4 ÷ 2 = 2 余 0；2 ÷ 2 = 1 余 0；1 ÷ 2 = 0 余 1。",
+              "en": "**① Keep dividing by 2 and write down the remainders.** 156 ÷ 2 = 78 r 0; 78 ÷ 2 = 39 r 0; 39 ÷ 2 = 19 r 1; 19 ÷ 2 = 9 r 1; 9 ÷ 2 = 4 r 1; 4 ÷ 2 = 2 r 0; 2 ÷ 2 = 1 r 0; 1 ÷ 2 = 0 r 1."
+            },
+            {
+              "zh": "**② 余数从下往上读。** 最后一个余数是最高位：156 = 10011100₂。",
+              "en": "**② Read the remainders from the bottom up.** The last remainder is the highest bit: 156 = 10011100₂."
+            },
+            {
+              "zh": "**③ 用位值检查。** 10011100₂ 里是 1 的位，权是 128、16、8、4：128 + 16 + 8 + 4 = 156 ✓。",
+              "en": "**③ Check with place value.** The 1 bits of 10011100₂ have weights 128, 16, 8 and 4: 128 + 16 + 8 + 4 = 156 ✓."
+            },
+            {
+              "zh": "**④ 转 hex。** 从右往左 4 位一组：1001 1100 → 9 和 C → 0x9C。检查：9 × 16 + 12 = 156 ✓。",
+              "en": "**④ To hex.** Group in fours from the right: 1001 1100 → 9 and C → 0x9C. Check: 9 × 16 + 12 = 156 ✓."
+            },
+            {
+              "zh": "**⑤ 转 BCD。** 每个十进制位单独写成 4 位：1 → 0001，5 → 0101，6 → 0110，所以 156 的 BCD 是 0001 0101 0110。它用了 12 位，二进制只要 8 位。",
+              "en": "**⑤ To BCD.** Write each decimal digit as 4 bits: 1 → 0001, 5 → 0101, 6 → 0110, so 156 in BCD is 0001 0101 0110. That takes 12 bits; binary needs only 8."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "layer": "connect",
+      "title": { "zh": "快问快答（由易到难）", "en": "Quick drill (easy to hard)" },
+      "blocks": [
+        {
+          "type": "predict",
+          "ask": { "zh": "1011₂ 是十进制的几？", "en": "What is 1011₂ in decimal?" },
+          "answer": 11,
+          "tol": 0.001,
+          "explain": { "zh": "8 + 2 + 1 = 11。", "en": "8 + 2 + 1 = 11." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "13 写成 4 位二进制是？", "en": "Write 13 as a 4-bit binary number." },
+          "text": ["1101", "0b1101", "1101b"],
+          "explain": { "zh": "13 = 8 + 4 + 1，所以权 8、4、1 的位是 1：1101。", "en": "13 = 8 + 4 + 1, so the bits with weights 8, 4 and 1 are 1: 1101." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "4 位二进制最大能表示几？", "en": "What is the largest number 4 bits can hold?" },
+          "choices": [
+            { "zh": "8", "en": "8" },
+            { "zh": "15", "en": "15" },
+            { "zh": "16", "en": "16" }
+          ],
+          "correct": 1,
+          "explain": { "zh": "1111₂ = 8 + 4 + 2 + 1 = 15。算上 0，一共 16 种组合。", "en": "1111₂ = 8 + 4 + 2 + 1 = 15. Counting 0, that is 16 patterns." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "0x1A 是十进制的几？", "en": "What is 0x1A in decimal?" },
+          "answer": 26,
+          "tol": 0.001,
+          "explain": { "zh": "1 × 16 + 10 = 26。A 代表 10。", "en": "1 × 16 + 10 = 26. A stands for 10." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "11010110₂ 写成 hex 是？", "en": "Write 11010110₂ in hex." },
+          "text": ["D6", "0xD6", "D6h"],
+          "explain": { "zh": "4 位一组：1101 = D，0110 = 6，所以是 0xD6。", "en": "Groups of four: 1101 = D, 0110 = 6, so 0xD6." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "0x3F 写成 8 位二进制是？", "en": "Write 0x3F as 8-bit binary." },
+          "text": ["00111111", "0b00111111", "111111", "0b111111"],
+          "explain": { "zh": "每个 hex 数字换成 4 位：3 = 0011，F = 1111，所以是 0011 1111。", "en": "Each hex digit becomes 4 bits: 3 = 0011, F = 1111, so 0011 1111." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "十进制 100 写成 hex 是？", "en": "Write decimal 100 in hex." },
+          "text": ["64", "0x64", "64h"],
+          "explain": {
+            "zh": "100 = 6 × 16 + 4，所以是 0x64。注意 0x64 和十进制的 64 不是一个数。",
+            "en": "100 = 6 × 16 + 4, so 0x64. Note that 0x64 is not the same as decimal 64."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "十进制 255 写成 hex 是？", "en": "Write decimal 255 in hex." },
+          "text": ["FF", "0xFF", "FFh"],
+          "explain": {
+            "zh": "255 = 15 × 16 + 15，所以是 0xFF，也就是 8 个 1（11111111₂）。8 位叫一个**字节**（byte），255 是一个字节能存的最大数。",
+            "en": "255 = 15 × 16 + 15, so 0xFF, which is eight 1s (11111111₂). Eight bits make a **byte**, and 255 is the largest number a byte can hold."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "59 的 BCD 码是？（8 位）", "en": "What is 59 in BCD? (8 bits)" },
+          "text": ["01011001", "0b01011001"],
+          "explain": {
+            "zh": "5 → 0101，9 → 1001，所以是 0101 1001。BCD 不是把 59 整个转成二进制（那是 111011）。",
+            "en": "5 → 0101, 9 → 1001, so 0101 1001. BCD is not 59 converted as a whole (that would be 111011)."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "BCD 码 0111 0010 代表十进制的几？", "en": "Which decimal number does the BCD code 0111 0010 stand for?" },
+          "answer": 72,
+          "tol": 0.001,
+          "explain": {
+            "zh": "0111 = 7，0010 = 2，所以是 72。如果当成普通二进制读，01110010₂ = 114，结果不一样。",
+            "en": "0111 = 7, 0010 = 2, so 72. Read as plain binary, 01110010₂ = 114, a different number."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "下面哪个**不是**合法的 BCD 码？", "en": "Which of these is **not** a valid BCD code?" },
+          "choices": [
+            { "zh": "1001 0000", "en": "1001 0000" },
+            { "zh": "0011 1100", "en": "0011 1100" },
+            { "zh": "0000 0101", "en": "0000 0101" }
+          ],
+          "correct": 1,
+          "explain": {
+            "zh": "1100 = 12，可一个十进制位最大是 9（1001）。所以 1100 不会出现在 BCD 里。",
+            "en": "1100 = 12, but one decimal digit is at most 9 (1001). So 1100 never appears in BCD."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "用 8 位 BCD，能写的最大数是几？", "en": "What is the largest number 8 bits of BCD can hold?" },
+          "answer": 99,
+          "tol": 0.001,
+          "explain": {
+            "zh": "两个十进制位，每位最大 9，所以是 99。同样 8 位，二进制能到 255。BCD 浪费了一些组合，换来的是好读、好显示。",
+            "en": "Two decimal digits, each at most 9, so 99. The same 8 bits in binary reach 255. BCD wastes some patterns in exchange for being easy to read and display."
+          }
+        }
+      ]
+    }
+  ]
+}

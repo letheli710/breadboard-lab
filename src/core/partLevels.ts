@@ -19,19 +19,19 @@ export const PART_LEVELS: PartLevel[] = [
   {
     id: 'basic',
     title: () => tr('基础 · World 1', 'Basics · World 1'),
-    worlds: [1],
+    worlds: [1, 2],
     items: ['wire', 'resistor', 'capacitor', 'led', 'battery', 'power_module', 'bench_supply', 'pushbutton', 'switch', 'potentiometer', 'ammeter'],
   },
   {
     id: 'signal',
     title: () => tr('信号与运放 · World 2–4', 'Signals & op-amps · World 2–4'),
-    worlds: [2, 3, 4],
+    worlds: [3, 4, 5, 7],
     items: ['opamp', 'function_gen', 'scope_probe', 'inductor', 'diode'],
   },
   {
     id: 'mcu',
     title: () => tr('单片机与器件 · World 5', 'MCU & devices · World 5'),
-    worlds: [5],
+    worlds: [6, 8],
     items: ['esp32_devkit', 'stm32_bluepill', 'npn', 'nmos', 'relay', 'motor', 'buzzer', 'ldo', 'ldr', 'ntc'],
   },
 ];

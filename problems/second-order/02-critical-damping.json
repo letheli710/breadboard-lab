@@ -3,9 +3,9 @@
   "format": "circuit-problem/1",
   "id": "second-order-02-critical-damping",
   "chapter": "second-order",
-  "title": "临界阻尼放电",
+  "title": "RLC 串联放电：电流何时最大",
   "level": 2,
-  "tags": ["RLC 串联", "零输入响应", "临界阻尼"],
+  "tags": ["RLC 串联", "零输入响应", "阻尼状态"],
   "statement": [
     "图示电路中 V_s = 10 V，R = 10 Ω，L = 0.5 H，C = 20 mF。t < 0 时 S_1 闭合、S_2 断开，电路已达稳态；t = 0 时 S_1 断开、S_2 同时闭合，电容经 R、L 放电。",
     "判断阻尼状态，求 t = 0.1 s 时的 v_C 和电流 i，并说明 i 何时达到最大。"
@@ -37,7 +37,7 @@
     {
       "id": "state",
       "ask": "t > 0 时的放电过程属于哪种情况？",
-      "choices": ["过阻尼", "临界阻尼", "欠阻尼", "无法判断"], "choiceExplain": ["可能漏了系数 2，拿 R 与 √(L/C) = 5 Ω 比较；串联 RLC 的临界电阻是 2√(L/C)。", "", "可能把 C = 20 mF 当成了 20 µF，算出 2√(L/C) ≈ 316 Ω；20 mF = 0.02 F。", "比较 R 与 2√(L/C) 就能判断，所需的 R、L、C 都已给出。"],
+      "choices": ["过阻尼", "临界阻尼", "欠阻尼", "无法判断"], "choiceExplain": ["可能拿 R 与 √(L/C) = 5 Ω 比较了。再核对一下串联 RLC 临界电阻的公式。", "", "可能把 C = 20 mF 当成了 20 µF，算出 2√(L/C) ≈ 316 Ω；20 mF = 0.02 F。", "比较 R 与 2√(L/C) 就能判断，所需的 R、L、C 都已给出。"],
       "correct": 1,
       "explain": "2√(L/C) = 2√(0.5/0.02) = 2 × 5 = 10 Ω = R，恰好临界阻尼：特征根为重根 s = −α = −R/(2L) = −10 s⁻¹。"
     },
@@ -62,7 +62,7 @@
       "ask": "放电电流 i 在什么时刻达到最大值？",
       "choices": ["t = 1/α = 0.1 s", "t = 0₊", "t = 1/(2α) = 0.05 s", "i 单调减小，没有极大值"], "choiceExplain": ["", "i(0₊) = i(0₋) = 0：电感电流不能跃变，放电电流从零开始增大，t = 0₊ 是最小值而不是最大值。", "0.05 s = L/R = 1/(2α)，是把衰减系数算成了 α = R/L；串联 RLC 的 α = R/(2L)。", "i 从 i(0₊) = 0 开始、最后又衰减到 0，中间必然有极大值；单调变化的是 v_C。"],
       "correct": 0,
-      "explain": "di/dt = 20(1 − 10t)e^(−10t) = 0 → t = 0.1 s = 1/α。所以第 3 问求的 i(0.1 s) 正好是电流的最大值 i_max = 2e⁻¹ ≈ 0.736 A。"
+      "explain": "di/dt = 20(1 − 10t)e^(−10t) = 0 → t = 0.1 s = 1/α。所以前面求的 i(0.1 s) 正好是电流的最大值 i_max = 2e⁻¹ ≈ 0.736 A。"
     }
   ],
   "hints": [
@@ -79,8 +79,8 @@
   ],
   "i18n": {
     "en": {
-      "title": "Critically damped discharge",
-      "tags": ["series RLC", "zero-input response", "critical damping"],
+      "title": "Series RLC discharge: when the current peaks",
+      "tags": ["series RLC", "zero-input response", "damping"],
       "statement": [
         "In the circuit V_s = 10 V, R = 10 Ω, L = 0.5 H, C = 20 mF. For t < 0, S_1 is closed and S_2 open, and the circuit is in steady state; at t = 0, S_1 opens and S_2 closes at the same time, and the capacitor discharges through R and L.",
         "Classify the damping, find v_C and the current i at t = 0.1 s, and say when i reaches its maximum."
@@ -88,7 +88,7 @@
       "questions": [
         {
           "ask": "Which case describes the discharge for t > 0?",
-          "choices": ["Overdamped", "Critically damped", "Underdamped", "Cannot be decided"], "choiceExplain": ["This probably drops the factor 2 and compares R with √(L/C) = 5 Ω; the critical resistance of a series RLC is 2√(L/C).", "", "This probably reads C = 20 mF as 20 µF, giving 2√(L/C) ≈ 316 Ω; 20 mF is 0.02 F.", "Comparing R with 2√(L/C) decides it, and R, L and C are all given."],
+          "choices": ["Overdamped", "Critically damped", "Underdamped", "Cannot be decided"], "choiceExplain": ["This probably compares R with √(L/C) = 5 Ω. Check the formula for the critical resistance of a series RLC again.", "", "This probably reads C = 20 mF as 20 µF, giving 2√(L/C) ≈ 316 Ω; 20 mF is 0.02 F.", "Comparing R with 2√(L/C) decides it, and R, L and C are all given."],
           "explain": "2√(L/C) = 2√(0.5/0.02) = 2 × 5 = 10 Ω = R, exactly critical damping: the characteristic root is a double root s = −α = −R/(2L) = −10 s⁻¹."
         },
         {
@@ -102,7 +102,7 @@
         {
           "ask": "When does the discharge current i reach its maximum?",
           "choices": ["t = 1/α = 0.1 s", "t = 0+", "t = 1/(2α) = 0.05 s", "i decreases monotonically and has no maximum"], "choiceExplain": ["", "i(0+) = i(0−) = 0: the inductor current cannot jump, so the discharge current starts from zero — t = 0+ is its minimum, not its maximum.", "0.05 s = L/R = 1/(2α) comes from taking α = R/L; for a series RLC α = R/(2L).", "i starts at i(0+) = 0 and decays back to 0, so it must have a maximum in between; it is v_C that changes monotonically."],
-          "explain": "di/dt = 20(1 − 10t)e^(−10t) = 0 → t = 0.1 s = 1/α. So question 3, i(0.1 s), is exactly the peak current i_max = 2e⁻¹ ≈ 0.736 A."
+          "explain": "di/dt = 20(1 − 10t)e^(−10t) = 0 → t = 0.1 s = 1/α. So the i(0.1 s) found above is exactly the peak current i_max = 2e⁻¹ ≈ 0.736 A."
         }
       ],
       "hints": [

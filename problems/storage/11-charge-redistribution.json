@@ -35,8 +35,8 @@
     { "id": "i0", "ask": "i(0₊) = ?", "find": { "kind": "i", "el": "R", "t": "0+" }, "answer": 0.012, "unit": "mA", "explain": "换路定则：v_C1(0₊) = 12 V，v_C2(0₊) = 0。R 两端电压为 12 − 0 = 12 V，i(0₊) = 12 V / 1 kΩ = 12 mA。" },
     { "id": "uinf", "ask": "v_C2(∞) = ?", "find": { "kind": "v", "el": "C2", "t": "inf" }, "answer": 8, "unit": "V", "explain": "最终电流为零，两电容电压相等。上方结点的总电荷守恒：6 × 12 = (6 + 3)·v → v = 72/9 = 8 V。" },
     { "id": "tau", "ask": "τ = ?", "find": { "kind": "tau" }, "answer": 0.002, "unit": "ms", "explain": "从 R 两端看，C_1 与 C_2 经地串联：C_eq = 6 × 3/(6 + 3) = 2 µF，τ = R·C_eq = 1000 × 2×10⁻⁶ = 2 ms。" },
-    { "id": "w2", "ask": "充电结束后 C_2 的储能 W_C2(∞) = ?", "find": { "kind": "w", "el": "C2", "t": "inf" }, "answer": 9.6e-05, "unit": "µJ", "explain": "W_C2 = ½ × 3×10⁻⁶ × 8² = 96 µJ。C_1 剩下 ½ × 6×10⁻⁶ × 8² = 192 µJ，两者合计 288 µJ，比开始时的 432 µJ 少。" },
-    { "id": "w", "ask": "整个过程中 R 消耗的能量为：", "choices": ["144 µJ", "432 µJ", "288 µJ", "0"], "choiceExplain": ["", "432 µJ 是初始储能，是把它当成全部损耗了；结束时两个电容仍有 8 V，储存 288 µJ。", "288 µJ 是结束时剩下的储能，不是损耗；损耗是两者之差。", "电荷守恒不等于能量守恒：电荷 72 µC 不变，但储能从 432 µJ 降到 288 µJ，差值变成了 R 中的热量。"], "correct": 0, "explain": "开始时 W = ½ × 6µ × 12² = 432 µJ；结束时 W = ½ × (6 + 3)µ × 8² = 288 µJ。少掉的 144 µJ（原来的 1/3）全部变成 R 中的热量，而且与 R 的大小无关。" }
+    { "id": "w2", "ask": "充电结束后 C_2 的储能 W_C2(∞) = ?", "find": { "kind": "w", "el": "C2", "t": "inf" }, "answer": 9.6e-05, "unit": "µJ", "explain": "W_C2 = ½ × 3×10⁻⁶ × 8² = 96 µJ。此时 C_1 也是 8 V。" },
+    { "id": "w", "ask": "整个过程中 R 消耗的能量为：", "choices": ["144 µJ", "432 µJ", "288 µJ", "0"], "choiceExplain": ["", "432 µJ 是初始储能，是把它当成全部损耗了；结束时两个电容仍有电压，也就仍有储能。", "288 µJ 是结束时剩下的储能，不是 R 消耗的能量。", "电荷守恒不等于能量守恒。分别算出开始和结束时的总储能 ½Cv²，比较一下。"], "correct": 0, "explain": "开始时 W = ½ × 6µ × 12² = 432 µJ；结束时 W = ½ × (6 + 3)µ × 8² = 288 µJ。少掉的 144 µJ（原来的 1/3）全部变成 R 中的热量，而且与 R 的大小无关。" }
   ],
   "hints": [
     "t = 0₊ 时两个电容的电压都不能跃变，R 两端电压就是两者之差。",
@@ -46,7 +46,7 @@
   "solution": [
     "**1. t = 0₊。** v_C1(0₊) = 12 V，v_C2(0₊) = 0，KVL：R·i = v_C1 − v_C2 → **i(0₊) = 12 mA**。",
     "**2. 终值（电荷守恒）。** 换路后上方结点只连接两个电容的上极板（和 R），总电荷 q = C_1·12 + C_2·0 = 72 µC 不变。终态 v_C1 = v_C2 = v：(C_1 + C_2)·v = 72 µC → **v = 8 V**。",
-    "**3. 时间常数。** 对 R 而言 C_1、C_2 串联：C_eq = 2 µF，**τ = R·C_eq = 2 ms**。（i(t) = 12e^(−t/2ms) mA。）",
+    "**3. 时间常数。** 对 R 而言 C_1、C_2 串联：C_eq = 2 µF，**τ = R·C_eq = 2 ms**。（t > 0 时 i(t) = 12e^(−t/τ) mA。）",
     "**4. 能量。** W(0) = ½ × 6×10⁻⁶ × 144 = 432 µJ，W(∞) = ½ × 9×10⁻⁶ × 64 = 288 µJ，**R 消耗 144 µJ**。验算：∫₀^∞ i²R dt = (0.012)² × 1000 × τ/2 = 0.144 × 10⁻³ J = 144 µJ ✓。",
     "**思考：** 结果与 R 无关——即使 R → 0，也会有 1/3 的能量损失（以电磁辐射、火花等形式），这是“两个理想电容直接并联”时能量不守恒的著名悖论的答案。"
   ],
@@ -62,8 +62,8 @@
         { "ask": "i(0+) = ?", "explain": "Switching rule: v_C1(0+) = 12 V, v_C2(0+) = 0. The voltage across R is 12 − 0 = 12 V, so i(0+) = 12 V / 1 kΩ = 12 mA." },
         { "ask": "v_C2(∞) = ?", "explain": "Finally the current is zero and the two capacitor voltages are equal. The total charge on the top node is conserved: 6 × 12 = (6 + 3)·v → v = 72/9 = 8 V." },
         { "ask": "τ = ?", "explain": "Seen from R, C_1 and C_2 are in series through ground: C_eq = 6 × 3/(6 + 3) = 2 µF, τ = R·C_eq = 1000 × 2×10⁻⁶ = 2 ms." },
-        { "ask": "Energy stored in C_2 after charging ends, W_C2(∞) = ?", "explain": "W_C2 = ½ × 3×10⁻⁶ × 8² = 96 µJ. C_1 keeps ½ × 6×10⁻⁶ × 8² = 192 µJ; together 288 µJ — less than the 432 µJ at the start." },
-        { "ask": "The energy dissipated in R during the whole process is:", "choices": ["144 µJ", "432 µJ", "288 µJ", "0"], "choiceExplain": ["", "432 µJ is the initial stored energy, as if all of it were lost; at the end both capacitors are still at 8 V and hold 288 µJ.", "288 µJ is the energy left at the end, not the energy lost; the loss is the difference.", "Charge conservation is not energy conservation: the 72 µC charge stays the same, but the stored energy falls from 432 µJ to 288 µJ and the difference is heat in R."], "explain": "Initially W = ½ × 6µ × 12² = 432 µJ; finally W = ½ × (6 + 3)µ × 8² = 288 µJ. The missing 144 µJ (one third) is all turned into heat in R — and it does not depend on the value of R." }
+        { "ask": "Energy stored in C_2 after charging ends, W_C2(∞) = ?", "explain": "W_C2 = ½ × 3×10⁻⁶ × 8² = 96 µJ. C_1 is also at 8 V now." },
+        { "ask": "The energy dissipated in R during the whole process is:", "choices": ["144 µJ", "432 µJ", "288 µJ", "0"], "choiceExplain": ["", "432 µJ is the initial stored energy, as if all of it were lost; at the end both capacitors still have a voltage, so they still store energy.", "288 µJ is the energy left at the end, not the energy dissipated in R.", "Charge conservation is not energy conservation. Work out the total stored energy ½Cv² at the start and at the end, and compare."], "explain": "Initially W = ½ × 6µ × 12² = 432 µJ; finally W = ½ × (6 + 3)µ × 8² = 288 µJ. The missing 144 µJ (one third) is all turned into heat in R — and it does not depend on the value of R." }
       ],
       "hints": [
         "At t = 0+ neither capacitor voltage can jump, so the voltage across R is their difference.",
@@ -73,7 +73,7 @@
       "solution": [
         "**1. t = 0+.** v_C1(0+) = 12 V, v_C2(0+) = 0; KVL: R·i = v_C1 − v_C2 → **i(0+) = 12 mA**.",
         "**2. Final value (charge conservation).** After switching, the top node joins only the two top plates (through R); the total charge q = C_1·12 + C_2·0 = 72 µC is unchanged. Finally v_C1 = v_C2 = v: (C_1 + C_2)·v = 72 µC → **v = 8 V**.",
-        "**3. Time constant.** As seen by R, C_1 and C_2 are in series: C_eq = 2 µF, **τ = R·C_eq = 2 ms** (i(t) = 12e^(−t/2ms) mA).",
+        "**3. Time constant.** As seen by R, C_1 and C_2 are in series: C_eq = 2 µF, **τ = R·C_eq = 2 ms** (i(t) = 12e^(−t/τ) mA for t > 0).",
         "**4. Energy.** W(0) = ½ × 6×10⁻⁶ × 144 = 432 µJ, W(∞) = ½ × 9×10⁻⁶ × 64 = 288 µJ, so **R dissipates 144 µJ**. Check: ∫₀^∞ i²R dt = (0.012)² × 1000 × τ/2 = 0.144 × 10⁻³ J = 144 µJ ✓.",
         "**Food for thought:** the result does not depend on R — even as R → 0, one third of the energy is lost (as radiation, sparks, …). This resolves the famous \"two ideal capacitors connected in parallel\" energy paradox."
       ]

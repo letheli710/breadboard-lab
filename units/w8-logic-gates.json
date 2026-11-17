@@ -1,0 +1,287 @@
+{
+  "format": "learning-unit/1",
+  "id": "w8-logic-gates",
+  "world": "w8",
+  "code": "8b",
+  "title": { "zh": "逻辑门：七种门和它们的真值表", "en": "Logic gates: seven gates and their truth tables" },
+  "question": {
+    "zh": "输入只有 0 和 1，一个门能做出哪些判断？",
+    "en": "When the inputs can only be 0 or 1, what decisions can a gate make?"
+  },
+  "minutes": 14,
+  "connects": ["unit:w3-5i-comparator", "challenge:exp5-npn-buzzer-switch"],
+  "layers": [
+    {
+      "layer": "intuition",
+      "blocks": [
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "在电路里，0 和 1 是两个电压范围：接近 0 V 算 0（低电平），接近电源电压算 1（高电平）。World 3 的比较器已经在做这件事：它的输出只有高、低两种。",
+              "",
+              "**逻辑门**（logic gate）是一个小电路：输入是几个 0 或 1，输出是一个 0 或 1。输出只看此刻的输入，不记得过去。",
+              "",
+              "把所有输入组合和对应的输出列成一张表，叫**真值表**（truth table）。两个输入 A、B 只有 4 种组合：00、01、10、11。所以一个两输入的门，完全由这 4 行决定。"
+            ],
+            "en": [
+              "In a circuit, 0 and 1 are two voltage ranges: near 0 V counts as 0 (low), near the supply voltage counts as 1 (high). World 3's comparator already does this: its output is only high or low.",
+              "",
+              "A **logic gate** is a small circuit: its inputs are a few 0s or 1s, its output is one 0 or 1. The output depends only on the inputs right now; a gate has no memory.",
+              "",
+              "List every input combination with its output and you get a **truth table**. Two inputs A and B have only 4 combinations: 00, 01, 10, 11. So a two-input gate is fully defined by those 4 rows."
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "# 三个基本门",
+              "",
+              "- **NOT**（非门，也叫反相器）：一个输入，输出取反。写成 Y = A′（也常写成 A 上加一横）。",
+              "- **AND**（与门）：所有输入都是 1，输出才是 1。像两个串联的开关。写成 Y = A·B。",
+              "- **OR**（或门）：任一个输入是 1，输出就是 1。像两个并联的开关。写成 Y = A + B，这里的 + 读作“或”，不是加法。",
+              "",
+              "| A | NOT A |",
+              "|---|---|",
+              "| 0 | 1 |",
+              "| 1 | 0 |",
+              "",
+              "| A | B | AND A·B | OR A + B |",
+              "|---|---|---|---|",
+              "| 0 | 0 | 0 | 0 |",
+              "| 0 | 1 | 0 | 1 |",
+              "| 1 | 0 | 0 | 1 |",
+              "| 1 | 1 | 1 | 1 |"
+            ],
+            "en": [
+              "# The three basic gates",
+              "",
+              "- **NOT** (also called an inverter): one input, the output is flipped. Written Y = A′ (often as A with a bar over it).",
+              "- **AND**: the output is 1 only when every input is 1. Like two switches in series. Written Y = A·B.",
+              "- **OR**: the output is 1 when any input is 1. Like two switches in parallel. Written Y = A + B; here + means \"or\", not addition.",
+              "",
+              "| A | NOT A |",
+              "|---|---|",
+              "| 0 | 1 |",
+              "| 1 | 0 |",
+              "",
+              "| A | B | AND A·B | OR A + B |",
+              "|---|---|---|---|",
+              "| 0 | 0 | 0 | 0 |",
+              "| 0 | 1 | 0 | 1 |",
+              "| 1 | 0 | 0 | 1 |",
+              "| 1 | 1 | 1 | 1 |"
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "# 四个组合门",
+              "",
+              "- **NAND** = AND 之后再 NOT；**NOR** = OR 之后再 NOT。",
+              "- **XOR**（异或，exclusive OR）：两个输入**不一样**时输出 1。写成 A ⊕ B。",
+              "- **XNOR**：XOR 再取反，两个输入**一样**时输出 1。",
+              "",
+              "| A | B | NAND (A·B)′ | NOR (A + B)′ | XOR A ⊕ B | XNOR (A ⊕ B)′ |",
+              "|---|---|---|---|---|---|",
+              "| 0 | 0 | 1 | 1 | 0 | 1 |",
+              "| 0 | 1 | 1 | 0 | 1 | 0 |",
+              "| 1 | 0 | 1 | 0 | 1 | 0 |",
+              "| 1 | 1 | 0 | 0 | 0 | 1 |"
+            ],
+            "en": [
+              "# Four combined gates",
+              "",
+              "- **NAND** = AND followed by NOT; **NOR** = OR followed by NOT.",
+              "- **XOR** (exclusive OR): the output is 1 when the two inputs **differ**. Written A ⊕ B.",
+              "- **XNOR**: XOR flipped; the output is 1 when the two inputs are **the same**.",
+              "",
+              "| A | B | NAND (A·B)′ | NOR (A + B)′ | XOR A ⊕ B | XNOR (A ⊕ B)′ |",
+              "|---|---|---|---|---|---|",
+              "| 0 | 0 | 1 | 1 | 0 | 1 |",
+              "| 0 | 1 | 1 | 0 | 1 | 0 |",
+              "| 1 | 0 | 1 | 0 | 1 | 0 |",
+              "| 1 | 1 | 0 | 0 | 0 | 1 |"
+            ]
+          }
+        },
+        {
+          "type": "note",
+          "tone": "tip",
+          "md": {
+            "zh": [
+              "好记的说法：",
+              "- AND 只在 11 时出 1；OR 只在 00 时出 0。",
+              "- XOR 是“不一样检测器”，XNOR 是“一样检测器”。",
+              "- 名字里带 N 的门，把不带 N 的那个门的输出整个取反。"
+            ],
+            "en": [
+              "Easy ways to remember them:",
+              "- AND gives 1 only for 11; OR gives 0 only for 00.",
+              "- XOR is a \"different?\" detector, XNOR a \"same?\" detector.",
+              "- A gate with N in its name flips the whole output of the gate without the N."
+            ]
+          }
+        },
+        {
+          "type": "note",
+          "tone": "info",
+          "md": {
+            "zh": "最简单的 NOT 门，就是 World 6 的三极管开关。基极输入高电平：三极管导通，把集电极拉到接近 0 V。输入低电平：三极管截止，集电极经负载被拉到高电平。输入高、输出低，正好是取反。",
+            "en": "The simplest NOT gate is World 6's transistor switch. Base input high: the transistor turns on and pulls the collector to near 0 V. Input low: the transistor is off and the load pulls the collector high. Input high gives output low: that is an inverter."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "derive",
+      "blocks": [
+        {
+          "type": "explore",
+          "title": { "zh": "拨一拨 A 和 B，看七个门的输出", "en": "Flip A and B and watch all seven gates" },
+          "params": [
+            { "id": "A", "label": { "zh": "输入 A", "en": "input A" }, "value": 0, "min": 0, "max": 1 },
+            { "id": "B", "label": { "zh": "输入 B", "en": "input B" }, "value": 1, "min": 0, "max": 1 }
+          ],
+          "outputs": [
+            { "id": "a", "label": { "zh": "A 按逻辑读作", "en": "A read as logic" }, "expr": "step(A - 0.5)" },
+            { "id": "b", "label": { "zh": "B 按逻辑读作", "en": "B read as logic" }, "expr": "step(B - 0.5)" },
+            { "label": { "zh": "NOT A", "en": "NOT A" }, "expr": "1 - a" },
+            { "label": { "zh": "AND", "en": "AND" }, "expr": "a * b" },
+            { "label": { "zh": "OR", "en": "OR" }, "expr": "max(a, b)" },
+            { "label": { "zh": "NAND", "en": "NAND" }, "expr": "1 - a * b" },
+            { "label": { "zh": "NOR", "en": "NOR" }, "expr": "1 - max(a, b)" },
+            { "label": { "zh": "XOR", "en": "XOR" }, "expr": "abs(a - b)" },
+            { "label": { "zh": "XNOR", "en": "XNOR" }, "expr": "1 - abs(a - b)" }
+          ],
+          "note": {
+            "zh": "滑块可以停在中间，但门只认 0 和 1：大于 0.5 算 1，不大于 0.5 算 0。真实的芯片也是这样，输入电压高于某个阈值算 1，低于另一个阈值算 0。把两个滑块分别拖到两头，走遍 00、01、10、11 四种组合，对照上面的真值表。",
+            "en": "A slider can stop halfway, but a gate only knows 0 and 1: above 0.5 counts as 1, 0.5 or below counts as 0. Real chips work the same way: an input voltage above one threshold counts as 1, below another as 0. Drag each slider to its ends, visit all four combinations 00, 01, 10, 11, and compare with the truth tables above."
+          }
+        },
+        {
+          "type": "steps",
+          "title": { "zh": "从真值表写出式子：XOR 用 AND、OR、NOT 搭出来", "en": "From truth table to formula: XOR from AND, OR and NOT" },
+          "steps": [
+            {
+              "zh": "**① 找出输出是 1 的行。** XOR 在 A = 0、B = 1 和 A = 1、B = 0 这两行输出 1。",
+              "en": "**① Find the rows where the output is 1.** XOR gives 1 in the rows A = 0, B = 1 and A = 1, B = 0."
+            },
+            {
+              "zh": "**② 每一行写一个 AND。** “A 是 0 并且 B 是 1”写成 A′·B；“A 是 1 并且 B 是 0”写成 A·B′。",
+              "en": "**② Write one AND per row.** \"A is 0 and B is 1\" is A′·B; \"A is 1 and B is 0\" is A·B′."
+            },
+            {
+              "zh": "**③ 用 OR 连起来。** 任一行成立，输出就是 1：A ⊕ B = A′·B + A·B′。这种写法叫**积之和**（sum of products）。",
+              "en": "**③ Join them with OR.** If either row holds, the output is 1: A ⊕ B = A′·B + A·B′. This form is called a **sum of products**."
+            },
+            {
+              "zh": "**④ 检查一行。** A = B = 1：A′·B = 0·1 = 0，A·B′ = 1·0 = 0，0 + 0 = 0 ✓。和真值表一致。",
+              "en": "**④ Check a row.** A = B = 1: A′·B = 0·1 = 0, A·B′ = 1·0 = 0, 0 + 0 = 0 ✓. It matches the truth table."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "layer": "connect",
+      "title": { "zh": "快问快答（填 0 或 1，或选一个）", "en": "Quick drill (type 0 or 1, or pick one)" },
+      "blocks": [
+        {
+          "type": "predict",
+          "ask": { "zh": "AND 门，A = 1，B = 0。输出是？", "en": "AND gate, A = 1, B = 0. Output?" },
+          "text": ["0"],
+          "explain": { "zh": "AND 要两个输入都是 1，这里 B = 0，输出 0。", "en": "AND needs both inputs at 1; here B = 0, so the output is 0." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "OR 门，A = 0，B = 1。输出是？", "en": "OR gate, A = 0, B = 1. Output?" },
+          "text": ["1"],
+          "explain": { "zh": "OR 只要有一个 1 就输出 1。", "en": "OR outputs 1 as soon as one input is 1." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "NAND 门，A = 1，B = 1。输出是？", "en": "NAND gate, A = 1, B = 1. Output?" },
+          "text": ["0"],
+          "explain": { "zh": "AND 得 1，再取反得 0。NAND 只在 11 这一行输出 0。", "en": "AND gives 1, flipped gives 0. NAND outputs 0 only in the row 11." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "NOR 门，A = 0，B = 0。输出是？", "en": "NOR gate, A = 0, B = 0. Output?" },
+          "text": ["1"],
+          "explain": { "zh": "OR 得 0，再取反得 1。NOR 只在 00 这一行输出 1。", "en": "OR gives 0, flipped gives 1. NOR outputs 1 only in the row 00." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "XOR 门，A = 1，B = 1。输出是？", "en": "XOR gate, A = 1, B = 1. Output?" },
+          "text": ["0"],
+          "explain": { "zh": "两个输入一样，XOR 输出 0。", "en": "The inputs are the same, so XOR outputs 0." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "哪个门只在两个输入**相同**时输出 1？", "en": "Which gate outputs 1 only when its two inputs are **the same**?" },
+          "choices": [
+            { "zh": "XOR", "en": "XOR" },
+            { "zh": "XNOR", "en": "XNOR" },
+            { "zh": "NAND", "en": "NAND" },
+            { "zh": "OR", "en": "OR" }
+          ],
+          "correct": 1,
+          "explain": { "zh": "XNOR 在 00 和 11 输出 1，它是 XOR 取反。", "en": "XNOR outputs 1 for 00 and 11; it is XOR flipped." }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "把 NAND 门的两个输入接在一起（A = B），它变成什么门？", "en": "Tie both inputs of a NAND gate together (A = B). What gate is it now?" },
+          "choices": [
+            { "zh": "NOT", "en": "NOT" },
+            { "zh": "AND", "en": "AND" },
+            { "zh": "缓冲器（输出 = 输入）", "en": "a buffer (output = input)" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "A = B 时 NAND 输出 (A·A)′ = A′。所以一个 NAND 就能当反相器用。只用 NAND 能搭出所有其他门，所以它叫**通用门**。",
+            "en": "With A = B, NAND gives (A·A)′ = A′. So one NAND works as an inverter. Every other gate can be built from NANDs alone, which is why it is called a **universal gate**."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "比较器的输出接到一个 NOT 门的输入。当 v_{+} > v_{−} 时，NOT 门输出是？",
+            "en": "A comparator's output drives the input of a NOT gate. When v_{+} > v_{−}, what is the NOT gate's output?"
+          },
+          "text": ["0"],
+          "explain": {
+            "zh": "v_{+} > v_{−} 时比较器输出高电平，也就是 1；NOT 门把它变成 0。",
+            "en": "When v_{+} > v_{−} the comparator output is high, a 1; the NOT gate turns it into 0."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "三极管开关：基极输入高电平时，集电极（输出）是高还是低？",
+            "en": "Transistor switch: with the base input high, is the collector (the output) high or low?"
+          },
+          "choices": [
+            { "zh": "高（1）", "en": "high (1)" },
+            { "zh": "低（0）", "en": "low (0)" }
+          ],
+          "correct": 1,
+          "explain": {
+            "zh": "三极管导通，把集电极拉到接近 0 V。输入高、输出低：这就是一个 NOT 门。",
+            "en": "The transistor turns on and pulls the collector to near 0 V. Input high, output low: that is a NOT gate."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": { "zh": "Y = (A + B)·C′。A = 0，B = 1，C = 0 时，Y = ?", "en": "Y = (A + B)·C′. With A = 0, B = 1, C = 0, what is Y?" },
+          "text": ["1"],
+          "explain": { "zh": "A + B = 0 + 1 = 1（或），C′ = 1（非），1·1 = 1（与）。", "en": "A + B = 0 + 1 = 1 (OR), C′ = 1 (NOT), 1·1 = 1 (AND)." }
+        }
+      ]
+    }
+  ]
+}

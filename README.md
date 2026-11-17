@@ -1,6 +1,6 @@
 # Breadboard Lab · 面包板实验室
 
-一个 3D 面包板电路模拟器 + 大一大二《电路分析》练习平台（中英双语）。帮助 EE 初学者理解“原理图 → 面包板”的对应关系，并练习电路分析课程的核心内容。课程规划见 [`docs/ROADMAP.md`](docs/ROADMAP.md)。
+一个 3D 面包板电路模拟器 + 大一大二《电路分析》练习平台（中英双语）。帮助 EE 初学者理解“原理图 → 面包板”的对应关系，并练习电路分析课程的核心内容。课程规划见 [`docs/ROADMAP.md`](docs/ROADMAP.md)；课程按 QCC 课程分成 8 个 World（应用里的“路线”页），结构、传送门和待建单元见 [`docs/REBUILD_PLAN.md`](docs/REBUILD_PLAN.md)、[`docs/PORTALS.md`](docs/PORTALS.md)，学习单元格式见 [`docs/UNIT_FORMAT.md`](docs/UNIT_FORMAT.md)。
 
 **课程结构（2026-11 起）**：按 Alexander & Sadiku《Fundamentals of Electric Circuits》的章节编排成 5 个 World（直流基础 → 电路网络与运放 → 暂态 → 交流与滤波 → 半导体与 ESP32），节奏参照 Boylestad《Introductory Circuit Analysis》，开局参照《Make: Electronics》的“先动手、再讲道理”。每个单元是几张短卡片（试一试 / 想明白 / 动手做 / 带走），一次只看一张。符号用美国教材的写法（电压 v/V、阶跃 u(t)），相量取有效值。计划和进度见 [`docs/REBUILD_PLAN.md`](docs/REBUILD_PLAN.md)，符号见 [`docs/NOTATION.md`](docs/NOTATION.md)。
 

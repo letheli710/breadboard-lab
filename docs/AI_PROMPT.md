@@ -45,6 +45,7 @@ AI 返回后：
   "phase": 1-5,                                  // 可选：课程第几期（1 基本定律、2 分析方法/定理/运放、3 暂态、4 交流、5 单片机外围电路）；入门题不写
   "summary": "一句话",
   "description": "讲解正文，教会概念",
+  "figures": [ ... ],                            // 可选：正文下面的配图（手工摆放的电路图 + 图注），格式见 CHALLENGE_FORMAT.md §16；没把握就不写
   "concepts": ["英文术语 中文", ...],
   "i18n": { "en": { "title": "...", "summary": "...", "description": "...", "concepts": [...], "steps": [...], "hints": [...], "tests": [...] } },
   "components": [ ... ],                          // 目标电路元件（不含跳线）
@@ -149,7 +150,8 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
 
 === 翻译（i18n）===
 - 顶层文字是中文（不用写 "lang"，默认就是 "zh"）。英文翻译放在 "i18n": {"en": {...}}，位置在 concepts 后面、components 前面。
-- 可写的键：title、summary、description、concepts、steps、hints、tests、measurements、compare。不要放别的键。
+- 可写的键：title、summary、description、concepts、steps、hints、tests、measurements、compare、figures。不要放别的键。
+- figures：和顶层 figures 按位置一一对应，只写文字 {"caption": "...", "alt": "..."}；图里 notes 的翻译写在每条 note 自己的 "i18n": {"en": "..."} 里。
 - measurements：和顶层 measurements 按位置一一对应，只写文字 {"ask": "...", "explain": "...", "choices": [...]}（选项数量与原文相同）。
 - steps：只写每一步的英文文字（字符串数组），数量和顺序必须与顶层 steps 完全一致；highlight 不用重复写。
 - hints：数量和顺序与顶层 hints 完全一致。
@@ -244,6 +246,7 @@ Output challenge files as JSON, following the format below exactly.
   "phase": 1-5,                                  // optional: course phase (1 basic laws, 2 methods/theorems/op-amps, 3 transients, 4 AC, 5 MCU peripheral circuits); omit for intro challenges
   "summary": "one sentence",
   "description": "explanation that teaches the concept",
+  "figures": [ ... ],                            // optional: pictures under the description (a hand-placed circuit drawing + caption), format in CHALLENGE_FORMAT.md §16; leave out if unsure
   "concepts": ["English term", ...],
   "i18n": { "zh": { "title": "...", "summary": "...", "description": "...", "concepts": [...], "steps": [...], "hints": [...], "tests": [...] } },
   "components": [ ... ],                          // target circuit parts (no jumper wires)
@@ -348,7 +351,8 @@ Tests only prove the circuit is right; measurement questions make the student re
 
 === Translation (i18n) ===
 - The top-level text is English ("lang": "en"). Put the Chinese translation in "i18n": {"zh": {...}}, after concepts and before components.
-- Allowed keys: title, summary, description, concepts, steps, hints, tests, measurements, compare. No other keys.
+- Allowed keys: title, summary, description, concepts, steps, hints, tests, measurements, compare, figures. No other keys.
+- figures: same count and order as the top-level figures, text only: {"caption": "...", "alt": "..."}; a note inside the drawing carries its own translation in its "i18n": {"zh": "..."}.
 - measurements: matched to the top-level measurements by position, text only: {"ask": "...", "explain": "...", "choices": [...]} (same number of options as the original).
 - steps: only the text of each step (an array of strings), with exactly the same number and order as the top-level steps; do not repeat highlight.
 - hints: exactly the same number and order as the top-level hints.

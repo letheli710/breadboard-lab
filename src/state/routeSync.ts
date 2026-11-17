@@ -22,8 +22,9 @@ import { firstUnfinished, pageFor, useStore, type Mode } from './store';
 
 type S = ReturnType<typeof useStore.getState>;
 
-/** Guide section from the URL (the Guide has no store state of its own). */
+/** Guide section / Map world from the URL (those pages have no store state of their own). */
 let guideSection: string | undefined;
+let mapWorld: string | undefined;
 let started = false;
 let scheduled = false;
 let replaceNext = false;
@@ -40,7 +41,7 @@ const ensureIndex = (k: IndexName) => void (k === 'problems' ? ensureProblemInde
 function indexesOf(mode: Mode): IndexName[] {
   if (mode === 'practice') return ['problems'];
   if (mode === 'learn' || mode === 'challenge') return ['challenges'];
-  if (mode === 'import') return ['challenges', 'problems'];
+  if (mode === 'import' || mode === 'map' || mode === 'unit') return ['challenges', 'problems'];
   return [];
 }
 
@@ -76,12 +77,23 @@ export function routeOf(s: S): Route {
       return s.problems.some((p) => p.id === s.problemId) ? { page: 'practice', id: s.problemId! } : { page: 'practice' };
     case 'guide':
       return guideSection ? { page: 'guide', section: guideSection } : { page: 'guide' };
+    case 'map':
+      return mapWorld ? { page: 'map', world: mapWorld } : { page: 'map' };
+    case 'unit':
+      return s.unitId ? { page: 'unit', id: s.unitId } : { page: 'map' };
     default:
       return { page: s.mode };
   }
 }
 
 const APP = () => tr('面包板实验室', 'Breadboard Lab');
+
+/** Unit titles for the tab title; set by the unit page's module (units are a lazy chunk). */
+let unitTitle: ((id: string) => string | undefined) | undefined;
+export const setUnitTitles = (f: (id: string) => string | undefined) => {
+  unitTitle = f;
+  schedule();
+};
 
 /** Tab title for the page / item on screen, e.g. "LED 与电阻 · 课程 — 面包板实验室". */
 export function titleOf(s: S, r: Route = routeOf(s)): string {
@@ -92,6 +104,8 @@ export function titleOf(s: S, r: Route = routeOf(s)): string {
     sandbox: tr('自由编辑', 'Sandbox'),
     guide: tr('知识', 'Guide'),
     import: tr('导入', 'Import'),
+    map: tr('路线', 'Map'),
+    unit: tr('单元', 'Unit'),
   }[r.page];
   let item: string | undefined;
   if ((r.page === 'learn' || r.page === 'challenges') && r.id) item = s.challenges.find((c) => c.id === r.id)?.title;
@@ -103,7 +117,7 @@ export function titleOf(s: S, r: Route = routeOf(s)): string {
   } else if (r.page === 'practice' && 'id' in r && r.id) {
     const p = s.problems.find((x) => x.id === r.id);
     item = p && entryTitle(p);
-  }
+  } else if (r.page === 'unit') item = unitTitle?.(r.id);
   return `${item ? `${item} · ` : ''}${page} — ${APP()}`;
 }
 
@@ -145,11 +159,13 @@ function schedule() {
 
 const firstOf = (s: S, mode: 'learn' | 'challenge') => firstUnfinished(s.challenges, s.completed, mode);
 
-function scrollToSection(section: string) {
-  // the Guide is a lazy chunk: wait (briefly) for the card to exist
+const scrollToSection = (section: string) => scrollToId(`guide-${section}`);
+
+function scrollToId(id: string) {
+  // the page is a lazy chunk: wait (briefly) for the element to exist
   let tries = 0;
   const go = () => {
-    const el = document.getElementById(`guide-${section}`);
+    const el = document.getElementById(id);
     if (el) el.scrollIntoView({ block: 'start' });
     else if (tries++ < 120) requestAnimationFrame(go);
   };
@@ -164,6 +180,7 @@ export function applyRoute(r: Route) {
   replaceNext = true;
   const st = useStore.getState();
   guideSection = r.page === 'guide' ? r.section : undefined;
+  mapWorld = r.page === 'map' ? r.world : undefined;
   const need = indexToResolve(r);
   if (need && !isReady(st, need)) {
     pending = r;
@@ -210,9 +227,13 @@ export function applyRoute(r: Route) {
       st.setMode('practice');
       if (useStore.getState().practiceView) useStore.getState().openPracticeView(null);
     }
+  } else if (r.page === 'unit') {
+    // the unit page itself says so when the id names no unit (units are bundled with the page)
+    st.openUnit(r.id);
   } else {
     st.setMode(modeOf(r));
     if (r.page === 'guide' && r.section) scrollToSection(r.section);
+    if (r.page === 'map' && r.world) scrollToId(`world-${r.world}`);
   }
   schedule();
 }
@@ -256,11 +277,13 @@ export function startRouting() {
       s.problemId !== prev.problemId ||
       s.practiceSummary !== prev.practiceSummary ||
       s.practiceView !== prev.practiceView ||
+      s.unitId !== prev.unitId ||
       s.challenges !== prev.challenges ||
       s.problems !== prev.problems ||
       s.lang !== prev.lang
     ) {
       if (s.mode !== 'guide') guideSection = undefined;
+      if (s.mode !== 'map') mapWorld = undefined;
       schedule();
     }
   });

@@ -12,7 +12,8 @@ describe('toolbox groups by course level', () => {
     expect(PART_LEVELS[0].items.slice(0, 3)).toEqual(['wire', 'resistor', 'capacitor']);
     expect(levelOfWorld(1)).toBe('basic');
     expect(levelOfWorld(3)).toBe('signal');
-    expect(levelOfWorld(5)).toBe('mcu');
+    expect(levelOfWorld(5)).toBe('signal');
+    expect(levelOfWorld(8)).toBe('mcu');
     expect(levelOfWorld(undefined)).toBe('basic');
   });
 });

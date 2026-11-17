@@ -1,7 +1,7 @@
 # 课程扩展路线图 / Course roadmap
 
-> **2026-11 起，课程结构和后续工作以 [`REBUILD_PLAN.md`](REBUILD_PLAN.md) 为准**（5 个 World、卡片式单元、美国教材符号）。下面是重构之前的路线图和技术契约，作为历史记录和引擎说明保留；其中的“期”和章节对照是旧结构。
-> **Since 2026-11 the course structure and the work ahead follow [`REBUILD_PLAN.md`](REBUILD_PLAN.md)** (five Worlds, card-style units, US notation). What follows is the earlier roadmap and the engine contracts, kept for reference; its "phases" and chapter mapping describe the old structure.
+> 2026-11 起，应用里的课程按 **World** 组织（8 个主线 World + UB 衔接区，对应 QCC 课程），见 [`REBUILD_PLAN.md`](REBUILD_PLAN.md)。下文的“期”（`phase`）仍是面包板题文件的字段和代码分块依据，只是不再用于显示分组。
+> Since 2026-11 the app groups content by **World** (see `REBUILD_PLAN.md`); the `phase` below is still a challenge field and the chunking key, no longer the displayed grouping.
 
 目标：覆盖大一、大二《电路分析》的核心内容（参照邱关源、罗先觉《电路》第 5 版的章节），分 4 期完成，外加一个**纯理论练习区**。所有新题都是中英双语，由 AI 出题，并由程序自动核对答案。
 

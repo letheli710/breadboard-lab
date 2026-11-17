@@ -1,0 +1,331 @@
+{
+  "format": "learning-unit/1",
+  "id": "w3-5g-difference",
+  "world": "w3",
+  "code": "5g",
+  "title": { "zh": "差分放大器：各自作用，再加起来", "en": "The difference amplifier: each input alone, then add" },
+  "question": { "zh": "差分放大器为什么只放大 v_2 − v_1？", "en": "Why does a difference amplifier amplify only v_2 − v_1?" },
+  "minutes": 14,
+  "connects": ["chapter:theorems", "unit:w3-5e-inverting", "unit:w3-5d-noninverting"],
+  "layers": [
+    {
+      "layer": "intuition",
+      "blocks": [
+        {
+          "type": "text",
+          "md": {
+            "zh": [
+              "差分放大器有两路输入。v_1 经 R_1 接 v_{−}，R_2 从 v_{−} 接到 v_o；v_2 经 R_3 接 v_{+}，R_4 从 v_{+} 接地。",
+              "",
+              "想象两个人从门的两边推门。v_2 从 v_{+} 那边把 v_o 往上推，v_1 从 v_{−} 那边把 v_o 往下推。两人用一样大的力，门不动；门只跟着两人力气的**差**走。",
+              "",
+              "要知道门最后在哪，可以让两人轮流推：先只让一个人推，量一次；再只让另一个人推，量一次；两次加起来。这就是 Midterm 2 的**叠加定理**。"
+            ],
+            "en": [
+              "A difference amplifier has two inputs. v_1 goes through R_1 to v_{−}, and R_2 runs from v_{−} to v_o; v_2 goes through R_3 to v_{+}, and R_4 runs from v_{+} to ground.",
+              "",
+              "Picture two people pushing a door from opposite sides. v_2 pushes v_o up from the v_{+} side; v_1 pushes it down from the v_{−} side. If they push equally hard, the door stays put. The door follows only the **difference** of their pushes.",
+              "",
+              "To find where the door ends up, let them take turns: one pushes alone, measure; the other pushes alone, measure; add the two. That is Midterm 2's **superposition theorem**."
+            ]
+          }
+        },
+        {
+          "type": "circuit",
+          "schematic": {
+            "elements": [
+              { "ref": "V1", "type": "V", "from": [0, 2], "to": [0, 6], "value": 1.8, "label": "v_1 = 1.8 V" },
+              { "ref": "V2", "type": "V", "from": [3, 7], "to": [3, 11], "value": 2.7, "label": "v_2 = 2.7 V" },
+              { "ref": "R1", "type": "R", "from": [2, 2], "to": [6, 2], "value": "47k" },
+              { "ref": "R2", "type": "R", "from": [9, 0], "to": [13, 0], "value": "100k" },
+              { "ref": "R3", "type": "R", "from": [3, 7], "to": [7, 7], "value": "47k" },
+              { "ref": "R4", "type": "R", "from": [9, 7], "to": [9, 11], "value": "100k" },
+              { "ref": "A", "type": "OPAMP", "at": [13, 6] }
+            ],
+            "wires": [
+              [
+                [0, 2],
+                [2, 2]
+              ],
+              [
+                [6, 2],
+                [8, 2],
+                [8, 5],
+                [11, 5]
+              ],
+              [
+                [8, 2],
+                [8, 0],
+                [9, 0]
+              ],
+              [
+                [13, 0],
+                [16, 0],
+                [16, 6]
+              ],
+              [
+                [15, 6],
+                [19, 6]
+              ],
+              [
+                [7, 7],
+                [11, 7]
+              ],
+              [
+                [0, 6],
+                [0, 11],
+                [19, 11]
+              ]
+            ],
+            "labels": [
+              { "at": [8, 4], "name": "v_{−}" },
+              { "at": [10, 7], "name": "v_{+}" },
+              { "at": [19, 6], "name": "v_o" }
+            ],
+            "grounds": [[0, 11]]
+          },
+          "caption": {
+            "zh": "实验 2-9 的差分放大器：R_1 = R_3 = 47 kΩ，R_2 = R_4 = 100 kΩ。两个旋钮分别在 20% 和 30%，所以 v_1 ≈ 1.8 V，v_2 ≈ 2.7 V。",
+            "en": "The difference amplifier of lab 2-9: R_1 = R_3 = 47 kΩ, R_2 = R_4 = 100 kΩ. The two knobs sit at 20% and 30%, so v_1 ≈ 1.8 V and v_2 ≈ 2.7 V."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "derive",
+      "blocks": [
+        {
+          "type": "steps",
+          "title": { "zh": "五步法 + 叠加：v_1 = 1.8 V，v_2 = 2.7 V", "en": "The five steps plus superposition: v_1 = 1.8 V, v_2 = 2.7 V" },
+          "steps": [
+            {
+              "zh": "**① 有负反馈吗？** 有。R_2 把输出接回 v_{−}。（R_4 接的是地，不是输出，所以 v_{+} 那边没有反馈。）",
+              "en": "**① Is there negative feedback?** Yes. R_2 takes the output back to v_{−}. (R_4 goes to ground, not to the output, so there is no feedback on the v_{+} side.)"
+            },
+            {
+              "zh": "**② 虚短、虚断。** 虚断：v_{+} 不取电流，R_3、R_4 是空载分压器：v_{+} = 2.7 × 100/147 ≈ 1.84 V。虚短：v_{−} = v_{+} ≈ 1.84 V。",
+              "en": "**② Virtual short, virtual open.** Virtual open: v_{+} draws no current, so R_3 and R_4 are an unloaded divider: v_{+} = 2.7 × 100/147 ≈ 1.84 V. Virtual short: v_{−} = v_{+} ≈ 1.84 V."
+            },
+            {
+              "zh": "**③ 在 v_{−} 列 KCL。** 从 v_1 经 R_1 流进来的电流，全部经 R_2 流向 v_o：(v_1 − v_{−})/R_1 = (v_{−} − v_o)/R_2。",
+              "en": "**③ KCL at v_{−}.** All the current coming in from v_1 through R_1 leaves through R_2 toward v_o: (v_1 − v_{−})/R_1 = (v_{−} − v_o)/R_2."
+            },
+            {
+              "zh": "**④a 只有 v_1（v_2 接地）。** v_{+} = 0，v_{−} 是虚地，这就是 5e 的反相放大器：v_o′ = −(100/47) × 1.8 ≈ −3.83 V。",
+              "en": "**④a v_1 alone (v_2 grounded).** v_{+} = 0, so v_{−} is a virtual ground: this is the inverting amplifier of 5e. v_o′ = −(100/47) × 1.8 ≈ −3.83 V."
+            },
+            {
+              "zh": "**④b 只有 v_2（v_1 接地）。** v_{+} ≈ 1.84 V；R_1、R_2 成了从 v_o 到地的分压器，这就是 5d 的同相放大器：v_o″ = 1.84 × (1 + 100/47) ≈ 5.74 V。",
+              "en": "**④b v_2 alone (v_1 grounded).** v_{+} ≈ 1.84 V; R_1 and R_2 now form a divider from v_o to ground: the non-inverting amplifier of 5d. v_o″ = 1.84 × (1 + 100/47) ≈ 5.74 V."
+            },
+            {
+              "zh": "**④c 加起来。** v_o = v_o′ + v_o″ ≈ −3.83 + 5.74 = 1.91 V。因为 R_2/R_1 = R_4/R_3，可以化成 v_o = (R_2/R_1)(v_2 − v_1) = 2.13 × 0.9 ≈ 1.91 V。把 v_{−} = 1.84 V 代回 ③ 的 KCL，也得到 1.91 V。",
+              "en": "**④c Add them.** v_o = v_o′ + v_o″ ≈ −3.83 + 5.74 = 1.91 V. Because R_2/R_1 = R_4/R_3 this simplifies to v_o = (R_2/R_1)(v_2 − v_1) = 2.13 × 0.9 ≈ 1.91 V. Putting v_{−} = 1.84 V back into the KCL of ③ gives 1.91 V too."
+            },
+            {
+              "zh": "**⑤ 合理性检查。** ±9 V 双电源，输出约 −9 … +7.5 V：三个结果 −3.83、+5.74、+1.91 V 都在里面 ✓。电流都只有几到几十 µA（R_3–R_4 支路 2.7 V / 147 kΩ ≈ 18 µA），远低于限制 ✓。最后一个检查：v_1 = v_2 时 v_o 应该是 0。",
+              "en": "**⑤ Sanity check.** On ±9 V the output spans about −9 … +7.5 V: all three results, −3.83, +5.74 and +1.91 V, are inside ✓. Every current is a few to a few tens of µA (the R_3–R_4 branch carries 2.7 V / 147 kΩ ≈ 18 µA), far below the limits ✓. One last check: with v_1 = v_2, v_o should be 0."
+            }
+          ]
+        },
+        {
+          "type": "explore",
+          "title": { "zh": "两路输入和一个不准的电阻", "en": "Two inputs and one imperfect resistor" },
+          "params": [
+            { "id": "v1", "label": { "zh": "输入 v_1", "en": "input v_1" }, "value": 1.8, "min": 0, "max": 9, "unit": "V" },
+            { "id": "v2", "label": { "zh": "输入 v_2", "en": "input v_2" }, "value": 2.7, "min": 0, "max": 9, "unit": "V" },
+            { "id": "err", "label": { "zh": "R_4 的误差（%）", "en": "error of R_4 (%)" }, "value": 0, "min": -10, "max": 10 }
+          ],
+          "outputs": [
+            { "id": "R4", "label": { "zh": "R_4 实际值", "en": "actual R_4" }, "expr": "100000 * (1 + err / 100)", "unit": "Ω" },
+            { "id": "vp", "label": { "zh": "v_{+}（= v_{−}）", "en": "v_{+} (= v_{−})" }, "expr": "v2 * R4 / (47000 + R4)", "unit": "V" },
+            { "id": "a", "label": { "zh": "只有 v_1：v_o′", "en": "v_1 alone: v_o′" }, "expr": "-(100 / 47) * v1", "unit": "V" },
+            { "id": "b", "label": { "zh": "只有 v_2：v_o″", "en": "v_2 alone: v_o″" }, "expr": "vp * (1 + 100 / 47)", "unit": "V" },
+            { "id": "vi", "label": { "zh": "相加：v_o′ + v_o″", "en": "sum: v_o′ + v_o″" }, "expr": "a + b", "unit": "V" },
+            { "label": { "zh": "实际 v_o（−9 … +7.5 V）", "en": "actual v_o (−9 … +7.5 V)" }, "expr": "clamp(vi, -9, 7.5)", "unit": "V" },
+            {
+              "label": { "zh": "共模增益（v_1 = v_2 时 v_o 与输入之比）", "en": "common-mode gain (v_o per volt when v_1 = v_2)" },
+              "expr": "R4 / (47000 + R4) * (1 + 100 / 47) - 100 / 47",
+              "digits": 2
+            },
+            { "label": { "zh": "饱和了？（1 = 是）", "en": "saturated? (1 = yes)" }, "expr": "step(vi - 7.5) + step(-9 - vi)" }
+          ],
+          "note": {
+            "zh": "先让 v_1 = v_2：误差为 0 时输出是 0。再把 R_4 的误差拉到 ±5%：两边推力不再一样大，相同的输入也会漏出一点输出，这叫**共模泄漏**。",
+            "en": "Set v_1 = v_2 first: with zero error the output is 0. Then give R_4 a ±5% error: the two pushes are no longer equal, and identical inputs leak a little output. This is called **common-mode leakage**."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "sim",
+      "blocks": [
+        {
+          "type": "sim",
+          "intro": {
+            "zh": "先预测，再运行，再看为什么。运放按 LM358 建模：±9 V 双电源，输出 −9 … +7.5 V。",
+            "en": "Predict, run, then see why. The op-amp is an LM358 on ±9 V: output −9 … +7.5 V."
+          },
+          "params": [
+            { "id": "v1", "value": 1.8 },
+            { "id": "v2", "value": 2.7 },
+            { "id": "R1", "value": 47000 },
+            { "id": "R2", "value": 100000 },
+            { "id": "R3", "value": 47000 },
+            { "id": "R4", "value": 100000 },
+            { "id": "open1", "value": 0 }
+          ],
+          "outputs": [
+            { "id": "vp", "label": { "zh": "v_{+}", "en": "v_{+}" }, "expr": "v2 * R4 / (R3 + R4)", "unit": "V" },
+            { "label": { "zh": "输出 v_o", "en": "output v_o" }, "expr": "if(open1, clamp(vp, -9, 7.5), clamp(vp * (1 + R2 / R1) - R2 / R1 * v1, -9, 7.5))", "unit": "V" },
+            { "label": { "zh": "R_1 里的电流", "en": "current in R_1" }, "expr": "if(open1, 0, (v1 - vp) / R1)", "unit": "A" }
+          ],
+          "scenarios": [
+            {
+              "label": { "zh": "只有 v_1（v_2 接地）", "en": "v_1 alone (v_2 grounded)" },
+              "set": { "v2": 0 },
+              "ask": { "zh": "S2 拨到 b，v_2 接地。v_o 是多少？", "en": "S2 to b: v_2 is grounded. What is v_o?" },
+              "choices": [
+                { "zh": "约 −3.83 V", "en": "about −3.83 V" },
+                { "zh": "约 +3.83 V", "en": "about +3.83 V" },
+                { "zh": "约 −1.8 V", "en": "about −1.8 V" },
+                { "zh": "0 V", "en": "0 V" }
+              ],
+              "correct": 0,
+              "explain": {
+                "zh": "v_{+} = 0，v_{−} 是虚地：反相放大器，增益 −100/47 ≈ −2.13。−2.13 × 1.8 ≈ −3.83 V。",
+                "en": "v_{+} = 0 and v_{−} is a virtual ground: an inverting amplifier with gain −100/47 ≈ −2.13. −2.13 × 1.8 ≈ −3.83 V."
+              }
+            },
+            {
+              "label": { "zh": "只有 v_2（v_1 接地）", "en": "v_2 alone (v_1 grounded)" },
+              "set": { "v1": 0 },
+              "ask": { "zh": "S1 拨到 b，v_1 接地。v_o 是多少？", "en": "S1 to b: v_1 is grounded. What is v_o?" },
+              "choices": [
+                { "zh": "约 +5.74 V", "en": "about +5.74 V" },
+                { "zh": "约 +1.84 V", "en": "about +1.84 V" },
+                { "zh": "约 +8.45 V", "en": "about +8.45 V" },
+                { "zh": "约 −5.74 V", "en": "about −5.74 V" }
+              ],
+              "correct": 0,
+              "explain": {
+                "zh": "先分压：v_{+} = 2.7 × 100/147 ≈ 1.84 V。再按同相放大器乘 1 + 100/47 ≈ 3.13：≈ 5.74 V。1.84 V 是忘了乘增益；8.45 V 是忘了先分压（而且超过 7.5 V，会削顶）。",
+                "en": "Divide first: v_{+} = 2.7 × 100/147 ≈ 1.84 V. Then multiply by the non-inverting gain 1 + 100/47 ≈ 3.13: ≈ 5.74 V. 1.84 V forgets the gain; 8.45 V forgets the divider (and would clip above 7.5 V anyway)."
+              }
+            },
+            {
+              "label": { "zh": "做坏事：“关掉” v_1 时让 R_1 悬空", "en": "Doing it wrong: \"turn off\" v_1 by leaving R_1 open" },
+              "set": { "open1": 1 },
+              "ask": {
+                "zh": "不拨开关，而是把 R_1 从 v_1 上拔下来、让它悬空。v_o 是多少？",
+                "en": "Instead of using the switch, pull R_1 off v_1 and leave it floating. What is v_o?"
+              },
+              "choices": [
+                { "zh": "仍是约 5.74 V", "en": "still about 5.74 V" },
+                { "zh": "约 1.84 V", "en": "about 1.84 V" },
+                { "zh": "0 V", "en": "0 V" }
+              ],
+              "correct": 1,
+              "explain": {
+                "zh": "R_1 悬空，就没有电流流过 R_1 和 R_2，R_2 两端电压为 0：v_o = v_{−} = v_{+} ≈ 1.84 V。电路变成了跟随器。叠加定理里电压源“置零”是换成导线（接地），不是断开。",
+                "en": "With R_1 floating, no current flows in R_1 or R_2, so R_2 drops nothing: v_o = v_{−} = v_{+} ≈ 1.84 V. The circuit has become a follower. In superposition, a voltage source is \"turned off\" by replacing it with a wire (to ground), not by opening it."
+              }
+            },
+            {
+              "label": { "zh": "做坏事：电阻不匹配", "en": "Doing it wrong: mismatched resistors" },
+              "set": { "v1": 2.7, "R4": 110000 },
+              "ask": {
+                "zh": "两个输入都是 2.7 V，但 R_4 错用了 110 kΩ（大了 10%）。v_o 是多少？",
+                "en": "Both inputs are 2.7 V, but R_4 is 110 kΩ by mistake (10% high). What is v_o?"
+              },
+              "choices": [
+                { "zh": "0 V", "en": "0 V" },
+                { "zh": "约 0.17 V", "en": "about 0.17 V" },
+                { "zh": "约 2.7 V", "en": "about 2.7 V" }
+              ],
+              "correct": 1,
+              "explain": {
+                "zh": "R_2/R_1 ≠ R_4/R_3，两边“推力”不再一样大。v_{+} 从 1.84 V 变成 1.89 V，v_2 那一份变大，抵消不完：漏出约 0.17 V。真实电阻有 1%–5% 的误差，所以实验里两个旋钮一样时，输出也不会正好是 0。",
+                "en": "R_2/R_1 ≠ R_4/R_3, so the two pushes are no longer equal. v_{+} rises from 1.84 V to 1.89 V, v_2's share grows, and the two no longer cancel: about 0.17 V leaks out. Real resistors are off by 1%–5%, so in the lab the output is never exactly 0 with both knobs equal."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "layer": "bench",
+      "blocks": [
+        {
+          "type": "bench",
+          "challenge": "exp-difference-amp",
+          "note": {
+            "zh": "轮流把一个开关拨到 b（那一路接地），记下两次 v_o（约 −3.83 V 和 +5.74 V）；再两个都拨到 a，读数应该就是两次之和（约 1.91 V）。",
+            "en": "Flip one switch at a time to b (that input grounded) and note the two readings of v_o (about −3.83 V and +5.74 V); then put both at a: the reading should be their sum (about 1.91 V)."
+          }
+        }
+      ]
+    },
+    {
+      "layer": "connect",
+      "blocks": [
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "（Midterm 2：叠加定理）要“关掉” v_1，应该怎么做？",
+            "en": "(Midterm 2: superposition) To \"turn off\" v_1, what do you do?"
+          },
+          "choices": [
+            { "zh": "把 v_1 换成导线：R_1 的那一端接地", "en": "replace v_1 with a wire: that end of R_1 goes to ground" },
+            { "zh": "把 v_1 断开：R_1 的那一端悬空", "en": "open v_1: that end of R_1 is left floating" },
+            { "zh": "让 v_1 = v_2", "en": "set v_1 = v_2" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "电压源置零 = 0 V = 一根导线。实验里开关拨到 b 就是这样做的。断开是电流源置零的做法；在这里断开会得到 1.84 V，而不是 5.74 V（见仿真的第三个情景）。",
+            "en": "A voltage source set to zero is 0 V, which is a wire. Flipping the lab switch to b does exactly that. Opening is how you turn off a current source; here it would give 1.84 V instead of 5.74 V (see the third sim scenario)."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "（接 5e）v_2 接地时，从 v_1 看，这个电路是什么？",
+            "en": "(Back to 5e) With v_2 grounded, what does the circuit look like from v_1?"
+          },
+          "choices": [
+            { "zh": "反相放大器，增益 −R_2/R_1", "en": "an inverting amplifier, gain −R_2/R_1" },
+            { "zh": "同相放大器，增益 1 + R_2/R_1", "en": "a non-inverting amplifier, gain 1 + R_2/R_1" },
+            { "zh": "跟随器", "en": "a follower" }
+          ],
+          "correct": 0,
+          "explain": {
+            "zh": "v_2 接地，R_3、R_4 里没有电流，v_{+} = 0，v_{−} 是虚地。剩下的就是 5e 的跷跷板：R_1 一边，R_2 另一边。",
+            "en": "With v_2 grounded, R_3 and R_4 carry no current, v_{+} = 0, and v_{−} is a virtual ground. What is left is the see-saw of 5e: R_1 on one side, R_2 on the other."
+          }
+        },
+        {
+          "type": "predict",
+          "ask": {
+            "zh": "（接 5d）v_1 接地时 v_{+} ≈ 1.84 V。R_1、R_2 成了从 v_o 到地的分压器，β = 47/147。v_o 是多少 V？",
+            "en": "(Back to 5d) With v_1 grounded, v_{+} ≈ 1.84 V. R_1 and R_2 form a divider from v_o to ground with β = 47/147. What is v_o, in V?"
+          },
+          "answer": 5.74,
+          "tol": 0.02,
+          "unit": "V",
+          "explain": {
+            "zh": "v_o = v_{+}/β = 1.84 × 147/47 ≈ 5.74 V。这就是 5d 的“增益 = 分压比倒过来”。",
+            "en": "v_o = v_{+}/β = 1.84 × 147/47 ≈ 5.74 V. That is 5d's \"gain = the divider ratio upside down\"."
+          }
+        },
+        {
+          "type": "problems",
+          "ids": ["opamp-06-difference-amp", "opamp-12-howland-current-source"],
+          "note": {
+            "zh": "理论题沿用中文教材的记号：电压写作 u（u_o 就是这里的 v_o）。12 题（Howland 电路）是差分放大器的变形：负载接在 v_{+} 上，要在 v_{+} 和 v_{−} 各列一个结点方程。",
+            "en": "The theory problems follow the Chinese textbook and write voltage as u (their u_o is our v_o). Problem 12 (the Howland circuit) is a twist on the difference amplifier: the load hangs on v_{+}, so write one node equation at v_{+} and one at v_{−}."
+          }
+        }
+      ]
+    }
+  ]
+}

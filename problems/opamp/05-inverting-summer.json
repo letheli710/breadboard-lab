@@ -46,18 +46,18 @@
     {
       "id": "iso",
       "ask": "若 v_2 改为 4 V，R_1 中的电流 i_1 会怎样变化？",
-      "choices": ["不变，仍为 0.1 mA", "变大", "变小"], "choiceExplain": ["", "i_f 会变大（0.1 + 0.2 = 0.3 mA），但增加的部分全部来自 i_2；n 是虚地，i_1 = v_1/R_1 不受 v_2 影响。", "v_2 增大并不会抬高 n 点电位：运放调整 v_o 使 n 保持虚地 0 V，所以 i_1 = v_1/R_1 不变。"],
+      "choices": ["不变，仍为 0.1 mA", "变大", "变小"], "choiceExplain": ["", "i_f 确实会变大，但多出来的电流来自哪一路？想一想 n 点的电位会不会随 v_2 改变。", "v_2 增大会抬高 n 点的电位吗？想一想运放怎样调整 v_o、n 点保持在多少伏，再算 i_1。"],
       "correct": 0,
       "explain": "n 点是虚地，电位始终为 0，所以 i_1 = v_1/R_1 只取决于 v_1。各路输入互不影响，这正是反相加法器能做“加权求和”的原因。"
     }
   ],
   "hints": ["反相端 n 是虚地，每一路输入电流都可以单独算。", "虚断：流入 n 的各路电流之和全部流经 R_f。"],
   "solution": [
-    "**1. 虚地：** v_{+} = 0 → v_n = 0。",
+    "**1. 负反馈与虚地：** R_f 把输出接回反相端，构成负反馈。同相端接地，v_{+} = 0，由虚短 v_n = 0（虚地）。",
     "**2. 各路输入电流：** i_1 = v_1/R_1 = 0.1 mA，i_2 = v_2/R_2 = 0.1 mA。",
     "**3. 结点 n 的 KCL（虚断）：** i_f = i_1 + i_2 = **0.2 mA**。",
     "**4. 输出：** v_o = −R_f·i_f = **−6 V**。",
-    "公式形式：v_o = −(R_f/R_1·v_1 + R_f/R_2·v_2) = −(3v_1 + 1.5v_2)，各输入按 R_f/R_k 加权后相加再反相。"
+    "**验算：** 公式 v_o = −(R_f/R_1·v_1 + R_f/R_2·v_2) = −(3v_1 + 1.5v_2) = −(3 + 3) = −6 V ✓。各输入按 R_f/R_k 加权后相加，再反相。"
   ],
   "i18n": {
     "en": {
@@ -72,17 +72,17 @@
         { "ask": "v_o = ?", "explain": "v_o = 0 − R_f·i_f = −30k × 0.2 mA = −6 V, i.e. v_o = −(R_f/R_1·v_1 + R_f/R_2·v_2) = −(3 × 1 + 1.5 × 2)." },
         {
           "ask": "If v_2 is changed to 4 V, what happens to the current i_1 in R_1?",
-          "choices": ["Unchanged, still 0.1 mA", "It increases", "It decreases"], "choiceExplain": ["", "i_f does increase (0.1 + 0.2 = 0.3 mA), but the extra current all comes from i_2; n is a virtual ground, so i_1 = v_1/R_1 does not depend on v_2.", "A larger v_2 does not raise the potential of n: the op-amp adjusts v_o to hold n at virtual ground (0 V), so i_1 = v_1/R_1 is unchanged."],
+          "choices": ["Unchanged, still 0.1 mA", "It increases", "It decreases"], "choiceExplain": ["", "i_f does increase, but which input supplies the extra current? Think about whether the potential of n changes with v_2.", "Does a larger v_2 raise the potential of n? Think about how the op-amp adjusts v_o and what potential n stays at, then work out i_1."],
           "explain": "Node n is a virtual ground, always at 0 V, so i_1 = v_1/R_1 depends only on v_1. The inputs don't interact — which is exactly why the circuit computes a weighted sum."
         }
       ],
       "hints": ["The inverting node n is a virtual ground, so each input current can be computed on its own.", "Virtual open: the sum of the currents into n all flows through R_f."],
       "solution": [
-        "**1. Virtual ground:** v_{+} = 0 → v_n = 0.",
+        "**1. Negative feedback and the virtual ground:** R_f connects the output back to the inverting input (negative feedback). The non-inverting input is grounded, v_{+} = 0, so by the virtual short v_n = 0 (virtual ground).",
         "**2. Input currents:** i_1 = v_1/R_1 = 0.1 mA, i_2 = v_2/R_2 = 0.1 mA.",
         "**3. KCL at n (virtual open):** i_f = i_1 + i_2 = **0.2 mA**.",
         "**4. Output:** v_o = −R_f·i_f = **−6 V**.",
-        "As a formula: v_o = −(R_f/R_1·v_1 + R_f/R_2·v_2) = −(3v_1 + 1.5v_2): each input is weighted by R_f/R_k, summed and inverted."
+        "**Check:** the formula v_o = −(R_f/R_1·v_1 + R_f/R_2·v_2) = −(3v_1 + 1.5v_2) = −(3 + 3) = −6 V ✓. Each input is weighted by R_f/R_k, the results are added and inverted."
       ]
     }
   }

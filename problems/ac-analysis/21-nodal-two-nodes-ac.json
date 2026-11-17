@@ -1,0 +1,95 @@
+{
+  "$schema": "../../schema/problem.schema.json",
+  "format": "circuit-problem/1",
+  "id": "ac-analysis-21-nodal-two-nodes-ac",
+  "chapter": "ac-analysis",
+  "title": "结点电压法的交流版：两个结点",
+  "level": 2,
+  "tags": ["结点电压法", "复导纳", "从直流到交流"],
+  "statement": [
+    "和 World 2 的 `methods-03-nodal-two-nodes` 同一个结构，只是中间的 R_2 换成了电感 L，两个电流源换成了同频率的正弦源。",
+    "ω = 1000 rad/s，İ_s1 = 5∠0° A（向上，注入结点 a），İ_s2 = 3∠0° A（向下，从结点 b 流出），均为有效值相量；R_1 = 6 Ω，L = 8 mH，R_3 = 10 Ω。以底部为参考结点。",
+    "用**结点电压法**求结点电压相量 V̇_a、V̇_b。"
+  ],
+  "schematic": {
+    "elements": [
+      { "ref": "Is1", "type": "I", "from": [0, 4], "to": [0, 0], "value": { "ac": { "mag": 5, "phase": 0 } } },
+      { "ref": "R1", "type": "R", "from": [4, 0], "to": [4, 4], "value": 6 },
+      { "ref": "L", "type": "L", "from": [6, 0], "to": [10, 0], "value": "8m" },
+      { "ref": "R3", "type": "R", "from": [12, 0], "to": [12, 4], "value": 10 },
+      { "ref": "Is2", "type": "I", "from": [16, 0], "to": [16, 4], "value": { "ac": { "mag": 3, "phase": 0 } } }
+    ],
+    "wires": [
+      [[0, 0], [6, 0]],
+      [[10, 0], [16, 0]],
+      [[16, 4], [0, 4]]
+    ],
+    "labels": [{ "at": [4, 0], "name": "a" }, { "at": [12, 0], "name": "b" }],
+    "grounds": [[0, 4]],
+    "marks": [{ "kind": "i", "el": "L", "name": "I_L" }]
+  },
+  "analysis": { "type": "ac", "omega": 1000 },
+  "questions": [
+    {
+      "id": "y",
+      "ask": "按标准形式 Y_aa·V̇_a + Y_ab·V̇_b = İ_sa 列结点 a 的方程，互导纳 Y_ab = ?",
+      "choices": ["+j0.125 S", "−j0.125 S", "1/6 − j0.125 S", "0"],
+      "choiceExplain": ["", "−j0.125 S 是 L 自己的导纳 Y_L = 1/(j8)。互导纳还要再取一次负号：Y_ab = −Y_L。", "这是 a 的自导纳 Y_aa = 1/R_1 + Y_L，不是互导纳。", "a、b 之间连着 L，互导纳不为零。"],
+      "correct": 0,
+      "explain": "互导纳 = −（连接 a、b 的导纳）。Y_L = 1/(j8) = −j0.125 S，所以 Y_ab = −Y_L = +j0.125 S。两个负号叠在一起，最容易出错。"
+    },
+    { "id": "Ua", "ask": "|V̇_a| = ?", "find": { "kind": "v", "nodes": ["a"] }, "answer": 15, "unit": "V", "explain": "解出 V̇_a = 12 + j9 V，模 √(144 + 81) = 15 V。" },
+    { "id": "Uaph", "ask": "V̇_a 的相位 = ?", "find": { "kind": "v", "nodes": ["a"], "part": "phase" }, "answer": 36.8699, "unit": "°", "explain": "V̇_a = 12 + j9 = 15∠36.87° V。" },
+    { "id": "Ub", "ask": "|V̇_b| = ?", "find": { "kind": "v", "nodes": ["b"] }, "answer": 15, "unit": "V", "explain": "解出 V̇_b = −j15 V，模 15 V。两个结点电压一样大，相位却差了 126.87°。" },
+    { "id": "Ubph", "ask": "V̇_b 的相位 = ?", "find": { "kind": "v", "nodes": ["b"], "part": "phase" }, "answer": -90, "unit": "°", "explain": "V̇_b = −j15 = 15∠−90° V。" }
+  ],
+  "hints": [
+    "和直流一样，每个独立结点列一个 KCL；只是电导换成导纳：G = 1/R，Y_L = 1/(jωL)。",
+    "注意 1/(j8) = −j/8：除以 j 等于乘以 −j。注入 b 的电源电流是 −İ_s2。",
+    "结点 a 的方程乘 24、结点 b 的方程乘 40，可以去掉分数；再把两式相加，右边正好抵消。"
+  ],
+  "solution": [
+    "**1. 导纳。** G_1 = 1/6 S，Y_L = 1/(jωL) = 1/(j8) = −j0.125 S，G_3 = 1/10 = 0.1 S。",
+    "**2. 结点 a：** (G_1 + Y_L)V̇_a − Y_L·V̇_b = İ_s1 → (1/6 − j0.125)V̇_a + j0.125V̇_b = 5。乘 24：(4 − j3)V̇_a + j3V̇_b = 120。",
+    "**3. 结点 b：** −Y_L·V̇_a + (Y_L + G_3)V̇_b = −İ_s2 → j0.125V̇_a + (0.1 − j0.125)V̇_b = −3。乘 40：j5V̇_a + (4 − j5)V̇_b = −120。",
+    "**4. 求解。** 两式相加：(4 + j2)V̇_a + (4 − j2)V̇_b = 0，所以 V̇_a = −(4 − j2)/(4 + j2)·V̇_b = (−0.6 + j0.8)V̇_b。代回结点 a：(4 − j3)(−0.6 + j0.8) = j5，所以 (j5 + j3)V̇_b = 120 → **V̇_b = −j15 V = 15∠−90° V**。",
+    "V̇_a = (−0.6 + j0.8)(−j15) = **12 + j9 V = 15∠36.87° V**。",
+    "**5. 验算（结点 a 的 KCL）。** İ_L = (V̇_a − V̇_b)/(j8) = (12 + j24)/(j8) = 3 − j1.5 A，V̇_a/R_1 = 2 + j1.5 A，两者相加 = 5 A = İ_s1 ✓。"
+  ],
+  "i18n": {
+    "en": {
+      "title": "Nodal analysis, AC edition: two nodes",
+      "tags": ["nodal analysis", "complex admittance", "from DC to AC"],
+      "statement": [
+        "Same structure as World 2's `methods-03-nodal-two-nodes`; only the middle R_2 has become an inductor L and the two current sources are sinusoids of the same frequency.",
+        "ω = 1000 rad/s, İ_s1 = 5∠0° A (upward, into node a), İ_s2 = 3∠0° A (downward, out of node b), both rms phasors; R_1 = 6 Ω, L = 8 mH, R_3 = 10 Ω. The bottom node is the reference.",
+        "Use **nodal analysis** to find the node-voltage phasors V̇_a and V̇_b."
+      ],
+      "questions": [
+        {
+          "ask": "Writing the node-a equation in the standard form Y_aa·V̇_a + Y_ab·V̇_b = İ_sa, what is the mutual admittance Y_ab?",
+          "choices": ["+j0.125 S", "−j0.125 S", "1/6 − j0.125 S", "0"],
+          "choiceExplain": ["", "−j0.125 S is the admittance of L itself, Y_L = 1/(j8). The mutual admittance takes one more minus sign: Y_ab = −Y_L.", "That is the self-admittance of a, Y_aa = 1/R_1 + Y_L, not the mutual one.", "L connects a and b, so the mutual admittance is not zero."],
+          "explain": "Mutual admittance = −(admittance between a and b). Y_L = 1/(j8) = −j0.125 S, so Y_ab = −Y_L = +j0.125 S. Two minus signs on top of each other: the easiest place to slip."
+        },
+        { "ask": "|V̇_a| = ?", "explain": "The solution is V̇_a = 12 + j9 V, magnitude √(144 + 81) = 15 V." },
+        { "ask": "Phase of V̇_a = ?", "explain": "V̇_a = 12 + j9 = 15∠36.87° V." },
+        { "ask": "|V̇_b| = ?", "explain": "The solution is V̇_b = −j15 V, magnitude 15 V. The two node voltages are the same size but 126.87° apart." },
+        { "ask": "Phase of V̇_b = ?", "explain": "V̇_b = −j15 = 15∠−90° V." }
+      ],
+      "hints": [
+        "As in DC, write one KCL per independent node; only the conductances become admittances: G = 1/R, Y_L = 1/(jωL).",
+        "Careful: 1/(j8) = −j/8, since dividing by j is multiplying by −j. The source current into b is −İ_s2.",
+        "Multiply the node-a equation by 24 and the node-b equation by 40 to clear the fractions; adding the two then cancels the right-hand sides."
+      ],
+      "solution": [
+        "**1. Admittances.** G_1 = 1/6 S, Y_L = 1/(jωL) = 1/(j8) = −j0.125 S, G_3 = 1/10 = 0.1 S.",
+        "**2. Node a:** (G_1 + Y_L)V̇_a − Y_L·V̇_b = İ_s1 → (1/6 − j0.125)V̇_a + j0.125V̇_b = 5. Times 24: (4 − j3)V̇_a + j3V̇_b = 120.",
+        "**3. Node b:** −Y_L·V̇_a + (Y_L + G_3)V̇_b = −İ_s2 → j0.125V̇_a + (0.1 − j0.125)V̇_b = −3. Times 40: j5V̇_a + (4 − j5)V̇_b = −120.",
+        "**4. Solve.** Add the two: (4 + j2)V̇_a + (4 − j2)V̇_b = 0, so V̇_a = −(4 − j2)/(4 + j2)·V̇_b = (−0.6 + j0.8)V̇_b. Back into node a: (4 − j3)(−0.6 + j0.8) = j5, so (j5 + j3)V̇_b = 120 → **V̇_b = −j15 V = 15∠−90° V**.",
+        "V̇_a = (−0.6 + j0.8)(−j15) = **12 + j9 V = 15∠36.87° V**.",
+        "**5. Check (KCL at a).** İ_L = (V̇_a − V̇_b)/(j8) = (12 + j24)/(j8) = 3 − j1.5 A and V̇_a/R_1 = 2 + j1.5 A; together 5 A = İ_s1 ✓."
+      ]
+    }
+  }
+}

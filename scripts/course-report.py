@@ -440,42 +440,89 @@ def chapter_table():
             f"<th>小问</th><th>选择题占比</th><th>要点</th><th>易错点</th><th>已润色</th></tr></thead><tbody>{rows}</tbody></table></div>")
 
 
-# ---------- changes since the previous report ----------
-def git_ls(rev, p):
-    return set(x for x in subprocess.run(['git', 'ls-tree', '-r', '--name-only', rev, p], capture_output=True, text=True).stdout.split() if x.endswith('.json'))
 
+# ---------- this round's rebuild: Worlds, units, portals (course/*.json, units/*.json) ----------
+WJ = json.load(open('course/worlds.json')); PJ = json.load(open('course/portals.json'))
+UNITS = {}
+for f in sorted(glob.glob('units/*.json')):
+    u = json.load(open(f)); u['_fn'] = f; UNITS[u['id']] = u
+PEND = {p['id']: p for p in WJ['pending']}
+PROBS = {d['id']: d for c in CHAPS for d in c['problems']}
+WORLD_OF = {}
+for w in WJ['worlds']:
+    for sec in w['sections']:
+        for it in sec['items']: WORLD_OF[it] = w
+def zh(t): return '\n'.join(t['zh']) if isinstance(t.get('zh'), list) else t.get('zh', '')
+def wlabel(w): return f"World {w['n']}" if 'n' in w else 'UB 衔接区'
+def ref_title(r):
+    k, i = r.split(':', 1)
+    if k == 'pending':
+        if i in UNITS: k = 'unit'
+        elif i in BYID: k = 'challenge'
+        else: return zh(PEND[i]['title']) if i in PEND else i
+    if k == 'challenge': return BYID[i]['title'] if i in BYID else i
+    if k == 'chapter': return '理论 · ' + (CB[i]['title'] if i in CB else i)
+    if k == 'problem': return '理论题 · ' + (PROBS[i]['title'] if i in PROBS else i)
+    if k == 'unit': u = UNITS.get(i); return (f"{u.get('code', '')} · {zh(u['title'])}" if u else i)
+    return r
+def ref_live(r):
+    k, i = r.split(':', 1)
+    return k != 'pending' or i in UNITS or i in BYID
 
-def changes():
-    old_c = git_ls(BASE, 'challenges'); new_c = set(f"challenges/{d['_fn']}" for d in ITEMS)
-    added = sorted(new_c - old_c)
-    old_p = git_ls(BASE, 'problems'); new_p = set(glob.glob('problems/*/*.json'))
-    slug = lambda f: re.sub(r'^\d+-', '', os.path.basename(f))
-    gone = sorted(old_p - new_p); came = {slug(f): f for f in new_p - old_p}
-    li = ''.join(f"<li><a href='#{esc(CH_BYFN[a])}'>{esc(label(CH_BYFN[a]))} {esc(CH[CH_BYFN[a]]['title'])}</a> <code>{esc(a)}</code></li>" for a in added)
-    old_t = gone
-    mv = ''.join(f"<li><code>{esc(a)}</code> → <code>{esc(came.get(slug(a), '（找不到）'))}</code></li>" for a in gone)
-    changed = subprocess.run(['git', 'diff', '--name-only', BASE, 'HEAD', '--', 'challenges'], capture_output=True, text=True).stdout.split()
-    return f"""<div class="cols"><div><h4>新增的面包板文件（{len(added)} 个）</h4><ul>{li}</ul>
-<p class="dim">原有 {len(old_c - set(added))} 个文件里有 {len([x for x in changed if x in old_c])} 个改过（全部改成卡片式）；没有删除文件，id 不变，进度不受影响。</p></div>
-<div><h4>理论题移动（{len(old_t)} 道，内容不变、换了章节）</h4><p class="dim">受控源题从 <code>basics</code>、<code>equivalence</code> 移到新章 <code>dependent-sources</code>（放在运放之后）。</p><ul>{mv}</ul></div></div>"""
+OLD_PHASE = {1: '第 1 期', 2: '第 2 期', 3: '第 3 期', 4: '第 4 期'}
+def old_group(item):
+    k, i = item.split(':', 1)
+    if k == 'challenge':
+        if i not in BYID: return '—'
+        d = BYID[i]
+        if d['_fn'][:3] in ('229', '248', '260'): return '<span class="tag on">本轮新增</span>'
+        return next(g[1] for g in GROUPS if g[0] == d['_g']).split('（')[0]
+    if k == 'chapter': return OLD_PHASE.get(CB[i]['phase'], '—') + '（理论）' if i in CB else '—'
+    return '<span class="tag on">本轮新增</span>'
 
+def worlds_table():
+    rows = []
+    for w in WJ['worlds']:
+        items = [it for sec in w['sections'] for it in sec['items']]
+        groups = collections.OrderedDict()
+        for it in items: groups.setdefault(re.sub('<[^>]+>', '', old_group(it)), []).append(it)
+        src = '；'.join(f"{esc(g)}：{len(v)}" for g, v in groups.items())
+        lst = '、'.join(esc(ref_title(it)) for it in items)
+        meta = esc(zh(w['course'])) + (f" · {esc(zh(w['textbook']))}" if 'textbook' in w else '')
+        here = ' 📍' if w.get('current') else ''
+        rows.append(f"<tr><td><b>{wlabel(w)}</b>{here}<br>{esc(zh(w['title']))}<div class='dim'>{meta}</div></td><td class='n'>{len(items)}</td><td>{src}</td><td class='dim'>{lst}</td></tr>")
+    return ("<div class='tw'><table><thead><tr><th>World</th><th>条目</th><th>原来在哪</th><th>内容</th></tr></thead><tbody>"
+            + ''.join(rows) + '</tbody></table></div>')
 
-CH_BYFN = {f"challenges/{d['_fn']}": d['id'] for d in ITEMS}
+def portals_table():
+    rows = []
+    for p in PJ['portals']:
+        live = ref_live(p['to'])
+        st = "<span class='tag on'>已接通</span>" if live else "<span class='tag off'>占位（即将上线）</span>"
+        rows.append(f"<tr><td><code>{esc(p['id'])}</code></td><td>{esc(ref_title(p['from']))}</td><td>{esc(ref_title(p['to']))}</td><td>{st}</td><td class='n'>{p['minutes']}</td><td class='dim'>{esc(zh(p['what']))}</td></tr>")
+    n_live = sum(1 for p in PJ['portals'] if ref_live(p['to']))
+    return (f"<p>{len(PJ['portals'])} 个传送门：{n_live} 个已接通，{len(PJ['portals']) - n_live} 个是占位。占位的目标都登记在 <code>docs/REBUILD_PLAN.md</code>，建好同 id 的单元后自动接通。</p>"
+            "<div class='tw'><table><thead><tr><th>id</th><th>来源</th><th>目标</th><th>状态</th><th>分钟</th><th>门后讲什么</th></tr></thead><tbody>"
+            + ''.join(rows) + '</tbody></table></div>')
 
-NARR = open(NARR_PATH).read()
+def units_table():
+    rows = []
+    for u in UNITS.values():
+        bl = collections.Counter(b['type'] for l in u['layers'] for b in l['blocks'])
+        layers = ' → '.join({'intuition': '直觉', 'derive': '推导', 'sim': '仿真', 'bench': '面包板', 'connect': '回链'}[l['layer']] for l in u['layers'])
+        probs = [i for l in u['layers'] for b in l['blocks'] if b['type'] == 'problems' for i in b['ids']]
+        rows.append(f"<tr><td><code>{esc(u['id'])}</code></td><td>{esc(u.get('code', ''))} · {esc(zh(u['title']))}<div class='dim'>{esc(zh(u['question']))}</div></td><td class='n'>{u['minutes']}</td><td>{layers}</td><td class='dim'>{esc('、'.join(f'{k}×{v}' for k, v in bl.items()))}</td><td class='n'>{len(probs)}</td></tr>")
+    return ("<div class='tw'><table><thead><tr><th>id</th><th>单元 · 回答的问题</th><th>分钟</th><th>层</th><th>block</th><th>挂的理论题</th></tr></thead><tbody>"
+            + ''.join(rows) + '</tbody></table></div>')
+
+NARR = open(sys.argv[3]).read()
 def fill(t):
     for k, v in S.items(): t = t.replace('{{' + k + '}}', str(v))
     return t
-catalog = ''.join(
-    f'<section class="grp" id="cat-w{w["id"]}"><h3>World {w["id"]} · {esc(w["title"])}</h3>' +
-    ''.join(f'<h4 class="uh">{u["num"]} {esc(u["title"])}</h4>' + ''.join(item_card(CH[i]) for i in u['items']) for u in w['units']) + '</section>'
-    for w in WORLDS)
-theory = ''.join(
-    f'<h3>{WNAME[wid]}</h3>' + ''.join(chapter_block(c) for c in CHAPS if c['world'] == wid)
-    for wid in sorted({c['world'] for c in CHAPS}))
-page = fill(NARR).replace('<!--MAP-->', course_map()).replace('<!--CHAPTERS-->', chapter_table()) \
-    .replace('<!--MATRIX-->', matrix()).replace('<!--CATALOG-->', catalog).replace('<!--THEORY-->', theory).replace('<!--CHANGES-->', changes())
-left = re.findall(r'\{\{\w+\}\}|<!--[A-Z]+-->', page)
-assert not left, left
+catalog = ''.join(f'<section class="grp" id="{gid}"><h3>{esc(gt)} <span class="cnt">{len(G[gid])} 个</span></h3><p class="dim">{esc(gs)}</p>{"".join(challenge_card(d) for d in G[gid])}</section>' for gid, gt, gs in GROUPS)
+theory = ''.join(chapter_block(c) for c in CHAPS)
+page = fill(NARR).replace('<!--PATH-->', path()).replace('<!--PREREQ-->', prereq_table()).replace('<!--PHASES-->', phase_table()) \
+    .replace('<!--MATRIX-->', matrix()).replace('<!--CATALOG-->', catalog).replace('<!--THEORY-->', theory) \
+    .replace('<!--WORLDS-->', worlds_table()).replace('<!--PORTALS-->', portals_table()).replace('<!--UNITS-->', units_table())
 open(OUT, 'w').write(page)
 print(len(page))
