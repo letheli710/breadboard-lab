@@ -1,4 +1,4 @@
-// The course map: Worlds (course/worlds.json), units still to be built ("pending", same file)
+// The course map: Worlds (course/worlds.json), units still to be built (course/pending.json)
 // and portals (course/portals.json). Pure: the validator (scripts/validate-course.ts) and the app
 // (state/course.ts) both use it. Format and rules: docs/PORTALS.md.
 //
@@ -86,7 +86,8 @@ const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFin
 
 /* ----------------------------------------------------------------------------- parsing */
 
-export function parseWorldsFile(json: unknown, errors: string[]): { worlds: World[]; pending: PendingUnit[] } {
+/** `pendingJson`: course/pending.json (kept apart so the start-up bundle carries only the Worlds) */
+export function parseWorldsFile(json: unknown, errors: string[], pendingJson?: unknown): { worlds: World[]; pending: PendingUnit[] } {
   if (!isObj(json) || json.format !== 'course-worlds/1') {
     errors.push('course/worlds.json: "format" 需要是 "course-worlds/1"');
     return { worlds: [], pending: [] };
@@ -121,7 +122,8 @@ export function parseWorldsFile(json: unknown, errors: string[]): { worlds: Worl
     });
   });
   const pending: PendingUnit[] = [];
-  (Array.isArray(json.pending) ? json.pending : []).forEach((p, i) => {
+  const pend = isObj(pendingJson) ? pendingJson.pending : json.pending;
+  (Array.isArray(pend) ? pend : []).forEach((p, i) => {
     const at = `pending[${i}]`;
     if (!isObj(p) || typeof p.id !== 'string' || typeof p.world !== 'string') return void errors.push(`${at}: 需要 "id" 和 "world" / needs "id" and "world"`);
     checkT(p.title, `${at}.title`, errors);
@@ -302,7 +304,7 @@ export function validateCourse(data: CourseData, cat: Catalog, plan: string): { 
     if (st === 'missing')
       errors.push(
         r.kind === 'pending'
-          ? `${at}: "${s}" 指向未登记的单元（先登记到 course/worlds.json 的 pending 和 REBUILD_PLAN.md） / points to an unregistered unit`
+          ? `${at}: "${s}" 指向未登记的单元（先登记到 course/pending.json 和 REBUILD_PLAN.md） / points to an unregistered unit`
           : `${at}: "${s}" 是断链（内容不存在） / broken link`,
       );
     if (st === 'pending' && !allowPending) errors.push(`${at}: "${s}" 还没建好 / not built yet`);

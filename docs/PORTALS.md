@@ -40,5 +40,5 @@ A unit that mentions an idea taught in another World gets a **portal** to it at 
 
 - **断链**：`from`、`to`、`prereq` 或单元里的引用指向不存在的内容。
 - **缺少反向链接**：传送门没有 `back`。
-- **指向未登记单元**：`pending:<id>` 不在 `course/worlds.json` 的 `pending` 里，或待建单元没有登记在 `docs/REBUILD_PLAN.md`（写成 `` `<id>` ``）。
+- **指向未登记单元**：`pending:<id>` 不在 `course/pending.json` 里，或待建单元没有登记在 `docs/REBUILD_PLAN.md`（写成 `` `<id>` ``）。
 - 另外：每个课程 / 实验 / 理论章节 / 单元恰好放在一个 World 里；单元里的 `portal` block 必须是从本单元出发的传送门。

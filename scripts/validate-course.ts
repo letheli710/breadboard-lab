@@ -1,4 +1,4 @@
-// Validate the course map: course/worlds.json (Worlds + pending units), course/portals.json and
+// Validate the course map: course/worlds.json (Worlds), course/pending.json (units still to build), course/portals.json and
 // units/*.json (learning units). Run by `npm run validate` (scripts/validate-challenges.ts) and so
 // by `npm run check`; also on its own: `tsx scripts/validate-course.ts`.
 //
@@ -39,7 +39,7 @@ const readJson = (p: string, errors: string[]): unknown => {
 export function checkCourse(root: string): CourseReport {
   const errors: string[] = [];
   const warnings: string[] = [];
-  const { worlds, pending } = parseWorldsFile(readJson(join(root, 'course/worlds.json'), errors), errors);
+  const { worlds, pending } = parseWorldsFile(readJson(join(root, 'course/worlds.json'), errors), errors, readJson(join(root, 'course/pending.json'), errors));
   const portals = parsePortalsFile(readJson(join(root, 'course/portals.json'), errors), errors);
 
   const units = new Map<string, Unit>();

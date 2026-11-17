@@ -442,7 +442,7 @@ def chapter_table():
 
 
 # ---------- this round's rebuild: Worlds, units, portals (course/*.json, units/*.json) ----------
-WJ = json.load(open('course/worlds.json')); PJ = json.load(open('course/portals.json'))
+WJ = json.load(open('course/worlds.json')); WJ['pending'] = json.load(open('course/pending.json'))['pending']; PJ = json.load(open('course/portals.json'))
 UNITS = {}
 for f in sorted(glob.glob('units/*.json')):
     u = json.load(open(f)); u['_fn'] = f; UNITS[u['id']] = u

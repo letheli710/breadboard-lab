@@ -5,8 +5,10 @@
 // saved progress, layouts and links stay valid when a unit moves. course/worlds.json is the single
 // source (docs/REBUILD_PLAN.md); the #/map page (ui/course/MapPage.tsx) reads the same file.
 
-import raw from '../../course/worlds.json';
-import { parseWorldsFile } from './course/catalog';
+// only the "worlds" key: the pending list and the file checks (core/course/catalog.ts, run by
+// npm run validate) stay out of the start-up bundle
+import { worlds as rawWorlds } from '../../course/worlds.json';
+import type { World as WorldEntry } from './course/catalog';
 import { tt } from './course/text';
 import { tr } from './i18n';
 
@@ -38,9 +40,7 @@ export interface World {
   units: CourseUnit[];
 }
 
-const parsed = parseWorldsFile(raw, []);
-
-export const WORLDS: World[] = parsed.worlds.map((w) => {
+export const WORLDS: World[] = (rawWorlds as unknown as WorldEntry[]).map((w) => {
   const id = w.n ?? 9;
   return {
     id,

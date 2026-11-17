@@ -30,8 +30,8 @@ World 5 的说明：Part B 前半（相量、阻抗、RC 频率响应）是 Worl
 
 ## 2. 待建单元 / Units to build
 
-下面每个 id 都登记在 `course/worlds.json` 的 `pending` 里。传送门可以指向它们（显示为“即将上线”）；建好一个同 id 的单元或实验后，传送门自动接通，再把它从 `pending` 删掉即可（`npm run validate` 会提醒）。
-Every id below is in the `pending` list of `course/worlds.json`. Portals may point at them (shown as "coming soon"); once a unit or lab with the same id exists they connect by themselves.
+下面每个 id 都登记在 `course/pending.json` 里。传送门可以指向它们（显示为“即将上线”）；建好一个同 id 的单元或实验后，传送门自动接通，再把它从 `pending` 删掉即可（`npm run validate` 会提醒）。
+Every id below is in `course/pending.json`. Portals may point at them (shown as "coming soon"); once a unit or lab with the same id exists they connect by themselves.
 
 ### World 5
 - `w5-ac-power-pfc` 交流功率与功率因数校正（面包板）/ AC power and power-factor correction (lab)

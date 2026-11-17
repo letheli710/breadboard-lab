@@ -270,7 +270,7 @@ async function courseChecks(browser) {
   await p.waitForSelector('.trail-bar', { timeout: 15000 });
   assert((await hash()) === '#/challenges/exp4-rc-lowpass-bode', 'portal → target ' + (await hash()));
   await p.waitForSelector('.backlink', { timeout: 10000 });
-  assert(/Experiment 3-1/.test(await p.locator('.backlink').first().textContent()), 'target: reverse link names the source');
+  assert(/RC charging/.test(await p.locator('.backlink').first().textContent()), 'target: reverse link names the source');
   await p.locator('.trail-bar a').click();
   await p.waitForTimeout(800);
   assert((await hash()) === '#/challenges/exp3-rc-square-charging' && (await p.locator('.trail-bar').count()) === 0, 'breadcrumb → back to the source, bar gone');
@@ -284,10 +284,12 @@ async function courseChecks(browser) {
   assert((await p.locator('.later-item.done').count()) === 1 && (await p.locator('.later-count').count()) === 0, 'watch later: ticked off');
   await p.keyboard.press('Escape');
   assert((await p.locator('.later-dialog').count()) === 0, 'watch later: Esc closes the dialog');
-  // challenge tabs are Worlds
+  // the course-map panel's tabs are the Worlds of course/worlds.json
   await p.goto(BASE + '#/challenges/exp-difference-amp');
+  await p.waitForSelector('.course-btn', { timeout: 15000 });
+  await p.locator('.course-btn').click();
   await p.waitForSelector('.phase-tabs button.on', { timeout: 15000 });
-  assert(/^W3/.test((await p.locator('.phase-tabs button.on').textContent()).trim()), 'carousel: the difference amp is in the W3 tab');
+  assert(/^World 3/.test((await p.locator('.phase-tabs button.on').textContent()).trim()), 'course map: the difference amp is in the World 3 tab');
   assert(errors.length === 0, 'course pages: no page errors ' + errors.join(' | '));
   await ctx.close();
 }

@@ -3,11 +3,12 @@
 // state/course.ts (a heavier module, loaded only by the pages that show them).
 
 import raw from '../../course/worlds.json';
+import pendingRaw from '../../course/pending.json';
 import { parseWorldsFile, type World } from '../core/course/catalog';
 import { tt } from '../core/course/text';
 import { tr } from '../core/i18n';
 
-const parsed = parseWorldsFile(raw, []);
+const parsed = parseWorldsFile(raw, [], pendingRaw);
 export const WORLDS: World[] = parsed.worlds;
 export const PENDING = parsed.pending;
 
