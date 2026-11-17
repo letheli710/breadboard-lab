@@ -102,7 +102,7 @@ function LayerSection({ layer, i, n, active, onCalc }: { layer: Layer; i: number
         {String(i + 1).padStart(2, '0')}
         <span>/ {String(n).padStart(2, '0')}</span>
       </div>
-      <h3 id={`td-h-${layer.id}`}>{layer.title}</h3>
+      <h3 id={`td-h-${layer.id}`}>{inline(layer.title)}</h3>
       <InsideMd text={layer.body} />
       {layer.table && <TableBlock t={layer.table} />}
       {layer.formulas && layer.formulas.length > 0 && (
