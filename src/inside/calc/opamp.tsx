@@ -84,10 +84,10 @@ Try v₊ = 2.00005 V: now $v_d = 50 µV$ and the output is 5 V — finally in th
     why: tr(
       `接线：$v_+ = v_{in}$，$v_- = v_o$。代入 $v_o = A(v_+ - v_-)$：
 $$v_o = A(v_{in} - v_o) ⇒ v_o = \\frac{A}{1+A}v_{in}$$
-A = 10⁵ 时误差只有 $\\frac{1}{1+A} ≈ 0.001\\%$。黄金法则（虚短）直接给出 $v_o = v_{in}$。`,
+A = 10⁵ 时误差只有 $\\frac{1}{1+A} ≈ 0.001 %$。黄金法则（虚短）直接给出 $v_o = v_{in}$。`,
       `Wiring: $v_+ = v_{in}$, $v_- = v_o$. Into $v_o = A(v_+ - v_-)$:
 $$v_o = A(v_{in} - v_o) ⇒ v_o = \\frac{A}{1+A}v_{in}$$
-With A = 10⁵ the error is only $\\frac{1}{1+A} ≈ 0.001\\%$. The golden rule (virtual short) gives $v_o = v_{in}$ at once.`,
+With A = 10⁵ the error is only $\\frac{1}{1+A} ≈ 0.001 %$. The golden rule (virtual short) gives $v_o = v_{in}$ at once.`,
     ),
     pitfalls: [tr('LM358 单电源：$v_{in}$ 超过 V+ − 1.5 V 时输出跟不上（第 14 课）。', 'Single-supply LM358: above V+ − 1.5 V the output can’t follow (lesson 14).')],
     Figure: () => <NonInvFig follower />,
@@ -241,8 +241,8 @@ That is the "sum": each input is weighted by $\\frac{R_f}{R_k}$.`,
     out: { sym: 'f_max', name: tr('最高频率', 'highest frequency'), unit: 'Hz' },
     compute: (v) => v.SR / (2 * Math.PI * v.Vp),
     why: tr(
-      `$v_o = V_p \\sin(2πft)$ 变化最快的地方（过零点）斜率是 $2πfV_p$。输出级最快只能以 SR 的速度变化，所以要求 $2πfV_p ≤ SR$。`,
-      `$v_o = V_p \\sin(2πft)$ changes fastest at its zero crossings, with slope $2πfV_p$. The output can change at most at the rate SR, so $2πfV_p ≤ SR$.`,
+      `$v_o = V_p sin(2πft)$ 变化最快的地方（过零点）斜率是 $2πfV_p$。输出级最快只能以 SR 的速度变化，所以要求 $2πfV_p ≤ SR$。`,
+      `$v_o = V_p sin(2πft)$ changes fastest at its zero crossings, with slope $2πfV_p$. The output can change at most at the rate SR, so $2πfV_p ≤ SR$.`,
     ),
     teardowns: ['lm358'],
   },
