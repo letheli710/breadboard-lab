@@ -26,6 +26,7 @@ import { Md } from './Md';
 import { PlacedChip, Prereqs, StepStatus, useStepChecks } from './StepCheck';
 import { tabListKeys } from './a11y';
 import { Mixed } from './Mixed';
+import { LessonCalcs, LookInside } from '../inside/pages';
 
 export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: string }) {
   const setHighlight = useStore((s) => s.setHighlight);
@@ -150,6 +151,8 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
       <Prereqs ch={ch} />
+      <LookInside chId={ch.id} />
+      <LessonCalcs chId={ch.id} />
       {hasM && <StageBar circuitOk={ms.passed} st={ms} />}
 
       {nSteps > 0 && (

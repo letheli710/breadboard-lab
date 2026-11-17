@@ -356,6 +356,11 @@ export function Icon({ name, size = 18 }: { name: string; size?: number }) {
     practice: <path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8.5 8.5h3M10 7v3M13 8.5h2.5M8.5 15l3-3M8.5 12l3 3M13 13h2.5M13 15h2.5" {...S} />,
     next: <path d="M9 5l7 7-7 7" {...S} />,
     prev: <path d="M15 5l-7 7 7 7" {...S} />,
+    search: <path d="M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM15.5 15.5L20 20" {...S} />,
+    layers: <path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5M7 10.5v5M17 10.5v5" {...S} />,
+    calc: (
+      <path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM8 6h8v3H8zM8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01" {...S} />
+    ),
   };
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>

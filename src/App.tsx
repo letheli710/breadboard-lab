@@ -18,6 +18,9 @@ const Guide = lazy(() => import('./ui/Guide').then((m) => ({ default: m.Guide })
 // "N due today" on the Practice card (the review schedule is a lazy chunk too)
 const DueChip = lazy(() => import('./ui/mastery/DueChip'));
 const ImportPage = lazy(() => import('./ui/ImportPage').then((m) => ({ default: m.ImportPage })));
+const InsidePage = lazy(() => import('./inside/pages').then((m) => ({ default: m.InsidePage })));
+const CalcPage = lazy(() => import('./inside/pages').then((m) => ({ default: m.CalcPage })));
+const BenchInside = lazy(() => import('./inside/pages').then((m) => ({ default: m.BenchInside })));
 
 // the problem / challenge index the starting page needs is a chunk of its own: request it now,
 // in parallel with the page's chunk (see state/routeSync.ts)
@@ -34,6 +37,8 @@ function PageLoading() {
 
 const NAV: { mode: Mode; zh: string; en: string; icon: string }[] = [
   { mode: 'learn', zh: '课程', en: 'Learn', icon: 'book' },
+  { mode: 'inside', zh: '拆开看', en: 'Inside', icon: 'layers' },
+  { mode: 'calc', zh: '计算', en: 'Calc', icon: 'calc' },
   { mode: 'challenge', zh: '挑战', en: 'Challenges', icon: 'target' },
   { mode: 'practice', zh: '练习', en: 'Practice', icon: 'practice' },
   { mode: 'sandbox', zh: '自由编辑', en: 'Sandbox', icon: 'edit' },
@@ -274,6 +279,7 @@ export default function App() {
   const lang = useLang();
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
+  const benchInside = useStore((s) => s.benchInside);
 
   // challenge text (and import diagnostics) are localized while parsing, so rebuild the lists
   // whenever the language changes (once their index is in; until then this does nothing, and
@@ -368,7 +374,8 @@ export default function App() {
         <Suspense fallback={<PageLoading />}>
           <main className="main" id="main">
             <BenchHeading />
-            <div className="left">
+            <div className={`left ${benchInside && mode !== 'sandbox' ? 'has-inside' : ''}`}>
+              {benchInside && mode !== 'sandbox' && <BenchInside id={benchInside} />}
               <Workbench />
               {mode !== 'sandbox' && <Carousel kind={mode === 'learn' ? 'lesson' : 'challenge'} />}
             </div>
@@ -382,6 +389,8 @@ export default function App() {
           {mode === 'practice' && <Practice />}
           {mode === 'guide' && <Guide />}
           {mode === 'import' && <ImportPage />}
+          {mode === 'inside' && <InsidePage />}
+          {mode === 'calc' && <CalcPage />}
         </Suspense>
       )}
       <Toast />

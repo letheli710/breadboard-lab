@@ -12,7 +12,7 @@ import { modeOf, startRoute } from './router';
 import { boolRecord, readStored, sanitizeLayout, sanitizeReadings, sanitizeScope, writeStored, writeStoredLater } from './persist';
 import type { ChallengeReadings } from '../core/readings';
 
-export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import';
+export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import' | 'inside' | 'calc';
 /** Practice pages beside the problems: mistake notebook, review session, "how this works", quiz */
 export type PracticeView = 'notebook' | 'due' | 'how' | 'quiz';
 
@@ -91,6 +91,12 @@ function initialLang(): Lang {
 interface State {
   lang: Lang;
   mode: Mode;
+  /** Inside page: the teardown shown (null = the list) */
+  insideId: string | null;
+  /** Calculations page: the card shown (null = the list) */
+  calcId: string | null;
+  /** lesson / challenge: a teardown shown in place of the 3D bench (null = the bench) */
+  benchInside: string | null;
   panel: PanelTab;
   layout: Layout;
   /** undo stack (oldest first) and redo stack (next redo last) */
@@ -146,6 +152,9 @@ interface State {
 
   setLang(l: Lang): void;
   setMode(m: Mode): void;
+  openInside(id: string | null): void;
+  openCalc(id: string | null): void;
+  setBenchInside(id: string | null): void;
   setPanel(p: PanelTab): void;
   setTool(t: Tool): void;
   setPlacingProps(t: PartType, p: PartProps): void;
@@ -305,6 +314,9 @@ export const useStore = create<State>((set, get) => {
     // the page from the URL (or the remembered one) from the start, so a Practice / Guide /
     // Import link never mounts the 3D workbench
     mode: modeOf(startRoute().route),
+    insideId: null,
+    calcId: null,
+    benchInside: null,
     panel: 'task',
     layout: emptyLayout(),
     past: [],
@@ -350,6 +362,17 @@ export const useStore = create<State>((set, get) => {
       document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
       set({ lang });
     },
+    openInside(insideId) {
+      openRequest = null;
+      set({ mode: 'inside', insideId, opening: null });
+    },
+    openCalc(calcId) {
+      openRequest = null;
+      set({ mode: 'calc', calcId, opening: null });
+    },
+    setBenchInside(benchInside) {
+      set({ benchInside });
+    },
     setMode(mode) {
       const s = get();
       // a challenge still loading is dropped when another page (or this page's nav) is picked
@@ -357,7 +380,7 @@ export const useStore = create<State>((set, get) => {
       if (s.opening) set({ opening: null });
       const needsItem = (mode === 'learn' || mode === 'challenge') && !s.activeId;
       if (mode === s.mode && !needsItem) return;
-      const base = { mode, tool: 'select' as Tool, firstHole: null, selectedId: null, highlight: null, check: null, ...fresh };
+      const base = { mode, tool: 'select' as Tool, firstHole: null, selectedId: null, highlight: null, check: null, benchInside: null, ...fresh };
       if (mode === 'sandbox') {
         set({ ...base, panel: 'schematic', layout: savedLayout('bb.layout.sandbox') ?? emptyLayout() });
       } else if (mode === 'learn' || mode === 'challenge') {
@@ -561,6 +584,7 @@ export const useStore = create<State>((set, get) => {
         activeId: id,
         opening: null,
         mode: ch.kind === 'lesson' ? 'learn' : 'challenge',
+        benchInside: null,
         step: 0,
         hintsShown: 0,
         check: null,

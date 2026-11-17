@@ -19,6 +19,7 @@ import { ensureChallengeIndex } from './challenges';
 import { ensureProblemIndex, entryTitle } from './problems';
 import { formatRoute, modeOf, pageOf, parseRoute, startRoute, writeLastRoute, type Route } from './router';
 import { useStore, type Mode } from './store';
+import { tdById } from '../inside/registry';
 
 type S = ReturnType<typeof useStore.getState>;
 
@@ -75,6 +76,10 @@ export function routeOf(s: S): Route {
       return s.problems.some((p) => p.id === s.problemId) ? { page: 'practice', id: s.problemId! } : { page: 'practice' };
     case 'guide':
       return guideSection ? { page: 'guide', section: guideSection } : { page: 'guide' };
+    case 'inside':
+      return s.insideId ? { page: 'inside', id: s.insideId } : { page: 'inside' };
+    case 'calc':
+      return s.calcId ? { page: 'calc', id: s.calcId } : { page: 'calc' };
     default:
       return { page: s.mode };
   }
@@ -91,6 +96,8 @@ export function titleOf(s: S, r: Route = routeOf(s)): string {
     sandbox: tr('自由编辑', 'Sandbox'),
     guide: tr('知识', 'Guide'),
     import: tr('导入', 'Import'),
+    inside: tr('拆开看', 'Inside'),
+    calc: tr('计算', 'Calculations'),
   }[r.page];
   let item: string | undefined;
   if ((r.page === 'learn' || r.page === 'challenges') && r.id) item = s.challenges.find((c) => c.id === r.id)?.title;
@@ -209,6 +216,12 @@ export function applyRoute(r: Route) {
       st.setMode('practice');
       if (useStore.getState().practiceView) useStore.getState().openPracticeView(null);
     }
+  } else if (r.page === 'inside') {
+    const id = r.id && tdById(r.id) ? r.id : null;
+    if (r.id && !id) notFound();
+    if (st.mode !== 'inside' || st.insideId !== id) st.openInside(id);
+  } else if (r.page === 'calc') {
+    if (st.mode !== 'calc' || st.calcId !== (r.id ?? null)) st.openCalc(r.id ?? null);
   } else {
     st.setMode(modeOf(r));
     if (r.page === 'guide' && r.section) scrollToSection(r.section);
@@ -255,6 +268,8 @@ export function startRouting() {
       s.problemId !== prev.problemId ||
       s.practiceSummary !== prev.practiceSummary ||
       s.practiceView !== prev.practiceView ||
+      s.insideId !== prev.insideId ||
+      s.calcId !== prev.calcId ||
       s.challenges !== prev.challenges ||
       s.problems !== prev.problems ||
       s.lang !== prev.lang

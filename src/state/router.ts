@@ -12,6 +12,8 @@
 //   #/sandbox                   free editing
 //   #/guide[/<section>]         field guide, optionally scrolled to a section card
 //   #/import                    import page
+//   #/inside[/<teardownId>]     "Inside": teardowns of parts / chips / instruments
+//   #/calc[/<calcId>]           calculations: formula cards with a calculator
 //
 // Ids are URI-encoded. This module is pure (no store, no React) so the store can read the
 // starting page from it and the tests can run it without a DOM; the wiring between the URL and
@@ -28,11 +30,13 @@ export type Route =
   | { page: 'practice'; view: PracticeView }
   | { page: 'sandbox' }
   | { page: 'guide'; section?: string }
-  | { page: 'import' };
+  | { page: 'import' }
+  | { page: 'inside'; id?: string }
+  | { page: 'calc'; id?: string };
 
 export type Page = Route['page'];
 
-export const PAGES: readonly Page[] = ['learn', 'challenges', 'practice', 'sandbox', 'guide', 'import'];
+export const PAGES: readonly Page[] = ['learn', 'challenges', 'practice', 'sandbox', 'guide', 'import', 'inside', 'calc'];
 
 const MODE_OF: Record<Page, Mode> = {
   learn: 'learn',
@@ -41,6 +45,8 @@ const MODE_OF: Record<Page, Mode> = {
   sandbox: 'sandbox',
   guide: 'guide',
   import: 'import',
+  inside: 'inside',
+  calc: 'calc',
 };
 
 export const modeOf = (r: Route): Mode => MODE_OF[r.page];
@@ -81,6 +87,8 @@ export function parseRoute(hash: string): Route | null {
     case 'learn':
     case 'challenges':
     case 'practice':
+    case 'inside':
+    case 'calc':
       return (item === undefined ? { page } : { page, id: item }) as Route;
     case 'guide':
       return item === undefined ? { page } : { page, section: item };
