@@ -25,6 +25,10 @@ const PAGES = [
   { name: 'summary', hash: '#/practice/summary/basics', ready: '.sum-main' },
   { name: 'guide', hash: '#/guide', ready: '#guide-led' },
   { name: 'import', hash: '#/import', ready: 'main, .import-page' },
+  { name: 'map', hash: '#/map', ready: '#world-w3[open]' },
+  { name: 'unit', hash: '#/unit/w3-5b-virtual-short', ready: '.unit-layer' },
+  { name: 'unit-chip', hash: '#/unit/w3-chip', ready: '.portal' },
+  { name: 'lab-portal', hash: '#/challenges/exp3-rc-square-charging', ready: '.portal' },
   // states: the sandbox with parts, the inspector and an open confirm popover; a checked lab
   { name: 'sandbox-parts', hash: '#/sandbox', ready: '.stage-view canvas', setup: 'parts' },
   { name: 'lab-checked', hash: '#/challenges/exp-inverting-amp', ready: '.lesson-card.on', setup: 'checked' },

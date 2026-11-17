@@ -24,6 +24,8 @@
 //   6. measurement questions: each reading must be obtainable from the reference solution
 //      (finite), fall inside the author's "range", and be accepted when typed to 3 significant
 //      figures in the question's unit (`--readings` prints them)
+// Course map (default run only): course/worlds.json, course/portals.json, units/*.json — see
+// scripts/validate-course.ts.
 // Exit code 1 on any error.
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -45,6 +47,7 @@ import { buildNetlist } from '../src/core/netlist';
 import { simulate } from '../src/core/solver';
 import { hasGenerator, simulateTransient } from '../src/core/transient';
 import type { Layout } from '../src/core/types';
+import { checkCourse, printCourse } from './validate-course';
 
 const LED_MAX = 0.025;
 /** --readings: print every measurement question's reading on the reference solution */
@@ -146,6 +149,17 @@ function visibleTexts(json: Record<string, unknown>): { where: string; text: str
     if (!o) return;
     for (const k of ['title', 'summary', 'description', 'hints']) add(`${lang}${k}`, o[k]);
     add(`${lang}tests`, o.tests);
+    // figures (§16): captions and alt texts here; the base figures also carry the drawing's notes
+    // (with their own translations) and mark names
+    (Array.isArray(o.figures) ? (o.figures as Record<string, unknown>[]) : []).forEach((f, i) => {
+      const w = `${lang}figures[${i}]`;
+      if (!f || typeof f !== 'object') return;
+      add(`${w}.caption`, f.caption);
+      add(`${w}.alt`, f.alt);
+      const s = f.schematic as { notes?: { text?: unknown; i18n?: Record<string, unknown> }[]; marks?: unknown[] } | undefined;
+      for (const n of Array.isArray(s?.notes) ? s.notes : []) [n?.text, ...Object.values(n?.i18n ?? {})].forEach((t) => add(`${w}.notes`, t));
+      add(`${w}.marks`, s?.marks);
+    });
   };
   scan(json, '');
   for (const [lang, t] of Object.entries((json.i18n as Record<string, Record<string, unknown>>) ?? {})) scan(t, `i18n.${lang}.`);
@@ -512,6 +526,11 @@ function main() {
       `${label[k]}: ${st.files} files, ${st.files - st.bad} passed, ${st.bad} failed, ${st.warn} warnings`,
     );
     console.log(st.bad ? red(line) : green(line));
+  }
+  // the course map (Worlds, portals, learning units) is checked with the default run
+  if (defaults) {
+    console.log('');
+    bad += printCourse(checkCourse(process.cwd()));
   }
   if (bad) process.exit(1);
 }

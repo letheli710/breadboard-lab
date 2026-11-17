@@ -1,39 +1,36 @@
 import { useLayoutEffect, useRef } from 'react';
-import { PHASES, type Challenge, type ChallengePhase } from '../core/challenge';
+import type { Challenge } from '../core/challenge';
 import { tabListKeys } from './a11y';
 import { tr } from '../core/i18n';
 import { ensureChallengeIndex } from '../state/challenges';
 import { useStore } from '../state/store';
+import { byCourseOrder, placeOf, WORLDS, worldById, worldName } from '../state/worlds';
+import { tt } from '../core/course/text';
 import { revealIn, useUserScroll } from './reveal';
 import { Mixed } from './Mixed';
 
-/** Challenge groups: the original intro set (no "phase") and the course phases. */
-type Group = 'intro' | ChallengePhase;
-const groupOf = (c: Challenge): Group => c.phase ?? 'intro';
-const groupLabel = (g: Group) => (g === 'intro' ? tr('入门', 'Intro') : tr(`第${g}期`, `Phase ${g}`));
-const groupTip = (g: Group) =>
-  g === 'intro'
-    ? tr('入门挑战：面包板、电源、LED', 'Intro challenges: breadboard, power, LEDs')
-    : [
-        tr('第 1 期：KCL/KVL、分压分流、电桥、电流源', 'Phase 1: KCL/KVL, dividers, bridge, current source'),
-        tr('第 2 期：叠加、戴维宁、最大功率、运放', 'Phase 2: superposition, Thevenin, max power, op-amps'),
-        tr('第 3 期：暂态（RC / RL / RLC）', 'Phase 3: transients (RC / RL / RLC)'),
-        tr('第 4 期：正弦稳态与频率响应', 'Phase 4: AC steady state and frequency response'),
-        tr(
-          '第 5 期：单片机外围电路（GPIO、上拉、三极管/MOSFET、继电器、稳压、ADC、PWM）',
-          'Phase 5: MCU peripheral circuits (GPIO, pull-ups, transistors/MOSFETs, relays, regulators, ADC, PWM)',
-        ),
-      ][g - 1];
+/** Challenge groups: the Worlds of course/worlds.json (labs not placed in one go to "other"). */
+type Group = string;
+const groupOf = (c: Challenge): Group => placeOf('challenge', c.id)?.world.id ?? 'other';
+const groupLabel = (g: Group) => {
+  const w = worldById(g);
+  return w ? (w.n !== undefined ? `W${w.n}` : 'UB') : tr('其他', 'Other');
+};
+const groupTip = (g: Group) => {
+  const w = worldById(g);
+  return w ? `${worldName(w)} — ${tt(w.course)}` : tr('还没有放进 World 的挑战', 'Challenges not placed in a World yet');
+};
+const GROUP_ORDER: Group[] = [...WORLDS.map((w) => w.id), 'other'];
 
 export function Carousel({ kind }: { kind: 'lesson' | 'challenge' }) {
   const challenges = useStore((s) => s.challenges);
   const activeId = useStore((s) => s.activeId);
   const completed = useStore((s) => s.completed);
   const open = useStore((s) => s.openChallenge);
-  const all = challenges.filter((c) => c.kind === kind);
-
-  // challenges are grouped by course phase (tabs); lessons stay one row
-  const groups: Group[] = kind === 'challenge' ? (['intro', ...PHASES] as Group[]).filter((g) => all.some((c) => groupOf(c) === g)) : [];
+  const ofKind = challenges.filter((c) => c.kind === kind);
+  // challenges are grouped by World (tabs) in course order; lessons stay one row, in their own order
+  const all = kind === 'challenge' ? byCourseOrder(ofKind) : ofKind;
+  const groups: Group[] = kind === 'challenge' ? GROUP_ORDER.filter((g) => all.some((c) => groupOf(c) === g)) : [];
   // The tab shown is always the group of the challenge on the bench (or the one loading), and
   // picking a tab opens that group's first unfinished challenge, so the carousel, the side
   // panel and the URL never disagree.

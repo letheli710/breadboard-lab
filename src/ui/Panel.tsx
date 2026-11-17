@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import type { Challenge } from '../core/challenge';
 import { checkCircuit } from '../core/check';
 import type { Issue } from '../core/diagnostics';
@@ -26,6 +26,13 @@ import { Md } from './Md';
 import { PlacedChip, Prereqs, StepStatus, useStepChecks } from './StepCheck';
 import { tabListKeys } from './a11y';
 import { Mixed } from './Mixed';
+
+// the description's pictures (`figures`) use the theory-problem drawing code: loaded only when a
+// lesson / challenge has some
+import { PortalSlot } from './course/PortalSlot';
+import { placeOf, worldLabel } from '../state/worlds';
+import { tt } from '../core/course/text';
+const ChallengeFigures = lazy(() => import('./ChallengeFigures'));
 
 export function IssueList({ issues, emptyText }: { issues: Issue[]; emptyText?: string }) {
   const setHighlight = useStore((s) => s.setHighlight);
@@ -66,6 +73,7 @@ function Stars({ n }: { n: number }) {
 }
 
 function TaskPanel({ ch }: { ch: Challenge }) {
+  const world = placeOf('challenge', ch.id)?.world;
   const step = useStore((s) => s.step);
   const setStep = useStore((s) => s.setStep);
   const hintsShown = useStore((s) => s.hintsShown);
@@ -146,10 +154,16 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         <Stars n={ch.level} />
         {completed[ch.id] && <span className="badge done">✓ {tr('已完成', 'Done')}</span>}
         {ch.source !== 'folder' && <span className="badge src">{tr('导入', 'Imported')}</span>}
+        {world && (
+          <a className="badge world-tag" href={`#/map/${world.id}`} title={tt(world.course)}>
+            {worldLabel(world)}
+          </a>
+        )}
       </div>
       <h2>{ch.title}</h2>
       {ch.summary && <p className="summary">{ch.summary}</p>}
       <Prereqs ch={ch} />
+      {ch.source === 'folder' && <PortalSlot kind="challenge" id={ch.id} part="top" />}
       {hasM && <StageBar circuitOk={ms.passed} st={ms} />}
 
       {nSteps > 0 && (
@@ -249,6 +263,11 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       <details className="fold" open>
         <summary>{ch.kind === 'lesson' ? tr('课程说明', 'About this lesson') : tr('题目说明', 'About this task')}</summary>
         <Md text={ch.description} />
+        {ch.figures && (
+          <Suspense fallback={null}>
+            <ChallengeFigures figures={ch.figures} />
+          </Suspense>
+        )}
       </details>
 
       <details className="fold" open>
@@ -266,6 +285,8 @@ function TaskPanel({ ch }: { ch: Challenge }) {
           )}
         </p>
       </details>
+
+      {ch.source === 'folder' && <PortalSlot kind="challenge" id={ch.id} part="bottom" />}
 
       {/* sticky at the bottom of the scrolling panel: always on screen */}
       <div className="actions">

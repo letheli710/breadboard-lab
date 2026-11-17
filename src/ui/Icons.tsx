@@ -354,6 +354,9 @@ export function Icon({ name, size = 18 }: { name: string; size?: number }) {
     upload: <path d="M12 20V9M7 14l5-5 5 5M5 4h14" {...S} />,
     eye: <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 .01 0" {...S} />,
     practice: <path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8.5 8.5h3M10 7v3M13 8.5h2.5M8.5 15l3-3M8.5 12l3 3M13 13h2.5M13 15h2.5" {...S} />,
+    clock: <path d="M12 3a9 9 0 1 0 .01 0M12 7v5l3 2" {...S} />,
+    map: <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15" {...S} />,
+    later: <path d="M6 3h12v18l-6-4-6 4z" {...S} />,
     next: <path d="M9 5l7 7-7 7" {...S} />,
     prev: <path d="M15 5l-7 7 7 7" {...S} />,
   };

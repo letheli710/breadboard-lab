@@ -19,6 +19,13 @@ import { PrMd, Sym } from './richText';
 import { MathText } from './mathText';
 import { prefersReducedMotion } from './reveal';
 import { Mixed } from './Mixed';
+import { PortalSlot } from './course/PortalSlot';
+import { placeOf, worldLabel } from '../state/worlds';
+
+const worldOfChapter = (id: string) => {
+  const w = placeOf('chapter', id)?.world;
+  return w ? worldLabel(w) : '';
+};
 
 type SectionKey = 'ideas' | 'formulas' | 'examples' | 'mistakes';
 
@@ -305,7 +312,7 @@ export function SummaryPage({ target, problems }: { target: SummaryTarget; probl
       <header className="pr-head">
         <div className="pr-crumbs no-print">
           <span className="eyebrow">
-            {tr(`第 ${chapter?.phase ?? '?'} 期`, `Phase ${chapter?.phase ?? '?'}`)} · {chapter?.title()}
+            {worldOfChapter(target.chapter)} · {chapter?.title()}
           </span>
           {back ? (
             <button className="pr-link" onClick={() => openProblem(back.id)}>
@@ -324,6 +331,7 @@ export function SummaryPage({ target, problems }: { target: SummaryTarget; probl
         </div>
         <h1 className="pr-title">{chapter?.title() ?? target.chapter}</h1>
       </header>
+      <PortalSlot kind="chapter" id={target.chapter} part="top" />
       {r?.summary ? (
         <SummaryBody s={r.summary} target={target} problems={problems} />
       ) : r ? (
@@ -335,6 +343,7 @@ export function SummaryPage({ target, problems }: { target: SummaryTarget; probl
       ) : (
         <p className="muted">{tr('正在加载本章要点…', 'Loading the key points…')}</p>
       )}
+      <PortalSlot kind="chapter" id={target.chapter} part="bottom" />
     </article>
   );
 }

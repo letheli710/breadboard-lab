@@ -1,0 +1,218 @@
+{
+  "format": "course-portals/1",
+  "portals": [
+    {
+      "id": "chip-input-stage",
+      "from": "unit:w3-chip",
+      "to": "pending:w6-diff-pair",
+      "what": {
+        "zh": "运放的差分输入级：两个晶体管怎么分一股电流，为什么只对 v₊ − v₋ 敏感。",
+        "en": "The op-amp's differential input stage: how two transistors share one current, and why only v₊ − v₋ matters."
+      },
+      "back": { "zh": "运放最前面的差分输入级就是一个差分对。", "en": "The op-amp's first stage, the differential input, is a differential pair." },
+      "prereq": ["unit:w3-chip", "pending:w6-bjt-bias"],
+      "minutes": 25
+    },
+    {
+      "id": "chip-gain-stage",
+      "from": "unit:w3-chip",
+      "to": "pending:w6-ce-amp",
+      "what": { "zh": "高增益级其实是一个共射放大器：增益从哪来。", "en": "The high-gain stage is a common-emitter amplifier: where the gain comes from." },
+      "back": { "zh": "运放中间的高增益级就是一个共射放大器。", "en": "The op-amp's middle, high-gain stage is a common-emitter amplifier." },
+      "prereq": ["unit:w3-chip", "pending:w6-bjt-bias"],
+      "minutes": 30
+    },
+    {
+      "id": "chip-output-stage",
+      "from": "unit:w3-chip",
+      "to": "pending:w7-push-pull",
+      "what": {
+        "zh": "推挽输出级：交越失真从哪来，输出为什么到不了电源轨。",
+        "en": "The push-pull output stage: where crossover distortion comes from, and why the output can't reach the rails."
+      },
+      "back": {
+        "zh": "运放的输出级就是一个推挽放大器，LM358 到不了正电源轨的原因在这里。",
+        "en": "The op-amp's output stage is a push-pull amplifier; this is why the LM358 can't reach its positive rail."
+      },
+      "prereq": ["unit:w3-chip", "pending:w6-ce-amp"],
+      "minutes": 30
+    },
+    {
+      "id": "chip-compensation",
+      "from": "unit:w3-chip",
+      "to": "pending:w7-gbw",
+      "what": { "zh": "补偿电容：为什么频率越高，运放的增益越低。", "en": "The compensation capacitor: why an op-amp's gain falls as frequency rises." },
+      "back": { "zh": "运放里的补偿电容决定了增益带宽积。", "en": "The compensation capacitor inside the op-amp sets the gain-bandwidth product." },
+      "prereq": ["unit:w3-5b-virtual-short", "chapter:frequency"],
+      "minutes": 25
+    },
+    {
+      "id": "chip-real-limits",
+      "from": "unit:w3-chip",
+      "to": "pending:w7-slew-offset",
+      "what": { "zh": "压摆率和失调：现象、原因、怎么测。", "en": "Slew rate and offset: what you see, why, and how to measure them." },
+      "back": { "zh": "LM358 的实际限制（压摆率、失调）在这里展开。", "en": "The LM358's real limits (slew rate, offset) are worked out here." },
+      "prereq": ["unit:w3-chip", "unit:w3-5e-inverting"],
+      "minutes": 25
+    },
+    {
+      "id": "virtual-short-gbw",
+      "from": "unit:w3-5b-virtual-short",
+      "to": "pending:w7-gbw",
+      "what": {
+        "zh": "频率一高，开环增益 A 就变小，虚短不再成立：用增益带宽积算它在哪里失效。",
+        "en": "At high frequency the open-loop gain A drops and the virtual short fails: the gain-bandwidth product tells you where."
+      },
+      "back": { "zh": "虚短要求 A 足够大；这里讲 A 随频率下降时会怎样。", "en": "The virtual short needs a large A; this is what happens when A falls with frequency." },
+      "prereq": ["unit:w3-5b-virtual-short", "chapter:frequency"],
+      "minutes": 25
+    },
+    {
+      "id": "preview-integrator",
+      "from": "unit:w3-5j-preview",
+      "to": "challenge:exp3-opamp-integrator",
+      "what": {
+        "zh": "把反相放大器的 R_f 换成电容，就得到积分器：方波进，三角波出（Sadiku §6.6）。",
+        "en": "Replace R_f of the inverting amplifier with a capacitor and you get an integrator: square wave in, triangle out (Sadiku §6.6)."
+      },
+      "back": { "zh": "这就是反相放大器把 R_f 换成电容的样子。", "en": "This is the inverting amplifier with R_f replaced by a capacitor." },
+      "prereq": ["unit:w3-5e-inverting", "chapter:storage"],
+      "minutes": 30
+    },
+    {
+      "id": "preview-active-lowpass",
+      "from": "unit:w3-5j-preview",
+      "to": "challenge:exp4-active-lowpass",
+      "what": {
+        "zh": "R_f 换成 R 并 C 的阻抗 Z_f，增益 −Z_f/Z_in 随频率变：有源低通。",
+        "en": "Replace R_f with the impedance Z_f of R parallel C; the gain −Z_f/Z_in changes with frequency: an active low-pass."
+      },
+      "back": { "zh": "反相放大器的 −R_f/R_in 推广成 −Z_f/Z_in，就是这个滤波器。", "en": "Generalise the inverting amplifier's −R_f/R_in to −Z_f/Z_in and you get this filter." },
+      "prereq": ["unit:w3-5e-inverting", "chapter:ac-analysis"],
+      "minutes": 30
+    },
+    {
+      "id": "preview-buffered-bandpass",
+      "from": "unit:w3-5j-preview",
+      "to": "challenge:exp4-buffered-bandpass",
+      "what": { "zh": "两级 RC 滤波器中间加一个跟随器，级与级不再互相拖累。", "en": "A follower between two RC filter stages stops them from loading each other." },
+      "back": { "zh": "这里的跟随器就是 World 3 的 5c，用来隔离两级滤波器。", "en": "The follower here is World 3's unit 5c, isolating the two filter stages." },
+      "prereq": ["unit:w3-5c-follower", "challenge:exp4-rc-bandpass-loading"],
+      "minutes": 30
+    },
+    {
+      "id": "comparator-schmitt",
+      "from": "unit:w3-5i-comparator",
+      "to": "pending:w7-schmitt",
+      "what": { "zh": "给比较器加一点正反馈，得到两个阈值：施密特触发器。", "en": "Add a little positive feedback to a comparator and get two thresholds: the Schmitt trigger." },
+      "back": { "zh": "施密特触发器就是加了正反馈的比较器。", "en": "A Schmitt trigger is a comparator with positive feedback." },
+      "prereq": ["unit:w3-5i-comparator"],
+      "minutes": 25
+    },
+    {
+      "id": "comparator-logic",
+      "from": "unit:w3-5i-comparator",
+      "to": "unit:w8-logic-gates",
+      "what": {
+        "zh": "比较器的输出只有“高”和“低”：从这里走进 0 和 1 的数字世界。",
+        "en": "A comparator's output is only high or low: from here into the digital world of 0 and 1."
+      },
+      "back": {
+        "zh": "比较器把模拟电压变成高 / 低两种状态，这就是数字逻辑的起点。",
+        "en": "A comparator turns an analog voltage into high / low; that is where digital logic starts."
+      },
+      "prereq": ["unit:w3-5i-comparator"],
+      "minutes": 15
+    },
+    {
+      "id": "vcvs-model",
+      "from": "unit:w3-5a-black-box",
+      "to": "problem:methods-13-nodal-grounded-vcvs",
+      "what": {
+        "zh": "运放的电路模型就是一个电压控制电压源（VCVS）：在结点法里怎么处理它。",
+        "en": "The op-amp's circuit model is a voltage-controlled voltage source (VCVS): how nodal analysis handles one."
+      },
+      "back": { "zh": "这道题里的 VCVS 就是运放“黑盒子”模型的样子。", "en": "The VCVS in this problem is what the op-amp's black-box model looks like." },
+      "prereq": ["chapter:methods"],
+      "minutes": 15
+    },
+    {
+      "id": "methods-ac",
+      "from": "chapter:methods",
+      "to": "unit:w5-ac-midterm2",
+      "what": {
+        "zh": "结点法、网孔法原样搬到交流电路：把 R 换成复数阻抗 Z（ET-140 Week 10）。",
+        "en": "Nodal and mesh analysis carried over to AC: replace R with a complex impedance Z (ET-140 Week 10)."
+      },
+      "back": { "zh": "这些题就是 World 2 的结点法、网孔法，只是 R 换成了 Z。", "en": "These are World 2's nodal and mesh problems with R replaced by Z." },
+      "prereq": ["chapter:methods", "chapter:phasors"],
+      "minutes": 40
+    },
+    {
+      "id": "theorems-ac",
+      "from": "chapter:theorems",
+      "to": "unit:w5-ac-midterm2",
+      "what": {
+        "zh": "叠加、戴维宁原样搬到交流电路：把 R 换成复数阻抗 Z（ET-140 Week 10）。",
+        "en": "Superposition and Thévenin carried over to AC: replace R with a complex impedance Z (ET-140 Week 10)."
+      },
+      "back": { "zh": "这些题就是 World 2 的叠加、戴维宁，只是 R 换成了 Z。", "en": "These are World 2's superposition and Thévenin problems with R replaced by Z." },
+      "prereq": ["chapter:theorems", "chapter:phasors"],
+      "minutes": 40
+    },
+    {
+      "id": "rc-time-to-frequency",
+      "from": "challenge:exp3-rc-square-charging",
+      "to": "challenge:exp4-rc-lowpass-bode",
+      "what": {
+        "zh": "同一个 RC：在时域看充放电，在频域看低通。τ = RC 和 f_c = 1/(2πRC) 是同一件事。",
+        "en": "The same RC: charging in the time domain, a low-pass in the frequency domain. τ = RC and f_c = 1/(2πRC) are the same fact."
+      },
+      "back": { "zh": "这个低通滤波器就是 World 4 充放电实验里的那个 RC。", "en": "This low-pass filter is the same RC as in World 4's charging lab." },
+      "prereq": ["challenge:exp3-rc-square-charging", "chapter:phasors"],
+      "minutes": 30
+    },
+    {
+      "id": "rc-to-bode",
+      "from": "challenge:exp4-rc-lowpass-bode",
+      "to": "pending:w7-bode",
+      "what": {
+        "zh": "把三个频率点连成波特图：分贝、对数频率轴、渐近线（ET-220 Week 7–8）。",
+        "en": "Turn three frequency points into a Bode plot: decibels, a log frequency axis, asymptotes (ET-220 Week 7–8)."
+      },
+      "back": { "zh": "World 5 的 RC 低通是波特图的第一个例子。", "en": "World 5's RC low-pass is the first Bode-plot example." },
+      "prereq": ["challenge:exp4-rc-lowpass-bode"],
+      "minutes": 30
+    },
+    {
+      "id": "bjt-switch-inverter",
+      "from": "challenge:exp5-npn-buzzer-switch",
+      "to": "unit:w8-logic-gates",
+      "what": { "zh": "晶体管开关就是一个反相器：输入高，输出低。", "en": "A transistor switch is an inverter: input high, output low." },
+      "back": { "zh": "NOT 门最简单的做法就是 World 6 的三极管开关。", "en": "The simplest NOT gate is World 6's transistor switch." },
+      "prereq": ["challenge:exp5-npn-buzzer-switch"],
+      "minutes": 15
+    },
+    {
+      "id": "ce-amp-frequency",
+      "from": "pending:w6-ce-amp",
+      "to": "pending:w7-ce-freq-response",
+      "what": {
+        "zh": "共射放大器的增益在低频和高频为什么会掉（ET-220 Week 11）。",
+        "en": "Why a common-emitter amplifier loses gain at low and high frequencies (ET-220 Week 11)."
+      },
+      "back": { "zh": "这里分析的就是 World 6 的共射放大器。", "en": "This is World 6's common-emitter amplifier, analysed over frequency." },
+      "prereq": ["pending:w6-ce-amp", "pending:w7-bode"],
+      "minutes": 35
+    },
+    {
+      "id": "555-clock",
+      "from": "pending:w7-555",
+      "to": "pending:w8-clock-555",
+      "what": { "zh": "用 555 给数字电路做时钟（ET-220 Week 4 / ET-540 Lab 9）。", "en": "A 555 as the clock of a digital circuit (ET-220 Week 4 / ET-540 Lab 9)." },
+      "back": { "zh": "这个时钟就是 World 7 的 555 振荡器。", "en": "This clock is World 7's 555 oscillator." },
+      "prereq": ["pending:w7-555"],
+      "minutes": 25
+    }
+  ]
+}

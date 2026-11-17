@@ -7,6 +7,7 @@ import { useLang, useStore, type Mode } from './state/store';
 import { Icon } from './ui/Icons';
 import { Toast } from './ui/Toast';
 import { Mixed } from './ui/Mixed';
+import { LaterButton, TrailBar } from './ui/course/CourseChrome';
 
 // every page is its own chunk; the 3D workbench (three.js) is only fetched for learn / challenge / sandbox
 const Workbench = lazy(() => import('./ui/Workbench').then((m) => ({ default: m.Workbench })));
@@ -18,6 +19,9 @@ const Guide = lazy(() => import('./ui/Guide').then((m) => ({ default: m.Guide })
 // "N due today" on the Practice card (the review schedule is a lazy chunk too)
 const DueChip = lazy(() => import('./ui/mastery/DueChip'));
 const ImportPage = lazy(() => import('./ui/ImportPage').then((m) => ({ default: m.ImportPage })));
+// the course map and learning units (course/*.json, units/*.json)
+const MapPage = lazy(() => import('./ui/course/MapPage'));
+const UnitPage = lazy(() => import('./ui/course/UnitPage'));
 
 // the problem / challenge index the starting page needs is a chunk of its own: request it now,
 // in parallel with the page's chunk (see state/routeSync.ts)
@@ -33,6 +37,7 @@ function PageLoading() {
 }
 
 const NAV: { mode: Mode; zh: string; en: string; icon: string }[] = [
+  { mode: 'map', zh: '路线', en: 'Map', icon: 'map' },
   { mode: 'learn', zh: '课程', en: 'Learn', icon: 'book' },
   { mode: 'challenge', zh: '挑战', en: 'Challenges', icon: 'target' },
   { mode: 'practice', zh: '练习', en: 'Practice', icon: 'practice' },
@@ -225,7 +230,8 @@ function focusPageHeading(tries = 40) {
  *  the change came from the lesson carousel or its group tabs, where focus stays on the card. */
 function RouteFocus() {
   const key = useStore(
-    (s) => `${s.mode}|${s.mode === 'practice' ? (s.practiceView ? 'view:' + s.practiceView : s.practiceSummary ? 'sum:' + s.practiceSummary.chapter : s.problemId) : s.activeId}`,
+    (s) =>
+      `${s.mode}|${s.mode === 'practice' ? (s.practiceView ? 'view:' + s.practiceView : s.practiceSummary ? 'sum:' + s.practiceSummary.chapter : s.problemId) : s.mode === 'unit' ? s.unitId : s.activeId}`,
   );
   const first = useRef(true);
   useEffect(() => {
@@ -347,7 +353,12 @@ export default function App() {
         </div>
         <nav className="nav" aria-label={tr('主导航', 'Main')}>
           {NAV.map((n) => (
-            <button key={n.mode} className={mode === n.mode ? 'on' : ''} aria-current={mode === n.mode ? 'page' : undefined} onClick={() => setMode(n.mode)}>
+            <button
+              key={n.mode}
+              className={mode === n.mode || (n.mode === 'map' && mode === 'unit') ? 'on' : ''}
+              aria-current={mode === n.mode ? 'page' : undefined}
+              onClick={() => setMode(n.mode)}
+            >
               <Icon name={n.icon} />
               <span>{tr(n.zh, n.en)}</span>
               {lang === 'zh' && (
@@ -359,10 +370,12 @@ export default function App() {
           ))}
         </nav>
         <div className="top-right">
+          <LaterButton />
           <ProgressCard />
           <LangSwitch />
         </div>
       </header>
+      <TrailBar />
 
       {bench && (
         <Suspense fallback={<PageLoading />}>
@@ -382,6 +395,8 @@ export default function App() {
           {mode === 'practice' && <Practice />}
           {mode === 'guide' && <Guide />}
           {mode === 'import' && <ImportPage />}
+          {mode === 'map' && <MapPage />}
+          {mode === 'unit' && <UnitPage />}
         </Suspense>
       )}
       <Toast />

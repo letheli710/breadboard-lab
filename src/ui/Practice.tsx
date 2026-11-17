@@ -6,7 +6,7 @@ import { lazy, Suspense, useEffect, useId, useLayoutEffect, useMemo, useRef, use
 import { radioFocusKeys } from './a11y';
 import { formatSI } from '../core/format';
 import { tr } from '../core/i18n';
-import { CHAPTERS, chapterById, type Chapter } from '../core/problem/chapters';
+import { chapterById, type Chapter } from '../core/problem/chapters';
 import { answerTolerance, checkAnswer, formatAnswer, isPhaseQuestion, type AnswerCheck, type Problem } from '../core/problem/parse';
 import type { Analysis, Question } from '../core/problem/types';
 import { useMastery } from '../state/masteryStore';
@@ -28,18 +28,26 @@ import { SummaryPage } from './Summary';
 import { MasteryNav } from './mastery/MasteryNav';
 import { SymbolKeys } from './SymbolKeys';
 import { Mixed } from './Mixed';
+import { placeOf, worldLabel, worldName, WORLDS } from '../state/worlds';
+import { PortalSlot } from './course/PortalSlot';
+import { tt } from '../core/course/text';
+
+/** "World 2" for a chapter (the eyebrow above a problem / key-points page). */
+export const chapterWorldLabel = (id: string) => {
+  const w = placeOf('chapter', id)?.world;
+  return w ? worldLabel(w) : '';
+};
 
 // the notebook / review / quiz pages are a chunk of their own
 const MasteryPage = lazy(() => import('./mastery/MasteryPage'));
 
 export { Sym };
 
-const PHASES: { n: 1 | 2 | 3 | 4; zh: string; en: string }[] = [
-  { n: 1, zh: '电阻电路基础', en: 'Resistive circuit basics' },
-  { n: 2, zh: '分析方法与电路定理', en: 'Analysis methods & theorems' },
-  { n: 3, zh: '动态电路', en: 'Dynamic circuits' },
-  { n: 4, zh: '正弦稳态与交流', en: 'Sinusoidal steady state & AC' },
-];
+/** The sidebar's groups: each World with its theory chapters (course/worlds.json). */
+const WORLD_GROUPS = WORLDS.map((w) => ({
+  w,
+  chapters: w.sections.flatMap((s) => s.items.filter((x) => x.startsWith('chapter:')).map((x) => chapterById(x.slice(8)))).filter((c): c is Chapter => !!c),
+})).filter((g) => g.chapters.length > 0);
 
 function Stars({ n }: { n: number }) {
   return <span className="stars">{'★'.repeat(n) + '☆'.repeat(5 - n)}</span>;
@@ -353,9 +361,9 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
           }}
         >
           <option value="">{tr('跳到章节…', 'Jump to chapter…')}</option>
-          {PHASES.map((ph) => (
-            <optgroup key={ph.n} label={tr(`第 ${ph.n} 期 · ${ph.zh}`, `Phase ${ph.n} · ${ph.en}`)}>
-              {CHAPTERS.filter((c) => c.phase === ph.n).map((c) => {
+          {WORLD_GROUPS.map(({ w, chapters }) => (
+            <optgroup key={w.id} label={worldName(w)}>
+              {chapters.map((c) => {
                 const list = byChapter.get(c.id) ?? [];
                 return (
                   <option key={c.id} value={c.id} disabled={ready && !list.length}>
@@ -370,14 +378,16 @@ function ChapterList({ problems, current, summary, ready }: { problems: ProblemE
         <ShortcutHelp />
       </div>
       <MasteryNav />
-      {PHASES.map((ph) => {
-        const chs = CHAPTERS.filter((c) => c.phase === ph.n);
+      {WORLD_GROUPS.map(({ w, chapters: chs }) => {
         const all = chs.flatMap((c) => byChapter.get(c.id) ?? []);
         const d = all.filter(done).length;
         return (
-          <section key={ph.n} className="pr-phase">
-            <div className="eyebrow pr-phase-head">
-              <span>{tr(`第 ${ph.n} 期 · ${ph.zh}`, `Phase ${ph.n} · ${ph.en}`)}</span>
+          <section key={w.id} className={`pr-phase ${w.current ? 'current' : ''}`}>
+            <div className="eyebrow pr-phase-head" title={`${tt(w.course)}${w.textbook ? ` · ${tt(w.textbook)}` : ''}`}>
+              <span>
+                {w.current && <span aria-label={tr('当前进度', 'You are here')}>📍 </span>}
+                {worldName(w)}
+              </span>
               {all.length > 0 && (
                 <span>
                   {d}/{all.length}
@@ -724,7 +734,7 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
       <header className="pr-head">
         <div className="pr-crumbs">
           <span className="eyebrow">
-            {tr(`第 ${chapter?.phase ?? '?'} 期`, `Phase ${chapter?.phase ?? '?'}`)} · {chapter?.title()}
+            {chapterWorldLabel(p.chapter)} · {chapter?.title()}
           </span>
           <div className="row">
             <KeyPointsLink p={p} />
@@ -764,6 +774,7 @@ function ProblemView({ p, list }: { p: Problem; list: ProblemEntry[] }) {
           ))}
         </div>
       </header>
+      <PortalSlot kind="problem" id={p.id} part="top" />
 
       <div className={`pr-body ${schematicWidth(p) > 11 ? 'wide' : ''}`}>
         <section className="pr-left">
