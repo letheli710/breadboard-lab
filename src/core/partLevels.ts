@@ -24,7 +24,7 @@ export const PART_LEVELS: PartLevel[] = [
   },
   {
     id: 'signal',
-    title: () => tr('信号与运放 · World 2–4', 'Signals & op-amps · World 2–4'),
+    title: () => tr('信号与 op-amp · World 2–4', 'Signals & op-amps · World 2–4'),
     worlds: [3, 4, 5, 7],
     items: ['opamp', 'function_gen', 'scope_probe', 'inductor', 'diode'],
   },

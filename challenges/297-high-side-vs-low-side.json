@@ -112,6 +112,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the ESP32, the 5 V supply, relays K1 and K2 and their flyback diodes are wired. **Why**: this lab only compares a transistor above the load with one below it. **Your job**: place the two NPNs and two 1kΩ base resistors (GPIO18 → Q1, GPIO19 → Q2); Q1 goes above K1 (collector to +5V), Q2 below K2 (emitter to GND).",
       "title": "High side or low side: why the NPN belongs below the load",
       "summary": "Two 5 V relays side by side on one ESP32: with the NPN above the coil (high side) the relay won't pull in; below it (low side) it clicks at once. Find out why.",
       "concepts": ["high-side / low-side switch", "emitter follower", "active vs saturation", "relay pull-in current"],
@@ -308,6 +309,8 @@
     }
   ],
   "hints": ["高边：集电极接 5V，发射极接继电器线圈，线圈另一端接 GND。", "低边：线圈从 5V 接到集电极，发射极接 GND。", "每个线圈各并一个二极管：色环朝线圈电位高的那一端。", "两个基极各串一个 1 kΩ，分别接两个不同的输出 GPIO。"],
+  "start": {"parts": [{"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO18": "out_low", "GPIO19": "out_high"}}}, {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "a1", "b": "tn1"}}, {"type": "wire", "ref": "W2", "color": "red", "pins": {"a": "h19", "b": "tp19"}}, {"type": "relay", "ref": "K1", "at": "e20"}, {"type": "diode", "ref": "D1", "pins": {"anode": "b23", "cathode": "b20"}}, {"type": "wire", "ref": "W3", "color": "black", "pins": {"a": "a23", "b": "tn23"}}, {"type": "relay", "ref": "K2", "at": "e25"}, {"type": "wire", "ref": "W6", "color": "red", "pins": {"a": "a25", "b": "tp25"}}, {"type": "diode", "ref": "D2", "pins": {"anode": "b28", "cathode": "b25"}}]},
+  "startNote": "**半成品**：ESP32、5 V 电源、两个继电器 K1、K2 和它们的续流二极管都已接好。**为什么**：这个实验只比较三极管放在负载上面还是下面。**你要做**：放两只 NPN 和两个 1kΩ 基极电阻（GPIO18 → Q1，GPIO19 → Q2）；Q1 放在 K1 上面（集电极接 +5V），Q2 放在 K2 下面（发射极接 GND）。",
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO18": "out_low", "GPIO19": "out_high"}}},

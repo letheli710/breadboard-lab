@@ -26,7 +26,7 @@
       "title": "两股电流在虚地汇合",
       "text": [
         "- 求和点 SUM 是虚地（0 V）。每一路输入各自送来一股电流，I1 = V1 / R1，I2 = v2 / R2，互不影响。",
-        "- 两股电流在 SUM 汇合（KCL），运放输入不取电流，它们只能一起穿过 RF：",
+        "- 两股电流在 SUM 汇合（KCL），op-amp（运算放大器）输入不取电流，它们只能一起穿过 RF：",
         "$$v_o = -R_F (I_1 + I_2) = -10 kΩ × (\\frac{V_1}{47 kΩ} + \\frac{v_2}{10 kΩ})$$",
         "![](fig:sum)",
         "- S1 拨到 a，多了一股恒定的电流，整条波形被往下“搬”一段；拨到 b，这股电流没了，波形回到 0 V 上下。",
@@ -316,6 +316,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the ±9 V dual supply, LM358, grounded IN+, feedback resistor RF, function generator and scope probe are wired (as in Experiment 2-7). **Why**: what is new in a summer is several inputs meeting at the virtual ground. **Your job**: add the two inputs: slide switch S1 (side a to +9V, side b to GND) through R1 (47kΩ) to pin 2, and the generator through R2 (10kΩ) to pin 2.",
       "title": "The summing amplifier: adding DC to AC",
       "summary": "Two inputs meet at a virtual ground through 47 kΩ and 10 kΩ: switch on a DC input and the generator's sine shifts down as a whole.",
       "concepts": ["summing amplifier", "virtual ground", "KCL at the summing node", "level shift"],
@@ -496,10 +497,12 @@
     }
   ],
   "hints": [
-    "双电源：两台 9 V 电源串联，中点为 GND；上面那台的 + 接运放 8 脚，下面那台的 − 接 4 脚。IN+ 接 GND。",
+    "双电源：两台 9 V 电源串联，中点为 GND；上面那台的 + 接 op-amp（运算放大器）8 脚，下面那台的 − 接 4 脚。IN+ 接 GND。",
     "S1：a 侧接 +9 V，b 侧接 GND，公共脚经 R1（47 kΩ）接 IN−。",
     "信号发生器 + 经 R2（10 kΩ）接 IN−；RF（10 kΩ）在 IN− 和 OUT 之间。"
   ],
+  "start": {"parts": [{"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}}, {"type": "bench_supply", "ref": "PSU2", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tn2", "-": "bn1"}}, {"type": "opamp", "ref": "U1", "at": "e10"}, {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"}, {"type": "wire", "pins": {"a": "d13", "b": "bn13"}, "color": "white"}, {"type": "wire", "pins": {"a": "a12", "b": "tn12"}, "color": "blue"}, {"type": "resistor", "ref": "RF", "resistance": "10k", "pins": {"1": "c10", "2": "c11"}}, {"type": "function_gen", "ref": "FG1", "pins": {"+": "a22", "-": "tn22"}}, {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "a10", "gnd": "tn24"}}]},
+  "startNote": "**半成品**：±9 V 双电源、LM358、IN+ 接地、反馈电阻 RF、信号发生器和示波器探头都已接好（实验 2-7 练过）。**为什么**：加法器的新东西是“几路输入汇到虚地”。**你要做**：加上两路输入：拨动开关 S1（a 侧接 +9V、b 侧接 GND）经 R1（47kΩ）到 2 脚，信号发生器经 R2（10kΩ）到 2 脚。",
   "solution": {
     "parts": [
       {

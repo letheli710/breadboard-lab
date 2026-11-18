@@ -482,14 +482,14 @@ export function extractNetlist(s: Schematic, opts: { groundOptional?: boolean } 
       if (m?.kind !== 'i')
         errors.push(
           tr(
-            `运放 ${t.ref} 只能加电流标记 {"kind": "i"}（输出端电流）；运放没有“元件电压”，电压请用结点标签`,
+            `op-amp ${t.ref} 只能加电流标记 {"kind": "i"}（输出端电流）；op-amp 没有“元件电压”，电压请用结点标签`,
             `Op-amp ${t.ref} only takes a current mark {"kind": "i"} (its output current); an op-amp has no element voltage — label the nodes instead`,
           ),
         );
     } else if (!isTwoTerminal(t))
       errors.push(
         tr(
-          `参考方向标记只能用于二端元件（或运放的输出电流），${t.ref}（${t.type}）不行——请给与它串联的元件加标记`,
+          `参考方向标记只能用于二端元件（或 op-amp 的输出电流），${t.ref}（${t.type}）不行——请给与它串联的元件加标记`,
           `Reference marks need a two-terminal element (or an op-amp's output current); ${t.ref} (${t.type}) can't take one — mark an element in series with it instead`,
         ),
       );

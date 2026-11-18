@@ -88,7 +88,7 @@ export function routeOfRef(ref: Ref, cat: Catalog): Route | null {
   }
 }
 
-/** Display title of a ref, e.g. "实验 3-6 · 运放积分器…", "要点 · 电路定理", "5b · 为什么有虚短". */
+/** Display title of a ref, e.g. "实验 3-6 · op-amp 积分器…", "要点 · 电路定理", "5b · 为什么有虚短". */
 export function titleOfRef(ref: Ref, cat: Catalog): string {
   const r = resolveRef(ref, cat, COURSE);
   const { kind, id } = r.ref;

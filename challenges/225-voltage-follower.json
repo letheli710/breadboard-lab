@@ -7,16 +7,16 @@
   "level": 3,
   "phase": 2,
   "summary": "同一个分压器、同一个 1 kΩ 负载：直接接，电压塌掉；中间隔一个 LM358 跟随器，电压回来了。",
-  "concepts": ["voltage follower 电压跟随器", "buffer 缓冲", "op-amp LM358 运放", "input / output resistance 输入 / 输出电阻"],
+  "concepts": ["voltage follower 电压跟随器", "buffer 缓冲", "op-amp LM358 op-amp", "input / output resistance 输入 / 输出电阻"],
   "prereq": ["lesson-lm358"],
-  "description": "电压跟随器的输入几乎不取电流，输出电阻又很小：分压器“感觉不到”负载，负载却能从运放的电源拿到它要的电流。这叫阻抗变换，也叫缓冲。",
+  "description": "电压跟随器的输入几乎不取电流，输出电阻又很小：分压器“感觉不到”负载，负载却能从 op-amp（运算放大器）的电源拿到它要的电流。这叫阻抗变换，也叫缓冲。",
   "cards": [
     {
       "kind": "try",
       "title": "先让它塌一次",
       "text": [
         "搭**分压器**（`9 V` → **R1** `10 kΩ` → **VD** → **R2** `10 kΩ` → GND）和 2.5 学过的 **LM358 跟随器**：8 脚、4 脚接电源，OUT 接 IN−，**IN+ 接 VD**。",
-        "开关 **S1** 给负载 **RL** `1 kΩ` 供电：**a** 侧直接接 VD，**b** 侧接运放的 OUT。",
+        "开关 **S1** 给负载 **RL** `1 kΩ` 供电：**a** 侧直接接 VD，**b** 侧接 op-amp（运算放大器）的 OUT。",
         "**S1 → a**：测 RL 两端的电压。它塌下去了，和上次一样。",
         "现在**把 S1 拨到 b**，再测一次。电压怎么样了？"
       ]
@@ -26,9 +26,9 @@
       "title": "跟随器是一个隔离的中间人",
       "text": [
         "- **输入这一边**：IN+ 不取电流，分压器又回到了空载。VD 回到空载值。",
-        "- **输出这一边**：运放让 OUT = IN+。RL 要多少电流，它都从运放自己的电源脚拿，不再找分压器要。",
+        "- **输出这一边**：op-amp（运算放大器）让 OUT = IN+。RL 要多少电流，它都从 op-amp 自己的电源脚拿，不再找分压器要。",
         "![](fig:buffer)",
-        "- 从负载看，电源变成了运放的输出端。运放 10 Ω 的输出电阻被负反馈缩小，大约缩小增益那么多倍：",
+        "- 从负载看，电源变成了 op-amp（运算放大器）的输出端。op-amp 10 Ω 的输出电阻被负反馈缩小，大约缩小增益那么多倍：",
         "$$R_{out} ≈ \\frac{R_o}{A} = \\frac{10\\,Ω}{100\\,000} = 0.1\\text{ mΩ}$$",
         "- 从 5 kΩ 降到不到一毫欧：1 kΩ 的负载根本拉不动。这就是**阻抗变换**——输入端电阻很大，输出端电阻很小。"
       ]
@@ -47,7 +47,7 @@
       "title": "带走",
       "text": [
         "- **跟随器**（缓冲器）增益是 1，它的工作是隔离：输入电阻大，输出电阻小。",
-        "- 负载的电流来自运放的电源；分压器只负责定电压。",
+        "- 负载的电流来自 op-amp（运算放大器）的电源；分压器只负责定电压。",
         "- 坑：单 9 V 电源时 LM358 的输出最高约 **7.5 V**，真实芯片的输入最好也低于它。分压器调到 7.5 V 以上，跟随器就跟不上了。",
         "- 下一步：在反馈路径里放两个电阻，跟随器就变成了放大器。"
       ],
@@ -58,7 +58,7 @@
     "buffer": {
       "kind": "schematic",
       "caption": {
-        "text": "分压器的中点 V_D 只接 IN+，不给出电流；R_L 的电流 I_L 由运放的输出端供给，输出又接回 IN−。",
+        "text": "分压器的中点 V_D 只接 IN+，不给出电流；R_L 的电流 I_L 由 op-amp（运算放大器）的输出端供给，输出又接回 IN−。",
         "i18n": {
           "en": "The divider's midpoint V_D only feeds IN+ and gives no current; R_L's current I_L comes from the op-amp's output, which also feeds back to IN−."
         }
@@ -78,6 +78,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the supply, divider R1 + R2, load RL and selector S1 (side a already on VD) are wired. **Why**: that is Experiment 1-3's circuit; the new thing is the follower. **Your job**: seat the LM358 at e10, wire its supply pins (pin 8 → +9V, pin 4 → GND), connect pin 1 back to pin 2, and run pin 1 (OUT) to S1's side b.",
       "title": "The voltage follower: bring the sagging voltage back",
       "summary": "The same divider, the same 1 kΩ load: connected directly, the voltage collapses; with an LM358 follower in between, it comes back.",
       "concepts": ["voltage follower", "buffer", "op-amp LM358", "input / output resistance"],
@@ -194,7 +195,7 @@
       "currents": [{"el": "RL", "min": 0.0044, "max": 0.0046}, {"el": "R1", "min": 0.00044, "max": 0.00046}]
     }
   ],
-  "compare": "**对比**：\n- 拨到 a：和上一个实验一样，VD 跌到约 **0.75 V**（10k ∥ 1k = 909 Ω）。\n- 拨到 b：负载上约 **4.50 V**，VD 也保持 4.50 V。RL 的 **4.5 mA** 由运放输出端提供（能量来自运放的 V+ 电源脚），分压器自己仍然只流 **0.45 mA**。",
+  "compare": "**对比**：\n- 拨到 a：和上一个实验一样，VD 跌到约 **0.75 V**（10k ∥ 1k = 909 Ω）。\n- 拨到 b：负载上约 **4.50 V**，VD 也保持 4.50 V。RL 的 **4.5 mA** 由 op-amp（运算放大器）输出端提供（能量来自 op-amp 的 V+ 电源脚），分压器自己仍然只流 **0.45 mA**。",
   "measurements": [
     {
       "id": "va",
@@ -226,7 +227,7 @@
       "predict": true,
       "range": [0.000428, 0.000473],
       "ask": "S1 拨到 b：分压器 R1 里的电流（电流表串进 R1）",
-      "explain": "运放输入不取电流，分压器仍是空载：9 V / 20 kΩ = 0.45 mA。"
+      "explain": "op-amp（运算放大器）输入不取电流，分压器仍是空载：9 V / 20 kΩ = 0.45 mA。"
     },
     {
       "id": "irl",
@@ -240,17 +241,19 @@
     },
     {
       "id": "src",
-      "choices": ["运放的输出端（能量来自运放的 V+ 电源脚）", "分压器（经过运放的输入端）", "运放的 IN− 输入端"],
+      "choices": ["op-amp（运算放大器）的输出端（能量来自 op-amp 的 V+ 电源脚）", "分压器（经过 op-amp（运算放大器）的输入端）", "op-amp（运算放大器）的 IN− 输入端"],
       "correct": 0,
       "ask": "比较你的两个电流读数：S1 拨到 b 时，RL 的电流从哪里来？",
       "explain": "负反馈让 OUT 一直追着 IN+；输入几乎不取电流，输出电阻很小。跟随器做的是阻抗变换：高输入电阻、低输出电阻。"
     }
   ],
   "hints": [
-    "先给运放供电：8 脚接 +9 V，4 脚接 GND。没有电源的运放什么都不做。",
+    "先给 op-amp（运算放大器）供电：8 脚接 +9 V，4 脚接 GND。没有电源的 op-amp 什么都不做。",
     "跟随器：OUT（1 脚）和 IN−（2 脚）用一根短跳线连起来；IN+（3 脚）接分压器中点 VD。",
     "S1 的 a 侧接 VD，b 侧接 OUT，中间 com 接 RL。"
   ],
+  "start": {"parts": [{"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}}, {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "tp12", "2": "a12"}}, {"type": "resistor", "ref": "R2", "resistance": "10k", "pins": {"1": "b12", "2": "tn14"}}, {"type": "switch", "ref": "S1", "at": "c16"}, {"type": "wire", "pins": {"a": "d12", "b": "d16"}, "color": "yellow"}, {"type": "resistor", "ref": "RL", "resistance": "1k", "pins": {"1": "b17", "2": "tn19"}}]},
+  "startNote": "**半成品**：电源、分压器 R1 + R2、负载 RL 和选择开关 S1（a 侧已经接 VD）都搭好了。**为什么**：这些就是实验 1-3 的电路；这里的新东西是跟随器。**你要做**：把 LM358 插在 e10，接电源脚（8 脚 → +9V，4 脚 → GND），1 脚接回 2 脚，再把 1 脚（OUT）接到 S1 的 b 侧。",
   "solution": {
     "parts": [
       {

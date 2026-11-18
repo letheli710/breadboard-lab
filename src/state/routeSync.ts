@@ -81,6 +81,10 @@ export function routeOf(s: S): Route {
       return mapWorld ? { page: 'map', world: mapWorld } : { page: 'map' };
     case 'unit':
       return s.unitId ? { page: 'unit', id: s.unitId } : { page: 'map' };
+    case 'inside':
+      return s.insideId ? { page: 'inside', id: s.insideId } : { page: 'inside' };
+    case 'calc':
+      return s.calcId ? { page: 'calc', id: s.calcId } : { page: 'calc' };
     default:
       return { page: s.mode };
   }
@@ -106,6 +110,8 @@ export function titleOf(s: S, r: Route = routeOf(s)): string {
     import: tr('导入', 'Import'),
     map: tr('路线', 'Map'),
     unit: tr('单元', 'Unit'),
+    inside: tr('拆开看', 'Inside'),
+    calc: tr('计算', 'Calculations'),
   }[r.page];
   let item: string | undefined;
   if ((r.page === 'learn' || r.page === 'challenges') && r.id) item = s.challenges.find((c) => c.id === r.id)?.title;
@@ -230,6 +236,12 @@ export function applyRoute(r: Route) {
   } else if (r.page === 'unit') {
     // the unit page itself says so when the id names no unit (units are bundled with the page)
     st.openUnit(r.id);
+  } else if (r.page === 'inside') {
+    // the Inside page itself says so when the id names no teardown (the index is part of that page)
+    const id = r.id ?? null;
+    if (st.mode !== 'inside' || st.insideId !== id) st.openInside(id);
+  } else if (r.page === 'calc') {
+    if (st.mode !== 'calc' || st.calcId !== (r.id ?? null)) st.openCalc(r.id ?? null);
   } else {
     st.setMode(modeOf(r));
     if (r.page === 'guide' && r.section) scrollToSection(r.section);
@@ -278,6 +290,8 @@ export function startRouting() {
       s.practiceSummary !== prev.practiceSummary ||
       s.practiceView !== prev.practiceView ||
       s.unitId !== prev.unitId ||
+      s.insideId !== prev.insideId ||
+      s.calcId !== prev.calcId ||
       s.challenges !== prev.challenges ||
       s.problems !== prev.problems ||
       s.lang !== prev.lang

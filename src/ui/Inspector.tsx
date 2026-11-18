@@ -456,10 +456,10 @@ function OpAmpInfo({ part }: { part: PlacedPart }) {
         {tr('电源', 'Power')} <b>{st?.powered ? `${hide ? HIDDEN : volts(st.supply)} (V+ − V−)` : tr('未供电：8 脚接 +，4 脚接 GND', 'not powered: pin 8 to +, pin 4 to GND')}</b>
       </div>
       <div>
-        {tr('运放 A（1–3 脚）', 'Op-amp A (pins 1–3)')} <b>{half('A')}</b>
+        {tr('op-amp A（1–3 脚）', 'Op-amp A (pins 1–3)')} <b>{half('A')}</b>
       </div>
       <div>
-        {tr('运放 B（5–7 脚）', 'Op-amp B (pins 5–7)')} <b>{half('B')}</b>
+        {tr('op-amp B（5–7 脚）', 'Op-amp B (pins 5–7)')} <b>{half('B')}</b>
       </div>
     </div>
   );

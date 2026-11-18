@@ -91,6 +91,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the ESP32 (GPIO27 on 50 % PWM, GPIO34 on ADC), its GND wire and both probes are wired. **Why**: the board is a repeated skill; the RC low-pass *is* the DAC. **Your job**: R1 (10kΩ, GPIO27 → column 22), C1 (1µF, column 22 → GND), then column 22 to GPIO34 (j5).",
       "title": "PWM + RC: the cheapest DAC",
       "summary": "A PWM pin only knows 0 V and 3.3 V. Add a series resistor and a capacitor and you get a DC voltage that follows the duty cycle smoothly — and the ADC reads it back.",
       "concepts": ["PWM average", "RC low-pass", "ripple", "settling time", "DAC"],
@@ -219,7 +220,7 @@
     "- 1 kHz、50 %：3.3 × 0.25 / (1000 × 10 ms) ≈ 82 mV（仿真 **82 mV**）；1 kHz、25 % 和 75 %：D(1 − D) = 0.1875，≈ 62 mV（仿真 **62 mV**）——50 % 时纹波最大。",
     "- 100 Hz、50 %：τ 只等于一个周期，近似公式给 0.83 V，精确值 3.3 × tanh(T/4τ) ≈ 0.81 V（仿真 **0.81 Vpp**，VDAC 在 1.25 V 和 2.05 V 之间摆）——这已经不是“直流”了。",
     "- 10 kHz、50 %：≈ 8 mV（仿真 **8.2 mV**），比 12 位 ADC 的 1 LSB（0.8 mV）大，但已经很平了。",
-    "- ESP32 的 ADC 引脚不取电流，所以没有负载误差；如果 VDAC 后面接一个 10 kΩ 的负载，它和 R1 会组成分压，平均值会掉一半——要接负载就加一个运放跟随器。"
+    "- ESP32 的 ADC 引脚不取电流，所以没有负载误差；如果 VDAC 后面接一个 10 kΩ 的负载，它和 R1 会组成分压，平均值会掉一半——要接负载就加一个 op-amp（运算放大器）跟随器。"
   ],
   "measurements": [
     {
@@ -276,6 +277,8 @@
     }
   ],
   "hints": ["PWM 引脚 → 10 kΩ → VDAC；VDAC 到 GND 接 1 µF；再用跳线把 VDAC 接到一个 ADC1 引脚（GPIO32–39）。", "ADC 引脚设成 ADC 模式，另一个引脚设成 PWM。", "平均值 = 占空比 × 3.3 V；PWM 频率越高、RC 越大，纹波越小。"],
+  "start": {"parts": [{"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO27": {"mode": "pwm", "duty": 50, "frequency": 1000}, "GPIO34": "adc"}}}, {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "j14", "b": "bn14"}}, {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "f22", "gnd": "bn24"}}, {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "h11", "gnd": "bn25"}}]},
+  "startNote": "**半成品**：ESP32（GPIO27 设成 50 % PWM、GPIO34 设成 ADC）、GND 线和两个探头已经接好。**为什么**：板子是重复技能；RC 低通才是这个“DAC”。**你要做**：R1（10kΩ，GPIO27 → 第 22 列）、C1（1µF，第 22 列 → GND），再把第 22 列接到 GPIO34（j5）。",
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO27": {"mode": "pwm", "duty": 50, "frequency": 1000}, "GPIO34": "adc"}}},

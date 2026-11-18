@@ -26,7 +26,7 @@
       "title": "输出必须把 IN− 抬到 IN+ 那么高",
       "text": [
         "- RF 和 RG 从 OUT 到 GND 组成一个分压器。IN− 在中间，只拿到输出的一部分：$\\frac{R_G}{R_F + R_G}$。",
-        "- 运放会一直推，直到 IN− 等于 IN+（虚短）。所以输出必须比输入大，大的倍数正好是这个比例的倒数。",
+        "- op-amp（运算放大器）会一直推，直到 IN− 等于 IN+（虚短）。所以输出必须比输入大，大的倍数正好是这个比例的倒数。",
         "![](fig:amp)",
         "- 用电流说也一样：IN− 不取电流（虚断），RG 里的电流 $V_{in}/R_G$ 全部也流过 RF。两段电压加起来：",
         "$$V_o = \\left(1 + \\frac{R_F}{R_G}\\right) V_{in}$$",
@@ -49,7 +49,7 @@
       "text": [
         "- **同相放大器**：$V_o = (1 + R_F/R_G)\\,V_{in}$，和输入同号，增益不小于 1。",
         "- 虚短只在输出没出范围时成立。一饱和，IN− 就追不上 IN+，公式失效。",
-        "- 从外面看，带反馈的运放就是一个**电压控制电压源**：一个数值由另一个电压决定的电源。这就是理论题里的受控源。",
+        "- 从外面看，带反馈的 op-amp（运算放大器）就是一个**电压控制电压源**：一个数值由另一个电压决定的电源。这就是理论题里的受控源。",
         "- 坑：真实的 LM358 **输入端**也最好低于约 V+ − 1.5 V。这个电位器转过约 `83%`，真实芯片就不可靠了；仿真没有模拟这一点。"
       ],
       "practice": ["opamp", "dependent-sources"]
@@ -80,6 +80,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the LM358 is seated and powered (lesson 14), and the pot is wired as a 0–9 V input with its wiper on pin 3 IN+. **Why**: the gain is set by the feedback network — that is what this lab is about. **Your job**: add RF (22kΩ, pin 1 OUT → pin 2 IN−) and RG (10kΩ, pin 2 IN− → GND).",
       "title": "The non-inverting amplifier: two resistors in the feedback",
       "summary": "Replace the follower's feedback wire with RF 22 kΩ and RG 10 kΩ: the output becomes several times the input. Measure the gain with a pot, then turn the input up and watch the output hit the ceiling.",
       "concepts": ["non-inverting amplifier", "gain = 1 + RF/RG", "virtual short", "saturation"],
@@ -248,10 +249,12 @@
     }
   ],
   "hints": [
-    "先给运放供电：8 脚接 +9 V，4 脚接 GND。",
+    "先给 op-amp（运算放大器）供电：8 脚接 +9 V，4 脚接 GND。",
     "电位器：1 脚接 GND，3 脚接 +9 V，中间滑动端接 IN+（3 脚）。接反了，旋钮方向也反了。",
     "RF 接在 OUT 和 IN− 之间（不是 IN+），RG 从 IN− 接到 GND。"
   ],
+  "start": {"parts": [{"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}}, {"type": "opamp", "ref": "U1", "at": "e10"}, {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"}, {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"}, {"type": "potentiometer", "ref": "RV1", "resistance": "10k", "at": "b15"}, {"type": "wire", "pins": {"a": "a15", "b": "tn15"}, "color": "blue"}, {"type": "wire", "pins": {"a": "tp17", "b": "a17"}, "color": "red"}, {"type": "wire", "pins": {"a": "c16", "b": "c12"}, "color": "yellow"}]},
+  "startNote": "**半成品**：LM358 已经插好、供好电（第 14 课练过），电位器也已接成 0–9 V 的输入、滑动端接 3 脚 IN+。**为什么**：增益由反馈网络决定，这才是这个实验要学的。**你要做**：加上 RF（22kΩ，1 脚 OUT → 2 脚 IN−）和 RG（10kΩ，2 脚 IN− → GND）。",
   "solution": {
     "parts": [
       {

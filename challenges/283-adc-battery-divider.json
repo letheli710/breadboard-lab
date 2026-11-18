@@ -89,6 +89,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the ESP32 (GPIO34 already set to ADC), its GND wire and the bench supply standing in for the battery (8.4 V) are wired. **Why**: board and supply wiring is a repeated skill; the divider is what you design here. **Your job**: build R1 (100kΩ, + rail → midpoint), R2 (33kΩ, midpoint → GND), C1 (100nF, midpoint → GND), and run the midpoint to GPIO34 (j5).",
       "title": "Battery monitor: a divider shrinks 8.4 V for the ADC",
       "summary": "An ADC measures 0–3.3 V at most, but two lithium cells give 8.4 V. Connect it straight once on purpose, then shrink the voltage in proportion with a 100 kΩ + 33 kΩ divider.",
       "concepts": ["voltage divider", "analog-to-digital conversion", "full scale & resolution", "source impedance", "quiescent drain"],
@@ -274,6 +275,8 @@
     }
   ],
   "hints": ["先把稳压电源的 − 端接到开发板 GND：没有共地，ADC 测不出有意义的电压。", "分压器：电源 + → 100 kΩ → 中点 → 33 kΩ → GND；中点接 GPIO32–39 之一，再并 100 nF 到 GND。", "在引脚表里把这个引脚设成“模拟输入 ADC”。"],
+  "start": {"parts": [{"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO34": "adc"}}}, {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "a1", "b": "tn1"}}, {"type": "bench_supply", "ref": "V1", "voltage": 8.4, "currentLimit": 0.1, "pins": {"+": "tp24", "-": "tn24"}}]},
+  "startNote": "**半成品**：ESP32（GPIO34 已设成 ADC）、GND 线和模拟电池的稳压电源（8.4 V）已经接好。**为什么**：板子和电源的接法是重复技能；这个实验要设计的是分压器。**你要做**：搭 R1（100kΩ，+ 轨 → 中点）、R2（33kΩ，中点 → GND）、C1（100nF，中点 → GND），再把中点接到 GPIO34（j5）。",
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO34": "adc"}}},

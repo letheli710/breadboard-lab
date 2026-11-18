@@ -26,6 +26,9 @@ const ImportPage = lazy(() => import('./ui/ImportPage').then((m) => ({ default: 
 // the course map and learning units (course/*.json, units/*.json)
 const MapPage = lazy(() => import('./ui/course/MapPage'));
 const UnitPage = lazy(() => import('./ui/course/UnitPage'));
+const InsidePage = lazy(() => import('./inside/pages').then((m) => ({ default: m.InsidePage })));
+const CalcPage = lazy(() => import('./inside/pages').then((m) => ({ default: m.CalcPage })));
+const BenchInside = lazy(() => import('./inside/pages').then((m) => ({ default: m.BenchInside })));
 
 // the problem / challenge index the starting page needs is a chunk of its own: request it now,
 // in parallel with the page's chunk (see state/routeSync.ts)
@@ -45,6 +48,8 @@ const NAV: { mode: Mode; zh: string; en: string; icon: string }[] = [
   { mode: 'learn', zh: '课程', en: 'Learn', icon: 'book' },
   { mode: 'challenge', zh: '挑战', en: 'Challenges', icon: 'target' },
   { mode: 'practice', zh: '练习', en: 'Practice', icon: 'practice' },
+  // teardowns (#/inside) open from the lessons, the course map and the calculation cards
+  { mode: 'calc', zh: '计算', en: 'Calc', icon: 'calc' },
   { mode: 'sandbox', zh: '自由编辑', en: 'Sandbox', icon: 'edit' },
   { mode: 'guide', zh: '知识', en: 'Guide', icon: 'bulb' },
   { mode: 'import', zh: '导入', en: 'Import', icon: 'folder' },
@@ -380,6 +385,7 @@ export default function App() {
   const setMode = useStore((s) => s.setMode);
   const sideW = useBenchUi((s) => s.sideW);
   const sideHidden = useBenchUi((s) => s.sideCollapsed);
+  const benchInside = useStore((s) => s.benchInside);
 
   // challenge text (and import diagnostics) are localized while parsing, so rebuild the lists
   // whenever the language changes (once their index is in; until then this does nothing, and
@@ -492,7 +498,8 @@ export default function App() {
         <Suspense fallback={<PageLoading />}>
           <main className={`main ${sideHidden ? 'side-hidden' : ''}`} id="main" style={sideW ? ({ '--side-w': `${sideW}px` } as React.CSSProperties) : undefined}>
             <BenchHeading />
-            <div className="left">
+            <div className={`left ${benchInside && mode !== 'sandbox' ? 'has-inside' : ''}`}>
+              {benchInside && mode !== 'sandbox' && <BenchInside id={benchInside} />}
               <Workbench />
             </div>
             <Splitter />
@@ -508,6 +515,8 @@ export default function App() {
           {mode === 'import' && <ImportPage />}
           {mode === 'map' && <MapPage />}
           {mode === 'unit' && <UnitPage />}
+          {mode === 'inside' && <InsidePage />}
+          {mode === 'calc' && <CalcPage />}
         </Suspense>
       )}
       <Toast />

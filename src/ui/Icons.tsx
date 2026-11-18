@@ -1,5 +1,6 @@
 import {
   BookmarkCheck,
+  Calculator,
   Check,
   ChevronLeft,
   CircleCheck,
@@ -15,6 +16,7 @@ import {
   Redo2,
   RotateCcw,
   RotateCw,
+  Search,
   Tag,
   Trash2,
   TriangleAlert,
@@ -398,6 +400,9 @@ const LUCIDE: Record<string, LucideIcon> = {
   try: FlaskConical,
   build: Wrench,
   wrap: BookmarkCheck,
+  search: Search,
+  layers: Layers,
+  calc: Calculator,
 };
 
 export function Icon({ name, size = 18 }: { name: string; size?: number }) {

@@ -115,6 +115,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built (one part deliberately missing)**: the whole relay circuit is built except flyback diode D1; GPIO4 runs a 10 Hz PWM so the relay keeps switching and the problem shows up clearly. **Why**: see the coil's turn-off spike in diagnostics first. **Your job**: add D1 (reverse-biased across the coil: cathode toward +5V), then set GPIO4 back to \"output high\".",
       "title": "Relay + flyback diode: holding down the coil's switch-off spike",
       "summary": "A transistor drives a 5 V relay whose contact switches an LED on a 9 V battery. The starting board lacks the diode across the coil: at every switch-off the collector shoots to tens of volts. Add it.",
       "concepts": ["relay", "inductive kick v = L·di/dt", "flyback diode", "contacts COM / NO / NC"],
@@ -306,6 +307,7 @@
     }
   ],
   "hints": ["二极管并在线圈两端：色环（阴极）接 5V 那头，另一端（阳极）接集电极。", "线圈接在 5V 脚和 C 之间；E 接 GND；GPIO → 1 kΩ → B。", "负载侧：电池 + → COM，NO → 1 kΩ → LED → 电池 −；电池 − 接开发板 GND。"],
+  "startNote": "**半成品（故意缺一个元件）**：除了续流二极管 D1，整个继电器电路都搭好了；GPIO4 设成 10 Hz 的 PWM，让继电器反复开关、把问题放大。**为什么**：先在诊断里看到线圈断电时的反向高压。**你要做**：加上 D1（反并在线圈两端：负极朝 +5V），再把 GPIO4 设回“输出高”。",
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO4": "out_high"}}},

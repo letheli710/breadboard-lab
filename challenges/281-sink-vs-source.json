@@ -12,6 +12,7 @@
   "description": "LED1：GPIO_OUT1 → 220 Ω → LED1 → GND（拉电流）。LED2：3V3 → 220 Ω → LED2 → GPIO_OUT2（灌电流）。推挽输出里有一个接 3V3 的上开关和一个接 GND 的下开关，模型里各约 40 Ω。参考答案用 PB11 和 PB10，别的输出脚也算对。",
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the Blue Pill is seated, GND and 3V3 run to the top rails, PB11 is set to output high and PB10 to output low. **Why**: powering the board was lesson 15; this lab is about which way round the LED goes. **Your job**: build two branches: PB11 → 220Ω → LED1 → GND (sourcing); 3V3 → 220Ω → LED2 → PB10 (sinking).",
       "title": "Sourcing and sinking: an LED lit by LOW",
       "summary": "Two LEDs on a Blue Pill: one takes current out of a pin (lit by HIGH), the other sends current into a pin (lit by LOW). Their logic is exactly opposite.",
       "concepts": ["source current", "sink current", "active-low", "push-pull output", "weak pins PC13–PC15"],
@@ -195,6 +196,8 @@
     }
   ],
   "hints": ["LED1 是熟悉的接法：引脚 → 电阻 → LED → GND。", "LED2 是倒过来的：3V3 → 电阻 → LED 长脚；LED 短脚接第二个引脚。", "先把开发板的 3V3 脚接到上方 + 轨，R2 才好接。"],
+  "start": {"parts": [{"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PB11": "out_high", "PB10": "out_low"}}}, {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "a1", "b": "tn1"}}, {"type": "wire", "ref": "W2", "color": "red", "pins": {"a": "a3", "b": "tp3"}}]},
+  "startNote": "**半成品**：Blue Pill 已经插好，GND 和 3V3 已经引到上方电源轨，PB11 设成输出高、PB10 设成输出低。**为什么**：开发板的供电第 15 课练过；这个实验的重点是 LED 朝哪个方向接。**你要做**：搭两条支路：PB11 → 220Ω → LED1 → GND（拉电流）；3V3 → 220Ω → LED2 → PB10（灌电流）。",
   "solution": {
     "parts": [
       {"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PB11": "out_high", "PB10": "out_low"}}},

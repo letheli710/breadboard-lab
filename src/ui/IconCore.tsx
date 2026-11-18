@@ -2,7 +2,7 @@
 // "Perfect!" dialog). Kept apart from ui/Icons.tsx so the start-up bundle carries only these; the
 // pages' icons load with the pages.
 
-import { BookOpen, ChevronDown, ChevronRight, FolderOpen, Lightbulb, NotebookPen, PartyPopper, PenLine, Target, type LucideIcon } from 'lucide-react';
+import { BookOpen, Calculator, ChevronDown, ChevronRight, FolderOpen, Lightbulb, Map as MapIcon, NotebookPen, PartyPopper, PenLine, Target, type LucideIcon } from 'lucide-react';
 
 export const CORE_ICONS: Record<string, LucideIcon> = {
   book: BookOpen,
@@ -14,6 +14,8 @@ export const CORE_ICONS: Record<string, LucideIcon> = {
   down: ChevronDown,
   next: ChevronRight,
   party: PartyPopper,
+  map: MapIcon,
+  calc: Calculator,
 };
 
 /** An app-shell icon by name (see ui/Icons.tsx Icon for the full set). */

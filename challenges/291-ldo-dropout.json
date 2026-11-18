@@ -146,6 +146,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the bench supply, the ESP32 (USB unplugged), its GND wire and the GPIO4 → 330Ω → LED load are wired. **Why**: how the regulator is wired is the point of this lab. **Your job**: place the LM1117 (c22: GND, OUT, IN), ground its GND pin, IN to the + rail, a 10µF from input and from output to GND, then OUT to the ESP32's 3V3 pin (j1).",
       "title": "Regulator dropout: when the battery runs down",
       "summary": "The ESP32 runs without USB, only from an LM1117-3.3 regulator. Turn the input down like a lithium cell running flat: when does the 3.3 V give way, and when does the chip reset?",
       "concepts": ["linear regulator / LDO", "dropout voltage", "decoupling capacitors", "brown-out", "power P = (Vin − Vout)·I"],
@@ -549,6 +550,8 @@
     "IN 到 GND 一个 10 µF，OUT 到 GND 一个 10 µF；OUT 接 ESP32 的 3V3 脚。",
     "单击 ESP32，在「属性」里取消勾选「USB 供电」——否则它从 USB 取电，就看不出稳压器的作用。"
   ],
+  "start": {"parts": [{"type": "bench_supply", "ref": "PS1", "voltage": 5, "currentLimit": 0.5, "pins": {"+": "tp30", "-": "tn30"}}, {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": false, "modes": {"GPIO4": "out_high"}}}, {"type": "wire", "color": "black", "pins": {"a": "a1", "b": "tn1"}}, {"type": "resistor", "ref": "R1", "resistance": "330", "pins": {"1": "a13", "2": "a27"}}, {"type": "led", "ref": "LED1", "color": "red", "pins": {"anode": "b27", "cathode": "tn27"}}]},
+  "startNote": "**半成品**：稳压电源、ESP32（拔掉 USB）、GND 线和 GPIO4 → 330Ω → LED 的负载已经接好。**为什么**：这个实验的重点就是稳压器怎么接。**你要做**：放 LM1117（c22：GND、OUT、IN），GND 脚接地、IN 脚接 + 轨，输入和输出各加一个 10µF 到 GND，再把 OUT 接到 ESP32 的 3V3 脚（j1）。",
   "solution": {
     "parts": [
       {

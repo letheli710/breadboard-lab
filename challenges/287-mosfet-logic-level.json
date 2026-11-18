@@ -91,6 +91,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the ESP32, the 5 V motor supply (bottom rails), both ground jumpers, the motor and its flyback diode are wired. **Why**: the load and supply are repeated skills; the MOSFET gate drive is the lesson. **Your job**: place the IRLZ44N (c21: G, D, S), add RG (100Ω, GPIO4 → gate) and RPD (100kΩ, gate → GND), and tie the source to GND.",
       "title": "Logic-level MOSFET: a 3.3 V pin switches a high-current motor",
       "summary": "First an ordinary IRF540N: 3.3 V on the gate opens it only halfway and the motor barely moves. Swap in a logic-level IRLZ44N: fully on, the 0.6 A motor runs and the MOSFET hardly warms up.",
       "concepts": [
@@ -293,6 +294,8 @@
     }
   ],
   "hints": ["栅极这一串：GPIO → 100 Ω → G，再加一个 100 kΩ 从 G 接到 GND。S 接 GND。", "电机接在 +5 V 和 D 之间；二极管并在电机两端，色环（负极）朝 +5 V。", "稳压电源调到 5 V、限流 1 A，它的 − 接开发板 GND。"],
+  "start": {"parts": [{"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO4": "out_high"}}}, {"type": "wire", "color": "black", "pins": {"a": "a1", "b": "tn1"}}, {"type": "bench_supply", "ref": "PS1", "voltage": 5, "currentLimit": 1, "pins": {"+": "bp30", "-": "bn30"}}, {"type": "wire", "color": "black", "pins": {"a": "bn29", "b": "tn29"}}, {"type": "motor", "ref": "M1", "pins": {"+": "bp25", "-": "d22"}}, {"type": "diode", "ref": "D1", "pins": {"anode": "e22", "cathode": "bp26"}}]},
+  "startNote": "**半成品**：ESP32、5 V 电机电源（下方轨道）、两组地线、电机和续流二极管都已接好。**为什么**：负载和电源是重复技能；这里要学的是 MOSFET 的栅极驱动。**你要做**：放 IRLZ44N（c21：G、D、S），加 RG（100Ω，GPIO4 → 栅极）、RPD（100kΩ，栅极 → GND），再把源极接 GND。",
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO4": "out_high"}}},

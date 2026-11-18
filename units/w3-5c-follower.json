@@ -19,7 +19,7 @@
               "",
               "反馈系数 β 是输出电压送回 v_{−} 的比例。这里整个 v_o 都送回去了，所以 β = 1，增益 1/β = 1：输出等于输入。",
               "",
-              "听起来没用。可以把它想成一个“复印员”：它盯着输入，用自己的电源造出一个一样大的电压。负载要的电流从运放的电源脚来，不从输入那里拿。"
+              "听起来没用。可以把它想成一个“复印员”：它盯着输入，用自己的电源造出一个一样大的电压。负载要的电流从 op-amp（运算放大器）的电源脚来，不从输入那里拿。"
             ],
             "en": [
               "A follower takes the output v_o and wires it straight back to the inverting input v_{−}.",
@@ -108,7 +108,7 @@
           "title": { "zh": "五步法：跟随器带 1 kΩ 负载", "en": "The five steps: a follower driving 1 kΩ" },
           "steps": [
             {
-              "zh": "**① 有负反馈吗？** 有。一根导线把输出接回 v_{−}。v_o 偏高一点，v_{−} 跟着变高，v_{+} − v_{−} 变小，运放就把 v_o 往下拉。偏差自己被纠正，这就是负反馈。",
+              "zh": "**① 有负反馈吗？** 有。一根导线把输出接回 v_{−}。v_o 偏高一点，v_{−} 跟着变高，v_{+} − v_{−} 变小，op-amp（运算放大器）就把 v_o 往下拉。偏差自己被纠正，这就是负反馈。",
               "en": "**① Is there negative feedback?** Yes. A wire takes the output back to v_{−}. If v_o drifts a little high, v_{−} rises with it, v_{+} − v_{−} shrinks, and the op-amp pulls v_o back down. The error corrects itself: that is negative feedback."
             },
             {
@@ -120,7 +120,7 @@
               "en": "**③ KCL at v_{−}.** Node v_{−} has only one wire, and it goes to v_o. Virtual open: no current enters v_{−}, so the wire carries zero current. With no current, both ends of the wire are at the same voltage: v_o = v_{−}."
             },
             {
-              "zh": "**④ 解出 v_o。** v_o = v_{−} = 4.5 V。负载电流 i_L = 4.5 V / 1 kΩ = 4.5 mA，由运放的输出端供给。分压器里的电流仍是 9 V / 20 kΩ = 0.45 mA，和没接负载时一样。",
+              "zh": "**④ 解出 v_o。** v_o = v_{−} = 4.5 V。负载电流 i_L = 4.5 V / 1 kΩ = 4.5 mA，由 op-amp（运算放大器）的输出端供给。分压器里的电流仍是 9 V / 20 kΩ = 0.45 mA，和没接负载时一样。",
               "en": "**④ Solve for v_o.** v_o = v_{−} = 4.5 V. The load current i_L = 4.5 V / 1 kΩ = 4.5 mA comes from the op-amp output. The divider current is still 9 V / 20 kΩ = 0.45 mA, the same as with no load."
             },
             {
@@ -140,8 +140,8 @@
             { "id": "Rth", "label": { "zh": "从 a 点看回去的 R_{Th}", "en": "R_{Th} seen from node a" }, "expr": "R / 2", "unit": "Ω" },
             { "id": "vno", "label": { "zh": "没缓冲：负载电压", "en": "no buffer: load voltage" }, "expr": "4.5 * RL / (Rth + RL)", "unit": "V" },
             { "id": "vbuf", "label": { "zh": "有缓冲：负载电压", "en": "with buffer: load voltage" }, "expr": "min(4.5, 0.02 * RL)", "unit": "V" },
-            { "label": { "zh": "有缓冲：负载电流（运放供给）", "en": "with buffer: load current (from the op-amp)" }, "expr": "vbuf / RL", "unit": "A" },
-            { "label": { "zh": "运放到了约 20 mA 的上限？（1 = 是）", "en": "op-amp at its ~20 mA limit? (1 = yes)" }, "expr": "step(4.5 / RL - 0.02)" }
+            { "label": { "zh": "有缓冲：负载电流（op-amp（运算放大器）供给）", "en": "with buffer: load current (from the op-amp)" }, "expr": "vbuf / RL", "unit": "A" },
+            { "label": { "zh": "op-amp（运算放大器）到了约 20 mA 的上限？（1 = 是）", "en": "op-amp at its ~20 mA limit? (1 = yes)" }, "expr": "step(4.5 / RL - 0.02)" }
           ],
           "note": {
             "zh": "拖动 R_L。没缓冲时，负载越小，电压掉得越多。有缓冲时电压一直是 4.5 V，直到负载要的电流超过约 20 mA（R_L 小于 225 Ω）。那时第 ⑤ 步的电流检查就不通过了。",
@@ -156,7 +156,7 @@
         {
           "type": "sim",
           "intro": {
-            "zh": "先预测，再运行，再看为什么。运放按 LM358 建模：单电源 9 V，输出 0 … 7.5 V，最多约 20 mA。",
+            "zh": "先预测，再运行，再看为什么。op-amp（运算放大器）按 LM358 建模：单电源 9 V，输出 0 … 7.5 V，最多约 20 mA。",
             "en": "Predict, run, then see why. The op-amp is modelled as an LM358 on a single 9 V supply: output 0 … 7.5 V, at most about 20 mA."
           },
           "params": [
@@ -206,7 +206,7 @@
               ],
               "correct": 0,
               "explain": {
-                "zh": "虚断：v_{+} 不取电流，分压器又变回空载，a 点是 4.5 V。虚短：v_o = 4.5 V。负载的 4.5 mA 从运放的电源脚来，分压器根本“看不见”负载。",
+                "zh": "虚断：v_{+} 不取电流，分压器又变回空载，a 点是 4.5 V。虚短：v_o = 4.5 V。负载的 4.5 mA 从 op-amp（运算放大器）的电源脚来，分压器根本“看不见”负载。",
                 "en": "Virtual open: v_{+} draws no current, so the divider is unloaded again and node a is at 4.5 V. Virtual short: v_o = 4.5 V. The load's 4.5 mA comes from the op-amp's supply pin; the divider never \"sees\" the load."
               }
             },

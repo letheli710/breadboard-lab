@@ -143,7 +143,7 @@ const INSTRUMENT_LESSONS: [string, [string, string], [string, string]][] = [
   ['lesson-scope-two-channels', ['示波器双通道', 'Two scope channels'], ['CH1 / CH2、相位差（谁先到）', 'CH1 / CH2, phase difference (which arrives first)']],
   [
     'lesson-lm358',
-    ['LM358 运放', 'LM358 op-amp'],
+    ['LM358 op-amp（运算放大器）', 'LM358 op-amp'],
     ['DIP-8 横跨凹槽、引脚、电源脚、跟随器、单电源输出上限', 'DIP-8 across the trench, pinout, supply pins, follower, single-supply output limit'],
   ],
   [

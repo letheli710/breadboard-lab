@@ -31,7 +31,7 @@ Not covered yet: ch. 17 beyond resistive circuits (nonlinear dynamic circuits); 
 | | 面包板题 Breadboard (`challenges/*.json`, `breadboard-challenge/1`) | 理论题 Theory (`problems/<chapter>/*.json`, `circuit-problem/1`) |
 |---|---|---|
 | 学生做什么 | 在 3D 面包板上搭电路 | 看电路图，算数，填答案 |
-| 引擎 | 面包板求解器：直流工作点 + 时域仿真（`src/core/solver.ts`、`src/core/transient.ts`；真实元件模型：电池内阻、LED Vf+12Ω、分段线性器件） | 理想电路分析引擎 `src/core/analysis`（DC / 暂态 / 正弦稳态，受控源、理想运放、耦合电感、理想变压器） |
+| 引擎 | 面包板求解器：直流工作点 + 时域仿真（`src/core/solver.ts`、`src/core/transient.ts`；真实元件模型：电池内阻、LED Vf+12Ω、分段线性器件） | 理想电路分析引擎 `src/core/analysis`（DC / 暂态 / 正弦稳态，受控源、理想 op-amp、耦合电感、理想变压器） |
 | 自动核对 | 拓扑比对 + tests + 参考答案自检 | 每个数值答案都由引擎重算，和作者答案不一致就拒绝 |
 
 ## 四期 / Phases
@@ -39,18 +39,18 @@ Not covered yet: ch. 17 beyond resistive circuits (nonlinear dynamic circuits); 
 | 期 | 章节 chapter id | 理论练习区 | 面包板 |
 |---|---|---|---|
 | 1 | `basics` 电路模型与基本定律（参考方向、功率、独立源、受控源、KCL/KVL）<br>`equivalence` 等效变换（串并联、Y–Δ、电源等效变换、输入电阻） | ✔ | KCL/KVL 实测（电流表）、分压分流、惠斯通电桥、稳压电源 CC 模式当电流源 |
-| 2 | `methods` 支路电流法、网孔/回路电流法、结点电压法<br>`theorems` 叠加、替代、戴维宁/诺顿、最大功率传输、互易<br>`opamp` 含理想运放的电阻电路 | ✔ | 双电源叠加、测戴维宁等效（开路电压+短路电流）、电位器找最大功率、LM358 同相/反相放大 |
+| 2 | `methods` 支路电流法、网孔/回路电流法、结点电压法<br>`theorems` 叠加、替代、戴维宁/诺顿、最大功率传输、互易<br>`opamp` 含理想 op-amp 的电阻电路 | ✔ | 双电源叠加、测戴维宁等效（开路电压+短路电流）、电位器找最大功率、LM358 同相/反相放大 |
 | 3 | `storage` 电容与电感<br>`first-order` 一阶电路（零输入/零状态/全响应、三要素法、阶跃响应）<br>`second-order` RLC 二阶电路（过阻尼/临界/欠阻尼） | ✔ | 信号发生器方波 + 示波器：RC 充放电、RL、RLC 振铃 |
 | 4 | `phasors` 相量法<br>`ac-analysis` 阻抗导纳、正弦稳态分析<br>`ac-power` 有功/无功/视在/复功率、功率因数校正<br>`coupled` 互感、理想变压器<br>`frequency` 网络函数、串并联谐振、滤波器<br>`three-phase` 三相电路<br>`non-sinusoidal` 非正弦周期电路：谐波分析、有效值、平均功率<br>`s-domain` 复频域分析：拉普拉斯变换、运算电路、网络函数与零极点、冲激响应、卷积<br>`two-port` 二端口网络<br>`nonlinear` 非线性电阻电路：工作点、分段线性化、小信号分析<br>`transmission-line` 均匀传输线：副参数、反射与驻波、匹配、波过程 | ✔ | 信号发生器正弦 + 示波器：RC 低通/高通、相移、谐振 |
 
 ## 阶段 / Stages
 
 - [x] **A. 基础设施**
-  - [x] A1 理想电路分析引擎 `src/core/analysis`（MNA：R、C、L、V、I、四种受控源、理想运放、理想开关、耦合电感、理想变压器；直流、暂态、正弦稳态、非正弦周期稳态（逐次谐波叠加，`src/core/analysis/periodic.ts`）；非线性电阻 `NR`（多项式/分段线性/理想二极管特性，求出全部直流工作点与小信号响应，`src/core/analysis/nonlinear.ts`）；复频域分析（网络函数 H(s)、零极点、响应象函数的部分分式系数，冲激/指数电源，`src/core/analysis/sdomain.ts`）；均匀传输线 `TL`（二端口，正弦稳态精确链参数模型，无损耗线的波过程，`src/core/analysis/tline.ts`）；戴维宁、等效电阻、二端口参数等派生量）
+  - [x] A1 理想电路分析引擎 `src/core/analysis`（MNA：R、C、L、V、I、四种受控源、理想 op-amp、理想开关、耦合电感、理想变压器；直流、暂态、正弦稳态、非正弦周期稳态（逐次谐波叠加，`src/core/analysis/periodic.ts`）；非线性电阻 `NR`（多项式/分段线性/理想二极管特性，求出全部直流工作点与小信号响应，`src/core/analysis/nonlinear.ts`）；复频域分析（网络函数 H(s)、零极点、响应象函数的部分分式系数，冲激/指数电源，`src/core/analysis/sdomain.ts`）；均匀传输线 `TL`（二端口，正弦稳态精确链参数模型，无损耗线的波过程，`src/core/analysis/tline.ts`）；戴维宁、等效电阻、二端口参数等派生量）
   - [x] A2 电路图格式 + 渲染 `src/core/problem/geometry.ts`、`src/ui/ProblemSchematic.tsx`（从画图几何推出网表）
   - [x] A3 理论题格式解析与校验 `src/core/problem/parse.ts`，`npm run validate` 同时校验 `problems/`，「练习」模式界面，`docs/PROBLEM_FORMAT.md` 和出题提示词
 - [x] **B. 理论题内容**：20 章共 291 题，全部由引擎核对答案 / 291 problems across 20 chapters, all engine-checked
-- [x] **C. 面包板引擎扩展**：电流表、运放 LM358、电感、信号发生器、示波器、面包板电路的暂态/交流仿真
+- [x] **C. 面包板引擎扩展**：电流表、op-amp LM358、电感、信号发生器、示波器、面包板电路的暂态/交流仿真
 - [x] **D. 面包板题内容**：第 1–4 期共 31 个实验（201–208、221–228、241–247、261–268）
 - [x] **E. 第 5 期：单片机外围电路**：平台（ESP32 / Blue Pill、器件、诊断、§14 格式）+ 18 个实验（280–297）/ Phase 5 platform + 18 MCU-peripheral experiments
 - [x] **F. 测量题 / measurement questions**：实验分两步——电路正确，再读自己面包板上的仪表（期望值按学生自己的电路仿真，CHALLENGE_FORMAT §15）。已加到 12 个实验：201、202、203、206、222、223、241、244、261、264、291、295 / labs are two-stage — circuit right, then readings from the student's own board (expected values simulated on their circuit); 12 labs so far
@@ -71,7 +71,7 @@ New `PartType`s (src/core/types.ts) and their physical pins:
 |---|---|---|---|---|
 | `inductor` | 电感 Inductor | two-point | `1`, `2` | `inductance` (H, default 10 mH); winding resistance 1 Ω in DC |
 | `ammeter` | 电流表 Ammeter (multimeter in A mode, red/black leads) | two-point | `+` (red), `-` (black, COM) | — ; 0.1 Ω burden; reading = current flowing in at `+` |
-| `opamp` | 运放 LM358 (dual, DIP-8, straddles the centre gap) | footprint, anchor = pin 1 in row e | `1` OUT A, `2` IN− A, `3` IN+ A, `4` V−/GND, `5` IN+ B, `6` IN− B, `7` OUT B, `8` V+ (pins 1–4 in row e, columns c..c+3; pins 8..5 in row f, columns c..c+3) | — ; model: open-loop gain 1e5, output clamped to [V− , V+ − 1.5 V], output resistance ~10 Ω, no input current |
+| `opamp` | op-amp LM358 (dual, DIP-8, straddles the centre gap) | footprint, anchor = pin 1 in row e | `1` OUT A, `2` IN− A, `3` IN+ A, `4` V−/GND, `5` IN+ B, `6` IN− B, `7` OUT B, `8` V+ (pins 1–4 in row e, columns c..c+3; pins 8..5 in row f, columns c..c+3) | — ; model: open-loop gain 1e5, output clamped to [V− , V+ − 1.5 V], output resistance ~10 Ω, no input current |
 | `function_gen` | 信号发生器 Function generator (red + / black COM leads) | two-point | `+`, `-` | `waveform: 'sine' | 'square' | 'triangle'`, `frequency` (Hz, default 1 kHz), `amplitude` (V peak, default 1), `offset` (V, default 0); 50 Ω output resistance |
 | `scope_probe` | 示波器探头 Scope probe (tip + ground clip) | two-point | `tip`, `gnd` | `channel: 1 | 2` (auto: first probe CH1, second CH2) |
 
@@ -194,4 +194,4 @@ Each needs engine work in `src/core/analysis` (or new quantity kinds) before a s
 ### 面包板仿真待办 / Breadboard simulation backlog
 
 - 自适应步长（或在步长不足时自动提高每周期步数）以替代 4096 步上限 + 警告 / adaptive time step instead of the 4096-steps-per-period cap + warning
-- 运放压摆率 / 增益带宽积；电解电容极性；万用表 / 示波器输入阻抗；电机反电动势 / op-amp slew rate and GBW, electrolytic polarity, meter/scope input impedance, motor back-EMF
+- op-amp 压摆率 / 增益带宽积；电解电容极性；万用表 / 示波器输入阻抗；电机反电动势 / op-amp slew rate and GBW, electrolytic polarity, meter/scope input impedance, motor back-EMF

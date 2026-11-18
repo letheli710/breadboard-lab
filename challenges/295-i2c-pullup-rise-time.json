@@ -143,6 +143,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the Blue Pill (PB6, PB7 on 100 kHz open-drain PWM), the rails, the bus capacitances CA and CB (200pF each) and both probes are wired. **Why**: the pull-up resistor is the only thing to choose. **Your job**: add RA (10kΩ, the PB6 line → 3V3) and RB (2.2kΩ, the PB7 line → 3V3) and compare the two rise times.",
       "title": "I²C pull-ups: R × C sets the rising edge",
       "summary": "Two open-drain Blue Pill pins at 100 kHz stand in for two I²C lines, each with 200 pF, one pulled up by 10 kΩ and one by 2.2 kΩ. Both fall sharply, but one rises slowly. Measure the rise time and the LOW level, and learn the range a pull-up must sit in.",
       "concepts": ["open-drain output", "I²C pull-up", "rise time", "bus capacitance", "sink-current limit"],
@@ -364,6 +365,8 @@
     }
   ],
   "hints": ["每条总线：引脚 → 上拉电阻 → 3V3，同一个引脚再接 200 pF 电容到 GND。", "总线 A 用 10 kΩ，总线 B 用 2.2 kΩ。", "两个引脚都设成 PWM、100 kHz、50 %，并勾选「开漏输出」。"],
+  "start": {"parts": [{"type": "stm32_bluepill", "ref": "U1", "at": "c1", "props": {"usb": true, "modes": {"PB6": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}, "PB7": {"mode": "pwm", "duty": 50, "frequency": 100000, "openDrain": true}}}}, {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "j19", "b": "bn19"}}, {"type": "wire", "ref": "W2", "color": "orange", "pins": {"a": "j20", "b": "bp20"}}, {"type": "capacitor", "ref": "CA", "capacitance": "200p", "pins": {"1": "i14", "2": "bn14"}}, {"type": "capacitor", "ref": "CB", "capacitance": "200p", "pins": {"1": "i15", "2": "bn15"}}, {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "f14", "gnd": "bn22"}}, {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "f15", "gnd": "bn23"}}]},
+  "startNote": "**半成品**：Blue Pill（PB6、PB7 设成 100 kHz 开漏 PWM）、电源轨、代表总线电容的 CA、CB（各 200pF）和两个探头都已接好。**为什么**：要选的只有上拉电阻。**你要做**：加上 RA（10kΩ，PB6 那条线 → 3V3）和 RB（2.2kΩ，PB7 那条线 → 3V3），比较两条线的上升时间。",
   "solution": {
     "parts": [
       {

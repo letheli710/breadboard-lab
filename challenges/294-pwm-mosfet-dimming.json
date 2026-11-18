@@ -139,6 +139,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the ESP32 (GPIO27 on PWM), the 5 V motor supply and the complete MOSFET gate drive (RG, RPD, IRLZ44N — Experiment 5-8) are wired. **Why**: this lab looks at the motor and flyback-diode currents under PWM. **Your job**: connect the motor (+ to 5 V, − to the drain column) and flyback diode D1 across it (cathode toward +5V), and jumper the 5 V rail to the motor's column.",
       "title": "PWM speed control: the motor current follows the duty cycle",
       "summary": "Drive the low-side MOSFET switch from 5.4 with PWM: the coil smooths the current, so the motor only \"sees\" the average. Measure the average current at several duty cycles and the current in the flyback diode, then compare 1 kHz with 20 kHz.",
       "concepts": ["PWM speed control", "low-side MOSFET switch", "flyback diode", "average and RMS", "PWM frequency choice"],
@@ -345,6 +346,8 @@
     }
   ],
   "hints": ["栅极：PWM 引脚 → 100 Ω → G，G 再接 10 kΩ 到 GND。S 接 GND，D 接电机的 − 端。", "二极管的色环（阴极）朝电机的 5 V 端，阳极接漏极：MOSFET 导通时它是反着的。", "稳压电源的 − 必须和开发板的 GND 接在一起。", "PWM 引脚设成 20 kHz。"],
+  "start": {"parts": [{"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO27": {"mode": "pwm", "duty": 50, "frequency": 20000}}}}, {"type": "wire", "ref": "W1", "color": "black", "pins": {"a": "j14", "b": "bn14"}}, {"type": "bench_supply", "ref": "PSU1", "voltage": 5, "currentLimit": 1, "pins": {"+": "bp30", "-": "bn30"}}, {"type": "resistor", "ref": "RG", "resistance": "100", "pins": {"1": "j11", "2": "j24"}}, {"type": "nmos", "ref": "Q1", "model": "IRLZ44N", "at": "f24"}, {"type": "resistor", "ref": "RPD", "resistance": "10k", "pins": {"1": "i24", "2": "bn24"}}, {"type": "wire", "ref": "W2", "color": "black", "pins": {"a": "j26", "b": "bn26"}}]},
+  "startNote": "**半成品**：ESP32（GPIO27 设成 PWM）、5 V 电机电源和完整的 MOSFET 栅极驱动（RG、RPD、IRLZ44N，实验 5-8 练过）都已接好。**为什么**：这个实验看的是 PWM 下电机和续流二极管里的电流。**你要做**：接上电机（+ 接 5 V，− 接漏极那一列）和反并的续流二极管 D1（负极朝 +5V），再把 5 V 轨接到电机那一列。",
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO27": {"mode": "pwm", "duty": 50, "frequency": 20000}}}},

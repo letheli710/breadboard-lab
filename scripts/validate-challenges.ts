@@ -148,7 +148,7 @@ function visibleTexts(json: Record<string, unknown>): { where: string; text: str
   };
   const scan = (o: Record<string, unknown> | undefined, lang: string) => {
     if (!o) return;
-    for (const k of ['title', 'summary', 'description', 'hints']) add(`${lang}${k}`, o[k]);
+    for (const k of ['title', 'summary', 'description', 'startNote', 'hints']) add(`${lang}${k}`, o[k]);
     add(`${lang}tests`, o.tests);
     // card-style units (§16): the cards are what the student reads instead of the description
     if (Array.isArray(o.cards))

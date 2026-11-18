@@ -12,6 +12,7 @@
   "description": "按键 SW1：3V3 → SW1 → GPIO_IN1，再经 R1（10 kΩ）下拉到 GND，高电平有效。按键 SW2：GPIO_IN2 → SW2 → GND，靠内部上拉，低电平有效。参考答案 SW1 用 GPIO34（只能输入、没有内部上下拉），SW2 用 GPIO33。",
   "i18n": {
     "en": {
+      "startNote": "**Fix, then finish**: the ESP32, the rails and button SW1 (3V3 → GPIO34) are wired, but GPIO34 has **no pull-down** and floats. **Why**: see what a floating input looks like in diagnostics first. **Your job**: add R1 (10kΩ pull-down, GPIO34 → GND), then wire SW2 between GPIO33 and GND and set GPIO33 to \"input pull-up\".",
       "title": "Pull-ups and pull-downs: never leave an input floating",
       "summary": "The button on the starting board is missing a resistor, so its input floats. Add a 10 kΩ pull-down (pressed reads 1), then wire a second button with the internal pull-up (pressed reads 0).",
       "concepts": ["digital input", "pull-down resistor", "internal pull-up", "active-high / active-low", "floating input"],
@@ -178,6 +179,7 @@
     }
   ],
   "hints": ["SW1 的另一边已经接到 GPIO34；从同一列再插一个 10 kΩ 到 GND。", "SW2：一边接第二个 GPIO，另一边直接接 GND，不用电阻。", "选中开发板，把第二个 GPIO 设成「输入 上拉」。GPIO34–39 做不到，请用 GPIO33、GPIO25、GPIO26 这类引脚。"],
+  "startNote": "**找错 + 搭完**：ESP32、电源轨和按键 SW1（3V3 → GPIO34）已经接好，但 GPIO34 **没有下拉电阻**，是浮空输入。**为什么**：先在诊断里看到“浮空输入”是什么样子。**你要做**：加上 R1（10kΩ，GPIO34 → GND 下拉），再把 SW2 接在 GPIO33 和 GND 之间，并把 GPIO33 设成“输入 上拉”。",
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO34": "input", "GPIO33": "input_pullup"}}},

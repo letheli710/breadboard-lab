@@ -30,6 +30,7 @@ import { unitTitle } from '../core/courseText';
 import { useBenchUi } from '../state/benchUi';
 import { tabListKeys } from './a11y';
 import { Mixed } from './Mixed';
+import { LessonCalcs, LookInside } from '../inside/pages';
 
 // the description's pictures (`figures`) use the theory-problem drawing code: loaded only when a
 // lesson / challenge has some
@@ -225,6 +226,14 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   const sc = useStepChecks(ch);
   // card-style unit (§16): one card at a time; the measurement questions sit on the build card
   const usesCards = ch.cards.length > 0;
+  const startKit = ch.start && ch.startNote && (
+    <section className="start-kit" aria-label={tr('起点：已经搭好的部分', 'Starting kit: already on the board')}>
+      <div className="eyebrow">
+        <Icon name="nets" size={14} /> {tr('起点：已经搭好的部分', 'Starting kit: already on the board')}
+      </div>
+      <Md text={ch.startNote} />
+    </section>
+  );
   const card = useStore((s) => s.card);
   const onMeasureCard = !usesCards || Math.min(card, ch.cards.length - 1) === measureCardOf(ch.cards);
 
@@ -235,9 +244,21 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       {ch.summary && <p className="summary">{ch.summary}</p>}
       <Prereqs ch={ch} />
       {ch.source === 'folder' && <PortalSlot kind="challenge" id={ch.id} part="top" />}
+      {/* ① look inside the new part first (teardowns), then the cards: try → why (+ calculations) → build (+ starting kit) → take away */}
+      <LookInside chId={ch.id} />
+      {!usesCards && <LessonCalcs chId={ch.id} />}
+      {!usesCards && startKit}
       {hasM && <StageBar circuitOk={ms.passed} st={ms} />}
 
-      {usesCards ? <CardDeck ch={ch} sc={sc} /> : nSteps > 0 && <StepNav ch={ch} from={0} to={nSteps} sc={sc} />}
+      {usesCards ? (
+        <CardDeck
+          ch={ch}
+          sc={sc}
+          extra={(kind) => (kind === 'explain' ? <LessonCalcs chId={ch.id} /> : kind === 'build' ? startKit : kind === 'wrap' ? <LookInside chId={ch.id} compact /> : null)}
+        />
+      ) : (
+        nSteps > 0 && <StepNav ch={ch} from={0} to={nSteps} sc={sc} />
+      )}
 
       {/* a live region that is always there, so the result of every check is announced once */}
       <div className="check-live" aria-live="polite" aria-atomic="false">

@@ -173,6 +173,8 @@ export interface Challenge {
   prereq?: string[];
   solution?: Layout;
   start?: Layout;
+  /** with a `start` layout: what is pre-built, why, and what the student adds ("" = none) */
+  startNote?: string;
   tolerance: number;
   allowExtraComponents: boolean;
   /** `circuit` (default): wiring and values are compared with the target, then the tests run.
@@ -1135,6 +1137,8 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
 
   const solution = parseLayout(json.solution, refs, 'solution', errors);
   const start = parseLayout(json.start, refs, 'start', errors);
+  if (json.startNote !== undefined && json.start === undefined)
+    warnings.push(tr('"startNote" 只在有 "start" 布局时显示', '"startNote" is only shown when there is a "start" layout'));
   const opts = isObj(json.options) ? json.options : {};
 
   let phase: ChallengePhase | undefined;
@@ -1213,6 +1217,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     prereq: strs(json.prereq),
     solution,
     start,
+    startNote: textOf(tx.startNote) || textOf(json.startNote),
     tolerance: typeof opts.tolerance === 'number' ? opts.tolerance : 0.05,
     allowExtraComponents: opts.allowExtraComponents === true,
     grading,

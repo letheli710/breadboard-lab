@@ -5,7 +5,7 @@
   "kind": "challenge",
   "level": 5,
   "phase": 3,
-  "title": "运放积分器：方波变三角波",
+  "title": "op-amp积分器：方波变三角波",
   "summary": "LM358（单电源 9 V）搭反相积分器：方波输入变成三角波输出，由三角波的斜率测出 RC。",
   "prereq": ["lesson-lm358", "lesson-scope-two-channels"],
   "concepts": [
@@ -31,7 +31,7 @@
       "kind": "explain",
       "title": "电流全部流进电容",
       "text": [
-        "- 负反馈让 IN− 跟着 IN+ 停在 4.5 V。输入电阻里的电流 i = v_in / RIN 不受输出影响，又进不了运放，只能**全部流进 CF**。",
+        "- 负反馈让 IN− 跟着 IN+ 停在 4.5 V。输入电阻里的电流 i = v_in / RIN 不受输出影响，又进不了 op-amp（运算放大器），只能**全部流进 CF**。",
         "- 恒定的电流给电容充电，电容电压就**匀速**变化（3.3 的 dv/dt = i / C）。输出跟着电容电压走，方向相反：",
         "$$\\frac{dv_o}{dt} = -\\frac{v_{in}}{R_{IN} C_F} = -\\frac{1 V}{10 kΩ × 100 nF}$$",
         "![](fig:integ)",
@@ -52,7 +52,7 @@
       "kind": "wrap",
       "title": "带走",
       "text": [
-        "- **运放积分器**：dv_o/dt = −v_in / (RIN·CF)。方波 → 三角波，正弦 → 余弦。",
+        "- **op-amp（运算放大器）积分器**：dv_o/dt = −v_in / (RIN·CF)。方波 → 三角波，正弦 → 余弦。",
         "- **虚短 + 虚断**让电阻电流不受输出影响，所以它在很宽的频率范围里都是真正的积分。",
         "- **RP 不能少**：没有它，直流误差会把输出推到电源轨。代价是频率很低时不再像积分。",
         "- **真实电路里**：10 µF 的 CIN 一般是电解电容，+ 脚朝直流电位高的一侧（这里是 RIN / IN− 那边）。LM358 的输入只到约 V+ − 1.5 V，IN+ 在 4.5 V 没问题。"
@@ -158,6 +158,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the battery, the LM358's supply pins, bias resistors RB1/RB2 (IN+ = 4.5 V), the function generator, DC-blocking CIN and both probes are wired. **Why**: single-supply biasing is a helper trick (explained under \"Why the helper parts are needed\"); the integrator itself is RIN and CF. **Your job**: add RIN (10kΩ, CIN → pin 2 IN−), CF (100nF, pin 2 → pin 1 OUT) and RP (100kΩ) in parallel with CF.",
       "title": "The op-amp integrator: square in, triangle out",
       "summary": "An inverting integrator on an LM358 (single 9 V supply): a square wave in, a triangle out; the triangle's slope measures RC.",
       "concepts": [
@@ -316,7 +317,7 @@
       "predict": true,
       "range": [0.000955, 0.00106],
       "ask": "半个周期 0.5 ms 走完一个峰峰值：用你的读数算 RIN·CF = 1 V × 0.5 ms / Vpp",
-      "explain": "10 kΩ × 100 nF = 1 ms。运放让电阻电流不受输出影响，所以斜率始终是输入 / RC。"
+      "explain": "10 kΩ × 100 nF = 1 ms。op-amp（运算放大器）让电阻电流不受输出影响，所以斜率始终是输入 / RC。"
     },
     {
       "id": "vavg",
@@ -353,6 +354,8 @@
     "输入：信号发生器 → CIN → RIN → IN−；CF 和 RP 都跨在 IN− 和 OUT 之间。",
     "斜率 = 输入电压 / (RIN·CF)；半个周期走完一个峰峰值。"
   ],
+  "start": {"parts": [{"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "tp1", "-": "tn1"}}, {"type": "opamp", "ref": "U1", "at": "e10"}, {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"}, {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"}, {"type": "resistor", "ref": "RB1", "resistance": "10k", "pins": {"1": "tp12", "2": "a12"}}, {"type": "resistor", "ref": "RB2", "resistance": "10k", "pins": {"1": "b12", "2": "tn12"}}, {"type": "function_gen", "ref": "FG1", "waveform": "square", "frequency": 1000, "amplitude": 1, "offset": 0, "pins": {"+": "a3", "-": "tn3"}}, {"type": "capacitor", "ref": "CIN", "capacitance": "10u", "pins": {"1": "b3", "2": "b7"}}, {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "d3", "gnd": "tn20"}}, {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "a10", "gnd": "tn21"}}]},
+  "startNote": "**半成品**：电池、LM358 的电源脚、偏置电阻 RB1/RB2（IN+ = 4.5 V）、信号发生器、隔直电容 CIN 和两个探头都已接好。**为什么**：单电源偏置是辅助技巧，下面“为什么需要这些辅助元件”讲了它；积分器本身是 RIN 和 CF。**你要做**：加上 RIN（10kΩ，CIN → 2 脚 IN−）、CF（100nF，2 脚 → 1 脚 OUT）和与 CF 并联的 RP（100kΩ）。",
   "solution": {
     "parts": [
       {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "tp1", "-": "tn1"}},

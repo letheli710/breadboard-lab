@@ -14,6 +14,8 @@
 //   #/import                    import page
 //   #/map[/<worldId>]           the course map (Worlds), optionally scrolled to a World
 //   #/unit/<unitId>             a learning unit (units/*.json)
+//   #/inside[/<teardownId>]     "Inside": teardowns of parts / chips / instruments
+//   #/calc[/<calcId>]           calculations: formula cards with a calculator
 //
 // Ids are URI-encoded. This module is pure (no store, no React) so the store can read the
 // starting page from it and the tests can run it without a DOM; the wiring between the URL and
@@ -32,11 +34,13 @@ export type Route =
   | { page: 'guide'; section?: string }
   | { page: 'import' }
   | { page: 'map'; world?: string }
-  | { page: 'unit'; id: string };
+  | { page: 'unit'; id: string }
+  | { page: 'inside'; id?: string }
+  | { page: 'calc'; id?: string };
 
 export type Page = Route['page'];
 
-export const PAGES: readonly Page[] = ['learn', 'challenges', 'practice', 'sandbox', 'guide', 'import', 'map', 'unit'];
+export const PAGES: readonly Page[] = ['learn', 'challenges', 'practice', 'sandbox', 'guide', 'import', 'map', 'unit', 'inside', 'calc'];
 
 const MODE_OF: Record<Page, Mode> = {
   learn: 'learn',
@@ -47,6 +51,8 @@ const MODE_OF: Record<Page, Mode> = {
   import: 'import',
   map: 'map',
   unit: 'unit',
+  inside: 'inside',
+  calc: 'calc',
 };
 
 export const modeOf = (r: Route): Mode => MODE_OF[r.page];
@@ -87,6 +93,8 @@ export function parseRoute(hash: string): Route | null {
     case 'learn':
     case 'challenges':
     case 'practice':
+    case 'inside':
+    case 'calc':
       return (item === undefined ? { page } : { page, id: item }) as Route;
     case 'guide':
       return item === undefined ? { page } : { page, section: item };

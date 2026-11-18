@@ -115,6 +115,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the ESP32 (GPIO32 already set to ADC) and the bottom 3V3 and GND rails are wired. **Why**: powering the board is a repeated skill; the NTC divider is the lesson. **Your job**: R1 (10kΩ) from the 3V3 rail to column 24, the NTC from column 24 to GND, then column 24 to GPIO32 (j7).",
       "title": "An NTC thermometer: the readings don't follow a straight line",
       "summary": "A 10 kΩ resistor and a 10 kΩ NTC form a divider into an ESP32 ADC pin. The temperature rises in equal steps, but each step changes the reading less; firmware turns the reading back into a temperature with the B equation.",
       "concepts": ["NTC thermistor", "B-parameter (simplified Steinhart–Hart) equation", "nonlinearity", "divider sensitivity", "self-heating"],
@@ -298,6 +299,8 @@
     }
   ],
   "hints": ["先把开发板的 3V3 接到下方 + 轨、GND 接到下方 − 轨。", "3V3 → 10 kΩ → 中点 → NTC → GND；中点接 GPIO32–39 之一。", "在引脚表里把这个引脚设成“模拟输入 ADC”。"],
+  "start": {"parts": [{"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO32": "adc"}}}, {"type": "wire", "ref": "W1", "color": "red", "pins": {"a": "j1", "b": "bp1"}}, {"type": "wire", "ref": "W2", "color": "black", "pins": {"a": "j14", "b": "bn14"}}]},
+  "startNote": "**半成品**：ESP32（GPIO32 已设成 ADC）、下方电源轨的 3V3 和 GND 已经接好。**为什么**：板子的供电是重复技能；这里要学的是 NTC 分压。**你要做**：R1（10kΩ）从 3V3 轨接到第 24 列，NTC 从第 24 列接到 GND，再把第 24 列接到 GPIO32（j7）。",
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO32": "adc"}}},

@@ -450,7 +450,7 @@ const KIND: Record<string, [string, string]> = {
   NMOS: ['N 沟道 MOSFET', 'N-channel MOSFET'],
   REG: ['稳压器', 'regulator'],
   S: ['开关', 'switch'],
-  OPAMP: ['理想运放', 'ideal op-amp'],
+  OPAMP: ['理想 op-amp', 'ideal op-amp'],
   XFMR: ['变压器', 'transformer'],
   K: ['耦合', 'coupling'],
   TL: ['传输线', 'transmission line'],

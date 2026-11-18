@@ -25,8 +25,8 @@
       "kind": "explain",
       "title": "虚地：IN− 被钉在 0 V",
       "text": [
-        "- 接成负反馈的运放会调整输出，让 **IN− 和 IN+ 一样高**。IN+ 接地，所以 IN− 也一直在 0 V，叫**虚地**。",
-        "- 输入电流 i = v_in / RIN 流到 IN− 无路可走（运放输入不取电流），只能**全部穿过 RF** 流向 OUT。",
+        "- 接成负反馈的 op-amp（运算放大器）会调整输出，让 **IN− 和 IN+ 一样高**。IN+ 接地，所以 IN− 也一直在 0 V，叫**虚地**。",
+        "- 输入电流 i = v_in / RIN 流到 IN− 无路可走（op-amp（运算放大器）输入不取电流），只能**全部穿过 RF** 流向 OUT。",
         "![](fig:inv)",
         "- RF 一端在 0 V，所以输出就是 RF 上的电压，方向反过来：",
         "$$v_o = -\\frac{R_F}{R_{IN}} v_{in} = -\\frac{22 kΩ}{10 kΩ} v_{in}$$",
@@ -308,6 +308,7 @@
   },
   "i18n": {
     "en": {
+      "startNote": "**Half-built**: the ±9 V dual supply, the LM358's supply pins, the function generator and both scope probes are wired. Have a look at the dual supply: PSU2's + goes to GND and its − to the bottom blue rail, and pin 4 goes there for −9 V. **Why**: the inverting amplifier's formula is set entirely by RIN, RF and the grounded IN+. **Your job**: wire pin 3 IN+ to GND, add RIN (generator → pin 2) and RF (pin 2 → pin 1).",
       "title": "The inverting amplifier: flip it, then enlarge it",
       "summary": "An LM358 on ±9 V, RIN 10 kΩ and RF 22 kΩ: a 1 kHz sine comes out larger and upside down; with too much input the output is clipped.",
       "concepts": ["inverting amplifier", "virtual ground", "gain = −RF/RIN", "dual supply", "clipping"],
@@ -496,10 +497,12 @@
     }
   ],
   "hints": [
-    "双电源：两台 9 V 电源串联，中点是 GND。上面那台的 + 接运放 8 脚，下面那台的 − 接 4 脚。",
+    "双电源：两台 9 V 电源串联，中点是 GND。上面那台的 + 接 op-amp（运算放大器）8 脚，下面那台的 − 接 4 脚。",
     "IN+（3 脚）接 GND；信号发生器 + → RIN → IN−（2 脚）；RF 在 IN− 和 OUT（1 脚）之间。",
     "放两个探头（CH1 输入、CH2 输出），接地夹都夹 GND。"
   ],
+  "start": {"parts": [{"type": "bench_supply", "ref": "PSU1", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tp1", "-": "tn1"}}, {"type": "bench_supply", "ref": "PSU2", "voltage": 9, "currentLimit": 0.1, "pins": {"+": "tn2", "-": "bn1"}}, {"type": "opamp", "ref": "U1", "at": "e10"}, {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"}, {"type": "wire", "pins": {"a": "d13", "b": "bn13"}, "color": "white"}, {"type": "function_gen", "ref": "FG1", "pins": {"+": "a20", "-": "tn20"}}, {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "c20", "gnd": "tn22"}}, {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "a10", "gnd": "tn23"}}]},
+  "startNote": "**半成品**：±9 V 双电源、LM358 的电源脚、信号发生器和两个示波器探头都已接好。看一看双电源是怎么接的：PSU2 的 + 接 GND，− 接下方蓝轨，4 脚接到那里得到 −9 V。**为什么**：反相放大器的公式完全由 RIN、RF 和接地的 IN+ 决定。**你要做**：3 脚 IN+ 接 GND，加 RIN（信号发生器 → 2 脚）和 RF（2 脚 → 1 脚）。",
   "solution": {
     "parts": [
       {

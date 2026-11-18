@@ -12,6 +12,7 @@
   "description": "起始电路：GPIO4 设成输出高，一根黄色跳线直接接红色 LED，没有电阻。引脚输出高可以看成 3.3 V 串 25 Ω，红色 LED 是 1.8 V 串 12 Ω。用 KVL 算出 10 mA 需要的电阻，取标准值，替换那根跳线。",
   "i18n": {
     "en": {
+      "startNote": "**Half-built (one deliberate mistake)**: the ESP32 and its GND wire are in place and the LED is plugged in — but GPIO4 reaches the LED through a plain **jumper**, no resistor. **Why**: first see diagnostics flag the pin overcurrent, then work out the resistor yourself. **Your job**: compute the resistor for about 10 mA and replace the jumper with it.",
       "title": "An LED on a GPIO: work out the resistor",
       "summary": "Someone wired an LED straight to a GPIO and the pin burned. Work out the resistor for about 10 mA, fit it, then measure how far the pin voltage sags.",
       "concepts": ["GPIO output", "current-limiting resistor", "pin output resistance", "pin current limit"],
@@ -158,6 +159,7 @@
     "拔掉黄色跳线，在同样的两个孔（GPIO 那一列和 LED 长脚那一列）之间插电阻。",
     "R = (3.3 − 1.8) / 0.010 − 25 − 12 ≈ 113 Ω：100 Ω 或 120 Ω 都在 8.5–11.5 mA 里。"
   ],
+  "startNote": "**半成品（有一处故意接错）**：ESP32 和 GND 线已经接好，LED 已经插好——但 GPIO4 和 LED 之间是一根**跳线**，没有电阻。**为什么**：先看诊断怎样报引脚过流，再自己算电阻。**你要做**：算出让 LED 约 10 mA 的电阻，把这根跳线换成它。",
   "solution": {
     "parts": [
       {"type": "esp32_devkit", "ref": "U1", "at": "b1", "props": {"usb": true, "modes": {"GPIO4": "out_high"}}},

@@ -174,7 +174,7 @@
               "en": "**④ Solve for v_o.** v_o = −R_f × i = −22 kΩ × 0.1 mA = −2.2 V. That is v_o = −(R_f/R_{in}) v_{in}."
             },
             {
-              "zh": "**⑤ 合理性检查。** ±9 V 双电源，LM358 输出约 −9 V … +7.5 V：−2.2 V 在里面 ✓。0.1 mA 从 v_{in} 经 R_{in}、R_f 流**进**输出端，运放吸收 0.1 mA，远低于约 10 mA 的吸收能力 ✓。再看范围：v_{in} 超过 9/2.2 ≈ 4.1 V（或低于 −7.5/2.2 ≈ −3.4 V）就会削顶。还有一点：信号源看到的输入电阻就是 R_{in} = 10 kΩ，不是无穷大。",
+              "zh": "**⑤ 合理性检查。** ±9 V 双电源，LM358 输出约 −9 V … +7.5 V：−2.2 V 在里面 ✓。0.1 mA 从 v_{in} 经 R_{in}、R_f 流**进**输出端，op-amp（运算放大器）吸收 0.1 mA，远低于约 10 mA 的吸收能力 ✓。再看范围：v_{in} 超过 9/2.2 ≈ 4.1 V（或低于 −7.5/2.2 ≈ −3.4 V）就会削顶。还有一点：信号源看到的输入电阻就是 R_{in} = 10 kΩ，不是无穷大。",
               "en": "**⑤ Sanity check.** On ±9 V the LM358 output spans about −9 V … +7.5 V: −2.2 V is inside ✓. The 0.1 mA flows from v_{in} through R_{in} and R_f **into** the output, so the op-amp sinks 0.1 mA, far below its roughly 10 mA sink limit ✓. Range: v_{in} above 9/2.2 ≈ 4.1 V (or below −7.5/2.2 ≈ −3.4 V) will clip. One more thing: the source sees an input resistance of R_{in} = 10 kΩ, not infinity."
             }
           ]
@@ -287,7 +287,7 @@
         {
           "type": "sim",
           "intro": {
-            "zh": "先预测，再运行，再看为什么。运放按 LM358 建模：±9 V 双电源，输出 −9 … +7.5 V，开环增益 A = 100 000。",
+            "zh": "先预测，再运行，再看为什么。op-amp（运算放大器）按 LM358 建模：±9 V 双电源，输出 −9 … +7.5 V，开环增益 A = 100 000。",
             "en": "Predict, run, then see why. The op-amp is an LM358 on ±9 V: output −9 … +7.5 V, open-loop gain A = 100 000."
           },
           "params": [
@@ -443,7 +443,7 @@
               ],
               "correct": 2,
               "explain": {
-                "zh": "没有反馈，R_{in} 里没有电流，v_{−} = v_{in} = 1 V。运放开环：A × (0 − 1) = −100 000 V，只能顶在 −9 V。第 ① 步不成立。",
+                "zh": "没有反馈，R_{in} 里没有电流，v_{−} = v_{in} = 1 V。op-amp（运算放大器）开环：A × (0 − 1) = −100 000 V，只能顶在 −9 V。第 ① 步不成立。",
                 "en": "With no feedback, R_{in} carries no current, so v_{−} = v_{in} = 1 V. Open loop: A × (0 − 1) = −100 000 V, so the output sits at −9 V. Step ① fails."
               }
             },
@@ -511,7 +511,7 @@
               "en": "(v_{in} − v_{−})/R_{in} + (v_o − v_{−})/R_f = 0"
             },
             {
-              "zh": "(v_{in} − v_{−})/R_{in} + (v_o − v_{−})/R_f + i_o = 0（i_o 是运放输出电流）",
+              "zh": "(v_{in} − v_{−})/R_{in} + (v_o − v_{−})/R_f + i_o = 0（i_o 是 op-amp（运算放大器）输出电流）",
               "en": "(v_{in} − v_{−})/R_{in} + (v_o − v_{−})/R_f + i_o = 0 (i_o is the op-amp output current)"
             },
             {
@@ -521,19 +521,19 @@
           ],
           "correct": 0,
           "explain": {
-            "zh": "和 Midterm 2 一样：流出结点的电流加起来为 0。v_{−} 只连着两个电阻；虚断说运放输入端不取电流，所以没有第三项。i_o 在输出结点，不在 v_{−}。代入 v_{−} = 0 就得到 v_o = −(R_f/R_{in}) v_{in}（第三个选项少了负号）。",
+            "zh": "和 Midterm 2 一样：流出结点的电流加起来为 0。v_{−} 只连着两个电阻；虚断说 op-amp（运算放大器）输入端不取电流，所以没有第三项。i_o 在输出结点，不在 v_{−}。代入 v_{−} = 0 就得到 v_o = −(R_f/R_{in}) v_{in}（第三个选项少了负号）。",
             "en": "Just as in Midterm 2: the currents leaving the node add to zero. Node v_{−} touches only two resistors; the virtual open says the op-amp input draws nothing, so there is no third term. i_o belongs to the output node, not v_{−}. Put v_{−} = 0 and you get v_o = −(R_f/R_{in}) v_{in} (the third choice lost the minus sign)."
           }
         },
         {
           "type": "predict",
           "ask": {
-            "zh": "能不能在运放的**输出**结点列 KCL 来求 v_o？",
+            "zh": "能不能在 op-amp（运算放大器）的**输出**结点列 KCL 来求 v_o？",
             "en": "Can you write KCL at the op-amp **output** node to find v_o?"
           },
           "choices": [
             {
-              "zh": "不能：运放输出端的电流是未知的，多一个未知数",
+              "zh": "不能：op-amp（运算放大器）输出端的电流是未知的，多一个未知数",
               "en": "No: the current out of the op-amp output is unknown, one more unknown"
             },
             {
@@ -547,20 +547,20 @@
           ],
           "correct": 0,
           "explain": {
-            "zh": "输出端像一个受控电压源，它要多少电流就给多少，事先不知道。所以只在**输入端**（v_{−}、v_{+}）列 KCL。虚断只管输入端，不管输出端。等 v_o 求出来以后，再在输出结点用 KCL 求运放的输出电流。",
+            "zh": "输出端像一个受控电压源，它要多少电流就给多少，事先不知道。所以只在**输入端**（v_{−}、v_{+}）列 KCL。虚断只管输入端，不管输出端。等 v_o 求出来以后，再在输出结点用 KCL 求 op-amp（运算放大器）的输出电流。",
             "en": "The output acts like a controlled voltage source: it supplies whatever current is needed, unknown in advance. So write KCL only at the **inputs** (v_{−}, v_{+}). The virtual open is about the inputs, not the output. Once v_o is known, KCL at the output node gives the op-amp's output current."
           }
         },
         {
           "type": "predict",
           "ask": {
-            "zh": "在 v_o 和地之间再接一个 2.2 kΩ 负载（v_{in} = 1 V）。从运放输出端**流出**的电流是多少 mA？（流进为负）",
+            "zh": "在 v_o 和地之间再接一个 2.2 kΩ 负载（v_{in} = 1 V）。从 op-amp（运算放大器）输出端**流出**的电流是多少 mA？（流进为负）",
             "en": "Add a 2.2 kΩ load from v_o to ground (v_{in} = 1 V). What current flows **out of** the op-amp output, in mA? (Into it is negative.)"
           },
           "answer": -1.1,
           "unit": "mA",
           "explain": {
-            "zh": "v_o 仍是 −2.2 V（输出电阻约为 0，负载不改变它）。在输出结点列 KCL：流出运放的电流 = 流进负载的 (−2.2)/2.2k = −1 mA，加上流进 R_f 的 (−2.2 − 0)/22k = −0.1 mA，共 −1.1 mA。运放在吸收 1.1 mA，低于约 10 mA ✓。",
+            "zh": "v_o 仍是 −2.2 V（输出电阻约为 0，负载不改变它）。在输出结点列 KCL：流出 op-amp（运算放大器）的电流 = 流进负载的 (−2.2)/2.2k = −1 mA，加上流进 R_f 的 (−2.2 − 0)/22k = −0.1 mA，共 −1.1 mA。op-amp 在吸收 1.1 mA，低于约 10 mA ✓。",
             "en": "v_o is still −2.2 V (the output resistance is about 0, so the load does not change it). KCL at the output node: current out of the op-amp = into the load (−2.2)/2.2k = −1 mA, plus into R_f (−2.2 − 0)/22k = −0.1 mA, total −1.1 mA. The op-amp sinks 1.1 mA, under its roughly 10 mA ✓."
           }
         },

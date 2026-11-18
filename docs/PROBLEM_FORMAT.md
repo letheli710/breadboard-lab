@@ -65,7 +65,7 @@ npm run validate -- --lang en       # 英文报错信息
 | 1 | `equivalence` | 电阻电路的等效变换：串并联、Y–Δ、电源等效变换、输入电阻 |
 | 2 | `methods` | 支路电流法、网孔/回路电流法、结点电压法 |
 | 2 | `theorems` | 叠加、替代、戴维宁/诺顿、最大功率传输、互易 |
-| 2 | `opamp` | 含理想运放的电阻电路 |
+| 2 | `opamp` | 含理想 op-amp 的电阻电路 |
 | 3 | `storage` | 电容与电感 |
 | 3 | `first-order` | 一阶电路：零输入/零状态/全响应、三要素法、阶跃响应 |
 | 3 | `second-order` | 二阶 RLC 电路：过阻尼/临界/欠阻尼 |
@@ -138,7 +138,7 @@ npm run validate -- --lang en       # 英文报错信息
 | `Z` | 一般阻抗（交流题） | `{"re": 3, "im": 4}` Ω | 只在给定频率下有效 |
 | `ammeter` | 理想电流表（0 Ω） | — | 读数 = 从 p 流到 n 的电流 |
 | `voltmeter` | 理想电压表（开路） | — | 读数 = V(p) − V(n) |
-| `OPAMP` | 理想运放 | — | `at`, `orient`, `flip`（见下） |
+| `OPAMP` | 理想 op-amp | — | `at`, `orient`, `flip`（见下） |
 | `XFMR` | 理想变压器 n:1 | — | `at`, `n` |
 | `K` | 耦合电感 | — | `l1`, `l2`, `k` 或 `M` |
 | `NR` | 非线性电阻 | — | `law`：v–i 特性（§6.1.7）。只用于直流（工作点）和交流（小信号）分析 |
@@ -148,7 +148,7 @@ npm run validate -- --lang en       # 英文报错信息
 
 **受控源的控制量**：`{"v": "R1"}` = R1 两端电压（R1 的 p 减 n）；`{"i": "R1"}` = 流过 R1 的电流（R1 的关联参考方向，从 p 到 n）；`{"vnodes": ["a","b"]}` = V(a) − V(b)。把控制量画进图里：给控制元件加一个 `marks` 并在题干里写清楚。
 
-**理想运放 `OPAMP`**（V+ = V−，输入电流为零）：端子相对 `at`：反相输入 (−) 在 (−2, −1)，同相输入 (+) 在 (−2, +1)，输出在 (+2, 0)（`orient: "right"`，默认）。`flip: true` 上下交换两个输入；`orient: "left"` 左右镜像。输出对地。网表引脚名：`minus`、`plus`、`out`。`{"kind": "i", "el": "A"}` 是**从运放输出端流出**（流进输出结点）的电流；负值表示电流流入输出端（运放在“吸收”电流）。 / `{"kind":"i","el":<op-amp>}` is the current flowing **out of the output terminal** into the output node.
+**理想 op-amp `OPAMP`**（V+ = V−，输入电流为零）：端子相对 `at`：反相输入 (−) 在 (−2, −1)，同相输入 (+) 在 (−2, +1)，输出在 (+2, 0)（`orient: "right"`，默认）。`flip: true` 上下交换两个输入；`orient: "left"` 左右镜像。输出对地。网表引脚名：`minus`、`plus`、`out`。`{"kind": "i", "el": "A"}` 是**从 op-amp 输出端流出**（流进输出结点）的电流；负值表示电流流入输出端（op-amp 在“吸收”电流）。 / `{"kind":"i","el":<op-amp>}` is the current flowing **out of the output terminal** into the output node.
 
 **理想变压器 `XFMR`**（n:1，v1 = n·v2，i1 = −i2/n，电流以流入同名端为正）：端子相对 `at`：p1 (−2, −1)、n1 (−2, +1)、p2 (+2, −1)、n2 (+2, +1)；同名端（黑点）在 p1 和 p2。
 
@@ -162,8 +162,8 @@ npm run validate -- --lang en       # 英文报错信息
 - **电压源**：p 端为 “+”。它的电流 i 也按关联方向（从 + 端流进去）——正常供电的电源，i 是负的，吸收功率也是负的。
 - **电流源**：箭头从 p 指向 n，源内部从 p 推 `value` 安培到 n（电流从 n 端流出）。它的关联电流就是 +value。想让电流源向结点 a 注入电流，就让 `to`（n）接 a。
 - 想让学生用某个方向，就**画出来**：`marks` 里的 `{"kind": "i", "el": "R1", "name": "i1"}` 在 R1 上画一个从 p 指向 n 的电流箭头，标 `i1`；`{"kind": "v", "el": "C", "name": "v_C"}` 在 p 端标 “+”、n 端标 “−”。所以**元件的 from/to 方向就是参考方向**——先想好方向再画。
-- **运放的输出电流**：`{"kind": "i", "el": "A", "name": "i_o"}` 在运放的输出引线上画一个**背离运放**（指向输出结点）的箭头，和引擎的 `{"kind": "i", "el": "A"}`（从输出端流出的电流）同号。运放不能加 `"v"` 标记（它没有“元件电压”，用结点标签）；变压器 `XFMR`、耦合 `K` 不能加任何标记（给与绕组串联的元件加）。 / On an op-amp, `{"kind":"i","el":"A","name":"i_o"}` draws an arrow on the output lead pointing **away from the op-amp**, matching the engine's sign (current out of the output terminal). `"v"` marks on op-amps and any mark on `XFMR` / `K` are errors.
-- 题目问到某个元件的电流（`kind: "i"`）或电压（`kind: "v"` + `el`）而图里还没有对应的标记时，程序**自动加一个**，名字是 `i_R1`、`v_R1`（中英文界面都用 v）；问运放的输出电流时自动加 `i_A`。题干里如果用了自己的符号（如 i₁、i_o），请自己写 `marks` 并用同一个名字。 / Asked element currents/voltages (and op-amp output currents) get a mark automatically unless one is listed; write your own to use the symbol from the text.
+- **op-amp 的输出电流**：`{"kind": "i", "el": "A", "name": "i_o"}` 在 op-amp 的输出引线上画一个**背离 op-amp**（指向输出结点）的箭头，和引擎的 `{"kind": "i", "el": "A"}`（从输出端流出的电流）同号。op-amp 不能加 `"v"` 标记（它没有“元件电压”，用结点标签）；变压器 `XFMR`、耦合 `K` 不能加任何标记（给与绕组串联的元件加）。 / On an op-amp, `{"kind":"i","el":"A","name":"i_o"}` draws an arrow on the output lead pointing **away from the op-amp**, matching the engine's sign (current out of the output terminal). `"v"` marks on op-amps and any mark on `XFMR` / `K` are errors.
+- 题目问到某个元件的电流（`kind: "i"`）或电压（`kind: "v"` + `el`）而图里还没有对应的标记时，程序**自动加一个**，名字是 `i_R1`、`v_R1`（中英文界面都用 v）；问 op-amp 的输出电流时自动加 `i_A`。题干里如果用了自己的符号（如 i₁、i_o），请自己写 `marks` 并用同一个名字。 / Asked element currents/voltages (and op-amp output currents) get a mark automatically unless one is listed; write your own to use the symbol from the text.
 
 ### 3.5 标签、端子、注释 / labels, terminals, notes
 
@@ -324,7 +324,7 @@ The circuit is solved harmonic by harmonic (k = 0: DC with L shorted and C open;
 |---|---|---|---|
 | `v` | `{"kind":"v","nodes":["a"]}` / `{"kind":"v","nodes":["a","b"]}` | 结点电压 V(a)（对地）或 V(a) − V(b) | V |
 | `v` | `{"kind":"v","el":"R2"}` | 元件电压 V(p) − V(n) | V |
-| `i` | `{"kind":"i","el":"R1"}` | 元件电流（关联方向 p → n）；运放：从输出端**流出**的电流 | A |
+| `i` | `{"kind":"i","el":"R1"}` | 元件电流（关联方向 p → n）；op-amp：从输出端**流出**的电流 | A |
 | `p` | `{"kind":"p","el":"Vs"}` | 元件**吸收**的功率（直流 v·i；交流为平均功率 P） | W |
 | `q` | `{"kind":"q","el":"L1"}` | 交流：元件吸收的无功功率 | var |
 | `s` | `{"kind":"s","el":"Vs"}` | 交流：视在功率 \|S\| | VA |
@@ -776,14 +776,14 @@ A `TL` element is a two-port: `line` gives the primary parameters per metre (`R0
 ### 6.3 引擎的限制 / Engine limitations
 
 - 耦合系数 k = 1（全耦合电感）只能用于交流题；暂态题请用 k < 1 或理想变压器。 / k = 1 coupling works in AC only.
-- 运放积分器（反馈只有电容）在 t < 0 没有确定的直流状态：给电容写 `ic`（通常 `0`）。 / An op-amp integrator needs `ic` on its capacitor.
+- op-amp 积分器（反馈只有电容）在 t < 0 没有确定的直流状态：给电容写 `ic`（通常 `0`）。 / An op-amp integrator needs `ic` on its capacitor.
 - `gain`、`f0`、`twoport` 不能用于暂态题；`q`、`s`、`pf` 只用于交流题；`w` 不能用于交流题；`deriv` 只用于暂态题；`part: "rms"` 不能用于暂态的瞬时值。 / `gain`/`f0`/`twoport` are not available in transient problems; `w` is DC / transient only; `deriv` is transient only.
 - 变压器两侧没有公共地时，跨两侧的电压没有定义，引擎报错（同一侧内的电压、元件电压没问题）。 / Voltages between galvanically isolated sides of a transformer are undefined and throw.
 - 交流分析只有一个频率（含多个频率的激励用 `periodic`，§5.1，所有频率必须是基波的整数倍）。`f0` 在电路特征频率的 10⁻⁴～10⁴ 倍范围内搜索，有多个谐振点时给最低的。 / AC is single-frequency; `f0` returns the lowest resonance.
 - 非线性电阻 `NR` 只能用于直流（工作点）和交流（小信号）题；两个以上元件同时处于弯曲段时工作点用牛顿法搜索，不保证找全（§6.1.7）。 / `NR` works in DC and small-signal AC only; with two or more elements on curved pieces at once the operating-point search is Newton-based and not guaranteed complete.
 - 冲激源不能与电容构成只含电压源/电容的回路，也不能与电感构成只含电流源/电感的割集（电容电压、电感电流本身会含冲激），引擎拒绝。`H`、`pole`、`zero`、`hcoef` 需要一个输入源，并且只对 t > 0 的电路；`residue` 只用于暂态题。 / Impulse sources in a capacitor loop or inductor cut-set are rejected; `H`/`pole`/`zero`/`hcoef` need an input source and describe the t > 0 circuit; `residue` is transient-only.
 - 矩阵形式章：结点/割集方程要求每条支路导纳有限（无伴电压源不行），回路方程要求每条支路阻抗有限（单独的电流源不行）；受控源只支持 VCCS、CCCS（结点/割集法）；状态方程要求没有纯电容回路、纯电感割集。 / Matrix form: node and cut-set equations need finite branch admittances, loop equations finite branch impedances; only VCCS / CCCS controlled sources (node / cut-set methods); state equations need no capacitor-only loops or inductor-only cut-sets.
-- 电路方程奇异（电压源回路、电流源割集、悬空结点、没有负反馈的运放、恰好在谐振频率上的无损 LC）时引擎给出说明并拒绝。
+- 电路方程奇异（电压源回路、电流源割集、悬空结点、没有负反馈的 op-amp、恰好在谐振频率上的无损 LC）时引擎给出说明并拒绝。
 
 ---
 
@@ -1099,7 +1099,7 @@ Vs 在 t = 0 从 0 跳到 10 V，R = 2 Ω，L = 1 H，C = 0.25 F，换路前电�
 | `Both terminals of X are on the same node` / `被短路` | 一条导线从元件一端连到了另一端（例如顶边导线穿过了水平放置的元件），或者元件放在一条连续导线上。导线要在元件两端断开。 |
 | 两条导线交叉却没连上 | 交叉不相连。要连接就让一条导线的端点/折点落在另一条上。 |
 | `Loop current … sits on …` / `回路电流 … 压在 … 上` | `loops` 的圆心要放在网孔中间的空白处，不能在导线或元件上。 |
-| `Op-amp A only takes a current mark` / `Reference marks need a two-terminal element` | 运放只能加 `"i"` 标记（输出电流）；变压器、耦合电感不能加标记，给与绕组串联的元件加。 |
+| `Op-amp A only takes a current mark` / `Reference marks need a two-terminal element` | op-amp 只能加 `"i"` 标记（输出电流）；变压器、耦合电感不能加标记，给与绕组串联的元件加。 |
 | `no node "a"` / `找不到结点` | 结点名只来自 `labels` / `terminals`，而且要放在导线或端子上。地写 `"0"`。 |
 | `No ground symbol` / `没有接地符号` | `grounds` 至少一个点，并且要在导线或端子上。 |
 | `transient questions need a time "t"` | 暂态题每个问题（除 `tau`）都要写 `t`：`"0-"`、`"0+"`、秒数或 `"inf"`。 |
@@ -1109,7 +1109,7 @@ Vs 在 t = 0 从 0 跳到 10 V，R = 2 Ω，L = 1 H，C = 0.25 F，换路前电�
 | `tau: … not first-order` / `omega_d: … real` | 电路的阶数或阻尼类型和题目想的不一样：先用 `root` 看看引擎算出的特征根（报错信息里会列出来）。 |
 | “求 C 使……”只能出选择题 | 用 `val` + `hideValue`，并加一个核对条件的小题（§6.1.4）。 |
 | `pf` 想要负数 / 想区分超前滞后 | `pf` 总是 ≥ 0；超前/滞后用选择题问。 |
-| `Cannot determine the initial state at t = 0−` | t < 0 的直流状态不确定（例如运放积分器）：给电容/电感写 `ic`。 |
+| `Cannot determine the initial state at t = 0−` | t < 0 的直流状态不确定（例如 op-amp 积分器）：给电容/电感写 `ic`。 |
 | 电流源方向反了 | 箭头从 p（from）指向 n（to），电流从 n 端流出。要向结点 a 注入电流，`to` 放在 a 上。 |
 | `i18n.en.questions: should be an array matching …` | 翻译的小题数量必须和原文一样，一一对应。 |
 | `JSON syntax error` | 注释、尾随逗号、`...` 占位符。 |

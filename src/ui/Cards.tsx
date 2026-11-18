@@ -106,7 +106,9 @@ export function StepNav({ ch, from, to, sc, endLabel, onEnd }: { ch: Challenge; 
 }
 
 /** The card deck: tabs, the current card's text, its steps, and the links of a "take away" card. */
-export function CardDeck({ ch, sc }: { ch: Challenge; sc: StepChecks }) {
+/** `extra(kind)`: what the lesson adds to a card of that kind (the formula cards on "Why", the
+ *  starting kit on "Build", the teardowns again on "Take away"; see ui/Panel.tsx). */
+export function CardDeck({ ch, sc, extra }: { ch: Challenge; sc: StepChecks; extra?: (kind: CardKind) => ReactNode }) {
   const cards = ch.cards;
   const card = useStore((s) => Math.min(s.card, cards.length - 1));
   const setCard = useStore((s) => s.setCard);
@@ -153,6 +155,7 @@ export function CardDeck({ ch, sc }: { ch: Challenge; sc: StepChecks }) {
           {c.title}
         </h3>
         {c.text && <Md text={c.text} math figure={figureOf(ch)} />}
+        {extra?.(c.kind)}
         {c.kind === 'wrap' && c.practice.length > 0 && (
           <div className="card-practice">
             <span className="eyebrow">{tr('趁热练理论题', 'Practise the theory while it is fresh')}</span>

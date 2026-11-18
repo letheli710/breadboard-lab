@@ -441,7 +441,7 @@ export const PARTS: Record<PartType, PartDef> = {
   opamp: {
     type: 'opamp',
     get name() {
-      return tr('运放 LM358', 'Op-amp LM358');
+      return tr('op-amp LM358', 'Op-amp LM358');
     },
     nameEn: 'Op-amp LM358',
     category: 'basic',
@@ -467,7 +467,7 @@ export const PARTS: Record<PartType, PartDef> = {
     defaults: {},
     get blurb() {
       return tr(
-        'LM358 双运放（DIP-8 封装，里面有 A、B 两个独立的运放，共用电源脚）。必须横跨中间凹槽插，否则两排脚会被金属条短路。8 脚 V+ 接电源正极，4 脚 V− 接 GND（或负电源）——不接电源运放就不工作。运放把 (IN+ − IN−) 放大约 10 万倍，所以几乎总是配合负反馈电阻使用：反相放大 Vout = −Rf/Rin·Vin，同相放大 Vout = (1 + Rf/Rg)·Vin。输出只能在 V− 到 V+ − 1.5 V 之间摆动，超出就“削顶”（clipping）。',
+        'LM358 双 op-amp 芯片（op-amp = 运算放大器；DIP-8 封装，里面有 A、B 两个独立的 op-amp，共用电源脚）。必须横跨中间凹槽插，否则两排脚会被金属条短路。8 脚 V+ 接电源正极，4 脚 V− 接 GND（或负电源）——不接电源 op-amp 就不工作。op-amp 把 (IN+ − IN−) 放大约 10 万倍，所以几乎总是配合负反馈电阻使用：反相放大 Vout = −Rf/Rin·Vin，同相放大 Vout = (1 + Rf/Rg)·Vin。输出只能在 V− 到 V+ − 1.5 V 之间摆动，超出就“削顶”（clipping）。',
         'LM358 dual op-amp (DIP-8 package with two independent op-amps, A and B, sharing the power pins). It must straddle the centre gap, or the metal strips short its pins together. Pin 8 (V+) goes to the supply +, pin 4 (V−) to GND (or a negative supply) — without power the op-amp does nothing. It amplifies (IN+ − IN−) about 100 000 times, so it is almost always used with negative-feedback resistors: inverting amplifier Vout = −Rf/Rin·Vin, non-inverting Vout = (1 + Rf/Rg)·Vin. The output can only swing between V− and V+ − 1.5 V; beyond that it clips.',
       );
     },

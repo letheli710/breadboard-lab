@@ -42,7 +42,7 @@ This file fixes the symbols and wording used in theory problems (`problems/`), b
   Lower case v, i: instantaneous values and general variables. Upper case V, I: DC quantities and rms values.
 - 结点电压写 `v_a`（直流、暂态）或 `V̇_a`（相量）、`V_a`（有效值）。
 - 功率：P（有功）、Q（无功）、S（视在）、复功率 `S̄`（S + U+0304 组合横线）。
-- 面包板课程里结点电压写 `V(A)` 或网络名 `VOUT`、`VD`；运放输入写 `V(IN+)`、`V(IN−)`（LM358 的 `V+`、`V−` 是电源脚）。芯片的参考标号仍是 `U1`、`U2`（运放、开发板、稳压器），这是通用的元件编号，不是电压。
+- 面包板课程里结点电压写 `V(A)` 或网络名 `VOUT`、`VD`；op-amp 输入写 `V(IN+)`、`V(IN−)`（LM358 的 `V+`、`V−` 是电源脚）。芯片的参考标号仍是 `U1`、`U2`（op-amp、开发板、稳压器），这是通用的元件编号，不是电压。
   In breadboard text node voltages are `V(A)` or net names such as `VOUT`, `VD`; op-amp inputs are `V(IN+)`, `V(IN−)` (the LM358's `V+` / `V−` are its supply pins). ICs keep the designators `U1`, `U2` (op-amp, dev board, regulator) — a part number, not a voltage.
 
 ## 4. 相量 / Phasors
