@@ -79,10 +79,14 @@ const WORDS: Record<string, string> = {
 
 /** \text{…} → its text, "\ " → a space, \approx and friends → their character. */
 export function texWords(s: string): string {
-  return s
-    .replace(/\\text\{([^{}]*)\}/g, '$1')
-    .replace(/\\ /g, ' ')
-    .replace(/\\([A-Za-z]+)(?![A-Za-z])/g, (m, w: string) => (w in WORDS ? WORDS[w] : m));
+  return (
+    s
+      .replace(/\\text\{([^{}]*)\}/g, '$1')
+      .replace(/\\ /g, ' ')
+      // TeX spacing commands are a thin space
+      .replace(/\\[,;:]/g, '\u2009')
+      .replace(/\\([A-Za-z]+)(?![A-Za-z])/g, (m, w: string) => (w in WORDS ? WORDS[w] : m))
+  );
 }
 
 /** Parse the formula markup; unmatched or unknown markup stays text. */
