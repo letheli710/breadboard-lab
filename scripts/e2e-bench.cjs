@@ -187,9 +187,17 @@ const TESTS = {
       assert(blank === 0, `lesson 1: board between holes is blank (${blank})`);
       const pulses = await p.evaluate(() => window.__bb.pulses());
       assert(pulses === 2, `lesson 1: step 1 highlights its 2 holes (${pulses} pulse rings)`);
-      assert((await p.locator('.step-cur').textContent()).length > 10, 'lesson 1: step text shown');
-      await p.locator('.steps button.primary').click();
+      // the rail (§17) opens on "look first"; Next shows the first build node with step 1 open
+      await p.locator('.rail-node.active .rail-next button.primary').click();
       await p.waitForTimeout(200);
+      assert((await p.locator('.rail-node.active .rail-step.cur').textContent()).length > 10, 'lesson 1: step text shown');
+      assert(!(await p.locator('.rail-node.active .rail-next button.primary').isEnabled()), 'lesson 1: Next waits for the steps');
+      // doing step 1 moves the rail on to step 2 by itself
+      await tool(p, 'Battery');
+      await clickHole(p, 'tp1');
+      await clickHole(p, 'tn1');
+      await p.waitForTimeout(300);
+      assert((await p.locator('.rail-node.active .rail-step.done').count()) === 1, 'lesson 1: step 1 shows as done');
       const pulses2 = await p.evaluate(() => window.__bb.pulses());
       assert(pulses2 === 6, `lesson 1: step 2 highlights 6 holes (${pulses2})`);
       assert(errors.length === 0, 'lesson 1: no page errors ' + errors.join(' | '));
@@ -329,17 +337,18 @@ const TESTS = {
       await p.locator('.actions button.primary.big').click();
       await p.waitForTimeout(500);
       const ok = await p.locator('.check-result .ok-box').textContent();
-      assert(/Stage 1 done/.test(ok), 'scope lab: check passes, stage 1 done');
+      assert(/reading boxes are open|Stage 1 done/.test(ok), 'scope lab: check passes, the readings open');
       await p.waitForSelector('canvas.sc-screen', { timeout: 5000 });
       await p.waitForTimeout(400);
       const sel = 'canvas.sc-screen';
       const ink = await nonBlank(p, sel);
       assert(ink > 500, `scope lab: scope panel drew a trace (${ink} non-background pixels)`);
-      // a card-style lab shows its measurement questions on the Build card
-      const buildTab = p.locator('.card-tabs button', { hasText: 'Build' });
-      if (await buildTab.count()) await buildTab.first().click();
-      await p.waitForTimeout(200);
-      assert((await p.locator('.mq-section').count()) === 1, 'scope lab: measurement stage shown');
+      // on the rail (§17) the questions are asked in a "measure" node: walk to it
+      for (let g = 0; g < 8 && !(await p.locator('.rail-node.active li.mq').count()); g++) {
+        await p.locator('.rail-node.active .rail-next button.primary').click();
+        await p.waitForTimeout(150);
+      }
+      assert((await p.locator('.rail-node.active li.mq').count()) > 0, 'scope lab: measurement questions shown in place');
       const q1 = p.locator('.mq').first();
       // question 1 asks for a prediction first
       await q1.locator('input').first().fill('2.2');
@@ -555,12 +564,15 @@ const TESTS = {
     const { p, ctx, errors } = await open(browser, '#/learn/lesson-multimeter');
     try {
       const tab = () => p.locator('aside.side [role=tab][aria-selected=true]').textContent();
+      // the rail opens on "look first" (the multimeter's outside): go on to the first build node
+      await p.locator('.rail-node.active .rail-next button.primary').click();
+      await p.waitForTimeout(150);
       await tool(p, 'Battery');
       assert(/^Lesson/.test(await tab()), 'lesson: picking a part tool keeps the Lesson tab (' + (await tab()) + ')');
       await clickHole(p, 'tp1');
       await clickHole(p, 'tn1');
       assert(/^Lesson/.test(await tab()), 'lesson: after placing, the Lesson tab is still shown');
-      assert(await p.locator('section.steps .step-check.ok').isVisible(), 'lesson: the step shows its check as done');
+      assert((await p.locator('.rail-step.done').count()) > 0, 'lesson: the step shows as done on the rail');
       const pop = p.locator('.part-pop');
       assert(/BAT1/.test((await pop.textContent()) || ''), 'lesson: the details of the part just placed open beside it');
       assert((await p.evaluate(() => window.__bb.store.getState().tool)) === 'select', 'lesson: placing a part puts the tool down');

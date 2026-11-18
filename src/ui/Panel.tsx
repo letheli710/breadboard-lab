@@ -25,6 +25,7 @@ import { allAnswered, emptyReadings, matchBoard, revalidate, structureKey } from
 import { Md } from './Md';
 import { Prereqs, useStepChecks } from './StepCheck';
 import { CardDeck, measureCardOf, StepNav } from './Cards';
+import { RailPanel } from './Rail';
 import { inCourseOrder, itemLabel, placeOf } from '../core/course';
 import { unitTitle } from '../core/courseText';
 import { useBenchUi } from '../state/benchUi';
@@ -236,6 +237,71 @@ function TaskPanel({ ch }: { ch: Challenge }) {
   );
   const card = useStore((s) => s.card);
   const onMeasureCard = !usesCards || Math.min(card, ch.cards.length - 1) === measureCardOf(ch.cards);
+  // the single-track rail (§17): written in the file or made from its cards
+  const usesRail = ch.rail.length > 0;
+  const targetBody = (
+    <>
+      <div className="schem-card">
+        {/* with measurement questions the target's simulated currents / voltages would give the readings away */}
+        <SchematicView circuit={ch.target} sim={targetSim} showValues hideReadings={hasM} />
+      </div>
+      <p className="note">
+        {open
+          ? tr(
+              '开放式设计题：只看电路的表现。下面的测试都通过就算完成——用什么元件、什么接法、什么阻值都可以，上图只是其中一种做法。',
+              'An open design task: only what the circuit does counts. Pass the tests and you are done — any parts, wiring and values will do; the drawing is just one way.',
+            )
+          : tr(
+              '原理图只说明“谁和谁连在一起”，不规定插在面包板哪个孔。只要连接关系一样就算对。',
+              'A schematic only says what connects to what — not which breadboard holes to use. Any layout with the same connections counts as correct.',
+            )}
+      </p>
+    </>
+  );
+
+  const checkBlock = (
+    <div className="check-live" aria-live="polite" aria-atomic="false">
+      {check && (
+        <div className="check-result">
+          {!check.undecided && (
+            <div className="progress-row">
+              <span>{tr('连接正确度', 'Connections correct')}</span>
+              <div className="bar">
+                <div style={{ width: `${Math.round(check.progress * 100)}%` }} />
+              </div>
+              <b>{Math.round(check.progress * 100)}%</b>
+            </div>
+          )}
+          {check.undecided ? (
+            <IssueList issues={check.issues} />
+          ) : check.perfect && hasM && !ms.complete ? (
+            <div className="ok-box big">
+              ✓{' '}
+              {tr(
+                `电路正确${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。第 1 步完成——现在用仪表读你的面包板，完成下面的 ${ms.required} 道测量题。`,
+                `The circuit is right${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}. Stage 1 done — now read your board's instruments and answer the ${ms.required} measurement questions below.`,
+              )}
+            </div>
+          ) : check.perfect ? (
+            <div className="ok-box big">
+              <Icon name="party" size={18} />{' '}
+              {tr(
+                `完全正确！连接关系与目标电路一致${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。`,
+                `Perfect! The connections match the target circuit${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}.`,
+              )}
+            </div>
+          ) : (
+            <>
+              <p className="note">
+                {tr('把鼠标移到下面的条目上，3D 视图会高亮出相关的元件和孔位。', 'Hover an item below to highlight the parts and holes involved in the 3D view.')}
+              </p>
+              <IssueList issues={check.issues} />
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="task">
@@ -245,12 +311,23 @@ function TaskPanel({ ch }: { ch: Challenge }) {
       <Prereqs ch={ch} />
       {ch.source === 'folder' && <PortalSlot kind="challenge" id={ch.id} part="top" />}
       {/* ① look inside the new part first (teardowns), then the cards: try → why (+ calculations) → build (+ starting kit) → take away */}
-      <LookInside chId={ch.id} />
-      {!usesCards && <LessonCalcs chId={ch.id} />}
-      {!usesCards && startKit}
-      {hasM && <StageBar circuitOk={ms.passed} st={ms} />}
+      {!usesRail && <LookInside chId={ch.id} />}
+      {!usesCards && !usesRail && <LessonCalcs chId={ch.id} />}
+      {!usesCards && !usesRail && startKit}
+      {hasM && !usesRail && <StageBar circuitOk={ms.passed} st={ms} />}
 
-      {usesCards ? (
+      {usesRail ? (
+        <RailPanel
+          ch={ch}
+          sc={sc}
+          ms={ms}
+          onComplete={complete}
+          startKit={startKit || undefined}
+          target={targetBody}
+          targetLabel={open ? tr('参考设计', 'One way to do it') : tr('目标原理图', 'Target schematic')}
+          checkSlot={checkBlock}
+        />
+      ) : usesCards ? (
         <CardDeck
           ch={ch}
           sc={sc}
@@ -260,48 +337,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         nSteps > 0 && <StepNav ch={ch} from={0} to={nSteps} sc={sc} />
       )}
 
-      {/* a live region that is always there, so the result of every check is announced once */}
-      <div className="check-live" aria-live="polite" aria-atomic="false">
-        {check && (
-          <div className="check-result">
-            {!check.undecided && (
-              <div className="progress-row">
-                <span>{tr('连接正确度', 'Connections correct')}</span>
-                <div className="bar">
-                  <div style={{ width: `${Math.round(check.progress * 100)}%` }} />
-                </div>
-                <b>{Math.round(check.progress * 100)}%</b>
-              </div>
-            )}
-            {check.undecided ? (
-              <IssueList issues={check.issues} />
-            ) : check.perfect && hasM && !ms.complete ? (
-              <div className="ok-box big">
-                ✓{' '}
-                {tr(
-                  `电路正确${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。第 1 步完成——现在用仪表读你的面包板，完成下面的 ${ms.required} 道测量题。`,
-                  `The circuit is right${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}. Stage 1 done — now read your board's instruments and answer the ${ms.required} measurement questions below.`,
-                )}
-              </div>
-            ) : check.perfect ? (
-              <div className="ok-box big">
-                <Icon name="party" size={18} />{' '}
-                {tr(
-                  `完全正确！连接关系与目标电路一致${check.testsTotal ? `，${check.testsTotal} 项功能测试全部通过` : ''}。`,
-                  `Perfect! The connections match the target circuit${check.testsTotal ? ` and all ${check.testsTotal} function tests pass` : ''}.`,
-                )}
-              </div>
-            ) : (
-              <>
-                <p className="note">
-                  {tr('把鼠标移到下面的条目上，3D 视图会高亮出相关的元件和孔位。', 'Hover an item below to highlight the parts and holes involved in the 3D view.')}
-                </p>
-                <IssueList issues={check.issues} />
-              </>
-            )}
-          </div>
-        )}
-      </div>
+      {!usesRail && checkBlock}
 
       {hintsShown > 0 && (
         <ul className="hints">
@@ -313,7 +349,7 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         </ul>
       )}
 
-      {hasM && onMeasureCard && <MeasurementSection ch={ch} st={ms} onComplete={complete} />}
+      {hasM && onMeasureCard && !usesRail && <MeasurementSection ch={ch} st={ms} onComplete={complete} />}
 
       {!usesCards && (
         <details className="fold" open>
@@ -322,26 +358,14 @@ function TaskPanel({ ch }: { ch: Challenge }) {
         </details>
       )}
 
-      <details className="fold" open={!usesCards}>
-        <summary>
-          <Mixed text={open ? tr('参考设计 ONE WAY TO DO IT', 'One way to do it') : tr('目标电路图 TARGET SCHEMATIC', 'Target schematic')} />
-        </summary>
-        <div className="schem-card">
-          {/* with measurement questions the target's simulated currents / voltages would give the readings away */}
-          <SchematicView circuit={ch.target} sim={targetSim} showValues hideReadings={hasM} />
-        </div>
-        <p className="note">
-          {open
-            ? tr(
-                '开放式设计题：只看电路的表现。下面的测试都通过就算完成——用什么元件、什么接法、什么阻值都可以，上图只是其中一种做法。',
-                'An open design task: only what the circuit does counts. Pass the tests and you are done — any parts, wiring and values will do; the drawing is just one way.',
-              )
-            : tr(
-                '原理图只说明“谁和谁连在一起”，不规定插在面包板哪个孔。只要连接关系一样就算对。',
-                'A schematic only says what connects to what — not which breadboard holes to use. Any layout with the same connections counts as correct.',
-              )}
-        </p>
-      </details>
+      {!usesRail && (
+        <details className="fold" open={!usesCards}>
+          <summary>
+            <Mixed text={open ? tr('参考设计 ONE WAY TO DO IT', 'One way to do it') : tr('目标电路图 TARGET SCHEMATIC', 'Target schematic')} />
+          </summary>
+          {targetBody}
+        </details>
+      )}
 
       {ch.source === 'folder' && <PortalSlot kind="challenge" id={ch.id} part="bottom" />}
 

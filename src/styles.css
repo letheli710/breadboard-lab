@@ -6100,3 +6100,437 @@ h3.u-title {
   font-size: 16px;
   margin: 10px 0 6px;
 }
+
+/* ================================================================ the single-track rail (§17, ui/Rail.tsx)
+   One focus: only the active node has a dark frame and a shadow. Done nodes are one grey line with
+   a result chip; nodes still to come are a quiet grey list. No tabs, no locks, no overlays. */
+.rail {
+  position: relative;
+  margin: 10px 0 14px;
+  padding-right: 12px; /* room for the edge ticks */
+}
+.rail-top {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 10px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.rail-progress {
+  flex: 1;
+  height: 3px;
+  background: var(--line-2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.rail-progress > div {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+.rail-count {
+  font-family: var(--cond);
+  font-size: 12.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.rail-drawer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  font-size: 12.5px;
+  border-radius: 99px;
+}
+.rail-drawer-btn.on {
+  background: var(--paper);
+  border-color: var(--ink);
+}
+.rail-drawer {
+  margin: 8px 0 4px;
+  padding: 8px 10px;
+  background: var(--paper);
+  border: 1.5px solid var(--line-2);
+  border-radius: 10px;
+}
+/* edge ticks: where you are, without numbers to click */
+.rail-ticks {
+  position: absolute;
+  right: 0;
+  top: 52px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.rail-ticks li {
+  width: 6px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line-2);
+}
+.rail-ticks li.past {
+  background: var(--accent);
+}
+.rail-ticks li.cur {
+  width: 11px;
+  margin-left: -5px;
+  background: var(--ink);
+}
+.rail-stream {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rail-node.past .rail-past {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 13.5px;
+  text-align: left;
+  font-weight: 400;
+}
+.rail-node.past .rail-past:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.rail-check {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+.rail-past-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-chip {
+  flex: none;
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-variant-numeric: tabular-nums;
+}
+.rail-past-more {
+  flex: none;
+  font-size: 12px;
+}
+.rail-node.active,
+.rail-node.open {
+  background: var(--card);
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius);
+  padding: 14px 14px 12px;
+  scroll-margin-top: 56px;
+}
+.rail-node.active {
+  border: 2px solid var(--ink);
+  box-shadow: 0 8px 24px rgba(31, 42, 68, 0.08);
+}
+.rail-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--cond);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--accent-ink);
+}
+.rail-node.kind-think .rail-eyebrow {
+  color: var(--warn-ink);
+}
+.rail-node.kind-measure .rail-eyebrow {
+  color: var(--minus);
+}
+.rail-node.kind-look .rail-eyebrow,
+.rail-node.kind-wrap .rail-eyebrow {
+  color: var(--ink-2);
+}
+.rail-fold {
+  margin-left: auto;
+  padding: 1px 8px;
+  font-size: 12px;
+}
+.rail-title {
+  margin: 2px 0 8px;
+  font-size: 17px;
+  line-height: 1.3;
+}
+.rail-title:focus {
+  outline: none;
+}
+.rail-node.future {
+  padding: 6px 10px;
+  margin-left: 10px;
+  border-left: 2px solid var(--line-2);
+  color: var(--muted);
+  font-size: 13.5px;
+}
+.rail-dot {
+  font-size: 11px;
+}
+/* the steps of a build node: a checklist, the current one open */
+.rail-steps {
+  list-style: none;
+  margin: 10px 0 4px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rail-step {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.rail-step-n {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1.5px solid var(--line-2);
+  color: var(--muted);
+  margin-top: 1px;
+}
+.rail-step.done .rail-step-n {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.rail-step.cur .rail-step-n {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.rail-step-body {
+  flex: 1;
+  min-width: 0;
+}
+.rail-step.cur .rail-step-body {
+  padding: 8px 10px;
+  background: var(--paper);
+  border: 1.5px solid var(--line-2);
+  border-radius: 10px;
+}
+.rail-step.done summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  padding-top: 2px;
+}
+.rail-step-later {
+  color: var(--muted);
+  font-size: 13px;
+  opacity: 0.75;
+}
+.rail-tick {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.rail-next {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.rail-wait {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.rail-gate {
+  margin: 10px 0 4px;
+  padding: 10px 12px;
+  background: var(--paper);
+  border: 1.5px dashed var(--line-2);
+  border-radius: 10px;
+}
+.rail-gate p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.rail-mq {
+  margin: 10px 0 4px;
+}
+.rail-restart {
+  text-align: center;
+  font-size: 12.5px;
+  margin: 10px 0 0;
+}
+.rail .check-live:empty {
+  display: none;
+}
+.rail .check-live {
+  margin-top: 10px;
+}
+.mq-reveal .mq-explain {
+  margin-top: 6px;
+}
+/* B2: one teardown layer inside a node */
+.td-slice {
+  margin: 10px 0;
+  padding: 8px;
+  background: var(--paper);
+  border: 1.5px solid var(--line-2);
+  border-radius: 10px;
+}
+.td-slice-loading {
+  min-height: 160px;
+}
+.td-slice > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 260px;
+}
+.td-slice figcaption {
+  margin-top: 6px;
+  font-size: 13px;
+}
+.td-slice h4 {
+  margin: 4px 0;
+  font-size: 14px;
+}
+.td-slice-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.td-slice-open {
+  margin-top: 6px;
+  font-size: 12.5px;
+}
+/* B5: a derivation on a vertical spine, one line at a time */
+.derive {
+  margin: 10px 0;
+}
+.derive-title {
+  font-weight: 700;
+  font-size: 13.5px;
+  margin-bottom: 4px;
+}
+.derive-spine {
+  list-style: none;
+  counter-reset: dv;
+  margin: 0;
+  padding: 0 0 0 26px;
+  position: relative;
+}
+.derive-spine::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--line-2);
+}
+.derive-spine li {
+  counter-increment: dv;
+  position: relative;
+  padding: 2px 0 6px;
+}
+.derive-spine li::before {
+  content: counter(dv);
+  position: absolute;
+  left: -26px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  background: var(--card);
+  border: 1.5px solid var(--line-2);
+  color: var(--ink-2);
+}
+.derive-spine li.cur::before {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.derive-spine li p {
+  margin: 0 0 4px;
+}
+.derive-next {
+  margin-left: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+.derive-check {
+  margin-left: 26px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.derive-ok {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+.derive-bad {
+  color: var(--bad);
+  font-size: 13px;
+}
+.calc-inline {
+  margin: 8px 0;
+}
+.calc-inline .calc-card {
+  box-shadow: none;
+}
+.rail-calcs ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lesson-calc.on {
+  border-color: var(--ink);
+}
+/* the panel's sticky action bar must not hide the button that moves the rail on */
+.rail-next,
+.rail-gate {
+  scroll-margin-bottom: 150px;
+}
+.rail-after {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}

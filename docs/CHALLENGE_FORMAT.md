@@ -748,7 +748,10 @@ VS Code 等编辑器会据此提示字段名、检查孔位写法等。路径是
 
 **校验器**（`npm run validate`）对每道测量题：在 `solution` 上读出这个量（读不出 = 错误）、检查它在 `range` 里、检查按 3 位有效数字输入时会被判对（容差太紧会报错）。另外检查**答案泄露**：标题、summary、description、hints、测试名（各语言）里带单位的数（如 `4.5V`、`2.53 mA`、`1.2kΩ`）如果和某道有单位的测量题的参考读数相差在 3%（或这题的容差）以内，就给警告——把它移到 `compare` / `explain`。题目给定的量（元件值、电源和信号发生器的设置、3.3 V、5 V）不算泄露；有意写出的模型参数用 `"stated": true` 标出。`npm run validate -- --readings` 会把每道题在参考答案上的读数打印出来，写 `range` 和 `compare` 时用。
 
-## 16. 卡片式单元 `cards`（2026-11 起的写法）
+## 16. 卡片式单元 `cards`（2026-11 起的写法；新文件改写 §17 `rail`）
+
+> 写了 `cards`、没写 `rail` 的文件，界面会自动把卡片转成轨道（§17.5），所以旧文件照常能用。新写或重写的课程请用 §17。
+> A file with `cards` and no `rail` is shown as a rail made from its cards (§17.5); new and rewritten lessons use §17.
 
 课程改成“一次只看一张卡片”（`docs/REBUILD_PLAN.md`）：每个单元分成四张短卡片，任务面板一次只显示一张，卡片标签可以来回切。写了 `cards` 的文件不再显示 `description`（它只作为概要留在文件里，导入页和索引还会用到）；目标原理图默认折起来，免得提前剧透“试一试”。
 
@@ -821,3 +824,76 @@ Text on breadboard figures is placed automatically: on the board where a good sp
 **画得窄一点**：任务面板只有 300 多像素宽。电路图宽度控制在 **6 格以内**（一格 40 px），竖着放的元件两侧要留标签的位置；面包板图 8–11 列。图放不下时会变成左右滑动——截图检查一下。
 
 Keep figures narrow: the task panel is a little over 300 px wide. Circuits at most **6 grid units** wide, breadboard strips 8–11 columns; a figure that does not fit scrolls sideways, so check a screenshot.
+
+
+## 17. 单轨垂直流 `rail`（2026-11-18 起，取代 `cards`）
+
+计划和理由见 [`RAIL_PLAN.md`](RAIL_PLAN.md)。任务面板是**一条从上往下的轨道**：只有当前节点展开（深色边框）；做完的节点折成一行，右边一个结果胶囊（刚测出的读数或“已搭好”），点开可以回看；还没到的节点只显示灰色标题，不能点开。没有标签页、没有锁、没有盖在面板上的弹层。顶部是 3 px 进度条 + `3 / 9`，右边一个「目标原理图」抽屉；面板右边缘一列小刻度。
+
+The task panel is one vertical rail: only the active node is open; done nodes fold to one line with a result chip and can be reopened; nodes to come show only their title. No tabs, no locks, no overlays. A thin progress bar, `3 / 9`, and a "target schematic" drawer sit at the top.
+
+### 17.1 节点 / Nodes
+
+```json
+"rail": [
+  { "kind": "look",    "title": "认识 LM358：缺口和 8 只脚", "text": ["…", "![](inside:lm358#1)"] },
+  { "kind": "build",   "title": "接电源，插芯片", "text": "…", "steps": 3 },
+  { "kind": "measure", "title": "先不接反馈：转旋钮，看输出", "steps": 1, "text": ["![](steps:here)", "![](measure:open)", "![](inside:lm358#5)"] },
+  { "kind": "think",   "title": "一个放大十万倍的裁判", "text": ["…", "![](derive:sat)"] },
+  { "kind": "wrap",    "title": "带走", "text": ["- …"], "practice": ["opamp"] }
+]
+```
+
+| `kind` | 眉题 | 什么时候能点「下一步」 |
+|---|---|---|
+| `look` | 🔍 先看一眼：新器件的外形、引脚（只放拆解的**外形层**，不剧透现象） | 随时 |
+| `build` | 🔧 动手搭：它拥有的步骤，一个一个打勾 | 它的步骤都完成 |
+| `measure` | 📏 测一测：它的测量题就地作答 | 它的测量题都答对（或答错三次后看了答案） |
+| `think` | 💡 想明白：比喻 + 一个公式，常带一个推导 | 随时 |
+| `wrap` | 🎒 带走：要点、`practice` 理论章、下一课 | 最后一个节点 |
+
+- `steps`：这个节点拥有的步骤数。节点按顺序领取顶层 `steps`，**加起来必须等于步骤总数**。步骤按顺序完成：只有当前步骤的检查通过才算完成（“这些孔是空的”这种检查不会提前算数）。没有检查的步骤，学生点「做好了」。
+- `measure`：这个节点问哪几道测量题（id），出现在节点文字后面；也可以在文字里单独一行写 `![](measure:<id>)`，题就出现在那一行。**每道测量题必须且只能在一个节点里。**
+- `practice`：同 §16。
+- 读数题要在完整电路上判分：电路还没通过检查时，题下面出现「检查我的电路」按钮（预测可以先写）。
+- 一道题答错三次，显示答案（选择题的正确项，或“你的面包板上约是 …”）和解释，可以继续往下走——绝不卡死在一步。整课是否“完成”仍然要求全部答对。
+
+### 17.2 节点文字里的内嵌块 / Embeds
+
+单独一行：
+
+| 写法 | 显示 |
+|---|---|
+| `![](fig:<id>)` | 一张图（§16.3） |
+| `![](measure:<id>)` | 一道测量题，就地作答 |
+| `![](inside:<拆解 id>#<层>)` | 拆解的某一层（1 起）：那一层的图（带引线标注）和文字；底部“看完整拆解 ↗”在左边打开整份拆解。拆解 id 见 `src/inside/registry.ts`，校验器检查 id 和层号 |
+| `![](derive:<id>)` | 顶层 `derivations` 里的一个推导：左边一根竖线，点「下一行」一次揭开一行 |
+| `![](calc:<id>)` | 一张计算卡片，就地展开（不是弹窗） |
+| `![](steps:here)` | 这个节点的步骤放在这里（默认在文字后面） |
+
+一个节点**最多一个大块**（图、拆解、推导），多了就拆成两个节点。
+
+**写在测量题后面的拆解、推导、计算卡片，要等那道题答完才出现**（之前显示“答完上面的题，这里会出现‘为什么’”）：放在题后面的图通常就是答案的解释。想让图一开始就在，就把它写在题前面。
+
+### 17.3 推导 `derivations`
+
+```json
+"derivations": {
+  "sat": { "title": "不接反馈时，输出为什么不跟旋钮走", "steps": ["…", "$v_o = A\\,v_d = …$", "…"] },
+  "rb":  { "steps": ["…", "…"], "check": { "answer": 0.1, "unit": "Ω" } }
+}
+```
+
+`steps` 至少两行，支持 `$…$` 公式；可选 `check`：最后让学生填结果（显示单位里的数，默认相对误差 3 %）。计算型测量题（“用你的读数算 …”）前面放一个推导块。
+
+### 17.4 就地作答的选择题 `after`
+
+测量题平时要等电路检查通过才能答。**选择题**可以写 `"after": <步骤号>`（从 1 起）：那一步完成后就能答，用来在搭到一半时问“刚才看到了什么”（LM358：不接反馈时输出怎样）。读数题不能写 `after`：读数按完整电路判分。`after` 的步骤不能在题所在节点的后面。
+
+### 17.5 没写 `rail` 的旧文件 / Files without a rail
+
+有 `cards` 的文件自动转成轨道：`try` → `build`，`explain` → `think`（下面带这节课的计算卡片，点开就地展开），`build` → `build`，然后一个 `measure` 节点放全部测量题，`wrap` → `wrap`。这节课在 `src/inside/registry.ts` 里挂了拆解的，最前面加一个 `look` 节点，显示每个拆解的第 1 层。以前“第 0 步 · 先拆开看”盖住工作台的做法不再自动出现。
+
+### 17.6 翻译
+
+`i18n.en.rail`：和 `rail` 一一对应的 `{ "title", "text" }`；`i18n.en.derivations.<id>.steps`。内嵌块的写法两种语言要一样（校验器检查测量题的位置）。答案泄露检查（§15）也扫描节点文字和推导。

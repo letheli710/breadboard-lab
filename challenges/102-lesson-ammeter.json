@@ -13,19 +13,36 @@
     "short circuit 短路",
     "reference direction 参考方向"
   ],
-  "description": "电流表要串进电路：先断开，再把表接进断口，让电流从红表笔流进、从黑表笔流出。它的内阻只有 0.1 Ω，并联在元件两端就等于用导线把元件短路。电路：9 V 电池 → 电流表 → R1（1 kΩ）→ 红色 LED → GND。",
-  "cards": [
+  "rail": [
     {
-      "kind": "try",
-      "title": "把电流表接错一次",
+      "kind": "look",
+      "title": "认识电流表：一个很小的电阻",
       "text": [
-        "先搭一个点亮 LED 的小电路，然后像量电压那样，把电流表的两支表笔点在 **LED 两端**。",
-        "看 LED，再看**诊断**：发生了什么？"
-      ],
-      "steps": 6
+        "电流表就是万用表拨到 mA 档。两支表笔：电流从**红表笔**流进去，从黑表笔流出来。",
+        "![](inside:ammeter#1)"
+      ]
     },
     {
-      "kind": "explain",
+      "kind": "build",
+      "title": "先点亮一颗 LED",
+      "steps": 5,
+      "text": [
+        "一个 9 V 电池、一个 `1 kΩ`、一颗红色 LED，接成一个圈。"
+      ]
+    },
+    {
+      "kind": "measure",
+      "title": "故意接错：把电流表并在 LED 两端",
+      "steps": 1,
+      "text": [
+        "像量电压那样，把电流表的两支表笔点在 **LED 两端**。看 LED，再看**诊断**。",
+        "![](steps:here)",
+        "![](measure:par)",
+        "![](inside:ammeter#6)"
+      ]
+    },
+    {
+      "kind": "think",
       "title": "电压表并联，电流表串联",
       "text": [
         "- **电压**是两点之间的：万用表并联在两点上，自己几乎不取电流。",
@@ -39,10 +56,30 @@
     {
       "kind": "build",
       "title": "断开，再把表接进断口",
+      "steps": 3,
       "text": [
         "把错的表拿掉，在 + 轨和电路之间**切一个口**，让电流表来补上这个口。"
-      ],
-      "steps": 6
+      ]
+    },
+    {
+      "kind": "measure",
+      "title": "读电流，再量电流表两端的电压",
+      "text": [
+        "读数要在完整的电路上读：先点一次「检查我的电路」，读数框就会打开。",
+        "![](measure:i)",
+        "![](measure:uam)",
+        "![](derive:rb)",
+        "![](measure:rb)"
+      ]
+    },
+    {
+      "kind": "measure",
+      "title": "红黑对调：读数怎么变",
+      "steps": 2,
+      "text": [
+        "![](steps:here)",
+        "![](measure:swap)"
+      ]
     },
     {
       "kind": "wrap",
@@ -56,6 +93,17 @@
       ]
     }
   ],
+  "derivations": {
+    "rb": {
+      "title": "电流表自己的电阻怎么算",
+      "steps": [
+        "电流表也是一个元件：它两端有一点电压 $V_{AM}$，流过它的就是你刚读到的电流 $I$。",
+        "欧姆定律倒过来用：$$R = \\frac{V_{AM}}{I}$$",
+        "单位小心：mV ÷ mA = Ω。用你自己的两个读数代进去。"
+      ]
+    }
+  },
+  "description": "电流表要串进电路：先断开，再把表接进断口，让电流从红表笔流进、从黑表笔流出。它的内阻只有 0.1 Ω，并联在元件两端就等于用导线把元件短路。电路：9 V 电池 → 电流表 → R1（1 kΩ）→ 红色 LED → GND。",
   "figures": {
     "series": {
       "kind": "schematic",
@@ -135,8 +183,7 @@
         "**Cut a gap**: delete the jumper **`tp5`** → **`a5`**. The LED goes out — the current has no path.",
         "**Put the ammeter in the gap**: red probe on **`tp5`** (where the current comes from), black probe on **`a5`**. The LED lights again and the meter shows the current through the whole loop.",
         "Swap it: delete the ammeter and place it again with the red probe on **`a5`** and the black probe on **`tp5`**. How does the reading change? And the LED?",
-        "Back again: red probe on **`tp5`**, black probe on **`a5`**.",
-        "Press **Check my circuit** and answer the questions (use the multimeter for the voltage across the ammeter)."
+        "Back again: red probe on **`tp5`**, black probe on **`a5`**."
       ],
       "hints": [
         "An ammeter goes into the circuit: break it where you want to measure, then let the current flow in at the red probe and out at the black one.",
@@ -146,6 +193,15 @@
         "Ammeter in series, LED on"
       ],
       "measurements": [
+        {
+          "ask": "With the ammeter across the LED, what does the LED do?",
+          "choices": [
+            "it goes dark: the current takes the shortcut through the meter",
+            "it gets brighter: there is one more path",
+            "nothing changes"
+          ],
+          "explain": "The ammeter's resistance is only 0.1 Ω, practically a wire. Across the LED, all the current goes through it and the LED is shorted out."
+        },
         {
           "ask": "Predict with the LED's drop of about 1.8 V, then read: ammeter AM1's reading (red probe on the + rail side)",
           "explain": "(9 − 1.8) V / (1 kΩ + 12 Ω) ≈ 7.1 mA."
@@ -168,12 +224,27 @@
           "explain": "The current is the same and the LED stays lit; the reading is the current flowing in at the red probe, so the reversed direction shows as a minus sign."
         }
       ],
-      "cards": [
+      "rail": [
         {
-          "title": "Connect the ammeter wrong once",
+          "title": "Meet the ammeter: a very small resistor",
           "text": [
-            "Build a small circuit that lights an LED, then touch the ammeter's two probes **across the LED**, the way you would measure a voltage.",
-            "Look at the LED, then at the **diagnostics**: what happened?"
+            "An ammeter is a multimeter switched to its mA range. Two probes: the current flows **in at the red probe** and out at the black one.",
+            "![](inside:ammeter#1)"
+          ]
+        },
+        {
+          "title": "Light an LED first",
+          "text": [
+            "A 9 V battery, a `1 kΩ` resistor and a red LED in one loop."
+          ]
+        },
+        {
+          "title": "Wrong on purpose: the ammeter across the LED",
+          "text": [
+            "Touch the ammeter's two probes **across the LED**, the way you would measure a voltage. Look at the LED, then at the **diagnostics**.",
+            "![](steps:here)",
+            "![](measure:par)",
+            "![](inside:ammeter#6)"
           ]
         },
         {
@@ -194,6 +265,23 @@
           ]
         },
         {
+          "title": "Read the current, then the voltage across the meter",
+          "text": [
+            "Readings are taken on the whole circuit: press **Check my circuit** once and the reading boxes open.",
+            "![](measure:i)",
+            "![](measure:uam)",
+            "![](derive:rb)",
+            "![](measure:rb)"
+          ]
+        },
+        {
+          "title": "Swap red and black: what does the reading do?",
+          "text": [
+            "![](steps:here)",
+            "![](measure:swap)"
+          ]
+        },
+        {
           "title": "Take away",
           "text": [
             "- **Measuring current in three steps: break → put it in → red in, black out.**",
@@ -203,7 +291,17 @@
             "From now on you can \"see\" voltage and current. Next you use them to take series and parallel circuits apart."
           ]
         }
-      ]
+      ],
+      "derivations": {
+        "rb": {
+          "title": "Working out the ammeter's own resistance",
+          "steps": [
+            "The ammeter is a part too: there is a small voltage $V_{AM}$ across it, and the current through it is the $I$ you just read.",
+            "Ohm's law, used backwards: $$R = \\frac{V_{AM}}{I}$$",
+            "Mind the units: mV ÷ mA = Ω. Put in your own two readings."
+          ]
+        }
+      }
     }
   },
   "components": [
@@ -263,6 +361,18 @@
   "compare": "**对比**：I = (9 V − 1.8 V) / (1 kΩ + LED 内阻 12 Ω) ≈ **7.1 mA**。\n- 电流表两端的电压 = 0.1 Ω × 7.1 mA ≈ **0.71 mV**，所以它几乎不改变电路；\n- 表笔接反时读数 ≈ −7.1 mA；\n- 并联在 LED 两端时，LED 被短路熄灭，电流表读到的是 9 V / 1 kΩ ≈ 9 mA——这不是 LED 的电流，而是“被短路以后”的电流。",
   "measurements": [
     {
+      "id": "par",
+      "after": 6,
+      "correct": 0,
+      "ask": "电流表并在 LED 两端时，LED 怎样？",
+      "choices": [
+        "灭了：电流从电流表抄近路走了",
+        "更亮了：多了一条路",
+        "没变化"
+      ],
+      "explain": "电流表的内阻只有 0.1 Ω，几乎是一根导线。并在 LED 两端，电流全走它，LED 被短路。"
+    },
+    {
       "id": "i",
       "current": "AM1",
       "unit": "mA",
@@ -308,7 +418,8 @@
         "数值一样，变成负数",
         "变成 0，LED 熄灭"
       ],
-      "explain": "电流没变，LED 照样亮；读数是“从红表笔流进去的电流”，方向反了就是负数。"
+      "explain": "电流没变，LED 照样亮；读数是“从红表笔流进去的电流”，方向反了就是负数。",
+      "after": 10
     }
   ],
   "steps": [
@@ -486,10 +597,6 @@
           }
         }
       ]
-    },
-    {
-      "text": "点**「检查我的电路」**，完成测量题（电流表两端的电压用万用表量）。",
-      "highlight": []
     }
   ],
   "hints": [

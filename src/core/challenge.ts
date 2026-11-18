@@ -12,6 +12,7 @@ import { BATTERIES, LED_COLORS, PARTS, terminalsOf } from './parts';
 import { MEASURES, type Measure } from './transient';
 import { PIN_MODES } from './types';
 import type { StepCheck } from './stepCheck';
+import { parseRail, railFromCards, type Derivation, type RailNode } from './rail';
 import type { BatteryVariant, CComponent, CompType, Circuit, Layout, LedColor, MosfetModel, PartProps, PartType, PinConfig, PinMode, PlacedPart, Waveform } from './types';
 
 export const FORMAT_ID = 'breadboard-challenge/1';
@@ -145,6 +146,9 @@ export interface MeasurementQuestion {
   range?: [number, number];
   choices?: string[];
   correct?: number;
+  /** a multiple-choice question that can be answered once step `after` (0-based) is done, before
+   *  the whole circuit passes its check (rail §4.3: asked in place, in the middle of the build) */
+  after?: number;
 }
 
 export interface Challenge {
@@ -169,6 +173,12 @@ export interface Challenge {
   cards: ChallengeCard[];
   /** figures shown in card and step text by a `![](fig:<id>)` line (§16.3; core/figures.ts) */
   figures: Record<string, CardFigure>;
+  /** the single-track rail (§17, core/rail.ts): written in the file, or made from the cards; [] = classic layout */
+  rail: RailNode[];
+  /** the rail was made from the cards, not written by hand */
+  railAuto: boolean;
+  /** step-by-step derivations shown in rail nodes by `![](derive:<id>)` */
+  derivations: Record<string, Derivation>;
   /** ids of the lessons to do first (shown as links in the task panel) */
   prereq?: string[];
   solution?: Layout;
@@ -1023,6 +1033,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
       range,
       choices,
       correct,
+      ...(m.after !== undefined ? { after: typeof m.after === 'number' && Number.isInteger(m.after) && m.after >= 1 ? m.after - 1 : -1 } : {}),
     });
   });
 
@@ -1132,6 +1143,49 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     const ch = strs(t.choices);
     measurements[i] = { ...q, ask: ask || q.ask, explain: explain || q.explain, choices: q.choices && ch.length === q.choices.length ? ch : q.choices };
   });
+  // the rail (§17): written, or made from the cards
+  for (const q of measurements)
+    if (q.after !== undefined) {
+      if (q.after < 0 || q.after >= steps.length)
+        errors.push(tr(`measurements (${q.id}).after: 必须是 1 到 ${steps.length} 的步骤号`, `measurements (${q.id}).after: must be a step number from 1 to ${steps.length}`));
+      if (q.what)
+        errors.push(
+          tr(
+            `measurements (${q.id}).after: 只有选择题可以在电路检查通过之前作答（读数题要按完整电路判分）`,
+            `measurements (${q.id}).after: only a multiple-choice question can be answered before the circuit check passes (readings are graded on the whole circuit)`,
+          ),
+        );
+    }
+  const railParse = parseRail(
+    json,
+    tx,
+    steps.length,
+    measurements.map((q) => q.id),
+    errors,
+    warnings,
+  );
+  const rail =
+    railParse?.rail ??
+    (cards.length
+      ? railFromCards(
+          cards,
+          measurements.map((q) => q.id),
+        )
+      : []);
+  const derivations = railParse?.derivations ?? {};
+  if (railParse)
+    for (const q of measurements) {
+      if (q.after === undefined || q.after < 0) continue;
+      const host = rail.findIndex((n) => n.measure.includes(q.id));
+      const owner = rail.findIndex((n) => q.after! >= n.first && q.after! < n.first + n.count);
+      if (host >= 0 && owner > host)
+        errors.push(
+          tr(
+            `measurements (${q.id}).after: 第 ${q.after + 1} 步在这道题所在节点的后面`,
+            `measurements (${q.id}).after: step ${q.after + 1} comes after the node that asks this question`,
+          ),
+        );
+    }
   const baseHints = strs(json.hints);
   const txHints = strs(tx.hints);
 
@@ -1161,6 +1215,7 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     const scan = (o: unknown) => {
       if (!isObj(o)) return;
       if (Array.isArray(o.cards)) o.cards.forEach(add);
+      if (Array.isArray(o.rail)) o.rail.forEach(add);
       if (Array.isArray(o.steps)) o.steps.forEach(add);
     };
     scan(json);
@@ -1214,6 +1269,9 @@ export function parseChallenge(json: unknown, source = 'builtin', file?: string)
     steps,
     cards,
     figures: fig.figures,
+    rail,
+    railAuto: !railParse && rail.length > 0,
+    derivations,
     prereq: strs(json.prereq),
     solution,
     start,

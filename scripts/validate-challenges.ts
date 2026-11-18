@@ -48,6 +48,7 @@ import { simulate } from '../src/core/solver';
 import { hasGenerator, simulateTransient } from '../src/core/transient';
 import type { Layout } from '../src/core/types';
 import { figureTexts } from '../src/core/figures';
+import { embedRefs } from '../src/core/rail';
 import { checkCourse, printCourse } from './validate-course';
 
 const LED_MAX = 0.025;
@@ -158,6 +159,17 @@ function visibleTexts(json: Record<string, unknown>): { where: string; text: str
         add(`${lang}cards[${i}].title`, card.title);
         add(`${lang}cards[${i}].text`, Array.isArray(card.text) ? card.text.join('\n') : card.text);
       });
+    // the rail (§17) and its derivations
+    if (Array.isArray(o.rail))
+      o.rail.forEach((c: unknown, i: number) => {
+        if (!c || typeof c !== 'object') return;
+        const node = c as { title?: unknown; text?: unknown };
+        add(`${lang}rail[${i}].title`, node.title);
+        add(`${lang}rail[${i}].text`, Array.isArray(node.text) ? node.text.join('\n') : node.text);
+      });
+    if (o.derivations && typeof o.derivations === 'object')
+      for (const [id, d] of Object.entries(o.derivations as Record<string, { steps?: unknown }>))
+        add(`${lang}derivations.${id}`, Array.isArray(d?.steps) ? d.steps.join('\n') : undefined);
   };
   scan(json, '');
   for (const [lang, t] of Object.entries((json.i18n as Record<string, Record<string, unknown>>) ?? {})) scan(t, `i18n.${lang}.`);
@@ -189,6 +201,23 @@ export function readingLeaks(json: unknown, qs: MeasurementQuestion[], vals: Map
   return out;
 }
 
+/* ---- rail embeds: ![](inside:<teardown>#<layer>) must name a teardown and one of its layers ---- */
+
+let tdLayers: Map<string, number> | null = null;
+/** teardown id → number of layers, read from the registry and the teardown sources (they are TSX + CSS, not loadable here) */
+function teardownLayers(): Map<string, number> {
+  if (tdLayers) return tdLayers;
+  tdLayers = new Map();
+  const dir = resolve(fileURLToPath(import.meta.url), '../../src/inside');
+  const reg = readFileSync(join(dir, 'registry.ts'), 'utf8');
+  for (const m of reg.matchAll(/id: '([a-z0-9-]+)'[\s\S]*?import\('\.\/td\/([a-z0-9-]+)'\)/g)) {
+    const src = readFileSync(join(dir, 'td', `${m[2]}.tsx`), 'utf8');
+    const layers = src.slice(src.indexOf('layers: ['));
+    tdLayers.set(m[1], (layers.match(/^ {8}id: '/gm) ?? []).length);
+  }
+  return tdLayers;
+}
+
 export function validateChallengeJson(json: unknown, file: string): FileReport {
   const rep: FileReport = { file, errors: [], warnings: [] };
   const res = parseChallenge(json, 'folder', file);
@@ -199,6 +228,16 @@ export function validateChallengeJson(json: unknown, file: string): FileReport {
   rep.id = ch.id;
   rep.title = ch.title;
   rep.kind = ch.kind;
+
+  for (const n of ch.rail)
+    for (const ref of embedRefs(n.text, 'inside')) {
+      const [td, l] = ref.split('#');
+      const count = teardownLayers().get(td);
+      if (count === undefined)
+        rep.errors.push(tr(`rail「${n.title}」：没有拆解 "${td}"（见 src/inside/registry.ts）`, `rail "${n.title}": there is no teardown "${td}" (see src/inside/registry.ts)`));
+      else if (+l > count)
+        rep.errors.push(tr(`rail「${n.title}」：拆解 ${td} 只有 ${count} 层，没有第 ${l} 层`, `rail "${n.title}": teardown ${td} has ${count} layers, not ${l}`));
+    }
 
   if (ch.tests.length === 0) rep.warnings.push(tr('没有 tests：只检查连线，不检查电路行为', 'no tests: only the wiring is checked, not how the circuit behaves'));
   if (ch.kind === 'lesson' && ch.steps.length === 0) rep.warnings.push(tr('lesson 没有 steps', 'lesson has no steps'));

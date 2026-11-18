@@ -305,3 +305,70 @@ export function sub(text: string): React.ReactNode {
 
 /** Show / hide helper for figures: a group visible from layer `from` (and until `to`). */
 export const vis = (layer: number, from: number, to = Infinity) => (layer >= from && layer <= to ? 'td-show' : 'td-hide');
+
+/**
+ * One layer of a teardown inside a rail node (`![](inside:<id>#<n>)`, docs/RAIL_PLAN.md B2): that
+ * layer's picture with its leader lines, its title and text (and table / formulas). The whole
+ * teardown is a link away; nothing opens over the panel.
+ */
+export function TeardownSlice({ td, layer, onOpen }: { td: Teardown; layer: number; onOpen?: () => void }) {
+  useLang();
+  const i = Math.max(0, Math.min(layer, td.layers.length - 1));
+  const l = td.layers[i];
+  const [focus, setFocusRaw] = useState<string | null>(null);
+  const setFocus = useCallback((p: string | null) => setFocusRaw(p), []);
+  const fig = useRef<SVGSVGElement>(null);
+  useIsoLayoutEffect(() => {
+    const svg = fig.current;
+    if (!svg) return;
+    svg.querySelectorAll<SVGElement>('[data-part]').forEach((el) => el.classList.toggle('td-on', !!focus && hasPart(el.getAttribute('data-part'), focus)));
+    svg.classList.toggle('has-focus', !!focus && !!svg.querySelector('.td-on'));
+  }, [focus, i, td]);
+  const ctx = useMemo(() => ({ focus, setFocus }), [focus, setFocus]);
+  return (
+    <FocusCtx.Provider value={ctx}>
+      <figure className="td-slice">
+        <svg
+          ref={fig}
+          viewBox={td.viewBox}
+          className={`td-fig layer-${i}`}
+          role="img"
+          aria-label={`${td.title}: ${l.title}`}
+          onPointerOver={(e) => {
+            const p = (e.target as Element).closest('[data-part]')?.getAttribute('data-part')?.split(/\s+/)[0] ?? null;
+            if (p !== focus) setFocus(p);
+          }}
+          onPointerLeave={() => setFocus(null)}
+        >
+          {td.Figure({ layer: i })}
+          {l.callouts && <CalloutLayer callouts={l.callouts} focus={focus} setFocus={setFocus} />}
+        </svg>
+        <figcaption>
+          <div className="td-slice-eyebrow">
+            <Icon name="search" size={13} /> {td.title} · {tr(`第 ${i + 1} / ${td.layers.length} 层`, `layer ${i + 1} of ${td.layers.length}`)}
+          </div>
+          <h4>{inline(l.title)}</h4>
+          <InsideMd text={l.body} />
+          {l.table && <TableBlock t={l.table} />}
+          {l.formulas && l.formulas.length > 0 && (
+            <div className="td-formulas">
+              {l.formulas.map((f, k) => (
+                <div className="td-formula" key={k}>
+                  <div className="td-formula-tex">
+                    <MathText text={f.tex} />
+                  </div>
+                  {f.note && <div className="td-formula-note">{inline(f.note)}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          {onOpen && (
+            <button className="link-btn td-slice-open" onClick={onOpen}>
+              {tr('看完整拆解 ↗', 'The whole teardown ↗')}
+            </button>
+          )}
+        </figcaption>
+      </figure>
+    </FocusCtx.Provider>
+  );
+}

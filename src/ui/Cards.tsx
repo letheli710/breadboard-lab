@@ -189,7 +189,7 @@ export function CardDeck({ ch, sc, extra }: { ch: Challenge; sc: StepChecks; ext
 }
 
 /** "Next in the course" from a take-away card (the Learn page's order). */
-function NextInCourse({ ch }: { ch: Challenge }) {
+export function NextInCourse({ ch }: { ch: Challenge }) {
   const challenges = useStore((s) => s.challenges);
   const completed = useStore((s) => s.completed);
   const mode = useStore((s) => s.mode);
