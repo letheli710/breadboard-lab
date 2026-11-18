@@ -256,7 +256,9 @@ async function lesson(browser, file) {
       await next.click();
       await p.waitForTimeout(150);
     }
-    assert(performed.size === steps.length, `${json.id}: the rail walked all ${steps.length} steps (${performed.size})`);
+    // every step done, in order (a step whose check already holds when it is reached is ticked at once)
+    const doneSteps = await p.evaluate((id) => JSON.parse(localStorage.getItem('bb.rail') || '{}')[id]?.done?.length ?? 0, json.id);
+    assert(doneSteps === steps.length, `${json.id}: the rail has all ${steps.length} steps done (${doneSteps})`);
     const done = await p.evaluate(() => Object.keys(window.__bb.store.getState().completed || {}));
     assert(done.includes(json.id), `${json.id}: all ${qs.length} questions answered and the lesson is complete`);
     assert(errors.length === 0, `${json.id}: no page errors ${errors.join(' | ')}`);
