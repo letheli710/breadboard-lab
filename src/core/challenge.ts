@@ -524,7 +524,16 @@ function parseLayout(raw: unknown, refs: Set<string> | null, where: string, erro
     let pinsRaw = isObj(p.pins) ? (p.pins as Record<string, unknown>) : {};
     if (def.placement.kind === 'footprint' && typeof p.at === 'string') {
       const fp = def.placement.footprint(p.at);
-      if (!fp) errors.push(tr(`${w}: "at": "${p.at}" 放不下这个元件`, `${w}: the part doesn't fit at "at": "${p.at}"`));
+      if (!fp)
+        errors.push(
+          tr(`${w}: "at": "${p.at}" 放不下这个元件`, `${w}: the part doesn't fit at "at": "${p.at}"`) +
+            (type === 'opamp' && HOLE_MAP.get(p.at)?.row === 'e'
+              ? tr(
+                  '（op-amp 的 1 脚现在在 f 行：缺口在左，1–4 脚在 f 行，8–5 脚在 e 行，和真芯片一样）',
+                  ' (the op-amp’s pin 1 now goes in row f: notch on the left, pins 1–4 in row f, pins 8–5 in row e, as on a real chip)',
+                )
+              : ''),
+        );
       else pinsRaw = fp;
     }
     for (const [pin, hole] of Object.entries(pinsRaw)) {

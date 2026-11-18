@@ -448,8 +448,8 @@ function OpAmpInfo({ part }: { part: PlacedPart }) {
       </svg>
       <p className="note">
         {tr(
-          '缺口和圆点所在的一端是 1 脚，逆时针数到 8 脚。上面 8–5 脚插在 f 行，下面 1–4 脚插在 e 行。绿色 = 已接线，红/蓝 = 电源脚已接。',
-          'Pin 1 is at the notch / dot end; count anticlockwise to pin 8. Pins 8–5 sit in row f, pins 1–4 in row e. Green = wired, red/blue = power pin wired.',
+          '缺口和圆点所在的一端是 1 脚，逆时针数到 8 脚。上面 8–5 脚插在 e 行，下面 1–4 脚插在 f 行。绿色 = 已接线，红/蓝 = 电源脚已接。',
+          'Pin 1 is at the notch / dot end; count anticlockwise to pin 8. Pins 8–5 sit in row e, pins 1–4 in row f. Green = wired, red/blue = power pin wired.',
         )}
       </p>
       <div className={st?.powered ? '' : 'warn'}>

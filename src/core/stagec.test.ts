@@ -28,11 +28,13 @@ const at = (type: PlacedPart['type'], anchor: string, props = {}, ref?: string) 
   part(type, (PARTS[type].placement as { footprint: (a: string) => Record<string, string> }).footprint(anchor), props, ref);
 
 describe('parts', () => {
-  it('op-amp must straddle the gap (anchor in row e)', () => {
+  it('op-amp must straddle the gap like a real DIP-8 (pin 1 bottom-left, anchor in row f)', () => {
     const fp = (PARTS.opamp.placement as { footprint: (a: string) => Record<string, string> | null }).footprint;
-    expect(fp('e10')).toEqual({ '1': 'e10', '2': 'e11', '3': 'e12', '4': 'e13', '8': 'f10', '7': 'f11', '6': 'f12', '5': 'f13' });
-    expect(fp('c10')).toBeNull();
-    expect(fp('e28')).toBeNull();
+    // notch on the left: pins 1–4 left→right along the bottom (row f), 8–5 along the top (row e)
+    expect(fp('f10')).toEqual({ '1': 'f10', '2': 'f11', '3': 'f12', '4': 'f13', '8': 'e10', '7': 'e11', '6': 'e12', '5': 'e13' });
+    expect(fp('e10')).toBeNull();
+    expect(fp('h10')).toBeNull();
+    expect(fp('f28')).toBeNull();
   });
   it('nextScopeChannel', () => {
     const lay: Layout = { version: 1, parts: [] };
@@ -82,30 +84,36 @@ describe('checker: op-amp', () => {
   });
 
   it('half A also matches', () => {
-    // pins 1..3 of half A in row e (e10 out, e11 in−, e12 in+); same strips via a–d
+    // pins 1..3 of half A in row f (f10 out, f11 in−, f12 in+); same strips via g–j
     const lay: Layout = {
       version: 1,
       parts: [
-        part('battery', { '+': 'tp1', '-': 'tn1' }, { variant: '9V' }, 'BAT1'),
-        at('opamp', 'e10', {}, 'U1'),
-        part('wire', { a: 'tp10', b: 'j10' }),
-        part('wire', { a: 'a13', b: 'tn13' }),
-        part('function_gen', { '+': 'a12', '-': 'tn20' }, {}, 'FG1'),
-        part('resistor', { '1': 'b11', '2': 'tn11' }, { resistance: 10000 }, 'RG'),
-        part('resistor', { '1': 'b10', '2': 'c11' }, { resistance: 10000 }, 'RF'),
+        part('battery', { '+': 'bp1', '-': 'bn1' }, { variant: '9V' }, 'BAT1'),
+        at('opamp', 'f10', {}, 'U1'),
+        part('wire', { a: 'bp10', b: 'a10' }),
+        part('wire', { a: 'j13', b: 'bn13' }),
+        part('function_gen', { '+': 'j12', '-': 'bn20' }, {}, 'FG1'),
+        part('resistor', { '1': 'i11', '2': 'bn11' }, { resistance: 10000 }, 'RG'),
+        part('resistor', { '1': 'i10', '2': 'h11' }, { resistance: 10000 }, 'RF'),
       ],
     };
     const r = checkCircuit(ch, buildNetlist(lay).circuit);
     expect(titles(r.issues)).toEqual([]);
   });
 
+  it('an old-style anchor in row e is refused with a hint to use row f', () => {
+    const bad = structuredClone(json);
+    bad.solution.parts.find((p: { type: string }) => p.type === 'opamp').at = 'e10';
+    expect(parseChallenge(bad).errors.join()).toMatch(/pin 1 now goes in row f/);
+  });
+
   it('swapped inputs are named as such', () => {
     const lay = sol();
     // move RF/RG from IN− (col 12) to IN+ (col 13) and the generator (via AM1) to col 12
     for (const p of lay.parts) {
-      if (p.ref === 'RG') p.pins['1'] = 'g13';
-      if (p.ref === 'RF') p.pins['2'] = 'i13';
-      if (p.ref === 'AM1') p.pins['-'] = 'h12';
+      if (p.ref === 'RG') p.pins['1'] = 'd13';
+      if (p.ref === 'RF') p.pins['2'] = 'b13';
+      if (p.ref === 'AM1') p.pins['-'] = 'c12';
     }
     const r = checkCircuit(ch, buildNetlist(lay).circuit);
     expect(r.perfect).toBe(false);
@@ -224,11 +232,11 @@ describe('diagnostics + schematic for the op-amp', () => {
   const board = (power: boolean): Layout => ({
     version: 1,
     parts: [
-      part('battery', { '+': 'tp1', '-': 'tn1' }, { variant: '9V' }, 'BAT1'),
-      at('opamp', 'e10', {}, 'U1'),
-      ...(power ? [part('wire', { a: 'tp10', b: 'j10' }), part('wire', { a: 'a13', b: 'tn13' })] : []),
-      part('resistor', { '1': 'b10', '2': 'tn5' }, { resistance: 1000 }, 'RL'), // load on OUT A
-      part('wire', { a: 'b11', b: 'c10' }), // follower: IN− A = OUT A; IN+ A floating
+      part('battery', { '+': 'bp1', '-': 'bn1' }, { variant: '9V' }, 'BAT1'),
+      at('opamp', 'f10', {}, 'U1'),
+      ...(power ? [part('wire', { a: 'bp10', b: 'a10' }), part('wire', { a: 'j13', b: 'bn13' })] : []),
+      part('resistor', { '1': 'i10', '2': 'bn5' }, { resistance: 1000 }, 'RL'), // load on OUT A
+      part('wire', { a: 'i11', b: 'h10' }), // follower: IN− A = OUT A; IN+ A floating
     ],
   });
   it('warns about missing power and a floating input', () => {

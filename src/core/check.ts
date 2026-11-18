@@ -125,9 +125,9 @@ const MISTAKES: Partial<
     {
       swap: { outA: 'inB+', 'inB+': 'outA', 'inA-': 'inB-', 'inB-': 'inA-', 'inA+': 'outB', outB: 'inA+', 'v-': 'v+', 'v+': 'v-' },
       title: [' 插反了（转了 180°）', ' is rotated 180°'],
-      zh: (r) => `${r} 的 1 脚应该在缺口 / 小圆点旁边，1–4 脚在 e 行（从左到右），8–5 脚在 f 行。现在芯片转了半圈：电源脚接反会烧坏真实的芯片。`,
+      zh: (r) => `${r} 的 1 脚应该在缺口 / 小圆点旁边，缺口在左时 1–4 脚在下排 f 行（从左到右），8–5 脚在上排 e 行。现在芯片转了半圈：电源脚接反会烧坏真实的芯片。`,
       en: (r) =>
-        `${r}'s pin 1 is next to the notch / dot: pins 1–4 run left to right in row e, pins 8–5 in row f. The chip is turned around — with its supply pins reversed a real chip would burn.`,
+        `${r}'s pin 1 is next to the notch / dot: with the notch on the left, pins 1–4 run left to right along the bottom (row f), pins 8–5 along the top (row e). The chip is turned around — with its supply pins reversed a real chip would burn.`,
     },
     {
       swap: { 'inA-': 'inA+', 'inA+': 'inA-', 'inB-': 'inB+', 'inB+': 'inB-' },

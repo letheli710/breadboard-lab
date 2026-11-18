@@ -163,7 +163,7 @@ export function BenchKeyboard() {
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={n === 1 ? 'e10' : 'a12 a16'}
+            placeholder={n === 1 ? (type === 'opamp' ? 'f10' : 'e10') : 'a12 a16'}
             aria-invalid={!!err}
             aria-describedby={`${id}-help ${err ? `${id}-err` : ''}`}
             spellCheck={false}
