@@ -71,6 +71,7 @@ Every page and open item has its own URL (hash routes: work on any static host);
 | `#/sandbox` | 自由编辑 Sandbox |
 | `#/guide/<section>` | 知识 Guide，可直达某张卡片：`breadboard` `ground` `five-steps` `power` `series-parallel` `led` `mistakes` `basics`（点卡片右上角的编号即可复制链接） |
 | `#/import` | 导入 Import |
+| `#/lesson/<id>` | 新版课（课程总规范 v2，[`docs/BLUEPRINT_V2.md`](docs/BLUEPRINT_V2.md)）：左侧舞台图层 + 右侧滚动幕，如 `#/lesson/w1-l0`；课程数据在 `src/stage/lessons/` |
 
 id 就是题目文件的 `id`（URL 编码）。不存在的 id 会提示并打开该页默认内容。只有切换页面/题目才会产生历史记录，编辑面包板不会。代码：`src/state/router.ts`（解析/生成，纯函数）、`src/state/routeSync.ts`（与 store 同步）。
 Ids are the files' `id` (URI-encoded); an unknown id shows a toast and opens the page's default. Only page / item changes add history entries, board edits don't. Code: `src/state/router.ts`, `src/state/routeSync.ts`.

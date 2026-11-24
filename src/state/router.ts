@@ -16,6 +16,7 @@
 //   #/unit/<unitId>             a learning unit (units/*.json)
 //   #/inside[/<teardownId>]     "Inside": teardowns of parts / chips / instruments
 //   #/calc[/<calcId>]           calculations: formula cards with a calculator
+//   #/lesson/<lessonId>         a stage lesson (lessons/*, blueprint v2: left stage + scrolling acts)
 //
 // Ids are URI-encoded. This module is pure (no store, no React) so the store can read the
 // starting page from it and the tests can run it without a DOM; the wiring between the URL and
@@ -36,11 +37,12 @@ export type Route =
   | { page: 'map'; world?: string }
   | { page: 'unit'; id: string }
   | { page: 'inside'; id?: string }
-  | { page: 'calc'; id?: string };
+  | { page: 'calc'; id?: string }
+  | { page: 'lesson'; id: string };
 
 export type Page = Route['page'];
 
-export const PAGES: readonly Page[] = ['learn', 'challenges', 'practice', 'sandbox', 'guide', 'import', 'map', 'unit', 'inside', 'calc'];
+export const PAGES: readonly Page[] = ['learn', 'challenges', 'practice', 'sandbox', 'guide', 'import', 'map', 'unit', 'inside', 'calc', 'lesson'];
 
 const MODE_OF: Record<Page, Mode> = {
   learn: 'learn',
@@ -53,6 +55,7 @@ const MODE_OF: Record<Page, Mode> = {
   unit: 'unit',
   inside: 'inside',
   calc: 'calc',
+  lesson: 'lesson',
 };
 
 export const modeOf = (r: Route): Mode => MODE_OF[r.page];
@@ -100,6 +103,9 @@ export function parseRoute(hash: string): Route | null {
       return item === undefined ? { page } : { page, section: item };
     case 'map':
       return item === undefined ? { page } : { page, world: item };
+    case 'lesson':
+      // a lesson page needs a lesson: without one, the map
+      return item === undefined ? { page: 'map' } : { page, id: item };
     case 'unit':
       // a unit page needs a unit: without one, the map
       return item === undefined ? { page: 'map' } : { page, id: item };

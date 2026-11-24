@@ -133,6 +133,18 @@ export default function MapPage() {
         </p>
         <p className="muted">{tr(`主线进度：${done} / ${refs.length}（UB 衔接区不计入）`, `Main line: ${done} of ${refs.length} done (the UB area is not counted)`)}</p>
       </div>
+      <div className="card stage-entry">
+        <div className="eyebrow">
+          <Icon name="layers" size={16} /> {tr('新版课程 · Blueprint v2（试行）', 'New lesson format · Blueprint v2 (pilot)')}
+        </div>
+        <span>
+          <b>W1-L0 · 实验箱与万用表极简前置卡</b>{' '}
+          <span className="muted">{tr('— 左侧 3D 面包板透视 / 万用表接法台，右侧 4 幕讲解', '— 3D breadboard X-ray and multimeter bench on the left, 4 acts on the right')}</span>
+        </span>
+        <a className="button primary" href="#/lesson/w1-l0">
+          {tr('开始', 'Start')}
+        </a>
+      </div>
       {WORLDS.map((w) => (
         <WorldCard key={w.id} w={w} />
       ))}

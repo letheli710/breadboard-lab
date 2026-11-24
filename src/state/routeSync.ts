@@ -85,12 +85,20 @@ export function routeOf(s: S): Route {
       return s.insideId ? { page: 'inside', id: s.insideId } : { page: 'inside' };
     case 'calc':
       return s.calcId ? { page: 'calc', id: s.calcId } : { page: 'calc' };
+    case 'lesson':
+      return s.lessonId ? { page: 'lesson', id: s.lessonId } : { page: 'map' };
     default:
       return { page: s.mode };
   }
 }
 
 const APP = () => tr('面包板实验室', 'Breadboard Lab');
+
+/** Stage lesson titles for the tab title; set by the lesson page's module (a lazy chunk). */
+let lessonTitle: ((id: string) => string | undefined) | undefined;
+export function setLessonTitles(f: (id: string) => string | undefined) {
+  lessonTitle = f;
+}
 
 /** Unit titles for the tab title; set by the unit page's module (units are a lazy chunk). */
 let unitTitle: ((id: string) => string | undefined) | undefined;
@@ -112,6 +120,7 @@ export function titleOf(s: S, r: Route = routeOf(s)): string {
     unit: tr('单元', 'Unit'),
     inside: tr('拆开看', 'Inside'),
     calc: tr('计算', 'Calculations'),
+    lesson: tr('课', 'Lesson'),
   }[r.page];
   let item: string | undefined;
   if ((r.page === 'learn' || r.page === 'challenges') && r.id) item = s.challenges.find((c) => c.id === r.id)?.title;
@@ -124,6 +133,7 @@ export function titleOf(s: S, r: Route = routeOf(s)): string {
     const p = s.problems.find((x) => x.id === r.id);
     item = p && entryTitle(p);
   } else if (r.page === 'unit') item = unitTitle?.(r.id);
+  else if (r.page === 'lesson') item = lessonTitle?.(r.id);
   return `${item ? `${item} · ` : ''}${page} — ${APP()}`;
 }
 
@@ -242,6 +252,9 @@ export function applyRoute(r: Route) {
     if (st.mode !== 'inside' || st.insideId !== id) st.openInside(id);
   } else if (r.page === 'calc') {
     if (st.mode !== 'calc' || st.calcId !== (r.id ?? null)) st.openCalc(r.id ?? null);
+  } else if (r.page === 'lesson') {
+    // the lesson page itself says so when the id names no lesson
+    if (st.mode !== 'lesson' || st.lessonId !== r.id) st.openLesson(r.id);
   } else {
     st.setMode(modeOf(r));
     if (r.page === 'guide' && r.section) scrollToSection(r.section);
@@ -292,6 +305,7 @@ export function startRouting() {
       s.unitId !== prev.unitId ||
       s.insideId !== prev.insideId ||
       s.calcId !== prev.calcId ||
+      s.lessonId !== prev.lessonId ||
       s.challenges !== prev.challenges ||
       s.problems !== prev.problems ||
       s.lang !== prev.lang

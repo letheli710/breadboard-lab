@@ -13,7 +13,7 @@ import { inCourseOrder, placeOf } from '../core/course';
 import { boolRecord, readStored, sanitizeLayout, sanitizeReadings, sanitizeScope, writeStored, writeStoredLater } from './persist';
 import type { ChallengeReadings } from '../core/readings';
 
-export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import' | 'map' | 'unit' | 'inside' | 'calc';
+export type Mode = 'learn' | 'challenge' | 'practice' | 'sandbox' | 'guide' | 'import' | 'map' | 'unit' | 'inside' | 'calc' | 'lesson';
 /** Practice pages beside the problems: mistake notebook, review session, "how this works", quiz */
 export type PracticeView = 'notebook' | 'due' | 'how' | 'quiz';
 
@@ -113,6 +113,8 @@ interface State {
   insideId: string | null;
   /** Calculations page: the card shown (null = the list) */
   calcId: string | null;
+  /** stage lesson page (#/lesson/<id>, lesson-stage/2): the lesson shown */
+  lessonId: string | null;
   /** lesson / challenge: a teardown shown in place of the 3D bench (null = the bench) */
   benchInside: string | null;
   panel: PanelTab;
@@ -176,6 +178,7 @@ interface State {
   setMode(m: Mode): void;
   openInside(id: string | null): void;
   openCalc(id: string | null): void;
+  openLesson(id: string): void;
   setBenchInside(id: string | null): void;
   setPanel(p: PanelTab): void;
   setTool(t: Tool): void;
@@ -348,6 +351,7 @@ export const useStore = create<State>((set, get) => {
     mode: modeOf(startRoute().route),
     insideId: null,
     calcId: null,
+    lessonId: null,
     benchInside: null,
     panel: 'task',
     layout: emptyLayout(),
@@ -404,6 +408,10 @@ export const useStore = create<State>((set, get) => {
     openCalc(calcId) {
       openRequest = null;
       set({ mode: 'calc', calcId, opening: null });
+    },
+    openLesson(lessonId) {
+      openRequest = null;
+      set({ mode: 'lesson', lessonId, opening: null });
     },
     setBenchInside(benchInside) {
       set({ benchInside });
