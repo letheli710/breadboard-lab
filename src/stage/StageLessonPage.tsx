@@ -92,6 +92,13 @@ function LensBar({ lesson }: { lesson: StageLesson }) {
   );
 }
 
+/** Plain-text stage labels write subscripts as `v_o`, `R_{Th}`: show them as subscripts. */
+export function Subs({ text }: { text: string }) {
+  const parts = text.split(/(?<=[A-Za-zα-ωΑ-Ω])_(\{[^}]+\}|[A-Za-z0-9]+)/);
+  if (parts.length === 1) return <>{text}</>;
+  return <>{parts.map((p, i) => (i % 2 ? <sub key={i}>{p.replace(/^\{|\}$/g, '')}</sub> : p))}</>;
+}
+
 function Pointing({ lesson }: { lesson: StageLesson }) {
   const hover = useStage((s) => s.hover);
   const halo = useStage((s) => s.focus ?? s.halo);
@@ -103,8 +110,12 @@ function Pointing({ lesson }: { lesson: StageLesson }) {
       <div className="stage-pointing" aria-live="polite">
         {t ? (
           <>
-            <b>{hover.map((id) => targetLabel(lesson, id)?.label ?? id).join(' · ')}</b>
-            <span>{t.desc}</span>
+            <b>
+              <Subs text={hover.map((id) => targetLabel(lesson, id)?.label ?? id).join(' · ')} />
+            </b>
+            <span>
+              <Subs text={t.desc} />
+            </span>
           </>
         ) : null}
       </div>
@@ -123,7 +134,7 @@ function Pointing({ lesson }: { lesson: StageLesson }) {
           onFocus={() => setHover([id])}
           onBlur={() => setHover(null)}
         >
-          {targetLabel(lesson, id)?.label ?? id}
+          <Subs text={targetLabel(lesson, id)?.label ?? id} />
         </button>
       ))}
     </div>
