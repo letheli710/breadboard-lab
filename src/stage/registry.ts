@@ -223,7 +223,10 @@ export const STAGE_LESSON_INDEX: StageLessonEntry[] = [
     slug: 'w4-l5',
     code: 'W4-L5',
     world: 'w4',
-    title: { zh: '一阶 RC/RL 阶跃响应与三要素通解（含示波器共地防短路警示与面包板实操）', en: 'First-order step response and the three-element formula (scope ground safety, breadboard)' },
+    title: {
+      zh: '一阶 RC/RL 阶跃响应与三要素通解（含示波器共地防短路警示与面包板实操）',
+      en: 'First-order step response and the three-element formula (scope ground safety, breadboard)',
+    },
     minutes: 55,
   },
   {
