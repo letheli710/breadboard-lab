@@ -1,0 +1,620 @@
+/* W1-L8 stage layers: Y ↔ Δ morph (yd-*) and the bridge reducer (br-*). Light theme. */
+
+.yd-layer,
+.br-layer {
+  --yd-delta: #0284c7;
+  --yd-delta-lit: #38bdf8;
+  --yd-wye: #d97706;
+  --yd-wye-lit: #f59e0b;
+  --yd-port: #10b981;
+  --yd-rose: #e11d48;
+  --yd-orange: #fb923c;
+  --yd-purple: #a78bfa;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* controls */
+.yd-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+.yd-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 2px;
+}
+.yd-seg button,
+.yd-toggle,
+.yd-play {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.yd-seg button.on {
+  background: var(--ink);
+  color: #fff;
+}
+.yd-seg.small button {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+.yd-seg-label {
+  align-self: center;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 6px;
+}
+.yd-toggle,
+.yd-play {
+  border: 1.5px solid var(--line-2);
+  background: #fff;
+}
+.yd-toggle.on {
+  border-color: var(--yd-wye);
+  background: #fff7e6;
+  color: #8a5300;
+}
+.yd-play.on {
+  border-color: var(--yd-wye);
+  color: #8a5300;
+}
+.yd-morph {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.yd-morph input {
+  flex: 1 1 120px;
+  min-width: 100px;
+  accent-color: var(--yd-wye);
+}
+.yd-end {
+  font-weight: 800;
+  font-size: 15px;
+}
+.yd-end.delta {
+  color: var(--yd-delta);
+}
+.yd-end.wye {
+  color: var(--yd-wye);
+}
+.yd-tval {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  width: 5.2em;
+}
+
+/* the drawing */
+.yd-svg {
+  width: 100%;
+  flex: 1 1 0;
+  min-height: 190px;
+  max-height: 400px;
+  display: block;
+  touch-action: manipulation;
+}
+.yd-bg {
+  fill: #f8fafc;
+  stroke: #cbd5e1;
+  stroke-width: 1.2;
+}
+.yd-wire {
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  fill: none;
+  transition: stroke-width 0.15s;
+}
+.yd-wire.delta {
+  stroke: var(--yd-delta);
+}
+.yd-wire.delta.dashed {
+  stroke-dasharray: 7 5;
+}
+.yd-wire.wye {
+  stroke: var(--yd-wye);
+  stroke-width: 2.8;
+}
+.yd-wire.mid {
+  stroke: var(--yd-rose);
+}
+.yd-wire.plain {
+  stroke: #64748b;
+}
+.yd-wire.lit {
+  stroke-width: 3.6;
+  stroke-dasharray: none;
+}
+.yd-wire.delta.lit {
+  stroke: var(--yd-delta-lit);
+}
+.yd-wire.wye.lit {
+  stroke: var(--yd-wye-lit);
+}
+.yd-hit {
+  stroke: transparent;
+  stroke-width: 14;
+  pointer-events: stroke;
+}
+.yd-foot {
+  stroke: var(--yd-port);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.yd-res-halo {
+  fill: none;
+  stroke: none;
+}
+.yd-res-body {
+  stroke-width: 1.8;
+}
+.yd-res-text {
+  font-size: 11.5px;
+  font-weight: 800;
+  font-family: var(--cond, sans-serif);
+  pointer-events: none;
+}
+.yd-res.delta .yd-res-body {
+  fill: #e0f2fe;
+  stroke: var(--yd-delta);
+}
+.yd-res.delta .yd-res-text {
+  fill: #075985;
+}
+.yd-res.wye .yd-res-body {
+  fill: #fef3c7;
+  stroke: var(--yd-wye);
+}
+.yd-res.wye .yd-res-text {
+  fill: #7c2d12;
+}
+.yd-res.mid .yd-res-body {
+  fill: #ffe4e6;
+  stroke: var(--yd-rose);
+}
+.yd-res.mid .yd-res-text {
+  fill: #9f1239;
+}
+.yd-res.plain .yd-res-body {
+  fill: #fff;
+  stroke: #64748b;
+}
+.yd-res.plain .yd-res-text {
+  fill: #1e293b;
+}
+.yd-res.lit .yd-res-body {
+  stroke-width: 3.5;
+}
+.yd-res.lit .yd-res-halo {
+  stroke: currentColor;
+  stroke-width: 2;
+  opacity: 0.55;
+}
+.yd-res.delta.lit {
+  color: var(--yd-delta-lit);
+}
+.yd-res.wye.lit {
+  color: var(--yd-wye-lit);
+}
+.yd-res.mid.lit {
+  color: var(--yd-rose);
+}
+.yd-res.plain.lit {
+  color: #64748b;
+}
+.yd-res.mid.lit .yd-res-halo {
+  animation: yd-pulse 1s ease-in-out infinite;
+}
+.yd-res.sel .yd-res-halo {
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+  opacity: 1;
+}
+.yd-res.clickable {
+  cursor: pointer;
+}
+.yd-res.clickable:focus-visible {
+  outline: none;
+}
+.yd-res.clickable:focus-visible .yd-res-halo {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  opacity: 1;
+}
+
+.yd-node {
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+.yd-node.port {
+  fill: var(--yd-port);
+}
+.yd-node.inner {
+  fill: #f59e0b;
+}
+.yd-node.n {
+  fill: var(--yd-wye-lit);
+}
+.yd-node.n.lit {
+  animation: yd-blink 0.9s steps(2) infinite;
+}
+.yd-node-glow {
+  fill: none;
+  stroke-width: 3;
+  opacity: 0.6;
+  transition: r 0.15s;
+}
+.yd-node-glow.port {
+  stroke: var(--yd-port);
+  animation: yd-pulse 1.2s ease-in-out infinite;
+}
+.yd-node-glow.n {
+  stroke: var(--yd-wye-lit);
+}
+.yd-node-label {
+  font-size: 14px;
+  font-weight: 800;
+}
+.yd-node-label.port {
+  fill: #047857;
+}
+.yd-node-label.inner {
+  fill: #b45309;
+}
+.yd-node-label.n {
+  fill: #b45309;
+  font-size: 13px;
+}
+.yd-open {
+  font-size: 11px;
+  font-weight: 800;
+  fill: #64748b;
+}
+.yd-probe line {
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.yd-probe.red line {
+  stroke: #dc2626;
+}
+.yd-probe.red circle {
+  fill: #dc2626;
+}
+.yd-probe.black line {
+  stroke: #0f172a;
+}
+.yd-probe.black circle {
+  fill: #0f172a;
+}
+.yd-arc {
+  fill: none;
+  stroke: var(--yd-port);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.yd-opp {
+  stroke: var(--yd-rose);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+.yd-bal-note {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #8a5300;
+}
+
+/* ohmmeter readout and the formula strip */
+.yd-ohm-read {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+.yd-ohm-read .delta {
+  color: #075985;
+}
+.yd-ohm-read .wye {
+  color: #7c2d12;
+}
+.yd-ohm-read .eq {
+  font-weight: 800;
+  color: #047857;
+}
+.yd-formulas {
+  display: grid;
+  gap: 2px;
+  padding: 6px 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 13px;
+}
+.yd-formula-head {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.yd-formula {
+  border-radius: 6px;
+  padding: 1px 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: default;
+}
+.yd-formula.lit {
+  background: #fff3d6;
+  box-shadow: inset 3px 0 0 var(--yd-wye-lit);
+}
+.yd-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.yd-sliders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 4px 14px;
+}
+.yd-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.yd-slider input {
+  flex: 1;
+  min-width: 60px;
+  accent-color: var(--yd-delta);
+}
+.yd-slider b {
+  width: 3.6em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* bridge */
+.br-cta {
+  border: 0;
+  border-radius: 9px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #0891b2, #d97706);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(8, 145, 178, 0.3);
+}
+.br-cta:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.br-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.br-stepper button {
+  border: 1.5px solid var(--line-2);
+  background: #fff;
+  border-radius: 999px;
+  padding: 3px 10px 3px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.br-stepper .n {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--paper);
+  font-size: 11px;
+}
+.br-stepper button.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.br-stepper button.on .n {
+  background: #fff;
+  color: var(--ink);
+}
+.br-stepper button.done {
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+.br-branch {
+  fill: none;
+  stroke-width: 26;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.br-branch.left {
+  stroke: var(--yd-orange);
+}
+.br-branch.right {
+  stroke: var(--yd-purple);
+}
+.br-branch.on {
+  opacity: 0.28;
+}
+.br-top {
+  fill: rgba(244, 63, 94, 0.07);
+  stroke: var(--yd-rose);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  stroke-linejoin: round;
+}
+.br-top.lit {
+  stroke-width: 3;
+  fill: rgba(244, 63, 94, 0.12);
+}
+.br-top.pulse {
+  stroke: #06b6d4;
+  fill: rgba(6, 182, 212, 0.14);
+  animation: yd-pulse 0.4s ease-in-out infinite;
+}
+.br-degree {
+  font-size: 10.5px;
+  font-weight: 700;
+  fill: #b45309;
+}
+.br-tag rect {
+  fill: #047857;
+}
+.br-tag text {
+  fill: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+.br-sum {
+  font-size: 11.5px;
+  font-weight: 800;
+}
+.br-sum.left {
+  fill: #c2410c;
+}
+.br-sum.right {
+  fill: #6d28d9;
+}
+.br-par {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #047857;
+}
+.br-status {
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 6px 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  min-height: 2.6em;
+  overflow-x: auto;
+}
+.br-status p {
+  margin: 0;
+}
+.br-check {
+  color: var(--bad);
+  font-weight: 600;
+}
+.br-result {
+  font-size: 14px;
+}
+
+@keyframes yd-pulse {
+  50% {
+    opacity: 0.15;
+  }
+}
+@keyframes yd-blink {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yd-node-glow.port,
+  .yd-node.n.lit,
+  .yd-res.mid.lit .yd-res-halo,
+  .br-top.pulse {
+    animation: none;
+  }
+  .br-branch,
+  .yd-wire {
+    transition: none;
+  }
+}
+
+/* KaTeX's hidden MathML copy is absolutely positioned: give its scroll boxes a positioning
+   context so a wide formula cannot widen the page. The .tex-display rule belongs in stage.css
+   (shared); until then it is scoped to this lesson's page. */
+.yd-layer,
+.br-layer,
+.yd-formulas,
+.yd-formula,
+.br-status,
+.yd-ohm-read {
+  position: relative;
+}
+.stage-page:has(.layer-layer_01_y_delta_morph, .layer-layer_02_bridge_reducer) .tex-display {
+  position: relative;
+}
+
+/* narrow screens: the stage is ~52vh, so keep the controls tight */
+@media (max-width: 960px) {
+  .yd-layer,
+  .br-layer {
+    gap: 6px;
+  }
+  .yd-svg {
+    min-height: 180px;
+  }
+  /* one row each, scrolling sideways, so the drawing keeps the space */
+  .yd-controls,
+  .br-stepper,
+  .yd-seg.small {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .yd-controls > *,
+  .br-stepper > * {
+    flex-shrink: 0;
+  }
+  .yd-seg {
+    flex-wrap: nowrap;
+  }
+  .yd-morph {
+    flex-wrap: nowrap;
+  }
+  .yd-tval {
+    display: none;
+  }
+  .yd-seg button,
+  .yd-toggle,
+  .yd-play {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  .yd-formulas,
+  .br-status {
+    font-size: 12px;
+  }
+}
