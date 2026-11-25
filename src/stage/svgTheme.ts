@@ -76,6 +76,8 @@ const TEXT: Map = {
   '#e9d5ff': '#7e22ce',
   '#fbcfe8': '#be185d',
   '#f3e8ff': '#6d28d9',
+  '#fef08a': '#a16207',
+  '#a5f3fc': '#0e7490',
 };
 
 const FILL: Map = {
