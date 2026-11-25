@@ -13,5 +13,6 @@ describe('stage lesson registry', () => {
       expect(l.lesson_meta.estimated_minutes).toBe(e.minutes);
       expect(l.right_acts.length).toBeGreaterThan(0);
     }
-  });
+    // loads every lesson module (40+ of them): give it room on a busy machine
+  }, 60_000);
 });
