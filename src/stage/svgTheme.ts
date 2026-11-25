@@ -181,6 +181,7 @@ const STROKE: Map = {
   '#fb923c': '#ea580c',
   '#fdba74': '#ea580c',
   '#7f1d1d': '#fca5a5',
+  '#273449': '#ece4d3',
 };
 
 /** light fills that, on a small circle, are a junction dot (a wire's colour): ink on the light theme */
