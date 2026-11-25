@@ -32,4 +32,12 @@ export const LESSON_LOADERS: Record<string, () => Promise<StageLesson>> = {
   'w3-l6': () => import('./w3-l6').then((m) => m.default),
   'w3-l7': () => import('./w3-l7').then((m) => m.default),
   'w3-l8': () => import('./w3-l8').then((m) => m.default),
+  'w4-l1': () => import('./w4-l1').then((m) => m.default),
+  'w4-l2': () => import('./w4-l2').then((m) => m.default),
+  'w4-l3': () => import('./w4-l3').then((m) => m.default),
+  'w4-l4': () => import('./w4-l4').then((m) => m.default),
+  'w4-l5': () => import('./w4-l5').then((m) => m.default),
+  'w4-l6': () => import('./w4-l6').then((m) => m.default),
+  'w4-l7': () => import('./w4-l7').then((m) => m.default),
+  'w4-l8': () => import('./w4-l8').then((m) => m.default),
 };

@@ -191,6 +191,62 @@ export const STAGE_LESSON_INDEX: StageLessonEntry[] = [
     title: { zh: '运放工程综合实战（二进制加权 DAC、仪表放大器与比较器边界总结）', en: 'Op-amp projects: binary-weighted DAC, instrumentation amp, comparator limits' },
     minutes: 55,
   },
+  {
+    slug: 'w4-l1',
+    code: 'W4-L1',
+    world: 'w4',
+    title: { zh: '电容的物理结构、微分伏安关系与电场储能', en: 'Capacitors: structure, the differential i–v relation and electric energy' },
+    minutes: 55,
+  },
+  {
+    slug: 'w4-l2',
+    code: 'W4-L2',
+    world: 'w4',
+    title: { zh: '电感的物理结构、电磁感应伏安关系与磁场储能', en: 'Inductors: structure, the induction i–v relation and magnetic energy' },
+    minutes: 55,
+  },
+  {
+    slug: 'w4-l3',
+    code: 'W4-L3',
+    world: 'w4',
+    title: { zh: '运放积分器与微分器：用虚地把波形送进微积分流水线', en: 'Op-amp integrator and differentiator' },
+    minutes: 45,
+  },
+  {
+    slug: 'w4-l4',
+    code: 'W4-L4',
+    world: 'w4',
+    title: { zh: '无源 RC/RL 一阶自然响应（时间常数 τ 与指数衰减）', en: 'Source-free RC/RL circuits: time constant and exponential decay' },
+    minutes: 45,
+  },
+  {
+    slug: 'w4-l5',
+    code: 'W4-L5',
+    world: 'w4',
+    title: { zh: '一阶 RC/RL 阶跃响应与三要素通解（含示波器共地防短路警示与面包板实操）', en: 'First-order step response and the three-element formula (scope ground safety, breadboard)' },
+    minutes: 55,
+  },
+  {
+    slug: 'w4-l6',
+    code: 'W4-L6',
+    world: 'w4',
+    title: { zh: '二阶电路初值与终值确定（t=0⁻, 0⁺, ∞ 三时刻等效替换法）', en: 'Second-order circuits: initial and final values (t = 0⁻, 0⁺, ∞)' },
+    minutes: 35,
+  },
+  {
+    slug: 'w4-l7',
+    code: 'W4-L7',
+    world: 'w4',
+    title: { zh: '无源串联/并联 RLC 自然响应（特征方程与三种阻尼状态）', en: 'Source-free series/parallel RLC: the characteristic equation and three damping cases' },
+    minutes: 55,
+  },
+  {
+    slug: 'w4-l8',
+    code: 'W4-L8',
+    world: 'w4',
+    title: { zh: 'RLC 阶跃响应与一般二阶电路通用求解流程', en: 'RLC step response and general second-order circuits' },
+    minutes: 60,
+  },
 ];
 
 export const STAGE_LESSON_ENTRY = new Map(STAGE_LESSON_INDEX.map((e) => [e.slug, e]));
