@@ -7,7 +7,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'dist-e2e/**', 'e2e-artifacts/**', 'node_modules/**', '*.tsbuildinfo'] },
+  { ignores: ['dist/**', 'dist-e2e/**', 'e2e-artifacts/**', 'node_modules/**', '.claude/**', '*.tsbuildinfo'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
