@@ -383,6 +383,8 @@ const W2_L8: StageLesson = {
         },
         {
           kind: 'guided',
+          // all steps answered: the stage uncovers the example's numbers
+          done_params: { reveal: 9 },
           title: '苏格拉底引导实战：含双独立源网络的最大功率求解',
           source: 'W2-L8-GD-01 · Alexander, Sadiku & Fredette (2026) Section 4.8 综合题型',
           problem: R`直流网络左侧包含：[[net_vs|18 V 电压源]]串联 [[net_r1|$R_1 = 6\ \Omega$]] 接至节点 A；[[net_r2|$R_2 = 3\ \Omega$]] 接于节点 A 与地之间；[[net_is|3 A 独立电流源]]由地向上注入节点 A；[[net_r3|$R_3 = 4\ \Omega$]] 串联在节点 A 与输出端 a 之间。[[port_ab|端口 a–b]] 接可变负载 [[rl|$R_L$]]。请逐步求得使 $R_L$ 获得最大功率的阻值及最大功率 $p_{\max}$。`,

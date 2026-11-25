@@ -61,6 +61,9 @@ const TEXT: Map = {
   '#ddd6fe': '#5b21b6',
   '#c084fc': '#7e22ce',
   '#bbf7d0': '#15803d',
+  '#f0fdf4': '#065f46',
+  '#fef2f2': '#991b1b',
+  '#eff6ff': '#1e3a8a',
 };
 
 const FILL: Map = {
