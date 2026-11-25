@@ -135,6 +135,62 @@ export const STAGE_LESSON_INDEX: StageLessonEntry[] = [
     title: { zh: '最大功率传输定理', en: 'Maximum power transfer' },
     minutes: 45,
   },
+  {
+    slug: 'w3-l1',
+    code: 'W3-L1',
+    world: 'w3',
+    title: { zh: '认识真实运放：LM358/LM741 封装、VCVS 模型与三区饱和', en: 'The real op amp: LM358/LM741 packages, the VCVS model and three regions' },
+    minutes: 45,
+  },
+  {
+    slug: 'w3-l2',
+    code: 'W3-L2',
+    world: 'w3',
+    title: { zh: '理想运放公式与节点分析（虚断与虚短黄金法则）', en: 'The ideal op amp and nodal analysis (the two golden rules)' },
+    minutes: 35,
+  },
+  {
+    slug: 'w3-l3',
+    code: 'W3-L3',
+    world: 'w3',
+    title: { zh: '反相放大器（虚地推导、输入电阻与 ±9V 双电源面包板实测）', en: 'The inverting amplifier (virtual ground, input resistance, ±9 V breadboard)' },
+    minutes: 45,
+  },
+  {
+    slug: 'w3-l4',
+    code: 'W3-L4',
+    world: 'w3',
+    title: { zh: '同相放大器与电压跟随器（缓冲隔离与面包板实测）', en: 'The non-inverting amplifier and voltage follower (buffering, breadboard)' },
+    minutes: 45,
+  },
+  {
+    slug: 'w3-l5',
+    code: 'W3-L5',
+    world: 'w3',
+    title: { zh: '反相加法器：Summing Amplifier 与音频混音直觉', en: 'The inverting summing amplifier and audio mixing' },
+    minutes: 45,
+  },
+  {
+    slug: 'w3-l6',
+    code: 'W3-L6',
+    world: 'w3',
+    title: { zh: '差分放大器（双解法推导与共模抑制）', en: 'The difference amplifier (two derivations, common-mode rejection)' },
+    minutes: 45,
+  },
+  {
+    slug: 'w3-l7',
+    code: 'W3-L7',
+    world: 'w3',
+    title: { zh: '级联运放电路：零加载效应与多级增益分解', en: 'Cascaded op-amp circuits: no loading, gain stage by stage' },
+    minutes: 45,
+  },
+  {
+    slug: 'w3-l8',
+    code: 'W3-L8',
+    world: 'w3',
+    title: { zh: '运放工程综合实战（二进制加权 DAC、仪表放大器与比较器边界总结）', en: 'Op-amp projects: binary-weighted DAC, instrumentation amp, comparator limits' },
+    minutes: 55,
+  },
 ];
 
 export const STAGE_LESSON_ENTRY = new Map(STAGE_LESSON_INDEX.map((e) => [e.slug, e]));

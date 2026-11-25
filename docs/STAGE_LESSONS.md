@@ -33,6 +33,7 @@
 - 3D 面包板：`src/stage/BreadboardXray.tsx` 导出 `colX`、`ROW_Z`、`RAIL_Z`、`Shell`、`Clips`、`SurfaceGlow`、`TrenchGlow`、`Resistor`、`Lead`、`Chip`、`CameraRig`；W1-L0 的场景是范例。
 - 万用表接法台：`src/stage/DmmProbe.tsx`。色环：`src/stage/colorCode.ts`。
 - 公式：`Tex`（`src/stage/StageText.tsx`）。
+- **World 3 的运放芯片**：3D 面包板上的运放一律用 `src/stage/Lm358.tsx` 的 `Lm358`（DIP-8，引脚 1–4 在 f 行、5–8 在 e 行，`lm358Pin(c0, pin)` 求插孔），全章同一个实验箱芯片。
 - **宽图在手机上**：viewBox 宽 ≥ 700 的插图（双栏对照图）在 640px 以下保持 600px 宽、在卡片内横向滚动，不用各课自己写规则。
 - **深色 SVG → 浅色主题**：执行稿里写死深色背景（`#0f172a`）的内联 SVG，一律用 `lightSvg(svg)`（`src/stage/svgTheme.ts`）转成站点的暖白主题，全站同一套映射；个别对比度不够的地方再在本课里微调。
 
