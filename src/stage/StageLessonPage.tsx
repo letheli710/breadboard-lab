@@ -102,7 +102,7 @@ function Pointing({ lesson }: { lesson: StageLesson }) {
       </div>
     );
   }
-  if (!halo.length) return <div className="stage-pointing quiet">把鼠标移到面包板的孔上，或移到右侧带下划线的术语上</div>;
+  if (!halo.length) return <div className="stage-pointing quiet">把鼠标移到左侧舞台的对象上，或移到右侧带下划线的术语上</div>;
   return (
     <div className="stage-pointing">
       <span className="lbl">本幕高亮</span>
@@ -287,7 +287,9 @@ function QuizCard({ q, n, onResult }: { q: QuizItem; n: number; onResult: (id: s
               }}
             >
               <span className="quiz-key">{o.key}</span>
-              <StageText text={o.text} />
+              <span className="quiz-text">
+                <StageText text={o.text} />
+              </span>
             </button>
           );
         })}
@@ -398,7 +400,7 @@ function useScrollDrive(lesson: StageLesson, root: React.RefObject<HTMLElement |
           else visible.delete(k);
         }
         const keys = [...visible];
-        const pick = keys.find((k) => k.startsWith('q-')) ?? keys[keys.length - 1];
+        const pick = [...keys].reverse().find((k) => k.startsWith('q-')) ?? keys[keys.length - 1];
         if (pick && table.has(pick)) follow(pick, table.get(pick)!);
       },
       { rootMargin: '-38% 0px -52% 0px' },

@@ -3,7 +3,7 @@
 // A right answer writes the step's TeX on the blackboard (which grows step by step), lights the
 // step's stage ids and moves on. "Start over" clears it.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useStage } from './stageStore';
 import { StageText, Tex } from './StageText';
 import type { GuidedBlock } from './types';
@@ -19,15 +19,21 @@ export function GuidedExample({ b }: { b: GuidedBlock }) {
   const [hint, setHint] = useState(false);
   const setFocus = useStage((s) => s.setFocus);
   const setParams = useStage((s) => s.setParams);
+  // re-applied when the stage starts following another act (following clears the focus)
+  const activeKey = useStage((s) => s.activeKey);
   const done = step >= b.steps.length;
   const cur = done ? undefined : b.steps[step];
 
-  // light the open step on the stage (cleared when the stage follows another act)
+  // light the open step on the stage while its act is the one the stage follows (following an
+  // act clears the focus, so it is applied again when this act comes back into view)
+  const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!cur) return;
+    const own = root.current?.closest<HTMLElement>('[data-sync-key]')?.dataset.syncKey;
+    if (own && activeKey !== own) return;
     if (cur.halo) setFocus(cur.halo);
     if (cur.params) setParams(cur.params);
-  }, [cur, setFocus, setParams]);
+  }, [cur, activeKey, setFocus, setParams]);
 
   const choose = (i: number) => {
     setPicked(i);
@@ -40,7 +46,7 @@ export function GuidedExample({ b }: { b: GuidedBlock }) {
   const chosen = cur && picked !== null ? cur.options[picked] : undefined;
 
   return (
-    <div className="guided">
+    <div className="guided" ref={root}>
       <div className="guided-head">
         <span className="guided-tag">苏格拉底引导例题</span>
         {b.source && <span className="guided-src">{b.source}</span>}
@@ -89,7 +95,9 @@ export function GuidedExample({ b }: { b: GuidedBlock }) {
                 disabled={!!chosen?.correct}
               >
                 <span className="quiz-key">{'ABCDEF'[i]}</span>
-                <StageText text={o.text} />
+                <span className="quiz-text">
+                  <StageText text={o.text} />
+                </span>
               </button>
             ))}
           </div>
