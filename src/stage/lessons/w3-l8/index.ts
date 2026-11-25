@@ -489,7 +489,7 @@ const W3_L8: StageLesson = {
         },
         {
           kind: 'table',
-          caption: R`供电、摆幅与功耗校核（${code('breadboard_safety_and_scaling')}，按本课的 LM358 校核摆幅）`,
+          caption: R`供电、摆幅与功耗校核（按本课的 LM358 校核摆幅）`,
           head: ['项目', '数值', '说明'],
           rows: [
             [
@@ -513,7 +513,7 @@ const W3_L8: StageLesson = {
               R`最大约 $7.4\text{ mW}$`,
               R`$V_{\text{ref}} = 5\text{ V}$ 的 ${code('1111')} 削顶时 $R_f$ 上 $(0.41 + 8.2)^2 / 10\text{ k}\Omega$；$10\text{ k}\Omega$ 支路与下拉各 $5^2/10\text{ k}\Omega = 2.5\text{ mW}$；都远低于 $250\text{ mW}$`,
             ],
-            ['阻值缩放', '不需要', R`全部为 $\text{k}\Omega$ 级（${code('component_scaling_applied: false')}），按原值搭建`],
+            ['阻值缩放', '不需要', R`全部为 $\text{k}\Omega$ 级，按原值搭建`],
           ],
         },
         { kind: 'p', text: '**4.1 4 位拨码开关 DAC 面包板物理布局俯视图**' },

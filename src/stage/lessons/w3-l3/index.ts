@@ -698,7 +698,7 @@ const W3_L3: StageLesson = {
         },
         {
           kind: 'table',
-          caption: R`[[safety|面包板安全与器件清单]]（breadboard_safety_and_scaling）：本课阻值本来就是 $\text{k}\Omega$ 级，**无需 $1000\times$ 安全缩放**（缩放只针对原题阻值 $< 100\ \Omega$ 的电路），增益与电流都按原值实测`,
+          caption: R`[[safety|面包板安全与器件清单]]：本课阻值本来就是 $\text{k}\Omega$ 级，**无需 $1000\times$ 安全缩放**（缩放只针对原题阻值 $< 100\ \Omega$ 的电路），增益与电流都按原值实测`,
           head: ['项目', '本课面包板取值'],
           rows: [
             ['供电', `[[supply|±9 V 双电源：${SUPPLY_NAME}]]两路串联，公共端 COM 作 0 V 参考地（GND）`],

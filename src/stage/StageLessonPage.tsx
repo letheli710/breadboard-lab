@@ -12,7 +12,7 @@ import { useLang, useStore } from '../state/store';
 import { worldById, worldName } from '../state/worlds';
 import { Icon } from '../ui/Icons';
 import { LESSON_LOADERS } from './lessons';
-import { STAGE_LESSON_ENTRY } from './registry';
+import { STAGE_LESSON_ENTRY, STAGE_LESSON_INDEX } from './registry';
 import { useLit, useStage } from './stageStore';
 import { StageText, Tex } from './StageText';
 import { ColorCodeCard } from './ColorCodeCard';
@@ -38,6 +38,13 @@ function neighbours(slug: string): { prev?: Ref; next?: Ref } {
   const order = e ? worldOrder(e.world) : [];
   const i = order.findIndex((r) => r.kind === 'lesson' && r.id === slug);
   return i < 0 ? {} : { prev: order[i - 1], next: order[i + 1] };
+}
+
+/** The stage lesson after this one on the main line (registry order), if it exists yet. */
+function nextStageLesson(slug: string): Ref | undefined {
+  const i = STAGE_LESSON_INDEX.findIndex((e) => e.slug === slug);
+  const e = i < 0 ? undefined : STAGE_LESSON_INDEX[i + 1];
+  return e ? { kind: 'lesson', id: e.slug } : undefined;
 }
 
 function RefLink({ r, primary, dir }: { r: Ref; primary?: boolean; dir: 'prev' | 'next' }) {
@@ -316,7 +323,8 @@ function Quiz({ act, lesson }: { act: Act; lesson: StageLesson }) {
     if (allRight) setDone(slug, true);
   }, [allRight, slug, setDone]);
   const m = lesson.lesson_meta;
-  const { next } = neighbours(slug);
+  // the main line goes lesson to lesson, across Worlds (the page's footer keeps the course-map order)
+  const next = nextStageLesson(slug);
   const planned = m.next_lesson && !LESSON_LOADERS[m.next_lesson.toLowerCase()];
   return (
     <div className="quiz">
@@ -330,7 +338,7 @@ function Quiz({ act, lesson }: { act: Act; lesson: StageLesson }) {
             <b>{allRight ? (m.pass_message ?? '随堂自测通过！') : '你之前已经通过了这节课的自测。'}</b>
             {next && (
               <p>
-                {m.world.match(/World \d+/)?.[0] ?? m.world} 接下来：
+                主线下一课：
                 <RefLink r={next} primary dir="next" />
               </p>
             )}

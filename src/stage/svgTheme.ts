@@ -64,6 +64,8 @@ const TEXT: Map = {
   '#f0fdf4': '#065f46',
   '#fef2f2': '#991b1b',
   '#eff6ff': '#1e3a8a',
+  '#f97316': '#c2410c',
+  '#fecaca': '#b91c1c',
 };
 
 const FILL: Map = {
@@ -79,6 +81,13 @@ const FILL: Map = {
   '#065f46': '#d1fae5',
   '#022c22': '#d1fae5',
   '#052e16': '#dcfce7',
+  '#0b1324': '#f8fafc',
+  '#172033': '#f8fafc',
+  '#422006': '#fef3c7',
+  '#1c1117': '#fff5f5',
+  '#2a1215': '#fef2f2',
+  '#0d2219': '#f0fdf4',
+  '#f472b6': '#db2777',
   '#451a03': '#fef3c7',
   '#78350f': '#fef3c7',
   '#450a0a': '#fee2e2',
@@ -148,6 +157,10 @@ const STROKE: Map = {
   '#10b981': '#059669',
   '#f43f5e': '#e11d48',
   '#a855f7': '#9333ea',
+  '#f97316': '#ea580c',
+  '#f472b6': '#db2777',
+  '#c084fc': '#9333ea',
+  '#7f1d1d': '#fca5a5',
 };
 
 /** light fills that, on a small circle, are a junction dot (a wire's colour): ink on the light theme */

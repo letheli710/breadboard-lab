@@ -620,7 +620,7 @@ const W2_L8: StageLesson = {
         },
         {
           kind: 'table',
-          caption: R`安全缩放对照（breadboard_safety_and_scaling）：阻值按 $R_L / R_{Th}$ 比例放大到 $\text{k}\Omega$ 级、电源降到 5 V——归一化功率曲线 $P_L / P_{\max}$ 与效率 $\eta$ 完全不变，峰值仍在 $R_L = R_{Th}$、$V_L = V_{Th} / 2$`,
+          caption: R`安全缩放对照：阻值按 $R_L / R_{Th}$ 比例放大到 $\text{k}\Omega$ 级、电源降到 5 V——归一化功率曲线 $P_L / P_{\max}$ 与效率 $\eta$ 完全不变，峰值仍在 $R_L = R_{Th}$、$V_L = V_{Th} / 2$`,
           head: ['', '理论例题（教材原值）', '面包板安全值'],
           rows: [
             [R`$V_{Th}$`, '16.0 V', '5.0 V（台式可调直流电源 / USB 稳压）'],
