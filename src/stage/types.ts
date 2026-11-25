@@ -92,6 +92,8 @@ export interface GuidedStep {
   halo?: string[];
   /** stage params set while this step is open */
   params?: Record<string, unknown>;
+  /** stage layer shown while this step is open (unless the student picked a layer by hand) */
+  layer?: StageLayerId;
 }
 
 export interface GuidedBlock {
@@ -104,6 +106,8 @@ export interface GuidedBlock {
   /** diagram of the whole problem (inline SVG source) */
   problem_svg?: string;
   steps: GuidedStep[];
+  /** stage params set once the last step is answered (e.g. to uncover the example's numbers) */
+  done_params?: Record<string, unknown>;
   /** shown under the finished board */
   conclusion?: string;
 }

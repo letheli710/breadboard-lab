@@ -17,6 +17,7 @@ import { useLit, useStage } from './stageStore';
 import { StageText, Tex } from './StageText';
 import { ColorCodeCard } from './ColorCodeCard';
 import { GuidedExample } from './GuidedExample';
+import { svgWidth, WIDE_SVG } from './svgTheme';
 import type { Act, ActBlock, QuizItem, StageLesson, StageSync } from './types';
 import './stage.css';
 
@@ -256,7 +257,7 @@ function Figure({ svg, caption }: { svg: string; caption?: string }) {
   return (
     <figure className="act-figure">
       {/* lesson-sheet SVG source, bundled with the app (not user content) */}
-      <div className="act-svg" dangerouslySetInnerHTML={{ __html: svg }} />
+      <div className={`act-svg${svgWidth(svg) >= WIDE_SVG ? ' wide' : ''}`} dangerouslySetInnerHTML={{ __html: svg }} />
       {caption && <figcaption>{caption}</figcaption>}
     </figure>
   );

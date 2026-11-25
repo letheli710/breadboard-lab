@@ -482,6 +482,8 @@ const W2_L4: StageLesson = {
         },
         {
           kind: 'guided',
+          // all steps answered: the stage uncovers the example's numbers
+          done_params: { l1_reveal: 4 },
           title: '先选型、再矩阵直写：3 网孔平面电压源电路求支路电流 $I_o$',
           source: 'Alexander, Sadiku & Fredette (2026), Sections 3.6 & 3.7',
           problem: R`图 6-1：3 个独立电压源（18 V、3 V、8 V）与 6 个电阻，不含受控源，平面电路。求 [[ex_io|$I_o$]]（流过中心 4 Ω 电阻的向下电流）。左侧舞台 01 切到了这张电路的网孔模式，矩阵的格子随引导步骤逐格揭晓。`,

@@ -542,6 +542,8 @@ const W2_L7: StageLesson = {
         { kind: 'figure', svg: SVG_GUIDED, caption: '引导例题电路：V_s = 12 V，R₁ = R₂ = 4 Ω，R₃ = 2 Ω，端口 a 对地并联压控电流源 0.25v_x' },
         {
           kind: 'guided',
+          // all steps answered: the stage uncovers the example's numbers
+          done_params: { mask: 'none' },
           title: '含压控电流源（VCCS）电路的戴维南等效与测试源法',
           source: 'Sadiku Section 4.5 Case 2 — Dependent Source Test Source Method · 难度 Hard',
           problem: R`**本例题电路设定**（独立于第 3 幕例题的新拓扑，用于检验迁移掌握度）：左侧[[hl_vs|独立电压源 $V_s = 12\text{ V}$]] 串联 $R_1 = 4\ \Omega$ 接至节点 $1$；节点 $1$ 对地接 $R_2 = 4\ \Omega$（[[hl_vx|控制电压 $v_x$]] 标于 $R_2$ 两端，上正下负，即 $v_x = v_1$）；节点 $1$ 经 $R_3 = 2\ \Omega$ 接至端口 $a$；端口 $a$ 对参考地并联一个[[hl_dep|**压控电流源（VCCS）$0.25v_x$**]]（箭头向上指向端口 $a$）。求端口 $a\text{–}b$ 左侧的戴维南等效电路（$V_{Th}$ 与 $R_{Th}$）。`,

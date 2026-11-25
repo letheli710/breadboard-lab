@@ -412,6 +412,8 @@ const W2_L5: StageLesson = {
           problem:
             '已知电路中独立电压源 Vs = 18 V（上正下负）与 R1 = 4 Ω 串联接至节点 A，R2 = 2 Ω 接于节点 A 与地之间，独立电流源 Is = 3 A 从节点 A 向下流向地。请用叠加定理逐步求出流过 2 Ω 电阻的向下电流 $i_o$ 以及它消耗的真实功率 $p$。',
           problem_svg: SVG_ACT6,
+          // all five steps answered: the stage uncovers the example's numbers
+          done_params: { w5_shown: 5 },
           steps: [
             {
               title: '第 1 步（构建子电路 1）',

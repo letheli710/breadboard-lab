@@ -429,6 +429,8 @@ const W2_L2: StageLesson = {
       blocks: [
         {
           kind: 'guided',
+          // all steps answered: the stage uncovers the example's numbers
+          done_params: { gd_reveal: 2 },
           title: '含悬空电压源与并联电阻的超节点分步求解',
           source: 'Sadiku 2026 Release, Section 3.3 (Example 3.3 Style)',
           problem: String.raw`**例题题干**（改编自 Sadiku Section 3.3 经典双节点超节点题）：如下图所示电路，节点 1 与地之间接有 [[gd_is1|$I_{s1} = 6\text{ A}$（流入节点 1）]]与 [[gd_r1|$R_1 = 3\ \Omega$]]；节点 2 与地之间接有 [[gd_r2|$R_2 = 6\ \Omega$]] 与 [[gd_is2|$I_{s2} = 1\text{ A}$（流出节点 2）]]；节点 1 与节点 2 之间并联了一个 [[gd_vs|$V_s = 3\text{ V}$ 的悬空理想电压源]]（**负极接节点 1，正极接节点 2**）以及一个 [[gd_rp|$R_p = 3\ \Omega$ 的电阻]]。请逐步求出节点电压 $v_1, v_2$ 及流经 $3\text{ V}$ 电压源的电流 [[gd_is|$i_s$]]（方向由节点 1 指向节点 2）。`,

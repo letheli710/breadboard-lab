@@ -419,6 +419,8 @@ i_2 - i_1 = I_s & \text{（共享支路内部 KCL 约束）}
       blocks: [
         {
           kind: 'guided',
+          // all steps answered: the stage uncovers the example's numbers
+          done_params: { ex_reveal: 5 },
           title: '含向下共享电流源与串联电阻的超网孔实战',
           source: 'Sadiku 2026 Sec. 3.5 Supermesh Analysis',
           problem: String.raw`**经典 Sadiku 3.5 实战题**：如图所示双网孔电路中，左侧电压源 $V_1 = 30\text{ V}$（上正下负），右侧电压源 $V_2 = 6\text{ V}$（上正下负），外围电阻 $R_1 = 4\ \Omega$、$R_2 = 2\ \Omega$、$R_3 = 6\ \Omega$。中间共享支路包含一个**向下**的独立电流源 $I_s = 3\text{ A}$ 以及与之串联的电阻 $R_s = 5\ \Omega$。请分步求出：(1) 网孔电流 $i_1, i_2$；(2) 串联电阻 $R_s$ 消耗的功率 $P_{R_s}$ 及电流源两端的电压 $V_{I_s}$（上正下负）。`,

@@ -18,7 +18,7 @@
 - `right_acts[]`：每幕 `sync`（滚到这一幕时左侧切到哪个图层、点亮哪些 id、设什么参数），`blocks`，`inline_svg`（每幕必有一张局部图），最后一幕可带 `quiz`。
 - Block 类型：`p`、`ol`、`ul`、`origin`（① 公理溯源）、`formula`（② 蓝色符号通式卡，TeX）、`calc`（③ 绿色逐步计算卡）、`note`、`figure`、`table`、`guided`（苏格拉底引导例题）、`colorcode`。
 - 行内记号：`**粗体**`、`` `代码` ``、`$TeX$`（KaTeX）、`[[id1,id2|术语]]`（与左侧舞台对象双向高亮）。
-- `guided`：`problem`、`problem_svg?`、`steps[]`（每步 `title`、`mini_svg?`、`question`、`hint`、`options[{text, correct, feedback}]`、`board[]`（答对后写上黑板的 TeX）、`halo?`、`params?`），`conclusion?`。
+- `guided`：`problem`、`problem_svg?`、`steps[]`（每步 `title`、`mini_svg?`、`question`、`hint`、`options[{text, correct, feedback}]`、`board[]`（答对后写上黑板的 TeX）、`halo?`、`params?`、`layer?`（这一步要看的图层；学生手动选了图层时不切）），`done_params?`（最后一步答完后写入的舞台参数，例如揭晓舞台上为防剧透而遮住的数值），`conclusion?`。
 - `quiz[]`：选项可带各自的 `feedback`。
 
 ## 舞台与讲解的联动 / Stage state (`src/stage/stageStore.ts`)
@@ -33,6 +33,7 @@
 - 3D 面包板：`src/stage/BreadboardXray.tsx` 导出 `colX`、`ROW_Z`、`RAIL_Z`、`Shell`、`Clips`、`SurfaceGlow`、`TrenchGlow`、`Resistor`、`Lead`、`Chip`、`CameraRig`；W1-L0 的场景是范例。
 - 万用表接法台：`src/stage/DmmProbe.tsx`。色环：`src/stage/colorCode.ts`。
 - 公式：`Tex`（`src/stage/StageText.tsx`）。
+- **宽图在手机上**：viewBox 宽 ≥ 700 的插图（双栏对照图）在 640px 以下保持 600px 宽、在卡片内横向滚动，不用各课自己写规则。
 - **深色 SVG → 浅色主题**：执行稿里写死深色背景（`#0f172a`）的内联 SVG，一律用 `lightSvg(svg)`（`src/stage/svgTheme.ts`）转成站点的暖白主题，全站同一套映射；个别对比度不够的地方再在本课里微调。
 
 ## 课程结构约定

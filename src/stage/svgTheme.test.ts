@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lightSvg } from './svgTheme';
+import { lightSvg, svgWidth } from './svgTheme';
 
 describe('lightSvg', () => {
   it('turns the dark canvas light and light text / wires dark, by role', () => {
@@ -26,5 +26,20 @@ describe('lightSvg styles', () => {
   it('recolours a style attribute that quotes a font name', () => {
     const s = `<svg style="background:#0f172a;border-radius:12px;font-family:'Segoe UI',sans-serif;"></svg>`;
     expect(lightSvg(s)).toBe(`<svg style="background:#fbf7ef;border-radius:12px;font-family:'Segoe UI',sans-serif;"></svg>`);
+  });
+});
+
+describe('lightSvg junction dots', () => {
+  it('inks small white dots, keeps large white circles as fills', () => {
+    const s = '<svg><circle cx="1" cy="1" r="4" fill="#f8fafc"/><circle r="20" fill="#f8fafc"/></svg>';
+    expect(lightSvg(s)).toBe('<svg><circle cx="1" cy="1" r="4" fill="#1f2a44"/><circle r="20" fill="#f8fafc"/></svg>');
+  });
+});
+
+describe('svgWidth', () => {
+  it('reads the viewBox width, else the width attribute', () => {
+    expect(svgWidth('<svg viewBox="0 0 820 300"><rect width="5"/></svg>')).toBe(820);
+    expect(svgWidth('<svg width="360" height="200"></svg>')).toBe(360);
+    expect(Number.isNaN(svgWidth('<svg></svg>'))).toBe(true);
   });
 });

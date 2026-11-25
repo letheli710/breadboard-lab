@@ -6,11 +6,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStage } from './stageStore';
 import { StageText, Tex } from './StageText';
+import { svgWidth, WIDE_SVG } from './svgTheme';
 import type { GuidedBlock } from './types';
 
 function Svg({ src }: { src: string }) {
   // lesson-sheet SVG source, bundled with the app (not user content)
-  return <div className="act-svg" dangerouslySetInnerHTML={{ __html: src }} />;
+  return <div className={`act-svg${svgWidth(src) >= WIDE_SVG ? ' wide' : ''}`} dangerouslySetInnerHTML={{ __html: src }} />;
 }
 
 export function GuidedExample({ b }: { b: GuidedBlock }) {
@@ -33,7 +34,16 @@ export function GuidedExample({ b }: { b: GuidedBlock }) {
     if (own && activeKey !== own) return;
     if (cur.halo) setFocus(cur.halo);
     if (cur.params) setParams(cur.params);
+    if (cur.layer && !useStage.getState().manual) useStage.setState({ layer: cur.layer });
   }, [cur, activeKey, setFocus, setParams]);
+
+  // once the example is finished, its act may uncover what the steps kept hidden
+  useEffect(() => {
+    if (!done || !b.done_params) return;
+    const own = root.current?.closest<HTMLElement>('[data-sync-key]')?.dataset.syncKey;
+    if (own && activeKey !== own) return;
+    setParams(b.done_params);
+  }, [done, b.done_params, activeKey, setParams]);
 
   const choose = (i: number) => {
     setPicked(i);
