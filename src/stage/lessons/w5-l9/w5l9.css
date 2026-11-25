@@ -1,0 +1,820 @@
+/* W5-L9 stage layers: control dock, the filter schematics with their readout, the live Bode plot,
+   the 3D bench HUD. Light theme (stage.css tokens). */
+
+.w59-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- dock and controls */
+.w59-dock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+.w59-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.w59-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w59-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w59-seg .short,
+.w59-toggle .short,
+.w59-notice .short {
+  display: none;
+}
+.w59-toggle {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w59-toggle.on {
+  border-color: #059669;
+  background: #ecfdf5;
+  color: #047857;
+}
+.w59-chip {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border: 1px solid #c4b5fd;
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.w59-fold {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w59-slider {
+  flex: 1 1 170px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  border-radius: 8px;
+}
+.w59-slider label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.w59-slider.lit {
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w59-slider-label {
+  font-weight: 800;
+  color: #0369a1;
+  white-space: nowrap;
+}
+.w59-slider input[type='range'] {
+  flex: 1;
+  min-width: 50px;
+  accent-color: #0284c7;
+}
+.w59-num {
+  min-width: 4.4em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.w59-freq {
+  flex-basis: 100%;
+}
+.w59-amp {
+  flex: 1 1 200px;
+}
+.w59-presets {
+  display: flex;
+  gap: 3px;
+}
+.w59-presets button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 7px;
+  padding: 3px 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w59-presets button.on {
+  border-color: #0284c7;
+  color: #075985;
+  background: #f0f9ff;
+}
+.w59-notice {
+  margin: 0;
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  max-width: 100%;
+}
+.w59-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- readout cells */
+.w59-cells {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 5px;
+}
+.w59-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+  min-width: 0;
+  cursor: help;
+}
+.w59-cell > span {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w59-cell > b {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w59-cell > small {
+  color: var(--muted);
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w59-cell.good b {
+  color: #047857;
+}
+.w59-cell.bad {
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w59-cell.bad b {
+  color: #be123c;
+}
+.w59-cell.warn b {
+  color: #b45309;
+}
+.w59-cell.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- schematic */
+.w59-sch-wrap {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w59-sch,
+.w59-chart {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w59-chart {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.w59-sch .mid,
+.w59-chart .mid {
+  text-anchor: middle;
+}
+.w59-sch .end,
+.w59-chart .end {
+  text-anchor: end;
+}
+.w59-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w59-el {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.w59-el.r {
+  stroke: #db2777;
+}
+.w59-el.c {
+  stroke: #059669;
+  stroke-width: 3.2;
+}
+.w59-el.rl {
+  stroke: #dc2626;
+}
+.w59-el.off {
+  stroke: #94a3b8;
+  stroke-dasharray: 4 3;
+}
+.w59-hit {
+  fill: transparent;
+  stroke: none;
+}
+.w59-src {
+  fill: #fff;
+  stroke: #d97706;
+  stroke-width: 2.2;
+}
+.w59-sine {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 2;
+}
+.w59-term {
+  fill: #fff;
+  stroke: #334155;
+  stroke-width: 2;
+}
+.w59-dot {
+  fill: #334155;
+}
+.w59-dot.vg {
+  fill: #d97706;
+}
+.w59-vg-halo {
+  fill: #fde68a;
+  fill-opacity: 0.6;
+  stroke: #d97706;
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+.w59-gnd {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2;
+}
+.w59-opamp {
+  fill: #f0fdf4;
+  stroke: #047857;
+  stroke-width: 2.2;
+}
+.w59-rail {
+  stroke: #64748b;
+  stroke-width: 1.4;
+}
+.w59-arrow {
+  stroke: #0284c7;
+  stroke-width: 2;
+}
+.w59-arrowhead {
+  fill: #0284c7;
+}
+.w59-thev {
+  fill: #f8fafc;
+  stroke: #94a3b8;
+  stroke-dasharray: 4 3;
+}
+.w59-thev.bad {
+  fill: #fff1f2;
+  stroke: #e11d48;
+}
+.w59-stage {
+  fill: none;
+  stroke-width: 1.3;
+  stroke-dasharray: 5 4;
+}
+.w59-stage.s1 {
+  stroke: #059669;
+}
+.w59-stage.s2 {
+  stroke: #0284c7;
+}
+.w59-t {
+  font-size: 12.5px;
+  fill: var(--ink);
+}
+.w59-t.vtitle {
+  font-size: 13.5px;
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.w59-t.small {
+  font-size: 11px;
+  fill: #475569;
+}
+.w59-t.small.s1 {
+  fill: #047857;
+  font-weight: 700;
+}
+.w59-t.small.s2 {
+  fill: #0369a1;
+  font-weight: 700;
+}
+.w59-t.small.cur {
+  fill: #0369a1;
+}
+.w59-t.tag {
+  font-weight: 700;
+}
+.w59-t.r {
+  fill: #be185d;
+}
+.w59-t.c {
+  fill: #047857;
+}
+.w59-t.rl {
+  fill: #b91c1c;
+}
+.w59-t.off {
+  fill: #64748b;
+}
+.w59-t.src {
+  fill: #b45309;
+  font-weight: 700;
+}
+.w59-t.vo {
+  fill: #047857;
+  font-weight: 800;
+}
+.w59-t.sign {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.w59-t.rail {
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.w59-t.rail.p {
+  fill: #b91c1c;
+}
+.w59-t.rail.n {
+  fill: #1d4ed8;
+}
+.w59-t.eq {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #9f1239;
+}
+.w59-t.vgt {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #b45309;
+}
+.w59-part {
+  cursor: help;
+  outline: none;
+}
+.w59-part.lit .w59-el,
+.w59-part.lit .w59-wire,
+.w59-part.lit .w59-src,
+.w59-part.lit .w59-opamp,
+.w59-part.lit .w59-dot,
+.w59-part.lit .w59-thev,
+.w59-part.lit .w59-stage {
+  filter: drop-shadow(0 0 3px #f59e0b);
+}
+.w59-part.lit .w59-opamp {
+  fill: #fef3c7;
+}
+.w59-part.lit .w59-t.tag {
+  fill: #b45309;
+}
+.w59-part:focus-visible .w59-el {
+  stroke: #f59e0b;
+}
+
+/* ---------------------------------------------------------- Bode chart */
+.w59-plot {
+  fill: #fbfdff;
+  stroke: #cbd5e1;
+}
+.w59-grid {
+  stroke: #e2e8f0;
+  stroke-width: 1;
+}
+.w59-grid.zero {
+  stroke: #94a3b8;
+  stroke-width: 1.3;
+}
+.w59-tick {
+  font-size: 11px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w59-tick.mid {
+  text-anchor: middle;
+}
+.w59-tick.end {
+  text-anchor: end;
+}
+.w59-tick.axis {
+  font-size: 10.5px;
+  fill: #3a4560;
+}
+.w59-trace {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.w59-trace.active {
+  stroke: #059669;
+  stroke-width: 2.8;
+}
+.w59-trace.passive {
+  stroke: #0284c7;
+}
+.w59-trace.loaded {
+  stroke: #dc2626;
+  stroke-dasharray: 7 3;
+}
+.w59-trace.ph {
+  stroke-width: 2.2;
+}
+path.w59-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14;
+}
+.w59-cg {
+  cursor: help;
+}
+.w59-cg.lit .w59-trace,
+.w59-cg.lit .w59-fcline,
+.w59-cg.lit .w59-guide,
+.w59-cg.lit .w59-cursor,
+.w59-cg.lit .w59-target {
+  filter: drop-shadow(0 0 3px #f59e0b);
+  stroke-width: 3.4;
+}
+.w59-cg.lit .w59-lbl {
+  fill: #b45309;
+}
+.w59-fcline {
+  stroke-width: 1.1;
+  stroke-dasharray: 3 3;
+}
+.w59-fcline.active {
+  stroke: #059669;
+}
+.w59-fcline.passive {
+  stroke: #0284c7;
+}
+.w59-fcline.loaded {
+  stroke: #dc2626;
+}
+.w59-fcdot,
+.w59-cdot {
+  stroke: #fff;
+  stroke-width: 1.4;
+}
+.w59-fcdot.active,
+.w59-cdot.active {
+  fill: #059669;
+}
+.w59-fcdot.passive,
+.w59-cdot.passive {
+  fill: #0284c7;
+}
+.w59-fcdot.loaded,
+.w59-cdot.loaded {
+  fill: #dc2626;
+}
+.w59-guide {
+  stroke: #b45309;
+  stroke-width: 1.2;
+  stroke-dasharray: 5 4;
+}
+.w59-target {
+  stroke: #7c3aed;
+  stroke-width: 1.6;
+  stroke-dasharray: 8 4;
+}
+.w59-cursor {
+  stroke: #475569;
+  stroke-width: 1.3;
+  stroke-dasharray: 2 3;
+}
+.w59-lbl {
+  font-size: 11px;
+  font-weight: 700;
+}
+.w59-lbl.active {
+  fill: #047857;
+}
+.w59-lbl.passive {
+  fill: #0369a1;
+}
+.w59-lbl.loaded {
+  fill: #b91c1c;
+}
+.w59-lbl.guide {
+  fill: #92400e;
+}
+.w59-lbl.slope {
+  fill: #047857;
+}
+.w59-lbl.target {
+  fill: #6d28d9;
+}
+.w59-lbl.muted {
+  fill: #64748b;
+  font-weight: 600;
+}
+.w59-lbl.end {
+  text-anchor: end;
+}
+.w59-lbl.mid {
+  text-anchor: middle;
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.w59-bench {
+  min-height: 150px;
+}
+.w59-camsel {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 30;
+}
+.bb3d-tag.w59-tag3 {
+  font-size: 11px;
+  color: var(--ink);
+  border-color: var(--line-2);
+}
+.bb3d-tag.w59-tag3.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.bb3d-tag.w59-tag3.gen {
+  border-color: #d97706;
+  color: #92400e;
+}
+.bb3d-tag.w59-tag3.scope {
+  border-color: #16a34a;
+  color: #166534;
+}
+.bb3d-tag.w59-tag3.psu {
+  border-color: #dc2626;
+  color: #991b1b;
+}
+.w59-rtag {
+  font:
+    800 10px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+.w59-rtag.rail_p9 {
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+.w59-rtag.rail_gnd {
+  color: #1f2a44;
+}
+.w59-rtag.rail_m9 {
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+.w59-rtag.lit {
+  background: #fde9b8;
+  border-color: var(--stage-amber);
+}
+.w59-gen-lcd,
+.w59-lcd3 {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 3px 6px;
+  background: #c8dfb5;
+  border: 1.5px solid #4a5a3c;
+  border-radius: 4px;
+  font:
+    700 9.5px/1.2 ui-monospace,
+    monospace;
+  color: #10210f;
+  white-space: nowrap;
+}
+.w59-gen-lcd b,
+.w59-lcd3 b {
+  font-size: 11px;
+}
+.w59-scope-osd {
+  display: flex;
+  gap: 6px;
+  font:
+    700 9.5px/1.2 ui-monospace,
+    monospace;
+  color: #d1fae5;
+  background: rgba(11, 26, 20, 0.85);
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.w59-scope-osd .c1 {
+  color: #fde047;
+}
+.w59-scope-osd .c2 {
+  color: #86efac;
+}
+.w59-clip {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 6px;
+  margin: 0;
+  z-index: 31;
+  font-size: 12px;
+  color: #881337;
+  background: #fff1f2;
+  border: 1.5px solid #e11d48;
+  border-radius: 8px;
+  padding: 3px 8px;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w59-seg .full,
+  .w59-toggle .full,
+  .w59-notice .full {
+    display: none;
+  }
+  .w59-seg .short,
+  .w59-toggle .short,
+  .w59-notice .short {
+    display: inline;
+  }
+  .w59-layer {
+    gap: 4px;
+  }
+  .w59-dock {
+    gap: 4px 5px;
+  }
+  .w59-seg {
+    padding: 2px;
+  }
+  .w59-seg button {
+    padding: 3px 6px;
+    font-size: 11.5px;
+  }
+  .w59-toggle,
+  .w59-fold,
+  .w59-chip {
+    padding: 2px 8px;
+    font-size: 11.5px;
+  }
+  .w59-slider {
+    flex-basis: 30%;
+    gap: 4px;
+    font-size: 11px;
+  }
+  .w59-freq {
+    flex-basis: 100%;
+  }
+  .w59-amp {
+    flex-basis: 40%;
+  }
+  .w59-num {
+    min-width: 0;
+  }
+  .w59-presets button {
+    padding: 2px 5px;
+    font-size: 11px;
+  }
+  .w59-notice {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  .w59-cells {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .w59-cell {
+    padding: 2px 5px;
+    font-size: 10.5px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .w59-cell > b {
+    font-size: 11.5px;
+  }
+  .w59-cell > small,
+  .w59-cell.minor {
+    display: none;
+  }
+  .w59-bench-notice,
+  .w59-scope-osd .div {
+    display: none;
+  }
+  .w59-sch .w59-t {
+    font-size: 15px;
+  }
+  .w59-sch .w59-t.vtitle {
+    font-size: 15px;
+  }
+  .w59-sch .w59-t.small,
+  .w59-sch .w59-t.eq {
+    font-size: 13px;
+  }
+  .w59-tick {
+    font-size: 15px;
+  }
+  .w59-tick.axis {
+    font-size: 12px;
+  }
+  .w59-lbl {
+    font-size: 14px;
+  }
+  .w59-camsel {
+    right: 4px;
+    top: 4px;
+  }
+  .bb3d-tag.w59-tag3 {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  .w59-gen-lcd,
+  .w59-lcd3,
+  .w59-scope-osd {
+    font-size: 8px;
+  }
+  .w59-gen-lcd b,
+  .w59-lcd3 b {
+    font-size: 9px;
+  }
+  .w59-clip {
+    font-size: 10.5px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+  }
+}
