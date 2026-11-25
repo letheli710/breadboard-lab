@@ -7,13 +7,20 @@
 //
 // Inline text markup (StageText.tsx): **bold**, `code`, $TeX$ (KaTeX), and [[hoverId|text]] —
 // a term linked to an object on the stage (hovering either one highlights both).
+//
+// A lesson lives in its own folder, src/stage/lessons/<slug>/: index.ts (default export: the
+// StageLesson, with `renderers` for its layers) and any layer components it needs. Layers talk to
+// the page through the stage store (stageStore.ts): `lit` ids (useLit), and free-form `params`
+// that acts set on scroll (StageSync.params) and layer controls change (useStageParam).
+
+import type { ComponentType } from 'react';
 
 export type LessonType = 'A' | 'B' | 'C' | 'D';
 
-export type RenderMode = '3D_THREEJS_BREADBOARD' | '2D_INTERACTIVE_SVG';
+export type RenderMode = '3D_THREEJS_BREADBOARD' | '2D_INTERACTIVE_SVG' | string;
 
-/** Layers the stage knows how to draw (a new lesson either reuses one or adds a renderer). */
-export type StageLayerId = 'bb_xray' | 'dmm_probe';
+/** A layer id, unique within its lesson; `StageLesson.renderers[id]` draws it. */
+export type StageLayerId = string;
 
 export interface StageLayer {
   id: StageLayerId;
@@ -44,6 +51,8 @@ export interface StageSync {
   camera?: 'overview' | 'focus' | 'resistor' | 'trench';
   /** multimeter set-up (dmm_probe) */
   dmm?: DmmMode;
+  /** lesson-specific stage settings (merged into the store's params; read with useStageParam) */
+  params?: Record<string, unknown>;
 }
 
 /** One block of an act's text. Strings use the inline markup above. */
@@ -59,12 +68,52 @@ export type ActBlock =
   | { kind: 'calc'; title: string; steps: { label: string; text?: string; tex?: string }[] }
   | { kind: 'note'; tone: 'warn' | 'tip'; text: string }
   /** the colour-code card: the full table and a 4-band reader (drives the resistor on the stage) */
-  | { kind: 'colorcode'; title: string; intro?: string };
+  | { kind: 'colorcode'; title: string; intro?: string }
+  /** an extra diagram inside an act (inline SVG source) */
+  | { kind: 'figure'; svg: string; caption?: string }
+  /** a table; cells use the inline markup */
+  | { kind: 'table'; head: string[]; rows: string[][]; caption?: string }
+  /** a Socratic guided example (GuidedExample.tsx) */
+  | GuidedBlock;
+
+/** One step of a guided example: a question with options; the right answer writes `board` on the
+ *  blackboard and the next step opens. A wrong option shows its intercept; the hint is on demand. */
+export interface GuidedStep {
+  /** step title, e.g. "Step 1 · 找参考方向" */
+  title: string;
+  /** small diagram for this step (inline SVG source) */
+  mini_svg?: string;
+  question: string;
+  hint: string;
+  options: { text: string; correct: boolean; /** praise (right) or the professor's intercept (wrong) */ feedback: string }[];
+  /** TeX line(s) written on the board once the step is answered */
+  board: string[];
+  /** stage ids lit while this step is open */
+  halo?: string[];
+  /** stage params set while this step is open */
+  params?: Record<string, unknown>;
+}
+
+export interface GuidedBlock {
+  kind: 'guided';
+  title: string;
+  /** "Sadiku Example 1.3" */
+  source?: string;
+  /** the problem statement */
+  problem: string;
+  /** diagram of the whole problem (inline SVG source) */
+  problem_svg?: string;
+  steps: GuidedStep[];
+  /** shown under the finished board */
+  conclusion?: string;
+}
 
 export interface QuizOption {
   key: string;
   text: string;
   correct: boolean;
+  /** feedback for this option; when absent the item's feedback_correct / feedback_wrong is shown */
+  feedback?: string;
 }
 
 export interface QuizItem {
@@ -97,6 +146,10 @@ export interface Act {
 
 export interface StageLesson {
   format: 'lesson-stage/2';
+  /** layer id → component drawing it (usually React.lazy, so a layer loads when it is first shown) */
+  renderers: Record<StageLayerId, ComponentType>;
+  /** label and description for stage ids that are not in the hover map (e.g. generated ones) */
+  describeTarget?: (id: string) => HoverTarget | null;
   lesson_meta: {
     lesson_id: string;
     world: string;

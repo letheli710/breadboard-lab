@@ -2,7 +2,7 @@
 // the active layer), the acts on the right. The act in the middle of the viewport drives the
 // stage; picking a lens by hand pins the layer until "follow the lesson" is pressed again.
 
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { tr } from '../core/i18n';
 import { tt } from '../core/course/text';
 import { parseRef, refHash, titleOfRef, useCatalog, type Ref } from '../state/course';
@@ -11,17 +11,14 @@ import { setLessonTitles } from '../state/routeSync';
 import { useLang, useStore } from '../state/store';
 import { worldById, worldName } from '../state/worlds';
 import { Icon } from '../ui/Icons';
-import { genericLabel } from './BreadboardXray';
 import { LESSON_LOADERS } from './lessons';
 import { STAGE_LESSON_ENTRY } from './registry';
 import { useLit, useStage } from './stageStore';
 import { StageText, Tex } from './StageText';
 import { ColorCodeCard } from './ColorCodeCard';
+import { GuidedExample } from './GuidedExample';
 import type { Act, ActBlock, QuizItem, StageLesson, StageSync } from './types';
 import './stage.css';
-
-const BreadboardXray = lazy(() => import('./BreadboardXray'));
-const DmmProbe = lazy(() => import('./DmmProbe'));
 
 setLessonTitles((id) => {
   const e = STAGE_LESSON_ENTRY.get(id);
@@ -57,7 +54,7 @@ function RefLink({ r, primary, dir }: { r: Ref; primary?: boolean; dir: 'prev' |
 /* ------------------------------------------------------------- stage (left) */
 
 function targetLabel(lesson: StageLesson, id: string) {
-  return lesson.left_stage_spec.hover_map[id] ?? genericLabel(id);
+  return lesson.left_stage_spec.hover_map[id] ?? lesson.describeTarget?.(id) ?? null;
 }
 
 function LensBar({ lesson }: { lesson: StageLesson }) {
@@ -87,29 +84,9 @@ function LensBar({ lesson }: { lesson: StageLesson }) {
   );
 }
 
-function XraySlider() {
-  const xray = useStage((s) => s.xray);
-  const setXray = useStage((s) => s.setXray);
-  return (
-    <label className="xray-slider">
-      <span>X-Ray 掀开塑料外壳</span>
-      <input
-        type="range"
-        min={0}
-        max={100}
-        step={1}
-        value={Math.round(xray * 100)}
-        onChange={(e) => setXray(Number(e.target.value) / 100)}
-        aria-valuetext={`${Math.round(xray * 100)}%`}
-      />
-      <b>{Math.round(xray * 100)}%</b>
-    </label>
-  );
-}
-
 function Pointing({ lesson }: { lesson: StageLesson }) {
   const hover = useStage((s) => s.hover);
-  const halo = useStage((s) => s.halo);
+  const halo = useStage((s) => s.focus ?? s.halo);
   const setHover = useStage((s) => s.setHover);
   const lit = useLit();
   if (hover && hover.length) {
@@ -147,23 +124,16 @@ function Pointing({ lesson }: { lesson: StageLesson }) {
 
 function Stage({ lesson }: { lesson: StageLesson }) {
   const layer = useStage((s) => s.layer);
-  const spec = lesson.left_stage_spec.layers.find((l) => l.id === layer)!;
+  const layers = lesson.left_stage_spec.layers;
+  const spec = layers.find((l) => l.id === layer) ?? layers[0];
+  const Layer = lesson.renderers[spec.id];
   return (
     <aside className="stage-left" aria-label="左侧舞台">
       <LensBar lesson={lesson} />
       <p className="stage-caption">{spec.caption}</p>
-      <div className={`stage-view layer-${layer}`}>
+      <div className={`stage-view layer-${spec.id}`}>
         <Suspense fallback={<div className="stage-loading">{tr('加载中…', 'Loading…')}</div>}>
-          {layer === 'bb_xray' && (
-            <>
-              <XraySlider />
-              <div className="bb3d-wrap">
-                <BreadboardXray />
-              </div>
-              <p className="bb3d-hint">拖动旋转 · 滚轮缩放 · 上下两组电源轨之间并不相通，要用跳线连起来</p>
-            </>
-          )}
-          {layer === 'dmm_probe' && <DmmProbe />}
+          {Layer ? <Layer /> : <div className="stage-loading">没有这个图层的渲染器：{spec.id}</div>}
         </Suspense>
       </div>
       <Pointing lesson={lesson} />
@@ -237,6 +207,40 @@ function Block({ b }: { b: ActBlock }) {
       );
     case 'colorcode':
       return <ColorCodeCard title={b.title} intro={b.intro} />;
+    case 'figure':
+      return <Figure svg={b.svg} caption={b.caption} />;
+    case 'guided':
+      return <GuidedExample b={b} />;
+    case 'table':
+      return (
+        <table className="act-table">
+          {b.caption && (
+            <caption>
+              <StageText text={b.caption} />
+            </caption>
+          )}
+          <thead>
+            <tr>
+              {b.head.map((h, i) => (
+                <th key={i} scope="col">
+                  <StageText text={h} />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {b.rows.map((r, i) => (
+              <tr key={i}>
+                {r.map((c, k) => (
+                  <td key={k}>
+                    <StageText text={c} />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
     case 'note':
       return (
         <div className={`act-note ${b.tone}`}>
@@ -288,7 +292,7 @@ function QuizCard({ q, n, onResult }: { q: QuizItem; n: number; onResult: (id: s
       </div>
       {chosen && (
         <div className={`quiz-feedback ${chosen.correct ? 'right' : 'wrong'}`} role="status">
-          <StageText text={chosen.correct ? q.feedback_correct : q.feedback_wrong} />
+          <StageText text={chosen.feedback ?? (chosen.correct ? q.feedback_correct : q.feedback_wrong)} />
           {!chosen.correct && <span className="quiz-retry">再选一次</span>}
         </div>
       )}

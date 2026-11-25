@@ -19,6 +19,10 @@ interface StageState {
   halo: string[];
   /** ids under the pointer (text term or stage object); wins over the halo */
   hover: string[] | null;
+  /** ids an open step of a guided example lights (wins over the halo, not over hover) */
+  focus: string[] | null;
+  /** lesson-specific stage settings: set by acts (StageSync.params), guided steps and layer controls */
+  params: Record<string, unknown>;
   /** the multimeter's fuse has blown (the wrong set-up was tried) */
   fuseBlown: boolean;
   /** colour bands of the resistor in the colour-code reader (and on the 3D stage) */
@@ -31,6 +35,8 @@ interface StageState {
   setHover(ids: string[] | null): void;
   setFuse(b: boolean): void;
   setBand(i: number, color: string): void;
+  setFocus(ids: string[] | null): void;
+  setParams(p: Record<string, unknown>): void;
   reset(): void;
 }
 
@@ -43,6 +49,8 @@ const INITIAL = {
   camera: 'focus' as NonNullable<StageSync['camera']>,
   halo: [] as string[],
   hover: null,
+  focus: null as string[] | null,
+  params: {} as Record<string, unknown>,
   fuseBlown: false,
   bands: BANDS_10K,
 };
@@ -56,7 +64,8 @@ export const useStage = create<StageState>()((set, get) => ({
     syncOf.set(key, sync);
     const s = get();
     if (s.activeKey === key) return;
-    const next: Partial<StageState> = { activeKey: key, halo: sync.halo ?? [], hover: null };
+    const next: Partial<StageState> = { activeKey: key, halo: sync.halo ?? [], hover: null, focus: null };
+    if (sync.params) next.params = { ...s.params, ...sync.params };
     if (!s.manual && sync.layer) next.layer = sync.layer;
     if (sync.xray !== undefined) next.xray = sync.xray;
     if (sync.camera) next.camera = sync.camera;
@@ -86,6 +95,12 @@ export const useStage = create<StageState>()((set, get) => ({
   setFuse(fuseBlown) {
     set({ fuseBlown });
   },
+  setFocus(focus) {
+    set({ focus: focus && focus.length ? focus : null });
+  },
+  setParams(p) {
+    set({ params: { ...get().params, ...p } });
+  },
   setBand(i, color) {
     const bands = [...get().bands] as Bands;
     bands[i] = color;
@@ -97,5 +112,12 @@ export const useStage = create<StageState>()((set, get) => ({
   },
 }));
 
-/** Ids lit on the stage right now: the hovered ones, else the active act's. */
-export const useLit = (): string[] => useStage((s) => s.hover ?? s.halo);
+/** Ids lit on the stage right now: the hovered ones, else a guided step's, else the active act's. */
+export const useLit = (): string[] => useStage((s) => s.hover ?? s.focus ?? s.halo);
+
+/** A lesson-specific stage setting and its setter (layer controls use it; acts set it on scroll). */
+export function useStageParam<T>(key: string, fallback: T): [T, (v: T) => void] {
+  const v = useStage((s) => s.params[key]) as T | undefined;
+  const setParams = useStage((s) => s.setParams);
+  return [v === undefined ? fallback : v, (x: T) => setParams({ [key]: x })];
+}

@@ -1,3 +1,6 @@
+// Reusable pieces for other lessons' 3D breadboard layers are exported: geometry (colX, ROW_Z,
+// RAIL_Z), Shell / Clips / SurfaceGlow / TrenchGlow, Resistor, Lead, Chip, CameraRig.
+//
 // Layer "01 3D 面包板导通透视": an 830-hole breadboard (63 columns × a–j + four 50-hole rails)
 // whose plastic shell fades with the X-ray slider, showing the spring clips underneath: the
 // rails run the whole length, each column has two 5-hole strips (a–e, f–j), the centre trench
@@ -13,25 +16,24 @@ import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../ui/reveal';
 import { bandMeanings, bandValue, COLOR_BY_KEY, formatOhms } from './colorCode';
+import { stripId } from './breadboardIds';
 import { useLit, useStage } from './stageStore';
+export { genericLabel, stripId } from './breadboardIds';
 import type { StageSync } from './types';
 
 /* ------------------------------------------------------------- geometry (1 unit = 2.54 mm) */
 
-const COLS = 63;
-const W = 66;
-const D = 22.4;
-const ROWS = 'abcdefghij';
-const ROW_Z: Record<string, number> = { a: -5.5, b: -4.5, c: -3.5, d: -2.5, e: -1.5, f: 1.5, g: 2.5, h: 3.5, i: 4.5, j: 5.5 };
-type Rail = 'tp' | 'tn' | 'bp' | 'bn';
-const RAIL_Z: Record<Rail, number> = { tp: -9.6, tn: -8.6, bp: 8.6, bn: 9.6 };
-const RAIL_ID: Record<Rail, string> = { tp: 'rail_pos', bp: 'rail_pos', tn: 'rail_neg', bn: 'rail_neg' };
-const colX = (c: number) => c - 32;
+export const COLS = 63;
+export const W = 66;
+export const D = 22.4;
+export const ROWS = 'abcdefghij';
+export const ROW_Z: Record<string, number> = { a: -5.5, b: -4.5, c: -3.5, d: -2.5, e: -1.5, f: 1.5, g: 2.5, h: 3.5, i: 4.5, j: 5.5 };
+export type Rail = 'tp' | 'tn' | 'bp' | 'bn';
+export const RAIL_Z: Record<Rail, number> = { tp: -9.6, tn: -8.6, bp: 8.6, bn: 9.6 };
+export const RAIL_ID: Record<Rail, string> = { tp: 'rail_pos', bp: 'rail_pos', tn: 'rail_neg', bn: 'rail_neg' };
+export const colX = (c: number) => c - 32;
 /** rail holes: 10 groups of 5, columns 3–7, 9–13, … 57–61 */
-const RAIL_COLS: number[] = Array.from({ length: 10 }, (_, g) => [0, 1, 2, 3, 4].map((k) => 3 + 6 * g + k)).flat();
-
-/** Hover id of a column strip: the lesson's id for a10–e10, a generic one for the others. */
-export const stripId = (half: 'u' | 'l', c: number) => (half === 'u' && c === 10 ? 'col_strip_a10' : `strip_${half}_${c}`);
+export const RAIL_COLS: number[] = Array.from({ length: 10 }, (_, g) => [0, 1, 2, 3, 4].map((k) => 3 + 6 * g + k)).flat();
 
 /** What a pointer at board coordinates (x, z) is over, or null. */
 function pick(x: number, z: number): string | null {
@@ -42,14 +44,6 @@ function pick(x: number, z: number): string | null {
   if (z <= -1 && z >= -6) return stripId('u', c);
   if (z >= 1 && z <= 6) return stripId('l', c);
   return null;
-}
-
-/** Tooltip text for ids the hover map doesn't name (the other column strips). */
-export function genericLabel(id: string): { label: string; desc: string } | null {
-  const m = /^strip_([ul])_(\d+)$/.exec(id);
-  if (!m) return null;
-  const rows = m[1] === 'u' ? 'a–e' : 'f–j';
-  return { label: `第 ${m[2]} 列 ${rows}`, desc: '这 5 个孔底下是同一块铜片：纵向连通，是同一个节点' };
 }
 
 /* ------------------------------------------------------------- printed top surface */
@@ -121,7 +115,7 @@ function paintTop(ppu: number): HTMLCanvasElement {
 const HALO: Record<string, string> = { rail_pos: '#ff4d5e', rail_neg: '#4f86ff' };
 const AMBER = '#f59e0b';
 
-function Shell({ xray }: { xray: number }) {
+export function Shell({ xray }: { xray: number }) {
   const tex = useMemo(() => {
     const t = new THREE.CanvasTexture(paintTop(28));
     t.colorSpace = THREE.SRGBColorSpace;
@@ -145,7 +139,7 @@ function Shell({ xray }: { xray: number }) {
   );
 }
 
-function Clip({ x, z, w, d, lit, color }: { x: number; z: number; w: number; d: number; lit: boolean; color?: string }) {
+export function Clip({ x, z, w, d, lit, color }: { x: number; z: number; w: number; d: number; lit: boolean; color?: string }) {
   return (
     <mesh position={[x, lit ? -0.2 : -0.32, z]}>
       <boxGeometry args={[w, lit ? 0.34 : 0.22, d]} />
@@ -160,7 +154,7 @@ function Clip({ x, z, w, d, lit, color }: { x: number; z: number; w: number; d: 
   );
 }
 
-function Clips({ lit }: { lit: string[] }) {
+export function Clips({ lit }: { lit: string[] }) {
   const strips = [];
   for (let c = 1; c <= COLS; c++) {
     for (const half of ['u', 'l'] as const) {
@@ -180,7 +174,7 @@ function Clips({ lit }: { lit: string[] }) {
 }
 
 /** A tint on the surface over every lit strip / rail, so a highlight shows at any X-ray value. */
-function SurfaceGlow({ lit }: { lit: string[] }) {
+export function SurfaceGlow({ lit }: { lit: string[] }) {
   const quads: { x: number; z: number; w: number; d: number; color: string }[] = [];
   for (const id of lit) {
     const m = /^strip_([ul])_(\d+)$/.exec(id);
@@ -205,7 +199,7 @@ function SurfaceGlow({ lit }: { lit: string[] }) {
   );
 }
 
-function TrenchGlow({ on }: { on: boolean }) {
+export function TrenchGlow({ on }: { on: boolean }) {
   if (!on) return null;
   return (
     <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={3}>
@@ -216,7 +210,7 @@ function TrenchGlow({ on }: { on: boolean }) {
 }
 
 /** A lead as a tube through the given points. */
-function Lead({ pts }: { pts: [number, number, number][] }) {
+export function Lead({ pts }: { pts: [number, number, number][] }) {
   const geo = useMemo(() => {
     const path = new THREE.CurvePath<THREE.Vector3>();
     for (let i = 0; i < pts.length - 1; i++) path.add(new THREE.LineCurve3(new THREE.Vector3(...pts[i]), new THREE.Vector3(...pts[i + 1])));
@@ -236,7 +230,7 @@ const BANDS = ['#7a4a1f', '#151515', '#f07a1a', '#d4a72c'];
 const bandX = (len: number, i: number) => -len / 2 + 0.42 + i * 0.36 + (i === 3 ? 0.36 : 0);
 
 /** 10 kΩ resistor from hole p1 to hole p2 (board coordinates x, z). */
-function Resistor({
+export function Resistor({
   p1,
   p2,
   lit,
@@ -317,7 +311,7 @@ function Resistor({
   );
 }
 
-function Chip({ c0 }: { c0: number }) {
+export function Chip({ c0 }: { c0: number }) {
   const x = colX(c0) + 1.5;
   return (
     <group>
@@ -355,7 +349,7 @@ const RIGHT: [[number, number], [number, number]] = [
   [colX(23), ROW_Z.c],
 ];
 
-const PRESETS: Record<NonNullable<StageSync['camera']>, { pos: [number, number, number]; target: [number, number, number] }> = {
+export const PRESETS: Record<NonNullable<StageSync['camera']>, { pos: [number, number, number]; target: [number, number, number] }> = {
   overview: { pos: [0, 40, 26], target: [0, -0.5, 0.5] },
   focus: { pos: [colX(16), 26, 15], target: [colX(16), 0, 0.3] },
   resistor: { pos: [colX(20.5) + 2, 8.5, ROW_Z.c + 9], target: [colX(20.5), 0.8, ROW_Z.c] },
@@ -363,9 +357,9 @@ const PRESETS: Record<NonNullable<StageSync['camera']>, { pos: [number, number, 
 };
 
 /** width (board units) each preset must show across the canvas */
-const FRAME_W: Record<NonNullable<StageSync['camera']>, number> = { overview: 68, focus: 31, resistor: 14, trench: 22 };
+export const FRAME_W: Record<NonNullable<StageSync['camera']>, number> = { overview: 68, focus: 31, resistor: 14, trench: 22 };
 
-function CameraRig({ preset }: { preset: NonNullable<StageSync['camera']> }) {
+export function CameraRig({ preset }: { preset: NonNullable<StageSync['camera']> }) {
   const camera = useThree((s) => s.camera);
   const controls = useThree((s) => s.controls) as unknown as OrbitControlsImpl | null;
   const invalidate = useThree((s) => s.invalidate);

@@ -23,6 +23,62 @@ export const STAGE_LESSON_INDEX: StageLessonEntry[] = [
     title: { zh: '实验箱与万用表极简前置卡', en: 'Quick start: the breadboard and the multimeter' },
     minutes: 5,
   },
+  {
+    slug: 'w1-l1',
+    code: 'W1-L1',
+    world: 'w1',
+    title: { zh: '电荷、电流与电压：电路分析的三块基石', en: 'Charge, current and voltage' },
+    minutes: 15,
+  },
+  {
+    slug: 'w1-l2',
+    code: 'W1-L2',
+    world: 'w1',
+    title: { zh: '功率、无源符号约定与独立/受控源', en: 'Power, the passive sign convention and sources' },
+    minutes: 35,
+  },
+  {
+    slug: 'w1-l3',
+    code: 'W1-L3',
+    world: 'w1',
+    title: { zh: '电阻、欧姆定律、电导与开路/短路极限', en: "Resistance, Ohm's law, conductance, open and short circuits" },
+    minutes: 35,
+  },
+  {
+    slug: 'w1-l4',
+    code: 'W1-L4',
+    world: 'w1',
+    title: { zh: '支路、节点与回路拓扑识别', en: 'Branches, nodes and loops' },
+    minutes: 25,
+  },
+  {
+    slug: 'w1-l5',
+    code: 'W1-L5',
+    world: 'w1',
+    title: { zh: '基尔霍夫电流定律（KCL）', en: "Kirchhoff's current law (KCL)" },
+    minutes: 18,
+  },
+  {
+    slug: 'w1-l6',
+    code: 'W1-L6',
+    world: 'w1',
+    title: { zh: '基尔霍夫电压定律（KVL）与单回路求解', en: "Kirchhoff's voltage law (KVL) and single loops" },
+    minutes: 35,
+  },
+  {
+    slug: 'w1-l7',
+    code: 'W1-L7',
+    world: 'w1',
+    title: { zh: '串联分压、并联分流与 3D 面包板实测', en: 'Voltage and current division on the breadboard' },
+    minutes: 35,
+  },
+  {
+    slug: 'w1-l8',
+    code: 'W1-L8',
+    world: 'w1',
+    title: { zh: 'Y–Δ 等效变换与电桥电阻化简', en: 'Wye–delta transformations and bridges' },
+    minutes: 35,
+  },
 ];
 
 export const STAGE_LESSON_ENTRY = new Map(STAGE_LESSON_INDEX.map((e) => [e.slug, e]));

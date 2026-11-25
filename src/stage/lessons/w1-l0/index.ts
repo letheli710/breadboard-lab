@@ -6,7 +6,12 @@
 // added here (blueprint rule: every act has a local diagram); they show the options without
 // giving the answer away.
 
-import type { StageLesson } from '../types';
+import { lazy } from 'react';
+import { genericLabel } from '../../breadboardIds';
+import type { StageLesson } from '../../types';
+
+const XrayLayer = lazy(() => import('./layers').then((m) => ({ default: m.XrayLayer })));
+const DmmProbe = lazy(() => import('../../DmmProbe'));
 
 /* ------------------------------------------------------------- act diagrams (from the sheet) */
 
@@ -169,8 +174,10 @@ const SVG_Q2 = `<svg viewBox="0 0 420 128" class="w-full h-auto" aria-label="电
 
 /* ------------------------------------------------------------- the lesson */
 
-export const W1_L0: StageLesson = {
+const W1_L0: StageLesson = {
   format: 'lesson-stage/2',
+  renderers: { bb_xray: XrayLayer, dmm_probe: DmmProbe },
+  describeTarget: genericLabel,
   lesson_meta: {
     lesson_id: 'W1-L0',
     world: 'World 1 · 电学公理与基本定律',
@@ -326,3 +333,5 @@ export const W1_L0: StageLesson = {
     },
   ],
 };
+
+export default W1_L0;
