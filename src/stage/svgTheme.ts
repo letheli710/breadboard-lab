@@ -73,6 +73,9 @@ const TEXT: Map = {
   '#fb923c': '#c2410c',
   '#ffedd5': '#9a3412',
   '#22d3ee': '#0e7490',
+  '#e9d5ff': '#7e22ce',
+  '#fbcfe8': '#be185d',
+  '#f3e8ff': '#6d28d9',
 };
 
 const FILL: Map = {
@@ -97,6 +100,7 @@ const FILL: Map = {
   '#f472b6': '#db2777',
   '#0b1120': '#f8fafc',
   '#0d261f': '#f0fdf4',
+  '#0f2942': '#e0f2fe',
   '#14532d': '#dcfce7',
   '#9a3412': '#ffedd5',
   '#451a03': '#fef3c7',
