@@ -3,6 +3,7 @@
 // and the hover link between the text and the stage objects.
 
 import { create } from 'zustand';
+import { BANDS_10K, type Bands } from './colorCode';
 import type { DmmMode, StageLayerId, StageSync } from './types';
 
 interface StageState {
@@ -20,6 +21,8 @@ interface StageState {
   hover: string[] | null;
   /** the multimeter's fuse has blown (the wrong set-up was tried) */
   fuseBlown: boolean;
+  /** colour bands of the resistor in the colour-code reader (and on the 3D stage) */
+  bands: Bands;
   follow(key: string, sync: Partial<StageSync>): void;
   pickLayer(layer: StageLayerId): void;
   resumeAuto(): void;
@@ -27,6 +30,7 @@ interface StageState {
   setDmm(m: DmmMode): void;
   setHover(ids: string[] | null): void;
   setFuse(b: boolean): void;
+  setBand(i: number, color: string): void;
   reset(): void;
 }
 
@@ -40,6 +44,7 @@ const INITIAL = {
   halo: [] as string[],
   hover: null,
   fuseBlown: false,
+  bands: BANDS_10K,
 };
 
 /** Remembered sync of each act, so "back to auto" can re-apply the act on screen. */
@@ -80,6 +85,11 @@ export const useStage = create<StageState>()((set, get) => ({
   },
   setFuse(fuseBlown) {
     set({ fuseBlown });
+  },
+  setBand(i, color) {
+    const bands = [...get().bands] as Bands;
+    bands[i] = color;
+    set({ bands });
   },
   reset() {
     syncOf.clear();

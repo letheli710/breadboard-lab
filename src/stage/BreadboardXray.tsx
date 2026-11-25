@@ -6,12 +6,13 @@
 // Hovering a hole lights the strip it belongs to; ids in the lesson's hover map light the
 // linked term in the text as well (and the other way round).
 
-import { Html, OrbitControls } from '@react-three/drei';
+import { Html, Line, OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../ui/reveal';
+import { bandMeanings, bandValue, COLOR_BY_KEY, formatOhms } from './colorCode';
 import { useLit, useStage } from './stageStore';
 import type { StageSync } from './types';
 
@@ -231,6 +232,9 @@ function Lead({ pts }: { pts: [number, number, number][] }) {
 
 const BANDS = ['#7a4a1f', '#151515', '#f07a1a', '#d4a72c'];
 
+/** Position of band i along a body of length `len` (the tolerance band sits apart). */
+const bandX = (len: number, i: number) => -len / 2 + 0.42 + i * 0.36 + (i === 3 ? 0.36 : 0);
+
 /** 10 kΩ resistor from hole p1 to hole p2 (board coordinates x, z). */
 function Resistor({
   p1,
@@ -239,6 +243,8 @@ function Resistor({
   label,
   tone,
   onHover,
+  bands = BANDS,
+  callouts,
 }: {
   p1: [number, number];
   p2: [number, number];
@@ -246,6 +252,10 @@ function Resistor({
   label: string;
   tone: 'bad' | 'good';
   onHover: (on: boolean) => void;
+  /** band colours (hex), left to right */
+  bands?: string[];
+  /** what each band means, shown above the body with a leader line (close-up only) */
+  callouts?: string[];
 }) {
   const [x1, z1] = p1;
   const [x2, z2] = p2;
@@ -272,14 +282,35 @@ function Resistor({
           <capsuleGeometry args={[0.36, bodyLen - 0.72, 6, 16]} />
           <meshStandardMaterial color="#e6cc9a" roughness={0.6} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.35 : 0} />
         </mesh>
-        {BANDS.map((c, i) => (
-          <mesh key={i} rotation={[0, 0, Math.PI / 2]} position={[-bodyLen / 2 + 0.42 + i * 0.36 + (i === 3 ? 0.36 : 0), 0, 0]}>
+        {bands.map((c, i) => (
+          <mesh key={i} rotation={[0, 0, Math.PI / 2]} position={[bandX(bodyLen, i), 0, 0]}>
             <cylinderGeometry args={[0.375, 0.375, 0.16, 18]} />
             <meshStandardMaterial color={c} roughness={0.5} metalness={i === 3 ? 0.5 : 0} />
           </mesh>
         ))}
+        {callouts?.map((t, i) => {
+          const lx = (i - 1.5) * 2.3;
+          return (
+            <group key={i}>
+              <Line
+                points={[
+                  [bandX(bodyLen, i), 0.42, 0],
+                  [lx, 1.35 + (i % 2) * 0.7, 0],
+                ]}
+                color="#1f2a44"
+                lineWidth={1.2}
+              />
+              <Html position={[lx, 1.6 + (i % 2) * 0.7, 0]} center zIndexRange={[30, 0]} style={{ pointerEvents: 'none' }}>
+                <div className="bb3d-band">
+                  <i style={{ background: bands[i] }} />
+                  {t}
+                </div>
+              </Html>
+            </group>
+          );
+        })}
       </group>
-      <Html position={[mx, h + 1.1, mz]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
+      <Html position={[mx, h + (callouts ? 3.3 : 1.1), mz]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
         <div className={`bb3d-tag ${tone}`}>{label}</div>
       </Html>
     </group>
@@ -381,7 +412,9 @@ function Scene() {
   const xray = useStage((s) => s.xray);
   const camera = useStage((s) => s.camera);
   const setHover = useStage((s) => s.setHover);
+  const bands = useStage((s) => s.bands);
   const lit = useLit();
+  const closeUp = camera === 'resistor';
   const last = useRef<string | null>(null);
   const move = (e: ThreeEvent<PointerEvent>) => {
     const id = pick(e.point.x, e.point.z);
@@ -408,7 +441,16 @@ function Scene() {
         <planeGeometry args={[W, D]} />
       </mesh>
       <Resistor p1={WRONG[0]} p2={WRONG[1]} lit={false} tone="bad" label="✕ a10–e10 同列：被短路" onHover={(on) => setHover(on ? ['col_strip_a10'] : null)} />
-      <Resistor p1={RIGHT[0]} p2={RIGHT[1]} lit={lit.includes('resistor_10k')} tone="good" label="✓ c18–c23 跨列：10 kΩ" onHover={(on) => setHover(on ? ['resistor_10k'] : null)} />
+      <Resistor
+        p1={RIGHT[0]}
+        p2={RIGHT[1]}
+        lit={lit.includes('resistor_10k')}
+        tone="good"
+        label={`✓ c18–c23 跨列：${formatOhms(bandValue(bands).ohms)}`}
+        onHover={(on) => setHover(on ? ['resistor_10k'] : null)}
+        bands={bands.map((k) => COLOR_BY_KEY.get(k)!.hex)}
+        callouts={closeUp ? bandMeanings(bands).map((t) => t.replace(' = ', ' ')) : undefined}
+      />
       <Chip c0={40} />
       <OrbitControls makeDefault enableDamping={false} minDistance={6} maxDistance={90} maxPolarAngle={Math.PI * 0.47} />
       <CameraRig preset={camera} />

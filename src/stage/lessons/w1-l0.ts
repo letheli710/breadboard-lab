@@ -1,6 +1,7 @@
 // W1-L0 · 实验箱与万用表极简前置卡 (lesson sheet: docs/lessons/W1-L0.md).
 // Lesson text, formulas and the three act diagrams are reproduced from the sheet as written
 // (one layout fix: in the act-2 diagram the 黑 and 金 labels drop a line so they don't overlap);
+// the act-2 colour-code card (table + reader) is added here: the sheet reads one resistor only;
 // [[id|…]] only links a term to the stage (the words are unchanged). The two quiz diagrams are
 // added here (blueprint rule: every act has a local diagram); they show the options without
 // giving the answer away.
@@ -260,6 +261,11 @@ export const W1_L0: StageLesson = {
               tex: String.raw`R = (10 \times 1 + 0) \times 10^{3}\ \Omega = 10 \times 1000\ \Omega = \mathbf{10\text{ k}\Omega} \pm 5\%`,
             },
           ],
+        },
+        {
+          kind: 'colorcode',
+          title: '③ 色环速查卡（动手读一读）',
+          intro: '上面只讲了「棕-黑-橙-金」一颗。下面是全部颜色的对照表：在读数器里换几种色环试试，左侧 3D 面包板上那颗电阻会跟着换颜色。',
         },
       ],
       inline_svg: SVG_ACT2,

@@ -57,7 +57,9 @@ export type ActBlock =
   | { kind: 'formula'; title: string; tex: string }
   /** ③ numbers in, step by step (green card); each step: a lead-in and optional display TeX */
   | { kind: 'calc'; title: string; steps: { label: string; text?: string; tex?: string }[] }
-  | { kind: 'note'; tone: 'warn' | 'tip'; text: string };
+  | { kind: 'note'; tone: 'warn' | 'tip'; text: string }
+  /** the colour-code card: the full table and a 4-band reader (drives the resistor on the stage) */
+  | { kind: 'colorcode'; title: string; intro?: string };
 
 export interface QuizOption {
   key: string;
