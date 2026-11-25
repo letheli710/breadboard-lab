@@ -1,0 +1,899 @@
+/* W1-L7 stage layers: control bar, live schematic, charts, 3D bench HUD. Light theme (stage.css tokens). */
+
+.l7-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- controls */
+.l7-ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.l7-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.l7-seg button {
+  flex: 1 0 auto;
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.l7-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.l7-seg button.on.bad {
+  background: #be123c;
+}
+.l7-seg .short,
+.l7-fold .short {
+  display: none;
+}
+.l7-seg button small {
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+.l7-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.l7-seg.small button {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.l7-fold {
+  margin-left: auto;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.l7-sliders {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 14px;
+}
+.l7-slider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 8px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.l7-slider-label {
+  grid-column: 1 / -1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.l7-slider input {
+  width: 100%;
+  accent-color: var(--stage-blue);
+}
+.l7-slider b {
+  font-variant-numeric: tabular-nums;
+  min-width: 4.4em;
+  text-align: right;
+}
+.l7-notice {
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+}
+.l7-notice.bad {
+  color: #9f1239;
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+
+/* ---------------------------------------------------------- schematic */
+.l7-sch-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.l7-sch {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.l7-wire {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.l7-flow {
+  fill: none;
+  stroke: #10b981;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 15.9;
+  opacity: 0.85;
+  animation: l7-flow 1s linear infinite;
+  pointer-events: none;
+}
+.l7-flow.hot {
+  stroke: #e11d48;
+}
+@keyframes l7-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+.l7-part {
+  cursor: help;
+}
+.l7-part .zig {
+  fill: none;
+  stroke: #1f2a44;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.l7-part .zig-hit,
+.l7-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14;
+}
+.l7-part.heat-warm .zig {
+  stroke: #ea580c;
+}
+.l7-part.heat-smoke .zig {
+  stroke: #e11d48;
+}
+.l7-part.lit .zig {
+  stroke: var(--stage-amber);
+  stroke-width: 5;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.7));
+}
+.l7-rlabel {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.l7-float {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #b45309;
+  font-family: ui-monospace, monospace;
+}
+.l7-part.lit .l7-float,
+.l7-part.lit .l7-rlabel {
+  fill: #92400e;
+}
+.l7-node circle {
+  stroke: #fff;
+  stroke-width: 2;
+}
+.l7-node.lit circle {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+.l7-nodelabel {
+  font-size: 12px;
+  font-weight: 800;
+}
+.l7-nodelabel.gnd {
+  fill: #2563eb;
+}
+.l7-gnd line {
+  stroke: #2563eb;
+  stroke-width: 2.2;
+}
+.l7-src circle {
+  fill: #fff;
+  stroke: #dc2626;
+  stroke-width: 3;
+}
+.l7-src.lit circle {
+  stroke: var(--stage-amber);
+  stroke-width: 5;
+}
+.l7-src .sign {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #475569;
+}
+.l7-src .sign.plus {
+  fill: #dc2626;
+}
+.l7-vs {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #dc2626;
+}
+.l7-src,
+.l7-varrow,
+.l7-iarrow,
+.l7-node,
+.l7-cg,
+.l7-badge,
+.l7-pzone,
+.l7-ilabel-g {
+  cursor: help;
+}
+.l7-varrow line,
+.l7-varrow path {
+  stroke: #b45309;
+  stroke-width: 1.8;
+  fill: none;
+}
+.l7-varrow .pm {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #b45309;
+}
+.l7-vlabel {
+  font-size: 12.5px;
+  font-weight: 800;
+  fill: #b45309;
+}
+.l7-varrow.lit line,
+.l7-varrow.lit path {
+  stroke: var(--stage-amber);
+  stroke-width: 3.5;
+}
+.l7-varrow.lit .l7-vlabel {
+  fill: #92400e;
+  text-decoration: underline;
+}
+.l7-iarrow path {
+  fill: #059669;
+}
+.l7-iarrow .hit {
+  stroke: transparent;
+  stroke-width: 18;
+}
+.l7-iarrow.lit path {
+  fill: var(--stage-amber);
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(1.5);
+}
+.l7-ilabel {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #047857;
+}
+.l7-ilabel-g.lit .l7-ilabel {
+  fill: #92400e;
+}
+.l7-box {
+  fill: #fffbeb;
+  stroke: #d97706;
+  stroke-width: 1.3;
+  stroke-dasharray: 5 4;
+}
+.l7-boxlabel {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #b45309;
+}
+.l7-scaletag {
+  cursor: pointer;
+  outline: none;
+}
+.l7-scaletag rect {
+  fill: #ecfdf5;
+  stroke: #10b981;
+  stroke-width: 1.5;
+}
+.l7-scaletag text {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #065f46;
+}
+.l7-scaletag.bad rect {
+  fill: #fff1f2;
+  stroke: #e11d48;
+}
+.l7-scaletag.bad text {
+  fill: #be123c;
+}
+.l7-scaletag.lit rect,
+.l7-scaletag:focus-visible rect {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+.l7-popup {
+  position: absolute;
+  right: 8px;
+  top: 40px;
+  z-index: 3;
+  width: min(360px, calc(100% - 16px));
+  max-height: calc(100% - 48px);
+  overflow: auto;
+  background: #fff;
+  border: 1.5px solid var(--line-2);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(31, 42, 68, 0.18);
+  padding: 10px 12px;
+  font-size: 12.5px;
+}
+.l7-popup-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.l7-x {
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+}
+.l7-popup table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.l7-popup th,
+.l7-popup td {
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+.l7-popup th[scope='row'] {
+  text-align: left;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.l7-popup .bad {
+  color: #be123c;
+}
+.l7-popup .good {
+  color: #047857;
+}
+.l7-popup p {
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+.l7-popup p.muted {
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------- readout chips */
+.l7-readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.l7-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+.l7-chip span {
+  color: var(--muted);
+}
+.l7-chip.good {
+  background: #ecfdf5;
+  border-color: #a7e3c4;
+}
+.l7-chip.warn {
+  background: #fff7ed;
+  border-color: #fdba74;
+}
+.l7-chip.bad {
+  background: #fff1f2;
+  border-color: #fda4af;
+  color: #be123c;
+}
+.l7-chip.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- charts */
+.l7-charts {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px;
+}
+.l7-chartpick {
+  display: none;
+}
+.l7-chart {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: block;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.l7-ctitle {
+  font-size: 12.5px;
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.l7-grid {
+  stroke: #e7e2d6;
+  stroke-width: 1;
+}
+.l7-grid.v {
+  stroke-dasharray: 2 3;
+}
+.l7-tick {
+  font-size: 10.5px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.l7-tick.axis {
+  font-weight: 700;
+}
+.l7-curve {
+  fill: none;
+  stroke-width: 3;
+}
+.l7-curve.vdiv {
+  stroke: #2563eb;
+}
+.l7-curve.cdiv {
+  stroke: #10b981;
+  stroke-dasharray: 7 6;
+}
+.l7-curve.comp {
+  stroke: #94a3b8;
+  stroke-width: 1.6;
+  stroke-dasharray: 3 3;
+}
+.l7-curve.sag {
+  stroke: #db2777;
+}
+.l7-cg.lit .l7-curve {
+  stroke-width: 5.5;
+  filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.8));
+}
+.l7-cg.lit .l7-ref {
+  stroke-width: 3.5;
+}
+.l7-proj {
+  fill: none;
+  stroke: #b45309;
+  stroke-width: 1.4;
+  stroke-dasharray: 4 3;
+}
+.l7-cg.lit .l7-proj {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+.l7-dot {
+  fill: #2563eb;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.l7-dot.sag {
+  fill: #db2777;
+}
+.l7-cg.lit .l7-dot {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+.l7-dotlabel {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #1f2a44;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.l7-badge rect {
+  fill: #eef4ff;
+  stroke: #93b4f5;
+}
+.l7-badge text {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #1d4ed8;
+}
+.l7-badge.lit rect {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+  fill: #fde9b8;
+}
+.l7-legend text {
+  font-size: 10.5px;
+  fill: #334155;
+}
+.l7-pzone rect.heat-ok {
+  fill: #86efac;
+}
+.l7-pzone rect.heat-warm {
+  fill: #fdba74;
+}
+.l7-pzone rect.heat-smoke {
+  fill: #f87171;
+}
+.l7-pzone.lit rect {
+  stroke: var(--stage-amber);
+  stroke-width: 1;
+}
+.l7-pzone.lit text {
+  fill: #92400e;
+  font-weight: 800;
+}
+.l7-ref {
+  stroke-width: 1.8;
+}
+.l7-ref.vs {
+  stroke: #dc2626;
+}
+.l7-ref.noload {
+  stroke: #0891b2;
+  stroke-dasharray: 8 5;
+}
+.l7-ref.rule {
+  stroke: #d97706;
+  stroke-dasharray: 2 4;
+  stroke-width: 2.2;
+}
+.l7-reflabel {
+  font-size: 11px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.l7-reflabel.vs {
+  fill: #b91c1c;
+}
+.l7-reflabel.noload {
+  fill: #0e7490;
+}
+.l7-reflabel.rule {
+  fill: #b45309;
+}
+.l7-chartnote {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.l7-bench {
+  min-height: 120px;
+}
+.bb3d-tag.l7-rtag {
+  font-size: 11px;
+  padding: 2px 6px;
+  color: #1f2a44;
+  border-color: #94a3b8;
+}
+.bb3d-tag.l7-rtag.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.bb3d-tag.l7-rtag.heat-warm {
+  border-color: #ea580c;
+  color: #9a3412;
+}
+.bb3d-tag.l7-rtag.heat-smoke {
+  border-color: #e11d48;
+  color: #be123c;
+  background: #fff1f2;
+}
+.bb3d-tag.l7-rtag.supply {
+  border-color: #16a34a;
+  color: #14532d;
+}
+.l7-smoke {
+  position: relative;
+  width: 40px;
+  height: 60px;
+  transform: translateY(-34px);
+}
+.l7-smoke i {
+  position: absolute;
+  left: 12px;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(55, 55, 60, 0.72);
+  animation: l7-smoke 1.8s ease-out infinite;
+}
+.l7-smoke i:nth-child(2) {
+  animation-delay: 0.6s;
+  left: 6px;
+}
+.l7-smoke i:nth-child(3) {
+  animation-delay: 1.2s;
+  left: 18px;
+}
+.l7-smoke.still i {
+  animation: none;
+  opacity: 0.6;
+}
+.l7-smoke.still i:nth-child(2) {
+  bottom: 18px;
+}
+.l7-smoke.still i:nth-child(3) {
+  bottom: 34px;
+}
+@keyframes l7-smoke {
+  from {
+    transform: translateY(0) scale(0.6);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(-46px) scale(2);
+    opacity: 0;
+  }
+}
+.l7-lcd {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: #c9d8b1;
+  border: 2px solid #2b2f36;
+  color: #10210f;
+  font-family: ui-monospace, monospace;
+  white-space: nowrap;
+  cursor: help;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.l7-lcd small {
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.l7-lcd b {
+  font-size: 19px;
+  letter-spacing: 0.04em;
+}
+.l7-lcd span {
+  font-size: 12px;
+  font-weight: 800;
+}
+.l7-lcd.lit {
+  border-color: var(--stage-amber);
+  box-shadow:
+    0 0 0 3px #fde9b8,
+    0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.l7-lcd.bad {
+  background: #fecdd3;
+  color: #9f1239;
+}
+.l7-jacks {
+  display: inline-flex;
+  gap: 4px;
+  font-size: 9.5px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+}
+.l7-jacks span {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.75);
+  color: #64748b;
+}
+.l7-jacks span.on {
+  color: #1f2a44;
+  background: #fff;
+}
+.l7-hud {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 2;
+  display: grid;
+  gap: 4px;
+  max-width: calc(100% - 16px);
+  justify-items: end;
+}
+.l7-thermal {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 11.5px;
+  display: grid;
+  gap: 2px;
+  min-width: 170px;
+  cursor: help;
+}
+.l7-thermal.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 3px #fde9b8;
+}
+.l7-thermal-title {
+  font-weight: 800;
+  color: var(--ink-2);
+}
+.l7-thermal-row {
+  display: grid;
+  grid-template-columns: 3.2em 1fr 5.4em;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.l7-thermal-row i {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+.l7-thermal-row em {
+  position: absolute;
+  inset: 0 auto 0 0;
+  min-width: 2px;
+  background: #22c55e;
+}
+.l7-thermal-row u {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: #ea580c;
+}
+.l7-thermal-row.heat-warm em {
+  background: #f97316;
+}
+.l7-thermal-row.heat-smoke em {
+  background: #e11d48;
+}
+.l7-thermal-row.heat-smoke b {
+  color: #be123c;
+}
+.l7-thermal-row b {
+  text-align: right;
+}
+.l7-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+.l7-reading b {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--ink);
+}
+.l7-reading.bad {
+  color: #be123c;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .l7-seg button small,
+  .l7-seg .full,
+  .l7-fold .full {
+    display: none;
+  }
+  .l7-seg .short,
+  .l7-fold .short {
+    display: inline;
+  }
+  .l7-reading,
+  .l7-thermal-title {
+    display: none;
+  }
+  .bb3d-tag.l7-rtag {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  .bb3d-tag.l7-rtag.supply {
+    display: none;
+  }
+  .l7-lcd b {
+    font-size: 15px;
+  }
+  .l7-seg.topo {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .l7-readouts .l7-chip:not(.core) {
+    display: none;
+  }
+  .l7-chip {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  .l7-ctrl {
+    gap: 4px;
+  }
+  .l7-layer {
+    gap: 4px;
+  }
+  .l7-seg button {
+    padding: 4px 7px;
+    font-size: 12px;
+  }
+  .l7-sliders {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .l7-notice,
+  .l7-chartnote {
+    display: none;
+  }
+  .l7-chartpick {
+    display: flex;
+    align-self: flex-start;
+  }
+  .l7-charts {
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .l7-charts[data-show='ratio'] .l7-chart.loading,
+  .l7-charts[data-show='loading'] .l7-chart.ratio {
+    display: none;
+  }
+  .l7-thermal {
+    min-width: 0;
+    font-size: 10.5px;
+    padding: 3px 6px;
+  }
+  .l7-thermal-row {
+    grid-template-columns: 2.8em 44px 4.8em;
+  }
+  .l7-reading {
+    font-size: 11px;
+  }
+}
+.l7-pmark {
+  stroke: #1f2a44;
+  stroke-width: 2;
+}
