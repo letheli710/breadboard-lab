@@ -329,7 +329,7 @@ function Quiz({ act, lesson }: { act: Act; lesson: StageLesson }) {
             <b>{allRight ? (m.pass_message ?? '随堂自测通过！') : '你之前已经通过了这节课的自测。'}</b>
             {next && (
               <p>
-                World 1 接下来：
+                {m.world.match(/World \d+/)?.[0] ?? m.world} 接下来：
                 <RefLink r={next} primary dir="next" />
               </p>
             )}
