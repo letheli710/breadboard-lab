@@ -522,7 +522,7 @@ const W1_L8: StageLesson = {
     {
       act_index: 7,
       badge: '第 7 幕',
-      title: 'W1-L8 随堂自测（共 2 题）',
+      title: '随堂自测与 World 1 收官 · World 2 预告',
       sync: { layer: BRIDGE, params: { b_preset: 'custom', b_step: 0, b_quiz: false } },
       blocks: [{ kind: 'p', text: '完成下面 2 道随堂自测，检验你是否已经彻底拿下 Y–Δ 变换与电桥化简：' }],
       quiz: [
@@ -555,15 +555,7 @@ const W1_L8: StageLesson = {
           sync: { layer: MORPH, params: { m_dir: 'y2d', m_t: 0.5, m_shape: 'slant', m_bal: false, m_ohm: 'off' } },
         },
       ],
-    },
-
-    /* ------------------------------------------------------------------ act 8 */
-    {
-      act_index: 8,
-      badge: '第 8 幕',
-      title: 'World 1 收官总结 & World 2 预告',
-      sync: { layer: BRIDGE, params: { b_preset: 'classic', b_step: 4, b_quiz: false } },
-      blocks: [
+      after_quiz: [
         {
           kind: 'p',
           text: '恭喜你通关 **World 1（直流电路基础与等效化简）** 的全部 8 节课！回顾这一路，你已经集齐了经典直流电阻化简的完整工具箱：',
@@ -584,9 +576,8 @@ const W1_L8: StageLesson = {
           kind: 'p',
           text: '答案是：**不需要！** 在 **World 2**，我们将正式告别“看图拼乐高式”的几何化简，进入现代电路仿真器（如 SPICE）真正使用的**系统化代数引擎**。下一节 **W2-L1 节点分析法**，你将看到如何仅凭 KCL 列出两个线性方程，**连电桥都不拆**，直接秒算出今天第 5 幕这道不平衡电桥里每一个节点的精确电压与每一条支路的电流。我们 World 2 见！',
         },
+        { kind: 'figure', svg: sheetSvg(SVG_ACT7, 'World 1 通关路线图，下一站 W2-L1 节点分析法'), caption: 'World 1 通关路线图 → World 2 节点分析法启程' },
       ],
-      inline_svg: sheetSvg(SVG_ACT7, 'World 1 通关路线图，下一站 W2-L1 节点分析法'),
-      figure_caption: 'World 1 通关路线图 → World 2 节点分析法启程',
     },
   ],
 };

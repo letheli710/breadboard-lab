@@ -489,16 +489,6 @@ const W1_L2: StageLesson = {
           kind: 'p',
           text: String.raw`在合上今天这本“功率账本”之前，请你独立完成下面 2 道随堂自测题。它们专门针对本节课最容易失分的两个高危点：**负电压叠加无源符号约定**，以及**用 $\sum p = 0$ 反推受控源支路电流**。`,
         },
-        { kind: 'p', text: '**下节预告：W1-L3 欧姆定律、电阻与焦耳热功率**' },
-        {
-          kind: 'p',
-          text: String.raw`今天我们只用通用黑盒讨论了 $p = vi$，还没有拆开最常见的无源元件——**电阻（Resistor）**。下一节课 **W1-L3**，我们将引入电路学的第一条元件约束定律——**欧姆定律（$v = iR$）**。当你把 $v = iR$ 代入今天刚学完的 $p = vi$，会瞬间撞见著名的焦耳热公式：`,
-        },
-        { kind: 'formula', title: '焦耳热公式（W1-L3 预告）', tex: String.raw`p = i^2 R = \frac{v^2}{R} \ge 0` },
-        {
-          kind: 'p',
-          text: String.raw`因为平方项永远非负，这从数学上彻底锁死了：**只要电阻 $R > 0$，它就永远只能吸收电能并转化为热量，绝无可能对外发电**。同时，我们也将正式告别纯公式热身，在 W1-L3 第一次点亮 Breadboard Lab 的实测面包板！`,
-        },
       ],
       inline_svg: SVG_ACT7,
       figure_caption: '随堂自测配图与下节 W1-L3 欧姆定律桥梁图',
@@ -549,6 +539,18 @@ const W1_L2: StageLesson = {
           feedback_correct: String.raw`答对了！① 公理溯源：$\sum p = 0,\; v_s = \mu v_x,\; p_3 = +v_s i_s$；② 纯符号通式：$p_3 = -(p_1 + p_2),\; i_s = \frac{p_3}{\mu v_x}$；③ 代入数值：$p_1 = -50\text{ W},\; p_2 = +35\text{ W} \implies p_3 = -(-50 + 35) = +15\text{ W}$；又 $v_s = 3 \times 5\text{ V} = 15\text{ V}$，故 $i_s = \frac{+15\text{ W}}{15\text{ V}} = +1\text{ A}$。`,
           feedback_wrong: String.raw`先把三个元件的吸收功率按符号写好（发出记负、吸收记正），用 $\sum p = 0$ 求出 VCVS 的 $p_3$，再除以它的端电压。`,
           sync: { layer: 'dep_sources', halo: ['vcvs_opamp', 'dep_control'], params: { dep_type: 'VCVS', dep_x: 5, dep_k: 3, dep_ext: 0, dep_opamp: false } },
+        },
+      ],
+      after_quiz: [
+        { kind: 'p', text: '**下节预告：W1-L3 欧姆定律、电阻与焦耳热功率**' },
+        {
+          kind: 'p',
+          text: String.raw`今天我们只用通用黑盒讨论了 $p = vi$，还没有拆开最常见的无源元件——**电阻（Resistor）**。下一节课 **W1-L3**，我们将引入电路学的第一条元件约束定律——**欧姆定律（$v = iR$）**。当你把 $v = iR$ 代入今天刚学完的 $p = vi$，会瞬间撞见著名的焦耳热公式：`,
+        },
+        { kind: 'formula', title: '焦耳热公式（W1-L3 预告）', tex: String.raw`p = i^2 R = \frac{v^2}{R} \ge 0` },
+        {
+          kind: 'p',
+          text: String.raw`因为平方项永远非负，这从数学上彻底锁死了：**只要电阻 $R > 0$，它就永远只能吸收电能并转化为热量，绝无可能对外发电**。同时，我们也将正式告别纯公式热身，在 W1-L3 第一次点亮 Breadboard Lab 的实测面包板！`,
         },
       ],
     },

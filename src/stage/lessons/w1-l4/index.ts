@@ -389,27 +389,8 @@ const W1_L4: StageLesson = {
           kind: 'p',
           text: String.raw`光听不练，上战场还是会手抖。下面这张 [[hl_ex24_circuit|5 元件实战电路图]] 改编自 Sadiku Ch. 2.3 的经典例题 **Example 2.4**：包含 1 个 $10\text{ V}$ 电压源 $V_s$ 与 4 颗电阻（$R_3 = 6\,\Omega$、$R_4 = 2\,\Omega$、$R_1 = 5\,\Omega$、$R_2 = 3\,\Omega$），我特意在顶部和底部保留了多个 T 字路口和 90° 拐角来考验你的“拓扑透视眼”。`,
         },
-        { kind: 'p', text: '先看主图与三段式标准验算，再按下方 3 步苏格拉底引导逐关闯关！' },
+        { kind: 'p', text: '先看主图，再按下方 3 步苏格拉底引导逐关闯关；通关后，下面的三段式标准验算就是你的完整复盘板书！' },
         { kind: 'figure', svg: SVG_ACT5, caption: '实战例题 (Sadiku Ex 2.4 拓扑)：5 元件电路图' },
-        { kind: 'p', text: '**三段式严谨推导：例题拓扑参数交叉验算**' },
-        {
-          kind: 'origin',
-          title: '① 公理溯源',
-          text: '依据 Sadiku Ch. 2.3 支路定义、等电位导线合并原则与基本网络拓扑定理：连通网络中每个二端元件贡献 1 条支路，每片零电阻连通导线区域坍缩为 1 个节点，独立回路数满足 $b = l + n - 1$。',
-        },
-        { kind: 'formula', title: '② 纯符号通式', tex: 'l = b - n + 1' },
-        { kind: 'p', text: String.raw`其中串联判据为 $\deg(N_{\text{shared}}) = 2$，并联判据为 $\text{Nodes}(E_i) = \text{Nodes}(E_j)$。` },
-        {
-          kind: 'calc',
-          title: '③ 代入数值逐步化简',
-          steps: [
-            { label: 'Step A', text: String.raw`元件集合 $\{V_s, R_3, R_4, R_1, R_2\} \implies b = 5$；` },
-            { label: 'Step B', text: String.raw`染色等电位区域 $\{a, b, c\} \implies n = 3$；` },
-            { label: 'Step C', text: '独立回路数：', tex: 'l = b - n + 1 = 5 - 3 + 1 = 3' },
-            { label: 'Step D', text: String.raw`节点拓扑判定：节点 $a$ 仅连 $R_1$ 与 $R_2$（$\deg(a) = 2$）$\implies$ **$R_1$ 与 $R_2$ 真串联**；` },
-            { label: 'Step E', text: String.raw`$R_3$ 与 $R_4$ 均跨接在节点对 $\{b, c\}$ 之间 $\implies$ **$R_3$ 与 $R_4$ 真并联**（且与 $V_s$ 共并联于 $\{b, c\}$）。` },
-          ],
-        },
         {
           kind: 'guided',
           title: '苏格拉底拓扑透视实战（改编自 Sadiku Example 2.4）',
@@ -490,6 +471,25 @@ const W1_L4: StageLesson = {
           ],
           conclusion: '满分通关！b = 5, n = 3, l = 3；R3(6Ω) ∥ R4(2Ω) 共跨节点对 {b, c}，R1(5Ω) 与 R2(3Ω) 共享独占节点 a 构成真串联。',
         },
+        { kind: 'p', text: '**通关复盘 · 三段式严谨推导：例题拓扑参数交叉验算**' },
+        {
+          kind: 'origin',
+          title: '① 公理溯源',
+          text: '依据 Sadiku Ch. 2.3 支路定义、等电位导线合并原则与基本网络拓扑定理：连通网络中每个二端元件贡献 1 条支路，每片零电阻连通导线区域坍缩为 1 个节点，独立回路数满足 $b = l + n - 1$。',
+        },
+        { kind: 'formula', title: '② 纯符号通式', tex: 'l = b - n + 1' },
+        { kind: 'p', text: String.raw`其中串联判据为 $\deg(N_{\text{shared}}) = 2$，并联判据为 $\text{Nodes}(E_i) = \text{Nodes}(E_j)$。` },
+        {
+          kind: 'calc',
+          title: '③ 代入数值逐步化简',
+          steps: [
+            { label: 'Step A', text: String.raw`元件集合 $\{V_s, R_3, R_4, R_1, R_2\} \implies b = 5$；` },
+            { label: 'Step B', text: String.raw`染色等电位区域 $\{a, b, c\} \implies n = 3$；` },
+            { label: 'Step C', text: '独立回路数：', tex: 'l = b - n + 1 = 5 - 3 + 1 = 3' },
+            { label: 'Step D', text: String.raw`节点拓扑判定：节点 $a$ 仅连 $R_1$ 与 $R_2$（$\deg(a) = 2$）$\implies$ **$R_1$ 与 $R_2$ 真串联**；` },
+            { label: 'Step E', text: String.raw`$R_3$ 与 $R_4$ 均跨接在节点对 $\{b, c\}$ 之间 $\implies$ **$R_3$ 与 $R_4$ 真并联**（且与 $V_s$ 共并联于 $\{b, c\}$）。` },
+          ],
+        },
       ],
     },
 
@@ -509,16 +509,6 @@ const W1_L4: StageLesson = {
             '[[hl_topo_tree|**算 $l = b - n + 1$**]]**，查度数与节点对定串并联**（独占 2 度点＝真串联，同一节点对＝真并联）。',
           ],
         },
-        { kind: 'p', text: '**下节预告：W1-L5 基尔霍夫电流定律（KCL）——节点的流量守恒账本**' },
-        {
-          kind: 'p',
-          text: String.raw`为什么我们今天花整整一节课死磕“把节点数准”？因为下节课 **W1-L5（基尔霍夫电流定律 KCL）** 的第一句话就是：**对任意一个真实节点，流入电流之和等于流出电流之和（$\sum I_{\text{in}} = \sum I_{\text{out}}$）**。`,
-        },
-        {
-          kind: 'p',
-          text: '如果今天没学会把整片等电位导线合并成 1 个节点，下节课你就会在同一个节点上漏算支路电流；而当你拥有了今天的拓扑透视眼，下节课看任何一个节点，都能一眼看清哪几条支路的电流汇入、哪几条支路的电流分出。下节课，我们把电荷守恒写成电路分析的第一把计算利刃，不见不散！',
-        },
-        { kind: 'figure', svg: SVG_ACT6, caption: '下节预告 W1-L5 (KCL)：把今日的“真实节点”变成明日的“电流账本”' },
         { kind: 'p', text: '先把下面 2 道随堂自测题拿下，检验今天的透视功力！' },
       ],
       quiz: [
@@ -554,6 +544,18 @@ const W1_L4: StageLesson = {
           figure: SVG_Q2,
           sync: { layer: L2, halo: [], params: { l2_preset: 1, l2_sabotage: false, l2_pick: [] } },
         },
+      ],
+      after_quiz: [
+        { kind: 'p', text: '**下节预告：W1-L5 基尔霍夫电流定律（KCL）——节点的流量守恒账本**' },
+        {
+          kind: 'p',
+          text: String.raw`为什么我们今天花整整一节课死磕“把节点数准”？因为下节课 **W1-L5（基尔霍夫电流定律 KCL）** 的第一句话就是：**对任意一个真实节点，流入电流之和等于流出电流之和（$\sum I_{\text{in}} = \sum I_{\text{out}}$）**。`,
+        },
+        {
+          kind: 'p',
+          text: '如果今天没学会把整片等电位导线合并成 1 个节点，下节课你就会在同一个节点上漏算支路电流；而当你拥有了今天的拓扑透视眼，下节课看任何一个节点，都能一眼看清哪几条支路的电流汇入、哪几条支路的电流分出。下节课，我们把电荷守恒写成电路分析的第一把计算利刃，不见不散！',
+        },
+        { kind: 'figure', svg: SVG_ACT6, caption: '下节预告 W1-L5 (KCL)：把今日的“真实节点”变成明日的“电流账本”' },
       ],
     },
   ],

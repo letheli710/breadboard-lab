@@ -513,15 +513,7 @@ const W1_L1: StageLesson = {
       badge: '第 7 幕',
       title: '随堂顿悟自测 + 下节预告（W1-L2）',
       sync: { layer: 'charge_flow', params: { cf_plot: 'none' } },
-      blocks: [
-        {
-          kind: 'note',
-          tone: 'tip',
-          text: '**下节预告（W1-L2 · 功率、无源符号约定与受控源）**：现在你已经同时握住了“电荷流速 $i$”和“电位高度差 $v$”。把它们相乘（$p = vi$），下一课我们就来回答最核心的工程问题：一个元件到底是在**消耗电能（发热）**，还是在**对外供电**？',
-        },
-      ],
-      inline_svg: SVG_ACT7,
-      figure_caption: '电流 × 电压 = 功率（下一课 W1-L2）',
+      blocks: [],
       quiz: [
         {
           id: 'w1l1_q1',
@@ -547,6 +539,14 @@ const W1_L1: StageLesson = {
           figure: SVG_Q2,
           sync: { layer: 'voltage_height', halo: ['node_a_pillar', 'node_b_pillar'] },
         },
+      ],
+      after_quiz: [
+        {
+          kind: 'note',
+          tone: 'tip',
+          text: '**下节预告（W1-L2 · 功率、无源符号约定与受控源）**：现在你已经同时握住了“电荷流速 $i$”和“电位高度差 $v$”。把它们相乘（$p = vi$），下一课我们就来回答最核心的工程问题：一个元件到底是在**消耗电能（发热）**，还是在**对外供电**？',
+        },
+        { kind: 'figure', svg: SVG_ACT7, caption: '电流 × 电压 = 功率（下一课 W1-L2）' },
       ],
     },
   ],

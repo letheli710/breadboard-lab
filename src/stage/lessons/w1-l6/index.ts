@@ -666,6 +666,10 @@ const W1_L6: StageLesson = {
             '**联立细节**：把 $v$ 换成 $iR$ 时，检查电流 $i$ 是否从标定的“$+$”端进入；若是“$-$”端进入，果断写 $v = -iR$。',
           ],
         },
+        { kind: 'p', text: '**随堂自测题（共 2 题）**' },
+      ],
+      quiz: QUIZ,
+      after_quiz: [
         { kind: 'p', text: '**下节预告：W1-L7 串联分压与并联分流**' },
         {
           kind: 'p',
@@ -676,9 +680,7 @@ const W1_L6: StageLesson = {
           text: String.raw`下一节课 **W1-L7（串联分压与并联分流）**，我们将把 KVL 和 KCL 浓缩成工程界出场率最高的两把“瑞士军刀”：**分压公式** $v_k = \frac{R_k}{R_1 + R_2} V_s$ 与**分流公式**，让你不用列方程也能一眼看穿电位器、传感器分压电路的电压分配！`,
         },
         { kind: 'figure', svg: SVG_ACT7, caption: '知识闭环与 W1-L7（串联分压）预告伏笔' },
-        { kind: 'p', text: '**随堂自测题（共 2 题）**' },
       ],
-      quiz: QUIZ,
     },
   ],
 };

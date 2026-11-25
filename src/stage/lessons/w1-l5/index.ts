@@ -444,12 +444,6 @@ const W1_L5: StageLesson = {
       title: '随堂自测与下节预告（W1-L6 基尔霍夫电压定律 KVL）',
       sync: { layer: 'kcl_surface', halo: ['hl_closed_surface'], params: { l2Tab: 'surface', surface: true } },
       blocks: [
-        { kind: 'p', text: '**下节预告：W1-L6 基尔霍夫电压定律（KVL）**' },
-        {
-          kind: 'p',
-          text: String.raw`今天我们用**电荷守恒**锁死了电路中每一个“节点”和“封闭曲面”的电流收支（$\sum i_n = 0$）。下一课 **W1-L6**，我们要把视角从“点（节点）”切换到“圈（闭合回路）”，从物理学的另一座丰碑——**能量守恒定律**出发，推导基尔霍夫双璧的另一半：**基尔霍夫电压定律（$\sum_{m=1}^{M} v_m = 0$）**，并彻底搞懂串联电压源合并与“不同电压源绝不能并联”的对偶禁区！`,
-        },
-        { kind: 'figure', svg: SVG_ACT7, caption: '基尔霍夫双璧对偶预告：W1-L5 (KCL) → W1-L6 (KVL)' },
         {
           kind: 'p',
           text: '在收工之前，用下面 2 道随堂自测题检验你对**[[hl_closed_surface|封闭曲面 KCL]]** 与**[[hl_parallel_merge,hl_series_conflict|电流源串并联规则]]**的掌握程度：',
@@ -489,6 +483,14 @@ const W1_L5: StageLesson = {
           figure: SVG_Q2,
           sync: { layer: 'kcl_surface', halo: ['hl_parallel_merge', 'hl_series_conflict'], params: { l2Tab: 'sources', src: 'parallel', merged: false, dirs: [1, -1, 1] } },
         },
+      ],
+      after_quiz: [
+        { kind: 'p', text: '**下节预告：W1-L6 基尔霍夫电压定律（KVL）**' },
+        {
+          kind: 'p',
+          text: String.raw`今天我们用**电荷守恒**锁死了电路中每一个“节点”和“封闭曲面”的电流收支（$\sum i_n = 0$）。下一课 **W1-L6**，我们要把视角从“点（节点）”切换到“圈（闭合回路）”，从物理学的另一座丰碑——**能量守恒定律**出发，推导基尔霍夫双璧的另一半：**基尔霍夫电压定律（$\sum_{m=1}^{M} v_m = 0$）**，并彻底搞懂串联电压源合并与“不同电压源绝不能并联”的对偶禁区！`,
+        },
+        { kind: 'figure', svg: SVG_ACT7, caption: '基尔霍夫双璧对偶预告：W1-L5 (KCL) → W1-L6 (KVL)' },
       ],
     },
   ],
