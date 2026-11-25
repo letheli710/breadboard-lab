@@ -1,0 +1,736 @@
+/* W3-L3 stage layers: live inverting-amp schematic, transfer curve, 3D ±9 V bench. Light theme (stage.css tokens). */
+
+.w33-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- controls */
+.w33-ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.w33-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  min-width: 0;
+}
+.w33-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.w33-seg button {
+  flex: 1 0 auto;
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w33-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w33-seg button.on.bad {
+  background: #be123c;
+}
+.w33-seg .short {
+  display: none;
+}
+.w33-slider {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  font-weight: 600;
+  min-width: 0;
+  flex: 1 1 200px;
+}
+.w33-slider input {
+  width: 100%;
+  min-width: 60px;
+  accent-color: var(--stage-blue);
+}
+.w33-slider b {
+  font-variant-numeric: tabular-nums;
+  min-width: 4.8em;
+  text-align: right;
+}
+.w33-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b91c1c;
+  padding: 2px 8px 2px 4px;
+  border-radius: 7px;
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  cursor: pointer;
+}
+.w33-check input {
+  accent-color: #dc2626;
+}
+.w33-check.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- readout chips */
+.w33-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.w33-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+}
+.w33-chip span {
+  color: var(--muted);
+}
+.w33-chip.good {
+  background: #ecfdf5;
+  border-color: #a7e3c4;
+}
+.w33-chip.bad {
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w33-chip.bad b {
+  color: #be123c;
+}
+.w33-chip.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- schematic and plot */
+.w33-sch-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w33-sch {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w33-sch-note {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+}
+.w33-reveal .short {
+  display: none;
+}
+.w33-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.w33-rail {
+  stroke-width: 2.4;
+  fill: none;
+}
+.w33-obj {
+  cursor: help;
+}
+.w33-obj .body {
+  fill: #fff;
+  stroke-width: 2.2;
+}
+.w33-obj.res.r1 .body {
+  fill: #fffbeb;
+  stroke: #d97706;
+}
+.w33-obj.res.rf .body {
+  fill: #ecfdf5;
+  stroke: #059669;
+}
+.w33-obj.src .body {
+  stroke: #2563eb;
+}
+.w33-obj.amp .body {
+  stroke: #1f2a44;
+  stroke-width: 2.6;
+}
+.w33-obj.rail.p .w33-rail {
+  stroke: #dc2626;
+}
+.w33-obj.rail.n .w33-rail {
+  stroke: #2563eb;
+}
+.w33-obj.rail.n.bad .w33-rail {
+  stroke: #be123c;
+  stroke-dasharray: 4 3;
+}
+.w33-obj .xmark {
+  stroke: #dc2626;
+  stroke-width: 3;
+  fill: none;
+}
+.w33-obj .jn {
+  fill: #334155;
+}
+.w33-obj .term {
+  fill: #fff;
+  stroke: #dc2626;
+  stroke-width: 2.4;
+}
+.w33-obj.node .bubble {
+  fill: #fef08a;
+  fill-opacity: 0.6;
+  stroke: #ca8a04;
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+.w33-obj.node .dot {
+  fill: #dc2626;
+}
+.w33-obj.node .tagbox {
+  fill: #fef9c3;
+  stroke: #ca8a04;
+  stroke-width: 1.4;
+}
+.w33-obj.node.lost .bubble {
+  fill: #fecaca;
+  stroke: #dc2626;
+}
+.w33-obj.node.lost .tagbox {
+  fill: #fff1f2;
+  stroke: #e11d48;
+}
+.w33-obj.node.mute .bubble,
+.w33-obj.node.mute .tagbox {
+  fill: #f1f5f9;
+  stroke: #94a3b8;
+}
+.w33-obj.node.vg .bubble {
+  animation: w33-pulse 1.8s ease-in-out infinite;
+}
+@keyframes w33-pulse {
+  50% {
+    fill-opacity: 0.25;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w33-obj.node.vg .bubble {
+    animation: none;
+  }
+}
+.w33-vg {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #854d0e;
+  font-variant-numeric: tabular-nums;
+}
+.w33-vg.sub {
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.w33-obj.node.lost .w33-vg {
+  fill: #be123c;
+}
+.w33-obj.node.mute .w33-vg {
+  fill: #475569;
+}
+.w33-obj.lit .body,
+.w33-obj.lit .bubble,
+.w33-obj.lit .tagbox,
+.w33-obj.lit .w33-rail {
+  stroke: #f59e0b !important;
+  stroke-width: 3.4;
+}
+.w33-obj.lit .w33-wire {
+  stroke: #f59e0b;
+}
+.w33-obj.lit text {
+  fill: #b45309;
+}
+.w33-dots circle {
+  fill: #2563eb;
+  opacity: 0.85;
+}
+.w33-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #1f2a44;
+  font-variant-numeric: tabular-nums;
+}
+.w33-lbl.sub {
+  font-size: 10.5px;
+  font-weight: 600;
+  fill: #475569;
+}
+.w33-lbl.res {
+  fill: #92400e;
+}
+.w33-lbl.rf {
+  fill: #065f46;
+}
+.w33-lbl.src,
+.w33-lbl.cur {
+  fill: #1d4ed8;
+}
+.w33-lbl.cur.f {
+  fill: #047857;
+}
+.w33-lbl.cur.o,
+.w33-lbl.out,
+.w33-lbl.x {
+  fill: #b91c1c;
+}
+.w33-lbl.out.big {
+  font-size: 13px;
+  font-weight: 800;
+}
+.w33-lbl.rp {
+  fill: #b91c1c;
+  font-size: 11px;
+}
+.w33-lbl.rn {
+  fill: #1d4ed8;
+  font-size: 11px;
+}
+.w33-obj.rail.n.bad .w33-lbl.rn {
+  fill: #be123c;
+}
+.w33-lbl.win {
+  fill: #047857;
+  font-size: 11.5px;
+}
+.w33-lbl.slope {
+  fill: #1d4ed8;
+}
+.w33-lbl.q {
+  fill: #b91c1c;
+  font-size: 11.5px;
+}
+.w33-sign {
+  font-size: 14px;
+  font-weight: 800;
+  fill: #2563eb;
+}
+.w33-pm {
+  font-size: 18px;
+  font-weight: 800;
+}
+.w33-pm.m {
+  fill: #dc2626;
+}
+.w33-pm.p {
+  fill: #2563eb;
+}
+.w33-state {
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.w33-state.good {
+  fill: #047857;
+}
+.w33-state.bad {
+  fill: #be123c;
+}
+.w33-state.mute {
+  fill: #6d28d9;
+}
+.w33-grid {
+  stroke: #eef0f3;
+  stroke-width: 1;
+}
+.w33-axis {
+  stroke: #475569;
+  stroke-width: 1.6;
+}
+.w33-tick {
+  font-size: 10.5px;
+  fill: #5f626b;
+}
+.w33-obj.win .band {
+  fill: #dcfce7;
+  fill-opacity: 0.7;
+  stroke: none;
+}
+.w33-obj.win.lit .band {
+  fill: #fef3c7;
+}
+.w33-railline {
+  stroke: #64748b;
+  stroke-width: 1.4;
+  stroke-dasharray: 5 4;
+}
+.w33-railline.bad {
+  stroke: #be123c;
+}
+.w33-obj.lit .w33-railline {
+  stroke: #f59e0b;
+  stroke-width: 2.6;
+}
+.w33-curve {
+  fill: none;
+  stroke-width: 3.4;
+  stroke-linejoin: round;
+}
+.w33-curve.dual {
+  stroke: #2563eb;
+}
+.w33-curve.single {
+  stroke: #dc2626;
+}
+.w33-curve.ghost {
+  stroke-width: 2.6;
+  stroke-dasharray: 8 5;
+  opacity: 0.9;
+}
+.w33-obj.lit .w33-curve {
+  stroke: #f59e0b;
+}
+.w33-obj.lit .w33-curve.ghost {
+  stroke: #d97706;
+}
+.w33-proj {
+  stroke: #dc2626;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+.w33-q {
+  fill: #fff;
+  stroke: #1d4ed8;
+  stroke-width: 3;
+}
+.w33-q.bad {
+  stroke: #dc2626;
+}
+.w33-obj.lit .w33-q {
+  stroke: #f59e0b;
+  fill: #fde9b8;
+}
+
+.w33-reveal {
+  border: 1px dashed #c4b5fd;
+  background: #f5f3ff;
+  color: #6d28d9;
+  border-radius: 7px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.w33-ex {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.bb3d-tag.w33-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  color: var(--ink);
+  border-color: var(--line-2);
+}
+.bb3d-tag.w33-tag.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.bb3d-tag.w33-tag.bad {
+  color: #be123c;
+  border-color: #f43f5e;
+}
+.bb3d-tag.w33-tag.supply,
+.bb3d-tag.w33-tag.src {
+  display: grid;
+  gap: 1px;
+  text-align: center;
+  cursor: help;
+}
+.bb3d-tag.w33-tag.supply b {
+  color: #0c4a6e;
+}
+.bb3d-tag.w33-tag.supply span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.w33-railtag {
+  font:
+    800 10.5px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.w33-railtag.p {
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+.w33-railtag.g {
+  color: #1f2a44;
+  border-color: #94a3b8;
+}
+.w33-railtag.n {
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+.w33-lcd {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: ui-monospace, monospace;
+  background: #c9d8b0;
+  color: #1a2a12;
+  border: 1.5px solid #6b7c55;
+  border-radius: 5px;
+  padding: 3px 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: help;
+  white-space: nowrap;
+}
+.w33-lcd small {
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.w33-lcd b {
+  font-size: 19px;
+  letter-spacing: 0.04em;
+}
+.w33-lcd span {
+  font-size: 12px;
+  font-weight: 800;
+}
+.w33-lcd.lit {
+  border-color: var(--stage-amber);
+  box-shadow:
+    0 0 0 3px #fde9b8,
+    0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.w33-lcd.bad {
+  background: #ffe4e6;
+  color: #9f1239;
+}
+.w33-hud {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 30;
+  display: grid;
+  gap: 4px;
+  max-width: calc(100% - 16px);
+  justify-items: end;
+}
+.w33-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  cursor: help;
+}
+.w33-reading b {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.w33-reading.supply b {
+  color: #0c4a6e;
+}
+.w33-reading.power b {
+  color: #065f46;
+}
+.w33-reading.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 3px #fde9b8;
+}
+.w33-formula {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--stage-green-soft);
+  border: 1px solid #b7dfc3;
+  color: var(--ink-2);
+  overflow-x: auto;
+}
+.w33-formula.bad {
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w33-formula span {
+  font-size: 12px;
+}
+.w33-notice {
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  cursor: help;
+}
+.w33-notice.bad {
+  color: #9f1239;
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w33-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w33-layer,
+  .w33-ctrl {
+    gap: 4px;
+  }
+  .w33-row {
+    gap: 4px 8px;
+  }
+  .w33-seg .full {
+    display: none;
+  }
+  .w33-seg .short {
+    display: inline;
+  }
+  .w33-seg {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 2px;
+  }
+  .w33-seg button {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  .w33-slider {
+    font-size: 11.5px;
+    gap: 6px;
+    flex-basis: 150px;
+  }
+  .w33-slider b {
+    min-width: 4.4em;
+  }
+  .w33-row.compact .w33-slider {
+    flex-basis: 120px;
+  }
+  .w33-chip {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+  .w33-chip.wide {
+    display: none;
+  }
+  .w33-check {
+    font-size: 11px;
+  }
+  .w33-reading span {
+    display: none;
+  }
+  .w33-reading {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  .w33-reading b {
+    font-size: 11px;
+  }
+  .bb3d-tag.w33-tag {
+    font-size: 9.5px;
+    padding: 1px 4px;
+  }
+  .w33-lcd b {
+    font-size: 14px;
+  }
+  .w33-lcd {
+    padding: 2px 6px;
+  }
+  .w33-formula {
+    font-size: 11.5px;
+    padding: 2px 8px;
+  }
+  .w33-formula span {
+    display: none;
+  }
+  .w33-notice {
+    font-size: 10.5px;
+    padding: 2px 6px;
+    line-height: 1.35;
+  }
+  .w33-reveal {
+    font-size: 10.5px;
+  }
+  .w33-reveal .full {
+    display: none;
+  }
+  .w33-reveal .short {
+    display: inline;
+  }
+  /* the stage is ~52vh here: the 3D bench keeps the meter reading, the main tags and the notice */
+  .w33-reading.power,
+  .w33-reading.supply,
+  .w33-formula,
+  .bb3d-tag.w33-tag.supply span,
+  .bb3d-tag.w33-tag.part,
+  .w33-railtag {
+    display: none;
+  }
+  .w33-row.scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .w33-row.scroll > * {
+    flex: 0 0 auto;
+  }
+}
