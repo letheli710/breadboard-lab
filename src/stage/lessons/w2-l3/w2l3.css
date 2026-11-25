@@ -1,0 +1,796 @@
+/* W2-L3 stage layers (mesh windows, current sources / supermesh, solver bench). Light stage, prefix w23-. */
+
+.w23-layer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------------------------------------------------------- control dock */
+.w23-dock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 7px 9px;
+  background: var(--paper, #f8fafc);
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+}
+.w23-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+.w23-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.w23-btn,
+.w23-switch {
+  border: 1.5px solid var(--line-2, #cbd5e1);
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+  cursor: pointer;
+  line-height: 1.35;
+}
+.w23-btn.small {
+  padding: 3px 8px;
+  font-size: 12px;
+}
+.w23-btn:disabled,
+.w23-switch:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.w23-btn.on {
+  border-color: var(--ink, #1f2a44);
+  background: var(--ink, #1f2a44);
+  color: #fff;
+}
+.w23-btn.primary:not(.on) {
+  border-color: #d97706;
+  color: #92400e;
+  background: #fffbeb;
+}
+.w23-btn.primary.on {
+  border-color: #b45309;
+  background: #b45309;
+}
+.w23-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.w23-switch .knob {
+  width: 26px;
+  height: 15px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  position: relative;
+  flex: none;
+  transition: background 0.2s;
+}
+.w23-switch .knob::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.w23-switch.on .knob {
+  background: #059669;
+}
+.w23-switch.on .knob::after {
+  transform: translateX(11px);
+}
+.w23-sliders {
+  flex-wrap: nowrap;
+}
+.w23-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2, #334155);
+}
+.w23-slider.inline {
+  flex: 1 1 180px;
+}
+.w23-slider b {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink, #1f2a44);
+}
+.w23-slider input {
+  width: 100%;
+  accent-color: #0284c7;
+}
+
+/* ---------------------------------------------------------- telemetry */
+.w23-telemetry {
+  /* positioned, so KaTeX's absolutely placed MathML stays inside the strip */
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  font-size: 12.5px;
+}
+.w23-tm {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--paper, #f8fafc);
+  border: 1px solid var(--line, #e2e8f0);
+  color: var(--ink, #1f2a44);
+  font-weight: 600;
+  overflow: hidden;
+  max-width: 100%;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.w23-tm small {
+  color: var(--muted, #64748b);
+  font-weight: 500;
+}
+.w23-tm.ok {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+.w23-tm.muted {
+  color: var(--muted, #64748b);
+  font-weight: 500;
+  background: transparent;
+  border-style: dashed;
+}
+.w23-tm.lit {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #78350f;
+}
+.w23-info {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-2, #334155);
+  border-left: 3px solid #e11d48;
+  padding: 2px 0 2px 9px;
+}
+
+/* ---------------------------------------------------------- schematic */
+.w23-svg {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  max-height: 520px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.w23-bg {
+  fill: #fbf7ef;
+  stroke: #e3d8c2;
+  stroke-width: 1.2;
+}
+.w23-hit,
+.w23-node-hit,
+.w23-outer-hit {
+  fill: transparent;
+  stroke: none;
+}
+.w23-outer-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14;
+}
+.w23-pane {
+  fill: transparent;
+  stroke: none;
+  transition: fill 0.25s;
+}
+.w23-pane.shown {
+  fill: #e0f2fe;
+  fill-opacity: 0.55;
+  stroke: #7dd3fc;
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+.w23-pane.lit {
+  fill: #bae6fd;
+  fill-opacity: 0.7;
+  stroke: #0284c7;
+  stroke-width: 1.6;
+}
+.w23-pane-label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #0369a1;
+}
+.w23-wires polyline,
+.w23-wires line {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  transition: opacity 0.4s;
+}
+.w23-wires line.cut {
+  stroke-dasharray: 5 4;
+}
+.w23-flow {
+  fill: none;
+  stroke: #0ea5e9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 10;
+  opacity: 0.85;
+  animation: w23-march linear infinite;
+}
+@keyframes w23-march {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.w23-outer {
+  fill: none;
+  stroke: #9333ea;
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+}
+.w23-outer.lit {
+  stroke-width: 3.2;
+}
+.w23-outer-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #7e22ce;
+  text-anchor: middle;
+}
+.w23-super {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 2.6;
+  stroke-dasharray: 10 6;
+}
+.w23-super.run {
+  animation: w23-run 1.2s linear infinite;
+}
+.w23-super.lit {
+  stroke-width: 3.6;
+}
+@keyframes w23-run {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+.w23-super-label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #92400e;
+  text-anchor: middle;
+}
+.w23-mk-mesh {
+  fill: #0284c7;
+}
+.w23-mk-src,
+.w23-mk-green {
+  fill: #059669;
+}
+.w23-mk-amber {
+  fill: #d97706;
+}
+.w23-mk-rose {
+  fill: #e11d48;
+}
+
+/* nodes */
+.w23-node-dot {
+  fill: #1f2a44;
+}
+.w23-node-label {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.w23-node-b {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #5f626b;
+  text-anchor: middle;
+}
+.w23-node.lit .w23-node-dot {
+  fill: #059669;
+  stroke: #a7f3d0;
+  stroke-width: 5;
+  paint-order: stroke;
+}
+.w23-node.lit .w23-node-b {
+  fill: #047857;
+}
+
+/* elements */
+.w23-el rect:not(.w23-hit),
+.w23-el circle {
+  fill: #fff;
+  stroke: #475569;
+  stroke-width: 2.2;
+  transition:
+    stroke 0.2s,
+    fill 0.2s;
+}
+.w23-el.kind-V circle {
+  stroke: #0284c7;
+}
+.w23-el.kind-I circle {
+  stroke: #059669;
+}
+.w23-el.series rect:not(.w23-hit) {
+  stroke: #e11d48;
+}
+.w23-el.lit rect:not(.w23-hit),
+.w23-el.lit circle {
+  fill: #fef3c7;
+  stroke: #d97706;
+  stroke-width: 3.2;
+  filter: drop-shadow(0 0 4px rgba(217, 119, 6, 0.55));
+}
+.w23-el g,
+.w23-el {
+  transition: opacity 0.4s;
+}
+.w23-sign {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #0369a1;
+  text-anchor: middle;
+}
+.w23-src-arrow {
+  stroke: #059669;
+  stroke-width: 2.6;
+}
+.w23-name {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #1f2a44;
+  font-family: ui-monospace, monospace;
+}
+.w23-val {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #5f626b;
+  font-family: ui-monospace, monospace;
+}
+.w23-el.lit .w23-name,
+.w23-el.lit .w23-val {
+  fill: #92400e;
+}
+
+/* mesh currents */
+.w23-mesh path {
+  fill: none;
+  stroke: #0284c7;
+  stroke-width: 2.4;
+}
+.w23-mesh text {
+  font-size: 15px;
+  font-weight: 700;
+  font-style: italic;
+  font-family: Georgia, serif;
+  fill: #0369a1;
+  text-anchor: middle;
+}
+.w23-mesh.lit path {
+  stroke-width: 3.6;
+  filter: drop-shadow(0 0 3px rgba(2, 132, 199, 0.5));
+}
+
+/* shared-resistor decomposition */
+.w23-split line {
+  stroke-width: 2.4;
+}
+.w23-split line.amber {
+  stroke: #d97706;
+}
+.w23-split line.rose {
+  stroke: #e11d48;
+}
+.w23-split text {
+  font-size: 12px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+}
+.w23-split text.amber {
+  fill: #b45309;
+}
+.w23-split text.rose {
+  fill: #be123c;
+}
+.w23-chip {
+  fill: #fffbeb;
+  stroke: #d97706;
+  stroke-width: 1.3;
+}
+.w23-chip-text {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #92400e;
+  text-anchor: middle;
+  font-family: ui-monospace, monospace;
+}
+
+/* KCL at node b */
+.w23-kcl line {
+  stroke: #059669;
+  stroke-width: 2.4;
+}
+.w23-kcl text {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #047857;
+  text-anchor: middle;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+/* node-a bubble, lock badge */
+.w23-va line {
+  stroke: #0284c7;
+  stroke-width: 1.4;
+}
+.w23-va rect {
+  fill: #e0f2fe;
+  stroke: #0284c7;
+  stroke-width: 1.2;
+}
+.w23-va text {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #0c4a6e;
+  text-anchor: middle;
+  font-family: ui-monospace, monospace;
+}
+.w23-va.lit rect {
+  fill: #fef3c7;
+  stroke: #d97706;
+  stroke-width: 2;
+}
+.w23-lock rect {
+  fill: #d1fae5;
+  stroke: #059669;
+  stroke-width: 1.4;
+}
+.w23-lock text {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #065f46;
+  text-anchor: middle;
+  font-family: ui-monospace, monospace;
+}
+
+/* K3,3 */
+.w23-k33-box {
+  fill: #fff1f2;
+  stroke: #e11d48;
+  stroke-width: 1.6;
+}
+.w23-k33 line {
+  stroke: #475569;
+  stroke-width: 2;
+}
+.w23-k33.lit line {
+  stroke: #be123c;
+}
+.w23-k33-x {
+  fill: none;
+  stroke: #e11d48;
+  stroke-width: 2.2;
+}
+.w23-k33.lit .w23-k33-x {
+  stroke-width: 3.4;
+}
+.w23-k33-node {
+  fill: #e11d48;
+}
+.w23-k33-title {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #be123c;
+  text-anchor: middle;
+}
+.w23-k33-note {
+  font-size: 11.5px;
+  font-weight: 600;
+  fill: #9f1239;
+  text-anchor: middle;
+}
+.w23-k33-foot {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #5f626b;
+  text-anchor: middle;
+}
+
+/* ---------------------------------------------------------- solver bench */
+.w23-solver-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.w23-solver-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.w23-svg.compact {
+  flex: none;
+  height: 210px;
+  max-height: none;
+}
+.w23-matrix-wrap {
+  max-width: 100%;
+}
+.w23-matrix-wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 6px;
+  align-items: center;
+}
+.w23-rowtags {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted, #64748b);
+  text-align: right;
+}
+.w23-rowtags span {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 30px;
+}
+.w23-rowtags .hidden {
+  visibility: hidden;
+}
+.w23-matrix {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow-x: auto;
+  padding: 2px 0;
+}
+.w23-br {
+  position: relative;
+  display: grid;
+  gap: 4px 6px;
+  padding: 2px 7px;
+  border-left: 2px solid #1f2a44;
+  border-right: 2px solid #1f2a44;
+  border-radius: 6px;
+}
+.w23-br.grid2 {
+  grid-template-columns: auto auto;
+}
+.w23-br.vec {
+  grid-template-columns: auto;
+}
+.w23-cell {
+  position: relative;
+  white-space: nowrap;
+  min-height: 30px;
+  min-width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 5px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.w23-cell.tag-diag {
+  background: #eff6ff;
+}
+.w23-cell.tag-off {
+  background: #fff1f2;
+}
+.w23-cell.tag-rhs {
+  background: #f0fdf4;
+}
+.w23-cell.tag-super {
+  background: #fffbeb;
+}
+.w23-cell.tag-kcl,
+.w23-cell.tag-lock {
+  background: #ecfdf5;
+}
+.w23-cell[tabindex='0'] {
+  cursor: help;
+}
+.w23-cell.lit {
+  background: #fef3c7;
+  border-color: #d97706;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
+}
+.w23-eq {
+  font-weight: 800;
+  color: var(--ink, #1f2a44);
+}
+.w23-mat-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted, #64748b);
+}
+.w23-board,
+.w23-branches {
+  position: relative;
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+  padding: 7px 10px;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+.w23-board.lit,
+.w23-branches.lit {
+  border-color: #d97706;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.18);
+}
+.w23-board {
+  border-left: 4px solid #15803d;
+}
+.w23-board-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.w23-tab {
+  border: 1px solid var(--line-2, #cbd5e1);
+  background: #fff;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+  cursor: pointer;
+}
+.w23-tab.on {
+  background: #15803d;
+  border-color: #15803d;
+  color: #fff;
+}
+.w23-board-body {
+  position: relative;
+  font-size: 12.5px;
+  color: #14532d;
+}
+.w23-board-body .tex-display .katex {
+  font-size: 1em;
+}
+.w23-locked {
+  margin: 6px 0 2px;
+  color: var(--muted, #64748b);
+  font-size: 12.5px;
+}
+.w23-branches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12.5px;
+  align-items: center;
+}
+.w23-branches > b {
+  width: 100%;
+  font-size: 12.5px;
+}
+.w23-branch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  color: var(--ink-2, #334155);
+}
+.w23-branch.muted {
+  width: 100%;
+  font-weight: 500;
+  font-size: 11.5px;
+  color: var(--muted, #64748b);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w23-flow,
+  .w23-super.run {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------- narrow screens (stage ≈ 52vh) */
+@media (max-width: 960px) {
+  .w23-layer {
+    gap: 5px;
+  }
+  .w23-dock {
+    padding: 5px 7px;
+    gap: 4px;
+  }
+  .w23-btn,
+  .w23-switch {
+    padding: 3px 7px;
+    font-size: 11.5px;
+  }
+  .w23-slider {
+    font-size: 11px;
+  }
+  .w23-telemetry {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .w23-tm {
+    flex: none;
+    padding: 1px 6px;
+    max-width: none;
+  }
+  .w23-svg.compact {
+    height: 118px;
+  }
+  .w23-rowtags {
+    font-size: 10px;
+  }
+  .w23-cell {
+    min-height: 26px;
+    min-width: 28px;
+    font-size: 11.5px;
+    padding: 0 3px;
+  }
+  .w23-mat-note {
+    font-size: 11px;
+  }
+  .w23-info {
+    font-size: 11.5px;
+  }
+}
+
+/* ---------------------------------------------------------- the sheet's wide act figures (820 px drawings) */
+/* on a phone they would shrink to ~4 px text: keep them legible and let the figure scroll sideways */
+@media (max-width: 640px) {
+  .act-svg:has(> svg[data-w23-wide]) {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .act-svg > svg[data-w23-wide] {
+    min-width: 600px;
+  }
+}
