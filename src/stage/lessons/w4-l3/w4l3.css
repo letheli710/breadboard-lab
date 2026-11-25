@@ -1,0 +1,828 @@
+/* W4-L3 stage layers: control dock, integrator/differentiator schematic, live oscilloscope, 3D bench
+   HUD. Light theme (stage.css tokens). */
+
+.w43-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+/* ---------------------------------------------------------- dock */
+.w43-dock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.w43-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+.w43-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  min-width: 0;
+}
+.w43-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w43-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w43-seg.small button {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.w43-seg .short,
+.w43-layer .short {
+  display: none;
+}
+.w43-toggle {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w43-toggle.on {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  color: #92400e;
+}
+.w43-toggle.bad {
+  border-color: #f43f5e;
+  background: #fff1f2;
+  color: #be123c;
+}
+.w43-slider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 180px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  border-radius: 6px;
+  padding: 1px 4px;
+}
+.w43-slider.lit {
+  background: #fde9b8;
+}
+.w43-sl-name {
+  font-weight: 800;
+  white-space: nowrap;
+}
+.w43-slider input[type='range'] {
+  flex: 1;
+  min-width: 50px;
+  accent-color: var(--stage-amber);
+}
+.w43-slider b {
+  min-width: 4.6em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--ink);
+}
+.w43-exbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #1e3a8a;
+  background: var(--stage-blue-soft);
+  border: 1.5px solid #93c5fd;
+  border-radius: 10px;
+  padding: 5px 9px;
+}
+.w43-exbar b {
+  color: #fff;
+  background: var(--stage-blue);
+  border-radius: 5px;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.w43-more {
+  display: none;
+}
+.w43-more-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- schematic */
+.w43-sch-wrap {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w43-sch {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w43-sch text {
+  fill: #1f2a44;
+}
+.w43-sch .end,
+.w43-scope .end,
+.w43-strip .end {
+  text-anchor: end;
+}
+.w43-sch .mid,
+.w43-scope .mid,
+.w43-strip .mid {
+  text-anchor: middle;
+}
+.w43-sch .w43-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  fill: #5f626b;
+}
+.w43-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w43-wire.out {
+  stroke: #7c3aed;
+}
+.w43-part {
+  cursor: help;
+  outline: none;
+}
+.w43-zig {
+  fill: none;
+  stroke: #0284c7;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.w43-zig.rf {
+  stroke: #15803d;
+}
+.w43-zig.rs {
+  stroke: #0369a1;
+}
+.w43-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 18;
+}
+.w43-hitbox {
+  fill: transparent;
+}
+.w43-plate {
+  stroke: #d97706;
+  stroke-width: 3.4;
+  stroke-linecap: round;
+}
+.w43-sch .w43-name {
+  font-size: 14px;
+  font-weight: 800;
+}
+.w43-sch .w43-name.r,
+.w43-sch .w43-name.rs {
+  fill: #0369a1;
+}
+.w43-sch .w43-name.rf {
+  fill: #15803d;
+}
+.w43-sch .w43-name.cap {
+  fill: #b45309;
+}
+.w43-sch .w43-name.in {
+  fill: #a16207;
+}
+.w43-sch .w43-name.out {
+  fill: #6d28d9;
+}
+.w43-sch .w43-val {
+  font-size: 12.5px;
+  font-weight: 700;
+  fill: #3a4560;
+  font-variant-numeric: tabular-nums;
+}
+.w43-sch .w43-cur {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #b45309;
+}
+.w43-sch .w43-tiny {
+  font-size: 11px;
+  fill: #5f626b;
+}
+.w43-sch .w43-tiny.rail {
+  fill: #7c2d12;
+  font-weight: 700;
+}
+.w43-sch .w43-bubble {
+  font-size: 12.5px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.w43-sch .w43-bubble.vg {
+  fill: #15803d;
+}
+.w43-flow {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 2.4;
+  stroke-dasharray: 6 6;
+  stroke-linecap: round;
+  animation: w43-flow 0.9s linear infinite;
+}
+@keyframes w43-flow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+.w43-amp {
+  fill: #f8f5ee;
+  stroke: #1f2a44;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+.w43-sch .w43-pm {
+  font-size: 17px;
+  font-weight: 800;
+}
+.w43-sch .w43-pm.neg {
+  fill: #be123c;
+}
+.w43-sch .w43-pm.pos {
+  fill: #047857;
+}
+.w43-sch .w43-amp-lab {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #5f626b;
+}
+.w43-rail {
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.w43-rail.pos {
+  stroke: #dc2626;
+}
+.w43-rail.neg {
+  stroke: #2563eb;
+}
+.w43-node {
+  fill: #334155;
+}
+.w43-node.vg {
+  fill: #16a34a;
+}
+.w43-node.out {
+  fill: #7c3aed;
+}
+.w43-term {
+  fill: #fff;
+  stroke: #334155;
+  stroke-width: 2.2;
+}
+.w43-term.in {
+  stroke: #ca8a04;
+}
+.w43-term.out {
+  stroke: #7c3aed;
+}
+.w43-gnd line {
+  stroke: #64748b;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.w43-vg-ring {
+  fill: rgba(22, 163, 74, 0.16);
+  stroke: #16a34a;
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: w43-breathe 2.2s ease-in-out infinite;
+}
+@keyframes w43-breathe {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w43-flow,
+  .w43-vg-ring {
+    animation: none;
+  }
+}
+.w43-part.lit .w43-zig,
+.w43-part.lit .w43-amp,
+.w43-part.lit .w43-wire,
+.w43-part.lit .w43-flow,
+.w43-part.lit .w43-rail {
+  stroke: var(--stage-amber);
+  stroke-width: 4.2;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.7));
+}
+.w43-part.lit .w43-plate {
+  stroke: #f59e0b;
+  stroke-width: 5;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8));
+}
+.w43-part.lit .w43-node,
+.w43-part.lit .w43-term {
+  fill: var(--stage-amber);
+}
+.w43-part.lit .w43-vg-ring {
+  stroke: var(--stage-amber);
+  stroke-width: 3.5;
+  fill: rgba(245, 158, 11, 0.25);
+}
+.w43-part.lit text {
+  fill: #92400e;
+}
+.w43-formula {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px 8px;
+  text-align: center;
+  font-size: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.w43-formula.lit {
+  border-color: var(--stage-amber);
+}
+
+/* ---------------------------------------------------------- oscilloscope */
+.w43-screen-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  background: #fff;
+}
+.w43-scope {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w43-screen {
+  fill: #fdfcf8;
+}
+.w43-div {
+  stroke: #eee5d3;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.w43-div.axis {
+  stroke: #cbd5e1;
+  stroke-width: 1.4;
+}
+.w43-scope .w43-rail,
+.w43-strip .w43-rail {
+  stroke: #dc2626;
+  stroke-width: 1.4;
+  stroke-dasharray: 7 5;
+  vector-effect: non-scaling-stroke;
+}
+.w43-trace {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.w43-trace.in {
+  stroke: #ca8a04;
+}
+.w43-trace.out {
+  stroke: #0891b2;
+  stroke-width: 3;
+}
+.w43-band {
+  stroke: none;
+}
+.w43-band.in {
+  fill: rgba(202, 138, 4, 0.28);
+}
+.w43-band.out {
+  fill: rgba(8, 145, 178, 0.26);
+}
+.w43-mark circle {
+  fill: #0891b2;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.w43-st {
+  font-size: 12px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w43-st.rail {
+  fill: #b91c1c;
+  font-weight: 700;
+}
+.w43-st.faint {
+  fill: #94a3b8;
+}
+.w43-st.ideal {
+  fill: #b91c1c;
+  font-weight: 700;
+}
+.w43-st.lossy {
+  fill: #15803d;
+  font-weight: 700;
+}
+.w43-mark text {
+  font-size: 12.5px;
+  font-weight: 800;
+  fill: #0e7490;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.w43-scopebar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 800;
+  min-height: 20px;
+}
+.w43-scopebar span {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 5px;
+  padding: 1px 6px;
+  border: 1.5px solid;
+  cursor: help;
+}
+.w43-scopebar .in {
+  color: #a16207;
+  border-color: #ca8a04;
+}
+.w43-scopebar .out {
+  color: #0e7490;
+  border-color: #0891b2;
+}
+.w43-lamp {
+  margin-left: auto;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #fff;
+  background: #e11d48;
+  border-radius: 6px;
+  padding: 2px 8px;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25);
+  cursor: help;
+}
+.w43-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 2px 6px;
+  cursor: help;
+}
+.w43-strip.lit {
+  border-color: var(--stage-amber);
+}
+.w43-strip svg {
+  flex: 1;
+  min-width: 0;
+  height: 62px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w43-strip .w43-st {
+  font-size: 11px;
+}
+.w43-axis {
+  stroke: #94a3b8;
+  stroke-width: 1.2;
+}
+.w43-dline {
+  fill: none;
+  stroke-width: 2;
+  opacity: 0.45;
+}
+.w43-dline.on {
+  stroke-width: 3;
+  opacity: 1;
+}
+.w43-dline.ideal {
+  stroke: #dc2626;
+}
+.w43-dline.lossy {
+  stroke: #16a34a;
+}
+.w43-cursor {
+  stroke: #7c3aed;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.w43-cdot {
+  fill: #7c3aed;
+}
+
+/* ---------------------------------------------------------- readouts */
+.w43-cells {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 5px;
+}
+.w43-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+  min-width: 0;
+  cursor: help;
+}
+.w43-cell span {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w43-cell b {
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w43-cell small {
+  color: var(--muted);
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w43-cell.good b {
+  color: #047857;
+}
+.w43-cell.bad b {
+  color: #be123c;
+}
+.w43-cell.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.w43-bench {
+  min-height: 150px;
+}
+.bb3d-tag.w43-tag3 {
+  font-size: 11px;
+  padding: 2px 6px;
+  color: #1f2a44;
+  border-color: #94a3b8;
+}
+.bb3d-tag.w43-tag3.inst {
+  border-color: #16a34a;
+  color: #14532d;
+}
+.bb3d-tag.w43-tag3.cap {
+  border-color: #d97706;
+  color: #92400e;
+  font-size: 10.5px;
+  padding: 1px 5px;
+}
+.bb3d-tag.w43-tag3.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.w43-bench .bb3d-tag.good {
+  font-size: 10.5px;
+  padding: 1px 5px;
+}
+/* the overview is too small for the parts' tags (the close-up shows them; hover names them) */
+.w43-bench.bench .bb3d-tag.good,
+.w43-bench.bench .bb3d-tag.w43-tag3.cap,
+.w43-bench.scope .bb3d-tag.good,
+.w43-bench.scope .bb3d-tag.w43-tag3.cap {
+  display: none;
+}
+.w43-lcd3 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #0b1f14;
+  color: #6ee7b7;
+  font-family: ui-monospace, monospace;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.w43-lcd3.gen {
+  background: #1a1430;
+  color: #fcd34d;
+}
+.w43-lcd3 b {
+  font-size: 11.5px;
+}
+.w43-screen3 {
+  width: 168px;
+  height: 92px;
+  border-radius: 4px;
+  border: 3px solid #2b2f36;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: help;
+}
+.w43-bench.scope .w43-screen3 {
+  width: 260px;
+  height: 140px;
+}
+.w43-scope.compact .w43-trace {
+  stroke-width: 2;
+}
+.w43-repower {
+  position: absolute;
+  right: 6px;
+  bottom: 60px;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w43-seg .full,
+  .w43-layer .full {
+    display: none;
+  }
+  .w43-seg .short,
+  .w43-layer .short {
+    display: inline;
+  }
+  .w43-layer,
+  .w43-dock,
+  .w43-more-rows {
+    gap: 4px;
+  }
+  .w43-more {
+    display: inline-block;
+    margin-left: auto;
+  }
+  .w43-dock:not(.open) .w43-more-rows {
+    display: none;
+  }
+  /* a phone shows the three main readouts */
+  .w43-cells > :nth-child(n + 4) {
+    display: none;
+  }
+  .w43-row {
+    gap: 4px;
+  }
+  .w43-seg button,
+  .w43-seg.small button {
+    padding: 3px 7px;
+    font-size: 11.5px;
+  }
+  .w43-toggle {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+  .w43-slider {
+    font-size: 11px;
+    gap: 3px;
+    padding: 0 2px;
+    flex: 1 1 120px;
+  }
+  .w43-slider b {
+    min-width: 0;
+  }
+  .w43-slider input[type='range'] {
+    min-width: 20px;
+  }
+  .w43-exbar {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  .w43-cells {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .w43-cell {
+    padding: 2px 5px;
+    font-size: 10.5px;
+  }
+  .w43-cell b {
+    font-size: 11.5px;
+  }
+  .w43-cell small {
+    display: none;
+  }
+  .w43-formula {
+    font-size: 12px;
+  }
+  .w43-sch .w43-name {
+    font-size: 17px;
+  }
+  .w43-sch .w43-val,
+  .w43-sch .w43-bubble {
+    font-size: 15px;
+  }
+  .w43-sch .w43-cur,
+  .w43-sch .w43-tiny {
+    font-size: 13px;
+  }
+  .w43-sch .w43-title,
+  .w43-sch .w43-amp-lab {
+    display: none;
+  }
+  .w43-st {
+    font-size: 21px;
+  }
+  .w43-mark text {
+    font-size: 21px;
+  }
+  .w43-scopebar {
+    font-size: 10.5px;
+  }
+  .w43-lamp {
+    font-size: 10.5px;
+    padding: 1px 6px;
+  }
+  .w43-strip svg {
+    height: 48px;
+  }
+  .bb3d-tag.w43-tag3 {
+    font-size: 9.5px;
+    padding: 1px 4px;
+  }
+  .w43-bench .bb3d-tag.good,
+  .w43-bench .bb3d-tag.chip,
+  .w43-bench .bb3d-tag.w43-tag3.cap {
+    display: none;
+  }
+  .w43-bench.circuit .bb3d-tag.good,
+  .w43-bench.circuit .bb3d-tag.w43-tag3.cap {
+    display: block;
+  }
+  .w43-lcd3 b {
+    font-size: 8px;
+  }
+  .w43-screen3 {
+    width: 92px;
+    height: 52px;
+    border-width: 2px;
+  }
+  .w43-bench.bench .bb3d-tag.w43-tag3.inst {
+    display: none;
+  }
+  .w43-strip .w43-st {
+    font-size: 17px;
+  }
+  .w43-bench.scope .w43-screen3 {
+    width: 200px;
+    height: 110px;
+  }
+}
