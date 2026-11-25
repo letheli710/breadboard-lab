@@ -1,0 +1,639 @@
+/* W1-L4 stage layers (equipotential colouring, series / parallel judge). Light stage, prefix w4-. */
+
+.w4-layer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+.w4-controls,
+.w4-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.w4-btn,
+.w4-switch {
+  border: 1.5px solid var(--line-2, #cbd5e1);
+  background: #fff;
+  border-radius: 8px;
+  padding: 5px 11px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+  cursor: pointer;
+  line-height: 1.35;
+}
+.w4-btn:disabled,
+.w4-switch:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.w4-btn.on {
+  border-color: var(--ink, #1f2a44);
+  background: var(--ink, #1f2a44);
+  color: #fff;
+}
+.w4-btn.primary:not(.on) {
+  border-color: #0284c7;
+  color: #0369a1;
+  background: #f0f9ff;
+}
+.w4-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.w4-switch .knob {
+  width: 26px;
+  height: 15px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  position: relative;
+  flex: none;
+  transition: background 0.2s;
+}
+.w4-switch .knob::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.w4-switch.on .knob {
+  background: #0284c7;
+}
+.w4-switch.bad.on .knob {
+  background: #e11d48;
+}
+.w4-switch.on .knob::after {
+  transform: translateX(11px);
+}
+.w4-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-family: ui-monospace, monospace;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.w4-chip,
+.w4-formula {
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--paper, #f8fafc);
+  border: 1px solid var(--line, #e2e8f0);
+  color: var(--ink, #1f2a44);
+}
+.w4-formula {
+  color: var(--muted, #64748b);
+}
+.w4-formula.ok {
+  background: #ecfdf5;
+  border-color: #059669;
+  color: #047857;
+}
+.w4-svg {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  max-height: 560px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.w4-bg {
+  fill: #f8fafc;
+  stroke: #cbd5e1;
+  stroke-width: 1.2;
+}
+.w4-info {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-2, #334155);
+  border-left: 3px solid var(--line-2, #cbd5e1);
+  padding: 2px 0 2px 9px;
+  min-height: 2.4em;
+}
+
+/* wires, nodes, elements */
+.w4-wire {
+  fill: none;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  transition: stroke 0.25s ease;
+}
+.w4-wire.thin {
+  stroke-width: 2.6;
+}
+.w4-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14;
+  stroke-linejoin: round;
+  cursor: pointer;
+  pointer-events: stroke;
+}
+.w4-glow {
+  filter: drop-shadow(0 0 3px currentColor);
+}
+.w4-wire.w4-glow {
+  stroke-width: 4.2;
+}
+.w4-dim .w4-wire,
+.w4-dim .w4-dot {
+  opacity: 0.16;
+}
+.w4-hub-text {
+  fill: #fff;
+  font:
+    800 10px ui-monospace,
+    monospace;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.w4-el,
+.w4-el2 {
+  cursor: default;
+}
+.w4-lead {
+  stroke: #475569;
+  stroke-width: 2.2;
+}
+.w4-body {
+  fill: #fff;
+  stroke: #334155;
+  stroke-width: 2;
+  transition:
+    stroke 0.2s,
+    stroke-width 0.2s;
+}
+.w4-sign {
+  fill: #334155;
+  font:
+    800 10px ui-monospace,
+    monospace;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.w4-el-label,
+.w4-el-value,
+.w4-el-note {
+  font-family: ui-monospace, monospace;
+  pointer-events: none;
+}
+.w4-el-label {
+  fill: #0f172a;
+  font-size: 10px;
+  font-weight: 800;
+}
+.w4-el-value {
+  fill: #64748b;
+  font-size: 9px;
+}
+.w4-el-note {
+  fill: #0369a1;
+  font-size: 8px;
+  font-weight: 700;
+}
+.mid {
+  text-anchor: middle;
+}
+.end {
+  text-anchor: end;
+}
+.w4-el.pulse .w4-body,
+.w4-el2.pulse .w4-body {
+  animation: w4-pulse 1.1s ease-in-out infinite;
+}
+@keyframes w4-pulse {
+  50% {
+    stroke: #0f172a;
+    stroke-width: 4;
+  }
+}
+.w4-el.twig .w4-body {
+  stroke: #059669;
+  stroke-width: 3.2;
+}
+.w4-el.link .w4-body {
+  stroke: #0284c7;
+  stroke-width: 2.6;
+  stroke-dasharray: 4 3;
+  animation: w4-blink 1s steps(2) infinite;
+}
+@keyframes w4-blink {
+  50% {
+    stroke-opacity: 0.25;
+  }
+}
+.w4-tree-tag {
+  font:
+    800 9px system-ui,
+    sans-serif;
+}
+.w4-tree-tag.twig {
+  fill: #047857;
+}
+.w4-tree-tag.link {
+  fill: #0369a1;
+}
+.w4-legend {
+  font:
+    700 9.5px system-ui,
+    sans-serif;
+  fill: #334155;
+  text-anchor: middle;
+}
+.w4-badge circle {
+  fill: #0f172a;
+}
+.w4-badge text {
+  fill: #fff;
+  font:
+    800 9px ui-monospace,
+    monospace;
+  text-anchor: middle;
+}
+.w4-corner circle {
+  fill: transparent;
+  stroke: #e11d48;
+  stroke-width: 1.6;
+  stroke-dasharray: 2 2;
+  opacity: 0.55;
+  cursor: help;
+}
+.w4-corner.lit circle {
+  opacity: 1;
+  stroke-width: 2.4;
+}
+.w4-bubble rect {
+  fill: #fff1f2;
+  stroke: #e11d48;
+  stroke-width: 1.2;
+}
+.w4-bubble text {
+  fill: #be123c;
+  font:
+    800 9.5px system-ui,
+    sans-serif;
+  text-anchor: middle;
+}
+
+/* breadboard strips */
+.w4-bb-panel {
+  fill: #fbf7ef;
+  stroke: #cbd5e1;
+  stroke-width: 1.2;
+}
+.w4-bb-title {
+  font:
+    700 9.5px system-ui,
+    sans-serif;
+  fill: #334155;
+}
+.w4-bb-row,
+.w4-bb-col {
+  font:
+    8.5px ui-monospace,
+    monospace;
+  fill: #64748b;
+}
+.w4-bb-col {
+  text-anchor: middle;
+  font-weight: 700;
+}
+.w4-strip {
+  cursor: pointer;
+}
+.w4-strip > rect:first-child {
+  fill: #e2e8f0;
+  stroke: #94a3b8;
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+}
+.w4-strip.on > rect:first-child {
+  fill: currentColor;
+  fill-opacity: 0.2;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-dasharray: none;
+}
+.w4-hole {
+  fill: #475569;
+}
+.w4-strip.on .w4-hole {
+  fill: currentColor;
+}
+.w4-bb-lead text {
+  font:
+    700 8px ui-monospace,
+    monospace;
+  fill: #334155;
+  pointer-events: none;
+}
+.w4-bb-lead circle {
+  pointer-events: none;
+}
+.w4-trench rect {
+  fill: #e2e8f0;
+  stroke: #94a3b8;
+  stroke-width: 1;
+}
+.w4-trench text {
+  font:
+    700 7.5px system-ui,
+    sans-serif;
+  fill: #475569;
+  text-anchor: middle;
+}
+.w4-trench.lit rect {
+  fill: #fff1f2;
+  stroke: #e11d48;
+  stroke-width: 1.6;
+  stroke-dasharray: 3 2;
+}
+.w4-trench.lit text {
+  fill: #be123c;
+  font-weight: 800;
+}
+
+/* layer 02 */
+.w4-preview {
+  font:
+    800 9.5px system-ui,
+    sans-serif;
+  fill: #b45309;
+}
+.w4-frame {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  filter: drop-shadow(0 0 4px #f59e0b);
+}
+.w4-wires-pulse .w4-wire {
+  animation: w4-wire-pulse 1.1s ease-in-out infinite;
+}
+@keyframes w4-wire-pulse {
+  50% {
+    stroke-width: 4.6;
+  }
+}
+.w4-flow {
+  fill: none;
+  stroke: #0ea5e9;
+  stroke-opacity: 0.85;
+  stroke-linecap: round;
+  stroke-dasharray: 2 10;
+  animation: w4-flow linear infinite;
+  pointer-events: none;
+}
+@keyframes w4-flow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w4-flow,
+  .w4-el.pulse .w4-body,
+  .w4-el2.pulse .w4-body,
+  .w4-el.link .w4-body,
+  .w4-wires-pulse .w4-wire,
+  .w4-el2.sneak .w4-body {
+    animation: none;
+  }
+}
+.w4-node {
+  cursor: grab;
+  touch-action: none;
+}
+.w4-rail {
+  stroke: currentColor;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.w4-rail-hit {
+  stroke: transparent;
+  stroke-width: 16;
+}
+.w4-node-hit {
+  fill: transparent;
+}
+.w4-node-dot {
+  fill: currentColor;
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+.w4-node-label {
+  fill: currentColor;
+  font:
+    800 11px ui-monospace,
+    monospace;
+  pointer-events: none;
+}
+.w4-node.ring-green,
+.w4-node.lit-green {
+  filter: drop-shadow(0 0 4px #059669);
+}
+.w4-node.ring-blue,
+.w4-node.lit-blue {
+  filter: drop-shadow(0 0 4px #0284c7);
+}
+.w4-node.ring-red,
+.w4-node.lit-red {
+  filter: drop-shadow(0 0 5px #e11d48);
+}
+.w4-node.lit-violet {
+  filter: drop-shadow(0 0 4px #7c3aed);
+}
+.w4-node.ring-red .w4-node-dot,
+.w4-node.lit-red .w4-node-dot {
+  stroke: #e11d48;
+  stroke-width: 2.5;
+}
+.w4-node.ring-red .w4-rail,
+.w4-node.ring-green .w4-rail,
+.w4-node.ring-blue .w4-rail,
+.w4-node[class*='lit-'] .w4-rail {
+  stroke-width: 6;
+}
+.w4-deg {
+  font:
+    800 9.5px ui-monospace,
+    monospace;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.w4-deg.green {
+  fill: #047857;
+}
+.w4-deg.blue {
+  fill: #0369a1;
+}
+.w4-deg.red {
+  fill: #be123c;
+}
+.w4-el2 {
+  cursor: pointer;
+  touch-action: none;
+  outline: none;
+}
+.w4-el-hit {
+  fill: transparent;
+}
+/* an element's name and value are part of what can be picked and dragged */
+.w4-el2 .w4-el-label,
+.w4-el2 .w4-el-value,
+.w4-el2 .w4-el-note {
+  pointer-events: auto;
+}
+.w4-el2:focus-visible .w4-el-hit {
+  stroke: #0284c7;
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+.w4-el2.sel .w4-body {
+  stroke: #0f172a;
+  stroke-width: 3.6;
+  fill: #fef3c7;
+}
+.w4-el2.lit-green .w4-body {
+  stroke: #059669;
+  stroke-width: 3.4;
+  fill: #ecfdf5;
+}
+.w4-el2.lit-blue .w4-body {
+  stroke: #0284c7;
+  stroke-width: 3.4;
+  fill: #f0f9ff;
+}
+.w4-el2.lit-red .w4-body,
+.w4-el2.sab .w4-body {
+  stroke: #e11d48;
+  stroke-width: 3.4;
+  fill: #fff1f2;
+}
+.w4-el2.lit-violet .w4-body,
+.w4-el2.sneak .w4-body {
+  stroke: #7c3aed;
+  stroke-width: 3.4;
+  fill: #f5f3ff;
+  animation: w4-blink 0.8s steps(2) infinite;
+}
+.w4-sab-tag {
+  font:
+    800 9px system-ui,
+    sans-serif;
+  fill: #be123c;
+}
+.w4-verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-2, #334155);
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line, #e2e8f0);
+  background: var(--paper, #f8fafc);
+  min-height: 2.6em;
+}
+.w4-verdict.idle {
+  color: var(--muted, #64748b);
+}
+.w4-badge-pill {
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 999px;
+  color: #fff;
+}
+.w4-verdict.series {
+  border-color: #059669;
+  background: #ecfdf5;
+}
+.w4-verdict.series .w4-badge-pill {
+  background: #059669;
+}
+.w4-verdict.parallel {
+  border-color: #0284c7;
+  background: #f0f9ff;
+}
+.w4-verdict.parallel .w4-badge-pill {
+  background: #0284c7;
+}
+.w4-verdict.neither {
+  border-color: #e11d48;
+  background: #fff1f2;
+}
+.w4-verdict.neither .w4-badge-pill {
+  background: #e11d48;
+}
+.w4-pairs {
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+}
+
+@media (max-width: 960px) {
+  .w4-layer {
+    gap: 5px;
+  }
+  /* one scrolling row each, so the drawing keeps the height of the short phone stage */
+  .w4-controls,
+  .w4-hud {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .w4-group {
+    flex-wrap: nowrap;
+    flex: none;
+  }
+  .w4-controls > *,
+  .w4-group > *,
+  .w4-hud > * {
+    flex: none;
+    white-space: nowrap;
+  }
+  .w4-wide {
+    display: none;
+  }
+  .w4-info {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .w4-btn,
+  .w4-switch {
+    padding: 3px 8px;
+    font-size: 11.5px;
+  }
+  .w4-hud {
+    font-size: 11.5px;
+    gap: 4px;
+  }
+  .w4-chip,
+  .w4-formula {
+    padding: 1px 6px;
+  }
+  .w4-info,
+  .w4-verdict {
+    font-size: 11.5px;
+    min-height: 0;
+  }
+  .w4-verdict {
+    padding: 4px 8px;
+    max-height: 5.4em;
+    overflow-y: auto;
+  }
+}
