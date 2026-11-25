@@ -1,0 +1,796 @@
+/* W1-L3 stage layers: 3D resistor, Ohm's-law schematic, i–v plane; control dock and telemetry bar. */
+
+.l3-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.l3-view {
+  flex: 1;
+  min-height: 120px;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.l3-view:not(.bb3d-wrap) {
+  background: #fff;
+  border: 1px solid var(--line);
+}
+.l3-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: inherit;
+  touch-action: none;
+}
+.l3-zoom {
+  position: absolute;
+  right: 8px;
+  bottom: 30px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.l3-zoom.on {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* ------------------------------------------------------- dock */
+.l3-dock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.l3-sliders {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px 14px;
+}
+.l3-slider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 1px 4px;
+}
+.l3-slider.lit {
+  background: #fff7e6;
+  box-shadow: 0 0 0 1.5px var(--stage-amber);
+}
+.l3-slider input[type='range'] {
+  flex: 1;
+  min-width: 40px;
+  accent-color: var(--stage-blue);
+}
+.l3-k {
+  font-family: 'Times New Roman', serif;
+  font-size: 16px;
+  font-weight: 700;
+  width: 1em;
+  text-align: center;
+}
+.l3-num {
+  width: 4.4em;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 4px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+.l3-unit {
+  color: var(--muted);
+}
+.l3-rval {
+  min-width: 4.6em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.l3-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.l3-seg {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  padding: 2px;
+}
+.l3-seg.lit {
+  box-shadow: 0 0 0 2px var(--stage-amber);
+}
+.l3-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.l3-seg button.on {
+  background: #15803d;
+  color: #fff;
+}
+.l3-seg button.on.bad {
+  background: #b91c1c;
+}
+.l3-eq {
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+  font-size: 11.5px;
+}
+.l3-chip {
+  border: 1.5px solid var(--line-2, #cbbf9f);
+  background: #fff;
+  border-radius: 999px;
+  padding: 3px 11px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.l3-short {
+  display: none;
+}
+.l3-chip.small {
+  padding: 1px 7px;
+  font-size: 11px;
+}
+.l3-chip.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.l3-chip.open.on {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+.l3-chip.short.on {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+.l3-chip.cut.on {
+  background: #78350f;
+  border-color: #78350f;
+}
+.l3-chip.lit {
+  box-shadow: 0 0 0 2px var(--stage-amber);
+}
+
+/* ------------------------------------------------------- telemetry */
+.l3-telemetry {
+  /* positioned, so KaTeX's absolutely placed MathML stays inside the scrolling strip */
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px 8px;
+  font-size: 12.5px;
+}
+.l3-tm {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: var(--stage-blue-soft);
+  border: 1px solid #d6e2fb;
+  scrollbar-width: thin;
+}
+.l3-tm .katex {
+  font-size: 1em;
+}
+.l3-tm.bad {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+.l3-tm.lit {
+  box-shadow: 0 0 0 2px var(--stage-amber);
+}
+.l3-tm.limits {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  gap: 10px;
+}
+.l3-tm-n {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+.l3-lim {
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 0 4px;
+}
+.l3-lim.on {
+  color: var(--ink);
+  background: #fff7e6;
+  font-weight: 700;
+}
+.l3-lim.lit {
+  box-shadow: 0 0 0 1.5px var(--stage-amber);
+}
+.l3-lim em {
+  font-style: normal;
+  color: #b91c1c;
+  margin-left: 4px;
+}
+.l3-over {
+  color: #b91c1c;
+  font-size: 11px;
+  animation: l3-blink 0.8s steps(2, start) infinite;
+}
+
+/* ------------------------------------------------------- SVG layers */
+.l3-bg {
+  fill: #fff;
+}
+.l3-bg.hot {
+  fill: #fff7f7;
+}
+.l3-wire {
+  fill: none;
+  stroke: #1e293b;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+.l3-wire.thin {
+  stroke-width: 1.6;
+  stroke: #475569;
+}
+.l3-flow {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 23.9;
+  animation: l3-flow linear infinite;
+}
+.l3-flow.dead {
+  stroke: #dc2626;
+}
+.l3-flow.still {
+  animation: none;
+}
+@keyframes l3-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.l3-res {
+  fill: none;
+  stroke: #1e293b;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.l3-res.thin {
+  stroke-width: 2;
+}
+.l3-res.hot {
+  stroke: #dc2626;
+}
+.l3-src {
+  fill: #fff;
+  stroke: #1e293b;
+  stroke-width: 2.2;
+}
+.l3-sign {
+  font-size: 18px;
+  font-weight: 800;
+}
+.l3-sign.plus {
+  fill: #dc2626;
+}
+.l3-sign.minus {
+  fill: #2563eb;
+}
+.l3-t {
+  font-size: 14px;
+  fill: #1e293b;
+}
+.l3-t.strong {
+  font-weight: 800;
+}
+.l3-t.small {
+  font-size: 12px;
+}
+.l3-t.tiny {
+  font-size: 10.5px;
+}
+.l3-t.muted {
+  fill: #64748b;
+}
+.l3-t.bad {
+  fill: #b91c1c;
+}
+.l3-t.blue {
+  fill: #1d4ed8;
+}
+.l3-t.green {
+  fill: #065f46;
+}
+.l3-t.g {
+  fill: #047857;
+  font-weight: 700;
+}
+.l3-t.amber {
+  fill: #92400e;
+}
+.l3-t.arrowc {
+  fill: #15803d;
+}
+.l3-t.blink,
+.l3-soa.alarm .l3-soa-fill {
+  animation: l3-blink 0.8s steps(2, start) infinite;
+}
+@keyframes l3-blink {
+  to {
+    visibility: hidden;
+  }
+}
+.l3-meter {
+  fill: #fff;
+  stroke: #334155;
+  stroke-width: 2;
+}
+.l3-meter.bad {
+  stroke: #dc2626;
+}
+.l3-meter-k {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #334155;
+}
+.l3-meter-k.small {
+  font-size: 14px;
+}
+.l3-lcd {
+  fill: #ecfdf5;
+  stroke: #10b981;
+}
+.l3-lcd.bad {
+  fill: #fef2f2;
+  stroke: #ef4444;
+}
+.l3-lcd-t {
+  font-size: 13.5px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  fill: #0f172a;
+}
+.l3-pm {
+  fill: #fffbeb;
+  stroke: #f59e0b;
+  stroke-width: 1.4;
+}
+.l3-pm.bad {
+  fill: #fee2e2;
+  stroke: #dc2626;
+}
+.l3-node {
+  fill: #1e293b;
+}
+.l3-term {
+  fill: #fff;
+  stroke: #2563eb;
+  stroke-width: 2.4;
+}
+.l3-shortwire {
+  stroke: #dc2626;
+  stroke-width: 4;
+}
+.l3-warnbox {
+  fill: rgba(254, 226, 226, 0.35);
+  stroke: #dc2626;
+  stroke-width: 1.8;
+  stroke-dasharray: 6 4;
+}
+.l3-arrow {
+  fill: none;
+  stroke: #15803d;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.l3-arrow.bad {
+  stroke: #b91c1c;
+}
+.l3-eqbox {
+  fill: #ecfdf5;
+  stroke: #10b981;
+}
+.l3-eqbox.bad {
+  fill: #fef2f2;
+  stroke: #ef4444;
+}
+.l3-ghost line,
+.l3-ghost circle {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-dasharray: 5 4;
+}
+.l3-ghost.bad line {
+  stroke: #dc2626;
+}
+.l3-ghost.blue circle {
+  stroke: #2563eb;
+  fill: #fff;
+}
+.l3-hit {
+  cursor: default;
+}
+/* lit stage objects: amber stroke + glow (hover map) */
+.l3-hit.lit {
+  filter: drop-shadow(0 0 3px #f59e0b) drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+}
+.l3-hit.lit .l3-res,
+.l3-hit.lit .l3-arrow,
+.l3-hit.lit .l3-pm,
+.l3-hit.lit .l3-shortwire,
+.l3-hit.lit .l3-term {
+  stroke: #f59e0b;
+}
+.l3-hit.lit text {
+  fill: #92400e;
+}
+.l3-hit.lit .l3-sign,
+.l3-hit.lit .l3-arrow {
+  animation: l3-breathe 1.2s ease-in-out infinite;
+}
+@keyframes l3-breathe {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* i–v plane */
+.l3-plot {
+  fill: #fff;
+}
+.l3-grid {
+  stroke: #eef2f7;
+  stroke-width: 1;
+}
+.l3-tick {
+  fill: #64748b;
+}
+.l3-axis line {
+  stroke: #334155;
+  stroke-width: 1.6;
+}
+.l3-axis-hit,
+.l3-axis line.l3-axis-hit {
+  stroke: transparent;
+  stroke-width: 14;
+}
+.l3-axis-t {
+  font-weight: 800;
+  fill: #334155;
+}
+.l3-axis.open.on line:not(.l3-axis-hit),
+.l3-axis.open.lit line:not(.l3-axis-hit) {
+  stroke: #2563eb;
+  stroke-width: 4.5;
+}
+.l3-axis.short.on line:not(.l3-axis-hit),
+.l3-axis.short.lit line:not(.l3-axis-hit) {
+  stroke: #dc2626;
+  stroke-width: 4.5;
+}
+.l3-axis.lit {
+  filter: drop-shadow(0 0 4px #f59e0b);
+}
+.l3-soa-fill {
+  fill: rgba(239, 68, 68, 0.12);
+}
+.l3-soa-line {
+  fill: none;
+  stroke: #ef4444;
+  stroke-width: 1.4;
+  stroke-dasharray: 5 3;
+}
+.l3-soa.lit .l3-soa-fill {
+  fill: rgba(239, 68, 68, 0.26);
+}
+.l3-soa.lit .l3-soa-line {
+  stroke: #f59e0b;
+  stroke-width: 2.4;
+}
+.l3-rot {
+  transition: transform 0.7s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.l3-char {
+  stroke: #2563eb;
+  stroke-width: 3;
+}
+.l3-char.hot {
+  stroke: #dc2626;
+}
+.l3-char.mirror {
+  stroke: #94a3b8;
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+}
+.l3-hit.lit .l3-char {
+  stroke: #f59e0b;
+}
+.l3-hit.blinking .l3-char {
+  animation: l3-breathe 0.9s ease-in-out infinite;
+}
+.l3-preview {
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+}
+.l3-preview.bad {
+  stroke: #dc2626;
+}
+.l3-preview.blue {
+  stroke: #2563eb;
+}
+.l3-tri path {
+  fill: rgba(16, 185, 129, 0.18);
+  stroke: #059669;
+  stroke-width: 1.4;
+  stroke-dasharray: 4 3;
+}
+.l3-quad path {
+  stroke: #f59e0b;
+  stroke-width: 2.4;
+  fill: none;
+}
+.l3-label {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: #cbd5e1;
+}
+.l3-hit.lit .l3-label {
+  stroke: #f59e0b;
+}
+.l3-q {
+  cursor: grab;
+}
+.l3-svg.dragging .l3-q {
+  cursor: grabbing;
+}
+.l3-q-hit {
+  fill: transparent;
+}
+.l3-q-dot {
+  fill: #16a34a;
+  stroke: #fff;
+  stroke-width: 2.5;
+}
+.l3-q.off .l3-q-dot {
+  fill: #dc2626;
+}
+.l3-t.qlabel {
+  fill: #166534;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+
+/* ------------------------------------------------------- 3D overlays */
+.l3-tag3 {
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1.5px solid #94a3b8;
+  color: #1e293b;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.l3-tag3.rail {
+  color: #b91c1c;
+  border-color: #f87171;
+}
+.l3-tag3.rail.neg {
+  color: #1e293b;
+  border-color: #475569;
+}
+.l3-tag3.hot {
+  color: #fff;
+  background: #dc2626;
+  border-color: #991b1b;
+  animation: l3-blink 0.8s steps(2, start) infinite;
+}
+.l3-tag3.warm {
+  color: #9a3412;
+  border-color: #fb923c;
+}
+.l3-tag3.short {
+  color: #991b1b;
+  border-color: #ef4444;
+}
+.l3-tag3.open {
+  color: #1e40af;
+  border-color: #60a5fa;
+}
+.l3-tag3.cut {
+  color: #78350f;
+  border-color: #d97706;
+}
+.l3-tag3.rs {
+  color: #475569;
+}
+.l3-tag3.lit {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.45);
+}
+.l3-pol {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid currentColor;
+}
+.l3-pol.plus {
+  color: #dc2626;
+}
+.l3-pol.minus {
+  color: #2563eb;
+}
+.l3-pol.lit,
+.l3-iarrow.lit {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.6);
+  animation: l3-breathe 1.2s ease-in-out infinite;
+}
+.l3-iarrow {
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #15803d;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid #86efac;
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+.l3-iarrow.bad {
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+.l3-decode {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1.5px solid #1f2a44;
+  color: #1f2a44;
+}
+.l3-decode i {
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+.l3-decode span {
+  margin-left: 4px;
+}
+
+@media (max-width: 960px) {
+  .l3-layer {
+    gap: 5px;
+  }
+  .l3-dock {
+    padding: 5px 7px;
+    gap: 4px;
+  }
+  .l3-sliders {
+    gap: 4px 8px;
+  }
+  .l3-slider {
+    font-size: 12px;
+    gap: 3px;
+    padding: 0;
+  }
+  .l3-num {
+    width: 3.6em;
+    padding: 1px 2px;
+  }
+  .l3-unit,
+  .l3-eq {
+    display: none;
+  }
+  .l3-rval {
+    min-width: 0;
+    font-size: 11.5px;
+  }
+  .l3-buttons {
+    gap: 4px;
+  }
+  .l3-long {
+    display: none;
+  }
+  .l3-short {
+    display: inline;
+  }
+  .l3-seg button,
+  .l3-chip {
+    padding: 2px 7px;
+    font-size: 11.5px;
+  }
+  .l3-telemetry {
+    display: flex;
+    overflow-x: auto;
+    gap: 5px;
+    font-size: 11px;
+    scrollbar-width: none;
+  }
+  .l3-tm {
+    flex: none;
+    overflow: visible;
+    padding: 2px 6px;
+  }
+  .l3-tag3,
+  .l3-iarrow,
+  .l3-decode,
+  .l3-layer .bb3d-band {
+    font-size: 10px;
+  }
+}
+
+/* touch screens: the app makes every button a 44 px target; keep the dock to two rows */
+@media (max-width: 960px) and (pointer: coarse) {
+  .l3-num {
+    display: none;
+  }
+  .l3-buttons {
+    gap: 3px;
+    flex-wrap: nowrap;
+  }
+  .l3-seg button,
+  .l3-chip {
+    padding: 0 6px;
+  }
+  .l3-chip.small {
+    min-width: 40px;
+  }
+}
