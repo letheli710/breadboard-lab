@@ -1,0 +1,421 @@
+/* W5-L3 stage layers (AC nodal / mesh analysis, pure 2D). Light stage, prefix w53-. */
+
+.w53-layer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+.w53-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.w53-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper, #f8fafc);
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+  padding: 3px;
+}
+.w53-seg button,
+.w53-tog {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w53-seg button.on {
+  background: var(--ink, #1f2a44);
+  color: #fff;
+}
+.w53-tog {
+  border: 1.5px solid #cbd5e1;
+  background: #fff;
+}
+.w53-tog.on {
+  border-color: #059669;
+  background: #ecfdf5;
+  color: #047857;
+}
+.w53-tog.lit {
+  box-shadow: 0 0 0 2px #f59e0b;
+}
+.w53-seg .short,
+.w53-tog .short,
+.w53-badge .short {
+  display: none;
+}
+.w53-slider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+  white-space: nowrap;
+}
+.w53-slider b {
+  display: inline-block;
+  min-width: 2.2em;
+  text-align: right;
+  font-family: ui-monospace, monospace;
+  color: #1d4ed8;
+}
+.w53-slider input {
+  width: 120px;
+  accent-color: #1d4ed8;
+}
+.w53-badge {
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 10px;
+  border: 1.5px solid;
+  white-space: nowrap;
+}
+.w53-badge.good {
+  color: #047857;
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+.w53-badge.bad {
+  color: #b91c1c;
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+.w53-badge.lit {
+  box-shadow: 0 0 0 2px #f59e0b;
+}
+.w53-btn {
+  border: 1.5px solid #0284c7;
+  background: #f0f9ff;
+  color: #0369a1;
+  border-radius: 8px;
+  padding: 2px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.w53-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* the drawing */
+.w53-svgwrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.w53-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 560px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.w53-bg {
+  fill: #fbf7ef;
+  stroke: #e3d8c2;
+  stroke-width: 1.2;
+}
+.w53-plot {
+  fill: #fff;
+  stroke: #e3d8c2;
+  stroke-width: 1;
+}
+.w53-eq {
+  fill: #fff;
+  stroke: #cbd5e1;
+  stroke-width: 1;
+}
+.w53-axis {
+  stroke: #94a3b8;
+  stroke-width: 1;
+}
+.w53-ring {
+  fill: none;
+  stroke: #cbd5e1;
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.w53-trace {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+.w53-diff {
+  stroke: #dc2626;
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.w53-wire {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w53-wire.dashed {
+  stroke-dasharray: 5 4;
+}
+.w53-res {
+  fill: none;
+  stroke: #b45309;
+  stroke-width: 2.3;
+  stroke-linejoin: round;
+}
+.w53-couple {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+.w53-loop {
+  fill: none;
+  stroke: #4f46e5;
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
+  opacity: 0.85;
+}
+.w53-loop.run {
+  animation: w53-flow 1.2s linear infinite;
+}
+@keyframes w53-flow {
+  to {
+    stroke-dashoffset: -26;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w53-loop.run {
+    animation: none;
+  }
+}
+.w53-super {
+  fill: none;
+  stroke: #059669;
+  stroke-width: 2.4;
+  stroke-dasharray: 10 6;
+}
+.w53-obj.lit .w53-super {
+  stroke-width: 4;
+}
+.w53-svg text {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+.w53-sym {
+  font-size: 14px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+.w53-lbl {
+  font-size: 12px;
+  font-weight: 700;
+}
+.w53-val {
+  font-size: 11.5px;
+  font-weight: 800;
+}
+.w53-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.w53-tick {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* hover-map objects: a soft amber halo when lit; dimmed when not on the selected node */
+.w53-obj .w53-halo {
+  fill: #f59e0b;
+  fill-opacity: 0;
+  stroke: #f59e0b;
+  stroke-opacity: 0;
+  stroke-width: 2;
+  transition:
+    fill-opacity 0.2s,
+    stroke-opacity 0.2s;
+}
+.w53-obj.lit .w53-halo {
+  fill-opacity: 0.16;
+  stroke-opacity: 0.9;
+}
+.w53-obj .w53-hit {
+  fill: transparent;
+}
+.w53-obj.dim {
+  opacity: 0.3;
+}
+.w53-obj.click {
+  cursor: pointer;
+}
+
+/* readouts */
+.w53-readout {
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+  padding: 4px 6px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.w53-rgrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+.w53-rgrid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.w53-rgrid.five {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 1.6fr);
+}
+.w53-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 3px;
+  border-radius: 7px;
+  border: 1.5px solid transparent;
+  color: var(--ink, #1f2a44);
+  min-width: 0;
+}
+.w53-cell .k {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted, #5f626b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.w53-cell b {
+  font-family: ui-monospace, monospace;
+  font-size: 12.5px;
+  color: #6d28d9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.w53-cell.ok b {
+  color: #047857;
+}
+.w53-cell.warn b {
+  color: #b91c1c;
+}
+.w53-cell.mask b {
+  color: #94a3b8;
+}
+.w53-cell.lit {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+.w53-readout-foot {
+  font-size: 12px;
+  text-align: center;
+}
+.w53-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 7px;
+  border: 1.5px solid transparent;
+  padding: 1px 2px;
+}
+.w53-stepper.lit {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+.w53-step {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.w53-step .k {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted, #5f626b);
+}
+.w53-step .v {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4338ca;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 960px) {
+  .w53-seg .full,
+  .w53-tog .full,
+  .w53-badge .full {
+    display: none;
+  }
+  .w53-seg .short,
+  .w53-tog .short,
+  .w53-badge .short {
+    display: inline;
+  }
+  .w53-seg button,
+  .w53-tog {
+    padding: 4px 7px;
+    font-size: 11.5px;
+  }
+  .w53-controls {
+    gap: 4px;
+  }
+  .w53-slider {
+    font-size: 11.5px;
+  }
+  .w53-slider input {
+    width: 90px;
+  }
+  .w53-badge {
+    font-size: 11px;
+    padding: 2px 7px;
+  }
+  .w53-layer {
+    gap: 4px;
+  }
+  .w53-readout {
+    padding: 2px 4px;
+    gap: 2px;
+  }
+  .w53-rgrid,
+  .w53-rgrid.five {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px 4px;
+  }
+  /* long values (v(t), i(t)) get the whole row */
+  .w53-rgrid.two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .w53-rgrid.five > :last-child {
+    grid-column: span 2;
+  }
+  .w53-cell {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .w53-cell .k {
+    font-size: 10px;
+  }
+  .w53-cell b {
+    font-size: 11px;
+  }
+  .w53-step .v {
+    font-size: 11px;
+  }
+}
