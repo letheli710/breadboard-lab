@@ -50,7 +50,7 @@ export function Tex({ tex, display = false }: { tex: string; display?: boolean }
 type Node = { k: 'text'; t: string } | { k: 'b'; c: Node[] } | { k: 'code'; t: string } | { k: 'tex'; t: string } | { k: 'link'; ids: string[]; c: Node[] };
 
 // order matters: links may hold bold / code / TeX, bold may hold code / TeX
-const TOKEN = /\[\[([a-z0-9_,]+)\|(.+?)\]\]|\*\*(.+?)\*\*|`([^`]+)`|\$([^$]+)\$/g;
+const TOKEN = /\[\[([a-z0-9_,-]+)\|(.+?)\]\]|\*\*(.+?)\*\*|`([^`]+)`|\$([^$]+)\$/g;
 
 export function parseInline(s: string): Node[] {
   const out: Node[] = [];
