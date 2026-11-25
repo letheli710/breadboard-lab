@@ -45,3 +45,12 @@
 ## 检查 / Checks
 
 `npx tsc -b`、`npx eslint src/stage`、`npx prettier --check src/stage`、`npx vitest run src/stage`、`npm run validate`。页面上不能残留 `$` 或 `\frac` 源码（KaTeX 渲染失败时会退回到普通文字，检查时看 `.tex-fallback` 数量应为 0）。
+
+## 暂缓：World 1–5 全部完成后统一升级
+
+以下执行稿字段现在不实现（课程负责人决定，避免中途加复杂度），全站保持一致：
+
+- 自测门槛：全站统一 4/4 全对通过；执行稿里的 `passing_score`（如 3/4、0.75）不启用。
+- 错因雷达：按 `concept_tag` / 误区统计薄弱点。
+- 测验反馈里的回跳按钮（如"回到第 4 幕"）：暂时用反馈文字指路。
+- `learning_objectives`：类型里没有字段，不显示。
