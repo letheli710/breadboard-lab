@@ -193,7 +193,9 @@ function Block({ b }: { b: ActBlock }) {
           <ol className="calc-steps">
             {b.steps.map((s, i) => (
               <li key={i}>
-                <span className="step-label">{s.label}</span>
+                <span className="step-label">
+                  <StageText text={s.label} />
+                </span>
                 {s.text && (
                   <>
                     ：<StageText text={s.text} />
@@ -322,7 +324,7 @@ function Quiz({ act, lesson }: { act: Act; lesson: StageLesson }) {
         <div className="quiz-pass" role="status">
           <Icon name="party" size={20} />
           <div>
-            <b>{allRight ? '入场安全检验通过！' : '你之前已经通过了这道入场检验。'}</b>
+            <b>{allRight ? (m.pass_message ?? '随堂自测通过！') : '你之前已经通过了这节课的自测。'}</b>
             {next && (
               <p>
                 World 1 接下来：
@@ -355,7 +357,9 @@ function ActCard({ act, lesson, total }: { act: Act; lesson: StageLesson; total:
         </span>
         <span className="act-layer">左侧 · {act.quiz ? '随题目切换' : layer.label}</span>
       </header>
-      <h2 id={`${key}-h`}>{act.title}</h2>
+      <h2 id={`${key}-h`}>
+        <StageText text={act.title} />
+      </h2>
       {act.blocks.map((b, i) => (
         <Block key={i} b={b} />
       ))}

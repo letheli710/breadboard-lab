@@ -189,6 +189,7 @@ const W1_L0: StageLesson = {
     textbook_primary: { book: 'Introductory Circuit Analysis, 14th Edition (Boylestad)', sections: ['Ch. 3 电阻色环与测量仪表常识'] },
     textbook_supplement: 'Breadboard Lab 3D 实验箱操作规范（不引入长篇 DIY）',
     prerequisites: [],
+    pass_message: '入场安全检验通过！',
     next_lesson: 'W1-L1',
     next_lesson_title: '电荷、电流、电压与参考方向',
   },

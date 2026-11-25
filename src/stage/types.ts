@@ -161,6 +161,8 @@ export interface StageLesson {
     textbook_primary: { book: string; sections: string[] };
     textbook_supplement?: string;
     prerequisites: string[];
+    /** headline when the closing quiz is all right (default "随堂自测通过！") */
+    pass_message?: string;
     /** lesson id of the next stage lesson; shown as "coming" while it doesn't exist */
     next_lesson?: string;
     next_lesson_title?: string;
