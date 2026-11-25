@@ -367,6 +367,9 @@ function ActCard({ act, lesson, total }: { act: Act; lesson: StageLesson; total:
       ))}
       {act.inline_svg && <Figure svg={act.inline_svg} caption={act.figure_caption} />}
       {act.quiz && <Quiz act={act} lesson={lesson} />}
+      {act.after_quiz?.map((b, i) => (
+        <Block key={`aq${i}`} b={b} />
+      ))}
     </section>
   );
 }

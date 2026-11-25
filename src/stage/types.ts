@@ -142,6 +142,8 @@ export interface Act {
   figure_caption?: string;
   /** a quiz closes the act (the last act of a lesson) */
   quiz?: QuizItem[];
+  /** blocks shown after the quiz (e.g. the next-lesson preview) */
+  after_quiz?: ActBlock[];
 }
 
 export interface StageLesson {
