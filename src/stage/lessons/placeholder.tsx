@@ -6,13 +6,13 @@ function Empty() {
   return <div className="stage-loading">这节课的舞台还在制作中</div>;
 }
 
-export function placeholderLesson(code: string, title: string, minutes: number, sheet: string): StageLesson {
+export function placeholderLesson(code: string, title: string, minutes: number, sheet: string, world = 'World 1'): StageLesson {
   return {
     format: 'lesson-stage/2',
     renderers: { empty: Empty },
     lesson_meta: {
       lesson_id: code,
-      world: 'World 1',
+      world,
       title,
       subtitle: '这节课正在按执行稿制作，马上上线。',
       lesson_type: 'B',

@@ -33,6 +33,13 @@
 - 3D 面包板：`src/stage/BreadboardXray.tsx` 导出 `colX`、`ROW_Z`、`RAIL_Z`、`Shell`、`Clips`、`SurfaceGlow`、`TrenchGlow`、`Resistor`、`Lead`、`Chip`、`CameraRig`；W1-L0 的场景是范例。
 - 万用表接法台：`src/stage/DmmProbe.tsx`。色环：`src/stage/colorCode.ts`。
 - 公式：`Tex`（`src/stage/StageText.tsx`）。
+- **深色 SVG → 浅色主题**：执行稿里写死深色背景（`#0f172a`）的内联 SVG，一律用 `lightSvg(svg)`（`src/stage/svgTheme.ts`）转成站点的暖白主题，全站同一套映射；个别对比度不够的地方再在本课里微调。
+
+## 课程结构约定
+
+- 引导例题不剧透：同一道题的完整推导（③ 代入数值）放在 `guided` 之后，作为“通关复盘”板书。
+- 下节预告放在 `after_quiz`（自测之后）。
+- 自测：每个错选项都有自己的 `feedback`，每道题有一张不泄题的小图（`figure`）。
 
 ## 检查 / Checks
 
