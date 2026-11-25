@@ -4,14 +4,19 @@
 
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { tr } from '../core/i18n';
-import { readStored, writeStored } from '../state/persist';
+import { tt } from '../core/course/text';
+import { parseRef, refHash, titleOfRef, useCatalog, type Ref } from '../state/course';
+import { useCourse } from '../state/courseStore';
 import { setLessonTitles } from '../state/routeSync';
 import { useLang, useStore } from '../state/store';
+import { worldById, worldName } from '../state/worlds';
 import { Icon } from '../ui/Icons';
 import { genericLabel } from './BreadboardXray';
-import { STAGE_LESSON_BY_SLUG } from './lessons';
+import { LESSON_LOADERS } from './lessons';
+import { STAGE_LESSON_ENTRY } from './registry';
 import { useLit, useStage } from './stageStore';
 import { StageText, Tex } from './StageText';
+import { ColorCodeCard } from './ColorCodeCard';
 import type { Act, ActBlock, QuizItem, StageLesson, StageSync } from './types';
 import './stage.css';
 
@@ -19,11 +24,35 @@ const BreadboardXray = lazy(() => import('./BreadboardXray'));
 const DmmProbe = lazy(() => import('./DmmProbe'));
 
 setLessonTitles((id) => {
-  const l = STAGE_LESSON_BY_SLUG.get(id);
-  return l && `${l.lesson_meta.lesson_id} · ${l.lesson_meta.title}`;
+  const e = STAGE_LESSON_ENTRY.get(id);
+  return e && `${e.code} · ${tt(e.title)}`;
 });
 
-const passKey = (id: string) => `bb.stage.${id}.passed`;
+/** The items of a World in course order (every section, every kind), as refs. */
+function worldOrder(worldId: string): Ref[] {
+  const w = worldById(worldId);
+  return (w?.sections ?? []).flatMap((s) => s.items.map(parseRef).filter((r): r is Ref => !!r));
+}
+
+/** The items before and after a stage lesson in its World. */
+function neighbours(slug: string): { prev?: Ref; next?: Ref } {
+  const e = STAGE_LESSON_ENTRY.get(slug);
+  const order = e ? worldOrder(e.world) : [];
+  const i = order.findIndex((r) => r.kind === 'lesson' && r.id === slug);
+  return i < 0 ? {} : { prev: order[i - 1], next: order[i + 1] };
+}
+
+function RefLink({ r, primary, dir }: { r: Ref; primary?: boolean; dir: 'prev' | 'next' }) {
+  const cat = useCatalog();
+  const h = refHash(r, cat);
+  const label = titleOfRef(r, cat);
+  if (!h) return <span className="muted">{label}</span>;
+  return (
+    <a className={`button ${primary ? 'primary' : ''}`} href={h}>
+      {dir === 'prev' && <Icon name="prev" size={15} />} {label} {dir === 'next' && <Icon name="next" size={15} />}
+    </a>
+  );
+}
 
 /* ------------------------------------------------------------- stage (left) */
 
@@ -206,6 +235,8 @@ function Block({ b }: { b: ActBlock }) {
           </ol>
         </div>
       );
+    case 'colorcode':
+      return <ColorCodeCard title={b.title} intro={b.intro} />;
     case 'note':
       return (
         <div className={`act-note ${b.tone}`}>
@@ -269,12 +300,15 @@ function Quiz({ act, lesson }: { act: Act; lesson: StageLesson }) {
   const items = act.quiz!;
   const slug = lesson.lesson_meta.lesson_id.toLowerCase();
   const [right, setRight] = useState<Record<string, boolean>>({});
-  const [passedBefore] = useState(() => readStored<boolean>(passKey(slug), false, (v) => (typeof v === 'boolean' ? v : undefined)));
+  const [passedBefore] = useState(() => !!useCourse.getState().lessonsDone[slug]);
+  const setDone = useCourse((s) => s.setLessonDone);
   const allRight = items.every((q) => right[q.id]);
   useEffect(() => {
-    if (allRight) writeStored(passKey(slug), true);
-  }, [allRight, slug]);
+    if (allRight) setDone(slug, true);
+  }, [allRight, slug, setDone]);
   const m = lesson.lesson_meta;
+  const { next } = neighbours(slug);
+  const planned = m.next_lesson && !LESSON_LOADERS[m.next_lesson.toLowerCase()];
   return (
     <div className="quiz">
       {items.map((q, i) => (
@@ -285,16 +319,15 @@ function Quiz({ act, lesson }: { act: Act; lesson: StageLesson }) {
           <Icon name="party" size={20} />
           <div>
             <b>{allRight ? '入场安全检验通过！' : '你之前已经通过了这道入场检验。'}</b>
-            {m.next_lesson && (
+            {next && (
               <p>
-                下一课：{m.next_lesson} {m.next_lesson_title}
-                {STAGE_LESSON_BY_SLUG.has(m.next_lesson.toLowerCase()) ? (
-                  <a className="button primary" href={`#/lesson/${m.next_lesson.toLowerCase()}`}>
-                    进入 {m.next_lesson}
-                  </a>
-                ) : (
-                  <span className="badge">即将上线</span>
-                )}
+                World 1 接下来：
+                <RefLink r={next} primary dir="next" />
+              </p>
+            )}
+            {planned && (
+              <p className="muted">
+                新版主线下一课 {m.next_lesson} {m.next_lesson_title} <span className="badge">即将上线</span>
               </p>
             )}
           </div>
@@ -378,13 +411,24 @@ function LessonView({ lesson }: { lesson: StageLesson }) {
   }, [lesson, reset]);
   useScrollDrive(lesson, right);
   const m = lesson.lesson_meta;
+  const slug = m.lesson_id.toLowerCase();
+  const entry = STAGE_LESSON_ENTRY.get(slug);
+  const w = entry ? worldById(entry.world) : undefined;
+  const done = useCourse((s) => !!s.lessonsDone[slug]);
+  const { prev, next } = neighbours(slug);
   return (
     <main id="main" className="stage-page">
       <Stage lesson={lesson} />
       <div className="stage-right" ref={right}>
         <header className="lesson-head">
           <nav className="unit-crumbs" aria-label={tr('位置', 'Location')}>
-            <a href="#/map">{tr('学习路线', 'Map')}</a> / {m.world}
+            <a href="#/map">{tr('学习路线', 'Map')}</a>
+            {w && (
+              <>
+                {' / '}
+                <a href={`#/map/${w.id}`}>{worldName(w)}</a>
+              </>
+            )}
           </nav>
           <div className="lesson-chips">
             <span className="chip id">{m.lesson_id}</span>
@@ -392,6 +436,7 @@ function LessonView({ lesson }: { lesson: StageLesson }) {
             <span className="chip">
               约 {m.estimated_minutes} 分钟 · {lesson.right_acts.length} 幕
             </span>
+            {done && <span className="chip done">✓ {tr('已通关', 'Passed')}</span>}
           </div>
           <h1>{m.title}</h1>
           <p className="lesson-sub">{m.subtitle}</p>
@@ -417,6 +462,12 @@ function LessonView({ lesson }: { lesson: StageLesson }) {
         {lesson.right_acts.map((a) => (
           <ActCard key={a.act_index} act={a} lesson={lesson} total={lesson.right_acts.length} />
         ))}
+        {(prev || next) && (
+          <nav className="lesson-foot" aria-label={tr('上一项 / 下一项', 'Previous / next')}>
+            {prev ? <RefLink r={prev} dir="prev" /> : <span />}
+            {next && <RefLink r={next} primary={done} dir="next" />}
+          </nav>
+        )}
       </div>
     </main>
   );
@@ -424,8 +475,18 @@ function LessonView({ lesson }: { lesson: StageLesson }) {
 
 export default function StageLessonPage() {
   useLang();
-  const id = useStore((s) => s.lessonId);
-  const lesson = id ? STAGE_LESSON_BY_SLUG.get(id.toLowerCase()) : undefined;
+  const id = useStore((s) => s.lessonId)?.toLowerCase();
+  const load = id ? LESSON_LOADERS[id] : undefined;
+  const [lesson, setLesson] = useState<StageLesson | null>(null);
+  useEffect(() => {
+    let live = true;
+    setLesson(null);
+    void load?.().then((l) => live && setLesson(l));
+    return () => {
+      live = false;
+    };
+  }, [load]);
+  if (load && !lesson) return <div className="stage-loading page">{tr('加载中…', 'Loading…')}</div>;
   if (!lesson)
     return (
       <main id="main" className="course-page">

@@ -3,13 +3,14 @@
 // (state/course.ts) both use it. Format and rules: docs/PORTALS.md.
 //
 // A *ref* names one piece of content: "challenge:<id>" (lesson or lab), "chapter:<id>" (theory
-// chapter), "problem:<id>", "unit:<id>" (learning unit), "pending:<id>" (registered, not built).
+// chapter), "problem:<id>", "unit:<id>" (learning unit), "lesson:<slug>" (stage lesson,
+// src/stage/registry.ts, #/lesson/<slug>), "pending:<id>" (registered, not built).
 // A pending ref connects by itself once a unit or challenge with the same id exists.
 
 import { checkT, type T } from './text';
 import { unitBlocks, type Unit } from './unit';
 
-export const REF_KINDS = ['challenge', 'chapter', 'problem', 'unit', 'pending'] as const;
+export const REF_KINDS = ['challenge', 'chapter', 'problem', 'unit', 'lesson', 'pending'] as const;
 export type RefKind = (typeof REF_KINDS)[number];
 export interface Ref {
   kind: RefKind;
@@ -79,6 +80,8 @@ export interface Catalog {
   /** problem id → chapter id */
   problems: Map<string, string>;
   units: Map<string, Unit>;
+  /** stage lessons (src/stage/registry.ts): slug → world id and title */
+  lessons: Map<string, { world: string; code: string; title: T }>;
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -176,8 +179,11 @@ export function resolveRef(ref: Ref, cat: Catalog, data: Pick<CourseData, 'pendi
       return { state: cat.problems.has(ref.id) ? 'live' : 'missing', ref };
     case 'unit':
       return { state: cat.units.has(ref.id) ? 'live' : 'missing', ref };
+    case 'lesson':
+      return { state: cat.lessons.has(ref.id) ? 'live' : 'missing', ref };
     case 'pending':
       if (cat.units.has(ref.id)) return { state: 'live', ref: { kind: 'unit', id: ref.id } };
+      if (cat.lessons.has(ref.id)) return { state: 'live', ref: { kind: 'lesson', id: ref.id } };
       if (cat.challenges.has(ref.id)) return { state: 'live', ref: { kind: 'challenge', id: ref.id } };
       return { state: data.pending.some((p) => p.id === ref.id) ? 'pending' : 'missing', ref };
   }
@@ -189,6 +195,7 @@ export function worldOf(ref: Ref, data: CourseData, cat: Catalog): World | undef
   let w = data.worlds.find((x) => x.sections.some((s) => s.items.includes(key)));
   if (w) return w;
   if (ref.kind === 'unit') w = data.worlds.find((x) => x.id === cat.units.get(ref.id)?.world);
+  else if (ref.kind === 'lesson') w = data.worlds.find((x) => x.id === cat.lessons.get(ref.id)?.world);
   else if (ref.kind === 'pending') w = data.worlds.find((x) => x.id === data.pending.find((p) => p.id === ref.id)?.world);
   else if (ref.kind === 'problem') {
     const ch = cat.problems.get(ref.id);
@@ -218,6 +225,8 @@ export interface Progress {
   units: Record<string, boolean>;
   /** theory problems done */
   problems: Record<string, boolean>;
+  /** stage lessons passed (by slug); absent counts as none */
+  lessons?: Record<string, boolean>;
 }
 
 /** Has the student covered `ref`? A theory chapter counts once half of its problems are done. */
@@ -227,6 +236,7 @@ export function isDone(ref: Ref, p: Progress, cat: Catalog, data: Pick<CourseDat
   const { kind, id } = r.ref;
   if (kind === 'challenge') return !!p.completed[id];
   if (kind === 'unit') return !!p.units[id];
+  if (kind === 'lesson') return !!p.lessons?.[id];
   if (kind === 'problem') return !!p.problems[id];
   if (kind === 'chapter') {
     const all = [...cat.problems].filter(([, ch]) => ch === id).map(([pid]) => pid);
@@ -266,7 +276,7 @@ export function validateCourse(data: CourseData, cat: Catalog, plan: string): { 
         const r = parseRef(item);
         const at = `World ${w.id}: "${item}"`;
         if (!r || r.kind === 'problem' || r.kind === 'pending') {
-          errors.push(`${at}: World 里只能放 challenge: / chapter: / unit: 引用（待建单元写在 "pending" 里） / only challenge:, chapter:, unit: refs`);
+          errors.push(`${at}: World 里只能放 challenge: / chapter: / unit: / lesson: 引用（待建单元写在 "pending" 里） / only challenge:, chapter:, unit:, lesson: refs`);
           continue;
         }
         if (resolveRef(r, cat, data).state === 'missing') errors.push(`${at}: 指向不存在的内容 / points to nothing`);
@@ -276,6 +286,10 @@ export function validateCourse(data: CourseData, cat: Catalog, plan: string): { 
           const u = cat.units.get(r.id);
           if (u && u.world !== w.id) errors.push(`${at}: 单元文件写的是 world "${u.world}" / the unit file says world "${u.world}"`);
         }
+        if (r.kind === 'lesson') {
+          const l = cat.lessons.get(r.id);
+          if (l && l.world !== w.id) errors.push(`${at}: src/stage/registry.ts 写的是 world "${l.world}" / the lesson registry says world "${l.world}"`);
+        }
       }
   for (const [id] of cat.challenges) if (!placed.has(`challenge:${id}`)) errors.push(`challenge "${id}" 没有放进任何 World（course/worlds.json） / not in any World`);
   for (const [id] of cat.chapters) if (!placed.has(`chapter:${id}`)) errors.push(`chapter "${id}" 没有放进任何 World / not in any World`);
@@ -283,6 +297,8 @@ export function validateCourse(data: CourseData, cat: Catalog, plan: string): { 
     if (!placed.has(`unit:${id}`)) errors.push(`unit "${id}" 没有放进任何 World / not in any World`);
     if (!worldIds.has(u.world)) errors.push(`unit "${id}": world "${u.world}" 不存在 / no such world`);
   }
+  for (const [id] of cat.lessons)
+    if (!placed.has(`lesson:${id}`)) errors.push(`stage lesson "${id}" 没有放进任何 World（course/worlds.json 里写 "lesson:${id}"） / not in any World`);
 
   // pending units: registered in REBUILD_PLAN.md; flagged once built
   const pend = new Set<string>();
@@ -291,7 +307,7 @@ export function validateCourse(data: CourseData, cat: Catalog, plan: string): { 
     pend.add(p.id);
     if (!worldIds.has(p.world)) errors.push(`pending "${p.id}": world "${p.world}" 不存在 / no such world`);
     if (!plan.includes(`\`${p.id}\``)) errors.push(`pending "${p.id}" 没有登记在 docs/REBUILD_PLAN.md（写成 \`${p.id}\`） / not registered in docs/REBUILD_PLAN.md`);
-    if (cat.units.has(p.id) || cat.challenges.has(p.id))
+    if (cat.units.has(p.id) || cat.challenges.has(p.id) || cat.lessons.has(p.id))
       warnings.push(`pending "${p.id}" 已经建好，传送门已自动接通；可以从待建列表删除 / now built (portals connect automatically); remove it from "pending"`);
   }
 

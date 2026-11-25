@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { compile, evaluate, evaluateModel, sliderToValue, valueToSlider } from './model';
-import { parseRef, portalReadiness, resolveRef, validateCourse, backlinksTo, type Catalog, type CourseData } from './catalog';
+import { parseRef, portalReadiness, resolveRef, validateCourse, backlinksTo, isDone, type Catalog, type CourseData } from './catalog';
 import { parseUnit } from './unit';
 
 const T = (s: string) => ({ zh: s, en: s });
@@ -107,6 +107,7 @@ function fixture(): { data: CourseData; cat: Catalog } {
     chapters: new Map([['ch', { title: 'Chapter' }]]),
     problems: new Map([['x-1', 'ch']]),
     units: new Map([[unit.id, unit]]),
+    lessons: new Map(),
   };
   return { data, cat };
 }
@@ -142,6 +143,21 @@ describe('course map', () => {
     const e = validateCourse(data, cat, PLAN).errors.join('\n');
     expect(e).toMatch(/lab-b.*没有放进任何 World/);
     expect(e).toMatch(/已经放在 World w1/);
+  });
+  it("places stage lessons (lesson:) like units: one World, the registry's World, done from progress.lessons", () => {
+    const { data, cat } = fixture();
+    cat.lessons.set('w1-l0', { world: 'w1', code: 'W1-L0', title: T('quick start') });
+    expect(validateCourse(data, cat, PLAN).errors.join('\n')).toMatch(/stage lesson "w1-l0"/);
+    data.worlds[1].sections[0].items.push('lesson:w1-l0');
+    expect(validateCourse(data, cat, PLAN).errors.join('\n')).toMatch(/registry says world "w1"/);
+    data.worlds[1].sections[0].items.pop();
+    data.worlds[0].sections[0].items.unshift('lesson:w1-l0');
+    expect(validateCourse(data, cat, PLAN).errors).toEqual([]);
+    const ref = parseRef('lesson:w1-l0')!;
+    expect(resolveRef(ref, cat, data).state).toBe('live');
+    const p = { completed: {}, units: {}, problems: {} };
+    expect(isDone(ref, p, cat, data)).toBe(false);
+    expect(isDone(ref, { ...p, lessons: { 'w1-l0': true } }, cat, data)).toBe(true);
   });
   it('checks unitsCover', () => {
     const { data, cat } = fixture();

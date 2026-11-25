@@ -10,6 +10,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { lessonCatalog } from '../src/stage/registry';
 import { parsePortalsFile, parseWorldsFile, validateCourse, type Catalog } from '../src/core/course/catalog';
 import { parseUnit, unitBlocks, type Unit } from '../src/core/course/unit';
 import { extractNetlist } from '../src/core/problem/geometry';
@@ -72,6 +73,7 @@ export function checkCourse(root: string): CourseReport {
     chapters: new Map(CHAPTERS.map((c) => [c.id, { title: c.title() }])),
     problems: new Map(pr.entries.map((p) => [p.id, p.chapter])),
     units,
+    lessons: lessonCatalog(),
   };
   const planPath = join(root, 'docs/REBUILD_PLAN.md');
   const plan = existsSync(planPath) ? readFileSync(planPath, 'utf8') : '';
