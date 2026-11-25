@@ -1,0 +1,737 @@
+/* W5-L2 stage layers: control dock, impedance / phasor panels, the virtual scope,
+   the 3D bench HUD. Light theme (stage.css tokens). */
+
+.w52-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- dock and controls */
+.w52-dock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+.w52-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  min-width: 0;
+}
+.w52-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w52-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w52-seg .short,
+.w52-presets .short,
+.w52-notice .short {
+  display: none;
+}
+.w52-slider {
+  flex: 1 1 260px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  border-radius: 8px;
+}
+.w52-slider label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.w52-slider.lit {
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w52-slider-label {
+  font-weight: 800;
+  color: #be185d;
+  white-space: nowrap;
+}
+.w52-slider input[type='range'] {
+  flex: 1;
+  min-width: 60px;
+  accent-color: #db2777;
+}
+.w52-num {
+  min-width: 3.6em;
+  font-variant-numeric: tabular-nums;
+}
+.w52-dock.wide .w52-slider {
+  flex-basis: 100%;
+}
+.w52-presets {
+  display: flex;
+  gap: 3px;
+}
+.w52-presets button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 7px;
+  padding: 3px 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w52-presets button.on {
+  border-color: #db2777;
+  color: #be185d;
+  background: #fdf2f8;
+}
+.w52-fold {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w52-notice {
+  margin: 0;
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  max-width: 100%;
+}
+.w52-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- readout cells */
+.w52-cells {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+.w52-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+.w52-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+  min-width: 0;
+  cursor: help;
+}
+.w52-cell > span {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w52-cell > b {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w52-steps .w52-cell > b,
+.w52-steps .w52-cell > small {
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-overflow: clip;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 3px 0 4px;
+  scrollbar-width: thin;
+}
+.w52-steps .w52-cell > small {
+  color: var(--ink);
+  padding-top: 0;
+}
+.w52-steps .w52-cell > b .katex,
+.w52-steps .w52-cell > small .katex {
+  font-size: 1.02em;
+}
+.w52-cell > small {
+  color: var(--muted);
+  font-size: 10.5px;
+}
+.w52-cell.cur {
+  border-color: var(--stage-blue);
+  background: var(--stage-blue-soft);
+}
+.w52-cell.good b {
+  color: #047857;
+}
+.w52-cell.bad {
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w52-cell.bad b {
+  color: #be123c;
+}
+.w52-cell.warn b {
+  color: #b45309;
+}
+.w52-cell.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- schematic */
+.w52-sch-wrap {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w52-sch-wrap.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w52-sch,
+.w52-chart {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w52-chart {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.w52-sch .mid,
+.w52-chart .mid {
+  text-anchor: middle;
+}
+.w52-sch .end,
+.w52-chart .end {
+  text-anchor: end;
+}
+.w52-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.w52-wire.short {
+  stroke: #d97706;
+  stroke-width: 3.2;
+}
+.w52-eq {
+  fill: #fff7e6;
+  fill-opacity: 0.55;
+  stroke: #d97706;
+  stroke-width: 1.2;
+  stroke-dasharray: 4 3;
+}
+.w52-open {
+  fill: #fff;
+  stroke: #334155;
+  stroke-width: 2;
+}
+.w52-el {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.w52-el.r {
+  stroke: #db2777;
+}
+.w52-el.l {
+  stroke: #7c3aed;
+}
+.w52-el.c {
+  stroke: #059669;
+  stroke-width: 3.4;
+}
+.w52-src {
+  fill: #fff;
+  stroke: #d97706;
+  stroke-width: 2.2;
+}
+.w52-off .w52-src {
+  stroke-dasharray: 4 3;
+  opacity: 0.6;
+}
+.w52-arrow {
+  stroke: #0284c7;
+  stroke-width: 2;
+}
+.w52-arrowhead {
+  fill: #0284c7;
+}
+.w52-sw {
+  fill: #0284c7;
+}
+.w52-swblade {
+  stroke: #0284c7;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.w52-node {
+  fill: #d97706;
+}
+.w52-t {
+  font-size: 12.5px;
+  fill: var(--ink);
+}
+.w52-t.vtitle {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.w52-t.small {
+  font-size: 10.5px;
+  fill: #0369a1;
+}
+.w52-t.sign {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #b45309;
+}
+.w52-t.tag {
+  font-weight: 700;
+}
+.w52-t.src {
+  fill: #b45309;
+}
+.w52-t.r {
+  fill: #be185d;
+}
+.w52-t.l {
+  fill: #6d28d9;
+}
+.w52-t.c {
+  fill: #047857;
+}
+.w52-t.cur {
+  fill: #0369a1;
+}
+.w52-t.node {
+  fill: #1f2a44;
+}
+.w52-t.eq {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #b45309;
+}
+.w52-t.gd {
+  font-size: 11px;
+  fill: #6d28d9;
+}
+.w52-part {
+  cursor: help;
+  outline: none;
+}
+.w52-part.lit .w52-wire,
+.w52-part.lit .w52-el,
+.w52-part.lit .w52-src {
+  filter: drop-shadow(0 0 3px #f59e0b);
+}
+.w52-part.lit .w52-t.tag {
+  fill: #b45309;
+}
+.w52-part:focus-visible .w52-el,
+.w52-part:focus-visible .w52-wire {
+  stroke: #f59e0b;
+}
+
+/* ---------------------------------------------------------- scope chart */
+.w52-screen {
+  fill: #fbfdff;
+}
+.w52-grid {
+  stroke: #e2e8f0;
+  stroke-width: 1;
+}
+.w52-grid.zero {
+  stroke: #94a3b8;
+  stroke-width: 1.4;
+}
+.w52-tick {
+  font-size: 11px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w52-tick.axis {
+  font-size: 11.5px;
+  fill: #3a4560;
+}
+.w52-trace {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.w52-trace.ch1 {
+  stroke: #d97706;
+  stroke-width: 2;
+  stroke-dasharray: none;
+}
+.w52-trace.ch2 {
+  stroke: #0284c7;
+}
+.w52-trace.ch2.under {
+  stroke: #e11d48;
+}
+.w52-trace.ch2.critical {
+  stroke: #059669;
+}
+.w52-trace.ch2.over {
+  stroke: #64748b;
+}
+.w52-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14;
+}
+.w52-cg {
+  cursor: help;
+}
+.w52-cg.lit .w52-trace,
+.w52-cg.lit .w52-ref,
+.w52-cg.lit .w52-proj {
+  filter: drop-shadow(0 0 3px #f59e0b);
+  stroke-width: 3.4;
+}
+.w52-cg.lit .w52-lbl {
+  fill: #b45309;
+}
+.w52-ref.final {
+  stroke: #a16207;
+  stroke-width: 1.6;
+  stroke-dasharray: 7 4;
+}
+.w52-proj {
+  stroke: #be123c;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+.w52-proj.ts {
+  stroke: #475569;
+}
+.w52-osarrow {
+  stroke: #be123c;
+  stroke-width: 1.8;
+}
+.w52-peak {
+  fill: #e11d48;
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+.w52-lbl {
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.w52-lbl.final {
+  fill: #a16207;
+}
+.w52-lbl.peak,
+.w52-lbl.tp {
+  fill: #be123c;
+}
+.w52-lbl.ts {
+  fill: #475569;
+}
+.w52-legend rect {
+  fill: #fff;
+  stroke: #e3d8c2;
+}
+.w52-legend text {
+  font-size: 11px;
+  fill: #3a4560;
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.w52-bench {
+  min-height: 140px;
+}
+.w52-camsel {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 30;
+}
+.bb3d-tag.w52-tag3 {
+  font-size: 11px;
+  color: var(--ink);
+  border-color: var(--line-2);
+}
+.bb3d-tag.w52-tag3.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.bb3d-tag.w52-tag3.gen {
+  border-color: #d97706;
+  color: #92400e;
+}
+.bb3d-tag.w52-tag3.scope {
+  border-color: #0284c7;
+  color: #075985;
+}
+.w52-rtag {
+  font:
+    800 10px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  color: #1e40af;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #93c5fd;
+  border-radius: 4px;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+.w52-rtag.lit {
+  background: #fde9b8;
+  border-color: var(--stage-amber);
+}
+.w52-gen-lcd {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 3px 6px;
+  background: #c8dfb5;
+  border: 1.5px solid #4a5a3c;
+  border-radius: 4px;
+  font:
+    700 9.5px/1.2 ui-monospace,
+    monospace;
+  color: #10210f;
+  white-space: nowrap;
+}
+.w52-gen-lcd b {
+  font-size: 11px;
+}
+.w52-gen-lcd.off {
+  background: #fecdd3;
+  border-color: #be123c;
+  color: #881337;
+}
+.w52-scope-osd {
+  display: flex;
+  gap: 6px;
+  font:
+    700 9.5px/1.2 ui-monospace,
+    monospace;
+  color: #d1fae5;
+  background: rgba(11, 26, 20, 0.85);
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.w52-scope-osd .c1 {
+  color: #fde047;
+}
+.w52-scope-osd .c2 {
+  color: #7dd3fc;
+}
+.w52-alarm {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 32;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  background: #fff1f2;
+  border: 2px solid #e11d48;
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: #881337;
+  font-size: 12.5px;
+  line-height: 1.45;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.25);
+}
+.w52-alarm b {
+  color: #be123c;
+  font-size: 13.5px;
+}
+.w52-clamp {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  margin: 0;
+  z-index: 31;
+  font-size: 11.5px;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w52-seg .full,
+  .w52-presets .full,
+  .w52-notice .full {
+    display: none;
+  }
+  .w52-seg .short,
+  .w52-presets .short,
+  .w52-notice .short {
+    display: inline;
+  }
+  .w52-layer {
+    gap: 4px;
+  }
+  .w52-dock {
+    gap: 4px 5px;
+  }
+  .w52-seg {
+    padding: 2px;
+  }
+  .w52-seg button {
+    padding: 3px 6px;
+    font-size: 11.5px;
+  }
+  .w52-slider {
+    flex-basis: 100%;
+    gap: 5px;
+    font-size: 11.5px;
+  }
+  .w52-presets button {
+    padding: 2px 5px;
+    font-size: 11px;
+  }
+  .w52-fold {
+    padding: 2px 7px;
+    font-size: 11px;
+  }
+  .w52-notice {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  .w52-cells {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .w52-steps {
+    gap: 3px;
+  }
+  .w52-cell {
+    padding: 2px 5px;
+    font-size: 10.5px;
+  }
+  .w52-cells .w52-cell {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .w52-cell > b {
+    font-size: 11.5px;
+  }
+  .w52-cells .w52-cell > span {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .w52-cells .w52-cell > b {
+    flex: 0 0 auto;
+  }
+  .w52-bench-notice,
+  .w52-scope-osd .div {
+    display: none;
+  }
+  .w52-steps .w52-cell > b {
+    font-size: 11px;
+  }
+  .w52-cells .w52-cell > small,
+  .w52-cell.minor {
+    display: none;
+  }
+  .w52-sch .w52-t {
+    font-size: 15px;
+  }
+  .w52-sch .w52-t.vtitle {
+    font-size: 14px;
+  }
+  .w52-sch .w52-t.small,
+  .w52-sch .w52-t.eq,
+  .w52-sch .w52-t.gd {
+    font-size: 13px;
+  }
+  .w52-tick {
+    font-size: 15px;
+  }
+  .w52-tick.axis {
+    font-size: 14px;
+  }
+  .w52-lbl {
+    font-size: 14px;
+  }
+  .w52-legend {
+    display: none;
+  }
+  .w52-camsel {
+    right: 4px;
+    top: 4px;
+  }
+  .bb3d-tag.w52-tag3 {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  .w52-gen-lcd,
+  .w52-scope-osd {
+    font-size: 8px;
+  }
+  .w52-gen-lcd b {
+    font-size: 9px;
+  }
+  .w52-alarm {
+    font-size: 11px;
+    padding: 5px 7px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+  }
+  .w52-alarm b {
+    font-size: 12px;
+  }
+  .w52-clamp {
+    font-size: 10.5px;
+  }
+}
