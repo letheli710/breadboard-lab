@@ -1,0 +1,864 @@
+/* W3-L4 stage layers: control dock, non-inverting schematic, buffer test bench, 3D LM358 bench HUD.
+   Light theme (stage.css tokens). */
+
+.w34-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- dock */
+.w34-dock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.w34-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+.w34-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  min-width: 0;
+}
+.w34-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w34-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w34-seg button.on.warn {
+  background: #b45309;
+}
+.w34-seg button.on.good {
+  background: var(--stage-green);
+}
+.w34-seg button.on.bad {
+  background: #be123c;
+}
+.w34-seg.small button {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.w34-seg .short,
+.w34-layer .short {
+  display: none;
+}
+.w34-toggle {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w34-toggle.on {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  color: #92400e;
+}
+.w34-sliders {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px 12px;
+}
+.w34-slider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  border-radius: 6px;
+  padding: 1px 4px;
+}
+.w34-slider.wide {
+  flex: 1 1 240px;
+}
+.w34-slider.lit {
+  background: #fde9b8;
+}
+.w34-sl-name {
+  font-weight: 800;
+  white-space: nowrap;
+}
+.w34-slider input[type='range'] {
+  flex: 1;
+  min-width: 50px;
+  accent-color: var(--stage-amber);
+}
+.w34-slider b {
+  min-width: 4.4em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------- drawings */
+.w34-sch-wrap {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w34-sch-wrap.two {
+  flex-direction: column;
+}
+.w34-sch-wrap.two > svg {
+  flex: 1 1 0;
+  min-height: 0;
+}
+.w34-sch,
+.w34-chart {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w34-sch text,
+.w34-chart text {
+  fill: #1f2a44;
+}
+.w34-sch .end,
+.w34-chart .end {
+  text-anchor: end;
+}
+.w34-sch .mid,
+.w34-chart .mid {
+  text-anchor: middle;
+}
+.w34-sch .w34-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  fill: #5f626b;
+}
+.w34-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w34-wire.in {
+  stroke: #059669;
+}
+.w34-wire.out {
+  stroke: #7c3aed;
+}
+.w34-short {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w34-part {
+  cursor: help;
+  outline: none;
+}
+.w34-part.dim,
+.w34-sch g.dim {
+  opacity: 0.35;
+}
+.w34-src {
+  fill: #fff;
+  stroke: #334155;
+  stroke-width: 2.4;
+}
+.w34-src.in {
+  stroke: #059669;
+}
+.w34-sch .w34-sign {
+  font-size: 15px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+.w34-sch .w34-name {
+  font-size: 14px;
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.w34-sch .w34-name.r1 {
+  fill: #b45309;
+}
+.w34-sch .w34-name.rf {
+  fill: #0369a1;
+}
+.w34-sch .w34-name.in {
+  fill: #047857;
+}
+.w34-sch .w34-name.out,
+.w34-sch .w34-val.out {
+  fill: #6d28d9;
+}
+.w34-sch .w34-name.load,
+.w34-sch .w34-val.load {
+  fill: #b45309;
+}
+.w34-sch .w34-val {
+  font-size: 12.5px;
+  font-weight: 700;
+  fill: #3a4560;
+  font-variant-numeric: tabular-nums;
+}
+.w34-sch .w34-bubble {
+  font-size: 12.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.w34-sch .w34-bubble.amber {
+  fill: #a16207;
+}
+.w34-sch .w34-bubble.in {
+  fill: #047857;
+}
+.w34-sch .w34-bubble.out {
+  fill: #6d28d9;
+}
+.w34-sch .w34-bubble.good {
+  fill: #047857;
+}
+.w34-sch .w34-bubble.bad {
+  fill: #be123c;
+}
+.w34-sch .w34-cur {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #b45309;
+  font-variant-numeric: tabular-nums;
+}
+.w34-sch .w34-tiny {
+  font-size: 11px;
+  fill: #5f626b;
+}
+.w34-sch .w34-tiny.cyan {
+  fill: #0369a1;
+  font-weight: 700;
+}
+.w34-sch .w34-tiny.rail {
+  fill: #7c2d12;
+  font-weight: 700;
+}
+.w34-zig {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.w34-zig.r1 {
+  stroke: #d97706;
+}
+.w34-zig.rf {
+  stroke: #0284c7;
+}
+.w34-zig.load {
+  stroke: #d97706;
+}
+.w34-zig-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 16;
+}
+.w34-varrow {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w34-iarrow {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w34-iarrow.zero {
+  stroke: #cbd5e1;
+  stroke-dasharray: 3 3;
+}
+.w34-amp {
+  fill: #f8f5ee;
+  stroke: #1f2a44;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+.w34-sch .w34-pm {
+  font-size: 17px;
+  font-weight: 800;
+}
+.w34-sch .w34-pm.neg {
+  fill: #be123c;
+}
+.w34-sch .w34-pm.pos {
+  fill: #047857;
+}
+.w34-sch .w34-amp-lab {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #5f626b;
+}
+.w34-rail {
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.w34-rail.pos {
+  stroke: #dc2626;
+}
+.w34-rail.neg {
+  stroke: #2563eb;
+}
+.w34-node {
+  fill: #334155;
+}
+.w34-node.amber {
+  fill: #d97706;
+}
+.w34-node.out {
+  fill: #7c3aed;
+}
+.w34-term {
+  fill: #fff;
+  stroke: #334155;
+  stroke-width: 2.2;
+}
+.w34-term.out {
+  stroke: #7c3aed;
+}
+.w34-gnd line {
+  stroke: #64748b;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.w34-part.lit .w34-zig,
+.w34-part.lit .w34-src,
+.w34-part.lit .w34-amp,
+.w34-part.lit .w34-short,
+.w34-part.lit .w34-wire,
+.w34-part.lit .w34-rail {
+  stroke: var(--stage-amber);
+  stroke-width: 4.2;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.7));
+}
+.w34-part.lit .w34-node,
+.w34-part.lit .w34-term {
+  fill: var(--stage-amber);
+}
+.w34-part.lit .w34-iarrow {
+  stroke: var(--stage-amber);
+  stroke-width: 3.2;
+}
+.w34-part.lit text {
+  fill: #92400e;
+}
+.w34-part.dim.lit,
+.w34-sch g.dim .w34-part.lit {
+  opacity: 1;
+}
+.w34-part.sat .w34-val.out,
+.w34-part.sat .w34-name.out {
+  fill: #be123c;
+}
+.w34-part.sat .w34-wire.out {
+  stroke: #e11d48;
+}
+.w34-chain {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 13;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0.45;
+  cursor: help;
+}
+.w34-chain.lit {
+  opacity: 0.75;
+}
+.w34-chainnote rect {
+  fill: #fffbeb;
+  stroke: #d97706;
+  stroke-width: 1.5;
+}
+.w34-sch .w34-chainnote text {
+  font-size: 12.5px;
+  font-weight: 700;
+  fill: #92400e;
+  font-variant-numeric: tabular-nums;
+}
+.w34-chainnote.lit rect {
+  stroke-width: 3;
+}
+.w34-badge rect {
+  fill: #ecfdf5;
+  stroke: #059669;
+  stroke-width: 1.5;
+}
+.w34-sch .w34-badge text {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #065f46;
+  text-anchor: middle;
+}
+.w34-gauge {
+  cursor: help;
+}
+.w34-g-track {
+  fill: #fff1f2;
+  stroke: #cbd5e1;
+}
+.w34-g-win {
+  fill: #d1fae5;
+}
+.w34-g-tick {
+  stroke: #94a3b8;
+  stroke-width: 1.2;
+}
+.w34-g-tick.rail {
+  stroke: #dc2626;
+}
+.w34-g-tick.lim {
+  stroke: #d97706;
+  stroke-dasharray: 3 2;
+}
+.w34-sch .w34-g-lab {
+  font-size: 10.5px;
+  font-weight: 700;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w34-sch .w34-g-lab.gndlab {
+  font-size: 9.5px;
+}
+.w34-sch .w34-g-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #6d28d9;
+  text-anchor: middle;
+}
+.w34-g-ideal {
+  stroke: #be123c;
+  stroke-width: 1.6;
+  stroke-dasharray: 4 3;
+}
+.w34-g-mark path {
+  fill: #7c3aed;
+}
+.w34-gauge.lit .w34-g-track {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+.w34-box rect {
+  fill: #f8f5ee;
+  stroke: #94a3b8;
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+}
+.w34-box.lit rect {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+  fill: #fff7e6;
+}
+.w34-sch .w34-boxtitle {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #5f626b;
+}
+
+/* chart */
+.w34-chart .w34-ctitle {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #5f626b;
+}
+.w34-grid {
+  stroke: #eee5d3;
+  stroke-width: 1;
+}
+.w34-chart .w34-tick {
+  font-size: 11px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w34-chart .w34-tick.lim {
+  fill: #b45309;
+  font-size: 10px;
+}
+.w34-limline {
+  stroke: #d97706;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.w34-curve {
+  fill: none;
+  stroke-width: 2.8;
+  stroke-linejoin: round;
+}
+.w34-curve.direct {
+  stroke: #e11d48;
+}
+.w34-curve.buf {
+  stroke: #059669;
+}
+.w34-curve.faint {
+  opacity: 0.35;
+}
+.w34-cursor {
+  stroke: #7c3aed;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.w34-cursor.lit {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+.w34-dot.direct {
+  fill: #e11d48;
+}
+.w34-dot.buf {
+  fill: #059669;
+}
+.w34-chart .w34-legend text {
+  font-size: 11px;
+  fill: #334155;
+}
+
+/* ---------------------------------------------------------- readouts */
+.w34-cells {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+.w34-cells.four {
+  grid-template-columns: 1.3fr 1fr 1fr 1.3fr;
+}
+.w34-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+  min-width: 0;
+  cursor: help;
+}
+.w34-cell span {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w34-cell b {
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w34-cell small {
+  color: var(--muted);
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w34-cell.good b {
+  color: #047857;
+}
+.w34-cell.bad b {
+  color: #be123c;
+}
+.w34-cell.big b {
+  color: #0369a1;
+  font-size: 15px;
+}
+.w34-cell.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w34-alarm {
+  margin: 0;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
+  color: #881337;
+  background: #fff1f2;
+  border: 1.5px solid #f43f5e;
+  border-radius: 8px;
+  padding: 4px 9px;
+  cursor: help;
+}
+.w34-alarm b {
+  color: #fff;
+  background: #e11d48;
+  border-radius: 5px;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+.w34-bars {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  cursor: help;
+}
+.w34-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  min-width: 0;
+}
+.w34-bar span {
+  white-space: nowrap;
+  color: var(--ink-2);
+  font-weight: 700;
+}
+.w34-bar i {
+  flex: 1;
+  height: 14px;
+  border-radius: 5px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  min-width: 0;
+}
+.w34-bar em {
+  display: block;
+  height: 100%;
+  transition: width 0.15s;
+}
+.w34-bar em.direct {
+  background: #e11d48;
+}
+.w34-bar em.buf {
+  background: #059669;
+}
+.w34-bar b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.w34-bench {
+  min-height: 140px;
+}
+.bb3d-tag.w34-tag3 {
+  font-size: 11px;
+  padding: 2px 6px;
+  color: #1f2a44;
+  border-color: #94a3b8;
+}
+.bb3d-tag.w34-tag3.psu {
+  border-color: #16a34a;
+  color: #14532d;
+}
+.bb3d-tag.w34-tag3.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.w34-bench .bb3d-tag.good {
+  font-size: 10.5px;
+  padding: 1px 5px;
+}
+/* the overview is too small for the resistors' tags (the close-up shows them; hover names them) */
+.w34-bench.bench .bb3d-tag.good {
+  display: none;
+}
+.w34-psu-lcd {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #0b1f14;
+  color: #6ee7b7;
+  font-family: ui-monospace, monospace;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.w34-psu-lcd b {
+  font-size: 12px;
+}
+.w34-lcd {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: #c9d8b1;
+  border: 2px solid #2b2f36;
+  color: #10210f;
+  font-family: ui-monospace, monospace;
+  white-space: pre;
+  cursor: help;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.w34-lcd small {
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.w34-lcd b {
+  font-size: 19px;
+  letter-spacing: 0.04em;
+}
+.w34-lcd span {
+  font-size: 12px;
+}
+.w34-lcd.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 3px #fde9b8;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w34-seg .full,
+  .w34-layer .full {
+    display: none;
+  }
+  .w34-seg .short,
+  .w34-layer .short {
+    display: inline;
+  }
+  .w34-layer,
+  .w34-dock {
+    gap: 4px;
+  }
+  .w34-row {
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+  .w34-seg button,
+  .w34-seg.small button {
+    padding: 3px 7px;
+    font-size: 11.5px;
+  }
+  .w34-toggle {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+  .w34-sliders {
+    gap: 2px 6px;
+  }
+  .w34-slider {
+    font-size: 11px;
+    gap: 3px;
+    padding: 0 2px;
+  }
+  .w34-slider.wide {
+    flex: 1 1 120px;
+  }
+  .w34-slider b {
+    min-width: 0;
+  }
+  .w34-slider input[type='range'] {
+    min-width: 20px;
+  }
+  .w34-cells {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .w34-cells.four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .w34-cell {
+    padding: 2px 5px;
+    font-size: 10.5px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .w34-cell b {
+    font-size: 11.5px;
+  }
+  .w34-cell.big b {
+    font-size: 12.5px;
+  }
+  .w34-cell small {
+    display: none;
+  }
+  .w34-alarm {
+    font-size: 10.5px;
+    padding: 2px 6px;
+    gap: 5px;
+  }
+  .w34-bars {
+    display: none;
+  }
+  /* the drawings shrink to about two thirds: larger type */
+  .w34-sch .w34-name {
+    font-size: 17px;
+  }
+  .w34-sch .w34-val,
+  .w34-sch .w34-bubble {
+    font-size: 15px;
+  }
+  .w34-sch .w34-cur,
+  .w34-sch .w34-tiny {
+    font-size: 13px;
+  }
+  .w34-sch .w34-chainnote text {
+    font-size: 14.5px;
+  }
+  .w34-sch .w34-title,
+  .w34-sch .w34-boxtitle,
+  .w34-sch .w34-amp-lab {
+    display: none;
+  }
+  .w34-chart .w34-tick {
+    font-size: 15px;
+  }
+  .w34-chart .w34-ctitle,
+  .w34-chart .w34-tick.lim {
+    display: none;
+  }
+  .w34-chart .w34-legend text {
+    font-size: 14px;
+  }
+  .bb3d-tag.w34-tag3 {
+    font-size: 9.5px;
+    padding: 1px 4px;
+  }
+  .w34-bench .bb3d-tag.good,
+  .w34-bench .bb3d-tag.chip {
+    display: none;
+  }
+  .w34-lcd b {
+    font-size: 14px;
+  }
+  .w34-psu-lcd b {
+    font-size: 10px;
+  }
+}
