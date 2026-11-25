@@ -1,0 +1,620 @@
+/* W2-L2 stage layers (Case 1 lock, supernode surface, KCL + KVL solver). Light stage (stage.css tokens), prefix w22-. */
+
+.w22-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.w22-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.w22-controls .short,
+.w22-seg .short {
+  display: none;
+}
+
+/* switch */
+.w22-switch,
+.w22-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1.5px solid var(--line-2);
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  line-height: 1.35;
+  min-width: 0;
+}
+.w22-switch .knob {
+  width: 26px;
+  height: 15px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  position: relative;
+  flex: none;
+  transition: background 0.2s;
+}
+.w22-switch .knob::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.w22-switch.on .knob {
+  background: #0284c7;
+}
+.w22-switch.rose.on .knob {
+  background: #e11d48;
+}
+.w22-switch.violet.on .knob {
+  background: #7c3aed;
+}
+.w22-switch.amber.on .knob {
+  background: #d97706;
+}
+.w22-switch.on .knob::after {
+  transform: translateX(11px);
+}
+.w22-btn {
+  padding: 3px 10px;
+  border-color: #0284c7;
+  color: #0369a1;
+  background: #f0f9ff;
+}
+
+/* slider */
+.w22-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.w22-slider input {
+  flex: 1;
+  min-width: 60px;
+  accent-color: #d97706;
+}
+.w22-slider b {
+  font-variant-numeric: tabular-nums;
+  min-width: 3.2em;
+  text-align: right;
+}
+
+/* segmented */
+.w22-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.w22-seg button {
+  flex: 1 0 auto;
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w22-seg button.on {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* schematic */
+.w22-sch-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w22-sch {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.w22-wire {
+  fill: none;
+  stroke: #475569;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.w22-wire.dashed {
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+.w22-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 18;
+}
+.w22-hitbox,
+.w22-hitdot {
+  fill: transparent;
+}
+.w22-res,
+.w22-rp {
+  fill: none;
+  stroke: #0284c7;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+.w22-rp {
+  stroke: #7c3aed;
+}
+.w22-vs {
+  fill: #fff;
+  stroke: #d97706;
+  stroke-width: 2.6;
+}
+.w22-isrc {
+  fill: #fff;
+  stroke: #059669;
+  stroke-width: 2.4;
+}
+.w22-dep {
+  fill: #fff;
+  stroke: #d97706;
+  stroke-width: 2.6;
+}
+.w22-sign {
+  fill: #b45309;
+  font-size: 17px;
+  font-weight: 800;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.w22-kvl .w22-sign {
+  fill: #c2410c;
+  font-size: 20px;
+}
+.w22-kvl .w22-vs,
+.w22-kvl .w22-dep {
+  stroke-width: 3.4;
+  fill: #fffbeb;
+}
+.w22-gnd {
+  transition: transform 0.6s ease;
+}
+.w22-gnd line {
+  stroke: #475569;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.w22-gnd-label {
+  fill: var(--muted);
+  font-size: 12px;
+}
+.w22-arrow line {
+  stroke-width: 2.2;
+}
+.w22-arrow.cur line,
+.w22-arrow.ctrl line {
+  stroke: #d97706;
+}
+.w22-arrow.cur polygon,
+.w22-arrow.ctrl polygon {
+  fill: #d97706;
+}
+.w22-arrow.bound line {
+  stroke: #e11d48;
+}
+.w22-arrow.bound polygon {
+  fill: #e11d48;
+}
+.w22-arrow.inner line {
+  stroke: #7c3aed;
+  stroke-dasharray: 3 2;
+}
+.w22-arrow.inner polygon {
+  fill: #7c3aed;
+}
+.w22-isrc-arrow line {
+  stroke: #059669;
+  stroke-width: 2.4;
+}
+.w22-isrc-arrow polygon {
+  fill: #059669;
+}
+.w22-dot {
+  fill: #0284c7;
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
+/* text */
+.w22-t {
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--ink);
+  pointer-events: none;
+}
+.w22-t.src {
+  fill: #a16207;
+}
+.w22-t.isrc {
+  fill: #047857;
+}
+.w22-t.val {
+  fill: var(--ink-2);
+  font-weight: 600;
+}
+.w22-t.res {
+  fill: #0369a1;
+  font-weight: 600;
+}
+.w22-t.cur,
+.w22-t.ctrl {
+  fill: #b45309;
+  font-size: 12px;
+}
+.w22-t.bound {
+  fill: #be123c;
+  font-size: 12px;
+}
+.w22-t.inner,
+.w22-t.rp {
+  fill: #6d28d9;
+  font-size: 12px;
+}
+.w22-t.node {
+  fill: #0c4a6e;
+  font-size: 13px;
+}
+.w22-t.loop-label {
+  fill: #be123c;
+  font-size: 11.5px;
+}
+
+/* badges */
+.w22-badge rect {
+  stroke-width: 1.4;
+}
+.w22-badge text {
+  font-size: 12px;
+  font-weight: 800;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.w22-badge.amber rect {
+  fill: #fef3c7;
+  stroke: #d97706;
+}
+.w22-badge.amber text {
+  fill: #92400e;
+}
+.w22-badge.amber.hi rect {
+  fill: #fde68a;
+  stroke: #b45309;
+}
+.w22-badge.rose rect {
+  fill: #ffe4e6;
+  stroke: #e11d48;
+}
+.w22-badge.rose text {
+  fill: #9f1239;
+}
+.w22-badge.pink rect {
+  fill: #fce7f3;
+  stroke: #db2777;
+}
+.w22-badge.pink text {
+  fill: #9d174d;
+}
+
+/* the closed surface */
+.w22-loop {
+  fill: rgba(225, 29, 72, 0.06);
+  stroke: #e11d48;
+  stroke-width: 2.6;
+  stroke-dasharray: 9 6;
+}
+.w22-loop.pink {
+  fill: rgba(219, 39, 119, 0.07);
+  stroke: #db2777;
+}
+.w22-loop.flow {
+  animation: w22-dash 1.2s linear infinite;
+}
+@keyframes w22-dash {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+.w22-bound.pulse {
+  animation: w22-pulse 1.6s ease-in-out infinite;
+}
+@keyframes w22-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w22-loop.flow,
+  .w22-bound.pulse {
+    animation: none;
+  }
+  .w22-gnd {
+    transition: none;
+  }
+}
+
+/* lock (Case 1) */
+.w22-lock-ring {
+  fill: #fde68a;
+  stroke: #d97706;
+  stroke-width: 2;
+}
+.w22-locked .w22-dot {
+  fill: #d97706;
+}
+
+/* states */
+.w22-out {
+  opacity: 0.18;
+  transition: opacity 0.35s;
+}
+.w22-faint {
+  opacity: 0.35;
+}
+.w22-obj {
+  outline: none;
+  transition: filter 0.2s;
+}
+.w22-obj:focus-visible {
+  filter: drop-shadow(0 0 2px #2563eb);
+}
+.w22-obj.lit {
+  filter: drop-shadow(0 0 3px #f59e0b) drop-shadow(0 0 6px rgba(245, 158, 11, 0.55));
+}
+.w22-obj.lit .w22-res,
+.w22-obj.lit .w22-rp,
+.w22-obj.lit .w22-wire {
+  stroke-width: 3.4;
+}
+.w22-obj.lit .w22-t {
+  fill: #9a3412;
+}
+.w22-obj.lit.w22-out {
+  opacity: 0.6;
+}
+.w22-obj.w22-loop-obj.lit {
+  filter: none;
+}
+.w22-obj.lit .w22-loop {
+  fill: rgba(245, 158, 11, 0.08);
+  stroke: #d97706;
+  stroke-width: 3.2;
+}
+
+/* telemetry */
+.w22-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.w22-chip {
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.w22-chip small {
+  font-weight: 600;
+  color: var(--muted);
+  margin-left: 2px;
+}
+.w22-chip.amber {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+.w22-chip.ok {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+  color: #047857;
+}
+.w22-chip.violet {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  color: #5b21b6;
+}
+.w22-chip.muted {
+  color: var(--muted);
+  font-weight: 600;
+}
+.w22-chip .katex {
+  font-size: 1.02em;
+}
+.w22-notice {
+  margin: 0;
+  font-size: 12.5px;
+  color: #5b21b6;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 8px;
+  padding: 3px 9px;
+}
+.w22-preview {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #9a3412;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-radius: 6px;
+  padding: 1px 7px;
+  pointer-events: none;
+}
+
+/* the small blackboard of layer 03 */
+.w22-board {
+  flex: none;
+  max-height: 46%;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfdfb;
+  padding: 6px 10px 8px;
+}
+.w22-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.w22-step,
+.w22-step-nav {
+  border: 1.5px solid var(--line-2);
+  background: #fff;
+  border-radius: 7px;
+  min-width: 28px;
+  padding: 2px 7px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.w22-step.past {
+  border-color: #6ee7b7;
+  color: #047857;
+}
+.w22-step.on {
+  background: #15803d;
+  border-color: #15803d;
+  color: #fff;
+}
+.w22-step-nav:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.w22-step-title {
+  margin-left: 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #15803d;
+}
+.w22-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.w22-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  min-width: 0;
+}
+.w22-row-note {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.w22-row-eq {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 2px;
+  min-width: 0;
+}
+.w22-term {
+  border-radius: 5px;
+  padding: 1px 2px;
+}
+.w22-term .katex {
+  font-size: 1.08em;
+}
+.w22-term.link {
+  border-bottom: 1.5px dotted #d97706;
+  cursor: help;
+  outline: none;
+}
+.w22-term.lit,
+.w22-term.link:focus-visible {
+  background: #fde68a;
+  box-shadow: 0 0 0 1.5px #f59e0b;
+}
+
+/* narrow screens: the stage sits on top at 52vh, so short labels and a lean read-out */
+@media (max-width: 960px) {
+  .w22-controls .long,
+  .w22-seg .long {
+    display: none;
+  }
+  .w22-controls .short,
+  .w22-seg .short {
+    display: inline;
+  }
+  .w22-switch,
+  .w22-btn {
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+  .w22-seg button {
+    padding: 3px 7px;
+    font-size: 12px;
+  }
+  .w22-hud {
+    font-size: 11.5px;
+    gap: 4px;
+  }
+  .w22-chip {
+    padding: 2px 6px;
+  }
+  .w22-chip.muted {
+    display: none;
+  }
+  .w22-notice {
+    font-size: 11.5px;
+  }
+  .w22-board {
+    max-height: 50%;
+    padding: 4px 8px 6px;
+  }
+  .w22-term .katex {
+    font-size: 1em;
+  }
+}
