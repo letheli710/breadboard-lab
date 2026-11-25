@@ -14,13 +14,8 @@ import { Html } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
 import { useLit, useStage } from './stageStore';
 
-/** The names every lesson uses for the bench instruments (3D tags, readouts, hover text). */
-export const BENCH_NAMES = {
-  supply: '台式可调直流电源',
-  generator: '函数信号发生器',
-  scope: '双通道示波器',
-  dmm: '数字万用表',
-} as const;
+/** The bench instrument names live in benchNames.ts (no three.js); re-exported here. */
+export { BENCH_NAMES } from './benchNames';
 
 const hover = (ids: string[] | null) => (e: ThreeEvent<PointerEvent>) => {
   e.stopPropagation();
