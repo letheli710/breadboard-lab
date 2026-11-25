@@ -1,0 +1,809 @@
+/* W1-L6 stage layers (ProfileLayer, InspectorLayer). Scoped by .l6-* class names. */
+
+.l6-layer {
+  --l6-v1: #059669;
+  --l6-v2: #dc2626;
+  --l6-r1: #0284c7;
+  --l6-r2: #9333ea;
+  --l6-amber: #d97706;
+  --l6-gold: #ca8a04;
+  --l6-wire: #475569;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ---------------------------------------------------------- controls */
+.l6-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.l6-btn,
+.l6-seg button,
+.l6-tabs button {
+  border: 1.5px solid var(--line-2);
+  background: #fff;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.l6-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.l6-btn.primary {
+  border-color: var(--stage-amber);
+  background: #fff7e6;
+  color: #8a5300;
+}
+.l6-btn.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.l6-btn.danger {
+  border-color: var(--bad);
+  color: var(--bad);
+}
+.l6-btn.danger.on {
+  background: var(--bad);
+  color: #fff;
+}
+.l6-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.l6-seg-lbl {
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 2px;
+}
+.l6-seg button.on,
+.l6-tabs button.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.l6-tabs {
+  display: flex;
+  gap: 4px;
+}
+.l6-tabs button {
+  border-radius: 999px;
+  font-size: 12.5px;
+  padding: 4px 12px;
+}
+.l6-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  min-width: 0;
+}
+.l6-range input {
+  accent-color: var(--stage-amber);
+  min-width: 0;
+  flex: 1;
+}
+.l6-range b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  min-width: 3.4em;
+}
+.l6-range.step {
+  flex: 1 1 140px;
+}
+.l6-sliders {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px 12px;
+}
+.l6-check {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.l6-short {
+  display: none;
+}
+
+/* ---------------------------------------------------------- svg */
+.l6-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  flex: none;
+  font-family:
+    system-ui,
+    -apple-system,
+    'PingFang SC',
+    'Microsoft YaHei',
+    sans-serif;
+}
+.l6-svg .l6-bg {
+  fill: #f8fafc;
+  stroke: #cbd5e1;
+  stroke-width: 1.2;
+}
+.l6-svg .l6-wires path {
+  fill: none;
+  stroke: var(--l6-wire);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.l6-svg .l6-loop {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12;
+  pointer-events: stroke;
+}
+.l6-svg .l6-loop.lit {
+  stroke: rgba(245, 158, 11, 0.85);
+  stroke-width: 4;
+  stroke-dasharray: 9 6;
+  animation: l6-flow 0.9s linear infinite;
+}
+.l6-svg .l6-trail {
+  fill: none;
+  stroke: var(--stage-amber);
+  stroke-width: 3.5;
+  stroke-dasharray: 8 5;
+  stroke-linejoin: round;
+  opacity: 0.85;
+  pointer-events: none;
+  animation: l6-flow 0.9s linear infinite;
+}
+@keyframes l6-flow {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+.l6-svg .l6-probe {
+  fill: #fbbf24;
+  stroke: #b45309;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.9));
+  transition: transform 0.8s ease-in-out;
+  pointer-events: none;
+}
+.l6-svg .l6-res {
+  fill: none;
+  stroke: var(--l6-wire);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+.l6-svg .l6-src {
+  fill: #fff;
+  stroke-width: 2.4;
+}
+.l6-svg .l6-hl {
+  fill: transparent;
+  stroke: none;
+}
+.l6-svg .l6-elem {
+  cursor: help;
+}
+.l6-svg .l6-elem.v1 {
+  --tone: var(--l6-v1);
+}
+.l6-svg .l6-elem.v2 {
+  --tone: var(--l6-v2);
+}
+.l6-svg .l6-elem.r1 {
+  --tone: var(--l6-r1);
+}
+.l6-svg .l6-elem.r2 {
+  --tone: var(--l6-r2);
+}
+.l6-svg .l6-elem .l6-src {
+  stroke: var(--tone, var(--l6-v1));
+}
+.l6-svg .l6-elem.src-down .l6-src {
+  stroke: var(--l6-v2);
+}
+.l6-svg .l6-elem .l6-sign {
+  fill: var(--tone, var(--l6-v1));
+}
+.l6-svg .l6-elem.src-down .l6-sign {
+  fill: var(--l6-v2);
+}
+.l6-svg .l6-sign {
+  font-size: 17px;
+  font-weight: 800;
+}
+.l6-svg .l6-sign.in {
+  font-size: 16px;
+}
+.l6-svg .l6-sign.small {
+  font-size: 14px;
+}
+.l6-svg .l6-sign.first {
+  fill: var(--l6-amber);
+}
+.l6-svg .l6-sign.flash {
+  fill: var(--l6-amber);
+  animation: l6-pop 0.4s ease-out 0.25s 2;
+}
+@keyframes l6-pop {
+  50% {
+    transform: scale(1.9);
+  }
+}
+.l6-svg .l6-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  fill: var(--tone, #0f172a);
+}
+.l6-svg .l6-name.small {
+  font-size: 12.5px;
+}
+.l6-svg .l6-val {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--tone, #475569);
+}
+/* lit elements: V1 green glow, V2 red pulse, R1 sky box, R2 violet box */
+.l6-svg .l6-elem.v1.lit .l6-src {
+  fill: #ecfdf5;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.9));
+  stroke-width: 3.2;
+}
+.l6-svg .l6-elem.v2.lit .l6-src,
+.l6-svg .l6-elem.v2.lit .l6-hl {
+  fill: #fef2f2;
+  stroke: var(--l6-v2);
+  stroke-width: 3.2;
+  animation: l6-pulse 0.9s ease-in-out infinite;
+}
+@keyframes l6-pulse {
+  50% {
+    stroke-opacity: 0.35;
+  }
+}
+.l6-svg .l6-elem.r1.lit .l6-hl {
+  fill: rgba(56, 189, 248, 0.14);
+  stroke: #38bdf8;
+  stroke-width: 2;
+}
+.l6-svg .l6-elem.r2.lit .l6-hl {
+  fill: rgba(168, 85, 247, 0.12);
+  stroke: #a855f7;
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.l6-svg .l6-elem.r1.lit .l6-res {
+  stroke: var(--l6-r1);
+  stroke-width: 3;
+}
+.l6-svg .l6-elem.r2.lit .l6-res {
+  stroke: var(--l6-r2);
+  stroke-width: 3;
+}
+.l6-svg .l6-current line {
+  stroke: var(--l6-r1);
+  stroke-linecap: round;
+  transition: stroke-width 0.3s;
+}
+.l6-svg .l6-current path {
+  fill: var(--l6-r1);
+}
+.l6-svg .l6-current text {
+  font-size: 12.5px;
+  font-weight: 800;
+  fill: var(--l6-r1);
+}
+
+/* nodes */
+.l6-svg .l6-node circle {
+  fill: #334155;
+}
+.l6-svg .l6-node .l6-node-hit {
+  fill: transparent;
+}
+.l6-svg .l6-node.pick {
+  cursor: pointer;
+}
+.l6-svg .l6-node.tone-a {
+  --tone: var(--l6-v1);
+}
+.l6-svg .l6-node.tone-b {
+  --tone: var(--l6-r1);
+}
+.l6-svg .l6-node.tone-c {
+  --tone: var(--l6-r2);
+}
+.l6-svg .l6-node.tone-d {
+  --tone: var(--l6-amber);
+}
+.l6-svg .l6-node-name {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #0f172a;
+}
+.l6-svg .l6-node-pot {
+  font-size: 12px;
+  font-weight: 800;
+  fill: var(--tone, #475569);
+}
+.l6-svg .l6-node.lit circle:not(.l6-node-hit) {
+  fill: var(--tone);
+  r: 6.5;
+}
+.l6-svg .l6-node.lit .l6-node-hit {
+  fill: color-mix(in srgb, var(--tone) 22%, transparent);
+}
+.l6-svg .l6-gnd path {
+  fill: none;
+  stroke: var(--l6-amber);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+/* profile chart */
+.l6-svg .l6-divider {
+  stroke: #cbd5e1;
+  stroke-dasharray: 4 4;
+}
+.l6-svg .l6-ch-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  fill: #475569;
+}
+.l6-svg .l6-grid line {
+  stroke: #e2e8f0;
+}
+.l6-svg .l6-grid text {
+  font-size: 10px;
+  fill: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+.l6-svg .l6-zero {
+  stroke: #64748b;
+  stroke-width: 1.6;
+}
+.l6-svg .l6-zero.lit {
+  stroke: var(--l6-amber);
+  stroke-width: 4;
+}
+.l6-svg .l6-bar {
+  cursor: help;
+}
+.l6-svg .l6-bar.tone-a {
+  --tone: var(--l6-v1);
+}
+.l6-svg .l6-bar.tone-b {
+  --tone: var(--l6-r1);
+}
+.l6-svg .l6-bar.tone-c {
+  --tone: var(--l6-r2);
+}
+.l6-svg .l6-bar.tone-d {
+  --tone: var(--l6-amber);
+}
+.l6-svg .l6-bar rect {
+  fill: var(--tone);
+  fill-opacity: 0.72;
+  transition:
+    y 0.45s ease,
+    height 0.45s ease;
+}
+.l6-svg .l6-bar.ghost rect {
+  fill-opacity: 0.18;
+}
+.l6-svg .l6-bar.lit rect {
+  fill-opacity: 1;
+  stroke: #0f172a;
+  stroke-width: 1.5;
+}
+.l6-svg .l6-bar-val {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: var(--tone);
+}
+.l6-svg .l6-bar-val.inside {
+  fill: #fff;
+}
+.l6-svg .l6-bar-name {
+  font-size: 11.5px;
+  fill: #475569;
+  font-weight: 700;
+}
+.l6-svg .l6-proj {
+  stroke: var(--tone);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+}
+.l6-svg .l6-delta path {
+  stroke: #94a3b8;
+  stroke-width: 1.3;
+  stroke-dasharray: 3 2;
+}
+.l6-svg .l6-delta rect {
+  fill: #fff;
+  stroke-width: 1.4;
+}
+.l6-svg .l6-delta.up rect {
+  stroke: var(--l6-v1);
+}
+.l6-svg .l6-delta.down rect {
+  stroke: var(--l6-v2);
+}
+.l6-svg .l6-delta text {
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.l6-svg .l6-delta.up text {
+  fill: var(--l6-v1);
+}
+.l6-svg .l6-delta.down text {
+  fill: var(--l6-v2);
+}
+.l6-svg .l6-delta.lit rect {
+  stroke-width: 2.6;
+  fill: #fff7e6;
+}
+.l6-svg .l6-delta {
+  animation: l6-in 0.35s ease-out;
+}
+@keyframes l6-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.l6-svg .l6-strip rect {
+  fill: #fff;
+  stroke: #e2e8f0;
+}
+.l6-svg .l6-strip text {
+  font-size: 12.5px;
+}
+.l6-svg .l6-strip-main {
+  font-weight: 700;
+  fill: #334155;
+}
+.l6-svg .l6-strip-sum {
+  fill: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+.l6-svg .l6-strip.closed rect {
+  fill: #edf8f0;
+  stroke: #15803d;
+  stroke-width: 1.6;
+  animation: l6-strip 1.2s ease-out;
+}
+.l6-svg .l6-strip.closed .l6-strip-main {
+  fill: #15803d;
+  font-weight: 800;
+}
+@keyframes l6-strip {
+  from {
+    stroke-width: 7;
+    stroke-opacity: 0.4;
+  }
+}
+/* ---------------------------------------------------------- layer 02 */
+.l6-svg .l6-dir {
+  font-size: 15px;
+  font-weight: 800;
+  fill: var(--l6-amber);
+}
+.l6-svg .l6-dir-sub {
+  font-size: 12px;
+  fill: #64748b;
+}
+.l6-svg .l6-flip {
+  cursor: pointer;
+  outline: none;
+}
+.l6-svg .l6-flip circle {
+  fill: #fff;
+  stroke: #94a3b8;
+  stroke-width: 1.4;
+}
+.l6-svg .l6-flip text {
+  font-size: 14px;
+  font-weight: 800;
+  fill: #334155;
+}
+.l6-svg .l6-flip:hover circle,
+.l6-svg .l6-flip:focus-visible circle {
+  stroke: var(--l6-amber);
+  fill: #fff7e6;
+  stroke-width: 2;
+}
+.l6-svg .l6-node.plain circle {
+  fill: #334155;
+}
+.l6-svg .l6-panel-title {
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.l6-svg .l6-panel-title.ok {
+  fill: var(--l6-v1);
+}
+.l6-svg .l6-panel-title.bad {
+  fill: var(--l6-v2);
+}
+.l6-svg .l6-group {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 2;
+}
+.l6-svg .l6-series {
+  cursor: help;
+}
+.l6-svg .l6-series.lit .l6-group {
+  stroke: #eab308;
+  stroke-dasharray: 6 4;
+  fill: rgba(234, 179, 8, 0.08);
+}
+.l6-svg .l6-port circle {
+  fill: var(--l6-gold);
+}
+.l6-svg .l6-port line {
+  stroke: var(--l6-gold);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.l6-svg .l6-port text {
+  font-size: 12.5px;
+  font-weight: 800;
+  fill: #a16207;
+}
+.l6-svg .l6-port .l6-vab {
+  font-size: 14px;
+}
+.l6-svg .l6-par {
+  cursor: help;
+  --tone: var(--l6-v2);
+}
+.l6-svg .l6-par .l6-src {
+  stroke: var(--l6-v2);
+}
+.l6-svg .l6-par .l6-sign,
+.l6-svg .l6-par .l6-name {
+  fill: var(--l6-v2);
+}
+.l6-svg .l6-par-wire {
+  fill: none;
+  stroke: var(--l6-wire);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+.l6-svg .l6-switch {
+  stroke: #0f172a;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  transition: all 0.25s;
+}
+.l6-svg .l6-switch-dot {
+  fill: #0f172a;
+}
+.l6-svg .l6-par.lit .l6-par-wire {
+  stroke: var(--l6-v2);
+  stroke-width: 3;
+}
+.l6-svg .l6-par.alarm .l6-par-wire,
+.l6-svg .l6-par.alarm .l6-switch {
+  stroke: #dc2626;
+  stroke-width: 3.4;
+  animation: l6-alarm 0.22s steps(2) infinite;
+}
+@keyframes l6-alarm {
+  50% {
+    stroke-opacity: 0.2;
+  }
+}
+.l6-svg.clash .l6-bg {
+  fill: #fff5f5;
+}
+.l6-svg .l6-par-kvl {
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.l6-svg .l6-par-kvl.bad {
+  fill: #b91c1c;
+}
+.l6-svg .l6-par-kvl.ok {
+  fill: var(--l6-v1);
+}
+
+.l6-tray {
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 10px;
+  background: var(--paper);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.l6-tray-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.l6-tray-eq {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+}
+.l6-chip {
+  display: inline-flex;
+  align-items: center;
+  min-width: 46px;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 8px;
+  border: 1.5px solid;
+  background: #fff;
+  cursor: help;
+  outline: none;
+  animation: l6-fly 0.45s ease-out;
+}
+.l6-chip.v1 {
+  border-color: var(--l6-v1, #059669);
+  color: #047857;
+}
+.l6-chip.v2 {
+  border-color: #dc2626;
+  color: #b91c1c;
+}
+.l6-chip.r1 {
+  border-color: #0284c7;
+  color: #0369a1;
+}
+.l6-chip.r2 {
+  border-color: #9333ea;
+  color: #7e22ce;
+}
+.l6-chip.lit,
+.l6-chip:focus-visible {
+  background: #fde9b8;
+  box-shadow: 0 0 0 3px #fde9b8;
+}
+.l6-chip.slot {
+  border-style: dashed;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  animation: none;
+  cursor: default;
+}
+@keyframes l6-fly {
+  from {
+    opacity: 0;
+    transform: translateY(-26px) scale(1.25);
+  }
+}
+.l6-eq0 {
+  font-weight: 800;
+  color: var(--ink);
+}
+.l6-tray-lines {
+  display: grid;
+  gap: 4px;
+  font-size: 14.5px;
+  overflow-x: auto;
+}
+.l6-tray-lines > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.l6-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+.l6-alarm {
+  border: 2px solid #dc2626;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  animation: l6-alarm-box 0.5s steps(2) 4;
+}
+@keyframes l6-alarm-box {
+  50% {
+    background: #fecaca;
+  }
+}
+.l6-ok {
+  border: 1.5px solid #9fd3ad;
+  background: var(--stage-green-soft);
+  color: var(--stage-green);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.l6-svg.still * {
+  animation-duration: 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .l6-layer *,
+  .l6-svg * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .l6-layer {
+    gap: 5px;
+  }
+  .l6-long,
+  .l6-tray-title {
+    display: none;
+  }
+  .l6-short {
+    display: inline;
+  }
+  /* the stage SVGs are ~360 px wide here: larger type */
+  .l6-svg .l6-name {
+    font-size: 15px;
+  }
+  .l6-svg .l6-val,
+  .l6-svg .l6-node-pot,
+  .l6-svg .l6-current text {
+    font-size: 13.5px;
+  }
+  .l6-svg .l6-bar-val,
+  .l6-svg .l6-bar-name,
+  .l6-svg .l6-strip text {
+    font-size: 13px;
+  }
+  .l6-svg .l6-delta text {
+    font-size: 11.5px;
+  }
+  .l6-btn,
+  .l6-seg button,
+  .l6-tabs button {
+    padding: 3px 7px;
+    font-size: 12px;
+  }
+  .l6-sliders {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 10px;
+  }
+  .l6-range {
+    font-size: 11.5px;
+  }
+  .l6-tray {
+    padding: 6px 10px;
+  }
+  .l6-tray-eq {
+    font-size: 14px;
+  }
+  .l6-tray-lines {
+    font-size: 13px;
+  }
+}
