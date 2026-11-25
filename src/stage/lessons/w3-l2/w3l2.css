@@ -1,0 +1,298 @@
+/* W3-L2 stage layers (real 741 bench, golden rules, Example 5.2 bench). Light stage, prefix w32-. */
+
+.w32-layer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+.w32-dock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+.w32-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--paper, #faf6ee);
+  border: 1px solid var(--line, #e5dccb);
+  border-radius: 9px;
+  padding: 2px;
+}
+.w32-seg-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted, #6b6f78);
+  padding: 0 5px 0 6px;
+}
+.w32-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+  cursor: pointer;
+  line-height: 1.35;
+}
+.w32-seg button.on {
+  background: var(--ink, #1f2a44);
+  color: #fff;
+}
+.w32-seg .short {
+  display: none;
+}
+.w32-btn,
+.w32-switch {
+  border: 1.5px solid var(--line-2, #cbd5e1);
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+  cursor: pointer;
+  line-height: 1.35;
+}
+.w32-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.w32-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.w32-switch .knob {
+  width: 26px;
+  height: 15px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  position: relative;
+  flex: none;
+  transition: background 0.2s;
+}
+.w32-switch .knob::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.w32-switch.on .knob {
+  background: #2563eb;
+}
+.w32-switch.on .knob::after {
+  transform: translateX(11px);
+}
+.w32-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+}
+.w32-slider input {
+  width: 150px;
+  accent-color: #2563eb;
+}
+.w32-slider b {
+  min-width: 4.2em;
+  font-variant-numeric: tabular-nums;
+  color: #1d4ed8;
+}
+
+/* ---------------------------------------------------------- schematic */
+.w32-svg {
+  flex: 1 1 auto;
+  min-height: 120px;
+  width: 100%;
+  display: block;
+  font-family:
+    system-ui,
+    -apple-system,
+    'PingFang SC',
+    'Noto Sans SC',
+    sans-serif;
+}
+.w32-canvas {
+  fill: #fcfbf8;
+  stroke: #e2e8f0;
+  stroke-width: 1.5;
+}
+.w32-canvas.bad {
+  fill: #fffafa;
+  stroke: #fecaca;
+}
+.w32-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 16;
+  pointer-events: stroke;
+}
+.w32-obj {
+  transition: opacity 0.25s;
+}
+.w32-obj.lit path,
+.w32-obj.lit line,
+.w32-obj.lit polygon,
+.w32-obj.lit circle,
+.w32-obj.lit rect,
+.w32-obj.lit text {
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.95));
+}
+.w32-obj.lit .w32-body {
+  stroke: #d97706;
+  stroke-width: 3.4;
+}
+.w32-obj.lit .w32-hit {
+  filter: none;
+}
+.w32-flow {
+  animation: w32-flow 1s linear infinite;
+}
+@keyframes w32-flow {
+  to {
+    stroke-dashoffset: -22;
+  }
+}
+.w32-pulse {
+  animation: w32-pulse 1.4s ease-in-out infinite;
+}
+@keyframes w32-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w32-flow,
+  .w32-pulse {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------- telemetry */
+.w32-telemetry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: none;
+}
+.w32-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2, #334155);
+  background: #fff;
+  border: 1px solid var(--line, #e5dccb);
+  border-radius: 999px;
+  padding: 3px 10px;
+  transition: box-shadow 0.2s;
+}
+.w32-chip .k {
+  color: var(--muted, #6b6f78);
+}
+.w32-chip b {
+  font-variant-numeric: tabular-nums;
+}
+.w32-chip.ok {
+  color: #047857;
+  border-color: #6ee7b7;
+  background: #ecfdf5;
+}
+.w32-chip.bad {
+  color: #b91c1c;
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+.w32-chip.warn {
+  color: #b45309;
+  border-color: #fcd34d;
+  background: #fffbeb;
+}
+.w32-chip.hid b {
+  color: #94a3b8;
+}
+.w32-chip.lit {
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.6);
+}
+.w32-board {
+  background: #fff;
+  border: 1px solid var(--line, #e5dccb);
+  border-radius: 10px;
+  padding: 2px 12px;
+  flex: none;
+}
+.w32-board .tex-display .katex {
+  font-size: 1em;
+}
+
+@media (max-width: 960px) {
+  .w32-dock {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 1px;
+  }
+  .w32-dock > * {
+    flex: none;
+  }
+  .w32-seg-label {
+    display: none;
+  }
+  .w32-seg .full {
+    display: none;
+  }
+  .w32-seg .short {
+    display: inline;
+  }
+  .w32-seg button,
+  .w32-btn,
+  .w32-switch,
+  .w32-slider {
+    font-size: 12px;
+  }
+  .w32-seg button,
+  .w32-btn,
+  .w32-switch {
+    padding: 3px 8px;
+  }
+  .w32-slider input {
+    width: 110px;
+  }
+  .w32-telemetry {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .w32-telemetry > * {
+    flex: none;
+  }
+  .w32-chip {
+    font-size: 11.5px;
+    padding: 2px 8px;
+  }
+  .w32-svg {
+    min-height: 90px;
+  }
+  .w32-board {
+    padding: 0 8px;
+  }
+  .w32-board .tex-display {
+    padding: 0;
+  }
+  .w32-board .tex-display .katex {
+    font-size: 0.86em;
+  }
+}
