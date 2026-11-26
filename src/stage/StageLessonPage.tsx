@@ -2,7 +2,7 @@
 // the active layer), the acts on the right. The act in the middle of the viewport drives the
 // stage; picking a lens by hand pins the layer until "follow the lesson" is pressed again.
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Component, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { tr } from '../core/i18n';
 import { tt } from '../core/course/text';
 import { parseRef, refHash, titleOfRef, useCatalog, type Ref } from '../state/course';
@@ -149,8 +149,45 @@ function Pointing({ lesson }: { lesson: StageLesson }) {
   );
 }
 
+/** `v`, once it has held still for `ms` (scrolling past several acts flips the layer quickly; mounting
+ *  and unmounting a 3D canvas for each passing layer is wasted work and can race in react-three-fiber). */
+function useSettled<T>(v: T, ms: number): T {
+  const [settled, setSettled] = useState(v);
+  useEffect(() => {
+    if (v === settled) return;
+    const t = setTimeout(() => setSettled(v), ms);
+    return () => clearTimeout(t);
+  }, [v, settled, ms]);
+  return settled;
+}
+
+/** A layer that throws (e.g. a 3D canvas torn down mid-mount) is retried once instead of breaking the stage. */
+class LayerBoundary extends Component<{ children: ReactNode }, { err: boolean; tries: number }> {
+  state = { err: false, tries: 0 };
+  static getDerivedStateFromError() {
+    return { err: true };
+  }
+  componentDidCatch() {
+    this.setState((s) => ({ tries: s.tries + 1 }));
+  }
+  render() {
+    if (!this.state.err) return this.props.children;
+    if (this.state.tries <= 1) return <Retry onRetry={() => this.setState({ err: false })} />;
+    return <div className="stage-loading">这个图层没能加载，换个图层再回来试试</div>;
+  }
+}
+
+function Retry({ onRetry }: { onRetry: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onRetry, 250);
+    return () => clearTimeout(t);
+  }, [onRetry]);
+  return <div className="stage-loading">{tr('加载中…', 'Loading…')}</div>;
+}
+
 function Stage({ lesson }: { lesson: StageLesson }) {
-  const layer = useStage((s) => s.layer);
+  const wanted = useStage((s) => s.layer);
+  const layer = useSettled(wanted, 150);
   const layers = lesson.left_stage_spec.layers;
   const spec = layers.find((l) => l.id === layer) ?? layers[0];
   const Layer = lesson.renderers[spec.id];
@@ -159,9 +196,11 @@ function Stage({ lesson }: { lesson: StageLesson }) {
       <LensBar lesson={lesson} />
       <p className="stage-caption">{spec.caption}</p>
       <div className={`stage-view layer-${spec.id}`}>
-        <Suspense fallback={<div className="stage-loading">{tr('加载中…', 'Loading…')}</div>}>
-          {Layer ? <Layer /> : <div className="stage-loading">没有这个图层的渲染器：{spec.id}</div>}
-        </Suspense>
+        <LayerBoundary key={spec.id}>
+          <Suspense fallback={<div className="stage-loading">{tr('加载中…', 'Loading…')}</div>}>
+            {Layer ? <Layer /> : <div className="stage-loading">没有这个图层的渲染器：{spec.id}</div>}
+          </Suspense>
+        </LayerBoundary>
       </div>
       <Pointing lesson={lesson} />
     </aside>

@@ -15,7 +15,7 @@ export function ReviewButton({ act, acts }: { act: number; acts: Act[] }) {
   if (!a) return null;
   return (
     <button type="button" className="quiz-review" onClick={() => goToAct(act)}>
-      回到{a.badge}复习
+      回到{a.badge.split(' · ')[0]}复习
     </button>
   );
 }
