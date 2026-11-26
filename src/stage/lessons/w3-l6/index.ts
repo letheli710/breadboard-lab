@@ -54,6 +54,13 @@ const W3_L6: StageLesson = {
       sections: ['Section 5.7 Difference Amplifier（p. 185–188，Fig. 5.19，Eq. 5.16–5.18，Example 5.7，Practice Problem 5.7）'],
     },
     prerequisites: ['W2-L1 节点分析法', 'W2-L5 叠加定理', 'W3-L3 反相放大器', 'W3-L4 同相放大器'],
+    learning_objectives: [
+      R`掌握将双端输入信号分解为共模分量 $v_{\text{cm}}$ 与差模分量 $v_d$ 的数学表达与物理意义`,
+      '熟练运用节点分析法严格导出差分放大器一般输出通式（Eq. 5.16）及精密电阻配对条件（Eq. 5.17–5.18）',
+      '运用叠加定理从反相通道与分压同相通道双重印证电路结构直觉',
+      '定量评估电阻容差失配对共模抑制比（CMRR）与共模噪声泄漏的破坏作用',
+      '能独立完成 Sadiku Example 5.7 类型的非对称加权差分放大器设计与验算',
+    ],
     next_lesson: 'W3-L7',
     next_lesson_title: '级联运放电路：零加载效应与多级增益分解',
   },
@@ -63,18 +70,21 @@ const W3_L6: StageLesson = {
       {
         id: L1,
         label: '01 差模 vs 共模信号切换交互图',
+        short: '01 差模/共模',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '在长导线传感器模型上实时切换纯差模、纯共模与混合输入，直观观察 50/60 Hz 工频干扰在双线上的同相叠加与相减抵消。',
       },
       {
         id: L2,
         label: '02 节点法与叠加法双视角拆解台',
+        short: '02 双解法',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '一键切换『节点法整体视图』、『叠加法子电路 A（v2=0 反相通道）』与『叠加法子电路 B（v1=0 分压+同相通道）』，高亮虚短虚断路径与节点电位。',
       },
       {
         id: L3,
         label: '03 电阻配对与失配共模泄漏对比台',
+        short: '03 失配泄漏',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '实时拖动四颗电阻的容差偏差（0%、±1%、±5%），对比理想无限大 CMRR 与真实容差失配下的共模噪声泄漏幅度及输入电阻不对称度。',
       },
@@ -637,6 +647,8 @@ const W3_L6: StageLesson = {
       quiz: [
         {
           id: 'w3l6_q1',
+          concept: '精密配对条件与虚短',
+          review_act: 2,
           question: R`在标准四电阻差分放大器（Sadiku Fig. 5.19）中，已知 $R_1 = 10\text{ k}\Omega$、$R_2 = 40\text{ k}\Omega$、$R_3 = 20\text{ k}\Omega$。若要使该电路对任意共模信号严格实现 $v_o = 0$（即完全抑制共模），电阻 $R_4$ 应取多大？此时在输入 $v_1 = 2\text{ V}$、$v_2 = 3\text{ V}$ 时，反相端节点电位 $v_a$ 为多少？`,
           options: [
             {
@@ -666,6 +678,8 @@ const W3_L6: StageLesson = {
         },
         {
           id: 'w3l6_q2',
+          concept: '叠加法的同相通道',
+          review_act: 3,
           question: R`用叠加定理分析标准四电阻差分放大器时，若令输入源 $v_2 = 0$（短路接地），则同相输入端通过 $R_3$ 与 $R_4$ 并联接地。此时同相输入端电位 $v_{b1}$ 等于多少？原因是什么？`,
           options: [
             { key: 'A', text: R`$v_{b1} = 0\text{ V}$，因为理想运放虚断 $i_+ = 0$，$R_3 \parallel R_4$ 上没有电流流过故无压降`, correct: true },
@@ -695,6 +709,8 @@ const W3_L6: StageLesson = {
         },
         {
           id: 'w3l6_q3',
+          concept: '电阻失配与 CMRR',
+          review_act: 4,
           question: R`某标称差模增益为 10 的差分放大器（标称 $R_1 = R_3 = 10\text{ k}\Omega$，$R_2 = R_4 = 100\text{ k}\Omega$），因装配失误使 $R_4$ 实际阻值偏大 $+5\%$（变为 $105\text{ k}\Omega$），其余三颗电阻精确无误。若输入纯共模工频噪声 $v_1 = v_2 = 5\text{ V}$（$v_d = 0$），则输出端的共模噪声泄漏电压 $v_o$ 约为多少？`,
           options: [
             {
@@ -724,6 +740,8 @@ const W3_L6: StageLesson = {
         },
         {
           id: 'w3l6_q4',
+          concept: '单运放拓扑短板',
+          review_act: 4,
           question: '关于单运放四电阻差分放大器的工程局限性及下一讲 W3-L8 三运放仪表放大器的引入动机，以下哪项表述是完全正确的？',
           options: [
             {

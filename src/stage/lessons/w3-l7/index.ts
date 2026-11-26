@@ -60,6 +60,13 @@ const W3_L7: StageLesson = {
       'W3-L4：同相放大器与电压跟随器（Noninverting Amplifier & Voltage Follower）',
       'W3-L5：反相加法器（Summing Amplifier）',
     ],
+    learning_objectives: [
+      '从戴维南等效输出电阻 $R_o = 0$ 的物理机制出发，阐明为何理想运放级联不存在后级加载前级效应，而无源电阻网络级联会发生电压塌陷',
+      R`掌握级联总增益乘法法则 $A = A_1 A_2 \cdots A_n$（Eq. 5.21）与“自左向右逐级解耦”五步黄金解题流程`,
+      '能准确计算多级混合运放电路的各级输出电压、级间反馈电流与末级输出电流（KCL）',
+      '建立“逐级电源轨饱和检验”意识，识别并修复中间级先行饱和削波导致的隐蔽失真',
+      '精准辨析局部纯级联与跨级全局反馈电路，在存在跨级反馈电阻时果断回归全局节点分析法',
+    ],
     next_lesson: 'W3-L8',
     next_lesson_title: '运放工程综合实战（二进制加权 DAC、仪表放大器与比较器边界总结）',
   },
@@ -69,18 +76,21 @@ const W3_L7: StageLesson = {
       {
         id: L1,
         label: '01 加载塌陷 vs 零加载',
+        short: '01 加载对比',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '无源级联加载塌陷 vs 运放级联零加载对比：拖动后级输入电阻 R_in2，切换“无源直连 / 理想运放隔离”，看 v₁ 塌不塌、总增益离 0.25 有多远。',
       },
       {
         id: L2,
         label: '02 逐级电位追踪',
+        short: '02 逐级追踪',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '多级运放逐级电位追踪与增益链：自左向右算出每一级输出，下方“电源轨走廊”里越轨的一级变红、被钳位，后级拿到的是钳位值。',
       },
       {
         id: L3,
         label: '03 局部级联 vs 跨级反馈',
+        short: '03 跨级反馈',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '局部级联 vs 跨级全局反馈辨析台：闭合跨级电阻 R_G，乘法法则失效，徽章切换到全局节点法。',
       },
@@ -630,6 +640,8 @@ const W3_L7: StageLesson = {
       quiz: [
         {
           id: 'w3l7_q1',
+          concept: '零加载效应机理',
+          review_act: 1,
           question: '将两级理想运放放大器直接级联时，总电压增益严格等于 A = A₁ A₂（无后级加载前级导致的电压塌陷）。其最根本的物理原因是：',
           options: [
             {
@@ -664,6 +676,8 @@ const W3_L7: StageLesson = {
         },
         {
           id: 'w3l7_q2',
+          concept: '级联总增益与极性',
+          review_act: 2,
           question:
             '一个三级纯级联理想运放电路由以下三级顺序组成：Stage 1 为反相放大器（R₁ = 10 kΩ, Rf₁ = 30 kΩ）；Stage 2 为电压跟随器；Stage 3 为反相放大器（R₃ = 5 kΩ, Rf₃ = 20 kΩ）。若输入 v_i = 0.5 V，电源轨为 ±15 V，则最终输出电压 v_o 为：',
           options: [
@@ -695,6 +709,8 @@ const W3_L7: StageLesson = {
         },
         {
           id: 'w3l7_q3',
+          concept: '中间级先行饱和',
+          review_act: 4,
           question: '某三级纯级联运放电路采用 ±12 V 对称供电，三级线性增益依次为 A₁ = +5、A₂ = −4、A₃ = +0.2。当输入信号 v_i = 0.8 V 时，电路的真实最终输出电压 v_o 为：',
           options: [
             {
@@ -725,6 +741,8 @@ const W3_L7: StageLesson = {
         },
         {
           id: 'w3l7_q4',
+          concept: '跨级全局反馈辨析',
+          review_act: 5,
           question:
             '某两级运放电路中，Stage 1 为反相级（R₁ = 10 kΩ, Rf₁ = 40 kΩ），Stage 2 为同相级（R₂ = 10 kΩ, Rf₂ = 10 kΩ，局部增益 A₂ = +2）。现有一根跨级全局反馈电阻 R_G = 80 kΩ 将 Stage 2 输出 v_o 拉回 Stage 1 反相输入端 v₋₁。若 v_i = 2.0 V（电源轨 ±15 V），则真实输出 v_o 为：',
           options: [

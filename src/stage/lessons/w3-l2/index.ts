@@ -57,6 +57,13 @@ const W3_L2: StageLesson = {
       sections: ['Ch. 5 Example 5.1 (Fig. 5.6)', 'Sec. 5.3 Ideal Op Amp (Fig. 5.8)', 'Example 5.2 (Fig. 5.9)', 'pp. 177–179'],
     },
     prerequisites: ['W2-L1 节点分析法', 'W3-L1 真实运放模型'],
+    learning_objectives: [
+      R`能用真实 741 等效电路（$A = 2\times10^5$、$R_i = 2\text{ M}\Omega$、$R_o = 50\ \Omega$）对 Fig. 5.6 列写精确节点方程，算出闭环增益、微伏级 $v_d$ 与皮安级 $i_1$`,
+      R`能从三大理想假设（$A \to \infty$、$R_i \to \infty$、$R_o \to 0$）与负反馈条件出发，推导虚断（$i_1 = i_2 = 0$）与虚短（$v_1 = v_2$）两大黄金法则`,
+      '能准确识别并规避两大核心误区：无负反馈滥用虚短、将虚短等同于物理真短',
+      '能严格遵守输出端 KCL 禁区：先对输入端列 KCL 求 $v_o$，最后再按需对输出节点列 KCL 反算 $i_o$',
+      '能用理想运放节点分析 SOP 独立求解 Sadiku Example 5.2（Fig. 5.9），并量化其与真实 741 的误差边界',
+    ],
     next_lesson: 'W3-L3',
     next_lesson_title: '反相放大器（虚地推导、输入电阻与 ±9V 双电源面包板实测）',
   },
@@ -66,18 +73,21 @@ const W3_L2: StageLesson = {
       {
         id: L1,
         label: '01 Fig. 5.6 真实 741 精确求解台',
+        short: '01 真实 741',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: 'Sadiku Fig. 5.6(a)-(b) · Example 5.1：切换“闭环拓扑 / 741 等效模型”，拖动开环增益 A（10² … 10⁷），看两条 KCL 联立的精确解 v₁、v_d、i₁ 与理想增益 3 的误差。',
       },
       {
         id: L2,
         label: '02 Fig. 5.8 理想运放黄金法则 (虚断与虚短)',
+        short: '02 虚断虚短',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: 'Sadiku Fig. 5.8 · Section 5.3：断开负反馈，看虚短失效、虚断仍在；打开 X-Ray，看输出端的受控电压源、暗中供流的电源轨和未知的 iₒ。',
       },
       {
         id: L3,
         label: '03 Fig. 5.9 Example 5.2 节点实战台',
+        short: '03 节点实战',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: 'Sadiku Fig. 5.9 · Example 5.2：按四步 SOP 逐步高亮节点与支路；接上负载 R_L 看 vₒ 不变、iₒ 变大；打开“对比 741”量化误差。',
       },
@@ -576,6 +586,8 @@ const W3_L2: StageLesson = {
       quiz: [
         {
           id: 'w3l2_q1',
+          concept: '无负反馈时虚短失效',
+          review_act: 2,
           question: '某理想运放供电为 ±15 V，未接任何反馈电阻（开环工作）。若反相端接 0 V、同相端接 +0.5 mV，关于该电路的判断正确的是：',
           options: [
             {
@@ -605,6 +617,8 @@ const W3_L2: StageLesson = {
         },
         {
           id: 'w3l2_q2',
+          concept: '输出端 KCL 禁区',
+          review_act: 3,
           question: '使用节点分析法求解理想运放电路的输出电压 vₒ 时，为什么教材严禁第一步直接对运放输出端列 KCL？',
           options: [
             {
@@ -638,6 +652,8 @@ const W3_L2: StageLesson = {
         },
         {
           id: 'w3l2_q3',
+          concept: '虚短不是真短',
+          review_act: 2,
           question: '一位同学看到理想运放满足“虚短 v₁ = v₂”，于是将两输入端用一条导线等效短接，并认为信号源的电流可以从同相端直接流向反相端。他的错误本质在于：',
           options: [
             {
@@ -667,6 +683,8 @@ const W3_L2: StageLesson = {
         },
         {
           id: 'w3l2_q4',
+          concept: '带载时反算 iₒ',
+          review_act: 3,
           question: R`在 Sadiku Example 5.2 (Fig. 5.9, $R_1 = 10\text{ k}\Omega$, $R_f = 20\text{ k}\Omega$, $v_s = 2\text{ V}$) 的输出节点 o 额外并联一个 $R_L = 3\text{ k}\Omega$ 的接地负载电阻，采用理想运放模型（供电 ±15 V），则输出电压 vₒ 与运放输出电流 iₒ 分别为：`,
           options: [
             {
