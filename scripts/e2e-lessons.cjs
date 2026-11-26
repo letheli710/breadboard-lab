@@ -1,6 +1,7 @@
 /* global require, process, console, window, document, localStorage, __dirname */
 /* eslint-disable @typescript-eslint/no-require-imports */
-// The instrument lessons (challenges/101-…108-…, 3NN-lesson-… for World 5 additions) end to end, as a student does them: every step's
+// The instrument lessons (challenges/101-…108-…, 3NN-lesson-… for World 5 additions) end to end, as a student does them on the
+// rail (one node at a time, CHALLENGE_FORMAT §17): every step's
 // parts are placed by clicking holes on the 3D board (positions from the test hook window.__bb, so
 // no hard-coded pixels), the multimeter probes and the scope knobs are set, and each step's live
 // check must say "done" before Next. Then "Check my circuit" must pass and every measurement
@@ -26,7 +27,7 @@ const ALL = readdirSync(join(ROOT, 'challenges'))
   .filter((f) => /^\d{3}-lesson-.*\.json$/.test(f))
   .sort();
 const pick = opt('--only')?.split(',');
-const FILES = pick ? ALL.filter((f) => pick.some((n) => f.startsWith(n))) : args.includes('--all') ? ALL : ALL.filter((f) => /^(101|102|105)-/.test(f));
+const FILES = pick ? ALL.filter((f) => pick.some((n) => f.startsWith(n))) : args.includes('--all') ? ALL : ALL.filter((f) => /^(101|102|105|106)-/.test(f));
 
 let failures = 0;
 const assert = (c, m) => {
@@ -171,7 +172,7 @@ async function lesson(browser, file) {
   const t0 = Date.now();
   try {
     await p.goto(`${BASE}?e2e#/learn/${json.id}`);
-    await p.waitForFunction(() => window.__bb && window.__bb.frames > 2 && document.querySelector('section.steps'), null, { timeout: 30000 });
+    await p.waitForFunction(() => window.__bb && window.__bb.frames > 2 && document.querySelector('section.rail'), null, { timeout: 30000 });
     await p.waitForTimeout(300);
     // record every hole click the app receives (TRACE=1 prints a click that did not arrive as aimed)
     await p.evaluate(() => {
@@ -181,50 +182,85 @@ async function lesson(browser, file) {
       st.setState({ clickHole: (h, sh) => (window.__clicks.push(h), orig(h, sh)) });
     });
     const steps = json.steps;
-    let stepsOk = 0;
-    for (let i = 0; i < steps.length; i++) {
-      const raws = steps[i].check ? (Array.isArray(steps[i].check) ? steps[i].check : [steps[i].check]) : [];
-      const checks = parsed[i];
-      for (let k = 0; k < checks.length; k++) await perform(p, checks[k], raws[k]);
-      if (checks.length) {
-        await p.waitForTimeout(150);
-        const st = await p.evaluate(() => document.querySelector('.step-check')?.className ?? '');
-        if (!assert(st.includes('ok'), `${json.id} step ${i + 1}: check passes after doing what it says`))
-          console.log('     ', await p.evaluate(() => document.querySelector('.step-check')?.innerText));
-        else stepsOk++;
-      }
-      // Next: the step's own button, which at the end of a card opens the next card; a card without
-      // steps (CHALLENGE_FORMAT §16) has its own "next card" button. Click until step i + 1 shows.
-      if (i < steps.length - 1)
-        for (let g = 0; g < 4 && (await p.evaluate(() => window.__bb.store.getState().step)) !== i + 1; g++)
-          await p.locator('section.steps .row button.primary, .card-nav button.primary').first().click();
-    }
-    // stage 1: the circuit check
-    await p.locator('.actions button.primary.big').click();
-    await p.waitForTimeout(400);
-    const ok = await p.evaluate(() => !!document.querySelector('.check-result .ok-box'));
-    if (!assert(ok, `${json.id}: "Check my circuit" passes`)) console.log('     ', await p.evaluate(() => document.querySelector('.check-result')?.innerText.slice(0, 400)));
-    // stage 2: every reading
     const qs = json.measurements || [];
-    for (let n = 0; n < qs.length; n++) {
-      const q = qs[n];
-      const li = p.locator('li.mq').nth(n);
-      if (q.predict) {
-        const f = li.locator('form.mq-row').first();
-        await f.locator('input').fill(String(ref[q.id] ?? 1));
-        await f.locator('button[type=submit]').click();
+    let stepsOk = 0;
+    const performed = new Set();
+    const ACTIVE = '.rail-node.active';
+    // walk the rail (CHALLENGE_FORMAT §17) as a student does: in the active node, do its current
+    // step until its check says done, answer its questions (checking the circuit first when a
+    // question reads the board), then press Next — until the last node
+    for (let guard = 0; guard < 60; guard++) {
+      // the node's steps
+      for (let g = 0; g < 20; g++) {
+        if (!(await p.locator(`${ACTIVE} .rail-step.cur`).count())) break;
+        const i = await p.evaluate(() => window.__bb.store.getState().step);
+        if (performed.has(i)) {
+          // done once and still current: a step without a check is ticked by the student
+          if (!(await p.locator(`${ACTIVE} .rail-tick`).count())) {
+            assert(false, `${json.id} step ${i + 1}: check passes after doing what it says`);
+            console.log('     ', await p.evaluate(() => document.querySelector('.rail-step.cur .step-check')?.innerText));
+            break;
+          }
+          await p.locator(`${ACTIVE} .rail-tick`).click();
+          await p.waitForTimeout(100);
+          continue;
+        }
+        performed.add(i);
+        const raws = steps[i].check ? (Array.isArray(steps[i].check) ? steps[i].check : [steps[i].check]) : [];
+        const checks = parsed[i];
+        for (let k = 0; k < checks.length; k++) await perform(p, checks[k], raws[k]);
+        if (checks.length) {
+          await p.waitForTimeout(200);
+          const still = await p.evaluate((n) => window.__bb.store.getState().step === n && !!document.querySelector('.rail-node.active .rail-step.cur'), i);
+          if (!still) stepsOk++;
+          else if (!assert(false, `${json.id} step ${i + 1}: check passes after doing what it says`))
+            console.log('     ', await p.evaluate(() => document.querySelector('.rail-step.cur .step-check')?.innerText));
+        }
       }
-      if (q.choices) await li.locator('.pr-choice').nth(q.correct).click();
-      else {
-        // the reading in SI units, as "8.84m"-style text the answer box understands
-        const f = li.locator('form.mq-row').last();
-        await f.locator('input').fill(`${Number(ref[q.id].toPrecision(4))}`);
-        await f.locator('button[type=submit]').click();
+      // the node's questions
+      const ids = await p.evaluate((sel) => [...document.querySelectorAll(`${sel} li.mq`)].map((l) => l.dataset.q), ACTIVE);
+      for (const id of ids) {
+        const q = qs.find((x) => x.id === id);
+        const li = p.locator(`${ACTIVE} li.mq[data-q="${id}"]`);
+        if ((await li.getAttribute('class')).includes(' ok')) continue;
+        if (q.predict) {
+          const f = li.locator('form.mq-row').first();
+          await f.locator('input').fill(String(ref[q.id] ?? 1));
+          await f.locator('button[type=submit]').click();
+        }
+        if (await p.locator(`${ACTIVE} .rail-gate button.primary`).count()) {
+          await p.locator(`${ACTIVE} .rail-gate button.primary`).click();
+          await p.waitForTimeout(400);
+          const ok = await p.evaluate(() => !!document.querySelector('.check-result .ok-box'));
+          if (!assert(ok, `${json.id}: "Check my circuit" passes`)) console.log('     ', await p.evaluate(() => document.querySelector('.check-result')?.innerText.slice(0, 400)));
+        }
+        if (q.choices) await li.locator('.pr-choice').nth(q.correct).click();
+        else {
+          // the reading in SI units, as "8.84m"-style text the answer box understands
+          const f = li.locator('form.mq-row').last();
+          await f.locator('input').fill(`${Number(ref[q.id].toPrecision(4))}`);
+          await f.locator('button[type=submit]').click();
+        }
+        await p.waitForTimeout(200);
+        assert((await li.getAttribute('class')).includes(' ok'), `${json.id}: question ${id} accepted`);
+        // the last answer completes the lesson: close the "Perfect!" dialog and stay
+        const stay = p.getByRole('button', { name: /^(Stay here|留在这里)$/ });
+        if (await stay.count()) await stay.click();
       }
+      const next = p.locator(`${ACTIVE} .rail-next button.primary`);
+      if (!(await next.count())) break;
+      if (!(await next.isEnabled())) {
+        assert(false, `${json.id}: node "${await p.locator(`${ACTIVE} .rail-title`).textContent()}" can be left`);
+        break;
+      }
+      await next.click();
       await p.waitForTimeout(150);
     }
-    const done = await p.evaluate(() => document.querySelector('.stages')?.innerText.replace(/\s+/g, ' '));
-    assert(new RegExp(`${qs.length}/${qs.length}`).test(done || ''), `${json.id}: all ${qs.length} readings accepted (${done})`);
+    // every step done, in order (a step whose check already holds when it is reached is ticked at once)
+    const doneSteps = await p.evaluate((id) => JSON.parse(localStorage.getItem('bb.rail') || '{}')[id]?.done?.length ?? 0, json.id);
+    assert(doneSteps === steps.length, `${json.id}: the rail has all ${steps.length} steps done (${doneSteps})`);
+    const done = await p.evaluate(() => Object.keys(window.__bb.store.getState().completed || {}));
+    assert(done.includes(json.id), `${json.id}: all ${qs.length} questions answered and the lesson is complete`);
     assert(errors.length === 0, `${json.id}: no page errors ${errors.join(' | ')}`);
     console.log(`     ${json.id}: ${stepsOk} checked steps, ${((Date.now() - t0) / 1000).toFixed(1)} s`);
   } catch (e) {

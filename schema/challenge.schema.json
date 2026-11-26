@@ -241,6 +241,39 @@
         }
       }
     },
+    "rail": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Single-track rail (§17), replaces cards: the panel shows the nodes top to bottom, only the active one open. Each node takes the next `steps` steps (in order). Lines of their own embed things: ![](fig:id), ![](measure:id), ![](inside:<teardown>#<layer>), ![](derive:id), ![](calc:id).",
+      "items": {
+        "type": "object",
+        "required": ["kind", "title"],
+        "additionalProperties": false,
+        "properties": {
+          "kind": { "enum": ["look", "build", "measure", "think", "wrap"], "description": "look = meet the part (outside, pins); build = build (its steps are checked); measure = answer its measurement questions; think = the idea, often with a derivation; wrap = take-aways and what to practise next" },
+          "title": { "type": "string", "minLength": 1 },
+          "text": { "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+          "steps": { "type": "integer", "minimum": 0, "description": "number of steps this node owns" },
+          "measure": { "type": "array", "items": { "type": "string" }, "description": "measurement question ids asked at the end of this node (besides the ![](measure:id) lines)" },
+          "practice": { "type": "array", "items": { "type": "string" }, "description": "theory chapter ids to practise next" }
+        }
+      }
+    },
+    "derivations": {
+      "type": "object",
+      "description": "Step-by-step derivations shown in rail nodes by ![](derive:id): one line revealed at a time; an optional typed result at the end.",
+      "propertyNames": { "pattern": "^[a-z0-9-]+$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["steps"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "steps": { "type": "array", "minItems": 2, "items": { "type": "string", "minLength": 1 } },
+          "check": { "type": "object", "required": ["answer"], "additionalProperties": false, "properties": { "answer": { "type": "number" }, "unit": { "type": "string" }, "tol": { "type": "number" } } }
+        }
+      }
+    },
     "figures": {"type": "object", "description": "Figures of a card-style unit (§16.3): id → figure. A line `![](fig:<id>)` in a card's or a step's text shows the figure there. kind schematic = a circuit drawing (practice-problem format), breadboard = a strip of the board with shaded connected holes and parts, plot = curves on two axes.", "propertyNames": {"pattern": "^[a-z0-9-]+$"}, "additionalProperties": {"$ref": "#/definitions/figure"}},
     "prereq": {
       "type": "array",
@@ -339,6 +372,15 @@
             "type": "string"
           },
           "description": "Step texts only, same count and order as the top-level steps. Highlighted holes come from the top-level steps."
+        },
+        "rail": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": false, "properties": { "title": { "type": "string" }, "text": { "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] } } },
+          "description": "Rail node titles and texts, same count and order as the top-level rail."
+        },
+        "derivations": {
+          "type": "object",
+          "additionalProperties": { "type": "object", "additionalProperties": false, "properties": { "title": { "type": "string" }, "steps": { "type": "array", "items": { "type": "string" } } } }
         },
         "cards": {
           "type": "array",
@@ -1170,6 +1212,11 @@
         "optional": {
           "type": "boolean",
           "description": "Not needed to complete the challenge."
+        },
+        "after": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "multiple-choice only: can be answered once this step (1-based) is done, before the circuit check passes (asked in place on the rail)"
         },
         "stated": {
           "type": "boolean",

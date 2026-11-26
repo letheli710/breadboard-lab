@@ -7,12 +7,25 @@ const MATH_LINE = /^\$\$(.+)\$\$$/;
 
 // a figure of a lesson card on a line of its own: `![](fig:<id>)` (core/figures.ts)
 const FIG_LINE = /^\s*!\[[^\]]*\]\(fig:([a-z0-9-]+)\)\s*$/;
+// rail embeds (core/rail.ts): `![](measure:<id>)`, `![](inside:<td>#<n>)`, `![](derive:<id>)`, `![](calc:<id>)`
+const EMBED_LINE = /^\s*!\[[^\]]*\]\((measure|inside|derive|calc|steps):([A-Za-z0-9_#-]+)\)\s*$/;
 
 /** Tiny markdown subset: paragraphs, "- " lists, "## " headings, **bold**, `code`, tables, ``` blocks.
  *  With `math`, "$…$" is a formula (MathText: X_sub, \frac{}{}, \sqrt{}, ^{}) and a line that is
  *  "$$…$$" is a centred formula; lesson text opts in, the docs shown on the Import page do not
  *  (they mention `$schema`). With `figure`, a line `![](fig:<id>)` is that figure (lesson cards). */
-export function Md({ text, math = false, figure }: { text: string; math?: boolean; figure?: (id: string) => ReactNode }) {
+export function Md({
+  text,
+  math = false,
+  figure,
+  embed,
+}: {
+  text: string;
+  math?: boolean;
+  figure?: (id: string) => ReactNode;
+  /** rail embeds: `![](<kind>:<arg>)` on a line of its own */
+  embed?: (kind: string, arg: string) => ReactNode;
+}) {
   const blocks: JSX.Element[] = [];
   let list: string[] = [];
   const formulas = (s: string): ReactNode =>
@@ -95,6 +108,12 @@ export function Md({ text, math = false, figure }: { text: string; math?: boolea
       continue;
     }
     flushTable();
+    const emb = embed ? EMBED_LINE.exec(line) : null;
+    if (emb) {
+      flush();
+      blocks.push(<Fragment key={blocks.length}>{embed!(emb[1], emb[2])}</Fragment>);
+      continue;
+    }
     const fig = figure ? FIG_LINE.exec(line) : null;
     if (fig) {
       flush();

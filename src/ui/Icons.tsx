@@ -1,6 +1,8 @@
 import {
   BookmarkCheck,
   Calculator,
+  CircuitBoard,
+  Gauge,
   Check,
   ChevronLeft,
   CircleCheck,
@@ -403,6 +405,8 @@ const LUCIDE: Record<string, LucideIcon> = {
   search: Search,
   layers: Layers,
   calc: Calculator,
+  gauge: Gauge,
+  schematic: CircuitBoard,
 };
 
 export function Icon({ name, size = 18 }: { name: string; size?: number }) {

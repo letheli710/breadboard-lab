@@ -10,6 +10,7 @@ import { tr } from '../core/i18n';
 import {
   allAnswered,
   boardInState,
+  boardValue,
   emptyReadings,
   isAnswered,
   isUnlocked,
@@ -92,7 +93,7 @@ function fmtTyped(q: MeasurementQuestion, text: string | undefined): string {
 }
 
 /** One question: optional prediction, then the reading (or the options of a multiple choice). */
-function Question({
+export function Question({
   q,
   n,
   st,
@@ -100,6 +101,8 @@ function Question({
   onAnswer,
   onPredict,
   busy,
+  stepReady,
+  reveal,
 }: {
   q: MeasurementQuestion;
   n: number;
@@ -108,6 +111,10 @@ function Question({
   onAnswer: (q: MeasurementQuestion, input: string | number) => void;
   onPredict: (q: MeasurementQuestion, text: string) => void;
   busy: boolean;
+  /** a choice question with `after`: its step is done, so it can be answered before the circuit check */
+  stepReady?: boolean;
+  /** after three wrong tries: the answer, so the student is never stuck (rail rule) */
+  reveal?: string | null;
 }) {
   const a: ReadingAnswer = st.readings.answers[q.id] ?? {};
   const [draft, setDraft] = useState(a.input ?? '');
@@ -120,7 +127,8 @@ function Question({
   const needsPredict = q.predict && !a.predict;
   const unlocked = isUnlocked(q, st.readings.answers);
   const waiting = q.what?.kind === 'formula' && !unlocked ? q.what.uses.filter((u) => !st.readings.answers[u]?.ok) : [];
-  const canMeasure = st.passed && unlocked && !needsPredict;
+  const early = q.after !== undefined && !q.what && !!stepReady;
+  const canMeasure = (st.passed || early) && unlocked && !needsPredict;
   const predicted = q.predict ? typedValue(q, a.predict) : null;
   const measured = answered ? typedValue(q, a.input) : null;
   const setDesc = Object.keys(q.set).length ? describeSet(q.set, st.match?.mapping, st.match?.pinMap) : '';
@@ -129,7 +137,7 @@ function Question({
   const label = tr(`第 ${n} 题`, `Question ${n}`);
 
   return (
-    <li className={`mq ${status} ${canMeasure || answered ? '' : 'locked'}`}>
+    <li className={`mq ${status} ${canMeasure || answered ? '' : 'locked'}`} data-q={q.id}>
       <div className="mq-head">
         <span className="mq-n" aria-hidden>
           {answered ? '✓' : n}
@@ -193,7 +201,7 @@ function Question({
             const picked = a.choice === i;
             const cls = picked ? (i === q.correct ? 'right' : 'wrong') : '';
             return (
-              <button key={i} className={`pr-choice ${cls}`} disabled={!st.passed || busy || answered} onClick={() => onAnswer(q, i)}>
+              <button key={i} className={`pr-choice ${cls}`} disabled={!(st.passed || early) || busy || answered} onClick={() => onAnswer(q, i)}>
                 <span className="pr-choice-key">{String.fromCharCode(65 + i)}</span>
                 <span>{c}</span>
                 {cls === 'right' && <Icon name="check" size={16} />}
@@ -287,6 +295,16 @@ function Question({
           )}
         </div>
       )}
+      {!answered && reveal && (
+        <div className="pr-feedback close mq-fb mq-reveal" role="status">
+          <b>{tr('试了三次——看一下答案：', 'Three tries — here is the answer: ')}</b> {reveal}
+          {q.explain && (
+            <div className="mq-explain">
+              <Md text={q.explain} />
+            </div>
+          )}
+        </div>
+      )}
       {answered && q.explain && (
         <div className="mq-explain">
           <Md text={q.explain} />
@@ -296,8 +314,24 @@ function Question({
   );
 }
 
-/** Stage 2 section of the task panel. */
-export function MeasurementSection({ ch, st, onComplete }: { ch: Challenge; st: MeasureState; onComplete: () => void }) {
+/** The answer shown after three wrong tries: the right option, or what this board reads (null before that). */
+export function revealOf(ch: Challenge, q: MeasurementQuestion, st: MeasureState): string | null {
+  const a = st.readings.answers[q.id];
+  if (!a || (a.tries ?? 0) < 3 || isAnswered(q, a, st.match, st.readings.answers)) return null;
+  if (q.choices && q.correct !== undefined) return `${String.fromCharCode(65 + q.correct)}. ${q.choices[q.correct]}`;
+  if (!st.match) return null;
+  try {
+    const v = boardValue(q, st.match, st.readings.answers, ch.measurements);
+    if (!Number.isFinite(v)) return null;
+    const scale = splitUnit(q.unit)?.scale ?? 1;
+    return tr(`你的面包板上约是 ${fmtNum(parseFloat((v / scale).toPrecision(3)))} ${q.unit}`, `your board reads about ${fmtNum(parseFloat((v / scale).toPrecision(3)))} ${q.unit}`);
+  } catch {
+    return null;
+  }
+}
+
+/** Answering questions: predictions, submissions (graded against the board), feedback per question. */
+export function useMeasureActions(ch: Challenge, st: MeasureState, onComplete: () => void) {
   const setReadings = useStore((s) => s.setReadings);
   const [feedback, setFeedback] = useState<Record<string, Grade>>({});
   const [busy, setBusy] = useState<string | null>(null);
@@ -316,17 +350,18 @@ export function MeasurementSection({ ch, st, onComplete }: { ch: Challenge; st: 
   };
   const onAnswer = (q: MeasurementQuestion, input: string | number) => {
     const m = st.match;
-    if (!m) return;
+    // a multiple-choice question doesn't read the board (it may be asked before the check passes)
+    if (!m && q.what) return;
     setBusy(q.id);
     // let the "…" paint first: a frequency sweep runs a few dozen simulations
     setTimeout(() => {
       try {
         const cur = useStore.getState().readings[ch.id] ?? EMPTY;
-        const { answer, grade } = submitAnswer(ch, q, m, cur.answers, input);
+        const { answer, grade } = submitAnswer(ch, q, m as BoardMatch, cur.answers, input);
         setFeedback((f) => ({ ...f, [q.id]: grade }));
         if (answer !== cur.answers[q.id]) {
           const next = save({ ...cur.answers, [q.id]: answer });
-          if (grade.ok && allAnswered(ch, next, m)) onComplete();
+          if (grade.ok && m && allAnswered(ch, next, m)) onComplete();
         }
       } finally {
         setBusy(null);
@@ -334,6 +369,12 @@ export function MeasurementSection({ ch, st, onComplete }: { ch: Challenge; st: 
     }, 20);
   };
 
+  return { feedback, busy, onAnswer, onPredict };
+}
+
+/** Stage 2 section of the task panel (the classic layout; the rail asks each question in its node). */
+export function MeasurementSection({ ch, st, onComplete }: { ch: Challenge; st: MeasureState; onComplete: () => void }) {
+  const { feedback, busy, onAnswer, onPredict } = useMeasureActions(ch, st, onComplete);
   return (
     <section className="mq-section" aria-label={tr('测量', 'Measurements')}>
       <div className="mq-title">
@@ -366,7 +407,7 @@ export function MeasurementSection({ ch, st, onComplete }: { ch: Challenge; st: 
       )}
       <ol className="mq-list">
         {ch.measurements.map((q, i) => (
-          <Question key={q.id} q={q} n={i + 1} st={st} feedback={feedback[q.id]} onAnswer={onAnswer} onPredict={onPredict} busy={busy === q.id} />
+          <Question key={q.id} q={q} n={i + 1} st={st} feedback={feedback[q.id]} onAnswer={onAnswer} onPredict={onPredict} busy={busy === q.id} reveal={revealOf(ch, q, st)} />
         ))}
       </ol>
       {st.complete && ch.compare && (

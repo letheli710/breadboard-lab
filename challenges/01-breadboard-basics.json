@@ -12,19 +12,26 @@
     "power rail 电源轨",
     "trench 中间凹槽"
   ],
-  "description": "面包板的孔下面藏着金属条：同一列 a–e 相通、f–j 相通，上下边缘的电源轨整排相通。本课先把电阻插错，看它被金属条短路，再搭一个能点亮 LED 的完整回路。",
-  "cards": [
+  "rail": [
     {
-      "kind": "try",
+      "kind": "look",
+      "title": "认识面包板：孔的名字",
+      "text": [
+        "先认坐标，就像棋盘：每个孔的名字是**列号 + 行号**。今天只要会找孔，孔底下是什么，等一下自己发现。",
+        "![](inside:breadboard#1)"
+      ]
+    },
+    {
+      "kind": "build",
       "title": "先插错一次",
+      "steps": 3,
       "text": [
         "今天的规矩：**先动手，再讲道理。**",
         "面包板上的孔看起来一模一样，但它们下面并不是各自独立的。下面三步搭一个“错”的电路，然后看看右边的**诊断**说了什么。"
-      ],
-      "steps": 3
+      ]
     },
     {
-      "kind": "explain",
+      "kind": "think",
       "title": "孔底下藏着金属条",
       "text": [
         "- **一列五个孔 = 一条金属条。** a5、b5、c5、d5、e5 下面是同一片金属。插在这五个孔里的脚，就像焊在了一起。",
@@ -41,10 +48,22 @@
     {
       "kind": "build",
       "title": "挪好电阻，接成一个圈",
+      "steps": 3,
       "text": [
-        "电流要走一个**完整的圈**：从电池 + 出发，穿过电阻和 LED，再回到电池 −。少一段，就一点电流都没有。"
-      ],
-      "steps": 4
+        "电流要走一个**完整的圈**：从电池 + 出发，穿过电阻和 LED，再回到电池 −。少一段，就一点电流都没有。",
+        "![](steps:here)",
+        "![](measure:samecol)"
+      ]
+    },
+    {
+      "kind": "measure",
+      "title": "凹槽的另一边",
+      "steps": 1,
+      "text": [
+        "![](steps:here)",
+        "![](measure:trench)",
+        "![](inside:breadboard#4)"
+      ]
     },
     {
       "kind": "wrap",
@@ -58,6 +77,7 @@
       ]
     }
   ],
+  "description": "面包板的孔下面藏着金属条：同一列 a–e 相通、f–j 相通，上下边缘的电源轨整排相通。本课先把电阻插错，看它被金属条短路，再搭一个能点亮 LED 的完整回路。",
   "figures": {
     "strips": {
       "kind": "breadboard",
@@ -119,7 +139,41 @@
       "tests": [
         "LED is on"
       ],
-      "cards": [
+      "steps": [
+        "In the toolbar on the left pick **Battery** (9V by default). Click **`tp1`** for the red lead (+), then **`tn1`** for the black lead (−).",
+        "Pick **Jumper** and click **`tp5`**, then **`a5`**: this brings +9V from the rail to column 5. The five lit holes a5–e5 are all at +9V now.",
+        "Pick **Resistor** and put both legs in column 5: **`c5`** and **`e5`**. Now look at the **diagnostics** on the right: what do they say about this resistor?",
+        "Click the resistor and press **Delete**. Place it again with the Resistor tool at **`c5`** and **`c9`**, and in **Properties** on the right set it to **`470 Ω`**. It now spans columns 5 and 9.",
+        "Pick **LED** (red): the **long lead** (anode, +) goes in **`d9`**, in the same column as the resistor's second leg; the **short lead** (cathode, −) goes in **`d12`**.",
+        "Pick **Jumper** and click **`a12`** and **`tn12`**: the LED's cathode goes back to the − rail. The loop is closed — the LED should light up!",
+        "Hover over a hole without clicking: every hole connected to it lights up. Try **`c9`**, **`f9`** and **`tp20`**. Then press **Check my circuit** below."
+      ],
+      "measurements": [
+        {
+          "ask": "The resistor's second leg is in c9 and the LED's long lead is in d9. Do they need a jumper between them?",
+          "choices": [
+            "No: c9 and d9 are on the same metal strip, so they are already one point",
+            "Yes: two holes always need a jumper between them"
+          ],
+          "explain": "The five holes a–e of a column share one metal strip; plugging in is enough."
+        },
+        {
+          "ask": "If the LED's long lead went into f9 (across the trench), would the LED still light?",
+          "choices": [
+            "Yes: it is still column 9",
+            "No: the trench splits column 9 into a–e and f–j, so f9 is not connected to c9"
+          ],
+          "explain": "The two sides of the trench are two different strips. To cross it, use a jumper (or, like a chip, put one row of pins on each side)."
+        }
+      ],
+      "rail": [
+        {
+          "title": "Meet the breadboard: hole names",
+          "text": [
+            "Learn the coordinates first, like a chessboard: every hole is named **column + row**. For now just find the holes; what is underneath you discover in a minute.",
+            "![](inside:breadboard#1)"
+          ]
+        },
         {
           "title": "Get it wrong on purpose",
           "text": [
@@ -144,7 +198,17 @@
         {
           "title": "Move the resistor and close the loop",
           "text": [
-            "Current needs a **complete loop**: out of the battery +, through the resistor and the LED, back into the battery −. Leave out one piece and no current flows at all."
+            "Current needs a **complete loop**: out of the battery +, through the resistor and the LED, back into the battery −. Leave out one piece and no current flows at all.",
+            "![](steps:here)",
+            "![](measure:samecol)"
+          ]
+        },
+        {
+          "title": "The other side of the trench",
+          "text": [
+            "![](steps:here)",
+            "![](measure:trench)",
+            "![](inside:breadboard#4)"
           ]
         },
         {
@@ -156,33 +220,6 @@
             "",
             "Next: power and GND — where the current comes from and where it goes back to."
           ]
-        }
-      ],
-      "steps": [
-        "In the toolbar on the left pick **Battery** (9V by default). Click **`tp1`** for the red lead (+), then **`tn1`** for the black lead (−).",
-        "Pick **Jumper** and click **`tp5`**, then **`a5`**: this brings +9V from the rail to column 5. The five lit holes a5–e5 are all at +9V now.",
-        "Pick **Resistor** and put both legs in column 5: **`c5`** and **`e5`**. Now look at the **diagnostics** on the right: what do they say about this resistor?",
-        "Click the resistor and press **Delete**. Place it again with the Resistor tool at **`c5`** and **`c9`**, and in **Properties** on the right set it to **`470 Ω`**. It now spans columns 5 and 9.",
-        "Pick **LED** (red): the **long lead** (anode, +) goes in **`d9`**, in the same column as the resistor's second leg; the **short lead** (cathode, −) goes in **`d12`**.",
-        "Pick **Jumper** and click **`a12`** and **`tn12`**: the LED's cathode goes back to the − rail. The loop is closed — the LED should light up!",
-        "Hover over a hole without clicking: every hole connected to it lights up. Try **`c9`**, **`f9`** and **`tp20`**. Then press **Check my circuit** below and answer two quick questions."
-      ],
-      "measurements": [
-        {
-          "ask": "The resistor's second leg is in c9 and the LED's long lead is in d9. Do they need a jumper between them?",
-          "choices": [
-            "No: c9 and d9 are on the same metal strip, so they are already one point",
-            "Yes: two holes always need a jumper between them"
-          ],
-          "explain": "The five holes a–e of a column share one metal strip; plugging in is enough."
-        },
-        {
-          "ask": "If the LED's long lead went into f9 (across the trench), would the LED still light?",
-          "choices": [
-            "Yes: it is still column 9",
-            "No: the trench splits column 9 into a–e and f–j, so f9 is not connected to c9"
-          ],
-          "explain": "The two sides of the trench are two different strips. To cross it, use a jumper (or, like a chip, put one row of pins on each side)."
         }
       ]
     }
@@ -244,7 +281,8 @@
         "要：两个孔之间必须用跳线连起来"
       ],
       "correct": 0,
-      "explain": "同一列的 a–e 五个孔下面是同一条金属条，插进去就已经连上了。"
+      "explain": "同一列的 a–e 五个孔下面是同一条金属条，插进去就已经连上了。",
+      "after": 5
     },
     {
       "id": "trench",
@@ -254,7 +292,8 @@
         "不会：凹槽把第 9 列切成了 a–e 和 f–j 两段，f9 和 c9 不通"
       ],
       "correct": 1,
-      "explain": "凹槽两边是两条不同的金属条。想跨过凹槽，要用跳线（或者像芯片那样，两排脚各插一边）。"
+      "explain": "凹槽两边是两条不同的金属条。想跨过凹槽，要用跳线（或者像芯片那样，两排脚各插一边）。",
+      "after": 6
     }
   ],
   "steps": [

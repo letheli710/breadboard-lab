@@ -1,4 +1,4 @@
-/* global require, process, console, window, document, localStorage, __dirname */
+/* global require, process, console, window, document, localStorage, __dirname, location */
 /* eslint-disable @typescript-eslint/no-require-imports */
 // Accessibility check (WCAG 2.1 A/AA rules of axe-core) of every page in Chinese and English,
 // light theme, plus open popovers / dialogs. Fails on any serious or critical violation that is
@@ -127,8 +127,13 @@ async function setup(p, kind) {
     await p.waitForSelector('.parts-panel .pp-grid .tool', { timeout: 10000 });
   }
   if (kind === 'figures') {
-    await p.locator('.card-tabs button').nth(1).click();
-    await p.waitForSelector('.card-figure svg', { timeout: 15000 });
+    // open the rail (§17) at its third node ("why", which shows figures in both lessons)
+    await p.evaluate(() => {
+      const id = location.hash.split('/').pop();
+      localStorage.setItem('bb.rail', JSON.stringify({ [id]: { pos: 2, ticked: [] } }));
+    });
+    await p.reload();
+    await p.waitForSelector('.rail-node.active .card-figure svg', { timeout: 15000 });
   }
   if (kind === 'coursemap') {
     await p.locator('.course-btn').click();
