@@ -1,5 +1,5 @@
 // Layer "03 3D 面包板拧电位器找最大功率实操": the sheet's safe kΩ bench on an 830-hole board — a
-// 5 V bench supply on the top + rail and the bottom − rail, a 1 kΩ brown-black-red-gold resistor
+// 5 V bench supply (the shared one of src/stage/bench) on the top + rail and the bottom − rail, a 1 kΩ brown-black-red-gold resistor
 // as R_Th (c10–c18, fed by a red jumper from the + rail), port a on column 18 (orange jumper e18–f18
 // across the trench), a B10K rotary potentiometer as R_L (pins j18 / j20 / j22, wiper Pin 2 and
 // Pin 3 shorted by a green jumper h20–h22, Pin 3 to GND by a black jumper g22 → − rail) and a
@@ -17,6 +17,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, D, RAIL_Z, ROW_Z, Resistor, Shell, SurfaceGlow, W, type Rail } from '../../BreadboardXray';
 import { stripId } from '../../breadboardIds';
+import { BenchSupply } from '../../bench';
 import { useLit, useStage, useStageParam } from '../../stageStore';
 import { Dock, hoverProps, ScaleNotice, useCircuit, useClearHoverOnUnmount, useIsLit, type Circuit, type Sample } from './state';
 import { angleOfRl, clampRl, dragRate, fmtI, fmtP, fmtPct, fmtR, fmtV, LAB, peakLocked, POT_TRAVEL } from './model';
@@ -96,76 +97,26 @@ function Jumper({ from, to, color, lit, onHover }: { from: string; to: string; c
   );
 }
 
-/* ------------------------------------------------------------- bench supply */
+/* ------------------------------------------------------------- bench supply (src/stage/bench) */
 
-const PSU = { x: -42, z: -1.5, w: 8, h: 4.2, d: 9 };
+/** the red lead passes the box's right front corner on its way back to the top + rail */
+const RED_VIA: V3[] = [
+  [-35.2, 1.4, 3.6],
+  [-33.6, 2.2, -5],
+];
 
-function BenchSupply({ c, lit, hover }: { c: Circuit; lit: boolean; hover: (ids: string[] | null) => void }) {
-  const right = PSU.x + PSU.w / 2;
-  const red = useMemo<V3[]>(() => {
-    const [x, z] = hole('T+3');
-    return [
-      [right + 0.2, 1.4, PSU.z - 2.6],
-      [right + 1.6, 1.9, PSU.z - 4.5],
-      [x - 0.9, 1.4, z],
-      [x, 0.5, z],
-      [x, -0.3, z],
-    ];
-  }, [right]);
-  const black = useMemo<V3[]>(() => {
-    const [x, z] = hole('B-3');
-    return [
-      [right + 0.2, 1.4, PSU.z + 2.6],
-      [right + 1.6, 1.9, PSU.z + 5.5],
-      [x - 0.9, 1.4, z],
-      [x, 0.5, z],
-      [x, -0.3, z],
-    ];
-  }, [right]);
-  const enter = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-    hover(['vth']);
-  };
+/** 「台式可调直流电源（5 V）」: + to the top + rail, − to the bottom − rail; it shows the loop current */
+function Supply({ c }: { c: Circuit }) {
   return (
-    <group name="mesh_bench_psu">
-      <group onPointerOver={enter} onPointerOut={() => hover(null)}>
-        <mesh position={[PSU.x, PSU.h / 2 - 1, PSU.z]}>
-          <boxGeometry args={[PSU.w, PSU.h, PSU.d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.55} emissive={lit ? '#f59e0b' : '#000000'} emissiveIntensity={lit ? 0.35 : 0} />
-        </mesh>
-        {/* front panel (toward the viewer) */}
-        <mesh position={[PSU.x, PSU.h / 2 - 1, PSU.z + PSU.d / 2 + 0.01]}>
-          <planeGeometry args={[PSU.w - 0.6, PSU.h - 0.5]} />
-          <meshStandardMaterial color="#3b4250" roughness={0.7} />
-        </mesh>
-        {[-1.8, 1.8].map((dx) => (
-          <mesh key={dx} position={[PSU.x + dx, 0, PSU.z + PSU.d / 2 + 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.7, 0.7, 0.6, 20]} />
-            <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        {/* output terminals on the side facing the board */}
-        <mesh position={[right + 0.15, 1.4, PSU.z - 2.6]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.42, 0.42, 0.5, 14]} />
-          <meshStandardMaterial color="#d62f2f" />
-        </mesh>
-        <mesh position={[right + 0.15, 1.4, PSU.z + 2.6]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.42, 0.42, 0.5, 14]} />
-          <meshStandardMaterial color="#24262b" />
-        </mesh>
-      </group>
-      <Tube pts={red} color={WIRE.red} r={0.14} lit={lit} />
-      <Tube pts={black} color={WIRE.black} r={0.14} />
-      <Html position={[PSU.x, PSU.h / 2 + 0.2, PSU.z + PSU.d / 2 + 0.05]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="w8-psu-lcd">
-          <b>{LAB.vth.toFixed(2)} V</b>
-          <span>{fmtI(c.sol.il, 'lab')}</span>
-        </div>
-      </Html>
-      <Html position={[PSU.x, PSU.h + 1.4, PSU.z - PSU.d / 2 - 1]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`bb3d-tag w8-tag3 psu ${lit ? 'lit' : ''}`}>台式可调直流电源（5 V）</div>
-      </Html>
-    </group>
+    <BenchSupply
+      id="vth"
+      position={[-42, -1.5]}
+      channels={[{ v: LAB.vth, readout: fmtI(c.sol.il, 'lab') }]}
+      leads={[
+        { from: '+', to: 'T+3', via: RED_VIA },
+        { from: '-', to: 'B-3' },
+      ]}
+    />
   );
 }
 
@@ -433,7 +384,7 @@ function Scene({ c, frame }: { c: Circuit; frame: 'bench' | 'pot' }) {
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} onPointerMove={move} onPointerOut={leave} visible={false}>
         <planeGeometry args={[W, D]} />
       </mesh>
-      <BenchSupply c={c} lit={is('vth')} hover={setHover} />
+      <Supply c={c} />
       <Jumper from="T+10" to="a10" color="red" lit={is('vth')} />
       <Resistor p1={a1} p2={a2} lit={is('rth')} tone="good" label="R_Th 1 kΩ（棕-黑-红-金）" bands={RTH_BANDS} onHover={(on) => setHover(on ? ['rth'] : null)} />
       <Jumper from="e18" to="f18" color="orange" lit={is('port_ab')} onHover={(on) => setHover(on ? ['port_ab'] : null)} />

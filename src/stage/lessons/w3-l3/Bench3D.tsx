@@ -2,7 +2,8 @@
 // shared LM358 (Lm358.tsx) straddles the trench with pins 1 and 8 in column 44 (notch left):
 // Pin 1 OUT f44, Pin 2 IN− f45, Pin 3 IN+ f46, Pin 4 V− f47, Pin 8 V+ e44.
 // Rails: top + (red) = +9 V, top − = GND, bottom + = GND (tied to the top GND by a black jumper
-// at column 9), bottom − = −9 V. They are fed by the 台式可调直流电源（±9 V） standing on the bench:
+// at column 9), bottom − = −9 V. They are fed by the 台式可调直流电源（±9 V） standing on the bench
+// (the shared bench supply of src/stage/bench):
 // its two 9 V outputs in series (CH1 − linked to CH2 + = COM), CH1 + → +9 V rail, COM → GND, CH2 −
 // → −9 V rail. The single +9 V mistake moves Pin 4's jumper onto GND and leaves CH2 unwired.
 // R1 = 10 kΩ (brown-black-orange-gold) i38 → i45, R_f = 22 kΩ (red-red-orange-gold; 47 kΩ
@@ -19,6 +20,7 @@ import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, RAIL_Z, ROW_Z, Shell } from '../../BreadboardXray';
+import { BenchSupply, type SupplyLead } from '../../bench';
 import { COLOR_BY_KEY } from '../../colorCode';
 import { Lm358, lm358Pin, type Lm358Pin } from '../../Lm358';
 import { useLit, useStage, useStageParam } from '../../stageStore';
@@ -221,86 +223,32 @@ function PinGlow({ pin, on }: { pin: Lm358Pin; on: boolean }) {
   );
 }
 
-/* ------------------------------------------------------------- the bench supply */
+/* ------------------------------------------------------------- the bench supply (src/stage/bench) */
 
-/** the supply stands on the bench behind the board's left end */
-const SUP = { x: -22, z: -19, w: 11, h: 5.6, d: 7 };
-const SUP_FRONT = SUP.z + SUP.d / 2;
-const POST_Y = 0.4;
-const POSTS = { ch1p: SUP.x - 3.6, ch1n: SUP.x - 1.6, ch2p: SUP.x + 1.6, ch2n: SUP.x + 3.6 };
+/** the −9 V lead runs past the board's left end to the bottom rail, as before the shared supply */
+const NEG_VIA: V3[] = [
+  [-35, 1.0, -10.5],
+  [-35.2, 1.0, 6],
+];
 
-/** a lead from a front-panel post to a rail hole; `around` runs it past the board's left end to the bottom rails */
-function supplyLead(px: number, to: string, lift: number, around = false): V3[] {
-  const [x, z] = hole(to);
-  const pz = SUP_FRONT + 0.25;
-  if (around)
-    return [
-      [px, POST_Y, pz + 0.3],
-      [px - 0.4, 0.1, pz + 1.8],
-      [-35, lift, -10.5],
-      [-35.2, lift, 6],
-      [x - 0.8, lift + 0.2, z + 0.2],
-      [x, 0.5, z],
-      [x, -0.3, z],
-    ];
-  return [
-    [px, POST_Y, pz + 0.3],
-    [px - 0.3, 0.3, pz + 1.6],
-    [x + 0.4, lift, z - 2.4],
-    [x, 0.5, z],
-    [x, -0.3, z],
-  ];
-}
-
-function BenchSupply({ a, lit }: { a: Amp; lit: boolean }) {
-  const hover = useHover3D(['supply']);
-  const yc = -1 + SUP.h / 2;
-  const red = useMemo(() => supplyLead(POSTS.ch1p, 'T+3', 1.9), []);
-  const com = useMemo(() => supplyLead((POSTS.ch1n + POSTS.ch2p) / 2, 'Tg4', 1.3), []);
-  const neg = useMemo(() => supplyLead(POSTS.ch2n, 'B-3', 1.0, true), []);
+/** 「台式可调直流电源（±9 V）」 behind the board's left end: CH1 and CH2 in series, COM = GND; the
+ *  single +9 V mistake leaves CH2 unwired (no − lead, its display line says so). */
+function Supply({ a }: { a: Amp }) {
   const dual = a.supply === 'dual';
   const cur = supplyCurrents(a);
+  const leads: SupplyLead[] = [{ from: '+', to: 'T+3' }, { from: 'com', to: 'T-4' }, ...(dual ? [{ from: '-', to: 'B-3', via: NEG_VIA } as const] : [])];
   return (
-    <group name="supply">
-      <group {...hover}>
-        <mesh position={[SUP.x, yc, SUP.z]}>
-          <boxGeometry args={[SUP.w, SUP.h, SUP.d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.6} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.3 : 0} />
-        </mesh>
-        <mesh position={[SUP.x, yc, SUP_FRONT + 0.01]}>
-          <planeGeometry args={[SUP.w - 0.6, SUP.h - 0.6]} />
-          <meshStandardMaterial color="#3a4150" roughness={0.7} />
-        </mesh>
-        {[-2.6, 2.6].map((dx, i) => (
-          <mesh key={dx} position={[SUP.x + dx, yc + 1.1, SUP_FRONT + 0.02]}>
-            <planeGeometry args={[4.2, 1.8]} />
-            <meshStandardMaterial color="#10261a" emissive={i === 1 && !dual ? '#3a3a3a' : '#1f8a4c'} emissiveIntensity={0.9} />
-          </mesh>
-        ))}
-        {(Object.keys(POSTS) as (keyof typeof POSTS)[]).map((k) => (
-          <mesh key={k} position={[POSTS[k], POST_Y, SUP_FRONT + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.36, 0.36, 0.7, 16]} />
-            <meshStandardMaterial color={k.endsWith('p') ? '#d62f2f' : '#1a1c20'} roughness={0.4} />
-          </mesh>
-        ))}
-        {/* series link CH1 − ↔ CH2 + = COM */}
-        <mesh position={[(POSTS.ch1n + POSTS.ch2p) / 2, POST_Y, SUP_FRONT + 0.62]}>
-          <boxGeometry args={[POSTS.ch2p - POSTS.ch1n + 0.5, 0.22, 0.12]} />
-          <meshStandardMaterial color="#c3c8ce" metalness={0.8} roughness={0.3} />
-        </mesh>
-      </group>
-      <Tube pts={red} color={WIRE.red} r={0.14} lit={lit} />
-      <Tube pts={com} color={WIRE.black} r={0.14} />
-      {dual && <Tube pts={neg} color={WIRE.blue} r={0.14} lit={lit} />}
-      <Html position={[SUP.x, yc + SUP.h / 2 + 1.4, SUP.z]} center zIndexRange={[21, 0]}>
-        <div className={`bb3d-tag w33-tag supply ${lit ? 'lit' : ''}`} {...hov(['supply'])}>
-          <b>{SUPPLY_NAME}</b>
-          <span>
-            CH1 +9.00 V · {fmtMa(cur.ch1)} ｜ CH2 {dual ? `−9.00 V · ${fmtMa(cur.ch2)}` : '未接（Pin 4 误接 GND）'}
-          </span>
-        </div>
-      </Html>
-    </group>
+    <BenchSupply
+      id="supply"
+      position={[-22, -19]}
+      series
+      label={SUPPLY_NAME}
+      channels={[
+        { v: 9, readout: `${fmtMa(cur.ch1)} · CV` },
+        { v: 9, readout: dual ? `${fmtMa(cur.ch2)} · CV` : '未接（Pin 4 误接 GND）' },
+      ]}
+      leads={leads}
+    />
   );
 }
 
@@ -604,7 +552,7 @@ function Scene({ a, probe, view, setProbe }: { a: Amp; probe: Probe; view: Bench
       <RailTag z={RAIL_Z.tn} text="GND" cls="g" right />
       <RailTag z={RAIL_Z.bp} text="GND" cls="g" right />
       <RailTag z={RAIL_Z.bn} text={dual ? '−9 V' : '−9 V（未接）'} cls="n" />
-      <BenchSupply a={a} lit={isLit('supply')} />
+      <Supply a={a} />
       <SignalSource vi={a.vi} lit={isLit('vi_src', 'rin')} />
       {/* top GND ↔ bottom GND */}
       <Jumper from="Tg9" to="Bg9" color="black" lit={isLit('gnd')} lift={0.2} />

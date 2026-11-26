@@ -1,7 +1,7 @@
 // Layer "03 3D 面包板开路/带载实测": Sadiku Ex. 4.8 built on an 830-hole board at ×1000 impedance
 // (R1 4 kΩ, R2 12 kΩ, R3 1 kΩ, a 2 mA current-source module), fed by a 台式可调直流电源（32 V）
-// standing on the bench and wired to the top rails with its own red / black leads (it is not a
-// part plugged into the board). Port a = column 26, port b = column 29 (tied to the − rail).
+// standing on the bench (the shared bench supply of src/stage/bench) and wired to the top rails
+// with its own red / black leads (it is not a part plugged into the board). Port a = column 26, port b = column 29 (tied to the − rail).
 // Four measurements: open-circuit V_Th (DC V), the half-voltage method with a 10 kΩ multi-turn
 // pot (V_L = 30·R_L / (4 + R_L)), the two-point method with a known 6 kΩ load, and I_N on the
 // mA range (safe only because the kΩ network limits it to 7.5 mA). The scale switch puts the
@@ -15,13 +15,15 @@ import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, RAIL_Z, ROW_Z, Shell } from '../../BreadboardXray';
+import { BenchSupply, supplyLabel, type SupplyChannel } from '../../bench';
 import { COLOR_BY_KEY } from '../../colorCode';
 import { useLit, useStage, useStageParam } from '../../stageStore';
 import { Tex } from '../../StageText';
 import { DEFAULTS, hov, Seg, Slider, useClearHoverOnUnmount, useIsLit } from './common';
 import { BANDS, fmtA, fmtOhm, fmtW, halfHit, heatOf, lab, P_MAX, POT, RL_KNOWN, type Heat, type Lab, type LabMode, type Scale } from './model';
 
-export const SUPPLY_NAME = '台式可调直流电源（32 V）';
+const SUPPLY: SupplyChannel = { v: 32 };
+export const SUPPLY_NAME = supplyLabel([SUPPLY]);
 
 type V3 = [number, number, number];
 
@@ -217,68 +219,32 @@ function Pot3D({ kohm, p, hit }: { kohm: number; p: number; hit: boolean }) {
   );
 }
 
-/* ------------------------------------------------------------- the bench supply and the 2 mA module */
+/* ------------------------------------------------------------- the bench supply (src/stage/bench) and the 2 mA module */
 
-const SUP = { x: -41, z: -4.5, w: 11, h: 5.6, d: 7 };
-const SUP_FRONT = SUP.z + SUP.d / 2;
-const POSTS: Record<'red' | 'black', V3> = { red: [SUP.x + 2.6, 0.6, SUP_FRONT + 0.25], black: [SUP.x + 4.2, 0.6, SUP_FRONT + 0.25] };
+/** both leads pass the box's right front corner, then run over the board's left end to the top rails */
+const SUPPLY_VIA: Record<'red' | 'black', V3[]> = {
+  red: [
+    [-35.2, 1.4, 1.0],
+    [-33.6, 1.9, -3.5],
+  ],
+  black: [
+    [-35.6, 1.0, 0.6],
+    [-34, 1.3, -3.5],
+  ],
+};
 
-/** a lead from a front-panel post, forward, then over the board's left end to a top-rail hole */
-function supplyLead(post: V3, to: string, lift: number): V3[] {
-  const [x, z] = hole(to);
-  const [px, py, pz] = post;
-  return [
-    [px, py, pz + 0.3],
-    [px + 0.6, 0.2, pz + 1.8],
-    [-33.6, lift, -2.5],
-    [x - 0.4, lift + 0.3, z + 1.4],
-    [x, 0.5, z],
-    [x, -0.3, z],
-  ];
-}
-
-function BenchSupply({ iSupply, lit }: { iSupply: number; lit: boolean }) {
-  const hover = useHover3D(['lab_supply']);
-  const yc = -1 + SUP.h / 2;
-  const red = useMemo(() => supplyLead(POSTS.red, 'T+4', 1.7), []);
-  const black = useMemo(() => supplyLead(POSTS.black, 'T-5', 1.1), []);
+function Supply({ iSupply }: { iSupply: number }) {
   return (
-    <group name="lab_supply">
-      <group {...hover}>
-        <mesh position={[SUP.x, yc, SUP.z]}>
-          <boxGeometry args={[SUP.w, SUP.h, SUP.d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.6} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.3 : 0} />
-        </mesh>
-        <mesh position={[SUP.x, yc, SUP_FRONT + 0.01]}>
-          <planeGeometry args={[SUP.w - 0.6, SUP.h - 0.6]} />
-          <meshStandardMaterial color="#3a4150" roughness={0.7} />
-        </mesh>
-        <mesh position={[SUP.x - 2.2, yc + 1.0, SUP_FRONT + 0.02]}>
-          <planeGeometry args={[5.4, 2.2]} />
-          <meshStandardMaterial color="#10261a" emissive="#1f8a4c" emissiveIntensity={0.9} />
-        </mesh>
-        {[SUP.x + 2.6, SUP.x + 4.2].map((kx) => (
-          <mesh key={kx} position={[kx, yc + 1.1, SUP_FRONT + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.55, 0.55, 0.5, 20]} />
-            <meshStandardMaterial color="#1f232b" roughness={0.4} />
-          </mesh>
-        ))}
-        {(['red', 'black'] as const).map((k) => (
-          <mesh key={k} position={POSTS[k]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.36, 0.36, 0.7, 16]} />
-            <meshStandardMaterial color={k === 'red' ? '#d62f2f' : '#1a1c20'} roughness={0.4} />
-          </mesh>
-        ))}
-      </group>
-      <Tube pts={red} color={WIRE.red} r={0.14} lit={lit} />
-      <Tube pts={black} color={WIRE.black} r={0.14} />
-      <Html position={[SUP.x, yc + SUP.h / 2 + 1.4, SUP.z]} center zIndexRange={[21, 0]}>
-        <div className={`bb3d-tag w27-tag supply ${lit ? 'lit' : ''}`} {...hov(['lab_supply'])}>
-          <b>{SUPPLY_NAME}</b>
-          <span>32.00 V · {fmtA(iSupply)} · CV</span>
-        </div>
-      </Html>
-    </group>
+    <BenchSupply
+      id="lab_supply"
+      litIds={['hl_vs']}
+      position={[-41, -4.5]}
+      channels={[{ ...SUPPLY, readout: `${fmtA(iSupply)} · CV` }]}
+      leads={[
+        { from: '+', to: 'T+4', via: SUPPLY_VIA.red },
+        { from: '-', to: 'T-5', via: SUPPLY_VIA.black },
+      ]}
+    />
   );
 }
 
@@ -553,7 +519,7 @@ function Scene({ mode, pot, l, view }: { mode: LabMode; pot: number; l: Lab; vie
       </mesh>
       <Shell xray={0} />
       <Glow lit={lit} />
-      <BenchSupply iSupply={l.iSupply} lit={isLit('lab_supply', 'hl_vs')} />
+      <Supply iSupply={l.iSupply} />
       <CurrentModule amps={2 / k} lit={isLit('lab_isrc', 'hl_is')} />
       <Jumper from="T+10" to="a10" color="red" />
       <Jumper from="a23" to="T-23" color="black" />

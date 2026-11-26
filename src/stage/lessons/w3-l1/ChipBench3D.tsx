@@ -1,7 +1,7 @@
 // Layer "01 3D 芯片封装与面包板跨沟插法": an 830-hole breadboard (shared BreadboardXray pieces)
 // with the World 3 lab chip straddling the centre trench — the shared LM358 (Lm358.tsx), or this
-// lesson's LM741 in the same package — and a dual bench supply (±9 V) wired by leads to the rails:
-// top red rail +9 V, top blue rail GND, bottom blue rail −9 V (the bottom red rail is unused).
+// lesson's LM741 in the same package — and a dual bench supply (±9 V; the shared one of
+// src/stage/bench, two channels in series) wired by leads to the rails: top red rail +9 V, top blue rail GND, bottom blue rail −9 V (the bottom red rail is unused).
 // Two jumpers power the chip: Pin 4 → −9 V, and the V+ pin → +9 V — Pin 8 on the LM358, Pin 7 on
 // the LM741, so the red jumper moves (and pins 7 and 8 flash red) when the chip is switched.
 // Controls: chip, X-ray (the shell fades to show the spring clips and the trench), pin group
@@ -16,6 +16,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../../../ui/reveal';
 import { Clips, colX, D, RAIL_Z, ROW_Z, Shell, SurfaceGlow, TrenchGlow, W, type Rail } from '../../BreadboardXray';
 import { stripId } from '../../breadboardIds';
+import { BenchSupply, type SupplyChannel, type SupplyLead } from '../../bench';
 import { Lm358, lm358Pin } from '../../Lm358';
 import { useLit, useStage, useStageParam } from '../../stageStore';
 import { Lm741 } from './Lm741';
@@ -97,72 +98,30 @@ function Jumper({ from, to, color, lit, ids }: { from: string; to: string; color
   );
 }
 
-/* ------------------------------------------------------------- dual bench supply */
+/* ------------------------------------------------------------- dual bench supply (src/stage/bench) */
 
-const PSU = { x: -42, z: -1.5, w: 8, h: 4.2, d: 9 };
-
-function BenchSupply({ lit }: { lit: boolean }) {
-  const right = PSU.x + PSU.w / 2;
-  const lead = (dz: number, to: string): V3[] => {
-    const [x, z] = hole(to);
-    return [
-      [right + 0.2, 1.4, PSU.z + dz],
-      [right + 1.6, 1.9, PSU.z + dz * 1.6],
-      [x - 0.9, 1.4, z],
-      [x, 0.5, z],
-      [x, -0.3, z],
-    ];
-  };
-  const leads = useMemo(() => ({ pos: lead(-2.8, 'T+3'), com: lead(0, 'T-3'), neg: lead(2.8, 'B-3') }), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const enter = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-    useStage.getState().setHover(['bench_psu']);
-  };
-  return (
-    <group>
-      <group onPointerOver={enter} onPointerOut={() => useStage.getState().setHover(null)}>
-        <mesh position={[PSU.x, PSU.h / 2 - 1, PSU.z]}>
-          <boxGeometry args={[PSU.w, PSU.h, PSU.d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.55} emissive={lit ? '#f59e0b' : '#000000'} emissiveIntensity={lit ? 0.35 : 0} />
-        </mesh>
-        <mesh position={[PSU.x, PSU.h / 2 - 1, PSU.z + PSU.d / 2 + 0.01]}>
-          <planeGeometry args={[PSU.w - 0.6, PSU.h - 0.5]} />
-          <meshStandardMaterial color="#3b4250" roughness={0.7} />
-        </mesh>
-        {[-1.8, 1.8].map((dx) => (
-          <mesh key={dx} position={[PSU.x + dx, 0, PSU.z + PSU.d / 2 + 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.7, 0.7, 0.6, 20]} />
-            <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        {(
-          [
-            [-2.8, '#d62f2f'],
-            [0, '#24262b'],
-            [2.8, '#2b59c3'],
-          ] as const
-        ).map(([dz, c]) => (
-          <mesh key={dz} position={[right + 0.15, 1.4, PSU.z + dz]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.42, 0.42, 0.5, 14]} />
-            <meshStandardMaterial color={c} />
-          </mesh>
-        ))}
-      </group>
-      <Tube pts={leads.pos} color={WIRE.red} r={0.14} lit={lit} />
-      <Tube pts={leads.com} color={WIRE.black} r={0.14} lit={lit} />
-      <Tube pts={leads.neg} color={WIRE.blue} r={0.14} lit={lit} />
-      <Html position={[PSU.x, PSU.h / 2 + 0.2, PSU.z + PSU.d / 2 + 0.05]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="w3-psu-lcd">
-          <b>+9.00 V</b>
-          <b>−9.00 V</b>
-        </div>
-      </Html>
-      <Html position={[PSU.x, PSU.h + 1.4, PSU.z - PSU.d / 2 - 1]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`bb3d-tag w3-tag3 psu ${lit ? 'lit' : ''}`}>台式可调直流电源（±9 V）</div>
-      </Html>
-    </group>
-  );
-}
+/** 「台式可调直流电源（±9 V）」: CH1 and CH2 in series, + → +9 V rail, COM → GND rail, − → −9 V rail */
+const SUPPLY: SupplyChannel[] = [{ v: 9 }, { v: 9 }];
+/** the + and COM leads pass the box's right front corner on their way back to the top rails */
+const SUPPLY_LEADS: SupplyLead[] = [
+  {
+    from: '+',
+    to: 'T+3',
+    via: [
+      [-35.2, 1.4, 3.6],
+      [-33.6, 2.2, -5],
+    ],
+  },
+  {
+    from: 'com',
+    to: 'T-3',
+    via: [
+      [-35.6, 1.0, 3.2],
+      [-34.2, 1.6, -4.5],
+    ],
+  },
+  { from: '-', to: 'B-3' },
+];
 
 /* ------------------------------------------------------------- rails, notch, pin labels, pulse */
 
@@ -410,7 +369,7 @@ function Scene({ chip, xray, group, frame }: { chip: ChipKind; xray: boolean; gr
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} onPointerMove={move} onPointerOut={leave} visible={false}>
         <planeGeometry args={[W, D]} />
       </mesh>
-      <BenchSupply lit={is('bench_psu')} />
+      <BenchSupply id="bench_psu" position={[-42, -1.5]} channels={SUPPLY} series leads={SUPPLY_LEADS} />
       <Jumper from={`a${vccCol}`} to={`T+${vccCol}`} color="red" lit={vccLit} ids={[pinId(chip, vcc), 'rail_vcc']} />
       <Jumper from={`j${veeCol}`} to={`B-${veeCol}`} color="blue" lit={veeLit} ids={[pinId(chip, VEE_PIN), 'rail_vee']} />
       {chip === 'lm358' ? <Lm358 c0={CHIP_C0} id="chip_lm358" tag="" pinNumbers={group === 'all'} /> : <Lm741 c0={CHIP_C0} id="chip_lm741" tag="" pinNumbers={group === 'all'} />}
