@@ -1,7 +1,7 @@
 // The oscilloscope screen as a live SVG: 10 × 8 divisions, both channels on one 2.5 V/div scale
 // (so the rails +7.5 V / −8.9 V and the ±2 V input fit together), CH1 amber (input), CH2 teal
 // (output), the LM358's swing limits dashed, and the 50 kHz glitch as a band around a trace.
-// Used by the scope layer (full size) and by the scope on the 3D bench (compact).
+// Used by the scope layer (the 3D bench draws the same traces on the shared oscilloscope).
 
 import type { Trace } from './model';
 import { VOH, VOL } from './model';
@@ -67,7 +67,6 @@ export function ScopeView({
   bandIn = 0,
   bandOut = 0,
   marks = [],
-  compact = false,
   caption,
 }: {
   tr: Trace;
@@ -80,14 +79,13 @@ export function ScopeView({
   bandIn?: number;
   bandOut?: number;
   marks?: Mark[];
-  compact?: boolean;
   caption?: string;
 }) {
   const span = periods / f;
   const msDiv = (span * 1000) / DIVS_X;
   const ticks = Array.from({ length: periods * 2 + 1 }, (_, i) => i / (periods * 2));
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className={`w43-scope ${compact ? 'compact' : ''}`} role="img" aria-label={caption ?? '示波器屏幕'}>
+    <svg viewBox={`0 0 ${W} ${H}`} className="w43-scope" role="img" aria-label={caption ?? '示波器屏幕'}>
       <rect x={0} y={0} width={W} height={H} className="w43-screen" />
       {Array.from({ length: DIVS_X + 1 }, (_, i) => (
         <line key={`x${i}`} x1={(i / DIVS_X) * W} x2={(i / DIVS_X) * W} y1={0} y2={H} className={`w43-div ${i === DIVS_X / 2 ? 'axis' : ''}`} />
@@ -98,16 +96,12 @@ export function ScopeView({
       <g className="w43-sat-lines" {...hoverProps(['sat'])}>
         <line x1={0} x2={W} y1={Y(VOH)} y2={Y(VOH)} className="w43-rail" />
         <line x1={0} x2={W} y1={Y(VOL)} y2={Y(VOL)} className="w43-rail" />
-        {!compact && (
-          <>
-            <text x={W - 6} y={Y(VOH) - 5} className="w43-st end rail">
-              +7.5 V 正饱和
-            </text>
-            <text x={W - 6} y={Y(VOL) - 5} className="w43-st end rail">
-              −8.9 V 负饱和
-            </text>
-          </>
-        )}
+        <text x={W - 6} y={Y(VOH) - 5} className="w43-st end rail">
+          +7.5 V 正饱和
+        </text>
+        <text x={W - 6} y={Y(VOL) - 5} className="w43-st end rail">
+          −8.9 V 负饱和
+        </text>
       </g>
       {showIn && (
         <g {...hoverProps(['ch1'])}>
@@ -123,29 +117,23 @@ export function ScopeView({
       )}
       {marks.map((m, i) => (
         <g key={i} className="w43-mark">
-          <circle cx={m.x * W} cy={Y(m.v)} r={compact ? 7 : 5} />
-          {!compact && (
-            <text x={m.x * W + 10} y={Y(m.v) + (m.v < -5 ? -8 : 18)} className="w43-st">
-              {m.label}
-            </text>
-          )}
+          <circle cx={m.x * W} cy={Y(m.v)} r={5} />
+          <text x={m.x * W + 10} y={Y(m.v) + (m.v < -5 ? -8 : 18)} className="w43-st">
+            {m.label}
+          </text>
         </g>
       ))}
-      {!compact && (
-        <>
-          {ticks.map((k) => (
-            <text key={k} x={Math.min(W - 4, Math.max(4, k * W))} y={H - 6} className={`w43-st ${k === 0 ? '' : k === 1 ? 'end' : 'mid'}`}>
-              {Number((k * span * 1000).toFixed(2))} ms
-            </text>
-          ))}
-          <text x={6} y={16} className="w43-st">
-            2.5 V/div · {Number(msDiv.toFixed(2))} ms/div
-          </text>
-          <text x={6} y={Y(0) - 5} className="w43-st faint">
-            0 V
-          </text>
-        </>
-      )}
+      {ticks.map((k) => (
+        <text key={k} x={Math.min(W - 4, Math.max(4, k * W))} y={H - 6} className={`w43-st ${k === 0 ? '' : k === 1 ? 'end' : 'mid'}`}>
+          {Number((k * span * 1000).toFixed(2))} ms
+        </text>
+      ))}
+      <text x={6} y={16} className="w43-st">
+        2.5 V/div · {Number(msDiv.toFixed(2))} ms/div
+      </text>
+      <text x={6} y={Y(0) - 5} className="w43-st faint">
+        0 V
+      </text>
     </svg>
   );
 }

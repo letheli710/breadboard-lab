@@ -7,23 +7,23 @@
 // − leg (stripe side) in the GND rail (T−22);
 // the 10 kΩ resistor (brown-black-orange-gold) e22 → e27, and a27 → GND rail (black jumper, T−28)
 // — slide right: C discharges through R, τ = RC = 1.0 s.
-// The virtual oscilloscope on the bench: CH1 hook on the capacitor's + leg, the ground clip on its
-// − leg; its screen draws v_C(t) live (the play button / a click on the switch starts t = 0).
-// "反插" swaps the capacitor's legs: the stage warns and will not run.
+// The virtual oscilloscope leans back on a stand in front of the board: CH1 hook on the capacitor's
+// + leg, the ground clip on its − leg; its screen draws v_C(t) live (the play button / a click on
+// the switch starts t = 0). The supply and the scope are the shared bench instruments
+// (src/stage/bench). "反插" swaps the capacitor's legs: the stage warns and will not run.
 
-import { Html, Line, OrbitControls } from '@react-three/drei';
+import { Html, OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, RAIL_Z, ROW_Z, Shell } from '../../BreadboardXray';
+import { BenchSupply, hoverHandlers, Oscilloscope, PROBE_COLORS, ProbeLead, toWorld, useAnyLit, type OsdItem, type ScopeChannel, type V3 } from '../../bench';
 import { COLOR_BY_KEY } from '../../colorCode';
 import { useLit, useStage, useStageParam } from '../../stageStore';
 import { fmtP, fmtT, LAB, P_RATED, rc, SUPPLY_NAME } from './model';
 import { hov, Seg, startPlay, stopPlay, T_MAX, useClearHoverOnUnmount, useIsLit, usePlay, useTime, type Sw } from './state';
-
-type V3 = [number, number, number];
 
 /* ------------------------------------------------------------- holes and hover */
 
@@ -237,196 +237,91 @@ function SlideSwitch({ sw, lit, onToggle, disabled }: { sw: Sw; lit: boolean; on
   );
 }
 
-/* ------------------------------------------------------------- the bench supply */
+/* ------------------------------------------------------------- instruments (src/stage/bench) */
 
-const SUP = { x: -22, z: -19, w: 9, h: 5, d: 6.4 };
-const SUP_FRONT = SUP.z + SUP.d / 2;
-const POST_Y = 0.2;
-const POSTS = { p: SUP.x + 1.6, n: SUP.x + 3.4 };
+/** the 5 V supply behind the board's left end */
+const SUPPLY_AT: [number, number] = [-22, -19];
 
-function supplyLead(px: number, to: string, lift: number): V3[] {
-  const [x, z] = hole(to);
-  const pz = SUP_FRONT + 0.25;
-  return [
-    [px, POST_Y, pz + 0.3],
-    [px - 0.3, 0.3, pz + 1.6],
-    [x + 0.4, lift, z - 2.4],
-    [x, 0.5, z],
-    [x, -0.3, z],
-  ];
-}
-
-function BenchSupply({ lit, sw }: { lit: boolean; sw: Sw }) {
-  const hover = useHover3D(['supply']);
-  const yc = -1 + SUP.h / 2;
-  const red = useMemo(() => supplyLead(POSTS.p, 'T+3', 1.9), []);
-  const black = useMemo(() => supplyLead(POSTS.n, 'T-4', 1.3), []);
+function Supply({ sw }: { sw: Sw }) {
+  const channels = useMemo(() => [{ v: LAB.v0, readout: `0.00 mA · ${sw === 'charge' ? 'C 已充满' : '开关已断开电源支路'}` }], [sw]);
   return (
-    <group name="supply">
-      <group {...hover}>
-        <mesh position={[SUP.x, yc, SUP.z]}>
-          <boxGeometry args={[SUP.w, SUP.h, SUP.d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.6} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.3 : 0} />
-        </mesh>
-        <mesh position={[SUP.x, yc, SUP_FRONT + 0.01]}>
-          <planeGeometry args={[SUP.w - 0.6, SUP.h - 0.6]} />
-          <meshStandardMaterial color="#3a4150" roughness={0.7} />
-        </mesh>
-        <mesh position={[SUP.x - 1.4, yc + 0.9, SUP_FRONT + 0.02]}>
-          <planeGeometry args={[4.6, 1.8]} />
-          <meshStandardMaterial color="#10261a" emissive="#1f8a4c" emissiveIntensity={0.9} />
-        </mesh>
-        {[-2.6, -0.4].map((dx) => (
-          <mesh key={dx} position={[SUP.x + dx, yc - 1.2, SUP_FRONT + 0.2]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.5, 0.5, 0.4, 18]} />
-            <meshStandardMaterial color="#1f232b" />
-          </mesh>
-        ))}
-        {(['p', 'n'] as const).map((k) => (
-          <mesh key={k} position={[POSTS[k], POST_Y, SUP_FRONT + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.36, 0.36, 0.7, 16]} />
-            <meshStandardMaterial color={k === 'p' ? '#d62f2f' : '#1a1c20'} roughness={0.4} />
-          </mesh>
-        ))}
-      </group>
-      <Tube pts={red} color={WIRE.red} r={0.14} lit={lit} />
-      <Tube pts={black} color={WIRE.black} r={0.14} />
-      <Html position={[SUP.x, yc + SUP.h / 2 + 1.3, SUP.z]} center zIndexRange={[21, 0]}>
-        <div className={`bb3d-tag w44-tag supply ${lit ? 'lit' : ''}`} {...hov(['supply'])}>
-          <b>{SUPPLY_NAME}</b>
-          <span>+5.00 V · {sw === 'charge' ? '0.00 mA（C 已充满）' : '开关已断开电源支路'}</span>
-        </div>
-      </Html>
-    </group>
+    <BenchSupply
+      id="supply"
+      position={SUPPLY_AT}
+      channels={channels}
+      litIds={['rail_p']}
+      leads={[
+        { from: '+', to: 'T+3', litIds: ['rail_p'] },
+        { from: '-', to: 'T-4', litIds: ['gnd'] },
+      ]}
+    />
   );
 }
 
-/* ------------------------------------------------------------- the oscilloscope */
-
-const SCOPE = { x: 5, z: 13, w: 12, h: 7.5, d: 5 };
-/** the box leans back by SCOPE_TILT on a stand; its centre is high enough for the back edge to clear the bench */
-const SCOPE_Y = 3.5;
+/**
+ * The virtual oscilloscope leans back on a stand in front of the board, so its screen faces the
+ * camera: the shared scope at half size inside a group turned by −SCOPE_TILT about x. Its probe
+ * would turn with it, so the CH1 probe is drawn outside the group, cabled to the jack's world point.
+ */
+const SCOPE_POS: V3 = [5, 1.5, 15];
+const SCOPE_SCALE = 0.5;
 const SCOPE_TILT = 0.55;
-const SCR = { w: 7.6, h: 5 };
-
-/** a point on the (tilted) front panel, panel-local (x right, y up) */
-function panel(x: number, y: number, out = 0.05): V3 {
+/** a point of the scope's own frame (the group's, before the tilt) in world space */
+function tilted([x, y, z]: V3): V3 {
   const c = Math.cos(SCOPE_TILT);
   const s = Math.sin(SCOPE_TILT);
-  const zf = SCOPE.d / 2 + out;
-  return [SCOPE.x + x, SCOPE_Y + y * c + zf * s, SCOPE.z - y * s + zf * c];
+  return [SCOPE_POS[0] + x, SCOPE_POS[1] + y * c + z * s, SCOPE_POS[2] - y * s + z * c];
 }
+/** the CH1 jack (as the shared scope places it) and the direction it faces */
+const JACK = tilted(toWorld({ position: [0, 0], scale: SCOPE_SCALE }, [6.6, 1.6, 3.8]));
+const JACK_OUT: V3 = [0, Math.sin(SCOPE_TILT), Math.cos(SCOPE_TILT)];
 
-function Oscilloscope({ sw, tn, lit, rev }: { sw: Sw; tn: number; lit: boolean; rev: boolean }) {
-  const hover = useHover3D(['scope']);
-  const sx = SCR.w / 2 - 0.2;
-  const ox = -1.6;
-  // the trace: 5 V at t < 0, then 5 e^(−t) up to the cursor (6 s across)
-  const trace = useMemo<V3[]>(() => {
-    const pts: V3[] = [];
-    const X = (u: number) => ox - sx + ((u + 0.6) / (T_MAX + 0.6)) * 2 * sx;
-    const Y = (v: number) => -SCR.h / 2 + 0.3 + (v / 5.4) * (SCR.h - 0.6);
-    pts.push([X(-0.6), Y(5), 0.08]);
-    pts.push([X(0), Y(5), 0.08]);
-    if (sw === 'discharge' && !rev) for (let u = 0; u <= tn + 1e-9; u += 0.05) pts.push([X(u), Y(5 * Math.exp(-u)), 0.08]);
-    if (pts.length < 2) pts.push([X(0), Y(5), 0.08]);
-    return pts;
-  }, [sw, tn, rev, sx, ox]);
-  const grid = useMemo<V3[][]>(() => {
-    const g: V3[][] = [];
-    for (let i = 0; i <= 8; i++) {
-      const x = ox - sx + (i / 8) * 2 * sx;
-      g.push([
-        [x, -SCR.h / 2 + 0.3, 0.06],
-        [x, SCR.h / 2 - 0.3, 0.06],
-      ]);
-    }
-    for (let j = 0; j <= 4; j++) {
-      const y = -SCR.h / 2 + 0.3 + (j / 4) * (SCR.h - 0.6);
-      g.push([
-        [ox - sx, y, 0.06],
-        [ox + sx, y, 0.06],
-      ]);
-    }
-    return g;
-  }, [sx, ox]);
-  const v = sw === 'charge' ? LAB.v0 : rev ? NaN : 5 * Math.exp(-tn);
+/** v_C on the screen: 5 V before t = 0, then 5 e^(−t) (τ = 1 s); 0.8 V/div with 0 V near the bottom (5 V
+ *  stays clear of the readout line over the screen's top), a thick trace for the half-size screen */
+const CH1: ScopeChannel = { data: (t) => (t < 0 ? LAB.v0 : LAB.v0 * Math.exp(-t)), vdiv: 0.8, pos: -3.6, width: 16 };
+/** −0.6 … 6 s across the screen; the sweep has run up to t = tn */
+const TIME = { div: (T_MAX + 0.6) / 10, start: -0.6 };
+
+function Scope({ sw, tn, rev }: { sw: Sw; tn: number; rev: boolean }) {
+  const v = sw === 'charge' ? LAB.v0 : rev ? NaN : LAB.v0 * Math.exp(-tn);
+  const upto = sw === 'discharge' && !rev ? tn : 0;
+  const osd: OsdItem[] = [
+    { text: `CH1 ${Number.isNaN(v) ? '----' : v.toFixed(v < 0.1 ? 3 : 2)} V`, tone: rev ? 'warn' : 'ch1' },
+    { text: sw === 'charge' ? 't < 0' : `t = ${tn.toFixed(2)} s`, tone: rev ? 'warn' : undefined },
+  ];
   return (
     <group name="scope">
-      <group {...hover}>
-        <mesh position={[SCOPE.x, SCOPE_Y, SCOPE.z]} rotation={[-SCOPE_TILT, 0, 0]}>
-          <boxGeometry args={[SCOPE.w, SCOPE.h, SCOPE.d]} />
-          <meshStandardMaterial color="#cfd5dd" roughness={0.6} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.3 : 0} />
-        </mesh>
-        <mesh position={[SCOPE.x, -0.2, SCOPE.z + 0.8]}>
-          <boxGeometry args={[SCOPE.w - 1, 1.6, SCOPE.d + 1]} />
-          <meshStandardMaterial color="#9aa3ae" roughness={0.7} />
-        </mesh>
-        <group position={panel(0, 0, 0.02)} rotation={[-SCOPE_TILT, 0, 0]}>
-          <mesh>
-            <planeGeometry args={[SCOPE.w - 0.5, SCOPE.h * 0.62]} />
-            <meshStandardMaterial color="#3a4150" roughness={0.7} />
-          </mesh>
-          <mesh position={[ox, 0, 0.03]}>
-            <planeGeometry args={[SCR.w, SCR.h]} />
-            <meshStandardMaterial color="#0b1a12" emissive="#0e2a1a" emissiveIntensity={0.8} />
-          </mesh>
-          {grid.map((p, i) => (
-            <Line key={i} points={p} color="#2f5a42" lineWidth={1} />
-          ))}
-          <Line points={trace} color="#facc15" lineWidth={3} />
-          {[0, 1, 2].map((i) => (
-            <mesh key={i} position={[SCOPE.w / 2 - 1.6, 1.4 - i * 1.3, 0.12]} rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[0.42, 0.42, 0.24, 18]} />
-              <meshStandardMaterial color="#1f232b" />
-            </mesh>
-          ))}
-          <mesh position={[SCOPE.w / 2 - 1.6, -2.0, 0.15]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.36, 0.36, 0.3, 16]} />
-            <meshStandardMaterial color="#d4a72c" metalness={0.7} roughness={0.3} />
-          </mesh>
-        </group>
+      <group position={SCOPE_POS} rotation={[-SCOPE_TILT, 0, 0]}>
+        <Oscilloscope
+          id="scope"
+          position={[0, 0]}
+          scale={SCOPE_SCALE}
+          ch1={CH1}
+          time={TIME}
+          progress={(upto - TIME.start) / (10 * TIME.div)}
+          osd={osd}
+          label="虚拟数字示波器"
+          litIds={['curve']}
+        />
       </group>
-      <Html position={panel(ox, SCR.h / 2 + 0.9, 0.3)} center zIndexRange={[22, 0]}>
-        <div className={`w44-lcd ${lit ? 'lit' : ''} ${rev ? 'bad' : ''}`} tabIndex={0} {...hov(['scope', 'probe'])}>
-          <small>CH1</small>
-          <b>{Number.isNaN(v) ? '----' : v.toFixed(v < 0.1 ? 3 : 2)}</b>
-          <span>V</span>
-          <small>{sw === 'charge' ? 't < 0' : `t = ${tn.toFixed(2)} s`}</small>
-        </div>
-      </Html>
+      {/* the stand under the front edge */}
+      <mesh position={[SCOPE_POS[0], -0.2, SCOPE_POS[2] + 0.5]} {...hoverHandlers(['scope'])}>
+        <boxGeometry args={[11, 1.6, 3]} />
+        <meshStandardMaterial color="#9aa3ae" roughness={0.7} />
+      </mesh>
     </group>
   );
 }
 
-/** the CH1 hook on the + leg and the ground clip on the − leg, cabled to the scope's BNC */
-function Probes({ lit, rev }: { lit: boolean; rev: boolean }) {
-  const hover = useHover3D(['probe']);
-  const { tip, gnd, cable, lead } = useMemo(() => {
-    const [xa, za] = hole(CAP_PLUS);
-    const [xb, zb] = hole(CAP_MINUS);
-    const [px, pz, nx, nz] = rev ? [xb, zb, xa, za] : [xa, za, xb, zb];
-    const bnc = panel(SCOPE.w / 2 - 1.6, -2.0, 0.4);
-    const tip: V3 = [px, 0.55, pz];
-    const gnd: V3 = [nx, 0.45, nz];
-    const cable: V3[] = [[tip[0] + 0.2, 2.2, tip[2] + 0.3], [tip[0] + 2, 3.4, tip[2] + 4], [2, 2.6, 6], [bnc[0] - 2, 1.4, bnc[2] + 1.2], bnc];
-    const lead: V3[] = [gnd, [gnd[0] - 0.4, 1.6, gnd[2] + 0.6], [tip[0] - 0.3, 2.0, tip[2] + 0.8], [tip[0] + 0.2, 2.2, tip[2] + 0.3]];
-    return { tip, gnd, cable, lead };
-  }, [rev]);
-  return (
-    <group {...hover}>
-      <mesh position={[tip[0] + 0.2, 1.4, tip[2] + 0.3]}>
-        <cylinderGeometry args={[0.24, 0.2, 1.8, 12]} />
-        <meshStandardMaterial color="#1f6feb" emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.5 : 0} />
-      </mesh>
-      <Tube pts={cable} color="#2b3442" r={0.12} lit={lit} />
-      <Tube pts={lead} color="#24262b" r={0.07} />
-      <mesh position={gnd}>
-        <boxGeometry args={[0.5, 0.3, 0.3]} />
-        <meshStandardMaterial color="#1a1c20" />
-      </mesh>
-    </group>
-  );
+/** the CH1 hook on the + leg and the ground clip on the − leg, cabled to the scope's jack */
+function Probe({ rev }: { rev: boolean }) {
+  const lit = useAnyLit(['probe', 'scope']);
+  const [xa, za] = hole(CAP_PLUS);
+  const [xb, zb] = hole(CAP_MINUS);
+  // the hook sits on the + leg just outside the can, the clip hangs on the − leg
+  const tip: [number, number] = rev ? [xb, zb - 0.35] : [xa, za + 0.35];
+  const gnd: V3 = rev ? [xa + 0.15, 0.9, za] : [xb + 0.15, 0.9, zb];
+  return <ProbeLead jack={JACK} out={JACK_OUT} tip={tip} color={PROBE_COLORS.ch1} id="probe" lit={lit} ground={gnd} groundId="probe" groundLit={lit} />;
 }
 
 /* ------------------------------------------------------------- glow on lit strips and rails */
@@ -552,14 +447,14 @@ function Scene({ sw, tn, rev, view, toggle }: { sw: Sw; tn: number; rev: boolean
       <Glow lit={lit} />
       <RailTag z={RAIL_Z.tp} text="+5 V" cls="p" />
       <RailTag z={RAIL_Z.tn} text="GND" cls="g" />
-      <BenchSupply lit={isLit('supply', 'rail_p')} sw={sw} />
+      <Supply sw={sw} />
       <Jumper from="a20" to="T+19" color="red" lit={isLit('rail_p', 'spdt')} />
       <SlideSwitch sw={sw} lit={isLit('spdt', 'sw')} onToggle={toggle} disabled={rev} />
       <Electrolytic rev={rev} lit={isLit('cap', 'v_node')} v={v} />
       <Resistor10k lit={isLit('res', 'i_r')} />
       <Jumper from="a27" to="T-28" color="black" lit={isLit('gnd', 'res')} />
-      <Probes lit={isLit('probe', 'scope')} rev={rev} />
-      <Oscilloscope sw={sw} tn={tn} lit={isLit('scope', 'curve')} rev={rev} />
+      <Probe rev={rev} />
+      <Scope sw={sw} tn={tn} rev={rev} />
       <Tag at={[colX(21), 2.7, ROW_Z.c + 1.6]} text={sw === 'charge' ? 'SPDT · 左拨充电' : 'SPDT · 右拨放电'} cls={`part ${sw}`} lit={isLit('spdt')} ids={['spdt']} />
       <Tag at={[colX(24.5), 2.4, ROW_Z.e + 1.4]} text="R 10 kΩ（棕黑橙金）" cls="part" lit={isLit('res')} />
       <Tag at={[colX(16.5), 4.6, -7]} text={rev ? '电解电容反插！' : 'C 100 µF / 16 V'} cls={`part ${rev ? 'bad' : ''}`} lit={isLit('cap')} />

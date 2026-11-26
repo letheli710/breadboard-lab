@@ -1,14 +1,15 @@
 // Layer "03 3D LM358 ±9V 双电源面包板 + 信号源/示波器探头实操": the shared LM358 (Lm358.tsx; notch
 // left, pins 1 and 8 in column 28) across the trench of an 830-hole board, and three instruments
-// standing behind it, each wired by its own leads:
-//  - 台式可调直流电源（±9 V）: its two 9 V outputs in series, the middle COM = GND. Red lead + → top
-//    red rail (+9 V), black lead COM → top blue rail and bottom red rail (GND), blue lead − →
-//    bottom blue rail (−9 V). Red jumper T+27 → a28 (Pin 8 V+), blue jumper j31 → B−33 (Pin 4 V−),
-//    black jumper j30 → B+30 (Pin 3 IN+ to GND);
+// standing behind it (the shared bench instruments of src/stage/bench), each wired by its own leads:
+//  - 台式可调直流电源（±9 V）: its two 9 V outputs (第 1 路 / 第 2 路) in series, the middle COM =
+//    GND. Red lead + → top red rail (+9 V), black lead COM → top blue rail and bottom red rail
+//    (GND), blue lead − → bottom blue rail (−9 V). Red jumper T+27 → a28 (Pin 8 V+), blue jumper
+//    j31 → B−33 (Pin 4 V−), black jumper j30 → B+30 (Pin 3 IN+ to GND);
 //  - 函数信号发生器: square / triangle, 50 Hz – 2 kHz, ±0.5 … ±5 V; red clip → j18 (the input
 //    node, column 18), black clip → top GND rail;
 //  - 双通道示波器: CH1 hook on g18 (input), CH2 hook on g28 (Pin 1 = v_o), both ground clips on the
-//    top GND rail; its screen shows the live traces (ScopeView, from model.simulate()).
+//    top GND rail; its screen shows the live traces of model.simulate() (two periods, 2.5 V/div,
+//    the LM358's swing limits dashed, the 50 kHz glitch as a thick trace).
 // The circuit (an orange jumper g29 → g24 brings v− = Pin 2 to column 24):
 //  - integrator: R 10 kΩ (brown-black-orange) h18 → h24, C 100 nF film "104" i24 → i28,
 //    R_f 100 kΩ (brown-black-yellow) j24 → j28 — "拔掉 R_f" removes it;
@@ -19,22 +20,22 @@
 
 import { Html, OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
-import { type ReactNode, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, D, Lead as Leg, RAIL_Z, ROW_Z, Resistor, Shell, SurfaceGlow, TrenchGlow, W, type Rail } from '../../BreadboardXray';
 import { stripId } from '../../breadboardIds';
+import { BenchSupply, FunctionGenerator, Oscilloscope, supplyLabel, type LcdLine, type OsdItem, type ScopeCursor, type V3 } from '../../bench';
 import { Lm358, lm358Pin } from '../../Lm358';
 import { useLit, useStage } from '../../stageStore';
-import { driftLevel, fmtF, fmtSigned, fmtV, gainAt, simulate, VN, VOH, VOS, type Wave } from './model';
-import { ScopeView } from './ScopeView';
+import { driftLevel, fmtF, fmtSigned, fmtV, gainAt, simulate, VN, VOH, VOL, VOS, type Trace, type Wave } from './model';
 import { Cell, Dock, hoverProps, Seg, Slider, useBench, useClearHoverOnUnmount, useClock, type Cam } from './state';
 
-type V3 = [number, number, number];
-
 export const C0 = 28;
-export const SUPPLY_NAME = '台式可调直流电源（±9 V）';
+/** the ±9 V supply: two 9 V outputs in series */
+const PSU_CHANNELS = [{ v: 9 }, { v: 9 }];
+export const SUPPLY_NAME = supplyLabel(PSU_CHANNELS, true);
 
 /** column of an LM358 pin (pins 1–4 on row f, 5–8 on row e) */
 const pc = (p: 1 | 2 | 3 | 4 | 8) => lm358Pin(C0, p).col;
@@ -97,7 +98,7 @@ function Tube({ pts, color, r = 0.11, lit = false }: { pts: V3[]; color: string;
   );
 }
 
-const WIRE = { red: '#d62f2f', black: '#24262b', blue: '#2f5fd0', orange: '#f08a1c', yellow: '#e8c21c', teal: '#0e9fb5', grey: '#8a9099' };
+const WIRE = { red: '#d62f2f', black: '#24262b', blue: '#2f5fd0', orange: '#f08a1c' };
 type WireColor = keyof typeof WIRE;
 
 const enterIds = (ids: string[]) => (e: ThreeEvent<PointerEvent>) => {
@@ -120,17 +121,6 @@ function Jumper({ from, to, color, lit, id }: { from: string; to: string; color:
       <Tube pts={pts} color={WIRE[color]} r={0.13} lit={lit} />
     </group>
   );
-}
-
-/** an instrument lead from a front-panel terminal (world point) to a hole, in an arc over the board */
-function Cable({ from, to, color, lit, r = 0.14, top = 0.4 }: { from: V3; to: string; color: WireColor; lit?: boolean; r?: number; top?: number }) {
-  const pts = useMemo<V3[]>(() => {
-    const [x, z] = hole(to);
-    const lift = Math.min(5, 1.8 + Math.hypot(x - from[0], z - from[2]) * 0.09);
-    const mid: V3 = [(from[0] + x) / 2, lift, (from[2] + 1.4 + z) / 2];
-    return [from, [from[0], from[1] + 0.25, from[2] + 1.4], mid, [x, top + 1.6, z - 0.4], [x, top + 0.5, z], [x, top, z]];
-  }, [from, to, top]);
-  return <Tube pts={pts} color={WIRE[color]} r={r} lit={lit} />;
 }
 
 /* ------------------------------------------------------------- parts */
@@ -175,91 +165,87 @@ function FilmCap({ a, b, id, label, lit }: { a: string; b: string; id: string; l
   );
 }
 
-interface Terminal {
-  dx: number;
-  color: WireColor;
-  to: string[];
-  lit?: boolean;
-  /** height of the lead's end over the board (a probe hook sits higher) */
-  top?: number;
+/* ------------------------------------------------------------- instruments (src/stage/bench) */
+
+/** the supply's display: its outputs are 第 1 路 / 第 2 路 here, since CH1 / CH2 are the scope's */
+const PSU_LCD: LcdLine[] = [{ text: '第 1 路 +9.00 V', strong: true }, { text: '第 2 路 −9.00 V', strong: true }, { text: '串联 · COM = GND' }];
+
+/** the LM358's swing limits on ±9 V (+7.5 V / −8.9 V), dashed across the screen */
+const RAIL_CURSORS: ScopeCursor[] = [
+  { kind: 'v', ch: 'ch2', at: VOH, color: '#f87171' },
+  { kind: 'v', ch: 'ch2', at: VOL, color: '#f87171' },
+];
+
+/**
+ * A trace from the simulation's per-column [min, max] pairs (peak detect, so edge spikes stay
+ * visible), with a vertical stroke where a column spans a jump. `band` widens every column by
+ * ±band inside `lim`: the 50 kHz glitch, far too fast for the screen, paints a thick trace.
+ */
+function colsTrace(cols: [number, number][], span: number, band = 0, lim: [number, number] = [-Infinity, Infinity]): [number, number][] {
+  const pts: [number, number][] = [];
+  let prev: number | null = null;
+  cols.forEach(([lo0, hi0], c) => {
+    const t = ((c + 0.5) / cols.length) * span;
+    const lo = Math.max(lim[0], lo0 - band);
+    const hi = Math.min(lim[1], hi0 + band);
+    const vs = hi - lo < 0.06 ? [(lo + hi) / 2] : prev !== null && Math.abs(prev - hi) < Math.abs(prev - lo) ? [hi, lo] : [lo, hi];
+    for (const v of vs) {
+      pts.push([t, v]);
+      prev = v;
+    }
+  });
+  return pts;
 }
 
-/** An instrument box behind the board: front panel, a display (Html), terminals along its foot, leads. */
-function Instrument({
-  x,
-  z,
-  w,
-  h,
-  id,
-  tag,
-  terms,
-  lit,
-  display,
-  knobs = [],
-  tagLift = 0.6,
-}: {
-  x: number;
-  z: number;
-  w: number;
-  h: number;
-  id: string;
-  tag: string;
-  terms: Terminal[];
-  lit: boolean;
-  display: ReactNode;
-  knobs?: number[];
-  /** height of the name tag over the box */
-  tagLift?: number;
-}) {
-  const d = 6;
-  const front = z + d / 2;
+function Instruments({ lab }: { lab: Lab }) {
+  const { tr, bandIn, bandOut } = lab;
+  // two periods across the 10 divisions, both channels on one 2.5 V/div scale; thick traces for the
+  // small screen
+  const time = useMemo(() => ({ div: tr.span / 10 }), [tr.span]);
+  const ch1 = useMemo(() => ({ data: colsTrace(tr.colsIn, tr.span, bandIn, [-20, 20]), vdiv: 2.5, width: 12 }), [tr, bandIn]);
+  const ch2 = useMemo(() => ({ data: colsTrace(tr.cols, tr.span, bandOut > 0.02 ? bandOut : 0, [VOL, VOH]), vdiv: 2.5, width: 12 }), [tr, bandOut]);
+  const osd: OsdItem[] = tr.clipped ? [{ text: 'CLIPPING', tone: 'warn' }] : [];
   return (
-    <group>
-      <group onPointerOver={enterIds([id])} onPointerOut={leave}>
-        <mesh position={[x, h / 2 - 0.5, z]}>
-          <boxGeometry args={[w, h, d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.55} emissive={lit ? '#f59e0b' : '#000000'} emissiveIntensity={lit ? 0.35 : 0} />
-        </mesh>
-        <mesh position={[x, h / 2 - 0.5, front + 0.01]}>
-          <planeGeometry args={[w - 0.6, h - 0.5]} />
-          <meshStandardMaterial color="#3b4250" roughness={0.7} />
-        </mesh>
-        {knobs.map((dx) => (
-          <mesh key={dx} position={[x + dx, h - 2.1, front + 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.55, 0.55, 0.6, 20]} />
-            <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        {terms.map((t, i) => (
-          <mesh key={i} position={[x + t.dx, 0.6, front + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.42, 0.42, 0.5, 14]} />
-            <meshStandardMaterial color={WIRE[t.color]} />
-          </mesh>
-        ))}
-      </group>
-      {terms.flatMap((t, i) => t.to.map((hl) => <Cable key={`${i}-${hl}`} from={[x + t.dx, 0.6, front + 0.5]} to={hl} color={t.color} lit={t.lit} top={t.top} />))}
-      {display}
-      <Html position={[x, h + tagLift, z - d / 2]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`bb3d-tag w43-tag3 inst ${lit ? 'lit' : ''}`}>{tag}</div>
-      </Html>
-    </group>
-  );
-}
-
-/** a scope probe's hook clipped onto a hole */
-function Hook({ at, color, lit }: { at: string; color: WireColor; lit: boolean }) {
-  const [x, z] = hole(at);
-  return (
-    <group>
-      <mesh position={[x, 0.5, z]}>
-        <cylinderGeometry args={[0.07, 0.07, 1.6, 8]} />
-        <meshStandardMaterial color="#c3c8ce" metalness={0.8} roughness={0.3} />
-      </mesh>
-      <mesh position={[x, 1.7, z]}>
-        <cylinderGeometry args={[0.3, 0.24, 1.4, 14]} />
-        <meshStandardMaterial color={WIRE[color]} roughness={0.45} emissive={lit ? WIRE[color] : '#000000'} emissiveIntensity={lit ? 0.7 : 0} />
-      </mesh>
-    </group>
+    <>
+      <BenchSupply
+        id="psu"
+        position={[-24, -17.5]}
+        channels={PSU_CHANNELS}
+        series
+        lcd={PSU_LCD}
+        leads={[
+          { from: '+', to: 'T+12', litIds: ['rail_p9'] },
+          { from: 'com', to: ['T-13', 'B+3'], litIds: ['rail_gnd'] },
+          { from: '-', to: 'B-5', litIds: ['rail_m9'] },
+        ]}
+      />
+      <FunctionGenerator
+        id="fgen"
+        position={[-3, -17.5]}
+        waveform={lab.wave === 'tri' ? 'triangle' : 'square'}
+        frequency={lab.f}
+        vpp={2 * lab.amp}
+        output={lab.gen}
+        out="j18"
+        gnd="T-20"
+        litIds={['vi']}
+      />
+      <Oscilloscope
+        id="scope"
+        position={[22, -17.5]}
+        scale={0.625}
+        ch1={ch1}
+        ch2={ch2}
+        time={time}
+        cursors={RAIL_CURSORS}
+        osd={osd}
+        litIds={['ch1', 'ch2']}
+        probes={{
+          ch1: { tip: 'g18', ground: 'T-16', id: 'ch1', groundId: 'ch1', litIds: ['vi'], groundLitIds: ['rail_gnd'] },
+          ch2: { tip: `g${P1}`, ground: 'T-30', id: 'ch2', groundId: 'ch2', litIds: ['vo'], groundLitIds: ['rail_gnd'] },
+        }}
+      />
+    </>
   );
 }
 
@@ -267,23 +253,25 @@ function Hook({ at, color, lit }: { at: string; color: WireColor; lit: boolean }
 
 const VIEW_DIR = new THREE.Vector3(0, 1.6, 1).normalize();
 const VIEW_DIR_WIDE = new THREE.Vector3(0, 1.2, 1).normalize();
-type Box = { x: [number, number]; z: [number, number] };
+/** the scope's screen is on its front panel: its preset looks at it from lower down */
+const SCOPE_DIR = new THREE.Vector3(0, 0.8, 1).normalize();
+type Box = { x: [number, number]; z: [number, number]; y?: [number, number] };
 const FRAMES: Record<Cam, Box> = {
   bench: { x: [-34, 34], z: [-21, 11] },
   circuit: { x: [-16, 4], z: [-4, 8] },
-  scope: { x: [10, 34], z: [-21, -12] },
+  scope: { x: [10, 34], z: [-21, -12], y: [-1, 8] },
 };
 const FRAMES_WIDE: Record<Cam, Box> = {
   bench: { x: [-33, 33], z: [-20, 10] },
   circuit: { x: [-18, 6], z: [-3, 8] },
-  scope: { x: [8, 36], z: [-21, -12] },
+  scope: { x: [8, 36], z: [-21, -12], y: [-1, 8] },
 };
 
 function fitView(camera: THREE.PerspectiveCamera, aspect: number, f: Box, dir: THREE.Vector3): [THREE.Vector3, THREE.Vector3] {
   const target = new THREE.Vector3((f.x[0] + f.x[1]) / 2, 0.5, (f.z[0] + f.z[1]) / 2);
   const cam = new THREE.PerspectiveCamera(camera.fov, aspect, 0.5, 400);
   const corners: THREE.Vector3[] = [];
-  for (const x of f.x) for (const y of [-1, 6]) for (const z of f.z) corners.push(new THREE.Vector3(x, y, z));
+  for (const x of f.x) for (const y of f.y ?? [-1, 6]) for (const z of f.z) corners.push(new THREE.Vector3(x, y, z));
   const v = new THREE.Vector3();
   let d = 10;
   for (; d < 260; d *= 1.04) {
@@ -304,7 +292,8 @@ function CameraRig({ frame }: { frame: Cam }) {
   useEffect(() => {
     if (!controls) return;
     const wide = aspect > 1.6;
-    const [toP, toT] = fitView(camera, aspect, (wide ? FRAMES_WIDE : FRAMES)[frame], wide ? VIEW_DIR_WIDE : VIEW_DIR);
+    const dir = frame === 'scope' ? SCOPE_DIR : wide ? VIEW_DIR_WIDE : VIEW_DIR;
+    const [toP, toT] = fitView(camera, aspect, (wide ? FRAMES_WIDE : FRAMES)[frame], dir);
     if (prefersReducedMotion()) {
       camera.position.copy(toP);
       controls.target.copy(toT);
@@ -357,10 +346,11 @@ interface Lab {
   amp: number;
   glitch: boolean;
   frame: Cam;
-  screen: ReactNode;
+  /** what the scope shows: the simulated traces and the glitch band on CH1 / CH2 */
+  tr: Trace;
+  bandIn: number;
+  bandOut: number;
 }
-
-const WAVE_ZH: Record<Wave, string> = { square: 'SQR', tri: 'TRI', gnd: 'OFF' };
 
 function Scene({ lab }: { lab: Lab }) {
   const lit = useLit();
@@ -399,30 +389,8 @@ function Scene({ lab }: { lab: Lab }) {
         <planeGeometry args={[W, D]} />
       </mesh>
 
-      {/* the ±9 V bench supply and the chip's supply pins */}
-      <Instrument
-        x={-24}
-        z={-17.5}
-        w={11}
-        h={5}
-        id="psu"
-        tag={SUPPLY_NAME}
-        lit={is('psu')}
-        knobs={[2.4, 4.1]}
-        terms={[
-          { dx: -4, color: 'red', to: ['T+12'], lit: is('psu', 'rail_p9') },
-          { dx: -2.2, color: 'black', to: ['T-13', 'B+3'], lit: is('psu', 'rail_gnd') },
-          { dx: -0.4, color: 'blue', to: ['B-5'], lit: is('psu', 'rail_m9') },
-        ]}
-        display={
-          <Html position={[-25.6, 2.9, -14.45]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-            <div className="w43-lcd3">
-              <b>+9.00 V</b>
-              <b>−9.00 V</b>
-            </div>
-          </Html>
-        }
-      />
+      {/* the ±9 V bench supply, the function generator and the scope; the chip's supply pins */}
+      <Instruments lab={lab} />
       <Jumper from="T+27" to={`a${P8}`} color="red" lit={is('rail_p9', 'chip_lm358_p8')} id="rail_p9" />
       <Jumper from={`j${P4}`} to="B-33" color="blue" lit={is('rail_m9', 'chip_lm358_p4')} id="rail_m9" />
       <Jumper from={`j${P3}`} to={`B+${P3}`} color="black" lit={is('gnd', 'chip_lm358_p3')} id="gnd" />
@@ -443,57 +411,6 @@ function Scene({ lab }: { lab: Lab }) {
           <Res a="j24" b={`j${P1}`} id="r_fb" label="R 10 kΩ" value="10k" lit={is('r_fb')} />
         </>
       )}
-
-      {/* the function generator */}
-      <Instrument
-        x={-3}
-        z={-17.5}
-        w={11}
-        h={5}
-        id="fgen"
-        tagLift={2.6}
-        tag="函数信号发生器"
-        lit={is('fgen', 'vi')}
-        knobs={[3.6]}
-        terms={[
-          { dx: -3.6, color: 'red', to: ['j18'], lit: is('fgen', 'vi') },
-          { dx: -1.8, color: 'black', to: ['T-20'], lit: is('rail_gnd') },
-        ]}
-        display={
-          <Html position={[-4.4, 2.9, -14.45]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-            <div className="w43-lcd3 gen">
-              <b>{lab.gen ? fmtF(lab.f) : 'OUTPUT OFF'}</b>
-              <b>{lab.gen ? `${WAVE_ZH[lab.wave]} ${(2 * lab.amp).toFixed(1)} Vpp` : '0 V'}</b>
-            </div>
-          </Html>
-        }
-      />
-
-      {/* the oscilloscope */}
-      <Instrument
-        x={22}
-        z={-17.5}
-        w={15}
-        h={8}
-        id="scope"
-        tag="双通道示波器"
-        lit={is('scope', 'ch1', 'ch2')}
-        knobs={[5.6]}
-        terms={[
-          { dx: -5.6, color: 'yellow', to: ['g18'], lit: is('ch1', 'vi'), top: 1.6 },
-          { dx: -3.8, color: 'teal', to: [`g${P1}`], lit: is('ch2', 'vo'), top: 1.6 },
-          { dx: -2, color: 'black', to: ['T-40', 'T-42'], lit: is('rail_gnd') },
-        ]}
-        display={
-          <Html position={[20.2, 4.4, -14.4]} center zIndexRange={[24, 0]}>
-            <div className="w43-screen3" {...hoverProps(['scope', 'ch1', 'ch2'])}>
-              {lab.screen}
-            </div>
-          </Html>
-        }
-      />
-      <Hook at="g18" color="yellow" lit={is('ch1', 'vi')} />
-      <Hook at={`g${P1}`} color="teal" lit={is('ch2', 'vo')} />
 
       <OrbitControls makeDefault enableDamping={false} minDistance={8} maxDistance={140} maxPolarAngle={Math.PI * 0.47} />
       <CameraRig frame={lab.frame} />
@@ -517,8 +434,7 @@ export default function Bench3D() {
   );
   const tr = useMemo(() => simulate(cfg, 240), [cfg]);
   const band = glitch && gen ? gainAt(b.mode, 50_000) * VN : 0;
-  const screen = <ScopeView tr={tr} f={b.f} compact bandIn={glitch && gen ? VN : 0} bandOut={band} caption={`示波器屏幕：CH2 峰峰值 ${fmtV(tr.max - tr.min)}`} />;
-  const lab: Lab = { diff, rf: b.rf, rs: b.rs, gen, wave: b.wave, f: b.f, amp: b.amp, glitch, frame: b.cam, screen };
+  const lab: Lab = { diff, rf: b.rf, rs: b.rs, gen, wave: b.wave, f: b.f, amp: b.amp, glitch, frame: b.cam, tr, bandIn: glitch && gen ? VN : 0, bandOut: band };
   const status = tr.clipped ? (drifting ? '撞 +7.5 V 轨' : '饱和削顶') : band > 1 ? '毛刺炸屏' : '线性';
   return (
     <div className="w43-layer">
