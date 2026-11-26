@@ -93,6 +93,12 @@ const W5_L6: StageLesson = {
     },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis (14th Ed.), Chapter 19 (Power Triangle Vector Synthesis)',
     prerequisites: ['W5-L2 复阻抗 (Complex Impedance)', 'W5-L5 平均功率与有效值 (Average Power & RMS Values)'],
+    learning_objectives: [
+      '建立视在功率 $S$（VA）、有功功率 $P$（W）、无功功率 $Q$（VAR）与功率因数 pf 的物理直觉，严格区分滞后（Lagging，感性，$Q > 0$）与超前（Leading，容性，$Q < 0$）',
+      R`掌握复功率定义 $\mathbf{S} = \mathbf{V}_{\text{rms}}\mathbf{I}_{\text{rms}}^* = P + jQ$，理解对电流相量取共轭的数学必然性与符号铁律`,
+      '应用交流复功率守恒定律计算多并联负载总复功率，彻底规避将视在功率 $S$ 直接标量相加的工程陷阱',
+      R`推导并应用并联电容功率因数校正公式 $C = \frac{P(\tan\theta_1 - \tan\theta_2)}{\omega V_{\text{rms}}^2}$，量化校正前后线路电流与输电线损的降幅`,
+    ],
     next_lesson: 'W5-L7',
     next_lesson_title: '传递函数、分贝刻度与波特图（Bode Plots）渐近线画法',
   },
@@ -102,6 +108,7 @@ const W5_L6: StageLesson = {
       {
         id: L1,
         label: '01 功率三角形',
+        short: '01 功率三角形',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 动态功率三角形 (P / Q / S) 与滞后/超前视角：调节阻抗角 θ (−85° ~ +85°) 与 V_rms / I_rms，功率三角形在第一象限（感性滞后 Q>0）与第四象限（容性超前 Q<0）之间翻转，啤酒杯的酒液/泡沫与电流相量的滞后/超前同步变化。',
@@ -109,6 +116,7 @@ const W5_L6: StageLesson = {
       {
         id: L2,
         label: '02 多负载叠加',
+        short: '02 多负载叠加',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 多负载复功率叠加台：开关或调节 3 组并联负载（感性电机、纯阻加热炉、容性补偿/同步机），在复功率平面首尾相接画出 S_total = ΣP + jΣQ，并对比真实 |S_total| 与错误的标量和 Σ|S_k|。',
@@ -116,6 +124,7 @@ const W5_L6: StageLesson = {
       {
         id: L3,
         label: '03 电容补偿',
+        short: '03 电容补偿',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '03 并联补偿电容滑块与线路电流实时下降对比台：拖动并联电容 C (µF)，Q_C 向下压缩总无功 Q，有功功率 P 纹丝不动；校正前后的 S、线路电流 I_line、线损降幅与过补偿警告实时刷新。',
@@ -677,6 +686,8 @@ const W5_L6: StageLesson = {
       quiz: [
         {
           id: 'w5l6_q1',
+          concept: '复功率共轭与滞后/超前',
+          review_act: 2,
           question: R`某交流负载两端电压相量为 $\mathbf{V}_{\text{rms}} = 100\angle 20^\circ\text{ V}$，流入电流相量为 $\mathbf{I}_{\text{rms}} = 5\angle{-}10^\circ\text{ A}$。该负载的复功率 $\mathbf{S}$ 与性质是？`,
           options: [
             {
@@ -706,6 +717,8 @@ const W5_L6: StageLesson = {
         },
         {
           id: 'w5l6_q2',
+          concept: '复功率守恒与 S 不可标量相加',
+          review_act: 3,
           question: R`同一配电母线上并联两个负载：负载 A 为 $8\text{ kVA}$（$\text{pf} = 0.8$ 滞后），负载 B 为 $5\text{ kVA}$（$\text{pf} = 0.6$ 超前）。关于母线总视在功率 $S_{\text{total}}$，以下说法正确的是？`,
           options: [
             {
@@ -739,6 +752,8 @@ const W5_L6: StageLesson = {
         },
         {
           id: 'w5l6_q3',
+          concept: '电容校正的物理不变量',
+          review_act: 4,
           question: R`工厂在恒压交流母线的感性电机两端并联了一组电力电容器，将系统功率因数从 $0.75$ 滞后校正到 $0.95$ 滞后。校正之后，以下哪个物理量保持绝对不变？`,
           options: [
             { key: 'A', text: R`电机本身消耗的有功功率 $P$`, correct: true },
@@ -768,6 +783,8 @@ const W5_L6: StageLesson = {
         },
         {
           id: 'w5l6_q4',
+          concept: '补偿电容计算',
+          review_act: 4,
           question: R`一台接在 $220\text{ V}_{\text{rms}}$、$50\text{ Hz}$ 电网上的感性负载消耗有功功率 $P = 10\text{ kW}$，初始功率因数为 $0.70$ 滞后。若并联电容将其校正为 $0.95$ 滞后，所需电容值 $C$ 最接近以下哪一项？`,
           options: [
             {

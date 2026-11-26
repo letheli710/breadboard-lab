@@ -84,6 +84,12 @@ const W5_L7: StageLesson = {
     },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis, 14th Ed., Ch. 21 (Decibels, Logarithmic Scales & Decade Intuition)',
     prerequisites: ['W3-L1 分贝增益', 'W5-L2 复阻抗'],
+    learning_objectives: [
+      R`由电路写出传递函数 $\mathbf{H}(\omega)$，认出它的零点与极点`,
+      R`在幅值比、功率比与分贝之间换算，说明半功率点为什么就是 $-3\text{ dB}$`,
+      R`把 $\mathbf{H}(\omega)$ 化为波特图标准形式、提取常数 $K$，画出四种基本因子的渐近线`,
+      '把多因子传递函数的渐近线逐段叠加，画出完整的幅频与相频波特图',
+    ],
     next_lesson: 'W5-L8',
     next_lesson_title: '串联与并联谐振（品质因数 Q、带宽与 3D 面包板扫频实操）',
   },
@@ -93,6 +99,7 @@ const W5_L7: StageLesson = {
       {
         id: L1,
         label: '01 H(ω) 化简台',
+        short: '01 H(ω) 化简台',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 电路与传递函数 H(ω) 实时化简台：拖动 R、C 实时刷新复阻抗与 H(ω)；分贝尺把幅值比、分贝与功率比放在同一条对数轴上；一键把非标准分式化为波特图标准形式并提取常数 K。',
@@ -100,6 +107,7 @@ const W5_L7: StageLesson = {
       {
         id: L2,
         label: '02 波特图',
+        short: '02 波特图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 交互式半对数幅频/相频波特图 (渐近线 vs 精确曲线 + 可拖频率游标)：幅频 (dB) 与相频 (°) 共享对数横轴；拖动游标读渐近值、精确值与误差（转折处 −3.01 dB）；渐近线 / 精确曲线 / 误差标注可独立开关。',
@@ -107,6 +115,7 @@ const W5_L7: StageLesson = {
       {
         id: L3,
         label: '03 逐项叠加',
+        short: '03 逐项叠加',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '03 多因子逐项叠加分解面板：分色勾选常数 K、原点零/极点、一阶实零/极点、二阶共轭极点；逐段斜率累加表（+20 / 0 / −20 dB/dec）与相角转折区间实时联动。',
       },
@@ -662,6 +671,8 @@ const W5_L7: StageLesson = {
       quiz: [
         {
           id: 'w5l7_q1',
+          concept: '半功率点与 −3 dB',
+          review_act: 2,
           question: R`某放大器在截止频率 $\omega_c$ 处的输出电压幅值下降为中频最大值的 $\frac{1}{\sqrt{2}} \approx 0.707$。假设负载电阻不变，此时输出功率与分贝增益变化量分别是多少？`,
           options: [
             { key: 'A', text: '输出功率降为原来的 1/2，增益下降约 3.01 dB', correct: true },
@@ -691,6 +702,8 @@ const W5_L7: StageLesson = {
         },
         {
           id: 'w5l7_q2',
+          concept: '标准形式提取常数 K',
+          review_act: 3,
           question: R`将传递函数 $\mathbf{H}(\omega) = \frac{50(j\omega + 4)}{(j\omega + 2)(j\omega + 20)}$ 化为波特图标准形式后，常数增益 $K$ 及其对应的分贝值 $20\log_{10}K$ 是多少？`,
           options: [
             {
@@ -720,6 +733,8 @@ const W5_L7: StageLesson = {
         },
         {
           id: 'w5l7_q3',
+          concept: '由斜率反推零极点',
+          review_act: 4,
           question: R`观察某电路的幅频波特图渐近线：在 $\omega < 10\text{ rad/s}$ 时为水平线（$0\text{ dB/dec}$）；在 $10 < \omega < 100\text{ rad/s}$ 区间斜率变为 $-20\text{ dB/dec}$；当 $\omega > 100\text{ rad/s}$ 时斜率恢复为 $0\text{ dB/dec}$。该传递函数包含哪些非原点零极点？`,
           options: [
             {
@@ -749,6 +764,8 @@ const W5_L7: StageLesson = {
         },
         {
           id: 'w5l7_q4',
+          concept: '二阶极点与谐振尖峰',
+          review_act: 3,
           question: R`对于标准二阶低通环节 $\mathbf{H}(\omega) = \frac{1}{1 + j2\zeta(\omega/\omega_n) - (\omega/\omega_n)^2}$，下列关于其幅频波特图特征的说法哪一项是正确的？`,
           options: [
             {

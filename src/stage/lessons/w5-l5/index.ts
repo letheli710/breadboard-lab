@@ -61,6 +61,12 @@ const W5_L5: StageLesson = {
     },
     textbook_supplement: 'Introductory Circuit Analysis, 14th Ed. (Robert L. Boylestad) · Chapter 19（AC Power — 热效应直觉与三曲线同屏对照）',
     prerequisites: ['W2-L8 直流最大功率传输', 'W5-L4 交流戴维南等效'],
+    learning_objectives: [
+      '掌握瞬时功率 $p(t)$ 的二倍频脉动分解，理解 $p(t) < 0$ 区间储能元件向电源回馈能量的物理图景',
+      '熟练计算纯电阻、纯电感、纯电容及一般 RLC 负载的平均功率（有功功率）$P$',
+      '从焦耳热等效出发推导正弦波与非正弦 / DC + AC 混合波形的有效值（RMS），辨析家用 120 V / 220 V 的峰值与有效值',
+      R`掌握交流最大平均功率传输定理（共轭匹配 $\mathbf{Z}_L = \mathbf{Z}_{Th}^*$），并严格区分峰值相量分母 8 与 RMS 相量分母 4`,
+    ],
     next_lesson: 'W5-L6',
     next_lesson_title: '视在功率、复功率、功率三角形与功率因数校正',
   },
@@ -70,6 +76,7 @@ const W5_L5: StageLesson = {
       {
         id: L1,
         label: '01 三曲线示波器',
+        short: '01 三曲线示波器',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '电压 v(t) / 电流 i(t) / 瞬时功率 p(t) 三曲线同屏示波器：红色阴影是 p(t) < 0 的负功率回流区，琥珀虚线是平均功率 P = ½·Vm·Im·cos(Δθ)，紫色标尺是二倍频周期 T_p = T/2。',
@@ -77,6 +84,7 @@ const W5_L5: StageLesson = {
       {
         id: L2,
         label: '02 RMS 面积台',
+        short: '02 RMS 面积台',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '交流热效应等效 RMS 面积演示台：v(t) 与平方热功率波形 v²(t) 同步；“削峰填谷”把正弦平方波高出中线的波峰填进波谷，拼成高为 V_rms² 的等面积矩形；北美 120 V RMS（170 V 峰值）/ 中国 220 V RMS（311 V 峰值）一键预设。',
@@ -84,6 +92,7 @@ const W5_L5: StageLesson = {
       {
         id: L3,
         label: '03 共轭匹配台',
+        short: '03 共轭匹配台',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '交流共轭匹配 (ZL = ZTh*) 功率峰值台：X_Th + X_L = 0 时谐振绿灯点亮，R_L = R_Th 时锁定峰值 P_max；双轨同步显示 |V_Th|²/(8R_Th) 与 V_Th,rms²/(4R_Th)。',
       },
@@ -730,6 +739,8 @@ const W5_L5: StageLesson = {
       quiz: [
         {
           id: 'w5l5_q1',
+          concept: '瞬时功率的负功率回流',
+          review_act: 1,
           question: R`某线性交流网络端口电压为 $v(t) = 100\cos(377t + 30^\circ)\text{ V}$，电流为 $i(t) = 8\cos(377t - 30^\circ)\text{ A}$。关于其瞬时功率 $p(t)$，下列哪项描述完全正确？`,
           options: [
             {
@@ -759,6 +770,8 @@ const W5_L5: StageLesson = {
         },
         {
           id: 'w5l5_q2',
+          concept: '纯电抗的平均功率为零',
+          review_act: 2,
           question: R`将一台理想纯电感 $L = 50\text{ mH}$ 直接接到 $220\text{ V}$（RMS）、$50\text{ Hz}$ 的交流电源上，该电感在一个完整周期内吸收的平均功率 $P$ 等于多少？`,
           options: [
             { key: 'A', text: R`$0\text{ W}$`, correct: true },
@@ -788,6 +801,8 @@ const W5_L5: StageLesson = {
         },
         {
           id: 'w5l5_q3',
+          concept: 'DC + AC 混合有效值',
+          review_act: 4,
           question: R`某开关电源输出电压为 $v(t) = 6 + 8\sqrt{2}\cos(1000t)\text{ V}$，该电压的有效值 $V_{\text{rms}}$ 为多少？`,
           options: [
             {
@@ -817,6 +832,8 @@ const W5_L5: StageLesson = {
         },
         {
           id: 'w5l5_q4',
+          concept: '共轭匹配：分母 8 还是 4',
+          review_act: 5,
           question: R`某交流网络的戴维南等效为 $\mathbf{V}_{Th} = 12\angle 0^\circ\text{ V}$（RMS 有效值相量），$\mathbf{Z}_{Th} = 3 - j4\ \Omega$。要使负载 $\mathbf{Z}_L$ 获得最大平均功率，$\mathbf{Z}_L$ 与 $P_{\max}$ 分别为多少？`,
           options: [
             {

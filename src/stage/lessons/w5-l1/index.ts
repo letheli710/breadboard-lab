@@ -59,6 +59,12 @@ const W5_L1: StageLesson = {
     },
     textbook_supplement: 'Introductory Circuit Analysis, 14th Ed. (Boylestad) — Ch. 13–14',
     prerequisites: ['W4-L4 一阶微分方程', 'W4-L5 稳态响应'],
+    learning_objectives: [
+      R`由旋转相量的投影读出正弦波的幅值 $V_m$、角频率 $\omega$ 与初相 $\phi$`,
+      '把两个同频正弦统一成正幅值余弦，判断谁超前、谁滞后、相差多少度',
+      '用欧拉公式在时域正弦与相量之间互换，直角坐标转极坐标时校正象限',
+      R`用相量加法合成同频正弦波，用 $\frac{d}{dt} \leftrightarrow j\omega$ 把交流稳态微分方程化为代数方程`,
+    ],
     next_lesson: 'W5-L2',
     next_lesson_title: '元件相量关系、复阻抗与 3D 面包板 RC 相移实操',
   },
@@ -68,18 +74,21 @@ const W5_L1: StageLesson = {
       {
         id: L1,
         label: '01 相量旋转',
+        short: '01 相量旋转',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '2D 旋转相量矢量图 ↔ 时域正弦波实时投影：长度 Vₘ 的指针以 ω 逆时针旋转，实轴投影就是 Vₘ cos(ωt + φ)；“冻结 t=0 快照”剥离 e^(jωt)，锁定静态相量 V = Vₘ∠φ。',
       },
       {
         id: L2,
         label: '02 相位比较',
+        short: '02 相位比较',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: 'sin↔cos 统一化简与超前/滞后相位差尺：三角罗盘把 ±sin、−cos 对齐到 +cos 基准轴，标尺读出 Δφ = φ₂ − φ₁ 与超前/滞后判定；可叠加同频相量平行四边形。',
       },
       {
         id: L3,
         label: '03 微积分旋转',
+        short: '03 微积分旋转',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '复平面微积分旋转 (×jω / ÷jω) 演示台：乘以 jω 逆时针转 90° 并伸缩 ω 倍，除以 jω 顺时针转 90° 并伸缩 1/ω 倍；“方程拼合”把微积分方程各项相量首尾相接，拼到激励源相量上。',
@@ -666,6 +675,8 @@ const W5_L1: StageLesson = {
       quiz: [
         {
           id: 'w5l1_q1',
+          concept: '相位比较铁律',
+          review_act: 2,
           question: R`已知两个同频电压 $v_1(t) = -5\sin(100t + 20^\circ)\text{ V}$ 与 $v_2(t) = 8\cos(100t + 60^\circ)\text{ V}$，下列说法正确的是：`,
           options: [
             { key: 'A', text: R`$v_1$ 超前 $v_2$ $50^\circ$`, correct: true },
@@ -695,6 +706,8 @@ const W5_L1: StageLesson = {
         },
         {
           id: 'w5l1_q2',
+          concept: '复数象限校正',
+          review_act: 3,
           question: R`将复数 $\mathbf{Z} = -5 + j5$ 转换为极坐标形式 $r\angle\phi$，正确结果是：`,
           options: [
             {
@@ -724,6 +737,8 @@ const W5_L1: StageLesson = {
         },
         {
           id: 'w5l1_q3',
+          concept: R`频域求导算子 $\times j\omega$`,
+          review_act: 5,
           question: R`已知正弦电流 $i(t) = 3\cos(10t - 30^\circ)\text{ A}$，其导数 $\dfrac{di(t)}{dt}$ 对应的相量是：`,
           options: [
             {
@@ -753,6 +768,8 @@ const W5_L1: StageLesson = {
         },
         {
           id: 'w5l1_q4',
+          concept: '相量叠加须同频',
+          review_act: 4,
           question: R`某同学想用相量法直接计算 $v(t) = 3\cos(10t) + 4\cos(20t)$ 的合成幅值，他写下 $\mathbf{V} = 3\angle 0^\circ + 4\angle 0^\circ = 7\angle 0^\circ$。对此评价正确的是：`,
           options: [
             {

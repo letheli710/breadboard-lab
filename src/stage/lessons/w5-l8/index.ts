@@ -75,6 +75,13 @@ const W5_L8: StageLesson = {
     },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis, 14th Ed. · Chapter 20 Resonance（秋千共振直觉与谐振曲线尖锐度）',
     prerequisites: ['W4-L7 RLC 自然响应', 'W5-L2 复阻抗', 'W5-L7 传递函数与 -3dB 点'],
+    learning_objectives: [
+      R`从感抗与容抗精确抵消导出串联 RLC 谐振频率 $\omega_0 = 1/\sqrt{LC}$ 及纯阻性最小阻抗 $Z(\omega_0) = R$`,
+      R`定量揭示串联谐振的高 Q 过压奇观 $|V_L| = |V_C| = Q \cdot V_m$ 及其元件耐压安全警示`,
+      R`掌握品质因数 Q、半功率频率 $\omega_1 / \omega_2$ 与带宽 $B = \omega_0/Q$ 的核心权衡，以及 $Q \ge 10$ 对称近似的误差边界`,
+      '运用串并联对偶思维推导并联 RLC 谐振特性，理解收音机选台调谐原理',
+      '在 3D 面包板上搭建实用串联 RLC 扫频回路，安全观测 3.16 Vpp 电容谐振电压峰并诊断电感铜损内阻对实测 Q 值的影响',
+    ],
     pass_message: '随堂自测通过！串联与并联谐振、Q 值与带宽全部拿下。',
     next_lesson: 'W5-L9',
     next_lesson_title: '无源与有源滤波器（Phase 1 收官实战 + 3D 面包板扫频）',
@@ -85,6 +92,7 @@ const W5_L8: StageLesson = {
       {
         id: L1,
         label: '01 谐振电路',
+        short: '01 谐振电路',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 串联/并联谐振电路切换图（标出 VL 与 VC 反向抵消）：切换串联 RLC（电压源）/ 并联 RLC（电流源），拖 ω/ω0 与 Q；右上是阻抗响应 |Z|/R（串联谷底、并联尖峰），右下按同一比例叠加 VL/VC（或 IL/IC）相量，谐振时二者等大反向、各为 Q 倍。',
@@ -92,6 +100,7 @@ const W5_L8: StageLesson = {
       {
         id: L2,
         label: '02 Q 值频响',
+        short: '02 Q 值频响',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 实时 Q 值谐振频响曲线（对比 Q=2 / Q=5 / Q=10 的尖锐度与 -3dB 带宽 B）：|I(ω)/Imax| 随 ω/ω0 的精确曲线，Q 滑块 1–20；标出 0.707 半功率线、精确 ω1、ω2（实心）与高 Q 近似 ω0 ∓ B/2（空心）及其误差。',
@@ -99,6 +108,7 @@ const W5_L8: StageLesson = {
       {
         id: L3,
         label: '03 3D 扫频实操',
+        short: '03 3D 扫频实操',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption:
           '03 3D 面包板串联 RLC + 信号发生器扫频找谐振峰实操：函数信号发生器（正弦 1–15 kHz，≤ 2 Vpp）驱动 100 Ω、10 mH、100 nF 串联回路，双通道示波器 CH1 看发生器输出、CH2 看最下端接地的 R 或 C；可启用电感铜损 20 Ω 与信号源 50 Ω 内阻。',
@@ -759,6 +769,8 @@ const W5_L8: StageLesson = {
       quiz: [
         {
           id: 'w5l8_q1',
+          concept: '串联谐振的阻抗与相位',
+          review_act: 1,
           question: '一串联 RLC 电路在角频率 ω = ω0 处发生谐振。关于此时电路端口的总阻抗与电流特征，下列哪项描述完全正确？',
           figure: SVG_Q1,
           sync: { layer: L1, halo: ['s_r', 'z_curve'], params: P() },
@@ -789,6 +801,8 @@ const W5_L8: StageLesson = {
         },
         {
           id: 'w5l8_q2',
+          concept: '高 Q 过压与安全选型',
+          review_act: 2,
           question: '某串联 RLC 回路谐振时品质因数 Q = 15，信号源为 vs(t) = 4 cos(ω0 t) V。此时用示波器测得电容两端的电压峰值约为多少？',
           figure: SVG_Q2,
           sync: { layer: L1, halo: ['ph_vc'], params: P() },
@@ -808,6 +822,8 @@ const W5_L8: StageLesson = {
         },
         {
           id: 'w5l8_q3',
+          concept: '串并联对偶与 Q-带宽权衡',
+          review_act: 4,
           question: '在一台采用并联 RLC 调谐回路的收音机中，若保持 L、C 不变，将并联电阻 R 增大为原来的 2 倍，则该调谐回路的品质因数 Q 与带宽 B 将如何变化？',
           figure: SVG_Q3,
           sync: { layer: L1, halo: ['p_r'], params: P({ topo: 'parallel' }) },
@@ -833,6 +849,8 @@ const W5_L8: StageLesson = {
         },
         {
           id: 'w5l8_q4',
+          concept: '实测 Q 与寄生内阻',
+          review_act: 5,
           question:
             '在面包板上搭建 L = 10 mH、C = 100 nF、R = 100 Ω 的串联 RLC 回路（理论 Q ≈ 3.16），用 1 Vpp 正弦波扫频时，发现电容峰值电压仅约 1.9 Vpp 且实测带宽明显比理论值更宽。最合理的工程解释是？',
           figure: SVG_Q4,
