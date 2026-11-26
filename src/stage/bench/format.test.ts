@@ -95,3 +95,9 @@ describe('supply display, minor and off lines', () => {
     expect(l.filter((x) => x.dim).length).toBe(2);
   });
 });
+
+describe('fmtHz below 1 Hz', () => {
+  it('reads as a plain decimal', () => {
+    expect(fmtHz(0.1)).toBe('0.1 Hz');
+  });
+});

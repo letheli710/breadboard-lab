@@ -34,7 +34,8 @@ export function eng(v: number, unit: string, digits = 3): string {
 }
 
 /** frequency for a front panel: 200 → "200 Hz", 1500 → "1.5 kHz", 10000 → "10 kHz" */
-export const fmtHz = (f: number) => eng(f, 'Hz');
+/** a frequency; below 1 Hz as a plain decimal (0.1 Hz, not 100 mHz) */
+export const fmtHz = (f: number) => (f > 0 && f < 1 ? `${trimNum(f)} Hz` : eng(f, 'Hz'));
 
 /** current for a front panel: 0.3 → "0.300 A", 0.0123 → "12.3 mA" */
 export const fmtA = (i: number) => (Math.abs(i) >= 1 ? `${fixed(i, 2)} A` : Math.abs(i) >= 0.1 ? `${fixed(i, 3)} A` : eng(i, 'A'));
