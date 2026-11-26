@@ -1,7 +1,8 @@
 // Layer "03 3D 面包板 RC 相移电路 + 信号发生器与双通道示波器实操": the RC phase-shift divider of
 // acts 4–5 on an 830-hole board, driven by a 函数信号发生器 (sine, 5 V peak = 10 Vpp, 50 Ω output,
 // 100 Hz … 10 kHz; drag its frequency knob or use the slider) through a BNC-to-alligator lead, and
-// watched by a 双通道示波器 behind the board (both adapted from W4-L8's bench). The 100 nF ceramic
+// watched by a 双通道示波器 behind the board (both the shared bench instruments of src/stage/bench;
+// the generator's knob turns the frequency, the scope's time cursors mark both peaks). The 100 nF ceramic
 // capacitor is the shared Passives3D part; the resistor is drawn here with five bands (1.6 kΩ 1 %
 // metal film: brown-blue-black-brown-brown) or four (1.5 kΩ 5 %: brown-green-red-gold).
 //
@@ -16,7 +17,7 @@
 // protective earth, the lower part is shorted, CH2 reads 0 V and the bench shows a red alarm.
 // Camera: the whole bench, the circuit close-up, the scope screen.
 
-import { Html, Line, OrbitControls } from '@react-three/drei';
+import { Html, OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
@@ -24,7 +25,8 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, D, Lead, RAIL_Z, ROW_Z, Shell, W, type Rail } from '../../BreadboardXray';
 import { stripId } from '../../breadboardIds';
-import { BENCH_NAMES, Capacitor } from '../../Passives3D';
+import { BENCH_NAMES, FunctionGenerator, Oscilloscope, type OsdItem, type ScopeCursor } from '../../bench';
+import { Capacitor } from '../../Passives3D';
 import { useLit, useStage, useStageParam } from '../../stageStore';
 import { abs, bench, deg, F_RANGE, hz, num, ohm, P_RATED, phaseOf, R_ALT, R_GEN, sec, timeDiv, type Bench as BenchModel, type ClipAt } from './model';
 import { Cell, Ch2Seg, FreqSlider, hoverProps, RSeg, Seg, useClearHoverOnUnmount, useIsLit, useLab, type Lab } from './state';
@@ -135,33 +137,6 @@ function Jumper({ from, to, color, lit, ids }: { from: string; to: string; color
   );
 }
 
-/** a short stub wire standing in a hole, for an alligator clip to bite on */
-function Stub({ at, color, h = 1.3 }: { at: string; color: string; h?: number }) {
-  const [x, z] = hole(at);
-  return (
-    <mesh position={[x, h / 2 - 0.3, z]}>
-      <cylinderGeometry args={[0.1, 0.1, h + 0.6, 8]} />
-      <meshStandardMaterial color={color} roughness={0.5} />
-    </mesh>
-  );
-}
-
-/** an alligator clip (a small jaw) at a point */
-function Clip({ at, color, lit, bad }: { at: V3; color: string; lit?: boolean; bad?: boolean }) {
-  return (
-    <group position={at}>
-      <mesh rotation={[0, 0, 0.5]}>
-        <boxGeometry args={[0.5, 1.1, 0.42]} />
-        <meshStandardMaterial color={bad ? RED : color} roughness={0.45} emissive={bad ? RED : lit ? AMBER : '#000000'} emissiveIntensity={bad ? 0.8 : lit ? 0.6 : 0} />
-      </mesh>
-      <mesh position={[0.32, -0.55, 0]}>
-        <boxGeometry args={[0.18, 0.3, 0.3]} />
-        <meshStandardMaterial color="#c3c8ce" metalness={0.8} roughness={0.3} />
-      </mesh>
-    </group>
-  );
-}
-
 /* ------------------------------------------------------------- the resistor (4 or 5 bands) */
 
 const BAND = { brown: '#7a4a1f', black: '#151515', red: '#d62f2f', green: '#2f9e44', blue: '#2456c9', gold: '#d4a72c' };
@@ -207,321 +182,83 @@ function Resistor({ p1, p2, r, lit, label }: { p1: [number, number]; p2: [number
   );
 }
 
-/* ------------------------------------------------------------- function generator */
+/* ------------------------------------------------------------- instruments (src/stage/bench) */
 
-const GEN = { x: -43, z: -2, w: 11, h: 4.6, d: 8 };
-const GEN_FRONT = GEN.z + GEN.d / 2;
-const BNC_OUT: V3 = [GEN.x + 3.6, 0.4, GEN_FRONT + 0.4];
-const KNOB: V3 = [GEN.x + 3.4, 2.4, GEN_FRONT + 0.35];
+const GEN_AT: [number, number] = [-43, -2];
+const SCOPE_AT: [number, number] = [-12, -20];
+/** the red and the black lead's way from the BNC to their clips (as before the shared instruments) */
+const RED_VIA: V3[] = [[-31, 2.6, 0.5]];
+const BLACK_VIA: V3[] = [[-33, 1.8, -4]];
+/** the lesson text calls CH1 yellow and CH2 cyan */
+const CH1_COLOR = '#facc15';
+const CH2_COLOR = '#38bdf8';
+const VDIV = 2.5;
 
-/** knob angle for a frequency: −135° … +135° over 100 Hz … 10 kHz (log) */
-const knobAngle = (f: number) => (-0.75 + 1.5 * (Math.log(f / F_RANGE[0]) / Math.log(F_RANGE[1] / F_RANGE[0]))) * Math.PI;
-
-function Knob({ f, onTurn, lit }: { f: number; onTurn: (f: number) => void; lit: boolean }) {
-  const controls = useThree((s) => s.controls) as unknown as OrbitControlsImpl | null;
-  const drag = useRef<{ x: number; y: number; f: number } | null>(null);
-  useEffect(() => {
-    const move = (e: PointerEvent) => {
-      const d = drag.current;
-      if (!d) return;
-      // 200 px of drag = one decade
-      const dec = (e.clientX - d.x - (e.clientY - d.y)) / 200;
-      const v = Math.min(F_RANGE[1], Math.max(F_RANGE[0], d.f * 10 ** dec));
-      const p = 10 ** (Math.floor(Math.log10(v)) - 1);
-      onTurn(Math.round(v / p) * p);
-    };
-    const up = () => {
-      if (!drag.current) return;
-      drag.current = null;
-      if (controls) controls.enabled = true;
-      document.body.style.cursor = '';
-    };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-    return () => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-    };
-  }, [controls, onTurn]);
-  const grab = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-    drag.current = { x: e.nativeEvent.clientX, y: e.nativeEvent.clientY, f };
-    if (controls) controls.enabled = false;
-    document.body.style.cursor = 'grabbing';
-  };
-  return (
-    <group position={KNOB} rotation={[Math.PI / 2, 0, 0]}>
-      <group rotation={[0, knobAngle(f), 0]}>
-        <mesh
-          onPointerDown={grab}
-          onPointerOver={(e) => {
-            e.stopPropagation();
-            useStage.getState().setHover(['bb_knob']);
-            document.body.style.cursor = 'grab';
-          }}
-          onPointerOut={() => {
-            useStage.getState().setHover(null);
-            if (!drag.current) document.body.style.cursor = '';
-          }}
-        >
-          <cylinderGeometry args={[1.05, 1.15, 0.8, 28]} />
-          <meshStandardMaterial color={lit ? '#fde68a' : '#2b2f36'} roughness={0.5} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.35 : 0} />
-        </mesh>
-        <mesh position={[0, 0.42, -0.7]}>
-          <boxGeometry args={[0.2, 0.06, 0.8]} />
-          <meshStandardMaterial color="#fbbf24" />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-function Generator({ f, lit, knobLit, onTurn }: { f: number; lit: boolean; knobLit: boolean; onTurn: (f: number) => void }) {
-  const red = useMemo<V3[]>(() => {
-    const [x, z] = hole('e10');
-    return [BNC_OUT, [BNC_OUT[0] + 2, 1.6, BNC_OUT[2] + 1.5], [-31, 2.6, 0.5], [x - 1.2, 2.4, z + 0.4], [x, 2.0, z]];
-  }, []);
-  const black = useMemo<V3[]>(() => {
-    const [x, z] = hole('G4');
-    return [BNC_OUT, [BNC_OUT[0] + 1.6, 1.2, BNC_OUT[2] + 1.2], [-33, 1.8, -4], [x - 0.6, 2.0, z + 0.3], [x, 1.7, z]];
-  }, []);
-  return (
-    <group name="mesh_function_generator">
-      <group {...hover3d(['bb_gen'])}>
-        <mesh position={[GEN.x, GEN.h / 2 - 1, GEN.z]}>
-          <boxGeometry args={[GEN.w, GEN.h, GEN.d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.55} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.3 : 0} />
-        </mesh>
-        <mesh position={[GEN.x, GEN.h / 2 - 1, GEN_FRONT + 0.01]}>
-          <planeGeometry args={[GEN.w - 0.6, GEN.h - 0.5]} />
-          <meshStandardMaterial color="#3b4250" roughness={0.7} />
-        </mesh>
-        {[-3.6, -1.6].map((dx) => (
-          <mesh key={dx} position={[GEN.x + dx + 5.4, 0.2, GEN_FRONT + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.4, 0.4, 0.5, 20]} />
-            <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        {/* OUTPUT BNC */}
-        <mesh position={[BNC_OUT[0], BNC_OUT[1], GEN_FRONT + 0.2]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.42, 0.42, 0.5, 16]} />
-          <meshStandardMaterial color="#c8ccd2" metalness={0.8} roughness={0.25} />
-        </mesh>
-        <mesh position={[BNC_OUT[0] - 1.4, BNC_OUT[1], GEN_FRONT + 0.06]}>
-          <planeGeometry args={[1.0, 0.45]} />
-          <meshBasicMaterial color="#22c55e" />
-        </mesh>
-      </group>
-      <Knob f={f} onTurn={onTurn} lit={knobLit} />
-      <Tube pts={red} color="#d62f2f" r={0.14} lit={lit} />
-      <Tube pts={black} color="#24262b" r={0.14} lit={lit} />
-      <Stub at="e10" color="#d62f2f" />
-      <Stub at="G4" color="#24262b" />
-      <Clip at={[colX(10) + 0.15, 1.5, ROW_Z.e]} color="#d62f2f" lit={lit} />
-      <Clip at={[colX(4) + 0.15, 1.5, RAIL_Z.tn]} color="#24262b" lit={lit} />
-      <Html position={[GEN.x - 1.6, GEN.h - 1.7, GEN_FRONT + 0.05]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="w52-gen-lcd">
-          <b>SINE {hz(f)}</b>
-          <span>10.0 Vpp · DC 0 V</span>
-          <span>50 Ω · OUTPUT ON</span>
-        </div>
-      </Html>
-      <Html position={[GEN.x, GEN.h + 0.8, GEN.z - GEN.d / 2]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`bb3d-tag w52-tag3 gen ${lit ? 'lit' : ''}`}>{BENCH_NAMES.generator}</div>
-      </Html>
-    </group>
-  );
-}
-
-/* ------------------------------------------------------------- oscilloscope */
-
-const SCOPE = { x: -12, z: -20, w: 24, h: 13.5, d: 7 };
-const S_FRONT = SCOPE.z + SCOPE.d / 2;
-const SCREEN = { x: SCOPE.x - 3.2, y: 6.3, w: 14.5, h: 9.2 };
-const JACK: Record<'ch1' | 'ch2', V3> = { ch1: [SCOPE.x + 6.6, 0.6, S_FRONT + 0.3], ch2: [SCOPE.x + 9.2, 0.6, S_FRONT + 0.3] };
-
-interface Screen {
-  ch1: V3[];
-  ch2: V3[];
-  math: V3[] | null;
-  curA: number;
-  curB: number;
-}
-
-function screenOf(b: BenchModel, f: number, math: boolean): Screen {
-  const tdiv = timeDiv(f);
-  const span = 8 * tdiv;
+function Instruments({ b, f, math, out, clip, onTurn }: { b: BenchModel; f: number; math: boolean; out: number; clip: ClipAt; onTurn: (f: number) => void }) {
   const w = 2 * Math.PI * f;
-  const sx = (t: number) => SCREEN.x - SCREEN.w / 2 + (t / span) * SCREEN.w;
-  // 2.5 V/div, 6 divisions, 0 V in the middle
-  const sy = (v: number) => SCREEN.y + (Math.max(-7.4, Math.min(7.4, v)) / 15) * SCREEN.h;
-  const z = S_FRONT + 0.05;
   const a1 = abs(b.ch1);
   const a2 = abs(b.ch2);
-  const d2 = b.fault ? 0 : (phaseOf(b.ch2, b.ch1) * Math.PI) / 180;
-  const dm = (phaseOf(b.math, b.ch1) * Math.PI) / 180;
   const am = abs(b.math);
-  const trace = (fn: (t: number) => number): V3[] =>
-    Array.from({ length: 241 }, (_, k) => {
-      const t = (k / 240) * span;
-      return [sx(t), sy(fn(t)), z] as V3;
-    });
-  const T = 1 / f;
-  return {
-    ch1: trace((t) => a1 * Math.sin(w * t)),
-    ch2: trace((t) => a2 * Math.sin(w * t + d2)),
-    math: math ? trace((t) => am * Math.sin(w * t + dm)) : null,
-    curA: sx(T / 4),
-    curB: sx(T / 4 - (d2 / (2 * Math.PI)) * T),
-  };
-}
-
-function ScopeScreen({ s }: { s: Screen }) {
-  const z = S_FRONT + 0.04;
-  const grid: V3[][] = [];
-  for (let k = 0; k <= 8; k++) {
-    const x = SCREEN.x - SCREEN.w / 2 + (k * SCREEN.w) / 8;
-    grid.push([
-      [x, SCREEN.y - SCREEN.h / 2, z],
-      [x, SCREEN.y + SCREEN.h / 2, z],
-    ]);
-  }
-  for (let k = 0; k <= 6; k++) {
-    const y = SCREEN.y - SCREEN.h / 2 + (k * SCREEN.h) / 6;
-    grid.push([
-      [SCREEN.x - SCREEN.w / 2, y, z],
-      [SCREEN.x + SCREEN.w / 2, y, z],
-    ]);
-  }
-  const cur = (x: number): V3[] => [
-    [x, SCREEN.y - SCREEN.h / 2, z + 0.01],
-    [x, SCREEN.y + SCREEN.h / 2, z + 0.01],
-  ];
-  return (
-    <group>
-      <mesh position={[SCREEN.x, SCREEN.y, S_FRONT + 0.02]}>
-        <planeGeometry args={[SCREEN.w + 0.4, SCREEN.h + 0.4]} />
-        <meshBasicMaterial color="#0b1a14" />
-      </mesh>
-      {grid.map((g, i) => (
-        <Line key={i} points={g} color={i === 4 || i === 12 ? '#5f7f70' : '#264136'} lineWidth={i === 4 || i === 12 ? 1.2 : 0.8} />
-      ))}
-      <Line points={cur(s.curA)} color="#fde047" lineWidth={1} dashed dashSize={0.25} gapSize={0.2} />
-      <Line points={cur(s.curB)} color="#7dd3fc" lineWidth={1} dashed dashSize={0.25} gapSize={0.2} />
-      <Line points={s.ch1} color="#facc15" lineWidth={2.2} />
-      {s.math && <Line points={s.math} color="#e879f9" lineWidth={2} />}
-      <Line points={s.ch2} color="#38bdf8" lineWidth={2.6} />
-    </group>
-  );
-}
-
-function Oscilloscope({ b, f, math, lit }: { b: BenchModel; f: number; math: boolean; lit: boolean }) {
-  const s = useMemo(() => screenOf(b, f, math), [b, f, math]);
   const ph = phaseOf(b.ch2, b.ch1);
-  const dt = (-ph / 360) * (1 / f);
-  return (
-    <group name="mesh_oscilloscope">
-      <group {...hover3d(['bb_scope'])}>
-        <mesh position={[SCOPE.x, SCOPE.h / 2 - 1, SCOPE.z]}>
-          <boxGeometry args={[SCOPE.w, SCOPE.h, SCOPE.d]} />
-          <meshStandardMaterial color="#cfd5dd" roughness={0.55} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.25 : 0} />
-        </mesh>
-        <mesh position={[SCOPE.x, SCOPE.h / 2 - 1, S_FRONT + 0.01]}>
-          <planeGeometry args={[SCOPE.w - 0.6, SCOPE.h - 0.6]} />
-          <meshStandardMaterial color="#3b4250" roughness={0.7} />
-        </mesh>
-        {[
-          [SCOPE.x + 6.6, 9.4],
-          [SCOPE.x + 9.2, 9.4],
-          [SCOPE.x + 6.6, 6.2],
-          [SCOPE.x + 9.2, 6.2],
-        ].map(([x, y], i) => (
-          <mesh key={i} position={[x, y, S_FRONT + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.6, 0.6, 0.5, 20]} />
-            <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        {(['ch1', 'ch2'] as const).map((k) => (
-          <mesh key={k} position={JACK[k]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.45, 0.45, 0.6, 16]} />
-            <meshStandardMaterial color={k === 'ch1' ? '#eab308' : '#0ea5e9'} metalness={0.5} roughness={0.3} />
-          </mesh>
-        ))}
-        <ScopeScreen s={s} />
-      </group>
-      <Html position={[SCREEN.x, SCREEN.y + SCREEN.h / 2 - 0.5, S_FRONT + 0.1]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="w52-scope-osd">
-          <span className="c1 div">CH1 2.5 V/div</span>
-          <span className="c2 div">CH2 2.5 V/div</span>
-          <span className="div">{sec(timeDiv(f))}/div</span>
-        </div>
-      </Html>
-      <Html position={[SCREEN.x, SCREEN.y - SCREEN.h / 2 + 0.5, S_FRONT + 0.1]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="w52-scope-osd">
-          {b.fault ? (
-            <span className="bad">CH2 = 0 V · 地线短路！</span>
-          ) : (
-            <>
-              <span className="c2">
-                Δt {num(dt * 1e6, 1)} µs · Δφ {deg(ph, 1)}
-              </span>
-              <span className="c2 div">CH2/CH1 {num(abs(b.ch2) / abs(b.ch1), 3)}</span>
-            </>
-          )}
-        </div>
-      </Html>
-      <Html position={[SCOPE.x, SCOPE.h + 0.6, SCOPE.z - SCOPE.d / 2]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`bb3d-tag w52-tag3 scope ${lit ? 'lit' : ''}`}>{BENCH_NAMES.scope}</div>
-      </Html>
-    </group>
-  );
-}
-
-/* ------------------------------------------------------------- probes */
-
-function Probe({ ch, tipHole, clip, lit, clipLit, bad }: { ch: 'ch1' | 'ch2'; tipHole: string; clip: V3; lit: boolean; clipLit: boolean; bad: boolean }) {
-  const [x, z] = hole(tipHole);
-  const color = ch === 'ch1' ? '#eab308' : '#0ea5e9';
-  const cable = useMemo<V3[]>(() => {
-    const j = JACK[ch];
-    return [
-      [x, 3.4, z],
-      [x, 6.2, z - 1.2],
-      [(x + j[0]) / 2, 6.5, (z + j[2]) / 2],
-      [j[0], 2.6, j[2] + 2.6],
-      [j[0], j[1], j[2] + 0.4],
-    ];
-  }, [ch, x, z]);
-  const gnd = useMemo<V3[]>(
+  const d2 = b.fault ? 0 : (ph * Math.PI) / 180;
+  const dm = (phaseOf(b.math, b.ch1) * Math.PI) / 180;
+  const time = useMemo(() => ({ div: timeDiv(f) }), [f]);
+  const ch1 = useMemo(() => ({ data: (t: number) => a1 * Math.sin(w * t), vdiv: VDIV, color: CH1_COLOR }), [a1, w]);
+  const ch2 = useMemo(() => ({ data: (t: number) => a2 * Math.sin(w * t + d2), vdiv: VDIV, color: CH2_COLOR, width: 7 }), [a2, w, d2]);
+  const mathCh = useMemo(() => (math ? { data: (t: number) => am * Math.sin(w * t + dm), vdiv: VDIV } : undefined), [math, am, w, dm]);
+  // time cursors: A on CH1's first peak, B on CH2's
+  const cursors = useMemo<ScopeCursor[]>(
     () => [
-      [x, 2.0, z + 0.2],
-      [(x + clip[0]) / 2, Math.max(clip[1], 1.2) + 1.4, (z + clip[2]) / 2],
-      [clip[0], clip[1] + 0.6, clip[2]],
+      { kind: 't', at: 1 / f / 4, color: CH1_COLOR },
+      { kind: 't', at: (1 / f) * (1 / 4 - d2 / (2 * Math.PI)), color: CH2_COLOR },
     ],
-    [x, z, clip],
+    [f, d2],
   );
+  const dt = (-ph / 360) * (1 / f);
+  const osd: OsdItem[] = b.fault
+    ? [{ text: 'CH2 = 0 V · 地线短路！', tone: 'warn' }]
+    : [
+        { text: `Δt ${num(dt * 1e6, 1)} µs · Δφ ${deg(ph, 1)}`, tone: 'ch2' },
+        { text: `CH2/CH1 ${num(a2 / a1, 3)}`, tone: 'ch2', minor: true },
+      ];
   return (
-    <group>
-      <group {...hover3d([`${ch}_probe`])}>
-        <mesh position={[x, 0.6, z]}>
-          <cylinderGeometry args={[0.05, 0.03, 1.6, 8]} />
-          <meshStandardMaterial color="#c3c8ce" metalness={0.8} roughness={0.3} />
-        </mesh>
-        <mesh position={[x, 2.3, z]}>
-          <cylinderGeometry args={[0.3, 0.24, 2.4, 14]} />
-          <meshStandardMaterial color="#2a2d33" roughness={0.45} emissive={lit ? color : '#000000'} emissiveIntensity={lit ? 0.7 : 0} />
-        </mesh>
-        <mesh position={[x, 3.2, z]}>
-          <cylinderGeometry args={[0.34, 0.34, 0.3, 14]} />
-          <meshStandardMaterial color={color} />
-        </mesh>
-        <Tube pts={cable} color="#2a2d33" r={0.12} lit={lit} />
-      </group>
-      <group {...hover3d([`${ch}_clip`])}>
-        <Tube pts={gnd} color="#24262b" r={0.06} lit={clipLit} />
-        <Clip at={clip} color="#24262b" lit={clipLit} bad={bad} />
-      </group>
-    </group>
+    <>
+      <FunctionGenerator
+        id="bb_gen"
+        position={GEN_AT}
+        waveform="sine"
+        frequency={f}
+        vpp={10}
+        impedance={R_GEN}
+        out="e10"
+        gnd="T-4"
+        outVia={RED_VIA}
+        gndVia={BLACK_VIA}
+        knob={{ range: F_RANGE, onChange: onTurn, id: 'bb_knob' }}
+      />
+      <Oscilloscope
+        id="bb_scope"
+        position={SCOPE_AT}
+        ch1={ch1}
+        ch2={ch2}
+        math={mathCh}
+        time={time}
+        cursors={cursors}
+        osd={osd}
+        probes={{
+          ch1: { tip: 'a10', ground: 'T-6', id: 'ch1_probe', groundId: 'ch1_clip', litIds: ['node_in'], groundLitIds: ['rail_gnd'] },
+          ch2: {
+            tip: `a${out}`,
+            ground: clip === 'out' ? [colX(out) + 0.55, 1.6, ROW_Z.b] : 'T-21',
+            id: 'ch2_probe',
+            groundId: 'ch2_clip',
+            litIds: ['node_out'],
+            groundBad: b.fault,
+            color: '#0ea5e9',
+          },
+        }}
+      />
+    </>
   );
 }
 
@@ -609,7 +346,6 @@ function Scene({ lab, b, frame, nonce }: { lab: Lab; b: BenchModel; frame: Cam; 
   const set = lab.set;
   const turn = useCallback((f: number) => set({ freq: f }), [set]);
   const out = L.out;
-  const clipOut: V3 = [colX(out) + 0.55, 1.6, ROW_Z.b];
   return (
     <>
       <hemisphereLight args={['#fffaf0', '#cfc4ae', 0.95]} />
@@ -633,7 +369,6 @@ function Scene({ lab, b, frame, nonce }: { lab: Lab; b: BenchModel; frame: Cam; 
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} onPointerMove={move} onPointerOut={leave} visible={false}>
         <planeGeometry args={[W, D]} />
       </mesh>
-      <Generator f={lab.freq} lit={is('bb_gen')} knobLit={is('bb_knob')} onTurn={turn} />
       {L.swap ? (
         <>
           <Capacitor p1={[colX(10), ROW_Z.d]} p2={[colX(11), ROW_Z.d]} kind="ceramic" id="bb_c" label={cTag} />
@@ -646,18 +381,7 @@ function Scene({ lab, b, frame, nonce }: { lab: Lab; b: BenchModel; frame: Cam; 
         </>
       )}
       <Jumper from="b15" to="G15" color="#24262b" lit={is('bb_jumper')} ids={['bb_jumper']} />
-      <Stub at="G6" color="#24262b" />
-      {lab.clip === 'gnd' && <Stub at="G21" color="#24262b" />}
-      <Probe ch="ch1" tipHole="a10" clip={[colX(6) + 0.15, 1.5, RAIL_Z.tn]} lit={is('ch1_probe', 'node_in')} clipLit={is('ch1_clip', 'rail_gnd')} bad={false} />
-      <Probe
-        ch="ch2"
-        tipHole={`a${out}`}
-        clip={lab.clip === 'out' ? clipOut : [colX(21) + 0.15, 1.5, RAIL_Z.tn]}
-        lit={is('ch2_probe', 'node_out')}
-        clipLit={is('ch2_clip')}
-        bad={b.fault}
-      />
-      <Oscilloscope b={b} f={lab.freq} math={lab.ch2 === 'math'} lit={is('bb_scope')} />
+      <Instruments b={b} f={lab.freq} math={lab.ch2 === 'math'} out={out} clip={lab.clip} onTurn={turn} />
       <OrbitControls makeDefault enableDamping={false} minDistance={6} maxDistance={140} maxPolarAngle={Math.PI * 0.47} />
       <CameraRig frame={frame} nonce={nonce} />
     </>

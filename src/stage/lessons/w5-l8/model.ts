@@ -204,4 +204,3 @@ export const fmtHz = (f: number) => (f >= 1000 ? `${(f / 1000).toFixed(2)} kHz` 
 export const fmtVpp = (v: number) => `${v.toFixed(2)} Vpp`;
 export const fmtDeg = (d: number) => `${d >= 0.05 ? '+' : d <= -0.05 ? '−' : ''}${Math.abs(d).toFixed(1)}°`;
 export const fmtNum = (x: number, d: number) => (x < 0 ? '−' : '') + Math.abs(x).toFixed(d);
-export const fmtTime = (t: number) => (t >= 1e-3 ? `${t * 1000} ms` : `${Math.round(t * 1e6)} µs`);
