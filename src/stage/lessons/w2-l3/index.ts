@@ -60,6 +60,12 @@ const W2_L3: StageLesson = {
     },
     textbook_supplement: 'Introductory Circuit Analysis, 14th Ed. (Boylestad) — Ch. 8 Mesh Analysis',
     prerequisites: ['W1-L4 节点/支路/回路（Nodes, Branches & Loops）', 'W1-L5 基尔霍夫电流定律（KCL）', 'W1-L6 基尔霍夫电压定律（KVL）'],
+    learning_objectives: [
+      '判断电路是否为平面电路，分清回路与网孔，说出网孔电流与共享支路上真实电流的关系。',
+      String.raw`统一取顺时针网孔电流，沿每个网孔列 KVL，写出对称的网孔矩阵 $\mathbf{R}\mathbf{i} = \mathbf{v}$。`,
+      String.raw`用外围边缘支路上的电流源直接锁定网孔电流（$i_k = \pm I_s$），少解一个未知数。`,
+      '遇到共享支路上的电流源时构造超网孔：绕大外环列 KVL，再补一条内部 KCL 约束，并说明与电流源串联的电阻为何不进方程。',
+    ],
     next_lesson: 'W2-L4',
     next_lesson_title: '节点法 vs 网孔法选型策略与矩阵直写法',
   },
@@ -69,18 +75,21 @@ const W2_L3: StageLesson = {
       {
         id: L1,
         label: '01 顺时针网孔电流与共享支路叠加',
+        short: '01 网孔电流',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '切换“网孔窗格 / 大外环回路 / 非平面反例”；悬停共享电阻 R₂ 拆出 i₁↓ 与 ↑i₂；拖动 V₁、V₂，看两条 KVL 验算始终归零。',
       },
       {
         id: L2,
         label: '02 含电流源与超网孔外环绕行',
+        short: '02 超网孔绕行',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: 'Case 1 边缘电流源直接锁死 i₂；Case 2 按“构造超网孔”切除共享支路、沿琥珀虚线绕大外环；打开节点 b 的 KCL；拖动串联电阻，看网孔电流纹丝不动。',
       },
       {
         id: L3,
         label: '03 网孔方程联立求解台',
+        short: '03 联立求解',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '选一道题看 R·i = v：悬停主对角线点亮该网孔边框上的电阻，悬停非对角线只点亮共享电阻；下方逐步消元并还原支路电流。',
       },
@@ -560,6 +569,8 @@ i_2 - i_1 = I_s & \text{（共享支路内部 KCL 约束）}
       quiz: [
         {
           id: 'w2l3_q1',
+          concept: '平面电路前提',
+          review_act: 1,
           question: '以下关于网孔分析法（Mesh Analysis）适用范围的判断，哪一项是完全正确的？',
           options: [
             {
@@ -594,6 +605,8 @@ i_2 - i_1 = I_s & \text{（共享支路内部 KCL 约束）}
         },
         {
           id: 'w2l3_q2',
+          concept: '网孔电流与支路电流',
+          review_act: 1,
           question: '在一个双网孔电路中，统一顺时针设 Mesh 1（左）电流为 i₁ = 2 A，Mesh 2（右）电流为 i₂ = -3 A。则夹在两个网孔中间的共享电阻 R₂ 上，真实向下的支路电流是多少？',
           options: [
             {
@@ -624,6 +637,8 @@ i_2 - i_1 = I_s & \text{（共享支路内部 KCL 约束）}
         },
         {
           id: 'w2l3_q3',
+          concept: '超网孔 KCL 约束方向',
+          review_act: 4,
           question:
             '在双网孔电路中，Mesh 1 在左，Mesh 2 在右，均设为顺时针网孔电流 i₁, i₂。若两者之间的共享支路含有一个箭头向上的 4 A 独立电流源，则超网孔配套的内部 KCL 约束方程必须是？',
           options: [
@@ -655,6 +670,8 @@ i_2 - i_1 = I_s & \text{（共享支路内部 KCL 约束）}
         },
         {
           id: 'w2l3_q4',
+          concept: '与电流源串联的电阻',
+          review_act: 4,
           question: '某超网孔的共享支路中，一个 5 A 电流源与一个 10 Ω 电阻串联。若将该 10 Ω 电阻悄悄换成 20 Ω，电路中会发生什么变化？',
           options: [
             {

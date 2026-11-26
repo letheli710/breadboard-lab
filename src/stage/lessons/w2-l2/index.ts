@@ -55,6 +55,12 @@ const W2_L2: StageLesson = {
       sections: ['Section 3.3 Nodal Analysis with Voltage Sources'],
     },
     prerequisites: ['W1-L5 KCL（基尔霍夫电流定律）', 'W1-L6 KVL（基尔霍夫电压定律）', 'W2-L1 节点分析法（标准纯电流源电路）'],
+    learning_objectives: [
+      '识别节点分析中含电压源的两种典型拓扑：Case 1（接地电压源）与 Case 2（悬空电压源）。',
+      '理解理想电压源支路电流无法直接用欧姆定律表示为节点电压函数的原因，掌握用“闭合高斯面（超节点）”消去未知支路电流的本质。',
+      '熟练列出超节点外边界 KCL 方程与内部 KVL 电位约束方程，并准确处理超节点内部并联电阻的消元技巧。',
+      '掌握含受控电压源（CCVS/VCVS）超节点的完整求解流程（含控制量替换方程）及参考地选点降维策略。',
+    ],
     pass_message: '超节点诊断测验通过！',
     next_lesson: 'W2-L3',
     next_lesson_title: '网孔分析法与超网孔（Mesh & Supermesh Analysis）',
@@ -65,18 +71,21 @@ const W2_L2: StageLesson = {
       {
         id: L1,
         label: '01 接地源直锁 (Case 1)',
+        short: '01 接地源直锁',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '展示理想电压源一端接非参考节点、另一端接参考地时，直接锁定节点电位 v1 = Vs，使未知数个数减 1 的降维机制。',
       },
       {
         id: L2,
         label: '02 超节点虚线包围 (Case 2)',
+        short: '02 超节点包围',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '动态演示悬空电压源与两端非参考节点被醒目虚线闭合圈包裹成超节点（Supernode），可视化穿过外边界的所有支路电流，以及内部并联电阻电流自抵消的物理图像。',
       },
       {
         id: L3,
         label: '03 KCL+KVL 联动求解台',
+        short: '03 联动求解',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '将左侧原理图支路与右侧板书方程实时联动：悬停方程中的每一项（外边界电流项或 KVL 约束项），左侧对应支路电流箭头或电压源极性同步高亮，并支持一键切换独立源 / 受控源超节点模式。',
@@ -587,6 +596,8 @@ const W2_L2: StageLesson = {
       quiz: [
         {
           id: 'w2l2_q1',
+          concept: '超节点同时满足 KCL 与 KVL',
+          review_act: 2,
           question: '关于由悬空理想电压源构成的超节点（Supernode），下列哪项陈述是**完全正确**的？',
           options: relabel(
             [
@@ -621,6 +632,8 @@ const W2_L2: StageLesson = {
         },
         {
           id: 'w2l2_q2',
+          concept: '内部 KVL 约束的极性',
+          review_act: 2,
           question: '在某电路中，节点 2 与节点 3 之间接有一个 8 V 悬空电压源，其**正极（+）接在节点 3**，**负极（−）接在节点 2**。则该超节点的内部 KVL 约束方程应写作：',
           options: relabel(
             [
@@ -648,6 +661,8 @@ const W2_L2: StageLesson = {
         },
         {
           id: 'w2l2_q3',
+          concept: '超节点内的并联电阻',
+          review_act: 3,
           question: '一个 10 Ω 电阻与一个 5 V 悬空电压源直接并联在节点 2 和节点 3 之间（二者均被包入超节点）。下列说法正确的是：',
           options: relabel(
             [
@@ -685,6 +700,8 @@ const W2_L2: StageLesson = {
         },
         {
           id: 'w2l2_q4',
+          concept: '受控电压源的控制量方程',
+          review_act: 4,
           question:
             '某电路有 3 个非参考节点 (v₁, v₂, v₃)，节点 2 与节点 3 之间接有一个流控电压源 $V_d = 3i_x$（+ 接节点 2，− 接节点 3），其中 $i_x$ 是流经节点 1 接地电阻 R₁ = 6 Ω（方向向下）的电流。将约束方程全部化为节点电位后应为：',
           options: relabel(

@@ -47,6 +47,13 @@ const W2_L5: StageLesson = {
     },
     textbook_supplement: 'Introductory Circuit Analysis, 14th Ed. (Boylestad) — Chapter 9 Superposition Theorem（多水泵水压/水流直觉）',
     prerequisites: ['W1-L2 功率与受控源', 'W1-L7 分压分流', 'W2-L1 节点分析法'],
+    learning_objectives: [
+      '用齐次性（Homogeneity）与可加性（Additivity）严格判定一个电路或物理量是否为线性。',
+      '熟练执行独立源置零手术：独立电压源置零 = 短路（$v = 0$），独立电流源置零 = 开路（$i = 0$）。',
+      '运用叠加定理三步法分解并求解含多个独立源的线性电路，准确处理代数符号。',
+      '牢记铁律一：受控源属于电路内部线性耦合关系，在所有子电路中必须原位保留，绝不可置零。',
+      '牢记铁律二：功率 $p = i^2 R$ 是二次非线性量，绝对不能直接叠加；必须先叠加总电流或总电压，再计算总功率。',
+    ],
     next_lesson: 'W2-L6',
     next_lesson_title: '电源变换',
   },
@@ -56,18 +63,21 @@ const W2_L5: StageLesson = {
       {
         id: L1,
         label: '01 独立源一键置零演示 (短路/开路)',
+        short: '01 独立源置零',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '拨动两个开关给独立源“关机”：电压源置零 → 洋红短路线（v = 0 V），电流源置零 → 虚线断口（i = 0 A）；紫色菱形受控源锁定在原位，点它听教授怎么说。',
       },
       {
         id: L2,
         label: '02 分电路求解与分量累加台',
+        short: '02 分量累加',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '在原电路、子电路 1、子电路 2 与代数叠加对照之间切换；“同向增强”是 Sadiku Ex 4.3，“反向抵消”是第 6 幕实战题；k 滑块把所有独立源同乘 k。',
       },
       {
         id: L3,
         label: '03 功率不可叠加反例对比台',
+        short: '03 功率反例',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '拖动 i₁、i₂：上方三根柱子比较错误叠加 p₁ + p₂、交叉项 2i₁i₂R 与真实功率；下方抛物线 p = R·i² 上，空心点与实心点之间的落差就是交叉项。',
       },
@@ -547,6 +557,8 @@ const W2_L5: StageLesson = {
       quiz: [
         {
           id: 'w2l5_q1',
+          concept: '独立源置零方式',
+          review_act: 2,
           question: '在使用叠加定理分析线性电路时，若要“关闭（置零）”一个 12 V 独立电压源和一个 5 A 独立电流源，正确的替换操作分别是：',
           options: [
             {
@@ -576,6 +588,8 @@ const W2_L5: StageLesson = {
         },
         {
           id: 'w2l5_q2',
+          concept: '受控源不可置零',
+          review_act: 4,
           question: '某线性电路包含 2 个独立电压源、1 个独立电流源和 2 个受控源（1 个 VCVS 与 1 个 CCCS）。应用叠加定理时，应将该电路拆分为几个子电路？受控源如何处理？',
           options: [
             {
@@ -605,6 +619,8 @@ const W2_L5: StageLesson = {
         },
         {
           id: 'w2l5_q3',
+          concept: '功率不可直接叠加',
+          review_act: 5,
           question:
             '某 5 Ω 电阻在独立源 A 单独作用时流过向右电流 2 A（消耗功率 20 W），在独立源 B 单独作用时流过向右电流 4 A（消耗功率 80 W）。两电源同时作用时，该 5 Ω 电阻消耗的真实功率为：',
           options: [
@@ -635,6 +651,8 @@ const W2_L5: StageLesson = {
         },
         {
           id: 'w2l5_q4',
+          concept: '交叉项可正可负',
+          review_act: 6,
           question: String.raw`接上题条件，若将独立源 B 的极性反接，使其单独作用时在 5 Ω 电阻中产生向左的 4 A 电流（即 $i_B = -4\text{ A}$，单独功率仍为 80 W）。此时两电源同时作用，5 Ω 电阻消耗的真实功率为：`,
           options: [
             {
