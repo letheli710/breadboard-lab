@@ -64,8 +64,8 @@ export type ScopeCursor =
 
 export interface OsdItem {
   text: string;
-  /** colour: a channel's trace colour, or 'warn' (rose) */
-  tone?: ScopeKey | 'warn';
+  /** colour: a channel's trace colour, 'warn' (rose), 'ok' (green, e.g. 谐振锁定 / TRIG'D) or 'muted' (grey) */
+  tone?: ScopeKey | 'warn' | 'ok' | 'muted';
   /** hidden on narrow screens (≤ 960 px), like the automatic settings */
   minor?: boolean;
 }
@@ -109,6 +109,10 @@ export interface OscilloscopeProps extends Placement {
   samples?: number;
   /** the floating name (default BENCH_NAMES.scope) */
   label?: string;
+  /** the settings line at the top of the screen (default) or at the bottom */
+  osdAt?: 'top' | 'bottom';
+  /** lean the scope back (radians, e.g. 0.2); probes and the settings line follow */
+  tilt?: number;
   litIds?: string[];
   hoverIds?: string[];
 }
@@ -216,50 +220,56 @@ function Probe({ pl, scopeId, ch, probe, color }: { pl: Placement; scopeId: stri
 
 export function Oscilloscope(p: OscilloscopeProps) {
   const { w, h, d } = SCOPE_SIZE;
-  const pl: Placement = { position: p.position, yaw: p.yaw, scale: p.scale };
+  const pl: Placement = { position: p.position, yaw: p.yaw, scale: p.scale, tilt: p.tilt, tiltPivotZ: d / 2 };
   const lit = useAnyLit([p.id, ...(p.litIds ?? [])]);
   const { spec, key, osd } = useMemo(
     () => scopeScreen({ ch1: p.ch1, ch2: p.ch2, math: p.math, time: p.time, trigger: p.trigger, cursors: p.cursors, progress: p.progress, samples: p.samples }),
     [p.ch1, p.ch2, p.math, p.time, p.trigger, p.cursors, p.progress, p.samples],
   );
   const items = [...(p.autoOsd === false ? [] : osd), ...(p.osd ?? [])];
-  const toneColor = (t?: OsdItem['tone']) => (t === 'warn' ? '#fda4af' : t ? (p[t]?.color ?? TRACE_COLORS[t]) : undefined);
+  const toneColor = (t?: OsdItem['tone']) => (t === 'warn' ? '#fda4af' : t === 'ok' ? '#86efac' : t === 'muted' ? '#9ca3af' : t ? (p[t]?.color ?? TRACE_COLORS[t]) : undefined);
+  const osdY = p.osdAt === 'bottom' ? SCOPE_SCREEN.y - SCOPE_SCREEN.h / 2 + 0.5 : SCOPE_SCREEN.y + SCOPE_SCREEN.h / 2 - 0.5;
+  const s = pl.scale ?? 1;
   const probeColor = (ch: 'ch1' | 'ch2') => p.probes?.[ch]?.color ?? PROBE_COLORS[ch];
   return (
     <group name="bench_oscilloscope">
-      <group position={toWorld(pl, [0, 0, 0])} rotation={[0, pl.yaw ?? 0, 0]} scale={pl.scale ?? 1} {...hoverHandlers(p.hoverIds ?? [p.id])}>
-        <mesh position={[0, h / 2, 0]}>
-          <boxGeometry args={[w, h, d]} />
-          <meshStandardMaterial color="#cfd5dd" roughness={0.55} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.25 : 0} />
-        </mesh>
-        <mesh position={[0, h / 2, d / 2 + 0.01]}>
-          <planeGeometry args={[w - 0.6, h - 0.6]} />
-          <meshStandardMaterial color="#3b4250" roughness={0.7} />
-        </mesh>
-        {[
-          [6.6, 10.4],
-          [9.2, 10.4],
-          [6.6, 7.2],
-          [9.2, 7.2],
-        ].map(([x, y], i) => (
-          <mesh key={i} position={[x, y, d / 2 + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.6, 0.6, 0.5, 20]} />
-            <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        {(['ch1', 'ch2'] as const).map((k) => (
-          <mesh key={k} position={[k === 'ch1' ? 6.6 : 9.2, 1.6, d / 2 + 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.45, 0.45, 0.6, 16]} />
-            <meshStandardMaterial color={probeColor(k)} metalness={0.5} roughness={0.3} />
-          </mesh>
-        ))}
-        <Screen spec={spec} drawKey={key} />
+      <group position={toWorld({ ...pl, tilt: 0 }, [0, 0, 0])} rotation={[0, pl.yaw ?? 0, 0]} scale={s} {...hoverHandlers(p.hoverIds ?? [p.id])}>
+        <group position={[0, 0, d / 2]} rotation={[-(p.tilt ?? 0), 0, 0]}>
+          <group position={[0, 0, -d / 2]}>
+            <mesh position={[0, h / 2, 0]}>
+              <boxGeometry args={[w, h, d]} />
+              <meshStandardMaterial color="#cfd5dd" roughness={0.55} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.25 : 0} />
+            </mesh>
+            <mesh position={[0, h / 2, d / 2 + 0.01]}>
+              <planeGeometry args={[w - 0.6, h - 0.6]} />
+              <meshStandardMaterial color="#3b4250" roughness={0.7} />
+            </mesh>
+            {[
+              [6.6, 10.4],
+              [9.2, 10.4],
+              [6.6, 7.2],
+              [9.2, 7.2],
+            ].map(([x, y], i) => (
+              <mesh key={i} position={[x, y, d / 2 + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.6, 0.6, 0.5, 20]} />
+                <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
+              </mesh>
+            ))}
+            {(['ch1', 'ch2'] as const).map((k) => (
+              <mesh key={k} position={[k === 'ch1' ? 6.6 : 9.2, 1.6, d / 2 + 0.3]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.45, 0.45, 0.6, 16]} />
+                <meshStandardMaterial color={probeColor(k)} metalness={0.5} roughness={0.3} />
+              </mesh>
+            ))}
+            <Screen spec={spec} drawKey={key} />
+          </group>
+        </group>
       </group>
       {p.probes?.ch1 && <Probe pl={pl} scopeId={p.id} ch="ch1" probe={p.probes.ch1} color={probeColor('ch1')} />}
       {p.probes?.ch2 && <Probe pl={pl} scopeId={p.id} ch="ch2" probe={p.probes.ch2} color={probeColor('ch2')} />}
       {items.length > 0 && (
-        <Html position={toWorld(pl, [SCOPE_SCREEN.x, SCOPE_SCREEN.y + SCOPE_SCREEN.h / 2 - 0.5, d / 2 + 0.1])} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-          <div className="bench-osd">
+        <Html position={toWorld(pl, [SCOPE_SCREEN.x, osdY, d / 2 + 0.1])} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
+          <div className="bench-osd" style={s < 0.98 ? { transform: `scale(${Math.max(0.6, s)})` } : undefined}>
             {items.map((it, i) => (
               <span key={i} className={it.minor ? 'minor' : ''} style={{ color: toneColor(it.tone) }}>
                 {it.text}

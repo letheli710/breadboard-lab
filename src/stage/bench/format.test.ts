@@ -80,3 +80,18 @@ describe('generator', () => {
     expect(dragFrequency(1000, 30, 0, [100, 10000])).toBe(1400);
   });
 });
+
+describe('supply display, minor and off lines', () => {
+  it('marks currents and the series note minor, and an off channel dim', () => {
+    const l = supplyLcd(
+      [
+        { v: 9, i: 0.001 },
+        { v: 9, off: true, readout: '未接' },
+      ],
+      true,
+    );
+    expect(l.map((x) => x.text)).toEqual(['CH1 +9.00 V', '1 mA · CV', 'CH2 −9.00 V · OFF', '未接', '串联 · COM = GND']);
+    expect(l.filter((x) => x.minor).length).toBe(3);
+    expect(l.filter((x) => x.dim).length).toBe(2);
+  });
+});

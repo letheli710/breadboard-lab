@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { colX, RAIL_Z, ROW_Z } from '../BreadboardXray';
-import { boardXZ, clipAt, clipPath, frontDir, plugPath, probeCablePath, toWorld } from './geometry';
+import { BENCH_Y, boardXZ, clipAt, clipPath, frontDir, plugPath, probeCablePath, toWorld } from './geometry';
 
 describe('boardXZ', () => {
   it('reads holes, rail holes and coordinates', () => {
@@ -42,5 +42,15 @@ describe('lead paths', () => {
     const p = probeCablePath([colX(10), ROW_Z.e], [-5.4, 0.6, -16.2], [0, 0, 1]);
     expect(p[0]).toEqual([colX(10), 3.4, ROW_Z.e]);
     expect(p[p.length - 1]).toEqual([-5.4, 0.6, expect.closeTo(-15.8)]);
+  });
+});
+
+describe('tilted instruments', () => {
+  it('leans back about the front foot', () => {
+    const pl = { position: [0, 0] as [number, number], tilt: Math.PI / 2, tiltPivotZ: 2 };
+    const top = toWorld(pl, [0, 4, 2]);
+    // a point 4 up the front face ends up 4 behind the foot, at bench height
+    expect(top[1]).toBeCloseTo(BENCH_Y + 0);
+    expect(top[2]).toBeCloseTo(-2);
   });
 });

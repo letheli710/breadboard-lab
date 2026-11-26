@@ -40,6 +40,10 @@ export interface Placement {
   yaw?: number;
   /** uniform size factor (1 = the standard instrument) */
   scale?: number;
+  /** lean back by this angle (radians) about a horizontal axis at the foot, `tiltPivotZ` from the centre */
+  tilt?: number;
+  /** where the tilt axis sits along the depth (instrument units; e.g. the front foot = depth / 2) */
+  tiltPivotZ?: number;
 }
 
 /** A point given in the instrument's own frame (x right, y up from the bench, z out of the front) in world space. */
@@ -48,7 +52,15 @@ export function toWorld(pl: Placement, local: V3): V3 {
   const s = pl.scale ?? 1;
   const c = Math.cos(yaw);
   const n = Math.sin(yaw);
-  const [x, y, z] = [local[0] * s, local[1] * s, local[2] * s];
+  const x = local[0] * s;
+  let [y, z] = [local[1] * s, local[2] * s];
+  if (pl.tilt) {
+    const pz = (pl.tiltPivotZ ?? 0) * s;
+    const ct = Math.cos(pl.tilt);
+    const st = Math.sin(pl.tilt);
+    const zz = z - pz;
+    [y, z] = [y * ct + zz * st, -y * st + zz * ct + pz];
+  }
   return [pl.position[0] + x * c + z * n, BENCH_Y + y, pl.position[1] - x * n + z * c];
 }
 

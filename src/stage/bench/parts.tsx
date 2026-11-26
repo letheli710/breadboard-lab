@@ -196,7 +196,20 @@ export function NameTag({ position, text, tone, lit }: { position: V3; text: str
 export function Lcd({ position, lines, off = false, align = 'left' }: { position: V3; lines: LcdLine[]; off?: boolean; align?: 'left' | 'right' }) {
   return (
     <Html position={position} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-      <div className={`bench-lcd ${off ? 'off' : ''} ${align}`}>{lines.map((l, i) => (l.strong ? <b key={i}>{l.text}</b> : <span key={i}>{l.text}</span>))}</div>
+      <div className={`bench-lcd ${off ? 'off' : ''} ${align}`}>
+        {lines.map((l, i) => {
+          const cls = [l.minor ? 'minor' : '', l.dim ? 'dim' : ''].join(' ').trim() || undefined;
+          return l.strong ? (
+            <b key={i} className={cls}>
+              {l.text}
+            </b>
+          ) : (
+            <span key={i} className={cls}>
+              {l.text}
+            </span>
+          );
+        })}
+      </div>
     </Html>
   );
 }

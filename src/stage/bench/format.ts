@@ -53,6 +53,8 @@ export interface SupplyChannel {
   readout?: string;
   /** colour of the channel's + terminal (default red) */
   color?: string;
+  /** this channel's output is off or unwired: its display lines dim and read OFF */
+  off?: boolean;
 }
 
 /**
@@ -118,6 +120,10 @@ export function resolveTerminal(key: SupplyTerminal, terms: TerminalSpec[]): Ter
 export interface LcdLine {
   text: string;
   strong?: boolean;
+  /** a secondary line (currents, the series note): hidden on narrow screens so the display stays small */
+  minor?: boolean;
+  /** greyed out (an output that is off) */
+  dim?: boolean;
 }
 
 function channelSub(c: SupplyChannel): string | null {
@@ -137,11 +143,11 @@ export function supplyLcd(channels: SupplyChannel[], series = false): LcdLine[] 
   channels.forEach((c, k) => {
     const v = isSeries && k === 1 ? -Math.abs(c.v) : Math.abs(c.v);
     const head = channels.length === 1 ? `${fixed(v)} V` : `CH${k + 1} ${isSeries && k < 2 ? signed(v) : fixed(v)} V`;
-    lines.push({ text: head, strong: true });
-    const sub = channelSub(c);
-    if (sub) lines.push({ text: sub });
+    lines.push({ text: c.off ? `${head} · OFF` : head, strong: true, dim: c.off });
+    const sub = c.off ? (c.readout ?? null) : channelSub(c);
+    if (sub) lines.push({ text: sub, minor: true, dim: c.off });
   });
-  if (isSeries) lines.push({ text: '串联 · COM = GND' });
+  if (isSeries) lines.push({ text: '串联 · COM = GND', minor: true });
   return lines;
 }
 

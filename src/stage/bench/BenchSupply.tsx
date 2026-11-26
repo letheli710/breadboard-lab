@@ -8,7 +8,7 @@
 // Its name defaults to supplyLabel(): 「台式可调直流电源（5 V）」 「（±9 V）」 「（18 V / 36 V）」.
 
 import { resolveTerminal, supplyLabel, supplyLcd, supplyTerminals, type LcdLine, type SupplyChannel, type SupplyTerminal } from './format';
-import { frontDir, toWorld, type BoardPoint, type Placement, type V3 } from './geometry';
+import { boardXZ, frontDir, toWorld, type BoardPoint, type Placement, type V3 } from './geometry';
 import { AMBER, hoverHandlers, Lcd, NameTag, PlugLead, useAnyLit } from './parts';
 
 export interface SupplyLead {
@@ -49,9 +49,28 @@ const PITCH = 1.8;
 /** the box width for n posts (posts on the left, two knobs on the right) */
 export const supplyWidth = (n: number) => Math.max(10, 2.2 + PITCH * n + 3.6);
 
-function Lead({ from, out, lead, to, color, supplyLit }: { from: V3; out: V3; lead: SupplyLead; to: BoardPoint; color: string; supplyLit: boolean }) {
+/**
+ * Waypoints taking a lead around the box when its hole lies behind the front panel (otherwise the
+ * default arc would pass through the box): out to the nearer side, then back along it.
+ */
+export function aroundBox(pl: Placement, w: number, to: BoardPoint): V3[] | undefined {
+  const [tx, tz] = boardXZ(to);
+  const s = pl.scale ?? 1;
+  const yaw = pl.yaw ?? 0;
+  const c = Math.cos(yaw);
+  const n = Math.sin(yaw);
+  const dx = tx - pl.position[0];
+  const dz = tz - pl.position[1];
+  const lx = (dx * c - dz * n) / s;
+  const lz = (dx * n + dz * c) / s;
+  if (lz > D / 2 - 0.5 || Math.abs(lx) > w / 2 + 2) return undefined;
+  const side = (lx >= 0 ? 1 : -1) * (w / 2 + 1.4);
+  return [toWorld(pl, [side, 2.4, D / 2 + 1.4]), toWorld(pl, [side, 2.4, Math.min(lz, -D / 2 - 1)])];
+}
+
+function Lead({ from, out, lead, to, color, supplyLit, around }: { from: V3; out: V3; lead: SupplyLead; to: BoardPoint; color: string; supplyLit: boolean; around?: V3[] }) {
   const lit = useAnyLit(lead.litIds ?? []);
-  return <PlugLead from={from} out={out} to={to} color={color} lit={supplyLit || lit} via={lead.via} />;
+  return <PlugLead from={from} out={out} to={to} color={color} lit={supplyLit || lit} via={lead.via ?? around} />;
 }
 
 export function BenchSupply(p: BenchSupplyProps) {
@@ -91,7 +110,7 @@ export function BenchSupply(p: BenchSupplyProps) {
         if (!t) return [];
         const from = toWorld(pl, [postX(terms.indexOf(t)), 1.6, D / 2 + 0.5]);
         const tos = Array.isArray(lead.to) && typeof lead.to[0] !== 'number' ? (lead.to as BoardPoint[]) : [lead.to as BoardPoint];
-        return tos.map((to, j) => <Lead key={`${i}-${j}`} from={from} out={out} lead={lead} to={to} color={lead.color ?? t.color} supplyLit={lit} />);
+        return tos.map((to, j) => <Lead key={`${i}-${j}`} from={from} out={out} lead={lead} to={to} color={lead.color ?? t.color} supplyLit={lit} around={aroundBox(pl, w, to)} />);
       })}
       <Lcd position={toWorld(pl, [-w / 2 + 3.6, H - 1.3, D / 2 + 0.05])} lines={lines} off={p.off} />
       <NameTag position={toWorld(pl, [0, H + 1.9, -D / 2])} text={p.label ?? supplyLabel(p.channels, p.series)} tone="psu" lit={lit} />
