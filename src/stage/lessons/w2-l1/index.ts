@@ -47,6 +47,12 @@ const W2_L1: StageLesson = {
     textbook_primary: { book: 'Alexander, Sadiku & Fredette, Fundamentals of Electric Circuits (2026 Release)', sections: ['Sec. 3.1–3.2'] },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis (14th Ed.), Ch. 8',
     prerequisites: ['W1-L3 欧姆定律', 'W1-L4 节点/支路/回路', 'W1-L5 KCL'],
+    learning_objectives: [
+      R`建立“电气海拔（节点电位）”与“参考地（$0\,\text{V}$ 基准）”的物理直觉，理解为何 $n$ 个节点只需列 $n - 1$ 个独立 KCL 方程。`,
+      '熟练掌握“统一流出法”，用欧姆定律将任意电阻支路电流准确翻译为节点电位差 $(v_k - v_j)/R$。',
+      '独立完成含独立电流源及含受控电流源（CCCS）的多节点线性方程组列写、通分消元与 KCL 闭环验算。',
+      R`理解参考地切换不变性及电导矩阵 $\mathbf{G}\mathbf{v} = \mathbf{i}$ 的对称性检验边界。`,
+    ],
     next_lesson: 'W2-L2',
     next_lesson_title: '含电压源的节点分析与超节点（Supernode）',
   },
@@ -56,18 +62,21 @@ const W2_L1: StageLesson = {
       {
         id: L1,
         label: '01 节点标注与参考地选择',
+        short: '01 节点与参考地',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '按等电位金属导线着色区分各非参考节点与参考地母线，直观呈现 n 与 n-1 的数量关系：点任意节点把它设为参考地，看全图电位整体平移。',
       },
       {
         id: L2,
         label: '02 支路电流翻译为电位差',
+        short: '02 电流翻译',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '在选中节点上动态弹出“统一流出法”支路电流矢量与欧姆定律表达式气泡，区分电阻支路与独立电流源：换一个站位节点，气泡和方程跟着换。',
       },
       {
         id: L3,
         label: '03 节点方程联立求解台',
+        short: '03 联立求解',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '同步展示通分消分母、标准线性方程组矩阵 Gv = i、高斯消元过程以及反算后的真实支路电流方向动画：一步一步点“下一步”。',
       },
@@ -569,6 +578,8 @@ const W2_L1: StageLesson = {
       quiz: [
         {
           id: 'w2l1_q1',
+          concept: '参考地切换不变性',
+          review_act: 6,
           question: R`在例题 1（底部接地时求得 $v_1 = 15\,\text{V},\; v_2 = -15\,\text{V}$）中，若将参考地改选在节点 2（即强行规定新参考电位 $v_2' = 0\,\text{V}$），电路其他元件完全不变，则下列说法正确的是？`,
           options: [
             {
@@ -602,6 +613,8 @@ const W2_L1: StageLesson = {
         },
         {
           id: 'w2l1_q2',
+          concept: '跨接电流源的符号',
+          review_act: 3,
           question: R`某独立电流源 $I_s = 8\,\text{A}$ 跨接在非参考节点 $v_a$ 和 $v_b$ 之间，箭头由 $v_a$ 指向 $v_b$。若两个节点均采用标准形式“流出电阻电流之和 $=$ 流入独立电流源之和”列写 KCL，则 $I_s$ 在 $v_a$ 和 $v_b$ 方程的**等号右侧**分别应写作？`,
           options: [
             { key: 'A', text: '$v_a$ 右侧写 $+8$，$v_b$ 右侧写 $+8$', correct: false, feedback: '违反电荷守恒！同一电流源不可能同时向两端都“流入”电流。' },
@@ -626,6 +639,8 @@ const W2_L1: StageLesson = {
         },
         {
           id: 'w2l1_q3',
+          concept: '负电位下的支路电流',
+          review_act: 2,
           question: R`用节点分析法解得某电路节点电位 $v_3 = -4\,\text{V}$，$v_2 = +4\,\text{V}$，两节点之间接有一只 $R_{23} = 8\,\Omega$ 的电阻。则流经 $R_{23}$ 的电流大小与真实方向为？`,
           options: [
             {
@@ -655,6 +670,8 @@ const W2_L1: StageLesson = {
         },
         {
           id: 'w2l1_q4',
+          concept: '受控源消元与对称性',
+          review_act: 5,
           question: R`当电路中引入了一个电流控制电流源（CCCS）$2i_x$（其中 $i_x = \frac{v_1 - v_2}{2}$）后，关于节点分析法的正确做法与电导矩阵 $\mathbf{G}$ 的特征，以下哪项正确？`,
           options: [
             {

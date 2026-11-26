@@ -49,6 +49,14 @@ const W2_L7: StageLesson = {
     },
     textbook_supplement: "Introductory Circuit Analysis, 14th Ed.（Boylestad）· Chapter 9 Network Theorems — Thevenin's Black-Box Intuition",
     prerequisites: ['W1-L7 分压分流', 'W2-L1 节点分析法', 'W2-L5 叠加置零', 'W2-L6 电源变换'],
+    learning_objectives: [
+      '理解戴维南与诺顿黑盒等效的工程动机，能在负载反复变化时用等效模型秒算负载电流与电压。',
+      '掌握 Case 1（纯独立源电路）通过独立源置零与串并联化简求解 $R_{Th}$ 的完整三段式推导。',
+      R`掌握 Case 2（含受控源电路）的测试源法：保留受控源，在端口外加 $v_o = 1\text{ V}$ 或 $i_o = 1\text{ A}$ 求 $R_{Th} = v_o / i_o$，并用 $R_{Th} = v_{oc} / i_{sc}$ 交叉验算。`,
+      '理解纯受控源网络中负等效电阻 $R_{Th} < 0$ 的物理意义与 $v_{oc} / i_{sc} = 0/0$ 失效边界。',
+      R`掌握戴维南与诺顿等效电路的互换关系及端口 $v\text{–}i$ 特性直线的截距与斜率几何意义。`,
+      R`掌握 Type C 面包板 $1000\times$ 阻抗安全缩放原则，以及真实实验室中半压法与带载双点法测 $R_{Th}$ 的安全操作规范。`,
+    ],
     next_lesson: 'W2-L8',
     next_lesson_title: '最大功率传输定理',
   },
@@ -58,18 +66,21 @@ const W2_L7: StageLesson = {
       {
         id: L1,
         label: '01 2D 黑盒等效步骤图',
+        short: '01 黑盒等效',
         render_mode: 'SVG_2D_INTERACTIVE',
         caption: '分步展示拆负载 → 测 v_oc → 独立源置零 / 外加 1V 测试源求 R_Th → 接回可变负载 R_L 的拓扑动画与节点高亮。',
       },
       {
         id: L2,
         label: '02 戴维南↔诺顿端口特性线',
+        short: '02 端口特性线',
         render_mode: 'SVG_2D_PLOT_INTERACTIVE',
         caption: '交互式端口 v-i 特性曲线：展示纵截距 V_Th、横截距 I_N、斜率 -R_Th，拖动负载 R_L 滑块实时移动负载线并读取工作点 (I_L, V_L)。',
       },
       {
         id: L3,
         label: '03 3D 面包板开路/带载实测',
+        short: '03 3D 实测',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption:
           '基于 1000x 安全缩放后的 4 kΩ / 12 kΩ / 1 kΩ 面包板实景搭建，由台式可调直流电源（32 V）经导线供电，配可切换档位的 3D 数字万用表、可调电位器（半压法）与过载热感警示。',
@@ -690,6 +701,8 @@ const W2_L7: StageLesson = {
       quiz: [
         {
           id: 'w2l7_q1',
+          concept: '受控源不可置零',
+          review_act: 3,
           question: R`某线性双端网络内部既包含独立电压源，又包含一个压控电压源 $2v_x$。在求端口 $a\text{–}b$ 的戴维南等效电阻 $R_{Th}$ 时，下列做法正确的是：`,
           options: [
             {
@@ -719,6 +732,8 @@ const W2_L7: StageLesson = {
         },
         {
           id: 'w2l7_q2',
+          concept: '测试源的齐次性',
+          review_act: 3,
           question: R`在含受控源电路的测试源法中，教材常用 $v_o = 1\text{ V}$ 的测试电压源。如果某同学改用 $v_o = 2\text{ V}$ 的测试电压源，或者改用 $i_o = 1\text{ A}$ 的测试电流源，求得的 $R_{Th}$ 会如何变化？`,
           options: [
             {
@@ -748,6 +763,8 @@ const W2_L7: StageLesson = {
         },
         {
           id: 'w2l7_q3',
+          concept: '1000× 安全缩放',
+          review_act: 5,
           question: R`为了在 3D 面包板上安全复现 Sadiku Example 4.8（原题 $R_1 = 4\ \Omega$, $R_2 = 12\ \Omega$, $R_3 = 1\ \Omega$, $V_s = 32\text{ V}$, $I_s = 2\text{ A}$，理论值 $V_{Th} = 30\text{ V}$, $R_{Th} = 4\ \Omega$, $I_N = 7.5\text{ A}$），我们将所有电阻等比例放大 1000 倍至 $\text{k}\Omega$ 级，保持 $V_s = 32\text{ V}$ 不变并将 $I_s$ 缩小 1000 倍至 $2\text{ mA}$。缩放后以下哪项完全正确？`,
           options: [
             { key: 'A', text: R`$V_{Th}$ 严格不变（$30\text{ V}$），$R_{Th}$ 放大为 $4\text{ k}\Omega$，$I_N$ 缩小为 $7.5\text{ mA}$`, correct: true },
@@ -777,6 +794,8 @@ const W2_L7: StageLesson = {
         },
         {
           id: 'w2l7_q4',
+          concept: '负等效电阻',
+          review_act: 3,
           question: R`某线性双端网络内部不含任何独立源，仅含线性电阻与受控源。在其端口外加测试电压源 $v_o = 1\text{ V}$（$a$ 正 $b$ 负），测得流入端口 $a$ 的电流为 $i_o = -0.25\text{ A}$，求得 $R_{Th} = -4\ \Omega$。下列说法正确的是：`,
           options: [
             {

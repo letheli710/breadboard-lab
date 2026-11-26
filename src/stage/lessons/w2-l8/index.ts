@@ -74,6 +74,13 @@ const W2_L8: StageLesson = {
     },
     textbook_supplement: 'Robert L. Boylestad, Introductory Circuit Analysis (14th Ed.) · Chapter 9 Maximum Power Transfer Theorem (Curve Intuition & Asymmetry)',
     prerequisites: ['W1-L2: 功率公式 (P = VI = I²R = V²/R)', 'W1-L7: 分压定律 (Voltage Division)', 'W2-L7: 戴维南定理 (Thevenin’s Theorem)'],
+    learning_objectives: [
+      '通过边界极限直觉理解负载功率随负载电阻变化必然存在唯一峰值，且右侧衰减比左侧平缓。',
+      R`独立完成戴维南等效带载功率函数的微积分求导，严格证明最大功率传输条件 $R_L = R_{Th}$ 及峰值公式 $p_{\max} = V_{Th}^2 / (4 R_{Th})$。`,
+      '熟练求解含多源电阻网络的戴维南等效电路，进而确定最大功率负载阻值与峰值功率。',
+      R`深刻区分最大功率传输（效率 $\eta = 50\%$，用于射频/音响/传感器等小信号匹配）与高效率输电（$R_L \gg R_{Th}$，$\eta > 95\%$，用于电力电网）的工程权衡。`,
+      '在 3D 面包板上搭建安全 kΩ 级戴维南等效电路，通过拧动电位器、测量 $V_L$ 实时计算 $P_L = V_L^2 / R_L$，亲手捕捉 $V_L = V_{Th} / 2$ 处的功率峰值点。',
+    ],
     next_lesson: 'W3-L1',
     next_lesson_title: '认识真实运放',
   },
@@ -83,18 +90,21 @@ const W2_L8: StageLesson = {
       {
         id: L1,
         label: '01 戴维南带载原理图',
+        short: '01 带载原理图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '01 2D 戴维南带载原理图：V_Th 与 R_Th 装在端口 a–b 左侧的虚线黑盒里，右侧可调负载 R_L 跟着滑块变；下方实时显示 I_L、V_L、P_L 与内阻发热 P_Th。',
       },
       {
         id: L2,
         label: '02 P_L–R_L 峰值曲线',
+        short: '02 功率曲线',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '02 实时 P_L–R_L 峰值曲线与效率曲线双图：左陡右缓的功率峰（蓝）与单调上升的效率 η（绿），红色虚线锁定 R_L = R_Th，游标跟着滑块与 3D 旋钮走。',
       },
       {
         id: L3,
         label: '03 3D 面包板拧电位器',
+        short: '03 3D 电位器',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption: '03 3D 面包板拧电位器找最大功率实操：5 V 台式电源 + 1 kΩ（R_Th）+ B10K 电位器（R_L），万用表并在电位器两端读 V_L；拖动旋钮，仪器面板实时算 P_L = V_L²/R_L。',
       },
@@ -691,6 +701,8 @@ const W2_L8: StageLesson = {
       quiz: [
         {
           id: 'w2l8_q1',
+          concept: '固定 $R_L$ 时调 $R_{Th}$',
+          review_act: 5,
           question: R`一个固定负载电阻 $R_L = 10\ \Omega$ 连接到一个戴维南电压源 $V_{Th} = 20\text{ V}$ 上，现在允许你自由调节电源的串联内阻 $R_{Th}$（范围 $1\ \Omega$ 至 $20\ \Omega$）。为了让这个 $10\ \Omega$ 负载吸收尽可能大的功率，$R_{Th}$ 应该设为多少？`,
           options: [
             {
@@ -719,6 +731,8 @@ const W2_L8: StageLesson = {
         },
         {
           id: 'w2l8_q2',
+          concept: '50% 效率与电网',
+          review_act: 5,
           question: '为什么国家电网和发电厂在向城市输电时，绝对不会让输电系统工作在“最大功率传输”状态？',
           options: [
             {
@@ -751,6 +765,8 @@ const W2_L8: StageLesson = {
         },
         {
           id: 'w2l8_q3',
+          concept: '曲线右偏与选型',
+          review_act: 2,
           question: R`某传感器前端戴维南等效内阻 $R_{Th} = 1\text{ k}\Omega$，由于标准电阻规格限制，你只能在 $R_L = 500\ \Omega$（$0.5 R_{Th}$）和 $R_L = 2\text{ k}\Omega$（$2 R_{Th}$）两个方案中二选一。从负载功率和电源效率两个维度综合评估，哪项判断正确？`,
           options: [
             {
@@ -783,6 +799,8 @@ const W2_L8: StageLesson = {
         },
         {
           id: 'w2l8_q4',
+          concept: '半电压峰值判据',
+          review_act: 6,
           question: R`在面包板实验中，一个电源模块的戴维南等效参数为 $V_{Th} = 10\text{ V}$、$R_{Th} = 1\text{ k}\Omega$。你在输出端接上一个可调电位器 $R_L$ 并用电压表监测 $V_L$。当你缓慢拧动电位器直到负载功率 $P_L$ 恰好达到最大值时，电压表读数 $V_L$ 和最大功率 $P_{\max}$ 分别是多少？`,
           options: [
             {

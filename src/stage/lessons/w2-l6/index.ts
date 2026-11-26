@@ -48,6 +48,12 @@ const W2_L6: StageLesson = {
     },
     textbook_supplement: 'Introductory Circuit Analysis (14th Ed.)（Boylestad）· Chapter 8',
     prerequisites: ['W1-L3 欧姆定律', 'W1-L7 串并联等效'],
+    learning_objectives: [
+      '用开路电压 $v_{oc}$ 与短路电流 $i_{sc}$ 判断两个二端网络对外是否等效，并分清“内外有别”：变换前后黑盒内部电阻的功耗不同。',
+      '按极性铁律（电流源箭头指向电压源的 $+$ 极）完成 $v_s = i_s R$ 的双向电源变换，并说出理想电源为何不能变换。',
+      '用逐级电源变换与串并联折叠化简多电源网络，全程保护要求解的目标支路。',
+      '对含受控源的电路做电源变换时，保护控制变量所在的支路不被变换。',
+    ],
     next_lesson: 'W2-L7',
     next_lesson_title: '戴维南与诺顿定理（含受控源测试源法与面包板实测）',
   },
@@ -57,18 +63,21 @@ const W2_L6: StageLesson = {
       {
         id: L1,
         label: '01 端口等效黑盒验证 (Voc 与 Isc)',
+        short: '01 黑盒验证',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '两个密封黑盒接同一个负载：拨动负载开关（开路 / 2 Ω / 短路），端口读数分毫不差；切到“内部功耗”，盒子里的电阻发热截然不同。',
       },
       {
         id: L2,
         label: '02 电压源↔电流源一键变形原理图',
+        short: '02 电源变形',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '点击电路一键变形：串联 R 摆进并联位置，+/− 变成箭头；翻转极性，箭头跟着 + 极走；切到受控源，红框锁住控制变量 v_x 支路。',
       },
       {
         id: L3,
         label: '03 多级逐层化简流水线',
+        short: '03 化简流水线',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '拖动步进滑块 0 … 4（或点击高亮的“下一刀”），逐步执行电源变换与串并联合并；红框里的待求支路一步都不动，它的电压 / 电流每一步都不变。',
       },
@@ -514,6 +523,8 @@ const W2_L6: StageLesson = {
       quiz: [
         {
           id: 'w2l6_q1',
+          concept: '变换的极性与箭头',
+          review_act: 2,
           question: '某二端网络由一个 15 V 电压源（上端为负极 −，下端为正极 +）与一个 5 Ω 电阻串联而成，引出上端 a、下端 b。将其电源变换为等效电流源后，结果应为：',
           options: [
             {
@@ -544,6 +555,8 @@ const W2_L6: StageLesson = {
         },
         {
           id: 'w2l6_q2',
+          concept: '保护目标电阻',
+          review_act: 3,
           question:
             '电路中要求计算 10 Ω 电阻上的电压 $v_o$，而该 10 Ω 电阻恰好与一个 2 A 电流源直接并联。关于是否可以将这对“2 A ∥ 10 Ω”直接电源变换为“20 V 串 10 Ω”再继续化简，以下说法正确的是：',
           options: [
@@ -575,6 +588,8 @@ const W2_L6: StageLesson = {
         },
         {
           id: 'w2l6_q3',
+          concept: '内部功耗不等效',
+          review_act: 1,
           question: '实际电压源（10 V 串联 5 Ω）与其等效实际电流源（2 A 并联 5 Ω）在端口 a–b 均处于开路（不接负载）状态时，两个黑盒内部 5 Ω 电阻消耗的功率分别是多少？',
           options: [
             { key: 'A', text: '均为 0 W，因为两者完全等效', correct: false, feedback: '“完全等效”只对端口外部成立。开路时，并联模型里电流源的 2 A 还能流到哪里去？' },
@@ -599,6 +614,8 @@ const W2_L6: StageLesson = {
         },
         {
           id: 'w2l6_q4',
+          concept: '理想源不可变换',
+          review_act: 1,
           question: '关于理想独立电源（内阻 R = 0 的理想电压源、内阻 R = ∞ 的理想电流源）能否直接进行电源变换，以下判断正确的是：',
           options: [
             {

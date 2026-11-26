@@ -65,6 +65,12 @@ const W2_L4: StageLesson = {
       sections: ['Section 3.6: Nodal and Mesh Analyses by Inspection', 'Section 3.7: Nodal Versus Mesh Analysis'],
     },
     prerequisites: ['W2-L1 节点分析法 (Nodal Analysis)', 'W2-L2 超节点 (Supernode)', 'W2-L3 网孔与超网孔 (Mesh & Supermesh)'],
+    learning_objectives: [
+      R`从 KCL/KVL 公理推导出观察法矩阵直写规则（$\mathbf{G}\mathbf{v} = \mathbf{i}$ 与 $\mathbf{R}\mathbf{i} = \mathbf{v}$），并牢记其对称性与“不含受控源”的硬性边界。`,
+      R`能在 10 秒内通过观察法直接写出 $3\times 3$ 电导矩阵 $\mathbf{G}$ 与电阻矩阵 $\mathbf{R}$，并借助克莱默法则与矩阵求逆直觉完成求解。`,
+      '在面对同一复杂电路时，能够快速量化节点法与网孔法的方程数差距，避免选错方法导致算力浪费。',
+      '掌握四步工程选型决策树，精准识别非平面电路（网孔法禁区）与受控源（观察法禁区）。',
+    ],
     next_lesson: 'W2-L5',
     next_lesson_title: '线性性质与叠加定理',
   },
@@ -74,18 +80,21 @@ const W2_L4: StageLesson = {
       {
         id: L1,
         label: '01 观察法矩阵直写对照台 (Gv=i / Ri=v)',
+        short: '01 矩阵直写',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '悬停（或轻点）任一矩阵元素：自电导 / 自电阻点亮节点或网孔上的全部支路，互电导 / 互电阻同时点亮对称格与共享支路；“注入 1 个受控源”看对称性怎样失效。',
       },
       {
         id: L2,
         label: '02 同电路双解法方程数实时对比台',
+        short: '02 方程数对比',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '同一张 3 节点 6 支路电路：节点视角只有 2 个未知节点和 2×2 矩阵，网孔视角是 4 个顺时针网孔、1 个超网孔和 4 条方程。',
       },
       {
         id: L3,
         label: '03 选型决策树与非平面电路识别',
+        short: '03 选型决策树',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '逐级点亮四步选型漏斗；拖动 K₃,₃ 的节点或按“尝试平面重绘”，实时数交叉点——惠斯通电桥能消到 0，K₃,₃ 永远至少剩 1 个。',
       },
@@ -659,6 +668,8 @@ const W2_L4: StageLesson = {
       quiz: [
         {
           id: 'w2l4_q1',
+          concept: '受控源破坏矩阵对称',
+          review_act: 1,
           question: R`某 3 节点电阻电路包含 2 个独立电流源和 1 个压控电流源（VCCS，大小 $2v_x$）。一位同学试图用观察法直接写出对称电导矩阵 $\mathbf{G}\mathbf{v} = \mathbf{i}$。以下判断正确的是：`,
           options: [
             {
@@ -693,6 +704,8 @@ const W2_L4: StageLesson = {
         },
         {
           id: 'w2l4_q2',
+          concept: '非平面电路禁区',
+          review_act: 5,
           question: R`某立体电阻网络经拓扑检查与 $K_{3,3}$ 同胚（存在无论如何重绘都无法消除的支路交叉），且电路中有 4 个独立电压源。工程师应如何选择分析方法？`,
           options: [
             { key: 'A', text: '必须使用节点分析法，因为非平面电路无法定义不含内部支路的网孔，网孔法彻底失效', correct: true },
@@ -723,6 +736,8 @@ const W2_L4: StageLesson = {
         },
         {
           id: 'w2l4_q3',
+          concept: '按方程数与电源选型',
+          review_act: 5,
           question: '一个平面电路共有 3 个节点（含参考节点）、7 条支路，其中包含 4 个并联的独立电流源和 3 个电阻，要求计算各节点对地电压。选择哪种方法效率最高？',
           options: [
             {
@@ -757,6 +772,8 @@ const W2_L4: StageLesson = {
         },
         {
           id: 'w2l4_q4',
+          concept: '网孔方向与互电阻符号',
+          review_act: 2,
           question: R`在平面纯独立电压源电路中使用观察法直写 $\mathbf{R}\mathbf{i} = \mathbf{v}$ 时，如果网孔 1 取顺时针方向、网孔 2 意外取了逆时针方向，而两者共享一个 5 Ω 电阻，则矩阵中 $R_{12}$ 与 $R_{21}$ 应该为：`,
           options: [
             {
