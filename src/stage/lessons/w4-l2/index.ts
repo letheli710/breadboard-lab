@@ -81,6 +81,12 @@ const W4_L2: StageLesson = {
     },
     textbook_supplement: 'Introductory Circuit Analysis, 14th Ed. (Boylestad), Ch. 11',
     prerequisites: ['W1-L3 欧姆定律', 'W4-L1 电容与微积分伏安关系'],
+    learning_objectives: [
+      R`理解螺线管电感 $L = N^2\mu A/\ell$ 的物理结构，识别面包板电感并安全插接`,
+      R`掌握电感伏安关系 $v = L\,di/dt$ 与磁场储能 $w = \frac{1}{2}Li^2$，理解“电感电流不能突变”`,
+      '解释感性负载断电瞬间的反电动势尖峰，会用续流二极管保护开关',
+      '计算电感串并联等效，并在直流稳态下把电容换开路、电感换短路求解混合网络',
+    ],
     next_lesson: 'W4-L3',
     next_lesson_title: '运放积分器与微分器：用虚地把波形送进微积分流水线',
   },
@@ -90,6 +96,7 @@ const W4_L2: StageLesson = {
       {
         id: L1,
         label: '01 3D 色环/绕线电感封装与面包板插法',
+        short: '01 封装插法',
         render_mode: '3D_THREEJS_DEVICE_AND_BREADBOARD',
         caption:
           '01 轴向色环电感、工字绕线电感与环形磁芯电感 3D 模型，色环电感与 1/4 W 电阻并排对比；面包板上搭好例题 5.1（台式可调直流电源 9 V 供电，万用表可测节点 A、电容、电感与 R₄ 两端），右侧演示两颗电感留足间距的防耦合摆法。',
@@ -97,18 +104,21 @@ const W4_L2: StageLesson = {
       {
         id: L2,
         label: '02 3D 线圈磁通透视与右手定则',
+        short: '02 磁通透视',
         render_mode: '3D_THREEJS_TEARDOWN',
         caption: '02 拖“剥壳”滑块剖开色环外壳，看漆包线绕组与磁芯（空气 / 铁氧体 μr = 200）、电流流向、右手螺旋定则与穿过截面 A 的闭合磁力线 Φ；改匝数 N 看 L ∝ N²。',
       },
       {
         id: L3,
         label: '03 2D 原理图与 i(t)↔v(t) 波形及反电动势续流演示',
+        short: '03 波形续流',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '03 拖动 i(t) 的拐点，下面的 v(t) = L di/dt 跟着阶跃；切到“断电续流”，断开开关对比无保护的 −2000 V 打火与续流二极管钳位在 −0.7 V 的安全续流。',
       },
       {
         id: L4,
         label: '04 直流稳态（电容开路 + 电感短路）混合分析台',
+        short: '04 直流稳态',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '04 一键切换例题 5.1 的原始 R-L-C 电路与直流稳态等效网络（C → 开路、L → 短路），R₄ 支路电流清零；读 i_L、v_C、电源电流、R₁ 功耗与磁电储能条。',
       },
@@ -721,6 +731,8 @@ const W4_L2: StageLesson = {
       quiz: [
         {
           id: 'w4l2_q1',
+          concept: '电感匝数平方律',
+          review_act: 1,
           question: R`一个空心螺线管的电感量为 $100\ \mu\text{H}$。若保持线圈长度 $\ell$、横截面积 $A$ 与磁芯材料不变，仅将绕组匝数 $N$ 增加为原来的 2 倍，新的电感量是多少？`,
           options: [
             {
@@ -750,6 +762,8 @@ const W4_L2: StageLesson = {
         },
         {
           id: 'w4l2_q2',
+          concept: '电感伏安关系与储能',
+          review_act: 2,
           question: R`流过一个 $L = 50\text{ mH}$ 理想电感的电流在 $5\text{ ms}$ 内从 0 线性增加到 $200\text{ mA}$。在此上升期间，电感两端的感应电压 $v_L$ 与上升结束时的磁场储能 $w_L$ 分别为多少？`,
           options: [
             { key: 'A', text: R`$v_L = 2.0\text{ V}$，$w_L = 1.0\text{ mJ}$`, correct: true },
@@ -779,6 +793,8 @@ const W4_L2: StageLesson = {
         },
         {
           id: 'w4l2_q3',
+          concept: '反电动势与续流二极管',
+          review_act: 3,
           question: '在用 MOSFET 或机械开关控制继电器线圈（感性负载）通断时，必须在继电器线圈两端反向并联一只续流二极管（Flyback Diode），其根本物理原因是什么？',
           options: [
             {
@@ -812,6 +828,8 @@ const W4_L2: StageLesson = {
         },
         {
           id: 'w4l2_q4',
+          concept: '电感串并联与直流短路',
+          review_act: 4,
           question: R`将 $L_1 = 6\text{ mH}$ 与 $L_2 = 12\text{ mH}$ 并联后，再与 $L_3 = 2\text{ mH}$ 串联（无互感）。该网络的总等效电感 $L_{\text{eq}}$ 以及它在直流稳态下的端口等效特性分别是？`,
           options: [
             {

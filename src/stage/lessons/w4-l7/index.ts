@@ -61,6 +61,12 @@ const W4_L7: StageLesson = {
       sections: ['Section 8.3: The Source-Free Series RLC Circuit', 'Section 8.4: The Source-Free Parallel RLC Circuit'],
     },
     prerequisites: ['W4-L4', 'W4-L6'],
+    learning_objectives: [
+      R`写出无源串联/并联 RLC 的二阶方程与 $\alpha$、$\omega_0$，识别并联 $\alpha = 1/(2RC)$ 的反直觉`,
+      '由特征根判别式区分过阻尼、临界阻尼、欠阻尼三种响应形式',
+      '在 $s$ 平面上读极点位置，判断振荡与衰减快慢（含慢主导极点）',
+      '用初值 $v(0^+)$ 与 $dv/dt(0^+)$ 求待定系数，并在面包板上拧电位器观察振铃消失',
+    ],
     pass_message: '随堂自测通过！三种阻尼状态，你已经能从特征方程一眼判出。',
     next_lesson: 'W4-L8',
     next_lesson_title: 'RLC 阶跃响应与一般二阶电路通用求解流程',
@@ -71,12 +77,14 @@ const W4_L7: StageLesson = {
       {
         id: L1,
         label: '01 2D 串联/并联 RLC 切换原理图',
+        short: '01 RLC 原理图',
         render_mode: '2D_SCHEMATIC_SVG',
         caption: '01 串联 RLC（KVL 回路、共享电流 i）⇄ 并联 RLC（KCL 节点、共享电压 v）一键切换；拖 R 看右侧 α 与 ω₀ 对比浮窗：α(R) 与 ω₀ 水平线的交点就是临界电阻 R_crit。',
       },
       {
         id: L2,
         label: '02 实时示波器阻尼波形对比台（三态同屏 + s 平面极点）',
+        short: '02 阻尼对比',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 v_C(t) 随 R、L、C 滑块实时重算：标出包络 ±M·e^(−αt) 与 1/α、无阻尼周期 T₀ = 2π/ω₀、振铃周期 T_d = 2π/ω_d；R 滑块上的绿色刻度是 R_crit（α = ω₀，滑块会吸附）。「三态同屏」叠加 ζ = 1.5 / 1 / 0.2 三条曲线；右侧 s 平面看极点沿半径 ω₀ 的半圆滑动、在 −ω₀ 相撞、再沿实轴分裂。',
@@ -84,6 +92,7 @@ const W4_L7: StageLesson = {
       {
         id: L3,
         label: '03 3D 面包板拧电位器实时观察欠阻尼振荡消失',
+        short: '03 3D 电位器',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption: `03 ${SUPPLY}经 SPDT 开关给 1 µF 充电，拨到「放电」触发示波器单次捕捉；拖动 0–1 kΩ 电位器旋钮（或上方滑块），看双通道示波器上 v_C(t) 的振铃在 R = R_pot + R_L = 200 Ω 处消失。镜头可切全景 / 电位器特写 / 示波器屏幕。`,
       },
@@ -687,6 +696,8 @@ const W4_L7: StageLesson = {
       quiz: [
         {
           id: 'w4l7_q1',
+          concept: '串并联阻尼反直觉对偶',
+          review_act: 1,
           question: '一个处于临界阻尼状态的无源并联 RLC 电路，如果保持 L 和 C 不变，将并联电阻 R 增大为原来的 2 倍，电路将变为哪种阻尼状态？',
           options: [
             {
@@ -716,6 +727,8 @@ const W4_L7: StageLesson = {
         },
         {
           id: 'w4l7_q2',
+          concept: '面包板临界电阻计算',
+          review_act: 6,
           question:
             '在 Breadboard Lab 面包板实验中，你选用 L = 10 mH、C = 1 μF 搭建串联 RLC 电路，已知电感自身绕组寄生直流电阻 R_L = 12 Ω。为了使电路恰好达到临界阻尼，外接电位器 R_pot 应调至多少欧姆？',
           options: [
@@ -746,6 +759,8 @@ const W4_L7: StageLesson = {
         },
         {
           id: 'w4l7_q3',
+          concept: 's 平面极点与慢主导模态',
+          review_act: 3,
           question: '某无源 RLC 电路的特征根为 s₁ = -2 s⁻¹ 和 s₂ = -50 s⁻¹。关于该电路的响应形态，以下说法最准确的是：',
           options: [
             {
@@ -775,6 +790,8 @@ const W4_L7: StageLesson = {
         },
         {
           id: 'w4l7_q4',
+          concept: '欠阻尼初值与待定系数',
+          review_act: 5,
           question: '某欠阻尼电路自然响应通解为 v(t) = e^(-3t)(B₁ cos 4t + B₂ sin 4t) V。若已知 v(0⁺) = 10 V 且 dv/dt(0⁺) = 10 V/s，则待定系数 B₁ 和 B₂ 分别为：',
           options: [
             {

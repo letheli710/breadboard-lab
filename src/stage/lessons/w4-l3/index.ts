@@ -93,6 +93,12 @@ const W4_L3: StageLesson = {
       sections: ['Section 6.6 Applications: Integrator & Differentiator'],
     },
     prerequisites: ['W3-L1 理想运放与实际失调电压（LM358 V_OS ≈ 3 mV）', 'W3-L3 反相放大器（虚地 v− = 0 与节点 KCL）', 'W4-L1 电容微分伏安关系（i_C = C dv_C/dt）'],
+    learning_objectives: [
+      '基于虚地与 KCL 独立推导出运放积分器与微分器的时域输入-输出通式',
+      '熟练完成方波↔三角波的逐段斜率、峰峰值计算与电源轨饱和校验',
+      '阐明理想积分器直流失调漂移与理想微分器高频噪声放大的物理机理',
+      '掌握工程改进方案（并联反馈电阻 $R_f$ 构成有损积分器；输入串联 $R_s$ 限制高频增益），并在 ±9 V 双电源 3D 面包板上完成 LM358 实操',
+    ],
     next_lesson: 'W4-L4',
     next_lesson_title: '无源 RC/RL 一阶自然响应（时间常数 τ 与指数衰减）',
   },
@@ -102,6 +108,7 @@ const W4_L3: StageLesson = {
       {
         id: L1,
         label: '01 积分器/微分器原理图',
+        short: '01 原理图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 积分器/微分器切换原理图：一键切换理想积分器 / 有损积分器（+R_f）/ 理想微分器 / 实用微分器（+R_s），虚地节点 v− = 0 V 呼吸发光，输入支路与反馈支路的电流动态箭头；下方是这一模式的通式与 RC、f_c、f_b、|A_max| 等数值。',
@@ -109,6 +116,7 @@ const W4_L3: StageLesson = {
       {
         id: L2,
         label: '02 实时双通道示波器',
+        short: '02 示波器',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 实时双通道示波器：CH1（黄）输入方波 / 三角波 / 接地，CH2（青）输出由实时数值积分算出，按 LM358 在 ±9 V 下的摆幅（+7.5 V / −8.9 V）限幅并点亮 CLIPPING 警报；可调频率 100–2000 Hz、幅值 0.5–5 V，开关 3 mV 失调（附上电 0–4 s 漂移慢扫描）与 50 kHz 高频毛刺。',
@@ -116,6 +124,7 @@ const W4_L3: StageLesson = {
       {
         id: L3,
         label: '03 3D LM358 面包板实操',
+        short: '03 3D 实操',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption:
           '03 3D LM358 ±9V 双电源面包板：台式可调直流电源（±9 V）经红 / 黑 / 蓝导线接 +9 V / GND / −9 V 轨，函数信号发生器的红夹接输入节点，示波器 CH1 / CH2 探头钩住输入与 Pin 1；可一键切换有损积分器 / 实用微分器，拔掉 R_f 或 R_s 看翻车，示波器屏幕实时显示波形。',
@@ -740,6 +749,8 @@ const W4_L3: StageLesson = {
       quiz: [
         {
           id: 'w4l3_q1',
+          concept: '积分器斜率与极性',
+          review_act: 1,
           question: R`某理想运放积分器参数为 $R = 20\text{ k}\Omega$，$C = 50\text{ nF}$。若在某时间段内输入恒定直流电压 $v_i = -4.0\text{ V}$，则输出电压 $v_o(t)$ 的变化斜率 $dv_o/dt$ 为多少？`,
           options: [
             {
@@ -768,6 +779,8 @@ const W4_L3: StageLesson = {
         },
         {
           id: 'w4l3_q2',
+          concept: '有损积分器防漂移',
+          review_act: 3,
           question: R`在实际面包板搭接运放积分器时，在反馈电容 $C$ 两端并联一颗 $100\text{ k}\Omega$ 大电阻 $R_f$ 的最核心目的是什么？`,
           options: [
             {
@@ -796,6 +809,8 @@ const W4_L3: StageLesson = {
         },
         {
           id: 'w4l3_q3',
+          concept: '微分器波形计算',
+          review_act: 4,
           question: R`某运放微分器采用 $C = 100\text{ nF}$、$R = 10\text{ k}\Omega$。若输入一个斜率为 $+2.5\text{ V/ms}$ 的上升三角波斜坡，则该段时间内微分器的输出电压 $v_o$ 应为多少？`,
           options: [
             { key: 'A', text: '−2.5 V', correct: true },
@@ -824,6 +839,8 @@ const W4_L3: StageLesson = {
         },
         {
           id: 'w4l3_q4',
+          concept: '实用微分器抗噪限幅',
+          review_act: 5,
           question: R`在运放微分器（$R = 10\text{ k}\Omega$, $C = 100\text{ nF}$）的输入电容前串联一颗 $R_s = 1\text{ k}\Omega$ 小电阻，其对电路高频特性的直接影响是什么？`,
           options: [
             {

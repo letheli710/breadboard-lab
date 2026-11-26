@@ -61,6 +61,12 @@ const W4_L6: StageLesson = {
       sections: ['Section 8.1–8.2: Finding Initial and Final Values'],
     },
     prerequisites: ['W2-L1 节点分析法（Nodal Analysis）', 'W4-L1 电容伏安特性与储能连续性', 'W4-L2 电感伏安特性与储能连续性'],
+    learning_objectives: [
+      '理解二阶微分方程含两个待定常数 $A_1, A_2$，因此除状态初值 $v_C(0^+)$、$i_L(0^+)$ 外，还必须求出导数初值 $dv_C(0^+)/dt$ 与 $di_L(0^+)/dt$',
+      R`熟练掌握三时刻拍照法：$t=0^-$ 稳态求守恒量、$t=0^+$ 冻结替换为独立电压源/电流源求导数初值、$t=\infty$ 新稳态求终值`,
+      '区分能量守恒变量（$v_C$、$i_L$ 不可跃变）与非状态变量（$i_C$、$v_L$ 允许跃变），杜绝把 $i_C(0^-)=0$ 或终值导数为零误用于 $t=0^+$',
+      '能在串联型及并联/混合型含开关 RLC 网络中结合节点分析法与无源符号约定，零失误解出全部 6 个边界值',
+    ],
     next_lesson: 'W4-L7',
     next_lesson_title: '无源串联/并联 RLC 自然响应（特征方程与三种阻尼状态）',
   },
@@ -70,12 +76,14 @@ const W4_L6: StageLesson = {
       {
         id: L1,
         label: '01 t=0⁻ 稳态拍照 (C开路/L短路)',
+        short: '01 t=0⁻ 稳态',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '直流稳态下 dv_C/dt = 0 ⇒ i_C(0⁻) = 0（电容换开路）；di_L/dt = 0 ⇒ v_L(0⁻) = 0（电感换短路）。',
       },
       {
         id: L2,
         label: '02 t=0⁺ 冻结替换台 (C变电压源/L变电流源)',
+        short: '02 t=0⁺ 替换',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '开关已动作！由能量守恒得 v_C(0⁺)=v_C(0⁻)、i_L(0⁺)=i_L(0⁻)。将电容替换为独立电压源 v_C(0⁺)，将电感替换为独立电流源 i_L(0⁺)，化为纯电阻直流电路求 i_C(0⁺) 与 v_L(0⁺)。',
@@ -83,6 +91,7 @@ const W4_L6: StageLesson = {
       {
         id: L3,
         label: '03 t=∞ 新稳态拍照',
+        short: '03 t=∞ 稳态',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '开关保持在 t>0 新位置且过渡过程结束，再次令电容开路、电感短路，求解直流新稳态终值。',
       },
@@ -615,6 +624,8 @@ const W4_L6: StageLesson = {
       quiz: [
         {
           id: 'w4l6_q1',
+          concept: '守恒量与可跃变量',
+          review_act: 1,
           question: R`在一个不含冲激电源的二阶 RLC 开关电路中，开关在 $t=0$ 动作瞬间，下列哪一组物理量是允许发生瞬间跃变（不连续）的？`,
           options: [
             {
@@ -644,6 +655,8 @@ const W4_L6: StageLesson = {
         },
         {
           id: 'w4l6_q2',
+          concept: '0⁺ 等效替换',
+          review_act: 2,
           question: R`在构建 $t=0^+$ 冻结瞬间等效电路以求解 $\dfrac{dv_C(0^+)}{dt}$ 和 $\dfrac{di_L(0^+)}{dt}$ 时，已知 $v_C(0^-)=10\text{ V}$、$i_L(0^-)=2\text{ A}$，应如何替换电容 $C$ 与电感 $L$？`,
           options: [
             { key: 'A', text: R`电容换 $10\text{ V}$ 独立电压源，电感换 $2\text{ A}$ 独立电流源`, correct: true },
@@ -673,6 +686,8 @@ const W4_L6: StageLesson = {
         },
         {
           id: 'w4l6_q3',
+          concept: '无源符号与导数初值',
+          review_act: 4,
           question: R`在某二阶电路的 $t=0^+$ 等效替换图中，电容 $C = 0.25\text{ F}$ 已替换为 $36\text{ V}$ 独立电压源（上正下负）。通过节点 KCL 算得从电压源“$+$”端流入的电流 $i_C(0^+) = -3\text{ A}$。则 $\dfrac{dv_C(0^+)}{dt}$ 等于多少？`,
           options: [
             {
@@ -702,6 +717,8 @@ const W4_L6: StageLesson = {
         },
         {
           id: 'w4l6_q4',
+          concept: '初值导数与终值导数',
+          review_act: 1,
           question: R`关于直流激励下的二阶 RLC 开关电路在 $t=0^+$ 与 $t=\infty$ 两个时刻的导数，下列说法完全正确的是？`,
           options: [
             {
