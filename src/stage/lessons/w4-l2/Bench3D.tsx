@@ -1,6 +1,6 @@
 // Layer "01 3D 色环/绕线电感封装与面包板插法": an 830-hole board on the bench.
-// - Example 5.1 is built on the left half and fed by the 台式可调直流电源（9 V） standing behind
-//   the board: + → top outer rail (+9 V), − → top inner rail (GND); a long black jumper ties the
+// - Example 5.1 is built on the left half and fed by the 台式可调直流电源（9 V） (the shared
+//   BenchSupply of src/stage/bench) standing behind the board: + → top outer rail (+9 V), − → top inner rail (GND); a long black jumper ties the
 //   top GND rail to the bottom outer rail. Red jumper T+13 → a14; R1 100 Ω c14 → c20; node A =
 //   column 20 (upper strip); R2 300 Ω b20 → top GND (col 21); L = 20 mH, the shared drum-core
 //   power inductor (Passives3D), d20 / d23; R3 150 Ω b23 → top GND (col 24); R4 200 Ω e20 → h20
@@ -21,9 +21,10 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, RAIL_Z, ROW_Z, Shell } from '../../BreadboardXray';
 import { COLOR_BY_KEY } from '../../colorCode';
+import { BenchSupply, type SupplyChannel, type SupplyLead } from '../../bench';
 import { BENCH_NAMES, Capacitor, Inductor } from '../../Passives3D';
 import { useLit, useStage, useStageParam } from '../../stageStore';
-import { bandKeys, fmtMa, fmtW, num } from './model';
+import { bandKeys, fmtW, num } from './model';
 import { HIDDEN, hov, MaskNote, Seg, useClearHoverOnUnmount, useDc, useIsLit, type Dc, type Shown } from './state';
 
 type V3 = [number, number, number];
@@ -185,71 +186,18 @@ function Axial({
   );
 }
 
-/* ------------------------------------------------------------- the bench supply (single channel) */
+/* ------------------------------------------------------------- the bench supply (src/stage/bench) */
 
-const SUP = { x: -22, z: -19, w: 10, h: 5.6, d: 7 };
-const SUP_FRONT = SUP.z + SUP.d / 2;
-const POST_Y = 0.4;
-const POSTS = { p: SUP.x + 1.4, n: SUP.x + 3.4 };
+const SUPPLY_AT: [number, number] = [-22, -19];
+const SUPPLY_LEADS: SupplyLead[] = [
+  { from: '+', to: 'T+5', litIds: ['rail_p9'] },
+  { from: '-', to: 'T-7', litIds: ['rail_gnd'] },
+];
 
-function supplyLead(px: number, to: string, lift: number): V3[] {
-  const [x, z] = hole(to);
-  const pz = SUP_FRONT + 0.25;
-  return [
-    [px, POST_Y, pz + 0.3],
-    [px + 0.3, 0.3, pz + 1.6],
-    [x - 0.4, lift, z - 2.4],
-    [x, 0.5, z],
-    [x, -0.3, z],
-  ];
-}
-
-function BenchSupply({ d, lit }: { d: Dc; lit: boolean }) {
-  const hover = useHover3D(['supply']);
-  const yc = -1 + SUP.h / 2;
-  const red = useMemo(() => supplyLead(POSTS.p, 'T+5', 1.9), []);
-  const black = useMemo(() => supplyLead(POSTS.n, 'Tg7', 1.4), []);
-  const amps = d.shown('iL') ? fmtMa(d.s.is) : '?? mA';
-  return (
-    <group name="supply">
-      <group {...hover}>
-        <mesh position={[SUP.x, yc, SUP.z]}>
-          <boxGeometry args={[SUP.w, SUP.h, SUP.d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.6} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.3 : 0} />
-        </mesh>
-        <mesh position={[SUP.x, yc, SUP_FRONT + 0.01]}>
-          <planeGeometry args={[SUP.w - 0.6, SUP.h - 0.6]} />
-          <meshStandardMaterial color="#3a4150" roughness={0.7} />
-        </mesh>
-        <mesh position={[SUP.x - 1.6, yc + 1.1, SUP_FRONT + 0.02]}>
-          <planeGeometry args={[5.2, 1.8]} />
-          <meshStandardMaterial color="#10261a" emissive="#1f8a4c" emissiveIntensity={0.9} />
-        </mesh>
-        <mesh position={[SUP.x - 2.6, POST_Y + 0.2, SUP_FRONT + 0.2]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.7, 0.7, 0.4, 20]} />
-          <meshStandardMaterial color="#1f232b" />
-        </mesh>
-        {(Object.keys(POSTS) as (keyof typeof POSTS)[]).map((k) => (
-          <mesh key={k} position={[POSTS[k], POST_Y, SUP_FRONT + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.36, 0.36, 0.7, 16]} />
-            <meshStandardMaterial color={k === 'p' ? '#d62f2f' : '#1a1c20'} roughness={0.4} />
-          </mesh>
-        ))}
-      </group>
-      <Tube pts={red} color={WIRE.red} r={0.14} lit={lit} />
-      <Tube pts={black} color={WIRE.black} r={0.14} lit={lit} />
-      <Html position={[SUP.x, yc + SUP.h / 2 + 1.4, SUP.z]} center zIndexRange={[21, 0]}>
-        <div className={`bb3d-tag w42-tag supply ${lit ? 'lit' : ''}`} {...hov(['supply'])}>
-          <b>
-            {BENCH_NAMES.supply}（{num(d.c.vs, d.c.vs % 1 ? 1 : 0)} V）
-          </b>
-          <span>
-            {num(d.c.vs)} V · {amps}
-          </span>
-        </div>
-      </Html>
-    </group>
-  );
+/** one channel at V_s; its live current stays "??" until the guided example has found i_L */
+function Supply({ d }: { d: Dc }) {
+  const ch: SupplyChannel = d.shown('iL') ? { v: d.c.vs, i: d.s.is } : { v: d.c.vs, readout: `${HIDDEN}${HIDDEN} mA` };
+  return <BenchSupply id="supply" position={SUPPLY_AT} channels={[ch]} leads={SUPPLY_LEADS} />;
 }
 
 /* ------------------------------------------------------------- tray: the look-alikes and other inductors */
@@ -600,7 +548,7 @@ function Scene({ d, probe, view, couple }: { d: Dc; probe: Probe; view: BenchCam
       <RailTag z={RAIL_Z.tp} text="+9 V" cls="p" />
       <RailTag z={RAIL_Z.tn} text="GND" cls="g" />
       <RailTag z={RAIL_Z.bn} text="GND" cls="g" />
-      <BenchSupply d={d} lit={isLit('supply')} />
+      <Supply d={d} />
       <Jumper from="Tg4" to="Bg4" color="black" lit={isLit('rail_gnd')} lift={0.3} />
       {/* Example 5.1 */}
       <Jumper from="T+13" to="a14" color="red" lit={isLit('rail_p9')} />

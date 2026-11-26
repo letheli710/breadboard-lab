@@ -3,7 +3,7 @@
 // 「台式可调直流电源（±9 V）」 — + to the top red rail (+9 V), COM to the top blue and the bottom
 // red rail (GND), − to the bottom blue rail (−9 V). A red jumper takes +9 V to Pin 8 (a28 ← top +
 // rail), Pin 4 goes to −9 V (j31 → bottom − rail) or, on a single +9 V supply, to GND. A second
-// bench supply gives the input signals. Three presets:
+// bench supply gives the input signals (both the shared BenchSupply of src/stage/bench). Three presets:
 //  - 同相放大器（运放 A）: v_i on Pin 3 (j30), an orange jumper g29–g25 brings v− (Pin 2) to column
 //    25, R_f = 20 kΩ (red-black-orange) i25–i28 to the output Pin 1, R_1 = 10 kΩ (brown-black-orange)
 //    j25 → GND rail;
@@ -25,6 +25,7 @@ import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, D, RAIL_Z, ROW_Z, Resistor, Shell, SurfaceGlow, TrenchGlow, W, type Rail } from '../../BreadboardXray';
 import { stripId } from '../../breadboardIds';
 import { Lm358 } from '../../Lm358';
+import { BENCH_NAMES, BenchSupply, LEAD_COLORS, type SupplyChannel, type SupplyLead } from '../../bench';
 import { useLit, useStage, useStageParam } from '../../stageStore';
 import { bench, fmtSigned, fmtV, type Preset, type ProbeAt, type Supply, WINDOW } from './model';
 import { Cell, hoverProps, SupplySeg, useClearHoverOnUnmount, useEx55Reveal, useIsLit, useSupply } from './state';
@@ -88,7 +89,7 @@ function Tube({ pts, color, r = 0.11, lit = false }: { pts: V3[]; color: string;
   );
 }
 
-const WIRE = { red: '#d62f2f', black: '#24262b', blue: '#2f5fd0', orange: '#f08a1c', yellow: '#e8c21c', green: '#16a34a', white: '#e8e8e8' };
+const WIRE = { red: LEAD_COLORS.red, black: LEAD_COLORS.black, blue: LEAD_COLORS.blue, orange: LEAD_COLORS.orange };
 type WireColor = keyof typeof WIRE;
 
 function Jumper({ from, to, color, lit, id }: { from: string; to: string; color: WireColor; lit?: boolean; id?: string }) {
@@ -118,79 +119,11 @@ function Jumper({ from, to, color, lit, id }: { from: string; to: string; color:
   );
 }
 
-/** a supply lead from a front-panel terminal (world point) to a hole, in an arc over the board */
-function Lead({ from, to, color, lit }: { from: V3; to: string; color: WireColor; lit?: boolean }) {
-  const pts = useMemo<V3[]>(() => {
-    const [x, z] = hole(to);
-    const lift = Math.min(4.5, 1.8 + Math.hypot(x - from[0], z - from[2]) * 0.08);
-    const mid: V3 = [(from[0] + x) / 2, lift, (from[2] + 1.4 + z) / 2];
-    return [from, [from[0], from[1] + 0.25, from[2] + 1.4], mid, [x, 1.4, z], [x, 0.4, z], [x, -0.3, z]];
-  }, [from, to]);
-  return <Tube pts={pts} color={WIRE[color]} r={0.14} lit={lit} />;
-}
+/* ------------------------------------------------------------- bench supplies (src/stage/bench) */
 
-/* ------------------------------------------------------------- bench supplies */
-
-interface Terminal {
-  /** x offset of the binding post on the front panel */
-  dx: number;
-  color: WireColor;
-  /** holes this terminal's leads go to */
-  to: string[];
-  lit?: boolean;
-}
-
-/** A bench supply behind the board: LCD and knobs on the front panel, binding posts along its foot,
- *  leads from the posts to the board. */
-function BenchSupply({ x, z, id, tag, lcd, terms, lit }: { x: number; z: number; id: string; tag: string; lcd: string[]; terms: Terminal[]; lit: boolean }) {
-  const w = 11;
-  const h = 5;
-  const d = 6;
-  const front = z + d / 2;
-  const setHover = useStage((s) => s.setHover);
-  const enter = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-    setHover([id]);
-  };
-  return (
-    <group>
-      <group onPointerOver={enter} onPointerOut={() => setHover(null)}>
-        <mesh position={[x, h / 2 - 0.5, z]}>
-          <boxGeometry args={[w, h, d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.55} emissive={lit ? '#f59e0b' : '#000000'} emissiveIntensity={lit ? 0.35 : 0} />
-        </mesh>
-        {/* front panel (toward the board and the viewer) */}
-        <mesh position={[x, h / 2 - 0.5, front + 0.01]}>
-          <planeGeometry args={[w - 0.6, h - 0.5]} />
-          <meshStandardMaterial color="#3b4250" roughness={0.7} />
-        </mesh>
-        {[2.4, 4.1].map((dx) => (
-          <mesh key={dx} position={[x + dx, 2.9, front + 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.6, 0.6, 0.6, 20]} />
-            <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        {terms.map((t, i) => (
-          <mesh key={i} position={[x + t.dx, 0.6, front + 0.25]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.42, 0.42, 0.5, 14]} />
-            <meshStandardMaterial color={WIRE[t.color]} />
-          </mesh>
-        ))}
-      </group>
-      {terms.flatMap((t, i) => t.to.map((hl) => <Lead key={`${i}-${hl}`} from={[x + t.dx, 0.6, front + 0.5]} to={hl} color={t.color} lit={t.lit} />))}
-      <Html position={[x - 1.6, 2.9, front + 0.05]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="w34-psu-lcd">
-          {lcd.map((l, i) => (
-            <b key={i}>{l}</b>
-          ))}
-        </div>
-      </Html>
-      <Html position={[x, h + 0.6, z - d / 2]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`bb3d-tag w34-tag3 psu ${lit ? 'lit' : ''}`}>{tag}</div>
-      </Html>
-    </group>
-  );
-}
+/** the op amp's supply: CH1 and CH2 in series for ±9 V (COM = GND), or CH1 alone for +9 V */
+const DUAL: SupplyChannel[] = [{ v: 9 }, { v: 9 }];
+const SINGLE: SupplyChannel[] = [{ v: 9 }];
 
 /* ------------------------------------------------------------- multimeter */
 
@@ -408,24 +341,28 @@ function Scene({ b, frame }: { b: Bench; frame: Frame }) {
   const { preset } = b;
   const amp = preset !== 'buf';
   const ex = preset === 'ex55';
-  const sig = preset === 'ni' ? [`${b.vi.toFixed(2)} V`] : preset === 'buf' ? ['5.00 V'] : ['6.00 V', '4.00 V'];
-  const sigTag = preset === 'ni' ? `${b.vi.toFixed(1)} V` : preset === 'buf' ? '5 V' : '6 V / 4 V';
-  const sigTerms: Terminal[] =
-    preset === 'ni'
-      ? [
-          { dx: -4, color: 'yellow', to: ['j30'], lit: is('vi') },
-          { dx: -2.2, color: 'black', to: ['T-45'] },
-        ]
-      : preset === 'buf'
-        ? [
-            { dx: -4, color: 'yellow', to: ['a36'], lit: is('vth') },
-            { dx: -2.2, color: 'black', to: ['T-45'] },
-          ]
-        : [
-            { dx: -4, color: 'yellow', to: ['j17'], lit: is('vs1') },
-            { dx: -2.2, color: 'black', to: ['T-45'] },
-            { dx: -0.4, color: 'green', to: ['j30'], lit: is('vs2') },
-          ];
+  const psuLeads: SupplyLead[] = [
+    { from: '+', to: 'T+15', litIds: ['rail_p9'] },
+    { from: dual ? 'com' : '-', to: ['T-16', 'B+3'], litIds: ['rail_gnd'] },
+    ...(dual ? [{ from: '-', to: 'B-5', litIds: ['rail_m9'] } satisfies SupplyLead] : []),
+  ];
+  const sigChannels: SupplyChannel[] = ex
+    ? [
+        { v: 6, color: LEAD_COLORS.yellow },
+        { v: 4, color: LEAD_COLORS.green },
+      ]
+    : [{ v: preset === 'ni' ? b.vi : 5, color: LEAD_COLORS.yellow }];
+  const sigLeads: SupplyLead[] = ex
+    ? [
+        { from: '1+', to: 'j17', litIds: ['vs1'] },
+        { from: '1-', to: 'T-45' },
+        { from: '2+', to: 'j30', litIds: ['vs2'] },
+        { from: '2-', to: 'T-47' },
+      ]
+    : [
+        { from: '+', to: amp ? 'j30' : 'a36', litIds: [amp ? 'vi' : 'vth'] },
+        { from: '-', to: 'T-45' },
+      ];
   return (
     <>
       <hemisphereLight args={['#fffaf0', '#cfc4ae', 0.95]} />
@@ -440,25 +377,13 @@ function Scene({ b, frame }: { b: Bench; frame: Frame }) {
       </mesh>
 
       {/* power: the ±9 V bench supply and the chip's supply pins */}
-      <BenchSupply
-        x={-24}
-        z={-17.5}
-        id="psu"
-        tag={`台式可调直流电源（${dual ? '±9 V' : '+9 V'}）`}
-        lcd={dual ? ['+9.00 V', '−9.00 V'] : ['+9.00 V']}
-        lit={is('psu')}
-        terms={[
-          { dx: -4, color: 'red', to: ['T+15'], lit: is('psu', 'rail_p9') },
-          { dx: -2.2, color: 'black', to: ['T-16', 'B+3'], lit: is('rail_gnd') },
-          ...(dual ? [{ dx: -0.4, color: 'blue' as WireColor, to: ['B-5'], lit: is('psu', 'rail_m9') }] : []),
-        ]}
-      />
+      <BenchSupply id="psu" position={[-24, -17.5]} channels={dual ? DUAL : SINGLE} series={dual} label={dual ? undefined : `${BENCH_NAMES.supply}（+9 V）`} leads={psuLeads} />
       <Jumper from="T+27" to="a28" color="red" lit={is('rail_p9', 'chip_lm358_p8')} id="rail_p9" />
       <Jumper from="j31" to={dual ? 'B-33' : 'B+33'} color={dual ? 'blue' : 'black'} lit={is('rail_m9', 'chip_lm358_p4')} id={dual ? 'rail_m9' : 'rail_gnd'} />
       <Lm358 c0={C0} pinNumbers />
 
       {/* the signal supply */}
-      <BenchSupply x={22} z={-17.5} id="sig_psu" tag={`台式可调直流电源（${sigTag}）`} lcd={sig} lit={is('sig_psu')} terms={sigTerms} />
+      <BenchSupply id="sig_psu" position={[22, -17.5]} channels={sigChannels} leads={sigLeads} />
 
       {amp && (
         <>
