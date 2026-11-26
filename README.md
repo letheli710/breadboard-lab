@@ -97,6 +97,9 @@ npm run size         # 构建后检查入口体积预算（入口 ≤ 225 kB，�
 npm run check        # 以上全部：tsc -b、lint、format:check、test、vite build、size（和 CI 一致）
 ```
 
+课程内容汇编 Course hand-off page：`npx tsx scripts/opamp-handout.ts` 把 World 3（op-amp）的全部教学文字和图（学习单元、面包板课程 / 实验、LM358 拆解、计算卡片、本章要点、练习题）生成为一个独立的 [`docs/opamp-course.html`](docs/opamp-course.html)，不含 3D 面包板；`--lang en` 生成英文版。图由应用自己的 SVG 组件渲染，内容改动后重新运行即可。
+One static, self-contained page with everything World 3 (op-amps) teaches, text and figures, without the 3D bench; rerun after content changes (`--lang en` for English).
+
 浏览器测试 Browser tests（Playwright + Chromium；CI 里每个套件一个并行的 `e2e (suite)` job，失败时上传各自的截图；另有不阻塞合并的 `e2e all lessons (en / zh)`：全部八节仪器课、中英文各一遍）：
 
 ```bash
