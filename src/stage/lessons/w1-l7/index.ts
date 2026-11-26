@@ -100,7 +100,7 @@ const W1_L7: StageLesson = {
     },
     textbook_supplement:
       'Robert L. Boylestad, Introductory Circuit Analysis (14th Ed.) · Ch. 5 (Series dc Circuits — Voltage Divider Rule), Ch. 6 (Parallel dc Circuits — Current Divider Rule)',
-    prerequisites: ['W1-L4: 欧姆定律与功率耗散 (P = I² R = V² / R)', 'W1-L5: 节点、支路与回路拓扑识别', 'W1-L6: 基尔霍夫电压定律 (KVL) 与电流定律 (KCL)'],
+    prerequisites: ['W1-L3: 欧姆定律与功率耗散 (P = I² R = V² / R)', 'W1-L4: 节点、支路与回路拓扑识别', 'W1-L5 / W1-L6: 基尔霍夫电流定律 (KCL) 与电压定律 (KVL)'],
     learning_objectives: [
       '能从 KVL 与欧姆定律出发，独立完成串联等效电阻与分压公式的三段式严格推导',
       '能从 KCL 与欧姆定律出发，独立完成并联等效电阻与分流公式的三段式严格推导',

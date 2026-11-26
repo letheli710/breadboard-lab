@@ -196,7 +196,7 @@ const W1_L0: StageLesson = {
     ],
     pass_message: '入场安全检验通过！',
     next_lesson: 'W1-L1',
-    next_lesson_title: '电荷、电流、电压与参考方向',
+    next_lesson_title: '电荷、电流与电压：电路分析的三块基石',
   },
   left_stage_spec: {
     use_3d: true,

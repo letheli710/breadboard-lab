@@ -112,7 +112,7 @@ const W1_L4: StageLesson = {
     estimated_minutes: 25,
     textbook_primary: { book: 'Fundamentals of Electric Circuits (2026 Release)（Alexander & Sadiku）', sections: ['Ch. 2.3 Nodes, Branches, and Loops (含 Example 2.4)'] },
     textbook_supplement: 'Introductory Circuit Analysis（Boylestad）· Ch. 5 Series-Parallel Circuits（节点度与串并联拓扑识别）',
-    prerequisites: ['W1-L1 电荷、电流与参考方向', 'W1-L2 电压、电位与参考节点（地）', 'W1-L3 欧姆定律与理想导线零压降模型'],
+    prerequisites: ['W1-L1 电荷、电流、电压与参考方向（含电位与参考地）', 'W1-L3 欧姆定律与理想导线零压降模型'],
     learning_objectives: [
       '能对任意含多余拐角与 T 字路口的原理图实施“等电位染色缩点”，准确数出 $b$、$n$、$l$',
       '理解面包板同一竖列 5 个孔在拓扑上等同于原理图 1 个节点的物理本质',
