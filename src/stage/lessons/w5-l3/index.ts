@@ -63,6 +63,13 @@ const W5_L3: StageLesson = {
     },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis (14th Ed.), Chapter 17 (AC Nodal & Mesh Analysis)',
     prerequisites: ['W2-L1: 直流节点分析法', 'W2-L2: 直流超节点与受控源处理', 'W2-L3: 直流网孔分析法与超网孔', 'W5-L2: 复阻抗与复导纳（Phasor Impedance & Admittance）'],
+    learning_objectives: [
+      '熟练执行交流稳态分析标准三步法：时域→频域相量等效→复数线性方程求解→时域正弦还原',
+      '深刻理解直流分析法（W2）与交流相量分析法（W5）在拓扑与代数结构上的严格同构性',
+      '能够对含电感、电容及受控源的交流电路准确列写复数节点/超节点方程与网孔/超网孔方程',
+      '掌握复数克莱姆法则与高斯消元中的坐标切换技巧（加减用直角坐标、乘除用极坐标），降低手算错误率',
+      '牢记同频红线：单张相量电路图仅适用于单一角频率激励；多频率电路必须留给 W5-L4 叠加定理',
+    ],
     next_lesson: 'W5-L4',
     next_lesson_title: '交流网络定理与交流运放电路（叠加、电源变换、交流戴维南与运放）',
   },
@@ -72,18 +79,21 @@ const W5_L3: StageLesson = {
       {
         id: L1,
         label: '01 时域→频域',
+        short: '01 时域→频域',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '01 时域电路 → 频域复阻抗电路一键转换台：切换时域 / 频域，拖动 ω（10 ~ 500 rad/s）实时刷新 jωL 与 −j/(ωC)；加入第二个电源，看同频红线指示灯。',
       },
       {
         id: L2,
         label: '02 交流节点法',
+        short: '02 交流节点法',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '02 交流节点法与复数电位气泡高亮图：点击 V₁ / V₂ 节点气泡高亮它的 KCL 支路，追踪受控源 2I_x 的控制路径，气泡在 a + jb 与 M∠θ 之间切换。',
       },
       {
         id: L3,
         label: '03 网孔/超网孔',
+        short: '03 网孔/超网孔',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '03 交流网孔/超网孔复数方程求解台：顺时针网孔电流动画、超网孔虚线外环开关、逐步展开 Δ、Δ₁、Δ₂ 与残差验算；单频合法电路 vs 双频陷阱电路对照。',
       },
@@ -603,6 +613,8 @@ const W5_L3: StageLesson = {
       quiz: [
         {
           id: 'w5l3_q1',
+          concept: '时域转频域与容抗符号',
+          review_act: 1,
           question: R`某交流电路角频率 $\omega = 200\text{ rad/s}$，其中包含电压源 $v_s(t) = 12\sin(200t + 30^\circ)\text{ V}$ 与电容 $C = 250\ \mu\text{F}$。将其转换到以余弦为基准的频域相量电路后，$\mathbf{V}_s$ 与 $\mathbf{Z}_C$ 分别为：`,
           options: [
             {
@@ -632,6 +644,8 @@ const W5_L3: StageLesson = {
         },
         {
           id: 'w5l3_q2',
+          concept: '同频红线',
+          review_act: 1,
           question: R`一个线性 RLC 电路同时由独立电压源 $v_1(t) = 10\cos(100t)\text{ V}$ 和直流电源 $V_2 = 5\text{ V}$（即 $\omega = 0$）激励。以下关于节点分析法的做法正确的是：`,
           options: [
             {
@@ -665,6 +679,8 @@ const W5_L3: StageLesson = {
         },
         {
           id: 'w5l3_q3',
+          concept: '交流超节点约束',
+          review_act: 3,
           question: R`在交流频域电路中，两个非参考节点 $\mathbf{V}_1$ 与 $\mathbf{V}_2$ 之间直接跨接了一个相量电压源 $\mathbf{V}_s = 10\angle 90^\circ\text{ V}$（正极接节点 1，负极接节点 2）。在采用节点分析法时，除了对由 $\mathbf{V}_1$、$\mathbf{V}_2$ 组成的超节点列写外围复数 KCL 方程外，还必须补充的约束方程是：`,
           options: [
             {
@@ -694,6 +710,8 @@ const W5_L3: StageLesson = {
         },
         {
           id: 'w5l3_q4',
+          concept: '复数运算坐标切换',
+          review_act: 3,
           question: R`在求解交流双网孔电路时，已列得 $(4 + j2)\mathbf{I}_1 + (2 - j4)\mathbf{I}_2 = 20$ 且公共支路电流约束为 $\mathbf{I}_2 - \mathbf{I}_1 = -j4$。为了最大程度减少手算出错率，下列运算坐标切换策略最合理的是：`,
           options: [
             {

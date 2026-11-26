@@ -90,6 +90,12 @@ const W5_L2: StageLesson = {
     },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis, 14th Ed., Chapter 15 Series and Parallel AC Circuits（感抗 / 容抗频率依赖直觉与 ELI the ICE man 记忆锚点）',
     prerequisites: ['W1-L7 分压分流', 'W4-L1 电容与储能动态特性', 'W4-L2 电感与磁通储能特性', 'W5-L1 正弦稳态与相量变换'],
+    learning_objectives: [
+      R`运用相量微分法则（$\frac{d}{dt} \leftrightarrow j\omega$）严格推导出 R、L、C 三大元件的频域欧姆定律与复阻抗表达式。`,
+      R`辨析复阻抗 $\mathbf{Z} = R + jX$ 与复导纳 $\mathbf{Y} = G + jB$ 的物理本质，明确 $\mathbf{Z}$ 是复数算子而非相量，规避 $G = 1/R$ 的经典误区。`,
+      '将直流 KCL、KVL、串并联及分压分流公式全面升级至复数域，独立完成混联 RLC 复阻抗化简与时域波形还原。',
+      R`在 2D 双通道示波器与 3D 面包板 RC 相移实操中，通过时差 $\Delta t$ 精确换算相移 $\Delta\phi$，并严格遵守双通道探头共地安全红线。`,
+    ],
     next_lesson: 'W5-L3',
     next_lesson_title: '交流稳态节点分析法与网孔分析法',
   },
@@ -99,6 +105,7 @@ const W5_L2: StageLesson = {
       {
         id: L1,
         label: '01 复阻抗相量',
+        short: '01 复阻抗相量',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 复阻抗原理图与元件相量矢量：切换 R / L / C、串联 RLC、混联例题与引导例题，拖角频率 ω；左为频域等效电路，中为同速旋转的电压 / 电流相量（含 V/I 夹角），右为复阻抗平面（阻抗三角形）。',
@@ -106,6 +113,7 @@ const W5_L2: StageLesson = {
       {
         id: L2,
         label: '02 双通道示波器',
+        short: '02 双通道示波器',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 实时双通道示波器（CH1 输入正弦 vs CH2 电容 / 电阻滞后 / 超前相移波形）：R = 1.6 kΩ（或 1.5 kΩ）、C = 100 nF，拖频率 f；CH2 可看 v_C、对调 R/C 看 v_R 或开 MATH；可拖动时间游标 Δt，自动读出 Δφ = −(Δt/T) × 360°。',
@@ -113,6 +121,7 @@ const W5_L2: StageLesson = {
       {
         id: L3,
         label: '03 3D 面包板实操',
+        short: '03 3D 实操',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption:
           '03 3D 面包板 RC 相移电路 + 信号发生器与双通道示波器实操：830 孔面包板上的 1.6 kΩ 色环电阻与 100 nF 陶瓷电容，函数信号发生器 BNC 鳄鱼夹与双通道示波器探头；拖频率旋钮扫频，试着把 CH2 地夹挪到 R–C 节点看红灯告警。',
@@ -821,6 +830,8 @@ const W5_L2: StageLesson = {
       quiz: [
         {
           id: 'w5l2_q1',
+          concept: '元件相量关系与极端频率',
+          review_act: 1,
           question: '关于纯电感 $L$ 与纯电容 $C$ 在正弦稳态下的相量关系，下列哪项叙述完全正确？',
           options: [
             {
@@ -850,6 +861,8 @@ const W5_L2: StageLesson = {
         },
         {
           id: 'w5l2_q2',
+          concept: '复阻抗非相量与复导纳',
+          review_act: 2,
           question: R`某二端网络的复阻抗为 $\mathbf{Z} = 6 - j8\ \Omega$。关于该网络及其复导纳 $\mathbf{Y} = G + jB$，下列说法正确的是：`,
           options: [
             { key: 'A', text: R`$\mathbf{Z}$ 是非相量的复数算子，网络呈容性，其复导纳为 $\mathbf{Y} = 0.06 + j0.08\text{ S}$。`, correct: true },
@@ -879,6 +892,8 @@ const W5_L2: StageLesson = {
         },
         {
           id: 'w5l2_q3',
+          concept: '复数分流',
+          review_act: 3,
           question: R`电流源 $\mathbf{I}_s = 5\angle 0^\circ\text{ A}$ 注入由电感 $\mathbf{Z}_L = j10\ \Omega$ 与电阻 $\mathbf{Z}_R = 10\ \Omega$ 构成的并联电路，流过电感支路的电流相量 $\mathbf{I}_L$ 为：`,
           options: [
             {
@@ -908,6 +923,8 @@ const W5_L2: StageLesson = {
         },
         {
           id: 'w5l2_q4',
+          concept: '示波器读相与探头共地',
+          review_act: 5,
           question:
             '在 2 kHz 的 RC 相移面包板实验中，示波器显示 CH2（电容电压）的波峰比 CH1（输入电压）向右滞后 $\\Delta t = 62.5\\ \\mu\\text{s}$。此时相移 $\\Delta\\phi$ 及若想改测电阻电压 $v_R(t)$ 的安全做法分别是：',
           options: [

@@ -76,6 +76,12 @@ const W5_L4: StageLesson = {
       'W3-L3/L4: 理想运算放大器（虚短、虚断、反相与同相放大器）',
       'W5-L3: 交流节点电压法与网孔电流法',
     ],
+    learning_objectives: [
+      R`彻底掌握多频率激励（DC + $\omega_1$ + $\omega_2$）下的交流叠加定理：按频拆分、各自频域求解、全部还原回时域后再相加，杜绝跨频相量相加的致命错误。`,
+      R`熟练运用交流电源变换 $\mathbf{V}_s = \mathbf{Z}_s \mathbf{I}_s$ 对同频线性网络进行端口化简。`,
+      R`掌握独立源与含受控源（外加 $1\angle 0^\circ\text{ V}$ 测试源法）两种情形下的交流戴维南与诺顿等效电路求解。`,
+      '将 World 3 理想运放的虚短虚断法则推广到复阻抗频域，推导交流反相与同相放大器复增益，并洞察有源低通滤波器的物理雏形。',
+    ],
     next_lesson: 'W5-L5',
     next_lesson_title: '瞬时功率、平均功率、有效值（RMS）与交流最大功率传输',
   },
@@ -85,6 +91,7 @@ const W5_L4: StageLesson = {
       {
         id: L1,
         label: '01 分频叠加台',
+        short: '01 分频叠加台',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 多频率叠加按频拆分台 (DC + ω1 + ω2)：在原始混合激励电路与三个独立频率子宇宙（ω=0 直流开/短路态、ω1 = 2 rad/s、ω2）之间切换，L、C 的复阻抗随频率变化；底部同步合成时域波形 v_o(t) = v_o0 + v_o1(t) + v_o2(t)——两个相量转速不同，只把它们的时域投影相加。',
@@ -92,6 +99,7 @@ const W5_L4: StageLesson = {
       {
         id: L2,
         label: '02 等效切换台',
+        short: '02 等效切换台',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 复阻抗戴维南等效与源变换切换台：在原始交流网络、逐步电源变换视图、戴维南等效（V_Th 串联 Z_Th）、诺顿等效（I_N 并联 Z_N）及受控源 1∠0° V 测试源注入视图之间切换，挂上负载 Z_L 看端口 a-b 的外特性不变。',
@@ -99,6 +107,7 @@ const W5_L4: StageLesson = {
       {
         id: L3,
         label: '03 运放复增益',
+        short: '03 运放复增益',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '03 交流运放复阻抗增益分析台：反馈支路 C_f 与 R_f 并联的交流反相运放，拖动角频率 ω 对数滑块，实时计算 Z_f(jω)、复增益 A_v(jω) 的幅值与相移，高亮虚地点 V₋ = 0 并联动幅频衰减曲线。',
@@ -779,6 +788,8 @@ const W5_L4: StageLesson = {
       quiz: [
         {
           id: 'w5l4_q1',
+          concept: '多频率叠加定理',
+          review_act: 1,
           question: R`某线性交流电路由两个不同频率的独立源激励，分别单独作用时求得输出相量 $\mathbf{V}_1 = 10\angle 0^\circ\text{ V}$（$\omega_1 = 2\text{ rad/s}$）与 $\mathbf{V}_2 = 10\angle 90^\circ\text{ V}$（$\omega_2 = 5\text{ rad/s}$）。则总稳态输出电压 $v(t)$ 应如何表达？`,
           options: [
             {
@@ -808,6 +819,8 @@ const W5_L4: StageLesson = {
         },
         {
           id: 'w5l4_q2',
+          concept: '交流电源变换',
+          review_act: 2,
           question: R`将电压源 $\mathbf{V}_s = 12\angle 30^\circ\text{ V}$ 与串联复阻抗 $\mathbf{Z}_s = 3 + j4\ \Omega$ 等效变换为实际电流源，其等效电流源相量 $\mathbf{I}_s$ 与并联阻抗 $\mathbf{Z}_p$ 分别为：`,
           options: [
             { key: 'A', text: R`$\mathbf{I}_s = 2.4\angle -23.13^\circ\text{ A},\quad \mathbf{Z}_p = 3 + j4\ \Omega$`, correct: true },
@@ -837,6 +850,8 @@ const W5_L4: StageLesson = {
         },
         {
           id: 'w5l4_q3',
+          concept: '含受控源的戴维南等效',
+          review_act: 4,
           question: R`对某含受控源的交流二端网络，将其所有独立源置零并保留受控源后，在端口 $a$-$b$ 外加测试电压源 $\mathbf{V}_t = 1\angle 0^\circ\text{ V}$，测得流入端口的电流为 $\mathbf{I}_t = 0.1 - j0.1\text{ A}$。则该端口的戴维南等效阻抗 $\mathbf{Z}_{Th}$ 为：`,
           options: [
             {
@@ -866,6 +881,8 @@ const W5_L4: StageLesson = {
         },
         {
           id: 'w5l4_q4',
+          concept: '运放复阻抗增益',
+          review_act: 5,
           question: R`一理想反相交流运放电路中，输入电阻 $R_1 = 2\text{ k}\Omega$，反馈支路为 $R_f = 10\text{ k}\Omega$ 与 $C_f = 0.1\ \mu\text{F}$ 并联。当输入信号角频率 $\omega = 1000\text{ rad/s}$ 时，闭环复电压增益 $\mathbf{A}_v = \mathbf{V}_o / \mathbf{V}_i$ 为：`,
           options: [
             {

@@ -70,6 +70,12 @@ const W5_L9: StageLesson = {
     },
     textbook_supplement: 'Introductory Circuit Analysis, 14th Ed. (Boylestad) — Chapter 21 Filters（音频分频器与工程直觉）',
     prerequisites: ['W3-L3 反相放大器（虚短与虚断）', 'W5-L4 交流运放与复阻抗反馈', 'W5-L7 波特图（分贝、十倍频程与 -20 dB/dec 滚降）', 'W5-L8 串联/并联谐振与品质因数 Q'],
+    learning_objectives: [
+      R`识别低通（LPF）、高通（HPF）、带通（BPF）、带阻（BSF）四大滤波器家族的理想与实际幅频特征及 $-3\text{ dB}$ 截止频率定义。`,
+      '运用三段式推导完成一阶无源 RC 低通/高通传递函数求解，并定量剖析无源滤波器的三大工程硬伤（无增益、带载塌陷、低频电感笨重）。',
+      '利用交流运放复阻抗通式推导一阶反相有源低通与高通滤波器，理解通带增益、截止频率解耦与零后级加载优势。',
+      R`通过零电感级联架构（HPF + LPF + 增益级）设计有源带通滤波器，并在 3D $\pm 9\text{ V}$ LM358 面包板上完成 100 Hz – 10 kHz 扫频实测。`,
+    ],
     pass_message: '随堂自测通过！Phase 1 模拟电路核心基石全部通关。',
   },
   left_stage_spec: {
@@ -78,6 +84,7 @@ const W5_L9: StageLesson = {
       {
         id: L1,
         label: '01 滤波器原理图',
+        short: '01 滤波器原理图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 无源 vs 有源低通/高通/带通切换原理图：一键切换无源 RC 低通 / 高通、反相有源低通 / 高通、级联有源带通；接入 / 断开 10 kΩ 负载 RL，高亮虚地；Ri、Rf、Cf 滑块（E12 标称值，无源 RC 取 R = Rf、C = Cf）。下方读数：通带增益、截止频率、负载的影响。',
@@ -85,6 +92,7 @@ const W5_L9: StageLesson = {
       {
         id: L2,
         label: '02 实时波特图',
+        short: '02 实时波特图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 实时幅频/相频波特图（无源带载塌陷 vs 有源带增益稳如磐石对比）：10 Hz – 100 kHz 对数轴；绿 = 有源反相 LPF（带 10 kΩ 负载），蓝 = 无源 RC LPF 空载，红虚线 = 同一 RC 带 10 kΩ 负载；也可只看 01 层当前拓扑。扫频游标与 03 层的信号源共用一个频率。',
@@ -92,6 +100,7 @@ const W5_L9: StageLesson = {
       {
         id: L3,
         label: '03 3D 扫频实测',
+        short: '03 3D 扫频实测',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption: `03 3D LM358 ±9V 双电源有源低通滤波器面包板扫频实测：${SUPPLY}（两路串联、COM 作 GND）经引线接 +9 V / GND / −9 V 轨，${GEN}正弦 1 Vpp 扫频 100 Hz → 10 kHz，${SCOPE} CH1 看 Vin、CH2 看 Pin 1 输出；可在 Pin 1 接入 10 kΩ 负载、加大输入看削波。`,
       },
@@ -843,6 +852,8 @@ const W5_L9: StageLesson = {
       quiz: [
         {
           id: 'w5l9_q1',
+          concept: '有源低通：增益与截止频率解耦',
+          review_act: 4,
           question: R`一个一阶反相有源低通滤波器使用 $R_i = 10\text{ k}\Omega$、$R_f = 22\text{ k}\Omega$、$C_f = 10\text{ nF}$。如果将输入电阻 $R_i$ 从 $10\text{ k}\Omega$ 换为 $5\text{ k}\Omega$（$R_f$ 与 $C_f$ 保持不变），会发生什么变化？`,
           options: [
             { key: 'A', text: R`通带直流增益翻倍至 $-4.4$（$+12.87\text{ dB}$），截止频率 $f_c$ 保持 $723.4\text{ Hz}$ 不变`, correct: true },
@@ -872,6 +883,8 @@ const W5_L9: StageLesson = {
         },
         {
           id: 'w5l9_q2',
+          concept: '无源 RC 的带载塌陷',
+          review_act: 3,
           question: R`某同学搭建了 $R = 22\text{ k}\Omega$、$C = 10\text{ nF}$ 的无源 RC 低通滤波器（空载 $f_c = 723.4\text{ Hz}$），随后直接在输出端并联了一个 $R_L = 10\text{ k}\Omega$ 的后级负载电阻。此时实测通带增益与截止频率会如何变化？`,
           options: [
             {
@@ -901,6 +914,8 @@ const W5_L9: StageLesson = {
         },
         {
           id: 'w5l9_q3',
+          concept: '零电感级联带通的理由',
+          review_act: 6,
           question: '在音频或心电（ECG）前端设计低频（如 0.5 Hz–40 Hz）带通滤波器时，工程师几乎总是用「有源高通 + 有源低通级联」而非无源 RLC 谐振电路，最核心的综合原因是：',
           options: [
             {
@@ -931,6 +946,8 @@ const W5_L9: StageLesson = {
         },
         {
           id: 'w5l9_q4',
+          concept: '扫频的 −3 dB 读数',
+          review_act: 6,
           question: R`在 3D 面包板上测试本课推荐的 $\pm 9\text{ V}$ LM358 有源低通滤波器（$R_i = 10\text{ k}\Omega$、$R_f = 22\text{ k}\Omega$、$C_f = 10\text{ nF}$，$f_c = 723.4\text{ Hz}$），输入 $1.0\text{ V}_{\text{pp}}$ 正弦波。当频率从 $100\text{ Hz}$ 缓慢扫频到 $723.4\text{ Hz}$ 时，示波器 CH2（输出）的峰峰值最接近：`,
           options: [
             {
