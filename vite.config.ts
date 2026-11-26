@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
+import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { contentChunkName, problemIndexPlugin, summaryIndexPlugin } from './scripts/problem-index-plugin.ts';
 import { challengeIndexPlugin } from './scripts/challenge-index-plugin.ts';
@@ -16,6 +17,8 @@ export default defineConfig({
   // browser-test hooks (src/e2e/): compiled in only for `VITE_E2E=1` builds (npm run e2e)
   define: { __E2E__: JSON.stringify(process.env.VITE_E2E === '1') },
   server: { port: 5180 },
+  // agent worktrees (.claude/worktrees) hold copies of the repo: not part of this checkout's tests
+  test: { exclude: [...configDefaults.exclude, '.claude/**'] },
   // the HarmonyOS Sans web font package only exports its all-weights stylesheet; the alias lets
   // src/fonts.css import just the weights the UI uses (each split by unicode-range into small files,
   // so a page downloads only the pieces covering the characters it shows)

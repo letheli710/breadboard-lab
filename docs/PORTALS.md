@@ -20,7 +20,7 @@ A unit that mentions an idea taught in another World gets a **portal** to it at 
 
 | 字段 | 说明 |
 |---|---|
-| `from`、`to` | 引用 / refs：`challenge:<id>`（课程或实验）、`chapter:<id>`（理论章节）、`problem:<id>`、`unit:<id>`（学习单元）、`pending:<id>`（已登记、还没建的单元） |
+| `from`、`to` | 引用 / refs：`challenge:<id>`（课程或实验）、`chapter:<id>`（理论章节）、`problem:<id>`、`unit:<id>`（学习单元）、`lesson:<slug>`（新版课，`src/stage/registry.ts`，World 里也可以放）、`pending:<id>`（已登记、还没建的单元） |
 | `what` | 门后讲什么 |
 | `back` | 反向链接的说明，**必填** |
 | `prereq` | 前置要求（引用，可以为空）。界面按学习进度显示“现在可看”，或“建议先学 World X”；**门不上锁**，随时能点进去 |

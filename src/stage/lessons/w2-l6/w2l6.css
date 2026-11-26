@@ -1,0 +1,745 @@
+/* W2-L6 stage layers (black boxes, source morph, reduction pipeline). Light stage, prefix w6-. */
+
+.w6-layer {
+  --w6-wire: #334155;
+  --w6-r: #d97706;
+  --w6-blue: #0284c7;
+  --w6-green: #16a34a;
+  --w6-red: #dc2626;
+  --w6-lit: #2563eb;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ------------------------------------------------------------- control dock */
+.w6-dock {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.w6-seg {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  background: var(--paper, #fbf7ef);
+  border: 1px solid var(--line, #e3d8c2);
+  border-radius: 9px;
+  padding: 2px;
+}
+.w6-seg-label {
+  align-self: center;
+  font-size: 11.5px;
+  color: var(--muted, #5f626b);
+  padding: 0 5px;
+}
+.w6-seg button,
+.w6-btn,
+.w6-switch {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #3a4560);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+.w6-seg button.on {
+  background: var(--ink, #1f2a44);
+  color: #fff;
+}
+.w6-seg button.on.bad {
+  background: #b91c1c;
+}
+.w6-seg button sub,
+.w6-btn sub {
+  font-size: 75%;
+}
+.w6-btn,
+.w6-switch {
+  border: 1.5px solid var(--line-2, #d6c9ae);
+  background: #fff;
+}
+.w6-btn:disabled,
+.w6-switch:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.w6-btn.small {
+  padding: 2px 8px;
+  font-size: 11.5px;
+  margin-left: 6px;
+}
+.w6-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.w6-switch .knob {
+  width: 26px;
+  height: 15px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  position: relative;
+  flex: none;
+  transition: background 0.2s;
+}
+.w6-switch .knob::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.w6-switch.on .knob {
+  background: var(--w6-red);
+}
+.w6-switch.on .knob::after {
+  transform: translateX(11px);
+}
+.w6-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.w6-stepper .w6-btn {
+  padding: 4px 8px;
+}
+.w6-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2, #3a4560);
+}
+.w6-range input {
+  width: 110px;
+  accent-color: var(--ink, #1f2a44);
+}
+.w6-range-val {
+  min-width: 3.6em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- svg canvas */
+.w6-svg {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  max-height: 560px;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: var(--body, sans-serif);
+}
+.w6-bg {
+  fill: #fbf7ef;
+  stroke: #e3d8c2;
+  stroke-width: 1.2;
+}
+.w6-sep {
+  stroke: #e3d8c2;
+  stroke-dasharray: 4 4;
+}
+.w6-wire {
+  stroke: var(--w6-wire);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  fill: none;
+}
+.w6-wire.short {
+  stroke-width: 3;
+}
+.w6-dot {
+  fill: var(--w6-wire);
+}
+.w6-hit {
+  fill: transparent;
+  stroke: none;
+}
+.w6-clickable,
+.w6-el.next,
+.w6-redbox.clickable {
+  cursor: pointer;
+}
+.w6-clickable:focus,
+.w6-el:focus,
+.w6-redbox:focus {
+  outline: none;
+}
+.w6-clickable:focus-visible .w6-hit,
+.w6-el:focus-visible .w6-hit {
+  fill: rgba(37, 99, 235, 0.08);
+}
+.w6-zig {
+  fill: none;
+  stroke: var(--w6-r);
+  stroke-width: 2.3;
+  stroke-linejoin: round;
+  transition:
+    stroke 0.2s,
+    stroke-width 0.2s;
+}
+.w6-res.target .w6-zig {
+  stroke: #1f2a44;
+}
+.w6-res.blue .w6-zig {
+  stroke: var(--w6-blue);
+}
+.w6-res.fresh .w6-zig {
+  stroke: var(--w6-green);
+}
+.w6-res.lit .w6-zig {
+  stroke: var(--w6-lit);
+  stroke-width: 3.4;
+  filter: drop-shadow(0 0 3px rgba(37, 99, 235, 0.55));
+}
+.w6-head {
+  fill: var(--w6-wire);
+}
+
+/* sources */
+.w6-src-body {
+  fill: #fff;
+  stroke-width: 2.3;
+  transition:
+    stroke-width 0.2s,
+    filter 0.2s;
+}
+.w6-src.v .w6-src-body {
+  stroke: var(--w6-blue);
+}
+.w6-src.ok .w6-src-body {
+  stroke: var(--w6-green);
+}
+.w6-src.bad .w6-src-body {
+  stroke: var(--w6-red);
+  fill: #fff5f5;
+}
+.w6-src.lit .w6-src-body {
+  stroke-width: 3.6;
+  filter: drop-shadow(0 0 4px rgba(37, 99, 235, 0.6));
+}
+.w6-sign {
+  font:
+    800 13px ui-monospace,
+    monospace;
+  text-anchor: middle;
+  fill: #5f626b;
+  pointer-events: none;
+}
+.w6-sign.plus {
+  fill: #1f2a44;
+}
+.w6-src.bad .w6-sign.plus {
+  fill: #b91c1c;
+}
+.w6-src.ok .w6-sign.plus {
+  fill: #15803d;
+}
+.w6-arrow {
+  stroke-width: 2.6;
+  stroke: var(--w6-green);
+}
+.w6-src.bad .w6-arrow {
+  stroke: var(--w6-red);
+}
+.w6-src.v .w6-arrow {
+  stroke: var(--w6-blue);
+}
+.w6-head.src {
+  fill: var(--w6-green);
+}
+.w6-src.bad .w6-head.src {
+  fill: var(--w6-red);
+}
+.w6-src.v .w6-head.src {
+  fill: var(--w6-blue);
+}
+
+/* ports */
+.w6-port-ring {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 2.2;
+}
+.w6-port-glow {
+  fill: rgba(37, 99, 235, 0.22);
+  transition: r 0.2s;
+}
+.w6-port-name {
+  font:
+    italic 700 12px 'Times New Roman',
+    serif;
+  fill: #1f2a44;
+}
+.w6-port-name.left {
+  text-anchor: end;
+}
+
+/* labels */
+.w6-val {
+  font: 700 11px var(--body, sans-serif);
+  font-variant-numeric: tabular-nums;
+  fill: #3a4560;
+  pointer-events: none;
+}
+.w6-val.small {
+  font-size: 10px;
+}
+.w6-val.mid,
+.w6-pwr.mid,
+.w6-vx.mid,
+.w6-warn-svg.mid {
+  text-anchor: middle;
+}
+.w6-val.end,
+.w6-pwr.end {
+  text-anchor: end;
+}
+.w6-val.strong {
+  fill: #1f2a44;
+  font-weight: 800;
+}
+.w6-val.fresh {
+  fill: #15803d;
+}
+.w6-it {
+  font-style: italic;
+  font-family: 'Times New Roman', serif;
+}
+.w6-subt {
+  font-size: 72%;
+  baseline-shift: sub;
+}
+.w6-tag {
+  font: 800 11px var(--body, sans-serif);
+  fill: #b91c1c;
+}
+.w6-lock-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  fill: #b91c1c;
+}
+.w6-io {
+  stroke: #0369a1;
+  stroke-width: 2.2;
+}
+.w6-io-head {
+  fill: #0369a1;
+}
+.w6-vx {
+  font: 800 11px var(--body, sans-serif);
+  fill: #b91c1c;
+}
+.w6-vx.broken {
+  fill: #b91c1c;
+  font-size: 12px;
+}
+.w6-warn-svg {
+  font-size: 11px;
+  font-weight: 800;
+  fill: #b91c1c;
+}
+.w6-title-line {
+  font-size: 11.5px;
+  font-weight: 800;
+  text-anchor: middle;
+  fill: #15803d;
+}
+.w6-title-line.bad {
+  fill: #b91c1c;
+}
+.w6-hint {
+  font-size: 10px;
+  fill: #5f626b;
+  text-anchor: middle;
+}
+.w6-hint.start {
+  text-anchor: start;
+}
+
+/* black boxes */
+.w6-box {
+  fill: #fff;
+  stroke-width: 1.8;
+  stroke-dasharray: 6 4;
+  transition: stroke-width 0.2s;
+}
+.w6-box.a {
+  stroke: var(--w6-blue);
+}
+.w6-box.b {
+  stroke: var(--w6-green);
+}
+.w6-box.lit {
+  stroke-width: 3.2;
+  fill: #f5f9ff;
+}
+.w6-box-title {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+.w6-box-title.a {
+  fill: #0369a1;
+}
+.w6-box-title.b {
+  fill: #15803d;
+}
+.w6-port-read {
+  font: 700 11.5px var(--body, sans-serif);
+  fill: #1f2a44;
+  text-anchor: middle;
+}
+.w6-load-tag {
+  font-size: 10px;
+  font-weight: 700;
+  fill: #5f626b;
+  text-anchor: middle;
+}
+.w6-load-tag.left {
+  text-anchor: start;
+}
+.w6-load.lit .w6-wire {
+  stroke: var(--w6-lit);
+  stroke-width: 3;
+}
+.w6-load.lit .w6-zig {
+  stroke: var(--w6-lit);
+  stroke-width: 3.2;
+}
+.w6-open-end {
+  fill: #fff;
+  stroke: var(--w6-wire);
+  stroke-width: 1.6;
+}
+.w6-heat {
+  fill: #f97316;
+  filter: blur(2px);
+  transition: opacity 0.3s;
+}
+.w6-pwr {
+  font: 800 10.5px var(--body, sans-serif);
+  fill: #5f626b;
+}
+.w6-pwr.hot {
+  fill: #c2410c;
+}
+.w6-flow {
+  fill: none;
+  stroke: #0ea5e9;
+  stroke-width: 2.2;
+  stroke-dasharray: 3 9;
+  stroke-linecap: round;
+  animation: w6-flow linear infinite;
+  pointer-events: none;
+}
+@keyframes w6-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* lower panels: port line, power bars */
+.w6-panel-title {
+  font-size: 11px;
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.w6-axis {
+  stroke: #5f626b;
+  stroke-width: 1.4;
+}
+.w6-axis-name {
+  font:
+    italic 700 11px 'Times New Roman',
+    serif;
+  fill: #3a4560;
+}
+.w6-axis-name.end {
+  text-anchor: end;
+}
+.w6-hitline {
+  stroke: transparent;
+  stroke-width: 14;
+}
+.w6-vi-a {
+  stroke: var(--w6-blue);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.w6-vi-b {
+  stroke: var(--w6-green);
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+}
+.w6-vi.lit .w6-vi-a {
+  stroke: var(--w6-lit);
+  stroke-width: 6;
+}
+.w6-icpt-dot {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 1.8;
+}
+.w6-icpt.lit .w6-icpt-dot {
+  fill: var(--w6-lit);
+  stroke: var(--w6-lit);
+}
+.w6-icpt-text {
+  font: 700 10.5px var(--body, sans-serif);
+  fill: #1f2a44;
+}
+.w6-icpt.lit .w6-icpt-text {
+  fill: var(--w6-lit);
+}
+.w6-icpt-text.end {
+  text-anchor: end;
+}
+.w6-icpt-text.mid {
+  text-anchor: middle;
+}
+.w6-slope {
+  font-size: 10px;
+  fill: #5f626b;
+}
+.w6-guide {
+  stroke: #94a3b8;
+  stroke-dasharray: 3 3;
+}
+.w6-op {
+  fill: #f59e0b;
+  stroke: #92400e;
+  stroke-width: 1.5;
+}
+.w6-legend text {
+  font-size: 10.5px;
+  font-weight: 700;
+  fill: #3a4560;
+}
+.w6-bar.a {
+  fill: var(--w6-blue);
+}
+.w6-bar.b {
+  fill: var(--w6-green);
+}
+.w6-bar {
+  transition: width 0.35s ease;
+}
+.w6-bar-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  fill: #3a4560;
+}
+.w6-bar-val {
+  font: 800 11px var(--body, sans-serif);
+}
+.w6-bar-val.same {
+  fill: #15803d;
+}
+.w6-bar-val.diff {
+  fill: #b91c1c;
+}
+.w6-bars.lit .w6-bar-label {
+  fill: var(--w6-lit);
+}
+.w6-bars.lit .w6-bar {
+  filter: drop-shadow(0 0 3px rgba(37, 99, 235, 0.6));
+}
+
+/* red isolation box */
+.w6-redbox-rect {
+  fill: rgba(254, 226, 226, 0.55);
+  stroke: var(--w6-red);
+  stroke-width: 1.8;
+  stroke-dasharray: 5 4;
+  transition: stroke-width 0.2s;
+}
+.w6-redbox.lit .w6-redbox-rect {
+  stroke-width: 3.2;
+  fill: rgba(254, 202, 202, 0.7);
+}
+.w6-redbox-label {
+  font-size: 10px;
+  font-weight: 800;
+  fill: #b91c1c;
+}
+.w6-lock-shackle {
+  fill: none;
+  stroke: #b91c1c;
+  stroke-width: 1.6;
+}
+.w6-lock-body {
+  fill: #b91c1c;
+}
+.w6-redbox.shake {
+  animation: w6-shake 0.45s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes w6-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* pipeline */
+.w6-stage-cap {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink, #1f2a44);
+  min-height: 1.6em;
+}
+.w6-step-n {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ink, #1f2a44);
+  color: #fff;
+  font-size: 11px;
+  flex: none;
+}
+.w6-stage-in {
+  animation: w6-fade 0.45s ease;
+}
+@keyframes w6-fade {
+  from {
+    opacity: 0.15;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.w6-el.fresh .w6-src-body {
+  stroke: var(--w6-green);
+}
+.w6-next-ring {
+  fill: rgba(245, 158, 11, 0.12);
+  stroke: #d97706;
+  stroke-width: 1.6;
+  stroke-dasharray: 4 3;
+  animation: w6-pulse 1.6s ease-in-out infinite;
+}
+@keyframes w6-pulse {
+  50% {
+    fill: rgba(245, 158, 11, 0.26);
+  }
+}
+
+/* readouts below the drawing */
+.w6-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: 12.5px;
+  min-height: 2em;
+}
+.w6-chip {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 7px;
+  background: #fff;
+  border: 1px solid var(--line, #e3d8c2);
+  color: var(--ink, #1f2a44);
+  font-weight: 700;
+  max-width: 100%;
+}
+.w6-chip.ok {
+  background: #ecfdf5;
+  border-color: #059669;
+  color: #065f46;
+}
+.w6-chip.bad {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #991b1b;
+}
+.w6-dim {
+  color: var(--muted, #5f626b);
+  font-weight: 600;
+}
+/* the guard's warning sits over the readout for a moment (the drawing keeps its size) */
+.w6-toast {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  box-shadow: 0 4px 14px rgba(31, 42, 68, 0.25);
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: #b91c1c;
+  color: #fff;
+  font-weight: 800;
+  font-size: 12.5px;
+  animation: w6-fade 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w6-flow,
+  .w6-next-ring,
+  .w6-redbox.shake,
+  .w6-stage-in {
+    animation: none;
+  }
+}
+
+/* narrow screens: the stage is ~52vh tall, keep the dock to one scrolling row per group */
+@media (max-width: 960px) {
+  .w6-layer {
+    gap: 5px;
+  }
+  .w6-dock {
+    gap: 4px;
+  }
+  .w6-seg-label {
+    display: none;
+  }
+  .w6-seg button,
+  .w6-btn,
+  .w6-switch {
+    padding: 4px 7px;
+    font-size: 12px;
+  }
+  .w6-range input {
+    width: 84px;
+  }
+  .w6-readout {
+    font-size: 12px;
+    gap: 4px;
+  }
+  .w6-stage-cap {
+    font-size: 12px;
+  }
+}

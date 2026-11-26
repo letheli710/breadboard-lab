@@ -9,7 +9,10 @@ import { unitTitle, worldTitle } from '../core/courseText';
 import { chapterById } from '../core/problem/chapters';
 import { tr } from '../core/i18n';
 import { ensureChallengeIndex } from '../state/challenges';
+import { useCourse } from '../state/courseStore';
 import { onPage, useStore } from '../state/store';
+import { tt } from '../core/course/text';
+import { STAGE_LESSON_ENTRY } from '../stage/registry';
 import { tabListKeys } from './a11y';
 import { Icon } from './Icons';
 
@@ -39,7 +42,19 @@ export function CourseMap({ kind, onPick }: { kind: 'lesson' | 'challenge'; onPi
   const list = group === null ? all : all.filter((c) => groupOf(c) === group);
   const world = group === null ? undefined : worldOf(group);
   const chapters = kind === 'lesson' && world ? worldChapters(world).filter((c) => chapterById(c)) : [];
-  const done = list.filter((c) => completed[c.id]).length;
+  const lessonsDone = useCourse((s) => s.lessonsDone);
+  // stage lessons (#/lesson/<slug>) of the World shown, each before the bench items of its unit
+  const stageCount = kind === 'lesson' && world ? world.units.reduce((n, u) => n + u.lessons.length, 0) : 0;
+  const stageDone = kind === 'lesson' && world ? world.units.reduce((n, u) => n + u.lessons.filter((x) => lessonsDone[x]).length, 0) : 0;
+  type Row = { k: 'c'; c: Challenge } | { k: 's'; slug: string; num: string };
+  const rows: Row[] =
+    kind === 'lesson' && world
+      ? world.units.flatMap((u) => [
+          ...u.lessons.map((slug): Row => ({ k: 's', slug, num: u.num })),
+          ...list.filter((c) => placeOf(c.id)?.unit === u).map((c): Row => ({ k: 'c', c })),
+        ])
+      : list.map((c): Row => ({ k: 'c', c }));
+  const done = list.filter((c) => completed[c.id]).length + stageDone;
 
   // on open: the item on the bench is in view and has the focus (Tab reaches the tabs above it)
   const listRef = useRef<HTMLDivElement>(null);
@@ -89,7 +104,7 @@ export function CourseMap({ kind, onPick }: { kind: 'lesson' | 'challenge'; onPi
           </span>
         )}
         <span className="muted">
-          {done}/{list.length} {tr('完成', 'done')}
+          {done}/{list.length + stageCount} {tr('完成', 'done')}
         </span>
       </div>
       {world && (
@@ -127,7 +142,37 @@ export function CourseMap({ kind, onPick }: { kind: 'lesson' | 'challenge'; onPi
           role={group !== null && groups.length > 1 ? 'tabpanel' : undefined}
           aria-label={group !== null ? groupLabel(group) : undefined}
         >
-          {list.map((c, i) => {
+          {rows.map((row, i) => {
+            if (row.k === 's') {
+              const e = STAGE_LESSON_ENTRY.get(row.slug);
+              const ok = !!lessonsDone[row.slug];
+              const head = row.num !== lastUnit ? row.num : null;
+              lastUnit = row.num;
+              return (
+                <Fragment key={`lesson:${row.slug}`}>
+                  {head && (
+                    <div className="cm-unit" aria-hidden>
+                      {row.num} · {unitTitle(row.num)}
+                    </div>
+                  )}
+                  <a className={`lesson-card stage-card ${ok ? 'done' : ''}`} href={`#/lesson/${row.slug}`} onClick={() => onPick?.()}>
+                    <div className="lc-num" aria-hidden={ok ? true : undefined}>
+                      {ok ? '✓' : <Icon name="layers" size={16} />}
+                    </div>
+                    <div className="lc-body">
+                      <div className="lc-title">
+                        {e?.code} · {e ? tt(e.title) : row.slug}
+                      </div>
+                      <div className="lc-meta">
+                        <span className="badge lab">{tr('新版课', 'Lesson')}</span> {tr(`约 ${e?.minutes ?? '?'} 分钟`, `about ${e?.minutes ?? '?'} min`)}
+                        {ok && <span className="sr-only">{tr('，已完成', ', done')}</span>}
+                      </div>
+                    </div>
+                  </a>
+                </Fragment>
+              );
+            }
+            const c = row.c;
             const place = placeOf(c.id);
             const label = place ? itemLabel(place) : String(i + 1);
             const unitKey = place ? place.unit.num : 'other';

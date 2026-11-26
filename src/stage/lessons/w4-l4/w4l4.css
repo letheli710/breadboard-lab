@@ -1,0 +1,757 @@
+/* W4-L4 stage layers: switched schematic, live decay oscilloscope, 3D RC bench. Light theme (stage.css tokens). */
+
+.w44-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- controls */
+.w44-ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.w44-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  min-width: 0;
+}
+.w44-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.w44-seg button {
+  flex: 1 0 auto;
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w44-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w44-seg button.on.bad {
+  background: #be123c;
+}
+.w44-seg .short,
+.w44-reveal .short {
+  display: none;
+}
+.w44-slider {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  font-weight: 600;
+  min-width: 0;
+  flex: 1 1 180px;
+}
+.w44-slider input {
+  width: 100%;
+  min-width: 60px;
+  accent-color: var(--stage-blue);
+}
+.w44-slider b {
+  font-variant-numeric: tabular-nums;
+  min-width: 4.6em;
+  text-align: right;
+}
+.w44-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  padding: 2px 8px 2px 4px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w44-check input {
+  accent-color: var(--stage-blue);
+}
+.w44-check.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w44-play {
+  border: 1px solid #93b4f5;
+  background: var(--stage-blue-soft);
+  color: #1d4ed8;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w44-play.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w44-play:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.w44-reveal {
+  border: 1px dashed #d97706;
+  background: #fffbeb;
+  color: #92400e;
+  border-radius: 8px;
+  padding: 3px 9px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------- schematic */
+.w44-sch-wrap,
+.w44-scope-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w44-sch,
+.w44-scope {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w44-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.w44-wire.thin {
+  stroke-width: 1.8;
+}
+.w44-wire.gone {
+  stroke: #b8bec8;
+  stroke-dasharray: 5 4;
+}
+.w44-wire.open {
+  stroke-dasharray: none;
+}
+.w44-obj {
+  cursor: help;
+}
+.w44-obj.gone {
+  opacity: 0.4;
+}
+.w44-obj .hit {
+  fill: transparent;
+  stroke: none;
+}
+.w44-obj .blade {
+  stroke: #1f2a44;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+.w44-obj .pin {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 2;
+}
+.w44-obj .pin.on {
+  fill: #1f2a44;
+}
+.w44-obj .plate {
+  stroke: #0369a1;
+  stroke-width: 4;
+  fill: none;
+}
+.w44-obj .coil {
+  stroke: #6d28d9;
+  stroke-width: 3;
+  fill: none;
+}
+.w44-obj .body {
+  fill: #fff;
+  stroke: #2563eb;
+  stroke-width: 2.2;
+}
+.w44-obj .body-line {
+  fill: none;
+  stroke: #c2410c;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.w44-obj.thev .box {
+  fill: #dcfce7;
+  fill-opacity: 0.35;
+  stroke: #15803d;
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+}
+.w44-obj.tag .tagbox {
+  fill: #fff;
+  stroke: #94a3b8;
+  stroke-width: 1.4;
+}
+.w44-obj.tag.node .tagbox {
+  fill: #fef9c3;
+  stroke: #ca8a04;
+}
+.w44-vtag {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #854d0e;
+  font-variant-numeric: tabular-nums;
+}
+.w44-jn {
+  fill: #334155;
+}
+.w44-jn.lit {
+  fill: #f59e0b;
+}
+.w44-flow {
+  stroke: #2563eb;
+  stroke-linecap: round;
+}
+.w44-flowhead,
+.w44-arrow {
+  fill: #2563eb;
+}
+.w44-obj.flow.off text {
+  fill: #5f626b;
+}
+.w44-obj.lit .body,
+.w44-obj.lit .tagbox,
+.w44-obj.lit .box {
+  stroke: #f59e0b !important;
+  stroke-width: 3.2;
+}
+.w44-obj.lit .body-line,
+.w44-obj.lit .plate,
+.w44-obj.lit .coil,
+.w44-obj.lit .blade,
+.w44-obj.lit .w44-wire {
+  stroke: #f59e0b;
+}
+.w44-obj.lit .w44-flow {
+  stroke: #d97706;
+}
+.w44-obj.lit .w44-flowhead {
+  fill: #d97706;
+}
+.w44-obj.lit text {
+  fill: #b45309;
+}
+.w44-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #1f2a44;
+  font-variant-numeric: tabular-nums;
+}
+.w44-lbl.sub {
+  font-size: 10.5px;
+  font-weight: 600;
+  fill: #475569;
+}
+.w44-lbl.tiny {
+  font-size: 9.5px;
+  font-weight: 600;
+  fill: #475569;
+}
+.w44-lbl.strong {
+  font-size: 13px;
+  font-weight: 800;
+}
+.w44-lbl.src {
+  fill: #1d4ed8;
+  font-size: 11.5px;
+}
+.w44-lbl.res {
+  fill: #9a3412;
+}
+.w44-lbl.cur {
+  fill: #1d4ed8;
+  font-size: 11px;
+}
+.w44-lbl.x {
+  fill: #be123c;
+}
+.w44-lbl.th {
+  fill: #15803d;
+  font-size: 12.5px;
+}
+.w44-lbl.one {
+  fill: #0369a1;
+  font-size: 11px;
+}
+.w44-lbl.five {
+  fill: #15803d;
+  font-size: 11px;
+}
+.w44-lbl.tan {
+  fill: #be123c;
+  font-size: 11px;
+}
+.w44-lbl.r2 {
+  fill: #c2410c;
+  font-size: 11px;
+}
+.w44-lbl.mid,
+.w44-tick.mid,
+.w44-hiddenmsg.mid {
+  text-anchor: middle;
+}
+.w44-tick.end {
+  text-anchor: end;
+}
+.w44-pm {
+  font-size: 16px;
+  font-weight: 800;
+}
+.w44-pm.p {
+  fill: #b91c1c;
+}
+.w44-pm.m {
+  fill: #1d4ed8;
+}
+.w44-ebar.bg {
+  fill: #eef0f3;
+}
+.w44-ebar.e4 {
+  fill: #c2410c;
+}
+.w44-ebar.e2 {
+  fill: #0369a1;
+}
+.w44-ebar.e3 {
+  fill: #6d28d9;
+}
+
+/* ---------------------------------------------------------- oscilloscope */
+.w44-screen {
+  fill: #fbfcfe;
+  stroke: #d5dae2;
+}
+.w44-grid {
+  stroke: #e7eaf0;
+  stroke-width: 1;
+}
+.w44-axis {
+  stroke: #475569;
+  stroke-width: 1.6;
+}
+.w44-axis.zero {
+  stroke: #94a3b8;
+  stroke-dasharray: 3 3;
+}
+.w44-tick {
+  font-size: 10.5px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w44-tick.one {
+  fill: #0369a1;
+  font-weight: 800;
+}
+.w44-tick.five {
+  fill: #15803d;
+  font-weight: 800;
+}
+.w44-tick.sub {
+  font-size: 9.5px;
+}
+.w44-ctitle {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #1f2a44;
+}
+.w44-steady {
+  fill: #dcfce7;
+  fill-opacity: 0.6;
+}
+.w44-ref {
+  stroke-width: 1.4;
+  stroke-dasharray: 5 4;
+  fill: none;
+}
+.w44-ref.one {
+  stroke: #0369a1;
+}
+.w44-ref.five {
+  stroke: #15803d;
+}
+.w44-mark.one {
+  fill: #0369a1;
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+.w44-mark.tan {
+  fill: #be123c;
+}
+.w44-tan {
+  stroke: #e11d48;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+.w44-curve {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.w44-curve.r2 {
+  stroke: #ea580c;
+  stroke-width: 2.4;
+  stroke-dasharray: 7 4;
+}
+.w44-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14;
+}
+.w44-jump {
+  stroke: #ea580c;
+  stroke-width: 1.6;
+  stroke-dasharray: 2 3;
+}
+.w44-proj {
+  stroke: #94a3b8;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+.w44-dot {
+  fill: #2563eb;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.w44-dot.r2 {
+  fill: #ea580c;
+}
+.w44-obj.lit .w44-curve {
+  stroke: #f59e0b;
+}
+.w44-obj.lit .w44-tan,
+.w44-obj.lit .w44-ref {
+  stroke: #d97706;
+  stroke-width: 2.6;
+}
+.w44-obj.lit .w44-steady {
+  fill: #fef3c7;
+}
+.w44-obj.lit .w44-dot {
+  fill: #f59e0b;
+}
+.w44-hiddenmsg {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #92400e;
+}
+.w44-readout {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  padding: 3px 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: help;
+}
+.w44-readout.lit {
+  border-color: var(--stage-amber);
+  background: #fffbeb;
+}
+.w44-energy {
+  display: grid;
+  gap: 3px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  cursor: help;
+}
+.w44-energy.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w44-ebar-row {
+  display: grid;
+  grid-template-columns: 8.2em minmax(0, 1fr) 9.4em;
+  gap: 8px;
+  align-items: center;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.w44-ebar-row i {
+  display: block;
+  height: 10px;
+  background: #eef0f3;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.w44-ebar-row b {
+  display: block;
+  height: 100%;
+}
+.w44-ebar-row b.store {
+  background: #2563eb;
+}
+.w44-ebar-row b.heat {
+  background: #ea580c;
+}
+.w44-ebar-row em {
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.bb3d-tag.w44-tag {
+  border-color: var(--line-2);
+  color: var(--ink);
+}
+.bb3d-tag.w44-tag.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.bb3d-tag.w44-tag.bad {
+  color: #be123c;
+  border-color: #f43f5e;
+}
+.bb3d-tag.w44-tag.charge {
+  color: #b91c1c;
+}
+.bb3d-tag.w44-tag.discharge {
+  color: #15803d;
+}
+.w44-railtag {
+  font:
+    800 10.5px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.w44-railtag.p {
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+.w44-railtag.g {
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+.w44-hud {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 30;
+  display: grid;
+  gap: 4px;
+  max-width: calc(100% - 16px);
+  justify-items: end;
+}
+.w44-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  cursor: help;
+}
+.w44-reading b {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.w44-reading.supply b {
+  color: #0c4a6e;
+}
+.w44-reading.power b {
+  color: #065f46;
+}
+.w44-reading.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 3px #fde9b8;
+}
+.w44-notice {
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  cursor: help;
+}
+.w44-notice.bad {
+  color: #9f1239;
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w44-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w44-layer,
+  .w44-ctrl {
+    gap: 4px;
+  }
+  .w44-row {
+    gap: 4px 6px;
+  }
+  .w44-seg .full,
+  .w44-reveal .full {
+    display: none;
+  }
+  .w44-seg .short,
+  .w44-reveal .short {
+    display: inline;
+  }
+  .w44-seg {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 2px;
+  }
+  .w44-seg button {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  .w44-slider {
+    font-size: 11.5px;
+    gap: 6px;
+    flex-basis: 140px;
+  }
+  .w44-slider b {
+    min-width: 4em;
+  }
+  .w44-check,
+  .w44-play,
+  .w44-reveal {
+    font-size: 10.5px;
+    padding: 2px 6px;
+  }
+  .w44-readout {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+  .w44-energy {
+    padding: 2px 6px;
+  }
+  .w44-ebar-row {
+    font-size: 10px;
+    grid-template-columns: 7.4em minmax(0, 1fr) 8.6em;
+  }
+  .w44-reading span {
+    display: none;
+  }
+  .w44-reading {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  .w44-reading b {
+    font-size: 11px;
+  }
+  .bb3d-tag.w44-tag {
+    font-size: 9.5px;
+    padding: 1px 4px;
+  }
+  .w44-notice {
+    font-size: 10.5px;
+    padding: 2px 6px;
+    line-height: 1.35;
+  }
+  .w44-reading.power,
+  .w44-reading.supply,
+  .w44-bench .bench-lcd span,
+  .bb3d-tag.w44-tag.part,
+  .w44-railtag {
+    display: none;
+  }
+  .w44-row.scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .w44-row.scroll > * {
+    flex: 0 0 auto;
+  }
+}
+.w44-obj.src.off {
+  opacity: 0.55;
+}
+
+/* phones: the 680 / 640-unit diagrams shrink to about half, so their text grows to stay readable */
+@media (max-width: 600px) {
+  .w44-sch .w44-lbl,
+  .w44-scope .w44-lbl {
+    font-size: 16px;
+  }
+  .w44-sch .w44-lbl.sub,
+  .w44-sch .w44-lbl.tiny,
+  .w44-sch .w44-lbl.cur {
+    font-size: 14px;
+  }
+  .w44-sch .w44-lbl.strong {
+    font-size: 17px;
+  }
+  .w44-vtag {
+    font-size: 15px;
+  }
+  .w44-tick {
+    font-size: 15px;
+  }
+  .w44-tick.sub {
+    font-size: 13px;
+  }
+  .w44-ctitle {
+    font-size: 14.5px;
+  }
+  .w44-hiddenmsg {
+    font-size: 20px;
+  }
+  /* the network's side column stays within the diagram */
+  .w44-sch .w44-side .w44-lbl.sub,
+  .w44-sch .w44-side .w44-lbl.tiny {
+    font-size: 11.5px;
+  }
+  .w44-sch .w44-side .w44-lbl.strong {
+    font-size: 14px;
+  }
+}

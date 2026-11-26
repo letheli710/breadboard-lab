@@ -1,4 +1,4 @@
-// Per-viewer course state, kept in localStorage: which learning units are done, the "watch
+// Per-viewer course state, kept in localStorage: which learning units and stage lessons are done, the "watch
 // later" queue of portals, and the breadcrumb left by the last portal the student went through.
 // Tiny on purpose (the header's "later" button reads it on every page).
 
@@ -21,6 +21,7 @@ export interface Trail {
 }
 
 const UNITS_KEY = 'bb.course.units';
+const LESSONS_KEY = 'bb.course.lessons';
 const LATER_KEY = 'bb.course.later';
 
 const laterList = (v: unknown): LaterItem[] | undefined =>
@@ -32,9 +33,12 @@ const laterList = (v: unknown): LaterItem[] | undefined =>
 
 interface CourseState {
   unitsDone: Record<string, boolean>;
+  /** stage lessons passed (#/lesson/<slug>: the closing check answered right) */
+  lessonsDone: Record<string, boolean>;
   later: LaterItem[];
   trail: Trail | null;
   setUnitDone(id: string, done: boolean): void;
+  setLessonDone(slug: string, done: boolean): void;
   toggleLater(portal: string): void;
   setLaterDone(portal: string, done: boolean): void;
   removeLater(portal: string): void;
@@ -43,6 +47,7 @@ interface CourseState {
 
 export const useCourse = create<CourseState>((set, get) => ({
   unitsDone: readStored(UNITS_KEY, {} as Record<string, boolean>, boolRecord),
+  lessonsDone: readStored(LESSONS_KEY, {} as Record<string, boolean>, boolRecord),
   later: readStored(LATER_KEY, [] as LaterItem[], laterList),
   trail: null,
   setUnitDone(id, done) {
@@ -51,6 +56,13 @@ export const useCourse = create<CourseState>((set, get) => ({
     else delete unitsDone[id];
     set({ unitsDone });
     writeStored(UNITS_KEY, unitsDone);
+  },
+  setLessonDone(slug, done) {
+    const lessonsDone = { ...get().lessonsDone };
+    if (done) lessonsDone[slug] = true;
+    else delete lessonsDone[slug];
+    set({ lessonsDone });
+    writeStored(LESSONS_KEY, lessonsDone);
   },
   toggleLater(portal) {
     const cur = get().later;

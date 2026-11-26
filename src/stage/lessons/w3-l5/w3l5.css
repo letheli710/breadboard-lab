@@ -1,0 +1,378 @@
+/* W3-L5 stage layers (virtual-ground comparison, weighted mixer, saturation bench). Light stage, prefix w35-. */
+
+.w35-layer {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-height: 0;
+}
+.w35-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+/* segmented buttons, select, toggle */
+.w35-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  background: var(--paper, #f8fafc);
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+  padding: 3px;
+}
+.w35-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w35-seg button.on {
+  background: var(--ink, #1f2a44);
+  color: #fff;
+}
+.w35-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+}
+.w35-select select {
+  font: inherit;
+  font-weight: 700;
+  border: 1.5px solid var(--line-2, #cbd5e1);
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px 8px;
+  color: var(--ink, #1f2a44);
+  max-width: 100%;
+}
+.w35-toggle,
+.w35-reveal {
+  border: 1.5px solid var(--line-2, #cbd5e1);
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w35-toggle.on {
+  border-color: #d92d20;
+  background: #fef3f2;
+  color: #b42318;
+}
+.w35-reveal {
+  border-color: #1570ef;
+  background: #eff8ff;
+  color: #175cd3;
+  white-space: normal;
+  font-size: 11.5px;
+  padding: 2px 6px;
+}
+
+/* sliders */
+.w35-slider,
+.w35-sliders label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2, #334155);
+}
+.w35-slider.one {
+  flex: 1;
+  min-width: 110px;
+}
+.w35-slider b,
+.w35-sliders b {
+  font-family: ui-monospace, monospace;
+  margin-left: 4px;
+}
+.w35-slider input,
+.w35-sliders input {
+  width: 100%;
+  margin: 0;
+  accent-color: #039855;
+}
+.w35-sliders {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px 12px;
+}
+.w35-sliders.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.w35-sliders.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.w35-slider.rf input {
+  accent-color: #d92d20;
+}
+.w35-slider.rf b {
+  color: #b42318;
+}
+.w35-sliders .c1 input {
+  accent-color: #1570ef;
+}
+.w35-sliders .c1 b {
+  color: #175cd3;
+}
+.w35-sliders .c2 input {
+  accent-color: #039855;
+}
+.w35-sliders .c2 b {
+  color: #027a48;
+}
+.w35-sliders .c3 input {
+  accent-color: #dc6803;
+}
+.w35-sliders .c3 b {
+  color: #b54708;
+}
+.w35-sliders .rf input,
+.w35-sliders .rail input {
+  accent-color: #d92d20;
+}
+.w35-sliders .rf b,
+.w35-sliders .rail b {
+  color: #b42318;
+}
+.w35-sliders .load input {
+  accent-color: #7a5af8;
+}
+.w35-sliders .load b {
+  color: #5925dc;
+}
+.w35-sliders label.off {
+  opacity: 0.55;
+}
+
+/* the drawing */
+.w35-svgwrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.w35-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 560px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.w35-bg {
+  fill: #fbf7ef;
+  stroke: #e3d8c2;
+  stroke-width: 1.2;
+}
+.w35-wire {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w35-wire.dashed {
+  stroke-dasharray: 5 4;
+}
+.w35-svg text {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+.w35-pm {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #0f172a;
+}
+.w35-pm.small {
+  font-size: 10px;
+}
+.w35-lbl {
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.w35-val {
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.w35-tag {
+  font-size: 10px;
+  font-weight: 700;
+}
+.w35-rv {
+  font-size: 10px;
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.w35-unit,
+.w35-tick {
+  font-size: 9.5px;
+  fill: #5f626b;
+}
+.w35-flow {
+  stroke-dasharray: 7 4;
+  stroke-linecap: butt;
+  animation: w35-run 1s linear infinite;
+}
+@keyframes w35-run {
+  to {
+    stroke-dashoffset: -11;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w35-flow {
+    animation: none;
+  }
+}
+
+/* hover-map objects: a soft amber halo when lit */
+.w35-obj .w35-halo {
+  fill: #f59e0b;
+  fill-opacity: 0;
+  stroke: #f59e0b;
+  stroke-opacity: 0;
+  stroke-width: 2;
+  transition:
+    fill-opacity 0.2s,
+    stroke-opacity 0.2s;
+}
+.w35-obj.lit .w35-halo {
+  fill-opacity: 0.16;
+  stroke-opacity: 0.9;
+}
+.w35-obj .w35-hit {
+  fill: transparent;
+}
+.w35-wlit {
+  fill: #fef0c7;
+  stroke: #f59e0b;
+  stroke-width: 1.2;
+}
+.w35-obj.dim {
+  opacity: 0.4;
+}
+
+/* telemetry */
+.w35-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+  padding: 4px 8px;
+  background: #fff;
+  font-size: 12px;
+  color: var(--muted, #5f626b);
+  font-weight: 600;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.w35-readout.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px 8px;
+}
+.w35-readout > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w35-readout b {
+  font-family: ui-monospace, monospace;
+  color: var(--ink, #1f2a44);
+  margin-left: 3px;
+}
+.w35-readout .c1 b {
+  color: #175cd3;
+}
+.w35-readout .c2 b {
+  color: #027a48;
+}
+.w35-readout .c3 b {
+  color: #b54708;
+}
+.w35-readout .rf b {
+  color: #b42318;
+}
+.w35-readout .out b {
+  color: #5925dc;
+}
+.w35-readout .good b {
+  color: #027a48;
+}
+.w35-readout .bad b {
+  color: #b42318;
+}
+.w35-readout .flag b {
+  font-family: inherit;
+  margin: 0;
+}
+.w35-readout.lit {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+}
+
+@media (max-width: 960px) {
+  .w35-layer {
+    gap: 4px;
+  }
+  .w35-long {
+    display: none;
+  }
+  .w35-seg button {
+    padding: 3px 8px;
+    font-size: 11.5px;
+  }
+  .w35-select select,
+  .w35-toggle {
+    padding: 2px 6px;
+    font-size: 11.5px;
+  }
+  .w35-sliders {
+    gap: 0 8px;
+  }
+  .w35-slider,
+  .w35-sliders label {
+    font-size: 11px;
+  }
+  .w35-readout {
+    font-size: 11px;
+    padding: 2px 6px;
+    gap: 1px 8px;
+  }
+  .w35-readout.grid {
+    gap: 0 6px;
+  }
+}
+.w35-short {
+  display: none;
+}
+/* on a phone the schematic already prints these values: the panel keeps the rest */
+@media (max-width: 640px) {
+  .w35-long,
+  .w35-readout.mix,
+  .w35-readout.phone-off,
+  .w35-readout > .dup {
+    display: none;
+  }
+  .w35-short {
+    display: inline;
+  }
+}
+@media (max-width: 480px) {
+  .w35-readout.grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

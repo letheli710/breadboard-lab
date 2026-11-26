@@ -1,0 +1,600 @@
+/* W1-L2 stage layers: the PSC workbench and the dependent-source workbench (prefix l2w-). */
+
+.l2w-layer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  --l2w-amber: #d97706;
+  --l2w-amber-soft: #fef3c7;
+  --l2w-green: #059669;
+  --l2w-green-soft: #ecfdf5;
+  --l2w-red: #dc2626;
+  --l2w-blue: #2563eb;
+  --l2w-violet: #7e22ce;
+}
+
+/* preset pills, segmented control */
+.l2w-pills,
+.l2w-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.l2w-pill {
+  border: 1.5px solid var(--line-2);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.l2w-pill.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.l2w-seg-b {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  border: 1.5px solid var(--line-2);
+  background: #fff;
+  border-radius: 8px;
+  padding: 5px 4px;
+  cursor: pointer;
+  color: var(--ink-2);
+  font-size: 13px;
+}
+.l2w-seg-b small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.l2w-seg-b.on {
+  border-color: var(--l2w-violet);
+  background: #faf5ff;
+  color: #581c87;
+}
+.l2w-seg-b.lit,
+.l2w-knob.lit,
+.l2w-toggle.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 3px #fde9b8;
+}
+
+/* the SVG */
+.l2w-svg {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 190px;
+  max-height: 430px;
+}
+.l2w-svg text {
+  font-family: 'Noto Sans SC', 'PingFang SC', system-ui, sans-serif;
+}
+.l2w-bg {
+  fill: #f8fafc;
+  stroke: #cbd5e1;
+  stroke-width: 1.4;
+}
+.l2w-hit {
+  fill: transparent;
+}
+.l2w-svg .lit {
+  filter: drop-shadow(0 0 6px #f59e0b);
+}
+.l2w-svg g[class*='l2w-'] {
+  transition: opacity 0.2s;
+}
+.l2w-wire {
+  fill: none;
+  stroke: #1e293b;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+.l2w-term {
+  fill: #fff;
+  stroke: #1e293b;
+  stroke-width: 2;
+}
+.l2w-flow line,
+.l2w-flow path {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 12;
+  animation: l2w-flow 1.6s linear infinite;
+}
+.l2w-flow.up line,
+.l2w-flow.up path {
+  animation-direction: reverse;
+}
+.l2w-svg.still .l2w-flow line,
+.l2w-svg.still .l2w-flow path,
+.l2w-svg.still .l2w-link-pulse {
+  animation: none;
+}
+@keyframes l2w-flow {
+  to {
+    stroke-dashoffset: -24.2;
+  }
+}
+
+/* PSC badges */
+.l2w-badge {
+  cursor: help;
+  opacity: 0.55;
+}
+.l2w-badge rect {
+  fill: #fff;
+  stroke: #94a3b8;
+  stroke-width: 1.4;
+}
+.l2w-badge text {
+  font-size: 12.5px;
+  font-weight: 700;
+  fill: #334155;
+}
+.l2w-badge.act {
+  opacity: 1;
+}
+.l2w-badge.act rect {
+  fill: var(--l2w-green-soft);
+  stroke: var(--l2w-green);
+  stroke-width: 2;
+}
+.l2w-badge.act text {
+  fill: #065f46;
+}
+.l2w-badge.leave.act rect {
+  fill: #fef2f2;
+  stroke: var(--l2w-red);
+}
+.l2w-badge.leave.act text {
+  fill: #991b1b;
+}
+.l2w-badge.lit {
+  opacity: 1;
+}
+
+/* the element box */
+.l2w-box rect {
+  fill: #f1f5f9;
+  stroke: #94a3b8;
+  stroke-width: 2.2;
+  transition:
+    fill 0.25s,
+    stroke 0.25s;
+}
+.l2w-box.absorb rect {
+  fill: var(--l2w-amber-soft);
+  stroke: var(--l2w-amber);
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.55));
+}
+.l2w-box.supply rect {
+  fill: var(--l2w-green-soft);
+  stroke: var(--l2w-green);
+  animation: l2w-pulse 1.4s ease-in-out infinite;
+}
+.l2w-svg.still .l2w-box.supply rect {
+  animation: none;
+}
+@keyframes l2w-pulse {
+  50% {
+    filter: drop-shadow(0 0 10px rgba(5, 150, 105, 0.6));
+  }
+}
+.l2w-box-mode {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #334155;
+}
+.l2w-box.absorb .l2w-box-mode {
+  fill: #92400e;
+}
+.l2w-box.supply .l2w-box-mode {
+  fill: #065f46;
+}
+.l2w-box-sub {
+  font-size: 11.5px;
+  fill: #64748b;
+}
+.l2w-box-p {
+  font-size: 14px;
+  font-weight: 700;
+  fill: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+/* energy arrows */
+.l2w-energy {
+  opacity: 0.16;
+  cursor: help;
+}
+.l2w-energy.act {
+  opacity: 1;
+}
+.l2w-energy.lit:not(.act) {
+  opacity: 0.45;
+}
+.l2w-energy line {
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
+}
+.l2w-energy text {
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.l2w-energy.in line {
+  stroke: var(--l2w-amber);
+}
+.l2w-energy.in polygon,
+.l2w-energy.in text {
+  fill: #b45309;
+}
+.l2w-energy.out line {
+  stroke: var(--l2w-green);
+}
+.l2w-energy.out polygon,
+.l2w-energy.out text {
+  fill: #047857;
+}
+
+/* references */
+.l2w-vref,
+.l2w-iref,
+.l2w-meter,
+.l2w-ctrl,
+.l2w-link,
+.l2w-gain,
+.l2w-diamond,
+.l2w-opamp {
+  cursor: help;
+}
+.l2w-sign {
+  font-size: 22px;
+  font-weight: 800;
+}
+.l2w-sign.sm {
+  font-size: 16px;
+}
+.l2w-sign.plus {
+  fill: var(--l2w-red);
+}
+.l2w-sign.minus {
+  fill: var(--l2w-blue);
+}
+.l2w-vlabel {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #b91c1c;
+}
+.l2w-realhigh circle {
+  fill: none;
+  stroke: #b91c1c;
+  stroke-width: 1.6;
+  stroke-dasharray: 3 3;
+}
+.l2w-realhigh text {
+  font-size: 10.5px;
+  font-weight: 700;
+  fill: #b91c1c;
+}
+.l2w-iref line {
+  stroke: var(--l2w-blue);
+  stroke-width: 2.6;
+}
+.l2w-iref polygon {
+  fill: var(--l2w-blue);
+}
+.l2w-iref text {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #1d4ed8;
+}
+
+/* energy meter */
+.l2w-meter-l {
+  font-size: 10.5px;
+  fill: #64748b;
+}
+.l2w-meter-v {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #0f172a;
+}
+.l2w-meter-track {
+  fill: #e2e8f0;
+}
+.l2w-meter-fill.abs {
+  fill: #f59e0b;
+}
+.l2w-meter-fill.sup {
+  fill: #10b981;
+}
+.l2w-meter-zero {
+  stroke: #475569;
+  stroke-width: 1.5;
+}
+
+/* dependent-source layer */
+.l2w-frame {
+  fill: #fff;
+  stroke: #94a3b8;
+  stroke-width: 1.6;
+}
+.l2w-frame.dashed {
+  fill: #fbfdff;
+  stroke-dasharray: 6 4;
+}
+.l2w-frame-t {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #334155;
+}
+.l2w-elem {
+  fill: #f1f5f9;
+  stroke: #475569;
+  stroke-width: 1.8;
+}
+.l2w-elem-t {
+  font-size: 11px;
+  fill: #64748b;
+  font-style: italic;
+}
+.l2w-probe-lead {
+  fill: none;
+  stroke: #0f766e;
+  stroke-width: 1.8;
+}
+.l2w-meter-c {
+  fill: #0f766e;
+}
+.l2w-meter-t {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #fff;
+}
+.l2w-clamp {
+  fill: none;
+  stroke: #0f766e;
+  stroke-width: 3;
+}
+.l2w-iarrow {
+  fill: var(--l2w-blue);
+}
+.l2w-ctrl-v {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #0f766e;
+}
+.l2w-link-base {
+  stroke: #94a3b8;
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+.l2w-link-pulse {
+  stroke: var(--l2w-violet);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 18;
+  animation: l2w-link 1.4s linear infinite;
+}
+@keyframes l2w-link {
+  to {
+    stroke-dashoffset: -36.2;
+  }
+}
+.l2w-link-head {
+  fill: #94a3b8;
+}
+.l2w-gain rect {
+  fill: #faf5ff;
+  stroke: var(--l2w-violet);
+  stroke-width: 1.6;
+}
+.l2w-gain text {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #581c87;
+}
+.l2w-gain .l2w-gain-note {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #6b21a8;
+}
+.l2w-load rect {
+  fill: #fff7ed;
+  stroke: #c2410c;
+  stroke-width: 1.8;
+}
+.l2w-load text {
+  font-size: 10.5px;
+  fill: #9a3412;
+}
+.l2w-diamond polygon:first-child {
+  fill: #faf5ff;
+  stroke: var(--l2w-violet);
+  stroke-width: 2.4;
+}
+.l2w-d-arrow {
+  stroke: var(--l2w-violet);
+  stroke-width: 2.4;
+}
+.l2w-d-head {
+  fill: var(--l2w-violet);
+}
+.l2w-out {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #581c87;
+  font-variant-numeric: tabular-nums;
+}
+.l2w-ext polygon {
+  fill: var(--l2w-blue);
+}
+.l2w-ext text {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #1d4ed8;
+}
+.l2w-ext .l2w-sign {
+  font-weight: 800;
+}
+.l2w-opamp polygon {
+  fill: none;
+  stroke: #7c3aed;
+  stroke-width: 1.8;
+  stroke-dasharray: 6 4;
+}
+.l2w-opamp text {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #6d28d9;
+}
+.l2w-opamp .l2w-opamp-t {
+  font-size: 11.5px;
+}
+
+/* controls */
+.l2w-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 6px 12px;
+}
+.l2w-knob {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+.l2w-knob input[type='range'] {
+  width: 100%;
+  min-width: 60px;
+  accent-color: var(--stage-amber);
+}
+.l2w-knob-n {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.l2w-knob-n input {
+  width: 4.6em;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  padding: 2px 4px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.l2w-toggles {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.l2w-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--line-2);
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.l2w-toggle b {
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--paper);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+.l2w-toggle.on b {
+  background: var(--ink);
+  color: #fff;
+}
+.l2w-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* realtime formula panel */
+.l2w-readout {
+  list-style: none;
+  margin: 0;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.l2w-readout .n {
+  display: inline-grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+.l2w-readout b {
+  color: var(--ink);
+}
+.l2w-readout .absorb b {
+  color: #b45309;
+}
+.l2w-readout .supply b {
+  color: #047857;
+}
+
+@media (max-width: 960px) {
+  .l2w-layer {
+    gap: 6px;
+  }
+  .l2w-svg {
+    min-height: 170px;
+    flex: 0 0 auto;
+  }
+  .l2w-pill {
+    font-size: 11.5px;
+    padding: 3px 9px;
+  }
+  .l2w-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .l2w-readout {
+    font-size: 12px;
+  }
+}

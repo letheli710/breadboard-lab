@@ -19,6 +19,8 @@ export interface CourseUnit {
   items: string[];
   /** learning units (units/*.json, #/unit/<id>) that go with it */
   units: string[];
+  /** stage lessons (#/lesson/<slug>, src/stage/registry.ts), shown before the bench items */
+  lessons: string[];
   /** theory chapters (problem chapter ids) that go with this unit */
   practice?: string[];
   title: () => string;
@@ -57,6 +59,7 @@ export const WORLDS: World[] = (rawWorlds as unknown as WorldEntry[]).map((w) =>
         num: w.n !== undefined ? `${w.n}.${k + 1}` : `UB.${k + 1}`,
         items: of('challenge:'),
         units: of('unit:'),
+        lessons: of('lesson:'),
         ...(practice.length ? { practice } : {}),
         title: () => tt(s.title),
         note: () => (s.note ? tt(s.note) : ''),

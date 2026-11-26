@@ -1,0 +1,123 @@
+// State of the stage on a stage lesson page: which act drives it, whether the student has
+// taken the lens bar over by hand, the stage settings (layer, X-ray, multimeter mode, camera)
+// and the hover link between the text and the stage objects.
+
+import { create } from 'zustand';
+import { BANDS_10K, type Bands } from './colorCode';
+import type { DmmMode, StageLayerId, StageSync } from './types';
+
+interface StageState {
+  /** the act (or quiz item) whose settings the stage follows: "act-2", "q-w1l0_q1" */
+  activeKey: string | null;
+  /** the student picked a layer on the lens bar: scrolling no longer switches the layer */
+  manual: boolean;
+  layer: StageLayerId;
+  xray: number;
+  dmm: DmmMode;
+  camera: NonNullable<StageSync['camera']>;
+  /** ids the active act lights */
+  halo: string[];
+  /** ids under the pointer (text term or stage object); wins over the halo */
+  hover: string[] | null;
+  /** ids an open step of a guided example lights (wins over the halo, not over hover) */
+  focus: string[] | null;
+  /** lesson-specific stage settings: set by acts (StageSync.params), guided steps and layer controls */
+  params: Record<string, unknown>;
+  /** the multimeter's fuse has blown (the wrong set-up was tried) */
+  fuseBlown: boolean;
+  /** colour bands of the resistor in the colour-code reader (and on the 3D stage) */
+  bands: Bands;
+  follow(key: string, sync: Partial<StageSync>): void;
+  pickLayer(layer: StageLayerId): void;
+  resumeAuto(): void;
+  setXray(v: number): void;
+  setDmm(m: DmmMode): void;
+  setHover(ids: string[] | null): void;
+  setFuse(b: boolean): void;
+  setBand(i: number, color: string): void;
+  setFocus(ids: string[] | null): void;
+  setParams(p: Record<string, unknown>): void;
+  reset(): void;
+}
+
+const INITIAL = {
+  activeKey: null,
+  manual: false,
+  layer: 'bb_xray' as StageLayerId,
+  xray: 0.75,
+  dmm: 'voltage' as DmmMode,
+  camera: 'focus' as NonNullable<StageSync['camera']>,
+  halo: [] as string[],
+  hover: null,
+  focus: null as string[] | null,
+  params: {} as Record<string, unknown>,
+  fuseBlown: false,
+  bands: BANDS_10K,
+};
+
+/** Remembered sync of each act, so "back to auto" can re-apply the act on screen. */
+const syncOf = new Map<string, Partial<StageSync>>();
+
+export const useStage = create<StageState>()((set, get) => ({
+  ...INITIAL,
+  follow(key, sync) {
+    syncOf.set(key, sync);
+    const s = get();
+    if (s.activeKey === key) return;
+    const next: Partial<StageState> = { activeKey: key, halo: sync.halo ?? [], hover: null, focus: null };
+    if (sync.params) next.params = { ...s.params, ...sync.params };
+    if (!s.manual && sync.layer) next.layer = sync.layer;
+    if (sync.xray !== undefined) next.xray = sync.xray;
+    if (sync.camera) next.camera = sync.camera;
+    if (sync.dmm) {
+      next.dmm = sync.dmm;
+      next.fuseBlown = false;
+    }
+    set(next);
+  },
+  pickLayer(layer) {
+    set({ layer, manual: true });
+  },
+  resumeAuto() {
+    const s = get();
+    const sync = s.activeKey ? syncOf.get(s.activeKey) : undefined;
+    set({ manual: false, ...(sync?.layer ? { layer: sync.layer } : {}) });
+  },
+  setXray(xray) {
+    set({ xray: Math.min(1, Math.max(0, xray)) });
+  },
+  setDmm(dmm) {
+    set({ dmm });
+  },
+  setHover(hover) {
+    set({ hover: hover && hover.length ? hover : null });
+  },
+  setFuse(fuseBlown) {
+    set({ fuseBlown });
+  },
+  setFocus(focus) {
+    set({ focus: focus && focus.length ? focus : null });
+  },
+  setParams(p) {
+    set({ params: { ...get().params, ...p } });
+  },
+  setBand(i, color) {
+    const bands = [...get().bands] as Bands;
+    bands[i] = color;
+    set({ bands });
+  },
+  reset() {
+    syncOf.clear();
+    set(INITIAL);
+  },
+}));
+
+/** Ids lit on the stage right now: the hovered ones, else a guided step's, else the active act's. */
+export const useLit = (): string[] => useStage((s) => s.hover ?? s.focus ?? s.halo);
+
+/** A lesson-specific stage setting and its setter (layer controls use it; acts set it on scroll). */
+export function useStageParam<T>(key: string, fallback: T): [T, (v: T) => void] {
+  const v = useStage((s) => s.params[key]) as T | undefined;
+  const setParams = useStage((s) => s.setParams);
+  return [v === undefined ? fallback : v, (x: T) => setParams({ [key]: x })];
+}

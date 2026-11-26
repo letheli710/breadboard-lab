@@ -1,0 +1,781 @@
+/* W4-L2 stage layers: 3D bench, 3D coil teardown, i(t)/v(t) waves and kickback, DC steady-state desk. Light theme (stage.css tokens). */
+
+.w42-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- controls */
+.w42-ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.w42-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  min-width: 0;
+}
+.w42-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.w42-seg button {
+  flex: 1 0 auto;
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w42-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w42-seg button.on.bad {
+  background: #be123c;
+}
+.w42-seg button.on.good {
+  background: #047857;
+}
+.w42-seg .short,
+.w42-reveal .short,
+.w42-check .short {
+  display: none;
+}
+.w42-slider {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  font-weight: 600;
+  min-width: 0;
+  flex: 1 1 200px;
+}
+.w42-slider input {
+  width: 100%;
+  min-width: 60px;
+  accent-color: var(--stage-blue);
+}
+.w42-slider b {
+  font-variant-numeric: tabular-nums;
+  min-width: 4.6em;
+  text-align: right;
+}
+.w42-btn {
+  border: 1px solid var(--line-2);
+  background: var(--paper);
+  color: var(--ink-2);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w42-btn.on {
+  background: var(--stage-blue);
+  border-color: var(--stage-blue);
+  color: #fff;
+}
+.w42-btn.danger.on {
+  background: #be123c;
+  border-color: #be123c;
+}
+.w42-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #047857;
+  padding: 3px 8px 3px 4px;
+  border-radius: 7px;
+  border: 1px solid #a7e3c4;
+  background: #f0fdf4;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w42-check input {
+  accent-color: #059669;
+}
+.w42-check.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w42-reveal {
+  border: 1px dashed #c4b5fd;
+  background: #f5f3ff;
+  color: #6d28d9;
+  border-radius: 7px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w42-ex {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border-radius: 6px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+.w42-hint {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ---------------------------------------------------------- readout chips */
+.w42-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.w42-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+}
+.w42-chip span {
+  color: var(--muted);
+}
+.w42-chip.good {
+  background: #ecfdf5;
+  border-color: #a7e3c4;
+}
+.w42-chip.bad {
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w42-chip.bad b {
+  color: #be123c;
+}
+.w42-chip.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- energy bar */
+.w42-ebar {
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: help;
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+.w42-ebar .track {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+.w42-ebar .track i {
+  display: block;
+  height: 100%;
+  transition: width 0.5s ease;
+}
+.w42-ebar .track i.l {
+  background: #16a34a;
+}
+.w42-ebar .track i.c {
+  background: #2563eb;
+}
+.w42-ebar b {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.w42-ebar.lit {
+  box-shadow: 0 0 0 2px #fde9b8;
+  background: #fffbeb;
+}
+
+/* ---------------------------------------------------------- 2D schematics and plots */
+.w42-sch-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w42-sch {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  touch-action: none;
+}
+.w42-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.w42-wire.dead {
+  stroke: #94a3b8;
+  stroke-dasharray: 5 4;
+}
+.w42-gnd path {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2;
+}
+.w42-obj {
+  cursor: help;
+}
+.w42-obj .body {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 2.2;
+}
+.w42-obj.res .body {
+  fill: #fef3c7;
+  stroke: #b45309;
+}
+.w42-obj.res.dim .body {
+  fill: #f1f5f9;
+  stroke: #94a3b8;
+}
+.w42-obj.res.dim .lab {
+  fill: #64748b;
+}
+.w42-obj .hit {
+  fill: transparent;
+}
+.w42-obj .coil {
+  fill: none;
+  stroke: #15803d;
+  stroke-width: 2.6;
+}
+.w42-obj .short {
+  stroke: #16a34a;
+  stroke-width: 4;
+}
+.w42-obj .plate {
+  stroke: #dc2626;
+  stroke-width: 3;
+}
+.w42-obj .open {
+  fill: #fff;
+  stroke: #dc2626;
+  stroke-width: 2.2;
+}
+.w42-obj.node .dot,
+.w42-obj .dot {
+  fill: #2563eb;
+}
+.w42-obj.sw .dot {
+  fill: #334155;
+}
+.w42-obj .blade {
+  stroke: #334155;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+.w42-obj.diode .body {
+  fill: #dcfce7;
+  stroke: #15803d;
+}
+.w42-obj.diode .bar {
+  stroke: #15803d;
+  stroke-width: 2.6;
+}
+.w42-wire.d {
+  stroke: #16a34a;
+}
+.w42-obj.diode.off {
+  opacity: 0.22;
+}
+.w42-obj .flow {
+  stroke: #16a34a;
+  stroke-width: 3;
+  fill: none;
+}
+.w42-obj.cur .arrow {
+  stroke: #16a34a;
+  stroke-width: 2.4;
+  fill: none;
+}
+.w42-obj.cur .head {
+  fill: #16a34a;
+}
+.w42-obj .lab {
+  font-size: 12.5px;
+  font-weight: 700;
+  fill: #1f2a44;
+  font-variant-numeric: tabular-nums;
+}
+.w42-obj.res .lab {
+  fill: #92400e;
+}
+.w42-sch .sub {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #475569;
+}
+.w42-sch .pm {
+  font-size: 14px;
+  font-weight: 800;
+  fill: #334155;
+}
+.w42-sch .lab.blue {
+  fill: #1d4ed8;
+}
+.w42-sch .lab.green,
+.w42-sch .sub.green {
+  fill: #047857;
+}
+.w42-sch .lab.red,
+.w42-sch .pm.red {
+  fill: #b91c1c;
+}
+.w42-obj.lit .body,
+.w42-obj.lit .coil,
+.w42-obj.lit .short,
+.w42-obj.lit .plate,
+.w42-obj.lit .open {
+  stroke: #f59e0b !important;
+  stroke-width: 3.4;
+}
+.w42-obj.lit .dot,
+.w42-obj.cur.lit .head {
+  fill: #f59e0b;
+}
+.w42-obj.lit .lab,
+.w42-obj.lit .sub {
+  fill: #b45309;
+}
+.w42-spark polyline {
+  fill: none;
+  stroke: #f59e0b;
+  stroke-width: 3;
+  animation: w42-flash 0.35s steps(2) infinite;
+}
+.w42-spark .lab {
+  font-size: 12.5px;
+  font-weight: 800;
+  fill: #b91c1c;
+}
+@keyframes w42-flash {
+  50% {
+    stroke: #fde047;
+    opacity: 0.4;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w42-spark polyline {
+    animation: none;
+  }
+  .w42-ebar .track i {
+    transition: none;
+  }
+}
+
+.w42-grid {
+  stroke: #eef0f3;
+  stroke-width: 1;
+}
+.w42-tick {
+  font-size: 11px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w42-plot {
+  cursor: help;
+}
+.w42-plot .axis {
+  stroke: #475569;
+  stroke-width: 1.6;
+}
+.w42-plot .ylab {
+  font-size: 12px;
+  font-weight: 700;
+}
+.w42-plot .ylab.blue {
+  fill: #1d4ed8;
+}
+.w42-plot .ylab.red {
+  fill: #b91c1c;
+}
+.w42-plot .line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.w42-plot.i .line {
+  stroke: #2563eb;
+}
+.w42-plot.v .line {
+  stroke: #dc2626;
+}
+.w42-plot .fill {
+  fill: #dbeafe;
+  opacity: 0.6;
+}
+.w42-plot .pos {
+  fill: #bbf7d0;
+  opacity: 0.8;
+}
+.w42-plot .neg {
+  fill: #fecaca;
+  opacity: 0.8;
+}
+.w42-plot.lit .line {
+  stroke: #f59e0b;
+}
+.w42-note {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #1d4ed8;
+}
+.w42-note.red {
+  fill: #b91c1c;
+}
+.w42-note.green {
+  fill: #047857;
+}
+.w42-note.teal {
+  fill: #0f766e;
+}
+.w42-note.lit {
+  fill: #b45309;
+}
+.w42-cursor line {
+  stroke: #7c3aed;
+  stroke-width: 1.4;
+  stroke-dasharray: 4 3;
+}
+.w42-cursor circle {
+  fill: #7c3aed;
+}
+.w42-cursor.lit line {
+  stroke: #f59e0b;
+  stroke-width: 2.4;
+}
+.w42-handle {
+  cursor: grab;
+  outline: none;
+}
+.w42-handle .halo {
+  fill: #2563eb;
+  fill-opacity: 0.14;
+}
+.w42-handle .dot {
+  fill: #fff;
+  stroke: #2563eb;
+  stroke-width: 2.4;
+}
+.w42-handle:focus-visible .halo,
+.w42-handle:hover .halo {
+  fill: #f59e0b;
+  fill-opacity: 0.35;
+}
+
+/* ---------------------------------------------------------- 3D */
+.w42-coil,
+.w42-bench {
+  min-height: 120px;
+}
+.bb3d-tag.w42-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  color: var(--ink);
+  border-color: var(--line-2);
+}
+.bb3d-tag.w42-tag.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.bb3d-tag.w42-tag.good {
+  color: #065f46;
+  border-color: #10b981;
+}
+.bb3d-tag.w42-tag.bad {
+  color: #be123c;
+  border-color: #f43f5e;
+}
+.bb3d-tag.w42-tag.flux {
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+.bb3d-tag.w42-tag.ind {
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+.bb3d-tag.w42-tag.cap {
+  color: #1e3a8a;
+  border-color: #93c5fd;
+}
+.bb3d-tag.w42-tag.tray {
+  font-size: 10.5px;
+  white-space: normal;
+  width: 8.6em;
+  text-align: center;
+  line-height: 1.3;
+}
+.w42-railtag {
+  font:
+    800 10.5px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.w42-railtag.p {
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+.w42-railtag.g {
+  color: #1f2a44;
+  border-color: #94a3b8;
+}
+.w42-node {
+  font:
+    800 11px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  color: #fff;
+  background: #2563eb;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+}
+.w42-node.lit {
+  background: #f59e0b;
+}
+.w42-lcd {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: ui-monospace, monospace;
+  background: #c9d8b0;
+  color: #1a2a12;
+  border: 1.5px solid #6b7c55;
+  border-radius: 5px;
+  padding: 3px 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: help;
+  white-space: nowrap;
+}
+.w42-lcd small {
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.w42-lcd b {
+  font-size: 19px;
+  letter-spacing: 0.04em;
+}
+.w42-lcd span {
+  font-size: 12px;
+  font-weight: 800;
+}
+.w42-lcd.lit {
+  border-color: var(--stage-amber);
+  box-shadow:
+    0 0 0 3px #fde9b8,
+    0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.w42-hud {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 30;
+  display: grid;
+  gap: 4px;
+  max-width: calc(100% - 16px);
+  justify-items: end;
+}
+.w42-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  cursor: help;
+}
+.w42-reading b {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.w42-reading.power b {
+  color: #065f46;
+}
+.w42-reading.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 3px #fde9b8;
+}
+.w42-notice {
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  cursor: help;
+  line-height: 1.4;
+}
+.w42-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w42-layer,
+  .w42-ctrl {
+    gap: 4px;
+  }
+  .w42-row {
+    gap: 4px 8px;
+  }
+  .w42-seg .full,
+  .w42-reveal .full,
+  .w42-check .full {
+    display: none;
+  }
+  .w42-seg .short,
+  .w42-reveal .short,
+  .w42-check .short {
+    display: inline;
+  }
+  .w42-seg {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 2px;
+  }
+  .w42-seg button,
+  .w42-btn {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  .w42-slider {
+    font-size: 11.5px;
+    gap: 6px;
+    flex-basis: 140px;
+  }
+  .w42-slider b {
+    min-width: 4.2em;
+  }
+  .w42-chip {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+  .w42-check,
+  .w42-reveal {
+    font-size: 10.5px;
+  }
+  .w42-hint {
+    display: none;
+  }
+  .w42-ebar {
+    font-size: 11px;
+  }
+  .w42-reading span {
+    display: none;
+  }
+  .w42-reading {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  .w42-reading b {
+    font-size: 11px;
+  }
+  .bb3d-tag.w42-tag {
+    font-size: 9.5px;
+    padding: 1px 4px;
+  }
+  .w42-lcd b {
+    font-size: 14px;
+  }
+  .w42-lcd {
+    padding: 2px 6px;
+  }
+  .w42-notice {
+    font-size: 10.5px;
+    padding: 2px 6px;
+    line-height: 1.35;
+  }
+  /* the stage is ~52vh here: keep the meter, the main tags and the notice */
+  .w42-reading.power,
+  .bb3d-tag.w42-tag.part,
+  .bb3d-tag.w42-tag.tray,
+  .w42-railtag {
+    display: none;
+  }
+  .w42-row.scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .w42-row.scroll > * {
+    flex: 0 0 auto;
+  }
+  .bb3d-tag.w42-tag.part.lit,
+  .bb3d-tag.w42-tag.tray.lit {
+    display: block;
+  }
+}
+
+/* phones: the 2D charts scale to ~0.6, so their text gets larger user units */
+@media (max-width: 640px) {
+  .w42-tick {
+    font-size: 15px;
+  }
+  .w42-note,
+  .w42-sch .sub {
+    font-size: 14.5px;
+  }
+  .w42-plot .ylab,
+  .w42-obj .lab {
+    font-size: 17px;
+  }
+}

@@ -1,0 +1,829 @@
+/* W4-L5 stage layers: control dock, three-state schematics, live charging curve, 3D bench HUD
+   (scope screen, ground-clip warning). Light theme (stage.css tokens). */
+
+.w45-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- dock and controls */
+.w45-dock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+.w45-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  min-width: 0;
+}
+.w45-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w45-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w45-seg button.on.hot {
+  background: #be123c;
+}
+.w45-seg button.on.bad {
+  background: #b91c1c;
+}
+.w45-seg button.bad:not(.on) {
+  color: #b91c1c;
+}
+.w45-seg.small button {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.w45-seg .short,
+.w45-notice .short {
+  display: none;
+}
+.w45-chips,
+.w45-toggles {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.w45-chip,
+.w45-tog {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: help;
+  white-space: nowrap;
+}
+.w45-tog {
+  cursor: pointer;
+}
+.w45-tog.on.vc {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #075985;
+}
+.w45-tog.on.vf {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #166534;
+}
+.w45-tog.on.vn {
+  background: #ffe4e6;
+  border-color: #e11d48;
+  color: #9f1239;
+}
+.w45-chip.lit,
+.w45-tog.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w45-fold {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w45-slider {
+  flex: 1 1 180px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.w45-slider-label {
+  font-weight: 800;
+  color: #a16207;
+}
+.w45-slider-label.c {
+  color: #0369a1;
+}
+.w45-slider input[type='range'] {
+  flex: 1;
+  min-width: 60px;
+  accent-color: #0284c7;
+}
+.w45-num {
+  min-width: 4.4em;
+  font-variant-numeric: tabular-nums;
+}
+.w45-notice {
+  margin: 0;
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  max-width: 100%;
+}
+.w45-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- readout cells */
+.w45-cells {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+.w45-cells.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.w45-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+  min-width: 0;
+  cursor: help;
+}
+.w45-cell span {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w45-cell b {
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w45-cell small {
+  color: var(--muted);
+  font-size: 10.5px;
+}
+.w45-cell.good b {
+  color: #047857;
+}
+.w45-cell.bad {
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w45-cell.bad b {
+  color: #be123c;
+}
+.w45-cell.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- schematic */
+.w45-sch-wrap,
+.w45-chart-wrap {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w45-sch,
+.w45-chart {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w45-sch .mid,
+.w45-chart .mid {
+  text-anchor: middle;
+}
+.w45-sch .end,
+.w45-chart .end {
+  text-anchor: end;
+}
+.w45-sch .start {
+  text-anchor: start;
+}
+.w45-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w45-hit {
+  fill: transparent;
+  stroke: none;
+}
+.w45-part {
+  cursor: help;
+}
+.w45-part.lit .w45-wire,
+.w45-part.lit .w45-plate,
+.w45-part.lit .w45-coil {
+  stroke: #d97706;
+  stroke-width: 3.6;
+}
+.w45-part.lit .w45-src {
+  stroke: #d97706;
+  fill: #fff7e6;
+}
+.w45-part.lit .w45-t.name {
+  fill: #b45309;
+}
+.w45-plate {
+  stroke: #0284c7;
+  stroke-width: 3.4;
+}
+.w45-coil {
+  fill: none;
+  stroke: #0284c7;
+  stroke-width: 2.8;
+}
+.w45-src {
+  fill: #fff;
+  stroke: #059669;
+  stroke-width: 2;
+}
+.w45-src.v2 {
+  stroke: #d97706;
+}
+.w45-src.equiv {
+  stroke: #be123c;
+  fill: #fff1f2;
+}
+.w45-gnd line {
+  stroke: #64748b;
+  stroke-width: 2;
+}
+.w45-dot {
+  fill: #334155;
+}
+.w45-contact {
+  fill: #fff;
+  stroke: #0369a1;
+  stroke-width: 2;
+}
+.w45-blade {
+  stroke: #d97706;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.w45-arrow {
+  stroke: #e11d48;
+  stroke-width: 2;
+}
+.w45-arrowhead {
+  fill: #e11d48;
+}
+.w45-thev rect {
+  fill: rgba(124, 58, 237, 0.05);
+  stroke: #7c3aed;
+  stroke-width: 1.6;
+  stroke-dasharray: 6 4;
+}
+.w45-jump {
+  fill: #fff1f2;
+  stroke: #e11d48;
+  stroke-width: 1.6;
+}
+.w45-part.lit .w45-jump {
+  stroke: #d97706;
+  fill: #fff7e6;
+}
+.w45-t {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #1f2a44;
+}
+.w45-t.muted {
+  fill: #5f626b;
+  font-weight: 600;
+  font-size: 12px;
+}
+.w45-t.name {
+  fill: #0369a1;
+}
+.w45-t.sign {
+  font-size: 13px;
+  font-weight: 800;
+}
+.w45-t.src {
+  fill: #047857;
+}
+.w45-t.eq {
+  fill: #5b21b6;
+  font-size: 12.5px;
+}
+.w45-t.eq.open {
+  fill: #475569;
+}
+.w45-t.eqv {
+  fill: #047857;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.w45-t.cur {
+  fill: #be123c;
+  font-size: 12px;
+}
+.w45-t.vl {
+  fill: #be123c;
+  font-size: 12px;
+}
+.w45-t.thev {
+  fill: #6d28d9;
+  font-size: 12.5px;
+}
+.w45-t.jump {
+  fill: #be123c;
+  font-size: 13px;
+}
+.w45-t.jumpv {
+  fill: #9f1239;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------- charging curve */
+.w45-scr {
+  fill: #fbfdff;
+  stroke: #cbd5e1;
+}
+.w45-grid {
+  stroke: #e2e8f0;
+  stroke-width: 1;
+}
+.w45-grid.zero {
+  stroke: #94a3b8;
+  stroke-width: 1.4;
+}
+.w45-tick {
+  font-size: 11.5px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w45-tick.strong {
+  fill: #0369a1;
+  font-weight: 800;
+}
+.w45-tick.axis {
+  font-weight: 700;
+}
+.w45-taum {
+  stroke: #94a3b8;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+.w45-taum.cur {
+  stroke: #d97706;
+  stroke-width: 1.6;
+}
+.w45-part.lit .w45-taum {
+  stroke: #d97706;
+  stroke-width: 2.4;
+}
+.w45-tangent {
+  stroke: #d97706;
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+}
+.w45-tdot {
+  fill: #d97706;
+}
+.w45-curve {
+  fill: none;
+  stroke-width: 3;
+}
+.w45-curve.vc {
+  stroke: #0284c7;
+  stroke-width: 3.6;
+}
+.w45-curve.vf {
+  stroke: #16a34a;
+  stroke-width: 2.2;
+  stroke-dasharray: 8 4;
+}
+.w45-curve.vn {
+  stroke: #e11d48;
+  stroke-width: 2.4;
+  stroke-dasharray: 6 3;
+}
+.w45-part.lit .w45-curve {
+  stroke-width: 5;
+  filter: drop-shadow(0 0 3px #fde68a);
+}
+.w45-lbl {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.w45-lbl.vc {
+  fill: #075985;
+}
+.w45-lbl.vf {
+  fill: #166534;
+}
+.w45-lbl.vn {
+  fill: #9f1239;
+}
+.w45-lbl.cur {
+  fill: #92400e;
+}
+.w45-cursor {
+  stroke: #d97706;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+.w45-cdot {
+  fill: #fff;
+  stroke: #d97706;
+  stroke-width: 2.4;
+}
+
+/* ---------------------------------------------------------- the scope screen (HUD) */
+.w45-hud {
+  position: absolute;
+  z-index: 30;
+  right: 6px;
+  top: 6px;
+}
+.w45-hud.side {
+  width: 270px;
+  max-width: 42%;
+}
+.w45-hud.over {
+  left: 6px;
+  max-width: 340px;
+  margin-left: auto;
+}
+.w45-scope {
+  background: #1f2937;
+  border: 2px solid #475569;
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  position: relative;
+  cursor: help;
+}
+.w45-scope.lit {
+  border-color: var(--stage-amber);
+}
+.w45-scope.warn {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.35);
+}
+.w45-scope-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.w45-scope-bg {
+  fill: #06141a;
+}
+.w45-scope.warn .w45-scope-bg {
+  fill: #2a0b10;
+}
+.w45-sgrid {
+  stroke: rgba(148, 163, 184, 0.28);
+  stroke-width: 0.8;
+}
+.w45-sgrid.axis {
+  stroke: rgba(148, 163, 184, 0.55);
+}
+.w45-trace path {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+.w45-trace.ch1 path {
+  stroke: #facc15;
+}
+.w45-trace.ch2 path {
+  stroke: #22d3ee;
+}
+.w45-trace.math path {
+  stroke: #e879f9;
+  stroke-width: 1.8;
+}
+.w45-trace.lit path {
+  stroke-width: 3.6;
+}
+.w45-gmark {
+  stroke: none;
+}
+.w45-trace.ch1 .w45-gmark,
+.w45-trace.ch1 .w45-gtag {
+  fill: #facc15;
+}
+.w45-trace.ch2 .w45-gmark,
+.w45-trace.ch2 .w45-gtag {
+  fill: #22d3ee;
+}
+.w45-trace.math .w45-gmark,
+.w45-trace.math .w45-gtag {
+  fill: #e879f9;
+}
+.w45-gtag {
+  font:
+    800 8px/1 ui-monospace,
+    monospace;
+}
+.w45-scur line {
+  stroke: #fb923c;
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+}
+.w45-scur circle {
+  fill: none;
+  stroke: #fb923c;
+  stroke-width: 1.6;
+}
+.w45-trig {
+  fill: #fb923c;
+}
+.w45-sweep {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: w45-sweep linear 1 both;
+}
+@keyframes w45-sweep {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w45-sweep {
+    animation: none;
+  }
+}
+.w45-scope-lock {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 28%;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #fde68a;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+.w45-scope-read {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  padding: 3px 2px 0;
+  font:
+    700 10.5px/1.25 ui-monospace,
+    monospace;
+  color: #cbd5e1;
+}
+.w45-sr.ch1 {
+  color: #facc15;
+}
+.w45-sr.ch2 {
+  color: #22d3ee;
+}
+.w45-sr.math {
+  color: #f0abfc;
+}
+.w45-sr.cursor {
+  color: #fdba74;
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.w45-bench {
+  min-height: 170px;
+}
+.w45-bench.hazard {
+  box-shadow: inset 0 0 0 3px #e11d48;
+}
+.w45-camsel {
+  position: absolute;
+  z-index: 31;
+  right: 6px;
+  bottom: 6px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.w45-camsel .w45-seg {
+  background: rgba(255, 255, 255, 0.9);
+}
+.w45-fold.on {
+  background: var(--stage-blue);
+  border-color: var(--stage-blue);
+  color: #fff;
+}
+.w45-warn {
+  max-height: 30%;
+  flex: 0 0 auto;
+  overflow: auto;
+  background: #fff1f2;
+  border: 2px solid #e11d48;
+  border-radius: 10px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 14px rgba(190, 18, 60, 0.25);
+  color: #881337;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.w45-warn b {
+  display: block;
+  color: #be123c;
+  font-size: 12.5px;
+}
+.w45-warn p {
+  margin: 3px 0 0;
+}
+.w45-warn p.now {
+  color: #1f2a44;
+}
+.bb3d-tag.w45-tag3 {
+  font-size: 11px;
+  padding: 2px 6px;
+  color: #1f2a44;
+  border-color: #94a3b8;
+}
+.bb3d-tag.w45-tag3.res,
+.bb3d-tag.w45-tag3.cap,
+.bb3d-tag.w45-tag3.sw {
+  font-size: 10px;
+  padding: 1px 4px;
+  color: #0c4a6e;
+  border-color: #7dd3fc;
+}
+.bb3d-tag.w45-tag3.pe {
+  background: #7f1d1d;
+  color: #fff;
+  border-color: #e11d48;
+}
+.bb3d-tag.w45-tag3.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  color: #1f2a44;
+}
+.w45-rtag {
+  font:
+    800 10px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #fff;
+  white-space: nowrap;
+}
+.w45-rtag.rail_p5 {
+  background: #e11d48;
+}
+.w45-rtag.rail_gnd {
+  background: #2b59c3;
+}
+.w45-rtag.lit {
+  box-shadow: 0 0 0 3px #fde68a;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w45-seg .full,
+  .w45-notice .full {
+    display: none;
+  }
+  .w45-seg .short,
+  .w45-notice .short {
+    display: inline;
+  }
+  .w45-layer {
+    gap: 4px;
+  }
+  .w45-dock {
+    gap: 4px 5px;
+  }
+  .w45-seg {
+    padding: 2px;
+  }
+  .w45-seg button,
+  .w45-seg.small button {
+    padding: 3px 6px;
+    font-size: 11.5px;
+  }
+  .w45-chip,
+  .w45-tog {
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+  .w45-fold {
+    padding: 2px 7px;
+    font-size: 11px;
+  }
+  .w45-slider {
+    flex-basis: 140px;
+    gap: 5px;
+    font-size: 11.5px;
+  }
+  .w45-notice {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  .w45-cells {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .w45-cell {
+    padding: 2px 5px;
+    font-size: 10.5px;
+  }
+  .w45-cell b {
+    font-size: 11.5px;
+  }
+  .w45-cell small,
+  .w45-cell.minor {
+    display: none;
+  }
+  /* the drawings shrink to about 60 %: larger type */
+  .w45-sch .w45-t {
+    font-size: 17px;
+  }
+  .w45-sch .w45-t.muted,
+  .w45-sch .w45-t.jumpv {
+    font-size: 15px;
+  }
+  .w45-tick {
+    font-size: 16px;
+  }
+  .w45-lbl {
+    font-size: 16px;
+  }
+  .w45-hud {
+    right: 4px;
+    top: 4px;
+  }
+  .w45-scope-read {
+    font-size: 9px;
+  }
+  .w45-sr.tb,
+  .w45-sr.math {
+    display: none;
+  }
+  .w45-warn {
+    max-height: 34%;
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  .w45-warn b {
+    font-size: 11.5px;
+  }
+  .w45-camsel {
+    right: 4px;
+    bottom: 4px;
+  }
+  .bb3d-tag.w45-tag3 {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  .bb3d-tag.w45-tag3.res,
+  .bb3d-tag.w45-tag3.cap,
+  .bb3d-tag.w45-tag3.sw {
+    display: none;
+  }
+  /* no instrument displays or scope readout line on the narrow bench (the HUD screen has the readouts) */
+  .w45-bench .bench-lcd,
+  .w45-bench .bench-osd {
+    display: none;
+  }
+  .w45-bench {
+    min-height: 130px;
+  }
+}

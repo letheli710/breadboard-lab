@@ -13,6 +13,7 @@ import { Inline } from './UnitMd';
 
 const KIND: Record<string, () => string> = {
   unit: () => tr('单元', 'Unit'),
+  lesson: () => tr('新版课', 'Lesson'),
   challenge: () => tr('面包板', 'Bench'),
   chapter: () => tr('理论', 'Theory'),
 };

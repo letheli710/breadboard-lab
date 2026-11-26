@@ -27,6 +27,10 @@ import { entryTitle } from './problems';
 import { formatRoute, type Route } from './router';
 import { useStore } from './store';
 import { PENDING, WORLDS } from './worlds';
+import { lessonCatalog } from '../stage/registry';
+
+/** stage lessons (#/lesson/<slug>): the registry only, the lessons themselves are lazy */
+export const LESSONS = lessonCatalog();
 
 const unitFiles = import.meta.glob('../../units/*.json', { eager: true, import: 'default' }) as Record<string, unknown>;
 
@@ -49,6 +53,7 @@ export function catalogOf(s: Pick<S, 'challenges' | 'problems'>): Catalog {
     chapters: new Map(CHAPTERS.map((c) => [c.id, { title: c.title() }])),
     problems: new Map(s.problems.map((p) => [p.id, p.chapter])),
     units: UNITS,
+    lessons: LESSONS,
   };
 }
 
@@ -66,7 +71,8 @@ export function useProgress() {
   const completed = useStore((s) => s.completed);
   const problems = useStore((s) => s.practiceDone);
   const units = useCourse((s) => s.unitsDone);
-  return { completed, problems, units };
+  const lessons = useCourse((s) => s.lessonsDone);
+  return { completed, problems, units, lessons };
 }
 
 /** The route a ref opens (null for a placeholder or a broken ref). */
@@ -83,6 +89,8 @@ export function routeOfRef(ref: Ref, cat: Catalog): Route | null {
       return { page: 'practice', id };
     case 'unit':
       return { page: 'unit', id };
+    case 'lesson':
+      return { page: 'lesson', id };
     default:
       return null;
   }
@@ -101,6 +109,10 @@ export function titleOfRef(ref: Ref, cat: Catalog): string {
   if (kind === 'problem') {
     const p = useStore.getState().problems.find((x) => x.id === id);
     return p ? tr(`理论题 · ${entryTitle(p)}`, `Problem · ${entryTitle(p)}`) : id;
+  }
+  if (kind === 'lesson') {
+    const l = LESSONS.get(id);
+    return l ? `${l.code} · ${tt(l.title)}` : id;
   }
   const u = UNITS.get(id);
   return u ? `${u.code ? `${u.code} · ` : ''}${tt(u.title)}` : id;

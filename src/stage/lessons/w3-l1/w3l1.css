@@ -1,0 +1,847 @@
+/* W3-L1 stage layers: control dock, 3D bench and teardown HUDs, the Eq. (5.1) diagram and the
+   transfer curves. Light theme (stage.css tokens). */
+
+.w3-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- dock */
+.w3-dock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+.w3-seg {
+  display: flex;
+  gap: 2px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 2px;
+  min-width: 0;
+}
+.w3-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w3-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w3-seg.chip button.on {
+  background: #1f2a44;
+}
+.w3-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px 4px 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w3-toggle i {
+  width: 22px;
+  height: 12px;
+  border-radius: 999px;
+  background: #d6d3cc;
+  position: relative;
+  flex: none;
+}
+.w3-toggle i::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.15s;
+}
+.w3-toggle.on {
+  border-color: var(--stage-amber);
+  background: #fff7e6;
+  color: #92400e;
+}
+.w3-toggle.on i {
+  background: var(--stage-amber);
+}
+.w3-toggle.on i::after {
+  left: 11px;
+}
+.w3-slider {
+  flex: 1 1 220px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.w3-slider-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.w3-slider input[type='range'] {
+  flex: 1;
+  min-width: 60px;
+  accent-color: var(--stage-amber);
+}
+.w3-slider b {
+  min-width: 4.6em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.w3-seg .short,
+.w3-toggle .short,
+.w3-slider .short,
+.w3-notice .short,
+.w3-map-tag .short {
+  display: none;
+}
+.w3-notice {
+  margin: 0;
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  max-width: 100%;
+}
+.w3-notice.warn {
+  color: #9f1239;
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w3-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- read-out cells */
+.w3-panel {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  min-width: 0;
+}
+.w3-cells {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 4px;
+}
+.w3-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  font-size: 11.5px;
+  color: var(--muted);
+  min-width: 0;
+  outline: none;
+}
+.w3-cell span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w3-cell b {
+  font-size: 14px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.w3-cell.big b {
+  color: #1d4ed8;
+}
+.w3-cell.lit {
+  border-color: var(--stage-amber);
+  background: #fff7e6;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- 3D bench (layer 01) */
+.w3-pins {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 3px;
+}
+.w3-pin {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  justify-content: center;
+  padding: 3px 2px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  min-width: 0;
+  outline: none;
+  cursor: help;
+}
+.w3-pin b {
+  font-family: ui-monospace, monospace;
+}
+.w3-pin span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w3-pin.pos {
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+.w3-pin.neg {
+  border-color: #c4b5fd;
+  color: #6d28d9;
+}
+.w3-pin.out {
+  border-color: #6ee7b7;
+  color: #047857;
+}
+.w3-pin.in {
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+.w3-pin.idle {
+  color: #6b6f78;
+  background: var(--paper);
+}
+.w3-pin.dim {
+  opacity: 0.4;
+}
+.w3-pin.lit {
+  background: #fff7e6;
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+  opacity: 1;
+}
+.bb3d-tag.chip.w3-lit {
+  border-color: var(--stage-amber);
+  background: #fff7e6;
+}
+.w3-rail-tag {
+  font:
+    800 10.5px/1 ui-monospace,
+    monospace;
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #fff;
+  border: 1.5px solid;
+  white-space: nowrap;
+}
+.w3-rail-tag.vcc {
+  color: #b91c1c;
+  border-color: #ef4444;
+}
+.w3-rail-tag.gnd {
+  color: #334155;
+  border-color: #64748b;
+}
+.w3-rail-tag.vee {
+  color: #6d28d9;
+  border-color: #8b5cf6;
+}
+.w3-rail-tag.lit {
+  background: #fff7e6;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w3-pin-tag {
+  font:
+    800 11px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #fff;
+  border: 1.5px solid #94a3b8;
+  white-space: nowrap;
+  color: #1f2a44;
+}
+.w3-pin-tag.pos {
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+.w3-pin-tag.neg {
+  border-color: #8b5cf6;
+  color: #6d28d9;
+}
+.w3-pin-tag.out {
+  border-color: #10b981;
+  color: #047857;
+}
+.w3-pin-tag.in {
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+.w3-swap-tag {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #fff;
+  background: #dc2626;
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+/* ---------------------------------------------------------- teardown (layer 03) */
+.w3-mark {
+  font:
+    800 13px/1 ui-monospace,
+    monospace;
+  color: #e5e7eb;
+  letter-spacing: 0.06em;
+}
+.w3-map-tag {
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1.5px solid;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.w3-map-tag.ri {
+  color: #1d4ed8;
+  border-color: #3b82f6;
+}
+.w3-map-tag.vcvs {
+  color: #92400e;
+  border-color: #f59e0b;
+}
+.w3-map-tag.ro {
+  color: #047857;
+  border-color: #10b981;
+}
+.w3-map-tag.lit {
+  background: #fff7e6;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w3-mini-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #5f626b;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.w3-drag-hint {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  margin: 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 11.5px;
+  color: var(--ink-2);
+  pointer-events: none;
+}
+.w3-vcvs {
+  flex: 0 0 auto;
+  width: 290px;
+  height: auto;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.w3-vcvs .w3-t {
+  font-size: 11.5px;
+}
+
+/* ---------------------------------------------------------- 2D drawings (layers 02, 04, the VCVS strip) */
+.w3-svg-wrap {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w3-svg-wrap svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.w3-kcl,
+.w3-tf,
+.w3-vcvs {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w3-t {
+  fill: #1f2a44;
+  font-size: 15px;
+}
+.w3-t.s {
+  font-size: 13px;
+}
+.w3-t.b {
+  font-weight: 800;
+}
+.w3-t.mid {
+  text-anchor: middle;
+}
+.w3-t.end {
+  text-anchor: end;
+}
+.w3-t.mono {
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.w3-t.tick {
+  font-size: 12px;
+  fill: #5f626b;
+  font-weight: 700;
+}
+.w3-t.sign {
+  font-size: 22px;
+  font-weight: 800;
+}
+.w3-t.pos {
+  fill: #b91c1c;
+}
+.w3-t.neg {
+  fill: #6d28d9;
+}
+.w3-t.out {
+  fill: #047857;
+}
+.w3-t.in {
+  fill: #1d4ed8;
+}
+.w3-t.box {
+  fill: #1d4ed8;
+  font-weight: 800;
+}
+.w3-t.ri {
+  fill: #1d4ed8;
+  font-weight: 800;
+}
+.w3-t.ro {
+  fill: #047857;
+  font-weight: 800;
+}
+.w3-t.vd {
+  fill: #b91c1c;
+  font-weight: 700;
+}
+.w3-t.real {
+  fill: #b45309;
+  font-weight: 700;
+}
+.w3-t.lin,
+.w3-t.slope,
+.w3-t.edge {
+  fill: #92400e;
+}
+.w3-t.vosc {
+  fill: #b91c1c;
+}
+.w3-t.zoom {
+  fill: #92400e;
+}
+.w3-w {
+  stroke: #334155;
+  stroke-width: 2.4;
+  fill: none;
+  stroke-linecap: round;
+}
+.w3-w.pos {
+  stroke: #dc2626;
+  stroke-width: 3;
+}
+.w3-w.neg {
+  stroke: #7c3aed;
+  stroke-width: 3;
+}
+.w3-w.out {
+  stroke: #059669;
+  stroke-width: 3;
+}
+.w3-w.in {
+  stroke: #2563eb;
+}
+.w3-w.gnd {
+  stroke-dasharray: 4 3;
+  stroke-width: 1.6;
+}
+.w3-term {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 2;
+}
+.w3-dot.pos {
+  fill: #dc2626;
+}
+.w3-dot.neg {
+  fill: #7c3aed;
+}
+.w3-amp {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.w3-res,
+.w3-rl {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 2;
+}
+.w3-ri {
+  fill: #eff6ff;
+  stroke: #1d4ed8;
+  stroke-width: 2;
+}
+.w3-ro {
+  fill: #ecfdf5;
+  stroke: #059669;
+  stroke-width: 2;
+}
+.w3-dia {
+  fill: #fef3c7;
+  stroke: #d97706;
+  stroke-width: 2.2;
+}
+.w3-box {
+  fill: #eff6ff;
+  fill-opacity: 0.55;
+  stroke: #3b82f6;
+  stroke-width: 2;
+  stroke-dasharray: 8 5;
+}
+.w3-eq rect {
+  fill: #fef3c7;
+  stroke: #f59e0b;
+  stroke-width: 1.5;
+}
+.w3-eq.lit rect {
+  stroke-width: 3;
+}
+.w3-arrow line {
+  stroke-linecap: butt;
+}
+.w3-arrow.pos line {
+  stroke: #dc2626;
+}
+.w3-arrow.pos polygon {
+  fill: #dc2626;
+}
+.w3-arrow.neg line {
+  stroke: #7c3aed;
+}
+.w3-arrow.neg polygon {
+  fill: #7c3aed;
+}
+.w3-arrow.out line {
+  stroke: #059669;
+}
+.w3-arrow.out polygon {
+  fill: #059669;
+}
+.w3-arrow.in line {
+  stroke: #2563eb;
+}
+.w3-arrow.in polygon {
+  fill: #2563eb;
+}
+.w3-flow {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 18;
+  opacity: 0.55;
+  pointer-events: none;
+  animation: w3-flow 1.1s linear infinite;
+}
+.w3-flow.rev {
+  animation-direction: reverse;
+}
+.w3-flow.pos {
+  stroke: #fca5a5;
+}
+.w3-flow.neg {
+  stroke: #c4b5fd;
+}
+.w3-flow.out {
+  stroke: #6ee7b7;
+}
+@keyframes w3-flow {
+  to {
+    stroke-dashoffset: -18.1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w3-flow {
+    animation: none;
+  }
+}
+.w3-part {
+  cursor: help;
+  outline: none;
+}
+/* a lit part keeps its colour (the currents are told apart by colour) and gets an amber glow */
+.w3-part.lit .w3-w,
+.w3-part.lit .w3-res,
+.w3-part.lit .w3-ri,
+.w3-part.lit .w3-ro,
+.w3-part.lit .w3-rl,
+.w3-part.lit .w3-dia,
+.w3-part.lit .w3-amp,
+.w3-part.lit .w3-arrow {
+  filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.95)) drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+}
+.w3-part.lit .w3-res,
+.w3-part.lit .w3-ri,
+.w3-part.lit .w3-ro,
+.w3-part.lit .w3-rl,
+.w3-part.lit .w3-dia,
+.w3-part.lit .w3-amp {
+  stroke-width: 3.6;
+}
+.w3-part.lit .w3-box {
+  stroke: var(--stage-amber);
+  stroke-width: 3.5;
+  fill: #fff7e6;
+}
+.w3-part.lit .w3-t {
+  text-decoration: underline;
+  text-decoration-color: var(--stage-amber);
+  text-decoration-thickness: 2px;
+}
+.w3-panel-bg {
+  fill: #fbfaf7;
+  stroke: #e7e1d4;
+}
+.w3-panel-bg.zoom {
+  fill: #fffdf6;
+  stroke: #f0c97a;
+}
+.w3-axis {
+  stroke: #475569;
+  stroke-width: 1.5;
+}
+.w3-rail {
+  stroke: #cbd5e1;
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+}
+.w3-real {
+  stroke: #d97706;
+  stroke-width: 1.4;
+  stroke-dasharray: 3 3;
+}
+.w3-part.lit .w3-real {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+.w3-curve {
+  fill: none;
+  stroke: #1d4ed8;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.w3-curve.single {
+  stroke: #ea580c;
+  stroke-dasharray: 7 4;
+}
+.w3-lin-band {
+  fill: #fef3c7;
+  fill-opacity: 0.85;
+}
+.w3-part.lit .w3-lin-band {
+  fill: #fde68a;
+}
+.w3-lin-hit {
+  fill: #fef3c7;
+  fill-opacity: 0.6;
+}
+.w3-part.lit .w3-lin-hit {
+  fill: #fbbf24;
+}
+.w3-edge {
+  stroke: #d97706;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+.w3-vos {
+  stroke: #dc2626;
+  stroke-width: 1.6;
+  stroke-dasharray: 5 3;
+}
+.w3-vdline {
+  stroke: #059669;
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.w3-op {
+  fill: #dc2626;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.w3-out polygon {
+  fill: #dc2626;
+}
+.w3-out .w3-t {
+  fill: #b91c1c;
+}
+.w3-led {
+  fill: #fde2e2;
+  stroke: #b91c1c;
+  stroke-width: 2;
+}
+.w3-led.on {
+  fill: #ef4444;
+  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.9));
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w3-seg .full,
+  .w3-toggle .full,
+  .w3-slider .full,
+  .w3-notice .full,
+  .w3-map-tag .full,
+  .w3-chip-tag {
+    display: none;
+  }
+  .w3-seg .short,
+  .w3-toggle .short,
+  .w3-slider .short,
+  .w3-notice .short,
+  .w3-map-tag .short {
+    display: inline;
+  }
+  .w3-layer {
+    gap: 4px;
+  }
+  .w3-dock {
+    gap: 4px 5px;
+  }
+  .w3-seg button {
+    padding: 3px 6px;
+    font-size: 11.5px;
+  }
+  .w3-toggle {
+    padding: 2px 7px 2px 4px;
+    font-size: 11.5px;
+    gap: 4px;
+  }
+  .w3-toggle i {
+    width: 18px;
+    height: 10px;
+  }
+  .w3-toggle i::after {
+    width: 8px;
+    height: 8px;
+  }
+  .w3-toggle.on i::after {
+    left: 9px;
+  }
+  .w3-slider {
+    flex-basis: 150px;
+    gap: 5px;
+    font-size: 11.5px;
+  }
+  .w3-slider b {
+    min-width: 3.8em;
+  }
+  .w3-notice {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  .w3-cells {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .w3-cell {
+    padding: 2px 5px;
+    font-size: 10px;
+  }
+  .w3-cell b {
+    font-size: 11.5px;
+  }
+  .w3-cell.minor {
+    display: none;
+  }
+  .w3-vcvs {
+    display: none;
+  }
+  .w3-pin {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 1px;
+    font-size: 9.5px;
+    line-height: 1.2;
+  }
+  .w3-pin span {
+    max-width: 100%;
+  }
+  .w3-pin-tag,
+  .w3-map-tag {
+    font-size: 9.5px;
+    padding: 1px 3px;
+  }
+  .w3-swap-tag {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+  .w3-rail-tag {
+    font-size: 9px;
+  }
+  /* the drawings shrink to about half size: larger type, fewer side labels */
+  .w3-t {
+    font-size: 20px;
+  }
+  .w3-t.s {
+    font-size: 17px;
+  }
+  .w3-t.tick {
+    font-size: 16px;
+  }
+  .w3-t.mono {
+    font-size: 15px;
+  }
+  .w3-kcl .w3-t {
+    font-size: 23px;
+  }
+  .w3-kcl .w3-t.s {
+    font-size: 19px;
+  }
+  .w3-t.opt,
+  .w3-eq.opt {
+    display: none;
+  }
+}

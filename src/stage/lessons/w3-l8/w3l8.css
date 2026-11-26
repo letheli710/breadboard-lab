@@ -1,0 +1,991 @@
+/* W3-L8 stage layers: control dock, DAC / IA schematic, staircase and gain charts, 3D bench HUD.
+   Light theme (stage.css tokens). */
+
+.w38-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- dock and controls */
+.w38-dock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+.w38-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  min-width: 0;
+}
+.w38-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w38-seg button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.w38-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w38-seg.small button {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.w38-seg .short,
+.w38-notice .short {
+  display: none;
+}
+.w38-bits {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.w38-bit {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  min-width: 30px;
+  padding: 3px 4px 4px;
+  border-radius: 7px;
+  border: 1.5px solid #e2c9c9;
+  background: #fff;
+  color: #7f1d1d;
+  font:
+    800 14px/1 ui-monospace,
+    monospace;
+  cursor: pointer;
+}
+.w38-bit small {
+  font:
+    700 9.5px/1.2 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  color: var(--muted);
+}
+.w38-bit.on {
+  background: #c81e1e;
+  border-color: #991b1b;
+  color: #fff;
+}
+.w38-bit.on small {
+  color: #fecaca;
+}
+.w38-bit.lit {
+  box-shadow: 0 0 0 3px #fde9b8;
+  border-color: var(--stage-amber);
+}
+.w38-code {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.15;
+  margin-left: 3px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.w38-code b {
+  font:
+    800 13px/1.1 ui-monospace,
+    monospace;
+  color: var(--ink);
+}
+.w38-fold {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w38-tag {
+  font-size: 12px;
+  border-radius: 7px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+.w38-tag.gd {
+  background: #f5f3ff;
+  border: 1px solid #c4b5fd;
+  color: #5b21b6;
+  font-weight: 700;
+}
+.w38-slider {
+  flex: 1 1 200px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.w38-slider-label {
+  font-weight: 800;
+  color: #b91c1c;
+}
+.w38-slider input[type='range'] {
+  flex: 1;
+  min-width: 60px;
+  accent-color: #dc2626;
+}
+.w38-num {
+  min-width: 4.6em;
+  font-variant-numeric: tabular-nums;
+}
+.w38-notice {
+  margin: 0;
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  max-width: 100%;
+}
+.w38-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- readout cells */
+.w38-cells {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+.w38-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+  min-width: 0;
+  cursor: help;
+}
+.w38-cell span {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w38-cell b {
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w38-cell small {
+  color: var(--muted);
+  font-size: 10.5px;
+}
+.w38-cell.good b {
+  color: #047857;
+}
+.w38-cell.bad {
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w38-cell.bad b {
+  color: #be123c;
+}
+.w38-cell.warn b {
+  color: #b45309;
+}
+.w38-cell.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- schematic */
+.w38-sch-wrap {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w38-sch {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w38-sch .end,
+.w38-chart .end {
+  text-anchor: end;
+}
+.w38-sch .mid,
+.w38-chart .mid {
+  text-anchor: middle;
+}
+.w38-t {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #1f2a44;
+}
+.w38-t.muted {
+  fill: #5f626b;
+  font-weight: 600;
+  font-size: 11.5px;
+}
+.w38-t.small {
+  font-size: 11px;
+}
+.w38-t.vref {
+  fill: #b91c1c;
+  font-size: 12.5px;
+}
+.w38-t.bit {
+  font:
+    800 11.5px ui-monospace,
+    monospace;
+  fill: #7f1d1d;
+}
+.w38-t.name {
+  fill: #0369a1;
+  font-size: 12px;
+}
+.w38-t.name.rf,
+.w38-t.name.r12 {
+  fill: #6d28d9;
+}
+.w38-t.name.rg,
+.w38-t.val.rg {
+  fill: #b91c1c;
+}
+.w38-t.val {
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+.w38-t.cur {
+  font-size: 10.5px;
+  fill: #b45309;
+  font-variant-numeric: tabular-nums;
+}
+.w38-t.cur.off {
+  fill: #9a9ca3;
+}
+.w38-t.vg {
+  font-size: 11.5px;
+  fill: #047857;
+}
+.w38-t.vgv {
+  font-size: 13px;
+  fill: #047857;
+  font-variant-numeric: tabular-nums;
+}
+.w38-part.bad .w38-t.vg,
+.w38-part.bad .w38-t.vgv {
+  fill: #be123c;
+}
+.w38-t.sign {
+  font-size: 17px;
+  font-weight: 800;
+}
+.w38-t.sign.small {
+  font-size: 14px;
+}
+.w38-t.amp {
+  font-size: 12px;
+  fill: #3a4560;
+}
+.w38-t.railp {
+  fill: #be123c;
+  font-size: 11px;
+}
+.w38-t.railn {
+  fill: #1d4ed8;
+  font-size: 11px;
+}
+.w38-t.vo {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #047857;
+}
+.w38-t.vov {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #047857;
+  font-variant-numeric: tabular-nums;
+}
+.w38-part.bad .w38-t.vov {
+  fill: #be123c;
+}
+.w38-t.clip {
+  font-size: 11.5px;
+  fill: #be123c;
+}
+.w38-t.state {
+  font-size: 12px;
+  fill: #047857;
+}
+.w38-t.state.edge {
+  fill: #b45309;
+}
+.w38-t.state.clip,
+.w38-t.state.rail {
+  fill: #be123c;
+}
+.w38-t.node {
+  font-size: 11.5px;
+  fill: #047857;
+  font-variant-numeric: tabular-nums;
+}
+.w38-t.short {
+  font-size: 10.5px;
+  fill: #a16207;
+}
+.w38-t.stage1 {
+  fill: #0369a1;
+  font-size: 11.5px;
+}
+.w38-t.stage2 {
+  fill: #6d28d9;
+  font-size: 11.5px;
+}
+.w38-divider {
+  stroke: #cbd5e1;
+  stroke-width: 1.4;
+  stroke-dasharray: 6 4;
+}
+.w38-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w38-wire.hot {
+  stroke: #dc2626;
+}
+.w38-wire.in,
+.w38-wire.out {
+  stroke: #059669;
+}
+.w38-wire.short {
+  stroke: #d97706;
+}
+.w38-lead {
+  stroke: #d97706;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+.w38-bus {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.w38-bus.vref {
+  stroke: #dc2626;
+}
+.w38-bus.gnd {
+  stroke: #059669;
+}
+.w38-bus.sum {
+  stroke: #d97706;
+}
+.w38-part.bad .w38-bus.sum {
+  stroke: #e11d48;
+}
+.w38-gnd {
+  fill: none;
+  stroke: #059669;
+  stroke-width: 2;
+}
+.w38-dot {
+  fill: #1f2a44;
+}
+.w38-dot.vref {
+  fill: #dc2626;
+}
+.w38-dot.gnd,
+.w38-dot.in,
+.w38-dot.out,
+.w38-dot.node {
+  fill: #059669;
+}
+.w38-dot.sum,
+.w38-dot.short {
+  fill: #d97706;
+}
+.w38-contact {
+  fill: #fff;
+  stroke: #334155;
+  stroke-width: 1.6;
+}
+.w38-blade {
+  stroke: #334155;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.w38-blade.on {
+  stroke: #dc2626;
+}
+.w38-swhit {
+  fill: transparent;
+}
+.w38-zig {
+  fill: none;
+  stroke: #0284c7;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.w38-zig.rf,
+.w38-zig.r12 {
+  stroke: #7c3aed;
+}
+.w38-zig.rg {
+  stroke: #dc2626;
+  stroke-width: 3;
+}
+.w38-zig-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 16;
+}
+.w38-amp {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 2.4;
+}
+.w38-rail {
+  stroke-width: 1.8;
+  stroke-dasharray: 4 2;
+}
+.w38-rail.p {
+  stroke: #e11d48;
+}
+.w38-rail.n {
+  stroke: #2563eb;
+}
+.w38-vg {
+  fill: #ecfdf5;
+  stroke: #059669;
+  stroke-width: 1.5;
+}
+.w38-vg.bad {
+  fill: #fff1f2;
+  stroke: #e11d48;
+}
+.w38-iline {
+  fill: none;
+  stroke: #ea580c;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.w38-flow {
+  fill: none;
+  stroke: #f97316;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 0.1 14;
+  opacity: 0.85;
+  animation: w38-flow 1s linear infinite;
+  pointer-events: none;
+}
+@keyframes w38-flow {
+  to {
+    stroke-dashoffset: 14.1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w38-flow {
+    animation: none;
+  }
+}
+.w38-part {
+  cursor: help;
+  outline: none;
+}
+.w38-part.click {
+  cursor: pointer;
+}
+.w38-part.lit .w38-zig,
+.w38-part.lit .w38-amp,
+.w38-part.lit .w38-bus,
+.w38-part.lit .w38-blade,
+.w38-part.lit .w38-wire {
+  stroke: var(--stage-amber);
+  stroke-width: 4;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.7));
+}
+.w38-part.lit .w38-t {
+  fill: #92400e;
+}
+.w38-part.lit .w38-vg {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+.w38-part.lit .w38-dot {
+  fill: var(--stage-amber);
+}
+
+/* ---------------------------------------------------------- charts */
+.w38-chart {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w38-grid {
+  stroke: #eceae4;
+  stroke-width: 1;
+}
+.w38-grid.zero {
+  stroke: #94a3b8;
+  stroke-width: 1.4;
+}
+.w38-tick {
+  font-size: 11px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w38-tick.mono {
+  font-family: ui-monospace, monospace;
+}
+.w38-tick.cur {
+  fill: #b91c1c;
+  font-weight: 800;
+}
+.w38-tick.axis {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #3a4560;
+}
+.w38-ctitle {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #1f2a44;
+}
+.w38-ref {
+  stroke-width: 1.8;
+  fill: none;
+}
+.w38-ref.rail {
+  stroke: #2563eb;
+  stroke-dasharray: 7 4;
+}
+.w38-ref.vol {
+  stroke: #e11d48;
+  stroke-dasharray: 5 3;
+}
+.w38-ref.sym {
+  stroke: #94a3b8;
+  stroke-dasharray: 2 4;
+}
+.w38-ref.asym {
+  stroke: #059669;
+  stroke-dasharray: 5 3;
+}
+.w38-ref.target {
+  stroke: #7c3aed;
+  stroke-dasharray: 4 3;
+}
+.w38-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.w38-lbl.rail {
+  fill: #1d4ed8;
+}
+.w38-lbl.vol {
+  fill: #be123c;
+}
+.w38-lbl.sym {
+  fill: #5f626b;
+}
+.w38-lbl.asym {
+  fill: #047857;
+}
+.w38-lbl.pt {
+  fill: #6d28d9;
+}
+.w38-curve {
+  fill: none;
+  stroke-linejoin: round;
+}
+.w38-curve.ideal {
+  stroke: #0284c7;
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.w38-curve.lm {
+  stroke: #1f2a44;
+  stroke-width: 2.8;
+}
+.w38-curve.gain {
+  stroke: #7c3aed;
+  stroke-width: 3;
+}
+.w38-hit {
+  stroke: transparent;
+  stroke-width: 14;
+  fill: none;
+}
+.w38-cg {
+  cursor: help;
+}
+.w38-cg.lit .w38-curve,
+.w38-cg.lit .w38-ref {
+  stroke: var(--stage-amber);
+  stroke-width: 4;
+}
+.w38-cg.lit .w38-lbl {
+  fill: #92400e;
+}
+.w38-stepbtn {
+  fill: transparent;
+  cursor: pointer;
+}
+.w38-stepbtn:hover {
+  fill: rgba(2, 132, 199, 0.06);
+}
+.w38-stepbtn.cur {
+  fill: rgba(220, 38, 38, 0.07);
+}
+.w38-mark {
+  fill: #dc2626;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.w38-mark.bad {
+  fill: #be123c;
+}
+.w38-mark.ghost {
+  fill: #fff;
+  stroke: #0284c7;
+  stroke-width: 2;
+}
+.w38-mark.pt {
+  fill: #7c3aed;
+}
+.w38-proj {
+  stroke: #dc2626;
+  stroke-width: 1.4;
+  stroke-dasharray: 3 3;
+}
+.w38-dot.gain {
+  fill: #dc2626;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.w38-legend rect {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: #e2e8f0;
+}
+.w38-legend text {
+  font-size: 10.5px;
+  fill: #3a4560;
+}
+.w38-readout {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  padding: 0 6px;
+  font-variant-numeric: tabular-nums;
+}
+.w38-readout.clip b,
+.w38-readout.rail b {
+  color: #be123c;
+}
+.w38-readout.lit {
+  background: #fde9b8;
+  border-radius: 6px;
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.w38-bench {
+  min-height: 150px;
+}
+.w38-camsel {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.w38-camsel .w38-seg {
+  background: rgba(255, 255, 255, 0.9);
+}
+.w38-drag-hint {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  margin: 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 11.5px;
+  color: var(--ink-2);
+  pointer-events: none;
+}
+.bb3d-tag.w38-tag3 {
+  font-size: 11px;
+  padding: 2px 6px;
+  color: #1f2a44;
+  border-color: #94a3b8;
+}
+.bb3d-tag.w38-tag3.res {
+  font-size: 10px;
+  padding: 1px 4px;
+  color: #0c4a6e;
+  border-color: #7dd3fc;
+}
+.bb3d-tag.w38-tag3.rf {
+  color: #5b21b6;
+  border-color: #c4b5fd;
+}
+.bb3d-tag.w38-tag3.pd {
+  font-size: 10px;
+  color: #334155;
+}
+.bb3d-tag.w38-tag3.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.w38-rtag {
+  font:
+    800 10px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #fff;
+  white-space: nowrap;
+}
+.w38-rtag.rail_p9 {
+  background: #e11d48;
+}
+.w38-rtag.rail_vref {
+  background: #ea7a10;
+}
+.w38-rtag.rail_gnd {
+  background: #334155;
+}
+.w38-rtag.rail_n9 {
+  background: #2b59c3;
+}
+.w38-rtag.lit {
+  box-shadow: 0 0 0 3px #fde68a;
+}
+.w38-dip-on,
+.w38-dip-num {
+  font:
+    800 9.5px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  white-space: nowrap;
+  color: #7f1d1d;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+.w38-dip-num {
+  display: flex;
+  gap: 6px;
+}
+.w38-dip-num span.on {
+  color: #fff;
+  background: #c81e1e;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.w38-lcd {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: #c9d8b1;
+  border: 2px solid #2b2f36;
+  color: #10210f;
+  font-family: ui-monospace, monospace;
+  white-space: nowrap;
+  cursor: help;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.w38-lcd small {
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.w38-lcd b {
+  font-size: 19px;
+  letter-spacing: 0.04em;
+}
+.w38-lcd span {
+  font-size: 12px;
+}
+.w38-lcd.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 3px #fde9b8;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w38-seg .full,
+  .w38-notice .full {
+    display: none;
+  }
+  .w38-seg .short,
+  .w38-notice .short {
+    display: inline;
+  }
+  .w38-layer {
+    gap: 4px;
+  }
+  .w38-dock {
+    gap: 4px 5px;
+  }
+  .w38-seg {
+    padding: 2px;
+  }
+  .w38-seg button,
+  .w38-seg.small button {
+    padding: 3px 6px;
+    font-size: 11.5px;
+  }
+  .w38-bit {
+    min-width: 24px;
+    font-size: 12.5px;
+    padding: 2px 3px 3px;
+  }
+  .w38-bit small {
+    font-size: 8.5px;
+  }
+  .w38-code span {
+    display: none;
+  }
+  .w38-tag {
+    font-size: 10.5px;
+    padding: 2px 5px;
+    white-space: normal;
+  }
+  .w38-fold {
+    padding: 2px 7px;
+    font-size: 11px;
+  }
+  .w38-slider {
+    flex-basis: 150px;
+    gap: 5px;
+    font-size: 11.5px;
+  }
+  .w38-notice {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  .w38-cells {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .w38-cell {
+    padding: 2px 5px;
+    font-size: 10.5px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .w38-cell span {
+    flex: 0 1 auto;
+  }
+  .w38-cell b {
+    font-size: 11.5px;
+  }
+  .w38-cell small,
+  .w38-cell.minor {
+    display: none;
+  }
+  .w38-readout {
+    font-size: 11px;
+    padding: 0 4px;
+  }
+  /* the drawings shrink to about half size: larger type */
+  .w38-sch .w38-t {
+    font-size: 16px;
+  }
+  .w38-sch .w38-t.cur,
+  .w38-sch .w38-t.muted,
+  .w38-sch .w38-t.short,
+  .w38-sch .w38-t.small,
+  .w38-sch .w38-t.bit,
+  .w38-sch .w38-t.node,
+  .w38-sch .w38-t.railp,
+  .w38-sch .w38-t.railn {
+    font-size: 14px;
+  }
+  .w38-sch .w38-t.vov,
+  .w38-sch .w38-t.vo,
+  .w38-sch .w38-t.sign {
+    font-size: 19px;
+  }
+  .w38-t.stage1,
+  .w38-t.stage2,
+  .w38-legend {
+    display: none;
+  }
+  .w38-tick {
+    font-size: 15px;
+  }
+  .w38-tick.axis,
+  .w38-ctitle {
+    font-size: 14px;
+  }
+  .w38-lbl {
+    font-size: 14px;
+  }
+  .w38-drag-hint,
+  .w38-dip-on {
+    display: none;
+  }
+  .w38-camsel {
+    right: 4px;
+    top: 4px;
+  }
+  .bb3d-tag.w38-tag3 {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  .bb3d-tag.w38-tag3.res,
+  .bb3d-tag.w38-tag3.pd {
+    display: none;
+  }
+  .w38-lcd b {
+    font-size: 14px;
+  }
+}

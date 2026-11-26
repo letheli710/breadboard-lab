@@ -1,0 +1,502 @@
+/* W1-L1 stage layers: charge_flow (ChargeFlow.tsx) and voltage_height (VoltageHeight.tsx). */
+
+.w1l1-layer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+.w1l1-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+.w1l1-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 220px;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.w1l1-slider input {
+  flex: 1;
+  min-width: 60px;
+  accent-color: var(--stage-blue);
+}
+.w1l1-slider b {
+  min-width: 4.2em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.w1l1-play {
+  padding: 3px 10px;
+  font-size: 12px;
+}
+.w1l1-seg {
+  display: inline-flex;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 2px;
+}
+.w1l1-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.w1l1-seg button.on {
+  background: var(--ink);
+  color: #fff;
+}
+.w1l1-seg button.lit {
+  box-shadow: 0 0 0 2px var(--stage-amber);
+}
+
+/* shared SVG bits */
+.w1l1-wire,
+.w1l1-plot,
+.w1l1-stairs {
+  width: 100%;
+  min-height: 0;
+  display: block;
+}
+.w1l1-wire {
+  flex: 1 1 auto;
+  max-height: 300px;
+}
+.w1l1-wire.with-plot {
+  flex: 1 1 0;
+  max-height: 210px;
+}
+.w1l1-plot {
+  flex: 1 1 0;
+  max-height: 230px;
+}
+.w1l1-panel {
+  fill: #f8fafc;
+  stroke: #cbd5e1;
+  stroke-width: 1.2;
+}
+.w1l1-hit {
+  fill: transparent;
+  stroke: none;
+}
+.w1l1-grid {
+  stroke: #e2e8f0;
+  stroke-width: 1;
+}
+.w1l1-axis {
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+.w1l1-plot-tick {
+  font-size: 11px;
+  fill: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+.w1l1-plot-axis-label {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #475569;
+}
+.w1l1-plot-name {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #1d4ed8;
+}
+.w1l1-plot-note {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #b45309;
+}
+.w1l1-curve {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 2.6;
+}
+.w1l1-tangent {
+  stroke: #d97706;
+  stroke-width: 2.4;
+  stroke-dasharray: 6 4;
+}
+.w1l1-dot {
+  fill: #d97706;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.w1l1-area {
+  fill: rgba(245, 158, 11, 0.32);
+  stroke: #d97706;
+  stroke-width: 1;
+}
+.w1l1-limit {
+  stroke: #94a3b8;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+/* the wire */
+.w1l1-ref line {
+  stroke: #64748b;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+.w1l1-ref polygon {
+  fill: #64748b;
+}
+.w1l1-ref text {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #334155;
+  font-variant-numeric: tabular-nums;
+}
+.w1l1-copper {
+  fill: rgba(251, 191, 140, 0.35);
+  stroke: #c2410c;
+  stroke-width: 2;
+}
+.w1l1-shine {
+  stroke: rgba(255, 255, 255, 0.8);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.w1l1-particles circle {
+  fill: #dc2626;
+  stroke: #fff;
+  stroke-width: 1.2;
+}
+.w1l1-particles text {
+  font-size: 11px;
+  font-weight: 800;
+  fill: #fff;
+  pointer-events: none;
+}
+.w1l1-particles.electron circle {
+  fill: #1d4ed8;
+}
+.w1l1-particles.electron {
+  cursor: help;
+}
+.w1l1-particles.lit circle {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+.w1l1-section {
+  cursor: help;
+}
+.w1l1-section ellipse {
+  fill: rgba(245, 158, 11, 0.22);
+  stroke: #d97706;
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+.w1l1-section.lit ellipse {
+  fill: rgba(245, 158, 11, 0.55);
+  stroke: #b45309;
+  stroke-width: 3.5;
+  stroke-dasharray: none;
+}
+.w1l1-section-label {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #b45309;
+}
+.w1l1-conv line,
+.w1l1-elec line {
+  stroke-width: 3;
+}
+.w1l1-conv line {
+  stroke: #dc2626;
+}
+.w1l1-conv polygon {
+  fill: #dc2626;
+}
+.w1l1-elec line {
+  stroke: #1d4ed8;
+}
+.w1l1-elec polygon {
+  fill: #1d4ed8;
+}
+.w1l1-conv-label,
+.w1l1-elec-label,
+.w1l1-zero {
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.w1l1-conv-label {
+  fill: #b91c1c;
+}
+.w1l1-elec-label {
+  fill: #1d4ed8;
+}
+.w1l1-zero {
+  fill: #64748b;
+}
+
+/* readout under a layer */
+.w1l1-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.45;
+}
+.w1l1-readout b {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.w1l1-eq {
+  font-weight: 700;
+  color: var(--stage-blue);
+}
+.w1l1-equiv {
+  align-self: flex-start;
+  background: #fff7e6;
+  border: 1.5px solid var(--stage-amber);
+  color: #8a5300;
+  border-radius: 8px;
+  padding: 3px 10px;
+  font-weight: 700;
+  animation: w1l1-pop 0.25s ease-out;
+}
+@keyframes w1l1-pop {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .w1l1-equiv {
+    animation: none;
+  }
+}
+
+/* Stopgap, scoped to this lesson's page: option buttons inherit the global button
+   `white-space: nowrap`, so long options run off a phone screen. The general fix belongs in
+   stage.css (`.quiz-opt { white-space: normal }` and one wrapper around the option text). */
+.stage-page:has(.layer-charge_flow, .layer-voltage_height) .quiz-opt {
+  white-space: normal;
+}
+.stage-page:has(.layer-charge_flow, .layer-voltage_height) .quiz-opt > .tex-inline {
+  min-width: 0;
+}
+
+/* the voltage stairs */
+.w1l1-stairs {
+  flex: 1 1 auto;
+}
+.w1l1-vslider,
+.w1l1-pillar {
+  touch-action: none;
+}
+.w1l1-vslider {
+  cursor: ns-resize;
+  outline: none;
+}
+.w1l1-track {
+  stroke: #e2e8f0;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.w1l1-track-fill {
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.w1l1-vslider.a .w1l1-track-fill {
+  stroke: #2563eb;
+}
+.w1l1-vslider.b .w1l1-track-fill {
+  stroke: #059669;
+}
+.w1l1-thumb {
+  fill: #fff;
+  stroke-width: 3;
+}
+.w1l1-vslider.a .w1l1-thumb {
+  stroke: #2563eb;
+}
+.w1l1-vslider.b .w1l1-thumb {
+  stroke: #059669;
+}
+.w1l1-vslider.lit .w1l1-thumb,
+.w1l1-vslider:focus-visible .w1l1-thumb {
+  stroke: var(--stage-amber);
+  stroke-width: 4.5;
+}
+.w1l1-vslider-name {
+  font-size: 15px;
+  font-weight: 800;
+}
+.w1l1-vslider-val {
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.w1l1-vslider.a text {
+  fill: #1d4ed8;
+}
+.w1l1-vslider.b text {
+  fill: #047857;
+}
+.w1l1-pillar {
+  cursor: ns-resize;
+}
+
+.w1l1-gnd {
+  stroke: #334155;
+  stroke-width: 2.2;
+}
+.w1l1-gnd-label {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #334155;
+}
+.w1l1-pillar rect {
+  stroke-width: 1.8;
+}
+.w1l1-pillar.a rect {
+  fill: #dbeafe;
+  stroke: #2563eb;
+}
+.w1l1-pillar.b rect {
+  fill: #d1fae5;
+  stroke: #059669;
+}
+.w1l1-pillar.lit rect {
+  stroke: var(--stage-amber);
+  stroke-width: 4;
+}
+.w1l1-pillar.a.lit rect {
+  fill: #bfdbfe;
+}
+.w1l1-pillar.b.lit rect {
+  fill: #a7f3d0;
+}
+.w1l1-floor {
+  stroke-width: 2.4;
+}
+.w1l1-pillar.a .w1l1-floor {
+  stroke: #1d4ed8;
+}
+.w1l1-pillar.b .w1l1-floor {
+  stroke: #047857;
+}
+.w1l1-pillar-val {
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.w1l1-pillar.a .w1l1-pillar-val {
+  fill: #1d4ed8;
+}
+.w1l1-pillar.b .w1l1-pillar-val {
+  fill: #047857;
+}
+.w1l1-pillar-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #475569;
+}
+.w1l1-dash {
+  stroke: #94a3b8;
+  stroke-width: 1.4;
+  stroke-dasharray: 4 3;
+}
+.w1l1-diff {
+  cursor: help;
+}
+.w1l1-diff line {
+  stroke: #d97706;
+  stroke-width: 2.6;
+}
+.w1l1-diff polygon,
+.w1l1-diff circle {
+  fill: #d97706;
+}
+.w1l1-diff-tag {
+  fill: #fffbeb;
+  stroke: #f59e0b;
+  stroke-width: 1.4;
+}
+.w1l1-diff.lit line {
+  stroke-width: 4.5;
+}
+.w1l1-diff.lit .w1l1-diff-tag {
+  fill: #fde68a;
+  stroke: #b45309;
+  stroke-width: 2.6;
+}
+.w1l1-diff-main {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #92400e;
+  font-variant-numeric: tabular-nums;
+}
+.w1l1-diff-sub {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #b45309;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 960px) {
+  .w1l1-layer {
+    gap: 5px;
+  }
+  .w1l1-controls {
+    gap: 4px 8px;
+  }
+  .w1l1-slider {
+    font-size: 12px;
+    flex-basis: 100%;
+  }
+  .w1l1-seg button {
+    font-size: 11.5px;
+    padding: 3px 8px;
+  }
+  .w1l1-readout {
+    font-size: 12px;
+    gap: 2px;
+  }
+  /* worked-example mode: the plot gets the room (the direction toggle is not part of it) */
+  .w1l1-layer.plot .w1l1-eq,
+  .w1l1-layer.plot .w1l1-seg {
+    display: none;
+  }
+  .w1l1-layer.plot .w1l1-wire {
+    flex-grow: 0.7;
+  }
+  .w1l1-layer.plot .w1l1-plot {
+    flex-grow: 1.3;
+  }
+  /* the wire is drawn ~0.75× on a phone: larger type in its own units */
+  .w1l1-ref text {
+    font-size: 17px;
+  }
+  .w1l1-conv-label,
+  .w1l1-elec-label,
+  .w1l1-zero,
+  .w1l1-section-label {
+    font-size: 16px;
+  }
+  .w1l1-plot-tick {
+    font-size: 13px;
+  }
+  .w1l1-plot-name,
+  .w1l1-plot-note {
+    font-size: 15px;
+  }
+}

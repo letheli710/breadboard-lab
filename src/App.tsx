@@ -27,6 +27,7 @@ const ImportPage = lazy(() => import('./ui/ImportPage').then((m) => ({ default: 
 const MapPage = lazy(() => import('./ui/course/MapPage'));
 const UnitPage = lazy(() => import('./ui/course/UnitPage'));
 const InsidePage = lazy(() => import('./inside/pages').then((m) => ({ default: m.InsidePage })));
+const StageLessonPage = lazy(() => import('./stage/StageLessonPage'));
 const CalcPage = lazy(() => import('./inside/pages').then((m) => ({ default: m.CalcPage })));
 const BenchInside = lazy(() => import('./inside/pages').then((m) => ({ default: m.BenchInside })));
 
@@ -472,7 +473,7 @@ export default function App() {
           {NAV.map((n) => (
             <button
               key={n.mode}
-              className={mode === n.mode || (n.mode === 'map' && mode === 'unit') ? 'on' : ''}
+              className={mode === n.mode || (n.mode === 'map' && (mode === 'unit' || mode === 'lesson')) ? 'on' : ''}
               aria-current={mode === n.mode ? 'page' : undefined}
               onClick={() => setMode(n.mode)}
             >
@@ -517,6 +518,7 @@ export default function App() {
           {mode === 'unit' && <UnitPage />}
           {mode === 'inside' && <InsidePage />}
           {mode === 'calc' && <CalcPage />}
+          {mode === 'lesson' && <StageLessonPage />}
         </Suspense>
       )}
       <Toast />

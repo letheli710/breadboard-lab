@@ -1,0 +1,662 @@
+/* W4-L1 stage layers: control dock, 3D capacitor bench and teardown HUD, live v/i/w charts, DC
+   steady-state and series/parallel schematics. Light theme (stage.css tokens). */
+
+.w41-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- dock and controls */
+.w41-dock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+.w41-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  min-width: 0;
+}
+.w41-seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w41-seg button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.w41-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w41-seg button.on.warn {
+  background: #dc2626;
+}
+.w41-seg .short,
+.w41-toggle .short,
+.w41-notice .short {
+  display: none;
+}
+.w41-toggle,
+.w41-fold {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w41-toggle.on {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #065f46;
+}
+.w41-toggle.warn {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #b91c1c;
+}
+.w41-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.w41-toggle.lit,
+.w41-slider.lit {
+  box-shadow: 0 0 0 3px #fde9b8;
+  border-radius: 999px;
+}
+.w41-slider {
+  flex: 1 1 150px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.w41-slider-label {
+  font-weight: 800;
+  font-style: italic;
+  color: #1d4ed8;
+}
+.w41-slider input[type='range'] {
+  flex: 1;
+  min-width: 50px;
+  accent-color: var(--stage-blue);
+}
+.w41-num {
+  min-width: 4.4em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.w41-notice {
+  margin: 0;
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  max-width: 100%;
+}
+.w41-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+.w41-alarm {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1.5px solid #f87171;
+  border-radius: 8px;
+  padding: 3px 8px;
+}
+
+/* ---------------------------------------------------------- readout cells */
+.w41-cells {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+.w41-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+  min-width: 0;
+  cursor: help;
+}
+.w41-cell span {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w41-cell b {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w41-cell small {
+  color: var(--muted);
+  font-size: 10.5px;
+}
+.w41-cell.good b {
+  color: #047857;
+}
+.w41-cell.bad {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+.w41-cell.bad b {
+  color: #b91c1c;
+}
+.w41-cell.warn b {
+  color: #b45309;
+}
+.w41-cell.lit {
+  border-color: var(--stage-amber);
+  background: #fff7e6;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- 3D */
+.w41-bench {
+  min-height: 150px;
+}
+.w41-camsel {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.w41-camsel .w41-seg {
+  background: rgba(255, 255, 255, 0.9);
+}
+.w41-drag-hint {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  margin: 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 11.5px;
+  color: var(--ink-2);
+  pointer-events: none;
+}
+.bb3d-tag.w41-tag3 {
+  font-size: 11px;
+  padding: 2px 6px;
+  color: #1f2a44;
+  border-color: #94a3b8;
+}
+.bb3d-tag.w41-tag3.pos {
+  border-color: #16a34a;
+  color: #15803d;
+}
+.bb3d-tag.w41-tag3.neg {
+  border-color: #f87171;
+  color: #b91c1c;
+}
+.bb3d-tag.w41-tag3.elec {
+  border-color: #60a5fa;
+  color: #1e3a8a;
+}
+.bb3d-tag.w41-tag3.cer {
+  border-color: #d6a35c;
+  color: #7c4a03;
+}
+.bb3d-tag.w41-tag3.bad {
+  border-color: #dc2626;
+  color: #991b1b;
+  background: #fef2f2;
+}
+.bb3d-tag.w41-tag3.alarm {
+  white-space: normal;
+  width: 13em;
+}
+.bb3d-tag.w41-tag3.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.w41-rtag {
+  font:
+    800 10px/1 ui-sans-serif,
+    system-ui,
+    sans-serif;
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #fff;
+  white-space: nowrap;
+}
+.w41-rtag.rail_p5 {
+  background: #e11d48;
+}
+.w41-rtag.rail_gnd {
+  background: #2b59c3;
+}
+.w41-rtag.lit {
+  box-shadow: 0 0 0 3px #fde68a;
+}
+.w41-cer-code {
+  font:
+    800 12px/1 ui-monospace,
+    monospace;
+  color: #3b2204;
+}
+.w41-dim {
+  font:
+    italic 800 14px/1 ui-serif,
+    Georgia,
+    serif;
+  color: #1f2a44;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+.w41-dim.pos {
+  color: #b91c1c;
+}
+.w41-dim.neg {
+  color: #1d4ed8;
+}
+.w41-dim.er {
+  font-size: 12px;
+  color: #6d28d9;
+}
+.w41-dim.lit {
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px var(--stage-amber);
+}
+.w41-tank {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  width: 200px;
+  max-width: 46%;
+  cursor: help;
+}
+.w41-tank svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.w41-tank.lit svg rect:first-child {
+  stroke: var(--stage-amber);
+  stroke-width: 2;
+}
+
+/* ---------------------------------------------------------- charts */
+.w41-chart {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+.w41-tick {
+  font-size: 11px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w41-ctitle {
+  font-size: 13px;
+  font-weight: 800;
+  font-style: italic;
+}
+.w41-axis {
+  cursor: help;
+}
+.w41-curve {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.w41-curve.v {
+  stroke: #0284c7;
+}
+.w41-curve.i {
+  stroke: #ea580c;
+  stroke-width: 3;
+}
+.w41-curve.w {
+  stroke: #16a34a;
+}
+.w41-curve.ghost {
+  stroke: #94a3b8;
+  stroke-dasharray: 5 4;
+  stroke-width: 1.8;
+}
+.w41-curve.lit {
+  stroke-width: 4.2;
+  filter: drop-shadow(0 0 3px #fbbf24);
+}
+.w41-riser {
+  stroke: #ea580c;
+  stroke-width: 1.4;
+  stroke-dasharray: 3 3;
+}
+.w41-spike {
+  font-size: 11px;
+  font-weight: 800;
+  fill: #b91c1c;
+}
+.w41-area {
+  stroke: none;
+  cursor: help;
+}
+.w41-area.in {
+  fill: #fed7aa;
+}
+.w41-area.out {
+  fill: #dbeafe;
+}
+.w41-area.lit {
+  fill: #fde68a;
+}
+.w41-area-label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #7c2d12;
+}
+.w41-v0 {
+  stroke: #be123c;
+  stroke-width: 4;
+  cursor: help;
+}
+.w41-v0.lit {
+  stroke: var(--stage-amber);
+}
+.w41-cursor line {
+  stroke: #1f2a44;
+  stroke-width: 1.2;
+  stroke-dasharray: 4 3;
+}
+.w41-cursor circle {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 2;
+}
+.w41-cursor.lit line {
+  stroke: var(--stage-amber);
+  stroke-width: 2;
+}
+
+/* ---------------------------------------------------------- schematics */
+.w41-schwrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.w41-sch {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+.w41-wire {
+  stroke: #1f2a44;
+  stroke-width: 2;
+  fill: none;
+}
+.w41-wire.dim {
+  stroke: #cbd5e1;
+}
+.w41-part rect {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 1.8;
+}
+.w41-part.dim rect {
+  stroke: #cbd5e1;
+  fill: #f1f5f9;
+}
+.w41-part.src circle {
+  fill: #fff;
+  stroke: #1f2a44;
+  stroke-width: 2;
+}
+.w41-part,
+.w41-cap,
+.w41-node {
+  cursor: help;
+}
+.w41-cap.tap {
+  cursor: pointer;
+}
+.w41-part.lit rect,
+.w41-part.src.lit circle {
+  fill: #fde68a;
+  stroke: #b45309;
+}
+.w41-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #1f2a44;
+}
+.w41-lbl.c {
+  fill: #0369a1;
+}
+.w41-cap.c2 .w41-lbl.c {
+  fill: #c2410c;
+}
+.w41-lbl.src {
+  fill: #a16207;
+}
+.w41-part.dim .w41-lbl {
+  fill: #94a3b8;
+}
+.w41-plate {
+  stroke: #0284c7;
+  stroke-width: 3.4;
+}
+.w41-cap.c2 .w41-plate,
+.w41-cap.c2 .w41-wire.c {
+  stroke: #ea580c;
+}
+.w41-wire.c {
+  stroke: #0284c7;
+}
+.w41-cap.lit .w41-plate {
+  stroke: #b45309;
+  filter: drop-shadow(0 0 3px #fbbf24);
+}
+.w41-dash {
+  stroke: #0284c7;
+  stroke-width: 1.6;
+  stroke-dasharray: 4 3;
+}
+.w41-cap.c2 .w41-dash,
+.w41-cap.c2 .w41-term {
+  stroke: #ea580c;
+}
+.w41-term {
+  fill: #fff;
+  stroke: #0284c7;
+  stroke-width: 2;
+}
+.w41-pol {
+  font-size: 11px;
+  font-weight: 800;
+  fill: #b91c1c;
+}
+.w41-sign {
+  font:
+    700 13px/1 ui-monospace,
+    monospace;
+  fill: #1f2a44;
+}
+.w41-node circle {
+  fill: #1f2a44;
+}
+.w41-nodev {
+  font-size: 12px;
+  font-weight: 800;
+  fill: #0369a1;
+}
+.w41-node.lit circle {
+  fill: var(--stage-amber);
+}
+.w41-node.lit .w41-nodev {
+  fill: #b45309;
+}
+.w41-dot {
+  fill: #1f2a44;
+}
+.w41-flow {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #15803d;
+}
+.w41-zero {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #b91c1c;
+}
+.w41-zeros {
+  cursor: help;
+}
+.w41-zeros.lit .w41-zero {
+  fill: #b45309;
+  text-decoration: underline;
+}
+.w41-foot {
+  font-size: 11.5px;
+  fill: #5f626b;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w41-seg .full,
+  .w41-toggle .full,
+  .w41-notice .full {
+    display: none;
+  }
+  .w41-seg .short,
+  .w41-toggle .short,
+  .w41-notice .short {
+    display: inline;
+  }
+  .w41-layer {
+    gap: 4px;
+  }
+  .w41-dock {
+    gap: 4px 5px;
+  }
+  .w41-seg {
+    padding: 2px;
+  }
+  .w41-seg button {
+    padding: 3px 6px;
+    font-size: 11.5px;
+  }
+  .w41-toggle,
+  .w41-fold {
+    padding: 3px 7px;
+    font-size: 11px;
+  }
+  .w41-slider {
+    flex-basis: 120px;
+    gap: 4px;
+    font-size: 11.5px;
+  }
+  .w41-num {
+    min-width: 3.8em;
+  }
+  .w41-notice,
+  .w41-alarm {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  .w41-cells {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .w41-cell {
+    padding: 2px 5px;
+    font-size: 10.5px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .w41-cell span {
+    flex: 0 1 auto;
+  }
+  .w41-cell b {
+    font-size: 11.5px;
+  }
+  .w41-cell small,
+  .w41-cell.minor {
+    display: none;
+  }
+  .w41-drag-hint {
+    display: none;
+  }
+  .w41-camsel {
+    right: 4px;
+    top: 4px;
+  }
+  .bb3d-tag.w41-tag3 {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  .bb3d-tag.w41-tag3.vent {
+    display: none;
+  }
+  .w41-tank {
+    width: 150px;
+  }
+  /* the drawings shrink to about 60 %: larger type */
+  .w41-tick {
+    font-size: 15px;
+  }
+  .w41-ctitle {
+    font-size: 17px;
+  }
+  .w41-spike,
+  .w41-area-label {
+    font-size: 14px;
+  }
+  .w41-lbl,
+  .w41-nodev,
+  .w41-flow,
+  .w41-zero {
+    font-size: 13.5px;
+  }
+  .w41-foot {
+    font-size: 13px;
+  }
+}

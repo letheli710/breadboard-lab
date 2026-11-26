@@ -6,7 +6,8 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { tr } from '../../core/i18n';
 import { useCourse } from '../../state/courseStore';
 import { useLang } from '../../state/store';
-import { Icon } from '../Icons';
+// the app shell's icon set (ui/IconCore): this file is on every page's start-up path
+import { CoreIcon as Icon } from '../IconCore';
 
 const LaterDialog = lazy(() => import('./LaterDialog'));
 

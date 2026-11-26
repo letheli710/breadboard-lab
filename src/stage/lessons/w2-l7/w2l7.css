@@ -1,0 +1,949 @@
+/* W2-L7 stage layers: black-box pipeline, port v–i line, 3D bench HUD. Light theme (stage.css tokens). */
+
+.w27-layer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- controls */
+.w27-ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.w27-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  min-width: 0;
+}
+.w27-seg {
+  display: flex;
+  gap: 3px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.w27-seg button {
+  flex: 1 0 auto;
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.w27-seg button.on {
+  background: var(--stage-blue);
+  color: #fff;
+}
+.w27-seg button.on.bad {
+  background: #be123c;
+}
+.w27-seg.small button {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.w27-seg .short {
+  display: none;
+}
+.w27-slider {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  font-weight: 600;
+  min-width: 0;
+}
+.w27-row .w27-slider {
+  flex: 1 1 220px;
+}
+.w27-slider input {
+  width: 100%;
+  accent-color: var(--stage-blue);
+}
+.w27-slider b {
+  font-variant-numeric: tabular-nums;
+  min-width: 4.6em;
+  text-align: right;
+}
+
+/* ---------------------------------------------------------- readout chips */
+.w27-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.w27-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+}
+.w27-chip span {
+  color: var(--muted);
+}
+.w27-chip.good {
+  background: #ecfdf5;
+  border-color: #a7e3c4;
+}
+.w27-chip.bad {
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w27-chip.bad b {
+  color: #be123c;
+}
+.w27-chip.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+/* ---------------------------------------------------------- schematic */
+.w27-sch-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+}
+.w27-sch {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.w27-wire {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.w27-wire.gnd {
+  stroke: #64748b;
+  stroke-width: 3;
+}
+.w27-obj {
+  cursor: help;
+}
+.w27-obj .hit {
+  fill: transparent;
+  stroke: none;
+}
+.w27-obj .body {
+  fill: #fff;
+  stroke-width: 2.2;
+}
+.w27-obj.res .body {
+  stroke: #b45309;
+}
+.w27-obj.src .body {
+  stroke: #0369a1;
+}
+.w27-obj.src.vth .body {
+  stroke: #15803d;
+}
+.w27-obj.dep .body {
+  stroke: #be123c;
+  fill: #fff1f2;
+}
+.w27-obj .arrow {
+  fill: none;
+  stroke: #0369a1;
+  stroke-width: 2.2;
+}
+.w27-obj .head {
+  fill: #0369a1;
+}
+.w27-obj.dep .arrow {
+  stroke: #be123c;
+}
+.w27-obj.dep .head {
+  fill: #be123c;
+}
+.w27-obj .term {
+  fill: #fff;
+  stroke: #15803d;
+  stroke-width: 2.2;
+}
+.w27-obj.node circle {
+  fill: #15803d;
+}
+.w27-obj .lead {
+  fill: none;
+  stroke: #334155;
+  stroke-width: 2.2;
+}
+.w27-obj .dash {
+  fill: none;
+  stroke: #d97706;
+  stroke-width: 1.8;
+  stroke-dasharray: 4 4;
+}
+.w27-obj.load .body {
+  stroke: #d97706;
+}
+.w27-obj.load.detached .lead,
+.w27-obj.load.detached .body {
+  stroke: #d97706;
+  stroke-dasharray: 5 3;
+}
+.w27-obj.meter .body {
+  stroke: #15803d;
+  fill: #f0fdf4;
+}
+.w27-obj.test .body {
+  stroke: #0284c7;
+  fill: #e0f2fe;
+  stroke-width: 2.6;
+}
+.w27-obj.test .lead {
+  stroke: #0284c7;
+}
+.w27-obj.io .arrow {
+  stroke: #0369a1;
+  stroke-width: 2.4;
+}
+.w27-obj.zeroed .short {
+  fill: none;
+  stroke: #e11d48;
+  stroke-width: 2.8;
+  stroke-dasharray: 6 4;
+}
+.w27-obj.zeroed .open {
+  fill: none;
+  stroke: #94a3b8;
+  stroke-width: 2;
+  stroke-dasharray: 3 4;
+}
+.w27-obj.netbox rect {
+  fill: #fbf7ef;
+  stroke: #cbd5e1;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+.w27-obj.netbox.thev rect {
+  fill: #f5f3ff;
+  stroke: #c4b5fd;
+}
+.w27-obj.bubble rect {
+  fill: #ecfdf5;
+  stroke: #10b981;
+  stroke-width: 1.4;
+}
+.w27-obj.bubble text {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #065f46;
+  font-variant-numeric: tabular-nums;
+}
+.w27-obj.bubble.voc rect {
+  fill: #dcfce7;
+  stroke: #16a34a;
+}
+.w27-obj.bubble.cur rect {
+  fill: #eff6ff;
+  stroke: #60a5fa;
+}
+.w27-obj.bubble.cur text {
+  fill: #1d4ed8;
+}
+.w27-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #1f2a44;
+}
+.w27-lbl.res {
+  fill: #92400e;
+}
+.w27-lbl.src {
+  fill: #0369a1;
+}
+.w27-lbl.dep {
+  fill: #be123c;
+}
+.w27-lbl.port,
+.w27-lbl.node,
+.w27-lbl.voc {
+  fill: #15803d;
+}
+.w27-lbl.load {
+  fill: #b45309;
+}
+.w27-lbl.rth {
+  fill: #7e22ce;
+}
+.w27-lbl.rth.big {
+  font-size: 15px;
+  font-weight: 800;
+}
+.w27-lbl.test,
+.w27-lbl.io {
+  fill: #0369a1;
+}
+.w27-lbl.sub {
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.w27-sign {
+  font-size: 14px;
+  font-weight: 800;
+  fill: #0369a1;
+}
+.w27-sign.dep {
+  fill: #be123c;
+}
+.w27-sign.test {
+  fill: #0284c7;
+}
+.w27-keep {
+  font-size: 11px;
+  font-weight: 800;
+  fill: #be123c;
+}
+.w27-zero {
+  font-size: 11.5px;
+  font-weight: 800;
+  fill: #be123c;
+}
+.w27-zero.sub {
+  font-size: 10px;
+  font-weight: 600;
+  fill: #5f626b;
+}
+.w27-boxlbl {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: #5f626b;
+}
+.w27-meter {
+  font-size: 17px;
+  font-weight: 800;
+  fill: #15803d;
+}
+.w27-note {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #5f626b;
+}
+
+/* lit objects */
+.w27-obj.lit .body,
+.w27-obj.lit .term,
+.w27-obj.lit .lead,
+.w27-obj.lit .short,
+.w27-obj.lit .open,
+.w27-obj.lit .arrow,
+.w27-obj.lit .dash {
+  stroke: var(--stage-amber);
+  stroke-width: 3.6;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.75));
+}
+.w27-obj.lit .head,
+.w27-obj.node.lit circle {
+  fill: var(--stage-amber);
+}
+.w27-obj.lit text {
+  fill: #92400e;
+}
+.w27-obj.netbox.lit rect {
+  stroke: var(--stage-amber);
+  stroke-width: 2.5;
+  fill: #fffbeb;
+}
+.w27-obj.bubble.lit rect {
+  stroke: var(--stage-amber);
+  stroke-width: 2.5;
+  fill: #fde9b8;
+}
+
+/* ---------------------------------------------------------- v–i plot */
+.w27-grid {
+  stroke: #e7e2d6;
+  stroke-width: 1;
+}
+.w27-grid.v {
+  stroke-dasharray: 2 3;
+}
+.w27-tick {
+  font-size: 11px;
+  fill: #5f626b;
+  font-variant-numeric: tabular-nums;
+}
+.w27-tick.axis {
+  font-weight: 800;
+  fill: #1f2a44;
+}
+.w27-axis {
+  fill: none;
+  stroke: #475569;
+  stroke-width: 2;
+}
+.w27-axis-head {
+  fill: #475569;
+}
+.w27-plot .line .hit,
+.w27-plot .loadline .hit {
+  stroke: transparent;
+  stroke-width: 16;
+}
+.w27-plot .line .src {
+  stroke: #0284c7;
+  stroke-width: 3.4;
+}
+.w27-plot .loadline .ll {
+  stroke: #d97706;
+  stroke-width: 2.4;
+  stroke-dasharray: 7 4;
+}
+.w27-plot .q .proj {
+  fill: none;
+  stroke: #b45309;
+  stroke-width: 1.3;
+  stroke-dasharray: 4 3;
+}
+.w27-plot .dot {
+  fill: #d97706;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.w27-plot .dot.vth {
+  fill: #16a34a;
+}
+.w27-plot .dot.in {
+  fill: #e11d48;
+}
+.w27-lbl.q {
+  fill: #92400e;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.w27-lbl.in {
+  fill: #be123c;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.w27-plot .w27-lbl.voc,
+.w27-plot .w27-lbl.src,
+.w27-plot .w27-lbl.load {
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.w27-plot .lit .src,
+.w27-plot .lit .ll {
+  stroke: var(--stage-amber);
+  stroke-width: 5;
+  filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.8));
+}
+.w27-plot .lit .dot {
+  stroke: var(--stage-amber);
+  stroke-width: 3.5;
+}
+.w27-plot .q.lit .proj {
+  stroke: var(--stage-amber);
+  stroke-width: 2.5;
+}
+.w27-inset .frame {
+  fill: #fff;
+  stroke: #d6c9ae;
+  stroke-width: 1.2;
+}
+.w27-inset-t {
+  font-size: 10.5px;
+  font-weight: 800;
+  fill: #3a4560;
+}
+.w27-mini {
+  font-size: 10px;
+  font-weight: 700;
+  fill: #1f2a44;
+}
+.w27-mini.v {
+  fill: #0369a1;
+}
+.w27-mini.r {
+  fill: #7e22ce;
+}
+.w27-mini.i {
+  fill: #047857;
+}
+.w27-mini.l {
+  fill: #b45309;
+}
+.w27-mini-arrow {
+  fill: none;
+  stroke: #0369a1;
+  stroke-width: 1.8;
+}
+.w27-mini-head {
+  fill: #0369a1;
+}
+.w27-inset .srcbody {
+  fill: #fff;
+  stroke: #0369a1;
+  stroke-width: 1.8;
+}
+.w27-inset .rbody {
+  fill: #fff;
+  stroke: #7e22ce;
+  stroke-width: 1.8;
+}
+.w27-inset .lbody {
+  fill: #fff;
+  stroke: #d97706;
+  stroke-width: 1.8;
+}
+.w27-term {
+  fill: #fff;
+  stroke: #15803d;
+  stroke-width: 1.8;
+}
+.w27-inset .w27-wire {
+  stroke-width: 1.8;
+}
+.w27-inset .lit .srcbody,
+.w27-inset .lit .rbody,
+.w27-inset .lit .lbody {
+  stroke: var(--stage-amber);
+  stroke-width: 3;
+}
+
+/* ---------------------------------------------------------- 3D bench */
+.w27-bench {
+  min-height: 120px;
+}
+.bb3d-tag.w27-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  color: #1f2a44;
+  border-color: #94a3b8;
+}
+.bb3d-tag.w27-tag.port {
+  color: #15803d;
+  border-color: #16a34a;
+  cursor: help;
+}
+.bb3d-tag.w27-tag.good {
+  border-color: #16a34a;
+  background: #dcfce7;
+}
+.bb3d-tag.w27-tag.lit {
+  border-color: var(--stage-amber);
+  background: #fde9b8;
+}
+.bb3d-tag.w27-tag.heat-warm {
+  border-color: #ea580c;
+  color: #9a3412;
+}
+.bb3d-tag.w27-tag.heat-smoke {
+  border-color: #e11d48;
+  color: #9f1239;
+  background: #fff1f2;
+}
+.w27-smoke {
+  position: relative;
+  width: 40px;
+  height: 60px;
+  pointer-events: none;
+}
+.w27-smoke i {
+  position: absolute;
+  left: 12px;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(55, 55, 60, 0.72);
+  animation: w27-smoke 1.8s ease-out infinite;
+}
+.w27-smoke i:nth-child(2) {
+  animation-delay: 0.6s;
+  left: 6px;
+}
+.w27-smoke i:nth-child(3) {
+  animation-delay: 1.2s;
+  left: 18px;
+}
+.w27-smoke.still i {
+  animation: none;
+  opacity: 0.6;
+}
+.w27-smoke.still i:nth-child(2) {
+  bottom: 18px;
+}
+.w27-smoke.still i:nth-child(3) {
+  bottom: 34px;
+}
+@keyframes w27-smoke {
+  from {
+    transform: translateY(0) scale(0.6);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(-46px) scale(2);
+    opacity: 0;
+  }
+}
+.w27-lcd {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: #c9d8b1;
+  border: 2px solid #2b2f36;
+  color: #10210f;
+  font-family: ui-monospace, monospace;
+  white-space: nowrap;
+  cursor: help;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.w27-lcd small {
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.w27-lcd b {
+  font-size: 19px;
+  letter-spacing: 0.04em;
+}
+.w27-lcd span {
+  font-size: 12px;
+  font-weight: 800;
+}
+.w27-lcd.lit {
+  border-color: var(--stage-amber);
+  box-shadow:
+    0 0 0 3px #fde9b8,
+    0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.w27-lcd.good {
+  background: #bbf7d0;
+  border-color: #15803d;
+}
+.w27-lcd.bad {
+  background: #ffe4e6;
+  color: #9f1239;
+}
+.w27-jacks {
+  display: inline-flex;
+  gap: 4px;
+  font-size: 9.5px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+}
+.w27-jacks span {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.75);
+  color: #64748b;
+}
+.w27-jacks span.on {
+  color: #1f2a44;
+  background: #fff;
+}
+.w27-hud {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 30;
+  display: grid;
+  gap: 4px;
+  max-width: calc(100% - 16px);
+  justify-items: end;
+}
+.w27-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  cursor: help;
+}
+.w27-reading b {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--ink);
+}
+.w27-reading.supply b {
+  color: #0c4a6e;
+}
+.w27-reading.good {
+  border-color: #16a34a;
+  background: #ecfdf5;
+}
+.w27-reading.bad {
+  border-color: #e11d48;
+  color: #be123c;
+}
+.w27-reading.lit,
+.w27-thermal.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 3px #fde9b8;
+}
+.w27-thermal {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 11.5px;
+  display: grid;
+  gap: 2px;
+  min-width: 176px;
+  cursor: help;
+}
+.w27-thermal-title {
+  font-weight: 800;
+  color: var(--ink-2);
+}
+.w27-thermal-row {
+  display: grid;
+  grid-template-columns: 2.4em 1fr 5.6em;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.w27-thermal-row i {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+.w27-thermal-row em {
+  position: absolute;
+  inset: 0 auto 0 0;
+  min-width: 2px;
+  background: #22c55e;
+}
+.w27-thermal-row u {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: #ea580c;
+}
+.w27-thermal-row.heat-warm em {
+  background: #f97316;
+}
+.w27-thermal-row.heat-smoke em {
+  background: #e11d48;
+}
+.w27-thermal-row.heat-smoke b {
+  color: #be123c;
+}
+.w27-thermal-row b {
+  text-align: right;
+}
+.w27-overload {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 40;
+  width: min(420px, calc(100% - 20px));
+  background: rgba(255, 241, 242, 0.97);
+  border: 2px solid #e11d48;
+  border-radius: 10px;
+  padding: 8px 12px;
+  box-shadow: 0 8px 24px rgba(159, 18, 57, 0.25);
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+}
+.w27-overload b {
+  color: #be123c;
+  font-size: 15px;
+  font-family: ui-monospace, monospace;
+}
+.w27-overload p {
+  margin: 0;
+  font-size: 12px;
+  color: #881337;
+  line-height: 1.45;
+}
+.w27-formula {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--stage-green-soft);
+  border: 1px solid #b7dfc3;
+  color: var(--ink-2);
+  overflow-x: auto;
+}
+.w27-formula.good {
+  border-color: #16a34a;
+  background: #dcfce7;
+}
+.w27-formula span {
+  font-size: 12px;
+}
+.w27-notice {
+  font-size: 12px;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7e3c4;
+  border-radius: 8px;
+  padding: 3px 8px;
+  align-self: flex-start;
+  cursor: help;
+}
+.w27-notice.bad,
+.w27-notice.warn {
+  color: #9f1239;
+  background: #fff1f2;
+  border-color: #fda4af;
+}
+.w27-notice.lit {
+  border-color: var(--stage-amber);
+  box-shadow: 0 0 0 2px #fde9b8;
+}
+
+.w27-reveal {
+  border: 1px dashed #c4b5fd;
+  background: #f5f3ff;
+  color: #6d28d9;
+  border-radius: 7px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.w27-masked {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 10px;
+}
+
+/* ---------------------------------------------------------- narrow screens */
+@media (max-width: 960px) {
+  .w27-layer,
+  .w27-ctrl {
+    gap: 4px;
+  }
+  .w27-seg .full {
+    display: none;
+  }
+  .w27-seg .short {
+    display: inline;
+  }
+  .w27-seg {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .w27-seg button {
+    padding: 3px 7px;
+    font-size: 11.5px;
+  }
+  .w27-seg.small button {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  .w27-slider {
+    font-size: 11.5px;
+  }
+  .w27-row .w27-slider {
+    flex-basis: 160px;
+  }
+  .w27-chip {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+  .w27-chip.wide {
+    display: none;
+  }
+  .w27-reading:not(.supply) span,
+  .w27-thermal-title {
+    display: none;
+  }
+  .w27-reading {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  .w27-reading b {
+    font-size: 11px;
+  }
+  .w27-thermal {
+    min-width: 0;
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  .w27-thermal-row {
+    grid-template-columns: 2.2em 34px 4.9em;
+    gap: 4px;
+  }
+  .bb3d-tag.w27-tag {
+    font-size: 9.5px;
+    padding: 1px 4px;
+  }
+  .w27-lcd b {
+    font-size: 14px;
+  }
+  .w27-lcd {
+    padding: 2px 6px;
+  }
+  .w27-formula {
+    font-size: 11.5px;
+    padding: 2px 8px;
+  }
+  .w27-formula span {
+    display: none;
+  }
+  .w27-notice {
+    font-size: 10.5px;
+    padding: 2px 6px;
+    line-height: 1.35;
+  }
+  .w27-overload {
+    padding: 5px 8px;
+  }
+  .w27-overload p {
+    display: none;
+  }
+  /* the stage is ~52vh here: the 3D bench keeps the meter reading, the name tags and the notice */
+  .w27-thermal,
+  .w27-reading.supply,
+  .w27-formula,
+  .bb3d-tag.w27-tag.mod {
+    display: none;
+  }
+}
