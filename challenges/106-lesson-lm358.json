@@ -49,19 +49,19 @@
     "pins": {
       "kind": "breadboard",
       "caption": {
-        "text": "LM358 横跨凹槽：上排 e 是 1–4 脚，下排 f 从右往左是 5–8 脚。每只脚独占一条金属条。",
+        "text": "LM358 横跨凹槽，缺口在左：下排 f 从左到右是 1–4 脚，上排 e 从右往左是 5–8 脚（和真芯片俯视一样，1 脚在左下角）。每只脚独占一条金属条。",
         "i18n": {
-          "en": "The LM358 straddles the trench: row e holds pins 1–4, row f pins 8–5 (left to right). Each pin has its own strip."
+          "en": "The LM358 straddles the trench, notch on the left: the bottom row f holds pins 1–4 (left to right), the top row e pins 8–5 (as on a real chip seen from above, pin 1 at the bottom left). Each pin has its own strip."
         }
       },
       "cols": [8, 15],
       "rails": "none",
       "strips": [
-        {"at": "e10", "tone": 1, "label": {"text": "1 输出", "i18n": {"en": "1 OUT"}}},
-        {"at": "e11", "tone": 2, "label": {"text": "2 IN−", "i18n": {"en": "2 IN−"}}},
-        {"at": "e12", "tone": 3, "label": {"text": "3 IN+", "i18n": {"en": "3 IN+"}}},
-        {"at": "e13", "tone": 2, "label": {"text": "4 V−", "i18n": {"en": "4 V−"}}},
-        {"at": "f10", "tone": 1, "label": {"text": "8 V+", "i18n": {"en": "8 V+"}}}
+        {"at": "f10", "tone": 1, "label": {"text": "1 输出", "i18n": {"en": "1 OUT"}}},
+        {"at": "f11", "tone": 2, "label": {"text": "2 IN−", "i18n": {"en": "2 IN−"}}},
+        {"at": "f12", "tone": 3, "label": {"text": "3 IN+", "i18n": {"en": "3 IN+"}}},
+        {"at": "f13", "tone": 2, "label": {"text": "4 V−", "i18n": {"en": "4 V−"}}},
+        {"at": "e10", "tone": 1, "label": {"text": "8 V+", "i18n": {"en": "8 V+"}}}
       ]
     },
     "follower": {
@@ -92,13 +92,13 @@
       "description": "The LM358 is a DIP-8 chip with two op-amps inside. An op-amp multiplies the difference of its two inputs by about 100 000; wiring the output back to the inverting input (negative feedback) makes a voltage follower: output = input. On a single supply the output reaches only about V+ − 1.5 V.",
       "compare": "**Compare**:\n- wiper at 70 %: IN+ ≈ 0.7 × 9 V ≈ **6.3 V**, and the output is **6.3 V** too (it follows);\n- wiper at 100 %: IN+ = 9 V, but the output tops out at 9 V − 1.5 V = **7.5 V**.",
       "steps": [
-        "**9 V battery**: + in **`tp1`**, − in **`tn1`**. Pin 8 sits in the bottom half, so the bottom rails need power too: red jumper **`tp30`** → **`bp30`**, blue jumper **`tn29`** → **`bn29`**.",
-        "Pick **Op-amp LM358** and click **`e10`** (pin 1, notch on the left). The chip straddles the trench: pins 1–4 in `e10`–`e13`, pins 8–5 in `f10`–`f13`, each pin on its own strip.\n\n![](fig:pins)",
-        "**Power pins**: red jumper **`j10`** → **`bp10`** (pin 8, V+, to +9 V), blue jumper **`a13`** → **`tn13`** (pin 4, V−, to GND).",
-        "**Potentiometer** `10 kΩ`, click **`c20`** (legs in `c20`, `c21`, `c22`). Its ends: blue jumper **`a20`** → **`tn20`**, red jumper **`a22`** → **`tp22`**. Wiper to IN+: jumper **`b21`** → **`b12`** (pin 3).",
-        "**No feedback wire yet.** Put the multimeter's red probe on **`d10`** (pin 1, the output). Click the pot and drag its wiper in **Properties** from `10%` to `90%`: what does the output do?",
-        "**Add the feedback**: jumper **`a10`** → **`a11`**, from pin 1 (output) back to pin 2 (IN−).",
-        "Drag the wiper again and watch **`d10`**; then move the red probe to **`d12`** (pin 3, IN+) and compare.",
+        "**9 V battery**: + in **`bp1`**, − in **`bn1`**. Pin 8 sits in the top half, so the top rails need power too: red jumper **`bp30`** → **`tp30`**, blue jumper **`bn29`** → **`tn29`**.",
+        "Pick **Op-amp LM358** and click **`f10`** (pin 1, notch on the left). The chip straddles the trench as a real one sits: pins 1–4 along the bottom in `f10`–`f13`, pins 8–5 along the top in `e10`–`e13`, each pin on its own strip.\n\n![](fig:pins)",
+        "**Power pins**: red jumper **`a10`** → **`tp10`** (pin 8, V+, to +9 V), blue jumper **`j13`** → **`bn13`** (pin 4, V−, to GND).",
+        "**Potentiometer** `10 kΩ`, click **`h20`** (legs in `h20`, `h21`, `h22`). Its ends: blue jumper **`j20`** → **`bn20`**, red jumper **`j22`** → **`bp22`**. Wiper to IN+: jumper **`i21`** → **`i12`** (pin 3).",
+        "**No feedback wire yet.** Put the multimeter's red probe on **`g10`** (pin 1, the output). Click the pot and drag its wiper in **Properties** from `10%` to `90%`: what does the output do?",
+        "**Add the feedback**: jumper **`j10`** → **`j11`**, from pin 1 (output) back to pin 2 (IN−).",
+        "Drag the wiper again and watch **`g10`**; then move the red probe to **`g12`** (pin 3, IN+) and compare.",
         "Turn the wiper to **`100%`** (IN+ = 9 V) and look at the output again: it stops well short of 9 V. **Diagnostics** reports the output as saturated.",
         "Press **Check my circuit**, set the wiper as each question says, and read the multimeter."
       ],
@@ -227,56 +227,56 @@
   ],
   "steps": [
     {
-      "text": "**9 V 电池**：+ 接 **`tp1`**，− 接 **`tn1`**。芯片的 8 脚在下半区，下方轨道也要有电：红跳线 **`tp30`** → **`bp30`**，蓝跳线 **`tn29`** → **`bn29`**。",
-      "highlight": ["tp1", "tn1", "tp30", "bp30", "tn29", "bn29"],
+      "text": "**9 V 电池**：+ 接 **`bp1`**，− 接 **`bn1`**。芯片的 8 脚在上半区，上方轨道也要有电：红跳线 **`bp30`** → **`tp30`**，蓝跳线 **`bn29`** → **`tn29`**。",
+      "highlight": ["bp1", "bn1", "bp30", "tp30", "bn29", "tn29"],
       "check": [
-        {"type": "battery", "pins": {"+": "tp1", "-": "tn1"}},
-        {"type": "wire", "pins": {"a": "tp30", "b": "bp30"}},
-        {"type": "wire", "pins": {"a": "tn29", "b": "bn29"}}
+        {"type": "battery", "pins": {"+": "bp1", "-": "bn1"}},
+        {"type": "wire", "pins": {"a": "bp30", "b": "tp30"}},
+        {"type": "wire", "pins": {"a": "bn29", "b": "tn29"}}
       ]
     },
     {
-      "text": "选**「op-amp（运算放大器）LM358」**，单击 **`e10`**（1 脚，缺口在左）。芯片横跨凹槽：1–4 脚在 `e10`–`e13`，8–5 脚在 `f10`–`f13`，每只脚独占一条金属条。\n\n![](fig:pins)",
-      "highlight": ["e10", "e11", "e12", "e13", "f10", "f11", "f12", "f13"],
-      "check": [{"type": "opamp", "at": "e10"}]
+      "text": "选**「op-amp（运算放大器）LM358」**，单击 **`f10`**（1 脚，缺口在左）。芯片横跨凹槽，和真芯片的方向一样：1–4 脚在下排 `f10`–`f13`，8–5 脚在上排 `e10`–`e13`，每只脚独占一条金属条。\n\n![](fig:pins)",
+      "highlight": ["f10", "f11", "f12", "f13", "e10", "e11", "e12", "e13"],
+      "check": [{"type": "opamp", "at": "f10"}]
     },
     {
-      "text": "**电源脚**：红跳线 **`j10`** → **`bp10`**（8 脚 V+ 接 +9 V），蓝跳线 **`a13`** → **`tn13`**（4 脚 V− 接 GND）。",
-      "highlight": ["j10", "bp10", "a13", "tn13"],
+      "text": "**电源脚**：红跳线 **`a10`** → **`tp10`**（8 脚 V+ 接 +9 V），蓝跳线 **`j13`** → **`bn13`**（4 脚 V− 接 GND）。",
+      "highlight": ["a10", "tp10", "j13", "bn13"],
       "check": [
-        {"type": "wire", "pins": {"a": "j10", "b": "bp10"}},
-        {"type": "wire", "pins": {"a": "a13", "b": "tn13"}}
+        {"type": "wire", "pins": {"a": "a10", "b": "tp10"}},
+        {"type": "wire", "pins": {"a": "j13", "b": "bn13"}}
       ]
     },
     {
-      "text": "**电位器** `10 kΩ`，单击 **`c20`**（三只脚在 `c20`、`c21`、`c22`）。两端：蓝跳线 **`a20`** → **`tn20`**，红跳线 **`a22`** → **`tp22`**。滑动端接 IN+：跳线 **`b21`** → **`b12`**（3 脚）。",
-      "highlight": ["c20", "c21", "c22", "a20", "tn20", "a22", "tp22", "b21", "b12"],
+      "text": "**电位器** `10 kΩ`，单击 **`h20`**（三只脚在 `h20`、`h21`、`h22`）。两端：蓝跳线 **`j20`** → **`bn20`**，红跳线 **`j22`** → **`bp22`**。滑动端接 IN+：跳线 **`i21`** → **`i12`**（3 脚）。",
+      "highlight": ["h20", "h21", "h22", "j20", "bn20", "j22", "bp22", "i21", "i12"],
       "check": [
-        {"type": "potentiometer", "at": "c20", "resistance": "10k"},
-        {"type": "wire", "pins": {"a": "a20", "b": "tn20"}},
-        {"type": "wire", "pins": {"a": "a22", "b": "tp22"}},
-        {"type": "wire", "pins": {"a": "b21", "b": "b12"}}
+        {"type": "potentiometer", "at": "h20", "resistance": "10k"},
+        {"type": "wire", "pins": {"a": "j20", "b": "bn20"}},
+        {"type": "wire", "pins": {"a": "j22", "b": "bp22"}},
+        {"type": "wire", "pins": {"a": "i21", "b": "i12"}}
       ]
     },
     {
-      "text": "**先不接反馈线。** 万用表红表笔点 **`d10`**（1 脚，输出）。单击电位器，在「属性」里把滑动端从 `10%` 拖到 `90%`：输出怎么变？",
-      "highlight": ["d10"],
-      "check": [{"probe": {"red": "d10"}}]
+      "text": "**先不接反馈线。** 万用表红表笔点 **`g10`**（1 脚，输出）。单击电位器，在「属性」里把滑动端从 `10%` 拖到 `90%`：输出怎么变？",
+      "highlight": ["g10"],
+      "check": [{"probe": {"red": "g10"}}]
     },
     {
-      "text": "**接上反馈**：跳线 **`a10`** → **`a11`**，把 1 脚（输出）接回 2 脚（IN−）。",
-      "highlight": ["a10", "a11"],
-      "check": [{"type": "wire", "pins": {"a": "a10", "b": "a11"}}]
+      "text": "**接上反馈**：跳线 **`j10`** → **`j11`**，把 1 脚（输出）接回 2 脚（IN−）。",
+      "highlight": ["j10", "j11"],
+      "check": [{"type": "wire", "pins": {"a": "j10", "b": "j11"}}]
     },
     {
-      "text": "再拖一次滑动端，看 **`d10`** 的读数；然后把红表笔移到 **`d12`**（3 脚，IN+）比一比。",
-      "highlight": ["d10", "d12"],
-      "check": [{"probe": {"red": "d12"}}]
+      "text": "再拖一次滑动端，看 **`g10`** 的读数；然后把红表笔移到 **`g12`**（3 脚，IN+）比一比。",
+      "highlight": ["g10", "g12"],
+      "check": [{"probe": {"red": "g12"}}]
     },
     {
       "text": "把滑动端拧到 **`100%`**（IN+ = 9 V），再看输出：它停在比 9 V 低一截的地方。「诊断」会提示输出饱和。",
-      "highlight": ["c21"],
-      "check": [{"type": "potentiometer", "at": "c20", "wiper": 1}]
+      "highlight": ["h21"],
+      "check": [{"type": "potentiometer", "at": "h20", "wiper": 1}]
     },
     "点**「检查我的电路」**，按每道测量题写的状态调滑动端，读万用表。"
   ],
@@ -287,17 +287,17 @@
   ],
   "solution": {
     "parts": [
-      {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "wire", "pins": {"a": "tp30", "b": "bp30"}, "color": "red"},
-      {"type": "wire", "pins": {"a": "tn29", "b": "bn29"}, "color": "blue"},
-      {"type": "opamp", "ref": "U1", "at": "e10"},
-      {"type": "wire", "pins": {"a": "j10", "b": "bp10"}, "color": "red"},
-      {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"},
-      {"type": "wire", "pins": {"a": "a10", "b": "a11"}, "color": "green"},
-      {"type": "potentiometer", "ref": "POT1", "resistance": "10k", "wiper": 1, "at": "c20"},
-      {"type": "wire", "pins": {"a": "a20", "b": "tn20"}, "color": "blue"},
-      {"type": "wire", "pins": {"a": "a22", "b": "tp22"}, "color": "red"},
-      {"type": "wire", "pins": {"a": "b21", "b": "b12"}, "color": "yellow"}
+      {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "bp1", "-": "bn1"}},
+      {"type": "wire", "pins": {"a": "bp30", "b": "tp30"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "bn29", "b": "tn29"}, "color": "blue"},
+      {"type": "opamp", "ref": "U1", "at": "f10"},
+      {"type": "wire", "pins": {"a": "a10", "b": "tp10"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "j13", "b": "bn13"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "j10", "b": "j11"}, "color": "green"},
+      {"type": "potentiometer", "ref": "POT1", "resistance": "10k", "wiper": 1, "at": "h20"},
+      {"type": "wire", "pins": {"a": "j20", "b": "bn20"}, "color": "blue"},
+      {"type": "wire", "pins": {"a": "j22", "b": "bp22"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "i21", "b": "i12"}, "color": "yellow"}
     ]
   }
 }

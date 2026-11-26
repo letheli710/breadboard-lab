@@ -450,14 +450,16 @@ export const PARTS: Record<PartType, PartDef> = {
       kind: 'footprint',
       get prompt() {
         return tr(
-          '点击 1 脚（缺口旁、有小圆点的那只脚）的位置——必须在 e 行，让芯片横跨中间凹槽；芯片占 4 列（1–4 脚在 e 行，8–5 脚在 f 行）',
-          'Click where pin 1 goes (next to the notch, marked with a dot) — it must be in row e so the chip straddles the centre gap; the chip takes 4 columns (pins 1–4 in row e, pins 8–5 in row f)',
+          '点击 1 脚（缺口在左、小圆点旁边那只脚）的位置——必须在 f 行，让芯片横跨中间凹槽；芯片占 4 列（和真芯片俯视一样：1–4 脚在下排 f 行从左到右，8–5 脚在上排 e 行）',
+          'Click where pin 1 goes (notch on the left, the leg next to the dot) — it must be in row f so the chip straddles the centre gap; the chip takes 4 columns (as on a real chip seen from above: pins 1–4 left to right along the bottom, in row f; pins 8–5 along the top, in row e)',
         );
       },
       footprint: (anchor) => {
         const h = HOLE_MAP.get(anchor);
-        if (!h || h.row !== 'e') return null;
-        return rowFootprint({ '1': [0, 0], '2': [0, 1], '3': [0, 2], '4': [0, 3], '8': [1, 0], '7': [1, 1], '6': [1, 2], '5': [1, 3] })(anchor);
+        // real DIP-8 top view, notch on the left: pin 1 bottom-left, 1–4 left→right along the
+        // bottom (row f), then anticlockwise 5–8 right→left along the top (row e)
+        if (!h || h.row !== 'f') return null;
+        return rowFootprint({ '1': [0, 0], '2': [0, 1], '3': [0, 2], '4': [0, 3], '8': [-1, 0], '7': [-1, 1], '6': [-1, 2], '5': [-1, 3] })(anchor);
       },
     },
     terminals: ['outA', 'inA-', 'inA+', 'v-', 'inB+', 'inB-', 'outB', 'v+'],

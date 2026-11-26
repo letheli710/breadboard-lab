@@ -15,9 +15,9 @@
       "kind": "try",
       "title": "两级中间插一个 op-amp",
       "text": [
-        "LM358 已经通上电（8 脚 +9 V，4 脚 GND）。第一级低通：**R1**（`10 kΩ`）**`b3`**–**`b12`**，**C1**（`15 nF`）**`c12`**–**`tn12`**。第 12 列就是 op-amp（运算放大器）的 IN+。",
-        "跟随器：一根**跳线** **`b10`**–**`b11`**，把 OUT（第 10 列）接到 IN−（第 11 列）。",
-        "第二级高通：**C2**（`15 nF`）**`c10`**–**`c18`**，**R2**（`10 kΩ`）**`d18`**–**`tn18`**。",
+        "LM358 已经通上电（8 脚 +9 V，4 脚 GND）。第一级低通：**R1**（`10 kΩ`）**`i3`**–**`i12`**，**C1**（`15 nF`）**`h12`**–**`bn12`**。第 12 列就是 op-amp（运算放大器）的 IN+。",
+        "跟随器：一根**跳线** **`i10`**–**`i11`**，把 OUT（第 10 列）接到 IN−（第 11 列）。",
+        "第二级高通：**C2**（`15 nF`）**`h10`**–**`h18`**，**R2**（`10 kΩ`）**`g18`**–**`bn18`**。",
         "信号发生器：**`1061 Hz`、幅度 `1 V`、偏置 `2 V`**。和上一个实验比：输出离“两级相乘”的估计近了，还是远了？"
       ]
     },
@@ -38,7 +38,7 @@
       "kind": "build",
       "title": "量跟随器两边",
       "text": [
-        "- **`1061 Hz`**：先把 **CH2 针尖挪到 `a10`**（跟随器的输出），读 OUT/VIN；再插回 **`e18`**（VOUT），读 VOUT/VIN。",
+        "- **`1061 Hz`**：先把 **CH2 针尖挪到 `j10`**（跟随器的输出），读 OUT/VIN；再插回 **`f18`**（VOUT），读 VOUT/VIN。",
         "- **万用表**红笔点 OUT（第 `10` 列），黑笔 GND：读平均电压。",
         "- **`106 Hz`**：读 VOUT/VIN。"
       ]
@@ -95,10 +95,10 @@
       ],
       "measurements": [
         {
-          "ask": "1061 Hz: CH2 tip on a10 (the follower output), amplitude ratio OUT/VIN",
+          "ask": "1061 Hz: CH2 tip on j10 (the follower output), amplitude ratio OUT/VIN",
           "explain": "The follower draws almost no current, so stage 1 is an unloaded RC low-pass: 0.707∠−45° at f0."
         },
-        {"ask": "1061 Hz: CH2 back on e18 (VOUT), amplitude ratio VOUT/VIN", "explain": "0.707 × 0.707 = 0.5 (only 1/3 without the follower)."},
+        {"ask": "1061 Hz: CH2 back on f18 (VOUT), amplitude ratio VOUT/VIN", "explain": "0.707 × 0.707 = 0.5 (only 1/3 without the follower)."},
         {
           "ask": "From your two readings, the gain of stage 2 (the high-pass) on its own = (VOUT/VIN) / (OUT/VIN)",
           "explain": "≈ 0.707, exactly an unloaded RC high-pass at f0: the follower's output impedance is tiny, so stage 2 sees an ideal voltage source and the stages simply multiply."
@@ -127,9 +127,9 @@
         {
           "title": "An op-amp between the stages",
           "text": [
-            "The LM358 is already powered (pin 8 at +9 V, pin 4 at GND). Stage 1, a low-pass: **R1** (`10 kΩ`) **`b3`**–**`b12`**, **C1** (`15 nF`) **`c12`**–**`tn12`**. Column 12 is the op-amp's IN+.",
-            "The follower: one **jumper** **`b10`**–**`b11`**, joining OUT (column 10) to IN− (column 11).",
-            "Stage 2, a high-pass: **C2** (`15 nF`) **`c10`**–**`c18`**, **R2** (`10 kΩ`) **`d18`**–**`tn18`**.",
+            "The LM358 is already powered (pin 8 at +9 V, pin 4 at GND). Stage 1, a low-pass: **R1** (`10 kΩ`) **`i3`**–**`i12`**, **C1** (`15 nF`) **`h12`**–**`bn12`**. Column 12 is the op-amp's IN+.",
+            "The follower: one **jumper** **`i10`**–**`i11`**, joining OUT (column 10) to IN− (column 11).",
+            "Stage 2, a high-pass: **C2** (`15 nF`) **`h10`**–**`h18`**, **R2** (`10 kΩ`) **`g18`**–**`bn18`**.",
             "Generator: **`1061 Hz`, amplitude `1 V`, offset `2 V`**. Compared with the previous experiment: is the output closer to the \"multiply the two stages\" guess, or further away?"
           ]
         },
@@ -148,7 +148,7 @@
         {
           "title": "Measure both sides of the follower",
           "text": [
-            "- **`1061 Hz`**: first move the **CH2 tip to `a10`** (the follower's output) and read OUT/VIN; then put it back into **`e18`** (VOUT) and read VOUT/VIN.",
+            "- **`1061 Hz`**: first move the **CH2 tip to `j10`** (the follower's output) and read OUT/VIN; then put it back into **`f18`** (VOUT) and read VOUT/VIN.",
             "- **Multimeter** red probe on OUT (column `10`), black on GND: read the average voltage.",
             "- **`106 Hz`**: read VOUT/VIN."
           ]
@@ -232,7 +232,7 @@
       "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}},
       "predict": true,
       "range": [0.672, 0.742],
-      "ask": "1061 Hz：CH2 针尖挪到 a10（跟随器输出），幅度比 OUT/VIN",
+      "ask": "1061 Hz：CH2 针尖挪到 j10（跟随器输出），幅度比 OUT/VIN",
       "explain": "跟随器几乎不取电流，第一级是不带负载的 RC 低通：在 f0 处 0.707∠−45°。"
     },
     {
@@ -243,7 +243,7 @@
       "set": {"FG1": {"waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2}},
       "predict": true,
       "range": [0.475, 0.525],
-      "ask": "1061 Hz：CH2 插回 e18（VOUT），幅度比 VOUT/VIN",
+      "ask": "1061 Hz：CH2 插回 f18（VOUT），幅度比 VOUT/VIN",
       "explain": "0.707 × 0.707 = 0.5（不加跟随器时只有 1/3）。"
     },
     {
@@ -279,29 +279,29 @@
   "hints": ["先供电：8 脚 +9 V，4 脚 GND；跟随器就是一根从 OUT 到 IN− 的线。", "第一级：R1 再 C1 到 GND，中点接 IN+；第二级：从 OUT 出发，C2 再 R2 到 GND。", "信号发生器偏置保持 2 V，跟随器就不用输出低于 0 V 的电压。"],
   "start": {
     "parts": [
-      {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "opamp", "ref": "U1", "at": "e10"},
-      {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
-      {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"},
-      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2, "pins": {"+": "a3", "-": "tn3"}},
-      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "d3", "gnd": "tn24"}},
-      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e18", "gnd": "tn25"}}
+      {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "bp1", "-": "bn1"}},
+      {"type": "opamp", "ref": "U1", "at": "f10"},
+      {"type": "wire", "pins": {"a": "bp10", "b": "a10"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "j13", "b": "bn13"}, "color": "blue"},
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2, "pins": {"+": "j3", "-": "bn3"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "g3", "gnd": "bn24"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "f18", "gnd": "bn25"}}
     ]
   },
   "solution": {
     "parts": [
-      {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "tp1", "-": "tn1"}},
-      {"type": "opamp", "ref": "U1", "at": "e10"},
-      {"type": "wire", "pins": {"a": "tp10", "b": "j10"}, "color": "red"},
-      {"type": "wire", "pins": {"a": "a13", "b": "tn13"}, "color": "blue"},
-      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2, "pins": {"+": "a3", "-": "tn3"}},
-      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "b3", "2": "b12"}},
-      {"type": "capacitor", "ref": "C1", "capacitance": "15n", "pins": {"1": "c12", "2": "tn12"}},
-      {"type": "wire", "pins": {"a": "b10", "b": "b11"}, "color": "yellow"},
-      {"type": "capacitor", "ref": "C2", "capacitance": "15n", "pins": {"1": "c10", "2": "c18"}},
-      {"type": "resistor", "ref": "R2", "resistance": "10k", "pins": {"1": "d18", "2": "tn18"}},
-      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "d3", "gnd": "tn24"}},
-      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "e18", "gnd": "tn25"}}
+      {"type": "battery", "ref": "BAT1", "variant": "9V", "pins": {"+": "bp1", "-": "bn1"}},
+      {"type": "opamp", "ref": "U1", "at": "f10"},
+      {"type": "wire", "pins": {"a": "bp10", "b": "a10"}, "color": "red"},
+      {"type": "wire", "pins": {"a": "j13", "b": "bn13"}, "color": "blue"},
+      {"type": "function_gen", "ref": "FG1", "waveform": "sine", "frequency": 1061, "amplitude": 1, "offset": 2, "pins": {"+": "j3", "-": "bn3"}},
+      {"type": "resistor", "ref": "R1", "resistance": "10k", "pins": {"1": "i3", "2": "i12"}},
+      {"type": "capacitor", "ref": "C1", "capacitance": "15n", "pins": {"1": "h12", "2": "bn12"}},
+      {"type": "wire", "pins": {"a": "i10", "b": "i11"}, "color": "yellow"},
+      {"type": "capacitor", "ref": "C2", "capacitance": "15n", "pins": {"1": "h10", "2": "h18"}},
+      {"type": "resistor", "ref": "R2", "resistance": "10k", "pins": {"1": "g18", "2": "bn18"}},
+      {"type": "scope_probe", "ref": "PR1", "channel": 1, "pins": {"tip": "g3", "gnd": "bn24"}},
+      {"type": "scope_probe", "ref": "PR2", "channel": 2, "pins": {"tip": "f18", "gnd": "bn25"}}
     ]
   }
 }

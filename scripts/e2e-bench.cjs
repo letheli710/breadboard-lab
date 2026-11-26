@@ -611,7 +611,7 @@ const TESTS = {
           type,
         );
       for (const [type, holes, want] of [
-        ['opamp', ['e10'], 'e10'],
+        ['opamp', ['f10'], 'f10'],
         ['pushbutton', ['e20'], 'e20'],
         ['resistor', ['c3', 'c7'], 'c3 c7'],
       ]) {

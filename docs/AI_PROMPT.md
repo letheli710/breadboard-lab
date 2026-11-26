@@ -136,7 +136,7 @@ ref 字母开头，如 V1、R1、LED1、D1、SW1、S1、RV1、C1、BAT1、PM1、
   · switch      "at": "c10" → a=c10, com=c11, b=c12（同一行连续 3 列）
   · potentiometer "at": "c4" → 1=c4, 2=c5, 3=c6
   · power_module "at": "tp1" → 插入 tp1、tn1、bp1、bn1，上下两组轨道都有电
-  · opamp       "at": "e10" → 必须在 e 行，横跨凹槽：1 脚 OUT A=e10、2 IN−A=e11、3 IN+A=e12、4 V−=e13、8 V+=f10、7 OUT B=f11、6 IN−B=f12、5 IN+B=f13（每只脚独占一列，用同列的 a–d 或 g–j 孔接线）
+  · opamp       "at": "f10" → 1 脚，必须在 f 行，横跨凹槽，和真芯片一样缺口在左、1 脚在左下角：1 脚 OUT A=f10、2 IN−A=f11、3 IN+A=f12、4 V−=f13、8 V+=e10、7 OUT B=e11、6 IN−B=e12、5 IN+B=e13（每只脚独占一列，用同列的 a–d 或 g–j 孔接线）
 - 跳线 color 只能用 red / blue / green / yellow / white（红=+，蓝=GND）。
 - 每个孔只用一次！写完后逐个孔检查有没有重复，检查每个结点的所有引脚确实在同一条金属条（或用跳线连通），不同结点没有误连。
 - 惯例：电源接在第 1 列的轨道上（tp1/tn1），元件从左往右排，用主区 a–e（或 f–j），GND 用跳线接回 tn（或 bn）。
@@ -337,7 +337,7 @@ Tests only prove the circuit is right; measurement questions make the student re
   · switch      "at": "c10" → a=c10, com=c11, b=c12 (3 neighbouring columns in one row)
   · potentiometer "at": "c4" → 1=c4, 2=c5, 3=c6
   · power_module "at": "tp1" → plugs into tp1, tn1, bp1, bn1; both the top and bottom rails are powered
-  · opamp       "at": "e10" → must be in row e, straddling the trench: pin 1 OUT A=e10, 2 IN−A=e11, 3 IN+A=e12, 4 V−=e13, 8 V+=f10, 7 OUT B=f11, 6 IN−B=f12, 5 IN+B=f13 (each pin owns its column; wire to it from a–d or g–j of that column)
+  · opamp       "at": "f10" → pin 1, must be in row f, straddling the trench like a real chip (notch on the left, pin 1 bottom-left): pin 1 OUT A=f10, 2 IN−A=f11, 3 IN+A=f12, 4 V−=f13, 8 V+=e10, 7 OUT B=e11, 6 IN−B=e12, 5 IN+B=e13 (each pin owns its column; wire to it from a–d or g–j of that column)
 - Jumper color must be one of red / blue / green / yellow / white (red = +, blue = GND).
 - Use every hole only once! When done, check every hole for duplicates, check that all pins of each node really are on the same metal strip (or joined by jumpers), and that different nodes are not accidentally connected.
 - Conventions: connect the source to the rails at column 1 (tp1/tn1), place parts left to right in the main area a–e (or f–j), and return to GND with a jumper to tn (or bn).
