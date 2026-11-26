@@ -104,6 +104,12 @@ const W3_L1: StageLesson = {
       sections: ['Section 5.1 Introduction', 'Section 5.2 Operational Amplifiers（p. 174–176；Eq. (5.1)、Table 5.1）'],
     },
     prerequisites: ['W1-L2 受控源', 'W1-L5 KCL', 'W2-L7 戴维南等效'],
+    learning_objectives: [
+      '能用缺口与 Pin 1 圆点数清 DIP-8 引脚，把芯片跨中央隔离沟插上面包板，并牢记 LM358 与 LM741 的致命引脚差异',
+      '能用 Sadiku **Eq. (5.1)** 供电轨 KCL 说清：输入电流近似为零时，输出电流从电源轨来，而不是凭空冒出来',
+      R`掌握真实运放的线性区等效电路（$R_i$、$A v_d$、$R_o$），熟知 **Table 5.1** 参数数量级与分贝增益 $A_{\text{dB}}$`,
+      R`读懂三区传输特性：算出 $\pm 90\ \mu\text{V}$ 饱和悬崖，解释 $3\text{ mV}$ 失调电压为何让开环运放必然“拍顶”，分清 $\pm 9\text{ V}$ 双电源与单 $+9\text{ V}$ 的摆幅`,
+    ],
     pass_message: '真实运放诊断测验通过！',
     next_lesson: 'W3-L2',
     next_lesson_title: '理想运放与虚短虚断',
@@ -114,6 +120,7 @@ const W3_L1: StageLesson = {
       {
         id: L1,
         label: '01 3D 芯片封装与面包板跨沟插法',
+        short: '01 跨沟插法',
         render_mode: '3D_THREEJS_DEVICE_AND_BREADBOARD',
         caption:
           '01 3D 芯片封装与面包板跨沟插法：实验箱 LM358（或 LM741）骑跨中央隔离沟，台式电源 ±9 V 接三条电源轨；可切换芯片、透视簧片、按组高亮引脚、换镜头（缺口俯视 / 跨沟斜视 / Pin 1 特写）。',
@@ -121,6 +128,7 @@ const W3_L1: StageLesson = {
       {
         id: L2,
         label: '02 供电轨 KCL 能量通道 (Eq. 5.1)',
+        short: '02 供电轨 KCL',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 供电轨 KCL 能量通道：虚线封闭面包住整颗芯片，五路电流 i₁、i₂、i₊、i₋、i_o 的箭头粗细与方向跟着工况（拉电流 +5 V / 灌电流 −4 V）和 R_L 实时变化，下方核对 Eq. (5.1)。',
@@ -128,6 +136,7 @@ const W3_L1: StageLesson = {
       {
         id: L3,
         label: '03 3D 剥壳等效 VCVS 模型',
+        short: '03 VCVS 剥壳',
         render_mode: '3D_THREEJS_TEARDOWN',
         caption:
           '03 3D 剥壳：拖动滑块掀开环氧树脂外壳，露出引线框架、金丝键合线与硅片上的输入级 / 增益级 / 输出级；打开等效映射，把它们对到 R_i、A·v_d、R_o，v_d 滑块实时算 i_in、v_oc 与带载 v_o。',
@@ -135,6 +144,7 @@ const W3_L1: StageLesson = {
       {
         id: L4,
         label: '04 三区传输曲线与双/单电源切换',
+        short: '04 三区曲线',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '04 三区传输曲线：左边 mV 尺度（线性区缩成一道竖线），右边 μV 放大窗口（±90 μV、斜率 A = 10⁵）；可切换双电源 ±9 V / 单电源 +9 V/0 V、注入 3 mV 失调电压、打开比较器演示。',
@@ -721,6 +731,8 @@ const W3_L1: StageLesson = {
       quiz: [
         {
           id: 'w3l1_q1',
+          concept: 'LM358 与 LM741 引脚差异',
+          review_act: 1,
           question: R`某同学在面包板上按 LM741 的接线方式搭好了双电源 $\pm 9\text{ V}$ 电路（Pin 7 接 +9 V，Pin 4 接 −9 V），实验中途发现 LM741 坏了，于是直接拔下来换插了一颗 LM358。上电后会发生什么？`,
           options: [
             {
@@ -755,6 +767,8 @@ const W3_L1: StageLesson = {
         },
         {
           id: 'w3l1_q2',
+          concept: '供电轨 KCL（Eq. 5.1）',
+          review_act: 2,
           question: R`某双电源运放输出端处于灌电流（Sinking）状态，负载电流 $i_o = -4.0\text{ mA}$（即 4.0 mA 从外部负载倒灌进运放输出脚），已知输入电流 $i_1$、$i_2$ 均为纳安级可忽略，正电源静态流入电流 $i_+ = +1.0\text{ mA}$。根据 Sadiku Eq. (5.1)（$i_o = i_1 + i_2 + i_+ + i_-$），负电源引脚的电流 $i_-$ 约为多少？`,
           options: [
             {
@@ -788,6 +802,8 @@ const W3_L1: StageLesson = {
         },
         {
           id: 'w3l1_q3',
+          concept: 'Table 5.1 参数与 VCVS 模型',
+          review_act: 3,
           question: R`某精密运放数据手册标称其直流开环增益为 120 dB，输出电阻 $R_o = 50\ \Omega$。则其线性倍数开环增益 $A$ 为多少？为何 Table 5.1 期望真实运放具备极高 $R_i$ 与极低 $R_o$？`,
           options: [
             {
@@ -821,6 +837,8 @@ const W3_L1: StageLesson = {
         },
         {
           id: 'w3l1_q4',
+          concept: '三区饱和与单电源摆幅',
+          review_act: 4,
           question: '使用单节 9 V 电池给一颗真实 LM358 供电（Pin 8 接 +9 V，Pin 4 接 0 V），且未接任何负反馈（开环）。下列说法正确的是？',
           options: [
             {

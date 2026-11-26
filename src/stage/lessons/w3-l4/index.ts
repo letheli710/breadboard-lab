@@ -79,6 +79,12 @@ const W3_L4: StageLesson = {
       sections: ['Section 5.5 Noninverting Amplifier（p. 181–183）'],
     },
     prerequisites: ['W1-L7 分压定律', 'W2-L7 戴维南等效', 'W3-L2 虚断与虚短', 'W3-L3 反相放大器'],
+    learning_objectives: [
+      '能独立运用虚断与虚短公理，通过 KCL 或分压器双视角完成同相放大器三段式符号推导',
+      R`能清晰对比同相放大器与反相放大器在输入电阻、极性与增益范围（$A_v \ge 1$）上的核心工程差异`,
+      '能用戴维南等效量化高内阻传感器的带载电压塌陷，并阐明电压跟随器实现阻抗隔离的物理能量来源',
+      '能熟练求解 Sadiku Example 5.5（含节点输出电压与各支路电流），并在 LM358 面包板上完成接线实测与单/双电源饱和排查',
+    ],
     next_lesson: 'W3-L5',
     next_lesson_title: '反相加法器：Summing Amplifier 与音频混音直觉',
   },
@@ -88,6 +94,7 @@ const W3_L4: StageLesson = {
       {
         id: L1,
         label: '01 同相放大原理图',
+        short: '01 同相原理图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 同相放大与分压反馈原理图：拖动 R_1、R_f、v_i，实时看 A_v = 1 + R_f/R_1、理想 v_o 与 LM358 在 ±9 V / 单 +9 V 下的真实 v_o；「分压链高亮」点亮 v_o → R_f → v− → R_1 → GND，也可切到 Example 5.5 双源电路。',
@@ -95,6 +102,7 @@ const W3_L4: StageLesson = {
       {
         id: L2,
         label: '02 带载塌陷 vs 跟随器',
+        short: '02 带载对比',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 带载塌陷 vs 电压跟随器隔离对比台：传感器 V_Th = 5 V、R_Th = 10 kΩ，对数滑块调负载 R_L（100 Ω – 100 kΩ），切换直连 / 插入电压跟随器，看 v_L、传感器电流、负载电流与功率。',
@@ -102,6 +110,7 @@ const W3_L4: StageLesson = {
       {
         id: L3,
         label: '03 3D LM358 面包板',
+        short: '03 3D 面包板',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption:
           '03 3D LM358 面包板实测：台式可调直流电源（±9 V）经导线给 LM358 供电，三套一键接线（同相放大 A_v = 3、电压跟随器、Example 5.5），万用表红表笔可点 v_o、v+、v−；可切换单 +9 V 看饱和削顶。',
@@ -653,6 +662,8 @@ const W3_L4: StageLesson = {
       quiz: [
         {
           id: 'w3l4_q1',
+          concept: '同相与反相的输入电阻',
+          review_act: 1,
           question: R`某压电传感器的戴维南内阻为 $R_{Th} = 100\text{ k}\Omega$。现需将其信号放大约 5 倍，工程师在“反相放大器（$R_1 = 10\text{ k}\Omega$, $R_f = 50\text{ k}\Omega$）”与“同相放大器（$R_1 = 10\text{ k}\Omega$, $R_f = 40\text{ k}\Omega$）”之间二选一。以下判断正确的是？`,
           options: [
             {
@@ -685,6 +696,8 @@ const W3_L4: StageLesson = {
         },
         {
           id: 'w3l4_q2',
+          concept: '跟随器的阻抗隔离',
+          review_act: 3,
           question: R`新手同学审查电路图时，看到传感器（$V_{Th} = 5\text{ V}$, $R_{Th} = 10\text{ k}\Omega$）和 $1\text{ k}\Omega$ 负载之间插了一个增益为 1 的电压跟随器，提议“为了省成本，把它删掉换成一根导线，反正 $v_o = v_i$”。为什么资深教授坚决否决？`,
           options: [
             {
@@ -717,6 +730,8 @@ const W3_L4: StageLesson = {
         },
         {
           id: 'w3l4_q3',
+          concept: '增益 ≥ 1 与单电源饱和',
+          review_act: 5,
           question: R`在单 $+9\text{ V}$ 供电的 LM358 面包板上（线性输出上限约 $+7.5\text{ V}$），搭建了一个 $R_1 = 10\text{ k}\Omega$、$R_f = 20\text{ k}\Omega$ 的同相放大器。关于该电路的说法，哪一项是正确的？`,
           options: [
             {
@@ -749,6 +764,8 @@ const W3_L4: StageLesson = {
         },
         {
           id: 'w3l4_q4',
+          concept: '双源混合节点计算',
+          review_act: 4,
           question: R`在类似 Sadiku Example 5.5 的理想运放电路中，同相端直接接 $+3\text{ V}$ 电源；反相端经 $R_1 = 2\text{ k}\Omega$ 接 $+5\text{ V}$ 电源，并经反馈电阻 $R_f = 6\text{ k}\Omega$ 接输出端 $v_o$（双电源 $\pm 12\text{ V}$ 供电）。请问输出电压 $v_o$ 等于多少？`,
           options: [
             {

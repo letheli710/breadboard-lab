@@ -106,6 +106,13 @@ const W3_L3: StageLesson = {
       sections: ['Section 5.4 Inverting Amplifier（p. 179–181）', 'Fig. 5.10 · 5.11 · 5.12 · 5.14；Eq. 5.8 · 5.9；Example 5.3 · 5.4'],
     },
     prerequisites: ['W1-L3 欧姆定律', 'W1-L5 基尔霍夫电流定律 (KCL)', 'W3-L2 理想运放：虚断与虚短'],
+    learning_objectives: [
+      '准确区分反相端“虚地（Virtual Ground）”与“真实接地”的物理本质，解释电流拐弯机制 $i_1 = i_f$',
+      '独立完成反相放大器闭环电压增益 $A_v = -R_f/R_1$（Eq. 5.8 / 5.9）的三段式符号与数值推导',
+      R`推导反相放大器输入电阻 $R_{\text{in}} = R_1$，并掌握工程选阻在加载效应、噪声与偏置误差之间的权衡`,
+      '熟练求解 Sadiku Example 5.3（增益、输出电压、支路电流与运放输出电流 $i_o$）及 Example 5.4（跨阻放大器视角）',
+      R`理解 $\pm 9\text{ V}$ 双电源供电与防削波铁律，能用传输特性曲线算出 LM358 线性输入范围，并排查单电源 0 V 死锁故障`,
+    ],
     next_lesson: 'W3-L4',
     next_lesson_title: '同相放大器与电压跟随器（缓冲隔离与面包板实测）',
   },
@@ -115,6 +122,7 @@ const W3_L3: StageLesson = {
       {
         id: L1,
         label: '01 2D 动态原理图',
+        short: '01 动态原理图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 动态原理图：节点 1 的虚地气泡实时显示 v₋（线性区金色 0 V，饱和时变红并显示真实电位）；电流颗粒从 vᵢ 流过 R₁，遇 Pin 2 虚断红叉后 100% 拐弯流经 Rf；可调 vᵢ、R₁、Rf 与电源模式。',
@@ -122,6 +130,7 @@ const W3_L3: StageLesson = {
       {
         id: L2,
         label: '02 传输特性曲线与 ±9V 饱和边界',
+        short: '02 传输特性',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 vₒ–vᵢ 传输特性曲线：斜率 = −Rf/R₁，LM358 ±9 V 线性区（10 kΩ / 22 kΩ 时 −3.41 V … +4.09 V）与 +7.5 V / −9.0 V 饱和平台；红色虚线叠加“误用单 +9 V”的 0 V 死锁曲线，工作点随 vᵢ 移动。',
@@ -129,6 +138,7 @@ const W3_L3: StageLesson = {
       {
         id: L3,
         label: '03 3D LM358 ±9V 双电源面包板实测',
+        short: '03 3D 实测',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption: `03 3D 面包板：LM358（DIP-8）+ ${SUPPLY_NAME} + R₁ = 10 kΩ（棕黑橙金）/ Rf = 22 kΩ（红红橙金）；万用表红表笔点测 vᵢ、Pin 1、Pin 2 与供电引脚；电源模式开关对比单 +9 V 错误接法，接线开关演示两种常见故障。`,
       },
@@ -811,6 +821,8 @@ const W3_L3: StageLesson = {
       quiz: [
         {
           id: 'w3l3_q1',
+          concept: '虚地不是真地',
+          review_act: 1,
           question: '某同学在面包板上搭建反相放大器（R₁ = 10 kΩ, Rf = 22 kΩ, ±9 V 供电），测得反相端 Pin 2 对地电压为 0 V。以下哪种说法是正确的？',
           options: [
             {
@@ -840,6 +852,8 @@ const W3_L3: StageLesson = {
         },
         {
           id: 'w3l3_q2',
+          concept: '输入电阻与前级加载',
+          review_act: 3,
           question:
             '一个输出内阻 Rs = 1 kΩ、开路电压 Vs = 1.0 V 的传感器，直接接入 R₁ = 1 kΩ、Rf = 10 kΩ 的反相放大器（±9 V 供电，未饱和）。该放大器的实际输出电压 vₒ 最接近多少？',
           options: [
@@ -870,6 +884,8 @@ const W3_L3: StageLesson = {
         },
         {
           id: 'w3l3_q3',
+          concept: '带载时的输出电流 iₒ',
+          review_act: 4,
           question:
             '在 Sadiku Example 5.3（R₁ = 10 kΩ, Rf = 25 kΩ, vᵢ = +0.5 V, vₒ = −1.25 V）中，如果在输出端与地之间额外接入一颗负载电阻 RL = 5 kΩ，则运放输出端需要吸收（灌入）的总电流大小为多少？',
           options: [
@@ -900,6 +916,8 @@ const W3_L3: StageLesson = {
         },
         {
           id: 'w3l3_q4',
+          concept: '单/双电源削波诊断',
+          review_act: 5,
           question:
             '在面包板上用 LM358 搭建反相放大器（R₁ = 10 kΩ, Rf = 22 kΩ），输入 vᵢ = +1.0 V 时，万用表测得输出端 vₒ ≈ +0.01 V（死锁在 0 V 附近），且反相端 Pin 2 电位高达 +0.69 V。最可能的故障原因是什么？',
           options: [

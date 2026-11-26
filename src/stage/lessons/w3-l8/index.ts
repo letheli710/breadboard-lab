@@ -107,6 +107,12 @@ const W3_L8: StageLesson = {
       ],
     },
     prerequisites: ['W3-L1', 'W3-L2', 'W3-L3', 'W3-L4', 'W3-L5', 'W3-L6', 'W3-L7'],
+    learning_objectives: [
+      R`能推导 4 位二进制加权 DAC 的输出公式 $v_o = -(R_f/8R)\cdot V_{\text{ref}}\cdot D$，换算任意码字的输出电压并核验 $\pm 9\text{ V}$ 饱和边界`,
+      '能说清二进制加权 DAC 的电阻跨度 $2^{N-1}R$ 随位数指数爆炸的工程缺陷，以及 R-2R 梯形网络为何能解决它',
+      '能推导三运放仪表放大器的总增益 $A_v = (R_2/R_1)(1 + 2R/R_G)$，并按目标增益反解外接电阻 $R_G$',
+      '面对陌生运放电路先看反馈路径连到哪个输入端，分清线性负反馈放大与开环比较器的边界，并在面包板上实测 4 位拨码开关 DAC',
+    ],
     pass_message: '随堂自测通过！World 3 运算放大器全章通关。',
     next_lesson: 'W4-L1',
     next_lesson_title: '电容：物理结构、伏安关系与储能',
@@ -117,6 +123,7 @@ const W3_L8: StageLesson = {
       {
         id: L1,
         label: '01 DAC / 仪表放大器原理图',
+        short: '01 原理图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 4 位二进制加权 DAC 与仪表放大器切换原理图：DAC 页点开关 b1–b4 拨码、切 Vref（1 V / 5 V）与 Rf，看支路电流与虚地节点；仪表放大器页拖 R_G（1–100 kΩ），看 v1、v2、vo1、vo2、vo 的节点电位。',
@@ -124,6 +131,7 @@ const W3_L8: StageLesson = {
       {
         id: L2,
         label: '02 阶梯波形 / 增益曲线',
+        short: '02 波形曲线',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 DAC 16 级阶梯输出（理想虚线 / 面包板 LM358 实线，叠加 −9 V 电源轨、LM358 低端极限与对称 ±7.5 V 参考线，点台阶选码字）/ 仪表放大器 A_v(R_G) 双曲线（对数横轴，光标读增益与输出）。',
@@ -131,6 +139,7 @@ const W3_L8: StageLesson = {
       {
         id: L3,
         label: '03 3D 面包板 DAC 实测',
+        short: '03 3D 实测',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption:
           '03 3D 面包板 4 位拨码开关 DAC 实测（±9 V 双电源）：台式可调直流电源供 ±9 V 与 Vref，点 DIP 白色拨键切换 0000–1111，万用表红笔点 Pin 1（vo）或 Pin 2（虚地）；镜头可切正面俯视 / DIP 开关特写 / 运放引脚特写。',
@@ -702,6 +711,8 @@ const W3_L8: StageLesson = {
       quiz: [
         {
           id: 'w3l8_q1',
+          concept: '加权 DAC 码字换算',
+          review_act: 1,
           question:
             '某 4 位二进制加权 DAC 参数为 R = 10 kΩ（2R = 20 kΩ, 4R = 40 kΩ, 8R = 80 kΩ），反馈电阻 Rf = 10 kΩ，电源为 ±9V。若逻辑“1”对应 Vref = 2.0 V、逻辑“0”对应 0 V，当输入二进制码为 1011（b1=MSB, b4=LSB）时，输出电压 vo 为多少？',
           options: [
@@ -732,6 +743,8 @@ const W3_L8: StageLesson = {
         },
         {
           id: 'w3l8_q2',
+          concept: '加权电阻跨度缺陷',
+          review_act: 1,
           question: '若将上述二进制加权 DAC 扩展为 8 位，且最高位 MSB 电阻仍取 R = 10 kΩ，那么最低位 LSB 支路电阻需要多大？这暴露了二进制加权 DAC 什么核心工程缺陷？',
           options: [
             {
@@ -760,6 +773,8 @@ const W3_L8: StageLesson = {
         },
         {
           id: 'w3l8_q3',
+          concept: '仪表放大器的增益电阻',
+          review_act: 2,
           question:
             '在三运放仪表放大器中（R = 20 kΩ, R1 = 10 kΩ, R2 = 10 kΩ），原本接有 RG = 5 kΩ。若调试时不慎将外接电阻 RG 拔掉（RG 开路，趋于 ∞），整机差模增益 Av 将如何变化？',
           options: [
@@ -790,6 +805,8 @@ const W3_L8: StageLesson = {
         },
         {
           id: 'w3l8_q4',
+          concept: '负反馈 vs 比较器边界',
+          review_act: 3,
           question: '一位同学在面包板上测试反相加法器/DAC 时，把反馈电阻 Rf 误插到了运放的同相输入端（+）而非反相输入端（−），或将 Rf 彻底拔掉变成开环。此时下列哪项判断是正确的？',
           options: [
             {

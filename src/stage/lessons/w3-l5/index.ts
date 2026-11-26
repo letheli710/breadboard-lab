@@ -55,6 +55,12 @@ const W3_L5: StageLesson = {
       sections: ['Section 5.6 Summing Amplifier（p. 183–185；Fig. 5.17、Fig. 5.18、Eq. 5.14、Example 5.6）'],
     },
     prerequisites: ['W1-L5 KCL（基尔霍夫电流定律）', 'W2-L5 叠加定理（Superposition Theorem）', 'W3-L3 反相放大器（Inverting Amplifier）'],
+    learning_objectives: [
+      '定量阐明无源电阻直连混音产生通道串扰与加载效应的物理根源，并对比运放虚地节点的零电位隔离机制',
+      '掌握三段式推导（公理溯源 → 纯符号通式 → 代入数值逐步化简），导出三路及多路加权反相加法器通式 Eq. 5.14',
+      '能根据工程需求快速设计等权加法器、反相平均器、多轨音频混音器以及双极性转单极性电平偏置移位电路',
+      '完整求解 Sadiku Example 5.6 的输出电压、反馈电流、负载电流与运放输出电流，并定量检验电源轨饱和边界及饱和后虚地瓦解现象',
+    ],
     next_lesson: 'W3-L6',
     next_lesson_title: '差分放大器（双解法推导与共模抑制）',
   },
@@ -64,6 +70,7 @@ const W3_L5: StageLesson = {
       {
         id: L1,
         label: '01 虚地防串扰汇流原理图',
+        short: '01 虚地汇流',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '两种架构对照：无源电阻直连（公共节点浮动，RL = 10 kΩ）与运放虚地加法器（Rf = 10 kΩ）。v₁ = 2.0 V 固定，拖动 v₂，看通道 1 的电流 i₁ 与串扰误差变不变；橙色箭头表示电流反向倒灌。',
@@ -71,6 +78,7 @@ const W3_L5: StageLesson = {
       {
         id: L2,
         label: '02 多路加权电流实时合成台',
+        short: '02 加权合成',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '三通道混音台：预设决定各路输入电阻 Rₖ，Rf 滑块是总音量；箭头粗细随 |iₖ| 变化，每路标出权重 wₖ = Rf / Rₖ。下方把 −wₖvₖ 首尾相接成 vₒ；电平移位预设则画出双极性信号被抬进 ADC 窗口 [0, 3.3 V] 的波形。',
@@ -78,6 +86,7 @@ const W3_L5: StageLesson = {
       {
         id: L3,
         label: '03 反相加法器与饱和边界验算台',
+        short: '03 饱和边界',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           'Sadiku Example 5.6 与第 5 幕三路混音：调电源轨 ±VCC 与负载 RL。理想输出超出电源轨时，输出钉在轨上、运放变红，反相端 v₋ 由 KCL 反算（虚地瓦解）；下方标尺比较理想输出（空心）与实际输出（实心）。第 5 幕实战题的数值在引导例题解到之前先遮住。',
@@ -569,6 +578,8 @@ const W3_L5: StageLesson = {
       quiz: [
         {
           id: 'w3l5_q1',
+          concept: '虚地隔离防串扰',
+          review_act: 1,
           question:
             '在理想三路反相加法器（线性区工作）中，若把通道 2 的输入电阻 $R_2$ 从 $10\\text{ k}\\Omega$ 调小为 $5\\text{ k}\\Omega$，同时保持 $v_1$、$R_1$、$R_f$ 不变，通道 1 的输入电流 $i_1$ 会如何变化？',
           options: [
@@ -599,6 +610,8 @@ const W3_L5: StageLesson = {
         },
         {
           id: 'w3l5_q2',
+          concept: '加权求和计算',
+          review_act: 2,
           question:
             '一个三路反相加法器的反馈电阻 $R_f = 15\\text{ k}\\Omega$，三路参数为：$R_1 = 5\\text{ k}\\Omega$ ($v_1 = +1.0\\text{ V}$)、$R_2 = 15\\text{ k}\\Omega$ ($v_2 = -2.0\\text{ V}$)、$R_3 = 7.5\\text{ k}\\Omega$ ($v_3 = +0.5\\text{ V}$)，供电 $\\pm 15\\text{ V}$。则输出电压 $v_o$ 等于：',
           options: [
@@ -629,6 +642,8 @@ const W3_L5: StageLesson = {
         },
         {
           id: 'w3l5_q3',
+          concept: '反相平均器设计',
+          review_act: 3,
           question:
             '某多传感器前端需要把 4 路同规格压力传感器电压做实时反相平均（$v_o = -(v_1+v_2+v_3+v_4)/4$）。已知每路输入电阻均选用 $R = 20\\text{ k}\\Omega$，则反馈电阻 $R_f$ 应选用：',
           options: [
@@ -659,6 +674,8 @@ const W3_L5: StageLesson = {
         },
         {
           id: 'w3l5_q4',
+          concept: '饱和后虚地瓦解',
+          review_act: 4,
           question:
             '在 Sadiku Example 5.6（$R_1=5\\text{ k}\\Omega$, $v_1=2\\text{ V}$; $R_2=2.5\\text{ k}\\Omega$, $v_2=1\\text{ V}$; $R_f=10\\text{ k}\\Omega$）中，若把电源轨从 $\\pm 12\\text{ V}$ 降低到 $\\pm 5\\text{ V}$，以下哪项物理现象是正确的？',
           options: [
