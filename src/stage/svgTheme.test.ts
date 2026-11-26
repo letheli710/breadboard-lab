@@ -43,3 +43,15 @@ describe('svgWidth', () => {
     expect(Number.isNaN(svgWidth('<svg></svg>'))).toBe(true);
   });
 });
+
+describe('lightSvg <style> blocks', () => {
+  it('recolours class rules by the elements that use them', () => {
+    const s =
+      '<svg><style>.bg{fill:#0f172a} .lbl { fill: #e2e8f0; font-size: 12px } text.t{fill:#38bdf8}</style>' +
+      '<rect class="bg"/><text class="lbl">a</text><text class="t">b</text></svg>';
+    const out = lightSvg(s);
+    expect(out).toContain('.bg{fill:#fbf7ef}');
+    expect(out).toContain('.lbl { fill: #1f2a44; font-size: 12px }');
+    expect(out).toContain('text.t{fill:#0369a1}');
+  });
+});

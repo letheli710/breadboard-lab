@@ -26,6 +26,8 @@ export interface StageLayer {
   id: StageLayerId;
   /** "01 3D 面包板导通透视" */
   label: string;
+  /** short tab name for the lens bar (about 8 characters, e.g. "01 导通透视"); `label` stays the full name */
+  short?: string;
   render_mode: RenderMode;
   /** what the layer shows, one sentence (shown under the lens bar) */
   caption: string;
@@ -130,6 +132,10 @@ export interface QuizItem {
   figure?: string;
   /** stage set-up while the question is answered */
   sync?: Partial<StageSync>;
+  /** the concept this question tests, a few words (e.g. "虚短的适用条件"); the mistake radar groups by it */
+  concept?: string;
+  /** the act that teaches it: a wrong answer offers "回到第 N 幕" */
+  review_act?: number;
 }
 
 export interface Act {
@@ -167,6 +173,8 @@ export interface StageLesson {
     textbook_primary: { book: string; sections: string[] };
     textbook_supplement?: string;
     prerequisites: string[];
+    /** what the student can do after the lesson, one line each (shown under the lesson title) */
+    learning_objectives?: string[];
     /** headline when the closing quiz is all right (default "随堂自测通过！") */
     pass_message?: string;
     /** lesson id of the next stage lesson; shown as "coming" while it doesn't exist */

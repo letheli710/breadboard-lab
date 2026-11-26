@@ -19,7 +19,9 @@
 - Block 类型：`p`、`ol`、`ul`、`origin`（① 公理溯源）、`formula`（② 蓝色符号通式卡，TeX）、`calc`（③ 绿色逐步计算卡）、`note`、`figure`、`table`、`guided`（苏格拉底引导例题）、`colorcode`。
 - 行内记号：`**粗体**`、`` `代码` ``、`$TeX$`（KaTeX）、`[[id1,id2|术语]]`（与左侧舞台对象双向高亮）。
 - `guided`：`problem`、`problem_svg?`、`steps[]`（每步 `title`、`mini_svg?`、`question`、`hint`、`options[{text, correct, feedback}]`、`board[]`（答对后写上黑板的 TeX）、`halo?`、`params?`、`layer?`（这一步要看的图层；学生手动选了图层时不切）），`done_params?`（最后一步答完后写入的舞台参数，例如揭晓舞台上为防剧透而遮住的数值），`conclusion?`。
-- `quiz[]`：选项可带各自的 `feedback`。
+- `quiz[]`：选项可带各自的 `feedback`；每题可带 `concept`（考的知识点，几个字）和 `review_act`（讲这个知识点的幕号）。答错时出现「回到第 N 幕复习」，通关后显示**错因雷达**（每个知识点一根辐条，第一次答错的列出并带回跳按钮）。
+- `lesson_meta.learning_objectives`：学习目标，一行一条，显示在课题下方。
+- 图层 `short`：镜头栏里的短名（约 8 个字，如「01 导通透视」）；`label` 保留全名（悬停提示与幕卡里显示）。
 
 ## 舞台与讲解的联动 / Stage state (`src/stage/stageStore.ts`)
 

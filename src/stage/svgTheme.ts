@@ -11,9 +11,9 @@
 // Colours not in the tables are kept. Every lesson uses this one mapping, so all diagrams share
 // one palette.
 
-type Map = Record<string, string>;
+type ColourMap = Record<string, string>;
 
-const TEXT: Map = {
+const TEXT: ColourMap = {
   '#ffffff': '#1f2a44',
   '#fff': '#1f2a44',
   '#f8fafc': '#1f2a44',
@@ -80,7 +80,7 @@ const TEXT: Map = {
   '#a5f3fc': '#0e7490',
 };
 
-const FILL: Map = {
+const FILL: ColourMap = {
   '#020617': '#fbf7ef',
   '#0f172a': '#fbf7ef',
   '#111827': '#fbf7ef',
@@ -140,7 +140,7 @@ const FILL: Map = {
   '#e2e8f0': '#cbd5e1',
 };
 
-const STROKE: Map = {
+const STROKE: ColourMap = {
   '#ffffff': '#1f2a44',
   '#fff': '#1f2a44',
   '#f8fafc': '#1f2a44',
@@ -209,9 +209,48 @@ function recolour(tag: string, prop: string, value: string, dot = false): string
   return value;
 }
 
+/** The tags that carry a class in this SVG (class name → tag names). */
+function classTags(svg: string): Map<string, Set<string>> {
+  const m = new Map<string, Set<string>>();
+  for (const [, tag, cls] of svg.matchAll(/<([a-zA-Z][\w:-]*)\b[^<>]*?\bclass=["']([^"']+)["']/g)) {
+    for (const c of cls.split(/\s+/)) {
+      if (!m.has(c)) m.set(c, new Set());
+      m.get(c)!.add(tag);
+    }
+  }
+  return m;
+}
+
+/** Recolour the rules of the SVG's own <style> blocks. A rule counts as text when its selector names
+ *  text / tspan, or when every element using its classes is text. */
+function lightStyleBlocks(svg: string): string {
+  if (!svg.includes('<style')) return svg;
+  const tags = classTags(svg);
+  const isText = (selector: string) => {
+    if (/(^|[\s,>+~])(text|tspan|textPath)\b/.test(selector)) return true;
+    const classes = [...selector.matchAll(/\.([\w-]+)/g)].map((x) => x[1]);
+    if (!classes.length) return false;
+    return classes.every((c) => {
+      const t = tags.get(c);
+      return !!t && [...t].every((x) => TEXT_TAGS.has(x));
+    });
+  };
+  return svg.replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style>)/g, (_m, open: string, body: string, close: string) => {
+    const out = body.replace(/([^{}]+)\{([^{}]*)\}/g, (_r, selector: string, decls: string) => {
+      const tag = isText(selector) ? 'text' : 'rect';
+      const d = decls.replace(
+        /(^|;)(\s*)(fill|stroke|stop-color|background|background-color)(\s*):(\s*)([^;]+)/g,
+        (_x, sep: string, sp: string, prop: string, sp2: string, sp3: string, v: string) => `${sep}${sp}${prop}${sp2}:${sp3}${recolour(tag, prop, v.trim())}`,
+      );
+      return `${selector}{${d}}`;
+    });
+    return `${open}${out}${close}`;
+  });
+}
+
 /** Recolour an inline SVG drawn for a dark canvas to the site's light theme. */
 export function lightSvg(svg: string): string {
-  return svg.replace(/<([a-zA-Z][\w:-]*)(\s[^<>]*?)?(\/?)>/g, (whole, tag: string, attrs: string | undefined, close: string) => {
+  return lightStyleBlocks(svg).replace(/<([a-zA-Z][\w:-]*)(\s[^<>]*?)?(\/?)>/g, (whole, tag: string, attrs: string | undefined, close: string) => {
     if (!attrs) return whole;
     const r = tag === 'circle' ? Number(/\br=["']?([\d.]+)/.exec(attrs)?.[1]) : NaN;
     const dot = r > 0 && r <= 6;

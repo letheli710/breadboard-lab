@@ -17,6 +17,7 @@ import { useLit, useStage } from './stageStore';
 import { StageText, Tex } from './StageText';
 import { ColorCodeCard } from './ColorCodeCard';
 import { GuidedExample } from './GuidedExample';
+import { MistakeRadar, ReviewButton } from './QuizRadar';
 import { svgWidth, WIDE_SVG } from './svgTheme';
 import type { Act, ActBlock, QuizItem, StageLesson, StageSync } from './types';
 import './stage.css';
@@ -74,8 +75,15 @@ function LensBar({ lesson }: { lesson: StageLesson }) {
     <div className="lens-bar">
       <div className="lens-tabs" role="tablist" aria-label="观察视角">
         {lesson.left_stage_spec.layers.map((l) => (
-          <button key={l.id} role="tab" aria-selected={layer === l.id} className={`lens ${layer === l.id ? 'on' : ''}`} onClick={() => pick(l.id)}>
-            {l.label}
+          <button
+            key={l.id}
+            role="tab"
+            aria-selected={layer === l.id}
+            className={`lens ${layer === l.id ? 'on' : ''}`}
+            title={l.short ? l.label : undefined}
+            onClick={() => pick(l.id)}
+          >
+            {l.short ?? l.label}
           </button>
         ))}
       </div>
@@ -281,7 +289,7 @@ function Figure({ svg, caption }: { svg: string; caption?: string }) {
   );
 }
 
-function QuizCard({ q, n, onResult }: { q: QuizItem; n: number; onResult: (id: string, ok: boolean) => void }) {
+function QuizCard({ q, n, acts, onResult }: { q: QuizItem; n: number; acts: Act[]; onResult: (id: string, ok: boolean) => void }) {
   const [picked, setPicked] = useState<string | null>(null);
   const chosen = q.options.find((o) => o.key === picked);
   return (
@@ -317,6 +325,7 @@ function QuizCard({ q, n, onResult }: { q: QuizItem; n: number; onResult: (id: s
         <div className={`quiz-feedback ${chosen.correct ? 'right' : 'wrong'}`} role="status">
           <StageText text={chosen.feedback ?? (chosen.correct ? q.feedback_correct : q.feedback_wrong)} />
           {!chosen.correct && <span className="quiz-retry">再选一次</span>}
+          {!chosen.correct && q.review_act && <ReviewButton act={q.review_act} acts={acts} />}
         </div>
       )}
     </div>
@@ -327,6 +336,8 @@ function Quiz({ act, lesson }: { act: Act; lesson: StageLesson }) {
   const items = act.quiz!;
   const slug = lesson.lesson_meta.lesson_id.toLowerCase();
   const [right, setRight] = useState<Record<string, boolean>>({});
+  // the first answer to each question, for the mistake radar
+  const [firstTry, setFirstTry] = useState<Record<string, boolean>>({});
   const [passedBefore] = useState(() => !!useCourse.getState().lessonsDone[slug]);
   const setDone = useCourse((s) => s.setLessonDone);
   const allRight = items.every((q) => right[q.id]);
@@ -340,8 +351,18 @@ function Quiz({ act, lesson }: { act: Act; lesson: StageLesson }) {
   return (
     <div className="quiz">
       {items.map((q, i) => (
-        <QuizCard key={q.id} q={q} n={i + 1} onResult={(id, ok) => setRight((r) => ({ ...r, [id]: ok }))} />
+        <QuizCard
+          key={q.id}
+          q={q}
+          n={i + 1}
+          acts={lesson.right_acts}
+          onResult={(id, ok) => {
+            setRight((r) => ({ ...r, [id]: ok }));
+            setFirstTry((f) => (id in f ? f : { ...f, [id]: ok }));
+          }}
+        />
       ))}
+      {allRight && <MistakeRadar items={items} firstTry={firstTry} acts={lesson.right_acts} />}
       {(allRight || passedBefore) && (
         <div className="quiz-pass" role="status">
           <Icon name="party" size={20} />
@@ -473,6 +494,18 @@ function LessonView({ lesson }: { lesson: StageLesson }) {
           </div>
           <h1>{m.title}</h1>
           <p className="lesson-sub">{m.subtitle}</p>
+          {m.learning_objectives?.length ? (
+            <div className="lesson-goals">
+              <b>学完这节课，你能</b>
+              <ul>
+                {m.learning_objectives.map((g, i) => (
+                  <li key={i}>
+                    <StageText text={g} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           <dl className="lesson-books">
             <div>
               <dt>主教材</dt>

@@ -227,7 +227,12 @@ export function Lead({ pts }: { pts: [number, number, number][] }) {
 const BANDS = ['#7a4a1f', '#151515', '#f07a1a', '#d4a72c'];
 
 /** Position of band i along a body of length `len` (the tolerance band sits apart). */
-const bandX = (len: number, i: number) => -len / 2 + 0.42 + i * 0.36 + (i === 3 ? 0.36 : 0);
+/** x of band i of n along the body: 4 bands (3 + tolerance) or 5 bands (4 + tolerance, a little tighter);
+ *  the tolerance band, the last of 4 or more, stands apart */
+const bandX = (len: number, i: number, n = 4) => {
+  const step = n >= 5 ? 0.3 : 0.36;
+  return -len / 2 + 0.42 + i * step + (n >= 4 && i === n - 1 ? step : 0);
+};
 
 /** 10 kΩ resistor from hole p1 to hole p2 (board coordinates x, z). */
 export function Resistor({
@@ -277,18 +282,18 @@ export function Resistor({
           <meshStandardMaterial color="#e6cc9a" roughness={0.6} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.35 : 0} />
         </mesh>
         {bands.map((c, i) => (
-          <mesh key={i} rotation={[0, 0, Math.PI / 2]} position={[bandX(bodyLen, i), 0, 0]}>
-            <cylinderGeometry args={[0.375, 0.375, 0.16, 18]} />
-            <meshStandardMaterial color={c} roughness={0.5} metalness={i === 3 ? 0.5 : 0} />
+          <mesh key={i} rotation={[0, 0, Math.PI / 2]} position={[bandX(bodyLen, i, bands.length), 0, 0]}>
+            <cylinderGeometry args={[0.375, 0.375, bands.length >= 5 ? 0.14 : 0.16, 18]} />
+            <meshStandardMaterial color={c} roughness={0.5} metalness={bands.length >= 4 && i === bands.length - 1 ? 0.5 : 0} />
           </mesh>
         ))}
         {callouts?.map((t, i) => {
-          const lx = (i - 1.5) * 2.3;
+          const lx = (i - (bands.length - 1) / 2) * (bands.length >= 5 ? 1.9 : 2.3);
           return (
             <group key={i}>
               <Line
                 points={[
-                  [bandX(bodyLen, i), 0.42, 0],
+                  [bandX(bodyLen, i, bands.length), 0.42, 0],
                   [lx, 1.35 + (i % 2) * 0.7, 0],
                 ]}
                 color="#1f2a44"
