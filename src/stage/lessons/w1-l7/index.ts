@@ -101,6 +101,13 @@ const W1_L7: StageLesson = {
     textbook_supplement:
       'Robert L. Boylestad, Introductory Circuit Analysis (14th Ed.) · Ch. 5 (Series dc Circuits — Voltage Divider Rule), Ch. 6 (Parallel dc Circuits — Current Divider Rule)',
     prerequisites: ['W1-L4: 欧姆定律与功率耗散 (P = I² R = V² / R)', 'W1-L5: 节点、支路与回路拓扑识别', 'W1-L6: 基尔霍夫电压定律 (KVL) 与电流定律 (KCL)'],
+    learning_objectives: [
+      '能从 KVL 与欧姆定律出发，独立完成串联等效电阻与分压公式的三段式严格推导',
+      '能从 KCL 与欧姆定律出发，独立完成并联等效电阻与分流公式的三段式严格推导',
+      '建立“分压看自己，分流看对方”的物理直觉，并能识别三支路并联分流的常见误区',
+      '定量评估负载电阻 $R_L$ 接入分压节点后引起的负载效应（Loading Effect）',
+      String.raw`掌握实验室 9 V 面包板接线规范与 $1000\times$ 阻值安全缩放原则，独立完成虚拟实测验证`,
+    ],
     next_lesson: 'W1-L8',
     next_lesson_title: 'Y–Δ（星-三角）等效变换与惠斯通电桥化简',
   },
@@ -110,18 +117,21 @@ const W1_L7: StageLesson = {
       {
         id: 'schematic',
         label: '01 动态原理图',
+        short: '01 原理图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '01 2D 动态分压/分流原理图：实时呈现拓扑、节点电位、支路电流箭头与动态公式代入：拖动滑块，看节点颜色、电流粒子和每颗电阻旁的数值一起变。',
       },
       {
         id: 'curves',
         label: '02 比例/负载曲线',
+        short: '02 负载曲线',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '02 比例权重与负载效应曲线：实时绘制分压比/分流比随阻值变化的非线性曲线与负载塌陷轨迹：工作点跟着 R1、R2、RL 滑块走。',
       },
       {
         id: 'bench3d',
         label: '03 3D 面包板实测',
+        short: '03 3D 实测',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption: '03 3D 面包板 9V 实测接线台：单 9V 电源供电的 MB-102 面包板：按接线表逐孔插好的色环电阻、跳线与万用表表笔，读数与功耗实时计算。',
       },
@@ -645,6 +655,8 @@ const W1_L7: StageLesson = {
       quiz: [
         {
           id: 'w1l7_q1',
+          concept: '负载效应与安全缩放',
+          review_act: 4,
           question: R`你在 9 V 面包板上用 R1 = 3 kΩ 和 R2 = 6 kΩ 搭了一个空载输出 6.0 V 的分压器。若现在将一个 RL = 6 kΩ 的负载并联在 R2 两端，此时万用表测得的输出电压 $v_{\text{out}}$ 变为多少？若改把所有阻值缩小 1000 倍至 3 Ω / 6 Ω / 6 Ω，会发生什么？`,
           options: [
             { key: 'A', text: R`$v_{\text{out}}$ 保持 6.0 V 不变；缩小 1000 倍后电流不变`, correct: false },
@@ -659,6 +671,8 @@ const W1_L7: StageLesson = {
         },
         {
           id: 'w1l7_q2',
+          concept: '分流看对方',
+          review_act: 3,
           question: '某并联节点流入总电流 i = 10 mA，下接两条并联支路 R1 = 2 kΩ 与 R2 = 8 kΩ。流过阻值较小的 R1 支路的电流 i1 是多少？',
           options: [
             { key: 'A', text: '2 mA', correct: false, feedback: '你是不是把分流分子写反了？求 R1 支路的电流，分子要放“对方” R2 = 8 kΩ，而不是 R1 自己。' },

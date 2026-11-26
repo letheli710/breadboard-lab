@@ -51,6 +51,12 @@ const W1_L8: StageLesson = {
     },
     textbook_supplement: 'Robert L. Boylestad, Introductory Circuit Analysis, Ch. 7: Series-Parallel dc Networks (Bridge Networks & Y-Δ Conversion)',
     prerequisites: ['W1-L7 复杂串并联网络与分压/分流综合化简'],
+    learning_objectives: [
+      '能够从节点度数与端口连接关系严格判别电桥网络中的电阻既非串联也非并联',
+      String.raw`掌握端口两两开路等效法，能够完整推导 $\Delta \to Y$ 与 $Y \to \Delta$ 的六条变换公式`,
+      '熟练运用“把 Δ 叠画在 Y 外面”的图形记忆法，零失误写出任意方向变换式',
+      String.raw`掌握对称网络 $R_\Delta = 3 R_Y$ 的秒杀技巧，并能独立将 5 电阻惠斯通电桥退化为普通串并联求出 $R_{ab}$`,
+    ],
     next_lesson: 'W2-L1',
     next_lesson_title: '节点分析法（Nodal Analysis）',
   },
@@ -60,12 +66,14 @@ const W1_L8: StageLesson = {
       {
         id: MORPH,
         label: '01 Y ↔ Δ 变形原理图',
+        short: '01 Y↔Δ 变形',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: 'Y ↔ Δ 几何变形过渡原理图：拖动变形滑块 t：0 是纯 Δ，0.5 是「叠画记忆态」，1 是纯 Y；打开端口欧姆表，两侧读数始终相等。',
       },
       {
         id: BRIDGE,
         label: '02 电桥一键化简台',
+        short: '02 电桥化简',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '电桥电路一键化简实战台：5 电阻惠斯通电桥，一键把顶部 Δ 变形为 Y，或按 0–4 步逐步化简；原图上点两颗电阻做串并联检验。',
       },
@@ -528,6 +536,8 @@ const W1_L8: StageLesson = {
       quiz: [
         {
           id: 'w1l8_q1',
+          concept: String.raw`对称网络 $R_\Delta = 3R_Y$`,
+          review_act: 4,
           question: String.raw`一个 5 电阻惠斯通电桥中，5 颗电阻的阻值全部为 18 Ω。利用对称 $\Delta \to Y$ 变换，端口 a 与 b 之间的等效电阻 $R_{ab}$ 等于多少？`,
           options: [
             { key: 'A', text: '6 Ω', correct: false, feedback: String.raw`选 A (6 Ω) 是只算出了单臂 $R_Y$。` },
@@ -542,6 +552,8 @@ const W1_L8: StageLesson = {
         },
         {
           id: 'w1l8_q2',
+          concept: 'Y→Δ 除以对面电阻',
+          review_act: 3,
           question: String.raw`已知某 Y 网络的三条臂分别为：$R_1 = 4\ \Omega$（连端口 a）、$R_2 = 6\ \Omega$（连端口 b）、$R_3 = 12\ \Omega$（连端口 c）。将其转换为等效 Δ 网络后，位于端口 b 与 c 之间的电阻 $R_a$ 等于多少？`,
           options: [
             { key: 'A', text: '12 Ω', correct: false, feedback: String.raw`选 A (12 Ω) 是误除以了 $R_3 = 12\ \Omega$。` },

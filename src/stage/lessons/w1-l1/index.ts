@@ -233,6 +233,12 @@ const W1_L1: StageLesson = {
     },
     textbook_supplement: 'Introductory Circuit Analysis, 14th Ed. (Boylestad) Ch. 2 电位高度差直觉类比',
     prerequisites: ['W1-L0 实验箱与万用表极简前置卡'],
+    learning_objectives: [
+      '用 SI 词头换算工程数量级，并由总电荷求电子个数 $N = |Q|/|e|$',
+      String.raw`用 $i = dq/dt$ 与 $Q = \int i\,dt$ 在电荷与电流之间来回换算`,
+      '读懂参考方向：算出负电流只说明真实方向与预设箭头相反，不是算错',
+      '理解电压永远存在于两点之间：$v_{ab} = v_a - v_b = -v_{ba}$（下标前减后）',
+    ],
     next_lesson: 'W1-L2',
     next_lesson_title: '功率、无源符号约定与电路元件',
   },
@@ -242,12 +248,14 @@ const W1_L1: StageLesson = {
       {
         id: 'charge_flow',
         label: '01 电荷流动与电流方向',
+        short: '01 电荷流动',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '透明铜导线剖面：拖动滑块改变电流 i（参考方向向右），切换「习惯电流方向」与「真实电子流方向」，盯住中间的观测横截面。',
       },
       {
         id: 'voltage_height',
         label: '02 电位高度阶梯台',
+        short: '02 电位阶梯',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '以参考地 GND = 0 V 为地面：两个竖滑块调节节点 a、b 的电位，看两根“楼层”柱子的高差 v_ab 与搬运 2 C 电荷所需的功。',
       },
@@ -517,6 +525,8 @@ const W1_L1: StageLesson = {
       quiz: [
         {
           id: 'w1l1_q1',
+          concept: '负电流与参考方向',
+          review_act: 4,
           question: String.raw`在一根水平导线上，我们假设电流参考方向向右，算得 $i = -2\text{ A}$。这意味着什么？`,
           options: [
             { key: 'a', text: '真实正电流大小为 2 A，方向向左（电子向右移动）', correct: true },
@@ -529,6 +539,8 @@ const W1_L1: StageLesson = {
         },
         {
           id: 'w1l1_q2',
+          concept: '电压下标前减后',
+          review_act: 5,
           question: String.raw`已知电路中节点 $a$ 相对地电位 $v_a = 3\text{ V}$，节点 $b$ 相对地电位 $v_b = 8\text{ V}$，则 $v_{ab}$ 是多少？`,
           options: [
             { key: 'a', text: String.raw`$+5\text{ V}$`, correct: false },

@@ -189,6 +189,11 @@ const W1_L0: StageLesson = {
     textbook_primary: { book: 'Introductory Circuit Analysis, 14th Edition (Boylestad)', sections: ['Ch. 3 电阻色环与测量仪表常识'] },
     textbook_supplement: 'Breadboard Lab 3D 实验箱操作规范（不引入长篇 DIY）',
     prerequisites: [],
+    learning_objectives: [
+      '说出面包板的三条导通铁律：电源轨**横向**整排连通、中间实验区同一列 5 孔**纵向**连通、中央凹槽上下绝缘，不把元件插成短路',
+      String.raw`用读数通式 $R = (10\,d_1 + d_2) \times 10^{m}\ \Omega$ 读出四色环电阻的阻值与容差（如棕-黑-橙-金 = $10\text{ k}\Omega \pm 5\%$）`,
+      '按「压并流串」接万用表：电压档并联在元件两端，电流档必须断开回路串进去，不烧保险丝',
+    ],
     pass_message: '入场安全检验通过！',
     next_lesson: 'W1-L1',
     next_lesson_title: '电荷、电流、电压与参考方向',
@@ -199,12 +204,14 @@ const W1_L0: StageLesson = {
       {
         id: 'bb_xray',
         label: '01 3D 面包板导通透视',
+        short: '01 导通透视',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption: '830 孔标准面包板：拖动 X-Ray 滑块掀开塑料外壳，看底部的金属弹性夹片。',
       },
       {
         id: 'dmm_probe',
         label: '02 万用表表笔接法台',
+        short: '02 表笔接法',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '9 V 电池 + 1 kΩ 电阻：切换「测电压」「测电流」和错误示范，看表里流过多少电流。',
       },
@@ -307,6 +314,8 @@ const W1_L0: StageLesson = {
       quiz: [
         {
           id: 'w1l0_q1',
+          concept: '面包板同列短路',
+          review_act: 1,
           question: '你想把一颗 10 kΩ 电阻插在面包板中间实验区，哪种插法会把电阻直接短路？',
           options: [
             { key: 'a', text: '两条引脚分别插在 a10 和 e10（同一竖列）', correct: true },
@@ -320,6 +329,8 @@ const W1_L0: StageLesson = {
         },
         {
           id: 'w1l0_q2',
+          concept: '电流档必须串联',
+          review_act: 3,
           question: '把万用表拧到「直流电流档（mA）」后，想测 9 V 电池给 1 kΩ 电阻供的电流，正确接法是？',
           options: [
             { key: 'a', text: '红黑表笔直接跨接在 1 kΩ 电阻两端（并联）', correct: false },

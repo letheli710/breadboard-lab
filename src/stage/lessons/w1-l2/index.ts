@@ -29,6 +29,12 @@ const W1_L2: StageLesson = {
     textbook_primary: { book: 'Alexander & Sadiku, Fundamentals of Electric Circuits (2026 Release)', sections: ['Ch. 1.5 Power and Energy', 'Ch. 1.6 Circuit Elements'] },
     textbook_supplement: "Boylestad, Introductory Circuit Analysis · Ch. 4 Ohm's Law, Power, and Energy（功率物理直觉与能量转换速率）",
     prerequisites: ['W1-L1 电荷、电流与电压（参考方向与极性）'],
+    learning_objectives: [
+      String.raw`建立功率作为能量转换速率的物理直觉，掌握 $p = dw/dt = vi$ 与 $w = \int p\,dt$ 的换算。`,
+      '严格运用无源符号约定（Passive Sign Convention）判定任意二端元件是在吸收功率还是发出功率。',
+      String.raw`利用功率守恒定律 $\sum p = 0$ 校验多元件闭合电路的计算结果。`,
+      '区分有源元件与无源元件、独立源（圆形）与四类受控源（菱形），并建立 VCVS 与运放的直觉联系。',
+    ],
     next_lesson: 'W1-L3',
     next_lesson_title: '欧姆定律、电阻与焦耳热功率',
   },
@@ -38,12 +44,14 @@ const W1_L2: StageLesson = {
       {
         id: 'psc_workbench',
         label: '01 元件极性与功率符号判定台',
+        short: '01 功率符号',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '通用二端元件：拨动 v 和 i、翻转参考极性与电流箭头，看它在吸收还是发出功率；能量条按 w = p·Δt 蓄能。',
       },
       {
         id: 'dep_sources',
         label: '02 四类受控源互动台',
+        short: '02 受控源',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '左侧控制端测出 v_x 或 i_x，经增益（μ、r、g、β）驱动右侧的菱形受控源，看它对测试负载发出多少功率。',
       },
@@ -495,6 +503,8 @@ const W1_L2: StageLesson = {
       quiz: [
         {
           id: 'w1l2_q1',
+          concept: '无源符号约定与负电压',
+          review_act: 2,
           question: '如上图所示，某二端元件的参考电压为 v = −10 V，参考电流 i = 4 A 从参考正极（+）流入。关于该元件的功率，以下哪项正确？',
           options: [
             {
@@ -518,6 +528,8 @@ const W1_L2: StageLesson = {
         },
         {
           id: 'w1l2_q2',
+          concept: '功率守恒反推受控源',
+          review_act: 3,
           question:
             '某闭合电路仅包含 3 个元件：独立电源发出 50 W，一个无源负载吸收 35 W，第三个元件是一个 VCVS（v_s = 3 v_x），已知控制电压 v_x = 5 V。若电流 i_s 从该 VCVS 的正极（+）流入，则 i_s 等于多少？',
           options: [

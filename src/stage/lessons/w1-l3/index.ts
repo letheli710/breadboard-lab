@@ -380,6 +380,13 @@ const W1_L3: StageLesson = {
     },
     textbook_supplement: "Boylestad, Introductory Circuit Analysis · Ch. 3 Resistance (Physical Formula R = ρl/A, Color Coding)、Ch. 4 Ohm's Law, Power, and Energy",
     prerequisites: ['W1-L1: 电荷、电流、电压与参考方向', 'W1-L2: 功率、能量与无源符号约定（Passive Sign Convention）'],
+    learning_objectives: [
+      String.raw`从材料与几何结构理解电阻公式 $R = \rho\,(l/A)$，建立碳膜电阻色环与实际阻值的物理直觉`,
+      '严格结合无源符号约定（PSC）书写并应用欧姆定律（区分 $v = +iR$ 与 $v = -iR$）',
+      '掌握电导 $G = 1/R$（单位 S）的物理含义与 $i$-$v$ 平面斜率解释',
+      String.raw`运用功率公式 $p = i^2R = v^2/R \ge 0$ 判定无源耗散特性与 1/4 W 元件热安全边界`,
+      String.raw`准确识别短路（$R \to 0,\ v = 0$）与开路（$R \to \infty,\ i = 0$）两个理想极限及其电路行为`,
+    ],
     next_lesson: 'W1-L4',
     next_lesson_title: '节点、支路与回路拓扑（Nodes, Branches, and Loops）',
   },
@@ -389,18 +396,21 @@ const W1_L3: StageLesson = {
       {
         id: 'layer-01-3d-resistor',
         label: '01 3D 电阻实物',
+        short: '01 3D 电阻',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption: '3D 碳膜电阻实物与色环：1/4 W 轴向碳膜电阻插在面包板上，色环随阻值重绘；打开剖视看陶瓷基体上的激光螺旋碳膜，拖动可 360° 旋转。',
       },
       {
         id: 'layer-02-2d-schematic',
         label: '02 2D 原理图',
+        short: '02 原理图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '2D 欧姆定律动态原理图：电源 v、电阻 R、串联电流表 A、并联电压表 V 与顶部功率计 W；光点流速随 |i| 变化。',
       },
       {
         id: 'layer-03-vi-curve',
         label: '03 V-I 曲线',
+        short: '03 V-I 曲线',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: 'V-I 线性特性与开路/短路极限曲线：直线斜率就是电导 G；淡红色区域超出 |v·i| = 0.25 W；拖动绿色工作点 Q 反推电源电压。',
       },
@@ -878,6 +888,8 @@ const W1_L3: StageLesson = {
       quiz: [
         {
           id: 'w1l3_q1',
+          concept: '非 PSC 欧姆定律与功率',
+          review_act: 2,
           question: "如上图 Q1 所示，已知电阻 R = 5 kΩ，参考电流 i = 2 mA 从标有 '−' 的一端流入、从 '+' 端流出。求该电阻的参考电压 v 与它实际吸收的功率 p。",
           options: [
             { key: 'A', text: 'v = +10 V，p = +20 mW', correct: false },
@@ -892,6 +904,8 @@ const W1_L3: StageLesson = {
         },
         {
           id: 'w1l3_q2',
+          concept: '开路极限',
+          review_act: 5,
           question: '如上图 Q2 所示，一只 9 V 电池通过 1 kΩ 电阻连接一只处于断开状态的开关。此时开关两端的开路电压 v_sw、回路电流 i 以及该断口的等效电导 G 分别是多少？',
           options: [
             { key: 'A', text: 'v_sw = 0 V，i = 0 A，G = 0 S', correct: false },

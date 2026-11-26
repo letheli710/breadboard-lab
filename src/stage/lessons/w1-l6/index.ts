@@ -225,6 +225,8 @@ const STEPS: GuidedStep[] = [
 const QUIZ: QuizItem[] = [
   {
     id: 'w1l6_q1',
+    concept: 'KVL 先碰符号定正负',
+    review_act: 2,
     question:
       '某单回路按顺时针方向依次包含四个元件：① 左支路电压源 $V_1 = 15\\text{ V}$（上+下−）；② 上支路电阻压降 $v_1 = 4\\text{ V}$（左+右−）；③ 右支路电压源 $V_2 = 6\\text{ V}$（上−下+，注意极性与 $V_1$ 顺接助推）；④ 下支路电阻标注电压 $v_x$（左+右−）。则 $v_x$ 等于多少？',
     options: [
@@ -249,6 +251,8 @@ const QUIZ: QuizItem[] = [
   },
   {
     id: 'w1l6_q2',
+    concept: '单回路 KVL 与欧姆联立',
+    review_act: 4,
     question:
       '在单回路电路中，左侧电压源 $V_1 = 30\\text{ V}$（上+下−）与右侧电压源 $V_2 = 10\\text{ V}$（上+下−）形成对抗，上支路串联 $R_1 = 4\\ \\Omega$，下支路串联 $R_2 = 6\\ \\Omega$（其压降 $v_{R2}$ 标为右+左−，符合顺时针电流被动符号约定）。求顺时针电流 $i$ 与压降 $v_{R2}$：',
     options: [
@@ -299,6 +303,12 @@ const W1_L6: StageLesson = {
     textbook_primary: { book: 'Alexander & Sadiku, Fundamentals of Electric Circuits (2026 Release)', sections: ["Ch. 2.4 Kirchhoff's Voltage Law", 'Examples 2.5–2.6'] },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis, Ch. 5（环路爬坡电位/海拔剖面类比）',
     prerequisites: ['W1-L3（欧姆定律与被动符号约定 PSC）', 'W1-L5（基尔霍夫电流定律 KCL 与节点分析初探）'],
+    learning_objectives: [
+      '从能量守恒与静电场保守性出发，理解 KVL 的物理本质（绕闭合回路一周，总电位变化必为 0）。',
+      '掌握顺时针巡检回路的统一记号铁律（“先碰到的正负号就写什么号”），彻底杜绝列错正负号。',
+      '熟练运用串联电压源合并规则，并能用 KVL 严格证明为何两个不同数值的理想电压源绝不能并联。',
+      '将 KVL、欧姆定律与被动符号约定（PSC）联立，系统化求解含多电源、多电阻的单回路电路。',
+    ],
     next_lesson: 'W1-L7',
     next_lesson_title: '串联分压与并联分流',
   },
@@ -308,12 +318,14 @@ const W1_L6: StageLesson = {
       {
         id: L1,
         label: '01 环路电位爬坡/跌落剖面图',
+        short: '01 电位剖面',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '顺时针巡检 D → A → B → C → D：每跨过一个元件，右侧电位柱升起或跌落，回到 D 时精准归零；切换参考地，所有柱子整体平移，台阶落差不变。',
       },
       {
         id: L2,
         label: '02 单回路 KVL 顺时针巡检台',
+        short: '02 KVL 巡检',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '选顺时针或逆时针巡检：先碰到的符号闪烁并飞进方程槽；⇄ 翻转元件极性；另一页是串联电压源合并与违禁并联实验。',
       },

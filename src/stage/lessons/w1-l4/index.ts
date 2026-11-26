@@ -113,6 +113,12 @@ const W1_L4: StageLesson = {
     textbook_primary: { book: 'Fundamentals of Electric Circuits (2026 Release)（Alexander & Sadiku）', sections: ['Ch. 2.3 Nodes, Branches, and Loops (含 Example 2.4)'] },
     textbook_supplement: 'Introductory Circuit Analysis（Boylestad）· Ch. 5 Series-Parallel Circuits（节点度与串并联拓扑识别）',
     prerequisites: ['W1-L1 电荷、电流与参考方向', 'W1-L2 电压、电位与参考节点（地）', 'W1-L3 欧姆定律与理想导线零压降模型'],
+    learning_objectives: [
+      '能对任意含多余拐角与 T 字路口的原理图实施“等电位染色缩点”，准确数出 $b$、$n$、$l$',
+      '理解面包板同一竖列 5 个孔在拓扑上等同于原理图 1 个节点的物理本质',
+      '能运用基本拓扑定理 $b = l + n - 1$ 交叉验算独立回路数，防止漏数或重复计数',
+      '能脱离“视觉平行/排成一排”的错觉，用节点度数与节点对铁律精准拆穿假串联与假并联',
+    ],
     next_lesson: 'W1-L5',
     next_lesson_title: '基尔霍夫电流定律（KCL）——节点的流量守恒账本',
   },
@@ -122,12 +128,14 @@ const W1_L4: StageLesson = {
       {
         id: L1,
         label: '01 等电位节点染色高亮台',
+        short: '01 节点染色',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '点击任意一段导线：沿 0 Ω 导线洪泛染色，整片等电位区域涂成同一种颜色；再按“一键拉直”看折线缩成一个点。',
       },
       {
         id: L2,
         label: '02 串联 vs 并联拓扑判定台',
+        short: '02 串并联判定',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '依次点击两颗元件判定真/假串并联；拨动“破坏者”开关、拖动元件和节点重排，看结论变不变。',
       },
@@ -514,6 +522,8 @@ const W1_L4: StageLesson = {
       quiz: [
         {
           id: 'w1l4_q1',
+          concept: '面包板节点与拓扑定理',
+          review_act: 2,
           question:
             '某同学在面包板上搭了一个包含 6 个二端元件的连通电路，所有元件引脚恰好分布并插接在 4 条互不相连的面包板 5 孔竖列上（未跨接任何额外跳线）。请问该电路的真实节点数 n 与独立回路数 l 分别是多少？',
           options: [
@@ -530,6 +540,8 @@ const W1_L4: StageLesson = {
         },
         {
           id: 'w1l4_q2',
+          concept: '拆穿假串联与假并联',
+          review_act: 4,
           question:
             '在某电路中，电阻 Ra 跨接在节点 X 与 Y 之间，电阻 Rb 跨接在节点 Y 与 Z 之间，电阻 Rc 也跨接在节点 X 与 Y 之间；已知节点 Y 仅连接了 Ra、Rb 和 Rc 三颗电阻（无其他支路）。下列说法正确的是？',
           options: [

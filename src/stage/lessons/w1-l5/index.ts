@@ -46,6 +46,13 @@ const W1_L5: StageLesson = {
     },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis · Ch. 6 Parallel dc Circuits — KCL 水流类比',
     prerequisites: ['W1-L1 电流与电压参考方向', 'W1-L3 欧姆定律', 'W1-L4 支路、节点与回路'],
+    learning_objectives: [
+      '从电荷守恒公理解释为什么理想节点与封闭曲面都不能囤积电荷',
+      '熟练使用“流入为正/流出为负”与“流入等于流出”两种形式列写多支路节点 KCL 方程，并正确解读负电流',
+      '将 KCL 从单点推广至任意封闭曲面（广义节点），理解内部支路电流相互抵消的代数机制',
+      '掌握并联电流源等效合并规则，并能用 KCL 证明两个不同电流源绝不能串联',
+      '联立 KCL 与欧姆定律求解含受控电流源的并联电路未知量 $i_o$ 与 $v_o$',
+    ],
     next_lesson: 'W1-L6',
     next_lesson_title: '基尔霍夫电压定律（KVL）',
   },
@@ -55,12 +62,14 @@ const W1_L5: StageLesson = {
       {
         id: 'kcl_node',
         label: '01 多支路节点合流台',
+        short: '01 节点合流',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '拖动三条输入支路的电流，第四条支路自动守恒；可切换水流管道类比与符号约定。另有含受控源的并联节点（第 5、6 幕）。',
       },
       {
         id: 'kcl_surface',
         label: '02 封闭曲面 KCL 演示台',
+        short: '02 封闭曲面',
         render_mode: '2D_INTERACTIVE_SVG',
         caption: '一键切出封闭曲面 𝒮：内部支路两两抵消，只剩穿越边界的电流；电流源实验里试试并联合并与串联禁区。',
       },
@@ -452,6 +461,8 @@ const W1_L5: StageLesson = {
       quiz: [
         {
           id: 'w1l5_q1',
+          concept: '封闭曲面 KCL',
+          review_act: 3,
           question: '某未知黑盒集成电路芯片共有 4 个外部引脚。实测引脚 1 流入 12 mA，引脚 2 流出 4 mA，引脚 3 流入 5 mA。假设芯片处于稳态工作，引脚 4 的电流大小与方向应为？',
           options: [
             { key: 'A', text: '流出 13 mA', correct: true },
@@ -471,6 +482,8 @@ const W1_L5: StageLesson = {
         },
         {
           id: 'w1l5_q2',
+          concept: '电流源并联合并与串联禁区',
+          review_act: 4,
           question: '关于理想独立电流源的连接方式，以下说法中唯一正确的是？',
           options: [
             { key: 'A', text: '将 3 A 与 5 A 两个理想电流源同向串联，可等效为 8 A 的单一电流源', correct: false },
