@@ -245,7 +245,7 @@ function Supply({ a }: { a: Amp }) {
       label={SUPPLY_NAME}
       channels={[
         { v: 9, readout: `${fmtMa(cur.ch1)} · CV` },
-        { v: 9, readout: dual ? `${fmtMa(cur.ch2)} · CV` : '未接（Pin 4 误接 GND）' },
+        { v: 9, off: !dual, readout: dual ? `${fmtMa(cur.ch2)} · CV` : '未接（Pin 4 误接 GND）' },
       ]}
       leads={leads}
     />
