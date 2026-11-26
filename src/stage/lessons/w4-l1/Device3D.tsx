@@ -1,6 +1,7 @@
 // Layer "01 3D 瓷片/电解电容封装与面包板插法": a 104 ceramic disc or a 100 μF 25 V aluminium
-// electrolytic on an 830-hole board, powered by a 台式可调直流电源（5 V） standing on the bench and
-// wired to the top rails by its own leads (+ → outer red rail = +5 V, COM → inner blue rail = GND).
+// electrolytic on an 830-hole board, powered by a 台式可调直流电源（5 V） (the shared BenchSupply of
+// src/stage/bench) standing on the bench and wired to the top rails by its own leads (+ → outer red
+// rail = +5 V, − (COM) → inner blue rail = GND); 断电 turns its output off.
 //
 // Layout (column numbers; a–e upper half): a red jumper a30 → +5 V rail, a black jumper a31 → GND
 // rail, so strip 30 (a–e) is +5 V and strip 31 is GND. The capacitor's legs go into c30 / c31:
@@ -20,6 +21,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, D, Lead, RAIL_Z, ROW_Z, Shell, W, type Rail } from '../../BreadboardXray';
 import { stripId } from '../../breadboardIds';
+import { BenchSupply, supplyLabel, supplyLcd, type LcdLine, type SupplyChannel, type SupplyLead } from '../../bench';
 import { useLit, useStage, useStageParam } from '../../stageStore';
 import { BENCH_V, deratingOk, DEVICES, energy, fmtV, fmtW, R_DISCHARGE, type DeviceKey } from './model';
 import { Cell, hoverProps, Seg, useClearHoverOnUnmount, useIsLit } from './state';
@@ -28,7 +30,6 @@ type V3 = [number, number, number];
 export type Cam1 = 'bench' | 'device' | 'hand';
 export type Insert = 'ok' | 'rev' | 'same';
 
-export const SUPPLY_NAME = '台式可调直流电源（5 V）';
 const AMBER = '#f59e0b';
 const POS_COL = 30;
 const NEG_COL = 31;
@@ -374,76 +375,20 @@ function DischargeR({ lit }: { lit: boolean }) {
   );
 }
 
-/* ------------------------------------------------------------- the bench supply */
+/* ------------------------------------------------------------- the bench supply (src/stage/bench) */
 
-const PSU = { x: -42.5, z: -5, w: 8, h: 4.6, d: 9 };
-const POSTS: { key: string; color: string; dz: number; to: string; id: string }[] = [
-  { key: 'p', color: '#d62f2f', dz: -2.2, to: 'T+3', id: 'rail_p5' },
-  { key: 'com', color: '#1a1c20', dz: 0.6, to: 'T-4', id: 'rail_gnd' },
+const CHANNELS: SupplyChannel[] = [{ v: BENCH_V, limit: 0.05 }];
+/** 「台式可调直流电源（5 V）」 */
+export const SUPPLY_NAME = supplyLabel(CHANNELS);
+/** the supply left of the board, turned 45° so its binding posts face the board and its display
+ *  the viewer; the + lead lands a few columns on so the two leads do not cross */
+const PSU_AT: [number, number] = [-40, -5];
+const PSU_LEADS: SupplyLead[] = [
+  { from: '+', to: 'T+6', litIds: ['rail_p5'] },
+  { from: '-', to: 'T-4', litIds: ['rail_gnd'] },
 ];
-
-function BenchSupply({ on, lit }: { on: boolean; lit: boolean }) {
-  const right = PSU.x + PSU.w / 2;
-  const leads = useMemo(
-    () =>
-      POSTS.map((p) => {
-        const [x, z] = hole(p.to);
-        const pts: V3[] = [
-          [right + 0.3, 1.2, PSU.z + p.dz],
-          [right + 1.8, 1.5, PSU.z + p.dz - 1.5],
-          [x - 1.0, 1.3, z],
-          [x, 0.5, z],
-          [x, -0.3, z],
-        ];
-        return { ...p, pts };
-      }),
-    [right],
-  );
-  return (
-    <group name="mesh_bench_psu">
-      <group {...hover3d(['psu'])}>
-        <mesh position={[PSU.x, PSU.h / 2 - 1, PSU.z]}>
-          <boxGeometry args={[PSU.w, PSU.h, PSU.d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.55} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.3 : 0} />
-        </mesh>
-        <mesh position={[PSU.x, PSU.h / 2 - 1, PSU.z + PSU.d / 2 + 0.01]}>
-          <planeGeometry args={[PSU.w - 0.6, PSU.h - 0.5]} />
-          <meshStandardMaterial color="#3b4250" roughness={0.7} />
-        </mesh>
-        {[-2.2, 0.4].map((dx) => (
-          <mesh key={dx} position={[PSU.x + dx, -0.1, PSU.z + PSU.d / 2 + 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.62, 0.62, 0.6, 20]} />
-            <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        <mesh position={[PSU.x + 2.6, -0.1, PSU.z + PSU.d / 2 + 0.1]}>
-          <boxGeometry args={[1.0, 0.7, 0.3]} />
-          <meshStandardMaterial color={on ? '#16a34a' : '#7f1d1d'} emissive={on ? '#22c55e' : '#000000'} emissiveIntensity={on ? 0.5 : 0} />
-        </mesh>
-        {POSTS.map((p) => (
-          <mesh key={p.key} position={[right + 0.15, 1.2, PSU.z + p.dz]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.42, 0.42, 0.5, 14]} />
-            <meshStandardMaterial color={p.color} />
-          </mesh>
-        ))}
-      </group>
-      {leads.map((l) => (
-        <group key={l.key} {...hover3d([l.id])}>
-          <Tube pts={l.pts} color={l.color === '#1a1c20' ? WIRE.black : l.color} r={0.14} lit={lit} />
-        </group>
-      ))}
-      <Html position={[PSU.x, PSU.h / 2 + 0.2, PSU.z + PSU.d / 2 + 0.05]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="w41-psu-lcd">
-          <b>{on ? `${BENCH_V.toFixed(2)} V` : 'OFF'}</b>
-          <span>限流 50 mA</span>
-        </div>
-      </Html>
-      <Html position={[PSU.x, PSU.h + 1.0, PSU.z - PSU.d / 2]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`bb3d-tag w41-tag3 psu ${lit ? 'lit' : ''}`}>{SUPPLY_NAME}</div>
-      </Html>
-    </group>
-  );
-}
+/** 断电: the output is off, the display turns rose and reads OFF */
+const OFF_LCD: LcdLine[] = [{ text: 'OFF', strong: true }, ...supplyLcd(CHANNELS).slice(1)];
 
 /* ------------------------------------------------------------- camera */
 
@@ -603,7 +548,7 @@ function Scene({ b, frame, nonce }: { b: Bench; frame: Cam1; nonce: number }) {
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} onPointerMove={move} onPointerOut={leave} visible={false}>
         <planeGeometry args={[W, D]} />
       </mesh>
-      <BenchSupply on={b.pwr} lit={lit('psu')} />
+      <BenchSupply id="psu" position={PSU_AT} yaw={Math.PI / 4} channels={CHANNELS} off={!b.pwr} lcd={b.pwr ? undefined : OFF_LCD} leads={PSU_LEADS} />
       <Jumper from={`a${POS_COL}`} to={`T+${POS_COL}`} color="red" lit={lit('jump_red', 'node_p')} ids={['jump_red']} />
       <Jumper from={`a${NEG_COL}`} to={`T-${NEG_COL}`} color="black" lit={lit('jump_black', 'node_n')} ids={['jump_black']} />
       {b.dis && <DischargeR lit={lit('r_dis')} />}

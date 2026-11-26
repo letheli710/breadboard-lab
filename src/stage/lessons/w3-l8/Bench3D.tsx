@@ -1,7 +1,7 @@
 // Layer "03 3D 面包板 4位拨码开关 DAC 实测 (±9V 双电源)": the 4-bit weighted DAC built on an
 // 830-hole board around the shared LM358 (src/stage/Lm358.tsx), fed by a 台式可调直流电源（±9 V）
-// standing on the bench and wired to the rails with its own leads (CH1 +9 V, CH2 −9 V, COM, and
-// CH3 as V_ref). Rails: top outer +9 V, top inner V_ref, bottom inner GND, bottom outer −9 V.
+// (the shared BenchSupply of src/stage/bench) standing on the bench and wired to the rails with its
+// own leads (CH1 +9 V, CH2 −9 V, COM, and CH3 as V_ref, its − post on GND). Rails: top outer +9 V, top inner V_ref, bottom inner GND, bottom outer −9 V.
 //
 // Layout (column numbers; a–e upper half, f–j lower half):
 // - 4-position DIP switch across the trench at 15–18: switch k joins e(14+k) (V_ref side, tied to
@@ -27,6 +27,7 @@ import { prefersReducedMotion } from '../../../ui/reveal';
 import { colX, D, Lead, RAIL_Z, ROW_Z, Shell, W, type Rail } from '../../BreadboardXray';
 import { stripId } from '../../breadboardIds';
 import { Lm358, lm358Pin } from '../../Lm358';
+import { BenchSupply, LEAD_COLORS, supplyLabel, supplyLcd, type SupplyChannel, type SupplyLead } from '../../bench';
 import { useLit, useStage, useStageParam } from '../../stageStore';
 import { BitSwitches, Cell, DacKnobs, hoverProps, Seg, useClearHoverOnUnmount, useIsLit, useLab, type Lab } from './state';
 import { codeStr, fmtP, fmtV, RATING_W, type DacState } from './model';
@@ -34,8 +35,6 @@ import { codeStr, fmtP, fmtV, RATING_W, type DacState } from './model';
 type V3 = [number, number, number];
 type Cam = 'bench' | 'dip' | 'chip';
 type Probe = 'pin1' | 'pin2';
-
-const SUPPLY_NAME = '台式可调直流电源（±9 V）';
 
 const AMBER = '#f59e0b';
 const CHIP_C0 = 23;
@@ -375,72 +374,27 @@ function DipSwitch({ lab, lit }: { lab: Lab; lit: string[] }) {
   );
 }
 
-/* ------------------------------------------------------------- the bench supply */
+/* ------------------------------------------------------------- the bench supply (src/stage/bench) */
 
-const PSU = { x: -42.5, z: -1, w: 8, h: 4.6, d: 10 };
-const POSTS: { key: string; color: string; z: number; to: string }[] = [
-  { key: 'p9', color: '#d62f2f', z: -3.9, to: 'T+3' },
-  { key: 'vref', color: '#f08a1c', z: -1.6, to: 'T-4' },
-  { key: 'com', color: '#1a1c20', z: 0.7, to: 'B+3' },
-  { key: 'n9', color: '#2b59c3', z: 3.0, to: 'B-4' },
+/** CH1 + CH2 in series for ±9 V (COM = GND); CH3 gives V_ref (its − post on GND too) */
+const RAILS: SupplyChannel[] = [{ v: 9 }, { v: 9 }];
+const SUPPLY_NAME = supplyLabel(RAILS, true);
+/** the supply stands left of the board at 0.8 size (about the old box), turned 45° so its binding
+ *  posts face the board and its display the viewer; its name tag stays in a phone's view */
+const PSU_AT: [number, number] = [-40, -1];
+const PSU_LEADS: SupplyLead[] = [
+  { from: '+', to: 'T+3', litIds: ['rail_p9'] },
+  { from: 'com', to: 'B+3', litIds: ['rail_gnd'] },
+  { from: '-', to: 'B-4', litIds: ['rail_n9'] },
+  { from: '3+', to: 'T-4', litIds: ['rail_vref'] },
+  { from: '3-', to: 'B+5', litIds: ['rail_gnd'] },
 ];
 
-function BenchSupply({ lab, lit }: { lab: Lab; lit: boolean }) {
-  const right = PSU.x + PSU.w / 2;
-  const leads = useMemo(
-    () =>
-      POSTS.map((p) => {
-        const [x, z] = hole(p.to);
-        const pts: V3[] = [
-          [right + 0.3, 1.2, PSU.z + p.z],
-          [right + 1.6, 1.5, PSU.z + p.z + (z < 0 ? -2 : 2)],
-          [x - 1.0, 1.3, z],
-          [x, 0.5, z],
-          [x, -0.3, z],
-        ];
-        return { ...p, pts };
-      }),
-    [right],
-  );
-  return (
-    <group name="mesh_bench_psu">
-      <group {...hover3d(['bb_psu'])}>
-        <mesh position={[PSU.x, PSU.h / 2 - 1, PSU.z]}>
-          <boxGeometry args={[PSU.w, PSU.h, PSU.d]} />
-          <meshStandardMaterial color="#d9dde3" roughness={0.55} emissive={lit ? AMBER : '#000000'} emissiveIntensity={lit ? 0.3 : 0} />
-        </mesh>
-        <mesh position={[PSU.x, PSU.h / 2 - 1, PSU.z + PSU.d / 2 + 0.01]}>
-          <planeGeometry args={[PSU.w - 0.6, PSU.h - 0.5]} />
-          <meshStandardMaterial color="#3b4250" roughness={0.7} />
-        </mesh>
-        {[-2.4, 0, 2.4].map((dx) => (
-          <mesh key={dx} position={[PSU.x + dx, -0.1, PSU.z + PSU.d / 2 + 0.3]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.62, 0.62, 0.6, 20]} />
-            <meshStandardMaterial color="#9aa1ab" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        {POSTS.map((p) => (
-          <mesh key={p.key} position={[right + 0.15, 1.2, PSU.z + p.z]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.42, 0.42, 0.5, 14]} />
-            <meshStandardMaterial color={p.color} />
-          </mesh>
-        ))}
-      </group>
-      {leads.map((l) => (
-        <Tube key={l.key} pts={l.pts} color={l.color === '#1a1c20' ? WIRE.black : l.color} r={0.14} lit={lit} />
-      ))}
-      <Html position={[PSU.x, PSU.h / 2 + 0.3, PSU.z + PSU.d / 2 + 0.05]} center zIndexRange={[24, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="w38-psu-lcd">
-          <b>CH1 +9.00 V</b>
-          <b>CH2 −9.00 V</b>
-          <span>CH3 Vref {lab.vref.toFixed(3)} V</span>
-        </div>
-      </Html>
-      <Html position={[PSU.x, PSU.h + 1.2, PSU.z - PSU.d / 2]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-        <div className={`bb3d-tag w38-tag3 psu ${lit ? 'lit' : ''}`}>{SUPPLY_NAME}</div>
-      </Html>
-    </group>
-  );
+function Supply({ vref }: { vref: number }) {
+  const channels = useMemo<SupplyChannel[]>(() => [...RAILS, { v: vref, color: LEAD_COLORS.orange }], [vref]);
+  // the display as before: the two rails, then V_ref to the millivolt
+  const lcd = useMemo(() => [...supplyLcd(RAILS, true).filter((l) => l.strong), { text: `CH3 Vref ${vref.toFixed(3)} V` }], [vref]);
+  return <BenchSupply id="bb_psu" position={PSU_AT} yaw={Math.PI / 4} scale={0.8} channels={channels} series label={SUPPLY_NAME} lcd={lcd} leads={PSU_LEADS} />;
 }
 
 /* ------------------------------------------------------------- multimeter */
@@ -624,7 +578,7 @@ function Scene({ lab, frame, probe, nonce }: { lab: Lab; frame: Cam; probe: Prob
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} onPointerMove={move} onPointerOut={leave} visible={false}>
         <planeGeometry args={[W, D]} />
       </mesh>
-      <BenchSupply lab={lab} lit={is('bb_psu')} />
+      <Supply vref={lab.vref} />
       {/* V_ref side of the switch and the pull-downs */}
       {[0, 1, 2, 3].map((k) => (
         <Jumper key={`v${k}`} from={`a${DIP_C0 + k}`} to={`T-${DIP_C0 + k}`} color="orange" lit={is('dac_vref')} ids={['dac_vref']} />
