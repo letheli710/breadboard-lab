@@ -86,6 +86,12 @@ const W4_L4: StageLesson = {
     },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis, 14th Ed., Chapter 10–11（指数衰减物理直觉与暂态斜率）',
     prerequisites: ['W2-L7 戴维南等效', 'W4-L1 电容', 'W4-L2 电感'],
+    learning_objectives: [
+      R`推导无源 RC 自然响应 $v(t) = V_0 e^{-t/\tau}$，并用能量守恒验证电阻耗散`,
+      R`理解时间常数 $\tau$ 的几何与工程意义（$1\tau$ 切线法则、$5\tau$ 稳态判据）`,
+      R`掌握无源 RL 衰减电路 $\tau = L/R$，说出电阻对 RC 与 RL 衰减速度的相反影响`,
+      R`对带开关的多电阻网络求戴维南等效电阻与 $\tau$，并在面包板上按安全缩放实测放电`,
+    ],
     next_lesson: 'W4-L5',
     next_lesson_title: '一阶 RC/RL 阶跃响应与三要素通解（含示波器共地防短路警示与面包板实操）',
   },
@@ -95,6 +101,7 @@ const W4_L4: StageLesson = {
       {
         id: L1,
         label: '01 2D 开关切换原理图',
+        short: '01 开关原理图',
         render_mode: '2D_SCHEMATIC_SVG',
         caption:
           '01 2D 开关切换原理图（t = 0⁻ 充电稳态 ↔ t > 0 放电）：SPDT 开关切换，节点电压气泡与支路电流箭头随时间实时变化；可选面包板 RC、RL 线圈与第 5 幕带开关多电阻网络（叠加戴维南等效 R_Th）。',
@@ -102,6 +109,7 @@ const W4_L4: StageLesson = {
       {
         id: L2,
         label: '02 实时指数衰减示波器',
+        short: '02 衰减示波器',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 实时指数衰减示波器：R 滑块（1–50 kΩ）与 C 滑块（10–470 µF）联动刷新 τ = RC；勾选 t = 0 初始切线（交横轴于 t = τ）、1τ（36.8%）与 5τ（0.67%）稳态线；能量条对比电容剩余储能 w_C(t) 与电阻累计耗热 w_R(t)。',
@@ -109,6 +117,7 @@ const W4_L4: StageLesson = {
       {
         id: L3,
         label: '03 3D 面包板插 RC 放电实操',
+        short: '03 3D 实操',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption: `03 3D 面包板：${SUPPLY_NAME} 经引线接电源轨；SPDT 拨动开关（左拨接 5 V 充电，右拨经 10 kΩ 放电）、10 kΩ 碳膜电阻（棕黑橙金）与 100 µF / 16 V 电解电容（带极性反插检测）；虚拟示波器 CH1 夹电容正极、地夹夹负极，拨动开关观测 τ = 1.0 s 的衰减。`,
       },
@@ -642,6 +651,8 @@ const W4_L4: StageLesson = {
       quiz: [
         {
           id: 'w4l4_q1',
+          concept: 'τ 时刻的剩余能量',
+          review_act: 2,
           question: '一个无源 RC 放电电路在 t = 0 时初始储能为 W0。当时间恰好经过一个时间常数 t = τ 时，电容中【剩余】的能量约占初始储能 W0 的多少？',
           options: [
             {
@@ -671,6 +682,8 @@ const W4_L4: StageLesson = {
         },
         {
           id: 'w4l4_q2',
+          concept: 'RL 等效电阻与 τ',
+          review_act: 4,
           question: '某无源 RL 衰减电路中，电感 L = 40 mH 与两个串联电阻 R1 = 8 Ω、R2 = 12 Ω 构成闭合回路。该电路的时间常数 τ 为多少？',
           options: [
             { key: 'A', text: R`$2.0\text{ ms}$`, correct: true },
@@ -700,6 +713,8 @@ const W4_L4: StageLesson = {
         },
         {
           id: 'w4l4_q3',
+          concept: 'R 对 RC/RL 衰减的对偶影响',
+          review_act: 4,
           question: '若将无源 RC 电路和无源 RL 电路中的等效电阻 R_Th 同时增大为原来的 2 倍（L、C 保持不变），两者的暂态衰减速度将如何变化？',
           options: [
             {
@@ -729,6 +744,8 @@ const W4_L4: StageLesson = {
         },
         {
           id: 'w4l4_q4',
+          concept: '并联电阻的放电能量分配',
+          review_act: 5,
           question: '一个初始储能 W0 = 8 mJ 的电容，在 t = 0 时并联接入 Ra = 10 kΩ 和 Rb = 30 kΩ 两个电阻开始自然放电。直至完全放完电，Ra 上累计消耗的热能是多少？',
           options: [
             {

@@ -85,6 +85,12 @@ const W4_L8: StageLesson = {
       sections: ['Section 8.5 Step Response of a Series RLC Circuit', 'Section 8.6 Step Response of a Parallel RLC Circuit', 'Section 8.7 General Second-Order Circuits'],
     },
     prerequisites: ['W4-L5 一阶 RC/RL 阶跃响应', 'W4-L6 二阶电路初值与终值判定', 'W4-L7 无源串联/并联 RLC 自然响应'],
+    learning_objectives: [
+      R`掌握二阶阶跃完全响应的统一分解 $x(t) = x_{\text{ss}} + x_t(t)$，彻底规避“仅用暂态项代入初值”的致命错误`,
+      '能用三段式推导独立求解串联与并联 RLC 阶跃响应的完整表达式，并定量计算欠阻尼超调量与峰值时间',
+      '熟练运用 Section 8.7 通用四步法求解既非纯串联也非纯并联的一般混合二阶电路',
+      '建立欠阻尼阶跃振铃与高速 PCB 走线过冲/串联端接电阻之间的工程映射，并在面包板示波器上实测验证',
+    ],
     pass_message: '随堂自测通过！World 4 储能元件与暂态响应全章通关。',
     next_lesson: 'W5-L1',
     next_lesson_title: '正弦信号与相量',
@@ -95,6 +101,7 @@ const W4_L8: StageLesson = {
       {
         id: L1,
         label: '01 阶跃 RLC 原理图',
+        short: '01 原理图',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 2D 阶跃 RLC 与一般二阶电路原理图：切换串联 / 并联 / 一般混合拓扑，以及 t = 0⁻、t = 0⁺、t → ∞、源置零四种等效视图；下方四格是通用四步法的结果（初值、特征根、稳态、完全响应）。',
@@ -102,6 +109,7 @@ const W4_L8: StageLesson = {
       {
         id: L2,
         label: '02 方波阶跃示波器',
+        short: '02 阶跃示波器',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 实时方波阶跃示波器：R 阻尼滑块 20–400 Ω（56 / 200 / 250 Ω 快捷挡），CH1 为 0–5 V 200 Hz 激励方波，CH2 为电容电压 v_C(t)；光标标注稳态 5.0 V、峰值时间 t_p、峰值电压与超调量。',
@@ -109,6 +117,7 @@ const W4_L8: StageLesson = {
       {
         id: L3,
         label: '03 3D 面包板实操',
+        short: '03 3D 实操',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption:
           '03 3D 面包板信号源方波激励 RLC 实操：函数信号发生器经 BNC 转鳄鱼夹接入 500 Ω 电位器、10 mH 电感、1 µF 电容，双通道示波器 CH1 / CH2 探头挂接；拖 R 总电阻看屏幕上的振铃，试着把 CH2 地夹移到非 GND 节点。',
@@ -736,6 +745,8 @@ const W4_L8: StageLesson = {
       quiz: [
         {
           id: 'w4l8_q1',
+          concept: '完全响应代入初值',
+          review_act: 1,
           question:
             '某零初始储能串联 RLC 电路在 $t = 0$ 接入 $10\\text{ V}$ 阶跃电压源，已知其处于过阻尼态，特征根为 $s_1 = -2, s_2 = -5$。以下关于求取待定常数 $A_1, A_2$ 的方程组，哪一项完全正确？',
           options: [
@@ -766,6 +777,8 @@ const W4_L8: StageLesson = {
         },
         {
           id: 'w4l8_q2',
+          concept: '串联 RLC 临界阻尼',
+          review_act: 2,
           question:
             '面包板串联 RLC 阶跃实验中，$L = 10\\text{ mH}$，$C = 1\\ \\mu\\text{F}$，信号源提供 0–5 V 方波。若要消除电容电压上升沿的所有过冲振铃，并获得无过冲前提下最快的上升速度，回路总电阻 $R$ 应调至多少？',
           options: [
@@ -796,6 +809,8 @@ const W4_L8: StageLesson = {
         },
         {
           id: 'w4l8_q3',
+          concept: '并联 RLC 阻尼方向',
+          review_act: 3,
           question: '某并联 RLC 阶跃电路原本处于临界阻尼态。现保持 $L$、$C$ 与阶跃电流源 $I_s$ 不变，仅将并联电阻 $R$ 增大为原来的 2 倍，电路将进入哪种阻尼态？',
           options: [
             { key: 'A', text: '欠阻尼态（出现过冲与振铃）', correct: true },
@@ -825,6 +840,8 @@ const W4_L8: StageLesson = {
         },
         {
           id: 'w4l8_q4',
+          concept: '一般二阶电路四步法',
+          review_act: 4,
           question:
             '在一般混合二阶电路中（$V_s = 12\\text{ V}$ 经 $R_1 = 4\\ \\Omega$ 与 $L = 1\\text{ H}$ 串联后，接至 $R_2 = 2\\ \\Omega$ 与 $C = 0.5\\text{ F}$ 的并联组合），在运用 Section 8.7 通用四步法求暂态特征方程与稳态电容电压 $v_C(\\infty)$ 时，正确的结果是：',
           options: [

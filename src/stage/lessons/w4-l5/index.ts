@@ -80,6 +80,12 @@ const W4_L5: StageLesson = {
     },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis, 14th Ed. — Ch. 10（RC 充电曲线 1 − e^(−t/τ)，1τ 时 63.2%，5τ 充满）',
     prerequisites: ['W2-L7 戴维南等效（Thevenin’s Theorem）', 'W4-L4 一阶自然响应（Source-Free First-Order Circuits）'],
+    learning_objectives: [
+      '用单位阶跃函数 $u(t)$ 为开关动作建模，推导 RC 阶跃响应并拆成暂态 + 稳态',
+      '熟练运用三要素通解，非状态变量的 $0^+$ 值现算，不误用 $0^-$ 值',
+      '求解一阶 RL 阶跃响应，理解换路瞬间电感电压的突变',
+      R`遵守示波器探头共地铁律，在面包板上实测 RC 充电曲线（$1\tau$ 时 63.2%）`,
+    ],
     next_lesson: 'W4-L6',
     next_lesson_title: '二阶电路初值与终值确定（t=0⁻, 0⁺, ∞ 三时刻等效替换法）',
   },
@@ -89,6 +95,7 @@ const W4_L5: StageLesson = {
       {
         id: L1,
         label: '01 2D 三要素求解原理图 (0- / 0+ / ∞ 三态切换)',
+        short: '01 三要素',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '01 三要素求解原理图：阶跃充电、Sadiku 7.5（RC 单刀双掷）、Sadiku 7.6（RL）三套电路，一键切换 t = 0⁻ / 0⁺ / ∞ 三张快照——直流稳态 C 开路、L 短路，0⁺ 瞬间 C 换恒压源、L 换恒流源；可高亮储能元件等效、戴维南端口与非状态变量突变。',
@@ -96,6 +103,7 @@ const W4_L5: StageLesson = {
       {
         id: L2,
         label: '02 实时示波器充电曲线 (63.2% at 1τ + 暂态/稳态分量拆解)',
+        short: '02 充电曲线',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '02 实时充电曲线：V_s = 5 V，拖动 R（1–50 kΩ）与 C（10–470 µF）实时重算 τ = RC 与时基；可单独开关完全响应、稳态分量 V_s 与暂态分量 −V_s e^(−t/τ)，游标卡在 1τ … 5τ 读电压、百分比与电流。',
@@ -103,6 +111,7 @@ const W4_L5: StageLesson = {
       {
         id: L3,
         label: '03 3D 面包板 RC 充放电 + 示波器探头共地接线实操',
+        short: '03 3D 实操',
         render_mode: '3D_THREEJS_BREADBOARD',
         caption: `03 3D 面包板：${SUPPLY_5}经导线接红轨 / 蓝轨，拨动开关充电 / 放电，或改用函数信号发生器的 0–5 V 方波；双通道示波器 CH1 / CH2 探头与黑色地线夹可放在正确的 GND 轨或错误的节点 B（短路警示）；右上角是示波器屏幕。另有 Sadiku 7.5 的 1000× 缩放套件（${SUPPLY_75}，引导例题完成后解锁读数）。`,
       },
@@ -753,6 +762,8 @@ const W4_L5: StageLesson = {
       quiz: [
         {
           id: 'w4l5_q1',
+          concept: '1τ 充电 63.2%',
+          review_act: 2,
           question: R`在面包板上用 5 V 直流电源通过 $R = 10\ \text{k}\Omega$ 电阻给完全放电的 $C = 100\ \mu\text{F}$ 电容充电。示波器在开关合上后 $t = 1.0\ \text{s}$ 时刻测得的电容电压最接近以下哪个数值？`,
           options: [
             {
@@ -782,6 +793,8 @@ const W4_L5: StageLesson = {
         },
         {
           id: 'w4l5_q2',
+          concept: '非状态变量 0⁺ 突变',
+          review_act: 3,
           question: R`在一个含开关的一阶 RC 电路中，已知某电阻支路电流在换路前稳态值 $i_R(0^-) = 2\ \text{A}$，换路后稳态值 $i_R(\infty) = 2\ \text{A}$，而电容在 $t = 0^+$ 瞬间钳位导致该电阻两端压差骤增。关于直接应用三要素通解求 $i_R(t)$ $(t \ge 0)$，以下哪项判断正确？`,
           options: [
             {
@@ -815,6 +828,8 @@ const W4_L5: StageLesson = {
         },
         {
           id: 'w4l5_q3',
+          concept: 'RL 阶跃与反电动势',
+          review_act: 4,
           question: R`在第四幕的 RL 电路中，$L = 2\ \text{H}$，换路后从电感端口看入的戴维南等效电阻 $R_{\text{th}} = 4\ \Omega$，电感电流由 $i_L(0^-) = 6\ \text{A}$ 过渡至新稳态 $i_L(\infty) = 3\ \text{A}$。则该电路的时间常数 $\tau$ 以及换路瞬间电感电压 $v_L(0^+)$ 分别为：`,
           options: [
             {
@@ -844,6 +859,8 @@ const W4_L5: StageLesson = {
         },
         {
           id: 'w4l5_q4',
+          concept: '示波器探头共地',
+          review_act: 5,
           question: R`在面包板实测 5 V 电源串联 10 kΩ 电阻 R 与 100 μF 接地电容 C 的充电过程时，如果你想用台式示波器观察悬浮电阻 R 两端的电压波形 $v_R(t)$，以下哪种接线方式是绝对安全且正确的？`,
           options: [
             {

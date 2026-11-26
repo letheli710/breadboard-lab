@@ -84,6 +84,13 @@ const W4_L1: StageLesson = {
     },
     textbook_supplement: 'Boylestad, Introductory Circuit Analysis, 14th Edition — Chapter 10（物理直觉：弹性隔膜水箱类比与铝电解电容极性安全）',
     prerequisites: ['W1-L1 电流与电压', 'W1-L2 功率与能量', 'W1-L7 电阻串并联'],
+    learning_objectives: [
+      R`掌握平行板电容物理公式 $C = \varepsilon A/d$ 及电介质相对介电常数对电容量的影响`,
+      '熟练识别瓷片电容（无极性）与铝电解电容（白条负极、长脚正极）并在面包板上安全插接',
+      R`掌握电容微分伏安关系 $i = C\,dv/dt$ 与积分形式，理解“电容两端电压不能发生瞬时突变”的物理铁律`,
+      R`掌握电场储能公式 $w = \frac{1}{2}Cv^2$ 及直流稳态下电容等效为开路的分析方法`,
+      '熟练计算电容串并联等效容量与串联反比分压，理解其与电阻串并联公式“镜像相反”的物理本质',
+    ],
     next_lesson: 'W4-L2',
     next_lesson_title: '电感的物理结构、电磁感应伏安关系与磁场储能',
   },
@@ -93,12 +100,14 @@ const W4_L1: StageLesson = {
       {
         id: L1,
         label: '01 3D 瓷片/电解电容封装与面包板插法',
+        short: '01 封装插法',
         render_mode: '3D_THREEJS_DEVICE_AND_BREADBOARD',
         caption: `01 3D 器件与面包板：切换 104 瓷片电容（无极性）/ 100 μF 25 V 铝电解电容（有极性），看白条负极与长短脚；${SUPPLY}经导线接电源轨，演练正确插接、反接报警（防爆阀鼓包）、两脚同列短路，以及断电后用 1 kΩ 电阻放电。`,
       },
       {
         id: L2,
         label: '02 3D 平行板剥壳与电场储能透视',
+        short: '02 剥壳储能',
         render_mode: '3D_THREEJS_TEARDOWN',
         caption:
           '02 3D 平行板剥壳透视：滑块调极板面积 A、间距 d 与电压 v，切换电介质（空气 1 / 聚酯 3 / 云母 5 / 陶瓷 1000），实时看 C = εr·ε0·A/d、±q 电荷密度、电场线疏密与偶极子极化；左下角弹性隔膜水箱同步鼓起。',
@@ -106,6 +115,7 @@ const W4_L1: StageLesson = {
       {
         id: L3,
         label: '03 2D 原理图与分段线性 v(t)↔i(t) 微积分波形联动',
+        short: '03 v↔i 波形',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '03 v(t)、i(t)、w(t) 三通道对齐波形：拖时间游标读 dv/dt、i = C·dv/dt 与 w = ½Cv²；例题 2 可把上升时间 Δt 压向 0 做斜率突变压力测试，例题 3 由电流积分求电压（可切换“漏加 v(0)”）。',
@@ -113,6 +123,7 @@ const W4_L1: StageLesson = {
       {
         id: L4,
         label: '04 串并联等效与直流稳态开路分析台',
+        short: '04 串并联稳态',
         render_mode: '2D_INTERACTIVE_SVG',
         caption:
           '04 直流稳态与串并联分析台：例题 4 与实战题一键把电容换成开路虚线、标出零电流支路与节点电压；例题 5 混联电容可点击换容量、逐级化简，并与同数字电阻的镜像公式对照。',
@@ -862,6 +873,8 @@ const W4_L1: StageLesson = {
       quiz: [
         {
           id: 'w4l1_q1',
+          concept: '电解电容极性与耐压',
+          review_act: 2,
           question: '你在 9 V 直流面包板电路中需要接入一颗 100 μF 铝电解电容。以下选型与插法完全正确且安全的是哪一项？',
           options: [
             {
@@ -890,6 +903,8 @@ const W4_L1: StageLesson = {
         },
         {
           id: 'w4l1_q2',
+          concept: '电容伏安关系与电压连续',
+          review_act: 4,
           question: '一个 C = 10 μF 的理想电容两端电压在 2 ms 内从 2 V 线性上升到 10 V。此期间流入电容的电流大小以及为什么电容电压不能发生瞬时突变，下列说法正确的是？',
           options: [
             { key: 'A', text: R`电流为 40 mA；因为电压瞬时突变意味着 $dv/dt \to \infty$，需要无穷大电流，物理上不可实现`, correct: true },
@@ -919,6 +934,8 @@ const W4_L1: StageLesson = {
         },
         {
           id: 'w4l1_q3',
+          concept: '直流稳态与电场储能',
+          review_act: 6,
           question: '两个完全相同的 50 μF 电容在直流稳态下，电容 A 两端电压为 4 V，电容 B 两端电压为 8 V。关于两者的稳态电流与储能对比，正确的是？',
           options: [
             {
@@ -948,6 +965,8 @@ const W4_L1: StageLesson = {
         },
         {
           id: 'w4l1_q4',
+          concept: '电容串联反比分压',
+          review_act: 7,
           question: '将一颗 30 μF 电容与一颗 60 μF 电容串联后接到 12 V 直流电源上（初始均未充电）。稳定后两者的总等效电容 Ceq 以及 30 μF 电容分得的电压分别是多少？',
           options: [
             {
